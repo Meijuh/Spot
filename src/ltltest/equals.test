@@ -46,6 +46,10 @@ run 0 ../equals 'a & b' 'b & a & a'
 run 0 ../equals 'a & b & (c |(f U g)|| e)' \
                 'b & a & a & (c | e |(f U g)| e | c) & b'
 run 0 ../equals 'a & a' 'a'
+run 0 ../equals 'a & a & true' 'a'
+run 0 ../equals 'a & false & a' 'false'
+run 0 ../equals 'a | false | a' 'a'
+run 0 ../equals 'true | a | a' 'true'
 
 # other formulae which are not
 run 1 ../equals 'a' 'b'

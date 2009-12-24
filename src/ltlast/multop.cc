@@ -118,6 +118,11 @@ namespace spot
 
     multop::map multop::instances;
 
+    // We match equivalent formulae modulo "ACI rules"
+    // (i.e. associativity, commutativity and idempotence of the
+    // operator).  For instance If `+' designate the OR operator and
+    // `0' is false (the neutral element for `+') , then `f+f+0' is
+    // equivalent to `f'.
     formula*
     multop::instance(type op, vec* v)
     {
@@ -149,17 +154,43 @@ namespace spot
 
       std::sort(v->begin(), v->end(), formula_ptr_less_than());
 
+      formula* neutral;
+      formula* abs;
+      switch (op)
+	{
+	case And:
+	  neutral = constant::true_instance();
+	  abs = constant::false_instance();
+	  break;
+	case Or:
+	  neutral = constant::false_instance();
+	  abs = constant::true_instance();
+	  break;
+	default:
+	  neutral = 0;
+	  abs = 0;
+	  break;
+	}
+
       // Remove duplicates.  We can't use std::unique(), because we
-      // must destroy() any formula we drop.
+      // must destroy() any formula we drop.  Also ignore neutral
+      // elements and handle absorbent elements.
       {
 	formula* last = 0;
 	vec::iterator i = v->begin();
 	while (i != v->end())
 	  {
-	    if (*i == last)
+	    if ((*i == neutral) || (*i == last))
 	      {
 		(*i)->destroy();
 		i = v->erase(i);
+	      }
+	    else if (*i == abs)
+	      {
+		for (i = v->begin(); i != v->end(); ++i)
+		  (*i)->destroy();
+		delete v;
+		return abs;
 	      }
 	    else
 	      {
@@ -172,15 +203,8 @@ namespace spot
       if (s == 0)
 	{
 	  delete v;
-	  switch (op)
-	    {
-	    case And:
-	      return constant::true_instance();
-	    case Or:
-	      return constant::false_instance();
-	    }
-	  /* Unreachable code.  */
-	  assert(0);
+	  assert(neutral != 0);
+	  return neutral;
 	}
       else if (s == 1)
 	{
