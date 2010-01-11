@@ -1,4 +1,4 @@
-## Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+## Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement de
 ## l'Epita (LRDE).
 ## Copyright (C) 2004, 2005, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -29,6 +29,7 @@ ltlvisitdir = $(pkgincludedir)/ltlvisit
 ltlvisit_HEADERS = \
   apcollect.hh \
   basicreduce.hh \
+  consterm.hh \
   contain.hh \
   clone.hh \
   destroy.hh \
@@ -49,6 +50,7 @@ noinst_LTLIBRARIES = libltlvisit.la
 libltlvisit_la_SOURCES = \
   apcollect.cc \
   basicreduce.cc \
+  consterm.cc \
   contain.cc \
   clone.cc \
   destroy.cc \
