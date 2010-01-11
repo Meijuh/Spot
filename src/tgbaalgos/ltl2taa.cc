@@ -102,6 +102,9 @@ namespace spot
 	  }
 	  case constant::False:
 	    return;
+	  case constant::EmptyWord:
+	    assert(!"unsupported operator");
+	    return;
 	}
 	/* Unreachable code.  */
 	assert(0);
@@ -138,7 +141,9 @@ namespace spot
 	    succ_ = v.succ_;
 	    return;
 	  case unop::Finish:
+	  case unop::Star:
 	    assert(!"unsupported operator");
+	    return;
 	}
 	/* Unreachable code.  */
 	assert(0);
@@ -312,6 +317,9 @@ namespace spot
 		res_->add_condition(t, i->condition->clone());
 		succ_.push_back(*i);
 	      }
+	    return;
+	  case multop::Concat:
+	    assert(!"unsupported operator");
 	    return;
 	}
 	/* Unreachable code.  */

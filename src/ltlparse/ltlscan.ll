@@ -1,7 +1,7 @@
 /* Copyright (C) 2010, 2011, Laboratoire de Recherche et Développement de
 ** l'Epita (LRDE).
 ** Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-** département Systèmes Répartis Coopératifs (SRC), Université Pierre
+** département Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC), Université Pierre
 ** et Marie Curie.
 **
 ** This file is part of Spot, a model checking library.
@@ -75,6 +75,8 @@ flex_set_buffer(const char* buf)
   /* ~ comes from Goal, ! from everybody else */
 "!"|"~"				BEGIN(0); return token::OP_NOT;
 
+"#e"				BEGIN(0); return token::CONST_EMPTYWORD;
+
   /* & and | come from Spin.  && and || from LTL2BA.
      /\, \/, and xor are from LBTT.
      --> and <--> come from Goal.  */
@@ -83,6 +85,8 @@ flex_set_buffer(const char* buf)
 "^"|"xor"			BEGIN(0); return token::OP_XOR;
 "=>"|"->"|"-->"			BEGIN(0); return token::OP_IMPLIES;
 "<=>"|"<->"|"<-->"		BEGIN(0); return token::OP_EQUIV;
+"*"				BEGIN(0); return token::OP_STAR;
+";"				BEGIN(0); return token::OP_CONCAT;
 
   /* <>, [], and () are used in Spin.  */
 "F"|"<>"			BEGIN(0); return token::OP_F;

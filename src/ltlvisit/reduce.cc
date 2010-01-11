@@ -256,6 +256,11 @@ namespace spot
 	    case unop::Finish:
 	      result_ = unop::instance(unop::Finish, result_);
 	      return;
+
+	    case unop::Star:
+	      result_ = unop::instance(unop::Star, result_);
+	      return;
+
 	    }
 	  /* Unreachable code.  */
 	  assert(0);
@@ -470,7 +475,8 @@ namespace spot
 	  for (unsigned i = 0; i < mos; ++i)
 	    res->push_back(recurse(mo->nth(i)));
 
-	  if (opt_ & Reduce_Syntactic_Implications)
+	  if ((opt_ & Reduce_Syntactic_Implications)
+	      && (mo->op() != multop::Concat))
 	    {
 
 	      bool removed = true;

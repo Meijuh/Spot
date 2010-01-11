@@ -1,8 +1,6 @@
-// Copyright (C) 2008, 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -73,7 +71,15 @@ namespace spot
     class formula
     {
     public:
-      formula() : count_(++max_count) {}
+      formula() : count_(max_count++)
+      {
+	// If the counter of formulae ever loops, we want to skip the
+	// first three values, because they are permanently associated
+	// to constants, and its convenient to have constants smaller
+	// than all other formulae.
+	if (max_count == 0)
+	  max_count = 3;
+      }
 
       /// Entry point for vspot::ltl::visitor instances.
       virtual void accept(visitor& v) = 0;

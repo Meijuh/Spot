@@ -174,6 +174,10 @@ namespace spot
 	      os_ << "finish";
 	      need_parent = true;
 	      break;
+	    case unop::Star:
+	      // Do not output anything yet, star is a postfix operator.
+	      need_parent = false;
+	      break;
 	    }
 
 	  top_level_ = false;
@@ -185,6 +189,9 @@ namespace spot
 
 	  if (full_parent_ && !top_level)
 	    os_ << ")";
+
+	  if (uo->op() == unop::Star)
+	    os_ << "*";
 	}
 
 	void
@@ -226,6 +233,9 @@ namespace spot
 	      break;
 	    case multop::And:
 	      ch = " & ";
+	      break;
+	    case multop::Concat:
+	      ch = ";";
 	      break;
 	    }
 
@@ -351,6 +361,11 @@ namespace spot
 	      os_ << "finish";
 	      need_parent = true;
 	      break;
+	    case unop::Star:
+	      // Do not output anything yet, star is a postfix operator.
+	      // FIXME: is there a better way to output "Star" for Spin?
+	      need_parent = false;
+	      break;
 	    }
 
 	  top_level_ = false;
@@ -359,6 +374,8 @@ namespace spot
 	  uo->child()->accept(*this);
 	  if (need_parent)
 	    os_ << ")";
+	  if (uo->op() == unop::Star)
+	    os_ << "*";
 	  if (full_parent_ && !top_level)
 	    os_ << ")";
 	}
@@ -402,6 +419,9 @@ namespace spot
 	      break;
 	    case multop::And:
 	      ch = " && ";
+	      break;
+	    case multop::Concat:
+	      ch = ";";
 	      break;
 	    }
 

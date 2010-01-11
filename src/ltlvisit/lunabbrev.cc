@@ -1,7 +1,7 @@
 // Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC), Universitï¿½ Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -49,14 +49,15 @@ namespace spot
 	{
 	  /* f1 ^ f2  ==  (f1 & !f2) | (f2 & !f1) */
 	case binop::Xor:
-	  result_ = multop::instance(multop::Or,
-				     multop::instance(multop::And, f1->clone(),
-						      unop::instance(unop::Not,
-								     f2)),
-				     multop::instance(multop::And, f2->clone(),
-						      unop::instance(unop::Not,
-								     f1)));
-	  return;
+	  {
+	    formula* a = multop::instance(multop::And, f1->clone(),
+					  unop::instance(unop::Not,
+							 f2->clone()));
+	    formula* b = multop::instance(multop::And, f2,
+					  unop::instance(unop::Not, f1));
+	    result_ = multop::instance(multop::Or, a, b);
+	    return;
+	  }
 	  /* f1 => f2  ==  !f1 | f2 */
 	case binop::Implies:
 	  result_ = multop::instance(multop::Or,
@@ -64,15 +65,18 @@ namespace spot
 	  return;
 	  /* f1 <=> f2  ==  (f1 & f2) | (!f1 & !f2) */
 	case binop::Equiv:
-	  result_ = multop::instance(multop::Or,
-				     multop::instance(multop::And,
-						      f1->clone(), f2->clone()),
-				     multop::instance(multop::And,
-						      unop::instance(unop::Not,
-								     f1),
-						      unop::instance(unop::Not,
-								     f2)));
-	  return;
+	  {
+	    formula* f1c = f1->clone();
+	    formula* f2c = f2->clone();
+
+	    result_ =
+	      multop::instance(multop::Or,
+			       multop::instance(multop::And, f1c, f2c),
+			       multop::instance(multop::And,
+						unop::instance(unop::Not, f1),
+						unop::instance(unop::Not, f2)));
+	    return;
+	  }
           /* f1 U f2 == f1 U f2 */
 	  /* f1 R f2 == f1 R f2 */
           /* f1 W f2 == f1 W f2 */

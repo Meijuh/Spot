@@ -1,8 +1,8 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
+// Universitï¿½ Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -110,6 +110,8 @@ namespace spot
 	  return "And";
 	case Or:
 	  return "Or";
+	case Concat:
+	  return "Concat";
 	}
       // Unreachable code.
       assert(0);
@@ -146,13 +148,24 @@ namespace spot
 	      }
 	    else
 	      {
+		// All operator except "Concat" not commutative, so
+		// we just keep a list of the inlined arguments that
+		// should later be added to the vector.
+		// For concat we have to keep track of the order of
+		// all the arguments.
+		if (op == Concat)
+		  inlined.push_back(*i);
 		++i;
 	      }
 	  }
-	v->insert(v->end(), inlined.begin(), inlined.end());
+	if (op == Concat)
+	  *v = inlined;
+	else
+	  v->insert(v->end(), inlined.begin(), inlined.end());
       }
 
-      std::sort(v->begin(), v->end(), formula_ptr_less_than());
+      if (op != Concat)
+	std::sort(v->begin(), v->end(), formula_ptr_less_than());
 
       formula* neutral;
       formula* abs;
@@ -166,15 +179,19 @@ namespace spot
 	  neutral = constant::false_instance();
 	  abs = constant::true_instance();
 	  break;
+	case Concat:
+	  neutral = constant::empty_word_instance();
+	  abs = constant::false_instance();
+	  break;
 	default:
 	  neutral = 0;
 	  abs = 0;
 	  break;
 	}
 
-      // Remove duplicates.  We can't use std::unique(), because we
-      // must destroy() any formula we drop.  Also ignore neutral
-      // elements and handle absorbent elements.
+      // Remove duplicates (except for Concat).  We can't use
+      // std::unique(), because we must destroy() any formula we drop.
+      // Also ignore neutral elements and handle absorbent elements.
       {
 	formula* last = 0;
 	vec::iterator i = v->begin();
@@ -194,7 +211,9 @@ namespace spot
 	      }
 	    else
 	      {
-		last = *i++;
+		if (op != Concat) // Don't remove duplicates for Concat.
+		  last = *i;
+		++i;
 	      }
 	  }
       }

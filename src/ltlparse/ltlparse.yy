@@ -83,11 +83,15 @@ using namespace spot::ltl;
 %token OP_F "sometimes operator" OP_G "always operator"
 %token OP_X "next operator" OP_NOT "not operator"
 %token <str> ATOMIC_PROP "atomic proposition"
+%token OP_STAR "star operator" OP_CONCAT "concat operator"
 %token CONST_TRUE "constant true" CONST_FALSE "constant false"
-%token END_OF_INPUT "end of formula"
+%token END_OF_INPUT "end of formula" CONST_EMPTYWORD "empty word"
 %token OP_POST_NEG "negative suffix" OP_POST_POS "positive suffix"
 
 /* Priorities.  */
+
+/* Low priority regex operator. */
+%left OP_CONCAT
 
 /* Logical operators.  */
 %left OP_IMPLIES OP_EQUIV
@@ -99,6 +103,9 @@ using namespace spot::ltl;
 %left OP_U OP_R OP_M OP_W
 %nonassoc OP_F OP_G
 %nonassoc OP_X
+
+/* High priority regex operator. */
+%nonassoc OP_STAR
 
 /* Not has the most important priority after Wring's `=0' and `=1'.  */
 %nonassoc OP_NOT
@@ -194,6 +201,8 @@ subformula: ATOMIC_PROP
 	      { $$ = constant::true_instance(); }
 	    | CONST_FALSE
 	      { $$ = constant::false_instance(); }
+	    | CONST_EMPTYWORD
+	      { $$ = constant::empty_word_instance(); }
 	    | PAR_OPEN subformula PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN error PAR_CLOSE
@@ -220,6 +229,10 @@ subformula: ATOMIC_PROP
 	      { $$ = multop::instance(multop::Or, $1, $3); }
 	    | subformula OP_OR error
               { missing_right_binop($$, $1, @2, "or operator"); }
+	    | subformula OP_CONCAT subformula
+	      { $$ = multop::instance(multop::Concat, $1, $3); }
+	    | subformula OP_CONCAT error
+              { missing_right_binop($$, $1, @2, "concat operator"); }
 	    | subformula OP_XOR subformula
 	      { $$ = binop::instance(binop::Xor, $1, $3); }
 	    | subformula OP_XOR error
@@ -264,6 +277,8 @@ subformula: ATOMIC_PROP
 	      { $$ = unop::instance(unop::Not, $2); }
 	    | OP_NOT error
 	      { missing_right_op($$, @1, "not operator"); }
+	    | subformula OP_STAR
+	      { $$ = unop::instance(unop::Star, $1); }
 ;
 
 %%

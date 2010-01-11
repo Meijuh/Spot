@@ -1,8 +1,6 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -38,7 +36,7 @@ namespace spot
     class constant : public formula
     {
     public:
-      enum type { False, True };
+      enum type { False, True, EmptyWord };
       virtual void accept(visitor& v);
       virtual void accept(const_visitor& v) const;
 
@@ -50,9 +48,11 @@ namespace spot
       virtual std::string dump() const;
 
       /// Get the sole instance of spot::ltl::constant::constant(True).
-      static constant* true_instance();
+      static constant* true_instance() { return &true_instance_; }
       /// Get the sole instance of spot::ltl::constant::constant(False).
-      static constant* false_instance();
+      static constant* false_instance() { return &false_instance_; }
+      /// Get the sole instance of spot::ltl::constant::constant(EmptyWord).
+      static constant* empty_word_instance() { return &empty_word_instance_; }
 
     protected:
       constant(type val);
@@ -60,6 +60,12 @@ namespace spot
 
     private:
       type val_;
+
+      static constant true_instance_;
+      static constant false_instance_;
+      static constant empty_word_instance_;
+      // If you add new constants here, be sure to update the
+      // formula::formula() constructor.
     };
 
   }

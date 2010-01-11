@@ -1,8 +1,8 @@
 // Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2007 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
+// Universitï¿½ Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -241,6 +241,10 @@ namespace spot
 	    case unop::Finish:
 	      result_ = unop::instance(unop::Finish, result_);
 	      return;
+
+	    case unop::Star:
+	      result_ = unop::instance(unop::Star, result_);
+	      return;
 	    }
 	  /* Unreachable code.  */
 	  assert(0);
@@ -477,7 +481,7 @@ namespace spot
 					|| b->op() == binop::M)
 				  && b->first() == a)
 				{
-				  binop* r =
+				  formula* r =
 				    binop::instance(binop::M,
 						    a->clone(),
 						    b->second()->clone());
@@ -490,7 +494,7 @@ namespace spot
 					     || b->op() == binop::U)
 				       && b->second() == a)
 				{
-				  binop* r =
+				  formula* r =
 				    binop::instance(binop::U,
 						    b->first()->clone(),
 						    a->clone());
@@ -656,7 +660,7 @@ namespace spot
 					|| b->op() == binop::W)
 				  && b->first() == a)
 				{
-				  binop* r =
+				  formula* r =
 				    binop::instance(binop::W,
 						    a->clone(),
 						    b->second()->clone());
@@ -778,6 +782,9 @@ namespace spot
 		  (*i)->destroy();
 		}
 
+	      break;
+	    case multop::Concat:
+	      std::copy(res->begin(), res->end(), tmpOther->end());
 	      break;
 	    }
 

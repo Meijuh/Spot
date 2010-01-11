@@ -24,6 +24,8 @@
 #include <cassert>
 #include <utility>
 #include "binop.hh"
+#include "unop.hh"
+#include "constant.hh"
 #include "visitor.hh"
 #include <iostream>
 
@@ -127,25 +129,127 @@ namespace spot
 
     binop::map binop::instances;
 
-    binop*
+    formula*
     binop::instance(type op, formula* first, formula* second)
     {
       // Sort the operands of commutative operators, so that for
       // example the formula instance for 'a xor b' is the same as
       // that for 'b xor a'.
+
+      /// Trivial identities:
       switch (op)
 	{
 	case Xor:
+	  {
+	    // Xor is commutative: sort operands.
+	    formula_ptr_less_than cmp;
+	    if (cmp(second, first) > 0)
+	      std::swap(first, second);
+	  }
+	  //   - (1 ^ Exp) = !Exp
+	  //   - (0 ^ Exp) = Exp
+	  if (first == constant::true_instance())
+	    return unop::instance(unop::Not, second);
+	  if (first == constant::false_instance())
+	    return second;
+	  // We expect constants to appear first, because they are
+	  // instantiated first.
+	  assert(second != constant::false_instance());
+	  assert(second != constant::true_instance());
+	  break;
 	case Equiv:
-	  if (second < first)
-	    std::swap(first, second);
+	  {
+	    // Equiv is commutative: sort operands.
+	    formula_ptr_less_than cmp;
+	    if (cmp(second, first) > 0)
+	      std::swap(first, second);
+	  }
+	  //   - (0 <=> Exp) = !Exp
+	  //   - (1 <=> Exp) = Exp
+	  if (first == constant::false_instance())
+	    return unop::instance(unop::Not, second);
+	  if (first == constant::true_instance())
+	    return second;
+	  // We expect constants to appear first, because they are
+	  // instantiated first.
+	  assert(second != constant::false_instance());
+	  assert(second != constant::true_instance());
 	  break;
 	case Implies:
+	  ///   - (1 => Exp) = Exp
+	  ///   - (0 => Exp) = 0
+	  ///   - (Exp => 1) = 1
+	  ///   - (Exp => 0) = !Exp
+	  if (first == constant::true_instance())
+	    return second;
+	  if (first == constant::false_instance())
+	    {
+	      second->destroy();
+	      return first;
+	    }
+	  if (second == constant::true_instance())
+	    {
+	      first->destroy();
+	      return second;
+	    }
+	  if (second == constant::false_instance())
+	    return unop::instance(unop::Not, first);
+	  break;
 	case U:
-	case R:
+	  ///   - (Exp U 1) = 1
+	  ///   - (Exp U 0) = 0
+	  ///   - (0 U Exp) = Exp
+	  if (second == constant::true_instance()
+	      || second == constant::false_instance()
+	      || first == constant::false_instance())
+	    {
+	      first->destroy();
+	      return second;
+	    }
+	  break;
 	case W:
+	  ///   - (Exp W 1) = 1
+	  ///   - (0 W Exp) = Exp
+	  ///   - (1 W Exp) = 1
+	  if (second == constant::true_instance()
+	      || first == constant::false_instance())
+	    {
+	      first->destroy();
+	      return second;
+	    }
+	  if (first == constant::true_instance())
+	    {
+	      second->destroy();
+	      return first;
+	    }
+	  break;
+	case R:
+	  ///   - (Exp R 1) = 1
+	  ///   - (Exp R 0) = 0
+	  ///   - (1 R Exp) = Exp
+	  if (second == constant::true_instance()
+	      || second == constant::false_instance()
+	      || first == constant::true_instance())
+	    {
+	      first->destroy();
+	      return second;
+	    }
+	  break;
 	case M:
-	  // Non commutative operators.
+	  ///   - (Exp M 0) = 0
+	  ///   - (1 M Exp) = Exp
+	  ///   - (0 M Exp) = 0
+	  if (second == constant::false_instance()
+	      || first == constant::true_instance())
+	    {
+	      first->destroy();
+	      return second;
+	    }
+	  if (first == constant::false_instance())
+	    {
+	      second->destroy();
+	      return first;
+	    }
 	  break;
 	}
 

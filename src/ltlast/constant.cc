@@ -1,8 +1,8 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
+// Universitï¿½ Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,6 +29,10 @@ namespace spot
 {
   namespace ltl
   {
+    constant constant::true_instance_(constant::True);
+    constant constant::false_instance_(constant::False);
+    constant constant::empty_word_instance_(constant::EmptyWord);
+
     constant::constant(type val)
       : val_(val)
     {
@@ -47,6 +51,8 @@ namespace spot
 	  return "constant(1)";
 	case False:
 	  return "constant(0)";
+	case EmptyWord:
+	  return "constant(e)";
 	}
       // Unreachable code.
       assert(0);
@@ -80,24 +86,12 @@ namespace spot
 	  return "1";
 	case False:
 	  return "0";
+	case EmptyWord:
+	  return "#e";
 	}
       // Unreachable code.
       assert(0);
       return 0;
-    }
-
-    constant*
-    constant::false_instance()
-    {
-      static constant f(constant::False);
-      return &f;
-    }
-
-    constant*
-    constant::true_instance()
-    {
-      static constant t(constant::True);
-      return &t;
     }
   }
 }

@@ -96,6 +96,6 @@ expect_ce 'Fa & Xb & GFc & Gd' 1
 expect_ce 'Fa & Xa & GFc & Gc' 2
 expect_ce 'Fc & X(a | Xb) & GF(a | Xb) & Gc' 1
 expect_ce '!((FF a) <=> (F x))' 3
-expect_no '!((FF a) <=> (F a))' 4
+expect_no '!((FF a) <=> (F a))' 3
 expect_no 'Xa && (!a U b) && !b && X!b' 4
 expect_no '(a U !b) && Gb' 3

@@ -71,6 +71,8 @@ namespace spot
 	  case constant::False:
 	    res_ = bddfalse;
 	    return;
+	  case constant::EmptyWord:
+	    assert(!"unsupported operator");
 	  }
 	/* Unreachable code.  */
 	assert(0);
@@ -99,6 +101,7 @@ namespace spot
 	  case unop::X:
 	  case unop::F:
           case unop::G:
+	  case unop::Star:
 	    assert(!"unsupported operator");
 	  }
 	/* Unreachable code.  */
@@ -152,6 +155,8 @@ namespace spot
 	    op = bddop_or;
 	    res_ = bddfalse;
 	    break;
+	  case multop::Concat:
+	    assert(!"unsupported operator");
 	  }
 	assert(op != -1);
 	unsigned s = node->size();

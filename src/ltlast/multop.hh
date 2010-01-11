@@ -1,8 +1,8 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
+// Universitï¿½ Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -38,12 +38,10 @@ namespace spot
 
     /// \brief Multi-operand operators.
     /// \ingroup ltl_ast
-    ///
-    /// These operators are considered commutative and associative.
     class multop : public ref_formula
     {
     public:
-      enum type { Or, And };
+      enum type { Or, And, Concat };
 
       /// List of formulae.
       typedef std::vector<formula*> vec;
@@ -51,29 +49,46 @@ namespace spot
       /// \brief Build a spot::ltl::multop with two children.
       ///
       /// If one of the children itself is a spot::ltl::multop
-      /// with the same type, it will be merged.  I.e., children
-      /// if that child will be added, and that child itself will
+      /// with the same type, it will be inlined.  I.e., children
+      /// of that child will be added, and that child itself will
       /// be destroyed.  This allows incremental building of
       /// n-ary ltl::multop.
       ///
       /// This functions can perform slight optimizations and
-      /// may not return an ltl::multop objects.  For instance
-      /// if \c first and \c second are equal, that formula is
-      /// returned as-is.
+      /// may not return an ltl::multop object. See the other
+      /// instance function for the list of rewritings.
       static formula* instance(type op, formula* first, formula* second);
 
       /// \brief Build a spot::ltl::multop with many children.
       ///
       /// Same as the other instance() function, but take a vector of
-      /// formula in argument.  This vector is acquired by the
+      /// formulae as argument.  This vector is acquired by the
       /// spot::ltl::multop class, the caller should allocate it with
       /// \c new, but not use it (especially not destroy it) after it
       /// has been passed to spot::ltl::multop.
       ///
-      /// This functions can perform slight optimizations and
-      /// may not return an ltl::multop objects.  For instance
-      /// if the vector contain only one unique element, this
-      /// this formula will be returned as-is.
+      /// All operators (Or, And, Concat) are associative, and are
+      /// automatically inlined.  Or and And are commutative, so their
+      /// argument are also sorted, to ensure that "a & b" is equal to
+      /// "b & a".  For Or and And, duplicate arguments are also
+      /// removed.
+      ///
+      /// Furthermore this function can perform slight optimizations
+      /// and may not return an ltl::multop object.  For instance if
+      /// the vector contains only one unique element, this this
+      /// formula will be returned as-is.  Neutral and absorbent element
+      /// are also taken care of.  The following rewriting are performed
+      /// (the left patterns are rewritten as shown on the right):
+      ///
+      /// - Concat(Exps1...,#e,Exps2...) = Concat(Exps1...,Exps2...)
+      /// - Concat(Exps1...,0,Exps2...) = 0
+      /// - Concat(Exp) = Exp
+      /// - And(Exps1...,1,Exps2...) = And(Exps1...,Exps2...)
+      /// - And(Exps1...,0,Exps2...) = 0
+      /// - And(Exp) = Exp
+      /// - Or(Exps1...,1,Exps2...) = 1
+      /// - Or(Exps1...,0,Exps2...) = And(Exps1...,Exps2...)
+      /// - Or(Exp) = Exp
       static formula* instance(type op, vec* v);
 
       virtual void accept(visitor& v);

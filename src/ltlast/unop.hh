@@ -1,8 +1,8 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
+// Universitï¿½ Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -40,11 +40,40 @@ namespace spot
     class unop : public ref_formula
     {
     public:
-      enum type { Not, X, F, G, Finish }; // Finish is used in ELTL formulae.
+      enum type {
+	// LTL
+	Not, X, F, G,
+	// ELTL
+	Finish,
+	// Kleene Star
+	Star,
+	};
 
-      /// Build an unary operator with operation \a op and
+      /// \brief Build an unary operator with operation \a op and
       /// child \a child.
-      static unop* instance(type op, formula* child);
+      ///
+      /// The following trivial simplifications are performed
+      /// automatically (the left expression is rewritten as the right
+      /// expression):
+      ///   - 0* = #e
+      ///   - #e* = #e
+      ///   - Exp** = Exp*
+      ///   - FF(Exp) = F(Exp)
+      ///   - GG(Exp) = G(Exp)
+      ///   - F(0) = 0
+      ///   - G(0) = 0
+      ///   - F(1) = 1
+      ///   - G(1) = 1
+      ///   - F(#e) = 1
+      ///   - G(#e) = 1
+      ///   - !1 = 0
+      ///   - !0 = 1
+      ///   - !!Exp = Exp
+      ///
+      /// This rewriting implies that it is not possible to build an
+      /// LTL formula object that is SYNTACTICALLY equal to one of
+      /// these left expressions.
+      static formula* instance(type op, formula* child);
 
       virtual void accept(visitor& v);
       virtual void accept(const_visitor& v) const;

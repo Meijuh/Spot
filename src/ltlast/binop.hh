@@ -56,9 +56,37 @@ namespace spot
 		  M  //< strong release (dual of weak until)
       };
 
-      /// Build an unary operator with operation \a op and
+      /// \brief Build a unary operator with operation \a op and
       /// children \a first and \a second.
-      static binop* instance(type op, formula* first, formula* second);
+      ///
+      /// Some reordering will be performed on arguments of commutative
+      /// operators (Xor and Equiv) to ensure that for instance (a <=> b)
+      /// is the same formula as (b <=> a).
+      ///
+      /// Furthermore, the following trivial simplifications are
+      /// performed (the left formula is rewritten as the right
+      /// formula):
+      ///   - (1 => Exp) = Exp
+      ///   - (0 => Exp) = 0
+      ///   - (Exp => 1) = 1
+      ///   - (Exp => 0) = !Exp
+      ///   - (1 ^ Exp) = !Exp
+      ///   - (0 ^ Exp) = Exp
+      ///   - (0 <=> Exp) = !Exp
+      ///   - (1 <=> Exp) = Exp
+      ///   - (Exp U 1) = 1
+      ///   - (Exp U 0) = 0
+      ///   - (0 U Exp) = Exp
+      ///   - (Exp W 1) = 1
+      ///   - (0 W Exp) = Exp
+      ///   - (1 W Exp) = 1
+      ///   - (Exp R 1) = 1
+      ///   - (Exp R 0) = 0
+      ///   - (1 R Exp) = Exp
+      ///   - (Exp M 0) = 0
+      ///   - (1 M Exp) = Exp
+      ///   - (0 M Exp) = 0
+      static formula* instance(type op, formula* first, formula* second);
 
       virtual void accept(visitor& v);
       virtual void accept(const_visitor& v) const;

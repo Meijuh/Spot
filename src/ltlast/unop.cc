@@ -1,8 +1,8 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
+// Universitï¿½ Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -25,6 +25,7 @@
 #include "visitor.hh"
 #include <cassert>
 #include <iostream>
+#include "constant.hh"
 
 namespace spot
 {
@@ -98,6 +99,8 @@ namespace spot
 	  return "G";
 	case Finish:
 	  return "Finish";
+	case Star:
+	  return "Star";
 	}
       // Unreachable code.
       assert(0);
@@ -106,9 +109,78 @@ namespace spot
 
     unop::map unop::instances;
 
-    unop*
+    formula*
     unop::instance(type op, formula* child)
     {
+
+      // Some trivial simplifications.
+      switch (op)
+	{
+	  // We have (0*) == (#e)
+	  //         (#e*) == (#e)
+	case Star:
+	  if (child == constant::false_instance()
+	      || child == constant::empty_word_instance())
+	    return constant::empty_word_instance();
+
+	  // -- fall thru --
+
+	case F:
+	case G:
+	  {
+	    // F, G, * are idempotent.
+	    unop* u = dynamic_cast<unop*>(child);
+	    if (u && u->op() == op)
+	      return u;
+
+	    if (op == Star)
+	      break;
+
+	    // F(0) = G(0) = 0
+	    // F(1) = G(1) = 1
+	    if (child == constant::false_instance()
+		|| child == constant::true_instance())
+	      return child;
+	    // F(#e) = G(#e) = 1
+	    if (child == constant::empty_word_instance())
+	      return constant::true_instance();
+	  }
+
+
+	case Not:
+	  {
+	    // !1 = 0
+	    if (child == constant::true_instance())
+	      return constant::false_instance();
+	    // !0 = 1
+	    if (child == constant::false_instance())
+	      return constant::true_instance();
+	    // Not is an involution.
+	    unop* u = dynamic_cast<unop*>(child);
+	    if (u && u->op() == op)
+	      {
+		formula* c = u->child()->clone();
+		u->destroy();
+		return c;
+	      }
+	    break;
+	  }
+
+	case X:
+	  // X(1) = 1,  X(0) = 0
+	  if (child == constant::true_instance()
+	      || child == constant::false_instance())
+	    return child;
+	  // X(#e) = 1
+	  if (child == constant::empty_word_instance())
+	    return constant::true_instance();
+	  break;
+
+	case Finish:
+	  // No simplifications for Finish.
+	  break;
+	}
+
       pair p(op, child);
       map::iterator i = instances.find(p);
       if (i != instances.end())

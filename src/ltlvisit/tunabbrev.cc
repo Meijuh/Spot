@@ -1,4 +1,4 @@
-// Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2003, 2009  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -42,6 +42,7 @@ namespace spot
 	case unop::Finish:
 	case unop::X:
 	case unop::Not:
+	case unop::Star:
 	  this->super::visit(uo);
 	  return;
 	case unop::F:

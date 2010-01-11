@@ -74,6 +74,8 @@ namespace spot
 	    case constant::False:
 	      result_ = false;
 	      return;
+	    case constant::EmptyWord:
+	      result_ = true;
 	    }
 	}
 
@@ -104,6 +106,8 @@ namespace spot
 		result_ = true;
 	      return;
 	    case unop::Finish:
+	      return;
+	    case unop::Star:
 	      return;
 	    }
 	  /* Unreachable code.  */
@@ -195,6 +199,8 @@ namespace spot
 		if (syntactic_implication(f, mo->nth(i)))
 		  result_ = true;
 	      break;
+	    case multop::Concat:
+	      break;
 	    }
 	}
 
@@ -230,6 +236,15 @@ namespace spot
 	  return false;
 	}
 
+	bool
+	special_case_check(const formula* f2)
+	{
+	  const binop* f2b = dynamic_cast<const binop*>(f2);
+	  if (!f2b)
+	    return false;
+	  return special_case(f2b);
+	}
+
 	int
 	result() const
 	{
@@ -255,6 +270,9 @@ namespace spot
 	      result_ = v.result();
 	      return;
 	    case constant::False:
+	      result_ = true;
+	      return;
+	    case constant::EmptyWord:
 	      result_ = true;
 	      return;
 	    }
@@ -283,10 +301,10 @@ namespace spot
 	    case unop::F:
 	      {
 		/* F(a) = true U a */
-		const binop* tmp = binop::instance(binop::U,
-						   constant::true_instance(),
-						   f1->clone());
-		if (special_case(tmp))
+		const formula* tmp = binop::instance(binop::U,
+						     constant::true_instance(),
+						     f1->clone());
+		if (special_case_check(tmp))
 		  {
 		    result_ = true;
 		    tmp->destroy();
@@ -300,10 +318,10 @@ namespace spot
 	    case unop::G:
 	      {
 		/* G(a) = false R a */
-		const binop* tmp = binop::instance(binop::R,
-						   constant::false_instance(),
-						   f1->clone());
-		if (special_case(tmp))
+		const formula* tmp = binop::instance(binop::R,
+						     constant::false_instance(),
+						     f1->clone());
+		if (special_case_check(tmp))
 		  {
 		    result_ = true;
 		    tmp->destroy();
@@ -315,6 +333,8 @@ namespace spot
 		return;
 	      }
 	    case unop::Finish:
+	      return;
+	    case unop::Star:
 	      return;
 	    }
 	  /* Unreachable code.  */
@@ -430,6 +450,8 @@ namespace spot
 		if (!syntactic_implication(mo->nth(i), f))
 		  return;
 	      result_ = true;
+	      break;
+	    case multop::Concat:
 	      break;
 	    }
 	}

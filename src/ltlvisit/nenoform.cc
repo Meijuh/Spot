@@ -76,6 +76,10 @@ namespace spot
 	    case constant::False:
 	      result_ = constant::true_instance();
 	      return;
+	    case constant::EmptyWord:
+	      result_ = unop::instance(unop::Not,
+				       constant::empty_word_instance());
+	      return;
 	    }
 	  /* Unreachable code.  */
 	  assert(0);
@@ -104,9 +108,15 @@ namespace spot
 	      result_ = unop::instance(negated_ ? unop::F : unop::G,
 				       recurse(f));
 	      return;
-
 	    case unop::Finish:
+	      /* Finish(x) is not simplified */
 	      result_ = unop::instance(unop::Finish, recurse_(f, false));
+	      if (negated_)
+		result_ = unop::instance(unop::Not, result_);
+	      return;
+	    case unop::Star:
+	      /* !(a*) is not simplified */
+	      result_ = unop::instance(unop::Star, recurse_(f, false));
 	      if (negated_)
 		result_ = unop::instance(unop::Not, result_);
 	      return;
@@ -184,9 +194,9 @@ namespace spot
 	void
 	visit(multop* mo)
 	{
+	  multop::type op = mo->op();
 	  /* !(a & b & c) == !a | !b | !c  */
 	  /* !(a | b | c) == !a & !b & !c  */
-	  multop::type op = mo->op();
 	  if (negated_)
 	    switch (op)
 	      {
@@ -196,12 +206,25 @@ namespace spot
 	      case multop::Or:
 		op = multop::And;
 		break;
+	      case multop::Concat:
+		break;
 	      }
 	  multop::vec* res = new multop::vec;
 	  unsigned mos = mo->size();
-	  for (unsigned i = 0; i < mos; ++i)
-	    res->push_back(recurse(mo->nth(i)));
-	  result_ = multop::instance(op, res);
+	  if (op != multop::Concat)
+	    {
+	      for (unsigned i = 0; i < mos; ++i)
+		res->push_back(recurse(mo->nth(i)));
+	      result_ = multop::instance(op, res);
+	    }
+	  else
+	    {
+	      for (unsigned i = 0; i < mos; ++i)
+		res->push_back(recurse_(mo->nth(i), false));
+	      result_ = multop::instance(op, res);
+	      if (negated_)
+		result_ = unop::instance(unop::Not, result_);
+	    }
 	}
 
 	formula*

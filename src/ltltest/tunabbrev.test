@@ -1,8 +1,8 @@
 #! /bin/sh
-# Copyright (C) 2009 Laboratoire de Recherche et DÃ©veloppement
+# Copyright (C) 2009, 2010 Laboratoire de Recherche et DÃ©veloppement
 # de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC), Universitï¿½ Pierre
 # et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
@@ -55,5 +55,6 @@ run 0 ../tunabbrev '(a ^ b) | (b ^ c)' \
 run 0 ../tunabbrev 'G a ' 'false R a'
 run 0 ../tunabbrev 'GF a => F G(b)' \
                    '!(false R (true U a)) | (true U (false V b))'
-run 0 ../tunabbrev 'GGGGa' 'false V (false V (false V (false V a)))'
-run 0 ../tunabbrev 'FFFfalse' 'true U ((true) U (true U (false)))'
+run 0 ../tunabbrev 'GGGGa' 'false V a'
+run 0 ../tunabbrev 'FFFfalse' '0'
+run 0 ../tunabbrev 'FFFf' 'true U f'
