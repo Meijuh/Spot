@@ -33,6 +33,8 @@ pan.*
 *.ps
 *.pdf
 *.toc
+massif.*
+*.zip
 *.S
 *.tgba
 *.zip
