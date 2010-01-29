@@ -62,7 +62,9 @@ namespace spot
 	    case binop::W:
 	    case binop::M:
 	    case binop::R:
-	      result_ = false;
+	    case binop::EConcat:
+	    case binop::UConcat:
+	      assert(!"unsupported operator");
 	      break;
 	    }
 	}
@@ -77,7 +79,7 @@ namespace spot
 	    case unop::F:
 	    case unop::G:
 	    case unop::Finish:
-	      result_ = false;
+	      assert(!"unsupported operator");
 	      break;
 	    case unop::Star:
 	      result_ = true;
@@ -89,7 +91,6 @@ namespace spot
 	visit(const automatop*)
 	{
 	  assert(!"automatop not supported for constant term");
-	  result_ = false;
 	}
 
 	void

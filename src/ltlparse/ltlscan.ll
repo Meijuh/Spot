@@ -65,6 +65,8 @@ flex_set_buffer(const char* buf)
 
 "("				BEGIN(0); return token::PAR_OPEN;
 ")"				BEGIN(not_prop); return token::PAR_CLOSE;
+"{"                             BEGIN(0); return token::BRACE_OPEN;
+"}"				BEGIN(not_prop); return token::BRACE_CLOSE;
 
   /* Must go before the other operators, because the F of FALSE
      should not be mistaken with a unary F. */
@@ -87,6 +89,8 @@ flex_set_buffer(const char* buf)
 "<=>"|"<->"|"<-->"		BEGIN(0); return token::OP_EQUIV;
 "*"				BEGIN(0); return token::OP_STAR;
 ";"				BEGIN(0); return token::OP_CONCAT;
+"[]->"				BEGIN(0); return token::OP_UCONCAT;
+"<>->"				BEGIN(0); return token::OP_ECONCAT;
 
   /* <>, [], and () are used in Spin.  */
 "F"|"<>"			BEGIN(0); return token::OP_F;

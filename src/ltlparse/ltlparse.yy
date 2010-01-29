@@ -1,7 +1,5 @@
 /* Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
 ** de l'Epita (LRDE).
-/* Copyright (C) 2010 Laboratoire de Recherche et Développement de
-** l'Epita (LRDE).
 ** Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ** Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ** Université Pierre et Marie Curie.
@@ -29,6 +27,7 @@
 %name-prefix "ltlyy"
 %debug
 %error-verbose
+%expect 0
 
 %code requires
 {
@@ -76,12 +75,15 @@ using namespace spot::ltl;
 /* All tokens.  */
 
 %token PAR_OPEN "opening parenthesis" PAR_CLOSE "closing parenthesis"
+%token BRACE_OPEN "opening brace" BRACE_CLOSE "closing brace"
 %token OP_OR "or operator" OP_XOR "xor operator" OP_AND "and operator"
 %token OP_IMPLIES "implication operator" OP_EQUIV "equivalent operator"
 %token OP_U "until operator" OP_R "release operator"
 %token OP_W "weak until operator" OP_M "strong release operator"
 %token OP_F "sometimes operator" OP_G "always operator"
 %token OP_X "next operator" OP_NOT "not operator"
+%token OP_UCONCAT "universal concat operator"
+%token OP_ECONCAT "existential concat operator"
 %token <str> ATOMIC_PROP "atomic proposition"
 %token OP_STAR "star operator" OP_CONCAT "concat operator"
 %token CONST_TRUE "constant true" CONST_FALSE "constant false"
@@ -91,6 +93,8 @@ using namespace spot::ltl;
 /* Priorities.  */
 
 /* Low priority regex operator. */
+%left OP_UCONCAT OP_ECONCAT
+
 %left OP_CONCAT
 
 /* Logical operators.  */
@@ -112,7 +116,7 @@ using namespace spot::ltl;
 
 %nonassoc OP_POST_NEG OP_POST_POS
 
-%type <ltl> subformula
+%type <ltl> subformula booleanatom rationalexp bracedrationalexp
 
 %destructor { delete $$; } <str>
 %destructor { $$->destroy(); } <ltl>
@@ -145,7 +149,7 @@ result:       subformula END_OF_INPUT
 /* The reason we use `constant::false_instance()' for error recovery
    is that it isn't reference counted.  (Hence it can't leak references.)  */
 
-subformula: ATOMIC_PROP
+booleanatom: ATOMIC_PROP
 	      {
 		$$ = parse_environment.require(*$1);
 		if (! $$)
@@ -201,8 +205,63 @@ subformula: ATOMIC_PROP
 	      { $$ = constant::true_instance(); }
 	    | CONST_FALSE
 	      { $$ = constant::false_instance(); }
+
+rationalexp: booleanatom
 	    | CONST_EMPTYWORD
 	      { $$ = constant::empty_word_instance(); }
+	    | PAR_OPEN rationalexp PAR_CLOSE
+	      { $$ = $2; }
+	    | PAR_OPEN error PAR_CLOSE
+	      { error_list.push_back(parse_error(@$,
+		 "treating this parenthetical block as false"));
+		$$ = constant::false_instance();
+	      }
+	    | PAR_OPEN rationalexp END_OF_INPUT
+	      { error_list.push_back(parse_error(@1 + @2,
+				      "missing closing parenthesis"));
+		$$ = $2;
+	      }
+	    | PAR_OPEN error END_OF_INPUT
+	      { error_list.push_back(parse_error(@$,
+                    "missing closing parenthesis, "
+		    "treating this parenthetical block as false"));
+		$$ = constant::false_instance();
+	      }
+	    | rationalexp OP_AND rationalexp
+	      { $$ = multop::instance(multop::And, $1, $3); }
+	    | rationalexp OP_AND error
+              { missing_right_binop($$, $1, @2, "and operator"); }
+	    | rationalexp OP_OR rationalexp
+	      { $$ = multop::instance(multop::Or, $1, $3); }
+	    | rationalexp OP_OR error
+              { missing_right_binop($$, $1, @2, "or operator"); }
+	    | rationalexp OP_CONCAT rationalexp
+	      { $$ = multop::instance(multop::Concat, $1, $3); }
+	    | rationalexp OP_CONCAT error
+              { missing_right_binop($$, $1, @2, "concat operator"); }
+	    | rationalexp OP_STAR
+	      { $$ = unop::instance(unop::Star, $1); }
+
+bracedrationalexp: BRACE_OPEN rationalexp BRACE_CLOSE
+              { $$ = $2; }
+            | BRACE_OPEN error BRACE_CLOSE
+	      { error_list.push_back(parse_error(@$,
+		 "treating this brace block as false"));
+		$$ = constant::false_instance();
+	      }
+            | BRACE_OPEN rationalexp END_OF_INPUT
+	      { error_list.push_back(parse_error(@1 + @2,
+				      "missing closing brace"));
+		$$ = $2;
+	      }
+	    | BRACE_OPEN error END_OF_INPUT
+	      { error_list.push_back(parse_error(@$,
+                    "missing closing brace, "
+		    "treating this brace block as false"));
+		$$ = constant::false_instance();
+	      }
+
+subformula: booleanatom
 	    | PAR_OPEN subformula PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN error PAR_CLOSE
@@ -229,10 +288,6 @@ subformula: ATOMIC_PROP
 	      { $$ = multop::instance(multop::Or, $1, $3); }
 	    | subformula OP_OR error
               { missing_right_binop($$, $1, @2, "or operator"); }
-	    | subformula OP_CONCAT subformula
-	      { $$ = multop::instance(multop::Concat, $1, $3); }
-	    | subformula OP_CONCAT error
-              { missing_right_binop($$, $1, @2, "concat operator"); }
 	    | subformula OP_XOR subformula
 	      { $$ = binop::instance(binop::Xor, $1, $3); }
 	    | subformula OP_XOR error
@@ -277,8 +332,14 @@ subformula: ATOMIC_PROP
 	      { $$ = unop::instance(unop::Not, $2); }
 	    | OP_NOT error
 	      { missing_right_op($$, @1, "not operator"); }
-	    | subformula OP_STAR
-	      { $$ = unop::instance(unop::Star, $1); }
+            | bracedrationalexp OP_UCONCAT subformula
+	      { $$ = binop::instance(binop::UConcat, $1, $3); }
+            | bracedrationalexp OP_UCONCAT error
+	      { missing_right_binop($$, $1, @2, "universal concat operator"); }
+            | bracedrationalexp OP_ECONCAT subformula
+	      { $$ = binop::instance(binop::EConcat, $1, $3); }
+            | bracedrationalexp OP_ECONCAT error
+	      { missing_right_binop($$, $1, @2, "universal concat operator"); }
 ;
 
 %%

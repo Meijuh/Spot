@@ -156,6 +156,9 @@ namespace spot
 	      if (f2 == constant::false_instance())
 		ret_.is.universal = true;
 	      return;
+	    case binop::UConcat:
+	    case binop::EConcat:
+	      return;
 	    }
 	  /* Unreachable code.  */
 	  assert(0);
@@ -313,6 +316,8 @@ namespace spot
 		case binop::Xor:
 		case binop::Equiv:
 		case binop::Implies:
+		case binop::UConcat:
+		case binop::EConcat:
 		  break;
 
 		case binop::U:

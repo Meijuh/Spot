@@ -53,7 +53,9 @@ namespace spot
 		  U, //< until
 		  R, //< release (dual of until)
 		  W, //< weak until
-		  M  //< strong release (dual of weak until)
+		  M,  //< strong release (dual of weak until)
+		  EConcat, // Existential Concatenation
+		  UConcat // Universal Concatenation
       };
 
       /// \brief Build a unary operator with operation \a op and

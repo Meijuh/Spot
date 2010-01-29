@@ -174,6 +174,18 @@ namespace spot
 	      result_ = binop::instance(negated_ ? binop::W : binop::M,
 					recurse(f1), recurse(f2));
 	      return;
+	    case binop::UConcat:
+	      /* !(a []-> b) == a<>-> !b */
+	      result_ = binop::instance(negated_ ?
+					binop::EConcat : binop::UConcat,
+					recurse_(f1, false), recurse(f2));
+	      return;
+	    case binop::EConcat:
+	      /* !(a <>-> b) == a[]-> !b */
+	      result_ = binop::instance(negated_ ?
+					binop::UConcat : binop::EConcat,
+					recurse_(f1, false), recurse(f2));
+	      return;
 	    }
 	  /* Unreachable code.  */
 	  assert(0);

@@ -112,6 +112,8 @@ namespace spot
 	  case binop::R:
 	  case binop::W:
 	  case binop::M:
+	  case binop::UConcat:
+	  case binop::EConcat:
 	    assert(!"unsupported operator");
 	  }
 	/* Unreachable code.  */

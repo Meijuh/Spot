@@ -261,6 +261,8 @@ namespace spot
 	    case binop::Xor:
 	    case binop::Equiv:
 	    case binop::Implies:
+	    case binop::EConcat:
+	    case binop::UConcat:
 	      result_ = binop::instance(bo->op(),
 					basic_reduce(f1),
 					basic_reduce(f2));

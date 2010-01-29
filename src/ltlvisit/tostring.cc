@@ -103,11 +103,23 @@ namespace spot
 	visit(const binop* bo)
 	{
 	  bool top_level = top_level_;
-	  top_level_ = false;
 	  if (!top_level)
 	    os_ << "(";
 
-	  bo->first()->accept(*this);
+	  switch (bo->op())
+	    {
+	    case binop::UConcat:
+	    case binop::EConcat:
+	      os_ << "{ ";
+	      top_level_ = true;
+	      bo->first()->accept(*this);
+	      top_level_ = false;
+	      break;
+	    default:
+	      top_level_ = false;
+	      bo->first()->accept(*this);
+	      break;
+	    }
 
 	  switch (bo->op())
 	    {
@@ -131,6 +143,12 @@ namespace spot
 	      break;
 	    case binop::M:
 	      os_ << " M ";
+	      break;
+	    case binop::UConcat:
+	      os_ << " }[]-> ";
+	      break;
+	    case binop::EConcat:
+	      os_ << " }<>-> ";
 	      break;
 	    }
 
@@ -311,7 +329,17 @@ namespace spot
 	      break;
 	    case binop::R:
 	      bo->first()->accept(*this);
-	     os_ << " V ";
+	      os_ << " V ";
+	      bo->second()->accept(*this);
+	      break;
+	    case binop::UConcat:
+	      bo->first()->accept(*this);
+	      os_ << " []-> ";
+	      bo->second()->accept(*this);
+	      break;
+	    case binop::EConcat:
+	      bo->first()->accept(*this);
+	      os_ << " <>-> ";
 	      bo->second()->accept(*this);
 	      break;
 	      /* W and M are not supported by Spin */

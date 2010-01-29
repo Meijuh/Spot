@@ -1,7 +1,5 @@
 // Copyright (C) 2010 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -53,6 +51,8 @@ namespace spot
 	case binop::Xor:
 	case binop::Implies:
 	case binop::Equiv:
+	case binop::UConcat:
+	case binop::EConcat:
 	  result_ = binop::instance(op, f1, f2);
 	  return;
 	  /* true U f2 == F(f2) */

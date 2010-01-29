@@ -81,10 +81,14 @@ namespace spot
 	  /* f1 R f2 == f1 R f2 */
           /* f1 W f2 == f1 W f2 */
 	  /* f1 M f2 == f1 M f2 */
+	  /* f1 UConcat f2 == f1 UConcat f2 */
+	  /* f1 EConcat f2 == f1 EConcat f2 */
    	case binop::U:
 	case binop::R:
 	case binop::W:
 	case binop::M:
+	case binop::UConcat:
+	case binop::EConcat:
 	  result_ = binop::instance(op, f1, f2);
 	  return;
 	}

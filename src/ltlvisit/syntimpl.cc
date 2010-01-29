@@ -126,6 +126,8 @@ namespace spot
 	    case binop::Xor:
 	    case binop::Equiv:
 	    case binop::Implies:
+	    case binop::UConcat:
+	    case binop::EConcat:
 	      return;
 	    case binop::U:
 	    case binop::W:
@@ -359,6 +361,8 @@ namespace spot
 	    case binop::Xor:
 	    case binop::Equiv:
 	    case binop::Implies:
+	    case binop::UConcat:
+	    case binop::EConcat:
 	      return;
 	    case binop::U:
 	      /* (a < c) && (c < d) => a U b < c U d */

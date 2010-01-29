@@ -220,6 +220,10 @@ namespace spot
 	      res_ = now;
 	      return;
 	    }
+	  case binop::UConcat:
+	  case binop::EConcat:
+	    assert(!"unsupported operator");
+	    break;
 	  }
 	/* Unreachable code.  */
 	assert(0);

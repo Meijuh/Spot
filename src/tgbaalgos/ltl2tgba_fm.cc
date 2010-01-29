@@ -418,6 +418,10 @@ namespace spot
 	      res_ = (f1 & f2) | (bdd_ithvar(a) & f2 & bdd_ithvar(x));
 	      return;
 	    }
+	  case binop::UConcat:
+	  case binop::EConcat:
+	    assert(!"unsupported operator");
+	    break;
 	  }
 	/* Unreachable code.  */
 	assert(0);
@@ -526,6 +530,10 @@ namespace spot
 	  case binop::R:
 	  case binop::W:
 	    res_ = true;
+	    return;
+	  case binop::UConcat:
+	  case binop::EConcat:
+	    node->second()->accept(*this);
 	    return;
 	  }
 	/* Unreachable code.  */

@@ -247,6 +247,9 @@ namespace spot
 	case binop::Implies:
 	case binop::Equiv:
 	  assert(0); // TBD
+	case binop::UConcat:
+	case binop::EConcat:
+	  assert(!"unsupported operator");
 	}
 	/* Unreachable code.  */
 	assert(0);

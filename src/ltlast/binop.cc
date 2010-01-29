@@ -121,6 +121,10 @@ namespace spot
 	  return "W";
 	case M:
 	  return "M";
+	case EConcat:
+	  return "EConcat";
+	case UConcat:
+	  return "UConcat";
 	}
       // Unreachable code.
       assert(0);
@@ -136,7 +140,7 @@ namespace spot
       // example the formula instance for 'a xor b' is the same as
       // that for 'b xor a'.
 
-      /// Trivial identities:
+      // Trivial identities:
       switch (op)
 	{
 	case Xor:
@@ -176,10 +180,10 @@ namespace spot
 	  assert(second != constant::true_instance());
 	  break;
 	case Implies:
-	  ///   - (1 => Exp) = Exp
-	  ///   - (0 => Exp) = 0
-	  ///   - (Exp => 1) = 1
-	  ///   - (Exp => 0) = !Exp
+	  //   - (1 => Exp) = Exp
+	  //   - (0 => Exp) = 0
+	  //   - (Exp => 1) = 1
+	  //   - (Exp => 0) = !Exp
 	  if (first == constant::true_instance())
 	    return second;
 	  if (first == constant::false_instance())
@@ -196,9 +200,9 @@ namespace spot
 	    return unop::instance(unop::Not, first);
 	  break;
 	case U:
-	  ///   - (Exp U 1) = 1
-	  ///   - (Exp U 0) = 0
-	  ///   - (0 U Exp) = Exp
+	  //   - (Exp U 1) = 1
+	  //   - (Exp U 0) = 0
+	  //   - (0 U Exp) = Exp
 	  if (second == constant::true_instance()
 	      || second == constant::false_instance()
 	      || first == constant::false_instance())
@@ -208,9 +212,9 @@ namespace spot
 	    }
 	  break;
 	case W:
-	  ///   - (Exp W 1) = 1
-	  ///   - (0 W Exp) = Exp
-	  ///   - (1 W Exp) = 1
+	  //   - (Exp W 1) = 1
+	  //   - (0 W Exp) = Exp
+	  //   - (1 W Exp) = 1
 	  if (second == constant::true_instance()
 	      || first == constant::false_instance())
 	    {
@@ -224,9 +228,9 @@ namespace spot
 	    }
 	  break;
 	case R:
-	  ///   - (Exp R 1) = 1
-	  ///   - (Exp R 0) = 0
-	  ///   - (1 R Exp) = Exp
+	  //   - (Exp R 1) = 1
+	  //   - (Exp R 0) = 0
+	  //   - (1 R Exp) = Exp
 	  if (second == constant::true_instance()
 	      || second == constant::false_instance()
 	      || first == constant::true_instance())
@@ -236,9 +240,9 @@ namespace spot
 	    }
 	  break;
 	case M:
-	  ///   - (Exp M 0) = 0
-	  ///   - (1 M Exp) = Exp
-	  ///   - (0 M Exp) = 0
+	  //   - (Exp M 0) = 0
+	  //   - (1 M Exp) = Exp
+	  //   - (0 M Exp) = 0
 	  if (second == constant::false_instance()
 	      || first == constant::true_instance())
 	    {
@@ -246,6 +250,28 @@ namespace spot
 	      return second;
 	    }
 	  if (first == constant::false_instance())
+	    {
+	      second->destroy();
+	      return first;
+	    }
+	  break;
+	case EConcat:
+	  //   - 0 <>-> Exp = 0
+	  //   - 1 <>-> Exp = Exp
+	  if (first == constant::false_instance())
+	    return second;
+	  if (first == constant::true_instance())
+	    {
+	      second->destroy();
+	      return first;
+	    }
+	  break;
+	case UConcat:
+	  //   - 0 []-> Exp = 1
+	  //   - 1 []-> Exp = Exp
+	  if (first == constant::false_instance())
+	    return constant::true_instance();
+	  if (first == constant::true_instance())
 	    {
 	      second->destroy();
 	      return first;
