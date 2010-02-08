@@ -258,23 +258,35 @@ namespace spot
 	case EConcat:
 	  //   - 0 <>-> Exp = 0
 	  //   - 1 <>-> Exp = Exp
-	  if (first == constant::false_instance())
-	    return second;
+	  //   - Exp <>-> 0 = 0
 	  if (first == constant::true_instance())
+	    return second;
+	  if (first == constant::false_instance())
 	    {
 	      second->destroy();
 	      return first;
+	    }
+	  if (second == constant::false_instance())
+	    {
+	      first->destroy();
+	      return second;
 	    }
 	  break;
 	case UConcat:
 	  //   - 0 []-> Exp = 1
 	  //   - 1 []-> Exp = Exp
+	  //   - Exp []-> 1 = 1
 	  if (first == constant::false_instance())
 	    return constant::true_instance();
 	  if (first == constant::true_instance())
 	    {
 	      second->destroy();
 	      return first;
+	    }
+	  if (second == constant::true_instance())
+	    {
+	      first->destroy();
+	      return second;
 	    }
 	  break;
 	}

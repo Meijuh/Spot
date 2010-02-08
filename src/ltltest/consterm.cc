@@ -39,7 +39,7 @@ main(int argc, char **argv)
     syntax(argv[0]);
 
   spot::ltl::parse_error_list p1;
-  spot::ltl::formula* f1 = spot::ltl::parse(argv[1], p1);
+  spot::ltl::formula* f1 = spot::ltl::parse_ratexp(argv[1], p1);
 
   if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
     return 2;

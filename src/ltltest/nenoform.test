@@ -68,6 +68,5 @@ run 0 ../nenoform '!(a U (!b U ((a & b & c) R d)))' \
 run 0 ../nenoform '!(GF a => FG b)' 'GFa & GF!b'
 
 # Rational operators
-run 0 ../nenoform '!(X((!Xa)*))' 'X!((X!a)*)'
-run 0 ../nenoform 'X((Xa)*)' 'X((Xa)*)'
-run 0 ../nenoform '!F!X!(GF(a);!FG(a);x)' 'GX!(GFa;GF!a;x)'
+run 0 ../nenoform '!X{a;b}<>->Fx' 'X{a;b}[]->G!x'
+run 0 ../nenoform '!F({a*}<>->{b*}<>->c)' 'G({a*}[]->{b*}[]->!c)'
