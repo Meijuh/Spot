@@ -28,6 +28,7 @@
 #include "multop.hh"
 #include "constant.hh"
 #include "visitor.hh"
+#include "ltlvisit/consterm.hh"
 
 namespace spot
 {
@@ -169,23 +170,28 @@ namespace spot
 
       formula* neutral;
       formula* abs;
+      formula* weak_abs;
       switch (op)
 	{
 	case And:
 	  neutral = constant::true_instance();
 	  abs = constant::false_instance();
+	  weak_abs = constant::empty_word_instance();
 	  break;
 	case Or:
 	  neutral = constant::false_instance();
 	  abs = constant::true_instance();
+	  weak_abs = 0;
 	  break;
 	case Concat:
 	  neutral = constant::empty_word_instance();
 	  abs = constant::false_instance();
+	  weak_abs = 0;
 	  break;
 	default:
 	  neutral = 0;
 	  abs = 0;
+	  weak_abs = 0;
 	  break;
 	}
 
@@ -195,6 +201,7 @@ namespace spot
       {
 	formula* last = 0;
 	vec::iterator i = v->begin();
+	bool weak_abs_seen = false;
 	while (i != v->end())
 	  {
 	    if ((*i == neutral) || (*i == last))
@@ -211,10 +218,31 @@ namespace spot
 	      }
 	    else
 	      {
+		if (*i == weak_abs)
+		  weak_abs_seen = true;
 		if (op != Concat) // Don't remove duplicates for Concat.
 		  last = *i;
 		++i;
 	      }
+	  }
+	// We have    a* & #e & 0  = 0  // already checked above
+	//     but    a* & #e & c*  = #e
+	// So if #e has been seen, check if all term recognize the
+	// empty word.
+	if (weak_abs_seen)
+	  {
+	    bool acc_empty = true;
+	    for (i = v->begin(); i != v->end(); ++i)
+	      {
+		if (acc_empty)
+		  acc_empty = constant_term_as_bool(*i);
+		(*i)->destroy();
+	      }
+	    delete v;
+	    if (acc_empty)
+	      return weak_abs;
+	    else
+	      return constant::false_instance();
 	  }
       }
 
