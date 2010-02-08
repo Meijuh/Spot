@@ -258,13 +258,15 @@ namespace spot
 	case EConcat:
 	  //   - 0 <>-> Exp = 0
 	  //   - 1 <>-> Exp = Exp
+	  //   - #e <>-> Exp = 0
 	  //   - Exp <>-> 0 = 0
 	  if (first == constant::true_instance())
 	    return second;
-	  if (first == constant::false_instance())
+	  if (first == constant::false_instance()
+	      || first == constant::empty_word_instance())
 	    {
 	      second->destroy();
-	      return first;
+	      return constant::false_instance();
 	    }
 	  if (second == constant::false_instance())
 	    {
@@ -275,13 +277,15 @@ namespace spot
 	case UConcat:
 	  //   - 0 []-> Exp = 1
 	  //   - 1 []-> Exp = Exp
+	  //   - #e []-> Exp = 1
 	  //   - Exp []-> 1 = 1
-	  if (first == constant::false_instance())
-	    return constant::true_instance();
 	  if (first == constant::true_instance())
+	    return second;
+	  if (first == constant::false_instance()
+	      || first == constant::empty_word_instance())
 	    {
 	      second->destroy();
-	      return first;
+	      return constant::true_instance();
 	    }
 	  if (second == constant::true_instance())
 	    {
