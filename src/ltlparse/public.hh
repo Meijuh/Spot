@@ -72,14 +72,35 @@ namespace spot
 		   environment& env = default_environment::instance(),
 		   bool debug = false);
 
-    /// \brief Format diagnostics produced by spot::ltl::parse.
+    /// \brief Build a formula from a string representing a rational expression.
+    /// \param ratexp_string The string to parse.
+    /// \param error_list A list that will be filled with
+    ///        parse errors that occured during parsing.
+    /// \param env The environment into which parsing should take place.
+    /// \param debug When true, causes the parser to trace its execution.
+    /// \return A pointer to the formula built from \a ratexp_string, or
+    ///        0 if the input was unparsable.
+    ///
+    /// Note that the parser usually tries to recover from errors.  It can
+    /// return an non zero value even if it encountered error during the
+    /// parsing of \a ltl_string.  If you want to make sure \a ltl_string
+    /// was parsed succesfully, check \a error_list for emptiness.
+    ///
+    /// \warning This function is not reentrant.
+    formula* parse_ratexp(const std::string& ratexp_string,
+			  parse_error_list& error_list,
+			  environment& env = default_environment::instance(),
+			  bool debug = false);
+
+    /// \brief Format diagnostics produced by spot::ltl::parse
+    ///        or spot::ltl::ratexp
     /// \param os Where diagnostics should be output.
-    /// \param ltl_string The string that were parsed.
-    /// \param error_list The error list filled by spot::ltl::parse while
-    ///        parsing \a ltl_string.
+    /// \param input_string The string that were parsed.
+    /// \param error_list The error list filled by spot::ltl::parse
+    ///        or spot::ltl::parse_ratexp while parsing \a input_string.
     /// \return \c true iff any diagnostic was output.
     bool format_parse_errors(std::ostream& os,
-			     const std::string& ltl_string,
+			     const std::string& input_string,
 			     parse_error_list& error_list);
 
     /// @}

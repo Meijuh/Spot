@@ -74,6 +74,8 @@ using namespace spot::ltl;
 
 /* All tokens.  */
 
+%token START_LTL "LTL start marker"
+%token START_RATEXP "RATEXP start marker"
 %token PAR_OPEN "opening parenthesis" PAR_CLOSE "closing parenthesis"
 %token BRACE_OPEN "opening brace" BRACE_CLOSE "closing brace"
 %token OP_OR "or operator" OP_XOR "xor operator" OP_AND "and operator"
@@ -124,26 +126,49 @@ using namespace spot::ltl;
 %printer { debug_stream() << *$$; } <str>
 
 %%
-result:       subformula END_OF_INPUT
-	      { result = $1;
+result:       START_LTL subformula END_OF_INPUT
+	      { result = $2;
 		YYACCEPT;
 	      }
-	    | error END_OF_INPUT
-	      { error_list.push_back(parse_error(@1,
-				      "could not parse anything sensible"));
+	    | START_LTL enderror
+	      {
 		result = 0;
 		YYABORT;
 	      }
-	    | subformula error END_OF_INPUT
-	      { error_list.push_back(parse_error(@2,
-				      "ignoring trailing garbage"));
-		result = $1;
+	    | START_LTL subformula enderror
+	      {
+		result = $2;
 		YYACCEPT;
 	      }
-	    | END_OF_INPUT
-              { error_list.push_back(parse_error(@$, "empty input"));
+	    | START_LTL emptyinput
+              { YYABORT; }
+            | START_RATEXP rationalexp END_OF_INPUT
+	      { result = $2;
+		YYACCEPT;
+	      }
+	    | START_RATEXP enderror
+	      {
 		result = 0;
 		YYABORT;
+	      }
+	    | START_RATEXP rationalexp enderror
+	      {
+		result = $2;
+		YYACCEPT;
+	      }
+	    | START_RATEXP emptyinput
+              { YYABORT; }
+
+emptyinput: END_OF_INPUT
+              {
+		error_list.push_back(parse_error(@$, "empty input"));
+		result = 0;
+	      }
+
+enderror: error END_OF_INPUT
+              {
+		error_list.push_back(parse_error(@1,
+						 "ignoring trailing garbage"));
 	      }
 
 /* The reason we use `constant::false_instance()' for error recovery
@@ -361,12 +386,29 @@ namespace spot
 	  bool debug)
     {
       formula* result = 0;
-      flex_set_buffer(ltl_string.c_str());
+      flex_set_buffer(ltl_string.c_str(),
+		      ltlyy::parser::token::START_LTL);
       ltlyy::parser parser(error_list, env, result);
       parser.set_debug_level(debug);
       parser.parse();
       return result;
     }
+
+    formula*
+    parse_ratexp(const std::string& ratexp_string,
+		 parse_error_list& error_list,
+		 environment& env,
+		 bool debug)
+    {
+      formula* result = 0;
+      flex_set_buffer(ratexp_string.c_str(),
+		      ltlyy::parser::token::START_RATEXP);
+      ltlyy::parser parser(error_list, env, result);
+      parser.set_debug_level(debug);
+      parser.parse();
+      return result;
+    }
+
   }
 }
 

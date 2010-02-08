@@ -43,14 +43,16 @@
 
 static const char* to_parse = 0;
 static size_t to_parse_size = 0;
+static int start_token = 0;
 
 typedef ltlyy::parser::token token;
 
 void
-flex_set_buffer(const char* buf)
+flex_set_buffer(const char* buf, int start_tok)
 {
   to_parse = buf;
   to_parse_size = strlen(to_parse);
+  start_token = start_tok;
 }
 
 %}
@@ -60,6 +62,12 @@ flex_set_buffer(const char* buf)
 %%
 
 %{
+  if (start_token)
+    {
+      int t = start_token;
+      start_token = 0;
+      return t;
+    }
   yylloc->step();
 %}
 
