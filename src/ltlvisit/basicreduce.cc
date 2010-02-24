@@ -263,6 +263,7 @@ namespace spot
 	    case binop::Implies:
 	    case binop::EConcat:
 	    case binop::UConcat:
+	    case binop::EConcatMarked:
 	      result_ = binop::instance(bo->op(),
 					basic_reduce(f1),
 					basic_reduce(f2));

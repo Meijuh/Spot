@@ -186,6 +186,13 @@ namespace spot
 					binop::UConcat : binop::EConcat,
 					recurse_(f1, false), recurse(f2));
 	      return;
+	    case binop::EConcatMarked:
+	      /* !(a <>-> b) == a[]-> !b */
+	      result_ = binop::instance(negated_ ?
+					binop::UConcat :
+					binop::EConcatMarked,
+					recurse_(f1, false), recurse(f2));
+	      return;
 	    }
 	  /* Unreachable code.  */
 	  assert(0);

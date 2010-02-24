@@ -158,6 +158,7 @@ namespace spot
 	      return;
 	    case binop::UConcat:
 	    case binop::EConcat:
+	    case binop::EConcatMarked:
 	      return;
 	    }
 	  /* Unreachable code.  */
@@ -318,7 +319,8 @@ namespace spot
 		case binop::Implies:
 		case binop::UConcat:
 		case binop::EConcat:
-		  break;
+		case binop::EConcatMarked:
+		  return;
 
 		case binop::U:
 		  /* a < b => a U b = b */

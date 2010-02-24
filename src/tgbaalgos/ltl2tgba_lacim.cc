@@ -222,6 +222,7 @@ namespace spot
 	    }
 	  case binop::UConcat:
 	  case binop::EConcat:
+	  case binop::EConcatMarked:
 	    assert(!"unsupported operator");
 	    break;
 	  }

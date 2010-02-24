@@ -123,6 +123,8 @@ namespace spot
 	  return "M";
 	case EConcat:
 	  return "EConcat";
+	case EConcatMarked:
+	  return "EConcatMarked";
 	case UConcat:
 	  return "UConcat";
 	}
@@ -256,6 +258,7 @@ namespace spot
 	    }
 	  break;
 	case EConcat:
+	case EConcatMarked:
 	  //   - 0 <>-> Exp = 0
 	  //   - 1 <>-> Exp = Exp
 	  //   - #e <>-> Exp = 0

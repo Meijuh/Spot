@@ -89,6 +89,7 @@ namespace spot
 	case binop::M:
 	case binop::UConcat:
 	case binop::EConcat:
+	case binop::EConcatMarked:
 	  result_ = binop::instance(op, f1, f2);
 	  return;
 	}

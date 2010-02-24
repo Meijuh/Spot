@@ -55,6 +55,7 @@ namespace spot
 		  W, //< weak until
 		  M,  //< strong release (dual of weak until)
 		  EConcat, // Existential Concatenation
+		  EConcatMarked, // Existential Concatenation, Marked
 		  UConcat // Universal Concatenation
       };
 

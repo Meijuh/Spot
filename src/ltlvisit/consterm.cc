@@ -64,6 +64,7 @@ namespace spot
 	    case binop::R:
 	    case binop::EConcat:
 	    case binop::UConcat:
+	    case binop::EConcatMarked:
 	      assert(!"unsupported operator");
 	      break;
 	    }

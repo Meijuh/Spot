@@ -110,6 +110,7 @@ namespace spot
 	    {
 	    case binop::UConcat:
 	    case binop::EConcat:
+	    case binop::EConcatMarked:
 	      os_ << "{ ";
 	      top_level_ = true;
 	      bo->first()->accept(*this);
@@ -149,6 +150,9 @@ namespace spot
 	      break;
 	    case binop::EConcat:
 	      os_ << " }<>-> ";
+	      break;
+	    case binop::EConcatMarked:
+	      os_ << " }<>+> ";
 	      break;
 	    }
 
@@ -342,6 +346,11 @@ namespace spot
 	      os_ << " <>-> ";
 	      bo->second()->accept(*this);
 	      break;
+	    case binop::EConcatMarked:
+	      bo->first()->accept(*this);
+	      os_ << " <>+> ";
+	      bo->second()->accept(*this);
+	      break;
 	      /* W and M are not supported by Spin */
 	    case binop::W:
 	      bo->first()->accept(*this);
@@ -350,7 +359,7 @@ namespace spot
 	      break;
 	    case binop::M:
 	      bo->first()->accept(*this);
-	     os_ << " M ";
+	      os_ << " M ";
 	      bo->second()->accept(*this);
 	      break;
 	    }
