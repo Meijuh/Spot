@@ -27,30 +27,43 @@
 
 set -e
 
-check ()
+check_psl ()
 {
-  run 0 ../ltl2tgba -l "$1"
-  run 0 ../ltl2tgba -f "$1"
+  # We don't check the output, but just running these might be enough to
+  # trigger assertions.
   run 0 ../ltl2tgba -f -FC "$1"
+  # Make cross products with FM
+  run 0 ../ltl2tgba -f -R3 -b "$1" > out.tgba
+  run 0 ../ltl2tgba -f -R3 -Pout.tgba -E "!($1)"
 }
 
-# We don't check the output, but just running these might be enough to
-# trigger assertions.
+check_ltl ()
+{
+  check_psl "$@"
+  # Make cross products with LaCIM
+  run 0 ../ltl2tgba -l -R3b -b "$1" > out.tgba
+  run 0 ../ltl2tgba -l -R3b -Pout.tgba -E "!($1)"
+}
 
-check a
-check 'a U b'
-check 'X a'
-check 'a & b & c'
-check 'a | b | (c U (d & (g U (h ^ i))))'
-check 'Xa & (b U !a) & (b U !a)'
-check 'Fa & Xb & GFc & Gd'
-check 'Fa & Xa & GFc & Gc'
-check 'Fc & X(a | Xb) & GF(a | Xb) & Gc'
-check 'a R (b R c)'
-check '(a U b) U (c U d)'
+check_ltl a
+check_ltl 'a U b'
+check_ltl 'X a'
+check_ltl 'a & b & c'
+check_ltl 'a | b | (c U (d & (g U (h ^ i))))'
+check_ltl 'Xa & (b U !a) & (b U !a)'
+check_ltl 'Fa & Xb & GFc & Gd'
+check_ltl 'Fa & Xa & GFc & Gc'
+check_ltl 'Fc & X(a | Xb) & GF(a | Xb) & Gc'
+check_ltl 'a R (b R c)'
+check_ltl '(a U b) U (c U d)'
 
-check '((Xp2)U(X(1)))&(p1 R(p2 R p0))'
+check_ltl '((Xp2)U(X(1)))&(p1 R(p2 R p0))'
 
+check_psl '{a*;c}<>->GFb'
+check_psl '{((a*;b;c)*)&((b*;a;c)*)}<>->x'
+check_psl '{(g;y;r)*}<>->x'
+check_psl 'G({(g;y;r)*}<>->x)'
+check_psl 'G({(a;b)*}<>->x)&G({(c;d)*}<>->y)'
 
 # Make sure 'a U (b U c)' has 3 states and 6 transitions,
 # before and after degeneralization.

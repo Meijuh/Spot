@@ -32,10 +32,14 @@
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/postfix.hh"
 #include "ltlvisit/apcollect.hh"
+#include "ltlvisit/mark.hh"
+#include "ltlvisit/tostring.hh"
 #include <cassert>
 #include <memory>
 #include "ltl2tgba_fm.hh"
 #include "ltlvisit/contain.hh"
+#include "ltlvisit/consterm.hh"
+#include "tgba/bddprint.hh"
 
 namespace spot
 {
@@ -154,7 +158,7 @@ namespace spot
       }
 
       formula*
-      conj_bdd_to_formula(bdd b)
+      conj_bdd_to_formula(bdd b) const
       {
 	if (b == bddfalse)
 	  return constant::false_instance();
@@ -225,6 +229,26 @@ namespace spot
     };
 
 
+    // Debugging function.
+    std::ostream&
+    trace_ltl_bdd(const translate_dict& d, bdd f)
+    {
+      minato_isop isop(f);
+      bdd cube;
+      while ((cube = isop.next()) != bddfalse)
+	{
+	  bdd label = bdd_exist(cube, d.next_set);
+	  bdd dest_bdd = bdd_existcomp(cube, d.next_set);
+	  const formula* dest = d.conj_bdd_to_formula(dest_bdd);
+	  bdd_print_set(std::cerr, d.dict, label) << " => "
+						  << to_string(dest)
+						  << std::endl;
+	  dest->destroy();
+	}
+      return std::cerr;
+    }
+
+
 
     // Gather all promises of a formula.  These are the
     // right-hand sides of U or F operators.
@@ -268,14 +292,226 @@ namespace spot
       bdd res_;
     };
 
+    // Rewrite rule for rational operators.
+    class ratexp_trad_visitor: public const_visitor
+    {
+    public:
+      ratexp_trad_visitor(translate_dict& dict,
+			  formula* to_concat = 0)
+	: dict_(dict), to_concat_(to_concat)
+      {
+      }
+
+      virtual
+      ~ratexp_trad_visitor()
+      {
+	if (to_concat_)
+	  to_concat_->destroy();
+      }
+
+      bdd
+      result() const
+      {
+	return res_;
+      }
+
+      bdd next_to_concat()
+      {
+	if (!to_concat_)
+	  to_concat_ = constant::empty_word_instance();
+	int x = dict_.register_next_variable(to_concat_);
+	return bdd_ithvar(x);
+      }
+
+      bdd now_to_concat()
+      {
+	if (to_concat_)
+	  {
+	    if (to_concat_ == constant::empty_word_instance())
+	      return bddfalse;
+	    bdd n = recurse(to_concat_);
+	    return n;
+	  }
+	else
+	  {
+	    return bddfalse;
+	  }
+      }
+
+      void
+      visit(const atomic_prop* node)
+      {
+	res_ = (bdd_ithvar(dict_.register_proposition(node))
+		& next_to_concat());
+      }
+
+      void
+      visit(const constant* node)
+      {
+	switch (node->val())
+	  {
+	  case constant::True:
+	    res_ = next_to_concat();
+	    return;
+	  case constant::False:
+	    res_ = bddfalse;
+	    return;
+	  case constant::EmptyWord:
+	    res_ = now_to_concat();
+	    return;
+	  }
+	/* Unreachable code.  */
+	assert(0);
+      }
+
+      void
+      visit(const unop* node)
+      {
+	switch (node->op())
+	  {
+	  case unop::F:
+	  case unop::G:
+	  case unop::Not:
+	  case unop::X:
+	  case unop::Finish:
+	    assert(!"not a rational operator");
+	    return;
+	  case unop::Star:
+	    {
+	      formula* f;
+	      if (to_concat_)
+		f = multop::instance(multop::Concat, node->clone(),
+				     to_concat_->clone());
+	      else
+		f = node->clone();
+
+	      res_ = recurse(node->child(), f) | now_to_concat();
+	      return;
+	    }
+	  }
+	/* Unreachable code.  */
+	assert(0);
+      }
+
+      void
+      visit(const binop*)
+      {
+	assert(!"not a rational operator");
+      }
+
+      void
+      visit(const automatop*)
+      {
+	assert(!"not a rational operator");
+      }
+
+      void
+      visit(const multop* node)
+      {
+	switch (node->op())
+	  {
+	  case multop::And:
+	    {
+	      res_ = bddtrue;
+	      unsigned s = node->size();
+	      for (unsigned n = 0; n < s; ++n)
+	      {
+		bdd res = recurse(node->nth(n));
+		// trace_ltl_bdd(dict_, res);
+		res_ &= res;
+	      }
+
+	      //std::cerr << "Pre-Concat:" << std::endl;
+	      //trace_ltl_bdd(dict_, res_);
+
+	      if (to_concat_)
+		{
+		  // If we have translated (a* & b*) in (a* & b*);c, we
+		  // have to append ";c" to all destinations.
+
+		  minato_isop isop(res_);
+		  bdd cube;
+		  res_ = bddfalse;
+		  while ((cube = isop.next()) != bddfalse)
+		    {
+		      bdd label = bdd_exist(cube, dict_.next_set);
+		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+		      formula* dest2;
+		      int x;
+		      if (dest == constant::empty_word_instance())
+			{
+			  res_ |= label & next_to_concat();
+			}
+		      else
+			{
+			  dest2 = multop::instance(multop::Concat, dest,
+						   to_concat_->clone());
+			  if (dest2 != constant::false_instance())
+			    {
+			      x = dict_.register_next_variable(dest2);
+			      dest2->destroy();
+			      res_ |= label & bdd_ithvar(x);
+			    }
+			  if (constant_term_as_bool(node))
+			    res_ |= label & next_to_concat();
+			}
+		    }
+		}
+
+	      break;
+	    }
+	  case multop::Or:
+	    {
+	      res_ = bddfalse;
+	      unsigned s = node->size();
+	      if (to_concat_)
+		for (unsigned n = 0; n < s; ++n)
+		  res_ |= recurse(node->nth(n), to_concat_->clone());
+	      else
+		for (unsigned n = 0; n < s; ++n)
+		  res_ |= recurse(node->nth(n));
+	      break;
+	    }
+	  case multop::Concat:
+	    {
+	      multop::vec* v = new multop::vec;
+	      unsigned s = node->size();
+	      v->reserve(s);
+	      for (unsigned n = 1; n < s; ++n)
+		v->push_back(node->nth(n)->clone());
+	      if (to_concat_)
+		v->push_back(to_concat_->clone());
+	      res_ = recurse(node->nth(0),
+			     multop::instance(multop::Concat, v));
+	      break;
+	    }
+	  }
+      }
+
+      bdd
+      recurse(const formula* f, formula* to_concat = 0)
+      {
+	ratexp_trad_visitor v(dict_, to_concat);
+	f->accept(v);
+	return v.result();
+      }
+
+
+    private:
+      translate_dict& dict_;
+      bdd res_;
+      formula* to_concat_;
+    };
+
 
     // The rewrite rules used here are adapted from Jean-Michel
-    // Couvreur's FM paper.
+    // Couvreur's FM paper, augmented to support rational operators.
     class ltl_trad_visitor: public const_visitor
     {
     public:
-      ltl_trad_visitor(translate_dict& dict)
-	: dict_(dict)
+      ltl_trad_visitor(translate_dict& dict, bool mark_all = false)
+	: dict_(dict), rat_seen_(false), has_marked_(false), mark_all_(mark_all)
       {
       }
 
@@ -284,10 +520,36 @@ namespace spot
       {
       }
 
+      void
+      reset(bool mark_all)
+      {
+	rat_seen_ = false;
+	has_marked_ = false;
+	mark_all_ = mark_all;
+      }
+
       bdd
       result() const
       {
 	return res_;
+      }
+
+      const translate_dict&
+      get_dict() const
+      {
+	return dict_;
+      }
+
+      bool
+      has_rational() const
+      {
+	return rat_seen_;
+      }
+
+      bool
+      has_marked() const
+      {
+	return has_marked_;
       }
 
       void
@@ -308,7 +570,8 @@ namespace spot
 	    res_ = bddfalse;
 	    return;
 	  case constant::EmptyWord:
-	    assert(!"unsupported operator");
+	    assert(!"Not an LTL operator");
+	    return;
 	  }
 	/* Unreachable code.  */
 	assert(0);
@@ -327,7 +590,7 @@ namespace spot
 	      int a = dict_.register_a_variable(child);
 	      int x = dict_.register_next_variable(node);
 	      res_ = y | (bdd_ithvar(a) & bdd_ithvar(x));
-	      return;
+	      break;
 	    }
 	  case unop::G:
 	    {
@@ -347,84 +610,183 @@ namespace spot
 	      int x = dict_.register_next_variable(node);
 	      bdd y = recurse(child);
 	      res_ = y & bdd_ithvar(x);
-	      return;
+	      break;
 	    }
 	  case unop::Not:
 	    {
 	      // r(!y) = !r(y)
 	      res_ = bdd_not(recurse(node->child()));
-	      return;
+	      break;
 	    }
 	  case unop::X:
 	    {
 	      // r(Xy) = Next[y]
 	      int x = dict_.register_next_variable(node->child());
 	      res_ = bdd_ithvar(x);
-	      return;
+	      break;
 	    }
 	  case unop::Finish:
-	  case unop::Star:
 	    assert(!"unsupported operator");
+	    break;
+	  case unop::Star:
+	    assert(!"Not an LTL operator");
+	    break;
 	  }
-	/* Unreachable code.  */
-	assert(0);
       }
 
       void
       visit(const binop* node)
       {
-	bdd f1 = recurse(node->first());
-	bdd f2 = recurse(node->second());
+	binop::type op = node->op();
 
-	switch (node->op())
+	switch (op)
 	  {
 	    // r(f1 logical-op f2) = r(f1) logical-op r(f2)
 	  case binop::Xor:
-	    res_ = bdd_apply(f1, f2, bddop_xor);
-	    return;
+	    {
+	      bdd f1 = recurse(node->first());
+	      bdd f2 = recurse(node->second());
+	      res_ = bdd_apply(f1, f2, bddop_xor);
+	      return;
+	    }
 	  case binop::Implies:
-	    res_ = bdd_apply(f1, f2, bddop_imp);
-	    return;
+	    {
+	      bdd f1 = recurse(node->first());
+	      bdd f2 = recurse(node->second());
+	      res_ = bdd_apply(f1, f2, bddop_imp);
+	      return;
+	    }
 	  case binop::Equiv:
-	    res_ = bdd_apply(f1, f2, bddop_biimp);
-	    return;
+	    {
+	      bdd f1 = recurse(node->first());
+	      bdd f2 = recurse(node->second());
+	      res_ = bdd_apply(f1, f2, bddop_biimp);
+	      return;
+	    }
 	  case binop::U:
 	    {
+	      bdd f1 = recurse(node->first());
+	      bdd f2 = recurse(node->second());
 	      // r(f1 U f2) = r(f2) + a(f2)r(f1)r(X(f1 U f2))
 	      int a = dict_.register_a_variable(node->second());
 	      int x = dict_.register_next_variable(node);
 	      res_ = f2 | (bdd_ithvar(a) & f1 & bdd_ithvar(x));
-	      return;
+	      break;
 	    }
 	  case binop::W:
 	    {
+	      bdd f1 = recurse(node->first());
+	      bdd f2 = recurse(node->second());
 	      // r(f1 W f2) = r(f2) + r(f1)r(X(f1 U f2))
 	      int x = dict_.register_next_variable(node);
 	      res_ = f2 | (f1 & bdd_ithvar(x));
-	      return;
+	      break;
 	    }
 	  case binop::R:
 	    {
+	      bdd f1 = recurse(node->first());
+	      bdd f2 = recurse(node->second());
 	      // r(f1 R f2) = r(f1)r(f2) + r(f2)r(X(f1 U f2))
 	      int x = dict_.register_next_variable(node);
 	      res_ = (f1 & f2) | (f2 & bdd_ithvar(x));
-	      return;
+	      break;
 	    }
 	  case binop::M:
 	    {
+	      bdd f1 = recurse(node->first());
+	      bdd f2 = recurse(node->second());
 	      // r(f1 M f2) = r(f1)r(f2) + a(f1)r(f2)r(X(f1 M f2))
 	      int a = dict_.register_a_variable(node->first());
 	      int x = dict_.register_next_variable(node);
 	      res_ = (f1 & f2) | (bdd_ithvar(a) & f2 & bdd_ithvar(x));
-	      return;
+	      break;
 	    }
-	  case binop::UConcat:
+	  case binop::EConcatMarked:
+	    has_marked_ = true;
+	    /* fall through */
 	  case binop::EConcat:
-	    assert(!"unsupported operator");
+	    rat_seen_ = true;
+	    {
+	      bdd f2 = recurse(node->second());
+	      ratexp_trad_visitor v(dict_);
+	      node->first()->accept(v);
+	      bdd f1 = v.result();
+
+	      if (mark_all_)
+		{
+		  op = binop::EConcatMarked;
+		  has_marked_ = true;
+		}
+
+	      // Recognize f2 on transitions going to destinations
+	      // that accept the empty word.
+	      minato_isop isop(f1);
+	      bdd cube;
+	      res_ = bddfalse;
+	      while ((cube = isop.next()) != bddfalse)
+		{
+		  bdd label = bdd_exist(cube, dict_.next_set);
+		  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		  formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+		  formula* dest2;
+		  int x;
+		  if (dest == constant::empty_word_instance())
+		    {
+		      res_ |= label & f2;
+		    }
+		  else
+		    {
+		      dest2 = binop::instance(op, dest,
+					      node->second()->clone());
+		      if (dest2 != constant::false_instance())
+			{
+			  x = dict_.register_next_variable(dest2);
+			  dest2->destroy();
+			  res_ |= label & bdd_ithvar(x);
+			}
+		      if (constant_term_as_bool(dest))
+			res_ |= label & f2;
+		    }
+		}
+	    }
+	    break;
+
+	  case binop::UConcat:
+	    {
+	      bdd f2 = recurse(node->second());
+	      ratexp_trad_visitor v(dict_);
+	      node->first()->accept(v);
+	      bdd f1 = v.result();
+
+	      // Transitions going to destinations accepting the empty
+	      // word should recognize f2, and the automaton should be
+	      // understood as universal.
+	      minato_isop isop(f1);
+	      bdd cube;
+	      res_ = bddtrue;
+	      while ((cube = isop.next()) != bddfalse)
+		{
+		  bdd label = bdd_exist(cube, dict_.next_set);
+		  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		  formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+		  formula* dest2;
+		  bdd udest;
+
+		  dest2 = binop::instance(op, dest,
+					  node->second()->clone());
+		  udest = bdd_ithvar(dict_.register_next_variable(dest2));
+
+		  if (constant_term_as_bool(dest))
+		    udest &= f2;
+
+		  dest2->destroy();
+		  label = bdd_apply(label, udest, bddop_imp);
+
+		  res_ &= label;
+		}
+	    }
 	    break;
 	  }
-	/* Unreachable code.  */
-	assert(0);
       }
 
       void
@@ -436,33 +798,43 @@ namespace spot
       void
       visit(const multop* node)
       {
-	int op = -1;
 	switch (node->op())
 	  {
 	  case multop::And:
-	    op = bddop_and;
-	    res_ = bddtrue;
-	    break;
+	    {
+	      res_ = bddtrue;
+	      unsigned s = node->size();
+	      for (unsigned n = 0; n < s; ++n)
+		{
+		  bdd res = recurse(node->nth(n));
+		  //std::cerr << "=== in And" << std::endl;
+		  //trace_ltl_bdd(dict_, res);
+		  res_ &= res;
+		}
+	      break;
+	    }
 	  case multop::Or:
-	    op = bddop_or;
-	    res_ = bddfalse;
-	    break;
+	    {
+	      res_ = bddfalse;
+	      unsigned s = node->size();
+	      for (unsigned n = 0; n < s; ++n)
+		res_ |= recurse(node->nth(n));
+	      break;
+	    }
 	  case multop::Concat:
-	    assert(!"unsupported operator");
+	    assert(!"Not an LTL operator");
+	    break;
 	  }
-	assert(op != -1);
-	unsigned s = node->size();
-	for (unsigned n = 0; n < s; ++n)
-	  {
-	    res_ = bdd_apply(res_, recurse(node->nth(n)), op);
-	  }
+
       }
 
       bdd
       recurse(const formula* f)
       {
-	ltl_trad_visitor v(dict_);
+	ltl_trad_visitor v(dict_, mark_all_);
 	f->accept(v);
+	rat_seen_ |= v.has_rational();
+	has_marked_ |= v.has_marked();
 	return v.result();
       }
 
@@ -470,6 +842,9 @@ namespace spot
     private:
       translate_dict& dict_;
       bdd res_;
+      bool rat_seen_;
+      bool has_marked_;
+      bool mark_all_;
     };
 
 
@@ -533,7 +908,9 @@ namespace spot
 	    return;
 	  case binop::UConcat:
 	  case binop::EConcat:
+	  case binop::EConcatMarked:
 	    node->second()->accept(*this);
+	    // FIXME: we might need to add Acc[1]
 	    return;
 	  }
 	/* Unreachable code.  */
@@ -590,7 +967,8 @@ namespace spot
 			bool fair_loop_approx, bdd all_promises)
 	: v_(d),
 	  fair_loop_approx_(fair_loop_approx),
-	  all_promises_(all_promises)
+	  all_promises_(all_promises),
+	  d_(d)
       {
 	// For cosmetics, register 1 initially, so the algorithm will
 	// not register an equivalent formula first.
@@ -608,7 +986,14 @@ namespace spot
 	  }
       }
 
-      bdd
+      struct translated
+      {
+	bdd symbolic;
+	bool has_rational:1;
+	bool has_marked:1;
+      };
+
+      const translated&
       translate(const formula* f, bool* new_flag = 0)
       {
 	// Use the cached result if available.
@@ -620,8 +1005,62 @@ namespace spot
 	  *new_flag = true;
 
 	// Perform the actual translation.
+	v_.reset(!has_mark(f));
 	f->accept(v_);
-	bdd res = v_.result();
+	translated t;
+	t.symbolic = v_.result();
+	t.has_rational = v_.has_rational();
+	t.has_marked = v_.has_marked();
+
+//	std::cerr << "-----" << std::endl;
+//	std::cerr << "Formula: " << to_string(f) << std::endl;
+//	std::cerr << "Rational: " << t.has_rational << std::endl;
+//	std::cerr << "Marked: " << t.has_marked << std::endl;
+//	std::cerr << "Mark all: " << !has_mark(f) << std::endl;
+//	std::cerr << "Transitions:" << std::endl;
+//	trace_ltl_bdd(v_.get_dict(), t.symbolic);
+
+	if (t.has_rational)
+	  {
+	    bdd res = bddfalse;
+
+	    minato_isop isop(t.symbolic);
+	    bdd cube;
+	    while ((cube = isop.next()) != bddfalse)
+	      {
+		bdd label = bdd_exist(cube, d_.next_set);
+		bdd dest_bdd = bdd_existcomp(cube, d_.next_set);
+		formula* dest =
+		  d_.conj_bdd_to_formula(dest_bdd);
+
+		// Handle a Miyano-Hayashi style unrolling for
+		// rational operators.  Marked nodes correspond to
+		// subformulae in the Miyano-Hayashi set.
+		if (simplify_mark(dest))
+		  {
+		    // Make the promise that we will exit marked sets.
+		    int a =
+		      d_.register_a_variable(constant::true_instance());
+		    label &= bdd_ithvar(a);
+		  }
+		else
+		  {
+		    // We have left marked operators, but still
+		    // have other rational operator to check.
+		    // Start a new marked cycle.
+		    formula* dest2 = mark_concat_ops(dest);
+		    dest->destroy();
+		    dest = dest2;
+		  }
+		// Note that simplify_mark may have changed dest.
+		dest_bdd = bdd_ithvar(d_.register_next_variable(dest));
+		dest->destroy();
+		res |= label & dest_bdd;
+	      }
+	    t.symbolic = res;
+//	    std::cerr << "Marking rewriting:" << std::endl;
+//	    trace_ltl_bdd(v_.get_dict(), t.symbolic);
+	  }
 
 	// Apply the fair-loop approximation if requested.
 	if (fair_loop_approx_)
@@ -631,22 +1070,21 @@ namespace spot
 	    if (fair_loop_approx_
 		&& f != constant::true_instance()
 		&& !pflc_.check(f))
-	      res &= all_promises_;
+	      t.symbolic &= all_promises_;
 	  }
 
-	f2b_[f->clone()] = res;
-
 	// Register the reverse mapping if it is not already done.
-	if (b2f_.find(res) == b2f_.end())
-	  b2f_[res] = f;
-	return res;
+	if (b2f_.find(t.symbolic) == b2f_.end())
+	  b2f_[t.symbolic] = f;
+
+	return f2b_[f->clone()] = t;
       }
 
       const formula*
       canonize(const formula* f)
       {
 	bool new_variable = false;
-	bdd b = translate(f, &new_variable);
+	bdd b = translate(f, &new_variable).symbolic;
 
 	bdd_to_formula_map::iterator i = b2f_.find(b);
 	// Since we have just translated the formula, it is
@@ -673,12 +1111,13 @@ namespace spot
       // We do this because many formulae (such as `aR(bRc)' and
       // `aR(bRc).(bRc)') are equivalent, and are trivially identified
       // by looking at the set of successors.
-      typedef std::map<const formula*, bdd> formula_to_bdd_map;
+      typedef std::map<const formula*, translated> formula_to_bdd_map;
       formula_to_bdd_map f2b_;
 
       possible_fair_loop_checker pflc_;
       bool fair_loop_approx_;
       bdd all_promises_;
+      translate_dict& d_;
     };
 
   }
@@ -781,6 +1220,10 @@ namespace spot
 
     tgba_explicit_formula* a = new tgba_explicit_formula(dict);
 
+    // This is in case the initial state is equivalent to true...
+    if (symb_merge)
+      f2 = const_cast<formula*>(fc.canonize(f2));
+
     formulae_to_translate.insert(f2);
     a->set_init_state(f2);
 
@@ -791,7 +1234,8 @@ namespace spot
 	formulae_to_translate.erase(formulae_to_translate.begin());
 
 	// Translate it into a BDD to simplify it.
-	bdd res = fc.translate(now);
+	const formula_canonizer::translated& t = fc.translate(now);
+	bdd res = t.symbolic;
 
 	// Handle exclusive events.
 	if (unobs)
