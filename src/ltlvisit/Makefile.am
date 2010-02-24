@@ -37,6 +37,7 @@ ltlvisit_HEADERS = \
   dump.hh \
   length.hh \
   lunabbrev.hh \
+  mark.hh \
   nenoform.hh \
   postfix.hh \
   randomltl.hh \
@@ -58,6 +59,7 @@ libltlvisit_la_SOURCES = \
   dump.cc \
   length.cc \
   lunabbrev.cc \
+  mark.cc \
   nenoform.cc \
   postfix.cc \
   randomltl.cc \
