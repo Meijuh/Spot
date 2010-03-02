@@ -97,6 +97,13 @@ namespace spot
 	void
 	visit(const multop* mo)
 	{
+	  // The fusion operator cannot be used to recognize the empty word.
+	  if (mo->op() == multop::Fusion)
+	    {
+	      result_ = false;
+	      return;
+	    }
+
 	  unsigned max = mo->size();
 	  // This sets the initial value of result_.
 	  mo->nth(0)->accept(*this);
@@ -117,6 +124,10 @@ namespace spot
 		  result_ &= r;
 		  if (!result_)
 		    return;
+		  break;
+		case multop::Fusion:
+		  /* Unreachable code */
+		  assert(0);
 		  break;
 		}
 	    }

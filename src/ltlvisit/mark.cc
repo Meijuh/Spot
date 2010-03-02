@@ -166,6 +166,7 @@ namespace spot
 	    {
 	    case multop::Or:
 	    case multop::Concat:
+	    case multop::Fusion:
 	      for (unsigned i = 0; i < mos; ++i)
 		res->push_back(recurse(mo->nth(i)));
 	      break;

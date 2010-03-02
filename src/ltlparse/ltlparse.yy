@@ -83,11 +83,11 @@ using namespace spot::ltl;
 %token OP_U "until operator" OP_R "release operator"
 %token OP_W "weak until operator" OP_M "strong release operator"
 %token OP_F "sometimes operator" OP_G "always operator"
-%token OP_X "next operator" OP_NOT "not operator"
+%token OP_X "next operator" OP_NOT "not operator" OP_STAR "star operator"
 %token OP_UCONCAT "universal concat operator"
 %token OP_ECONCAT "existential concat operator"
 %token <str> ATOMIC_PROP "atomic proposition"
-%token OP_STAR "star operator" OP_CONCAT "concat operator"
+%token OP_CONCAT "concat operator" OP_FUSION "fusion operator"
 %token CONST_TRUE "constant true" CONST_FALSE "constant false"
 %token END_OF_INPUT "end of formula" CONST_EMPTYWORD "empty word"
 %token OP_POST_NEG "negative suffix" OP_POST_POS "positive suffix"
@@ -97,7 +97,7 @@ using namespace spot::ltl;
 /* Low priority regex operator. */
 %left OP_UCONCAT OP_ECONCAT
 
-%left OP_CONCAT
+%left OP_CONCAT OP_FUSION
 
 /* Logical operators.  */
 %left OP_IMPLIES OP_EQUIV
@@ -264,6 +264,10 @@ rationalexp: booleanatom
 	      { $$ = multop::instance(multop::Concat, $1, $3); }
 	    | rationalexp OP_CONCAT error
               { missing_right_binop($$, $1, @2, "concat operator"); }
+	    | rationalexp OP_FUSION rationalexp
+	      { $$ = multop::instance(multop::Fusion, $1, $3); }
+	    | rationalexp OP_FUSION error
+              { missing_right_binop($$, $1, @2, "fusion operator"); }
 	    | rationalexp OP_STAR
 	      { $$ = unop::instance(unop::Star, $1); }
 

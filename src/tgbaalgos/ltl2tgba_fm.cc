@@ -486,6 +486,70 @@ namespace spot
 			     multop::instance(multop::Concat, v));
 	      break;
 	    }
+	  case multop::Fusion:
+	    {
+	      assert(node->size() >= 2);
+
+	      // the head
+	      bdd res = recurse(node->nth(0));
+
+	      // the tail
+	      multop::vec* v = new multop::vec;
+	      unsigned s = node->size();
+	      v->reserve(s - 1);
+	      for (unsigned n = 1; n < s; ++n)
+		v->push_back(node->nth(n)->clone());
+	      formula* tail = multop::instance(multop::Fusion, v);
+	      bdd tail_bdd;
+	      bool tail_computed = false;
+
+	      //trace_ltl_bdd(dict_, res);
+
+	      minato_isop isop(res);
+	      bdd cube;
+	      res_ = bddfalse;
+	      while ((cube = isop.next()) != bddfalse)
+		{
+		  bdd label = bdd_exist(cube, dict_.next_set);
+		  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		  formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+
+		  if (constant_term_as_bool(dest))
+		    {
+		      // The destination is a final state.  Make sure we
+		      // can also exit if tail is satisfied.
+		      if (!tail_computed)
+			{
+			  tail_bdd = recurse(tail,
+					     to_concat_ ?
+					     to_concat_->clone() : 0);
+			  tail_computed = true;
+			}
+		      res_ |= label & tail_bdd;
+		    }
+
+		  if (dynamic_cast<constant*>(dest) == 0)
+		    {
+		      // If the destination is not a constant, it
+		      // means it can have successors.  Fusion the
+		      // tail and append anything to concatenate.
+		      formula* dest2 = multop::instance(multop::Fusion, dest,
+							tail->clone());
+		      if (to_concat_)
+			 dest2 = multop::instance(multop::Concat, dest2,
+						 to_concat_->clone());
+		      if (dest2 != constant::false_instance())
+			{
+			  int x = dict_.register_next_variable(dest2);
+			  dest2->destroy();
+			  res_ |= label & bdd_ithvar(x);
+			}
+		    }
+		}
+
+	      tail->destroy();
+	      break;
+	    }
 	  }
       }
 
@@ -822,6 +886,7 @@ namespace spot
 	      break;
 	    }
 	  case multop::Concat:
+	  case multop::Fusion:
 	    assert(!"Not an LTL operator");
 	    break;
 	  }

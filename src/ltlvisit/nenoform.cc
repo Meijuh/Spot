@@ -226,23 +226,30 @@ namespace spot
 		op = multop::And;
 		break;
 	      case multop::Concat:
+	      case multop::Fusion:
 		break;
 	      }
 	  multop::vec* res = new multop::vec;
 	  unsigned mos = mo->size();
-	  if (op != multop::Concat)
+	  switch (op)
 	    {
-	      for (unsigned i = 0; i < mos; ++i)
-		res->push_back(recurse(mo->nth(i)));
-	      result_ = multop::instance(op, res);
-	    }
-	  else
-	    {
-	      for (unsigned i = 0; i < mos; ++i)
-		res->push_back(recurse_(mo->nth(i), false));
-	      result_ = multop::instance(op, res);
-	      if (negated_)
-		result_ = unop::instance(unop::Not, result_);
+	    case multop::And:
+	    case multop::Or:
+	      {
+		for (unsigned i = 0; i < mos; ++i)
+		  res->push_back(recurse(mo->nth(i)));
+		result_ = multop::instance(op, res);
+		break;
+	      }
+	    case multop::Concat:
+	    case multop::Fusion:
+	      {
+		for (unsigned i = 0; i < mos; ++i)
+		  res->push_back(recurse_(mo->nth(i), false));
+		result_ = multop::instance(op, res);
+		if (negated_)
+		  result_ = unop::instance(unop::Not, result_);
+	      }
 	    }
 	}
 

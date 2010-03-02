@@ -41,7 +41,7 @@ namespace spot
     class multop : public ref_formula
     {
     public:
-      enum type { Or, And, Concat };
+      enum type { Or, And, Concat, Fusion };
 
       /// List of formulae.
       typedef std::vector<formula*> vec;

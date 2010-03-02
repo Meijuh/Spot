@@ -1,8 +1,8 @@
 // Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
-// Paris 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
-// Universitï¿½ Pierre et Marie Curie.
+// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
+// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -113,6 +113,8 @@ namespace spot
 	  return "Or";
 	case Concat:
 	  return "Concat";
+	case Fusion:
+	  return "Fusion";
 	}
       // Unreachable code.
       assert(0);
@@ -149,48 +151,60 @@ namespace spot
 	      }
 	    else
 	      {
-		// All operator except "Concat" not commutative, so
-		// we just keep a list of the inlined arguments that
-		// should later be added to the vector.
+		// All operator except "Concat" and "Fusion" are
+		// commutative, so we just keep a list of the inlined
+		// arguments that should later be added to the vector.
 		// For concat we have to keep track of the order of
 		// all the arguments.
-		if (op == Concat)
+		if (op == Concat || op == Fusion)
 		  inlined.push_back(*i);
 		++i;
 	      }
 	  }
-	if (op == Concat)
+	if (op == Concat || op == Fusion)
 	  *v = inlined;
 	else
 	  v->insert(v->end(), inlined.begin(), inlined.end());
       }
 
-      if (op != Concat)
+      if (op != Concat && op != Fusion)
 	std::sort(v->begin(), v->end(), formula_ptr_less_than());
 
       formula* neutral;
       formula* abs;
+      formula* abs2;
       formula* weak_abs;
       switch (op)
 	{
 	case And:
 	  neutral = constant::true_instance();
 	  abs = constant::false_instance();
+	  abs2 = 0;
 	  weak_abs = constant::empty_word_instance();
 	  break;
 	case Or:
 	  neutral = constant::false_instance();
 	  abs = constant::true_instance();
+	  abs2 = 0;
 	  weak_abs = 0;
 	  break;
 	case Concat:
 	  neutral = constant::empty_word_instance();
 	  abs = constant::false_instance();
+	  abs2 = 0;
 	  weak_abs = 0;
 	  break;
+	case Fusion:
+	  neutral = constant::true_instance();
+	  abs = constant::false_instance();
+	  abs2 = constant::empty_word_instance();
+	  weak_abs = 0;
+	  break;
+
 	default:
 	  neutral = 0;
 	  abs = 0;
+	  abs2 = 0;
 	  weak_abs = 0;
 	  break;
 	}
@@ -209,7 +223,7 @@ namespace spot
 		(*i)->destroy();
 		i = v->erase(i);
 	      }
-	    else if (*i == abs)
+	    else if (*i == abs || *i == abs2)
 	      {
 		for (i = v->begin(); i != v->end(); ++i)
 		  (*i)->destroy();

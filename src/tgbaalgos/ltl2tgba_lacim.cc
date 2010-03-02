@@ -257,6 +257,7 @@ namespace spot
 	    res_ = bddfalse;
 	    break;
 	  case multop::Concat:
+	  case multop::Fusion:
 	    assert(!"unsupported operator");
 	  }
 	assert(op != -1);

@@ -203,6 +203,7 @@ namespace spot
 		  result_ = true;
 	      break;
 	    case multop::Concat:
+	    case multop::Fusion:
 	      break;
 	    }
 	}
@@ -458,6 +459,7 @@ namespace spot
 	      result_ = true;
 	      break;
 	    case multop::Concat:
+	    case multop::Fusion:
 	      break;
 	    }
 	}
