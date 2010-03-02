@@ -97,12 +97,6 @@ namespace spot
 	void
 	visit(const multop* mo)
 	{
-	  if (mo->op() == multop::Concat)
-	    {
-	      result_ = false;
-	      return;
-	    }
-
 	  unsigned max = mo->size();
 	  // This sets the initial value of result_.
 	  mo->nth(0)->accept(*this);
@@ -119,12 +113,10 @@ namespace spot
 		    return;
 		  break;
 		case multop::And:
+		case multop::Concat:
 		  result_ &= r;
 		  if (!result_)
 		    return;
-		  break;
-		case multop::Concat:
-		  assert(!"unreachable code");
 		  break;
 		}
 	    }
