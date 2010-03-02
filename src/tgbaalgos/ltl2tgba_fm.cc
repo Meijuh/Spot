@@ -184,7 +184,7 @@ namespace spot
 	return multop::instance(multop::And, v);
       }
 
-      const formula*
+      formula*
       bdd_to_formula(bdd f)
       {
 	if (f == bddfalse)
@@ -574,8 +574,10 @@ namespace spot
     class ltl_trad_visitor: public const_visitor
     {
     public:
-      ltl_trad_visitor(translate_dict& dict, bool mark_all = false)
-	: dict_(dict), rat_seen_(false), has_marked_(false), mark_all_(mark_all)
+      ltl_trad_visitor(translate_dict& dict, bool mark_all = false,
+		       bool exprop = false)
+	: dict_(dict), rat_seen_(false), has_marked_(false),
+	  mark_all_(mark_all), exprop_(exprop)
       {
       }
 
@@ -775,6 +777,7 @@ namespace spot
 	      ratexp_trad_visitor v(dict_);
 	      node->first()->accept(v);
 	      bdd f1 = v.result();
+	      res_ = bddfalse;
 
 	      if (mark_all_)
 		{
@@ -782,34 +785,62 @@ namespace spot
 		  has_marked_ = true;
 		}
 
-	      // Recognize f2 on transitions going to destinations
-	      // that accept the empty word.
-	      minato_isop isop(f1);
-	      bdd cube;
-	      res_ = bddfalse;
-	      while ((cube = isop.next()) != bddfalse)
+	      if (exprop_)
 		{
-		  bdd label = bdd_exist(cube, dict_.next_set);
-		  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		  formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
-		  formula* dest2;
-		  int x;
-		  if (dest == constant::empty_word_instance())
+		  bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
+		  bdd all_props = bdd_existcomp(f1, dict_.var_set);
+		  while (all_props != bddfalse)
 		    {
-		      res_ |= label & f2;
-		    }
-		  else
-		    {
-		      dest2 = binop::instance(op, dest,
-					      node->second()->clone());
+		      bdd label = bdd_satoneset(all_props, var_set,
+						bddtrue);
+		      all_props -= label;
+
+		      formula* dest =
+			dict_.bdd_to_formula(bdd_exist(f1 & label,
+						       dict_.var_set));
+
+		      const formula* dest2 =
+			binop::instance(op, dest, node->second()->clone());
+
 		      if (dest2 != constant::false_instance())
 			{
-			  x = dict_.register_next_variable(dest2);
+			  int x = dict_.register_next_variable(dest2);
 			  dest2->destroy();
 			  res_ |= label & bdd_ithvar(x);
 			}
 		      if (constant_term_as_bool(dest))
 			res_ |= label & f2;
+		    }
+		}
+	      else
+		{
+		  // Recognize f2 on transitions going to destinations
+		  // that accept the empty word.
+		  minato_isop isop(f1);
+		  bdd cube;
+		  while ((cube = isop.next()) != bddfalse)
+		    {
+		      bdd label = bdd_exist(cube, dict_.next_set);
+		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+
+		      if (dest == constant::empty_word_instance())
+			{
+			  res_ |= label & f2;
+			}
+		      else
+			{
+			  formula* dest2 = binop::instance(op, dest,
+						  node->second()->clone());
+			  if (dest2 != constant::false_instance())
+			    {
+			      int x = dict_.register_next_variable(dest2);
+			      dest2->destroy();
+			      res_ |= label & bdd_ithvar(x);
+			    }
+			  if (constant_term_as_bool(dest))
+			    res_ |= label & f2;
+			}
 		    }
 		}
 	    }
@@ -896,7 +927,7 @@ namespace spot
       bdd
       recurse(const formula* f)
       {
-	ltl_trad_visitor v(dict_, mark_all_);
+	ltl_trad_visitor v(dict_, mark_all_, exprop_);
 	f->accept(v);
 	rat_seen_ |= v.has_rational();
 	has_marked_ |= v.has_marked();
@@ -910,6 +941,7 @@ namespace spot
       bool rat_seen_;
       bool has_marked_;
       bool mark_all_;
+      bool exprop_;
     };
 
 
@@ -1029,8 +1061,8 @@ namespace spot
     {
     public:
       formula_canonizer(translate_dict& d,
-			bool fair_loop_approx, bdd all_promises)
-	: v_(d),
+			bool fair_loop_approx, bdd all_promises, bool exprop)
+	: v_(d, false, exprop),
 	  fair_loop_approx_(fair_loop_approx),
 	  all_promises_(all_promises),
 	  d_(d)
@@ -1246,7 +1278,7 @@ namespace spot
 	all_promises = pv.result();
       }
 
-    formula_canonizer fc(d, fair_loop_approx, all_promises);
+    formula_canonizer fc(d, fair_loop_approx, all_promises, exprop);
 
     // These are used when atomic propositions are interpreted as
     // events.  There are two kinds of events: observable events are
