@@ -773,6 +773,8 @@ namespace spot
 	  case binop::EConcat:
 	    rat_seen_ = true;
 	    {
+	      // Recognize f2 on transitions going to destinations
+	      // that accept the empty word.
 	      bdd f2 = recurse(node->second());
 	      ratexp_trad_visitor v(dict_);
 	      node->first()->accept(v);
@@ -791,8 +793,7 @@ namespace spot
 		  bdd all_props = bdd_existcomp(f1, dict_.var_set);
 		  while (all_props != bddfalse)
 		    {
-		      bdd label = bdd_satoneset(all_props, var_set,
-						bddtrue);
+		      bdd label = bdd_satoneset(all_props, var_set, bddtrue);
 		      all_props -= label;
 
 		      formula* dest =
@@ -814,8 +815,6 @@ namespace spot
 		}
 	      else
 		{
-		  // Recognize f2 on transitions going to destinations
-		  // that accept the empty word.
 		  minato_isop isop(f1);
 		  bdd cube;
 		  while ((cube = isop.next()) != bddfalse)
@@ -848,36 +847,66 @@ namespace spot
 
 	  case binop::UConcat:
 	    {
+	      // Transitions going to destinations accepting the empty
+	      // word should recognize f2, and the automaton for f1
+	      // should be understood as universal.
 	      bdd f2 = recurse(node->second());
 	      ratexp_trad_visitor v(dict_);
 	      node->first()->accept(v);
 	      bdd f1 = v.result();
-
-	      // Transitions going to destinations accepting the empty
-	      // word should recognize f2, and the automaton should be
-	      // understood as universal.
-	      minato_isop isop(f1);
-	      bdd cube;
 	      res_ = bddtrue;
-	      while ((cube = isop.next()) != bddfalse)
+
+	      if (exprop_)
 		{
-		  bdd label = bdd_exist(cube, dict_.next_set);
-		  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		  formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
-		  formula* dest2;
-		  bdd udest;
+		  bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
+		  bdd all_props = bdd_existcomp(f1, dict_.var_set);
+		  while (all_props != bddfalse)
+		    {
+		      bdd label = bdd_satoneset(all_props, var_set, bddtrue);
+		      all_props -= label;
 
-		  dest2 = binop::instance(op, dest,
-					  node->second()->clone());
-		  udest = bdd_ithvar(dict_.register_next_variable(dest2));
+		      formula* dest =
+			dict_.bdd_to_formula(bdd_exist(f1 & label,
+						       dict_.var_set));
 
-		  if (constant_term_as_bool(dest))
-		    udest &= f2;
+		      formula* dest2 = binop::instance(op, dest,
+						       node->second()->clone());
+		      bdd udest =
+			bdd_ithvar(dict_.register_next_variable(dest2));
 
-		  dest2->destroy();
-		  label = bdd_apply(label, udest, bddop_imp);
+		      if (constant_term_as_bool(dest))
+			udest &= f2;
 
-		  res_ &= label;
+		      dest2->destroy();
+		      label = bdd_apply(label, udest, bddop_imp);
+
+		      res_ &= label;
+		    }
+		}
+	      else
+		{
+		  minato_isop isop(f1);
+		  bdd cube;
+		  while ((cube = isop.next()) != bddfalse)
+		    {
+		      bdd label = bdd_exist(cube, dict_.next_set);
+		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+		      formula* dest2;
+		      bdd udest;
+
+		      dest2 = binop::instance(op, dest,
+					      node->second()->clone());
+		      udest = bdd_ithvar(dict_.register_next_variable(dest2));
+
+		      if (constant_term_as_bool(dest))
+			udest &= f2;
+
+		      dest2->destroy();
+		      label = bdd_apply(label, udest, bddop_imp);
+
+		      res_ &= label;
+		    }
 		}
 	    }
 	    break;
