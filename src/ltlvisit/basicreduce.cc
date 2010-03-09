@@ -239,11 +239,10 @@ namespace spot
 	      return;
 
 	    case unop::Finish:
-	      result_ = unop::instance(unop::Finish, result_);
-	      return;
-
 	    case unop::Star:
-	      result_ = unop::instance(unop::Star, result_);
+	    case unop::Closure:
+	    case unop::NegClosure:
+	      result_ = unop::instance(uo->op(), result_);
 	      return;
 	    }
 	  /* Unreachable code.  */

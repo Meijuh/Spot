@@ -240,9 +240,10 @@ namespace spot
 	  bdd label = bdd_exist(cube, d.next_set);
 	  bdd dest_bdd = bdd_existcomp(cube, d.next_set);
 	  const formula* dest = d.conj_bdd_to_formula(dest_bdd);
-	  bdd_print_set(std::cerr, d.dict, label) << " => "
-						  << to_string(dest)
-						  << std::endl;
+	  bdd_print_set(std::cerr, d.dict, label) << " => ";
+	  bdd_print_set(std::cerr, d.dict, dest_bdd) << " = "
+						     << to_string(dest)
+						     << std::endl;
 	  dest->destroy();
 	}
       return std::cerr;
@@ -297,8 +298,11 @@ namespace spot
     {
     public:
       ratexp_trad_visitor(translate_dict& dict,
+			  bool empty_word_is_true,
 			  formula* to_concat = 0)
-	: dict_(dict), to_concat_(to_concat)
+	: dict_(dict),
+	  empty_word_is_true_(empty_word_is_true),
+	  to_concat_(to_concat)
       {
       }
 
@@ -325,17 +329,10 @@ namespace spot
 
       bdd now_to_concat()
       {
-	if (to_concat_)
-	  {
-	    if (to_concat_ == constant::empty_word_instance())
-	      return bddfalse;
-	    bdd n = recurse(to_concat_);
-	    return n;
-	  }
-	else
-	  {
-	    return bddfalse;
-	  }
+	if (to_concat_ && to_concat_ != constant::empty_word_instance())
+	  return recurse(to_concat_);
+
+	return empty_word_is_true_ ? bddtrue : bddfalse;
       }
 
       void
@@ -374,6 +371,9 @@ namespace spot
 	  case unop::Not:
 	  case unop::X:
 	  case unop::Finish:
+	  case unop::Closure:
+	  case unop::NegClosure:
+	    break;
 	    assert(!"not a rational operator");
 	    return;
 	  case unop::Star:
@@ -556,7 +556,7 @@ namespace spot
       bdd
       recurse(const formula* f, formula* to_concat = 0)
       {
-	ratexp_trad_visitor v(dict_, to_concat);
+	ratexp_trad_visitor v(dict_, empty_word_is_true_, to_concat);
 	f->accept(v);
 	return v.result();
       }
@@ -565,6 +565,7 @@ namespace spot
     private:
       translate_dict& dict_;
       bdd res_;
+      bool empty_word_is_true_;
       formula* to_concat_;
     };
 
@@ -646,7 +647,9 @@ namespace spot
       void
       visit(const unop* node)
       {
-	switch (node->op())
+	unop::type op = node->op();
+
+	switch (op)
 	  {
 	  case unop::F:
 	    {
@@ -691,6 +694,120 @@ namespace spot
 	      res_ = bdd_ithvar(x);
 	      break;
 	    }
+	  case unop::Closure:
+	    {
+	      rat_seen_ = true;
+	      ratexp_trad_visitor v(dict_, true);
+	      node->child()->accept(v);
+	      bdd f1 = v.result();
+	      res_ = bddfalse;
+
+	      if (exprop_)
+		{
+		  bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
+		  bdd all_props = bdd_existcomp(f1, dict_.var_set);
+		  while (all_props != bddfalse)
+		    {
+		      bdd label = bdd_satoneset(all_props, var_set, bddtrue);
+		      all_props -= label;
+
+		      formula* dest =
+			dict_.bdd_to_formula(bdd_exist(f1 & label,
+						       dict_.var_set));
+
+		      const formula* dest2;
+		      if (constant_term_as_bool(dest))
+			{
+			  dest->destroy();
+			  res_ |= label;
+			}
+		      else
+			{
+			  dest2 = unop::instance(op, dest);
+			  if (dest2 == constant::false_instance())
+			    continue;
+			  int x = dict_.register_next_variable(dest2);
+			  dest2->destroy();
+			  res_ |= label & bdd_ithvar(x);
+			}
+		    }
+		}
+	      else
+		{
+		  minato_isop isop(f1);
+		  bdd cube;
+		  while ((cube = isop.next()) != bddfalse)
+		    {
+		      bdd label = bdd_exist(cube, dict_.next_set);
+		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+
+		      const formula* dest2;
+		      if (constant_term_as_bool(dest))
+			{
+			  dest->destroy();
+			  res_ |= label;
+			}
+		      else
+			{
+			  dest2 = unop::instance(op, dest);
+			  if (dest2 == constant::false_instance())
+			    continue;
+			  int x = dict_.register_next_variable(dest2);
+			  dest2->destroy();
+			  res_ |= label & bdd_ithvar(x);
+			}
+		    }
+		}
+	    }
+	    break;
+
+	  case unop::NegClosure:
+	    {
+	      rat_seen_ = true;
+	      has_marked_ = true;
+	      ratexp_trad_visitor v(dict_, true);
+	      node->child()->accept(v);
+	      bdd f1 = v.result();
+
+	      // trace_ltl_bdd(dict_, f1);
+
+	      bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
+	      bdd all_props = bdd_existcomp(f1, dict_.var_set);
+
+	      res_ = !all_props &
+		// stick X(1) to preserve determinism.
+		bdd_ithvar(dict_.register_next_variable
+			   (constant::true_instance()));
+
+	      while (all_props != bddfalse)
+		{
+		  bdd label = bdd_satoneset(all_props, var_set, bddtrue);
+		  all_props -= label;
+
+		  formula* dest =
+		    dict_.bdd_to_formula(bdd_exist(f1 & label,
+						   dict_.var_set));
+
+		  // !{ Exp } is false if Exp accepts the empty word.
+		  if (constant_term_as_bool(dest))
+		    {
+		      dest->destroy();
+		      continue;
+		    }
+
+		  const formula* dest2 = unop::instance(op, dest);
+
+		  if (dest == constant::false_instance())
+		    continue;
+
+		  int x = dict_.register_next_variable(dest2);
+		  dest2->destroy();
+		  res_ |= label & bdd_ithvar(x);
+		}
+	    }
+	    break;
+
 	  case unop::Finish:
 	    assert(!"unsupported operator");
 	    break;
@@ -776,7 +893,7 @@ namespace spot
 	      // Recognize f2 on transitions going to destinations
 	      // that accept the empty word.
 	      bdd f2 = recurse(node->second());
-	      ratexp_trad_visitor v(dict_);
+	      ratexp_trad_visitor v(dict_, false);
 	      node->first()->accept(v);
 	      bdd f1 = v.result();
 	      res_ = bddfalse;
@@ -851,7 +968,7 @@ namespace spot
 	      // word should recognize f2, and the automaton for f1
 	      // should be understood as universal.
 	      bdd f2 = recurse(node->second());
-	      ratexp_trad_visitor v(dict_);
+	      ratexp_trad_visitor v(dict_, false);
 	      node->first()->accept(v);
 	      bdd f1 = v.result();
 	      res_ = bddtrue;
@@ -931,10 +1048,13 @@ namespace spot
 	      for (unsigned n = 0; n < s; ++n)
 		{
 		  bdd res = recurse(node->nth(n));
-		  //std::cerr << "=== in And" << std::endl;
-		  //trace_ltl_bdd(dict_, res);
+		  //std::cerr << "== in And (" << to_string(node->nth(n))
+		  // << ")" << std::endl;
+		  // trace_ltl_bdd(dict_, res);
 		  res_ &= res;
 		}
+	      //std::cerr << "=== And final" << std::endl;
+	      // trace_ltl_bdd(dict_, res_);
 	      break;
 	    }
 	  case multop::Or:

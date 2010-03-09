@@ -59,8 +59,24 @@ namespace spot
 	}
 
 	void
-	visit(unop*)
+	visit(unop* uo)
 	{
+	  switch (uo->op())
+	    {
+	    case unop::NegClosure:
+	      result_ = true;
+	      return;
+	    case unop::Finish:
+	    case unop::Star:
+	    case unop::Closure:
+	    case unop::Not:
+	    case unop::X:
+	    case unop::F:
+	    case unop::G:
+	      return;
+	    }
+	  /* Unreachable code. */
+	  assert(0);
 	}
 
 	void
@@ -148,7 +164,23 @@ namespace spot
 	void
 	visit(unop* uo)
 	{
-	  result_ = uo->clone();
+	  switch (uo->op())
+	    {
+	    case unop::NegClosure:
+	      has_mark_ = true;
+	      /* fall through */
+	    case unop::Finish:
+	    case unop::Star:
+	    case unop::Closure:
+	    case unop::Not:
+	    case unop::X:
+	    case unop::F:
+	    case unop::G:
+	      result_ = uo->clone();
+	      return;
+	    }
+	  /* Unreachable code. */
+	  assert(0);
 	}
 
 	void
@@ -181,7 +213,9 @@ namespace spot
 
 		    binop* bo = dynamic_cast<binop*>(f);
 		    if (!bo)
-		      res->push_back(recurse(f));
+		      {
+			res->push_back(recurse(f));
+		      }
 		    else
 		      {
 			switch (bo->op())
@@ -317,7 +351,7 @@ namespace spot
 	    case binop::Xor:
 	    case binop::Implies:
 	    case binop::Equiv:
-	      assert(!"mark no defined on logic abbreviations");
+	      assert(!"mark not defined on logic abbreviations");
 	    case binop::U:
 	    case binop::W:
 	    case binop::M:

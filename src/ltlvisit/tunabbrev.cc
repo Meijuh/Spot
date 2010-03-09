@@ -1,4 +1,6 @@
-// Copyright (C) 2003, 2009  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
+// Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -43,6 +45,8 @@ namespace spot
 	case unop::X:
 	case unop::Not:
 	case unop::Star:
+	case unop::Closure:
+	case unop::NegClosure:
 	  this->super::visit(uo);
 	  return;
 	case unop::F:

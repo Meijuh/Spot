@@ -102,6 +102,8 @@ namespace spot
 	  case unop::F:
           case unop::G:
 	  case unop::Star:
+	  case unop::Closure:
+	  case unop::NegClosure:
 	    assert(!"unsupported operator");
 	  }
 	/* Unreachable code.  */

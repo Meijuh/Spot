@@ -106,8 +106,9 @@ namespace spot
 		result_ = true;
 	      return;
 	    case unop::Finish:
-	      return;
 	    case unop::Star:
+	    case unop::Closure:
+	    case unop::NegClosure:
 	      return;
 	    }
 	  /* Unreachable code.  */
@@ -337,8 +338,9 @@ namespace spot
 		return;
 	      }
 	    case unop::Finish:
-	      return;
 	    case unop::Star:
+	    case unop::Closure:
+	    case unop::NegClosure:
 	      return;
 	    }
 	  /* Unreachable code.  */

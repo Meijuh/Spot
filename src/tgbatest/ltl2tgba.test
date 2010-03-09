@@ -70,6 +70,16 @@ check_psl 'G({(a;b)*}<>->x)&G({(c;d)*}<>->y)'
 check_psl '{(#e + a):c*:(#e + b)}<>->d'
 check_psl '{a;e;f:(g*);h}<>->d'
 check_psl '{(a:b)* & (c*:d)}<>->e'
+check_psl '{(a:b)*}'
+check_psl 'G{(a:b)*}'
+check_psl '{a;b}'
+check_psl '{(a;b)*}'
+check_psl 'G{(a;b)*}'
+check_psl '{a*}[]->{b*}'
+
+# Example from "Beyond Hardware Verification" by Glazberg, Moulin, Orni,
+# Ruah, Zarpas (2007).
+check_psl '{1*;req;ack;1}[]->{start;busy*;done}'
 
 # Make sure 'a U (b U c)' has 3 states and 6 transitions,
 # before and after degeneralization.

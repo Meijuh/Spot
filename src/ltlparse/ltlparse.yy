@@ -361,6 +361,8 @@ subformula: booleanatom
 	      { $$ = unop::instance(unop::Not, $2); }
 	    | OP_NOT error
 	      { missing_right_op($$, @1, "not operator"); }
+            | bracedrationalexp
+	      { $$ = unop::instance(unop::Closure, $1); }
             | bracedrationalexp OP_UCONCAT subformula
 	      { $$ = binop::instance(binop::UConcat, $1, $3); }
             | bracedrationalexp OP_UCONCAT error
@@ -369,6 +371,7 @@ subformula: booleanatom
 	      { $$ = binop::instance(binop::EConcat, $1, $3); }
             | bracedrationalexp OP_ECONCAT error
 	      { missing_right_binop($$, $1, @2, "universal concat operator"); }
+
 ;
 
 %%

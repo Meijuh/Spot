@@ -164,6 +164,7 @@ namespace spot
 	void
 	visit(const unop* uo)
 	{
+	  top_level_ = false;
 	  // The parser treats F0, F1, G0, G1, X0, and X1 as atomic
 	  // propositions.  So make sure we output F(0), G(1), etc.
 	  bool need_parent = !!dynamic_cast<const constant*>(uo->child());
@@ -196,24 +197,43 @@ namespace spot
 	      os_ << "finish";
 	      need_parent = true;
 	      break;
+	    case unop::Closure:
+	      os_ << "{";
+	      top_level_ = true;
+	      break;
+	    case unop::NegClosure:
+	      os_ << "!{";
+	      break;
 	    case unop::Star:
-	      // Do not output anything yet, star is a postfix operator.
+	      // 1* is OK, no need to print (1)*.
 	      need_parent = false;
+	      // Do not output anything yet, star is a postfix operator.
 	      break;
 	    }
 
 	  top_level_ = false;
-	  if (need_parent)
+	  if (need_parent || full_parent_)
 	    os_ << "(";
 	  uo->child()->accept(*this);
 	  if (need_parent)
 	    os_ << ")";
 
+	  switch (uo->op())
+	    {
+	    case unop::Star:
+	      os_ << "*";
+	      break;
+	    case unop::Closure:
+	    case unop::NegClosure:
+	      os_ << "}";
+	      top_level_ = false;
+	      break;
+	    default:
+	      break;
+	    }
+
 	  if (full_parent_ && !top_level)
 	    os_ << ")";
-
-	  if (uo->op() == unop::Star)
-	    os_ << "*";
 	}
 
 	void
@@ -377,15 +397,17 @@ namespace spot
 	  bool top_level = top_level_;
 	  if (full_parent_ && !top_level)
 	    os_ << "(";
+
 	  bool need_parent = false;
+	  top_level_ = false;
 	  switch (uo->op())
 	    {
 	    case unop::Not:
 	      os_ << "!";
 	      break;
 	    case unop::X:
-	      // The parser treats X0, and X1 as atomic propositions.	 So
-	      // make sure we output X(0) and X(1).
+	      // The parser treats X0, and X1 as atomic
+	      // propositions. So make sure we output X(0) and X(1).
 	      need_parent = !!dynamic_cast<const constant*>(uo->child());
 	      if (full_parent_)
 		need_parent = false;
@@ -401,14 +423,19 @@ namespace spot
 	      os_ << "finish";
 	      need_parent = true;
 	      break;
+	    case unop::Closure:
+	      os_ << "{";
+	      top_level_ = true;
+	      break;
+	    case unop::NegClosure:
+	      os_ << "!{";
+	      top_level_ = true;
+	      break;
 	    case unop::Star:
 	      // Do not output anything yet, star is a postfix operator.
-	      // FIXME: is there a better way to output "Star" for Spin?
-	      need_parent = false;
 	      break;
 	    }
 
-	  top_level_ = false;
 	  if (need_parent)
 	    os_ << "(";
 	  uo->child()->accept(*this);
@@ -416,6 +443,21 @@ namespace spot
 	    os_ << ")";
 	  if (uo->op() == unop::Star)
 	    os_ << "*";
+
+	  switch (uo->op())
+	    {
+	    case unop::Star:
+	      os_ << "*";
+	      break;
+	    case unop::Closure:
+	    case unop::NegClosure:
+	      os_ << "}";
+	      top_level_ = false;
+	      break;
+	    default:
+	      break;
+	    }
+
 	  if (full_parent_ && !top_level)
 	    os_ << ")";
 	}

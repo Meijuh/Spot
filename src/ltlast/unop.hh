@@ -1,8 +1,8 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
-// 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
-// Universitï¿½ Pierre et Marie Curie.
+// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
+// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -47,6 +47,8 @@ namespace spot
 	Finish,
 	// Kleene Star
 	Star,
+	// Closure
+	Closure, NegClosure,
 	};
 
       /// \brief Build an unary operator with operation \a op and
@@ -69,6 +71,14 @@ namespace spot
       ///   - !1 = 0
       ///   - !0 = 1
       ///   - !!Exp = Exp
+      ///   - !Closure(Exp) = NegClosure(Exp)
+      ///   - !NegClosure(Exp) = Closure(Exp)
+      ///   - Closure(#e) = 1
+      ///   - Closure(1) = 1
+      ///   - Closure(0) = 0
+      ///   - NegClosure(#e) = 0
+      ///   - NegClosure(1) = 0
+      ///   - NegClosure(0) = 1
       ///
       /// This rewriting implies that it is not possible to build an
       /// LTL formula object that is SYNTACTICALLY equal to one of

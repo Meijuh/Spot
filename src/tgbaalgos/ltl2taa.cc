@@ -142,6 +142,8 @@ namespace spot
 	    return;
 	  case unop::Finish:
 	  case unop::Star:
+	  case unop::Closure:
+	  case unop::NegClosure:
 	    assert(!"unsupported operator");
 	    return;
 	}

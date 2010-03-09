@@ -235,14 +235,6 @@ namespace spot
 
 	  switch (uo->op())
 	    {
-	    case unop::Not:
-	      result_ = unop::instance(unop::Not, result_);
-	      return;
-
-	    case unop::X:
-	      result_ = unop::instance(unop::X, result_);
-	      return;
-
 	    case unop::F:
 	      /* If f is a pure eventuality formula then F(f)=f.  */
 	      if (!(opt_ & Reduce_Eventuality_And_Universality)
@@ -257,14 +249,14 @@ namespace spot
 		result_ = unop::instance(unop::G, result_);
 	      return;
 
+	    case unop::Not:
+	    case unop::X:
 	    case unop::Finish:
-	      result_ = unop::instance(unop::Finish, result_);
-	      return;
-
 	    case unop::Star:
-	      result_ = unop::instance(unop::Star, result_);
+	    case unop::Closure:
+	    case unop::NegClosure:
+	      result_ = unop::instance(uo->op(), result_);
 	      return;
-
 	    }
 	  /* Unreachable code.  */
 	  assert(0);

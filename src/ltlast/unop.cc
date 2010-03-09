@@ -1,8 +1,8 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris
-// 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
-// Universitï¿½ Pierre et Marie Curie.
+// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
+// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -101,6 +101,10 @@ namespace spot
 	  return "Finish";
 	case Star:
 	  return "Star";
+	case Closure:
+	  return "Closure";
+	case NegClosure:
+	  return "NegClosure";
 	}
       // Unreachable code.
       assert(0);
@@ -145,7 +149,7 @@ namespace spot
 	    if (child == constant::empty_word_instance())
 	      return constant::true_instance();
 	  }
-
+	  break;
 
 	case Not:
 	  {
@@ -155,13 +159,30 @@ namespace spot
 	    // !0 = 1
 	    if (child == constant::false_instance())
 	      return constant::true_instance();
-	    // Not is an involution.
 	    unop* u = dynamic_cast<unop*>(child);
-	    if (u && u->op() == op)
+	    if (u)
 	      {
-		formula* c = u->child()->clone();
-		u->destroy();
-		return c;
+		// "Not" is an involution.
+		if (u->op() == op)
+		  {
+		    formula* c = u->child()->clone();
+		    u->destroy();
+		    return c;
+		  }
+		if (u->op() == Closure)
+		  {
+		    formula* c = unop::instance(NegClosure,
+						u->child()->clone());
+		    u->destroy();
+		    return c;
+		  }
+		if (u->op() == NegClosure)
+		  {
+		    formula* c = unop::instance(Closure,
+						u->child()->clone());
+		    u->destroy();
+		    return c;
+		  }
 	      }
 	    break;
 	  }
@@ -178,6 +199,22 @@ namespace spot
 
 	case Finish:
 	  // No simplifications for Finish.
+	  break;
+
+	case Closure:
+	  if (child == constant::true_instance()
+	      || child == constant::empty_word_instance())
+	    return constant::true_instance();
+	  if (child == constant::false_instance())
+	    return child;
+	  break;
+
+	case NegClosure:
+	  if (child == constant::true_instance()
+	      || child == constant::empty_word_instance())
+	    return constant::false_instance();
+	  if (child == constant::false_instance())
+	    return constant::true_instance();
 	  break;
 	}
 

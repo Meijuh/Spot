@@ -108,15 +108,21 @@ namespace spot
 	      result_ = unop::instance(negated_ ? unop::F : unop::G,
 				       recurse(f));
 	      return;
-	    case unop::Finish:
-	      /* Finish(x) is not simplified */
-	      result_ = unop::instance(unop::Finish, recurse_(f, false));
-	      if (negated_)
-		result_ = unop::instance(unop::Not, result_);
+	    case unop::Closure:
+	      result_ = unop::instance(negated_ ?
+				       unop::NegClosure : unop::Closure,
+				       recurse_(f, false));
 	      return;
-	    case unop::Star:
+	    case unop::NegClosure:
+	      result_ = unop::instance(negated_ ?
+				       unop::Closure : uo->op(),
+				       recurse_(f, false));
+	      return;
+	      /* !Finish(x), is not simplified */
 	      /* !(a*) is not simplified */
-	      result_ = unop::instance(unop::Star, recurse_(f, false));
+	    case unop::Finish:
+	    case unop::Star:
+	      result_ = unop::instance(uo->op(), recurse_(f, false));
 	      if (negated_)
 		result_ = unop::instance(unop::Not, result_);
 	      return;

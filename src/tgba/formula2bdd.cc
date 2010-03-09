@@ -80,6 +80,8 @@ namespace spot
 	  case unop::G:
 	  case unop::X:
 	  case unop::Star:
+	  case unop::Closure:
+	  case unop::NegClosure:
 	    assert(!"unsupported operator");
 	  case unop::Not:
 	    {
