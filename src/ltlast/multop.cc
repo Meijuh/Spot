@@ -239,9 +239,9 @@ namespace spot
 		++i;
 	      }
 	  }
-	// We have    a* & #e & 0  = 0  // already checked above
-	//     but    a* & #e & c*  = #e
-	// So if #e has been seen, check if all term recognize the
+	// We have    a* & [*0] & 0  = 0  // already checked above
+	//     but    a* & [*0] & c* = [*0]
+	// So if [*0] has been seen, check if all term recognize the
 	// empty word.
 	if (weak_abs_seen)
 	  {

@@ -80,7 +80,7 @@ namespace spot
       /// are also taken care of.  The following rewriting are performed
       /// (the left patterns are rewritten as shown on the right):
       ///
-      /// - Concat(Exps1...,#e,Exps2...) = Concat(Exps1...,Exps2...)
+      /// - Concat(Exps1...,[*0],Exps2...) = Concat(Exps1...,Exps2...)
       /// - Concat(Exps1...,0,Exps2...) = 0
       /// - Concat(Exp) = Exp
       /// - And(Exps1...,1,Exps2...) = And(Exps1...,Exps2...)

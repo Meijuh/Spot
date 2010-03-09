@@ -87,7 +87,7 @@ namespace spot
 	case False:
 	  return "0";
 	case EmptyWord:
-	  return "#e";
+	  return "[*0]";
 	}
       // Unreachable code.
       assert(0);

@@ -57,8 +57,8 @@ namespace spot
       /// The following trivial simplifications are performed
       /// automatically (the left expression is rewritten as the right
       /// expression):
-      ///   - 0* = #e
-      ///   - #e* = #e
+      ///   - 0* = [*0]
+      ///   - [*0]* = [*0]
       ///   - Exp** = Exp*
       ///   - FF(Exp) = F(Exp)
       ///   - GG(Exp) = G(Exp)
@@ -66,17 +66,17 @@ namespace spot
       ///   - G(0) = 0
       ///   - F(1) = 1
       ///   - G(1) = 1
-      ///   - F(#e) = 1
-      ///   - G(#e) = 1
+      ///   - F([*0]) = 1
+      ///   - G([*0]) = 1
       ///   - !1 = 0
       ///   - !0 = 1
       ///   - !!Exp = Exp
       ///   - !Closure(Exp) = NegClosure(Exp)
       ///   - !NegClosure(Exp) = Closure(Exp)
-      ///   - Closure(#e) = 1
+      ///   - Closure([*0]) = 1
       ///   - Closure(1) = 1
       ///   - Closure(0) = 0
-      ///   - NegClosure(#e) = 0
+      ///   - NegClosure([*0]) = 0
       ///   - NegClosure(1) = 0
       ///   - NegClosure(0) = 1
       ///

@@ -261,7 +261,7 @@ namespace spot
 	case EConcatMarked:
 	  //   - 0 <>-> Exp = 0
 	  //   - 1 <>-> Exp = Exp
-	  //   - #e <>-> Exp = 0
+	  //   - [*0] <>-> Exp = 0
 	  //   - Exp <>-> 0 = 0
 	  if (first == constant::true_instance())
 	    return second;
@@ -280,7 +280,7 @@ namespace spot
 	case UConcat:
 	  //   - 0 []-> Exp = 1
 	  //   - 1 []-> Exp = Exp
-	  //   - #e []-> Exp = 1
+	  //   - [*0] []-> Exp = 1
 	  //   - Exp []-> 1 = 1
 	  if (first == constant::true_instance())
 	    return second;

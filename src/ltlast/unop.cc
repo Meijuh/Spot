@@ -120,8 +120,8 @@ namespace spot
       // Some trivial simplifications.
       switch (op)
 	{
-	  // We have (0*) == (#e)
-	  //         (#e*) == (#e)
+	  // We have (0*) == ([*0])
+	  //         ([*0]*) == ([*0])
 	case Star:
 	  if (child == constant::false_instance()
 	      || child == constant::empty_word_instance())
@@ -145,7 +145,7 @@ namespace spot
 	    if (child == constant::false_instance()
 		|| child == constant::true_instance())
 	      return child;
-	    // F(#e) = G(#e) = 1
+	    // F([*0]) = G([*0]) = 1
 	    if (child == constant::empty_word_instance())
 	      return constant::true_instance();
 	  }
@@ -192,7 +192,7 @@ namespace spot
 	  if (child == constant::true_instance()
 	      || child == constant::false_instance())
 	    return child;
-	  // X(#e) = 1
+	  // X([*0]) = 1
 	  if (child == constant::empty_word_instance())
 	    return constant::true_instance();
 	  break;
