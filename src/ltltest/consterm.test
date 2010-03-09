@@ -37,6 +37,7 @@ run 1 ../consterm '((a ; b) + #e)'
 run 0 ../consterm '((a ; b) + #e) & e'
 run 1 ../consterm '((a ; b) + #e) & #e'
 run 1 ../consterm '((a ; b) + #e) & (a* + b)'
+run 1 ../consterm '{{a ; b} + {#e}} & {a* + b}'  # test braces
 run 1 ../consterm '(a + #e);(b + #e);(c + #e)'
 run 0 ../consterm '(a + #e);(b + e);(c + #e)'
 run 1 ../consterm '(a + #e);(b + e)*;(c + #e)'

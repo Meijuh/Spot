@@ -234,6 +234,8 @@ booleanatom: ATOMIC_PROP
 rationalexp: booleanatom
 	    | CONST_EMPTYWORD
 	      { $$ = constant::empty_word_instance(); }
+            | bracedrationalexp
+	      { $$ = $1; }
 	    | PAR_OPEN rationalexp PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN error PAR_CLOSE

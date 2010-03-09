@@ -66,7 +66,7 @@ check_psl '{((a*;b;c)*)&((b*;a;c)*)}<>->x'
 check_psl '{(g;y;r)*}<>->x'
 check_psl 'G({(g;y;r)*}<>->x)'
 check_psl 'G({(a;b)*}<>->x)&G({(c;d)*}<>->y)'
-check_psl 'G({(a;b)*}<>->x)&G({(c;d)*}<>->y)'
+check_psl 'G({{a;b}*}[]->x)&G({{c;d}*}[]->y)' # try sub-braces
 check_psl '{(#e + a):c*:(#e + b)}<>->d'
 check_psl '{a;e;f:(g*);h}<>->d'
 check_psl '{(a:b)* & (c*:d)}<>->e'
