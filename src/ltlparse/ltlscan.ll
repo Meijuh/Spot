@@ -85,7 +85,13 @@ flex_set_buffer(const char* buf, int start_tok)
   /* ~ comes from Goal, ! from everybody else */
 "!"|"~"				BEGIN(0); return token::OP_NOT;
 
+  /* PSL operators */
 "[*0]"				BEGIN(0); return token::CONST_EMPTYWORD;
+"[]->"|"|->"			BEGIN(0); return token::OP_UCONCAT;
+"<>->"				BEGIN(0); return token::OP_ECONCAT;
+"*"|"[*]"			BEGIN(0); return token::OP_STAR;
+";"				BEGIN(0); return token::OP_CONCAT;
+":"				BEGIN(0); return token::OP_FUSION;
 
   /* & and | come from Spin.  && and || from LTL2BA.
      /\, \/, and xor are from LBTT.

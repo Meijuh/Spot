@@ -118,7 +118,8 @@ using namespace spot::ltl;
 
 %nonassoc OP_POST_NEG OP_POST_POS
 
-%type <ltl> subformula booleanatom rationalexp bracedrationalexp
+%type <ltl> subformula booleanatom rationalexp
+%type <ltl> bracedrationalexp parenthesedsubformula
 
 %destructor { delete $$; } <str>
 %destructor { $$->destroy(); } <ltl>
@@ -232,10 +233,9 @@ booleanatom: ATOMIC_PROP
 	      { $$ = constant::false_instance(); }
 
 rationalexp: booleanatom
+            | bracedrationalexp
 	    | CONST_EMPTYWORD
 	      { $$ = constant::empty_word_instance(); }
-            | bracedrationalexp
-	      { $$ = $1; }
 	    | PAR_OPEN rationalexp PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN error PAR_CLOSE
@@ -292,8 +292,7 @@ bracedrationalexp: BRACE_OPEN rationalexp BRACE_CLOSE
 		$$ = constant::false_instance();
 	      }
 
-subformula: booleanatom
-	    | PAR_OPEN subformula PAR_CLOSE
+parenthesedsubformula: PAR_OPEN subformula PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN error PAR_CLOSE
 	      { error_list.push_back(parse_error(@$,
@@ -311,6 +310,10 @@ subformula: booleanatom
 		    "treating this parenthetical block as false"));
 		$$ = constant::false_instance();
 	      }
+
+
+subformula: booleanatom
+            | parenthesedsubformula
 	    | subformula OP_AND subformula
 	      { $$ = multop::instance(multop::And, $1, $3); }
 	    | subformula OP_AND error
@@ -367,6 +370,8 @@ subformula: booleanatom
 	      { $$ = unop::instance(unop::Closure, $1); }
             | bracedrationalexp OP_UCONCAT subformula
 	      { $$ = binop::instance(binop::UConcat, $1, $3); }
+            | bracedrationalexp parenthesedsubformula
+	      { $$ = binop::instance(binop::UConcat, $1, $2); }
             | bracedrationalexp OP_UCONCAT error
 	      { missing_right_binop($$, $1, @2, "universal concat operator"); }
             | bracedrationalexp OP_ECONCAT subformula
