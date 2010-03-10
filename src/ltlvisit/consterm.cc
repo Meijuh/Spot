@@ -76,6 +76,11 @@ namespace spot
 	  switch (uo->op())
 	    {
 	    case unop::Not:
+	      result_ = false;
+	      break;
+	    case unop::Star:
+	      result_ = true;
+	      break;
 	    case unop::X:
 	    case unop::F:
 	    case unop::G:
@@ -83,9 +88,6 @@ namespace spot
 	    case unop::Closure:
 	    case unop::NegClosure:
 	      assert(!"unsupported operator");
-	      break;
-	    case unop::Star:
-	      result_ = true;
 	      break;
 	    }
 	}

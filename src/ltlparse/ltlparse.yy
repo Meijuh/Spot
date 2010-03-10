@@ -234,6 +234,8 @@ booleanatom: ATOMIC_PROP
 	      { $$ = constant::false_instance(); }
 
 rationalexp: booleanatom
+            | OP_NOT booleanatom
+	      { $$ = unop::instance(unop::Not, $2); }
             | bracedrationalexp
 	    | CONST_EMPTYWORD
 	      { $$ = constant::empty_word_instance(); }

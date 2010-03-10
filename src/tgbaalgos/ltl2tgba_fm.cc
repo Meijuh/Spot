@@ -364,14 +364,22 @@ namespace spot
 	  {
 	  case unop::F:
 	  case unop::G:
-	  case unop::Not:
 	  case unop::X:
 	  case unop::Finish:
 	  case unop::Closure:
 	  case unop::NegClosure:
-	    break;
 	    assert(!"not a rational operator");
 	    return;
+	  case unop::Not:
+	    {
+	      // Not can only appear in front of constants or atomic
+	      // propositions.
+	      const formula* f = node->child();
+	      assert(dynamic_cast<const atomic_prop*>(f)
+		     || dynamic_cast<const constant*>(f));
+	      res_ = !recurse(f) & next_to_concat();
+	      return;
+	    }
 	  case unop::Star:
 	    {
 	      formula* f;
