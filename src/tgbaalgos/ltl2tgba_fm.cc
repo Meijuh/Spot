@@ -1049,21 +1049,26 @@ namespace spot
 	      bdd f1 = v.result();
 	      res_ = bddtrue;
 
-	      if (exprop_)
+	      bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
+	      bdd all_props = bdd_existcomp(f1, dict_.var_set);
+	      while (all_props != bddfalse)
 		{
-		  bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
-		  bdd all_props = bdd_existcomp(f1, dict_.var_set);
-		  while (all_props != bddfalse)
+
+		  bdd one_prop_set = bddtrue;
+		  if (exprop_)
+		    one_prop_set = bdd_satoneset(all_props, var_set, bddtrue);
+		  all_props -= one_prop_set;
+
+		  minato_isop isop(f1 & one_prop_set);
+		  bdd cube;
+		  while ((cube = isop.next()) != bddfalse)
 		    {
-		      bdd label = bdd_satoneset(all_props, var_set, bddtrue);
-		      all_props -= label;
+		      bdd label = bdd_exist(cube, dict_.next_set);
+		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+		      formula* dest2 =
+			binop::instance(op, dest, node->second()->clone());
 
-		      formula* dest =
-			dict_.bdd_to_formula(bdd_exist(f1 & label,
-						       dict_.var_set));
-
-		      formula* dest2 = binop::instance(op, dest,
-						       node->second()->clone());
 		      bdd udest =
 			bdd_ithvar(dict_.register_next_variable(dest2));
 
@@ -1071,34 +1076,8 @@ namespace spot
 			udest &= f2;
 
 		      dest2->destroy();
-		      label = bdd_apply(label, udest, bddop_imp);
 
-		      res_ &= label;
-		    }
-		}
-	      else
-		{
-		  minato_isop isop(f1);
-		  bdd cube;
-		  while ((cube = isop.next()) != bddfalse)
-		    {
-		      bdd label = bdd_exist(cube, dict_.next_set);
-		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
-		      formula* dest2;
-		      bdd udest;
-
-		      dest2 = binop::instance(op, dest,
-					      node->second()->clone());
-		      udest = bdd_ithvar(dict_.register_next_variable(dest2));
-
-		      if (constant_term_as_bool(dest))
-			udest &= f2;
-
-		      dest2->destroy();
-		      label = bdd_apply(label, udest, bddop_imp);
-
-		      res_ &= label;
+		      res_ &= bdd_apply(label, udest, bddop_imp);
 		    }
 		}
 	    }
