@@ -326,6 +326,7 @@ namespace spot
 	    return;
 	  case multop::Concat:
 	  case multop::Fusion:
+	  case multop::AndNLM:
 	    assert(!"unsupported operator");
 	    return;
 	}

@@ -78,7 +78,8 @@ using namespace spot::ltl;
 %token START_RATEXP "RATEXP start marker"
 %token PAR_OPEN "opening parenthesis" PAR_CLOSE "closing parenthesis"
 %token BRACE_OPEN "opening brace" BRACE_CLOSE "closing brace"
-%token OP_OR "or operator" OP_XOR "xor operator" OP_AND "and operator"
+%token OP_OR "or operator" OP_XOR "xor operator"
+%token OP_AND "and operator" OP_SHORT_AND "short and operator"
 %token OP_IMPLIES "implication operator" OP_EQUIV "equivalent operator"
 %token OP_U "until operator" OP_R "release operator"
 %token OP_W "weak until operator" OP_M "strong release operator"
@@ -103,7 +104,7 @@ using namespace spot::ltl;
 %left OP_IMPLIES OP_EQUIV
 %left OP_OR
 %left OP_XOR
-%left OP_AND
+%left OP_AND OP_SHORT_AND
 
 /* LTL operators.  */
 %left OP_U OP_R OP_M OP_W
@@ -257,7 +258,13 @@ rationalexp: booleanatom
 	    | rationalexp OP_AND rationalexp
 	      { $$ = multop::instance(multop::And, $1, $3); }
 	    | rationalexp OP_AND error
-              { missing_right_binop($$, $1, @2, "and operator"); }
+              { missing_right_binop($$, $1, @2,
+                                    "length-matching and operator"); }
+	    | rationalexp OP_SHORT_AND rationalexp
+	      { $$ = multop::instance(multop::AndNLM, $1, $3); }
+	    | rationalexp OP_SHORT_AND error
+              { missing_right_binop($$, $1, @2,
+                                    "non-length-matching and operator"); }
 	    | rationalexp OP_OR rationalexp
 	      { $$ = multop::instance(multop::Or, $1, $3); }
 	    | rationalexp OP_OR error
@@ -317,6 +324,10 @@ subformula: booleanatom
 	    | subformula OP_AND subformula
 	      { $$ = multop::instance(multop::And, $1, $3); }
 	    | subformula OP_AND error
+              { missing_right_binop($$, $1, @2, "and operator"); }
+	    | subformula OP_SHORT_AND subformula
+	      { $$ = multop::instance(multop::And, $1, $3); }
+	    | subformula OP_SHORT_AND error
               { missing_right_binop($$, $1, @2, "and operator"); }
 	    | subformula OP_OR subformula
 	      { $$ = multop::instance(multop::Or, $1, $3); }

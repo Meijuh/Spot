@@ -41,7 +41,7 @@ namespace spot
     class multop : public ref_formula
     {
     public:
-      enum type { Or, And, Concat, Fusion };
+      enum type { Or, And, AndNLM, Concat, Fusion };
 
       /// List of formulae.
       typedef std::vector<formula*> vec;
@@ -80,15 +80,24 @@ namespace spot
       /// are also taken care of.  The following rewriting are performed
       /// (the left patterns are rewritten as shown on the right):
       ///
-      /// - Concat(Exps1...,[*0],Exps2...) = Concat(Exps1...,Exps2...)
-      /// - Concat(Exps1...,0,Exps2...) = 0
-      /// - Concat(Exp) = Exp
       /// - And(Exps1...,1,Exps2...) = And(Exps1...,Exps2...)
       /// - And(Exps1...,0,Exps2...) = 0
+      /// - And(Exps1...,[*0],Exps2...) = [*0] if no Expi is 0.
       /// - And(Exp) = Exp
+      /// - AndNLM(Exps1...,1,Exps2...) = AndNLM(Exps1...,Exps2...)
+      /// - AndNLM(Exps1...,0,Exps2...) = 0
+      /// - AndNLM(Exps1...,[*0],Exps2...) = AndNLM(Exps1...,Exps2...)
+      /// - AndNLM(Exp) = Exp
       /// - Or(Exps1...,1,Exps2...) = 1
       /// - Or(Exps1...,0,Exps2...) = And(Exps1...,Exps2...)
       /// - Or(Exp) = Exp
+      /// - Concat(Exps1...,[*0],Exps2...) = Concat(Exps1...,Exps2...)
+      /// - Concat(Exps1...,0,Exps2...) = 0
+      /// - Concat(Exp) = Exp
+      /// - Fusion(Exps1...,1,Exps2...) = Concat(Exps1...,Exps2...)
+      /// - Fusion(Exps1...,0,Exps2...) = 0
+      /// - Fusion(Exps1...,[*0],Exps2...) = 0
+      /// - Fusion(Exp) = Exp
       static formula* instance(type op, vec* v);
 
       virtual void accept(visitor& v);

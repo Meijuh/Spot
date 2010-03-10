@@ -203,6 +203,7 @@ namespace spot
 		res->push_back(recurse(mo->nth(i)));
 	      break;
 	    case multop::And:
+	    case multop::AndNLM:
 	      {
 		typedef std::set<std::pair<formula*, formula*> > pset;
 		pset Epairs, EMpairs;

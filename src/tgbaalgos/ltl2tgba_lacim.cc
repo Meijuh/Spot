@@ -260,6 +260,7 @@ namespace spot
 	    break;
 	  case multop::Concat:
 	  case multop::Fusion:
+	  case multop::AndNLM:
 	    assert(!"unsupported operator");
 	  }
 	assert(op != -1);

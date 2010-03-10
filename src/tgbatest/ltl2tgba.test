@@ -76,6 +76,10 @@ check_psl '{a;b}'
 check_psl '{(a;b)*}'
 check_psl 'G{(a;b)*}'
 check_psl '{a*}[]->{b*}'
+check_psl '{a*&b}'
+check_psl '{a*&b*}'
+check_psl '{((c;b*) & d);e}'
+check_psl '{(a* & (c;b*) & d);e}'
 # Example from "Beyond Hardware Verification" by Glazberg, Moulin, Orni,
 # Ruah, Zarpas (2007).
 check_psl '{1[*];req;ack;1}[]->{start;busy[*];done}'

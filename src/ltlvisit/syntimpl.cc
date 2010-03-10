@@ -205,6 +205,7 @@ namespace spot
 	      break;
 	    case multop::Concat:
 	    case multop::Fusion:
+	    case multop::AndNLM:
 	      break;
 	    }
 	}
@@ -462,6 +463,7 @@ namespace spot
 	      break;
 	    case multop::Concat:
 	    case multop::Fusion:
+	    case multop::AndNLM:
 	      break;
 	    }
 	}

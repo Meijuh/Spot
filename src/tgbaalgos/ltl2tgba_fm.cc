@@ -158,7 +158,7 @@ namespace spot
       }
 
       formula*
-      conj_bdd_to_formula(bdd b) const
+      conj_bdd_to_formula(bdd b, multop::type op = multop::And) const
       {
 	if (b == bddfalse)
 	  return constant::false_instance();
@@ -181,7 +181,7 @@ namespace spot
 	    assert(b != bddfalse);
 	    v->push_back(res);
 	  }
-	return multop::instance(multop::And, v);
+	return multop::instance(op, v);
       }
 
       formula*
@@ -297,12 +297,8 @@ namespace spot
     class ratexp_trad_visitor: public const_visitor
     {
     public:
-      ratexp_trad_visitor(translate_dict& dict,
-			  bool empty_word_is_true,
-			  formula* to_concat = 0)
-	: dict_(dict),
-	  empty_word_is_true_(empty_word_is_true),
-	  to_concat_(to_concat)
+      ratexp_trad_visitor(translate_dict& dict, formula* to_concat = 0)
+	: dict_(dict), to_concat_(to_concat)
       {
       }
 
@@ -332,7 +328,7 @@ namespace spot
 	if (to_concat_ && to_concat_ != constant::empty_word_instance())
 	  return recurse(to_concat_);
 
-	return empty_word_is_true_ ? bddtrue : bddfalse;
+	return bddfalse;
       }
 
       void
@@ -408,25 +404,82 @@ namespace spot
       void
       visit(const multop* node)
       {
-	switch (node->op())
+	multop::type op = node->op();
+	switch (op)
 	  {
+	  case multop::AndNLM:
 	  case multop::And:
 	    {
-	      res_ = bddtrue;
 	      unsigned s = node->size();
+
+	      if (op == multop::AndNLM)
+		{
+		  multop::vec* final = new multop::vec;
+		  multop::vec* non_final = new multop::vec;
+
+		  for (unsigned n = 0; n < s; ++n)
+		    {
+		      const formula* f = node->nth(n);
+		      if (constant_term_as_bool(f))
+			final->push_back(f->clone());
+		      else
+			non_final->push_back(f->clone());
+		    }
+
+		  if (non_final->empty())
+		    {
+		      delete non_final;
+		      // (a* & b*);c = (a*|b*);c
+		      formula* f = multop::instance(multop::Or, final);
+		      res_ = recurse_and_concat(f);
+		      f->destroy();
+		      break;
+		    }
+		  if (!final->empty())
+		    {
+		      // let F_i be final formulae
+		      //     N_i be non final formula
+		      // (F_1 & ... & F_n & N_1 & ... & N_m)
+		      // =   (F_1 | ... | F_n);[*] && (N_1 & ... & N_m)
+		      //   | (F_1 | ... | F_n) && (N_1 & ... & N_m);[*]
+		      formula* f = multop::instance(multop::Or, final);
+		      formula* n = multop::instance(multop::AndNLM, non_final);
+		      formula* t = unop::instance(unop::Star,
+						  constant::true_instance());
+		      formula* ft = multop::instance(multop::Concat,
+						     f->clone(), t->clone());
+		      formula* nt = multop::instance(multop::Concat,
+						     n->clone(), t);
+		      formula* ftn = multop::instance(multop::And, ft, n);
+		      formula* fnt = multop::instance(multop::And, f, nt);
+		      formula* all = multop::instance(multop::Or, ftn, fnt);
+		      res_ = recurse_and_concat(all);
+		      all->destroy();
+		      break;
+		    }
+		  // No final formula.
+		  // Apply same rule as &&, until we reach a point where
+		  // we have final formulae.
+		  delete final;
+		  for (unsigned n = 0; n < s; ++n)
+		    (*non_final)[n]->destroy();
+		  delete non_final;
+		}
+
+	      res_ = bddtrue;
 	      for (unsigned n = 0; n < s; ++n)
-	      {
-		bdd res = recurse(node->nth(n));
-		// trace_ltl_bdd(dict_, res);
-		res_ &= res;
-	      }
+		{
+		  bdd res = recurse(node->nth(n));
+		  // trace_ltl_bdd(dict_, res);
+		  res_ &= res;
+		}
 
 	      //std::cerr << "Pre-Concat:" << std::endl;
 	      //trace_ltl_bdd(dict_, res_);
 
 	      if (to_concat_)
 		{
-		  // If we have translated (a* & b*) in (a* & b*);c, we
+		  // If we have translated (a* && b*) in (a* && b*);c, we
 		  // have to append ";c" to all destinations.
 
 		  minato_isop isop(res_);
@@ -436,7 +489,8 @@ namespace spot
 		    {
 		      bdd label = bdd_exist(cube, dict_.next_set);
 		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+		      formula* dest =
+			dict_.conj_bdd_to_formula(dest_bdd, op);
 		      formula* dest2;
 		      int x;
 		      if (dest == constant::empty_word_instance())
@@ -458,6 +512,8 @@ namespace spot
 			}
 		    }
 		}
+	      if (constant_term_as_bool(node))
+		res_ |= now_to_concat();
 
 	      break;
 	    }
@@ -465,12 +521,8 @@ namespace spot
 	    {
 	      res_ = bddfalse;
 	      unsigned s = node->size();
-	      if (to_concat_)
-		for (unsigned n = 0; n < s; ++n)
-		  res_ |= recurse(node->nth(n), to_concat_->clone());
-	      else
-		for (unsigned n = 0; n < s; ++n)
-		  res_ |= recurse(node->nth(n));
+	      for (unsigned n = 0; n < s; ++n)
+		res_ |= recurse_and_concat(node->nth(n));
 	      break;
 	    }
 	  case multop::Concat:
@@ -520,9 +572,7 @@ namespace spot
 		      // can also exit if tail is satisfied.
 		      if (!tail_computed)
 			{
-			  tail_bdd = recurse(tail,
-					     to_concat_ ?
-					     to_concat_->clone() : 0);
+			  tail_bdd = recurse_and_concat(tail);
 			  tail_computed = true;
 			}
 		      res_ |= label & tail_bdd;
@@ -556,16 +606,20 @@ namespace spot
       bdd
       recurse(const formula* f, formula* to_concat = 0)
       {
-	ratexp_trad_visitor v(dict_, empty_word_is_true_, to_concat);
+	ratexp_trad_visitor v(dict_, to_concat);
 	f->accept(v);
 	return v.result();
       }
 
+      bdd
+      recurse_and_concat(const formula* f)
+      {
+	return recurse(f, to_concat_ ? to_concat_->clone() : 0);
+      }
 
     private:
       translate_dict& dict_;
       bdd res_;
-      bool empty_word_is_true_;
       formula* to_concat_;
     };
 
@@ -697,10 +751,17 @@ namespace spot
 	  case unop::Closure:
 	    {
 	      rat_seen_ = true;
-	      ratexp_trad_visitor v(dict_, true);
+	      if (constant_term_as_bool(node->child()))
+		{
+		  res_ = bddtrue;
+		  return;
+		}
+
+	      ratexp_trad_visitor v(dict_);
 	      node->child()->accept(v);
 	      bdd f1 = v.result();
 	      res_ = bddfalse;
+
 
 	      if (exprop_)
 		{
@@ -766,7 +827,14 @@ namespace spot
 	    {
 	      rat_seen_ = true;
 	      has_marked_ = true;
-	      ratexp_trad_visitor v(dict_, true);
+
+	      if (constant_term_as_bool(node->child()))
+		{
+		  res_ = bddfalse;
+		  return;
+		}
+
+	      ratexp_trad_visitor v(dict_);
 	      node->child()->accept(v);
 	      bdd f1 = v.result();
 
@@ -893,7 +961,7 @@ namespace spot
 	      // Recognize f2 on transitions going to destinations
 	      // that accept the empty word.
 	      bdd f2 = recurse(node->second());
-	      ratexp_trad_visitor v(dict_, false);
+	      ratexp_trad_visitor v(dict_);
 	      node->first()->accept(v);
 	      bdd f1 = v.result();
 	      res_ = bddfalse;
@@ -968,7 +1036,7 @@ namespace spot
 	      // word should recognize f2, and the automaton for f1
 	      // should be understood as universal.
 	      bdd f2 = recurse(node->second());
-	      ratexp_trad_visitor v(dict_, false);
+	      ratexp_trad_visitor v(dict_);
 	      node->first()->accept(v);
 	      bdd f1 = v.result();
 	      res_ = bddtrue;
@@ -1067,6 +1135,7 @@ namespace spot
 	    }
 	  case multop::Concat:
 	  case multop::Fusion:
+	  case multop::AndNLM:
 	    assert(!"Not an LTL operator");
 	    break;
 	  }

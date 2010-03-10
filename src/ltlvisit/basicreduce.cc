@@ -786,6 +786,7 @@ namespace spot
 
 	      break;
 	    case multop::Concat:
+	    case multop::AndNLM:
 	    case multop::Fusion:
 	      std::copy(res->begin(), res->end(), tmpOther->end());
 	      break;

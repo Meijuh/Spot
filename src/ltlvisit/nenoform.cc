@@ -233,6 +233,7 @@ namespace spot
 		break;
 	      case multop::Concat:
 	      case multop::Fusion:
+	      case multop::AndNLM:
 		break;
 	      }
 	  multop::vec* res = new multop::vec;
@@ -249,12 +250,12 @@ namespace spot
 	      }
 	    case multop::Concat:
 	    case multop::Fusion:
+	    case multop::AndNLM:
 	      {
 		for (unsigned i = 0; i < mos; ++i)
 		  res->push_back(recurse_(mo->nth(i), false));
 		result_ = multop::instance(op, res);
-		if (negated_)
-		  result_ = unop::instance(unop::Not, result_);
+		assert(!negated_);
 	      }
 	    }
 	}

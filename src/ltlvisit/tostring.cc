@@ -62,13 +62,26 @@ namespace spot
       {
       public:
 	to_string_visitor(std::ostream& os, bool full_parent = false)
-	  : os_(os), top_level_(true), full_parent_(full_parent)
+	  : os_(os), top_level_(true),
+	    full_parent_(full_parent), in_ratexp_(false)
 	{
 	}
 
 	virtual
 	~to_string_visitor()
 	{
+	}
+
+	void
+	openp() const
+	{
+	  os_ << (in_ratexp_ ? "{" : "(");
+	}
+
+	void
+	closep() const
+	{
+	  os_ << (in_ratexp_ ? "}" : ")");
 	}
 
 	void
@@ -93,31 +106,30 @@ namespace spot
 	visit(const constant* c)
 	{
 	  if (full_parent_)
-	    os_ << "(";
+	    openp();
 	  os_ << c->val_name();
 	  if (full_parent_)
-	    os_ << ")";
+	    closep();
 	}
 
 	void
 	visit(const binop* bo)
 	{
 	  bool top_level = top_level_;
+	  top_level_ = false;
 	  if (!top_level)
-	    os_ << "(";
+	    openp();
 
 	  switch (bo->op())
 	    {
 	    case binop::UConcat:
 	    case binop::EConcat:
 	    case binop::EConcatMarked:
-	      os_ << "{ ";
+	      os_ << "{";
+	      in_ratexp_ = true;
 	      top_level_ = true;
-	      bo->first()->accept(*this);
-	      top_level_ = false;
-	      break;
+	      // fall through
 	    default:
-	      top_level_ = false;
 	      bo->first()->accept(*this);
 	      break;
 	    }
@@ -146,19 +158,25 @@ namespace spot
 	      os_ << " M ";
 	      break;
 	    case binop::UConcat:
-	      os_ << " }[]-> ";
+	      os_ << "} []-> ";
+	      in_ratexp_ = false;
+	      top_level_ = top_level;
 	      break;
 	    case binop::EConcat:
-	      os_ << " }<>-> ";
+	      os_ << "} <>-> ";
+	      in_ratexp_ = false;
+	      top_level_ = false;
 	      break;
 	    case binop::EConcatMarked:
-	      os_ << " }<>+> ";
+	      os_ << "} <>+> ";
+	      in_ratexp_ = false;
+	      top_level_ = false;
 	      break;
 	    }
 
 	  bo->second()->accept(*this);
 	  if (!top_level)
-	    os_ << ")";
+	    closep();
 	}
 
 	void
@@ -175,7 +193,7 @@ namespace spot
 	      need_parent = false; // These will be printed by each subformula
 
 	      if (!top_level)
-		os_ << "(";
+		openp();
 	    }
 
 	  switch (uo->op())
@@ -199,13 +217,16 @@ namespace spot
 	      break;
 	    case unop::Closure:
 	      os_ << "{";
+	      in_ratexp_ = true;
 	      top_level_ = true;
 	      break;
 	    case unop::NegClosure:
 	      os_ << "!{";
+	      in_ratexp_ = true;
+	      top_level_ = true;
 	      break;
 	    case unop::Star:
-	      // 1* is OK, no need to print (1)*.
+	      // 1* is OK, no need to print {1}*.
 	      need_parent = false;
 	      // Do not output anything yet, star is a postfix operator.
 	      break;
@@ -213,10 +234,10 @@ namespace spot
 
 	  top_level_ = false;
 	  if (need_parent || full_parent_)
-	    os_ << "(";
+	    openp();
 	  uo->child()->accept(*this);
-	  if (need_parent)
-	    os_ << ")";
+	  if (need_parent || full_parent_)
+	    closep();
 
 	  switch (uo->op())
 	    {
@@ -226,6 +247,7 @@ namespace spot
 	    case unop::Closure:
 	    case unop::NegClosure:
 	      os_ << "}";
+	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
 	    default:
@@ -233,7 +255,7 @@ namespace spot
 	    }
 
 	  if (full_parent_ && !top_level)
-	    os_ << ")";
+	    closep();
 	}
 
 	void
@@ -264,7 +286,7 @@ namespace spot
 	  bool top_level = top_level_;
 	  top_level_ = false;
 	  if (!top_level)
-	    os_ << "(";
+	    openp();
 	  unsigned max = mo->size();
 	  mo->nth(0)->accept(*this);
 	  const char* ch = " ";
@@ -274,6 +296,9 @@ namespace spot
 	      ch = " | ";
 	      break;
 	    case multop::And:
+	      ch = in_ratexp_ ? " && " : " & ";
+	      break;
+	    case multop::AndNLM:
 	      ch = " & ";
 	      break;
 	    case multop::Concat:
@@ -290,12 +315,13 @@ namespace spot
 	      mo->nth(n)->accept(*this);
 	    }
 	  if (!top_level)
-	    os_ << ")";
+	    closep();
 	}
       protected:
 	std::ostream& os_;
 	bool top_level_;
 	bool full_parent_;
+	bool in_ratexp_;
       };
 
       class to_spin_string_visitor : public to_string_visitor
@@ -317,7 +343,7 @@ namespace spot
 	  bool top_level = top_level_;
 	  top_level_ = false;
 	  if (!top_level)
-	    os_ << "(";
+	    openp();
 
 	  switch (bo->op())
 	    {
@@ -361,17 +387,26 @@ namespace spot
 	      break;
 	    case binop::UConcat:
 	      bo->first()->accept(*this);
-	      os_ << " []-> ";
+	      os_ << "} []-> ";
+	      top_level_ = false;
 	      bo->second()->accept(*this);
 	      break;
 	    case binop::EConcat:
+	      in_ratexp_ = true;
+	      top_level_ = true;
+	      os_ << "{";
 	      bo->first()->accept(*this);
-	      os_ << " <>-> ";
+	      os_ << "} <>-> ";
+	      top_level_ = false;
 	      bo->second()->accept(*this);
 	      break;
 	    case binop::EConcatMarked:
+	      in_ratexp_ = true;
+	      top_level_ = true;
+	      os_ << "{";
 	      bo->first()->accept(*this);
-	      os_ << " <>+> ";
+	      os_ << "} <>+> ";
+	      top_level_ = false;
 	      bo->second()->accept(*this);
 	      break;
 	      /* W and M are not supported by Spin */
@@ -388,7 +423,7 @@ namespace spot
 	    }
 
 	  if (!top_level)
-	    os_ << ")";
+	    closep();
 	}
 
 	void
@@ -396,7 +431,7 @@ namespace spot
 	{
 	  bool top_level = top_level_;
 	  if (full_parent_ && !top_level)
-	    os_ << "(";
+	    openp();
 
 	  bool need_parent = false;
 	  top_level_ = false;
@@ -426,23 +461,24 @@ namespace spot
 	    case unop::Closure:
 	      os_ << "{";
 	      top_level_ = true;
+	      in_ratexp_ = true;
 	      break;
 	    case unop::NegClosure:
 	      os_ << "!{";
 	      top_level_ = true;
+	      in_ratexp_ = true;
 	      break;
 	    case unop::Star:
 	      // Do not output anything yet, star is a postfix operator.
+	      need_parent = false;
 	      break;
 	    }
 
 	  if (need_parent)
-	    os_ << "(";
+	    openp();
 	  uo->child()->accept(*this);
 	  if (need_parent)
-	    os_ << ")";
-	  if (uo->op() == unop::Star)
-	    os_ << "*";
+	    closep();
 
 	  switch (uo->op())
 	    {
@@ -452,6 +488,7 @@ namespace spot
 	    case unop::Closure:
 	    case unop::NegClosure:
 	      os_ << "}";
+	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
 	    default:
@@ -459,29 +496,7 @@ namespace spot
 	    }
 
 	  if (full_parent_ && !top_level)
-	    os_ << ")";
-	}
-
-	void
-	visit(const automatop* ao)
-	{
-	  // Warning: this string isn't parsable because the automaton
-	  // operators used may not be defined.
-	  bool top_level = top_level_;
-	  top_level_ = false;
-	  if (!top_level)
-	    os_ << "(";
-	  os_ << ao->get_nfa()->get_name() << "(";
-	  unsigned max = ao->size();
-	  ao->nth(0)->accept(*this);
-	  for (unsigned n = 1; n < max; ++n)
-	    {
-	      os_ << ",";
-	      ao->nth(n)->accept(*this);
-	    }
-	  os_ << ")";
-	  if (!top_level)
-	    os_ << ")";
+	    closep();
 	}
 
 	void
@@ -490,7 +505,7 @@ namespace spot
 	  bool top_level = top_level_;
 	  top_level_ = false;
 	  if (!top_level)
-	    os_ << "(";
+	    openp();
 	  unsigned max = mo->size();
 	  mo->nth(0)->accept(*this);
 	  const char* ch = " ";
@@ -501,6 +516,9 @@ namespace spot
 	      break;
 	    case multop::And:
 	      ch = " && ";
+	      break;
+	    case multop::AndNLM:
+	      ch = " & ";
 	      break;
 	    case multop::Concat:
 	      ch = ";";
@@ -516,7 +534,7 @@ namespace spot
 	      mo->nth(n)->accept(*this);
 	    }
 	  if (!top_level)
-	    os_ << ")";
+	    closep();
 	}
       };
 

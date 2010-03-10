@@ -122,6 +122,7 @@ namespace spot
 		    return;
 		  break;
 		case multop::And:
+		case multop::AndNLM:
 		case multop::Concat:
 		  result_ &= r;
 		  if (!result_)

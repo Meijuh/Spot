@@ -109,6 +109,8 @@ namespace spot
 	{
 	case And:
 	  return "And";
+	case AndNLM:
+	  return "AndNLM";
 	case Or:
 	  return "Or";
 	case Concat:
@@ -171,6 +173,7 @@ namespace spot
 	std::sort(v->begin(), v->end(), formula_ptr_less_than());
 
       formula* neutral;
+      formula* neutral2;
       formula* abs;
       formula* abs2;
       formula* weak_abs;
@@ -178,24 +181,35 @@ namespace spot
 	{
 	case And:
 	  neutral = constant::true_instance();
+	  neutral2 = 0;
 	  abs = constant::false_instance();
 	  abs2 = 0;
 	  weak_abs = constant::empty_word_instance();
 	  break;
+	case AndNLM:
+	  neutral = constant::true_instance();
+	  neutral2 = constant::empty_word_instance();
+	  abs = constant::false_instance();
+	  abs2 = 0;
+	  weak_abs = 0;
+	  break;
 	case Or:
 	  neutral = constant::false_instance();
+	  neutral2 = 0;
 	  abs = constant::true_instance();
 	  abs2 = 0;
 	  weak_abs = 0;
 	  break;
 	case Concat:
 	  neutral = constant::empty_word_instance();
+	  neutral2 = 0;
 	  abs = constant::false_instance();
 	  abs2 = 0;
 	  weak_abs = 0;
 	  break;
 	case Fusion:
 	  neutral = constant::true_instance();
+	  neutral2 = 0;
 	  abs = constant::false_instance();
 	  abs2 = constant::empty_word_instance();
 	  weak_abs = 0;
@@ -203,6 +217,7 @@ namespace spot
 
 	default:
 	  neutral = 0;
+	  neutral2 = 0;
 	  abs = 0;
 	  abs2 = 0;
 	  weak_abs = 0;
@@ -218,7 +233,7 @@ namespace spot
 	bool weak_abs_seen = false;
 	while (i != v->end())
 	  {
-	    if ((*i == neutral) || (*i == last))
+	    if ((*i == neutral) || (*i == neutral2) || (*i == last))
 	      {
 		(*i)->destroy();
 		i = v->erase(i);

@@ -97,7 +97,8 @@ flex_set_buffer(const char* buf, int start_tok)
      /\, \/, and xor are from LBTT.
      --> and <--> come from Goal.  */
 "||"|"|"|"+"|"\\/"		BEGIN(0); return token::OP_OR;
-"&&"|"&"|"/\\"			BEGIN(0); return token::OP_AND;
+"&&"|"/\\"			BEGIN(0); return token::OP_AND;
+"&"				BEGIN(0); return token::OP_SHORT_AND;
 "^"|"xor"			BEGIN(0); return token::OP_XOR;
 "=>"|"->"|"-->"			BEGIN(0); return token::OP_IMPLIES;
 "<=>"|"<->"|"<-->"		BEGIN(0); return token::OP_EQUIV;
