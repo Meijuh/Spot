@@ -226,6 +226,12 @@ namespace spot
 	      top_level_ = true;
 	      break;
 	    case unop::Star:
+	      // Abbreviate "1*" as "*".
+	      if (uo->child() == constant::true_instance())
+		{
+		  os_ << "*";
+		  return;
+		}
 	      // 1* is OK, no need to print {1}*.
 	      need_parent = false;
 	      // Do not output anything yet, star is a postfix operator.
@@ -469,6 +475,12 @@ namespace spot
 	      in_ratexp_ = true;
 	      break;
 	    case unop::Star:
+	      // Abbreviate "1*" as "*".
+	      if (uo->child() == constant::true_instance())
+		{
+		  os_ << "*";
+		  return;
+		}
 	      // Do not output anything yet, star is a postfix operator.
 	      need_parent = false;
 	      break;

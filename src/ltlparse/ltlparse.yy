@@ -283,6 +283,8 @@ rationalexp: booleanatom
               { missing_right_binop($$, $1, @2, "fusion operator"); }
 	    | rationalexp OP_STAR
 	      { $$ = unop::instance(unop::Star, $1); }
+	    | OP_STAR
+	      { $$ = unop::instance(unop::Star, constant::true_instance()); }
 
 bracedrationalexp: BRACE_OPEN rationalexp BRACE_CLOSE
               { $$ = $2; }
