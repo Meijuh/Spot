@@ -87,6 +87,8 @@ using namespace spot::ltl;
 %token OP_X "next operator" OP_NOT "not operator" OP_STAR "star operator"
 %token OP_UCONCAT "universal concat operator"
 %token OP_ECONCAT "existential concat operator"
+%token OP_UCONCAT_NONO "universal non-overlapping concat operator"
+%token OP_ECONCAT_NONO "existential non-overlapping concat operator"
 %token <str> ATOMIC_PROP "atomic proposition"
 %token OP_CONCAT "concat operator" OP_FUSION "fusion operator"
 %token CONST_TRUE "constant true" CONST_FALSE "constant false"
@@ -96,7 +98,7 @@ using namespace spot::ltl;
 /* Priorities.  */
 
 /* Low priority regex operator. */
-%left OP_UCONCAT OP_ECONCAT
+%left OP_UCONCAT OP_ECONCAT OP_UCONCAT_NONO OP_ECONCAT_NONO
 
 %left OP_CONCAT OP_FUSION
 
@@ -386,12 +388,34 @@ subformula: booleanatom
             | bracedrationalexp parenthesedsubformula
 	      { $$ = binop::instance(binop::UConcat, $1, $2); }
             | bracedrationalexp OP_UCONCAT error
-	      { missing_right_binop($$, $1, @2, "universal concat operator"); }
+	      { missing_right_binop($$, $1, @2,
+				    "universal overlapping concat operator"); }
             | bracedrationalexp OP_ECONCAT subformula
 	      { $$ = binop::instance(binop::EConcat, $1, $3); }
             | bracedrationalexp OP_ECONCAT error
-	      { missing_right_binop($$, $1, @2, "universal concat operator"); }
-
+	      { missing_right_binop($$, $1, @2,
+				    "existential overlapping concat operator");
+	      }
+            | bracedrationalexp OP_UCONCAT_NONO subformula
+	      /* {SERE}[]=>EXP = {SERE;1}[]->EXP */
+	      { $$ = binop::instance(binop::UConcat,
+		       multop::instance(multop::Concat, $1,
+					constant::true_instance()), $3);
+	      }
+            | bracedrationalexp OP_UCONCAT_NONO error
+	      { missing_right_binop($$, $1, @2,
+				  "universal non-overlapping concat operator");
+	      }
+            | bracedrationalexp OP_ECONCAT_NONO subformula
+	      /* {SERE}<>=>EXP = {SERE;1}<>->EXP */
+	      { $$ = binop::instance(binop::EConcat,
+		       multop::instance(multop::Concat, $1,
+					constant::true_instance()), $3);
+	      }
+            | bracedrationalexp OP_ECONCAT_NONO error
+	      { missing_right_binop($$, $1, @2,
+				"existential non-overlapping concat operator");
+	      }
 ;
 
 %%

@@ -89,6 +89,8 @@ flex_set_buffer(const char* buf, int start_tok)
 "[*0]"				BEGIN(0); return token::CONST_EMPTYWORD;
 "[]->"|"|->"			BEGIN(0); return token::OP_UCONCAT;
 "<>->"				BEGIN(0); return token::OP_ECONCAT;
+"[]=>"|"|=>"			BEGIN(0); return token::OP_UCONCAT_NONO;
+"<>=>"				BEGIN(0); return token::OP_ECONCAT_NONO;
 "*"|"[*]"			BEGIN(0); return token::OP_STAR;
 ";"				BEGIN(0); return token::OP_CONCAT;
 ":"				BEGIN(0); return token::OP_FUSION;
