@@ -233,7 +233,9 @@ namespace spot
 		  return;
 		}
 	      // 1* is OK, no need to print {1}*.
-	      need_parent = false;
+	      // However want braces for {!a}*, the only unary
+	      // operator that can be nested with *.
+	      need_parent = !!dynamic_cast<const unop*>(uo->child());
 	      // Do not output anything yet, star is a postfix operator.
 	      break;
 	    }
@@ -481,8 +483,11 @@ namespace spot
 		  os_ << "*";
 		  return;
 		}
+	      // 1* is OK, no need to print {1}*.
+	      // However want braces for {!a}*, the only unary
+	      // operator that can be nested with *.
+	      need_parent = !!dynamic_cast<const unop*>(uo->child());
 	      // Do not output anything yet, star is a postfix operator.
-	      need_parent = false;
 	      break;
 	    }
 
