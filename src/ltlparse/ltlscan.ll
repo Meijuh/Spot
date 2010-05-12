@@ -27,6 +27,7 @@
 
 %{
 #include <string>
+#include <boost/lexical_cast.hpp>
 #include "ltlparse/parsedecl.hh"
 
 /* Hack Flex so we read from a string instead of reading from a file.  */
@@ -58,6 +59,7 @@ flex_set_buffer(const char* buf, int start_tok)
 %}
 
 %s not_prop
+%x star
 
 %%
 
@@ -86,14 +88,33 @@ flex_set_buffer(const char* buf, int start_tok)
 "!"|"~"				BEGIN(0); return token::OP_NOT;
 
   /* PSL operators */
-"[*0]"				BEGIN(0); return token::CONST_EMPTYWORD;
 "[]->"|"|->"			BEGIN(0); return token::OP_UCONCAT;
 "<>->"				BEGIN(0); return token::OP_ECONCAT;
 "[]=>"|"|=>"			BEGIN(0); return token::OP_UCONCAT_NONO;
 "<>=>"				BEGIN(0); return token::OP_ECONCAT_NONO;
-"*"|"[*]"			BEGIN(0); return token::OP_STAR;
 ";"				BEGIN(0); return token::OP_CONCAT;
 ":"				BEGIN(0); return token::OP_FUSION;
+"*"|"[*]"			BEGIN(0); return token::OP_STAR;
+"[*"				BEGIN(star); return token::OP_STAR_OPEN;
+<star>"]"			BEGIN(0); return token::OP_STAR_CLOSE;
+<star>[0-9]+			{
+                                  unsigned num = 0;
+                                  try {
+                                    num = boost::lexical_cast<unsigned>(yytext);
+				    yylval->num = num;
+				    return token::OP_STAR_NUM;
+                                  }
+                                  catch (boost::bad_lexical_cast &)
+                                  {
+                                    error_list.push_back(
+				      spot::ltl::parse_error(*yylloc,
+		                        "value too large ignored"));
+				    // Skip this number and read next token
+                                    yylloc->step();
+				  }
+				}
+<star>","|".."			return token::OP_STAR_SEP;
+
 
   /* & and | come from Spin.  && and || from LTL2BA.
      /\, \/, and xor are from LBTT.
@@ -122,7 +143,7 @@ flex_set_buffer(const char* buf, int start_tok)
 "=0"				return token::OP_POST_NEG;
 "=1"				return token::OP_POST_POS;
 
-[ \t\n]+			/* discard whitespace */ yylloc->step ();
+<*>[ \t\n]+			/* discard whitespace */ yylloc->step ();
 
   /* An Atomic proposition cannot start with the letter
      used by a unary operator (F,G,X), unless this
@@ -142,7 +163,7 @@ flex_set_buffer(const char* buf, int start_tok)
      condition we will not consider `Uq' as an atomic proposition but as
      a `U' operator followed by a `q' atomic proposition.
 
-     We also disable atomic proposition that may look  a combination
+     We also disable atomic proposition that may look like a combination
      of a binary operator followed by several unary operators.
      E.g. UFXp.   This way, `p=0UFXp=1' will be parsed as `(p=0)U(F(X(p=1)))'.
   */
@@ -161,7 +182,7 @@ flex_set_buffer(const char* buf, int start_tok)
 			  return token::ATOMIC_PROP;
 			}
 
-.			return *yytext;
+<*>.			return *yytext;
 
 <<EOF>>			return token::END_OF_INPUT;
 

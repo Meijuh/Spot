@@ -75,8 +75,13 @@ namespace spot
 	void
 	visit(atomic_prop* ap)
 	{
-	  formula* f = ap->clone();
-	  result_ = f;
+	  result_ = ap->clone();
+	}
+
+	void
+	visit(bunop* bo)
+	{
+	  result_ = bo->clone();
 	}
 
 	void
@@ -239,7 +244,6 @@ namespace spot
 	      return;
 
 	    case unop::Finish:
-	    case unop::Star:
 	    case unop::Closure:
 	    case unop::NegClosure:
 	      result_ = unop::instance(uo->op(), result_);

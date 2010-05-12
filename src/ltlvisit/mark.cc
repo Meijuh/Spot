@@ -59,6 +59,11 @@ namespace spot
 	}
 
 	void
+	visit(bunop*)
+	{
+	}
+
+	void
 	visit(unop* uo)
 	{
 	  switch (uo->op())
@@ -67,7 +72,6 @@ namespace spot
 	      result_ = true;
 	      return;
 	    case unop::Finish:
-	    case unop::Star:
 	    case unop::Closure:
 	    case unop::Not:
 	    case unop::X:
@@ -162,6 +166,12 @@ namespace spot
 	}
 
 	void
+	visit(bunop* bo)
+	{
+	  result_ = bo->clone();
+	}
+
+	void
 	visit(unop* uo)
 	{
 	  switch (uo->op())
@@ -170,7 +180,6 @@ namespace spot
 	      has_mark_ = true;
 	      /* fall through */
 	    case unop::Finish:
-	    case unop::Star:
 	    case unop::Closure:
 	    case unop::Not:
 	    case unop::X:
@@ -320,6 +329,12 @@ namespace spot
 	visit(constant* c)
 	{
 	  result_ = c->clone();
+	}
+
+	void
+	visit(bunop* bo)
+	{
+	  result_ = bo->clone();
 	}
 
 	void

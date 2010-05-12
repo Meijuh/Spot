@@ -141,7 +141,6 @@ namespace spot
 	    succ_ = v.succ_;
 	    return;
 	  case unop::Finish:
-	  case unop::Star:
 	  case unop::Closure:
 	  case unop::NegClosure:
 	    assert(!"unsupported operator");
@@ -149,6 +148,12 @@ namespace spot
 	}
 	/* Unreachable code.  */
 	assert(0);
+      }
+
+      void
+      visit(const bunop*)
+      {
+	assert(!"unsupported operator");
       }
 
       void

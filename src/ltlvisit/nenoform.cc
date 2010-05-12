@@ -119,9 +119,7 @@ namespace spot
 				       recurse_(f, false));
 	      return;
 	      /* !Finish(x), is not simplified */
-	      /* !(a*) is not simplified */
 	    case unop::Finish:
-	    case unop::Star:
 	      result_ = unop::instance(uo->op(), recurse_(f, false));
 	      if (negated_)
 		result_ = unop::instance(unop::Not, result_);
@@ -129,6 +127,16 @@ namespace spot
 	    }
 	  /* Unreachable code.  */
 	  assert(0);
+	}
+
+	void
+	visit(bunop* bo)
+	{
+	  // !(a*) is not simplified
+	  result_ = bunop::instance(bo->op(), recurse_(bo->child(), false),
+				    bo->min(), bo->max());
+	  if (negated_)
+	    result_ = unop::instance(unop::Not, result_);
 	}
 
 	void

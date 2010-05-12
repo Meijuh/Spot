@@ -94,6 +94,12 @@ namespace spot
 	}
 
 	void
+	visit(const bunop*)
+	{
+	  ret_.v = 0;
+	}
+
+	void
 	visit(const unop* uo)
 	{
 	  const formula* f1 = uo->child();
@@ -229,6 +235,13 @@ namespace spot
 	}
 
 	void
+	visit(bunop* bo)
+	{
+	  result_ = bunop::instance(bo->op(), recurse(bo->child()),
+				    bo->min(), bo->max());
+	}
+
+	void
 	visit(unop* uo)
 	{
 	  result_ = recurse(uo->child());
@@ -252,7 +265,6 @@ namespace spot
 	    case unop::Not:
 	    case unop::X:
 	    case unop::Finish:
-	    case unop::Star:
 	    case unop::Closure:
 	    case unop::NegClosure:
 	      result_ = unop::instance(uo->op(), result_);

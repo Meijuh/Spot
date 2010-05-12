@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2003, 2004, 2010  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -34,5 +34,6 @@
 # include "atomic_prop.hh"
 # include "constant.hh"
 # include "automatop.hh"
+# include "bunop.hh"
 
 #endif // SPOT_LTLAST_ALLNODES_HH

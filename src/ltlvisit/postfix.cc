@@ -1,3 +1,5 @@
+// Copyright (C) 2009, 2010  Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -74,6 +76,12 @@ namespace spot
     }
 
     void
+    postfix_visitor::visit(bunop* so)
+    {
+      doit(so);
+    }
+
+    void
     postfix_visitor::visit(constant* c)
     {
       doit(c);
@@ -107,6 +115,12 @@ namespace spot
     postfix_visitor::doit(automatop* ao)
     {
       doit_default(ao);
+    }
+
+    void
+    postfix_visitor::doit(bunop* so)
+    {
+      doit_default(so);
     }
 
     void

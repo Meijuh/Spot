@@ -1,3 +1,5 @@
+// Copyright (C) 2009, 2010  Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -47,6 +49,7 @@ namespace spot
       void visit(multop* mo);
       void visit(automatop* c);
       void visit(constant* c);
+      void visit(bunop* c);
 
       virtual void doit(atomic_prop* ap);
       virtual void doit(unop* uo);
@@ -54,6 +57,7 @@ namespace spot
       virtual void doit(multop* mo);
       virtual void doit(automatop* mo);
       virtual void doit(constant* c);
+      virtual void doit(bunop* c);
       virtual void doit_default(formula* f);
     };
   }

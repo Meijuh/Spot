@@ -80,6 +80,11 @@ namespace spot
 	}
 
 	void
+	visit(const bunop*)
+	{
+	}
+
+	void
 	visit(const unop* uo)
 	{
 	  const formula* f1 = uo->child();
@@ -106,7 +111,6 @@ namespace spot
 		result_ = true;
 	      return;
 	    case unop::Finish:
-	    case unop::Star:
 	    case unop::Closure:
 	    case unop::NegClosure:
 	      return;
@@ -266,6 +270,11 @@ namespace spot
 	}
 
 	void
+	visit(const bunop*)
+	{
+	}
+
+	void
 	visit(const constant* c)
 	{
 	  inf_right_recurse_visitor v(c);
@@ -339,7 +348,6 @@ namespace spot
 		return;
 	      }
 	    case unop::Finish:
-	    case unop::Star:
 	    case unop::Closure:
 	    case unop::NegClosure:
 	      return;

@@ -180,6 +180,31 @@ namespace spot
 	}
 
 	void
+	visit(const bunop* bo)
+	{
+	  // Abbreviate "1*" as "*".
+	  if (bo->child() != constant::true_instance())
+	    {
+	      // a* is OK, no need to print {a}*.
+	      // However want braces for {!a}*, the only unary
+	      // operator that can be nested with *.
+	      bool need_parent = !!dynamic_cast<const unop*>(bo->child());
+
+	      if (need_parent || full_parent_)
+		openp();
+	      bo->child()->accept(*this);
+	      if (need_parent || full_parent_)
+		closep();
+	    }
+
+	  // Output "*" instead of "[*]".
+	  if (bo->min() == 0 && bo->max() == bunop::unbounded)
+	    os_ << "*";
+	  else
+	    os_ << bo->format();
+	}
+
+	void
 	visit(const unop* uo)
 	{
 	  top_level_ = false;
@@ -225,19 +250,6 @@ namespace spot
 	      in_ratexp_ = true;
 	      top_level_ = true;
 	      break;
-	    case unop::Star:
-	      // Abbreviate "1*" as "*".
-	      if (uo->child() == constant::true_instance())
-		{
-		  os_ << "*";
-		  return;
-		}
-	      // 1* is OK, no need to print {1}*.
-	      // However want braces for {!a}*, the only unary
-	      // operator that can be nested with *.
-	      need_parent = !!dynamic_cast<const unop*>(uo->child());
-	      // Do not output anything yet, star is a postfix operator.
-	      break;
 	    }
 
 	  top_level_ = false;
@@ -249,9 +261,6 @@ namespace spot
 
 	  switch (uo->op())
 	    {
-	    case unop::Star:
-	      os_ << "*";
-	      break;
 	    case unop::Closure:
 	    case unop::NegClosure:
 	      os_ << "}";
@@ -476,19 +485,6 @@ namespace spot
 	      top_level_ = true;
 	      in_ratexp_ = true;
 	      break;
-	    case unop::Star:
-	      // Abbreviate "1*" as "*".
-	      if (uo->child() == constant::true_instance())
-		{
-		  os_ << "*";
-		  return;
-		}
-	      // 1* is OK, no need to print {1}*.
-	      // However want braces for {!a}*, the only unary
-	      // operator that can be nested with *.
-	      need_parent = !!dynamic_cast<const unop*>(uo->child());
-	      // Do not output anything yet, star is a postfix operator.
-	      break;
 	    }
 
 	  if (need_parent)
@@ -499,9 +495,6 @@ namespace spot
 
 	  switch (uo->op())
 	    {
-	    case unop::Star:
-	      os_ << "*";
-	      break;
 	    case unop::Closure:
 	    case unop::NegClosure:
 	      os_ << "}";

@@ -101,13 +101,18 @@ namespace spot
 	  case unop::X:
 	  case unop::F:
           case unop::G:
-	  case unop::Star:
 	  case unop::Closure:
 	  case unop::NegClosure:
 	    assert(!"unsupported operator");
 	  }
 	/* Unreachable code.  */
 	assert(0);
+      }
+
+      void
+      visit(const bunop*)
+      {
+	assert(!"unsupported operator");
       }
 
       void

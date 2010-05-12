@@ -71,6 +71,13 @@ namespace spot
       }
 
       virtual void
+      visit(const bunop*)
+      {
+	assert(!"unsupported operator");
+	return;
+      }
+
+      virtual void
       visit(const unop* node)
       {
 	switch (node->op())
@@ -79,7 +86,6 @@ namespace spot
 	  case unop::F:
 	  case unop::G:
 	  case unop::X:
-	  case unop::Star:
 	  case unop::Closure:
 	  case unop::NegClosure:
 	    assert(!"unsupported operator");

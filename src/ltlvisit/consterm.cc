@@ -71,15 +71,21 @@ namespace spot
 	}
 
 	void
+	visit(const bunop* bo)
+	{
+	  if (bo->min() == 0)
+	    result_ = true;
+	  else
+	    bo->child()->accept(*this);
+	}
+
+	void
 	visit(const unop* uo)
 	{
 	  switch (uo->op())
 	    {
 	    case unop::Not:
 	      result_ = false;
-	      break;
-	    case unop::Star:
-	      result_ = true;
 	      break;
 	    case unop::X:
 	    case unop::F:

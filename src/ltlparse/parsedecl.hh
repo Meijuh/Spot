@@ -28,7 +28,9 @@
 #include "location.hh"
 
 # define YY_DECL \
-  int ltlyylex (ltlyy::parser::semantic_type *yylval, ltlyy::location *yylloc)
+  int ltlyylex (ltlyy::parser::semantic_type *yylval, \
+                ltlyy::location *yylloc, \
+		spot::ltl::parse_error_list& error_list)
 YY_DECL;
 
 void flex_set_buffer(const char *buf, int start_tok);

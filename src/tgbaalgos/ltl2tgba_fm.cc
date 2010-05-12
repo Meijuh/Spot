@@ -380,18 +380,34 @@ namespace spot
 	      res_ = !recurse(f) & next_to_concat();
 	      return;
 	    }
-	  case unop::Star:
-	    {
-	      formula* f;
-	      if (to_concat_)
-		f = multop::instance(multop::Concat, node->clone(),
-				     to_concat_->clone());
-	      else
-		f = node->clone();
+	  }
+	/* Unreachable code.  */
+	assert(0);
+      }
 
-	      res_ = recurse(node->child(), f) | now_to_concat();
-	      return;
-	    }
+      void
+      visit(const bunop* bo)
+      {
+	formula* f;
+	unsigned min = bo->min();
+	unsigned max = bo->max();
+	unsigned min2 = (min == 0) ? 0 : (min - 1);
+	unsigned max2 =
+	  (max == bunop::unbounded) ? bunop::unbounded : (max - 1);
+
+	bunop::type op = bo->op();
+	switch (op)
+	  {
+	  case bunop::Star:
+	    f = bunop::instance(op, bo->child()->clone(), min2, max2);
+
+	    if (to_concat_)
+	      f = multop::instance(multop::Concat, f, to_concat_->clone());
+
+	    res_ = recurse(bo->child(), f);
+	    if (min == 0)
+	      res_ |= now_to_concat();
+	    return;
 	  }
 	/* Unreachable code.  */
 	assert(0);
@@ -452,8 +468,8 @@ namespace spot
 		      //   | (F_1 | ... | F_n) && (N_1 & ... & N_m);[*]
 		      formula* f = multop::instance(multop::Or, final);
 		      formula* n = multop::instance(multop::AndNLM, non_final);
-		      formula* t = unop::instance(unop::Star,
-						  constant::true_instance());
+		      formula* t = bunop::instance(bunop::Star,
+						   constant::true_instance());
 		      formula* ft = multop::instance(multop::Concat,
 						     f->clone(), t->clone());
 		      formula* nt = multop::instance(multop::Concat,
@@ -887,10 +903,13 @@ namespace spot
 	  case unop::Finish:
 	    assert(!"unsupported operator");
 	    break;
-	  case unop::Star:
-	    assert(!"Not an LTL operator");
-	    break;
 	  }
+      }
+
+      void
+      visit(const bunop*)
+      {
+	assert(!"Not an LTL operator");
       }
 
       void
@@ -1221,6 +1240,12 @@ namespace spot
 
       void
       visit(const automatop*)
+      {
+	assert(!"unsupported operator");
+      }
+
+      void
+      visit(const bunop*)
       {
 	assert(!"unsupported operator");
       }

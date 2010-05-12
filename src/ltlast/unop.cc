@@ -99,8 +99,6 @@ namespace spot
 	  return "G";
 	case Finish:
 	  return "Finish";
-	case Star:
-	  return "Star";
 	case Closure:
 	  return "Closure";
 	case NegClosure:
@@ -120,25 +118,13 @@ namespace spot
       // Some trivial simplifications.
       switch (op)
 	{
-	  // We have (0*) == ([*0])
-	  //         ([*0]*) == ([*0])
-	case Star:
-	  if (child == constant::false_instance()
-	      || child == constant::empty_word_instance())
-	    return constant::empty_word_instance();
-
-	  // -- fall thru --
-
 	case F:
 	case G:
 	  {
-	    // F, G, * are idempotent.
+	    // F and G are idempotent.
 	    unop* u = dynamic_cast<unop*>(child);
 	    if (u && u->op() == op)
 	      return u;
-
-	    if (op == Star)
-	      break;
 
 	    // F(0) = G(0) = 0
 	    // F(1) = G(1) = 1

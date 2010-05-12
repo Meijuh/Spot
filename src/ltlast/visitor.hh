@@ -1,3 +1,5 @@
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -48,6 +50,7 @@ namespace spot
       virtual void visit(unop* node) = 0;
       virtual void visit(multop* node) = 0;
       virtual void visit(automatop* node) = 0;
+      virtual void visit(bunop* node) = 0;
     };
 
     /// \brief Formula visitor that cannot modify the formula.
@@ -67,6 +70,7 @@ namespace spot
       virtual void visit(const unop* node) = 0;
       virtual void visit(const multop* node) = 0;
       virtual void visit(const automatop* node) = 0;
+      virtual void visit(const bunop* node) = 0;
     };
 
 

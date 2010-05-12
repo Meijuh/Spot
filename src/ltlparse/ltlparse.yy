@@ -28,12 +28,15 @@
 %debug
 %error-verbose
 %expect 0
+%lex-param { spot::ltl::parse_error_list& error_list }
 
 %code requires
 {
 #include <string>
 #include "public.hh"
 #include "ltlast/allnodes.hh"
+
+  struct minmax_t { unsigned min, max; };
 }
 
 %parse-param {spot::ltl::parse_error_list &error_list}
@@ -43,6 +46,8 @@
 {
   std::string* str;
   spot::ltl::formula* ltl;
+  unsigned num;
+  minmax_t minmax;
 }
 
 %code {
@@ -85,6 +90,10 @@ using namespace spot::ltl;
 %token OP_W "weak until operator" OP_M "strong release operator"
 %token OP_F "sometimes operator" OP_G "always operator"
 %token OP_X "next operator" OP_NOT "not operator" OP_STAR "star operator"
+%token OP_STAR_OPEN "opening bracket for star operator"
+%token OP_STAR_CLOSE "closing bracket for star operator"
+%token <num> OP_STAR_NUM "number for star operator"
+%token OP_STAR_SEP "separator for star operator"
 %token OP_UCONCAT "universal concat operator"
 %token OP_ECONCAT "existential concat operator"
 %token OP_UCONCAT_NONO "universal non-overlapping concat operator"
@@ -92,7 +101,7 @@ using namespace spot::ltl;
 %token <str> ATOMIC_PROP "atomic proposition"
 %token OP_CONCAT "concat operator" OP_FUSION "fusion operator"
 %token CONST_TRUE "constant true" CONST_FALSE "constant false"
-%token END_OF_INPUT "end of formula" CONST_EMPTYWORD "empty word"
+%token END_OF_INPUT "end of formula"
 %token OP_POST_NEG "negative suffix" OP_POST_POS "positive suffix"
 
 /* Priorities.  */
@@ -114,7 +123,7 @@ using namespace spot::ltl;
 %nonassoc OP_X
 
 /* High priority regex operator. */
-%nonassoc OP_STAR
+%nonassoc OP_STAR OP_STAR_OPEN
 
 /* Not has the most important priority after Wring's `=0' and `=1'.  */
 %nonassoc OP_NOT
@@ -123,6 +132,7 @@ using namespace spot::ltl;
 
 %type <ltl> subformula booleanatom rationalexp
 %type <ltl> bracedrationalexp parenthesedsubformula
+%type <minmax> starargs
 
 %destructor { delete $$; } <str>
 %destructor { $$->destroy(); } <ltl>
@@ -174,6 +184,32 @@ enderror: error END_OF_INPUT
 		error_list.push_back(parse_error(@1,
 						 "ignoring trailing garbage"));
 	      }
+
+
+OP_STAR_SEP_opt: | OP_STAR_SEP
+error_opt: | error
+
+starargs: OP_STAR
+            { $$.min = 0U; $$.max = bunop::unbounded; }
+	| OP_STAR_OPEN OP_STAR_NUM OP_STAR_SEP OP_STAR_NUM OP_STAR_CLOSE
+            { $$.min = $2; $$.max = $4; }
+	| OP_STAR_OPEN OP_STAR_NUM OP_STAR_SEP OP_STAR_CLOSE
+            { $$.min = $2; $$.max = bunop::unbounded; }
+	| OP_STAR_OPEN OP_STAR_SEP OP_STAR_NUM OP_STAR_CLOSE
+            { $$.min = 0U; $$.max = $3; }
+	| OP_STAR_OPEN OP_STAR_SEP_opt OP_STAR_CLOSE
+            { $$.min = 0U; $$.max = bunop::unbounded; }
+	| OP_STAR_OPEN OP_STAR_NUM OP_STAR_CLOSE
+            { $$.min = $2; $$.max = $2; }
+	| OP_STAR_OPEN error OP_STAR_CLOSE
+            { error_list.push_back(parse_error(@$,
+	        "treating this star block as [*]"));
+              $$.min = 0U; $$.max = bunop::unbounded; }
+        | OP_STAR_OPEN error_opt END_OF_INPUT
+	    { error_list.push_back(parse_error(@$,
+                "missing closing bracket for star"));
+	      $$.min = $$.max = 0U; }
+
 
 /* The reason we use `constant::false_instance()' for error recovery
    is that it isn't reference counted.  (Hence it can't leak references.)  */
@@ -239,8 +275,6 @@ rationalexp: booleanatom
             | OP_NOT booleanatom
 	      { $$ = unop::instance(unop::Not, $2); }
             | bracedrationalexp
-	    | CONST_EMPTYWORD
-	      { $$ = constant::empty_word_instance(); }
 	    | PAR_OPEN rationalexp PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN error PAR_CLOSE
@@ -281,10 +315,11 @@ rationalexp: booleanatom
 	      { $$ = multop::instance(multop::Fusion, $1, $3); }
 	    | rationalexp OP_FUSION error
               { missing_right_binop($$, $1, @2, "fusion operator"); }
-	    | rationalexp OP_STAR
-	      { $$ = unop::instance(unop::Star, $1); }
-	    | OP_STAR
-	      { $$ = unop::instance(unop::Star, constant::true_instance()); }
+	    | rationalexp starargs
+	      { $$ = bunop::instance(bunop::Star, $1, $2.min, $2.max); }
+	    | starargs
+	      { $$ = bunop::instance(bunop::Star, constant::true_instance(),
+                                    $1.min, $1.max); }
 
 bracedrationalexp: BRACE_OPEN rationalexp BRACE_CLOSE
               { $$ = $2; }

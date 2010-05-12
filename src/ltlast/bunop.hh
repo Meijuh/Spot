@@ -1,8 +1,5 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2010 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
-// Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,10 +18,10 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-/// \file ltlast/unop.hh
-/// \brief LTL unary operators
-#ifndef SPOT_LTLAST_UNOP_HH
-# define SPOT_LTLAST_UNOP_HH
+/// \file ltlast/bunop.hh
+/// \brief Bounded Unary operators
+#ifndef SPOT_LTLAST_BUNOP_HH
+# define SPOT_LTLAST_BUNOP_HH
 
 #include <map>
 #include <iosfwd>
@@ -35,50 +32,32 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief Unary operators.
+    /// \brief Bounded unary operator.
     /// \ingroup ltl_ast
-    class unop : public ref_formula
+    class bunop : public ref_formula
     {
     public:
-      enum type {
-	// LTL
-	Not, X, F, G,
-	// ELTL
-	Finish,
-	// Closure
-	Closure, NegClosure,
-	};
+      enum type { Star };
 
-      /// \brief Build an unary operator with operation \a op and
-      /// child \a child.
+      static const unsigned unbounded = -1U;
+
+      /// \brief Build a bunop with bounds \a min and \a max.
       ///
       /// The following trivial simplifications are performed
       /// automatically (the left expression is rewritten as the right
       /// expression):
-      ///   - FF(Exp) = F(Exp)
-      ///   - GG(Exp) = G(Exp)
-      ///   - F(0) = 0
-      ///   - G(0) = 0
-      ///   - F(1) = 1
-      ///   - G(1) = 1
-      ///   - F([*0]) = 1
-      ///   - G([*0]) = 1
-      ///   - !1 = 0
-      ///   - !0 = 1
-      ///   - !!Exp = Exp
-      ///   - !Closure(Exp) = NegClosure(Exp)
-      ///   - !NegClosure(Exp) = Closure(Exp)
-      ///   - Closure([*0]) = 1
-      ///   - Closure(1) = 1
-      ///   - Closure(0) = 0
-      ///   - NegClosure([*0]) = 0
-      ///   - NegClosure(1) = 0
-      ///   - NegClosure(0) = 1
+      ///   - 0[*0..max] = [*0]
+      ///   - 0[*min..max] = 0 if min > 0
+      ///   - [*0][*min..max] = [*0]
+      ///   - Exp[*i..j][*k..l] = Exp[*ik..jl] if i*(k+1)<=jk+1.
       ///
-      /// This rewriting implies that it is not possible to build an
-      /// LTL formula object that is SYNTACTICALLY equal to one of
+      /// These rewriting rules imply that it is not possible to build
+      /// an LTL formula object that is SYNTACTICALLY equal to one of
       /// these left expressions.
-      static formula* instance(type op, formula* child);
+      static formula* instance(type op,
+			       formula* child,
+			       unsigned min = 0,
+			       unsigned max = unbounded);
 
       virtual void accept(visitor& v);
       virtual void accept(const_visitor& v) const;
@@ -88,12 +67,22 @@ namespace spot
       /// Get the sole operand of this operator.
       formula* child();
 
+      /// Minimum number of repetition.
+      unsigned min() const;
+      /// Minimum number of repetition.
+      unsigned max() const;
+
+      /// \brief A string representation of the operator.
+      ///
+      /// For instance "[*2..]".
+      std::string format() const;
+
       /// Get the type of this operator.
       type op() const;
       /// Get the type of this operator, as a string.
       const char* op_name() const;
 
-      /// Return a canonic representation of the atomic proposition
+      /// Return a canonic representation of operation.
       virtual std::string dump() const;
 
       /// Number of instantiated unary operators.  For debugging.
@@ -103,19 +92,22 @@ namespace spot
       static std::ostream& dump_instances(std::ostream& os);
 
     protected:
-      typedef std::pair<type, formula*> pair;
-      typedef std::map<pair, unop*> map;
+      typedef std::pair<unsigned, unsigned> pairu;
+      typedef std::pair<type, formula*> pairo;
+      typedef std::pair<pairo, pairu> pair;
+      typedef std::map<pair, bunop*> map;
       static map instances;
 
-      unop(type op, formula* child);
-      virtual ~unop();
+      bunop(type op, formula* child, unsigned min, unsigned max);
+      virtual ~bunop();
 
     private:
       type op_;
       formula* child_;
+      unsigned min_;
+      unsigned max_;
     };
 
   }
 }
-
-#endif // SPOT_LTLAST_UNOP_HH
+#endif // SPOT_LTLAST_BUNOP_HH

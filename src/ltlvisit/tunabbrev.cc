@@ -44,7 +44,6 @@ namespace spot
 	case unop::Finish:
 	case unop::X:
 	case unop::Not:
-	case unop::Star:
 	case unop::Closure:
 	case unop::NegClosure:
 	  this->super::visit(uo);
