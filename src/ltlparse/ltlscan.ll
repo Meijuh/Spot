@@ -95,6 +95,7 @@ flex_set_buffer(const char* buf, int start_tok)
 ";"				BEGIN(0); return token::OP_CONCAT;
 ":"				BEGIN(0); return token::OP_FUSION;
 "*"|"[*]"			BEGIN(0); return token::OP_STAR;
+"[+]"				BEGIN(0); return token::OP_PLUS;
 "[*"				BEGIN(star); return token::OP_STAR_OPEN;
 <star>"]"			BEGIN(0); return token::OP_STAR_CLOSE;
 <star>[0-9]+			{

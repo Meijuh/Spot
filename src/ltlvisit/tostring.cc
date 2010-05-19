@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2010, 2011 Laboratoire de Recherche et DÃ©veloppement
+// Copyright (C) 2008, 2010, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -182,12 +182,12 @@ namespace spot
 	void
 	visit(const bunop* bo)
 	{
-	  // Abbreviate "1*" as "*".
+	  // Abbreviate "1[*]" as "[*]".
 	  if (bo->child() != constant::true_instance())
 	    {
-	      // a* is OK, no need to print {a}*.
-	      // However want braces for {!a}*, the only unary
-	      // operator that can be nested with *.
+	      // a[*] is OK, no need to print {a}[*].
+	      // However want braces for {!a}[*], the only unary
+	      // operator that can be nested with [*].
 	      bool need_parent = !!dynamic_cast<const unop*>(bo->child());
 
 	      if (need_parent || full_parent_)
@@ -197,11 +197,7 @@ namespace spot
 		closep();
 	    }
 
-	  // Output "*" instead of "[*]".
-	  if (bo->min() == 0 && bo->max() == bunop::unbounded)
-	    os_ << "*";
-	  else
-	    os_ << bo->format();
+	  os_ << bo->format();
 	}
 
 	void

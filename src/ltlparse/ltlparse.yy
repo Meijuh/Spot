@@ -90,6 +90,7 @@ using namespace spot::ltl;
 %token OP_W "weak until operator" OP_M "strong release operator"
 %token OP_F "sometimes operator" OP_G "always operator"
 %token OP_X "next operator" OP_NOT "not operator" OP_STAR "star operator"
+%token OP_PLUS "plus operator"
 %token OP_STAR_OPEN "opening bracket for star operator"
 %token OP_STAR_CLOSE "closing bracket for star operator"
 %token <num> OP_STAR_NUM "number for star operator"
@@ -123,7 +124,7 @@ using namespace spot::ltl;
 %nonassoc OP_X
 
 /* High priority regex operator. */
-%nonassoc OP_STAR OP_STAR_OPEN
+%nonassoc OP_STAR OP_STAR_OPEN OP_PLUS
 
 /* Not has the most important priority after Wring's `=0' and `=1'.  */
 %nonassoc OP_NOT
@@ -191,6 +192,8 @@ error_opt: | error
 
 starargs: OP_STAR
             { $$.min = 0U; $$.max = bunop::unbounded; }
+        | OP_PLUS
+	    { $$.min = 1U; $$.max = bunop::unbounded; }
 	| OP_STAR_OPEN OP_STAR_NUM OP_STAR_SEP OP_STAR_NUM OP_STAR_CLOSE
             { $$.min = $2; $$.max = $4; }
 	| OP_STAR_OPEN OP_STAR_NUM OP_STAR_SEP OP_STAR_CLOSE
@@ -200,7 +203,7 @@ starargs: OP_STAR
 	| OP_STAR_OPEN OP_STAR_SEP_opt OP_STAR_CLOSE
             { $$.min = 0U; $$.max = bunop::unbounded; }
 	| OP_STAR_OPEN OP_STAR_NUM OP_STAR_CLOSE
-            { $$.min = $2; $$.max = $2; }
+            { $$.min = $$.max = $2; }
 	| OP_STAR_OPEN error OP_STAR_CLOSE
             { error_list.push_back(parse_error(@$,
 	        "treating this star block as [*]"));

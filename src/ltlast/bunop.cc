@@ -119,6 +119,14 @@ namespace spot
     bunop::format() const
     {
       std::ostringstream out;
+
+      // Syntactic sugaring
+      if (min_ == 1 && max_ == unbounded)
+	{
+	  out << "[+]";
+	  return out.str();
+	}
+
       out << "[*";
       if (min_ != 0 || max_ != unbounded)
 	{
