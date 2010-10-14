@@ -29,6 +29,7 @@
 #include <map>
 #include <iosfwd>
 #include "refformula.hh"
+#include "bunop.hh"
 
 namespace spot
 {
@@ -65,6 +66,7 @@ namespace spot
       ///   - G([*0]) = 1
       ///   - !1 = 0
       ///   - !0 = 1
+      ///   - ![*0] = 1[+]     (read below)
       ///   - !!Exp = Exp
       ///   - !Closure(Exp) = NegClosure(Exp)
       ///   - !NegClosure(Exp) = Closure(Exp)
@@ -78,6 +80,11 @@ namespace spot
       /// This rewriting implies that it is not possible to build an
       /// LTL formula object that is SYNTACTICALLY equal to one of
       /// these left expressions.
+      ///
+      /// Note that the "![*0]" form cannot be read using the PSL
+      /// grammar.  Spot cannot read it either.  However some
+      /// BDD-based algorithm may need to negate any constant, so we
+      /// handle this one as well.
       static formula* instance(type op, formula* child);
 
       virtual void accept(visitor& v);

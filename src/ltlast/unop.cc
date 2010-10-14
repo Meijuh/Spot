@@ -145,6 +145,11 @@ namespace spot
 	    // !0 = 1
 	    if (child == constant::false_instance())
 	      return constant::true_instance();
+	    // ![*0] = 1[+]
+	    if (child == constant::empty_word_instance())
+	      return bunop::instance(bunop::Star,
+				     constant::true_instance(), 1);
+
 	    unop* u = dynamic_cast<unop*>(child);
 	    if (u)
 	      {
@@ -155,6 +160,7 @@ namespace spot
 		    u->destroy();
 		    return c;
 		  }
+		// !Closure(Exp) = NegClosure(Exp)
 		if (u->op() == Closure)
 		  {
 		    formula* c = unop::instance(NegClosure,
@@ -162,6 +168,7 @@ namespace spot
 		    u->destroy();
 		    return c;
 		  }
+		// !NegClosure(Exp) = Closure(Exp)
 		if (u->op() == NegClosure)
 		  {
 		    formula* c = unop::instance(Closure,
