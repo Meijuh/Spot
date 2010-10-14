@@ -59,7 +59,7 @@ flex_set_buffer(const char* buf, int start_tok)
 %}
 
 %s not_prop
-%x star
+%x sqbracket
 
 %%
 
@@ -96,14 +96,15 @@ flex_set_buffer(const char* buf, int start_tok)
 ":"				BEGIN(0); return token::OP_FUSION;
 "*"|"[*]"			BEGIN(0); return token::OP_STAR;
 "[+]"				BEGIN(0); return token::OP_PLUS;
-"[*"				BEGIN(star); return token::OP_STAR_OPEN;
-<star>"]"			BEGIN(0); return token::OP_STAR_CLOSE;
-<star>[0-9]+			{
+"[*"				BEGIN(sqbracket); return token::OP_STAR_OPEN;
+"[="				BEGIN(sqbracket); return token::OP_EQUAL_OPEN;
+<sqbracket>"]"			BEGIN(0); return token::OP_SQBKT_CLOSE;
+<sqbracket>[0-9]+		{
                                   unsigned num = 0;
                                   try {
                                     num = boost::lexical_cast<unsigned>(yytext);
 				    yylval->num = num;
-				    return token::OP_STAR_NUM;
+				    return token::OP_SQBKT_NUM;
                                   }
                                   catch (boost::bad_lexical_cast &)
                                   {
@@ -114,7 +115,7 @@ flex_set_buffer(const char* buf, int start_tok)
                                     yylloc->step();
 				  }
 				}
-<star>","|".."			return token::OP_STAR_SEP;
+<sqbracket>","|".."		return token::OP_SQBKT_SEP;
 
 
   /* & and | come from Spin.  && and || from LTL2BA.

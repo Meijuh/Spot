@@ -24,6 +24,8 @@
 #include <iostream>
 #include <sstream>
 #include "constant.hh"
+#include "unop.hh"
+#include "ltlvisit/kind.hh"
 
 namespace spot
 {
@@ -107,6 +109,8 @@ namespace spot
     {
       switch (op_)
 	{
+	case Equal:
+	  return "Equal";
 	case Star:
 	  return "Star";
 	}
@@ -120,14 +124,22 @@ namespace spot
     {
       std::ostringstream out;
 
-      // Syntactic sugaring
-      if (min_ == 1 && max_ == unbounded)
+      switch (op_)
 	{
-	  out << "[+]";
-	  return out.str();
+	case Star:
+	  // Syntactic sugaring
+	  if (min_ == 1 && max_ == unbounded)
+	    {
+	      out << "[+]";
+	      return out.str();
+	    }
+	  out << "[*";
+	  break;
+	case Equal:
+	  out << "[=";
+	  break;
 	}
 
-      out << "[*";
       if (min_ != 0 || max_ != unbounded)
 	{
 	  out << min_;
@@ -151,73 +163,115 @@ namespace spot
 
       // Some trivial simplifications.
 
-      //   - [*0][*min..max] = [*0]
-      if (child == constant::empty_word_instance())
-	return child;
-
-      //   - 0[*0..max] = [*0]
-      //   - 0[*min..max] = 0 if min > 0
-      if (child == constant::false_instance())
+      switch (op)
 	{
-	  if (min == 0)
-	    return constant::empty_word_instance();
-	  else
-	    return child;
-	}
+	case Equal:
+	  {
+	    //   - 0[=0..max] = [*]
+	    //   - 0[=min..max] = 0 if min > 0
+	    if (child == constant::false_instance())
+	      {
+		if (min == 0)
+		  {
+		    max = -1U;
+		    op = Star;
+		    child = constant::true_instance();
+		    break;
+		  }
+		else
+		  return child;
+	      }
+	    //   - 1[=0] = [*0]
+	    //   - 1[=min..max] = 1[*min..max]
+	    if (child == constant::true_instance())
+	      {
+		if (max == 0)
+		  return constant::empty_word_instance();
+		else
+		  {
+		    op = Star;
+		    break;
+		  }
+	      }
+	    //   - Exp[=0] = (!Exp)[*]
+	    if (max == 0)
+	      return bunop::instance(bunop::Star,
+				     unop::instance(unop::Not, child));
+	    break;
+	  }
+	case Star:
+	  {
+	    //   - [*0][*min..max] = [*0]
+	    if (child == constant::empty_word_instance())
+	      return child;
 
-      //   - Exp[*0..0] = [*0]
-      if (max == 0)
-	{
-	  child->destroy();
-	  return constant::empty_word_instance();
-	}
+	    //   - 0[*0..max] = [*0]
+	    //   - 0[*min..max] = 0 if min > 0
+	    if (child == constant::false_instance())
+	      {
+		if (min == 0)
+		  return constant::empty_word_instance();
+		else
+		  return child;
+	      }
 
-      // - Exp[*i..j][*min..max] = Exp[*i(min)..j(max)] if i*(min+1)<=j(min)+1.
-      bunop* s = dynamic_cast<bunop*>(child);
-      if (s)
-	{
-	  unsigned i = s->min();
-	  unsigned j = s->max();
+	    //   - Exp[*0] = [*0]
+	    if (max == 0)
+	      {
+		child->destroy();
+		return constant::empty_word_instance();
+	      }
 
-	  // Exp has to be true between i*min and j*min
-	  //               then between i*(min+1) and j*(min+1)
-	  //               ...
-	  //            finally between i*max and j*max
-	  //
-	  // We can merge these intervals into [i*min..j*max] iff the
-	  // first are adjacent or overlap, i.e. iff
-	  //   i*(min+1) <= j*min+1.
-	  // (Because i<=j, this entails that the other intervals also
-	  // overlap).
+	    // - Exp[*i..j][*min..max] = Exp[*i(min)..j(max)]
+	    //                                       if i*(min+1)<=j(min)+1.
+	    bunop* s = dynamic_cast<bunop*>(child);
+	    if (s)
+	      {
+		unsigned i = s->min();
+		unsigned j = s->max();
 
-	  formula* exp = s->child();
-	  if (j == unbounded)
-	    {
-	      min *= i;
-	      max = unbounded;
+		// Exp has to be true between i*min and j*min
+		//               then between i*(min+1) and j*(min+1)
+		//               ...
+		//            finally between i*max and j*max
+		//
+		// We can merge these intervals into [i*min..j*max] iff the
+		// first are adjacent or overlap, i.e. iff
+		//   i*(min+1) <= j*min+1.
+		// (Because i<=j, this entails that the other intervals also
+		// overlap).
 
-	      // Exp[*min..max]
-	      exp->clone();
-	      child->destroy();
-	      child = exp;
-	    }
-	  else
-	    {
-	      if (i * (min + 1) <= (j * min) + 1)
-		{
-		  min *= i;
-		  if (max != unbounded)
-		    {
-		      if (j == unbounded)
-			max = unbounded;
-		      else
-			max *= j;
-		    }
-		  exp->clone();
-		  child->destroy();
-		  child = exp;
-		}
-	    }
+		formula* exp = s->child();
+		if (j == unbounded)
+		  {
+		    min *= i;
+		    max = unbounded;
+
+		    // Exp[*min..max]
+		    exp->clone();
+		    child->destroy();
+		    child = exp;
+		  }
+		else
+		  {
+		    if (i * (min + 1) <= (j * min) + 1)
+		      {
+			min *= i;
+			if (max != unbounded)
+			  {
+			    if (j == unbounded)
+			      max = unbounded;
+			    else
+			      max *= j;
+			  }
+			exp->clone();
+			child->destroy();
+			child = exp;
+		      }
+		  }
+	      }
+	    break;
+	  }
 	}
 
       pair p(pairo(op, child), pairu(min, max));

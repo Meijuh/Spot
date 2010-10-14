@@ -233,6 +233,9 @@ namespace spot
     std::ostream&
     trace_ltl_bdd(const translate_dict& d, bdd f)
     {
+      std::cerr << "Displaying BDD ";
+      bdd_print_set(std::cerr, d.dict, f) << ":" << std::endl;
+
       minato_isop isop(f);
       bdd cube;
       while ((cube = isop.next()) != bddfalse)
@@ -318,7 +321,7 @@ namespace spot
       bdd next_to_concat()
       {
 	if (!to_concat_)
-	  to_concat_ = constant::empty_word_instance();
+	  return bddtrue;
 	int x = dict_.register_next_variable(to_concat_);
 	return bdd_ithvar(x);
       }
@@ -391,6 +394,9 @@ namespace spot
 	formula* f;
 	unsigned min = bo->min();
 	unsigned max = bo->max();
+
+	assert(max > 0);
+
 	unsigned min2 = (min == 0) ? 0 : (min - 1);
 	unsigned max2 =
 	  (max == bunop::unbounded) ? bunop::unbounded : (max - 1);
@@ -407,7 +413,36 @@ namespace spot
 	    res_ = recurse(bo->child(), f);
 	    if (min == 0)
 	      res_ |= now_to_concat();
+
 	    return;
+	  case bunop::Equal:
+	    {
+	      // b[=min..max] == (!b;b[=min..max]) | (b;b[=min-1..max-1])
+	      // b[=0..max]   == [*0] | (!b;b[=0..max]) | (b;b[=0..max-1])
+	      // Note: b[=0] == (!b)[*] is a trivial identity, so it will
+	      // never occur here.
+
+	      formula* f1 = // !b;b[min..max]
+		multop::instance(multop::Concat,
+				 unop::instance(unop::Not,
+						bo->child()->clone()),
+				 bo->clone());
+
+	      formula* f2 = // b;b[=min-1..max-1]
+		multop::instance(multop::Concat,
+				 bo->child()->clone(),
+				 bunop::instance(bunop::Equal,
+						 bo->child()->clone(),
+						 min2, max2));
+	      f = multop::instance(multop::Or, f1, f2);
+
+	      res_ = recurse_and_concat(f);
+
+	      f->destroy();
+	      if (min == 0)
+		res_ |= now_to_concat();
+	      return;
+	    }
 	  }
 	/* Unreachable code.  */
 	assert(0);

@@ -87,6 +87,12 @@ check_psl '{{[+];a;[+]} && {[+];b;[+]}}<>->c'
 # Example from "Beyond Hardware Verification" by Glazberg, Moulin, Orni,
 # Ruah, Zarpas (2007).
 check_psl '{[*];req;ack}|=>{start;busy[*];done}'
+# Examples from "Property-by-Example Guide: a Handbook of PSL Examples"
+# by Ben David and Orni (2005)/
+check_psl '{end[=3]}(false)'  # 2.27.A
+check_psl '{[*]; {read[=3]} && {write[=2]}} |=>
+           {(!read && !write)[*]; ready}'  # 3.5.A
+
 
 # Make sure 'a U (b U c)' has 3 states and 6 transitions,
 # before and after degeneralization.

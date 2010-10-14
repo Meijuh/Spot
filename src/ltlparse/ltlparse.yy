@@ -35,6 +35,7 @@
 #include <string>
 #include "public.hh"
 #include "ltlast/allnodes.hh"
+#include "ltlvisit/kind.hh"
 
   struct minmax_t { unsigned min, max; };
 }
@@ -92,9 +93,10 @@ using namespace spot::ltl;
 %token OP_X "next operator" OP_NOT "not operator" OP_STAR "star operator"
 %token OP_PLUS "plus operator"
 %token OP_STAR_OPEN "opening bracket for star operator"
-%token OP_STAR_CLOSE "closing bracket for star operator"
-%token <num> OP_STAR_NUM "number for star operator"
-%token OP_STAR_SEP "separator for star operator"
+%token OP_EQUAL_OPEN "opening bracket for equal operator"
+%token OP_SQBKT_CLOSE "closing bracket"
+%token <num> OP_SQBKT_NUM "number for square bracket operator"
+%token OP_SQBKT_SEP "separator for square bracket operator"
 %token OP_UCONCAT "universal concat operator"
 %token OP_ECONCAT "existential concat operator"
 %token OP_UCONCAT_NONO "universal non-overlapping concat operator"
@@ -124,7 +126,7 @@ using namespace spot::ltl;
 %nonassoc OP_X
 
 /* High priority regex operator. */
-%nonassoc OP_STAR OP_STAR_OPEN OP_PLUS
+%nonassoc OP_STAR OP_STAR_OPEN OP_PLUS OP_EQUAL_OPEN
 
 /* Not has the most important priority after Wring's `=0' and `=1'.  */
 %nonassoc OP_NOT
@@ -133,7 +135,7 @@ using namespace spot::ltl;
 
 %type <ltl> subformula booleanatom rationalexp
 %type <ltl> bracedrationalexp parenthesedsubformula
-%type <minmax> starargs
+%type <minmax> starargs equalargs sqbracketargs
 
 %destructor { delete $$; } <str>
 %destructor { $$->destroy(); } <ltl>
@@ -187,28 +189,42 @@ enderror: error END_OF_INPUT
 	      }
 
 
-OP_STAR_SEP_opt: | OP_STAR_SEP
+OP_SQBKT_SEP_opt: | OP_SQBKT_SEP
 error_opt: | error
+
+sqbracketargs: OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
+              { $$.min = $1; $$.max = $3; }
+	     | OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_CLOSE
+              { $$.min = $1; $$.max = bunop::unbounded; }
+	     | OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
+              { $$.min = 0U; $$.max = $2; }
+	     | OP_SQBKT_SEP_opt OP_SQBKT_CLOSE
+              { $$.min = 0U; $$.max = bunop::unbounded; }
+	     | OP_SQBKT_NUM OP_SQBKT_CLOSE
+              { $$.min = $$.max = $1; }
 
 starargs: OP_STAR
             { $$.min = 0U; $$.max = bunop::unbounded; }
         | OP_PLUS
 	    { $$.min = 1U; $$.max = bunop::unbounded; }
-	| OP_STAR_OPEN OP_STAR_NUM OP_STAR_SEP OP_STAR_NUM OP_STAR_CLOSE
-            { $$.min = $2; $$.max = $4; }
-	| OP_STAR_OPEN OP_STAR_NUM OP_STAR_SEP OP_STAR_CLOSE
-            { $$.min = $2; $$.max = bunop::unbounded; }
-	| OP_STAR_OPEN OP_STAR_SEP OP_STAR_NUM OP_STAR_CLOSE
-            { $$.min = 0U; $$.max = $3; }
-	| OP_STAR_OPEN OP_STAR_SEP_opt OP_STAR_CLOSE
-            { $$.min = 0U; $$.max = bunop::unbounded; }
-	| OP_STAR_OPEN OP_STAR_NUM OP_STAR_CLOSE
-            { $$.min = $$.max = $2; }
-	| OP_STAR_OPEN error OP_STAR_CLOSE
+	| OP_STAR_OPEN sqbracketargs
+	    { $$ = $2; }
+	| OP_STAR_OPEN error OP_SQBKT_CLOSE
             { error_list.push_back(parse_error(@$,
 	        "treating this star block as [*]"));
               $$.min = 0U; $$.max = bunop::unbounded; }
         | OP_STAR_OPEN error_opt END_OF_INPUT
+	    { error_list.push_back(parse_error(@$,
+                "missing closing bracket for star"));
+	      $$.min = $$.max = 0U; }
+
+equalargs: OP_EQUAL_OPEN sqbracketargs
+	    { $$ = $2; }
+	| OP_EQUAL_OPEN error OP_SQBKT_CLOSE
+            { error_list.push_back(parse_error(@$,
+	        "treating this star block as [*]"));
+              $$.min = 0U; $$.max = bunop::unbounded; }
+        | OP_EQUAL_OPEN error_opt END_OF_INPUT
 	    { error_list.push_back(parse_error(@$,
                 "missing closing bracket for star"));
 	      $$.min = $$.max = 0U; }
@@ -323,6 +339,22 @@ rationalexp: booleanatom
 	    | starargs
 	      { $$ = bunop::instance(bunop::Star, constant::true_instance(),
                                     $1.min, $1.max); }
+	    | rationalexp equalargs
+	      {
+		if ((kind_of($1) & Boolean_Kind) == Boolean_Kind)
+		  {
+		    $$ = bunop::instance(bunop::Equal, $1, $2.min, $2.max);
+		  }
+		else
+		  {
+		    error_list.push_back(parse_error(@1,
+			        "not a boolean expression: [=...] can only "
+				"be applied to a boolean expression"));
+		    error_list.push_back(parse_error(@$,
+			        "treating this block as false"));
+		    $$ = constant::false_instance();
+		  }
+	      }
 
 bracedrationalexp: BRACE_OPEN rationalexp BRACE_CLOSE
               { $$ = $2; }
