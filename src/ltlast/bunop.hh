@@ -55,6 +55,7 @@ namespace spot
       ///   - 0[=min..max] = 0 if min > 0
       ///   - 1[=0] = [*0]
       ///   - 1[=min..max] = 1[*min..max] if max > 0
+      ///   - Exp[=0..] = [*]
       ///   - Exp[=0] = (!Exp)[*]
       ///
       /// These rewriting rules imply that it is not possible to build

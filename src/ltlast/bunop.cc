@@ -167,13 +167,22 @@ namespace spot
 	{
 	case Equal:
 	  {
+	    //   - Exp[=0..] = [*]
+	    if (min == 0 && max == unbounded)
+	      {
+		op = Star;
+		child->destroy();
+		child = constant::true_instance();
+		break;
+	      }
+
 	    //   - 0[=0..max] = [*]
 	    //   - 0[=min..max] = 0 if min > 0
 	    if (child == constant::false_instance())
 	      {
 		if (min == 0)
 		  {
-		    max = -1U;
+		    max = unbounded;
 		    op = Star;
 		    child = constant::true_instance();
 		    break;
