@@ -82,7 +82,8 @@ namespace spot
       ///
       /// - And(Exps1...,1,Exps2...) = And(Exps1...,Exps2...)
       /// - And(Exps1...,0,Exps2...) = 0
-      /// - And(Exps1...,[*0],Exps2...) = [*0] if no Expi is 0.
+      /// - And(Exps1...,[*0],Exps2...) = [*0] if all Expi accept [*0]
+      /// - And(Exps1...,[*0],Exps2...) = 0 if some Expi reject [*0]
       /// - And(Exp) = Exp
       /// - AndNLM(Exps1...,1,Exps2...) = AndNLM(Exps1...,Exps2...)
       /// - AndNLM(Exps1...,0,Exps2...) = 0
