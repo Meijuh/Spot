@@ -164,21 +164,22 @@ flex_set_buffer(const char* buf, int start_tok)
 <INITIAL>[a-zA-EH-WYZ_.][a-zA-Z0-9_.]* |
 <INITIAL>[FGX][0-9][a-zA-Z0-9_.]* |
   /*
-     However if we have just parsed an atomic proposition, then we
-     are not expecting another atomic proposition, so we can be stricter
-     and disallow propositions that start with U, R and V.  If you wonder
-     why we do this, consider the Wring formula `p=0Uq=1'.  When p is
-     parsed, we enter the not_prop start condition, we remain into this
-     condition when `=0' is processed, and then because we are in this
-     condition we will not consider `Uq' as an atomic proposition but as
-     a `U' operator followed by a `q' atomic proposition.
+     However if we have just parsed an atomic proposition, then we are
+     not expecting another atomic proposition, so we can be stricter
+     and disallow propositions that start with M, U, R, V, and W.  If
+     you wonder why we do this, consider the Wring formula `p=0Uq=1'.
+     When p is parsed, we enter the not_prop start condition, we
+     remain into this condition when `=0' is processed, and then
+     because we are in this condition we will not consider `Uq' as an
+     atomic proposition but as a `U' operator followed by a `q' atomic
+     proposition.
 
      We also disable atomic proposition that may look like a combination
      of a binary operator followed by several unary operators.
      E.g. UFXp.   This way, `p=0UFXp=1' will be parsed as `(p=0)U(F(X(p=1)))'.
   */
-<not_prop>[a-zA-EH-QSTWYZ_.][a-zA-EH-WYZ0-9_.]* |
-<not_prop>[a-zA-EH-QSTWYZ_.][a-zA-EH-WYZ0-9_.][a-zA-Z0-9_.]* {
+<not_prop>[a-zA-EH-LN-QSTYZ_.][a-zA-EH-WYZ0-9_.]* |
+<not_prop>[a-zA-EH-LN-QSTYZ_.][a-zA-EH-WYZ0-9_.][a-zA-Z0-9_.]* {
 			  yylval->str = new std::string(yytext, yyleng);
 			  BEGIN(not_prop);
 			  return token::ATOMIC_PROP;

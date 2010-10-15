@@ -73,6 +73,8 @@ for f in \
   'a R ome V anille' \
   'p=0Uq=1' \
   '((p=1Rq=1)+p=0)UXq=0' \
+  '((p=1Mq=1)Wx+p=0)RXq=0' \
+  '((p=1Vq=1)Rx+p=0)WXq=0' \
   '((X(p2=0))U(X(p2=0)))+((Xp1=0)UFALSE)'
 
 do
