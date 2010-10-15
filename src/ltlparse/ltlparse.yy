@@ -97,6 +97,7 @@ using namespace spot::ltl;
 %token OP_GOTO_OPEN "opening bracket for goto operator"
 %token OP_SQBKT_CLOSE "closing bracket"
 %token <num> OP_SQBKT_NUM "number for square bracket operator"
+%token OP_UNBOUNDED "unbounded mark"
 %token OP_SQBKT_SEP "separator for square bracket operator"
 %token OP_UCONCAT "universal concat operator"
 %token OP_ECONCAT "existential concat operator"
@@ -190,13 +191,14 @@ enderror: error END_OF_INPUT
 	      }
 
 
-OP_SQBKT_SEP_opt: | OP_SQBKT_SEP
+OP_SQBKT_SEP_unbounded: OP_SQBKT_SEP | OP_SQBKT_SEP OP_UNBOUNDED
+OP_SQBKT_SEP_opt: | OP_SQBKT_SEP_unbounded
 error_opt: | error
 
 /* for [*i..j] and [=i..j] */
 sqbracketargs: OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
               { $$.min = $1; $$.max = $3; }
-	     | OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_CLOSE
+	     | OP_SQBKT_NUM OP_SQBKT_SEP_unbounded OP_SQBKT_CLOSE
               { $$.min = $1; $$.max = bunop::unbounded; }
 	     | OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
               { $$.min = 0U; $$.max = $2; }
@@ -208,11 +210,11 @@ sqbracketargs: OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
 /* [->i..j] has default values that are different than [*] and [=]. */
 gotoargs: OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
            { $$.min = $2; $$.max = $4; }
-	  | OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_CLOSE
+	  | OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP_unbounded OP_SQBKT_CLOSE
            { $$.min = $2; $$.max = bunop::unbounded; }
 	  | OP_GOTO_OPEN OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
            { $$.min = 1U; $$.max = $3; }
-	  | OP_GOTO_OPEN OP_SQBKT_SEP OP_SQBKT_CLOSE
+	  | OP_GOTO_OPEN OP_SQBKT_SEP_unbounded OP_SQBKT_CLOSE
            { $$.min = 1U; $$.max = bunop::unbounded; }
 	  | OP_GOTO_OPEN OP_SQBKT_CLOSE
            { $$.min = $$.max = 1U; }

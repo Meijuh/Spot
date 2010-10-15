@@ -116,8 +116,15 @@ flex_set_buffer(const char* buf, int start_tok)
                                     yylloc->step();
 				  }
 				}
-<sqbracket>","|".."		return token::OP_SQBKT_SEP;
+  /* .. is from PSL and EDL
+   : is from Verilog and PSL
+   to is from VHDL
+   , is from Perl */
+<sqbracket>","|".."|":"|"to"	return token::OP_SQBKT_SEP;
 
+  /* In SVA  you use [=1:$] instead of [=1..].  We will also
+     accept [=1..$] and [=1:].  */
+<sqbracket>"$"			return token::OP_UNBOUNDED;
 
   /* & and | come from Spin.  && and || from LTL2BA.
      /\, \/, and xor are from LBTT.
