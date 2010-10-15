@@ -73,10 +73,19 @@ namespace spot
 	void
 	visit(const bunop* bo)
 	{
-	  if (bo->min() == 0)
-	    result_ = true;
-	  else
-	    bo->child()->accept(*this);
+	  switch (bo->op())
+	    {
+	    case bunop::Star:
+	      if (bo->min() == 0)
+		result_ = true;
+	      else
+		bo->child()->accept(*this);
+	      break;
+	    case bunop::Equal:
+	    case bunop::Goto:
+	      result_ = bo->min() == 0;
+	      break;
+	    }
 	}
 
 	void
