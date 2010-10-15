@@ -94,6 +94,7 @@ using namespace spot::ltl;
 %token OP_PLUS "plus operator"
 %token OP_STAR_OPEN "opening bracket for star operator"
 %token OP_EQUAL_OPEN "opening bracket for equal operator"
+%token OP_GOTO_OPEN "opening bracket for goto operator"
 %token OP_SQBKT_CLOSE "closing bracket"
 %token <num> OP_SQBKT_NUM "number for square bracket operator"
 %token OP_SQBKT_SEP "separator for square bracket operator"
@@ -126,7 +127,7 @@ using namespace spot::ltl;
 %nonassoc OP_X
 
 /* High priority regex operator. */
-%nonassoc OP_STAR OP_STAR_OPEN OP_PLUS OP_EQUAL_OPEN
+%nonassoc OP_STAR OP_STAR_OPEN OP_PLUS OP_EQUAL_OPEN OP_GOTO_OPEN
 
 /* Not has the most important priority after Wring's `=0' and `=1'.  */
 %nonassoc OP_NOT
@@ -135,7 +136,7 @@ using namespace spot::ltl;
 
 %type <ltl> subformula booleanatom rationalexp
 %type <ltl> bracedrationalexp parenthesedsubformula
-%type <minmax> starargs equalargs sqbracketargs
+%type <minmax> starargs equalargs sqbracketargs gotoargs
 
 %destructor { delete $$; } <str>
 %destructor { $$->destroy(); } <ltl>
@@ -192,6 +193,7 @@ enderror: error END_OF_INPUT
 OP_SQBKT_SEP_opt: | OP_SQBKT_SEP
 error_opt: | error
 
+/* for [*i..j] and [=i..j] */
 sqbracketargs: OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
               { $$.min = $1; $$.max = $3; }
 	     | OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_CLOSE
@@ -202,6 +204,28 @@ sqbracketargs: OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
               { $$.min = 0U; $$.max = bunop::unbounded; }
 	     | OP_SQBKT_NUM OP_SQBKT_CLOSE
               { $$.min = $$.max = $1; }
+
+/* [->i..j] has default values that are different than [*] and [=]. */
+gotoargs: OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
+           { $$.min = $2; $$.max = $4; }
+	  | OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_CLOSE
+           { $$.min = $2; $$.max = bunop::unbounded; }
+	  | OP_GOTO_OPEN OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
+           { $$.min = 1U; $$.max = $3; }
+	  | OP_GOTO_OPEN OP_SQBKT_SEP OP_SQBKT_CLOSE
+           { $$.min = 1U; $$.max = bunop::unbounded; }
+	  | OP_GOTO_OPEN OP_SQBKT_CLOSE
+           { $$.min = $$.max = 1U; }
+	  | OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_CLOSE
+           { $$.min = $$.max = $2; }
+	  | OP_GOTO_OPEN error OP_SQBKT_CLOSE
+           { error_list.push_back(parse_error(@$,
+	       "treating this goto block as [->]"));
+             $$.min = $$.max = 1U; }
+          | OP_GOTO_OPEN error_opt END_OF_INPUT
+	   { error_list.push_back(parse_error(@$,
+               "missing closing bracket for goto operator"));
+	     $$.min = $$.max = 0U; }
 
 starargs: OP_STAR
             { $$.min = 0U; $$.max = bunop::unbounded; }
@@ -222,11 +246,11 @@ equalargs: OP_EQUAL_OPEN sqbracketargs
 	    { $$ = $2; }
 	| OP_EQUAL_OPEN error OP_SQBKT_CLOSE
             { error_list.push_back(parse_error(@$,
-	        "treating this star block as [*]"));
+	        "treating this equal block as [*]"));
               $$.min = 0U; $$.max = bunop::unbounded; }
         | OP_EQUAL_OPEN error_opt END_OF_INPUT
 	    { error_list.push_back(parse_error(@$,
-                "missing closing bracket for star"));
+                "missing closing bracket for equal operator"));
 	      $$.min = $$.max = 0U; }
 
 
@@ -352,6 +376,24 @@ rationalexp: booleanatom
 				"be applied to a boolean expression"));
 		    error_list.push_back(parse_error(@$,
 			        "treating this block as false"));
+		    $1->destroy();
+		    $$ = constant::false_instance();
+		  }
+	      }
+	    | rationalexp gotoargs
+	      {
+		if ((kind_of($1) & Boolean_Kind) == Boolean_Kind)
+		  {
+		    $$ = bunop::instance(bunop::Goto, $1, $2.min, $2.max);
+		  }
+		else
+		  {
+		    error_list.push_back(parse_error(@1,
+			        "not a boolean expression: [->...] can only "
+				"be applied to a boolean expression"));
+		    error_list.push_back(parse_error(@$,
+			        "treating this block as false"));
+		    $1->destroy();
 		    $$ = constant::false_instance();
 		  }
 	      }

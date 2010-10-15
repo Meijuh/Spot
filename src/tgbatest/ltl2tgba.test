@@ -84,6 +84,7 @@ check_psl '{(a* & (c;b*) & d);e}'
 check_psl '{[*2];a[*2..4]}|->b'
 check_psl '{a[*2..5] && b[*..3]}|->c'
 check_psl '{{[+];a;[+]} && {[+];b;[+]}}<>->c'
+check_psl '{(a[->3]) & {[+];b}}<>->c'
 # Example from "Beyond Hardware Verification" by Glazberg, Moulin, Orni,
 # Ruah, Zarpas (2007).
 check_psl '{[*];req;ack}|=>{start;busy[*];done}'
@@ -92,6 +93,8 @@ check_psl '{[*];req;ack}|=>{start;busy[*];done}'
 check_psl '{end[=3]}(false)'  # 2.27.A
 check_psl '{[*]; {read[=3]} && {write[=2]}} |=>
            {(!read && !write)[*]; ready}'  # 3.5.A
+check_psl '{[*]; start && comp_data_en; !comp_data_en && good_comp;
+           {status_valid[->]} && {stop[=0]; true}} |-> {!data_out}' # 2.33
 
 
 # Make sure 'a U (b U c)' has 3 states and 6 transitions,

@@ -416,28 +416,32 @@ namespace spot
 
 	    return;
 	  case bunop::Equal:
+	  case bunop::Goto:
 	    {
 	      // b[=min..max] == (!b;b[=min..max]) | (b;b[=min-1..max-1])
 	      // b[=0..max]   == [*0] | (!b;b[=0..max]) | (b;b[=0..max-1])
 	      // Note: b[=0] == (!b)[*] is a trivial identity, so it will
 	      // never occur here.
 
-	      formula* f1 = // !b;b[min..max]
+	      // b[->min..max] == (!b;b[->min..max]) | (b;b[->min-1..max-1])
+	      // b[->0..max]   == [*0] | (!b;b[->0..max]) | (b;b[->0..max-1])
+	      // Note: b[->0] == [*0] is a trivial identity, so it will
+	      // never occur here.
+
+	      formula* f1 = // !b;b[=min..max]  or  !b;b[->min..max]
 		multop::instance(multop::Concat,
 				 unop::instance(unop::Not,
 						bo->child()->clone()),
 				 bo->clone());
 
-	      formula* f2 = // b;b[=min-1..max-1]
+	      formula* f2 = // b;b[=min-1..max-1]  or  b;b[->min-1..max-1]
 		multop::instance(multop::Concat,
 				 bo->child()->clone(),
-				 bunop::instance(bunop::Equal,
+				 bunop::instance(op,
 						 bo->child()->clone(),
 						 min2, max2));
 	      f = multop::instance(multop::Or, f1, f2);
-
 	      res_ = recurse_and_concat(f);
-
 	      f->destroy();
 	      if (min == 0)
 		res_ |= now_to_concat();

@@ -98,6 +98,7 @@ flex_set_buffer(const char* buf, int start_tok)
 "[+]"				BEGIN(0); return token::OP_PLUS;
 "[*"				BEGIN(sqbracket); return token::OP_STAR_OPEN;
 "[="				BEGIN(sqbracket); return token::OP_EQUAL_OPEN;
+"[->"				BEGIN(sqbracket); return token::OP_GOTO_OPEN;
 <sqbracket>"]"			BEGIN(0); return token::OP_SQBKT_CLOSE;
 <sqbracket>[0-9]+		{
                                   unsigned num = 0;

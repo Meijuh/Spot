@@ -113,6 +113,8 @@ namespace spot
 	  return "Equal";
 	case Star:
 	  return "Star";
+	case Goto:
+	  return "Goto";
 	}
       // Unreachable code.
       assert(0);
@@ -123,6 +125,9 @@ namespace spot
     bunop::format() const
     {
       std::ostringstream out;
+
+      unsigned default_min = 0;
+      unsigned default_max = unbounded;
 
       switch (op_)
 	{
@@ -138,10 +143,36 @@ namespace spot
 	case Equal:
 	  out << "[=";
 	  break;
+	case Goto:
+	  out << "[->";
+	  default_min = 1;
+	  default_max = 1;
+	  break;
 	}
 
-      if (min_ != 0 || max_ != unbounded)
+      // Beware that the default parameters of the Goto operator are
+      // not the same as Star or Equal:
+      //
+      //   [->]   = [->1..1]
+      //   [->..] = [->1..unbounded]
+      //   [*]    = [*0..unbounded]
+      //   [*..]  = [*0..unbounded]
+      //   [=]    = [=0..unbounded]
+      //   [=..]  = [=0..unbounded]
+      //
+      // Strictly speaking [=] is not specified by PSL, and anyway we
+      // automatically rewrite Exp[=0..unbounded] as
+      // Exp[*0..unbounded], so we should never have to print [=]
+      // here.
+      //
+      // Also
+      //   [*..]  = [*0..unbounded]
+
+      if (min_ != default_min || max_ != default_max)
 	{
+	  // Always print the min_, even when it is equal to
+	  // default_min, this way we avoid ambiguities (like
+	  // when reading [*..3] near [*->..2])
 	  out << min_;
 	  if (min_ != max_)
 	    {
@@ -206,6 +237,38 @@ namespace spot
 	    if (max == 0)
 	      return bunop::instance(bunop::Star,
 				     unop::instance(unop::Not, child));
+	    break;
+	  }
+	case Goto:
+	  {
+	    //   - 0[->min..max] = 0 if min>0
+	    //   - 0[->0..max] = [*0]
+	    if (child == constant::false_instance())
+	      {
+		if (min == 0)
+		  return constant::empty_word_instance();
+		else
+		  return child;
+	      }
+	    //   - 1[->0] = [*0]
+	    //   - 1[->min..max] = 1[*min..max]
+
+	    if (child == constant::true_instance())
+	      {
+		if (max == 0)
+		  return constant::empty_word_instance();
+		else
+		  {
+		    op = Star;
+		    break;
+		  }
+	      }
+	    //   - Exp[->0] = [*0]
+	    if (max == 0)
+	      {
+		child->destroy();
+		return constant::empty_word_instance();
+	      }
 	    break;
 	  }
 	case Star:
