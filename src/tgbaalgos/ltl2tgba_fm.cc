@@ -300,8 +300,11 @@ namespace spot
     class ratexp_trad_visitor: public const_visitor
     {
     public:
-      ratexp_trad_visitor(translate_dict& dict, formula* to_concat = 0)
-	: dict_(dict), to_concat_(to_concat)
+      // negated should only be set for constants or atomic properties
+      ratexp_trad_visitor(translate_dict& dict,
+			  formula* to_concat = 0,
+			  bool negated = false)
+	: dict_(dict), to_concat_(to_concat), negated_(negated)
       {
       }
 
@@ -321,7 +324,7 @@ namespace spot
       bdd next_to_concat()
       {
 	if (!to_concat_)
-	  return bddtrue;
+	  to_concat_ = constant::empty_word_instance();
 	int x = dict_.register_next_variable(to_concat_);
 	return bdd_ithvar(x);
       }
@@ -337,13 +340,33 @@ namespace spot
       void
       visit(const atomic_prop* node)
       {
-	res_ = (bdd_ithvar(dict_.register_proposition(node))
-		& next_to_concat());
+	if (negated_)
+	  res_ = bdd_nithvar(dict_.register_proposition(node));
+	else
+	  res_ = bdd_ithvar(dict_.register_proposition(node));
+	res_ &= next_to_concat();
       }
 
       void
       visit(const constant* node)
       {
+
+	if (negated_)
+	  {
+	    switch (node->val())
+	      {
+	      case constant::True:
+		res_ = bddfalse;
+		return;
+	      case constant::False:
+		res_ = next_to_concat();
+		return;
+	      case constant::EmptyWord:
+		assert(!"EmptyWord should not be negated");
+		return;
+	      }
+	  }
+
 	switch (node->val())
 	  {
 	  case constant::True:
@@ -380,7 +403,7 @@ namespace spot
 	      const formula* f = node->child();
 	      assert(dynamic_cast<const atomic_prop*>(f)
 		     || dynamic_cast<const constant*>(f));
-	      res_ = !recurse(f) & next_to_concat();
+	      res_ = recurse_and_concat(f, true);
 	      return;
 	    }
 	  }
@@ -667,23 +690,24 @@ namespace spot
       }
 
       bdd
-      recurse(const formula* f, formula* to_concat = 0)
+      recurse(const formula* f, formula* to_concat = 0, bool negated = false)
       {
-	ratexp_trad_visitor v(dict_, to_concat);
+	ratexp_trad_visitor v(dict_, to_concat, negated);
 	f->accept(v);
 	return v.result();
       }
 
       bdd
-      recurse_and_concat(const formula* f)
+      recurse_and_concat(const formula* f, bool negated = false)
       {
-	return recurse(f, to_concat_ ? to_concat_->clone() : 0);
+	return recurse(f, to_concat_ ? to_concat_->clone() : 0, negated);
       }
 
     private:
       translate_dict& dict_;
       bdd res_;
       formula* to_concat_;
+      bool negated_;
     };
 
 
