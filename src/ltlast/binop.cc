@@ -158,6 +158,12 @@ namespace spot
 	    return unop::instance(unop::Not, second);
 	  if (first == constant::false_instance())
 	    return second;
+	  if (first == second)
+	    {
+	      first->destroy();
+	      second->destroy();
+	      return constant::false_instance();
+	    }
 	  // We expect constants to appear first, because they are
 	  // instantiated first.
 	  assert(second != constant::false_instance());
@@ -172,10 +178,17 @@ namespace spot
 	  }
 	  //   - (0 <=> Exp) = !Exp
 	  //   - (1 <=> Exp) = Exp
+	  //   - (Exp <=> Exp) = 1
 	  if (first == constant::false_instance())
 	    return unop::instance(unop::Not, second);
 	  if (first == constant::true_instance())
 	    return second;
+	  if (first == second)
+	    {
+	      first->destroy();
+	      second->destroy();
+	      return constant::true_instance();
+	    }
 	  // We expect constants to appear first, because they are
 	  // instantiated first.
 	  assert(second != constant::false_instance());
@@ -183,15 +196,16 @@ namespace spot
 	  break;
 	case Implies:
 	  //   - (1 => Exp) = Exp
-	  //   - (0 => Exp) = 0
+	  //   - (0 => Exp) = 1
 	  //   - (Exp => 1) = 1
 	  //   - (Exp => 0) = !Exp
+	  //   - (Exp => Exp) = 1
 	  if (first == constant::true_instance())
 	    return second;
 	  if (first == constant::false_instance())
 	    {
 	      second->destroy();
-	      return first;
+	      return constant::true_instance();
 	    }
 	  if (second == constant::true_instance())
 	    {
@@ -200,6 +214,12 @@ namespace spot
 	    }
 	  if (second == constant::false_instance())
 	    return unop::instance(unop::Not, first);
+	  if (first == second)
+	    {
+	      first->destroy();
+	      second->destroy();
+	      return constant::true_instance();
+	    }
 	  break;
 	case U:
 	  //   - (Exp U 1) = 1

@@ -70,13 +70,16 @@ namespace spot
       /// performed (the left formula is rewritten as the right
       /// formula):
       ///   - (1 => Exp) = Exp
-      ///   - (0 => Exp) = 0
+      ///   - (0 => Exp) = 1
       ///   - (Exp => 1) = 1
       ///   - (Exp => 0) = !Exp
+      ///   - (Exp => Exp) = 1
       ///   - (1 ^ Exp) = !Exp
       ///   - (0 ^ Exp) = Exp
+      ///   - (Exp ^ Exp) = 0
       ///   - (0 <=> Exp) = !Exp
       ///   - (1 <=> Exp) = Exp
+      ///   - (Exp <=> Exp) = Exp
       ///   - (Exp U 1) = 1
       ///   - (Exp U 0) = 0
       ///   - (0 U Exp) = Exp
