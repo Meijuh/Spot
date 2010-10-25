@@ -131,9 +131,8 @@ namespace spot
 	    if (child == constant::false_instance()
 		|| child == constant::true_instance())
 	      return child;
-	    // F([*0]) = G([*0]) = 1
-	    if (child == constant::empty_word_instance())
-	      return constant::true_instance();
+
+	    assert(child != constant::empty_word_instance());
 	  }
 	  break;
 
@@ -185,9 +184,7 @@ namespace spot
 	  if (child == constant::true_instance()
 	      || child == constant::false_instance())
 	    return child;
-	  // X([*0]) = 1
-	  if (child == constant::empty_word_instance())
-	    return constant::true_instance();
+	  assert(child != constant::empty_word_instance());
 	  break;
 
 	case Finish:
