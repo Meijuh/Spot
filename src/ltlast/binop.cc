@@ -225,9 +225,11 @@ namespace spot
 	  //   - (Exp U 1) = 1
 	  //   - (Exp U 0) = 0
 	  //   - (0 U Exp) = Exp
+	  //   - (Exp U Exp) = Exp
 	  if (second == constant::true_instance()
 	      || second == constant::false_instance()
-	      || first == constant::false_instance())
+	      || first == constant::false_instance()
+	      || first == second)
 	    {
 	      first->destroy();
 	      return second;
@@ -237,8 +239,10 @@ namespace spot
 	  //   - (Exp W 1) = 1
 	  //   - (0 W Exp) = Exp
 	  //   - (1 W Exp) = 1
+	  //   - (Exp W Exp) = Exp
 	  if (second == constant::true_instance()
-	      || first == constant::false_instance())
+	      || first == constant::false_instance()
+	      || first == second)
 	    {
 	      first->destroy();
 	      return second;
@@ -253,9 +257,11 @@ namespace spot
 	  //   - (Exp R 1) = 1
 	  //   - (Exp R 0) = 0
 	  //   - (1 R Exp) = Exp
+	  //   - (Exp R Exp) = Exp
 	  if (second == constant::true_instance()
 	      || second == constant::false_instance()
-	      || first == constant::true_instance())
+	      || first == constant::true_instance()
+	      || first == second)
 	    {
 	      first->destroy();
 	      return second;
@@ -265,8 +271,10 @@ namespace spot
 	  //   - (Exp M 0) = 0
 	  //   - (1 M Exp) = Exp
 	  //   - (0 M Exp) = 0
+	  //   - (Exp M Exp) = Exp
 	  if (second == constant::false_instance()
-	      || first == constant::true_instance())
+	      || first == constant::true_instance()
+	      || first == second)
 	    {
 	      first->destroy();
 	      return second;

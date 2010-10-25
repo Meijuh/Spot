@@ -83,15 +83,19 @@ namespace spot
       ///   - (Exp U 1) = 1
       ///   - (Exp U 0) = 0
       ///   - (0 U Exp) = Exp
+      ///   - (Exp U Exp) = Exp
       ///   - (Exp W 1) = 1
       ///   - (0 W Exp) = Exp
       ///   - (1 W Exp) = 1
+      ///   - (Exp W Exp) = Exp
       ///   - (Exp R 1) = 1
       ///   - (Exp R 0) = 0
       ///   - (1 R Exp) = Exp
+      ///   - (Exp R Exp) = Exp
       ///   - (Exp M 0) = 0
       ///   - (1 M Exp) = Exp
       ///   - (0 M Exp) = 0
+      ///   - (Exp M Exp) = Exp
       static formula* instance(type op, formula* first, formula* second);
 
       virtual void accept(visitor& v);
