@@ -1,7 +1,8 @@
-## Copyright (C) 2009, 2010 Laboratoire de Recherche et DÃ©veloppement
+## -*- coding: utf-8 -*-
+## Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et DÃ©veloppement
 ## de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-## département Systèmes Répartis Coopératifs (SRC), Université Pierre
+## dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 ## et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
@@ -25,11 +26,12 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 # List directories in the order they must be built.  Keep tests at the
 # end, after building '.' (since the current directory contains
-# libspot.la needed by the tests).
+# libspot.la needed by the tests)
 SUBDIRS = misc ltlenv ltlast ltlvisit ltlparse eltlparse tgba		\
-          tgbaalgos tgbaparse evtgba evtgbaalgos evtgbaparse kripke	\
-          saba sabaalgos neverparse kripkeparse . ltltest eltltest      \
-	  tgbatest evtgbatest sabatest sanity kripketest
+          tgbaalgos tgbaparse ta taalgos evtgba evtgbaalgos		\
+          evtgbaparse kripke saba sabaalgos neverparse kripkeparse	\
+          . ltltest eltltest tgbatest evtgbatest sabatest sanity	\
+          kripketest
 
 lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =
@@ -43,6 +45,8 @@ libspot_la_LIBADD =  \
   eltlparse/libeltlparse.la \
   tgba/libtgba.la \
   tgbaalgos/libtgbaalgos.la \
+  ta/libta.la \
+  taalgos/libtaalgos.la \
   tgbaparse/libtgbaparse.la \
   neverparse/libneverparse.la \
   evtgba/libevtgba.la \

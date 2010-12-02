@@ -154,6 +154,8 @@ AC_CONFIG_FILES([
   src/tgbaalgos/gtec/Makefile
   src/tgbaalgos/Makefile
   src/tgba/Makefile
+  src/taalgos/Makefile
+  src/ta/Makefile
   src/tgbaparse/Makefile
   src/tgbatest/defs
   src/tgbatest/Makefile
