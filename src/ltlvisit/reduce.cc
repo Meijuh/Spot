@@ -38,168 +38,6 @@ namespace spot
   {
     namespace
     {
-      typedef union
-      {
-	unsigned v;
-	struct is_struct
-	{
-	  bool eventual:1;
-	  bool universal:1;
-	} is;
-      } eu_info;
-
-      static unsigned recurse_eu(const formula* f);
-
-      class eventual_universal_visitor: public const_visitor
-      {
-      public:
-
-	eventual_universal_visitor()
-	{
-	}
-
-	virtual
-	~eventual_universal_visitor()
-	{
-	}
-
-	bool
-	is_eventual() const
-	{
-	  return ret_.is.eventual;
-	}
-
-	bool
-	is_universal() const
-	{
-	  return ret_.is.universal;
-	}
-
-	unsigned
-	eu() const
-	{
-	  return ret_.v;
-	}
-
-	void
-	visit(const atomic_prop*)
-	{
-	  ret_.v = 0;
-	}
-
-	void
-	visit(const constant*)
-	{
-	  ret_.v = 0;
-	}
-
-	void
-	visit(const bunop*)
-	{
-	  ret_.v = 0;
-	}
-
-	void
-	visit(const unop* uo)
-	{
-	  const formula* f1 = uo->child();
-	  if (uo->op() == unop::F)
-	    {
-	      ret_.v = recurse_eu(f1);
-	      ret_.is.eventual = true;
-	      return;
-	    }
-	  if (uo->op() == unop::G)
-	    {
-	      ret_.v = recurse_eu(f1);
-	      ret_.is.universal = true;
-	      return;
-	    }
-	  ret_.v = 0;
-	  return;
-	}
-
-	void
-	visit(const binop* bo)
-	{
-	  const formula* f1 = bo->first();
-	  const formula* f2 = bo->second();
-
-	  // Beware: (f U g) is purely eventual if both operands
-	  // are purely eventual, unlike in the proceedings of
-	  // Concur'00.  (The revision of the paper available at
-	  // http://www.bell-labs.com/project/TMP/ is fixed.)  See
-	  // also http://arxiv.org/abs/1011.4214 for a discussion
-	  // about this problem.  (Which we fixed in 2005 thanks
-	  // to LBTT.)
-
-	  // This means that we can use the following case to handle
-	  // all cases of (f U g), (f R g), (f W g), (f M g) for
-	  // universality and eventuality.
-	  ret_.v = recurse_eu(f1) & recurse_eu(f2);
-
-	  // we are left with the case where U, R, W, or M are actually
-	  // used to represent F or G.
-	  switch (bo->op())
-	    {
-	    case binop::Xor:
-	    case binop::Equiv:
-	    case binop::Implies:
-	      return;
-	    case binop::U:
-	      if (f1 == constant::true_instance())
-		ret_.is.eventual = true;
-	      return;
-	    case binop::W:
-	      if (f2 == constant::true_instance())
-		ret_.is.eventual = true;
-	      return;
-	    case binop::R:
-	      if (f1 == constant::false_instance())
-		ret_.is.universal = true;
-	      return;
-	    case binop::M:
-	      if (f2 == constant::false_instance())
-		ret_.is.universal = true;
-	      return;
-	    case binop::UConcat:
-	    case binop::EConcat:
-	    case binop::EConcatMarked:
-	      return;
-	    }
-	  /* Unreachable code.  */
-	  assert(0);
-	}
-
-	void
-	visit(const automatop*)
-	{
-	  assert(0);
-	}
-
-	void
-	visit(const multop* mo)
-	{
-	  unsigned mos = mo->size();
-	  assert(mos != 0);
-	  ret_.v = recurse_eu(mo->nth(0));
-	  for (unsigned i = 1; i < mos && ret_.v != 0; ++i)
-	    ret_.v &= recurse_eu(mo->nth(i));
-	}
-
-      private:
-	eu_info ret_;
-      };
-
-      static unsigned
-      recurse_eu(const formula* f)
-      {
-	eventual_universal_visitor v;
-	const_cast<formula*>(f)->accept(v);
-	return v.eu();
-      }
-
-
       /////////////////////////////////////////////////////////////////////////
 
       class reduce_visitor: public visitor
@@ -251,14 +89,14 @@ namespace spot
 	    case unop::F:
 	      /* If f is a pure eventuality formula then F(f)=f.  */
 	      if (!(opt_ & Reduce_Eventuality_And_Universality)
-		  || !is_eventual(result_))
+		  || !result_->is_eventual())
 		result_ = unop::instance(unop::F, result_);
 	      return;
 
 	    case unop::G:
 	      /* If f is a pure universality formula then G(f)=f.  */
 	      if (!(opt_ & Reduce_Eventuality_And_Universality)
-		  || !is_universal(result_))
+		  || !result_->is_universal())
 		result_ = unop::instance(unop::G, result_);
 	      return;
 
@@ -280,14 +118,13 @@ namespace spot
 	  binop::type op = bo->op();
 
 	  formula* f2 = recurse(bo->second());
-	  eu_info f2i = { recurse_eu(f2) };
 
 	  if (opt_ & Reduce_Eventuality_And_Universality)
 	    {
 	      /* If b is a pure eventuality formula then a U b = b.
 		 If b is a pure universality formula a R b = b. */
-	      if ((f2i.is.eventual && (op == binop::U))
-		  || (f2i.is.universal && (op == binop::R)))
+	      if ((f2->is_eventual() && (op == binop::U))
+		  || (f2->is_universal() && (op == binop::R)))
 		{
 		  result_ = f2;
 		  return;
@@ -295,17 +132,16 @@ namespace spot
 	    }
 
 	  formula* f1 = recurse(bo->first());
-	  eu_info f1i = { recurse_eu(f1) };
 	  if (opt_ & Reduce_Eventuality_And_Universality)
 	    {
 	      /* If a is a pure eventuality formula then a M b = a & b.
 		 If a is a pure universality formula a W b = a|b. */
-	      if (f1i.is.eventual && (op == binop::M))
+	      if (f1->is_eventual() && (op == binop::M))
 		{
 		  result_ = multop::instance(multop::And, f1, f2);
 		  return;
 		}
-	      if (f1i.is.universal && (op == binop::W))
+	      if (f1->is_universal() && (op == binop::W))
 		{
 		  result_ = multop::instance(multop::Or, f1, f2);
 		  return;
@@ -639,17 +475,13 @@ namespace spot
     bool
     is_eventual(const formula* f)
     {
-      eventual_universal_visitor v;
-      const_cast<formula*>(f)->accept(v);
-      return v.is_eventual();
+      return f->is_eventual();
     }
 
     bool
     is_universal(const formula* f)
     {
-      eventual_universal_visitor v;
-      const_cast<formula*>(f)->accept(v);
-      return v.is_universal();
+      return f->is_universal();
     }
   }
 }

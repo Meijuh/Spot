@@ -35,7 +35,6 @@
 #include <string>
 #include "public.hh"
 #include "ltlast/allnodes.hh"
-#include "ltlvisit/kind.hh"
 
   struct minmax_t { unsigned min, max; };
 }
@@ -367,7 +366,7 @@ rationalexp: booleanatom
                                     $1.min, $1.max); }
 	    | rationalexp equalargs
 	      {
-		if ((kind_of($1) & Boolean_Kind) == Boolean_Kind)
+		if ($1->is_boolean())
 		  {
 		    $$ = bunop::instance(bunop::Equal, $1, $2.min, $2.max);
 		  }
@@ -384,7 +383,7 @@ rationalexp: booleanatom
 	      }
 	    | rationalexp gotoargs
 	      {
-		if ((kind_of($1) & Boolean_Kind) == Boolean_Kind)
+		if ($1->is_boolean())
 		  {
 		    $$ = bunop::instance(bunop::Goto, $1, $2.min, $2.max);
 		  }

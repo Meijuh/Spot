@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2004, 2006, 2010  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -82,7 +82,13 @@ namespace spot
     ///
     /// A word that satisfies a pure eventuality can be prefixed by
     /// anything and still satisfies the formula.
+    ///
+    /// \deprecated Use f->is_eventual() instead.
+#if __GNUC__
+    bool is_eventual(const formula* f) __attribute__ ((deprecated));
+#else
     bool is_eventual(const formula* f);
+#endif
 
     /// \brief Check whether a formula is purely universal.
     /// \ingroup ltl_misc
@@ -105,7 +111,13 @@ namespace spot
     ///
     /// Any (non-empty) suffix of a word that satisfies if purely
     /// universal formula also satisfies the formula.
+    ///
+    /// \deprecated Use f->is_universal() instead.
+#if __GNUC__
+    bool is_universal(const formula* f) __attribute__ ((deprecated));
+#else
     bool is_universal(const formula* f);
+#endif
   }
 }
 

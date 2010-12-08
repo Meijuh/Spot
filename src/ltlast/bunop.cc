@@ -25,7 +25,6 @@
 #include <sstream>
 #include "constant.hh"
 #include "unop.hh"
-#include "ltlvisit/kind.hh"
 
 namespace spot
 {
@@ -34,6 +33,20 @@ namespace spot
     bunop::bunop(type op, formula* child, unsigned min, unsigned max)
       : op_(op), child_(child), min_(min), max_(max)
     {
+      props = child->get_props();
+
+      switch (op_)
+	{
+	case Equal:
+	case Star:
+	case Goto:
+	  is.boolean = false;
+	  is.ltl_formula = false;
+	  is.eltl_formula = false;
+	  is.eventual = false;
+	  is.universal = false;
+	  break;
+	}
     }
 
     bunop::~bunop()

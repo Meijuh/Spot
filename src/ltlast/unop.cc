@@ -26,6 +26,7 @@
 #include <cassert>
 #include <iostream>
 #include "constant.hh"
+#include "atomic_prop.hh"
 
 namespace spot
 {
@@ -34,6 +35,41 @@ namespace spot
     unop::unop(type op, formula* child)
       : op_(op), child_(child)
     {
+      props = child->get_props();
+      switch (op)
+	{
+	case Not:
+	  is.in_nenoform = !!dynamic_cast<atomic_prop*>(child);
+	  break;
+	case X:
+	  is.boolean = false;
+	  is.X_free = false;
+	  is.eltl_formula = false;
+	  break;
+	case F:
+	  is.boolean = false;
+	  is.eltl_formula = false;
+	  is.sugar_free_ltl = false;
+	  is.eventual = true;
+	  break;
+	case G:
+	  is.boolean = false;
+	  is.eltl_formula = false;
+	  is.sugar_free_ltl = false;
+	  is.universal = true;
+	  break;
+	case Finish:
+	  is.boolean = false;
+	  is.ltl_formula = false;
+	  is.psl_formula = false;
+	  break;
+	case Closure:
+	case NegClosure:
+	  is.boolean = false;
+	  is.ltl_formula = false;
+	  is.eltl_formula = false;
+	  break;
+	}
     }
 
     unop::~unop()

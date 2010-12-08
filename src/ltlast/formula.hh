@@ -100,6 +100,123 @@ namespace spot
       /// Return a canonic representation of the formula
       virtual std::string dump() const = 0;
 
+      ////////////////
+      // Properties //
+      ////////////////
+
+      /// Whether the formula use only boolean operators.
+      bool is_boolean() const
+      {
+	return is.boolean;
+      }
+
+      /// Whether the formula use only AND, OR, and NOT operators.
+      bool is_sugar_free_boolean() const
+      {
+	return is.sugar_free_boolean;
+      }
+
+      /// \brief Whether the formula is in negative normal form.
+      ///
+      /// A formula is in negative normal form if the not operators
+      /// occur only in front of atomic propositions.
+      bool is_in_nenoform() const
+      {
+	return is.in_nenoform;
+      }
+
+      /// Whether the formula avoid the X operator.
+      bool is_X_free() const
+      {
+	return is.X_free;
+      }
+
+      /// Whether the formula avoid the F and G operators.
+      bool is_sugar_free_ltl() const
+      {
+	return is.sugar_free_ltl;
+      }
+
+      /// Whether the formula use only LTL operators.
+      bool is_ltl_formula() const
+      {
+	return is.ltl_formula;
+      }
+
+      /// Whether the formula use only ELTL operators.
+      bool is_eltl_formula() const
+      {
+	return is.eltl_formula;
+      }
+
+      /// Whether the formula use only PSL operators.
+      bool is_psl_formula() const
+      {
+	return is.psl_formula;
+      }
+
+      /// \brief Whether the formula is purely eventual.
+      ///
+      /// Pure eventuality formulae are defined in
+      /// \verbatim
+      /// @InProceedings{	  etessami.00.concur,
+      /// author  	= {Kousha Etessami and Gerard J. Holzmann},
+      /// title		= {Optimizing {B\"u}chi Automata},
+      /// booktitle	= {Proceedings of the 11th International Conference on
+      /// 		  Concurrency Theory (Concur'2000)},
+      /// pages		= {153--167},
+      /// year		= {2000},
+      /// editor  	= {C. Palamidessi},
+      /// volume  	= {1877},
+      /// series  	= {Lecture Notes in Computer Science},
+      /// publisher	= {Springer-Verlag}
+      /// }
+      /// \endverbatim
+      ///
+      /// A word that satisfies a pure eventuality can be prefixed by
+      /// anything and still satisfies the formula.
+      bool is_eventual() const
+      {
+	return is.eventual;
+      }
+
+      /// \brief Whether a formula is purely universal.
+      ///
+      /// Purely universal formulae are defined in
+      /// \verbatim
+      /// @InProceedings{	  etessami.00.concur,
+      /// author  	= {Kousha Etessami and Gerard J. Holzmann},
+      /// title		= {Optimizing {B\"u}chi Automata},
+      /// booktitle	= {Proceedings of the 11th International Conference on
+      /// 		  Concurrency Theory (Concur'2000)},
+      /// pages		= {153--167},
+      /// year		= {2000},
+      /// editor  	= {C. Palamidessi},
+      /// volume  	= {1877},
+      /// series  	= {Lecture Notes in Computer Science},
+      /// publisher	= {Springer-Verlag}
+      /// }
+      /// \endverbatim
+      ///
+      /// Any (non-empty) suffix of a word that satisfies a purely
+      /// universal formula also satisfies the formula.
+      bool is_universal() const
+      {
+	return is.universal;
+      }
+
+      /// Whether the formula has an occurrence of EConcatMarked.
+      bool is_marked() const
+      {
+	return !is.not_marked;
+      }
+
+      /// The properties as a field of bits.  For internal use.
+      unsigned get_props() const
+      {
+	return props;
+      }
+
       /// Return a hash key for the formula.
       size_t
       hash() const
@@ -117,6 +234,40 @@ namespace spot
 
       /// \brief The hash key of this formula.
       size_t count_;
+
+      struct ltl_prop
+      {
+	// All properties here should be expressed in such a a way
+	// that property(f && g) is just property(f)&property(g).
+	// This allows us to compute all properties of a compound
+	// formula in one operation.
+	//
+	// For instance we do not use a property that says "has
+	// temporal operator", because it would require an OR between
+	// the two arguments.  Instead we have a property that
+	// says "no temporal operator", and that one is computed
+	// with an AND between the arguments.
+	//
+	// Also choose a name that makes sense when prefixed with
+	// "the formula is".
+	bool boolean:1;		   // No temporal operators.
+	bool sugar_free_boolean:1; // Only AND, OR, and NOT operators.
+	bool in_nenoform:1;	   // Negative Normal Form
+	bool X_free:1;		   // No X operators.
+	bool sugar_free_ltl:1;	   // No F and G operators.
+	bool ltl_formula:1;	   // Only LTL operators.
+	bool eltl_formula:1;	   // Only ELTL operators.
+	bool psl_formula:1;	   // Only PSL operators.
+	bool eventual:1;	   // Purely eventual formula.
+	bool universal:1;	   // Purely universal formula.
+	bool not_marked:1;	   // No occurrence of EConcatMarked
+      };
+      union
+      {
+	// Use an unsigned for fast computation of all properties.
+	unsigned props;
+	ltl_prop is;
+      };
 
     private:
       /// \brief Number of formulae created so far.
@@ -189,6 +340,10 @@ namespace spot
       }
     };
 
+    /// Print the properties of formula \a f on stream \a out.
+    std::ostream& print_formula_props(std::ostream& out,
+				      const formula* f,
+				      bool abbreviated = false);
 
   }
 }

@@ -36,6 +36,65 @@ namespace spot
     binop::binop(type op, formula* first, formula* second)
       : op_(op), first_(first), second_(second)
     {
+      // Beware: (f U g) is purely eventual if both operands
+      // are purely eventual, unlike in the proceedings of
+      // Concur'00.  (The revision of the paper available at
+      // http://www.bell-labs.com/project/TMP/ is fixed.)  See
+      // also http://arxiv.org/abs/1011.4214 for a discussion
+      // about this problem.  (Which we fixed in 2005 thanks
+      // to LBTT.)
+
+      // This means that we can use the following line to handle
+      // all cases of (f U g), (f R g), (f W g), (f M g) for
+      // universality and eventuality.
+      props = first->get_props() & second->get_props();
+
+      switch (op)
+	{
+	case Xor:
+	case Implies:
+	case Equiv:
+	  is.sugar_free_boolean = false;
+	  is.in_nenoform = false;
+	  break;
+	case EConcatMarked:
+	  is.not_marked = false;
+	  // fall through
+	case EConcat:
+	case UConcat:
+	  is.ltl_formula = false;
+	  is.boolean = false;
+	  is.eltl_formula = false;
+	  break;
+	case U:
+	  // 1 U a = Fa
+	  if (first == constant::true_instance())
+	    is.eventual = 1;
+	  is.boolean = false;
+	  is.eltl_formula = false;
+	  break;
+	case W:
+	  // a W 0 = Ga
+	  if (second == constant::false_instance())
+	    is.universal = 1;
+	  is.boolean = false;
+	  is.eltl_formula = false;
+	  break;
+	case R:
+	  // 0 R a = Ga
+	  if (first == constant::false_instance())
+	    is.universal = 1;
+	  is.boolean = false;
+	  is.eltl_formula = false;
+	  break;
+	case M:
+	  // a M 1 = Fa
+	  if (second == constant::true_instance())
+	    is.eventual = 1;
+	  is.boolean = false;
+	  is.eltl_formula = false;
+	  break;
+	}
     }
 
     binop::~binop()

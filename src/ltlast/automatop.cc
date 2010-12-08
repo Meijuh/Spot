@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009 Laboratoire de Recherche et Developpement
+// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -30,6 +30,21 @@ namespace spot
     automatop::automatop(const nfa::ptr nfa, vec* v, bool negated)
       : nfa_(nfa), children_(v), negated_(negated)
     {
+      is.boolean = false;
+      is.sugar_free_boolean = true;
+      is.in_nenoform = true;
+      is.X_free = true;
+      is.sugar_free_ltl = true;
+      is.ltl_formula = false;
+      is.eltl_formula = true;
+      is.psl_formula = false;
+      is.eventual = false;
+      is.universal = false;
+      is.not_marked = true;
+
+      unsigned s = v->size();
+      for (unsigned i = 0; i < s; ++i)
+	props &= (*v)[i]->get_props();
     }
 
     automatop::~automatop()

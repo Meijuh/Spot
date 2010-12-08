@@ -37,6 +37,32 @@ namespace spot
     multop::multop(type op, vec* v)
       : op_(op), children_(v)
     {
+      unsigned s = v->size();
+      assert(s > 1);
+
+      props = (*v)[0]->get_props();
+      for (unsigned i = 1; i < s; ++i)
+	props &= (*v)[i]->get_props();
+
+      switch (op)
+	{
+	case Concat:
+	case Fusion:
+	  is.boolean = false;
+	  is.ltl_formula = false;
+	  is.eltl_formula = false;
+	  is.eventual = false;
+	  is.universal = false;
+	  break;
+	case AndNLM:
+	  // The non-matching-length-And (&) can only appear in the
+	  // rational parts of PSL formula.  We don't remove the
+	  // Boolean flag, because applied to atomic propositions a&b
+	  // has the same effect as a&&b.
+	case And:
+	case Or:
+	  break;
+	}
     }
 
     multop::~multop()

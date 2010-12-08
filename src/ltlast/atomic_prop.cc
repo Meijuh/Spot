@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -34,6 +34,17 @@ namespace spot
     atomic_prop::atomic_prop(const std::string& name, environment& env)
       : name_(name), env_(&env)
     {
+      is.boolean = true;
+      is.sugar_free_boolean = true;
+      is.in_nenoform = true;
+      is.X_free = true;
+      is.sugar_free_ltl = true;
+      is.ltl_formula = true;
+      is.eltl_formula = true;
+      is.psl_formula = true;
+      is.eventual = false;
+      is.universal = false;
+      is.not_marked = true;
     }
 
     atomic_prop::~atomic_prop()

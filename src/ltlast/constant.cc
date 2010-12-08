@@ -36,6 +36,36 @@ namespace spot
     constant::constant(type val)
       : val_(val)
     {
+      switch (val)
+	{
+	case constant::True:
+	case constant::False:
+	  is.boolean = true;
+	  is.sugar_free_boolean = true;
+	  is.in_nenoform = true;
+	  is.X_free = true;
+	  is.sugar_free_ltl = true;
+	  is.ltl_formula = true;
+	  is.eltl_formula = true;
+	  is.psl_formula = true;
+	  is.eventual = true;
+	  is.universal = true;
+	  is.not_marked = true;
+	  break;
+	case constant::EmptyWord:
+	  is.boolean = false;
+	  is.sugar_free_boolean = false;
+	  is.in_nenoform = true;
+	  is.X_free = true;
+	  is.sugar_free_ltl = true;
+	  is.ltl_formula = false;
+	  is.eltl_formula = false;
+	  is.psl_formula = true;
+	  is.eventual = false;
+	  is.universal = false;
+	  is.not_marked = true;
+	  break;
+	}
     }
 
     constant::~constant()

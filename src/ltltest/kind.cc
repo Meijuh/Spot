@@ -22,7 +22,6 @@
 #include <cassert>
 #include <cstdlib>
 #include "ltlparse/public.hh"
-#include "ltlvisit/kind.hh"
 #include "ltlast/allnodes.hh"
 
 void
@@ -44,9 +43,8 @@ main(int argc, char **argv)
   if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
     return 2;
 
-  unsigned k = spot::ltl::kind_of(f1);
-  spot::ltl::print_kind(std::cout, k, true) << " = ";
-  spot::ltl::print_kind(std::cout, k, false) << std::endl;
+  spot::ltl::print_formula_props(std::cout, f1, true) << " = ";
+  spot::ltl::print_formula_props(std::cout, f1, false) << std::endl;
 
   f1->destroy();
   assert(spot::ltl::atomic_prop::instance_count() == 0);
