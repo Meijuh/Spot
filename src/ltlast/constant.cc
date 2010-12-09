@@ -51,6 +51,7 @@ namespace spot
 	  is.eventual = true;
 	  is.universal = true;
 	  is.not_marked = true;
+	  is.accepting_eword = false;
 	  break;
 	case constant::EmptyWord:
 	  is.boolean = false;
@@ -64,6 +65,7 @@ namespace spot
 	  is.eventual = false;
 	  is.universal = false;
 	  is.not_marked = true;
+	  is.accepting_eword = true;
 	  break;
 	}
     }

@@ -40,34 +40,40 @@ namespace spot
 	{
 	case Not:
 	  is.in_nenoform = !!dynamic_cast<atomic_prop*>(child);
+	  is.accepting_eword = false;
 	  break;
 	case X:
 	  is.boolean = false;
 	  is.X_free = false;
 	  is.eltl_formula = false;
+	  is.accepting_eword = false;
 	  break;
 	case F:
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sugar_free_ltl = false;
 	  is.eventual = true;
+	  is.accepting_eword = false;
 	  break;
 	case G:
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sugar_free_ltl = false;
 	  is.universal = true;
+	  is.accepting_eword = false;
 	  break;
 	case Finish:
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.psl_formula = false;
+	  is.accepting_eword = false;
 	  break;
 	case Closure:
 	case NegClosure:
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;
+	  is.accepting_eword = false;
 	  break;
 	}
     }

@@ -28,7 +28,6 @@
 #include "multop.hh"
 #include "constant.hh"
 #include "visitor.hh"
-#include "ltlvisit/consterm.hh"
 
 namespace spot
 {
@@ -40,10 +39,6 @@ namespace spot
       unsigned s = v->size();
       assert(s > 1);
 
-      props = (*v)[0]->get_props();
-      for (unsigned i = 1; i < s; ++i)
-	props &= (*v)[i]->get_props();
-
       switch (op)
 	{
 	case Concat:
@@ -53,15 +48,29 @@ namespace spot
 	  is.eltl_formula = false;
 	  is.eventual = false;
 	  is.universal = false;
-	  break;
+	  // fall through
 	case AndNLM:
 	  // The non-matching-length-And (&) can only appear in the
 	  // rational parts of PSL formula.  We don't remove the
 	  // Boolean flag, because applied to atomic propositions a&b
 	  // has the same effect as a&&b.
 	case And:
-	case Or:
+	  props = (*v)[0]->get_props();
+	  for (unsigned i = 1; i < s; ++i)
+	    props &= (*v)[i]->get_props();
 	  break;
+	case Or:
+	  {
+	    bool ew = (*v)[0]->accepts_eword();
+	    props = (*v)[0]->get_props();
+	    for (unsigned i = 1; i < s; ++i)
+	      {
+		ew |= (*v)[i]->accepts_eword();
+		props &= (*v)[i]->get_props();
+	      }
+	    is.accepting_eword = ew;
+	    break;
+	  }
 	}
     }
 
@@ -280,21 +289,20 @@ namespace spot
 		++i;
 	      }
 	  }
-	// We have    a* & [*0] & 0  = 0  // already checked above
-	//     but    a* & [*0] & c* = [*0]
-	// So if [*0] has been seen, check if all term recognize the
+	// We have    a* & [*0] & c  = 0
+	//     and    a* & [*0] & c* = [*0]
+	// So if [*0] has been seen, check if alls term recognize the
 	// empty word.
 	if (weak_abs_seen)
 	  {
-	    bool acc_empty = true;
+	    bool acc_eword = true;
 	    for (i = v->begin(); i != v->end(); ++i)
 	      {
-		if (acc_empty)
-		  acc_empty = constant_term_as_bool(*i);
+		acc_eword &= (*i)->accepts_eword();
 		(*i)->destroy();
 	      }
 	    delete v;
-	    if (acc_empty)
+	    if (acc_eword)
 	      return weak_abs;
 	    else
 	      return constant::false_instance();

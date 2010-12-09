@@ -56,6 +56,7 @@ namespace spot
 	case Equiv:
 	  is.sugar_free_boolean = false;
 	  is.in_nenoform = false;
+	  is.accepting_eword = false;
 	  break;
 	case EConcatMarked:
 	  is.not_marked = false;
@@ -65,6 +66,7 @@ namespace spot
 	  is.ltl_formula = false;
 	  is.boolean = false;
 	  is.eltl_formula = false;
+	  is.accepting_eword = false;
 	  break;
 	case U:
 	  // 1 U a = Fa
@@ -72,6 +74,7 @@ namespace spot
 	    is.eventual = 1;
 	  is.boolean = false;
 	  is.eltl_formula = false;
+	  is.accepting_eword = false;
 	  break;
 	case W:
 	  // a W 0 = Ga
@@ -79,6 +82,7 @@ namespace spot
 	    is.universal = 1;
 	  is.boolean = false;
 	  is.eltl_formula = false;
+	  is.accepting_eword = false;
 	  break;
 	case R:
 	  // 0 R a = Ga
@@ -86,6 +90,7 @@ namespace spot
 	    is.universal = 1;
 	  is.boolean = false;
 	  is.eltl_formula = false;
+	  is.accepting_eword = false;
 	  break;
 	case M:
 	  // a M 1 = Fa
@@ -93,6 +98,7 @@ namespace spot
 	    is.eventual = 1;
 	  is.boolean = false;
 	  is.eltl_formula = false;
+	  is.accepting_eword = false;
 	  break;
 	}
     }

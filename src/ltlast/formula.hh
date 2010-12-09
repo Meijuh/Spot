@@ -211,6 +211,12 @@ namespace spot
 	return !is.not_marked;
       }
 
+      /// Whether the formula accepts [*0].
+      bool accepts_eword() const
+      {
+	return is.accepting_eword;
+      }
+
       /// The properties as a field of bits.  For internal use.
       unsigned get_props() const
       {
@@ -252,7 +258,7 @@ namespace spot
 	// "the formula is".
 	bool boolean:1;		   // No temporal operators.
 	bool sugar_free_boolean:1; // Only AND, OR, and NOT operators.
-	bool in_nenoform:1;	   // Negative Normal Form
+	bool in_nenoform:1;	   // Negative Normal Form.
 	bool X_free:1;		   // No X operators.
 	bool sugar_free_ltl:1;	   // No F and G operators.
 	bool ltl_formula:1;	   // Only LTL operators.
@@ -260,7 +266,8 @@ namespace spot
 	bool psl_formula:1;	   // Only PSL operators.
 	bool eventual:1;	   // Purely eventual formula.
 	bool universal:1;	   // Purely universal formula.
-	bool not_marked:1;	   // No occurrence of EConcatMarked
+	bool not_marked:1;	   // No occurrence of EConcatMarked.
+	bool accepting_eword:1;	   // Accepts the empty word.
       };
       union
       {

@@ -41,6 +41,7 @@ namespace spot
       is.eventual = false;
       is.universal = false;
       is.not_marked = true;
+      is.accepting_eword = false;
 
       unsigned s = v->size();
       for (unsigned i = 0; i < s; ++i)

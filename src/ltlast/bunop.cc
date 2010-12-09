@@ -35,16 +35,21 @@ namespace spot
     {
       props = child->get_props();
 
+      is.boolean = false;
+      is.ltl_formula = false;
+      is.eltl_formula = false;
+      is.eventual = false;
+      is.universal = false;
+
       switch (op_)
 	{
-	case Equal:
 	case Star:
+	  if (min_ == 0)
+	    is.accepting_eword = true;
+	  break;
+	case Equal:
 	case Goto:
-	  is.boolean = false;
-	  is.ltl_formula = false;
-	  is.eltl_formula = false;
-	  is.eventual = false;
-	  is.universal = false;
+	  is.accepting_eword = (min_ == 0);
 	  break;
 	}
     }

@@ -22,7 +22,6 @@
 #include <cassert>
 #include <cstdlib>
 #include "ltlparse/public.hh"
-#include "ltlvisit/consterm.hh"
 #include "ltlast/allnodes.hh"
 
 void
@@ -44,7 +43,7 @@ main(int argc, char **argv)
   if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
     return 2;
 
-  bool b = spot::ltl::constant_term_as_bool(f1);
+  bool b = f1->accepts_eword();
 
   std::cout << b << std::endl;
 
@@ -52,6 +51,7 @@ main(int argc, char **argv)
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
+  assert(spot::ltl::bunop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
   return b;
 }

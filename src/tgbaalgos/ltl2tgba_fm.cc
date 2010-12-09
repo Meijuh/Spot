@@ -38,7 +38,6 @@
 #include <memory>
 #include "ltl2tgba_fm.hh"
 #include "ltlvisit/contain.hh"
-#include "ltlvisit/consterm.hh"
 #include "tgba/bddprint.hh"
 
 namespace spot
@@ -506,7 +505,7 @@ namespace spot
 		  for (unsigned n = 0; n < s; ++n)
 		    {
 		      const formula* f = node->nth(n);
-		      if (constant_term_as_bool(f))
+		      if (f->accepts_eword())
 			final->push_back(f->clone());
 		      else
 			non_final->push_back(f->clone());
@@ -593,12 +592,12 @@ namespace spot
 			      dest2->destroy();
 			      res_ |= label & bdd_ithvar(x);
 			    }
-			  if (constant_term_as_bool(node))
+			  if (node->accepts_eword())
 			    res_ |= label & next_to_concat();
 			}
 		    }
 		}
-	      if (constant_term_as_bool(node))
+	      if (node->accepts_eword())
 		res_ |= now_to_concat();
 
 	      break;
@@ -652,7 +651,7 @@ namespace spot
 		  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
 		  formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
 
-		  if (constant_term_as_bool(dest))
+		  if (dest->accepts_eword())
 		    {
 		      // The destination is a final state.  Make sure we
 		      // can also exit if tail is satisfied.
@@ -838,7 +837,7 @@ namespace spot
 	  case unop::Closure:
 	    {
 	      rat_seen_ = true;
-	      if (constant_term_as_bool(node->child()))
+	      if (node->child()->accepts_eword())
 		{
 		  res_ = bddtrue;
 		  return;
@@ -864,7 +863,7 @@ namespace spot
 						       dict_.var_set));
 
 		      const formula* dest2;
-		      if (constant_term_as_bool(dest))
+		      if (dest->accepts_eword())
 			{
 			  dest->destroy();
 			  res_ |= label;
@@ -891,7 +890,7 @@ namespace spot
 		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
 
 		      const formula* dest2;
-		      if (constant_term_as_bool(dest))
+		      if (dest->accepts_eword())
 			{
 			  dest->destroy();
 			  res_ |= label;
@@ -915,7 +914,7 @@ namespace spot
 	      rat_seen_ = true;
 	      has_marked_ = true;
 
-	      if (constant_term_as_bool(node->child()))
+	      if (node->child()->accepts_eword())
 		{
 		  res_ = bddfalse;
 		  return;
@@ -945,7 +944,7 @@ namespace spot
 						   dict_.var_set));
 
 		  // !{ Exp } is false if Exp accepts the empty word.
-		  if (constant_term_as_bool(dest))
+		  if (dest->accepts_eword())
 		    {
 		      dest->destroy();
 		      continue;
@@ -1084,7 +1083,7 @@ namespace spot
 			  dest2->destroy();
 			  res_ |= label & bdd_ithvar(x);
 			}
-		      if (constant_term_as_bool(dest))
+		      if (dest->accepts_eword())
 			res_ |= label & f2;
 		    }
 		}
@@ -1112,7 +1111,7 @@ namespace spot
 			      dest2->destroy();
 			      res_ |= label & bdd_ithvar(x);
 			    }
-			  if (constant_term_as_bool(dest))
+			  if (dest->accepts_eword())
 			    res_ |= label & f2;
 			}
 		    }
@@ -1154,7 +1153,7 @@ namespace spot
 		      bdd udest =
 			bdd_ithvar(dict_.register_next_variable(dest2));
 
-		      if (constant_term_as_bool(dest))
+		      if (dest->accepts_eword())
 			udest &= f2;
 
 		      dest2->destroy();

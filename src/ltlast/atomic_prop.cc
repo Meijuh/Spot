@@ -45,6 +45,7 @@ namespace spot
       is.eventual = false;
       is.universal = false;
       is.not_marked = true;
+      is.accepting_eword = false;
     }
 
     atomic_prop::~atomic_prop()

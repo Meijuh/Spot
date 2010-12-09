@@ -29,7 +29,6 @@ ltlvisitdir = $(pkgincludedir)/ltlvisit
 ltlvisit_HEADERS = \
   apcollect.hh \
   basicreduce.hh \
-  consterm.hh \
   contain.hh \
   clone.hh \
   destroy.hh \
@@ -51,7 +50,6 @@ noinst_LTLIBRARIES = libltlvisit.la
 libltlvisit_la_SOURCES = \
   apcollect.cc \
   basicreduce.cc \
-  consterm.cc \
   contain.cc \
   clone.cc \
   destroy.cc \

@@ -86,6 +86,7 @@ namespace spot
       proprint(is_eventual, "e", "pure eventuality");
       proprint(is_universal, "u", "purely universal");
       proprint(is_marked, "+", "marked");
+      proprint(accepts_eword, "0", "accepts the empty word");
       return out;
     }
   }
