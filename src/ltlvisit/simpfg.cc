@@ -98,6 +98,8 @@ namespace spot
     formula*
     simplify_f_g(const formula* f)
     {
+      if (f->is_boolean())
+	return f->clone();
       simplify_f_g_visitor v;
       const_cast<formula*>(f)->accept(v);
       return v.result();

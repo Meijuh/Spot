@@ -70,6 +70,8 @@ namespace spot
     formula*
     unabbreviate_ltl(const formula* f)
     {
+      if (f->is_sugar_free_boolean() && f->is_sugar_free_ltl())
+	return f->clone();
       unabbreviate_ltl_visitor v;
       const_cast<formula*>(f)->accept(v);
       return v.result();

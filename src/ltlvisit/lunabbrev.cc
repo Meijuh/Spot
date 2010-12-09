@@ -106,6 +106,8 @@ namespace spot
     formula*
     unabbreviate_logic(const formula* f)
     {
+      if (f->is_sugar_free_boolean())
+	return f->clone();
       unabbreviate_logic_visitor v;
       const_cast<formula*>(f)->accept(v);
       return v.result();

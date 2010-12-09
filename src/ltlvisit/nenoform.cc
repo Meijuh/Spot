@@ -289,6 +289,8 @@ namespace spot
     formula*
     negative_normal_form(const formula* f, bool negated)
     {
+      if (!negated && f->is_in_nenoform())
+	return f->clone();
       negative_normal_form_visitor v(negated);
       const_cast<formula*>(f)->accept(v);
       return v.result();
