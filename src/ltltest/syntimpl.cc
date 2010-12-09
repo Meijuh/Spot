@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009 Laboratoire de Recherche et DÃ©veloppement
+// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -67,12 +67,14 @@ main(int argc, char** argv)
   std::string f2s = spot::ltl::to_string(f2);
 
   int exit_return = 0;
+  spot::ltl::syntactic_implication_cache* c =
+    new spot::ltl::syntactic_implication_cache;
 
   switch (opt)
     {
     case 0:
       std::cout << "Test f1 < f2" << std::endl;
-      if (spot::ltl::syntactic_implication(f1, f2))
+      if (c->syntactic_implication(f1, f2))
 	{
 	  std::cout << f1s << " < " << f2s << std::endl;
 	  exit_return = 1;
@@ -81,7 +83,7 @@ main(int argc, char** argv)
 
     case 1:
       std::cout << "Test !f1 < f2" << std::endl;
-      if (spot::ltl::syntactic_implication_neg(f1, f2, false))
+      if (c->syntactic_implication_neg(f1, f2, false))
 	{
 	  std::cout << "!(" << f1s << ") < " << f2s << std::endl;
 	  exit_return = 1;
@@ -90,7 +92,7 @@ main(int argc, char** argv)
 
     case 2:
       std::cout << "Test f1 < !f2" << std::endl;
-      if (spot::ltl::syntactic_implication_neg(f1, f2, true))
+      if (c->syntactic_implication_neg(f1, f2, true))
 	{
 	  std::cout << f1s << " < !(" << f2s << ")" << std::endl;
 	  exit_return = 1;
@@ -107,6 +109,9 @@ main(int argc, char** argv)
   f2->destroy();
   ftmp1->destroy();
   ftmp2->destroy();
+
+  delete c;
+
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);

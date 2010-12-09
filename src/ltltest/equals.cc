@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009 Laboratoire de Recherche et DÃ©veloppement
+// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -99,6 +99,7 @@ main(int argc, char** argv)
   f1 = spot::ltl::reduce(f1);
   tmp->destroy();
   spot::ltl::dump(std::cout, f1);
+  std::cout << std::endl;
 #endif
 #ifdef REDUC_TAU
   spot::ltl::formula* tmp;
@@ -106,6 +107,7 @@ main(int argc, char** argv)
   f1 = spot::ltl::reduce_tau03(f1, false);
   tmp->destroy();
   spot::ltl::dump(std::cout, f1);
+  std::cout << std::endl;
 #endif
 #ifdef REDUC_TAUSTR
   spot::ltl::formula* tmp;
@@ -113,16 +115,23 @@ main(int argc, char** argv)
   f1 = spot::ltl::reduce_tau03(f1, true);
   tmp->destroy();
   spot::ltl::dump(std::cout, f1);
+  std::cout << std::endl;
 #endif
 
   int exit_code = f1 != f2;
 
   f1->destroy();
   f2->destroy();
+
+  spot::ltl::atomic_prop::dump_instances(std::cerr);
+  spot::ltl::unop::dump_instances(std::cerr);
+  spot::ltl::binop::dump_instances(std::cerr);
+  spot::ltl::multop::dump_instances(std::cerr);
+  spot::ltl::automatop::dump_instances(std::cerr);
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
-
+  assert(spot::ltl::automatop::instance_count() == 0);
   return exit_code;
 }

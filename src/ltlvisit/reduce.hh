@@ -52,13 +52,16 @@ namespace spot
 	Reduce_All = -1U
       };
 
+    class syntactic_implication_cache;
+
     /// \brief Reduce a formula \a f.
     ///
     /// \param f the formula to reduce
     /// \param opt a conjonction of spot::ltl::reduce_options specifying
     ///            which optimizations to apply.
     /// \return the reduced formula
-    formula* reduce(const formula* f, int opt = Reduce_All);
+    formula* reduce(const formula* f, int opt = Reduce_All,
+		    syntactic_implication_cache* c = 0);
     /// @}
 
     /// \brief Check whether a formula is a pure eventuality.

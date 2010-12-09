@@ -44,8 +44,8 @@ namespace spot
       {
       public:
 
-	reduce_visitor(int opt)
-	  : opt_(opt)
+	reduce_visitor(int opt, syntactic_implication_cache* c)
+	  : opt_(opt), c_(c)
 	{
 	}
 
@@ -164,14 +164,14 @@ namespace spot
 
 		case binop::U:
 		  /* a < b => a U b = b */
-		  if (syntactic_implication(f1, f2))
+		  if (c_->syntactic_implication(f1, f2))
 		    {
 		      result_ = f2;
 		      f1->destroy();
 		      return;
 		    }
 		  /* !b < a => a U b = Fb */
-		  if (syntactic_implication_neg(f2, f1, false))
+		  if (c_->syntactic_implication_neg(f2, f1, false))
 		    {
 		      result_ = unop::instance(unop::F, f2);
 		      f1->destroy();
@@ -183,7 +183,7 @@ namespace spot
 		    {
 		      binop* bo = static_cast<binop*>(f2);
 		      if ((bo->op() == binop::U || bo->op() == binop::W)
-			  && syntactic_implication(f1, bo->first()))
+			  && c_->syntactic_implication(f1, bo->first()))
 			{
 			  result_ = f2;
 			  f1->destroy();
@@ -194,14 +194,14 @@ namespace spot
 
 		case binop::R:
 		  /* b < a => a R b = b */
-		  if (syntactic_implication(f2, f1))
+		  if (c_->syntactic_implication(f2, f1))
 		    {
 		      result_ = f2;
 		      f1->destroy();
 		      return;
 		    }
 		  /* b < !a => a R b = Gb */
-		  if (syntactic_implication_neg(f2, f1, true))
+		  if (c_->syntactic_implication_neg(f2, f1, true))
 		    {
 		      result_ = unop::instance(unop::G, f2);
 		      f1->destroy();
@@ -213,7 +213,7 @@ namespace spot
 		      /* b < a => a R (b M c) = b M c */
 		      binop* bo = static_cast<binop*>(f2);
 		      if ((bo->op() == binop::R || bo->op() == binop::M)
-			  && syntactic_implication(bo->first(), f1))
+			  && c_->syntactic_implication(bo->first(), f1))
 			{
 			  result_ = f2;
 			  f1->destroy();
@@ -222,7 +222,7 @@ namespace spot
 
 		      /* a < b => a R (b R c) = a R c */
 		      if (bo->op() == binop::R
-			  && syntactic_implication(f1, bo->first()))
+			  && c_->syntactic_implication(f1, bo->first()))
 			{
 			  result_ = binop::instance(binop::R, f1,
 						    bo->second()->clone());
@@ -234,14 +234,14 @@ namespace spot
 
 		case binop::W:
 		  /* a < b => a W b = b */
-		  if (syntactic_implication(f1, f2))
+		  if (c_->syntactic_implication(f1, f2))
 		    {
 		      result_ = f2;
 		      f1->destroy();
 		      return;
 		    }
 		  /* !b < a => a W b = 1 */
-		  if (syntactic_implication_neg(f2, f1, false))
+		  if (c_->syntactic_implication_neg(f2, f1, false))
 		    {
 		      result_ = constant::true_instance();
 		      f1->destroy();
@@ -253,7 +253,7 @@ namespace spot
 		    {
 		      binop* bo = static_cast<binop*>(f2);
 		      if (bo->op() == binop::W
-			  && syntactic_implication(f1, bo->first()))
+			  && c_->syntactic_implication(f1, bo->first()))
 			{
 			  result_ = f2;
 			  f1->destroy();
@@ -264,14 +264,14 @@ namespace spot
 
 		case binop::M:
 		  /* b < a => a M b = b */
-		  if (syntactic_implication(f2, f1))
+		  if (c_->syntactic_implication(f2, f1))
 		    {
 		      result_ = f2;
 		      f1->destroy();
 		      return;
 		    }
 		  /* b < !a => a M b = 0 */
-		  if (syntactic_implication_neg(f2, f1, true))
+		  if (c_->syntactic_implication_neg(f2, f1, true))
 		    {
 		      result_ = constant::false_instance();
 		      f1->destroy();
@@ -283,7 +283,7 @@ namespace spot
 		      /* b < a => a M (b M c) = b M c */
 		      binop* bo = static_cast<binop*>(f2);
 		      if (bo->op() == binop::M
-			  && syntactic_implication(bo->first(), f1))
+			  && c_->syntactic_implication(bo->first(), f1))
 			{
 			  result_ = f2;
 			  f1->destroy();
@@ -293,7 +293,7 @@ namespace spot
 		      /* a < b => a M (b M c) = a M c */
 		      /* a < b => a M (b R c) = a M c */
 		      if ((bo->op() == binop::M || bo->op() == binop::R)
-			  && syntactic_implication(f1, bo->first()))
+			  && c_->syntactic_implication(f1, bo->first()))
 			{
 			  result_ = binop::instance(binop::M, f1,
 						    bo->second()->clone());
@@ -340,9 +340,9 @@ namespace spot
 		      assert(f1 != f2);
 		      // a < b => a + b = b
 		      // a < b => a & b = a
-		      if ((syntactic_implication(*f1, *f2) && // f1 < f2
+		      if ((c_->syntactic_implication(*f1, *f2) && // f1 < f2
 			   (mo->op() == multop::Or)) ||
-			  ((syntactic_implication(*f2, *f1)) && // f2 < f1
+			  ((c_->syntactic_implication(*f2, *f1)) && // f2 < f1
 			   (mo->op() == multop::And)))
 			{
 			  // We keep f2
@@ -351,10 +351,10 @@ namespace spot
 			  removed = true;
 			  break;
 			}
-		      else if ((syntactic_implication(*f2, *f1) && // f2 < f1
-				(mo->op() == multop::Or)) ||
-			       ((syntactic_implication(*f1, *f2)) && // f1 < f2
-				(mo->op() == multop::And)))
+		      else if ((c_->syntactic_implication(*f2, *f1) // f2 < f1
+				&& (mo->op() == multop::Or)) ||
+			       ((c_->syntactic_implication(*f1, *f2)) // f1 < f2
+				&& (mo->op() == multop::And)))
 			{
 			  // We keep f1
 			  (*f2)->destroy();
@@ -372,8 +372,8 @@ namespace spot
 	      for (f1 = res->begin(); f1 != res->end(); f1++)
 		for (f2 = res->begin(); f2 != res->end(); f2++)
 		  if (f1 != f2 &&
-		      syntactic_implication_neg(*f1, *f2,
-						mo->op() !=  multop::Or))
+		      c_->syntactic_implication_neg(*f1, *f2,
+						    mo->op() !=  multop::Or))
 		    {
 		      for (multop::vec::iterator j = res->begin();
 			   j != res->end(); j++)
@@ -400,22 +400,26 @@ namespace spot
 	formula*
 	recurse(formula* f)
 	{
-	  return reduce(f, opt_);
+	  return reduce(f, opt_, c_);
 	}
 
       protected:
 	formula* result_;
 	int opt_;
+	syntactic_implication_cache* c_;
       };
 
     } // anonymous
 
     formula*
-    reduce(const formula* f, int opt)
+    reduce(const formula* f, int opt, syntactic_implication_cache* c)
     {
       formula* f1;
       formula* f2;
       formula* prev = 0;
+
+      syntactic_implication_cache* sic =
+	c ? c : new syntactic_implication_cache;
 
       int n = 0;
 
@@ -449,7 +453,7 @@ namespace spot
 	  if (opt & (Reduce_Syntactic_Implications
 		     | Reduce_Eventuality_And_Universality))
 	    {
-	      reduce_visitor v(opt);
+	      reduce_visitor v(opt, sic);
 	      f2->accept(v);
 	      f1 = v.result();
 	      f2->destroy();
@@ -469,6 +473,10 @@ namespace spot
 	  f = f2;
 	}
       prev->destroy();
+
+      if (c == 0)
+	delete sic;
+
       return const_cast<formula*>(f);
     }
 

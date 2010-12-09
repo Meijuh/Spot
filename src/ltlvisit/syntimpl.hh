@@ -1,3 +1,5 @@
+// Copyright (C) 2010 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -23,6 +25,7 @@
 # define SPOT_LTLVISIT_SYNTIMPL_HH
 
 #include "ltlast/formula.hh"
+#include <map>
 
 namespace spot
 {
@@ -46,17 +49,35 @@ namespace spot
     /// publisher	= {Springer-Verlag}
     /// }
     /// \endverbatim
-    bool syntactic_implication(const formula* f1, const formula* f2);
+    class syntactic_implication_cache
+    {
+    private:
+      typedef std::pair<const formula*, const formula*> pairf;
+      typedef std::map<pairf, bool> cache_t;
+      cache_t cache_;
+      // Copy disallowed.
+      syntactic_implication_cache(const syntactic_implication_cache&);
+    public:
+      syntactic_implication_cache() {};
 
-    /// \brief Syntactic implication.
-    /// \ingroup ltl_misc
-    ///
-    /// If right==false, true if !f1 < f2, false otherwise.
-    /// If right==true, true if f1 < !f2, false otherwise.
-    ///
-    /// \see syntactic_implication
-    bool syntactic_implication_neg(const formula* f1, const formula* f2,
-				   bool right);
+      /// \brief Syntactic implication.
+      ///
+      /// Return true if f1 < f2.
+      bool syntactic_implication(const formula* f1, const formula* f2);
+
+      /// \brief Syntactic implication.
+      ///
+      /// If right==false, true if !f1 < f2, false otherwise.
+      /// If right==true, true if f1 < !f2, false otherwise.
+      ///
+      /// \see syntactic_implication
+      bool syntactic_implication_neg(const formula* f1, const formula* f2,
+				     bool right);
+
+      ~syntactic_implication_cache();
+    };
+
+
   }
 }
 
