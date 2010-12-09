@@ -35,8 +35,6 @@ namespace spot
     formula* mark_concat_ops(const formula* f);
 
     bool simplify_mark(formula*& f);
-
-    bool has_mark(const formula* f);
   }
 }
 

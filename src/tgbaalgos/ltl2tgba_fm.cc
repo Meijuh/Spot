@@ -1394,7 +1394,7 @@ namespace spot
 	  *new_flag = true;
 
 	// Perform the actual translation.
-	v_.reset(!has_mark(f));
+	v_.reset(!f->is_marked());
 	f->accept(v_);
 	translated t;
 	t.symbolic = v_.result();

@@ -68,8 +68,10 @@ namespace spot
 	  is.psl_formula = false;
 	  is.accepting_eword = false;
 	  break;
-	case Closure:
 	case NegClosure:
+	  is.not_marked = false;
+	  // fall through
+	case Closure:
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;

@@ -29,103 +29,6 @@ namespace spot
   {
     namespace
     {
-
-      class has_mark_visitor : public visitor
-      {
-	bool result_;
-      public:
-	has_mark_visitor()
-	  : result_(false)
-	{
-	}
-	~has_mark_visitor()
-	{
-	}
-
-	bool
-	result()
-	{
-	  return result_;
-	}
-
-	void
-	visit(atomic_prop*)
-	{
-	}
-
-	void
-	visit(constant*)
-	{
-	}
-
-	void
-	visit(bunop*)
-	{
-	}
-
-	void
-	visit(unop* uo)
-	{
-	  switch (uo->op())
-	    {
-	    case unop::NegClosure:
-	      result_ = true;
-	      return;
-	    case unop::Finish:
-	    case unop::Closure:
-	    case unop::Not:
-	    case unop::X:
-	    case unop::F:
-	    case unop::G:
-	      return;
-	    }
-	  /* Unreachable code. */
-	  assert(0);
-	}
-
-	void
-	visit(automatop*)
-	{
-	}
-
-	void
-	visit(multop* mo)
-	{
-	  unsigned mos = mo->size();
-	  for (unsigned i = 0; i < mos && !result_; ++i)
-	    result_ = recurse(mo->nth(i));
-	}
-
-	void
-	visit(binop* bo)
-	{
-	  switch (bo->op())
-	    {
-	    case binop::EConcatMarked:
-	      result_ = true;
-	      return;
-	    case binop::Xor:
-	    case binop::Implies:
-	    case binop::Equiv:
-	    case binop::U:
-	    case binop::W:
-	    case binop::M:
-	    case binop::R:
-	    case binop::EConcat:
-	    case binop::UConcat:
-	      return;
-	    }
-	  /* Unreachable code. */
-	  assert(0);
-	}
-
-	bool
-	recurse(const formula* f)
-	{
-	  return has_mark(f);
-	}
-      };
-
       class simplify_mark_visitor : public visitor
       {
 	formula* result_;
@@ -414,16 +317,6 @@ namespace spot
       f = v.result();
       return v.has_mark();
     }
-
-    bool
-    has_mark(const formula* f)
-    {
-      has_mark_visitor v;
-      const_cast<formula*>(f)->accept(v);
-      return v.result();
-    }
-
-
 
   }
 }
