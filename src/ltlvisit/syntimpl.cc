@@ -96,8 +96,10 @@ namespace spot
 	      return;
 	    case unop::X:
 	      {
-		const unop* op = dynamic_cast<const unop*>(f);
-		if (op && op->op() == unop::X)
+		if (f->kind() != formula::UnOp)
+		  return;
+		const unop* op = static_cast<const unop*>(f);
+		if (op->op() == unop::X)
 		  result_ = syntactic_implication(op->child(), f1);
 	      }
 	      return;
@@ -124,8 +126,6 @@ namespace spot
 	{
 	  const formula* f1 = bo->first();
 	  const formula* f2 = bo->second();
-	  const binop* fb = dynamic_cast<const binop*>(f);
-	  const unop* fu = dynamic_cast<const unop*>(f);
 	  switch (bo->op())
 	    {
 	    case binop::Xor:
@@ -141,39 +141,55 @@ namespace spot
 		result_ = true;
 	      return;
 	    case binop::R:
-	      if (fb && fb->op() == binop::R)
-		if (syntactic_implication(fb->first(), f1) &&
-		    syntactic_implication(fb->second(), f2))
-		  {
-		    result_ = true;
-		    return;
-		  }
-	      if (fu && fu->op() == unop::G)
-		if (f1 == constant::false_instance() &&
-		    syntactic_implication(fu->child(), f2))
-		  {
-		    result_ = true;
-		    return;
-		  }
+	      if (f->kind() == formula::BinOp)
+		{
+		  const binop* fb = static_cast<const binop*>(f);
+		  if (fb->op() == binop::R
+		      && syntactic_implication(fb->first(), f1)
+		      && syntactic_implication(fb->second(), f2))
+		    {
+		      result_ = true;
+		      return;
+		    }
+		}
+	      if (f->kind() == formula::UnOp)
+		{
+		  const unop* fu = static_cast<const unop*>(f);
+		  if (fu->op() == unop::G
+		      && f1 == constant::false_instance()
+		      && syntactic_implication(fu->child(), f2))
+		    {
+		      result_ = true;
+		      return;
+		    }
+		}
 	      if (syntactic_implication(f, f1)
 		  && syntactic_implication(f, f2))
 		result_ = true;
 	      return;
 	    case binop::M:
-	      if (fb && fb->op() == binop::M)
-		if (syntactic_implication(fb->first(), f1) &&
-		    syntactic_implication(fb->second(), f2))
+	      if (f->kind() == formula::BinOp)
+		{
+		  const binop* fb = static_cast<const binop*>(f);
+		  if (fb->op() == binop::M
+		      && syntactic_implication(fb->first(), f1)
+		      && syntactic_implication(fb->second(), f2))
+		    {
+		      result_ = true;
+		      return;
+		    }
+		}
+	      if (f->kind() == formula::UnOp)
+		{
+		  const unop* fu = static_cast<const unop*>(f);
+		  if (fu->op() == unop::F
+		      && f2 == constant::true_instance()
+		      && syntactic_implication(fu->child(), f1))
 		  {
 		    result_ = true;
 		    return;
 		  }
-	      if (fu && fu->op() == unop::F)
-		if (f2 == constant::true_instance() &&
-		    syntactic_implication(fu->child(), f1))
-		  {
-		    result_ = true;
-		    return;
-		  }
+		}
 	      if (syntactic_implication(f, f1)
 		  && syntactic_implication(f, f2))
 		result_ = true;
@@ -238,8 +254,10 @@ namespace spot
 	bool
 	special_case(const binop* f2)
 	{
-	  const binop* fb = dynamic_cast<const binop*>(f);
-	  if (fb && fb->op() == f2->op()
+	  if (f->kind() != formula::BinOp)
+	    return false;
+	  const binop* fb = static_cast<const binop*>(f);
+	  if (fb->op() == f2->op()
 	      && syntactic_implication(f2->first(), fb->first())
 	      && syntactic_implication(f2->second(), fb->second()))
 	    return true;
@@ -249,10 +267,9 @@ namespace spot
 	bool
 	special_case_check(const formula* f2)
 	{
-	  const binop* f2b = dynamic_cast<const binop*>(f2);
-	  if (!f2b)
+	  if (f2->kind() != formula::BinOp)
 	    return false;
-	  return special_case(f2b);
+	  return special_case(static_cast<const binop*>(f2));
 	}
 
 	int
@@ -307,11 +324,12 @@ namespace spot
 		result_ = true;
 	      return;
 	    case unop::X:
-	      {
-		const unop* op = dynamic_cast<const unop*>(f);
-		if (op && op->op() == unop::X)
-		  result_ = syntactic_implication(f1, op->child());
-	      }
+	      if (f->kind() == formula::UnOp)
+		{
+		  const unop* op = static_cast<const unop*>(f);
+		  if (op->op() == unop::X)
+		    result_ = syntactic_implication(f1, op->child());
+		}
 	      return;
 	    case unop::F:
 	      {
@@ -367,8 +385,6 @@ namespace spot
 
 	  const formula* f1 = bo->first();
 	  const formula* f2 = bo->second();
-	  const binop* fb = dynamic_cast<const binop*>(f);
-	  const unop* fu = dynamic_cast<const unop*>(f);
 	  switch (bo->op())
 	    {
 	    case binop::Xor:
@@ -380,63 +396,87 @@ namespace spot
 	      return;
 	    case binop::U:
 	      /* (a < c) && (c < d) => a U b < c U d */
-	      if (fb && fb->op() == binop::U)
-		if (syntactic_implication(f1, fb->first()) &&
-		    syntactic_implication(f2, fb->second()))
-		  {
-		    result_ = true;
-		    return;
-		  }
-	      if (fu && fu->op() == unop::F)
-		if (f1 == constant::true_instance() &&
-		    syntactic_implication(f2, fu->child()))
-		  {
-		    result_ = true;
-		    return;
-		  }
+	      if (f->kind() == formula::BinOp)
+		{
+		  const binop* fb = static_cast<const binop*>(f);
+		  if (fb->op() == binop::U
+		      && syntactic_implication(f1, fb->first())
+		      && syntactic_implication(f2, fb->second()))
+		    {
+		      result_ = true;
+		      return;
+		    }
+		}
+	      if (f->kind() == formula::UnOp)
+		{
+		  const unop* fu = static_cast<const unop*>(f);
+		  if (fu->op() == unop::F
+		      && f1 == constant::true_instance()
+		      && syntactic_implication(f2, fu->child()))
+		    {
+		      result_ = true;
+		      return;
+		    }
+		}
 	      if (syntactic_implication(f1, f)
 		  && syntactic_implication(f2, f))
 		result_ = true;
 	      return;
 	    case binop::W:
 	      /* (a < c) && (c < d) => a W b < c W d */
-	      if (fb && fb->op() == binop::W)
-		if (syntactic_implication(f1, fb->first()) &&
-		    syntactic_implication(f2, fb->second()))
-		  {
-		    result_ = true;
-		    return;
-		  }
-	      if (fu && fu->op() == unop::G)
-		if (f2 == constant::false_instance() &&
-		    syntactic_implication(f1, fu->child()))
-		  {
-		    result_ = true;
-		    return;
-		  }
+	      if (f->kind() == formula::BinOp)
+		{
+		  const binop* fb = static_cast<const binop*>(f);
+		  if (fb->op() == binop::W
+		      && syntactic_implication(f1, fb->first())
+		      && syntactic_implication(f2, fb->second()))
+		    {
+		      result_ = true;
+		      return;
+		    }
+		}
+	      if (f->kind() == formula::UnOp)
+		{
+		  const unop* fu = static_cast<const unop*>(f);
+		  if (fu && fu->op() == unop::G
+		      && f2 == constant::false_instance()
+		      && syntactic_implication(f1, fu->child()))
+		    {
+		      result_ = true;
+		      return;
+		    }
+		}
 	      if (syntactic_implication(f1, f)
 		  && syntactic_implication(f2, f))
 		result_ = true;
 	      return;
 	    case binop::R:
-	      if (fu && fu->op() == unop::G)
-		if (f1 == constant::false_instance() &&
-		    syntactic_implication(f2, fu->child()))
+	      if (f->kind() == formula::UnOp)
+		{
+		  const unop* fu = static_cast<const unop*>(f);
+		  if (fu->op() == unop::G
+		      && f1 == constant::false_instance()
+		      && syntactic_implication(f2, fu->child()))
 		  {
 		    result_ = true;
 		    return;
 		  }
+		}
 	      if (syntactic_implication(f2, f))
 		result_ = true;
 	      return;
 	    case binop::M:
-	      if (fu && fu->op() == unop::F)
-		if (f2 == constant::true_instance() &&
-		    syntactic_implication(f1, fu->child()))
+	      if (f->kind() == formula::UnOp)
+		{
+		  const unop* fu = static_cast<const unop*>(f);
+		  if (fu->op() == unop::F
+		      && f2 == constant::true_instance()
+		      && syntactic_implication(f1, fu->child()))
 		  {
 		    result_ = true;
 		    return;
 		  }
+		}
 	      if (syntactic_implication(f2, f))
 		result_ = true;
 	      return;

@@ -31,7 +31,7 @@ namespace spot
   namespace ltl
   {
     bunop::bunop(type op, formula* child, unsigned min, unsigned max)
-      : op_(op), child_(child), min_(min), max_(max)
+      : ref_formula(BUnOp), op_(op), child_(child), min_(min), max_(max)
     {
       props = child->get_props();
 
@@ -314,9 +314,9 @@ namespace spot
 
 	    // - Exp[*i..j][*min..max] = Exp[*i(min)..j(max)]
 	    //                                       if i*(min+1)<=j(min)+1.
-	    bunop* s = dynamic_cast<bunop*>(child);
-	    if (s)
+	    if (child->kind() == BUnOp)
 	      {
+		bunop* s = static_cast<bunop*>(child);
 		unsigned i = s->min();
 		unsigned j = s->max();
 

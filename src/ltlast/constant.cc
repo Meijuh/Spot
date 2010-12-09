@@ -34,7 +34,7 @@ namespace spot
     constant constant::empty_word_instance_(constant::EmptyWord);
 
     constant::constant(type val)
-      : val_(val)
+      : formula(Constant), val_(val)
     {
       switch (val)
 	{

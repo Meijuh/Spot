@@ -188,7 +188,7 @@ namespace spot
 	      // a[*] is OK, no need to print {a}[*].
 	      // However want braces for {!a}[*], the only unary
 	      // operator that can be nested with [*].
-	      bool need_parent = !!dynamic_cast<const unop*>(bo->child());
+	      bool need_parent = (bo->child()->kind() == formula::UnOp);
 
 	      if (need_parent || full_parent_)
 		openp();
@@ -206,7 +206,7 @@ namespace spot
 	  top_level_ = false;
 	  // The parser treats F0, F1, G0, G1, X0, and X1 as atomic
 	  // propositions.  So make sure we output F(0), G(1), etc.
-	  bool need_parent = !!dynamic_cast<const constant*>(uo->child());
+	  bool need_parent = (uo->child()->kind() == formula::Constant);
 	  bool top_level = top_level_;
 
 	  if (full_parent_)
@@ -456,7 +456,7 @@ namespace spot
 	    case unop::X:
 	      // The parser treats X0, and X1 as atomic
 	      // propositions. So make sure we output X(0) and X(1).
-	      need_parent = !!dynamic_cast<const constant*>(uo->child());
+	      need_parent = (uo->child()->kind() == formula::Constant);
 	      if (full_parent_)
 		need_parent = false;
 	      os_ << "X";

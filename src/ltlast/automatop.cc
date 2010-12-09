@@ -28,7 +28,7 @@ namespace spot
   namespace ltl
   {
     automatop::automatop(const nfa::ptr nfa, vec* v, bool negated)
-      : nfa_(nfa), children_(v), negated_(negated)
+      : ref_formula(AutomatOp), nfa_(nfa), children_(v), negated_(negated)
     {
       is.boolean = false;
       is.sugar_free_boolean = true;

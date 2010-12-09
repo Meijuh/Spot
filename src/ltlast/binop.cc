@@ -34,7 +34,7 @@ namespace spot
   namespace ltl
   {
     binop::binop(type op, formula* first, formula* second)
-      : op_(op), first_(first), second_(second)
+      : ref_formula(BinOp), op_(op), first_(first), second_(second)
     {
       // Beware: (f U g) is purely eventual if both operands
       // are purely eventual, unlike in the proceedings of

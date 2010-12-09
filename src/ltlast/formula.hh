@@ -71,11 +71,20 @@ namespace spot
     class formula
     {
     public:
-      formula() : count_(max_count++)
+      /// Kind of a sub-formula
+      enum opkind { Constant,
+		    AtomicProp,
+		    UnOp,
+		    BinOp,
+		    MultOp,
+		    BUnOp,
+		    AutomatOp };
+
+      formula(opkind k) : count_(max_count++), kind_(k)
       {
 	// If the counter of formulae ever loops, we want to skip the
 	// first three values, because they are permanently associated
-	// to constants, and its convenient to have constants smaller
+	// to constants, and it is convenient to have constants smaller
 	// than all other formulae.
 	if (max_count == 0)
 	  max_count = 3;
@@ -99,6 +108,12 @@ namespace spot
 
       /// Return a canonic representation of the formula
       virtual std::string dump() const = 0;
+
+      /// Return the kind of the top-level operator.
+      opkind kind() const
+      {
+	return kind_;
+      }
 
       ////////////////
       // Properties //
@@ -279,6 +294,7 @@ namespace spot
     private:
       /// \brief Number of formulae created so far.
       static size_t max_count;
+      opkind kind_;
     };
 
     /// \brief Strict Weak Ordering for <code>const formula*</code>.

@@ -32,7 +32,7 @@ namespace spot
   {
 
     atomic_prop::atomic_prop(const std::string& name, environment& env)
-      : name_(name), env_(&env)
+      : ref_formula(AtomicProp), name_(name), env_(&env)
     {
       is.boolean = true;
       is.sugar_free_boolean = true;

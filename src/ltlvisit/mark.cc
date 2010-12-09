@@ -221,13 +221,13 @@ namespace spot
 		  {
 		    formula* f = mo->nth(i);
 
-		    binop* bo = dynamic_cast<binop*>(f);
-		    if (!bo)
+		    if (f->kind() != formula::BinOp)
 		      {
 			res->push_back(recurse(f));
 		      }
 		    else
 		      {
+			binop* bo = static_cast<binop*>(f);
 			switch (bo->op())
 			  {
 			  case binop::Xor:

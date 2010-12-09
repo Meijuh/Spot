@@ -33,27 +33,31 @@ namespace spot
     bool
     is_GF(const formula* f)
     {
-      const unop* op = dynamic_cast<const unop*>(f);
-      if (op && op->op() == unop::G)
-	{
-	  const unop* opchild = dynamic_cast<const unop*>(op->child());
-	  if (opchild && opchild->op() == unop::F)
-	    return true;
-	}
-      return false;
+      if (f->kind() != formula::UnOp)
+	return false;
+      const unop* op = static_cast<const unop*>(f);
+      if (op->op() != unop::G)
+	return false;
+      const formula* c = op->child();
+      if (c->kind() != formula::UnOp)
+	return false;
+      const unop* opchild = static_cast<const unop*>(c);
+      return opchild->op() == unop::F;
     }
 
     bool
     is_FG(const formula* f)
     {
-      const unop* op = dynamic_cast<const unop*>(f);
-      if (op && op->op() == unop::F)
-	{
-	  const unop* opchild = dynamic_cast<const unop*>(op->child());
-	  if (opchild && opchild->op() == unop::G)
-	    return true;
-	}
-      return false;
+      if (f->kind() != formula::UnOp)
+	return false;
+      const unop* op = static_cast<const unop*>(f);
+      if (op->op() != unop::F)
+	return false;
+      const formula* c = op->child();
+      if (c->kind() != formula::UnOp)
+	return false;
+      const unop* opchild = static_cast<const unop*>(c);
+      return opchild->op() == unop::G;
     }
 
     namespace
@@ -134,7 +138,7 @@ namespace spot
 	    case unop::X:
 	      // X(true) = true
 	      // X(false) = false
-	      if (dynamic_cast<constant*>(result_))
+	      if (result_->kind() == formula::Constant)
 		return;
 
 	      // XGF(f) = GF(f)
@@ -143,9 +147,9 @@ namespace spot
 
 	      // X(f1 & GF(f2)) = X(f1) & GF(F2)
 	      // X(f1 | GF(f2)) = X(f1) | GF(F2)
-	      mo = dynamic_cast<multop*>(result_);
-	      if (mo)
+	      if (result_->kind() == formula::MultOp)
 		{
+		  mo = static_cast<multop*>(result_);
 		  result_ = param_case(mo, unop::X, mo->op());
 		  return;
 		}
@@ -156,22 +160,24 @@ namespace spot
 	    case unop::F:
 	      // F(true) = true
 	      // F(false) = false
-	      if (dynamic_cast<constant*>(result_))
+	      if (result_->kind() == formula::Constant)
 		return;
 
 	      // FX(a) = XF(a)
-	      u = dynamic_cast<unop*>(result_);
-	      if (u && u->op() == unop::X)
+	      if (result_->kind() == formula::UnOp)
 		{
-		  formula* res =
-		    unop::instance(unop::X,
-				   unop::instance(unop::F,
-						  basic_reduce(u->child())));
-		  u->destroy();
-		  // FXX(a) = XXF(a) ...
-		  result_ = basic_reduce(res);
-		  res->destroy();
-		  return;
+		  u = static_cast<unop*>(result_);
+		  if (u->op() == unop::X)
+		    {
+		      formula* res =
+			unop::instance(unop::X, unop::instance
+				       (unop::F, basic_reduce(u->child())));
+		      u->destroy();
+		      // FXX(a) = XXF(a) ...
+		      result_ = basic_reduce(res);
+		      res->destroy();
+		      return;
+		    }
 		}
 
 #if 0
@@ -189,11 +195,14 @@ namespace spot
 	      // GF(f2)) | (a & GF(b))) is indeed easier to translate.
 	      //
 	      // So let's not consider this rewriting rule.
-	      mo = dynamic_cast<multop*>(result_);
-	      if (mo && mo->op() == multop::And)
+	      if (result_->kind() == formula::MultOp)
 		{
-		  result_ = param_case(mo, unop::F, multop::And);
-		  return;
+		  mo = static_cast<multop*>(result_);
+		  if (mo->op() == multop::And)
+		    {
+		      result_ = param_case(mo, unop::F, multop::And);
+		      return;
+		    }
 		}
 #endif
 
@@ -203,41 +212,49 @@ namespace spot
 	    case unop::G:
 	      // G(true) = true
 	      // G(false) = false
-	      if (dynamic_cast<constant*>(result_))
+	      if (result_->kind() == formula::Constant)
 		return;
 
 	      // G(a R b) = G(b)
-	      bo = dynamic_cast<binop*>(result_);
-	      if (bo && bo->op() == binop::R)
+	      if (result_->kind() == formula::BinOp)
 		{
-		  result_ = unop::instance(unop::G,
-					   basic_reduce(bo->second()));
-		  bo->destroy();
-		  return;
+		  bo = static_cast<binop*>(result_);
+		  if (bo->op() == binop::R)
+		    {
+		      result_ = unop::instance(unop::G,
+					       basic_reduce(bo->second()));
+		      bo->destroy();
+		      return;
+		    }
 		}
 
 	      // GX(a) = XG(a)
-	      u = dynamic_cast<unop*>(result_);
-	      if (u && u->op() == unop::X)
+	      if (result_->kind() == formula::UnOp)
 		{
-		  formula* res =
-		    unop::instance(unop::X,
-				   unop::instance(unop::G,
-						  basic_reduce(u->child())));
-		  u->destroy();
-		  // GXX(a) = XXG(a) ...
-		  // GXF(a) = XGF(a) = GF(a) ...
-		  result_ = basic_reduce(res);
-		  res->destroy();
-		  return;
+		  u = static_cast<unop*>(result_);
+		  if (u->op() == unop::X)
+		    {
+		      formula* res =
+			unop::instance(unop::X, unop::instance
+				       (unop::G, basic_reduce(u->child())));
+		      u->destroy();
+		      // GXX(a) = XXG(a) ...
+		      // GXF(a) = XGF(a) = GF(a) ...
+		      result_ = basic_reduce(res);
+		      res->destroy();
+		      return;
+		    }
 		}
 
 	      // G(f1 | GF(f2)) = G(f1) | GF(F2)
-	      mo = dynamic_cast<multop*>(result_);
-	      if (mo && mo->op() == multop::Or)
+	      if (result_->kind() == formula::MultOp)
 		{
-		  result_ = param_case(mo, unop::G, multop::Or);
-		  return;
+		  mo = static_cast<multop*>(result_);
+		  if (mo->op() == multop::Or)
+		    {
+		      result_ = param_case(mo, unop::G, multop::Or);
+		      return;
+		    }
 		}
 
 	      result_ = unop::instance(unop::G, result_);
@@ -297,19 +314,23 @@ namespace spot
 		// a R true = true
 		// a W true = true
 		// a M false = false
-		if (dynamic_cast<constant*>(f2))
+		if (f2->kind() == formula::Constant)
 		  {
 		    result_ = f2;
 		    f1->destroy();
 		    return;
 		  }
 
+		// Same effect as dynamic_cast<unop*>, only faster.
+		unop* fu1 =
+		  (f1->kind() == formula::UnOp) ? static_cast<unop*>(f1) : 0;
+		unop* fu2 =
+		  (f2->kind() == formula::UnOp) ? static_cast<unop*>(f2) : 0;
+
 		// X(a) U X(b) = X(a U b)
 		// X(a) R X(b) = X(a R b)
 		// X(a) W X(b) = X(a W b)
 		// X(a) M X(b) = X(a M b)
-		unop* fu1 = dynamic_cast<unop*>(f1);
-		unop* fu2 = dynamic_cast<unop*>(f2);
 		if (fu1 && fu2
 		    && fu1->op() == unop::X
 		    && fu2->op() == unop::X)
@@ -337,29 +358,33 @@ namespace spot
 
 		    // a U (b | G(a)) = a W b
 		    // a W (b | G(a)) = a W b
-		    multop* fm2 = dynamic_cast<multop*>(f2);
-		    if (fm2 && fm2->op() == multop::Or)
+		    if (f2->kind() == formula::MultOp)
 		      {
-			int s = fm2->size();
-			for (int i = 0; i < s; ++i)
+			multop* fm2 = static_cast<multop*>(f2);
+			if (fm2->op() == multop::Or)
 			  {
-			    unop* c = dynamic_cast<unop*>(fm2->nth(i));
-			    if (c && c->op() == unop::G && c->child() == f1)
+			    int s = fm2->size();
+			    for (int i = 0; i < s; ++i)
 			      {
-				multop::vec* v = new multop::vec;
-				v->reserve(s - 1);
-				int j;
-				for (j = 0; j < i; ++j)
-				  v->push_back(fm2->nth(j)->clone());
-				// skip j=i
-				for (++j; j < s; ++j)
-				  v->push_back(fm2->nth(j)->clone());
-				result_ =
-				  binop::instance(binop::W, f1,
-						  multop::instance(multop::Or,
-								   v));
-				f2->destroy();
-				return;
+				if (fm2->nth(i)->kind() != formula::UnOp)
+				  continue;
+				unop* c = static_cast<unop*>(fm2->nth(i));
+				if (c->op() == unop::G && c->child() == f1)
+				  {
+				    multop::vec* v = new multop::vec;
+				    v->reserve(s - 1);
+				    int j;
+				    for (j = 0; j < i; ++j)
+				      v->push_back(fm2->nth(j)->clone());
+				    // skip j=i
+				    for (++j; j < s; ++j)
+				      v->push_back(fm2->nth(j)->clone());
+				    result_ = binop::instance
+				      (binop::W, f1,
+				       multop::instance(multop::Or, v));
+				    f2->destroy();
+				    return;
+				  }
 			      }
 			  }
 		      }
@@ -377,29 +402,33 @@ namespace spot
 
 		    // a R (b & F(a)) = a M b
 		    // a M (b & F(a)) = a M b
-		    multop* fm2 = dynamic_cast<multop*>(f2);
-		    if (fm2 && fm2->op() == multop::And)
+		    if (f2->kind() == formula::MultOp)
 		      {
-			int s = fm2->size();
-			for (int i = 0; i < s; ++i)
+			multop* fm2 = static_cast<multop*>(f2);
+			if (fm2->op() == multop::And)
 			  {
-			    unop* c = dynamic_cast<unop*>(fm2->nth(i));
-			    if (c && c->op() == unop::F && c->child() == f1)
+			    int s = fm2->size();
+			    for (int i = 0; i < s; ++i)
 			      {
-				multop::vec* v = new multop::vec;
-				v->reserve(s - 1);
-				int j;
-				for (j = 0; j < i; ++j)
-				  v->push_back(fm2->nth(j)->clone());
-				// skip j=i
-				for (++j; j < s; ++j)
-				  v->push_back(fm2->nth(j)->clone());
-				result_ =
-				  binop::instance(binop::M, f1,
-						  multop::instance(multop::And,
-								   v));
-				f2->destroy();
-				return;
+				if (fm2->nth(i)->kind() != formula::UnOp)
+				  continue;
+				unop* c = static_cast<unop*>(fm2->nth(i));
+				if (c->op() == unop::F && c->child() == f1)
+				  {
+				    multop::vec* v = new multop::vec;
+				    v->reserve(s - 1);
+				    int j;
+				    for (j = 0; j < i; ++j)
+				      v->push_back(fm2->nth(j)->clone());
+				    // skip j=i
+				    for (++j; j < s; ++j)
+				      v->push_back(fm2->nth(j)->clone());
+				    result_ = binop::instance
+				      (binop::M, f1,
+				       multop::instance(multop::And, v));
+				    f2->destroy();
+				    return;
+				  }
 			      }
 			  }
 		      }
@@ -449,175 +478,196 @@ namespace spot
 		  // of the vector to mark them as redundant.  Skip them.
 		  if (!*i)
 		    continue;
-		  unop* uo = dynamic_cast<unop*>(*i);
-		  binop* bo = dynamic_cast<binop*>(*i);
-		  if (uo)
+		  switch ((*i)->kind())
 		    {
-		      if (uo->op() == unop::X)
-			{
-			  // Xa & Xb = X(a & b)
-			  tmpX->push_back(uo->child()->clone());
-			}
-		      else if (is_FG(*i))
-			{
-			  // FG(a) & FG(b) = FG(a & b)
-			  unop* uo2 = dynamic_cast<unop*>(uo->child());
-			  tmpFG->push_back(uo2->child()->clone());
-			}
-		      else if (uo->op() == unop::G)
-			{
-			  // G(a) & G(b) = G(a & b)
-			  tmpG->push_back(uo->child()->clone());
-			}
-		      else if (uo->op() == unop::F)
-			{
-			  // F(a) & (a R b) = a M b
-			  // F(a) & (a M b) = a M b
-			  // F(a) & (b W a) = b U a
-			  // F(a) & (b U a) = b U a
-			  formula* a = uo->child();
-			  bool rewritten = false;
-			  for (multop::vec::iterator j = i;
-			       j != res->end(); ++j)
-			    {
-			      if (!*j)
-				continue;
-			      binop* b = dynamic_cast<binop*>(*j);
-			      if (b && (b->op() == binop::R
-					|| b->op() == binop::M)
-				  && b->first() == a)
-				{
-				  formula* r =
-				    binop::instance(binop::M,
-						    a->clone(),
-						    b->second()->clone());
-				  tmpOther->push_back(r);
-				  (*j)->destroy();
-				  *j = 0;
-				  rewritten = true;
-				}
-			      else if (b && (b->op() == binop::W
-					     || b->op() == binop::U)
-				       && b->second() == a)
-				{
-				  formula* r =
-				    binop::instance(binop::U,
-						    b->first()->clone(),
-						    a->clone());
-				  tmpOther->push_back(r);
-				  (*j)->destroy();
-				  *j = 0;
-				  rewritten = true;
-				}
-			    }
-			  if (!rewritten)
-			    tmpOther->push_back(uo->clone());
-			}
-		      else
-			{
-			  tmpOther->push_back((*i)->clone());
-			}
-		    }
-		  else if (bo)
-		    {
-		      if (bo->op() == binop::U || bo->op() == binop::W)
-			{
-			  // (a U b) & (c U b) = (a & c) U b
-			  // (a U b) & (c W b) = (a & c) U b
-			  // (a W b) & (c W b) = (a & c) W b
-			  bool weak = true;
-			  formula* ftmp = dynamic_cast<binop*>(*i)->second();
-			  multop::vec* right = new multop::vec;
-			  for (multop::vec::iterator j = i; j != res->end();
-			       j++)
-			    {
-			      if (!*j)
-				continue;
-			      // (a U b) & Fb = a U b.
-			      // (a W b) & Fb = a U b.
-			      unop* uo2 = dynamic_cast<unop*>(*j);
-			      if (uo2 && uo2->op() == unop::F
-				  && uo2->child() == ftmp)
-				{
-				  (*j)->destroy();
-				  *j = 0;
-				  weak = false;
-				}
-			      binop* bo2 = dynamic_cast<binop*>(*j);
-			      if (bo2 && (bo2->op() == binop::U
-					  || bo2->op() == binop::W)
-				  && ftmp == bo2->second())
-				{
-				  if (bo2->op() == binop::U)
-				    weak = false;
-				  right->push_back(bo2->first()->clone());
-				  if (j != i)
-				    {
-				      (*j)->destroy();
-				      *j = 0;
-				    }
-				}
-			    }
-			  tmpU
-			    ->push_back(binop::instance(weak ?
-							binop::W : binop::U,
-							multop::
-							instance(multop::
-								 And, right),
-							ftmp->clone()));
-			}
-		      else if (bo->op() == binop::R || bo->op() == binop::M)
-			{
-			  // (a R b) & (a R c) = a R (b & c)
-			  // (a R b) & (a M c) = a M (b & c)
-			  bool weak = true;
-			  formula* ftmp = dynamic_cast<binop*>(*i)->first();
-			  multop::vec* right = new multop::vec;
-			  for (multop::vec::iterator j = i; j != res->end();
-			       j++)
-			    {
-			      if (!*j)
-				continue;
-			      // (a R b) & Fa = a M b.
-			      // (a M b) & Fa = a M b.
-			      unop* uo2 = dynamic_cast<unop*>(*j);
-			      if (uo2 && uo2->op() == unop::F
-				  && uo2->child() == ftmp)
-				{
-				  (*j)->destroy();
-				  *j = 0;
-				  weak = false;
-				}
-			      binop* bo2 = dynamic_cast<binop*>(*j);
-			      if (bo2 && (bo2->op() == binop::R
-					  || bo2->op() == binop::M)
-				  && ftmp == bo2->first())
-				{
-				  if (bo2->op() == binop::M)
-				    weak = false;
-				  right->push_back(bo2->second()->clone());
-				  if (j != i)
-				    {
-				      (*j)->destroy();
-				      *j = 0;
-				    }
-				}
-			    }
-			  tmpR
-			    ->push_back(binop::instance(weak ?
-							binop::R : binop::M,
-							ftmp->clone(),
-							multop::
-							instance(multop::And,
-								 right)));
-			}
-		      else
-			{
-			  tmpOther->push_back((*i)->clone());
-			}
-		    }
-		  else
-		    {
+		    case formula::UnOp:
+		      {
+			unop* uo = static_cast<unop*>(*i);
+			if (uo->op() == unop::X)
+			  {
+			    // Xa & Xb = X(a & b)
+			    tmpX->push_back(uo->child()->clone());
+			  }
+			else if (is_FG(*i))
+			  {
+			    // FG(a) & FG(b) = FG(a & b)
+			    unop* uo2 = static_cast<unop*>(uo->child());
+			    tmpFG->push_back(uo2->child()->clone());
+			  }
+			else if (uo->op() == unop::G)
+			  {
+			    // G(a) & G(b) = G(a & b)
+			    tmpG->push_back(uo->child()->clone());
+			  }
+			else if (uo->op() == unop::F)
+			  {
+			    // F(a) & (a R b) = a M b
+			    // F(a) & (a M b) = a M b
+			    // F(a) & (b W a) = b U a
+			    // F(a) & (b U a) = b U a
+			    formula* a = uo->child();
+			    bool rewritten = false;
+			    for (multop::vec::iterator j = i;
+				 j != res->end(); ++j)
+			      {
+				if (!*j)
+				  continue;
+				if ((*i)->kind() != formula::BinOp)
+				  continue;
+				binop* b = static_cast<binop*>(*j);
+				if ((b->op() == binop::R || b->op() == binop::M)
+				    && b->first() == a)
+				  {
+				    formula* r =
+				      binop::instance(binop::M,
+						      a->clone(),
+						      b->second()->clone());
+				    tmpOther->push_back(r);
+				    (*j)->destroy();
+				    *j = 0;
+				    rewritten = true;
+				  }
+				else if ((b->op() == binop::W
+					  || b->op() == binop::U)
+					 && b->second() == a)
+				  {
+				    formula* r =
+				      binop::instance(binop::U,
+						      b->first()->clone(),
+						      a->clone());
+				    tmpOther->push_back(r);
+				    (*j)->destroy();
+				    *j = 0;
+				    rewritten = true;
+				  }
+			      }
+			    if (!rewritten)
+			      tmpOther->push_back(uo->clone());
+			  }
+			else
+			  {
+			    tmpOther->push_back((*i)->clone());
+			  }
+			break;
+		      }
+		    case formula::BinOp:
+		      {
+			binop* bo = static_cast<binop*>(*i);
+			if (bo->op() == binop::U || bo->op() == binop::W)
+			  {
+			    // (a U b) & (c U b) = (a & c) U b
+			    // (a U b) & (c W b) = (a & c) U b
+			    // (a W b) & (c W b) = (a & c) W b
+			    bool weak = true;
+			    formula* ftmp = bo->second();
+			    multop::vec* right = new multop::vec;
+			    for (multop::vec::iterator j = i; j != res->end();
+				 j++)
+			      {
+				if (!*j)
+				  continue;
+				// (a U b) & Fb = a U b.
+				// (a W b) & Fb = a U b.
+				if ((*j)->kind() == formula::UnOp)
+				  {
+				    unop* uo2 = static_cast<unop*>(*j);
+				    if (uo2->op() == unop::F
+					&& uo2->child() == ftmp)
+				      {
+					(*j)->destroy();
+					*j = 0;
+					weak = false;
+					continue;
+				      }
+				  }
+				if ((*j)->kind() == formula::BinOp)
+				  {
+				    binop* bo2 = static_cast<binop*>(*j);
+				    if ((bo2->op() == binop::U
+					 || bo2->op() == binop::W)
+					&& ftmp == bo2->second())
+				      {
+					if (bo2->op() == binop::U)
+					  weak = false;
+					right->push_back(bo2->first()->clone());
+					if (j != i)
+					  {
+					    (*j)->destroy();
+					    *j = 0;
+					    continue;
+					  }
+				      }
+				  }
+			      }
+			    tmpU
+			      ->push_back(binop::instance(weak ?
+							  binop::W : binop::U,
+							  multop::
+							  instance(multop::
+								   And, right),
+							  ftmp->clone()));
+			  }
+			else if (bo->op() == binop::R || bo->op() == binop::M)
+			  {
+			    // (a R b) & (a R c) = a R (b & c)
+			    // (a R b) & (a M c) = a M (b & c)
+			    bool weak = true;
+			    formula* ftmp = bo->first();
+			    multop::vec* right = new multop::vec;
+			    for (multop::vec::iterator j = i; j != res->end();
+				 j++)
+			      {
+				if (!*j)
+				  continue;
+				// (a R b) & Fa = a M b.
+				// (a M b) & Fa = a M b.
+				if ((*j)->kind() == formula::UnOp)
+				  {
+				    unop* uo2 = static_cast<unop*>(*j);
+				    if (uo2->op() == unop::F
+					&& uo2->child() == ftmp)
+				      {
+					(*j)->destroy();
+					*j = 0;
+					weak = false;
+					continue;
+				      }
+				  }
+				if ((*j)->kind() == formula::BinOp)
+				  {
+				    binop* bo2 = static_cast<binop*>(*j);
+				    if ((bo2->op() == binop::R
+					 || bo2->op() == binop::M)
+					&& ftmp == bo2->first())
+				      {
+					if (bo2->op() == binop::M)
+					  weak = false;
+					right->push_back
+					  (bo2->second()->clone());
+					if (j != i)
+					  {
+					    (*j)->destroy();
+					    *j = 0;
+					    continue;
+					  }
+				      }
+				  }
+			      }
+			    tmpR
+			      ->push_back(binop::instance(weak ?
+							  binop::R : binop::M,
+							  ftmp->clone(),
+							  multop::
+							  instance(multop::And,
+								   right)));
+			  }
+			else
+			  {
+			    tmpOther->push_back((*i)->clone());
+			  }
+			break;
+		      }
+		    default:
 		      tmpOther->push_back((*i)->clone());
 		    }
 		  (*i)->destroy();
@@ -630,164 +680,184 @@ namespace spot
 		{
 		  if (!*i)
 		    continue;
-		  unop* uo = dynamic_cast<unop*>(*i);
-		  binop* bo = dynamic_cast<binop*>(*i);
-		  if (uo)
+		  switch ((*i)->kind())
 		    {
-		      if (uo->op() == unop::X)
-			{
-			  // Xa | Xb = X(a | b)
-			  tmpX->push_back(uo->child()->clone());
-			}
-		      else if (is_GF(*i))
-			{
-			  // GF(a) | GF(b) = GF(a | b)
-			  unop* uo2 = dynamic_cast<unop*>(uo->child());
-			  tmpGF->push_back(uo2->child()->clone());
-			}
-		      else if (uo->op() == unop::F)
-			{
-			  // F(a) | F(b) = F(a | b)
-			  tmpF->push_back(uo->child()->clone());
-			}
-		      else if (uo->op() == unop::G)
-			{
-			  // G(a) | (a U b) = a W b
-			  // G(a) | (a W b) = a W b
-			  formula* a = uo->child();
-			  bool rewritten = false;
-			  for (multop::vec::iterator j = i;
-			       j != res->end(); ++j)
-			    {
-			      if (!*j)
-				continue;
-			      binop* b = dynamic_cast<binop*>(*j);
-			      if (b && (b->op() == binop::U
-					|| b->op() == binop::W)
-				  && b->first() == a)
-				{
-				  formula* r =
-				    binop::instance(binop::W,
-						    a->clone(),
-						    b->second()->clone());
-				  tmpOther->push_back(r);
-				  (*j)->destroy();
-				  *j = 0;
-				  rewritten = true;
-				}
-			    }
-			  if (!rewritten)
-			    tmpOther->push_back(uo->clone());
-			}
-		      else
-			{
-			  tmpOther->push_back((*i)->clone());
-			}
-		    }
-		  else if (bo)
-		    {
-		      if (bo->op() == binop::U || bo->op() == binop::W)
-			{
-			  // (a U b) | (a U c) = a U (b | c)
-			  // (a W b) | (a U c) = a W (b | c)
-			  bool weak = false;
-			  formula* ftmp = bo->first();
-			  multop::vec* right = new multop::vec;
-			  for (multop::vec::iterator j = i; j != res->end();
-			       j++)
-			    {
-			      if (!*j)
-				continue;
-			      // (a U b) | Ga = a W b.
-			      // (a W b) | Ga = a W b.
-			      unop* uo2 = dynamic_cast<unop*>(*j);
-			      if (uo2 && uo2->op() == unop::G
-				  && uo2->child() == ftmp)
-				{
-				  (*j)->destroy();
-				  *j = 0;
-				  weak = true;
-				}
-			      binop* bo2 = dynamic_cast<binop*>(*j);
-			      if (bo2 && (bo2->op() == binop::U ||
-					  bo2->op() == binop::W)
-				  && ftmp == bo2->first())
-				{
-				  if (bo2->op() == binop::W)
-				    weak = true;
-				  right->push_back(bo2->second()->clone());
-				  if (j != i)
-				    {
-				      (*j)->destroy();
-				      *j = 0;
-				    }
-				}
-			    }
-			  tmpU->push_back(binop::instance(weak ?
-							  binop::W : binop::U,
-							  ftmp->clone(),
+		    case formula::UnOp:
+		      {
+			unop* uo = static_cast<unop*>(*i);
+			if (uo->op() == unop::X)
+			  {
+			    // Xa | Xb = X(a | b)
+			    tmpX->push_back(uo->child()->clone());
+			  }
+			else if (is_GF(*i))
+			  {
+			    // GF(a) | GF(b) = GF(a | b)
+			    unop* uo2 = static_cast<unop*>(uo->child());
+			    tmpGF->push_back(uo2->child()->clone());
+			  }
+			else if (uo->op() == unop::F)
+			  {
+			    // F(a) | F(b) = F(a | b)
+			    tmpF->push_back(uo->child()->clone());
+			  }
+			else if (uo->op() == unop::G)
+			  {
+			    // G(a) | (a U b) = a W b
+			    // G(a) | (a W b) = a W b
+			    formula* a = uo->child();
+			    bool rewritten = false;
+			    for (multop::vec::iterator j = i;
+				 j != res->end(); ++j)
+			      {
+				if (!*j)
+				  continue;
+				if ((*j)->kind() != formula::BinOp)
+				  continue;
+				binop* b = static_cast<binop*>(*j);
+				if ((b->op() == binop::U || b->op() == binop::W)
+				    && b->first() == a)
+				  {
+				    formula* r =
+				      binop::instance(binop::W,
+						      a->clone(),
+						      b->second()->clone());
+				    tmpOther->push_back(r);
+				    (*j)->destroy();
+				    *j = 0;
+				    rewritten = true;
+				  }
+			      }
+			    if (!rewritten)
+			      tmpOther->push_back(uo->clone());
+			  }
+			else
+			  {
+			    tmpOther->push_back((*i)->clone());
+			  }
+			break;
+		      }
+		    case formula::BinOp:
+		      {
+			binop* bo = static_cast<binop*>(*i);
+			if (bo->op() == binop::U || bo->op() == binop::W)
+			  {
+			    // (a U b) | (a U c) = a U (b | c)
+			    // (a W b) | (a U c) = a W (b | c)
+			    bool weak = false;
+			    formula* ftmp = bo->first();
+			    multop::vec* right = new multop::vec;
+			    for (multop::vec::iterator j = i; j != res->end();
+				 j++)
+			      {
+				if (!*j)
+				  continue;
+				// (a U b) | Ga = a W b.
+				// (a W b) | Ga = a W b.
+				if ((*j)->kind() == formula::UnOp)
+				  {
+				    unop* uo2 = static_cast<unop*>(*j);
+				    if (uo2->op() == unop::G
+					&& uo2->child() == ftmp)
+				      {
+					(*j)->destroy();
+					*j = 0;
+					weak = true;
+					continue;
+				      }
+				  }
+				if ((*j)->kind() == formula::BinOp)
+				  {
+				    binop* bo2 = static_cast<binop*>(*j);
+				    if ((bo2->op() == binop::U ||
+					 bo2->op() == binop::W)
+					&& ftmp == bo2->first())
+				      {
+					if (bo2->op() == binop::W)
+					  weak = true;
+					right->push_back
+					  (bo2->second()->clone());
+					if (j != i)
+					  {
+					    (*j)->destroy();
+					    *j = 0;
+					    continue;
+					  }
+				      }
+				  }
+			      }
+			    tmpU->push_back(binop::instance(weak ?
+							    binop::W : binop::U,
+							    ftmp->clone(),
+							    multop::
+							    instance(multop::Or,
+								     right)));
+			  }
+			else if (bo->op() == binop::R || bo->op() == binop::M)
+			  {
+			    // (a R b) | (c R b) = (a | c) R b
+			    // (a R b) | (c M b) = (a | c) R b
+			    // (a M b) | (c M b) = (a | c) M b
+			    bool weak = false;
+			    formula* ftmp = bo->second();
+			    multop::vec* right = new multop::vec;
+			    for (multop::vec::iterator j = i; j != res->end();
+				 j++)
+			      {
+				if (!*j)
+				  continue;
+				// (a R b) | Gb = a R b.
+				// (a M b) | Gb = a R b.
+				if ((*j)->kind() == formula::UnOp)
+				  {
+				    unop* uo2 = static_cast<unop*>(*j);
+				    if (uo2->op() == unop::G
+					&& uo2->child() == ftmp)
+				      {
+					(*j)->destroy();
+					*j = 0;
+					weak = true;
+					continue;
+				      }
+				  }
+				if ((*j)->kind() == formula::BinOp)
+				  {
+				    binop* bo2 = static_cast<binop*>(*j);
+				    if ((bo2->op() == binop::R
+					 || bo2->op() == binop::M)
+					&& ftmp == bo2->second())
+				      {
+					if (bo2->op() == binop::R)
+					  weak = true;
+					right->push_back(bo2->first()->clone());
+					if (j != i)
+					  {
+					    (*j)->destroy();
+					    *j = 0;
+					    continue;
+					  }
+				      }
+				  }
+			      }
+			    tmpR
+			      ->push_back(binop::instance(weak ?
+							  binop::R : binop::M,
 							  multop::
 							  instance(multop::Or,
-								   right)));
-			}
-		      else if (bo->op() == binop::R || bo->op() == binop::M)
-			{
-			  // (a R b) | (c R b) = (a | c) R b
-			  // (a R b) | (c M b) = (a | c) R b
-			  // (a M b) | (c M b) = (a | c) M b
-			  bool weak = false;
-			  formula* ftmp = dynamic_cast<binop*>(*i)->second();
-			  multop::vec* right = new multop::vec;
-			  for (multop::vec::iterator j = i; j != res->end();
-			       j++)
-			    {
-			      if (!*j)
-				continue;
-			      // (a R b) | Gb = a R b.
-			      // (a M b) | Gb = a R b.
-			      unop* uo2 = dynamic_cast<unop*>(*j);
-			      if (uo2 && uo2->op() == unop::G
-				  && uo2->child() == ftmp)
-				{
-				  (*j)->destroy();
-				  *j = 0;
-				  weak = true;
-				}
-			      binop* bo2 = dynamic_cast<binop*>(*j);
-			      if (bo2 && (bo2->op() == binop::R
-					  || bo2->op() == binop::M)
-				  && ftmp == bo2->second())
-				{
-				  if (bo2->op() == binop::R)
-				    weak = true;
-				  right->push_back(bo2->first()->clone());
-				  if (j != i)
-				    {
-				      (*j)->destroy();
-				      *j = 0;
-				    }
-				}
-			    }
-			  tmpR
-			    ->push_back(binop::instance(weak ?
-							binop::R : binop::M,
-							multop::
-							instance(multop::Or,
-								 right),
-							ftmp->clone()));
-			}
-		      else
-			{
-			  tmpOther->push_back((*i)->clone());
-			}
-		    }
-		  else
-		    {
+								   right),
+							  ftmp->clone()));
+			  }
+			else
+			  {
+			    tmpOther->push_back((*i)->clone());
+			  }
+			break;
+		      }
+		    default:
 		      tmpOther->push_back((*i)->clone());
 		    }
 		  (*i)->destroy();
 		}
-
 	      break;
 	    case multop::Concat:
 	    case multop::AndNLM:

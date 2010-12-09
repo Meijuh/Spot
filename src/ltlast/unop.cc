@@ -33,13 +33,13 @@ namespace spot
   namespace ltl
   {
     unop::unop(type op, formula* child)
-      : op_(op), child_(child)
+      : ref_formula(UnOp), op_(op), child_(child)
     {
       props = child->get_props();
       switch (op)
 	{
 	case Not:
-	  is.in_nenoform = !!dynamic_cast<atomic_prop*>(child);
+	  is.in_nenoform = (child->kind() == AtomicProp);
 	  is.accepting_eword = false;
 	  break;
 	case X:
@@ -163,10 +163,13 @@ namespace spot
 	case F:
 	case G:
 	  {
-	    // F and G are idempotent.
-	    unop* u = dynamic_cast<unop*>(child);
-	    if (u && u->op() == op)
-	      return u;
+	    if (child->kind() == UnOp)
+	      {
+		// F and G are idempotent.
+		unop* u = static_cast<unop*>(child);
+		if (u->op() == op)
+		  return u;
+	      }
 
 	    // F(0) = G(0) = 0
 	    // F(1) = G(1) = 1
@@ -191,9 +194,9 @@ namespace spot
 	      return bunop::instance(bunop::Star,
 				     constant::true_instance(), 1);
 
-	    unop* u = dynamic_cast<unop*>(child);
-	    if (u)
+	    if (child->kind() == UnOp)
 	      {
+		unop* u = static_cast<unop*>(child);
 		// "Not" is an involution.
 		if (u->op() == op)
 		  {

@@ -1,3 +1,5 @@
+// Copyright (C) 2010 Laboratoire de Recherche de Developpement de
+// l'EPITA (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -26,8 +28,8 @@ namespace spot
 {
   namespace ltl
   {
-    ref_formula::ref_formula()
-      : ref_counter_(0)
+    ref_formula::ref_formula(opkind k)
+      : formula(k), ref_counter_(0)
     {
     }
 

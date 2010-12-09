@@ -34,7 +34,7 @@ namespace spot
   namespace ltl
   {
     multop::multop(type op, vec* v)
-      : op_(op), children_(v)
+      : ref_formula(MultOp), op_(op), children_(v)
     {
       unsigned s = v->size();
       assert(s > 1);
@@ -177,26 +177,27 @@ namespace spot
 	vec::iterator i = v->begin();
 	while (i != v->end())
 	  {
-	    multop* p = dynamic_cast<multop*>(*i);
-	    if (p && p->op() == op)
+	    if ((*i)->kind() == MultOp)
 	      {
-		unsigned ps = p->size();
-		for (unsigned n = 0; n < ps; ++n)
-		  inlined.push_back(p->nth(n)->clone());
-		(*i)->destroy();
-		i = v->erase(i);
+		multop* p = static_cast<multop*>(*i);
+		if (p->op() == op)
+		  {
+		    unsigned ps = p->size();
+		    for (unsigned n = 0; n < ps; ++n)
+		      inlined.push_back(p->nth(n)->clone());
+		    (*i)->destroy();
+		    i = v->erase(i);
+		    continue;
+		  }
 	      }
-	    else
-	      {
-		// All operator except "Concat" and "Fusion" are
-		// commutative, so we just keep a list of the inlined
-		// arguments that should later be added to the vector.
-		// For concat we have to keep track of the order of
-		// all the arguments.
-		if (op == Concat || op == Fusion)
-		  inlined.push_back(*i);
-		++i;
-	      }
+	    // All operator except "Concat" and "Fusion" are
+	    // commutative, so we just keep a list of the inlined
+	    // arguments that should later be added to the vector.
+	    // For concat we have to keep track of the order of
+	    // all the arguments.
+	    if (op == Concat || op == Fusion)
+	      inlined.push_back(*i);
+	    ++i;
 	  }
 	if (op == Concat || op == Fusion)
 	  *v = inlined;
