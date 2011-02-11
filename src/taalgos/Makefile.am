@@ -27,11 +27,14 @@ taalgosdir = $(pkgincludedir)/taalgos
 taalgos_HEADERS = \
 	sba2ta.hh \
 	dotty.hh \
-	reachiter.hh
+	reachiter.hh \
+	stats.hh  \
+  	emptinessta.hh
 
 noinst_LTLIBRARIES = libtaalgos.la
 libtaalgos_la_SOURCES = \
 	sba2ta.cc \
 	dotty.cc \
-	reachiter.cc
-
+	reachiter.cc \
+  	stats.cc \
+  	emptinessta.cc

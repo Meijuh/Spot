@@ -30,7 +30,6 @@
 #include <stack>
 #include "sba2ta.hh"
 
-
 using namespace std;
 
 namespace spot
@@ -42,26 +41,32 @@ namespace spot
 
     ta_explicit* ta = new spot::ta_explicit(tgba_);
 
-    // build I set:
-    bdd init_condition;
-    bdd all_props = bddtrue;
-    ta::states_set_t todo;
+    std::stack<state_ta_explicit*> todo;
 
-    while ((init_condition = bdd_satoneset(all_props, atomic_propositions_set_,
-        bddtrue)) != bddfalse)
+    // build Initial states set:
+    state* tgba_init_state = tgba_->get_init_state();
+
+    bdd tgba_condition = tgba_->support_conditions(tgba_init_state);
+
+    bdd satone_tgba_condition;
+    while ((satone_tgba_condition = bdd_satoneset(tgba_condition,
+        atomic_propositions_set_, bddtrue)) != bddfalse)
       {
-        all_props -= init_condition;
-        state_ta_explicit* init_state = new state_ta_explicit((tgba_->get_init_state()),
-            init_condition, true);
-        ta->add_initial_state(init_state);
-        todo.insert(init_state);
+        tgba_condition -= satone_tgba_condition;
+        state_ta_explicit* init_state = new state_ta_explicit(
+            tgba_init_state->clone(), satone_tgba_condition, true,
+            tgba_->state_is_accepting(tgba_init_state));
+            state_ta_explicit* is = ta->add_state(init_state);
+            assert(is == init_state);
+            ta->add_to_initial_states_set(is);
+            todo.push(init_state);
       }
+    delete tgba_init_state;
 
     while (!todo.empty())
       {
-        ta::states_set_t::iterator todo_it = todo.begin();
-        state_ta_explicit* source = dynamic_cast<state_ta_explicit*> (*todo_it);
-        todo.erase(todo_it);
+        state_ta_explicit* source = todo.top();
+        todo.pop();
 
         tgba_succ_iterator* tgba_succ_it = tgba_->succ_iter(
             source->get_tgba_state());
@@ -75,26 +80,35 @@ namespace spot
               {
 
                 tgba_condition -= satone_tgba_condition;
-                state_ta_explicit* new_dest = new state_ta_explicit(tgba_state->clone(),
-                    satone_tgba_condition, false, tgba_->state_is_accepting(
-                        tgba_state));
 
-                state_ta_explicit* dest = ta->add_state(new_dest);
+                bdd all_props = bddtrue;
+                bdd dest_condition;
+                if (satone_tgba_condition == source->get_tgba_condition())
+                  while ((dest_condition = bdd_satoneset(all_props,
+                      atomic_propositions_set_, bddtrue)) != bddfalse)
+                    {
+                      all_props -= dest_condition;
+                      state_ta_explicit* new_dest = new state_ta_explicit(
+                          tgba_state->clone(), dest_condition, false,
+                          tgba_->state_is_accepting(tgba_state));
 
-                if (dest != new_dest)
-                  {
-                    // the state dest already exists in the testing automata
-                    delete new_dest->get_tgba_state();
-                    delete new_dest;
-                  }
-                else
-                  {
-                    todo.insert(dest);
-                  }
+                      state_ta_explicit* dest = ta->add_state(new_dest);
 
-                ta->create_transition(source, bdd_setxor(
-                    source->get_tgba_condition(), dest->get_tgba_condition()),
-                    dest);
+                      if (dest != new_dest)
+                        {
+                          // the state dest already exists in the testing automata
+                          delete new_dest->get_tgba_state();
+                          delete new_dest;
+                        }
+                      else
+                        {
+                          todo.push(dest);
+                        }
+
+                      ta->create_transition(source, bdd_setxor(
+                          source->get_tgba_condition(),
+                          dest->get_tgba_condition()), dest);
+                    }
 
               }
             delete tgba_state;
@@ -104,8 +118,6 @@ namespace spot
       }
 
     compute_livelock_acceptance_states(ta);
-
-    ta->delete_stuttering_transitions();
 
     return ta;
 
@@ -121,7 +133,7 @@ namespace spot
   {
     // We use five main data in this algorithm:
     // * sscc: a stack of strongly stuttering-connected components (SSCC)
-    sscc_stack sscc;
+    scc_stack_ta sscc;
 
     // * h: a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
@@ -140,23 +152,24 @@ namespace spot
     std::stack<pair_state_iter> todo;
 
     // * init: the set of the depth-first search initial states
-    ta::states_set_t init_set;
+    std::stack<state*> init_set;
 
     ta::states_set_t::const_iterator it;
-    for (it = (testing_automata->get_initial_states_set())->begin(); it != (testing_automata->get_initial_states_set())->end(); it++)
+    ta::states_set_t init_states = testing_automata->get_initial_states_set();
+    for (it = init_states.begin(); it != init_states.end(); it++)
       {
-        state* init_state = (*it);
-        init_set.insert(init_state);
+        state* init_state = dynamic_cast<state_ta_explicit*> (*it);
+        init_set.push(init_state);
 
       }
 
     while (!init_set.empty())
       {
-        // Setup depth-first search from an initial state.
+        // Setup depth-first search from initial states.
           {
-            ta::states_set_t::iterator init_set_it = init_set.begin();
-            state_ta_explicit* init = dynamic_cast<state_ta_explicit*> (*init_set_it);
-            init_set.erase(init_set_it);
+            state_ta_explicit* init =
+                dynamic_cast<state_ta_explicit*> (init_set.top());
+            init_set.pop();
             state_ta_explicit* init_clone = init->clone();
             numbered_state_heap::state_index_p h_init = h->find(init_clone);
 
@@ -165,8 +178,8 @@ namespace spot
 
             h->insert(init_clone, ++num);
             sscc.push(num);
-            sscc.top().is_accepting = testing_automata->is_accepting_state(init);
-            sscc.top().is_initial = testing_automata->is_initial_state(init);
+            sscc.top().is_accepting
+                = testing_automata->is_accepting_state(init);
             tgba_succ_iterator* iter = testing_automata->succ_iter(init);
             iter->first();
             todo.push(pair_state_iter(init, iter));
@@ -176,10 +189,18 @@ namespace spot
         while (!todo.empty())
           {
 
+            state* curr = todo.top().first;
+
+            numbered_state_heap::state_index_p spi = h->find(curr->clone());
+            // If we have reached a dead component, ignore it.
+            if (*spi.second == -1)
+              {
+                todo.pop();
+                continue;
+              }
+
             // We are looking at the next successor in SUCC.
             tgba_succ_iterator* succ = todo.top().second;
-
-            state* curr = todo.top().first;
 
             // If there is no more successor, backtrack.
             if (succ->done())
@@ -190,7 +211,8 @@ namespace spot
                 todo.pop();
 
                 // fill rem with any component removed,
-                numbered_state_heap::state_index_p spi = h->index(curr->clone());
+                numbered_state_heap::state_index_p spi =
+                    h->index(curr->clone());
                 assert(spi.first);
 
                 sscc.rem().push_front(curr);
@@ -207,8 +229,9 @@ namespace spot
                         && (sscc.rem().size() > 1));
                     for (i = sscc.rem().begin(); i != sscc.rem().end(); ++i)
                       {
-                        numbered_state_heap::state_index_p spi = h->index((*i)->clone());
-                        assert(spi.first->compare(*i)==0);
+                        numbered_state_heap::state_index_p spi = h->index(
+                            (*i)->clone());
+                        assert(spi.first->compare(*i) == 0);
                         assert(*spi.second != -1);
                         *spi.second = -1;
                         if (is_livelock_accepting_sscc)
@@ -223,34 +246,14 @@ namespace spot
 
                           }
 
-                        if (sscc.top().is_initial)
-                          {//if it is an initial sscc
-                            //add the state to I (=the initial states set)
-
-                            state_ta_explicit * initial_state =
-                                dynamic_cast<state_ta_explicit*> (*i);
-
-                            testing_automata->add_initial_state(initial_state);
-                          }
                       }
 
-                    is_livelock_accepting_sscc = testing_automata->is_livelock_accepting_state(
-                        *sscc.rem().begin());
                     sscc.pop();
-                    if (is_livelock_accepting_sscc && !sscc.empty())
-                      {
-                        sscc.top().is_accepting = true;
 
-                        state_ta_explicit * livelock_accepting_state =
-                            dynamic_cast<state_ta_explicit*> (todo.top().first);
-                        livelock_accepting_state->set_livelock_accepting_state(
-                            true);
-
-                      }
-                    if (sscc.top().is_initial && !sscc.empty())
-                      sscc.top().is_initial = true;
                   }
 
+                // automata reduction
+                testing_automata->delete_stuttering_and_hole_successors(curr);
                 delete succ;
                 // Do not delete CURR: it is a key in H.
                 continue;
@@ -266,17 +269,18 @@ namespace spot
 
 
             // Are we going to a new state through a stuttering transition?
-            bool is_stuttering_transition = testing_automata->get_state_condition(curr)
-                == testing_automata->get_state_condition(dest);
+            bool is_stuttering_transition =
+                testing_automata->get_state_condition(curr)
+                    == testing_automata->get_state_condition(dest);
             state* dest_clone = dest->clone();
-            numbered_state_heap::state_index_p spi = h->find(dest_clone);
+            spi = h->find(dest_clone);
 
             // Is this a new state?
             if (!spi.first)
               {
                 if (!is_stuttering_transition)
                   {
-                    init_set.insert(dest);
+                    init_set.push(dest);
                     delete dest_clone;
                     continue;
                   }
@@ -285,8 +289,9 @@ namespace spot
                 // for later processing.
                 h->insert(dest_clone, ++num);
                 sscc.push(num);
-                sscc.top().is_accepting = testing_automata->is_accepting_state(dest);
-                sscc.top().is_initial = testing_automata->is_initial_state(dest);
+                sscc.top().is_accepting = testing_automata->is_accepting_state(
+                    dest);
+
                 tgba_succ_iterator* iter = testing_automata->succ_iter(dest);
                 iter->first();
                 todo.push(pair_state_iter(dest, iter));
@@ -299,7 +304,8 @@ namespace spot
 
             if (!curr->compare(dest))
               {
-                state_ta_explicit * self_loop_state = dynamic_cast<state_ta_explicit*> (curr);
+                state_ta_explicit * self_loop_state =
+                    dynamic_cast<state_ta_explicit*> (curr);
 
                 if (testing_automata->is_accepting_state(self_loop_state))
                   self_loop_state->set_livelock_accepting_state(true);
@@ -320,13 +326,12 @@ namespace spot
             int threshold = *spi.second;
             std::list<state*> rem;
             bool acc = false;
-            bool init = false;
+
             while (threshold < sscc.top().index)
               {
                 assert(!sscc.empty());
 
                 acc |= sscc.top().is_accepting;
-                init |= sscc.top().is_initial;
 
                 rem.splice(rem.end(), sscc.rem());
                 sscc.pop();
@@ -339,7 +344,6 @@ namespace spot
 
             // Accumulate all acceptance conditions into the merged SSCC.
             sscc.top().is_accepting |= acc;
-            sscc.top().is_initial |= init;
 
             sscc.rem().splice(sscc.rem().end(), rem);
 

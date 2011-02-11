@@ -43,11 +43,11 @@ namespace spot
         os_ << "digraph G {" << std::endl;
 
         int n = 0;
-        const ta::states_set_t* init_states_set =
+        const ta::states_set_t init_states_set =
             t_automata_->get_initial_states_set();
         ta::states_set_t::const_iterator it;
 
-        for (it = (init_states_set->begin()); it != init_states_set->end(); it++)
+        for (it = (init_states_set.begin()); it != init_states_set.end(); it++)
           {
             //    cout << (*it).first << " => " << (*it).second << endl;
 
@@ -99,7 +99,7 @@ namespace spot
       }
 
       void
-      process_link(int in, int out, const tgba_succ_iterator* si)
+      process_link(int in, int out, const ta_succ_iterator* si)
       {
 
         os_ << "  " << in << " -> " << out << " [label=\"";

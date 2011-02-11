@@ -1061,13 +1061,11 @@ main(int argc, char** argv)
 	}
 
 
-      const spot::tgba* product_degeneralized = 0;
-
       if (ta_opt)
         {
-          spot::tgba_sba_proxy* degeneralized_new = 0;
-          spot::tgba_sba_proxy* degeneralized =
-              dynamic_cast<spot::tgba_sba_proxy*> (a);
+          const spot::tgba_sba_proxy* degeneralized_new = 0;
+          const spot::tgba_sba_proxy* degeneralized =
+              dynamic_cast<const spot::tgba_sba_proxy*> (a);
           if (degeneralized == 0)
             degeneralized_new = degeneralized =  new spot::tgba_sba_proxy(a);
 
@@ -1092,6 +1090,7 @@ main(int argc, char** argv)
           output = -1;
         }
 
+      spot::tgba* product_degeneralized = 0;
 
       if (system)
         {
@@ -1119,6 +1118,7 @@ main(int argc, char** argv)
 	      assume_sba = true;
 	    }
         }
+
 
       if (echeck_inst
 	  && (a->number_of_acceptance_conditions()

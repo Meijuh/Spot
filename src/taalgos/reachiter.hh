@@ -92,7 +92,7 @@ namespace spot
     /// spot::ta_reachable_iterator instance and destroyed when the
     /// instance is destroyed.
     virtual void
-    process_link(int in, int out, const tgba_succ_iterator* si);
+    process_link(int in, int out, const ta_succ_iterator* si);
 
   protected:
 

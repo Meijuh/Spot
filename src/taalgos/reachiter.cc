@@ -42,7 +42,7 @@ namespace spot
         // Advance the iterator before deleting the "key" pointer.
         const state* ptr = s->first;
         ++s;
-        delete ptr;
+        t_automata_->free_state(ptr);
       }
   }
 
@@ -51,13 +51,13 @@ namespace spot
   {
     int n = 0;
     start();
-    const ta::states_set_t* init_states_set =
+    const ta::states_set_t init_states_set =
         t_automata_->get_initial_states_set();
     ta::states_set_t::const_iterator it;
 
-    for (it = init_states_set->begin(); it != init_states_set->end(); it++)
+    for (it = init_states_set.begin(); it != init_states_set.end(); it++)
       {
-        state* init_state = (*it)->clone();
+        state* init_state = (*it);
         if (want_state(init_state))
           add_state(init_state);
         seen[init_state] = ++n;
@@ -69,11 +69,11 @@ namespace spot
       {
         assert(seen.find(t) != seen.end());
         int tn = seen[t];
-        tgba_succ_iterator* si = t_automata_->succ_iter(t);
+        ta_succ_iterator* si = t_automata_->succ_iter(t);
         process_state(t, tn);
         for (si->first(); !si->done(); si->next())
           {
-            const state* current = si->current_state()->clone();
+            const state* current = si->current_state();
             seen_map::const_iterator s = seen.find(current);
             bool ws = want_state(current);
             if (s == seen.end())
@@ -89,7 +89,7 @@ namespace spot
               {
                 if (ws)
                   process_link(tn, s->second, si);
-                delete current;
+                  t_automata_->free_state(current);
               }
           }
         delete si;
@@ -119,7 +119,7 @@ namespace spot
   }
 
   void
-  ta_reachable_iterator::process_link(int, int, const tgba_succ_iterator*)
+  ta_reachable_iterator::process_link(int, int, const ta_succ_iterator*)
   {
   }
 

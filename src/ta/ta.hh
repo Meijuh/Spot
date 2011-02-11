@@ -46,29 +46,35 @@ namespace spot
 
     typedef std::set<state*, state_ptr_less_than> states_set_t;
 
-    virtual const states_set_t*
-    get_initial_states_set() const  = 0;
+    virtual const states_set_t
+    get_initial_states_set() const = 0;
 
     virtual ta_succ_iterator*
-    succ_iter(const spot::state* s) const  = 0;
+    succ_iter(const spot::state* s) const = 0;
+
+    virtual ta_succ_iterator*
+    succ_iter(const spot::state* s, bdd condition) const = 0;
 
     virtual bdd_dict*
-    get_dict() const  = 0;
+    get_dict() const = 0;
 
     virtual std::string
-    format_state(const spot::state* s) const  = 0;
+    format_state(const spot::state* s) const = 0;
 
     virtual bool
-    is_accepting_state(const spot::state* s) const  = 0;
+    is_accepting_state(const spot::state* s) const = 0;
 
     virtual bool
-    is_livelock_accepting_state(const spot::state* s) const  = 0;
+    is_livelock_accepting_state(const spot::state* s) const = 0;
 
     virtual bool
-    is_initial_state(const spot::state* s) const  = 0;
+    is_initial_state(const spot::state* s) const = 0;
 
     virtual bdd
-    get_state_condition(const spot::state* s) const  = 0;
+    get_state_condition(const spot::state* s) const = 0;
+
+    virtual void
+    free_state(const spot::state* s) const = 0;
 
   };
 
@@ -93,6 +99,8 @@ namespace spot
     virtual bdd
     current_condition() const = 0;
 
+    virtual bool
+    is_stuttering_transition() const = 0;
 
     bdd
     current_acceptance_conditions() const
@@ -103,7 +111,7 @@ namespace spot
   };
 
   // A stack of Strongly-Connected Components
-  class sscc_stack
+  class scc_stack_ta
   {
   public:
     struct connected_component
@@ -115,8 +123,6 @@ namespace spot
       int index;
 
       bool is_accepting;
-
-      bool is_initial;
 
       std::list<state*> rem;
     };
