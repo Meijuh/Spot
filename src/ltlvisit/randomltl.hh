@@ -45,7 +45,7 @@ namespace spot
 
       ~random_formula()
       {
-	delete proba_;
+	delete[] proba_;
       }
 
       /// Return the set of atomic proposition used to build formulae.
@@ -69,9 +69,6 @@ namespace spot
 
       /// \brief Update the priorities used to generate the formulae.
       ///
-      /// The initial priorities are defined in each sub class as follows.
-      ///
-      /// These priorities can be altered using this function.
       /// \a options should be comma-separated list of KEY=VALUE
       /// assignments, using keys from the above list.
       /// For instance <code>"xor=0, F=3"</code> will prevent \c xor
@@ -96,6 +93,7 @@ namespace spot
       double total_1_;
       op_proba* proba_2_;
       double total_2_;
+      op_proba* proba_2_or_more_;
       double total_2_and_more_;
       const atomic_prop_set* ap_;
     };
@@ -104,10 +102,10 @@ namespace spot
     /// \brief Generate random LTL formulae.
     /// \ingroup ltl_io
     ///
-    /// This class recursively construct LTL formulae of a given size.
-    /// The formulae will use the use atomic propositions from the
-    /// set of proposition passed to the constructor, in addition to the
-    /// constant and all LTL operators supported by Spot.
+    /// This class recursively constructs LTL formulae of a given
+    /// size.  The formulae will use the use atomic propositions from
+    /// the set of propositions passed to the constructor, in addition
+    /// to the constant and all LTL operators supported by Spot.
     ///
     /// By default each operator has equal chance to be selected.
     /// Also, each atomic proposition has as much chance as each
@@ -148,7 +146,155 @@ namespace spot
       ///
       /// These priorities can be changed use the parse_options method.
       random_ltl(const atomic_prop_set* ap);
+
+    protected:
+      void setup_proba_();
+      random_ltl(int size, const atomic_prop_set* ap);
     };
+
+    /// \brief Generate random Boolean formulae.
+    /// \ingroup ltl_io
+    ///
+    /// This class recursively constructs Boolean formulae of a given size.
+    /// The formulae will use the use atomic propositions from the
+    /// set of propositions passed to the constructor, in addition to the
+    /// constant and all Boolean operators supported by Spot.
+    ///
+    /// By default each operator has equal chance to be selected.
+    class random_boolean: public random_formula
+    {
+    public:
+      /// Create a random Boolean formula generator using atomic
+      /// propositions from \a ap.
+      ///
+      /// The default priorities are defined as follows:
+      ///
+      /// \verbatim
+      /// ap      n
+      /// false   1
+      /// true    1
+      /// not     1
+      /// equiv   1
+      /// implies 1
+      /// xor     1
+      /// and     1
+      /// or      1
+      /// \endverbatim
+      ///
+      /// Where \c n is the number of atomic propositions in the
+      /// set passed to the constructor.
+      ///
+      /// This means that each operator has equal chance to be
+      /// selected.  Also, each atomic proposition has as much chance
+      /// as each constant (i.e., true and false) to be picked.
+      ///
+      /// These priorities can be changed use the parse_options method.
+      random_boolean(const atomic_prop_set* ap);
+    };
+
+    /// \brief Generate random SERE.
+    /// \ingroup ltl_io
+    ///
+    /// This class recursively constructs SERE of a given size.
+    /// The formulae will use the use atomic propositions from the
+    /// set of propositions passed to the constructor, in addition to the
+    /// constant and all SERE operators supported by Spot.
+    ///
+    /// By default each operator has equal chance to be selected.
+    class random_sere: public random_formula
+    {
+    public:
+      /// Create a random SERE genere using atomic propositions from \a ap.
+      ///
+      /// The default priorities are defined as follows:
+      ///
+      /// \verbatim
+      /// eword    1
+      /// boolform 1
+      /// star     1
+      /// star_b   1
+      /// equal_b  1
+      /// goto_b   1
+      /// and      1
+      /// andNLM   1
+      /// or       1
+      /// concat   1
+      /// fusion   1
+      /// \endverbatim
+      ///
+      /// Where "boolfrom" designates a Boolean formula generated
+      /// by random_boolean.
+      ///
+      /// These priorities can be changed use the parse_options method.
+      ///
+      /// In addition, you can set the properties of the Boolean
+      /// formula generator used to build Boolean subformulae using
+      /// the parse_options method of the \c rb attribute.
+      random_sere(const atomic_prop_set* ap);
+
+      random_boolean rb;
+    };
+
+    /// \brief Generate random PSL formulae.
+    /// \ingroup ltl_io
+    ///
+    /// This class recursively constructs PSL formulae of a given size.
+    /// The formulae will use the use atomic propositions from the
+    /// set of propositions passed to the constructor, in addition to the
+    /// constant and all PSL operators supported by Spot.
+    class random_psl: public random_ltl
+    {
+    public:
+      /// Create a random PSL generator using atomic propositions from \a ap.
+      ///
+      /// PSL formulae are built by combining LTL operators, plus
+      /// three operators (EConcat, UConcat, Closure) taking a SERE
+      /// as parameter.
+      ///
+      /// The default priorities are defined as follows:
+      ///
+      /// \verbatim
+      /// ap      n
+      /// false   1
+      /// true    1
+      /// not     1
+      /// F       1
+      /// G       1
+      /// X       1
+      /// Closure 1
+      /// equiv   1
+      /// implies 1
+      /// xor     1
+      /// R       1
+      /// U       1
+      /// W       1
+      /// M       1
+      /// and     1
+      /// or      1
+      /// EConcat 1
+      /// UConcat 1
+      /// \endverbatim
+      ///
+      /// Where \c n is the number of atomic propositions in the
+      /// set passed to the constructor.
+      ///
+      /// This means that each operator has equal chance to be
+      /// selected.  Also, each atomic proposition has as much chance
+      /// as each constant (i.e., true and false) to be picked.
+      ///
+      /// These priorities can be changed use the parse_options method.
+      ///
+      /// In addition, you can set the properties of the SERE generator
+      /// used to build SERE subformulae using the parse_options method
+      /// of the \c rs attribute.
+      random_psl(const atomic_prop_set* ap);
+
+      /// The SERE generator used to generate SERE subformulae.
+      random_sere rs;
+    };
+
+
+
   }
 }
 

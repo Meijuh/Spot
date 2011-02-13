@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009 Laboratoire de Recherche et DÃ©veloppement
+// Copyright (C) 2008, 2009, 2011 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -40,13 +40,21 @@ syntax(char* prog)
 {
   std::cerr << "Usage: "<< prog << " [OPTIONS...] PROPS..." << std::endl
 	    << std::endl
+	    << "Output selection:" << std::endl
+	    << "  -B      generate Boolean formulae" << std::endl
+	    << "  -L      generate LTL formulae [default]" << std::endl
+	    << "  -S      generate SERE" << std::endl
+	    << "  -P      generate PSL formulae" << std::endl
+	    << std::endl
 	    << "Options:" << std::endl
 	    << "  -d      dump priorities, do not generate any formula"
 	    << std::endl
-	    << "  -f N    the size of the formula [15]" << std::endl
-	    << "  -F N    number of formulae to generate [1]" << std::endl
-	    << "  -p S    priorities to use" << std::endl
-	    << "  -r N    simplify formulae using all available reductions"
+	    << "  -f  N    the size of the formula [15]" << std::endl
+	    << "  -F  N    number of formulae to generate [1]" << std::endl
+	    << "  -pL S    priorities to use for LTL formula" << std::endl
+	    << "  -pS S    priorities to use for SERE" << std::endl
+	    << "  -pB S    priorities to use for Boolean formulae" << std::endl
+	    << "  -r  N    simplify formulae using all available reductions"
 	    << " and reject those" << std::endl
 	    << "            strictly smaller than N" << std::endl
 	    << "  -u      generate unique formulae"
@@ -79,11 +87,14 @@ to_int(const char* s)
 int
 main(int argc, char** argv)
 {
+  enum { OutputBool, OutputLTL, OutputSERE, OutputPSL } output = OutputLTL;
   bool opt_d = false;
   int opt_s = 0;
   int opt_f = 15;
   int opt_F = 1;
-  char* opt_p = 0;
+  char* opt_pL = 0;
+  char* opt_pS = 0;
+  char* opt_pB = 0;
   int opt_r = 0;
   bool opt_u = false;
 
@@ -97,7 +108,11 @@ main(int argc, char** argv)
 
   while (++argn < argc)
     {
-      if (!strcmp(argv[argn], "-d"))
+      if (!strcmp(argv[argn], "-B"))
+	{
+	  output = OutputBool;
+	}
+      else if (!strcmp(argv[argn], "-d"))
 	{
 	  opt_d = true;
 	}
@@ -113,11 +128,31 @@ main(int argc, char** argv)
 	    syntax(argv[0]);
 	  opt_F = to_int(argv[++argn]);
 	}
-      else if (!strcmp(argv[argn], "-p"))
+      else if (!strcmp(argv[argn], "-L"))
+	{
+	  output = OutputLTL;
+	}
+      else if ((!strcmp(argv[argn], "-p")) || (!strcmp(argv[argn], "-pL")))
 	{
 	  if (argc < argn + 2)
 	    syntax(argv[0]);
-	  opt_p = argv[++argn];
+	  opt_pL = argv[++argn];
+	}
+      else if (!strcmp(argv[argn], "-pS"))
+	{
+	  if (argc < argn + 2)
+	    syntax(argv[0]);
+	  opt_pS = argv[++argn];
+	}
+      else if (!strcmp(argv[argn], "-pB"))
+	{
+	  if (argc < argn + 2)
+	    syntax(argv[0]);
+	  opt_pB = argv[++argn];
+	}
+      else if (!strcmp(argv[argn], "-P"))
+	{
+	  output = OutputPSL;
 	}
       else if (!strcmp(argv[argn], "-r"))
 	{
@@ -131,6 +166,10 @@ main(int argc, char** argv)
 	    syntax(argv[0]);
 	  opt_s = to_int(argv[++argn]);
 	}
+      else if (!strcmp(argv[argn], "-S"))
+	{
+	  output = OutputSERE;
+	}
       else if (!strcmp(argv[argn], "-u"))
 	{
 	  opt_u = true;
@@ -142,14 +181,79 @@ main(int argc, char** argv)
 	}
     }
 
-  spot::ltl::random_ltl rl(ap);
-  const char* tok = rl.parse_options(opt_p);
-  if (tok)
+  spot::ltl::random_formula* rf = 0;
+  spot::ltl::random_psl* rp = 0;
+  spot::ltl::random_sere* rs = 0;
+  const char* tok_pL = 0;
+  const char* tok_pS = 0;
+  const char* tok_pB = 0;
+  switch (output)
     {
-      std::cerr << "failed to parse probabilities near `"
-		<< tok << "'" << std::endl;
+    case OutputLTL:
+      rf = new spot::ltl::random_ltl(ap);
+      tok_pL = rf->parse_options(opt_pL);
+      if (opt_pS)
+	{
+	  std::cerr << "option -pS unsupported for LTL output" << std::endl;
+	  exit(2);
+	}
+      if (opt_pB)
+	{
+	  std::cerr << "option -pB unsupported for LTL output" << std::endl;
+	  exit(2);
+	}
+      break;
+    case OutputBool:
+      rf = new spot::ltl::random_boolean(ap);
+      tok_pB = rf->parse_options(opt_pB);
+      if (opt_pL)
+	{
+	  std::cerr << "option -pL unsupported for Boolean output" << std::endl;
+	  exit(2);
+	}
+      if (opt_pS)
+	{
+	  std::cerr << "option -pS unsupported for Boolean output" << std::endl;
+	  exit(2);
+	}
+      break;
+    case OutputSERE:
+      rf = rs = new spot::ltl::random_sere(ap);
+      tok_pS = rf->parse_options(opt_pS);
+      if (opt_pL)
+	{
+	  std::cerr << "option -pL unsupported for SERE output" << std::endl;
+	  exit(2);
+	}
+      break;
+    case OutputPSL:
+      rf = rp = new spot::ltl::random_psl(ap);
+      rs = &rp->rs;
+      tok_pL = rp->parse_options(opt_pL);
+      tok_pS = rs->parse_options(opt_pS);
+      tok_pB = rs->rb.parse_options(opt_pB);
+      break;
+    }
+
+  if (tok_pL)
+    {
+      std::cerr << "failed to parse priorities (option -pL) near `"
+		<< tok_pL << "'" << std::endl;
       exit(2);
     }
+  if (tok_pS)
+    {
+      std::cerr << "failed to parse priorities (option -pS) near `"
+		<< tok_pS << "'" << std::endl;
+      exit(2);
+    }
+  if (tok_pB)
+    {
+      std::cerr << "failed to parse priorities (option -pB) near `"
+		<< tok_pB << "'" << std::endl;
+      exit(2);
+    }
+
 
   if (opt_r > opt_f)
     {
@@ -160,7 +264,32 @@ main(int argc, char** argv)
 
   if (opt_d)
     {
-      rl.dump_priorities(std::cout);
+      switch (output)
+	{
+	case OutputLTL:
+	  std::cout << "Use option -pL to set the following LTL priorities:"
+		    << std::endl;
+	  rf->dump_priorities(std::cout);
+	  break;
+	case OutputBool:
+	  std::cout << "Use option -pB to set the following Boolean "
+		    << "formula priorities:" << std::endl;
+	  rf->dump_priorities(std::cout);
+	  break;
+	case OutputPSL:
+	  std::cout << "Use option -pL to set the following LTL priorities:"
+		    << std::endl;
+	  rp->dump_priorities(std::cout);
+	  // Fall through.
+	case OutputSERE:
+	  std::cout << "Use option -pS to set the following SERE priorities:"
+		    << std::endl;
+	  rs->dump_priorities(std::cout);
+	  std::cout << "Use option -pB to set the following Boolean "
+		    << "formula priorities:" << std::endl;
+	  rs->rb.dump_priorities(std::cout);
+	  break;
+	}
     }
   else
     {
@@ -176,7 +305,7 @@ main(int argc, char** argv)
 	      int max_tries_r = 1000;
 	      while (max_tries_r--)
 		{
-		  f = rl.generate(opt_f);
+		  f = rf->generate(opt_f);
 		  if (opt_r)
 		    {
 		      spot::ltl::formula* g = reduce(f);
@@ -201,7 +330,8 @@ main(int argc, char** argv)
 			    << "of size " << opt_r << " or more." << std::endl;
 		  exit(2);
 		}
-	      std::string txt = spot::ltl::to_string(f);
+	      std::string txt = spot::ltl::to_string(f, false,
+						     output == OutputSERE);
 	      f->destroy();
 	      if (!opt_u || unique.insert(txt).second)
 		{
@@ -218,6 +348,8 @@ main(int argc, char** argv)
 	    }
 	}
     }
+
+  delete rf;
 
   spot::ltl::atomic_prop_set::const_iterator i = ap->begin();
   while (i != ap->end())
