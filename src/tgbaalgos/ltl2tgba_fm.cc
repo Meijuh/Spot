@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
@@ -397,11 +397,11 @@ namespace spot
 	    return;
 	  case unop::Not:
 	    {
-	      // Not can only appear in front of constants or atomic
+	      // Not can only appear in front of Boolean
+	      // expressions.
 	      // propositions.
 	      const formula* f = node->child();
-	      assert(dynamic_cast<const atomic_prop*>(f)
-		     || dynamic_cast<const constant*>(f));
+	      assert(f->is_boolean());
 	      res_ = recurse_and_concat(f, true);
 	      return;
 	    }

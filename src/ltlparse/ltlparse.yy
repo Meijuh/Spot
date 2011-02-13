@@ -1,4 +1,4 @@
-/* Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+/* Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
 ** de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ** Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -236,7 +236,7 @@ starargs: OP_STAR
 	    { $$ = $2; }
 	| OP_STAR_OPEN error OP_SQBKT_CLOSE
             { error_list.push_back(parse_error(@$,
-	        "treating this star block as [*]"));
+		"treating this star block as [*]"));
               $$.min = 0U; $$.max = bunop::unbounded; }
         | OP_STAR_OPEN error_opt END_OF_INPUT
 	    { error_list.push_back(parse_error(@$,
@@ -247,7 +247,7 @@ equalargs: OP_EQUAL_OPEN sqbracketargs
 	    { $$ = $2; }
 	| OP_EQUAL_OPEN error OP_SQBKT_CLOSE
             { error_list.push_back(parse_error(@$,
-	        "treating this equal block as [*]"));
+		"treating this equal block as [*]"));
               $$.min = 0U; $$.max = bunop::unbounded; }
         | OP_EQUAL_OPEN error_opt END_OF_INPUT
 	    { error_list.push_back(parse_error(@$,
@@ -316,8 +316,23 @@ booleanatom: ATOMIC_PROP
 	      { $$ = constant::false_instance(); }
 
 rationalexp: booleanatom
-            | OP_NOT booleanatom
-	      { $$ = unop::instance(unop::Not, $2); }
+            | OP_NOT rationalexp
+	      {
+		if ($2->is_boolean())
+		  {
+		    $$ = unop::instance(unop::Not, $2);
+		  }
+		else
+		  {
+		    error_list.push_back(parse_error(@2,
+                       "not a boolean expression: inside a SERE `!' can only "
+                       "be applied to a Boolean expression"));
+		    error_list.push_back(parse_error(@$,
+				"treating this block as false"));
+		    $2->destroy();
+		    $$ = constant::false_instance();
+		  }
+	      }
             | bracedrationalexp
 	    | PAR_OPEN rationalexp PAR_CLOSE
 	      { $$ = $2; }
@@ -373,10 +388,10 @@ rationalexp: booleanatom
 		else
 		  {
 		    error_list.push_back(parse_error(@1,
-			        "not a boolean expression: [=...] can only "
-				"be applied to a boolean expression"));
+				"not a boolean expression: [=...] can only "
+				"be applied to a Boolean expression"));
 		    error_list.push_back(parse_error(@$,
-			        "treating this block as false"));
+				"treating this block as false"));
 		    $1->destroy();
 		    $$ = constant::false_instance();
 		  }
@@ -390,14 +405,95 @@ rationalexp: booleanatom
 		else
 		  {
 		    error_list.push_back(parse_error(@1,
-			        "not a boolean expression: [->...] can only "
-				"be applied to a boolean expression"));
+				"not a boolean expression: [->...] can only "
+				"be applied to a Boolean expression"));
 		    error_list.push_back(parse_error(@$,
-			        "treating this block as false"));
+				"treating this block as false"));
 		    $1->destroy();
 		    $$ = constant::false_instance();
 		  }
 	      }
+	    | rationalexp OP_XOR rationalexp
+	      {
+		if ($1->is_boolean() && $3->is_boolean())
+		  {
+		    $$ = binop::instance(binop::Xor, $1, $3);
+		  }
+		else
+		  {
+		    if (!$1->is_boolean())
+		      {
+			error_list.push_back(parse_error(@1,
+                         "not a boolean expression: inside SERE `<->' can only "
+                         "be applied to Boolean expressions"));
+                      }
+		    if (!$3->is_boolean())
+		      {
+			error_list.push_back(parse_error(@3,
+                         "not a boolean expression: inside SERE `<->' can only "
+                         "be applied to Boolean expressions"));
+                      }
+		    error_list.push_back(parse_error(@$,
+				"treating this block as false"));
+		    $1->destroy();
+		    $3->destroy();
+		    $$ = constant::false_instance();
+		  }
+	      }
+	    | rationalexp OP_XOR error
+	      { missing_right_binop($$, $1, @2, "xor operator"); }
+	    | rationalexp OP_IMPLIES rationalexp
+	      {
+		if ($1->is_boolean())
+		  {
+		    $$ = binop::instance(binop::Implies, $1, $3);
+		  }
+		else
+		  {
+		    if (!$1->is_boolean())
+		      {
+			error_list.push_back(parse_error(@1,
+                         "not a boolean expression: inside SERE `->' can only "
+                         "be applied to a Boolean expression"));
+                      }
+		    error_list.push_back(parse_error(@$,
+				"treating this block as false"));
+		    $1->destroy();
+		    $3->destroy();
+		    $$ = constant::false_instance();
+		  }
+	      }
+	    | rationalexp OP_IMPLIES error
+	      { missing_right_binop($$, $1, @2, "implication operator"); }
+	    | rationalexp OP_EQUIV rationalexp
+	      {
+		if ($1->is_boolean() && $3->is_boolean())
+		  {
+		    $$ = binop::instance(binop::Equiv, $1, $3);
+		  }
+		else
+		  {
+		    if (!$1->is_boolean())
+		      {
+			error_list.push_back(parse_error(@1,
+                         "not a boolean expression: inside SERE `<->' can only "
+                         "be applied to Boolean expressions"));
+                      }
+		    if (!$3->is_boolean())
+		      {
+			error_list.push_back(parse_error(@3,
+                         "not a boolean expression: inside SERE `<->' can only "
+                         "be applied to Boolean expressions"));
+                      }
+		    error_list.push_back(parse_error(@$,
+				"treating this block as false"));
+		    $1->destroy();
+		    $3->destroy();
+		    $$ = constant::false_instance();
+		  }
+	      }
+	    | rationalexp OP_EQUIV error
+	      { missing_right_binop($$, $1, @2, "equivalent operator"); }
 
 bracedrationalexp: BRACE_OPEN rationalexp BRACE_CLOSE
               { $$ = $2; }
