@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -36,7 +36,7 @@ namespace spot
     namespace
     {
       formula*
-      ap_builder(const random_ltl* rl, int n)
+      ap_builder(const random_formula* rl, int n)
       {
 	assert(n == 1);
 	(void) n;
@@ -46,7 +46,7 @@ namespace spot
       }
 
       formula*
-      true_builder(const random_ltl*, int n)
+      true_builder(const random_formula*, int n)
       {
 	assert(n == 1);
 	(void) n;
@@ -54,7 +54,7 @@ namespace spot
       }
 
       formula*
-      false_builder(const random_ltl*, int n)
+      false_builder(const random_formula*, int n)
       {
 	assert(n == 1);
 	(void) n;
@@ -63,7 +63,7 @@ namespace spot
 
       template <unop::type Op>
       formula*
-      unop_builder(const random_ltl* rl, int n)
+      unop_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
 	return unop::instance(Op, rl->generate(n - 1));
@@ -71,7 +71,7 @@ namespace spot
 
       template <binop::type Op>
       formula*
-      binop_builder(const random_ltl* rl, int n)
+      binop_builder(const random_formula* rl, int n)
       {
 	assert(n >= 3);
 	--n;
@@ -81,7 +81,7 @@ namespace spot
 
       template <multop::type Op>
       formula*
-      multop_builder(const random_ltl* rl, int n)
+      multop_builder(const random_formula* rl, int n)
       {
 	assert(n >= 3);
 	--n;
@@ -92,7 +92,7 @@ namespace spot
     } // anonymous
 
     void
-    random_ltl::op_proba::setup(const char* name, int min_n, builder build)
+    random_formula::op_proba::setup(const char* name, int min_n, builder build)
     {
       this->name = name;
       this->min_n = min_n;
@@ -100,50 +100,13 @@ namespace spot
       this->build = build;
     }
 
-    namespace
-    {
-      const int proba_size = 16;
-    }
-
-    random_ltl::random_ltl(const atomic_prop_set* ap)
-    {
-      ap_ = ap;
-      proba_ = new op_proba[proba_size];
-      proba_[0].setup("ap",      1, ap_builder);
-      proba_[1].setup("false",   1, false_builder);
-      proba_[2].setup("true",    1, true_builder);
-      proba_2_ = proba_ + 3;
-      proba_[3].setup("not",     2, unop_builder<unop::Not>);
-      proba_[4].setup("F",       2, unop_builder<unop::F>);
-      proba_[5].setup("G",       2, unop_builder<unop::G>);
-      proba_[6].setup("X",       2, unop_builder<unop::X>);
-      proba_[7].setup("equiv",   3, binop_builder<binop::Equiv>);
-      proba_[8].setup("implies", 3, binop_builder<binop::Implies>);
-      proba_[9].setup("xor",     3, binop_builder<binop::Xor>);
-      proba_[10].setup("R",      3, binop_builder<binop::R>);
-      proba_[11].setup("U",      3, binop_builder<binop::U>);
-      proba_[12].setup("W",      3, binop_builder<binop::W>);
-      proba_[13].setup("M",      3, binop_builder<binop::M>);
-      proba_[14].setup("and",    3, multop_builder<multop::And>);
-      proba_[15].setup("or",     3, multop_builder<multop::Or>);
-
-      proba_[0].proba = ap_->size();
-
-      update_sums();
-    }
-
-    random_ltl::~random_ltl()
-    {
-      delete[] proba_;
-    }
-
     void
-    random_ltl::update_sums()
+    random_formula::update_sums()
     {
       total_1_ = 0.0;
       total_2_ = 0.0;
       total_2_and_more_ = 0.0;
-      for (int i = 0; i < proba_size; ++i)
+      for (unsigned i = 0; i < proba_size_; ++i)
 	{
 	  if (proba_[i].min_n == 1)
 	    total_1_ += proba_[i].proba;
@@ -161,7 +124,7 @@ namespace spot
     }
 
     formula*
-    random_ltl::generate(int n) const
+    random_formula::generate(int n) const
     {
       assert(n > 0);
       if (n == 1)
@@ -206,7 +169,7 @@ namespace spot
     }
 
     const char*
-    random_ltl::parse_options(char* options)
+    random_formula::parse_options(char* options)
     {
       char* key = strtok(options, "=\t, :;");
       while (key)
@@ -220,8 +183,8 @@ namespace spot
 	  if (*endptr)
 	    return value;
 
-	  int i;
-	  for (i = 0; i < proba_size; ++i)
+	  unsigned i;
+	  for (i = 0; i < proba_size_; ++i)
 	    {
 	      if (('a' <= *proba_[i].name && *proba_[i].name <= 'z'
 		   && !strcasecmp(proba_[i].name, key))
@@ -231,7 +194,7 @@ namespace spot
 		  break;
 		}
 	    }
-	  if (i == proba_size)
+	  if (i == proba_size_)
 	    return key;
 
 	  key = strtok(0, "=\t, :;");
@@ -241,12 +204,39 @@ namespace spot
     }
 
     std::ostream&
-    random_ltl::dump_priorities(std::ostream& os) const
+    random_formula::dump_priorities(std::ostream& os) const
     {
-      for (int i = 0; i < proba_size; ++i)
+      for (unsigned i = 0; i < proba_size_; ++i)
 	os << proba_[i].name << "\t" << proba_[i].proba << std::endl;
       return os;
     }
 
+    // LTL formulae
+
+    random_ltl::random_ltl(const atomic_prop_set* ap)
+      : random_formula(16, ap)
+    {
+      proba_[0].setup("ap",      1, ap_builder);
+      proba_[1].setup("false",   1, false_builder);
+      proba_[2].setup("true",    1, true_builder);
+      proba_2_ = proba_ + 3;
+      proba_[3].setup("not",     2, unop_builder<unop::Not>);
+      proba_[4].setup("F",       2, unop_builder<unop::F>);
+      proba_[5].setup("G",       2, unop_builder<unop::G>);
+      proba_[6].setup("X",       2, unop_builder<unop::X>);
+      proba_[7].setup("equiv",   3, binop_builder<binop::Equiv>);
+      proba_[8].setup("implies", 3, binop_builder<binop::Implies>);
+      proba_[9].setup("xor",     3, binop_builder<binop::Xor>);
+      proba_[10].setup("R",      3, binop_builder<binop::R>);
+      proba_[11].setup("U",      3, binop_builder<binop::U>);
+      proba_[12].setup("W",      3, binop_builder<binop::W>);
+      proba_[13].setup("M",      3, binop_builder<binop::M>);
+      proba_[14].setup("and",    3, multop_builder<multop::And>);
+      proba_[15].setup("or",     3, multop_builder<multop::Or>);
+
+      proba_[0].proba = ap_->size();
+
+      update_sums();
+    }
   } // ltl
 } // spot

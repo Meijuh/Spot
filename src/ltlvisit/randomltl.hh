@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement de
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -32,6 +32,75 @@ namespace spot
   namespace ltl
   {
 
+    /// \brief Base class for random formula generators
+    /// \ingroup ltl_io
+    class random_formula
+    {
+    public:
+      random_formula(unsigned proba_size,
+		     const atomic_prop_set* ap):
+	proba_size_(proba_size), proba_(new op_proba[proba_size_]), ap_(ap)
+      {
+      }
+
+      ~random_formula()
+      {
+	delete proba_;
+      }
+
+      /// Return the set of atomic proposition used to build formulae.
+      const atomic_prop_set*
+      ap() const
+      {
+	return ap_;
+      }
+
+      /// \brief Generate a formula of size \a n.
+      ///
+      /// It is possible to obtain formulae that are smaller than \a
+      /// n, because some simple simplifications are performed by the
+      /// AST.  (For instance the formula <code>a | a</code> is
+      /// automatically reduced to <code>a</code> by spot::ltl::multop.)
+      formula* generate(int n) const;
+
+      /// \brief Print the priorities of each operator, constants,
+      /// and atomic propositions.
+      std::ostream& dump_priorities(std::ostream& os) const;
+
+      /// \brief Update the priorities used to generate the formulae.
+      ///
+      /// The initial priorities are defined in each sub class as follows.
+      ///
+      /// These priorities can be altered using this function.
+      /// \a options should be comma-separated list of KEY=VALUE
+      /// assignments, using keys from the above list.
+      /// For instance <code>"xor=0, F=3"</code> will prevent \c xor
+      /// from being used, and will raise the relative probability of
+      /// occurrences of the \c F operator.
+      const char* parse_options(char* options);
+
+    protected:
+      void update_sums();
+
+      struct op_proba
+      {
+	const char* name;
+	int min_n;
+	double proba;
+	typedef formula* (*builder)(const random_formula* rl, int n);
+	builder build;
+	void setup(const char* name, int min_n, builder build);
+      };
+      unsigned proba_size_;
+      op_proba* proba_;
+      double total_1_;
+      op_proba* proba_2_;
+      double total_2_;
+      double total_2_and_more_;
+      const atomic_prop_set* ap_;
+    };
+
+
     /// \brief Generate random LTL formulae.
     /// \ingroup ltl_io
     ///
@@ -44,32 +113,12 @@ namespace spot
     /// Also, each atomic proposition has as much chance as each
     /// constant (i.e., true and false) to be picked.  This can be
     /// tuned using parse_options().
-    class random_ltl
+    class random_ltl: public random_formula
     {
     public:
       /// Create a random LTL generator using atomic propositions from \a ap.
-      random_ltl(const atomic_prop_set* ap);
-      ~random_ltl();
-
-      /// \brief Generate a formula of size \a n.
       ///
-      /// It is possible to obtain formulae that are smaller than \a
-      /// n, because some simple simplifications are performed by the
-      /// AST.  (For instance the formula <code>a | a</code> is
-      /// automatically reduced to <code>a</code> by spot::ltl::multop.)
-      ///
-      /// Furthermore, for the purpose of this generator,
-      /// <code>a | b | c</code> has length 5, while it has length
-      /// <code>4</code> for spot::ltl::length().
-      formula* generate(int n) const;
-
-      /// \brief Print the priorities of each operator, constants,
-      /// and atomic propositions.
-      std::ostream& dump_priorities(std::ostream& os) const;
-
-      /// \brief Update the priorities used to generate LTL formulae.
-      ///
-      /// The initial priorities are as follows.
+      /// The default priorities are defined as follows:
       ///
       /// \verbatim
       /// ap      n
@@ -95,43 +144,10 @@ namespace spot
       ///
       /// This means that each operator has equal chance to be
       /// selected.  Also, each atomic proposition has as much chance
-      /// as each constant (i.e., true and false) to be picked.  This
-      /// can be
+      /// as each constant (i.e., true and false) to be picked.
       ///
-      /// These priorities can be altered using this function.
-      /// \a options should be comma-separated list of KEY=VALUE
-      /// assignments, using keys from the above list.
-      /// For instance <code>"xor=0, F=3"</code> will prevent \c xor
-      /// from being used, and will raise the relative probability of
-      /// occurrences of the \c F operator.
-      const char* parse_options(char* options);
-
-      /// Return the set of atomic proposition used to build formulae.
-      const atomic_prop_set*
-      ap() const
-      {
-	return ap_;
-      }
-
-    protected:
-      void update_sums();
-
-    private:
-      struct op_proba
-      {
-	const char* name;
-	int min_n;
-	double proba;
-	typedef formula* (*builder)(const random_ltl* rl, int n);
-	builder build;
-	void setup(const char* name, int min_n, builder build);
-      };
-      op_proba* proba_;
-      double total_1_;
-      op_proba* proba_2_;
-      double total_2_;
-      double total_2_and_more_;
-      const atomic_prop_set* ap_;
+      /// These priorities can be changed use the parse_options method.
+      random_ltl(const atomic_prop_set* ap);
     };
   }
 }
