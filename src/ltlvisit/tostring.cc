@@ -61,9 +61,11 @@ namespace spot
       class to_string_visitor: public const_visitor
       {
       public:
-	to_string_visitor(std::ostream& os, bool full_parent = false)
+	to_string_visitor(std::ostream& os,
+			  bool full_parent = false,
+			  bool ratexp = false)
 	  : os_(os), top_level_(true),
-	    full_parent_(full_parent), in_ratexp_(false)
+	    full_parent_(full_parent), in_ratexp_(ratexp)
 	{
 	}
 
@@ -552,18 +554,19 @@ namespace spot
     } // anonymous
 
     std::ostream&
-    to_string(const formula* f, std::ostream& os, bool full_parent)
+    to_string(const formula* f, std::ostream& os, bool full_parent,
+	      bool ratexp)
     {
-      to_string_visitor v(os, full_parent);
+      to_string_visitor v(os, full_parent, ratexp);
       f->accept(v);
       return os;
     }
 
     std::string
-    to_string(const formula* f, bool full_parent)
+    to_string(const formula* f, bool full_parent, bool ratexp)
     {
       std::ostringstream os;
-      to_string(f, os, full_parent);
+      to_string(f, os, full_parent, ratexp);
       return os.str();
     }
 

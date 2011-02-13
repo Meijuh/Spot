@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement de
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -39,30 +39,33 @@ namespace spot
     /// \param f The formula to translate.
     /// \param os The stream where it should be output.
     /// \param full_parent Whether or not the string should by fully
-    ///	                   parenthesized.
+    ///			   parenthesized.
+    /// \param ratexp Whether we are printing a SERE.
     std::ostream&
-    to_string(const formula* f, std::ostream& os, bool full_parent = false);
+    to_string(const formula* f, std::ostream& os, bool full_parent = false,
+	      bool ratexp = false);
 
     /// \brief Output a formula as a string which is parsable unless the formula
     /// contains automaton operators (used in ELTL formulae).
     /// \param f The formula to translate.
     /// \param full_parent Whether or not the string should by fully
-    ///	                   parenthesized.
+    ///			   parenthesized.
+    /// \param ratexp Whether we are printing a SERE.
     std::string
-    to_string(const formula* f, bool full_parent = false);
+    to_string(const formula* f, bool full_parent = false, bool ratexp = false);
 
     /// \brief Output a formula as a (parsable by Spin) string.
     /// \param f The formula to translate.
     /// \param os The stream where it should be output.
     /// \param full_parent Whether or not the string should by fully
-    ///	                   parenthesized.
+    ///			   parenthesized.
     std::ostream& to_spin_string(const formula* f, std::ostream& os,
 				 bool full_parent = false);
 
     /// \brief Convert a formula into a (parsable by Spin) string.
     /// \param f The formula to translate.
     /// \param full_parent Whether or not the string should by fully
-    ///	                   parenthesized.
+    ///			   parenthesized.
     std::string to_spin_string(const formula* f, bool full_parent = false);
 
     /// @}
