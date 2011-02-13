@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -50,6 +50,8 @@ namespace spot
 	case Equal:
 	case Goto:
 	  is.accepting_eword = (min_ == 0);
+	  // Equal and Goto can only apply to Boolean formulae.
+	  assert(child->is_boolean());
 	  break;
 	}
     }
