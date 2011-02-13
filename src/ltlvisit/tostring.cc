@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2010, 2011 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -188,12 +188,17 @@ namespace spot
 	      // a[*] is OK, no need to print {a}[*].
 	      // However want braces for {!a}[*], the only unary
 	      // operator that can be nested with [*].
-	      bool need_parent = (bo->child()->kind() == formula::UnOp);
 
-	      if (need_parent || full_parent_)
+	      formula::opkind ck = bo->child()->kind();
+	      bool need_parent = (full_parent_
+				  || ck == formula::UnOp
+				  || ck == formula::BinOp
+				  || ck == formula::MultOp);
+
+	      if (need_parent)
 		openp();
 	      bo->child()->accept(*this);
-	      if (need_parent || full_parent_)
+	      if (need_parent)
 		closep();
 	    }
 
