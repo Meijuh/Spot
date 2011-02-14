@@ -432,10 +432,61 @@ namespace spot
 	    if (to_concat_)
 	      f = multop::instance(multop::Concat, f, to_concat_->clone());
 
-	    res_ = recurse(bo->child(), f);
-	    if (min == 0)
-	      res_ |= now_to_concat();
+	    if (!bo->child()->accepts_eword())
+	      {
+		//   f*;g  ->  f;f*;g | g
+		//
+		// If f does not accept the empty word, we can easily
+		// add "f*;g" as to_concat_ when translating f.
+		res_ = recurse(bo->child(), f);
+		if (min == 0)
+		  res_ |= now_to_concat();
+	      }
+	    else
+	      {
+		// if "f" accepts the empty words, doing the above would
+		// lead to an infinite loop:
+		//   f*;g -> f;f*;g | g
+		//   f;f*;g -> f*;g | ...
+		//
+		// So we do in two steps:
+		//  1. translate f,
+		//  2. append f*;g to all destinations
+		//  3. add |g
+		res_ = recurse(bo->child());
 
+		//   f*;g  ->  f;f*;g
+		minato_isop isop(res_);
+		bdd cube;
+		res_ = bddfalse;
+		while ((cube = isop.next()) != bddfalse)
+		  {
+		    bdd label = bdd_exist(cube, dict_.next_set);
+		    bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		    formula* dest =
+		      dict_.conj_bdd_to_formula(dest_bdd);
+		    formula* dest2;
+		    int x;
+		    if (dest == constant::empty_word_instance())
+		      {
+			x = dict_.register_next_variable(f);
+			res_ |= label & bdd_ithvar(x);
+		      }
+		    else
+		      {
+			dest2 = multop::instance(multop::Concat, dest,
+						 f->clone());
+			if (dest2 != constant::false_instance())
+			  {
+			    x = dict_.register_next_variable(dest2);
+			    dest2->destroy();
+			    res_ |= label & bdd_ithvar(x);
+			  }
+		      }
+		  }
+		f->destroy();
+		res_ |= now_to_concat();
+	      }
 	    return;
 	  case bunop::Equal:
 	  case bunop::Goto:

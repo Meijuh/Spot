@@ -85,6 +85,9 @@ check_psl '{[*2];a[*2..4]}|->b'
 check_psl '{a[*2..5] && b[*..3]}|->c'
 check_psl '{{[+];a;[+]} && {[+];b;[+]}}<>->c'
 check_psl '{(a[->3]) & {[+];b}}<>->c'
+# This formula (built by a random formula generator), exhibited an
+# infinite recursion in the translation:
+check_psl '{(a|[*0])[*];1}'
 # Example from "Beyond Hardware Verification" by Glazberg, Moulin, Orni,
 # Ruah, Zarpas (2007).
 check_psl '{[*];req;ack}|=>{start;busy[*];done}'
