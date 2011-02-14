@@ -105,7 +105,8 @@ TESTS = \
   emptchkr.test \
   ltlcounter.test \
   spotlbtt.test \
-  complementation.test
+  complementation.test \
+  randpsl.test
 
 EXTRA_DIST = $(TESTS)
 
