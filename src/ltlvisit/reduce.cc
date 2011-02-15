@@ -157,10 +157,12 @@ namespace spot
 		case binop::Xor:
 		case binop::Equiv:
 		case binop::Implies:
+		  assert(!"operator not supported for syntactic implication");
+		  return;
 		case binop::UConcat:
 		case binop::EConcat:
 		case binop::EConcatMarked:
-		  return;
+		  break;
 
 		case binop::U:
 		  /* a < b => a U b = b */

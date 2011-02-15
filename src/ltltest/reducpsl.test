@@ -1,6 +1,6 @@
-#!/bin/sh
-# Copyright (C) 2011 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+#! /bin/sh
+# Copyright (C) 2011 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -20,21 +20,23 @@
 # 02111-1307, USA.
 
 
-. ./defs
+# Check for the reduc visitor.
+. ./defs || exit 1
 
 set -e
 
-check_psl()
-{
-  # Make cross products with FM
-  run 0 ../ltl2tgba -f -R3 -b "$1" > out.tgba
-  run 0 ../ltl2tgba -f -R3 -Pout.tgba -E "!($1)"
-  # Also try with -x turned on.
-  run 0 ../ltl2tgba -f -x -R3 -b "$1" > out.tgba
-  run 0 ../ltl2tgba -f -x -R3 -Pout.tgba -E "!($1)"
-}
+FILE=formulae
+: > $FILE
+for i in 10 12 14 16 18 20; do
+  run 0 ../randltl -P -u -s 0   -f $i a b c -F 100 >> $FILE
+  run 0 ../randltl -P -u -s 100 -f $i a b c d e f -F 100 >> $FILE
+done
 
-../../ltltest/randltl -F 50 -f 30 -r 12 -u -s 0 -P a b c |
-while read formula; do
-  check_psl "$formula"
+for opt in 0 1 2 3 7; do
+  run 0 ../reduc -f -h $opt "$FILE"
+done
+# Running the above through valgrind is quite slow already.
+# Don't use valgrind for the next reductions (even slower).
+for opt in 8 9; do
+  ../reduc -f -h $opt "$FILE"
 done

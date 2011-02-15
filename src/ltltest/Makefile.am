@@ -94,6 +94,7 @@ TESTS = \
   kind.test \
   syntimpl.test \
   reduc.test \
+  reducpsl.test \
   reduccmp.test
 
 distclean-local:

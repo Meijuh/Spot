@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2007 Laboratoire d'Informatique de
 // Paris 6 (LIP6), dï¿½partement Systï¿½mes Rï¿½partis Coopï¿½ratifs (SRC),
@@ -25,6 +25,7 @@
 #include "ltlast/visitor.hh"
 #include "ltlast/allnodes.hh"
 #include <cassert>
+#include <iterator>
 
 namespace spot
 {
@@ -181,13 +182,13 @@ namespace spot
 		}
 
 #if 0
-	      // F(f1 & GF(f2)) = F(f1) & GF(F2)
+	      // F(f1 & GF(f2)) = F(f1) & GF(f2)
 	      //
 	      // As is, these two formulae are translated into
 	      // equivalent Büchi automata so the rewriting is
 	      // useless.
 	      //
-	      // However when taken in a larger formulae such as F(f1
+	      // However when taken in a larger formula such as F(f1
 	      // & GF(f2)) | F(a & GF(b)), this rewriting used to
 	      // produce (F(f1) & GF(f2)) | (F(a) & GF(b)), missing
 	      // the opportunity to apply the F(E1)|F(E2) = F(E1|E2)
@@ -862,7 +863,8 @@ namespace spot
 	    case multop::Concat:
 	    case multop::AndNLM:
 	    case multop::Fusion:
-	      std::copy(res->begin(), res->end(), tmpOther->end());
+	      std::copy(res->begin(), res->end(),
+			std::back_inserter(*tmpOther));
 	      break;
 	    }
 
