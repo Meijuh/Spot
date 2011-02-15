@@ -43,7 +43,7 @@ namespace spot
       {
       }
 
-      ~random_formula()
+      virtual ~random_formula()
       {
 	delete[] proba_;
       }
