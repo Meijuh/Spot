@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -54,11 +54,11 @@ namespace spot
       ///   - 0[=0..max] = 1[*]
       ///   - 0[=min..max] = 0 if min > 0
       ///   - 1[=0] = [*0]
-      ///   - 1[=min..max] = 1[*min..max] if max > 0
+      ///   - 1[=min..max] = 1[*min..max]
       ///   - Exp[=0..] = [*]
       ///   - Exp[=0] = (!Exp)[*]
-      ///   - 0[->min..max] = 0 if min>0
       ///   - 0[->0..max] = [*0]
+      ///   - 0[->min..max] = 0 if min>0
       ///   - 1[->0] = [*0]
       ///   - 1[->min..max] = 1[*min..max]
       ///   - Exp[->0] = [*0]

@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et D�veloppement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et D�veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), d�partement Syst�mes R�partis Coop�ratifs (SRC),
@@ -92,8 +92,8 @@ namespace spot
       /// - Or(Exps1...,1,Exps2...) = 1
       /// - Or(Exps1...,0,Exps2...) = And(Exps1...,Exps2...)
       /// - Or(Exp) = Exp
-      /// - Concat(Exps1...,[*0],Exps2...) = Concat(Exps1...,Exps2...)
       /// - Concat(Exps1...,0,Exps2...) = 0
+      /// - Concat(Exps1...,[*0],Exps2...) = Concat(Exps1...,Exps2...)
       /// - Concat(Exp) = Exp
       /// - Fusion(Exps1...,1,Exps2...) = Concat(Exps1...,Exps2...)
       /// - Fusion(Exps1...,0,Exps2...) = 0
