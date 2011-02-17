@@ -50,6 +50,7 @@ run 0 ../equals 'a & a & true' 'a'
 run 0 ../equals 'a & false & a' 'false'
 run 0 ../equals 'a | false | a' 'a'
 run 0 ../equals 'true | a | a' 'true'
+run 0 ../equals '{a*}!' '{a*}<>->1'
 
 # other formulae which are not
 run 1 ../equals 'a' 'b'
@@ -62,6 +63,10 @@ run 1 ../equals 'a & b & c' 'c & a'
 run 1 ../equals 'b & c' 'c & a & b'
 run 1 ../equals 'a & b & (c |(f U g)| e)' \
                 'b & a & a & (c | e |(g U g)| e | c) & b'
+run 1 ../equals '{a*}' '{a*}<>->1'
+run 1 ../equals '!{a*}' '{a*}<>->1'
+run 1 ../equals '{a*}' '{a*}!'
+run 1 ../equals '!{a*}' '{a*}!'
 
 # Precedence
 run 0 ../equals 'a & b ^ c | d' 'd | c ^ b & a'

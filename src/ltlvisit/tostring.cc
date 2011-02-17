@@ -165,6 +165,12 @@ namespace spot
 	      top_level_ = top_level;
 	      break;
 	    case binop::EConcat:
+	      if (bo->second() == constant::true_instance())
+		{
+		  os_ << "}!";
+		  in_ratexp_ = false;
+		  goto second_done;
+		}
 	      os_ << "} <>-> ";
 	      in_ratexp_ = false;
 	      top_level_ = false;
@@ -177,6 +183,7 @@ namespace spot
 	    }
 
 	  bo->second()->accept(*this);
+	second_done:
 	  if (!top_level)
 	    closep();
 	}
@@ -255,7 +262,6 @@ namespace spot
 	      break;
 	    }
 
-	  top_level_ = false;
 	  if (need_parent || full_parent_)
 	    openp();
 	  uo->child()->accept(*this);
@@ -416,6 +422,11 @@ namespace spot
 	      top_level_ = true;
 	      os_ << "{";
 	      bo->first()->accept(*this);
+	      if (bo->second() == constant::true_instance())
+		{
+		  os_ << "}!";
+		  break;
+		}
 	      os_ << "} <>-> ";
 	      top_level_ = false;
 	      bo->second()->accept(*this);

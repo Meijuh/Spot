@@ -83,6 +83,7 @@ using namespace spot::ltl;
 %token START_RATEXP "RATEXP start marker"
 %token PAR_OPEN "opening parenthesis" PAR_CLOSE "closing parenthesis"
 %token BRACE_OPEN "opening brace" BRACE_CLOSE "closing brace"
+%token BRACE_BANG_CLOSE "closing brace-bang"
 %token OP_OR "or operator" OP_XOR "xor operator"
 %token OP_AND "and operator" OP_SHORT_AND "short and operator"
 %token OP_IMPLIES "implication operator" OP_EQUIV "equivalent operator"
@@ -627,6 +628,10 @@ subformula: booleanatom
 	      { missing_right_binop($$, $1, @2,
 				"existential non-overlapping concat operator");
 	      }
+            | BRACE_OPEN rationalexp BRACE_BANG_CLOSE
+	      /* {SERE}! = {SERE} <>-> 1 */
+	      { $$ = binop::instance(binop::EConcat, $2,
+				     constant::true_instance()); }
 ;
 
 %%
