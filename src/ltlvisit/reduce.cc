@@ -325,7 +325,8 @@ namespace spot
 	    res->push_back(recurse(mo->nth(i)));
 
 	  if ((opt_ & Reduce_Syntactic_Implications)
-	      && (mo->op() != multop::Concat))
+	      && (mo->op() != multop::Concat)
+	      && (mo->op() != multop::Fusion))
 	    {
 
 	      bool removed = true;
@@ -369,25 +370,30 @@ namespace spot
 		    }
 		}
 
-	      /* f1 < !f2 => f1 & f2 = false
-		 !f1 < f2 => f1 | f2 = true */
-	      for (f1 = res->begin(); f1 != res->end(); f1++)
-		for (f2 = res->begin(); f2 != res->end(); f2++)
-		  if (f1 != f2 &&
-		      c_->syntactic_implication_neg(*f1, *f2,
-						    mo->op() !=  multop::Or))
-		    {
-		      for (multop::vec::iterator j = res->begin();
-			   j != res->end(); j++)
-			(*j)->destroy();
-		      res->clear();
-		      delete res;
-		      if (mo->op() == multop::Or)
-			result_ = constant::true_instance();
-		      else
-			result_ = constant::false_instance();
-		      return;
-		    }
+	      // We cannot run syntactic_implication_neg on SERE
+	      // formulae, unless they are just Boolean formulae.
+	      if (mo->is_boolean() || !mo->is_sere_formula())
+		{
+		  bool is_and = mo->op() != multop::Or;
+		  /* f1 < !f2 => f1 & f2 = false
+		     !f1 < f2 => f1 | f2 = true */
+		  for (f1 = res->begin(); f1 != res->end(); f1++)
+		    for (f2 = res->begin(); f2 != res->end(); f2++)
+		      if (f1 != f2 &&
+			  c_->syntactic_implication_neg(*f1, *f2, is_and))
+			{
+			  for (multop::vec::iterator j = res->begin();
+			       j != res->end(); j++)
+			    (*j)->destroy();
+			  res->clear();
+			  delete res;
+			  if (is_and)
+			    result_ = constant::false_instance();
+			  else
+			    result_ = constant::true_instance();
+			  return;
+			}
+		}
 
 	    }
 

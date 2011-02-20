@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2006, 2007 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -30,6 +30,7 @@
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/save.hh"
+
 namespace spot
 {
   namespace ltl
@@ -381,6 +382,9 @@ namespace spot
 	formula*
 	recurse(formula* f)
 	{
+	  if (!f->is_psl_formula())
+	    return f->clone();
+
 	  reduce_tau03_visitor v(stronger, lcc);
 	  const_cast<formula*>(f)->accept(v);
 	  return v.result();
@@ -391,6 +395,9 @@ namespace spot
     formula*
     reduce_tau03(const formula* f, bool stronger)
     {
+      if (!f->is_psl_formula())
+	return f->clone();
+
       bdd_dict b;
       reduce_tau03_visitor v(stronger,
 			     new language_containment_checker(&b,
