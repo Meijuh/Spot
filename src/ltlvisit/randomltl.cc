@@ -177,7 +177,7 @@ namespace spot
 	    {
 	      total_1_ += proba_[i].proba;
 	      if (proba_ + i >= proba_2_)
-		total_2_ += proba_[i].proba;;
+		total_2_ += proba_[i].proba;
 	      if (proba_ + i >= proba_2_or_more_)
 		total_2_and_more_ += proba_[i].proba;
 	    }
