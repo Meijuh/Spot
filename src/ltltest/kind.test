@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2010 Laboratoire de Recherche et Developement to
+# Copyright (C) 2010, 2011 Laboratoire de Recherche et Developement to
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -33,10 +33,10 @@ check()
     test "$word" = "$2"
 }
 
-check 'a'         'B&!xfLEP'
-check 'a<->b'     'BxfLEP'
-check '!a'        'B&!xfLEP'
-check '!(a|b)'    'B&xfLEP'
+check 'a'         'B&!xfLEPS'
+check 'a<->b'     'BxfLEPS'
+check '!a'        'B&!xfLEPS'
+check '!(a|b)'    'B&xfLEPS'
 check 'F(a)'      '&!xLPe'
 check 'G(a)'      '&!xLPu'
 check 'a U b'     '&!xfLP'

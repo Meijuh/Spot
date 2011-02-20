@@ -35,9 +35,11 @@ namespace spot
     {
       props = child->get_props();
 
+      assert(is.sere_formula);
       is.boolean = false;
       is.ltl_formula = false;
       is.eltl_formula = false;
+      is.psl_formula = false;
       is.eventual = false;
       is.universal = false;
 

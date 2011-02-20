@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et D�veloppement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et D�veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), d�partement Syst�mes R�partis Coop�ratifs (SRC),
@@ -48,6 +48,7 @@ namespace spot
 	  is.ltl_formula = true;
 	  is.eltl_formula = true;
 	  is.psl_formula = true;
+	  is.sere_formula = true;
 	  is.eventual = true;
 	  is.universal = true;
 	  is.not_marked = true;
@@ -61,7 +62,8 @@ namespace spot
 	  is.sugar_free_ltl = true;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;
-	  is.psl_formula = true;
+	  is.psl_formula = false;
+	  is.sere_formula = true;
 	  is.eventual = false;
 	  is.universal = false;
 	  is.not_marked = true;

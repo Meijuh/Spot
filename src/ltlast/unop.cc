@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -40,17 +40,20 @@ namespace spot
 	{
 	case Not:
 	  is.in_nenoform = (child->kind() == AtomicProp);
+	  is.sere_formula = is.boolean;
 	  is.accepting_eword = false;
 	  break;
 	case X:
 	  is.boolean = false;
 	  is.X_free = false;
 	  is.eltl_formula = false;
+	  is.sere_formula = false;
 	  is.accepting_eword = false;
 	  break;
 	case F:
 	  is.boolean = false;
 	  is.eltl_formula = false;
+	  is.sere_formula = false;
 	  is.sugar_free_ltl = false;
 	  is.eventual = true;
 	  is.accepting_eword = false;
@@ -58,6 +61,7 @@ namespace spot
 	case G:
 	  is.boolean = false;
 	  is.eltl_formula = false;
+	  is.sere_formula = false;
 	  is.sugar_free_ltl = false;
 	  is.universal = true;
 	  is.accepting_eword = false;
@@ -66,6 +70,7 @@ namespace spot
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.psl_formula = false;
+	  is.sere_formula = false;
 	  is.accepting_eword = false;
 	  break;
 	case NegClosure:
@@ -75,7 +80,10 @@ namespace spot
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;
+	  is.psl_formula = true;
+	  is.sere_formula = false;
 	  is.accepting_eword = false;
+	  assert(child->is_sere_formula());
 	  break;
 	}
     }

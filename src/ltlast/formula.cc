@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -83,6 +83,7 @@ namespace spot
       proprint(is_ltl_formula, "L", "LTL formula");
       proprint(is_eltl_formula, "E", "ELTL formula");
       proprint(is_psl_formula, "P", "PSL formula");
+      proprint(is_sere_formula, "S", "SERE formula");
       proprint(is_eventual, "e", "pure eventuality");
       proprint(is_universal, "u", "purely universal");
       proprint(is_marked, "+", "marked");

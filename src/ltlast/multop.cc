@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Dï¿½veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -39,6 +39,8 @@ namespace spot
       unsigned s = v->size();
       assert(s > 1);
 
+      props = (*v)[0]->get_props();
+
       switch (op)
 	{
 	case Concat:
@@ -46,6 +48,7 @@ namespace spot
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;
+	  is.psl_formula = false;
 	  is.eventual = false;
 	  is.universal = false;
 	  // fall through
@@ -55,14 +58,12 @@ namespace spot
 	  // Boolean flag, because applied to atomic propositions a&b
 	  // has the same effect as a&&b.
 	case And:
-	  props = (*v)[0]->get_props();
 	  for (unsigned i = 1; i < s; ++i)
 	    props &= (*v)[i]->get_props();
 	  break;
 	case Or:
 	  {
 	    bool ew = (*v)[0]->accepts_eword();
-	    props = (*v)[0]->get_props();
 	    for (unsigned i = 1; i < s; ++i)
 	      {
 		ew |= (*v)[i]->accepts_eword();

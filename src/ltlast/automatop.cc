@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE)
+// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -38,6 +38,7 @@ namespace spot
       is.ltl_formula = false;
       is.eltl_formula = true;
       is.psl_formula = false;
+      is.sere_formula = false;
       is.eventual = false;
       is.universal = false;
       is.not_marked = true;

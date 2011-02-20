@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et Dï¿½veloppement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 //
 // This file is part of Spot, a model checking library.
@@ -170,6 +170,12 @@ namespace spot
 	return is.psl_formula;
       }
 
+      /// Whether the formula use only SERE operators.
+      bool is_sere_formula() const
+      {
+	return is.sere_formula;
+      }
+
       /// \brief Whether the formula is purely eventual.
       ///
       /// Pure eventuality formulae are defined in
@@ -279,6 +285,7 @@ namespace spot
 	bool ltl_formula:1;	   // Only LTL operators.
 	bool eltl_formula:1;	   // Only ELTL operators.
 	bool psl_formula:1;	   // Only PSL operators.
+	bool sere_formula:1;	   // Only SERE operators.
 	bool eventual:1;	   // Purely eventual formula.
 	bool universal:1;	   // Purely universal formula.
 	bool not_marked:1;	   // No occurrence of EConcatMarked.
