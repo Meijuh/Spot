@@ -51,6 +51,9 @@ run 0 ../equals 'a & false & a' 'false'
 run 0 ../equals 'a | false | a' 'a'
 run 0 ../equals 'true | a | a' 'true'
 run 0 ../equals '{a*}!' '{a*}<>->1'
+run 0 ../equals '{a -> b} (c)' '(a->b)->c'
+run 0 ../equals '{a & !b}!' 'a & !b'
+run 0 ../equals '{a;[*0]}|->!Xb' 'a -> !Xb'
 
 # other formulae which are not
 run 1 ../equals 'a' 'b'

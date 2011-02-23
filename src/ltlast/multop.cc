@@ -45,18 +45,18 @@ namespace spot
 	{
 	case Concat:
 	case Fusion:
+	case AndNLM:
+	  // Note: AndNLM(p1,p2) is a Boolean formula, but it is
+	  // actually rewritten as And(p1,p2) by trivial identities
+	  // before this constructor is called.  So at this point,
+	  // AndNLM is always used with at most one Boolean argument,
+	  // and the result is therefore NOT Boolean.
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;
 	  is.psl_formula = false;
 	  is.eventual = false;
 	  is.universal = false;
-	  // fall through
-	case AndNLM:
-	  // The non-matching-length-And (&) can only appear in the
-	  // rational parts of PSL formula.  We don't remove the
-	  // Boolean flag, because applied to atomic propositions a&b
-	  // has the same effect as a&&b.
 	case And:
 	  for (unsigned i = 1; i < s; ++i)
 	    props &= (*v)[i]->get_props();
@@ -229,6 +229,27 @@ namespace spot
 	  abs = constant::false_instance();
 	  abs2 = 0;
 	  weak_abs = 0;
+
+	  // Make a first pass to gather all boolean terms.
+	  {
+	    vec* b = new vec;
+	    vec::iterator i = v->begin();
+	    while (i != v->end())
+	      {
+		if ((*i)->is_boolean())
+		  {
+		    b->push_back(*i);
+		    i = v->erase(i);
+		  }
+		else
+		  {
+		    ++i;
+		  }
+	      }
+	    // - AndNLM(Exps1...,Bool1,Exps2...,Bool2,Exp3...) =
+	    //    AndNLM(Exps1...,Exps2...,Exp3...,And(Bool1,Bool2))
+	    v->push_back(instance(And, b));
+	  }
 	  break;
 	case Or:
 	  neutral = constant::false_instance();
@@ -291,6 +312,7 @@ namespace spot
 		++i;
 	      }
 	  }
+
 	// We have    a* & [*0] & c  = 0
 	//     and    a* & [*0] & c* = [*0]
 	// So if [*0] has been seen, check if alls term recognize the

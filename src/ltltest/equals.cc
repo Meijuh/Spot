@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et DÃ©veloppement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -119,6 +119,12 @@ main(int argc, char** argv)
 #endif
 
   int exit_code = f1 != f2;
+
+  if (exit_code)
+    {
+      spot::ltl::dump(std::cerr, f1) << std::endl;
+      spot::ltl::dump(std::cerr, f2) << std::endl;
+    }
 
   f1->destroy();
   f2->destroy();

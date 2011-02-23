@@ -25,6 +25,7 @@
 #include <utility>
 #include "binop.hh"
 #include "unop.hh"
+#include "multop.hh"
 #include "constant.hh"
 #include "visitor.hh"
 #include <iostream>
@@ -365,6 +366,7 @@ namespace spot
 	  //   - 1 <>-> Exp = Exp
 	  //   - [*0] <>-> Exp = 0
 	  //   - Exp <>-> 0 = 0
+	  //   - boolExp <>-> Exp = boolExp & Exp
 	  if (first == constant::true_instance())
 	    return second;
 	  if (first == constant::false_instance()
@@ -378,12 +380,15 @@ namespace spot
 	      first->destroy();
 	      return second;
 	    }
+	  if (first->is_boolean())
+	    return multop::instance(multop::And, first, second);
 	  break;
 	case UConcat:
 	  //   - 0 []-> Exp = 1
 	  //   - 1 []-> Exp = Exp
 	  //   - [*0] []-> Exp = 1
 	  //   - Exp []-> 1 = 1
+	  //   - boolExp []-> Exp = boolExp -> Exp
 	  if (first == constant::true_instance())
 	    return second;
 	  if (first == constant::false_instance()
@@ -397,6 +402,8 @@ namespace spot
 	      first->destroy();
 	      return second;
 	    }
+	  if (first->is_boolean())
+	    return binop::instance(binop::Implies, first, second);
 	  break;
 	}
 

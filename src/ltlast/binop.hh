@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -96,6 +96,16 @@ namespace spot
       ///   - (1 M Exp) = Exp
       ///   - (0 M Exp) = 0
       ///   - (Exp M Exp) = Exp
+      ///   - 0 <>-> Exp = 0
+      ///   - 1 <>-> Exp = Exp
+      ///   - [*0] <>-> Exp = 0
+      ///   - Exp <>-> 0 = 0
+      ///   - boolExp <>-> Exp = boolExp & Exp
+      ///   - 0 []-> Exp = 1
+      ///   - 1 []-> Exp = Exp
+      ///   - [*0] []-> Exp = 1
+      ///   - Exp []-> 1 = 1
+      ///   - boolExp <>-> Exp = boolExp -> Exp
       static formula* instance(type op, formula* first, formula* second);
 
       virtual void accept(visitor& v);

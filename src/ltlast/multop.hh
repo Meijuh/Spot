@@ -89,6 +89,8 @@ namespace spot
       /// - AndNLM(Exps1...,0,Exps2...) = 0
       /// - AndNLM(Exps1...,[*0],Exps2...) = AndNLM(Exps1...,Exps2...)
       /// - AndNLM(Exp) = Exp
+      /// - AndNLM(Exps1...,BoolExp1,Exps2...,BoolExp2,Exp3...) =
+      ///    AndNLM(Exps1...,Exps2...,Exp3...,And(BoolExp1,BoolExp2))
       /// - Or(Exps1...,1,Exps2...) = 1
       /// - Or(Exps1...,0,Exps2...) = And(Exps1...,Exps2...)
       /// - Or(Exp) = Exp
