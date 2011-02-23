@@ -101,6 +101,8 @@ namespace spot
       /// - Fusion(Exps1...,0,Exps2...) = 0
       /// - Fusion(Exps1...,[*0],Exps2...) = 0
       /// - Fusion(Exp) = Exp
+      /// - Fusion(Exps1...,BoolExp1...BoolExpN,Exps2,Exps3...) =
+      ///     Fusion(Exps1...,AndNLM(And(BoolExp1...BoolExpN),Exps2),Exps3...)
       static formula* instance(type op, vec* v);
 
       virtual void accept(visitor& v);

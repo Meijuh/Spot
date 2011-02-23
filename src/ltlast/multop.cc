@@ -271,6 +271,41 @@ namespace spot
 	  abs = constant::false_instance();
 	  abs2 = constant::empty_word_instance();
 	  weak_abs = 0;
+
+	  // Make a first pass to gather Boolean formulae.
+	  // - Fusion(Exps1...,BoolExp1...BoolExpN,Exps2,Exps3...) =
+	  //   Fusion(Exps1...,AndNLM(And(BoolExp1...BoolExpN),Exps2),Exps3...)
+	  {
+	    vec* b = 0;
+	    vec::iterator i = v->begin();
+	    while (i != v->end())
+	      {
+		if ((*i)->is_boolean())
+		  {
+		    if (!b)
+		      b = new vec;
+		    b->push_back(*i);
+		    i = v->erase(i);
+		  }
+		else
+		  {
+		    if (b)
+		      {
+			// We have found a non-Boolean Exp.  "AndNLM" it
+			// with all the previous Boolean formulae.
+			*i = instance(AndNLM, instance(And, b), *i);
+			b = 0;
+		      }
+		    ++i;
+		  }
+	      }
+	    if (b)
+	      {
+		// Group all trailing Boolean formulae.
+		v->push_back(instance(And, b));
+	      }
+	  }
+
 	  break;
 
 	default:

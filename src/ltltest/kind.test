@@ -53,6 +53,8 @@ check '{a;b}|->!Xb' '&fP'
 check '{a;b}|->X!b' '&!fP'
 check '{a;b}|->!Gb' '&xP'
 check '{a;b}|->F!b' '&!xP'
+check '{a:b:c:d}!' 'B&!xfLEPS'  # Equivalent to a&b&c&d
+check 'a&b&c&d'    'B&!xfLEPS'
 
 run 0 ../consterm '1'
 run 0 ../consterm '0'
