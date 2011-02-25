@@ -86,6 +86,11 @@ namespace spot
       proprint(is_sere_formula, "S", "SERE formula");
       proprint(is_eventual, "e", "pure eventuality");
       proprint(is_universal, "u", "purely universal");
+      proprint(is_syntactic_safety, "s", "syntactic safety");
+      proprint(is_syntactic_guarantee, "g", "syntactic guarantee");
+      proprint(is_syntactic_obligation, "o", "syntactic obligation");
+      proprint(is_syntactic_persistence, "p", "syntactic persistence");
+      proprint(is_syntactic_recurrence, "r", "syntactic recurrence");
       proprint(is_marked, "+", "marked");
       proprint(accepts_eword, "0", "accepts the empty word");
       return out;

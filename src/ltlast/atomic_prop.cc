@@ -45,6 +45,11 @@ namespace spot
       is.sere_formula = true;
       is.eventual = false;
       is.universal = false;
+      is.syntactic_safety = true;
+      is.syntactic_guarantee = true;
+      is.syntactic_obligation = true;
+      is.syntactic_recurrence = true;
+      is.syntactic_persistence = true;
       is.not_marked = true;
       is.accepting_eword = false;
     }

@@ -41,6 +41,13 @@ namespace spot
 	case Not:
 	  is.in_nenoform = (child->kind() == AtomicProp);
 	  is.sere_formula = is.boolean;
+
+	  is.syntactic_safety = child->is_syntactic_guarantee();
+	  is.syntactic_guarantee = child->is_syntactic_safety();
+	  // is.syntactic_obligation inherited from child
+	  is.syntactic_recurrence = child->is_syntactic_persistence();
+	  is.syntactic_persistence = child->is_syntactic_recurrence();
+
 	  is.accepting_eword = false;
 	  break;
 	case X:
@@ -48,6 +55,11 @@ namespace spot
 	  is.X_free = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
+	  // is.syntactic_safety inherited
+	  // is.syntactic_guarantee inherited
+	  // is.syntactic_obligation inherited
+	  // is.syntactic_recurrence inherited
+	  // is.syntactic_persistence inherited
 	  is.accepting_eword = false;
 	  break;
 	case F:
@@ -56,6 +68,11 @@ namespace spot
 	  is.sere_formula = false;
 	  is.sugar_free_ltl = false;
 	  is.eventual = true;
+	  is.syntactic_safety = false;
+	  // is.syntactic_guarantee inherited
+	  is.syntactic_obligation = is.syntactic_guarantee;
+	  is.syntactic_recurrence = is.syntactic_guarantee;
+	  // is.syntactic_persistence inherited
 	  is.accepting_eword = false;
 	  break;
 	case G:
@@ -64,6 +81,11 @@ namespace spot
 	  is.sere_formula = false;
 	  is.sugar_free_ltl = false;
 	  is.universal = true;
+	  // is.syntactic_safety inherited
+	  is.syntactic_guarantee = false;
+	  is.syntactic_obligation = is.syntactic_safety;
+	  // is.syntactic_recurrence inherited
+	  is.syntactic_persistence = is.syntactic_safety;
 	  is.accepting_eword = false;
 	  break;
 	case Finish:
@@ -71,17 +93,38 @@ namespace spot
 	  is.ltl_formula = false;
 	  is.psl_formula = false;
 	  is.sere_formula = false;
+	  is.syntactic_safety = false;
+	  is.syntactic_guarantee = false;
+	  is.syntactic_obligation = false;
+	  is.syntactic_recurrence = false;
+	  is.syntactic_persistence = false;
 	  is.accepting_eword = false;
 	  break;
 	case NegClosure:
 	  is.not_marked = false;
-	  // fall through
+	  is.boolean = false;
+	  is.ltl_formula = false;
+	  is.eltl_formula = false;
+	  is.psl_formula = true;
+	  is.sere_formula = false;
+	  is.syntactic_safety = true;
+	  is.syntactic_guarantee = true;
+	  is.syntactic_obligation = true;
+	  is.syntactic_recurrence = true;
+	  is.syntactic_persistence = true;
+	  is.accepting_eword = false;
+	  break;
 	case Closure:
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;
 	  is.psl_formula = true;
 	  is.sere_formula = false;
+	  is.syntactic_safety = true;
+	  is.syntactic_guarantee = true;
+	  is.syntactic_obligation = true;
+	  is.syntactic_recurrence = true;
+	  is.syntactic_persistence = true;
 	  is.accepting_eword = false;
 	  assert(child->is_sere_formula());
 	  break;

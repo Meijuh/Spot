@@ -53,17 +53,69 @@ namespace spot
       switch (op)
 	{
 	case Xor:
-	case Implies:
 	case Equiv:
 	  is.sere_formula = is.boolean;
 	  is.sugar_free_boolean = false;
 	  is.in_nenoform = false;
+	  // is.syntactic_obligation inherited;
+	  is.accepting_eword = false;
+	  if (is.syntactic_obligation)
+	    {
+	      // Only formula that are in the intersection of
+	      // guarantee and safety are closed by Xor and <=>.
+	      bool sg = is.syntactic_safety && is.syntactic_guarantee;
+	      bool rp = is.syntactic_recurrence && is.syntactic_persistence;
+	      is.syntactic_safety = sg;
+	      is.syntactic_guarantee = sg;
+	      is.syntactic_recurrence = rp;
+	      is.syntactic_persistence = rp;
+	    }
+	  else
+	    {
+	      is.syntactic_safety = false;
+	      is.syntactic_guarantee = false;
+	    }
+	  break;
+	case Implies:
+	  is.sere_formula = is.boolean;
+	  is.sugar_free_boolean = false;
+	  is.in_nenoform = false;
+	  is.syntactic_safety =
+	    first->is_syntactic_obligation() && second->is_syntactic_safety();
+	  is.syntactic_obligation =
+	    first->is_syntactic_safety() && second->is_syntactic_obligation();
+	  // is.syntactic_obligation inherited
+	  is.syntactic_persistence = first->is_syntactic_recurrence()
+	    && second->is_syntactic_persistence();
+	  is.syntactic_recurrence = first->is_syntactic_persistence()
+	    && second->is_syntactic_recurrence();
 	  is.accepting_eword = false;
 	  break;
 	case EConcatMarked:
 	  is.not_marked = false;
 	  // fall through
 	case EConcat:
+	  is.ltl_formula = false;
+	  is.boolean = false;
+	  is.eltl_formula = false;
+	  is.sere_formula = false;
+	  is.accepting_eword = false;
+	  is.psl_formula = true;
+
+	  // FIXME: if we know that the SERE has a finite language.
+	  // (i.e. no star).  Then
+	  // is.syntactic_safety = second->is_syntactic_safety();
+	  // is.syntactic_obligation = second->is_syntactic_obligation();
+	  // is.syntactic_recurrence = second->is_syntactic_recurrence();
+	  is.syntactic_safety = false;
+	  is.syntactic_guarantee = second->is_syntactic_guarantee();
+	  is.syntactic_obligation = second->is_syntactic_guarantee();
+	  is.syntactic_recurrence = second->is_syntactic_guarantee();
+	  is.syntactic_persistence = second->is_syntactic_persistence();
+
+	  assert(first->is_sere_formula());
+	  assert(second->is_psl_formula());
+	  break;
 	case UConcat:
 	  is.ltl_formula = false;
 	  is.boolean = false;
@@ -71,6 +123,18 @@ namespace spot
 	  is.sere_formula = false;
 	  is.accepting_eword = false;
 	  is.psl_formula = true;
+
+	  // FIXME: if we know that the SERE has a finite language.
+	  // (i.e. no star).  Then
+	  // is.syntactic_guarantee = second->is_syntactic_guarantee();
+	  // is.syntactic_obligation = second->is_syntactic_obligation();
+	  // is.syntactic_persistence = second->is_syntactic_persistence();
+	  is.syntactic_safety = second->is_syntactic_safety();
+	  is.syntactic_guarantee = false;
+	  is.syntactic_obligation = second->is_syntactic_safety();
+	  is.syntactic_recurrence = second->is_syntactic_recurrence();
+	  is.syntactic_persistence = second->is_syntactic_safety();
+
 	  assert(first->is_sere_formula());
 	  assert(second->is_psl_formula());
 	  break;
@@ -82,6 +146,16 @@ namespace spot
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.accepting_eword = false;
+
+	  is.syntactic_safety = false;
+	  // is.syntactic_guarantee = Guarantee U Guarantee
+	  is.syntactic_obligation = // Obligation U Guarantee
+	    first->is_syntactic_obligation()
+	    && second->is_syntactic_guarantee();
+	  is.syntactic_recurrence = // Recurrence U Guarantee
+	    first->is_syntactic_recurrence()
+	    && second->is_syntactic_guarantee();
+	  // is.syntactic_persistence = Persistence U Persistance
 	  break;
 	case W:
 	  // a W 0 = Ga
@@ -91,6 +165,16 @@ namespace spot
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.accepting_eword = false;
+
+	  // is.syntactic_safety = Safety W Safety;
+	  is.syntactic_guarantee = false;
+	  is.syntactic_obligation = // Safety W Obligation
+	    first->is_syntactic_safety() && second->is_syntactic_obligation();
+	  // is.syntactic_recurrence = Recurrence W Recurrence
+	  is.syntactic_persistence = // Safety W Persistance
+	    first->is_syntactic_safety()
+	    && second->is_syntactic_persistence();
+
 	  break;
 	case R:
 	  // 0 R a = Ga
@@ -100,6 +184,16 @@ namespace spot
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.accepting_eword = false;
+
+	  // is.syntactic_safety = Safety R Safety;
+	  is.syntactic_guarantee = false;
+	  is.syntactic_obligation = // Obligation R Safety
+	    first->is_syntactic_obligation() && second->is_syntactic_safety();
+	  //is.syntactic_recurrence = Recurrence R Recurrence
+	  is.syntactic_persistence = // Persistence R Safety
+	    first->is_syntactic_persistence()
+	    && second->is_syntactic_safety();
+
 	  break;
 	case M:
 	  // a M 1 = Fa
@@ -109,8 +203,22 @@ namespace spot
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.accepting_eword = false;
+
+	  is.syntactic_safety = false;
+	  // is.syntactic_guarantee = Guarantee M Guarantee
+	  is.syntactic_obligation = // Guarantee M Obligation
+	    first->is_syntactic_guarantee()
+	    && second->is_syntactic_obligation();
+	  is.syntactic_recurrence = // Guarantee M Recurrence
+	    first->is_syntactic_guarantee()
+	    && second->is_syntactic_recurrence();
+	  // is.syntactic_persistence = Persistence M Persistance
+
 	  break;
 	}
+
+      assert((!is.syntactic_obligation) ||
+	     (is.syntactic_persistence && is.syntactic_recurrence));
     }
 
     binop::~binop()

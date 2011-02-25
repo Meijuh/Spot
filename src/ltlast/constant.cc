@@ -51,6 +51,11 @@ namespace spot
 	  is.sere_formula = true;
 	  is.eventual = true;
 	  is.universal = true;
+	  is.syntactic_safety = true;
+	  is.syntactic_guarantee = true;
+	  is.syntactic_obligation = true;
+	  is.syntactic_recurrence = true;
+	  is.syntactic_persistence = true;
 	  is.not_marked = true;
 	  is.accepting_eword = false;
 	  break;
@@ -65,6 +70,11 @@ namespace spot
 	  is.psl_formula = false;
 	  is.sere_formula = true;
 	  is.eventual = false;
+	  is.syntactic_safety = false;
+	  is.syntactic_guarantee = false;
+	  is.syntactic_obligation = false;
+	  is.syntactic_recurrence = false;
+	  is.syntactic_persistence = false;
 	  is.universal = false;
 	  is.not_marked = true;
 	  is.accepting_eword = true;

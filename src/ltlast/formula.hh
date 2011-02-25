@@ -226,6 +226,36 @@ namespace spot
 	return is.universal;
       }
 
+      /// Whether a PSL/LTL formula is syntactic safety property.
+      bool is_syntactic_safety() const
+      {
+	return is.syntactic_safety;
+      }
+
+      /// Whether a PSL/LTL formula is syntactic guarantee property.
+      bool is_syntactic_guarantee() const
+      {
+	return is.syntactic_guarantee;
+      }
+
+      /// Whether a PSL/LTL formula is syntactic obligation property.
+      bool is_syntactic_obligation() const
+      {
+	return is.syntactic_obligation;
+      }
+
+      /// Whether a PSL/LTL formula is syntactic recurrence property.
+      bool is_syntactic_recurrence() const
+      {
+	return is.syntactic_recurrence;
+      }
+
+      /// Whether a PSL/LTL formula is syntactic persistence property.
+      bool is_syntactic_persistence() const
+      {
+	return is.syntactic_persistence;
+      }
+
       /// Whether the formula has an occurrence of EConcatMarked.
       bool is_marked() const
       {
@@ -288,6 +318,11 @@ namespace spot
 	bool sere_formula:1;	   // Only SERE operators.
 	bool eventual:1;	   // Purely eventual formula.
 	bool universal:1;	   // Purely universal formula.
+	bool syntactic_safety:1;   // Syntactic Safety Property.
+	bool syntactic_guarantee:1;   // Syntactic Guarantee Property.
+	bool syntactic_obligation:1;  // Syntactic Obligation Property.
+	bool syntactic_recurrence:1;  // Syntactic Recurrence Property.
+	bool syntactic_persistence:1; // Syntactic Persistence Property.
 	bool not_marked:1;	   // No occurrence of EConcatMarked.
 	bool accepting_eword:1;	   // Accepts the empty word.
       };
