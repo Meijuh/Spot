@@ -49,6 +49,7 @@ namespace spot
 	  is.eltl_formula = true;
 	  is.psl_formula = true;
 	  is.sere_formula = true;
+	  is.finite = true;
 	  is.eventual = true;
 	  is.universal = true;
 	  is.syntactic_safety = true;
@@ -69,6 +70,7 @@ namespace spot
 	  is.eltl_formula = false;
 	  is.psl_formula = false;
 	  is.sere_formula = true;
+	  is.finite = true;
 	  is.eventual = false;
 	  is.syntactic_safety = false;
 	  is.syntactic_guarantee = false;

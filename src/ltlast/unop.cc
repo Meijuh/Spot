@@ -66,6 +66,7 @@ namespace spot
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
+	  is.finite = false;
 	  is.sugar_free_ltl = false;
 	  is.eventual = true;
 	  is.syntactic_safety = false;
@@ -79,6 +80,7 @@ namespace spot
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
+	  is.finite = false;
 	  is.sugar_free_ltl = false;
 	  is.universal = true;
 	  // is.syntactic_safety inherited
@@ -93,6 +95,7 @@ namespace spot
 	  is.ltl_formula = false;
 	  is.psl_formula = false;
 	  is.sere_formula = false;
+	  is.finite = false;
 	  is.syntactic_safety = false;
 	  is.syntactic_guarantee = false;
 	  is.syntactic_obligation = false;
@@ -107,7 +110,7 @@ namespace spot
 	  is.eltl_formula = false;
 	  is.psl_formula = true;
 	  is.sere_formula = false;
-	  is.syntactic_safety = true;
+	  is.syntactic_safety = is.finite;
 	  is.syntactic_guarantee = true;
 	  is.syntactic_obligation = true;
 	  is.syntactic_recurrence = true;
@@ -121,7 +124,7 @@ namespace spot
 	  is.psl_formula = true;
 	  is.sere_formula = false;
 	  is.syntactic_safety = true;
-	  is.syntactic_guarantee = true;
+	  is.syntactic_guarantee = is.finite;
 	  is.syntactic_obligation = true;
 	  is.syntactic_recurrence = true;
 	  is.syntactic_persistence = true;

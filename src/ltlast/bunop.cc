@@ -51,11 +51,14 @@ namespace spot
       switch (op_)
 	{
 	case Star:
+	  if (max_ == unbounded)
+	    is.finite = false;
 	  if (min_ == 0)
 	    is.accepting_eword = true;
 	  break;
 	case Equal:
 	case Goto:
+	  is.finite = false;
 	  is.accepting_eword = (min_ == 0);
 	  // Equal and Goto can only apply to Boolean formulae.
 	  assert(child->is_boolean());

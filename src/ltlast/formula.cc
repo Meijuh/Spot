@@ -84,6 +84,7 @@ namespace spot
       proprint(is_eltl_formula, "E", "ELTL formula");
       proprint(is_psl_formula, "P", "PSL formula");
       proprint(is_sere_formula, "S", "SERE formula");
+      proprint(is_finite, "F", "finite");
       proprint(is_eventual, "e", "pure eventuality");
       proprint(is_universal, "u", "purely universal");
       proprint(is_syntactic_safety, "s", "syntactic safety");

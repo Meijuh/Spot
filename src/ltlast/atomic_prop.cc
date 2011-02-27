@@ -43,6 +43,7 @@ namespace spot
       is.eltl_formula = true;
       is.psl_formula = true;
       is.sere_formula = true;
+      is.finite = true;
       is.eventual = false;
       is.universal = false;
       is.syntactic_safety = true;

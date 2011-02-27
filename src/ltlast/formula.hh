@@ -152,28 +152,35 @@ namespace spot
 	return is.sugar_free_ltl;
       }
 
-      /// Whether the formula use only LTL operators.
+      /// Whether the formula uses only LTL operators.
       bool is_ltl_formula() const
       {
 	return is.ltl_formula;
       }
 
-      /// Whether the formula use only ELTL operators.
+      /// Whether the formula uses only ELTL operators.
       bool is_eltl_formula() const
       {
 	return is.eltl_formula;
       }
 
-      /// Whether the formula use only PSL operators.
+      /// Whether the formula uses only PSL operators.
       bool is_psl_formula() const
       {
 	return is.psl_formula;
       }
 
-      /// Whether the formula use only SERE operators.
+      /// Whether the formula uses only SERE operators.
       bool is_sere_formula() const
       {
 	return is.sere_formula;
+      }
+
+      /// Whether a SERE describes a finite language, or an LTL
+      /// formula uses no temporal operator but X.
+      bool is_finite() const
+      {
+	return is.finite;
       }
 
       /// \brief Whether the formula is purely eventual.
@@ -316,6 +323,7 @@ namespace spot
 	bool eltl_formula:1;	   // Only ELTL operators.
 	bool psl_formula:1;	   // Only PSL operators.
 	bool sere_formula:1;	   // Only SERE operators.
+	bool finite:1;		   // Finite SERE formulae, or Bool+X forms.
 	bool eventual:1;	   // Purely eventual formula.
 	bool universal:1;	   // Purely universal formula.
 	bool syntactic_safety:1;   // Syntactic Safety Property.

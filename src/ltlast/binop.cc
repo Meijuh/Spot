@@ -64,16 +64,17 @@ namespace spot
 	      // Only formula that are in the intersection of
 	      // guarantee and safety are closed by Xor and <=>.
 	      bool sg = is.syntactic_safety && is.syntactic_guarantee;
-	      bool rp = is.syntactic_recurrence && is.syntactic_persistence;
 	      is.syntactic_safety = sg;
 	      is.syntactic_guarantee = sg;
-	      is.syntactic_recurrence = rp;
-	      is.syntactic_persistence = rp;
+	      assert(is.syntactic_recurrence == true);
+	      assert(is.syntactic_persistence == true);
 	    }
 	  else
 	    {
 	      is.syntactic_safety = false;
 	      is.syntactic_guarantee = false;
+	      is.syntactic_recurrence = false;
+	      is.syntactic_persistence = false;
 	    }
 	  break;
 	case Implies:
@@ -102,16 +103,20 @@ namespace spot
 	  is.accepting_eword = false;
 	  is.psl_formula = true;
 
-	  // FIXME: if we know that the SERE has a finite language.
-	  // (i.e. no star).  Then
-	  // is.syntactic_safety = second->is_syntactic_safety();
-	  // is.syntactic_obligation = second->is_syntactic_obligation();
-	  // is.syntactic_recurrence = second->is_syntactic_recurrence();
-	  is.syntactic_safety = false;
 	  is.syntactic_guarantee = second->is_syntactic_guarantee();
-	  is.syntactic_obligation = second->is_syntactic_guarantee();
-	  is.syntactic_recurrence = second->is_syntactic_guarantee();
 	  is.syntactic_persistence = second->is_syntactic_persistence();
+	  if (first->is_finite())
+	    {
+	      is.syntactic_safety = second->is_syntactic_safety();
+	      is.syntactic_obligation = second->is_syntactic_obligation();
+	      is.syntactic_recurrence = second->is_syntactic_recurrence();
+	    }
+	  else
+	    {
+	      is.syntactic_safety = false;
+	      is.syntactic_obligation = second->is_syntactic_guarantee();
+	      is.syntactic_recurrence = second->is_syntactic_guarantee();
+	    }
 
 	  assert(first->is_sere_formula());
 	  assert(second->is_psl_formula());
@@ -124,16 +129,20 @@ namespace spot
 	  is.accepting_eword = false;
 	  is.psl_formula = true;
 
-	  // FIXME: if we know that the SERE has a finite language.
-	  // (i.e. no star).  Then
-	  // is.syntactic_guarantee = second->is_syntactic_guarantee();
-	  // is.syntactic_obligation = second->is_syntactic_obligation();
-	  // is.syntactic_persistence = second->is_syntactic_persistence();
 	  is.syntactic_safety = second->is_syntactic_safety();
-	  is.syntactic_guarantee = false;
-	  is.syntactic_obligation = second->is_syntactic_safety();
 	  is.syntactic_recurrence = second->is_syntactic_recurrence();
-	  is.syntactic_persistence = second->is_syntactic_safety();
+	  if (first->is_finite())
+	    {
+	      is.syntactic_guarantee = second->is_syntactic_guarantee();
+	      is.syntactic_obligation = second->is_syntactic_obligation();
+	      is.syntactic_persistence = second->is_syntactic_persistence();
+	    }
+	  else
+	    {
+	      is.syntactic_guarantee = false;
+	      is.syntactic_obligation = second->is_syntactic_safety();
+	      is.syntactic_persistence = second->is_syntactic_safety();
+	    }
 
 	  assert(first->is_sere_formula());
 	  assert(second->is_psl_formula());
@@ -145,6 +154,7 @@ namespace spot
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
+	  is.finite = false;
 	  is.accepting_eword = false;
 
 	  is.syntactic_safety = false;
@@ -164,6 +174,7 @@ namespace spot
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
+	  is.finite = false;
 	  is.accepting_eword = false;
 
 	  // is.syntactic_safety = Safety W Safety;
@@ -183,6 +194,7 @@ namespace spot
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
+	  is.finite = false;
 	  is.accepting_eword = false;
 
 	  // is.syntactic_safety = Safety R Safety;
@@ -202,6 +214,7 @@ namespace spot
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
+	  is.finite = false;
 	  is.accepting_eword = false;
 
 	  is.syntactic_safety = false;
