@@ -26,12 +26,14 @@ set -e
 
 check_psl()
 {
+  # Do not use "run", this is too slow.
+
   # Make cross products with FM
-  run 0 ../ltl2tgba -f -R3 -b "$1" > out.tgba
-  run 0 ../ltl2tgba -f -R3 -Pout.tgba -E "!($1)"
+  ../ltl2tgba -f -R3 -b "$1" > out.tgba
+  ../ltl2tgba -f -R3 -Pout.tgba -E "!($1)"
   # Also try with -x turned on.
-  run 0 ../ltl2tgba -f -x -R3 -b "$1" > out.tgba
-  run 0 ../ltl2tgba -f -x -R3 -Pout.tgba -E "!($1)"
+  ../ltl2tgba -f -x -R3 -b "$1" > out.tgba
+  ../ltl2tgba -f -x -R3 -Pout.tgba -E "!($1)"
 }
 
 ../../ltltest/randltl -F 50 -f 30 -r 12 -u -s 0 -P a b c |
