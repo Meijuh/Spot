@@ -28,8 +28,11 @@ taalgos_HEADERS = \
 	sba2ta.hh \
 	dotty.hh \
 	reachiter.hh \
-	stats.hh  \
+	stats.hh \
+	statessetbuilder.hh \
+	minimize.hh \
   	emptinessta.hh
+
 
 noinst_LTLIBRARIES = libtaalgos.la
 libtaalgos_la_SOURCES = \
@@ -37,4 +40,7 @@ libtaalgos_la_SOURCES = \
 	dotty.cc \
 	reachiter.cc \
   	stats.cc \
+  	statessetbuilder.cc \
+  	minimize.cc \
   	emptinessta.cc
+

@@ -49,6 +49,7 @@
 #include "neverparse/public.hh"
 #include "tgbaalgos/dupexp.hh"
 #include "tgbaalgos/minimize.hh"
+#include "taalgos/minimize.hh"
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/replayrun.hh"
 #include "tgbaalgos/rundotdec.hh"
@@ -281,7 +282,11 @@ syntax(char* prog)
   	  	<< "Options for Testing Automata:"
  	    << std::endl
  	    << "  -TA    Translate an LTL formula into a Testing automata"
- 	    << std::endl;
+ 	    << std::endl
+            << std::endl
+            << "  -TM    Translate an LTL formula into a minimal Testing automata"
+            << std::endl;
+
 
   exit(2);
 }
@@ -342,6 +347,7 @@ main(int argc, char** argv)
   bool reduction_dir_sim = false;
   spot::tgba* temp_dir_sim = 0;
   bool ta_opt = false;
+
 
   for (;;)
     {
@@ -672,6 +678,11 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-TA"))
         {
           ta_opt = true;
+        }
+      else if (!strcmp(argv[formula_index], "-TM"))
+        {
+          ta_opt = true;
+          opt_minimize = true;
         }
       else if (!strcmp(argv[formula_index], "-taa"))
 	{
@@ -1084,9 +1095,10 @@ main(int argc, char** argv)
           delete aps;
 
           spot::ta* testing_automata = sba_to_ta(degeneralized, atomic_props_set_bdd);
+          if (opt_minimize) testing_automata = minimize_ta(testing_automata);
           spot::dotty_reachable(std::cout, testing_automata);
           delete testing_automata;
-          delete degeneralized_new;
+
           output = -1;
         }
 
