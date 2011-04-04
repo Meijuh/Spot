@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
 // de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -61,7 +61,7 @@ namespace spot
             ta->add_to_initial_states_set(is);
             todo.push(init_state);
       }
-    delete tgba_init_state;
+    tgba_init_state->destroy();
 
     while (!todo.empty())
       {
@@ -97,7 +97,7 @@ namespace spot
                       if (dest != new_dest)
                         {
                           // the state dest already exists in the testing automata
-                          delete new_dest->get_tgba_state();
+                          new_dest->get_tgba_state()->destroy();
                           delete new_dest;
                         }
                       else
@@ -111,7 +111,7 @@ namespace spot
                     }
 
               }
-            delete tgba_state;
+            tgba_state->destroy();
           }
         delete tgba_succ_it;
 
@@ -158,7 +158,7 @@ namespace spot
     ta::states_set_t init_states = testing_automata->get_initial_states_set();
     for (it = init_states.begin(); it != init_states.end(); it++)
       {
-        state* init_state = dynamic_cast<state_ta_explicit*> (*it);
+        state* init_state = down_cast<state_ta_explicit*> (*it);
         init_set.push(init_state);
 
       }
@@ -168,7 +168,7 @@ namespace spot
         // Setup depth-first search from initial states.
           {
             state_ta_explicit* init =
-                dynamic_cast<state_ta_explicit*> (init_set.top());
+                down_cast<state_ta_explicit*> (init_set.top());
             init_set.pop();
             state_ta_explicit* init_clone = init->clone();
             numbered_state_heap::state_index_p h_init = h->find(init_clone);
@@ -239,7 +239,7 @@ namespace spot
                             //add the state to G (=the livelock-accepting states set)
 
                             state_ta_explicit * livelock_accepting_state =
-                                dynamic_cast<state_ta_explicit*> (*i);
+                                down_cast<state_ta_explicit*> (*i);
 
                             livelock_accepting_state->set_livelock_accepting_state(
                                 true);
@@ -281,7 +281,7 @@ namespace spot
                 if (!is_stuttering_transition)
                   {
                     init_set.push(dest);
-                    delete dest_clone;
+                    dest_clone->destroy();
                     continue;
                   }
 

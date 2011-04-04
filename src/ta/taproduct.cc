@@ -38,7 +38,7 @@ namespace spot
   state_ta_product::~state_ta_product()
   {
     //see ta_product::free_state() method
-    delete kripke_state_;
+    kripke_state_->destroy();
   }
 
   int
@@ -170,7 +170,7 @@ namespace spot
             return;
           }
 
-        delete kripke_succ_it_current_state;
+        kripke_succ_it_current_state->destroy();
         step_();
       }
   }
@@ -263,7 +263,7 @@ namespace spot
           }
         else
           {
-            delete kripke_init_state;
+            kripke_init_state->destroy();
           }
 
       }

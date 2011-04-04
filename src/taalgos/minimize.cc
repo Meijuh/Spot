@@ -103,7 +103,7 @@ namespace spot
         const state* src = *hit;
         unsigned src_num = state_num[src];
 
-        state* tgba_state = new state_explicit(tgba->add_state(src_num));
+        state* tgba_state = tgba->add_state(src_num);
         bdd tgba_condition = bddtrue;
         bool is_initial_state = a->is_initial_state(src);
         if (is_initial_state)
@@ -119,8 +119,8 @@ namespace spot
 
         if (ta_src != new_src)
           {
-            delete new_src;
-            delete tgba_state;
+            new_src->destroy();
+            tgba_state->destroy();
           }
         else if (is_initial_state)
           ta->add_to_initial_states_set(new_src);
@@ -135,7 +135,7 @@ namespace spot
             if (i == state_num.end()) // Ignore useless destinations.
               continue;
 
-            state* tgba_state = new state_explicit(tgba->add_state(i->second));
+            state* tgba_state = tgba->add_state(i->second);
             bdd tgba_condition = bddtrue;
             is_initial_state = a->is_initial_state(dst);
             if (is_initial_state)
@@ -150,9 +150,10 @@ namespace spot
 
             state_ta_explicit* ta_dst = ta->add_state(new_dst);
 
-            if (ta_dst != new_dst) {
-                delete new_dst;
-                delete tgba_state;
+            if (ta_dst != new_dst)
+              {
+                new_dst->destroy();
+                tgba_state->destroy();
               }
             else if (is_initial_state)
               ta->add_to_initial_states_set(new_dst);
@@ -179,6 +180,8 @@ namespace spot
 
     std::set<const state*> states_set = get_states_set(ta_);
 
+    hash_set* I = new hash_set;
+
     // livelock acceptance states
     hash_set* G = new hash_set;
 
@@ -199,9 +202,7 @@ namespace spot
 
         if (ta_->is_initial_state(s))
           {
-            hash_set* i = new hash_set;
-            i->insert(s);
-            done.push_back(i);
+            I->insert(s);
           }
         else if (ta_->is_livelock_accepting_state(s)
             && ta_->is_accepting_state(s))
@@ -237,17 +238,34 @@ namespace spot
       free_var.insert(i);
     std::map<int, int> used_var;
 
+      {
+
+        for (hash_set::const_iterator i = I->begin(); i != I->end(); ++i)
+          {
+            hash_set* cI = new hash_set;
+            cI->insert(*i);
+            done.push_back(cI);
+
+            used_var[set_num] = 1;
+            free_var.erase(set_num);
+            state_set_map[*i] = set_num;
+            set_num++;
+
+          }
+
+      }
     if (!G->empty())
       {
         unsigned s = G->size();
-        used_var[set_num] = s;
-        free_var.erase(set_num);
+        unsigned num = ++set_num;
+        used_var[num] = s;
+        free_var.erase(num);
         if (s > 1)
           cur_run.push_back(G);
         else
           done.push_back(G);
         for (hash_set::const_iterator i = G->begin(); i != G->end(); ++i)
-          state_set_map[*i] = set_num;
+          state_set_map[*i] = num;
 
       }
     else
@@ -256,7 +274,7 @@ namespace spot
     if (!F->empty())
       {
         unsigned s = F->size();
-        unsigned num = set_num + 1;
+        unsigned num = ++set_num;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -272,7 +290,7 @@ namespace spot
     if (!G_F->empty())
       {
         unsigned s = G_F->size();
-        unsigned num = set_num + 2;
+        unsigned num = ++set_num;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -288,7 +306,7 @@ namespace spot
     if (!S->empty())
       {
         unsigned s = S->size();
-        unsigned num = set_num + 3;
+        unsigned num = ++set_num;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -331,14 +349,7 @@ namespace spot
                     const state* dst = si->current_state();
                     hash_map::const_iterator i = state_set_map.find(dst);
 
-                    if (i == state_set_map.end())
-                      // The destination state is not in our
-                      // partition.  This can happen if the initial
-                      // FINAL and NON_FINAL supplied to the algorithm
-                      // do not cover the whole automaton (because we
-                      // want to ignore some useless states).  Simply
-                      // ignore these states here.
-                      continue;
+                    assert(i != state_set_map.end());
                     f |= (bdd_ithvar(i->second) & si->current_condition());
                   }
                 delete si;

@@ -266,7 +266,7 @@ namespace spot
           delete *it_trans;
         }
     delete trans;
-    delete get_tgba_state();
+    get_tgba_state()->destroy();
 
     Sgi::hash_map<int, transitions*, Sgi::hash<int> >::iterator i =
         transitions_by_condition.begin();
