@@ -31,7 +31,7 @@ namespace spot
 
   state_ta_product::state_ta_product(const state_ta_product& o) :
     state(), ta_state_(o.get_ta_state()), kripke_state_(
-        o.get_kripke_state()->clone())
+	o.get_kripke_state()->clone())
   {
   }
 
@@ -44,7 +44,7 @@ namespace spot
   int
   state_ta_product::compare(const state* other) const
   {
-    const state_ta_product* o = dynamic_cast<const state_ta_product*> (other);
+    const state_ta_product* o = down_cast<const state_ta_product*> (other);
     assert(o);
     int res = ta_state_->compare(o->get_ta_state());
     if (res != 0)
@@ -91,9 +91,9 @@ namespace spot
       ta_succ_it_->next();
     if (ta_succ_it_->done())
       {
-        delete ta_succ_it_;
-        ta_succ_it_ = 0;
-        kripke_succ_it_->next();
+	delete ta_succ_it_;
+	ta_succ_it_ = 0;
+	kripke_succ_it_->next();
       }
   }
 
@@ -111,9 +111,9 @@ namespace spot
     // done().)
     if (kripke_succ_it_->done())
       {
-        delete kripke_succ_it_;
-        kripke_succ_it_ = 0;
-        return;
+	delete kripke_succ_it_;
+	kripke_succ_it_ = 0;
+	return;
       }
 
     next_non_stuttering_();
@@ -126,8 +126,8 @@ namespace spot
     current_state_ = 0;
     if (is_stuttering_transition())
       {
-        ta_succ_it_ = 0;
-        kripke_succ_it_->next();
+	ta_succ_it_ = 0;
+	kripke_succ_it_->next();
       }
     else
       step_();
@@ -144,34 +144,34 @@ namespace spot
 
     while (!done())
       {
-        state * kripke_succ_it_current_state = kripke_succ_it_->current_state();
-        bdd dc = kripke_->state_condition(kripke_succ_it_current_state);
+	state * kripke_succ_it_current_state = kripke_succ_it_->current_state();
+	bdd dc = kripke_->state_condition(kripke_succ_it_current_state);
 
-        is_stuttering_transition_ = (sc == dc);
-        if (is_stuttering_transition_)
-          {
-            //if stuttering transition, the TA automata stays in the same state
-            current_state_ = new state_ta_product(source_->get_ta_state(),
-                kripke_succ_it_current_state);
-            current_condition_ = bddtrue;
-            return;
-          }
+	is_stuttering_transition_ = (sc == dc);
+	if (is_stuttering_transition_)
+	  {
+	    //if stuttering transition, the TA automata stays in the same state
+	    current_state_ = new state_ta_product(source_->get_ta_state(),
+		kripke_succ_it_current_state);
+	    current_condition_ = bddtrue;
+	    return;
+	  }
 
-        if (ta_succ_it_ == 0){
-            current_condition_ = bdd_setxor(sc, dc);
-            ta_succ_it_ = ta_->succ_iter(source_->get_ta_state(), current_condition_);
-            ta_succ_it_->first();
-        }
+	if (ta_succ_it_ == 0){
+	    current_condition_ = bdd_setxor(sc, dc);
+	    ta_succ_it_ = ta_->succ_iter(source_->get_ta_state(), current_condition_);
+	    ta_succ_it_->first();
+	}
 
-        if (!ta_succ_it_->done())
-          {
-            current_state_ = new state_ta_product(ta_succ_it_->current_state(),
-                kripke_succ_it_current_state);
-            return;
-          }
+	if (!ta_succ_it_->done())
+	  {
+	    current_state_ = new state_ta_product(ta_succ_it_->current_state(),
+		kripke_succ_it_current_state);
+	    return;
+	  }
 
-        kripke_succ_it_current_state->destroy();
-        step_();
+	kripke_succ_it_current_state->destroy();
+	step_();
       }
   }
 
@@ -227,7 +227,7 @@ namespace spot
   ta_product::ta_product(const ta* testing_automata,
       const kripke* kripke_structure) :
     dict_(testing_automata->get_dict()), ta_(testing_automata), kripke_(
-        kripke_structure)
+	kripke_structure)
   {
     assert(dict_ == kripke_structure->get_dict());
     dict_->register_all_variables_of(&ta_, this);
@@ -252,19 +252,19 @@ namespace spot
 
     for (it = ta_init_states_set.begin(); it != ta_init_states_set.end(); it++)
       {
-        state* kripke_init_state = kripke_->get_init_state();
-        if ((kripke_->state_condition(kripke_init_state))
-            == (ta_->get_state_condition(*it)))
-          {
-            state_ta_product* stp = new state_ta_product((*it),
-                kripke_init_state);
+	state* kripke_init_state = kripke_->get_init_state();
+	if ((kripke_->state_condition(kripke_init_state))
+	    == (ta_->get_state_condition(*it)))
+	  {
+	    state_ta_product* stp = new state_ta_product((*it),
+		kripke_init_state);
 
-            initial_states_set.insert(stp);
-          }
-        else
-          {
-            kripke_init_state->destroy();
-          }
+	    initial_states_set.insert(stp);
+	  }
+	else
+	  {
+	    kripke_init_state->destroy();
+	  }
 
       }
 
@@ -274,7 +274,7 @@ namespace spot
   ta_succ_iterator_product*
   ta_product::succ_iter(const state* s) const
   {
-    const state_ta_product* stp = dynamic_cast<const state_ta_product*> (s);
+    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
     assert(s);
 
     return new ta_succ_iterator_product(stp, ta_, kripke_);
@@ -289,16 +289,17 @@ namespace spot
   std::string
   ta_product::format_state(const state* state) const
   {
-    const state_ta_product* s = dynamic_cast<const state_ta_product*> (state);
+    const state_ta_product* s = down_cast<const state_ta_product*> (state);
     assert(s);
     return kripke_->format_state(s->get_kripke_state()) + " * \n"
-        + ta_->format_state(s->get_ta_state());
+	+ ta_->format_state(s->get_ta_state());
   }
 
   bool
   ta_product::is_accepting_state(const spot::state* s) const
   {
-    const state_ta_product* stp = dynamic_cast<const state_ta_product*> (s);
+    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
+    assert(stp);
 
     return ta_->is_accepting_state(stp->get_ta_state());
   }
@@ -306,7 +307,8 @@ namespace spot
   bool
   ta_product::is_livelock_accepting_state(const spot::state* s) const
   {
-    const state_ta_product* stp = dynamic_cast<const state_ta_product*> (s);
+    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
+    assert(stp);
 
     return ta_->is_livelock_accepting_state(stp->get_ta_state());
   }
@@ -314,21 +316,23 @@ namespace spot
   bool
   ta_product::is_initial_state(const spot::state* s) const
   {
-    const state_ta_product* stp = dynamic_cast<const state_ta_product*> (s);
+    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
+    assert(stp);
 
     state* ta_s = stp->get_ta_state();
     state* kr_s = stp->get_kripke_state();
 
     return (ta_->is_initial_state(ta_s))
-        && ((kripke_->get_init_state())->compare(kr_s) == 0)
-        && ((kripke_->state_condition(kr_s))
-            == (ta_->get_state_condition(ta_s)));
+	&& ((kripke_->get_init_state())->compare(kr_s) == 0)
+	&& ((kripke_->state_condition(kr_s))
+	    == (ta_->get_state_condition(ta_s)));
   }
 
   bdd
   ta_product::get_state_condition(const spot::state* s) const
   {
-    const state_ta_product* stp = dynamic_cast<const state_ta_product*> (s);
+    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
+    assert(stp);
     state* ta_s = stp->get_ta_state();
     return ta_->get_state_condition(ta_s);
   }
@@ -337,7 +341,8 @@ namespace spot
   ta_product::free_state(const spot::state* s) const
   {
 
-    const state_ta_product* stp = dynamic_cast<const state_ta_product*> (s);
+    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
+    assert(stp);
     ta_->free_state(stp->get_ta_state());
     delete stp;
 

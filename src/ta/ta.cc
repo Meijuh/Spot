@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
 // de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -78,5 +78,3 @@ namespace spot
 
 
 }
-
-
