@@ -28,6 +28,7 @@
 #include <string>
 #include <cstdlib>
 #include <cstring>
+#include <sstream>
 #include "ltlast/atomic_prop.hh"
 #include "ltlvisit/randomltl.hh"
 #include "ltlvisit/tostring.hh"
@@ -35,6 +36,14 @@
 #include "ltlvisit/simplify.hh"
 #include "ltlenv/defaultenv.hh"
 #include "misc/random.hh"
+
+#include "ltlast/allnodes.hh"
+
+
+using namespace spot;
+using namespace spot::ltl;
+
+environment& env(default_environment::instance());
 
 void
 syntax(char* prog)
@@ -86,6 +95,35 @@ to_int(const char* s)
   return res;
 }
 
+
+// GF(p_1) & GF(p_2) & ... & GF(p_n)
+formula* GF_n(spot::ltl::atomic_prop_set* ap, int n)
+{
+
+  formula* result = 0;
+
+  multop::type op =  multop::And;
+
+  spot::ltl::atomic_prop_set::const_iterator i = ap->begin();
+    while (i != ap->end())
+      {
+
+      std::ostringstream p;
+      p <<  (*i)->name();
+      ++i;
+      formula* f = unop::instance(unop::G,
+                                  unop::instance(unop::F,
+                                                 env.require(p.str())));
+
+      if (result)
+        result = multop::instance(op, f, result);
+      else
+        result = f;
+    }
+  return result;
+}
+
+
 int
 main(int argc, char** argv)
 {
@@ -102,6 +140,7 @@ main(int argc, char** argv)
   bool opt_u = false;
   spot::ltl::ltl_simplifier_options simpopt(true, true, true, true, true);
   spot::ltl::ltl_simplifier simp(simpopt);
+  bool opt_wFair = false;
 
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* ap = new spot::ltl::atomic_prop_set;
@@ -183,6 +222,10 @@ main(int argc, char** argv)
 	{
 	  opt_u = true;
 	}
+      else if (!strcmp(argv[argn], "-wf"))
+        {
+          opt_wFair = true;
+        }
       else
 	{
 	  ap->insert(static_cast<const spot::ltl::atomic_prop*>
@@ -315,6 +358,10 @@ main(int argc, char** argv)
 	      while (max_tries_r--)
 		{
 		  f = rf->generate(opt_f);
+                  if (opt_wFair)
+                    {
+                      f = GF_n(atomic_prop_collect(f, 0), f->hash());
+                    }
 		  if (opt_r)
 		    {
 		      const spot::ltl::formula* g = simp.simplify(f);
