@@ -77,7 +77,8 @@ namespace spot
   class ta_succ_iterator_product : public ta_succ_iterator
   {
   public:
-    ta_succ_iterator_product(const state_ta_product* s, const ta* t, const kripke* k);
+    ta_succ_iterator_product(const state_ta_product* s, const ta* t,
+        const kripke* k);
 
     virtual
     ~ta_succ_iterator_product();
@@ -106,6 +107,10 @@ namespace spot
     step_();
     void
     next_non_stuttering_();
+
+    void
+    next_kripke_dest();
+
     //@}
 
   protected:
@@ -117,6 +122,8 @@ namespace spot
     state_ta_product* current_state_;
     bdd current_condition_;
     bool is_stuttering_transition_;
+    bdd kripke_source_condition;
+    state * kripke_current_dest_state;
 
   };
 
@@ -136,9 +143,11 @@ namespace spot
     succ_iter(const spot::state* s) const;
 
     virtual ta_succ_iterator_product*
-    succ_iter(const spot::state* s, bdd condition) const {
+    succ_iter(const spot::state* s, bdd condition) const
+    {
 
-      if(condition == bddtrue) return succ_iter(s);
+      if (condition == bddtrue)
+        return succ_iter(s);
       //TODO
       return 0;
     }

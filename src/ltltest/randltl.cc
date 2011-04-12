@@ -97,7 +97,7 @@ to_int(const char* s)
 
 
 // GF(p_1) & GF(p_2) & ... & GF(p_n)
-formula* GF_n(spot::ltl::atomic_prop_set* ap, int n)
+formula* GF_n(spot::ltl::atomic_prop_set* ap)
 {
 
   formula* result = 0;
@@ -358,10 +358,6 @@ main(int argc, char** argv)
 	      while (max_tries_r--)
 		{
 		  f = rf->generate(opt_f);
-                  if (opt_wFair)
-                    {
-                      f = GF_n(atomic_prop_collect(f, 0), f->hash());
-                    }
 		  if (opt_r)
 		    {
 		      const spot::ltl::formula* g = simp.simplify(f);
@@ -386,6 +382,14 @@ main(int argc, char** argv)
 			  continue;
 			}
 		    }
+
+                  if (opt_wFair)
+                    {
+		      spot::ltl::formula* g = GF_n(atomic_prop_collect(f, 0));
+		      f = spot::ltl::unop::instance(unop::Not,
+			  spot::ltl::binop::instance(binop::Implies, g, f));
+                    }
+
 		  break;
 		}
 	      if (max_tries_r < 0)

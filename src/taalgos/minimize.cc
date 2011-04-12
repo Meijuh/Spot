@@ -254,7 +254,9 @@ namespace spot
           }
 
       }
-    if (!G->empty())
+     delete I;
+     
+     if (!G->empty())
       {
         unsigned s = G->size();
         unsigned num = ++set_num;
