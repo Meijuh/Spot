@@ -22,6 +22,7 @@
 # define SPOT_MISC_INTVCMP2_HH
 
 #include <vector>
+#include <stddef.h>
 
 namespace spot
 {

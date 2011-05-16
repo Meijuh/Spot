@@ -1,3 +1,8 @@
+2011-05-16  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	* src/misc/intvcomp.hh, src/misc/intvcmp2.hh: Include stddef.h for
+	size_t.
+
 2011-05-05  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* src/misc/intvcmp2.cc: Cosmetics to please sanity checks.
