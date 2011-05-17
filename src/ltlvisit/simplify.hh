@@ -1,0 +1,92 @@
+// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
+//
+// This file is part of Spot, a model checking library.
+//
+// Spot is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// Spot is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+// License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Spot; see the file COPYING.  If not, write to the Free
+// Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+// 02111-1307, USA.
+
+#ifndef SPOT_LTLVISIT_SIMPLIFY_HH
+# define SPOT_LTLVISIT_SIMPLIFY_HH
+
+#include "ltlast/formula.hh"
+#include "bdd.h"
+
+namespace spot
+{
+  namespace ltl
+  {
+    class ltl_simplifier_options
+    {
+    public:
+      ltl_simplifier_options()
+	: reduce_basics(true),
+	  synt_impl(true),
+	  event_univ(true),
+	  containment_checks(false),
+	  containment_checks_stronger(false),
+	  // If true, Boolean subformulae will not be put into
+	  // negative normal form.
+	  nenoform_stop_on_boolean(false)
+      {
+      }
+
+      bool reduce_basics;
+      bool synt_impl;
+      bool event_univ;
+      bool containment_checks;
+      bool containment_checks_stronger;
+      bool nenoform_stop_on_boolean;
+    };
+
+    // fwd declaration to hide technical details.
+    class ltl_simplifier_cache;
+
+    /// \brief Rewrite or simplify \a f in various ways.
+    /// \ingroup ltl_rewriting
+    class ltl_simplifier
+    {
+    public:
+      ltl_simplifier();
+      ltl_simplifier(ltl_simplifier_options& opt);
+      ~ltl_simplifier();
+
+      /// Simplify the formula \a f (using options supplied to the constructor).
+      formula* simplify(const formula* f);
+
+      /// Build the negative normal form of formula \a f.
+      /// All negations of the formula are pushed in front of the
+      /// atomic propositions.
+      ///
+      /// \param f The formula to normalize.
+      /// \param negated If \c true, return the negative normal form of
+      ///        \c !f
+      ///
+      /// Note that this will not remove abbreviated operators.  If you
+      /// want to remove abbreviations, call spot::ltl::unabbreviate_logic
+      /// or spot::ltl::unabbreviate_ltl first.  (Calling these functions
+      /// after spot::ltl::negative_normal_form would likely produce a
+      /// formula which is not in negative normal form.)
+      formula* negative_normal_form(const formula* f, bool negated = false);
+
+
+    private:
+      ltl_simplifier_cache* cache_;
+    };
+  }
+
+}
+
+#endif // SPOT_LTLVISIT_SIMPLIFY_HH

@@ -1,3 +1,5 @@
+// Copyright (C) 2011 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -23,7 +25,6 @@
 # define SPOT_LTLVISIT_NENOFORM_HH
 
 #include "ltlast/formula.hh"
-#include "ltlast/visitor.hh"
 
 namespace spot
 {

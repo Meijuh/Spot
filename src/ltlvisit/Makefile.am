@@ -42,6 +42,7 @@ ltlvisit_HEADERS = \
   randomltl.hh \
   reduce.hh \
   simpfg.hh \
+  simplify.hh \
   syntimpl.hh \
   tostring.hh \
   tunabbrev.hh
@@ -63,6 +64,7 @@ libltlvisit_la_SOURCES = \
   randomltl.cc \
   reduce.cc \
   simpfg.cc \
+  simplify.cc \
   syntimpl.cc \
   tostring.cc \
   tunabbrev.cc
