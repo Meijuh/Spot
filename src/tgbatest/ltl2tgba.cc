@@ -68,6 +68,7 @@
 
 #include "taalgos/sba2ta.hh"
 #include "taalgos/dotty.hh"
+#include "taalgos/stats.hh"
 
 std::string
 ltl_defs()
@@ -285,6 +286,12 @@ syntax(char* prog)
  	    << std::endl
             << std::endl
             << "  -TM    Translate an LTL formula into a minimal Testing automata"
+            << std::endl
+            << std::endl
+            << "  -lv    Translate an LTL formula into a Testing automata with an artificial livelock accepting state"
+            << std::endl
+            << std::endl
+            << "  -in    Translate an LTL formula into a Testing automata without artificial initial state"
             << std::endl;
 
 
@@ -347,6 +354,8 @@ main(int argc, char** argv)
   bool reduction_dir_sim = false;
   spot::tgba* temp_dir_sim = 0;
   bool ta_opt = false;
+  bool opt_with_artificial_livelock = false;
+  bool opt_with_artificial_initial_state = true;
 
 
   for (;;)
@@ -684,6 +693,14 @@ main(int argc, char** argv)
           ta_opt = true;
           opt_minimize = true;
         }
+      else if (!strcmp(argv[formula_index], "-lv"))
+        {
+          opt_with_artificial_livelock = true;
+        }
+      else if (!strcmp(argv[formula_index], "-in"))
+        {
+          opt_with_artificial_initial_state = false;
+        }
       else if (!strcmp(argv[formula_index], "-taa"))
 	{
 	  translation = TransTAA;
@@ -979,7 +996,7 @@ main(int argc, char** argv)
       const spot::tgba* degeneralized = 0;
 
       spot::tgba* minimized = 0;
-      if (opt_minimize)
+      if (opt_minimize && !ta_opt)
 	{
 	  tm.start("obligation minimization");
 	  minimized = minimize_obligation(a, f);
@@ -1094,12 +1111,28 @@ main(int argc, char** argv)
             }
           delete aps;
 
-          spot::ta* testing_automata = sba_to_ta(degeneralized, atomic_props_set_bdd);
+          spot::ta* testing_automata = sba_to_ta(degeneralized, atomic_props_set_bdd, opt_with_artificial_initial_state, opt_with_artificial_livelock);
           if (opt_minimize) testing_automata = minimize_ta(testing_automata);
-          spot::dotty_reachable(std::cout, testing_automata);
-          delete testing_automata;
 
+          if (output != -1)
+            {
+              tm.start("producing output");
+              switch (output)
+                {
+              case 0:
+                spot::dotty_reachable(std::cout, testing_automata);
+                break;
+              case 12:
+                stats_reachable(testing_automata).dump(std::cout);
+                break;
+              default:
+                assert(!"unknown output option");
+                }
+              tm.stop("producing output");
+            }
+          delete testing_automata;
           output = -1;
+
         }
 
       spot::tgba* product_degeneralized = 0;

@@ -19,62 +19,64 @@
 // 02111-1307, USA.
 
 
-
 #include "ta.hh"
 
 namespace spot
 {
 
-
+  spot::state*
+  ta::get_artificial_initial_state() const
+  {
+    return 0;
+  }
 
   scc_stack_ta::connected_component::connected_component(int i)
-   {
-     index = i;
-     is_accepting = false;
-   }
+  {
+    index = i;
+    is_accepting = false;
+  }
 
-   scc_stack_ta::connected_component&
-   scc_stack_ta::top()
-   {
-     return s.front();
-   }
+  scc_stack_ta::connected_component&
+  scc_stack_ta::top()
+  {
+    return s.front();
+  }
 
-   const scc_stack_ta::connected_component&
-   scc_stack_ta::top() const
-   {
-     return s.front();
-   }
+  const scc_stack_ta::connected_component&
+  scc_stack_ta::top() const
+  {
+    return s.front();
+  }
 
-   void
-   scc_stack_ta::pop()
-   {
-     // assert(rem().empty());
-     s.pop_front();
-   }
+  void
+  scc_stack_ta::pop()
+  {
+    // assert(rem().empty());
+    s.pop_front();
+  }
 
-   void
-   scc_stack_ta::push(int index)
-   {
-     s.push_front(connected_component(index));
-   }
+  void
+  scc_stack_ta::push(int index)
+  {
+    s.push_front(connected_component(index));
+  }
 
-   std::list<state*>&
-   scc_stack_ta::rem()
-   {
-     return top().rem;
-   }
+  std::list<state*>&
+  scc_stack_ta::rem()
+  {
+    return top().rem;
+  }
 
-   size_t
-   scc_stack_ta::size() const
-   {
-     return s.size();
-   }
+  size_t
+  scc_stack_ta::size() const
+  {
+    return s.size();
+  }
 
-   bool
-   scc_stack_ta::empty() const
-   {
-     return s.empty();
-   }
-
+  bool
+  scc_stack_ta::empty() const
+  {
+    return s.empty();
+  }
 
 }

@@ -49,6 +49,9 @@ namespace spot
     virtual const states_set_t
     get_initial_states_set() const = 0;
 
+    virtual spot::state*
+    get_artificial_initial_state() const = 0;
+
     virtual ta_succ_iterator*
     succ_iter(const spot::state* s) const = 0;
 
@@ -66,6 +69,7 @@ namespace spot
 
     virtual bool
     is_livelock_accepting_state(const spot::state* s) const = 0;
+
 
     virtual bool
     is_initial_state(const spot::state* s) const = 0;

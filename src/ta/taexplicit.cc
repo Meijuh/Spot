@@ -64,7 +64,8 @@ namespace spot
   bool
   ta_explicit_succ_iterator::done() const
   {
-    return transitions_ == 0 || i_ == transitions_->end();
+    return transitions_ == 0 || transitions_->empty() || i_
+        == transitions_->end();
   }
 
   state*
@@ -103,15 +104,15 @@ namespace spot
   {
 
     Sgi::hash_map<int, transitions*, Sgi::hash<int> >::const_iterator i =
-	transitions_by_condition.find(condition.id());
+        transitions_by_condition.find(condition.id());
 
     if (i == transitions_by_condition.end())
       {
-	return 0;
+        return 0;
       }
     else
       {
-	return i->second;
+        return i->second;
       }
 
   }
@@ -122,17 +123,32 @@ namespace spot
     if (transitions_ == 0)
       transitions_ = new transitions;
 
-    transitions_->push_back(t);
-
     transitions* transitions_condition = get_transitions(t->condition);
 
     if (transitions_condition == 0)
       {
-	transitions_condition = new transitions;
-	transitions_by_condition[(t->condition).id()] = transitions_condition;
+        transitions_condition = new transitions;
+        transitions_by_condition[(t->condition).id()] = transitions_condition;
       }
 
-    transitions_condition->push_back(t);
+    state_ta_explicit::transitions::iterator it_trans;
+    bool transition_found = false;
+
+    for (it_trans = transitions_condition->begin(); (it_trans
+        != transitions_condition->end() && !transition_found); it_trans++)
+      {
+        transition_found = ((*it_trans)->dest == t->dest);
+      }
+
+    if (!transition_found)
+      {
+        transitions_condition->push_back(t);
+        transitions_->push_back(t);
+      }
+    else
+      {
+        delete t;
+      }
 
   }
 
@@ -185,6 +201,13 @@ namespace spot
     is_initial_state_ = is_initial_state;
   }
 
+  bool
+  state_ta_explicit::is_hole_state() const
+  {
+    state_ta_explicit::transitions* trans = get_transitions();
+    return trans == 0 || trans->empty();
+  }
+
   int
   state_ta_explicit::compare(const spot::state* other) const
   {
@@ -196,7 +219,16 @@ namespace spot
     if (compare_value != 0)
       return compare_value;
 
-    return tgba_condition_.id() - o->tgba_condition_.id();
+    compare_value = tgba_condition_.id() - o->tgba_condition_.id();
+
+    //    if (compare_value != 0)
+    //      return compare_value;
+    //
+    //    //unique artificial_livelock_accepting_state
+    //    if (o->is_the_artificial_livelock_accepting_state())
+    //      return is_the_artificial_livelock_accepting_state();
+
+    return compare_value;
   }
 
   size_t
@@ -219,37 +251,37 @@ namespace spot
 
     if (trans != 0)
       for (it_trans = trans->begin(); it_trans != trans->end();)
-	{
-	  state_ta_explicit* dest = (*it_trans)->dest;
-	  bool is_stuttering_transition = (get_tgba_condition()
-	      == (dest)->get_tgba_condition());
-	  bool dest_is_livelock_accepting = dest->is_livelock_accepting_state();
+        {
+          state_ta_explicit* dest = (*it_trans)->dest;
+          bool is_stuttering_transition = (get_tgba_condition()
+              == (dest)->get_tgba_condition());
+          bool dest_is_livelock_accepting = dest->is_livelock_accepting_state();
 
-	  //Before deleting stuttering transitions, propaged back livelock and initial state's properties
-	  if (is_stuttering_transition)
-	    {
-	      if (dest_is_livelock_accepting)
-		set_livelock_accepting_state(true);
-	      if (dest->is_initial_state())
-		set_initial_state(true);
-	    }
+          //Before deleting stuttering transitions, propaged back livelock and initial state's properties
+          if (is_stuttering_transition)
+            {
+              if (dest_is_livelock_accepting)
+                set_livelock_accepting_state(true);
+              if (dest->is_initial_state())
+                set_initial_state(true);
+            }
 
-	  //remove hole successors states
-	  state_ta_explicit::transitions* dest_trans =
-	      (dest)->get_transitions();
-	  bool dest_trans_empty = dest_trans == 0 || dest_trans->empty();
-	  if (is_stuttering_transition || (dest_trans_empty
-	      && (!dest_is_livelock_accepting)))
-	    {
-	      get_transitions((*it_trans)->condition)->remove(*it_trans);
-	      delete (*it_trans);
-	      it_trans = trans->erase(it_trans);
-	    }
-	  else
-	    {
-	      it_trans++;
-	    }
-	}
+          //remove hole successors states
+          state_ta_explicit::transitions* dest_trans =
+              (dest)->get_transitions();
+          bool dest_trans_empty = dest_trans == 0 || dest_trans->empty();
+          if (is_stuttering_transition || (dest_trans_empty
+              && (!dest_is_livelock_accepting)))
+            {
+              get_transitions((*it_trans)->condition)->remove(*it_trans);
+              delete (*it_trans);
+              it_trans = trans->erase(it_trans);
+            }
+          else
+            {
+              it_trans++;
+            }
+        }
 
   }
 
@@ -262,18 +294,17 @@ namespace spot
     // they are not cloned.
     if (trans != 0)
       for (it_trans = trans->begin(); it_trans != trans->end(); it_trans++)
-	{
-	  delete *it_trans;
-	}
+        {
+          delete *it_trans;
+        }
     delete trans;
-    get_tgba_state()->destroy();
 
     Sgi::hash_map<int, transitions*, Sgi::hash<int> >::iterator i =
-	transitions_by_condition.begin();
+        transitions_by_condition.begin();
     while (i != transitions_by_condition.end())
       {
-	delete i->second;
-	++i;
+        delete i->second;
+        ++i;
       }
 
   }
@@ -282,10 +313,17 @@ namespace spot
   // ta_explicit
 
 
-  ta_explicit::ta_explicit(const tgba* tgba_) :
-    tgba_(tgba_)
+  ta_explicit::ta_explicit(const tgba* tgba_,
+      state_ta_explicit* artificial_initial_state) :
+    tgba_(tgba_), artificial_initial_state_(artificial_initial_state)
   {
     get_dict()->register_all_variables_of(&tgba_, this);
+    if (artificial_initial_state != 0)
+      {
+        state_ta_explicit* is = add_state(artificial_initial_state);
+        assert(is == artificial_initial_state);
+      }
+
   }
 
   ta_explicit::~ta_explicit()
@@ -293,10 +331,11 @@ namespace spot
     ta::states_set_t::iterator it;
     for (it = states_set_.begin(); it != states_set_.end(); it++)
       {
-	state_ta_explicit* s = down_cast<state_ta_explicit*> (*it);
+        state_ta_explicit* s = down_cast<state_ta_explicit*> (*it);
 
-	s->free_transitions();
-	delete s;
+        s->free_transitions();
+        s->get_tgba_state()->destroy();
+        delete s;
       }
     get_dict()->unregister_all_my_variables(this);
     delete tgba_;
@@ -306,20 +345,26 @@ namespace spot
   ta_explicit::add_state(state_ta_explicit* s)
   {
     std::pair<ta::states_set_t::iterator, bool> add_state_to_ta =
-	states_set_.insert(s);
+        states_set_.insert(s);
 
     return static_cast<state_ta_explicit*> (*add_state_to_ta.first);
 
   }
 
   void
-  ta_explicit::add_to_initial_states_set(state* state)
+  ta_explicit::add_to_initial_states_set(state* state, bdd condition)
   {
     state_ta_explicit * s = down_cast<state_ta_explicit*> (state);
     assert(s);
     s->set_initial_state(true);
-
-    initial_states_set_.insert(s);
+    if (condition == bddfalse)
+      condition = get_state_condition(s);
+    std::pair<ta::states_set_t::iterator, bool> add_state =
+        initial_states_set_.insert(s);
+    if (get_artificial_initial_state() != 0)
+      if (add_state.second)
+        create_transition((state_ta_explicit*) get_artificial_initial_state(),
+            condition, s);
 
   }
 
@@ -329,7 +374,8 @@ namespace spot
     state_ta_explicit * state = down_cast<state_ta_explicit*> (s);
     assert(state);
     state->delete_stuttering_and_hole_successors();
-    if (state->is_initial_state()) add_to_initial_states_set(state);
+    if (state->is_initial_state())
+      add_to_initial_states_set(state);
 
   }
 
@@ -355,7 +401,7 @@ namespace spot
   ta_explicit::get_state_condition(const spot::state* initial_state) const
   {
     const state_ta_explicit* sta =
-	down_cast<const state_ta_explicit*> (initial_state);
+        down_cast<const state_ta_explicit*> (initial_state);
     assert(sta);
     return sta->get_tgba_condition();
   }
@@ -422,7 +468,7 @@ namespace spot
       return tgba_->format_state(sta->get_tgba_state());
 
     return tgba_->format_state(sta->get_tgba_state()) + "\n"
-	+ bdd_format_formula(get_dict(), sta->get_tgba_condition());
+        + bdd_format_formula(get_dict(), sta->get_tgba_condition());
 
   }
 
@@ -433,26 +479,26 @@ namespace spot
     for (it = states_set_.begin(); it != states_set_.end(); it++)
       {
 
-	const state_ta_explicit* source =
-	    static_cast<const state_ta_explicit*> (*it);
+        const state_ta_explicit* source =
+            static_cast<const state_ta_explicit*> (*it);
 
-	state_ta_explicit::transitions* trans = source->get_transitions();
-	state_ta_explicit::transitions::iterator it_trans;
+        state_ta_explicit::transitions* trans = source->get_transitions();
+        state_ta_explicit::transitions::iterator it_trans;
 
-	if (trans != 0)
-	  for (it_trans = trans->begin(); it_trans != trans->end();)
-	    {
-	      if (source->get_tgba_condition()
-		  == ((*it_trans)->dest)->get_tgba_condition())
-		{
-		  delete *it_trans;
-		  it_trans = trans->erase(it_trans);
-		}
-	      else
-		{
-		  it_trans++;
-		}
-	    }
+        if (trans != 0)
+          for (it_trans = trans->begin(); it_trans != trans->end();)
+            {
+              if (source->get_tgba_condition()
+                  == ((*it_trans)->dest)->get_tgba_condition())
+                {
+                  delete *it_trans;
+                  it_trans = trans->erase(it_trans);
+                }
+              else
+                {
+                  it_trans++;
+                }
+            }
       }
 
   }

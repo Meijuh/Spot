@@ -164,14 +164,33 @@ namespace spot
     virtual bool
     is_livelock_accepting_state(const spot::state* s) const;
 
+    virtual spot::state*
+    get_artificial_initial_state() const;
+
     virtual bool
     is_initial_state(const spot::state* s) const;
+
+    virtual bool
+    is_hole_state_in_ta_component(const spot::state* s) const;
+
 
     virtual bdd
     get_state_condition(const spot::state* s) const;
 
     virtual void
     free_state(const spot::state* s) const;
+
+    const ta*
+    get_ta() const
+    {
+      return ta_;
+    }
+
+    const kripke*
+    get_kripke() const
+    {
+      return kripke_;
+    }
 
   private:
     bdd_dict* dict_;

@@ -31,13 +31,18 @@
 #include "misc/bddlt.hh"
 #include "ta/taexplicit.hh"
 
-
 namespace spot
 {
-  ta* sba_to_ta(const tgba_sba_proxy* tgba_to_convert, bdd atomic_propositions_set);
+  ta*
+  sba_to_ta(const tgba_sba_proxy* tgba_to_convert, bdd atomic_propositions_set, bool artificial_initial_state_mode = true,
+      bool artificial_livelock_accepting_state_mode = false);
 
+  void
+  compute_livelock_acceptance_states(ta_explicit* testing_automata);
 
-  void compute_livelock_acceptance_states(ta_explicit* testing_automata);
+  void
+  add_artificial_livelock_accepting_state(ta_explicit* testing_automata,
+      state_ta_explicit* artificial_livelock_accepting_state);
 
 }
 

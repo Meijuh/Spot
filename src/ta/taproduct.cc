@@ -1,4 +1,4 @@
-// Copykripke_structure (C) 2010 Laboratoire de Recherche et Developpement
+// Copyright (C) 2010 Laboratoire de Recherche et Developpement
 // de l Epita (LRDE).
 //
 //
@@ -87,7 +87,7 @@ namespace spot
     delete ta_succ_it_;
     delete kripke_succ_it_;
     if (kripke_current_dest_state != 0)
-      kripke_current_dest_state->destroy();    
+      kripke_current_dest_state->destroy();
   }
 
   void
@@ -116,7 +116,7 @@ namespace spot
     else
       {
         kripke_current_dest_state->destroy();
-	kripke_current_dest_state = 0;
+        kripke_current_dest_state = 0;
         kripke_succ_it_->next();
       }
 
@@ -138,7 +138,7 @@ namespace spot
         == kripke_current_dest_condition);
     if (is_stuttering_transition_)
       {
-        current_condition_ = bddtrue;
+        current_condition_ = bddfalse;
       }
     else
       {
@@ -174,7 +174,7 @@ namespace spot
       step_();
 
     if (!done())
-          next_non_stuttering_();
+      next_non_stuttering_();
 
   }
 
@@ -274,7 +274,7 @@ namespace spot
   {
     //build initial states set
 
-    const ta::states_set_t ta_init_states_set = ta_->get_initial_states_set();
+    ta::states_set_t ta_init_states_set;
     ta::states_set_t::const_iterator it;
 
     ta::states_set_t initial_states_set;
@@ -282,10 +282,29 @@ namespace spot
     bdd kripke_init_state_condition = kripke_->state_condition(
         kripke_init_state);
 
+    spot::state* artificial_initial_state = ta_->get_artificial_initial_state();
+
+    if (artificial_initial_state != 0)
+      {
+        ta_succ_iterator* ta_init_it_ = ta_->succ_iter(
+            artificial_initial_state, kripke_init_state_condition);
+        for (ta_init_it_->first(); !ta_init_it_->done(); ta_init_it_->next())
+          {
+            ta_init_states_set.insert(ta_init_it_->current_state());
+          }
+        delete ta_init_it_;
+
+      }
+    else
+      {
+        ta_init_states_set = ta_->get_initial_states_set();
+      }
+
     for (it = ta_init_states_set.begin(); it != ta_init_states_set.end(); it++)
       {
 
-        if (kripke_init_state_condition == (ta_->get_state_condition(*it)))
+        if ((artificial_initial_state != 0) || (kripke_init_state_condition
+            == ta_->get_state_condition(*it)))
           {
             state_ta_product* stp = new state_ta_product((*it),
                 kripke_init_state->clone());
@@ -341,6 +360,13 @@ namespace spot
     return ta_->is_livelock_accepting_state(stp->get_ta_state());
   }
 
+  spot::state*
+  ta_product::get_artificial_initial_state() const
+  {
+    return 0;
+  }
+
+  //TODO BUG FIX
   bool
   ta_product::is_initial_state(const spot::state* s) const
   {
@@ -354,6 +380,16 @@ namespace spot
         && ((kripke_->get_init_state())->compare(kr_s) == 0)
         && ((kripke_->state_condition(kr_s))
             == (ta_->get_state_condition(ta_s)));
+  }
+
+  bool
+  ta_product::is_hole_state_in_ta_component(const spot::state* s) const
+  {
+    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
+    ta_succ_iterator* ta_succ_iter = get_ta()->succ_iter(stp->get_ta_state());
+    bool is_hole_state = ta_succ_iter->done();
+    delete ta_succ_iter;
+    return is_hole_state;
   }
 
   bdd

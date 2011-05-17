@@ -41,7 +41,8 @@ namespace spot
   class ta_explicit : public ta
   {
   public:
-    ta_explicit(const tgba* tgba_);
+    ta_explicit(const tgba* tgba_, state_ta_explicit* artificial_initial_state =
+        0);
 
     const tgba*
     get_tgba() const;
@@ -50,7 +51,7 @@ namespace spot
     add_state(state_ta_explicit* s);
 
     void
-    add_to_initial_states_set(state* s);
+    add_to_initial_states_set(state* s, bdd condition = bddfalse);
 
     void
     create_transition(state_ta_explicit* source, bdd condition,
@@ -91,8 +92,27 @@ namespace spot
     virtual void
     free_state(const spot::state* s) const;
 
+    spot::state*
+    get_artificial_initial_state() const
+    {
+      return (spot::state*) artificial_initial_state_;
+    }
+
+    void
+    set_artificial_initial_state(state_ta_explicit* s)
+    {
+      artificial_initial_state_ = s;
+
+    }
+
     virtual void
     delete_stuttering_and_hole_successors(spot::state* s);
+
+    ta::states_set_t
+    get_states_set()
+    {
+      return states_set_;
+    }
 
   private:
     // Disallow copy.
@@ -103,6 +123,7 @@ namespace spot
     ta::states_set_t states_set_;
     ta::states_set_t initial_states_set_;
     const tgba* tgba_;
+    state_ta_explicit* artificial_initial_state_;
 
   };
 
@@ -122,7 +143,8 @@ namespace spot
 
     state_ta_explicit(const state* tgba_state, const bdd tgba_condition,
         bool is_initial_state = false, bool is_accepting_state = false,
-        bool is_livelock_accepting_state = false, transitions* trans = 0) :
+        bool is_livelock_accepting_state = false, transitions* trans = 0,
+        bool is_the_artificial_livelock_accepting_state = false) :
       tgba_state_(tgba_state), tgba_condition_(tgba_condition),
           is_initial_state_(is_initial_state), is_accepting_state_(
               is_accepting_state), is_livelock_accepting_state_(
@@ -164,10 +186,15 @@ namespace spot
     is_livelock_accepting_state() const;
     void
     set_livelock_accepting_state(bool is_livelock_accepting_state);
+
     bool
     is_initial_state() const;
     void
     set_initial_state(bool is_initial_state);
+
+    bool
+    is_hole_state() const;
+
     void
     delete_stuttering_and_hole_successors();
 

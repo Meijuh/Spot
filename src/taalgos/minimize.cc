@@ -106,7 +106,7 @@ namespace spot
         state* tgba_state = tgba->add_state(src_num);
         bdd tgba_condition = bddtrue;
         bool is_initial_state = a->is_initial_state(src);
-        if (is_initial_state)
+        if ((a->get_artificial_initial_state() == 0) && is_initial_state)
           tgba_condition = a->get_state_condition(src);
         bool is_accepting_state = a->is_accepting_state(src);
         bool is_livelock_accepting_state = a->is_livelock_accepting_state(src);
@@ -120,10 +120,16 @@ namespace spot
         if (ta_src != new_src)
           {
             new_src->destroy();
-            tgba_state->destroy();
+          }
+        else if (a->get_artificial_initial_state() != 0)
+          {
+            if (a->get_artificial_initial_state() == src)
+              ta->set_artificial_initial_state(new_src);
           }
         else if (is_initial_state)
-          ta->add_to_initial_states_set(new_src);
+          {
+            ta->add_to_initial_states_set(new_src);
+          }
 
         ta_succ_iterator* succit = a->succ_iter(src);
 
@@ -138,7 +144,7 @@ namespace spot
             state* tgba_state = tgba->add_state(i->second);
             bdd tgba_condition = bddtrue;
             is_initial_state = a->is_initial_state(dst);
-            if (is_initial_state)
+            if ((a->get_artificial_initial_state() == 0) && is_initial_state)
               tgba_condition = a->get_state_condition(dst);
             bool is_accepting_state = a->is_accepting_state(dst);
             bool is_livelock_accepting_state = a->is_livelock_accepting_state(
@@ -153,8 +159,13 @@ namespace spot
             if (ta_dst != new_dst)
               {
                 new_dst->destroy();
-                tgba_state->destroy();
               }
+            else if (a->get_artificial_initial_state() != 0)
+              {
+                if (a->get_artificial_initial_state() == dst)
+                  ta->set_artificial_initial_state(new_dst);
+              }
+
             else if (is_initial_state)
               ta->add_to_initial_states_set(new_dst);
 
@@ -196,11 +207,17 @@ namespace spot
 
     std::set<const state*>::iterator it;
 
+    spot::state* artificial_initial_state = ta_->get_artificial_initial_state();
+
     for (it = states_set.begin(); it != states_set.end(); it++)
       {
         const state* s = (*it);
 
-        if (ta_->is_initial_state(s))
+        if (s == artificial_initial_state)
+          {
+            I->insert(s);
+          }
+        else if (artificial_initial_state == 0 && ta_->is_initial_state(s))
           {
             I->insert(s);
           }
@@ -254,12 +271,13 @@ namespace spot
           }
 
       }
-     delete I;
-     
-     if (!G->empty())
+    delete I;
+
+    if (!G->empty())
       {
         unsigned s = G->size();
-        unsigned num = ++set_num;
+        unsigned num = set_num;
+        set_num++;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -276,7 +294,8 @@ namespace spot
     if (!F->empty())
       {
         unsigned s = F->size();
-        unsigned num = ++set_num;
+        unsigned num = set_num;
+        set_num++;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -292,7 +311,8 @@ namespace spot
     if (!G_F->empty())
       {
         unsigned s = G_F->size();
-        unsigned num = ++set_num;
+        unsigned num = set_num;
+        set_num++;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -308,7 +328,8 @@ namespace spot
     if (!S->empty())
       {
         unsigned s = S->size();
-        unsigned num = ++set_num;
+        unsigned num = set_num;
+        set_num++;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)

@@ -43,9 +43,23 @@ namespace spot
         os_ << "digraph G {" << std::endl;
 
         int n = 0;
-        const ta::states_set_t init_states_set =
-            t_automata_->get_initial_states_set();
+
+        spot::state* artificial_initial_state =
+            t_automata_->get_artificial_initial_state();
+
+        ta::states_set_t init_states_set;
+
         ta::states_set_t::const_iterator it;
+
+        if (artificial_initial_state != 0)
+          {
+            init_states_set.insert(artificial_initial_state);
+
+          }
+        else
+          {
+            init_states_set = t_automata_->get_initial_states_set();
+          }
 
         for (it = (init_states_set.begin()); it != init_states_set.end(); it++)
           {
@@ -60,6 +74,7 @@ namespace spot
                 + "\"]" << std::endl;
 
           }
+
       }
 
       void

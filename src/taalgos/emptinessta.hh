@@ -24,7 +24,7 @@
 #ifndef SPOT_TAALGOS_EMPTINESS_HH
 # define SPOT_TAALGOS_EMPTINESS_HH
 
-#include "ta/ta.hh"
+#include "ta/taproduct.hh"
 #include "misc/optionmap.hh"
 #include "tgbaalgos/gtec/nsheap.hh"
 #include "tgbaalgos/emptiness_stats.hh"
@@ -43,13 +43,13 @@ namespace spot
   class ta_check : public ec_statistics
   {
   public:
-    ta_check(const ta* a, option_map o = option_map());
+    ta_check(const ta_product* a, option_map o = option_map());
     virtual
     ~ta_check();
 
     /// Check whether the automaton's language is empty.
     virtual bool
-    check();
+    check(bool disable_second_pass = false);
 
     virtual bool
     livelock_detection(const ta* t);
@@ -75,7 +75,7 @@ namespace spot
     heuristic_livelock_detection(const state * stuttering_succ,
         numbered_state_heap* h, int h_livelock_root, std::set<const state*,
             state_ptr_less_than> liveset_curr);
-    const ta* a_; ///< The automaton.
+    const ta_product* a_; ///< The automaton.
     option_map o_; ///< The options
 
     bool is_full_2_pass_;
