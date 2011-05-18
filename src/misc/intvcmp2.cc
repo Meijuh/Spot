@@ -90,15 +90,14 @@ namespace spot
 	    0, 0, 0, 0, 0, // 26-30
 	  };
 
-	unsigned int pos = 0;
-	while (pos < size_)
+	while (size_ > 0)
 	  {
 	    unsigned id = 0;	// Current level in the above two tables.
 	    unsigned curmax_allowed = max_allowed[id];
 	    unsigned compressable = 0; // Number of integer ready to pack.
 	    do
 	      {
-		unsigned int val = self().data_at(pos + compressable);
+		unsigned int val = self().data_at(compressable);
 		++compressable;
 		while (val > curmax_allowed)
 		  {
@@ -109,7 +108,7 @@ namespace spot
 		  }
 	      }
 	    while (likely(compressable < max_count[id]
-			  && (pos + compressable) < size_));
+			  && compressable < size_));
 
 	    assert(compressable <= max_count[id]);
 
@@ -127,14 +126,15 @@ namespace spot
 	      assert(id <= 2);
 	      unsigned bits = bits_width[id];
 	      unsigned finalshifts = (max_count[id] - compressable) * bits;
+	      size_t pos = 0;
 	      unsigned output = self().data_at(pos);
 	      while (--compressable)
 		{
 		  output <<= bits;
-		  output |= self().data_at(++pos);
+		  output += self().data_at(++pos);
 		}
 	      output <<= finalshifts;
-	      output |= id << 30;
+	      output += id << 30;
 	      self().push_data(output);
 	      return;
 	    }
@@ -144,104 +144,173 @@ namespace spot
 	      {
 	      case 0: // 30 1-bit values
 		{
-		  unsigned int output = 0x00 << 30; // 00
-		  output |= self().data_at(pos + 0) << 29;
-		  output |= self().data_at(pos + 1) << 28;
-		  output |= self().data_at(pos + 2) << 27;
-		  output |= self().data_at(pos + 3) << 26;
-		  output |= self().data_at(pos + 4) << 25;
-		  output |= self().data_at(pos + 5) << 24;
-		  output |= self().data_at(pos + 6) << 23;
-		  output |= self().data_at(pos + 7) << 20;
-		  output |= self().data_at(pos + 8) << 21;
-		  output |= self().data_at(pos + 9) << 20;
-		  output |= self().data_at(pos + 10) << 19;
-		  output |= self().data_at(pos + 11) << 18;
-		  output |= self().data_at(pos + 12) << 17;
-		  output |= self().data_at(pos + 13) << 16;
-		  output |= self().data_at(pos + 14) << 15;
-		  output |= self().data_at(pos + 15) << 14;
-		  output |= self().data_at(pos + 16) << 13;
-		  output |= self().data_at(pos + 17) << 12;
-		  output |= self().data_at(pos + 18) << 11;
-		  output |= self().data_at(pos + 19) << 10;
-		  output |= self().data_at(pos + 20) << 9;
-		  output |= self().data_at(pos + 21) << 8;
-		  output |= self().data_at(pos + 22) << 7;
-		  output |= self().data_at(pos + 23) << 6;
-		  output |= self().data_at(pos + 24) << 5;
-		  output |= self().data_at(pos + 25) << 4;
-		  output |= self().data_at(pos + 26) << 3;
-		  output |= self().data_at(pos + 27) << 2;
-		  output |= self().data_at(pos + 28) << 1;
-		  output |= self().data_at(pos + 29);
+		  // This code has been tuned so that the compiler can
+		  // efficiently encode it as a series of MOV+LEA
+		  // instructions, without shifts.  For instance
+		  //
+		  //   output <<= 1;
+		  //   output += self().data_at(4);
+		  //
+		  // translates to (assuming %eax points to the input,
+		  // and %edx holds the output) the following:
+		  //
+		  //   mov ecx, [eax+16]
+		  //   lea edx, [ecx+edx*2]
+		  //
+		  // This optimization is the reason why we use 'output +='
+		  // instead of the more intuitive 'output |=' everywhere in
+		  // this file.
+
+		  unsigned int output = 0x00 << 1; // 00
+		  output += self().data_at(0);
+		  output <<= 1;
+		  output += self().data_at(1);
+		  output <<= 1;
+		  output += self().data_at(2);
+		  output <<= 1;
+		  output += self().data_at(3);
+		  output <<= 1;
+		  output += self().data_at(4);
+		  output <<= 1;
+		  output += self().data_at(5);
+		  output <<= 1;
+		  output += self().data_at(6);
+		  output <<= 1;
+		  output += self().data_at(7);
+		  output <<= 1;
+		  output += self().data_at(8);
+		  output <<= 1;
+		  output += self().data_at(9);
+		  output <<= 1;
+		  output += self().data_at(10);
+		  output <<= 1;
+		  output += self().data_at(11);
+		  output <<= 1;
+		  output += self().data_at(12);
+		  output <<= 1;
+		  output += self().data_at(13);
+		  output <<= 1;
+		  output += self().data_at(14);
+		  output <<= 1;
+		  output += self().data_at(15);
+		  output <<= 1;
+		  output += self().data_at(16);
+		  output <<= 1;
+		  output += self().data_at(17);
+		  output <<= 1;
+		  output += self().data_at(18);
+		  output <<= 1;
+		  output += self().data_at(19);
+		  output <<= 1;
+		  output += self().data_at(20);
+		  output <<= 1;
+		  output += self().data_at(21);
+		  output <<= 1;
+		  output += self().data_at(22);
+		  output <<= 1;
+		  output += self().data_at(23);
+		  output <<= 1;
+		  output += self().data_at(24);
+		  output <<= 1;
+		  output += self().data_at(25);
+		  output <<= 1;
+		  output += self().data_at(26);
+		  output <<= 1;
+		  output += self().data_at(27);
+		  output <<= 1;
+		  output += self().data_at(28);
+		  output <<= 1;
+		  output += self().data_at(29);
 		  self().push_data(output);
 		}
 		break;
 	      case 1: // 10 3-bit values
 		{
-		  unsigned int output = 0x01 << 30; // 01
-		  output |= self().data_at(pos + 0) << 27;
-		  output |= self().data_at(pos + 1) << 24;
-		  output |= self().data_at(pos + 2) << 21;
-		  output |= self().data_at(pos + 3) << 18;
-		  output |= self().data_at(pos + 4) << 15;
-		  output |= self().data_at(pos + 5) << 12;
-		  output |= self().data_at(pos + 6) << 9;
-		  output |= self().data_at(pos + 7) << 6;
-		  output |= self().data_at(pos + 8) << 3;
-		  output |= self().data_at(pos + 9);
+		  // This code has been tuned so that the compiler can
+		  // efficiently encode it as a series of MOV+LEA
+		  // instructions, without shifts.  For instance
+		  //
+		  //   output <<= 3;
+		  //   output += self().data_at(4);
+		  //
+		  // translates to (assuming %eax points to the input,
+		  // and %edx holds the output) the following:
+		  //
+		  //   mov ecx, [eax+16]
+		  //   lea edx, [ecx+edx*8]
+
+		  unsigned int output = 0x01 << 3; // 01
+		  output += self().data_at(0);
+		  output <<= 3;
+		  output += self().data_at(1);
+		  output <<= 3;
+		  output += self().data_at(2);
+		  output <<= 3;
+		  output += self().data_at(3);
+		  output <<= 3;
+		  output += self().data_at(4);
+		  output <<= 3;
+		  output += self().data_at(5);
+		  output <<= 3;
+		  output += self().data_at(6);
+		  output <<= 3;
+		  output += self().data_at(7);
+		  output <<= 3;
+		  output += self().data_at(8);
+		  output <<= 3;
+		  output += self().data_at(9);
 		  self().push_data(output);
 		}
 		break;
 	      case 2: // 6 5-bit values
 		{
 		  unsigned int output = 0x02 << 30; // 10
-		  output |= self().data_at(pos + 0) << 25;
-		  output |= self().data_at(pos + 1) << 20;
-		  output |= self().data_at(pos + 2) << 15;
-		  output |= self().data_at(pos + 3) << 10;
-		  output |= self().data_at(pos + 4) << 5;
-		  output |= self().data_at(pos + 5);
+		  output += self().data_at(0) << 25;
+		  output += self().data_at(1) << 20;
+		  output += self().data_at(2) << 15;
+		  output += self().data_at(3) << 10;
+		  output += self().data_at(4) << 5;
+		  output += self().data_at(5);
 		  self().push_data(output);
 		}
 		break;
 	      case 3: // 4 7-bit values
 		{
 		  unsigned int output = 0x0C << 28; // 1100
-		  output |= self().data_at(pos + 0) << 21;
-		  output |= self().data_at(pos + 1) << 14;
-		  output |= self().data_at(pos + 2) << 7;
-		  output |= self().data_at(pos + 3);
+		  output += self().data_at(0) << 21;
+		  output += self().data_at(1) << 14;
+		  output += self().data_at(2) << 7;
+		  output += self().data_at(3);
 		  self().push_data(output);
 		}
 		break;
 	      case 4: // 3 9-bit values
 		{
 		  unsigned int output = 0x0D << 28; // 1101x (1 bit lost)
-		  output |= self().data_at(pos + 0) << 18;
-		  output |= self().data_at(pos + 1) << 9;
-		  output |= self().data_at(pos + 2);
+		  output += self().data_at(0) << 18;
+		  output += self().data_at(1) << 9;
+		  output += self().data_at(2);
 		  self().push_data(output);
 		}
 		break;
 	      case 5: // 2 14-bit values
 		{
 		  unsigned int output = 0x0E << 28; // 1110
-		  output |= self().data_at(pos + 0) << 14;
-		  output |= self().data_at(pos + 1);
+		  output += self().data_at(0) << 14;
+		  output += self().data_at(1);
 		  self().push_data(output);
 		}
 		break;
 	      case 6: // one 28-bit value
 		{
 		  unsigned int output = 0x0F << 28; // 1111
-		  output |= self().data_at(pos + 0);
+		  output += self().data_at(0);
 		  self().push_data(output);
 		}
 		break;
 	      }
-	      pos += max_count[id];
+	      self().forward(max_count[id]);
+	      size_ -= max_count[id];
 	  }
       }
 
@@ -282,9 +351,14 @@ namespace spot
 	*result_++ = static_cast<int>(i);
       }
 
-      unsigned int data_at(unsigned int offset)
+      unsigned int data_at(size_t offset)
       {
 	return static_cast<unsigned int>(array_[offset]);
+      }
+
+      void forward(size_t offset)
+      {
+	array_ += offset;
       }
 
     protected:
@@ -439,12 +513,12 @@ namespace spot
       {
       }
 
-      void write_data_at(unsigned int pos, int i)
+      void write_data_at(size_t pos, unsigned int i)
       {
 	result_[pos] = i;
       }
 
-      void forward(unsigned int i)
+      void forward(size_t i)
       {
 	result_ += i;
       }

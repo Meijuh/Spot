@@ -1,3 +1,11 @@
+2011-05-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Some intvcomp2 speedups.
+
+	* src/misc/intvcmp2.cc (stream_compression_base::run):
+	Implement a shift-less encoding for the 1-bit and 3-bit cases.
+	Also declare offsets as size_t, to help 64-bit compilers.
+
 2011-05-16  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* src/misc/intvcomp.hh, src/misc/intvcmp2.hh: Include stddef.h for
