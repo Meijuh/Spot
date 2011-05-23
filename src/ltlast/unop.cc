@@ -39,6 +39,8 @@ namespace spot
       switch (op)
 	{
 	case Not:
+	  is.eventual = child->is_universal();
+	  is.universal = child->is_eventual();
 	  is.in_nenoform = (child->kind() == AtomicProp);
 	  is.sere_formula = is.boolean;
 

@@ -37,23 +37,30 @@ namespace spot
     binop::binop(type op, formula* first, formula* second)
       : ref_formula(BinOp), op_(op), first_(first), second_(second)
     {
-      // Beware: (f U g) is purely eventual if both operands
-      // are purely eventual, unlike in the proceedings of
+      // Beware: (f U g) is a pure eventuality if both operands
+      // are pure eventualities, unlike in the proceedings of
       // Concur'00.  (The revision of the paper available at
       // http://www.bell-labs.com/project/TMP/ is fixed.)  See
-      // also http://arxiv.org/abs/1011.4214 for a discussion
+      // also http://arxiv.org/abs/1011.4214v2 for a discussion
       // about this problem.  (Which we fixed in 2005 thanks
       // to LBTT.)
-
       // This means that we can use the following line to handle
       // all cases of (f U g), (f R g), (f W g), (f M g) for
       // universality and eventuality.
       props = first->get_props() & second->get_props();
-
+      // The matter can be further refined because:
+      //  (f U g) and (g M f) are pure eventualities if
+      //                         g is a pure eventuality (regardless of f)
+      //                      or f == 1
+      //  (f W g) and (g R f) are purely universal if
+      //                         f is purely universal (regardless of g)
+      //                      or g == 0
       switch (op)
 	{
 	case Xor:
 	case Equiv:
+	  is.eventual = false;
+	  is.universal = false;
 	  is.sere_formula = is.boolean;
 	  is.sugar_free_boolean = false;
 	  is.in_nenoform = false;
@@ -78,6 +85,8 @@ namespace spot
 	    }
 	  break;
 	case Implies:
+	  is.eventual = false;
+	  is.universal = false;
 	  is.sere_formula = is.boolean;
 	  is.sugar_free_boolean = false;
 	  is.in_nenoform = false;
@@ -148,9 +157,9 @@ namespace spot
 	  assert(second->is_psl_formula());
 	  break;
 	case U:
-	  // 1 U a = Fa
-	  if (first == constant::true_instance())
-	    is.eventual = 1;
+	  // f U g is universal if g is eventual, or if f == 1.
+	  is.eventual = second->is_eventual();
+	  is.eventual |= (first == constant::true_instance());
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
@@ -168,9 +177,9 @@ namespace spot
 	  // is.syntactic_persistence = Persistence U Persistance
 	  break;
 	case W:
-	  // a W 0 = Ga
-	  if (second == constant::false_instance())
-	    is.universal = 1;
+	  // f W g is universal if f is universal, or if g == 0.
+	  is.universal = first->is_universal();
+	  is.universal |= (second == constant::false_instance());
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
@@ -188,9 +197,9 @@ namespace spot
 
 	  break;
 	case R:
-	  // 0 R a = Ga
-	  if (first == constant::false_instance())
-	    is.universal = 1;
+	  // g R f is universal if f is universal, or if g == 0.
+	  is.universal = second->is_universal();
+	  is.universal |= (first == constant::false_instance());
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
@@ -208,9 +217,9 @@ namespace spot
 
 	  break;
 	case M:
-	  // a M 1 = Fa
-	  if (second == constant::true_instance())
-	    is.eventual = 1;
+	  // g M f is universal if g is eventual, or if f == 1.
+	  is.eventual = first->is_eventual();
+	  is.eventual |= (second == constant::true_instance());
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
