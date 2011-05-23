@@ -140,13 +140,13 @@ namespace spot
 	return is.in_nenoform;
       }
 
-      /// Whether the formula avoid the X operator.
+      /// Whether the formula avoids the X operator.
       bool is_X_free() const
       {
 	return is.X_free;
       }
 
-      /// Whether the formula avoid the F and G operators.
+      /// Whether the formula avoids the F and G operators.
       bool is_sugar_free_ltl() const
       {
 	return is.sugar_free_ltl;
