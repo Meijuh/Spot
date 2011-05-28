@@ -137,17 +137,18 @@ namespace spot
 	      return;
 
 	    case unop::X:
-	      // X(true) = true
-	      // X(false) = false
-	      if (result_->kind() == formula::Constant)
-		return;
+	      // X(constant) = constant is a trivial identity.
+	      assert(result_->kind() != formula::Constant);
 
 	      // XGF(f) = GF(f)
+	      // FIXME: isn't that true also for FG ?
 	      if (is_GF(result_))
 		return;
 
-	      // X(f1 & GF(f2)) = X(f1) & GF(F2)
-	      // X(f1 | GF(f2)) = X(f1) | GF(F2)
+	      // X(f1 & GF(f2)) = X(f1) & GF(f2)
+	      // X(f1 | GF(f2)) = X(f1) | GF(f2)
+	      // FIXME: isn't that true also for FG ?
+
 	      if (result_->kind() == formula::MultOp)
 		{
 		  mo = static_cast<multop*>(result_);
@@ -159,10 +160,8 @@ namespace spot
 	      return;
 
 	    case unop::F:
-	      // F(true) = true
-	      // F(false) = false
-	      if (result_->kind() == formula::Constant)
-		return;
+	      // F(constant) = constant is a trivial identity.
+	      assert(result_->kind() != formula::Constant);
 
 	      // FX(a) = XF(a)
 	      if (result_->kind() == formula::UnOp)
@@ -211,10 +210,8 @@ namespace spot
 	      return;
 
 	    case unop::G:
-	      // G(true) = true
-	      // G(false) = false
-	      if (result_->kind() == formula::Constant)
-		return;
+	      // G(constant) = constant is a trivial identity
+	      assert(result_->kind() != formula::Constant);
 
 	      // G(a R b) = G(b)
 	      if (result_->kind() == formula::BinOp)
@@ -309,18 +306,14 @@ namespace spot
 		    result_ = unop::instance(unop::F, f1);
 		    return;
 		  }
+		// These are trivial identities:
 		// a U false = false
 		// a U true = true
 		// a R false = false
 		// a R true = true
 		// a W true = true
 		// a M false = false
-		if (f2->kind() == formula::Constant)
-		  {
-		    result_ = f2;
-		    f1->destroy();
-		    return;
-		  }
+		assert(f2->kind() != formula::Constant);
 
 		// Same effect as dynamic_cast<unop*>, only faster.
 		unop* fu1 =
