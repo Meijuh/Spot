@@ -23,6 +23,8 @@
 
 DOXYGEN = doxygen
 
+SUBDIRS = tl
+
 .PHONY: doc fast-doc
 
 all-local: $(srcdir)/stamp

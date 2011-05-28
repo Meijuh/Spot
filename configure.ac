@@ -118,6 +118,7 @@ AC_CONFIG_FILES([
   bench/wdba/defs
   doc/Doxyfile
   doc/Makefile
+  doc/tl/Makefile
   iface/dve2/defs
   iface/dve2/Makefile
   iface/gspn/defs

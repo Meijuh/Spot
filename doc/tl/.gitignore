@@ -1,0 +1,6 @@
+*.bbl
+*.blg
+*.idx
+*.log
+*.out
+tmp.t2d
