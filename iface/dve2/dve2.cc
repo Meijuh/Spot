@@ -519,7 +519,7 @@ namespace spot
 	  while (*s && (*s == ' ' || *s == '\t'))
 	    ++s;
 
-	  int val;
+	  int val = 0; // Initialize to kill a warning from old compilers.
 	  int type_num = ni->second.type;
 	  if (type_num == 0 || (*s >= '0' && *s <= '9') || *s == '-')
 	    {

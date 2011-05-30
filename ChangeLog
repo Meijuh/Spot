@@ -1,5 +1,9 @@
 2011-05-30  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* iface/dve2/dve2.cc: Kill a spurious warning.
+
+2011-05-30  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* bench/wdba/README: Typos.
 
 2011-05-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
