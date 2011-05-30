@@ -84,10 +84,10 @@ for two sub-transitions labelled by "p&q" and "p&!q".  So we are
 counting it as two transitions.
 
 You can observe that some minimized automata have more transitions:
-this is because their structure changed when they where determinized.
+this is because their structure changed when they were determinized.
 Even though they have the same number of states as the non-minimized
-automaton, the states do not accept the same language.  There is even
-one case (formula 36) where the minimized automaton got one more
+automaton, their states do not accept the same languages.  There is
+even one case (formula 36) where the minimized automaton got one more
 state.
 
 In two cases (formulae 31 and 35) the minimization actually removed
