@@ -1,5 +1,9 @@
 2011-06-02  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* iface/dve2/README: Document state compression.
+
+2011-06-02  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Update jQuery and jQuery-UI.
 
 	* wrap/python/ajax/ltl2tgba.html: Adjust to use

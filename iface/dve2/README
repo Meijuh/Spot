@@ -134,3 +134,49 @@ Examples
      132 transitions explored
      130 items max in DFS search stack
      an accepting run exists (use -C to print it)
+
+
+Two state-compression techniques have been implemented as experiments.
+Prefer the -Z option if your model use only non-negative value less
+than 2^28, it is way faster than -z (which will work for all values).
+
+Activating state compression will often reduce runtime.  Compare:
+
+% ./dve2check -T beem-peterson.4.dve '!GF(P_0.CS|P_1.CS|P_2.CS|P_3.CS)'
+2239039 unique states visited
+0 strongly connected components in search stack
+11449204 transitions explored
+1024245 items max in DFS search stack
+122102 pages allocated for emptiness check
+no accepting run found
+                       |    user time   |    sys. time   |      total     |
+                  name | ticks        % | ticks        % | ticks        % |   n
+-------------------------------------------------------------------------------
+          loading dve2 |     0      0.0 |     0      0.0 |     0      0.0 |   1
+       parsing formula |     0      0.0 |     0      0.0 |     0      0.0 |   1
+   reducing A_f w/ SCC |     0      0.0 |     0      0.0 |     0      0.0 |   1
+running emptiness chec |  1222    100.0 |    18    100.0 |  1240    100.0 |   1
+   translating formula |     0      0.0 |     0      0.0 |     0      0.0 |   1
+-------------------------------------------------------------------------------
+                 TOTAL |  1222    100.0 |    18    100.0 |  1240    100.0 |
+
+% ./dve2check -T -Z beem-peterson.4.dve '!GF(P_0.CS|P_1.CS|P_2.CS|P_3.CS)'
+2239039 unique states visited
+0 strongly connected components in search stack
+11449204 transitions explored
+1024245 items max in DFS search stack
+78580 pages allocated for emptiness check
+no accepting run found
+                       |    user time   |    sys. time   |      total     |
+                  name | ticks        % | ticks        % | ticks        % |   n
+-------------------------------------------------------------------------------
+          loading dve2 |     0      0.0 |     0      0.0 |     0      0.0 |   1
+       parsing formula |     0      0.0 |     0      0.0 |     0      0.0 |   1
+   reducing A_f w/ SCC |     0      0.0 |     0      0.0 |     0      0.0 |   1
+running emptiness chec |  1051    100.0 |    10    100.0 |  1061    100.0 |   1
+   translating formula |     0      0.0 |     0      0.0 |     0      0.0 |   1
+-------------------------------------------------------------------------------
+                 TOTAL |  1051    100.0 |    10    100.0 |  1061    100.0 |
+
+It's a 15% speedup in this case, be the improvement can be more
+important on larger models.
