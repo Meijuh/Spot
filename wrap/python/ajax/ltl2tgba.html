@@ -4,48 +4,48 @@
     <title>Spot's on-line LTL-to-TGBA translator</title>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
     <meta name="keywords" content="Spot,LTL,automata,B&uuml;chi,translation,TGBA">
-    <link rev=Made href="mailto:spot@lrde.epita.fr" title="Spot's discussion list"> 
-    <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.8.custom.css"> 
-    <link rel="stylesheet" href="css/tipTip.css"> 
-    <link rel="stylesheet" href="css/ltl2tgba.css"> 
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.8/jquery-ui.min.js"></script>
+    <link rev=Made href="mailto:spot@lrde.epita.fr" title="Spot's discussion list">
+    <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.13.custom.css">
+    <link rel="stylesheet" href="css/tipTip.css">
+    <link rel="stylesheet" href="css/ltl2tgba.css">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
     <script type="text/javascript">
       jQuery(document).ready(function(){
                      $.spotvars = {
                         autoupdate: 0
                      }
-                     $(".tabs").tabs(); 
+                     $(".tabs").tabs();
 		     $("#send").button();
 		     $("#results").hide();
                      $(".tabs a").click(function() {return false;});
                      $(".rtip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 10, 
+                                        edgeOffset: 10,
                                         defaultPosition: "right"});
                      $(".btip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 10, 
+                                        edgeOffset: 10,
                                         defaultPosition: "bottom"});
                      $(".ftip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 4, 
+                                        edgeOffset: 4,
                                         defaultPosition: "left",
                                         content: "<b>Click<\/b> to fold/unfold.<br><b>Ctrl+Click<\/b> to remove (any option set will remain set)."
                                        });
                      $(".restip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 4, 
+                                        edgeOffset: 4,
                                         defaultPosition: "left",
                                         content: "<b>Click<\/b> to fold/unfold.<br><b>Ctrl+Click<\/b> to remove."
                                        });
                      $(".ltltip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 4, 
+                                        edgeOffset: 4,
                                         defaultPosition: "left",
                                         content: "<b>Click<\/b> to fold/unfold."
                                        });
 
-	              $.get("/cgi-bin/spot.py", "o=v", function(data) {
+		      $.get("/cgi-bin/spot.py", "o=v", function(data) {
 			  $("#spottip").attr("title", "This page uses <b>" + data + "<\/b> to process LTL formulas and automata.  Please download the <b>Spot<\/b> library and install it on your computer if you want to do the same from the command line, or from another program.")
 			       .tipTip({maxWidth: "400px", delay: 1000,
-                                        edgeOffset: 10, 
+                                        edgeOffset: 10,
                                         defaultPosition: "right"});
                       });
 
@@ -75,19 +75,19 @@
                       icon.removeClass("ui-icon-circle-arrow-s")
                           .addClass("ui-icon-circle-arrow-n");
                       ui.siblings('[class!="dontcollapse"]').show('fast');
-                    }              
+                    }
                 }
 
                 function updateResults() {
                     var str = $("#trform").serialize();
-                    $("#results-body").load("/cgi-bin/spot.py", 
+                    $("#results-body").load("/cgi-bin/spot.py",
                                        str,
-                                       function(response, status, xhr) 
+                                       function(response, status, xhr)
                    {
                       $.spotvars.autoupdate = 1;
 		      if (status == "error") {
 			var msg = "Sorry but there was an error: ";
-			$("#results-body").html(msg + xhr.status + " " 
+			$("#results-body").html(msg + xhr.status + " "
                                                 + xhr.statusText);
 		      }
                       $("#results").show();
@@ -96,7 +96,7 @@
                       return true;
                    }
                 );}
-      
+
                 function autoUpdate() {
                     if ($.spotvars.autoupdate)
                        updateResults();
@@ -106,9 +106,9 @@
                 $("#send").click(updateResults);
                 $("input,select").change(autoUpdate);
                 $('input[name="f"]').attr('spellcheck', false)
-			            .keydown(function(e){
-                   if (e.keyCode == 13 && !$("#autoupdate").attr("checked"))
-		      updateResults();	           
+				    .keydown(function(e){
+                   if (e.keyCode == 13)
+		      updateResults();
                 });
 	      $('.collapsible .head').click(function(e) {
                       if (e.ctrlKey)
@@ -125,14 +125,14 @@
       $("#output-tabs").bind("tabsselect", function(event, ui) {
         switch (ui.panel.id)
          {
-           case 'tabs-formula': 
+           case 'tabs-formula':
              $('input[name="o"]').val('f');
-             $('#translator-tabs,#autsimp-tabs,#run-tabs').hide('fast'); 
+             $('#translator-tabs,#autsimp-tabs,#run-tabs').hide('fast');
              break;
            case 'tabs-monitor':
              $('input[name="o"]').val('m');
              $('#autsimp-tabs,#run-tabs').hide('fast');
-             $('#translator-tabs').show('fast'); 
+             $('#translator-tabs').show('fast');
              break;
            case 'tabs-automaton':
              $('input[name="o"]').val('a');
@@ -147,7 +147,7 @@
         autoUpdate();
         return true;
         });
-      $('#output-tabs').tabs('select', '#tabs-automaton');      
+      $('#output-tabs').tabs('select', '#tabs-automaton');
       $('#translator-tabs').bind("tabsselect", function(event, ui) {
         $('input[name="t"]').val(ui.panel.id.substring(5,7));
         autoUpdate();
@@ -167,7 +167,7 @@
       <a href="http://www.lip6.fr/"><img border=0 src="logos/lip6sys64.png" alt="LIP6 Logo"></a></div>
     <div class="ltl2tgba">
       <!-- The action below will not be used. -->
-      <FORM id="trform" action="#"><P> 
+      <FORM id="trform" action="#"><P>
 	  <div class="ui-widget ui-widget-content ui-corner-all collapsible">
 	    <h3 id="ltl-head" class="ui-widget-header ui-corner-all head">LTL Formula to translate<span class="ui-icon ui-icon-circle-arrow-n ltltip">Fold</span></h3>
 	    <div class="dontcollapse">
@@ -176,70 +176,70 @@
 <p>Use alphanumeric identifiers or double-quoted strings for atomic
 propositions, and parentheses for grouping.<BR>Identifiers cannot
 start with the letter of a prefix operator (<span class="formula">F</span>,
-<span class="formula">G</span>, or <span class="formula">X</span>): for instance <span class="formula">GFa</span> 
+<span class="formula">G</span>, or <span class="formula">X</span>): for instance <span class="formula">GFa</span>
 means <span class="formula">G(F(a))</span>.  Use <span class="formula">"GFa"</span> if you really want
 to refer to <span class="formula">GFa</span> as a proposition.<br>Conversely, infix
 letter operators are not assumed to be operators if they are part of
 an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
-<span class="formula">a&nbsp;U&nbsp;b</span> and <span class="formula">(a)U(b)</span>.</p> 
-<table border="1"><tr><td> 
-<table border="0" rules="groups" frame="void" cellpadding="3" cellspacing=0> 
-  <colgroup span=2> 
-  <colgroup span=2> 
-  <colgroup span=2> 
-  <colgroup span=2> 
-  <thead> 
-    <tr> 
-      <th colspan=2>Unary operators<br>(prefix)</th> 
-      <th colspan=4>Binary operators<br>(infix)</th> 
-      <th colspan=2>Constants</th> 
-    </tr> 
-  </thead> 
-  <tbody> 
-    <tr> 
+<span class="formula">a&nbsp;U&nbsp;b</span> and <span class="formula">(a)U(b)</span>.</p>
+<table border="1"><tr><td>
+<table border="0" rules="groups" frame="void" cellpadding="3" cellspacing=0>
+  <colgroup span=2>
+  <colgroup span=2>
+  <colgroup span=2>
+  <colgroup span=2>
+  <thead>
+    <tr>
+      <th colspan=2>Unary operators<br>(prefix)</th>
+      <th colspan=4>Binary operators<br>(infix)</th>
+      <th colspan=2>Constants</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
       <td align="right">not:</td><td><span class="formula">!</span> <span class="formula">~</span></td>
-      <td align="right">and:</td><td><span class="formula">&</span> <span class="formula">&&</span> 
-                                     <span class="formula">.</span> <span class="formula">/\</span></td> 
-      <td align="right">(strong) until:</td><td><span class="formula">U</span></td> 
-      <td align="right">true:</td><td><span class="formula">1</span> 
-                                      <span class="formula">true</span></td> 
-    </tr> 
-    <tr> 
-      <td align="right">eventually:</td><td><span class="formula">F</span> 
-                                            <span class="formula">&lt;&gt;</span></td> 
-      <td align="right">or:</td><td><span class="formula">|</span> <span class="formula">||</span> 
-                                    <span class="formula">+</span> <span class="formula">\/</span></td> 
- 
-      <td align="right">weak until:</td><td><span class="formula">W</span></td> 
-      <td align="right">false:</td><td><span class="formula">0</span> 
-                                       <span class="formula">false</span></td> 
-    </tr> 
-    <tr> 
-      <td align="right">always:</td><td><span class="formula">G</span> 
+      <td align="right">and:</td><td><span class="formula">&</span> <span class="formula">&&</span>
+                                     <span class="formula">.</span> <span class="formula">/\</span></td>
+      <td align="right">(strong) until:</td><td><span class="formula">U</span></td>
+      <td align="right">true:</td><td><span class="formula">1</span>
+                                      <span class="formula">true</span></td>
+    </tr>
+    <tr>
+      <td align="right">eventually:</td><td><span class="formula">F</span>
+                                            <span class="formula">&lt;&gt;</span></td>
+      <td align="right">or:</td><td><span class="formula">|</span> <span class="formula">||</span>
+                                    <span class="formula">+</span> <span class="formula">\/</span></td>
+
+      <td align="right">weak until:</td><td><span class="formula">W</span></td>
+      <td align="right">false:</td><td><span class="formula">0</span>
+                                       <span class="formula">false</span></td>
+    </tr>
+    <tr>
+      <td align="right">always:</td><td><span class="formula">G</span>
                                         <span class="formula">[]</span></td>
-      <td align="right">implies:</td><td><span class="formula">-&gt;</span> 
-	                                 <span class="formula">--&gt;</span>
-                                         <span class="formula">=&gt;</span></td> 
-      <td align="right">(weak) release:</td><td><span class="formula">R</span> 
-                                         <span class="formula">V</span></td> 
-      <td></td><td></td> 
-    </tr> 
-    <tr> 
-      <td align="right">next:</td><td><span class="formula">X</span> <span class="formula">()</span></td> 
-      <td align="right">equivalent:</td><td><span class="formula">&lt;-&gt;</span> 
-	                                    <span class="formula">&lt;--&gt;</span>
-                                            <span class="formula">&lt;=&gt;</span></td> 
-      <td align="right">strong release:</td><td><span class="formula">M</span></td> 
-      <td></td><td></td> 
-    </tr> 
-    <tr> 
-      <td></td><td></td> 
-      <td align="right">xor:</td><td><span class="formula">^</span> <span class="formula">xor</span></td> 
-      <td></td><td></td> 
-      <td></td><td></td> 
-    </tr> 
-  </tbody> 
-</table></td></tr></table> 
+      <td align="right">implies:</td><td><span class="formula">-&gt;</span>
+					 <span class="formula">--&gt;</span>
+                                         <span class="formula">=&gt;</span></td>
+      <td align="right">(weak) release:</td><td><span class="formula">R</span>
+                                         <span class="formula">V</span></td>
+      <td></td><td></td>
+    </tr>
+    <tr>
+      <td align="right">next:</td><td><span class="formula">X</span> <span class="formula">()</span></td>
+      <td align="right">equivalent:</td><td><span class="formula">&lt;-&gt;</span>
+					    <span class="formula">&lt;--&gt;</span>
+                                            <span class="formula">&lt;=&gt;</span></td>
+      <td align="right">strong release:</td><td><span class="formula">M</span></td>
+      <td></td><td></td>
+    </tr>
+    <tr>
+      <td></td><td></td>
+      <td align="right">xor:</td><td><span class="formula">^</span> <span class="formula">xor</span></td>
+      <td></td><td></td>
+      <td></td><td></td>
+    </tr>
+  </tbody>
+</table></td></tr></table>
 	    </div>
 	  </div>
 	  <div class="ui-widget ui-widget-content ui-corner-all collapsible">
@@ -251,8 +251,8 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	      </label><br>
 	      <label class="rtip" title="Use rewriting rules based on implications between subformulas, when these implications can be proved syntactically.  For instance <span class='formula'>a U Fa</span> can be reduced to <span class='formula'>Fa</span> because the latter is obviously implied by <span class='formula'>a</span>.">
 	      <INPUT type="checkbox" name="r" value="si" checked>
-	        syntactic implication
-              </label><br> 
+		syntactic implication
+              </label><br>
 	      <label class="rtip" title="Apply simplification rules when subformulas are <b>pure eventuality</b> or <b>purely universal</b>.  For instance <span class='formula'>FGFa</span> can be rewritten to <span class='formula'>GFa</span> because the latter is a pure eventuality.">
 		<INPUT type="checkbox" name="r" value="eu" checked>
 		eventuality and universality
@@ -262,7 +262,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		language containment
 	      </label><br>
 	    </div>
-	  </div>    
+	  </div>
 	  <div id="output-tabs" class="tabs collapsible">
 	    <ul class="head">
 	      <li>Desired Output:</li>
@@ -385,9 +385,9 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	      <label class="rtip" title="<b>Obligation properties</b> are properties that can be represented by a Weak Deterministic B&uuml;chi Automaton (WDBA).  Any WDBA accepts a minimal form that can be constructed in a way that is similar to DFA minimization.<br>Using this option, any automaton (WDBA or not) will be tentatively minimized and the result will be used only if it is equivalent to the original automaton (i.e. if the property was indeed an obligation property).">
 		<INPUT type="checkbox" name="as" value="wd">
 		minimize obligation properties
-              </label><br> 
+              </label><br>
 	    </div>
-	  </div>    
+	  </div>
 	  <div id="run-tabs" class="ui-widget ui-widget-content ui-corner-all collapsible">
 	    <h3 class="ui-widget-header ui-corner-all
 	    head">Emptiness-check Algorithm<span class="ui-icon ui-icon-circle-arrow-n ftip">Fold</span></h3>
@@ -400,17 +400,17 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		<option value="SE05">SE05</option>
 		<option value="Tau03">Tau03</option>
 		<option value="Tau03_opt">Tau03_opt</option>
-	      </select> with these 
-	      <a href="http://spot.lip6.fr/wiki/EmptinessCheckOptions">options</a>: 
+	      </select> with these
+	      <a href="http://spot.lip6.fr/wiki/EmptinessCheckOptions">options</a>:
 	      <INPUT type="text" maxlength="40" name="eo" value="">
 	    </div>
-	  </div>    
+	  </div>
       </FORM>
 	  <div id="results" class="ui-widget ui-widget-content ui-corner-all collapsible">
 	    <h3 id="results-head" class="ui-widget-header ui-corner-all head">Results<span class="ui-icon ui-icon-circle-arrow-n restip">Fold</span></h3>
 	    <div id="results-body">
 	    </div>
-	  </div>    
+	  </div>
     </div>
   </body>
 </html>

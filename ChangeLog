@@ -1,3 +1,16 @@
+2011-06-02  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Update jQuery and jQuery-UI.
+
+	* wrap/python/ajax/ltl2tgba.html: Adjust to use
+	jQuery 1.6.1 and jQuery-UI 1.8.13.  Remove a useless check
+	of $("#autoupdate").attr("checked") since this checkbox no longer
+	exists.
+	* wrap/python/ajax/css/ui-lightness/jquery-ui-1.8.8.custom.css:
+	Replace by ...
+	* wrap/python/ajax/css/ui-lightness/jquery-ui-1.8.13.custom.css: This.
+	* wrap/python/ajax/Makefile.am (EXTRA_DIST): Adjust.
+
 2011-05-30  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* iface/dve2/dve2.cc: Kill a spurious warning.
