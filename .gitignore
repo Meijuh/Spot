@@ -43,3 +43,5 @@ cachegrind.*
 *.gcno
 *.info
 ltdl
+config.h
+src/src/misc/_config.h

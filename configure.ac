@@ -25,7 +25,9 @@ AC_PREREQ([2.61])
 AC_INIT([spot], [0.7.1a], [spot@lrde.epita.fr])
 AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE([1.11 gnu nostdinc tar-ustar color-tests parallel-tests])
+AM_INIT_AUTOMAKE([1.11 gnu tar-ustar color-tests parallel-tests])
+AC_CONFIG_HEADERS([config.h])dnl Private config, not to be used in .hh files.
+AX_PREFIX_CONFIG_H([src/misc/_config.h])dnl Public config, for .hh files.
 
 # If the user didn't supply a CFLAGS value,
 # set an empty one to prevent autoconf to stick -O2 -g here.

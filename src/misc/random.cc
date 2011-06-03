@@ -1,4 +1,4 @@
-// Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2004, 2011  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -19,6 +19,7 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
+#include "_config.h"
 #include "random.hh"
 #include <cstdlib>
 
@@ -27,7 +28,7 @@ namespace spot
   void
   srand(unsigned int seed)
   {
-#if HAVE_SRAND48 && HAVE_DRAND48
+#if SPOT_HAVE_SRAND48 && SPOT_HAVE_DRAND48
     ::srand48(seed);
 #else
     ::srand(seed);

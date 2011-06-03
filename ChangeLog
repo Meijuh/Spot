@@ -1,5 +1,18 @@
 2011-06-03  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Install a misc/_config.h to hide all the defines that clutter the
+	built output.
+
+	This is also a step towards better checks for things like
+	__attribute__ or std::tr1.
+
+	* m4/ax_prefix_config_h.m4: New file.
+	* configure.ac: Call AC_CONFIG_HEADERS and AX_PREFIX_CONFIG_H.
+	* src/misc/Makefile.am: Install misc/_config.h.
+	* src/misc/random.cc, src/misc/version.cc: Include misc/_config.h.
+
+2011-06-03  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Document the protocol used between ltl2tgba.html and spot.py.
 
 	* wrap/python/ajax/protocol.txt: New file.

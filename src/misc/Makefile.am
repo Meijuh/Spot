@@ -26,6 +26,9 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 miscdir = $(pkgincludedir)/misc
 
+nodist_misc_HEADERS = _config.h
+DISTCLEANFILES = _config.h
+
 misc_HEADERS = \
   bareword.hh \
   bddalloc.hh \
