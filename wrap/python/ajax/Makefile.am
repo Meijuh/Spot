@@ -37,7 +37,8 @@ EXTRA_DIST = $(srcdir)/spot.in README ltl2tgba.html css/ltl2tgba.css	\
   css/ui-lightness/images/ui-bg_gloss-wave_35_f6a828_500x100.png	\
   css/ui-lightness/images/ui-bg_glass_65_ffffff_1x400.png		\
   css/ui-lightness/images/ui-bg_diagonals-thick_20_666666_40x40.png	\
-  css/ui-lightness/images/ui-bg_highlight-soft_75_ffe45c_1x100.png
+  css/ui-lightness/images/ui-bg_highlight-soft_75_ffe45c_1x100.png      \
+  protocol.txt
 
 CLEANFILES = $(nodist_noinst_SCRIPTS)
 
