@@ -411,7 +411,7 @@ formula* combunop_n(std::string name, int n,
 // From "Fast LTL to Büchi Automata Translation" [gastin.01.cav]
 formula* fair_response(std::string p, std::string q, std::string r, int n)
 {
-  formula* fair = GF_n("p", n);
+  formula* fair = GF_n(p, n);
   formula* resp = G_(Implies_(env.require(q), F_(env.require(r))));
   return Not_(Implies_(fair, resp));
 }

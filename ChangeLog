@@ -1,5 +1,9 @@
 2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* src/ltltest/genltl.cc (fair_response): Typo.
+
+2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	DVE2: Do not display state variables with only one possible value.
 
 	* iface/dve2/dve2.cc (dve2_kripke::dve2_kripke): Fill
