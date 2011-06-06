@@ -115,9 +115,9 @@ namespace spot
 
       private:
 	std::ostream& os_;
-	std::ostringstream* sinks_;
 	int father_;
 	map& node_;
+	std::ostringstream* sinks_;
 
 	bool
 	draw_node_(const formula* f, const std::string& str, bool sink = false)

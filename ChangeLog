@@ -1,5 +1,9 @@
 2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* src/ltlvisit/dotty.cc (dotty_visitor): Reorder attributes.
+
+2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* src/ltltest/genltl.cc (fair_response): Typo.
 
 2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
