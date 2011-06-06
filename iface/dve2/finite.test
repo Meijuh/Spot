@@ -34,19 +34,19 @@ fi
 set -e
 run 0 ../dve2check -gm $srcdir/finite.dve '"P.a < 10"' > stdout
 test "`grep ' -> ' stdout | wc -l`" = 25
-test "`grep 'P=0' stdout | wc -l`" = 15
+test "`grep 'P.a=' stdout | wc -l`" = 15
 
 run 0 ../dve2check -dtrue -gm $srcdir/finite.dve '"P.a < 10"' > stdout2
 cmp stdout stdout2
 
 run 0 ../dve2check -dfalse -gm $srcdir/finite.dve '"P.a < 10"' > stdout
 test "`grep ' -> ' stdout | wc -l`" = 19
-test "`grep 'P=0' stdout | wc -l`" = 15
+test "`grep 'P.a=' stdout | wc -l`" = 15
 
 # the same with compressed states
 run 0 ../dve2check -z -dfalse -gm $srcdir/finite.dve '"P.a < 10"' > stdout
 test "`grep ' -> ' stdout | wc -l`" = 19
-test "`grep 'P=0' stdout | wc -l`" = 15
+test "`grep 'P.a=' stdout | wc -l`" = 15
 
 run 0 ../dve2check -ddead -e $srcdir/finite.dve \
   '!(G(dead -> ("P.a==3" | "P.b==3")))'

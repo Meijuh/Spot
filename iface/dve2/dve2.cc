@@ -612,8 +612,17 @@ namespace spot
 	  state_condition_last_state_(0), state_condition_last_cc_(0)
       {
 	vname_ = new const char*[state_size_];
+	format_filter_ = new bool[state_size_];
 	for (int i = 0; i < state_size_; ++i)
-	  vname_[i] = d_->get_state_variable_name(i);
+	  {
+	    vname_[i] = d_->get_state_variable_name(i);
+	    // We don't want to print variables that can take a single
+	    // value (e.g. process with a single state) to shorten the
+	    // output.
+	    int type = d->get_state_variable_type(i);
+	    format_filter_[i] =
+	      (d->get_state_variable_type_value_count(type) != 1);
+	  }
 
 	// Register the "dead" proposition.  There are three cases to
 	// consider:
@@ -648,6 +657,7 @@ namespace spot
 
       ~dve2_kripke()
       {
+	delete[] format_filter_;
 	delete[] vname_;
 	if (compress_)
 	  {
@@ -866,6 +876,11 @@ namespace spot
 	int i = 0;
 	for (;;)
 	  {
+	    if (!format_filter_[i])
+	      {
+		++i;
+		continue;
+	      }
 	    res << vname_[i] << "=" << vars[i];
 	    ++i;
 	    if (i == state_size_)
@@ -886,6 +901,7 @@ namespace spot
       int state_size_;
       bdd_dict* dict_;
       const char** vname_;
+      bool* format_filter_;
       const prop_set* ps_;
       bdd alive_prop;
       bdd dead_prop;

@@ -1,5 +1,17 @@
 2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	DVE2: Do not display state variables with only one possible value.
+
+	* iface/dve2/dve2.cc (dve2_kripke::dve2_kripke): Fill
+	a format_filter_ array with boolean indicating whether each
+	variable should be printed.  Ignore variable with only one
+	possible value.
+	(dve2_kripke::~dve2_kripke): Destroy it.
+	(dve2_kripke::format_state): Use it.
+	* iface/dve2/finite.test: Adjust.
+
+2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Remove Kristin Rozier's LTLcounter.pl scripts, now that we can
 	generate these formulae with "genltl".
 
