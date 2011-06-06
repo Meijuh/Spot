@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement de
+# Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement de
 # l'EPITA (LRDE)
 #
 # This file is part of Spot, a model checking library.
@@ -25,11 +25,9 @@
 
 set -e
 
-lcdir=$srcdir/ltlcounter
-lc=$lcdir/LTLcounter.pl
-lcl=$lcdir/LTLcounterLinear.pl
-lcc=$lcdir/LTLcounterCarry.pl
-lccl=$lcdir/LTLcounterCarryLinear.pl
+pwd
+lcdir=../../ltltest
+lc="$lcdir/genltl"
 
 run='run 0'
 
@@ -53,13 +51,13 @@ check_formula()
 for n in 1 2 3 4 5 6 7 8 9 10 11
 do
   :;:;: "========== $n counters ==========" ;:;:  # only visible with "set -x"
-  f=`"$lc" $n`
+  f=`"$lc" 17 $n`
   check_formula "$f"
-  f=`"$lcl" $n`
+  f=`"$lc" 18 $n`
   check_formula "$f"
-  f=`"$lcc" $n`
+  f=`"$lc" 19 $n`
   check_formula "$f"
-  f=`"$lccl" $n`
+  f=`"$lc" 20 $n`
   check_formula "$f"
 
   # Only run the first two formulae under valgrind,

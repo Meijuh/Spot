@@ -106,10 +106,7 @@ TESTS = \
   spotlbtt.test \
   complementation.test
 
-EXTRA_DIST = $(TESTS) ltlcounter/LTLcounter.pl				\
-  ltlcounter/LTLcounterCarry.pl ltlcounter/LTLcounterCarryLinear.pl	\
-  ltlcounter/LTLcounterLinear.pl ltlcounter/README			\
-  ltlcounter/software_agreement.txt
+EXTRA_DIST = $(TESTS)
 
 distclean-local:
 	rm -rf $(TESTS:.test=.dir)

@@ -1,3 +1,15 @@
+2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Remove Kristin Rozier's LTLcounter.pl scripts, now that we can
+	generate these formulae with "genltl".
+
+	* src/tgbatest/ltlcounter/: Remove this directory.
+	* src/tgbatest/Makefile.am: Adjust.
+	* src/tgbatest/ltlcounter.test, bench/ltlcounter/run: Use genltl
+	to generate the formulae.
+	* bench/ltlcounter/README: Do not mention src/tgbatest/ltlcounter/
+	anymore.
+
 2011-06-06  Alexandre Duret-Lutz  <adl@va-et-vient.net>
 
 	Better layout of the LTL formula parse tree.
