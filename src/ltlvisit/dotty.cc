@@ -1,3 +1,5 @@
+// Copyright (C) 2011 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -24,6 +26,7 @@
 #include "ltlast/visitor.hh"
 #include "ltlast/allnodes.hh"
 #include <ostream>
+#include <sstream>
 
 namespace spot
 {
@@ -36,7 +39,7 @@ namespace spot
       public:
 	typedef Sgi::hash_map<const formula*, int, ptr_hash<formula> > map;
 	dotty_visitor(std::ostream& os, map& m)
-	  : os_(os), father_(-1), node_(m)
+	  : os_(os), father_(-1), node_(m), sinks_(new std::ostringstream)
 	{
 	}
 
@@ -62,8 +65,10 @@ namespace spot
 	{
 	  if (draw_node_(bo, bo->op_name()))
 	    {
+	      dir = left;
 	      dotty_visitor v(*this);
 	      bo->first()->accept(v);
+	      dir = right;
 	      bo->second()->accept(*this);
 	    }
 	}
@@ -72,7 +77,10 @@ namespace spot
 	visit(const unop* uo)
 	{
 	  if (draw_node_(uo, uo->op_name()))
-	    uo->child()->accept(*this);
+	    {
+	      dir = none;
+	      uo->child()->accept(*this);
+	    }
 	}
 
 	void
@@ -86,6 +94,7 @@ namespace spot
 	{
 	  if (!draw_node_(mo, mo->op_name()))
 	    return;
+	  dir = none;
 	  unsigned max = mo->size();
 	  for (unsigned n = 0; n < max; ++n)
 	    {
@@ -93,13 +102,25 @@ namespace spot
 	      mo->nth(n)->accept(v);
 	    }
 	}
+
+	void finish()
+	{
+	  os_ << "  subgraph atoms {" << std::endl
+	      << "    rank=sink;" << std::endl
+	      << sinks_->str() << "  }" << std::endl;
+	  delete sinks_;
+	}
+
+	enum { left, right, none } dir;
+
       private:
 	std::ostream& os_;
+	std::ostringstream* sinks_;
 	int father_;
 	map& node_;
 
 	bool
-	draw_node_(const formula* f, const std::string& str, bool rec = false)
+	draw_node_(const formula* f, const std::string& str, bool sink = false)
 	{
 	  map::iterator i = node_.find(f);
 	  int node;
@@ -116,16 +137,29 @@ namespace spot
 	    }
 	  // the link
 	  if (father_ >= 0)
-	    os_ << "  " << father_ << " -> " << node << ";" << std::endl;
+	    {
+	      os_ << "  " << father_ << " -> " << node;
+	      if (dir == left)
+		os_ << " [taillabel=\"L\"]";
+	      else if (dir == right)
+		os_ << " [taillabel=\"R\"]";
+	      os_ << ";" << std::endl;
+	    }
 	  father_ = node;
+
 	  // the node
 	  if (node_exists)
 	    return false;
-	  os_ << "  " << node
-	      << " [label=\"" << str << "\"";
-	  if (rec)
-	    os_ << ", shape=box";
-	  os_ << "];" << std::endl;
+
+	  if (!sink)
+	    {
+	      os_ << "  " << node << " [label=\"" << str << "\"];";
+	    }
+	  else
+	    {
+	      *sinks_ << "    " << node
+		      << " [label=\"" << str << "\", shape=box];\n";
+	    }
 	  return true;
 	}
       };
@@ -138,6 +172,7 @@ namespace spot
       dotty_visitor v(os, m);
       os << "digraph G {" << std::endl;
       f->accept(v);
+      v.finish();
       os << "}" << std::endl;
       return os;
     }

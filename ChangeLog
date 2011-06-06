@@ -1,3 +1,11 @@
+2011-06-06  Alexandre Duret-Lutz  <adl@va-et-vient.net>
+
+	Better layout of the LTL formula parse tree.
+
+	* src/ltlvisit/dotty.cc: Display "L" and "R" tail-labels
+	for binary operators.  Gather all constants and atomic
+	propositions in a sub-graph with "rank=sink".
+
 2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Add more formula families to genltl.
