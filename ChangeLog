@@ -1,3 +1,13 @@
+2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Add more formula families to genltl.
+
+	* src/ltltest/genltl.cc (fair_response, ltl_counter)
+	(ltl_counter_carry): New functions, constructing function from
+	gastin.03.cav and rozier.07.cav.  The LTL counter will replace the
+	scripts in src/tgbatest/ltlcounter/.
+	(X_n): New helper function.
+
 2011-06-03  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Install a misc/_config.h to hide all the defines that clutter the

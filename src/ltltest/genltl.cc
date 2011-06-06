@@ -34,7 +34,23 @@ using namespace spot::ltl;
 
 environment& env(default_environment::instance());
 
-// The five first classes defined here come from the following paper:
+#define G_(x) spot::ltl::unop::instance(spot::ltl::unop::G, (x))
+#define F_(x) spot::ltl::unop::instance(spot::ltl::unop::F, (x))
+#define X_(x) spot::ltl::unop::instance(spot::ltl::unop::X, (x))
+#define Not_(x) spot::ltl::unop::instance(spot::ltl::unop::Not, (x))
+#define Implies_(x, y) \
+  spot::ltl::binop::instance(spot::ltl::binop::Implies, (x), (y))
+#define Equiv_(x, y) \
+  spot::ltl::binop::instance(spot::ltl::binop::Equiv, (x), (y))
+#define And_(x, y) \
+  spot::ltl::multop::instance(spot::ltl::multop::And, (x), (y))
+#define Or_(x, y) \
+  spot::ltl::multop::instance(spot::ltl::multop::Or, (x), (y))
+#define U_(x, y) \
+  spot::ltl::binop::instance(spot::ltl::binop::U, (x), (y))
+
+
+// The five first families defined here come from the following paper:
 //
 // @InProceedings{cichon.09.depcos,
 //   author = {Jacek Cicho{\'n} and Adam Czubak and Andrzej Jasi{\'n}ski},
@@ -46,7 +62,7 @@ environment& env(default_environment::instance());
 //   publisher = {IEEE Computer Society},
 // }
 //
-// Classes 6-9 and 12-14 where used in
+// Families 6-9 and 12-14 were used in:
 //
 // @InProceedings{geldenhuys.06.spin,
 //   author = {Jaco Geldenhuys and Henri Hansen},
@@ -57,6 +73,36 @@ environment& env(default_environment::instance());
 //   series = {Lecture Notes in Computer Science},
 //   volume = {3925},
 //   publisher = {Springer}
+// }
+//
+// Family 16 comes from:
+//
+// @InProceedings{gastin.01.cav,
+//   author = {Paul Gastin and Denis Oddoux},
+//   title = {Fast {LTL} to {B\"u}chi Automata Translation},
+//   booktitle	= {Proceedings of the 13th International Conference on
+// 		  Computer Aided Verification (CAV'01)},
+//   pages = {53--65},
+//   year = 2001,
+//   editor = {G. Berry and H. Comon and A. Finkel},
+//   volume = {2102},
+//   series = {Lecture Notes in Computer Science},
+//   address = {Paris, France},
+//   publisher = {Springer-Verlag}
+// }
+//
+// Families 17-20 come from:
+//
+// @InProceedings{rozier.07.spin,
+//   author = {Kristin Y. Rozier and Moshe Y. Vardi},
+//   title = {LTL Satisfiability Checking},
+//   booktitle = {Proceedings of the 12th International SPIN Workshop on
+// 		  Model Checking of Software (SPIN'07)},
+//   pages = {149--167},
+//   year = {2007},
+//   volume = {4595},
+//   series = {Lecture Notes in Computer Science},
+//   publisher = {Springer-Verlag}
 // }
 
 void
@@ -69,7 +115,7 @@ syntax(char* prog)
     << "F  specifies the familly of LTL formula to build" << std::endl
     << "N  is the size parameter of the familly" << std::endl
     << std::endl
-    << "Classes available (F):" << std::endl
+    << "Available families (F):" << std::endl
     << "  1: F(p1&F(p2&F(p3&...F(pn)))) & F(q1&F(q2&F(q3&...F(qn))))"
     << std::endl
     << "  2: F(p&X(p&X(p&...X(p)))) & F(q&X(q&X(q&...X(q))))" << std::endl
@@ -87,7 +133,12 @@ syntax(char* prog)
     << std::endl
     << " 13: (F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))" << std::endl
     << " 14: G(p1)|G(p2)|...|G(pn)" << std::endl
-    << " 15: F(p1)&F(p2)&...&F(pn)" << std::endl;
+    << " 15: F(p1)&F(p2)&...&F(pn)" << std::endl
+    << " 16: !((GF(p1)&GF(p2)&...&GF(pn))->G(q -> F(r)))" << std::endl
+    << " 17: LTLcounter(n)" << std::endl
+    << " 18: LTLcounterLinear(n)" << std::endl
+    << " 19: LTLcounterCarry(n)" << std::endl
+    << " 20: LTLcounterCarryLinear(n)" << std::endl;
   exit(2);
 }
 
@@ -119,10 +170,10 @@ formula* E_n(std::string name, int n)
       p << name << n;
       formula* f = env.require(p.str());
       if (result)
-	result = multop::instance(multop::And, f, result);
+	result = And_(f, result);
       else
 	result = f;
-      result = unop::instance(unop::F, result);
+      result = F_(result);
     }
   return result;
 }
@@ -138,9 +189,7 @@ formula* phi_n(std::string name, int n)
   for (; n > 0; --n)
     {
       if (result)
-	result =
-	  multop::instance(multop::And, p->clone(),
-			   unop::instance(unop::X, result));
+	result = And_(p->clone(), X_(result));
       else
 	result = p;
     }
@@ -164,8 +213,8 @@ formula* phi_prime_n(std::string name, int n)
     {
       if (result)
 	{
-	  p = unop::instance(unop::X, p->clone());
-	  result = multop::instance(multop::And, result, p);
+	  p = X_(p->clone());
+	  result = And_(result, p);
 	}
       else
 	{
@@ -177,7 +226,7 @@ formula* phi_prime_n(std::string name, int n)
 
 formula* N_prime_n(std::string name, int n)
 {
-  return unop::instance(unop::F, phi_prime_n(name, n));
+  return F_(phi_prime_n(name, n));
 }
 
 
@@ -196,9 +245,7 @@ formula* GF_n(std::string name, int n, bool conj = true)
     {
       std::ostringstream p;
       p << name << i;
-      formula* f = unop::instance(unop::G,
-				  unop::instance(unop::F,
-						 env.require(p.str())));
+      formula* f = G_(F_(env.require(p.str())));
 
       if (result)
 	result = multop::instance(op, f, result);
@@ -223,9 +270,7 @@ formula* FG_n(std::string name, int n, bool conj = false)
     {
       std::ostringstream p;
       p << name << i;
-      formula* f = unop::instance(unop::F,
-				  unop::instance(unop::G,
-						 env.require(p.str())));
+      formula* f = F_(G_(env.require(p.str())));
 
       if (result)
 	result = multop::instance(op, f, result);
@@ -281,21 +326,17 @@ formula* R_n(std::string name, int n)
 
   for (int i = 1; i <= n; ++i)
     {
-      formula* gf = unop::instance(unop::G,
-				   unop::instance(unop::F,
-						  pi));
+      formula* gf = G_(F_(pi));
       std::ostringstream p;
       p << name << i + 1;
       pi = env.require(p.str());
 
-      formula* fg = unop::instance(unop::F,
-				   unop::instance(unop::G,
-						  pi->clone()));
+      formula* fg = G_(F_(pi->clone()));
 
-      formula* f = multop::instance(multop::Or, gf, fg);
+      formula* f = Or_(gf, fg);
 
       if (result)
-	result = multop::instance(multop::And, f, result);
+	result = And_(f, result);
       else
 	result = f;
     }
@@ -321,18 +362,18 @@ formula* Q_n(std::string name, int n)
 
   for (int i = 1; i <= n; ++i)
     {
-      formula* f = unop::instance(unop::F, pi);
+      formula* f = F_(pi);
 
       std::ostringstream p;
       p << name << i + 1;
       pi = env.require(p.str());
 
-      formula* g = unop::instance(unop::G, pi->clone());
+      formula* g = G_(pi->clone());
 
-      f = multop::instance(multop::Or, f, g);
+      f = Or_(f, g);
 
       if (result)
-	result = multop::instance(multop::And, f, result);
+	result = And_(f, result);
       else
 	result = f;
     }
@@ -365,6 +406,226 @@ formula* combunop_n(std::string name, int n,
     }
   return result;
 }
+
+// !((GF(p1)&GF(p2)&...&GF(pn))->G(q -> F(r)))
+// From "Fast LTL to Büchi Automata Translation" [gastin.01.cav]
+formula* fair_response(std::string p, std::string q, std::string r, int n)
+{
+  formula* fair = GF_n("p", n);
+  formula* resp = G_(Implies_(env.require(q), F_(env.require(r))));
+  return Not_(Implies_(fair, resp));
+}
+
+
+// Builds X(X(...X(p))) with n occurrences of X.
+formula* X_n(formula* p, int n)
+{
+  assert(n > 0);
+  formula* res = p;
+  while (n--)
+    res = X_(res);
+  return res;
+}
+
+// Based on LTLcounter.pl from Kristin Rozier.
+// http://shemesh.larc.nasa.gov/people/kyr/benchmarking_scripts/
+
+formula* ltl_counter(std::string bit, std::string marker, int n, bool linear)
+{
+  formula* b = env.require(bit);
+  formula* neg_b = Not_(b);
+  formula* m = env.require(marker);
+  formula* neg_m = Not_(m); // to destroy
+
+  multop::vec* res = new multop::vec(4);
+
+  // The marker starts with "1", followed by n-1 "0", then "1" again,
+  // n-1 "0", etc.
+  if (!linear)
+    {
+      // G(m -> X(!m)&XX(!m)&XXX(m))          [if n = 3]
+      multop::vec* v = new multop::vec(n);
+      for (int i = 0; i + 1 < n; ++i)
+	(*v)[i] = X_n(neg_m->clone(), i + 1);
+      (*v)[n - 1] = X_n(m->clone(), n);
+      (*res)[0] = And_(m->clone(),
+		       G_(Implies_(m->clone(),
+				   multop::instance(multop::And, v))));
+    }
+  else
+    {
+      // G(m -> X(!m & X(!m X(m))))          [if n = 3]
+      formula* p = m->clone();
+      for (int i = n - 1; i > 0; --i)
+	p = And_(neg_m->clone(), X_(p));
+      (*res)[0] = And_(m->clone(),
+		       G_(Implies_(m->clone(), X_(p))));
+    }
+
+  // All bits are initially zero.
+  if (!linear)
+    {
+      // !b & X(!b) & XX(!b)    [if n = 3]
+      multop::vec* v2 = new multop::vec(n);
+      for (int i = 0; i < n; ++i)
+	(*v2)[i] = X_n(neg_b->clone(), i);
+      (*res)[1] = multop::instance(multop::And, v2);
+    }
+  else
+    {
+      // !b & X(!b & X(!b))     [if n = 3]
+      formula* p = neg_b->clone();
+      for (int i = n - 1; i > 0; --i)
+	p = And_(neg_b->clone(), X_(p));
+      (*res)[1] = p;
+    }
+
+#define AndX_(x, y) (linear ? X_(And_((x), (y))) : And_(X_(x), X_(y)))
+
+  // If the least significant bit is 0, it will be 1 at the next time,
+  // and other bits stay the same.
+  formula* Xnm1_b = X_n(b->clone(), n - 1);
+  formula* Xn_b = X_(Xnm1_b); // to destroy
+  (*res)[2] =
+    G_(Implies_(And_(m->clone(), neg_b->clone()),
+		AndX_(Xnm1_b->clone(), U_(And_(Not_(m->clone()),
+					       Equiv_(b->clone(),
+						      Xn_b->clone())),
+					  m->clone()))));
+
+  // From the least significant bit to the first 0, all the bits
+  // are flipped on the next value.  Remaining bits are identical.
+  formula* Xnm1_negb = X_n(neg_b, n - 1);
+  formula* Xn_negb = X_(Xnm1_negb); // to destroy
+  (*res)[3] =
+    G_(Implies_(And_(m->clone(), b->clone()),
+		AndX_(Xnm1_negb->clone(),
+		      U_(And_(And_(b->clone(), neg_m->clone()),
+			      Xn_negb->clone()),
+			 Or_(m->clone(),
+			     And_(And_(neg_m->clone(),
+				       neg_b->clone()),
+				  AndX_(Xnm1_b->clone(),
+					U_(And_(neg_m->clone(),
+						Equiv_(b->clone(),
+						       Xn_b->clone())),
+					   m->clone()))))))));
+  neg_m->destroy();
+  Xn_b->destroy();
+  Xn_negb->destroy();
+
+  return multop::instance(multop::And, res);
+}
+
+formula* ltl_counter_carry(std::string bit, std::string marker,
+			   std::string carry, int n, bool linear)
+{
+  formula* b = env.require(bit);
+  formula* neg_b = Not_(b);
+  formula* m = env.require(marker);
+  formula* neg_m = Not_(m); // to destroy
+  formula* c = env.require(carry);
+  formula* neg_c = Not_(c); // to destroy
+
+  multop::vec* res = new multop::vec(6);
+
+  // The marker starts with "1", followed by n-1 "0", then "1" again,
+  // n-1 "0", etc.
+  if (!linear)
+    {
+      // G(m -> X(!m)&XX(!m)&XXX(m))          [if n = 3]
+      multop::vec* v = new multop::vec(n);
+      for (int i = 0; i + 1 < n; ++i)
+	(*v)[i] = X_n(neg_m->clone(), i + 1);
+      (*v)[n - 1] = X_n(m->clone(), n);
+      (*res)[0] = And_(m->clone(),
+		       G_(Implies_(m->clone(),
+				   multop::instance(multop::And, v))));
+    }
+  else
+    {
+      // G(m -> X(!m & X(!m X(m))))          [if n = 3]
+      formula* p = m->clone();
+      for (int i = n - 1; i > 0; --i)
+	p = And_(neg_m->clone(), X_(p));
+      (*res)[0] = And_(m->clone(),
+		       G_(Implies_(m->clone(), X_(p))));
+    }
+
+  // All bits are initially zero.
+  if (!linear)
+    {
+      // !b & X(!b) & XX(!b)    [if n = 3]
+      multop::vec* v2 = new multop::vec(n);
+      for (int i = 0; i < n; ++i)
+	(*v2)[i] = X_n(neg_b->clone(), i);
+      (*res)[1] = multop::instance(multop::And, v2);
+    }
+  else
+    {
+      // !b & X(!b & X(!b))     [if n = 3]
+      formula* p = neg_b->clone();
+      for (int i = n - 1; i > 0; --i)
+	p = And_(neg_b->clone(), X_(p));
+      (*res)[1] = p;
+    }
+
+  formula* Xn_b = X_n(b->clone(), n); // to destroy
+  formula* Xn_negb = X_n(neg_b, n);   // to destroy
+
+  // If m is 1 and b is 0 then c is 0 and n steps later b is 1.
+  (*res)[2] = G_(Implies_(And_(m->clone(), neg_b->clone()),
+			  And_(neg_c->clone(), Xn_b->clone())));
+
+  // If m is 1 and b is 1 then c is 1 and n steps later b is 0.
+  (*res)[3] = G_(Implies_(And_(m->clone(), b->clone()),
+			  And_(c->clone(), Xn_negb->clone())));
+
+  if (!linear)
+    {
+      // If there's no carry, then all of the bits stay the same n steps later.
+      (*res)[4] = G_(Implies_(And_(neg_c->clone(), X_(neg_m->clone())),
+			      And_(X_(Not_(c->clone())),
+				   Equiv_(X_(b->clone()),
+					  X_(Xn_b->clone())))));
+
+      // If there's a carry, then add one: flip the bits of b and
+      // adjust the carry.
+      (*res)[5] = G_(Implies_(c->clone(),
+			      And_(Implies_(X_(neg_b->clone()),
+					    And_(X_(neg_c->clone()),
+						 X_(Xn_b->clone()))),
+				   Implies_(X_(b->clone()),
+					    And_(X_(c->clone()),
+						 X_(Xn_negb->clone()))))));
+    }
+  else
+    {
+      // If there's no carry, then all of the bits stay the same n steps later.
+      (*res)[4] = G_(Implies_(And_(neg_c->clone(), X_(neg_m->clone())),
+			      X_(And_(Not_(c->clone()),
+				      Equiv_(b->clone(),
+					     Xn_b->clone())))));
+
+      // If there's a carry, then add one: flip the bits of b and
+      // adjust the carry.
+      (*res)[5] = G_(Implies_(c->clone(),
+			      X_(And_(Implies_(neg_b->clone(),
+					       And_(neg_c->clone(),
+						    Xn_b->clone())),
+				      Implies_(b->clone(),
+					       And_(c->clone(),
+						    Xn_negb->clone()))))));
+    }
+
+  neg_m->destroy();
+  neg_c->destroy();
+  Xn_b->destroy();
+  Xn_negb->destroy();
+
+  return multop::instance(multop::And, res);
+}
+
 
 int
 main(int argc, char** argv)
@@ -432,8 +693,25 @@ main(int argc, char** argv)
     case 15:
       res = combunop_n("p", n, unop::F, true);
       break;
+    case 16:
+      res = fair_response("p", "q", "r", n);
+      break;
+    case 17:
+      res = ltl_counter("b", "m", n, false);
+      break;
+    case 18:
+      res = ltl_counter("b", "m", n, true);
+      break;
+    case 19:
+      res = ltl_counter_carry("b", "m", "c", n, false);
+      break;
+    case 20:
+      res = ltl_counter_carry("b", "m", "c", n, true);
+      break;
+
     default:
       std::cerr << "Unknown familly " << f << std::endl;
+      exit(2);
       break;
     }
 
