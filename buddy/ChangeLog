@@ -1,3 +1,9 @@
+2011-06-07  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	* examples/cmilner/cmilner.c (A, transitions, initial_state)
+	(reachable_states, has_deadlocks): Declare as static functions,
+	to suppress a GCC warning.
+
 2011-04-30  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Inline the "is bdd constant" check performed in copies/constructors.
