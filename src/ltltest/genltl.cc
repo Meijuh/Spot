@@ -420,7 +420,7 @@ formula* fair_response(std::string p, std::string q, std::string r, int n)
 // Builds X(X(...X(p))) with n occurrences of X.
 formula* X_n(formula* p, int n)
 {
-  assert(n > 0);
+  assert(n >= 0);
   formula* res = p;
   while (n--)
     res = X_(res);

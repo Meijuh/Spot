@@ -1,3 +1,7 @@
+2011-06-07  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	* src/ltltest/genltl.cc (X_n): Fix assertion.
+
 2011-06-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* src/ltlvisit/dotty.cc (dotty_visitor): Reorder attributes.
