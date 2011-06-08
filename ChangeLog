@@ -1,5 +1,13 @@
 2011-06-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Implement cache pruning in the CGI script.
+
+	* wrap/python/ajax/spot.in (finish): Prune the cache once in a
+	while.  We rely on hardlinks for garbage collecting the pictures
+	and dot sources that may be shared by different requests.
+
+2011-06-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Cache dot sources in the CGI script.
 
 	* wrap/python/ajax/spot.in (render_dot, render_dot_maybe)

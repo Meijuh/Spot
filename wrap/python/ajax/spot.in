@@ -38,7 +38,7 @@ if qs:
     import hashlib
     # We (optimistically) assume no collision from sha1(qs)
     imgprefix = imgdir + '/' + hashlib.sha1(qs).hexdigest()
-    cachename = imgprefix + '.html'
+    cachename = imgprefix + '/html'
     try:
         # Is this a request we have already processed?
         cache = open(cachename, "r", 0)
@@ -84,6 +84,8 @@ import sys
 import cgi
 import cgitb; cgitb.enable()
 import signal
+import time
+import os.path
 
 sys.stdout.flush()
 # Reopen stdout without buffering
@@ -95,6 +97,7 @@ os.dup2(sys.stdout.fileno(), sys.stderr.fileno())
 
 # Redirect stdout to the cache file, at a low-level
 # for similar reason.
+os.mkdir(imgprefix, 0755)
 fd = os.open(cachename, os.O_CREAT | os.O_WRONLY, 0644)
 os.dup2(fd, sys.stdout.fileno())
 
@@ -105,8 +108,24 @@ def finish(kill = False):
     print cache.read()
     if kill:
         os.kill(0, signal.SIGTERM)
+    # Should we prune the cache?
+    stamp = imgdir + '/cache.stamp'
+    now = time.time()
+    try:
+        # Prune at most once every 15 minutes
+        if now - os.path.getmtime(stamp) < 900:
+            exit(0)
+    except OSError:
+        pass
+    # Erase all directories that are older then 60 minutes, and all
+    # files that have only one hardlinks.  Files that have more than
+    # one hardlinks are referenced to by directories; so the hardlink
+    # count will decrease when the directory is purged.
+    os.system('find ' + imgdir  + ' -mindepth 1 -maxdepth 1 -mmin +60 '
+              + '\( -type d -o -links 1 \) -exec rm -rf {} +')
+    # Create or update the stamp so we know when to run the next prune.
+    open(stamp, "w", 0)
     exit(0)
-
 
 # Assume Spot is installed
 sys.path.insert(0, '@pythondir@')
@@ -159,6 +178,9 @@ def render_dot(basename):
         os.spawnlp(os.P_WAIT, dot, dot, dot_bgcolor, '-T' + ext,
                    '-Gsize=8.2,8.2', '-o', outname, basename + '.txt')
     reset_alarm()
+    # Create an unused hardlink that point to the output picture
+    # just to remember how many cache entries are sharing it.
+    os.link(outname, imgprefix + "/" + ext)
     b = cgi.escape(basename)
     if svg_output:
         print ('<object type="image/svg+xml" data="' + b + '.svg">'
@@ -179,6 +201,9 @@ def render_dot_maybe(dotsrc, dont_run_dot):
         dotout = open(dotname, "w", 0)
         dotout.write(dotsrc)
         dotout.close()
+    # Create an unused hardlink that point to the output picture
+    # just to remember how many cache entries are sharing it.
+    os.link(dotname, imgprefix + "/txt")
 
     if dont_run_dot:
         print ('<p>' + dont_run_dot + ''' to be rendered on-line.  However
@@ -226,7 +251,7 @@ def print_stats(automaton):
         print "no acceptance condition (all cycles are accepting)"
     print "</p>"
     # Decide whether we will render the automaton or not.
-    # (A webserver is not a calcul center...)
+    # (A webserver is not a computation center...)
     if stats.states > 64:
         return "Automaton has too much states"
     if float(stats.transitions)/stats.states > 10:
