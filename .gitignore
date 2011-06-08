@@ -44,4 +44,7 @@ cachegrind.*
 *.info
 ltdl
 config.h
+config.h.in
 src/src/misc/_config.h
+_configs.sed
+stamp-h1
