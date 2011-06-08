@@ -1,5 +1,12 @@
 2011-06-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Output a "Cache-Control:" header in the CGI script.
+
+	* wrap/python/ajax/spot.in: Output a cache-control header, so that
+	browsers do no even send two identical requests.
+
+2011-06-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Cache results of the spot.py CGI script.
 
 	* wrap/python/ajax/spot.in: Use the QUERY_STRING as a hash key to

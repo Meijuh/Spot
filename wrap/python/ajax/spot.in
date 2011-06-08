@@ -25,6 +25,7 @@ import os
 script = os.environ.has_key('SCRIPT_NAME')
 
 if script:
+    print "Cache-Control: max-age=3600"
     print "Content-Type: text/html"
     print
 
