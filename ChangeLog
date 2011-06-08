@@ -1,5 +1,9 @@
 2011-06-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* NEWS: Update with recent changes.
+
+2011-06-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Implement cache pruning in the CGI script.
 
 	* wrap/python/ajax/spot.in (finish): Prune the cache once in a
