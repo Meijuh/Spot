@@ -22,8 +22,34 @@
 
 import os
 
+script = os.environ.has_key('SCRIPT_NAME')
+
+if script:
+    print "Content-Type: text/html"
+    print
+
 # Directory for temporary files (images and other auxiliary files).
 imgdir = 'spotimg'
+
+# Cache lookup for the QUERY_STRING
+qs = os.getenv('QUERY_STRING')
+if qs:
+    import hashlib
+    # We (optimistically) assume no collision from sha1(qs)
+    imgprefix = imgdir + '/' + hashlib.sha1(qs).hexdigest()
+    cachename = imgprefix + '.html'
+    try:
+        # Is this a request we have already processed?
+        cache = open(cachename, "r", 0)
+        print cache.read()
+        exit(0)
+    except IOError:
+        # We failed to open the file.
+        # Let's run the rest of the script to create it.
+        pass
+elif script:
+    print "<b>QUERY_STRING unset!</b>"
+    exit(0)
 
 # Location of the dot command
 dot = '@DOT@'
@@ -42,7 +68,7 @@ class MyHandler(CGIHTTPRequestHandler):
             return True
         return False
 
-if not os.environ.has_key('SCRIPT_NAME'):
+if not script:
     # If this is not run as a cgi script, let's start an HTTP server.
     from BaseHTTPServer import HTTPServer
     server_address=('',8000)
@@ -57,14 +83,29 @@ import sys
 import cgi
 import cgitb; cgitb.enable()
 import signal
-import uuid
 
-print "Content-Type: text/html"
-print
+sys.stdout.flush()
+# Reopen stdout without buffering
+sys.stdout = os.fdopen(sys.stdout.fileno(), "w", 0)
 
-# Redirect stderr to stdout.
-os.close(sys.stderr.fileno())
+# Redirect stderr to stdout at a low-level (so that
+# even errors from subprocesses get printed).
 os.dup2(sys.stdout.fileno(), sys.stderr.fileno())
+
+# Redirect stdout to the cache file, at a low-level
+# for similar reason.
+fd = os.open(cachename, os.O_CREAT | os.O_WRONLY, 0644)
+os.dup2(fd, sys.stdout.fileno())
+
+def finish(kill = False):
+    # Output the result and exit.
+    os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
+    cache = open(cachename, "r", 0)
+    print cache.read()
+    if kill:
+        os.kill(0, signal.SIGTERM)
+    exit(0)
+
 
 # Assume Spot is installed
 sys.path.insert(0, '@pythondir@')
@@ -99,8 +140,7 @@ it has been running for too long.</font>  Please try a shorter formula,
 or different options (not drawing automata usually helps).
 If you want to benchmark big formulae it is
 better to install Spot on your own computer.</p>"""
-    sys.stdout.flush()
-    os.kill(0, signal.SIGTERM)
+    finish(kill = True)
 
 def reset_alarm():
     signal.alarm(30)
@@ -122,7 +162,6 @@ def render_dot(basename):
         print ('<img src="' + b + '.png"><br>(<a href="' + b
                + '.txt">dot source</a>)')
     print '</div>'
-    sys.stdout.flush()
 
 def render_automaton(basename, automata, dont_run_dot, issba, deco = False):
     outfile = spot.ofstream(basename + '.txt')
@@ -159,13 +198,11 @@ def print_stats(automaton):
             print "acceptance condition:",
         else:
             print "acceptance conditions:",
-            sys.stdout.flush()
         acc = automaton.all_acceptance_conditions()
-        spot.bdd_print_accset(spot.get_cout(), automaton.get_dict(), acc)
+        print spot.bdd_format_accset(automaton.get_dict(), acc)
     else:
         print "no acceptance condition (all cycles are accepting)"
     print "</p>"
-    sys.stdout.flush()
     # Decide whether we will render the automaton or not.
     # (A webserver is not a calcul center...)
     if stats.states > 64:
@@ -175,16 +212,13 @@ def print_stats(automaton):
     return False
 
 form = cgi.FieldStorage()
-uid = str(uuid.uuid1())
-imgprefix = imgdir + '/' + uid
-
 
 output_type = form.getfirst('o', 'v');
 
 # Version requested.
 if output_type == 'v':
     print 'Spot version ' + spot.version()
-    exit(0)
+    finish()
 
 spot.unblock_signal(signal.SIGALRM)
 spot.unblock_signal(signal.SIGTERM)
@@ -234,7 +268,7 @@ if output_type == 'f':
         spot.dotty(outfile, f)
         del outfile
         render_dot(imgprefix + '-f')
-    exit(0)
+    finish()
 
 # Formula translation.
 translator = form.getfirst('t', 'fm')
@@ -280,7 +314,7 @@ if output_type == 'm':
     print '</div>'
     render_automaton(imgprefix + '-a', automaton, dont_run_dot, issba)
     automaton = 0
-    exit(0)
+    finish()
 
 # Automaton simplifications
 prune_scc = False
@@ -298,7 +332,7 @@ elif output_type == 'r':
 else:
     print "Unkown output type 'o=%s'." % output_type
     automaton = 0
-    exit(0)
+    finish()
 
 degen = False
 neverclaim = False
@@ -340,7 +374,7 @@ if output_type == 'a':
         render_automaton(imgprefix + '-a', degen, dont_run_dot, issba)
     degen = 0
     automaton = 0
-    exit(0)
+    finish()
 
 # Buchi Run Output
 if output_type == 'r':
@@ -406,4 +440,4 @@ if output_type == 'r':
         del ec_a
     degen = 0
     automaton = 0
-    exit(0)
+    finish()

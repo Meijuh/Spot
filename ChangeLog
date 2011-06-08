@@ -1,3 +1,14 @@
+2011-06-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Cache results of the spot.py CGI script.
+
+	* wrap/python/ajax/spot.in: Use the QUERY_STRING as a hash key to
+	cache the result of the script.  Open stdout without buffering and
+	redirect it to a file that we can dump later on cache hits.  Parts
+	of this change are extracted from code from Pierre Parutto
+	<parutto@lrde.epita.fr>.
+	* AUTHORS: Add him.
+
 2011-06-07  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* src/ltltest/genltl.cc (X_n): Fix assertion.
