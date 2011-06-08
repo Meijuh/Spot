@@ -152,8 +152,12 @@ def render_dot(basename):
         ext = 'svg'
     else:
         ext = 'png'
-    os.spawnlp(os.P_WAIT, dot, dot, dot_bgcolor, '-T' + ext,
-               '-Gsize=8.2,8.2', '-o', basename + '.' + ext, basename + '.txt')
+
+    outname = basename + '.' + ext
+    # Do not call "dot" to generate a file that already exists.
+    if not os.access(outname, os.F_OK):
+        os.spawnlp(os.P_WAIT, dot, dot, dot_bgcolor, '-T' + ext,
+                   '-Gsize=8.2,8.2', '-o', outname, basename + '.txt')
     reset_alarm()
     b = cgi.escape(basename)
     if svg_output:
@@ -164,20 +168,37 @@ def render_dot(basename):
                + '.txt">dot source</a>)')
     print '</div>'
 
-def render_automaton(basename, automata, dont_run_dot, issba, deco = False):
-    outfile = spot.ofstream(basename + '.txt')
-    if not deco:
-        spot.dotty_reachable(outfile, automata, issba)
-    else:
-        spot.dotty_reachable(outfile, automata, issba, deco)
-    del outfile
+def render_dot_maybe(dotsrc, dont_run_dot):
+    # The dot output is named after the SHA1 of the dot source.
+    # This way we can cache two different request that generate
+    # the same automaton (e.g. when changing a simplification
+    # option that has no influence).
+    autprefix = imgdir + '/' + hashlib.sha1(dotsrc).hexdigest()
+    dotname = autprefix + '.txt'
+    if not os.access(dotname, os.F_OK):
+        dotout = open(dotname, "w", 0)
+        dotout.write(dotsrc)
+        dotout.close()
+
     if dont_run_dot:
         print ('<p>' + dont_run_dot + ''' to be rendered on-line.  However
-you may download the <a href="''' + cgi.escape(basename)
+you may download the <a href="''' + cgi.escape(autprefix)
                + '.txt">source in dot format</a> and render it yourself.')
     else:
-        render_dot(basename)
+        render_dot(autprefix)
 
+def render_automaton(automaton, dont_run_dot, issba, deco = False):
+    dotsrc = spot.ostringstream()
+    if not deco:
+        spot.dotty_reachable(dotsrc, automaton, issba)
+    else:
+        spot.dotty_reachable(dotsrc, automaton, issba, deco)
+    render_dot_maybe(dotsrc.str(), dont_run_dot)
+
+def render_formula(f):
+    dotsrc = spot.ostringstream()
+    spot.dotty(dotsrc, f)
+    render_dot_maybe(dotsrc.str(), False)
 
 def print_stats(automaton):
     stats = spot.stats_reachable(automaton)
@@ -265,10 +286,7 @@ if output_type == 'f':
         print ('<div class="formula spin-format">'
                + spot.to_spin_string(f) + '</div>')
     elif formula_format == 'g':
-        outfile = spot.ofstream(imgprefix + '-f.txt')
-        spot.dotty(outfile, f)
-        del outfile
-        render_dot(imgprefix + '-f')
+        render_formula(f)
     finish()
 
 # Formula translation.
@@ -313,7 +331,7 @@ if output_type == 'm':
     print '<div class="automata-stats">'
     dont_run_dot = print_stats(automaton)
     print '</div>'
-    render_automaton(imgprefix + '-a', automaton, dont_run_dot, issba)
+    render_automaton(automaton, dont_run_dot, issba)
     automaton = 0
     finish()
 
@@ -372,7 +390,7 @@ if output_type == 'a':
         del s
     else: # 't' or 's'
         dont_run_dot = print_stats(degen)
-        render_automaton(imgprefix + '-a', degen, dont_run_dot, issba)
+        render_automaton(degen, dont_run_dot, issba)
     degen = 0
     automaton = 0
     finish()
@@ -431,8 +449,7 @@ if output_type == 'r':
                 if draw_acc_run:
                     deco = spot.tgba_run_dotty_decorator(ec_run)
                     dont_run_dot = print_stats(ec_a)
-                    render_automaton(imgprefix + '-e', ec_a, dont_run_dot,
-                                     issba, deco)
+                    render_automaton(ec_a, dont_run_dot, issba, deco)
                     del deco
                 del ec_run
             del ec_res

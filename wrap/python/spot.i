@@ -1,3 +1,4 @@
+
 // Copyright (C) 2009, 2010, 2011  Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006  Laboratoire d'Informatique
@@ -216,7 +217,7 @@ using namespace spot;
 
 }
 
-%nodefault std::ostream;
+%nodefaultctor std::ostream;
 namespace std {
   class ostream {};
   class ofstream : public ostream
@@ -230,7 +231,7 @@ namespace std {
   public:
      ostringstream();
      std::string str() const;
-     ~ofstream();
+     ~ostringstream();
   };
 }
 
