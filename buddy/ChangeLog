@@ -1,3 +1,13 @@
+2011-06-09  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Remove some valgrind warnings about uninitialized memory when
+	BddCache_lookup return an entry from a Not operation.
+
+	* src/bddop.c (apply_rec, simplify_rec): When checking the cache
+	entry, always check entry->a and entry->c before checking
+	entry->b, because the "not_rec()" function does not initialize
+	the latter.
+
 2011-06-07  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* examples/cmilner/cmilner.c (A, transitions, initial_state)

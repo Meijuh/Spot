@@ -619,7 +619,8 @@ static BDD apply_rec(BDD l, BDD r)
    {
       entry = BddCache_lookup(&applycache, APPLYHASH(l,r,applyop));
 
-      if (entry->a == l  &&  entry->b == r  &&  entry->c == applyop)
+      // Check entry->c last, because not_rec() does not initialize it.
+      if (entry->a == l  &&  entry->c == applyop  &&  entry->b == r)
       {
 #ifdef CACHESTATS
 	 bddcachestats.opHit++;
@@ -1649,7 +1650,8 @@ static BDD simplify_rec(BDD f, BDD d)
 
    entry = BddCache_lookup(&applycache, APPLYHASH(f,d,bddop_simplify));
 
-   if (entry->a == f  &&  entry->b == d  &&  entry->c == bddop_simplify)
+   // Check entry->c last, because not_rec() does not initialize it.
+   if (entry->a == f  &&  entry->c == bddop_simplify  &&  entry->b == d)
    {
 #ifdef CACHESTATS
       bddcachestats.opHit++;
