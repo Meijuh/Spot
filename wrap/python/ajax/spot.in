@@ -25,7 +25,7 @@ import os
 script = os.environ.has_key('SCRIPT_NAME')
 
 if script:
-    print "Cache-Control: max-age=3600"
+    print "Cache-Control: max-age=3600" # One hour.
     print "Content-Type: text/html"
     print
 
@@ -43,6 +43,9 @@ if qs:
         # Is this a request we have already processed?
         cache = open(cachename, "r", 0)
         print cache.read()
+        # Touch the directory containing the files we used, so
+        # it that it survives the browser's cache.
+        os.utime(imgprefix)
         exit(0)
     except IOError:
         # We failed to open the file.
@@ -112,16 +115,16 @@ def finish(kill = False):
     stamp = imgdir + '/cache.stamp'
     now = time.time()
     try:
-        # Prune at most once every 15 minutes
-        if now - os.path.getmtime(stamp) < 900:
+        # Prune at most once every hour
+        if now - os.path.getmtime(stamp) < 3600:
             exit(0)
     except OSError:
         pass
-    # Erase all directories that are older then 60 minutes, and all
+    # Erase all directories that are older than 2 hours, and all
     # files that have only one hardlinks.  Files that have more than
     # one hardlinks are referenced to by directories; so the hardlink
     # count will decrease when the directory is purged.
-    os.system('find ' + imgdir  + ' -mindepth 1 -maxdepth 1 -mmin +60 '
+    os.system('find ' + imgdir  + ' -mindepth 1 -maxdepth 1 -mmin +120 '
               + '\( -type d -o -links 1 \) -exec rm -rf {} +')
     # Create or update the stamp so we know when to run the next prune.
     open(stamp, "w", 0)
