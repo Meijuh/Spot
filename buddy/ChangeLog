@@ -1,3 +1,8 @@
+2011-06-10  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	* src/bddop.c (apply_rec, appquant_rec): Improve caching by
+	reordering operands of commutative operators.
+
 2011-06-09  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Remove some valgrind warnings about uninitialized memory when

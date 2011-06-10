@@ -570,36 +570,76 @@ static BDD apply_rec(BDD l, BDD r)
     case bddop_and:
        if (l == r)
 	  return l;
-       if (ISZERO(l)  ||  ISZERO(r))
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
+       if (ISZERO(l) /* ||  ISZERO(r) */)
 	  return 0;
        if (ISONE(l))
 	  return r;
-       if (ISONE(r))
-	  return l;
+       /* if (ISONE(r))
+	  return l; */
        break;
     case bddop_or:
        if (l == r)
 	  return l;
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
        if (ISONE(l)  ||  ISONE(r))
 	  return 1;
        if (ISZERO(l))
 	  return r;
-       if (ISZERO(r))
-	  return l;
+       /* if (ISZERO(r))
+	  return l; */
        break;
     case bddop_xor:
        if (l == r)
 	  return 0;
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
        if (ISZERO(l))
 	  return r;
-       if (ISZERO(r))
-	  return l;
+       /* if (ISZERO(r))
+	  return l; */
        break;
     case bddop_nand:
-       if (ISZERO(l) || ISZERO(r))
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
+       if (ISZERO(l) /* || ISZERO(r) */)
 	  return 1;
        break;
     case bddop_nor:
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
        if (ISONE(l)  ||  ISONE(r))
 	  return 0;
        break;
@@ -610,6 +650,16 @@ static BDD apply_rec(BDD l, BDD r)
 	 return r;
       if (ISONE(r))
 	 return 1;
+      break;
+   case bddop_biimp:
+      /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+      if (l > r)
+	{
+	  BDD tmp = l;
+	  l = r;
+	  r = tmp;
+	}
       break;
    }
 
@@ -2083,40 +2133,90 @@ static int appquant_rec(int l, int r)
    switch (appexop)
    {
     case bddop_and:
-       if (l == 0  ||  r == 0)
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
+       if (l == 0 /* ||  r == 0 */)
 	  return 0;
        if (l == r)
 	  return quant_rec(l);
        if (l == 1)
 	  return quant_rec(r);
-       if (r == 1)
-	  return quant_rec(l);
+       /* if (r == 1)
+	  return quant_rec(l); */
        break;
     case bddop_or:
        if (l == 1  ||  r == 1)
 	  return 1;
        if (l == r)
 	  return quant_rec(l);
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
        if (l == 0)
 	  return quant_rec(r);
-       if (r == 0)
-	  return quant_rec(l);
+       /* if (r == 0)
+	  return quant_rec(l); */
        break;
     case bddop_xor:
        if (l == r)
 	  return 0;
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
        if (l == 0)
 	  return quant_rec(r);
-       if (r == 0)
-	  return quant_rec(l);
+       /* if (r == 0)
+	  return quant_rec(l); */
        break;
     case bddop_nand:
-       if (l == 0  ||  r == 0)
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
+       if (l == 0  /* ||  r == 0 */)
 	  return 1;
        break;
     case bddop_nor:
        if (l == 1  ||  r == 1)
 	  return 0;
+       /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
+       break;
+    case bddop_biimp:
+      /* The operation is commutative, so lets
+	  order the arguments to favor cache hits. */
+       if (l > r)
+	 {
+	   BDD tmp = l;
+	   l = r;
+	   r = tmp;
+	 }
        break;
    }
 
