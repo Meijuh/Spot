@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2010 Laboratoire de Recherche et DÃ©veloppement
+// Copyright (C) 2008, 2010, 2011 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -293,6 +293,7 @@ namespace spot
 	      os_ << " && !";
 	      bo->second()->accept(*this);
 	      os_ << ")";
+	      break;
 	    case binop::U:
 	      bo->first()->accept(*this);
 	      os_ << " U ";
