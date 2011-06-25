@@ -73,7 +73,7 @@ that are not available.
 +	  fputc('\n',output);
  	}
        fprintf(output,"-1 ");
-       
+
 
        * The automata produced by Wring are translated to the syntax
          understood by lbtt using `wring2lbtt' (by the same author of
@@ -116,6 +116,11 @@ checking for wring2lbtt... wring2lbtt
         ./big
      or ./known
 
+     Alternatively running `make run' (in that directory) will run all
+     three scripts.  If you have a multicore processor, you may want
+     to run `make -j3 run' to run these three scripts in parallel.
+     None of the tested translators use more than one core.
+
   5) Wait...
 
 =======================
@@ -126,22 +131,24 @@ The files small.txt, big.txt, and known.txt contain a summary of the
 results.  Each algorithm is described as two lines formated as
 follows.
 
-   18: FM, gen, +symb_merge, -exprop, LTLopt
-            494 /    975 /  100 /      4.25       98798 /   3935920   (100)
+    6: Spot FM (degen)
+            834 /   2419 /  188 /      2.86      166579 /   8749162   (188)
 
-The first line presents the name of the algorithm ("FM, gen,
-+symb_merge, -exprop, LTLopt") and its number for lbtt (18).
-The number is useless.  See http://spot.lip6.fr/wiki/LtlTranslationBenchmark
-for the naming conventions.
+The first line presents the name of the algorithm ("Spot FM (degen)")
+and its number for lbtt (6).  The number is useless.  In this example,
+"FM (degen)" means that the Couvreur/FM algorithm is used to translate
+LTL formula into a TGBA that is then DEGENeralized.  You may want to
+look in the file `algorithms' to see which options are used for each
+name, if the naming is unclear.
 
 The second line display 7 values:
-  1. the total number of states of all generated automata (494)
-  2. the total number of transitions of all generated automata (975)
-  3. the total number of acceptance conditions of all generated automata (100)
-  4. the cumulated translation time in seconds (4.25)
-  5. the total number of states in the synchronized products (98798)
-  6. the total number of transitions in the synchronized products (3935920)
-  7. the number of translated automata (100)
+  1. the total number of states of all generated automata (834)
+  2. the total number of transitions of all generated automata (2419)
+  3. the total number of acceptance conditions of all generated automata (188)
+  4. the cumulated translation time in seconds (2.86)
+  5. the total number of states in the synchronized products (166579)
+  6. the total number of transitions in the synchronized products (8749162)
+  7. the number of translated formulae (188)
 
 Notes:
 

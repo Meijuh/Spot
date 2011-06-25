@@ -1,3 +1,20 @@
+2011-06-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Revamp the ltl2tgba benchmark.
+
+	* bench/ltl2tgba/algorithms: Reduce the number of Spot configuration
+	tested.
+	* bench/ltl2tgba/Makefile.am (run, small.txt, big.txt, known.txt):
+	New rules.
+	* bench/ltl2tgba/big, bench/ltl2tgba/small, bench/ltl2tgba/known:
+	Add a 15min timeout to the lbtt configuration.
+	* bench/ltl2tgba/defs.in: Adjust variable definitions to accept
+	variable inderections.
+	* bench/ltl2tgba/parseout.pl: Add an option to output the table in
+	LaTeX.  Also consider all formulae, not just the positive
+	formulae.
+	* bench/ltl2tgba/README: Update.
+
 2011-06-16  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* src/ltlvisit/tostring.cc (to_spin_string_visitor): Add missing break.

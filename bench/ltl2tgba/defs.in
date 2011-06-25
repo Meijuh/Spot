@@ -34,16 +34,17 @@ test -f "$srcdir/defs.in" || {
    exit 1
 }
 
-LBT='@LBT@'
-LBTT='@LBTT@'
+top_builddir="@top_builddir@"
+LBT="@LBT@"
+LBTT="@LBTT@"
 LBTT_TRANSLATE="@LBTT_TRANSLATE@"
-LTL2BA='@LTL2BA@'
-LTL2NBA='@LTL2NBA@'
-LTL2TGBA='@top_builddir@/src/tgbatest/ltl2tgba@EXEEXT@'
-ELTL2TGBA='@top_builddir@/src/tgbatest/eltl2tgba@EXEEXT@'
-MODELLA='@MODELLA@'
-SPIN='@SPIN@'
-WRING2LBTT='@WRING2LBTT@'
+LTL2BA="@LTL2BA@"
+LTL2NBA="@LTL2NBA@"
+LTL2TGBA="@top_builddir@/src/tgbatest/ltl2tgba@EXEEXT@"
+ELTL2TGBA="@top_builddir@/src/tgbatest/eltl2tgba@EXEEXT@"
+MODELLA="@MODELLA@"
+SPIN="@SPIN@"
+WRING2LBTT="@WRING2LBTT@"
 
 for var in LBT LTL2BA LTL2NBA MODELLA SPIN WRING2LBTT
 do

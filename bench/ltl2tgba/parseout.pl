@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+# Copyright (C) 2011 Laboratoire de Recherche et Développement de
+# l'Epita.
 # Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -27,6 +29,18 @@ my $line = 0;
 my $tool = 0;
 my ($a, $b, $acc, $time);
 
+sub sep($)
+{
+    $n = shift;
+    $n =~ s/(\d{1,3}?)(?=(\d{3})+$)/$1\\,/g;
+    return $n;
+}
+
+format STDOUT3 =
+@<<<<<<<<<<<<<<<<<<<<< & @>>>>>> & @>>>>>> & @>>>>>>>>> & @>>>>>>>>>>> \\ % @>>
+$tool, sep($a), sep($b), sep($2), sep($3), sep($1)
+.
+
 format STDOUT2 =
 ||<:>@>>||@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<||<)>@>>>>>||<)>@>>>>>||<)>@>>>||<)>@#####.##||<)>@>>>>>>>>||<)>@>>>>>>>>||<)>@>>||
 $num, $tool, $a, $b, $acc, $time, $2, $3, $1
@@ -39,7 +53,8 @@ $num, $tool
 $a, $b, $acc, $time, $2, $3, $1
 .
 
-$~ = STDOUT2 if (exists $ENV{'WIKI'});
+$~ = STDOUT2 if (exists $ENV{'WIKIOUTPUT'});
+$~ = STDOUT3 if (exists $ENV{'LATEXOUTPUT'});
 
 my %impl;
 
@@ -49,12 +64,12 @@ while (<>)
     {
 	$impl{$1} = $2 unless exists $impl{$1};
     }
-    if (/Pos\. formulae \|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|$/)
+    if (/All formulae\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|$/)
     {
         $acc = $1;
 	$time = $2 || 0;
     }
-    next unless /Pos\. formulae \|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|/;
+    next unless /All formulae\s+\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|/;
     if ($line % 2)
     {
 	$num = $line >> 1;
