@@ -1,3 +1,10 @@
+2011-06-26  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Add some "drop shadow" in ltl2tgba.html.
+
+	* wrap/python/ajax/ltl2tgba.html: Add shadow to all boxes.
+	* wrap/python/ajax/css/ltl2tgba.css (.shadow): New class.
+
 2011-06-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Revamp the ltl2tgba benchmark.

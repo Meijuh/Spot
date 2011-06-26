@@ -168,7 +168,7 @@
     <div class="ltl2tgba">
       <!-- The action below will not be used. -->
       <FORM id="trform" action="#"><P>
-	  <div class="ui-widget ui-widget-content ui-corner-all collapsible">
+	  <div class="ui-widget ui-widget-content ui-corner-all collapsible shadow">
 	    <h3 id="ltl-head" class="ui-widget-header ui-corner-all head">LTL Formula to translate<span class="ui-icon ui-icon-circle-arrow-n ltltip">Fold</span></h3>
 	    <div class="dontcollapse">
 	      <INPUT class="formula" type="text" name="f" value=""><span id="send" class="btip" title="Submit the formula and all options.  You may simply hit <b>enter</b> after typing the formula.  After the first submission the form will auto-update itself anytime you change an option.">Send</span></div>
@@ -242,7 +242,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 </table></td></tr></table>
 	    </div>
 	  </div>
-	  <div class="ui-widget ui-widget-content ui-corner-all collapsible">
+	  <div class="ui-widget ui-widget-content ui-corner-all collapsible shadow">
 	    <h3 class="ui-widget-header ui-corner-all head">Formula Simplifications<span class="ui-icon ui-icon-circle-arrow-n ftip">Fold</span></h3>
 	    <div>
 	      <label class="rtip" title="Apply simple, unconditional rewriting rules to simplify formula.  For instance <span class='formula'>F(a)|F(b)</span> is rewritten as <span class='formula'>F(a|b)</span>.">
@@ -263,7 +263,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	      </label><br>
 	    </div>
 	  </div>
-	  <div id="output-tabs" class="tabs collapsible">
+	  <div id="output-tabs" class="tabs collapsible shadow">
 	    <ul class="head">
 	      <li>Desired Output:</li>
 	      <li><a href="#tabs-formula" class="btip" title="Simplify the formula, but do not convert it as an automaton.">Formula</a></li>
@@ -333,7 +333,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	      </div>
 	    </div>
 	  </div>
-	  <div id="translator-tabs" class="tabs collapsible">
+	  <div id="translator-tabs" class="tabs collapsible shadow">
 	    <ul class="head">
 	      <li>Translator Algorithm:</li>
 	      <li><a href="#tabs-fm" class="btip" title="A tableau construction that uses BDDs to symbolically represent each state of the automaton.  (This is the best algorithm of the three.)">Couvreur/FM</a></li>
@@ -375,7 +375,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	      </div>
 	    </div>
 	  </div>
-	  <div id="autsimp-tabs" class="ui-widget ui-widget-content ui-corner-all collapsible">
+	  <div id="autsimp-tabs" class="ui-widget ui-widget-content ui-corner-all collapsible shadow">
 	    <h3 class="ui-widget-header ui-corner-all head">Automaton Simplifications<span class="ui-icon ui-icon-circle-arrow-n ftip">Fold</span></h3>
 	    <div>
 	      <label class="rtip" title="Compute the SCCs of the automaton.  Eliminate all the useless SCCs (i.e. those that cannot be part of an accepting run).  Also attempt to remove redundant acceptance conditions.">
@@ -388,7 +388,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
               </label><br>
 	    </div>
 	  </div>
-	  <div id="run-tabs" class="ui-widget ui-widget-content ui-corner-all collapsible">
+	  <div id="run-tabs" class="ui-widget ui-widget-content ui-corner-all collapsible shadow">
 	    <h3 class="ui-widget-header ui-corner-all
 	    head">Emptiness-check Algorithm<span class="ui-icon ui-icon-circle-arrow-n ftip">Fold</span></h3>
 	    <div>
@@ -406,7 +406,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	    </div>
 	  </div>
       </FORM>
-	  <div id="results" class="ui-widget ui-widget-content ui-corner-all collapsible">
+	  <div id="results" class="ui-widget ui-widget-content ui-corner-all collapsible shadow">
 	    <h3 id="results-head" class="ui-widget-header ui-corner-all head">Results<span class="ui-icon ui-icon-circle-arrow-n restip">Fold</span></h3>
 	    <div id="results-body">
 	    </div>
