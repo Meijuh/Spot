@@ -119,7 +119,8 @@ namespace spot
 
         os_ << "  " << in << " -> " << out << " [label=\"";
         escape_str(os_, bdd_format_accset(t_automata_->get_dict(),
-            si->current_condition()))
+            si->current_condition()) + "\n" + bdd_format_accset(
+            t_automata_->get_dict(), si->current_acceptance_conditions()))
 
         << "\"]" << std::endl;
 

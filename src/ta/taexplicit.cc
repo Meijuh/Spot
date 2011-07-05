@@ -83,6 +83,13 @@ namespace spot
     return (*i_)->condition;
   }
 
+  bdd
+  ta_explicit_succ_iterator::current_acceptance_conditions() const
+  {
+    assert(!done());
+    return (*i_)->acceptance_conditions;
+  }
+
   bool
   ta_explicit_succ_iterator::is_stuttering_transition() const
   {
@@ -138,6 +145,10 @@ namespace spot
         != transitions_condition->end() && !transition_found); it_trans++)
       {
         transition_found = ((*it_trans)->dest == t->dest);
+        if (transition_found)
+          {
+            (*it_trans)->acceptance_conditions |= t->acceptance_conditions;
+          }
       }
 
     if (!transition_found)
@@ -313,9 +324,10 @@ namespace spot
   // ta_explicit
 
 
-  ta_explicit::ta_explicit(const tgba* tgba_,
+  ta_explicit::ta_explicit(const tgba* tgba, bdd all_acceptance_conditions,
       state_ta_explicit* artificial_initial_state) :
-    tgba_(tgba_), artificial_initial_state_(artificial_initial_state)
+    tgba_(tgba), all_acceptance_conditions_(all_acceptance_conditions),
+        artificial_initial_state_(artificial_initial_state)
   {
     get_dict()->register_all_variables_of(&tgba_, this);
     if (artificial_initial_state != 0)
@@ -340,6 +352,7 @@ namespace spot
     get_dict()->unregister_all_my_variables(this);
     delete tgba_;
   }
+
 
   state_ta_explicit*
   ta_explicit::add_state(state_ta_explicit* s)
@@ -386,6 +399,19 @@ namespace spot
     state_ta_explicit::transition* t = new state_ta_explicit::transition;
     t->dest = dest;
     t->condition = condition;
+    t->acceptance_conditions = bddfalse;
+    source->add_transition(t);
+
+  }
+
+  void
+  ta_explicit::create_transition(state_ta_explicit* source, bdd condition,
+      bdd acceptance_conditions, state_ta_explicit* dest)
+  {
+    state_ta_explicit::transition* t = new state_ta_explicit::transition;
+    t->dest = dest;
+    t->condition = condition;
+    t->acceptance_conditions = acceptance_conditions;
     source->add_transition(t);
 
   }

@@ -25,7 +25,7 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 taalgosdir = $(pkgincludedir)/taalgos
 
 taalgos_HEADERS = \
-	sba2ta.hh \
+	tgba2ta.hh \
 	dotty.hh \
 	reachiter.hh \
 	stats.hh \
@@ -33,10 +33,9 @@ taalgos_HEADERS = \
 	minimize.hh \
   	emptinessta.hh
 
-
 noinst_LTLIBRARIES = libtaalgos.la
 libtaalgos_la_SOURCES = \
-	sba2ta.cc \
+	tgba2ta.cc \
 	dotty.cc \
 	reachiter.cc \
   	stats.cc \

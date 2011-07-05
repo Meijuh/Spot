@@ -37,6 +37,7 @@
 #include "ta/taproduct.hh"
 #include "taalgos/statessetbuilder.hh"
 #include "tgba/tgbaexplicit.hh"
+#include "tgba/bddprint.hh"
 
 namespace spot
 {
@@ -75,7 +76,7 @@ namespace spot
   build_result(const ta* a, std::list<hash_set*>& sets)
   {
     tgba_explicit_number* tgba = new tgba_explicit_number(a->get_dict());
-    ta_explicit* ta = new ta_explicit(tgba);
+    ta_explicit* ta = new ta_explicit(tgba, a->all_acceptance_conditions());
 
     // For each set, create a state in the tgbaulting automaton.
     // For a state s, state_num[s] is the number of the state in the minimal
@@ -111,7 +112,7 @@ namespace spot
         bool is_accepting_state = a->is_accepting_state(src);
         bool is_livelock_accepting_state = a->is_livelock_accepting_state(src);
 
-        state_ta_explicit* new_src = new state_ta_explicit(tgba_state,
+        state_ta_explicit* new_src = new state_ta_explicit(tgba_state->clone(),
             tgba_condition, is_initial_state, is_accepting_state,
             is_livelock_accepting_state);
 
@@ -150,7 +151,7 @@ namespace spot
             bool is_livelock_accepting_state = a->is_livelock_accepting_state(
                 dst);
 
-            state_ta_explicit* new_dst = new state_ta_explicit(tgba_state,
+            state_ta_explicit* new_dst = new state_ta_explicit(tgba_state->clone(),
                 tgba_condition, is_initial_state, is_accepting_state,
                 is_livelock_accepting_state);
 
@@ -169,7 +170,7 @@ namespace spot
             else if (is_initial_state)
               ta->add_to_initial_states_set(new_dst);
 
-            ta->create_transition(ta_src, succit->current_condition(), ta_dst);
+            ta->create_transition(ta_src, succit->current_condition(), succit->current_acceptance_conditions(), ta_dst);
 
           }
         delete succit;
@@ -245,7 +246,7 @@ namespace spot
     hash_map state_set_map;
 
     // Size of ta_
-    unsigned size = states_set.size();
+    unsigned size = states_set.size() + 6;
     // Use bdd variables to number sets.  set_num is the first variable
     // available.
     unsigned set_num = ta_->get_dict()->register_anonymous_variables(size, ta_);
@@ -347,6 +348,11 @@ namespace spot
     typedef std::map<bdd, hash_set*, bdd_less_than> bdd_states_map;
 
     bool did_split = true;
+    unsigned num = set_num;
+    set_num++;
+    used_var[num] = 1;
+    free_var.erase(num);
+    bdd bdd_false_acceptance_condition = bdd_ithvar(num);
 
     while (did_split)
       {
@@ -373,7 +379,14 @@ namespace spot
                     hash_map::const_iterator i = state_set_map.find(dst);
 
                     assert(i != state_set_map.end());
-                    f |= (bdd_ithvar(i->second) & si->current_condition());
+                    bdd current_acceptance_conditions =
+                        si->current_acceptance_conditions();
+                    if (current_acceptance_conditions == bddfalse)
+                      current_acceptance_conditions
+                          = bdd_false_acceptance_condition;
+                    f |= (bdd_ithvar(i->second) & si->current_condition()
+                        & current_acceptance_conditions);
+                    trace << "--------------f: "   << bdd_format_accset(ta_->get_dict(),f) << std::endl;;
                   }
                 delete si;
 
@@ -470,7 +483,7 @@ namespace spot
     std::list<hash_set*>::iterator itdone;
     for (itdone = done.begin(); itdone != done.end(); ++itdone)
       delete *itdone;
-    delete ta_;
+    //delete ta_;
 
     return res;
   }

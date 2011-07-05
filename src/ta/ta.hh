@@ -70,7 +70,6 @@ namespace spot
     virtual bool
     is_livelock_accepting_state(const spot::state* s) const = 0;
 
-
     virtual bool
     is_initial_state(const spot::state* s) const = 0;
 
@@ -79,6 +78,16 @@ namespace spot
 
     virtual void
     free_state(const spot::state* s) const = 0;
+
+    /// \brief Return the set of all acceptance conditions used
+    /// by this automaton.
+    ///
+    /// The goal of the emptiness check is to ensure that
+    /// a strongly connected component walks through each
+    /// of these acceptiong conditions.  I.e., the union
+    /// of the acceptiong conditions of all transition in
+    /// the SCC should be equal to the result of this function.
+    virtual bdd all_acceptance_conditions() const = 0;
 
   };
 
@@ -107,11 +116,8 @@ namespace spot
     is_stuttering_transition() const = 0;
 
     bdd
-    current_acceptance_conditions() const
-    {
-      assert(!done());
-      return bddfalse;
-    }
+    current_acceptance_conditions() const = 0;
+
   };
 
   // A stack of Strongly-Connected Components
@@ -127,6 +133,10 @@ namespace spot
       int index;
 
       bool is_accepting;
+
+      /// The bdd condition is the union of all acceptance conditions of
+      /// transitions which connect the states of the connected component.
+      bdd condition;
 
       std::list<state*> rem;
     };

@@ -190,6 +190,7 @@ namespace spot
             //if stuttering transition, the TA automata stays in the same state
             current_state_ = new state_ta_product(source_->get_ta_state(),
                 kripke_current_dest_state->clone());
+            current_acceptance_conditions_ = bddfalse;
             return;
           }
 
@@ -197,6 +198,8 @@ namespace spot
           {
             current_state_ = new state_ta_product(ta_succ_it_->current_state(),
                 kripke_current_dest_state->clone());
+            current_acceptance_conditions_
+                = ta_succ_it_->current_acceptance_conditions();
             return;
           }
 
@@ -247,6 +250,19 @@ namespace spot
     //    return bdd_setxor(kripke_source_condition, kripke_current_dest_condition);
 
     return current_condition_;
+  }
+
+  bdd
+  ta_succ_iterator_product::current_acceptance_conditions() const
+  {
+    // assert(!done());
+    //    bdd kripke_source_condition = kripke_->state_condition(source_->get_kripke_state());
+    //    state * kripke_succ_it_current_state = kripke_succ_it_->current_state();
+    //    bdd kripke_current_dest_condition = kripke_->state_condition(kripke_succ_it_current_state);
+    //    delete kripke_succ_it_current_state;
+    //    return bdd_setxor(kripke_source_condition, kripke_current_dest_condition);
+
+    return current_acceptance_conditions_;
   }
 
   ////////////////////////////////////////////////////////////
@@ -390,6 +406,12 @@ namespace spot
     bool is_hole_state = ta_succ_iter->done();
     delete ta_succ_iter;
     return is_hole_state;
+  }
+
+  bdd
+  ta_product::all_acceptance_conditions() const
+  {
+    return get_ta()->all_acceptance_conditions();
   }
 
   bdd

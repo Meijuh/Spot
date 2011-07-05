@@ -30,6 +30,7 @@
 #include "emptinessta.hh"
 #include "misc/memusage.hh"
 #include <math.h>
+#include "tgba/bddprint.hh"
 
 namespace spot
 {
@@ -50,6 +51,12 @@ namespace spot
   {
 
     // We use five main data in this algorithm:
+
+    // * scc: a stack of strongly connected components (SCC)
+    scc;
+
+    // * arc, a stack of acceptance conditions between each of these SCC,
+    std::stack<bdd> arc;
 
     // * h: a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
@@ -108,6 +115,7 @@ namespace spot
 
             h->insert(init, ++num);
             scc.push(num);
+            arc.push(bddfalse);
 
             ta_succ_iterator* iter = a_->succ_iter(init);
             iter->first();
@@ -187,6 +195,9 @@ namespace spot
                       }
                     dec_depth(scc.rem().size());
                     scc.pop();
+                    assert(!arc.empty());
+                    arc.pop();
+
                   }
 
                 delete succ;
@@ -200,6 +211,8 @@ namespace spot
               << "PASS 1: transition" << std::endl;
             // Fetch the values destination state we are interested in...
             state* dest = succ->current_state();
+
+            bdd acc_cond = succ->current_acceptance_conditions();
 
             bool curr_is_livelock_hole_state_in_ta_component =
                 (a_->is_hole_state_in_ta_component(curr))
@@ -228,6 +241,7 @@ namespace spot
                 // for later processing.
                 h->insert(dest, ++num);
                 scc.push(num);
+                arc.push(acc_cond);
 
                 ta_succ_iterator* iter = a_->succ_iter(dest);
                 iter->first();
@@ -265,13 +279,18 @@ namespace spot
             while (threshold < scc.top().index)
               {
                 assert(!scc.empty());
+                assert(!arc.empty());
 
                 acc |= scc.top().is_accepting;
+                acc_cond |= scc.top().condition;
+                acc_cond |= arc.top();
 
                 rem.splice(rem.end(), scc.rem());
                 scc.pop();
+                arc.pop();
 
               }
+
             // Note that we do not always have
             //  threshold == scc.top().index
             // after this loop, the SSCC whose index is threshold might have
@@ -279,13 +298,23 @@ namespace spot
 
             // Accumulate all acceptance conditions into the merged SSCC.
             scc.top().is_accepting |= acc;
+            scc.top().condition |= acc_cond;
 
             scc.rem().splice(scc.rem().end(), rem);
-            if (scc.top().is_accepting)
+            bool is_accepting_sscc = (scc.top().is_accepting)
+                || (scc.top().condition == a_->all_acceptance_conditions());
+
+            if (is_accepting_sscc)
               {
                 clear(h, todo, init_set);
                 trace
                   << "PASS 1: SUCCESS" << std::endl;
+                trace
+                                  << "PASS 1: scc.top().condition : " <<  bdd_format_accset(a_->get_dict(),
+                                      scc.top().condition) << std::endl;
+                trace
+                                  << "PASS 1: a_->all_acceptance_conditions() : " <<  bdd_format_accset(a_->get_dict(),
+                                      a_->all_acceptance_conditions()) << std::endl;
                 return true;
               }
 

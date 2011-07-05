@@ -66,7 +66,7 @@
 #include "kripkeparse/public.hh"
 #include "tgbaalgos/simulation.hh"
 
-#include "taalgos/sba2ta.hh"
+#include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
 #include "taalgos/stats.hh"
 
@@ -1091,11 +1091,11 @@ main(int argc, char** argv)
 
       if (ta_opt)
         {
-          const spot::tgba_sba_proxy* degeneralized_new = 0;
-          const spot::tgba_sba_proxy* degeneralized =
-              dynamic_cast<const spot::tgba_sba_proxy*> (a);
-          if (degeneralized == 0)
-            degeneralized_new = degeneralized =  new spot::tgba_sba_proxy(a);
+//          const spot::tgba_sba_proxy* degeneralized_new = 0;
+//          const spot::tgba_sba_proxy* degeneralized =
+//              dynamic_cast<const spot::tgba_sba_proxy*> (a);
+//          if (degeneralized == 0)
+//            degeneralized_new = degeneralized =  new spot::tgba_sba_proxy(a);
 
           spot::ltl::atomic_prop_set* aps = atomic_prop_collect(f, 0);
 
@@ -1104,15 +1104,19 @@ main(int argc, char** argv)
               != aps->end(); ++i)
             {
               bdd atomic_prop = bdd_ithvar(
-                  (degeneralized->get_dict())->var_map[*i]);
+                  (a->get_dict())->var_map[*i]);
 
               atomic_props_set_bdd &= atomic_prop;
 
             }
           delete aps;
 
-          spot::ta* testing_automata = sba_to_ta(degeneralized, atomic_props_set_bdd, opt_with_artificial_initial_state, opt_with_artificial_livelock);
-          if (opt_minimize) testing_automata = minimize_ta(testing_automata);
+          spot::ta* testing_automata = tgba_to_ta(a, atomic_props_set_bdd, opt_with_artificial_initial_state, opt_with_artificial_livelock, degeneralize_opt == DegenSBA);
+          spot::ta* testing_automata_nm = 0;
+          if (opt_minimize) {
+              testing_automata_nm = testing_automata;
+              testing_automata = minimize_ta(testing_automata);
+          }
 
           if (output != -1)
             {
@@ -1130,6 +1134,8 @@ main(int argc, char** argv)
                 }
               tm.stop("producing output");
             }
+
+          delete testing_automata_nm;
           delete testing_automata;
           output = -1;
 

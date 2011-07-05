@@ -41,8 +41,8 @@ namespace spot
   class ta_explicit : public ta
   {
   public:
-    ta_explicit(const tgba* tgba_, state_ta_explicit* artificial_initial_state =
-        0);
+    ta_explicit(const tgba* tgba, bdd all_acceptance_conditions,
+        state_ta_explicit* artificial_initial_state = 0);
 
     const tgba*
     get_tgba() const;
@@ -56,6 +56,10 @@ namespace spot
     void
     create_transition(state_ta_explicit* source, bdd condition,
         state_ta_explicit* dest);
+
+    void
+    create_transition(state_ta_explicit* source, bdd condition,
+        bdd acceptance_conditions, state_ta_explicit* dest);
 
     void
     delete_stuttering_transitions();
@@ -114,16 +118,32 @@ namespace spot
       return states_set_;
     }
 
+    /// \brief Return the set of all acceptance conditions used
+    /// by this automaton.
+    ///
+    /// The goal of the emptiness check is to ensure that
+    /// a strongly connected component walks through each
+    /// of these acceptiong conditions.  I.e., the union
+    /// of the acceptiong conditions of all transition in
+    /// the SCC should be equal to the result of this function.
+    bdd
+    all_acceptance_conditions() const
+    {
+      return all_acceptance_conditions_;;
+    }
+
+
   private:
     // Disallow copy.
     ta_explicit(const ta_explicit& other);
     ta_explicit&
     operator=(const ta_explicit& other);
 
+    const tgba* tgba_;
+    bdd all_acceptance_conditions_;
+    state_ta_explicit* artificial_initial_state_;
     ta::states_set_t states_set_;
     ta::states_set_t initial_states_set_;
-    const tgba* tgba_;
-    state_ta_explicit* artificial_initial_state_;
 
   };
 
@@ -136,6 +156,7 @@ namespace spot
     struct transition
     {
       bdd condition;
+      bdd acceptance_conditions;
       state_ta_explicit* dest;
     };
 
@@ -201,6 +222,8 @@ namespace spot
     void
     free_transitions();
 
+
+
   private:
     const state* tgba_state_;
     const bdd tgba_condition_;
@@ -231,6 +254,9 @@ namespace spot
     current_state() const;
     virtual bdd
     current_condition() const;
+
+    virtual bdd
+    current_acceptance_conditions() const;
 
     virtual bool
     is_stuttering_transition() const;

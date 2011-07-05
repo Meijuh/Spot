@@ -30,6 +30,7 @@ namespace spot
   ta*
   minimize_ta(const ta* ta_);
 
+
 /// @}
 }
 

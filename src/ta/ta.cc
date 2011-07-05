@@ -34,6 +34,7 @@ namespace spot
   {
     index = i;
     is_accepting = false;
+    condition = bddfalse;
   }
 
   scc_stack_ta::connected_component&

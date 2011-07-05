@@ -97,6 +97,9 @@ namespace spot
     bdd
     current_condition() const;
 
+    bdd
+    current_acceptance_conditions() const;
+
     bool
     is_stuttering_transition() const;
 
@@ -121,6 +124,7 @@ namespace spot
     tgba_succ_iterator* kripke_succ_it_;
     state_ta_product* current_state_;
     bdd current_condition_;
+    bdd current_acceptance_conditions_;
     bool is_stuttering_transition_;
     bdd kripke_source_condition;
     state * kripke_current_dest_state;
@@ -173,9 +177,11 @@ namespace spot
     virtual bool
     is_hole_state_in_ta_component(const spot::state* s) const;
 
-
     virtual bdd
     get_state_condition(const spot::state* s) const;
+
+    virtual bdd
+    all_acceptance_conditions() const;
 
     virtual void
     free_state(const spot::state* s) const;
