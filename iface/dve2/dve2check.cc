@@ -107,7 +107,7 @@ main(int argc, char **argv)
 		if (!*echeck_algo)
 		  echeck_algo = "Cou99";
 
-		expect_counter_example = (*opt == 'E');
+		expect_counter_example = (*opt == 'e');
 		output = EmptinessCheck;
 		break;
 	      }

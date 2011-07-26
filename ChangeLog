@@ -1,3 +1,11 @@
+2011-07-26  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	-e means we expect an accepting run.
+
+	* iface/dve2/dve2check.cc: Reverse the value of
+	expect_counter_example with respect to the -e/-E options.
+	* iface/dve2/dve2check.test: Swap -e and -E.
+
 2011-06-26  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Add some "drop shadow" in ltl2tgba.html.
