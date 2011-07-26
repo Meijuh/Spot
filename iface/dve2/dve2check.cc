@@ -23,8 +23,10 @@
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
+#include "ltlvisit/reduce.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/sccfilter.hh"
+#include "tgbaalgos/minimize.hh"
 #include "tgbaalgos/emptiness.hh"
 #include "tgbaalgos/reducerun.hh"
 #include "tgba/tgbaproduct.hh"
@@ -60,6 +62,8 @@ syntax(char* prog)
 	    << std::endl
             << "  -T     time the different phases of the execution"
 	    << std::endl
+            << "  -W     enable WDBA minimization"
+	    << std::endl
             << "  -z     compress states to handle larger models"
 	    << std::endl
             << "  -Z     compress states (faster) "
@@ -80,6 +84,7 @@ main(int argc, char **argv)
   output = EmptinessCheck;
   bool accepting_run = false;
   bool expect_counter_example = false;
+  bool wdba = false;
   char *dead = 0;
   int compress_states = 0;
 
@@ -130,6 +135,9 @@ main(int argc, char **argv)
 	    case 'T':
 	      use_timer = true;
 	      break;
+	    case 'W':
+	      wdba = true;
+	      break;
 	    case 'z':
 	      compress_states = 1;
 	      break;
@@ -159,7 +167,7 @@ main(int argc, char **argv)
   spot::ltl::atomic_prop_set ap;
   spot::bdd_dict* dict = new spot::bdd_dict();
   spot::kripke* model = 0;
-  spot::tgba* prop = 0;
+  const spot::tgba* prop = 0;
   spot::tgba* product = 0;
   spot::emptiness_check_instantiator* echeck_inst = 0;
   int exit_code = 0;
@@ -204,6 +212,14 @@ main(int argc, char **argv)
   if (exit_code)
     goto safe_exit;
 
+  tm.start("reducing formula");
+  {
+    spot::ltl::formula* r = spot::ltl::reduce(f);
+    f->destroy();
+    f = r;
+  }
+  tm.stop("reducing formula");
+
   atomic_prop_collect(f, &ap);
 
 
@@ -240,6 +256,22 @@ main(int argc, char **argv)
     prop = aut_scc;
   }
   tm.stop("reducing A_f w/ SCC");
+
+  if (wdba)
+    {
+      tm.start("WDBA minimization");
+      const spot::tgba* minimized = 0;
+
+      minimized = minimize_obligation(prop, f);
+
+      if (minimized != prop)
+	{
+	  delete prop;
+	  prop = minimized;
+	}
+
+      tm.stop("WDBA minimization");
+    }
 
   if (output == DotFormula)
     {

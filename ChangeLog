@@ -1,5 +1,9 @@
 2011-07-26  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* iface/dve2/dve2check.cc: Add option -W and simplify formulae.
+
+2011-07-26  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	-e means we expect an accepting run.
 
 	* iface/dve2/dve2check.cc: Reverse the value of
