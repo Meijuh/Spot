@@ -1,5 +1,18 @@
 2011-08-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Fix a nondeterministic behavior of the degeneralization algorithm.
+
+	Reported by Tomáš Babiak <xbabiak@fi.muni.cz>.
+
+	* src/tgba/tgbatba.cc (tgba_tba_proxy): Replace the std::map used
+	to record outgoing transitions by an Sgi::hash_map, and keep the
+	order of these transitions in a separate list.
+	* src/tgbatest/degendet.test: New file.
+	* src/tgbatest/Makefile.am (TESTS): Add it.
+	* THANKS: Add Tomáš and convert to utf8.
+
+2011-08-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* src/tgbatest/ltl2tgba.cc (syntax): -N implies -DS, not -D.
 
 2011-07-26  Alexandre Duret-Lutz  <adl@lrde.epita.fr>

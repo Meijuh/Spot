@@ -108,7 +108,21 @@ namespace spot
 
     typedef std::pair<const state_tba_proxy*, bool> state_ptr_bool_t;
 
-    struct state_ptr_bool_less_than:
+    struct state_ptr_bool_hash:
+      public std::unary_function<const state_ptr_bool_t&,
+				 size_t>
+    {
+      size_t
+      operator()(const state_ptr_bool_t& s) const
+      {
+	if (s.second)
+	  return s.first->hash() ^ 12421;
+	else
+	  return s.first->hash();
+      }
+    };
+
+    struct state_ptr_bool_equal:
       public std::binary_function<const state_ptr_bool_t&,
 				  const state_ptr_bool_t&, bool>
     {
@@ -116,12 +130,9 @@ namespace spot
       operator()(const state_ptr_bool_t& left,
 		 const state_ptr_bool_t& right) const
       {
-	// Order accepting transitions first, so that
-	// they are processed early during emptiness-check.
 	if (left.second != right.second)
-	  return left.second > right.second;
-	assert(left.first);
-	return left.first->compare(right.first) < 0;
+	  return false;
+	return left.first->compare(right.first) == 0;
       }
     };
 
@@ -199,7 +210,23 @@ namespace spot
 	    transmap_t::iterator id = transmap_.find(key);
 	    if (id == transmap_.end()) // No
 	      {
-		transmap_[key] = it->current_condition();
+		mapit_t pos = transmap_
+		  .insert(std::make_pair(key, it->current_condition())).first;
+		// Keep the order of the transitions in the
+		// degeneralized automaton related to the order of the
+		// transitions in the input automaton: in the past we
+		// used to simply iterate over transmap_ in whatever
+		// order the transitions were stored, but the output
+		// would change between different runs depending on
+		// the memory address of the states.  Now we keep the
+		// order using translist_.  We only arrange it
+		// slightly so that accepting transitions come first:
+		// this way they are processed early during
+		// emptiness-check.
+		if (accepting)
+		  translist_.push_front(pos);
+		else
+		  translist_.push_back(pos);
 	      }
 	    else // Yes, combine labels.
 	      {
@@ -228,7 +255,7 @@ namespace spot
       void
       first()
       {
-	it_ = transmap_.begin();
+	it_ = translist_.begin();
       }
 
       void
@@ -240,7 +267,7 @@ namespace spot
       bool
       done() const
       {
-	return it_ == transmap_.end();
+	return it_ == translist_.end();
       }
 
       // inspection
@@ -248,29 +275,32 @@ namespace spot
       state_tba_proxy*
       current_state() const
       {
-	return it_->first.first->clone();
+	return (*it_)->first.first->clone();
       }
 
       bdd
       current_condition() const
       {
-	return it_->second;
+	return (*it_)->second;
       }
 
       bdd
       current_acceptance_conditions() const
       {
-	return it_->first.second ? the_acceptance_cond_ : bddfalse;
+	return (*it_)->first.second ? the_acceptance_cond_ : bddfalse;
       }
 
     protected:
       const bdd the_acceptance_cond_;
 
-      typedef std::map<state_ptr_bool_t,
-		       bdd,
-		       spot::state_ptr_bool_less_than> transmap_t;
+      typedef Sgi::hash_map<state_ptr_bool_t, bdd,
+			    state_ptr_bool_hash,
+			    state_ptr_bool_equal> transmap_t;
       transmap_t transmap_;
-      transmap_t::const_iterator it_;
+      typedef transmap_t::const_iterator mapit_t;
+      typedef std::list<mapit_t> translist_t;
+      translist_t translist_;
+      translist_t::const_iterator it_;
     };
 
   } // anonymous
@@ -294,9 +324,9 @@ namespace spot
 	//
 	// The order is arbitrary, but it turns out that using
 	// push_back instead of push_front often gives better results
-	// because acceptance conditions and the beginning if the
+	// because acceptance conditions at the beginning if the
 	// cycle are more often used in the automaton.  (This
-	// surprising fact is probably related to order in which we
+	// surprising fact is probably related to the order in which we
 	// declare the BDD variables during the translation.)
 	bdd all = a_->all_acceptance_conditions();
 	while (all != bddfalse)

@@ -91,6 +91,7 @@ TESTS = \
   tripprod.test \
   mixprod.test \
   dupexp.test \
+  degendet.test \
   kv.test \
   reduccmp.test \
   reductgba.test \
