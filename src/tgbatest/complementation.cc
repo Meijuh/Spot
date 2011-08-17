@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -57,11 +57,10 @@ int main(int argc, char* argv[])
   char *file = 0;
   bool print_safra = false;
   bool print_automaton = false;
-  bool check = false;
+  //bool check = false;
   int return_value = 0;
   bool stats = false;
   bool formula = false;
-  bool automaton = false;
   bool safra = false;
   bool print_formula = false;
 
@@ -78,7 +77,7 @@ int main(int argc, char* argv[])
       if (strcmp(argv[i] + 1, "astat") == 0)
       {
         stats = true;
-        automaton = true;
+        formula = false;
         continue;
       }
 
@@ -98,7 +97,8 @@ int main(int argc, char* argv[])
         case 'a':
           print_automaton = true; break;
         case 'f':
-          check = true; break;
+          //check = true;
+	  break;
         case 'p':
           print_formula = true; break;
         default:

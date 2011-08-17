@@ -1,5 +1,12 @@
 2011-08-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Please GCC 4.6.
+
+	* src/tgbatest/complementation.cc (check, automaton): Remove
+	these unused variables.
+
+2011-08-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Fix a nondeterministic behavior of the degeneralization algorithm.
 
 	Reported by Tomáš Babiak <xbabiak@fi.muni.cz>.
