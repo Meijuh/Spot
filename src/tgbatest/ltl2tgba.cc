@@ -265,10 +265,10 @@ syntax(char* prog)
 	    << "  -K    dump the graph of SCCs in dot format" << std::endl
 	    << "  -KV   verbosely dump the graph of SCCs in dot format"
 	    << std::endl
-	    << "  -N    output the never clain for Spin (implies -D)"
+	    << "  -N    output the never clain for Spin (implies -DS)"
 	    << std::endl
 	    << "  -NN   output the never clain for Spin, with commented states"
-	    << " (implies -D)" << std::endl
+	    << " (implies -DS)" << std::endl
 	    << "  -O    tell if a formula represents a safety, guarantee, "
 	    << "or obligation property"
 	    << std::endl
