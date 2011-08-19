@@ -84,6 +84,8 @@ namespace spot
 
     private:
       ltl_simplifier_cache* cache_;
+      // Copy disallowed.
+      ltl_simplifier(const ltl_simplifier&);
     };
   }
 
