@@ -23,7 +23,6 @@
 
 #include "reduce.hh"
 #include "basicreduce.hh"
-#include "syntimpl.hh"
 #include "ltlast/allnodes.hh"
 #include <cassert>
 
@@ -31,403 +30,27 @@
 #include "simpfg.hh"
 #include "nenoform.hh"
 #include "contain.hh"
+#include "simplify.hh"
 
 namespace spot
 {
   namespace ltl
   {
-    namespace
-    {
-      /////////////////////////////////////////////////////////////////////////
-
-      class reduce_visitor: public visitor
-      {
-      public:
-
-	reduce_visitor(int opt, syntactic_implication_cache* c)
-	  : opt_(opt), c_(c)
-	{
-	}
-
-	virtual ~reduce_visitor()
-	{
-	}
-
-	formula*
-	result() const
-	{
-	  return result_;
-	}
-
-	void
-	visit(atomic_prop* ap)
-	{
-	  formula* f = ap->clone();
-	  result_ = f;
-	}
-
-	void
-	visit(constant* c)
-	{
-	  result_ = c;
-	}
-
-	void
-	visit(bunop* bo)
-	{
-	  result_ = bunop::instance(bo->op(), recurse(bo->child()),
-				    bo->min(), bo->max());
-	}
-
-	void
-	visit(unop* uo)
-	{
-	  result_ = recurse(uo->child());
-
-	  switch (uo->op())
-	    {
-	    case unop::F:
-	      /* If f is a pure eventuality formula then F(f)=f.  */
-	      if (!(opt_ & Reduce_Eventuality_And_Universality)
-		  || !result_->is_eventual())
-		result_ = unop::instance(unop::F, result_);
-	      return;
-
-	    case unop::G:
-	      /* If f is a pure universality formula then G(f)=f.  */
-	      if (!(opt_ & Reduce_Eventuality_And_Universality)
-		  || !result_->is_universal())
-		result_ = unop::instance(unop::G, result_);
-	      return;
-
-	    case unop::Not:
-	    case unop::X:
-	    case unop::Finish:
-	    case unop::Closure:
-	    case unop::NegClosure:
-	      result_ = unop::instance(uo->op(), result_);
-	      return;
-	    }
-	  /* Unreachable code.  */
-	  assert(0);
-	}
-
-	void
-	visit(binop* bo)
-	{
-	  binop::type op = bo->op();
-
-	  formula* f2 = recurse(bo->second());
-
-	  if (opt_ & Reduce_Eventuality_And_Universality)
-	    {
-	      /* If b is a pure eventuality formula then a U b = b.
-		 If b is a pure universality formula a R b = b. */
-	      if ((f2->is_eventual() && (op == binop::U))
-		  || (f2->is_universal() && (op == binop::R)))
-		{
-		  result_ = f2;
-		  return;
-		}
-	    }
-
-	  formula* f1 = recurse(bo->first());
-	  if (opt_ & Reduce_Eventuality_And_Universality)
-	    {
-	      /* If a is a pure eventuality formula then a M b = a & b.
-		 If a is a pure universality formula a W b = a|b. */
-	      if (f1->is_eventual() && (op == binop::M))
-		{
-		  result_ = multop::instance(multop::And, f1, f2);
-		  return;
-		}
-	      if (f1->is_universal() && (op == binop::W))
-		{
-		  result_ = multop::instance(multop::Or, f1, f2);
-		  return;
-		}
-	    }
-
-
-	  /* case of implies */
-	  if (opt_ & Reduce_Syntactic_Implications)
-	    {
-	      switch (op)
-		{
-		case binop::Xor:
-		case binop::Equiv:
-		case binop::Implies:
-		  assert(!"operator not supported for syntactic implication");
-		  return;
-		case binop::UConcat:
-		case binop::EConcat:
-		case binop::EConcatMarked:
-		  break;
-
-		case binop::U:
-		  /* a < b => a U b = b */
-		  if (c_->syntactic_implication(f1, f2))
-		    {
-		      result_ = f2;
-		      f1->destroy();
-		      return;
-		    }
-		  /* !b < a => a U b = Fb */
-		  if (c_->syntactic_implication_neg(f2, f1, false))
-		    {
-		      result_ = unop::instance(unop::F, f2);
-		      f1->destroy();
-		      return;
-		    }
-		  /* a < b => a U (b U c) = (b U c) */
-		  /* a < b => a U (b W c) = (b W c) */
-		  if (f2->kind() == formula::BinOp)
-		    {
-		      binop* bo = static_cast<binop*>(f2);
-		      if ((bo->op() == binop::U || bo->op() == binop::W)
-			  && c_->syntactic_implication(f1, bo->first()))
-			{
-			  result_ = f2;
-			  f1->destroy();
-			  return;
-			}
-		    }
-		  break;
-
-		case binop::R:
-		  /* b < a => a R b = b */
-		  if (c_->syntactic_implication(f2, f1))
-		    {
-		      result_ = f2;
-		      f1->destroy();
-		      return;
-		    }
-		  /* b < !a => a R b = Gb */
-		  if (c_->syntactic_implication_neg(f2, f1, true))
-		    {
-		      result_ = unop::instance(unop::G, f2);
-		      f1->destroy();
-		      return;
-		    }
-		  if (f2->kind() == formula::BinOp)
-		    {
-		      /* b < a => a R (b R c) = b R c */
-		      /* b < a => a R (b M c) = b M c */
-		      binop* bo = static_cast<binop*>(f2);
-		      if ((bo->op() == binop::R || bo->op() == binop::M)
-			  && c_->syntactic_implication(bo->first(), f1))
-			{
-			  result_ = f2;
-			  f1->destroy();
-			  return;
-			}
-
-		      /* a < b => a R (b R c) = a R c */
-		      if (bo->op() == binop::R
-			  && c_->syntactic_implication(f1, bo->first()))
-			{
-			  result_ = binop::instance(binop::R, f1,
-						    bo->second()->clone());
-			  f2->destroy();
-			  return;
-			}
-		    }
-		  break;
-
-		case binop::W:
-		  /* a < b => a W b = b */
-		  if (c_->syntactic_implication(f1, f2))
-		    {
-		      result_ = f2;
-		      f1->destroy();
-		      return;
-		    }
-		  /* !b < a => a W b = 1 */
-		  if (c_->syntactic_implication_neg(f2, f1, false))
-		    {
-		      result_ = constant::true_instance();
-		      f1->destroy();
-		      f2->destroy();
-		      return;
-		    }
-		  /* a < b => a W (b W c) = (b W c) */
-		  if (f2->kind() == formula::BinOp)
-		    {
-		      binop* bo = static_cast<binop*>(f2);
-		      if (bo->op() == binop::W
-			  && c_->syntactic_implication(f1, bo->first()))
-			{
-			  result_ = f2;
-			  f1->destroy();
-			  return;
-			}
-		    }
-		  break;
-
-		case binop::M:
-		  /* b < a => a M b = b */
-		  if (c_->syntactic_implication(f2, f1))
-		    {
-		      result_ = f2;
-		      f1->destroy();
-		      return;
-		    }
-		  /* b < !a => a M b = 0 */
-		  if (c_->syntactic_implication_neg(f2, f1, true))
-		    {
-		      result_ = constant::false_instance();
-		      f1->destroy();
-		      f2->destroy();
-		      return;
-		    }
-		  if (f2->kind() == formula::BinOp)
-		    {
-		      /* b < a => a M (b M c) = b M c */
-		      binop* bo = static_cast<binop*>(f2);
-		      if (bo->op() == binop::M
-			  && c_->syntactic_implication(bo->first(), f1))
-			{
-			  result_ = f2;
-			  f1->destroy();
-			  return;
-			}
-
-		      /* a < b => a M (b M c) = a M c */
-		      /* a < b => a M (b R c) = a M c */
-		      if ((bo->op() == binop::M || bo->op() == binop::R)
-			  && c_->syntactic_implication(f1, bo->first()))
-			{
-			  result_ = binop::instance(binop::M, f1,
-						    bo->second()->clone());
-			  f2->destroy();
-			  return;
-			}
-		    }
-		  break;
-		}
-	    }
-	  result_ = binop::instance(op, f1, f2);
-	}
-
-	void
-	visit(automatop*)
-	{
-	  assert(0);
-	}
-
-	void
-	visit(multop* mo)
-	{
-	  unsigned mos = mo->size();
-	  multop::vec* res = new multop::vec;
-
-	  for (unsigned i = 0; i < mos; ++i)
-	    res->push_back(recurse(mo->nth(i)));
-
-	  if ((opt_ & Reduce_Syntactic_Implications)
-	      && (mo->op() != multop::Concat)
-	      && (mo->op() != multop::Fusion))
-	    {
-
-	      bool removed = true;
-	      multop::vec::iterator f1;
-	      multop::vec::iterator f2;
-
-	      while (removed)
-		{
-		  removed = false;
-		  f2 = f1 = res->begin();
-		  ++f1;
-		  while (f1 != res->end())
-		    {
-		      assert(f1 != f2);
-		      // a < b => a + b = b
-		      // a < b => a & b = a
-		      if ((c_->syntactic_implication(*f1, *f2) && // f1 < f2
-			   (mo->op() == multop::Or)) ||
-			  ((c_->syntactic_implication(*f2, *f1)) && // f2 < f1
-			   (mo->op() == multop::And)))
-			{
-			  // We keep f2
-			  (*f1)->destroy();
-			  res->erase(f1);
-			  removed = true;
-			  break;
-			}
-		      else if ((c_->syntactic_implication(*f2, *f1) // f2 < f1
-				&& (mo->op() == multop::Or)) ||
-			       ((c_->syntactic_implication(*f1, *f2)) // f1 < f2
-				&& (mo->op() == multop::And)))
-			{
-			  // We keep f1
-			  (*f2)->destroy();
-			  res->erase(f2);
-			  removed = true;
-			  break;
-			}
-		      else
-			++f1;
-		    }
-		}
-
-	      // We cannot run syntactic_implication_neg on SERE
-	      // formulae, unless they are just Boolean formulae.
-	      if (mo->is_boolean() || !mo->is_sere_formula())
-		{
-		  bool is_and = mo->op() != multop::Or;
-		  /* f1 < !f2 => f1 & f2 = false
-		     !f1 < f2 => f1 | f2 = true */
-		  for (f1 = res->begin(); f1 != res->end(); f1++)
-		    for (f2 = res->begin(); f2 != res->end(); f2++)
-		      if (f1 != f2 &&
-			  c_->syntactic_implication_neg(*f1, *f2, is_and))
-			{
-			  for (multop::vec::iterator j = res->begin();
-			       j != res->end(); j++)
-			    (*j)->destroy();
-			  res->clear();
-			  delete res;
-			  if (is_and)
-			    result_ = constant::false_instance();
-			  else
-			    result_ = constant::true_instance();
-			  return;
-			}
-		}
-
-	    }
-
-	  if (!res->empty())
-	    {
-	      result_ = multop::instance(mo->op(), res);
-	      return;
-	    }
-	  assert(0);
-	}
-
-	formula*
-	recurse(formula* f)
-	{
-	  return reduce(f, opt_, c_);
-	}
-
-      protected:
-	formula* result_;
-	int opt_;
-	syntactic_implication_cache* c_;
-      };
-
-    } // anonymous
 
     formula*
-    reduce(const formula* f, int opt, syntactic_implication_cache* c)
+    reduce(const formula* f, int opt)
     {
       formula* f1;
       formula* f2;
       formula* prev = 0;
 
-      syntactic_implication_cache* sic =
-	c ? c : new syntactic_implication_cache;
+      ltl_simplifier_options o;
+      o.reduce_basics = opt & Reduce_Basics;
+      o.synt_impl = opt & Reduce_Syntactic_Implications;
+      o.event_univ = opt & Reduce_Eventuality_And_Universality;
+      o.containment_checks = opt & Reduce_Containment_Checks;
+      o.containment_checks_stronger = opt & Reduce_Containment_Checks_Stronger;
+      ltl_simplifier simplifier(o);
 
       int n = 0;
 
@@ -458,16 +81,9 @@ namespace spot
 	      f2 = f1;
 	    }
 
-	  if (opt & (Reduce_Syntactic_Implications
-		     | Reduce_Eventuality_And_Universality))
-	    {
-	      reduce_visitor v(opt, sic);
-	      f2->accept(v);
-	      f1 = v.result();
-	      f2->destroy();
-	      f2 = f1;
-	    }
-
+	  f1 = simplifier.simplify(f2);
+	  f2->destroy();
+	  f2 = f1;
 
 	  if (opt & (Reduce_Containment_Checks
 		     | Reduce_Containment_Checks_Stronger))
@@ -481,9 +97,6 @@ namespace spot
 	  f = f2;
 	}
       prev->destroy();
-
-      if (c == 0)
-	delete sic;
 
       return const_cast<formula*>(f);
     }

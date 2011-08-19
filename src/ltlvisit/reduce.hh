@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2006, 2010  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2004, 2006, 2010, 2011  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -52,16 +52,13 @@ namespace spot
 	Reduce_All = -1U
       };
 
-    class syntactic_implication_cache;
-
     /// \brief Reduce a formula \a f.
     ///
     /// \param f the formula to reduce
     /// \param opt a conjonction of spot::ltl::reduce_options specifying
     ///            which optimizations to apply.
     /// \return the reduced formula
-    formula* reduce(const formula* f, int opt = Reduce_All,
-		    syntactic_implication_cache* c = 0);
+    formula* reduce(const formula* f, int opt = Reduce_All);
     /// @}
 
     /// \brief Check whether a formula is a pure eventuality.
