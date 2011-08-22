@@ -540,6 +540,14 @@ namespace spot
       formula*
       simplify_recursively(const formula* f, ltl_simplifier_cache* c);
 
+      constant*
+      is_constant(formula* f)
+      {
+	if (f->kind() != formula::Constant)
+	  return 0;
+	return static_cast<constant*>(f);
+      }
+
       unop*
       is_unop(formula* f, unop::type op)
       {
@@ -868,8 +876,11 @@ namespace spot
 	      break;
 
 	    case unop::X:
-	      // X(constant) = constant is a trivial identity
-	      assert(result_->kind() != formula::Constant);
+	      // X(constant) = constant is a trivial identity, but if
+	      // the constant has been constructed by recurse() this
+	      // identity has not been applied.
+	      if (is_constant(result_))
+		  return;
 
 	      // XGF(f) = GF(f) and XFG(f)=FG(f)
 	      if (is_GF(result_) || is_FG(result_))
@@ -885,8 +896,11 @@ namespace spot
 	      break;
 
 	    case unop::F:
-	      // F(constant) = constant is a trivial identity.
-	      assert(result_->kind() != formula::Constant);
+	      // F(constant) = constant is a trivial identity, but if
+	      // the constant has been constructed by recurse() this
+	      // identity has not been applied.
+	      if (is_constant(result_))
+		  return;
 
 	      // If f is a pure eventuality formula then F(f)=f.
 	      if (opt_.event_univ && result_->is_eventual())
@@ -940,8 +954,11 @@ namespace spot
 	      break;
 
 	    case unop::G:
-	      // G(constant) = constant is a trivial identity
-	      assert(result_->kind() != formula::Constant);
+	      // G(constant) = constant is a trivial identity, but if
+	      // the constant has been constructed by recurse() this
+	      // identity has not been applied.
+	      if (is_constant(result_))
+		  return;
 
 	      // If f is a pure universality formula then G(f)=f.
 	      if (opt_.event_univ && result_->is_universal())
@@ -1263,7 +1280,12 @@ namespace spot
 		// a R true = true
 		// a W true = true
 		// a M false = false
-		assert(f2->kind() != formula::Constant);
+		if (is_constant(f2))
+		  {
+		    result_ = f2;
+		    f1->destroy();
+		    return;
+		  }
 
 		// Same effect as dynamic_cast<unop*>, only faster.
 		unop* fu1 =
