@@ -22,7 +22,6 @@
 // 02111-1307, USA.
 
 #include "reduce.hh"
-#include "basicreduce.hh"
 #include "ltlast/allnodes.hh"
 #include <cassert>
 
@@ -73,13 +72,6 @@ namespace spot
 	  f1 = negative_normal_form(f2);
 	  f2->destroy();
 	  f2 = f1;
-
-	  if (opt & Reduce_Basics)
-	    {
-	      f1 = basic_reduce(f2);
-	      f2->destroy();
-	      f2 = f1;
-	    }
 
 	  f1 = simplifier.simplify(f2);
 	  f2->destroy();

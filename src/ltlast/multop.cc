@@ -163,7 +163,7 @@ namespace spot
 
     // We match equivalent formulae modulo "ACI rules"
     // (i.e. associativity, commutativity and idempotence of the
-    // operator).  For instance If `+' designate the OR operator and
+    // operator).  For instance if `+' designates the OR operator and
     // `0' is false (the neutral element for `+') , then `f+f+0' is
     // equivalent to `f'.
     formula*
@@ -178,6 +178,16 @@ namespace spot
 	vec::iterator i = v->begin();
 	while (i != v->end())
 	  {
+	    // Some simplification routines erase terms using null
+	    // pointers that we must ignore.
+	    if ((*i) == 0)
+	      {
+		// FIXME: We should replace the pointer by the
+		// first non-null value at the end of the array
+		// instead of calling erase.
+		i = v->erase(i);
+		continue;
+	      }
 	    if ((*i)->kind() == MultOp)
 	      {
 		multop* p = static_cast<multop*>(*i);
@@ -187,6 +197,7 @@ namespace spot
 		    for (unsigned n = 0; n < ps; ++n)
 		      inlined.push_back(p->nth(n)->clone());
 		    (*i)->destroy();
+		    // FIXME: Do not use erase.  See previous FIXME.
 		    i = v->erase(i);
 		    continue;
 		  }

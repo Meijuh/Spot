@@ -65,7 +65,8 @@ namespace spot
       /// formulae as argument.  This vector is acquired by the
       /// spot::ltl::multop class, the caller should allocate it with
       /// \c new, but not use it (especially not destroy it) after it
-      /// has been passed to spot::ltl::multop.
+      /// has been passed to spot::ltl::multop.  Inside the vector,
+      /// null pointers are ignored.
       ///
       /// All operators (Or, And, Concat) are associative, and are
       /// automatically inlined.  Or and And are commutative, so their

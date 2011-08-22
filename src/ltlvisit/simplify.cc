@@ -233,6 +233,12 @@ namespace spot
 
     namespace
     {
+      //////////////////////////////////////////////////////////////////////
+      //
+      //  NEGATIVE_NORMAL_FORM_VISITOR
+      //
+      //////////////////////////////////////////////////////////////////////
+
       // Forward declaration.
       const formula*
       nenoform_recursively(const formula* f,
@@ -524,9 +530,293 @@ namespace spot
 	return result;
       }
 
+      //////////////////////////////////////////////////////////////////////
+      //
+      //  SIMPLIFY_VISITOR
+      //
+      //////////////////////////////////////////////////////////////////////
+
       // Forward declaration.
-      const formula*
+      formula*
       simplify_recursively(const formula* f, ltl_simplifier_cache* c);
+
+      unop*
+      is_unop(formula* f, unop::type op)
+      {
+	if (f->kind() != formula::UnOp)
+	  return 0;
+	unop* uo = static_cast<unop*>(f);
+	if (uo->op() != op)
+	  return 0;
+	return uo;
+      }
+
+      unop*
+      is_X(formula* f)
+      {
+	return is_unop(f, unop::X);
+      }
+
+      unop*
+      is_F(formula* f)
+      {
+	return is_unop(f, unop::F);
+      }
+
+      unop*
+      is_G(formula* f)
+      {
+	return is_unop(f, unop::G);
+      }
+
+      unop*
+      is_GF(formula* f)
+      {
+	unop* op = is_G(f);
+	if (!op)
+	  return 0;
+	return is_F(op->child());
+      }
+
+      unop*
+      is_FG(formula* f)
+      {
+	unop* op = is_F(f);
+	if (!op)
+	  return 0;
+	return is_G(op->child());
+      }
+
+      binop*
+      is_binop(formula* f, binop::type op)
+      {
+	if (f->kind() != formula::BinOp)
+	  return 0;
+	binop* bo = static_cast<binop*>(f);
+	if (bo->op() != op)
+	  return 0;
+	return bo;
+      }
+
+      binop*
+      is_U(formula* f)
+      {
+	return is_binop(f, binop::U);
+      }
+
+      formula*
+      unop_multop(unop::type uop, multop::type mop, multop::vec* v)
+      {
+	return unop::instance(uop, multop::instance(mop, v));
+      }
+
+      formula*
+      unop_unop_multop(unop::type uop1, unop::type uop2, multop::type mop,
+		       multop::vec* v)
+      {
+	return unop::instance(uop1, unop_multop(uop2, mop, v));
+      }
+
+      formula*
+      unop_unop(unop::type uop1, unop::type uop2, formula* f)
+      {
+	return unop::instance(uop1, unop::instance(uop2, f));
+      }
+
+      struct mospliter
+      {
+	enum what { Split_GF = (1 << 0),
+		    Strip_GF = (1 << 1) | (1 << 0),
+		    Split_FG = (1 << 2),
+		    Strip_FG = (1 << 3) | (1 << 2),
+		    Split_F = (1 << 4),
+		    Strip_F = (1 << 5) | (1 << 4),
+		    Split_G = (1 << 6),
+		    Strip_G = (1 << 7) | (1 << 6),
+		    Strip_X = (1 << 8),
+		    Split_U_or_W = (1 << 9),
+		    Split_R_or_M = (1 << 10),
+		    Split_EventUniv = (1 << 11),
+		    Split_Bool = (1 << 12)
+	};
+
+	void init()
+	{
+	  res_GF = (split_ & Split_GF) ? new multop::vec : 0;
+	  res_FG = (split_ & Split_FG) ? new multop::vec : 0;
+	  res_F = (split_ & Split_F) ? new multop::vec : 0;
+	  res_G = (split_ & Split_G) ? new multop::vec : 0;
+	  res_X = (split_ & Strip_X) ? new multop::vec : 0;
+	  res_U_or_W = (split_ & Split_U_or_W) ? new multop::vec : 0;
+	  res_R_or_M = (split_ & Split_R_or_M) ? new multop::vec : 0;
+	  if (split_ & Split_EventUniv)
+	    {
+	      res_Event = new multop::vec;
+	      res_Univ = new multop::vec;
+	      res_EventUniv = new multop::vec;
+	    }
+	  else
+	    {
+	      res_Event = 0;
+	      res_Univ = 0;
+	      res_EventUniv = 0;
+	    }
+	  res_Bool = (split_ & Split_Bool) ? new multop::vec : 0;
+	  res_other = new multop::vec;
+	}
+
+	void process(formula* f)
+	{
+	  if (res_EventUniv)
+	    {
+	      bool e = f->is_eventual();
+	      bool u = f->is_universal();
+	      if (e && u)
+		{
+		  res_EventUniv->push_back(f->clone());
+		  return;
+		}
+	      if (e)
+		{
+		  res_Event->push_back(f->clone());
+		  return;
+		}
+	      if (u)
+		{
+		  res_Univ->push_back(f->clone());
+		  return;
+		}
+	    }
+
+	  switch (f->kind())
+	    {
+	    case formula::UnOp:
+	      {
+		unop* uo = static_cast<unop*>(f);
+		formula* c = uo->child();
+		switch (uo->op())
+		  {
+		  case unop::X:
+		    if (res_X)
+		      res_X->push_back(c->clone());
+		    else
+		      res_other->push_back(f->clone());
+		    break;
+		  case unop::F:
+		    if (res_FG)
+		      {
+			unop* cc = is_G(c);
+			if (cc)
+			  {
+			    res_FG->push_back(((split_ & Strip_FG) == Strip_FG
+					       ? cc->child() : f)->clone());
+			    break;
+			  }
+		      }
+		    if (res_F)
+		      res_F->push_back(((split_ & Strip_F) == Strip_F
+					? c : f)->clone());
+		    else
+		      res_other->push_back(f->clone());
+		    break;
+		  case unop::G:
+		    if (res_GF)
+		      {
+			unop* cc = is_F(c);
+			if (cc)
+			  {
+			    res_GF->push_back(((split_ & Strip_GF) == Strip_GF
+					       ? cc->child() : f)->clone());
+			    break;
+			  }
+		      }
+		    if (res_G)
+		      res_G->push_back(((split_ & Strip_G) == Strip_G
+					? c : f)->clone());
+		    else
+		      res_other->push_back(f->clone());
+		    break;
+		  default:
+		    res_other->push_back(f->clone());
+		    break;
+		  }
+	      }
+	      break;
+	    case formula::BinOp:
+	      {
+		binop* bo = static_cast<binop*>(f);
+		switch (bo->op())
+		  {
+		  case binop::U:
+		  case binop::W:
+		    if (res_U_or_W)
+		      res_U_or_W->push_back(bo->clone());
+		    else
+		      res_other->push_back(f->clone());
+		    break;
+		  case binop::R:
+		  case binop::M:
+		    if (res_R_or_M)
+		      res_R_or_M->push_back(bo->clone());
+		    else
+		      res_other->push_back(f->clone());
+		    break;
+		  default:
+		    res_other->push_back(f->clone());
+		    break;
+		  }
+	      }
+	      break;
+	    default:
+	      if (res_Bool && f->is_boolean())
+		res_Bool->push_back(f->clone());
+	      else
+		res_other->push_back(f->clone());
+	      break;
+	    }
+	}
+
+	mospliter(unsigned split, multop::vec* v)
+	  : split_(split)
+	{
+	  init();
+	  multop::vec::const_iterator end = v->end();
+	  for (multop::vec::const_iterator i = v->begin(); i < end; ++i)
+	    {
+	      process(*i);
+	      (*i)->destroy();
+	    }
+	  delete v;
+	}
+
+	mospliter(unsigned split, multop* mo, ltl_simplifier_cache* cache)
+	  : split_(split)
+	{
+	  init();
+	  unsigned mos = mo->size();
+	  for (unsigned i = 0; i < mos; ++i)
+	    {
+	      formula* f = simplify_recursively(mo->nth(i), cache);
+	      process(f);
+	      f->destroy();
+	    }
+	  mo->destroy();
+	}
+
+	multop::vec* res_GF;
+	multop::vec* res_FG;
+	multop::vec* res_F;
+	multop::vec* res_G;
+	multop::vec* res_X;
+	multop::vec* res_U_or_W;
+	multop::vec* res_R_or_M;
+	multop::vec* res_Event;
+	multop::vec* res_Univ;
+	multop::vec* res_EventUniv;
+	multop::vec* res_Bool;
+	multop::vec* res_other;
+	unsigned split_;
+      };
 
       class simplify_visitor: public visitor
       {
@@ -550,8 +840,7 @@ namespace spot
 	void
 	visit(atomic_prop* ap)
 	{
-	  formula* f = ap->clone();
-	  result_ = f;
+	  result_ = ap->clone();
 	}
 
 	void
@@ -572,30 +861,154 @@ namespace spot
 	{
 	  result_ = recurse(uo->child());
 
-	  switch (uo->op())
+	  unop::type op = uo->op();
+	  switch (op)
 	    {
+	    case unop::Not:
+	      break;
+
+	    case unop::X:
+	      // X(constant) = constant is a trivial identity
+	      assert(result_->kind() != formula::Constant);
+
+	      // XGF(f) = GF(f) and XFG(f)=FG(f)
+	      if (is_GF(result_) || is_FG(result_))
+		return;
+
+	      // Disabled: X(f1 & GF(f2)) = X(f1) & GF(f2)
+	      // Disabled: X(f1 | GF(f2)) = X(f1) | GF(f2)
+	      // Disabled: X(f1 & FG(f2)) = X(f1) & FG(f2)
+	      // Disabled: X(f1 | FG(f2)) = X(f1) | FG(f2)
+	      // FIXME: The above seems to make more seem when
+	      // reversed.  Maybe they could also be generalized as
+	      // eventual/universal reductions?
+	      break;
+
 	    case unop::F:
-	      /* If f is a pure eventuality formula then F(f)=f.  */
-	      if (!opt_.event_univ || !result_->is_eventual())
-		result_ = unop::instance(unop::F, result_);
-	      return;
+	      // F(constant) = constant is a trivial identity.
+	      assert(result_->kind() != formula::Constant);
+
+	      // If f is a pure eventuality formula then F(f)=f.
+	      if (opt_.event_univ && result_->is_eventual())
+		return;
+
+	      if (!opt_.reduce_basics)
+		break;
+
+	      // F(a U b) = F(b)
+	      {
+		binop* bo = is_U(result_);
+		if (bo)
+		  {
+		    formula* r =
+		      unop::instance(unop::F, bo->second()->clone());
+		    bo->destroy();
+		    result_ = recurse_destroy(r);
+		    return;
+		  }
+	      }
+
+	      // FX(a) = XF(a)
+	      {
+		unop* u = is_X(result_);
+		if (u)
+		{
+		  formula* res =
+		    unop_unop(unop::X, unop::F, u->child()->clone());
+		  u->destroy();
+		  // FXX(a) = XXF(a) ...
+		  // FXG(a) = XFG(a) = FG(a) ...
+		  result_ = recurse_destroy(res);
+		  return;
+		}
+	      }
+
+	      // Disabled: F(f1 & GF(f2)) = F(f1) & GF(f2)
+	      //
+	      // As is, these two formulae are translated into
+	      // equivalent Büchi automata so the rewriting is
+	      // useless.
+	      //
+	      // However when taken in a larger formula such as F(f1
+	      // & GF(f2)) | F(a & GF(b)), this rewriting used to
+	      // produce (F(f1) & GF(f2)) | (F(a) & GF(b)), missing
+	      // the opportunity to apply the F(E1)|F(E2) = F(E1|E2)
+	      // rule which really helps the translation. F((f1 &
+	      // GF(f2)) | (a & GF(b))) is indeed easier to translate.
+	      //
+	      // So let's not consider this rewriting rule.
+	      break;
 
 	    case unop::G:
-	      /* If f is a pure universality formula then G(f)=f.  */
-	      if (!opt_.event_univ || !result_->is_universal())
-		result_ = unop::instance(unop::G, result_);
-	      return;
+	      // G(constant) = constant is a trivial identity
+	      assert(result_->kind() != formula::Constant);
 
-	    case unop::Not:
-	    case unop::X:
+	      // If f is a pure universality formula then G(f)=f.
+	      if (opt_.event_univ && result_->is_universal())
+		return;
+
+	      if (!opt_.reduce_basics)
+		break;
+
+	      // G(a R b) = G(b)
+	      if (result_->kind() == formula::BinOp)
+		{
+		  binop* bo = static_cast<binop*>(result_);
+		  if (bo->op() == binop::R)
+		    {
+		      formula* r =
+			unop::instance(unop::G, bo->second()->clone());
+		      bo->destroy();
+		      result_ = recurse_destroy(r);
+		      return;
+		    }
+		}
+
+	      // GX(a) = XG(a)
+	      if (result_->kind() == formula::UnOp)
+		{
+		  unop* u = static_cast<unop*>(result_);
+		  if (u->op() == unop::X)
+		    {
+		      formula* res =
+			unop_unop(unop::X, unop::G, u->child()->clone());
+		      u->destroy();
+		      // GXX(a) = XXG(a) ...
+		      // GXF(a) = XGF(a) = GF(a) ...
+		      result_ = recurse_destroy(res);
+		      return;
+		    }
+		}
+
+	      // G(f1|f2|GF(f3)|GF(f4)|FG(f5)|FG(f6)) =
+	      //                        G(f1|f2) | GF(f3|f4) | FG(f5) | FG(f6)
+	      // FIXME: can this be generalized to Universal formulae?
+	      if (result_->kind() == formula::MultOp)
+		{
+		  multop* mo = static_cast<multop*>(result_);
+		  if (mo->op() == multop::Or)
+		    {
+		      mospliter s(mospliter::Strip_GF | mospliter::Split_FG,
+				  mo, c_);
+		      s.res_FG->push_back(unop_multop(unop::G, multop::Or,
+						      s.res_other));
+		      s.res_FG->push_back(unop_unop_multop(unop::G, unop::F,
+							   multop::Or,
+							   s.res_GF));
+		      result_ = multop::instance(multop::Or, s.res_FG);
+		      if (result_ != uo)
+			result_ = recurse_destroy(result_);
+		      return;
+		    }
+		}
+	      break;
 	    case unop::Finish:
 	    case unop::Closure:
 	    case unop::NegClosure:
-	      result_ = unop::instance(uo->op(), result_);
-	      return;
+	      // No simplification
+	      break;
 	    }
-	  /* Unreachable code.  */
-	  assert(0);
+	  result_ = unop::instance(op, result_);
 	}
 
 	void
@@ -624,16 +1037,19 @@ namespace spot
 		 If a is a pure universality formula a W b = a|b. */
 	      if (f1->is_eventual() && (op == binop::M))
 		{
-		  result_ = multop::instance(multop::And, f1, f2);
+		  formula* tmp = multop::instance(multop::And, f1, f2);
+		  result_ = recurse(tmp);
+		  tmp->destroy();
 		  return;
 		}
 	      if (f1->is_universal() && (op == binop::W))
 		{
-		  result_ = multop::instance(multop::Or, f1, f2);
+		  formula* tmp = multop::instance(multop::Or, f1, f2);
+		  result_ = recurse(tmp);
+		  tmp->destroy();
 		  return;
 		}
 	    }
-
 
 	  /* case of implies */
 	  if (opt_.synt_impl)
@@ -792,6 +1208,185 @@ namespace spot
 		  break;
 		}
 	    }
+
+
+	  // Rewrite U,R,W,M as F or G when possible.
+	  switch (op)
+	    {
+	    case binop::U:
+	      // true U f2 == F(f2)
+	      if (f1 == constant::true_instance())
+		{
+		  result_ = recurse_destroy(unop::instance(unop::F, f2));
+		  return;
+		}
+	      break;
+	    case binop::R:
+	      // false R f2 == G(f2)
+	      if (f1 == constant::false_instance())
+		{
+		  result_ = recurse_destroy(unop::instance(unop::G, f2));
+		  return;
+		}
+	      break;
+	    case binop::W:
+	      // f1 W false == G(f1)
+	      if (f2 == constant::false_instance())
+		{
+		  result_ = recurse_destroy(unop::instance(unop::G, f1));
+		  return;
+		}
+	      break;
+	    case binop::M:
+	      // f1 M true == F(f1)
+	      if (f2 == constant::false_instance())
+		{
+		  result_ = recurse_destroy(unop::instance(unop::F, f1));
+		  return;
+		}
+	      break;
+	    default:
+	      break;
+	    }
+
+	  switch (op)
+	    {
+	    case binop::W:
+	    case binop::M:
+	    case binop::U:
+	    case binop::R:
+	      {
+		// These are trivial identities:
+		// a U false = false
+		// a U true = true
+		// a R false = false
+		// a R true = true
+		// a W true = true
+		// a M false = false
+		assert(f2->kind() != formula::Constant);
+
+		// Same effect as dynamic_cast<unop*>, only faster.
+		unop* fu1 =
+		  (f1->kind() == formula::UnOp) ? static_cast<unop*>(f1) : 0;
+		unop* fu2 =
+		  (f2->kind() == formula::UnOp) ? static_cast<unop*>(f2) : 0;
+
+		// X(a) U X(b) = X(a U b)
+		// X(a) R X(b) = X(a R b)
+		// X(a) W X(b) = X(a W b)
+		// X(a) M X(b) = X(a M b)
+		if (fu1 && fu2
+		    && fu1->op() == unop::X
+		    && fu2->op() == unop::X)
+		  {
+		    formula* bin = binop::instance(op,
+						   fu1->child()->clone(),
+						   fu2->child()->clone());
+		    f1->destroy();
+		    f2->destroy();
+		    result_ = recurse_destroy(unop::instance(unop::X, bin));
+		    return;
+		  }
+
+		if (op == binop::U || op == binop::W)
+		  {
+		    // a U Ga = Ga
+		    // a W Ga = Ga
+		    if (fu2 && fu2->op() == unop::G && fu2->child() == f1)
+		      {
+			f1->destroy();
+			result_ = f2;
+			return;
+		      }
+
+		    // a U (b | c | G(a)) = a W (b | c)
+		    // a W (b | c | G(a)) = a W (b | c)
+		    if (f2->kind() == formula::MultOp)
+		      {
+			multop* fm2 = static_cast<multop*>(f2);
+			if (fm2->op() == multop::Or)
+			  {
+			    int s = fm2->size();
+			    for (int i = 0; i < s; ++i)
+			      {
+				if (fm2->nth(i)->kind() != formula::UnOp)
+				  continue;
+				unop* c = static_cast<unop*>(fm2->nth(i));
+				if (c->op() == unop::G && c->child() == f1)
+				  {
+				    multop::vec* v = new multop::vec;
+				    v->reserve(s - 1);
+				    int j;
+				    for (j = 0; j < i; ++j)
+				      v->push_back(fm2->nth(j)->clone());
+				    // skip j=i
+				    for (++j; j < s; ++j)
+				      v->push_back(fm2->nth(j)->clone());
+				    f2->destroy();
+				    result_ = recurse_destroy(binop::instance
+				      (binop::W, f1,
+				       multop::instance(multop::Or, v)));
+				    return;
+				  }
+			      }
+			  }
+		      }
+		  }
+		else if (op == binop::M || op == binop::R)
+		  {
+		    // a R Fa = Fa
+		    // a M Fa = Fa
+		    if (fu2 && fu2->op() == unop::F && fu2->child() == f1)
+		      {
+			f1->destroy();
+			result_ = f2;
+			return;
+		      }
+
+		    // a R (b & c & F(a)) = a M b
+		    // a M (b & c & F(a)) = a M b
+		    if (f2->kind() == formula::MultOp)
+		      {
+			multop* fm2 = static_cast<multop*>(f2);
+			if (fm2->op() == multop::And)
+			  {
+			    int s = fm2->size();
+			    for (int i = 0; i < s; ++i)
+			      {
+				if (fm2->nth(i)->kind() != formula::UnOp)
+				  continue;
+				unop* c = static_cast<unop*>(fm2->nth(i));
+				if (c->op() == unop::F && c->child() == f1)
+				  {
+				    multop::vec* v = new multop::vec;
+				    v->reserve(s - 1);
+				    int j;
+				    for (j = 0; j < i; ++j)
+				      v->push_back(fm2->nth(j)->clone());
+				    // skip j=i
+				    for (++j; j < s; ++j)
+				      v->push_back(fm2->nth(j)->clone());
+				    f2->destroy();
+				    result_ = recurse_destroy(binop::instance
+				      (binop::M, f1,
+				       multop::instance(multop::And, v)));
+				    return;
+				  }
+			      }
+			  }
+		      }
+		  }
+	      }
+	    case binop::Xor:
+	    case binop::Equiv:
+	    case binop::Implies:
+	    case binop::EConcat:
+	    case binop::UConcat:
+	    case binop::EConcatMarked:
+	      // No simplification.
+	      break;
+	    }
+
 	  result_ = binop::instance(op, f1, f2);
 	}
 
@@ -810,9 +1405,11 @@ namespace spot
 	  for (unsigned i = 0; i < mos; ++i)
 	    res->push_back(recurse(mo->nth(i)));
 
+	  multop::type op = mo->op();
+
 	  if ((opt_.synt_impl)
-	      && (mo->op() != multop::Concat)
-	      && (mo->op() != multop::Fusion))
+	      && (op != multop::Concat)
+	      && (op != multop::Fusion))
 	    {
 
 	      bool removed = true;
@@ -883,18 +1480,391 @@ namespace spot
 
 	    }
 
-	  if (!res->empty())
+	  assert(!res->empty());
+
+	  if (opt_.reduce_basics)
 	    {
-	      result_ = multop::instance(mo->op(), res);
-	      return;
+	      switch (op)
+		{
+		case multop::And:
+		  {
+		    // Gather all operand by type.
+		    mospliter s(mospliter::Strip_X |
+				mospliter::Strip_FG |
+				mospliter::Strip_G |
+				mospliter::Split_F |
+				mospliter::Split_U_or_W |
+				mospliter::Split_R_or_M,
+				res);
+		    // FG(a) & FG(b) = FG(a & b)
+		    formula* allFG = unop_unop_multop(unop::F, unop::G,
+						      multop::And, s.res_FG);
+		    // Xa & Xb = X(a & b)
+		    // Xa & Xb & FG(c) = X(a & b & FG(c))
+		    // FIXME: We could also have
+		    // Xa & Xb & GF(c) = X(a & b & GF(c))
+		    if (!s.res_X->empty())
+		      {
+			s.res_X->push_back(allFG);
+			allFG = 0;
+		      }
+		    formula* allX = unop_multop(unop::X, multop::And, s.res_X);
+
+		    // G(a) & G(b) = G(a & b)
+		    // FIXME: Do we want this?
+		    formula* allG = unop_multop(unop::G, multop::And, s.res_G);
+
+		    // The following three loops perform these rewritings:
+		    // (a U b) & (c U b) = (a & c) U b
+		    // (a U b) & (c W b) = (a & c) U b
+		    // (a W b) & (c W b) = (a & c) W b
+		    // (a R b) & (a R c) = a R (b & c)
+		    // (a R b) & (a M c) = a M (b & c)
+		    // (a M b) & (a M c) = a M (b & c)
+		    // F(a) & (a R b) = a M b
+		    // F(a) & (a M b) = a M b
+		    // F(b) & (a W b) = a U b
+		    // F(b) & (a U b) = a U b
+		    typedef Sgi::hash_map<formula*, multop::vec::iterator,
+					  ptr_hash<formula> > fmap_t;
+		    fmap_t uwmap; // associates "b" to "a U b" or "a W b"
+		    fmap_t rmmap; // associates "a" to "a R b" or "a M b"
+		    // (a U b) & (c U b) = (a & c) U b
+		    // (a U b) & (c W b) = (a & c) U b
+		    // (a W b) & (c W b) = (a & c) W b
+		    for (multop::vec::iterator i = s.res_U_or_W->begin();
+			 i != s.res_U_or_W->end(); ++i)
+		      {
+			binop* bo = static_cast<binop*>(*i);
+			formula* b = bo->second();
+			fmap_t::iterator j = uwmap.find(b);
+			if (j == uwmap.end())
+			  {
+			    // First occurrence.
+			    uwmap[b] = i;
+			    continue;
+			  }
+			// We already have one occurrence.  Merge them.
+			binop* old = static_cast<binop*>(*j->second);
+			binop::type op = binop::W;
+			if (bo->op() == binop::U
+			    || old->op() == binop::U)
+			  op = binop::U;
+			formula* fst_arg =
+			  multop::instance(multop::And,
+					   old->first()->clone(),
+					   bo->first()->clone());
+			*j->second = binop::instance(op, fst_arg, b->clone());
+			assert((*j->second)->kind() == formula::BinOp);
+			*i = 0;
+			old->destroy();
+			bo->destroy();
+		      }
+		    // (a R b) & (a R c) = a R (b & c)
+		    // (a R b) & (a M c) = a M (b & c)
+		    // (a M b) & (a M c) = a M (b & c)
+		    for (multop::vec::iterator i = s.res_R_or_M->begin();
+			 i != s.res_R_or_M->end(); ++i)
+		      {
+			binop* bo = static_cast<binop*>(*i);
+			formula* a = bo->first();
+			fmap_t::iterator j = rmmap.find(a);
+			if (j == rmmap.end())
+			  {
+			    // First occurrence.
+			    rmmap[a] = i;
+			    continue;
+			  }
+			// We already have one occurrence.  Merge them.
+			binop* old = static_cast<binop*>(*j->second);
+			binop::type op = binop::R;
+			if (bo->op() == binop::M
+			    || old->op() == binop::M)
+			  op = binop::M;
+			formula* snd_arg =
+			  multop::instance(multop::And,
+					   old->second()->clone(),
+					   bo->second()->clone());
+			*j->second = binop::instance(op, a->clone(), snd_arg);
+			assert((*j->second)->kind() == formula::BinOp);
+			*i = 0;
+			old->destroy();
+			bo->destroy();
+		      }
+		    // F(a) & (a R b) = a M b
+		    // F(a) & (a M b) = a M b
+		    // F(b) & (a W b) = a U b
+		    // F(b) & (a U b) = a U b
+		    for (multop::vec::iterator i = s.res_F->begin();
+			 i != s.res_F->end(); ++i)
+		      {
+			bool superfluous = false;
+			unop* uo = static_cast<unop*>(*i);
+			formula* c = uo->child();
+
+			fmap_t::iterator j = uwmap.find(c);
+			if (j != uwmap.end())
+			  {
+			    superfluous = true;
+			    binop* bo = static_cast<binop*>(*j->second);
+			    if (bo->op() == binop::W)
+			      {
+				*j->second =
+				  binop::instance(binop::U,
+						  bo->first()->clone(),
+						  bo->second()->clone());
+				assert((*j->second)->kind() == formula::BinOp);
+				bo->destroy();
+			      }
+			  }
+			j = rmmap.find(c);
+			if (j != rmmap.end())
+			  {
+			    superfluous = true;
+			    binop* bo = static_cast<binop*>(*j->second);
+			    if (bo->op() == binop::R)
+			      {
+				*j->second =
+				  binop::instance(binop::M,
+						  bo->first()->clone(),
+						  bo->second()->clone());
+				assert((*j->second)->kind() == formula::BinOp);
+				bo->destroy();
+			      }
+			  }
+			if (superfluous)
+			  {
+			    (*i)->destroy();
+			    *i = 0;
+			  }
+		      }
+
+		    s.res_other->reserve(s.res_other->size()
+					 + s.res_F->size()
+					 + s.res_U_or_W->size()
+					 + s.res_R_or_M->size()
+					 + 3);
+		    s.res_other->insert(s.res_other->end(),
+					s.res_F->begin(),
+					s.res_F->end());
+		    delete s.res_F;
+		    s.res_other->insert(s.res_other->end(),
+					s.res_U_or_W->begin(),
+					s.res_U_or_W->end());
+		    delete s.res_U_or_W;
+		    s.res_other->insert(s.res_other->end(),
+					s.res_R_or_M->begin(),
+					s.res_R_or_M->end());
+		    delete s.res_R_or_M;
+		    s.res_other->push_back(allX);
+		    s.res_other->push_back(allFG);
+		    s.res_other->push_back(allG);
+		    result_ = multop::instance(multop::And, s.res_other);
+		    // If we altered the formula in some way, process
+		    // it another time.
+		    if (result_ != mo)
+		      result_ = recurse_destroy(result_);
+		    return;
+		  }
+		case multop::Or:
+		  {
+		    // Gather all operand by type.
+		    mospliter s(mospliter::Strip_X |
+				mospliter::Strip_GF |
+				mospliter::Strip_F |
+				mospliter::Split_G |
+				mospliter::Split_U_or_W |
+				mospliter::Split_R_or_M,
+				res);
+		    // GF(a) | GF(b) = GF(a | b)
+		    formula* allGF = unop_unop_multop(unop::G, unop::F,
+						      multop::Or, s.res_GF);
+		    // Xa | Xb = X(a | b)
+		    // Xa | Xb | GF(c) = X(a | b | GF(c))
+		    // FIXME: We could also have
+		    // Xa | Xb | FG(c) = X(a | b | GF(c))
+		    if (!s.res_X->empty())
+		      {
+			s.res_X->push_back(allGF);
+			allGF = 0;
+		      }
+		    formula* allX = unop_multop(unop::X, multop::Or, s.res_X);
+		    // F(a) | F(b) = F(a | b)
+		    formula* allF = unop_multop(unop::F, multop::Or, s.res_F);
+
+		    // The following three loops perform these rewritings:
+		    // (a U b) | (a U c) = a U (b | c)
+		    // (a W b) | (a U c) = a W (b | c)
+		    // (a W b) | (a W c) = a W (b | c)
+		    // (a R b) | (c R b) = (a | c) R b
+		    // (a R b) | (c M b) = (a | c) R b
+		    // (a M b) | (c M b) = (a | c) M b
+		    // G(a) | (a U b) = a W b
+		    // G(a) | (a W b) = a W b
+		    // G(b) | (a R b) = a R b.
+		    // G(b) | (a M b) = a R b.
+		    typedef Sgi::hash_map<formula*, multop::vec::iterator,
+					  ptr_hash<formula> > fmap_t;
+		    fmap_t uwmap; // associates "a" to "a U b" or "a W b"
+		    fmap_t rmmap; // associates "b" to "a R b" or "a M b"
+		    // (a U b) | (a U c) = a U (b | c)
+		    // (a W b) | (a U c) = a W (b | c)
+		    // (a W b) | (a W c) = a W (b | c)
+		    for (multop::vec::iterator i = s.res_U_or_W->begin();
+			 i != s.res_U_or_W->end(); ++i)
+		      {
+			binop* bo = static_cast<binop*>(*i);
+			formula* a = bo->first();
+			fmap_t::iterator j = uwmap.find(a);
+			if (j == uwmap.end())
+			  {
+			    // First occurrence.
+			    uwmap[a] = i;
+			    continue;
+			  }
+			// We already have one occurrence.  Merge them.
+			binop* old = static_cast<binop*>(*j->second);
+			binop::type op = binop::U;
+			if (bo->op() == binop::W
+			    || old->op() == binop::W)
+			  op = binop::W;
+			formula* snd_arg =
+			  multop::instance(multop::Or,
+					   old->second()->clone(),
+					   bo->second()->clone());
+			*j->second = binop::instance(op, a->clone(), snd_arg);
+			assert((*j->second)->kind() == formula::BinOp);
+			*i = 0;
+			old->destroy();
+			bo->destroy();
+		      }
+		    // (a R b) | (c R b) = (a | c) R b
+		    // (a R b) | (c M b) = (a | c) R b
+		    // (a M b) | (c M b) = (a | c) M b
+		    for (multop::vec::iterator i = s.res_R_or_M->begin();
+			 i != s.res_R_or_M->end(); ++i)
+		      {
+			binop* bo = static_cast<binop*>(*i);
+			formula* b = bo->second();
+			fmap_t::iterator j = rmmap.find(b);
+			if (j == rmmap.end())
+			  {
+			    // First occurrence.
+			    rmmap[b] = i;
+			    continue;
+			  }
+			// We already have one occurrence.  Merge them.
+			binop* old = static_cast<binop*>(*j->second);
+			binop::type op = binop::M;
+			if (bo->op() == binop::R
+			    || old->op() == binop::R)
+			  op = binop::R;
+			formula* fst_arg =
+			  multop::instance(multop::Or,
+					   old->first()->clone(),
+					   bo->first()->clone());
+			*j->second = binop::instance(op, fst_arg, b->clone());
+			assert((*j->second)->kind() == formula::BinOp);
+			*i = 0;
+			old->destroy();
+			bo->destroy();
+		      }
+		    // G(a) | (a U b) = a W b
+		    // G(a) | (a W b) = a W b
+		    // G(b) | (a R b) = a R b.
+		    // G(b) | (a M b) = a R b.
+		    for (multop::vec::iterator i = s.res_G->begin();
+			 i != s.res_G->end(); ++i)
+		      {
+			bool superfluous = false;
+			unop* uo = static_cast<unop*>(*i);
+			formula* c = uo->child();
+
+			fmap_t::iterator j = uwmap.find(c);
+			if (j != uwmap.end())
+			  {
+			    superfluous = true;
+			    binop* bo = static_cast<binop*>(*j->second);
+			    if (bo->op() == binop::U)
+			      {
+				*j->second =
+				  binop::instance(binop::W,
+						  bo->first()->clone(),
+						  bo->second()->clone());
+				assert((*j->second)->kind() == formula::BinOp);
+				bo->destroy();
+			      }
+			  }
+			j = rmmap.find(c);
+			if (j != rmmap.end())
+			  {
+			    superfluous = true;
+			    binop* bo = static_cast<binop*>(*j->second);
+			    if (bo->op() == binop::M)
+			      {
+				*j->second =
+				  binop::instance(binop::R,
+						  bo->first()->clone(),
+						  bo->second()->clone());
+				assert((*j->second)->kind() == formula::BinOp);
+				bo->destroy();
+			      }
+			  }
+			if (superfluous)
+			  {
+			    (*i)->destroy();
+			    *i = 0;
+			  }
+		      }
+
+		    s.res_other->reserve(s.res_other->size()
+					 + s.res_G->size()
+					 + s.res_U_or_W->size()
+					 + s.res_R_or_M->size()
+					 + 3);
+		    s.res_other->insert(s.res_other->end(),
+					s.res_G->begin(),
+					s.res_G->end());
+		    delete s.res_G;
+		    s.res_other->insert(s.res_other->end(),
+					s.res_U_or_W->begin(),
+					s.res_U_or_W->end());
+		    delete s.res_U_or_W;
+		    s.res_other->insert(s.res_other->end(),
+					s.res_R_or_M->begin(),
+					s.res_R_or_M->end());
+		    delete s.res_R_or_M;
+		    s.res_other->push_back(allX);
+		    s.res_other->push_back(allGF);
+		    s.res_other->push_back(allF);
+		    result_ = multop::instance(multop::Or, s.res_other);
+		    // If we altered the formula in some way, process
+		    // it another time.
+		    if (result_ != mo)
+		      result_ = recurse_destroy(result_);
+		    return;
+		  }
+		case multop::Concat:
+		case multop::AndNLM:
+		case multop::Fusion:
+		  break;
+		}
 	    }
-	  assert(0);
+	  result_ = multop::instance(mo->op(), res);
 	}
 
 	formula*
 	recurse(formula* f)
 	{
-	  return const_cast<formula*>(simplify_recursively(f, c_));
+	  return simplify_recursively(f, c_);
+	}
+
+	formula*
+	recurse_destroy(formula* f)
+	{
+	  formula* tmp = recurse(f);
+	  f->destroy();
+	  return tmp;
 	}
 
       protected:
@@ -904,11 +1874,11 @@ namespace spot
       };
 
 
-      const formula*
+      formula*
       simplify_recursively(const formula* f,
 			   ltl_simplifier_cache* c)
       {
-	const formula* result = c->lookup_simplified(f);
+	formula* result = const_cast<formula*>(c->lookup_simplified(f));
 	if (result)
 	  return result;
 

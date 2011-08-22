@@ -100,8 +100,10 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x '(a U b) | (a U c)' 'a U (b | c)'
      run 0 $x '(a R b) | (c R b)' '(a | c) R b'
 
-     run 0 $x 'X(a & GFb)' 'Xa & GFb'
-     run 0 $x 'X(a | GFb)' 'Xa | GFb'
+     run 0 $x 'Xa & FGb' 'X(a & FGb)'
+     run 0 $x 'Xa | FGb' 'Xa | FGb' # We'd prefer 'X(a | FGb)'
+     run 0 $x 'Xa & GFb' 'Xa & GFb' #             'X(a & GFb)'
+     run 0 $x 'Xa | GFb' 'X(a | GFb)'
      # The following is not reduced to F(a) & GFb.  because
      # (1) is does not help the translate the formula into a
      #     smaller automaton, and ...
@@ -109,10 +111,9 @@ for x in ../reduccmp ../reductaustr; do
      # (2) ... it would hinder this useful reduction (that helps to
      #     produce a smaller automaton)
      run 0 $x 'F(f1 & GF(f2)) | F(a & GF(b))' 'F((f1&GFf2)|(a&GFb))'
+     # FIXME: Don't we want the opposite rewriting
+     run 0 $x 'Fa & GFb' 'Fa & GFb' # We'd prefer 'F(a & GFb)'
      run 0 $x 'G(a | GFb)' 'Ga | GFb'
-
-     run 0 $x 'X(a & GFb & c)' 'X(a & c) & GFb'
-     run 0 $x 'X(a | GFb | c)' 'X(a | c) | GFb'
      # The following is not reduced to F(a & c) & GF(b) for the same
      # reason as above.
      run 0 $x 'F(a & GFb & c)' 'F(a & GFb & c)'
