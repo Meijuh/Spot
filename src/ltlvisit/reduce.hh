@@ -1,6 +1,8 @@
-// Copyright (C) 2004, 2006, 2010, 2011  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
+// Copyright (C) 2004, 2006 Laboratoire d'Informatique de Paris 6
+// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -67,15 +69,15 @@ namespace spot
     /// Pure eventuality formulae are defined in
     /// \verbatim
     /// @InProceedings{	  etessami.00.concur,
-    /// author  	= {Kousha Etessami and Gerard J. Holzmann},
+    /// author		= {Kousha Etessami and Gerard J. Holzmann},
     /// title		= {Optimizing {B\"u}chi Automata},
     /// booktitle	= {Proceedings of the 11th International Conference on
     /// 		  Concurrency Theory (Concur'2000)},
     /// pages		= {153--167},
     /// year		= {2000},
-    /// editor  	= {C. Palamidessi},
-    /// volume  	= {1877},
-    /// series  	= {Lecture Notes in Computer Science},
+    /// editor		= {C. Palamidessi},
+    /// volume		= {1877},
+    /// series		= {Lecture Notes in Computer Science},
     /// publisher	= {Springer-Verlag}
     /// }
     /// \endverbatim
@@ -96,15 +98,15 @@ namespace spot
     /// Purely universal formulae are defined in
     /// \verbatim
     /// @InProceedings{	  etessami.00.concur,
-    /// author  	= {Kousha Etessami and Gerard J. Holzmann},
+    /// author		= {Kousha Etessami and Gerard J. Holzmann},
     /// title		= {Optimizing {B\"u}chi Automata},
     /// booktitle	= {Proceedings of the 11th International Conference on
     /// 		  Concurrency Theory (Concur'2000)},
     /// pages		= {153--167},
     /// year		= {2000},
-    /// editor  	= {C. Palamidessi},
-    /// volume  	= {1877},
-    /// series  	= {Lecture Notes in Computer Science},
+    /// editor		= {C. Palamidessi},
+    /// volume		= {1877},
+    /// series		= {Lecture Notes in Computer Science},
     /// publisher	= {Springer-Verlag}
     /// }
     /// \endverbatim
