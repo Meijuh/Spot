@@ -177,4 +177,6 @@ for x in ../reduccmp ../reductaustr; do
   run 0 $x 'b U Fa' 'Fa'
   run 0 $x 'b U GFa' 'GFa'
   run 0 $x 'Ga' 'Ga'
+
+  run 0 $x 'a U XXXFb' 'XXXFb'
 done
