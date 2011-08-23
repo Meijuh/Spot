@@ -101,8 +101,8 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x '(a R b) | (c R b)' '(a | c) R b'
 
      run 0 $x 'Xa & FGb' 'X(a & FGb)'
-     run 0 $x 'Xa | FGb' 'Xa | FGb' # We'd prefer 'X(a | FGb)'
-     run 0 $x 'Xa & GFb' 'Xa & GFb' #             'X(a & GFb)'
+     run 0 $x 'Xa | FGb' 'X(a | FGb)'
+     run 0 $x 'Xa & GFb' 'X(a & GFb)'
      run 0 $x 'Xa | GFb' 'X(a | GFb)'
      # The following is not reduced to F(a) & GFb.  because
      # (1) is does not help the translate the formula into a
@@ -111,8 +111,10 @@ for x in ../reduccmp ../reductaustr; do
      # (2) ... it would hinder this useful reduction (that helps to
      #     produce a smaller automaton)
      run 0 $x 'F(f1 & GF(f2)) | F(a & GF(b))' 'F((f1&GFf2)|(a&GFb))'
-     # FIXME: Don't we want the opposite rewriting
-     run 0 $x 'Fa & GFb' 'Fa & GFb' # We'd prefer 'F(a & GFb)'
+     # FIXME: Don't we want the opposite rewriting?
+     # rewriting Fa & GFb as  F(a & GFb) seems better, but
+     # it not clear how that scales to Fa & Fb & GFc...
+     run 0 $x 'Fa & GFb' 'Fa & GFb'
      run 0 $x 'G(a | GFb)' 'Ga | GFb'
      # The following is not reduced to F(a & c) & GF(b) for the same
      # reason as above.
@@ -168,8 +170,16 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x 'Fa|GFc' 'F(a|GFc)'
      run 0 $x 'FGa|GFc' 'F(Ga|GFc)'
      run 0 $x 'Ga&Xb&FGc' 'Ga & X(b&FGc)'
-     run 0 $x 'Ga&Xb&GFc' 'G(a&Fc) & Xb'
+     run 0 $x 'Ga&Xb&GFc' 'Ga & X(b&GFc)'
      run 0 $x 'Ga&GFc' 'G(a&Fc)'
+     run 0 $x 'G(a|b|GFc|GFd|FGe|FGf)' 'G(a|b)|GF(c|d)|F(Ge|Gf)'
+     run 0 $x 'G(a|b)|GFc|GFd|FGe|FGf' 'G(a|b)|GF(c|d)|F(Ge|Gf)'
+     run 0 $x 'X(a|b)|GFc|GFd|FGe|FGf' 'X(a|b|GF(c|d)|F(Ge|Gf))'
+     run 0 $x 'Xa&Xb&GFc&GFd&Ge' 'X(a&b&G(Fc&Fd))&Ge'
+
+     # F comes in front when possible...
+     run 0 $x 'GFc|GFd|FGe|FGf' 'F(GF(c|d)|Ge|Gf)'
+     run 0 $x 'G(GFc|GFd|FGe|FGf)' 'F(GF(c|d)|Ge|Gf)'
      ;;
   esac
 

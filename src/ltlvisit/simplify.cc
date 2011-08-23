@@ -1005,22 +1005,25 @@ namespace spot
 		    }
 		}
 
-	      // G(f1|f2|GF(f3)|GF(f4)|FG(f5)|FG(f6)) =
-	      //                        G(f1|f2) | GF(f3|f4) | FG(f5) | FG(f6)
-	      // FIXME: can this be generalized to Universal formulae?
+	      // G(f1|f2|GF(f3)|GF(f4)|f5|f6) =
+	      //                        G(f1|f2) | GF(f3|f4) | f5 | f6
+	      // if f5 and f6 are both eventual and universal.
 	      if (result_->kind() == formula::MultOp)
 		{
 		  multop* mo = static_cast<multop*>(result_);
 		  if (mo->op() == multop::Or)
 		    {
-		      mospliter s(mospliter::Strip_GF | mospliter::Split_FG,
+		      mospliter s(mospliter::Strip_GF |
+				  mospliter::Split_EventUniv,
 				  mo, c_);
-		      s.res_FG->push_back(unop_multop(unop::G, multop::Or,
-						      s.res_other));
-		      s.res_FG->push_back(unop_unop_multop(unop::G, unop::F,
-							   multop::Or,
-							   s.res_GF));
-		      result_ = multop::instance(multop::Or, s.res_FG);
+		      s.res_EventUniv->push_back(unop_multop(unop::G,
+							     multop::Or,
+							     s.res_other));
+		      s.res_EventUniv->push_back(unop_unop_multop(unop::G,
+								  unop::F,
+								  multop::Or,
+								  s.res_GF));
+		      result_ = multop::instance(multop::Or, s.res_EventUniv);
 		      if (result_ != uo)
 			result_ = recurse_destroy(result_);
 		      return;
@@ -1553,10 +1556,10 @@ namespace spot
 		      }
 		    delete s.res_EventUniv;
 
-		    formula* allX = unop_multop(unop::X, multop::And, s.res_X);
-
-		    // G(a) & G(b) = G(a & b)
-		    formula* allG = unop_multop(unop::G, multop::And, s.res_G);
+		    // Xa & Xb & f1...fn = X(a & b & f1...fn)
+		    // is built at the end of this multop::And case.
+		    // G(a) & F(b) = G(a & b)
+		    // is built at the end of this multop::And case.
 
 		    // The following three loops perform these rewritings:
 		    // (a U b) & (c U b) = (a & c) U b
@@ -1700,9 +1703,34 @@ namespace spot
 					s.res_R_or_M->begin(),
 					s.res_R_or_M->end());
 		    delete s.res_R_or_M;
+
+		    // Those "G" formulae that are eventual can be
+		    // postponed inside the X term if there is one.
+		    //
+		    // In effect we rewrite
+		    //   Xa&Xb&GFc&GFd&Ge as X(a&b&G(Fc&Fd))&Ge
+		    if (!s.res_X->empty())
+		      {
+			multop::vec* event = new multop::vec;
+			for (multop::vec::iterator i = s.res_G->begin();
+			     i != s.res_G->end(); ++i)
+			  if ((*i)->is_eventual())
+			    {
+			      event->push_back(*i);
+			      *i = 0; // Remove it from res_G.
+			    }
+			s.res_X->push_back(unop_multop(unop::G,
+						       multop::And, event));
+		      }
+
+		    // G(a) & G(b) & ... = G(a & b & ...)
+		    formula* allG = unop_multop(unop::G, multop::And, s.res_G);
+		    // Xa & Xb & ... = X(a & b & ...)
+		    formula* allX = unop_multop(unop::X, multop::And, s.res_X);
+
 		    s.res_other->push_back(allX);
-		    s.res_other->push_back(allFG);
 		    s.res_other->push_back(allG);
+		    s.res_other->push_back(allFG);
 		    result_ = multop::instance(multop::And, s.res_other);
 		    // If we altered the formula in some way, process
 		    // it another time.
@@ -1736,10 +1764,33 @@ namespace spot
 					s.res_EventUniv->begin(),
 					s.res_EventUniv->end());
 		      }
-		    else if (!s.res_F->empty())
+		    else if (!s.res_F->empty()
+			     && s.res_G->empty()
+			     && s.res_U_or_W->empty()
+			     && s.res_R_or_M->empty()
+			     && s.res_other->empty())
 		      {
-			// If there is no X but some F, do
-			// Fa | Fb | f1...fn | GF(c) = F(a | b | f1...fn | GF(c))
+			// If there is no X but some F and only
+			// eventual&universal formula, do:
+			// Fa|Fb|f1...fn|GF(c) = F(a|b|f1...fn|GF(c))
+			//
+			// The reasoning here is that if we should
+			// move f1...fn|GF(c) inside the "F" only
+			// if it allows us to move all terms under F,
+			// allowing a nice initial self-loop.
+			//
+			// For instance:
+			//   F(a|GFb)  3st.6tr. with initial self-loop
+			//   Fa|GFb    4st.8tr. without initial self-loop
+			//
+			// However, if other term are presents they will
+			// prevent the formation of a self-loop, and the
+			// rewriting is unwelcome:
+			//   F(a|GFb)|Gc  5st.11tr.  without initial self-loop
+			//   Fa|GFb|Gc    5st.10tr.  without initial self-loop
+			// (counting the number of "subtransitions"
+			// or, degeneralizing the automaton amplify
+			// these differences)
 			s.res_F->push_back(allGF);
 			allGF = 0;
 			s.res_F->insert(s.res_F->end(),
@@ -1753,9 +1804,10 @@ namespace spot
 					    s.res_EventUniv->end());
 		      }
 		    delete s.res_EventUniv;
-		    formula* allX = unop_multop(unop::X, multop::Or, s.res_X);
+		    // Xa | Xb | f1...fn = X(a | b | f1...fn)
+		    // is built at the end of this multop::Or case.
 		    // F(a) | F(b) = F(a | b)
-		    formula* allF = unop_multop(unop::F, multop::Or, s.res_F);
+		    // is built at the end of this multop::Or case.
 
 		    // The following three loops perform these rewritings:
 		    // (a U b) | (a U c) = a U (b | c)
@@ -1882,6 +1934,8 @@ namespace spot
 			  }
 		      }
 
+
+
 		    s.res_other->reserve(s.res_other->size()
 					 + s.res_G->size()
 					 + s.res_U_or_W->size()
@@ -1899,9 +1953,34 @@ namespace spot
 					s.res_R_or_M->begin(),
 					s.res_R_or_M->end());
 		    delete s.res_R_or_M;
+
+		    // Those "F" formulae that are universal can be
+		    // postponed inside the X term if there is one.
+		    //
+		    // In effect we rewrite
+		    //   Xa|Xb|FGc|FGd|Fe as X(a|b|F(Gc|Gd))|Fe
+		    if (!s.res_X->empty())
+		      {
+			multop::vec* univ = new multop::vec;
+			for (multop::vec::iterator i = s.res_F->begin();
+			     i != s.res_F->end(); ++i)
+			  if ((*i)->is_universal())
+			    {
+			      univ->push_back(*i);
+			      *i = 0; // Remove it from res_F.
+			    }
+			s.res_X->push_back(unop_multop(unop::F,
+						       multop::Or, univ));
+		      }
+
+		    // F(a) | F(b) | ... = F(a | b | ...)
+		    formula* allF = unop_multop(unop::F, multop::Or, s.res_F);
+		    // Xa | Xb | ... = X(a | b | ...)
+		    formula* allX = unop_multop(unop::X, multop::Or, s.res_X);
+
 		    s.res_other->push_back(allX);
-		    s.res_other->push_back(allGF);
 		    s.res_other->push_back(allF);
+		    s.res_other->push_back(allGF);
 		    result_ = multop::instance(multop::Or, s.res_other);
 		    // If we altered the formula in some way, process
 		    // it another time.
