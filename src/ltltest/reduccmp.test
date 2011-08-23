@@ -163,6 +163,13 @@ for x in ../reduccmp ../reductaustr; do
      # Eventuality and universality class reductions
      run 0 $x 'Fa M b' 'Fa & b'
      run 0 $x 'GFa M b' 'GFa & b'
+
+     run 0 $x 'Fa|Xb|GFc' 'Fa | X(b|GFc)'
+     run 0 $x 'Fa|GFc' 'F(a|GFc)'
+     run 0 $x 'FGa|GFc' 'F(Ga|GFc)'
+     run 0 $x 'Ga&Xb&FGc' 'Ga & X(b&FGc)'
+     run 0 $x 'Ga&Xb&GFc' 'G(a&Fc) & Xb'
+     run 0 $x 'Ga&GFc' 'G(a&Fc)'
      ;;
   esac
 

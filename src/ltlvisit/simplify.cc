@@ -645,7 +645,9 @@ namespace spot
 		    Split_U_or_W = (1 << 9),
 		    Split_R_or_M = (1 << 10),
 		    Split_EventUniv = (1 << 11),
-		    Split_Bool = (1 << 12)
+		    Split_Event = (1 << 12),
+		    Split_Univ = (1 << 13),
+		    Split_Bool = (1 << 14)
 	};
 
 	void init()
@@ -657,45 +659,15 @@ namespace spot
 	  res_X = (split_ & Strip_X) ? new multop::vec : 0;
 	  res_U_or_W = (split_ & Split_U_or_W) ? new multop::vec : 0;
 	  res_R_or_M = (split_ & Split_R_or_M) ? new multop::vec : 0;
-	  if (split_ & Split_EventUniv)
-	    {
-	      res_Event = new multop::vec;
-	      res_Univ = new multop::vec;
-	      res_EventUniv = new multop::vec;
-	    }
-	  else
-	    {
-	      res_Event = 0;
-	      res_Univ = 0;
-	      res_EventUniv = 0;
-	    }
+	  res_EventUniv = (split_ & Split_EventUniv) ? new multop::vec : 0;
+	  res_Event = (split_ & Split_Event) ? new multop::vec : 0;
+	  res_Univ = (split_ & Split_Univ) ? new multop::vec : 0;
 	  res_Bool = (split_ & Split_Bool) ? new multop::vec : 0;
 	  res_other = new multop::vec;
 	}
 
 	void process(formula* f)
 	{
-	  if (res_EventUniv)
-	    {
-	      bool e = f->is_eventual();
-	      bool u = f->is_universal();
-	      if (e && u)
-		{
-		  res_EventUniv->push_back(f->clone());
-		  return;
-		}
-	      if (e)
-		{
-		  res_Event->push_back(f->clone());
-		  return;
-		}
-	      if (u)
-		{
-		  res_Univ->push_back(f->clone());
-		  return;
-		}
-	    }
-
 	  switch (f->kind())
 	    {
 	    case formula::UnOp:
@@ -706,9 +678,10 @@ namespace spot
 		  {
 		  case unop::X:
 		    if (res_X)
-		      res_X->push_back(c->clone());
-		    else
-		      res_other->push_back(f->clone());
+		      {
+			res_X->push_back(c->clone());
+			return;
+		      }
 		    break;
 		  case unop::F:
 		    if (res_FG)
@@ -718,14 +691,15 @@ namespace spot
 			  {
 			    res_FG->push_back(((split_ & Strip_FG) == Strip_FG
 					       ? cc->child() : f)->clone());
-			    break;
+			    return;
 			  }
 		      }
 		    if (res_F)
-		      res_F->push_back(((split_ & Strip_F) == Strip_F
-					? c : f)->clone());
-		    else
-		      res_other->push_back(f->clone());
+		      {
+			res_F->push_back(((split_ & Strip_F) == Strip_F
+					  ? c : f)->clone());
+			return;
+		      }
 		    break;
 		  case unop::G:
 		    if (res_GF)
@@ -735,17 +709,17 @@ namespace spot
 			  {
 			    res_GF->push_back(((split_ & Strip_GF) == Strip_GF
 					       ? cc->child() : f)->clone());
-			    break;
+			    return;
 			  }
 		      }
 		    if (res_G)
-		      res_G->push_back(((split_ & Strip_G) == Strip_G
-					? c : f)->clone());
-		    else
-		      res_other->push_back(f->clone());
+		      {
+			res_G->push_back(((split_ & Strip_G) == Strip_G
+					  ? c : f)->clone());
+			return;
+		      }
 		    break;
 		  default:
-		    res_other->push_back(f->clone());
 		    break;
 		  }
 	      }
@@ -758,34 +732,58 @@ namespace spot
 		  case binop::U:
 		  case binop::W:
 		    if (res_U_or_W)
-		      res_U_or_W->push_back(bo->clone());
-		    else
-		      res_other->push_back(f->clone());
+		      {
+			res_U_or_W->push_back(bo->clone());
+			return;
+		      }
 		    break;
 		  case binop::R:
 		  case binop::M:
 		    if (res_R_or_M)
-		      res_R_or_M->push_back(bo->clone());
-		    else
-		      res_other->push_back(f->clone());
+		      {
+			res_R_or_M->push_back(bo->clone());
+			return;
+		      }
 		    break;
 		  default:
-		    res_other->push_back(f->clone());
 		    break;
 		  }
 	      }
 	      break;
 	    default:
 	      if (res_Bool && f->is_boolean())
-		res_Bool->push_back(f->clone());
-	      else
-		res_other->push_back(f->clone());
+		{
+		  res_Bool->push_back(f->clone());
+		  return;
+		}
 	      break;
 	    }
+	  if (c_->options.event_univ)
+	    {
+	      bool e = f->is_eventual();
+	      bool u = f->is_universal();
+	      if (res_EventUniv && e && u)
+		{
+		  res_EventUniv->push_back(f->clone());
+		  return;
+		}
+	      if (res_Event && e)
+		{
+		  res_Event->push_back(f->clone());
+		  return;
+		}
+	      if (res_Univ && u)
+		{
+		  res_Univ->push_back(f->clone());
+		  return;
+		}
+	    }
+
+	  res_other->push_back(f->clone());
 	}
 
-	mospliter(unsigned split, multop::vec* v)
-	  : split_(split)
+	mospliter(unsigned split, multop::vec* v, ltl_simplifier_cache* cache)
+	  : split_(split), c_(cache)
 	{
 	  init();
 	  multop::vec::const_iterator end = v->end();
@@ -798,7 +796,7 @@ namespace spot
 	}
 
 	mospliter(unsigned split, multop* mo, ltl_simplifier_cache* cache)
-	  : split_(split)
+	  : split_(split), c_(cache)
 	{
 	  init();
 	  unsigned mos = mo->size();
@@ -824,6 +822,7 @@ namespace spot
 	multop::vec* res_Bool;
 	multop::vec* res_other;
 	unsigned split_;
+	ltl_simplifier_cache* c_;
       };
 
       class simplify_visitor: public visitor
@@ -882,17 +881,26 @@ namespace spot
 	      if (is_constant(result_))
 		  return;
 
-	      // XGF(f) = GF(f) and XFG(f)=FG(f)
-	      if (is_GF(result_) || is_FG(result_))
-		return;
+	      // Xf = f if f is both eventual and universal.
+	      if (result_->is_universal() && result_->is_eventual())
+		{
+		  if (opt_.event_univ)
+		    return;
+		  // If EventUniv simplification is disabled, use
+		  // only the following basic rewriting rules:
+		  //   XGF(f) = GF(f) and XFG(f) = FG(f)
+		  // The former comes from Somenzi&Bloem (CAV'00).
+		  // It's not clear why they do not list the second.
+		  if (is_GF(result_) || is_FG(result_))
+		    return;
+		}
 
 	      // Disabled: X(f1 & GF(f2)) = X(f1) & GF(f2)
 	      // Disabled: X(f1 | GF(f2)) = X(f1) | GF(f2)
 	      // Disabled: X(f1 & FG(f2)) = X(f1) & FG(f2)
 	      // Disabled: X(f1 | FG(f2)) = X(f1) | FG(f2)
-	      // FIXME: The above seems to make more seem when
-	      // reversed.  Maybe they could also be generalized as
-	      // eventual/universal reductions?
+	      // The above make more sense when reversed,
+	      // so see them in the And and Or rewritings.
 	      break;
 
 	    case unop::F:
@@ -1516,24 +1524,38 @@ namespace spot
 				mospliter::Strip_G |
 				mospliter::Split_F |
 				mospliter::Split_U_or_W |
-				mospliter::Split_R_or_M,
-				res);
+				mospliter::Split_R_or_M |
+				mospliter::Split_EventUniv,
+				res, c_);
 		    // FG(a) & FG(b) = FG(a & b)
 		    formula* allFG = unop_unop_multop(unop::F, unop::G,
 						      multop::And, s.res_FG);
 		    // Xa & Xb = X(a & b)
 		    // Xa & Xb & FG(c) = X(a & b & FG(c))
-		    // FIXME: We could also have
-		    // Xa & Xb & GF(c) = X(a & b & GF(c))
+		    // For Universal&Eventual formulae f1...fn we also have:
+		    // Xa & Xb & f1...fn = X(a & b & f1...fn)
 		    if (!s.res_X->empty())
 		      {
 			s.res_X->push_back(allFG);
 			allFG = 0;
+			s.res_X->insert(s.res_X->begin(),
+					s.res_EventUniv->begin(),
+					s.res_EventUniv->end());
 		      }
+		    else
+		      // We don't rewrite Ga & f1...fn = G(a & f1..fn)
+		      // similarly to what we do in the unop::Or case
+		      // as it is not clear what we'd gain by doing so.
+		      {
+			s.res_other->insert(s.res_other->begin(),
+					    s.res_EventUniv->begin(),
+					    s.res_EventUniv->end());
+		      }
+		    delete s.res_EventUniv;
+
 		    formula* allX = unop_multop(unop::X, multop::And, s.res_X);
 
 		    // G(a) & G(b) = G(a & b)
-		    // FIXME: Do we want this?
 		    formula* allG = unop_multop(unop::G, multop::And, s.res_G);
 
 		    // The following three loops perform these rewritings:
@@ -1696,20 +1718,41 @@ namespace spot
 				mospliter::Strip_F |
 				mospliter::Split_G |
 				mospliter::Split_U_or_W |
-				mospliter::Split_R_or_M,
-				res);
+				mospliter::Split_R_or_M |
+				mospliter::Split_EventUniv,
+				res, c_);
 		    // GF(a) | GF(b) = GF(a | b)
 		    formula* allGF = unop_unop_multop(unop::G, unop::F,
 						      multop::Or, s.res_GF);
 		    // Xa | Xb = X(a | b)
 		    // Xa | Xb | GF(c) = X(a | b | GF(c))
-		    // FIXME: We could also have
-		    // Xa | Xb | FG(c) = X(a | b | GF(c))
+		    // For Universal&Eventual formula f1...fn we also have:
+		    // Xa | Xb | f1...fn = X(a | b | f1...fn)
 		    if (!s.res_X->empty())
 		      {
 			s.res_X->push_back(allGF);
 			allGF = 0;
+			s.res_X->insert(s.res_X->end(),
+					s.res_EventUniv->begin(),
+					s.res_EventUniv->end());
 		      }
+		    else if (!s.res_F->empty())
+		      {
+			// If there is no X but some F, do
+			// Fa | Fb | f1...fn | GF(c) = F(a | b | f1...fn | GF(c))
+			s.res_F->push_back(allGF);
+			allGF = 0;
+			s.res_F->insert(s.res_F->end(),
+					s.res_EventUniv->begin(),
+					s.res_EventUniv->end());
+		      }
+		    else
+		      {
+			s.res_other->insert(s.res_other->end(),
+					    s.res_EventUniv->begin(),
+					    s.res_EventUniv->end());
+		      }
+		    delete s.res_EventUniv;
 		    formula* allX = unop_multop(unop::X, multop::Or, s.res_X);
 		    // F(a) | F(b) = F(a | b)
 		    formula* allF = unop_multop(unop::F, multop::Or, s.res_F);
