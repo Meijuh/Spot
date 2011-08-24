@@ -2222,7 +2222,13 @@ namespace spot
     formula*
     ltl_simplifier::simplify(const formula* f)
     {
-      return const_cast<formula*>(simplify_recursively(f, cache_));
+      formula* neno = 0;
+      if (!f->is_in_nenoform())
+	f = neno = negative_normal_form(f);
+      formula* res = const_cast<formula*>(simplify_recursively(f, cache_));
+      if (neno)
+	neno->destroy();
+      return res;
     }
 
     formula*

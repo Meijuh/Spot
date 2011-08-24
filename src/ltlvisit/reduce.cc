@@ -27,7 +27,6 @@
 
 #include "lunabbrev.hh"
 #include "simpfg.hh"
-#include "nenoform.hh"
 #include "simplify.hh"
 
 namespace spot
@@ -68,10 +67,6 @@ namespace spot
 	  f1 = unabbreviate_logic(f);
 	  f2 = simplify_f_g(f1);
 	  f1->destroy();
-	  f1 = negative_normal_form(f2);
-	  f2->destroy();
-	  f2 = f1;
-
 	  f = simplifier.simplify(f2);
 	  f2->destroy();
 	}
