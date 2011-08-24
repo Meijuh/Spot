@@ -1199,6 +1199,7 @@ namespace spot
 
 	  if (opt_.event_univ)
 	    {
+	      trace << "bo: trying eventuniv rules" << std::endl;
 	      /* If b is a pure eventuality formula then a U b = b.
 		 If b is a pure universality formula a R b = b. */
 	      if ((b->is_eventual() && (op == binop::U))
@@ -1229,11 +1230,13 @@ namespace spot
 		  tmp->destroy();
 		  return;
 		}
+	      trace << "bo: no eventuniv rule matched" << std::endl;
 	    }
 
 	  // Inclusion-based rules
 	  if (opt_.synt_impl | opt_.containment_checks)
 	    {
+	      trace << "bo: trying inclusion-based rules" << std::endl;
 	      switch (op)
 		{
 		case binop::Xor:
@@ -1396,14 +1399,17 @@ namespace spot
 		    }
 		  break;
 		}
+	      trace << "bo: no inclusion-based rules matched" << std::endl;
 	    }
 
 	  if (!opt_.reduce_basics)
 	    {
+	      trace << "bo: basic reductions disabled" << std::endl;
 	      result_ = binop::instance(op, a, b);
 	      return;
 	    }
 
+	  trace << "bo: trying basic reductions" << std::endl;
 	  // Rewrite U,R,W,M as F or G when possible.
 	  switch (op)
 	    {
@@ -1433,7 +1439,7 @@ namespace spot
 	      break;
 	    case binop::M:
 	      // a M true == F(a)
-	      if (b == constant::false_instance())
+	      if (b == constant::true_instance())
 		{
 		  result_ = recurse_destroy(unop::instance(unop::F, a));
 		  return;
@@ -2185,13 +2191,25 @@ namespace spot
       simplify_recursively(const formula* f,
 			   ltl_simplifier_cache* c)
       {
+	trace << "** simplify_recursively(" << to_string(f) << ")";
+
 	formula* result = const_cast<formula*>(c->lookup_simplified(f));
 	if (result)
-	  return result;
+	  {
+	    trace << " cached: " << to_string(result) << std::endl;
+	    return result;
+	  }
+	else
+	  {
+	    trace << " miss" << std::endl;
+	  }
 
 	simplify_visitor v(c);
 	const_cast<formula*>(f)->accept(v);
 	result = v.result();
+
+        trace << "** simplify_recursively(" << to_string(f) << ") result: "
+	      << to_string(result) << std::endl;
 
 	c->cache_simplified(f, result);
 	return result;
