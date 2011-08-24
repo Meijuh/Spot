@@ -66,6 +66,11 @@ for x in ../reduccmp ../reductaustr; do
   run 0 $x 'a | (b U a) | a' '(b U a)'
   run 0 $x 'a U (b U a)' '(b U a)'
 
+  run 0 $x 'a <-> !a' '0'
+  run 0 $x 'a <-> a' '1'
+  run 0 $x 'a ^ a' '0'
+  run 0 $x 'a ^ !a' '1'
+
   # Basic reductions
   run 0 $x 'X(true)' 'true'
   run 0 $x 'X(false)' 'false'
@@ -120,6 +125,8 @@ for x in ../reduccmp ../reductaustr; do
      # reason as above.
      run 0 $x 'F(a & GFb & c)' 'F(a & GFb & c)'
      run 0 $x 'G(a | GFb | c)' 'G(a | c) | GFb'
+
+     run 0 $x 'GFa <=> GFb' 'G(Fa&Fb)|FG(!a&!b)'
 
      run 0 $x 'Gb W a' 'Gb|a'
      run 0 $x 'Fb M Fa' 'Fa & Fb'

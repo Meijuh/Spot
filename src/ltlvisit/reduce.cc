@@ -22,25 +22,16 @@
 // 02111-1307, USA.
 
 #include "reduce.hh"
-#include "ltlast/allnodes.hh"
 #include <cassert>
-
-#include "lunabbrev.hh"
-#include "simpfg.hh"
 #include "simplify.hh"
 
 namespace spot
 {
   namespace ltl
   {
-
     formula*
     reduce(const formula* f, int opt)
     {
-      formula* f1;
-      formula* f2;
-      formula* prev = 0;
-
       ltl_simplifier_options o;
       o.reduce_basics = opt & Reduce_Basics;
       o.synt_impl = opt & Reduce_Syntactic_Implications;
@@ -48,31 +39,7 @@ namespace spot
       o.containment_checks = opt & Reduce_Containment_Checks;
       o.containment_checks_stronger = opt & Reduce_Containment_Checks_Stronger;
       ltl_simplifier simplifier(o);
-
-      int n = 0;
-
-      while (f != prev)
-	{
-	  ++n;
-	  assert(n < 100);
-	  if (prev)
-	    {
-	      prev->destroy();
-	      prev = const_cast<formula*>(f);
-	    }
-	  else
-	    {
-	      prev = f->clone();
-	    }
-	  f1 = unabbreviate_logic(f);
-	  f2 = simplify_f_g(f1);
-	  f1->destroy();
-	  f = simplifier.simplify(f2);
-	  f2->destroy();
-	}
-      prev->destroy();
-
-      return const_cast<formula*>(f);
+      return const_cast<formula*>(simplifier.simplify(f));
     }
 
     bool

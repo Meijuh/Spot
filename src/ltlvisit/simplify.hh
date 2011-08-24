@@ -80,13 +80,11 @@ namespace spot
       /// \param f The formula to normalize.
       /// \param negated If \c true, return the negative normal form of
       ///        \c !f
-      ///
-      /// Note that this will not remove abbreviated operators.  If you
-      /// want to remove abbreviations, call spot::ltl::unabbreviate_logic
-      /// or spot::ltl::unabbreviate_ltl first.  (Calling these functions
-      /// after spot::ltl::negative_normal_form would likely produce a
-      /// formula which is not in negative normal form.)
-      formula* negative_normal_form(const formula* f, bool negated = false);
+      /// \param lunabbrev If \c true, also remove Xor, Equiv, and Implies
+      ///        operators.  (It is faster than calling
+      ///        spot::ltl::unabbreviate_ltl first.)
+      formula* negative_normal_form(const formula* f, bool negated = false,
+				    bool lunabbrev = false);
 
 
     private:

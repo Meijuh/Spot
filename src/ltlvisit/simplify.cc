@@ -365,13 +365,15 @@ namespace spot
       const formula*
       nenoform_recursively(const formula* f,
 			   bool negated,
+			   bool lunabbrev,
 			   ltl_simplifier_cache* c);
 
       class negative_normal_form_visitor: public visitor
       {
       public:
-	negative_normal_form_visitor(bool negated, ltl_simplifier_cache* c)
-	  : negated_(negated), cache_(c)
+	negative_normal_form_visitor(bool negated, bool lunabbrev,
+				     ltl_simplifier_cache* c)
+	  : negated_(negated), lunabbrev_(lunabbrev), cache_(c)
 	{
 	}
 
@@ -455,11 +457,39 @@ namespace spot
 	void
 	visit(bunop* bo)
 	{
-	  // !(a*) is not simplified
+	  // !(a*) is not simplified, whatever that means
 	  result_ = bunop::instance(bo->op(), recurse_(bo->child(), false),
 				    bo->min(), bo->max());
 	  if (negated_)
 	    result_ = unop::instance(unop::Not, result_);
+	}
+
+	formula* equiv_or_xor(bool equiv, formula* f1, formula* f2)
+	{
+	  if (!lunabbrev_)
+	    return binop::instance(equiv ? binop::Equiv : binop::Xor,
+				   recurse_(f1, false),
+				   recurse_(f2, false));
+	  // Rewrite a<=>b as (a&b)|(!a&!b)
+	  if (equiv)
+	    return
+	      multop::instance(multop::Or,
+			       multop::instance(multop::And,
+						recurse_(f1, false),
+						recurse_(f2, false)),
+			       multop::instance(multop::And,
+						recurse_(f1, true),
+						recurse_(f2, true)));
+	  else
+	    // Rewrite a^b as (a&!b)|(!a&b)
+	    return
+	      multop::instance(multop::Or,
+			       multop::instance(multop::And,
+						recurse_(f1, false),
+						recurse_(f2, true)),
+			       multop::instance(multop::And,
+						recurse_(f1, true),
+						recurse_(f2, false)));
 	}
 
 	void
@@ -470,68 +500,69 @@ namespace spot
 	  switch (bo->op())
 	    {
 	    case binop::Xor:
-	      /* !(a ^ b) == a <=> b */
-	      result_ = binop::instance(negated_ ? binop::Equiv : binop::Xor,
-					recurse_(f1, false),
-					recurse_(f2, false));
+	      // !(a ^ b) == a <=> b
+	      result_ = equiv_or_xor(negated_, f1, f2);
 	      return;
 	    case binop::Equiv:
-	      /* !(a <=> b) == a ^ b */
-	      result_ = binop::instance(negated_ ? binop::Xor : binop::Equiv,
-					recurse_(f1, false),
-					recurse_(f2, false));
+	      // !(a <=> b) == a ^ b
+	      result_ = equiv_or_xor(!negated_, f1, f2);
 	      return;
 	    case binop::Implies:
 	      if (negated_)
-		/* !(a => b) == a & !b */
+		// !(a => b) == a & !b
 		result_ = multop::instance(multop::And,
 					   recurse_(f1, false),
 					   recurse_(f2, true));
-	      else
+	      else if (!lunabbrev_)
 		result_ = binop::instance(binop::Implies,
-					  recurse(f1), recurse(f2));
+					  recurse_(f1, false),
+					  recurse_(f2, false));
+	      else // a => b == !a | b
+		result_ = multop::instance(multop::Or,
+					   recurse_(f1, true),
+					   recurse_(f2, false));
 	      return;
 	    case binop::U:
-	      /* !(a U b) == !a R !b */
+	      // !(a U b) == !a R !b
 	      result_ = binop::instance(negated_ ? binop::R : binop::U,
 					recurse(f1), recurse(f2));
 	      return;
 	    case binop::R:
-	      /* !(a R b) == !a U !b */
+	      // !(a R b) == !a U !b
 	      result_ = binop::instance(negated_ ? binop::U : binop::R,
 					recurse(f1), recurse(f2));
 	      return;
 	    case binop::W:
-	      /* !(a W b) == !a M !b */
+	      // !(a W b) == !a M !b
 	      result_ = binop::instance(negated_ ? binop::M : binop::W,
 					recurse(f1), recurse(f2));
 	      return;
 	    case binop::M:
-	      /* !(a M b) == !a W !b */
+	      // !(a M b) == !a W !b
 	      result_ = binop::instance(negated_ ? binop::W : binop::M,
 					recurse(f1), recurse(f2));
 	      return;
 	    case binop::UConcat:
-	      /* !(a []-> b) == a<>-> !b */
+	      // !(a []-> b) == a<>-> !b
 	      result_ = binop::instance(negated_ ?
 					binop::EConcat : binop::UConcat,
 					recurse_(f1, false), recurse(f2));
 	      return;
 	    case binop::EConcat:
-	      /* !(a <>-> b) == a[]-> !b */
+	      // !(a <>-> b) == a[]-> !b
 	      result_ = binop::instance(negated_ ?
 					binop::UConcat : binop::EConcat,
 					recurse_(f1, false), recurse(f2));
 	      return;
 	    case binop::EConcatMarked:
-	      /* !(a <>-> b) == a[]-> !b */
+	      // !(a <>-> b) == a[]-> !b
 	      result_ = binop::instance(negated_ ?
 					binop::UConcat :
 					binop::EConcatMarked,
 					recurse_(f1, false), recurse(f2));
 	      return;
 	    }
-	  /* Unreachable code.  */
+	  // Unreachable code.
 	  assert(0);
 	}
 
@@ -594,7 +625,9 @@ namespace spot
 	formula*
 	recurse_(formula* f, bool negated)
 	{
-	  return const_cast<formula*>(nenoform_recursively(f, negated, cache_));
+	  return
+	    const_cast<formula*>(nenoform_recursively(f, negated,
+						      lunabbrev_, cache_));
 	}
 
 	formula*
@@ -606,6 +639,7 @@ namespace spot
       protected:
 	formula* result_;
 	bool negated_;
+	bool lunabbrev_;
 	ltl_simplifier_cache* cache_;
       };
 
@@ -613,6 +647,7 @@ namespace spot
       const formula*
       nenoform_recursively(const formula* f,
 			   bool negated,
+			   bool lunabbrev,
 			   ltl_simplifier_cache* c)
       {
 	if (f->kind() == formula::UnOp)
@@ -639,7 +674,7 @@ namespace spot
 	  }
 	else
 	  {
-	    negative_normal_form_visitor v(negated, c);
+	    negative_normal_form_visitor v(negated, lunabbrev, c);
 	    const_cast<formula*>(f)->accept(v);
 	    result = v.result();
 	  }
@@ -2242,7 +2277,7 @@ namespace spot
     {
       formula* neno = 0;
       if (!f->is_in_nenoform())
-	f = neno = negative_normal_form(f);
+	f = neno = negative_normal_form(f, false, true);
       formula* res = const_cast<formula*>(simplify_recursively(f, cache_));
       if (neno)
 	neno->destroy();
@@ -2250,9 +2285,11 @@ namespace spot
     }
 
     formula*
-    ltl_simplifier::negative_normal_form(const formula* f, bool negated)
+    ltl_simplifier::negative_normal_form(const formula* f, bool negated,
+					 bool lunabbrev)
     {
-      return const_cast<formula*>(nenoform_recursively(f, negated, cache_));
+      return const_cast<formula*>(nenoform_recursively(f, negated, lunabbrev,
+						       cache_));
     }
 
 
