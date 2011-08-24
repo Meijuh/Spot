@@ -23,7 +23,6 @@
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
-#include "ltlvisit/reduce.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/minimize.hh"
@@ -221,7 +220,9 @@ main(int argc, char **argv)
 
   tm.start("reducing formula");
   {
-    spot::ltl::formula* r = spot::ltl::reduce(f);
+    spot::ltl::ltl_simplifier_options opt(true, true, true, true, true);
+    spot::ltl::ltl_simplifier simp(opt);
+    spot::ltl::formula* r = simp.simplify(f);
     f->destroy();
     f = r;
   }

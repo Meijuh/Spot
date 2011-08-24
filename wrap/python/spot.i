@@ -66,7 +66,7 @@
 #include "ltlvisit/dump.hh"
 #include "ltlvisit/lunabbrev.hh"
 #include "ltlvisit/nenoform.hh"
-#include "ltlvisit/reduce.hh"
+#include "ltlvisit/simplify.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/tunabbrev.hh"
 
@@ -164,7 +164,7 @@ using namespace spot;
 %include "ltlvisit/dump.hh"
 %include "ltlvisit/lunabbrev.hh"
 %include "ltlvisit/nenoform.hh"
-%include "ltlvisit/reduce.hh"
+%include "ltlvisit/simplify.hh"
 %include "ltlvisit/tostring.hh"
 %include "ltlvisit/tunabbrev.hh"
 

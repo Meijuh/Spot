@@ -21,9 +21,10 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#include "reduce.hh"
 #include <cassert>
 #include "simplify.hh"
+#define SKIP_DEPRECATED_WARNING
+#include "reduce.hh"
 
 namespace spot
 {

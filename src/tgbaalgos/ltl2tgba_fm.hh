@@ -1,5 +1,5 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -27,7 +27,7 @@
 #include "ltlast/formula.hh"
 #include "tgba/tgbaexplicit.hh"
 #include "ltlvisit/apcollect.hh"
-#include "ltlvisit/reduce.hh"
+#include "ltlvisit/simplify.hh"
 
 namespace spot
 {
@@ -99,10 +99,10 @@ namespace spot
   /// formula are observable events, and \c unobs can be filled with
   /// additional unobservable events.
   ///
-  /// \param reduce_ltl If this parameter is set, the LTL formulae representing
-  /// each state of the automaton will be simplified using spot::ltl::reduce()
-  /// before computing the successor.  \a reduce_ltl should specify the type
-  /// of reduction to apply as documented for spot::ltl::reduce().
+  /// \param simpl If this parameter is set, the LTL formulae representing
+  /// each state of the automaton will be simplified
+  /// before computing the successor.  \a simpl should be configured
+  /// for the type of reduction you want, see spot::ltl::ltl_simplifier.
   /// This idea is taken from the following paper.
   /// \verbatim
   /// @InProceedings{	  thirioux.02.fmics,
@@ -128,7 +128,7 @@ namespace spot
 		 bool branching_postponement = false,
 		 bool fair_loop_approx = false,
 		 const ltl::atomic_prop_set* unobs = 0,
-		 int reduce_ltl = ltl::Reduce_None);
+		 ltl::ltl_simplifier* simplifier = 0);
 }
 
 #endif // SPOT_TGBAALGOS_LTL2TGBA_FM_HH

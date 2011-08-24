@@ -32,7 +32,7 @@
 #include "ltlvisit/nenoform.hh"
 #include "ltlvisit/contain.hh"
 #include "ltlast/allnodes.hh"
-#include "ltlvisit/reduce.hh"
+#include "ltlvisit/simplify.hh"
 #include "ltlvisit/tostring.hh"
 
 void
@@ -94,26 +94,38 @@ main(int argc, char** argv)
   std::cout << std::endl;
 #endif
 #ifdef REDUC
-  spot::ltl::formula* tmp;
-  tmp = f1;
-  f1 = spot::ltl::reduce(f1);
-  tmp->destroy();
+  {
+    spot::ltl::ltl_simplifier_options opt(true, true, true, false, false);
+    spot::ltl::ltl_simplifier simp(opt);
+    spot::ltl::formula* tmp;
+    tmp = f1;
+    f1 = simp.simplify(f1);
+    tmp->destroy();
+  }
   spot::ltl::dump(std::cout, f1);
   std::cout << std::endl;
 #endif
 #ifdef REDUC_TAU
-  spot::ltl::formula* tmp;
-  tmp = f1;
-  f1 = spot::ltl::reduce_tau03(f1, false);
-  tmp->destroy();
+  {
+    spot::ltl::ltl_simplifier_options opt(false, false, false, true, false);
+    spot::ltl::ltl_simplifier simp(opt);
+    spot::ltl::formula* tmp;
+    tmp = f1;
+    f1 = simp.simplify(f1);
+    tmp->destroy();
+  }
   spot::ltl::dump(std::cout, f1);
   std::cout << std::endl;
 #endif
 #ifdef REDUC_TAUSTR
-  spot::ltl::formula* tmp;
-  tmp = f1;
-  f1 = spot::ltl::reduce_tau03(f1, true);
-  tmp->destroy();
+  {
+    spot::ltl::ltl_simplifier_options opt(false, false, false, true, true);
+    spot::ltl::ltl_simplifier simp(opt);
+    spot::ltl::formula* tmp;
+    tmp = f1;
+    f1 = simp.simplify(f1);
+    tmp->destroy();
+  }
   spot::ltl::dump(std::cout, f1);
   std::cout << std::endl;
 #endif

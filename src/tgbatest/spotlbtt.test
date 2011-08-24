@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+# Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire
 # d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
@@ -139,7 +139,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), reduction of formula in FM"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -fr4 -F -f -t'"
+   Parameters = "--spot '../ltl2tgba -fr -r4 -F -f -t'"
    Enabled = no
 }
 
@@ -147,7 +147,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM) reduction7 of formula in FM"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -fr7 -F -f -t'"
+   Parameters = "--spot '../ltl2tgba -fr -r7 -F -f -t'"
    Enabled = no
 }
 

@@ -27,7 +27,6 @@
 #include "misc/minato.hh"
 #include "ltlast/visitor.hh"
 #include "ltlast/allnodes.hh"
-#include "ltlvisit/lunabbrev.hh"
 #include "ltlvisit/nenoform.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/postfix.hh"
@@ -1588,22 +1587,25 @@ namespace spot
   ltl_to_tgba_fm(const formula* f, bdd_dict* dict,
 		 bool exprop, bool symb_merge, bool branching_postponement,
 		 bool fair_loop_approx, const atomic_prop_set* unobs,
-		 int reduce_ltl)
+		 ltl_simplifier* simplifier)
   {
-    // Normalize the formula.  We want all the negations on
-    // the atomic propositions.  We also suppress logic
-    // abbreviations such as <=>, =>, or XOR, since they
-    // would involve negations at the BDD level.
-    formula* f1 = unabbreviate_logic(f);
-    formula* f2 = negative_normal_form(f1);
-    f1->destroy();
+    formula* f2;
 
     // Simplify the formula, if requested.
-    if (reduce_ltl)
+    if (simplifier)
       {
-	formula* tmp = reduce(f2, reduce_ltl);
-	f2->destroy();
-	f2 = tmp;
+	// This will normalize the formula regardless of the
+	// configuration of the simplifier.
+	f2 = simplifier->simplify(f);
+      }
+    else
+      {
+	// Otherwise, at least normalize the formula.  We want all the
+	// negations on the atomic propositions.  We also suppress
+	// logic abbreviations such as <=>, =>, or XOR, since they
+	// would involve negations at the BDD level.
+	ltl_simplifier s;
+	f2 = s.negative_normal_form(f, false, true);
       }
 
     typedef std::set<const formula*, formula_ptr_less_than> set_type;
@@ -1611,7 +1613,7 @@ namespace spot
 
     translate_dict d(dict);
 
-    // Compute the set of all promises that can possibly occurre
+    // Compute the set of all promises that can possibly occur
     // inside the formula.
     bdd all_promises = bddtrue;
     if (fair_loop_approx || unobs)
@@ -1761,9 +1763,9 @@ namespace spot
 		const formula* dest = d.conj_bdd_to_formula(dest_bdd);
 
 		// Simplify the formula, if requested.
-		if (reduce_ltl)
+		if (simplifier)
 		  {
-		    formula* tmp = reduce(dest, reduce_ltl);
+		    formula* tmp = simplifier->simplify(dest);
 		    dest->destroy();
 		    dest = tmp;
 		    // Ignore the arc if the destination reduces to false.

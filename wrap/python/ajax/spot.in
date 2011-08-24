@@ -334,18 +334,22 @@ if not f:
     finish()
 
 # Formula simplifications
-opt = spot.Reduce_None
+simpopt = spot.ltl_simplifier_options(False, False, False, False, False)
+dored = False
 for r in form.getlist('r'):
+    dored = True
     if r == 'br':
-        opt = opt + spot.Reduce_Basics
+        simpopt.reduce_basics = True
     elif r == 'si':
-        opt = opt + spot.Reduce_Syntactic_Implications
+        simpopt.synt_impl = True
     elif r == 'eu':
-        opt = opt + spot.Reduce_Eventuality_And_Universality
+        simpopt.event_univ = True
     elif r == 'lc':
-        opt = opt + spot.Reduce_Containment_Checks_Stronger
-if opt != spot.Reduce_None:
-    f2 = spot.reduce(f, opt)
+        simpopt.containment_checks = True
+        simpopt.containment_checks_stronger = True
+if dored:
+    simp = spot.ltl_simplifier(simpopt)
+    f2 = simp.simplify(f)
     f.destroy()
     f = f2
 

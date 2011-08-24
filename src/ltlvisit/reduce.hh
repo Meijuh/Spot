@@ -27,6 +27,13 @@
 #include "ltlast/formula.hh"
 #include "ltlast/visitor.hh"
 
+#if __GNUC__
+#ifndef SKIP_DEPRECATED_WARNING
+#warning This file and its functions are deprecated.  \
+         The functionality moved to ltlvisit/simplify.hh
+#endif
+#endif
+
 namespace spot
 {
   namespace ltl
@@ -60,7 +67,14 @@ namespace spot
     /// \param opt a conjonction of spot::ltl::reduce_options specifying
     ///            which optimizations to apply.
     /// \return the reduced formula
+    ///
+    /// \deprecated Use spot::ltl::ltl_simplifier instead.
+#if __GNUC__
+    formula*
+    reduce(const formula* f, int opt = Reduce_All) __attribute__ ((deprecated));
+#else
     formula* reduce(const formula* f, int opt = Reduce_All);
+#endif
     /// @}
 
     /// \brief Check whether a formula is a pure eventuality.

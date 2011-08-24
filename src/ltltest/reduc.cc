@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2006, 2007 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -28,14 +28,10 @@
 #include <string>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlvisit/lunabbrev.hh"
-#include "ltlvisit/tunabbrev.hh"
 #include "ltlvisit/dump.hh"
-#include "ltlvisit/nenoform.hh"
 #include "ltlvisit/tostring.hh"
-#include "ltlvisit/reduce.hh"
+#include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
-#include "ltlvisit/contain.hh"
 #include "ltlast/allnodes.hh"
 
 void
@@ -52,6 +48,7 @@ main(int argc, char** argv)
   bool hidereduc = false;
   unsigned long sum_before = 0;
   unsigned long sum_after = 0;
+  spot::ltl::ltl_simplifier_options o(false, false, false, false, false);
 
   if (argc < 3)
     syntax(argv[0]);
@@ -70,68 +67,80 @@ main(int argc, char** argv)
       --argc;
     }
 
-  int o = spot::ltl::Reduce_None;
   switch (atoi(argv[1]))
     {
     case 0:
-      o = spot::ltl::Reduce_Basics;
+      o.reduce_basics = true;
       break;
     case 1:
-      o = spot::ltl::Reduce_Syntactic_Implications;
+      o.synt_impl = true;
       break;
     case 2:
-      o = spot::ltl::Reduce_Eventuality_And_Universality;
+      o.event_univ = true;
       break;
     case 3:
-      o = spot::ltl::Reduce_Basics
-	| spot::ltl::Reduce_Syntactic_Implications
-	| spot::ltl::Reduce_Eventuality_And_Universality;
+      o.reduce_basics = true;
+      o.synt_impl = true;
+      o.event_univ = true;
       break;
     case 4:
-      o = spot::ltl::Reduce_Basics | spot::ltl::Reduce_Syntactic_Implications;
+      o.reduce_basics = true;
+      o.synt_impl = true;
       break;
     case 5:
-      o = (spot::ltl::Reduce_Basics
-	   | spot::ltl::Reduce_Eventuality_And_Universality);
+      o.reduce_basics = true;
+      o.event_univ = true;
       break;
     case 6:
-      o = (spot::ltl::Reduce_Syntactic_Implications
-	   | spot::ltl::Reduce_Eventuality_And_Universality);
+      o.synt_impl = true;
+      o.event_univ = true;
       break;
     case 7:
-      o = spot::ltl::Reduce_Containment_Checks;
+      o.containment_checks = true;
       break;
     case 8:
-      o = spot::ltl::Reduce_Containment_Checks_Stronger;
+      o.containment_checks = true;
+      o.containment_checks_stronger = true;
       break;
     case 9:
-      o = spot::ltl::Reduce_All;
+      o.reduce_basics = true;
+      o.synt_impl = true;
+      o.event_univ = true;
+      o.containment_checks = true;
+      o.containment_checks_stronger = true;
       break;
     case 10:
-      o = (spot::ltl::Reduce_Basics
-	   | spot::ltl::Reduce_Containment_Checks_Stronger);
+      o.reduce_basics = true;
+      o.containment_checks = true;
+      o.containment_checks_stronger = true;
       break;
     case 11:
-      o = (spot::ltl::Reduce_Syntactic_Implications
-	   | spot::ltl::Reduce_Containment_Checks_Stronger);
+      o.synt_impl = true;
+      o.containment_checks = true;
+      o.containment_checks_stronger = true;
       break;
     case 12:
-      o = (spot::ltl::Reduce_Basics
-	   | spot::ltl::Reduce_Syntactic_Implications
-	   | spot::ltl::Reduce_Containment_Checks_Stronger);
+      o.reduce_basics = true;
+      o.synt_impl = true;
+      o.containment_checks = true;
+      o.containment_checks_stronger = true;
       break;
     case 13:
-      o = (spot::ltl::Reduce_Eventuality_And_Universality
-	   | spot::ltl::Reduce_Containment_Checks_Stronger);
+      o.event_univ = true;
+      o.containment_checks = true;
+      o.containment_checks_stronger = true;
       break;
     case 14:
-      o = (spot::ltl::Reduce_Basics
-	   | spot::ltl::Reduce_Eventuality_And_Universality
-	   | spot::ltl::Reduce_Containment_Checks_Stronger);
+      o.reduce_basics = true;
+      o.event_univ = true;
+      o.containment_checks = true;
+      o.containment_checks_stronger = true;
       break;
     default:
       return 2;
   }
+
+  spot::ltl::ltl_simplifier* simp = new spot::ltl::ltl_simplifier(o);
 
   spot::ltl::formula* f1 = 0;
   spot::ltl::formula* f2 = 0;
@@ -191,25 +200,17 @@ main(int argc, char** argv)
 
   {
     spot::ltl::formula* ftmp1;
-    spot::ltl::formula* ftmp2;
 
     ftmp1 = f1;
-    f1 = unabbreviate_logic(f1);
-    ftmp2 = f1;
-    f1 = negative_normal_form(f1);
+    f1 = simp->negative_normal_form(f1, false, true);
     ftmp1->destroy();
-    ftmp2->destroy();
-
 
     int length_f1_before = spot::ltl::length(f1);
     std::string f1s_before = spot::ltl::to_string(f1);
 
     ftmp1 = f1;
-    f1 = spot::ltl::reduce(f1, o);
-    ftmp2 = f1;
-    f1 = spot::ltl::unabbreviate_logic(f1);
+    f1 = simp->simplify(f1);
     ftmp1->destroy();
-    ftmp2->destroy();
 
     int length_f1_after = spot::ltl::length(f1);
     std::string f1s_after = spot::ltl::to_string(f1);
@@ -218,13 +219,7 @@ main(int argc, char** argv)
     if (f2)
       {
 	ftmp1 = f2;
-	f2 = unabbreviate_logic(f2);
-	ftmp2 = f2;
-	f2 = negative_normal_form(f2);
-	ftmp1->destroy();
-	ftmp2->destroy();
-	ftmp1 = f2;
-	f2 = unabbreviate_logic(f2);
+	f2 = simp->negative_normal_form(f2, false, true);
 	ftmp1->destroy();
 	f2s = spot::ltl::to_string(f2);
       }
@@ -277,6 +272,8 @@ main(int argc, char** argv)
       goto next_line;
   }
  end:
+
+  delete simp;
 
   if (fin)
     {

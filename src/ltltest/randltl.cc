@@ -31,7 +31,7 @@
 #include "ltlvisit/randomltl.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/length.hh"
-#include "ltlvisit/reduce.hh"
+#include "ltlvisit/simplify.hh"
 #include "ltlenv/defaultenv.hh"
 #include "misc/random.hh"
 
@@ -97,6 +97,8 @@ main(int argc, char** argv)
   char* opt_pB = 0;
   int opt_r = 0;
   bool opt_u = false;
+  spot::ltl::ltl_simplifier_options simpopt(true, true, true, true, true);
+  spot::ltl::ltl_simplifier simp(simpopt);
 
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* ap = new spot::ltl::atomic_prop_set;
@@ -308,7 +310,7 @@ main(int argc, char** argv)
 		  f = rf->generate(opt_f);
 		  if (opt_r)
 		    {
-		      spot::ltl::formula* g = reduce(f);
+		      spot::ltl::formula* g = simp.simplify(f);
 		      f->destroy();
 		      if (spot::ltl::length(g) < opt_r)
 			{

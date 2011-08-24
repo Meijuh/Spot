@@ -30,7 +30,7 @@ for file in `find "$INCDIR" \( -name "${1-*}.hh" \
 #include <$file>
 #include <$file>
 EOF
-   if $CXX $CPPFLAGS $CXXFLAGS -c incltest.cc; then
+   if $CXX $CPPFLAGS -DSKIP_DEPRECATED_WARNING $CXXFLAGS -c incltest.cc; then
       echo "PASS: $file"
    else
       echo "FAIL: $file"

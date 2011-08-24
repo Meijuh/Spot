@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -36,7 +36,7 @@
 #include "ltlvisit/randomltl.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/length.hh"
-#include "ltlvisit/reduce.hh"
+#include "ltlvisit/simplify.hh"
 #include "tgbaalgos/randomgraph.hh"
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
@@ -488,7 +488,9 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string s)
 }
 
 spot::ltl::formula*
-generate_formula(const spot::ltl::random_ltl& rl, int opt_f, int opt_s,
+generate_formula(const spot::ltl::random_ltl& rl,
+		 spot::ltl::ltl_simplifier& simp,
+		 int opt_f, int opt_s,
                  int opt_l = 0, bool opt_u = false)
 {
   static std::set<std::string> unique;
@@ -504,7 +506,7 @@ generate_formula(const spot::ltl::random_ltl& rl, int opt_f, int opt_s,
           f = rl.generate(opt_f);
           if (opt_l)
             {
-              spot::ltl::formula* g = reduce(f);
+              spot::ltl::formula* g = simp.simplify(f);
               f->destroy();
               if (spot::ltl::length(g) < opt_l)
                 {
@@ -585,6 +587,9 @@ main(int argc, char** argv)
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* ap = new spot::ltl::atomic_prop_set;
   spot::bdd_dict* dict = new spot::bdd_dict();
+
+  spot::ltl::ltl_simplifier_options simpopt(true, true, true, true, true);
+  spot::ltl::ltl_simplifier simp(simpopt);
 
   if (argc <= 1)
     syntax(argv[0]);
@@ -848,7 +853,8 @@ main(int argc, char** argv)
     {
       if (opt_F)
         {
-          spot::ltl::formula* f = generate_formula(rl, opt_f, opt_ec_seed,
+          spot::ltl::formula* f = generate_formula(rl, simp,
+						   opt_f, opt_ec_seed,
 						   opt_l, opt_u);
           if (!f)
             exit(1);

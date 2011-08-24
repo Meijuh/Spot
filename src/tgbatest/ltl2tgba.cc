@@ -132,13 +132,8 @@ syntax(char* prog)
 	    << std::endl
 
 	    << "Options for Couvreur's FM algorithm (-f):" << std::endl
-	    << "  -fr1  use -r1 (see below) at each step of FM" << std::endl
-	    << "  -fr2  use -r2 (see below) at each step of FM" << std::endl
-	    << "  -fr3  use -r3 (see below) at each step of FM" << std::endl
-	    << "  -fr4  use -r4 (see below) at each step of FM" << std::endl
-	    << "  -fr5  use -r5 (see below) at each step of FM" << std::endl
-	    << "  -fr6  use -r6 (see below) at each step of FM" << std::endl
-	    << "  -fr7  use -r7 (see below) at each step of FM" << std::endl
+	    << "  -fr   reduce formula at each step of FM" << std::endl
+	    << "          as specified with the -r{1..7} options" << std::endl
             << "  -L    fair-loop approximation (implies -f)" << std::endl
             << "  -p    branching postponement (implies -f)" << std::endl
             << "  -U[PROPS]  consider atomic properties of the formula as "
@@ -291,7 +286,7 @@ main(int argc, char** argv)
   enum { TransitionLabeled, StateLabeled } labeling_opt = TransitionLabeled;
   enum { TransFM, TransLaCIM, TransLaCIM_ELTL, TransLaCIM_ELTL_ops, TransTAA }
     translation = TransFM;
-  int fm_red = spot::ltl::Reduce_None;
+  bool fm_red = false;
   bool fm_exprop_opt = false;
   bool fm_symb_merge_opt = true;
   bool file_opt = false;
@@ -305,8 +300,9 @@ main(int argc, char** argv)
   bool accepting_run_replay = false;
   bool from_file = false;
   bool read_neverclaim = false;
-  int redopt = spot::ltl::Reduce_None;
   bool scc_filter = false;
+  bool simpltl = false;
+  spot::ltl::ltl_simplifier_options redopt(false, false, false, false, false);
   bool scc_filter_all = false;
   bool symbolic_scc_pruning = false;
   bool display_reduce_form = false;
@@ -422,42 +418,10 @@ main(int argc, char** argv)
 	{
 	  translation = TransFM;
 	}
-      else if (!strcmp(argv[formula_index], "-fr1"))
+      else if (!strcmp(argv[formula_index], "-fr"))
 	{
+	  fm_red = true;
 	  translation = TransFM;
-	  fm_red |= spot::ltl::Reduce_Basics;
-	}
-      else if (!strcmp(argv[formula_index], "-fr2"))
-	{
-	  translation = TransFM;
-	  fm_red |= spot::ltl::Reduce_Eventuality_And_Universality;
-	}
-      else if (!strcmp(argv[formula_index], "-fr3"))
-	{
-	  translation = TransFM;
-	  fm_red |= spot::ltl::Reduce_Syntactic_Implications;
-	}
-      else if (!strcmp(argv[formula_index], "-fr4"))
-	{
-	  translation = TransFM;
- 	  fm_red |= spot::ltl::Reduce_Basics
-	    | spot::ltl::Reduce_Eventuality_And_Universality
-	    | spot::ltl::Reduce_Syntactic_Implications;
-	}
-      else if (!strcmp(argv[formula_index], "-fr5"))
-	{
-	  translation = TransFM;
-	  fm_red |= spot::ltl::Reduce_Containment_Checks;
-	}
-      else if (!strcmp(argv[formula_index], "-fr6"))
-	{
-	  translation = TransFM;
-	  fm_red |= spot::ltl::Reduce_Containment_Checks_Stronger;
-	}
-      else if (!strcmp(argv[formula_index], "-fr7"))
-	{
-	  translation = TransFM;
-	  fm_red |= spot::ltl::Reduce_All;
 	}
       else if (!strcmp(argv[formula_index], "-F"))
 	{
@@ -578,33 +542,45 @@ main(int argc, char** argv)
 	}
       else if (!strcmp(argv[formula_index], "-r1"))
 	{
-	  redopt |= spot::ltl::Reduce_Basics;
+	  simpltl = true;
+	  redopt.reduce_basics = true;
 	}
       else if (!strcmp(argv[formula_index], "-r2"))
 	{
-	  redopt |= spot::ltl::Reduce_Eventuality_And_Universality;
+	  simpltl = true;
+	  redopt.event_univ = true;
 	}
       else if (!strcmp(argv[formula_index], "-r3"))
 	{
-	  redopt |= spot::ltl::Reduce_Syntactic_Implications;
+	  simpltl = true;
+	  redopt.synt_impl = true;
 	}
       else if (!strcmp(argv[formula_index], "-r4"))
 	{
- 	  redopt |= spot::ltl::Reduce_Basics
-	    | spot::ltl::Reduce_Eventuality_And_Universality
-	    | spot::ltl::Reduce_Syntactic_Implications;
+	  simpltl = true;
+	  redopt.reduce_basics = true;
+	  redopt.event_univ = true;
+	  redopt.synt_impl = true;
 	}
       else if (!strcmp(argv[formula_index], "-r5"))
 	{
-	  redopt |= spot::ltl::Reduce_Containment_Checks;
+	  simpltl = true;
+	  redopt.containment_checks = true;
 	}
       else if (!strcmp(argv[formula_index], "-r6"))
 	{
-	  redopt |= spot::ltl::Reduce_Containment_Checks_Stronger;
+	  simpltl = true;
+	  redopt.containment_checks = true;
+	  redopt.containment_checks_stronger = true;
 	}
       else if (!strcmp(argv[formula_index], "-r7"))
 	{
-	  redopt |= spot::ltl::Reduce_All;
+	  simpltl = true;
+	  redopt.reduce_basics = true;
+	  redopt.event_univ = true;
+	  redopt.synt_impl = true;
+	  redopt.containment_checks = true;
+	  redopt.containment_checks_stronger = true;
 	}
       else if (!strcmp(argv[formula_index], "-R"))
 	{
@@ -794,6 +770,7 @@ main(int argc, char** argv)
 	  break;
 	}
     }
+
   if (f || from_file)
     {
       const spot::tgba_bdd_concrete* concrete = 0;
@@ -835,10 +812,14 @@ main(int argc, char** argv)
 	}
       else
 	{
-	  if (redopt != spot::ltl::Reduce_None)
+	  spot::ltl::ltl_simplifier* simp = 0;
+	  if (simpltl)
+	    simp = new spot::ltl::ltl_simplifier(redopt);
+
+	  if (simp)
 	    {
 	      tm.start("reducing formula");
-	      spot::ltl::formula* t = spot::ltl::reduce(f, redopt);
+	      spot::ltl::formula* t = simp->simplify(f);
 	      f->destroy();
 	      tm.stop("reducing formula");
 	      f = t;
@@ -855,7 +836,7 @@ main(int argc, char** argv)
 				       post_branching,
 				       fair_loop_approx,
 				       unobservables,
-				       fm_red);
+				       fm_red ? simp : 0);
 	      break;
 	    case TransTAA:
 	      a = spot::ltl_to_taa(f, dict, containment);
@@ -870,6 +851,8 @@ main(int argc, char** argv)
 	    }
 	  tm.stop("translating formula");
 	  to_free = a;
+
+	  delete simp;
 	}
 
       if (opt_monitor && !scc_filter)
