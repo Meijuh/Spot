@@ -18,6 +18,14 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
+#include <iostream>
+//#define TRACE
+#ifdef TRACE
+#define trace std::cerr
+#else
+#define trace while (0) std::cerr
+#endif
+
 
 #include "simplify.hh"
 #include "misc/hash.hh"
@@ -25,6 +33,8 @@
 #include "ltlast/allnodes.hh"
 #include "ltlast/visitor.hh"
 #include "ltlvisit/syntimpl.hh"
+#include "ltlvisit/contain.hh"
+#include "ltlvisit/tostring.hh"
 #include <cassert>
 
 namespace spot
@@ -40,8 +50,10 @@ namespace spot
       typedef Sgi::hash_map<const formula*, bdd,
 			    ptr_hash<formula> > f2b_map;
     public:
+      bdd_dict dict;
       ltl_simplifier_options options;
       syntactic_implication_cache syntimpl;
+      language_containment_checker lcc;
 
       ~ltl_simplifier_cache()
       {
@@ -79,11 +91,14 @@ namespace spot
       }
 
       ltl_simplifier_cache()
+	: lcc(&dict, true, true, false, false)
       {
       }
 
-      ltl_simplifier_cache(ltl_simplifier_options opt) : options(opt)
+      ltl_simplifier_cache(ltl_simplifier_options opt)
+	: options(opt), lcc(&dict, true, true, false, false)
       {
+	opt.containment_checks |= opt.containment_checks_stronger;
       }
 
       // Convert a Boolean formula into a BDD for easier comparison.
@@ -193,19 +208,126 @@ namespace spot
 	nenoform_[orig->clone()] = nenoform->clone();
       }
 
-      // Return true if f1 < f2 (i.e. f1 implies f2 syntactically)
+      // Return true iff the option set (syntactic implication
+      // or containment checks) allow to prove that f1 => f2.
+      bool
+      implication(const formula* f1, const formula* f2)
+      {
+	return (options.synt_impl && syntactic_implication(f1, f2))
+	  || (options.containment_checks && contained(f1, f2));
+      }
+
+      // Return true if f1 => f2 syntactically
       bool
       syntactic_implication(const formula* f1, const formula* f2)
       {
+	// We cannot run syntactic_implication on SERE formulae,
+	// except on Boolean formulae.
+	if (f1->is_sere_formula() && !f1->is_boolean())
+	  return false;
+	if (f2->is_sere_formula() && !f2->is_boolean())
+	  return false;
 	return syntimpl.syntactic_implication(f1, f2);
       }
 
-      // If right==false, true if !f1 < f2, false otherwise.
-      // If right==true, true if f1 < !f2, false otherwise.
-      bool syntactic_implication_neg(const formula* f1, const formula* f2,
-				     bool right)
+      // Return true if f1 => f2
+      bool
+      contained(const formula* f1, const formula* f2)
       {
-	return syntimpl.syntactic_implication_neg(f1, f2, right);
+	if (!f1->is_psl_formula() || !f2->is_psl_formula())
+	  return false;
+	return lcc.contained(f1, f2);
+      }
+
+      // If right==false, true if !f1 => f2, false otherwise.
+      // If right==true, true if f1 => !f2, false otherwise.
+      bool
+      syntactic_implication_neg(const formula* f1, const formula* f2,
+				bool right)
+      {
+	// We cannot run syntactic_implication_neg on SERE formulae,
+	// except on Boolean formulae.
+	if (f1->is_sere_formula() && !f1->is_boolean())
+	  return false;
+	if (f2->is_sere_formula() && !f2->is_boolean())
+	  return false;
+	trace << "[SIN] Does " << (right ? "(" : "!(")
+	      << to_string(f1) << ") implies "
+	      << (right ? "!(" : "(") << to_string(f2) << ") ?"
+	      << std::endl;
+	if (syntimpl.syntactic_implication_neg(f1, f2, right))
+	  {
+	    trace << "[SIN] Yes" << std::endl;
+	    return true;
+	  }
+	else
+	  {
+	    trace << "[SIN] No" << std::endl;
+	    return false;
+	  }
+      }
+
+      // Return true if f1 => !f2
+      bool contained_neg(const formula* f1, const formula* f2)
+      {
+	if (!f1->is_psl_formula() || !f2->is_psl_formula())
+	  return false;
+	trace << "[CN] Does (" << to_string(f1) << ") implies !("
+	      << to_string(f2) << ") ?" << std::endl;
+	if (lcc.contained_neg(f1, f2))
+	  {
+	    trace << "[CN] Yes" << std::endl;
+	    return true;
+	  }
+	else
+	  {
+	    trace << "[CN] No" << std::endl;
+	    return false;
+	  }
+      }
+
+      // Return true if f1 => !f2
+      bool neg_contained(const formula* f1, const formula* f2)
+      {
+	if (!f1->is_psl_formula() || !f2->is_psl_formula())
+	  return false;
+	trace << "[NC] Does (" << to_string(f1) << ") implies !("
+	      << to_string(f2) << ") ?" << std::endl;
+	if (lcc.neg_contained(f1, f2))
+	  {
+	    trace << "[NC] Yes" << std::endl;
+	    return true;
+	  }
+	else
+	  {
+	    trace << "[NC] No" << std::endl;
+	    return false;
+	  }
+      }
+
+      // Return true iff the option set (syntactic implication
+      // or containment checks) allow to prove that
+      //   - !f2 => f2   (case where right=false)
+      //   - f1 => !f2   (case where right=true)
+      bool
+      implication_neg(const formula* f1, const formula* f2, bool right)
+      {
+	trace << "[IN] Does " << (right ? "(" : "!(")
+	      << to_string(f1) << ") implies "
+	      << (right ? "!(" : "(") << to_string(f2) << ") ?"
+	      << std::endl;
+	if ((options.synt_impl && syntactic_implication_neg(f1, f2, right))
+	    || (options.containment_checks && right && contained_neg(f1, f2))
+	    || (options.containment_checks && !right && neg_contained(f1, f2)))
+	  {
+	    trace << "[IN] Yes" << std::endl;
+	    return true;
+	  }
+	else
+	  {
+	    trace << "[IN] No" << std::endl;
+	    return false;
+	  }
       }
 
       const formula*
@@ -789,8 +911,11 @@ namespace spot
 	  multop::vec::const_iterator end = v->end();
 	  for (multop::vec::const_iterator i = v->begin(); i < end; ++i)
 	    {
-	      process(*i);
-	      (*i)->destroy();
+	      if (*i) // skip null pointers left by previous simplifications
+		{
+		  process(*i);
+		  (*i)->destroy();
+		}
 	    }
 	  delete v;
 	}
@@ -891,9 +1016,16 @@ namespace spot
 		  //   XGF(f) = GF(f) and XFG(f) = FG(f)
 		  // The former comes from Somenzi&Bloem (CAV'00).
 		  // It's not clear why they do not list the second.
-		  if (is_GF(result_) || is_FG(result_))
+		  if (opt_.reduce_basics &&
+		      (is_GF(result_) || is_FG(result_)))
 		    return;
 		}
+
+
+	      // If Xa = a, keep only a.
+	      if (opt_.containment_checks_stronger
+		  && c_->lcc.equal(result_, uo))
+		return;
 
 	      // Disabled: X(f1 & GF(f2)) = X(f1) & GF(f2)
 	      // Disabled: X(f1 | GF(f2)) = X(f1) | GF(f2)
@@ -914,36 +1046,39 @@ namespace spot
 	      if (opt_.event_univ && result_->is_eventual())
 		return;
 
-	      if (!opt_.reduce_basics)
-		break;
-
-	      // F(a U b) = F(b)
-	      {
-		binop* bo = is_U(result_);
-		if (bo)
-		  {
-		    formula* r =
-		      unop::instance(unop::F, bo->second()->clone());
-		    bo->destroy();
-		    result_ = recurse_destroy(r);
-		    return;
-		  }
-	      }
-
-	      // FX(a) = XF(a)
-	      {
-		unop* u = is_X(result_);
-		if (u)
+	      if (opt_.reduce_basics)
 		{
-		  formula* res =
-		    unop_unop(unop::X, unop::F, u->child()->clone());
-		  u->destroy();
-		  // FXX(a) = XXF(a) ...
-		  // FXG(a) = XFG(a) = FG(a) ...
-		  result_ = recurse_destroy(res);
-		  return;
+		  // F(a U b) = F(b)
+		  binop* bo = is_U(result_);
+		  if (bo)
+		    {
+		      formula* r =
+			unop::instance(unop::F, bo->second()->clone());
+		      bo->destroy();
+		      result_ = recurse_destroy(r);
+		      return;
+		    }
+
+		  // FX(a) = XF(a)
+		  {
+		    unop* u = is_X(result_);
+		    if (u)
+		      {
+			formula* res =
+			  unop_unop(unop::X, unop::F, u->child()->clone());
+			u->destroy();
+			// FXX(a) = XXF(a) ...
+			// FXG(a) = XFG(a) = FG(a) ...
+			result_ = recurse_destroy(res);
+			return;
+		      }
+		  }
 		}
-	      }
+
+	      // if Fa => a, keep a.
+	      if (opt_.containment_checks_stronger
+		  && c_->lcc.contained(uo, result_))
+		return;
 
 	      // Disabled: F(f1 & GF(f2)) = F(f1) & GF(f2)
 	      //
@@ -972,63 +1107,79 @@ namespace spot
 	      if (opt_.event_univ && result_->is_universal())
 		return;
 
-	      if (!opt_.reduce_basics)
-		break;
-
-	      // G(a R b) = G(b)
-	      if (result_->kind() == formula::BinOp)
+	      if (opt_.reduce_basics)
 		{
-		  binop* bo = static_cast<binop*>(result_);
-		  if (bo->op() == binop::R)
+
+		  // G(a R b) = G(b)
+		  if (result_->kind() == formula::BinOp)
 		    {
-		      formula* r =
-			unop::instance(unop::G, bo->second()->clone());
-		      bo->destroy();
-		      result_ = recurse_destroy(r);
-		      return;
+		      binop* bo = static_cast<binop*>(result_);
+		      if (bo->op() == binop::R)
+			{
+			  formula* r =
+			    unop::instance(unop::G, bo->second()->clone());
+			  bo->destroy();
+			  result_ = recurse_destroy(r);
+			  return;
+			}
+		    }
+
+		  // GX(a) = XG(a)
+		  if (result_->kind() == formula::UnOp)
+		    {
+		      unop* u = static_cast<unop*>(result_);
+		      if (u->op() == unop::X)
+			{
+			  formula* res =
+			    unop_unop(unop::X, unop::G, u->child()->clone());
+			  u->destroy();
+			  // GXX(a) = XXG(a) ...
+			  // GXF(a) = XGF(a) = GF(a) ...
+			  result_ = recurse_destroy(res);
+			  return;
+			}
+		    }
+
+		  // G(f1|f2|GF(f3)|GF(f4)|f5|f6) =
+		  //                        G(f1|f2) | GF(f3|f4) | f5 | f6
+		  // if f5 and f6 are both eventual and universal.
+		  if (result_->kind() == formula::MultOp)
+		    {
+		      multop* mo = static_cast<multop*>(result_);
+		      if (mo->op() == multop::Or)
+			{
+			  mo->clone();
+			  mospliter s(mospliter::Strip_GF |
+				      mospliter::Split_EventUniv,
+				      mo, c_);
+			  s.res_EventUniv->
+			    push_back(unop_multop(unop::G, multop::Or,
+						  s.res_other));
+			  s.res_EventUniv->
+			    push_back(unop_unop_multop(unop::G, unop::F,
+						       multop::Or, s.res_GF));
+			  result_ = multop::instance(multop::Or,
+						     s.res_EventUniv);
+			  if (result_ != uo)
+			    {
+			      mo->destroy();
+			      result_ = recurse_destroy(result_);
+			      return;
+			    }
+			  else
+			    {
+			      // Revert to the previous value of result_,
+			      // for the next simplification.
+			      result_->destroy();
+			      result_ = mo;
+			    }
+			}
 		    }
 		}
-
-	      // GX(a) = XG(a)
-	      if (result_->kind() == formula::UnOp)
-		{
-		  unop* u = static_cast<unop*>(result_);
-		  if (u->op() == unop::X)
-		    {
-		      formula* res =
-			unop_unop(unop::X, unop::G, u->child()->clone());
-		      u->destroy();
-		      // GXX(a) = XXG(a) ...
-		      // GXF(a) = XGF(a) = GF(a) ...
-		      result_ = recurse_destroy(res);
-		      return;
-		    }
-		}
-
-	      // G(f1|f2|GF(f3)|GF(f4)|f5|f6) =
-	      //                        G(f1|f2) | GF(f3|f4) | f5 | f6
-	      // if f5 and f6 are both eventual and universal.
-	      if (result_->kind() == formula::MultOp)
-		{
-		  multop* mo = static_cast<multop*>(result_);
-		  if (mo->op() == multop::Or)
-		    {
-		      mospliter s(mospliter::Strip_GF |
-				  mospliter::Split_EventUniv,
-				  mo, c_);
-		      s.res_EventUniv->push_back(unop_multop(unop::G,
-							     multop::Or,
-							     s.res_other));
-		      s.res_EventUniv->push_back(unop_unop_multop(unop::G,
-								  unop::F,
-								  multop::Or,
-								  s.res_GF));
-		      result_ = multop::instance(multop::Or, s.res_EventUniv);
-		      if (result_ != uo)
-			result_ = recurse_destroy(result_);
-		      return;
-		    }
-		}
+	      // if a => Ga, keep a.
+	      if (opt_.containment_checks_stronger
+		  && c_->lcc.contained(result_, uo))
+		return;
 	      break;
 	    case unop::Finish:
 	    case unop::Closure:
@@ -1044,50 +1195,51 @@ namespace spot
 	{
 	  binop::type op = bo->op();
 
-	  formula* f2 = recurse(bo->second());
+	  formula* b = recurse(bo->second());
 
 	  if (opt_.event_univ)
 	    {
 	      /* If b is a pure eventuality formula then a U b = b.
 		 If b is a pure universality formula a R b = b. */
-	      if ((f2->is_eventual() && (op == binop::U))
-		  || (f2->is_universal() && (op == binop::R)))
+	      if ((b->is_eventual() && (op == binop::U))
+		  || (b->is_universal() && (op == binop::R)))
 		{
-		  result_ = f2;
+		  result_ = b;
 		  return;
 		}
 	    }
 
-	  formula* f1 = recurse(bo->first());
+	  formula* a = recurse(bo->first());
+
 	  if (opt_.event_univ)
 	    {
 	      /* If a is a pure eventuality formula then a M b = a & b.
 		 If a is a pure universality formula a W b = a|b. */
-	      if (f1->is_eventual() && (op == binop::M))
+	      if (a->is_eventual() && (op == binop::M))
 		{
-		  formula* tmp = multop::instance(multop::And, f1, f2);
+		  formula* tmp = multop::instance(multop::And, a, b);
 		  result_ = recurse(tmp);
 		  tmp->destroy();
 		  return;
 		}
-	      if (f1->is_universal() && (op == binop::W))
+	      if (a->is_universal() && (op == binop::W))
 		{
-		  formula* tmp = multop::instance(multop::Or, f1, f2);
+		  formula* tmp = multop::instance(multop::Or, a, b);
 		  result_ = recurse(tmp);
 		  tmp->destroy();
 		  return;
 		}
 	    }
 
-	  /* case of implies */
-	  if (opt_.synt_impl)
+	  // Inclusion-based rules
+	  if (opt_.synt_impl | opt_.containment_checks)
 	    {
 	      switch (op)
 		{
 		case binop::Xor:
 		case binop::Equiv:
 		case binop::Implies:
-		  assert(!"operator not supported for syntactic implication");
+		  assert(!"operator not supported for implication rules");
 		  return;
 		case binop::UConcat:
 		case binop::EConcat:
@@ -1095,141 +1247,150 @@ namespace spot
 		  break;
 
 		case binop::U:
-		  /* a < b => a U b = b */
-		  if (c_->syntactic_implication(f1, f2))
+		  // if a => b, then a U b = b
+		  // if (a U b) => b, then a U b = b (for stronger containment)
+		  if (c_->implication(a, b)
+		      || (opt_.containment_checks_stronger
+			  && c_->contained(bo, b)))
 		    {
-		      result_ = f2;
-		      f1->destroy();
+		      a->destroy();
+		      result_ = b;
 		      return;
 		    }
-		  /* !b < a => a U b = Fb */
-		  if (c_->syntactic_implication_neg(f2, f1, false))
+		  // if !a => b, then a U b = Fb
+		  if (c_->implication_neg(a, b, false))
 		    {
-		      result_ = unop::instance(unop::F, f2);
-		      f1->destroy();
+		      a->destroy();
+		      result_ =
+			recurse_destroy(unop::instance(unop::F, b));
 		      return;
 		    }
-		  /* a < b => a U (b U c) = (b U c) */
-		  /* a < b => a U (b W c) = (b W c) */
-		  if (f2->kind() == formula::BinOp)
+		  // if a => b, then a U (b U c) = (b U c)
+		  // if a => b, then a U (b W c) = (b W c)
+		  if (b->kind() == formula::BinOp)
 		    {
-		      binop* bo = static_cast<binop*>(f2);
+		      binop* bo = static_cast<binop*>(b);
 		      if ((bo->op() == binop::U || bo->op() == binop::W)
-			  && c_->syntactic_implication(f1, bo->first()))
+			  && c_->implication(a, bo->first()))
 			{
-			  result_ = f2;
-			  f1->destroy();
+			  a->destroy();
+			  result_ = b;
 			  return;
 			}
 		    }
 		  break;
 
 		case binop::R:
-		  /* b < a => a R b = b */
-		  if (c_->syntactic_implication(f2, f1))
+		  // if b => a, then a R b = b
+		  if (c_->implication(b, a))
 		    {
-		      result_ = f2;
-		      f1->destroy();
+		      a->destroy();
+		      result_ = b;
 		      return;
 		    }
-		  /* b < !a => a R b = Gb */
-		  if (c_->syntactic_implication_neg(f2, f1, true))
+		  // if b => !a, then a R b = Gb
+		  if (c_->implication_neg(b, a, true))
 		    {
-		      result_ = unop::instance(unop::G, f2);
-		      f1->destroy();
+		      a->destroy();
+		      result_ = unop::instance(unop::G, b);
 		      return;
 		    }
-		  if (f2->kind() == formula::BinOp)
+		  if (b->kind() == formula::BinOp)
 		    {
-		      /* b < a => a R (b R c) = b R c */
-		      /* b < a => a R (b M c) = b M c */
-		      binop* bo = static_cast<binop*>(f2);
+		      // if b => a, then a R (b R c) = b R c
+		      // if b => a, then a R (b M c) = b M c
+		      binop* bo = static_cast<binop*>(b);
 		      if ((bo->op() == binop::R || bo->op() == binop::M)
-			  && c_->syntactic_implication(bo->first(), f1))
+			  && c_->implication(bo->first(), a))
 			{
-			  result_ = f2;
-			  f1->destroy();
+			  a->destroy();
+			  result_ = b;
 			  return;
 			}
 
-		      /* a < b => a R (b R c) = a R c */
+		      // if a => b, then a R (b R c) = a R c
 		      if (bo->op() == binop::R
-			  && c_->syntactic_implication(f1, bo->first()))
+			  && c_->implication(a, bo->first()))
 			{
-			  result_ = binop::instance(binop::R, f1,
-						    bo->second()->clone());
-			  f2->destroy();
+			  b->destroy();
+			  result_ = recurse_destroy
+			    (binop::instance(binop::R, a,
+					     bo->second()->clone()));
 			  return;
 			}
 		    }
 		  break;
 
 		case binop::W:
-		  /* a < b => a W b = b */
-		  if (c_->syntactic_implication(f1, f2))
+		  // if a => b, then a W b = b
+		  // if a W b => b, then a W b = b (for stronger containment)
+		  if (c_->implication(a, b)
+		      || (opt_.containment_checks_stronger
+			  && c_->contained(bo, b)))
 		    {
-		      result_ = f2;
-		      f1->destroy();
+		      a->destroy();
+		      result_ = b;
 		      return;
 		    }
-		  /* !b < a => a W b = 1 */
-		  if (c_->syntactic_implication_neg(f2, f1, false))
+		  // if !a => b then a W b = 1
+		  if (c_->implication_neg(a, b, false))
 		    {
+		      a->destroy();
+		      b->destroy();
 		      result_ = constant::true_instance();
-		      f1->destroy();
-		      f2->destroy();
 		      return;
 		    }
-		  /* a < b => a W (b W c) = (b W c) */
-		  if (f2->kind() == formula::BinOp)
+		  // if a => b, then a W (b W c) = (b W c)
+		  if (b->kind() == formula::BinOp)
 		    {
-		      binop* bo = static_cast<binop*>(f2);
+		      binop* bo = static_cast<binop*>(b);
 		      if (bo->op() == binop::W
-			  && c_->syntactic_implication(f1, bo->first()))
+			  && c_->implication(a, bo->first()))
 			{
-			  result_ = f2;
-			  f1->destroy();
+			  a->destroy();
+			  result_ = b;
 			  return;
 			}
 		    }
 		  break;
 
 		case binop::M:
-		  /* b < a => a M b = b */
-		  if (c_->syntactic_implication(f2, f1))
+		  // if b => a, then a M b = b
+		  if (c_->implication(b, a))
 		    {
-		      result_ = f2;
-		      f1->destroy();
+		      a->destroy();
+		      result_ = b;
 		      return;
 		    }
-		  /* b < !a => a M b = 0 */
-		  if (c_->syntactic_implication_neg(f2, f1, true))
+		  // if b => !a, then a M b = 0
+		  if (c_->implication_neg(b, a, true))
 		    {
+		      a->destroy();
+		      b->destroy();
 		      result_ = constant::false_instance();
-		      f1->destroy();
-		      f2->destroy();
 		      return;
 		    }
-		  if (f2->kind() == formula::BinOp)
+		  if (b->kind() == formula::BinOp)
 		    {
-		      /* b < a => a M (b M c) = b M c */
-		      binop* bo = static_cast<binop*>(f2);
+		      // if b => a, then a M (b M c) = b M c
+		      binop* bo = static_cast<binop*>(b);
 		      if (bo->op() == binop::M
-			  && c_->syntactic_implication(bo->first(), f1))
+			  && c_->implication(bo->first(), a))
 			{
-			  result_ = f2;
-			  f1->destroy();
+			  result_ = b;
+			  a->destroy();
 			  return;
 			}
 
-		      /* a < b => a M (b M c) = a M c */
-		      /* a < b => a M (b R c) = a M c */
+		      // if a => b, then a M (b M c) = a M c
+		      // if a => b, then a M (b R c) = a M c
 		      if ((bo->op() == binop::M || bo->op() == binop::R)
-			  && c_->syntactic_implication(f1, bo->first()))
+			  && c_->implication(a, bo->first()))
 			{
-			  result_ = binop::instance(binop::M, f1,
-						    bo->second()->clone());
-			  f2->destroy();
+			  b->destroy();
+			  result_ = recurse_destroy
+			    (binop::instance(binop::M, a,
+					     bo->second()->clone()));
 			  return;
 			}
 		    }
@@ -1237,39 +1398,44 @@ namespace spot
 		}
 	    }
 
+	  if (!opt_.reduce_basics)
+	    {
+	      result_ = binop::instance(op, a, b);
+	      return;
+	    }
 
 	  // Rewrite U,R,W,M as F or G when possible.
 	  switch (op)
 	    {
 	    case binop::U:
-	      // true U f2 == F(f2)
-	      if (f1 == constant::true_instance())
+	      // true U b == F(b)
+	      if (a == constant::true_instance())
 		{
-		  result_ = recurse_destroy(unop::instance(unop::F, f2));
+		  result_ = recurse_destroy(unop::instance(unop::F, b));
 		  return;
 		}
 	      break;
 	    case binop::R:
-	      // false R f2 == G(f2)
-	      if (f1 == constant::false_instance())
+	      // false R b == G(b)
+	      if (a == constant::false_instance())
 		{
-		  result_ = recurse_destroy(unop::instance(unop::G, f2));
+		  result_ = recurse_destroy(unop::instance(unop::G, b));
 		  return;
 		}
 	      break;
 	    case binop::W:
-	      // f1 W false == G(f1)
-	      if (f2 == constant::false_instance())
+	      // a W false == G(a)
+	      if (b == constant::false_instance())
 		{
-		  result_ = recurse_destroy(unop::instance(unop::G, f1));
+		  result_ = recurse_destroy(unop::instance(unop::G, a));
 		  return;
 		}
 	      break;
 	    case binop::M:
-	      // f1 M true == F(f1)
-	      if (f2 == constant::false_instance())
+	      // a M true == F(a)
+	      if (b == constant::false_instance())
 		{
-		  result_ = recurse_destroy(unop::instance(unop::F, f1));
+		  result_ = recurse_destroy(unop::instance(unop::F, a));
 		  return;
 		}
 	      break;
@@ -1291,18 +1457,18 @@ namespace spot
 		// a R true = true
 		// a W true = true
 		// a M false = false
-		if (is_constant(f2))
+		if (is_constant(b))
 		  {
-		    result_ = f2;
-		    f1->destroy();
+		    result_ = b;
+		    a->destroy();
 		    return;
 		  }
 
 		// Same effect as dynamic_cast<unop*>, only faster.
 		unop* fu1 =
-		  (f1->kind() == formula::UnOp) ? static_cast<unop*>(f1) : 0;
+		  (a->kind() == formula::UnOp) ? static_cast<unop*>(a) : 0;
 		unop* fu2 =
-		  (f2->kind() == formula::UnOp) ? static_cast<unop*>(f2) : 0;
+		  (b->kind() == formula::UnOp) ? static_cast<unop*>(b) : 0;
 
 		// X(a) U X(b) = X(a U b)
 		// X(a) R X(b) = X(a R b)
@@ -1315,8 +1481,8 @@ namespace spot
 		    formula* bin = binop::instance(op,
 						   fu1->child()->clone(),
 						   fu2->child()->clone());
-		    f1->destroy();
-		    f2->destroy();
+		    a->destroy();
+		    b->destroy();
 		    result_ = recurse_destroy(unop::instance(unop::X, bin));
 		    return;
 		  }
@@ -1325,18 +1491,18 @@ namespace spot
 		  {
 		    // a U Ga = Ga
 		    // a W Ga = Ga
-		    if (fu2 && fu2->op() == unop::G && fu2->child() == f1)
+		    if (fu2 && fu2->op() == unop::G && fu2->child() == a)
 		      {
-			f1->destroy();
-			result_ = f2;
+			a->destroy();
+			result_ = b;
 			return;
 		      }
 
 		    // a U (b | c | G(a)) = a W (b | c)
 		    // a W (b | c | G(a)) = a W (b | c)
-		    if (f2->kind() == formula::MultOp)
+		    if (b->kind() == formula::MultOp)
 		      {
-			multop* fm2 = static_cast<multop*>(f2);
+			multop* fm2 = static_cast<multop*>(b);
 			if (fm2->op() == multop::Or)
 			  {
 			    int s = fm2->size();
@@ -1345,7 +1511,7 @@ namespace spot
 				if (fm2->nth(i)->kind() != formula::UnOp)
 				  continue;
 				unop* c = static_cast<unop*>(fm2->nth(i));
-				if (c->op() == unop::G && c->child() == f1)
+				if (c->op() == unop::G && c->child() == a)
 				  {
 				    multop::vec* v = new multop::vec;
 				    v->reserve(s - 1);
@@ -1355,9 +1521,9 @@ namespace spot
 				    // skip j=i
 				    for (++j; j < s; ++j)
 				      v->push_back(fm2->nth(j)->clone());
-				    f2->destroy();
+				    b->destroy();
 				    result_ = recurse_destroy(binop::instance
-				      (binop::W, f1,
+				      (binop::W, a,
 				       multop::instance(multop::Or, v)));
 				    return;
 				  }
@@ -1369,18 +1535,18 @@ namespace spot
 		  {
 		    // a R Fa = Fa
 		    // a M Fa = Fa
-		    if (fu2 && fu2->op() == unop::F && fu2->child() == f1)
+		    if (fu2 && fu2->op() == unop::F && fu2->child() == a)
 		      {
-			f1->destroy();
-			result_ = f2;
+			a->destroy();
+			result_ = b;
 			return;
 		      }
 
 		    // a R (b & c & F(a)) = a M b
 		    // a M (b & c & F(a)) = a M b
-		    if (f2->kind() == formula::MultOp)
+		    if (b->kind() == formula::MultOp)
 		      {
-			multop* fm2 = static_cast<multop*>(f2);
+			multop* fm2 = static_cast<multop*>(b);
 			if (fm2->op() == multop::And)
 			  {
 			    int s = fm2->size();
@@ -1389,7 +1555,7 @@ namespace spot
 				if (fm2->nth(i)->kind() != formula::UnOp)
 				  continue;
 				unop* c = static_cast<unop*>(fm2->nth(i));
-				if (c->op() == unop::F && c->child() == f1)
+				if (c->op() == unop::F && c->child() == a)
 				  {
 				    multop::vec* v = new multop::vec;
 				    v->reserve(s - 1);
@@ -1399,9 +1565,9 @@ namespace spot
 				    // skip j=i
 				    for (++j; j < s; ++j)
 				      v->push_back(fm2->nth(j)->clone());
-				    f2->destroy();
+				    b->destroy();
 				    result_ = recurse_destroy(binop::instance
-				      (binop::M, f1,
+				      (binop::M, a,
 				       multop::instance(multop::And, v)));
 				    return;
 				  }
@@ -1416,11 +1582,11 @@ namespace spot
 	    case binop::EConcat:
 	    case binop::UConcat:
 	    case binop::EConcatMarked:
-	      // No simplification.
+	      // No simplification... Yet?
 	      break;
 	    }
 
-	  result_ = binop::instance(op, f1, f2);
+	  result_ = binop::instance(op, a, b);
 	}
 
 	void
@@ -1440,77 +1606,74 @@ namespace spot
 
 	  multop::type op = mo->op();
 
-	  if ((opt_.synt_impl)
+	  if ((opt_.synt_impl | opt_.containment_checks)
 	      && (op != multop::Concat)
 	      && (op != multop::Fusion))
 	    {
+	      bool is_and = op != multop::Or; // And or AndNLM
+	      constant* neutral = is_and
+		? constant::false_instance() : constant::true_instance();
 
-	      bool removed = true;
-	      multop::vec::iterator f1;
-	      multop::vec::iterator f2;
+	      multop::vec::iterator f1 = res->begin();
 
-	      while (removed)
+	      while (f1 != res->end())
 		{
-		  removed = false;
-		  f2 = f1 = res->begin();
-		  ++f1;
-		  while (f1 != res->end())
+		  multop::vec::iterator f2 = f1;
+		  ++f2
+;
+		  while (f2 != res->end())
 		    {
 		      assert(f1 != f2);
-		      // a < b => a + b = b
-		      // a < b => a & b = a
-		      if ((c_->syntactic_implication(*f1, *f2) && // f1 < f2
-			   (mo->op() == multop::Or)) ||
-			  ((c_->syntactic_implication(*f2, *f1)) && // f2 < f1
-			   (mo->op() == multop::And)))
+		      // if f1 => f2, then f1 | f2 = f2
+		      // if f2 => f1, then f1 & f2 = f2
+		      if ((op == multop::Or && c_->implication(*f1, *f2))
+			  || (op == multop::And && c_->implication(*f2, *f1)))
 			{
-			  // We keep f2
+			  // Remove f1.
 			  (*f1)->destroy();
-			  res->erase(f1);
-			  removed = true;
+			  *f1 = 0;
+			  ++f1;
 			  break;
 			}
-		      else if ((c_->syntactic_implication(*f2, *f1) // f2 < f1
-				&& (mo->op() == multop::Or)) ||
-			       ((c_->syntactic_implication(*f1, *f2)) // f1 < f2
-				&& (mo->op() == multop::And)))
+		      // if f2 => f1, then f1 | f2 = f1
+		      // if f1 => f2, then f1 & f2 = f1
+		      else if ((op == multop::Or && c_->implication(*f2, *f1))
+			       || (op == multop::And
+				   && c_->implication(*f1, *f2)))
 			{
-			  // We keep f1
+			  // Remove f2.
 			  (*f2)->destroy();
-			  res->erase(f2);
-			  removed = true;
-			  break;
+			  // replace it by the last element from the array.
+			  // and start again at the current position.
+			  if (f2 != --res->end())
+			    {
+			      *f2 = res->back();
+			      res->pop_back();
+			      continue;
+			    }
+			  else
+			    {
+			      res->pop_back();
+			      break;
+			    }
 			}
-		      else
-			++f1;
-		    }
-		}
-
-	      // We cannot run syntactic_implication_neg on SERE
-	      // formulae, unless they are just Boolean formulae.
-	      if (mo->is_boolean() || !mo->is_sere_formula())
-		{
-		  bool is_and = mo->op() != multop::Or;
-		  /* f1 < !f2 => f1 & f2 = false
-		     !f1 < f2 => f1 | f2 = true */
-		  for (f1 = res->begin(); f1 != res->end(); f1++)
-		    for (f2 = res->begin(); f2 != res->end(); f2++)
-		      if (f1 != f2 &&
-			  c_->syntactic_implication_neg(*f1, *f2, is_and))
+		      // if f1 => !f2, then f1 & f2 = false
+		      // if !f1 => f2, then f1 | f2 = true
+		      else if (c_->implication_neg(*f1, *f2, is_and))
 			{
 			  for (multop::vec::iterator j = res->begin();
 			       j != res->end(); j++)
-			    (*j)->destroy();
-			  res->clear();
+			    if (*j)
+			      (*j)->destroy();
 			  delete res;
-			  if (is_and)
-			    result_ = constant::false_instance();
-			  else
-			    result_ = constant::true_instance();
+			  result_ = neutral;
 			  return;
 			}
+		      else
+			++f2;
+		    }
+		  ++f1;
 		}
-
 	    }
 
 	  assert(!res->empty());
@@ -1521,7 +1684,7 @@ namespace spot
 		{
 		case multop::And:
 		  {
-		    // Gather all operand by type.
+		    // Gather all operands by type.
 		    mospliter s(mospliter::Strip_X |
 				mospliter::Strip_FG |
 				mospliter::Strip_G |

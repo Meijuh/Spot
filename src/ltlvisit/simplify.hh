@@ -31,15 +31,20 @@ namespace spot
     class ltl_simplifier_options
     {
     public:
-      ltl_simplifier_options()
-	: reduce_basics(true),
-	  synt_impl(true),
-	  event_univ(true),
-	  containment_checks(false),
-	  containment_checks_stronger(false),
+      ltl_simplifier_options(bool basics = true,
+			     bool synt_impl = true,
+			     bool event_univ = true,
+			     bool containment_checks = false,
+			     bool containment_checks_stronger = false,
+			     bool nenoform_stop_on_boolean = false)
+	: reduce_basics(basics),
+	  synt_impl(synt_impl),
+	  event_univ(event_univ),
+	  containment_checks(containment_checks),
+	  containment_checks_stronger(containment_checks_stronger),
 	  // If true, Boolean subformulae will not be put into
 	  // negative normal form.
-	  nenoform_stop_on_boolean(false)
+	  nenoform_stop_on_boolean(nenoform_stop_on_boolean)
       {
       }
 
@@ -48,6 +53,8 @@ namespace spot
       bool event_univ;
       bool containment_checks;
       bool containment_checks_stronger;
+      // If true, Boolean subformulae will not be put into
+      // negative normal form.
       bool nenoform_stop_on_boolean;
     };
 
