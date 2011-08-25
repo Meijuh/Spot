@@ -36,7 +36,6 @@
 #include <cassert>
 #include <memory>
 #include "ltl2tgba_fm.hh"
-#include "ltlvisit/contain.hh"
 #include "tgba/bddprint.hh"
 
 namespace spot

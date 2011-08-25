@@ -1,3 +1,5 @@
+// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
 // Copyright (C) 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -95,13 +97,20 @@ namespace spot
     ///  year		= {2003},
     ///  note		= {Reprint of Licentiate's thesis}
     ///}
+    /// \endverbatim
     ///
     /// (The "dagged" cells in the tables are not handled here.)
     ///
     /// If \a stronger is set, additional rules are used to further
     /// reduce some U, R, and X usages.
-    /// \endverbatim
+    ///
+    /// \deprecated Use spot::ltl::ltl_simplifier instead.
+#if __GNUC__
+    formula* reduce_tau03(const formula* f,
+			  bool stronger = true) __attribute__ ((deprecated));
+#else
     formula* reduce_tau03(const formula* f, bool stronger = true);
+#endif
   }
 }
 

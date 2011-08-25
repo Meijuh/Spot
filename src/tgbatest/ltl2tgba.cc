@@ -28,7 +28,6 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
-#include "ltlvisit/contain.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlast/allnodes.hh"

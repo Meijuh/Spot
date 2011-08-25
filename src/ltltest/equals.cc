@@ -30,7 +30,6 @@
 #include "ltlvisit/tunabbrev.hh"
 #include "ltlvisit/dump.hh"
 #include "ltlvisit/nenoform.hh"
-#include "ltlvisit/contain.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/tostring.hh"
