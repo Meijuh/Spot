@@ -143,7 +143,8 @@ namespace spot
       typedef tgba_tba_proxy::cycle_list list;
       typedef tgba_tba_proxy::cycle_list::const_iterator iterator;
     public:
-      tgba_tba_proxy_succ_iterator(tgba_succ_iterator* it,
+      tgba_tba_proxy_succ_iterator(const state* rs,
+				   tgba_succ_iterator* it,
 				   iterator expected,
 				   const list& cycle,
 				   bdd the_acceptance_cond,
@@ -156,10 +157,11 @@ namespace spot
 	    bdd acc = it->current_acceptance_conditions();
 	    // As an extra optimization step, gather the acceptance
 	    // conditions common to all outgoing transitions of the
-	    // destination state, and pretend they are already present
-	    // on this transition.
+	    // destination state.  We will later add these to "acc" to
+	    // pretend they are already present on this transition.
 	    state* odest = it->current_state();
-	    acc |= aut->common_acceptance_conditions_of_original_state(odest);
+	    bdd otheracc =
+	      aut->common_acceptance_conditions_of_original_state(odest);
 
 	    iterator next;
 	    // bddtrue is a special condition used for tgba_sba_proxy
@@ -169,7 +171,22 @@ namespace spot
 	    // bddtrue is also used by tgba_tba_proxy if the automaton
 	    // does not use acceptance conditions.  In that case, all
 	    // states are accepting.
-	    if (*expected != bddtrue)
+	    if (*expected == bddtrue)
+	      {
+		// When degeneralizing to SBA, remove the acceptance
+		// conditions that are common to all outgoing
+		// transitions of this state.  Since they are common,
+		// we need not fear removing them: we will see them
+		// eventually if we make a cycle.  This helps to make
+		// the degeneralization idempotent.
+		acc -= aut->common_acceptance_conditions_of_original_state(rs);
+		// Use the acceptance sets common to all outgoing
+		// transition of the destination state.  In case of a
+		// self-loop, we will be adding back the acceptance
+		// sets we removed.  This is what we want.
+		acc |= otheracc;
+	      }
+	    else
 	      {
 		// A transition in the *EXPECTED acceptance set should
 		// be directed to the next acceptance set.  If the
@@ -189,6 +206,10 @@ namespace spot
 		//   month	= {December}
 		// }
 		next = expected;
+		// Consider both the current acceptance sets, and the
+		// acceptance sets common to the outgoing transition of
+		// the destination state.
+		acc |= otheracc;
 		while (next != cycle.end() && (acc & *next) == *next)
 		  ++next;
 		if (next != cycle.end())
@@ -367,10 +388,11 @@ namespace spot
       down_cast<const state_tba_proxy*>(local_state);
     assert(s);
 
-    tgba_succ_iterator* it = a_->succ_iter(s->real_state(),
-					   global_state, global_automaton);
+    const state* rs = s->real_state();
+    tgba_succ_iterator* it = a_->succ_iter(rs, global_state, global_automaton);
 
-    return new tgba_tba_proxy_succ_iterator(it, s->acceptance_iterator(),
+    return new tgba_tba_proxy_succ_iterator(rs, it,
+					    s->acceptance_iterator(),
 					    acc_cycle_, the_acceptance_cond_,
 					    this);
   }

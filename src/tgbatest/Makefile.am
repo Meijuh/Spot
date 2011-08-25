@@ -92,6 +92,7 @@ TESTS = \
   mixprod.test \
   dupexp.test \
   degendet.test \
+  degenid.test \
   kv.test \
   reduccmp.test \
   reductgba.test \

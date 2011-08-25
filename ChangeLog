@@ -1,5 +1,17 @@
 2011-08-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Make sure the degeneralization is idempotent (up to renaming of
+	states).
+
+	* src/tgbaalgos/tgbatba.cc: When degeneralizing to SBA, remove the
+	acceptance conditions that are common to all outgoing transitions
+	of this state.  This helps to make the degeneralization
+	idempotent.
+	* src/tgbatest/degenid.test: New test case.
+	* src/tgbatest/Makefile.am: Add it.
+
+2011-08-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Fix escaping of state name in save_reachable()'s output.
 
 	* src/tgbaalgos/save.c (process_state): Escape quotes in the
