@@ -52,12 +52,13 @@ namespace spot
       process_state(const state* s, int, tgba_succ_iterator* si)
       {
 	const bdd_dict* d = automata_->get_dict();
-	std::string cur = automata_->format_state(s);
+	std::string cur = escape_str(automata_->format_state(s));
 	for (si->first(); !si->done(); si->next())
 	  {
 	    state* dest = si->current_state();
-	    os_ << "\"" << cur << "\", \""
-		<< automata_->format_state(dest) << "\", \"";
+	    os_ << "\"" << cur << "\", \"";
+	    escape_str(os_, automata_->format_state(dest));
+	    os_ << "\", \"";
 	    escape_str(os_, bdd_format_formula(d, si->current_condition()));
 	    os_ << "\",";
 	    print_acc(si->current_acceptance_conditions()) << ";" << std::endl;

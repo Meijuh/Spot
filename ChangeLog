@@ -1,5 +1,13 @@
 2011-08-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Fix escaping of state name in save_reachable()'s output.
+
+	* src/tgbaalgos/save.c (process_state): Escape quotes in the
+	name of source and destination states.  This fixes a side bug
+	in the upcoming degenid.test test case.
+
+2011-08-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Running `ltl2tgba -R1q -R1t -N` would degeneralize before and
 	after the simulation-reduction.
 
