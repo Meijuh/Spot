@@ -1,3 +1,21 @@
+2011-08-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Running `ltl2tgba -R1q -R1t -N` would degeneralize before and
+	after the simulation-reduction.
+
+	Report from Tomáš Babiak <xbabiak@fi.muni.cz>.
+
+	* src/tgbaalgos/neverclaim.hh (never_claim_reachable): Take
+	a tgba as input.
+	* src/tgbaalgos/neverclaim.cc (never_claim_bfs): Call
+	state_is_accepting() only if this tgba turns out to be
+	a tgba_sba_proxy.  Otherwise check the acceptance of one
+	outgoing transition as we do in dotty_bfs since 2011-03-05.
+	* src/tgbatest/ltl2tgba.cc: Do not redegeneralize before
+	calling never_claim_reachable() if we know the automaton is
+	degeneralized already.
+	* src/tgbatest/ltl2tgba.test: Add a test case.
+
 2011-08-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Please GCC 4.6.

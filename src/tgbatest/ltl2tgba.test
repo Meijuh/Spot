@@ -124,3 +124,13 @@ grep 'states: 3$' stdout
 run 0 ../ltl2tgba -R3 -Rm -ks -f "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
 grep 'transitions: 5$' stdout
 grep 'states: 3$' stdout
+
+# Make sure FGa|GFb has the same number of states/transitions when
+# output as a never claim or are a degeneralized BA in Spot's textual
+# format.  The option -R1q -R1t used to cause two degeneralizations to
+# occur.
+run 0 ../ltl2tgba -R1q -R1t -N 'FGa|FGb' > out.never
+run 0 ../ltl2tgba -XN -kt out.never > count.never
+run 0 ../ltl2tgba -R1q -R1t -DS -b 'FGa|FGb' > out.spot
+run 0 ../ltl2tgba -X -kt out.spot > count.spot
+cmp count.never count.spot

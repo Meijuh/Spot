@@ -1142,16 +1142,14 @@ main(int argc, char** argv)
 	    case 8:
 	      {
 		assert(degeneralize_opt == DegenSBA);
-		const spot::tgba_sba_proxy* s =
-		  dynamic_cast<const spot::tgba_sba_proxy*>(a);
-		if (s)
-		  spot::never_claim_reachable(std::cout, s, f, spin_comments);
+		if (assume_sba || dynamic_cast<const spot::tgba_sba_proxy*>(a))
+		  spot::never_claim_reachable(std::cout, a, f, spin_comments);
 		else
 		  {
 		    // It is possible that we have applied other
 		    // operations to the automaton since its initial
 		    // degeneralization.  Let's degeneralize again!
-		    s = new spot::tgba_sba_proxy(a);
+		    spot::tgba_sba_proxy* s = new spot::tgba_sba_proxy(a);
 		    spot::never_claim_reachable(std::cout, s, f, spin_comments);
 		    delete s;
 		  }

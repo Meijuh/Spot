@@ -38,11 +38,12 @@ namespace spot
     class never_claim_bfs : public tgba_reachable_iterator_breadth_first
     {
     public:
-      never_claim_bfs(const tgba_sba_proxy* a, std::ostream& os,
+      never_claim_bfs(const tgba* a, std::ostream& os,
 		      const ltl::formula* f, bool comments)
 	: tgba_reachable_iterator_breadth_first(a),
 	  os_(os), f_(f), accept_all_(-1), fi_needed_(false),
-	  comments_(comments)
+	  comments_(comments), all_acc_conds_(a->all_acceptance_conditions()),
+	  degen_(dynamic_cast<const tgba_sba_proxy*>(a))
       {
       }
 
@@ -77,8 +78,23 @@ namespace spot
       bool
       state_is_accepting(const state *s)
       {
-	return
-	  dynamic_cast<const tgba_sba_proxy*>(automata_)->state_is_accepting(s);
+	// If the automaton is degeneralized on-the-fly,
+	// it's easier to just query the state_is_accepting() method.
+	if (degen_)
+	  return degen_->state_is_accepting(s);
+
+	// Otherwise, since we are dealing with a degeneralized
+	// automaton nonetheless, the transitions leaving an accepting
+	// state are either all accepting, or all non-accepting.  So
+	// we just check the acceptance of the first transition.  This
+	// is not terribly efficient since we have to create the
+	// iterator.
+	tgba_succ_iterator* it = automata_->succ_iter(s);
+	it->first();
+	bool accepting =
+	  !it->done() && it->current_acceptance_conditions() == all_acc_conds_;
+	delete it;
+	return accepting;
       }
 
       std::string
@@ -185,13 +201,16 @@ namespace spot
       bool fi_needed_;
       state* init_;
       bool comments_;
+      bdd all_acc_conds_;
+      const tgba_sba_proxy* degen_;
     };
   } // anonymous
 
   std::ostream&
-  never_claim_reachable(std::ostream& os, const tgba_sba_proxy* g,
+  never_claim_reachable(std::ostream& os, const tgba* g,
 			const ltl::formula* f, bool comments)
   {
+    assert(g->number_of_acceptance_conditions() <= 1);
     never_claim_bfs n(g, os, f, comments);
     n.run();
     return os;
