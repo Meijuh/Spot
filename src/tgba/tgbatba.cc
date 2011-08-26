@@ -173,17 +173,59 @@ namespace spot
 	    // states are accepting.
 	    if (*expected == bddtrue)
 	      {
-		// When degeneralizing to SBA, remove the acceptance
-		// conditions that are common to all outgoing
-		// transitions of this state.  Since they are common,
-		// we need not fear removing them: we will see them
-		// eventually if we make a cycle.  This helps to make
-		// the degeneralization idempotent.
-		acc -= aut->common_acceptance_conditions_of_original_state(rs);
+		// When degeneralizing to SBA, ignore the last
+		// expected acceptance set (the value of *prev below)
+		// if it is common to all other outgoing transitions (of the
+		// current state) AND if it is not used by any outgoing
+		// transition of the destination state.
+		//
+		// 1) It's correct to do that, because this acceptance
+		//    set is common to other outgoing transitions.
+		//    Therefore if we make a cycle to this state we
+		//    will eventually see that acceptance set thanks
+		//    to the "pulling" of the common acceptance sets
+		//    of the destination state (cf. "odest").
+		//
+		// 2) It's also desirable because it makes the
+		//    degeneralization idempotent (up to a renaming of
+		//    states).  Consider the following automaton where
+		//    1 is initial and => marks accepting transitions:
+		//    1=>1, 1=>2, 2->2, 2->1 This is already an SBA,
+		//    with 1 as accepting state.  However if you try
+		//    degeralize it without ignoring *prev, we'll get
+		//    two copies of states 2, depending on whether we
+		//    reach it using 1=>2 or from 2->2.  If this
+		//    example was not clear, uncomment this following
+		//    "if" block, and play with the "degenid.test"
+		//    test case.
+		//
+		// 3) Ignoring all common acceptance sets would also
+		//    be correct, but it would make the
+		//    degeneralization produce larger automata in some
+		//    cases.  The current condition to ignore only one
+		//    acceptance set if is this not used by the next
+		//    state is a heuristic that is compatible with
+		//    point 2) above while not causing more states to
+		//    be generated in our benchmark of 188 formulae
+		//    from the literature.
+		if (expected != cycle.begin())
+		  {
+		    iterator prev = expected;
+		    --prev;
+		    bdd common = aut->
+		      common_acceptance_conditions_of_original_state(rs);
+		    if ((common & *prev) == *prev)
+		      {
+			bdd u = aut->
+			  union_acceptance_conditions_of_original_state(odest);
+			if ((u & *prev) != *prev)
+			  acc -= *prev;
+		      }
+		  }
 		// Use the acceptance sets common to all outgoing
 		// transition of the destination state.  In case of a
 		// self-loop, we will be adding back the acceptance
-		// sets we removed.  This is what we want.
+		// set we removed.  This is what we want.
 		acc |= otheracc;
 	      }
 	    else
@@ -371,6 +413,14 @@ namespace spot
 	++i;
 	s->destroy();
       }
+    i = accmapu_.begin();
+    while (i != accmapu_.end())
+      {
+	// Advance the iterator before deleting the key.
+	const state* s = i->first;
+	++i;
+	s->destroy();
+      }
   }
 
   state*
@@ -414,6 +464,26 @@ namespace spot
 
     // Populate cache
     accmap_[s->clone()] = common;
+    return common;
+  }
+
+  bdd
+  tgba_tba_proxy::union_acceptance_conditions_of_original_state(const state* s)
+    const
+  {
+    // Lookup cache
+    accmap_t::const_iterator i = accmapu_.find(s);
+    if (i != accmapu_.end())
+      return i->second;
+
+    bdd common = bddfalse;
+    tgba_succ_iterator* it = a_->succ_iter(s);
+    for (it->first(); !it->done(); it->next())
+      common |= it->current_acceptance_conditions();
+    delete it;
+
+    // Populate cache
+    accmapu_[s->clone()] = common;
     return common;
   }
 

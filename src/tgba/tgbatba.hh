@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement de
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
 // l'Epita.
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -87,6 +87,16 @@ namespace spot
     bdd common_acceptance_conditions_of_original_state(const state*
 						       ostate) const;
 
+    /// \brief Return the union of acceptance conditions of all outgoing
+    /// transitions of state \a ostate in the original automaton.
+    ///
+    /// This internal function is only meant to be used to implement
+    /// the iterator returned by succ_iter.
+    ///
+    /// The result of this function is computed the first time, and
+    /// then cached.
+    bdd union_acceptance_conditions_of_original_state(const state* s) const;
+
   protected:
     virtual bdd compute_support_conditions(const state* state) const;
     virtual bdd compute_support_variables(const state* state) const;
@@ -98,6 +108,7 @@ namespace spot
     typedef Sgi::hash_map<const state*, bdd,
 			  state_ptr_hash, state_ptr_equal> accmap_t;
     mutable accmap_t accmap_;
+    mutable accmap_t accmapu_;
 
     // Disallow copy.
     tgba_tba_proxy(const tgba_tba_proxy&);

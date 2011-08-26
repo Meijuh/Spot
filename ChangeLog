@@ -1,3 +1,18 @@
+2011-08-26  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Refine yesterday's change to the degeneralization.
+
+	This avoids a small regression on the size of degeneralized
+	automata of our usual list of literature formulae.
+
+	* src/tgba/tgbatba.hh, src/tgba/tgbatba.cc
+	(tgba_tba_proxy::union_acceptance_conditions_of_original_state):
+	New method.
+	* src/tgba/tgbatba.cc (tgba_tba_proxy_succ_iterator): In accepting
+	states, ignore only the last expected acceptance condition if its
+	common to all outgoing transitions AND if it is not used by any
+	outgoing transitions of the destination.
+
 2011-08-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Make sure the degeneralization is idempotent (up to renaming of
