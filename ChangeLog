@@ -1,3 +1,26 @@
+2011-08-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Improve SCC simplification by removing implied acceptance conditions.
+
+	Spot 0.7.1 used to need 190 acceptance conditions to translate the
+	188 literature formulae.  With this patch we are down to 185.
+	That's not an impressive, but there are only ~20 formulae that
+	require more than 1 acceptance conditions; hence little room for
+	improvement.
+
+	* src/misc/bddlt.hh (bdd_hash): New function.
+	* src/misc/accconv.hh, src/misc/accconv.cc: New files.
+	* src/misc/Makefile.am: Add them.
+	* src/tgbaalgos/scc.cc (scc_map::build_map): Adjust
+	to record all combination of acceptance conditions occurring in a SCC.
+	* src/tgbaalgos/scc.hh (scc_map::scc::useful_acc): Update description.
+	* src/tgbaalgos/sccfilter.cc (scc_filter): Simplify acceptance
+	conditions that are always implied by another acceptance
+	conditions.  Previously, we only removed acceptance conditions
+	that where always present in accepting SCCs.
+	* src/tgbatest/sccsimpl.test: New file.
+	* src/tgbatest/Makefile.am (TESTS): Add it.
+
 2011-08-26  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Refine yesterday's change to the degeneralization.

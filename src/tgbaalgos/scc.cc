@@ -25,6 +25,7 @@
 #include "scc.hh"
 #include "tgba/bddprint.hh"
 #include "misc/escape.hh"
+#include "misc/accconv.hh"
 
 namespace spot
 {
@@ -139,6 +140,8 @@ namespace spot
   void
   scc_map::build_map()
   {
+    acceptance_convertor conv(aut_->neg_acceptance_conditions());
+
     // Setup depth-first search from the initial state.
     {
       self_loops_ = 0;
@@ -267,7 +270,7 @@ namespace spot
 	conds.insert(cond);
 	bdd supp = bdd_support(cond);
 	bdd all = aut_->all_acceptance_conditions();
-	bdd useful = all - acc;
+	bdd useful = conv.as_full_product(acc);
 	while (threshold > root_.front().index)
 	  {
 	    assert(!root_.empty());
@@ -276,7 +279,7 @@ namespace spot
 	    acc |= root_.front().acc;
 	    bdd lacc = arc_acc_.top();
 	    acc |= lacc;
-	    useful |= (all - lacc) | root_.front().useful_acc;
+	    useful |= conv.as_full_product(lacc) | root_.front().useful_acc;
 	    states.splice(states.end(), root_.front().states);
 	    succs.insert(root_.front().succ.begin(),
 			 root_.front().succ.end());
@@ -447,15 +450,13 @@ namespace spot
     res.dead_paths = d.dead_paths[init];
 
     res.useless_scc_map.reserve(res.scc_total);
-    bdd useful_acc = bddfalse;
+    res.useful_acc = bddfalse;
     for (unsigned n = 0; n < res.scc_total; ++n)
       {
 	res.useless_scc_map[n] = !d.acc_paths[n];
 	if (m.accepting(n))
-	  useful_acc |= m.useful_acc_of(n);
+	  res.useful_acc |= m.useful_acc_of(n);
       }
-    res.useful_acc = useful_acc;
-
     return res;
   }
 

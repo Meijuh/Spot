@@ -97,6 +97,7 @@ TESTS = \
   reduccmp.test \
   reductgba.test \
   scc.test \
+  sccsimpl.test \
   obligation.test \
   wdba.test \
   randtgba.test \

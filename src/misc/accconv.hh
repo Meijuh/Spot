@@ -1,8 +1,5 @@
 // Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
-// Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,38 +18,36 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#ifndef SPOT_MISC_BDDLT_HH
-# define SPOT_MISC_BDDLT_HH
+#ifndef SPOT_MISC_ACCCONV_HH
+# define SPOT_MISC_ACCCONV_HH
 
-# include <bdd.h>
-# include <functional>
+#include <bdd.h>
+#include "misc/hash.hh"
+#include "misc/bddlt.hh"
 
 namespace spot
 {
-  /// \brief Comparison functor for BDDs.
-  /// \ingroup misc_tools
-  struct bdd_less_than :
-    public std::binary_function<const bdd&, const bdd&, bool>
+  /// \brief Help class to convert between acceptance conditions to
+  /// other BDD formats.
+  class acceptance_convertor
   {
-    bool
-    operator()(const bdd& left, const bdd& right) const
+  public:
+    acceptance_convertor(bdd allneg)
+      : allneg_(allneg)
     {
-      return left.id() < right.id();
     }
-  };
 
-  /// \brief Hash functor for BDDs.
-  /// \ingroup misc_tools
-  struct bdd_hash :
-    public std::unary_function<const bdd&, size_t>
-  {
-    size_t
-    operator()(const bdd& b) const
-    {
-      return b.id();
-    }
+    bdd as_positive_product(bdd acc);
+
+    bdd as_full_product(bdd acc);
+
+  protected:
+    bdd allneg_;
+    typedef Sgi::hash_map<bdd, bdd, bdd_hash> bdd_cache_t;
+    bdd_cache_t pos_prod_cache_;
+    bdd_cache_t full_prod_cache_;
   };
 
 }
 
-#endif // SPOT_MISC_BDDLT_HH
+#endif // SPOT_MISC_ACCCONV_HH

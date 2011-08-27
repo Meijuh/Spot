@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Developpement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -22,6 +22,7 @@
 #include "tgba/tgbaexplicit.hh"
 #include "reachiter.hh"
 #include "tgbaalgos/scc.hh"
+#include "misc/bddop.hh"
 #include <sstream>
 
 namespace spot
@@ -131,31 +132,47 @@ namespace spot
     scc_stats ss = build_scc_stats(sm);
 
     bdd useful = ss.useful_acc;
-    if (useful == bddfalse)
-      // Even if no acceptance conditions are useful in a SCC,
-      // we need to keep at least one acceptance conditions
-      useful = bdd_satone(aut->all_acceptance_conditions());
-
-    bdd positive = bddtrue;
-    bdd cur = useful;
-    while (cur != bddfalse)
+    bdd negall = aut->neg_acceptance_conditions();
+    // Compute a set of useless acceptance conditions.
+    // If the acceptance combinations occurring in
+    // the automata are  { a, ab, abc, bd }, then
+    // USEFUL contains (a&!b&!c&!d)|(a&b&!c&!d)|(a&b&c&!d)|(!a&b&!c&d)
+    // and we want to find that 'a' and 'b' are useless because
+    // they always occur with 'c'.
+    // The way we check if 'a' is useless that is to look whether
+    // USEFUL & (x -> a) == USEFUL for some other acceptance
+    // condition x.
+    bdd allconds = bdd_support(negall);
+    bdd allcondscopy = allconds;
+    bdd useless = bddtrue;
+    while (allconds != bddtrue)
       {
-	bdd a = bdd_satone(cur);
-	cur -= a;
-	for (;;)
+	bdd a = bdd_ithvar(bdd_var(allconds));
+	bdd others = allcondscopy;
+
+	while (others != bddtrue)
 	  {
-	    if (bdd_low(a) == bddfalse)
+	    bdd x = bdd_ithvar(bdd_var(others));
+	    if (x != a)
 	      {
-		positive &= bdd_ithvar(bdd_var(a));
-		break;
+		if ((useful & (x >> a)) == useful)
+		  {
+		    // a is useless
+		    useful = bdd_exist(useful, a);
+		    useless &= a;
+		    allcondscopy = bdd_exist(allcondscopy, a);
+		    break;
+		  }
 	      }
-	    a = bdd_low(a);
+	    others = bdd_high(others);
 	  }
+	allconds = bdd_high(allconds);
       }
 
-    bdd strip = bdd_exist(bdd_support(aut->all_acceptance_conditions()),
-			  positive);
-    useful = bdd_exist(useful, strip);
+    // We never remove ALL acceptance conditions.
+    assert(negall == bddtrue || useless != bdd_support(negall));
+
+    useful = compute_all_acceptance_conditions(bdd_exist(negall, useless));
 
     // In most cases we will create a tgba_explicit_string copy of the
     // initial tgba, but this is not very space efficient as the
@@ -168,7 +185,7 @@ namespace spot
     if (af)
       {
 	filter_iter<tgba_explicit_formula> fi(af, sm, ss.useless_scc_map,
-					      useful, strip,
+					      useful, useless,
 					      remove_all_useless);
 	fi.run();
 	tgba_explicit_formula* res = fi.result();
@@ -178,7 +195,7 @@ namespace spot
     else
       {
 	filter_iter<tgba_explicit_string> fi(aut, sm, ss.useless_scc_map,
-					     useful, strip,
+					     useful, useless,
 					     remove_all_useless);
 	fi.run();
 	tgba_explicit_string* res = fi.result();

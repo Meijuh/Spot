@@ -200,7 +200,16 @@ namespace spot
       succ_type succ;
       /// Trivial SCC have one state and no self-loops.
       bool trivial;
-      /// Useful acceptance conditions.
+      /// \brief Set of acceptance combinations used in the SCC.
+      ///
+      /// Note that the encoding used here differs from the
+      /// encoding used in automata.
+      /// If some transitions of the automaton are labeled by
+      ///      Acc[a]&!Acc[b]&!Acc[c]  |  !Acc[a]&Acc[b]&!Acc[c]
+      /// an other transitions are labeled by
+      ///      !Acc[a]&Acc[b]&!Acc[c]  |  !Acc[a]&!Acc[b]&Acc[c]
+      /// then useful_acc will contain
+      ///      Acc[a]&Acc[b]&!Acc[c] | !Acc[a]&Acc[b]&Acc[c]
       bdd useful_acc;
     };
 
