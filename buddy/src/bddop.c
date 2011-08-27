@@ -50,6 +50,7 @@
 #define CACHEID_SATCOULN    0x3
 #define CACHEID_PATHCOU     0x4
 #define CACHEID_SETXOR      0x5
+#define CACHEID_SUPPORT     0x6
 
    /* Hash value modifiers for replace/compose */
 #define CACHEID_REPLACE      0x0
@@ -166,6 +167,7 @@ static int    varset2svartable(BDD);
 #define COMPOSEHASH(f,g)     (PAIR(f,g))
 #define SATCOUHASH(r)        (r)
 #define PATHCOUHASH(r)       (r)
+#define SUPPORTHASH(r)       (PAIR(r,CACHEID_SUPPORT))
 #define APPEXHASH(l,r,op)    (PAIR(l,r))
 
 #ifndef M_LN2
@@ -2303,6 +2305,7 @@ RETURN  {* A BDD variable set. *}
 */
 BDD bdd_support(BDD r)
 {
+   BddCacheData *entry;
    static int  supportSize = 0;
    int n;
    int res=1;
@@ -2312,6 +2315,18 @@ BDD bdd_support(BDD r)
    /* Variable sets are conjunctions, so the empty support is bddtrue.  */
    if (r < 2)
       return bddtrue;
+
+   entry = BddCache_lookup(&misccache, SUPPORTHASH(r));
+   if (entry->a == r && entry->c == CACHEID_SUPPORT)
+   {
+#ifdef CACHESTATS
+      bddcachestats.opHit++;
+#endif
+      return entry->r.res;
+   }
+#ifdef CACHESTATS
+   bddcachestats.opMiss++;
+#endif
 
       /* On-demand allocation of support set */
    if (__unlikely(supportSize < bddvarnum))
@@ -2360,6 +2375,10 @@ BDD bdd_support(BDD r)
       }
 
    bdd_enable_reorder();
+
+   entry->a = r;
+   entry->c = CACHEID_SUPPORT;
+   entry->r.res = res;
 
    return res;
 }
