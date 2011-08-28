@@ -35,7 +35,7 @@ void build_adder(void)
 	 xout[n] = ainp[n] ^ binp[n] ^ co[n-1];
 	 co[n] = ainp[n] & binp[n] |
                  ainp[n] & co[n-1] |
-	         binp[n] & co[n-1];
+		 binp[n] & co[n-1];
       }
       else
       {
@@ -181,7 +181,8 @@ int test_vector(bdd av, bdd bv, int a, int b)
    {
       bdd resv = av & bv & xout[n];
 
-      if (resv == bddfalse && (res & 1) || resv != bddfalse && !(res & 1))
+      if ((resv == bddfalse && (res & 1))
+	  || (resv != bddfalse && !(res & 1)))
 	 return 0;
 
       res = res >> 1;

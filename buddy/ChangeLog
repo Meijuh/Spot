@@ -1,3 +1,8 @@
+2011-08-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	* examples/adder/adder.cxx (test_vector): Add parentheses to
+	remove a clang++-2.9 warning.
+
 2011-08-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* src/bddop.c (bdd_support): Speedup using a cache.
