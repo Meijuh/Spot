@@ -130,16 +130,6 @@ namespace spot
   // for build tgba_reduc
 
   void
-  tgba_reduc::start()
-  {
-  }
-
-  void
-  tgba_reduc::end()
-  {
-  }
-
-  void
   tgba_reduc::process_state(const spot::state* s, int, tgba_succ_iterator* si)
   {
     spot::state* init = automata_->get_init_state();
@@ -156,11 +146,6 @@ namespace spot
 	this->add_acceptance_conditions(t, si->current_acceptance_conditions());
 	init->destroy();
       }
-  }
-
-  void
-  tgba_reduc::process_link(int, int, const tgba_succ_iterator*)
-  {
   }
 
   tgba_explicit::transition*

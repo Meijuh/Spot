@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009, 2011 Laboratoire de Recherche et DÃ©veloppement
+// Copyright (C) 2008, 2009, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -81,10 +81,7 @@ namespace spot
     sp_map state_predecessor_map_;
 
     // Interface of tgba_reachable_iterator_breadth_first
-    void start();
-    void end();
     void process_state(const spot::state* s, int n, tgba_succ_iterator* si);
-    void process_link(int in, int out, const tgba_succ_iterator* si);
 
     /// Create a transition using two state of a TGBA.
     transition* create_transition(const spot::state* source,
@@ -124,15 +121,15 @@ namespace spot
     /// this is explain in
     /// \verbatim
     /// @InProceedings{	  etessami.00.concur,
-    /// author  	= {Kousha Etessami and Gerard J. Holzmann},
+    /// author		= {Kousha Etessami and Gerard J. Holzmann},
     /// title		= {Optimizing {B\"u}chi Automata},
     /// booktitle	= {Proceedings of the 11th International Conference on
     /// 		  Concurrency Theory (Concur'2000)},
     /// pages		= {153--167},
     /// year		= {2000},
-    /// editor  	= {C. Palamidessi},
-    /// volume  	= {1877},
-    /// series  	= {Lecture Notes in Computer Science},
+    /// editor		= {C. Palamidessi},
+    /// volume		= {1877},
+    /// series		= {Lecture Notes in Computer Science},
     ///  publisher	= {Springer-Verlag}
     /// }
     /// \endverbatim

@@ -1,3 +1,18 @@
+2011-08-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix errors reported by clang++-2.9.
+
+	* src/evtgbaalgos/tgba2evtgba.cc (process_link): Fix prototype
+	to match tgba_reachable_iterator::process_link.
+	* src/ltlvisit/tunabbrev.hh: Add using super::visit, so that the
+	other visit() method are in scope when we overload one.
+	* src/tgba/tgbareduc.hh, src/tgba/tgbareduc.cc (start, end,
+	process_link): Remove these empty methods.  The default
+	implementations are empty too, and process_link had the
+	wrong prototype.
+	* src/tgbaalgos/reductgba_sim.hh, src/tgbaalgos/reductgba_sim.cc
+	(start, end, process_link): Likewise.
+
 2011-08-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Improve SCC simplification by removing implied acceptance conditions.

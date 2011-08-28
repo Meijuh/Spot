@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -116,10 +116,7 @@ namespace spot
     s_v tgba_state_;
     int nb_node_parity_game;
 
-    void start();
-    void end();
     void process_state(const state* s, int n, tgba_succ_iterator* si);
-    void process_link(int in, int out, const tgba_succ_iterator* si);
 
     /// \brief Compute each node of the graph.
     virtual void build_graph() = 0;
