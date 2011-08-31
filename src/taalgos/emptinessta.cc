@@ -52,8 +52,7 @@ namespace spot
 
     // We use five main data in this algorithm:
 
-    // * scc: a stack of strongly connected components (SCC)
-    scc;
+    // * scc: (attribute) a stack of strongly connected components (SCC)
 
     // * arc, a stack of acceptance conditions between each of these SCC,
     std::stack<bdd> arc;
