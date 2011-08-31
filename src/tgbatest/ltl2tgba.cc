@@ -1136,7 +1136,9 @@ main(int argc, char** argv)
             }
 
           delete testing_automata_nm;
-          delete testing_automata;
+          //delete testing_automata;
+          a = 0;
+          degeneralized = 0;
           output = -1;
 
         }

@@ -18,6 +18,17 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
+#define TRACE
+
+#include <iostream>
+#ifdef TRACE
+#define trace std::clog
+#else
+#define trace while (0) std::clog
+#endif
+
+
+
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/constant.hh"
 #include "tgba/formula2bdd.hh"
@@ -441,6 +452,9 @@ namespace spot
             if (*spi.second == -1)
               continue;
 
+            trace
+                                          << "***compute_livelock_acceptance_states: CYCLE***" << std::endl;
+
             if (!curr->compare(dest))
               {
                 state_ta_explicit * self_loop_state =
@@ -449,6 +463,8 @@ namespace spot
 
                 if (testing_automata->is_accepting_state(self_loop_state))
                   self_loop_state->set_livelock_accepting_state(true);
+                trace
+                                              << "***compute_livelock_acceptance_states: CYCLE: self_loop_state***" << std::endl;
 
               }
 

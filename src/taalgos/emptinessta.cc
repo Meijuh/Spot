@@ -276,6 +276,9 @@ namespace spot
             std::list<state*> rem;
             bool acc = false;
 
+            trace
+                              << "***PASS 1: CYCLE***" << std::endl;
+
             while (threshold < scc.top().index)
               {
                 assert(!scc.empty());
@@ -306,15 +309,23 @@ namespace spot
 
             if (is_accepting_sscc)
               {
-                clear(h, todo, init_set);
                 trace
-                  << "PASS 1: SUCCESS" << std::endl;
+                  << "PASS 1: SUCCESS : a_->is_livelock_accepting_state(curr): " << a_->is_livelock_accepting_state(curr) <<  std::endl;
                 trace
                                   << "PASS 1: scc.top().condition : " <<  bdd_format_accset(a_->get_dict(),
                                       scc.top().condition) << std::endl;
                 trace
-                                  << "PASS 1: a_->all_acceptance_conditions() : " <<  bdd_format_accset(a_->get_dict(),
-                                      a_->all_acceptance_conditions()) << std::endl;
+                                  << "PASS 1: a_->all_acceptance_conditions() : " << (scc.top().condition == a_->all_acceptance_conditions()) << std::endl;
+
+                trace
+                                                  << "PASS 1: bddtrue : " <<  (a_->all_acceptance_conditions()==
+                                                      bddtrue) << std::endl;
+
+                trace
+                                                  << "PASS 1: bddfalse : " <<  (a_->all_acceptance_conditions()==
+                                                      bddfalse) << std::endl;
+
+                clear(h, todo, init_set);
                 return true;
               }
 
