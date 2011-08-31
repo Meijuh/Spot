@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
 // de l Epita_explicit (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -164,8 +164,7 @@ namespace spot
 
     state_ta_explicit(const state* tgba_state, const bdd tgba_condition,
         bool is_initial_state = false, bool is_accepting_state = false,
-        bool is_livelock_accepting_state = false, transitions* trans = 0,
-        bool is_the_artificial_livelock_accepting_state = false) :
+        bool is_livelock_accepting_state = false, transitions* trans = 0) :
       tgba_state_(tgba_state), tgba_condition_(tgba_condition),
           is_initial_state_(is_initial_state), is_accepting_state_(
               is_accepting_state), is_livelock_accepting_state_(

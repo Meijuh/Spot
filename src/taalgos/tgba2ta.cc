@@ -175,7 +175,7 @@ namespace spot
 
         state_ta_explicit* artificial_livelock_accepting_state =
             new state_ta_explicit(ta->get_tgba()->get_init_state(), bddfalse,
-                false, false, true, 0, true);
+				  false, false, true, 0);
 
         add_artificial_livelock_accepting_state(ta,
             artificial_livelock_accepting_state);
