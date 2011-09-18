@@ -202,7 +202,7 @@ main(int argc, char** argv)
     spot::ltl::formula* ftmp1;
 
     ftmp1 = f1;
-    f1 = simp->negative_normal_form(f1, false, true);
+    f1 = simp->negative_normal_form(f1, false);
     ftmp1->destroy();
 
     int length_f1_before = spot::ltl::length(f1);
@@ -219,7 +219,7 @@ main(int argc, char** argv)
     if (f2)
       {
 	ftmp1 = f2;
-	f2 = simp->negative_normal_form(f2, false, true);
+	f2 = simp->negative_normal_form(f2, false);
 	ftmp1->destroy();
 	f2s = spot::ltl::to_string(f2);
       }

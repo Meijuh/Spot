@@ -365,15 +365,13 @@ namespace spot
       const formula*
       nenoform_recursively(const formula* f,
 			   bool negated,
-			   bool lunabbrev,
 			   ltl_simplifier_cache* c);
 
       class negative_normal_form_visitor: public visitor
       {
       public:
-	negative_normal_form_visitor(bool negated, bool lunabbrev,
-				     ltl_simplifier_cache* c)
-	  : negated_(negated), lunabbrev_(lunabbrev), cache_(c)
+	negative_normal_form_visitor(bool negated, ltl_simplifier_cache* c)
+	  : negated_(negated), cache_(c)
 	{
 	}
 
@@ -466,10 +464,6 @@ namespace spot
 
 	formula* equiv_or_xor(bool equiv, formula* f1, formula* f2)
 	{
-	  if (!lunabbrev_)
-	    return binop::instance(equiv ? binop::Equiv : binop::Xor,
-				   recurse_(f1, false),
-				   recurse_(f2, false));
 	  // Rewrite a<=>b as (a&b)|(!a&!b)
 	  if (equiv)
 	    return
@@ -513,10 +507,6 @@ namespace spot
 		result_ = multop::instance(multop::And,
 					   recurse_(f1, false),
 					   recurse_(f2, true));
-	      else if (!lunabbrev_)
-		result_ = binop::instance(binop::Implies,
-					  recurse_(f1, false),
-					  recurse_(f2, false));
 	      else // a => b == !a | b
 		result_ = multop::instance(multop::Or,
 					   recurse_(f1, true),
@@ -626,8 +616,7 @@ namespace spot
 	recurse_(formula* f, bool negated)
 	{
 	  return
-	    const_cast<formula*>(nenoform_recursively(f, negated,
-						      lunabbrev_, cache_));
+	    const_cast<formula*>(nenoform_recursively(f, negated, cache_));
 	}
 
 	formula*
@@ -639,7 +628,6 @@ namespace spot
       protected:
 	formula* result_;
 	bool negated_;
-	bool lunabbrev_;
 	ltl_simplifier_cache* cache_;
       };
 
@@ -647,7 +635,6 @@ namespace spot
       const formula*
       nenoform_recursively(const formula* f,
 			   bool negated,
-			   bool lunabbrev,
 			   ltl_simplifier_cache* c)
       {
 	if (f->kind() == formula::UnOp)
@@ -674,7 +661,7 @@ namespace spot
 	  }
 	else
 	  {
-	    negative_normal_form_visitor v(negated, lunabbrev, c);
+	    negative_normal_form_visitor v(negated, c);
 	    const_cast<formula*>(f)->accept(v);
 	    result = v.result();
 	  }
@@ -2277,7 +2264,7 @@ namespace spot
     {
       formula* neno = 0;
       if (!f->is_in_nenoform())
-	f = neno = negative_normal_form(f, false, true);
+	f = neno = negative_normal_form(f, false);
       formula* res = const_cast<formula*>(simplify_recursively(f, cache_));
       if (neno)
 	neno->destroy();
@@ -2285,11 +2272,9 @@ namespace spot
     }
 
     formula*
-    ltl_simplifier::negative_normal_form(const formula* f, bool negated,
-					 bool lunabbrev)
+    ltl_simplifier::negative_normal_form(const formula* f, bool negated)
     {
-      return const_cast<formula*>(nenoform_recursively(f, negated, lunabbrev,
-						       cache_));
+      return const_cast<formula*>(nenoform_recursively(f, negated, cache_));
     }
 
 

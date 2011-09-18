@@ -1604,7 +1604,7 @@ namespace spot
 	// logic abbreviations such as <=>, =>, or XOR, since they
 	// would involve negations at the BDD level.
 	ltl_simplifier s;
-	f2 = s.negative_normal_form(f, false, true);
+	f2 = s.negative_normal_form(f, false);
       }
 
     typedef std::set<const formula*, formula_ptr_less_than> set_type;

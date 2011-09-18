@@ -75,16 +75,13 @@ namespace spot
 
       /// Build the negative normal form of formula \a f.
       /// All negations of the formula are pushed in front of the
-      /// atomic propositions.
+      /// atomic propositions.  Operators <=>, =>, xor are all removed
+      /// (calling spot::ltl::unabbreviate_ltl is not needed).
       ///
       /// \param f The formula to normalize.
       /// \param negated If \c true, return the negative normal form of
       ///        \c !f
-      /// \param lunabbrev If \c true, also remove Xor, Equiv, and Implies
-      ///        operators.  (It is faster than calling
-      ///        spot::ltl::unabbreviate_ltl first.)
-      formula* negative_normal_form(const formula* f, bool negated = false,
-				    bool lunabbrev = false);
+      formula* negative_normal_form(const formula* f, bool negated = false);
 
 
     private:
