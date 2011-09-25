@@ -1366,6 +1366,7 @@ namespace spot
 		      return;
 		    }
 		  // if a => b, then a W (b W c) = (b W c)
+		  // (Beware: even if a => b we do not have a W (b U c) = b U c)
 		  if (b->kind() == formula::BinOp)
 		    {
 		      binop* bo = static_cast<binop*>(b);
@@ -1749,7 +1750,7 @@ namespace spot
 
 		    // Xa & Xb & f1...fn = X(a & b & f1...fn)
 		    // is built at the end of this multop::And case.
-		    // G(a) & F(b) = G(a & b)
+		    // G(a) & G(b) = G(a & b)
 		    // is built at the end of this multop::And case.
 
 		    // The following three loops perform these rewritings:
@@ -1962,7 +1963,7 @@ namespace spot
 			     && s.res_other->empty())
 		      {
 			// If there is no X but some F and only
-			// eventual&universal formula, do:
+			// eventual&universal formulae f1...fn|GF(c), do:
 			// Fa|Fb|f1...fn|GF(c) = F(a|b|f1...fn|GF(c))
 			//
 			// The reasoning here is that if we should
