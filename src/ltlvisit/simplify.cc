@@ -2754,18 +2754,27 @@ namespace spot
 
       bool result = false;
 
-      inf_left_recurse_visitor v1(f2, this);
-      const_cast<formula*>(f1)->accept(v1);
-      if (v1.result())
+      if (f1->is_boolean() && f2->is_boolean())
 	{
-	  result = true;
+	  bdd l = as_bdd(f1);
+	  bdd r = as_bdd(f2);
+	  result = ((l & r) == l);
 	}
       else
 	{
-	  inf_right_recurse_visitor v2(f1, this);
-	  const_cast<formula*>(f2)->accept(v2);
-	  if (v2.result())
-	    result = true;
+	  inf_left_recurse_visitor v1(f2, this);
+	  const_cast<formula*>(f1)->accept(v1);
+	  if (v1.result())
+	    {
+	      result = true;
+	    }
+	  else
+	    {
+	      inf_right_recurse_visitor v2(f1, this);
+	      const_cast<formula*>(f2)->accept(v2);
+	      if (v2.result())
+		result = true;
+	    }
 	}
 
       // Cache result
