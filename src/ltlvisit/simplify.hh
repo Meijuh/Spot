@@ -83,6 +83,32 @@ namespace spot
       ///        \c !f
       formula* negative_normal_form(const formula* f, bool negated = false);
 
+      /// \brief Syntactic implication.
+      ///
+      /// Returns whether \a f syntactically implies \a g.
+      ///
+      /// This is adapted from
+      /// \verbatim
+      /// @InProceedings{          somenzi.00.cav,
+      /// author         = {Fabio Somenzi and Roderick Bloem},
+      /// title          = {Efficient {B\"u}chi Automata for {LTL} Formulae},
+      /// booktitle      = {Proceedings of the 12th International Conference on
+      ///                  Computer Aided Verification (CAV'00)},
+      /// pages          = {247--263},
+      /// year           = {2000},
+      /// volume         = {1855},
+      /// series         = {Lecture Notes in Computer Science},
+      /// publisher      = {Springer-Verlag}
+      /// }
+      /// \endverbatim
+      ///
+      bool syntactic_implication(const formula* f, const formula* g);
+      /// \brief Syntactic implication with one negated argument.
+      ///
+      /// If \a right is true, this method returns whether
+      /// \a f implies !\a g.  If \a right is false, this returns
+      /// whether !\a g implies \a g.
+      bool syntactic_implication_neg(const formula* f, const formula* g, bool right);
 
     private:
       ltl_simplifier_cache* cache_;

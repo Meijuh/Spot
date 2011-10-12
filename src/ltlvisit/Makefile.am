@@ -42,7 +42,6 @@ ltlvisit_HEADERS = \
   reduce.hh \
   simpfg.hh \
   simplify.hh \
-  syntimpl.hh \
   tostring.hh \
   tunabbrev.hh
 
@@ -63,6 +62,5 @@ libltlvisit_la_SOURCES = \
   reduce.cc \
   simpfg.cc \
   simplify.cc \
-  syntimpl.cc \
   tostring.cc \
   tunabbrev.cc
