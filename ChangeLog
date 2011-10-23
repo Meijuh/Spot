@@ -1,5 +1,9 @@
 2011-10-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* src/tgba/tgbasafracomplement.cc: Fix two asserts.
+
+2011-10-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Improve the print_safra_automaton output.
 
 	* src/tgba/tgbasafracomplement.cc (print_safra_tree): Fix output in

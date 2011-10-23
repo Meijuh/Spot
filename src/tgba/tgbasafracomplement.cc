@@ -1129,7 +1129,7 @@ namespace spot
   tgba_safra_complement::tgba_safra_complement(const tgba* a)
     : automaton_(a), safra_(safra_determinisation::create_safra_automaton(a))
   {
-    assert(safra_ || "safra construction fails");
+    assert(safra_ || !"safra construction fails");
 
     // We will use one acceptance condition for this automata.
     // Let's call it Acc[True].
@@ -1292,7 +1292,7 @@ namespace spot
 
       return new tgba_safra_complement_succ_iterator(succ_list, condition);
     }
-    assert("Safra automaton does not find this node");
+    assert(!"Safra automaton does not find this node");
     return 0;
   }
 
