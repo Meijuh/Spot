@@ -1,3 +1,14 @@
+2011-10-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Improve the print_safra_automaton output.
+
+	* src/tgba/tgbasafracomplement.cc (print_safra_tree): Fix output in
+	case of hash collision.  Use the actual states to get a number, not
+	their hash value.
+	(print_safra_automaton): Output a mapping of values to states names.
+	(safra_tree_automaton::get_sba): New method, used by
+	print_safra_automaton.
+
 2011-08-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Fix errors reported by clang++-2.9.

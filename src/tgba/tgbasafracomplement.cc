@@ -25,6 +25,7 @@
 #include <sstream>
 #include <boost/dynamic_bitset.hpp>
 #include "bdd.h"
+#include "misc/hash.hh"
 #include "misc/bddlt.hh"
 #include "tgba/tgbatba.hh"
 #include "tgba/bdddict.hh"
@@ -67,6 +68,10 @@ namespace spot
       int get_nb_acceptance_pairs() const;
       safra_tree* get_initial_state() const;
       void set_initial_state(safra_tree* s);
+      const tgba* get_sba(void) const
+      {
+	return a_;
+      }
     private:
       mutable int max_nb_pairs_;
       safra_tree* initial_state;
@@ -119,8 +124,8 @@ namespace spot
       void getL(bitset_t& bitset) const;
       void getU(bitset_t& bitset) const;
 
-      /// \brief Does this node the root of the tree?
-      bool is_parent() const
+      /// \brief Is this node the root of the tree?
+      bool is_root() const
       {
         return parent == 0;
       }
@@ -763,13 +768,16 @@ namespace spot
     //////////////////////////////
     namespace test
     {
+      typedef Sgi::hash_map<const state*, int,
+			    state_ptr_hash, state_ptr_equal> stnum_t;
+
       void print_safra_tree(const safra_tree* this_node,
-                            std::map<int, int>& node_names,
+                            stnum_t& node_names,
                             int& current_node,
                             int nb_accepting_conditions)
       {
         std::string conditions;
-        if (this_node->is_parent())
+        if (this_node->is_root())
         {
           bitset_t l(nb_accepting_conditions);
           bitset_t u(nb_accepting_conditions);
@@ -787,9 +795,13 @@ namespace spot
              j != this_node->nodes.end();
              ++j)
         {
-          if (node_names.find((*j)->hash()) == node_names.end())
-            node_names[(*j)->hash()] = current_node++;
-          std::cout << node_names[(*j)->hash()] << ", ";
+	  stnum_t::const_iterator it = node_names.find(*j);
+	  int name;
+          if (it == node_names.end())
+	    name = node_names[*j] = current_node++;
+	  else
+	    name = it->second;
+          std::cout << name << ", ";
         }
         std::cout << conditions;
         if (this_node->marked)
@@ -815,7 +827,7 @@ namespace spot
           automaton_cit;
         typedef safra_tree_automaton::transition_list::const_iterator
           trans_cit;
-        std::map<int, int> node_names;
+        stnum_t node_names;
         int current_node = 0;
         int nb_accepting_conditions = a->get_nb_acceptance_pairs();
 
@@ -838,6 +850,18 @@ namespace spot
                       << "node" << j->second <<
               " [label=\"" << bddset << j->first << "\"];" << std::endl;
         }
+
+	// Output the real name of all states.
+	std::cout << "{ rank=sink; legend [shape=none,margin=0,label=<\n"
+		  << "<TABLE BORDER='1' CELLBORDER='0' CELLSPACING='0'>\n";
+
+	for (stnum_t::const_iterator it = node_names.begin();
+	     it != node_names.end(); ++it)
+	  std::cout << "<TR><TD>" << it->second << "</TD><TD>"
+		    << a->get_sba()->format_state(it->first)
+		    << "</TD></TR>\n";
+	std::cout << "</TABLE>\n"
+		  << ">]}" << std::endl;
 
         std::cout << "}" << std::endl;
       }
@@ -1155,10 +1179,10 @@ namespace spot
   /// transformation, presented by Christof Löding in his Diploma thesis.
   ///
   /// @MastersThesis{	  loding.98,
-  ///   author	        = {Christof L\"oding},
+  ///   author		= {Christof L\"oding},
   ///   title		= {Methods for the Transformation of omega-Automata:
-  ///   		  Complexity and Connection to Second Order Logic},
-  ///   school	        = {University of Kiel},
+  ///			  Complexity and Connection to Second Order Logic},
+  ///   school		= {University of Kiel},
   ///   year		= {1998}
   /// }
   ///
