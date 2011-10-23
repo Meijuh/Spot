@@ -1,5 +1,25 @@
 2011-10-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Safra: Fix usage of multiple acceptance conditions and fix text output.
+
+	* src/tgba/tgbasafracomplement.cc
+	(tgba_safra_complement::tgba_safra_complement)
+	(tgba_safra_complement::succ_iter): Correct the declaration and
+	use of multiple acceptance conditions.
+	(state_complement::to_string): Output the L set, not U.  The previous
+	code caused different states to share the same names, causing issues
+	with the text-based output (state with identical names get merged).
+	* src/tgba/tgbasafracomplement.hh
+	(tgba_safra_complement::acceptance_cond_vec_): Adjust type to
+	store BDDs.
+	* src/tgbatest/complementation.cc: Implement a new "-b" option
+	to output automata in Spot's syntax.
+	* src/tgbatest/complementation.test: Add a test-case supplied
+	by Martin Dieguez Lodeiro.
+	* THANKS: Add Martin.
+
+2011-10-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* src/tgba/tgbasafracomplement.cc: Fix two asserts.
 
 2011-10-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>

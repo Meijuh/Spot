@@ -942,8 +942,7 @@ namespace spot
       if (other == this)
         return 0;
       const state_complement* s = down_cast<const state_complement*>(other);
-      if (s == 0)
-        return 1;
+      assert(s);
 #if TRANSFORM_TO_TBA
       // When we transform to TBA instead of TGBA, states depend on the U set.
       if (U != s->U)
@@ -993,9 +992,9 @@ namespace spot
       ss << tree;
       if (use_bitset)
       {
-        ss << " - I:" << U;
+        ss << " - I:" << L;
 #if TRANSFORM_TO_TBA
-        ss << " J:" << L;
+        ss << " J:" << U;
 #endif
       }
       return ss.str();
@@ -1147,14 +1146,19 @@ namespace spot
     neg_acceptance_cond_ = bddtrue;
     acceptance_cond_vec_.reserve(nb_acc);
     for (unsigned i = 0; i < nb_acc; ++i)
-    {
-      int r = get_dict()->register_clone_acc(v, safra_);
-      all_acceptance_cond_ |= bdd_ithvar(r);
-      acceptance_cond_vec_[i] = r;
-      neg_acceptance_cond_ &= bdd_nithvar(r);
-    }
+      {
+	int r = get_dict()->register_clone_acc(v, safra_);
+	all_acceptance_cond_ &= bdd_nithvar(r);
+	all_acceptance_cond_ |= bdd_ithvar(r) & neg_acceptance_cond_;
+	neg_acceptance_cond_ &= bdd_nithvar(r);
+	acceptance_cond_vec_.push_back(bdd_ithvar(r));
+      }
+    for (unsigned i = 0; i < nb_acc; ++i)
+      {
+	bdd c = acceptance_cond_vec_[i];
+	acceptance_cond_vec_[i] = bdd_exist(neg_acceptance_cond_, c) & c;
+      }
 #endif
-
   }
 
   tgba_safra_complement::~tgba_safra_complement()
@@ -1278,15 +1282,8 @@ namespace spot
         }
 
         for (unsigned i = 0; i < l.size(); ++i)
-        {
           if (!S[i])
-          {
-            if (condition == bddfalse)
-              condition = bdd_ithvar(acceptance_cond_vec_[i]);
-            else
-              condition &= bdd_ithvar(acceptance_cond_vec_[i]);
-          }
-        }
+	    condition |= acceptance_cond_vec_[i];
 #endif
       }
 

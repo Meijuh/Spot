@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <iostream>
 #include "tgbaalgos/dotty.hh"
+#include "tgbaalgos/save.hh"
 #include "tgbaparse/public.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/gtec/gtec.hh"
@@ -40,6 +41,7 @@ void usage(const char* prog)
 {
   std::cout << "usage: " << prog << " [options]" << std::endl;
   std::cout << "with options" << std::endl
+            << "-b                      Output in spot's format" << std::endl
             << "-S                      Use Safra's complementation "
 	    << "instead of Kupferman&Vardi's" << std::endl
             << "-s     buchi_automaton  display the safra automaton"
@@ -63,6 +65,7 @@ int main(int argc, char* argv[])
   bool formula = false;
   bool safra = false;
   bool print_formula = false;
+  bool save_spot = false;
 
   if (argc < 3)
   {
@@ -74,6 +77,12 @@ int main(int argc, char* argv[])
   {
     if (argv[i][0] == '-')
     {
+      if (strcmp(argv[i] + 1, "b") == 0)
+      {
+	save_spot = true;
+	continue;
+      }
+
       if (strcmp(argv[i] + 1, "astat") == 0)
       {
         stats = true;
@@ -134,7 +143,12 @@ int main(int argc, char* argv[])
       complement = new spot::tgba_kv_complement(a);
 
     if (print_automaton)
-      spot::dotty_reachable(std::cout, complement);
+      {
+	if (save_spot)
+	  spot::tgba_save_reachable(std::cout, complement);
+	else
+	  spot::dotty_reachable(std::cout, complement);
+      }
 
     if (print_safra)
     {

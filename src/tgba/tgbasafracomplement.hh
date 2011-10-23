@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -84,7 +84,7 @@ namespace spot
     bdd all_acceptance_cond_;
     bdd neg_acceptance_cond_;
     // Map to i the i-th acceptance condition of the final automaton.
-    std::vector<int> acceptance_cond_vec_;
+    std::vector<bdd> acceptance_cond_vec_;
 #endif
   };
 
