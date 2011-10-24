@@ -2,7 +2,6 @@ New in spot 0.7.1a:
 
   * Major new features:
     - Spot can read DiVinE models.  See iface/dve2/README for details.
-    - The experimental Nips interface has been removed.
     - The genltl tool can now output 20 differents LTL formula families.
       It also replace the LTLcounter Perl scripts.
   * Major interface changes:
@@ -10,22 +9,36 @@ New in spot 0.7.1a:
       "delete some_state;" will cause an compile error and should be
       updated to "some_state->destroy();".  This new syntax is supported
       since version 0.7.
+    - The experimental Nips interface has been removed.
   * Minor changes:
     - The dotty_reachable() function has a new option "assume_sba" that
       can be used for rendering automata with state-based acceptance.
       In that case, acceptance states are displayed with a double
       circle. ltl2tgba (both command line and on-line) Use it to display
       degeneralized automata.
+    - Identifiers used to name atomic proposition can contain dots.
+      E.g.: X.Y is now an atomic proposition, while it was understood
+      as X&Y in previous versions.
   * Internal improvements:
     - The on-line ltl2tgba CGI script uses a cache to produce faster
       answers.
-    - Better memory managementmanagment for the states of explicit
-      automata.  Thanks to the aforementioned ->destroy() change, we
-      can avoid cloning explicit states.
+    - Better memory management for the states of explicit automata.
+      Thanks to the aforementioned ->destroy() change, we can avoid
+      cloning explicit states.
     - tgba_product has learned how to be faster when one of the operands
       is a Kripke structure (15% speedup).
     - The reduction rule for "a M b" has been improved: it can be
       reduced to "a & b" if "a" is a pure eventuallity.
+    - More useless acceptance conditions are removed by SCC simplifications.
+  * Bug fixes:
+    - Safra complementation has been fixed in cases where more than
+      one acceptance conditions where needed to convert the
+      deterministic Streett automaton as a TGBA.
+    - The degeneralization is now idempotent.  Previously degeneralizing
+      an already degeneralized automaton could add some states.
+    - The degeneralization now has a deterministic behavior.  Previously
+      it was possible to obtain different output depending on the
+      memory layout.
 
 New in spot 0.7.1 (2001-02-07):
 

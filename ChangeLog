@@ -1,3 +1,7 @@
+2011-10-24  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	* NEWS: Update with recent fixes.
+
 2011-10-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Safra: Fix usage of multiple acceptance conditions and fix text output.
