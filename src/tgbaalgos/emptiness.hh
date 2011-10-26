@@ -1,4 +1,6 @@
-// Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
+// Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -273,19 +275,18 @@ namespace spot
 
   /// \brief Display a tgba_run.
   ///
-  /// Output the prefix and cycle of the tgba_run \a run, even if it
-  /// does not corresponds to an actual run of the automaton \a a.
-  /// This is unlike replay_tgba_run(), which will ensure the run
-  /// actually exist in the automaton (and will display any transition
-  /// annotation).
+  /// Output the prefix and cycle parts of the tgba_run \a run on \a os.
   ///
-  /// (\a a is used here only to format states and transitions.)
+  /// The automaton \a a is used only to format the states, and
+  /// to know how to print the BDDs describing the conditions and
+  /// acceptance conditions of the run; it is <b>not</b> used to
+  /// replay the run.  In other words this function will work even if
+  /// the tgba_run you are trying to print appears to connect states
+  /// of \a a that are not connected.
   ///
-  /// Output the prefix and cycle of the tgba_run \a run, even if it
-  /// does not corresponds to an actual run of the automaton \a a.
   /// This is unlike replay_tgba_run(), which will ensure the run
-  /// actually exist in the automaton (and will display any transition
-  /// annotation).
+  /// actually exists in the automaton (and will also display any
+  /// transition annotation).
   std::ostream& print_tgba_run(std::ostream& os,
                                const tgba* a,
                                const tgba_run* run);
