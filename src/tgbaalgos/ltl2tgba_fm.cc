@@ -225,8 +225,14 @@ namespace spot
       }
     };
 
+#ifdef __GNUC__
+#  define unused __attribute__((unused))
+#else
+#  define unused
+#endif
 
     // Debugging function.
+    static unused
     std::ostream&
     trace_ltl_bdd(const translate_dict& d, bdd f)
     {
