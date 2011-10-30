@@ -56,8 +56,9 @@ namespace spot
     {
     public:
 
-      translate_dict(bdd_dict* dict)
+      translate_dict(bdd_dict* dict, ltl_simplifier* ls)
 	: dict(dict),
+	  ls(ls),
 	  a_set(bddtrue),
 	  var_set(bddtrue),
 	  next_set(bddtrue)
@@ -73,6 +74,7 @@ namespace spot
       }
 
       bdd_dict* dict;
+      ltl_simplifier* ls;
 
       typedef bdd_dict::fv_map fv_map;
       typedef bdd_dict::vf_map vf_map;
@@ -152,6 +154,14 @@ namespace spot
 	// Never reached, but some GCC versions complain about
 	// a missing return otherwise.
 	return 0;
+      }
+
+      bdd
+      boolean_to_bdd(const formula* f)
+      {
+	bdd res = ls->as_bdd(f);
+	var_set &= bdd_support(res);
+	return res;
       }
 
       formula*
@@ -299,15 +309,17 @@ namespace spot
       bdd res_;
     };
 
+    bdd translate_ratexp(const formula* f, translate_dict& dict,
+			 formula* to_concat = 0);
+
     // Rewrite rule for rational operators.
     class ratexp_trad_visitor: public const_visitor
     {
     public:
       // negated should only be set for constants or atomic properties
       ratexp_trad_visitor(translate_dict& dict,
-			  formula* to_concat = 0,
-			  bool negated = false)
-	: dict_(dict), to_concat_(to_concat), negated_(negated)
+			  formula* to_concat = 0)
+	: dict_(dict), to_concat_(to_concat)
       {
       }
 
@@ -351,33 +363,13 @@ namespace spot
       void
       visit(const atomic_prop* node)
       {
-	if (negated_)
-	  res_ = bdd_nithvar(dict_.register_proposition(node));
-	else
-	  res_ = bdd_ithvar(dict_.register_proposition(node));
+	res_ = bdd_ithvar(dict_.register_proposition(node));
 	res_ &= next_to_concat();
       }
 
       void
       visit(const constant* node)
       {
-
-	if (negated_)
-	  {
-	    switch (node->val())
-	      {
-	      case constant::True:
-		res_ = bddfalse;
-		return;
-	      case constant::False:
-		res_ = next_to_concat();
-		return;
-	      case constant::EmptyWord:
-		assert(!"EmptyWord should not be negated");
-		return;
-	      }
-	  }
-
 	switch (node->val())
 	  {
 	  case constant::True:
@@ -411,10 +403,10 @@ namespace spot
 	    {
 	      // Not can only appear in front of Boolean
 	      // expressions.
-	      // propositions.
 	      const formula* f = node->child();
 	      assert(f->is_boolean());
-	      res_ = recurse_and_concat(f, true);
+	      res_ = !recurse(f);
+	      res_ &= next_to_concat();
 	      return;
 	    }
 	  }
@@ -785,25 +777,61 @@ namespace spot
       }
 
       bdd
-      recurse(const formula* f, formula* to_concat = 0, bool negated = false)
+      recurse(const formula* f, formula* to_concat = 0)
       {
-	ratexp_trad_visitor v(dict_, to_concat, negated);
-	f->accept(v);
-	return v.result();
+	return translate_ratexp(f, dict_, to_concat);
       }
 
       bdd
-      recurse_and_concat(const formula* f, bool negated = false)
+      recurse_and_concat(const formula* f)
       {
-	return recurse(f, to_concat_ ? to_concat_->clone() : 0, negated);
+	return translate_ratexp(f, dict_,
+				to_concat_ ? to_concat_->clone() : 0);
       }
 
     private:
       translate_dict& dict_;
       bdd res_;
       formula* to_concat_;
-      bool negated_;
     };
+
+    bdd
+    translate_ratexp(const formula* f, translate_dict& dict,
+		     formula* to_concat)
+    {
+      // static unsigned indent = 0;
+      // for (unsigned i = indent; i > 0; --i)
+      // 	std::cerr << "| ";
+      // std::cerr << "translate_ratexp[" << to_string(f);
+      // if (to_concat)
+      // 	std::cerr << ", " << to_string(to_concat);
+      // std::cerr << "]" << std::endl;
+      // ++indent;
+      bdd res;
+      if (!f->is_boolean())
+	{
+	  ratexp_trad_visitor v(dict, to_concat);
+	  f->accept(v);
+	  res = v.result();
+	}
+      else
+	{
+	  res = dict.boolean_to_bdd(f);
+	  // See comment for similar code in next_to_concat.
+	  if (!to_concat)
+	    to_concat = constant::empty_word_instance();
+	  int x = dict.register_next_variable(to_concat);
+	  res &= bdd_ithvar(x);
+	  to_concat->destroy();
+	}
+      // --indent;
+      // for (unsigned i = indent; i > 0; --i)
+      // 	std::cerr << "| ";
+      // std::cerr << "\\ ";
+      // bdd_print_set(std::cerr, dict.dict, res) << std::endl;
+      return res;
+    }
+
 
 
     // The rewrite rules used here are adapted from Jean-Michel
@@ -939,11 +967,8 @@ namespace spot
 		  return;
 		}
 
-	      ratexp_trad_visitor v(dict_);
-	      node->child()->accept(v);
-	      bdd f1 = v.result();
+	      bdd f1 = translate_ratexp(node->child(), dict_);
 	      res_ = bddfalse;
-
 
 	      if (exprop_)
 		{
@@ -985,6 +1010,10 @@ namespace spot
 		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
 		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
 
+		      // std::cerr << "dest_bdd=";
+		      // bdd_print_set(std::cerr, dict_.dict, dest_bdd)
+		      //   << ", dest=" << to_string(dest) << std::endl;
+
 		      const formula* dest2;
 		      if (dest->accepts_eword())
 			{
@@ -1016,9 +1045,7 @@ namespace spot
 		  return;
 		}
 
-	      ratexp_trad_visitor v(dict_);
-	      node->child()->accept(v);
-	      bdd f1 = v.result();
+	      bdd f1 = translate_ratexp(node->child(), dict_);
 
 	      // trace_ltl_bdd(dict_, f1);
 
@@ -1146,9 +1173,7 @@ namespace spot
 	      // Recognize f2 on transitions going to destinations
 	      // that accept the empty word.
 	      bdd f2 = recurse(node->second());
-	      ratexp_trad_visitor v(dict_);
-	      node->first()->accept(v);
-	      bdd f1 = v.result();
+	      bdd f1 = translate_ratexp(node->first(), dict_);
 	      res_ = bddfalse;
 
 	      if (mark_all_)
@@ -1221,9 +1246,7 @@ namespace spot
 	      // word should recognize f2, and the automaton for f1
 	      // should be understood as universal.
 	      bdd f2 = recurse(node->second());
-	      ratexp_trad_visitor v(dict_);
-	      node->first()->accept(v);
-	      bdd f1 = v.result();
+	      bdd f1 = translate_ratexp(node->first(), dict_);
 	      res_ = bddtrue;
 
 	      bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
@@ -1497,13 +1520,14 @@ namespace spot
 	t.has_rational = v_.has_rational();
 	t.has_marked = v_.has_marked();
 
-//	std::cerr << "-----" << std::endl;
-//	std::cerr << "Formula: " << to_string(f) << std::endl;
-//	std::cerr << "Rational: " << t.has_rational << std::endl;
-//	std::cerr << "Marked: " << t.has_marked << std::endl;
-//	std::cerr << "Mark all: " << !has_mark(f) << std::endl;
-//	std::cerr << "Transitions:" << std::endl;
-//	trace_ltl_bdd(v_.get_dict(), t.symbolic);
+	// std::cerr << "-----" << std::endl;
+	// std::cerr << "Formula: " << to_string(f) << std::endl;
+	// std::cerr << "Rational: " << t.has_rational << std::endl;
+	// std::cerr << "Marked: " << t.has_marked << std::endl;
+	// std::cerr << "Mark all: " << !f->is_marked() << std::endl;
+	// std::cerr << "Transitions:" << std::endl;
+	// trace_ltl_bdd(v_.get_dict(), t.symbolic);
+	// std::cerr << "-----" << std::endl;
 
 	if (t.has_rational)
 	  {
@@ -1636,13 +1660,14 @@ namespace spot
 		 ltl_simplifier* simplifier)
   {
     formula* f2;
+    ltl_simplifier* s = simplifier;
 
     // Simplify the formula, if requested.
-    if (simplifier)
+    if (s)
       {
 	// This will normalize the formula regardless of the
 	// configuration of the simplifier.
-	f2 = simplifier->simplify(f);
+	f2 = s->simplify(f);
       }
     else
       {
@@ -1650,14 +1675,16 @@ namespace spot
 	// negations on the atomic propositions.  We also suppress
 	// logic abbreviations such as <=>, =>, or XOR, since they
 	// would involve negations at the BDD level.
-	ltl_simplifier s;
-	f2 = s.negative_normal_form(f, false);
+	s = new ltl_simplifier(dict);
+	f2 = s->negative_normal_form(f, false);
       }
 
     typedef std::set<const formula*, formula_ptr_less_than> set_type;
     set_type formulae_to_translate;
 
-    translate_dict d(dict);
+    assert(dict == s->get_dict());
+
+    translate_dict d(dict, s);
 
     // Compute the set of all promises that can possibly occur
     // inside the formula.
@@ -1932,6 +1959,9 @@ namespace spot
 	      dest->destroy();
 	  }
       }
+
+    if (!simplifier)
+      delete s;
 
     // Turn all promises into real acceptance conditions.
     a->complement_all_acceptance_conditions();

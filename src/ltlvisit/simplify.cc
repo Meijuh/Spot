@@ -26,10 +26,8 @@
 #define trace while (0) std::cerr
 #endif
 
-
 #include "simplify.hh"
 #include "misc/hash.hh"
-#include "tgba/bdddict.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlast/visitor.hh"
 #include "ltlvisit/contain.hh"
@@ -52,7 +50,7 @@ namespace spot
       typedef std::pair<const formula*, const formula*> pairf;
       typedef std::map<pairf, bool> syntimpl_cache_t;
     public:
-      bdd_dict dict;
+      bdd_dict* dict;
       ltl_simplifier_options options;
       language_containment_checker lcc;
 
@@ -98,16 +96,16 @@ namespace spot
 	    }
 	}
 
-	dict_.unregister_all_my_variables(this);
+	dict->unregister_all_my_variables(this);
       }
 
-      ltl_simplifier_cache()
-	: lcc(&dict, true, true, false, false)
+      ltl_simplifier_cache(bdd_dict* d)
+	: dict(d), lcc(d, true, true, false, false)
       {
       }
 
-      ltl_simplifier_cache(ltl_simplifier_options opt)
-	: options(opt), lcc(&dict, true, true, false, false)
+      ltl_simplifier_cache(bdd_dict* d, ltl_simplifier_options opt)
+	: dict(d), options(opt), lcc(d, true, true, false, false)
       {
 	opt.containment_checks |= opt.containment_checks_stronger;
       }
@@ -134,7 +132,7 @@ namespace spot
 	      assert(!"Unsupported operator");
 	    break;
 	  case formula::AtomicProp:
-	    result = bdd_ithvar(dict_.register_proposition(f, this));
+	    result = bdd_ithvar(dict->register_proposition(f, this));
 	    break;
 	  case formula::UnOp:
 	    {
@@ -185,9 +183,9 @@ namespace spot
 		      result |= as_bdd(mo->nth(n));
 		    break;
 		  }
+		case multop::AndNLM:
 		case multop::Concat:
 		case multop::Fusion:
-		case multop::AndNLM:
 		  assert(!"Unsupported operator");
 		  break;
 		}
@@ -328,7 +326,6 @@ namespace spot
       }
 
     private:
-      bdd_dict dict_;
       f2b_map as_bdd_;
       f2f_map simplified_;
       f2f_map nenoform_;
@@ -2592,19 +2589,42 @@ namespace spot
     /////////////////////////////////////////////////////////////////////
     // ltl_simplifier
 
-    ltl_simplifier::ltl_simplifier()
-      : cache_(new ltl_simplifier_cache)
+    ltl_simplifier::ltl_simplifier(bdd_dict* d)
     {
+      if (!d)
+	{
+	  d = new bdd_dict;
+	  owndict = true;
+	}
+      else
+	{
+	  owndict = false;
+	}
+      cache_ = new ltl_simplifier_cache(d);
     }
 
-    ltl_simplifier::ltl_simplifier(ltl_simplifier_options& opt)
-      : cache_(new ltl_simplifier_cache(opt))
+    ltl_simplifier::ltl_simplifier(ltl_simplifier_options& opt, bdd_dict* d)
     {
+      if (!d)
+	{
+	  d = new bdd_dict;
+	  owndict = true;
+	}
+      else
+	{
+	  owndict = false;
+	}
+      cache_ = new ltl_simplifier_cache(d, opt);
     }
 
     ltl_simplifier::~ltl_simplifier()
     {
+      bdd_dict* todelete = 0;
+      if (owndict)
+	todelete = cache_->dict;
       delete cache_;
+      // It has to be deleted after the cache.
+      delete todelete;
     }
 
     formula*
@@ -2642,6 +2662,18 @@ namespace spot
     ltl_simplifier::are_equivalent(const formula* f, const formula* g)
     {
       return cache_->lcc.equal(f, g);
+    }
+
+    bdd
+    ltl_simplifier::as_bdd(const formula* f)
+    {
+      return cache_->as_bdd(f);
+    }
+
+    bdd_dict*
+    ltl_simplifier::get_dict() const
+    {
+      return cache_->dict;
     }
 
   }

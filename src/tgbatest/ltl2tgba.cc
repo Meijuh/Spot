@@ -813,7 +813,7 @@ main(int argc, char** argv)
 	{
 	  spot::ltl::ltl_simplifier* simp = 0;
 	  if (simpltl)
-	    simp = new spot::ltl::ltl_simplifier(redopt);
+	    simp = new spot::ltl::ltl_simplifier(redopt, dict);
 
 	  if (simp)
 	    {

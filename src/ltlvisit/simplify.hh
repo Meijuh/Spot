@@ -23,6 +23,7 @@
 
 #include "ltlast/formula.hh"
 #include "bdd.h"
+#include "tgba/bdddict.hh"
 
 namespace spot
 {
@@ -66,8 +67,8 @@ namespace spot
     class ltl_simplifier
     {
     public:
-      ltl_simplifier();
-      ltl_simplifier(ltl_simplifier_options& opt);
+      ltl_simplifier(bdd_dict* dict = 0);
+      ltl_simplifier(ltl_simplifier_options& opt, bdd_dict* dict = 0);
       ~ltl_simplifier();
 
       /// Simplify the formula \a f (using options supplied to the
@@ -118,11 +119,20 @@ namespace spot
       /// two products, and two emptiness checks.
       bool are_equivalent(const formula* f, const formula* g);
 
+      /// \brief Convert a Boolean formula as a BDD.
+      ///
+      /// If you plan to use this method, be sure to pass a bdd_dict
+      /// to the constructor.
+      bdd as_bdd(const formula* f);
+
+      /// Return the bdd_dict used.
+      bdd_dict* get_dict() const;
 
     private:
       ltl_simplifier_cache* cache_;
       // Copy disallowed.
       ltl_simplifier(const ltl_simplifier&);
+      bool owndict;
     };
   }
 
