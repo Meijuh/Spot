@@ -104,6 +104,8 @@ check 'Fa  M GFb' '&!xLPer'
 check 'GFa W GFb' '&!xLPeur'
 check 'FGa W FGb' '&!xLPeu'
 check 'Ga  W FGb' '&!xLPup'
+check 'Ga  W b'   '&!xLPsopr'
+check 'Fa  M b'   '&!xLPgopr'
 check '{a;b*;c}' '&!xfPsopr'
 check '{a;b*;c}!' '&!xfPgopr'
 check '!{a;b*;c}!' '&xfPsopr'  # The negative normal form is {a;b*;c}[]->0

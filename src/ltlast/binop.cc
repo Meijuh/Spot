@@ -49,12 +49,16 @@ namespace spot
       // universality and eventuality.
       props = first->get_props() & second->get_props();
       // The matter can be further refined because:
-      //  (f U g) and (g M f) are pure eventualities if
-      //                         g is a pure eventuality (regardless of f)
-      //                      or f == 1
-      //  (f W g) and (g R f) are purely universal if
-      //                         f is purely universal (regardless of g)
-      //                      or g == 0
+      //  (f U g) is a pure eventuality if
+      //                g is a pure eventuality (regardless of f),
+      //             or f == 1
+      //  (g M f) is a pure eventuality if f and g are,
+      //                                or f == 1
+      //  (g R f) is purely universal if
+      //                f is purely universal (regardless of g)
+      //               or g == 0
+      //  (f W g) is purely universal if f and g are
+      //                              or g == 0
       switch (op)
 	{
 	case Xor:
@@ -177,8 +181,7 @@ namespace spot
 	  // is.syntactic_persistence = Persistence U Persistance
 	  break;
 	case W:
-	  // f W g is universal if f is universal, or if g == 0.
-	  is.universal = first->is_universal();
+	  // f W g is universal if f and g are, or if g == 0.
 	  is.universal |= (second == constant::false_instance());
 	  is.boolean = false;
 	  is.eltl_formula = false;
@@ -217,8 +220,7 @@ namespace spot
 
 	  break;
 	case M:
-	  // g M f is universal if g is eventual, or if f == 1.
-	  is.eventual = first->is_eventual();
+	  // g M f is eventual if both g and f are eventual, or if f == 1.
 	  is.eventual |= (second == constant::true_instance());
 	  is.boolean = false;
 	  is.eltl_formula = false;
