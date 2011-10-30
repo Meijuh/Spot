@@ -210,6 +210,15 @@ main(int argc, char** argv)
 
     ftmp1 = f1;
     f1 = simp->simplify(f1);
+
+    if (!simp->are_equivalent(ftmp1, f1))
+      {
+	std::cerr << "Incorrect reduction from `" << f1s_before
+		  << "' to `" << spot::ltl::to_string(f1) << "'."
+		  << std::endl;
+	exit_code = 3;
+      }
+
     ftmp1->destroy();
 
     int length_f1_after = spot::ltl::length(f1);
@@ -229,11 +238,11 @@ main(int argc, char** argv)
 
     // If -h is set, we want to print only formulae that have become larger.
     if (!f2 && (!hidereduc || (length_f1_after > length_f1_before)))
-    {
+      {
 	std::cout << length_f1_before << " " << length_f1_after
 		  << " '" << f1s_before << "' reduce to '" << f1s_after << "'"
 		  << std::endl;
-    }
+      }
 
     if (f2)
       {
@@ -284,10 +293,16 @@ main(int argc, char** argv)
       delete fin;
     }
 
+  spot::ltl::atomic_prop::dump_instances(std::cerr);
+  spot::ltl::unop::dump_instances(std::cerr);
+  spot::ltl::binop::dump_instances(std::cerr);
+  spot::ltl::multop::dump_instances(std::cerr);
+  spot::ltl::automatop::dump_instances(std::cerr);
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
+  assert(spot::ltl::automatop::instance_count() == 0);
 
   return exit_code;
 }

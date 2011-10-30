@@ -244,7 +244,8 @@ namespace spot
       // If right==false, true if !f1 => f2, false otherwise.
       // If right==true, true if f1 => !f2, false otherwise.
       bool
-      syntactic_implication_neg(const formula* f1, const formula* f2, bool right);
+      syntactic_implication_neg(const formula* f1, const formula* f2,
+				bool right);
 
       // Return true if f1 => !f2
       bool contained_neg(const formula* f1, const formula* f2)
@@ -2862,10 +2863,16 @@ namespace spot
     }
 
     bool
-    ltl_simplifier::syntactic_implication_neg(const formula* f1, const formula* f2,
-					      bool right)
+    ltl_simplifier::syntactic_implication_neg(const formula* f1,
+					      const formula* f2, bool right)
     {
       return cache_->syntactic_implication_neg(f1, f2, right);
+    }
+
+    bool
+    ltl_simplifier::are_equivalent(const formula* f, const formula* g)
+    {
+      return cache_->lcc.equal(f, g);
     }
 
   }

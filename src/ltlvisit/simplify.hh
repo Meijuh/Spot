@@ -70,7 +70,8 @@ namespace spot
       ltl_simplifier(ltl_simplifier_options& opt);
       ~ltl_simplifier();
 
-      /// Simplify the formula \a f (using options supplied to the constructor).
+      /// Simplify the formula \a f (using options supplied to the
+      /// constructor).
       formula* simplify(const formula* f);
 
       /// Build the negative normal form of formula \a f.
@@ -108,7 +109,15 @@ namespace spot
       /// If \a right is true, this method returns whether
       /// \a f implies !\a g.  If \a right is false, this returns
       /// whether !\a g implies \a g.
-      bool syntactic_implication_neg(const formula* f, const formula* g, bool right);
+      bool syntactic_implication_neg(const formula* f, const formula* g,
+				     bool right);
+
+      /// \brief check whether two formulae are equivalent.
+      ///
+      /// This costly check performs up to four translations,
+      /// two products, and two emptiness checks.
+      bool are_equivalent(const formula* f, const formula* g);
+
 
     private:
       ltl_simplifier_cache* cache_;

@@ -68,78 +68,92 @@ main(int argc, char** argv)
   if (spot::ltl::format_parse_errors(std::cerr, argv[2], p2))
     return 2;
 
+  int exit_code;
+
+  {
 #if (defined LUNABBREV) || (defined TUNABBREV) || (defined NENOFORM)
-  spot::ltl::formula* tmp;
+    spot::ltl::formula* tmp;
 #endif
 #ifdef LUNABBREV
-  tmp = f1;
-  f1 = spot::ltl::unabbreviate_logic(f1);
-  tmp->destroy();
-  spot::ltl::dump(std::cout, f1);
-  std::cout << std::endl;
+    tmp = f1;
+    f1 = spot::ltl::unabbreviate_logic(f1);
+    tmp->destroy();
+    spot::ltl::dump(std::cout, f1);
+    std::cout << std::endl;
 #endif
 #ifdef TUNABBREV
-  tmp = f1;
-  f1 = spot::ltl::unabbreviate_ltl(f1);
-  tmp->destroy();
-  spot::ltl::dump(std::cout, f1);
-  std::cout << std::endl;
+    tmp = f1;
+    f1 = spot::ltl::unabbreviate_ltl(f1);
+    tmp->destroy();
+    spot::ltl::dump(std::cout, f1);
+    std::cout << std::endl;
 #endif
 #ifdef NENOFORM
-  tmp = f1;
-  f1 = spot::ltl::negative_normal_form(f1);
-  tmp->destroy();
-  spot::ltl::dump(std::cout, f1);
-  std::cout << std::endl;
+    tmp = f1;
+    f1 = spot::ltl::negative_normal_form(f1);
+    tmp->destroy();
+    spot::ltl::dump(std::cout, f1);
+    std::cout << std::endl;
 #endif
 #ifdef REDUC
-  {
     spot::ltl::ltl_simplifier_options opt(true, true, true, false, false);
     spot::ltl::ltl_simplifier simp(opt);
-    spot::ltl::formula* tmp;
-    tmp = f1;
-    f1 = simp.simplify(f1);
-    tmp->destroy();
-  }
-  spot::ltl::dump(std::cout, f1);
-  std::cout << std::endl;
+    {
+      spot::ltl::formula* tmp;
+      tmp = f1;
+      f1 = simp.simplify(f1);
+      tmp->destroy();
+    }
+    spot::ltl::dump(std::cout, f1);
+    std::cout << std::endl;
 #endif
 #ifdef REDUC_TAU
-  {
     spot::ltl::ltl_simplifier_options opt(false, false, false, true, false);
     spot::ltl::ltl_simplifier simp(opt);
-    spot::ltl::formula* tmp;
-    tmp = f1;
-    f1 = simp.simplify(f1);
-    tmp->destroy();
-  }
-  spot::ltl::dump(std::cout, f1);
-  std::cout << std::endl;
+    {
+      spot::ltl::formula* tmp;
+      tmp = f1;
+      f1 = simp.simplify(f1);
+      tmp->destroy();
+    }
+    spot::ltl::dump(std::cout, f1);
+    std::cout << std::endl;
 #endif
 #ifdef REDUC_TAUSTR
-  {
     spot::ltl::ltl_simplifier_options opt(false, false, false, true, true);
     spot::ltl::ltl_simplifier simp(opt);
-    spot::ltl::formula* tmp;
-    tmp = f1;
-    f1 = simp.simplify(f1);
-    tmp->destroy();
-  }
-  spot::ltl::dump(std::cout, f1);
-  std::cout << std::endl;
+    {
+      spot::ltl::formula* tmp;
+      tmp = f1;
+      f1 = simp.simplify(f1);
+      tmp->destroy();
+    }
+    spot::ltl::dump(std::cout, f1);
+    std::cout << std::endl;
 #endif
 
-  int exit_code = f1 != f2;
+    exit_code = f1 != f2;
 
-  if (exit_code)
-    {
-      spot::ltl::dump(std::cerr, f1) << std::endl;
-      spot::ltl::dump(std::cerr, f2) << std::endl;
-    }
+#if (!defined(REDUC) && !defined(REDUC_TAU) && !defined(REDUC_TAUSTR))
+    spot::ltl::ltl_simplifier simp;
+#endif
 
-  f1->destroy();
-  f2->destroy();
+    if (!simp.are_equivalent(f1, f2))
+      {
+	std::cerr << "Source and destination formulae are not equivalent!"
+		  << std::endl;
+	exit_code = 1;
+      }
 
+    if (exit_code)
+      {
+	spot::ltl::dump(std::cerr, f1) << std::endl;
+	spot::ltl::dump(std::cerr, f2) << std::endl;
+      }
+
+    f1->destroy();
+    f2->destroy();
+  }
   spot::ltl::atomic_prop::dump_instances(std::cerr);
   spot::ltl::unop::dump_instances(std::cerr);
   spot::ltl::binop::dump_instances(std::cerr);
