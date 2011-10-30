@@ -127,8 +127,8 @@ namespace spot
       bunop_bounded_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
-	int min = rrand(0, 3);
-	int max = rrand(min, 4);
+	int min = rrand(0, 2);
+	int max = rrand(min, 3);
 	return bunop::instance(Op, rl->generate(n - 1), min, max);
       }
 
@@ -137,8 +137,8 @@ namespace spot
       bunop_bool_bounded_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
-	int min = rrand(0, 3);
-	int max = rrand(min, 4);
+	int min = rrand(0, 2);
+	int max = rrand(min, 3);
 	const random_sere* rp = static_cast<const random_sere*>(rl);
 	return bunop::instance(Op, rp->rb.generate(n - 1), min, max);
       }
