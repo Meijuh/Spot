@@ -187,6 +187,10 @@ for x in ../reduccmp ../reductaustr; do
      # F comes in front when possible...
      run 0 $x 'GFc|GFd|FGe|FGf' 'F(GF(c|d)|Ge|Gf)'
      run 0 $x 'G(GFc|GFd|FGe|FGf)' 'F(GF(c|d)|Ge|Gf)'
+
+     # Because reduccmp will translate the formula,
+     # this also check for an old bug in ltl2tgba_fm.
+     run 0 $x '{(c&!c)[->0..1]}!' '0'
      ;;
   esac
 
