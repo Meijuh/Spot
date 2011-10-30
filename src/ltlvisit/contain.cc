@@ -89,6 +89,8 @@ namespace spot
     bool
     language_containment_checker::contained(const formula* l, const formula* g)
     {
+      if (l == g)
+	return true;
       record_* rl = register_formula_(l);
       const formula* ng = unop::instance(unop::Not, g->clone());
       record_* rng = register_formula_(ng);
@@ -101,12 +103,16 @@ namespace spot
     language_containment_checker::neg_contained(const formula* l,
 						const formula* g)
     {
+      if (l == g)
+	return false;
       const formula* nl = unop::instance(unop::Not, l->clone());
       record_* rnl = register_formula_(nl);
       const formula* ng = unop::instance(unop::Not, g->clone());
       record_* rng = register_formula_(ng);
       nl->destroy();
       ng->destroy();
+      if (nl == g)
+	return true;
       return incompatible_(rnl, rng);
     }
 
@@ -115,6 +121,8 @@ namespace spot
     language_containment_checker::contained_neg(const formula* l,
 						const formula* g)
     {
+      if (l == g)
+	return false;
       record_* rl = register_formula_(l);
       record_* rg = register_formula_(g);
       return incompatible_(rl, rg);
