@@ -2235,7 +2235,7 @@ namespace spot
       formula::opkind fk = f->kind();
       formula::opkind gk = g->kind();
 
-      // Deal with all lines except the first one.
+      // Deal with all lines except the first two.
       switch (fk)
 	{
 	case formula::Constant:
@@ -2249,25 +2249,16 @@ namespace spot
 	    const unop* f_ = down_cast<const unop*>(f);
 	    unop::type fo = f_->op();
 
+	    if ((fo == unop::X || fo == unop::F) && g->is_eventual()
+		&& syntactic_implication(f_->child(), g))
+	      return true;
 	    if (gk == formula::UnOp)
 	      {
 		const unop* g_ = down_cast<const unop*>(g);
 		unop::type go = g_->op();
-		if (fo == unop::F)
+		if (fo == unop::X)
 		  {
-		    if ((go == unop::F)
-			&& syntactic_implication(f_->child(), g_->child()))
-		      return true;
-		  }
-		else if (fo == unop::G)
-		  {
-		    if ((go == unop::G || go == unop::X)
-			&& syntactic_implication(f_->child(), g_->child()))
-		      return true;
-		  }
-		else if (fo == unop::X)
-		  {
-		    if ((go == unop::F || go == unop::X)
+		    if (go == unop::X
 			&& syntactic_implication(f_->child(), g_->child()))
 		      return true;
 		  }
@@ -2430,7 +2421,7 @@ namespace spot
 	  }
 	}
 
-      // First line.
+      // First two lines.
       switch (gk)
 	{
 	case formula::Constant:
@@ -2446,6 +2437,12 @@ namespace spot
 	    if (go == unop::F)
 	      {
 		if (syntactic_implication(f, g_->child()))
+		  return true;
+	      }
+	    else if (go == unop::G || go == unop::X)
+	      {
+		if (f->is_universal()
+		    && syntactic_implication(f, g_->child()))
 		  return true;
 	      }
 	    break;

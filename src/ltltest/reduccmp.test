@@ -71,6 +71,11 @@ for x in ../reduccmp ../reductaustr; do
   run 0 $x 'a ^ a' '0'
   run 0 $x 'a ^ !a' '1'
 
+  run 0 $x 'GFa | FGa' 'GFa'
+  run 0 $x 'XXGa | GFa' 'GFa'
+  run 0 $x 'GFa & FGa' 'FGa'
+  run 0 $x 'XXGa & GFa' 'XXGa'
+
   # Basic reductions
   run 0 $x 'X(true)' 'true'
   run 0 $x 'X(false)' 'false'
