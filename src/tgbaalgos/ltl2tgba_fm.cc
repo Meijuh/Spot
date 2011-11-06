@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
@@ -37,6 +37,7 @@
 #include <memory>
 #include "ltl2tgba_fm.hh"
 #include "tgba/bddprint.hh"
+//#include "tgbaalgos/dotty.hh"
 
 namespace spot
 {
@@ -44,6 +45,27 @@ namespace spot
 
   namespace
   {
+
+    class translate_dict;
+
+    class ratexp_to_dfa
+    {
+    public:
+      ratexp_to_dfa(translate_dict& dict);
+      tgba_succ_iterator* succ(const formula* f);
+      const formula* get_label(const formula* f, const state* s) const;
+      ~ratexp_to_dfa();
+
+    protected:
+      tgba_explicit_formula* translate(const formula* f);
+
+    private:
+      translate_dict& dict_;
+      std::vector<tgba_explicit_formula*> automata_;
+      typedef Sgi::hash_map<const formula*, tgba_explicit_formula*,
+			    formula_ptr_hash> f2a_t;
+      f2a_t f2a_;
+    };
 
     // Helper dictionary.  We represent formulae using BDDs to
     // simplify them, and then translate BDDs back into formulae.
@@ -61,7 +83,8 @@ namespace spot
 	  ls(ls),
 	  a_set(bddtrue),
 	  var_set(bddtrue),
-	  next_set(bddtrue)
+	  next_set(bddtrue),
+	  transdfa(*this)
       {
       }
 
@@ -85,6 +108,8 @@ namespace spot
       bdd a_set;
       bdd var_set;
       bdd next_set;
+
+      ratexp_to_dfa transdfa;
 
       int
       register_proposition(const formula* f)
@@ -801,10 +826,10 @@ namespace spot
     {
       // static unsigned indent = 0;
       // for (unsigned i = indent; i > 0; --i)
-      // 	std::cerr << "| ";
+      //	std::cerr << "| ";
       // std::cerr << "translate_ratexp[" << to_string(f);
       // if (to_concat)
-      // 	std::cerr << ", " << to_string(to_concat);
+      //	std::cerr << ", " << to_string(to_concat);
       // std::cerr << "]" << std::endl;
       // ++indent;
       bdd res;
@@ -826,12 +851,105 @@ namespace spot
 	}
       // --indent;
       // for (unsigned i = indent; i > 0; --i)
-      // 	std::cerr << "| ";
+      //	std::cerr << "| ";
       // std::cerr << "\\ ";
       // bdd_print_set(std::cerr, dict.dict, res) << std::endl;
       return res;
     }
 
+
+    ratexp_to_dfa::ratexp_to_dfa(translate_dict& dict)
+      : dict_(dict)
+    {
+    }
+
+    ratexp_to_dfa::~ratexp_to_dfa()
+    {
+      std::vector<tgba_explicit_formula*>::const_iterator it;
+      for (it = automata_.begin(); it != automata_.end(); ++it)
+	delete *it;
+    }
+
+    tgba_explicit_formula*
+    ratexp_to_dfa::translate(const formula* f)
+    {
+      assert(f->is_in_nenoform());
+
+      tgba_explicit_formula* a = new tgba_explicit_formula(dict_.dict);
+
+      typedef std::set<const formula*, formula_ptr_less_than> set_type;
+      set_type formulae_to_translate;
+
+      f->clone();
+      formulae_to_translate.insert(f);
+      a->set_init_state(f);
+
+
+      while (!formulae_to_translate.empty())
+	{
+	  // Pick one formula.
+	  const formula* now = *formulae_to_translate.begin();
+	  formulae_to_translate.erase(formulae_to_translate.begin());
+
+	  // Add it to the set of translated formulae.
+	  // FIXME: That's incorrect: we need to (minimize&)trim the
+	  // automaton first.
+	  f2a_[now] = a;
+
+	  // Translate it
+	  bdd res = translate_ratexp(now, dict_);
+
+	  // Generate (deterministic) successors
+	  bdd var_set = bdd_existcomp(bdd_support(res), dict_.var_set);
+	  bdd all_props = bdd_existcomp(res, dict_.var_set);
+	  while (all_props != bddfalse)
+	    {
+	      bdd label = bdd_satoneset(all_props, var_set, bddtrue);
+	      all_props -= label;
+
+	      const formula* dest =
+		dict_.bdd_to_formula(bdd_exist(res & label, dict_.var_set));
+
+	      bool seen = a->has_state(dest);
+	      state_explicit_formula::transition* t =
+		a->create_transition(now, dest);
+	      a->add_condition(t, dict_.bdd_to_formula(label));
+	      if (!seen)
+		formulae_to_translate.insert(dest);
+	      else
+		dest->destroy();
+	    }
+	}
+      //dotty_reachable(std::cerr, a);
+      automata_.push_back(a);
+      return a;
+    }
+
+    tgba_succ_iterator*
+    ratexp_to_dfa::succ(const formula* f)
+    {
+      f2a_t::const_iterator it = f2a_.find(f);
+      tgba_explicit_formula* a;
+      if (it != f2a_.end())
+	a = it->second;
+      else
+	a = translate(f);
+
+      assert(a->has_state(f));
+      // This won't create a new state.
+      const state* s = a->add_state(f);
+
+      return a->succ_iter(s);
+    }
+
+    const formula*
+    ratexp_to_dfa::get_label(const formula* f, const state* s) const
+    {
+      f2a_t::const_iterator it = f2a_.find(f);
+      assert(it != f2a_.end());
+      tgba_explicit_formula* a = it->second;
+      return a->get_label(s)->clone();
+    }
 
 
     // The rewrite rules used here are adapted from Jean-Michel
@@ -961,76 +1079,40 @@ namespace spot
 	  case unop::Closure:
 	    {
 	      rat_seen_ = true;
-	      if (node->child()->accepts_eword())
+	      const formula* f = node->child();
+	      if (f->accepts_eword())
 		{
 		  res_ = bddtrue;
 		  return;
 		}
 
-	      bdd f1 = translate_ratexp(node->child(), dict_);
+	      tgba_succ_iterator* i = dict_.transdfa.succ(f);
 	      res_ = bddfalse;
 
-	      if (exprop_)
+	      for (i->first(); !i->done(); i->next())
 		{
-		  bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
-		  bdd all_props = bdd_existcomp(f1, dict_.var_set);
-		  while (all_props != bddfalse)
+		  bdd label = i->current_condition();
+		  state* s = i->current_state();
+		  const formula* dest = dict_.transdfa.get_label(f, s);
+		  s->destroy();
+
+		  if (dest->accepts_eword())
 		    {
-		      bdd label = bdd_satoneset(all_props, var_set, bddtrue);
-		      all_props -= label;
-
-		      formula* dest =
-			dict_.bdd_to_formula(bdd_exist(f1 & label,
-						       dict_.var_set));
-
-		      const formula* dest2;
-		      if (dest->accepts_eword())
-			{
-			  dest->destroy();
-			  res_ |= label;
-			}
-		      else
-			{
-			  dest2 = unop::instance(op, dest);
-			  if (dest2 == constant::false_instance())
-			    continue;
-			  int x = dict_.register_next_variable(dest2);
-			  dest2->destroy();
-			  res_ |= label & bdd_ithvar(x);
-			}
+		      dest->destroy();
+		      res_ |= label;
+		    }
+		  else
+		    {
+		      formula* dest2 =
+			unop::instance(op, const_cast<formula*>(dest));
+		      if (dest2 == constant::false_instance())
+			continue;
+		      int x = dict_.register_next_variable(dest2);
+		      dest2->destroy();
+		      res_ |= label & bdd_ithvar(x);
 		    }
 		}
-	      else
-		{
-		  minato_isop isop(f1);
-		  bdd cube;
-		  while ((cube = isop.next()) != bddfalse)
-		    {
-		      bdd label = bdd_exist(cube, dict_.next_set);
-		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
-
-		      // std::cerr << "dest_bdd=";
-		      // bdd_print_set(std::cerr, dict_.dict, dest_bdd)
-		      //   << ", dest=" << to_string(dest) << std::endl;
-
-		      const formula* dest2;
-		      if (dest->accepts_eword())
-			{
-			  dest->destroy();
-			  res_ |= label;
-			}
-		      else
-			{
-			  dest2 = unop::instance(op, dest);
-			  if (dest2 == constant::false_instance())
-			    continue;
-			  int x = dict_.register_next_variable(dest2);
-			  dest2->destroy();
-			  res_ |= label & bdd_ithvar(x);
-			}
-		    }
-		}
+	      delete i;
 	    }
 	    break;
 
