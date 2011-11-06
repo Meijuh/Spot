@@ -37,6 +37,7 @@
 #include <memory>
 #include "ltl2tgba_fm.hh"
 #include "tgba/bddprint.hh"
+#include "tgbaalgos/scc.hh"
 //#include "tgbaalgos/dotty.hh"
 
 namespace spot
@@ -891,11 +892,6 @@ namespace spot
 	  const formula* now = *formulae_to_translate.begin();
 	  formulae_to_translate.erase(formulae_to_translate.begin());
 
-	  // Add it to the set of translated formulae.
-	  // FIXME: That's incorrect: we need to (minimize&)trim the
-	  // automaton first.
-	  f2a_[now] = a;
-
 	  // Translate it
 	  bdd res = translate_ratexp(now, dict_);
 
@@ -921,8 +917,68 @@ namespace spot
 	    }
 	}
       //dotty_reachable(std::cerr, a);
-      automata_.push_back(a);
-      return a;
+
+      // The following code trims the automaton in a crude way by
+      // eliminating SCCs that are not coaccessible.  It does not
+      // actually remove the states, it simply marks the corresponding
+      // formulae as associated to the null pointer in the f2a_ map.
+      // The method succ() and get_label() interpret this as False.
+
+      scc_map* sm = new scc_map(a);
+      sm->build_map();
+      unsigned scc_count = sm->scc_count();
+      // Remember whether each SCC is coaccessible.
+      std::vector<bool> coaccessible(scc_count);
+      // SCC are numbered in topological order
+      for (unsigned n = 0; n < scc_count; ++n)
+	{
+	  bool coacc = false;
+	  const std::list<const state*>& st = sm->states_of(n);
+	  // The SCC is coaccessible if any of its states
+	  // is final (i.e., it accepts [*0])...
+	  std::list<const state*>::const_iterator it;
+	  for (it = st.begin(); it != st.end(); ++it)
+	    if (a->get_label(*it)->accepts_eword())
+	      {
+		coacc = true;
+		break;
+	      }
+	  if (!coacc)
+	    {
+	      // ... or if any of its successors is coaccessible.
+	      const scc_map::succ_type& succ = sm->succ(n);
+	      for (scc_map::succ_type::const_iterator i = succ.begin();
+		   i != succ.end(); ++i)
+		if (coaccessible[i->first])
+		  {
+		    coacc = true;
+		    break;
+		  }
+	    }
+	  if (!coacc)
+	    {
+	      // Mark all formulas of this SCC as useless.
+	      for (it = st.begin(); it != st.end(); ++it)
+		f2a_[a->get_label(*it)] = 0;
+	    }
+	  else
+	    {
+	      for (it = st.begin(); it != st.end(); ++it)
+		f2a_[a->get_label(*it)] = a;
+	    }
+	  coaccessible[n] = coacc;
+	}
+      delete sm;
+      if (coaccessible[scc_count - 1])
+	{
+	  automata_.push_back(a);
+	  return a;
+	}
+      else
+	{
+	  delete a;
+	  return 0;
+	}
     }
 
     tgba_succ_iterator*
@@ -934,6 +990,10 @@ namespace spot
 	a = it->second;
       else
 	a = translate(f);
+
+      // If a is nul, f has an empty language.
+      if (!a)
+	return 0;
 
       assert(a->has_state(f));
       // This won't create a new state.
@@ -948,7 +1008,15 @@ namespace spot
       f2a_t::const_iterator it = f2a_.find(f);
       assert(it != f2a_.end());
       tgba_explicit_formula* a = it->second;
-      return a->get_label(s)->clone();
+      assert(a != 0);
+
+      const formula* f2 = a->get_label(s);
+      f2a_t::const_iterator it2 = f2a_.find(f2);
+      assert(it2 != f2a_.end());
+      if (it2->second == 0)
+	return constant::false_instance();
+
+      return f2->clone();
     }
 
 
@@ -1089,6 +1157,8 @@ namespace spot
 	      tgba_succ_iterator* i = dict_.transdfa.succ(f);
 	      res_ = bddfalse;
 
+	      if (!i)
+		break;
 	      for (i->first(); !i->done(); i->next())
 		{
 		  bdd label = i->current_condition();

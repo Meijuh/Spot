@@ -99,6 +99,10 @@ check_psl '{[*]; {read[=3]} && {write[=2]}} |=>
 check_psl '{[*]; start && comp_data_en; !comp_data_en && good_comp;
            {status_valid[->]} && {stop[=0]; true}} |-> {!data_out}' # 2.33
 
+# Some tricky cases that require the rational automaton to be pruned
+# before it is used in the translation.
+check_psl '{{b[*];c} | {{a && !a}}[=2]}'
+check_psl '{((a&!b);((!a&!b)*))&&(!b*;(!a&b))}'
 
 # Make sure 'a U (b U c)' has 3 states and 6 transitions,
 # before and after degeneralization.

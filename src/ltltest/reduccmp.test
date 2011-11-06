@@ -196,6 +196,12 @@ for x in ../reduccmp ../reductaustr; do
      # Because reduccmp will translate the formula,
      # this also check for an old bug in ltl2tgba_fm.
      run 0 $x '{(c&!c)[->0..1]}!' '0'
+
+     # Tricky case that used to break the translator,
+     # because it was translating closer on-the-fly
+     # without pruning the rational automaton.
+     run 0 $x '{(c&!c)[=2]}' '0'
+
      ;;
   esac
 
