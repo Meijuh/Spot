@@ -625,12 +625,15 @@ namespace spot
   {
     tgba_explicit_number* min_aut_f = minimize_wdba(aut_f);
 
+    // if f is a syntactic obligation formula, the WDBA minimization
+    // must be correct.
+    if (f && f->is_syntactic_obligation())
+      return min_aut_f;
+
     // If aut_f is a guarantee automaton, the WDBA minimization must be
     // correct.
     if (is_guarantee_automaton(aut_f))
-      {
-	return min_aut_f;
-      }
+      return min_aut_f;
 
     if (!f && !aut_neg_f)
       {
