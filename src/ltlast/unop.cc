@@ -295,19 +295,25 @@ namespace spot
 	  break;
 
 	case Closure:
-	  if (child == constant::true_instance()
-	      || child == constant::empty_word_instance())
-	    return constant::true_instance();
-	  if (child == constant::false_instance())
+	  // {0} = 0, {1} = 1,  {b} = b
+	  if (child->is_boolean())
 	    return child;
+	  // {[*0]} = 1
+	  if (child == constant::empty_word_instance())
+	    return constant::true_instance();
 	  break;
 
 	case NegClosure:
+	  // {1} = 0,  {[*0]} = 0
 	  if (child == constant::true_instance()
 	      || child == constant::empty_word_instance())
 	    return constant::false_instance();
+	  // {0} = 1
 	  if (child == constant::false_instance())
 	    return constant::true_instance();
+	  // {b} = !b
+	  if (child->is_boolean())
+	    return unop::instance(Not, child);
 	  break;
 	}
 

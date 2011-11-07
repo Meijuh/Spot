@@ -794,17 +794,17 @@ while $f$ is a PSL formula.
 \begin{align*}
   \sigma\vDash \ratgroup{r}\Esuffix f &\iff \exists k\ge 0, (\sigma^{0..k}\VDash r)\land(\sigma^{k..}\vDash f)\\
   \sigma\vDash \ratgroup{r}\Asuffix f &\iff \forall k\ge 0, (\sigma^{0..k}\VDash r)\limplies (\sigma^{k..}\vDash f)\\
-  \sigma\vDash \ratgroup{r} & \iff (\exists k\ge 0, \sigma^{0..k}\VDash r)\lor(\forall k\ge 0,\,\exists \pi\in(\B^\AP)^\star,\, (\sigma^{0..k}\prec \pi)\land(\pi\VDash r))\\
-  \sigma\vDash \nratgroup{r} & \iff (\forall k\ge 0, \sigma^{0..k}\nVDash r)\land(\exists k\ge 0,\,\exists \forall\in(\B^\AP)^\star,\, (\sigma^{0..k}\prec \pi)\limplies(\pi\nVDash r))\\
+  \sigma\vDash \ratgroup{r} & \iff (\exists k\ge 0, \sigma^{0..k}\VDash r)\lor(\forall k\ge 0,\,\exists\pi\in(\B^\AP)^\star,\, (\sigma^{0..k}\prec \pi)\land(\pi\VDash r))\\
+  \sigma\vDash \nratgroup{r} & \iff (\forall k\ge 0, \sigma^{0..k}\nVDash r)\land(\exists k\ge 0,\,\forall\pi\in(\B^\AP)^\star,\, (\sigma^{0..k}\prec \pi)\limplies(\pi\nVDash r))\\
 \end{align*}
 
 The $\prec$ symbol should be read as ``\emph{is a prefix of}''.  So
 the semantic for `$\sigma\vDash \ratgroup{r}$' is that either there is
-a finite prefix of $\sigma$ that is a model of $r$, or any prefix of
-$\sigma$ can be extended into a finite sequence $\pi$ that is a model
-of $r$.  An infinite sequence $\texttt{a;a;a;a;a;}\ldots$ is therefore a
-model of the formula \samp{$\ratgroup{a\PLUS{};\NOT a}$} even though
-it never sees \samp{$\NOT a$}.
+a (non-empty) finite prefix of $\sigma$ that is a model of $r$, or any
+prefix of $\sigma$ can be extended into a finite sequence $\pi$ that
+is a model of $r$.  An infinite sequence $\texttt{a;a;a;a;a;}\ldots$
+is therefore a model of the formula \samp{$\ratgroup{a\PLUS{};\NOT
+    a}$} even though it never sees \samp{$\NOT a$}.
 
 \subsection{Syntactic Sugar}
 
@@ -842,10 +842,12 @@ formula $b$, the following rewritings are systematically performed
 & \ratgroup{\eword}\Esuffix f&\equiv \0
 & \ratgroup{\eword} & \equiv \0
 & \nratgroup{\eword} & \equiv \1 \\
+  \ratgroup{b}\Asuffix f&\equiv b\IMPLIES f
+& \ratgroup{b}\Esuffix f&\equiv b\AND f
+& \ratgroup{b} &\equiv b
+& \nratgroup{b} &\equiv \NOT b\\
   \ratgroup{r}\Asuffix \1&\equiv \1
 & \ratgroup{r}\Esuffix \0&\equiv \0  \\
-  \ratgroup{b}\Asuffix f&\equiv b\IMPLIES f
-& \ratgroup{b}\Esuffix f&\equiv b\AND f  \\
 \end{align*}
 
 \chapter{Grammar}

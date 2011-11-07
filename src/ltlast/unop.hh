@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -73,9 +73,11 @@ namespace spot
       ///   - Closure([*0]) = 1
       ///   - Closure(1) = 1
       ///   - Closure(0) = 0
+      ///   - Closure(b) = b
       ///   - NegClosure([*0]) = 0
       ///   - NegClosure(1) = 0
       ///   - NegClosure(0) = 1
+      ///   - NegClosure(b) = !b
       ///
       /// This rewriting implies that it is not possible to build an
       /// LTL formula object that is SYNTACTICALLY equal to one of
