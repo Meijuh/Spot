@@ -56,7 +56,7 @@ eol      \n|\r|\n\r|\r\n
 "goto"			return token::GOTO;
 "false"|"0"		return token::FALSE;
 
-("!"[ \t]+)?"(".*")"|"true"|"1"   {
+("!"[ \t]*)?"(".*")"|"true"|"1"   {
                           yylval->str = new std::string(yytext, yyleng);
 			  return token::FORMULA;
                         }

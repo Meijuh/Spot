@@ -1,3 +1,12 @@
+2011-11-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Allow neverclaim guards of the form `!(x)' or `! (x)'.
+
+	* src/neverparse/neverclaimscan.ll: Make the space between `!' and
+	`(' optional.  This fixes the patch from 2011-02-07 that made this
+	space mandatory...
+	* src/tgbatest/neverclaimread.test: Augment test case.
+
 2011-10-26  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Better documentation for print_tgba_run.

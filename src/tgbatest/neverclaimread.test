@@ -34,7 +34,7 @@ fi;
 T1:
 if
 :: (p1 && (! p0)) -> goto accept_all
-:: (p1) -> goto T1
+:: !(p1) -> goto T1
 :: ! (p1) -> goto T2_init
 fi;
 accept_all:
@@ -53,7 +53,7 @@ digraph G {
   1 -> 2 [label="p0 & p1\n"]
   2 [label="T1"]
   2 -> 3 [label="p1 & !p0\n"]
-  2 -> 2 [label="p1\n"]
+  2 -> 2 [label="!p1\n"]
   2 -> 1 [label="!p1\n"]
   3 [label="accept_all"]
   3 -> 3 [label="1\n{Acc[1]}"]
