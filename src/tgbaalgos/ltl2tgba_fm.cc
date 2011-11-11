@@ -938,13 +938,21 @@ namespace spot
 	      bool seen = a->has_state(dest);
 	      state_explicit_formula::transition* t =
 		a->create_transition(now, dest);
-	      a->add_condition(t, dict_.bdd_to_formula(label));
+	      t->condition = label;
+
 	      if (!seen)
 		formulae_to_translate.insert(dest);
 	      else
 		dest->destroy();
 	    }
 	}
+
+      // Register all known propositions for a. This may contain
+      // proposition from other parts of the formula being translated,
+      // but this is not really important as this automaton will be
+      // short-lived.  (Maybe it would even work without this line.)
+      dict_.dict->register_propositions(dict_.var_set, a);
+
       //dotty_reachable(std::cerr, a);
 
       // The following code trims the automaton in a crude way by
@@ -1808,12 +1816,17 @@ namespace spot
 	return f;
       }
 
+      bdd used_vars()
+      {
+	return d_.var_set;
+      }
+
     private:
       // Map a representation of successors to a canonical formula.
       // We do this because many formulae (such as `aR(bRc)' and
       // `aR(bRc).(bRc)') are equivalent, and are trivially identified
       // by looking at the set of successors.
-      typedef std::map<bdd, const formula*, bdd_less_than> bdd_to_formula_map;
+      typedef Sgi::hash_map<bdd, const formula*, bdd_hash> bdd_to_formula_map;
       bdd_to_formula_map b2f_;
       // Map each formula to its associated bdd.  This speed things up when
       // the same formula is translated several times, which especially
@@ -2116,7 +2129,7 @@ namespace spot
 	      formulae_to_translate.insert(constant::true_instance());
 	    state_explicit_formula::transition* t =
 	      a->create_transition(now, constant::true_instance());
-	    a->add_condition(t, d.bdd_to_formula(cond_for_true));
+	    t->condition = cond_for_true;
 	  }
 	// Register other transitions.
 	for (i = dests.begin(); i != dests.end(); ++i)
@@ -2140,7 +2153,7 @@ namespace spot
 		      continue;
 		    state_explicit_formula::transition* t =
 		      a->create_transition(now, dest);
-		    a->add_condition(t, d.bdd_to_formula(cond));
+		    t->condition = cond;
 		    d.conj_bdd_to_acc(a, j->first, t);
 		    reachable = true;
 		  }
@@ -2157,11 +2170,14 @@ namespace spot
 	  }
       }
 
-    if (!simplifier)
-      delete s;
-
+    dict->register_propositions(fc.used_vars(), a);
     // Turn all promises into real acceptance conditions.
     a->complement_all_acceptance_conditions();
+
+    if (!simplifier)
+      // This should not be deleted before we have registered all propositions.
+      delete s;
+
     return a;
   }
 
