@@ -1,3 +1,11 @@
+2011-11-11  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix a g++-4.7 warning about a variable used only in an assert().
+
+	* src/tgbaalgos/weight.cc (inc_weight_handler)
+	(dec_weight_handler): Remove these assertions that require the
+	loop the be completed, and use break to exit ASAP.
+
 2011-11-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Allow neverclaim guards of the form `!(x)' or `! (x)'.

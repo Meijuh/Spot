@@ -1,3 +1,5 @@
+// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// l'Epita.
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -33,17 +35,15 @@ namespace spot
 
   void weight::inc_weight_handler(char* varset, int size)
   {
-    bool ok = true;
     for (int v = 0; v < size; ++v)
       if (varset[v] > 0)
         {
-          assert(ok);
-          ok=false;
           weight::weight_vector::iterator it = pm->find(v);
           if (it == pm->end())
             pm->insert(std::make_pair(v, 1));
           else
             ++(it->second);
+	  break;
         }
   }
 
@@ -56,18 +56,16 @@ namespace spot
 
   void weight::dec_weight_handler(char* varset, int size)
   {
-    bool ok = true;
     for (int v = 0; v < size; ++v)
       if (varset[v] > 0)
         {
-          assert(ok);
-          ok=false;
           weight::weight_vector::iterator it = pm->find(v);
           assert(it != pm->end() && it->second > 0);
           if (it->second > 1)
             --(it->second);
           else
             pm->erase(it);
+	  break;
         }
   }
 
