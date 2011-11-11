@@ -79,13 +79,14 @@ namespace spot
     {
     public:
 
-      translate_dict(bdd_dict* dict, ltl_simplifier* ls)
+      translate_dict(bdd_dict* dict, ltl_simplifier* ls, bool exprop)
 	: dict(dict),
 	  ls(ls),
 	  a_set(bddtrue),
 	  var_set(bddtrue),
 	  next_set(bddtrue),
-	  transdfa(*this)
+	  transdfa(*this),
+	  exprop(exprop)
       {
       }
 
@@ -95,6 +96,14 @@ namespace spot
 	for (i = next_map.begin(); i != next_map.end(); ++i)
 	  i->first->destroy();
 	dict->unregister_all_my_variables(this);
+
+	formula_to_bdd_map::iterator j = ltl_bdd_unmarked_.begin();
+	// Advance the iterator before destroying previous value.
+	while (j != ltl_bdd_unmarked_.end())
+	  j++->first->destroy();
+	j = ltl_bdd_marked_.begin();
+	while (j != ltl_bdd_marked_.end())
+	  j++->first->destroy();
       }
 
       bdd_dict* dict;
@@ -111,6 +120,22 @@ namespace spot
       bdd next_set;
 
       ratexp_to_dfa transdfa;
+      bool exprop;
+
+      struct translated
+      {
+	bdd symbolic;
+	bool has_rational:1;
+	bool has_marked:1;
+      };
+
+      typedef Sgi::hash_map<const formula*, translated, ptr_hash<formula> >
+              formula_to_bdd_map;
+    private:
+      formula_to_bdd_map ltl_bdd_unmarked_;
+      formula_to_bdd_map ltl_bdd_marked_;
+
+    public:
 
       int
       register_proposition(const formula* f)
@@ -259,6 +284,10 @@ namespace spot
 	    assert(b != bddfalse);
 	  }
       }
+
+      const translated&
+      ltl_to_bdd(const formula* f, bool mark_all);
+
     };
 
 #ifdef __GNUC__
@@ -1484,11 +1513,10 @@ namespace spot
       bdd
       recurse(const formula* f)
       {
-	ltl_trad_visitor v(dict_, mark_all_, exprop_);
-	f->accept(v);
-	rat_seen_ |= v.has_rational();
-	has_marked_ |= v.has_marked();
-	return v.result();
+	const translate_dict::translated& t = dict_.ltl_to_bdd(f, mark_all_);
+	rat_seen_ |= t.has_rational;
+	has_marked_ |= t.has_marked;
+	return t.symbolic;
       }
 
 
@@ -1500,6 +1528,26 @@ namespace spot
       bool mark_all_;
       bool exprop_;
     };
+
+    const translate_dict::translated&
+    translate_dict::ltl_to_bdd(const formula* f, bool mark_all)
+    {
+      formula_to_bdd_map* m;
+      if (mark_all || f->is_ltl_formula())
+	m = &ltl_bdd_marked_;
+      else
+	m = &ltl_bdd_unmarked_;
+      formula_to_bdd_map::const_iterator i = m->find(f);
+
+      if (i != m->end())
+	return i->second;
+
+      ltl_trad_visitor v(*this, mark_all, exprop);
+      f->accept(v);
+      translated t = { v.result(), v.has_rational(), v.has_marked() };
+
+      return m->insert(std::make_pair(f->clone(), t)).first->second;
+    }
 
 
     // Check whether a formula has a R, W, or G operator at its
@@ -1624,9 +1672,8 @@ namespace spot
     {
     public:
       formula_canonizer(translate_dict& d,
-			bool fair_loop_approx, bdd all_promises, bool exprop)
-	: v_(d, false, exprop),
-	  fair_loop_approx_(fair_loop_approx),
+			bool fair_loop_approx, bdd all_promises)
+	: fair_loop_approx_(fair_loop_approx),
 	  all_promises_(all_promises),
 	  d_(d)
       {
@@ -1637,27 +1684,20 @@ namespace spot
 
       ~formula_canonizer()
       {
-	while (!f2b_.empty())
-	  {
-	    formula_to_bdd_map::iterator i = f2b_.begin();
-	    const formula* f = i->first;
-	    f2b_.erase(i);
-	    f->destroy();
-	  }
+	translate_dict::formula_to_bdd_map::iterator i = f2b_.begin();
+	while (i != f2b_.end())
+	  // Advance the iterator before destroying previous value.
+	  i++->first->destroy();
       }
 
-      struct translated
-      {
-	bdd symbolic;
-	bool has_rational:1;
-	bool has_marked:1;
-      };
-
-      const translated&
+      // This wrap translate_dict::ltl_to_bdd() for top-level formulas.
+      // In case the formula contains SERE operators, we need to decide
+      // if we have to mark unmarked operators, and more
+      const translate_dict::translated&
       translate(const formula* f, bool* new_flag = 0)
       {
 	// Use the cached result if available.
-	formula_to_bdd_map::const_iterator i = f2b_.find(f);
+	translate_dict::formula_to_bdd_map::const_iterator i = f2b_.find(f);
 	if (i != f2b_.end())
 	  return i->second;
 
@@ -1665,12 +1705,7 @@ namespace spot
 	  *new_flag = true;
 
 	// Perform the actual translation.
-	v_.reset(!f->is_marked());
-	f->accept(v_);
-	translated t;
-	t.symbolic = v_.result();
-	t.has_rational = v_.has_rational();
-	t.has_marked = v_.has_marked();
+	translate_dict::translated t = d_.ltl_to_bdd(f, !f->is_marked());
 
 	// std::cerr << "-----" << std::endl;
 	// std::cerr << "Formula: " << to_string(f) << std::endl;
@@ -1706,7 +1741,7 @@ namespace spot
 		  }
 		else
 		  {
-		    // We have left marked operators, but still
+		    // We have no marked operators, but still
 		    // have other rational operator to check.
 		    // Start a new marked cycle.
 		    formula* dest2 = mark_concat_ops(dest);
@@ -1738,7 +1773,7 @@ namespace spot
 	if (b2f_.find(t.symbolic) == b2f_.end())
 	  b2f_[t.symbolic] = f;
 
-	return f2b_[f->clone()] = t;
+	return f2b_.insert(std::make_pair(f->clone(), t)).first->second;
       }
 
       const formula*
@@ -1762,18 +1797,16 @@ namespace spot
       }
 
     private:
-      ltl_trad_visitor v_;
-      // Map each formula to its associated bdd.  This speed things up when
-      // the same formula is translated several times, which especially
-      // occurs when canonize() is called repeatedly inside exprop.
-      typedef std::map<bdd, const formula*, bdd_less_than> bdd_to_formula_map;
-      bdd_to_formula_map b2f_;
       // Map a representation of successors to a canonical formula.
       // We do this because many formulae (such as `aR(bRc)' and
       // `aR(bRc).(bRc)') are equivalent, and are trivially identified
       // by looking at the set of successors.
-      typedef std::map<const formula*, translated> formula_to_bdd_map;
-      formula_to_bdd_map f2b_;
+      typedef std::map<bdd, const formula*, bdd_less_than> bdd_to_formula_map;
+      bdd_to_formula_map b2f_;
+      // Map each formula to its associated bdd.  This speed things up when
+      // the same formula is translated several times, which especially
+      // occurs when canonize() is called repeatedly inside exprop.
+      translate_dict::formula_to_bdd_map f2b_;
 
       possible_fair_loop_checker pflc_;
       bool fair_loop_approx_;
@@ -1836,7 +1869,7 @@ namespace spot
 
     assert(dict == s->get_dict());
 
-    translate_dict d(dict, s);
+    translate_dict d(dict, s, exprop);
 
     // Compute the set of all promises that can possibly occur
     // inside the formula.
@@ -1848,7 +1881,7 @@ namespace spot
 	all_promises = pv.result();
       }
 
-    formula_canonizer fc(d, fair_loop_approx, all_promises, exprop);
+    formula_canonizer fc(d, fair_loop_approx, all_promises);
 
     // These are used when atomic propositions are interpreted as
     // events.  There are two kinds of events: observable events are
@@ -1901,7 +1934,7 @@ namespace spot
 	formulae_to_translate.erase(formulae_to_translate.begin());
 
 	// Translate it into a BDD to simplify it.
-	const formula_canonizer::translated& t = fc.translate(now);
+	const translate_dict::translated& t = fc.translate(now);
 	bdd res = t.symbolic;
 
 	// Handle exclusive events.
