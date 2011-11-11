@@ -1542,9 +1542,21 @@ namespace spot
       if (i != m->end())
 	return i->second;
 
-      ltl_trad_visitor v(*this, mark_all, exprop);
-      f->accept(v);
-      translated t = { v.result(), v.has_rational(), v.has_marked() };
+      translated t;
+      if (f->is_boolean())
+	{
+	  t.symbolic = boolean_to_bdd(f);
+	  t.has_rational = false;
+	  t.has_marked = false;
+	}
+      else
+	{
+	  ltl_trad_visitor v(*this, mark_all, exprop);
+	  f->accept(v);
+	  t.symbolic = v.result();
+	  t.has_rational = v.has_rational();
+	  t.has_marked = v.has_marked();
+	}
 
       return m->insert(std::make_pair(f->clone(), t)).first->second;
     }
