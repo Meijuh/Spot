@@ -935,6 +935,14 @@ namespace spot
 	      const formula* dest =
 		dict_.bdd_to_formula(bdd_exist(res & label, dict_.var_set));
 
+	      f2a_t::const_iterator i = f2a_.find(dest);
+	      if (i != f2a_.end() && i->second == 0)
+		{
+		  // This state is useless.  Ignore it.
+		  dest->destroy();
+		  continue;
+		}
+
 	      bool seen = a->has_state(dest);
 	      state_explicit_formula::transition* t =
 		a->create_transition(now, dest);

@@ -103,6 +103,10 @@ check_psl '{[*]; start && comp_data_en; !comp_data_en && good_comp;
 # before it is used in the translation.
 check_psl '{{b[*];c} | {{a && !a}}[=2]}'
 check_psl '{((a&!b);((!a&!b)*))&&(!b*;(!a&b))}'
+# When translating this formula, we expect the translator to ignore
+# `a;(f&!f)[=2];c' on one side because it as already seen it on the
+# other side.
+check_psl '{c;a;(f&!f)[=2];c}|{b;a;(!f&f)[=2];c}'
 
 # Make sure 'a U (b U c)' has 3 states and 6 transitions,
 # before and after degeneralization.
