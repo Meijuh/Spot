@@ -153,9 +153,8 @@ extern bddCacheStat bddcachestats;
 
    /* Hashfunctions */
 
-#define PAIR(a,b)      ((unsigned int)((((unsigned int)a)+((unsigned int)b))*(((unsigned int)a)+((unsigned int)b)+((unsigned int)1))/((unsigned int)2)+((unsigned int)a)))
-#define TRIPLE(a,b,c)  ((unsigned int)(PAIR((unsigned int)c,PAIR(a,b))))
-
+#define PAIR(a,b)     (((unsigned)a)+((unsigned)b)*12582917U)
+#define TRIPLE(a,b,c) (((unsigned)a)+((unsigned)b)*12582917U+((unsigned)c)*4256249U)
 
    /* Inspection of BDD nodes */
 #define ISCONST(a) ((a) < 2)
