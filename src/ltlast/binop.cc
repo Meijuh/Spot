@@ -520,7 +520,7 @@ namespace spot
 	  //   - 1 []-> Exp = Exp
 	  //   - [*0] []-> Exp = 1
 	  //   - Exp []-> 1 = 1
-	  //   - boolExp []-> Exp = boolExp -> Exp
+	  //   - boolExp []-> Exp = !boolExp | Exp
 	  if (first == constant::true_instance())
 	    return second;
 	  if (first == constant::false_instance()
@@ -535,7 +535,8 @@ namespace spot
 	      return second;
 	    }
 	  if (first->is_boolean())
-	    return binop::instance(binop::Implies, first, second);
+	    return multop::instance(multop::Or,
+				    unop::instance(unop::Not, first), second);
 	  break;
 	}
 

@@ -105,7 +105,7 @@ namespace spot
       ///   - 1 []-> Exp = Exp
       ///   - [*0] []-> Exp = 1
       ///   - Exp []-> 1 = 1
-      ///   - boolExp <>-> Exp = boolExp -> Exp
+      ///   - boolExp <>-> Exp = !boolExp | Exp
       static formula* instance(type op, formula* first, formula* second);
 
       virtual void accept(visitor& v);
