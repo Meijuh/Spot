@@ -1,3 +1,11 @@
+2011-11-13  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Add more nodes when resizing BDD table.
+
+	* src/misc/bddalloc.cc (bdd_allocator::initialize): Call
+	bdd_setmaxincrease(500000), because the default is 50000,
+	which cause garbage collection to occur too often.
+
 2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* NEWS: Mention the Kripke I/O.

@@ -1,4 +1,4 @@
-// Copyright (C) 2007 Laboratoire de Recherche et Développement
+// Copyright (C) 2007, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006, 2007 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -56,6 +56,8 @@ namespace spot
     // done if Buddy is initialized by Spot.  Otherwise we prefer not
     // to overwrite a handler that might have been set by the user.)
     bdd_gbc_hook(0);
+    // When the node time is full, add 500000 nodes, i.e., 10MB.
+    bdd_setmaxincrease(500000);
   }
 
   void
