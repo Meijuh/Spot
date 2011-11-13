@@ -22,6 +22,8 @@
 #include "ltlast/allnodes.hh"
 #include <cassert>
 #include <algorithm>
+#include "ltlvisit/tostring.hh"
+#include "misc/casts.hh"
 
 namespace spot
 {
@@ -32,11 +34,11 @@ namespace spot
       class simplify_mark_visitor : public visitor
       {
 	formula* result_;
-	bool has_mark_;
+	mark_tools* tools_;
 
       public:
-	simplify_mark_visitor()
-	  : has_mark_(false)
+	simplify_mark_visitor(mark_tools* t)
+	  : tools_(t)
 	{
 	}
 
@@ -48,12 +50,6 @@ namespace spot
 	result()
 	{
 	  return result_;
-	}
-
-	bool
-	has_mark()
-	{
-	  return has_mark_;
 	}
 
 	void
@@ -77,22 +73,7 @@ namespace spot
 	void
 	visit(unop* uo)
 	{
-	  switch (uo->op())
-	    {
-	    case unop::NegClosure:
-	      has_mark_ = true;
-	      /* fall through */
-	    case unop::Finish:
-	    case unop::Closure:
-	    case unop::Not:
-	    case unop::X:
-	    case unop::F:
-	    case unop::G:
-	      result_ = uo->clone();
-	      return;
-	    }
-	  /* Unreachable code. */
-	  assert(0);
+	  result_ = uo->clone();
 	}
 
 	void
@@ -150,7 +131,6 @@ namespace spot
 			  case binop::EConcatMarked:
 			    EMpairs.insert(std::make_pair(bo->first(),
 							  bo->second()));
-			    has_mark_ = true;
 			    break;
 			  }
 		      }
@@ -174,33 +154,13 @@ namespace spot
 	void
 	visit(binop* bo)
 	{
-	  switch (bo->op())
-	    {
-	    case binop::EConcatMarked:
-	      has_mark_ = true;
-	      /* fall through */
-	    case binop::Xor:
-	    case binop::Implies:
-	    case binop::Equiv:
-	    case binop::U:
-	    case binop::W:
-	    case binop::M:
-	    case binop::R:
-	    case binop::EConcat:
-	    case binop::UConcat:
-	      result_ = bo->clone();
-	      return;
-	    }
-	  /* Unreachable code. */
-	  assert(0);
+	  result_ = bo->clone();
 	}
 
 	formula*
-	recurse(const formula* f)
+	recurse(formula* f)
 	{
-	  formula* g = f->clone();
-	  has_mark_ |= simplify_mark(g);
-	  return g;
+	  return tools_->simplify_mark(f);
 	}
       };
 
@@ -208,8 +168,11 @@ namespace spot
       class mark_visitor : public visitor
       {
 	formula* result_;
+	mark_tools* tools_;
+
       public:
-	mark_visitor()
+	mark_visitor(mark_tools* t)
+	  : tools_(t)
 	{
 	}
 	~mark_visitor()
@@ -294,28 +257,74 @@ namespace spot
 	formula*
 	recurse(formula* f)
 	{
-	  return mark_concat_ops(f);
+	  return tools_->mark_concat_ops(f);
 	}
       };
 
     }
 
-    formula*
-    mark_concat_ops(const formula* f)
+    mark_tools::mark_tools()
+      : simpvisitor_(new simplify_mark_visitor(this)),
+	markvisitor_(new mark_visitor(this))
     {
-      mark_visitor v;
-      const_cast<formula*>(f)->accept(v);
-      return v.result();
     }
 
-    bool
-    simplify_mark(formula*& f)
+
+    mark_tools::~mark_tools()
     {
-      simplify_mark_visitor v;
-      const_cast<formula*>(f)->accept(v);
-      f->destroy();
-      f = v.result();
-      return v.has_mark();
+      delete simpvisitor_;
+      delete markvisitor_;
+      {
+	f2f_map::iterator i = simpmark_.begin();
+	f2f_map::iterator end = simpmark_.end();
+	while (i != end)
+	  {
+	    f2f_map::iterator old = i++;
+	    old->second->destroy();
+	    old->first->destroy();
+	  }
+      }
+      {
+	f2f_map::iterator i = markops_.begin();
+	f2f_map::iterator end = markops_.end();
+	while (i != end)
+	  {
+	    f2f_map::iterator old = i++;
+	    old->second->destroy();
+	    old->first->destroy();
+	  }
+      }
+    }
+
+    formula*
+    mark_tools::mark_concat_ops(const formula* f)
+    {
+      f2f_map::iterator i = markops_.find(f);
+      if (i != markops_.end())
+	return i->second->clone();
+
+      const_cast<formula*>(f)->accept(*markvisitor_);
+
+      formula* r = down_cast<mark_visitor*>(markvisitor_)->result();
+      markops_[f->clone()] = r->clone();
+      return r;
+    }
+
+    formula*
+    mark_tools::simplify_mark(const formula* f)
+    {
+      if (!f->is_marked())
+	return f->clone();
+
+      f2f_map::iterator i = simpmark_.find(f);
+      if (i != simpmark_.end())
+	return i->second->clone();
+
+      const_cast<formula*>(f)->accept(*simpvisitor_);
+
+      formula* r = down_cast<simplify_mark_visitor*>(simpvisitor_)->result();
+      simpmark_[f->clone()] = r->clone();
+      return r;
     }
 
   }

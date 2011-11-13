@@ -39,6 +39,7 @@ namespace spot
       switch (op)
 	{
 	case Not:
+	  is.not_marked = true;
 	  is.eventual = child->is_universal();
 	  is.universal = child->is_eventual();
 	  is.in_nenoform = (child->kind() == AtomicProp);
@@ -53,6 +54,7 @@ namespace spot
 	  is.accepting_eword = false;
 	  break;
 	case X:
+	  is.not_marked = true;
 	  is.boolean = false;
 	  is.X_free = false;
 	  is.eltl_formula = false;
@@ -65,6 +67,7 @@ namespace spot
 	  is.accepting_eword = false;
 	  break;
 	case F:
+	  is.not_marked = true;
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
@@ -79,6 +82,7 @@ namespace spot
 	  is.accepting_eword = false;
 	  break;
 	case G:
+	  is.not_marked = true;
 	  is.boolean = false;
 	  is.eltl_formula = false;
 	  is.sere_formula = false;
@@ -93,6 +97,7 @@ namespace spot
 	  is.accepting_eword = false;
 	  break;
 	case Finish:
+	  is.not_marked = true;
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.psl_formula = false;
@@ -120,6 +125,7 @@ namespace spot
 	  is.accepting_eword = false;
 	  break;
 	case Closure:
+	  is.not_marked = true;
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;

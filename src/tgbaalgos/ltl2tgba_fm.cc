@@ -108,6 +108,7 @@ namespace spot
 
       bdd_dict* dict;
       ltl_simplifier* ls;
+      mark_tools mt;
 
       typedef bdd_dict::fv_map fv_map;
       typedef bdd_dict::vf_map vf_map;
@@ -1760,7 +1761,11 @@ namespace spot
 		// Handle a Miyano-Hayashi style unrolling for
 		// rational operators.  Marked nodes correspond to
 		// subformulae in the Miyano-Hayashi set.
-		if (simplify_mark(dest))
+		formula* tmp =  d_.mt.simplify_mark(dest);
+		dest->destroy();
+		dest = tmp;
+
+		if (dest->is_marked())
 		  {
 		    // Make the promise that we will exit marked sets.
 		    int a =
@@ -1772,7 +1777,7 @@ namespace spot
 		    // We have no marked operators, but still
 		    // have other rational operator to check.
 		    // Start a new marked cycle.
-		    formula* dest2 = mark_concat_ops(dest);
+		    formula* dest2 = d_.mt.mark_concat_ops(dest);
 		    dest->destroy();
 		    dest = dest2;
 		  }

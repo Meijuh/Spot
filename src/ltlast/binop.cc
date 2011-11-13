@@ -106,9 +106,8 @@ namespace spot
 	  is.accepting_eword = false;
 	  break;
 	case EConcatMarked:
-	  is.not_marked = false;
-	  // fall through
 	case EConcat:
+	  is.not_marked = (op != EConcatMarked);
 	  is.ltl_formula = false;
 	  is.boolean = false;
 	  is.eltl_formula = false;
@@ -130,11 +129,11 @@ namespace spot
 	      is.syntactic_obligation = second->is_syntactic_guarantee();
 	      is.syntactic_recurrence = second->is_syntactic_guarantee();
 	    }
-
 	  assert(first->is_sere_formula());
 	  assert(second->is_psl_formula());
 	  break;
 	case UConcat:
+	  is.not_marked = true;
 	  is.ltl_formula = false;
 	  is.boolean = false;
 	  is.eltl_formula = false;
@@ -156,11 +155,11 @@ namespace spot
 	      is.syntactic_obligation = second->is_syntactic_safety();
 	      is.syntactic_persistence = second->is_syntactic_safety();
 	    }
-
 	  assert(first->is_sere_formula());
 	  assert(second->is_psl_formula());
 	  break;
 	case U:
+	  is.not_marked = true;
 	  // f U g is universal if g is eventual, or if f == 1.
 	  is.eventual = second->is_eventual();
 	  is.eventual |= (first == constant::true_instance());
@@ -181,6 +180,7 @@ namespace spot
 	  // is.syntactic_persistence = Persistence U Persistance
 	  break;
 	case W:
+	  is.not_marked = true;
 	  // f W g is universal if f and g are, or if g == 0.
 	  is.universal |= (second == constant::false_instance());
 	  is.boolean = false;
@@ -200,6 +200,7 @@ namespace spot
 
 	  break;
 	case R:
+	  is.not_marked = true;
 	  // g R f is universal if f is universal, or if g == 0.
 	  is.universal = second->is_universal();
 	  is.universal |= (first == constant::false_instance());
@@ -220,6 +221,7 @@ namespace spot
 
 	  break;
 	case M:
+	  is.not_marked = true;
 	  // g M f is eventual if both g and f are eventual, or if f == 1.
 	  is.eventual |= (second == constant::true_instance());
 	  is.boolean = false;

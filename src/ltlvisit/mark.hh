@@ -1,5 +1,5 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,18 +23,35 @@
 
 #include "ltlast/formula.hh"
 #include "ltlast/visitor.hh"
+#include "misc/hash.hh"
 
 namespace spot
 {
   namespace ltl
   {
-    /// \brief Mark operators UConcat and EConcat.
-    /// \ingroup ltl_rewriting
-    ///
-    /// \param f The formula to rewrite.
-    formula* mark_concat_ops(const formula* f);
+    class mark_tools
+    {
+    public:
+      /// \brief Mark operators UConcat and EConcat.
+      /// \ingroup ltl_rewriting
+      ///
+      /// \param f The formula to rewrite.
+      formula* mark_concat_ops(const formula* f);
 
-    bool simplify_mark(formula*& f);
+      formula* simplify_mark(const formula* f);
+
+      mark_tools();
+      ~mark_tools();
+
+    private:
+      typedef Sgi::hash_map<const formula*, const formula*,
+			    ptr_hash<formula> > f2f_map;
+      f2f_map simpmark_;
+      f2f_map markops_;
+      visitor* simpvisitor_;
+      visitor* markvisitor_;
+    };
+
   }
 }
 
