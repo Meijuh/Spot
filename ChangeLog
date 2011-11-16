@@ -1,3 +1,16 @@
+2011-11-16  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fully quote guards used by neverclaims.
+
+	Especially with should write !(p0) and not !p0, because p0 is
+	usually #define'd by the user and he may have forgotten to quote
+	the value of the macro.  This issue was discovered by Kristin
+	Yvonne Rozier and diagnosed by Gerard Holzmann.
+
+	* src/tgbaalgos/neverclaim.cc (process_link): Call
+	to_spin_string(..., true) to fully parentheses the string.
+	* src/tgbatest/neverclaimread.test: Add a test.
+
 2011-11-11  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Fix a g++-4.7 warning about a variable used only in an assert().

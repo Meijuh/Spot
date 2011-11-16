@@ -118,5 +118,9 @@ do
 	run 0 ../ltl2tgba -E -Pf.tgba -XN f.ltl2ba
     fi
     run 0 ../ltl2tgba -DS -NN -f "$f" > f.spot
+    # Make sure there is no `!x' occurring in the
+    # output.  Because `x' is usually #define'd, we
+    # should use `!(x)' in guards.
+    grep '![^(].*->' f.spot && exit 1
     run 0 ../ltl2tgba -E -Pf.tgba -XN f.spot
 done  <formulae

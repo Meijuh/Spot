@@ -186,7 +186,7 @@ namespace spot
 	    os_ << "  :: (";
 	    const ltl::formula* f = bdd_to_formula(si->current_condition(),
 						   automata_->get_dict());
-	    to_spin_string(f, os_);
+	    to_spin_string(f, os_, true);
 	    f->destroy();
 	    state* current = si->current_state();
 	    os_ << ") -> goto " << get_state_label(current, out) << std::endl;
