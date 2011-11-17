@@ -100,6 +100,14 @@ namespace spot
 	  + bdd_format_accset(automata_->get_dict(),
 			      si->current_acceptance_conditions());
 
+	std::string s = automata_->transition_annotation(si);
+	if (!s.empty())
+	  {
+	    if (*label.rbegin() != '\n')
+	      label += '\n';
+	    label += s;
+	  }
+
 	os_ << "  " << in << " -> " << out << " "
 	    << dd_->link_decl(automata_, in_s, in, out_s, out, si,
 			      escape_str(label))

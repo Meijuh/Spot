@@ -157,10 +157,19 @@ namespace spot
     /// \brief Return a possible annotation for the transition
     /// pointed to by the iterator.
     ///
-    /// Implementing this function is optional; the default annotation
-    /// it the empty string.
+    /// You may decide to use annotations when building a tgba class
+    /// that represents the state space of a model, for instance to
+    /// indicate how the tgba transitions relate to the original model
+    /// (e.g. the annotation could be the name of a PetriNet
+    /// transition, or the line number of some textual formalism).
     ///
-    /// \param t a non-done tgba_succ_iterator for this automata
+    /// Implementing this method is optional; the default annotation
+    /// is the empty string.
+    ///
+    /// This method is used for instance in dotty_reachable(),
+    /// and replay_tgba_run().
+    ///
+    /// \param t a non-done tgba_succ_iterator for this automaton
     virtual std::string
     transition_annotation(const tgba_succ_iterator* t) const;
 

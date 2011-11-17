@@ -1,5 +1,14 @@
 2011-11-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Display transition annotations in dotty output.
+
+	* src/tgbaalgos/dotty.cc (process_link): Call
+	transition_annotation().  Reported by Nikos Gorogiannis.
+	* src/tgba/tgba.hh (transition_annotation): More documentation.
+	* NEWS: Mention this change.
+
+2011-11-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* NEWS: Add an entry for the previous fix.
 
 2011-11-16  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
