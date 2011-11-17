@@ -3,7 +3,7 @@ New in spot 0.7.1a:
   * Major new features:
     - Spot can read DiVinE models.  See iface/dve2/README for details.
     - The genltl tool can now output 20 differents LTL formula families.
-      It also replace the LTLcounter Perl scripts.
+      It also replaces the LTLcounter Perl scripts.
   * Major interface changes:
     - The destructor of all states is now private.  Any code that looks like
       "delete some_state;" will cause an compile error and should be
@@ -34,11 +34,19 @@ New in spot 0.7.1a:
     - Safra complementation has been fixed in cases where more than
       one acceptance conditions where needed to convert the
       deterministic Streett automaton as a TGBA.
-    - The degeneralization is now idempotent.  Previously degeneralizing
+    - The degeneralization is now idempotent.  Previously, degeneralizing
       an already degeneralized automaton could add some states.
     - The degeneralization now has a deterministic behavior.  Previously
       it was possible to obtain different output depending on the
       memory layout.
+    - Spot now outputs neverclaims with fully parenthesized guards.
+      I.e., instead of
+         (!x && y) -> goto S1
+      it now outputs
+         ((!(x)) && (y)) -> goto S1
+      This prevents problems when the model defines `x' as
+         #define x flag==0
+      because !x then evaluated to (!flag)==0 instead of !(flag==0).
 
 New in spot 0.7.1 (2001-02-07):
 
