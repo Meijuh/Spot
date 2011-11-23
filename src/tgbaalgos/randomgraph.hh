@@ -1,3 +1,5 @@
+// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -43,6 +45,9 @@ namespace spot
   /// \param ap The list of atomic property that should label the transition.
   /// \param dict The bdd_dict to used for this automata.
   /// \param n_acc The number of acceptance sets to use.
+  ///          If this number is non null, then there is no guarantee
+  ///          that the generated graph contains an accepting cycle (raise
+  ///          the value of \a a to improve the chances).
   /// \param a The probability (between 0.0 and 1.0) that a transition belongs
   ///          to an acceptance set.
   /// \param t The probability (between 0.0 and 1.0) that an atomic proposition
