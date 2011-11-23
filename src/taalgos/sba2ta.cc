@@ -122,7 +122,7 @@ namespace spot
 
                       ta->create_transition(source, bdd_setxor(
                           source->get_tgba_condition(),
-                          dest->get_tgba_condition()), dest);
+                          dest->get_tgba_condition()), bddfalse, dest);
                     }
 
               }
@@ -154,12 +154,7 @@ namespace spot
       state_ta_explicit* artificial_livelock_accepting_state)
   {
 
-    state_ta_explicit* artificial_livelock_accepting_state_added =
-        testing_automata->add_state(artificial_livelock_accepting_state);
-
-    // unique artificial_livelock_accepting_state
-    assert(artificial_livelock_accepting_state_added
-        == artificial_livelock_accepting_state);
+    testing_automata->add_state(artificial_livelock_accepting_state);
 
     ta::states_set_t states_set = testing_automata->get_states_set();
     ta::states_set_t::iterator it;
@@ -182,7 +177,7 @@ namespace spot
             {
               state_ta_explicit* dest = (*it_trans)->dest;
 
-              if (dest->is_livelock_accepting_state() && !dest->is_accepting_state())
+              if (dest->is_livelock_accepting_state())
                 {
                   conditions_to_livelock_accepting_states->insert(
                       (*it_trans)->condition);
@@ -214,7 +209,7 @@ namespace spot
                 != conditions_to_livelock_accepting_states->end(); it_conditions++)
               {
 
-                testing_automata->create_transition(source, (*it_conditions),
+                testing_automata->create_transition(source, (*it_conditions),bddfalse,
                     artificial_livelock_accepting_state);
 
               }

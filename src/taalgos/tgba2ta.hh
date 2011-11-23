@@ -30,10 +30,11 @@
 #include <cassert>
 #include "misc/bddlt.hh"
 #include "ta/taexplicit.hh"
+#include "ta/tgbtaexplicit.hh"
 
 namespace spot
 {
-  ta*
+  ta_explicit*
   tgba_to_ta(const tgba* tgba_to_convert, bdd atomic_propositions_set,
       bool artificial_initial_state_mode = true,
       bool artificial_livelock_accepting_state_mode = false,
@@ -45,6 +46,9 @@ namespace spot
   void
   add_artificial_livelock_accepting_state(ta_explicit* testing_automata,
       state_ta_explicit* artificial_livelock_accepting_state);
+
+  tgbta_explicit*
+  tgba_to_tgbta(const tgba* tgba_to_convert, bdd atomic_propositions_set);
 
 }
 

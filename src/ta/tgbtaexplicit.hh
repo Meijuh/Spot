@@ -1,0 +1,66 @@
+// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
+// de l Epita_explicit (LRDE).
+//
+// This file is part of Spot, a model checking library.
+//
+// Spot is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// Spot is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANta_explicitBILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+// License for more deta_explicitils.
+//
+// You should have received a copy of the GNU General Public License
+// along with Spot; see the file COPYING.  If not, write to the Free
+// Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+// 02111-1307, USA.
+
+#ifndef SPOT_TA_TGBTAEXPLICIT_HH
+# define SPOT_TA_TGBTAEXPLICIT_HH
+
+#include "misc/hash.hh"
+#include <list>
+#include "tgba/tgba.hh"
+#include <set>
+#include "ltlast/formula.hh"
+#include <cassert>
+#include "misc/bddlt.hh"
+#include "taexplicit.hh"
+#include "tgbta.hh"
+
+namespace spot
+{
+   class tgbta_explicit : public tgbta, public ta_explicit
+  {
+  public:
+     tgbta_explicit(const tgba* tgba, bdd all_acceptance_conditions,
+             state_ta_explicit* artificial_initial_state) ;
+
+     // tgba interface
+        virtual spot::state* get_init_state() const;
+        virtual tgba_succ_iterator*
+        succ_iter(const spot::state* local_state,
+                  const spot::state* global_state = 0,
+                  const tgba* global_automaton = 0) const;
+        virtual bdd_dict* get_dict() const;
+
+        virtual bdd all_acceptance_conditions() const;
+        virtual bdd neg_acceptance_conditions() const;
+
+        virtual std::string format_state(const spot::state* s) const;
+
+        virtual tgba_succ_iterator* succ_iter_by_changeset(const spot::state* s, bdd change_set) const;
+      protected:
+        virtual bdd compute_support_conditions(const spot::state* state) const;
+        virtual bdd compute_support_variables(const spot::state* state) const;
+
+  };
+
+
+
+}
+
+#endif // SPOT_TA_TGBTAEXPLICIT_HH

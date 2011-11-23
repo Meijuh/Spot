@@ -18,6 +18,15 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
+//#define TRACE
+
+#include <iostream>
+#ifdef TRACE
+#define trace std::clog
+#else
+#define trace while (0) std::clog
+#endif
+
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/constant.hh"
 #include "taexplicit.hh"
@@ -71,7 +80,9 @@ namespace spot
   state*
   ta_explicit_succ_iterator::current_state() const
   {
+    trace << "***ta_explicit_succ_iterator::current_state()  if(done()) =***" << done() << std::endl;
     assert(!done());
+    trace << "***ta_explicit_succ_iterator::current_state() (*i_)->condition =***" << (*i_)->condition << std::endl;
     state_ta_explicit* s = (*i_)->dest;
     return s;
   }
@@ -125,7 +136,8 @@ namespace spot
   }
 
   void
-  state_ta_explicit::add_transition(state_ta_explicit::transition* t)
+  state_ta_explicit::add_transition(state_ta_explicit::transition* t,
+      bool add_at_beginning)
   {
     if (transitions_ == 0)
       transitions_ = new transitions;
@@ -153,8 +165,17 @@ namespace spot
 
     if (!transition_found)
       {
-        transitions_condition->push_back(t);
-        transitions_->push_back(t);
+        if (add_at_beginning)
+          {
+            transitions_condition->push_front(t);
+            transitions_->push_front(t);
+          }
+        else
+          {
+            transitions_condition->push_back(t);
+            transitions_->push_back(t);
+          }
+
       }
     else
       {
@@ -245,7 +266,7 @@ namespace spot
   size_t
   state_ta_explicit::hash() const
   {
-    return wang32_hash(tgba_state_->hash()) ^ wang32_hash(tgba_condition_.id());
+    return wang32_hash(tgba_state_->hash());
   }
 
   state_ta_explicit*
@@ -353,7 +374,6 @@ namespace spot
     delete tgba_;
   }
 
-
   state_ta_explicit*
   ta_explicit::add_state(state_ta_explicit* s)
   {
@@ -377,7 +397,7 @@ namespace spot
     if (get_artificial_initial_state() != 0)
       if (add_state.second)
         create_transition((state_ta_explicit*) get_artificial_initial_state(),
-            condition, s);
+            condition, bddfalse, s);
 
   }
 
@@ -392,27 +412,16 @@ namespace spot
 
   }
 
-  void
-  ta_explicit::create_transition(state_ta_explicit* source, bdd condition,
-      state_ta_explicit* dest)
-  {
-    state_ta_explicit::transition* t = new state_ta_explicit::transition;
-    t->dest = dest;
-    t->condition = condition;
-    t->acceptance_conditions = bddfalse;
-    source->add_transition(t);
-
-  }
 
   void
   ta_explicit::create_transition(state_ta_explicit* source, bdd condition,
-      bdd acceptance_conditions, state_ta_explicit* dest)
+      bdd acceptance_conditions, state_ta_explicit* dest, bool add_at_beginning)
   {
     state_ta_explicit::transition* t = new state_ta_explicit::transition;
     t->dest = dest;
     t->condition = condition;
     t->acceptance_conditions = acceptance_conditions;
-    source->add_transition(t);
+    source->add_transition(t, add_at_beginning);
 
   }
 

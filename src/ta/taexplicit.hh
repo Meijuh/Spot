@@ -53,13 +53,11 @@ namespace spot
     void
     add_to_initial_states_set(state* s, bdd condition = bddfalse);
 
-    void
-    create_transition(state_ta_explicit* source, bdd condition,
-        state_ta_explicit* dest);
 
     void
     create_transition(state_ta_explicit* source, bdd condition,
-        bdd acceptance_conditions, state_ta_explicit* dest);
+        bdd acceptance_conditions, state_ta_explicit* dest,
+        bool add_at_beginning = false);
 
     void
     delete_stuttering_transitions();
@@ -132,7 +130,6 @@ namespace spot
       return all_acceptance_conditions_;;
     }
 
-
   private:
     // Disallow copy.
     ta_explicit(const ta_explicit& other);
@@ -180,6 +177,11 @@ namespace spot
     clone() const;
 
     virtual
+    void destroy() const
+    {
+    }
+
+    virtual
     ~state_ta_explicit()
     {
     }
@@ -192,7 +194,7 @@ namespace spot
     get_transitions(bdd condition) const;
 
     void
-    add_transition(transition* t);
+    add_transition(transition* t, bool add_at_beginning = false);
 
     const state*
     get_tgba_state() const;
@@ -220,8 +222,6 @@ namespace spot
 
     void
     free_transitions();
-
-
 
   private:
     const state* tgba_state_;

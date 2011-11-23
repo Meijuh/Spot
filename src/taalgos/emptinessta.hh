@@ -29,6 +29,7 @@
 #include "tgbaalgos/gtec/nsheap.hh"
 #include "tgbaalgos/emptiness_stats.hh"
 #include <stack>
+#include <queue>
 
 namespace spot
 {
@@ -69,8 +70,13 @@ namespace spot
 
   protected:
     void
-    clear(numbered_state_heap* h, std::stack<pair_state_iter> todo, std::stack<
+    clear(numbered_state_heap* h, std::stack<pair_state_iter> todo, std::queue<
         spot::state*> init_set);
+
+    void
+    clear(numbered_state_heap* h, std::stack<pair_state_iter> todo,
+        spot::ta_succ_iterator* init_states_it);
+
     bool
     heuristic_livelock_detection(const state * stuttering_succ,
         numbered_state_heap* h, int h_livelock_root, std::set<const state*,

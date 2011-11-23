@@ -25,11 +25,18 @@ tadir = $(pkgincludedir)/ta
 
 ta_HEADERS = \
   ta.hh \
+  taexplicit.hh \
   taproduct.hh \
-  taexplicit.hh
+  tgbta.hh \
+  tgbtaexplicit.hh \
+  tgbtaproduct.hh
+  
   
 noinst_LTLIBRARIES = libta.la
 libta_la_SOURCES = \
   ta.cc \
   taproduct.cc \
-  taexplicit.cc
+  tgbta.cc \
+  tgbtaexplicit.cc \
+  taexplicit.cc \
+  tgbtaproduct.cc

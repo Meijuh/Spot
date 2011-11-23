@@ -73,8 +73,7 @@ namespace spot
     //   it is also used as a key in H.
     std::stack<pair_state_iter> todo;
 
-    // * init: the set of the depth-first search initial states
-    std::stack<spot::state*> init_set;
+
 
     Sgi::hash_map<const state*, std::string, state_ptr_hash, state_ptr_equal>
         colour;
@@ -89,44 +88,44 @@ namespace spot
 
     bool livelock_acceptance_states_not_found = true;
 
-    const ta::states_set_t init_states_set = a_->get_initial_states_set();
+    bool activate_heuristic = (is_full_2_pass_ == disable_second_pass);
 
-    ta::states_set_t::const_iterator it;
-    for (it = init_states_set.begin(); it != init_states_set.end(); it++)
+    // Setup depth-first search from initial states.
+    const ta* ta_ = a_->get_ta();
+    const kripke* kripke_ = a_->get_kripke();
+    state* kripke_init_state = kripke_->get_init_state();
+    bdd kripke_init_state_condition = kripke_->state_condition(
+        kripke_init_state);
+
+    spot::state* artificial_initial_state = ta_->get_artificial_initial_state();
+
+    ta_succ_iterator* ta_init_it_ = ta_->succ_iter(artificial_initial_state,
+        kripke_init_state_condition);
+    kripke_init_state->destroy();
+    for (ta_init_it_->first(); !ta_init_it_->done(); ta_init_it_->next())
       {
-        state* init_state = (*it);
-        init_set.push(init_state);
 
-      }
+        state_ta_product* init = new state_ta_product(
+            (ta_init_it_->current_state()), kripke_init_state->clone());
 
-    while (!init_set.empty())
-      {
-        // Setup depth-first search from initial states.
+        numbered_state_heap::state_index_p h_init = h->find(init);
 
-          {
-            state* init = init_set.top();
-            init_set.pop();
+        if (h_init.first)
+          continue;
 
-            numbered_state_heap::state_index_p h_init = h->find(init);
+        h->insert(init, ++num);
+        scc.push(num);
+        arc.push(bddfalse);
 
-            if (h_init.first)
-              continue;
+        ta_succ_iterator* iter = a_->succ_iter(init);
+        iter->first();
+        todo.push(pair_state_iter(init, iter));
 
-            h->insert(init, ++num);
-            scc.push(num);
-            arc.push(bddfalse);
+        inc_depth();
 
-            ta_succ_iterator* iter = a_->succ_iter(init);
-            iter->first();
-            todo.push(pair_state_iter(init, iter));
-
-            inc_depth();
-
-            //push potential root of live-lock accepting cycle
-            if (a_->is_livelock_accepting_state(init))
-              livelock_roots.push(init);
-
-          }
+        //push potential root of live-lock accepting cycle
+        if (activate_heuristic && a_->is_livelock_accepting_state(init))
+          livelock_roots.push(init);
 
         while (!todo.empty())
           {
@@ -169,8 +168,8 @@ namespace spot
                 *spi.second = -std::abs(*spi.second);
 
                 // Backtrack livelock_roots.
-                if (!livelock_roots.empty() && !livelock_roots.top()->compare(
-                    curr))
+                if (activate_heuristic && !livelock_roots.empty()
+                    && !livelock_roots.top()->compare(curr))
                   livelock_roots.pop();
 
                 // When backtracking the root of an SSCC, we must also
@@ -249,7 +248,7 @@ namespace spot
                 inc_depth();
 
                 //push potential root of live-lock accepting cycle
-                if (a_->is_livelock_accepting_state(dest)
+                if (activate_heuristic && a_->is_livelock_accepting_state(dest)
                     && !is_stuttering_transition)
                   livelock_roots.push(dest);
 
@@ -276,7 +275,7 @@ namespace spot
             bool acc = false;
 
             trace
-                              << "***PASS 1: CYCLE***" << std::endl;
+              << "***PASS 1: CYCLE***" << std::endl;
 
             while (threshold < scc.top().index)
               {
@@ -309,27 +308,32 @@ namespace spot
             if (is_accepting_sscc)
               {
                 trace
-                  << "PASS 1: SUCCESS : a_->is_livelock_accepting_state(curr): " << a_->is_livelock_accepting_state(curr) <<  std::endl;
+                      << "PASS 1: SUCCESS : a_->is_livelock_accepting_state(curr): "
+                      << a_->is_livelock_accepting_state(curr) << std::endl;
                 trace
-                                  << "PASS 1: scc.top().condition : " <<  bdd_format_accset(a_->get_dict(),
-                                      scc.top().condition) << std::endl;
+                  << "PASS 1: scc.top().condition : " << bdd_format_accset(
+                      a_->get_dict(), scc.top().condition) << std::endl;
                 trace
-                                  << "PASS 1: a_->all_acceptance_conditions() : " << (scc.top().condition == a_->all_acceptance_conditions()) << std::endl;
+                  << "PASS 1: a_->all_acceptance_conditions() : "
+                      << ( a_->all_acceptance_conditions()) << std::endl;
+                trace
+                                  << "PASS 1 CYCLE and (scc.top().condition == a_->all_acceptance_conditions()) : "
+                                      << (scc.top().condition == a_->all_acceptance_conditions()) << std::endl;
 
                 trace
-                                                  << "PASS 1: bddtrue : " <<  (a_->all_acceptance_conditions()==
-                                                      bddtrue) << std::endl;
+                  << "PASS 1: bddtrue : " << (a_->all_acceptance_conditions()
+                      == bddtrue) << std::endl;
 
                 trace
-                                                  << "PASS 1: bddfalse : " <<  (a_->all_acceptance_conditions()==
-                                                      bddfalse) << std::endl;
+                  << "PASS 1: bddfalse : " << (a_->all_acceptance_conditions()
+                      == bddfalse) << std::endl;
 
-                clear(h, todo, init_set);
+                clear(h, todo, ta_init_it_);
                 return true;
               }
 
             //ADDLINKS
-            if (!is_full_2_pass_ && a_->is_livelock_accepting_state(curr)
+            if (activate_heuristic && a_->is_livelock_accepting_state(curr)
                 && is_stuttering_transition)
               {
                 trace
@@ -348,7 +352,7 @@ namespace spot
                 if (heuristic_livelock_detection(dest, h, h_livelock_root,
                     liveset_curr))
                   {
-                    clear(h, todo, init_set);
+                    clear(h, todo, ta_init_it_);
                     return true;
                   }
 
@@ -359,7 +363,7 @@ namespace spot
                     if (heuristic_livelock_detection(succ, h, h_livelock_root,
                         liveset_curr))
                       {
-                        clear(h, todo, init_set);
+                        clear(h, todo, ta_init_it_);
                         return true;
                       }
 
@@ -370,7 +374,7 @@ namespace spot
 
       }
 
-    clear(h, todo, init_set);
+    clear(h, todo, ta_init_it_);
 
     if (disable_second_pass || livelock_acceptance_states_not_found)
       return false;
@@ -431,23 +435,23 @@ namespace spot
     std::stack<pair_state_iter> todo;
 
     // * init: the set of the depth-first search initial states
-    std::stack<spot::state*> init_set;
+    std::queue<spot::state*> ta_init_it_;
 
     const ta::states_set_t init_states_set = a_->get_initial_states_set();
     ta::states_set_t::const_iterator it;
     for (it = init_states_set.begin(); it != init_states_set.end(); it++)
       {
         state* init_state = (*it);
-        init_set.push(init_state);
+        ta_init_it_.push(init_state);
 
       }
 
-    while (!init_set.empty())
+    while (!ta_init_it_.empty())
       {
         // Setup depth-first search from initial states.
           {
-            state* init = init_set.top();
-            init_set.pop();
+            state* init = ta_init_it_.front();
+            ta_init_it_.pop();
             numbered_state_heap::state_index_p h_init = h->find(init);
 
             if (h_init.first)
@@ -540,7 +544,7 @@ namespace spot
 
                 if (!is_stuttering_transition)
                   {
-                    init_set.push(dest);
+                    ta_init_it_.push(dest);
                     continue;
                   }
 
@@ -568,7 +572,7 @@ namespace spot
 
                 if (t->is_livelock_accepting_state(self_loop_state))
                   {
-                    clear(h, todo, init_set);
+                    clear(h, todo, ta_init_it_);
                     trace
                       << "PASS 2: SUCCESS" << std::endl;
                     return true;
@@ -612,7 +616,7 @@ namespace spot
             sscc.rem().splice(sscc.rem().end(), rem);
             if (sscc.top().is_accepting)
               {
-                clear(h, todo, init_set);
+                clear(h, todo, ta_init_it_);
                 trace
                   << "PASS 2: SUCCESS" << std::endl;
                 return true;
@@ -620,20 +624,20 @@ namespace spot
           }
 
       }
-    clear(h, todo, init_set);
+    clear(h, todo, ta_init_it_);
     return false;
   }
 
   void
   ta_check::clear(numbered_state_heap* h, std::stack<pair_state_iter> todo,
-      std::stack<spot::state*> init_states)
+      std::queue<spot::state*> init_states)
   {
 
     set_states(states() + h->size());
 
     while (!init_states.empty())
       {
-        a_->free_state(init_states.top());
+        a_->free_state(init_states.front());
         init_states.pop();
       }
 
@@ -646,6 +650,27 @@ namespace spot
       }
     delete h;
   }
+
+
+  void
+   ta_check::clear(numbered_state_heap* h, std::stack<pair_state_iter> todo,
+       spot::ta_succ_iterator* init_states_it)
+   {
+
+     set_states(states() + h->size());
+
+    delete init_states_it;
+
+     // Release all iterators in TODO.
+     while (!todo.empty())
+       {
+         delete todo.top().second;
+         todo.pop();
+         dec_depth();
+       }
+     delete h;
+   }
+
 
   std::ostream&
   ta_check::print_stats(std::ostream& os) const

@@ -18,7 +18,7 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#define TRACE
+//#define TRACE
 
 #include <iostream>
 #ifdef TRACE
@@ -26,8 +26,6 @@
 #else
 #define trace while (0) std::clog
 #endif
-
-
 
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/constant.hh"
@@ -41,35 +39,24 @@
 #include <stack>
 #include "tgba2ta.hh"
 #include "taalgos/statessetbuilder.hh"
+#include "ta/tgbtaexplicit.hh"
 
 using namespace std;
 
 namespace spot
 {
 
-  ta*
-  tgba_to_ta(const tgba* tgba_, bdd atomic_propositions_set_,
+  ta_explicit*
+  build_ta(ta_explicit* ta, bdd atomic_propositions_set_,
       bool artificial_initial_state_mode,
       bool artificial_livelock_accepting_state_mode, bool degeneralized)
   {
 
-    ta_explicit* ta;
     std::stack<state_ta_explicit*> todo;
+    const tgba* tgba_ = ta->get_tgba();
 
     // build Initial states set:
     state* tgba_init_state = tgba_->get_init_state();
-
-    if (artificial_initial_state_mode)
-      {
-        state_ta_explicit* ta_init_state = new state_ta_explicit(
-            tgba_init_state->clone(), bddtrue, true);
-
-        ta = new spot::ta_explicit(tgba_, tgba_->all_acceptance_conditions(),ta_init_state);
-      }
-    else
-      {
-        ta = new spot::ta_explicit(tgba_, tgba_->all_acceptance_conditions());
-      }
 
     bdd tgba_condition = tgba_->support_conditions(tgba_init_state);
 
@@ -174,8 +161,8 @@ namespace spot
       {
 
         state_ta_explicit* artificial_livelock_accepting_state =
-            new state_ta_explicit(ta->get_tgba()->get_init_state(), bddfalse,
-				  false, false, true, 0);
+            new state_ta_explicit(ta->get_tgba()->get_init_state(), bddtrue,
+                false, false, true, 0);
 
         add_artificial_livelock_accepting_state(ta,
             artificial_livelock_accepting_state);
@@ -184,6 +171,34 @@ namespace spot
 
     return ta;
 
+  }
+
+  ta_explicit*
+  tgba_to_ta(const tgba* tgba_, bdd atomic_propositions_set_,
+      bool artificial_initial_state_mode,
+      bool artificial_livelock_accepting_state_mode, bool degeneralized)
+  {
+    ta_explicit* ta;
+
+    state* tgba_init_state = tgba_->get_init_state();
+    if (artificial_initial_state_mode)
+      {
+        state_ta_explicit* ta_init_state = new state_ta_explicit(
+            tgba_init_state->clone(), bddfalse, true);
+
+        ta = new spot::ta_explicit(tgba_, tgba_->all_acceptance_conditions(),
+            ta_init_state);
+      }
+    else
+      {
+        ta = new spot::ta_explicit(tgba_, tgba_->all_acceptance_conditions());
+      }
+    tgba_init_state->destroy();
+
+    // build ta automata:
+    build_ta(ta, atomic_propositions_set_, artificial_initial_state_mode,
+        artificial_livelock_accepting_state_mode, degeneralized);
+    return ta;
   }
 
   void
@@ -219,8 +234,13 @@ namespace spot
             {
               state_ta_explicit* dest = (*it_trans)->dest;
 
+              state_ta_explicit::transitions* dest_trans =
+                  (dest)->get_transitions();
+              bool dest_trans_empty = dest_trans == 0 || dest_trans->empty();
+
+              //TODO TA++
               if (dest->is_livelock_accepting_state()
-                  && !dest->is_accepting_state())
+                  && (!dest->is_accepting_state() || dest_trans_empty))
                 {
                   conditions_to_livelock_accepting_states->insert(
                       (*it_trans)->condition);
@@ -228,9 +248,7 @@ namespace spot
                 }
 
               //remove hole successors states
-              state_ta_explicit::transitions* dest_trans =
-                  (dest)->get_transitions();
-              bool dest_trans_empty = dest_trans == 0 || dest_trans->empty();
+
               if (dest_trans_empty)
                 {
                   source->get_transitions((*it_trans)->condition)->remove(
@@ -253,7 +271,7 @@ namespace spot
               {
 
                 testing_automata->create_transition(source, (*it_conditions),
-                    artificial_livelock_accepting_state);
+                    bddfalse, artificial_livelock_accepting_state);
 
               }
           }
@@ -276,7 +294,7 @@ namespace spot
     scc_stack_ta sscc;
 
     // * arc, a stack of acceptance conditions between each of these SCC,
-        std::stack<bdd> arc;
+    std::stack<bdd> arc;
 
     // * h: a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
@@ -313,7 +331,7 @@ namespace spot
             state_ta_explicit* init =
                 down_cast<state_ta_explicit*> (init_set.top());
             init_set.pop();
-            state_ta_explicit* init_clone = init->clone();
+            state_ta_explicit* init_clone = init;
             numbered_state_heap::state_index_p h_init = h->find(init_clone);
 
             if (h_init.first)
@@ -335,7 +353,7 @@ namespace spot
 
             state* curr = todo.top().first;
 
-            numbered_state_heap::state_index_p spi = h->find(curr->clone());
+            numbered_state_heap::state_index_p spi = h->find(curr);
             // If we have reached a dead component, ignore it.
             if (*spi.second == -1)
               {
@@ -356,7 +374,7 @@ namespace spot
 
                 // fill rem with any component removed,
                 numbered_state_heap::state_index_p spi =
-                    h->index(curr->clone());
+                    h->index(curr);
                 assert(spi.first);
 
                 sscc.rem().push_front(curr);
@@ -369,14 +387,14 @@ namespace spot
                   {
                     // removing states
                     std::list<state*>::iterator i;
-                    bool is_livelock_accepting_sscc = (sscc.top().is_accepting
-                        && (sscc.rem().size() > 1)) || (sscc.top().condition
-                        == testing_automata->all_acceptance_conditions());
+                    bool is_livelock_accepting_sscc = (sscc.rem().size() > 1)
+                        && ((sscc.top().is_accepting) || (sscc.top().condition
+                            == testing_automata->all_acceptance_conditions()));
 
                     for (i = sscc.rem().begin(); i != sscc.rem().end(); ++i)
                       {
                         numbered_state_heap::state_index_p spi = h->index(
-                            (*i)->clone());
+                            (*i));
                         assert(spi.first->compare(*i) == 0);
                         assert(*spi.second != -1);
                         *spi.second = -1;
@@ -421,7 +439,7 @@ namespace spot
             bool is_stuttering_transition =
                 testing_automata->get_state_condition(curr)
                     == testing_automata->get_state_condition(dest);
-            state* dest_clone = dest->clone();
+            state* dest_clone = dest;
             spi = h->find(dest_clone);
 
             // Is this a new state?
@@ -452,8 +470,8 @@ namespace spot
             if (*spi.second == -1)
               continue;
 
-            trace
-                                          << "***compute_livelock_acceptance_states: CYCLE***" << std::endl;
+            trace << "***compute_livelock_acceptance_states: CYCLE***"
+                << std::endl;
 
             if (!curr->compare(dest))
               {
@@ -461,10 +479,13 @@ namespace spot
                     down_cast<state_ta_explicit*> (curr);
                 assert(self_loop_state);
 
-                if (testing_automata->is_accepting_state(self_loop_state))
+                if (testing_automata->is_accepting_state(self_loop_state)
+                    || (acc_cond
+                        == testing_automata->all_acceptance_conditions()))
                   self_loop_state->set_livelock_accepting_state(true);
                 trace
-                                              << "***compute_livelock_acceptance_states: CYCLE: self_loop_state***" << std::endl;
+                    << "***compute_livelock_acceptance_states: CYCLE: self_loop_state***"
+                    << std::endl;
 
               }
 
@@ -483,7 +504,6 @@ namespace spot
             std::list<state*> rem;
             bool acc = false;
 
-
             while (threshold < sscc.top().index)
               {
                 assert(!sscc.empty());
@@ -495,7 +515,6 @@ namespace spot
                 sscc.pop();
                 arc.pop();
               }
-
 
             // Note that we do not always have
             //  threshold == sscc.top().index
@@ -514,4 +533,73 @@ namespace spot
     delete h;
 
   }
+
+  tgbta_explicit*
+  tgba_to_tgbta(const tgba* tgba_, bdd atomic_propositions_set_)
+  {
+
+    state* tgba_init_state = tgba_->get_init_state();
+    state_ta_explicit* ta_init_state = new state_ta_explicit(
+        tgba_init_state->clone(), bddfalse, true);
+    tgba_init_state->destroy();
+
+    tgbta_explicit* tgbta = new spot::tgbta_explicit(tgba_,
+        tgba_->all_acceptance_conditions(), ta_init_state);
+
+    // build ta automata:
+    build_ta(tgbta, atomic_propositions_set_, true, true, false);
+
+    trace << "***tgba_to_tgbta: POST build_ta***" << std::endl;
+
+    // adapt a ta automata to build tgbta automata :
+    ta::states_set_t states_set = tgbta->get_states_set();
+    ta::states_set_t::iterator it;
+    tgba_succ_iterator* initial_states_iter = tgbta->succ_iter(
+        tgbta->get_artificial_initial_state());
+    initial_states_iter->first();
+    if (initial_states_iter->done())
+      return tgbta;
+    bdd first_state_condition = (initial_states_iter)->current_condition();
+    delete initial_states_iter;
+
+    bdd bdd_stutering_transition = bdd_setxor(first_state_condition,
+        first_state_condition);
+
+    for (it = states_set.begin(); it != states_set.end(); it++)
+      {
+
+        state_ta_explicit* state = static_cast<state_ta_explicit*> (*it);
+
+        state_ta_explicit::transitions* trans = state->get_transitions();
+        if (state->is_livelock_accepting_state())
+          {
+
+            bool trans_empty = (trans == 0 || trans->empty());
+            if (trans_empty)
+              {
+                trace
+                    << "***tgba_to_tgbta: PRE if (state->is_livelock_accepting_state()) ... create_transition ***"
+                    << std::endl;
+                tgbta->create_transition(state, bdd_stutering_transition,
+                    tgbta->all_acceptance_conditions(), state);
+                trace
+                    << "***tgba_to_tgbta: POST if (state->is_livelock_accepting_state()) ... create_transition ***"
+                    << std::endl;
+
+              }
+            //state->set_livelock_accepting_state(false);
+          }
+
+        if (state->compare(tgbta->get_artificial_initial_state()))
+          tgbta->create_transition(state, bdd_stutering_transition, bddfalse,
+              state);
+
+        trace << "***tgba_to_tgbta: POST create_transition ***" << std::endl;
+
+      }
+
+    return tgbta;
+
+  }
+
 }
