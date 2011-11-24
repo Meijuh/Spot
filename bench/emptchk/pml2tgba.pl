@@ -112,15 +112,6 @@ while (1)
 
 my $model = shift @ARGV;
 
-# Find out the start of the never claim.
-# The line numbering changed in Spin 5.2.0.
-my $model_size = `wc -l <"$model"`;
-my $neverstartline_spin517 = 3 + $model_size;
-my $neverstartline_spin520 = 4 + $model_size;
-my $neverstartline_spin525 = 0 + $model_size;
-my $neverstartline = 
-  "($neverstartline_spin517|$neverstartline_spin520|$neverstartline_spin525)";
-
 # Create the automaton
 open NEVER, ">never.$$";
 print NEVER create_2n_automaton (@ARGV);
@@ -140,7 +131,7 @@ while (<PAN>)
 while (<PAN>)
 {
   next
-    unless (/\s+state\s+\d+\s+-\(tr\s+(\d+)\s*\)->.* line $neverstartline =>/o);
+    unless (/\s+state\s+\d+\s+-\(tr\s+(\d+)\s*\)->.* line \d+ =>/o);
   # We are assuming that transition are output by -d in the same order
   # as we specified them in the neverclaim.
   my $prop = shift @prop_list;

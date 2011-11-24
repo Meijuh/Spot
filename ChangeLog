@@ -1,5 +1,13 @@
 2011-11-24  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Fix bench/emptchk/pml2tgba.pl for more recent Spin version.
+
+	* bench/emptchk/pml2tgba.pl: Stop checking for version start lines
+	depending on the Spin version.  This check was never always
+	correct.  Reported by Étienne Renault.
+
+2011-11-24  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Update formulae.ltl not to use uncommon operators.
 
 	* bench/emptchk/formulae.ltl: Do not use + and * in the list of
