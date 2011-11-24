@@ -1,0 +1,11 @@
+Makefile
+Makefile.in
+location.hh
+kripkeparse.hh
+kripkeparse.cc
+kripkeparse.output
+kripkescan.cc
+position.hh
+stack.hh
+*.lo
+*.la

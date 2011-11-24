@@ -33,6 +33,8 @@
 #include "misc/timer.hh"
 #include "misc/memusage.hh"
 #include <cstring>
+#include "kripke/kripkeexplicit.hh"
+#include "kripke/kripkeprint.hh"
 
 static void
 syntax(char* prog)
@@ -58,6 +60,8 @@ syntax(char* prog)
 	    << std::endl
 	    << "  -gm    output the model state-space in dot format"
 	    << std::endl
+            << "  -gK    output the model state-space in Kripke format"
+            << std::endl
 	    << "  -gp    output the product state-space in dot format"
 	    << std::endl
             << "  -T     time the different phases of the execution"
@@ -80,7 +84,7 @@ main(int argc, char **argv)
 
   bool use_timer = false;
 
-  enum { DotFormula, DotModel, DotProduct, EmptinessCheck }
+  enum { DotFormula, DotModel, DotProduct, EmptinessCheck, Kripke }
   output = EmptinessCheck;
   bool accepting_run = false;
   bool expect_counter_example = false;
@@ -128,6 +132,9 @@ main(int argc, char **argv)
 		case 'f':
 		  output = DotFormula;
 		  break;
+                case 'K':
+                  output = Kripke;
+                  break;
 		default:
 		  goto error;
 		}
@@ -242,6 +249,14 @@ main(int argc, char **argv)
 	  tm.stop("dotty output");
 	  goto safe_exit;
 	}
+      if (output == Kripke)
+      {
+        tm.start("kripke output");
+        spot::KripkePrinter p (model, std::cout);
+        p.run();
+        tm.stop("kripke output");
+        goto safe_exit;
+      }
     }
 
 

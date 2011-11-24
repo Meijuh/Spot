@@ -38,7 +38,7 @@ dve2check_LDADD = libspotdve2.la
 
 check_SCRIPTS = defs
 
-TESTS = dve2check.test finite.test
+TESTS = dve2check.test finite.test kripke.test
 EXTRA_DIST = $(TESTS) beem-peterson.4.dve finite.dve
 
 distclean-local:

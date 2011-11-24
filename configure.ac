@@ -118,6 +118,9 @@ AC_CONFIG_FILES([
   src/ltlast/Makefile
   src/ltlenv/Makefile
   src/ltlparse/Makefile
+  src/kripkeparse/Makefile
+  src/kripketest/Makefile
+  src/kripketest/defs
   src/ltltest/defs
   src/ltltest/Makefile
   src/ltlvisit/Makefile

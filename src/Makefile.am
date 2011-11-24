@@ -28,8 +28,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 # libspot.la needed by the tests).
 SUBDIRS = misc ltlenv ltlast ltlvisit ltlparse eltlparse tgba		\
           tgbaalgos tgbaparse evtgba evtgbaalgos evtgbaparse kripke	\
-          saba sabaalgos neverparse . ltltest eltltest tgbatest		\
-          evtgbatest sabatest sanity
+          saba sabaalgos neverparse kripkeparse . ltltest eltltest      \
+	  tgbatest evtgbatest sabatest sanity kripketest
 
 lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =
@@ -50,7 +50,8 @@ libspot_la_LIBADD =  \
   evtgbaparse/libevtgbaparse.la \
   saba/libsaba.la \
   sabaalgos/libsabaalgos.la \
-  kripke/libkripke.la
+  kripke/libkripke.la \
+  kripkeparse/libkripkeparse.la
 
 # Dummy C++ source to cause C++ linking.
 nodist_EXTRA_libspot_la_SOURCES = _.cc

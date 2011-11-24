@@ -1,4 +1,4 @@
-## Copyright (C) 2009  Laboratoire de Recherche et Developpement de l'Epita
+## Copyright (C) 2011  Laboratoire de Recherche et Developpement de l'Epita
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -18,19 +18,25 @@
 ## 02111-1307, USA.
 
 AM_CPPFLAGS = -I$(srcdir)/.. $(BUDDY_CPPFLAGS)
-AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
-kripkedir = $(pkgincludedir)/kripke
+kripketestdir = $(pkgincludedir)/kripketest
 
-kripke_HEADERS = \
-  fairkripke.hh \
-  kripke.hh \
-  kripkeexplicit.hh \
-  kripkeprint.hh
+kripketest_HEADERS =
 
-noinst_LTLIBRARIES = libkripke.la
-libkripke_la_SOURCES = \
-  fairkripke.cc \
-  kripke.cc \
-  kripkeexplicit.cc \
-  kripkeprint.cc
+
+LDADD = ../libspot.la ../../buddy/src/.libs/libbdd.so
+
+check_SCRIPTS = defs
+
+parse_print_SOURCES = parse_print_test.cc
+check_PROGRAMS = \
+parse_print
+
+TESTS = \
+  kripke.test \
+  bad_parsing.test
+
+EXTRA_DIST = $(TESTS)
+
+distclean-local:
+	rm -rf $(TESTS:.test=.dir)

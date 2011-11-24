@@ -67,6 +67,7 @@ LBTT_TRANSLATE="@LBTT_TRANSLATE@"
 VALGRIND='@VALGRIND@'
 SPIN='@SPIN@'
 LTL2BA='@LTL2BA@'
+top_srcdir='../@top_srcdir@'
 
 run()
 {
@@ -87,7 +88,6 @@ run()
   fi
   test $exitcode = $expected_exitcode || exit 1
 }
-
 
 run2()
 {
@@ -122,6 +122,7 @@ run2()
   rm -f log log2
 
 }
+
 
 
 set -x

@@ -107,6 +107,8 @@ Core directories
 
 src/              Sources for libspot.
    kripke/        Kripke Structure interface.
+   kripkeparse/   Parser for explicit Kripke.
+   kripketest/    Tests for kripke explicit.
    ltlast/        LTL abstract syntax tree (including nodes for ELTL).
    ltlenv/        LTL environments.
    ltlparse/      Parser for LTL formulae.

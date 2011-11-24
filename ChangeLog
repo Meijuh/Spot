@@ -1,3 +1,28 @@
+2011-05-07  Thomas Badie  <badie@lrde.epita.fr>
+
+	Add text I/O for Kripke structures.
+
+	* src/kripke/kripkeexplicit.cc, src/kripke/kripkeexplicit.hh,
+	src/kripke/kripkeprint.cc, src/kripke/kripkeprint.hh: New files.
+	* src/kripke/Makefile.am: Add them.
+	* src/kripkeparse/fmterror.cc, src/kripkeparse/kripkeparse.yy,
+	src/kripkeparse/kripkescan.ll, src/kripkeparse/parsedecl.hh,
+	src/kripkeparse/public.hh, src/kripkeparse/scankripke.ll: New
+	files.
+	* src/kripkeparse/Makefile.am: Add them.
+	* src/kripketest/bad_parsing.test, src/kripketest/defs.in,
+	src/kripketest/kripke.test, src/kripketest/origin,
+	src/kripketest/parse_print_test.cc: New files.
+	* src/kripketest/Makefile.am: Add them.
+	* src/Makefile.am (SUBDIRS): Add kripkeparse and kripketest.
+	* README: Document src/kripketest/ and src/kripkeparse/.
+	* configure.ac: Generate src/kripkeparse/Makefile,
+	src/kripketest/Makefile, src/kripketest/defs.
+	* iface/dve2/defs.in (run2): New function.
+	* iface/dve2/dve2check.cc (syntax, main): Add option -gK.
+	* iface/dve2/kripke.test: New file.
+	* iface/dve2/Makefile.am (TESTS): Add kripke.test.
+
 2011-11-24  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Fix bench/emptchk/pml2tgba.pl for more recent Spin version.
