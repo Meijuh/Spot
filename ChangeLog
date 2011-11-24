@@ -1,3 +1,11 @@
+2011-11-24  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Update formulae.ltl not to use uncommon operators.
+
+	* bench/emptchk/formulae.ltl: Do not use + and * in the list of
+	formulas.  Use | and & instead.  The * operator was removed on
+	2010-01-30.  Reported by Étienne Renault.
+
 2011-11-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	More documentation.
