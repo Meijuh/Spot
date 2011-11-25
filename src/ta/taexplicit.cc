@@ -266,7 +266,9 @@ namespace spot
   size_t
   state_ta_explicit::hash() const
   {
-    return wang32_hash(tgba_state_->hash());
+    //return wang32_hash(tgba_state_->hash());
+    return wang32_hash(tgba_state_->hash()) ^ wang32_hash(tgba_condition_.id());
+
   }
 
   state_ta_explicit*

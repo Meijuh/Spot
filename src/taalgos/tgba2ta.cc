@@ -586,8 +586,9 @@ namespace spot
                     << "***tgba_to_tgbta: POST if (state->is_livelock_accepting_state()) ... create_transition ***"
                     << std::endl;
 
+              } else {
+                  state->set_livelock_accepting_state(false);
               }
-            //state->set_livelock_accepting_state(false);
           }
 
         if (state->compare(tgbta->get_artificial_initial_state()))

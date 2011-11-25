@@ -176,10 +176,10 @@ namespace spot
     virtual state_ta_explicit*
     clone() const;
 
-    virtual
-    void destroy() const
+    virtual void destroy() const
     {
     }
+
 
     virtual
     ~state_ta_explicit()

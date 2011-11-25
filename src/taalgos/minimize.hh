@@ -22,6 +22,7 @@
 # define SPOT_TAALGOS_MINIMIZE_HH
 
 # include "ta/ta.hh"
+# include "ta/tgbta.hh"
 # include "ta/taexplicit.hh"
 
 namespace spot
@@ -29,6 +30,9 @@ namespace spot
 
   ta*
   minimize_ta(const ta* ta_);
+
+  tgbta*
+  minimize_tgbta(const tgbta* tgbta_);
 
 
 /// @}
