@@ -45,7 +45,7 @@ namespace spot
       start()
       {
 	os_ << "acc =";
-	print_acc(automata_->all_acceptance_conditions()) << ";" << std::endl;
+	print_acc(automata_->all_acceptance_conditions()) << ";\n";
       }
 
       void
@@ -61,7 +61,7 @@ namespace spot
 	    os_ << "\", \"";
 	    escape_str(os_, bdd_format_formula(d, si->current_condition()));
 	    os_ << "\",";
-	    print_acc(si->current_acceptance_conditions()) << ";" << std::endl;
+	    print_acc(si->current_acceptance_conditions()) << ";\n";
 	    dest->destroy();
 	  }
       }

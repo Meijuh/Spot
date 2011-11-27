@@ -57,7 +57,7 @@ namespace spot
 	    to_string(f_, os_);
 	    os_ << " */";
 	  }
-	os_ << std::endl;
+	os_ << '\n';
 	init_ = automata_->get_init_state();
       }
 
@@ -65,12 +65,9 @@ namespace spot
       end()
       {
 	if (fi_needed_)
-	  os_ << "  fi;" << std::endl;
+	  os_ << "  fi;\n";
 	if (accept_all_ != -1)
-	  {
-	    os_ << "accept_all:" << std::endl;
-	    os_ << "  skip" << std::endl;
-	  }
+	  os_ << "accept_all:\n  skip\n";
 	os_ << "}" << std::endl;
 	init_->destroy();
       }
@@ -144,13 +141,12 @@ namespace spot
 	if (it->done())
 	  {
 	    if (fi_needed_ != 0)
-	      os_ << "  fi;" << std::endl;
+	      os_ << "  fi;\n";
 	    os_ << get_state_label(s, n) << ":";
 	    if (comments_)
 	      os_ << " /* " << automata_->format_state(s) << " */";
-	    os_ << std::endl;
-	    os_ << "  if" << std::endl;
-	    os_ << "  :: (0) -> goto " << get_state_label(s, n) << std::endl;
+	    os_ << "\n  if\n  :: (0) -> goto "
+		<< get_state_label(s, n) << '\n';
 	    fi_needed_ = true;
 	  }
 	else
@@ -164,12 +160,11 @@ namespace spot
 	    else
 	      {
 		if (fi_needed_)
-		  os_ << "  fi;" << std::endl;
+		  os_ << "  fi;\n";
 		os_ << get_state_label(s, n) << ":";
 		if (comments_)
 		  os_ << " /* " << automata_->format_state(s) << " */";
-		os_ << std::endl;
-		os_ << "  if" << std::endl;
+		os_ << "\n  if\n";
 		fi_needed_ = true;
 	      }
 	    current->destroy();
@@ -189,7 +184,7 @@ namespace spot
 	    to_spin_string(f, os_, true);
 	    f->destroy();
 	    state* current = si->current_state();
-	    os_ << ") -> goto " << get_state_label(current, out) << std::endl;
+	    os_ << ") -> goto " << get_state_label(current, out) << '\n';
 	    current->destroy();
 	  }
       }

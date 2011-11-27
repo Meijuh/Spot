@@ -1,5 +1,14 @@
 2011-11-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Don't flush the stream on each new line, when writing automata.
+
+	* src/tgbaalgos/neverclaim.cc, src/tgbaalgos/dotty.cc,
+	src/tgbaalgos/save.cc: Prefer '\n' over std::endl to speedup I/O.
+	* src/ltltest/genltl.cc (syntax): Use '\n' too, although it won't
+	make a big difference.
+
+2011-11-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Add an ltl2tgba option to read Kripke structure.
 
 	Also offers two ways to output Kripke structures.

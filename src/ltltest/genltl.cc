@@ -108,37 +108,35 @@ environment& env(default_environment::instance());
 void
 syntax(char* prog)
 {
-  std::cerr
-    << "Usage: "<< prog << " [-s] F N" << std::endl
-    << std::endl
-    << "-s output using Spin's syntax" << std::endl
-    << "F  specifies the familly of LTL formula to build" << std::endl
-    << "N  is the size parameter of the familly" << std::endl
-    << std::endl
-    << "Available families (F):" << std::endl
-    << "  1: F(p1&F(p2&F(p3&...F(pn)))) & F(q1&F(q2&F(q3&...F(qn))))"
-    << std::endl
-    << "  2: F(p&X(p&X(p&...X(p)))) & F(q&X(q&X(q&...X(q))))" << std::endl
-    << "  3: F(p&(Xp)&(XXp)&...(X...X(p))) & F(q&(Xq)&(XXq)&...(X...X(q)))"
-    << std::endl
-    << "  4: GF(p1)&GF(p2)&...&GF(pn)" << std::endl
-    << "  5: FG(p1)|FG(p2)|...|FG(pn)" << std::endl
-    << "  6: GF(p1)|GF(p2)|...|GF(pn)" << std::endl
-    << "  7: FG(p1)&FG(p2)&...&FG(pn)" << std::endl
-    << "  8: (((p1 U p2) U p3) ... U pn)" << std::endl
-    << "  9: (p1 U (p2 U (... U pn)))" << std::endl
-    << " 10: (((p1 R p2) R p3) ... R pn)" << std::endl
-    << " 11: (p1 R (p2 R (... R pn)))" << std::endl
-    << " 12: (GF(p1)|FG(p2))&(GF(p2)|FG(p3))&...&(GF(pn)|FG(p{n+1}))"
-    << std::endl
-    << " 13: (F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))" << std::endl
-    << " 14: G(p1)|G(p2)|...|G(pn)" << std::endl
-    << " 15: F(p1)&F(p2)&...&F(pn)" << std::endl
-    << " 16: !((GF(p1)&GF(p2)&...&GF(pn))->G(q -> F(r)))" << std::endl
-    << " 17: LTLcounter(n)" << std::endl
-    << " 18: LTLcounterLinear(n)" << std::endl
-    << " 19: LTLcounterCarry(n)" << std::endl
-    << " 20: LTLcounterCarryLinear(n)" << std::endl;
+  std::cerr <<
+    "Usage: " << prog << " [-s] F N\n"
+    "\n"
+    "-s output using Spin's syntax\n"
+    "F  specifies the familly of LTL formula to build\n"
+    "N  is the size parameter of the familly\n"
+    "\n"
+    "Available families (F):\n"
+    "  1: F(p1&F(p2&F(p3&...F(pn)))) & F(q1&F(q2&F(q3&...F(qn))))"
+    "\n"
+    "  2: F(p&X(p&X(p&...X(p)))) & F(q&X(q&X(q&...X(q))))\n"
+    "  3: F(p&(Xp)&(XXp)&...(X...X(p))) & F(q&(Xq)&(XXq)&...(X...X(q)))\n"
+    "  4: GF(p1)&GF(p2)&...&GF(pn)\n"
+    "  5: FG(p1)|FG(p2)|...|FG(pn)\n"
+    "  6: GF(p1)|GF(p2)|...|GF(pn)\n"
+    "  7: FG(p1)&FG(p2)&...&FG(pn)\n"
+    "  8: (((p1 U p2) U p3) ... U pn)\n"
+    "  9: (p1 U (p2 U (... U pn)))\n"
+    " 10: (((p1 R p2) R p3) ... R pn)\n"
+    " 11: (p1 R (p2 R (... R pn)))\n"
+    " 12: (GF(p1)|FG(p2))&(GF(p2)|FG(p3))&...&(GF(pn)|FG(p{n+1}))\n"
+    " 13: (F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))\n"
+    " 14: G(p1)|G(p2)|...|G(pn)\n"
+    " 15: F(p1)&F(p2)&...&F(pn)\n"
+    " 16: !((GF(p1)&GF(p2)&...&GF(pn))->G(q -> F(r)))\n"
+    " 17: LTLcounter(n)\n"
+    " 18: LTLcounterLinear(n)\n"
+    " 19: LTLcounterCarry(n)\n"
+    " 20: LTLcounterCarryLinear(n)" << std::endl;
   exit(2);
 }
 

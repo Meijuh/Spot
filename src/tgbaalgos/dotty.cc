@@ -47,9 +47,9 @@ namespace spot
       void
       start()
       {
-	os_ << "digraph G {" << std::endl;
-	os_ << "  0 [label=\"\", style=invis, height=0]" << std::endl;
-	os_ << "  0 -> 1" << std::endl;
+	os_ << ("digraph G {\n"
+		"  0 [label=\"\", style=invis, height=0]\n"
+		"  0 -> 1\n");
       }
 
       void
@@ -86,7 +86,7 @@ namespace spot
 	    << dd_->state_decl(automata_, s, n, si,
 			       escape_str(automata_->format_state(s)),
 			       accepting)
-	    << std::endl;
+	    << '\n';
       }
 
       void
@@ -111,7 +111,7 @@ namespace spot
 	os_ << "  " << in << " -> " << out << " "
 	    << dd_->link_decl(automata_, in_s, in, out_s, out, si,
 			      escape_str(label))
-	    << std::endl;
+	    << '\n';
       }
 
     private:
