@@ -1,3 +1,7 @@
+2011-11-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	* AUTHORS: Add Thomas Badie.
+
 2011-05-07  Thomas Badie  <badie@lrde.epita.fr>
 
 	Add text I/O for Kripke structures.
