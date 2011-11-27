@@ -1,5 +1,5 @@
 # -*- shell-script -*-
-# Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+# Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 # Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -87,41 +87,5 @@ run()
   fi
   test $exitcode = $expected_exitcode || exit 1
 }
-
-
-run2()
-{
-  expected_exitcode=$1
-  shift
-  exitcode=0
-  if test -n "$VALGRIND"; then
-    exec 6>valgrind.err
-    GLIBCPP_FORCE_NEW=1 \
-    ../../../libtool --mode=execute \
-    $VALGRIND --tool=memcheck --leak-check=yes --log-fd=6 -q "$@" | grep -v + > log ||
-      exitcode=$?
-    cat valgrind.err 1>&2
-    test -z "`sed 1q valgrind.err`" || exit 50
-    rm -f valgrind.err
-  else
-    "$@" || exitcode=$?
-  fi
-  test $exitcode = $expected_exitcode || exit 1
-
-  exec 6>valgrind.err
-  ../../../libtool --mode=execute \
-      $VALGRIND --tool=memcheck --leak-check=yes --log-fd=6 -q $1 log \
-      | grep -v + > log2 ||
-  exitcode=$?
-    cat valgrind.err 1>&2
-    test -z "`sed 1q valgrind.err`" || exit 50
-    rm -f valgrind.err
-  test $exitcode = $expected_exitcode || exit 1
-
-  diff log log2 || exit 42
-  rm -f log log2
-
-}
-
 
 set -x

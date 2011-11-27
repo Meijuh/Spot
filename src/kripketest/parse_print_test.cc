@@ -19,10 +19,8 @@
 // 02111-1307, USA.
 
 
-#include "../kripkeparse/public.hh"
-#include "../kripkeparse/parsedecl.hh"
-#include "../kripke/kripkeprint.hh"
-#include "../tgba/bddprint.hh"
+#include "kripkeparse/public.hh"
+#include "kripke/kripkeprint.hh"
 #include "ltlast/allnodes.hh"
 
 
@@ -30,7 +28,7 @@ using namespace spot;
 
 int main(int argc, char** argv)
 {
-  int returnValue = 0;
+  int return_value = 0;
   kripke_parse_error_list pel;
   bdd_dict* dict = new bdd_dict;
 
@@ -38,15 +36,11 @@ int main(int argc, char** argv)
   if (!pel.empty())
   {
     format_kripke_parse_errors(std::cerr, argv[1], pel);
-    returnValue = 1;
+    return_value = 1;
   }
 
-  if (!returnValue)
-  {
-    KripkePrinter* kp = new KripkePrinter(k, std::cout);
-    kp->run();
-    delete kp;
-  }
+  if (!return_value)
+    kripke_save_reachable(std::cout, k);
 
   delete k;
   delete dict;
@@ -54,5 +48,5 @@ int main(int argc, char** argv)
   assert(ltl::unop::instance_count() == 0);
   assert(ltl::binop::instance_count() == 0);
   assert(ltl::multop::instance_count() == 0);
-  return returnValue;
+  return return_value;
 }

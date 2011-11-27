@@ -20,10 +20,9 @@
 
 
 #include "kripkeexplicit.hh"
-#include "../tgba/bddprint.hh"
+#include "tgba/bddprint.hh"
 #include "tgba/formula2bdd.hh"
 #include <iostream>
-#include "../tgba/state.hh"
 
 namespace spot
 {

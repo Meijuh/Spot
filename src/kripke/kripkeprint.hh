@@ -23,30 +23,32 @@
 # define SPOT_KRIPKE_KRIPKEPRINT_HH
 
 # include <iosfwd>
-# include "tgbaalgos/reachiter.hh"
 namespace spot
 {
 
-  class kripke_explicit;
-  class state_kripke;
-  class kripke_succ_iterator;
   class kripke;
 
-  /// \brief Iterate over all reachable states of a spot::kripke
-  /// Override start and process_state methods from
-  /// tgba_reachable_iterator_breadth_first.
-  class KripkePrinter : public tgba_reachable_iterator_breadth_first
-  {
-    public:
-      KripkePrinter(const kripke* state, std::ostream& os);
+  /// \brief Save the reachable part of Kripke structure in text format.
+  ///
+  /// The states will be named with the value returned by the
+  /// kripke::format_state() method.  Such a string can be large, so
+  /// the output will not be I/O efficient.  We recommend using this
+  /// function only for debugging.  Use
+  /// kripke_save_reachable_renumbered() for large output.
+  ///
+  /// \ingroup tgba_io
+  std::ostream& kripke_save_reachable(std::ostream& os, const kripke* k);
 
-      void start();
-
-      void process_state(const state*, int, tgba_succ_iterator* si);
-
-    private:
-      std::ostream& os_;
-  };
+  /// \brief Save the reachable part of Kripke structure in text format.
+  ///
+  /// States will be renumbered with sequential number.  This is much
+  /// more I/O efficient when dumping large Kripke structures with big
+  /// state names.  The drawback is that any information carried by
+  /// the state name is lost.
+  ///
+  /// \ingroup tgba_io
+  std::ostream& kripke_save_reachable_renumbered(std::ostream& os,
+						 const kripke* k);
 
 } // End namespace spot
 

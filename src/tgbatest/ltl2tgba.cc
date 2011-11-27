@@ -58,10 +58,11 @@
 #include "tgbaalgos/gtec/gtec.hh"
 #include "eltlparse/public.hh"
 #include "misc/timer.hh"
-
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/emptiness_stats.hh"
+#include "tgbaalgos/scc.hh"
+#include "kripkeparse/public.hh"
 
 std::string
 ltl_defs()
@@ -111,9 +112,10 @@ syntax(char* prog)
 	    << std::endl
 	    << "  -XN   do not compute an automaton, read it from a"
 	    << " neverclaim file" << std::endl
-	    << "  -Pfile  multiply the formula automaton with the automaton"
-	    << " from `file'"
-	    << std::endl
+	    << "  -Pfile  multiply the formula automaton with the TGBA read"
+	    << " from `file'\n"
+	    << "  -KPfile multiply the formula automaton with the Kripke"
+	    << " structure from `file'\n"
 	    << std::endl
 
 	    << "Translation algorithm:" << std::endl
@@ -330,7 +332,7 @@ main(int argc, char** argv)
   bool spin_comments = false;
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* unobservables = 0;
-  spot::tgba_explicit_string* system = 0;
+  spot::tgba* system = 0;
   const spot::tgba* product = 0;
   const spot::tgba* product_to_free = 0;
   spot::bdd_dict* dict = new spot::bdd_dict();
@@ -498,6 +500,18 @@ main(int argc, char** argv)
 	{
 	  output = 10;
 	}
+      else if (!strncmp(argv[formula_index], "-KP", 3))
+	{
+	  tm.start("reading -KP's argument");
+
+	  spot::kripke_parse_error_list pel;
+	  system = spot::kripke_parse(argv[formula_index] + 3,
+				      pel, dict, env, debug_opt);
+	  if (spot::format_kripke_parse_errors(std::cerr,
+					       argv[formula_index] + 2, pel))
+	    return 2;
+	  tm.stop("reading -KP's argument");
+	}
       else if (!strcmp(argv[formula_index], "-KV"))
 	{
 	  output = 11;
@@ -555,14 +569,15 @@ main(int argc, char** argv)
 	  tm.start("reading -P's argument");
 
 	  spot::tgba_parse_error_list pel;
-	  system = spot::tgba_parse(argv[formula_index] + 2,
-				    pel, dict, env, env, debug_opt);
+	  spot::tgba_explicit_string* s;
+	  s = spot::tgba_parse(argv[formula_index] + 2,
+			       pel, dict, env, env, debug_opt);
 	  if (spot::format_tgba_parse_errors(std::cerr,
 					     argv[formula_index] + 2, pel))
 	    return 2;
-	  system->merge_transitions();
-
+	  s->merge_transitions();
 	  tm.stop("reading -P's argument");
+	  system = s;
 	}
       else if (!strcmp(argv[formula_index], "-r"))
 	{

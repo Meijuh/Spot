@@ -252,8 +252,7 @@ main(int argc, char **argv)
       if (output == Kripke)
       {
         tm.start("kripke output");
-        spot::KripkePrinter p (model, std::cout);
-        p.run();
+	spot::kripke_save_reachable_renumbered(std::cout, model);
         tm.stop("kripke output");
         goto safe_exit;
       }
