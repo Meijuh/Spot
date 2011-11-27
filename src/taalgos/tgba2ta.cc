@@ -271,7 +271,7 @@ namespace spot
               {
 
                 testing_automata->create_transition(source, (*it_conditions),
-                    bddfalse, artificial_livelock_accepting_state);
+                    bddfalse, artificial_livelock_accepting_state,true);
 
               }
           }
