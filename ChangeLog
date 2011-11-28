@@ -1,5 +1,12 @@
 2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Undocument `.' from the web interface.
+
+	* wrap/python/ajax/ltl2tgba.html: Remove `.'
+	from the list of acceptable symbols for AND.
+
+2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* NEWS, configure.ac: Bump version to 0.8a.
 
 2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
