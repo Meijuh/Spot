@@ -1,5 +1,9 @@
 2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* AUTHORS: Sort alphabetically.
+
+2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Remove the old CGI interface.
 
 	* wrap/python/cgi-bin: Remove this directory.
