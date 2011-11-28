@@ -4,6 +4,7 @@ New in spot 0.7.1a:
     - Spot can read DiVinE models.  See iface/dve2/README for details.
     - The genltl tool can now output 20 differents LTL formula families.
       It also replaces the LTLcounter Perl scripts.
+    - There is a printer and parser for Kripke structures in text format.
   * Major interface changes:
     - The destructor of all states is now private.  Any code that looks like
       "delete some_state;" will cause an compile error and should be
