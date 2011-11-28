@@ -1,8 +1,8 @@
-New in spot 0.7.1a:
+New in spot 0.8 (2011-11-28):
 
   * Major new features:
     - Spot can read DiVinE models.  See iface/dve2/README for details.
-    - The genltl tool can now output 20 differents LTL formula families.
+    - The genltl tool can now output 20 different LTL formula families.
       It also replaces the LTLcounter Perl scripts.
     - There is a printer and parser for Kripke structures in text format.
   * Major interface changes:

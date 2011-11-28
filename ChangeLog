@@ -1,5 +1,11 @@
 2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Release Spot 0.8.
+
+	* NEWS, configure.ac: Bump version to 0.8.
+
+2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Remove spotref.pdf.
 
 	* doc/Doxyfile.in: Do not generate LaTeX output.
