@@ -141,7 +141,6 @@ AC_CONFIG_FILES([
   wrap/Makefile
   wrap/python/Makefile
   wrap/python/ajax/Makefile
-  wrap/python/cgi-bin/Makefile
   wrap/python/tests/Makefile
 ])
 AC_CONFIG_FILES([bench/ltl2tgba/ltl2baw.pl:bench/ltl2tgba/ltl2baw.in],

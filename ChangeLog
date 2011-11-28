@@ -1,5 +1,13 @@
 2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Remove the old CGI interface.
+
+	* wrap/python/cgi-bin: Remove this directory.
+	* wrap/python/Makefile.am (SUBDIRS): Remove it.
+	* configure.ac, README, wrap/python/ajax/README: Likewise.
+
+2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Undocument `.' from the web interface.
 
 	* wrap/python/ajax/ltl2tgba.html: Remove `.'

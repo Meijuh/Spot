@@ -2,10 +2,7 @@ ltl2tgba.html is a dynamic web page that translates user-supplied LTL
 formulae to Transition-based Generalized Büchi Automata.  The actual
 translation work is performed by a CGI script in Python: spot.py.
 
-This is actually meant to be a moderner rewrite of the cgi script in
-../cgi-bin/
-
-There are two ways to use the page: using a web server such as
+There are two ways to use the script: using a web server such as
 Apache, or standalone.
 
 In both cases you should ensure that the command `dot', from the
@@ -16,10 +13,10 @@ GraphViz package, is in the PATH.  configure should have picked it up.
 Standalone usage
 ================
 
-Simply run the spot.py from this directory.  This will create a
-directory called spotimg/ in the current directory (this will hold the
-generated pictures) and start an HTTP server on port 8000.  Point your
-browser to http://localhost:8000/ltl2tgba.html and you should be OK.
+Simply run spot.py from this directory.  This will create a directory
+called spotimg/ in the current directory (this will hold the generated
+pictures) and start an HTTP server on port 8000.  Point your browser
+to http://localhost:8000/ltl2tgba.html and you should be OK.
 
 After you have killed the server process (e.g. with Control-C),
 you may want to erase the spotimg/ directory.

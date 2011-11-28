@@ -142,8 +142,7 @@ bench/            Benchmarks for ...
 wrap/             Wrappers for other languages.
    python/        Python bindings for Spot and BuDDy
       tests/      Tests for these bindings
-      cgi-bin/    Python-based CGI script (ltl-to-tgba translator)
-      ajax/       Moderner LTL-to-TGBA translator, using Ajax.
+      ajax/       LTL-to-TGBA translator with web interface, using Ajax.
 iface/            Interfaces to other libraries.
    dve2/          Interface with DiVinE2.
    gspn/          GreatSPN interface.

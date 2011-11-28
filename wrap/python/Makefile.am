@@ -21,7 +21,7 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-SUBDIRS = . cgi-bin ajax tests
+SUBDIRS = . ajax tests
 
 AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_srcdir)/src $(BUDDY_CPPFLAGS) \
 	      -DSWIG_TYPE_TABLE=spot
