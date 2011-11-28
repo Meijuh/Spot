@@ -1,3 +1,10 @@
+2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix some Doxygen errors.
+
+	* src/kripke/kripkeexplicit.hh: Reindent, and fix
+	some comments.
+
 2011-11-13  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Add more nodes when resizing BDD table.
