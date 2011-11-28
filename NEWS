@@ -23,6 +23,7 @@ New in spot 0.7.1a:
     - Identifiers used to name atomic proposition can contain dots.
       E.g.: X.Y is now an atomic proposition, while it was understood
       as X&Y in previous versions.
+    - The Doxygen documentation is no longer built as a PDF file.
   * Internal improvements:
     - The on-line ltl2tgba CGI script uses a cache to produce faster
       answers.

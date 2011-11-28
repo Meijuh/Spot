@@ -130,8 +130,6 @@ src/              Sources for libspot.
    sanity/        Sanity tests for the whole project.
 doc/              Documentation for libspot.
    spot.html/     HTML reference manual.
-   spot.latex/    Sources for the PDF manual. (Not distributed, can be rebuilt.)
-   spotref.pdf    PDF reference manual.
 bench/            Benchmarks for ...
    emptchk/       ... emptiness-check algorithms,
    gspn-ssp/      ... various symmetry-based methods with GreatSPN,

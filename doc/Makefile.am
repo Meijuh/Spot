@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Laboratoire de Recherche et Développement de
+## Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
 ## l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -43,12 +43,6 @@ $(srcdir)/stamp: $(srcdir)/Doxyfile.in $(top_srcdir)/configure.ac
 	touch $@
 
 $(srcdir)/spot.html $(srcdir)/spot.tag: $(srcdir)/stamp
-spot.latex: $(srcdir)/stamp
-
-$(srcdir)/spotref.pdf: $(srcdir)/stamp
-	cd spot.latex \
-	  && texi2dvi --pdf refman.tex \
-	  && cd .. && mv -f spot.latex/refman.pdf $@
 
 # spot.tag is useful to third-party packages that must link to the
 # Spot documentation.
@@ -58,5 +52,4 @@ EXTRA_DIST = \
   footer.html \
   mainpage.dox \
   $(srcdir)/stamp \
-  $(srcdir)/spot.html \
-  $(srcdir)/spotref.pdf
+  $(srcdir)/spot.html

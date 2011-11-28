@@ -1,5 +1,13 @@
 2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Remove spotref.pdf.
+
+	* doc/Doxyfile.in: Do not generate LaTeX output.
+	* doc/Makefile.am: Do not build spotref.pdf.
+	* NEWS, README: Adjust.
+
+2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Fix some Doxygen errors.
 
 	* src/kripke/kripkeexplicit.hh: Reindent, and fix
