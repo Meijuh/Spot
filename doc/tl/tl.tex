@@ -864,29 +864,71 @@ operator, even if the operator has multiple synonyms (like \samp{|},
   \mathit{atomic\_prop} ::=&\, \text{see section~\ref{sec:ap}}    &    \mid&\,\tsamp{(}\,\mathit{tformula}\,\tsamp{)} \\
   \mathit{bformula} ::=&\, \mathit{constant}                      &    \mid&\,\msamp{\NOT}\,\mathit{tformula}\,\\
     \mid&\,\mathit{atomic\_prop}                                  &    \mid&\,\mathit{tformula}\,\msamp{\AND}\,\mathit{tformula} \\
-    \mid&\,\tsamp{(}\,\mathit{bformula}\,\tsamp{)}                &    \mid&\,\mathit{tformula}\,\msamp{\OR}\,\mathit{tformula} \\
-    \mid&\,\msamp{\NOT}\,\mathit{bformula}                        &    \mid&\,\mathit{tformula}\,\msamp{\IMPLIES}\,\mathit{tformula} \\
-    \mid&\,\mathit{bformula}\,\msamp{\AND}\,\mathit{bformula}     &    \mid&\,\mathit{tformula}\,\msamp{\XOR}\,\mathit{tformula} \\
-    \mid&\,\mathit{bformula}\,\msamp{\OR}\,\mathit{bformula}      &    \mid&\,\mathit{tformula}\,\msamp{\EQUIV}\,\mathit{tformula} \\
-    \mid&\,\mathit{bformula}\,\msamp{\IMPLIES}\,\mathit{bformula} &    \mid&\,\msamp{\X}\,\mathit{tformula}\\
-    \mid&\,\mathit{bformula}\,\msamp{\XOR}\,\mathit{bformula}     &    \mid&\,\msamp{\F}\,\mathit{tformula}\\
-    \mid&\,\mathit{bformula}\,\msamp{\EQUIV}\,\mathit{bformula}   &    \mid&\,\msamp{\G}\,\mathit{tformula}\\
-  \mathit{rformula} ::=&\, \mathit{bformula}                      &    \mid&\,\mathit{tformula}\,\msamp{\U}\,\mathit{tformula} \\
-    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}                  &    \mid&\,\mathit{tformula}\,\msamp{\W}\,\mathit{tformula} \\
-    \mid&\,\mathit{rformula}\msamp{\OR}\mathit{rformula}          &    \mid&\,\mathit{tformula}\,\msamp{\R}\,\mathit{tformula} \\
-    \mid&\,\mathit{rformula}\msamp{\AND}\mathit{rformula}         &    \mid&\,\mathit{tformula}\,\msamp{\M}\,\mathit{tformula} \\
-    \mid&\,\mathit{rformula}\msamp{\ANDALT}\mathit{rformula}      &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\Asuffix}\,\mathit{tformula}\\
-    \mid&\,\mathit{rformula}\msamp{\CONCAT}\mathit{rformula}      &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\AsuffixEQ}\,\mathit{tformula}\\
-    \mid&\,\mathit{rformula}\msamp{\FUSION}\mathit{rformula}      &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\Esuffix}\,\mathit{tformula}\\
-    \mid&\,\mathit{rformula}\msamp{\STAR{\mvar{i}..\mvar{j}}}     &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\EsuffixEQ}\,\mathit{tformula} \\
-    \mid&\,\mathit{rformula}\msamp{\PLUS}                         &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}} \\
-    \mid&\,\mathit{rformula}\msamp{\EQUAL{\mvar{i}..\mvar{j}}}    &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\msamp{\NOT} \\
+    \mid&\,\mathit{atomic\_prop}\code{=0}                         &    \mid&\,\mathit{tformula}\,\msamp{\OR}\,\mathit{tformula} \\
+    \mid&\,\mathit{atomic\_prop}\code{=1}                         &    \mid&\,\mathit{tformula}\,\msamp{\IMPLIES}\,\mathit{tformula} \\
+    \mid&\,\tsamp{(}\,\mathit{bformula}\,\tsamp{)}                &    \mid&\,\mathit{tformula}\,\msamp{\XOR}\,\mathit{tformula} \\
+    \mid&\,\msamp{\NOT}\,\mathit{bformula}                        &    \mid&\,\mathit{tformula}\,\msamp{\EQUIV}\,\mathit{tformula} \\
+    \mid&\,\mathit{bformula}\,\msamp{\AND}\,\mathit{bformula}     &    \mid&\,\msamp{\X}\,\mathit{tformula}\\
+    \mid&\,\mathit{bformula}\,\msamp{\OR}\,\mathit{bformula}      &    \mid&\,\msamp{\F}\,\mathit{tformula}\\
+    \mid&\,\mathit{bformula}\,\msamp{\IMPLIES}\,\mathit{bformula} &    \mid&\,\msamp{\G}\,\mathit{tformula}\\
+    \mid&\,\mathit{bformula}\,\msamp{\XOR}\,\mathit{bformula}     &    \mid&\,\mathit{tformula}\,\msamp{\U}\,\mathit{tformula} \\
+    \mid&\,\mathit{bformula}\,\msamp{\EQUIV}\,\mathit{bformula}   &    \mid&\,\mathit{tformula}\,\msamp{\W}\,\mathit{tformula} \\
+  \mathit{rformula} ::=&\, \mathit{bformula}                      &    \mid&\,\mathit{tformula}\,\msamp{\R}\,\mathit{tformula} \\
+    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}                  &    \mid&\,\mathit{tformula}\,\msamp{\M}\,\mathit{tformula} \\
+    \mid&\,\mathit{rformula}\msamp{\OR}\mathit{rformula}          &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\Asuffix}\,\mathit{tformula}\\
+    \mid&\,\mathit{rformula}\msamp{\AND}\mathit{rformula}         &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\AsuffixEQ}\,\mathit{tformula}\\
+    \mid&\,\mathit{rformula}\msamp{\ANDALT}\mathit{rformula}      &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\Esuffix}\,\mathit{tformula}\\
+    \mid&\,\mathit{rformula}\msamp{\CONCAT}\mathit{rformula}      &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\EsuffixEQ}\,\mathit{tformula} \\
+    \mid&\,\mathit{rformula}\msamp{\FUSION}\mathit{rformula}      &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}} \\
+    \mid&\,\mathit{rformula}\msamp{\STAR{\mvar{i}..\mvar{j}}}     &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\msamp{\NOT} \\
+    \mid&\,\mathit{rformula}\msamp{\PLUS}                         \\
+    \mid&\,\mathit{rformula}\msamp{\EQUAL{\mvar{i}..\mvar{j}}}    \\
     \mid&\,\mathit{rformula}\msamp{\GOTO{\mvar{i}..\mvar{j}}}     \\
 \end{align*}
 
 \section{Operator precedence}
 
-\ltltodo[inline]{Document operator precedence.}
+\spottodo[inline]{The following operator precedence describe the
+  current parser of Spot, but this is not what we want eventually.
+  For instance $\IMPLIES$ should be right associative.  $\U$ and $\W$
+  would probably make more sense as right associative operators too.\\
+  %
+  Tools that have $\U$, $\R$, $\W$, and $\M$ operators as left
+  associative: Spin, ltl2ba (same parser as spin), Wring, psl2ba,
+  Spot, Modella, NuSMV.\\
+  %
+  Tools (and doc) that have these operators as right associative: Goal
+  (hence Büchi Store), PSL reference manual, LTL2AUT, LTL2Büchi (from
+  JavaPathFinder).\\
+  %
+  Tools that have these operators as non-associative (parentheses are
+  required): Vis, LBTT.\\
+  %
+  While compiling these lists I have also discovered that not all
+  people aggreed on the associativity of $\IMPLIES$ and $\EQUIV$.
+  Some have both left-assoc, or both right-assoc, other have only
+  $\IMPLIES$ as right-assoc.\\
+  %
+  We want to get closer to the PSL standard eventually.}
+
+\begin{center}
+\begin{tabular}{cll}
+ assoc. & operators                                                                                    & priority \\
+\hline
+left    & $\Asuffix,\,\AsuffixEQ,\,\Esuffix,\,\EsuffixEQ$                                              & lowest   \\
+left    & $\CONCAT,\,\FUSION$                                                                          &          \\
+left    & $\IMPLIES,\,\EQUIV$                                                                          &          \\
+left    & $\XOR$                                                                                       &          \\
+left    & $\OR$                                                                                        &          \\
+left    & $\AND,\,\ANDALT$                                                                             &          \\
+left    & $\U,\,\W,\,\M,\,\R$                                                                          &          \\
+        & $\F,\,\G$                                                                                    &          \\
+        & $\X$                                                                                         &          \\
+        & $\STAR{\mvar{i}..\mvar{j}},\,\PLUS,\,\EQUAL{\mvar{i}..\mvar{j}},\,\GOTO{\mvar{i}..\mvar{j}}$ &          \\
+        & $\NOT$                                                                                       &          \\
+        & $\code{=0},\,\code{=1}$                                                                      & highest  \\
+\end{tabular}
+\end{center}
 
 \chapter{Properties}
 
