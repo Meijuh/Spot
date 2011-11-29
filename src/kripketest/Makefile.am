@@ -24,7 +24,7 @@ kripketestdir = $(pkgincludedir)/kripketest
 kripketest_HEADERS =
 
 
-LDADD = ../libspot.la ../../buddy/src/.libs/libbdd.so
+LDADD = ../libspot.la
 
 check_SCRIPTS = defs
 

@@ -1,3 +1,11 @@
+2011-11-29  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix build failure during "make check" on MacOS X.
+
+	* src/kripketest/Makefile.am (LDADD): Remove a broken dependency.
+	Reported by Yann Thierry-Mieg.
+	* src/sanity/style.test: Make sure it does not appear again.
+
 2011-11-28  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* AUTHORS: Sort alphabetically.

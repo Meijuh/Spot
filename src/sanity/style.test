@@ -216,6 +216,27 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
   done || : # Make sure sh does not abort when read exits with false.
 done
 
+
+# Rules for Makefiles.
+for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
+
+  find "$dir" -name "Makefile.am" -a -type f -a -print |
+  while read file; do
+    fail=false
+
+    # Strip comments.
+    sed 's,#.*,,' < $file > $tmp
+
+    grep '[	 ]$' $tmp &&
+      diag 'Trailing whitespace.'
+
+    grep '\.libs/' $tmp &&
+	diag "Don't reference files in .libs/, use Libtool instead."
+
+    $fail && echo "$file" >>failures
+  done || : # Make sure sh does not abort when read exits with false.
+done
+
 if test -f failures; then
    echo "The following files contain style errors:"
    cat failures
