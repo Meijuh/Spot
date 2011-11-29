@@ -20,14 +20,18 @@
 
 
 all: $(srcdir)/tl.pdf
-TEXI2PDF = texi2dvi --pdf
-TEXI2PDF_FLAGS =  --tidy --build-dir=tmp.t2d --batch
+LATEXMK = latexmk -pdf -ps- -dvi- -e '$$bibtex_use=2' \
+          -pdflatex='pdflatex %O "\def\SpotVersion{$(VERSION)}\input{%S}"'
 
 dist_pdf_DATA = $(srcdir)/tl.pdf
 
 $(srcdir)/tl.pdf: $(srcdir)/tl.tex $(srcdir)/tl.bib
-	$(TEXI2PDF) $(TEXI2PDF_FLAGS) -o $@ $<
+	$(LATEXMK) $(srcdir)/tl.tex
+	test '$(srcdir)' = '.' || cp $@ $(srcdir)/$@
 
-.PHONY: mostlyclean-local
+pvc:
+	$(LATEXMK) -pvc $(srcdir)/tl.tex
+
+.PHONY: mostlyclean-local pvc
 mostlyclean-local:
-	rm -rf tmp.t2d
+	$(LATEXMK) -c $(srcdir)/tl.tex

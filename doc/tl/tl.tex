@@ -114,9 +114,11 @@
 \makeindex
 \newcommand{\Index}[1]{\index{#1}#1}
 
-
-% @SpotVersion@
-\def\SpotVersion{0.7.1a}
+% Make sure we can compile this file even without use the version
+% supplied by the Makefile.
+\ifdefined\SpotVersion\else
+ \def\SpotVersion{\textbf{UNKNOWN VERSION}}
+\fi
 
 %% ----------------------- %%
 %% Texinfo like commands.  %%
@@ -752,6 +754,7 @@ The following rules are all valid with the two arguments swapped, except the one
   \eword \CONCAT f &\equiv f\\
   &&
   b_1 \ANDALT b_2 &\equiv b_1\AND b_2 &
+  &&
   b:f &\stackrel{\dag}{\equiv} b\AND f\\
 \end{align*}
 
