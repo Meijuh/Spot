@@ -1,3 +1,11 @@
+2011-12-01  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix mkdir error in ajax/spot.in.
+
+	* wrap/python/ajax/spot.in: Do not print an error
+	when attempting to create an existing directory.
+	Reported by Étienne Renault.
+
 2011-11-29  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Fix build failure during "make check" on MacOS X.

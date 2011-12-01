@@ -94,13 +94,17 @@ sys.stdout.flush()
 # Reopen stdout without buffering
 sys.stdout = os.fdopen(sys.stdout.fileno(), "w", 0)
 
-# Redirect stderr to stdout at a low-level (so that
+# Redirect stderr to stdout at a low level (so that
 # even errors from subprocesses get printed).
 os.dup2(sys.stdout.fileno(), sys.stderr.fileno())
 
-# Redirect stdout to the cache file, at a low-level
+# Create a cache directory if one does not already exist.
+try:
+    os.mkdir(imgprefix, 0755)
+except OSError:
+    pass
+# Redirect stdout to the cache file, at a low level
 # for similar reason.
-os.mkdir(imgprefix, 0755)
 fd = os.open(cachename, os.O_CREAT | os.O_WRONLY, 0644)
 os.dup2(fd, sys.stdout.fileno())
 
@@ -195,8 +199,8 @@ def render_dot(basename):
 
 def render_dot_maybe(dotsrc, dont_run_dot):
     # The dot output is named after the SHA1 of the dot source.
-    # This way we can cache two different request that generate
-    # the same automaton (e.g. when changing a simplification
+    # This way we can cache two different requests that generate
+    # the same automaton (e.g., when changing a simplification
     # option that has no influence).
     autprefix = imgdir + '/' + hashlib.sha1(dotsrc).hexdigest()
     dotname = autprefix + '.txt'
@@ -204,7 +208,7 @@ def render_dot_maybe(dotsrc, dont_run_dot):
         dotout = open(dotname, "w", 0)
         dotout.write(dotsrc)
         dotout.close()
-    # Create an unused hardlink that point to the output picture
+    # Create an unused hardlink that points to the output picture
     # just to remember how many cache entries are sharing it.
     os.link(dotname, imgprefix + "/txt")
 
