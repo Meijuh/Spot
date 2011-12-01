@@ -807,7 +807,7 @@ namespace spot
 		      res_ |= label & tail_bdd;
 		    }
 
-		  if (dynamic_cast<constant*>(dest) == 0)
+		  if (dest->kind() != formula::Constant)
 		    {
 		      // If the destination is not a constant, it
 		      // means it can have successors.  Fusion the
