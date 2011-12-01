@@ -1192,6 +1192,7 @@ The goals in most of these simplification are to:
 These simplifications are enabled with
 \verb|ltl_simplifier_options::reduce_basics|'.
 
+\subsubsection{Basic Simplifications for Temporal Operators}
 
 The following are simplification rules for unary operators (applied
 from left to right, as usual):
@@ -1262,6 +1263,31 @@ in the OR arguments:
 \begin{align*}
   \F(f_1) \OR \ldots \OR \F(f_n) \OR \G\F(g_1) \OR \ldots \OR \G\F(g_m)
    &\equiv \F(f_1\OR \ldots \OR f_n \OR \G\F(g_1\OR \ldots \OR g_m)) \\
+\end{align*}
+
+\subsubsection{Basic Simplifications for SERE Operators}
+
+% Cite Symbolic computation of PSL.
+
+The following simplification rules are used for the $n$-ary operators
+$\ANDALT$, $\AND$, and $\OR$, and are of course commutative.
+
+\begin{align*}
+  b \ANDALT r\STAR{\mvar{i}..\mvar{j}} &\equiv
+  \begin{cases}
+    b \ANDALT r &\text{if~} i\le 1\le j\\
+    \0 &\text{else}\\
+  \end{cases}\\
+  b \ANDALT r\EQUAL{\mvar{i}..\mvar{j}} &\equiv
+  \begin{cases}
+    b \ANDALT r &\text{if~} i\le 1\le j\\
+    \0 &\text{else}\\
+  \end{cases}\\
+  b \ANDALT r\GOTO{\mvar{i}..\mvar{j}} &\equiv
+  \begin{cases}
+    b \ANDALT r &\text{if~} i\le 1\le j\\
+    \0 &\text{else}\\
+  \end{cases}\\
 \end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}

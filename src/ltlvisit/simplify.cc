@@ -1628,8 +1628,7 @@ namespace spot
 	      while (f1 != res->end())
 		{
 		  multop::vec::iterator f2 = f1;
-		  ++f2
-;
+		  ++f2;
 		  while (f2 != res->end())
 		    {
 		      assert(f1 != f2);
@@ -1687,229 +1686,297 @@ namespace spot
 
 	  assert(!res->empty());
 
-	  if (opt_.reduce_basics)
+	  // basics reduction do not concern Boolean formulas,
+	  // so don't waste time trying to apply them.
+	  if (opt_.reduce_basics && !mo->is_boolean())
 	    {
 	      switch (op)
 		{
 		case multop::And:
-		  {
-		    // Gather all operands by type.
-		    mospliter s(mospliter::Strip_X |
-				mospliter::Strip_FG |
-				mospliter::Strip_G |
-				mospliter::Split_F |
-				mospliter::Split_U_or_W |
-				mospliter::Split_R_or_M |
-				mospliter::Split_EventUniv,
-				res, c_);
-		    // FG(a) & FG(b) = FG(a & b)
-		    formula* allFG = unop_unop_multop(unop::F, unop::G,
-						      multop::And, s.res_FG);
-		    // Xa & Xb = X(a & b)
-		    // Xa & Xb & FG(c) = X(a & b & FG(c))
-		    // For Universal&Eventual formulae f1...fn we also have:
-		    // Xa & Xb & f1...fn = X(a & b & f1...fn)
-		    if (!s.res_X->empty())
-		      {
-			s.res_X->push_back(allFG);
-			allFG = 0;
-			s.res_X->insert(s.res_X->begin(),
-					s.res_EventUniv->begin(),
-					s.res_EventUniv->end());
-		      }
-		    else
-		      // We don't rewrite Ga & f1...fn = G(a & f1..fn)
-		      // similarly to what we do in the unop::Or case
-		      // as it is not clear what we'd gain by doing so.
-		      {
-			s.res_other->insert(s.res_other->begin(),
-					    s.res_EventUniv->begin(),
-					    s.res_EventUniv->end());
-		      }
-		    delete s.res_EventUniv;
+		  if (!mo->is_sere_formula())
+		    {
+		      // Gather all operands by type.
+		      mospliter s(mospliter::Strip_X |
+				  mospliter::Strip_FG |
+				  mospliter::Strip_G |
+				  mospliter::Split_F |
+				  mospliter::Split_U_or_W |
+				  mospliter::Split_R_or_M |
+				  mospliter::Split_EventUniv,
+				  res, c_);
+		      // FG(a) & FG(b) = FG(a & b)
+		      formula* allFG = unop_unop_multop(unop::F, unop::G,
+							multop::And, s.res_FG);
+		      // Xa & Xb = X(a & b)
+		      // Xa & Xb & FG(c) = X(a & b & FG(c))
+		      // For Universal&Eventual formulae f1...fn we also have:
+		      // Xa & Xb & f1...fn = X(a & b & f1...fn)
+		      if (!s.res_X->empty())
+			{
+			  s.res_X->push_back(allFG);
+			  allFG = 0;
+			  s.res_X->insert(s.res_X->begin(),
+					  s.res_EventUniv->begin(),
+					  s.res_EventUniv->end());
+			}
+		      else
+			// We don't rewrite Ga & f1...fn = G(a & f1..fn)
+			// similarly to what we do in the unop::Or case
+			// as it is not clear what we'd gain by doing so.
+			{
+			  s.res_other->insert(s.res_other->begin(),
+					      s.res_EventUniv->begin(),
+					      s.res_EventUniv->end());
+			}
+		      delete s.res_EventUniv;
 
-		    // Xa & Xb & f1...fn = X(a & b & f1...fn)
-		    // is built at the end of this multop::And case.
-		    // G(a) & G(b) = G(a & b)
-		    // is built at the end of this multop::And case.
+		      // Xa & Xb & f1...fn = X(a & b & f1...fn)
+		      // is built at the end of this multop::And case.
+		      // G(a) & G(b) = G(a & b)
+		      // is built at the end of this multop::And case.
 
-		    // The following three loops perform these rewritings:
-		    // (a U b) & (c U b) = (a & c) U b
-		    // (a U b) & (c W b) = (a & c) U b
-		    // (a W b) & (c W b) = (a & c) W b
-		    // (a R b) & (a R c) = a R (b & c)
-		    // (a R b) & (a M c) = a M (b & c)
-		    // (a M b) & (a M c) = a M (b & c)
-		    // F(a) & (a R b) = a M b
-		    // F(a) & (a M b) = a M b
-		    // F(b) & (a W b) = a U b
-		    // F(b) & (a U b) = a U b
-		    typedef Sgi::hash_map<formula*, multop::vec::iterator,
-					  ptr_hash<formula> > fmap_t;
-		    fmap_t uwmap; // associates "b" to "a U b" or "a W b"
-		    fmap_t rmmap; // associates "a" to "a R b" or "a M b"
-		    // (a U b) & (c U b) = (a & c) U b
-		    // (a U b) & (c W b) = (a & c) U b
-		    // (a W b) & (c W b) = (a & c) W b
-		    for (multop::vec::iterator i = s.res_U_or_W->begin();
-			 i != s.res_U_or_W->end(); ++i)
-		      {
-			binop* bo = static_cast<binop*>(*i);
-			formula* b = bo->second();
-			fmap_t::iterator j = uwmap.find(b);
-			if (j == uwmap.end())
-			  {
-			    // First occurrence.
-			    uwmap[b] = i;
-			    continue;
-			  }
-			// We already have one occurrence.  Merge them.
-			binop* old = static_cast<binop*>(*j->second);
-			binop::type op = binop::W;
-			if (bo->op() == binop::U
-			    || old->op() == binop::U)
-			  op = binop::U;
-			formula* fst_arg =
-			  multop::instance(multop::And,
-					   old->first()->clone(),
-					   bo->first()->clone());
-			*j->second = binop::instance(op, fst_arg, b->clone());
-			assert((*j->second)->kind() == formula::BinOp);
-			*i = 0;
-			old->destroy();
-			bo->destroy();
-		      }
-		    // (a R b) & (a R c) = a R (b & c)
-		    // (a R b) & (a M c) = a M (b & c)
-		    // (a M b) & (a M c) = a M (b & c)
-		    for (multop::vec::iterator i = s.res_R_or_M->begin();
-			 i != s.res_R_or_M->end(); ++i)
-		      {
-			binop* bo = static_cast<binop*>(*i);
-			formula* a = bo->first();
-			fmap_t::iterator j = rmmap.find(a);
-			if (j == rmmap.end())
-			  {
-			    // First occurrence.
-			    rmmap[a] = i;
-			    continue;
-			  }
-			// We already have one occurrence.  Merge them.
-			binop* old = static_cast<binop*>(*j->second);
-			binop::type op = binop::R;
-			if (bo->op() == binop::M
-			    || old->op() == binop::M)
-			  op = binop::M;
-			formula* snd_arg =
-			  multop::instance(multop::And,
-					   old->second()->clone(),
-					   bo->second()->clone());
-			*j->second = binop::instance(op, a->clone(), snd_arg);
-			assert((*j->second)->kind() == formula::BinOp);
-			*i = 0;
-			old->destroy();
-			bo->destroy();
-		      }
-		    // F(a) & (a R b) = a M b
-		    // F(a) & (a M b) = a M b
-		    // F(b) & (a W b) = a U b
-		    // F(b) & (a U b) = a U b
-		    for (multop::vec::iterator i = s.res_F->begin();
-			 i != s.res_F->end(); ++i)
-		      {
-			bool superfluous = false;
-			unop* uo = static_cast<unop*>(*i);
-			formula* c = uo->child();
-
-			fmap_t::iterator j = uwmap.find(c);
-			if (j != uwmap.end())
-			  {
-			    superfluous = true;
-			    binop* bo = static_cast<binop*>(*j->second);
-			    if (bo->op() == binop::W)
-			      {
-				*j->second =
-				  binop::instance(binop::U,
-						  bo->first()->clone(),
-						  bo->second()->clone());
-				assert((*j->second)->kind() == formula::BinOp);
-				bo->destroy();
-			      }
-			  }
-			j = rmmap.find(c);
-			if (j != rmmap.end())
-			  {
-			    superfluous = true;
-			    binop* bo = static_cast<binop*>(*j->second);
-			    if (bo->op() == binop::R)
-			      {
-				*j->second =
-				  binop::instance(binop::M,
-						  bo->first()->clone(),
-						  bo->second()->clone());
-				assert((*j->second)->kind() == formula::BinOp);
-				bo->destroy();
-			      }
-			  }
-			if (superfluous)
-			  {
-			    (*i)->destroy();
-			    *i = 0;
-			  }
-		      }
-
-		    s.res_other->reserve(s.res_other->size()
-					 + s.res_F->size()
-					 + s.res_U_or_W->size()
-					 + s.res_R_or_M->size()
-					 + 3);
-		    s.res_other->insert(s.res_other->end(),
-					s.res_F->begin(),
-					s.res_F->end());
-		    delete s.res_F;
-		    s.res_other->insert(s.res_other->end(),
-					s.res_U_or_W->begin(),
-					s.res_U_or_W->end());
-		    delete s.res_U_or_W;
-		    s.res_other->insert(s.res_other->end(),
-					s.res_R_or_M->begin(),
-					s.res_R_or_M->end());
-		    delete s.res_R_or_M;
-
-		    // Those "G" formulae that are eventual can be
-		    // postponed inside the X term if there is one.
-		    //
-		    // In effect we rewrite
-		    //   Xa&Xb&GFc&GFd&Ge as X(a&b&G(Fc&Fd))&Ge
-		    if (!s.res_X->empty())
-		      {
-			multop::vec* event = new multop::vec;
-			for (multop::vec::iterator i = s.res_G->begin();
-			     i != s.res_G->end(); ++i)
-			  if ((*i)->is_eventual())
+		      // The following three loops perform these rewritings:
+		      // (a U b) & (c U b) = (a & c) U b
+		      // (a U b) & (c W b) = (a & c) U b
+		      // (a W b) & (c W b) = (a & c) W b
+		      // (a R b) & (a R c) = a R (b & c)
+		      // (a R b) & (a M c) = a M (b & c)
+		      // (a M b) & (a M c) = a M (b & c)
+		      // F(a) & (a R b) = a M b
+		      // F(a) & (a M b) = a M b
+		      // F(b) & (a W b) = a U b
+		      // F(b) & (a U b) = a U b
+		      typedef Sgi::hash_map<formula*, multop::vec::iterator,
+					    ptr_hash<formula> > fmap_t;
+		      fmap_t uwmap; // associates "b" to "a U b" or "a W b"
+		      fmap_t rmmap; // associates "a" to "a R b" or "a M b"
+		      // (a U b) & (c U b) = (a & c) U b
+		      // (a U b) & (c W b) = (a & c) U b
+		      // (a W b) & (c W b) = (a & c) W b
+		      for (multop::vec::iterator i = s.res_U_or_W->begin();
+			   i != s.res_U_or_W->end(); ++i)
+			{
+			  binop* bo = static_cast<binop*>(*i);
+			  formula* b = bo->second();
+			  fmap_t::iterator j = uwmap.find(b);
+			  if (j == uwmap.end())
 			    {
-			      event->push_back(*i);
-			      *i = 0; // Remove it from res_G.
+			      // First occurrence.
+			      uwmap[b] = i;
+			      continue;
 			    }
-			s.res_X->push_back(unop_multop(unop::G,
-						       multop::And, event));
-		      }
+			  // We already have one occurrence.  Merge them.
+			  binop* old = static_cast<binop*>(*j->second);
+			  binop::type op = binop::W;
+			  if (bo->op() == binop::U
+			      || old->op() == binop::U)
+			    op = binop::U;
+			  formula* fst_arg =
+			    multop::instance(multop::And,
+					     old->first()->clone(),
+					     bo->first()->clone());
+			  *j->second = binop::instance(op, fst_arg, b->clone());
+			  assert((*j->second)->kind() == formula::BinOp);
+			  *i = 0;
+			  old->destroy();
+			  bo->destroy();
+			}
+		      // (a R b) & (a R c) = a R (b & c)
+		      // (a R b) & (a M c) = a M (b & c)
+		      // (a M b) & (a M c) = a M (b & c)
+		      for (multop::vec::iterator i = s.res_R_or_M->begin();
+			   i != s.res_R_or_M->end(); ++i)
+			{
+			  binop* bo = static_cast<binop*>(*i);
+			  formula* a = bo->first();
+			  fmap_t::iterator j = rmmap.find(a);
+			  if (j == rmmap.end())
+			    {
+			      // First occurrence.
+			      rmmap[a] = i;
+			      continue;
+			    }
+			  // We already have one occurrence.  Merge them.
+			  binop* old = static_cast<binop*>(*j->second);
+			  binop::type op = binop::R;
+			  if (bo->op() == binop::M
+			      || old->op() == binop::M)
+			    op = binop::M;
+			  formula* snd_arg =
+			    multop::instance(multop::And,
+					     old->second()->clone(),
+					     bo->second()->clone());
+			  *j->second = binop::instance(op, a->clone(), snd_arg);
+			  assert((*j->second)->kind() == formula::BinOp);
+			  *i = 0;
+			  old->destroy();
+			  bo->destroy();
+			}
+		      // F(a) & (a R b) = a M b
+		      // F(a) & (a M b) = a M b
+		      // F(b) & (a W b) = a U b
+		      // F(b) & (a U b) = a U b
+		      for (multop::vec::iterator i = s.res_F->begin();
+			   i != s.res_F->end(); ++i)
+			{
+			  bool superfluous = false;
+			  unop* uo = static_cast<unop*>(*i);
+			  formula* c = uo->child();
 
-		    // G(a) & G(b) & ... = G(a & b & ...)
-		    formula* allG = unop_multop(unop::G, multop::And, s.res_G);
-		    // Xa & Xb & ... = X(a & b & ...)
-		    formula* allX = unop_multop(unop::X, multop::And, s.res_X);
+			  fmap_t::iterator j = uwmap.find(c);
+			  if (j != uwmap.end())
+			    {
+			      superfluous = true;
+			      binop* bo = static_cast<binop*>(*j->second);
+			      if (bo->op() == binop::W)
+				{
+				  *j->second =
+				    binop::instance(binop::U,
+						    bo->first()->clone(),
+						    bo->second()->clone());
+				  assert((*j->second)->kind()
+					 == formula::BinOp);
+				  bo->destroy();
+				}
+			    }
+			  j = rmmap.find(c);
+			  if (j != rmmap.end())
+			    {
+			      superfluous = true;
+			      binop* bo = static_cast<binop*>(*j->second);
+			      if (bo->op() == binop::R)
+				{
+				  *j->second =
+				    binop::instance(binop::M,
+						    bo->first()->clone(),
+						    bo->second()->clone());
+				  assert((*j->second)->kind()
+					 == formula::BinOp);
+				  bo->destroy();
+				}
+			    }
+			  if (superfluous)
+			    {
+			      (*i)->destroy();
+			      *i = 0;
+			    }
+			}
 
-		    s.res_other->push_back(allX);
-		    s.res_other->push_back(allG);
-		    s.res_other->push_back(allFG);
-		    result_ = multop::instance(multop::And, s.res_other);
-		    // If we altered the formula in some way, process
-		    // it another time.
-		    if (result_ != mo)
-		      result_ = recurse_destroy(result_);
-		    return;
-		  }
+		      s.res_other->reserve(s.res_other->size()
+					   + s.res_F->size()
+					   + s.res_U_or_W->size()
+					   + s.res_R_or_M->size()
+					   + 3);
+		      s.res_other->insert(s.res_other->end(),
+					  s.res_F->begin(),
+					  s.res_F->end());
+		      delete s.res_F;
+		      s.res_other->insert(s.res_other->end(),
+					  s.res_U_or_W->begin(),
+					  s.res_U_or_W->end());
+		      delete s.res_U_or_W;
+		      s.res_other->insert(s.res_other->end(),
+					  s.res_R_or_M->begin(),
+					  s.res_R_or_M->end());
+		      delete s.res_R_or_M;
+
+		      // Those "G" formulae that are eventual can be
+		      // postponed inside the X term if there is one.
+		      //
+		      // In effect we rewrite
+		      //   Xa&Xb&GFc&GFd&Ge as X(a&b&G(Fc&Fd))&Ge
+		      if (!s.res_X->empty())
+			{
+			  multop::vec* event = new multop::vec;
+			  for (multop::vec::iterator i = s.res_G->begin();
+			       i != s.res_G->end(); ++i)
+			    if ((*i)->is_eventual())
+			      {
+				event->push_back(*i);
+				*i = 0; // Remove it from res_G.
+			      }
+			  s.res_X->push_back(unop_multop(unop::G,
+							 multop::And, event));
+			}
+
+		      // G(a) & G(b) & ... = G(a & b & ...)
+		      formula* allG =
+			unop_multop(unop::G, multop::And, s.res_G);
+		      // Xa & Xb & ... = X(a & b & ...)
+		      formula* allX =
+			unop_multop(unop::X, multop::And, s.res_X);
+
+		      s.res_other->push_back(allX);
+		      s.res_other->push_back(allG);
+		      s.res_other->push_back(allFG);
+		      result_ = multop::instance(multop::And, s.res_other);
+		      // If we altered the formula in some way, process
+		      // it another time.
+		      if (result_ != mo)
+			result_ = recurse_destroy(result_);
+		      return;
+		    }
+		  else // SERE
+		    {
+		      mospliter s(mospliter::Split_Bool, res, c_);
+		      if (!s.res_Bool->empty())
+			{
+			  // b1 & b2 & b3 = b1 && b2 && b3
+			  formula* b = multop::instance(multop::And,
+							s.res_Bool);
+
+			  multop::vec* ares = new multop::vec;
+			  for (multop::vec::iterator i = s.res_other->begin();
+			       i != s.res_other->end(); ++i)
+			    switch ((*i)->kind())
+			      {
+			      case formula::BUnOp:
+				{
+				  bunop* r = down_cast<bunop*>(*i);
+				  // b && r[*i..j] = b & r  if i<=1<=j
+				  //               = 0      otherwise
+				  // likewise for b && r[=i..j]
+				  //          and b && r[->i..j]
+				  if (r->min() > 1 || r->max() < 1)
+				    goto returnfalse;
+				  ares->push_back(r->child()->clone());
+				  r->destroy();
+				  *i = 0;
+				  break;
+				}
+			      default:
+				ares->push_back(*i);
+				*i = 0;
+				break;
+			      }
+			  delete s.res_other;
+			  ares->push_back(b);
+			  result_ = multop::instance(multop::And, ares);
+			  // If we altered the formula in some way, process
+			  // it another time.
+			  if (result_ != mo)
+			    result_ = recurse_destroy(result_);
+			  return;
+			returnfalse:
+			  b->destroy();
+			  for (multop::vec::iterator i = s.res_other->begin();
+			       i != s.res_other->end(); ++i)
+			    if (*i)
+			      (*i)->destroy();
+			  for (multop::vec::iterator i = res->begin();
+			       i != res->end(); ++i)
+			    if (*i)
+			      (*i)->destroy();
+			  result_ = constant::false_instance();
+			  return;
+			}
+		      else
+			{
+			  delete s.res_Bool;
+			  result_ = multop::instance(multop::And, s.res_other);
+			  return;
+			}
+		    }
 		case multop::Or:
 		  {
 		    // Gather all operand by type.
@@ -2160,8 +2227,8 @@ namespace spot
 		      result_ = recurse_destroy(result_);
 		    return;
 		  }
-		case multop::Concat:
 		case multop::AndNLM:
+		case multop::Concat:
 		case multop::Fusion:
 		  break;
 		}
