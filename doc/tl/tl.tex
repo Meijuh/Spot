@@ -1272,7 +1272,8 @@ in the OR arguments:
   yet.}
 
 The following simplification rules are used for the $n$-ary operators
-$\ANDALT$, $\AND$, and $\OR$, and are of course commutative.
+$\ANDALT$, $\AND$, and $\OR$, and are of course commutative.  $b$
+denots a Boolean formula while $r$ or $r_i$ denote any SERE.
 
 \begin{align*}
   b \ANDALT r\STAR{\mvar{i}..\mvar{j}} &\equiv
@@ -1290,7 +1291,13 @@ $\ANDALT$, $\AND$, and $\OR$, and are of course commutative.
     b \ANDALT r &\text{if~} i\le 1\le j\\
     \0 &\text{else}\\
   \end{cases}\\
-  b \ANDALT \ratgroup{r_1 \FUSION \ldots \FUSION r_n}& \equiv b \ANDALT r_1 \ANDALT \ldots \ANDALT r_n \\
+  b \ANDALT \ratgroup{r_1 \FUSION \ldots \FUSION r_n} &\equiv b \ANDALT r_1 \ANDALT \ldots \ANDALT r_n \\
+  b \ANDALT \ratgroup{r_1 \CONCAT \ldots \CONCAT r_n} &\equiv
+  \begin{cases}
+    b \ANDALT r_i & \text{if~}\exists!i,\,\varepsilon\not\VDash r_i\\
+    b \ANDALT (r_1 \OR \ldots \OR r_n) & \text{if~}\forall i,\, \varepsilon\VDash r_i\\
+    \0 &\text{else}\\
+  \end{cases}\\
 \end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}

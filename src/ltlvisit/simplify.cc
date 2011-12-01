@@ -1947,14 +1947,53 @@ namespace spot
 			      case formula::MultOp:
 				{
 				  multop* r = down_cast<multop*>(*i);
+				  unsigned rs = r->size();
 				  switch (r->op())
 				    {
 				    case multop::Fusion:
+				      //b && {r1:..:rn} = b && r1 && .. && rn
+				      for (unsigned j = 0; j < rs; ++j)
+					ares->push_back(r->nth(j)->clone());
+				      r->destroy();
+				      *i = 0;
+				      break;
+				    case multop::Concat:
+				      // b && {r1;...;rn} =
+				      // - b && ri if there is only one ri
+				      //           that does not accept [*0]
+				      // - b && (r1|...|rn) if all ri
+				      //           do not accept [*0]
+				      // - 0 if more than one ri accept [*0]
 				      {
-					//b && {r1:..:rn} = b && r1 && .. && rn
-					unsigned rs = r->size();
+					formula* ri;
+					unsigned nonempty = 0;
 					for (unsigned j = 0; j < rs; ++j)
-					  ares->push_back(r->nth(j)->clone());
+					  {
+					    formula* jf = r->nth(j);
+					    if (!jf->accepts_eword())
+					      {
+						ri = jf;
+						++nonempty;
+					      }
+					  }
+					if (nonempty == 1)
+					  {
+					    ares->push_back(ri->clone());
+					  }
+					else if (nonempty == 0)
+					  {
+					    multop::vec* sum = new multop::vec;
+					    for (unsigned j = 0; j < rs; ++j)
+					      sum->push_back(r->nth(j)
+							     ->clone());
+					    formula* sumf =
+					      multop::instance(multop::Or, sum);
+					    ares->push_back(sumf);
+					  }
+					else
+					  {
+					    goto returnfalse;
+					  }
 					r->destroy();
 					*i = 0;
 					break;
@@ -1984,10 +2023,11 @@ namespace spot
 			       i != s.res_other->end(); ++i)
 			    if (*i)
 			      (*i)->destroy();
-			  for (multop::vec::iterator i = res->begin();
-			       i != res->end(); ++i)
-			    if (*i)
-			      (*i)->destroy();
+			  delete s.res_other;
+			  for (multop::vec::iterator i = ares->begin();
+			       i != ares->end(); ++i)
+			    (*i)->destroy();
+			  delete ares;
 			  result_ = constant::false_instance();
 			  return;
 			}
