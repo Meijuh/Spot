@@ -939,9 +939,9 @@ instance using the following methods:
 
 \noindent
 \begin{tabulary}{\textwidth}{lL}
-\texttt{is\_boolean()}& Whether the formula use only Boolean
+\texttt{is\_boolean()}& Whether the formula uses only Boolean
   operators.
-\\\texttt{is\_sugar\_free\_boolean()}& Whether the formula use
+\\\texttt{is\_sugar\_free\_boolean()}& Whether the formula uses
   only $\AND$, $\OR$, and $\NOT$ operators.  (Especially, no
   $\IMPLIES$ or $\EQUIV$ are allowed.)
 \\\texttt{is\_in\_nenoform()}& Whether the formula is in negative
@@ -972,14 +972,14 @@ instance using the following methods:
 \\\texttt{is\_syntactic\_persistence()}& Whether the formula is a syntactic
   persistence property.
 \\\texttt{is\_marked()}& Whether the formula contains a special
-  ``marked'' version of the $\Esuffix$ operator.\footnote{This special
-    operator is used when translating recurring $\Esuffix$, it is
-    rendered as $\EsuffixMarked$ and it obeys the same simplification
-    rules and properties as $\Esuffix$ (except for the
-    \texttt{is\_marked()} property).}
+  ``marked'' version of the $\Esuffix$ operator.\footnotemark
 \\\texttt{accepts\_eword()}& Whether the formula accept
   $\eword$. (This can only be true for a rational formula.)
 \end{tabulary}
+\footnotetext{This special operator is used when translating recurring
+  $\Esuffix$, it is rendered as $\EsuffixMarked$ and it obeys the same
+  simplification rules and properties as $\Esuffix$ (except for the
+  \texttt{is\_marked()} property).}
 
 \section{Pure Eventualities and Purely Universal Formul\ae{}}
 \label{sec:eventuniv}
