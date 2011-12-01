@@ -1267,7 +1267,9 @@ in the OR arguments:
 
 \subsubsection{Basic Simplifications for SERE Operators}
 
-% Cite Symbolic computation of PSL.
+\spottodo[inline]{These rules, mostly taken from ``Symbolic
+  computation of PSL'' (Cimatti, Roveri, and Tonetta) are not complete
+  yet.}
 
 The following simplification rules are used for the $n$-ary operators
 $\ANDALT$, $\AND$, and $\OR$, and are of course commutative.
@@ -1288,6 +1290,7 @@ $\ANDALT$, $\AND$, and $\OR$, and are of course commutative.
     b \ANDALT r &\text{if~} i\le 1\le j\\
     \0 &\text{else}\\
   \end{cases}\\
+  b \ANDALT \ratgroup{r_1 \FUSION \ldots \FUSION r_n}& \equiv b \ANDALT r_1 \ANDALT \ldots \ANDALT r_n \\
 \end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}

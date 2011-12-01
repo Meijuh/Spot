@@ -1944,7 +1944,28 @@ namespace spot
 				  *i = 0;
 				  break;
 				}
+			      case formula::MultOp:
+				{
+				  multop* r = down_cast<multop*>(*i);
+				  switch (r->op())
+				    {
+				    case multop::Fusion:
+				      {
+					//b && {r1:..:rn} = b && r1 && .. && rn
+					unsigned rs = r->size();
+					for (unsigned j = 0; j < rs; ++j)
+					  ares->push_back(r->nth(j)->clone());
+					r->destroy();
+					*i = 0;
+					break;
+				      }
+				    default:
+				      goto common;
+				    }
+				  break;
+				}
 			      default:
+			      common:
 				ares->push_back(*i);
 				*i = 0;
 				break;

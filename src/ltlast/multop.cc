@@ -43,8 +43,9 @@ namespace spot
 
       switch (op)
 	{
-	case Concat:
 	case Fusion:
+	  is.accepting_eword = false;
+	case Concat:
 	case AndNLM:
 	  // Note: AndNLM(p1,p2) is a Boolean formula, but it is
 	  // actually rewritten as And(p1,p2) by trivial identities
