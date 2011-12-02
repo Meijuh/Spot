@@ -1,6 +1,6 @@
 #! /bin/sh
-# Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -84,6 +84,13 @@ run 0 ../equals -E 'a & (a + b' 'a & (a + b)'
 run 0 ../equals -E 'a & (a + b c' 'a & (0)'
 run 0 ../equals -E 'a & (+' 'a & (0)'
 run 0 ../equals -E 'a & ('  'a & (0)'
+
+# Invalid ranges
+run 0 ../equals -E '{a[*8..1];b}' '{a[*1..8];b}'
+run 0 ../equals -E '{a[=8..1];b}' '{a[=1..8];b}'
+run 0 ../equals -E '{a[->8..1];b}' '{a[->1..8];b}'
+run 0 ../equals -E '{a[->..0];b}' '{a[->0..1];b}'
+
 
 check 'a - b' 'AP(a)' '>>> a - b
       ^

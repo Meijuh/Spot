@@ -376,12 +376,31 @@ rationalexp: booleanatom
 	    | rationalexp OP_FUSION error
               { missing_right_binop($$, $1, @2, "fusion operator"); }
 	    | rationalexp starargs
-	      { $$ = bunop::instance(bunop::Star, $1, $2.min, $2.max); }
+	      {
+		if ($2.max < $2.min)
+		  {
+		    error_list.push_back(parse_error(@2, "reversed range"));
+		    std::swap($2.max, $2.min);
+		  }
+		$$ = bunop::instance(bunop::Star, $1, $2.min, $2.max);
+	      }
 	    | starargs
-	      { $$ = bunop::instance(bunop::Star, constant::true_instance(),
-                                    $1.min, $1.max); }
+	      {
+		if ($1.max < $1.min)
+		  {
+		    error_list.push_back(parse_error(@1, "reversed range"));
+		    std::swap($1.max, $1.min);
+		  }
+		$$ = bunop::instance(bunop::Star, constant::true_instance(),
+				     $1.min, $1.max);
+	      }
 	    | rationalexp equalargs
 	      {
+		if ($2.max < $2.min)
+		  {
+		    error_list.push_back(parse_error(@2, "reversed range"));
+		    std::swap($2.max, $2.min);
+		  }
 		if ($1->is_boolean())
 		  {
 		    $$ = bunop::instance(bunop::Equal, $1, $2.min, $2.max);
@@ -399,6 +418,11 @@ rationalexp: booleanatom
 	      }
 	    | rationalexp gotoargs
 	      {
+		if ($2.max < $2.min)
+		  {
+		    error_list.push_back(parse_error(@2, "reversed range"));
+		    std::swap($2.max, $2.min);
+		  }
 		if ($1->is_boolean())
 		  {
 		    $$ = bunop::instance(bunop::Goto, $1, $2.min, $2.max);
