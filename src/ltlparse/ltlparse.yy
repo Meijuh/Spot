@@ -80,7 +80,7 @@ using namespace spot::ltl;
 /* All tokens.  */
 
 %token START_LTL "LTL start marker"
-%token START_RATEXP "RATEXP start marker"
+%token START_SERE "SERE start marker"
 %token PAR_OPEN "opening parenthesis" PAR_CLOSE "closing parenthesis"
 %token BRACE_OPEN "opening brace" BRACE_CLOSE "closing brace"
 %token BRACE_BANG_CLOSE "closing brace-bang"
@@ -135,8 +135,8 @@ using namespace spot::ltl;
 
 %nonassoc OP_POST_NEG OP_POST_POS
 
-%type <ltl> subformula booleanatom rationalexp
-%type <ltl> bracedrationalexp parenthesedsubformula
+%type <ltl> subformula booleanatom sere
+%type <ltl> bracedsere parenthesedsubformula
 %type <minmax> starargs equalargs sqbracketargs gotoargs
 
 %destructor { delete $$; } <str>
@@ -161,21 +161,21 @@ result:       START_LTL subformula END_OF_INPUT
 	      }
 	    | START_LTL emptyinput
               { YYABORT; }
-            | START_RATEXP rationalexp END_OF_INPUT
+            | START_SERE sere END_OF_INPUT
 	      { result = $2;
 		YYACCEPT;
 	      }
-	    | START_RATEXP enderror
+	    | START_SERE enderror
 	      {
 		result = 0;
 		YYABORT;
 	      }
-	    | START_RATEXP rationalexp enderror
+	    | START_SERE sere enderror
 	      {
 		result = $2;
 		YYACCEPT;
 	      }
-	    | START_RATEXP emptyinput
+	    | START_SERE emptyinput
               { YYABORT; }
 
 emptyinput: END_OF_INPUT
@@ -316,8 +316,8 @@ booleanatom: ATOMIC_PROP
 	    | CONST_FALSE
 	      { $$ = constant::false_instance(); }
 
-rationalexp: booleanatom
-            | OP_NOT rationalexp
+sere: booleanatom
+            | OP_NOT sere
 	      {
 		if ($2->is_boolean())
 		  {
@@ -334,15 +334,15 @@ rationalexp: booleanatom
 		    $$ = constant::false_instance();
 		  }
 	      }
-            | bracedrationalexp
-	    | PAR_OPEN rationalexp PAR_CLOSE
+            | bracedsere
+	    | PAR_OPEN sere PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN error PAR_CLOSE
 	      { error_list.push_back(parse_error(@$,
 		 "treating this parenthetical block as false"));
 		$$ = constant::false_instance();
 	      }
-	    | PAR_OPEN rationalexp END_OF_INPUT
+	    | PAR_OPEN sere END_OF_INPUT
 	      { error_list.push_back(parse_error(@1 + @2,
 				      "missing closing parenthesis"));
 		$$ = $2;
@@ -353,29 +353,29 @@ rationalexp: booleanatom
 		    "treating this parenthetical block as false"));
 		$$ = constant::false_instance();
 	      }
-	    | rationalexp OP_AND rationalexp
+	    | sere OP_AND sere
 	      { $$ = multop::instance(multop::And, $1, $3); }
-	    | rationalexp OP_AND error
+	    | sere OP_AND error
               { missing_right_binop($$, $1, @2,
                                     "length-matching and operator"); }
-	    | rationalexp OP_SHORT_AND rationalexp
+	    | sere OP_SHORT_AND sere
 	      { $$ = multop::instance(multop::AndNLM, $1, $3); }
-	    | rationalexp OP_SHORT_AND error
+	    | sere OP_SHORT_AND error
               { missing_right_binop($$, $1, @2,
                                     "non-length-matching and operator"); }
-	    | rationalexp OP_OR rationalexp
+	    | sere OP_OR sere
 	      { $$ = multop::instance(multop::Or, $1, $3); }
-	    | rationalexp OP_OR error
+	    | sere OP_OR error
               { missing_right_binop($$, $1, @2, "or operator"); }
-	    | rationalexp OP_CONCAT rationalexp
+	    | sere OP_CONCAT sere
 	      { $$ = multop::instance(multop::Concat, $1, $3); }
-	    | rationalexp OP_CONCAT error
+	    | sere OP_CONCAT error
               { missing_right_binop($$, $1, @2, "concat operator"); }
-	    | rationalexp OP_FUSION rationalexp
+	    | sere OP_FUSION sere
 	      { $$ = multop::instance(multop::Fusion, $1, $3); }
-	    | rationalexp OP_FUSION error
+	    | sere OP_FUSION error
               { missing_right_binop($$, $1, @2, "fusion operator"); }
-	    | rationalexp starargs
+	    | sere starargs
 	      {
 		if ($2.max < $2.min)
 		  {
@@ -394,7 +394,7 @@ rationalexp: booleanatom
 		$$ = bunop::instance(bunop::Star, constant::true_instance(),
 				     $1.min, $1.max);
 	      }
-	    | rationalexp equalargs
+	    | sere equalargs
 	      {
 		if ($2.max < $2.min)
 		  {
@@ -416,7 +416,7 @@ rationalexp: booleanatom
 		    $$ = constant::false_instance();
 		  }
 	      }
-	    | rationalexp gotoargs
+	    | sere gotoargs
 	      {
 		if ($2.max < $2.min)
 		  {
@@ -438,7 +438,7 @@ rationalexp: booleanatom
 		    $$ = constant::false_instance();
 		  }
 	      }
-	    | rationalexp OP_XOR rationalexp
+	    | sere OP_XOR sere
 	      {
 		if ($1->is_boolean() && $3->is_boolean())
 		  {
@@ -465,9 +465,9 @@ rationalexp: booleanatom
 		    $$ = constant::false_instance();
 		  }
 	      }
-	    | rationalexp OP_XOR error
+	    | sere OP_XOR error
 	      { missing_right_binop($$, $1, @2, "xor operator"); }
-	    | rationalexp OP_IMPLIES rationalexp
+	    | sere OP_IMPLIES sere
 	      {
 		if ($1->is_boolean())
 		  {
@@ -488,9 +488,9 @@ rationalexp: booleanatom
 		    $$ = constant::false_instance();
 		  }
 	      }
-	    | rationalexp OP_IMPLIES error
+	    | sere OP_IMPLIES error
 	      { missing_right_binop($$, $1, @2, "implication operator"); }
-	    | rationalexp OP_EQUIV rationalexp
+	    | sere OP_EQUIV sere
 	      {
 		if ($1->is_boolean() && $3->is_boolean())
 		  {
@@ -517,17 +517,17 @@ rationalexp: booleanatom
 		    $$ = constant::false_instance();
 		  }
 	      }
-	    | rationalexp OP_EQUIV error
+	    | sere OP_EQUIV error
 	      { missing_right_binop($$, $1, @2, "equivalent operator"); }
 
-bracedrationalexp: BRACE_OPEN rationalexp BRACE_CLOSE
+bracedsere: BRACE_OPEN sere BRACE_CLOSE
               { $$ = $2; }
             | BRACE_OPEN error BRACE_CLOSE
 	      { error_list.push_back(parse_error(@$,
 		 "treating this brace block as false"));
 		$$ = constant::false_instance();
 	      }
-            | BRACE_OPEN rationalexp END_OF_INPUT
+            | BRACE_OPEN sere END_OF_INPUT
 	      { error_list.push_back(parse_error(@1 + @2,
 				      "missing closing brace"));
 		$$ = $2;
@@ -617,42 +617,42 @@ subformula: booleanatom
 	      { $$ = unop::instance(unop::Not, $2); }
 	    | OP_NOT error
 	      { missing_right_op($$, @1, "not operator"); }
-            | bracedrationalexp
+            | bracedsere
 	      { $$ = unop::instance(unop::Closure, $1); }
-            | bracedrationalexp OP_UCONCAT subformula
+            | bracedsere OP_UCONCAT subformula
 	      { $$ = binop::instance(binop::UConcat, $1, $3); }
-            | bracedrationalexp parenthesedsubformula
+            | bracedsere parenthesedsubformula
 	      { $$ = binop::instance(binop::UConcat, $1, $2); }
-            | bracedrationalexp OP_UCONCAT error
+            | bracedsere OP_UCONCAT error
 	      { missing_right_binop($$, $1, @2,
 				    "universal overlapping concat operator"); }
-            | bracedrationalexp OP_ECONCAT subformula
+            | bracedsere OP_ECONCAT subformula
 	      { $$ = binop::instance(binop::EConcat, $1, $3); }
-            | bracedrationalexp OP_ECONCAT error
+            | bracedsere OP_ECONCAT error
 	      { missing_right_binop($$, $1, @2,
 				    "existential overlapping concat operator");
 	      }
-            | bracedrationalexp OP_UCONCAT_NONO subformula
+            | bracedsere OP_UCONCAT_NONO subformula
 	      /* {SERE}[]=>EXP = {SERE;1}[]->EXP */
 	      { $$ = binop::instance(binop::UConcat,
 		       multop::instance(multop::Concat, $1,
 					constant::true_instance()), $3);
 	      }
-            | bracedrationalexp OP_UCONCAT_NONO error
+            | bracedsere OP_UCONCAT_NONO error
 	      { missing_right_binop($$, $1, @2,
 				  "universal non-overlapping concat operator");
 	      }
-            | bracedrationalexp OP_ECONCAT_NONO subformula
+            | bracedsere OP_ECONCAT_NONO subformula
 	      /* {SERE}<>=>EXP = {SERE;1}<>->EXP */
 	      { $$ = binop::instance(binop::EConcat,
 		       multop::instance(multop::Concat, $1,
 					constant::true_instance()), $3);
 	      }
-            | bracedrationalexp OP_ECONCAT_NONO error
+            | bracedsere OP_ECONCAT_NONO error
 	      { missing_right_binop($$, $1, @2,
 				"existential non-overlapping concat operator");
 	      }
-            | BRACE_OPEN rationalexp BRACE_BANG_CLOSE
+            | BRACE_OPEN sere BRACE_BANG_CLOSE
 	      /* {SERE}! = {SERE} <>-> 1 */
 	      { $$ = binop::instance(binop::EConcat, $2,
 				     constant::true_instance()); }
@@ -686,14 +686,14 @@ namespace spot
     }
 
     formula*
-    parse_ratexp(const std::string& ratexp_string,
+    parse_sere(const std::string& sere_string,
 		 parse_error_list& error_list,
 		 environment& env,
 		 bool debug)
     {
       formula* result = 0;
-      flex_set_buffer(ratexp_string.c_str(),
-		      ltlyy::parser::token::START_RATEXP);
+      flex_set_buffer(sere_string.c_str(),
+		      ltlyy::parser::token::START_SERE);
       ltlyy::parser parser(error_list, env, result);
       parser.set_debug_level(debug);
       parser.parse();
