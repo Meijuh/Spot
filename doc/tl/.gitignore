@@ -4,3 +4,8 @@
 *.log
 *.out
 tmp.t2d
+*.ilg
+*.ind
+*.fdb_latexmk
+auto
+_region_.tex
