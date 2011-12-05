@@ -63,7 +63,7 @@ namespace spot
 	void
 	visit(const bunop* so)
 	{
-	  if (draw_node_(so, so->format(), true))
+	  if (draw_node_(so, so->format()))
 	    {
 	      dir = none;
 	      so->child()->accept(*this);
