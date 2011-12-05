@@ -369,6 +369,12 @@ if output_type == 'f':
 # Formula translation.
 translator = form.getfirst('t', 'fm')
 
+if f.is_psl_formula() and not f.is_ltl_formula() and translator != 'fm':
+    print ('''<div class="error">The PSL formula
+<span class="formula spot-format">%s</span>
+cannot be translated using this algorithm.  Please use Couveur/FM.''' % f);
+    finish()
+
 dict = spot.bdd_dict()
 
 if translator == 'fm':

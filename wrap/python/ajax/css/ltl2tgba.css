@@ -80,6 +80,10 @@ div.ltl2tgba {
     font-size: 1.1em;
 }
 
+.ltl2tgba .error {
+    color: red;
+}
+
 .ltl2tgba .parse-error {
     font-family: monospace;
     white-space: pre;
