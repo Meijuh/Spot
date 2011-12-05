@@ -826,6 +826,15 @@ main(int argc, char** argv)
 		std::cout << spot::ltl::to_string(f) << std::endl;
 	    }
 
+	  if (f->is_psl_formula()
+	      && !f->is_ltl_formula()
+	      && translation != TransFM)
+	    {
+	      std::cerr << "Only the FM algorithm can translate PSL formulae;"
+			<< " I'm using it for this formula." << std::endl;
+	      translation = TransFM;
+	    }
+
 	  tm.start("translating formula");
 	  switch (translation)
 	    {
