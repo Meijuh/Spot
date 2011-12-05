@@ -752,29 +752,29 @@ The following rules are all valid with the two arguments swapped, except the one
 %\samp{$\FUSION$}.)
 
 \begin{align*}
-  f\AND f &\equiv \0&
+  f\AND f &\equiv f&
   f\ANDALT f &\equiv f &
   f\OR f &\equiv f \\
-  \0\AND f &\equiv f &
+  \0\AND f &\equiv \0 &
   \0\ANDALT f   &\equiv \0 &
   \0\OR f &\equiv f &
   \0 \FUSION f &\equiv \0 &
   \0 \CONCAT f &\equiv \0 \\
-  \1\AND f &\equiv \NOT f&
+  \1\AND f &\equiv f&
   \1\ANDALT f   &\equiv f &
   \1\OR f &\equiv \1 &
   \1 \FUSION f & \equiv f\\
   \eword\AND f &\equiv f &
   \eword\ANDALT f &\equiv
   \begin{cases}
-    \eword \mathrlap{\text{~if~} \varepsilon\VDash f} \\
-    \0 \mathrlap{\text{~if~} \varepsilon\nVDash f} \\
+    \eword &\mathrlap{\text{if~} \varepsilon\VDash f} \\
+    \0 &\mathrlap{\text{if~} \varepsilon\nVDash f} \\
   \end{cases} &
   &&
   \eword \FUSION f &\equiv \0 &
   \eword \CONCAT f &\equiv f\\
+  b_1 \AND b_2 &\equiv b_1\ANDALT b_2 &
   &&
-  b_1 \ANDALT b_2 &\equiv b_1\AND b_2 &
   &&
   b:f &\stackrel{\dag}{\equiv} b\AND f\\
 \end{align*}
