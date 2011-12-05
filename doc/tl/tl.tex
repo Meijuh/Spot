@@ -58,6 +58,7 @@
 \newcommand{\OR}{\mathbin{\texttt{|}}}
 \newcommand{\ORALT}{\mathbin{\texttt{||}}}
 \newcommand{\ORALTT}{\mathbin{\texttt{\char`\\/}}}
+\newcommand{\ORALTTT}{\mathbin{\texttt{+}}}
 \newcommand{\AND}{\mathbin{\texttt{\&}}}
 \newcommand{\ANDALT}{\mathbin{\texttt{\&\&}}}
 \newcommand{\ANDALTT}{\mathbin{\texttt{/\char`\\}}}
@@ -80,9 +81,9 @@
 \newcommand{\AsuffixEQ}{\texttt{[]=>}}
 \newcommand{\AsuffixALTEQ}{\texttt{|=>}}
 
-\newcommand{\ratgroup}[1]{\texttt{\{}#1\texttt{\}}}
-\newcommand{\nratgroup}[1]{\texttt{!\{}#1\texttt{\}}}
-\newcommand{\ratgroupn}[1]{\texttt{\{}#1\texttt{\}!}}
+\newcommand{\sere}[1]{\texttt{\{}#1\texttt{\}}}
+\newcommand{\nsere}[1]{\texttt{!\{}#1\texttt{\}}}
+\newcommand{\seren}[1]{\texttt{\{}#1\texttt{\}!}}
 
 \def\limplies{\rightarrow}
 \def\simp{\rightrightharpoons}
@@ -337,12 +338,12 @@ Two temporal formul\ae{} $f$ and $g$ can be combined using the
 following Boolean operators:
 
 \begin{center}
-\begin{tabular}{cccc}
+\begin{tabular}{ccccc}
               & preferred & \multicolumn{2}{c}{other supported} \\
    operation  & syntax    & \multicolumn{2}{c}{syntaxes}\\
   \hline
   negation    & $\NOT f$      & $\NOTALT f$  \\
-  disjunction & $f\OR g$      & $f\ORALT g$      & $f\ORALTT g$ \\
+  disjunction & $f\OR g$      & $f\ORALT g$      & $f\ORALTT g$ & $f\ORALTTT$ \\
   conjunction & $f\AND g$     & $f\ANDALT g$     & $f\ANDALTT g$ \\
   implication & $f\IMPLIES g$ & $f\IMPLIESALT g$ & $f\IMPLIESALTT g$\\
   exclusion   & $f\XOR g$     & $f\XORALT g$ \\
@@ -574,12 +575,21 @@ section~\ref{sec:unabbbool} as well as the following two rewritings:
   selectively remove $\U$, $\R$, $\M$, or $\W$, using the equivalences
   from the previous section.}
 
-\section{Rational Operators}
+\section{SERE Operators}
 
-Any Boolean formula (section~\ref{def:boolform}) is a rational
-expression.  Rational expression can be further combined with the
-following operators, where $f$ and $g$ denote arbitrary rational
-expressions and $b$ denotes a Boolean expression.
+The ``SERE'' acronym will be translated to different word depending on
+the source.  It can mean either ``\textit{Sequential Extended Regular
+  Expression}''~\citep{eisner.06.psl,psl.04.lrm}, ``\textit{Sugar
+  Extended Regular Expression}''~\citep{beer.01.cav}, or
+``\textit{Semi-Extended Regular Expression}''~\citep{eisner.08.hvc}.
+In any case, the intent is the same: regular expressions with
+traditional operations (union `$\OR$', concatenation `$\CONCAT$',
+Kleen star `$\STAR{}$') are extended with operators such as
+intersection `$\ANDALT$', and fusion `$\FUSION$'.
+
+Any Boolean formula (section~\ref{def:boolform}) is a SERE.  SERE can
+be further combined with the following operators, where $f$ and $g$
+denote arbitrary SERE and $b$ denotes a Boolean formula.
 
 \begin{center}
 \begin{tabular}{ccccc}
@@ -587,7 +597,7 @@ expressions and $b$ denotes a Boolean expression.
    operation  & syntax    & \multicolumn{2}{c}{syntaxes}\\
   \hline
   empty word   & $\eword$ \\
-  union        & $f\OR g$  & $f\ORALT g$ & $f\ORALTT g$ \\
+  union        & $f\OR g$  & $f\ORALT g$ & $f\ORALTT g$ & $f\ORALTTT g$ \\
   (synchronized) intersection & $f\ANDALT g$ & $f\ANDALTT g$ \\
   unsynchronized intersection & $f\AND g$ \\
   concatenation & $f\CONCAT g$ \\
@@ -619,10 +629,14 @@ expressions and $b$ denotes a Boolean expression.
 \end{tabular}
 \end{center}
 
+The character \samp{\$} can also be used as value for $\mvar{j}$ in
+the above operators to denote an unbounded range.  For instance
+`$a\STAR{i,\texttt{\$}}$' and `$a\STAR{i..}$' represent the same SERE.
+
 \subsection{Semantics}
 
-The following semantics assume that $f$ and $g$ are two rational
-expressions, while $b$ is a Boolean formula.
+The following semantics assume that $f$ and $g$ are two SEREs, while
+$b$ is a Boolean formula.
 
 \begin{align*}
   \sigma\VDash \eword & \iff |\sigma| = 0 \\
@@ -666,8 +680,15 @@ expressions, while $b$ is a Boolean formula.
   \sigma\VDash\mathtt{\{\{}\NOT b\,\mathtt\}\STAR{0..}\CONCAT\ b\,\mathtt\}\STAR{\mvar{i}..}\\
 \end{align*}
 
-Note that the semantics of $\ANDALT$ and $\AND$ coincide if both
+Notes:
+\begin{itemize}
+\item The semantics of $\ANDALT$ and $\AND$ coincide if both
 operands are Boolean formul\ae.
+\item The SERE $f\FUSION g$ will never hold on $\eword$,
+  regardless of the value of $f$ and $g$.  For instance
+  $a\STAR{}\FUSION b\STAR{}$ is actually equivalent to
+  $a\STAR{}\CONCAT\sere{a\ANDALT b}\CONCAT b\STAR{}$.
+\end{itemize}
 
 \subsection{Syntactic Sugar}
 
@@ -702,8 +723,8 @@ output.
 \subsection{Trivial Identities (Occur Automatically)}
 
 The following identities also hold if $j$ or $l$ are missing (assuming
-they are then equal to $\infty$).  $f$ can be any regular expression,
-while $b$, $b_1$, $b_2$ are assumed to be Boolean formul\ae.
+they are then equal to $\infty$).  $f$ can be any SERE, while $b$,
+$b_1$, $b_2$ are assumed to be Boolean formul\ae.
 
 \begin{align*}
   \0\STAR{0..\mvar{j}} &\equiv \eword  &
@@ -758,9 +779,9 @@ The following rules are all valid with the two arguments swapped, except the one
   b:f &\stackrel{\dag}{\equiv} b\AND f\\
 \end{align*}
 
-\section{Rational-LTL Binding Operators}
+\section{SERE-LTL Binding Operators}
 
-The following operators combine a rational expression $r$ with a PSL
+The following operators combine a SERE $r$ with a PSL
 formula $f$ to form another PSL formula.
 
 \begin{center}
@@ -769,44 +790,44 @@ formula $f$ to form another PSL formula.
    operation  & syntax    & \multicolumn{2}{c}{syntaxes}\\
   \hline
   (universal) suffix implication
-  & $\ratgroup{r}\Asuffix{} f$
-  & $\ratgroup{r}\AsuffixALT{} f$
-  & $\ratgroup{r}\texttt{(}f\texttt{)}$
+  & $\sere{r}\Asuffix{} f$
+  & $\sere{r}\AsuffixALT{} f$
+  & $\sere{r}\texttt{(}f\texttt{)}$
   \\
   existential suffix implication
-  & $\ratgroup{r}\Esuffix{} f$
+  & $\sere{r}\Esuffix{} f$
   \\
   closure
-  & $\ratgroup{r}$
+  & $\sere{r}$
   \\
   negated closure
-  & $\nratgroup{r}$
+  & $\nsere{r}$
   \\
 \end{tabular}
 \end{center}
 
 For technical reasons, the negated closure is actually implemented as
 an operator, even if it is syntactically and semantically equal to the
-combination of $\NOT$ and $\ratgroup{r}$.
+combination of $\NOT$ and $\sere{r}$.
 
 \subsection{Semantics}
 
-The following semantics assume that $r$ is a rational expression,
+The following semantics assume that $r$ is a SERE,
 while $f$ is a PSL formula.
 
 \begin{align*}
-  \sigma\vDash \ratgroup{r}\Esuffix f &\iff \exists k\ge 0, (\sigma^{0..k}\VDash r)\land(\sigma^{k..}\vDash f)\\
-  \sigma\vDash \ratgroup{r}\Asuffix f &\iff \forall k\ge 0, (\sigma^{0..k}\VDash r)\limplies (\sigma^{k..}\vDash f)\\
-  \sigma\vDash \ratgroup{r} & \iff (\exists k\ge 0, \sigma^{0..k}\VDash r)\lor(\forall k\ge 0,\,\exists\pi\in(\B^\AP)^\star,\, (\sigma^{0..k}\prec \pi)\land(\pi\VDash r))\\
-  \sigma\vDash \nratgroup{r} & \iff (\forall k\ge 0, \sigma^{0..k}\nVDash r)\land(\exists k\ge 0,\,\forall\pi\in(\B^\AP)^\star,\, (\sigma^{0..k}\prec \pi)\limplies(\pi\nVDash r))\\
+  \sigma\vDash \sere{r}\Esuffix f &\iff \exists k\ge 0, (\sigma^{0..k}\VDash r)\land(\sigma^{k..}\vDash f)\\
+  \sigma\vDash \sere{r}\Asuffix f &\iff \forall k\ge 0, (\sigma^{0..k}\VDash r)\limplies (\sigma^{k..}\vDash f)\\
+  \sigma\vDash \sere{r} & \iff (\exists k\ge 0, \sigma^{0..k}\VDash r)\lor(\forall k\ge 0,\,\exists\pi\in(\B^\AP)^\star,\, (\sigma^{0..k}\prec \pi)\land(\pi\VDash r))\\
+  \sigma\vDash \nsere{r} & \iff (\forall k\ge 0, \sigma^{0..k}\nVDash r)\land(\exists k\ge 0,\,\forall\pi\in(\B^\AP)^\star,\, (\sigma^{0..k}\prec \pi)\limplies(\pi\nVDash r))\\
 \end{align*}
 
 The $\prec$ symbol should be read as ``\emph{is a prefix of}''.  So
-the semantic for `$\sigma\vDash \ratgroup{r}$' is that either there is
+the semantic for `$\sigma\vDash \sere{r}$' is that either there is
 a (non-empty) finite prefix of $\sigma$ that is a model of $r$, or any
 prefix of $\sigma$ can be extended into a finite sequence $\pi$ that
 is a model of $r$.  An infinite sequence $\texttt{a;a;a;a;a;}\ldots$
-is therefore a model of the formula \samp{$\ratgroup{a\PLUS{};\NOT
+is therefore a model of the formula \samp{$\sere{a\PLUS{};\NOT
     a}$} even though it never sees \samp{$\NOT a$}.
 
 \subsection{Syntactic Sugar}
@@ -817,10 +838,10 @@ formula.\spottodo{It would be nice to have the opposite rewritings on
   output.}
 
 \begin{align*}
-  \ratgroup{r}\EsuffixEQ f &\equiv \ratgroup{r\CONCAT\1}\Esuffix f &
-  \ratgroup{r}\AsuffixEQ f &\equiv \ratgroup{r\CONCAT\1}\Asuffix f\\
-  \ratgroupn{r} &\equiv \ratgroup{r}\Esuffix \1 &
-  \ratgroup{r}\AsuffixALTEQ f &\equiv \ratgroup{r\CONCAT\1}\Asuffix f\\
+  \sere{r}\EsuffixEQ f &\equiv \sere{r\CONCAT\1}\Esuffix f &
+  \sere{r}\AsuffixEQ f &\equiv \sere{r\CONCAT\1}\Asuffix f\\
+  \seren{r} &\equiv \sere{r}\Esuffix \1 &
+  \sere{r}\AsuffixALTEQ f &\equiv \sere{r\CONCAT\1}\Asuffix f\\
 \end{align*}
 
 $\AsuffixEQ$ and $\AsuffixALTEQ$ are synonyms in the same way as
@@ -828,29 +849,29 @@ $\Asuffix$ and $\AsuffixALT$ are.
 
 \subsection{Trivial Identities (Occur Automatically)}
 
-For any PSL formula $f$, any rational expression $r$, and any Boolean
+For any PSL formula $f$, any SERE $r$, and any Boolean
 formula $b$, the following rewritings are systematically performed
 (from left to right).
 
 \begin{align*}
-  \ratgroup{\0}\Asuffix f &\equiv \1
-& \ratgroup{\0}\Esuffix f &\equiv \0
-& \ratgroup{\0} & \equiv \0
-& \nratgroup{\0} & \equiv \1 \\
-  \ratgroup{\1}\Asuffix f &\equiv f
-& \ratgroup{\1}\Esuffix f &\equiv f
-& \ratgroup{\1} & \equiv \1
-& \nratgroup{\1} & \equiv \0 \\
-  \ratgroup{\eword}\Asuffix f&\equiv \1
-& \ratgroup{\eword}\Esuffix f&\equiv \0
-& \ratgroup{\eword} & \equiv \0
-& \nratgroup{\eword} & \equiv \1 \\
-  \ratgroup{b}\Asuffix f&\equiv (\NOT{b})\OR f
-& \ratgroup{b}\Esuffix f&\equiv b\AND f
-& \ratgroup{b} &\equiv b
-& \nratgroup{b} &\equiv \NOT b\\
-  \ratgroup{r}\Asuffix \1&\equiv \1
-& \ratgroup{r}\Esuffix \0&\equiv \0  \\
+  \sere{\0}\Asuffix f &\equiv \1
+& \sere{\0}\Esuffix f &\equiv \0
+& \sere{\0} & \equiv \0
+& \nsere{\0} & \equiv \1 \\
+  \sere{\1}\Asuffix f &\equiv f
+& \sere{\1}\Esuffix f &\equiv f
+& \sere{\1} & \equiv \1
+& \nsere{\1} & \equiv \0 \\
+  \sere{\eword}\Asuffix f&\equiv \1
+& \sere{\eword}\Esuffix f&\equiv \0
+& \sere{\eword} & \equiv \0
+& \nsere{\eword} & \equiv \1 \\
+  \sere{b}\Asuffix f&\equiv (\NOT{b})\OR f
+& \sere{b}\Esuffix f&\equiv b\AND f
+& \sere{b} &\equiv b
+& \nsere{b} &\equiv \NOT b\\
+  \sere{r}\Asuffix \1&\equiv \1
+& \sere{r}\Esuffix \0&\equiv \0  \\
 \end{align*}
 
 \chapter{Grammar}
@@ -955,10 +976,11 @@ instance using the following methods:
 \\\texttt{is\_psl\_formula()}& Whether the formula uses only PSL
   operators. (Boolean and LTL operators are also allowed.)
 \\\texttt{is\_sere\_formula()}& Whether the formula uses only
-  rational operators. (Boolean operators are also allowed, provided
-  no rational operator is negated.)
+  SERE operators. (Boolean operators are also allowed, provided
+  no SERE operator is negated.)
 \\\texttt{is\_finite()}& Whether a SERE describes a finite
-  language, or an LTL formula uses no temporal operator but $\X$.
+  language (no unbounded stars), or an LTL formula uses no
+  temporal operator but $\X$.
 \\\texttt{is\_eventual()}& Whether the formula is a pure eventuality.
 \\\texttt{is\_universal()}& Whether the formula is purely universal.
 \\\texttt{is\_syntactic\_safety()}& Whether the formula is a syntactic
@@ -973,8 +995,8 @@ instance using the following methods:
   persistence property.
 \\\texttt{is\_marked()}& Whether the formula contains a special
   ``marked'' version of the $\Esuffix$ operator.\footnotemark
-\\\texttt{accepts\_eword()}& Whether the formula accept
-  $\eword$. (This can only be true for a rational formula.)
+\\\texttt{accepts\_eword()}& Whether the formula accepts
+  $\eword$. (This can only be true for a SERE formula.)
 \end{tabulary}
 \footnotetext{This special operator is used when translating recurring
   $\Esuffix$, it is rendered as $\EsuffixMarked$ and it obeys the same
@@ -1049,9 +1071,8 @@ and weak until~\citep{schneider.01.lpar}.
 In the following grammar rules, the symbols $\varphi_G$, $\varphi_S$,
 $\varphi_O$, $\varphi_P$, $\varphi_R$ designate any formula belonging
 respectively to the Guarantee, Safety, Obligation, Persistence, or
-Recurrence classes.  $v$ designates any variable, $r$ any rational
-property, $r_F$ a finite rational property (no loops), and $r_I$ an
-infinite rational property.
+Recurrence classes.  $v$ designates any variable, $r$ any SERE, $r_F$
+a bounded SERE (no loops), and $r_I$ an unbounded SERE.
 
 
 \begin{align*}
@@ -1059,36 +1080,36 @@ infinite rational property.
                    \varphi_G\AND \varphi_G\mid (\varphi_G\OR \varphi_G)\mid
                    \X\varphi_G \mid \F\varphi_G\mid
                    \varphi_G\U\varphi_G\mid \varphi_G\M\varphi_G\\
-           \mid&\, \ratgroup{r}\Esuffix \varphi_G\mid
-                   \ratgroup{r_F}\Asuffix \varphi_G\\
+           \mid&\, \sere{r}\Esuffix \varphi_G\mid
+                   \sere{r_F}\Asuffix \varphi_G\\
   \varphi_S ::=&\, \0\mid\1\mid v\mid \NOT\varphi_G\mid
                    \varphi_S\AND \varphi_S\mid (\varphi_S\OR \varphi_S)\mid
                    \X\varphi_S \mid \G\varphi_S\mid
                    \varphi_S\R\varphi_S\mid \varphi_S\W\varphi_S\\
-           \mid&\, \ratgroup{r_F}\Esuffix \varphi_S\mid
-                   \ratgroup{r}\Asuffix \varphi_S\\
+           \mid&\, \sere{r_F}\Esuffix \varphi_S\mid
+                   \sere{r}\Asuffix \varphi_S\\
   \varphi_O ::=&\, \varphi_G \mid \varphi_S\mid \NOT\varphi_O\mid
                    \varphi_O\AND \varphi_O\mid (\varphi_O\OR \varphi_O)\mid
                    \X\varphi_O \mid
                    \varphi_O\U\varphi_G\mid\varphi_O\R\varphi_S \mid
                    \varphi_S\W\varphi_O\mid \varphi_G\M\varphi_O\\
-           \mid&\, \ratgroup{r_F}\Esuffix \varphi_O \mid \ratgroup{r_I}\Esuffix \varphi_G\mid
-                  \ratgroup{r_F}\Asuffix \varphi_O\mid
-                   \ratgroup{r_I}\Asuffix \varphi_S\\
+           \mid&\, \sere{r_F}\Esuffix \varphi_O \mid \sere{r_I}\Esuffix \varphi_G\mid
+                  \sere{r_F}\Asuffix \varphi_O\mid
+                   \sere{r_I}\Asuffix \varphi_S\\
   \varphi_P ::=&\, \varphi_O \mid \NOT\varphi_R\mid
                    \varphi_P\AND \varphi_P\mid (\varphi_P\OR \varphi_P)\mid
                    \X\varphi_P \mid \F\varphi_P \mid
                    \varphi_P\U\varphi_P\mid\varphi_P\R\varphi_S\mid
                    \varphi_S\W\varphi_P\mid\varphi_P\M\varphi_P\\
-           \mid&\, \ratgroup{r}\Esuffix \varphi_P\mid
-                   \ratgroup{r_F}\Asuffix \varphi_P\mid
-                   \ratgroup{r_I}\Asuffix \varphi_S\\
+           \mid&\, \sere{r}\Esuffix \varphi_P\mid
+                   \sere{r_F}\Asuffix \varphi_P\mid
+                   \sere{r_I}\Asuffix \varphi_S\\
   \varphi_R ::=&\, \varphi_O \mid \NOT\varphi_P\mid
                    \varphi_R\AND \varphi_R\mid (\varphi_R\OR \varphi_R)\mid
                    \X\varphi_R \mid \G\varphi_R \mid
                    \varphi_R\U\varphi_G\mid\varphi_R\R\varphi_R\mid
                    \varphi_R\W\varphi_R\mid\varphi_G\M\varphi_R\\
-           \mid&\, \ratgroup{r_F}\Esuffix \varphi_R \mid \ratgroup{r_I}\Esuffix \varphi_G\mid \ratgroup{r}\Asuffix \varphi_P\\
+           \mid&\, \sere{r_F}\Esuffix \varphi_R \mid \sere{r_I}\Esuffix \varphi_G\mid \sere{r}\Asuffix \varphi_P\\
 \end{align*}
 
 \chapter{Rewritings}
@@ -1130,13 +1151,13 @@ rewriting arrange any PSL formula into negative normal form.
   \\
   \NOT\G f & \equiv \F\NOT f &
   \NOT(f \W g) & \equiv (\NOT f) \M (\NOT g) &
-  \NOT(\ratgroup{r} \Asuffix f) &\equiv \ratgroup{r} \Esuffix \NOT f
+  \NOT(\sere{r} \Asuffix f) &\equiv \sere{r} \Esuffix \NOT f
   \\
-  \NOT(\ratgroup{r})&\nratgroup{r}&
+  \NOT(\sere{r})&\equiv \nsere{r}&
   \NOT(f \M g) & \equiv (\NOT f) \W (\NOT g)&
-  \NOT(\ratgroup{r} \Esuffix f) &\equiv \ratgroup{r} \Asuffix \NOT f
+  \NOT(\sere{r} \Esuffix f) &\equiv \sere{r} \Asuffix \NOT f
 \end{align*}
-\noindent Recall the that negated closure $\nratgroup{r}$ is actually
+\noindent Recall the that negated closure $\nsere{r}$ is actually
 implemented as a specific operator, so it not actually prefixed by the
 $\NOT$ operator.
 \begin{align*}
@@ -1157,7 +1178,7 @@ Section~\ref{sec:unabbbool}.  Therefore it is never necessary to apply
 `\verb|ltl_simplifier::negative_normal_form|`.
 
 If the option `\verb|nenoform_stop_on_boolean|' is set, the above
-recursive rewriting will not be applied to subformul\ae{} that are
+recursive rewritings will not be applied to subformul\ae{} that are
 Boolean formul\ae.  For instance calling
 `\verb|ltl_simplifier::negative_normal_form|` on $\NOT\F\G(a \XOR b)$
 will produce $\G\F(((\NOT a)\AND(\NOT b))\OR(a\AND b))$ if
@@ -1267,9 +1288,9 @@ in the OR arguments:
 
 \subsubsection{Basic Simplifications for SERE Operators}
 
-\spottodo[inline]{These rules, mostly taken from ``Symbolic
-  computation of PSL'' (Cimatti, Roveri, and Tonetta) are not complete
-  yet.}
+\spottodo[inline]{The following rules, mostly taken
+  from~\citet{cimatti.08.tcad} are not complete yet.  We only show
+  those that are implemented.}
 
 The following simplification rules are used for the $n$-ary operators
 $\ANDALT$, $\AND$, and $\OR$.  The patterns are of course commutative.
@@ -1292,17 +1313,17 @@ SERE.
     b \ANDALT r &\text{if~} i\le 1\le j\\
     \0 &\text{else}\\
   \end{cases}\\
-  b \ANDALT \ratgroup{r_1 \FUSION \ldots \FUSION r_n} &\equiv b \ANDALT r_1 \ANDALT \ldots \ANDALT r_n \\
-  b \ANDALT \ratgroup{r_1 \CONCAT \ldots \CONCAT r_n} &\equiv
+  b \ANDALT \sere{r_1 \FUSION \ldots \FUSION r_n} &\equiv b \ANDALT r_1 \ANDALT \ldots \ANDALT r_n \\
+  b \ANDALT \sere{r_1 \CONCAT \ldots \CONCAT r_n} &\equiv
   \begin{cases}
     b \ANDALT r_i & \text{if~}\exists!i,\,\varepsilon\not\VDash r_i\\
     b \ANDALT (r_1 \OR \ldots \OR r_n) & \text{if~}\forall i,\, \varepsilon\VDash r_i\\
     \0 &\text{else}\\
   \end{cases}\\
-  \ratgroup{b_1\CONCAT r_1}\ANDALT\ratgroup{b_2\CONCAT r_2} &\equiv \ratgroup{b_1\ANDALT b_2}\CONCAT\ratgroup{r_1\ANDALT r_2} \\
-  \ratgroup{b_1\FUSION r_1}\ANDALT\ratgroup{b_2\FUSION r_2} &\equiv \ratgroup{b_1\ANDALT b_2}\FUSION\ratgroup{r_1\ANDALT r_2} \\
-  \ratgroup{r_1\CONCAT b_1}\ANDALT\ratgroup{r_2\CONCAT b_2} &\equiv \ratgroup{r_1\ANDALT r_2}\CONCAT\ratgroup{b_1\ANDALT b_2} \\
-  \ratgroup{r_1\FUSION b_1}\ANDALT\ratgroup{r_2\FUSION b_2} &\equiv \ratgroup{r_1\ANDALT r_2}\FUSION\ratgroup{b_1\ANDALT b_2} \\
+  \sere{b_1\CONCAT r_1}\ANDALT\sere{b_2\CONCAT r_2} &\equiv \sere{b_1\ANDALT b_2}\CONCAT\sere{r_1\ANDALT r_2} \\
+  \sere{b_1\FUSION r_1}\ANDALT\sere{b_2\FUSION r_2} &\equiv \sere{b_1\ANDALT b_2}\FUSION\sere{r_1\ANDALT r_2} \\
+  \sere{r_1\CONCAT b_1}\ANDALT\sere{r_2\CONCAT b_2} &\equiv \sere{r_1\ANDALT r_2}\CONCAT\sere{b_1\ANDALT b_2} \\
+  \sere{r_1\FUSION b_1}\ANDALT\sere{r_2\FUSION b_2} &\equiv \sere{r_1\ANDALT r_2}\FUSION\sere{b_1\ANDALT b_2} \\
 \end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}
@@ -1401,7 +1422,7 @@ first presented by~\citet{somenzi.00.cav}.
 
 A few words about implication first.  For two PSL formul\ae{} $f$ and
 $g$, we say that $f\implies g$ if $\forall\sigma,\,(\sigma\vDash
-f)\implies(\sigma\vDash g)$.  For two rational formul\ae{} $f$ and
+f)\implies(\sigma\vDash g)$.  For two SERE $f$ and
 $g$, we say that $f\implies g$ if $\forall\pi,\,(\pi\VDash
 f)\implies(\pi\VDash g)$.
 
@@ -1446,7 +1467,7 @@ $f_b \simp g_b$               & $\mathrm{BDD}(f_b)\land \mathrm{BDD}(g_b) =
 \def\band#1#2#3#4{$\begin{aligned}#1 &\simp #2 \\{}\land #3 &\simp #4\end{aligned}$}
 \def\banD#1#2#3#4#5#6{$\begin{aligned}#1 &\simp #2 \\{}\land #3 &\simp #4\\{}\land #5 &\simp #6\end{aligned}$}
 
-\begin{center}
+\centering
 \begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|}
 \hline
 $\simp$       & $g$                   & $g_E$        & $\X g$       & $g_1\U g_2$               & $g_1\W g_2$               & $g_1 \R g_2$                        & $g_1\M g_2$                         & $\F g$                & $\G g$        & $g_1\OR g_2$         & $g_1 \AND g_2$        \\
@@ -1475,7 +1496,6 @@ $f_1\OR f_2$  & \band{f_1}{g}{f_2}{g} &              &              &           
 $f_1\AND f_2$ & \bor{f_1}{g}{f_2}{g}  &              &              &                           &                           &                                     &                                     &                       &               &                      &                       \\
 \hline
 \end{tabular}
-\end{center}
 \caption{Recursive rules for syntactic implication.\label{tab:syntimpl}}
 \end{sidewaystable}
 
