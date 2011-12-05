@@ -1272,8 +1272,9 @@ in the OR arguments:
   yet.}
 
 The following simplification rules are used for the $n$-ary operators
-$\ANDALT$, $\AND$, and $\OR$, and are of course commutative.  $b$
-denots a Boolean formula while $r$ or $r_i$ denote any SERE.
+$\ANDALT$, $\AND$, and $\OR$.  The patterns are of course commutative.
+$b$ or $b_i$ denote any Boolean formula while $r$ or $r_i$ denote any
+SERE.
 
 \begin{align*}
   b \ANDALT r\STAR{\mvar{i}..\mvar{j}} &\equiv
@@ -1298,6 +1299,10 @@ denots a Boolean formula while $r$ or $r_i$ denote any SERE.
     b \ANDALT (r_1 \OR \ldots \OR r_n) & \text{if~}\forall i,\, \varepsilon\VDash r_i\\
     \0 &\text{else}\\
   \end{cases}\\
+  \ratgroup{b_1\CONCAT r_1}\ANDALT\ratgroup{b_2\CONCAT r_2} &\equiv \ratgroup{b_1\ANDALT b_2}\CONCAT\ratgroup{r_1\ANDALT r_2} \\
+  \ratgroup{b_1\FUSION r_1}\ANDALT\ratgroup{b_2\FUSION r_2} &\equiv \ratgroup{b_1\ANDALT b_2}\FUSION\ratgroup{r_1\ANDALT r_2} \\
+  \ratgroup{r_1\CONCAT b_1}\ANDALT\ratgroup{r_2\CONCAT b_2} &\equiv \ratgroup{r_1\ANDALT r_2}\CONCAT\ratgroup{b_1\ANDALT b_2} \\
+  \ratgroup{r_1\FUSION b_1}\ANDALT\ratgroup{r_2\FUSION b_2} &\equiv \ratgroup{r_1\ANDALT r_2}\FUSION\ratgroup{b_1\ANDALT b_2} \\
 \end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}
