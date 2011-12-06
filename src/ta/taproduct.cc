@@ -216,52 +216,24 @@ namespace spot
   state_ta_product*
   ta_succ_iterator_product::current_state() const
   {
-    //assert(!done());
-    //if stuttering transition, the TA automata stays in the same state
-    //    if (is_stuttering_transition())
-    //      return new state_ta_product(source_->get_ta_state(),
-    //          kripke_succ_it_->current_state());
-    //
-    //    return new state_ta_product(ta_succ_it_->current_state(),
-    //        kripke_succ_it_->current_state());
     return current_state_->clone();
   }
 
   bool
   ta_succ_iterator_product::is_stuttering_transition() const
   {
-    //    assert(!done());
-    //    bdd kripke_source_condition = kripke_->state_condition(source_->get_kripke_state());
-    //    state * kripke_succ_it_current_state = kripke_succ_it_->current_state();
-    //    bdd kripke_current_dest_condition = kripke_->state_condition(kripke_succ_it_current_state);
-    //    delete kripke_succ_it_current_state;
-
     return is_stuttering_transition_;
   }
 
   bdd
   ta_succ_iterator_product::current_condition() const
   {
-    // assert(!done());
-    //    bdd kripke_source_condition = kripke_->state_condition(source_->get_kripke_state());
-    //    state * kripke_succ_it_current_state = kripke_succ_it_->current_state();
-    //    bdd kripke_current_dest_condition = kripke_->state_condition(kripke_succ_it_current_state);
-    //    delete kripke_succ_it_current_state;
-    //    return bdd_setxor(kripke_source_condition, kripke_current_dest_condition);
-
     return current_condition_;
   }
 
   bdd
   ta_succ_iterator_product::current_acceptance_conditions() const
   {
-    // assert(!done());
-    //    bdd kripke_source_condition = kripke_->state_condition(source_->get_kripke_state());
-    //    state * kripke_succ_it_current_state = kripke_succ_it_->current_state();
-    //    bdd kripke_current_dest_condition = kripke_->state_condition(kripke_succ_it_current_state);
-    //    delete kripke_succ_it_current_state;
-    //    return bdd_setxor(kripke_source_condition, kripke_current_dest_condition);
-
     return current_acceptance_conditions_;
   }
 
@@ -382,7 +354,6 @@ namespace spot
     return 0;
   }
 
-  //TODO BUG FIX
   bool
   ta_product::is_initial_state(const spot::state* s) const
   {

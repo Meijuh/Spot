@@ -216,7 +216,7 @@ namespace spot
                 (a_->is_hole_state_in_ta_component(curr))
                     && a_->is_livelock_accepting_state(curr);
 
-            //may be Buchi accepting scc or livelock accepting scc (contains a TA "hole and livelock accepting state")
+            //may be Buchi accepting scc or livelock accepting scc (contains a livelock accepting state that have no successors in TA)
             scc.top().is_accepting = (a_->is_accepting_state(curr)
                 && (!succ->is_stuttering_transition()
                     || a_->is_livelock_accepting_state(curr)))
