@@ -20,8 +20,12 @@
 
 
 all: $(srcdir)/tl.pdf
+
+# The second -e '$$pdflatex... ' line can be replaced by -pdflatex on
+# recent version of latexmk; but version 4.13a, installed on some
+# of our hosts, does not support it.
 LATEXMK = latexmk -pdf -ps- -dvi- -e '$$bibtex_use=2' \
-          -pdflatex='pdflatex %O "\def\SpotVersion{$(VERSION)}\input{%S}"'
+  -e '$$pdflatex="pdflatex %O \"\\def\\SpotVersion{$(VERSION)}\\input{%S}\""'
 
 dist_pdf_DATA = $(srcdir)/tl.pdf
 
