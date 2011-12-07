@@ -123,9 +123,10 @@ flex_set_buffer(const char* buf, int start_tok)
    , is from Perl */
 <sqbracket>","|".."|":"|"to"	return token::OP_SQBKT_SEP;
 
-  /* In SVA  you use [=1:$] instead of [=1..].  We will also
-     accept [=1..$] and [=1:].  */
-<sqbracket>"$"			return token::OP_UNBOUNDED;
+  /* In SVA you use [=1:$] instead of [=1..].  We will also accept
+     [=1..$] and [=1:].  The PSL LRM shows examples like [=1:inf]
+     instead, so will accept this too.  */
+<sqbracket>"$"|"inf"		return token::OP_UNBOUNDED;
 
   /* & and | come from Spin.  && and || from LTL2BA.
      /\, \/, and xor are from LBTT.

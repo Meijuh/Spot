@@ -10,9 +10,8 @@
 \usepackage{url}
 \usepackage{xspace}
 \usepackage{dsfont}
-\usepackage{mathabx}
+\usepackage{mathabx}  % vDash
 \usepackage{showlabels}
-\usepackage{chngpage}
 \usepackage{tabulary}
 \usepackage[numbers]{natbib}
 \usepackage{rotating}
@@ -646,9 +645,11 @@ denote arbitrary SERE and $b$ denotes a Boolean formula.
 \end{tabular}
 \end{center}
 
-The character \samp{\$} can also be used as value for $\mvar{j}$ in
-the above operators to denote an unbounded range.  For instance
-`$a\STAR{i,\texttt{\$}}$' and `$a\STAR{i..}$' represent the same SERE.
+The character \samp{\$} or the string \samp{inf} can also be used as
+value for $\mvar{j}$ in the above operators to denote an unbounded
+range.\footnote{SVA uses \samp{\$} while PSL uses \samp{inf}.}  For
+instance `$a\STAR{i,\texttt{\$}}$', `$a\STAR{i\texttt{:inf}}$' and
+`$a\STAR{i..}$' all represent the same SERE.
 
 \subsection{Semantics}
 
