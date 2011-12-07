@@ -16,13 +16,18 @@
 \usepackage{tabulary}
 \usepackage[numbers]{natbib}
 \usepackage{rotating}
+\usepackage{booktabs}
 \usepackage{tikz}
+\usepackage{calc}
 \usetikzlibrary{backgrounds}
 \usetikzlibrary{shadows}
 \usetikzlibrary{arrows}
 \pgfdeclarelayer{background}
 \pgfdeclarelayer{foreground}
 \pgfsetlayers{background,main,foreground}
+
+\addtokomafont{caption}{\small}
+\setkomafont{captionlabel}{\sffamily\bfseries}
 
 % TODO
 \usepackage{todonotes}
@@ -291,7 +296,7 @@ reserved keyword, or one that starts with a digit, is to use double quotes.
 The reason we deal with leading \samp{F}, \samp{G}, and \samp{X}
 specifically in rule~\ref{rule:ap2} is that these are unary LTL
 operators and we want to be able to write compact formul\ae{} like
-$\samp{GFa}$ instead of the equivalent \samp{G(F(a))} or
+\samp{GFa} instead of the equivalent \samp{G(F(a))} or
 \samp{G~F~a}.  If you want to name an atomic proposition \samp{GFa},
 you will have to quote it as \samp{"GFa"}.
 
@@ -352,9 +357,9 @@ following Boolean operators:
 \begin{tabular}{ccccc}
               & preferred & \multicolumn{2}{c}{other supported} \\
    operation  & syntax    & \multicolumn{2}{c}{syntaxes}\\
-  \hline
+  \midrule
   negation    & $\NOT f$      & $\NOTALT f$  \\
-  disjunction & $f\OR g$      & $f\ORALT g$      & $f\ORALTT g$ & $f\ORALTTT$ \\
+  disjunction & $f\OR g$      & $f\ORALT g$      & $f\ORALTT g$ & $f\ORALTTT g$ \\
   conjunction & $f\AND g$     & $f\ANDALT g$     & $f\ANDALTT g$ \\
   implication & $f\IMPLIES g$ & $f\IMPLIESALT g$ & $f\IMPLIESALTT g$\\
   exclusion   & $f\XOR g$     & $f\XORALT g$ \\
@@ -454,7 +459,7 @@ temporal operators can be used to construct another temporal formula.
 \begin{tabular}{ccc}
                  & preferred & \multicolumn{1}{c}{other supported} \\
    operator      & syntax    & \multicolumn{1}{c}{syntaxes}\\
-  \hline
+  \midrule
   Next           & $\X f$    & $\XALT f$ \\
   Eventually     & $\F f$    & $\FALT f$ \\
   Always         & $\G f$    & $\GALT f$ \\
@@ -527,6 +532,7 @@ The operator \samp{F}, \samp{G}, \samp{U}, \samp{R}, \samp{M}, and
 and one of \samp{U}, \samp{W}, \samp{R}, or \samp{M}.  This property
 is usually used to simplify proofs.
 
+{\allowdisplaybreaks
 \begin{align*}
 \intertext{Equivalences using $\U$:}
   \F f &\equiv \1\U f\\
@@ -555,7 +561,7 @@ is usually used to simplify proofs.
   f\U g&\equiv ((\X g)\M f)\OR g \\
   f \W g&\equiv (f\U g)\OR \G f \equiv ((\X g)\M f)\OR g\OR \NOT((\NOT f)\M\1)\\
   f \R g&\equiv (f \M g)\OR\G f \equiv (f \M g)\OR \NOT((\NOT f)\M\1)
-\end{align*}
+\end{align*}}
 \ltltodo[noline]{Why do we have two ways to rewrite $f\W g$ with $\U$,
   and two ways to rewrite $f\M g$ with $\R$, but no similar rules for other operators? What are we missing?}
 
@@ -606,7 +612,7 @@ denote arbitrary SERE and $b$ denotes a Boolean formula.
 \begin{tabular}{ccccc}
               & preferred & \multicolumn{2}{c}{other supported} \\
    operation  & syntax    & \multicolumn{2}{c}{syntaxes}\\
-  \hline
+  \midrule
   empty word   & $\eword$ \\
   union        & $f\OR g$  & $f\ORALT g$ & $f\ORALTT g$ & $f\ORALTTT g$ \\
   (synchronized) intersection & $f\ANDALT g$ & $f\ANDALTT g$ \\
@@ -649,6 +655,7 @@ the above operators to denote an unbounded range.  For instance
 The following semantics assume that $f$ and $g$ are two SEREs, while
 $b$ is a Boolean formula.
 
+{\allowdisplaybreaks
 \begin{align*}
   \sigma\VDash \eword & \iff |\sigma| = 0 \\
   \sigma\VDash a      & \iff \sigma(0)(a) = 1 \\
@@ -689,7 +696,7 @@ $b$ is a Boolean formula.
   \sigma\VDash\mathtt{\{\{}\NOT b\,\mathtt\}\STAR{0..}\CONCAT\ b\,\mathtt\}\STAR{\mvar{i}..\mvar{j}}\\
   \sigma\VDash b\GOTO{\mvar{i}..} & \iff
   \sigma\VDash\mathtt{\{\{}\NOT b\,\mathtt\}\STAR{0..}\CONCAT\ b\,\mathtt\}\STAR{\mvar{i}..}\\
-\end{align*}
+\end{align*}}
 
 Notes:
 \begin{itemize}
@@ -799,7 +806,7 @@ formula $f$ to form another PSL formula.
 \begin{tabular}{ccccc}
               & preferred & \multicolumn{2}{c}{other supported} \\
    operation  & syntax    & \multicolumn{2}{c}{syntaxes}\\
-  \hline
+  \midrule
   (universal) suffix implication
   & $\sere{r}\Asuffix{} f$
   & $\sere{r}\AsuffixALT{} f$
@@ -892,30 +899,30 @@ operator, even if the operator has multiple synonyms (like \samp{|},
 \samp{||}, and {`\verb=\/='}).
 
 \begin{align*}
-  \mathit{constant} ::=&\, \0 \mid \1                             &  \mathit{tformula} ::=&\,\mathit{bformula}\\
-  \mathit{atomic\_prop} ::=&\, \text{see section~\ref{sec:ap}}    &    \mid&\,\tsamp{(}\,\mathit{tformula}\,\tsamp{)} \\
-  \mathit{bformula} ::=&\, \mathit{constant}                      &    \mid&\,\msamp{\NOT}\,\mathit{tformula}\,\\
-    \mid&\,\mathit{atomic\_prop}                                  &    \mid&\,\mathit{tformula}\,\msamp{\AND}\,\mathit{tformula} \\
-    \mid&\,\mathit{atomic\_prop}\code{=0}                         &    \mid&\,\mathit{tformula}\,\msamp{\OR}\,\mathit{tformula} \\
-    \mid&\,\mathit{atomic\_prop}\code{=1}                         &    \mid&\,\mathit{tformula}\,\msamp{\IMPLIES}\,\mathit{tformula} \\
-    \mid&\,\tsamp{(}\,\mathit{bformula}\,\tsamp{)}                &    \mid&\,\mathit{tformula}\,\msamp{\XOR}\,\mathit{tformula} \\
-    \mid&\,\msamp{\NOT}\,\mathit{bformula}                        &    \mid&\,\mathit{tformula}\,\msamp{\EQUIV}\,\mathit{tformula} \\
-    \mid&\,\mathit{bformula}\,\msamp{\AND}\,\mathit{bformula}     &    \mid&\,\msamp{\X}\,\mathit{tformula}\\
-    \mid&\,\mathit{bformula}\,\msamp{\OR}\,\mathit{bformula}      &    \mid&\,\msamp{\F}\,\mathit{tformula}\\
-    \mid&\,\mathit{bformula}\,\msamp{\IMPLIES}\,\mathit{bformula} &    \mid&\,\msamp{\G}\,\mathit{tformula}\\
-    \mid&\,\mathit{bformula}\,\msamp{\XOR}\,\mathit{bformula}     &    \mid&\,\mathit{tformula}\,\msamp{\U}\,\mathit{tformula} \\
-    \mid&\,\mathit{bformula}\,\msamp{\EQUIV}\,\mathit{bformula}   &    \mid&\,\mathit{tformula}\,\msamp{\W}\,\mathit{tformula} \\
-  \mathit{rformula} ::=&\, \mathit{bformula}                      &    \mid&\,\mathit{tformula}\,\msamp{\R}\,\mathit{tformula} \\
-    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}                  &    \mid&\,\mathit{tformula}\,\msamp{\M}\,\mathit{tformula} \\
-    \mid&\,\mathit{rformula}\msamp{\OR}\mathit{rformula}          &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\Asuffix}\,\mathit{tformula}\\
-    \mid&\,\mathit{rformula}\msamp{\AND}\mathit{rformula}         &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\AsuffixEQ}\,\mathit{tformula}\\
-    \mid&\,\mathit{rformula}\msamp{\ANDALT}\mathit{rformula}      &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\Esuffix}\,\mathit{tformula}\\
-    \mid&\,\mathit{rformula}\msamp{\CONCAT}\mathit{rformula}      &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\,\msamp{\EsuffixEQ}\,\mathit{tformula} \\
-    \mid&\,\mathit{rformula}\msamp{\FUSION}\mathit{rformula}      &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}} \\
-    \mid&\,\mathit{rformula}\msamp{\STAR{\mvar{i}..\mvar{j}}}     &    \mid&\,\tsamp{\{}\mathit{rformula}\tsamp{\}}\msamp{\NOT} \\
-    \mid&\,\mathit{rformula}\msamp{\PLUS}                         \\
-    \mid&\,\mathit{rformula}\msamp{\EQUAL{\mvar{i}..\mvar{j}}}    \\
-    \mid&\,\mathit{rformula}\msamp{\GOTO{\mvar{i}..\mvar{j}}}     \\
+\mathit{constant} ::={}& \0 \mid \1                             & \mathit{tformula} ::={}&\mathit{bformula}\\
+\mathit{atomic\_prop} ::={}& \text{see section~\ref{sec:ap}}    &   \mid{}&\tsamp{(}\,\mathit{tformula}\,\tsamp{)} \\
+\mathit{bformula} ::={}& \mathit{constant}                      &   \mid{}&\msamp{\NOT}\,\mathit{tformula}\,\\
+  \mid{}&\mathit{atomic\_prop}                                  &   \mid{}&\mathit{tformula}\,\msamp{\AND}\,\mathit{tformula} \\
+  \mid{}&\mathit{atomic\_prop}\code{=0}                         &   \mid{}&\mathit{tformula}\,\msamp{\OR}\,\mathit{tformula} \\
+  \mid{}&\mathit{atomic\_prop}\code{=1}                         &   \mid{}&\mathit{tformula}\,\msamp{\IMPLIES}\,\mathit{tformula} \\
+  \mid{}&\tsamp{(}\,\mathit{bformula}\,\tsamp{)}                &   \mid{}&\mathit{tformula}\,\msamp{\XOR}\,\mathit{tformula} \\
+  \mid{}&\msamp{\NOT}\,\mathit{bformula}                        &   \mid{}&\mathit{tformula}\,\msamp{\EQUIV}\,\mathit{tformula} \\
+  \mid{}&\mathit{bformula}\,\msamp{\AND}\,\mathit{bformula}     &   \mid{}&\msamp{\X}\,\mathit{tformula}\\
+  \mid{}&\mathit{bformula}\,\msamp{\OR}\,\mathit{bformula}      &   \mid{}&\msamp{\F}\,\mathit{tformula}\\
+  \mid{}&\mathit{bformula}\,\msamp{\IMPLIES}\,\mathit{bformula} &   \mid{}&\msamp{\G}\,\mathit{tformula}\\
+  \mid{}&\mathit{bformula}\,\msamp{\XOR}\,\mathit{bformula}     &   \mid{}&\mathit{tformula}\,\msamp{\U}\,\mathit{tformula} \\
+  \mid{}&\mathit{bformula}\,\msamp{\EQUIV}\,\mathit{bformula}   &   \mid{}&\mathit{tformula}\,\msamp{\W}\,\mathit{tformula} \\
+\mathit{sere} ::={}&\mathit{bformula}                           &   \mid{}&\mathit{tformula}\,\msamp{\R}\,\mathit{tformula} \\
+  \mid{}&\tsamp{\{}\mathit{sere}\tsamp{\}}                      &   \mid{}&\mathit{tformula}\,\msamp{\M}\,\mathit{tformula} \\
+  \mid{}&\mathit{sere}\msamp{\OR}\mathit{sere}                  &   \mid{}&\tsamp{\{}\mathit{sere}\tsamp{\}}\,\msamp{\Asuffix}\,\mathit{tformula}\\
+  \mid{}&\mathit{sere}\msamp{\AND}\mathit{sere}                 &   \mid{}&\tsamp{\{}\mathit{sere}\tsamp{\}}\,\msamp{\AsuffixEQ}\,\mathit{tformula}\\
+  \mid{}&\mathit{sere}\msamp{\ANDALT}\mathit{sere}              &   \mid{}&\tsamp{\{}\mathit{sere}\tsamp{\}}\,\msamp{\Esuffix}\,\mathit{tformula}\\
+  \mid{}&\mathit{sere}\msamp{\CONCAT}\mathit{sere}              &   \mid{}&\tsamp{\{}\mathit{sere}\tsamp{\}}\,\msamp{\EsuffixEQ}\,\mathit{tformula} \\
+  \mid{}&\mathit{sere}\msamp{\FUSION}\mathit{sere}              &   \mid{}&\tsamp{\{}\mathit{sere}\tsamp{\}} \\
+  \mid{}&\mathit{sere}\msamp{\STAR{\mvar{i}..\mvar{j}}}         &   \mid{}&\tsamp{\{}\mathit{sere}\tsamp{\}}\msamp{\NOT} \\
+  \mid{}&\mathit{sere}\msamp{\PLUS}                      \\
+  \mid{}&\mathit{sere}\msamp{\EQUAL{\mvar{i}..\mvar{j}}} \\
+  \mid{}&\mathit{sere}\msamp{\GOTO{\mvar{i}..\mvar{j}}}  \\
 \end{align*}
 
 \section{Operator precedence}
@@ -944,10 +951,10 @@ operator, even if the operator has multiple synonyms (like \samp{|},
   We want to get closer to the PSL standard eventually.}
 
 \begin{center}
-\begin{tabular}{cll}
+\begin{tabular}{clc}
  assoc. & operators                                                                                    & priority \\
-\hline
-left    & $\Asuffix,\,\AsuffixEQ,\,\Esuffix,\,\EsuffixEQ$                                              & lowest   \\
+\midrule
+left    & $\Asuffix,\,\AsuffixEQ,\,\Esuffix,\,\EsuffixEQ$                                              & \tikz[remember picture,baseline]\node (lowest){lowest};   \\
 left    & $\CONCAT,\,\FUSION$                                                                          &          \\
 left    & $\IMPLIES,\,\EQUIV$                                                                          &          \\
 left    & $\XOR$                                                                                       &          \\
@@ -958,9 +965,12 @@ left    & $\U,\,\W,\,\M,\,\R$                                                   
         & $\X$                                                                                         &          \\
         & $\STAR{\mvar{i}..\mvar{j}},\,\PLUS,\,\EQUAL{\mvar{i}..\mvar{j}},\,\GOTO{\mvar{i}..\mvar{j}}$ &          \\
         & $\NOT$                                                                                       &          \\
-        & $\code{=0},\,\code{=1}$                                                                      & highest  \\
+        & $\code{=0},\,\code{=1}$                                                                      & \tikz[remember picture,baseline]\node (highest){highest};  \\
 \end{tabular}
 \end{center}
+\begin{tikzpicture}[remember picture,overlay,>=stealth',semithick]
+  \draw[->] (lowest) -- (highest);
+\end{tikzpicture}
 
 \chapter{Properties}
 
@@ -971,7 +981,7 @@ instance using the following methods:
 
 \noindent
 \label{property-methods}
-\begin{tabulary}{\textwidth}{lL}
+\begin{tabulary}{.995\textwidth}{@{}lJ@{}}
 \texttt{is\_boolean()}& Whether the formula uses only Boolean
   operators.
 \\\texttt{is\_sugar\_free\_boolean()}& Whether the formula uses
@@ -1010,6 +1020,7 @@ instance using the following methods:
 \\\texttt{accepts\_eword()}& Whether the formula accepts
   $\eword$. (This can only be true for a SERE formula.)
 \end{tabulary}
+
 \footnotetext{This special operator is used when translating recurring
   $\Esuffix$, it is rendered as $\EsuffixMarked$ and it obeys the same
   simplification rules and properties as $\Esuffix$ (except for the
@@ -1042,7 +1053,7 @@ Let $\varphi$ designate any arbitrary formula and $\varphi_E$
 rules:
 
 \begin{align*}
-  \varphi_E ::=&\, \0
+  \varphi_E ::={}& \0
            \mid \1
            \mid \X \varphi_E
            \mid \F \varphi
@@ -1050,13 +1061,13 @@ rules:
            \mid \varphi_E\AND \varphi_E
            \mid (\varphi_E\OR \varphi_E)
            \mid \NOT\varphi_U\\
-           \mid&\,\varphi  \U \varphi_E
+           \mid{}&\varphi  \U \varphi_E
            \mid 1        \U \varphi
            \mid \varphi_E\R \varphi_E
            \mid \varphi_E\W \varphi_E
            \mid \varphi_E\M \varphi_E
            \mid \varphi  \M \1\\
-  \varphi_U ::=&\, \0
+  \varphi_U ::={}& \0
            \mid \1
            \mid \X \varphi_U
            \mid \F \varphi_U
@@ -1064,7 +1075,7 @@ rules:
            \mid \varphi_U\AND \varphi_U
            \mid (\varphi_U\OR \varphi_U)
            \mid \NOT\varphi_E\\
-           \mid&\,\varphi_U\U \varphi_U
+           \mid{}&\varphi_U\U \varphi_U
            \mid \varphi  \R \varphi_U
            \mid \0       \R \varphi
            \mid \varphi_U\W \varphi_U
@@ -1075,6 +1086,16 @@ rules:
 \section{Syntactic Hierarchy Classes}
 
 \begin{figure}[tbp]
+  \setcapindent{1em}
+  \begin{captionbeside}{
+    The temporal hierarchy of \citet{manna.87.podc} with their
+    associated classes of automata~\citep{cerna.03.mfcs}.  The
+    formul\ae{} associated to each class are more than canonical
+    examples: they show the normal forms under which any LTL formula
+    of the class can be rewritten, assuming that $p,p_i,q,q_i$ denote
+    subformul\ae{} involving only Boolean operators, $\X$, and past
+    temporal operators (Spot does not support the
+    latter). \label{fig:hierarchy}}[o]
   \centering
  \begin{tikzpicture}
     \draw[drop shadow,fill=white] (0,0) rectangle (6,7);
@@ -1092,29 +1113,22 @@ rules:
     \node[align=center] (saf) at (1,1) {Safety\\ $\G p$};
     \node[align=center] (gua) at (5,1) {Guarantee\\ $\F p$};
 
-    \node[align=center,below left] (det) at (-.2,6.7) {Deterministic\\Büchi Automata};
-    \node[align=center,below right](weak) at (6.2,6.7) {Weak Büchi\\Automata};
-    \node[align=center,right](wdba) at (6.2,4.3) {Weak Deteterministic\\Büchi Automata};
-    \node[align=center,above right](ter) at (6.2,2) {Terminal\\Büchi Automata};
-    \node[align=center,above left](occ) at (-.2,2) {Terminal\\co-Büchi Automata};
+    \node[align=right,below left] (det) at (-.2,6.7) {Deterministic\\Büchi\\Automata};
+    \node[align=left,below right](weak) at (6.2,6.7) {Weak Büchi\\Automata};
+    \node[align=left,right](wdba) at (6.2,4.3) {Weak\\Deterministic\\Büchi\\Automata};
+    \node[align=left,above right](ter) at (6.2,1.7) {Terminal\\Büchi\\Automata};
+    \node[align=right,above left](occ) at (-.2,2) {Terminal\\co-Büchi\\Automata};
 
     \node[above right] (buc) at (3.35,7) {General Büchi Automata};
 
     \draw[annote] (rec) -- (det);
     \draw[annote] (per) -- (weak);
-    \draw[annote] (obl.east) -- (wdba);
-    \draw[annote] (gua) -- (ter);
+    \draw[annote] (obl.east) -- (wdba.west);
+    \draw[annote] (gua.north) -- (ter.west);
     \draw[annote] (saf) -- (occ);
     \draw[annote] (rea.north) .. controls +(north:5mm) and +(west:5mm) .. (buc.west);
   \end{tikzpicture}
-  \caption{The temporal hierarchy of \citet{manna.87.podc} with their
-    associated classes of automata~\citep{cerna.03.mfcs}.  The
-    formul\ae{} associated to each class are more than canonical
-    examples: they show the normal forms under which any LTL formula of
-    the class can be rewritten, assuming that $p,p_i,q,q_i$ denote
-    subformul\ae{} involving only Boolean operators, $\X$, and past
-    temporal operators (Spot does not support the
-    latter). \label{fig:hierarchy}}
+  \end{captionbeside}
 \end{figure}
 
 The hierarchy of linear temporal properties was introduced
@@ -1142,43 +1156,43 @@ $v$ denotes any variable, $r$ any SERE, $r_F$ any bounded SERE (no
 loops), and $r_I$ any unbounded SERE.
 
 \begin{align*}
-  \varphi_G ::=&\, \0\mid\1\mid v\mid \NOT\varphi_S\mid
+  \varphi_G ::={}& \0\mid\1\mid v\mid \NOT\varphi_S\mid
                    \varphi_G\AND \varphi_G\mid (\varphi_G\OR \varphi_G)\mid
                    \X\varphi_G \mid \F\varphi_G\mid
                    \varphi_G\U\varphi_G\mid \varphi_G\M\varphi_G\\
-           \mid&\, \sere{r_F}\mid
+           \mid{}& \sere{r_F}\mid
                    \sere{r}\Esuffix \varphi_G\mid
                    \sere{r_F}\Asuffix \varphi_G \\
-  \varphi_S ::=&\, \0\mid\1\mid v\mid \NOT\varphi_G\mid
+  \varphi_S ::={}& \0\mid\1\mid v\mid \NOT\varphi_G\mid
                    \varphi_S\AND \varphi_S\mid (\varphi_S\OR \varphi_S)\mid
                    \X\varphi_S \mid \G\varphi_S\mid
                    \varphi_S\R\varphi_S\mid \varphi_S\W\varphi_S\\
-           \mid&\, \nsere{r_F}\mid
+           \mid{}& \nsere{r_F}\mid
                    \sere{r_F}\Esuffix \varphi_S\mid
                    \sere{r}\Asuffix \varphi_S\\
-  \varphi_O ::=&\, \varphi_G \mid \varphi_S\mid \NOT\varphi_O\mid
+  \varphi_O ::={}& \varphi_G \mid \varphi_S\mid \NOT\varphi_O\mid
                    \varphi_O\AND \varphi_O\mid (\varphi_O\OR \varphi_O)\mid
                    \X\varphi_O \mid
                    \varphi_O\U\varphi_G\mid\varphi_O\R\varphi_S \mid
                    \varphi_S\W\varphi_O\mid \varphi_G\M\varphi_O\\
-           \mid&\, \sere{r} \mid \nsere{r}\mid
+           \mid{}& \sere{r} \mid \nsere{r}\mid
                    \sere{r_F}\Esuffix \varphi_O \mid \sere{r_I}\Esuffix \varphi_G\mid
                    \sere{r_F}\Asuffix \varphi_O\mid
                    \sere{r_I}\Asuffix \varphi_S\\
-  \varphi_P ::=&\, \varphi_O \mid \NOT\varphi_R\mid
+  \varphi_P ::={}& \varphi_O \mid \NOT\varphi_R\mid
                    \varphi_P\AND \varphi_P\mid (\varphi_P\OR \varphi_P)\mid
                    \X\varphi_P \mid \F\varphi_P \mid
                    \varphi_P\U\varphi_P\mid\varphi_P\R\varphi_S\mid
                    \varphi_S\W\varphi_P\mid\varphi_P\M\varphi_P\\
-           \mid&\, \sere{r}\Esuffix \varphi_P\mid
+           \mid{}& \sere{r}\Esuffix \varphi_P\mid
                    \sere{r_F}\Asuffix \varphi_P\mid
                    \sere{r_I}\Asuffix \varphi_S\\
-  \varphi_R ::=&\, \varphi_O \mid \NOT\varphi_P\mid
+  \varphi_R ::={}& \varphi_O \mid \NOT\varphi_P\mid
                    \varphi_R\AND \varphi_R\mid (\varphi_R\OR \varphi_R)\mid
                    \X\varphi_R \mid \G\varphi_R \mid
                    \varphi_R\U\varphi_G\mid\varphi_R\R\varphi_R\mid
                    \varphi_R\W\varphi_R\mid\varphi_G\M\varphi_R\\
-           \mid&\, \sere{r_F}\Esuffix \varphi_R \mid \sere{r_I}\Esuffix \varphi_G\mid \sere{r}\Asuffix \varphi_P\\
+           \mid{}& \sere{r_F}\Esuffix \varphi_R \mid \sere{r_I}\Esuffix \varphi_G\mid \sere{r}\Asuffix \varphi_P\\
 \end{align*}
 
 It should be noted that a formula can belong to a class of the
@@ -1413,12 +1427,12 @@ notation to distinguish the class of subformul\ae:
 
 \begin{center}
 \begin{tabular}{rl}
-\hline
+\toprule
 $f,\,f_i,\,g,\,g_i$ & any PSL formula \\
 $e,\,e_i$           & a pure eventuality \\
 $u,\,u_i$           & a purely universal formula \\
 $q,\,q_i$           & a pure eventuality that is also purely universal \\
-\hline
+\bottomrule
 \end{tabular}
 \end{center}
 
@@ -1528,7 +1542,7 @@ following cases, where $f_b$ and $g_b$ designate Boolean formul\ae{}:
 \begin{center}
 \begin{tabular}{rl}
 we have                       & if                                    \\
-\hline
+\midrule
 $f\simp \1$                   & always                                \\
 $\0\simp g$                   & always                                \\
 $f_b \simp g_b$               & $\mathrm{BDD}(f_b)\land \mathrm{BDD}(g_b) =
