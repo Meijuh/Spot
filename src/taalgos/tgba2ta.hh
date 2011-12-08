@@ -40,8 +40,9 @@ namespace spot
       bool artificial_livelock_accepting_state_mode = false,
       bool degeneralized = true);
 
+  //artificial_livelock_accepting_state is used in the case of TA+ automata
   void
-  compute_livelock_acceptance_states(ta_explicit* testing_automata);
+  compute_livelock_acceptance_states(ta_explicit* testing_automata, state_ta_explicit* artificial_livelock_accepting_state = 0);
 
   void
   add_artificial_livelock_accepting_state(ta_explicit* testing_automata,
