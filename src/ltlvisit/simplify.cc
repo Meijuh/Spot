@@ -1965,7 +1965,7 @@ namespace spot
 				      //           do not accept [*0]
 				      // - 0 if more than one ri accept [*0]
 				      {
-					formula* ri;
+					formula* ri = 0;
 					unsigned nonempty = 0;
 					for (unsigned j = 0; j < rs; ++j)
 					  {
