@@ -1,3 +1,17 @@
+2011-12-16  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Don't rely on the g++ version to include tr1/unordered_map and co.
+
+	The previous setup failed with clang++ 3.0.
+
+	* m4/stl.m4: New file.
+	* configure.ac: Call AC_HEADER_UNORDERED_MAP,
+	AC_HEADER_TR1_UNORDERED_MAP, and AC_HEADER_EXT_HASH_MAP.
+	* src/misc/hash.hh: Include _config.h, and used the
+	SPOT_HAVE_UNORDERED_MAP, SPOT_HAVE_TR1_UNORDERED_MAP,
+	or SPOT_HAVE_EXT_HASH_MAP defines to decide which
+	file to include.
+
 2011-12-01  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Fix mkdir error in ajax/spot.in.
@@ -4331,7 +4345,7 @@
 
 	Update to compile with the Intel compiler.
 
-  	* m4/intel.m4: New file.
+	* m4/intel.m4: New file.
 	* configure.ac: Update.
 	* src/tgbaalgos/emptiness.cc (tgba_run): Modify s.s->clone() in
 	i->s->clone().

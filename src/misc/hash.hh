@@ -26,11 +26,35 @@
 
 #  include <string>
 #  include <functional>
-#  include "hashfunc.hh"
+#  include "misc/hashfunc.hh"
+#  include "misc/_config.h"
 
-// See the G++ FAQ for details about the following.
-#  ifdef __GNUC__
-#  if __GNUC__ < 3
+#ifdef SPOT_HAVE_UNORDERED_MAP
+#  include <unordered_map>
+#  include <unordered_set>
+   namespace Sgi = std;
+#  define hash_map unordered_map
+#  define hash_multimap unordered_multimap
+#  define hash_set unordered_set
+#else
+#ifdef SPOT_HAVE_TR1_UNORDERED_MAP
+#  include <tr1/unordered_map>
+#  include <tr1/unordered_set>
+   namespace Sgi = std::tr1;
+#  define hash_map unordered_map
+#  define hash_multimap unordered_multimap
+#  define hash_set unordered_set
+#else
+#ifdef SPOT_HAVE_EXT_HASH_MAP
+#  include <ext/hash_map>
+#  include <ext/hash_set>
+#  if __GNUC__ == 3 && __GNUC_MINOR__ == 0
+     namespace Sgi = std;               // GCC 3.0
+#  else
+     namespace Sgi = ::__gnu_cxx;       // GCC 3.1 to 4.2
+#  endif
+#else
+#  if defined(__GNUC__) && (__GNUC__ < 3)
 #    include <hash_map.h>
 #    include <hash_set.h>
     namespace Sgi
@@ -41,28 +65,13 @@
       using ::hash;
     }
 #  else
-#    if (__GNUC__ == 4 && __GNUC_MINOR__ >= 3) || __GNUC__ > 4
-#      include <tr1/unordered_set>         // GCC 4.3
-#      include <tr1/unordered_map>
-       namespace Sgi = std::tr1;
-#      define hash_map unordered_map
-#      define hash_multimap unordered_multimap
-#      define hash_set unordered_set
-#    else
-#      include <ext/hash_map>
-#      include <ext/hash_set>
-#      if __GNUC__ == 3 && __GNUC_MINOR__ == 0
-        namespace Sgi = std;               // GCC 3.0
-#      else
-        namespace Sgi = ::__gnu_cxx;       // GCC 3.1 to 4.2
-#      endif
-#    endif
-#  endif
-#  else      // ...  there are other compilers, right?
 #   include <hash_map>
 #   include <hash_set>
     namespace Sgi = std;
 #  endif
+#endif
+#endif
+#endif
 
 namespace spot
 {
@@ -83,9 +92,9 @@ namespace spot
   /// \brief A hash function for strings.
   /// \ingroup hash_funcs
   /// @{
-#  if (__GNUC__ == 4 && __GNUC_MINOR__ >= 3) || __GNUC__ > 4
-  typedef std::tr1::hash<std::string> string_hash;
-#  else  // GCC < 4.3
+#if defined(SPOT_HAVE_UNORDERED_MAP) || defined(SPOT_HAVE_TR1_UNORDERED_MAP)
+  typedef Sgi::hash<std::string> string_hash;
+#else // e.g. GCC < 4.3
   struct string_hash:
     public Sgi::hash<const char*>,
     public std::unary_function<const std::string&, size_t>
@@ -98,7 +107,7 @@ namespace spot
     }
   };
   /// @}
-#  endif
+#endif
 
   /// \brief A hash function that returns identity
   /// \ingroup hash_funcs
