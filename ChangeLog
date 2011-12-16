@@ -1,5 +1,22 @@
 2011-12-16  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Perform WDBA minimization before degeneralization.
+
+	There is no point in degeneralizing an automaton if it can be WDBA
+	minimized.  Doing so will only augment the number of states and
+	slow down the powerset construction used by the WDBA minimization.
+
+	* src/tgbatest/babiak.test: New file.  It includes 5 formulae
+	which Tomáš Babiak reported Spot 0.7.1 would take over one hour to
+	translate if degeneralization and WDBA minimization were both
+	requested.
+	* src/tgbatest/Makefile.am (TESTS): Add it.
+	* src/tgbatest/ltl2tgba.cc: Do WDBA minimization before
+	degeneralization.  The above formulae are now all translated in a
+	few seconds.
+
+2011-12-16  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Don't rely on the g++ version to include tr1/unordered_map and co.
 
 	The previous setup failed with clang++ 3.0.

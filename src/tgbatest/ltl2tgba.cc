@@ -934,27 +934,6 @@ main(int argc, char** argv)
       const spot::tgba_tba_proxy* degeneralized = 0;
       const spot::tgba_sgba_proxy* state_labeled = 0;
 
-      unsigned int n_acc = a->number_of_acceptance_conditions();
-      if (echeck_inst
-	  && degeneralize_opt == NoDegen
-	  && n_acc > 1
-	  && echeck_inst->max_acceptance_conditions() < n_acc)
-	degeneralize_opt = DegenTBA;
-
-      if (degeneralize_opt == DegenTBA)
-	{
-	  a = degeneralized = new spot::tgba_tba_proxy(a);
-	}
-      else if (degeneralize_opt == DegenSBA)
-	{
-	  a = degeneralized = new spot::tgba_sba_proxy(a);
-	  assume_sba = true;
-	}
-      else if (labeling_opt == StateLabeled)
-	{
-	  a = state_labeled = new spot::tgba_sgba_proxy(a);
-	}
-
       const spot::tgba* minimized = 0;
       if (opt_minimize)
 	{
@@ -980,6 +959,33 @@ main(int argc, char** argv)
 	    {
 	      a = minimized;
 	      assume_sba = true;
+	    }
+	}
+
+      unsigned int n_acc = a->number_of_acceptance_conditions();
+      if (echeck_inst
+	  && degeneralize_opt == NoDegen
+	  && n_acc > 1
+	  && echeck_inst->max_acceptance_conditions() < n_acc)
+	{
+	  degeneralize_opt = DegenTBA;
+	  assume_sba = false;
+	}
+
+      if (!assume_sba && !opt_monitor)
+	{
+	  if (degeneralize_opt == DegenTBA)
+	    {
+	      a = degeneralized = new spot::tgba_tba_proxy(a);
+	    }
+	  else if (degeneralize_opt == DegenSBA)
+	    {
+	      a = degeneralized = new spot::tgba_sba_proxy(a);
+	      assume_sba = true;
+	    }
+	  else if (labeling_opt == StateLabeled)
+	    {
+	      a = state_labeled = new spot::tgba_sgba_proxy(a);
 	    }
 	}
 

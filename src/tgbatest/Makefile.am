@@ -100,6 +100,7 @@ TESTS = \
   sccsimpl.test \
   obligation.test \
   wdba.test \
+  babiak.test \
   randtgba.test \
   emptchk.test \
   emptchke.test \
