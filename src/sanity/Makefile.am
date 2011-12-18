@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Laboratoire de Recherche et DÃ©veloppement
+## Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
 ## de l'Epita (LRDE).
 ## Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -21,7 +21,7 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-AM_CPPFLAGS = -I$(srcdir)/.. $(BUDDY_CPPFLAGS)
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 # Run `make TESTHEADER=foo.hh check' if you want to check only one

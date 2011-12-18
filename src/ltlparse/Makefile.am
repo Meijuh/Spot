@@ -21,7 +21,7 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-AM_CPPFLAGS = -I$(srcdir)/.. -DYY_NO_INPUT
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. -DYY_NO_INPUT
 # Disable -Werror because too many versions of flex yield warnings.
 AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=)
 

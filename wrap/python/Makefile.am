@@ -23,8 +23,8 @@
 
 SUBDIRS = . ajax tests
 
-AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_srcdir)/src $(BUDDY_CPPFLAGS) \
-	      -DSWIG_TYPE_TABLE=spot
+AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_srcdir)/src -I$(top_builddir)/src \
+	      $(BUDDY_CPPFLAGS) -DSWIG_TYPE_TABLE=spot
 
 EXTRA_DIST = spot.i buddy.i
 python_PYTHON = $(srcdir)/spot.py $(srcdir)/buddy.py

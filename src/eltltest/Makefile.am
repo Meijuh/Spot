@@ -1,8 +1,5 @@
-## Copyright (C) 2009 Laboratoire de Recherche et DÃ©veloppement
+## Copyright (C) 2009, 2011 Laboratoire de Recherche et DÃ©veloppement
 ## de l'Epita (LRDE).
-## Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-## Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-## Université Pierre et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -21,7 +18,7 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-AM_CPPFLAGS = -I$(srcdir)/.. $(BUDDY_CPPFLAGS)
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD = ../libspot.la
 

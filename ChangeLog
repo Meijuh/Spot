@@ -1,3 +1,22 @@
+2011-12-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix VPATH builds, now that hash.hh include _config.h
+
+	* iface/dve2/Makefile.am, src/eltlparse/Makefile.am
+	src/eltltest/Makefile.am, src/evtgba/Makefile.am,
+	src/evtgbaalgos/Makefile.am, src/evtgbaparse/Makefile.am,
+	src/evtgbatest/Makefile.am, src/kripke/Makefile.am,
+	src/kripketest/Makefile.am, src/ltlast/Makefile.am,
+	src/ltlparse/Makefile.am, src/ltltest/Makefile.am,
+	src/ltlvisit/Makefile.am, src/misc/Makefile.am,
+	src/neverparse/Makefile.am, src/saba/Makefile.am,
+	src/sabaalgos/Makefile.am, src/sabatest/Makefile.am,
+	src/sanity/Makefile.am, src/tgba/Makefile.am,
+	src/tgbaalgos/Makefile.am, src/tgbaalgos/gtec/Makefile.am,
+	src/tgbaparse/Makefile.am, src/tgbatest/Makefile.am,
+	wrap/python/Makefile.am (AM_CPPFLAGS): Make sure
+	$(top_builddir)/src is included.
+
 2011-12-16  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Perform WDBA minimization before degeneralization.

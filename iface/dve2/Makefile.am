@@ -18,7 +18,8 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-AM_CPPFLAGS = -I$(top_srcdir)/src $(BUDDY_CPPFLAGS) -I$(top_srcdir)/ltdl
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src \
+              $(BUDDY_CPPFLAGS) -I$(top_srcdir)/ltdl
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 dve2dir = $(pkgincludedir)/iface/dve2

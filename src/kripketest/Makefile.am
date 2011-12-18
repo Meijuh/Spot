@@ -1,4 +1,5 @@
-## Copyright (C) 2011  Laboratoire de Recherche et Developpement de l'Epita
+## Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+## l'Epita (LRDE)
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -17,7 +18,7 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-AM_CPPFLAGS = -I$(srcdir)/.. $(BUDDY_CPPFLAGS)
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
 
 kripketestdir = $(pkgincludedir)/kripketest
 
