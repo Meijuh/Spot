@@ -1,4 +1,4 @@
-New in spot 0.8a:
+New in spot 0.8.1:
 
   * Only bug fixes:
     - When ltl2tgba is set to perform both WDBA minimization and

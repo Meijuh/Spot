@@ -1,5 +1,11 @@
 2011-12-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Release Spot 0.8.1.
+
+	* configure.ac, NEWS: Bump version to 0.8.1.
+
+2011-12-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* NEWS: Summarize recent fixes.
 
 2011-12-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
