@@ -1,6 +1,13 @@
 New in spot 0.8a:
 
-  Nothing yet.
+  * Only bug fixes:
+    - When ltl2tgba is set to perform both WDBA minimization and
+      degeneralization, do the latter only if the former failed.
+      In previous version, automata were (uselessly) degeneralized
+      before WDBA minimization, causing important slowdowns.
+    - Fix compilation with Clang 3.0.
+    - Fix a Makefile setup causing a "make check" failure on MacOS X.
+    - Fix an mkdir error in the CGI script.
 
 New in spot 0.8 (2011-11-28):
 
