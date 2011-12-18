@@ -24,14 +24,15 @@ all: $(srcdir)/tl.pdf
 # The second -e '$$pdflatex... ' line can be replaced by -pdflatex on
 # recent version of latexmk; but version 4.13a, installed on some
 # of our hosts, does not support it.
-LATEXMK = latexmk -pdf -ps- -dvi- -e '$$bibtex_use=2' \
+LATEXMK = BIBINPUTS='$(srcdir)' latexmk -pdf -ps- -dvi- -e '$$bibtex_use=2' \
   -e '$$pdflatex="pdflatex %O \"\\def\\SpotVersion{$(VERSION)}\\input{%S}\""'
 
 dist_pdf_DATA = $(srcdir)/tl.pdf
+EXTRA_DIST = tl.tex tl.bib
 
 $(srcdir)/tl.pdf: $(srcdir)/tl.tex $(srcdir)/tl.bib
 	$(LATEXMK) $(srcdir)/tl.tex
-	test '$(srcdir)' = '.' || cp $@ $(srcdir)/$@
+	test '$(srcdir)' = '.' || cp tl.pdf $@
 
 pvc:
 	$(LATEXMK) -pvc $(srcdir)/tl.tex
