@@ -367,6 +367,7 @@ namespace spot
                     const state* src = *hi;
                     bdd f = bddfalse;
                     ta_succ_iterator* si = ta_->succ_iter(src);
+                    trace << "+src: "   << src << std::endl;
                     for (si->first(); !si->done(); si->next())
                       {
                         const state* dst = si->current_state();
@@ -380,7 +381,11 @@ namespace spot
                               = bdd_false_acceptance_condition;
                         f |= (bdd_ithvar(i->second) & si->current_condition()
                             & current_acceptance_conditions);
-                        trace << "--------------f: "   << bdd_format_accset(ta_->get_dict(),f) << std::endl;;
+                        trace << "+f: "   << bdd_format_accset(ta_->get_dict(),f) << std::endl;;
+                        trace << "      -bdd_ithvar(i->second): "   << bdd_format_accset(ta_->get_dict(),bdd_ithvar(i->second)) << std::endl;;
+                        trace << "      -si->current_condition(): "   << bdd_format_accset(ta_->get_dict(),si->current_condition()) << std::endl;;
+                        trace << "      -current_acceptance_conditions: "   << bdd_format_accset(ta_->get_dict(),current_acceptance_conditions) << std::endl;;
+
                       }
                     delete si;
 
@@ -411,6 +416,7 @@ namespace spot
                   }
                 else
                   {
+                    did_split = true;
                     for (; bsi != bdd_map.end(); ++bsi)
                       {
                         hash_set* set = bsi->second;
@@ -444,7 +450,6 @@ namespace spot
                           }
                         else
                           {
-                            did_split = true;
                             trace
                               << "set " << format_hash_set(set, ta_)
                                   << " should be processed further" << std::endl;

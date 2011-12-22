@@ -512,7 +512,7 @@ namespace spot
                         == testing_automata->all_acceptance_conditions()))
                   {
                     self_loop_state->set_livelock_accepting_state(true);
-                    self_loop_state->set_accepting_state(true);
+                    if (artificial_livelock_accepting_state != 0) self_loop_state->set_accepting_state(true);
 
                   }
 
