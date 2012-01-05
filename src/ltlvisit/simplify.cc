@@ -1,5 +1,5 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1509,10 +1509,15 @@ namespace spot
 
 		    // a U (b | c | G(a)) = a W (b | c)
 		    // a W (b | c | G(a)) = a W (b | c)
+		    // a U (a & b & c) = (b & c) M a
+		    // a W (a & b & c) = (b & c) R a
 		    if (b->kind() == formula::MultOp)
 		      {
 			multop* fm2 = static_cast<multop*>(b);
-			if (fm2->op() == multop::Or)
+			multop::type bt = fm2->op();
+			// a U (b | c | G(a)) = a W (b | c)
+			// a W (b | c | G(a)) = a W (b | c)
+			if (bt == multop::Or)
 			  {
 			    int s = fm2->size();
 			    for (int i = 0; i < s; ++i)
@@ -1536,6 +1541,30 @@ namespace spot
 				       multop::instance(multop::Or, v)));
 				    return;
 				  }
+			      }
+			  }
+			// a U (b & a & c) == (b & c) M a
+			// a W (b & a & c) == (b & c) R a
+			if (bt == multop::And)
+			  {
+			    int s = fm2->size();
+			    for (int i = 0; i < s; ++i)
+			      {
+				if (fm2->nth(i) != a)
+				  continue;
+				multop::vec* v = new multop::vec;
+				v->reserve(s - 1);
+				int j;
+				for (j = 0; j < i; ++j)
+				  v->push_back(fm2->nth(j)->clone());
+				// skip j=i
+				for (++j; j < s; ++j)
+				  v->push_back(fm2->nth(j)->clone());
+				b->destroy();
+				result_ = recurse_destroy(binop::instance
+				  (op == binop::U ? binop::M : binop::R,
+				   multop::instance(multop::And, v), a));
+				return;
 			      }
 			  }
 		      }

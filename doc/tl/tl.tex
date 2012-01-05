@@ -1326,14 +1326,15 @@ verified, there is no need to worry about the $\G\F g$ term.
 Here are the basic rewriting rules for binary operators (excluding $\OR$ and
 $\AND$ which are considered in Spot as $n$-ary operators):
 \begin{align*}
-  \1 \U f &\equiv \F f             & f \W \0 &\equiv \G f \\
-  f \M \1 &\equiv \F f             & \0 \R f &\equiv \G f \\
-  (\X f)\U (\X g) &\equiv \X(f\U g) & (\X f)\W(\X g) &\equiv \X(f\W g) \\
-  (\X f)\M (\X g) &\equiv \X(f\M g) & (\X f)\R(\X g) &\equiv \X(f\R g) \\
-  f \U(\G f) &\equiv \G f          & f \W(\G f) &\equiv \G f \\
-  f \M(\F f) &\equiv \F f          & f \R(\F f) &\equiv \F f \\
-  f \U (g \OR \G(f)) &\equiv f\W g & f \W (g \OR \G(f)) &\equiv f\W g\\
-  f \M (g \AND \F(f)) &\equiv f\M g & f \R (g \AND \F(f)) &\equiv f\M g
+  \1 \U f             & \equiv \F f      & f \W \0             & \equiv \G f      \\
+  f \M \1             & \equiv \F f      & \0 \R f             & \equiv \G f      \\
+  (\X f)\U (\X g)     & \equiv \X(f\U g) & (\X f)\W(\X g)      & \equiv \X(f\W g) \\
+  (\X f)\M (\X g)     & \equiv \X(f\M g) & (\X f)\R(\X g)      & \equiv \X(f\R g) \\
+  f \U(\G f)          & \equiv \G f      & f \W(\G f)          & \equiv \G f      \\
+  f \M(\F f)          & \equiv \F f      & f \R(\F f)          & \equiv \F f      \\
+  f \U (g \OR \G(f))  & \equiv f\W g     & f \W (g \OR \G(f))  & \equiv f\W g     \\
+  f \M (g \AND \F(f)) & \equiv f\M g     & f \R (g \AND \F(f)) & \equiv f\M g     \\
+  f \U (g \AND f)     & \equiv g\M f     & f \W (g \AND f)     & \equiv g\R f
 \end{align*}
 
 Here are the basic rewriting rules for $n$-ary operators ($\AND$ and
