@@ -1,4 +1,4 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -425,6 +425,7 @@ namespace spot
 	      }
 	    else
 	      {
+		did_split = true;
 		for (; bsi != bdd_map.end(); ++bsi)
 		  {
 		    hash_set* set = bsi->second;
@@ -457,7 +458,6 @@ namespace spot
 		      }
 		    else
 		      {
-			did_split = true;
 			trace << "set " << format_hash_set(set, det_a)
 			      << " should be processed further" << std::endl;
 			next_run.push_back(set);

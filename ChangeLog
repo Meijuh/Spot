@@ -1,3 +1,12 @@
+2012-01-05  Ala-Eddine Ben-Salem  <ala@lrde.epita.fr>
+
+	Fix detection of the last iteration of minimize_dfa().
+
+	* src/tgbaalgos/minimize.cc (minimize_dfa): Fix detection of the
+	last iteration.  An extra iteration case could be missed in case
+	where a split generates only singletons, and yet predecessor
+	classes need to be refined.
+
 2012-01-05  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Fix computation of length of LTL formulas.
