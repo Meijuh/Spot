@@ -1,6 +1,8 @@
 New in spot 0.8.1a:
 
-  * Nothing yet.
+  * Bug fixes:
+    - spot::ltl::length() forgot to count the '&' and '|' operators
+      in an LTL formula.
 
 New in spot 0.8.1:
 

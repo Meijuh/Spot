@@ -1,8 +1,5 @@
 // Copyright (C) 2012 Laboratoire de Recherche et Developement de
 // l'Epita (LRDE).
-// Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,26 +18,38 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#ifndef SPOT_LTLVISIT_LENGTH_HH
-# define SPOT_LTLVISIT_LENGTH_HH
+#include <iostream>
+#include <cassert>
+#include <cstdlib>
+#include "ltlparse/public.hh"
+#include "ltlvisit/length.hh"
+#include "ltlast/allnodes.hh"
 
-#include "ltlast/formula.hh"
-
-namespace spot
+void
+syntax(char *prog)
 {
-  namespace ltl
-  {
-    /// \brief Compute the length of a formula.
-    /// \ingroup ltl_misc
-    ///
-    /// The length of a formula is the number of atomic properties,
-    /// constants, and operators (logical and temporal) occurring in
-    /// the formula.  spot::ltl::multop instances with n arguments
-    /// count only n-1; for instance <code>a | b | c</code>
-    /// has length 5, even if there is only as single <code>|</code> node
-    /// internally.
-    int length(const formula* f);
-  }
+  std::cerr << prog << " formula" << std::endl;
+  exit(2);
 }
 
-#endif // SPOT_LTLVISIT_LENGTH_HH
+int
+main(int argc, char **argv)
+{
+  if (argc != 2)
+    syntax(argv[0]);
+
+  spot::ltl::parse_error_list p1;
+  spot::ltl::formula* f1 = spot::ltl::parse(argv[1], p1);
+
+  if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
+    return 2;
+
+  std::cout << spot::ltl::length(f1) << std::endl;
+
+  f1->destroy();
+  assert(spot::ltl::atomic_prop::instance_count() == 0);
+  assert(spot::ltl::unop::instance_count() == 0);
+  assert(spot::ltl::binop::instance_count() == 0);
+  assert(spot::ltl::multop::instance_count() == 0);
+  return 0;
+}

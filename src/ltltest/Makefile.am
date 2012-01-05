@@ -1,5 +1,5 @@
-## Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ## Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -29,6 +29,7 @@ check_SCRIPTS = defs
 # Keep this sorted alphabetically.
 check_PROGRAMS = \
   equals \
+  length \
   ltl2dot \
   ltl2text \
   lunabbrev \
@@ -48,6 +49,7 @@ noinst_PROGRAMS = \
 
 equals_SOURCES = equals.cc
 genltl_SOURCES = genltl.cc
+length_SOURCES = length.cc
 ltl2dot_SOURCES = readltl.cc
 ltl2dot_CPPFLAGS = $(AM_CPPFLAGS) -DDOTTY
 ltl2text_SOURCES = readltl.cc
@@ -77,6 +79,7 @@ EXTRA_DIST = $(TESTS)
 TESTS = \
   parse.test \
   parseerr.test \
+  length.test \
   equals.test \
   tostring.test \
   lunabbrev.test \

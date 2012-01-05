@@ -53,7 +53,7 @@ namespace spot
 	    mo->nth(i)->accept(*this);
 	  // "a & b & c" should count for 5, even though it is
 	  // stored as And(a,b,c).
-	  mo += s - 1;
+	  result_ += s - 1;
 	}
 
 	virtual void
