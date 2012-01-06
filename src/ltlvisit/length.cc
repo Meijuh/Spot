@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement de
+// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -24,6 +24,7 @@
 #include "length.hh"
 #include "ltlvisit/postfix.hh"
 #include "ltlast/multop.hh"
+#include "ltlast/unop.hh"
 
 namespace spot
 {
@@ -65,12 +66,52 @@ namespace spot
       protected:
 	int result_; // size of the formula
       };
+
+      class length_boolone_visitor: public length_visitor
+      {
+
+	virtual void
+	visit(unop* uo)
+	{
+	  ++result_;
+	  // Boolean formula have length one.
+	  if (!uo->is_boolean())
+	    uo->child()->accept(*this);
+	}
+
+	virtual void
+	visit(multop* mo)
+	{
+	  // Boolean formula have length one.
+	  if (mo->is_boolean())
+	    {
+	      ++result_;
+	      return;
+	    }
+
+	  unsigned s = mo->size();
+	  for (unsigned i = 0; i < s; ++i)
+	    mo->nth(i)->accept(*this);
+	  // "a & b & c" should count for 5, even though it is
+	  // stored as And(a,b,c).
+	  result_ += s - 1;
+	}
+
+      };
     }
 
     int
     length(const formula* f)
     {
       length_visitor v;
+      const_cast<formula*>(f)->accept(v);
+      return v.result();
+    }
+
+    int
+    length_boolone(const formula* f)
+    {
+      length_boolone_visitor v;
       const_cast<formula*>(f)->accept(v);
       return v.result();
     }

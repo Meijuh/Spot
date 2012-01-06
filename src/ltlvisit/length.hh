@@ -33,13 +33,23 @@ namespace spot
     /// \brief Compute the length of a formula.
     /// \ingroup ltl_misc
     ///
-    /// The length of a formula is the number of atomic properties,
+    /// The length of a formula is the number of atomic propositions,
     /// constants, and operators (logical and temporal) occurring in
     /// the formula.  spot::ltl::multop instances with n arguments
-    /// count only n-1; for instance <code>a | b | c</code>
-    /// has length 5, even if there is only as single <code>|</code> node
+    /// count for n-1; for instance <code>a | b | c</code> has length
+    /// 5, even if there is only as single <code>|</code> node
     /// internally.
+    ///
+    /// If squash_boolean is set, all Boolean formulae are assumed
+    /// to have length one.
     int length(const formula* f);
+
+    /// \brief Compute the length of a formula, squashing Boolean formulae
+    /// \ingroup ltl_misc
+    ///
+    /// This is similar to spot::ltl::length(), except all Boolean
+    /// formulae are assumed to have length one.
+    int length_boolone(const formula* f);
   }
 }
 

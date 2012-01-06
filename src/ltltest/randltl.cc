@@ -321,7 +321,16 @@ main(int argc, char** argv)
 		    }
 		  else
 		    {
-		      assert(spot::ltl::length(f) <= opt_f);
+		      assert(spot::ltl::length_boolone(f) <= opt_f);
+
+		      // We might have a formula bigger than opt_f
+		      // because {e}[]->f of length 3 gets trivially reduced
+		      // to f|!e of length 4.
+		      if (spot::ltl::length(f) > opt_f)
+			{
+			  f->destroy();
+			  continue;
+			}
 		    }
 		  break;
 		}

@@ -21,6 +21,7 @@
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
+#include <cstring>
 #include "ltlparse/public.hh"
 #include "ltlvisit/length.hh"
 #include "ltlast/allnodes.hh"
@@ -35,8 +36,15 @@ syntax(char *prog)
 int
 main(int argc, char **argv)
 {
-  if (argc != 2)
+  if (argc < 2 || argc > 3)
     syntax(argv[0]);
+
+  bool boolone = false;
+  if (!strcmp(argv[1], "-b"))
+    {
+      boolone = true;
+      ++argv;
+    }
 
   spot::ltl::parse_error_list p1;
   spot::ltl::formula* f1 = spot::ltl::parse(argv[1], p1);
@@ -44,7 +52,10 @@ main(int argc, char **argv)
   if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
     return 2;
 
-  std::cout << spot::ltl::length(f1) << std::endl;
+  if (boolone)
+    std::cout << spot::ltl::length_boolone(f1) << std::endl;
+  else
+    std::cout << spot::ltl::length(f1) << std::endl;
 
   f1->destroy();
   assert(spot::ltl::atomic_prop::instance_count() == 0);
