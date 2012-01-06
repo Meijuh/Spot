@@ -14,10 +14,13 @@ case $rev in
   *) rev="-$rev";;
 esac
 
+# Retrieve the package version
+VERSION=`autoconf --trace='AC_INIT:$2'`
+
 rm -rf /lrde/dload/spot/spot-snapshot$rev.tmp
 cp -pR doc/spot.html /lrde/dload/spot/spot-snapshot$rev.tmp
 chmod -R a+rX /lrde/dload/spot/spot-snapshot$rev.tmp
-mv -f spot-*.tar.gz /lrde/dload/spot/spot-snapshot$rev.tar.gz
+mv -f spot-$VERSION.tar.gz /lrde/dload/spot/spot-snapshot$rev.tar.gz
 chmod a+rX /lrde/dload/spot/spot-snapshot$rev.tar.gz
 rm -rf /lrde/dload/spot/spot-snapshot$rev.html
 mv -f /lrde/dload/spot/spot-snapshot$rev.tmp /lrde/dload/spot/spot-snapshot$rev.html

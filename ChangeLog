@@ -1,3 +1,7 @@
+2012-01-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	* lrde-upload.sh: Retrieve the package version from configure.ac.
+
 2012-01-05  Ala-Eddine Ben-Salem  <ala@lrde.epita.fr>
 
 	Fix detection of the last iteration of minimize_dfa().
