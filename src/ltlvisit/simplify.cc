@@ -1272,15 +1272,48 @@ namespace spot
 		    }
 		  // if a => b, then a U (b U c) = (b U c)
 		  // if a => b, then a U (b W c) = (b W c)
+		  // if b => a, then a U (b U c) = (a U c)
+		  // if a => c, then a U (b R (c U d)) = (b R (c U d))
+		  // if a => c, then a U (b R (c W d)) = (b R (c W d))
+		  // if a => c, then a U (b M (c U d)) = (b M (c U d))
+		  // if a => c, then a U (b M (c W d)) = (b M (c W d))
 		  if (b->kind() == formula::BinOp)
 		    {
 		      binop* bo = static_cast<binop*>(b);
+		      // if a => b, then a U (b U c) = (b U c)
+		      // if a => b, then a U (b W c) = (b W c)
 		      if ((bo->op() == binop::U || bo->op() == binop::W)
 			  && c_->implication(a, bo->first()))
 			{
 			  a->destroy();
 			  result_ = b;
 			  return;
+			}
+		      // if b => a, then a U (b U c) = (a U c)
+		      if (bo->op() == binop::U
+			  && c_->implication(bo->first(), a))
+			{
+			  result_ = recurse_destroy
+			    (binop::instance(binop::U,
+					     a, bo->second()->clone()));
+			  b->destroy();
+			  return;
+			}
+		      // if a => c, then a U (b R (c U d)) = (b R (c U d))
+		      // if a => c, then a U (b R (c W d)) = (b R (c W d))
+		      // if a => c, then a U (b M (c U d)) = (b M (c U d))
+		      // if a => c, then a U (b M (c W d)) = (b M (c W d))
+		      if ((bo->op() == binop::R || bo->op() == binop::M)
+			  && bo->second()->kind() == formula::BinOp)
+			{
+			  binop* cd = static_cast<binop*>(bo->second());
+			  if ((cd->op() == binop::U || cd->op() == binop::W)
+			      && c_->implication(a, cd->first()))
+			    {
+			      a->destroy();
+			      result_ = b;
+			      return;
+			    }
 			}
 		    }
 		  break;
@@ -1317,13 +1350,30 @@ namespace spot
 		      if (bo->op() == binop::R
 			  && c_->implication(a, bo->first()))
 			{
-			  b->destroy();
 			  result_ = recurse_destroy
 			    (binop::instance(binop::R, a,
 					     bo->second()->clone()));
+			  b->destroy();
 			  return;
 			}
 		    }
+		  if (a->kind() == formula::BinOp)
+		    {
+		      // if b => a then (a R c) R b = c R b
+		      // if b => a then (a M c) R b = c R b
+		      binop* bo = static_cast<binop*>(a);
+		      if ((bo->op() == binop::R || bo->op() == binop::M)
+			  && c_->implication(b, bo->first()))
+			{
+			  result_ = recurse_destroy
+			    (binop::instance(binop::R,
+					     bo->second()->clone(),
+					     b));
+			  a->destroy();
+			  return;
+			}
+		    }
+
 		  break;
 
 		case binop::W:
@@ -1347,14 +1397,28 @@ namespace spot
 		    }
 		  // if a => b, then a W (b W c) = (b W c)
 		  // (Beware: even if a => b we do not have a W (b U c) = b U c)
+		  // if b => a, then a W (b U c) = (a W c)
+		  // if b => a, then a W (b W c) = (a W c)
 		  if (b->kind() == formula::BinOp)
 		    {
 		      binop* bo = static_cast<binop*>(b);
+		      // if a => b, then a W (b W c) = (b W c)
 		      if (bo->op() == binop::W
 			  && c_->implication(a, bo->first()))
 			{
 			  a->destroy();
 			  result_ = b;
+			  return;
+			}
+		      // if b => a, then a W (b U c) = (a W c)
+		      // if b => a, then a W (b W c) = (a W c)
+		      if ((bo->op() == binop::U || bo->op() == binop::W)
+			  && c_->implication(bo->first(), a))
+			{
+			  result_ = recurse_destroy
+			    (binop::instance(binop::W,
+					     a, bo->second()->clone()));
+			  b->destroy();
 			  return;
 			}
 		    }
@@ -1397,6 +1461,21 @@ namespace spot
 			  result_ = recurse_destroy
 			    (binop::instance(binop::M, a,
 					     bo->second()->clone()));
+			  return;
+			}
+		    }
+		  if (a->kind() == formula::BinOp)
+		    {
+		      // if b => a then (a M c) M b = c M b
+		      binop* bo = static_cast<binop*>(a);
+		      if (bo->op() == binop::M
+			  && c_->implication(b, bo->first()))
+			{
+			  result_ = recurse_destroy
+			    (binop::instance(binop::M,
+					     bo->second()->clone(),
+					     b));
+			  a->destroy();
 			  return;
 			}
 		    }

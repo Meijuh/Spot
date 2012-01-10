@@ -1472,8 +1472,8 @@ implication can be done in two ways:
 
 In the following rewritings rules, $f\simp g$ means that $g$ was
 proved to be implied by $f$ using either of the above two methods.
-Additionally, implications denoted by $f\Simp g$ are only checked
-if the ``\verb|ltl_simplifier_options::containment_checks_stronger|''
+Additionally, implications denoted by $f\Simp g$ are only checked if
+the ``\verb|ltl_simplifier_options::containment_checks_stronger|''
 option is set (otherwise the rewriting rule is not applied).
 
 \begin{equation*}
@@ -1487,23 +1487,36 @@ option is set (otherwise the rewriting rule is not applied).
 \text{if}& (\NOT f)\simp g &\text{then}& f\U g &\equiv \F g \\
 \text{if}& f\simp g        &\text{then}& f\U (g \U h) &\equiv g \U h \\
 \text{if}& f\simp g        &\text{then}& f\U (g \W h) &\equiv g \W h \\
+\text{if}& g\simp f        &\text{then}& f\U (g \U h) &\equiv f \U h \\
+\text{if}& f\simp h        &\text{then}& f\U (g \R (h \U k)) &\equiv g \R (h \U k) \\
+\text{if}& f\simp h        &\text{then}& f\U (g \R (h \W k)) &\equiv g \R (h \W k) \\
+\text{if}& f\simp h        &\text{then}& f\U (g \M (h \U k)) &\equiv g \M (h \U k) \\
+\text{if}& f\simp h        &\text{then}& f\U (g \M (h \W k)) &\equiv g \M (h \W k) \\
 \text{if}& f\simp g        &\text{then}& f\W g &\equiv g \\
 \text{if}& (f\W g)\Simp g  &\text{then}& f\W g &\equiv g \\
 \text{if}& (\NOT f)\simp g &\text{then}& f\W g &\equiv \1 \\
 \text{if}& f\simp g        &\text{then}& f\W (g \W h) &\equiv g \W h \\
+\text{if}& g\simp f        &\text{then}& f\W (g \U h) &\equiv f \W h \\
+\text{if}& g\simp f        &\text{then}& f\W (g \W h) &\equiv f \W h \\
 \text{if}& g\simp f        &\text{then}& f\R g &\equiv g \\
 \text{if}& g\simp \NOT f   &\text{then}& f\R g &\equiv \G g \\
 \text{if}& g\simp f        &\text{then}& f\R (g \R h) &\equiv g \R h \\
 \text{if}& g\simp f        &\text{then}& f\R (g \M h) &\equiv g \M h \\
 \text{if}& f\simp g        &\text{then}& f\R (g \R h) &\equiv f \R h \\
+\text{if}& h\simp f        &\text{then}& (f\R g) \R h &\equiv g \R h \\
+\text{if}& h\simp f        &\text{then}& (f\M g) \R h &\equiv g \R h \\
 \text{if}& g\simp f        &\text{then}& f\M g &\equiv g \\
 \text{if}& g\simp \NOT f   &\text{then}& f\M g &\equiv \0 \\
 \text{if}& g\simp f        &\text{then}& f\M (g \M h) &\equiv g \M h \\
 \text{if}& f\simp g        &\text{then}& f\M (g \M h) &\equiv f \M h \\
 \text{if}& f\simp g        &\text{then}& f\M (g \R h) &\equiv f \M h \\
+\text{if}& h\simp f        &\text{then}& (f\M g) \M h &\equiv g \M h \\
 \end{array}
 \end{equation*}
 
+The above rules were collected from various
+sources~\cite{somenzi.00.cav,tauriainen.03.a83,babiak.12.tacas} and
+sometimes generalized to support operators such as $\M$ and $\W$.
 
 \appendix
 \chapter{Syntactic Implications}\label{ann:syntimpl}
