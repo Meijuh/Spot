@@ -1309,14 +1309,15 @@ These simplifications are enabled with
 The following are simplification rules for unary operators (applied
 from left to right, as usual):
 \begin{align*}
-  \X\F\G f &\equiv \F\G f   & \X\G\F f &\equiv \G\F f \\
-  \F(f\U g) &\equiv \F g     & \F\X f &\equiv \X\F f \\
-  \G(f \R g) &\equiv \G g    & \G\X f &\equiv \X\G f
+  \X\F\G f & \equiv \F\G f & \F\X f    & \equiv \X\F f       & \G\X f     & \equiv \X\G f\\
+  \X\G\F f & \equiv \G\F f & \F(f\U g) & \equiv \F g         & \G(f \R g) & \equiv \G g       \\
+           &               & \F(f\M g) & \equiv \F (f\AND g) & \G(f \W g) & \equiv \G(f\OR g)
 \end{align*}
 \begin{align*}
-  \G(f_1\OR\ldots\OR f_n \OR \G\F(g_1)\OR\ldots\OR \G\F(g_m))&\equiv \G(f_1\OR\ldots\OR f_n)\OR \G\F(g_1\OR\ldots\OR g_m)
+  \G(f_1\OR\ldots\OR f_n \OR \G\F(g_1)\OR\ldots\OR \G\F(g_m)) & \equiv \G(f_1\OR\ldots\OR f_n)\OR \G\F(g_1\OR\ldots\OR g_m)
 \end{align*}
-Note that the latter three rewriting rules for $\G$ have no dual:
+
+Note that the latter rewriting rules for $\G$ has no dual:
 rewriting $\F(f \AND \G\F g)$ to $\F(f) \AND \G\F(g)$ (instance as
 suggested by~\citet{somenzi.00.cav}) goes against our goal of moving
 the $\F$ operator in front of the formula.  Conceptually, it is also

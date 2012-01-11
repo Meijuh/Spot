@@ -736,6 +736,24 @@ namespace spot
 	return is_binop(f, binop::U);
       }
 
+      binop*
+      is_M(formula* f)
+      {
+	return is_binop(f, binop::M);
+      }
+
+      binop*
+      is_R(formula* f)
+      {
+	return is_binop(f, binop::R);
+      }
+
+      binop*
+      is_W(formula* f)
+      {
+	return is_binop(f, binop::W);
+      }
+
       formula*
       unop_multop(unop::type uop, multop::type mop, multop::vec* v)
       {
@@ -1061,6 +1079,20 @@ namespace spot
 		      return;
 		    }
 
+		  // F(a M b) = F(a & b)
+		  bo = is_M(result_);
+		  if (bo)
+		    {
+		      formula* r =
+			unop::instance(unop::F,
+				       multop::instance(multop::And,
+							bo->first()->clone(),
+							bo->second()->clone()));
+		      bo->destroy();
+		      result_ = recurse_destroy(r);
+		      return;
+		    }
+
 		  // FX(a) = XF(a)
 		  {
 		    unop* u = is_X(result_);
@@ -1113,17 +1145,28 @@ namespace spot
 		{
 
 		  // G(a R b) = G(b)
-		  if (result_->kind() == formula::BinOp)
+		  binop* bo = is_R(result_);
+		  if (bo)
 		    {
-		      binop* bo = static_cast<binop*>(result_);
-		      if (bo->op() == binop::R)
-			{
-			  formula* r =
-			    unop::instance(unop::G, bo->second()->clone());
-			  bo->destroy();
-			  result_ = recurse_destroy(r);
-			  return;
-			}
+		      formula* r =
+			unop::instance(unop::G, bo->second()->clone());
+		      bo->destroy();
+		      result_ = recurse_destroy(r);
+		      return;
+		    }
+
+		  // G(a W b) = G(a | b)
+		  bo = is_W(result_);
+		  if (bo)
+		    {
+		      formula* r =
+			unop::instance(unop::G,
+				       multop::instance(multop::Or,
+							bo->first()->clone(),
+							bo->second()->clone()));
+		      bo->destroy();
+		      result_ = recurse_destroy(r);
+		      return;
 		    }
 
 		  // GX(a) = XG(a)

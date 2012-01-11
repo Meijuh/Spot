@@ -1,4 +1,4 @@
- #! /bin/sh
+#! /bin/sh
 # Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et Developpement
 # de l'Epita (LRDE).
 # Copyright (C) 2004, 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
@@ -165,6 +165,11 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x 'G(!a M a) U 1' '1'
      run 0 $x 'a R (!a M a)' '0'
      run 0 $x 'a W (!a M a)' 'Ga'
+
+     run 0 $x 'F(a U b)' 'Fb'
+     run 0 $x 'F(a M b)' 'F(a & b)'
+     run 0 $x 'G(a R b)' 'Gb'
+     run 0 $x 'G(a W b)' 'G(a | b)'
 
      # Syntactic implication
      run 0 $x '(a & b) R (a R c)' '(a & b)R c'
