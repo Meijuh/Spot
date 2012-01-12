@@ -1,4 +1,4 @@
-## Copyright (C) 2011 Laboratoire de Recherche et Développement de
+## Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement de
 ## l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -30,9 +30,16 @@ LATEXMK = BIBINPUTS='$(srcdir)' latexmk -pdf -ps- -dvi- -e '$$bibtex_use=2' \
 dist_pdf_DATA = $(srcdir)/tl.pdf
 EXTRA_DIST = tl.tex tl.bib
 
+# latexmk produces its output in the current directory, and may not
+# update its timestamp when no rebuild was necessary.  This can cause
+# latexmk to be called again and again even when there is nothing to
+# do, and this is unacceptable (we don't want to require latexmk for
+# people that do not change the documentation).  Hence the "touch"
+# below.  In case of a VPATH build, we always copy the file, so the
+# timestamp is updated anyway.
 $(srcdir)/tl.pdf: $(srcdir)/tl.tex $(srcdir)/tl.bib
 	$(LATEXMK) $(srcdir)/tl.tex
-	test '$(srcdir)' = '.' || cp tl.pdf $@
+	if test '$(srcdir)' = '.'; then touch $@; else cp tl.pdf $@; fi
 
 pvc:
 	$(LATEXMK) -pvc $(srcdir)/tl.tex
