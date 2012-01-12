@@ -23,7 +23,11 @@ AC_DEFUN([AC_HEADER_TR1_UNORDERED_MAP], [
   AC_LANG_CPLUSPLUS
   ac_save_CXXFLAGS="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS -Werror"
-  AC_TRY_COMPILE([#include <tr1/unordered_map>], [using std::tr1::unordered_map;],
+# GCC 4.0.0 has tr1/unordered_map, but it fails to compile the following code
+  AC_TRY_COMPILE([#include <tr1/unordered_map>],
+                 [using std::tr1::unordered_map;
+                  const unordered_map<int, int> t;
+                  return t.find(42) == t.end();],
   [ac_cv_cxx_tr1_unordered_map=yes], [ac_cv_cxx_tr1_unordered_map=no])
   CXXFLAGS="$ac_save_CXXFLAGS"
   AC_LANG_RESTORE

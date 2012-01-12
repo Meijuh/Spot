@@ -1,3 +1,10 @@
+2012-01-12  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Do use of tr1::unordered_map with G++ 4.0.0.
+
+	* m4/stl.m4 (AC_HEADER_TR1_UNORDERED_MAP): Add some code so
+	we don't pick a broken tr1::unordered_map.
+
 2012-01-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* lrde-upload.sh: Retrieve the package version from configure.ac.
