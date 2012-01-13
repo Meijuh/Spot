@@ -1,5 +1,9 @@
 2012-01-13  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* NEWS: Update with recent fixes.
+
+2012-01-13  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Fix a 'make check' failure when valgrind is not installed.
 
 	* src/kripketest/defs.in (run2): Remove this function.  It was
