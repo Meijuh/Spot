@@ -1,3 +1,12 @@
+2012-01-13  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix a 'make check' failure when valgrind is not installed.
+
+	* src/kripketest/defs.in (run2): Remove this function.  It was
+	incorrectly trying to run valgrind even when valgrind is not
+	installed.
+	* src/kripketest/kripke.test: Simplify and use run().
+
 2012-01-12  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Do use of tr1::unordered_map with G++ 4.0.0.
