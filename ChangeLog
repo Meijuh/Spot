@@ -1,3 +1,12 @@
+2012-01-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Minor speedups in tgba_safra_complement().
+
+	* src/tgba/tgbasafracomplement.cc (safra_tree:succ_create): Do not
+	lookup *i twice, and do not copy it->second.
+	(safra_tree::normalize_siblings): Do not lookup *node_it before
+	insertion.
+
 2012-01-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* src/eltlparse/eltlparse.yy (realias): Add a useless return to

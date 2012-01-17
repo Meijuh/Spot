@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -362,10 +362,11 @@ namespace spot
 
       for (subset_t::iterator i = nodes.begin(); i != nodes.end(); ++i)
       {
-        if (cache_transition.find(*i) == cache_transition.end())
+	cache_t::const_iterator it = cache_transition.find(*i);
+        if (it == cache_transition.end())
           continue;
 
-        tr_cache_t transitions = cache_transition[*i];
+        const tr_cache_t& transitions = it->second;
         for (tr_cache_t::const_iterator t_it = transitions.begin();
              t_it != transitions.end();
              ++t_it)
@@ -403,18 +404,17 @@ namespace spot
         subset_t::iterator node_it = (*child_it)->nodes.begin();
         while (node_it != (*child_it)->nodes.end())
         {
-          if (node_set.find(*node_it) != node_set.end())
-          {
+	  if (!node_set.insert(*node_it).second)
+	  {
             const state* s = *node_it;
             (*child_it)->remove_node_from_children(*node_it);
             (*child_it)->nodes.erase(node_it++);
             s->destroy();
           }
-          else
-          {
-            node_set.insert(*node_it);
-            ++node_it;
-          }
+	  else
+	  {
+	    ++node_it;
+	  }
         }
 
         (*child_it)->normalize_siblings();
