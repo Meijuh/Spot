@@ -171,6 +171,16 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x 'G(a R b)' 'Gb'
      run 0 $x 'G(a W b)' 'G(a | b)'
 
+     run 0 $x 'a & XGa' 'Ga'
+     run 0 $x 'a & XG(a&b)' '(XGb)&(Ga)'
+     run 0 $x 'a & b & XG(a&b)'  'G(a&b)'
+     run 0 $x 'a & b & X(Ga&Gb)'  'G(a&b)'
+     run 0 $x 'a & b & XGa &XG(b)'  'G(a&b)'
+     run 0 $x 'a & b & XGa & XGc' 'b & Ga & XGc'
+     run 0 $x 'a & b & X(G(a&d) & b) & X(Gc)' 'b & Ga & X(b & G(c&d))'
+     run 0 $x 'a|b|c|X(F(a|b)|F(c)|Gd)' 'F(a|b|c)|XGd'
+     run 0 $x 'b|c|X(F(a|b)|F(c)|Gd)' 'b|c|X(F(a|b|c)|Gd)'
+
      # Syntactic implication
      run 0 $x '(a & b) R (a R c)' '(a & b)R c'
      run 0 $x 'a R ((a & b) R c)' '(a & b)R c'

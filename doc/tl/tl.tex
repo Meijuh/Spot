@@ -1008,8 +1008,8 @@ instance using the following methods:
 \\\texttt{is\_universal()}& Whether the formula is purely universal.
 \\\texttt{is\_syntactic\_safety()}& Whether the formula is a syntactic
   safety property.
-\\\texttt{is\_syntactic\_guaranty()}& Whether the formula is a syntactic
-  guaranty property.
+\\\texttt{is\_syntactic\_guarantee()}& Whether the formula is a syntactic
+  guarantee property.
 \\\texttt{is\_syntactic\_obligation()}& Whether the formula is a syntactic
   obligation property.
 \\\texttt{is\_syntactic\_recurrence()}& Whether the formula is a syntactic
@@ -1144,7 +1144,7 @@ The following grammar rules describes extend the aforementioned
 work slightly by dealing with PSL operators.  These are the
 rules used by Spot to decide upon
 construction to which class a formula belongs (see the methods
-\texttt{is\_syntactic\_safety()}, \texttt{is\_syntactic\_guaranty()},
+\texttt{is\_syntactic\_safety()}, \texttt{is\_syntactic\_guarantee()},
 \texttt{is\_syntactic\_obligation()},
 \texttt{is\_syntactic\_recurrence()}, and
 \texttt{is\_syntactic\_persistence()} listed on
@@ -1291,7 +1291,7 @@ The goals in most of these simplification are to:
   a kind of disjunctive form: $\displaystyle\bigvee_i
   \left(\beta_i\land\X\psi_i\right)$ where $\beta_i$s are Boolean
   formul\ae{} and $\psi_i$s are LTL formul\ae{}.  Moving $\X$ to the
-  front therefore simplify the translation.
+  front therefore simplifies the translation.
 \item move the $\F$ operators to the front of the formula (e.g., $\F(f
   \OR g)$ is better than the equivalent $(\F f)\OR (\F g)$), but not
   before $\X$ ($\X\F f$ is better than $\F\X f$).  Because $\F f$
@@ -1347,6 +1347,8 @@ $\OR$):
   (\X f) \OR (\X g)     &\equiv \X(f\OR g)        \\
   (\X f) \AND(\F\G g)   &\equiv \X(f\AND \F\G g)  &
   (\X f) \OR (\G\F g)   &\equiv \X(f\OR \G\F g)   \\
+  (\G f) \AND(\G g)     &\equiv \G(f\AND g)       &
+  (\F f) \OR (\F g)     &\equiv \F(f\OR g)        \\
   (f_1 \U f_2)\AND (f_3 \U f_2)&\equiv (f_1\AND f_3)\U f_2&
   (f_1 \U f_2)\OR  (f_1 \U f_3)&\equiv f_1\U (f_2\OR f_3) \\
   (f_1 \U f_2)\AND (f_3 \W f_2)&\equiv (f_1\AND f_3)\U f_2&
@@ -1371,6 +1373,19 @@ $\OR$):
 The above rules are applied even if more terms are presents in the
 operator's arguments.  For instance $\F\G(a)\AND \G(b) \AND \F\G(c) \AND
 \X(d)$ will be rewritten as $\X(d \AND \F\G(a\AND c))\AND \G(b)$.
+
+The following more complicated rules are generalization of $f\AND
+\X\G f\equiv \G f$ and $f\OR \X\F f\equiv \F f$:
+\begin{align*}
+  f\AND \X(\G(f\AND g\ldots)\AND h\ldots) &\equiv \G(f) \AND \X(\G(g\ldots)\AND h\ldots) \\
+  f\OR \X(\F(f)\OR h\ldots) &\equiv \F(f) \OR \X(h\ldots)
+\end{align*}
+The latter rule for $f\OR \X(\F(f)\OR h\ldots)$ is only applied if all
+$\F$-formul\ae{} can be removed from the argument of $\X$ with the
+rewriting.  For instance $a \OR b \OR c\OR \X(\F(a\OR b)\OR \F(c)\OR \G d)$
+will be rewritten to $\F(a \OR b \OR c) \OR \X\G d$ but
+$b \OR c\OR \X(\F(a\OR b)\OR \F(c)\OR \G d)$ would only become
+$b \OR c\OR \X(\F(a\OR b\OR c)\OR \G d)$.
 
 Finally the following rule is applied only when no other terms are present
 in the OR arguments:

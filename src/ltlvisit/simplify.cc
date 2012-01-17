@@ -754,6 +754,29 @@ namespace spot
 	return is_binop(f, binop::W);
       }
 
+      multop*
+      is_multop(formula* f, multop::type op)
+      {
+	if (f->kind() != formula::MultOp)
+	  return 0;
+	multop* mo = static_cast<multop*>(f);
+	if (mo->op() != op)
+	  return 0;
+	return mo;
+      }
+
+      multop*
+      is_And(formula* f)
+      {
+	return is_multop(f, multop::And);
+      }
+
+      multop*
+      is_Or(formula* f)
+      {
+	return is_multop(f, multop::Or);
+      }
+
       formula*
       unop_multop(unop::type uop, multop::type mop, multop::vec* v)
       {
@@ -1846,6 +1869,106 @@ namespace spot
 		case multop::And:
 		  if (!mo->is_sere_formula())
 		    {
+		      // a & X(G(a&b...) & c...) = Ga & X(G(b...) & c...)
+		      if (!mo->is_X_free())
+			{
+			  typedef Sgi::hash_set<formula*,
+						ptr_hash<formula> > fset_t;
+			  fset_t xgset;
+			  fset_t xset;
+
+			  unsigned s = res->size();
+			  // Make a pass to search for subterms
+			  // of the form XGa or  X(... & G(...&a&...) & ...)
+			  for (unsigned n = 0; n < s; ++n)
+			    {
+			      if (!(*res)[n])
+				continue;
+			      unop* uo = is_X((*res)[n]);
+			      if (!uo)
+				continue;
+
+			      formula* c = uo->child();
+			      multop* a;
+			      unop* g;
+			      if ((g = is_G(c)))
+				{
+#define HANDLE_G                  multop* a2;				\
+				  if ((a2 = is_And(g->child())))	\
+				    {					\
+				      unsigned y = a2->size();		\
+				      for (unsigned n = 0; n < y; ++n)	\
+					xgset.				\
+					  insert(a2->nth(n)->clone());	\
+				    }					\
+				  else					\
+				    {					\
+				      xgset.insert(g->child()->clone()); \
+				    }
+				  HANDLE_G;
+				}
+			      else if ((a = is_And(c)))
+				{
+				  unsigned z = a->size();
+				  for (unsigned m = 0; m < z; ++m)
+				    {
+				      formula* x = a->nth(m);
+				      if ((g = is_G(x)))
+					{
+					  HANDLE_G;
+					}
+				      else
+					{
+					  xset.insert(x->clone());
+					}
+				    }
+				}
+			      else
+				{
+				  xset.insert(c->clone());
+				}
+			      (*res)[n]->destroy();
+			      (*res)[n] = 0;
+			    }
+			  // Make second pass to search for terms 'a'
+			  // that also appears as 'XGa'.  Replace them
+			  // by 'Ga' and delete XGa.
+			  for (unsigned n = 0; n < s; ++n)
+			    {
+			      formula* x = (*res)[n];
+			      if (!x)
+				continue;
+			      fset_t::const_iterator g = xgset.find(x);
+			      if (g != xgset.end())
+				{
+				  // x can appear only once.
+				  formula* gf = *g;
+				  xgset.erase(g);
+				  gf->destroy();
+				  (*res)[n] = unop::instance(unop::G, x);
+				}
+			    }
+
+			  multop::vec* xv = new multop::vec;
+			  size_t xgs = xgset.size();
+			  xv->reserve(xset.size() + 1);
+			  if (xgs > 0)
+			    {
+			      multop::vec* xgv = new multop::vec;
+			      xgv->reserve(xgs);
+			      fset_t::iterator i;
+			      for (i = xgset.begin(); i != xgset.end(); ++i)
+				xgv->push_back(*i);
+			      formula* gv = multop::instance(multop::And, xgv);
+			      xv->push_back(unop::instance(unop::G, gv));
+			    }
+			  fset_t::iterator j;
+			  for (j = xset.begin(); j != xset.end(); ++j)
+			    xv->push_back(*j);
+			  formula* av = multop::instance(multop::And, xv);
+			  res->push_back(unop::instance(unop::X, av));
+			}
+
 		      // Gather all operands by type.
 		      mospliter s(mospliter::Strip_X |
 				  mospliter::Strip_FG |
@@ -1855,9 +1978,11 @@ namespace spot
 				  mospliter::Split_R_or_M |
 				  mospliter::Split_EventUniv,
 				  res, c_);
+
 		      // FG(a) & FG(b) = FG(a & b)
 		      formula* allFG = unop_unop_multop(unop::F, unop::G,
 							multop::And, s.res_FG);
+
 		      // Xa & Xb = X(a & b)
 		      // Xa & Xb & FG(c) = X(a & b & FG(c))
 		      // For Universal&Eventual formulae f1...fn we also have:
@@ -2346,6 +2471,124 @@ namespace spot
 		    }
 		case multop::Or:
 		  {
+		    // a | X(F(a|b...) | c...) = Fa | X(F(b...) | c...)
+		    if (!mo->is_X_free())
+		      {
+			typedef Sgi::hash_set<formula*,
+					      ptr_hash<formula> > fset_t;
+			fset_t xfset;
+			fset_t xset;
+
+			unsigned s = res->size();
+			// Make a pass to search for subterms
+			// of the form XFa or  X(... | F(...|a|...) | ...)
+			for (unsigned n = 0; n < s; ++n)
+			  {
+			    if (!(*res)[n])
+			      continue;
+			    unop* uo = is_X((*res)[n]);
+			    if (!uo)
+			      continue;
+
+			    formula* c = uo->child();
+			    multop* o;
+			    unop* f;
+			    if ((f = is_F(c)))
+			      {
+#define HANDLE_F                multop* o2;				\
+				if ((o2 = is_Or(f->child())))		\
+				  {					\
+				    unsigned y = o2->size();		\
+				    for (unsigned n = 0; n < y; ++n)	\
+				      xfset.				\
+					insert(o2->nth(n)->clone());	\
+				    }					\
+				else					\
+				  {					\
+				    xfset.insert(f->child()->clone());	\
+				  }
+				HANDLE_F;
+			      }
+			    else if ((o = is_Or(c)))
+			      {
+				unsigned z = o->size();
+				for (unsigned m = 0; m < z; ++m)
+				  {
+				    formula* x = o->nth(m);
+				    if ((f = is_F(x)))
+				      {
+					HANDLE_F;
+				      }
+				    else
+				      {
+					xset.insert(x->clone());
+				      }
+				  }
+			      }
+			    else
+			      {
+				xset.insert(c->clone());
+			      }
+			    (*res)[n]->destroy();
+			    (*res)[n] = 0;
+			  }
+			// Make a second pass to check if we can
+			// remove all instance of XF(a).
+			unsigned allofthem = xfset.size();
+			for (unsigned n = 0; n < s; ++n)
+			  {
+			    formula* x = (*res)[n];
+			    if (!x)
+			      continue;
+			    fset_t::const_iterator f = xfset.find(x);
+			    if (f != xfset.end())
+			      --allofthem;
+			    assert(allofthem != -1U);
+			  }
+			// If we can remove all of them...
+			if (allofthem == 0)
+			  // Make third pass to search for terms 'a'
+			  // that also appears as 'XFa'.  Replace them
+			  // by 'Fa' and delete XFa.
+			  for (unsigned n = 0; n < s; ++n)
+			    {
+			      formula* x = (*res)[n];
+			      if (!x)
+				continue;
+			      fset_t::const_iterator f = xfset.find(x);
+			      if (f != xfset.end())
+				{
+				  // x can appear only once.
+				  formula* ff = *f;
+				  xfset.erase(f);
+				  ff->destroy();
+				  (*res)[n] = unop::instance(unop::F, x);
+				}
+			    }
+
+			// Now rebuild the formula that remains.
+			multop::vec* xv = new multop::vec;
+			size_t xfs = xfset.size();
+			xv->reserve(xset.size() + 1);
+			if (xfs > 0)
+			  {
+			    // Group all XF(a)|XF(b|c|...)|... as XF(a|b|c|...)
+			    multop::vec* xfv = new multop::vec;
+			    xfv->reserve(xfs);
+			    fset_t::iterator i;
+			    for (i = xfset.begin(); i != xfset.end(); ++i)
+			      xfv->push_back(*i);
+			    formula* fv = multop::instance(multop::Or, xfv);
+			    xv->push_back(unop::instance(unop::F, fv));
+			  }
+			// Also gather the remaining Xa | X(b|c) as X(b|c).
+			fset_t::iterator j;
+			for (j = xset.begin(); j != xset.end(); ++j)
+			  xv->push_back(*j);
+			formula* ov = multop::instance(multop::Or, xv);
+			res->push_back(unop::instance(unop::X, ov));
+		      }
+
 		    // Gather all operand by type.
 		    mospliter s(mospliter::Strip_X |
 				mospliter::Strip_GF |
@@ -2395,7 +2638,7 @@ namespace spot
 			//   F(a|GFb)|Gc  5st.11tr.  without initial self-loop
 			//   Fa|GFb|Gc    5st.10tr.  without initial self-loop
 			// (counting the number of "subtransitions"
-			// or, degeneralizing the automaton amplify
+			// or, degeneralizing the automaton amplifies
 			// these differences)
 			s.res_F->push_back(allGF);
 			allGF = 0;
