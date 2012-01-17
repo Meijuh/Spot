@@ -6,12 +6,13 @@ html {overflow-y:scroll;}
 }
 
 input.formula {
-    width: 700px;
+    width: 720px;
 }
 
 span#send {
     width: 60px;
     margin-left: 4px;
+    margin-right: 0px;
 }
 
 .shadow {
@@ -70,7 +71,7 @@ div.ltl2tgba {
 
 .ltl2tgba .head .ui-icon {
     float: right;
-    margin: 0.2em 0px;
+    margin: 1px 0px;
 }
 
 .ltl2tgba .formula, #tiptip_content .formula {

@@ -1,5 +1,13 @@
 2012-01-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Fix position of the Send button with WebKit.
+
+	* wrap/python/ajax/css/ltl2tgba.css: Fix position of the "Send"
+	button with WebKit.  The folding arrow icon had a vertical border
+	that overlapped with the next line.
+
+2012-01-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* wrap/python/ajax/spot.py: Add a required "None" second
 	argument to utime().
 
