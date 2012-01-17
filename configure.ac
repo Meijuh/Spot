@@ -1,4 +1,4 @@
-# Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
+# Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire d'Informatique de
 # Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -35,7 +35,19 @@ test -z "$CFLAGS" && CFLAGS=
 test -z "$CXXFLAGS" && CXXFLAGS=
 
 adl_ENABLE_DEVEL
-adl_CHECK_PYTHON
+
+AC_ARG_ENABLE([python],
+              [AC_HELP_STRING([--disable-python],
+                              [do not compile Python bindings])],
+              [], [enable_python=yes])
+
+AM_CONDITIONAL([USE_PYTHON], [test "x${enable_python:-yes}" = xyes])
+
+if test "x${enable_python:-yes}" = xyes; then
+  AC_MSG_NOTICE([You may configure with --disable-python ]dnl
+[if you do not need Python bindings.])
+  adl_CHECK_PYTHON
+fi
 
 AC_PROG_CC
 AM_PROG_CC_C_O

@@ -1,5 +1,7 @@
 New in spot 0.8.1a:
 
+  * configure now has a --disable-python option to disable
+    the compilation of Python bindings.
   * Bug fixes:
     - spot::ltl::length() forgot to count the '&' and '|' operators
       in an LTL formula.

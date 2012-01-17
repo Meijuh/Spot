@@ -18,7 +18,9 @@ Requirements
 ------------
 
 Spot requires a complete installation of Python (version 2.0 or
-later).  Especially, Python's headers files should be installed.
+later).  Especially, Python's headers files should be installed.  If
+you don't have Python installed, you should run configure with
+the --disable-python option (see below).
 
 Spot also uses modified versions of BuDDy (a binary decision diagram),
 and LBTT (an LTL to Büchi test bench).  You do not need to install
@@ -56,6 +58,13 @@ flags specific to Spot:
     for another purpose).  These two options will *force* the use,
     build, and installation of the included versions of these package,
     even when compatible versions are already installed.
+
+  --disable-python
+    Turn off the compilation of Python bindings.  These bindings are
+    currently used to run a couple of tests, and to build the CGI
+    script that translates LTL formulae on-line.  You may safely
+    disable these, especially if you do not have a working Python
+    installation or if you are attempting some cross-compilation.
 
   --enable-devel
     Enable debugging symbols, turn off aggressive optimizations, and
@@ -172,3 +181,6 @@ End:
  LocalWords:  gtec Tarjan tgbaparse tgbatest doc html PDF spotref pdf cgi ELTL
  LocalWords:  CGI ltl iface BDD Couvreur's evtgba emptchk kripke Kripke saba vm
  LocalWords:  eltlparse eltltest SABA sabaalgos sabatest ssp ltlcouter scc SCC
+LocalWords:  formulae optimizations kripkeparse kripketest Automata
+LocalWords:  neverparse ltlcounter ltlclasses parallelizing automata
+LocalWords:  wdba WDBA ajax dve DiVinE ltdl Libtool's dlopen

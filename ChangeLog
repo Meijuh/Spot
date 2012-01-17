@@ -1,5 +1,14 @@
 2012-01-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Make it possible not to build Python bindings.
+
+	* configure.ac: Add a --disable-python option tied to
+	a USE_PYTHON conditional.
+	* README: Document the option.
+	* wrap/Makefile.am: Use the conditional.
+
+2012-01-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Fix position of the Send button with WebKit.
 
 	* wrap/python/ajax/css/ltl2tgba.css: Fix position of the "Send"
