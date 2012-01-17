@@ -531,83 +531,84 @@ namespace spot
       power_map pm;
       det_a = tgba_powerset(a, pm);
 
-      // For each SCC of the deterministic automaton, determine if
-      // it is accepting or not.
+      // For each SCC of the deterministic automaton, determine if it
+      // is accepting or not.
+
+      // This corresponds to the algorithm in Fig. 1 of "Efficient
+      // minimization of deterministic weak omega-automata" written by
+      // Christof Löding and published in Information Processing
+      // Letters 79 (2001) pp 105--109.
+
+      // We also keep track of whether an SCC is useless
+      // (i.e., it is not the start of any accepting word).
+
       scc_map sm(det_a);
       sm.build_map();
       unsigned scc_count = sm.scc_count();
-      // SCC that have been marked as accepting.
-      std::vector<bool> accepting(scc_count);
       // SCC that have been marked as useless.
       std::vector<bool> useless(scc_count);
+      // The "color".  Even number correspond to
+      // accepting SCCs.
+      std::vector<unsigned> d(scc_count);
+
+      // An even number larger than scc_count.
+      unsigned k = (scc_count | 1) + 1;
+
       // SCC are numbered in topological order
-      for (unsigned n = 0; n < scc_count; ++n)
+      // (but in the reverse order as Löding's)
+      for (unsigned m = 0; m < scc_count; ++m)
 	{
-	  bool acc = true;
 	  bool is_useless = true;
+	  bool transient = sm.trivial(m);
+	  const scc_map::succ_type& succ = sm.succ(m);
 
-	  if (sm.trivial(n))
+	  if (transient && succ.empty())
 	    {
-	      const scc_map::succ_type& succ = sm.succ(n);
-	      if (succ.empty())
-		{
-		  // A trivial SCC without successor is useless.
-		  useless[n] = true;
-		  accepting[n] = false;
-		  // Do not add even add it to final or non_final.
-		  continue;
-		}
-	      // Trivial SCCs are accepting if all their
-	      // useful successors are accepting.
+	      // A trivial SCC without successor is useless.
+	      useless[m] = true;
+	      d[m] = k - 1;
+	      continue;
+	    }
 
-	      // This corresponds to the algorithm in Fig. 1 of
-	      // "Efficient minimization of deterministic weak
-	      // omega-automata" written by Christof Löding and
-	      // published in Information Processing Letters 79
-	      // (2001) pp 105--109.  Except we do not keep track
-	      // of the actual color associated to each SCC.
+	  // Compute the minimum color l of the successors.
+	  // Also SCCs are useless if all their successor are
+	  // useless.
+	  unsigned l = k;
+	  for (scc_map::succ_type::const_iterator j = succ.begin();
+	       j != succ.end(); ++j)
+	    {
+	      is_useless &= useless[j->first];
+	      unsigned dj = d[j->first];
+	      if (dj < l)
+		l = dj;
+	    }
 
-	      // Also they are useless if all their successor are
-	      // useless.
-	      for (scc_map::succ_type::const_iterator i = succ.begin();
-		   i != succ.end(); ++i)
-		{
-		  if (!useless[i->first])
-		    {
-		      is_useless = false;
-		      acc &= accepting[i->first];
-		    }
-		}
+	  if (transient)
+	    {
+	      d[m] = l;
 	    }
 	  else
 	    {
 	      // Regular SCCs are accepting if any of their loop
 	      // corresponds to an accepted word in the original
 	      // automaton.
-	      acc = wdba_scc_is_accepting(det_a, n, a, sm, pm);
-
-	      if (acc)
+	      if (wdba_scc_is_accepting(det_a, m, a, sm, pm))
 		{
 		  is_useless = false;
+		  d[m] = (l | 1) - 1; // largest even number inferior or equal
 		}
 	      else
 		{
-		  // Unaccepting SCCs are useless if their successors
-		  // are all useless.
-		  const scc_map::succ_type& succ = sm.succ(n);
-		  for (scc_map::succ_type::const_iterator i = succ.begin();
-		       i != succ.end(); ++i)
-		    is_useless &= useless[i->first];
+		  d[m] = (l - 1) | 1; // largest odd number inferior or equal
 		}
 	    }
 
-	  useless[n] = is_useless;
-	  accepting[n] = acc;
+	  useless[m] = is_useless;
 
 	  if (!is_useless)
 	    {
-	      hash_set* dest_set = acc ? final : non_final;
-	      const std::list<const state*>& l = sm.states_of(n);
+	      hash_set* dest_set = (d[m]&1) ? non_final : final;
+	      const std::list<const state*>& l = sm.states_of(m);
 	      std::list<const state*>::const_iterator il;
 	      for (il = l.begin(); il != l.end(); ++il)
 		dest_set->insert((*il)->clone());

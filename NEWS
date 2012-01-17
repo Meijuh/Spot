@@ -3,6 +3,8 @@ New in spot 0.8.1a:
   * Bug fixes:
     - spot::ltl::length() forgot to count the '&' and '|' operators
       in an LTL formula.
+    - minimize_wdba() could fail to mark some transiant SCCs as accepting,
+      producing an automaton that was not fully minimized.
     - minimize_dfa() could produce incorrect automata, but it's not
       clear whether this could have had an inpact on WDBA minimization
       (the worse case is that some TGBA would not have been minimized

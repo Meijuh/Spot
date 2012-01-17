@@ -1,3 +1,14 @@
+2012-01-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	minimize_wdba() failed to fully minimize some automata.
+
+	* src/tgbaalgos/minimize.cc (minimize_wdba): Fix the Löding
+	algorithm to use colors.  The previous implementation was an
+	incorrect approximation.
+	* src/tgbatest/wdba2.test: New file showing two equivalent
+	formulas that were minimized in automata with different sizes.
+	* src/tgbatest/Makefile.am: Add it.
+
 2012-01-13  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* NEWS: Update with recent fixes.
