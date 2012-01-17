@@ -1,7 +1,7 @@
 #!@PYTHON@
 # -*- mode: python; coding: iso-8859-1 -*-
-# Copyright (C) 2011 Laboratoire de Recherche et Développement de
-# l'Epita (LRDE).
+# Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+# de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -45,7 +45,7 @@ if qs:
         print cache.read()
         # Touch the directory containing the files we used, so
         # it that it survives the browser's cache.
-        os.utime(imgprefix)
+        os.utime(imgprefix, None)
         exit(0)
     except IOError:
         # We failed to open the file.

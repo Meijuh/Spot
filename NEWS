@@ -9,6 +9,7 @@ New in spot 0.8.1a:
       clear whether this could have had an inpact on WDBA minimization
       (the worse case is that some TGBA would not have been minimized
       when they could).
+    - Fix a Python syntax error in the CGI script.
     - Fix compilation with g++ 4.0.
     - Fix a make check failure when valgrind is missing.
 
