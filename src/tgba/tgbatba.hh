@@ -1,5 +1,5 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita.
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -97,18 +97,28 @@ namespace spot
     /// then cached.
     bdd union_acceptance_conditions_of_original_state(const state* s) const;
 
+    /// \brief Create a degeneralized state using the unicity table.
+    ///
+    /// This is an internal function.  \a s should be a fresh state
+    /// from the source automaton.
+    state* create_state(state* s, cycle_list::const_iterator acc) const;
+
   protected:
     virtual bdd compute_support_conditions(const state* state) const;
     virtual bdd compute_support_variables(const state* state) const;
 
     cycle_list acc_cycle_;
     const tgba* a_;
+
   private:
     bdd the_acceptance_cond_;
     typedef Sgi::hash_map<const state*, bdd,
 			  state_ptr_hash, state_ptr_equal> accmap_t;
     mutable accmap_t accmap_;
     mutable accmap_t accmapu_;
+
+    /// Unicity table for degeneralized states.  See create_state()
+    mutable void* uniq_map_;
 
     // Disallow copy.
     tgba_tba_proxy(const tgba_tba_proxy&);

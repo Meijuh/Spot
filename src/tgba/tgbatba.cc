@@ -1,4 +1,4 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et Développement de
 // l'Epita.
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -45,18 +45,19 @@ namespace spot
       {
       }
 
-      /// Copy constructor
-      state_tba_proxy(const state_tba_proxy& o)
-	: state(),
-	  s_(o.real_state()->clone()),
-	  acc_(o.acceptance_iterator())
-      {
-      }
+      // Note: There is a default copy constructor, needed by
+      // Sgi::hash_set.  It does not clone the state "s", because the
+      // destructor will not destroy it either.  Actually, the states
+      // are all destroyed in the tgba_tba_proxy destructor.
 
       virtual
       ~state_tba_proxy()
       {
-	s_->destroy();
+      }
+
+      void
+      destroy() const
+      {
       }
 
       state*
@@ -82,10 +83,12 @@ namespace spot
       {
 	const state_tba_proxy* o = down_cast<const state_tba_proxy*>(other);
 	assert(o);
-	int res = s_->compare(o->real_state());
-	if (res != 0)
-	  return res;
-	return acc_->id() - o->acceptance_cond().id();
+	// Do not simply return "o - this", it might not fit in an int.
+	if (o < this)
+	  return -1;
+	if (o > this)
+	  return 1;
+	return 0;
       }
 
       virtual size_t
@@ -97,7 +100,7 @@ namespace spot
       virtual
       state_tba_proxy* clone() const
       {
-	return new state_tba_proxy(*this);
+	return const_cast<state_tba_proxy*>(this);
       }
 
     private:
@@ -105,6 +108,30 @@ namespace spot
       iterator acc_;
     };
 
+    struct state_tba_proxy_hash
+    {
+      size_t
+      operator()(const state_tba_proxy& s) const
+      {
+	return s.state_tba_proxy::hash();
+      }
+    };
+
+    struct state_tba_proxy_equal
+    {
+      bool
+      operator()(const state_tba_proxy& left,
+		 const state_tba_proxy& right) const
+      {
+	if (left.acceptance_iterator() != right.acceptance_iterator())
+	  return false;
+	return left.real_state()->compare(right.real_state()) == 0;
+      }
+    };
+
+    typedef Sgi::hash_set<state_tba_proxy,
+			  state_tba_proxy_hash,
+			  state_tba_proxy_equal> uniq_map_t;
 
     typedef std::pair<const state_tba_proxy*, bool> state_ptr_bool_t;
 
@@ -267,7 +294,8 @@ namespace spot
 	    while (next != expected && (acc & *next) == *next)
 	      ++next;
 	  next_is_set:
-	    state_tba_proxy* dest = new state_tba_proxy(odest, next);
+	    state_tba_proxy* dest =
+	      down_cast<state_tba_proxy*>(aut->create_state(odest, next));
 	    // Is DEST already reachable with the same value of ACCEPTING?
 	    state_ptr_bool_t key(dest, accepting);
 	    transmap_t::iterator id = transmap_.find(key);
@@ -369,7 +397,7 @@ namespace spot
   } // anonymous
 
   tgba_tba_proxy::tgba_tba_proxy(const tgba* a)
-    : a_(a)
+    : a_(a), uniq_map_(new uniq_map_t)
   {
     // We will use one acceptance condition for this automata.
     // Let's call it Acc[True].
@@ -421,12 +449,37 @@ namespace spot
 	++i;
 	s->destroy();
       }
+
+    uniq_map_t* m = static_cast<uniq_map_t*>(uniq_map_);
+    uniq_map_t::const_iterator j = m->begin();
+    while (j != m->end())
+      {
+	const state* s = j->real_state();
+	++j;
+	s->destroy();
+      }
+    delete m;
   }
+
+  state*
+  tgba_tba_proxy::create_state(state* s, cycle_list::const_iterator acc) const
+  {
+    uniq_map_t* m = static_cast<uniq_map_t*>(uniq_map_);
+    state_tba_proxy st(s, acc);
+
+    std::pair<uniq_map_t::iterator, bool> res = m->insert(st);
+    if (!res.second)
+      s->destroy();
+
+    return const_cast<state_tba_proxy*>(&(*res.first));
+  }
+
+
 
   state*
   tgba_tba_proxy::get_init_state() const
   {
-    return new state_tba_proxy(a_->get_init_state(), acc_cycle_.begin());
+    return create_state(a_->get_init_state(), acc_cycle_.begin());
   }
 
   tgba_succ_iterator*
@@ -596,7 +649,7 @@ namespace spot
   state*
   tgba_sba_proxy::get_init_state() const
   {
-    return new state_tba_proxy(a_->get_init_state(), cycle_start_);
+    return create_state(a_->get_init_state(), cycle_start_);
   }
 
   bool
