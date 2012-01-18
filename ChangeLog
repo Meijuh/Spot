@@ -1,5 +1,10 @@
 2012-01-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* src/eltlparse/eltlparse.yy (realias): Add a useless return to
+	fix a g++ warning.
+
+2012-01-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* bench/ltlclasses/run: Typo in comment.
 
 2012-01-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>

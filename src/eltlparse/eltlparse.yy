@@ -1,5 +1,5 @@
-/* Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-** Développement de l'Epita (LRDE).
+/* Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+** et Développement de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -142,6 +142,7 @@ namespace spot
 
       /* Unreachable code.  */
       assert(0);
+      return node_ptr(static_cast<node_unop*>(0));
     }
   }
 }
