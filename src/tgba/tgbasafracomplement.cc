@@ -197,39 +197,34 @@ namespace spot
     /// a signed value.
     int safra_tree::compare(const safra_tree* other) const
     {
-      int subset_compare = 0;
-      subset_t::const_iterator in1 = nodes.begin();
-      subset_t::const_iterator in2 = other->nodes.begin();
-
-      if (nodes.size() != other->nodes.size())
-        return (nodes.size() - other->nodes.size());
-
-      if (name != other->name)
-        return name - other->name;
-
-      for (; in1 != nodes.end() && in2 != other->nodes.end(); ++in1, ++in2)
-        if ((subset_compare = (*in1)->compare(*in2)) != 0)
-          break;
-
-      if (subset_compare != 0)
-        return subset_compare;
-
-      child_list::const_iterator ic1 = children.begin();
-      child_list::const_iterator ic2 = other->children.begin();
-
-      if (children.size() != other->children.size())
-        return (children.size() - other->children.size());
-
-      for (; ic1 != children.end() && ic2 != other->children.end();
-           ++ic1, ++ic2)
-      {
-        int compare_value = (*ic1)->compare(*ic2);
-        if (compare_value != 0)
-          return compare_value;
-      }
+      int res = name - other->name;
+      if (res != 0)
+	return res;
 
       if (marked != other->marked)
         return (marked) ? -1 : 1;
+
+      res = nodes.size() - other->nodes.size();
+      if (res != 0)
+	return res;
+
+      res = children.size() - other->children.size();
+      if (res != 0)
+      	return res;
+
+      // Call compare() only as a last resort, because it takes time.
+
+      subset_t::const_iterator in1 = nodes.begin();
+      subset_t::const_iterator in2 = other->nodes.begin();
+      for (; in1 != nodes.end(); ++in1, ++in2)
+        if ((res = (*in1)->compare(*in2)) != 0)
+	  return res;
+
+      child_list::const_iterator ic1 = children.begin();
+      child_list::const_iterator ic2 = other->children.begin();
+      for (; ic1 != children.end(); ++ic1, ++ic2)
+	if ((res = (*ic1)->compare(*ic2)) != 0)
+	  return res;
 
       return 0;
     }

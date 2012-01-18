@@ -1,5 +1,12 @@
 2012-01-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	Small speedup in safra_tree::compare().
+
+	* src/tgba/tgbasafracomplement.cc (safra_tree::compare): Improve
+	the order of the tests.
+
+2012-01-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* NEWS: Mention the last two changes.
 
 2012-01-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
