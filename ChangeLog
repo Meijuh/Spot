@@ -1,3 +1,7 @@
+2012-01-18  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	* bench/ltlclasses/run: Typo in comment.
+
 2012-01-17  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Make it possible not to build Python bindings.

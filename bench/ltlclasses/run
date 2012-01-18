@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2010 Laboratoire de Recherche et Développement de
+# Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement de
 # l'EPITA (LRDE)
 #
 # This file is part of Spot, a model checking library.
@@ -30,7 +30,7 @@ for F in 1 2 3 4 5; do
   echo "# the following values are also saved to file 'results$F.fm'"
   echo "# time1 = translation time"
   echo "# time2 = exploration time"
-  echo "# n, states, transitions, user time1, system time1, wall time1, user time1, system time2, wall time2"
+  echo "# n, states, transitions, user time1, system time1, wall time1, user time2, system time2, wall time2"
   for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
     $LTL2TGBA -T -r1 -DS -ks -f "`"$gen" $F $n`" >out 2>&1
     states=`sed -n 's/^states: \([0-9]*\)$/\1/p' out`
