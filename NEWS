@@ -1,16 +1,16 @@
-New in spot 0.8.1a:
+New in spot 0.8.2:
 
   * configure now has a --disable-python option to disable
     the compilation of Python bindings.
-  * Minor speedups in the safra complementation.
+  * Minor speedups in the Safra complementation.
   * Better memory management for the on-the-fly degeneralization
-    algorith.  This mostly benefits to the Safra complementation.
+    algorithm.  This mostly benefits to the Safra complementation.
   * Bug fixes:
     - spot::ltl::length() forgot to count the '&' and '|' operators
       in an LTL formula.
     - minimize_wdba() could fail to mark some transiant SCCs as accepting,
       producing an automaton that was not fully minimized.
-    - minimize_dfa() could produce incorrect automata, but it's not
+    - minimize_dfa() could produce incorrect automata, but it is not
       clear whether this could have had an inpact on WDBA minimization
       (the worse case is that some TGBA would not have been minimized
       when they could).
