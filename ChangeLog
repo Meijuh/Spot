@@ -1,5 +1,9 @@
 2012-01-19  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* configure.ac, NEWS: Bump version to 0.8.2a.
+
+2012-01-19  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	Release Spot 0.8.2.
 
 	* configure.ac, NEWS: Bump version to 0.8.2.
