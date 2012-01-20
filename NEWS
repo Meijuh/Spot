@@ -2,7 +2,7 @@ New in spot 0.8.2a:
 
   Nothing yet.
 
-New in spot 0.8.2:
+New in spot 0.8.2 (2012-01-19):
 
   * configure now has a --disable-python option to disable
     the compilation of Python bindings.
@@ -22,7 +22,7 @@ New in spot 0.8.2:
     - Fix compilation with g++ 4.0.
     - Fix a make check failure when valgrind is missing.
 
-New in spot 0.8.1:
+New in spot 0.8.1 (2011-12-18):
 
   * Only bug fixes:
     - When ltl2tgba is set to perform both WDBA minimization and
