@@ -1,3 +1,12 @@
+2012-01-24  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix a segfault reported by Etienne Renault using dve2check.
+
+	* src/misc/intvcmp2.cc (stream_compression_base::run): Fix a case
+	where the "id" of the compression to use would be miscalculated,
+	causing wrong values to be encoded.
+	* src/tgbatest/intvcmp2.cc: Add this particular test case.
+
 2012-01-20  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* NEWS: Add missing dates.

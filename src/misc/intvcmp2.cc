@@ -37,13 +37,13 @@ namespace spot
     // This implements integer compression inspired from "Simple-9".
     //
     // The first bits of an integer tell how the rest of the integer is coded:
-    // 00:   30 1-bit values
-    // 01:   10 3-bit values
-    // 10:    6 5-bit values
-    // 1100:  4 7-bit values
-    // 1101:  3 9-bit values (1 bit lost)
-    // 1110:  2 14-bit values
-    // 1111:  1 28-bit value
+    // 00:   30 1-bit values              id=0
+    // 01:   10 3-bit values              id=1
+    // 10:    6 5-bit values              id=2
+    // 1100:  4 7-bit values              id=3
+    // 1101:  3 9-bit values (1 bit lost) id=4
+    // 1110:  2 14-bit values             id=5
+    // 1111:  1 28-bit value              id=6
 
     template <class Self>
     class stream_compression_base
@@ -94,7 +94,7 @@ namespace spot
 	  {
 	    unsigned id = 0;	// Current level in the above two tables.
 	    unsigned curmax_allowed = max_allowed[id];
-	    unsigned compressable = 0; // Number of integer ready to pack.
+	    unsigned compressable = 0; // Number of integers ready to pack.
 	    do
 	      {
 		unsigned int val = self().data_at(compressable);
@@ -103,17 +103,19 @@ namespace spot
 		  {
 		    curmax_allowed = max_allowed[++id];
 
-		    if (compressable >= max_count[id])
+		    if (compressable > max_count[id])
 		      goto fast_encode;
 		  }
+		if (compressable >= max_count[id])
+		  goto fast_encode;
 	      }
-	    while (likely(compressable < max_count[id]
-			  && compressable < size_));
+	    while (likely(compressable < size_));
 
-	    assert(compressable <= max_count[id]);
+	    assert(compressable < max_count[id]);
 
 	    // Since we have less data than the current "id" allows,
 	    // try to use more bits so we can encode faster.
+
 	    id = count_to_level[compressable - 1];
 
 	    if (compressable == max_count[id])

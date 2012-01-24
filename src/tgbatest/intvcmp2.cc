@@ -127,5 +127,8 @@ int main()
 		   0, 0, 0, 0, 0, 0, 0, 0, 9 };
   errors += check(comp10, sizeof(comp10) / sizeof(*comp10));
 
+  int comp11[] = { 2, 254, 254, 0, 1, 4, 0, 0, 0, 1, 0, 1, 253, 0 };
+  errors += check(comp11, sizeof(comp11) / sizeof(*comp11));
+
   return errors;
 }
