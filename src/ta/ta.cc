@@ -24,11 +24,6 @@
 namespace spot
 {
 
-  spot::state*
-  ta::get_artificial_initial_state() const
-  {
-    return 0;
-  }
 
   scc_stack_ta::connected_component::connected_component(int i)
   {

@@ -37,7 +37,8 @@ namespace spot
   class ta_explicit_succ_iterator;
   class ta_explicit;
 
-  /// ta_explicit explicit representa_explicittion of a Testing Automata_explicit
+  /// Explicit representation of a spot::ta.
+  /// \ingroup ta_representation
   class ta_explicit : public ta
   {
   public:
@@ -52,7 +53,6 @@ namespace spot
 
     void
     add_to_initial_states_set(state* s, bdd condition = bddfalse);
-
 
     void
     create_transition(state_ta_explicit* source, bdd condition,
@@ -145,11 +145,12 @@ namespace spot
   };
 
   /// states used by spot::ta_explicit.
-  /// \ingroup ta_
+  /// \ingroup ta_representation
   class state_ta_explicit : public spot::state
   {
   public:
 
+    /// Explicit transitions.
     struct transition
     {
       bdd condition;
@@ -176,10 +177,10 @@ namespace spot
     virtual state_ta_explicit*
     clone() const;
 
-    virtual void destroy() const
+    virtual void
+    destroy() const
     {
     }
-
 
     virtual
     ~state_ta_explicit()
@@ -214,9 +215,12 @@ namespace spot
     void
     set_initial_state(bool is_initial_state);
 
+    /// \brief Return true if the state has no successors
     bool
     is_hole_state() const;
 
+    /// \brief Remove stuttering transitions
+    /// and transitions leading to states having no successors
     void
     delete_stuttering_and_hole_successors();
 
@@ -256,9 +260,6 @@ namespace spot
 
     virtual bdd
     current_acceptance_conditions() const;
-
-    virtual bool
-    is_stuttering_transition() const;
 
   private:
     state_ta_explicit::transitions* transitions_;

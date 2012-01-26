@@ -43,11 +43,11 @@ namespace spot
 
   ta_check::~ta_check()
   {
-
   }
 
   bool
-  ta_check::check(bool disable_second_pass)
+  ta_check::check(bool disable_second_pass,
+      disable_heuristic_for_livelock_detection)
   {
 
     // We use five main data in this algorithm:
@@ -67,13 +67,11 @@ namespace spot
     int num = 1;
 
     // * todo: the depth-first search stack.  This holds pairs of the
-    //   form (STATE, ITERATOR) where ITERATOR is a ta_succ_iterator
+    //   form (STATE, ITERATOR) where ITERATOR is a ta_succ_iterator_product
     //   over the successors of STATE.  In our use, ITERATOR should
     //   always be freed when TODO is popped, but STATE should not because
     //   it is also used as a key in H.
     std::stack<pair_state_iter> todo;
-
-
 
     Sgi::hash_map<const state*, std::string, state_ptr_hash, state_ptr_equal>
         colour;
@@ -88,7 +86,8 @@ namespace spot
 
     bool livelock_acceptance_states_not_found = true;
 
-    bool activate_heuristic = (is_full_2_pass_ == disable_second_pass);
+    bool activate_heuristic = !disable_heuristic_for_livelock_detection
+        && (is_full_2_pass_ == disable_second_pass);
 
     // Setup depth-first search from initial states.
     const ta* ta_ = a_->get_ta();
@@ -117,7 +116,7 @@ namespace spot
         scc.push(num);
         arc.push(bddfalse);
 
-        ta_succ_iterator* iter = a_->succ_iter(init);
+        ta_succ_iterator_product* iter = a_->succ_iter(init);
         iter->first();
         todo.push(pair_state_iter(init, iter));
 
@@ -133,7 +132,7 @@ namespace spot
             state* curr = todo.top().first;
 
             // We are looking at the next successor in SUCC.
-            ta_succ_iterator* succ = todo.top().second;
+            ta_succ_iterator_product* succ = todo.top().second;
 
             // If there is no more successor, backtrack.
             if (succ->done())
@@ -147,7 +146,8 @@ namespace spot
                 trace
                   << "PASS 1 : backtrack" << std::endl;
 
-                if (a_->is_livelock_accepting_state(curr))
+                if (a_->is_livelock_accepting_state(curr)
+                    && !a_->is_accepting_state(curr))
                   {
                     livelock_acceptance_states_not_found = false;
                     trace
@@ -241,7 +241,7 @@ namespace spot
                 scc.push(num);
                 arc.push(acc_cond);
 
-                ta_succ_iterator* iter = a_->succ_iter(dest);
+                ta_succ_iterator_product* iter = a_->succ_iter(dest);
                 iter->first();
                 todo.push(pair_state_iter(dest, iter));
                 //colour[dest] = GREY;
@@ -315,10 +315,11 @@ namespace spot
                       a_->get_dict(), scc.top().condition) << std::endl;
                 trace
                   << "PASS 1: a_->all_acceptance_conditions() : "
-                      << ( a_->all_acceptance_conditions()) << std::endl;
+                      << (a_->all_acceptance_conditions()) << std::endl;
                 trace
-                                  << "PASS 1 CYCLE and (scc.top().condition == a_->all_acceptance_conditions()) : "
-                                      << (scc.top().condition == a_->all_acceptance_conditions()) << std::endl;
+                      << "PASS 1 CYCLE and (scc.top().condition == a_->all_acceptance_conditions()) : "
+                      << (scc.top().condition
+                          == a_->all_acceptance_conditions()) << std::endl;
 
                 trace
                   << "PASS 1: bddtrue : " << (a_->all_acceptance_conditions()
@@ -407,7 +408,7 @@ namespace spot
   }
 
   bool
-  ta_check::livelock_detection(const ta* t)
+  ta_check::livelock_detection(const ta_product* t)
   {
     // We use five main data in this algorithm:
 
@@ -460,7 +461,7 @@ namespace spot
             h->insert(init, ++num);
             sscc.push(num);
             sscc.top().is_accepting = t->is_livelock_accepting_state(init);
-            ta_succ_iterator* iter = t->succ_iter(init);
+            ta_succ_iterator_product* iter = t->succ_iter(init);
             iter->first();
             todo.push(pair_state_iter(init, iter));
             inc_depth();
@@ -473,7 +474,7 @@ namespace spot
             state* curr = todo.top().first;
 
             // We are looking at the next successor in SUCC.
-            ta_succ_iterator* succ = todo.top().second;
+            ta_succ_iterator_product* succ = todo.top().second;
 
             // If there is no more successor, backtrack.
             if (succ->done())
@@ -554,7 +555,7 @@ namespace spot
                 sscc.push(num);
                 sscc.top().is_accepting = t->is_livelock_accepting_state(dest);
 
-                ta_succ_iterator* iter = t->succ_iter(dest);
+                ta_succ_iterator_product* iter = t->succ_iter(dest);
                 iter->first();
                 todo.push(pair_state_iter(dest, iter));
                 inc_depth();
@@ -651,26 +652,24 @@ namespace spot
     delete h;
   }
 
-
   void
-   ta_check::clear(numbered_state_heap* h, std::stack<pair_state_iter> todo,
-       spot::ta_succ_iterator* init_states_it)
-   {
+  ta_check::clear(numbered_state_heap* h, std::stack<pair_state_iter> todo,
+      spot::ta_succ_iterator* init_states_it)
+  {
 
-     set_states(states() + h->size());
+    set_states(states() + h->size());
 
     delete init_states_it;
 
-     // Release all iterators in TODO.
-     while (!todo.empty())
-       {
-         delete todo.top().second;
-         todo.pop();
-         dec_depth();
-       }
-     delete h;
-   }
-
+    // Release all iterators in TODO.
+    while (!todo.empty())
+      {
+        delete todo.top().second;
+        todo.pop();
+        dec_depth();
+      }
+    delete h;
+  }
 
   std::ostream&
   ta_check::print_stats(std::ostream& os) const

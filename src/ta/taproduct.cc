@@ -348,11 +348,6 @@ namespace spot
     return ta_->is_livelock_accepting_state(stp->get_ta_state());
   }
 
-  spot::state*
-  ta_product::get_artificial_initial_state() const
-  {
-    return 0;
-  }
 
   bool
   ta_product::is_initial_state(const spot::state* s) const

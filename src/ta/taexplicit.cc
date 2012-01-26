@@ -80,9 +80,13 @@ namespace spot
   state*
   ta_explicit_succ_iterator::current_state() const
   {
-    trace << "***ta_explicit_succ_iterator::current_state()  if(done()) =***" << done() << std::endl;
+    trace
+      << "***ta_explicit_succ_iterator::current_state()  if(done()) =***"
+          << done() << std::endl;
     assert(!done());
-    trace << "***ta_explicit_succ_iterator::current_state() (*i_)->condition =***" << (*i_)->condition << std::endl;
+    trace
+      << "***ta_explicit_succ_iterator::current_state() (*i_)->condition =***"
+          << (*i_)->condition << std::endl;
     state_ta_explicit* s = (*i_)->dest;
     return s;
   }
@@ -101,11 +105,6 @@ namespace spot
     return (*i_)->acceptance_conditions;
   }
 
-  bool
-  ta_explicit_succ_iterator::is_stuttering_transition() const
-  {
-    return source_->get_tgba_condition() == ((*i_)->dest)->get_tgba_condition();
-  }
 
   ////////////////////////////////////////
   // state_ta_explicit
@@ -413,7 +412,6 @@ namespace spot
       add_to_initial_states_set(state);
 
   }
-
 
   void
   ta_explicit::create_transition(state_ta_explicit* source, bdd condition,

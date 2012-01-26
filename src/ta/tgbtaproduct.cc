@@ -58,16 +58,16 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgbta_product::succ_iter(const state* local_state, const state* global_state,
-      const tgba* global_automaton) const
+  tgbta_product::succ_iter(const state* local_state, const state*,
+      const tgba*) const
   {
     const state_product* s = down_cast<const state_product*> (local_state);
     assert(s);
 
     fixed_size_pool* p = const_cast<fixed_size_pool*> (&pool_);
 
-    return new tgbta_succ_iterator_product(s, (kripke*) left_,
-        (tgbta *) right_, p);
+    return new tgbta_succ_iterator_product(s, (const kripke*) left_,
+        (const tgbta *) right_, p);
   }
 
   ////////////////////////////////////////////////////////////

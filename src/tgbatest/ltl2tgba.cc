@@ -288,13 +288,13 @@ syntax(char* prog)
             << "  -TM    Translate an LTL formula into a minimal Testing automata"
             << std::endl
             << std::endl
-            << "  -lv    Translate an LTL formula into a Testing automata with an artificial livelock accepting state"
+            << "  -lv    Translate an LTL formula into a Testing automata with an artificial livelock accepting state (Single-pass Testing Automata)"
             << std::endl
             << std::endl
             << "  -in    Translate an LTL formula into a Testing automata without artificial initial state"
             << std::endl
             << std::endl
-            << "  -TGBTA    Translate an LTL formula into a TGBTA"
+            << "  -STGTA    Translate an LTL formula into a STGTA (Single-pass Transition-based Generalised Testing Automata)"
             << std::endl;
 
 
@@ -697,7 +697,7 @@ main(int argc, char** argv)
           ta_opt = true;
           opt_minimize = true;
         }
-      else if (!strcmp(argv[formula_index], "-TGBTA"))
+      else if (!strcmp(argv[formula_index], "-STGTA"))
         {
           tgbta_opt = true;
         }
@@ -1154,12 +1154,15 @@ main(int argc, char** argv)
               tm.stop("producing output");
             }
 
-          delete testing_automata_nm;
-          //delete testing_automata;
+
+         delete testing_automata_nm;
+         delete testing_automata;
           a = 0;
           degeneralized = 0;
-          output = -1;
+          if (degeneralize_opt != DegenSBA) to_free = 0;
 
+          aut_red  = 0;
+          output = -1;
         } else if (tgbta_opt)
         {
           a = tgba_to_tgbta(a, atomic_props_set_bdd);

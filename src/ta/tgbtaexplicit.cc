@@ -46,8 +46,8 @@ namespace spot
 
    tgba_succ_iterator*
    tgbta_explicit::succ_iter(const spot::state* state,
-                            const spot::state* global_state,
-                            const tgba* global_automaton) const
+                            const spot::state*,
+                            const tgba*) const
    {
      return ta_explicit::succ_iter(state);
    }
@@ -55,13 +55,13 @@ namespace spot
    bdd
    tgbta_explicit::compute_support_conditions(const spot::state* in) const
    {
-     return get_tgba()->support_conditions(((state_ta_explicit*) in)->get_tgba_state());
+     return get_tgba()->support_conditions(((const state_ta_explicit*) in)->get_tgba_state());
    }
 
    bdd
    tgbta_explicit::compute_support_variables(const spot::state* in) const
    {
-     return get_tgba()->support_variables(((state_ta_explicit*) in)->get_tgba_state());
+     return get_tgba()->support_variables(((const state_ta_explicit*) in)->get_tgba_state());
    }
 
    bdd_dict*

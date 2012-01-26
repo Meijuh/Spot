@@ -34,22 +34,73 @@
 
 namespace spot
 {
+  /// \brief Build a spot::tgba_explicit* from an LTL formula.
+  /// \ingroup tgba_ta
+  ///
+  /// This is based on the following paper.
+  /// \verbatim
+  ///  @InProceedings{        geldenhuys.06.spin,
+  ///  author        = {Jaco Geldenhuys and Henri Hansen},
+  ///  title         = {Larger Automata and Less Work for {LTL} Model Checking},
+  ///  booktitle     = {Proceedings of the 13th International SPIN Workshop
+  ///                  (SPIN'06)},
+  ///  year          = {2006},
+  ///  pages         = {53--70},
+  ///  series        = {Lecture Notes in Computer Science},
+  ///  volume        = {3925},
+  ///  publisher     = {Springer}
+  /// }
+  /// \endverbatim
+  ///
+  /// \param tgba_to_convert The TGBA automaton to convert into a TA automaton
+  ///
+  /// \param atomic_propositions_set The set of atomic propositions used in the
+  /// input TGBA \a tgba_to_convert
+  ///
+  /// \param artificial_initial_state_mode When set, the algorithm will build
+  /// a TA automaton with an unique initial state.  This
+  /// artificial initial state have one transition to each real initial state,
+  /// and this transition is labeled by the corresponding initial condition.
+  /// (see spot::ta::get_artificial_initial_state())
+  ///
+  /// \param STA_mode When set, the returned TA
+  /// automaton is a STA (Single-pass Testing Automata): a STA automaton is a TA
+  /// where: for every livelock-accepting state s, if s is not also a
+  /// Buchi-accepting state, then s has no successors. A STA product requires
+  /// only one-pass emptiness check algorithm (see spot::ta_check::check)
+  ///
+  /// \param degeneralized When false, the returned automaton is a generalized
+  /// form of TA, called TGTA (Transition-based Generalized Testing Automaton).
+  /// Like TGBA, TGTA use Generalized Büchi acceptance
+  /// conditions intead of Büchi-accepting states: there are several acceptance
+  /// sets (of transitions), and a path is accepted if it traverses
+  /// at least one transition of each set infinitely often or if it contains a
+  /// livelock-accepting cycle.
+  ///
+  /// \return A spot::ta_explicit that recognizes the same language as the
+  /// TGBA \a tgba_to_convert.
   ta_explicit*
   tgba_to_ta(const tgba* tgba_to_convert, bdd atomic_propositions_set,
-      bool artificial_initial_state_mode = true,
-      bool artificial_livelock_accepting_state_mode = false,
+      bool artificial_initial_state_mode = true, bool STA_mode = false,
       bool degeneralized = true);
 
-  //artificial_livelock_accepting_state is used in the case of TA+ automata
-  void
-  compute_livelock_acceptance_states(ta_explicit* testing_automata, state_ta_explicit* artificial_livelock_accepting_state = 0);
+  stgta_explicit*
+  tgba_to_stgta(const tgba* tgba_to_convert, bdd atomic_propositions_set);
 
-  void
-  add_artificial_livelock_accepting_state(ta_explicit* testing_automata,
-      state_ta_explicit* artificial_livelock_accepting_state);
 
-  tgbta_explicit*
-  tgba_to_tgbta(const tgba* tgba_to_convert, bdd atomic_propositions_set);
+  //artificial_livelock_accepting_state is used in the case of
+    //STA (Single-pass Testing Automata) or in the case
+    //STGTA (Single-pass Transition-based Generalised Testing Automata)
+    void
+    compute_livelock_acceptance_states(ta_explicit* testing_automata,
+        state_ta_explicit* artificial_livelock_accepting_state = 0);
+
+    //artificial_livelock_accepting_state is added to transform TA into
+    //STA (Single-pass Testing Automata) or to transform TGTA into
+    //STGTA (Single-pass Transition-based Generalised Testing Automata)
+    void
+    add_artificial_livelock_accepting_state(ta_explicit* testing_automata,
+        state_ta_explicit* artificial_livelock_accepting_state);
 
 }
 

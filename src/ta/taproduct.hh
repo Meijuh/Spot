@@ -28,8 +28,9 @@ namespace spot
 {
 
   /// \brief A state for spot::ta_product.
+  /// \ingroup emptiness_check
   ///
-  /// This state is in fact a pair of state: the state from the ta
+  /// This state is in fact a pair of state: the state from the TA
   /// automaton and that of Kripke structure.
   class state_ta_product : public state
   {
@@ -37,7 +38,6 @@ namespace spot
     /// \brief Constructor
     /// \param ta_state The state from the ta automaton.
     /// \param kripke_state_ The state from Kripke structure.
-
     state_ta_product(state* ta_state, state* kripke_state) :
       ta_state_(ta_state), kripke_state_(kripke_state)
     {
@@ -100,6 +100,7 @@ namespace spot
     bdd
     current_acceptance_conditions() const;
 
+    /// \brief Return true if the changeset of the current transition is empty
     bool
     is_stuttering_transition() const;
 
@@ -111,6 +112,7 @@ namespace spot
     void
     next_non_stuttering_();
 
+    /// \brief Move to the next successor in the kripke structure
     void
     next_kripke_dest();
 
@@ -131,30 +133,25 @@ namespace spot
 
   };
 
-  /// \brief A lazy product.  (States are computed on the fly.)
+  /// \brief A lazy product between a Testing automaton and a Kripke structure.
+  /// (States are computed on the fly.)
+  /// \ingroup emptiness_check
   class ta_product : public ta
   {
   public:
-    ta_product(const ta* testing_automata, const kripke* kripke_structure);
+    /// \brief Constructor.
+    /// \param testing_automaton The TA component in the product.
+    /// \param kripke_structure The Kripke component in the product.
+    ta_product(const ta* testing_automaton, const kripke* kripke_structure);
 
     virtual
     ~ta_product();
 
-    virtual const states_set_t
+    virtual const std::set<state*, state_ptr_less_than>
     get_initial_states_set() const;
 
     virtual ta_succ_iterator_product*
     succ_iter(const spot::state* s) const;
-
-    virtual ta_succ_iterator_product*
-    succ_iter(const spot::state* s, bdd condition) const
-    {
-
-      if (condition == bddtrue)
-        return succ_iter(s);
-      //TODO
-      return 0;
-    }
 
     virtual bdd_dict*
     get_dict() const;
@@ -168,12 +165,11 @@ namespace spot
     virtual bool
     is_livelock_accepting_state(const spot::state* s) const;
 
-    virtual spot::state*
-    get_artificial_initial_state() const;
-
     virtual bool
     is_initial_state(const spot::state* s) const;
 
+    /// \brief Return true if the state \a s has no succeseurs
+    /// in the ta automaton (the TA component of the product automaton)
     virtual bool
     is_hole_state_in_ta_component(const spot::state* s) const;
 

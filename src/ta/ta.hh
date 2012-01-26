@@ -31,10 +31,51 @@
 
 namespace spot
 {
+
   // Forward declarations.  See below.
   class ta_succ_iterator;
 
-  /// ta representation of a Testing Automata
+  /// \defgroup ta TA (Testing Automata)
+  ///
+  /// This type and its cousins are listed \ref ta_essentials "here".
+  /// This is an abstract interface.  Its implementations are \ref
+  /// ta_representation "concrete representations".  The
+  /// algorithms that work on spot::ta are \ref tgba_algorithms
+  /// "listed separately".
+
+  /// \addtogroup ta_essentials Essential TA types
+  /// \ingroup ta
+
+  /// \brief A Testing Automaton.
+  /// \ingroup ta_essentials
+  ///
+  /// The Testing Automata (TA) were introduced by
+  /// Henri Hansen, Wojciech Penczek and Antti Valmari
+  /// in "Stuttering-insensitive automata for on-the-fly de- tection of livelock
+  /// properties" In Proc. of FMICSÕ02, vol. 66(2) of Electronic Notes in
+  /// Theoretical Computer Science.Elsevier.
+  ///
+  /// While a TGBA automaton observes the value of the atomic propositions, the
+  /// basic idea of TA is to detect the changes in these values; if a valuation
+  ///  does not change between two consecutive valuations of an execution,
+  /// the TA stay in the same state. A TA transition \c (s,k,d) is labeled by a
+  /// "changeset" \c k: i.e. the set of atomic propositions that change between
+  /// states \c s and \c d, if the changeset is empty then the transition is
+  /// called stuttering transition.
+  /// To detect execution that ends by stuttering in the same TA state, a
+  /// new kind of acceptance states is introduced: "livelock-acceptance states"
+  /// (in addition to the standard Buchi-acceptance states).
+  ///
+  /// Browsing such automaton can be achieved using two functions:
+  /// \c get_initial_states_set or \c get_artificial_initial_state, and \c
+  /// succ_iter. The former returns the initial state(s) while the latter lists
+  /// the successor states of any state (filtred by transition "changeset").
+  ///
+  /// Note that although this is a transition-based automata,
+  /// we never represent transitions!  Transition informations are
+  /// obtained by querying the iterator over the successors of
+  /// a state.
+
   class ta
   {
 
@@ -46,52 +87,103 @@ namespace spot
 
     typedef std::set<state*, state_ptr_less_than> states_set_t;
 
+    /// \brief Get the initial states set of the automaton.
     virtual const states_set_t
     get_initial_states_set() const = 0;
 
-    virtual spot::state*
-    get_artificial_initial_state() const = 0;
+    /// \brief Get the artificial initial state set of the automaton.
+    /// Return 0 if this artificial state is not implemented
+    /// (in this case, use \c get_initial_states_set)
+    /// The aim of adding this state is to have an unique initial state. This
+    /// artificial initial state have one transition to each real initial state,
+    /// and this transition is labeled by the corresponding initial condition.
+    /// (For more details, see the paper cited above)
+    spot::state*
+    get_artificial_initial_state() const
+    {
+      return 0;
+    }
 
+    /// \brief Get an iterator over the successors of \a state.
+    ///
+    /// The iterator has been allocated with \c new.  It is the
+    /// responsability of the caller to \c delete it when no
+    /// longer needed.
+    ///
     virtual ta_succ_iterator*
-    succ_iter(const spot::state* s) const = 0;
+    succ_iter(const spot::state* state) const = 0;
 
+    /// \brief Get an iterator over the successors of \a state
+    /// filtred by the changeset labeling the transitions
+    ///
+    /// The iterator has been allocated with \c new.  It is the
+    /// responsability of the caller to \c delete it when no
+    /// longer needed.
+    ///
     virtual ta_succ_iterator*
-    succ_iter(const spot::state* s, bdd condition) const = 0;
+    succ_iter(const spot::state* state, bdd changeset) const = 0;
 
+    /// \brief Get the dictionary associated to the automaton.
+    ///
+    /// State are represented as BDDs.  The dictionary allows
+    /// to map BDD variables back to formulae, and vice versa.
+    /// This is useful when dealing with several automata (which
+    /// may use the same BDD variable for different formula),
+    /// or simply when printing.
     virtual bdd_dict*
     get_dict() const = 0;
 
+    /// \brief Format the state as a string for printing.
+    ///
+    /// This formating is the responsability of the automata
+    /// that owns the state.
     virtual std::string
     format_state(const spot::state* s) const = 0;
 
+    /// \brief Return true if \a s is a Buchi-accepting state, otherwise false
     virtual bool
     is_accepting_state(const spot::state* s) const = 0;
 
+    /// \brief Return true if \a s is a livelock-accepting state
+    /// , otherwise false
     virtual bool
     is_livelock_accepting_state(const spot::state* s) const = 0;
 
+    /// \brief Return true if \a s is an initial state, otherwise false
     virtual bool
     is_initial_state(const spot::state* s) const = 0;
 
+    /// \brief Return a BDD condition that represents the valuation
+    /// of atomic propositions in the state \a s
     virtual bdd
     get_state_condition(const spot::state* s) const = 0;
 
+    /// \brief Release a state \a s
     virtual void
     free_state(const spot::state* s) const = 0;
 
     /// \brief Return the set of all acceptance conditions used
-    /// by this automaton.
+    /// by this automaton
+    /// (for Generalized form: Transition-based Generalized Testing Automata).
     ///
     /// The goal of the emptiness check is to ensure that
     /// a strongly connected component walks through each
     /// of these acceptiong conditions.  I.e., the union
     /// of the acceptiong conditions of all transition in
     /// the SCC should be equal to the result of this function.
-    virtual bdd all_acceptance_conditions() const = 0;
+    virtual bdd
+    all_acceptance_conditions() const = 0;
 
   };
 
-  /// Successor iterators used by spot::ta.
+  /// \brief Iterate over the successors of a state.
+  /// \ingroup ta_essentials
+  ///
+  /// This class provides the basic functionalities required to
+  /// iterate over the successors of a state, as well as querying
+  /// transition labels.  Because transitions are never explicitely
+  /// encoded, labels (conditions and acceptance conditions) can only
+  /// be queried while iterating over the successors.
   class ta_succ_iterator : public tgba_succ_iterator
   {
   public:
@@ -109,11 +201,12 @@ namespace spot
 
     virtual state*
     current_state() const = 0;
+
+    /// \brief Get the changeset on the transition leading to current successor.
+    ///
+    /// This is a boolean function of atomic propositions.
     virtual bdd
     current_condition() const = 0;
-
-    virtual bool
-    is_stuttering_transition() const = 0;
 
     bdd
     current_acceptance_conditions() const = 0;
@@ -172,6 +265,29 @@ namespace spot
     typedef std::list<connected_component> stack_type;
     stack_type s;
   };
+
+/// \addtogroup ta_representation TA representations
+/// \ingroup ta
+
+/// \addtogroup ta_algorithms TA algorithms
+/// \ingroup ta
+
+/// \addtogroup ta_io Input/Output of TA
+/// \ingroup ta_algorithms
+
+/// \addtogroup tgba_ta Transforming TGBA into TA
+/// \ingroup ta_algorithms
+
+
+/// \addtogroup ta_generic Algorithm patterns
+/// \ingroup ta_algorithms
+
+/// \addtogroup ta_reduction TA simplifications
+/// \ingroup ta_algorithms
+
+/// \addtogroup ta_misc Miscellaneous algorithms on TA
+/// \ingroup ta_algorithms
+
 
 }
 
