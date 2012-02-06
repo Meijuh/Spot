@@ -95,9 +95,9 @@ namespace spot
 	  is.sugar_free_boolean = false;
 	  is.in_nenoform = false;
 	  is.syntactic_safety =
-	    first->is_syntactic_obligation() && second->is_syntactic_safety();
-	  is.syntactic_obligation =
-	    first->is_syntactic_safety() && second->is_syntactic_obligation();
+	    first->is_syntactic_guarantee() && second->is_syntactic_safety();
+	  is.syntactic_guarantee =
+	    first->is_syntactic_safety() && second->is_syntactic_guarantee();
 	  // is.syntactic_obligation inherited
 	  is.syntactic_persistence = first->is_syntactic_recurrence()
 	    && second->is_syntactic_persistence();

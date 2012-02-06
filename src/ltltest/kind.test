@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2010, 2011 Laboratoire de Recherche et Developement to
+# Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et Developement to
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -53,6 +53,11 @@ check 'a R (b R (c R d))' '&!xfLPsopr'
 check 'a U (b U (c U d))' '&!xfLPgopr'
 check 'a W (b W (c W d))' '&!xfLPsopr'
 check 'a M (b M (c M d))' '&!xfLPgopr'
+check 'Fa -> Fb'  'xLPopr'
+check 'Ga -> Fb'  'xLPgopr'
+check 'Fa -> Gb'  'xLPsopr'
+check '(Ga|Fc) -> Fb'  'xLPopr'
+check '(Ga|Fa) -> Gb'  'xLPopr'
 check '{a;c*;b}|->!Xb' '&fPsopr'
 check '{a;c*;b}|->X!b' '&!fPsopr'
 check '{a;c*;b}|->!Fb' '&xPsopr'
