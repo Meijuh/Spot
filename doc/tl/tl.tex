@@ -1153,19 +1153,27 @@ page~\pageref{property-methods}).
 The symbols $\varphi_G$, $\varphi_S$, $\varphi_O$, $\varphi_P$,
 $\varphi_R$ designate any formula belonging respectively to the
 Guarantee, Safety, Obligation, Persistence, or Recurrence classes.
-$v$ denotes any variable, $r$ any SERE, $r_F$ any bounded SERE (no
-loops), and $r_I$ any unbounded SERE.
+$\varphi_F$ designates a finite LTL formula (the unnamed class at the
+intersection of Safety and Guarantee formul\ae{} on
+Fig.~\ref{fig:hierarchy}).  $v$ denotes any variable, $r$ any SERE,
+$r_F$ any bounded SERE (no loops), and $r_I$ any unbounded SERE.
 
 \begin{align*}
-  \varphi_G ::={}& \0\mid\1\mid v\mid \NOT\varphi_S\mid
-                   \varphi_G\AND \varphi_G\mid (\varphi_G\OR \varphi_G)\mid
+  \varphi_F ::={}& \0\mid\1\mid v\mid\NOT\varphi_F\mid\varphi_F\AND\varphi_F
+                   \mid(\varphi_F\OR\varphi_F)\mid\varphi_F\EQUIV\varphi_F
+                   \mid\varphi_F\XOR\varphi_F\mid\varphi_F\IMPLIES\varphi_F
+                   \mid\X\varphi_F\\
+  \varphi_G ::={}& \varphi_F\mid \NOT\varphi_S\mid
+                   \varphi_G\AND \varphi_G\mid (\varphi_G\OR \varphi_G)
+                   \mid\varphi_S\IMPLIES\varphi_G\mid
                    \X\varphi_G \mid \F\varphi_G\mid
                    \varphi_G\U\varphi_G\mid \varphi_G\M\varphi_G\\
            \mid{}& \sere{r_F}\mid
                    \sere{r}\Esuffix \varphi_G\mid
                    \sere{r_F}\Asuffix \varphi_G \\
-  \varphi_S ::={}& \0\mid\1\mid v\mid \NOT\varphi_G\mid
-                   \varphi_S\AND \varphi_S\mid (\varphi_S\OR \varphi_S)\mid
+  \varphi_S ::={}& \varphi_F\mid \NOT\varphi_G\mid
+                   \varphi_S\AND \varphi_S\mid (\varphi_S\OR \varphi_S)
+                   \mid\varphi_G\IMPLIES\varphi_S\mid
                    \X\varphi_S \mid \G\varphi_S\mid
                    \varphi_S\R\varphi_S\mid \varphi_S\W\varphi_S\\
            \mid{}& \nsere{r_F}\mid
@@ -1173,7 +1181,9 @@ loops), and $r_I$ any unbounded SERE.
                    \sere{r}\Asuffix \varphi_S\\
   \varphi_O ::={}& \varphi_G \mid \varphi_S\mid \NOT\varphi_O\mid
                    \varphi_O\AND \varphi_O\mid (\varphi_O\OR \varphi_O)\mid
-                   \X\varphi_O \mid
+                   \varphi_O\EQUIV \varphi_O\mid \varphi_O\XOR \varphi_O\mid
+                   \varphi_O\IMPLIES \varphi_O\\
+           \mid{}& \X\varphi_O \mid
                    \varphi_O\U\varphi_G\mid\varphi_O\R\varphi_S \mid
                    \varphi_S\W\varphi_O\mid \varphi_G\M\varphi_O\\
            \mid{}& \sere{r} \mid \nsere{r}\mid
@@ -1182,7 +1192,9 @@ loops), and $r_I$ any unbounded SERE.
                    \sere{r_I}\Asuffix \varphi_S\\
   \varphi_P ::={}& \varphi_O \mid \NOT\varphi_R\mid
                    \varphi_P\AND \varphi_P\mid (\varphi_P\OR \varphi_P)\mid
-                   \X\varphi_P \mid \F\varphi_P \mid
+                   \varphi_P\EQUIV \varphi_P\mid \varphi_P\XOR \varphi_P\mid
+                   \varphi_P\IMPLIES \varphi_P\\
+           \mid{}& \X\varphi_P \mid \F\varphi_P \mid
                    \varphi_P\U\varphi_P\mid\varphi_P\R\varphi_S\mid
                    \varphi_S\W\varphi_P\mid\varphi_P\M\varphi_P\\
            \mid{}& \sere{r}\Esuffix \varphi_P\mid
@@ -1190,7 +1202,9 @@ loops), and $r_I$ any unbounded SERE.
                    \sere{r_I}\Asuffix \varphi_S\\
   \varphi_R ::={}& \varphi_O \mid \NOT\varphi_P\mid
                    \varphi_R\AND \varphi_R\mid (\varphi_R\OR \varphi_R)\mid
-                   \X\varphi_R \mid \G\varphi_R \mid
+                   \varphi_R\EQUIV \varphi_R\mid \varphi_R\XOR \varphi_R\mid
+                   \varphi_R\IMPLIES \varphi_R\\
+           \mid{}& \X\varphi_R \mid \G\varphi_R \mid
                    \varphi_R\U\varphi_G\mid\varphi_R\R\varphi_R\mid
                    \varphi_R\W\varphi_R\mid\varphi_G\M\varphi_R\\
            \mid{}& \sere{r_F}\Esuffix \varphi_R \mid \sere{r_I}\Esuffix \varphi_G\mid \sere{r}\Asuffix \varphi_P\\
