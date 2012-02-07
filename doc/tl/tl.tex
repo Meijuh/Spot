@@ -559,7 +559,7 @@ is usually used to simplify proofs.
   \G f &\equiv \NOT\F\NOT f \equiv \NOT((\NOT f)\M\1)\\
   f\U g&\equiv ((\X g)\M f)\OR g \\
   f \W g&\equiv (f\U g)\OR \G f \equiv ((\X g)\M f)\OR g\OR \NOT((\NOT f)\M\1)\\
-  f \R g&\equiv (f \M g)\OR\G f \equiv (f \M g)\OR \NOT((\NOT f)\M\1)
+  f \R g&\equiv (f \M g)\OR\G g \equiv (f \M g)\OR \NOT((\NOT g)\M\1)
 \end{align*}}
 \ltltodo[noline]{Why do we have two ways to rewrite $f\W g$ with $\U$,
   and two ways to rewrite $f\M g$ with $\R$, but no similar rules for other operators? What are we missing?}
@@ -571,10 +571,9 @@ successively rewrite $\U\to\M\to\R\to\U$ we get
 \begin{align*}
 f\U g &\equiv ((\X g)\M f)\OR g \\
       &\equiv (((\X g) \R f)\AND\NOT (\0\R\NOT \X g))\OR g \\
-      &\equiv (((f \U (\X g\AND f))\OR\NOT(\1\U\NOT f)) \AND\NOT (\underbrace{((\X g) \U
-\0)}_{\text{trivially false}}\OR\NOT(\1\U\NOT\X g)))\OR g\\
-      &\equiv (((f \U (\X g\AND f))\OR\NOT(\1\U\NOT f))
-               \AND(\1\U\NOT\X g))\OR g\\
+      &\equiv (((f \U (\X g\AND f))\OR\NOT(\1\U\NOT f)) \AND\NOT (\underbrace{((\NOT\X g) \U
+(\0\AND \NOT\X g))}_{\text{trivially false}}\OR\NOT(\1\U\NOT\NOT\X g)))\OR g\\
+      &\equiv (((f \U (\X g\AND f))\OR\NOT(\1\U\NOT f)) \AND(\1\U\X g))\OR g\\
 \end{align*}
 
 
@@ -1382,7 +1381,11 @@ $\OR$):
   (\F f)\AND (f \R g)&\equiv f\M g &
   (\G g)\OR  (f \R g)&\equiv f\R g \\
   (\F f)\AND (f \M g)&\equiv f\M g &
-  (\G g)\OR  (f \M g)&\equiv f\R g
+  (\G g)\OR  (f \M g)&\equiv f\R g \\
+  f \AND ((\X f) \W g) &\equiv g \R f &
+  f \OR ((\X f) \R g) &\equiv g \W f \\
+  f \AND ((\X f) \U g) &\equiv g \M f &
+  f \OR ((\X f) \M g) &\equiv g \U f \\
 \end{align*}
 The above rules are applied even if more terms are presents in the
 operator's arguments.  For instance $\F\G(a)\AND \G(b) \AND \F\G(c) \AND

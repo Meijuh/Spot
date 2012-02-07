@@ -754,6 +754,40 @@ namespace spot
 	return is_binop(f, binop::W);
       }
 
+      // X(a) R b   or   X(a) M b
+      // This returns a.
+      formula*
+      is_XRM(formula* f)
+      {
+	if (f->kind() != formula::BinOp)
+	  return 0;
+	binop* bo = static_cast<binop*>(f);
+	binop::type t = bo->op();
+	if (t != binop::R && t != binop::M)
+	  return 0;
+	unop* uo = is_X(bo->first());
+	if (!uo)
+	  return 0;
+	return uo->child();
+      }
+
+      // X(a) W b   or   X(a) U b
+      // This returns a.
+      formula*
+      is_XWU(formula* f)
+      {
+	if (f->kind() != formula::BinOp)
+	  return 0;
+	binop* bo = static_cast<binop*>(f);
+	binop::type t = bo->op();
+	if (t != binop::W && t != binop::U)
+	  return 0;
+	unop* uo = is_X(bo->first());
+	if (!uo)
+	  return 0;
+	return uo->child();
+      }
+
       multop*
       is_multop(formula* f, multop::type op)
       {
@@ -1870,20 +1904,35 @@ namespace spot
 		  if (!mo->is_sere_formula())
 		    {
 		      // a & X(G(a&b...) & c...) = Ga & X(G(b...) & c...)
+		      // a & (Xa W b) = b R a
+		      // a & (Xa U b) = b M a
 		      if (!mo->is_X_free())
 			{
 			  typedef Sgi::hash_set<formula*,
 						ptr_hash<formula> > fset_t;
-			  fset_t xgset;
-			  fset_t xset;
+			  typedef Sgi::hash_map<formula*, std::set<unsigned>,
+						ptr_hash<formula> > fmap_t;
+			  fset_t xgset; // XG(...)
+			  fset_t xset;  // X(...)
+			  fmap_t wuset; // (X...)W(...) or (X...)U(...)
 
 			  unsigned s = res->size();
+			  std::vector<bool> tokill(s);
+
 			  // Make a pass to search for subterms
 			  // of the form XGa or  X(... & G(...&a&...) & ...)
 			  for (unsigned n = 0; n < s; ++n)
 			    {
 			      if (!(*res)[n])
 				continue;
+
+			      formula* xarg = is_XWU((*res)[n]);
+			      if (xarg)
+				{
+				  wuset[xarg].insert(n);
+				  continue;
+				}
+
 			      unop* uo = is_X((*res)[n]);
 			      if (!uo)
 				continue;
@@ -1930,7 +1979,38 @@ namespace spot
 			      (*res)[n]->destroy();
 			      (*res)[n] = 0;
 			    }
-			  // Make second pass to search for terms 'a'
+			  // Make a second pass to check if the "a"
+			  // terms can be used to simplify "Xa W b" or
+			  // "Xa U b".
+			  for (unsigned n = 0; n < s; ++n)
+			    {
+			      if (!(*res)[n])
+				continue;
+			      fmap_t::const_iterator gs =
+				wuset.find((*res)[n]);
+			      if (gs == wuset.end())
+				continue;
+
+			      const std::set<unsigned>& s = gs->second;
+			      std::set<unsigned>::const_iterator g;
+			      for (g = s.begin(); g != s.end(); ++g)
+				{
+				  // a & (Xa W b) = b R a
+				  // a & (Xa U b) = b M a
+				  unsigned pos = *g;
+				  binop* wu = down_cast<binop*>((*res)[pos]);
+				  binop::type t = (wu->op() == binop::U)
+				    ? binop::M : binop::R;
+				  unop* xa = down_cast<unop*>(wu->first());
+				  formula* a = xa->child()->clone();
+				  formula* b = wu->second()->clone();
+				  wu->destroy();
+				  (*res)[pos] = binop::instance(t, b, a);
+				  // Remember to kill "a".
+				  tokill[n] = true;
+				}
+			    }
+			  // Make third pass to search for terms 'a'
 			  // that also appears as 'XGa'.  Replace them
 			  // by 'Ga' and delete XGa.
 			  for (unsigned n = 0; n < s; ++n)
@@ -1946,6 +2026,11 @@ namespace spot
 				  xgset.erase(g);
 				  gf->destroy();
 				  (*res)[n] = unop::instance(unop::G, x);
+				}
+			      else if (tokill[n])
+				{
+				  (*res)[n]->destroy();
+				  (*res)[n] = 0;
 				}
 			    }
 
@@ -2471,21 +2556,36 @@ namespace spot
 		    }
 		case multop::Or:
 		  {
-		    // a | X(F(a|b...) | c...) = Fa | X(F(b...) | c...)
+		    // a | X(F(a) | c...) = Fa | X(c...)
+		    // a | (Xa R b) = b W a
+		    // a | (Xa M b) = b U a
 		    if (!mo->is_X_free())
 		      {
 			typedef Sgi::hash_set<formula*,
 					      ptr_hash<formula> > fset_t;
-			fset_t xfset;
-			fset_t xset;
+			typedef Sgi::hash_map<formula*, std::set<unsigned>,
+					      ptr_hash<formula> > fmap_t;
+			fset_t xfset; // XF(...)
+			fset_t xset;  // X(...)
+			fmap_t rmset; // (X...)R(...) or (X...)M(...)
 
 			unsigned s = res->size();
+			std::vector<bool> tokill(s);
+
 			// Make a pass to search for subterms
 			// of the form XFa or  X(... | F(...|a|...) | ...)
 			for (unsigned n = 0; n < s; ++n)
 			  {
 			    if (!(*res)[n])
 			      continue;
+
+			    formula* xarg = is_XRM((*res)[n]);
+			    if (xarg)
+			      {
+				rmset[xarg].insert(n);
+				continue;
+			      }
+
 			    unop* uo = is_X((*res)[n]);
 			    if (!uo)
 			      continue;
@@ -2544,6 +2644,29 @@ namespace spot
 			    if (f != xfset.end())
 			      --allofthem;
 			    assert(allofthem != -1U);
+			    // At the same time, check if "a" can also
+			    // be used to simplify "Xa R b" or "Xa M b".
+			    fmap_t::const_iterator gs = rmset.find(x);
+			    if (gs == rmset.end())
+			      continue;
+			    const std::set<unsigned>& s = gs->second;
+			    std::set<unsigned>::const_iterator g;
+			    for (g = s.begin(); g != s.end(); ++g)
+			      {
+				// a | (Xa R b) = b W a
+				// a | (Xa M b) = b U a
+				unsigned pos = *g;
+				binop* rm = down_cast<binop*>((*res)[pos]);
+				binop::type t =
+				  (rm->op() == binop::M) ? binop::U : binop::W;
+				unop* xa = down_cast<unop*>(rm->first());
+				formula* a = xa->child()->clone();
+				formula* b = rm->second()->clone();
+				rm->destroy();
+				(*res)[pos] = binop::instance(t, b, a);
+				// Remember to kill "a".
+				tokill[n] = true;
+			      }
 			  }
 			// If we can remove all of them...
 			if (allofthem == 0)
@@ -2563,7 +2686,17 @@ namespace spot
 				  xfset.erase(f);
 				  ff->destroy();
 				  (*res)[n] = unop::instance(unop::F, x);
+				  // We don't need to kill "a" anymore.
+				  tokill[n] = false;
 				}
+			    }
+			// Kill any remaining "a", used to simplify Xa R b
+			// or Xa M b.
+			for (unsigned n = 0; n < s; ++n)
+			  if (tokill[n] && (*res)[n])
+			    {
+			      (*res)[n]->destroy();
+			      (*res)[n] = 0;
 			    }
 
 			// Now rebuild the formula that remains.

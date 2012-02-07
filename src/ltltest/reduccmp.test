@@ -181,6 +181,17 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x 'a|b|c|X(F(a|b)|F(c)|Gd)' 'F(a|b|c)|XGd'
      run 0 $x 'b|c|X(F(a|b)|F(c)|Gd)' 'b|c|X(F(a|b|c)|Gd)'
 
+     run 0 $x 'a | (Xa R b) | c' '(b W a) | c'
+     run 0 $x 'a | (Xa M b) | c' '(b U a) | c'
+     run 0 $x 'a | (Xa M b) | (Xa R c)' '(b U a) | (c W a)'
+     run 0 $x 'a | (Xa M b) | XF(a)' 'Fa'
+     run 0 $x 'a | (Xa R b) | XF(a)' '(b W a) | Fa' # Gb | Fa ?
+     run 0 $x 'a & (Xa W b) & c' '(b R a) & c'
+     run 0 $x 'a & (Xa U b) & c' '(b M a) & c'
+     run 0 $x 'a & (Xa W b) & (Xa U c)' '(b R a) & (c M a)'
+     run 0 $x 'a & (Xa W b) & XGa' 'Ga'
+     run 0 $x 'a & (Xa U b) & XGa' '(b M a) & Ga'  # Fb & Ga ?
+
      # Syntactic implication
      run 0 $x '(a & b) R (a R c)' '(a & b)R c'
      run 0 $x 'a R ((a & b) R c)' '(a & b)R c'
