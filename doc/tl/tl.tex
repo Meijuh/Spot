@@ -489,6 +489,11 @@ temporal operators can be used to construct another temporal formula.
   \sigma \vDash f\R g &\iff (\sigma \vDash f\M g)\lor(\sigma\vDash \G g)
 \end{align*}
 
+Appendix~\ref{sec:ltl-equiv} explains how to rewrite all LTL operators
+using only $\X$ and one operated chosen among $\U$, $\W$, $\M$,and
+$\R$.  This could be useful to understand the operators $\R$, $\M$,
+and $\W$ if you are only familiar with $\X$ and $\U$.
+
 \subsection{Trivial Identities (Occur Automatically)}
 
   \begin{align*}
@@ -521,62 +526,6 @@ temporal operators can be used to construct another temporal formula.
     f\R f&\equiv f
   \end{align*}
 
-\subsection{Other Equivalences}
-
-The following equivalences are listed here only to give a different
-view of the semantics of section~\ref{sec:opltl:sem}.
-
-The operator \samp{F}, \samp{G}, \samp{U}, \samp{R}, \samp{M}, and
-\samp{W} can all be defined using only Boolean operators, \samp{X},
-and one of \samp{U}, \samp{W}, \samp{R}, or \samp{M}.  This property
-is usually used to simplify proofs.
-
-{\allowdisplaybreaks
-\begin{align*}
-\intertext{Equivalences using $\U$:}
-  \F f &\equiv \1\U f\\
-  \G f &\equiv \NOT\F\NOT f\equiv \NOT(\1\U\NOT f)\\
-  f\W g &\equiv (f\U g)\OR(\G f)\equiv (f\U g)\OR\NOT(\1\U\NOT f)\\
-        &\equiv f\U (g\OR \G f)\equiv f\U (g\OR\NOT(\1\U\NOT f))\\
-  f\M g &\equiv g \U (f\AND g)\\
-  f\R g &\equiv g \W (f\AND g) \equiv (g \U (f\AND g))\OR\NOT(\1\U\NOT g)\\
-        &\phantom{\equiv g \W (f\AND g)} \equiv g \U ((f\AND g)\OR\NOT(\1\U\NOT g))\\
-\intertext{Equivalences using $\W$:}
-  \F f &\equiv \NOT\G\NOT f\equiv \NOT((\NOT f)\W\0)\\
-  \G f &\equiv \0\R f \equiv f\W \0\\
-  f\U g &\equiv (f \W g)\AND(\F g)\equiv (f \W g)\AND\NOT((\NOT g)\W\0)\\
-  f\M g &\equiv (g \W (f\AND g))\AND\F(f\AND g)\equiv(g \W (f\AND g))\AND\NOT((\NOT (f\AND g))\W\0)\\
-  f\R g &\equiv g \W (f\AND g)\\
-\intertext{Equivalences using $\R$:}
-  \F f &\equiv \NOT\G\NOT f\equiv \NOT (\0\R\NOT f)\\
-  \G f &\equiv \0 \R f \\
-  f\U g&\equiv (((\X g) \R f)\AND\F g)\OR g \equiv (((\X g) \R f)\AND(\NOT (\0\R\NOT g)))\OR g \\
-  f \W g&\equiv ((\X g)\R f)\OR g\\
-  f \M g&\equiv (f \R g)\AND\F f\equiv (f \R g)\AND\NOT (\0\R\NOT f)\\
-        &\equiv f \R (g\AND\F g)\equiv f \R (g\AND\NOT (\0\R\NOT f))\\
-\intertext{Equivalences using $\M$:}
-  \F f &\equiv f\M\1\\
-  \G f &\equiv \NOT\F\NOT f \equiv \NOT((\NOT f)\M\1)\\
-  f\U g&\equiv ((\X g)\M f)\OR g \\
-  f \W g&\equiv (f\U g)\OR \G f \equiv ((\X g)\M f)\OR g\OR \NOT((\NOT f)\M\1)\\
-  f \R g&\equiv (f \M g)\OR\G g \equiv (f \M g)\OR \NOT((\NOT g)\M\1)
-\end{align*}}
-\ltltodo[noline]{Why do we have two ways to rewrite $f\W g$ with $\U$,
-  and two ways to rewrite $f\M g$ with $\R$, but no similar rules for other operators? What are we missing?}
-
-Note: these equivalences make it possible to build artificially
-complex formul\ae{}.\spottodo{Make sure Spot is able to simplify all these
-  equivalences.}  For instance by applying the above rules to
-successively rewrite $\U\to\M\to\R\to\U$ we get
-\begin{align*}
-f\U g &\equiv ((\X g)\M f)\OR g \\
-      &\equiv (((\X g) \R f)\AND\NOT (\0\R\NOT \X g))\OR g \\
-      &\equiv (((f \U (\X g\AND f))\OR\NOT(\1\U\NOT f)) \AND\NOT (\underbrace{((\NOT\X g) \U
-(\0\AND \NOT\X g))}_{\text{trivially false}}\OR\NOT(\1\U\NOT\NOT\X g)))\OR g\\
-      &\equiv (((f \U (\X g\AND f))\OR\NOT(\1\U\NOT f)) \AND(\1\U\X g))\OR g\\
-\end{align*}
-
-
 \subsection{Unabbreviations}
 
 The `\verb=unabbreviate_ltl_visitor=' applies all the rewritings from
@@ -588,7 +537,7 @@ section~\ref{sec:unabbbool} as well as the following two rewritings:
 
 \spottodo[inline]{Spot should offer some way to rewrite a formula to
   selectively remove $\U$, $\R$, $\M$, or $\W$, using the equivalences
-  from the previous section.}
+  from Appendix~\ref{sec:ltl-equiv}.}
 
 \section{SERE Operators}
 
@@ -1318,6 +1267,7 @@ These simplifications are enabled with
 \verb|ltl_simplifier_options::reduce_basics|'.
 
 \subsubsection{Basic Simplifications for Temporal Operators}
+\label{sec:basic-simp-ltl}
 
 The following are simplification rules for unary operators (applied
 from left to right, as usual):
@@ -1496,7 +1446,7 @@ implication can be done in two ways:
   by~\citet{somenzi.00.cav}.  This detection is enabled by the
   ``\verb|ltl_simplifier_options::synt_impl|'' option.  This is a
   cheap way to detect implications, but it may miss some.  The rules
-  we implement are described in Annex~\ref{ann:syntimpl}.
+  we implement are described in Appendix~\ref{ann:syntimpl}.
 
 \item[Language Containment Checks] were initially proposed
   by~\citet{tauriainen.03.a83}.  This detection is enabled by the
@@ -1552,6 +1502,69 @@ sources~\cite{somenzi.00.cav,tauriainen.03.a83,babiak.12.tacas} and
 sometimes generalized to support operators such as $\M$ and $\W$.
 
 \appendix
+\chapter{Defining LTL with only one of $\U$, $\W$, $\R$, or $\M$}
+
+The operators \samp{F}, \samp{G}, \samp{U}, \samp{R}, \samp{M}, and
+\samp{W} can all be defined using only Boolean operators, \samp{X},
+and one of \samp{U}, \samp{W}, \samp{R}, or \samp{M}.  This property
+is usually used to simplify proofs.
+
+These equivalences can also help to understand the semantics of
+section~\ref{sec:opltl:sem} if you are only familiar with some of the
+operators.
+
+
+{\allowdisplaybreaks
+\begin{align*}
+\intertext{Equivalences using $\U$:}
+  \F f &\equiv \1\U f\\
+  \G f &\equiv \NOT\F\NOT f\equiv \NOT(\1\U\NOT f)\\
+  f\W g &\equiv (f\U g)\OR(\G f)\equiv (f\U g)\OR\NOT(\1\U\NOT f)\\
+        &\equiv f\U (g\OR \G f)\equiv f\U (g\OR\NOT(\1\U\NOT f))\\
+  f\M g &\equiv g \U (f\AND g)\\
+  f\R g &\equiv g \W (f\AND g) \equiv (g \U (f\AND g))\OR\NOT(\1\U\NOT g)\\
+        &\phantom{\equiv g \W (f\AND g)} \equiv g \U ((f\AND g)\OR\NOT(\1\U\NOT g))\\
+\intertext{Equivalences using $\W$:}
+  \F f &\equiv \NOT\G\NOT f\equiv \NOT((\NOT f)\W\0)\\
+  \G f &\equiv \0\R f \equiv f\W \0\\
+  f\U g &\equiv (f \W g)\AND(\F g)\equiv (f \W g)\AND\NOT((\NOT g)\W\0)\\
+  f\M g &\equiv (g \W (f\AND g))\AND\F(f\AND g)\equiv(g \W (f\AND g))\AND\NOT((\NOT (f\AND g))\W\0)\\
+  f\R g &\equiv g \W (f\AND g)\\
+\intertext{Equivalences using $\R$:}
+  \F f &\equiv \NOT\G\NOT f\equiv \NOT (\0\R\NOT f)\\
+  \G f &\equiv \0 \R f \\
+  f\U g&\equiv (((\X g) \R f)\AND\F g)\OR g \equiv (((\X g) \R f)\AND(\NOT (\0\R\NOT g)))\OR g \\
+  f \W g&\equiv ((\X g)\R f)\OR g\\
+  f \M g&\equiv (f \R g)\AND\F f\equiv (f \R g)\AND\NOT (\0\R\NOT f)\\
+        &\equiv f \R (g\AND\F g)\equiv f \R (g\AND\NOT (\0\R\NOT f))\\
+\intertext{Equivalences using $\M$:}
+  \F f &\equiv f\M\1\\
+  \G f &\equiv \NOT\F\NOT f \equiv \NOT((\NOT f)\M\1)\\
+  f\U g&\equiv ((\X g)\M f)\OR g \\
+  f \W g&\equiv (f\U g)\OR \G f \equiv ((\X g)\M f)\OR g\OR \NOT((\NOT f)\M\1)\\
+  f \R g&\equiv (f \M g)\OR\G g \equiv (f \M g)\OR \NOT((\NOT g)\M\1)
+\end{align*}}
+
+These equivalences make it possible to build artificially complex
+formul\ae{}.  For instance by applying the above rules to successively
+rewrite $\U\to\M\to\R\to\U$ we get
+\begin{align*}
+f\U g &\equiv ((\X g)\M f)\OR g \\
+      &\equiv (((\X g) \R f)\AND\NOT (\0\R\NOT \X g))\OR g \\
+      &\equiv (((f \U (\X g\AND f))\OR\NOT(\1\U\NOT f)) \AND\NOT (\underbrace{((\NOT\X g) \U
+(\0\AND \NOT\X g))}_{\text{trivially false}}\OR\NOT(\1\U\NOT\NOT\X g)))\OR g\\
+      &\equiv (((f \U (\X g\AND f))\OR\NOT(\1\U\NOT f)) \AND(\1\U\X g))\OR g\\
+\end{align*}
+
+Spot is able to simplify most of the above equivalences, but it starts
+to have trouble when the $\X$ operator is involved.  For instance $(f
+\W g) \AND \F g \equiv f \U g$ is one of the rewriting rules from
+\ref{sec:basic-simp-ltl}.  But the formula $(f \W \X g) \AND \F\X g$,
+which looks like it should be reduced similarly to $f \U \X g$, will
+be rewritten instead to $(f \W \X g) \AND \X\F g$, because $\X\F g
+\equiv \F\X g$ is another rule that gets applied first during the
+bottom up rewriting.
+
 \chapter{Syntactic Implications}\label{ann:syntimpl}
 
 Syntactic implications are used for the rewriting of
