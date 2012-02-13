@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2006, 2007 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -141,6 +141,8 @@ main(int argc, char** argv)
   }
 
   spot::ltl::ltl_simplifier* simp = new spot::ltl::ltl_simplifier(o);
+  o.reduce_size_strictly = true;
+  spot::ltl::ltl_simplifier* simp_size = new spot::ltl::ltl_simplifier(o);
 
   spot::ltl::formula* f1 = 0;
   spot::ltl::formula* f2 = 0;
@@ -202,24 +204,35 @@ main(int argc, char** argv)
     spot::ltl::formula* ftmp1;
 
     ftmp1 = f1;
-    f1 = simp->negative_normal_form(f1, false);
+    f1 = simp_size->negative_normal_form(f1, false);
     ftmp1->destroy();
 
     int length_f1_before = spot::ltl::length(f1);
     std::string f1s_before = spot::ltl::to_string(f1);
 
-    ftmp1 = f1;
-    f1 = simp->simplify(f1);
-
-    if (!simp->are_equivalent(ftmp1, f1))
+    spot::ltl::formula* input_f = f1;
+    f1 = simp_size->simplify(input_f);
+    if (!simp_size->are_equivalent(input_f, f1))
       {
 	std::cerr << "Incorrect reduction from `" << f1s_before
 		  << "' to `" << spot::ltl::to_string(f1) << "'."
 		  << std::endl;
 	exit_code = 3;
       }
+    else
+      {
+	spot::ltl::formula* maybe_larger = simp->simplify(input_f);
+	if (!simp->are_equivalent(input_f, maybe_larger))
+	  {
+	    std::cerr << "Incorrect reduction (reduce_size_strictly=0) from `"
+		      << f1s_before << "' to `" << spot::ltl::to_string(f1)
+		      << "'." << std::endl;
+	    exit_code = 3;
+	  }
+	maybe_larger->destroy();
+      }
 
-    ftmp1->destroy();
+    input_f->destroy();
 
     int length_f1_after = spot::ltl::length(f1);
     std::string f1s_after = spot::ltl::to_string(f1);
@@ -228,7 +241,7 @@ main(int argc, char** argv)
     if (f2)
       {
 	ftmp1 = f2;
-	f2 = simp->negative_normal_form(f2, false);
+	f2 = simp_size->negative_normal_form(f2, false);
 	ftmp1->destroy();
 	f2s = spot::ltl::to_string(f2);
       }
@@ -282,6 +295,7 @@ main(int argc, char** argv)
   }
  end:
 
+  delete simp_size;
   delete simp;
 
   if (fin)

@@ -1,5 +1,5 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -37,15 +37,15 @@ namespace spot
 			     bool event_univ = true,
 			     bool containment_checks = false,
 			     bool containment_checks_stronger = false,
-			     bool nenoform_stop_on_boolean = false)
+			     bool nenoform_stop_on_boolean = false,
+			     bool reduce_size_strictly = false)
 	: reduce_basics(basics),
 	  synt_impl(synt_impl),
 	  event_univ(event_univ),
 	  containment_checks(containment_checks),
 	  containment_checks_stronger(containment_checks_stronger),
-	  // If true, Boolean subformulae will not be put into
-	  // negative normal form.
-	  nenoform_stop_on_boolean(nenoform_stop_on_boolean)
+	  nenoform_stop_on_boolean(nenoform_stop_on_boolean),
+	  reduce_size_strictly(reduce_size_strictly)
       {
       }
 
@@ -57,6 +57,10 @@ namespace spot
       // If true, Boolean subformulae will not be put into
       // negative normal form.
       bool nenoform_stop_on_boolean;
+      // If true, some rules that produce slightly larger formulae
+      // will be disabled.  Those larger formulae are normally easier
+      // to translate, so we recommend to set this to false.
+      bool reduce_size_strictly;
     };
 
     // fwd declaration to hide technical details.

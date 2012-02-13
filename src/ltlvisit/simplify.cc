@@ -1747,6 +1747,24 @@ namespace spot
 			      }
 			  }
 		      }
+		    // If b is Boolean:
+		    // (Xc) U b = b | X(b M c)
+		    // (Xc) W b = b | X(b R c)
+		    if (!opt_.reduce_size_strictly
+			&& fu1 && fu1->op() == unop::X && b->is_boolean())
+		      {
+			formula* c = fu1->child()->clone();;
+			fu1->destroy();
+			formula* x =
+			  unop::instance(unop::X,
+					 binop::instance(op == binop::U
+							 ? binop::M
+							 : binop::R,
+							 b->clone(), c));
+			result_ =
+			  recurse_destroy(multop::instance(multop::Or, b, x));
+			return;
+		      }
 		  }
 		else if (op == binop::M || op == binop::R)
 		  {
@@ -1790,6 +1808,25 @@ namespace spot
 				  }
 			      }
 			  }
+		      }
+
+		    // If b is Boolean:
+		    // (Xc) R b = b & X(b W c)
+		    // (Xc) M b = b & X(b U c)
+		    if (!opt_.reduce_size_strictly
+			&& fu1 && fu1->op() == unop::X && b->is_boolean())
+		      {
+			formula* c = fu1->child()->clone();;
+			fu1->destroy();
+			formula* x =
+			  unop::instance(unop::X,
+					 binop::instance(op == binop::M
+							 ? binop::U
+							 : binop::W,
+							 b->clone(), c));
+			result_ =
+			  recurse_destroy(multop::instance(multop::And, b, x));
+			return;
 		      }
 		  }
 	      }

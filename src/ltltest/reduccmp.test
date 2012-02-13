@@ -1,6 +1,6 @@
 #! /bin/sh
-# Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et Developpement
-# de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+# Developpement de l'Epita (LRDE).
 # Copyright (C) 2004, 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -104,6 +104,13 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x 'X(a) R X(b)' 'X(a R b)'
      run 0 $x 'Xa & Xb' 'X(a & b)'
      run 0 $x 'Xa | Xb' 'X(a | b)'
+
+     run 0 $x 'X(a) M X(b)' 'X(a M b)'
+     run 0 $x 'X(a) W X(b)' 'X(a W b)'
+     run 0 $x 'X(a) M b' 'b & X(b U a)'
+     run 0 $x 'X(a) R b' 'b & X(b W a)'
+     run 0 $x 'X(a) U b' 'b | X(b M a)'
+     run 0 $x 'X(a) W b' 'b | X(b R a)'
 
      run 0 $x '(a U b) & (c U b)' '(a & c) U b'
      run 0 $x '(a R b) & (a R c)' 'a R (b & c)'

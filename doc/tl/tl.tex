@@ -96,6 +96,9 @@
 \newcommand{\nsere}[1]{\texttt{!\{}#1\texttt{\}}}
 \newcommand{\seren}[1]{\texttt{\{}#1\texttt{\}!}}
 
+% rewriting rules that enlarge the formula
+\newcommand{\equiV}{\stackrel{\star}{\equiv}}
+
 \def\limplies{\rightarrow}
 \def\simp{\rightrightharpoons}
 \def\Simp{\stackrel{+}{\simp}}
@@ -1088,11 +1091,11 @@ presented by~\citet{chang.92.icalp}, but other presentations have been
 done including negation~\citep{cerna.03.mfcs} and weak
 until~\citep{schneider.01.lpar}.
 
-The following grammar rules describes extend the aforementioned
-work slightly by dealing with PSL operators.  These are the
-rules used by Spot to decide upon
-construction to which class a formula belongs (see the methods
-\texttt{is\_syntactic\_safety()}, \texttt{is\_syntactic\_guarantee()},
+The following grammar rules extend the aforementioned work slightly by
+dealing with PSL operators.  These are the rules used by Spot to
+decide upon construction to which class a formula belongs (see the
+methods \texttt{is\_syntactic\_safety()},
+\texttt{is\_syntactic\_guarantee()},
 \texttt{is\_syntactic\_obligation()},
 \texttt{is\_syntactic\_recurrence()}, and
 \texttt{is\_syntactic\_persistence()} listed on
@@ -1231,12 +1234,12 @@ Section~\ref{sec:unabbbool}.  Therefore it is never necessary to apply
 `\verb|ltl_simplifier::negative_normal_form|`.
 
 If the option `\verb|nenoform_stop_on_boolean|' is set, the above
-recursive rewritings will not be applied to subformul\ae{} that are
-Boolean formul\ae.  For instance calling
-`\verb|ltl_simplifier::negative_normal_form|` on $\NOT\F\G(a \XOR b)$
-will produce $\G\F(((\NOT a)\AND(\NOT b))\OR(a\AND b))$ if
-`\verb|nenoform_stop_on_boolean|' is unset, while it will produce
-$\G\F(\NOT(a \XOR b))$ if `\verb|nenoform_stop_on_boolean|' is set.
+recursive rewritings are not applied to Boolean subformul\ae{}.  For
+instance calling `\verb|ltl_simplifier::negative_normal_form|` on
+$\NOT\F\G(a \XOR b)$ will produce $\G\F(((\NOT a)\AND(\NOT
+b))\OR(a\AND b))$ if `\verb|nenoform_stop_on_boolean|' is unset, while
+it will produce $\G\F(\NOT(a \XOR b))$ if
+`\verb|nenoform_stop_on_boolean|' is set.
 
 \section{Simplifications}
 
@@ -1264,7 +1267,11 @@ The goals in most of these simplification are to:
 \subsection{Basic Simplifications}
 
 These simplifications are enabled with
-\verb|ltl_simplifier_options::reduce_basics|'.
+\verb|ltl_simplifier_options::reduce_basics|'.  A couple of them may
+enlarge the size of the formula: they are denoted using $\equiV$
+instead of $\equiv$, and they can be disabled by setting the
+\verb|ltl_simplifier_options::reduce_size_strictly|' option to
+\texttt{true}.
 
 \subsubsection{Basic Simplifications for Temporal Operators}
 \label{sec:basic-simp-ltl}
@@ -1280,25 +1287,29 @@ from left to right, as usual):
   \G(f_1\OR\ldots\OR f_n \OR \G\F(g_1)\OR\ldots\OR \G\F(g_m)) & \equiv \G(f_1\OR\ldots\OR f_n)\OR \G\F(g_1\OR\ldots\OR g_m)
 \end{align*}
 
-Note that the latter rewriting rules for $\G$ has no dual:
-rewriting $\F(f \AND \G\F g)$ to $\F(f) \AND \G\F(g)$ (instance as
-suggested by~\citet{somenzi.00.cav}) goes against our goal of moving
-the $\F$ operator in front of the formula.  Conceptually, it is also
-easier to understand $\F(f \AND \G\F g)$: has long as $f$ has not been
-verified, there is no need to worry about the $\G\F g$ term.
+Note that the latter three rewriting rules for $\G$ have no dual:
+rewriting $\F(f \AND \G\F g)$ to $\F(f) \AND \G\F(g)$ (as suggested
+by~\citet{somenzi.00.cav}) goes against our goal of moving the $\F$
+operator in front of the formula.  Conceptually, it is also easier to
+understand $\F(f \AND \G\F g)$: has long as $f$ has not been verified,
+there is no need to worry about the $\G\F g$ term.
 
-Here are the basic rewriting rules for binary operators (excluding $\OR$ and
-$\AND$ which are considered in Spot as $n$-ary operators):
+Here are the basic rewriting rules for binary operators (excluding
+$\OR$ and $\AND$ which are considered in Spot as $n$-ary operators).
+$b$ denotes a Boolean formula.
+
 \begin{align*}
-  \1 \U f             & \equiv \F f      & f \W \0             & \equiv \G f      \\
-  f \M \1             & \equiv \F f      & \0 \R f             & \equiv \G f      \\
-  (\X f)\U (\X g)     & \equiv \X(f\U g) & (\X f)\W(\X g)      & \equiv \X(f\W g) \\
-  (\X f)\M (\X g)     & \equiv \X(f\M g) & (\X f)\R(\X g)      & \equiv \X(f\R g) \\
-  f \U(\G f)          & \equiv \G f      & f \W(\G f)          & \equiv \G f      \\
-  f \M(\F f)          & \equiv \F f      & f \R(\F f)          & \equiv \F f      \\
-  f \U (g \OR \G(f))  & \equiv f\W g     & f \W (g \OR \G(f))  & \equiv f\W g     \\
-  f \M (g \AND \F(f)) & \equiv f\M g     & f \R (g \AND \F(f)) & \equiv f\M g     \\
-  f \U (g \AND f)     & \equiv g\M f     & f \W (g \AND f)     & \equiv g\R f
+  \1 \U f             & \equiv \F f            & f \W \0             & \equiv \G f            \\
+  f \M \1             & \equiv \F f            & \0 \R f             & \equiv \G f            \\
+  (\X f)\U (\X g)     & \equiv \X(f\U g)       & (\X f)\W(\X g)      & \equiv \X(f\W g)       \\
+  (\X f)\M (\X g)     & \equiv \X(f\M g)       & (\X f)\R(\X g)      & \equiv \X(f\R g)       \\
+  (\X f)\U b          & \equiV b\OR \X(b\M f)  & (\X f)\W b          & \equiV b\OR \X(f\R b)  \\
+  (\X f)\M b          & \equiV b\AND \X(b\U f) & (\X f)\R b          & \equiV b\AND \X(f\W b) \\
+  f \U(\G f)          & \equiv \G f            & f \W(\G f)          & \equiv \G f            \\
+  f \M(\F f)          & \equiv \F f            & f \R(\F f)          & \equiv \F f            \\
+  f \U (g \OR \G(f))  & \equiv f\W g           & f \W (g \OR \G(f))  & \equiv f\W g           \\
+  f \M (g \AND \F(f)) & \equiv f\M g           & f \R (g \AND \F(f)) & \equiv f\M g           \\
+  f \U (g \AND f)     & \equiv g\M f           & f \W (g \AND f)     & \equiv g\R f
 \end{align*}
 
 Here are the basic rewriting rules for $n$-ary operators ($\AND$ and
@@ -1341,7 +1352,7 @@ The above rules are applied even if more terms are presents in the
 operator's arguments.  For instance $\F\G(a)\AND \G(b) \AND \F\G(c) \AND
 \X(d)$ will be rewritten as $\X(d \AND \F\G(a\AND c))\AND \G(b)$.
 
-The following more complicated rules are generalization of $f\AND
+The following more complicated rules are generalizations of $f\AND
 \X\G f\equiv \G f$ and $f\OR \X\F f\equiv \F f$:
 \begin{align*}
   f\AND \X(\G(f\AND g\ldots)\AND h\ldots) &\equiv \G(f) \AND \X(\G(g\ldots)\AND h\ldots) \\
@@ -1351,7 +1362,7 @@ The latter rule for $f\OR \X(\F(f)\OR h\ldots)$ is only applied if all
 $\F$-formul\ae{} can be removed from the argument of $\X$ with the
 rewriting.  For instance $a \OR b \OR c\OR \X(\F(a\OR b)\OR \F(c)\OR \G d)$
 will be rewritten to $\F(a \OR b \OR c) \OR \X\G d$ but
-$b \OR c\OR \X(\F(a\OR b)\OR \F(c)\OR \G d)$ would only become
+$b \OR c\OR \X(\F(a\OR b)\OR \F(c)\OR \G d)$ will only become
 $b \OR c\OR \X(\F(a\OR b\OR c)\OR \G d)$.
 
 Finally the following rule is applied only when no other terms are present
@@ -1503,6 +1514,7 @@ sometimes generalized to support operators such as $\M$ and $\W$.
 
 \appendix
 \chapter{Defining LTL with only one of $\U$, $\W$, $\R$, or $\M$}
+\label{sec:ltl-equiv}
 
 The operators \samp{F}, \samp{G}, \samp{U}, \samp{R}, \samp{M}, and
 \samp{W} can all be defined using only Boolean operators, \samp{X},
