@@ -1,8 +1,8 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et D�veloppement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
-// 6 (LIP6), d�partement Syst�mes R�partis Coop�ratifs (SRC),
-// Universit� Pierre et Marie Curie.
+// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
+// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -111,14 +111,21 @@ namespace spot
 
       /// Get the number of children.
       unsigned size() const;
-      /// \brief Get the nth children.
+      /// \brief Get the nth child.
       ///
       /// Starting with \a n = 0.
       const formula* nth(unsigned n) const;
-      /// \brief Get the nth children.
+      /// \brief Get the nth child.
       ///
       /// Starting with \a n = 0.
       formula* nth(unsigned n);
+
+      /// \brief construct a formula without the nth child.
+      ///
+      /// If the formula \c f is <code>a|b|c|d</code> and <code>d</code>
+      /// is child number 2, then calling <code>f->all_but(2)</code> will
+      /// return a new formula <code>a|b|d</code>.
+      formula* all_but(unsigned n) const;
 
       /// Get the type of this operator.
       type op() const;

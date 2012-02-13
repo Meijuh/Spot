@@ -198,6 +198,10 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x 'a & (Xa W b) & (Xa U c)' '(b R a) & (c M a)'
      run 0 $x 'a & (Xa W b) & XGa' 'Ga'
      run 0 $x 'a & (Xa U b) & XGa' '(b M a) & Ga'  # Fb & Ga ?
+     run 0 $x 'a|(c&b&X((b&c) U a))|d' '((b&c) U a)|d'
+     run 0 $x 'a|(c&X((b&c) W a)&b)|d' '((b&c) W a)|d'
+     run 0 $x 'a&(c|b|X((b|c) M a))&d' '((b|c) M a)&d'
+     run 0 $x 'a&(c|X((b|c) R a)|b)&d' '((b|c) R a)&d'
 
      # Syntactic implication
      run 0 $x '(a & b) R (a R c)' '(a & b)R c'

@@ -1347,6 +1347,10 @@ $\OR$):
   f \OR ((\X f) \R g) &\equiv g \W f \\
   f \AND ((\X f) \U g) &\equiv g \M f &
   f \OR ((\X f) \M g) &\equiv g \U f \\
+  f \AND (g \OR \X(g \R f)) &\equiv g \R f &
+  f \OR (g \AND \X(g \W f)) &\equiv g \W f \\
+  f \AND (g \OR \X(g \M f)) &\equiv g \M f &
+  f \OR (g \AND \X(g \U f)) &\equiv g \U f \\
 \end{align*}
 The above rules are applied even if more terms are presents in the
 operator's arguments.  For instance $\F\G(a)\AND \G(b) \AND \F\G(c) \AND

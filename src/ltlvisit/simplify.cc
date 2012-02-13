@@ -672,6 +672,15 @@ namespace spot
 	return static_cast<constant*>(f);
       }
 
+
+      unop*
+      is_unop(formula* f)
+      {
+	if (f->kind() != formula::UnOp)
+	  return 0;
+	return static_cast<unop*>(f);
+      }
+
       unop*
       is_unop(formula* f, unop::type op)
       {
@@ -720,6 +729,14 @@ namespace spot
       }
 
       binop*
+      is_binop(formula* f)
+      {
+	if (f->kind() != formula::BinOp)
+	  return 0;
+	return static_cast<binop*>(f);
+      }
+
+      binop*
       is_binop(formula* f, binop::type op)
       {
 	if (f->kind() != formula::BinOp)
@@ -728,6 +745,19 @@ namespace spot
 	if (bo->op() != op)
 	  return 0;
 	return bo;
+      }
+
+      // Same with two choices.
+      binop*
+      is_binop(formula* f, binop::type op1, binop::type op2)
+      {
+	if (f->kind() != formula::BinOp)
+	  return 0;
+	binop* bo = static_cast<binop*>(f);
+	binop::type op = bo->op();
+	if (op == op1 || op == op2)
+	  return bo;
+	return 0;
       }
 
       binop*
@@ -759,11 +789,8 @@ namespace spot
       formula*
       is_XRM(formula* f)
       {
-	if (f->kind() != formula::BinOp)
-	  return 0;
-	binop* bo = static_cast<binop*>(f);
-	binop::type t = bo->op();
-	if (t != binop::R && t != binop::M)
+	binop* bo = is_binop(f, binop::R, binop::M);
+	if (!bo)
 	  return 0;
 	unop* uo = is_X(bo->first());
 	if (!uo)
@@ -776,11 +803,8 @@ namespace spot
       formula*
       is_XWU(formula* f)
       {
-	if (f->kind() != formula::BinOp)
-	  return 0;
-	binop* bo = static_cast<binop*>(f);
-	binop::type t = bo->op();
-	if (t != binop::W && t != binop::U)
+	binop* bo = is_binop(f, binop::W, binop::U);
+	if (!bo)
 	  return 0;
 	unop* uo = is_X(bo->first());
 	if (!uo)
@@ -809,6 +833,58 @@ namespace spot
       is_Or(formula* f)
       {
 	return is_multop(f, multop::Or);
+      }
+
+      // b & X(b W a)  or   b & X(b U a)
+      // This returns (b W a) or (b U a).
+      binop*
+      is_bXbWU(formula* f)
+      {
+	multop* mo = is_multop(f, multop::And);
+	if (!mo)
+	  return 0;
+	unsigned s = mo->size();
+	for (unsigned pos = 0; pos < s; ++pos)
+	  {
+	    unop* u = is_X(mo->nth(pos));
+	    if (!u)
+	      continue;
+	    binop* bo = is_binop(u->child(), binop::U, binop::W);
+	    if (!bo)
+	      continue;
+	    formula* b = mo->all_but(pos);
+	    bool result = (b == bo->first());
+	    b->destroy();
+	    if (result)
+	      return bo;
+	  }
+	return 0;
+      }
+
+      // b | X(b R a)  or   b | X(b M a)
+      // This returns (b R a) or (b M a).
+      binop*
+      is_bXbRM(formula* f)
+      {
+	multop* mo = is_multop(f, multop::Or);
+	if (!mo)
+	  return 0;
+	unsigned s = mo->size();
+	for (unsigned pos = 0; pos < s; ++pos)
+	  {
+	    unop* u = is_X(mo->nth(pos));
+	    if (!u)
+	      continue;
+	    binop* bo = is_binop(u->child(), binop::R, binop::M);
+	    if (!bo)
+	      continue;
+	    formula* b = mo->all_but(pos);
+	    bool result = (b == bo->first());
+	    b->destroy();
+	    if (result)
+	      return bo;
+	  }
+	return 0;
       }
 
       formula*
@@ -1652,11 +1728,8 @@ namespace spot
 		    return;
 		  }
 
-		// Same effect as dynamic_cast<unop*>, only faster.
-		unop* fu1 =
-		  (a->kind() == formula::UnOp) ? static_cast<unop*>(a) : 0;
-		unop* fu2 =
-		  (b->kind() == formula::UnOp) ? static_cast<unop*>(b) : 0;
+		unop* fu1 = is_unop(a);
+		unop* fu2 = is_unop(b);
 
 		// X(a) U X(b) = X(a U b)
 		// X(a) R X(b) = X(a R b)
@@ -1943,6 +2016,8 @@ namespace spot
 		      // a & X(G(a&b...) & c...) = Ga & X(G(b...) & c...)
 		      // a & (Xa W b) = b R a
 		      // a & (Xa U b) = b M a
+		      // a & (b | X(b R a)) = b R a
+		      // a & (b | X(b M a)) = b M a
 		      if (!mo->is_X_free())
 			{
 			  typedef Sgi::hash_set<formula*,
@@ -1967,6 +2042,20 @@ namespace spot
 			      if (xarg)
 				{
 				  wuset[xarg].insert(n);
+				  continue;
+				}
+
+			      // Now we are looking for
+			      // - X(...)
+			      // - b | X(b R ...)
+			      // - b | X(b M ...)
+			      if ((*res)[n]->is_X_free())
+				continue;
+
+			      binop* barg = is_bXbRM((*res)[n]);
+			      if (barg)
+				{
+				  wuset[barg->second()].insert(n);
 				  continue;
 				}
 
@@ -2017,8 +2106,8 @@ namespace spot
 			      (*res)[n] = 0;
 			    }
 			  // Make a second pass to check if the "a"
-			  // terms can be used to simplify "Xa W b" or
-			  // "Xa U b".
+			  // terms can be used to simplify "Xa W b",
+			  // "Xa U b", "b | X(b R a)", or "b | X(b M a)".
 			  for (unsigned n = 0; n < s; ++n)
 			    {
 			      if (!(*res)[n])
@@ -2032,17 +2121,30 @@ namespace spot
 			      std::set<unsigned>::const_iterator g;
 			      for (g = s.begin(); g != s.end(); ++g)
 				{
-				  // a & (Xa W b) = b R a
-				  // a & (Xa U b) = b M a
 				  unsigned pos = *g;
-				  binop* wu = down_cast<binop*>((*res)[pos]);
-				  binop::type t = (wu->op() == binop::U)
-				    ? binop::M : binop::R;
-				  unop* xa = down_cast<unop*>(wu->first());
-				  formula* a = xa->child()->clone();
-				  formula* b = wu->second()->clone();
-				  wu->destroy();
-				  (*res)[pos] = binop::instance(t, b, a);
+				  binop* wu = is_binop((*res)[pos]);
+				  if (wu)
+				    {
+				      // a & (Xa W b) = b R a
+				      // a & (Xa U b) = b M a
+				      binop::type t = (wu->op() == binop::U)
+					? binop::M : binop::R;
+				      unop* xa = down_cast<unop*>(wu->first());
+				      formula* a = xa->child()->clone();
+				      formula* b = wu->second()->clone();
+				      wu->destroy();
+				      (*res)[pos] = binop::instance(t, b, a);
+				    }
+				  else
+				    {
+				      // a & (b | X(b R a)) = b R a
+				      // a & (b | X(b M a)) = b M a
+				      wu = is_bXbRM((*res)[pos]);
+				      assert(wu);
+				      wu->clone();
+				      (*res)[pos]->destroy();
+				      (*res)[pos] = wu;
+				    }
 				  // Remember to kill "a".
 				  tokill[n] = true;
 				}
@@ -2596,6 +2698,8 @@ namespace spot
 		    // a | X(F(a) | c...) = Fa | X(c...)
 		    // a | (Xa R b) = b W a
 		    // a | (Xa M b) = b U a
+		    // a | (b & X(b W a)) = b W a
+		    // a | (b & X(b U a)) = b U a
 		    if (!mo->is_X_free())
 		      {
 			typedef Sgi::hash_set<formula*,
@@ -2604,7 +2708,8 @@ namespace spot
 					      ptr_hash<formula> > fmap_t;
 			fset_t xfset; // XF(...)
 			fset_t xset;  // X(...)
-			fmap_t rmset; // (X...)R(...) or (X...)M(...)
+			fmap_t rmset; // (X...)R(...) or (X...)M(...) or
+			              // b & X(b W ...) or b & X(b U ...)
 
 			unsigned s = res->size();
 			std::vector<bool> tokill(s);
@@ -2622,6 +2727,21 @@ namespace spot
 				rmset[xarg].insert(n);
 				continue;
 			      }
+
+			    // Now we are looking for
+			    // - X(...)
+			    // - b & X(b W ...)
+			    // - b & X(b U ...)
+			    if ((*res)[n]->is_X_free())
+			      continue;
+
+			    binop* barg = is_bXbWU((*res)[n]);
+			    if (barg)
+			      {
+				rmset[barg->second()].insert(n);
+				continue;
+			      }
+
 
 			    unop* uo = is_X((*res)[n]);
 			    if (!uo)
@@ -2682,7 +2802,8 @@ namespace spot
 			      --allofthem;
 			    assert(allofthem != -1U);
 			    // At the same time, check if "a" can also
-			    // be used to simplify "Xa R b" or "Xa M b".
+			    // be used to simplify "Xa R b", "Xa M b".
+			    // "b & X(b W a)", or "b & X(b U a)".
 			    fmap_t::const_iterator gs = rmset.find(x);
 			    if (gs == rmset.end())
 			      continue;
@@ -2690,17 +2811,30 @@ namespace spot
 			    std::set<unsigned>::const_iterator g;
 			    for (g = s.begin(); g != s.end(); ++g)
 			      {
-				// a | (Xa R b) = b W a
-				// a | (Xa M b) = b U a
 				unsigned pos = *g;
-				binop* rm = down_cast<binop*>((*res)[pos]);
-				binop::type t =
-				  (rm->op() == binop::M) ? binop::U : binop::W;
-				unop* xa = down_cast<unop*>(rm->first());
-				formula* a = xa->child()->clone();
-				formula* b = rm->second()->clone();
-				rm->destroy();
-				(*res)[pos] = binop::instance(t, b, a);
+				binop* rm = is_binop((*res)[pos]);
+				if (rm)
+				  {
+				    // a | (Xa R b) = b W a
+				    // a | (Xa M b) = b U a
+				    binop::type t = (rm->op() == binop::M)
+				      ? binop::U : binop::W;
+				    unop* xa = down_cast<unop*>(rm->first());
+				    formula* a = xa->child()->clone();
+				    formula* b = rm->second()->clone();
+				    rm->destroy();
+				    (*res)[pos] = binop::instance(t, b, a);
+				  }
+				else
+				  {
+				    // a | (b & X(b W a)) = b W a
+				    // a | (b & X(b U a)) = b U a
+				    rm = is_bXbWU((*res)[pos]);
+				    assert(rm);
+				    rm->clone();
+				    (*res)[pos]->destroy();
+				    (*res)[pos] = rm;
+				  }
 				// Remember to kill "a".
 				tokill[n] = true;
 			      }
