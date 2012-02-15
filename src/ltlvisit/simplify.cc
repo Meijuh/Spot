@@ -1774,25 +1774,15 @@ namespace spot
 			    int s = fm2->size();
 			    for (int i = 0; i < s; ++i)
 			      {
-				if (fm2->nth(i)->kind() != formula::UnOp)
+				unop* c = is_G(fm2->nth(i));
+				if (!c || c->child() != a)
 				  continue;
-				unop* c = static_cast<unop*>(fm2->nth(i));
-				if (c->op() == unop::G && c->child() == a)
-				  {
-				    multop::vec* v = new multop::vec;
-				    v->reserve(s - 1);
-				    int j;
-				    for (j = 0; j < i; ++j)
-				      v->push_back(fm2->nth(j)->clone());
-				    // skip j=i
-				    for (++j; j < s; ++j)
-				      v->push_back(fm2->nth(j)->clone());
-				    b->destroy();
-				    result_ = recurse_destroy(binop::instance
-				      (binop::W, a,
-				       multop::instance(multop::Or, v)));
-				    return;
-				  }
+				result_ =
+				  recurse_destroy(binop::instance
+						  (binop::W, a,
+						   fm2->all_but(i)));
+				b->destroy();
+				return;
 			      }
 			  }
 			// a U (b & a & c) == (b & c) M a
@@ -1804,18 +1794,10 @@ namespace spot
 			      {
 				if (fm2->nth(i) != a)
 				  continue;
-				multop::vec* v = new multop::vec;
-				v->reserve(s - 1);
-				int j;
-				for (j = 0; j < i; ++j)
-				  v->push_back(fm2->nth(j)->clone());
-				// skip j=i
-				for (++j; j < s; ++j)
-				  v->push_back(fm2->nth(j)->clone());
-				b->destroy();
 				result_ = recurse_destroy(binop::instance
 				  (op == binop::U ? binop::M : binop::R,
-				   multop::instance(multop::And, v), a));
+				   fm2->all_but(i), a));
+				b->destroy();
 				return;
 			      }
 			  }
@@ -1826,7 +1808,7 @@ namespace spot
 		    if (!opt_.reduce_size_strictly
 			&& fu1 && fu1->op() == unop::X && b->is_boolean())
 		      {
-			formula* c = fu1->child()->clone();;
+			formula* c = fu1->child()->clone();
 			fu1->destroy();
 			formula* x =
 			  unop::instance(unop::X,
@@ -1850,8 +1832,8 @@ namespace spot
 			return;
 		      }
 
-		    // a R (b & c & F(a)) = a M b
-		    // a M (b & c & F(a)) = a M b
+		    // a R (b & c & F(a)) = a M (b & c)
+		    // a M (b & c & F(a)) = a M (b & c)
 		    if (b->kind() == formula::MultOp)
 		      {
 			multop* fm2 = static_cast<multop*>(b);
@@ -1860,25 +1842,15 @@ namespace spot
 			    int s = fm2->size();
 			    for (int i = 0; i < s; ++i)
 			      {
-				if (fm2->nth(i)->kind() != formula::UnOp)
+				unop* c = is_F(fm2->nth(i));
+				if (!c || c->child() != a)
 				  continue;
-				unop* c = static_cast<unop*>(fm2->nth(i));
-				if (c->op() == unop::F && c->child() == a)
-				  {
-				    multop::vec* v = new multop::vec;
-				    v->reserve(s - 1);
-				    int j;
-				    for (j = 0; j < i; ++j)
-				      v->push_back(fm2->nth(j)->clone());
-				    // skip j=i
-				    for (++j; j < s; ++j)
-				      v->push_back(fm2->nth(j)->clone());
-				    b->destroy();
-				    result_ = recurse_destroy(binop::instance
-				      (binop::M, a,
-				       multop::instance(multop::And, v)));
-				    return;
-				  }
+				result_ =
+				  recurse_destroy(binop::instance
+						  (binop::M, a,
+						   fm2->all_but(i)));
+				b->destroy();
+				return;
 			      }
 			  }
 		      }
@@ -1889,7 +1861,7 @@ namespace spot
 		    if (!opt_.reduce_size_strictly
 			&& fu1 && fu1->op() == unop::X && b->is_boolean())
 		      {
-			formula* c = fu1->child()->clone();;
+			formula* c = fu1->child()->clone();
 			fu1->destroy();
 			formula* x =
 			  unop::instance(unop::X,
