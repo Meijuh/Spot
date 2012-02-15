@@ -37,15 +37,15 @@ qs = os.getenv('QUERY_STRING')
 if qs:
     import hashlib
     # We (optimistically) assume no collision from sha1(qs)
-    imgprefix = imgdir + '/' + hashlib.sha1(qs).hexdigest()
-    cachename = imgprefix + '/html'
+    cachedir = imgdir + '/' + hashlib.sha1(qs).hexdigest()
+    cachename = cachedir + '/html'
     try:
         # Is this a request we have already processed?
         cache = open(cachename, "r", 0)
         print cache.read()
         # Touch the directory containing the files we used, so
         # it that it survives the browser's cache.
-        os.utime(imgprefix, None)
+        os.utime(cachedir, None)
         exit(0)
     except IOError:
         # We failed to open the file.
@@ -90,6 +90,11 @@ import signal
 import time
 import os.path
 
+# We do not output in cachedir directely, in case two
+# CGI scripts process the same request concurrently.
+tmpdir = cachedir + '-' + str(os.getpid())
+cachename = tmpdir + '/html'
+
 sys.stdout.flush()
 # Reopen stdout without buffering
 sys.stdout = os.fdopen(sys.stdout.fileno(), "w", 0)
@@ -98,11 +103,9 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), "w", 0)
 # even errors from subprocesses get printed).
 os.dup2(sys.stdout.fileno(), sys.stderr.fileno())
 
-# Create a cache directory if one does not already exist.
-try:
-    os.mkdir(imgprefix, 0755)
-except OSError:
-    pass
+# Create the temporary cache directory
+os.mkdir(tmpdir, 0755)
+
 # Redirect stdout to the cache file, at a low level
 # for similar reason.
 fd = os.open(cachename, os.O_CREAT | os.O_WRONLY, 0644)
@@ -113,6 +116,20 @@ def finish(kill = False):
     os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
     cache = open(cachename, "r", 0)
     print cache.read()
+
+    # Rename tmpdir to its permanent name for caching purpose.
+    # os.rename will fail if cachedir already exist.  Since we tested
+    # that initially, it can only happen when two CGI script are
+    # processing the same request concurrently.  In that case the
+    # other result is as good as ours, so we just ignore the error.
+    # (We don't bother removing the temporary directory -- it will be
+    # removed by the next cache prune and cannot be created again in
+    # the meantime.)
+    try:
+        os.rename(tmpdir, cachedir)
+    except OSError:
+        pass
+
     if kill:
         os.kill(0, signal.SIGTERM)
     # Should we prune the cache?
@@ -187,7 +204,7 @@ def render_dot(basename):
     reset_alarm()
     # Create an unused hardlink that point to the output picture
     # just to remember how many cache entries are sharing it.
-    os.link(outname, imgprefix + "/" + ext)
+    os.link(outname, tmpdir + "/" + ext)
     b = cgi.escape(basename)
     if svg_output:
         print ('<object type="image/svg+xml" data="' + b + '.svg">'
@@ -210,7 +227,7 @@ def render_dot_maybe(dotsrc, dont_run_dot):
         dotout.close()
     # Create an unused hardlink that points to the output picture
     # just to remember how many cache entries are sharing it.
-    os.link(dotname, imgprefix + "/txt")
+    os.link(dotname, tmpdir + "/txt")
 
     if dont_run_dot:
         print ('<p>' + dont_run_dot + ''' to be rendered on-line.  However
