@@ -9,18 +9,16 @@ set -x
 # Buildbot will tell us the name of the branch being compiled using $1.
 rev=$1
 
-case $rev in
-  master) rev=;;
-  *) rev="-$rev";;
-esac
-
 # Retrieve the package version
 VERSION=`autoconf --trace='AC_INIT:$2'`
 
-rm -rf /lrde/dload/spot/spot-snapshot$rev.tmp
-cp -pR doc/spot.html /lrde/dload/spot/spot-snapshot$rev.tmp
-chmod -R a+rX /lrde/dload/spot/spot-snapshot$rev.tmp
-mv -f spot-$VERSION.tar.gz /lrde/dload/spot/spot-snapshot$rev.tar.gz
-chmod a+rX /lrde/dload/spot/spot-snapshot$rev.tar.gz
-rm -rf /lrde/dload/spot/spot-snapshot$rev.html
-mv -f /lrde/dload/spot/spot-snapshot$rev.tmp /lrde/dload/spot/spot-snapshot$rev.html
+DEST=/lrde/dload/spot/snapshots/
+
+rm -rf $DEST/$rev.tmp
+mkdir -p $DEST/$rev.tmp
+cp -pR doc/spot.html $DEST/$rev.tmp
+chmod -R a+rX $DEST/$rev.tmp
+mv -f spot-$VERSION.tar.gz $DEST/$rev.tar.gz
+chmod a+rX $DEST/$rev.tar.gz
+rm -rf $DEST/$rev.html
+mv -f $DEST/$rev.tmp $DEST/$rev.html
