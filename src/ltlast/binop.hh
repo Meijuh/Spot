@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -149,6 +149,91 @@ namespace spot
       formula* second_;
     };
 
+    /// \brief Cast \a f into a binop
+    ///
+    /// Cast \a f into a binop iff it is a binop instance.  Return 0
+    /// otherwise.  This is faster than \c dynamic_cast.
+    inline
+    binop*
+    is_binop(formula* f)
+    {
+      if (f->kind() != formula::BinOp)
+	return 0;
+      return static_cast<binop*>(f);
+    }
+
+    /// \brief Cast \a f into a binop if it has type \a op.
+    ///
+    /// Cast \a f into a binop iff it is a unop instance with operator \a op.
+    /// Returns 0 otherwise.
+    inline
+    binop*
+    is_binop(formula* f, binop::type op)
+    {
+      if (f->kind() != formula::BinOp)
+	return 0;
+      binop* bo = static_cast<binop*>(f);
+      if (bo->op() != op)
+	return 0;
+      return bo;
+    }
+
+    /// \brief Cast \a f into a binop if it has type \a op1 or \a op2.
+    ///
+    /// Cast \a f into a binop iff it is a unop instance with operator \a op1 or
+    /// \a op2.  Returns 0 otherwise.
+    inline
+    binop*
+    is_binop(formula* f, binop::type op1, binop::type op2)
+    {
+      if (f->kind() != formula::BinOp)
+	return 0;
+      binop* bo = static_cast<binop*>(f);
+      binop::type op = bo->op();
+      if (op == op1 || op == op2)
+	return bo;
+      return 0;
+    }
+
+    /// \brief Cast \a f into a binop if it is a U.
+    ///
+    /// Return 0 otherwise.
+    inline
+    binop*
+    is_U(formula* f)
+    {
+      return is_binop(f, binop::U);
+    }
+
+    /// \brief Cast \a f into a binop if it is a M.
+    ///
+    /// Return 0 otherwise.
+    inline
+    binop*
+    is_M(formula* f)
+    {
+      return is_binop(f, binop::M);
+    }
+
+    /// \brief Cast \a f into a binop if it is a R.
+    ///
+    /// Return 0 otherwise.
+    inline
+    binop*
+    is_R(formula* f)
+    {
+      return is_binop(f, binop::R);
+    }
+
+    /// \brief Cast \a f into a binop if it is a W.
+    ///
+    /// Return 0 otherwise.
+    inline
+    binop*
+    is_W(formula* f)
+    {
+      return is_binop(f, binop::W);
+    }
   }
 }
 

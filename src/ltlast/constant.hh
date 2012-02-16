@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et D�veloppement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 //
 // This file is part of Spot, a model checking library.
@@ -68,6 +68,19 @@ namespace spot
       // formula::formula() constructor.
     };
 
+
+    /// \brief Cast \a f into a constant.
+    ///
+    /// Cast \a f into a constant iff it is a constant instance.
+    /// Return 0 otherwise.  This is faster than \c dynamic_cast.
+    inline
+    constant*
+    is_constant(formula* f)
+    {
+      if (f->kind() != formula::Constant)
+	return 0;
+      return static_cast<constant*>(f);
+    }
   }
 }
 

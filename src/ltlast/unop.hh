@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -124,6 +124,91 @@ namespace spot
       formula* child_;
     };
 
+
+    /// \brief Cast \a f into a unop
+    ///
+    /// Cast \a f into a unop iff it is a unop instance.  Return 0
+    /// otherwise.  This is faster than \c dynamic_cast.
+    inline
+    unop*
+    is_unop(formula* f)
+    {
+      if (f->kind() != formula::UnOp)
+	return 0;
+      return static_cast<unop*>(f);
+    }
+
+    /// \brief Cast \a f into a unop if it has type \a op.
+    ///
+    /// Cast \a f into a unop iff it is a unop instance with operator \a op.
+    /// Returns 0 otherwise.
+    inline
+    unop*
+    is_unop(formula* f, unop::type op)
+    {
+      if (f->kind() != formula::UnOp)
+	return 0;
+      unop* uo = static_cast<unop*>(f);
+      if (uo->op() != op)
+	return 0;
+      return uo;
+    }
+
+    /// \brief Cast \a f into a unop if it is a X.
+    ///
+    /// Return 0 otherwise.
+    inline
+    unop*
+    is_X(formula* f)
+    {
+      return is_unop(f, unop::X);
+    }
+
+    /// \brief Cast \a f into a unop if it is a F.
+    ///
+    /// Return 0 otherwise.
+    inline
+    unop*
+    is_F(formula* f)
+    {
+      return is_unop(f, unop::F);
+    }
+
+    /// \brief Cast \a f into a unop if it is a G.
+    ///
+    /// Return 0 otherwise.
+    inline
+    unop*
+    is_G(formula* f)
+    {
+      return is_unop(f, unop::G);
+    }
+
+    /// \brief Cast \a f into a unop if has the form GF(...).
+    ///
+    /// Return 0 otherwise.
+    inline
+    unop*
+    is_GF(formula* f)
+    {
+      unop* op = is_G(f);
+      if (!op)
+	return 0;
+      return is_F(op->child());
+    }
+
+    /// \brief Cast \a f into a unop if has the form FG(...).
+    ///
+    /// Return 0 otherwise.
+    inline
+    unop*
+    is_FG(formula* f)
+    {
+      unop* op = is_F(f);
+      if (!op)
+	return 0;
+      return is_G(op->child());
+    }
   }
 }
 

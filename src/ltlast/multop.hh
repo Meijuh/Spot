@@ -165,6 +165,71 @@ namespace spot
       vec* children_;
     };
 
+
+    /// \brief Cast \a f into a multop.
+    ///
+    /// Cast \a f into a multop iff it is a multop instance.  Return 0
+    /// otherwise.  This is faster than \c dynamic_cast.
+    inline
+    multop*
+    is_multop(formula* f)
+    {
+      if (f->kind() != formula::MultOp)
+	return 0;
+      return static_cast<multop*>(f);
+    }
+
+    /// \brief Cast \a f into a multop if it has type \a op.
+    ///
+    /// Cast \a f into a multop iff it is a multop instance with operator \a op.
+    /// Returns 0 otherwise.
+    inline
+    multop*
+    is_multop(formula* f, multop::type op)
+    {
+      if (f->kind() != formula::MultOp)
+	return 0;
+      multop* mo = static_cast<multop*>(f);
+      if (mo->op() != op)
+	return 0;
+      return mo;
+    }
+
+    /// \brief Cast \a f into a multop if it has type \a op1 or \a op2.
+    ///
+    /// Cast \a f into a multop iff it is a multop instance with operator \a op1
+    /// or \a op2.   Returns 0 otherwise.
+    inline
+    multop*
+    is_multop(const formula* f, multop::type op1, multop::type op2)
+    {
+      if (f->kind() != formula::MultOp)
+	return 0;
+      multop* mo = static_cast<multop*>(const_cast<formula*>(f));
+      if (mo->op() != op1 && mo->op() != op2)
+	return 0;
+      return mo;
+    }
+
+    /// \brief Cast \a f into a multop if it is an And.
+    ///
+    /// Return 0 otherwise.
+    inline
+    multop*
+    is_And(formula* f)
+    {
+      return is_multop(f, multop::And);
+    }
+
+    /// \brief Cast \a f into a multop if it is an Or.
+    ///
+    /// Return 0 otherwise.
+    inline
+    multop*
+    is_Or(formula* f)
+    {
+      return is_multop(f, multop::Or);
+    }
   }
 }
 
