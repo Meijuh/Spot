@@ -185,11 +185,11 @@ namespace spot
     /// Returns 0 otherwise.
     inline
     multop*
-    is_multop(formula* f, multop::type op)
+    is_multop(const formula* f, multop::type op)
     {
       if (f->kind() != formula::MultOp)
 	return 0;
-      multop* mo = static_cast<multop*>(f);
+      multop* mo = static_cast<multop*>(const_cast<formula*>(f));
       if (mo->op() != op)
 	return 0;
       return mo;
@@ -197,8 +197,8 @@ namespace spot
 
     /// \brief Cast \a f into a multop if it has type \a op1 or \a op2.
     ///
-    /// Cast \a f into a multop iff it is a multop instance with operator \a op1
-    /// or \a op2.   Returns 0 otherwise.
+    /// Cast \a f into a multop iff it is a multop instance with
+    /// operator \a op1 or \a op2.  Returns 0 otherwise.
     inline
     multop*
     is_multop(const formula* f, multop::type op1, multop::type op2)

@@ -99,6 +99,9 @@
 % rewriting rules that enlarge the formula
 \newcommand{\equiV}{\stackrel{\star}{\equiv}}
 
+% marked rewriting rules
+\newcommand{\equivM}{\stackrel{\dag}{\equiv}}
+
 \def\limplies{\rightarrow}
 \def\simp{\rightrightharpoons}
 \def\Simp{\stackrel{+}{\simp}}
@@ -717,7 +720,7 @@ $b_1$, $b_2$ are assumed to be Boolean formul\ae.
 \end{align*}
 
 \noindent
-The following rules are all valid with the two arguments swapped, except the one marked with $\stackrel{\dag}{\equiv}$.
+The following rules are all valid with the two arguments swapped, except the one marked with $\equivM$.
 %(Even for the non-commutative operators \samp{$\CONCAT$} and
 %\samp{$\FUSION$}.)
 
@@ -746,7 +749,7 @@ The following rules are all valid with the two arguments swapped, except the one
   b_1 \AND b_2 &\equiv b_1\ANDALT b_2 &
   &&
   &&
-  b:f &\stackrel{\dag}{\equiv} b\AND f\\
+  b:f &\equivM b\AND f\\
 \end{align*}
 
 \section{SERE-LTL Binding Operators}
@@ -804,14 +807,14 @@ is therefore a model of the formula \samp{$\sere{a\PLUS{};\NOT
 
 The syntax on the left is equivalent to the syntax on the right.
 These rewritings are performed from left to right when parsing a
-formula.\spottodo{It would be nice to have the opposite rewritings on
-  output.}
+formula.  Except the one marked with $\equivM$, the opposite
+rewritings are also preformed on output to ease reading.
 
 \begin{align*}
   \sere{r}\EsuffixEQ f &\equiv \sere{r\CONCAT\1}\Esuffix f &
   \sere{r}\AsuffixEQ f &\equiv \sere{r\CONCAT\1}\Asuffix f\\
   \seren{r} &\equiv \sere{r}\Esuffix \1 &
-  \sere{r}\AsuffixALTEQ f &\equiv \sere{r\CONCAT\1}\Asuffix f\\
+  \sere{r}\AsuffixALTEQ f &\equivM \sere{r\CONCAT\1}\Asuffix f\\
 \end{align*}
 
 $\AsuffixEQ$ and $\AsuffixALTEQ$ are synonyms in the same way as

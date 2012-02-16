@@ -122,6 +122,8 @@ namespace spot
 	  if (!top_level)
 	    openp();
 
+	  bool onelast = false;
+
 	  switch (bo->op())
 	    {
 	    case binop::UConcat:
@@ -130,6 +132,21 @@ namespace spot
 	      os_ << "{";
 	      in_ratexp_ = true;
 	      top_level_ = true;
+	      {
+		multop* m = is_multop(bo->first(), multop::Concat);
+		if (m)
+		  {
+		    unsigned s = m->size();
+		    if (m->nth(s - 1) == constant::true_instance())
+		      {
+			formula* tmp = m->all_but(s - 1);
+			tmp->accept(*this);
+			tmp->destroy();
+			onelast = true;
+			break;
+		      }
+		  }
+	      }
 	      // fall through
 	    default:
 	      bo->first()->accept(*this);
@@ -160,7 +177,7 @@ namespace spot
 	      os_ << " M ";
 	      break;
 	    case binop::UConcat:
-	      os_ << "} []-> ";
+	      os_ << (onelast ? "} []=> " : "} []-> ");
 	      in_ratexp_ = false;
 	      top_level_ = top_level;
 	      break;
@@ -171,12 +188,12 @@ namespace spot
 		  in_ratexp_ = false;
 		  goto second_done;
 		}
-	      os_ << "} <>-> ";
+	      os_ << (onelast ? "} <>=> " : "} <>-> ");
 	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
 	    case binop::EConcatMarked:
-	      os_ << "} <>+> ";
+	      os_ << (onelast ? "} <>=+> " : "} <>+> ");
 	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
