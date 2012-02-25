@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
-# de l'EPITA.
+# Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+# Développement de l'EPITA.
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
 # (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 # Pierre et Marie Curie.
@@ -27,6 +27,7 @@
 
 import sys
 from buddy import *
+from spot import nl_cout
 
 # Build the requirements for all other fields than (i,j) assuming
 # that (i,j) has a queen.
@@ -89,15 +90,15 @@ for i in side:
 # Build requirements for each variable(field).
 for i in side:
     for j in side:
-        print "Adding position %d, %d" % (i, j)
+        sys.stdout.write("Adding position %d, %d\n" % (i, j))
         build(i, j)
 
 # Print the results.
-print "There are", bdd_satcount(queen), "solutions"
-print "one is:"
+sys.stdout.write("There are %d solutions, one is:\n" %
+                 bdd_satcount(queen))
 solution = bdd_satone(queen)
 bdd_printset(solution)
-print
+nl_cout()
 
 # Cleanup all BDD variables before calling bdd_done(), otherwise
 # bdd_delref will be called after bdd_done() and this is unsafe in

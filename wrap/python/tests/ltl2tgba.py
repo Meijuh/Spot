@@ -1,8 +1,8 @@
-# -*- mode: python; coding: iso-8859-1 -*-
-# Copyright (C) 2009, 2010 Laboratoire de Recherche et DÃ©veloppement
-# de l'Epita (LRDE).
+# -*- mode: python; coding: utf-8 -*-
+# Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+# DÃ©veloppement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 # et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
@@ -30,7 +30,7 @@ import getopt
 import spot
 
 def usage(prog):
-    print "Usage: ", prog, """ [OPTIONS...] formula
+    sys.stderr.write("""Usage: %s [OPTIONS...] formula
 
 Options:
   -a   display the acceptance_conditions BDD, not the reachability graph
@@ -41,7 +41,8 @@ Options:
   -r   display the relation BDD, not the reachability graph
   -R   same as -r, but as a set
   -t   display reachable states in LBTT's format
-  -v   display the BDD variables used by the automaton"""
+  -v   display the BDD variables used by the automaton
+""" % prog)
     sys.exit(2)
 
 
@@ -122,12 +123,12 @@ if f:
         if concrete:
             spot.bdd_print_set(cout, concrete.get_dict(),
                                concrete.get_core_data().relation)
-        print
+        spot.nl_cout()
     elif output == 4:
         if concrete:
             spot.bdd_print_set(cout, concrete.get_dict(),
                                concrete.get_core_data().acceptance_conditions)
-        print
+        spot.nl_cout()
     elif output == 5:
         a.get_dict().dump(cout)
     elif output == 6:

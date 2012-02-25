@@ -1,8 +1,8 @@
-# -*- mode: python; coding: iso-8859-1 -*-
-# Copyright (C) 2009, 2010 Laboratoire de Recherche et DÃ©veloppement
+# -*- mode: python; coding: utf-8 -*-
+# Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et DÃ©veloppement
 # de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 # et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
@@ -36,12 +36,12 @@ for str1 in l:
         sys.exit(1)
     str2 = str(f)
     f.destroy()
-    print str2
+    sys.stdout.write(str2 + "\n")
     # Try to reparse the stringified formula
     f = spot.parse(str2, p, e)
     if spot.format_parse_errors(spot.get_cout(), str2, p):
         sys.exit(1)
-    print f
+    sys.stdout.write(str(f) + "\n")
     f.destroy()
 
 assert spot.atomic_prop.instance_count() == 0

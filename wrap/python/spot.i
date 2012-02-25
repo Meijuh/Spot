@@ -1,9 +1,9 @@
-
-// Copyright (C) 2009, 2010, 2011  Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- encoding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012  Laboratoire de Recherche
+// et DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006  Laboratoire d'Informatique
-// de Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// de Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -114,6 +114,11 @@ using namespace spot;
   "$result = t_output_helper($result, SWIG_FromCharPtr(*$1));";
 %apply char** OUTPUT { char** err };
 
+// False and True cannot be redefined in Python3, even in a class.
+// Spot uses these in an enum of the constant class.
+%rename(FalseVal) False;
+%rename(TrueVal) True;
+
 %include "misc/version.hh"
 %include "misc/bddalloc.hh"
 %include "misc/minato.hh"
@@ -203,11 +208,23 @@ using namespace spot;
 
   // When comparing formula, make sure Python compare our
   // pointers, not the pointers to its wrappers.
-  int
-  __cmp__(const spot::ltl::formula* b)
-  {
-    return b - self;
-  }
+
+  // __cmp__ is for Python 2.0
+  int __cmp__(const spot::ltl::formula* b) { return self - b; }
+  // These are for Python 2.1+ or 3.x.  They more closely match
+  // the logic in Spot.
+  bool __lt__(const spot::ltl::formula* b)
+  { spot::ltl::formula_ptr_less_than lt; return lt(self, b); }
+  bool __le__(const spot::ltl::formula* b)
+  { spot::ltl::formula_ptr_less_than lt; return !lt(b, self); }
+  bool __eq__(const spot::ltl::formula* b) { return self == b; }
+  bool __ne__(const spot::ltl::formula* b) { return self != b; }
+  bool __gt__(const spot::ltl::formula* b)
+  { spot::ltl::formula_ptr_less_than lt; return lt(b, self); }
+  bool __ge__(const spot::ltl::formula* b)
+  { spot::ltl::formula_ptr_less_than lt; return !lt(self, b); }
+
+  size_t __hash__() { return self->hash(); }
 
   std::string
   __str__(void)
@@ -265,10 +282,22 @@ get_cout()
   return std::cout;
 }
 
+void
+nl_cout()
+{
+  std::cout << std::endl;
+}
+
 std::ostream&
 get_cerr()
 {
   return std::cerr;
+}
+
+void
+nl_cerr()
+{
+  std::cerr << std::endl;
 }
 
 void

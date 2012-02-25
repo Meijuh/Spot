@@ -1,6 +1,8 @@
-# -*- mode: python; coding: iso-8859-1 -*-
-# Copyright (C) 2004, 2010  Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# -*- mode: python; coding: utf-8 -*-
+# Copyright (C) 2010, 2012 Laboratoire de Recherche et DÃ©veloppement
+# de l'Epita.
+# Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+# dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 # et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
@@ -21,6 +23,7 @@
 # 02111-1307, USA.
 
 import spot
+import sys
 
 class test(spot.loopless_modular_mixed_radix_gray_code):
     def __init__(self, lim):
@@ -43,7 +46,7 @@ class test(spot.loopless_modular_mixed_radix_gray_code):
         while not self.done():
             m = "".join(self.msg)
             res.append(m)
-            print m
+            sys.stdout.write(m + "\n")
             self.next()
         return res
 

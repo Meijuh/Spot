@@ -1,7 +1,9 @@
-# -*- mode: python; coding: iso-8859-1 -*-
-# Copyright (C) 2003, 2004, 2010  Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
-# et Marie Curie.
+# -*- mode: python; coding: utf-8 -*-
+# Copyright (C) 2010, 2012 Laboratoire de Recherche et DÃ©veloppement
+# de l'EPITA.
+# Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
+# (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
+# Pierre et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
 #
@@ -24,6 +26,7 @@
 # are not problematic.
 import buddy
 import spot
+import sys
 e = spot.default_environment.instance()
 p = spot.empty_parse_error_list()
 f = spot.parse('GFa', p, e)
@@ -31,13 +34,13 @@ dict = spot.bdd_dict()
 a = spot.ltl_to_tgba_lacim(f, dict)
 s0 = a.get_init_state()
 b = s0.as_bdd()
-print b
+sys.stdout.write("%s\n" % b)
 iter = a.succ_iter(s0)
 iter.first()
 while not iter.done():
     c = iter.current_condition()
-    print c
+    sys.stdout.write("%s\n" % c)
     b &= c # `&=' is defined only in buddy.  So if this statement works
            # it means buddy can grok spot's objects.
     iter.next()
-print b
+sys.stdout.write("%s\n" % b)

@@ -1,6 +1,6 @@
 #!@PYTHON@
-# -*- mode: python; coding: iso-8859-1 -*-
-# Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+# -*- mode: python; coding: utf-8 -*-
+# Copyright (C) 2011, 2012 Laboratoire de Recherche et DÃ©veloppement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -21,13 +21,16 @@
 # 02111-1307, USA.
 
 import os
+import sys
 
-script = os.environ.has_key('SCRIPT_NAME')
+script = ('SCRIPT_NAME' in os.environ)
 
 if script:
-    print "Cache-Control: max-age=3600" # One hour.
-    print "Content-Type: text/html"
-    print
+    # 3600s = 1h
+    sys.stdout.write("""Cache-Control: max-age=3600
+Content-Type: text/html
+
+""")
 
 # Directory for temporary files (images and other auxiliary files).
 imgdir = 'spotimg'
@@ -37,12 +40,17 @@ qs = os.getenv('QUERY_STRING')
 if qs:
     import hashlib
     # We (optimistically) assume no collision from sha1(qs)
-    cachedir = imgdir + '/' + hashlib.sha1(qs).hexdigest()
+    cachedir = imgdir + '/' + hashlib.sha1(qs.encode('utf-8')).hexdigest()
     cachename = cachedir + '/html'
     try:
         # Is this a request we have already processed?
-        cache = open(cachename, "r", 0)
-        print cache.read()
+        cache = open(cachename, "rb", 0)
+        if hasattr(sys.stdout, 'buffer'):
+            # Python 3+
+            sys.stdout.buffer.write(cache.read())
+        else:
+            # Python 2.x
+            sys.stdout.write(cache.read())
         # Touch the directory containing the files we used, so
         # it that it survives the browser's cache.
         os.utime(cachedir, None)
@@ -52,7 +60,7 @@ if qs:
         # Let's run the rest of the script to create it.
         pass
 elif script:
-    print "<b>QUERY_STRING unset!</b>"
+    sys.stdout.write("<b>QUERY_STRING unset!</b>\n")
     exit(0)
 
 # Location of the dot command
@@ -64,26 +72,33 @@ svg_output = False # FIXME: SVG output seems to be working well with
                    #        to get the correct size and transparent
                    #        background in Chrome.
 
-from CGIHTTPServer import CGIHTTPRequestHandler
-class MyHandler(CGIHTTPRequestHandler):
-    def is_cgi(self):
-        if self.path.startswith('/cgi-bin/spot.py'):
-            self.cgi_info = '', self.path[9:]
-            return True
-        return False
-
 if not script:
     # If this is not run as a cgi script, let's start an HTTP server.
-    from BaseHTTPServer import HTTPServer
+    try:
+        # Python 3+
+        from http.server import CGIHTTPRequestHandler, HTTPServer
+    except ImportError:
+        # Python 2.x
+        from CGIHTTPServer import CGIHTTPRequestHandler
+        from BaseHTTPServer import HTTPServer
+
+    class MyHandler(CGIHTTPRequestHandler):
+        def is_cgi(self):
+            if self.path.startswith('/cgi-bin/spot.py'):
+                self.cgi_info = '', self.path[9:]
+                return True
+            return False
+
     server_address=('',8000)
     if not os.access(imgdir, os.F_OK):
-        os.mkdir(imgdir, 0755)
-        print "Directory spotimg/ created."
+        # 493 = 0755 but we would have to write 0755 or 0o755
+        # depending on the python version...
+        os.mkdir(imgdir, 493)
+        sys.stdout.write("Directory spotimg/ created.\n")
     httpd = HTTPServer(server_address, MyHandler)
-    print "Point your browser to http://localhost:8000/ltl2tgba.html"
+    sys.stdout.write("Point your browser to http://localhost:8000/ltl2tgba.html\n")
     httpd.serve_forever()
 
-import sys
 import cgi
 import cgitb; cgitb.enable()
 import signal
@@ -97,25 +112,34 @@ cachename = tmpdir + '/html'
 
 sys.stdout.flush()
 # Reopen stdout without buffering
-sys.stdout = os.fdopen(sys.stdout.fileno(), "w", 0)
+sys.stdout = os.fdopen(sys.stdout.fileno(), "wb", 0)
 
 # Redirect stderr to stdout at a low level (so that
 # even errors from subprocesses get printed).
 os.dup2(sys.stdout.fileno(), sys.stderr.fileno())
 
 # Create the temporary cache directory
-os.mkdir(tmpdir, 0755)
+os.mkdir(tmpdir, 493) # See comment above about 0o755 or 0755.
 
 # Redirect stdout to the cache file, at a low level
 # for similar reason.
-fd = os.open(cachename, os.O_CREAT | os.O_WRONLY, 0644)
+fd = os.open(cachename, os.O_CREAT | os.O_WRONLY, 420) # 420 = 0644
 os.dup2(fd, sys.stdout.fileno())
+
+# We had to reopen stdout in binary mode to enable unbuffered output,
+# (disallowed on text I/O by Python 3.x) so starting now, we are not
+# allowed to send strings to sys.stdout.  Always use the following
+# method instead.
+def unbufprint(s):
+    sys.stdout.write(s.encode("utf-8"))
+
 
 def finish(kill = False):
     # Output the result and exit.
     os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
-    cache = open(cachename, "r", 0)
-    print cache.read()
+
+    cache = open(cachename, "rb", 0)
+    sys.stdout.write(cache.read())
 
     # Rename tmpdir to its permanent name for caching purpose.
     # os.rename will fail if cachedir already exist.  Since we tested
@@ -131,6 +155,7 @@ def finish(kill = False):
         pass
 
     if kill:
+        # Kill all children
         os.kill(0, signal.SIGTERM)
     # Should we prune the cache?
     stamp = imgdir + '/cache.stamp'
@@ -140,6 +165,8 @@ def finish(kill = False):
         if now - os.path.getmtime(stamp) < 3600:
             exit(0)
     except OSError:
+        # It's OK if the file did not exist.
+        # We will create it.
         pass
     # Erase all directories that are older than 2 hours, and all
     # files that have only one hardlinks.  Files that have more than
@@ -148,14 +175,14 @@ def finish(kill = False):
     os.system('find ' + imgdir  + ' -mindepth 1 -maxdepth 1 -mmin +120 '
               + '\( -type d -o -links 1 \) -exec rm -rf {} +')
     # Create or update the stamp so we know when to run the next prune.
-    open(stamp, "w", 0)
+    open(stamp, "wb", 0)
     exit(0)
 
 # Assume Spot is installed
 sys.path.insert(0, '@pythondir@')
 
-if (os.environ.has_key('SERVER_SOFTWARE') and
-    os.environ['SERVER_SOFTWARE'].startswith(MyHandler.server_version)):
+if ('SERVER_SOFTWARE' in os.environ and
+    os.environ['SERVER_SOFTWARE'].startswith('SimpleHTTP')):
     # We might be running from the build tree (but it's not sure).
     # Add the build and source directories first in the search path.
     # If we are not in the right place, python will find the installed
@@ -171,7 +198,9 @@ if (os.environ.has_key('SERVER_SOFTWARE') and
     os.environ['DYLD_LIBRARY_PATH'] = m
 
 try:
-    execfile('ltl2tgba.opt')
+    # execfile('ltl2tgba.opt') no longuer work with Python 3.
+    exec(compile(open("ltl2tgba.opt").read(), "ltl2tgba.opt", 'exec'),
+         global_vars, local_vars)
 except IOError:
     pass
 
@@ -179,18 +208,18 @@ import spot
 import buddy
 
 def alarm_handler(signum, frame):
-    print """<p><font color="red">The script was aborted because
+    unbufprint("""<p><font color="red">The script was aborted because
 it has been running for too long.</font>  Please try a shorter formula,
 or different options (not drawing automata usually helps).
 If you want to benchmark big formulae it is
-better to install Spot on your own computer.</p>"""
+better to install Spot on your own computer.</p>\n""")
     finish(kill = True)
 
 def reset_alarm():
     signal.alarm(30)
 
 def render_dot(basename):
-    print '<div class="dot">'
+    unbufprint('<div class="dot">')
     if svg_output:
         ext = 'svg'
     else:
@@ -207,32 +236,32 @@ def render_dot(basename):
     os.link(outname, tmpdir + "/" + ext)
     b = cgi.escape(basename)
     if svg_output:
-        print ('<object type="image/svg+xml" data="' + b + '.svg">'
-               + 'Your browser does not support SVG.</object>')
+        unbufprint('<object type="image/svg+xml" data="' + b +
+                   '.svg">Your browser does not support SVG.</object>')
     else:
-        print ('<img src="' + b + '.png"><br>(<a href="' + b
-               + '.txt">dot source</a>)')
-    print '</div>'
+        unbufprint('<img src="' + b + '.png"><br>(<a href="' + b
+                   + '.txt">dot source</a>)')
+    unbufprint('</div>\n')
 
 def render_dot_maybe(dotsrc, dont_run_dot):
     # The dot output is named after the SHA1 of the dot source.
     # This way we can cache two different requests that generate
     # the same automaton (e.g., when changing a simplification
     # option that has no influence).
-    autprefix = imgdir + '/' + hashlib.sha1(dotsrc).hexdigest()
+    autprefix = (imgdir + '/' + hashlib.sha1(dotsrc).hexdigest())
     dotname = autprefix + '.txt'
     if not os.access(dotname, os.F_OK):
-        dotout = open(dotname, "w", 0)
+        dotout = open(dotname, "wb", 0)
         dotout.write(dotsrc)
         dotout.close()
-    # Create an unused hardlink that points to the output picture
+    # Create a unused hardlink that points to the output picture
     # just to remember how many cache entries are sharing it.
     os.link(dotname, tmpdir + "/txt")
 
     if dont_run_dot:
-        print ('<p>' + dont_run_dot + ''' to be rendered on-line.  However
-you may download the <a href="''' + cgi.escape(autprefix)
-               + '.txt">source in dot format</a> and render it yourself.')
+        unbufprint('<p>' + dont_run_dot + ''' to be rendered on-line.
+However you may download the <a href="''' + cgi.escape(autprefix)
+        + '.txt">source in dot format</a> and render it yourself.</p>\n')
     else:
         render_dot(autprefix)
 
@@ -242,7 +271,7 @@ def render_automaton(automaton, dont_run_dot, issba, deco = False):
         spot.dotty_reachable(dotsrc, automaton, issba)
     else:
         spot.dotty_reachable(dotsrc, automaton, issba, deco)
-    render_dot_maybe(dotsrc.str(), dont_run_dot)
+    render_dot_maybe(dotsrc.str().encode('utf-8'), dont_run_dot)
 
 def render_formula(f):
     dotsrc = spot.ostringstream()
@@ -251,35 +280,28 @@ def render_formula(f):
 
 def print_stats(automaton):
     stats = spot.stats_reachable(automaton)
-    print "<p>", stats.states,
-    if stats.states <= 1:
-        print " state,",
-    else:
-        print " states,",
-    print stats.transitions,
-    if stats.transitions <= 1:
-        print " transition,",
-    else:
-        print " transitions,",
-    # compute the number of acceptance conditions
+    unbufprint("<p>%d state" % stats.states)
+    if stats.states > 1:
+        unbufprint("s")
+    unbufprint(", %d transition" % stats.transitions)
+    if stats.transitions > 1:
+        unbufprint("s")
     count = automaton.number_of_acceptance_conditions()
     if count > 0:
-        print count,
-        if count <= 1:
-            print "acceptance condition:",
-        else:
-            print "acceptance conditions:",
+        unbufprint(", %d acceptance condition" % count)
+        if count > 1:
+            unbufprint("s")
         acc = automaton.all_acceptance_conditions()
-        print spot.bdd_format_accset(automaton.get_dict(), acc)
+        unbufprint(": " + spot.bdd_format_accset(automaton.get_dict(), acc))
     else:
-        print "no acceptance condition (all cycles are accepting)"
-    print "</p>"
+        unbufprint(", no acceptance condition (all cycles are accepting)")
+    unbufprint("</p>\n")
     # Decide whether we will render the automaton or not.
     # (A webserver is not a computation center...)
     if stats.states > 64:
         return "Automaton has too much states"
     if float(stats.transitions)/stats.states > 10:
-        return "Automaton has too much transitions per states"
+        return "Automaton has too much transitions per state"
     return False
 
 form = cgi.FieldStorage()
@@ -288,7 +310,7 @@ output_type = form.getfirst('o', 'v');
 
 # Version requested.
 if output_type == 'v':
-    print 'Spot version ' + spot.version()
+    unbufprint('Spot version %s\n' % spot.version())
     finish()
 
 spot.unblock_signal(signal.SIGALRM)
@@ -304,9 +326,13 @@ pel = spot.empty_parse_error_list()
 f = spot.parse(formula, pel, env)
 
 if pel:
-    print '<div class="parse-error">'
+    unbufprint('<div class="parse-error">')
     err = spot.format_parse_errors(spot.get_cout(), formula, pel)
-    print '</div>'
+    unbufprint('</div>')
+
+# Do not continue if we could not parse anything sensible.
+if not f:
+    finish()
 
 # Formula simplifications
 opt = spot.Reduce_None
@@ -328,12 +354,11 @@ if opt != spot.Reduce_None:
 if output_type == 'f':
     formula_format = form.getfirst('ff', 'o')
     # o = Spot, i = Spin, g = GraphViz
-
     if formula_format == 'o':
-        print '<div class="formula spot-format">%s</div>' % f
+        unbufprint('<div class="formula spot-format">%s</div>' % f)
     elif formula_format == 'i':
-        print ('<div class="formula spin-format">'
-               + spot.to_spin_string(f) + '</div>')
+        unbufprint('<div class="formula spin-format">'
+                   + spot.to_spin_string(f) + '</div>')
     elif formula_format == 'g':
         render_formula(f)
     finish()
@@ -377,9 +402,9 @@ issba = False
 if output_type == 'm':
     automaton = spot.scc_filter(automaton)
     automaton = spot.minimize_monitor(automaton)
-    print '<div class="automata-stats">'
+    unbufprint('<div class="automata-stats">')
     dont_run_dot = print_stats(automaton)
-    print '</div>'
+    unbufprint('</div>')
     render_automaton(automaton, dont_run_dot, issba)
     automaton = 0
     finish()
@@ -398,7 +423,7 @@ if output_type == 'a':
 elif output_type == 'r':
     buchi_type = form.getfirst('ra', 't')
 else:
-    print "Unkown output type 'o=%s'." % output_type
+    unbufprint("Unkown output type 'o=%s'.\n" % output_type)
     automaton = 0
     finish()
 
@@ -435,7 +460,7 @@ if output_type == 'a':
     if buchi_type == 'i':
         s = spot.ostringstream()
         spot.never_claim_reachable(s, degen, f)
-        print '<div class="neverclaim">%s</div>' % cgi.escape(s.str())
+        unbufprint('<div class="neverclaim">%s</div>' % cgi.escape(s.str()))
         del s
     else: # 't' or 's'
         dont_run_dot = print_stats(degen)
@@ -462,20 +487,28 @@ if output_type == 'r':
     eci, err = spot.emptiness_check_instantiator.construct(opt)
 
     if not eci:
-        print ('<div class="parse-error">Cannot parse "' + opt + '" near "'
-               + err + '".</div>')
+        unbufprint('<div class="parse-error">Cannot parse "' + opt
+                         + '" near "' + err + '".</div>')
     else:
         ec_a = 0
         n_acc = degen.number_of_acceptance_conditions()
         n_max = eci.max_acceptance_conditions()
+        n_min = eci.min_acceptance_conditions()
         if (n_acc <= n_max):
-            ec_a = degen
+            if (n_acc >= n_min):
+                ec_a = degen
+            else:
+                unbufprint('<div class="ec-error">Cannot run ' + opt
+                           + ' on automata with less than ' + str(n_min)
+                           + ' acceptance condition.<br/>Please build '
+                           + 'a degeneralized B&uuml;chi automaton if you '
+                           + 'want to try this algorithm.</div>')
         else:
-            print ('<div class="ec-error">Cannot run ' + opt
-                   + ' on automata with more than ' + str(n_max)
-                   + ' acceptance condition.<br/>Please build '
-                   + 'a degeneralized B&uuml;chi automaton if you '
-                   + 'want to try this algorithm.</div>')
+            unbufprint('<div class="ec-error">Cannot run ' + opt
+                       + ' on automata with more than ' + str(n_max)
+                       + ' acceptance condition.<br/>Please build '
+                       + 'a degeneralized B&uuml;chi automaton if you '
+                       + 'want to try this algorithm.</div>')
         if ec_a:
             ec = eci.instantiate(ec_a)
         else:
@@ -484,15 +517,16 @@ if output_type == 'r':
     if ec:
         ec_res = ec.check()
         if not ec_res:
-            print '<div class="ec">No accepting run found.</div>'
+            unbufprint('<div class="ec">No accepting run found.</div>')
         else:
             ec_run = ec_res.accepting_run()
-            print '<div class="ec">An accepting run was found.<br/>'
+            unbufprint('<div class="ec">An accepting run was found.<br/>')
             if ec_run:
                 if print_acc_run:
                     s = spot.ostringstream()
                     spot.print_tgba_run(s, ec_a, ec_run)
-                    print '<div class="accrun">%s</div>' % cgi.escape(s.str())
+                    unbufprint('<div class="accrun">%s</div>' %
+                               cgi.escape(s.str()))
                     del s
 
                 if draw_acc_run:
@@ -502,7 +536,7 @@ if output_type == 'r':
                     del deco
                 del ec_run
             del ec_res
-            print '</div>'
+            unbufprint('</div>')
         del ec
         del ec_a
     degen = 0

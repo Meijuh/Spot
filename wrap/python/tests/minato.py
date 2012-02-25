@@ -1,6 +1,8 @@
-# -*- mode: python; coding: iso-8859-1 -*-
-# Copyright (C) 2004, 2010  Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# -*- mode: python; coding: utf-8 -*-
+# Copyright (C) 2010, 2012  Laboratoire de Recherche et DÃ©veloppement
+# de l'Epita
+# Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
+# dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 # et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
@@ -40,7 +42,7 @@ i = isop.next()
 l = []
 while i != buddy.bddfalse:
     buddy.bdd_printset(i)
-    print
+    spot.nl_cout()
     l.append(i)
     i = isop.next()
 

@@ -1,3 +1,30 @@
+2012-02-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Make all python code compatible with Python 2.x and Python 3.x.
+
+	* wrap/python/buddy.i (__le__, __lt__, __eq__, __ne__, __ge__
+	__gt__): New operators for bdd.
+	* wrap/python/spot.i (__le__, __lt__, __eq__, __ne__, __ge__
+	__gt__, __hash__): New operators for formula.
+	(nl_cout, nl_cerr): New functions.
+	* wrap/python/tests/bddnqueen.py,
+	wrap/python/tests/interdep.py, wrap/python/tests/ltl2tgba.py,
+	wrap/python/tests/ltlparse.py, wrap/python/tests/ltlsimple.py,
+	wrap/python/tests/minato.py, wrap/python/tests/modgray.py: Adjust
+	to the new print syntax by using sys.output.write() or nl_cout()
+	instead.
+	* wrap/python/tests/optionmap.py: Remove all print calls.
+	* wrap/python/ajax/spot.in: Massive adjustments in order to work
+	with both Python 2 and 3.  In python 3, reopening stdout as
+	unbuffered requires it to be open as binary, which in turns
+	requires any string output to be encoded manually.  BaseHTTPServer
+	and CGIHTTPServer have been merged into http.server, so we have
+	to try two different import syntaxes.  execfile no longer exists,
+	so it has to be emulated.
+	This also fixes two bugs where the script would segfault on
+	empty input, or when calling Tau03 on automata with less then
+	one acceptance conditions.
+
 2012-02-24  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Fix computation of PYTHONINC for Python 3.

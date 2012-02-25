@@ -1,6 +1,8 @@
-// Copyright (C) 2010, 2011  Laboratoire de Recherche et Développement de l'EPITA.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012  Laboratoire de Recherche et
+// DÃ©veloppement de l'EPITA.
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -224,11 +226,17 @@ extern const bdd bddtrue;
 #define BDD_REORDER_RANDOM   7
 
 %extend bdd {
-    int
-  __cmp__(bdd* b)
-  {
-    return b->id() - self->id();
-  }
+  // For Python 2.0
+  int __cmp__(bdd* b) { return b->id() - self->id(); }
+
+  // For Python 2.1+ and Python 3
+  bool __le__(bdd* b) { return self->id() <= b->id(); }
+  bool __lt__(bdd* b) { return self->id() < b->id(); }
+  bool __eq__(bdd* b) { return self->id() == b->id(); }
+  bool __ne__(bdd* b) { return self->id() != b->id(); }
+  bool __ge__(bdd* b) { return self->id() >= b->id(); }
+  bool __gt__(bdd* b) { return self->id() > b->id(); }
+
 
   std::string
   __str__(void)

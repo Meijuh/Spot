@@ -1,6 +1,8 @@
-# -*- mode: python; coding: iso-8859-1 -*-
-# Copyright (C) 2005, 2010  Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# -*- mode: python; coding: utf-8 -*-
+# Copyright (C) 2010, 2012 Laboratoire de Recherche et DÃ©veloppement
+# de l'EPITA.
+# Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
+# dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 # et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
@@ -47,17 +49,13 @@ assert o.get('optB') == 0
 assert o.get('optC') == 1
 
 res = o.parse_options("!")
-print res
 assert res == "!"
 
 res = o.parse_options("foo, !opt = 1")
-print res
 assert res == "!opt = 1"
 
 res = o.parse_options("foo=3, opt == 1")
-print res
 assert res == "opt == 1"
 
 res = o.parse_options("foo=3opt == 1")
-print res
 assert res == "3opt == 1"
