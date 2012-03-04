@@ -11,149 +11,202 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
+    <script type="text/javascript" src="js/jquery.ba-bbq.min.js"></script>
     <script type="text/javascript">
-      jQuery(document).ready(function(){
-                     $.spotvars = {
-                        autoupdate: 0
-                     }
-                     $(".tabs").tabs();
-		     $("#send").button();
-		     $("#results").hide();
-                     $(".tabs a").click(function() {return false;});
-                     $(".rtip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 10,
-                                        defaultPosition: "right"});
-                     $(".btip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 10,
-                                        defaultPosition: "bottom"});
-                     $(".ftip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 4,
-                                        defaultPosition: "left",
-                                        content: "<b>Click<\/b> to fold/unfold.<br><b>Ctrl+Click<\/b> to remove (any option set will remain set)."
-                                       });
-                     $(".restip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 4,
-                                        defaultPosition: "left",
-                                        content: "<b>Click<\/b> to fold/unfold.<br><b>Ctrl+Click<\/b> to remove."
-                                       });
-                     $(".ltltip").tipTip({maxWidth: "300px", delay: 1000,
-                                        edgeOffset: 4,
-                                        defaultPosition: "left",
-                                        content: "<b>Click<\/b> to fold/unfold."
-                                       });
+    jQuery(document).ready(function(){
+        $.spotvars = { autoupdate: 0 }
+        $(".tabs").tabs();
+	$("#send").button();
+	$("#results").hide();
+        $(".tabs a").click(function() {return false;});
+        $(".rtip").tipTip({maxWidth: "300px", delay: 1000,
+                           edgeOffset: 10,
+                           defaultPosition: "right"});
+        $(".btip").tipTip({maxWidth: "300px", delay: 1000,
+                           edgeOffset: 10,
+                           defaultPosition: "bottom"});
+        $(".ftip").tipTip({maxWidth: "300px", delay: 1000,
+                           edgeOffset: 4,
+                           defaultPosition: "left",
+                           content: "<b>Click<\/b> to fold/unfold.<br><b>Ctrl+Click<\/b> to remove (any option set will remain set)."
+                          });
+        $(".restip").tipTip({maxWidth: "300px", delay: 1000,
+                             edgeOffset: 4,
+                             defaultPosition: "left",
+                             content: "<b>Click<\/b> to fold/unfold.<br><b>Ctrl+Click<\/b> to remove."
+                            });
+        $(".ltltip").tipTip({maxWidth: "300px", delay: 1000,
+                             edgeOffset: 4,
+                             defaultPosition: "left",
+                             content: "<b>Click<\/b> to fold/unfold."
+                            });
 
-		      $.get("/cgi-bin/spot.py", "o=v", function(data) {
-			  $("#spottip").attr("title", "This page uses <b>" + data + "<\/b> to process LTL formulas and automata.  Please download the <b>Spot<\/b> library and install it on your computer if you want to do the same from the command line, or from another program.")
-			       .tipTip({maxWidth: "400px", delay: 1000,
-                                        edgeOffset: 10,
-                                        defaultPosition: "right"});
-                      });
+	function hideOrShowPanels(output) {
+	    switch (output)
+	    {
+	    case 'f':
+		$('#translator-tabs,#autsimp-tabs,#run-tabs').hide('fast');
+		break;
+	    case 'm':
+		$('#autsimp-tabs,#run-tabs').hide('fast');
+		$('#translator-tabs').show('fast');
+		break;
+	    case 'a':
+		$('#translator-tabs,#autsimp-tabs').show('fast');
+		$('#run-tabs').hide('fast');
+		break;
+	    case 'r':
+		$('#translator-tabs,#autsimp-tabs,#run-tabs').show('fast');
+		break;
+	    }
+        }
 
-                function fold(ui) {
-                  var icon = ui.children(".ui-icon");
-                  icon.removeClass("ui-icon-circle-arrow-n")
-                      .addClass("ui-icon-circle-arrow-s");
-                  ui.siblings('[class!="dontcollapse"]').hide('fast');
+	function updateFormFromHash() {
+	    var hashparam = jQuery.deparam.fragment();
+	    if (jQuery.isEmptyObject(hashparam))
+		return;
+	    $("input,select", "#trform").each(function() {
+		var name = this.name;
+		var value = [];
+		if (name && hashparam[name] != undefined) {
+		    value = hashparam[name];
+		    if (value.constructor != Array)
+			value = [value];
+		} else {
+		    return;
                 }
-                function unfold(ui) {
-                  var icon = ui.children(".ui-icon");
-                  icon.removeClass("ui-icon-circle-arrow-s")
-                      .addClass("ui-icon-circle-arrow-n");
-                  ui.siblings('[class!="dontcollapse"]').show('fast');
-                }
+		switch(this.type || this.tagName.toLowerCase()) {
+		case "radio":
+		case "checkbox":
+		    this.checked = false;
+		    for(var i = 0; i < value.length; i++) {
+			this.checked |= (value[i] == this.value);
+		    }
+		    break;
+		case "select":
+		    for(var opt = 0; opt < this.options.length; opt++) {
+			var option = this.options[opt];
+			option.selected = false;
+			for (var i = 0; i < value.length; i++) {
+			    option.selected |= (value[i] == option.value);
+			}
+		    }
+		    break;
+		default:
+		    this.value=value.join(',');
+		}
+	    });
+	    updateResults();
+	    var o = $('input[name="o"]').val();
+	    $("#output-tabs").tabs("select", "#tabs-o" + o);
+	    hideOrShowPanels(o);
+            var t = $('input[name="t"]').val();
+	    $("#translator-tabs").tabs('select', '#tabs-t' + t);
+	}
 
-                function foldToggle(ui) {
-                  var icon = ui.children(".ui-icon");
-                  if (icon.hasClass("ui-icon-circle-arrow-n"))
-                    {
-                      icon.removeClass("ui-icon-circle-arrow-n")
-                          .addClass("ui-icon-circle-arrow-s");
-                      ui.siblings('[class!="dontcollapse"]').hide('fast');
-                    }
-                  else
-                    {
-                      icon.removeClass("ui-icon-circle-arrow-s")
-                          .addClass("ui-icon-circle-arrow-n");
-                      ui.siblings('[class!="dontcollapse"]').show('fast');
-                    }
-                }
+	$(window).bind('hashchange', function(e) { updateFormFromHash() });
 
-                function updateResults() {
-                    var str = $("#trform").serialize();
-                    $("#results-body").load("/cgi-bin/spot.py",
-                                       str,
-                                       function(response, status, xhr)
-                   {
-                      $.spotvars.autoupdate = 1;
-		      if (status == "error") {
-			var msg = "Sorry but there was an error: ";
-			$("#results-body").html(msg + xhr.status + " "
-                                                + xhr.statusText);
-		      }
-                      $("#results").show();
-                      fold($("#ltl-head"));
-                      unfold($("#results-head"));
-                      return true;
-                   }
-                );}
-
-                function autoUpdate() {
-                    if ($.spotvars.autoupdate)
-                       updateResults();
-                    return true;
-                }
-
-                $("#send").click(updateResults);
-                $("input,select").change(autoUpdate);
-                $('input[name="f"]').attr('spellcheck', false).focus()
-				    .keydown(function(e){
-                   if (e.keyCode == 13)
-		      updateResults();
-                });
-	      $('.collapsible .head').click(function(e) {
-                      if (e.ctrlKey)
-                        {
-                          if ($(this).attr('id') != 'ltl-head')
-                            $(this).parent().hide('fast');
-                        }
-                      else
-                        {
-                          foldToggle($(this));
-                        }
-		      return false;
-	      });
-      $("#output-tabs").bind("tabsselect", function(event, ui) {
-        switch (ui.panel.id)
-         {
-           case 'tabs-formula':
-             $('input[name="o"]').val('f');
-             $('#translator-tabs,#autsimp-tabs,#run-tabs').hide('fast');
-             break;
-           case 'tabs-monitor':
-             $('input[name="o"]').val('m');
-             $('#autsimp-tabs,#run-tabs').hide('fast');
-             $('#translator-tabs').show('fast');
-             break;
-           case 'tabs-automaton':
-             $('input[name="o"]').val('a');
-             $('#translator-tabs,#autsimp-tabs').show('fast');
-             $('#run-tabs').hide('fast');
-             break;
-           case 'tabs-run':
-             $('input[name="o"]').val('r');
-             $('#translator-tabs,#autsimp-tabs,#run-tabs').show('fast');
-             break;
-          }
-        autoUpdate();
-        return true;
+	$.get("/cgi-bin/spot.py", "o=v", function(data) {
+	    $("#spottip").attr("title", "This page uses <b>" + data + "<\/b> to process LTL formulas and automata.  Please download the <b>Spot<\/b> library and install it on your computer if you want to do the same from the command line, or from another program.")
+		.tipTip({maxWidth: "400px", delay: 1000,
+                         edgeOffset: 10,
+                         defaultPosition: "right"});
         });
-      $('#output-tabs').tabs('select', '#tabs-automaton');
-      $('#translator-tabs').bind("tabsselect", function(event, ui) {
-        $('input[name="t"]').val(ui.panel.id.substring(5,7));
-        autoUpdate();
-        return true;
+
+        function fold(ui) {
+            var icon = ui.children(".ui-icon");
+            icon.removeClass("ui-icon-circle-arrow-n")
+                .addClass("ui-icon-circle-arrow-s");
+            ui.siblings('[class!="dontcollapse"]').hide('fast');
+        }
+        function unfold(ui) {
+            var icon = ui.children(".ui-icon");
+            icon.removeClass("ui-icon-circle-arrow-s")
+                .addClass("ui-icon-circle-arrow-n");
+            ui.siblings('[class!="dontcollapse"]').show('fast');
+        }
+
+        function foldToggle(ui) {
+            var icon = ui.children(".ui-icon");
+            if (icon.hasClass("ui-icon-circle-arrow-n")) {
+                icon.removeClass("ui-icon-circle-arrow-n")
+                    .addClass("ui-icon-circle-arrow-s");
+                ui.siblings('[class!="dontcollapse"]').hide('fast');
+            } else {
+                icon.removeClass("ui-icon-circle-arrow-s")
+                    .addClass("ui-icon-circle-arrow-n");
+                ui.siblings('[class!="dontcollapse"]').show('fast');
+            }
+        }
+
+	function updateHash() {
+            var str = $("#trform").serialize();
+	    // This will trigger updateResults.
+            window.location.hash = "#" + str;
+	    // updateResults();
+        }
+
+        function updateResults() {
+	    // don't read window.location.hash, because
+	    // it has been %-decoded by firefox, which
+	    // cause problems when formulae include '&'.
+	    var fragment = location.href.replace(/^[^#]*#?(.*)$/, '$1');
+	    $.spotvars.autoupdate = 1;
+            $("#results-body")
+		.load("/cgi-bin/spot.py",
+                      fragment,
+                      function(response, status, xhr) {
+			  if (status == "error") {
+			      var msg = "Sorry but there was an error: ";
+			      $("#results-body").html(msg + xhr.status + " "
+						      + xhr.statusText);
+			  }
+			  $("#results").show();
+			  fold($("#ltl-head"));
+			  unfold($("#results-head"));
+			  return true;
+		      });
+        }
+
+        function autoUpdate() {
+            if ($.spotvars.autoupdate)
+                updateHash();
+            return $.spotvars.autoupdate;
+        }
+
+        $("#send").click(updateHash);
+        $("input,select").change(autoUpdate);
+        $('input[name="f"]').attr('spellcheck', false).focus()
+	    .keydown(function(e){
+                if (e.keyCode == 13)
+		    updateHash();
+            });
+	$('.collapsible .head').click(function(e) {
+            if (e.ctrlKey) {
+                if ($(this).attr('id') != 'ltl-head')
+                    $(this).parent().hide('fast');
+            } else {
+                foldToggle($(this));
+            }
+	    return false;
+	});
+	$("#output-tabs").bind("tabsselect", function(event, ui) {
+	    var v = ui.panel.id[6]; // 'tabs-om' => 'm'.
+            $('input[name="o"]').val(v)
+            if (!autoUpdate())
+		hideOrShowPanels(v)
+            return true;
         });
-      });
+	$('#output-tabs').tabs('select', '#tabs-oa');
+	$('#translator-tabs').bind("tabsselect", function(event, ui) {
+            $('input[name="t"]').val(ui.panel.id.substring(6));
+            autoUpdate();
+            return true;
+        });
+
+	// Update the form from the hash value
+	updateFormFromHash();
+    });
     </script>
   </head>
   <body>
@@ -266,15 +319,15 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	  <div id="output-tabs" class="tabs collapsible shadow">
 	    <ul class="head">
 	      <li>Desired Output:</li>
-	      <li><a href="#tabs-formula" class="btip" title="Simplify the formula, but do not convert it as an automaton.">Formula</a></li>
-	      <li><a href="#tabs-monitor" class="btip" title="Create a monitor accepting all finite prefixes compatible with the formula.">Monitor</a></li>
-	      <li><a href="#tabs-automaton" class="btip" title="Translate the LTL formula into B&uuml;chi automaton.">B&uuml;chi Automaton</a></li>
-	      <li><a href="#tabs-run" class="btip" title="Translate the LTL formula into B&uuml;chi automaton, and exhibit an accepting run.">B&uuml;chi Run</a></li>
+	      <li><a href="#tabs-of" class="btip" title="Simplify the formula, but do not convert it as an automaton.">Formula</a></li>
+	      <li><a href="#tabs-om" class="btip" title="Create a monitor accepting all finite prefixes compatible with the formula.">Monitor</a></li>
+	      <li><a href="#tabs-oa" class="btip" title="Translate the LTL formula into B&uuml;chi automaton.">B&uuml;chi Automaton</a></li>
+	      <li><a href="#tabs-or" class="btip" title="Translate the LTL formula into B&uuml;chi automaton, and exhibit an accepting run.">B&uuml;chi Run</a></li>
 	      <li class="ui-icon ui-icon-circle-arrow-n ftip">Fold</li>
 	    </ul>
 	    <input type="hidden" name="o">
 	    <div>
-	      <div id="tabs-formula">
+	      <div id="tabs-of">
 		Output the (simplified) formula as:<br>
 		<label class="rtip" title="Use letter operators (such as <span class='formula'>G</span> or <span class='formula'>F</span>) when possible.">
 		  <INPUT type="radio" name="ff" value="o" checked>
@@ -289,14 +342,14 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		  a syntactic tree
 		</label><br>
 	      </div>
-	      <div id="tabs-monitor">
+	      <div id="tabs-om">
 		Translate the (simplified) formula as:<br>
 		<label class="rtip" title="A deterministic monitor is a DFA that accepts all the prefixes of the executions that satisfy the formula.">
 		  <INPUT type="radio" name="mf" value="d" checked>
 		  a deterministic monitor
 		</label><br>
 	      </div>
-	      <div id="tabs-automaton">
+	      <div id="tabs-oa">
 		Translate the (simplified) formula as:<br>
 		<label class="rtip" title="A Transition-based Generalized B&uuml;chi Automaton (TGBA) is the main kind of automaton used by Spot. It is what all the translation algorithm below will output.">
 		  <INPUT type="radio" name="af" value="t" checked>
@@ -311,7 +364,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		  a Spin neverclaim
 		</label><br>
 	      </div>
-	      <div id="tabs-run">
+	      <div id="tabs-or">
 		Translate the (simplified) formula as:<br>
 		<label class="rtip" title="A Transition-based Generalized B&uuml;chi Automaton (TGBA) is the main kind of automaton used by Spot. It is what all the translation algorithm below will output.">
 		  <INPUT type="radio" name="ra" value="t" checked>
@@ -336,14 +389,14 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	  <div id="translator-tabs" class="tabs collapsible shadow">
 	    <ul class="head">
 	      <li>Translator Algorithm:</li>
-	      <li><a href="#tabs-fm" class="btip" title="A tableau construction that uses BDDs to symbolically represent each state of the automaton.  (This is the best algorithm of the three.)">Couvreur/FM</a></li>
-	      <li><a href="#tabs-lacim" class="btip" title="Builds a purely symbolic automaton, using BDDs to encode the transition relation.  The translation itself is fast (it uses a number of BDD operations that is linear in the size of the formula), but the resulting symbolic encoding is better used symbolically.  If you develop it explicitly (e.g. to draw it, as on this page) the result can easily have an exponential number of states.">Couvreur/LaCIM</a></li>
-	      <li><a href="#tabs-taa" class="btip" title="An implementation of Heikki Tauriainen's Ph.D. thesis algorithm to translate LTL formulas via very weak alternating automata with transition-based generalized acceptance conditions.">Tauriainen/TAA</a></li>
+	      <li><a href="#tabs-tfm" class="btip" title="A tableau construction that uses BDDs to symbolically represent each state of the automaton.  (This is the best algorithm of the three.)">Couvreur/FM</a></li>
+	      <li><a href="#tabs-tla" class="btip" title="Builds a purely symbolic automaton, using BDDs to encode the transition relation.  The translation itself is fast (it uses a number of BDD operations that is linear in the size of the formula), but the resulting symbolic encoding is better used symbolically.  If you develop it explicitly (e.g. to draw it, as on this page) the result can easily have an exponential number of states.">Couvreur/LaCIM</a></li>
+	      <li><a href="#tabs-tta" class="btip" title="An implementation of Heikki Tauriainen's Ph.D. thesis algorithm to translate LTL formulas via very weak alternating automata with transition-based generalized acceptance conditions.">Tauriainen/TAA</a></li>
 	      <li class="ui-icon ui-icon-circle-arrow-n ftip">Fold</li>
 	    </ul>
 	    <input type="hidden" name="t" value="fm">
 	    <div>
-	      <div id="tabs-fm">
+	      <div id="tabs-tfm">
 		<label class="rtip" title="Try to optimize the automaton for determinism when building it.  Warning: this option can be expensive if the formula uses a lot of different atomic propositions because the algorithm has to consider all possible valuations.">
 		  <INPUT type="checkbox" name="fm" value="od" checked>
 		  optimize determinism
@@ -361,13 +414,13 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		  fair-loop approximations
 		</label><br>
 	      </div>
-	      <div id="tabs-lacim">
+	      <div id="tabs-tla">
 		<label class="rtip" title="The automaton built by Couvreur/LaCIM is represented symbolically using BDDs.  Useless SCCs can be removed using a series of fix-point operations.  You may want to disable the <b>prune unaccepting SCCs</b> automaton simplification.">
 		  <INPUT type="checkbox" name="la" value="sp" checked>
 		  symbolically prune unaccepting SCCs
 		</label><br>
 	      </div>
-	      <div id="tabs-taa">
+	      <div id="tabs-tta">
 		<label class="rtip" title="Enable a refined set of translation rules, based on language inclusion between subformulas.  Because language inclusion between formula is tested using automata operations on translations for subformulas, this option can be slow.">
 		  <INPUT type="checkbox" name="ta" value="lc" checked>
 		  language containment

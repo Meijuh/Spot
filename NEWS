@@ -2,6 +2,8 @@ New in spot 0.8.2a:
 
   * Support for both Python 2.x and Python 3.x.
     (Previous versions would only work with Python 2.x.)
+  * The online ltl2tgba.html now stores its state in the URL so that
+    history is preserved, and links to particular setups can be sent.
   * Bug fixes:
     - Fix a segfault in the compression code used by the -Z
       option of dve2check.

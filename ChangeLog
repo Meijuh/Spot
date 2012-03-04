@@ -1,5 +1,15 @@
 2012-03-04  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	ltl2tgba.html: save state in URL to preserve history
+
+	* wrap/python/ajax/js/jquery.ba-bbq.min.js: New file.
+	* wrap/python/ajax/Makefile.am: Distribute it.
+	* wrap/python/ajax/ltl2tgba.html: Include it, and
+	Adjust the code to update the URL's hash fragment,
+	and to read it.
+
+2012-03-04  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	python: fix return value of emptiness_check_instantiator
 
 	* wrap/python/spot.i: Fix typemap for
