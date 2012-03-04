@@ -110,8 +110,26 @@ using namespace spot;
 // function that return errors via a "char **err" argument.
 %typemap(in, numinputs=0) char** OUTPUT (char* temp)
   "$1 = &temp;";
-%typemap(argout, fragment="t_output_helper") char** OUTPUT
-  "$result = t_output_helper($result, SWIG_FromCharPtr(*$1));";
+%typemap(argout) char** OUTPUT {
+  PyObject *obj = SWIG_FromCharPtr(*$1);
+  if (!$result) {
+    $result = obj;
+  //# If the function returns null_ptr (i.e. Py_None), we
+  //# don't want to override it with OUTPUT as in the
+  //# default implementation of t_output_helper.
+  // } else if ($result == Py_None) {
+  //   Py_DECREF($result);
+  //   $result = obj;
+  } else {
+    if (!PyList_Check($result)) {
+      PyObject *o2 = $result;
+      $result = PyList_New(1);
+      PyList_SetItem($result, 0, o2);
+    }
+    PyList_Append($result,obj);
+    Py_DECREF(obj);
+  }
+ };
 %apply char** OUTPUT { char** err };
 
 // False and True cannot be redefined in Python3, even in a class.

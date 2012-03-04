@@ -489,6 +489,7 @@ if output_type == 'r':
     if not eci:
         unbufprint('<div class="parse-error">Cannot parse "' + opt
                          + '" near "' + err + '".</div>')
+        ec = 0
     else:
         ec_a = 0
         n_acc = degen.number_of_acceptance_conditions()

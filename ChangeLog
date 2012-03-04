@@ -1,3 +1,13 @@
+2012-03-04  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	python: fix return value of emptiness_check_instantiator
+
+	* wrap/python/spot.i: Fix typemap for
+	emptiness_check_instantiator::construct.  The previous code used
+	to turn (None, "error") into simply ("error").
+	* wrap/python/ajax/spot.in: Fix handling or errors when
+	instantiating emptiness checks.
+
 2012-02-25  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* NEWS: Summarize recent changes.
