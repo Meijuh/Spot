@@ -63,6 +63,7 @@
 #include "tgbaalgos/emptiness_stats.hh"
 #include "tgbaalgos/scc.hh"
 #include "kripkeparse/public.hh"
+#include "tgbaalgos/simulation.hh"
 
 std::string
 ltl_defs()
@@ -339,6 +340,9 @@ main(int argc, char** argv)
   spot::timer_map tm;
   bool use_timer = false;
   bool assume_sba = false;
+  bool reduction_dir_sim = false;
+  spot::tgba* temp_dir_sim = 0;
+
 
   for (;;)
     {
@@ -621,6 +625,10 @@ main(int argc, char** argv)
 	{
 	  reduc_aut |= spot::Reduce_quotient_Dir_Sim;
 	}
+      else if (!strcmp(argv[formula_index], "-RSD"))
+        {
+          reduction_dir_sim = true;
+        }
       else if (!strcmp(argv[formula_index], "-R1t"))
 	{
 	  reduc_aut |= spot::Reduce_transition_Dir_Sim;
@@ -958,9 +966,21 @@ main(int argc, char** argv)
 	  else
 	    {
 	      a = minimized;
+              // When the minimization succeed, simulation is useless.
+              reduction_dir_sim = false;
 	      assume_sba = true;
 	    }
 	}
+
+
+      if (reduction_dir_sim)
+        {
+          tm.start("Reduction w/ direct simulation");
+          temp_dir_sim = spot::simulation(a);
+          a = temp_dir_sim;
+          tm.stop("Reduction w/ direct simulation");
+        }
+
 
       unsigned int n_acc = a->number_of_acceptance_conditions();
       if (echeck_inst
@@ -998,6 +1018,8 @@ main(int argc, char** argv)
 				// circles in the dot output are
 				// pointless.
 	}
+
+
 
       spot::tgba_reduc* aut_red = 0;
       if (reduc_aut != spot::Reduce_None)
@@ -1379,6 +1401,7 @@ main(int argc, char** argv)
       delete state_labeled;
       delete to_free;
       delete echeck_inst;
+      delete temp_dir_sim;
     }
   else
     {
