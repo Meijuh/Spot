@@ -302,12 +302,12 @@ namespace spot
 
     const state* s = a->get_init_state();
     int number = 1;
-    tgba_explicit::state* source;
-    tgba_explicit::state* dest;
+    state_explicit_string* source;
+    state_explicit_string* dest;
     const tgba_run::steps* l;
     bdd seen_acc = bddfalse;
 
-    typedef Sgi::hash_map<const state*, tgba_explicit::state*,
+    typedef Sgi::hash_map<const state*, state_explicit_string*,
                           state_ptr_hash, state_ptr_equal> state_map;
     state_map seen;
 
@@ -380,7 +380,8 @@ namespace spot
         else
           dest = its->second;
 
-        tgba_explicit::transition* t = res->create_transition(source, dest);
+        state_explicit_string::transition* t =
+	  res->create_transition(source, dest);
         res->add_conditions(t, label);
         res->add_acceptance_conditions(t, acc);
         source = dest;

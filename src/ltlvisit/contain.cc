@@ -132,9 +132,11 @@ namespace spot
       if (i != translated_.end())
 	return &i->second;
 
-      const tgba_explicit* e = ltl_to_tgba_fm(f, dict_, exprop_, symb_merge_,
-					      branching_postponement_,
-					      fair_loop_approx_);
+      const tgba_explicit_formula* e =
+	ltl_to_tgba_fm(f, dict_, exprop_, symb_merge_,
+		       branching_postponement_,
+		       fair_loop_approx_);
+
       record_& r = translated_[f->clone()];
       r.translation = e;
       return &r;

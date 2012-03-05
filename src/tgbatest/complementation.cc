@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
   {
     spot::ltl::environment& env(spot::ltl::default_environment::instance());
     spot::tgba_parse_error_list pel;
-    spot::tgba_explicit* a = spot::tgba_parse(file, pel, dict, env);
+    spot::tgba_explicit_string* a = spot::tgba_parse(file, pel, dict, env);
     if (spot::format_tgba_parse_errors(std::cerr, file, pel))
       return 2;
 

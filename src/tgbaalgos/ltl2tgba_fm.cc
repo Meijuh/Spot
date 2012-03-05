@@ -198,7 +198,7 @@ namespace spot
 
       void
       conj_bdd_to_acc(tgba_explicit_formula* a, bdd b,
-		      tgba_explicit::transition* t)
+		      state_explicit_formula::transition* t)
       {
 	assert(b != bddfalse);
 	while (b != bddtrue)
@@ -692,7 +692,7 @@ namespace spot
   }
 
 
-  tgba_explicit*
+  tgba_explicit_formula*
   ltl_to_tgba_fm(const formula* f, bdd_dict* dict,
 		 bool exprop, bool symb_merge, bool branching_postponement,
 		 bool fair_loop_approx, const atomic_prop_set* unobs,
@@ -945,7 +945,7 @@ namespace spot
 	      }
 	    if (!a->has_state(constant::true_instance()))
 	      formulae_to_translate.insert(constant::true_instance());
-	    tgba_explicit::transition* t =
+	    state_explicit_formula::transition* t =
 	      a->create_transition(now, constant::true_instance());
 	    a->add_condition(t, d.bdd_to_formula(cond_for_true));
 	  }
@@ -969,7 +969,7 @@ namespace spot
 		    bdd cond = j->second - cond_for_true;
 		    if (cond == bddfalse) // Skip false transitions.
 		      continue;
-		    tgba_explicit::transition* t =
+		    state_explicit_formula::transition* t =
 		      a->create_transition(now, dest);
 		    a->add_condition(t, d.bdd_to_formula(cond));
 		    d.conj_bdd_to_acc(a, j->first, t);

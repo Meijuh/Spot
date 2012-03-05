@@ -57,7 +57,7 @@ namespace spot
 	std::ostringstream out_name;
 	out_name << "(#" << out << ") " << this->aut_->format_state(out_s);
 
-	tgba_explicit::transition* t =
+	state_explicit_string::transition* t =
 	  out_->create_transition(in_name.str(), out_name.str());
 	out_->add_conditions(t, si->current_condition());
 	out_->add_acceptance_conditions(t, si->current_acceptance_conditions());
@@ -69,7 +69,7 @@ namespace spot
 
   } // anonymous
 
-  tgba_explicit*
+  tgba_explicit_string*
   tgba_dupexp_bfs(const tgba* aut)
   {
     dupexp_iter<tgba_reachable_iterator_breadth_first> di(aut);
@@ -77,7 +77,7 @@ namespace spot
     return di.result();
   }
 
-  tgba_explicit*
+  tgba_explicit_string*
   tgba_dupexp_dfs(const tgba* aut)
   {
     dupexp_iter<tgba_reachable_iterator_depth_first> di(aut);

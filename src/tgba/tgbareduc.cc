@@ -148,15 +148,15 @@ namespace spot
       }
   }
 
-  tgba_explicit::transition*
+  tgba_explicit_string::transition*
   tgba_reduc::create_transition(const spot::state* source,
 				const spot::state* dest)
   {
     const std::string ss = aut_->format_state(source);
     const std::string sd = aut_->format_state(dest);
 
-    tgba_explicit::state* s = tgba_explicit_string::add_state(ss);
-    tgba_explicit::state* d = tgba_explicit_string::add_state(sd);
+    state_explicit_string* s = tgba_explicit_string::add_state(ss);
+    state_explicit_string* d = tgba_explicit_string::add_state(sd);
 
     transition t;
     t.dest = d;
@@ -175,7 +175,7 @@ namespace spot
 
     t.condition = bddtrue;
     t.acceptance_conditions = bddfalse;
-    state_explicit::transitions_t::iterator is
+    state_explicit_string::transitions_t::iterator is
       = s->successors.insert(s->successors.end(), t);
     return &*is;
   }
@@ -190,10 +190,10 @@ namespace spot
     bdd cond_simul;
     bdd acc_simul;
     std::list<state*> ltmp;
-    const tgba_explicit::state* s1 =
-      name_state_map_[tgba_explicit_string::format_state(s)];
-    const tgba_explicit::state* s2 =
-      name_state_map_[tgba_explicit_string::format_state(simul)];
+    const state_explicit_string* s1 =
+      &(ls_[tgba_explicit_string::format_state(s)]);
+    const state_explicit_string* s2 =
+      &(ls_[tgba_explicit_string::format_state(simul)]);
 
     sp_map::iterator i = state_predecessor_map_.find(s1);
     if (i == state_predecessor_map_.end()) // 0 predecessor
@@ -205,7 +205,7 @@ namespace spot
       {
 	// We check if simul belong to the successor of p,
 	// as s belong too.
-	for (state_explicit::transitions_t::iterator
+	for (state_explicit_string::transitions_t::iterator
 	       j = (*p)->successors.begin();
 	     j != (*p)->successors.end(); ++j)
 	  if (j->dest == s2) // simul belong to the successor of p.
@@ -221,7 +221,7 @@ namespace spot
 	  continue;
 
 	// for all successor of p, a predecessor of s and simul.
-	for (state_explicit::transitions_t::iterator
+	for (state_explicit_string::transitions_t::iterator
 	       j = (*p)->successors.begin();
 	     j != (*p)->successors.end(); ++j)
 	  {
@@ -233,7 +233,7 @@ namespace spot
 		 ((!j->acceptance_conditions) | acc_simul) == bddtrue))
 	      {
 		// We can redirect transition leading to s on simul.
-		j->dest = const_cast<tgba_explicit::state*>(s2);
+		j->dest = const_cast<state_explicit_string*>(s2);
 
 		// We memorize that we have to remove p
 		// of the predecessor of s.
@@ -273,19 +273,20 @@ namespace spot
     // merge_state => NO PREDECESSOR.  But it can be have some
     // predecessor in state_predecessor_map_.
 
-    ns_map::iterator k =
-      name_state_map_.find(tgba_explicit_string::format_state(s));
-    if (k == name_state_map_.end()) // 0 predecessor
+    ls_map::iterator k =
+      ls_.find(tgba_explicit_string::format_state(s));
+    if (k == ls_.end()) // 0 predecessor
 	return;
 
-    tgba_explicit::state* st =
-      name_state_map_[tgba_explicit_string::format_state(s)];
+    state_explicit_string* st =
+      &(ls_[tgba_explicit_string::format_state(s)]);
 
     // for all successor q of s, we remove s of the predecessor of q.
     // Note that the initial node can't be removed.
-    for (state_explicit::transitions_t::iterator j =
+    for (state_explicit_string::transitions_t::iterator j =
 	   st->successors.begin(); j != st->successors.end(); ++j)
-      this->remove_predecessor_state(j->dest, st);
+      this->remove_predecessor_state(down_cast<const state_explicit_string*>
+				     (j->dest), st);
 
 
     sp_map::iterator i = state_predecessor_map_.find(st);
@@ -297,7 +298,7 @@ namespace spot
 	 p != (i->second)->end(); ++p)
       {
 	// for all transition of p, a predecessor of s.
-	for (state_explicit::transitions_t::iterator
+	for (state_explicit_string::transitions_t::iterator
 	       j = (*p)->successors.begin();
 	     j != (*p)->successors.end();)
 	  {
@@ -321,11 +322,11 @@ namespace spot
   void
   tgba_reduc::merge_state(const spot::state* sim1, const spot::state* sim2)
   {
-    const tgba_explicit::state* s1 =
-      name_state_map_[tgba_explicit_string::format_state(sim1)];
-    const tgba_explicit::state* s2 =
-      name_state_map_[tgba_explicit_string::format_state(sim2)];
-    const tgba_explicit::state* stmp = s1;
+    const state_explicit_string* s1 =
+      &(ls_[tgba_explicit_string::format_state(sim1)]);
+    const state_explicit_string* s2 =
+      &(ls_[tgba_explicit_string::format_state(sim2)]);
+    const state_explicit_string* stmp = s1;
     const spot::state* simtmp = sim1;
 
     // if sim1 is the init state, we remove sim2.
@@ -354,7 +355,7 @@ namespace spot
 	 p != (i->second)->end(); ++p)
       {
 	// for all successor of p, a predecessor of s1.
-	for (state_explicit::transitions_t::iterator
+	for (state_explicit_string::transitions_t::iterator
 	       j = (*p)->successors.begin();
 	     j != (*p)->successors.end(); ++j)
 	  {
@@ -362,7 +363,7 @@ namespace spot
 	    if (j->dest == s1)
 	      {
 		// ... make it s2.
-		j->dest = const_cast<tgba_explicit::state*>(s2);
+		j->dest = const_cast<state_explicit_string*>(s2);
 	      }
 	  }
       }
@@ -373,7 +374,7 @@ namespace spot
     // leaving s1 (possible when the simulation is delayed). Since s2
     // simulates s1, s2 has some labels that imply these of s1, so we
     // can put the acceptance conditions on its arcs.
-    for (state_explicit::transitions_t::const_iterator
+    for (state_explicit_string::transitions_t::const_iterator
 	   j = s1->successors.begin();
 	 j != s1->successors.end(); ++j)
       {
@@ -381,7 +382,7 @@ namespace spot
 	t.dest = j->dest;
 	t.condition = j->condition;
 	t.acceptance_conditions = j->acceptance_conditions;
-	const_cast<state_explicit*>(s2)->successors.push_back(t);
+	const_cast<state_explicit_string*>(s2)->successors.push_back(t);
       }
 
     // We remove all the predecessor of s1.

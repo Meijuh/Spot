@@ -30,7 +30,7 @@ namespace spot
   namespace
   {
     static
-    tgba_explicit::transition*
+    state_explicit_string::transition*
     create_transition(const tgba* aut, tgba_explicit_string* out_aut,
 		      const state* in_s, int in,
 		      const state* out_s, int out)
@@ -43,7 +43,7 @@ namespace spot
     }
 
     static
-    tgba_explicit::transition*
+    state_explicit_formula::transition*
     create_transition(const tgba* aut, tgba_explicit_formula* out_aut,
 		      const state* in_s, int, const state* out_s, int)
     {
@@ -62,6 +62,8 @@ namespace spot
     class filter_iter: public tgba_reachable_iterator_depth_first
     {
     public:
+      typedef T output_t;
+
       filter_iter(const tgba* a,
 		  const scc_map& sm,
 		  const std::vector<bool>& useless,
@@ -94,7 +96,7 @@ namespace spot
 		   const state* out_s, int out,
 		   const tgba_succ_iterator* si)
       {
-	tgba_explicit::transition* t =
+	typename output_t::state::transition* t =
 	  create_transition(this->aut_, out_, in_s, in, out_s, out);
 	out_->add_conditions(t, si->current_condition());
 

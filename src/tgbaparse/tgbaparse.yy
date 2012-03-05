@@ -105,7 +105,7 @@ lines: line
 
 line: strident ',' strident ',' condition ',' acc_list ';'
        {
-	 spot::tgba_explicit::transition* t
+	 spot::state_explicit_string::transition* t
 	   = result->create_transition(*$1, *$3);
 	 if ($5)
 	   {

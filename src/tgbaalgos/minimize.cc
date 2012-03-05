@@ -131,7 +131,7 @@ namespace spot
         state_num[*hit] = num;
       ++num;
     }
-    typedef tgba_explicit_number::transition trs;
+    typedef state_explicit_number::transition trs;
     tgba_explicit_number* res = new tgba_explicit_number(a->get_dict());
     // For each transition in the initial automaton, add the corresponding
     // transition in res.

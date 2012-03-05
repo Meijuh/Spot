@@ -35,6 +35,7 @@ check_PROGRAMS = \
   bddprod \
   complement \
   explicit \
+  explicit2 \
   expldot \
   explprod \
   intvcomp \
@@ -53,6 +54,7 @@ bddprod_SOURCES  = ltlprod.cc
 bddprod_CXXFLAGS = -DBDD_CONCRETE_PRODUCT
 complement_SOURCES = complementation.cc
 explicit_SOURCES = explicit.cc
+explicit2_SOURCES = explicit2.cc
 expldot_SOURCES  = powerset.cc
 expldot_CXXFLAGS = -DDOTTY
 explprod_SOURCES = explprod.cc

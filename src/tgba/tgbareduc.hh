@@ -75,9 +75,9 @@ namespace spot
     void display_scc(std::ostream& os);
 
   protected:
-    typedef Sgi::hash_map<const tgba_explicit::state*,
+    typedef Sgi::hash_map<const state_explicit_string*,
 			  std::list<state*>*,
-			  ptr_hash<tgba_explicit::state> > sp_map;
+			  ptr_hash<state_explicit_string> > sp_map;
     sp_map state_predecessor_map_;
 
     // Interface of tgba_reachable_iterator_breadth_first

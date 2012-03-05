@@ -50,13 +50,13 @@ main(int argc, char** argv)
 
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::tgba_parse_error_list pel;
-  spot::tgba_explicit* a = spot::tgba_parse(argv[1], pel, dict, env);
+  spot::tgba_explicit_string* a = spot::tgba_parse(argv[1], pel, dict, env);
   if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel))
     return 2;
 
 
 #ifndef DOTTY
-  spot::tgba_explicit* e = spot::tgba_powerset(a);
+  spot::tgba_explicit_number* e = spot::tgba_powerset(a);
   spot::tgba_save_reachable(std::cout, e);
   delete e;
 #else

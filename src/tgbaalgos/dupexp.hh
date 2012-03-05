@@ -29,11 +29,11 @@ namespace spot
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in bread first order as they are processed.
   /// \ingroup tgba_misc
-  tgba_explicit* tgba_dupexp_bfs(const tgba* aut);
+  tgba_explicit_string* tgba_dupexp_bfs(const tgba* aut);
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in depth first order as they are processed.
   /// \ingroup tgba_misc
-  tgba_explicit* tgba_dupexp_dfs(const tgba* aut);
+  tgba_explicit_string* tgba_dupexp_dfs(const tgba* aut);
 }
 
 #endif // SPOT_TGBAALGOS_DUPEXP_HH

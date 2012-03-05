@@ -89,7 +89,7 @@ namespace spot
 	    // Add that transition.
 	    power_set::const_iterator i = seen.find(dest);
 	    int dest_num;
-	    tgba_explicit::transition* t;
+	    state_explicit_number::transition* t;
 	    if (i != seen.end())
 	      {
 		dest_num = i->second;

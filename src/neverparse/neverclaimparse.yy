@@ -120,7 +120,7 @@ ident_list:
 state:
   ident_list "skip"
     {
-      spot::tgba_explicit::transition* t = result->create_transition(*$1, *$1);
+      spot::state_explicit_string::transition* t = result->create_transition(*$1, *$1);
       bool acc = !strncmp("accept", $1->c_str(), 6);
       if (acc)
 	result->add_acceptance_condition(t,
@@ -135,7 +135,7 @@ state:
       bool acc = !strncmp("accept", $1->c_str(), 6);
       for (it = $3->begin(); it != $3->end(); ++it)
       {
-	spot::tgba_explicit::transition* t =
+	spot::state_explicit_string::transition* t =
 	  result->create_transition(*$1,*it->second);
 
 	result->add_condition(t, it->first);

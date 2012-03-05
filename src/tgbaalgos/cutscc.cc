@@ -74,7 +74,7 @@ namespace spot
 	  {
 	    dst->destroy();
 	  }
-	  tgba_explicit::transition* t =
+	  state_explicit_string::transition* t =
 	    sub_a->create_transition(cur_format, dst_format);
 	  sub_a->add_conditions(t, sit->current_condition());
 	  sub_a->

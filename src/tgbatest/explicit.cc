@@ -37,7 +37,7 @@ main()
     spot::ltl::default_environment::instance();
   spot::tgba_explicit_string* a = new spot::tgba_explicit_string(dict);
 
-  typedef spot::tgba_explicit::transition trans;
+  typedef spot::state_explicit_string::transition trans;
 
   trans* t1 = a->create_transition("state 0", "state 1");
   trans* t2 = a->create_transition("state 1", "state 2");

@@ -53,8 +53,9 @@ namespace spot
     }
 
     void
-    random_labels(tgba_explicit* aut,
-		  tgba_explicit::state* src, const tgba_explicit::state* dest,
+    random_labels(tgba_explicit_string* aut,
+		  state_explicit_string* src,
+		  const state_explicit_string* dest,
 		  int* props, int props_n, float t,
 		  const std::list<bdd>& accs, float a)
     {
@@ -84,7 +85,7 @@ namespace spot
 	if (drand() < a)
 	  ac |= *i;
 
-      tgba_explicit::transition* u = aut->create_transition(src, dest);
+      state_explicit_string::transition* u = aut->create_transition(src, dest);
       aut->add_conditions(u, p);
       aut->add_acceptance_conditions(u, ac);
     }
@@ -107,7 +108,7 @@ namespace spot
 	 i != ap->end(); ++i)
       props[pi++] = dict->register_proposition(*i, res);
 
-    std::vector<tgba_explicit::state*> states(n);
+    std::vector<state_explicit_string*> states(n);
     // Indirect access to state[] to help random selection of successors.
     std::vector<int> state_randomizer(n);
 
@@ -153,7 +154,7 @@ namespace spot
 
     while (!nodes_to_process.empty())
       {
-	tgba_explicit::state* src = states[*nodes_to_process.begin()];
+	state_explicit_string* src = states[*nodes_to_process.begin()];
 	nodes_to_process.erase(nodes_to_process.begin());
 
 	// Choose a random number of successors (at least one), using
@@ -195,7 +196,7 @@ namespace spot
 		state_randomizer[index] = state_randomizer[possibilities];
 		state_randomizer[possibilities] = x;
 
-		tgba_explicit::state* dest = states[x];
+		state_explicit_string* dest = states[x];
 
 		random_labels(res, src, dest, props, props_n, t, accs, a);
 

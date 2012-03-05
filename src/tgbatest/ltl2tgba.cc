@@ -1058,7 +1058,7 @@ main(int argc, char** argv)
 	    }
 	}
 
-      const spot::tgba_explicit* expl = 0;
+      const spot::tgba_explicit_string* expl = 0;
       switch (dupexp)
 	{
 	case NoneDup:

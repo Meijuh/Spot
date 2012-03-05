@@ -122,12 +122,13 @@ namespace spot
   /// \endverbatim
   ///
   /// \return A spot::tgba_explicit that recognizes the language of \a f.
-  tgba_explicit* ltl_to_tgba_fm(const ltl::formula* f, bdd_dict* dict,
-				bool exprop = false, bool symb_merge = true,
-				bool branching_postponement = false,
-				bool fair_loop_approx = false,
-				const ltl::atomic_prop_set* unobs = 0,
-				int reduce_ltl = ltl::Reduce_None);
+  tgba_explicit_formula*
+  ltl_to_tgba_fm(const ltl::formula* f, bdd_dict* dict,
+		 bool exprop = false, bool symb_merge = true,
+		 bool branching_postponement = false,
+		 bool fair_loop_approx = false,
+		 const ltl::atomic_prop_set* unobs = 0,
+		 int reduce_ltl = ltl::Reduce_None);
 }
 
 #endif // SPOT_TGBAALGOS_LTL2TGBA_FM_HH
