@@ -72,9 +72,7 @@
 		    value = hashparam[name];
 		    if (value.constructor != Array)
 			value = [value];
-		} else {
-		    return;
-                }
+		}
 		switch(this.type || this.tagName.toLowerCase()) {
 		case "radio":
 		case "checkbox":

@@ -1,5 +1,14 @@
 2012-03-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	ltl2tgba.html: Fix initialization of unset options on reload.
+
+	* wrap/python/ajax/ltl2tgba.html: On page reload, do not ignore
+	fields for which no value has been set in the hash fragment.
+	Otherwise they will keep their default value.
+	Reported by Thomas Badie.
+
+2012-03-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* wrap/python/ajax/spot.in: Fix emulation of execfile.
 
 2012-03-04  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
