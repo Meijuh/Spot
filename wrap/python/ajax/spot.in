@@ -199,8 +199,7 @@ if ('SERVER_SOFTWARE' in os.environ and
 
 try:
     # execfile('ltl2tgba.opt') no longuer work with Python 3.
-    exec(compile(open("ltl2tgba.opt").read(), "ltl2tgba.opt", 'exec'),
-         global_vars, local_vars)
+    exec(compile(open("ltl2tgba.opt").read(), "ltl2tgba.opt", 'exec'))
 except IOError:
     pass
 
