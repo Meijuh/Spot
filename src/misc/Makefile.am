@@ -30,6 +30,7 @@ nodist_misc_HEADERS = _config.h
 DISTCLEANFILES = _config.h
 
 misc_HEADERS = \
+  acccompl.hh \
   accconv.hh \
   bareword.hh \
   bddalloc.hh \
@@ -55,6 +56,7 @@ misc_HEADERS = \
 
 noinst_LTLIBRARIES = libmisc.la
 libmisc_la_SOURCES = \
+  acccompl.cc \
   accconv.cc \
   bareword.cc \
   bddalloc.cc \
