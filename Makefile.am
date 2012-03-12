@@ -39,5 +39,25 @@ endif
 SUBDIRS = $(MAYBE_BUDDY) $(MAYBE_LBTT) $(NEVER_BENCH) doc src wrap ltdl iface
 
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = HACKING ChangeLog.1
+EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog
 
+dist-hook: gen-ChangeLog
+
+gen_start = 2012-03-10
+.PHONY: gen-ChangeLog
+gen-ChangeLog:
+	if test -d .git; then						\
+## Generate all commits in the form "SHA1 subject"
+	  git log --since=$(gen_start) --pretty=oneline |		\
+## Filter out commits whose subject start with '['.  These are usually
+## [buddy] or [lbtt] tags to indicate we are committing on a subproject.
+            grep -v '........................................ \[' |	\
+## Keep the SHA1
+	    cut -c 1-40 |						\
+## Feed all that to gitlog-to-changelog
+            $(top_srcdir)/tools/gitlog-to-changelog			\
+	      --no-cluster --format='%s%n%n%b%n' --			\
+              --stdin --no-walk > $(distdir)/cl-t;			\
+          rm -f $(distdir)/ChangeLog;					\
+          mv $(distdir)/cl-t $(distdir)/ChangeLog;			\
+	fi
