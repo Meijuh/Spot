@@ -228,7 +228,7 @@
       <!-- The action below will not be used. -->
       <FORM id="trform" action="#"><P>
 	  <div class="ui-widget ui-widget-content ui-corner-all collapsible shadow">
-	    <h3 id="ltl-head" class="ui-widget-header ui-corner-all head">LTL Formula to translate<span class="ui-icon ui-icon-circle-arrow-n ltltip">Fold</span></h3>
+	    <h3 id="ltl-head" class="ui-widget-header ui-corner-all head">LTL (or PSL) Formula to translate<span class="ui-icon ui-icon-circle-arrow-n ltltip">Fold</span></h3>
 	    <div class="dontcollapse">
 	      <INPUT class="formula" type="text" name="f" value=""><span id="send" class="btip" title="Submit the formula and all options.  You may simply hit <b>enter</b> after typing the formula.  After the first submission the form will auto-update itself anytime you change an option.">Send</span></div>
 	    <div id="ltl-help">
@@ -241,64 +241,108 @@ to refer to <span class="formula">GFa</span> as a proposition.<br>Conversely, in
 letter operators are not assumed to be operators if they are part of
 an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 <span class="formula">a&nbsp;U&nbsp;b</span> and <span class="formula">(a)U(b)</span>.</p>
-<table border="1"><tr><td>
-<table border="0" rules="groups" frame="void" cellpadding="3" cellspacing=0>
+<table border="0" width="100%" rules="groups" frame="void" cellpadding="3" cellspacing="0" class="ltltable">
+  <colgroup>
   <colgroup span=2>
   <colgroup span=2>
   <colgroup span=2>
   <colgroup span=2>
   <thead>
     <tr>
-      <th colspan=2>Unary operators<br>(prefix)</th>
-      <th colspan=4>Binary operators<br>(infix)</th>
+      <th></th>
       <th colspan=2>Constants</th>
+      <th colspan=2>Unary operators (prefix)</th>
+      <th colspan=4>Binary operators (infix)</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td align="right">not:</td><td><span class="formula">!</span> <span class="formula">~</span></td>
-      <td align="right">and:</td><td><span class="formula">&</span> <span class="formula">&&</span>
-                                     <span class="formula">/\</span></td>
-      <td align="right">(strong) until:</td><td><span class="formula">U</span></td>
-      <td align="right">true:</td><td><span class="formula">1</span>
-                                      <span class="formula">true</span></td>
-    </tr>
+      <td class="ltldocrow" rowspan=3>Boolean</td>
+      <td class="ltldoc">false:</td><td><span class="formula">0</span> <span class="formula">false</span></td>
+      <td class="ltldoc">not:</td><td><span class="formula">!</span> <span class="formula">~</span></td>
+      <td class="ltldoc">and:</td><td><span class="formula">&</span> <span class="formula">&&</span>
+                                      <span class="formula">/\</span></td>
+      <td class="ltldoc">implies:</td><td><span class="formula">-&gt;</span>
+					  <span class="formula">--&gt;</span>
+                                          <span class="formula">=&gt;</span></td>
+      </tr>
     <tr>
-      <td align="right">eventually:</td><td><span class="formula">F</span>
-                                            <span class="formula">&lt;&gt;</span></td>
-      <td align="right">or:</td><td><span class="formula">|</span> <span class="formula">||</span>
-                                    <span class="formula">+</span> <span class="formula">\/</span></td>
-
-      <td align="right">weak until:</td><td><span class="formula">W</span></td>
-      <td align="right">false:</td><td><span class="formula">0</span>
-                                       <span class="formula">false</span></td>
-    </tr>
-    <tr>
-      <td align="right">always:</td><td><span class="formula">G</span>
-                                        <span class="formula">[]</span></td>
-      <td align="right">implies:</td><td><span class="formula">-&gt;</span>
-					 <span class="formula">--&gt;</span>
-                                         <span class="formula">=&gt;</span></td>
-      <td align="right">(weak) release:</td><td><span class="formula">R</span>
-                                         <span class="formula">V</span></td>
+      <td class="ltldoc">true:</td><td><span class="formula">1</span> <span class="formula">true</span></td>
       <td></td><td></td>
-    </tr>
-    <tr>
-      <td align="right">next:</td><td><span class="formula">X</span> <span class="formula">()</span></td>
-      <td align="right">equivalent:</td><td><span class="formula">&lt;-&gt;</span>
-					    <span class="formula">&lt;--&gt;</span>
-                                            <span class="formula">&lt;=&gt;</span></td>
-      <td align="right">strong release:</td><td><span class="formula">M</span></td>
-      <td></td><td></td>
+      <td class="ltldoc">or:</td><td><span class="formula">|</span> <span class="formula">||</span>
+                                     <span class="formula">+</span> <span class="formula">\/</span></td>
+      <td class="ltldoc">equivalent:</td><td><span class="formula">&lt;-&gt;</span>
+                                             <span class="formula">&lt;--&gt;</span>
+                                             <span class="formula">&lt;=&gt;</span></td>
     </tr>
     <tr>
       <td></td><td></td>
-      <td align="right">xor:</td><td><span class="formula">^</span> <span class="formula">xor</span></td>
+      <td></td><td></td>
+      <td class="ltldoc">xor:</td><td><span class="formula">xor</span> <span class="formula">^</span></td>
+      <td></td><td></td>
+    </tr>
+  </tbody>
+  <tbody>
+    <tr>
+      <td class="ltldocrow" rowspan=3>LTL</td>
+      <td></td><td></td>
+      <td class="ltldoc">eventually:</td><td><span class="formula">F</span>
+                                             <span class="formula">&lt;&gt;</span></td>
+      <td class="ltldoc">(strong) until:</td><td><span class="formula">U</span></td>
+      <td class="ltldoc">weak until:</td><td><span class="formula">W</span></td>
+    </tr>
+    <tr>
+      <td></td><td></td>
+      <td class="ltldoc">always:</td><td><span class="formula">G</span>
+                                         <span class="formula">[]</span></td>
+      <td class="ltldoc">(weak) release:</td><td><span class="formula">R</span>
+                                                 <span class="formula">V</span></td>
+      <td class="ltldoc">strong release:</td><td><span class="formula">M</span></td>
+    </tr>
+    <tr>
+      <td></td><td></td>
+      <td class="ltldoc">next:</td><td><span class="formula">X</span> <span class="formula">()</span></td>
       <td></td><td></td>
       <td></td><td></td>
     </tr>
   </tbody>
-</table></td></tr></table>
+  <tbody>
+    <tr>
+      <td class="ltldocrow" rowspan=3 >SERE</td>
+      <td class="ltldoc">ε:</td><td><span class="formula">[*0]</span></td>
+      <td class="ltldoc">Kleene star:</td><td><span class="formula">[*]</span> <span class="formula">[*</span><i>i..j</i><span class="formula">]</span></td>
+      <td class="ltldoc">concatenation:</td><td><span class="formula">;</span></td>
+      <td class="ltldoc">fusion:</td><td><span class="formula">:</span></td>
+    </tr>
+    <tr>
+      <td></td><td></td>
+      <td class="ltldoc">goto:</td><td><span class="formula">[-></span><i>i..j</i><span class="formula">]</span></td>
+      <td class="ltldoc">intersection:</td><td><span class="formula">&&</span> <span class="formula">/\</span></td>
+      <td class="ltldoc"><ABBR title="Non-Length-Matching">NLM</ABBR> and:</td><td><span class="formula">&</span></td>
+    </tr>
+    <tr>
+      <td></td><td></td>
+      <td class="ltldoc">nonconsec. rep.:</td><td><span class="formula">[=</span><i>i..j</i><span class="formula">]</span></td>
+      <td class="ltldoc">union:</td><td><span class="formula">|</span> <span class="formula">||</span> <span class="formula">+</span> <span class="formula">\/</span></td>
+      <td></td><td></td>
+    </tr>
+  </tbody>
+  <tbody>
+    <tr>
+      <td class="ltldocrow" rowspan=2>PSL</td>
+      <td></td><td></td>
+      <td class="ltldoc">weak closure:</td><td><span class="formula">{</span><i>s</i><span class="formula">}</span></td>
+      <td class="ltldoc">∀-suffix impl.:</td><td><span class="formula">{</span><i>s</i><span class="formula">}[]-></span><i>p</i><br><span class="formula">{</span><i>s</i><span class="formula">}|-></span><i>p</i><br><span class="formula">{</span><i>s</i><span class="formula">}(</span><i>p</i><span class="formula">)</span></td>
+      <td class="ltldoc"><ABBR title="Non-Overlapping">NO</ABBR> ∀-suffix impl.:</td><td><span class="formula">{</span><i>s</i><span class="formula">}[]=></span><i>p</i><br><span class="formula">{</span><i>s</i><span class="formula">}|=></span><i>p</i></td>
+    </tr>
+    <tr>
+      <td></td><td></td>
+      <td class="ltldoc">strong closure:</td><td><span class="formula">{</span><i>s</i><span class="formula">}!</span></td>
+      <td class="ltldoc">∃-suffix impl.:</td><td><span class="formula">{</span><i>s</i><span class="formula">}&lt;&gt;-></span><i>p</i></td>
+      <td class="ltldoc"><ABBR title="Non-Overlapping">NO</ABBR> ∃-suffix impl.:</td><td><span class="formula">{</span><i>s</i><span class="formula">}&lt;&gt;=></span><i>p</i></td>
+    </tr>
+  </tbody>
+</table>
 	    </div>
 	  </div>
 	  <div class="ui-widget ui-widget-content ui-corner-all collapsible shadow">

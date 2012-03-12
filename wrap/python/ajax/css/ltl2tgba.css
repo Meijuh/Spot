@@ -56,6 +56,21 @@ div.ltl2tgba {
   z-index:1;
 }
 
+.ltldoc {
+    text-align: right;
+}
+
+table.ltltable
+{
+    border-collapse:collapse;
+    font-size: 90%;
+}
+
+.ltldocrow {
+    font-weight: bold;
+    vertical-align:top;
+}
+
 .ltl2tgba div.ui-widget-content {
     padding: 3px;
     margin: 2px 0px;
