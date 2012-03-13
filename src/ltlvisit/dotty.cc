@@ -1,8 +1,9 @@
-// Copyright (C) 2009, 2010, 2011  Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
-// Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
+// Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
+// Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -65,7 +66,7 @@ namespace spot
 	{
 	  if (draw_node_(so, so->format()))
 	    {
-	      dir = none;
+	      childnum = 0;
 	      so->child()->accept(*this);
 	    }
 	}
@@ -75,10 +76,10 @@ namespace spot
 	{
 	  if (draw_node_(bo, bo->op_name()))
 	    {
-	      dir = left;
+	      childnum = -1;
 	      dotty_visitor v(*this);
 	      bo->first()->accept(v);
-	      dir = right;
+	      childnum = -2;
 	      bo->second()->accept(*this);
 	    }
 	}
@@ -88,7 +89,7 @@ namespace spot
 	{
 	  if (draw_node_(uo, uo->op_name()))
 	    {
-	      dir = none;
+	      childnum = 0;
 	      uo->child()->accept(*this);
 	    }
 	}
@@ -104,10 +105,16 @@ namespace spot
 	{
 	  if (!draw_node_(mo, mo->op_name()))
 	    return;
-	  dir = none;
+	  childnum = 0;
 	  unsigned max = mo->size();
+	  multop::type op = mo->op();
+	  bool update_childnum = (op == multop::Fusion ||
+				  op == multop::Concat);
+
 	  for (unsigned n = 0; n < max; ++n)
 	    {
+	      if (update_childnum)
+		++childnum;
 	      dotty_visitor v(*this);
 	      mo->nth(n)->accept(v);
 	    }
@@ -121,7 +128,7 @@ namespace spot
 	  delete sinks_;
 	}
 
-	enum { left, right, none } dir;
+	int childnum;
 
       private:
 	std::ostream& os_;
@@ -149,9 +156,11 @@ namespace spot
 	  if (father_ >= 0)
 	    {
 	      os_ << "  " << father_ << " -> " << node;
-	      if (dir == left)
+	      if (childnum > 0)
+		os_ << " [taillabel=\"" << childnum << "\"]";
+	      if (childnum == -1)
 		os_ << " [taillabel=\"L\"]";
-	      else if (dir == right)
+	      else if (childnum == -2)
 		os_ << " [taillabel=\"R\"]";
 	      os_ << ";" << std::endl;
 	    }
