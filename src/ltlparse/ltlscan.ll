@@ -1,7 +1,7 @@
-/* Copyright (C) 2010, 2011, Laboratoire de Recherche et D�veloppement de
-** l'Epita (LRDE).
+/* Copyright (C) 2010, 2011, 2012, Laboratoire de Recherche et
+** Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-** d�partement Syst�mes R�partis Coop�ratifs (SRC), Universit� Pierre
+** département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ** et Marie Curie.
 **
 ** This file is part of Spot, a model checking library.
@@ -21,7 +21,7 @@
 ** Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ** 02111-1307, USA.
 */
-%option noyywrap
+%option noyywrap warn 8bit batch
 %option prefix="ltlyy"
 %option outfile="lex.yy.c"
 
@@ -61,6 +61,17 @@ flex_set_buffer(const char* buf, int start_tok)
 %s not_prop
 %x sqbracket
 
+BOX       "[]"|"□"|"⬜"|"◻"
+DIAMOND   "<>"|"◇"|"⋄"|"♢"
+ARROWL    "->"|"-->"|"→"|"⟶"
+DARROWL   "=>"|"⇒"|"⟹"
+ARROWLR   "<->"|"<-->"|"↔"
+DARROWLR  "<=>"|"⇔"
+CIRCLE    "()"|"○"|"◯"
+NOT       "!"|"~"|"¬"
+BOXARROW  {BOX}{ARROWL}|"|"{ARROWL}|"↦"
+BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
+
 %%
 
 %{
@@ -86,20 +97,20 @@ flex_set_buffer(const char* buf, int start_tok)
 
 
   /* ~ comes from Goal, ! from everybody else */
-"!"|"~"				BEGIN(0); return token::OP_NOT;
+{NOT}				BEGIN(0); return token::OP_NOT;
 
   /* PSL operators */
-"[]->"|"|->"			BEGIN(0); return token::OP_UCONCAT;
-"<>->"				BEGIN(0); return token::OP_ECONCAT;
-"[]=>"|"|=>"			BEGIN(0); return token::OP_UCONCAT_NONO;
-"<>=>"				BEGIN(0); return token::OP_ECONCAT_NONO;
+{BOXARROW}			BEGIN(0); return token::OP_UCONCAT;
+{DIAMOND}{ARROWL}		BEGIN(0); return token::OP_ECONCAT;
+{BOXDARROW}			BEGIN(0); return token::OP_UCONCAT_NONO;
+{DIAMOND}{DARROWL}		BEGIN(0); return token::OP_ECONCAT_NONO;
 ";"				BEGIN(0); return token::OP_CONCAT;
 ":"				BEGIN(0); return token::OP_FUSION;
 "*"|"[*]"			BEGIN(0); return token::OP_STAR;
 "[+]"				BEGIN(0); return token::OP_PLUS;
 "[*"				BEGIN(sqbracket); return token::OP_STAR_OPEN;
 "[="				BEGIN(sqbracket); return token::OP_EQUAL_OPEN;
-"[->"				BEGIN(sqbracket); return token::OP_GOTO_OPEN;
+"["{ARROWL}			BEGIN(sqbracket); return token::OP_GOTO_OPEN;
 <sqbracket>"]"			BEGIN(0); return token::OP_SQBKT_CLOSE;
 <sqbracket>[0-9]+		{
                                   unsigned num = 0;
@@ -112,7 +123,7 @@ flex_set_buffer(const char* buf, int start_tok)
                                   {
                                     error_list.push_back(
 				      spot::ltl::parse_error(*yylloc,
-		                        "value too large ignored"));
+					"value too large ignored"));
 				    // Skip this number and read next token
                                     yylloc->step();
 				  }
@@ -131,19 +142,19 @@ flex_set_buffer(const char* buf, int start_tok)
   /* & and | come from Spin.  && and || from LTL2BA.
      /\, \/, and xor are from LBTT.
      --> and <--> come from Goal.  */
-"||"|"|"|"+"|"\\/"		BEGIN(0); return token::OP_OR;
-"&&"|"/\\"			BEGIN(0); return token::OP_AND;
+"||"|"|"|"+"|"\\/"|"∨"|"∪"	BEGIN(0); return token::OP_OR;
+"&&"|"/\\"|"∧"|"∩"		BEGIN(0); return token::OP_AND;
 "&"				BEGIN(0); return token::OP_SHORT_AND;
-"^"|"xor"			BEGIN(0); return token::OP_XOR;
-"=>"|"->"|"-->"			BEGIN(0); return token::OP_IMPLIES;
-"<=>"|"<->"|"<-->"		BEGIN(0); return token::OP_EQUIV;
+"^"|"xor"|"⊕"			BEGIN(0); return token::OP_XOR;
+{ARROWL}|{DARROWL}		BEGIN(0); return token::OP_IMPLIES;
+{ARROWLR}|{DARROWLR}		BEGIN(0); return token::OP_EQUIV;
 
   /* <>, [], and () are used in Spin.  */
-"F"|"<>"			BEGIN(0); return token::OP_F;
-"G"|"[]"			BEGIN(0); return token::OP_G;
+"F"|{DIAMOND}			BEGIN(0); return token::OP_F;
+"G"|{BOX}			BEGIN(0); return token::OP_G;
 "U"				BEGIN(0); return token::OP_U;
 "R"|"V"				BEGIN(0); return token::OP_R;
-"X"|"()"			BEGIN(0); return token::OP_X;
+"X"|{CIRCLE}			BEGIN(0); return token::OP_X;
 "W"				BEGIN(0); return token::OP_W;
 "M"				BEGIN(0); return token::OP_M;
 
