@@ -67,10 +67,14 @@ elif script:
 dot = '@DOT@'
 dot_bgcolor = '-Gbgcolor=#FFFFFF00'
 
-svg_output = False # FIXME: SVG output seems to be working well with
-                   #        Firefox only.  We have to figure out how
-                   #        to get the correct size and transparent
-                   #        background in Chrome.
+svg_output = False # SVG output used to working well with Firefox
+                   # only.  It now seems to work with recent Chrome
+                   # versions as well, but it is still a problem with
+                   # Safari, and IE.
+output_both = True # Create both PNG and SVG.  If svg_output is False,
+                   # the SVG will be given as a link under the PNG.
+                   # Otherwise the PNG is used as alternate contents
+                   # for the SVG object.
 
 if not script:
     # If this is not run as a cgi script, let's start an HTTP server.
@@ -217,29 +221,40 @@ better to install Spot on your own computer.</p>\n""")
 def reset_alarm():
     signal.alarm(30)
 
-def render_dot(basename):
-    unbufprint('<div class="dot">')
-    if svg_output:
-        ext = 'svg'
-    else:
-        ext = 'png'
-
+def run_dot(basename, ext):
     outname = basename + '.' + ext
     # Do not call "dot" to generate a file that already exists.
     if not os.access(outname, os.F_OK):
         os.spawnlp(os.P_WAIT, dot, dot, dot_bgcolor, '-T' + ext,
                    '-Gsize=8.2,8.2', '-o', outname, basename + '.txt')
     reset_alarm()
-    # Create an unused hardlink that point to the output picture
+    # Create a unused hardlink that points to the output picture
     # just to remember how many cache entries are sharing it.
     os.link(outname, tmpdir + "/" + ext)
+
+def render_dot(basename):
+    unbufprint('<div class="dot">')
     b = cgi.escape(basename)
+
+    if svg_output or output_both:
+        run_dot(basename, 'svg')
+    if not svg_output or output_both:
+        run_dot(basename, 'png')
+        pngstr = '<img src="' + b + '.png">'
+
     if svg_output:
-        unbufprint('<object type="image/svg+xml" data="' + b +
-                   '.svg">Your browser does not support SVG.</object>')
+        unbufprint('<object type="image/svg+xml" data="' + b + '.svg">')
+        if output_both:
+            unbufprint(pngstr)
+        else:
+            unbufprint('Your browser does not support SVG.')
+        unbufprint('</object>' + '<br>(<a href="' + b
+                   + '.txt">dot</a>)')
     else:
         unbufprint('<img src="' + b + '.png"><br>(<a href="' + b
-                   + '.txt">dot source</a>)')
+                   + '.txt">dot</a>)')
+        if output_both:
+            unbufprint(' (<a href="' + b + '.svg">svg</a>)')
     unbufprint('</div>\n')
 
 def render_dot_maybe(dotsrc, dont_run_dot):
