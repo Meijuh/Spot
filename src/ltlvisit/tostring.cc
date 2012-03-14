@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2010, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2010, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE)
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -156,7 +156,7 @@ namespace spot
 	  switch (bo->op())
 	    {
 	    case binop::Xor:
-	      os_ << " ^ ";
+	      os_ << " xor ";
 	      break;
 	    case binop::Implies:
 	      os_ << " -> ";
