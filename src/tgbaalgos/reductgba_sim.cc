@@ -291,7 +291,7 @@ namespace spot
     for (i1 = spoiler_vertice_.begin();
 	 i1 != spoiler_vertice_.end(); ++i1)
       {
-	os << (*i1)->to_string(automata_);
+	os << (*i1)->to_string(aut_);
 	++n;
 	if (n > 20)
 	  {
@@ -311,7 +311,7 @@ namespace spot
     for (i2 = duplicator_vertice_.begin();
 	 i2 != duplicator_vertice_.end(); ++i2)
       {
-	os << (*i2)->to_string(automata_);
+	os << (*i2)->to_string(aut_);
 	++n;
 	if (n > 20)
 	  {
@@ -404,7 +404,7 @@ namespace spot
         for (std::vector<const state*>::iterator j = tgba_state_.begin();
 	     j != tgba_state_.end(); ++j)
 	  {
-	    si = automata_->succ_iter(*j);
+	    si = aut_->succ_iter(*j);
 	    for (si->first(); !si->done(); si->next())
 	      {
 
@@ -485,7 +485,7 @@ namespace spot
 		->compare((*i)->get_spoiler_node()) == 0)
 	      {
 		tgba_succ_iterator* si
-		  = automata_->succ_iter((*j)->get_duplicator_node());
+		  = aut_->succ_iter((*j)->get_duplicator_node());
 		for (si->first(); !si->done(); si->next())
 		  {
 		    s = si->current_state();
@@ -506,7 +506,7 @@ namespace spot
 		->compare((*i)->get_duplicator_node()) == 0)
 	      {
 		tgba_succ_iterator* si
-		  = automata_->succ_iter((*i)->get_spoiler_node());
+		  = aut_->succ_iter((*i)->get_spoiler_node());
 		for (si->first(); !si->done(); si->next())
 		  {
 		    s = si->current_state();

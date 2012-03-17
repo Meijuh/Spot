@@ -132,9 +132,9 @@ namespace spot
   void
   tgba_reduc::process_state(const spot::state* s, int, tgba_succ_iterator* si)
   {
-    spot::state* init = automata_->get_init_state();
+    spot::state* init = aut_->get_init_state();
     if (init->compare(s) == 0)
-      this->set_init_state(automata_->format_state(s));
+      this->set_init_state(aut_->format_state(s));
     init->destroy();
 
     transition* t;
@@ -152,8 +152,8 @@ namespace spot
   tgba_reduc::create_transition(const spot::state* source,
 				const spot::state* dest)
   {
-    const std::string ss = automata_->format_state(source);
-    const std::string sd = automata_->format_state(dest);
+    const std::string ss = aut_->format_state(source);
+    const std::string sd = aut_->format_state(dest);
 
     tgba_explicit::state* s = tgba_explicit_string::add_state(ss);
     tgba_explicit::state* d = tgba_explicit_string::add_state(sd);

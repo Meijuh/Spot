@@ -344,7 +344,7 @@ namespace spot
   int
   parity_game_graph_delayed::nb_set_acc_cond()
   {
-    return automata_->number_of_acceptance_conditions();
+    return aut_->number_of_acceptance_conditions();
   }
 
   // We build only node which are reachable
@@ -393,7 +393,7 @@ namespace spot
   {
     assert(sn);
 
-    tgba_succ_iterator* si = automata_->succ_iter(sn->get_spoiler_node());
+    tgba_succ_iterator* si = aut_->succ_iter(sn->get_spoiler_node());
 
     for (si->first(); !si->done(); si->next())
       {
@@ -439,7 +439,7 @@ namespace spot
 				     spoiler_node* ,
 				     std::ostringstream& os)
   {
-    tgba_succ_iterator* si = automata_->succ_iter(dn->get_duplicator_node());
+    tgba_succ_iterator* si = aut_->succ_iter(dn->get_duplicator_node());
 
     for (si->first(); !si->done(); si->next())
       {
@@ -524,7 +524,7 @@ namespace spot
   {
     bool exist = false;
 
-    //bool l2a = (acc != automata_->all_acceptance_conditions());
+    //bool l2a = (acc != aut_->all_acceptance_conditions());
     spoiler_node_delayed* sn_n
       = new spoiler_node_delayed(sn, dn, acc, nb);
 

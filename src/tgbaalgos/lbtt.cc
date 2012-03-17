@@ -1,3 +1,5 @@
+// Copyright (C) 2011 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -124,7 +126,7 @@ namespace spot
 	body_ << out - 1 << " ";
 	acs_.split(body_, si->current_acceptance_conditions());
 	body_ << "-1 " << bdd_to_lbtt(si->current_condition(),
-				      automata_->get_dict()) << std::endl;
+				      aut_->get_dict()) << std::endl;
       }
 
       void

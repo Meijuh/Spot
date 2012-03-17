@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2008, 2009, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -90,7 +90,7 @@ namespace spot
 			      const tgba_succ_iterator* si);
 
   protected:
-    const tgba* automata_;	///< The spot::tgba to explore.
+    const tgba* aut_;	///< The spot::tgba to explore.
 
     typedef Sgi::hash_map<const state*, int,
 			  state_ptr_hash, state_ptr_equal> seen_map;

@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -53,9 +53,9 @@ namespace spot
 		   const tgba_succ_iterator* si)
       {
 	std::ostringstream in_name;
-	in_name << "(#" << in << ") " << this->automata_->format_state(in_s);
+	in_name << "(#" << in << ") " << this->aut_->format_state(in_s);
 	std::ostringstream out_name;
-	out_name << "(#" << out << ") " << this->automata_->format_state(out_s);
+	out_name << "(#" << out << ") " << this->aut_->format_state(out_s);
 
 	tgba_explicit::transition* t =
 	  out_->create_transition(in_name.str(), out_name.str());

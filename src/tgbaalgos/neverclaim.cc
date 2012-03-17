@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -58,7 +58,7 @@ namespace spot
 	    os_ << " */";
 	  }
 	os_ << '\n';
-	init_ = automata_->get_init_state();
+	init_ = aut_->get_init_state();
       }
 
       void
@@ -86,7 +86,7 @@ namespace spot
 	// we just check the acceptance of the first transition.  This
 	// is not terribly efficient since we have to create the
 	// iterator.
-	tgba_succ_iterator* it = automata_->succ_iter(s);
+	tgba_succ_iterator* it = aut_->succ_iter(s);
 	it->first();
 	bool accepting =
 	  !it->done() && it->current_acceptance_conditions() == all_acc_conds_;
@@ -111,7 +111,7 @@ namespace spot
 
 	    if (state_is_accepting(s))
 	      {
-		tgba_succ_iterator* it = automata_->succ_iter(s);
+		tgba_succ_iterator* it = aut_->succ_iter(s);
 		it->first();
 		if (it->done())
 		  label = "accept_S" + ns;
@@ -136,7 +136,7 @@ namespace spot
       void
       process_state(const state* s, int n, tgba_succ_iterator*)
       {
-	tgba_succ_iterator* it = automata_->succ_iter(s);
+	tgba_succ_iterator* it = aut_->succ_iter(s);
 	it->first();
 	if (it->done())
 	  {
@@ -144,7 +144,7 @@ namespace spot
 	      os_ << "  fi;\n";
 	    os_ << get_state_label(s, n) << ":";
 	    if (comments_)
-	      os_ << " /* " << automata_->format_state(s) << " */";
+	      os_ << " /* " << aut_->format_state(s) << " */";
 	    os_ << "\n  if\n  :: (0) -> goto "
 		<< get_state_label(s, n) << '\n';
 	    fi_needed_ = true;
@@ -163,7 +163,7 @@ namespace spot
 		  os_ << "  fi;\n";
 		os_ << get_state_label(s, n) << ":";
 		if (comments_)
-		  os_ << " /* " << automata_->format_state(s) << " */";
+		  os_ << " /* " << aut_->format_state(s) << " */";
 		os_ << "\n  if\n";
 		fi_needed_ = true;
 	      }
@@ -180,7 +180,7 @@ namespace spot
 	  {
 	    os_ << "  :: (";
 	    const ltl::formula* f = bdd_to_formula(si->current_condition(),
-						   automata_->get_dict());
+						   aut_->get_dict());
 	    to_spin_string(f, os_, true);
 	    f->destroy();
 	    state* current = si->current_state();

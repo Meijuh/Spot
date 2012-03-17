@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -74,7 +74,7 @@ namespace spot
 		si->first();
 		accepting = ((!si->done())
 			     && (si->current_acceptance_conditions() ==
-				 automata_->all_acceptance_conditions()));
+				 aut_->all_acceptance_conditions()));
 	      }
 	  }
 	else
@@ -83,8 +83,8 @@ namespace spot
 	  }
 
 	os_ << "  " << n << " "
-	    << dd_->state_decl(automata_, s, n, si,
-			       escape_str(automata_->format_state(s)),
+	    << dd_->state_decl(aut_, s, n, si,
+			       escape_str(aut_->format_state(s)),
 			       accepting)
 	    << '\n';
       }
@@ -94,13 +94,13 @@ namespace spot
 		   const state* out_s, int out, const tgba_succ_iterator* si)
       {
 	std::string label =
-	  bdd_format_formula(automata_->get_dict(),
+	  bdd_format_formula(aut_->get_dict(),
 			     si->current_condition())
 	  + "\n"
-	  + bdd_format_accset(automata_->get_dict(),
+	  + bdd_format_accset(aut_->get_dict(),
 			      si->current_acceptance_conditions());
 
-	std::string s = automata_->transition_annotation(si);
+	std::string s = aut_->transition_annotation(si);
 	if (!s.empty())
 	  {
 	    if (*label.rbegin() != '\n')
@@ -109,7 +109,7 @@ namespace spot
 	  }
 
 	os_ << "  " << in << " -> " << out << " "
-	    << dd_->link_decl(automata_, in_s, in, out_s, out, si,
+	    << dd_->link_decl(aut_, in_s, in, out_s, out, si,
 			      escape_str(label))
 	    << '\n';
       }

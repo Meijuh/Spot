@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -42,11 +42,11 @@ namespace spot
 
       void process_state(const state* s, int, tgba_succ_iterator* si)
       {
-	const bdd_dict* d = automata_->get_dict();
+	const bdd_dict* d = aut_->get_dict();
 	os_ << "\"";
-	escape_str(os_, automata_->format_state(s));
+	escape_str(os_, aut_->format_state(s));
 	os_ << "\", \"";
-	const kripke* automata = down_cast<const kripke*> (automata_);
+	const kripke* automata = down_cast<const kripke*> (aut_);
 	assert(automata);
 	escape_str(os_, bdd_format_formula(d,
 					   automata->state_condition(s)));
@@ -56,7 +56,7 @@ namespace spot
 	  {
 	    state* dest = si->current_state();
 	    os_ << " \"";
-	    escape_str(os_, automata_->format_state(dest));
+	    escape_str(os_, aut_->format_state(dest));
 	    os_ << "\"";
 	}
 	os_ << ";\n";
@@ -89,10 +89,10 @@ namespace spot
 	else
 	  notfirst = true;
 
-	const bdd_dict* d = automata_->get_dict();
-	std::string cur = automata_->format_state(s);
+	const bdd_dict* d = aut_->get_dict();
+	std::string cur = aut_->format_state(s);
 	os_ << "S" << in_s << ", \"";
-	const kripke* automata = down_cast<const kripke*>(automata_);
+	const kripke* automata = down_cast<const kripke*>(aut_);
 	assert(automata);
 	escape_str(os_, bdd_format_formula(d,
 					   automata->state_condition(s)));

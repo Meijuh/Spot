@@ -49,7 +49,7 @@ namespace spot
       start()
       {
 	const rsymbol_set ss =
-	  acc_to_symbol_set(automata_->all_acceptance_conditions());
+	  acc_to_symbol_set(aut_->all_acceptance_conditions());
 	for (rsymbol_set::const_iterator i = ss.begin(); i != ss.end(); ++i)
 	  res->declare_acceptance_condition(*i);
       }
@@ -57,7 +57,7 @@ namespace spot
       virtual void
       process_state(const state* s, int n, tgba_succ_iterator*)
       {
-	std::string str = this->automata_->format_state(s);
+	std::string str = this->aut_->format_state(s);
 	name_[n] = str;
 	if (n == 1)
 	  res->set_init_state(str);
@@ -90,7 +90,7 @@ namespace spot
 		if (low == bddfalse)
 		  {
 		    const ltl::formula* v =
-		      automata_->get_dict()->var_formula_map[bdd_var(one)];
+		      aut_->get_dict()->var_formula_map[bdd_var(one)];
 		    res->add_transition(name_[in],
 					to_string(v),
 					ss,
@@ -125,7 +125,7 @@ namespace spot
 		if (low == bddfalse)
 		  {
 		    const ltl::formula* v =
-		      automata_->get_dict()->acc_formula_map[bdd_var(one)];
+		      aut_->get_dict()->acc_formula_map[bdd_var(one)];
 		    ss.insert(rsymbol(to_string(v)));
 		    break;
 		  }

@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -95,7 +95,7 @@ namespace spot
 		   const tgba_succ_iterator* si)
       {
 	tgba_explicit::transition* t =
-	  create_transition(this->automata_, out_, in_s, in, out_s, out);
+	  create_transition(this->aut_, out_, in_s, in, out_s, out);
 	out_->add_conditions(t, si->current_condition());
 
 	// Regardless of all_, do not output any acceptance condition

@@ -1,5 +1,5 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE)
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE)
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -45,19 +45,19 @@ namespace spot
       start()
       {
 	os_ << "acc =";
-	print_acc(automata_->all_acceptance_conditions()) << ";\n";
+	print_acc(aut_->all_acceptance_conditions()) << ";\n";
       }
 
       void
       process_state(const state* s, int, tgba_succ_iterator* si)
       {
-	const bdd_dict* d = automata_->get_dict();
-	std::string cur = escape_str(automata_->format_state(s));
+	const bdd_dict* d = aut_->get_dict();
+	std::string cur = escape_str(aut_->format_state(s));
 	for (si->first(); !si->done(); si->next())
 	  {
 	    state* dest = si->current_state();
 	    os_ << "\"" << cur << "\", \"";
-	    escape_str(os_, automata_->format_state(dest));
+	    escape_str(os_, aut_->format_state(dest));
 	    os_ << "\", \"";
 	    escape_str(os_, bdd_format_formula(d, si->current_condition()));
 	    os_ << "\",";
@@ -72,7 +72,7 @@ namespace spot
       std::ostream&
       print_acc(bdd acc)
       {
-	const bdd_dict* d = automata_->get_dict();
+	const bdd_dict* d = aut_->get_dict();
 	while (acc != bddfalse)
 	  {
 	    bdd cube = bdd_satone(acc);

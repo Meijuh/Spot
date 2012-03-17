@@ -30,7 +30,7 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
 
   tgba_reachable_iterator::tgba_reachable_iterator(const tgba* a)
-    : automata_(a)
+    : aut_(a)
   {
   }
 
@@ -51,7 +51,7 @@ namespace spot
   {
     int n = 0;
     start();
-    state* i = automata_->get_init_state();
+    state* i = aut_->get_init_state();
     if (want_state(i))
       add_state(i);
     seen[i] = ++n;
@@ -60,7 +60,7 @@ namespace spot
       {
 	assert(seen.find(t) != seen.end());
 	int tn = seen[t];
-	tgba_succ_iterator* si = automata_->succ_iter(t);
+	tgba_succ_iterator* si = aut_->succ_iter(t);
 	process_state(t, tn, si);
 	for (si->first(); !si->done(); si->next())
 	  {
