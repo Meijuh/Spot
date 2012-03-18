@@ -14,7 +14,8 @@
     <script type="text/javascript" src="js/jquery.ba-bbq.min.js"></script>
     <script type="text/javascript">
     jQuery(document).ready(function(){
-        $.spotvars = { autoupdate: 0 }
+        $.spotvars = { autoupdate: 0,
+                       scrolldown: 1 };
         $(".tabs").tabs();
 	$("#send").button();
 	$("#results").hide();
@@ -41,31 +42,32 @@
                              content: "<b>Click<\/b> to fold/unfold."
                             });
 
-	function hideOrShowPanels(output) {
+	function hideOrShowPanels(output, duration) {
 	    switch (output)
 	    {
 	    case 'f':
-		$('#translator-tabs,#autsimp-tabs,#run-tabs').hide('fast');
+		$('#translator-tabs,#autsimp-tabs,#run-tabs').hide(duration);
 		break;
 	    case 'm':
-		$('#autsimp-tabs,#run-tabs').hide('fast');
-		$('#translator-tabs').show('fast');
+		$('#autsimp-tabs,#run-tabs').hide(duration);
+		$('#translator-tabs').show(duration);
 		break;
 	    case 'a':
-		$('#translator-tabs,#autsimp-tabs').show('fast');
-		$('#run-tabs').hide('fast');
+		$('#translator-tabs,#autsimp-tabs').show(duration);
+		$('#run-tabs').hide(duration);
 		break;
 	    case 'r':
-		$('#translator-tabs,#autsimp-tabs,#run-tabs').show('fast');
+		$('#translator-tabs,#autsimp-tabs,#run-tabs').show(duration);
 		break;
 	    }
         }
 
-	function updateFormFromHash() {
+	function updateFormFromHash(duration) {
 	    var hashparam = jQuery.deparam.fragment();
 	    if (jQuery.isEmptyObject(hashparam))
 		return;
-	    $("input,select", "#trform").each(function() {
+	    if ($.spotvars.autoupdate == 0)
+	      $("input,select", "#trform").each(function() {
 		var name = this.name;
 		var value = [];
 		if (name && hashparam[name] != undefined) {
@@ -93,16 +95,17 @@
 		default:
 		    this.value=value.join(',');
 		}
-	    });
-	    updateResults();
+	      });
+            $.spotvars.autoupdate = 1;
 	    var o = $('input[name="o"]').val();
+	    hideOrShowPanels(o, duration);
 	    $("#output-tabs").tabs("select", "#tabs-o" + o);
-	    hideOrShowPanels(o);
             var t = $('input[name="t"]').val();
 	    $("#translator-tabs").tabs('select', '#tabs-t' + t);
+	    updateResults();
 	}
 
-	$(window).bind('hashchange', function(e) { updateFormFromHash() });
+	$(window).bind('hashchange', function(e) { updateFormFromHash('fast') });
 
 	$.get("/cgi-bin/spot.py", "o=v", function(data) {
 	    $("#spottip").attr("title", "This page uses <b>" + data + "<\/b> to process LTL formulas and automata.  Please download the <b>Spot<\/b> library and install it on your computer if you want to do the same from the command line, or from another program.")
@@ -111,11 +114,11 @@
                          defaultPosition: "right"});
         });
 
-        function fold(ui) {
+        function fold(ui, callback) {
             var icon = ui.children(".ui-icon");
             icon.removeClass("ui-icon-circle-arrow-n")
                 .addClass("ui-icon-circle-arrow-s");
-            ui.siblings('[class!="dontcollapse"]').hide('fast');
+            ui.siblings('[class!="dontcollapse"]').hide('fast', callback);
         }
         function unfold(ui) {
             var icon = ui.children(".ui-icon");
@@ -149,7 +152,6 @@
 	    // it has been %-decoded by firefox, which
 	    // cause problems when formulae include '&'.
 	    var fragment = location.href.replace(/^[^#]*#?(.*)$/, '$1');
-	    $.spotvars.autoupdate = 1;
             $("#results-body")
 		.load("/cgi-bin/spot.py",
                       fragment,
@@ -160,8 +162,12 @@
 						      + xhr.statusText);
 			  }
 			  $("#results").show();
-			  fold($("#ltl-head"));
 			  unfold($("#results-head"));
+			  fold($("#ltl-head"), function() {
+			    if ($.spotvars.scrolldown)
+			      $('html,body').animate({scrollTop: $("#results-head").offset().top}, 'slow');
+			    $.spotvars.scrolldown = 0;
+			  });
 			  return true;
 		      });
         }
@@ -176,8 +182,10 @@
         $("input,select").change(autoUpdate);
         $('input[name="f"]').attr('spellcheck', false).focus()
 	    .keydown(function(e){
-                if (e.keyCode == 13)
-		    updateHash();
+                if (e.keyCode == 13) {
+                  $.spotvars.scrolldown = 1;
+		  updateHash();
+		}
             });
 	$('.collapsible .head').click(function(e) {
             if (e.ctrlKey) {
@@ -192,7 +200,7 @@
 	    var v = ui.panel.id[6]; // 'tabs-om' => 'm'.
             $('input[name="o"]').val(v)
             if (!autoUpdate())
-		hideOrShowPanels(v)
+		hideOrShowPanels(v, 'fast')
             return true;
         });
 	$('#output-tabs').tabs('select', '#tabs-oa');
@@ -203,7 +211,7 @@
         });
 
 	// Update the form from the hash value
-	updateFormFromHash();
+	updateFormFromHash(0);
     });
     </script>
   </head>
