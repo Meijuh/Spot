@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- encoding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// et DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 //
 // This file is part of Spot, a model checking library.
@@ -27,6 +28,7 @@
 #include <string>
 #include <cassert>
 #include "predecl.hh"
+#include <list>
 
 namespace spot
 {
@@ -418,6 +420,8 @@ namespace spot
 				      const formula* f,
 				      bool abbreviated = false);
 
+    /// List the properties of formula \a f.
+    std::list<std::string> list_formula_props(const formula* f);
   }
 }
 

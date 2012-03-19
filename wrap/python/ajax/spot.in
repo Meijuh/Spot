@@ -371,7 +371,7 @@ if dored:
 # Formula manipulation only.
 if output_type == 'f':
     formula_format = form.getfirst('ff', 'o')
-    # o = Spot, i = Spin, g = GraphViz
+    # o = Spot, i = Spin, g = GraphViz, p = properties
     if formula_format == 'o':
         unbufprint('<div class="formula spot-format">%s</div>' % f)
     elif formula_format == 'i':
@@ -379,6 +379,30 @@ if output_type == 'f':
                    + spot.to_spin_string(f) + '</div>')
     elif formula_format == 'g':
         render_formula(f)
+    elif formula_format == 'p':
+        unbufprint('Properties for <span class="formula spot-format">%s</span><ul>\n' % f)
+        for p in spot.list_formula_props(f):
+            unbufprint('<li>%s</li>\n' % p)
+
+        # Attempt to refine the hierarchy class using WDBA minimization
+        if not f.is_syntactic_safety() or not f.is_syntactic_guarantee():
+            dict = spot.bdd_dict()
+            automaton = spot.ltl_to_tgba_fm(f, dict, False, True)
+            minimized = spot.minimize_obligation_new(automaton, f)
+            if minimized:
+                g = spot.is_guarantee_automaton(minimized)
+                s = spot.is_safety_mwdba(minimized)
+                if s and not f.is_syntactic_safety():
+                    unbufprint('<li>pathologic safety</li>')
+                if g and not f.is_syntactic_guarantee():
+                    unbufprint('<li>pathologic guarantee</li>')
+                if not f.is_syntactic_obligation():
+                    unbufprint('<li>obligation (although not syntactically)</li>')
+            else:
+                unbufprint('<li>not an obligation</li>')
+            minimized = 0
+            automaton = 0
+        unbufprint('</ul>\n')
     finish()
 
 # Formula translation.

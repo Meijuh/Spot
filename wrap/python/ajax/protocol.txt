@@ -24,7 +24,8 @@ Type of formula output if o=f (pick one)
 
   ff=o    Spot syntax
   ff=i    Spin syntax
-  ff=g    graphviz
+  ff=g    graphviz output of the AST
+  ff=p    property dump
 
 Type of automaton if o=a (pick one)
 

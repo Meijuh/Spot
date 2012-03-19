@@ -33,6 +33,10 @@
 %include "std_string.i"
 %include "std_list.i"
 
+namespace std {
+   %template(liststr) list<string>;
+};
+
 %import "buddy.i"
 
 %{
@@ -98,6 +102,7 @@
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/rundotdec.hh"
 #include "tgbaalgos/save.hh"
+#include "tgbaalgos/safety.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/simulation.hh"
@@ -226,6 +231,7 @@ using namespace spot;
 %include "tgbaalgos/neverclaim.hh"
 %include "tgbaalgos/rundotdec.hh"
 %include "tgbaalgos/save.hh"
+%include "tgbaalgos/safety.hh"
 %include "tgbaalgos/sccfilter.hh"
 %include "tgbaalgos/stats.hh"
 %include "tgbaalgos/simulation.hh"
