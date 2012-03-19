@@ -14,6 +14,8 @@ VERSION=`autoconf --trace='AC_INIT:$2'`
 
 DEST=/lrde/dload/spot/snapshots/
 
+umask 022
+
 rm -rf $DEST/$rev.tmp
 mkdir -p $DEST/$rev.tmp
 cp -pR doc/spot.html $DEST/$rev.tmp
