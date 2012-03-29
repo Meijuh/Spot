@@ -38,8 +38,11 @@ endif
 
 SUBDIRS = $(MAYBE_BUDDY) $(MAYBE_LBTT) $(NEVER_BENCH) doc src wrap ltdl iface
 
+UTF8 = utf8/doc/ReleaseNotes utf8/doc/utf8cpp.html utf8/utf8.h	\
+  utf8/utf8/checked.h utf8/utf8/core.h utf8/utf8/unchecked.h
+
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog
+EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog $(UTF8)
 
 dist-hook: gen-ChangeLog
 
