@@ -83,6 +83,7 @@ EXTRA_DIST = $(TESTS)
 TESTS = \
   parse.test \
   parseerr.test \
+  utf8.test \
   length.test \
   equals.test \
   tostring.test \

@@ -1,0 +1,72 @@
+#! /bin/sh
+# Copyright (C) 2012 Laboratoire de Recherche et Developpement
+# de l'Epita (LRDE).
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Spot; see the file COPYING.  If not, write to the Free
+# Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+# 02111-1307, USA.
+
+
+# Make sure
+
+. ./defs || exit 1
+
+# ----
+run 0 ../ltl2text '□◯a' >out
+echo 'unop(G, unop(X, AP(a)))' > exp
+cmp out exp
+
+# ----
+run 0 ../ltl2text '□◯"αβγ"' >out
+echo 'unop(G, unop(X, AP(αβγ)))' > exp
+cmp out exp
+
+
+# ----
+set +x
+run 1 ../ltl2text '□)◯a' 2>err
+set -x
+cat >exp <<EOF
+>>> □)◯a
+     ^
+syntax error, unexpected closing parenthesis
+
+>>> □)◯a
+    ^
+missing right operand for "always operator"
+
+>>> □)◯a
+     ^^^
+ignoring trailing garbage
+
+EOF
+cmp exp err
+
+# ----
+set +x
+run 1 ../ltl2text '"αβγ"X' 2>err
+set -x
+cat >exp <<EOF
+>>> "αβγ"X
+         ^
+syntax error, unexpected next operator
+
+>>> "αβγ"X
+         ^
+ignoring trailing garbage
+
+EOF
+cmp exp err

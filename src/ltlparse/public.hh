@@ -1,5 +1,5 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -94,6 +94,12 @@ namespace spot
 
     /// \brief Format diagnostics produced by spot::ltl::parse
     ///        or spot::ltl::ratexp
+    ///
+    /// If the string is utf8 encoded, spot::ltl::fix_utf8_locations()
+    /// will be used to report correct utf8 locations (assuming the
+    /// output is utf8 aware).  Nonetheless, the supplied \a
+    /// error_list will not be modified.
+    ///
     /// \param os Where diagnostics should be output.
     /// \param input_string The string that were parsed.
     /// \param error_list The error list filled by spot::ltl::parse
@@ -101,7 +107,34 @@ namespace spot
     /// \return \c true iff any diagnostic was output.
     bool format_parse_errors(std::ostream& os,
 			     const std::string& input_string,
-			     parse_error_list& error_list);
+			     const parse_error_list& error_list);
+
+    /// \brief Fix location of diagnostics assuming the input is utf8.
+    ///
+    /// The spot::ltl::parse() and spot::ltl::parse_sere() function
+    /// return a parse_error_list that contain locations specified at
+    /// the byte level.  Although these parser recognize some
+    /// utf8 characters they only work byte by byte and will report
+    /// positions by counting byte.
+    ///
+    /// This function fixes the positions returned by the parser to
+    /// look correct when the string is interpreted as a utf8-encoded
+    /// string.
+    ///
+    /// It is invalid to call this function on a string that is not
+    /// valid utf8.
+    ///
+    /// You should NOT call this function before calling
+    /// spot::ltl::format_parse_errors() because it is already called
+    /// inside if needed.  You may need this function only if you want
+    /// to write your own error reporting code.
+    ///
+    /// \param input_string The string that were parsed.
+    /// \param error_list The error list filled by spot::ltl::parse
+    ///        or spot::ltl::parse_sere while parsing \a input_string.
+    void
+    fix_utf8_locations(const std::string& ltl_string,
+		       parse_error_list& error_list);
 
     /// @}
   }
