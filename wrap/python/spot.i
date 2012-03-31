@@ -203,6 +203,16 @@ using namespace spot;
 %include "tgba/tgbaproduct.hh"
 %include "tgba/tgbatba.hh"
 
+%template(explicit_graph__string_tgba)
+  spot::explicit_graph<state_explicit_string, tgba>;
+%template(explicit_graph__number_tgba)
+  spot::explicit_graph<state_explicit_number, tgba>;
+%template(explicit_graph__formula_tgba)
+  spot::explicit_graph<state_explicit_formula, tgba>;
+%template(tgba_explicit__string) spot::tgba_explicit<state_explicit_string>;
+%template(tgba_explicit__number) spot::tgba_explicit<state_explicit_number>;
+%template(tgba_explicit__formula) spot::tgba_explicit<state_explicit_formula>;
+
 %include "tgbaalgos/dottydec.hh"
 %include "tgbaalgos/dotty.hh"
 %include "tgbaalgos/dupexp.hh"

@@ -56,10 +56,10 @@ namespace spot
     }
   };
 
-  class tba: public tgba
+  class sba: public tgba
   {
   public:
-    /// A State in a TBA (Transition based Buchi Automaton) is accepting
+    /// A State in an SBA (State-based Buchi Automaton) is accepting
     /// iff all outgoing transitions are accepting.
     virtual bool is_accepting(const spot::state* s) = 0;
   };
@@ -275,6 +275,12 @@ namespace spot
       return it_->acceptance_conditions & all_acceptance_conditions_;
     }
 
+    typename State::transitions_t::const_iterator
+    get_iterator() const
+    {
+      return it_;
+    }
+
   private:
     const State* start_;
     typename State::transitions_t::const_iterator it_;
@@ -291,9 +297,10 @@ namespace spot
 			  typename State::label_hash_t> ls_map;
     typedef Sgi::hash_map<const State*, typename State::Label_t,
 			  ptr_hash<State> > sl_map;
-    typedef typename State::transition transition;
 
   public:
+    typedef typename State::transition transition;
+
     explicit_graph(bdd_dict* dict)
       : ls_(),
 	sl_(),
@@ -336,7 +343,7 @@ namespace spot
     transition*
     get_transition(const tgba_explicit_succ_iterator<State>* si)
     {
-      return const_cast<transition*>(&(*(si->i_)));
+      return const_cast<transition*>(&(*(si->get_iterator())));
     }
 
     void add_condition(transition* t, const ltl::formula* f)
@@ -537,9 +544,8 @@ namespace spot
   template <typename State>
   class tgba_explicit: public explicit_graph<State, tgba>
   {
-  protected:
-    typedef typename State::transition transition;
   public:
+    typedef typename State::transition transition;
     typedef State state;
 
     tgba_explicit(bdd_dict* dict):
