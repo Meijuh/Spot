@@ -721,21 +721,24 @@ namespace spot
     {
     }
 
+    /// Assume that an accepting state has only accepting output transitions
+    /// So we need only to check one to decide
     virtual bool is_accepting(const spot::state* s) const
     {
-      bdd acc = bddtrue;
-      bool transition = false;
-
       tgba_explicit_succ_iterator<State>* it = this->succ_iter(s);
-      for (it->first(); !it->done() && acc != bddfalse; it->next())
+      it->first();
+
+      // no transition
+      if (it->done())
       {
-	transition = true;
-	acc &= it->current_acceptance_conditions();
+	delete it;
+	return false;
       }
 
+      bool res = it->current_acceptance_conditions() != bddfalse;
       delete it;
 
-      return acc != bddfalse && transition;
+      return res;
     }
 
   private:
