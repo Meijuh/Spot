@@ -61,7 +61,7 @@ namespace spot
   public:
     /// A State in an SBA (State-based Buchi Automaton) is accepting
     /// iff all outgoing transitions are accepting.
-    virtual bool is_accepting(const spot::state* s) = 0;
+    virtual bool is_accepting(const spot::state* s) const = 0;
   };
 
   /// States used by spot::explicit_graph implementation
@@ -305,7 +305,10 @@ namespace spot
       : ls_(),
 	sl_(),
 	init_(0),
-	dict_(dict)
+	dict_(dict),
+	all_acceptance_conditions_(bddfalse),
+	all_acceptance_conditions_computed_(false),
+	neg_acceptance_conditions_(bddtrue)
     {
     }
 
@@ -486,6 +489,12 @@ namespace spot
 	destroy_key<typename State::Label_t> dest;
 	dest.destroy(s);
       }
+
+      this->dict_->unregister_all_my_variables(this);
+      // These have already been destroyed by subclasses.
+      // Prevent destroying by tgba::~tgba.
+      this->last_support_conditions_input_ = 0;
+      this->last_support_variables_input_ = 0;
     }
 
     virtual State* get_init_state() const
@@ -532,29 +541,6 @@ namespace spot
       ls_[alias] = *(add_state(real));
     }
 
-  protected:
-
-    ls_map ls_;
-    sl_map sl_;
-    State* init_;
-
-    bdd_dict* dict_;
-  };
-
-  template <typename State>
-  class tgba_explicit: public explicit_graph<State, tgba>
-  {
-  public:
-    typedef typename State::transition transition;
-    typedef State state;
-
-    tgba_explicit(bdd_dict* dict):
-      explicit_graph<State,tgba>(dict),
-      all_acceptance_conditions_(bddfalse),
-      all_acceptance_conditions_computed_(false),
-      neg_acceptance_conditions_(bddtrue)
-    {
-    }
 
     /// \brief Copy the acceptance conditions of a tgba.
     ///
@@ -569,7 +555,8 @@ namespace spot
       neg_acceptance_conditions_ = f;
     }
 
-    /// The acceptance conditions.
+
+    /// Acceptance conditions handlingx
     void set_acceptance_conditions(bdd acc)
     {
       assert(neg_acceptance_conditions_ == bddtrue);
@@ -599,17 +586,6 @@ namespace spot
 	  sup = bdd_high(sup);
 	}
       t->acceptance_conditions |= f;
-    }
-
-    /// tgba interface
-    virtual ~tgba_explicit()
-    {
-      this->dict_->unregister_all_my_variables(this);
-      // These have already been destroyed by subclasses.
-      // Prevent destroying by tgba::~tgba.
-      this->last_support_conditions_input_ = 0;
-      this->last_support_variables_input_ = 0;
-
     }
 
     virtual bdd all_acceptance_conditions() const
@@ -696,9 +672,32 @@ namespace spot
       return res;
     }
 
+    ls_map ls_;
+    sl_map sl_;
+    State* init_;
+
+    bdd_dict* dict_;
+
     mutable bdd all_acceptance_conditions_;
     mutable bool all_acceptance_conditions_computed_;
     bdd neg_acceptance_conditions_;
+  };
+
+  template <typename State>
+  class tgba_explicit: public explicit_graph<State, tgba>
+  {
+  public:
+    typedef typename State::transition transition;
+    typedef State state;
+
+    tgba_explicit(bdd_dict* dict):
+      explicit_graph<State,tgba>(dict)
+    {
+    }
+
+    virtual ~tgba_explicit()
+    {
+    }
 
   private:
     // Disallow copy.
@@ -706,10 +705,55 @@ namespace spot
     tgba_explicit& operator=(const tgba_explicit& other);
   };
 
+  template <typename State>
+  class sba_explicit: public explicit_graph<State, sba>
+  {
+  public:
+    typedef typename State::transition transition;
+    typedef State state;
 
+    sba_explicit(bdd_dict* dict):
+      explicit_graph<State, sba>(dict)
+    {
+    }
+
+    virtual ~sba_explicit()
+    {
+    }
+
+    virtual bool is_accepting(const spot::state* s) const
+    {
+      bdd acc = bddtrue;
+      bool transition = false;
+
+      tgba_explicit_succ_iterator<State>* it = this->succ_iter(s);
+      for (it->first(); !it->done() && acc != bddfalse; it->next())
+      {
+	transition = true;
+	acc &= it->current_acceptance_conditions();
+      }
+
+      delete it;
+
+      return acc != bddfalse && transition;
+    }
+
+  private:
+    // Disallow copy.
+    sba_explicit(const sba_explicit<State>& other);
+    sba_explicit& operator=(const sba_explicit& other);
+  };
+
+
+  /// Typedefs for tgba
   typedef tgba_explicit<state_explicit_string> tgba_explicit_string;
   typedef tgba_explicit<state_explicit_formula> tgba_explicit_formula;
   typedef tgba_explicit<state_explicit_number> tgba_explicit_number;
+
+  /// Typedefs for sba
+  typedef sba_explicit<state_explicit_string> sba_explicit_string;
+  typedef sba_explicit<state_explicit_formula> sba_explicit_formula;
+  typedef sba_explicit<state_explicit_number> sba_explicit_number;
 }
 
 #endif // SPOT_TGBA_TGBAEXPLICIT_HH
