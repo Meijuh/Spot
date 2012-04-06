@@ -272,7 +272,7 @@ namespace spot
     virtual bdd current_acceptance_conditions() const
     {
       assert(!done());
-      return it_->acceptance_conditions & all_acceptance_conditions_;
+      return it_->acceptance_conditions;
     }
 
     typename State::transitions_t::const_iterator
