@@ -282,19 +282,20 @@ syntax(char* prog)
 
   	  	<< "Options for Testing Automata:"
  	    << std::endl
- 	    << "  -TA    Translate an LTL formula into a Testing automata"
+ 	    << "  -TA    Translate an LTL formula into a TA (Testing automata)"
  	    << std::endl
             << std::endl
-            << "  -TM    Translate an LTL formula into a minimal Testing automata"
+        << "  -sp    convert into a TA involving a single-pass emptiness check"
+            << std::endl << std::endl
+            << "  -lv   convert into a TA with an artificial livelock accepting"
+            << "state (single-pass emptiness check)"
             << std::endl
             << std::endl
-            << "  -lv    Translate an LTL formula into a Testing automata with an artificial livelock accepting state (Single-pass Testing Automata)"
+            << "  -in   convert into a TA without an artificial initial state"
             << std::endl
             << std::endl
-            << "  -in    Translate an LTL formula into a Testing automata without artificial initial state"
-            << std::endl
-            << std::endl
-            << "  -STGTA    Translate an LTL formula into a STGTA (Single-pass Transition-based Generalised Testing Automata)"
+            << "  -TGTA    Translate an LTL formula into a TGTA"
+            << "(Transition-based Generalised Testing Automata)"
             << std::endl;
 
 
@@ -357,9 +358,10 @@ main(int argc, char** argv)
   bool reduction_dir_sim = false;
   spot::tgba* temp_dir_sim = 0;
   bool ta_opt = false;
-  bool tgbta_opt = false;
-  bool opt_with_artificial_livelock = false;
+  bool tgta_opt = false;
   bool opt_with_artificial_initial_state = true;
+  bool opt_single_pass_emptiness_check = false;
+  bool opt_with_artificial_livelock = false;
 
 
   for (;;)
@@ -692,18 +694,17 @@ main(int argc, char** argv)
         {
           ta_opt = true;
         }
-      else if (!strcmp(argv[formula_index], "-TM"))
+      else if (!strcmp(argv[formula_index], "-TGTA"))
         {
-          ta_opt = true;
-          opt_minimize = true;
-        }
-      else if (!strcmp(argv[formula_index], "-STGTA"))
-        {
-          tgbta_opt = true;
+          tgta_opt = true;
         }
       else if (!strcmp(argv[formula_index], "-lv"))
         {
           opt_with_artificial_livelock = true;
+        }
+      else if (!strcmp(argv[formula_index], "-sp"))
+        {
+          opt_single_pass_emptiness_check = true;
         }
       else if (!strcmp(argv[formula_index], "-in"))
         {
@@ -1004,7 +1005,7 @@ main(int argc, char** argv)
       const spot::tgba* degeneralized = 0;
 
       spot::tgba* minimized = 0;
-      if (opt_minimize && !ta_opt)
+      if (opt_minimize && !ta_opt && !tgta_opt)
 	{
 	  tm.start("obligation minimization");
 	  minimized = minimize_obligation(a, f);
@@ -1113,24 +1114,14 @@ main(int argc, char** argv)
 
       if (ta_opt)
         {
-//          const spot::tgba_sba_proxy* degeneralized_new = 0;
-//          const spot::tgba_sba_proxy* degeneralized =
-//              dynamic_cast<const spot::tgba_sba_proxy*> (a);
-//          if (degeneralized == 0)
-//            degeneralized_new = degeneralized =  new spot::tgba_sba_proxy(a);
-
-
-
           spot::ta* testing_automata = 0;
-          if (tgbta_opt)
-          {
-              testing_automata = (spot::ta_explicit *) tgba_to_tgbta(a, atomic_props_set_bdd);
 
-          }
-          else {
-              testing_automata = tgba_to_ta(a, atomic_props_set_bdd, opt_with_artificial_initial_state, opt_with_artificial_livelock, degeneralize_opt == DegenSBA);
+              testing_automata
+                  = tgba_to_ta(a, atomic_props_set_bdd, degeneralize_opt
+                      == DegenSBA, opt_with_artificial_initial_state,
+                      opt_single_pass_emptiness_check,
+                      opt_with_artificial_livelock);
 
-          }
            spot::ta* testing_automata_nm = 0;
           if (opt_minimize) {
               testing_automata_nm = testing_automata;
@@ -1163,11 +1154,20 @@ main(int argc, char** argv)
 
           aut_red  = 0;
           output = -1;
-        } else if (tgbta_opt)
+        } else if (tgta_opt)
         {
-          a = tgba_to_tgbta(a, atomic_props_set_bdd);
-          to_free = a;
+          spot::tgta* tgta = tgba_to_tgta(a, atomic_props_set_bdd);
+          if (opt_minimize)
+            {
+              a = minimize_tgta(tgta);
+              minimized = a;
+            }
+          else
+            {
+              a = tgta;
+            }
 
+          to_free = tgta;
         }
 
       spot::tgba* product_degeneralized = 0;

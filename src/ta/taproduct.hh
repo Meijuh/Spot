@@ -28,7 +28,7 @@ namespace spot
 {
 
   /// \brief A state for spot::ta_product.
-  /// \ingroup emptiness_check
+  /// \ingroup ta_emptiness_check
   ///
   /// This state is in fact a pair of state: the state from the TA
   /// automaton and that of Kripke structure.
@@ -104,7 +104,7 @@ namespace spot
     bool
     is_stuttering_transition() const;
 
-  private:
+  protected:
     //@{
     /// Internal routines to advance to the next successor.
     void
@@ -135,7 +135,7 @@ namespace spot
 
   /// \brief A lazy product between a Testing automaton and a Kripke structure.
   /// (States are computed on the fly.)
-  /// \ingroup emptiness_check
+  /// \ingroup ta_emptiness_check
   class ta_product : public ta
   {
   public:
@@ -153,6 +153,9 @@ namespace spot
     virtual ta_succ_iterator_product*
     succ_iter(const spot::state* s) const;
 
+    virtual ta_succ_iterator_product*
+    succ_iter(const spot::state* s, bdd changeset) const;
+
     virtual bdd_dict*
     get_dict() const;
 
@@ -169,7 +172,7 @@ namespace spot
     is_initial_state(const spot::state* s) const;
 
     /// \brief Return true if the state \a s has no succeseurs
-    /// in the ta automaton (the TA component of the product automaton)
+    /// in the TA automaton (the TA component of the product automaton)
     virtual bool
     is_hole_state_in_ta_component(const spot::state* s) const;
 
@@ -204,6 +207,23 @@ namespace spot
     ta_product&
     operator=(const ta_product&);
   };
+
+
+   class ta_succ_iterator_product_by_changeset : public ta_succ_iterator_product
+  {
+  public:
+    ta_succ_iterator_product_by_changeset(const state_ta_product* s,
+        const ta* t, const kripke* k, bdd changeset);
+
+
+
+    /// \brief Move to the next successor in the kripke structure
+    void
+    next_kripke_dest();
+
+
+   };
+
 
 }
 

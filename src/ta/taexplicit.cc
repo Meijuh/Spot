@@ -105,7 +105,6 @@ namespace spot
     return (*i_)->acceptance_conditions;
   }
 
-
   ////////////////////////////////////////
   // state_ta_explicit
 
@@ -141,19 +140,19 @@ namespace spot
     if (transitions_ == 0)
       transitions_ = new transitions;
 
-    transitions* transitions_condition = get_transitions(t->condition);
+    transitions* trans_by_condition = get_transitions(t->condition);
 
-    if (transitions_condition == 0)
+    if (trans_by_condition == 0)
       {
-        transitions_condition = new transitions;
-        transitions_by_condition[(t->condition).id()] = transitions_condition;
+        trans_by_condition = new transitions;
+        transitions_by_condition[(t->condition).id()] = trans_by_condition;
       }
 
     state_ta_explicit::transitions::iterator it_trans;
     bool transition_found = false;
 
-    for (it_trans = transitions_condition->begin(); (it_trans
-        != transitions_condition->end() && !transition_found); it_trans++)
+    for (it_trans = trans_by_condition->begin(); (it_trans
+        != trans_by_condition->end() && !transition_found); it_trans++)
       {
         transition_found = ((*it_trans)->dest == t->dest);
         if (transition_found)
@@ -166,12 +165,12 @@ namespace spot
       {
         if (add_at_beginning)
           {
-            transitions_condition->push_front(t);
+            trans_by_condition->push_front(t);
             transitions_->push_front(t);
           }
         else
           {
-            transitions_condition->push_back(t);
+            trans_by_condition->push_back(t);
             transitions_->push_back(t);
           }
 
@@ -290,11 +289,16 @@ namespace spot
               == (dest)->get_tgba_condition());
           bool dest_is_livelock_accepting = dest->is_livelock_accepting_state();
 
-          //Before deleting stuttering transitions, propaged back livelock and initial state's properties
+          //Before deleting stuttering transitions, propaged back livelock
+          //and initial state's properties
           if (is_stuttering_transition)
             {
-              if (dest_is_livelock_accepting)
-                set_livelock_accepting_state(true);
+              if (!is_livelock_accepting_state() && dest_is_livelock_accepting)
+                {
+                  set_livelock_accepting_state(true);
+                  stuttering_reachable_livelock
+                      = dest->stuttering_reachable_livelock;
+                }
               if (dest->is_initial_state())
                 set_initial_state(true);
             }
@@ -321,7 +325,7 @@ namespace spot
   void
   state_ta_explicit::free_transitions()
   {
-    state_ta_explicit::transitions* trans = get_transitions();
+    state_ta_explicit::transitions* trans = transitions_;
     state_ta_explicit::transitions::iterator it_trans;
     // We don't destroy the transitions in the state's destructor because
     // they are not cloned.
@@ -340,6 +344,7 @@ namespace spot
         ++i;
       }
 
+    transitions_ = 0;
   }
 
   ////////////////////////////////////////

@@ -27,16 +27,16 @@ ta_HEADERS = \
   ta.hh \
   taexplicit.hh \
   taproduct.hh \
-  tgbta.hh \
-  tgbtaexplicit.hh \
-  tgbtaproduct.hh
+  tgta.hh \
+  tgtaexplicit.hh \
+  tgtaproduct.hh
   
   
 noinst_LTLIBRARIES = libta.la
 libta_la_SOURCES = \
   ta.cc \
   taproduct.cc \
-  tgbta.cc \
-  tgbtaexplicit.cc \
+  tgta.cc \
+  tgtaexplicit.cc \
   taexplicit.cc \
-  tgbtaproduct.cc
+  tgtaproduct.cc

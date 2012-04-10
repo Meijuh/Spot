@@ -21,24 +21,24 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#ifndef SPOT_TGBTA_TGBAPRODUCT_HH
-# define SPOT_TGBTA_TGBAPRODUCT_HH
+#ifndef SPOT_tgta_TGBAPRODUCT_HH
+# define SPOT_tgta_TGBAPRODUCT_HH
 
 #include "tgba/tgba.hh"
 #include "tgba/tgbaproduct.hh"
 #include "misc/fixpool.hh"
 #include "kripke/kripke.hh"
-#include "tgbta.hh"
+#include "tgta.hh"
 
 namespace spot
 {
 
   /// \brief A lazy product.  (States are computed on the fly.)
-  class tgbta_product : public tgba_product
+  class tgta_product : public tgba_product
   {
   public:
 
-    tgbta_product(const kripke* left, const tgbta* right);
+    tgta_product(const kripke* left, const tgta* right);
 
     virtual state*
     get_init_state() const;
@@ -51,13 +51,13 @@ namespace spot
   };
 
   /// \brief Iterate over the successors of a product computed on the fly.
-  class tgbta_succ_iterator_product : public tgba_succ_iterator
+  class tgta_succ_iterator_product : public tgba_succ_iterator
   {
   public:
-    tgbta_succ_iterator_product(const state_product* s, const kripke* k, const tgbta* tgbta, fixed_size_pool* pool);
+    tgta_succ_iterator_product(const state_product* s, const kripke* k, const tgta* tgta, fixed_size_pool* pool);
 
     virtual
-    ~tgbta_succ_iterator_product();
+    ~tgta_succ_iterator_product();
 
     // iteration
     void
@@ -91,10 +91,10 @@ namespace spot
 
   protected:
     const state_product* source_;
-    const tgbta* tgbta_;
+    const tgta* tgta_;
     const kripke* kripke_;
     fixed_size_pool* pool_;
-    tgba_succ_iterator* tgbta_succ_it_;
+    tgba_succ_iterator* tgta_succ_it_;
     tgba_succ_iterator* kripke_succ_it_;
     state_product* current_state_;
     bdd current_condition_;
@@ -107,4 +107,4 @@ namespace spot
 
 }
 
-#endif // SPOT_TGBTA_TGBAPRODUCT_HH
+#endif // SPOT_tgta_TGBAPRODUCT_HH

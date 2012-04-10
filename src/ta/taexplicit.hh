@@ -227,6 +227,7 @@ namespace spot
     void
     free_transitions();
 
+    state_ta_explicit* stuttering_reachable_livelock;
   private:
     const state* tgba_state_;
     const bdd tgba_condition_;

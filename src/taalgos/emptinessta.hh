@@ -39,14 +39,15 @@ namespace spot
     typedef std::pair<spot::state*, ta_succ_iterator_product*> pair_state_iter;
   }
 
-  /// \addtogroup emptiness_check Emptiness-checks
+  /// \addtogroup ta_emptiness_check Emptiness-checks
   /// \ingroup ta_algorithms
   ///
-  /// \brief Check whether the language of a product between a Kripke structure
-  ///  and a TA is empty. It works for both standard and generalized form of TA.
+  /// \brief Check whether the language of a product (spot::ta_product) between
+  ///  a Kripke structure and a TA  is empty. It works also for the product
+  /// using Generalized TA (GTA and SGTA).
   ///
-  /// you should call \c check to check the product automaton.
-  /// If \c check() returns false, then the product automaton
+  /// you should call spot::ta_check::check() to check the product automaton.
+  /// If spot::ta_check::check() returns false, then the product automaton
   /// was found empty.  Otherwise the automaton accepts some run.
   ///
   /// This is based on the following paper.
@@ -64,21 +65,22 @@ namespace spot
   /// }
   /// \endverbatim
   ///
-  /// the implementation of \c check is inspired from the two-pass algorithm
-  /// of the paper above:
+  /// the implementation of spot::ta_check::check() is inspired from the
+  /// two-pass algorithm of the paper above:
   /// - the fist-pass detect all Buchi-accepting cycles and includes
-  //  the heuristic proposed in the paper to detect some
+  ///  the heuristic proposed in the paper to detect some
   /// livelock-accepting cycles.
   /// - the second-pass detect all livelock-accepting cycles.
   /// In addition, we add some optimizations to the fist pass:
-  /// 1- Detection of all (livelock-accepting) cycles containing a least
-  /// one state that is both livelock and accepting states
+  /// 1- Detection of all cycles containing a least
+  /// one state that is both livelock and Buchi accepting states
   /// 2- Detection of all livelock-accepting cycles containing a least
   /// one state (k,t) such as its "TA component" t is a livelock-accepting
   /// state that has no successors in the TA automaton.
   ///
-  /// The implementation of each pass is a SCC-based algorithm inspired
-  /// from spot::gtec.hh.
+  /// The implementation of the algorithm of each pass is a SCC-based algorithm
+  /// inspired from spot::gtec.hh.
+  /// @{
 
   /// \brief An implementation of the emptiness-check algorithm for a product
   /// between a TA and a Kripke structure
@@ -153,7 +155,10 @@ namespace spot
 
   };
 
-/// @}
+  /// @}
+
+    /// \addtogroup ta_emptiness_check_algorithms Emptiness-check algorithms
+    /// \ingroup ta_emptiness_check
 }
 
 #endif // SPOT_TAALGOS_EMPTINESS_HH

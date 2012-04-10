@@ -47,7 +47,7 @@ namespace spot
 
   bool
   ta_check::check(bool disable_second_pass,
-      disable_heuristic_for_livelock_detection)
+      bool disable_heuristic_for_livelock_detection)
   {
 
     // We use five main data in this algorithm:

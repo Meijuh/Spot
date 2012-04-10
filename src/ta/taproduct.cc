@@ -81,7 +81,6 @@ namespace spot
 
   ta_succ_iterator_product::~ta_succ_iterator_product()
   {
-    // ta_->free_state(current_state_);
     delete current_state_;
     current_state_ = 0;
     delete ta_succ_it_;
@@ -315,6 +314,17 @@ namespace spot
     return new ta_succ_iterator_product(stp, ta_, kripke_);
   }
 
+
+  ta_succ_iterator_product*
+  ta_product::succ_iter(const spot::state* s, bdd changeset) const
+  {
+    const state_ta_product* stp = down_cast<const state_ta_product*> (s);
+    assert(s);
+    return new ta_succ_iterator_product_by_changeset(stp, ta_, kripke_,
+        changeset);
+
+  }
+
   bdd_dict*
   ta_product::get_dict() const
   {
@@ -347,6 +357,7 @@ namespace spot
 
     return ta_->is_livelock_accepting_state(stp->get_ta_state());
   }
+
 
 
   bool
@@ -399,5 +410,63 @@ namespace spot
     delete stp;
 
   }
+
+
+  ta_succ_iterator_product_by_changeset::ta_succ_iterator_product_by_changeset(
+      const state_ta_product* s, const ta* t, const kripke* k, bdd changeset) :
+    ta_succ_iterator_product(s, t, k)
+  {
+    current_condition_ = changeset;
+  }
+
+
+
+
+  void
+  ta_succ_iterator_product_by_changeset::next_kripke_dest()
+  {
+    if (!kripke_succ_it_)
+      return;
+
+    if (kripke_current_dest_state == 0)
+      {
+        kripke_succ_it_->first();
+      }
+    else
+      {
+        kripke_current_dest_state->destroy();
+        kripke_current_dest_state = 0;
+        kripke_succ_it_->next();
+      }
+
+    // If one of the two successor sets is empty initially, we reset
+    // kripke_succ_it_, so that done() can detect this situation easily.  (We
+    // choose to reset kripke_succ_it_ because this variable is already used by
+    // done().)
+    if (kripke_succ_it_->done())
+      {
+        delete kripke_succ_it_;
+        kripke_succ_it_ = 0;
+        return;
+      }
+
+    kripke_current_dest_state = kripke_succ_it_->current_state();
+    bdd kripke_current_dest_condition = kripke_->state_condition(
+        kripke_current_dest_state);
+
+    if (current_condition_ != bdd_setxor(kripke_source_condition,
+        kripke_current_dest_condition))
+      next_kripke_dest();
+    is_stuttering_transition_ = (kripke_source_condition
+        == kripke_current_dest_condition);
+    if (!is_stuttering_transition_)
+      {
+        ta_succ_it_ = ta_->succ_iter(source_->get_ta_state(),
+            current_condition_);
+        ta_succ_it_->first();
+      }
+
+  }
+
 
 }

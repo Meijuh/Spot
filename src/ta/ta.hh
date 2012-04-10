@@ -51,7 +51,7 @@ namespace spot
   ///
   /// The Testing Automata (TA) were introduced by
   /// Henri Hansen, Wojciech Penczek and Antti Valmari
-  /// in "Stuttering-insensitive automata for on-the-fly de- tection of livelock
+  /// in "Stuttering-insensitive automata for on-the-fly detection of livelock
   /// properties" In Proc. of FMICSÕ02, vol. 66(2) of Electronic Notes in
   /// Theoretical Computer Science.Elsevier.
   ///
@@ -69,7 +69,7 @@ namespace spot
   /// Browsing such automaton can be achieved using two functions:
   /// \c get_initial_states_set or \c get_artificial_initial_state, and \c
   /// succ_iter. The former returns the initial state(s) while the latter lists
-  /// the successor states of any state (filtred by transition "changeset").
+  /// the successor states of any state (filtred by "changeset").
   ///
   /// Note that although this is a transition-based automata,
   /// we never represent transitions!  Transition informations are
@@ -98,7 +98,7 @@ namespace spot
     /// artificial initial state have one transition to each real initial state,
     /// and this transition is labeled by the corresponding initial condition.
     /// (For more details, see the paper cited above)
-    spot::state*
+    virtual spot::state*
     get_artificial_initial_state() const
     {
       return 0;
@@ -114,7 +114,7 @@ namespace spot
     succ_iter(const spot::state* state) const = 0;
 
     /// \brief Get an iterator over the successors of \a state
-    /// filtred by the changeset labeling the transitions
+    /// filtred by the changeset on transitions
     ///
     /// The iterator has been allocated with \c new.  It is the
     /// responsability of the caller to \c delete it when no

@@ -28,7 +28,7 @@
 #define trace while (0) std::clog
 #endif
 
-#include "tgbtaproduct.hh"
+#include "tgtaproduct.hh"
 #include <string>
 #include <cassert>
 #include "misc/hashfunc.hh"
@@ -38,19 +38,19 @@ namespace spot
 {
 
   ////////////////////////////////////////////////////////////
-  // tgbta_succ_iterator_product
+  // tgta_succ_iterator_product
 
 
   ////////////////////////////////////////////////////////////
-  // tgbta_product
+  // tgta_product
 
-  tgbta_product::tgbta_product(const kripke* left, const tgbta* right) :
+  tgta_product::tgta_product(const kripke* left, const tgta* right) :
     tgba_product(left, right)
   {
   }
 
   state*
-  tgbta_product::get_init_state() const
+  tgta_product::get_init_state() const
   {
     fixed_size_pool* p = const_cast<fixed_size_pool*> (&pool_);
     return new (p->allocate()) state_product(left_->get_init_state(),
@@ -58,7 +58,7 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgbta_product::succ_iter(const state* local_state, const state*,
+  tgta_product::succ_iter(const state* local_state, const state*,
       const tgba*) const
   {
     const state_product* s = down_cast<const state_product*> (local_state);
@@ -66,20 +66,20 @@ namespace spot
 
     fixed_size_pool* p = const_cast<fixed_size_pool*> (&pool_);
 
-    return new tgbta_succ_iterator_product(s, (const kripke*) left_,
-        (const tgbta *) right_, p);
+    return new tgta_succ_iterator_product(s, (const kripke*) left_,
+        (const tgta *) right_, p);
   }
 
   ////////////////////////////////////////////////////////////
-  // tgbtgbta_succ_iterator_product
-  tgbta_succ_iterator_product::tgbta_succ_iterator_product(
-      const state_product* s, const kripke* k, const tgbta* t,
+  // tgbtgta_succ_iterator_product
+  tgta_succ_iterator_product::tgta_succ_iterator_product(
+      const state_product* s, const kripke* k, const tgta* t,
       fixed_size_pool* pool) :
-    source_(s), tgbta_(t), kripke_(k), pool_(pool)
+    source_(s), tgta_(t), kripke_(k), pool_(pool)
   {
 
-    state * tgbta_init_state = tgbta_->get_init_state();
-    if ((s->right())->compare(tgbta_init_state) == 0)
+    state * tgta_init_state = tgta_->get_init_state();
+    if ((s->right())->compare(tgta_init_state) == 0)
       source_ = 0;
 
     if (source_ == 0)
@@ -88,11 +88,11 @@ namespace spot
         kripke_current_dest_state = kripke_->get_init_state();
         current_condition_
             = kripke_->state_condition(kripke_current_dest_state);
-        tgbta_succ_it_ = tgbta_->succ_iter_by_changeset(
-            tgbta_init_state, current_condition_);
-        tgbta_succ_it_->first();
+        tgta_succ_it_ = tgta_->succ_iter_by_changeset(
+            tgta_init_state, current_condition_);
+        tgta_succ_it_->first();
         trace
-          << "*** tgbta_succ_it_->done() = ***" << tgbta_succ_it_->done()
+          << "*** tgta_succ_it_->done() = ***" << tgta_succ_it_->done()
               << std::endl;
 
       }
@@ -101,40 +101,40 @@ namespace spot
         kripke_source_condition = kripke_->state_condition(s->left());
         kripke_succ_it_ = kripke_->succ_iter(s->left());
         kripke_current_dest_state = 0;
-        tgbta_succ_it_ = 0;
+        tgta_succ_it_ = 0;
       }
 
-    tgbta_init_state->destroy();
+    tgta_init_state->destroy();
     current_state_ = 0;
   }
 
-  tgbta_succ_iterator_product::~tgbta_succ_iterator_product()
+  tgta_succ_iterator_product::~tgta_succ_iterator_product()
   {
     // ta_->free_state(current_state_);
     if (current_state_ != 0)
       current_state_->destroy();
     current_state_ = 0;
-    delete tgbta_succ_it_;
+    delete tgta_succ_it_;
     delete kripke_succ_it_;
     if (kripke_current_dest_state != 0)
       kripke_current_dest_state->destroy();
   }
 
   void
-  tgbta_succ_iterator_product::step_()
+  tgta_succ_iterator_product::step_()
   {
-    if (!tgbta_succ_it_->done())
-      tgbta_succ_it_->next();
-    if (tgbta_succ_it_->done())
+    if (!tgta_succ_it_->done())
+      tgta_succ_it_->next();
+    if (tgta_succ_it_->done())
       {
-        delete tgbta_succ_it_;
-        tgbta_succ_it_ = 0;
+        delete tgta_succ_it_;
+        tgta_succ_it_ = 0;
         next_kripke_dest();
       }
   }
 
   void
-  tgbta_succ_iterator_product::next_kripke_dest()
+  tgta_succ_iterator_product::next_kripke_dest()
   {
     if (!kripke_succ_it_)
       return;
@@ -167,14 +167,14 @@ namespace spot
 
     current_condition_ = bdd_setxor(kripke_source_condition,
         kripke_current_dest_condition);
-    tgbta_succ_it_ = tgbta_->succ_iter_by_changeset(source_->right(),
+    tgta_succ_it_ = tgta_->succ_iter_by_changeset(source_->right(),
         current_condition_);
-    tgbta_succ_it_->first();
+    tgta_succ_it_->first();
 
   }
 
   void
-  tgbta_succ_iterator_product::first()
+  tgta_succ_iterator_product::first()
   {
 
     next_kripke_dest();
@@ -186,7 +186,7 @@ namespace spot
   }
 
   void
-  tgbta_succ_iterator_product::next()
+  tgta_succ_iterator_product::next()
   {
     current_state_->destroy();
     current_state_ = 0;
@@ -202,18 +202,18 @@ namespace spot
   }
 
   void
-  tgbta_succ_iterator_product::find_next_succ_()
+  tgta_succ_iterator_product::find_next_succ_()
   {
 
     while (!done())
       {
-        if (!tgbta_succ_it_->done())
+        if (!tgta_succ_it_->done())
           {
             current_state_ = new (pool_->allocate()) state_product(
                 kripke_current_dest_state->clone(),
-                tgbta_succ_it_->current_state(), pool_);
+                tgta_succ_it_->current_state(), pool_);
             current_acceptance_conditions_
-                = tgbta_succ_it_->current_acceptance_conditions();
+                = tgta_succ_it_->current_acceptance_conditions();
             return;
           }
 
@@ -222,11 +222,11 @@ namespace spot
   }
 
   bool
-  tgbta_succ_iterator_product::done() const
+  tgta_succ_iterator_product::done() const
   {
     if (source_ == 0)
       {
-        return !tgbta_succ_it_ || tgbta_succ_it_->done();
+        return !tgta_succ_it_ || tgta_succ_it_->done();
       }
     else
       {
@@ -236,7 +236,7 @@ namespace spot
   }
 
   state_product*
-  tgbta_succ_iterator_product::current_state() const
+  tgta_succ_iterator_product::current_state() const
   {
     trace
       << "*** current_state() .... if(done()) = ***" << done() << std::endl;
@@ -244,13 +244,13 @@ namespace spot
   }
 
   bdd
-  tgbta_succ_iterator_product::current_condition() const
+  tgta_succ_iterator_product::current_condition() const
   {
     return current_condition_;
   }
 
   bdd
-  tgbta_succ_iterator_product::current_acceptance_conditions() const
+  tgta_succ_iterator_product::current_acceptance_conditions() const
   {
     return current_acceptance_conditions_;
   }

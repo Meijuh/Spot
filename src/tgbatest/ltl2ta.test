@@ -1,9 +1,6 @@
 #!/bin/sh
-# Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
+# Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
-# Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
-# et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
 #
@@ -29,8 +26,22 @@ set -e
 
 check ()
 {
-  run 0 ../ltl2tgba -TA "$1"
-  run 0 ../ltl2tgba -TM "$1"
+  run 0 ../ltl2tgba -TA -ks "$1"
+  run 0 ../ltl2tgba -TA -Rm -ks "$1"
+  run 0 ../ltl2tgba -TA -lv -ks "$1"
+  run 0 ../ltl2tgba -TA -sp -ks "$1"
+  run 0 ../ltl2tgba -TA -Rm -lv "$1"
+  run 0 ../ltl2tgba -TA -Rm -sp -ks "$1"
+  run 0 ../ltl2tgba -TA -lv -sp -ks "$1"
+  run 0 ../ltl2tgba -TA -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -Rm -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -lv -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -sp -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -Rm -sp -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -Rm -lv -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -Rm -sp -lv -DS -ks "$1"
+  run 0 ../ltl2tgba -TGTA -ks "$1"
+  run 0 ../ltl2tgba -TGTA -Rm -ks "$1"
 }
 
 # We don't check the output, but just running these might be enough to
@@ -52,8 +63,6 @@ check '((Gp2)U(F(1)))&(p1 R(p2 R p0))'
 
 
 
-# Make sure 'a U (b U c)' has 21 states and 144 transitions,
-# before and after degeneralization.
 for opt in -TA; do
   ../ltl2tgba -ks $opt -in 'a U (b U c)' > stdout
   grep 'transitions: 144$' stdout
@@ -61,24 +70,23 @@ for opt in -TA; do
 done
 
 
-for opt in -TM; do
-  ../ltl2tgba -ks $opt -in -DS 'a U (b U c)' > stdout
+for opt in -TA; do
+  ../ltl2tgba -ks $opt -Rm -in -DS 'a U (b U c)' > stdout
   grep 'transitions: 69$' stdout
   grep 'states: 10$' stdout
 done
 
 
 
-for opt in  -TM; do
-  ../ltl2tgba -ks $opt -DS '!(Ga U b)' > stdout
+for opt in  -TA; do
+  ../ltl2tgba -ks $opt -Rm -DS '!(Ga U b)' > stdout
   grep 'transitions: 15$' stdout
   grep 'states: 5$' stdout
 done
 
-# Make sure 'Ga U b' has 6 states and 12 transitions,
-# before and after degeneralization.
-for opt in -TM; do
-  ../ltl2tgba -ks $opt -DS 'Ga U b' > stdout
+
+for opt in -TA; do
+  ../ltl2tgba -ks $opt -Rm -DS 'Ga U b' > stdout
   grep 'transitions: 13$' stdout
   grep 'states: 6$' stdout
 done
@@ -92,26 +100,21 @@ f='(G (p -> F q)) && ((X (p) U q) || ! X (p U (p && q)))'
 grep 'transitions: 96$' stdout
 grep 'states: 21$' stdout
 
-# Note:  after minimization with -TM.
+# Note:  after minimization with -TA -Rm.
 # has 20 states and 89 transitions, after minimization.
-../ltl2tgba -ks -TM  -DS "$f" > stdout
+../ltl2tgba -ks -TA -Rm  -DS "$f" > stdout
 grep 'transitions: 89$' stdout
 grep 'states: 20$' stdout
 
 
-# Make sure 'GFa & GFb & GFc & GFd & GFe & GFf'
-# has 448 states and 28224 transitions.
 f='GFa & GFb & GFc & GFd & GFe & GFg'
 ../ltl2tgba -ks -TA  -DS -x "$f" > stdout
 grep 'transitions: 28351$' stdout
 grep 'states: 449$' stdout
 
 
-# Make sure 'GFa & GFb & GFc & GFd & GFe & GFf'
-# has 290 states and 18527 transitions with artificial livelock state.
-
 f='GFa & GFb & GFc & GFd & GFe & GFg'
-../ltl2tgba -ks -TM -x -lv  -DS "$f" > stdout
+../ltl2tgba -ks -TA -Rm -x -lv  -DS "$f" > stdout
 grep 'transitions: 18496$' stdout
 grep 'states: 290$' stdout
 
@@ -121,60 +124,70 @@ run 0 ../ltl2tgba -ks -TA -lv  -DS "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
 grep 'transitions: 882$' stdout
 grep 'states: 78$' stdout
 
-run 0 ../ltl2tgba -TM -ks -lv -DS  "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
+run 0 ../ltl2tgba -TA -Rm -ks -lv -DS  "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
 grep 'transitions: 440$' stdout
 grep 'states: 28$' stdout
 
+run 0 ../ltl2tgba -TGTA -Rm -ks  'Gq|Gr|(G(q|FGp)&G(r|FG!p))' >stdout
+grep 'transitions: 294$' stdout
+grep 'states: 21$' stdout
 
 
-run 0 ../ltl2tgba -TM -ks -in -R3f -x  -DS  "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
+run 0 ../ltl2tgba -TA -Rm -ks -in -R3f -x  -DS  "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
 grep 'transitions: 521$' stdout
 grep 'states: 43$' stdout
 
 
-run 0 ../ltl2tgba -TM -ks -lv -R3f -x  -DS  "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
+run 0 ../ltl2tgba -TA -Rm -ks -lv -R3f -x  -DS  "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
 grep 'transitions: 636$' stdout
 grep 'states: 45$' stdout
 
 
-run 0 ../ltl2tgba -TM -ks  -DS "G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))" >stdout
-grep 'transitions: 2779$' stdout
-grep 'states: 127$' stdout
-
-
-run 0 ../ltl2tgba -TM -ks -lv  -DS "G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))" >stdout
-grep 'transitions: 2831$' stdout
-grep 'states: 128$' stdout
-
-
-
-run 0 ../ltl2tgba -TM -ks "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
+run 0 ../ltl2tgba -TA -Rm -ks "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
 grep 'transitions: 498$' stdout
 grep 'states: 34$' stdout
 
 
-run 0 ../ltl2tgba -TM -ks  -lv -in "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
+run 0 ../ltl2tgba -TA -Rm -ks -sp -lv -in "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
 grep 'transitions: 566$' stdout
 grep 'states: 35$' stdout
 
 
-run 0 ../ltl2tgba -TM -ks -in -R3 -x  -DS  "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
+run 0 ../ltl2tgba -TA -Rm -ks -in -R3 -x  -DS  "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
 grep 'transitions: 464$' stdout
 grep 'states: 36$' stdout
 
-run 0 ../ltl2tgba -TM -ks -lv -R3 -x   -DS "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
+run 0 ../ltl2tgba -TA -Rm -ks -sp -lv -R3 -x   -DS "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
 grep 'transitions: 565$' stdout
 grep 'states: 38$' stdout
 
 
-run 0 ../ltl2tgba -TA -ks -lv   -DS "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
+run 0 ../ltl2tgba -TA -ks -sp -lv -DS "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
 grep 'transitions: 831$' stdout
 grep 'states: 56$' stdout
 
 
-run 0 ../ltl2tgba -TM -ks -lv "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
+run 0 ../ltl2tgba -TA -Rm -ks -sp -lv "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
 grep 'transitions: 585$' stdout
 grep 'states: 36$' stdout
+
+run 0 ../ltl2tgba -TGTA -Rm -ks "FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)" >stdout
+grep 'transitions: 598$' stdout
+grep 'states: 35$' stdout
+
+
+run 0 ../ltl2tgba -TA -Rm -ks  -DS "G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))" >stdout
+grep 'transitions: 2779$' stdout
+grep 'states: 127$' stdout
+
+
+run 0 ../ltl2tgba -TA -Rm -ks -sp "G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))" >stdout
+grep 'transitions: 1219$' stdout
+grep 'states: 65$' stdout
+
+run 0 ../ltl2tgba -TGTA -Rm -ks "G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))" >stdout
+grep 'transitions: 1283$' stdout
+grep 'states: 65$' stdout
 
 
 
