@@ -1100,7 +1100,7 @@ main(int argc, char** argv)
 //TA
       spot::ltl::atomic_prop_set* aps = atomic_prop_collect(f, 0);
 
-      bdd atomic_props_set_bdd = bdd_true();
+      bdd atomic_props_set_bdd = bdd_true;
       for (spot::ltl::atomic_prop_set::const_iterator i = aps->begin(); i
           != aps->end(); ++i)
         {
@@ -1123,10 +1123,11 @@ main(int argc, char** argv)
                       opt_with_artificial_livelock);
 
            spot::ta* testing_automata_nm = 0;
-          if (opt_minimize) {
+          if (opt_minimize)
+            {
               testing_automata_nm = testing_automata;
               testing_automata = minimize_ta(testing_automata);
-          }
+            }
 
           if (output != -1)
             {
@@ -1150,7 +1151,8 @@ main(int argc, char** argv)
          delete testing_automata;
           a = 0;
           degeneralized = 0;
-          if (degeneralize_opt != DegenSBA) to_free = 0;
+          if (degeneralize_opt != DegenSBA)
+            to_free = 0;
 
           aut_red  = 0;
           output = -1;

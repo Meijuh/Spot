@@ -264,7 +264,7 @@ namespace spot
             used_var[set_num] = 1;
             free_var.erase(set_num);
             state_set_map[*i] = set_num;
-            set_num++;
+            ++set_num;
 
           }
 
@@ -275,7 +275,7 @@ namespace spot
       {
         unsigned s = G->size();
         unsigned num = set_num;
-        set_num++;
+        ++set_num;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -293,7 +293,7 @@ namespace spot
       {
         unsigned s = F->size();
         unsigned num = set_num;
-        set_num++;
+        ++set_num;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -310,7 +310,7 @@ namespace spot
       {
         unsigned s = G_F->size();
         unsigned num = set_num;
-        set_num++;
+        ++set_num;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -327,7 +327,7 @@ namespace spot
       {
         unsigned s = S->size();
         unsigned num = set_num;
-        set_num++;
+        ++set_num;
         used_var[num] = s;
         free_var.erase(num);
         if (s > 1)
@@ -346,7 +346,7 @@ namespace spot
 
     bool did_split = true;
     unsigned num = set_num;
-    set_num++;
+    ++set_num;
     used_var[num] = 1;
     free_var.erase(num);
     bdd bdd_false_acceptance_condition = bdd_ithvar(num);
@@ -388,21 +388,21 @@ namespace spot
                     trace
                       << "+f: " << bdd_format_accset(ta_->get_dict(), f)
                           << std::endl;
-                    ;
+
                     trace
                       << "      -bdd_ithvar(i->second): " << bdd_format_accset(
                           ta_->get_dict(), bdd_ithvar(i->second)) << std::endl;
-                    ;
+
                     trace
                       << "      -si->current_condition(): "
                           << bdd_format_accset(ta_->get_dict(),
                               si->current_condition()) << std::endl;
-                    ;
+
                     trace
                       << "      -current_acceptance_conditions: "
                           << bdd_format_accset(ta_->get_dict(),
                               current_acceptance_conditions) << std::endl;
-                    ;
+
 
                   }
                 delete si;

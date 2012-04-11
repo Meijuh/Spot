@@ -311,12 +311,12 @@ namespace spot
               && (!dest_is_livelock_accepting)))
             {
               get_transitions((*it_trans)->condition)->remove(*it_trans);
-              delete (*it_trans);
+              delete *it_trans;
               it_trans = trans->erase(it_trans);
             }
           else
             {
-              it_trans++;
+              ++it_trans;
             }
         }
 
@@ -536,7 +536,7 @@ namespace spot
                 }
               else
                 {
-                  it_trans++;
+                  ++it_trans;
                 }
             }
       }

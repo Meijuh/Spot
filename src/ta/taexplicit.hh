@@ -127,7 +127,7 @@ namespace spot
     bdd
     all_acceptance_conditions() const
     {
-      return all_acceptance_conditions_;;
+      return all_acceptance_conditions_;
     }
 
   private:
