@@ -30,10 +30,9 @@ ta_HEADERS = \
   tgta.hh \
   tgtaexplicit.hh \
   tgtaproduct.hh
-  
-  
-noinst_LTLIBRARIES = libta.la
-libta_la_SOURCES = \
+
+  noinst_LTLIBRARIES = libta.la
+  libta_la_SOURCES = \
   ta.cc \
   taproduct.cc \
   tgta.cc \

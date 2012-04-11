@@ -1100,7 +1100,7 @@ main(int argc, char** argv)
 //TA
       spot::ltl::atomic_prop_set* aps = atomic_prop_collect(f, 0);
 
-      bdd atomic_props_set_bdd = bdd_true;
+      bdd atomic_props_set_bdd = bdd_true();
       for (spot::ltl::atomic_prop_set::const_iterator i = aps->begin(); i
           != aps->end(); ++i)
         {

@@ -133,7 +133,9 @@ src/              Sources for libspot.
    tgbaalgos/     Algorithms on TGBA.
       gtec/       Couvreur's Emptiness-Check.
    tgbaparse/     Parser for explicit TGBA.
-   tgbatest/      Tests for tgba/, tgbaalgos/, and tgbaparse/.
+   ta/            TA objects and cousins (TGTA).
+   taalgos/       Algorithms on TA/TGTA.
+   tgbatest/      Tests for tgba/, tgbaalgos/, tgbaparse/, ta/ and taalgos/.
    evtgba*/       Ignore these for now.
    eltlparse/     Parser for ELTL formulae.
    eltltest/      Tests for ELTL nodes in ltlast/ and eltlparse/.
