@@ -121,9 +121,9 @@ void create_sba_explicit_string(bdd_dict* d)
   t = sba->create_transition(s1, s3);
   sba->add_acceptance_conditions(t, bdd_ithvar(v));
 
-  std::cout << "S1 ACCEPTING? " << sba->is_accepting (s1) << std::endl;
-  std::cout << "S2 ACCEPTING? " << sba->is_accepting (s2) << std::endl;
-  std::cout << "S3 ACCEPTING? " << sba->is_accepting (s3) << std::endl;
+  std::cout << "S1 ACCEPTING? " << sba->state_is_accepting(s1) << std::endl;
+  std::cout << "S2 ACCEPTING? " << sba->state_is_accepting(s2) << std::endl;
+  std::cout << "S3 ACCEPTING? " << sba->state_is_accepting(s3) << std::endl;
 
   delete sba;
 }
@@ -143,8 +143,8 @@ void create_sba_explicit_number(bdd_dict* d)
     sba->create_transition(s1, s2);
   sba->add_acceptance_conditions(t, bdd_ithvar(v));
 
-  std::cout << "S1 ACCEPTING? " << sba->is_accepting (s1) << std::endl;
-  std::cout << "S2 ACCEPTING? " << sba->is_accepting (s2) << std::endl;
+  std::cout << "S1 ACCEPTING? " << sba->state_is_accepting(s1) << std::endl;
+  std::cout << "S2 ACCEPTING? " << sba->state_is_accepting(s2) << std::endl;
 
   delete sba;
 }
@@ -169,9 +169,9 @@ create_sba_explicit_formula(bdd_dict* d, spot::ltl::default_environment& e)
   t = sba->create_transition(s1, s3);
   sba->add_acceptance_conditions(t, bdd_ithvar(v));
 
-  std::cout << "S1 ACCEPTING? " << sba->is_accepting (s1) << std::endl;
-  std::cout << "S2 ACCEPTING? " << sba->is_accepting (s2) << std::endl;
-  std::cout << "S3 ACCEPTING? " << sba->is_accepting (s3) << std::endl;
+  std::cout << "S1 ACCEPTING? " << sba->state_is_accepting(s1) << std::endl;
+  std::cout << "S2 ACCEPTING? " << sba->state_is_accepting(s2) << std::endl;
+  std::cout << "S3 ACCEPTING? " << sba->state_is_accepting(s3) << std::endl;
 
   delete sba;
 }

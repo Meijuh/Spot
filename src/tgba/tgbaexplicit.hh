@@ -29,6 +29,7 @@
 #include <list>
 
 #include "tgba.hh"
+#include "sba.hh"
 #include "tgba/formula2bdd.hh"
 #include "misc/hash.hh"
 #include "misc/bddop.hh"
@@ -37,7 +38,7 @@
 
 namespace spot
 {
-  ///misc
+  // How to destroy the label of a state.
   template<typename T>
   struct destroy_key
   {
@@ -54,14 +55,6 @@ namespace spot
     {
       t->destroy();
     }
-  };
-
-  class sba: public tgba
-  {
-  public:
-    /// A State in an SBA (State-based Buchi Automaton) is accepting
-    /// iff all outgoing transitions are accepting.
-    virtual bool is_accepting(const spot::state* s) const = 0;
   };
 
   /// States used by spot::explicit_graph implementation
@@ -140,7 +133,7 @@ namespace spot
     Label label_;
   };
 
-  ///states labeled by an int
+  /// States labeled by an int
   /// \ingroup tgba_representation
   class state_explicit_number:
     public state_explicit<int, identity_hash<int> >
@@ -721,10 +714,10 @@ namespace spot
     {
     }
 
-    /// Assume that an accepting state has only accepting output transitions
-    /// So we need only to check one to decide
-    virtual bool is_accepting(const spot::state* s) const
+    virtual bool state_is_accepting(const spot::state* s) const
     {
+      // Assume that an accepting state has only accepting output transitions
+      // So we need only to check one to decide
       tgba_explicit_succ_iterator<State>* it = this->succ_iter(s);
       it->first();
 
@@ -748,12 +741,12 @@ namespace spot
   };
 
 
-  /// Typedefs for tgba
+  // Typedefs for tgba
   typedef tgba_explicit<state_explicit_string> tgba_explicit_string;
   typedef tgba_explicit<state_explicit_formula> tgba_explicit_formula;
   typedef tgba_explicit<state_explicit_number> tgba_explicit_number;
 
-  /// Typedefs for sba
+  // Typedefs for sba
   typedef sba_explicit<state_explicit_string> sba_explicit_string;
   typedef sba_explicit<state_explicit_formula> sba_explicit_formula;
   typedef sba_explicit<state_explicit_number> sba_explicit_number;
