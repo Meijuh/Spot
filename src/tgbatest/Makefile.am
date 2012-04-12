@@ -78,6 +78,7 @@ TESTS = \
   intvcomp.test \
   eltl2tgba.test \
   explicit.test \
+  explicit2.test \
   taatgba.test \
   tgbaread.test \
   neverclaimread.test \

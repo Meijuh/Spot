@@ -23,6 +23,7 @@
 
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
+#include "ltlvisit/tostring.hh"
 
 #include "tgba/tgbaexplicit.hh"
 
@@ -60,7 +61,6 @@ create_tgba_explicit_number(bdd_dict* d)
 
   state_explicit_number* s1 = tgba->add_state(51);
   state_explicit_number* s2 = tgba->add_state(69);
-
   state_explicit_number::transition* t =
     tgba->create_transition(s1, s2);
   (void) t;
@@ -96,7 +96,7 @@ create_tgba_explicit_formula(bdd_dict* d, spot::ltl::default_environment& e)
   for (it->first(); !it->done(); it->next())
     {
       state_explicit_formula* s = it->current_state();
-      std::cout << s->label() << std::endl;
+      to_string(s->label(), std::cout) << std::endl;
       s->destroy();
     }
 
