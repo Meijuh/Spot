@@ -131,11 +131,11 @@ namespace spot
     /// otherwise.  This is faster than \c dynamic_cast.
     inline
     unop*
-    is_unop(formula* f)
+    is_unop(const formula* f)
     {
       if (f->kind() != formula::UnOp)
 	return 0;
-      return static_cast<unop*>(f);
+      return static_cast<unop*>(const_cast<formula*>(f));
     }
 
     /// \brief Cast \a f into a unop if it has type \a op.
@@ -144,14 +144,24 @@ namespace spot
     /// Returns 0 otherwise.
     inline
     unop*
-    is_unop(formula* f, unop::type op)
+    is_unop(const formula* f, unop::type op)
     {
       if (f->kind() != formula::UnOp)
 	return 0;
-      unop* uo = static_cast<unop*>(f);
+      unop* uo = static_cast<unop*>(const_cast<formula*>(f));
       if (uo->op() != op)
 	return 0;
       return uo;
+    }
+
+    /// \brief Cast \a f into a unop if it is a Not.
+    ///
+    /// Return 0 otherwise.
+    inline
+    unop*
+    is_Not(const formula* f)
+    {
+      return is_unop(f, unop::Not);
     }
 
     /// \brief Cast \a f into a unop if it is a X.
@@ -159,7 +169,7 @@ namespace spot
     /// Return 0 otherwise.
     inline
     unop*
-    is_X(formula* f)
+    is_X(const formula* f)
     {
       return is_unop(f, unop::X);
     }
@@ -169,7 +179,7 @@ namespace spot
     /// Return 0 otherwise.
     inline
     unop*
-    is_F(formula* f)
+    is_F(const formula* f)
     {
       return is_unop(f, unop::F);
     }
@@ -179,7 +189,7 @@ namespace spot
     /// Return 0 otherwise.
     inline
     unop*
-    is_G(formula* f)
+    is_G(const formula* f)
     {
       return is_unop(f, unop::G);
     }
@@ -189,7 +199,7 @@ namespace spot
     /// Return 0 otherwise.
     inline
     unop*
-    is_GF(formula* f)
+    is_GF(const formula* f)
     {
       unop* op = is_G(f);
       if (!op)
@@ -202,7 +212,7 @@ namespace spot
     /// Return 0 otherwise.
     inline
     unop*
-    is_FG(formula* f)
+    is_FG(const formula* f)
     {
       unop* op = is_F(f);
       if (!op)

@@ -1,4 +1,4 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -119,6 +119,45 @@ namespace spot
       unsigned min_;
       unsigned max_;
     };
+
+    /// \brief Cast \a f into a bunop.
+    ///
+    /// Cast \a f into a bunop iff it is a bunop instance.  Return 0
+    /// otherwise.  This is faster than \c dynamic_cast.
+    inline
+    bunop*
+    is_bunop(const formula* f)
+    {
+      if (f->kind() != formula::BUnOp)
+	return 0;
+      return static_cast<bunop*>(const_cast<formula*>(f));
+    }
+
+    /// \brief Cast \a f into a bunop if it has type \a op.
+    ///
+    /// Cast \a f into a bunop iff it is a bunop instance with operator \a op.
+    /// Returns 0 otherwise.
+    inline
+    bunop*
+    is_bunop(const formula* f, bunop::type op)
+    {
+      if (f->kind() != formula::BUnOp)
+	return 0;
+      bunop* bo = static_cast<bunop*>(const_cast<formula*>(f));
+      if (bo->op() != op)
+	return 0;
+      return bo;
+    }
+
+    /// \brief Cast \a f into a bunop if it is a Star.
+    ///
+    /// Return 0 otherwise.
+    inline
+    bunop*
+    is_Star(const formula* f)
+    {
+      return is_bunop(f, bunop::Star);
+    }
 
   }
 }

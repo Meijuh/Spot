@@ -92,8 +92,8 @@ namespace spot
 	" & ",
 	" && ",
 	" & ",
-	" ; ",
-	" : "
+	";",
+	":"
       };
 
       const char* spin_kw[] = {
@@ -121,8 +121,8 @@ namespace spot
 	" && ",
 	" && ",			// not supported
 	" & ",			// not supported
-	" ; ",			// not supported
-	" : ",			// not supported
+	";",			// not supported
+	":",			// not supported
       };
 
       static bool
@@ -144,6 +144,32 @@ namespace spot
 	  if (!(isalnum(*str) || *str == '_'))
 	    return false;
 	return true;
+      }
+
+      // If the formula has the form (!b)[*], return b.
+      static
+      formula*
+      strip_star_not(const formula* f)
+      {
+	if (bunop* s = is_Star(f))
+	  if (unop* n = is_Not(s->child()))
+	    return n->child();
+	return 0;
+      }
+
+      // If the formula as position i in multop mo has the form
+      // (!b)[*];b with b being a Boolean formula, return b.
+      static
+      formula*
+      match_goto(const multop *mo, unsigned i)
+      {
+	assert(i + 1 < mo->size());
+	formula* b = strip_star_not(mo->nth(i));
+	if (!b || !b->is_boolean())
+	  return 0;
+	if (mo->nth(i + 1) == b)
+	  return b;
+	return 0;
       }
 
       class to_string_visitor: public const_visitor
@@ -316,29 +342,114 @@ namespace spot
 	}
 
 	void
+	emit_bunop_child(const formula* b)
+	{
+	  // b[*] is OK, no need to print {b}[*].  However want braces
+	  // for {!b}[*], the only unary operator that can be nested
+	  // with [*] or any other BUnOp like [->i..j] or [=i..j].
+	  formula::opkind ck = b->kind();
+	  bool need_parent = (full_parent_
+			      || ck == formula::UnOp
+			      || ck == formula::BinOp
+			      || ck == formula::MultOp);
+	  if (need_parent)
+	    openp();
+	  b->accept(*this);
+	  if (need_parent)
+	    closep();
+	}
+
+	void
 	visit(const bunop* bo)
 	{
+	  const formula* c = bo->child();
+	  enum { Star, Goto, Equal } sugar = Star;
+	  unsigned default_min = 0;
+	  unsigned default_max = bunop::unbounded;
+
 	  // Abbreviate "1[*]" as "[*]".
-	  if (bo->child() != constant::true_instance())
+	  if (c != constant::true_instance())
 	    {
-	      // a[*] is OK, no need to print {a}[*].
-	      // However want braces for {!a}[*], the only unary
-	      // operator that can be nested with [*].
+	      bunop::type op = bo->op();
+	      switch (op)
+		{
+		case bunop::Star:
+		  if (multop* mo = is_Concat(c))
+		    {
+		      unsigned s = mo->size();
+		      if (s == 2)
+			if (formula* b = match_goto(mo, 0))
+			  {
+			    c = b;
+			    sugar = Goto;
+			  }
+		    }
+		  break;
+		case bunop::Goto:
+		  sugar = Goto;
+		  break;
+		case bunop::Equal:
+		  sugar = Equal;
+		  break;
+		}
 
-	      formula::opkind ck = bo->child()->kind();
-	      bool need_parent = (full_parent_
-				  || ck == formula::UnOp
-				  || ck == formula::BinOp
-				  || ck == formula::MultOp);
-
-	      if (need_parent)
-		openp();
-	      bo->child()->accept(*this);
-	      if (need_parent)
-		closep();
+	      emit_bunop_child(c);
 	    }
 
-	  os_ << bo->format();
+	  unsigned min = bo->min();
+	  unsigned max = bo->max();
+	  switch (sugar)
+	    {
+	    case Star:
+	      if (min == 1 && max == bunop::unbounded)
+		{
+		  os_ << "[+]";
+		  return;
+		}
+	      os_ << "[*";
+	      break;
+	    case Equal:
+	      os_ << "[=";
+	      break;
+	    case Goto:
+	      os_ << "[->";
+	      default_min = 1;
+	      default_max = 1;
+	      break;
+	    }
+
+	  // Beware that the default parameters of the Goto operator are
+	  // not the same as Star or Equal:
+	  //
+	  //   [->]   = [->1..1]
+	  //   [->..] = [->1..unbounded]
+	  //   [*]    = [*0..unbounded]
+	  //   [*..]  = [*0..unbounded]
+	  //   [=]    = [=0..unbounded]
+	  //   [=..]  = [=0..unbounded]
+	  //
+	  // Strictly speaking [=] is not specified by PSL, and anyway we
+	  // automatically rewrite Exp[=0..unbounded] as
+	  // Exp[*0..unbounded], so we should never have to print [=]
+	  // here.
+	  //
+	  // Also
+	  //   [*..]  = [*0..unbounded]
+
+	  if (min != default_min || max != default_max)
+	    {
+	      // Always print the min_, even when it is equal to
+	      // default_min, this way we avoid ambiguities (like
+	      // when reading [*..3] near [->..2])
+	      os_ << min;
+	      if (min != max)
+		{
+		  os_ << "..";
+		  if (max != bunop::unbounded)
+		    os_ << max;
+		}
+	    }
+	  os_ << "]";
 	}
 
 	void
@@ -434,16 +545,86 @@ namespace spot
 	}
 
 	void
+	resugar_concat(const multop* mo)
+	{
+	  unsigned max = mo->size();
+
+	  for (unsigned i = 0; i < max; ++i)
+	    {
+	      if (i > 0)
+		emit(KConcat);
+	      if (i + 1 < max)
+		{
+		  // Try to match (!b)[*];b
+		  formula* b = match_goto(mo, i);
+		  if (b)
+		    {
+		      emit_bunop_child(b);
+
+		      // Wait... maybe we are looking at (!b)[*];b;(!b)[*]
+		      // in which case it's b[=1].
+		      if (i + 2 < max && mo->nth(i) == mo->nth(i + 2))
+			{
+			  os_ << "[=1]";
+			  i += 2;
+			}
+		      else
+			{
+			  os_ << "[->]";
+			  ++i;
+			}
+		      continue;
+		    }
+		  // Try to match ((!b)[*];b)[*i..j];(!b)[*]
+		  if (bunop* s = is_Star(mo->nth(i)))
+		    if (formula* b2 = strip_star_not(mo->nth(i + 1)))
+		      if (multop* sc = is_Concat(s->child()))
+			if (formula* b1 = match_goto(sc, 0))
+			  if (b1 == b2)
+			    {
+			      emit_bunop_child(b1);
+			      os_ << "[=";
+			      unsigned min = s->min();
+			      os_ << min;
+			      unsigned max = s->max();
+			      if (max != min)
+				{
+				  os_ << "..";
+				  if (max != bunop::unbounded)
+				    os_ << max;
+				}
+			      os_ << "]";
+			      ++i;
+			      continue;
+			    }
+		}
+	      mo->nth(i)->accept(*this);
+	    }
+	}
+
+
+	void
 	visit(const multop* mo)
 	{
 	  bool top_level = top_level_;
 	  top_level_ = false;
 	  if (!top_level)
 	    openp();
-	  unsigned max = mo->size();
+	  multop::type op = mo->op();
+
+	  // Handle the concatenation separately, because we want to
+	  // "resugar" some patterns.
+	  if (op == multop::Concat)
+	    {
+	      resugar_concat(mo);
+	      if (!top_level)
+		closep();
+	      return;
+	    }
+
 	  mo->nth(0)->accept(*this);
 	  keyword k = KFalse;	// Initialize to something to please GCC.
-	  switch (mo->op())
+	  switch (op)
 	    {
 	    case multop::Or:
 	      k = KOr;
@@ -455,7 +636,8 @@ namespace spot
 	      k = KAndNLM;
 	      break;
 	    case multop::Concat:
-	      k = KConcat;
+	      // Handled by resugar_concat.
+	      assert(0);
 	      break;
 	    case multop::Fusion:
 	      k = KFusion;
@@ -463,6 +645,7 @@ namespace spot
 	    }
 	  assert(k != KFalse);
 
+	  unsigned max = mo->size();
 	  for (unsigned n = 1; n < max; ++n)
 	    {
 	      emit(k);

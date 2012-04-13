@@ -216,7 +216,7 @@ namespace spot
     /// Return 0 otherwise.
     inline
     multop*
-    is_And(formula* f)
+    is_And(const formula* f)
     {
       return is_multop(f, multop::And);
     }
@@ -226,9 +226,29 @@ namespace spot
     /// Return 0 otherwise.
     inline
     multop*
-    is_Or(formula* f)
+    is_Or(const formula* f)
     {
       return is_multop(f, multop::Or);
+    }
+
+    /// \brief Cast \a f into a multop if it is a Concat.
+    ///
+    /// Return 0 otherwise.
+    inline
+    multop*
+    is_Concat(const formula* f)
+    {
+      return is_multop(f, multop::Concat);
+    }
+
+    /// \brief Cast \a f into a multop if it is a Fusion.
+    ///
+    /// Return 0 otherwise.
+    inline
+    multop*
+    is_Fusion(const formula* f)
+    {
+      return is_multop(f, multop::Fusion);
     }
   }
 }
