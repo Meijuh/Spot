@@ -26,9 +26,10 @@
 #include <ctype.h>
 #include <ostream>
 #include <cstring>
-#include "tostring.hh"
-#include "ltlast/visitor.hh"
 #include "ltlast/allnodes.hh"
+#include "ltlast/visitor.hh"
+#include "lunabbrev.hh"
+#include "tostring.hh"
 
 
 namespace spot
@@ -37,6 +38,93 @@ namespace spot
   {
     namespace
     {
+      enum keyword {
+	KFalse = 0,
+	KTrue = 1,
+	KEmptyWord = 2,
+	KXor,
+	KImplies,
+	KEquiv,
+	KU,
+	KR,
+	KW,
+	KM,
+	KEConcat,
+	KEConcatNext,
+	KEConcatMarked,
+	KEConcatMarkedNext,
+	KUConcat,
+	KUConcatNext,
+	KNot,
+	KX,
+	KF,
+	KG,
+	KOr,
+	KAnd,
+	KAndLM,
+	KAndNLM,
+	KConcat,
+	KFusion
+      };
+
+      const char* spot_kw[] = {
+	"0",
+	"1",
+	"[*0]",
+	" xor ",
+	" -> ",
+	" <-> ",
+	" U ",
+	" R ",
+	" W ",
+	" M ",
+	" <>-> ",
+	" <>=> ",
+	" <>+> ",
+	" <>=+> ",
+	" []-> ",
+	" []=> ",
+	"!",
+	"X",
+	"F",
+	"G",
+	" | ",
+	" & ",
+	" && ",
+	" & ",
+	" ; ",
+	" : "
+      };
+
+      const char* spin_kw[] = {
+	"0",
+	"1",
+	"[*0]",			// not supported
+	" xor ",		// rewritten
+	" -> ",			// rewritten
+	" <-> ",		// rewritten
+	" U ",
+	" V ",
+	" W ",			// not supported
+	" M ",			// not supported
+	" <>-> ",		// not supported
+	" <>=> ",		// not supported
+	" <>+> ",		// not supported
+	" <>=+> ",		// not supported
+	" []-> ",		// not supported
+	" []=> ",		// not supported
+	"!",
+	"()",
+	"<>",
+	"[]",
+	" || ",
+	" && ",
+	" && ",			// not supported
+	" & ",			// not supported
+	" ; ",			// not supported
+	" : ",			// not supported
+      };
+
       static bool
       is_bare_word(const char* str)
       {
@@ -63,9 +151,11 @@ namespace spot
       public:
 	to_string_visitor(std::ostream& os,
 			  bool full_parent = false,
-			  bool ratexp = false)
+			  bool ratexp = false,
+			  const char** kw = spot_kw)
 	  : os_(os), top_level_(true),
-	    full_parent_(full_parent), in_ratexp_(ratexp)
+	    full_parent_(full_parent), in_ratexp_(ratexp),
+	    kw_(kw)
 	{
 	}
 
@@ -84,6 +174,12 @@ namespace spot
 	closep() const
 	{
 	  os_ << (in_ratexp_ ? "}" : ")");
+	}
+
+	std::ostream&
+	emit(int symbol)
+	{
+	  return os_ << kw_[symbol];
 	}
 
 	void
@@ -109,7 +205,18 @@ namespace spot
 	{
 	  if (full_parent_)
 	    openp();
-	  os_ << c->val_name();
+	  switch (c->val())
+	    {
+	    case constant::False:
+	      emit(KFalse);
+	      break;
+	    case constant::True:
+	      emit(KTrue);
+	      break;
+	    case constant::EmptyWord:
+	      emit(KEmptyWord);
+	      break;
+	    }
 	  if (full_parent_)
 	    closep();
 	}
@@ -156,28 +263,29 @@ namespace spot
 	  switch (bo->op())
 	    {
 	    case binop::Xor:
-	      os_ << " xor ";
+	      emit(KXor);
 	      break;
 	    case binop::Implies:
-	      os_ << " -> ";
+	      emit(KImplies);
 	      break;
 	    case binop::Equiv:
-	      os_ << " <-> ";
+	      emit(KEquiv);
 	      break;
 	    case binop::U:
-	      os_ << " U ";
+	      emit(KU);
 	      break;
 	    case binop::R:
-	      os_ << " R ";
+	      emit(KR);
 	      break;
 	    case binop::W:
-	      os_ << " W ";
+	      emit(KW);
 	      break;
 	    case binop::M:
-	      os_ << " M ";
+	      emit(KM);
 	      break;
 	    case binop::UConcat:
-	      os_ << (onelast ? "} []=> " : "} []-> ");
+	      os_ << "}";
+	      emit(onelast ? KUConcatNext : KUConcat);
 	      in_ratexp_ = false;
 	      top_level_ = top_level;
 	      break;
@@ -188,12 +296,14 @@ namespace spot
 		  in_ratexp_ = false;
 		  goto second_done;
 		}
-	      os_ << (onelast ? "} <>=> " : "} <>-> ");
+	      os_ << "}";
+	      emit(onelast ? KEConcatNext : KEConcat);
 	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
 	    case binop::EConcatMarked:
-	      os_ << (onelast ? "} <>=+> " : "} <>+> ");
+	      os_ << "}";
+	      emit(onelast ? KEConcatMarkedNext : KEConcatMarked);
 	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
@@ -251,17 +361,17 @@ namespace spot
 	  switch (uo->op())
 	    {
 	    case unop::Not:
-	      os_ << "!";
+	      emit(KNot);
 	      need_parent = false;
 	      break;
 	    case unop::X:
-	      os_ << "X";
+	      emit(KX);
 	      break;
 	    case unop::F:
-	      os_ << "F";
+	      emit(KF);
 	      break;
 	    case unop::G:
-	      os_ << "G";
+	      emit(KG);
 	      break;
 	    case unop::Finish:
 	      os_ << "finish";
@@ -332,29 +442,30 @@ namespace spot
 	    openp();
 	  unsigned max = mo->size();
 	  mo->nth(0)->accept(*this);
-	  const char* ch = " ";
+	  keyword k = KFalse;	// Initialize to something to please GCC.
 	  switch (mo->op())
 	    {
 	    case multop::Or:
-	      ch = " | ";
+	      k = KOr;
 	      break;
 	    case multop::And:
-	      ch = in_ratexp_ ? " && " : " & ";
+	      k = in_ratexp_ ? KAndLM : KAnd;
 	      break;
 	    case multop::AndNLM:
-	      ch = " & ";
+	      k = KAndNLM;
 	      break;
 	    case multop::Concat:
-	      ch = ";";
+	      k = KConcat;
 	      break;
 	    case multop::Fusion:
-	      ch = ":";
+	      k = KFusion;
 	      break;
 	    }
+	  assert(k != KFalse);
 
 	  for (unsigned n = 1; n < max; ++n)
 	    {
-	      os_ << ch;
+	      emit(k);
 	      mo->nth(n)->accept(*this);
 	    }
 	  if (!top_level)
@@ -365,218 +476,7 @@ namespace spot
 	bool top_level_;
 	bool full_parent_;
 	bool in_ratexp_;
-      };
-
-      class to_spin_string_visitor : public to_string_visitor
-      {
-      public:
-	to_spin_string_visitor(std::ostream& os, bool full_parent = false)
-	  : to_string_visitor(os, full_parent)
-	{
-	}
-
-	virtual
-	~to_spin_string_visitor()
-	{
-	}
-
-	void
-	visit(const binop* bo)
-	{
-	  bool top_level = top_level_;
-	  top_level_ = false;
-	  if (!top_level)
-	    openp();
-
-	  switch (bo->op())
-	    {
-	    case binop::Xor:
-	      os_ << "(!";
-	      bo->first()->accept(*this);
-	      os_ << " && ";
-	      bo->second()->accept(*this);
-	      os_ << ") || (";
-	      bo->first()->accept(*this);
-	      os_ << " && !";
-	      bo->second()->accept(*this);
-	      os_ << ")";
-	      break;
-	    case binop::Implies:
-	      os_ << "!";
-	      bo->first()->accept(*this);
-	      os_ << " || ";
-	      bo->second()->accept(*this);
-	      break;
-	    case binop::Equiv:
-	      os_ << "(";
-	      bo->first()->accept(*this);
-	      os_ << " && ";
-	      bo->second()->accept(*this);
-	      os_ << ") || (!";
-	      bo->first()->accept(*this);
-	      os_ << " && !";
-	      bo->second()->accept(*this);
-	      os_ << ")";
-	      break;
-	    case binop::U:
-	      bo->first()->accept(*this);
-	      os_ << " U ";
-	      bo->second()->accept(*this);
-	      break;
-	    case binop::R:
-	      bo->first()->accept(*this);
-	      os_ << " V ";
-	      bo->second()->accept(*this);
-	      break;
-	    case binop::UConcat:
-	      bo->first()->accept(*this);
-	      os_ << "} []-> ";
-	      top_level_ = false;
-	      bo->second()->accept(*this);
-	      break;
-	    case binop::EConcat:
-	      in_ratexp_ = true;
-	      top_level_ = true;
-	      os_ << "{";
-	      bo->first()->accept(*this);
-	      if (bo->second() == constant::true_instance())
-		{
-		  os_ << "}!";
-		  break;
-		}
-	      os_ << "} <>-> ";
-	      top_level_ = false;
-	      bo->second()->accept(*this);
-	      break;
-	    case binop::EConcatMarked:
-	      in_ratexp_ = true;
-	      top_level_ = true;
-	      os_ << "{";
-	      bo->first()->accept(*this);
-	      os_ << "} <>+> ";
-	      top_level_ = false;
-	      bo->second()->accept(*this);
-	      break;
-	      /* W and M are not supported by Spin */
-	    case binop::W:
-	      bo->first()->accept(*this);
-	      os_ << " W ";
-	      bo->second()->accept(*this);
-	      break;
-	    case binop::M:
-	      bo->first()->accept(*this);
-	      os_ << " M ";
-	      bo->second()->accept(*this);
-	      break;
-	    }
-
-	  if (!top_level)
-	    closep();
-	}
-
-	void
-	visit(const unop* uo)
-	{
-	  bool top_level = top_level_;
-	  if (full_parent_ && !top_level)
-	    openp();
-
-	  bool need_parent = false;
-	  top_level_ = false;
-	  switch (uo->op())
-	    {
-	    case unop::Not:
-	      os_ << "!";
-	      break;
-	    case unop::X:
-	      // The parser treats X0, and X1 as atomic
-	      // propositions. So make sure we output X(0) and X(1).
-	      need_parent = (uo->child()->kind() == formula::Constant);
-	      if (full_parent_)
-		need_parent = false;
-	      os_ << "X";
-	      break;
-	    case unop::F:
-	      os_ << "<>";
-	      break;
-	    case unop::G:
-	      os_ << "[]";
-	      break;
-	    case unop::Finish:
-	      os_ << "finish";
-	      need_parent = true;
-	      break;
-	    case unop::Closure:
-	      os_ << "{";
-	      top_level_ = true;
-	      in_ratexp_ = true;
-	      break;
-	    case unop::NegClosure:
-	      os_ << "!{";
-	      top_level_ = true;
-	      in_ratexp_ = true;
-	      break;
-	    }
-
-	  if (need_parent)
-	    openp();
-	  uo->child()->accept(*this);
-	  if (need_parent)
-	    closep();
-
-	  switch (uo->op())
-	    {
-	    case unop::Closure:
-	    case unop::NegClosure:
-	      os_ << "}";
-	      in_ratexp_ = false;
-	      top_level_ = false;
-	      break;
-	    default:
-	      break;
-	    }
-
-	  if (full_parent_ && !top_level)
-	    closep();
-	}
-
-	void
-	visit(const multop* mo)
-	{
-	  bool top_level = top_level_;
-	  top_level_ = false;
-	  if (!top_level)
-	    openp();
-	  unsigned max = mo->size();
-	  mo->nth(0)->accept(*this);
-	  const char* ch = " ";
-	  switch (mo->op())
-	    {
-	    case multop::Or:
-	      ch = " || ";
-	      break;
-	    case multop::And:
-	      ch = " && ";
-	      break;
-	    case multop::AndNLM:
-	      ch = " & ";
-	      break;
-	    case multop::Concat:
-	      ch = ";";
-	      break;
-	    case multop::Fusion:
-	      ch = ":";
-	      break;
-	    }
-
-	  for (unsigned n = 1; n < max; ++n)
-	    {
-	      os_ << ch;
-	      mo->nth(n)->accept(*this);
-	    }
-	  if (!top_level)
-	    closep();
-	}
+	const char** kw_;
       };
 
     } // anonymous
@@ -585,7 +485,7 @@ namespace spot
     to_string(const formula* f, std::ostream& os, bool full_parent,
 	      bool ratexp)
     {
-      to_string_visitor v(os, full_parent, ratexp);
+      to_string_visitor v(os, full_parent, ratexp, spot_kw);
       f->accept(v);
       return os;
     }
@@ -601,8 +501,11 @@ namespace spot
     std::ostream&
     to_spin_string(const formula* f, std::ostream& os, bool full_parent)
     {
-      to_spin_string_visitor v(os, full_parent);
-      f->accept(v);
+      // Remove xor, ->, and <-> first.
+      formula* fu = unabbreviate_logic(f);
+      to_string_visitor v(os, full_parent, false, spin_kw);
+      fu->accept(v);
+      fu->destroy();
       return os;
     }
 
