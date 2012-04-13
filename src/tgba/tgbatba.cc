@@ -459,6 +459,11 @@ namespace spot
 	s->destroy();
       }
     delete m;
+
+    // These have already been destroyed.
+    // Prevent destroying by tgba::~tgba.
+    this->last_support_conditions_input_ = 0;
+    this->last_support_variables_input_ = 0;
   }
 
   state*
