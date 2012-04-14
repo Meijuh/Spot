@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -25,6 +25,7 @@
 #include <sstream>
 #include "constant.hh"
 #include "unop.hh"
+#include "multop.hh"
 
 namespace spot
 {
@@ -387,6 +388,39 @@ namespace spot
       bunop* ap = new bunop(op, child, min, max);
       instances[p] = ap;
       return static_cast<bunop*>(ap->clone());
+    }
+
+    formula*
+    bunop::sugar_goto(formula* b, unsigned min, unsigned max)
+    {
+      assert(b->is_boolean());
+      // b[->min..max] is implemented as ((!b)[*];b)[*min..max]
+      formula* s = bunop::instance(bunop::Star,
+				   unop::instance(unop::Not, b->clone()));
+      return bunop::instance(bunop::Star,
+			     multop::instance(multop::Concat, s, b),
+			     min, max);
+    }
+
+    formula*
+    bunop::sugar_equal(formula* b, unsigned min, unsigned max)
+    {
+      assert(b->is_boolean());
+      // b[=0..] = 1[*]
+      if (min == 0 && max == unbounded)
+	{
+	  b->destroy();
+	  return instance(Star, constant::true_instance());
+	}
+
+      // b[=min..max] is implemented as ((!b)[*];b)[*min..max];(!b)[*]
+      formula* s = bunop::instance(bunop::Star,
+				   unop::instance(unop::Not, b->clone()));
+      formula* t = bunop::instance(bunop::Star,
+				   multop::instance(multop::Concat,
+						    s->clone(), b),
+				   min, max);
+      return multop::instance(multop::Concat, t, s);
     }
 
     unsigned

@@ -71,6 +71,29 @@ namespace spot
 			       unsigned min = 0,
 			       unsigned max = unbounded);
 
+      /// \brief Implement <code>b[->i..j]</code> using the Kleen star.
+      ///
+      /// <code>b[->i..j]</code> is implemented as
+      /// <code>((!b)[*];b)[*i..j]</code>.
+      ///
+      /// Note that \a min defaults to 1, not 0, because [->] means
+      /// [->1..].
+      ///
+      /// \pre \a child must be a Boolean formula.
+      static formula* sugar_goto(formula* child,
+				 unsigned min = 1,
+				 unsigned max = unbounded);
+
+      /// \brief Implement b[=i..j] using the Kleen star.
+      ///
+      /// <code>b[=i..j]</code> is implemented as
+      /// <code>((!b)[*];b)[*i..j];(!b)[*]</code>.
+      ///
+      /// \pre \a child must be a Boolean formula.
+      static formula* sugar_equal(formula* child,
+				  unsigned min = 0,
+				  unsigned max = unbounded);
+
       virtual void accept(visitor& v);
       virtual void accept(const_visitor& v) const;
 
