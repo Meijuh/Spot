@@ -28,7 +28,7 @@
 conffile=known.cfg
 logfile=known.log
 sumfile=known.txt
-ltlfile=formulae.ltl
+ltlfile=$srcdir/formulae.ltl
 
 . "$srcdir/algorithms"
 

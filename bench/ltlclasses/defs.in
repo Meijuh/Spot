@@ -27,6 +27,7 @@ test -f ./defs || {
 }
 
 srcdir='@srcdir@'
+builddir='@builddir@'
 
 # Ensure $srcdir is set correctly.
 test -f "$srcdir/defs.in" || {

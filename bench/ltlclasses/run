@@ -22,7 +22,7 @@
 
 . ./defs
 
-gen="$srcdir/../../src/ltltest/genltl"
+gen="$builddir/../../src/ltltest/genltl"
 
 for F in 1 2 3 4 5; do
   echo "# Benching ltl2tgba_fm for family F=$F"
