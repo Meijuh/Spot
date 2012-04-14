@@ -5,7 +5,7 @@
 //
 // Spot is free software; you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
+// the Free Software Foundation; either version 3 of the License, or
 // (at your option) any later version.
 //
 // Spot is distributed in the hope that it will be useful, but WITHOUT
@@ -2266,13 +2266,16 @@ namespace spot
 				  bunop* r = down_cast<bunop*>(*i);
 				  // b && r[*i..j] = b & r  if i<=1<=j
 				  //               = 0      otherwise
-				  // likewise for b && r[=i..j]
-				  //          and b && r[->i..j]
-				  if (r->min() > 1 || r->max() < 1)
-				    goto returnfalse;
-				  ares->push_back(r->child()->clone());
-				  r->destroy();
-				  *i = 0;
+				  switch (r->op())
+				    {
+				    case bunop::Star:
+				      if (r->min() > 1 || r->max() < 1)
+					goto returnfalse;
+				      ares->push_back(r->child()->clone());
+				      r->destroy();
+				      *i = 0;
+				      break;
+				    }
 				  break;
 				}
 			      case formula::MultOp:
@@ -2540,7 +2543,7 @@ namespace spot
 			fset_t xfset; // XF(...)
 			fset_t xset;  // X(...)
 			fmap_t rmset; // (X...)R(...) or (X...)M(...) or
-			              // b & X(b W ...) or b & X(b U ...)
+				      // b & X(b W ...) or b & X(b U ...)
 
 			unsigned s = res->size();
 			std::vector<bool> tokill(s);

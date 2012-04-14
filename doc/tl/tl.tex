@@ -580,22 +580,6 @@ denote arbitrary SERE and $b$ denotes a Boolean formula.
                      & $f\STAR{\mvar{i}:}$
                      & $f\STAR{\mvar{i} to}$
                      & $f\STAR{\mvar{i},}$\\
-  bounded occurrence & $b\EQUAL{\mvar{i}..\mvar{j}}$
-                     & $b\EQUAL{\mvar{i}:\mvar{j}}$
-                     & $b\EQUAL{\mvar{i} to \mvar{j}}$
-                     & $b\EQUAL{\mvar{i},\mvar{j}}$\\
-  unbounded occurrence & $b\EQUAL{\mvar{i}..}$
-                     & $b\EQUAL{\mvar{i}:}$
-                     & $b\EQUAL{\mvar{i} to}$
-                     & $b\EQUAL{\mvar{i},}$\\
-  bounded goto       & $b\GOTO{\mvar{i}..\mvar{j}}$
-                     & $b\GOTO{\mvar{i}:\mvar{j}}$
-                     & $b\GOTO{\mvar{i} to \mvar{j}}$
-                     & $b\GOTO{\mvar{i},\mvar{j}}$\\
-  unbounded goto     & $b\GOTO{\mvar{i}..}$
-                     & $b\GOTO{\mvar{i}:}$
-                     & $b\GOTO{\mvar{i} to}$
-                     & $b\GOTO{\mvar{i},}$\\
 \end{tabular}
 \end{center}
 
@@ -642,15 +626,7 @@ $b$ is a Boolean formula.
     \text{or} & \mvar{i}>0 \land (\exists k\in\N,\,
       (\sigma^{0..k-1}\VDash f) \land (\sigma^{k..}
       \VDash f\STAR{\mvar{i-1}..}))\\
-  \end{cases}\\
-  \sigma\VDash b\EQUAL{\mvar{i}..\mvar{j}} & \iff
-  \sigma\VDash\mathtt{\{\{}\NOT b\,\mathtt\}\STAR{0..}\CONCAT\ b\,\mathtt\}\STAR{\mvar{i}..\mvar{j}}\CONCAT\mathtt\{\NOT b\,\mathtt\}\STAR{0..}\\
-  \sigma\VDash b\EQUAL{\mvar{i}..} & \iff
-  \sigma\VDash\mathtt{\{\{}\NOT b\,\mathtt\}\STAR{0..}\CONCAT\ b\,\mathtt\}\STAR{\mvar{i}..}\CONCAT\mathtt\{\NOT b\,\mathtt\}\STAR{0..}\\
-  \sigma\VDash b\GOTO{\mvar{i}..\mvar{j}} & \iff
-  \sigma\VDash\mathtt{\{\{}\NOT b\,\mathtt\}\STAR{0..}\CONCAT\ b\,\mathtt\}\STAR{\mvar{i}..\mvar{j}}\\
-  \sigma\VDash b\GOTO{\mvar{i}..} & \iff
-  \sigma\VDash\mathtt{\{\{}\NOT b\,\mathtt\}\STAR{0..}\CONCAT\ b\,\mathtt\}\STAR{\mvar{i}..}\\
+  \end{cases}
 \end{align*}}
 
 Notes:
@@ -667,9 +643,16 @@ operands are Boolean formul\ae.
 
 The syntax on the left is equivalent to the syntax on the right.
 These rewritings are performed from left to right when parsing a
-formula, and some are performed from right to left when writing it for
-output.
+formula, and \emph{some} are performed from right to left when writing
+it for output.  $b$ must be a Boolean formula.
 
+\begin{align*}
+  b\GOTO{\mvar{i}..\mvar{j}} &\equiv \mathtt{\{\{}\NOT b\mathtt{\}}\STAR{0..}\CONCAT b\mathtt{\}}\STAR{\mvar{i}..\mvar{j}} &
+  b\EQUAL{\mvar{i}..\mvar{j}} &\equiv \mathtt{\{\{}\NOT b\mathtt{\}}\STAR{0..}\CONCAT b\mathtt{\}}\STAR{\mvar{i}..\mvar{j}}\CONCAT \mathtt{\{}\NOT b\mathtt{\}}\STAR{0..} \\
+  b\GOTO{\mvar{i}..} &\equiv \mathtt{\{\{}\NOT b\mathtt{\}}\STAR{0..}\CONCAT b\mathtt{\}}\STAR{\mvar{i}..} &
+  b\EQUAL{\mvar{i}..} &\equiv \mathtt{\{\{}\NOT b\mathtt{\}}\STAR{0..}\CONCAT b\mathtt{\}}\STAR{\mvar{i}..}\CONCAT \mathtt{\{}\NOT b\mathtt{\}}\STAR{0..}\text{~if~}i>0 \\
+  && b\EQUAL{0..} &\equiv \mathtt{\{\{}\1\STAR{0..}\mathtt{\}}
+\end{align*}
 \begin{align*}
   f\STARALT &\equiv f\STAR{0..}\\
   f\STAR{}    &\equiv f\STAR{0..}  &
@@ -701,22 +684,10 @@ $b_1$, $b_2$ are assumed to be Boolean formul\ae.
 
 \begin{align*}
   \0\STAR{0..\mvar{j}} &\equiv \eword  &
-  \0\EQUAL{0..\mvar{j}} &\equiv \1\STAR{} &
-  \0\GOTO{0..\mvar{j}} &\equiv \eword \\
-  \0\STAR{\mvar{i}..\mvar{j}} &\equiv \0 \text{~if~}i>0 &
-  \0\EQUAL{\mvar{i}..\mvar{j}} &\equiv \0 \text{~if~}i>0&
-  \0\GOTO{\mvar{i}..\mvar{j}} &\equiv \0 \text{~if~}i>0\\
+  \0\STAR{\mvar{i}..\mvar{j}} &\equiv \0 \text{~if~}i>0 \\
   \eword\STAR{\var{i}..\mvar{j}} &\equiv \eword&
-  \1\EQUAL{0} &\equiv\eword&
-  \1\GOTO{0} &\equiv\eword\\
-  f\STAR{0}&\equiv \eword &
-  \1\EQUAL{\mvar{i}..\mvar{j}}&\equiv \1\STAR{\mvar{i}..\mvar{j}}&
-  \1\GOTO{\mvar{i}..\mvar{j}}&\equiv \1\STAR{\mvar{i}..\mvar{j}}\\
-  f\STAR{\mvar{i}..\mvar{j}}\STAR{\mvar{k}..\mvar{l}} &\equiv f\STAR{\mvar{ik}..\mvar{jl}}&
-  b\EQUAL{0..}&\equiv 1\STAR{} &
-  b\GOTO{0}&\equiv \eword \\
-  &\drsh\text{~if~}i(k+1)\le jk+1 &
-  b\EQUAL{0}&\equiv (\NOT b)\STAR{} \\
+  f\STAR{\mvar{i}..\mvar{j}}\STAR{\mvar{k}..\mvar{l}} &\equiv f\STAR{\mvar{ik}..\mvar{jl}}\text{~if~}i(k+1)\le jk+1 \\
+  f\STAR{0}&\equiv \eword
 \end{align*}
 
 \noindent
@@ -1392,16 +1363,6 @@ SERE.
 
 \begin{align*}
   b \ANDALT r\STAR{\mvar{i}..\mvar{j}} &\equiv
-  \begin{cases}
-    b \ANDALT r &\text{if~} i\le 1\le j\\
-    \0 &\text{else}\\
-  \end{cases}\\
-  b \ANDALT r\EQUAL{\mvar{i}..\mvar{j}} &\equiv
-  \begin{cases}
-    b \ANDALT r &\text{if~} i\le 1\le j\\
-    \0 &\text{else}\\
-  \end{cases}\\
-  b \ANDALT r\GOTO{\mvar{i}..\mvar{j}} &\equiv
   \begin{cases}
     b \ANDALT r &\text{if~} i\le 1\le j\\
     \0 &\text{else}\\

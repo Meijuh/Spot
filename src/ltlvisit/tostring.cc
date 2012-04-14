@@ -385,12 +385,6 @@ namespace spot
 			  }
 		    }
 		  break;
-		case bunop::Goto:
-		  sugar = Goto;
-		  break;
-		case bunop::Equal:
-		  sugar = Equal;
-		  break;
 		}
 
 	      emit_bunop_child(c);

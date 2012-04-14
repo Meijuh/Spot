@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -8,7 +8,7 @@
 //
 // Spot is free software; you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
+// the Free Software Foundation; either version 3 of the License, or
 // (at your option) any later version.
 //
 // Spot is distributed in the hope that it will be useful, but WITHOUT
@@ -276,7 +276,7 @@ namespace spot
 
     // SEREs
     random_sere::random_sere(const atomic_prop_set* ap)
-      : random_formula(11, ap), rb(ap)
+      : random_formula(9, ap), rb(ap)
     {
       proba_[0].setup("eword",   1, eword_builder);
       proba_2_ = proba_ + 1;
@@ -284,13 +284,11 @@ namespace spot
       proba_[1].setup("boolform", 1, boolform_builder);
       proba_[2].setup("star",    2, bunop_unbounded_builder<bunop::Star>);
       proba_[3].setup("star_b",  2, bunop_bounded_builder<bunop::Star>);
-      proba_[4].setup("equal_b", 2, bunop_bool_bounded_builder<bunop::Equal>);
-      proba_[5].setup("goto_b",  2, bunop_bool_bounded_builder<bunop::Goto>);
-      proba_[6].setup("and",     3, multop_builder<multop::And>);
-      proba_[7].setup("andNLM",  3, multop_builder<multop::AndNLM>);
-      proba_[8].setup("or",      3, multop_builder<multop::Or>);
-      proba_[9].setup("concat",  3, multop_builder<multop::Concat>);
-      proba_[10].setup("fusion",  3, multop_builder<multop::Fusion>);
+      proba_[4].setup("and",     3, multop_builder<multop::And>);
+      proba_[5].setup("andNLM",  3, multop_builder<multop::AndNLM>);
+      proba_[6].setup("or",      3, multop_builder<multop::Or>);
+      proba_[7].setup("concat",  3, multop_builder<multop::Concat>);
+      proba_[8].setup("fusion",  3, multop_builder<multop::Fusion>);
 
       update_sums();
     }

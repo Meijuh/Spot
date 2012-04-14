@@ -37,7 +37,7 @@ namespace spot
     class bunop : public ref_formula
     {
     public:
-      enum type { Star, Equal, Goto };
+      enum type { Star };
 
       static const unsigned unbounded = -1U;
 
@@ -51,17 +51,6 @@ namespace spot
       ///   - [*0][*min..max] = [*0]
       ///   - Exp[*0] = [*0]
       ///   - Exp[*i..j][*k..l] = Exp[*ik..jl] if i*(k+1)<=jk+1.
-      ///   - 0[=0..max] = 1[*]
-      ///   - 0[=min..max] = 0 if min > 0
-      ///   - 1[=0] = [*0]
-      ///   - 1[=min..max] = 1[*min..max]
-      ///   - Exp[=0..] = [*]
-      ///   - Exp[=0] = (!Exp)[*]
-      ///   - 0[->0..max] = [*0]
-      ///   - 0[->min..max] = 0 if min>0
-      ///   - 1[->0] = [*0]
-      ///   - 1[->min..max] = 1[*min..max]
-      ///   - Exp[->0] = [*0]
       ///
       /// These rewriting rules imply that it is not possible to build
       /// an LTL formula object that is SYNTACTICALLY equal to one of
