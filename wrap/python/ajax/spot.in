@@ -411,11 +411,14 @@ if output_type == 'm':
 # Automaton simplifications
 prune_scc = False
 wdba_minimize = False
+simul_minimize = False
 for s in form.getlist('as'):
     if s == 'ps':
         prune_scc = True
     elif s == 'wd':
         wdba_minimize = True
+    elif s == 'rs':
+        simul_minimize = True
 
 if output_type == 'a':
     buchi_type = form.getfirst('af', 't')
@@ -447,6 +450,10 @@ if wdba_minimize:
         minimized = 0
         degen = False # No need to degeneralize anymore
         issba = True
+        simul_minimize = False # No need to simulate anymore
+
+if simul_minimize:
+    automaton = spot.simulation(automaton)
 
 if degen or neverclaim:
     degen = spot.tgba_sba_proxy(automaton)

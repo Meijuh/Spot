@@ -101,6 +101,7 @@
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/stats.hh"
+#include "tgbaalgos/simulation.hh"
 
 using namespace spot::ltl;
 using namespace spot;
@@ -186,7 +187,7 @@ using namespace spot;
 %feature("new") spot::tgba::get_init_state;
 %feature("new") spot::tgba::succ_iter;
 %feature("new") spot::tgba_succ_iterator::current_state;
-
+%feature("new") spot::simulation;
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
 %include "tgba/bdddict.hh"
@@ -230,6 +231,7 @@ using namespace spot;
 %include "tgbaalgos/save.hh"
 %include "tgbaalgos/sccfilter.hh"
 %include "tgbaalgos/stats.hh"
+%include "tgbaalgos/simulation.hh"
 #undef ltl
 
 %extend spot::ltl::formula {
