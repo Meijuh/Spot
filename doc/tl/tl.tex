@@ -651,7 +651,7 @@ it for output.  $b$ must be a Boolean formula.
   b\EQUAL{\mvar{i}..\mvar{j}} &\equiv \mathtt{\{\{}\NOT b\mathtt{\}}\STAR{0..}\CONCAT b\mathtt{\}}\STAR{\mvar{i}..\mvar{j}}\CONCAT \mathtt{\{}\NOT b\mathtt{\}}\STAR{0..} \\
   b\GOTO{\mvar{i}..} &\equiv \mathtt{\{\{}\NOT b\mathtt{\}}\STAR{0..}\CONCAT b\mathtt{\}}\STAR{\mvar{i}..} &
   b\EQUAL{\mvar{i}..} &\equiv \mathtt{\{\{}\NOT b\mathtt{\}}\STAR{0..}\CONCAT b\mathtt{\}}\STAR{\mvar{i}..}\CONCAT \mathtt{\{}\NOT b\mathtt{\}}\STAR{0..}\text{~if~}i>0 \\
-  && b\EQUAL{0..} &\equiv \mathtt{\{\{}\1\STAR{0..}\mathtt{\}}
+  && b\EQUAL{0..} &\equiv \1\STAR{0..}
 \end{align*}
 \begin{align*}
   f\STARALT &\equiv f\STAR{0..}\\
@@ -687,7 +687,8 @@ $b_1$, $b_2$ are assumed to be Boolean formul\ae.
   \0\STAR{\mvar{i}..\mvar{j}} &\equiv \0 \text{~if~}i>0 \\
   \eword\STAR{\var{i}..\mvar{j}} &\equiv \eword&
   f\STAR{\mvar{i}..\mvar{j}}\STAR{\mvar{k}..\mvar{l}} &\equiv f\STAR{\mvar{ik}..\mvar{jl}}\text{~if~}i(k+1)\le jk+1 \\
-  f\STAR{0}&\equiv \eword
+  f\STAR{0}&\equiv \eword \\
+  f\STAR{1}&\equiv f\\
 \end{align*}
 
 \noindent

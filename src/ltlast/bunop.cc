@@ -211,6 +211,10 @@ namespace spot
 		return constant::empty_word_instance();
 	      }
 
+	    // - Exp[*1] = Exp
+	    if (min == 1 && max == 1)
+	      return child;
+
 	    // - Exp[*i..j][*min..max] = Exp[*i(min)..j(max)]
 	    //                                       if i*(min+1)<=j(min)+1.
 	    if (child->kind() == BUnOp)

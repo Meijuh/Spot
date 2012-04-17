@@ -51,6 +51,7 @@ namespace spot
       ///   - [*0][*min..max] = [*0]
       ///   - Exp[*0] = [*0]
       ///   - Exp[*i..j][*k..l] = Exp[*ik..jl] if i*(k+1)<=jk+1.
+      ///   - Exp[*1] = Exp
       ///
       /// These rewriting rules imply that it is not possible to build
       /// an LTL formula object that is SYNTACTICALLY equal to one of
