@@ -196,9 +196,9 @@ namespace spot
 	    // pointers that we must ignore.
 	    if ((*i) == 0)
 	      {
-		// FIXME: We should replace the pointer by the
-		// first non-null value at the end of the array
-		// instead of calling erase.
+		// FIXME: For commutative operators we should replace
+		// the pointer by the first non-null value at the end
+		// of the array instead of calling erase.
 		i = v->erase(i);
 		continue;
 	      }
@@ -271,9 +271,12 @@ namespace spot
 		    ++i;
 		  }
 	      }
-	    // - AndNLM(Exps1...,Bool1,Exps2...,Bool2,Exp3...) =
-	    //    AndNLM(Exps1...,Exps2...,Exp3...,And(Bool1,Bool2))
-	    v->push_back(instance(And, b));
+	    // - AndNLM(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
+	    //    AndNLM(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
+	    if (!b->empty())
+	      v->push_back(instance(And, b));
+	    else
+	      delete b;
 	  }
 	  break;
 	case Or:
@@ -297,37 +300,38 @@ namespace spot
 	  abs2 = constant::empty_word_instance();
 	  weak_abs = 0;
 
-	  // Make a first pass to gather Boolean formulae.
+	  // Make a first pass to group adjacent Boolean formulae.
 	  // - Fusion(Exps1...,BoolExp1...BoolExpN,Exps2,Exps3...) =
-	  //   Fusion(Exps1...,AndNLM(And(BoolExp1...BoolExpN),Exps2),Exps3...)
+	  //   Fusion(Exps1...,And(BoolExp1...BoolExpN),Exps2,Exps3...)
 	  {
-	    vec* b = 0;
 	    vec::iterator i = v->begin();
 	    while (i != v->end())
 	      {
 		if ((*i)->is_boolean())
 		  {
-		    if (!b)
-		      b = new vec;
-		    b->push_back(*i);
-		    i = v->erase(i);
+		    vec::iterator first = i;
+		    ++i;
+		    if (i == v->end())
+		      break;
+		    if (!(*i)->is_boolean())
+		      {
+			++i;
+			continue;
+		      }
+		    do
+		      ++i;
+		    while (i != v->end() && (*i)->is_boolean());
+		    // We have at least two adjacent Boolean formulae.
+		    // Replace the first one by the conjunction of all.
+		    vec* b = new vec;
+		    b->insert(b->begin(), first, i);
+		    i = v->erase(first + 1, i);
+		    *first = instance(And, b);
 		  }
 		else
 		  {
-		    if (b)
-		      {
-			// We have found a non-Boolean Exp.  "AndNLM" it
-			// with all the previous Boolean formulae.
-			*i = instance(AndNLM, instance(And, b), *i);
-			b = 0;
-		      }
 		    ++i;
 		  }
-	      }
-	    if (b)
-	      {
-		// Group all trailing Boolean formulae.
-		v->push_back(instance(And, b));
 	      }
 	  }
 

@@ -90,8 +90,8 @@ namespace spot
       /// - AndNLM(Exps1...,0,Exps2...) = 0
       /// - AndNLM(Exps1...,[*0],Exps2...) = AndNLM(Exps1...,Exps2...)
       /// - AndNLM(Exp) = Exp
-      /// - AndNLM(Exps1...,BoolExp1,Exps2...,BoolExp2,Exp3...) =
-      ///    AndNLM(Exps1...,Exps2...,Exp3...,And(BoolExp1,BoolExp2))
+      /// - AndNLM(Exps1...,BoolExp1,Exps2...,BoolExp2,Exps3...) =
+      ///    AndNLM(Exps1...,Exps2...,Exps3...,And(BoolExp1,BoolExp2))
       /// - Or(Exps1...,1,Exps2...) = 1
       /// - Or(Exps1...,0,Exps2...) = And(Exps1...,Exps2...)
       /// - Or(Exp) = Exp
@@ -103,7 +103,7 @@ namespace spot
       /// - Fusion(Exps1...,[*0],Exps2...) = 0
       /// - Fusion(Exp) = Exp
       /// - Fusion(Exps1...,BoolExp1...BoolExpN,Exps2,Exps3...) =
-      ///     Fusion(Exps1...,AndNLM(And(BoolExp1...BoolExpN),Exps2),Exps3...)
+      ///     Fusion(Exps1...,And(BoolExp1...BoolExpN),Exps2,Exps3...)
       static formula* instance(type op, vec* v);
 
       virtual void accept(visitor& v);
