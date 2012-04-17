@@ -416,6 +416,39 @@ namespace spot
 	return bddfalse;
       }
 
+      // Append to_concat_ to all Next variables in IN.
+      bdd
+      concat_dests(bdd in)
+      {
+	if (!to_concat_)
+	  return in;
+	minato_isop isop(in);
+	bdd cube;
+	bdd out = bddfalse;
+	while ((cube = isop.next()) != bddfalse)
+	  {
+	    bdd label = bdd_exist(cube, dict_.next_set);
+	    bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+	    formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+	    if (dest == constant::empty_word_instance())
+	      {
+		out |= label & next_to_concat();
+	      }
+	    else
+	      {
+		formula* dest2 = multop::instance(multop::Concat, dest,
+						  to_concat_->clone());
+		if (dest2 != constant::false_instance())
+		  {
+		    int x = dict_.register_next_variable(dest2);
+		    dest2->destroy();
+		    out |= label & bdd_ithvar(x);
+		  }
+	      }
+	  }
+	return out;
+      }
+
       void
       visit(const atomic_prop* node)
       {
@@ -572,63 +605,85 @@ namespace spot
 	switch (op)
 	  {
 	  case multop::AndNLM:
+	    {
+	      unsigned s = node->size();
+	      multop::vec* final = new multop::vec;
+	      multop::vec* non_final = new multop::vec;
+
+	      for (unsigned n = 0; n < s; ++n)
+		{
+		  const formula* f = node->nth(n);
+		  if (f->accepts_eword())
+		    final->push_back(f->clone());
+		  else
+		    non_final->push_back(f->clone());
+		}
+
+	      if (non_final->empty())
+		{
+		  delete non_final;
+		  // (a* & b*);c = (a*|b*);c
+		  formula* f = multop::instance(multop::Or, final);
+		  res_ = recurse_and_concat(f);
+		  f->destroy();
+		  break;
+		}
+	      if (!final->empty())
+		{
+		  // let F_i be final formulae
+		  //     N_i be non final formula
+		  // (F_1 & ... & F_n & N_1 & ... & N_m)
+		  // =   (F_1 | ... | F_n);[*] && (N_1 & ... & N_m)
+		  //   | (F_1 | ... | F_n) && (N_1 & ... & N_m);[*]
+		  formula* f = multop::instance(multop::Or, final);
+		  formula* n = multop::instance(multop::AndNLM, non_final);
+		  formula* t = bunop::instance(bunop::Star,
+					       constant::true_instance());
+		  formula* ft = multop::instance(multop::Concat,
+						 f->clone(), t->clone());
+		  formula* nt = multop::instance(multop::Concat,
+						 n->clone(), t);
+		  formula* ftn = multop::instance(multop::And, ft, n);
+		  formula* fnt = multop::instance(multop::And, f, nt);
+		  formula* all = multop::instance(multop::Or, ftn, fnt);
+		  res_ = recurse_and_concat(all);
+		  all->destroy();
+		  break;
+		}
+	      // No final formula.
+	      delete final;
+	      for (unsigned n = 0; n < s; ++n)
+		(*non_final)[n]->destroy();
+	      delete non_final;
+	      // Translate N_1 & N_2 & ... & N_n into
+	      //   N_1 && (N_2;[*]) && ... && (N_n;[*])
+	      // | (N_1;[*]) && N_2 && ... && (N_n;[*])
+	      // | (N_1;[*]) && (N_2;[*]) && ... && N_n
+	      formula* star =
+		bunop::instance(bunop::Star, constant::true_instance());
+	      multop::vec* disj = new multop::vec;
+	      for (unsigned n = 0; n < s; ++n)
+		{
+		  multop::vec* conj = new multop::vec;
+		  for (unsigned m = 0; m < s; ++m)
+		    {
+		      formula* f = node->nth(m)->clone();
+		      if (n != m)
+			f = multop::instance(multop::Concat,
+					     f, star->clone());
+		      conj->push_back(f);
+		    }
+		  disj->push_back(multop::instance(multop::And, conj));
+		}
+	      star->destroy();
+	      formula* all = multop::instance(multop::Or, disj);
+	      res_ = recurse_and_concat(all);
+	      all->destroy();
+	      break;
+	    }
 	  case multop::And:
 	    {
 	      unsigned s = node->size();
-
-	      if (op == multop::AndNLM)
-		{
-		  multop::vec* final = new multop::vec;
-		  multop::vec* non_final = new multop::vec;
-
-		  for (unsigned n = 0; n < s; ++n)
-		    {
-		      const formula* f = node->nth(n);
-		      if (f->accepts_eword())
-			final->push_back(f->clone());
-		      else
-			non_final->push_back(f->clone());
-		    }
-
-		  if (non_final->empty())
-		    {
-		      delete non_final;
-		      // (a* & b*);c = (a*|b*);c
-		      formula* f = multop::instance(multop::Or, final);
-		      res_ = recurse_and_concat(f);
-		      f->destroy();
-		      break;
-		    }
-		  if (!final->empty())
-		    {
-		      // let F_i be final formulae
-		      //     N_i be non final formula
-		      // (F_1 & ... & F_n & N_1 & ... & N_m)
-		      // =   (F_1 | ... | F_n);[*] && (N_1 & ... & N_m)
-		      //   | (F_1 | ... | F_n) && (N_1 & ... & N_m);[*]
-		      formula* f = multop::instance(multop::Or, final);
-		      formula* n = multop::instance(multop::AndNLM, non_final);
-		      formula* t = bunop::instance(bunop::Star,
-						   constant::true_instance());
-		      formula* ft = multop::instance(multop::Concat,
-						     f->clone(), t->clone());
-		      formula* nt = multop::instance(multop::Concat,
-						     n->clone(), t);
-		      formula* ftn = multop::instance(multop::And, ft, n);
-		      formula* fnt = multop::instance(multop::And, f, nt);
-		      formula* all = multop::instance(multop::Or, ftn, fnt);
-		      res_ = recurse_and_concat(all);
-		      all->destroy();
-		      break;
-		    }
-		  // No final formula.
-		  // Apply same rule as &&, until we reach a point where
-		  // we have final formulae.
-		  delete final;
-		  for (unsigned n = 0; n < s; ++n)
-		    (*non_final)[n]->destroy();
-		  delete non_final;
-		}
 
 	      res_ = bddtrue;
 	      for (unsigned n = 0; n < s; ++n)
@@ -641,44 +696,15 @@ namespace spot
 	      //std::cerr << "Pre-Concat:" << std::endl;
 	      //trace_ltl_bdd(dict_, res_);
 
-	      if (to_concat_)
-		{
-		  // If we have translated (a* && b*) in (a* && b*);c, we
-		  // have to append ";c" to all destinations.
+	      // If we have translated (a* && b*) in (a* && b*);c, we
+	      // have to append ";c" to all destinations.
+	      res_ = concat_dests(res_);
 
-		  minato_isop isop(res_);
-		  bdd cube;
-		  res_ = bddfalse;
-		  while ((cube = isop.next()) != bddfalse)
-		    {
-		      bdd label = bdd_exist(cube, dict_.next_set);
-		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		      formula* dest =
-			dict_.conj_bdd_to_formula(dest_bdd, op);
-		      formula* dest2;
-		      int x;
-		      if (dest == constant::empty_word_instance())
-			{
-			  res_ |= label & next_to_concat();
-			}
-		      else
-			{
-			  dest2 = multop::instance(multop::Concat, dest,
-						   to_concat_->clone());
-			  if (dest2 != constant::false_instance())
-			    {
-			      x = dict_.register_next_variable(dest2);
-			      dest2->destroy();
-			      res_ |= label & bdd_ithvar(x);
-			    }
-			  if (node->accepts_eword())
-			    res_ |= label & next_to_concat();
-			}
-		    }
-		}
 	      if (node->accepts_eword())
 		res_ |= now_to_concat();
 
+	      if (op == multop::AndNLM)
+		node->destroy();
 	      break;
 	    }
 	  case multop::Or:
@@ -710,12 +736,7 @@ namespace spot
 	      bdd res = recurse(node->nth(0));
 
 	      // the tail
-	      multop::vec* v = new multop::vec;
-	      unsigned s = node->size();
-	      v->reserve(s - 1);
-	      for (unsigned n = 1; n < s; ++n)
-		v->push_back(node->nth(n)->clone());
-	      formula* tail = multop::instance(multop::Fusion, v);
+	      formula* tail = node->all_but(0);
 	      bdd tail_bdd;
 	      bool tail_computed = false;
 
@@ -736,10 +757,11 @@ namespace spot
 		      // can also exit if tail is satisfied.
 		      if (!tail_computed)
 			{
-			  tail_bdd = recurse_and_concat(tail);
+			  tail_bdd = recurse(tail);
 			  tail_computed = true;
 			}
-		      res_ |= label & tail_bdd;
+		      res_ |= concat_dests(label & tail_bdd);
+
 		    }
 
 		  if (dest->kind() != formula::Constant)
