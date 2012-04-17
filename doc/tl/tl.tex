@@ -1367,7 +1367,12 @@ SERE.
   \begin{cases}
     b \ANDALT r &\text{if~} i\le 1\le j\\
     \0 &\text{else}\\
-  \end{cases}\\
+  \end{cases} &
+  b \AND r &\equiV
+  \begin{cases}
+    b \OR \mathtt{\{}b\FUSION r\mathtt{\}}&\text{if~} \varepsilon\VDash r_i\\
+    b\FUSION r&\text{if~} \varepsilon\not\VDash r_i\\
+  \end{cases} \\
   b \ANDALT \sere{r_1 \FUSION \ldots \FUSION r_n} &\equiv b \ANDALT r_1 \ANDALT \ldots \ANDALT r_n \\
   b \ANDALT \sere{r_1 \CONCAT \ldots \CONCAT r_n} &\equiv
   \begin{cases}
@@ -1375,10 +1380,14 @@ SERE.
     b \ANDALT (r_1 \OR \ldots \OR r_n) & \text{if~}\forall i,\, \varepsilon\VDash r_i\\
     \0 &\text{else}\\
   \end{cases}\\
-  \sere{b_1\CONCAT r_1}\ANDALT\sere{b_2\CONCAT r_2} &\equiv \sere{b_1\ANDALT b_2}\CONCAT\sere{r_1\ANDALT r_2} \\
-  \sere{b_1\FUSION r_1}\ANDALT\sere{b_2\FUSION r_2} &\equiv \sere{b_1\ANDALT b_2}\FUSION\sere{r_1\ANDALT r_2} \\
-  \sere{r_1\CONCAT b_1}\ANDALT\sere{r_2\CONCAT b_2} &\equiv \sere{r_1\ANDALT r_2}\CONCAT\sere{b_1\ANDALT b_2} \\
-  \sere{r_1\FUSION b_1}\ANDALT\sere{r_2\FUSION b_2} &\equiv \sere{r_1\ANDALT r_2}\FUSION\sere{b_1\ANDALT b_2} \\
+  \sere{b_1\CONCAT r_1}\ANDALT\sere{b_2\CONCAT r_2} &\equiv \sere{b_1\ANDALT b_2}\CONCAT\sere{r_1\ANDALT r_2} &
+  \sere{b_1\CONCAT r_1}\AND   \sere{b_2\CONCAT r_2} &\equiv \sere{b_1\ANDALT b_2}\CONCAT\sere{r_1\AND    r_2} \\
+  \sere{b_1\FUSION r_1}\ANDALT\sere{b_2\FUSION r_2} &\equiv \sere{b_1\ANDALT b_2}\FUSION\sere{r_1\ANDALT r_2} &
+  \sere{b_1\FUSION r_1}\AND   \sere{b_2\FUSION r_2} &\equiv \sere{b_1\ANDALT b_2}\FUSION\sere{r_1\AND    r_2} \\
+  \sere{r_1\CONCAT b_1}\ANDALT\sere{r_2\CONCAT b_2} &\equiv \sere{r_1\ANDALT r_2}\CONCAT\sere{b_1\ANDALT b_2} &
+  \sere{r_1\CONCAT b_1}\AND   \sere{r_2\CONCAT b_2} &\equiv \sere{r_1\ANDALT r_2}\CONCAT\sere{b_1\AND    b_2} \\
+  \sere{r_1\FUSION b_1}\ANDALT\sere{r_2\FUSION b_2} &\equiv \sere{r_1\ANDALT r_2}\FUSION\sere{b_1\ANDALT b_2} &
+  \sere{r_1\FUSION b_1}\AND   \sere{r_2\FUSION b_2} &\equiv \sere{r_1\ANDALT r_2}\FUSION\sere{b_1\AND    b_2} \\
 \end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}

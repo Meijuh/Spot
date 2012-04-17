@@ -2976,6 +2976,217 @@ namespace spot
 		    return;
 		  }
 		case multop::AndNLM:
+		  {
+		    mospliter s(mospliter::Split_Bool, res, c_);
+		    if (!s.res_Bool->empty())
+		      {
+			// b1 & b2 & b3 = b1 && b2 && b3
+			formula* b = multop::instance(multop::And, s.res_Bool);
+
+			// now we just consider  b & rest
+			formula* rest = multop::instance(multop::AndNLM,
+							 s.res_other);
+
+			// We have  b & rest = b : rest  if rest does not
+			// accept [*0]. Otherwise  b & rest = b | (b : rest)
+			// FIXME: It would be nice to remove [*0] from rest.
+			if (rest->accepts_eword())
+			  {
+			    // The b & rest = b | (b : rest) rewriting
+			    // augment the size, so do that only when
+			    // explicitly requested.
+			    if (!opt_.reduce_size_strictly)
+			      {
+				formula* brest =
+				  multop::instance(multop::Fusion, b->clone(),
+						   rest);
+				result_ =
+				  multop::instance(multop::Or, b, brest);
+			      }
+			    else
+			      {
+				result_ = multop::instance(multop::AndNLM,
+							   b, rest);
+			      }
+			  }
+			else
+			  {
+			    result_ = multop::instance(multop::Fusion,
+						       b, rest);
+			  }
+			// If we altered the formula in some way, process
+			// it another time.
+			if (result_ != mo)
+			  result_ = recurse_destroy(result_);
+			return;
+		      }
+		    else
+		      {
+			// No Boolean as argument of &&.
+			delete s.res_Bool;
+
+			// Look for occurrences of {b;r} or {b:r}.  We have
+			// {b1;r1}&{b2;r2} = {b1&&b2};{r1&r2}
+			//                    head1   tail1
+			// {b1:r1}&{b2:r2} = {b1&&b2}:{r1&r2}
+			//                    head2   tail2
+
+			multop::vec* head1 = new multop::vec;
+			multop::vec* tail1 = new multop::vec;
+			multop::vec* head2 = new multop::vec;
+			multop::vec* tail2 = new multop::vec;
+			for (multop::vec::iterator i = s.res_other->begin();
+			     i != s.res_other->end(); ++i)
+			  {
+			    if (!*i)
+			      continue;
+			    if ((*i)->kind() != formula::MultOp)
+			      continue;
+			    multop* f = down_cast<multop*>(*i);
+			    formula* h = f->nth(0);
+			    if (!h->is_boolean())
+			      continue;
+			    multop::type op = f->op();
+			    if (op == multop::Concat)
+			      {
+				head1->push_back(h->clone());
+				multop::vec* tail = new multop::vec;
+				unsigned s = f->size();
+				for (unsigned j = 1; j < s; ++j)
+				  tail->push_back(f->nth(j)->clone());
+				tail1->push_back(multop::instance(op, tail));
+				(*i)->destroy();
+				*i = 0;
+			      }
+			    else if (op == multop::Fusion)
+			      {
+				head2->push_back(h->clone());
+				multop::vec* tail = new multop::vec;
+				unsigned s = f->size();
+				for (unsigned j = 1; j < s; ++j)
+				  tail->push_back(f->nth(j)->clone());
+				tail2->push_back(multop::instance(op, tail));
+				(*i)->destroy();
+				*i = 0;
+			      }
+			    else
+			      {
+				continue;
+			      }
+			  }
+			if (!head1->empty())
+			  {
+			    formula* h = multop::instance(multop::And, head1);
+			    formula* t =
+			      multop::instance(multop::AndNLM, tail1);
+			    formula* f = multop::instance(multop::Concat,
+							  h, t);
+			    s.res_other->push_back(f);
+			  }
+			else
+			  {
+			    delete head1;
+			    delete tail1;
+			  }
+			if (!head2->empty())
+			  {
+			    formula* h = multop::instance(multop::And, head2);
+			    formula* t =
+			      multop::instance(multop::AndNLM, tail2);
+			    formula* f = multop::instance(multop::Fusion,
+							  h, t);
+			    s.res_other->push_back(f);
+			  }
+			else
+			  {
+			    delete head2;
+			    delete tail2;
+			  }
+
+			// {r1;b1}&{r2;b2} = {r1&r2};{b1&&b2}
+			//                    head3   tail3
+			// {r1:b1}&{r2:b2} = {r1&r2}:{b1&&b2}
+			//                    head4   tail4
+			multop::vec* head3 = new multop::vec;
+			multop::vec* tail3 = new multop::vec;
+			multop::vec* head4 = new multop::vec;
+			multop::vec* tail4 = new multop::vec;
+			for (multop::vec::iterator i = s.res_other->begin();
+			     i != s.res_other->end(); ++i)
+			  {
+			    if (!*i)
+			      continue;
+			    if ((*i)->kind() != formula::MultOp)
+			      continue;
+			    multop* f = down_cast<multop*>(*i);
+			    unsigned s = f->size() - 1;
+			    formula* t = f->nth(s);
+			    if (!t->is_boolean())
+			      continue;
+			    multop::type op = f->op();
+			    if (op == multop::Concat)
+			      {
+				tail3->push_back(t->clone());
+				multop::vec* head = new multop::vec;
+				for (unsigned j = 0; j < s; ++j)
+				  head->push_back(f->nth(j)->clone());
+				head3->push_back(multop::instance(op, head));
+				(*i)->destroy();
+				*i = 0;
+			      }
+			    else if (op == multop::Fusion)
+			      {
+				tail4->push_back(t->clone());
+				multop::vec* head = new multop::vec;
+				for (unsigned j = 0; j < s; ++j)
+				  head->push_back(f->nth(j)->clone());
+				head4->push_back(multop::instance(op, head));
+				(*i)->destroy();
+				*i = 0;
+			      }
+			    else
+			      {
+				continue;
+			      }
+			  }
+			if (!head3->empty())
+			  {
+			    formula* h =
+			      multop::instance(multop::AndNLM, head3);
+			    formula* t = multop::instance(multop::And, tail3);
+			    formula* f = multop::instance(multop::Concat,
+							  h, t);
+			    s.res_other->push_back(f);
+			  }
+			else
+			  {
+			    delete head3;
+			    delete tail3;
+			  }
+			if (!head4->empty())
+			  {
+			    formula* h =
+			      multop::instance(multop::AndNLM, head4);
+			    formula* t = multop::instance(multop::And, tail4);
+			    formula* f = multop::instance(multop::Fusion,
+							  h, t);
+			    s.res_other->push_back(f);
+			  }
+			else
+			  {
+			    delete head4;
+			    delete tail4;
+			  }
+
+			result_ = multop::instance(multop::AndNLM, s.res_other);
+			// If we altered the formula in some way, process
+			// it another time.
+			if (result_ != mo)
+			  result_ = recurse_destroy(result_);
+			return;
+		      }
+		    break;
+		  }
 		case multop::Concat:
 		case multop::Fusion:
 		  break;
