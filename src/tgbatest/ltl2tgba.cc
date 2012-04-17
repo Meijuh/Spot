@@ -279,22 +279,23 @@ syntax(char* prog)
 	    << std::endl
 	    << "  -v    display the BDD variables used by the automaton"
 	    << std::endl
-
+	    << std::endl
   	  	<< "Options for Testing Automata:"
  	    << std::endl
- 	    << "  -TA    Translate an LTL formula into a TA (Testing automata)"
+ 	    << "  -TA   Translate an LTL formula into a GTA (Generalized"
+ 	    << " Testing automata), for Testing Automata (TA) add '-DS' option"
  	    << std::endl
-            << std::endl
-        << "  -sp    convert into a TA involving a single-pass emptiness check"
-            << std::endl << std::endl
-            << "  -lv   convert into a TA with an artificial livelock accepting"
-            << "state (single-pass emptiness check)"
-            << std::endl
-            << std::endl
-            << "  -in   convert into a TA without an artificial initial state"
+ 	    << "  -lv   convert into a (G)TA with an artificial livelock state,"
+ 	    << " the obtained automaton is called S(G)TA "
+ 	    << "(Single-pass (Generalized) Testing Automata)"
+ 	    << std::endl
+            << "  -sp   convert into a (G)TA involving a single-pass emptiness "
+            << "check (without adding an artificial livelock state)"
             << std::endl
             << std::endl
-            << "  -TGTA    Translate an LTL formula into a TGTA"
+           << "  -in   convert into a (G)TA without an artificial initial state"
+            << std::endl
+            << "  -TGTA Translate an LTL formula into a TGTA "
             << "(Transition-based Generalised Testing Automata)"
             << std::endl;
 
@@ -1097,24 +1098,25 @@ main(int argc, char** argv)
 	  break;
 	}
 
-//TA
-      spot::ltl::atomic_prop_set* aps = atomic_prop_collect(f, 0);
-
-      bdd atomic_props_set_bdd = bdd_true();
-      for (spot::ltl::atomic_prop_set::const_iterator i = aps->begin(); i
-          != aps->end(); ++i)
+      //TA, STA, GTA, SGTA and TGTA
+      if (ta_opt || tgta_opt)
         {
-          bdd atomic_prop = bdd_ithvar(
-              (a->get_dict())->var_map[*i]);
+          spot::ltl::atomic_prop_set* aps = atomic_prop_collect(f, 0);
 
-          atomic_props_set_bdd &= atomic_prop;
+          bdd atomic_props_set_bdd = bdd_true();
+          for (spot::ltl::atomic_prop_set::const_iterator i = aps->begin(); i
+              != aps->end(); ++i)
+            {
+              bdd atomic_prop = bdd_ithvar((a->get_dict())->var_map[*i]);
 
-        }
-      delete aps;
+              atomic_props_set_bdd &= atomic_prop;
 
-      if (ta_opt)
-        {
-          spot::ta* testing_automata = 0;
+            }
+          delete aps;
+
+          if (ta_opt)
+            {
+              spot::ta* testing_automata = 0;
 
               testing_automata
                   = tgba_to_ta(a, atomic_props_set_bdd, degeneralize_opt
@@ -1122,54 +1124,55 @@ main(int argc, char** argv)
                       opt_single_pass_emptiness_check,
                       opt_with_artificial_livelock);
 
-           spot::ta* testing_automata_nm = 0;
-          if (opt_minimize)
-            {
-              testing_automata_nm = testing_automata;
-              testing_automata = minimize_ta(testing_automata);
-            }
-
-          if (output != -1)
-            {
-              tm.start("producing output");
-              switch (output)
+              spot::ta* testing_automata_nm = 0;
+              if (opt_minimize)
                 {
-              case 0:
-                spot::dotty_reachable(std::cout, testing_automata);
-                break;
-              case 12:
-                stats_reachable(testing_automata).dump(std::cout);
-                break;
-              default:
-                assert(!"unknown output option");
+                  testing_automata_nm = testing_automata;
+                  testing_automata = minimize_ta(testing_automata);
                 }
-              tm.stop("producing output");
+
+              if (output != -1)
+                {
+                  tm.start("producing output");
+                  switch (output)
+                    {
+                  case 0:
+                    spot::dotty_reachable(std::cout, testing_automata);
+                    break;
+                  case 12:
+                    stats_reachable(testing_automata).dump(std::cout);
+                    break;
+                  default:
+                    assert(!"unknown output option");
+                    }
+                  tm.stop("producing output");
+                }
+
+              delete testing_automata_nm;
+              delete testing_automata;
+              a = 0;
+              degeneralized = 0;
+              if (degeneralize_opt != DegenSBA)
+                to_free = 0;
+
+              aut_red = 0;
+              output = -1;
             }
-
-
-         delete testing_automata_nm;
-         delete testing_automata;
-          a = 0;
-          degeneralized = 0;
-          if (degeneralize_opt != DegenSBA)
-            to_free = 0;
-
-          aut_red  = 0;
-          output = -1;
-        } else if (tgta_opt)
-        {
-          spot::tgta* tgta = tgba_to_tgta(a, atomic_props_set_bdd);
-          if (opt_minimize)
+          if (tgta_opt)
             {
-              a = minimize_tgta(tgta);
-              minimized = a;
-            }
-          else
-            {
-              a = tgta;
-            }
+              spot::tgta* tgta = tgba_to_tgta(a, atomic_props_set_bdd);
+              if (opt_minimize)
+                {
+                  a = minimize_tgta(tgta);
+                  minimized = a;
+                }
+              else
+                {
+                  a = tgta;
+                }
 
-          to_free = tgta;
+              to_free = tgta;
+            }
         }
 
       spot::tgba* product_degeneralized = 0;
