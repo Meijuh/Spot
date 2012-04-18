@@ -41,7 +41,7 @@ namespace spot
     class multop : public ref_formula
     {
     public:
-      enum type { Or, And, AndNLM, Concat, Fusion };
+      enum type { Or, OrRat, And, AndRat, AndNLM, Concat, Fusion };
 
       /// List of formulae.
       typedef std::vector<formula*> vec;
@@ -68,24 +68,27 @@ namespace spot
       /// has been passed to spot::ltl::multop.  Inside the vector,
       /// null pointers are ignored.
       ///
-      /// All operators (Or, And, Concat) are associative, and are
-      /// automatically inlined.  Or and And are commutative, so their
-      /// argument are also sorted, to ensure that "a & b" is equal to
-      /// "b & a".  For Or and And, duplicate arguments are also
-      /// removed.
+      /// Most operators (Or, OrRat, And, AndRat, Concat) are
+      /// associative, and are automatically inlined.  Or, OrRat, And,
+      /// and AndRat are commutative, so their arguments are also
+      /// sorted, to ensure that "a & b" is equal to "b & a", also
+      /// duplicate arguments are removed.
       ///
       /// Furthermore this function can perform slight optimizations
       /// and may not return an ltl::multop object.  For instance if
       /// the vector contains only one unique element, this this
       /// formula will be returned as-is.  Neutral and absorbent element
-      /// are also taken care of.  The following rewriting are performed
+      /// are also taken care of.  The following rewritings are performed
       /// (the left patterns are rewritten as shown on the right):
       ///
       /// - And(Exps1...,1,Exps2...) = And(Exps1...,Exps2...)
       /// - And(Exps1...,0,Exps2...) = 0
-      /// - And(Exps1...,[*0],Exps2...) = [*0] if all Expi accept [*0]
-      /// - And(Exps1...,[*0],Exps2...) = 0 if some Expi reject [*0]
       /// - And(Exp) = Exp
+      /// - AndRat(Exps1...,0,Exps2...) = 0
+      /// - AndRat(Exps1...,BoolExp1,Exps2...,BoolExps2...) =
+      ///    AndRat(Exps1...,Exps2...,And(BoolExp1,BoolExps2...))
+      /// - AndRat(Exps1...,[*0],Exps2...) = [*0] if all Expi accept [*0]
+      /// - AndRat(Exps1...,[*0],Exps2...) = 0 if some Expi reject [*0]
       /// - AndNLM(Exps1...,1,Exps2...) = AndNLM(Exps1...,Exps2...)
       /// - AndNLM(Exps1...,0,Exps2...) = 0
       /// - AndNLM(Exps1...,[*0],Exps2...) = AndNLM(Exps1...,Exps2...)
@@ -93,8 +96,11 @@ namespace spot
       /// - AndNLM(Exps1...,BoolExp1,Exps2...,BoolExp2,Exps3...) =
       ///    AndNLM(Exps1...,Exps2...,Exps3...,And(BoolExp1,BoolExp2))
       /// - Or(Exps1...,1,Exps2...) = 1
-      /// - Or(Exps1...,0,Exps2...) = And(Exps1...,Exps2...)
+      /// - Or(Exps1...,0,Exps2...) = Or(Exps1...,Exps2...)
       /// - Or(Exp) = Exp
+      /// - OrRat(Exps1...,0,Exps2...) = OrRat(Exps1...,Exps2...)
+      /// - OrRat(Exps1...,BoolExp1,Exps2...,BoolExps2...) =
+      ///    OrRat(Exps1...,Exps2...,Or(BoolExp1,BoolExps2...))
       /// - Concat(Exps1...,0,Exps2...) = 0
       /// - Concat(Exps1...,[*0],Exps2...) = Concat(Exps1...,Exps2...)
       /// - Concat(Exp) = Exp
@@ -221,6 +227,26 @@ namespace spot
       return is_multop(f, multop::And);
     }
 
+    /// \brief Cast \a f into a multop if it is an AndRat.
+    ///
+    /// Return 0 otherwise.
+    inline
+    multop*
+    is_AndRat(const formula* f)
+    {
+      return is_multop(f, multop::AndRat);
+    }
+
+    /// \brief Cast \a f into a multop if it is an AndNLM.
+    ///
+    /// Return 0 otherwise.
+    inline
+    multop*
+    is_AndNLM(const formula* f)
+    {
+      return is_multop(f, multop::AndNLM);
+    }
+
     /// \brief Cast \a f into a multop if it is an Or.
     ///
     /// Return 0 otherwise.
@@ -229,6 +255,16 @@ namespace spot
     is_Or(const formula* f)
     {
       return is_multop(f, multop::Or);
+    }
+
+    /// \brief Cast \a f into a multop if it is an OrRat.
+    ///
+    /// Return 0 otherwise.
+    inline
+    multop*
+    is_OrRat(const formula* f)
+    {
+      return is_multop(f, multop::OrRat);
     }
 
     /// \brief Cast \a f into a multop if it is a Concat.

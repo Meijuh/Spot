@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -89,14 +89,17 @@ namespace spot
 	  multop::vec* res = new multop::vec;
 	  switch (mo->op())
 	    {
-	    case multop::Or:
+	    case multop::OrRat:
+	    case multop::AndNLM:
+	    case multop::AndRat:
 	    case multop::Concat:
 	    case multop::Fusion:
+	      assert(!"unexpected operator");
+	    case multop::Or:
 	      for (unsigned i = 0; i < mos; ++i)
 		res->push_back(recurse(mo->nth(i)));
 	      break;
 	    case multop::And:
-	    case multop::AndNLM:
 	      {
 		typedef std::set<std::pair<formula*, formula*> > pset;
 		pset Epairs, EMpairs;
@@ -125,10 +128,12 @@ namespace spot
 			    res->push_back(recurse(f));
 			    break;
 			  case binop::EConcat:
+			    assert(mo->op() == multop::And);
 			    Epairs.insert(std::make_pair(bo->first(),
 							 bo->second()));
 			    break;
 			  case binop::EConcatMarked:
+			    assert(mo->op() == multop::And);
 			    EMpairs.insert(std::make_pair(bo->first(),
 							  bo->second()));
 			    break;

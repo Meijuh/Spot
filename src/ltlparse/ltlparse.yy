@@ -354,7 +354,7 @@ sere: booleanatom
 		$$ = constant::false_instance();
 	      }
 	    | sere OP_AND sere
-	      { $$ = multop::instance(multop::And, $1, $3); }
+	      { $$ = multop::instance(multop::AndRat, $1, $3); }
 	    | sere OP_AND error
               { missing_right_binop($$, $1, @2,
                                     "length-matching and operator"); }
@@ -364,7 +364,7 @@ sere: booleanatom
               { missing_right_binop($$, $1, @2,
                                     "non-length-matching and operator"); }
 	    | sere OP_OR sere
-	      { $$ = multop::instance(multop::Or, $1, $3); }
+	      { $$ = multop::instance(multop::OrRat, $1, $3); }
 	    | sere OP_OR error
               { missing_right_binop($$, $1, @2, "or operator"); }
 	    | sere OP_CONCAT sere

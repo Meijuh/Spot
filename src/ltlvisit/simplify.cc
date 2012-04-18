@@ -184,6 +184,8 @@ namespace spot
 		    break;
 		  }
 		case multop::AndNLM:
+	        case multop::AndRat:
+	        case multop::OrRat:
 		case multop::Concat:
 		case multop::Fusion:
 		  assert(!"Unsupported operator");
@@ -566,6 +568,8 @@ namespace spot
 	      case multop::Concat:
 	      case multop::Fusion:
 	      case multop::AndNLM:
+	      case multop::OrRat:
+	      case multop::AndRat:
 		break;
 	      }
 	  multop::vec* res = new multop::vec;
@@ -583,6 +587,8 @@ namespace spot
 	    case multop::Concat:
 	    case multop::Fusion:
 	    case multop::AndNLM:
+	    case multop::AndRat:
+	    case multop::OrRat:
 	      {
 		for (unsigned i = 0; i < mos; ++i)
 		  res->push_back(recurse_(mo->nth(i), false));
@@ -1765,10 +1771,14 @@ namespace spot
 	  multop::type op = mo->op();
 
 	  if ((opt_.synt_impl | opt_.containment_checks)
+	      && (op != multop::AndRat)
+	      && (op != multop::AndNLM)
+	      && (op != multop::OrRat)
+	      && (op != multop::Concat)
 	      && (op != multop::Concat)
 	      && (op != multop::Fusion))
 	    {
-	      bool is_and = op != multop::Or; // And or AndNLM
+	      bool is_and = op == multop::And;
 	      constant* neutral = is_and
 		? constant::false_instance() : constant::true_instance();
 
@@ -1842,691 +1852,701 @@ namespace spot
 	      switch (op)
 		{
 		case multop::And:
-		  if (!mo->is_sere_formula())
-		    {
-		      // a & X(G(a&b...) & c...) = Ga & X(G(b...) & c...)
-		      // a & (Xa W b) = b R a
-		      // a & (Xa U b) = b M a
-		      // a & (b | X(b R a)) = b R a
-		      // a & (b | X(b M a)) = b M a
-		      if (!mo->is_X_free())
-			{
-			  typedef Sgi::hash_set<formula*,
-						ptr_hash<formula> > fset_t;
-			  typedef Sgi::hash_map<formula*, std::set<unsigned>,
-						ptr_hash<formula> > fmap_t;
-			  fset_t xgset; // XG(...)
-			  fset_t xset;  // X(...)
-			  fmap_t wuset; // (X...)W(...) or (X...)U(...)
+		  assert(!mo->is_sere_formula());
+		  {
+		    // a & X(G(a&b...) & c...) = Ga & X(G(b...) & c...)
+		    // a & (Xa W b) = b R a
+		    // a & (Xa U b) = b M a
+		    // a & (b | X(b R a)) = b R a
+		    // a & (b | X(b M a)) = b M a
+		    if (!mo->is_X_free())
+		      {
+			typedef Sgi::hash_set<formula*,
+					      ptr_hash<formula> > fset_t;
+			typedef Sgi::hash_map<formula*, std::set<unsigned>,
+					      ptr_hash<formula> > fmap_t;
+			fset_t xgset; // XG(...)
+			fset_t xset;  // X(...)
+			fmap_t wuset; // (X...)W(...) or (X...)U(...)
 
-			  unsigned s = res->size();
-			  std::vector<bool> tokill(s);
+			unsigned s = res->size();
+			std::vector<bool> tokill(s);
 
-			  // Make a pass to search for subterms
-			  // of the form XGa or  X(... & G(...&a&...) & ...)
-			  for (unsigned n = 0; n < s; ++n)
-			    {
-			      if (!(*res)[n])
+			// Make a pass to search for subterms
+			// of the form XGa or  X(... & G(...&a&...) & ...)
+			for (unsigned n = 0; n < s; ++n)
+			  {
+			    if (!(*res)[n])
+			      continue;
+
+			    formula* xarg = is_XWU((*res)[n]);
+			    if (xarg)
+			      {
+				wuset[xarg].insert(n);
 				continue;
+			      }
 
-			      formula* xarg = is_XWU((*res)[n]);
-			      if (xarg)
-				{
-				  wuset[xarg].insert(n);
-				  continue;
-				}
+			    // Now we are looking for
+			    // - X(...)
+			    // - b | X(b R ...)
+			    // - b | X(b M ...)
+			    if ((*res)[n]->is_X_free())
+			      continue;
 
-			      // Now we are looking for
-			      // - X(...)
-			      // - b | X(b R ...)
-			      // - b | X(b M ...)
-			      if ((*res)[n]->is_X_free())
+			    binop* barg = is_bXbRM((*res)[n]);
+			    if (barg)
+			      {
+				wuset[barg->second()].insert(n);
 				continue;
+			      }
 
-			      binop* barg = is_bXbRM((*res)[n]);
-			      if (barg)
-				{
-				  wuset[barg->second()].insert(n);
-				  continue;
-				}
+			    unop* uo = is_X((*res)[n]);
+			    if (!uo)
+			      continue;
 
-			      unop* uo = is_X((*res)[n]);
-			      if (!uo)
-				continue;
-
-			      formula* c = uo->child();
-			      multop* a;
-			      unop* g;
-			      if ((g = is_G(c)))
-				{
+			    formula* c = uo->child();
+			    multop* a;
+			    unop* g;
+			    if ((g = is_G(c)))
+			      {
 #define HANDLE_G                  multop* a2;				\
-				  if ((a2 = is_And(g->child())))	\
-				    {					\
-				      unsigned y = a2->size();		\
-				      for (unsigned n = 0; n < y; ++n)	\
-					xgset.				\
-					  insert(a2->nth(n)->clone());	\
-				    }					\
-				  else					\
-				    {					\
-				      xgset.insert(g->child()->clone()); \
-				    }
-				  HANDLE_G;
-				}
-			      else if ((a = is_And(c)))
-				{
-				  unsigned z = a->size();
-				  for (unsigned m = 0; m < z; ++m)
+				if ((a2 = is_And(g->child())))		\
+				  {					\
+				    unsigned y = a2->size();		\
+				    for (unsigned n = 0; n < y; ++n)	\
+				      xgset.				\
+					insert(a2->nth(n)->clone());	\
+				  }					\
+				else					\
+				  {					\
+				    xgset.insert(g->child()->clone());	\
+				  }
+				HANDLE_G;
+			      }
+			    else if ((a = is_And(c)))
+			      {
+				unsigned z = a->size();
+				for (unsigned m = 0; m < z; ++m)
+				  {
+				    formula* x = a->nth(m);
+				    if ((g = is_G(x)))
+				      {
+					HANDLE_G;
+				      }
+				    else
+				      {
+					xset.insert(x->clone());
+				      }
+				  }
+			      }
+			    else
+			      {
+				xset.insert(c->clone());
+			      }
+			    (*res)[n]->destroy();
+			    (*res)[n] = 0;
+			  }
+			// Make a second pass to check if the "a"
+			// terms can be used to simplify "Xa W b",
+			// "Xa U b", "b | X(b R a)", or "b | X(b M a)".
+			for (unsigned n = 0; n < s; ++n)
+			  {
+			    if (!(*res)[n])
+			      continue;
+			    fmap_t::const_iterator gs =
+			      wuset.find((*res)[n]);
+			    if (gs == wuset.end())
+			      continue;
+
+			    const std::set<unsigned>& s = gs->second;
+			    std::set<unsigned>::const_iterator g;
+			    for (g = s.begin(); g != s.end(); ++g)
+			      {
+				unsigned pos = *g;
+				binop* wu = is_binop((*res)[pos]);
+				if (wu)
+				  {
+				    // a & (Xa W b) = b R a
+				    // a & (Xa U b) = b M a
+				    binop::type t = (wu->op() == binop::U)
+				      ? binop::M : binop::R;
+				    unop* xa = down_cast<unop*>(wu->first());
+				    formula* a = xa->child()->clone();
+				    formula* b = wu->second()->clone();
+				    wu->destroy();
+				    (*res)[pos] = binop::instance(t, b, a);
+				  }
+				else
+				  {
+				    // a & (b | X(b R a)) = b R a
+				    // a & (b | X(b M a)) = b M a
+				    wu = is_bXbRM((*res)[pos]);
+				    assert(wu);
+				    wu->clone();
+				    (*res)[pos]->destroy();
+				    (*res)[pos] = wu;
+				  }
+				// Remember to kill "a".
+				tokill[n] = true;
+			      }
+			  }
+			// Make third pass to search for terms 'a'
+			// that also appears as 'XGa'.  Replace them
+			// by 'Ga' and delete XGa.
+			for (unsigned n = 0; n < s; ++n)
+			  {
+			    formula* x = (*res)[n];
+			    if (!x)
+			      continue;
+			    fset_t::const_iterator g = xgset.find(x);
+			    if (g != xgset.end())
+			      {
+				// x can appear only once.
+				formula* gf = *g;
+				xgset.erase(g);
+				gf->destroy();
+				(*res)[n] = unop::instance(unop::G, x);
+			      }
+			    else if (tokill[n])
+			      {
+				(*res)[n]->destroy();
+				(*res)[n] = 0;
+			      }
+			  }
+
+			multop::vec* xv = new multop::vec;
+			size_t xgs = xgset.size();
+			xv->reserve(xset.size() + 1);
+			if (xgs > 0)
+			  {
+			    multop::vec* xgv = new multop::vec;
+			    xgv->reserve(xgs);
+			    fset_t::iterator i;
+			    for (i = xgset.begin(); i != xgset.end(); ++i)
+			      xgv->push_back(*i);
+			    formula* gv = multop::instance(multop::And, xgv);
+			    xv->push_back(unop::instance(unop::G, gv));
+			  }
+			fset_t::iterator j;
+			for (j = xset.begin(); j != xset.end(); ++j)
+			  xv->push_back(*j);
+			formula* av = multop::instance(multop::And, xv);
+			res->push_back(unop::instance(unop::X, av));
+		      }
+
+		    // Gather all operands by type.
+		    mospliter s(mospliter::Strip_X |
+				mospliter::Strip_FG |
+				mospliter::Strip_G |
+				mospliter::Split_F |
+				mospliter::Split_U_or_W |
+				mospliter::Split_R_or_M |
+				mospliter::Split_EventUniv,
+				res, c_);
+
+		    // FG(a) & FG(b) = FG(a & b)
+		    formula* allFG = unop_unop_multop(unop::F, unop::G,
+						      multop::And, s.res_FG);
+
+		    // Xa & Xb = X(a & b)
+		    // Xa & Xb & FG(c) = X(a & b & FG(c))
+		    // For Universal&Eventual formulae f1...fn we also have:
+		    // Xa & Xb & f1...fn = X(a & b & f1...fn)
+		    if (!s.res_X->empty())
+		      {
+			s.res_X->push_back(allFG);
+			allFG = 0;
+			s.res_X->insert(s.res_X->begin(),
+					s.res_EventUniv->begin(),
+					s.res_EventUniv->end());
+		      }
+		    else
+		      // We don't rewrite Ga & f1...fn = G(a & f1..fn)
+		      // similarly to what we do in the unop::Or case
+		      // as it is not clear what we'd gain by doing so.
+		      {
+			s.res_other->insert(s.res_other->begin(),
+					    s.res_EventUniv->begin(),
+					    s.res_EventUniv->end());
+		      }
+		    delete s.res_EventUniv;
+
+		    // Xa & Xb & f1...fn = X(a & b & f1...fn)
+		    // is built at the end of this multop::And case.
+		    // G(a) & G(b) = G(a & b)
+		    // is built at the end of this multop::And case.
+
+		    // The following three loops perform these rewritings:
+		    // (a U b) & (c U b) = (a & c) U b
+		    // (a U b) & (c W b) = (a & c) U b
+		    // (a W b) & (c W b) = (a & c) W b
+		    // (a R b) & (a R c) = a R (b & c)
+		    // (a R b) & (a M c) = a M (b & c)
+		    // (a M b) & (a M c) = a M (b & c)
+		    // F(a) & (a R b) = a M b
+		    // F(a) & (a M b) = a M b
+		    // F(b) & (a W b) = a U b
+		    // F(b) & (a U b) = a U b
+		    typedef Sgi::hash_map<formula*, multop::vec::iterator,
+					  ptr_hash<formula> > fmap_t;
+		    fmap_t uwmap; // associates "b" to "a U b" or "a W b"
+		    fmap_t rmmap; // associates "a" to "a R b" or "a M b"
+		    // (a U b) & (c U b) = (a & c) U b
+		    // (a U b) & (c W b) = (a & c) U b
+		    // (a W b) & (c W b) = (a & c) W b
+		    for (multop::vec::iterator i = s.res_U_or_W->begin();
+			 i != s.res_U_or_W->end(); ++i)
+		      {
+			binop* bo = static_cast<binop*>(*i);
+			formula* b = bo->second();
+			fmap_t::iterator j = uwmap.find(b);
+			if (j == uwmap.end())
+			  {
+			    // First occurrence.
+			    uwmap[b] = i;
+			    continue;
+			  }
+			// We already have one occurrence.  Merge them.
+			binop* old = static_cast<binop*>(*j->second);
+			binop::type op = binop::W;
+			if (bo->op() == binop::U
+			    || old->op() == binop::U)
+			  op = binop::U;
+			formula* fst_arg =
+			  multop::instance(multop::And,
+					   old->first()->clone(),
+					   bo->first()->clone());
+			*j->second = binop::instance(op, fst_arg, b->clone());
+			assert((*j->second)->kind() == formula::BinOp);
+			*i = 0;
+			old->destroy();
+			bo->destroy();
+		      }
+		    // (a R b) & (a R c) = a R (b & c)
+		    // (a R b) & (a M c) = a M (b & c)
+		    // (a M b) & (a M c) = a M (b & c)
+		    for (multop::vec::iterator i = s.res_R_or_M->begin();
+			 i != s.res_R_or_M->end(); ++i)
+		      {
+			binop* bo = static_cast<binop*>(*i);
+			formula* a = bo->first();
+			fmap_t::iterator j = rmmap.find(a);
+			if (j == rmmap.end())
+			  {
+			    // First occurrence.
+			    rmmap[a] = i;
+			    continue;
+			  }
+			// We already have one occurrence.  Merge them.
+			binop* old = static_cast<binop*>(*j->second);
+			binop::type op = binop::R;
+			if (bo->op() == binop::M
+			    || old->op() == binop::M)
+			  op = binop::M;
+			formula* snd_arg =
+			  multop::instance(multop::And,
+					   old->second()->clone(),
+					   bo->second()->clone());
+			*j->second = binop::instance(op, a->clone(), snd_arg);
+			assert((*j->second)->kind() == formula::BinOp);
+			*i = 0;
+			old->destroy();
+			bo->destroy();
+		      }
+		    // F(a) & (a R b) = a M b
+		    // F(a) & (a M b) = a M b
+		    // F(b) & (a W b) = a U b
+		    // F(b) & (a U b) = a U b
+		    for (multop::vec::iterator i = s.res_F->begin();
+			 i != s.res_F->end(); ++i)
+		      {
+			bool superfluous = false;
+			unop* uo = static_cast<unop*>(*i);
+			formula* c = uo->child();
+
+			fmap_t::iterator j = uwmap.find(c);
+			if (j != uwmap.end())
+			  {
+			    superfluous = true;
+			    binop* bo = static_cast<binop*>(*j->second);
+			    if (bo->op() == binop::W)
+			      {
+				*j->second =
+				  binop::instance(binop::U,
+						  bo->first()->clone(),
+						  bo->second()->clone());
+				assert((*j->second)->kind()
+				       == formula::BinOp);
+				bo->destroy();
+			      }
+			  }
+			j = rmmap.find(c);
+			if (j != rmmap.end())
+			  {
+			    superfluous = true;
+			    binop* bo = static_cast<binop*>(*j->second);
+			    if (bo->op() == binop::R)
+			      {
+				*j->second =
+				  binop::instance(binop::M,
+						  bo->first()->clone(),
+						  bo->second()->clone());
+				assert((*j->second)->kind()
+				       == formula::BinOp);
+				bo->destroy();
+			      }
+			  }
+			if (superfluous)
+			  {
+			    (*i)->destroy();
+			    *i = 0;
+			  }
+		      }
+
+		    s.res_other->reserve(s.res_other->size()
+					 + s.res_F->size()
+					 + s.res_U_or_W->size()
+					 + s.res_R_or_M->size()
+					 + 3);
+		    s.res_other->insert(s.res_other->end(),
+					s.res_F->begin(),
+					s.res_F->end());
+		    delete s.res_F;
+		    s.res_other->insert(s.res_other->end(),
+					s.res_U_or_W->begin(),
+					s.res_U_or_W->end());
+		    delete s.res_U_or_W;
+		    s.res_other->insert(s.res_other->end(),
+					s.res_R_or_M->begin(),
+					s.res_R_or_M->end());
+		    delete s.res_R_or_M;
+
+		    // Those "G" formulae that are eventual can be
+		    // postponed inside the X term if there is one.
+		    //
+		    // In effect we rewrite
+		    //   Xa&Xb&GFc&GFd&Ge as X(a&b&G(Fc&Fd))&Ge
+		    if (!s.res_X->empty())
+		      {
+			multop::vec* event = new multop::vec;
+			for (multop::vec::iterator i = s.res_G->begin();
+			     i != s.res_G->end(); ++i)
+			  if ((*i)->is_eventual())
+			    {
+			      event->push_back(*i);
+			      *i = 0; // Remove it from res_G.
+			    }
+			s.res_X->push_back(unop_multop(unop::G,
+						       multop::And, event));
+		      }
+
+		    // G(a) & G(b) & ... = G(a & b & ...)
+		    formula* allG =
+		      unop_multop(unop::G, multop::And, s.res_G);
+		    // Xa & Xb & ... = X(a & b & ...)
+		    formula* allX =
+		      unop_multop(unop::X, multop::And, s.res_X);
+
+		    s.res_other->push_back(allX);
+		    s.res_other->push_back(allG);
+		    s.res_other->push_back(allFG);
+		    result_ = multop::instance(multop::And, s.res_other);
+		    // If we altered the formula in some way, process
+		    // it another time.
+		    if (result_ != mo)
+		      result_ = recurse_destroy(result_);
+		    return;
+		  }
+		  break;
+		case multop::AndRat:
+		  {
+		    mospliter s(mospliter::Split_Bool, res, c_);
+		    if (!s.res_Bool->empty())
+		      {
+			// b1 & b2 & b3 = b1 ∧ b2 ∧ b3
+			formula* b = multop::instance(multop::And, s.res_Bool);
+
+			multop::vec* ares = new multop::vec;
+			for (multop::vec::iterator i = s.res_other->begin();
+			     i != s.res_other->end(); ++i)
+			  switch ((*i)->kind())
+			    {
+			    case formula::BUnOp:
+			      {
+				bunop* r = down_cast<bunop*>(*i);
+				// b && r[*i..j] = b & r  if i<=1<=j
+				//               = 0      otherwise
+				switch (r->op())
+				  {
+				  case bunop::Star:
+				    if (r->min() > 1 || r->max() < 1)
+				      goto returnfalse;
+				    ares->push_back(r->child()->clone());
+				    r->destroy();
+				    *i = 0;
+				    break;
+				  }
+				break;
+			      }
+			    case formula::MultOp:
+			      {
+				multop* r = down_cast<multop*>(*i);
+				unsigned rs = r->size();
+				switch (r->op())
+				  {
+				  case multop::Fusion:
+				    //b && {r1:..:rn} = b && r1 && .. && rn
+				    for (unsigned j = 0; j < rs; ++j)
+				      ares->push_back(r->nth(j)->clone());
+				    r->destroy();
+				    *i = 0;
+				    break;
+				  case multop::Concat:
+				    // b && {r1;...;rn} =
+				    // - b && ri if there is only one ri
+				    //           that does not accept [*0]
+				    // - b && (r1|...|rn) if all ri
+				    //           do not accept [*0]
+				    // - 0 if more than one ri accept [*0]
 				    {
-				      formula* x = a->nth(m);
-				      if ((g = is_G(x)))
+				      formula* ri = 0;
+				      unsigned nonempty = 0;
+				      for (unsigned j = 0; j < rs; ++j)
 					{
-					  HANDLE_G;
+					  formula* jf = r->nth(j);
+					  if (!jf->accepts_eword())
+					    {
+					      ri = jf;
+					      ++nonempty;
+					    }
+					}
+				      if (nonempty == 1)
+					{
+					  ares->push_back(ri->clone());
+					}
+				      else if (nonempty == 0)
+					{
+					  multop::vec* sum = new multop::vec;
+					  for (unsigned j = 0; j < rs; ++j)
+					    sum->push_back(r->nth(j)
+							   ->clone());
+					  formula* sumf =
+					    multop::instance(multop::OrRat,
+							     sum);
+					  ares->push_back(sumf);
 					}
 				      else
 					{
-					  xset.insert(x->clone());
+					  goto returnfalse;
 					}
-				    }
-				}
-			      else
-				{
-				  xset.insert(c->clone());
-				}
-			      (*res)[n]->destroy();
-			      (*res)[n] = 0;
-			    }
-			  // Make a second pass to check if the "a"
-			  // terms can be used to simplify "Xa W b",
-			  // "Xa U b", "b | X(b R a)", or "b | X(b M a)".
-			  for (unsigned n = 0; n < s; ++n)
-			    {
-			      if (!(*res)[n])
-				continue;
-			      fmap_t::const_iterator gs =
-				wuset.find((*res)[n]);
-			      if (gs == wuset.end())
-				continue;
-
-			      const std::set<unsigned>& s = gs->second;
-			      std::set<unsigned>::const_iterator g;
-			      for (g = s.begin(); g != s.end(); ++g)
-				{
-				  unsigned pos = *g;
-				  binop* wu = is_binop((*res)[pos]);
-				  if (wu)
-				    {
-				      // a & (Xa W b) = b R a
-				      // a & (Xa U b) = b M a
-				      binop::type t = (wu->op() == binop::U)
-					? binop::M : binop::R;
-				      unop* xa = down_cast<unop*>(wu->first());
-				      formula* a = xa->child()->clone();
-				      formula* b = wu->second()->clone();
-				      wu->destroy();
-				      (*res)[pos] = binop::instance(t, b, a);
-				    }
-				  else
-				    {
-				      // a & (b | X(b R a)) = b R a
-				      // a & (b | X(b M a)) = b M a
-				      wu = is_bXbRM((*res)[pos]);
-				      assert(wu);
-				      wu->clone();
-				      (*res)[pos]->destroy();
-				      (*res)[pos] = wu;
-				    }
-				  // Remember to kill "a".
-				  tokill[n] = true;
-				}
-			    }
-			  // Make third pass to search for terms 'a'
-			  // that also appears as 'XGa'.  Replace them
-			  // by 'Ga' and delete XGa.
-			  for (unsigned n = 0; n < s; ++n)
-			    {
-			      formula* x = (*res)[n];
-			      if (!x)
-				continue;
-			      fset_t::const_iterator g = xgset.find(x);
-			      if (g != xgset.end())
-				{
-				  // x can appear only once.
-				  formula* gf = *g;
-				  xgset.erase(g);
-				  gf->destroy();
-				  (*res)[n] = unop::instance(unop::G, x);
-				}
-			      else if (tokill[n])
-				{
-				  (*res)[n]->destroy();
-				  (*res)[n] = 0;
-				}
-			    }
-
-			  multop::vec* xv = new multop::vec;
-			  size_t xgs = xgset.size();
-			  xv->reserve(xset.size() + 1);
-			  if (xgs > 0)
-			    {
-			      multop::vec* xgv = new multop::vec;
-			      xgv->reserve(xgs);
-			      fset_t::iterator i;
-			      for (i = xgset.begin(); i != xgset.end(); ++i)
-				xgv->push_back(*i);
-			      formula* gv = multop::instance(multop::And, xgv);
-			      xv->push_back(unop::instance(unop::G, gv));
-			    }
-			  fset_t::iterator j;
-			  for (j = xset.begin(); j != xset.end(); ++j)
-			    xv->push_back(*j);
-			  formula* av = multop::instance(multop::And, xv);
-			  res->push_back(unop::instance(unop::X, av));
-			}
-
-		      // Gather all operands by type.
-		      mospliter s(mospliter::Strip_X |
-				  mospliter::Strip_FG |
-				  mospliter::Strip_G |
-				  mospliter::Split_F |
-				  mospliter::Split_U_or_W |
-				  mospliter::Split_R_or_M |
-				  mospliter::Split_EventUniv,
-				  res, c_);
-
-		      // FG(a) & FG(b) = FG(a & b)
-		      formula* allFG = unop_unop_multop(unop::F, unop::G,
-							multop::And, s.res_FG);
-
-		      // Xa & Xb = X(a & b)
-		      // Xa & Xb & FG(c) = X(a & b & FG(c))
-		      // For Universal&Eventual formulae f1...fn we also have:
-		      // Xa & Xb & f1...fn = X(a & b & f1...fn)
-		      if (!s.res_X->empty())
-			{
-			  s.res_X->push_back(allFG);
-			  allFG = 0;
-			  s.res_X->insert(s.res_X->begin(),
-					  s.res_EventUniv->begin(),
-					  s.res_EventUniv->end());
-			}
-		      else
-			// We don't rewrite Ga & f1...fn = G(a & f1..fn)
-			// similarly to what we do in the unop::Or case
-			// as it is not clear what we'd gain by doing so.
-			{
-			  s.res_other->insert(s.res_other->begin(),
-					      s.res_EventUniv->begin(),
-					      s.res_EventUniv->end());
-			}
-		      delete s.res_EventUniv;
-
-		      // Xa & Xb & f1...fn = X(a & b & f1...fn)
-		      // is built at the end of this multop::And case.
-		      // G(a) & G(b) = G(a & b)
-		      // is built at the end of this multop::And case.
-
-		      // The following three loops perform these rewritings:
-		      // (a U b) & (c U b) = (a & c) U b
-		      // (a U b) & (c W b) = (a & c) U b
-		      // (a W b) & (c W b) = (a & c) W b
-		      // (a R b) & (a R c) = a R (b & c)
-		      // (a R b) & (a M c) = a M (b & c)
-		      // (a M b) & (a M c) = a M (b & c)
-		      // F(a) & (a R b) = a M b
-		      // F(a) & (a M b) = a M b
-		      // F(b) & (a W b) = a U b
-		      // F(b) & (a U b) = a U b
-		      typedef Sgi::hash_map<formula*, multop::vec::iterator,
-					    ptr_hash<formula> > fmap_t;
-		      fmap_t uwmap; // associates "b" to "a U b" or "a W b"
-		      fmap_t rmmap; // associates "a" to "a R b" or "a M b"
-		      // (a U b) & (c U b) = (a & c) U b
-		      // (a U b) & (c W b) = (a & c) U b
-		      // (a W b) & (c W b) = (a & c) W b
-		      for (multop::vec::iterator i = s.res_U_or_W->begin();
-			   i != s.res_U_or_W->end(); ++i)
-			{
-			  binop* bo = static_cast<binop*>(*i);
-			  formula* b = bo->second();
-			  fmap_t::iterator j = uwmap.find(b);
-			  if (j == uwmap.end())
-			    {
-			      // First occurrence.
-			      uwmap[b] = i;
-			      continue;
-			    }
-			  // We already have one occurrence.  Merge them.
-			  binop* old = static_cast<binop*>(*j->second);
-			  binop::type op = binop::W;
-			  if (bo->op() == binop::U
-			      || old->op() == binop::U)
-			    op = binop::U;
-			  formula* fst_arg =
-			    multop::instance(multop::And,
-					     old->first()->clone(),
-					     bo->first()->clone());
-			  *j->second = binop::instance(op, fst_arg, b->clone());
-			  assert((*j->second)->kind() == formula::BinOp);
-			  *i = 0;
-			  old->destroy();
-			  bo->destroy();
-			}
-		      // (a R b) & (a R c) = a R (b & c)
-		      // (a R b) & (a M c) = a M (b & c)
-		      // (a M b) & (a M c) = a M (b & c)
-		      for (multop::vec::iterator i = s.res_R_or_M->begin();
-			   i != s.res_R_or_M->end(); ++i)
-			{
-			  binop* bo = static_cast<binop*>(*i);
-			  formula* a = bo->first();
-			  fmap_t::iterator j = rmmap.find(a);
-			  if (j == rmmap.end())
-			    {
-			      // First occurrence.
-			      rmmap[a] = i;
-			      continue;
-			    }
-			  // We already have one occurrence.  Merge them.
-			  binop* old = static_cast<binop*>(*j->second);
-			  binop::type op = binop::R;
-			  if (bo->op() == binop::M
-			      || old->op() == binop::M)
-			    op = binop::M;
-			  formula* snd_arg =
-			    multop::instance(multop::And,
-					     old->second()->clone(),
-					     bo->second()->clone());
-			  *j->second = binop::instance(op, a->clone(), snd_arg);
-			  assert((*j->second)->kind() == formula::BinOp);
-			  *i = 0;
-			  old->destroy();
-			  bo->destroy();
-			}
-		      // F(a) & (a R b) = a M b
-		      // F(a) & (a M b) = a M b
-		      // F(b) & (a W b) = a U b
-		      // F(b) & (a U b) = a U b
-		      for (multop::vec::iterator i = s.res_F->begin();
-			   i != s.res_F->end(); ++i)
-			{
-			  bool superfluous = false;
-			  unop* uo = static_cast<unop*>(*i);
-			  formula* c = uo->child();
-
-			  fmap_t::iterator j = uwmap.find(c);
-			  if (j != uwmap.end())
-			    {
-			      superfluous = true;
-			      binop* bo = static_cast<binop*>(*j->second);
-			      if (bo->op() == binop::W)
-				{
-				  *j->second =
-				    binop::instance(binop::U,
-						    bo->first()->clone(),
-						    bo->second()->clone());
-				  assert((*j->second)->kind()
-					 == formula::BinOp);
-				  bo->destroy();
-				}
-			    }
-			  j = rmmap.find(c);
-			  if (j != rmmap.end())
-			    {
-			      superfluous = true;
-			      binop* bo = static_cast<binop*>(*j->second);
-			      if (bo->op() == binop::R)
-				{
-				  *j->second =
-				    binop::instance(binop::M,
-						    bo->first()->clone(),
-						    bo->second()->clone());
-				  assert((*j->second)->kind()
-					 == formula::BinOp);
-				  bo->destroy();
-				}
-			    }
-			  if (superfluous)
-			    {
-			      (*i)->destroy();
-			      *i = 0;
-			    }
-			}
-
-		      s.res_other->reserve(s.res_other->size()
-					   + s.res_F->size()
-					   + s.res_U_or_W->size()
-					   + s.res_R_or_M->size()
-					   + 3);
-		      s.res_other->insert(s.res_other->end(),
-					  s.res_F->begin(),
-					  s.res_F->end());
-		      delete s.res_F;
-		      s.res_other->insert(s.res_other->end(),
-					  s.res_U_or_W->begin(),
-					  s.res_U_or_W->end());
-		      delete s.res_U_or_W;
-		      s.res_other->insert(s.res_other->end(),
-					  s.res_R_or_M->begin(),
-					  s.res_R_or_M->end());
-		      delete s.res_R_or_M;
-
-		      // Those "G" formulae that are eventual can be
-		      // postponed inside the X term if there is one.
-		      //
-		      // In effect we rewrite
-		      //   Xa&Xb&GFc&GFd&Ge as X(a&b&G(Fc&Fd))&Ge
-		      if (!s.res_X->empty())
-			{
-			  multop::vec* event = new multop::vec;
-			  for (multop::vec::iterator i = s.res_G->begin();
-			       i != s.res_G->end(); ++i)
-			    if ((*i)->is_eventual())
-			      {
-				event->push_back(*i);
-				*i = 0; // Remove it from res_G.
-			      }
-			  s.res_X->push_back(unop_multop(unop::G,
-							 multop::And, event));
-			}
-
-		      // G(a) & G(b) & ... = G(a & b & ...)
-		      formula* allG =
-			unop_multop(unop::G, multop::And, s.res_G);
-		      // Xa & Xb & ... = X(a & b & ...)
-		      formula* allX =
-			unop_multop(unop::X, multop::And, s.res_X);
-
-		      s.res_other->push_back(allX);
-		      s.res_other->push_back(allG);
-		      s.res_other->push_back(allFG);
-		      result_ = multop::instance(multop::And, s.res_other);
-		      // If we altered the formula in some way, process
-		      // it another time.
-		      if (result_ != mo)
-			result_ = recurse_destroy(result_);
-		      return;
-		    }
-		  else // SERE
-		    {
-		      mospliter s(mospliter::Split_Bool, res, c_);
-		      if (!s.res_Bool->empty())
-			{
-			  // b1 & b2 & b3 = b1 && b2 && b3
-			  formula* b = multop::instance(multop::And,
-							s.res_Bool);
-
-			  multop::vec* ares = new multop::vec;
-			  for (multop::vec::iterator i = s.res_other->begin();
-			       i != s.res_other->end(); ++i)
-			    switch ((*i)->kind())
-			      {
-			      case formula::BUnOp:
-				{
-				  bunop* r = down_cast<bunop*>(*i);
-				  // b && r[*i..j] = b & r  if i<=1<=j
-				  //               = 0      otherwise
-				  switch (r->op())
-				    {
-				    case bunop::Star:
-				      if (r->min() > 1 || r->max() < 1)
-					goto returnfalse;
-				      ares->push_back(r->child()->clone());
 				      r->destroy();
 				      *i = 0;
 				      break;
 				    }
-				  break;
-				}
-			      case formula::MultOp:
-				{
-				  multop* r = down_cast<multop*>(*i);
-				  unsigned rs = r->size();
-				  switch (r->op())
-				    {
-				    case multop::Fusion:
-				      //b && {r1:..:rn} = b && r1 && .. && rn
-				      for (unsigned j = 0; j < rs; ++j)
-					ares->push_back(r->nth(j)->clone());
-				      r->destroy();
-				      *i = 0;
-				      break;
-				    case multop::Concat:
-				      // b && {r1;...;rn} =
-				      // - b && ri if there is only one ri
-				      //           that does not accept [*0]
-				      // - b && (r1|...|rn) if all ri
-				      //           do not accept [*0]
-				      // - 0 if more than one ri accept [*0]
-				      {
-					formula* ri = 0;
-					unsigned nonempty = 0;
-					for (unsigned j = 0; j < rs; ++j)
-					  {
-					    formula* jf = r->nth(j);
-					    if (!jf->accepts_eword())
-					      {
-						ri = jf;
-						++nonempty;
-					      }
-					  }
-					if (nonempty == 1)
-					  {
-					    ares->push_back(ri->clone());
-					  }
-					else if (nonempty == 0)
-					  {
-					    multop::vec* sum = new multop::vec;
-					    for (unsigned j = 0; j < rs; ++j)
-					      sum->push_back(r->nth(j)
-							     ->clone());
-					    formula* sumf =
-					      multop::instance(multop::Or, sum);
-					    ares->push_back(sumf);
-					  }
-					else
-					  {
-					    goto returnfalse;
-					  }
-					r->destroy();
-					*i = 0;
-					break;
-				      }
-				    default:
-				      goto common;
-				    }
-				  break;
-				}
-			      default:
-			      common:
-				ares->push_back(*i);
-				*i = 0;
+				  default:
+				    goto common;
+				  }
 				break;
 			      }
-			  delete s.res_other;
-			  ares->push_back(b);
-			  result_ = multop::instance(multop::And, ares);
-			  // If we altered the formula in some way, process
-			  // it another time.
-			  if (result_ != mo)
-			    result_ = recurse_destroy(result_);
-			  return;
-			returnfalse:
-			  b->destroy();
-			  for (multop::vec::iterator i = s.res_other->begin();
-			       i != s.res_other->end(); ++i)
-			    if (*i)
-			      (*i)->destroy();
-			  delete s.res_other;
-			  for (multop::vec::iterator i = ares->begin();
-			       i != ares->end(); ++i)
+			    default:
+			    common:
+			      ares->push_back(*i);
+			      *i = 0;
+			      break;
+			    }
+			delete s.res_other;
+			ares->push_back(b);
+			result_ = multop::instance(multop::AndRat, ares);
+			// If we altered the formula in some way, process
+			// it another time.
+			if (result_ != mo)
+			  result_ = recurse_destroy(result_);
+			return;
+		      returnfalse:
+			b->destroy();
+			for (multop::vec::iterator i = s.res_other->begin();
+			     i != s.res_other->end(); ++i)
+			  if (*i)
 			    (*i)->destroy();
-			  delete ares;
-			  result_ = constant::false_instance();
-			  return;
-			}
-		      else
-			{
-			  // No Boolean as argument of &&.
-			  delete s.res_Bool;
+			delete s.res_other;
+			for (multop::vec::iterator i = ares->begin();
+			     i != ares->end(); ++i)
+			  (*i)->destroy();
+			delete ares;
+			result_ = constant::false_instance();
+			return;
+		      }
+		    else
+		      {
+			// No Boolean as argument of &&.
+			delete s.res_Bool;
 
-			  // Look for occurrences of {b;r} or {b:r}.  We have
-			  // {b1;r1}&&{b2;r2} = {b1&&b2};{r1&&r2}
-			  //                     head1    tail1
-			  // {b1:r1}&&{b2:r2} = {b1&&b2}:{r1&&r2}
-			  //                     head2    tail2
+			// Look for occurrences of {b;r} or {b:r}.  We have
+			// {b1;r1}&&{b2;r2} = {b1&&b2};{r1&&r2}
+			//                     head1    tail1
+			// {b1:r1}&&{b2:r2} = {b1&&b2}:{r1&&r2}
+			//                     head2    tail2
 
-			  multop::vec* head1 = new multop::vec;
-			  multop::vec* tail1 = new multop::vec;
-			  multop::vec* head2 = new multop::vec;
-			  multop::vec* tail2 = new multop::vec;
-			  for (multop::vec::iterator i = s.res_other->begin();
-			       i != s.res_other->end(); ++i)
-			    {
-			      if (!*i)
+			multop::vec* head1 = new multop::vec;
+			multop::vec* tail1 = new multop::vec;
+			multop::vec* head2 = new multop::vec;
+			multop::vec* tail2 = new multop::vec;
+			for (multop::vec::iterator i = s.res_other->begin();
+			     i != s.res_other->end(); ++i)
+			  {
+			    if (!*i)
+			      continue;
+			    if ((*i)->kind() != formula::MultOp)
+			      continue;
+			    multop* f = down_cast<multop*>(*i);
+			    formula* h = f->nth(0);
+			    if (!h->is_boolean())
+			      continue;
+			    multop::type op = f->op();
+			    if (op == multop::Concat)
+			      {
+				head1->push_back(h->clone());
+				multop::vec* tail = new multop::vec;
+				unsigned s = f->size();
+				for (unsigned j = 1; j < s; ++j)
+				  tail->push_back(f->nth(j)->clone());
+				tail1->push_back(multop::instance(op, tail));
+				(*i)->destroy();
+				*i = 0;
+			      }
+			    else if (op == multop::Fusion)
+			      {
+				head2->push_back(h->clone());
+				multop::vec* tail = new multop::vec;
+				unsigned s = f->size();
+				for (unsigned j = 1; j < s; ++j)
+				  tail->push_back(f->nth(j)->clone());
+				tail2->push_back(multop::instance(op, tail));
+				(*i)->destroy();
+				*i = 0;
+			      }
+			    else
+			      {
 				continue;
-			      if ((*i)->kind() != formula::MultOp)
-				continue;
-			      multop* f = down_cast<multop*>(*i);
-			      formula* h = f->nth(0);
-			      if (!h->is_boolean())
-				continue;
-			      multop::type op = f->op();
-			      if (op == multop::Concat)
-				{
-				  head1->push_back(h->clone());
-				  multop::vec* tail = new multop::vec;
-				  unsigned s = f->size();
-				  for (unsigned j = 1; j < s; ++j)
-				    tail->push_back(f->nth(j)->clone());
-				  tail1->push_back(multop::instance(op, tail));
-				  (*i)->destroy();
-				  *i = 0;
-				}
-			      else if (op == multop::Fusion)
-				{
-				  head2->push_back(h->clone());
-				  multop::vec* tail = new multop::vec;
-				  unsigned s = f->size();
-				  for (unsigned j = 1; j < s; ++j)
-				    tail->push_back(f->nth(j)->clone());
-				  tail2->push_back(multop::instance(op, tail));
-				  (*i)->destroy();
-				  *i = 0;
-				}
-			      else
-				{
-				  continue;
-				}
-			    }
-			  if (!head1->empty())
-			    {
-			      formula* h = multop::instance(multop::And, head1);
-			      formula* t = multop::instance(multop::And, tail1);
-			      formula* f = multop::instance(multop::Concat,
-							    h, t);
-			      s.res_other->push_back(f);
-			    }
-			  else
-			    {
-			      delete head1;
-			      delete tail1;
-			    }
-			  if (!head2->empty())
-			    {
-			      formula* h = multop::instance(multop::And, head2);
-			      formula* t = multop::instance(multop::And, tail2);
-			      formula* f = multop::instance(multop::Fusion,
-							    h, t);
-			      s.res_other->push_back(f);
-			    }
-			  else
-			    {
-			      delete head2;
-			      delete tail2;
-			    }
+			      }
+			  }
+			if (!head1->empty())
+			  {
+			    formula* h =
+			      multop::instance(multop::And, head1);
+			    formula* t =
+			      multop::instance(multop::AndRat, tail1);
+			    formula* f =
+			      multop::instance(multop::Concat, h, t);
+			    s.res_other->push_back(f);
+			  }
+			else
+			  {
+			    delete head1;
+			    delete tail1;
+			  }
+			if (!head2->empty())
+			  {
+			    formula* h =
+			      multop::instance(multop::And, head2);
+			    formula* t =
+			      multop::instance(multop::AndRat, tail2);
+			    formula* f =
+			      multop::instance(multop::Fusion, h, t);
+			    s.res_other->push_back(f);
+			  }
+			else
+			  {
+			    delete head2;
+			    delete tail2;
+			  }
 
-			  // {r1;b1}&&{r2;b2} = {r1&&r2};{b1&&b2}
-			  //                     head3    tail3
-			  // {r1:b1}&&{r2:b2} = {r1&&r2}:{b1&&b2}
-			  //                     head4    tail4
-			  multop::vec* head3 = new multop::vec;
-			  multop::vec* tail3 = new multop::vec;
-			  multop::vec* head4 = new multop::vec;
-			  multop::vec* tail4 = new multop::vec;
-			  for (multop::vec::iterator i = s.res_other->begin();
-			       i != s.res_other->end(); ++i)
-			    {
-			      if (!*i)
+			// {r1;b1}&&{r2;b2} = {r1&&r2};{b1∧b2}
+			//                     head3    tail3
+			// {r1:b1}&&{r2:b2} = {r1&&r2}:{b1∧b2}
+			//                     head4    tail4
+			multop::vec* head3 = new multop::vec;
+			multop::vec* tail3 = new multop::vec;
+			multop::vec* head4 = new multop::vec;
+			multop::vec* tail4 = new multop::vec;
+			for (multop::vec::iterator i = s.res_other->begin();
+			     i != s.res_other->end(); ++i)
+			  {
+			    if (!*i)
+			      continue;
+			    if ((*i)->kind() != formula::MultOp)
+			      continue;
+			    multop* f = down_cast<multop*>(*i);
+			    unsigned s = f->size() - 1;
+			    formula* t = f->nth(s);
+			    if (!t->is_boolean())
+			      continue;
+			    multop::type op = f->op();
+			    if (op == multop::Concat)
+			      {
+				tail3->push_back(t->clone());
+				multop::vec* head = new multop::vec;
+				for (unsigned j = 0; j < s; ++j)
+				  head->push_back(f->nth(j)->clone());
+				head3->push_back(multop::instance(op, head));
+				(*i)->destroy();
+				*i = 0;
+			      }
+			    else if (op == multop::Fusion)
+			      {
+				tail4->push_back(t->clone());
+				multop::vec* head = new multop::vec;
+				for (unsigned j = 0; j < s; ++j)
+				  head->push_back(f->nth(j)->clone());
+				head4->push_back(multop::instance(op, head));
+				(*i)->destroy();
+				*i = 0;
+			      }
+			    else
+			      {
 				continue;
-			      if ((*i)->kind() != formula::MultOp)
-				continue;
-			      multop* f = down_cast<multop*>(*i);
-			      unsigned s = f->size() - 1;
-			      formula* t = f->nth(s);
-			      if (!t->is_boolean())
-				continue;
-			      multop::type op = f->op();
-			      if (op == multop::Concat)
-				{
-				  tail3->push_back(t->clone());
-				  multop::vec* head = new multop::vec;
-				  for (unsigned j = 0; j < s; ++j)
-				    head->push_back(f->nth(j)->clone());
-				  head3->push_back(multop::instance(op, head));
-				  (*i)->destroy();
-				  *i = 0;
-				}
-			      else if (op == multop::Fusion)
-				{
-				  tail4->push_back(t->clone());
-				  multop::vec* head = new multop::vec;
-				  for (unsigned j = 0; j < s; ++j)
-				    head->push_back(f->nth(j)->clone());
-				  head4->push_back(multop::instance(op, head));
-				  (*i)->destroy();
-				  *i = 0;
-				}
-			      else
-				{
-				  continue;
-				}
-			    }
-			  if (!head3->empty())
-			    {
-			      formula* h = multop::instance(multop::And, head3);
-			      formula* t = multop::instance(multop::And, tail3);
-			      formula* f = multop::instance(multop::Concat,
-							    h, t);
-			      s.res_other->push_back(f);
-			    }
-			  else
-			    {
-			      delete head3;
-			      delete tail3;
-			    }
-			  if (!head4->empty())
-			    {
-			      formula* h = multop::instance(multop::And, head4);
-			      formula* t = multop::instance(multop::And, tail4);
-			      formula* f = multop::instance(multop::Fusion,
-							    h, t);
-			      s.res_other->push_back(f);
-			    }
-			  else
-			    {
-			      delete head4;
-			      delete tail4;
-			    }
+			      }
+			  }
+			if (!head3->empty())
+			  {
+			    formula* h =
+			      multop::instance(multop::AndRat, head3);
+			    formula* t =
+			      multop::instance(multop::And, tail3);
+			    formula* f =
+			      multop::instance(multop::Concat, h, t);
+			    s.res_other->push_back(f);
+			  }
+			else
+			  {
+			    delete head3;
+			    delete tail3;
+			  }
+			if (!head4->empty())
+			  {
+			    formula* h =
+			      multop::instance(multop::AndRat, head4);
+			    formula* t =
+			      multop::instance(multop::And, tail4);
+			    formula* f =
+			      multop::instance(multop::Fusion, h, t);
+			    s.res_other->push_back(f);
+			  }
+			else
+			  {
+			    delete head4;
+			    delete tail4;
+			  }
 
-			  result_ = multop::instance(multop::And, s.res_other);
-			  // If we altered the formula in some way, process
-			  // it another time.
-			  if (result_ != mo)
-			    result_ = recurse_destroy(result_);
-			  return;
-			}
-		    }
+			result_ =
+			  multop::instance(multop::AndRat, s.res_other);
+			// If we altered the formula in some way, process
+			// it another time.
+			if (result_ != mo)
+			  result_ = recurse_destroy(result_);
+			return;
+		      }
+		  }
 		case multop::Or:
 		  {
 		    // a | X(F(a) | c...) = Fa | X(c...)
@@ -2975,12 +2995,15 @@ namespace spot
 		      result_ = recurse_destroy(result_);
 		    return;
 		  }
+		case multop::OrRat:
+		  // FIXME: No simplifications yet.
+		  break;
 		case multop::AndNLM:
 		  {
 		    mospliter s(mospliter::Split_Bool, res, c_);
 		    if (!s.res_Bool->empty())
 		      {
-			// b1 & b2 & b3 = b1 && b2 && b3
+			// b1 & b2 & b3 = b1 ∧ b2 ∧ b3
 			formula* b = multop::instance(multop::And, s.res_Bool);
 
 			// now we just consider  b & rest
@@ -3001,7 +3024,7 @@ namespace spot
 				  multop::instance(multop::Fusion, b->clone(),
 						   rest);
 				result_ =
-				  multop::instance(multop::Or, b, brest);
+				  multop::instance(multop::OrRat, b, brest);
 			      }
 			    else
 			      {
@@ -3026,9 +3049,9 @@ namespace spot
 			delete s.res_Bool;
 
 			// Look for occurrences of {b;r} or {b:r}.  We have
-			// {b1;r1}&{b2;r2} = {b1&&b2};{r1&r2}
+			// {b1;r1}&{b2;r2} = {b1∧b2};{r1&r2}
 			//                    head1   tail1
-			// {b1:r1}&{b2:r2} = {b1&&b2}:{r1&r2}
+			// {b1:r1}&{b2:r2} = {b1∧b2}:{r1&r2}
 			//                    head2   tail2
 
 			multop::vec* head1 = new multop::vec;
@@ -3076,11 +3099,12 @@ namespace spot
 			  }
 			if (!head1->empty())
 			  {
-			    formula* h = multop::instance(multop::And, head1);
+			    formula* h =
+			      multop::instance(multop::And, head1);
 			    formula* t =
 			      multop::instance(multop::AndNLM, tail1);
-			    formula* f = multop::instance(multop::Concat,
-							  h, t);
+			    formula* f =
+			      multop::instance(multop::Concat, h, t);
 			    s.res_other->push_back(f);
 			  }
 			else
@@ -3090,11 +3114,12 @@ namespace spot
 			  }
 			if (!head2->empty())
 			  {
-			    formula* h = multop::instance(multop::And, head2);
+			    formula* h =
+			      multop::instance(multop::And, head2);
 			    formula* t =
 			      multop::instance(multop::AndNLM, tail2);
-			    formula* f = multop::instance(multop::Fusion,
-							  h, t);
+			    formula* f =
+			      multop::instance(multop::Fusion, h, t);
 			    s.res_other->push_back(f);
 			  }
 			else
@@ -3103,9 +3128,9 @@ namespace spot
 			    delete tail2;
 			  }
 
-			// {r1;b1}&{r2;b2} = {r1&r2};{b1&&b2}
+			// {r1;b1}&{r2;b2} = {r1&r2};{b1∧b2}
 			//                    head3   tail3
-			// {r1:b1}&{r2:b2} = {r1&r2}:{b1&&b2}
+			// {r1:b1}&{r2:b2} = {r1&r2}:{b1∧b2}
 			//                    head4   tail4
 			multop::vec* head3 = new multop::vec;
 			multop::vec* tail3 = new multop::vec;
@@ -3153,9 +3178,10 @@ namespace spot
 			  {
 			    formula* h =
 			      multop::instance(multop::AndNLM, head3);
-			    formula* t = multop::instance(multop::And, tail3);
-			    formula* f = multop::instance(multop::Concat,
-							  h, t);
+			    formula* t =
+			      multop::instance(multop::And, tail3);
+			    formula* f =
+			      multop::instance(multop::Concat, h, t);
 			    s.res_other->push_back(f);
 			  }
 			else
@@ -3167,9 +3193,10 @@ namespace spot
 			  {
 			    formula* h =
 			      multop::instance(multop::AndNLM, head4);
-			    formula* t = multop::instance(multop::And, tail4);
-			    formula* f = multop::instance(multop::Fusion,
-							  h, t);
+			    formula* t =
+			      multop::instance(multop::And, tail4);
+			    formula* f =
+			      multop::instance(multop::Fusion, h, t);
 			    s.res_other->push_back(f);
 			  }
 			else
@@ -3441,6 +3468,8 @@ namespace spot
 	      case multop::Concat:
 	      case multop::Fusion:
 	      case multop::AndNLM:
+	      case multop::AndRat:
+	      case multop::OrRat:
 		break;
 	      }
 	    break;
@@ -3524,6 +3553,8 @@ namespace spot
 	      case multop::Concat:
 	      case multop::Fusion:
 	      case multop::AndNLM:
+	      case multop::AndRat:
+	      case multop::OrRat:
 		break;
 	      }
 	    break;

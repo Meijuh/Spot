@@ -60,8 +60,9 @@ namespace spot
 	KF,
 	KG,
 	KOr,
+	KOrRat,
 	KAnd,
-	KAndLM,
+	KAndRat,
 	KAndNLM,
 	KConcat,
 	KFusion
@@ -88,6 +89,7 @@ namespace spot
 	"X",
 	"F",
 	"G",
+	" | ",
 	" | ",
 	" & ",
 	" && ",
@@ -117,6 +119,7 @@ namespace spot
 	"()",
 	"<>",
 	"[]",
+	" || ",
 	" || ",
 	" && ",
 	" && ",			// not supported
@@ -623,8 +626,14 @@ namespace spot
 	    case multop::Or:
 	      k = KOr;
 	      break;
+	    case multop::OrRat:
+	      k = KOrRat;
+	      break;
 	    case multop::And:
-	      k = in_ratexp_ ? KAndLM : KAnd;
+	      k = in_ratexp_ ? KAndRat : KAnd;
+	      break;
+	    case multop::AndRat:
+	      k = KAndRat;
 	      break;
 	    case multop::AndNLM:
 	      k = KAndNLM;

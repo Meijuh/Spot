@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2010, 2012 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -168,6 +168,8 @@ namespace spot
 	  case multop::Concat:
 	  case multop::Fusion:
 	  case multop::AndNLM:
+	  case multop::AndRat:
+	  case multop::OrRat:
 	    assert(!"unsupported operator");
 	  }
 	assert(op != -1);

@@ -244,6 +244,12 @@ namespace spot
       }
 
       formula*
+      conj_bdd_to_sere(bdd b) const
+      {
+	return conj_bdd_to_formula(b, multop::AndRat);
+      }
+
+      formula*
       bdd_to_formula(bdd f)
       {
 	if (f == bddfalse)
@@ -257,6 +263,22 @@ namespace spot
 	  v->push_back(conj_bdd_to_formula(cube));
 
 	return multop::instance(multop::Or, v);
+      }
+
+      formula*
+      bdd_to_sere(bdd f)
+      {
+	if (f == bddfalse)
+	  return constant::false_instance();
+
+	multop::vec* v = new multop::vec;
+
+	minato_isop isop(f);
+	bdd cube;
+	while ((cube = isop.next()) != bddfalse)
+	  v->push_back(conj_bdd_to_sere(cube));
+
+	return multop::instance(multop::OrRat, v);
       }
 
       void
@@ -429,7 +451,7 @@ namespace spot
 	  {
 	    bdd label = bdd_exist(cube, dict_.next_set);
 	    bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-	    formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+	    formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
 	    if (dest == constant::empty_word_instance())
 	      {
 		out |= label & next_to_concat();
@@ -537,12 +559,12 @@ namespace spot
 	      }
 	    else
 	      {
-		// if "f" accepts the empty words, doing the above would
+		// if "f" accepts the empty word, doing the above would
 		// lead to an infinite loop:
 		//   f*;g -> f;f*;g | g
 		//   f;f*;g -> f*;g | ...
 		//
-		// So we do in two steps:
+		// So we do it in three steps:
 		//  1. translate f,
 		//  2. append f*;g to all destinations
 		//  3. add |g
@@ -556,8 +578,7 @@ namespace spot
 		  {
 		    bdd label = bdd_exist(cube, dict_.next_set);
 		    bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		    formula* dest =
-		      dict_.conj_bdd_to_formula(dest_bdd);
+		    formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
 		    formula* dest2;
 		    int x;
 		    if (dest == constant::empty_word_instance())
@@ -623,7 +644,7 @@ namespace spot
 		{
 		  delete non_final;
 		  // (a* & b*);c = (a*|b*);c
-		  formula* f = multop::instance(multop::Or, final);
+		  formula* f = multop::instance(multop::OrRat, final);
 		  res_ = recurse_and_concat(f);
 		  f->destroy();
 		  break;
@@ -635,7 +656,7 @@ namespace spot
 		  // (F_1 & ... & F_n & N_1 & ... & N_m)
 		  // =   (F_1 | ... | F_n);[*] && (N_1 & ... & N_m)
 		  //   | (F_1 | ... | F_n) && (N_1 & ... & N_m);[*]
-		  formula* f = multop::instance(multop::Or, final);
+		  formula* f = multop::instance(multop::OrRat, final);
 		  formula* n = multop::instance(multop::AndNLM, non_final);
 		  formula* t = bunop::instance(bunop::Star,
 					       constant::true_instance());
@@ -643,9 +664,9 @@ namespace spot
 						 f->clone(), t->clone());
 		  formula* nt = multop::instance(multop::Concat,
 						 n->clone(), t);
-		  formula* ftn = multop::instance(multop::And, ft, n);
-		  formula* fnt = multop::instance(multop::And, f, nt);
-		  formula* all = multop::instance(multop::Or, ftn, fnt);
+		  formula* ftn = multop::instance(multop::AndRat, ft, n);
+		  formula* fnt = multop::instance(multop::AndRat, f, nt);
+		  formula* all = multop::instance(multop::OrRat, ftn, fnt);
 		  res_ = recurse_and_concat(all);
 		  all->destroy();
 		  break;
@@ -673,15 +694,15 @@ namespace spot
 					     f, star->clone());
 		      conj->push_back(f);
 		    }
-		  disj->push_back(multop::instance(multop::And, conj));
+		  disj->push_back(multop::instance(multop::AndRat, conj));
 		}
 	      star->destroy();
-	      formula* all = multop::instance(multop::Or, disj);
+	      formula* all = multop::instance(multop::OrRat, disj);
 	      res_ = recurse_and_concat(all);
 	      all->destroy();
 	      break;
 	    }
-	  case multop::And:
+	  case multop::AndRat:
 	    {
 	      unsigned s = node->size();
 
@@ -707,7 +728,7 @@ namespace spot
 		node->destroy();
 	      break;
 	    }
-	  case multop::Or:
+	  case multop::OrRat:
 	    {
 	      res_ = bddfalse;
 	      unsigned s = node->size();
@@ -749,7 +770,7 @@ namespace spot
 		{
 		  bdd label = bdd_exist(cube, dict_.next_set);
 		  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		  formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+		  formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
 
 		  if (dest->accepts_eword())
 		    {
@@ -786,6 +807,9 @@ namespace spot
 	      tail->destroy();
 	      break;
 	    }
+	  case multop::And:
+	  case multop::Or:
+	    assert(!"not a rational operator");
 	  }
       }
 
@@ -814,10 +838,10 @@ namespace spot
     {
       // static unsigned indent = 0;
       // for (unsigned i = indent; i > 0; --i)
-      //	std::cerr << "| ";
+      // 	std::cerr << "| ";
       // std::cerr << "translate_ratexp[" << to_string(f);
       // if (to_concat)
-      //	std::cerr << ", " << to_string(to_concat);
+      // 	std::cerr << ", " << to_string(to_concat);
       // std::cerr << "]" << std::endl;
       // ++indent;
       bdd res;
@@ -839,7 +863,7 @@ namespace spot
 	}
       // --indent;
       // for (unsigned i = indent; i > 0; --i)
-      //	std::cerr << "| ";
+      // 	std::cerr << "| ";
       // std::cerr << "\\ ";
       // bdd_print_set(std::cerr, dict.dict, res) << std::endl;
       return res;
@@ -891,7 +915,7 @@ namespace spot
 	      all_props -= label;
 
 	      const formula* dest =
-		dict_.bdd_to_formula(bdd_exist(res & label, dict_.var_set));
+		dict_.bdd_to_sere(bdd_exist(res & label, dict_.var_set));
 
 	      f2a_t::const_iterator i = f2a_.find(dest);
 	      if (i != f2a_.end() && i->second == 0)
@@ -1218,8 +1242,7 @@ namespace spot
 		  all_props -= label;
 
 		  formula* dest =
-		    dict_.bdd_to_formula(bdd_exist(f1 & label,
-						   dict_.var_set));
+		    dict_.bdd_to_sere(bdd_exist(f1 & label, dict_.var_set));
 
 		  // !{ Exp } is false if Exp accepts the empty word.
 		  if (dest->accepts_eword())
@@ -1347,8 +1370,8 @@ namespace spot
 		      all_props -= label;
 
 		      formula* dest =
-			dict_.bdd_to_formula(bdd_exist(f1 & label,
-						       dict_.var_set));
+			dict_.bdd_to_sere(bdd_exist(f1 & label,
+						    dict_.var_set));
 
 		      const formula* dest2 =
 			binop::instance(op, dest, node->second()->clone());
@@ -1371,7 +1394,7 @@ namespace spot
 		    {
 		      bdd label = bdd_exist(cube, dict_.next_set);
 		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+		      formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
 
 		      if (dest == constant::empty_word_instance())
 			{
@@ -1420,7 +1443,7 @@ namespace spot
 		    {
 		      bdd label = bdd_exist(cube, dict_.next_set);
 		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		      formula* dest = dict_.conj_bdd_to_formula(dest_bdd);
+		      formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
 		      formula* dest2 =
 			binop::instance(op, dest, node->second()->clone());
 
@@ -1478,6 +1501,8 @@ namespace spot
 	  case multop::Concat:
 	  case multop::Fusion:
 	  case multop::AndNLM:
+	  case multop::AndRat:
+	  case multop::OrRat:
 	    assert(!"Not an LTL operator");
 	    break;
 	  }
@@ -1699,7 +1724,7 @@ namespace spot
 	// std::cerr << "Marked: " << t.has_marked << std::endl;
 	// std::cerr << "Mark all: " << !f->is_marked() << std::endl;
 	// std::cerr << "Transitions:" << std::endl;
-	// trace_ltl_bdd(v_.get_dict(), t.symbolic);
+	// trace_ltl_bdd(d_, t.symbolic);
 	// std::cerr << "-----" << std::endl;
 
 	if (t.has_rational)

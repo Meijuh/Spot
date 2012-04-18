@@ -47,11 +47,13 @@ namespace spot
 	  is.accepting_eword = false;
 	case Concat:
 	case AndNLM:
-	  // Note: AndNLM(p1,p2) is a Boolean formula, but it is
-	  // actually rewritten as And(p1,p2) by trivial identities
-	  // before this constructor is called.  So at this point,
-	  // AndNLM is always used with at most one Boolean argument,
-	  // and the result is therefore NOT Boolean.
+	case AndRat:
+	  // Note: AndNLM(p1,p2) and AndRat(p1,p2) are Boolean
+	  // formulae, but there are actually rewritten as And(p1,p2)
+	  // by trivial identities before this constructor is called.
+	  // So at this point, AndNLM/AndRat are always used with at
+	  // most one Boolean argument, and the result is therefore
+	  // NOT Boolean.
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;
@@ -62,6 +64,18 @@ namespace spot
 	  for (unsigned i = 1; i < s; ++i)
 	    props &= (*v)[i]->get_props();
 	  break;
+	case OrRat:
+	  // Note: OrRat(p1,p2) is a Boolean formula, but its is
+	  // actually rewritten as Or(p1,p2) by trivial identities
+	  // before this constructor is called.  So at this point,
+	  // AndNLM is always used with at most one Boolean argument,
+	  // and the result is therefore NOT Boolean.
+	  is.boolean = false;
+	  is.ltl_formula = false;
+	  is.eltl_formula = false;
+	  is.psl_formula = false;
+	  is.eventual = false;
+	  is.universal = false;
 	case Or:
 	  {
 	    bool ew = (*v)[0]->accepts_eword();
@@ -159,10 +173,14 @@ namespace spot
 	{
 	case And:
 	  return "And";
+	case AndRat:
+	  return "AndRat";
 	case AndNLM:
 	  return "AndNLM";
 	case Or:
 	  return "Or";
+	case OrRat:
+	  return "OrRat";
 	case Concat:
 	  return "Concat";
 	case Fusion:
@@ -171,6 +189,37 @@ namespace spot
       // Unreachable code.
       assert(0);
       return 0;
+    }
+
+
+    void
+    gather_bool(multop::vec* v, multop::type op)
+    {
+      // Gather all boolean terms.
+      multop::vec* b = new multop::vec;
+      multop::vec::iterator i = v->begin();
+      while (i != v->end())
+	{
+	  if ((*i)->is_boolean())
+	    {
+	      b->push_back(*i);
+	      i = v->erase(i);
+	    }
+	  else
+	    {
+	      ++i;
+	    }
+	}
+      // - AndNLM(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
+      //    AndNLM(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
+      // - AndRat(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
+      //    AndRat(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
+      // - OrRat(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
+      //    AndRat(Exps1...,Exps2...,Exps3...,Or(Bool1,Bool2))
+      if (!b->empty())
+	v->push_back(multop::instance(op, b));
+      else
+	delete b;
     }
 
     multop::map multop::instances;
@@ -246,7 +295,15 @@ namespace spot
 	  neutral2 = 0;
 	  abs = constant::false_instance();
 	  abs2 = 0;
+	  weak_abs = 0;
+	  break;
+	case AndRat:
+	  neutral = 0; /* FIXME: we should use 1[*] as neutral */
+	  neutral2 = 0;
+	  abs = constant::false_instance();
+	  abs2 = 0;
 	  weak_abs = constant::empty_word_instance();
+	  gather_bool(v, And);
 	  break;
 	case AndNLM:
 	  neutral = constant::true_instance();
@@ -254,30 +311,7 @@ namespace spot
 	  abs = constant::false_instance();
 	  abs2 = 0;
 	  weak_abs = 0;
-
-	  // Make a first pass to gather all boolean terms.
-	  {
-	    vec* b = new vec;
-	    vec::iterator i = v->begin();
-	    while (i != v->end())
-	      {
-		if ((*i)->is_boolean())
-		  {
-		    b->push_back(*i);
-		    i = v->erase(i);
-		  }
-		else
-		  {
-		    ++i;
-		  }
-	      }
-	    // - AndNLM(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
-	    //    AndNLM(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
-	    if (!b->empty())
-	      v->push_back(instance(And, b));
-	    else
-	      delete b;
-	  }
+	  gather_bool(v, And);
 	  break;
 	case Or:
 	  neutral = constant::false_instance();
@@ -285,6 +319,14 @@ namespace spot
 	  abs = constant::true_instance();
 	  abs2 = 0;
 	  weak_abs = 0;
+	  break;
+	case OrRat:
+	  neutral = constant::false_instance();
+	  neutral2 = 0;
+	  abs = 0; // FIXME: should be 1[*].
+	  abs2 = 0;
+	  weak_abs = 0;
+	  gather_bool(v, Or);
 	  break;
 	case Concat:
 	  neutral = constant::empty_word_instance();
@@ -377,8 +419,8 @@ namespace spot
 	      }
 	  }
 
-	// We have    a* & [*0] & c  = 0
-	//     and    a* & [*0] & c* = [*0]
+	// We have    a* && [*0] && c  = 0
+	//     and    a* && [*0] && c* = [*0]
 	// So if [*0] has been seen, check if alls term recognize the
 	// empty word.
 	if (weak_abs_seen)
