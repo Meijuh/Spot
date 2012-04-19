@@ -84,27 +84,31 @@ namespace spot
       /// - And(Exps1...,1,Exps2...) = And(Exps1...,Exps2...)
       /// - And(Exps1...,0,Exps2...) = 0
       /// - And(Exp) = Exp
-      /// - AndRat(Exps1...,0,Exps2...) = 0
-      /// - AndRat(Exps1...,BoolExp1,Exps2...,BoolExps2...) =
-      ///    AndRat(Exps1...,Exps2...,And(BoolExp1,BoolExps2...))
-      /// - AndRat(Exps1...,[*0],Exps2...) = [*0] if all Expi accept [*0]
-      /// - AndRat(Exps1...,[*0],Exps2...) = 0 if some Expi reject [*0]
-      /// - AndNLM(Exps1...,1,Exps2...) = AndNLM(Exps1...,Exps2...)
+      /// - Or(Exps1...,1,Exps2...) = 1
+      /// - Or(Exps1...,0,Exps2...) = Or(Exps1...,Exps2...)
+      /// - Or(Exp) = Exp
+      /// - AndNLM(FExps1...,1,Exps2...) = AndNLM(Exps2...)
+      ///     if Fexps1... accept [*0], and Exps2... don't.
+      /// - AndNLM(FExps1...,1,FExps2...) = 1
+      ///     if Fexps1...,FExps2... all accept[*0].
       /// - AndNLM(Exps1...,0,Exps2...) = 0
       /// - AndNLM(Exps1...,[*0],Exps2...) = AndNLM(Exps1...,Exps2...)
       /// - AndNLM(Exp) = Exp
       /// - AndNLM(Exps1...,BoolExp1,Exps2...,BoolExp2,Exps3...) =
       ///    AndNLM(Exps1...,Exps2...,Exps3...,And(BoolExp1,BoolExp2))
-      /// - Or(Exps1...,1,Exps2...) = 1
-      /// - Or(Exps1...,0,Exps2...) = Or(Exps1...,Exps2...)
-      /// - Or(Exp) = Exp
+      /// - AndRat(Exps1...,0,Exps2...) = 0
+      /// - AndRat(Exps1...,BoolExp1,Exps2...,BoolExps2...) =
+      ///    AndRat(Exps1...,Exps2...,And(BoolExp1,BoolExps2...))
+      /// - AndRat(Exps1...,[*0],Exps2...) = [*0] if all Expi accept [*0]
+      /// - AndRat(Exps1...,[*0],Exps2...) = 0 if some Expi reject [*0]
       /// - OrRat(Exps1...,0,Exps2...) = OrRat(Exps1...,Exps2...)
       /// - OrRat(Exps1...,BoolExp1,Exps2...,BoolExps2...) =
       ///    OrRat(Exps1...,Exps2...,Or(BoolExp1,BoolExps2...))
       /// - Concat(Exps1...,0,Exps2...) = 0
       /// - Concat(Exps1...,[*0],Exps2...) = Concat(Exps1...,Exps2...)
       /// - Concat(Exp) = Exp
-      /// - Fusion(Exps1...,1,Exps2...) = Concat(Exps1...,Exps2...)
+      /// - Fusion(Exps1...1,Exps2...) = Fusion(Exps1...,Exps2...)
+      ///     if at least one exp reject [*0]
       /// - Fusion(Exps1...,0,Exps2...) = 0
       /// - Fusion(Exps1...,[*0],Exps2...) = 0
       /// - Fusion(Exp) = Exp

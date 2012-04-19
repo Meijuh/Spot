@@ -692,7 +692,7 @@ $b_1$, $b_2$ are assumed to be Boolean formul\ae.
 \end{align*}
 
 \noindent
-The following rules are all valid with the two arguments swapped.
+The following rules are all valid with the two arguments swapped (on input).
 %(Even for the non-commutative operators \samp{$\CONCAT$} and
 %\samp{$\FUSION$}.)
 
@@ -705,10 +705,14 @@ The following rules are all valid with the two arguments swapped.
   \0\OR f &\equiv f &
   \0 \FUSION f &\equiv \0 &
   \0 \CONCAT f &\equiv \0 \\
-  \1\AND f &\equiv f&
-  \1\ANDALT f   &\equiv f &
-  \1\OR f &\equiv \1 &
-  \1 \FUSION f & \equiv f\\
+  \1\AND f&\equiv
+  \begin{cases}
+    1 &\mathrlap{\text{if~} \varepsilon\VDash f} \\
+    f &\mathrlap{\text{if~} \varepsilon\nVDash f} \\
+  \end{cases} &
+  \1\ANDALT b   &\equiv b &
+  \1\OR b &\equiv \1 &
+  \1 \FUSION f & \equiv f\mathrlap{\text{~if~}\varepsilon\nVDash f}\\
   \eword\AND f &\equiv f &
   \eword\ANDALT f &\equiv
   \begin{cases}

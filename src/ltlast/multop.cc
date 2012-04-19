@@ -283,6 +283,8 @@ namespace spot
       if (op != Concat && op != Fusion)
 	std::sort(v->begin(), v->end(), formula_ptr_less_than());
 
+      unsigned orig_size = v->size();
+
       formula* neutral;
       formula* neutral2;
       formula* abs;
@@ -306,11 +308,11 @@ namespace spot
 	  gather_bool(v, And);
 	  break;
 	case AndNLM:
-	  neutral = constant::true_instance();
-	  neutral2 = constant::empty_word_instance();
+	  neutral = constant::empty_word_instance();
+	  neutral2 = 0;
 	  abs = constant::false_instance();
 	  abs2 = 0;
-	  weak_abs = 0;
+	  weak_abs = constant::true_instance();
 	  gather_bool(v, And);
 	  break;
 	case Or:
@@ -388,7 +390,7 @@ namespace spot
 	  break;
 	}
 
-      // Remove duplicates (except for Concat).  We can't use
+      // Remove duplicates (except for Concat and Fusion).  We can't use
       // std::unique(), because we must destroy() any formula we drop.
       // Also ignore neutral elements and handle absorbent elements.
       {
@@ -411,31 +413,54 @@ namespace spot
 	      }
 	    else
 	      {
-		if (*i == weak_abs)
-		  weak_abs_seen = true;
-		if (op != Concat) // Don't remove duplicates for Concat.
+		weak_abs_seen |= (*i == weak_abs);
+		if (op != Concat && op != Fusion) // Don't remove duplicates
 		  last = *i;
 		++i;
 	      }
 	  }
 
-	// We have    a* && [*0] && c  = 0
-	//     and    a* && [*0] && c* = [*0]
-	// So if [*0] has been seen, check if alls term recognize the
-	// empty word.
 	if (weak_abs_seen)
 	  {
-	    bool acc_eword = true;
-	    for (i = v->begin(); i != v->end(); ++i)
+	    if (op == AndRat)
 	      {
-		acc_eword &= (*i)->accepts_eword();
-		(*i)->destroy();
+		// We have    a* && [*0] && c  = 0
+		//     and    a* && [*0] && c* = [*0]
+		// So if [*0] has been seen, check if alls term
+		// recognize the empty word.
+		bool acc_eword = true;
+		for (i = v->begin(); i != v->end(); ++i)
+		  {
+		    acc_eword &= (*i)->accepts_eword();
+		    (*i)->destroy();
+		  }
+		delete v;
+		if (acc_eword)
+		  return weak_abs;
+		else
+		  return abs;
 	      }
-	    delete v;
-	    if (acc_eword)
-	      return weak_abs;
 	    else
-	      return constant::false_instance();
+	      {
+		// Similarly,  a* & 1 & (c;d) = c;d
+		//             a* & 1 & c* = 1
+		assert(op == AndNLM);
+		multop::vec tmp;
+		for (i = v->begin(); i != v->end(); ++i)
+		  {
+		    if (*i == weak_abs)
+		      continue;
+		    if ((*i)->accepts_eword())
+		      {
+			(*i)->destroy();
+			continue;
+		      }
+		    tmp.push_back(*i);
+		  }
+		if (tmp.empty())
+		  tmp.push_back(weak_abs);
+		v->swap(tmp);
+	      }
 	  }
       }
 
@@ -449,11 +474,21 @@ namespace spot
       else if (s == 1)
 	{
 	  // Simply replace Multop(Op,X) by X.
+	  // Except we should never reduce the
+	  // arguments of a Fusion operator to
+	  // a list with a single formula that
+	  // accepts [*0].
 	  formula* res = (*v)[0];
-	  delete v;
-	  return res;
+	  if (op != Fusion || orig_size == 1
+	      || !res->accepts_eword())
+	    {
+	      delete v;
+	      return res;
+	    }
+	  // If Fusion(f, ...) reduce to Fusion(f), emit Fusion(1,f).
+	  // to ensure that [*0] is not accepted.
+	  v->insert(v->begin(), constant::true_instance());
 	}
-
       // The hash key.
       pair p(op, v);
 
