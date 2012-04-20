@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -36,40 +37,34 @@ namespace spot
     {
     public:
       dupexp_iter(const tgba* a)
-	: T(a), out_(new tgba_explicit_string(a->get_dict()))
+	: T(a), out_(new tgba_explicit_number(a->get_dict()))
       {
 	out_->copy_acceptance_conditions_of(a);
       }
 
-      tgba_explicit_string*
+      tgba_explicit_number*
       result()
       {
 	return out_;
       }
 
       void
-      process_link(const state* in_s, int in,
-		   const state* out_s, int out,
+      process_link(const state*, int in,
+		   const state*, int out,
 		   const tgba_succ_iterator* si)
       {
-	std::ostringstream in_name;
-	in_name << "(#" << in << ") " << this->aut_->format_state(in_s);
-	std::ostringstream out_name;
-	out_name << "(#" << out << ") " << this->aut_->format_state(out_s);
-
-	state_explicit_string::transition* t =
-	  out_->create_transition(in_name.str(), out_name.str());
+	state_explicit_number::transition* t = out_->create_transition(in, out);
 	out_->add_conditions(t, si->current_condition());
 	out_->add_acceptance_conditions(t, si->current_acceptance_conditions());
       }
 
     private:
-      tgba_explicit_string* out_;
+      tgba_explicit_number* out_;
     };
 
   } // anonymous
 
-  tgba_explicit_string*
+  tgba_explicit_number*
   tgba_dupexp_bfs(const tgba* aut)
   {
     dupexp_iter<tgba_reachable_iterator_breadth_first> di(aut);
@@ -77,7 +72,7 @@ namespace spot
     return di.result();
   }
 
-  tgba_explicit_string*
+  tgba_explicit_number*
   tgba_dupexp_dfs(const tgba* aut)
   {
     dupexp_iter<tgba_reachable_iterator_depth_first> di(aut);

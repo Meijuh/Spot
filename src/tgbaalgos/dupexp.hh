@@ -1,6 +1,9 @@
-// Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012 Laboratoire de Recherche et DÃ©veloppement de
+// l'Epita (LRDE).
+// Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,11 +32,11 @@ namespace spot
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in bread first order as they are processed.
   /// \ingroup tgba_misc
-  tgba_explicit_string* tgba_dupexp_bfs(const tgba* aut);
+  tgba_explicit_number* tgba_dupexp_bfs(const tgba* aut);
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in depth first order as they are processed.
   /// \ingroup tgba_misc
-  tgba_explicit_string* tgba_dupexp_dfs(const tgba* aut);
+  tgba_explicit_number* tgba_dupexp_dfs(const tgba* aut);
 }
 
 #endif // SPOT_TGBAALGOS_DUPEXP_HH
