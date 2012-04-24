@@ -101,9 +101,11 @@ namespace spot
       ///    AndRat(Exps1...,Exps2...,And(BoolExp1,BoolExps2...))
       /// - AndRat(Exps1...,[*0],Exps2...) = [*0] if all Expi accept [*0]
       /// - AndRat(Exps1...,[*0],Exps2...) = 0 if some Expi reject [*0]
+      /// - AndRat(Exps1...,1[*],Exps2...) = AndRat(Exps1...,Exps2...)
       /// - OrRat(Exps1...,0,Exps2...) = OrRat(Exps1...,Exps2...)
       /// - OrRat(Exps1...,BoolExp1,Exps2...,BoolExps2...) =
       ///    OrRat(Exps1...,Exps2...,Or(BoolExp1,BoolExps2...))
+      /// - OrRat(Exps1...,1[*],Exps2...) = 1[*]
       /// - Concat(Exps1...,0,Exps2...) = 0
       /// - Concat(Exps1...,[*0],Exps2...) = Concat(Exps1...,Exps2...)
       /// - Concat(Exp) = Exp

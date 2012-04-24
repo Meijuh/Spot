@@ -27,6 +27,7 @@
 #include <iostream>
 #include "multop.hh"
 #include "constant.hh"
+#include "bunop.hh"
 #include "visitor.hh"
 
 namespace spot
@@ -300,7 +301,7 @@ namespace spot
 	  weak_abs = 0;
 	  break;
 	case AndRat:
-	  neutral = 0; /* FIXME: we should use 1[*] as neutral */
+	  neutral = bunop::one_star();
 	  neutral2 = 0;
 	  abs = constant::false_instance();
 	  abs2 = 0;
@@ -325,7 +326,7 @@ namespace spot
 	case OrRat:
 	  neutral = constant::false_instance();
 	  neutral2 = 0;
-	  abs = 0; // FIXME: should be 1[*].
+	  abs = bunop::one_star();
 	  abs2 = 0;
 	  weak_abs = 0;
 	  gather_bool(v, Or);
@@ -409,7 +410,7 @@ namespace spot
 		for (i = v->begin(); i != v->end(); ++i)
 		  (*i)->destroy();
 		delete v;
-		return abs;
+		return abs->clone();
 	      }
 	    else
 	      {
@@ -469,7 +470,7 @@ namespace spot
 	{
 	  delete v;
 	  assert(neutral != 0);
-	  return neutral;
+	  return neutral->clone();
 	}
       else if (s == 1)
 	{

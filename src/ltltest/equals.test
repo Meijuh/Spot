@@ -149,6 +149,8 @@ run 0 ../equals '{{a;b}:b:c:d*:e:f}!' '{{a;b}:{b && c }:d[*]:{e && f}}!'
 run 0 ../equals '{a:b:c}|->!Xb' '!(a&&b&&c) | !Xb'
 run 0 ../equals '{a:b:c*}|->!Xb' '{(a&&b):c*}|-> !Xb'
 run 0 ../equals '{a&b&c*}|->!Xb' '{(a&&b)&c*}|-> !Xb'
+run 0 ../equals '{[*]&&a&&[*]}!' 'a'
+run 0 ../equals '{[*]||a||[*]}!' '{[*]}!'
 run 0 ../equals '{0&{f;g*}}!' '0'
 run 0 ../equals '{1&{f;g*}}!' '{f;g*}!'
 # 1 should not be removed in the following two formulae

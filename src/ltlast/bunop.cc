@@ -31,6 +31,10 @@ namespace spot
 {
   namespace ltl
   {
+    // Can't build it on startup, because it uses
+    // constant::true_instance that may not have been built yet...
+    formula* bunop::one_star_ = 0;
+
     bunop::bunop(type op, formula* child, unsigned min, unsigned max)
       : ref_formula(BUnOp), op_(op), child_(child), min_(min), max_(max)
     {
@@ -62,6 +66,10 @@ namespace spot
 
     bunop::~bunop()
     {
+      // one_star_ should never get delete.  Otherwise, that means
+      // is has been destroyed too much, or not cloned enough.
+      assert(this != one_star_);
+
       // Get this instance out of the instance map.
       pair p(pairo(op(), child()), pairu(min_, max_));
       map::iterator i = instances.find(p);
@@ -316,7 +324,8 @@ namespace spot
     unsigned
     bunop::instance_count()
     {
-      return instances.size();
+      // Don't count one_star_ since it should not be destroyed.
+      return instances.size() - !!one_star_;
     }
 
     std::ostream&

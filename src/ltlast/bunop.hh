@@ -26,6 +26,7 @@
 #include <map>
 #include <iosfwd>
 #include "refformula.hh"
+#include "constant.hh"
 
 namespace spot
 {
@@ -116,6 +117,18 @@ namespace spot
       /// Dump all instances.  For debugging.
       static std::ostream& dump_instances(std::ostream& os);
 
+      /// \brief Return a formula for <code>1[*]</code>.
+      ///
+      /// A global instance is returned, and it should not be
+      /// destroyed.  Remember to clone it if you use it to build a
+      /// formula.
+      static formula* one_star()
+      {
+	if (!one_star_)
+	  one_star_ = instance(Star, constant::true_instance());
+	return one_star_;
+      }
+
     protected:
       typedef std::pair<unsigned, unsigned> pairu;
       typedef std::pair<type, formula*> pairo;
@@ -131,6 +144,7 @@ namespace spot
       formula* child_;
       unsigned min_;
       unsigned max_;
+      static formula* one_star_;
     };
 
     /// \brief Cast \a f into a bunop.
