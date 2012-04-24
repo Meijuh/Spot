@@ -108,6 +108,8 @@ namespace spot
       /// - OrRat(Exps1...,1[*],Exps2...) = 1[*]
       /// - Concat(Exps1...,0,Exps2...) = 0
       /// - Concat(Exps1...,[*0],Exps2...) = Concat(Exps1...,Exps2...)
+      /// - Concat(Exps1...,FExps2...,1[*],FExps3...,Exps4) =
+      ///     Concat(Exps1...,1[*],Exps4) if FExps2...FExps3... all accept [*0]
       /// - Concat(Exp) = Exp
       /// - Fusion(Exps1...1,Exps2...) = Fusion(Exps1...,Exps2...)
       ///     if at least one exp reject [*0]

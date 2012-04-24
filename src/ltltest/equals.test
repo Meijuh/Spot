@@ -162,6 +162,8 @@ run 0 ../equals '{c*:1:{a;b}:1}!' '{c*:{a;b}}!'
 run 1 ../equals '{(a;!a)*:(a;!a)*:b}!' '{(a;!a)*:b}!'
 # make sure 1:a* is not reduced to a*.
 run 1 ../equals '{(1:a*);b}!' '{a*;b}!'
+run 0 ../equals '{z;a*;b*;*;c;d;*;b*;e;a*;*;b*}' '{z;[*];c;d;[*];e;[*]}'
+run 0 ../equals '{((a;b)|[*0]);[*];c}!' '{[*];c}!'
 
 run 0 ../equals '{a[*0]}' '{[*0]}'
 run 0 ../equals '{a[*..]}' '{a[*]}'

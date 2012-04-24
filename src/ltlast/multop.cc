@@ -337,6 +337,44 @@ namespace spot
 	  abs = constant::false_instance();
 	  abs2 = 0;
 	  weak_abs = 0;
+
+	  // - Concat(Exps1...,FExps2...,1[*],FExps3...,Exps4) =
+	  //     Concat(Exps1...,1[*],Exps4)
+	  // If FExps2... and FExps3 all accept [*0].
+	  {
+	    vec::iterator i = v->begin();
+	    formula* os = bunop::one_star();
+	    while (i != v->end())
+	      {
+		while (i != v->end() && !(*i)->accepts_eword())
+		  ++i;
+		if (i == v->end())
+		  break;
+		vec::iterator b = i;
+		// b is the first expressions that accepts [*0].
+		// let's find more, and locate the position of
+		// 1[*] at the same time.
+		bool os_seen = false;
+		do
+		  {
+		    os_seen |= (*i == os);
+		    ++i;
+		  }
+		while (i != v->end() && (*i)->accepts_eword());
+
+		if (os_seen) // [b..i) is a range that contains [*].
+		  {
+		    // Place [*] at the start of the range, and erase
+		    // all other formulae.
+		    (*b)->destroy();
+		    *b++ = os->clone();
+		    for (vec::iterator c = b; c < i; ++c)
+		      (*c)->destroy();
+		    i = v->erase(b, i);
+		  }
+	      }
+	  }
+
 	  break;
 	case Fusion:
 	  neutral = constant::true_instance();

@@ -707,17 +707,17 @@ The following rules are all valid with the two arguments swapped.
   \0 \CONCAT f &\equiv \0 \\
   \1\AND f&\equiv
   \begin{cases}
-    1 &\mathrlap{\text{if~} \varepsilon\VDash f} \\
-    f &\mathrlap{\text{if~} \varepsilon\nVDash f} \\
+    1\mathrlap{\text{~if~} \varepsilon\VDash f} \\
+    f\mathrlap{\text{~if~} \varepsilon\nVDash f} \\
   \end{cases} &
   \1\ANDALT b   &\equiv b &
   \1\OR b &\equiv \1 &
   \1 \FUSION f & \equiv f\mathrlap{\text{~if~}\varepsilon\nVDash f}\\
   &&
-  \1\STAR{} \AND f &\equiv f &
-  \1\STAR{} \OR f &\equiv \1\STAR{} &
+  \STAR{} \AND f &\equiv f &
+  \STAR{} \OR f &\equiv \1\STAR{} &
   &&
-  && \\
+  \STAR{} \CONCAT f &\equiv \STAR{}\mathrlap{\text{~if~}\varepsilon\VDash f}& \\
   \eword\AND f &\equiv f &
   \eword\ANDALT f &\equiv
   \begin{cases}
