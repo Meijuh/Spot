@@ -132,6 +132,9 @@ namespace spot
       /// Return the bdd_dict used.
       bdd_dict* get_dict() const;
 
+      /// Cached version of spot::ltl::star_normal_form().
+      const formula* star_normal_form(const formula* f);
+
     private:
       ltl_simplifier_cache* cache_;
       // Copy disallowed.

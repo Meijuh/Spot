@@ -1,7 +1,8 @@
-## Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement de
-## l'Epita (LRDE).
+## -*- coding: utf-8 -*-
+## Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+## Developpement de l'Epita (LRDE).
 ## Copyright (C) 2004, 2005, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
-## département Systèmes Répartis Coopératifs (SRC), Université Pierre
+## dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 ## et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
@@ -42,6 +43,7 @@ ltlvisit_HEADERS = \
   reduce.hh \
   simpfg.hh \
   simplify.hh \
+  snf.hh \
   tostring.hh \
   tunabbrev.hh
 
@@ -62,5 +64,6 @@ libltlvisit_la_SOURCES = \
   reduce.cc \
   simpfg.cc \
   simplify.cc \
+  snf.cc \
   tostring.cc \
   tunabbrev.cc

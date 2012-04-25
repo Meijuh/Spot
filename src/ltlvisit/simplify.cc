@@ -32,6 +32,7 @@
 #include "ltlast/visitor.hh"
 #include "ltlvisit/contain.hh"
 #include "ltlvisit/tostring.hh"
+#include "ltlvisit/snf.hh"
 #include <cassert>
 
 namespace spot
@@ -93,6 +94,16 @@ namespace spot
 	      syntimpl_cache_t::iterator old = i++;
 	      old->first.first->destroy();
 	      old->first.second->destroy();
+	    }
+	}
+	{
+	  snf_cache::iterator i = snf_cache_.begin();
+	  snf_cache::iterator end = snf_cache_.end();
+	  while (i != end)
+	    {
+	      snf_cache::iterator old = i++;
+	      old->second->destroy();
+	      old->first->destroy();
 	    }
 	}
 
@@ -184,8 +195,8 @@ namespace spot
 		    break;
 		  }
 		case multop::AndNLM:
-	        case multop::AndRat:
-	        case multop::OrRat:
+		case multop::AndRat:
+		case multop::OrRat:
 		case multop::Concat:
 		case multop::Fusion:
 		  assert(!"Unsupported operator");
@@ -327,11 +338,18 @@ namespace spot
 	simplified_[orig->clone()] = simplified->clone();
       }
 
+      const formula*
+      star_normal_form(const formula* f)
+      {
+	return ltl::star_normal_form(f, &snf_cache_);
+      }
+
     private:
       f2b_map as_bdd_;
       f2f_map simplified_;
       f2f_map nenoform_;
       syntimpl_cache_t syntimpl_;
+      snf_cache snf_cache_;
     };
 
 
@@ -437,11 +455,10 @@ namespace spot
 	void
 	visit(bunop* bo)
 	{
-	  // !(a*) is not simplified, whatever that means
+	  // !(a*) should never occur.
+	  assert(!negated_);
 	  result_ = bunop::instance(bo->op(), recurse_(bo->child(), false),
 				    bo->min(), bo->max());
-	  if (negated_)
-	    result_ = unop::instance(unop::Not, result_);
 	}
 
 	formula* equiv_or_xor(bool equiv, formula* f1, formula* f2)
@@ -1002,8 +1019,23 @@ namespace spot
 	void
 	visit(bunop* bo)
 	{
-	  result_ = bunop::instance(bo->op(), recurse(bo->child()),
-				    bo->min(), bo->max());
+	  bunop::type op = bo->op();
+	  unsigned min = bo->min();
+	  formula* h = recurse(bo->child());
+	  switch (op)
+	    {
+	    case bunop::Star:
+	      if (h->accepts_eword())
+		min = 0;
+	      if (min == 0)
+		{
+		  const formula* s = c_->star_normal_form(h);
+		  h->destroy();
+		  h = const_cast<formula*>(s);
+		}
+	      result_ = bunop::instance(op, h, min, bo->max());
+	      break;
+	    }
 	}
 
 	void
@@ -3722,6 +3754,12 @@ namespace spot
     ltl_simplifier::as_bdd(const formula* f)
     {
       return cache_->as_bdd(f);
+    }
+
+    const formula*
+    ltl_simplifier::star_normal_form(const formula* f)
+    {
+      return cache_->star_normal_form(f);
     }
 
     bdd_dict*
