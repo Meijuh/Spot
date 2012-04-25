@@ -501,6 +501,75 @@ namespace spot
 		v->swap(tmp);
 	      }
 	  }
+	else if (op == Concat)
+	  {
+	    // Perform an extra loop to merge starable items.
+	    //   f;f -> f[*2]
+	    //   f;f[*i..j] -> f[*i+1..j+1]
+	    //   f[*i..j];f -> f[*i+1..j+1]
+	    //   f[*i..j];f[*k..l] -> f[*i+k..j+l]
+	    i = v->begin();
+	    while (i != v->end())
+	      {
+		vec::iterator fpos = i;
+		formula* f;
+		unsigned min;
+		unsigned max;
+		bool changed = false;
+		if (bunop* is = is_Star(*i))
+		  {
+		    f = is->child();
+		    min = is->min();
+		    max = is->max();
+		  }
+		else
+		  {
+		    f = *i;
+		    min = max = 1;
+		  }
+
+		++i;
+		while (i != v->end())
+		  {
+		    formula* f2;
+		    unsigned min2;
+		    unsigned max2;
+		    if (bunop* is = is_Star(*i))
+		      {
+			f2 = is->child();
+			if (f2 != f)
+			  break;
+			min2 = is->min();
+			max2 = is->max();
+		      }
+		    else
+		      {
+			f2 = *i;
+			if (f2 != f)
+			  break;
+			min2 = max2 = 1;
+		      }
+		    if (min2 == bunop::unbounded)
+		      min = bunop::unbounded;
+		    else if (min != bunop::unbounded)
+		      min += min2;
+		    if (max2 == bunop::unbounded)
+		      max = bunop::unbounded;
+		    else if (max != bunop::unbounded)
+		      max += max2;
+		    (*i)->destroy();
+		    i = v->erase(i);
+		    changed = true;
+		  }
+		if (changed)
+		  {
+		    formula* newfs = bunop::instance(bunop::Star, f->clone(),
+						     min, max);
+		    (*fpos)->destroy();
+		    *fpos = newfs;
+		  }
+	      }
+	  }
       }
 
       vec::size_type s = v->size();

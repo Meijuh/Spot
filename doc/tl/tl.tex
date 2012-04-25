@@ -687,7 +687,7 @@ $b_1$, $b_2$ are assumed to be Boolean formul\ae.
   \0\STAR{\mvar{i}..\mvar{j}} &\equiv \0 \text{~if~}i>0 \\
   \eword\STAR{\var{i}..\mvar{j}} &\equiv \eword&
   f\STAR{\mvar{i}..\mvar{j}}\STAR{\mvar{k}..\mvar{l}} &\equiv f\STAR{\mvar{ik}..\mvar{jl}}\text{~if~}i(k+1)\le jk+1 \\
-  f\STAR{0}&\equiv \eword \\
+  f\STAR{0}&\equiv \eword &
   f\STAR{1}&\equiv f\\
 \end{align*}
 
@@ -697,9 +697,6 @@ The following rules are all valid with the two arguments swapped.
 %\samp{$\FUSION$}.)
 
 \begin{align*}
-  f\AND f &\equiv f&
-  f\ANDALT f &\equiv f &
-  f\OR f &\equiv f \\
   \0\AND f &\equiv \0 &
   \0\ANDALT f   &\equiv \0 &
   \0\OR f &\equiv f &
@@ -715,22 +712,33 @@ The following rules are all valid with the two arguments swapped.
   \1 \FUSION f & \equiv f\mathrlap{\text{~if~}\varepsilon\nVDash f}\\
   &&
   \STAR{} \AND f &\equiv f &
-  \STAR{} \OR f &\equiv \1\STAR{} &
+  \STAR{} \OR f &\equiv \1\mathrlap{\STAR{}} &
   &&
   \STAR{} \CONCAT f &\equiv \STAR{}\mathrlap{\text{~if~}\varepsilon\VDash f}& \\
   \eword\AND f &\equiv f &
   \eword\ANDALT f &\equiv
   \begin{cases}
-    \eword &\mathrlap{\text{if~} \varepsilon\VDash f} \\
-    \0 &\mathrlap{\text{if~} \varepsilon\nVDash f} \\
+    \mathrlap{\eword\text{~if~} \varepsilon\VDash f} \\
+    \0\mathrlap{\phantom{\STAR{}}\text{~if~} \varepsilon\nVDash f} \\
   \end{cases} &
   &&
   \eword \FUSION f &\equiv \0 &
   \eword \CONCAT f &\equiv f\\
+  f\AND f &\equiv f&
+  f\ANDALT f &\equiv f &
+  f\OR f &\equiv f&
+  &&
+  f\CONCAT f&\equiv f\STAR{2}\\
   b_1 \AND b_2 &\equiv b_1\ANDALT b_2 &
   &&
   &&
-  b_1:b_2 &\equiv b_1\ANDALT b_2\\
+  b_1:b_2 &\equiv b_1\ANDALT b_2 &
+  f\STAR{\mvar{i}..\mvar{j}}\CONCAT f&\equiv f\STAR{\mvar{i+1}..\mvar{j+1}}\\
+  &&
+  &&
+  &&
+  &&
+  \mathllap{f\STAR{\mvar{i}..\mvar{j}}}\CONCAT f\STAR{\mvar{k}..\mvar{l}}&\equiv f\STAR{\mvar{i+k}..\mvar{j+l}}\\
 \end{align*}
 
 \section{SERE-LTL Binding Operators}

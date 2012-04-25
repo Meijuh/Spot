@@ -111,6 +111,8 @@ namespace spot
       /// - Concat(Exps1...,FExps2...,1[*],FExps3...,Exps4) =
       ///     Concat(Exps1...,1[*],Exps4) if FExps2...FExps3... all accept [*0]
       /// - Concat(Exp) = Exp
+      /// - Concat(Exps1...,E,E[*i..j],E[*k..l],Exps2...) =
+      ///     Concat(Exps1...,E[*1+i+k..j+l],Exps2...)  and similar forms
       /// - Fusion(Exps1...1,Exps2...) = Fusion(Exps1...,Exps2...)
       ///     if at least one exp reject [*0]
       /// - Fusion(Exps1...,0,Exps2...) = 0
