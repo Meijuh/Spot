@@ -290,8 +290,22 @@ for x in ../reduccmp ../reductaustr; do
               '{{r1*&r2*}:{b1&&b2}} <>-> x'
      run 0 $x '{{a;b*;c}&{d;e*}&{f*;g}&{h*}} <>-> x' \
               '{{f*;g}&{h*}&{{a&&d};{e* & {b*;c}}}} <>-> x'
-     run 0 $x '{a&b&c*}|->!Xb' '{(a&&b)|((a&&b):c*)}|-> X!b'
+     run 0 $x '{a&b&c*}|->!Xb' '(X!b | !(a & b)) & (!(a & b) | !c | X(!c R !b))'
      run 0 $x '{a;(b*;c*;([*0]+{d;e}))*}!' '{a;{b|c|{d;e}}*}!'
+     run 0 $x '{[*]}[]->b' 'Gb'
+     run 0 $x '{a;[*]}[]->b' 'Gb | !a'
+     run 0 $x '{[*];a}[]->b' 'G(b | !a)'
+     run 0 $x '{a;b;[*]}[]->c' '!a | X(!b | Gc)'
+     run 0 $x '{a;a;[*]}[]->c' '!a | X(!a | Gc)'
+     run 0 $x '{s[*]}[]->b' 'b W !s'
+     run 0 $x '{s[+]}[]->b' 'b W !s'
+     run 0 $x '{s[*2..]}[]->b' '!s | X(b W !s)'
+     run 0 $x '{a;b*;c;d*}[]->e' '!a | X(!b R ((e & X(e W !d)) | !c))'
+     run 0 $x '{a:b*:c:d*}[]->e' '!a | ((!c | (e W !d)) W !b)'
+     run 0 $x '{a|b*|c|d*}[]->e' '(e | !(a | c)) & (e W !b) & (e W !d)'
+     run 0 $x '{{[*0] | a};b;{[*0] | a};c;e[*]} []-> f' \
+	      '{{[*0] | a};b;{[*0] | a}} []-> X((f & X(f W !e)) | !c)'
+
      # not reduced
      run 0 $x '{a;(b[*2..4];c*;([*0]+{d;e}))*}!' \
               '{a;(b[*2..4];c*;([*0]+{d;e}))*}!'

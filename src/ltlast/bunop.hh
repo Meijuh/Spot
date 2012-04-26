@@ -186,6 +186,19 @@ namespace spot
       return is_bunop(f, bunop::Star);
     }
 
+    /// \brief Cast \a f into a bunop if it is a Star[0..].
+    ///
+    /// Return 0 otherwise.
+    inline
+    bunop*
+    is_KleenStar(const formula* f)
+    {
+      if (bunop* b = is_Star(f))
+	if (b->min() == 0 && b->max() == bunop::unbounded)
+	  return b;
+      return 0;
+    }
+
   }
 }
 #endif // SPOT_LTLAST_BUNOP_HH

@@ -1183,7 +1183,7 @@ would invalidate the results stored in the caches).
 This is implemented by the `\verb|ltl_simplifier::negative_normal_form|`
 method.
 
-A formula in negative normal form can only have only have negation
+A formula in negative normal form can only have negation
 operators ($\NOT$) in front of atomic properties, and does not use any
 of the $\XOR$, $\IMPLIES$ and $\EQUIV$ operators.  The following
 rewriting arrange any PSL formula into negative normal form.
@@ -1256,7 +1256,7 @@ The goals in most of these simplification are to:
   limit the sources of indeterminism.
 \end{itemize}
 
-\subsection{Basic Simplifications}
+\subsection{Basic Simplifications}\label{sec:basic-simp}
 
 These simplifications are enabled with
 \verb|ltl_simplifier_options::reduce_basics|'.  A couple of them may
@@ -1430,6 +1430,34 @@ that occur in $r$.  For instance $\sere{a\STAR{}\CONCAT
   c}\STAR{}$.  Our extended definition still respects this property in
 presence of \samp{$\FUSION$} and \samp{$\AND$} operators, but
 unfortunately not when the \samp{$\ANDALT$} operator is used.
+
+\subsubsection{Basic Simplifications SERE-LTL Binding Operators}
+
+The following rewritings are applied to the operators $\Asuffix$ and
+$\Esuffix$.  They assume that $b$, denote a Boolean formula.
+
+As noted at the beginning for section~\ref{sec:basic-simp}, rewritings
+denoted with $\equiV$ can be disabled by setting the
+\verb|ltl_simplifier_options::reduce_size_strictly|' option to
+\texttt{true}.
+
+\begin{align*}
+  \sere{\STAR{}}\Asuffix f &\equiv \G f\\
+  \sere{b\STAR{}}\Asuffix f &\equiv f \W \NOT b\\
+  \sere{b\PLUS{}}\Asuffix f &\equiv f \W \NOT b\\
+  \sere{r\STAR{\mvar{i}..\mvar{j}}}\Asuffix f &\equiV
+    \sere{r}\Asuffix \X(
+    \sere{r}\Asuffix \X(\ldots
+    \Asuffix\X(r\STAR{\mvar{1}..\mvar{j-i+1}})))
+    \text{~if~}i\ge 1\text{~and~}\varepsilon\not\VDash r\\
+  \sere{r\CONCAT \STAR{}}\Asuffix f &\equiv \sere{r}\Asuffix \G f\\
+  \sere{r\CONCAT b\STAR{}}\Asuffix f &\equiV \sere{r}\Asuffix (f\AND \X(f \W \NOT b)) \text{~if~}\varepsilon\not\VDash r\\
+  \sere{\STAR{}\CONCAT r}\Asuffix f &\equiV \G(\sere{r}\Asuffix f)\\
+  \sere{b\STAR{}\CONCAT r}\Asuffix f &\equiV (\NOT b)\R(\sere{r}\Asuffix f) \text{~if~}\varepsilon\not\VDash r\\
+  \sere{r_1\CONCAT r_2}\Asuffix f &\equiV \sere{r_1}\Asuffix\X(\sere{r_2}\Asuffix f)\text{~if~}\varepsilon\not\VDash r_1\text{~and~}\varepsilon\not\VDash r_2\\
+  \sere{r_1\FUSION r_2}\Asuffix f &\equiV \sere{r_1}\Asuffix(\sere{r_2}\Asuffix f)\\
+  \sere{r_1\OR r_2}\Asuffix f &\equiV (\sere{r_1}\Asuffix f)\AND(\sere{r_2}\Asuffix f)
+\end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}
 \label{sec:eventunivrew}

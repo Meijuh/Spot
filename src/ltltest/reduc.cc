@@ -209,6 +209,7 @@ main(int argc, char** argv)
 
     int length_f1_before = spot::ltl::length(f1);
     std::string f1s_before = spot::ltl::to_string(f1);
+    std::string f1l;
 
     spot::ltl::formula* input_f = f1;
     f1 = simp_size->simplify(input_f);
@@ -222,11 +223,11 @@ main(int argc, char** argv)
     else
       {
 	spot::ltl::formula* maybe_larger = simp->simplify(input_f);
+	f1l = spot::ltl::to_string(maybe_larger);
 	if (!simp->are_equivalent(input_f, maybe_larger))
 	  {
 	    std::cerr << "Incorrect reduction (reduce_size_strictly=0) from `"
-		      << f1s_before << "' to `" << spot::ltl::to_string(f1)
-		      << "'." << std::endl;
+		      << f1s_before << "' to `" << f1l << "'." << std::endl;
 	    exit_code = 3;
 	  }
 	maybe_larger->destroy();
@@ -253,8 +254,10 @@ main(int argc, char** argv)
     if (!f2 && (!hidereduc || (length_f1_after > length_f1_before)))
       {
 	std::cout << length_f1_before << " " << length_f1_after
-		  << " '" << f1s_before << "' reduce to '" << f1s_after << "'"
-		  << std::endl;
+		  << " '" << f1s_before << "' reduce to '" << f1s_after << "'";
+	if (f1l != "" && f1l != f1s_after)
+	  std::cout << " or (w/o rss) to '" << f1l << "'";
+	std::cout << std::endl;
       }
 
     if (f2)

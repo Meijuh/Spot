@@ -1772,11 +1772,236 @@ namespace spot
 		      }
 		  }
 	      }
+	    case binop::UConcat:
+	      if (!opt_.reduce_basics)
+		break;
+	      if (bunop* bu = is_Star(a))
+		{
+		  // {[*]}[]->b = Gb
+		  if (a == bunop::one_star())
+		    {
+		      a->destroy();
+		      result_ = recurse_destroy(unop::instance(unop::G, b));
+		      return;
+		    }
+		  formula* s = bu->child();
+		  unsigned min = bu->min();
+		  unsigned max = bu->max();
+		  // {s[*]}[]->b = b W !s   if s is Boolean.
+		  // {s[+]}[]->b = b W !s   if s is Boolean.
+		  if (s->is_boolean() && max == bunop::unbounded && min <= 1)
+		    {
+		      formula* ns = // !s
+			unop::instance(unop::Not, s->clone());
+		      result_ = // b W !s
+			binop::instance(binop::W, b, ns);
+		      bu->destroy();
+		      result_ = recurse_destroy(result_);
+		      return;
+		    }
+		  if (opt_.reduce_size_strictly)
+		    break;
+		  // {s[*i..j]}[]->b = {s;s;...;s[*1..j-i+1]}[]->b
+		  // = {s}[]->X({s}[]->X(...[]->X({s[*1..j-i+1]}[]->b)))
+		  // if i>0 and s does not accept the empty word
+		  if (min == 0 || s->accepts_eword())
+		    break;
+		  --min;
+		  if (max != bunop::unbounded)
+		    max -= min; // j-i+1
+		  // Don't rewrite s[1..].
+		  if (min == 0)
+		    break;
+		  formula* tail = // {s[*1..j-i]}[]->b
+		    binop::instance(binop::UConcat,
+				    bunop::instance(bunop::Star,
+						    s->clone(), 1, max),
+				    b);
+		  for (unsigned n = 0; n < min; ++n)
+		    tail = // {s}[]->X(tail)
+		      binop::instance(binop::UConcat,
+				      s->clone(),
+				      unop::instance(unop::X, tail));
+		  result_ = tail;
+		  bu->destroy();
+		  result_ = recurse_destroy(result_);
+		  return;
+		}
+	      else if (multop* mo = is_Concat(a))
+		{
+		  unsigned s = mo->size() - 1;
+		  formula* last = mo->nth(s);
+		  // {r;[*]}[]->b = {r}[]->Gb
+		  if (last == bunop::one_star())
+		    {
+		      result_ = binop::instance(binop::UConcat,
+						mo->all_but(s),
+						unop::instance(unop::G, b));
+		      mo->destroy();
+		      result_ = recurse_destroy(result_);
+		      return;
+		    }
+
+		  formula* first = mo->nth(0);
+		  // {[*];r}[]->b = G({r}[]->b)
+		  if (first == bunop::one_star())
+		    {
+		      result_ =
+			unop::instance(unop::G,
+				       binop::instance(binop::UConcat,
+						       mo->all_but(0),
+						       b));
+		      mo->destroy();
+		      result_ = recurse_destroy(result_);
+		      return;
+		    }
+
+		  if (opt_.reduce_size_strictly)
+		    break;
+
+		  // {r;s[*]}[]->b = {r}[]->(b & X(b W !s))
+		  // if s is Boolean and r does not accept [*0];
+		  if (bunop* l = is_KleenStar(last)) // l = s[*]
+		    if (l->child()->is_boolean())
+		      {
+			formula* r = mo->all_but(s);
+			if (!r->accepts_eword())
+			  {
+			    formula* ns = // !s
+			      unop::instance(unop::Not, l->child()->clone());
+			    formula* w = // b W !s
+			      binop::instance(binop::W, b->clone(), ns);
+			    formula* x = // X(b W !s)
+			      unop::instance(unop::X, w);
+			    formula* d = // b & X(b W !s)
+			      multop::instance(multop::And, b, x);
+			    result_ = // {r}[]->(b & X(b W !s))
+			      binop::instance(binop::UConcat, r, d);
+			    mo->destroy();
+			    result_ = recurse_destroy(result_);
+			    return;
+			  }
+		      }
+		  // {s[*];r}[]->b = !s R ({r}[]->b)
+		  // if s is Boolean and r does not accept [*0];
+		  if (bunop* l = is_KleenStar(first))
+		    if (l->child()->is_boolean())
+		      {
+			formula* r = mo->all_but(0);
+			if (!r->accepts_eword())
+			  {
+			    formula* ns = // !s
+			      unop::instance(unop::Not, l->child()->clone());
+			    formula* u = // {r}[]->b
+			      binop::instance(binop::UConcat, r, b);
+			    result_ = // !s R ({r}[]->b)
+			      binop::instance(binop::R, ns, u);
+			    mo->destroy();
+			    result_ = recurse_destroy(result_);
+			    return;
+			  }
+		      }
+
+		  // {r₁;r₂;r₃}[]->b = {r₁}[]->X({r₂}[]->X({r₃}[]->b))
+		  // if r₁, r₂, r₃ do not accept [*0].
+		  if (!mo->accepts_eword())
+		    {
+		      unsigned count = 0;
+		      for (unsigned n = 0; n <= s; ++n)
+			count += !mo->nth(n)->accepts_eword();
+		      assert(count > 0);
+		      if (count == 1)
+			break;
+		      // Let e denote a term that accepts [*0]
+		      // and let f denote a term that do not.
+		      // A formula such as {e₁;f₁;e₂;e₃;f₂;e₄}[]->b
+		      // in which count==2 will be grouped
+		      // as follows:  r₁ = e₁;f₁;e₂;e₃
+		      //              r₂ = f₂;e₄
+		      // this way we have
+		      // {e₁;f₁;e₂;e₃;f₂;e₄}[]->b = {r₁;r₂;r₃}[]->b
+		      // where r₁ and r₂ do not accept [*0].
+		      unsigned pos = s + 1;
+
+		      // We compute the r formulas from the right
+		      // (i.e., r₂ before r₁.)
+		      multop::vec* r = new multop::vec;
+		      do
+			r->insert(r->begin(), mo->nth(--pos)->clone());
+		      while (r->front()->accepts_eword());
+		      formula* tail = // {r₂}[]->b
+			binop::instance(binop::UConcat,
+					multop::instance(multop::Concat, r),
+					b);
+		      while (--count)
+			{
+			  multop::vec* r = new multop::vec;
+			  do
+			    r->insert(r->begin(), mo->nth(--pos)->clone());
+			  while (r->front()->accepts_eword());
+			  // If it's the last block, take all leading
+			  // formulae as well.
+			  if (count == 1)
+			    while (pos > 0)
+			      {
+				r->insert(r->begin(), mo->nth(--pos)->clone());
+				assert(r->front()->accepts_eword());
+			      }
+
+			  tail = // X({r₂}[]->b)
+			    unop::instance(unop::X, tail);
+			  tail = // {r₁}[]->X({r₂}[]->b)
+			    binop::instance(binop::UConcat,
+					    multop::instance(multop::Concat, r),
+					    tail);
+			}
+		      mo->destroy();
+		      result_ = recurse_destroy(tail);
+		      return;
+		    }
+		}
+	      else if (opt_.reduce_size_strictly)
+		{
+		  break;
+		}
+	      else if (multop* mo = is_Fusion(a))
+		{
+		  // {r₁:r₂:r₃}[]->b = {r₁}[]->({r₂}[]->({r₃}[]->b))
+		  unsigned s = mo->size();
+		  formula* tail = b;
+		  do
+		    {
+		      --s;
+		      tail = binop::instance(binop::UConcat,
+					     mo->nth(s)->clone(), tail);
+		    }
+		  while (s != 0);
+		  mo->destroy();
+		  result_ = recurse_destroy(tail);
+		  return;
+		}
+	      else if (multop* mo = is_OrRat(a))
+		{
+		  // {r₁|r₂|r₃}[]->b = ({r₁}[]->b)&({r₂}[]->b)&({r₃}[]->b)
+		  unsigned s = mo->size();
+		  multop::vec* v = new multop::vec;
+		  for (unsigned n = 0; n < s; ++n)
+		    {
+		      formula* x = // {r₁}[]->b
+			binop::instance(binop::UConcat,
+					mo->nth(n)->clone(), b->clone());
+		      v->push_back(x);
+		    }
+		  mo->destroy();
+		  b->destroy();
+		  result_ = recurse_destroy(multop::instance(multop::And, v));
+		  return;
+		}
+	      break;
 	    case binop::Xor:
 	    case binop::Equiv:
 	    case binop::Implies:
 	    case binop::EConcat:
-	    case binop::UConcat:
 	    case binop::EConcatMarked:
 	      // No simplification... Yet?
 	      break;
