@@ -1038,6 +1038,32 @@ namespace spot
 	    }
 	}
 
+	// if !neg build c&X(c&X(...&X(tail))) with n occurences of c
+	// if neg build !c|X(!c|X(...|X(tail))).
+	formula*
+	dup_b_x_tail(bool neg, formula* c, formula* tail, unsigned n)
+	{
+	  c->clone();
+	  multop::type mop;
+	  if (neg)
+	    {
+	      c = unop::instance(unop::Not, c);
+	      mop = multop::Or;
+	    }
+	  else
+	    {
+	      mop = multop::And;
+	    }
+	  while (n--)
+	    {
+	      tail = unop::instance(unop::X, tail);
+	      tail = // b&X(tail) or !b|X(tail)
+		multop::instance(mop, c->clone(), tail);
+	    }
+	  c->destroy();
+	  return tail;
+	}
+
 	void
 	visit(unop* uo)
 	{
@@ -1256,9 +1282,150 @@ namespace spot
 		  && c_->lcc.contained(result_, uo))
 		return;
 	      break;
-	    case unop::Finish:
 	    case unop::Closure:
 	    case unop::NegClosure:
+	      // {e} = 1 if e accepts [*0]
+	      // !{e} = 0 if e accepts [*0]
+	      if (result_->accepts_eword())
+		{
+		  result_->destroy();
+		  result_ = ((op == unop::Closure)
+			     ? constant::true_instance()
+			     : constant::false_instance());
+		  return;
+		}
+	      if (multop* mo = is_Concat(result_))
+		{
+		  unsigned end = mo->size() - 1;
+		  // {b₁;b₂;b₃*;e₁;f₁;e₂;f₂;e₂;e₃;e₄}
+		  //    = b₁&X(b₂&X(b₃ W {e₁;f₁;e₂;f₂}))
+		  // !{b₁;b₂;b₃*;e₁;f₁;e₂;f₂;e₂;e₃;e₄}
+		  //    = !b₁|X(!b₂|X(!b₃ M !{e₁;f₁;e₂;f₂}))
+		  // if e denotes a term that accepts [*0]
+		  // and b denotes a Boolean formula.
+		  while (mo->nth(end)->accepts_eword())
+		    --end;
+		  unsigned start = 0;
+		  while (start <= end)
+		    {
+		      formula* r = mo->nth(start);
+		      bunop* es = is_KleenStar(r);
+		      if ((r->is_boolean() && !opt_.reduce_size_strictly)
+			  || (es && es->child()->is_boolean()))
+			++start;
+		      else
+			break;
+		    }
+		  unsigned s = end + 1 - start;
+		  if (s != mo->size())
+		    {
+		      multop::vec* v = new multop::vec;
+		      v->reserve(s);
+		      for (unsigned n = start; n <= end; ++n)
+			v->push_back(mo->nth(n)->clone());
+		      formula* tail = multop::instance(multop::Concat, v);
+		      tail = unop::instance(op, tail);
+
+		      bool doneg = op == unop::NegClosure;
+		      for (unsigned n = start; n > 0;)
+			{
+			  --n;
+			  formula* e = mo->nth(n);
+			  // {b;f} = b & X{f}
+			  // !{b;f} = !b | X!{f}
+			  if (e->is_boolean())
+			    {
+			      tail = unop::instance(unop::X, tail);
+			      e->clone();
+			      if (doneg)
+				tail =
+				  multop::instance(multop::Or,
+						   unop::instance(unop::Not, e),
+						   tail);
+			      else
+				tail =
+				  multop::instance(multop::And, e, tail);
+			    }
+			  // {b*;f} = b W {f}
+			  // !{b*;f} = !b M !{f}
+			  else
+			    {
+			      bunop* es = is_KleenStar(e);
+			      assert(es);
+			      formula* c = es->child()->clone();
+			      if (doneg)
+				tail =
+				  binop::instance(binop::M,
+						  unop::instance(unop::Not, c),
+						  tail);
+			      else
+				tail = binop::instance(binop::W, c, tail);
+			    }
+			}
+		      mo->destroy();
+		      result_ = recurse_destroy(tail);
+		      return;
+		    }
+
+		  // {b[*i..j];c} = b&X(b&X(... b&X{b[*0..j-i];c}))
+		  // !{b[*i..j];c} = !b&X(!b&X(... !b&X!{b[*0..j-i];c}))
+		  if (!opt_.reduce_size_strictly)
+		    if (bunop* s = is_Star(mo->nth(0)))
+		      {
+			formula* c = s->child();
+			unsigned min = s->min();
+			if (c->is_boolean() && min > 0)
+			  {
+			    unsigned max = s->max();
+			    if (max != bunop::unbounded)
+			      max -= min;
+			    unsigned ss = mo->size();
+			    multop::vec* v = new multop::vec;
+			    v->reserve(ss);
+			    v->push_back(bunop::instance(bunop::Star,
+							 c->clone(),
+							 0, max));
+			    for (unsigned n = 1; n < ss; ++n)
+			      v->push_back(mo->nth(n)->clone());
+			    formula* tail =
+			      multop::instance(multop::Concat, v);
+			    tail = // {b[*0..j-i]} or !{b[*0..j-i]}
+			      unop::instance(op, tail);
+			    tail =
+			      dup_b_x_tail(op == unop::NegClosure,
+					   c, tail, min);
+			    mo->destroy();
+			    result_ = recurse_destroy(tail);
+			    return;
+			  }
+			}
+		}
+	      // {b[*i..j]} = b&X(b&X(... b))  with i occurences of b
+	      // !{b[*i..j]} = !b&X(!b&X(... !b))
+	      if (!opt_.reduce_size_strictly)
+		if (bunop* s = is_Star(result_))
+		  {
+		    formula* c = s->child();
+		    if (c->is_boolean())
+		      {
+			unsigned min = s->min();
+			assert(min > 0);
+			formula* tail;
+			if (op == unop::NegClosure)
+			  tail =
+			    dup_b_x_tail(true,
+					 c, constant::false_instance(), min);
+			else
+			  tail =
+			    dup_b_x_tail(false,
+					 c, constant::true_instance(), min);
+			result_->destroy();
+			result_ = recurse_destroy(tail);
+			return;
+		      }
+		  }
+	      break;
+	    case unop::Finish:
 	      // No simplification
 	      break;
 	    }

@@ -759,16 +759,16 @@ formula $f$ to form another PSL formula.
   existential suffix implication
   & $\sere{r}\Esuffix{} f$
   \\
-  closure
+  weak closure
   & $\sere{r}$
   \\
-  negated closure
+  negated weak closure
   & $\nsere{r}$
   \\
 \end{tabular}
 \end{center}
 
-For technical reasons, the negated closure is actually implemented as
+For technical reasons, the negated weak closure is actually implemented as
 an operator, even if it is syntactically and semantically equal to the
 combination of $\NOT$ and $\sere{r}$.
 
@@ -809,6 +809,8 @@ rewritings are also preformed on output to ease reading.
 $\AsuffixEQ$ and $\AsuffixALTEQ$ are synonyms in the same way as
 $\Asuffix$ and $\AsuffixALT$ are.
 
+The $\seren{r}$ operator is a \emph{strong closure} operator.
+
 \subsection{Trivial Identities (Occur Automatically)}
 
 For any PSL formula $f$, any SERE $r$, and any Boolean
@@ -826,8 +828,8 @@ formula $b$, the following rewritings are systematically performed
 & \nsere{\1} & \equiv \0 \\
   \sere{\eword}\Asuffix f&\equiv \1
 & \sere{\eword}\Esuffix f&\equiv \0
-& \sere{\eword} & \equiv \0
-& \nsere{\eword} & \equiv \1 \\
+& \sere{\eword} & \equiv \1
+& \nsere{\eword} & \equiv \0 \\
   \sere{b}\Asuffix f&\equiv (\NOT{b})\OR f
 & \sere{b}\Esuffix f&\equiv b\AND f
 & \sere{b} &\equiv b
@@ -1205,7 +1207,7 @@ rewriting arrange any PSL formula into negative normal form.
   \NOT(f \M g) & \equiv (\NOT f) \W (\NOT g)&
   \NOT(\sere{r} \Esuffix f) &\equiv \sere{r} \Asuffix \NOT f
 \end{align*}
-\noindent Recall the that negated closure $\nsere{r}$ is actually
+\noindent Recall the that negated weak closure $\nsere{r}$ is actually
 implemented as a specific operator, so it not actually prefixed by the
 $\NOT$ operator.
 \begin{align*}
@@ -1472,6 +1474,22 @@ denoted with $\equiV$ can be disabled by setting the
   \sere{r_1\CONCAT r_2}\Esuffix f &\equiV \sere{r_1}\Esuffix\X(\sere{r_2}\Esuffix f)\text{~if~}\varepsilon\not\VDash r_1\text{~and~}\varepsilon\not\VDash r_2\\
   \sere{r_1\FUSION r_2}\Esuffix f &\equiV \sere{r_1}\Esuffix(\sere{r_2}\Esuffix f)\\
   \sere{r_1\OR r_2}\Esuffix f &\equiV (\sere{r_1}\Esuffix f)\OR(\sere{r_2}\Esuffix f)
+\end{align*}
+
+Here are basic the rewritings for the weak closure and its negation:
+\begin{align*}
+  \sere{r}&\equiv \1\text{~if~}\varepsilon\VDash r&
+  \nsere{r}&\equiv \0\text{~if~}\varepsilon\VDash r\\
+  \sere{r_1;r_2}&\equiv \sere{r_1}\text{~if~}\varepsilon\VDash r_2&
+  \nsere{r_1;r_2}&\equiv \nsere{r_1}\text{~if~}\varepsilon\VDash r_2\\
+  \sere{b;r}&\equiV b\AND\X\sere{r}&
+  \nsere{b;r}&\equiV (\NOT b)\OR\X\nsere{r}\\
+  \sere{b\STAR{};r}&\equiv b\W\sere{r}&
+  \nsere{b\STAR{};r}&\equiv (\NOT b)\M\nsere{r}\\
+  \sere{b\STAR{\mvar{i}..\mvar{j}};r}&\equiV \underbrace{b\AND \X(b\ldots}_{\mathclap{i\text{~occurences of~}b}}\AND\X\sere{b\STAR{\mvar{0}..\mvar{j-i}}\CONCAT r})&
+  \nsere{b\STAR{\mvar{i}..\mvar{j}};r}&\equiV \underbrace{(\NOT b)\OR \X((\NOT b)\ldots}_{\mathclap{i\text{~occurences of~}\NOT b}}\OR\X\nsere{b\STAR{\mvar{0}..\mvar{j-i}}\CONCAT r}) \\
+  \sere{b\STAR{\mvar{i}..\mvar{j}}}&\equiV \underbrace{b\AND \X(b\AND \X(\ldots b))}_{i\text{~occurences of~}b}&
+  \nsere{b\STAR{\mvar{i}..\mvar{j}}}&\equiV \underbrace{(\NOT b)\OR \X((\NOT b)\OR \X(\ldots(\NOT b)))}_{i\text{~occurences of~}\NOT b}
 \end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}

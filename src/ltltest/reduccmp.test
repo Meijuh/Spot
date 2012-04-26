@@ -270,13 +270,13 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x '{a && {b*;c:e}} <>-> d' 'a & c & d & e'
      run 0 $x '{a && {b;c*}} <>-> d' 'a & b & d'
      run 0 $x '{a && {b;c*:e}} <>-> d' 'a & b & d & e'
-     run 0 $x '{{b1;r1*}&&{b2;r2*}}' '{{b1&&b2};{r1*&&r2*}}'
+     run 0 $x '{{{b1;r1*}&&{b2;r2*}};c}' 'b1&b2&X{{r1*&&r2*};c}'
      run 0 $x '{{b1:r1*}&&{b2:r2*}}' '{{b1&&b2}:{r1*&&r2*}}'
      run 0 $x '{{r1*;b1}&&{r2*;b2}}' '{{r1*&&r2*};{b1&&b2}}'
      run 0 $x '{{r1*:b1}&&{r2*:b2}}' '{{r1*&&r2*}:{b1&&b2}}'
      run 0 $x '{{a;b*;c}&&{d;e*}&&{f*;g}&&{h*}}' \
               '{{f*;g}&&{h*}&&{{a&&d};{e* && {b*;c}}}}'
-     run 0 $x '{{b1;r1*}&{b2;r2*}}' '{{b1&&b2};{r1*&r2*}}'
+     run 0 $x '{{{b1;r1*}&{b2;r2*}};c}' 'b1&b2&X{{r1*&r2*};c}'
      run 0 $x '{{b1:r1*}&{b2:r2*}}' '{{b1&&b2}:{r1*&r2*}}'
      run 0 $x '{{r1*;b1}&{r2*;b2}}' '{{r1*&r2*};{b1&&b2}}'
      run 0 $x '{{r1*:b1}&{r2*:b2}}' '{{r1*&r2*}:{b1&&b2}}'
@@ -312,6 +312,12 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x '{a|b*|c|d*}<>->e' '((a | c) & e) | (e M b) | (e M d)'
      run 0 $x '{{[*0] | a};b;{[*0] | a};c;e[*]} <>-> f' \
 	      '{{[*0] | a};b;{[*0] | a}} <>-> X(c & (f | X(f M e)))'
+     run 0 $x '{a;b[*];c[*];e;f*}' 'a & X(b W (c W e))'
+     run 0 $x '{a;b*;(a* && (b;c));c*}' 'a & X(b W {a[*] && {b;c}})'
+     run 0 $x '{a;a;b[*2..];b}' 'a & X(a & X(b & X(b & Xb)))'
+     run 0 $x '!{a;a;b[*2..];b}' '!a | X(!a | X(!b | X(!b | X!b)))'
+     run 0 $x '!{a;b[*];c[*];e;f*}' '!a | X(!b M (!c M !e))'
+     run 0 $x '!{a;b*;(a* && (b;c));c*}' '!a | X(!b M !{a[*] && {b;c}})'
 
      # not reduced
      run 0 $x '{a;(b[*2..4];c*;([*0]+{d;e}))*}!' \
