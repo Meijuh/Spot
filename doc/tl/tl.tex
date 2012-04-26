@@ -1456,7 +1456,22 @@ denoted with $\equiV$ can be disabled by setting the
   \sere{b\STAR{}\CONCAT r}\Asuffix f &\equiV (\NOT b)\R(\sere{r}\Asuffix f) \text{~if~}\varepsilon\not\VDash r\\
   \sere{r_1\CONCAT r_2}\Asuffix f &\equiV \sere{r_1}\Asuffix\X(\sere{r_2}\Asuffix f)\text{~if~}\varepsilon\not\VDash r_1\text{~and~}\varepsilon\not\VDash r_2\\
   \sere{r_1\FUSION r_2}\Asuffix f &\equiV \sere{r_1}\Asuffix(\sere{r_2}\Asuffix f)\\
-  \sere{r_1\OR r_2}\Asuffix f &\equiV (\sere{r_1}\Asuffix f)\AND(\sere{r_2}\Asuffix f)
+  \sere{r_1\OR r_2}\Asuffix f &\equiV (\sere{r_1}\Asuffix f)\AND(\sere{r_2}\Asuffix f)\\
+  \sere{\STAR{}}\Esuffix f &\equiv \F f\\
+  \sere{b\STAR{}}\Esuffix f &\equiv f \M b\\
+  \sere{b\PLUS{}}\Esuffix f &\equiv f \M b\\
+  \sere{r\STAR{\mvar{i}..\mvar{j}}}\Esuffix f &\equiV
+    \sere{r}\Esuffix \X(
+    \sere{r}\Esuffix \X(\ldots
+    \Esuffix\X(r\STAR{\mvar{1}..\mvar{j-i+1}})))
+    \text{~if~}i\ge 1\text{~and~}\varepsilon\not\VDash r\\
+  \sere{r\CONCAT \STAR{}}\Esuffix f &\equiv \sere{r}\Esuffix \F f\\
+  \sere{r\CONCAT b\STAR{}}\Esuffix f &\equiV \sere{r}\Esuffix (f\OR \X(f \M b)) \text{~if~}\varepsilon\not\VDash r\\
+  \sere{\STAR{}\CONCAT r}\Esuffix f &\equiV \F(\sere{r}\Esuffix f)\\
+  \sere{b\STAR{}\CONCAT r}\Esuffix f &\equiV b\U(\sere{r}\Esuffix f) \text{~if~}\varepsilon\not\VDash r\\
+  \sere{r_1\CONCAT r_2}\Esuffix f &\equiV \sere{r_1}\Esuffix\X(\sere{r_2}\Esuffix f)\text{~if~}\varepsilon\not\VDash r_1\text{~and~}\varepsilon\not\VDash r_2\\
+  \sere{r_1\FUSION r_2}\Esuffix f &\equiV \sere{r_1}\Esuffix(\sere{r_2}\Esuffix f)\\
+  \sere{r_1\OR r_2}\Esuffix f &\equiV (\sere{r_1}\Esuffix f)\OR(\sere{r_2}\Esuffix f)
 \end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}
