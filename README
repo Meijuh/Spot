@@ -59,6 +59,11 @@ flags specific to Spot:
     build, and installation of the included versions of these package,
     even when compatible versions are already installed.
 
+  --without-included-lbtt
+    Explicitly Turn off the configuration and compilation of LBTT.
+    This is required on systems (such as MinGW) where LBTT does not
+    compile.
+
   --disable-python
     Turn off the compilation of Python bindings.  These bindings are
     currently used to run a couple of tests, and to build the CGI
