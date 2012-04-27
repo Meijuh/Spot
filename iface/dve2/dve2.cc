@@ -1,5 +1,6 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE)
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -25,6 +26,11 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
+
+// MinGW does not define this.
+#ifndef WEXITSTATUS
+# define WEXITSTATUS(x) ((x) & 0xff)
+#endif
 
 #include "dve2.hh"
 #include "misc/hashfunc.hh"
