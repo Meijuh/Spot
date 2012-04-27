@@ -8,10 +8,10 @@ AC_DEFUN([AX_CHECK_LBTT], [
 
   if test "$need_included_lbtt" = yes; then
      if test "$with_included_lbtt" = no; then
-       AC_MSG_ERROR([Cannot find lbtt.  Please install lbtt first,
-		     or configure with --with-included-lbtt])
+       AC_MSG_WARN([Cannot find lbtt, needed for test-suite and benchmarks.
+Please install lbtt first, or configure with --with-included-lbtt.])
      else
-	with_included_lbtt=yes
+       with_included_lbtt=yes
      fi
   fi
 
@@ -22,10 +22,17 @@ AC_DEFUN([AX_CHECK_LBTT], [
      LBTT=lbtt
      LBTT_TRANSLATE=lbtt-translate
   fi
-  # We always configure lbtt, this is needed to ensure
-  # it gets distributed properly.  Whether with_included_buddy is
-  # set or not affects whether we *use* or *build* lbtt.
-  AC_CONFIG_SUBDIRS([lbtt])
+
+  # We always configure lbtt, even if it is not built to ensure it
+  # gets distributed properly.  However, when someone uses
+  # --without-included-lbtt explicitely, we assume he might be trying
+  # to build Spot on a system where lbtt cannot build (e.g. MinGW) and
+  # where lbtt/configure will fail.  So we don't run the sub-configure
+  # only in this case.  On such a setup, "make distcheck" will break,
+  # but so probably isn't important.
+  if test "$with_included_lbtt" != no; then
+    AC_CONFIG_SUBDIRS([lbtt])
+  fi
 
   AM_CONDITIONAL([WITH_INCLUDED_LBTT], [test "$with_included_lbtt" = yes])
   AC_SUBST([LBTT])

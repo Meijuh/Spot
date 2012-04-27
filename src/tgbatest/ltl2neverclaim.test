@@ -1,5 +1,6 @@
 #!/bin/sh
-# Copyright (C) 2010 Laboratoire de Recherche et Développement
+# -*- coding: utf-8 -*-
+# Copyright (C) 2010, 2012 Laboratoire de Recherche et DÃ©veloppement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -19,7 +20,7 @@
 # Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 # 02111-1307, USA.
 
-# Do some quick translations to make sure the neverclaim produced by
+# Do some quick translations to make sure the neverclaims produced by
 # spot actually look correct!
 
 # This test is separate from spotlbtt.test, because lbtt-translate
@@ -27,6 +28,7 @@
 # Spin.
 
 . ./defs
+need_lbtt
 
 set -e
 

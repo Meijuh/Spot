@@ -1,5 +1,6 @@
 #!/bin/sh
-# Copyright (C) 2011 Laboratoire de Recherche et Développement
+# -*- coding: utf-8 -*-
+# Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -28,6 +29,7 @@
 # buildfarm will timeout if it does).
 
 . ./defs
+need_lbtt
 
 set -e
 
@@ -110,6 +112,3 @@ EOF
 
 ${LBTT} --formulafile=formulae
 rm config
-
-
-

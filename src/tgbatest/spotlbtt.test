@@ -27,6 +27,7 @@
 echo 'This test can take as long as 15 minutes on a 2GHz Pentium 4.'
 
 . ./defs
+need_lbtt
 
 set -e
 
