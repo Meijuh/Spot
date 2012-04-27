@@ -145,7 +145,7 @@ AC_C_INLINE
 # Checks for library functions.
 
 AC_CHECK_FUNCS(
-  [strchr strtod strtol strtoul strerror mkdir mkstemp open read write close popen pclose pipe fork execvp getpgrp setpgid tcgetpgrp tcsetpgrp getpid waitpid alarm sigaction sigprocmask sigemptyset sigaddset times sysconf],
+  [strchr strtod strtol strtoul strerror mkdir open read write close popen pclose pipe fork execvp getpgrp setpgid tcgetpgrp tcsetpgrp getpid waitpid alarm sigaction sigprocmask sigemptyset sigaddset times sysconf],
   [],
   [AC_MSG_ERROR([missing one of the library functions required for compilation])])
 AC_CHECK_FUNCS([strsignal isatty getopt_long])
