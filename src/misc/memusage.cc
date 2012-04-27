@@ -1,5 +1,6 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -20,8 +21,6 @@
 // 02111-1307, USA.
 
 #include "memusage.hh"
-#include <sys/time.h>
-#include <sys/resource.h>
 #include <cstdio>
 
 namespace spot
