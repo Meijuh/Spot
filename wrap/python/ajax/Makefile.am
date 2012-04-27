@@ -1,4 +1,4 @@
-## -*- encoding: utf-8 -*-
+## -*- coding: utf-8 -*-
 ## Copyright (C) 2011, 2012 Laboratoire d'Informatique de Paris 6
 ## (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 ## Pierre et Marie Curie.

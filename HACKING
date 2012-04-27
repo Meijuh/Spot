@@ -189,6 +189,8 @@ Encoding
 
   * If you edit files encoded in Latin-1 (the original default
     encoding for the project), feel free to convert them to UTF-8.
+    In emacs the simplest way to convert the file is to add a comment
+    with -*- coding: utf-8 -*- at the top or bottom of the file.
 
 Comments
 --------
