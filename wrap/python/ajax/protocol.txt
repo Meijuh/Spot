@@ -71,4 +71,4 @@ Automaton simplifications (pick many)
 
   as=ps   Prune SCC
   as=wd   WDBA minimiztion
-  as=rs   Simulation reduction
+  as=ds   Direct Simulation reduction

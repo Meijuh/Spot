@@ -30,20 +30,19 @@ namespace spot
   /// \addtogroup tgba_reduction
   /// @{
 
-  /// \brief Tries to reduce the automaton by merging states whose
-  /// recognizes similar language.
+  /// \brief Attempt to reduce the automaton by direct simulation
   ///
   /// When the language recognized by one state is included in the
   /// language recognized by an another one, the first one is merged
-  /// with the second. The algorithm is based on the following
-  /// paper:
+  /// with the second.  The algorithm is based on the following
+  /// paper, but generalized to handled TGBA directly.
   ///
   /// \verbatim
-  ///     @InProceedings{ etessami.00.concur,
+  /// @InProceedings{ etessami.00.concur,
   ///   author        = {Kousha Etessami and Gerard J. Holzmann},
   ///   title         = {Optimizing {B\"u}chi Automata},
   ///   booktitle     = {Proceedings of the 11th International Conference on
-  ///     	      Concurrency Theory (Concur'00)},
+  ///	  	      Concurrency Theory (Concur'00)},
   ///   pages         = {153--167},
   ///   year          = {2000},
   ///   editor        = {C. Palamidessi},
@@ -54,9 +53,9 @@ namespace spot
   /// }
   /// \endverbatim
   ///
-  /// \param automaton The automaton to simulate.
+  /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
-  /// one.
+  /// one
   tgba* simulation(const tgba* automaton);
 
   /// @}
