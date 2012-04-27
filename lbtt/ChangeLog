@@ -1,5 +1,9 @@
 2012-04-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
+	* doc/gpl.texi: Fix make pdf for newer texinfo.tex.
+
+2012-04-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
 	* configure.ac: Do not check for mkstemp(), it is not used.
 
 2010-04-07  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
