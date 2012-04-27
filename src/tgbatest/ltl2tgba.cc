@@ -1,8 +1,9 @@
-// Copyright (C) 2007, 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis
-// Coopératifs (SRC), Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis
+// CoopÃ©ratifs (SRC), UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -49,7 +50,6 @@
 #include "tgbaalgos/dupexp.hh"
 #include "tgbaalgos/minimize.hh"
 #include "tgbaalgos/neverclaim.hh"
-#include "tgbaalgos/reductgba_sim.hh"
 #include "tgbaalgos/replayrun.hh"
 #include "tgbaalgos/rundotdec.hh"
 #include "tgbaalgos/sccfilter.hh"
@@ -196,22 +196,11 @@ syntax(char* prog)
 
 	    << "Automaton simplifications (after translation):"
 	    << std::endl
-	    << "  -R1q  merge states using direct simulation "
-	    << "(use -L for more reduction)"
-	    << std::endl
-	    << "  -R1t  remove transitions using direct simulation "
-	    << "(use -L for more reduction)"
-	    << std::endl
-	    << "  -R2q  merge states using delayed simulation" << std::endl
-	    << "  -R2t  remove transitions using delayed simulation"
-	    << std::endl
 	    << "  -R3   use SCC to reduce the automata" << std::endl
 	    << "  -R3f  clean more acceptance conditions than -R3" << std::endl
 	    << "          "
 	    << "(prefer -R3 over -R3f if you degeneralize with -D, -DS, or -N)"
 	    << std::endl
-	    << "  -Rd   display the simulation relation" << std::endl
-	    << "  -RD   display the parity game (dot format)" << std::endl
             << "  -Rm   attempt to minimize the automata" << std::endl
 	    << std::endl
 
@@ -314,13 +303,11 @@ main(int argc, char** argv)
   bool accepting_run_replay = false;
   bool from_file = false;
   bool read_neverclaim = false;
-  int reduc_aut = spot::Reduce_None;
   int redopt = spot::ltl::Reduce_None;
+  bool scc_filter = false;
   bool scc_filter_all = false;
   bool symbolic_scc_pruning = false;
   bool display_reduce_form = false;
-  bool display_rel_sim = false;
-  bool display_parity_game = false;
   bool post_branching = false;
   bool fair_loop_approx = false;
   bool graph_run_opt = false;
@@ -621,33 +608,22 @@ main(int argc, char** argv)
 	{
 	  output = 3;
 	}
-      else if (!strcmp(argv[formula_index], "-R1q"))
+      else if (!strcmp(argv[formula_index], "-R1q")
+	       || !strcmp(argv[formula_index], "-R1t")
+	       || !strcmp(argv[formula_index], "-R2q")
+	       || !strcmp(argv[formula_index], "-R2t"))
 	{
-	  reduc_aut |= spot::Reduce_quotient_Dir_Sim;
-	}
-      else if (!strcmp(argv[formula_index], "-RSD"))
-        {
-          reduction_dir_sim = true;
-        }
-      else if (!strcmp(argv[formula_index], "-R1t"))
-	{
-	  reduc_aut |= spot::Reduce_transition_Dir_Sim;
-	}
-      else if (!strcmp(argv[formula_index], "-R2q"))
-	{
-	  reduc_aut |= spot::Reduce_quotient_Del_Sim;
-	}
-      else if (!strcmp(argv[formula_index], "-R2t"))
-	{
-	  reduc_aut |= spot::Reduce_transition_Del_Sim;
+	  // For backward compatibility, make all these options
+	  // equal to -RSD.
+	  reduction_dir_sim = true;
 	}
       else if (!strcmp(argv[formula_index], "-R3"))
 	{
-	  reduc_aut |= spot::Reduce_Scc;
+	  scc_filter = true;
 	}
       else if (!strcmp(argv[formula_index], "-R3f"))
 	{
-	  reduc_aut |= spot::Reduce_Scc;
+	  scc_filter = true;
 	  scc_filter_all = true;
 	}
       else if (!strcmp(argv[formula_index], "-R3b"))
@@ -658,17 +634,13 @@ main(int argc, char** argv)
 	{
 	  display_reduce_form = true;
 	}
-      else if (!strcmp(argv[formula_index], "-Rd"))
-	{
-	  display_rel_sim = true;
-	}
-      else if (!strcmp(argv[formula_index], "-RD"))
-	{
-	  display_parity_game = true;
-	}
       else if (!strcmp(argv[formula_index], "-Rm"))
         {
           opt_minimize = true;
+        }
+      else if (!strcmp(argv[formula_index], "-RSD"))
+        {
+          reduction_dir_sim = true;
         }
       else if (!strcmp(argv[formula_index], "-M"))
         {
@@ -898,12 +870,12 @@ main(int argc, char** argv)
 	  to_free = a;
 	}
 
-      if (opt_monitor && ((reduc_aut & spot::Reduce_Scc) == 0))
+      if (opt_monitor && !scc_filter)
 	{
 	  if (dynamic_cast<const spot::tgba_bdd_concrete*>(a))
 	    symbolic_scc_pruning = true;
 	  else
-	    reduc_aut |= spot::Reduce_Scc;
+	    scc_filter = true;
 	}
 
       if (symbolic_scc_pruning)
@@ -932,7 +904,7 @@ main(int argc, char** argv)
       // Remove dead SCCs and useless acceptance conditions before
       // degeneralization.
       const spot::tgba* aut_scc = 0;
-      if (reduc_aut & spot::Reduce_Scc)
+      if (scc_filter)
 	{
 	  tm.start("reducing A_f w/ SCC");
 	  a = aut_scc = spot::scc_filter(a, scc_filter_all);
@@ -1017,67 +989,6 @@ main(int argc, char** argv)
 	  assume_sba = false; 	// All states are accepting, so double
 				// circles in the dot output are
 				// pointless.
-	}
-
-
-
-      spot::tgba_reduc* aut_red = 0;
-      if (reduc_aut != spot::Reduce_None)
-	{
-	  if (reduc_aut & ~spot::Reduce_Scc)
-	    {
-	      tm.start("reducing A_f w/ sim.");
-	      a = aut_red = new spot::tgba_reduc(a);
-
-	      if (reduc_aut & (spot::Reduce_quotient_Dir_Sim |
-			       spot::Reduce_transition_Dir_Sim |
-			       spot::Reduce_quotient_Del_Sim |
-			       spot::Reduce_transition_Del_Sim))
-		{
-		  spot::direct_simulation_relation* rel_dir = 0;
-		  spot::delayed_simulation_relation* rel_del = 0;
-
-		  if (reduc_aut & (spot::Reduce_quotient_Dir_Sim |
-				   spot::Reduce_transition_Dir_Sim))
-		    {
-		      rel_dir =
-			spot::get_direct_relation_simulation
-			  (a, std::cout, display_parity_game);
-		      assert(rel_dir);
-		    }
-		  if (reduc_aut & (spot::Reduce_quotient_Del_Sim |
-					spot::Reduce_transition_Del_Sim))
-		    {
-		      rel_del =
-			spot::get_delayed_relation_simulation
-			  (a, std::cout, display_parity_game);
-		      assert(rel_del);
-		    }
-
-		  if (display_rel_sim)
-		    {
-		      if (rel_dir)
-			aut_red->display_rel_sim(rel_dir, std::cout);
-		      if (rel_del)
-			aut_red->display_rel_sim(rel_del, std::cout);
-		    }
-
-		  if (reduc_aut & spot::Reduce_quotient_Dir_Sim)
-		    aut_red->quotient_state(rel_dir);
-		  if (reduc_aut & spot::Reduce_transition_Dir_Sim)
-		    aut_red->delete_transitions(rel_dir);
-		  if (reduc_aut & spot::Reduce_quotient_Del_Sim)
-		    aut_red->quotient_state(rel_del);
-		  if (reduc_aut & spot::Reduce_transition_Del_Sim)
-		    aut_red->delete_transitions(rel_del);
-
-		  if (rel_dir)
-		    spot::free_relation_simulation(rel_dir);
-		  if (rel_del)
-		    spot::free_relation_simulation(rel_del);
-		}
-	      tm.stop("reducing A_f w/ sim.");
-	    }
 	}
 
       const spot::tgba_explicit_string* expl = 0;
@@ -1394,7 +1305,6 @@ main(int argc, char** argv)
       delete product_to_free;
       delete system;
       delete expl;
-      delete aut_red;
       delete minimized;
       delete degeneralized;
       delete aut_scc;

@@ -96,7 +96,6 @@
 #include "tgbaalgos/magic.hh"
 #include "tgbaalgos/minimize.hh"
 #include "tgbaalgos/neverclaim.hh"
-#include "tgbaalgos/reductgba_sim.hh"
 #include "tgbaalgos/rundotdec.hh"
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/sccfilter.hh"
@@ -180,7 +179,6 @@ using namespace spot;
 %feature("new") spot::ltl_to_tgba_lacim;
 %feature("new") spot::minimize_wdba;
 %feature("new") spot::minimize_monitor;
-%feature("new") spot::reduc_tgba_sim;
 %feature("new") spot::scc_filter;
 %feature("new") spot::tgba_dupexp_bfs;
 %feature("new") spot::tgba_dupexp_dfs;
@@ -226,7 +224,6 @@ using namespace spot;
 %include "tgbaalgos/magic.hh"
 %include "tgbaalgos/minimize.hh"
 %include "tgbaalgos/neverclaim.hh"
-%include "tgbaalgos/reductgba_sim.hh"
 %include "tgbaalgos/rundotdec.hh"
 %include "tgbaalgos/save.hh"
 %include "tgbaalgos/sccfilter.hh"

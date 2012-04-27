@@ -43,8 +43,6 @@ check_PROGRAMS = \
   ltlprod \
   mixprod \
   powerset \
-  reductgba \
-  reduccmp \
   taatgba \
   tgbaread \
   tripprod
@@ -65,9 +63,6 @@ ltlprod_SOURCES  = ltlprod.cc
 mixprod_SOURCES  = mixprod.cc
 powerset_SOURCES = powerset.cc
 randtgba_SOURCES = randtgba.cc
-reductgba_SOURCES = reductgba.cc
-reduccmp_SOURCES = reductgba.cc
-reduccmp_CXXFLAGS = -DREDUCCMP
 taatgba_SOURCES = taatgba.cc
 tgbaread_SOURCES = tgbaread.cc
 tripprod_SOURCES = tripprod.cc
@@ -97,8 +92,6 @@ TESTS = \
   degendet.test \
   degenid.test \
   kv.test \
-  reduccmp.test \
-  reductgba.test \
   scc.test \
   sccsimpl.test \
   obligation.test \
