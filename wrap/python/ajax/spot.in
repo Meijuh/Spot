@@ -349,12 +349,15 @@ if not f:
     finish()
 
 # Formula simplifications
-simpopt = spot.ltl_simplifier_options(False, False, False, False, False)
+simpopt = spot.ltl_simplifier_options(False, False, False,
+                                      False, False, False, True)
 dored = False
 for r in form.getlist('r'):
     dored = True
     if r == 'br':
         simpopt.reduce_basics = True
+    elif r == 'lf':
+        simpopt.reduce_size_strictly = False
     elif r == 'si':
         simpopt.synt_impl = True
     elif r == 'eu':

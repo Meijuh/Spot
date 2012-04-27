@@ -8,6 +8,7 @@ Specifying the formula to work with
 Formula simplifications (pick many)
 
   r=br    enable Basic Reductions
+  r=lf    allow larger formulas
   r=si    enable Syntactic Implications
   r=eu    enable Eventuality and Universality
   r=lc    enable Language Containment

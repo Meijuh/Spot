@@ -14,8 +14,9 @@
     <script type="text/javascript" src="js/jquery.ba-bbq.min.js"></script>
     <script type="text/javascript">
     jQuery(document).ready(function(){
-        $.spotvars = { autoupdate: 0,
-                       scrolldown: 1 };
+        $.spotvars = { autoupdate: false,
+                       scrolldown: true,
+                       internalchange: false};
         $(".tabs").tabs();
 	$("#send").button();
 	$("#results").hide();
@@ -41,6 +42,17 @@
                              defaultPosition: "left",
                              content: "<b>Click<\/b> to fold/unfold."
                             });
+	$("#brcheckbox").change(function() {
+	    if (!$(this).is(':checked')) {
+              $("#lfcheckbox").removeAttr('checked');
+            }
+        })
+
+	$("#lfcheckbox").change(function() {
+	    if ($(this).is(':checked')) {
+              $("#brcheckbox").attr('checked', true);
+            }
+        })
 
 	function hideOrShowPanels(output, duration) {
 	    switch (output)
@@ -66,7 +78,7 @@
 	    var hashparam = jQuery.deparam.fragment();
 	    if (jQuery.isEmptyObject(hashparam))
 		return;
-	    if ($.spotvars.autoupdate == 0)
+	    if (!$.spotvars.internalchange)
 	      $("input,select", "#trform").each(function() {
 		var name = this.name;
 		var value = [];
@@ -96,7 +108,9 @@
 		    this.value=value.join(',');
 		}
 	      });
-            $.spotvars.autoupdate = 1;
+            $("#brcheckbox").change();
+            $.spotvars.autoupdate = true;
+            $.spotvars.internalchange = false;
 	    var o = $('input[name="o"]').val();
 	    hideOrShowPanels(o, duration);
 	    $("#output-tabs").tabs("select", "#tabs-o" + o);
@@ -144,6 +158,7 @@
             var str = $("#trform").serialize();
 	    // This will trigger updateResults.
             window.location.hash = "#" + str;
+            $.spotvars.internalchange = true;
 	    // updateResults();
         }
 
@@ -166,7 +181,7 @@
 			  fold($("#ltl-head"), function() {
 			    if ($.spotvars.scrolldown)
 			      $('html,body').animate({scrollTop: $("#results-head").offset().top}, 'slow');
-			    $.spotvars.scrolldown = 0;
+			    $.spotvars.scrolldown = false;
 			  });
 			  return true;
 		      });
@@ -183,7 +198,7 @@
         $('input[name="f"]').attr('spellcheck', false).focus()
 	    .keydown(function(e){
                 if (e.keyCode == 13) {
-                  $.spotvars.scrolldown = 1;
+                  $.spotvars.scrolldown = true;
 		  updateHash();
 		}
             });
@@ -349,8 +364,12 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	    <h3 class="ui-widget-header ui-corner-all head">Formula Simplifications<span class="ui-icon ui-icon-circle-arrow-n ftip">Fold</span></h3>
 	    <div>
 	      <label class="rtip" title="Apply simple, unconditional rewriting rules to simplify formula.  For instance <span class='formula'>F(a)|F(b)</span> is rewritten as <span class='formula'>F(a|b)</span>.">
-		<INPUT type="checkbox" name="r" value="br" checked>
+		<INPUT id="brcheckbox"  type="checkbox" name="r" value="br" checked>
 		basic rewritings
+	      </label>
+	      <label class="rtip" title="Enable basic rewriting rules that may produce bigger formulas.">
+		<INPUT id="lfcheckbox" type="checkbox" name="r" value="lf" checked>
+		allow larger formulas
 	      </label><br>
 	      <label class="rtip" title="Use rewriting rules based on implications between subformulas, when these implications can be proved syntactically.  For instance <span class='formula'>a U Fa</span> can be reduced to <span class='formula'>Fa</span> because the latter is obviously implied by <span class='formula'>a</span>.">
 	      <INPUT type="checkbox" name="r" value="si" checked>
