@@ -195,7 +195,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), simulated"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t -RSD  -r4 -R3'"
+   Parameters = "--spot '../ltl2tgba -F -f -t -RDS  -r4 -R3'"
    Enabled = yes
 }
 
@@ -203,7 +203,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- LaCim), simulated"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -l -t -RSD  -r4 -R3'"
+   Parameters = "--spot '../ltl2tgba -F -f -l -t -RDS  -r4 -R3'"
    Enabled = yes
 }
 
@@ -211,7 +211,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- TAA), simulated"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -l -taa -t -RSD  -r4 -R3'"
+   Parameters = "--spot '../ltl2tgba -F -f -l -taa -t -RDS  -r4 -R3'"
    Enabled = yes
 }
 
@@ -219,7 +219,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), simulated and degeneralized on states."
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t -RSD -DS'"
+   Parameters = "--spot '../ltl2tgba -F -f -t -RDS -DS'"
    Enabled = yes
 }
 

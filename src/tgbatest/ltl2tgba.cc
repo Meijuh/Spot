@@ -201,7 +201,9 @@ syntax(char* prog)
 	    << "          "
 	    << "(prefer -R3 over -R3f if you degeneralize with -D, -DS, or -N)"
 	    << std::endl
-            << "  -Rm   attempt to minimize the automata" << std::endl
+	    << "  -RDS  minimize the automaton with direct simulation"
+	    << std::endl
+            << "  -Rm   attempt to WDBA-minimize the automata" << std::endl
 	    << std::endl
 
             << "Automaton conversion:" << std::endl
@@ -614,7 +616,7 @@ main(int argc, char** argv)
 	       || !strcmp(argv[formula_index], "-R2t"))
 	{
 	  // For backward compatibility, make all these options
-	  // equal to -RSD.
+	  // equal to -RDS.
 	  reduction_dir_sim = true;
 	}
       else if (!strcmp(argv[formula_index], "-R3"))
@@ -634,13 +636,13 @@ main(int argc, char** argv)
 	{
 	  display_reduce_form = true;
 	}
+      else if (!strcmp(argv[formula_index], "-RDS"))
+        {
+          reduction_dir_sim = true;
+        }
       else if (!strcmp(argv[formula_index], "-Rm"))
         {
           opt_minimize = true;
-        }
-      else if (!strcmp(argv[formula_index], "-RSD"))
-        {
-          reduction_dir_sim = true;
         }
       else if (!strcmp(argv[formula_index], "-M"))
         {
