@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -24,11 +25,16 @@
 #ifndef SPOT_MISC_TIMER_HH
 # define SPOT_MISC_TIMER_HH
 
+# include "misc/_config.h"
 # include <cassert>
 # include <iosfwd>
 # include <string>
 # include <map>
-# include <sys/times.h>
+# if SPOT_HAVE_SYS_TIMES_H
+#  include <sys/times.h>
+# endif
+# include <ctime>
+
 
 namespace spot
 {
@@ -39,7 +45,7 @@ namespace spot
   struct time_info
   {
     time_info()
-      : utime(), stime(0)
+      : utime(0), stime(0)
     {
     }
     clock_t utime;
@@ -61,20 +67,28 @@ namespace spot
     {
       assert(!running);
       running = true;
+#ifdef SPOT_HAVE_TIMES
       struct tms tmp;
       times(&tmp);
       start_.utime = tmp.tms_utime;
       start_.stime = tmp.tms_stime;
+#else
+      start_.utime = clock();
+#endif
     }
 
     /// Stop a time interval and update the sum of all intervals.
     void
     stop()
     {
+#ifdef SPOT_HAVE_TIMES
       struct tms tmp;
       times(&tmp);
       total_.utime += tmp.tms_utime - start_.utime;
       total_.stime += tmp.tms_stime - start_.stime;
+#else
+      total_.utime += clock() - start_.utime;
+#endif
       assert(running);
       running = false;
     }
