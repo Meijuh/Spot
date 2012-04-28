@@ -1,6 +1,29 @@
 New in spot 0.8.3a:
 
-  Nothing yet.
+  * New features:
+    - A new direct simulation reduction has been implemented.  It
+      works directly on TGBA.  It's in src/tgbaalgos/simlation.hh,
+      and it can be tested via ltl2tgba's -RDS option.
+    - configure --without-included-lbtt will prevent LBTT from being
+      configured and built.  This helps on systems (such as MinGW)
+      where LBTT cannot be built.  The test-suite will skip any
+      LBTT-based test if LBTT is missing.
+  * Interface chances:
+    - The old game-theory-based implementations for direct and delayed
+      simulation reductions have been removed.  The old direct
+      simulation would only work on degeneralized automata, and yet
+      produce results inferior to the new direct simulation introduced
+      in this release.  The implementation of delayed simulation was
+      unreliable.  The function reduc_tgba_sim() has been kept
+      for compatibility (it calls the new direct simulation whatever
+      the type of simulation requested) and marked as deprecated.
+      ltl2tgba's options -Rd, -RD are gone.  Options -R1t, -R1s,
+      -R2s, and -R2t are deprecated and all made equivalent to -RDS.
+    - The tgba_explicit hierarchy has been reorganized in order to
+      make room for sba_explicit classes that share most of the code.
+      The main consequence is that the tgba_explicit type no longuer
+      exists.  However the tgba_explicit_number,
+      tgba_explicit_formula, and tgba_explicit_string still do.
 
 New in spot 0.8.3 (2012-03-09):
 
