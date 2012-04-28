@@ -20,11 +20,9 @@
 // 02111-1307, USA.
 
 #include "acccompl.hh"
-#include "tgba/tgbaexplicit.hh"
 
 namespace spot
 {
-
   // The algorithm of this method is simple. We explain this in
   // bottom/up.
   // Internally, the bdd is represented like a tree. There is two
