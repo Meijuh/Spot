@@ -873,50 +873,45 @@ operator, even if the operator has multiple synonyms (like \samp{|},
 
 \section{Operator precedence}
 
-\spottodo[inline]{The following operator precedence describe the
-  current parser of Spot, but this is not what we want eventually.
-  For instance $\IMPLIES$ should be right associative.  $\U$ and $\W$
-  would probably make more sense as right associative operators too.\\
-  %
-  Tools that have $\U$, $\R$, $\W$, and $\M$ operators as left
-  associative: Spin, ltl2ba (same parser as spin), Wring, psl2ba,
-  Spot, Modella, NuSMV.\\
-  %
-  Tools (and doc) that have these operators as right associative: Goal
-  (hence Büchi Store), PSL reference manual, LTL2AUT, LTL2Büchi (from
-  JavaPathFinder).\\
-  %
-  Tools that have these operators as non-associative (parentheses are
-  required): Vis, LBTT.\\
-  %
-  While compiling these lists I have also discovered that not all
-  people aggreed on the associativity of $\IMPLIES$ and $\EQUIV$.
-  Some have both left-assoc, or both right-assoc, other have only
-  $\IMPLIES$ as right-assoc.\\
-  %
-  We want to get closer to the PSL standard eventually.}
+The following operator precedence describes the current parser of
+Spot.  It has not always been this way.  Especially, all operators
+were left associative until version 0.9, when we changed the
+associativity of $\IMPLIES$, $\EQUIV$, $\U$, $\R$, $\W$, and $\M$ to get closer
+to the PSL standard~\cite{psl.04.lrm,eisner.06.psl}.
 
 \begin{center}
 \begin{tabular}{clc}
- assoc. & operators                                                                                    & priority \\
+ assoc. & operators                                                                                    & priority                                                  \\
 \midrule
-left    & $\Asuffix,\,\AsuffixEQ,\,\Esuffix,\,\EsuffixEQ$                                              & \tikz[remember picture,baseline]\node (lowest){lowest};   \\
-left    & $\CONCAT,\,\FUSION$                                                                          &          \\
-left    & $\IMPLIES,\,\EQUIV$                                                                          &          \\
-left    & $\XOR$                                                                                       &          \\
-left    & $\OR$                                                                                        &          \\
-left    & $\AND,\,\ANDALT$                                                                             &          \\
-left    & $\U,\,\W,\,\M,\,\R$                                                                          &          \\
-        & $\F,\,\G$                                                                                    &          \\
-        & $\X$                                                                                         &          \\
-        & $\STAR{\mvar{i}..\mvar{j}},\,\PLUS,\,\EQUAL{\mvar{i}..\mvar{j}},\,\GOTO{\mvar{i}..\mvar{j}}$ &          \\
-        & $\NOT$                                                                                       &          \\
-        & $\code{=0},\,\code{=1}$                                                                      & \tikz[remember picture,baseline]\node (highest){highest};  \\
+right   & $\Asuffix,\,\AsuffixEQ,\,\Esuffix,\,\EsuffixEQ$                                              & \tikz[remember picture,baseline]\node (lowest){lowest};   \\
+left    & $\CONCAT$                                                                                    &                                                           \\
+left    & $\FUSION$                                                                                    &                                                           \\
+right   & $\IMPLIES,\,\EQUIV$                                                                          &                                                           \\
+left    & $\XOR$                                                                                       &                                                           \\
+left    & $\OR$                                                                                        &                                                           \\
+left    & $\AND,\,\ANDALT$                                                                             &                                                           \\
+right   & $\U,\,\W,\,\M,\,\R$                                                                          &                                                           \\
+        & $\F,\,\G$                                                                                    &                                                           \\
+        & $\X$                                                                                         &                                                           \\
+        & $\STAR{\mvar{i}..\mvar{j}},\,\PLUS,\,\EQUAL{\mvar{i}..\mvar{j}},\,\GOTO{\mvar{i}..\mvar{j}}$ &                                                           \\
+        & $\NOT$                                                                                       &                                                           \\
+        & $\code{=0},\,\code{=1}$                                                                      & \tikz[remember picture,baseline]\node (highest){highest}; \\
 \end{tabular}
 \end{center}
 \begin{tikzpicture}[remember picture,overlay,>=stealth',semithick]
   \draw[->] (lowest) -- (highest);
 \end{tikzpicture}
+
+Beware that not all tools agree on the associativity of these
+operators.  For instance Spin, ltl2ba (same parser as spin), Wring,
+psl2ba, Modella, and NuSMV all have $\U$ and $\R$ as left-associative,
+while Goal (hence Büchi store), LTL2AUT, and LTL2Büchi (from
+JavaPathFinder) have $\U$ and $\R$ as right-associative.  Vis and LBTT
+have these two operators as non-associative (parentheses required).
+Similarly the tools do not aggree on the associativity of $\IMPLIES$
+and $\EQUIV$: some tools handle both operators as left-associative, or
+both right-associative, other have only $\IMPLIES$ as right-associative.
+
 
 \chapter{Properties}
 

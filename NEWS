@@ -36,7 +36,9 @@ New in spot 0.8.3a:
       configured and built.  This helps on systems (such as MinGW)
       where LBTT cannot be built.  The test-suite will skip any
       LBTT-based test if LBTT is missing.
-  * Interface chances:
+  * Interface changes:
+    - Operators ->, <->, U, W, R, and M are no parsed as
+      right-associative to better match the PSL standard.
     - The new entry point for LTL/PSL simplifications is the function
       ltl_simplifier::simplify() declared in src/ltlvisit/simplify.hh.
       The ltl_simplifier class implements a cache.

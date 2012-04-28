@@ -111,19 +111,20 @@ using namespace spot::ltl;
 
 /* Priorities.  */
 
-/* Low priority regex operator. */
-%left OP_UCONCAT OP_ECONCAT OP_UCONCAT_NONO OP_ECONCAT_NONO
+/* Low priority SERE-LTL binding operator. */
+%right OP_UCONCAT OP_ECONCAT OP_UCONCAT_NONO OP_ECONCAT_NONO
 
-%left OP_CONCAT OP_FUSION
+%left OP_CONCAT
+%left OP_FUSION
 
 /* Logical operators.  */
-%left OP_IMPLIES OP_EQUIV
+%right OP_IMPLIES OP_EQUIV
 %left OP_OR
 %left OP_XOR
 %left OP_AND OP_SHORT_AND
 
 /* LTL operators.  */
-%left OP_U OP_R OP_M OP_W
+%right OP_U OP_R OP_M OP_W
 %nonassoc OP_F OP_G
 %nonassoc OP_X
 

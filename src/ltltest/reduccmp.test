@@ -263,13 +263,13 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x '{a && b && d[->2..4]} <>-> d' '0'
      run 0 $x '{a && { c* : b* : (g|h)*}} <>-> d' 'a & c & b & (g | h) & d'
      run 0 $x '{a && {b;c}} <>-> d' '0'
-     run 0 $x '{a && {b;c:e}} <>-> d' '0'
+     run 0 $x '{a && {(b;c):e}} <>-> d' '0'
      run 0 $x '{a && {b*;c*}} <>-> d' '{a && {b*|c*}} <>-> d' # until better
-     run 0 $x '{a && {b*;c*:e}} <>-> d' '{a && {b*|c*} && e} <>-> d' #	idem
+     run 0 $x '{a && {(b*;c*):e}} <>-> d' '{a && {b*|c*} && e} <>-> d' # idem
      run 0 $x '{a && {b*;c}} <>-> d' 'a & c & d'
-     run 0 $x '{a && {b*;c:e}} <>-> d' 'a & c & d & e'
+     run 0 $x '{a && {(b*;c):e}} <>-> d' 'a & c & d & e'
      run 0 $x '{a && {b;c*}} <>-> d' 'a & b & d'
-     run 0 $x '{a && {b;c*:e}} <>-> d' 'a & b & d & e'
+     run 0 $x '{a && {(b;c*):e}} <>-> d' 'a & b & d & e'
      run 0 $x '{{{b1;r1*}&&{b2;r2*}};c}' 'b1&b2&X{{r1*&&r2*};c}'
      run 0 $x '{{b1:r1*}&&{b2:r2*}}' '{{b1&&b2}:{r1*&&r2*}}'
      run 0 $x '{{r1*;b1}&&{r2*;b2}}' '{{r1*&&r2*};{b1&&b2}}'
