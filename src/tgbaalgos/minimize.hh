@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -140,9 +140,9 @@ namespace spot
   /// product(aut_neg_f,minize(aut))</code> are both empty.  If they
   /// are, the the minimization was sound.  (See the paper for full
   /// details.)
-  const tgba* minimize_obligation(const tgba* aut_f,
-				  const ltl::formula* f = 0,
-				  const tgba* aut_neg_f = 0);
+  tgba* minimize_obligation(const tgba* aut_f,
+			    const ltl::formula* f = 0,
+			    const tgba* aut_neg_f = 0);
 
   /// @}
 }

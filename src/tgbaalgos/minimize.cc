@@ -619,7 +619,7 @@ namespace spot
     return minimize_dfa(det_a, final, non_final);
   }
 
-  const tgba*
+  tgba*
   minimize_obligation(const tgba* aut_f,
 		      const ltl::formula* f, const tgba* aut_neg_f)
   {
@@ -706,6 +706,6 @@ namespace spot
     if (ok)
       return min_aut_f;
     delete min_aut_f;
-    return aut_f;
+    return const_cast<tgba*>(aut_f);
   }
 }
