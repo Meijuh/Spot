@@ -11,6 +11,8 @@
 \usepackage{xspace}
 \usepackage{dsfont}
 \usepackage{mathabx}  % vDash
+\usepackage{wasysym}
+\usepackage{stmaryrd}
 \usepackage{showlabels}
 \usepackage{tabulary}
 \usepackage[numbers]{natbib}
@@ -35,6 +37,8 @@
     {\footnotesize #2}}
 \newcommand{\spottodo}[2][]{\stodo[color=green!40,caption={#2},#1]{#2}}
 \newcommand{\ltltodo}[2][]{\stodo[color=red!40,caption={#2},#1]{#2}}
+
+\newcommand{\uni}[1]{\texttt{\small U+#1}}
 
 
 %% ---------------------- %%
@@ -359,16 +363,16 @@ Two temporal formul\ae{} $f$ and $g$ can be combined using the
 following Boolean operators:
 
 \begin{center}
-\begin{tabular}{ccccc}
-              & preferred & \multicolumn{2}{c}{other supported} \\
-   operation  & syntax    & \multicolumn{2}{c}{syntaxes}\\
-  \midrule
-  negation    & $\NOT f$      & $\NOTALT f$  \\
-  disjunction & $f\OR g$      & $f\ORALT g$      & $f\ORALTT g$ & $f\ORALTTT g$ \\
-  conjunction & $f\AND g$     & $f\ANDALT g$     & $f\ANDALTT g$ \\
-  implication & $f\IMPLIES g$ & $f\IMPLIESALT g$ & $f\IMPLIESALTT g$\\
-  exclusion   & $f\XOR g$     & $f\XORALT g$ \\
-  equivalence & $f\EQUIV g$   & $f\EQUIVALT g$   & $f\EQUIVALTT g$ \\
+\begin{tabular}{cccccrl}
+              & preferred & \multicolumn{2}{c}{other supported}&& \multicolumn{2}{l}{UTF8 characters supported}\\
+   operation  & syntax    & \multicolumn{2}{c}{syntaxes} && preferred & others\\
+  \cmidrule(r){1-5} \cmidrule(l){6-7}
+  negation    & $\NOT f$      & $\NOTALT f$      &                   &               & $\lnot$ \uni{00AC}  \\
+  disjunction & $f\OR g$      & $f\ORALT g$      & $f\ORALTT g$      & $f\ORALTTT g$ & $\lor$ \uni{2228} & $\cup$ \uni{222A}\\
+  conjunction & $f\AND g$     & $f\ANDALT g$     & $f\ANDALTT g$     &               & $\land$ \uni{2227} & $\cap$ \uni{2229}\\
+  implication & $f\IMPLIES g$ & $f\IMPLIESALT g$ & $f\IMPLIESALTT g$ &               & $\limplies$ \uni{2192} & $\rightarrow$ \uni{27F6}, $\Rightarrow$ \uni{21D2} \uni{27F9} \\
+  exclusion   & $f\XOR g$     & $f\XORALT g$     &                   &               & $\oplus$ \uni{2295} \\
+  equivalence & $f\EQUIV g$   & $f\EQUIVALT g$   & $f\EQUIVALTT g$   &               & $\liff$ \uni{2194} & $\Leftrightarrow$ \uni{21D4}\\
 \end{tabular}
 \end{center}
 
@@ -455,19 +459,19 @@ following rewritings:
   f\XOR g &\equiv  (f\AND\NOT g)\OR (g\AND\NOT f)\\
 \end{align*}
 
-\section{Temporal Operators}
+\section{Temporal Operators}\label{sec:ltlops}
 
 Given two temporal formul\ae{} $f$, and $g$, the following
 temporal operators can be used to construct another temporal formula.
 
 \begin{center}
-\begin{tabular}{ccc}
-                 & preferred & \multicolumn{1}{c}{other supported} \\
-   operator      & syntax    & \multicolumn{1}{c}{syntaxes}\\
-  \midrule
-  Next           & $\X f$    & $\XALT f$ \\
-  Eventually     & $\F f$    & $\FALT f$ \\
-  Always         & $\G f$    & $\GALT f$ \\
+\begin{tabular}{cccrl}
+                 & preferred & \multicolumn{1}{c}{other supported} & \multicolumn{2}{l}{UTF8 characters supported} \\
+   operator      & syntax    & \multicolumn{1}{c}{syntaxes} & preferred & others \\
+  \cmidrule(r){1-3} \cmidrule(l){4-5}
+  Next           & $\X f$    & $\XALT f$ & $\Circle$ \uni{25CB} & $\Circle$ \uni{25EF}\\
+  Eventually     & $\F f$    & $\FALT f$ & $\Diamond$ \uni{25C7} & $\Diamond$ \uni{22C4} \uni{2662}\\
+  Always         & $\G f$    & $\GALT f$ & $\Square$ \uni{25A1} & $\Square$ \uni{2B1C} \uni{25FB}\\
   (Strong) Until & $f \U g$ \\
   Weak Until     & $f \W g$ \\
   (Weak) Release & $f \R g$  & $f \RALT g$ \\
@@ -562,26 +566,28 @@ be further combined with the following operators, where $f$ and $g$
 denote arbitrary SERE and $b$ denotes a Boolean formula.
 
 \begin{center}
-\begin{tabular}{ccccc}
-              & preferred & \multicolumn{2}{c}{other supported} \\
-   operation  & syntax    & \multicolumn{2}{c}{syntaxes}\\
-  \midrule
+\begin{tabular}{cccccrl}
+              & preferred & \multicolumn{2}{c}{other supported} && \multicolumn{2}{l}{UTF8 characters supported}\\
+   operation  & syntax    & \multicolumn{2}{c}{syntaxes} && preferred & others \\
+  \cmidrule(r){1-5}\cmidrule(l){6-7}
   empty word   & $\eword$ \\
-  union        & $f\OR g$  & $f\ORALT g$ & $f\ORALTT g$ & $f\ORALTTT g$ \\
-  (synchronized) intersection & $f\ANDALT g$ & $f\ANDALTT g$ \\
-  unsynchronized intersection & $f\AND g$ \\
+  union        & $f\OR g$  & $f\ORALT g$ & $f\ORALTT g$ & $f\ORALTTT g$ && $\lor$ \uni{2228} $\cup$ \uni{222A}\\
+  intersection & $f\ANDALT g$ & $f\ANDALTT g$ &&& $\cap$ \uni{2229} & $\land$ \uni{2227}\\
+  NLM intersection\footnotemark & $f\AND g$ \\
   concatenation & $f\CONCAT g$ \\
   fusion & $f\FUSION g$ \\
   bounded repetition & $f\STAR{\mvar{i}..\mvar{j}}$
                      & $f\STAR{\mvar{i}:\mvar{j}}$
                      & $f\STAR{\mvar{i} to \mvar{j}}$
                      & $f\STAR{\mvar{i},\mvar{j}}$\\
-  unbounded repetition & $f\STAR{\mvar{i}..}$
+  \llap{un}bounded repetition & $f\STAR{\mvar{i}..}$
                      & $f\STAR{\mvar{i}:}$
                      & $f\STAR{\mvar{i} to}$
                      & $f\STAR{\mvar{i},}$\\
 \end{tabular}
 \end{center}
+
+\footnotetext{\emph{Non-Length-Matching} interesction.}
 
 The character \samp{\$} or the string \samp{inf} can also be used as
 value for $\mvar{j}$ in the above operators to denote an unbounded
@@ -772,6 +778,14 @@ For technical reasons, the negated weak closure is actually implemented as
 an operator, even if it is syntactically and semantically equal to the
 combination of $\NOT$ and $\sere{r}$.
 
+UTF-8 input may combine one box or diamond character from
+section~\ref{sec:ltlops} with one arrow character from
+section~\ref{sec:boolops} to replace the operators $\Asuffix$,
+$\Esuffix$, as well as the operators $\AsuffixEQ$ and $\EsuffixEQ$
+that will be defined in \ref{sec:pslsugar}.  Additionally,
+$\AsuffixALT$ may be replaced by $\mapsto$ \uni{21A6}, and
+$\AsuffixALTEQ$ by $\Mapsto$ \uni{2907}.
+
 \subsection{Semantics}
 
 The following semantics assume that $r$ is a SERE,
@@ -792,7 +806,7 @@ is a model of $r$.  An infinite sequence $\texttt{a;a;a;a;a;}\ldots$
 is therefore a model of the formula \samp{$\sere{a\PLUS{};\NOT
     a}$} even though it never sees \samp{$\NOT a$}.
 
-\subsection{Syntactic Sugar}
+\subsection{Syntactic Sugar}\label{sec:pslsugar}
 
 The syntax on the left is equivalent to the syntax on the right.
 These rewritings are performed from left to right when parsing a
