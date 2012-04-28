@@ -1,14 +1,49 @@
 New in spot 0.8.3a:
 
   * New features:
+    - Operators from the linear fragment of PSL are supported.  This
+      basically extends LTL with Sequential Extended Regulat
+      Expressions (SERE), and a couple of operators to bridge SERE and
+      LTL.  See doc/tl/tl.pdf for the list of operators and their
+      semantics.
+    - The constructors for temporal formulae will perform some trivial
+      simplifications based on associativity, commutativity,
+      idempotence, and neutral elements.  See doc/tl/tl.pdf for the
+      list of such simplifications.
+    - Formula rewritings have been completely revamped, and augmented
+      with rules for PSL operators (and some new LTL rules as well).
+      See doc/tl/tl.pdf for the list of the rewritings implemented.
+    - Some of these rewritings that may produce larger formulas
+      (For instance to rewrite "{a;b;c}" as "a & X(b & Xc)".)
+      may be explicitely disabled with a new option.
+    - The src/ltltest/randltl tool can now generate random SEREs
+      and random PSL formulae.
+    - Only one translator (ltl2tgba_fm) has been augmented to
+      translate the new SERE and PSL operators.  The internal
+      translation from SERE to DFA is likely to be rewriten in a
+      future version.
+    - A new function, length_boolone(), computes the size of an
+      LTL/PSL formula while considering that any Boolean term
+      has length 1.
     - A new direct simulation reduction has been implemented.  It
-      works directly on TGBA.  It's in src/tgbaalgos/simlation.hh,
+      works directly on TGBAs.  It is in src/tgbaalgos/simlation.hh,
       and it can be tested via ltl2tgba's -RDS option.
+    - changes to the on-line translator:
+      + SVG output is available
+      + can display some properties of a formula
+      + new options for direct simulation and larger rewritings
     - configure --without-included-lbtt will prevent LBTT from being
       configured and built.  This helps on systems (such as MinGW)
       where LBTT cannot be built.  The test-suite will skip any
       LBTT-based test if LBTT is missing.
   * Interface chances:
+    - The new entry point for LTL/PSL simplifications is the function
+      ltl_simplifier::simplify() declared in src/ltlvisit/simplify.hh.
+      The ltl_simplifier class implements a cache.
+      Functions such as reduce() or reduce_tau03() are deprecated.
+    - Formula instances now have many methods to inspect their
+      properties (membership to syntactic classes, absence of X
+      operator, etc...) in constant time.
     - The old game-theory-based implementations for direct and delayed
       simulation reductions have been removed.  The old direct
       simulation would only work on degeneralized automata, and yet
