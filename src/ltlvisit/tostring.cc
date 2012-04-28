@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2008, 2010, 2012 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
@@ -79,12 +80,12 @@ namespace spot
 	" R ",
 	" W ",
 	" M ",
-	" <>-> ",
-	" <>=> ",
-	" <>+> ",
-	" <>=+> ",
-	" []-> ",
-	" []=> ",
+	"<>-> ",
+	"<>=> ",
+	"<>+> ",
+	"<>=+> ",
+	"[]-> ",
+	"[]=> ",
 	"!",
 	"X",
 	"F",
@@ -109,12 +110,12 @@ namespace spot
 	" V ",
 	" W ",			// not supported
 	" M ",			// not supported
-	" <>-> ",		// not supported
-	" <>=> ",		// not supported
-	" <>+> ",		// not supported
-	" <>=+> ",		// not supported
-	" []-> ",		// not supported
-	" []=> ",		// not supported
+	"<>-> ",		// not supported
+	"<>=> ",		// not supported
+	"<>+> ",		// not supported
+	"<>=+> ",		// not supported
+	"[]-> ",		// not supported
+	"[]=> ",		// not supported
 	"!",
 	"()",
 	"<>",
@@ -126,6 +127,36 @@ namespace spot
 	" & ",			// not supported
 	";",			// not supported
 	":",			// not supported
+      };
+
+      const char* utf8_kw[] = {
+	"0",
+	"1",
+	"[*0]",
+	"⊕",
+	" → ",
+	" ↔ ",
+	" U ",
+	" R ",
+	" W ",
+	" M ",
+	"◇→ ",
+	"◇⇒ ",
+	"◇→̃ ",
+	"◇⇒̃ ",
+	"□→ ",
+	"□⇒ ",
+	"¬",
+	"○",
+	"◇",
+	"□",
+	"∨",
+	" | ",
+	"∧",
+	" ∩ ",
+	" & ",
+	";",
+	":",
       };
 
       static bool
@@ -491,7 +522,8 @@ namespace spot
 	      top_level_ = true;
 	      break;
 	    case unop::NegClosure:
-	      os_ << "!{";
+	      emit(KNot);
+	      os_ << "{";
 	      in_ratexp_ = true;
 	      top_level_ = true;
 	      break;
@@ -681,6 +713,23 @@ namespace spot
     {
       std::ostringstream os;
       to_string(f, os, full_parent, ratexp);
+      return os.str();
+    }
+
+    std::ostream&
+    to_utf8_string(const formula* f, std::ostream& os, bool full_parent,
+	      bool ratexp)
+    {
+      to_string_visitor v(os, full_parent, ratexp, utf8_kw);
+      f->accept(v);
+      return os;
+    }
+
+    std::string
+    to_utf8_string(const formula* f, bool full_parent, bool ratexp)
+    {
+      std::ostringstream os;
+      to_utf8_string(f, os, full_parent, ratexp);
       return os.str();
     }
 

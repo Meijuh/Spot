@@ -1,8 +1,9 @@
-// Copyright (C) 2008, 2009, 2011 Laboratoire de Recherche et DÃ©veloppement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -47,6 +48,7 @@ syntax(char* prog)
 	    << "  -P      generate PSL formulae" << std::endl
 	    << std::endl
 	    << "Options:" << std::endl
+	    << "  -8      output in UTF-8" << std::endl
 	    << "  -d      dump priorities, do not generate any formula"
 	    << std::endl
 	    << "  -f  N    the size of the formula [15]" << std::endl
@@ -89,6 +91,7 @@ main(int argc, char** argv)
 {
   enum { OutputBool, OutputLTL, OutputSERE, OutputPSL } output = OutputLTL;
   bool opt_d = false;
+  bool utf8 = false;
   int opt_s = 0;
   int opt_f = 15;
   int opt_F = 1;
@@ -110,7 +113,11 @@ main(int argc, char** argv)
 
   while (++argn < argc)
     {
-      if (!strcmp(argv[argn], "-B"))
+      if (!strcmp(argv[argn], "-8"))
+	{
+	  utf8 = true;
+	}
+      else if (!strcmp(argv[argn], "-B"))
 	{
 	  output = OutputBool;
 	}
@@ -341,8 +348,9 @@ main(int argc, char** argv)
 			    << "of size " << opt_r << " or more." << std::endl;
 		  exit(2);
 		}
-	      std::string txt = spot::ltl::to_string(f, false,
-						     output == OutputSERE);
+	      std::string txt = utf8
+		? spot::ltl::to_utf8_string(f, false, output == OutputSERE)
+		: spot::ltl::to_string(f, false, output == OutputSERE);
 	      f->destroy();
 	      if (!opt_u || unique.insert(txt).second)
 		{

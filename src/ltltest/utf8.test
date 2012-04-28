@@ -70,3 +70,7 @@ ignoring trailing garbage
 
 EOF
 cmp exp err
+
+
+../randltl -P -8 -u -s 0 -f 16 a b c -F 100 > formulae
+../reduc -f -h 0 formulae

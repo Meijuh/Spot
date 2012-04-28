@@ -1,7 +1,8 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -53,6 +54,27 @@ namespace spot
     /// \param ratexp Whether we are printing a SERE.
     std::string
     to_string(const formula* f, bool full_parent = false, bool ratexp = false);
+
+    /// \brief Output a formula as an utf8 string which is parsable unless
+    /// the formula contains automaton operators (used in ELTL formulae).
+    /// \param f The formula to translate.
+    /// \param os The stream where it should be output.
+    /// \param full_parent Whether or not the string should by fully
+    ///			   parenthesized.
+    /// \param ratexp Whether we are printing a SERE.
+    std::ostream&
+    to_utf8_string(const formula* f, std::ostream& os, bool full_parent = false,
+	      bool ratexp = false);
+
+    /// \brief Output a formula as an utf8 string which is parsable
+    /// unless the formula contains automaton operators (used in ELTL formulae).
+    /// \param f The formula to translate.
+    /// \param full_parent Whether or not the string should by fully
+    ///			   parenthesized.
+    /// \param ratexp Whether we are printing a SERE.
+    std::string
+    to_utf8_string(const formula* f, bool full_parent = false,
+		   bool ratexp = false);
 
     /// \brief Output a formula as a (parsable by Spin) string.
     /// \param f The formula to translate.
