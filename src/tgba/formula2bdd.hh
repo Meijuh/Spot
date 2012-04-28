@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012 Laboratoire de Recherche et DÃ©veloppement de
+// l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -27,14 +30,14 @@
 
 namespace spot
 {
-  // \brief Convert a formula into a BDD.
-  //
-  // Convert formula \a f into a Bdd, using existing variables from \a
-  // d, and registering new one as necessary.  \a for_me is the
-  // address to use as owner of the variables used in the BDD.
+  /// \brief Convert a formula into a BDD.
+  ///
+  /// Convert formula \a f into a Bdd, using existing variables from \a
+  /// d, and registering new one as necessary.  \a for_me is the
+  /// address to use as owner of the variables used in the BDD.
   bdd formula_to_bdd(const ltl::formula* f, bdd_dict* d, void* for_me);
 
-  // Convert a BDD into a formula.
+  /// Convert a BDD into a formula.
   const ltl::formula* bdd_to_formula(bdd f, const bdd_dict* d);
 }
 
