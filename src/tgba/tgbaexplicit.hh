@@ -80,7 +80,7 @@ namespace spot
     {
     }
 
-    typedef Label Label_t;
+    typedef Label label_t;
     typedef label_hash label_hash_t;
 
     struct transition
@@ -154,12 +154,6 @@ namespace spot
     }
 
     static const int default_val;
-    static std::string to_string(int l)
-    {
-      std::stringstream ss;
-      ss << l;
-      return ss.str();
-    }
   };
 
   /// States labeled by a string
@@ -183,10 +177,6 @@ namespace spot
     }
 
     static const std::string default_val;
-    static std::string to_string(const std::string& l)
-    {
-      return l;
-    }
   };
 
   /// States labeled by a formula
@@ -210,10 +200,6 @@ namespace spot
     }
 
     static const ltl::formula* default_val;
-    static std::string to_string(const ltl::formula* l)
-    {
-      return ltl::to_string(l);
-    }
   };
 
   /// Successor iterators used by spot::tgba_explicit.
@@ -280,19 +266,22 @@ namespace spot
     bdd all_acceptance_conditions_;
   };
 
-  /// Graph implementation for automata representation
+  /// Graph implementation for explicit automgon
   /// \ingroup tgba_representation
   template<typename State, typename Type>
   class explicit_graph: public Type
   {
+  public:
+    typedef typename State::label_t label_t;
+    typedef typename State::label_hash_t label_hash_t;
+    typedef typename State::transitions_t transitions_t;
+    typedef typename State::transition transition;
+    typedef State state;
   protected:
-    typedef Sgi::hash_map<typename State::Label_t, State,
-			  typename State::label_hash_t> ls_map;
-    typedef Sgi::hash_map<const State*, typename State::Label_t,
-			  ptr_hash<State> > sl_map;
+    typedef Sgi::hash_map<label_t, State, label_hash_t> ls_map;
+    typedef Sgi::hash_map<const State*, label_t, ptr_hash<State> > sl_map;
 
   public:
-    typedef typename State::transition transition;
 
     explicit_graph(bdd_dict* dict)
       : ls_(),
@@ -319,15 +308,14 @@ namespace spot
       t.condition = bddtrue;
       t.acceptance_conditions = bddfalse;
 
-      typename State::transitions_t::iterator i =
+      typename transitions_t::iterator i =
 	source->successors.insert(source->successors.end(), t);
 
       return &*i;
     }
 
     transition*
-    create_transition(const typename State::Label_t& source,
-		      const typename State::Label_t& dest)
+    create_transition(const label_t& source, const label_t& dest)
     {
       // It's important that the source be created before the
       // destination, so the first source encountered becomes the
@@ -361,19 +349,19 @@ namespace spot
     }
 
     //old tgba explicit labelled interface
-    bool has_state(const typename State::Label_t& name)
+    bool has_state(const label_t& name)
     {
       return ls_.find(name) != ls_.end();
     }
 
-    const typename State::Label_t& get_label(const State* s) const
+    const label_t& get_label(const State* s) const
     {
       typename sl_map::const_iterator i = sl_.find(s);
       assert(i != sl_.end());
       return i->second;
     }
 
-    const typename State::Label_t& get_label(const spot::state* s) const
+    const label_t& get_label(const spot::state* s) const
     {
       const State* se = down_cast<const State*>(s);
       assert(se);
@@ -381,8 +369,7 @@ namespace spot
     }
 
     transition*
-    create_trainsition(const typename State::Label_t& source,
-		       const typename State::Label_t& dest)
+    create_trainsition(const label_t& source, const label_t& dest)
     {
       // It's important that the source be created before the
       // destination, so the first source encountered becomes the
@@ -398,7 +385,7 @@ namespace spot
       typename ls_map::iterator i;
       for (i = ls_.begin(); i != ls_.end(); ++i)
 	{
-	  typename State::transitions_t::iterator i2;
+	  typename transitions_t::iterator i2;
 	  for (i2 = i->second.successors.begin();
 	       i2 != i->second.successors.end(); ++i2)
 	    i2->acceptance_conditions = all - i2->acceptance_conditions;
@@ -411,21 +398,20 @@ namespace spot
       typename ls_map::iterator i;
       for (i = ls_.begin(); i != ls_.end(); ++i)
       {
-	typename State::transitions_t::iterator t1;
+	typename transitions_t::iterator t1;
 	for (t1 = i->second.successors.begin();
 	     t1 != i->second.successors.end(); ++t1)
 	{
 	  bdd acc = t1->acceptance_conditions;
-	  const state_explicit<typename State::Label_t,
-			       typename State::label_hash_t>* dest = t1->dest;
+	  const state_explicit<label_t, label_hash_t>* dest = t1->dest;
 
 	  // Find another transition with the same destination and
 	  // acceptance conditions.
-	  typename State::transitions_t::iterator t2 = t1;
+	  typename transitions_t::iterator t2 = t1;
 	  ++t2;
 	  while (t2 != i->second.successors.end())
 	  {
-	    typename State::transitions_t::iterator t2copy = t2++;
+	    typename transitions_t::iterator t2copy = t2++;
 	    if (t2copy->acceptance_conditions == acc && t2copy->dest == dest)
 	    {
 	      t1->condition |= t2copy->condition;
@@ -438,7 +424,7 @@ namespace spot
 
     /// Return the state_explicit for \a name, creating the state if
     /// it does not exist.
-    State* add_state(const typename State::Label_t& name)
+    State* add_state(const label_t& name)
     {
       typename ls_map::iterator i = ls_.find(name);
       if (i == ls_.end())
@@ -458,7 +444,7 @@ namespace spot
     }
 
     State*
-    set_init_state(const typename State::Label_t& state)
+    set_init_state(const label_t& state)
     {
       State* s = add_state(state);
       init_ = s;
@@ -472,14 +458,14 @@ namespace spot
 
       while (i != ls_.end())
       {
-	typename State::Label_t s = i->first;
+	label_t s = i->first;
 
 	// Do not erase the same state twice(Because of possible aliases).
 	if (sl_.erase(&(i->second)))
 	  i->second.destroy();
 
 	++i;
-	destroy_key<typename State::Label_t> dest;
+	destroy_key<label_t> dest;
 	dest.destroy(s);
       }
 
@@ -515,21 +501,33 @@ namespace spot
 					       ->all_acceptance_conditions());
     }
 
-    //no need?
+
+    typedef std::string (*to_string_func_t)(const label_t& t);
+
+    void set_to_string_func(to_string_func_t f)
+    {
+      to_string_func_ = f;
+    }
+
+    to_string_func_t get_to_string_func() const
+    {
+      return to_string_func_;
+    }
+
     virtual std::string format_state(const spot::state* state) const
     {
       const State* se = down_cast<const State*>(state);
       assert(se);
       typename sl_map::const_iterator i = sl_.find(se);
       assert(i != sl_.end());
-      return State::to_string(i->second);
+      assert(to_string_func_);
+      return to_string_func_(i->second);
     }
 
     /// old implementation in tgba_explicit_string
     /// Create an alias for a state.  Any reference to \a alias_name
     /// will act as a reference to \a real_name.
-    void add_state_alias(const typename State::Label_t& alias,
-			 const typename State::Label_t& real)
+    void add_state_alias(const label_t& alias, const label_t& real)
     {
       ls_[alias] = *(add_state(real));
     }
@@ -614,7 +612,7 @@ namespace spot
       typename explicit_graph<State, tgba>::ls_map::iterator i;
       for (i = this->ls_.begin(); i != this->ls_.end(); ++i)
 	{
-	  typename State::transitions_t::iterator i2;
+	  typename transitions_t::iterator i2;
 	  for (i2 = i->second.successors.begin();
 	       i2 != i->second.successors.end(); ++i2)
 	    i2->acceptance_conditions &= neg;
@@ -639,11 +637,11 @@ namespace spot
     {
       const State* s = down_cast<const State*>(in);
       assert(s);
-      const typename State::transitions_t& st = s->successors;
+      const transitions_t& st = s->successors;
 
       bdd res = bddfalse;
 
-      typename State::transitions_t::const_iterator i;
+      typename transitions_t::const_iterator i;
       for (i = st.begin(); i != st.end(); ++i)
 	res |= i->condition;
 
@@ -654,11 +652,11 @@ namespace spot
     {
       const State* s = down_cast<const State*>(in);
       assert(s);
-      const typename State::transitions_t& st = s->successors;
+      const transitions_t& st = s->successors;
 
       bdd res = bddtrue;
 
-      typename State::transitions_t::const_iterator i;
+      typename transitions_t::const_iterator i;
       for (i = st.begin(); i != st.end(); ++i)
 	res &= bdd_support(i->condition);
 
@@ -674,17 +672,14 @@ namespace spot
     mutable bdd all_acceptance_conditions_;
     mutable bool all_acceptance_conditions_computed_;
     bdd neg_acceptance_conditions_;
+    to_string_func_t to_string_func_;
   };
 
   template <typename State>
   class tgba_explicit: public explicit_graph<State, tgba>
   {
   public:
-    typedef typename State::transition transition;
-    typedef State state;
-
-    tgba_explicit(bdd_dict* dict):
-      explicit_graph<State,tgba>(dict)
+    tgba_explicit(bdd_dict* dict): explicit_graph<State,tgba>(dict)
     {
     }
 
@@ -702,11 +697,7 @@ namespace spot
   class sba_explicit: public explicit_graph<State, sba>
   {
   public:
-    typedef typename State::transition transition;
-    typedef State state;
-
-    sba_explicit(bdd_dict* dict):
-      explicit_graph<State, sba>(dict)
+    sba_explicit(bdd_dict* dict): explicit_graph<State, sba>(dict)
     {
     }
 
@@ -741,15 +732,90 @@ namespace spot
   };
 
 
+  // It is tempting to write
+  //
+  // template<template<typename T>class graph, typename Type>
+  // class explicit_conf: public graph<T>
+  //
+  // to simplify the typedefs at the end of the file, however swig
+  // cannot parse this syntax.
+
+  /// Configuration of graph automata
+  /// \ingroup tgba_representation
+  template<class graph, typename Type>
+  class explicit_conf: public graph
+  {
+  public:
+    explicit_conf(bdd_dict* d): graph(d)
+    {
+      set_to_string_func(to_string);
+    };
+
+    static std::string to_string(const typename Type::label_t& l)
+    {
+      std::stringstream ss;
+      ss << l;
+      return ss.str();
+    }
+  };
+
+  template<class graph>
+  class explicit_conf<graph, state_explicit_string>: public graph
+  {
+  public:
+    explicit_conf(bdd_dict* d): graph(d)
+    {
+      set_to_string_func(to_string);
+    };
+
+    static std::string to_string(const std::string& l)
+    {
+      return l;
+    }
+  };
+
+  template<class graph>
+  class explicit_conf<graph, state_explicit_formula>: public graph
+  {
+  public:
+    explicit_conf(bdd_dict* d): graph(d)
+    {
+      set_to_string_func(to_string);
+    };
+
+    // Enable UTF8 output for the formulae that label states.
+    void enable_utf8()
+    {
+      set_to_string_func(to_utf8_string);
+    }
+
+    static std::string to_string(const ltl::formula* const& l)
+    {
+      return ltl::to_string(l);
+    }
+
+    static std::string to_utf8_string(const ltl::formula* const& l)
+    {
+      return ltl::to_utf8_string(l);
+    }
+  };
+
+
   // Typedefs for tgba
-  typedef tgba_explicit<state_explicit_string> tgba_explicit_string;
-  typedef tgba_explicit<state_explicit_formula> tgba_explicit_formula;
-  typedef tgba_explicit<state_explicit_number> tgba_explicit_number;
+  typedef explicit_conf<tgba_explicit<state_explicit_string>,
+			state_explicit_string> tgba_explicit_string;
+  typedef explicit_conf<tgba_explicit<state_explicit_formula>,
+			state_explicit_formula> tgba_explicit_formula;
+  typedef explicit_conf<tgba_explicit<state_explicit_number>,
+			state_explicit_number> tgba_explicit_number;
 
   // Typedefs for sba
-  typedef sba_explicit<state_explicit_string> sba_explicit_string;
-  typedef sba_explicit<state_explicit_formula> sba_explicit_formula;
-  typedef sba_explicit<state_explicit_number> sba_explicit_number;
+  typedef explicit_conf<sba_explicit<state_explicit_string>,
+			state_explicit_string> sba_explicit_string;
+  typedef explicit_conf<sba_explicit<state_explicit_formula>,
+			state_explicit_formula> sba_explicit_formula;
+  typedef explicit_conf<sba_explicit<state_explicit_number>,
+			state_explicit_number> sba_explicit_number;
 }
 
 #endif // SPOT_TGBA_TGBAEXPLICIT_HH

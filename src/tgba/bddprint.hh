@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2003, 2004, 2012  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -113,6 +113,8 @@ namespace spot
   std::ostream& bdd_print_table(std::ostream& os,
 				const bdd_dict* dict, bdd b);
 
+  /// \brief Enable UTF-8 output for bdd printers.
+  void enable_utf8();
 }
 
 #endif // SPOT_TGBA_BDDPRINT_HH

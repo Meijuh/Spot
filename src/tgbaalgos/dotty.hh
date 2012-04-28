@@ -1,4 +1,7 @@
-// Copyright (C) 2003, 2004, 2011  Laboratoire d'Informatique de Paris 6 (LIP6),
+// -*- coding: utf-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
+// Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -22,27 +25,29 @@
 #ifndef SPOT_TGBAALGOS_DOTTY_HH
 # define SPOT_TGBAALGOS_DOTTY_HH
 
-#include "dottydec.hh"
 #include <iosfwd>
 
 namespace spot
 {
   class tgba;
+  class dotty_decorator;
 
   /// \brief Print reachable states in dot format.
   /// \ingroup tgba_io
   ///
-  /// If assume_sba is set, this assumes that the automaton
+  /// If \a assume_sba is set, this assumes that the automaton
   /// is an SBA and use double elipse to mark accepting states.
   ///
   /// The \a dd argument allows to customize the output in various
   /// ways.  See \ref tgba_dotty "this page" for a list of available
-  /// decorators.
+  /// decorators.  If no decorator is specified, the dotty_decorator
+  /// is used.
+  /// labels the transitions are encoded in UTF-8.
   std::ostream&
   dotty_reachable(std::ostream& os,
 		  const tgba* g,
 		  bool assume_sba = false,
-		  dotty_decorator* dd = dotty_decorator::instance());
+		  dotty_decorator* dd = 0);
 }
 
 #endif // SPOT_TGBAALGOS_DOTTY_HH

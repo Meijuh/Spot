@@ -24,10 +24,12 @@
 #include <ostream>
 #include "tgba/tgba.hh"
 #include "dotty.hh"
+#include "dottydec.hh"
 #include "tgba/bddprint.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
 #include "tgba/tgbatba.hh"
+#include "tgba/formula2bdd.hh"
 
 namespace spot
 {
@@ -126,6 +128,8 @@ namespace spot
   dotty_reachable(std::ostream& os, const tgba* g,
 		  bool assume_sba, dotty_decorator* dd)
   {
+    if (!dd)
+      dd = dotty_decorator::instance();
     dotty_bfs d(os, g, assume_sba, dd);
     d.run();
     return os;

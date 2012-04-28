@@ -213,9 +213,23 @@ using namespace spot;
   spot::explicit_graph<state_explicit_number, tgba>;
 %template(explicit_graph__formula_tgba)
   spot::explicit_graph<state_explicit_formula, tgba>;
-%template(tgba_explicit__string) spot::tgba_explicit<state_explicit_string>;
-%template(tgba_explicit__number) spot::tgba_explicit<state_explicit_number>;
-%template(tgba_explicit__formula) spot::tgba_explicit<state_explicit_formula>;
+
+%template(explicit_string_tgba)
+  spot::explicit_graph<state_explicit_string, tgba>;
+%template(explicit_number_tgba)
+  spot::tgba_explicit<state_explicit_formula>;
+%template(explicit__number_tgba)
+  spot::tgba_explicit<state_explicit_number>;
+
+%template(explicit_string__tgba)
+  spot::explicit_conf<tgba_explicit<state_explicit_string>,
+                      state_explicit_string>;
+%template(explicit_number__tgba)
+  spot::explicit_conf<tgba_explicit<state_explicit_number>,
+		      state_explicit_number>;
+%template(explicit_formula__tgba)
+  spot::explicit_conf<tgba_explicit<state_explicit_formula>,
+		      state_explicit_formula>;
 
 %include "tgbaalgos/dottydec.hh"
 %include "tgbaalgos/dotty.hh"
@@ -300,6 +314,14 @@ minimize_obligation_new(const spot::tgba* a, const spot::ltl::formula* f)
     return 0;
   else
     return res;
+}
+
+void
+tgba_enable_utf8(spot::tgba* a)
+{
+  if (spot::tgba_explicit_formula* tef =
+      dynamic_cast<spot::tgba_explicit_formula*>(a))
+    tef->enable_utf8();
 }
 
 spot::ltl::parse_error_list

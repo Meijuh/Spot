@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -36,6 +36,19 @@ namespace spot
   /// Global flag to enable Acc[x] output (instead of `x').
   static bool want_acc;
 
+  /// Global flag to enable UTF-8 output.
+  static bool utf8;
+
+  static
+  std::ostream& print_ltl(const ltl::formula* f, std::ostream& o)
+  {
+    if (utf8)
+      ltl::to_utf8_string(f, o);
+    else
+      ltl::to_string(f, o);
+    return o;
+  }
+
   /// Stream handler used by Buddy to display BDD variables.
   static void
   print_handler(std::ostream& o, int var)
@@ -52,12 +65,12 @@ namespace spot
 	    if (want_acc)
 	      {
 		o << "Acc[";
-		to_string(isi->second, o) << "]";
+		print_ltl(isi->second, o) << "]";
 	      }
 	    else
 	      {
 		o << "\"";
-		to_string(isi->second, o) << "\"";
+		print_ltl(isi->second, o) << "\"";
 	      }
 	  }
 	else
@@ -65,14 +78,16 @@ namespace spot
 	    isi = dict->now_formula_map.find(var);
 	    if (isi != dict->now_formula_map.end())
 	      {
-		o << "Now["; to_string(isi->second, o) << "]";
+		o << "Now[";
+		print_ltl(isi->second, o) << "]";
 	      }
 	    else
 	      {
 		isi = dict->now_formula_map.find(var - 1);
 		if (isi != dict->now_formula_map.end())
 		  {
-		    o << "Next["; to_string(isi->second, o) << "]";
+		    o << "Next[";
+		    print_ltl(isi->second, o) << "]";
 		  }
 		else
 		  {
@@ -202,7 +217,7 @@ namespace spot
   bdd_print_formula(std::ostream& os, const bdd_dict* d, bdd b)
   {
     const ltl::formula* f = bdd_to_formula(b, d);
-    to_string(f, os);
+    print_ltl(f, os);
     f->destroy();
     return os;
   }
@@ -237,4 +252,9 @@ namespace spot
     return os;
   }
 
+  void
+  enable_utf8()
+  {
+    utf8 = true;
+  }
 }

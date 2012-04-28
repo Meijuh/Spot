@@ -266,6 +266,7 @@ syntax(char* prog)
 	    << "Miscellaneous options:" << std::endl
 	    << "  -0    produce minimal output dedicated to the paper"
 	    << std::endl
+	    << "  -8    output UTF-8 formulae" << std::endl
 	    << "  -d    turn on traces during parsing" << std::endl
             << "  -T    time the different phases of the translation"
 	    << std::endl
@@ -281,6 +282,7 @@ main(int argc, char** argv)
 
   bool debug_opt = false;
   bool paper_opt = false;
+  bool utf8_opt = false;
   enum { NoDegen, DegenTBA, DegenSBA } degeneralize_opt = NoDegen;
   enum { TransitionLabeled, StateLabeled } labeling_opt = TransitionLabeled;
   enum { TransFM, TransLaCIM, TransLaCIM_ELTL, TransLaCIM_ELTL_ops, TransTAA }
@@ -304,7 +306,7 @@ main(int argc, char** argv)
   spot::ltl::ltl_simplifier_options redopt(false, false, false, false, false);
   bool scc_filter_all = false;
   bool symbolic_scc_pruning = false;
-  bool display_reduce_form = false;
+  bool display_reduced_form = false;
   bool post_branching = false;
   bool fair_loop_approx = false;
   bool graph_run_opt = false;
@@ -338,6 +340,11 @@ main(int argc, char** argv)
       if (!strcmp(argv[formula_index], "-0"))
 	{
 	  paper_opt = true;
+	}
+      else if (!strcmp(argv[formula_index], "-8"))
+	{
+	  utf8_opt = true;
+	  spot::enable_utf8();
 	}
       else if (!strcmp(argv[formula_index], "-a"))
 	{
@@ -609,7 +616,7 @@ main(int argc, char** argv)
 	}
       else if (!strcmp(argv[formula_index], "-rd"))
 	{
-	  display_reduce_form = true;
+	  display_reduced_form = true;
 	}
       else if (!strcmp(argv[formula_index], "-RDS"))
         {
@@ -772,9 +779,9 @@ main(int argc, char** argv)
 
   if (f || from_file)
     {
-      const spot::tgba_bdd_concrete* concrete = 0;
+      spot::tgba_bdd_concrete* concrete = 0;
       const spot::tgba* to_free = 0;
-      const spot::tgba* a = 0;
+      spot::tgba* a = 0;
 
       if (from_file)
 	{
@@ -822,8 +829,13 @@ main(int argc, char** argv)
 	      f->destroy();
 	      tm.stop("reducing formula");
 	      f = t;
-	      if (display_reduce_form)
-		std::cout << spot::ltl::to_string(f) << std::endl;
+	      if (display_reduced_form)
+		{
+		  if (utf8_opt)
+		    std::cout << spot::ltl::to_utf8_string(f) << std::endl;
+		  else
+		    std::cout << spot::ltl::to_string(f) << std::endl;
+		}
 	    }
 
 	  if (f->is_psl_formula()
@@ -900,14 +912,13 @@ main(int argc, char** argv)
       if (scc_filter)
 	{
 	  tm.start("reducing A_f w/ SCC");
-	  a = aut_scc = spot::scc_filter(a, scc_filter_all);
+	  aut_scc = a = spot::scc_filter(a, scc_filter_all);
 	  tm.stop("reducing A_f w/ SCC");
 	}
 
-      const spot::tgba_tba_proxy* degeneralized = 0;
-      const spot::tgba_sgba_proxy* state_labeled = 0;
+      const spot::tgba* degeneralized = 0;
 
-      const spot::tgba* minimized = 0;
+      spot::tgba* minimized = 0;
       if (opt_minimize)
 	{
 	  tm.start("obligation minimization");
@@ -961,39 +972,39 @@ main(int argc, char** argv)
 	{
 	  if (degeneralize_opt == DegenTBA)
 	    {
-	      a = degeneralized = new spot::tgba_tba_proxy(a);
+	      degeneralized = a = new spot::tgba_tba_proxy(a);
 	    }
 	  else if (degeneralize_opt == DegenSBA)
 	    {
-	      a = degeneralized = new spot::tgba_sba_proxy(a);
+	      degeneralized = a = new spot::tgba_sba_proxy(a);
 	      assume_sba = true;
 	    }
 	  else if (labeling_opt == StateLabeled)
 	    {
-	      a = state_labeled = new spot::tgba_sgba_proxy(a);
+	      degeneralized = a = new spot::tgba_sgba_proxy(a);
 	    }
 	}
 
       if (opt_monitor)
 	{
 	  tm.start("Monitor minimization");
-	  a = minimized = minimize_monitor(a);
+	  minimized = a = minimize_monitor(a);
 	  tm.stop("Monitor minimization");
 	  assume_sba = false; 	// All states are accepting, so double
 				// circles in the dot output are
 				// pointless.
 	}
 
-      const spot::tgba_explicit_string* expl = 0;
+      const spot::tgba* expl = 0;
       switch (dupexp)
 	{
 	case NoneDup:
 	  break;
 	case BFS:
-	  a = expl = tgba_dupexp_bfs(a);
+	  expl = a = tgba_dupexp_bfs(a);
 	  break;
 	case DFS:
-	  a = expl = tgba_dupexp_dfs(a);
+	  expl = a = tgba_dupexp_dfs(a);
 	  break;
 	}
 
@@ -1001,7 +1012,7 @@ main(int argc, char** argv)
 
       if (system)
         {
-          a = product = product_to_free = new spot::tgba_product(system, a);
+          product = product_to_free = a = new spot::tgba_product(system, a);
 
 	  assume_sba = false;
 
@@ -1013,12 +1024,12 @@ main(int argc, char** argv)
             degeneralize_opt = DegenTBA;
           if (degeneralize_opt == DegenTBA)
 	    {
-	      a = product = product_degeneralized =
+	      product = product_degeneralized = a =
 		new spot::tgba_tba_proxy(product);
 	    }
           else if (degeneralize_opt == DegenSBA)
 	    {
-	      a = product = product_degeneralized =
+	      product = product_degeneralized = a =
 		new spot::tgba_sba_proxy(product);
 	      assume_sba = true;
 	    }
@@ -1046,6 +1057,11 @@ main(int argc, char** argv)
 	{
 	  a = new spot::future_conditions_collector(a, true);
 	}
+
+      if (utf8_opt)
+	if (spot::tgba_explicit_formula* tef =
+	    dynamic_cast<spot::tgba_explicit_formula*>(a))
+	  tef->enable_utf8();
 
       if (output != -1)
 	{
@@ -1266,7 +1282,7 @@ main(int argc, char** argv)
 				{
 				  spot::tgba* ar =
 				    spot::tgba_run_to_tgba(a, run);
-				  spot::dotty_reachable(std::cout, ar);
+				  spot::dotty_reachable(std::cout, ar, false);
 				  delete ar;
 				}
 			      else
@@ -1301,7 +1317,6 @@ main(int argc, char** argv)
       delete minimized;
       delete degeneralized;
       delete aut_scc;
-      delete state_labeled;
       delete to_free;
       delete echeck_inst;
       delete temp_dir_sim;
