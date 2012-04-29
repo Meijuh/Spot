@@ -30,6 +30,7 @@
 #include "ltlast/allnodes.hh"
 #include "ltlast/visitor.hh"
 #include "lunabbrev.hh"
+#include "wmunabbrev.hh"
 #include "tostring.hh"
 
 
@@ -108,8 +109,8 @@ namespace spot
 	" <-> ",		// rewritten
 	" U ",
 	" V ",
-	" W ",			// not supported
-	" M ",			// not supported
+	" W ",			// rewritten
+	" M ",			// rewritten
 	"<>-> ",		// not supported
 	"<>=> ",		// not supported
 	"<>+> ",		// not supported
@@ -754,9 +755,12 @@ namespace spot
     {
       // Remove xor, ->, and <-> first.
       formula* fu = unabbreviate_logic(f);
-      to_string_visitor v(os, full_parent, false, spin_kw);
-      fu->accept(v);
+      // Also remove W and M.
+      f = unabbreviate_wm(fu);
       fu->destroy();
+      to_string_visitor v(os, full_parent, false, spin_kw);
+      f->accept(v);
+      f->destroy();
       return os;
     }
 

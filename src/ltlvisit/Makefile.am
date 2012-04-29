@@ -45,7 +45,8 @@ ltlvisit_HEADERS = \
   simplify.hh \
   snf.hh \
   tostring.hh \
-  tunabbrev.hh
+  tunabbrev.hh \
+  wmunabbrev.hh
 
 noinst_LTLIBRARIES = libltlvisit.la
 libltlvisit_la_SOURCES = \
@@ -66,4 +67,5 @@ libltlvisit_la_SOURCES = \
   simplify.cc \
   snf.cc \
   tostring.cc \
-  tunabbrev.cc
+  tunabbrev.cc \
+  wmunabbrev.cc

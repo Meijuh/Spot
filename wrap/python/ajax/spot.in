@@ -395,6 +395,11 @@ if output_type == 'f':
     elif formula_format == 'i':
         unbufprint('<div class="formula spin-format">'
                    + spot.to_spin_string(f) + '</div>')
+        if f.is_psl_formula() and not f.is_ltl_formula():
+            s = ''
+            if simpopt.reduce_size_strictly:
+                s = '<br><b>Try enabling larger formula rewritings.</b>'
+            unbufprint('<div class="error">The above formula contains PSL operators that Spin will not understand.%s</div>' % s)
     elif formula_format == 'g':
         render_formula(f)
     elif formula_format == 'p':

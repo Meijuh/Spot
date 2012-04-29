@@ -456,9 +456,9 @@ instance \samp{(a\&c\&b\&!d)->(c\&!d\&b\&a)} will be rewritten to
 
 \subsection{Unabbreviations}\label{sec:unabbbool}
 
-The `\verb=unabbreviate_logic_visitor=' rewrites all Boolean operators
-using only the \samp{!}, \samp{\&}, and \samp{|} operators using the
-following rewritings:
+The `\verb=unabbreviate_logic()=' function rewrites all Boolean
+operators using only the \samp{!}, \samp{\&}, and \samp{|} operators
+using the following rewritings:
 \begin{align*}
   f\IMPLIES g &\equiv  (\NOT f)\OR g\\
   f\EQUIV g &\equiv  (f\AND g)\OR ((\NOT g)\AND(\NOT f))\\
@@ -544,16 +544,20 @@ and $\W$ if you are only familiar with $\X$ and $\U$.
 
 \subsection{Unabbreviations}
 
-The `\verb=unabbreviate_ltl_visitor=' applies all the rewritings from
+The `\verb=unabbreviate_ltl()=' function applies all the rewritings from
 section~\ref{sec:unabbbool} as well as the following two rewritings:
 \begin{align*}
   \F f&\equiv \1\U f\\
   \G f&\equiv \0\R f
 \end{align*}
 
-\spottodo[inline]{Spot should offer some way to rewrite a formula to
-  selectively remove $\U$, $\R$, $\M$, or $\W$, using the equivalences
-  from Appendix~\ref{sec:ltl-equiv}.}
+The `\verb=unabbreviate_wm()=` function removes only the $\W$ and $\M$
+operators using the following two rewritings:
+
+\begin{align*}
+  f \W g&\equiv g \R (g \OR f)\\
+  f \M g&\equiv g \U (g \AND f)
+\end{align*}
 
 \section{SERE Operators}
 
