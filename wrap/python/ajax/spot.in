@@ -135,8 +135,10 @@ os.dup2(fd, sys.stdout.fileno())
 # allowed to send strings to sys.stdout.  Always use the following
 # method instead.
 def unbufprint(s):
-    sys.stdout.write(s.encode("utf-8"))
-
+    if sys.getdefaultencoding() != 'ascii':
+        sys.stdout.write(s.encode("utf-8"))
+    else:
+        sys.stdout.write(s)
 
 def finish(kill = False):
     # Output the result and exit.
@@ -262,6 +264,8 @@ def render_dot_maybe(dotsrc, dont_run_dot):
     # This way we can cache two different requests that generate
     # the same automaton (e.g., when changing a simplification
     # option that has no influence).
+    if sys.getdefaultencoding() != 'ascii':
+        dotsrc = dotsrc.encode('utf-8')
     autprefix = (imgdir + '/' + hashlib.sha1(dotsrc).hexdigest())
     dotname = autprefix + '.txt'
     if not os.access(dotname, os.F_OK):
@@ -279,13 +283,10 @@ However you may download the <a href="''' + cgi.escape(autprefix)
     else:
         render_dot(autprefix)
 
-def render_automaton(automaton, dont_run_dot, issba, deco = False):
+def render_automaton(automaton, dont_run_dot, issba, deco = None):
     dotsrc = spot.ostringstream()
-    if not deco:
-        spot.dotty_reachable(dotsrc, automaton, issba)
-    else:
-        spot.dotty_reachable(dotsrc, automaton, issba, deco)
-    render_dot_maybe(dotsrc.str().encode('utf-8'), dont_run_dot)
+    spot.dotty_reachable(dotsrc, automaton, issba, deco)
+    render_dot_maybe(dotsrc.str(), dont_run_dot)
 
 def render_formula(f):
     dotsrc = spot.ostringstream()
@@ -318,6 +319,13 @@ def print_stats(automaton):
         return "Automaton has too much transitions per state"
     return False
 
+def format_formula(f, kind='div'):
+    if utf8:
+        s = spot.to_utf8_string(f)
+    else:
+        s = str(f)
+    return '<%s class="formula spot-format">%s</%s>' % (kind, s, kind)
+
 form = cgi.FieldStorage()
 
 output_type = form.getfirst('o', 'v');
@@ -332,6 +340,13 @@ spot.unblock_signal(signal.SIGTERM)
 os.setpgrp()
 signal.signal(signal.SIGALRM, alarm_handler)
 reset_alarm()
+
+# Global options
+utf8 = False
+for g in form.getlist('g'):
+    if g == '8':
+        utf8 = True
+        spot.enable_utf8()
 
 formula = form.getfirst('f', '')
 
@@ -376,14 +391,18 @@ if output_type == 'f':
     formula_format = form.getfirst('ff', 'o')
     # o = Spot, i = Spin, g = GraphViz, p = properties
     if formula_format == 'o':
-        unbufprint('<div class="formula spot-format">%s</div>' % f)
+        unbufprint(format_formula(f))
     elif formula_format == 'i':
         unbufprint('<div class="formula spin-format">'
                    + spot.to_spin_string(f) + '</div>')
     elif formula_format == 'g':
         render_formula(f)
     elif formula_format == 'p':
-        unbufprint('Properties for <span class="formula spot-format">%s</span><ul>\n' % f)
+        if utf8:
+            s = spot.to_utf8_string(f)
+        else:
+            s = str(f)
+        unbufprint('Properties for ' + format_formula(f, 'span') + '<ul>\n')
         for p in spot.list_formula_props(f):
             unbufprint('<li>%s</li>\n' % p)
 
@@ -412,9 +431,9 @@ if output_type == 'f':
 translator = form.getfirst('t', 'fm')
 
 if f.is_psl_formula() and not f.is_ltl_formula() and translator != 'fm':
-    print ('''<div class="error">The PSL formula
-<span class="formula spot-format">%s</span>
-cannot be translated using this algorithm.  Please use Couveur/FM.''' % f);
+    print ('''<div class="error">The PSL formula %s
+cannot be translated using this algorithm.  Please use Couveur/FM.'''
+           % format_formula(f, 'span'));
     finish()
 
 dict = spot.bdd_dict()
@@ -512,6 +531,9 @@ if degen or neverclaim:
     issba = True
 else:
     degen = automaton
+
+if utf8:
+    spot.tgba_enable_utf8(automaton)
 
 # Buchi Automaton Output
 if output_type == 'a':

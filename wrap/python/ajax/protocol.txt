@@ -74,3 +74,7 @@ Automaton simplifications (pick many)
   as=ps   Prune SCC
   as=wd   WDBA minimiztion
   as=ds   Direct Simulation reduction
+
+Global options
+
+  g=8     Enable UTF-8 output.

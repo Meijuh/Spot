@@ -84,6 +84,10 @@ table.ltltable
     text-transform: capitalize;
 }
 
+.floatright {
+    float: right;
+}
+
 .ltl2tgba .head .ui-icon {
     float: right;
     margin: 1px 0px;

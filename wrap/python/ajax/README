@@ -21,6 +21,7 @@ to http://localhost:8000/ltl2tgba.html and you should be OK.
 After you have killed the server process (e.g. with Control-C),
 you may want to erase the spotimg/ directory.
 
+
 Installing on a real web server
 ===============================
 
@@ -50,7 +51,7 @@ Installing on a real web server
 
 3) In the directory where you have installed spot.py,
    create a subdirectory called spotimg/.  This is where
-   the script will output its images and other temporary
+   the script will cache its images and other temporary
    files.  (If you want to change this name, see the imgdir
    variable at the top of the script.)
 
@@ -58,9 +59,21 @@ Installing on a real web server
    will run the script when the HTTP server processes the
    request.
 
-   spot.py purges old files (>15min) from this directory
-   each time it runs.
+   spot.py purges old files at most once every hour.
 
 4) Copy the directories css/, js/, and logos/ along with ltl2tgba.html
    to there destination.  You may have to adjust a few paths at the
    top of the html page.
+
+
+Debugging
+=========
+
+The hash string displayed in the web browser is the query string sent
+to the CGI script, so you can simulate the call from the command line
+with a command like this:
+
+  % export QUERY_STRING="f=a+U+b&r=br&r=lf&r=si&r=eu&o=a&ff=o&mf=d&af=t&ra=t&rf=p&t=fm&fm=od&fm=sm&la=sp&ta=lc&as=ps&ec=Cou99&eo="
+  % export SCRIPT_NAME=spot.py
+  % export SERVER_SOFTWARE=SimpleHTTP
+  % ./spot.py
