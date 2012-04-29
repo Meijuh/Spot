@@ -1294,6 +1294,22 @@ namespace spot
 			     : constant::false_instance());
 		  return;
 		}
+	      if (!opt_.reduce_size_strictly)
+		if (multop* mo = is_OrRat(result_))
+		  {
+		    //  {a₁|a₂} =  {a₁}| {a₂}
+		    // !{a₁|a₂} = !{a₁}&!{a₂}
+		    unsigned s = mo->size();
+		    multop::vec* v = new multop::vec;
+		    for (unsigned n = 0; n < s; ++n)
+		      v->push_back(unop::instance(op, mo->nth(n)->clone()));
+		    mo->destroy();
+		    result_ =
+		      recurse_destroy(multop::instance(op == unop::Closure
+						       ? multop::Or
+						       : multop::And, v));
+		    return;
+		  }
 	      if (multop* mo = is_Concat(result_))
 		{
 		  unsigned end = mo->size() - 1;

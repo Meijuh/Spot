@@ -1502,7 +1502,9 @@ Here are basic the rewritings for the weak closure and its negation:
   \sere{b\STAR{\mvar{i}..\mvar{j}};r}&\equiV \underbrace{b\AND \X(b\ldots}_{\mathclap{i\text{~occurences of~}b}}\AND\X\sere{b\STAR{\mvar{0}..\mvar{j-i}}\CONCAT r})&
   \nsere{b\STAR{\mvar{i}..\mvar{j}};r}&\equiV \underbrace{(\NOT b)\OR \X((\NOT b)\ldots}_{\mathclap{i\text{~occurences of~}\NOT b}}\OR\X\nsere{b\STAR{\mvar{0}..\mvar{j-i}}\CONCAT r}) \\
   \sere{b\STAR{\mvar{i}..\mvar{j}}}&\equiV \underbrace{b\AND \X(b\AND \X(\ldots b))}_{i\text{~occurences of~}b}&
-  \nsere{b\STAR{\mvar{i}..\mvar{j}}}&\equiV \underbrace{(\NOT b)\OR \X((\NOT b)\OR \X(\ldots(\NOT b)))}_{i\text{~occurences of~}\NOT b}
+  \nsere{b\STAR{\mvar{i}..\mvar{j}}}&\equiV \underbrace{(\NOT b)\OR \X((\NOT b)\OR \X(\ldots(\NOT b)))}_{i\text{~occurences of~}\NOT b}\\
+  \sere{r_1\OR r_2}&\equiV\sere{r_1}\OR\sere{r_2} &
+  \nsere{r_1\OR r_2}&\equiV\nsere{r_1}\AND\nsere{r_2}
 \end{align*}
 
 \subsection{Simplifications for Eventual and Universal Formul\ae}
