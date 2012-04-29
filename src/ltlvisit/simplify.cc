@@ -2156,10 +2156,16 @@ namespace spot
 
 		    // a R (b & c & F(a)) = a M (b & c)
 		    // a M (b & c & F(a)) = a M (b & c)
+		    // a M (b | a | c) == (b | c) U a
+		    // a R (b | a | c) == (b | c) W a
 		    if (b->kind() == formula::MultOp)
 		      {
 			multop* fm2 = static_cast<multop*>(b);
-			if (fm2->op() == multop::And)
+			multop::type bt = fm2->op();
+
+			// a R (b & c & F(a)) = a M (b & c)
+			// a M (b & c & F(a)) = a M (b & c)
+			if (bt == multop::And)
 			  {
 			    int s = fm2->size();
 			    for (int i = 0; i < s; ++i)
@@ -2175,8 +2181,23 @@ namespace spot
 				return;
 			      }
 			  }
+			// a M (b | a | c) == (b | c) U a
+			// a R (b | a | c) == (b | c) W a
+			if (bt == multop::Or)
+			  {
+			    int s = fm2->size();
+			    for (int i = 0; i < s; ++i)
+			      {
+				if (fm2->nth(i) != a)
+				  continue;
+				result_ = recurse_destroy(binop::instance
+				  (op == binop::M ? binop::U : binop::W,
+				   fm2->all_but(i), a));
+				b->destroy();
+				return;
+			      }
+			  }
 		      }
-
 		    // If b is Boolean:
 		    // (Xc) R b = b & X(b W c)
 		    // (Xc) M b = b & X(b U c)

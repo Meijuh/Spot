@@ -1322,7 +1322,8 @@ $b$ denotes a Boolean formula.
   f \M(\F f)          & \equiv \F f            & f \R(\F f)          & \equiv \F f            \\
   f \U (g \OR \G(f))  & \equiv f\W g           & f \W (g \OR \G(f))  & \equiv f\W g           \\
   f \M (g \AND \F(f)) & \equiv f\M g           & f \R (g \AND \F(f)) & \equiv f\M g           \\
-  f \U (g \AND f)     & \equiv g\M f           & f \W (g \AND f)     & \equiv g\R f
+  f \U (g \AND f)     & \equiv g\M f           & f \W (g \AND f)     & \equiv g\R f           \\
+  f \M (g \OR f)      & \equiv g\U f           & f \R (g \OR f)      & \equiv g\W f
 \end{align*}
 
 Here are the basic rewriting rules for $n$-ary operators ($\AND$ and
@@ -1618,23 +1619,19 @@ sometimes generalized to support operators such as $\M$ and $\W$.
 The operators \samp{F}, \samp{G}, \samp{U}, \samp{R}, \samp{M}, and
 \samp{W} can all be defined using only Boolean operators, \samp{X},
 and one of \samp{U}, \samp{W}, \samp{R}, or \samp{M}.  This property
-is usually used to simplify proofs.
-
-These equivalences can also help to understand the semantics of
-section~\ref{sec:opltl:sem} if you are only familiar with some of the
-operators.
-
-
+is usually used to simplify proofs.  These equivalences can also help
+to understand the semantics of section~\ref{sec:opltl:sem} if you are
+only familiar with some of the operators.
 {\allowdisplaybreaks
 \begin{align*}
 \intertext{Equivalences using $\U$:}
   \F f &\equiv \1\U f\\
   \G f &\equiv \NOT\F\NOT f\equiv \NOT(\1\U\NOT f)\\
-  f\W g &\equiv (f\U g)\OR(\G f)\equiv (f\U g)\OR\NOT(\1\U\NOT f)\\
+  f\W g &\equiv (f\U g)\OR\G f\equiv (f\U g)\OR\NOT(\1\U\NOT f)\\
         &\equiv f\U (g\OR \G f)\equiv f\U (g\OR\NOT(\1\U\NOT f))\\
   f\M g &\equiv g \U (f\AND g)\\
   f\R g &\equiv g \W (f\AND g) \equiv (g \U (f\AND g))\OR\NOT(\1\U\NOT g)\\
-        &\phantom{\equiv g \W (f\AND g)} \equiv g \U ((f\AND g)\OR\NOT(\1\U\NOT g))\\
+        &\phantom{{}\equiv g \W (f\AND g)} \equiv g \U ((f\AND g)\OR\NOT(\1\U\NOT g))\\
 \intertext{Equivalences using $\W$:}
   \F f &\equiv \NOT\G\NOT f\equiv \NOT((\NOT f)\W\0)\\
   \G f &\equiv \0\R f \equiv f\W \0\\
@@ -1645,13 +1642,15 @@ operators.
   \F f &\equiv \NOT\G\NOT f\equiv \NOT (\0\R\NOT f)\\
   \G f &\equiv \0 \R f \\
   f\U g&\equiv (((\X g) \R f)\AND\F g)\OR g \equiv (((\X g) \R f)\AND(\NOT (\0\R\NOT g)))\OR g \\
-  f \W g&\equiv ((\X g)\R f)\OR g\\
+  f \W g&\equiv g\R(f\OR g)\\
+        &\equiv ((\X g)\R f)\OR g\\
   f \M g&\equiv (f \R g)\AND\F f\equiv (f \R g)\AND\NOT (\0\R\NOT f)\\
         &\equiv f \R (g\AND\F g)\equiv f \R (g\AND\NOT (\0\R\NOT f))\\
 \intertext{Equivalences using $\M$:}
   \F f &\equiv f\M\1\\
   \G f &\equiv \NOT\F\NOT f \equiv \NOT((\NOT f)\M\1)\\
-  f\U g&\equiv ((\X g)\M f)\OR g \\
+  f\U g&\equiv g\M (f\OR g) \\
+       &\equiv ((\X g)\M f)\OR g \\
   f \W g&\equiv (f\U g)\OR \G f \equiv ((\X g)\M f)\OR g\OR \NOT((\NOT f)\M\1)\\
   f \R g&\equiv (f \M g)\OR\G g \equiv (f \M g)\OR \NOT((\NOT g)\M\1)
 \end{align*}}
@@ -1674,7 +1673,7 @@ to have trouble when the $\X$ operator is involved.  For instance $(f
 which looks like it should be reduced similarly to $f \U \X g$, will
 be rewritten instead to $(f \W \X g) \AND \X\F g$, because $\X\F g
 \equiv \F\X g$ is another rule that gets applied first during the
-bottom up rewriting.
+bottom-up rewriting.
 
 \chapter{Syntactic Implications}\label{ann:syntimpl}
 

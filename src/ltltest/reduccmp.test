@@ -202,6 +202,10 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x 'a|(c&X((b&c) W a)&b)|d' '((b&c) W a)|d'
      run 0 $x 'a&(c|b|X((b|c) M a))&d' '((b|c) M a)&d'
      run 0 $x 'a&(c|X((b|c) R a)|b)&d' '((b|c) R a)&d'
+     run 0 $x 'g R (f|g|h)' '(f|h) W g'
+     run 0 $x 'g M (f|g|h)' '(f|h) U g'
+     run 0 $x 'g U (f&g&h)' '(f&h) M g'
+     run 0 $x 'g W (f&g&h)' '(f&h) R g'
 
      # Syntactic implication
      run 0 $x '(a & b) R (a R c)' '(a & b)R c'
