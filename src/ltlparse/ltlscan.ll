@@ -158,7 +158,9 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 "W"				BEGIN(0); return token::OP_W;
 "M"				BEGIN(0); return token::OP_M;
 
-"=0"				return token::OP_POST_NEG;
+  /* The combining overline or macron (overbar) should normally
+     occur only after a single letter, but we do not check that. */
+"=0"|"̅"|"̄"			return token::OP_POST_NEG;
 "=1"				return token::OP_POST_POS;
 
 <*>[ \t\n]+			/* discard whitespace */ yylloc->step ();

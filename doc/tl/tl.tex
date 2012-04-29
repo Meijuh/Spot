@@ -381,6 +381,12 @@ syntax \samp{$a$=0}, which is equivalent to \samp{$\NOT a$}.  Also
 \samp{$a$=1} is equivalent to just \samp{a}.  These two syntaxes help
 us read formul\ae{} written using Wring's syntax.
 
+When using UTF-8 input, a \samp{=0} that follow a single-letter atomic
+proposition may be replaced by a combining overline \uni{0305} or a
+combining overbar \uni{0304}.  When instructed to emit UTF-8, Spot
+will output \samp{$\bar{\mathtt{a}}$} using a combining overline
+instead of \samp{$\lnot$a} for any single-letter atomic proposition.
+
 \label{def:boolform}
 When a formula is built using only Boolean constants
 (section~\ref{sec:bool}), atomic proposition (section~\ref{sec:ap}),

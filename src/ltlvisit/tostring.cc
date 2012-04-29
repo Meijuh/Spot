@@ -66,7 +66,7 @@ namespace spot
 	KAndRat,
 	KAndNLM,
 	KConcat,
-	KFusion
+	KFusion,
       };
 
       const char* spot_kw[] = {
@@ -96,7 +96,7 @@ namespace spot
 	" && ",
 	" & ",
 	";",
-	":"
+	":",
       };
 
       const char* spin_kw[] = {
@@ -488,6 +488,7 @@ namespace spot
 	  // propositions.  So make sure we output F(0), G(1), etc.
 	  bool need_parent = (uo->child()->kind() == formula::Constant);
 	  bool top_level = top_level_;
+	  bool overline = false;
 
 	  if (full_parent_)
 	    {
@@ -500,8 +501,18 @@ namespace spot
 	  switch (uo->op())
 	    {
 	    case unop::Not:
-	      emit(KNot);
 	      need_parent = false;
+	      // If we negate a single letter in UTF-8, use a
+	      // combining overline.
+	      if (!full_parent_ && kw_ == utf8_kw)
+		if (const ltl::atomic_prop* ap = is_atomic_prop(uo->child()))
+		  if (ap->name().size() == 1
+		      && is_bare_word(ap->name().c_str()))
+		    {
+		      overline = true;
+		      break;
+		    }
+	      emit(KNot);
 	      break;
 	    case unop::X:
 	      emit(KX);
@@ -549,6 +560,11 @@ namespace spot
 
 	  if (full_parent_ && !top_level)
 	    closep();
+	  else if (overline)
+	    // The following string contains only the character U+0305
+	    // (a combining overline).  It looks better than U+0304 (a
+	    // combining overbar).
+	    os_ << "̅";
 	}
 
 	void
