@@ -206,13 +206,9 @@ element $\sigma(i)\in A$.  The sequence of length $0$ is a particular
 sequence called the \textit{empty word} and denoted $\varepsilon$.  We
 denote $A^n$ the set of all sequences of length $n$ on $A$ (in
 particular $A^\omega$ is the set of infinite sequences on $A$), and
-$A^\star=\cup_{n\in\N}A^n$ denotes the set of all finite sequences.
+$A^\star=\bigcup_{n\in\N}A^n$ denotes the set of all finite sequences.
 The length of $n\in\N\cup\{\omega\}$ any sequence $\sigma$ is noted
 $|\sigma|=n$.
-
-For any set $A$, we note $E^\star$ the set of finite sequence
-built by concatenating elements of $E$, and $E^\omega$ is set of
-infinite sequence over $E$.
 
 For any sequence $\sigma$, we denote $\sigma^{i..j}$ the finite
 subsequence built using letters from $\sigma(i)$ to $\sigma(j)$.  If
@@ -221,23 +217,18 @@ starting at letter $\sigma(i)$.
 
 \section{Usage in Model Checking}
 
-The temporal formul\ae{} described in this document, and used by Spot,
-should be interpreted on a behavior (or an execution) of the system to
-verify.  The idea of model checking is that we want to ensure that a
-formula (the property to verify) holds on all possibles behaviors of
-the system.
+The temporal formul\ae{} described in this document, should be
+interpreted on behaviors (or executions, or scenarios) of the system
+to verify.  In model checking we want to ensure that a formula (the
+property to verify) holds on all possibles behaviors of the system.
 
-In this document we will describe the syntax of the temporal
-formul\ae{} used in Spot, and give their interpretation on an infinite
-sequence.
-
-If we model the system as some sort of giant automaton, where each
-state represent a configuration of the system, a behavior of the
-system can be represented by an infinite sequence of configurations.
-Each configuration can be described as an affectation of some
-proposition variables that we will call atomic propositions.  For
-instance $r=1,y=0,g=0$ describes the configuration of a traffic light
-with only the red light turned on.
+If we model the system as some sort of giant automaton (e.g., a Kripke
+structure) where each state represent a configuration of the system, a
+behavior of the system can be represented by an infinite sequence of
+configurations.  Each configuration can be described by an affectation
+of some proposition variables that we will call \emph{atomic
+  propositions}.  For instance $r=1,y=0,g=0$ describes the
+configuration of a traffic light with only the red light turned on.
 
 Let $\AP$ be a set of atomic propositions, for instance
 $\AP=\{r,y,g\}$.  A configuration of the model is a function
@@ -247,12 +238,12 @@ $\rho:\AP\to\B$ (or $\rho\in\B^\AP$) that associates a truth value
 A behavior of the model is an infinite sequence $\sigma$ of such
 configurations.  In other words: $\sigma\in(\B^\AP)^\omega$.
 
-When a formula $\varphi$ holds on an \emph{infinite} sequence $\sigma$, we
-will write $\sigma \vDash \varphi$ (read as $\sigma$ is a model of
-$\varphi$).
+When a formula $\varphi$ holds on an \emph{infinite} sequence
+$\sigma$, we write $\sigma \vDash \varphi$ (read as $\sigma$ is a
+model of $\varphi$).
 
-When a formula $\varphi$ holds on an \emph{finite} sequence $\sigma$, we
-will write $\sigma \VDash \varphi$.
+When a formula $\varphi$ holds on an \emph{finite} sequence $\sigma$,
+we write $\sigma \VDash \varphi$.
 
 \chapter{Temporal Syntax}
 
@@ -553,11 +544,13 @@ section~\ref{sec:unabbbool} as well as the following two rewritings:
 
 The `\verb=unabbreviate_wm()=` function removes only the $\W$ and $\M$
 operators using the following two rewritings:
-
 \begin{align*}
   f \W g&\equiv g \R (g \OR f)\\
   f \M g&\equiv g \U (g \AND f)
 \end{align*}
+Among all the possible rewritings (see Appendix~\ref{sec:ltl-equiv})
+those two were chosen because they are easier to translate in a
+tableau construction~\cite[Fig.~11]{duret.11.vecos}.
 
 \section{SERE Operators}
 
