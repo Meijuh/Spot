@@ -96,7 +96,8 @@ TESTS = \
   syntimpl.test \
   reduc.test \
   reducpsl.test \
-  reduccmp.test
+  reduccmp.test \
+  uwrm.test
 
 distclean-local:
 	rm -rf $(TESTS:.test=.dir)
