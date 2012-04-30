@@ -515,9 +515,9 @@ elif buchi_type == 'i':
 
 if prune_scc:
     # Do not suppress all useless acceptance conditions if
-    # degeneralization is requested: keeping those that lead to
-    # accepting states usually helps.
-    automaton = spot.scc_filter(automaton, not degen)
+    # degeneralization or simulation is requested: keeping those that
+    # lead to accepting states usually helps.
+    automaton = spot.scc_filter(automaton, not (degen or direct_simul))
 
 if wdba_minimize:
     minimized = spot.minimize_obligation_new(automaton, f)
