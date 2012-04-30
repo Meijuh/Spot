@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -60,10 +61,10 @@ namespace spot
   ///      calling this function.
   tgba_explicit_number* minimize_monitor(const tgba* a);
 
-  /// \brief Minimize a Büchi automaton in the WDBA class.
+  /// \brief Minimize a BÃ¼chi automaton in the WDBA class.
   ///
   /// This takes a TGBA whose language is representable by
-  /// a Weak Deterministic Büchi Automaton, and construct
+  /// a Weak Deterministic BÃ¼chi Automaton, and construct
   /// a minimal WDBA for this language.
   ///
   /// If the input automaton does not represent a WDBA language,
