@@ -266,6 +266,12 @@ def render_dot_maybe(dotsrc, dont_run_dot):
     # option that has no influence).
     if sys.getdefaultencoding() != 'ascii':
         dotsrc = dotsrc.encode('utf-8')
+    # If the text rendering engine (usually Pango) used by dot does
+    # not draw overlines correctly, uncomment the following two
+    # lines.  Pango 1.28.4 seems not to support combining overline
+    # while 1.30 does.
+    #import re
+    #dotsrc = re.sub(r'(.)(̅|̄)', r'¬\1', dotsrc);
     autprefix = (imgdir + '/' + hashlib.sha1(dotsrc).hexdigest())
     dotname = autprefix + '.txt'
     if not os.access(dotname, os.F_OK):
