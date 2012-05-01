@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et D�veloppement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// d�partement Syst�mes R�partis Coop�ratifs (SRC), Universit� Pierre
+// département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -39,10 +40,10 @@ namespace spot
     }
 
     void
-    unabbreviate_logic_visitor::visit(binop* bo)
+    unabbreviate_logic_visitor::visit(const binop* bo)
     {
-      formula* f1 = recurse(bo->first());
-      formula* f2 = recurse(bo->second());
+      const formula* f1 = recurse(bo->first());
+      const formula* f2 = recurse(bo->second());
 
       binop::type op = bo->op();
       switch (op)
@@ -50,11 +51,12 @@ namespace spot
 	  /* f1 ^ f2  ==  (f1 & !f2) | (f2 & !f1) */
 	case binop::Xor:
 	  {
-	    formula* a = multop::instance(multop::And, f1->clone(),
-					  unop::instance(unop::Not,
-							 f2->clone()));
-	    formula* b = multop::instance(multop::And, f2,
-					  unop::instance(unop::Not, f1));
+	    const formula* a =
+	      multop::instance(multop::And, f1->clone(),
+			       unop::instance(unop::Not, f2->clone()));
+	    const formula* b =
+	      multop::instance(multop::And, f2,
+			       unop::instance(unop::Not, f1));
 	    result_ = multop::instance(multop::Or, a, b);
 	    return;
 	  }
@@ -66,8 +68,8 @@ namespace spot
 	  /* f1 <=> f2  ==  (f1 & f2) | (!f1 & !f2) */
 	case binop::Equiv:
 	  {
-	    formula* f1c = f1->clone();
-	    formula* f2c = f2->clone();
+	    const formula* f1c = f1->clone();
+	    const formula* f2c = f2->clone();
 
 	    result_ =
 	      multop::instance(multop::Or,
@@ -97,19 +99,19 @@ namespace spot
       assert(0);
     }
 
-    formula*
-    unabbreviate_logic_visitor::recurse(formula* f)
+    const formula*
+    unabbreviate_logic_visitor::recurse(const formula* f)
     {
       return unabbreviate_logic(f);
     }
 
-    formula*
+    const formula*
     unabbreviate_logic(const formula* f)
     {
       if (f->is_sugar_free_boolean())
 	return f->clone();
       unabbreviate_logic_visitor v;
-      const_cast<formula*>(f)->accept(v);
+      f->accept(v);
       return v.result();
     }
   }

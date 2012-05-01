@@ -659,7 +659,7 @@ main(int argc, char** argv)
 	  while (tok)
 	    {
 	      unobservables->insert
-		(static_cast<spot::ltl::atomic_prop*>(env.require(tok)));
+		(static_cast<const spot::ltl::atomic_prop*>(env.require(tok)));
 	      tok = strtok(0, ", \t;");
 	    }
 	}
@@ -730,7 +730,7 @@ main(int argc, char** argv)
       input = argv[formula_index];
     }
 
-  spot::ltl::formula* f = 0;
+  const spot::ltl::formula* f = 0;
   if (!from_file) // Reading a formula, not reading an automaton from a file.
     {
       switch (translation)
@@ -825,7 +825,7 @@ main(int argc, char** argv)
 	  if (simp)
 	    {
 	      tm.start("reducing formula");
-	      spot::ltl::formula* t = simp->simplify(f);
+	      const spot::ltl::formula* t = simp->simplify(f);
 	      f->destroy();
 	      tm.stop("reducing formula");
 	      f = t;

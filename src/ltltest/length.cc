@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2012 Laboratoire de Recherche et Developement de
 // l'Epita (LRDE).
 //
@@ -47,7 +48,7 @@ main(int argc, char **argv)
     }
 
   spot::ltl::parse_error_list p1;
-  spot::ltl::formula* f1 = spot::ltl::parse(argv[1], p1);
+  const spot::ltl::formula* f1 = spot::ltl::parse(argv[1], p1);
 
   if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
     return 2;

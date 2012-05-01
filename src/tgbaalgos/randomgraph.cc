@@ -1,8 +1,9 @@
-// Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2010, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005, 2007 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -116,7 +117,7 @@ namespace spot
     bdd allneg = bddtrue;
     for (int i = 0; i < n_acc; ++i)
       {
-	ltl::formula* f = env->require(acc(i));
+	const ltl::formula* f = env->require(acc(i));
 	int v = dict->register_acceptance_variable(f, res);
 	res->declare_acceptance_condition(f);
 	allneg &= bdd_nithvar(v);

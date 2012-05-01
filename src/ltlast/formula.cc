@@ -32,11 +32,11 @@ namespace spot
   {
     size_t formula::max_count = 0;
 
-    formula*
+    const formula*
     formula::clone() const
     {
-      const_cast<formula*>(this)->ref_();
-      return const_cast<formula*>(this);
+      this->ref_();
+      return this;
     }
 
     formula::~formula()
@@ -46,18 +46,18 @@ namespace spot
     void
     formula::destroy() const
     {
-      if (const_cast<formula*>(this)->unref_())
+      if (this->unref_())
 	delete this;
     }
 
     void
-    formula::ref_()
+    formula::ref_() const
     {
       // Not reference counted by default.
     }
 
     bool
-    formula::unref_()
+    formula::unref_() const
     {
       // Not reference counted by default.
       return false;

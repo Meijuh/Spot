@@ -87,15 +87,12 @@ namespace spot
       /// grammar.  Spot cannot read it either.  However some
       /// BDD-based algorithm may need to negate any constant, so we
       /// handle this one as well.
-      static formula* instance(type op, formula* child);
+      static const formula* instance(type op, const formula* child);
 
-      virtual void accept(visitor& v);
-      virtual void accept(const_visitor& v) const;
+      virtual void accept(visitor& v) const;
 
       /// Get the sole operand of this operator.
       const formula* child() const;
-      /// Get the sole operand of this operator.
-      formula* child();
 
       /// Get the type of this operator.
       type op() const;
@@ -112,16 +109,16 @@ namespace spot
       static std::ostream& dump_instances(std::ostream& os);
 
     protected:
-      typedef std::pair<type, formula*> pair;
-      typedef std::map<pair, unop*> map;
+      typedef std::pair<type, const formula*> pair;
+      typedef std::map<pair, const unop*> map;
       static map instances;
 
-      unop(type op, formula* child);
+      unop(type op, const formula* child);
       virtual ~unop();
 
     private:
       type op_;
-      formula* child_;
+      const formula* child_;
     };
 
 
@@ -130,12 +127,12 @@ namespace spot
     /// Cast \a f into a unop iff it is a unop instance.  Return 0
     /// otherwise.  This is faster than \c dynamic_cast.
     inline
-    unop*
+    const unop*
     is_unop(const formula* f)
     {
       if (f->kind() != formula::UnOp)
 	return 0;
-      return static_cast<unop*>(const_cast<formula*>(f));
+      return static_cast<const unop*>(f);
     }
 
     /// \brief Cast \a f into a unop if it has type \a op.
@@ -143,22 +140,20 @@ namespace spot
     /// Cast \a f into a unop iff it is a unop instance with operator \a op.
     /// Returns 0 otherwise.
     inline
-    unop*
+    const unop*
     is_unop(const formula* f, unop::type op)
     {
-      if (f->kind() != formula::UnOp)
-	return 0;
-      unop* uo = static_cast<unop*>(const_cast<formula*>(f));
-      if (uo->op() != op)
-	return 0;
-      return uo;
+      if (const unop* uo = is_unop(f))
+	if (uo->op() == op)
+	  return uo;
+      return 0;
     }
 
     /// \brief Cast \a f into a unop if it is a Not.
     ///
     /// Return 0 otherwise.
     inline
-    unop*
+    const unop*
     is_Not(const formula* f)
     {
       return is_unop(f, unop::Not);
@@ -168,7 +163,7 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    unop*
+    const unop*
     is_X(const formula* f)
     {
       return is_unop(f, unop::X);
@@ -178,7 +173,7 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    unop*
+    const unop*
     is_F(const formula* f)
     {
       return is_unop(f, unop::F);
@@ -188,7 +183,7 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    unop*
+    const unop*
     is_G(const formula* f)
     {
       return is_unop(f, unop::G);
@@ -198,26 +193,24 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    unop*
+    const unop*
     is_GF(const formula* f)
     {
-      unop* op = is_G(f);
-      if (!op)
-	return 0;
-      return is_F(op->child());
+      if (const unop* op = is_G(f))
+	return is_F(op->child());
+      return 0;
     }
 
     /// \brief Cast \a f into a unop if has the form FG(...).
     ///
     /// Return 0 otherwise.
     inline
-    unop*
+    const unop*
     is_FG(const formula* f)
     {
-      unop* op = is_F(f);
-      if (!op)
-	return 0;
-      return is_G(op->child());
+      if (const unop* op = is_F(f))
+	return is_G(op->child());
+      return 0;
     }
   }
 }

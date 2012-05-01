@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE)
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -207,7 +208,8 @@ namespace spot
     }
 
     bounds_t bounds;
-    for (taa_tgba::state_set::const_iterator i = s->begin(); i != s->end(); ++i)
+    for (taa_tgba::state_set::const_iterator i = s->begin();
+	 i != s->end(); ++i)
       bounds.push_back(std::make_pair((*i)->begin(), (*i)->end()));
 
     /// Sorting might make the cartesian product faster by not
@@ -409,7 +411,7 @@ namespace spot
     return ltl::to_string(label);
   }
 
-  ltl::formula*
+  const ltl::formula*
   taa_tgba_formula::clone_if(const label_t& label) const
   {
     return label->clone();

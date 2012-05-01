@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -44,32 +45,32 @@ namespace spot
       clone_visitor();
       virtual ~clone_visitor();
 
-      formula* result() const;
+      const formula* result() const;
 
-      void visit(atomic_prop* ap);
-      void visit(unop* uo);
-      void visit(binop* bo);
-      void visit(automatop* mo);
-      void visit(multop* mo);
-      void visit(constant* c);
-      void visit(bunop* c);
+      void visit(const atomic_prop* ap);
+      void visit(const unop* uo);
+      void visit(const binop* bo);
+      void visit(const automatop* mo);
+      void visit(const multop* mo);
+      void visit(const constant* c);
+      void visit(const bunop* c);
 
-      virtual formula* recurse(formula* f);
+      virtual const formula* recurse(const formula* f);
 
     protected:
-      formula* result_;
+      const formula* result_;
     };
 
 #if __GNUC__
     /// \brief Clone a formula.
     /// \ingroup ltl_essential
     /// \deprecated Use f->clone() instead.
-    formula* clone(const formula* f) __attribute__ ((deprecated));
+    const formula* clone(const formula* f) __attribute__ ((deprecated));
 #else
     /// \brief Clone a formula.
     /// \ingroup ltl_essential
     /// \deprecated Use f->clone() instead.
-    formula* clone(const formula* f);
+    const formula* clone(const formula* f);
 #endif
   }
 }

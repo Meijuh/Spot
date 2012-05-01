@@ -33,7 +33,7 @@ namespace spot
     {
       class simplify_mark_visitor : public visitor
       {
-	formula* result_;
+	const formula* result_;
 	mark_tools* tools_;
 
       public:
@@ -46,44 +46,44 @@ namespace spot
 	{
 	}
 
-	formula*
+	const formula*
 	result()
 	{
 	  return result_;
 	}
 
 	void
-	visit(atomic_prop* ao)
+	visit(const atomic_prop* ao)
 	{
 	  result_ = ao->clone();
 	}
 
 	void
-	visit(constant* c)
+	visit(const constant* c)
 	{
 	  result_ = c->clone();
 	}
 
 	void
-	visit(bunop* bo)
+	visit(const bunop* bo)
 	{
 	  result_ = bo->clone();
 	}
 
 	void
-	visit(unop* uo)
+	visit(const unop* uo)
 	{
 	  result_ = uo->clone();
 	}
 
 	void
-	visit(automatop* ao)
+	visit(const automatop* ao)
 	{
 	  result_ = ao->clone();
 	}
 
 	void
-	visit(multop* mo)
+	visit(const multop* mo)
 	{
 	  unsigned mos = mo->size();
 	  multop::vec* res = new multop::vec;
@@ -101,12 +101,13 @@ namespace spot
 	      break;
 	    case multop::And:
 	      {
-		typedef std::set<std::pair<formula*, formula*> > pset;
+		typedef std::set<std::pair<const formula*,
+					   const formula*> > pset;
 		pset Epairs, EMpairs;
 
 		for (unsigned i = 0; i < mos; ++i)
 		  {
-		    formula* f = mo->nth(i);
+		    const formula* f = mo->nth(i);
 
 		    if (f->kind() != formula::BinOp)
 		      {
@@ -114,7 +115,7 @@ namespace spot
 		      }
 		    else
 		      {
-			binop* bo = static_cast<binop*>(f);
+			const binop* bo = static_cast<const binop*>(f);
 			switch (bo->op())
 			  {
 			  case binop::Xor:
@@ -157,13 +158,13 @@ namespace spot
 	}
 
 	void
-	visit(binop* bo)
+	visit(const binop* bo)
 	{
 	  result_ = bo->clone();
 	}
 
-	formula*
-	recurse(formula* f)
+	const formula*
+	recurse(const formula* f)
 	{
 	  return tools_->simplify_mark(f);
 	}
@@ -172,7 +173,7 @@ namespace spot
 
       class mark_visitor : public visitor
       {
-	formula* result_;
+	const formula* result_;
 	mark_tools* tools_;
 
       public:
@@ -184,44 +185,44 @@ namespace spot
 	{
 	}
 
-	formula*
+	const formula*
 	result()
 	{
 	  return result_;
 	}
 
 	void
-	visit(atomic_prop* ap)
+	visit(const atomic_prop* ap)
 	{
 	  result_ = ap->clone();
 	}
 
 	void
-	visit(constant* c)
+	visit(const constant* c)
 	{
 	  result_ = c->clone();
 	}
 
 	void
-	visit(bunop* bo)
+	visit(const bunop* bo)
 	{
 	  result_ = bo->clone();
 	}
 
 	void
-	visit(unop* uo)
+	visit(const unop* uo)
 	{
 	  result_ = uo->clone();
 	}
 
 	void
-	visit(automatop* ao)
+	visit(const automatop* ao)
 	{
 	  result_ = ao->clone();
 	}
 
 	void
-	visit(multop* mo)
+	visit(const multop* mo)
 	{
 	  multop::vec* res = new multop::vec;
 	  unsigned mos = mo->size();
@@ -231,7 +232,7 @@ namespace spot
 	}
 
 	void
-	visit(binop* bo)
+	visit(const binop* bo)
 	{
 	  switch (bo->op())
 	    {
@@ -249,8 +250,8 @@ namespace spot
 	    case binop::EConcatMarked:
 	    case binop::EConcat:
 	      {
-		formula* f1 = bo->first()->clone();
-		formula* f2 = recurse(bo->second());
+		const formula* f1 = bo->first()->clone();
+		const formula* f2 = recurse(bo->second());
 		result_ = binop::instance(binop::EConcatMarked, f1, f2);
 		return;
 	      }
@@ -259,8 +260,8 @@ namespace spot
 	  assert(0);
 	}
 
-	formula*
-	recurse(formula* f)
+	const formula*
+	recurse(const formula* f)
 	{
 	  return tools_->mark_concat_ops(f);
 	}
@@ -301,21 +302,21 @@ namespace spot
       }
     }
 
-    formula*
+    const formula*
     mark_tools::mark_concat_ops(const formula* f)
     {
       f2f_map::iterator i = markops_.find(f);
       if (i != markops_.end())
 	return i->second->clone();
 
-      const_cast<formula*>(f)->accept(*markvisitor_);
+      f->accept(*markvisitor_);
 
-      formula* r = down_cast<mark_visitor*>(markvisitor_)->result();
+      const formula* r = down_cast<mark_visitor*>(markvisitor_)->result();
       markops_[f->clone()] = r->clone();
       return r;
     }
 
-    formula*
+    const formula*
     mark_tools::simplify_mark(const formula* f)
     {
       if (!f->is_marked())
@@ -325,9 +326,10 @@ namespace spot
       if (i != simpmark_.end())
 	return i->second->clone();
 
-      const_cast<formula*>(f)->accept(*simpvisitor_);
+      f->accept(*simpvisitor_);
 
-      formula* r = down_cast<simplify_mark_visitor*>(simpvisitor_)->result();
+      const formula* r =
+	down_cast<simplify_mark_visitor*>(simpvisitor_)->result();
       simpmark_[f->clone()] = r->clone();
       return r;
     }

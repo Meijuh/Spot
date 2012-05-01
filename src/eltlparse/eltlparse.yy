@@ -64,7 +64,7 @@ namespace spot
 %parse-param {spot::eltl::aliasmap& amap}
 %parse-param {spot::eltl::parse_error_list_t &pe}
 %parse-param {spot::ltl::environment &parse_environment}
-%parse-param {spot::ltl::formula* &result}
+%parse-param {const spot::ltl::formula* &result}
 %lex-param {spot::eltl::parse_error_list_t &pe}
 %expect 0
 %pure-parser
@@ -74,7 +74,7 @@ namespace spot
   std::string* sval;
   spot::ltl::nfa* nval;
   spot::ltl::automatop::vec* aval;
-  spot::ltl::formula* fval;
+  const spot::ltl::formula* fval;
 
   /// To handle aliases.
   spot::ltl::formula_tree::node* pval;
@@ -520,7 +520,7 @@ namespace spot
 {
   namespace eltl
   {
-    formula*
+    const formula*
     parse_file(const std::string& name,
 	       parse_error_list& error_list,
 	       environment& env,
@@ -533,7 +533,7 @@ namespace spot
 		       spair("-", std::string("Cannot open file ") + name)));
 	return 0;
       }
-      formula* result = 0;
+      const formula* result = 0;
       nfamap nmap;
       aliasmap amap;
       parse_error_list_t pe;
@@ -546,14 +546,14 @@ namespace spot
       return result;
     }
 
-    formula*
+    const formula*
     parse_string(const std::string& eltl_string,
 		 parse_error_list& error_list,
 		 environment& env,
 		 bool debug)
     {
       flex_scan_string(eltl_string.c_str());
-      formula* result = 0;
+      const formula* result = 0;
       nfamap nmap;
       aliasmap amap;
       parse_error_list_t pe;

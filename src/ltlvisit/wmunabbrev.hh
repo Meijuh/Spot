@@ -37,7 +37,7 @@ namespace spot
     /// and <code>a M b</code> is replaced by <code>b U (b & a)</code>.
     ///
     /// \ingroup ltl_rewriting
-    formula* unabbreviate_wm(const formula* f);
+    const formula* unabbreviate_wm(const formula* f);
   }
 }
 

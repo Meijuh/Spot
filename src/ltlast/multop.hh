@@ -44,7 +44,7 @@ namespace spot
       enum type { Or, OrRat, And, AndRat, AndNLM, Concat, Fusion };
 
       /// List of formulae.
-      typedef std::vector<formula*> vec;
+      typedef std::vector<const formula*> vec;
 
       /// \brief Build a spot::ltl::multop with two children.
       ///
@@ -57,7 +57,8 @@ namespace spot
       /// This functions can perform slight optimizations and
       /// may not return an ltl::multop object. See the other
       /// instance function for the list of rewritings.
-      static formula* instance(type op, formula* first, formula* second);
+      static const formula*
+      instance(type op, const formula* first, const formula* second);
 
       /// \brief Build a spot::ltl::multop with many children.
       ///
@@ -120,10 +121,9 @@ namespace spot
       /// - Fusion(Exp) = Exp
       /// - Fusion(Exps1...,BoolExp1...BoolExpN,Exps2,Exps3...) =
       ///     Fusion(Exps1...,And(BoolExp1...BoolExpN),Exps2,Exps3...)
-      static formula* instance(type op, vec* v);
+      static const formula* instance(type op, vec* v);
 
-      virtual void accept(visitor& v);
-      virtual void accept(const_visitor& v) const;
+      virtual void accept(visitor& v) const;
 
       /// Get the number of children.
       unsigned size() const;
@@ -131,17 +131,13 @@ namespace spot
       ///
       /// Starting with \a n = 0.
       const formula* nth(unsigned n) const;
-      /// \brief Get the nth child.
-      ///
-      /// Starting with \a n = 0.
-      formula* nth(unsigned n);
 
       /// \brief construct a formula without the nth child.
       ///
       /// If the formula \c f is <code>a|b|c|d</code> and <code>d</code>
       /// is child number 2, then calling <code>f->all_but(2)</code> will
       /// return a new formula <code>a|b|d</code>.
-      formula* all_but(unsigned n) const;
+      const formula* all_but(unsigned n) const;
 
       /// Get the type of this operator.
       type op() const;
@@ -170,7 +166,7 @@ namespace spot
 	  return *p1.second < *p2.second;
 	}
       };
-      typedef std::map<pair, multop*, paircmp> map;
+      typedef std::map<pair, const multop*, paircmp> map;
       static map instances;
 
       multop(type op, vec* v);
@@ -187,12 +183,12 @@ namespace spot
     /// Cast \a f into a multop iff it is a multop instance.  Return 0
     /// otherwise.  This is faster than \c dynamic_cast.
     inline
-    multop*
-    is_multop(formula* f)
+    const multop*
+    is_multop(const formula* f)
     {
       if (f->kind() != formula::MultOp)
 	return 0;
-      return static_cast<multop*>(f);
+      return static_cast<const multop*>(f);
     }
 
     /// \brief Cast \a f into a multop if it has type \a op.
@@ -200,15 +196,13 @@ namespace spot
     /// Cast \a f into a multop iff it is a multop instance with operator \a op.
     /// Returns 0 otherwise.
     inline
-    multop*
+    const multop*
     is_multop(const formula* f, multop::type op)
     {
-      if (f->kind() != formula::MultOp)
-	return 0;
-      multop* mo = static_cast<multop*>(const_cast<formula*>(f));
-      if (mo->op() != op)
-	return 0;
-      return mo;
+      if (const multop* mo = is_multop(f))
+	if (mo->op() == op)
+	  return mo;
+      return 0;
     }
 
     /// \brief Cast \a f into a multop if it has type \a op1 or \a op2.
@@ -216,22 +210,20 @@ namespace spot
     /// Cast \a f into a multop iff it is a multop instance with
     /// operator \a op1 or \a op2.  Returns 0 otherwise.
     inline
-    multop*
+    const multop*
     is_multop(const formula* f, multop::type op1, multop::type op2)
     {
-      if (f->kind() != formula::MultOp)
-	return 0;
-      multop* mo = static_cast<multop*>(const_cast<formula*>(f));
-      if (mo->op() != op1 && mo->op() != op2)
-	return 0;
-      return mo;
+      if (const multop* mo = is_multop(f))
+	if (mo->op() == op1 || mo->op() == op2)
+	  return mo;
+      return 0;
     }
 
     /// \brief Cast \a f into a multop if it is an And.
     ///
     /// Return 0 otherwise.
     inline
-    multop*
+    const multop*
     is_And(const formula* f)
     {
       return is_multop(f, multop::And);
@@ -241,7 +233,7 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    multop*
+    const multop*
     is_AndRat(const formula* f)
     {
       return is_multop(f, multop::AndRat);
@@ -251,7 +243,7 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    multop*
+    const multop*
     is_AndNLM(const formula* f)
     {
       return is_multop(f, multop::AndNLM);
@@ -261,7 +253,7 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    multop*
+    const multop*
     is_Or(const formula* f)
     {
       return is_multop(f, multop::Or);
@@ -271,7 +263,7 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    multop*
+    const multop*
     is_OrRat(const formula* f)
     {
       return is_multop(f, multop::OrRat);
@@ -281,7 +273,7 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    multop*
+    const multop*
     is_Concat(const formula* f)
     {
       return is_multop(f, multop::Concat);
@@ -291,7 +283,7 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    multop*
+    const multop*
     is_Fusion(const formula* f)
     {
       return is_multop(f, multop::Fusion);

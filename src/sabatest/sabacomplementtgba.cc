@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2012 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -68,10 +69,9 @@ int main(int argc, char* argv[])
 
   spot::bdd_dict* dict = new spot::bdd_dict();
   spot::tgba* a;
-  spot::ltl::formula* f1 = 0;
 
   spot::ltl::parse_error_list p1;
-  f1 = spot::ltl::parse(formula, p1);
+  const spot::ltl::formula* f1 = spot::ltl::parse(formula, p1);
   if (spot::ltl::format_parse_errors(std::cerr, formula, p1))
     return 2;
 

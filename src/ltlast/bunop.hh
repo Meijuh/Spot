@@ -57,10 +57,10 @@ namespace spot
       /// These rewriting rules imply that it is not possible to build
       /// an LTL formula object that is SYNTACTICALLY equal to one of
       /// these left expressions.
-      static formula* instance(type op,
-			       formula* child,
-			       unsigned min = 0,
-			       unsigned max = unbounded);
+      static const formula* instance(type op,
+				     const formula* child,
+				     unsigned min = 0,
+				     unsigned max = unbounded);
 
       /// \brief Implement <code>b[->i..j]</code> using the Kleen star.
       ///
@@ -71,9 +71,9 @@ namespace spot
       /// [->1..].
       ///
       /// \pre \a child must be a Boolean formula.
-      static formula* sugar_goto(formula* child,
-				 unsigned min = 1,
-				 unsigned max = unbounded);
+      static const formula* sugar_goto(const formula* child,
+				       unsigned min = 1,
+				       unsigned max = unbounded);
 
       /// \brief Implement b[=i..j] using the Kleen star.
       ///
@@ -81,17 +81,14 @@ namespace spot
       /// <code>((!b)[*];b)[*i..j];(!b)[*]</code>.
       ///
       /// \pre \a child must be a Boolean formula.
-      static formula* sugar_equal(formula* child,
-				  unsigned min = 0,
-				  unsigned max = unbounded);
+      static const formula* sugar_equal(const formula* child,
+					unsigned min = 0,
+					unsigned max = unbounded);
 
-      virtual void accept(visitor& v);
-      virtual void accept(const_visitor& v) const;
+      virtual void accept(visitor& v) const;
 
       /// Get the sole operand of this operator.
       const formula* child() const;
-      /// Get the sole operand of this operator.
-      formula* child();
 
       /// Minimum number of repetition.
       unsigned min() const;
@@ -122,7 +119,7 @@ namespace spot
       /// A global instance is returned, and it should not be
       /// destroyed.  Remember to clone it if you use it to build a
       /// formula.
-      static formula* one_star()
+      static const formula* one_star()
       {
 	if (!one_star_)
 	  one_star_ = instance(Star, constant::true_instance());
@@ -131,20 +128,20 @@ namespace spot
 
     protected:
       typedef std::pair<unsigned, unsigned> pairu;
-      typedef std::pair<type, formula*> pairo;
+      typedef std::pair<type, const formula*> pairo;
       typedef std::pair<pairo, pairu> pair;
-      typedef std::map<pair, bunop*> map;
+      typedef std::map<pair, const bunop*> map;
       static map instances;
 
-      bunop(type op, formula* child, unsigned min, unsigned max);
+      bunop(type op, const formula* child, unsigned min, unsigned max);
       virtual ~bunop();
 
     private:
       type op_;
-      formula* child_;
+      const formula* child_;
       unsigned min_;
       unsigned max_;
-      static formula* one_star_;
+      static const formula* one_star_;
     };
 
     /// \brief Cast \a f into a bunop.
@@ -152,12 +149,12 @@ namespace spot
     /// Cast \a f into a bunop iff it is a bunop instance.  Return 0
     /// otherwise.  This is faster than \c dynamic_cast.
     inline
-    bunop*
+    const bunop*
     is_bunop(const formula* f)
     {
       if (f->kind() != formula::BUnOp)
 	return 0;
-      return static_cast<bunop*>(const_cast<formula*>(f));
+      return static_cast<const bunop*>(f);
     }
 
     /// \brief Cast \a f into a bunop if it has type \a op.
@@ -165,22 +162,20 @@ namespace spot
     /// Cast \a f into a bunop iff it is a bunop instance with operator \a op.
     /// Returns 0 otherwise.
     inline
-    bunop*
+    const bunop*
     is_bunop(const formula* f, bunop::type op)
     {
-      if (f->kind() != formula::BUnOp)
-	return 0;
-      bunop* bo = static_cast<bunop*>(const_cast<formula*>(f));
-      if (bo->op() != op)
-	return 0;
-      return bo;
+      if (const bunop* bo = is_bunop(f))
+	if (bo->op() == op)
+	  return bo;
+      return 0;
     }
 
     /// \brief Cast \a f into a bunop if it is a Star.
     ///
     /// Return 0 otherwise.
     inline
-    bunop*
+    const bunop*
     is_Star(const formula* f)
     {
       return is_bunop(f, bunop::Star);
@@ -190,10 +185,10 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    bunop*
+    const bunop*
     is_KleenStar(const formula* f)
     {
-      if (bunop* b = is_Star(f))
+      if (const bunop* b = is_Star(f))
 	if (b->min() == 0 && b->max() == bunop::unbounded)
 	  return b;
       return 0;

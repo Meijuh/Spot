@@ -119,13 +119,7 @@ namespace spot
     }
 
     void
-    multop::accept(visitor& v)
-    {
-      v.visit(this);
-    }
-
-    void
-    multop::accept(const_visitor& v) const
+    multop::accept(visitor& v) const
     {
       v.visit(this);
     }
@@ -142,18 +136,12 @@ namespace spot
       return (*children_)[n];
     }
 
-    formula*
-    multop::nth(unsigned n)
-    {
-      return (*children_)[n];
-    }
-
-    formula*
+    const formula*
     multop::all_but(unsigned n) const
     {
       unsigned s = size();
       vec* v = new vec;
-      v->reserve(s-1);
+      v->reserve(s - 1);
       for (unsigned pos = 0; pos < n; ++pos)
 	v->push_back(nth(pos)->clone());
       for (unsigned pos = n + 1; pos < s; ++pos)
@@ -192,35 +180,37 @@ namespace spot
       return 0;
     }
 
-
-    void
-    gather_bool(multop::vec* v, multop::type op)
+    namespace
     {
-      // Gather all boolean terms.
-      multop::vec* b = new multop::vec;
-      multop::vec::iterator i = v->begin();
-      while (i != v->end())
-	{
-	  if ((*i)->is_boolean())
-	    {
-	      b->push_back(*i);
-	      i = v->erase(i);
-	    }
-	  else
-	    {
-	      ++i;
-	    }
-	}
-      // - AndNLM(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
-      //    AndNLM(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
-      // - AndRat(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
-      //    AndRat(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
-      // - OrRat(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
-      //    AndRat(Exps1...,Exps2...,Exps3...,Or(Bool1,Bool2))
-      if (!b->empty())
-	v->push_back(multop::instance(op, b));
-      else
-	delete b;
+      static void
+      gather_bool(multop::vec* v, multop::type op)
+      {
+	// Gather all boolean terms.
+	multop::vec* b = new multop::vec;
+	multop::vec::iterator i = v->begin();
+	while (i != v->end())
+	  {
+	    if ((*i)->is_boolean())
+	      {
+		b->push_back(*i);
+		i = v->erase(i);
+	      }
+	    else
+	      {
+		++i;
+	      }
+	  }
+	// - AndNLM(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
+	//    AndNLM(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
+	// - AndRat(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
+	//    AndRat(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
+	// - OrRat(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
+	//    AndRat(Exps1...,Exps2...,Exps3...,Or(Bool1,Bool2))
+	if (!b->empty())
+	  v->push_back(multop::instance(op, b));
+	else
+	  delete b;
+      }
     }
 
     multop::map multop::instances;
@@ -230,7 +220,7 @@ namespace spot
     // operator).  For instance if `+' designates the OR operator and
     // `0' is false (the neutral element for `+') , then `f+f+0' is
     // equivalent to `f'.
-    formula*
+    const formula*
     multop::instance(type op, vec* v)
     {
       // Inline children of same kind.
@@ -252,9 +242,8 @@ namespace spot
 		i = v->erase(i);
 		continue;
 	      }
-	    if ((*i)->kind() == MultOp)
+	    if (const multop* p = is_multop(*i))
 	      {
-		multop* p = static_cast<multop*>(*i);
 		if (p->op() == op)
 		  {
 		    unsigned ps = p->size();
@@ -286,11 +275,11 @@ namespace spot
 
       unsigned orig_size = v->size();
 
-      formula* neutral;
-      formula* neutral2;
-      formula* abs;
-      formula* abs2;
-      formula* weak_abs;
+      const formula* neutral;
+      const formula* neutral2;
+      const formula* abs;
+      const formula* abs2;
+      const formula* weak_abs;
       switch (op)
 	{
 	case And:
@@ -343,7 +332,7 @@ namespace spot
 	  // If FExps2... and FExps3 all accept [*0].
 	  {
 	    vec::iterator i = v->begin();
-	    formula* os = bunop::one_star();
+	    const formula* os = bunop::one_star();
 	    while (i != v->end())
 	      {
 		while (i != v->end() && !(*i)->accepts_eword())
@@ -433,7 +422,7 @@ namespace spot
       // std::unique(), because we must destroy() any formula we drop.
       // Also ignore neutral elements and handle absorbent elements.
       {
-	formula* last = 0;
+	const formula* last = 0;
 	vec::iterator i = v->begin();
 	bool weak_abs_seen = false;
 	while (i != v->end())
@@ -512,11 +501,11 @@ namespace spot
 	    while (i != v->end())
 	      {
 		vec::iterator fpos = i;
-		formula* f;
+		const formula* f;
 		unsigned min;
 		unsigned max;
 		bool changed = false;
-		if (bunop* is = is_Star(*i))
+		if (const bunop* is = is_Star(*i))
 		  {
 		    f = is->child();
 		    min = is->min();
@@ -531,10 +520,10 @@ namespace spot
 		++i;
 		while (i != v->end())
 		  {
-		    formula* f2;
+		    const formula* f2;
 		    unsigned min2;
 		    unsigned max2;
-		    if (bunop* is = is_Star(*i))
+		    if (const bunop* is = is_Star(*i))
 		      {
 			f2 = is->child();
 			if (f2 != f)
@@ -563,8 +552,8 @@ namespace spot
 		  }
 		if (changed)
 		  {
-		    formula* newfs = bunop::instance(bunop::Star, f->clone(),
-						     min, max);
+		    const formula* newfs =
+		      bunop::instance(bunop::Star, f->clone(), min, max);
 		    (*fpos)->destroy();
 		    *fpos = newfs;
 		  }
@@ -586,7 +575,7 @@ namespace spot
 	  // arguments of a Fusion operator to
 	  // a list with a single formula that
 	  // accepts [*0].
-	  formula* res = (*v)[0];
+	  const formula* res = (*v)[0];
 	  if (op != Fusion || orig_size == 1
 	      || !res->accepts_eword())
 	    {
@@ -600,6 +589,8 @@ namespace spot
       // The hash key.
       pair p(op, v);
 
+      const multop* res;
+      // FIXME: Use lower_bound or hash_map.
       map::iterator i = instances.find(p);
       if (i != instances.end())
 	{
@@ -607,19 +598,20 @@ namespace spot
 	  for (vec::iterator vi = v->begin(); vi != v->end(); ++vi)
 	    (*vi)->destroy();
 	  delete v;
-	  return static_cast<multop*>(i->second->clone());
+	  res = i->second;
 	}
-
-      // This is the first instance of this formula.
-
-      // Record the instance in the map,
-      multop* ap = new multop(op, v);
-      instances[p] = ap;
-      return ap->clone();
+      else
+	{
+	  // This is the first instance of this formula.
+	  // Record the instance in the map,
+	  res = instances[p] = new multop(op, v);
+	}
+      res->clone();
+      return res;
     }
 
-    formula*
-    multop::instance(type op, formula* first, formula* second)
+    const formula*
+    multop::instance(type op, const formula* first, const formula* second)
     {
       vec* v = new vec;
       v->push_back(first);

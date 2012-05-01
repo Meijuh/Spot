@@ -45,10 +45,10 @@ namespace spot
     public:
       /// Build an atomic proposition with name \a name in
       /// environment \a env.
-      static atomic_prop* instance(const std::string& name, environment& env);
+      static const atomic_prop*
+      instance(const std::string& name, environment& env);
 
-      virtual void accept(visitor& visitor);
-      virtual void accept(const_visitor& visitor) const;
+      virtual void accept(visitor& visitor) const;
 
       /// Get the name of the atomic proposition.
       const std::string& name() const;
@@ -68,7 +68,7 @@ namespace spot
       virtual ~atomic_prop();
 
       typedef std::pair<std::string, environment*> pair;
-      typedef std::map<pair, atomic_prop*> map;
+      typedef std::map<pair, const atomic_prop*> map;
       static map instances;
 
     private:

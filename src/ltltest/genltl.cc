@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -155,18 +156,18 @@ to_int(const char* s)
 
 
 // F(p_1 & F(p_2 & F(p_3 & ... F(p_n))))
-formula* E_n(std::string name, int n)
+const formula* E_n(std::string name, int n)
 {
   if (n <= 0)
     return constant::true_instance();
 
-  formula* result = 0;
+  const formula* result = 0;
 
   for (; n > 0; --n)
     {
       std::ostringstream p;
       p << name << n;
-      formula* f = env.require(p.str());
+      const formula* f = env.require(p.str());
       if (result)
 	result = And_(f, result);
       else
@@ -177,13 +178,13 @@ formula* E_n(std::string name, int n)
 }
 
 // p & X(p & X(p & ... X(p)))
-formula* phi_n(std::string name, int n)
+const formula* phi_n(std::string name, int n)
 {
   if (n <= 0)
     return constant::true_instance();
 
-  formula* result = 0;
-  formula* p = env.require(name);
+  const formula* result = 0;
+  const formula* p = env.require(name);
   for (; n > 0; --n)
     {
       if (result)
@@ -194,19 +195,19 @@ formula* phi_n(std::string name, int n)
   return result;
 }
 
-formula* N_n(std::string name, int n)
+const formula* N_n(std::string name, int n)
 {
   return unop::instance(unop::F, phi_n(name, n));
 }
 
 // p & X(p) & XX(p) & XXX(p) & ... X^n(p)
-formula* phi_prime_n(std::string name, int n)
+const formula* phi_prime_n(std::string name, int n)
 {
   if (n <= 0)
     return constant::true_instance();
 
-  formula* result = 0;
-  formula* p = env.require(name);
+  const formula* result = 0;
+  const formula* p = env.require(name);
   for (; n > 0; --n)
     {
       if (result)
@@ -222,7 +223,7 @@ formula* phi_prime_n(std::string name, int n)
   return result;
 }
 
-formula* N_prime_n(std::string name, int n)
+const formula* N_prime_n(std::string name, int n)
 {
   return F_(phi_prime_n(name, n));
 }
@@ -230,12 +231,12 @@ formula* N_prime_n(std::string name, int n)
 
 // GF(p_1) & GF(p_2) & ... & GF(p_n)   if conj == true
 // GF(p_1) | GF(p_2) | ... | GF(p_n)   if conj == false
-formula* GF_n(std::string name, int n, bool conj = true)
+const formula* GF_n(std::string name, int n, bool conj = true)
 {
   if (n <= 0)
     return conj ? constant::true_instance() : constant::false_instance();
 
-  formula* result = 0;
+  const formula* result = 0;
 
   multop::type op = conj ? multop::And : multop::Or;
 
@@ -243,7 +244,7 @@ formula* GF_n(std::string name, int n, bool conj = true)
     {
       std::ostringstream p;
       p << name << i;
-      formula* f = G_(F_(env.require(p.str())));
+      const formula* f = G_(F_(env.require(p.str())));
 
       if (result)
 	result = multop::instance(op, f, result);
@@ -255,12 +256,12 @@ formula* GF_n(std::string name, int n, bool conj = true)
 
 // FG(p_1) | FG(p_2) | ... | FG(p_n)   if conj == false
 // FG(p_1) & FG(p_2) & ... & FG(p_n)   if conj == true
-formula* FG_n(std::string name, int n, bool conj = false)
+const formula* FG_n(std::string name, int n, bool conj = false)
 {
   if (n <= 0)
     return conj ? constant::true_instance() : constant::false_instance();
 
-  formula* result = 0;
+  const formula* result = 0;
 
   multop::type op = conj ? multop::And : multop::Or;
 
@@ -268,7 +269,7 @@ formula* FG_n(std::string name, int n, bool conj = false)
     {
       std::ostringstream p;
       p << name << i;
-      formula* f = F_(G_(env.require(p.str())));
+      const formula* f = F_(G_(env.require(p.str())));
 
       if (result)
 	result = multop::instance(op, f, result);
@@ -280,8 +281,9 @@ formula* FG_n(std::string name, int n, bool conj = false)
 
 //  (((p1 OP p2) OP p3)...OP pn)   if right_assoc == false
 //  (p1 OP (p2 OP (p3 OP (... pn)  if right_assoc == true
-formula* bin_n(std::string name, int n,
-	       binop::type op, bool right_assoc = false)
+const formula*
+bin_n(std::string name, int n,
+      binop::type op, bool right_assoc = false)
 {
   if (n <= 0)
     {
@@ -289,13 +291,13 @@ formula* bin_n(std::string name, int n,
       exit(1);
     }
 
-  formula* result = 0;
+  const formula* result = 0;
 
   for (int i = 1; i <= n; ++i)
     {
       std::ostringstream p;
       p << name << (right_assoc ? (n + 1 - i) : i);
-      formula* f = env.require(p.str());
+      const formula* f = env.require(p.str());
       if (!result)
 	result = f;
       else if (right_assoc)
@@ -307,12 +309,12 @@ formula* bin_n(std::string name, int n,
 }
 
 // (GF(p1)|FG(p2))&(GF(p2)|FG(p3))&...&(GF(pn)|FG(p{n+1}))"
-formula* R_n(std::string name, int n)
+const formula* R_n(std::string name, int n)
 {
   if (n <= 0)
     return constant::true_instance();
 
-  formula* pi;
+  const formula* pi;
 
   {
     std::ostringstream p;
@@ -320,18 +322,18 @@ formula* R_n(std::string name, int n)
     pi = env.require(p.str());
   }
 
-  formula* result = 0;
+  const formula* result = 0;
 
   for (int i = 1; i <= n; ++i)
     {
-      formula* gf = G_(F_(pi));
+      const formula* gf = G_(F_(pi));
       std::ostringstream p;
       p << name << i + 1;
       pi = env.require(p.str());
 
-      formula* fg = G_(F_(pi->clone()));
+      const formula* fg = G_(F_(pi->clone()));
 
-      formula* f = Or_(gf, fg);
+      const formula* f = Or_(gf, fg);
 
       if (result)
 	result = And_(f, result);
@@ -343,12 +345,12 @@ formula* R_n(std::string name, int n)
 }
 
 // (F(p1)|G(p2))&(F(p2)|G(p3))&...&(F(pn)|G(p{n+1}))"
-formula* Q_n(std::string name, int n)
+const formula* Q_n(std::string name, int n)
 {
   if (n <= 0)
     return constant::true_instance();
 
-  formula* pi;
+  const formula* pi;
 
   {
     std::ostringstream p;
@@ -356,17 +358,17 @@ formula* Q_n(std::string name, int n)
     pi = env.require(p.str());
   }
 
-  formula* result = 0;
+  const formula* result = 0;
 
   for (int i = 1; i <= n; ++i)
     {
-      formula* f = F_(pi);
+      const formula* f = F_(pi);
 
       std::ostringstream p;
       p << name << i + 1;
       pi = env.require(p.str());
 
-      formula* g = G_(pi->clone());
+      const formula* g = G_(pi->clone());
 
       f = Or_(f, g);
 
@@ -381,13 +383,13 @@ formula* Q_n(std::string name, int n)
 
 //  OP(p1) | OP(p2) | ... | OP(Pn) if conj == false
 //  OP(p1) & OP(p2) & ... & OP(Pn) if conj == true
-formula* combunop_n(std::string name, int n,
-		    unop::type op, bool conj = false)
+const formula* combunop_n(std::string name, int n,
+			  unop::type op, bool conj = false)
 {
   if (n <= 0)
     return conj ? constant::true_instance() : constant::false_instance();
 
-  formula* result = 0;
+  const formula* result = 0;
 
   multop::type cop = conj ? multop::And : multop::Or;
 
@@ -395,7 +397,7 @@ formula* combunop_n(std::string name, int n,
     {
       std::ostringstream p;
       p << name << i;
-      formula* f = unop::instance(op, env.require(p.str()));
+      const formula* f = unop::instance(op, env.require(p.str()));
 
       if (result)
 	result = multop::instance(cop, f, result);
@@ -406,20 +408,21 @@ formula* combunop_n(std::string name, int n,
 }
 
 // !((GF(p1)&GF(p2)&...&GF(pn))->G(q -> F(r)))
-// From "Fast LTL to Büchi Automata Translation" [gastin.01.cav]
-formula* fair_response(std::string p, std::string q, std::string r, int n)
+// From "Fast LTL to BÃ¼chi Automata Translation" [gastin.01.cav]
+const formula*
+fair_response(std::string p, std::string q, std::string r, int n)
 {
-  formula* fair = GF_n(p, n);
-  formula* resp = G_(Implies_(env.require(q), F_(env.require(r))));
+  const formula* fair = GF_n(p, n);
+  const formula* resp = G_(Implies_(env.require(q), F_(env.require(r))));
   return Not_(Implies_(fair, resp));
 }
 
 
 // Builds X(X(...X(p))) with n occurrences of X.
-formula* X_n(formula* p, int n)
+const formula* X_n(const formula* p, int n)
 {
   assert(n >= 0);
-  formula* res = p;
+  const formula* res = p;
   while (n--)
     res = X_(res);
   return res;
@@ -427,13 +430,13 @@ formula* X_n(formula* p, int n)
 
 // Based on LTLcounter.pl from Kristin Rozier.
 // http://shemesh.larc.nasa.gov/people/kyr/benchmarking_scripts/
-
-formula* ltl_counter(std::string bit, std::string marker, int n, bool linear)
+const formula*
+ltl_counter(std::string bit, std::string marker, int n, bool linear)
 {
-  formula* b = env.require(bit);
-  formula* neg_b = Not_(b);
-  formula* m = env.require(marker);
-  formula* neg_m = Not_(m); // to destroy
+  const formula* b = env.require(bit);
+  const formula* neg_b = Not_(b);
+  const formula* m = env.require(marker);
+  const formula* neg_m = Not_(m); // to destroy
 
   multop::vec* res = new multop::vec(4);
 
@@ -453,7 +456,7 @@ formula* ltl_counter(std::string bit, std::string marker, int n, bool linear)
   else
     {
       // G(m -> X(!m & X(!m X(m))))          [if n = 3]
-      formula* p = m->clone();
+      const formula* p = m->clone();
       for (int i = n - 1; i > 0; --i)
 	p = And_(neg_m->clone(), X_(p));
       (*res)[0] = And_(m->clone(),
@@ -472,7 +475,7 @@ formula* ltl_counter(std::string bit, std::string marker, int n, bool linear)
   else
     {
       // !b & X(!b & X(!b))     [if n = 3]
-      formula* p = neg_b->clone();
+      const formula* p = neg_b->clone();
       for (int i = n - 1; i > 0; --i)
 	p = And_(neg_b->clone(), X_(p));
       (*res)[1] = p;
@@ -482,8 +485,8 @@ formula* ltl_counter(std::string bit, std::string marker, int n, bool linear)
 
   // If the least significant bit is 0, it will be 1 at the next time,
   // and other bits stay the same.
-  formula* Xnm1_b = X_n(b->clone(), n - 1);
-  formula* Xn_b = X_(Xnm1_b); // to destroy
+  const formula* Xnm1_b = X_n(b->clone(), n - 1);
+  const formula* Xn_b = X_(Xnm1_b); // to destroy
   (*res)[2] =
     G_(Implies_(And_(m->clone(), neg_b->clone()),
 		AndX_(Xnm1_b->clone(), U_(And_(Not_(m->clone()),
@@ -493,8 +496,8 @@ formula* ltl_counter(std::string bit, std::string marker, int n, bool linear)
 
   // From the least significant bit to the first 0, all the bits
   // are flipped on the next value.  Remaining bits are identical.
-  formula* Xnm1_negb = X_n(neg_b, n - 1);
-  formula* Xn_negb = X_(Xnm1_negb); // to destroy
+  const formula* Xnm1_negb = X_n(neg_b, n - 1);
+  const formula* Xn_negb = X_(Xnm1_negb); // to destroy
   (*res)[3] =
     G_(Implies_(And_(m->clone(), b->clone()),
 		AndX_(Xnm1_negb->clone(),
@@ -515,15 +518,15 @@ formula* ltl_counter(std::string bit, std::string marker, int n, bool linear)
   return multop::instance(multop::And, res);
 }
 
-formula* ltl_counter_carry(std::string bit, std::string marker,
-			   std::string carry, int n, bool linear)
+const formula* ltl_counter_carry(std::string bit, std::string marker,
+				 std::string carry, int n, bool linear)
 {
-  formula* b = env.require(bit);
-  formula* neg_b = Not_(b);
-  formula* m = env.require(marker);
-  formula* neg_m = Not_(m); // to destroy
-  formula* c = env.require(carry);
-  formula* neg_c = Not_(c); // to destroy
+  const formula* b = env.require(bit);
+  const formula* neg_b = Not_(b);
+  const formula* m = env.require(marker);
+  const formula* neg_m = Not_(m); // to destroy
+  const formula* c = env.require(carry);
+  const formula* neg_c = Not_(c); // to destroy
 
   multop::vec* res = new multop::vec(6);
 
@@ -543,7 +546,7 @@ formula* ltl_counter_carry(std::string bit, std::string marker,
   else
     {
       // G(m -> X(!m & X(!m X(m))))          [if n = 3]
-      formula* p = m->clone();
+      const formula* p = m->clone();
       for (int i = n - 1; i > 0; --i)
 	p = And_(neg_m->clone(), X_(p));
       (*res)[0] = And_(m->clone(),
@@ -562,14 +565,14 @@ formula* ltl_counter_carry(std::string bit, std::string marker,
   else
     {
       // !b & X(!b & X(!b))     [if n = 3]
-      formula* p = neg_b->clone();
+      const formula* p = neg_b->clone();
       for (int i = n - 1; i > 0; --i)
 	p = And_(neg_b->clone(), X_(p));
       (*res)[1] = p;
     }
 
-  formula* Xn_b = X_n(b->clone(), n); // to destroy
-  formula* Xn_negb = X_n(neg_b, n);   // to destroy
+  const formula* Xn_b = X_n(b->clone(), n); // to destroy
+  const formula* Xn_negb = X_n(neg_b, n);   // to destroy
 
   // If m is 1 and b is 0 then c is 0 and n steps later b is 1.
   (*res)[2] = G_(Implies_(And_(m->clone(), neg_b->clone()),
@@ -642,7 +645,7 @@ main(int argc, char** argv)
   int f = to_int(argv[1]);
   int n = to_int(argv[2]);
 
-  formula* res = 0;
+  const formula* res = 0;
 
   switch (f)
     {

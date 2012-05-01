@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2009 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE)
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -40,7 +41,7 @@ namespace spot
     {
     public:
       /// List of formulae.
-      typedef std::vector<formula*> vec;
+      typedef std::vector<const formula*> vec;
 
       /// \brief Build a spot::ltl::automatop with many children.
       ///
@@ -48,11 +49,10 @@ namespace spot
       /// the caller should allocate it with \c new, but not use it
       /// (especially not destroy it) after it has been passed to
       /// spot::ltl::automatop.
-      static automatop*
+      static const automatop*
       instance(const nfa::ptr nfa, vec* v, bool negated);
 
-      virtual void accept(visitor& v);
-      virtual void accept(const_visitor& v) const;
+      virtual void accept(visitor& v) const;
 
       /// Get the number of argument.
       unsigned size() const;
@@ -60,10 +60,6 @@ namespace spot
       ///
       /// Starting with \a n = 0.
       const formula* nth(unsigned n) const;
-      /// \brief Get the nth argument.
-      ///
-      /// Starting with \a n = 0.
-      formula* nth(unsigned n);
 
       /// Get the NFA of this operator.
       const spot::ltl::nfa::ptr get_nfa() const;
@@ -96,7 +92,7 @@ namespace spot
 	  return *p1.second < *p2.second;
 	}
       };
-      typedef std::map<triplet, automatop*, tripletcmp> map;
+      typedef std::map<triplet, const automatop*, tripletcmp> map;
       static map instances;
 
       automatop(const nfa::ptr, vec* v, bool negated);

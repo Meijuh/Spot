@@ -33,7 +33,7 @@ namespace spot
       // E°
       class snf_visitor: public visitor
       {
-	formula* result_;
+	const formula* result_;
 	snf_cache* cache_;
       public:
 
@@ -41,27 +41,27 @@ namespace spot
 	{
 	}
 
-	formula*
+	const formula*
 	result() const
 	{
 	  return result_;
 	}
 
 	void
-	visit(atomic_prop*)
+	visit(const atomic_prop*)
 	{
 	  assert(!"unexpected operator");
 	}
 
 	void
-	visit(constant* c)
+	visit(const constant* c)
 	{
 	  assert(c == constant::empty_word_instance());
 	  result_ = constant::false_instance();
 	}
 
 	void
-	visit(bunop* bo)
+	visit(const bunop* bo)
 	{
 	  bunop::type op = bo->op();
 	  switch (op)
@@ -75,25 +75,25 @@ namespace spot
 	}
 
 	void
-	visit(unop*)
+	visit(const unop*)
 	{
 	  assert(!"unexpected operator");
 	}
 
 	void
-	visit(binop*)
+	visit(const binop*)
 	{
 	  assert(!"unexpected operator");
 	}
 
 	void
-	visit(automatop*)
+	visit(const automatop*)
 	{
 	  assert(!"unexpected operator");
 	}
 
 	void
-	visit(multop* mo)
+	visit(const multop* mo)
 	{
 	  multop::type op = mo->op();
 	  switch (op)
@@ -134,14 +134,14 @@ namespace spot
 	      break;
 	    case multop::AndRat:
 	      // FIXME: Can we deal with AndRat in a better way
-	      // when it accepts [*0].
+	      // when it accepts [*0]?
 	      result_ = mo->clone();
 	      break;
 	    }
 	}
 
-	formula*
-	recurse(formula* f)
+	const formula*
+	recurse(const formula* f)
 	{
 	  if (!f->accepts_eword())
 	    return f->clone();
@@ -164,11 +164,11 @@ namespace spot
     }
 
 
-    formula*
+    const formula*
     star_normal_form(const formula* sere, snf_cache* cache)
     {
       snf_visitor v(cache);
-      return v.recurse(const_cast<formula*>(sere));
+      return v.recurse(sere);
     }
 
   }

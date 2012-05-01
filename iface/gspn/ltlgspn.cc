@@ -1,6 +1,9 @@
-// Copyright (C) 2003, 2004, 2006, 2007, 2008, 2009 Laboratoire
-// d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
-// Coopératifs (SRC), Université Pierre et Marie Curie.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2011, 2012 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE)
+// Copyright (C) 2003, 2004, 2006, 2007 Laboratoire d'Informatique de
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -229,8 +232,8 @@ main(int argc, char **argv)
 	}
 
       spot::ltl::parse_error_list pel;
-      spot::ltl::formula* f = spot::ltl::parse(argv[formula_index + 1],
-					       pel, env);
+      const spot::ltl::formula* f =
+	spot::ltl::parse(argv[formula_index + 1], pel, env);
 
       if (spot::ltl::format_parse_errors(std::cerr,
 					 argv[formula_index + 1], pel))

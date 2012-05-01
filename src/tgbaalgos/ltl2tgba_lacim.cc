@@ -41,7 +41,7 @@ namespace spot
     ///
     /// The algorithm used here is adapted from Jean-Michel Couvreur's
     /// Probataf tool.
-    class ltl_trad_visitor: public const_visitor
+    class ltl_trad_visitor: public visitor
     {
     public:
       ltl_trad_visitor(tgba_bdd_concrete_factory& fact, bool root = false)

@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -47,7 +47,7 @@ namespace spot
       return true;
     }
 
-    ltl::formula*
+    const formula*
     declarative_environment::require(const std::string& prop_str)
     {
       prop_map::iterator i = props_.find(prop_str);

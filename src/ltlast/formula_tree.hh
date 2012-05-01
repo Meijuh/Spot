@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -76,7 +76,8 @@ namespace spot
 
       /// Instanciate the formula corresponding to the node with
       /// atomic propositions taken from \a v.
-      formula* instanciate(const node_ptr np, const std::vector<formula*>& v);
+      const formula* instanciate(const node_ptr np,
+				 const std::vector<const formula*>& v);
 
       /// Get the arity.
       size_t arity(const node_ptr np);

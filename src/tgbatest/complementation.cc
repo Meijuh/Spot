@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
   else if (print_formula)
   {
     spot::tgba* a;
-    spot::ltl::formula* f1 = 0;
+    const spot::ltl::formula* f1 = 0;
 
     spot::ltl::parse_error_list p1;
     f1 = spot::ltl::parse(file, p1);
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
   else if (stats)
   {
     spot::tgba* a;
-    spot::ltl::formula* f1 = 0;
+    const spot::ltl::formula* f1 = 0;
 
     if (formula)
     {
@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
     delete a;
     if (formula)
     {
-      spot::ltl::formula* nf1 =
+      const spot::ltl::formula* nf1 =
         spot::ltl::unop::instance(spot::ltl::unop::Not,
                                   f1->clone());
       spot::tgba* a2 = spot::ltl_to_tgba_fm(nf1, dict);
@@ -266,14 +266,14 @@ int main(int argc, char* argv[])
   else
   {
     spot::ltl::parse_error_list p1;
-    spot::ltl::formula* f1 = spot::ltl::parse(file, p1);
+    const spot::ltl::formula* f1 = spot::ltl::parse(file, p1);
 
     if (spot::ltl::format_parse_errors(std::cerr, file, p1))
       return 2;
 
     spot::tgba* Af = spot::ltl_to_tgba_fm(f1, dict);
-    spot::ltl::formula* nf1 = spot::ltl::unop::instance(spot::ltl::unop::Not,
-                                                        f1->clone());
+    const spot::ltl::formula* nf1 =
+      spot::ltl::unop::instance(spot::ltl::unop::Not, f1->clone());
     spot::tgba* Anf = spot::ltl_to_tgba_fm(nf1, dict);
 
     spot::tgba* nAf;

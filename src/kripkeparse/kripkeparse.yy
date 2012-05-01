@@ -1,4 +1,5 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -48,7 +49,7 @@ typedef std::map<std::string, bdd> formula_cache;
 {
   int token;
   std::string* str;
-  spot::ltl::formula* f;
+  const spot::ltl::formula* f;
   std::list<std::string*>* list;
 }
 
@@ -113,7 +114,7 @@ strident "," condition "," follow_list ";"
     if (i == fcache.end())
     {
       parse_error_list pel;
-      formula* f = spot::ltl::parse(*$3, pel, parse_environment);
+      const formula* f = spot::ltl::parse(*$3, pel, parse_environment);
       for (parse_error_list::iterator i = pel.begin();
            i != pel.end(); ++i)
       {
@@ -158,7 +159,7 @@ string: STRING
        {
 	 $$ = $1;
          error_list.push_back(spot::kripke_parse_error(@1,
-         					     "unterminated string"));
+	 					     "unterminated string"));
        }
 ;
 

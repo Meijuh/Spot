@@ -1,4 +1,5 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -37,20 +38,20 @@ namespace spot
     }
 
     void
-    postfix_visitor::visit(atomic_prop* ap)
+    postfix_visitor::visit(const atomic_prop* ap)
     {
       doit(ap);
     }
 
     void
-    postfix_visitor::visit(unop* uo)
+    postfix_visitor::visit(const unop* uo)
     {
       uo->child()->accept(*this);
       doit(uo);
     }
 
     void
-    postfix_visitor::visit(binop* bo)
+    postfix_visitor::visit(const binop* bo)
     {
       bo->first()->accept(*this);
       bo->second()->accept(*this);
@@ -58,7 +59,7 @@ namespace spot
     }
 
     void
-    postfix_visitor::visit(automatop* ao)
+    postfix_visitor::visit(const automatop* ao)
     {
       unsigned s = ao->size();
       for (unsigned i = 0; i < s; ++i)
@@ -67,7 +68,7 @@ namespace spot
     }
 
     void
-    postfix_visitor::visit(multop* mo)
+    postfix_visitor::visit(const multop* mo)
     {
       unsigned s = mo->size();
       for (unsigned i = 0; i < s; ++i)
@@ -76,62 +77,62 @@ namespace spot
     }
 
     void
-    postfix_visitor::visit(bunop* so)
+    postfix_visitor::visit(const bunop* so)
     {
       so->child()->accept(*this);
       doit(so);
     }
 
     void
-    postfix_visitor::visit(constant* c)
+    postfix_visitor::visit(const constant* c)
     {
       doit(c);
     }
 
     void
-    postfix_visitor::doit(atomic_prop* ap)
+    postfix_visitor::doit(const atomic_prop* ap)
     {
       doit_default(ap);
     }
 
     void
-    postfix_visitor::doit(unop* uo)
+    postfix_visitor::doit(const unop* uo)
     {
       doit_default(uo);
     }
 
     void
-    postfix_visitor::doit(binop* bo)
+    postfix_visitor::doit(const binop* bo)
     {
       doit_default(bo);
     }
 
     void
-    postfix_visitor::doit(multop* mo)
+    postfix_visitor::doit(const multop* mo)
     {
       doit_default(mo);
     }
 
     void
-    postfix_visitor::doit(automatop* ao)
+    postfix_visitor::doit(const automatop* ao)
     {
       doit_default(ao);
     }
 
     void
-    postfix_visitor::doit(bunop* so)
+    postfix_visitor::doit(const bunop* so)
     {
       doit_default(so);
     }
 
     void
-    postfix_visitor::doit(constant* c)
+    postfix_visitor::doit(const constant* c)
     {
       doit_default(c);
     }
 
     void
-    postfix_visitor::doit_default(formula* f)
+    postfix_visitor::doit_default(const formula* f)
     {
       (void)f;
       // Dummy implementation that does nothing.

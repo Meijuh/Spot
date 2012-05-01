@@ -37,8 +37,7 @@ namespace spot
     {
     public:
       enum type { False, True, EmptyWord };
-      virtual void accept(visitor& v);
-      virtual void accept(const_visitor& v) const;
+      virtual void accept(visitor& v) const;
 
       /// Return the value of the constant.
       type val() const;
@@ -74,12 +73,12 @@ namespace spot
     /// Cast \a f into a constant iff it is a constant instance.
     /// Return 0 otherwise.  This is faster than \c dynamic_cast.
     inline
-    constant*
-    is_constant(formula* f)
+    const constant*
+    is_constant(const formula* f)
     {
       if (f->kind() != formula::Constant)
 	return 0;
-      return static_cast<constant*>(f);
+      return static_cast<const constant*>(f);
     }
   }
 }

@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -487,7 +487,7 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string s)
   std::cout << std::setiosflags(old);
 }
 
-spot::ltl::formula*
+const spot::ltl::formula*
 generate_formula(const spot::ltl::random_ltl& rl,
 		 spot::ltl::ltl_simplifier& simp,
 		 int opt_f, int opt_s,
@@ -499,14 +499,14 @@ generate_formula(const spot::ltl::random_ltl& rl,
   while (max_tries_u--)
     {
       spot::srand(opt_s++);
-      spot::ltl::formula* f;
+      const spot::ltl::formula* f;
       int max_tries_l = 1000;
       while (max_tries_l--)
         {
           f = rl.generate(opt_f);
           if (opt_l)
             {
-              spot::ltl::formula* g = simp.simplify(f);
+              const spot::ltl::formula* g = simp.simplify(f);
               f->destroy();
               if (spot::ltl::length(g) < opt_l)
                 {
@@ -788,7 +788,7 @@ main(int argc, char** argv)
 	}
       else
 	{
-	  ap->insert(static_cast<spot::ltl::atomic_prop*>
+	  ap->insert(static_cast<const spot::ltl::atomic_prop*>
 		     (env.require(argv[argn])));
 	}
     }
@@ -853,9 +853,8 @@ main(int argc, char** argv)
     {
       if (opt_F)
         {
-          spot::ltl::formula* f = generate_formula(rl, simp,
-						   opt_f, opt_ec_seed,
-						   opt_l, opt_u);
+          const spot::ltl::formula* f =
+	    generate_formula(rl, simp, opt_f, opt_ec_seed, opt_l, opt_u);
           if (!f)
             exit(1);
           formula = spot::ltl_to_tgba_fm(f, dict, true);
@@ -871,7 +870,7 @@ main(int argc, char** argv)
 	      else if (input == "")
 		break;
               spot::ltl::parse_error_list pel;
-              spot::ltl::formula* f = spot::ltl::parse(input, pel, env);
+              const spot::ltl::formula* f = spot::ltl::parse(input, pel, env);
               if (spot::ltl::format_parse_errors(std::cerr, input, pel))
 		{
 		  exit_code = 1;
@@ -882,7 +881,7 @@ main(int argc, char** argv)
 		spot::ltl::atomic_prop_collect(f);
               for (spot::ltl::atomic_prop_set::iterator i = tmp->begin();
 		   i != tmp->end(); ++i)
-		apf->insert(dynamic_cast<spot::ltl::atomic_prop*>
+		apf->insert(dynamic_cast<const spot::ltl::atomic_prop*>
 			    ((*i)->clone()));
               f->destroy();
               delete tmp;
@@ -897,7 +896,7 @@ main(int argc, char** argv)
 
       for (spot::ltl::atomic_prop_set::iterator i = ap->begin();
 	   i != ap->end(); ++i)
-	apf->insert(dynamic_cast<spot::ltl::atomic_prop*>((*i)->clone()));
+	apf->insert(static_cast<const spot::ltl::atomic_prop*>((*i)->clone()));
 
       if (!opt_S)
 	{

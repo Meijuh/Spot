@@ -33,7 +33,7 @@ namespace spot
 
   namespace
   {
-    class formula_to_bdd_visitor: public ltl::const_visitor
+    class formula_to_bdd_visitor: public ltl::visitor
     {
     public:
       formula_to_bdd_visitor(bdd_dict* d, void* owner)
@@ -183,7 +183,7 @@ namespace spot
     };
 
     // Convert a BDD which is known to be a conjonction into a formula.
-    static ltl::formula*
+    static const ltl::formula*
     conj_to_formula(bdd b, const bdd_dict* d)
     {
       if (b == bddfalse)
@@ -194,7 +194,7 @@ namespace spot
 	  int var = bdd_var(b);
 	  bdd_dict::vf_map::const_iterator isi = d->var_formula_map.find(var);
 	  assert(isi != d->var_formula_map.end());
-	  formula* res = isi->second->clone();
+	  const formula* res = isi->second->clone();
 
 	  bdd high = bdd_high(b);
 	  if (high == bddfalse)

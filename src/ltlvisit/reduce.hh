@@ -1,7 +1,8 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004, 2006 Laboratoire d'Informatique de Paris 6
-// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
 // Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -70,10 +71,10 @@ namespace spot
     ///
     /// \deprecated Use spot::ltl::ltl_simplifier instead.
 #if __GNUC__
-    formula*
+    const formula*
     reduce(const formula* f, int opt = Reduce_All) __attribute__ ((deprecated));
 #else
-    formula* reduce(const formula* f, int opt = Reduce_All);
+    const formula* reduce(const formula* f, int opt = Reduce_All);
 #endif
     /// @}
 

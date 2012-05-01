@@ -1,8 +1,9 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2012 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -153,7 +154,7 @@ namespace spot
     // FIXME: We could be smarter and reuse unused "$n" numbers.
     s << ltl::to_string(i->second) << "$"
       << ++clone_counts[var];
-    ltl::formula* f =
+    const ltl::formula* f =
       ltl::atomic_prop::instance(s.str(),
 				 ltl::default_environment::instance());
     int res = register_acceptance_variable(f, for_me);

@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -37,7 +37,7 @@ namespace spot
     }
 
     void
-    unabbreviate_ltl_visitor::visit(unop* uo)
+    unabbreviate_ltl_visitor::visit(const unop* uo)
     {
       switch (uo->op())
 	{
@@ -61,19 +61,19 @@ namespace spot
 	}
     }
 
-    formula*
-    unabbreviate_ltl_visitor::recurse(formula* f)
+    const formula*
+    unabbreviate_ltl_visitor::recurse(const formula* f)
     {
       return unabbreviate_ltl(f);
     }
 
-    formula*
+    const formula*
     unabbreviate_ltl(const formula* f)
     {
       if (f->is_sugar_free_boolean() && f->is_sugar_free_ltl())
 	return f->clone();
       unabbreviate_ltl_visitor v;
-      const_cast<formula*>(f)->accept(v);
+      f->accept(v);
       return v.result();
     }
 

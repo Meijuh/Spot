@@ -1,7 +1,8 @@
-// Copyright (C) 2010 Laboratoire de Recherche de Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2012 Laboratoire de Recherche de Developpement de
 // l'EPITA (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -38,20 +39,20 @@ namespace spot
     }
 
     void
-    ref_formula::ref_()
+    ref_formula::ref_() const
     {
       ++ref_counter_;
     }
 
     bool
-    ref_formula::unref_()
+    ref_formula::unref_() const
     {
       assert(ref_counter_ > 0);
       return !--ref_counter_;
     }
 
     unsigned
-    ref_formula::ref_count_()
+    ref_formula::ref_count_() const
     {
       return ref_counter_;
     }

@@ -82,6 +82,7 @@ namespace spot
 		    BUnOp,
 		    AutomatOp };
 
+    protected:
       formula(opkind k) : count_(max_count++), kind_(k)
       {
 	// If the counter of formulae ever loops, we want to skip the
@@ -92,16 +93,15 @@ namespace spot
 	  max_count = 3;
       }
 
-      /// Entry point for vspot::ltl::visitor instances.
-      virtual void accept(visitor& v) = 0;
-      /// Entry point for vspot::ltl::const_visitor instances.
-      virtual void accept(const_visitor& v) const = 0;
+    public:
+      /// Entry point for spot::ltl::visitor instances.
+      virtual void accept(visitor& v) const = 0;
 
       /// \brief clone this node
       ///
       /// This increments the reference counter of this node (if one is
       /// used).
-      formula* clone() const;
+      const formula* clone() const;
       /// \brief release this node
       ///
       /// This decrements the reference counter of this node (if one is
@@ -293,10 +293,10 @@ namespace spot
       virtual ~formula();
 
       /// \brief increment reference counter if any
-      virtual void ref_();
+      virtual void ref_() const;
       /// \brief decrement reference counter if any, return true when
       /// the instance must be deleted (usually when the counter hits 0).
-      virtual bool unref_();
+      virtual bool unref_() const;
 
       /// \brief The hash key of this formula.
       size_t count_;

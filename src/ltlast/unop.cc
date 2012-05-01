@@ -1,8 +1,9 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -32,7 +33,7 @@ namespace spot
 {
   namespace ltl
   {
-    unop::unop(type op, formula* child)
+    unop::unop(type op, const formula* child)
       : ref_formula(UnOp), op_(op), child_(child)
     {
       props = child->get_props();
@@ -161,25 +162,13 @@ namespace spot
     }
 
     void
-    unop::accept(visitor& v)
-    {
-      v.visit(this);
-    }
-
-    void
-    unop::accept(const_visitor& v) const
+    unop::accept(visitor& v) const
     {
       v.visit(this);
     }
 
     const formula*
     unop::child() const
-    {
-      return child_;
-    }
-
-    formula*
-    unop::child()
     {
       return child_;
     }
@@ -217,8 +206,8 @@ namespace spot
 
     unop::map unop::instances;
 
-    formula*
-    unop::instance(type op, formula* child)
+    const formula*
+    unop::instance(type op, const formula* child)
     {
 
       // Some trivial simplifications.
@@ -227,10 +216,9 @@ namespace spot
 	case F:
 	case G:
 	  {
-	    if (child->kind() == UnOp)
+	    if (const unop* u = is_unop(child))
 	      {
 		// F and G are idempotent.
-		unop* u = static_cast<unop*>(child);
 		if (u->op() == op)
 		  return u;
 	      }
@@ -258,29 +246,28 @@ namespace spot
 	      return bunop::instance(bunop::Star,
 				     constant::true_instance(), 1);
 
-	    if (child->kind() == UnOp)
+	    if (const unop* u = is_unop(child))
 	      {
-		unop* u = static_cast<unop*>(child);
 		// "Not" is an involution.
 		if (u->op() == op)
 		  {
-		    formula* c = u->child()->clone();
+		    const formula* c = u->child()->clone();
 		    u->destroy();
 		    return c;
 		  }
 		// !Closure(Exp) = NegClosure(Exp)
 		if (u->op() == Closure)
 		  {
-		    formula* c = unop::instance(NegClosure,
-						u->child()->clone());
+		    const formula* c = unop::instance(NegClosure,
+						      u->child()->clone());
 		    u->destroy();
 		    return c;
 		  }
 		// !NegClosure(Exp) = Closure(Exp)
 		if (u->op() == NegClosure)
 		  {
-		    formula* c = unop::instance(Closure,
-						u->child()->clone());
+		    const formula* c = unop::instance(Closure,
+						      u->child()->clone());
 		    u->destroy();
 		    return c;
 		  }
@@ -323,17 +310,21 @@ namespace spot
 	  break;
 	}
 
+      const unop* res;
       pair p(op, child);
       map::iterator i = instances.find(p);
       if (i != instances.end())
 	{
 	  // This instance already exists.
 	  child->destroy();
-	  return static_cast<unop*>(i->second->clone());
+	  res = i->second;
 	}
-      unop* ap = new unop(op, child);
-      instances[p] = ap;
-      return static_cast<unop*>(ap->clone());
+      else
+	{
+	  res = instances[p] = new unop(op, child);
+	}
+      res->clone();
+      return res;
     }
 
     unsigned

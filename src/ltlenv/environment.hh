@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Laboratoire de Recherche et Développement
+// Copyright (C) 2008, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -53,7 +53,7 @@ namespace spot
       ///
       /// \return 0 iff \a prop_str is not part of the environment,
       ///   or the associated spot::ltl::formula otherwise.
-      virtual formula* require(const std::string& prop_str) = 0;
+      virtual const formula* require(const std::string& prop_str) = 0;
 
       /// Get the name of the environment.
       virtual const std::string& name() = 0;

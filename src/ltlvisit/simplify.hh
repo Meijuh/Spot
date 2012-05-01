@@ -77,7 +77,7 @@ namespace spot
 
       /// Simplify the formula \a f (using options supplied to the
       /// constructor).
-      formula* simplify(const formula* f);
+      const formula* simplify(const formula* f);
 
       /// Build the negative normal form of formula \a f.
       /// All negations of the formula are pushed in front of the
@@ -87,7 +87,8 @@ namespace spot
       /// \param f The formula to normalize.
       /// \param negated If \c true, return the negative normal form of
       ///        \c !f
-      formula* negative_normal_form(const formula* f, bool negated = false);
+      const formula*
+      negative_normal_form(const formula* f, bool negated = false);
 
       /// \brief Syntactic implication.
       ///

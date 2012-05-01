@@ -33,9 +33,9 @@ namespace spot
   {
     // Can't build it on startup, because it uses
     // constant::true_instance that may not have been built yet...
-    formula* bunop::one_star_ = 0;
+    const formula* bunop::one_star_ = 0;
 
-    bunop::bunop(type op, formula* child, unsigned min, unsigned max)
+    bunop::bunop(type op, const formula* child, unsigned min, unsigned max)
       : ref_formula(BUnOp), op_(op), child_(child), min_(min), max_(max)
     {
       props = child->get_props();
@@ -95,25 +95,13 @@ namespace spot
     }
 
     void
-    bunop::accept(visitor& v)
-    {
-      v.visit(this);
-    }
-
-    void
-    bunop::accept(const_visitor& v) const
+    bunop::accept(visitor& v) const
     {
       v.visit(this);
     }
 
     const formula*
     bunop::child() const
-    {
-      return child_;
-    }
-
-    formula*
-    bunop::child()
     {
       return child_;
     }
@@ -187,8 +175,9 @@ namespace spot
 
     bunop::map bunop::instances;
 
-    formula*
-    bunop::instance(type op, formula* child, unsigned min, unsigned max)
+    const formula*
+    bunop::instance(type op, const formula* child,
+		    unsigned min, unsigned max)
     {
       assert(min <= max);
 
@@ -225,9 +214,8 @@ namespace spot
 
 	    // - Exp[*i..j][*min..max] = Exp[*i(min)..j(max)]
 	    //                                       if i*(min+1)<=j(min)+1.
-	    if (child->kind() == BUnOp)
+	    if (const bunop* s = is_bunop(child))
 	      {
-		bunop* s = static_cast<bunop*>(child);
 		unsigned i = s->min();
 		unsigned j = s->max();
 
@@ -242,7 +230,7 @@ namespace spot
 		// (Because i<=j, this entails that the other intervals also
 		// overlap).
 
-		formula* exp = s->child();
+		const formula* exp = s->child();
 		if (j == unbounded)
 		  {
 		    min *= i;
@@ -283,25 +271,26 @@ namespace spot
 	  child->destroy();
 	  return i->second->clone();
 	}
-      bunop* ap = new bunop(op, child, min, max);
-      instances[p] = ap;
-      return static_cast<bunop*>(ap->clone());
+      const bunop* res = instances[p] = new bunop(op, child, min, max);
+      res->clone();
+      return res;
     }
 
-    formula*
-    bunop::sugar_goto(formula* b, unsigned min, unsigned max)
+    const formula*
+    bunop::sugar_goto(const formula* b, unsigned min, unsigned max)
     {
       assert(b->is_boolean());
       // b[->min..max] is implemented as ((!b)[*];b)[*min..max]
-      formula* s = bunop::instance(bunop::Star,
-				   unop::instance(unop::Not, b->clone()));
+      const formula* s =
+	bunop::instance(bunop::Star,
+			unop::instance(unop::Not, b->clone()));
       return bunop::instance(bunop::Star,
 			     multop::instance(multop::Concat, s, b),
 			     min, max);
     }
 
-    formula*
-    bunop::sugar_equal(formula* b, unsigned min, unsigned max)
+    const formula*
+    bunop::sugar_equal(const formula* b, unsigned min, unsigned max)
     {
       assert(b->is_boolean());
       // b[=0..] = 1[*]
@@ -312,12 +301,13 @@ namespace spot
 	}
 
       // b[=min..max] is implemented as ((!b)[*];b)[*min..max];(!b)[*]
-      formula* s = bunop::instance(bunop::Star,
-				   unop::instance(unop::Not, b->clone()));
-      formula* t = bunop::instance(bunop::Star,
-				   multop::instance(multop::Concat,
-						    s->clone(), b),
-				   min, max);
+      const formula* s =
+	bunop::instance(bunop::Star,
+			unop::instance(unop::Not, b->clone()));
+      const formula* t =
+	bunop::instance(bunop::Star,
+			multop::instance(multop::Concat,
+					 s->clone(), b), min, max);
       return multop::instance(multop::Concat, t, s);
     }
 

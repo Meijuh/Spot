@@ -47,7 +47,7 @@ namespace spot
 	}
 
 	virtual void
-	visit(multop* mo)
+	visit(const multop* mo)
 	{
 	  unsigned s = mo->size();
 	  for (unsigned i = 0; i < s; ++i)
@@ -58,7 +58,7 @@ namespace spot
 	}
 
 	virtual void
-	doit_default(formula*)
+	doit_default(const formula*)
 	{
 	  ++result_;
 	}
@@ -71,7 +71,7 @@ namespace spot
       {
 
 	virtual void
-	visit(unop* uo)
+	visit(const unop* uo)
 	{
 	  ++result_;
 	  // Boolean formula have length one.
@@ -80,7 +80,7 @@ namespace spot
 	}
 
 	virtual void
-	visit(multop* mo)
+	visit(const multop* mo)
 	{
 	  // Boolean formula have length one.
 	  if (mo->is_boolean())
@@ -104,7 +104,7 @@ namespace spot
     length(const formula* f)
     {
       length_visitor v;
-      const_cast<formula*>(f)->accept(v);
+      f->accept(v);
       return v.result();
     }
 
@@ -112,7 +112,7 @@ namespace spot
     length_boolone(const formula* f)
     {
       length_boolone_visitor v;
-      const_cast<formula*>(f)->accept(v);
+      f->accept(v);
       return v.result();
     }
 

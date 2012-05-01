@@ -35,7 +35,7 @@ namespace spot
     using namespace ltl;
 
     /// \brief Recursively translate a formula into a BDD.
-    class eltl_trad_visitor : public const_visitor
+    class eltl_trad_visitor : public visitor
     {
     public:
       eltl_trad_visitor(tgba_bdd_concrete_factory& fact, bool root = false)
@@ -185,9 +185,9 @@ namespace spot
 	bdd finish = bddfalse;
 	bdd acc = bddtrue;
 
-	std::vector<formula*> v;
+	std::vector<const formula*> v;
 	for (unsigned i = 0; i < node->size(); ++i)
-	  v.push_back(const_cast<formula*>(node->nth(i)));
+	  v.push_back(node->nth(i));
 
 	std::pair<int, int> vp =
 	  recurse_state(node->get_nfa(),
@@ -234,7 +234,7 @@ namespace spot
 
       std::pair<int, int>&
       recurse_state(const nfa::ptr& nfa, const nfa::state* s,
-		    const std::vector<formula*>& v,
+		    const std::vector<const formula*>& v,
 		    nmap& m, bdd& acc, bdd& finish)
       {
 	bool is_loop = nfa->is_loop();

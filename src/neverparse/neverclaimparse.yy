@@ -1,5 +1,6 @@
-/* Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
-** de l'Epita (LRDE).
+/* -*- coding: utf-8 -*-
+** Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+** DÃ©veloppement de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -34,7 +35,7 @@
 #include "ltlast/constant.hh"
 #include "public.hh"
 
-  typedef std::pair<spot::ltl::formula*, std::string*> pair;
+  typedef std::pair<const spot::ltl::formula*, std::string*> pair;
 }
 
 %parse-param {spot::neverclaim_parse_error_list& error_list}
@@ -193,7 +194,7 @@ transition:
       else
 	{
 	  spot::ltl::parse_error_list pel;
-	  spot::ltl::formula* f = spot::ltl::parse(*$3, pel);
+	  const spot::ltl::formula* f = spot::ltl::parse(*$3, pel);
 	  delete $3;
 	  for(spot::ltl::parse_error_list::const_iterator i = pel.begin();
 	  i != pel.end(); ++i)

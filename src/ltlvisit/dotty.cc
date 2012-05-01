@@ -35,7 +35,7 @@ namespace spot
   {
     namespace
     {
-      class dotty_visitor: public const_visitor
+      class dotty_visitor: public visitor
       {
       public:
 	typedef Sgi::hash_map<const formula*, int, ptr_hash<formula> > map;

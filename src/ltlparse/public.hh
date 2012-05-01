@@ -67,10 +67,10 @@ namespace spot
     /// was parsed succesfully, check \a error_list for emptiness.
     ///
     /// \warning This function is not reentrant.
-    formula* parse(const std::string& ltl_string,
-		   parse_error_list& error_list,
-		   environment& env = default_environment::instance(),
-		   bool debug = false);
+    const formula* parse(const std::string& ltl_string,
+			 parse_error_list& error_list,
+			 environment& env = default_environment::instance(),
+			 bool debug = false);
 
     /// \brief Build a formula from a string representing a SERE.
     /// \param sere_string The string to parse.
@@ -87,10 +87,11 @@ namespace spot
     /// was parsed succesfully, check \a error_list for emptiness.
     ///
     /// \warning This function is not reentrant.
-    formula* parse_sere(const std::string& sere_string,
-			parse_error_list& error_list,
-			environment& env = default_environment::instance(),
-			bool debug = false);
+    const formula* parse_sere(const std::string& sere_string,
+			      parse_error_list& error_list,
+			      environment& env =
+			      default_environment::instance(),
+			      bool debug = false);
 
     /// \brief Format diagnostics produced by spot::ltl::parse
     ///        or spot::ltl::ratexp

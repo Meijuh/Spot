@@ -52,8 +52,8 @@ namespace spot
     ///
     /// \param sere the SERE to rewrite
     /// \param cache an optional cache
-    formula* star_normal_form(const formula* sere,
-			      snf_cache* cache = 0);
+    const formula* star_normal_form(const formula* sere,
+				    snf_cache* cache = 0);
   }
 }
 

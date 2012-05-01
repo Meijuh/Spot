@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -346,7 +347,7 @@ namespace spot
     ~taa_tgba_formula();
   protected:
     virtual std::string label_to_string(const label_t& label) const;
-    virtual ltl::formula* clone_if(const label_t& label) const;
+    virtual const ltl::formula* clone_if(const label_t& label) const;
   };
 }
 

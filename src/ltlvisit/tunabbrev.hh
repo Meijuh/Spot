@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Développement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et DÃ©veloppement de
 // l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -53,9 +54,9 @@ namespace spot
       virtual ~unabbreviate_ltl_visitor();
 
       using super::visit;
-      void visit(unop* uo);
+      void visit(const unop* uo);
 
-      formula* recurse(formula* f);
+      const formula* recurse(const formula* f);
     };
 
     /// \brief Clone and rewrite a formula to remove most of the
@@ -66,7 +67,7 @@ namespace spot
     ///
     /// This will also rewrite unary operators such as unop::F,
     /// and unop::G, using only binop::U, and binop::R.
-    formula* unabbreviate_ltl(const formula* f);
+    const formula* unabbreviate_ltl(const formula* f);
   }
 }
 

@@ -6,10 +6,6 @@ New in spot 0.8.3a:
       Expressions (SERE), and a couple of operators to bridge SERE and
       LTL.  See doc/tl/tl.pdf for the list of operators and their
       semantics.
-    - The constructors for temporal formulae will perform some trivial
-      simplifications based on associativity, commutativity,
-      idempotence, and neutral elements.  See doc/tl/tl.pdf for the
-      list of such simplifications.
     - Formula rewritings have been completely revamped, and augmented
       with rules for PSL operators (and some new LTL rules as well).
       See doc/tl/tl.pdf for the list of the rewritings implemented.
@@ -51,13 +47,24 @@ New in spot 0.8.3a:
   * Interface changes:
     - Operators ->, <->, U, W, R, and M are now parsed as
       right-associative to better match the PSL standard.
+    - The constructors for temporal formulae will perform some trivial
+      simplifications based on associativity, commutativity,
+      idempotence, and neutral elements.  See doc/tl/tl.pdf for the
+      list of such simplifications.
+    - Formula instances now have many methods to inspect their
+      properties (membership to syntactic classes, absence of X
+      operator, etc...) in constant time.
+    - LTL/PSL formulae are now handled everywhere as 'const formula*'
+      and not just 'formula*'.  This reflects the true nature of these
+      (immutable) formula objects, and cleanups a lot of code.
+      Unfortunately, it is a backward incompatible change: you may have
+      to add 'const' to a couple of lines in your code, and change
+      'ltl::const_vistitor' into 'ltl::visitor' if you have written a
+      custom visitor.
     - The new entry point for LTL/PSL simplifications is the function
       ltl_simplifier::simplify() declared in src/ltlvisit/simplify.hh.
       The ltl_simplifier class implements a cache.
       Functions such as reduce() or reduce_tau03() are deprecated.
-    - Formula instances now have many methods to inspect their
-      properties (membership to syntactic classes, absence of X
-      operator, etc...) in constant time.
     - The old game-theory-based implementations for direct and delayed
       simulation reductions have been removed.  The old direct
       simulation would only work on degeneralized automata, and yet

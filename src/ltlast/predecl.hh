@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010  Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -36,7 +36,6 @@ namespace spot
   namespace ltl
   {
     struct visitor;
-    struct const_visitor;
 
     class atomic_prop;
     class automatop;

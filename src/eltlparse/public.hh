@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2010, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -64,10 +65,11 @@ namespace spot
     ///        0 if the file could not be opened.
     ///
     /// \warning This function is not reentrant.
-    formula* parse_file(const std::string& filename,
-			parse_error_list& error_list,
-			environment& env = default_environment::instance(),
-			bool debug = false);
+    const formula* parse_file(const std::string& filename,
+			      parse_error_list& error_list,
+			      environment& env =
+			      default_environment::instance(),
+			      bool debug = false);
 
     /// \brief Build a formula from an ELTL string.
     /// \param eltl_string The string to parse.
@@ -79,10 +81,11 @@ namespace spot
     ///        0 if the input was unparsable.
     ///
     /// \warning This function is not reentrant.
-    formula* parse_string(const std::string& eltl_string,
-			  parse_error_list& error_list,
-			  environment& env = default_environment::instance(),
-			  bool debug = false);
+    const formula* parse_string(const std::string& eltl_string,
+				parse_error_list& error_list,
+				environment& env =
+				default_environment::instance(),
+				bool debug = false);
 
     /// \brief Format diagnostics produced by spot::eltl::parse.
     /// \param os Where diagnostics should be output.

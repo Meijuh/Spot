@@ -1,8 +1,9 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -71,13 +72,7 @@ namespace spot
     }
 
     void
-    atomic_prop::accept(visitor& v)
-    {
-      v.visit(this);
-    }
-
-    void
-    atomic_prop::accept(const_visitor& v) const
+    atomic_prop::accept(visitor& v) const
     {
       v.visit(this);
     }
@@ -96,18 +91,19 @@ namespace spot
 
     atomic_prop::map atomic_prop::instances;
 
-    atomic_prop*
+    const atomic_prop*
     atomic_prop::instance(const std::string& name, environment& env)
     {
       pair p(name, &env);
+      // FIXME: Use lower_bound, or a hash_map.
       map::iterator i = instances.find(p);
+      const atomic_prop* ap;
       if (i != instances.end())
-	{
-	  return static_cast<atomic_prop*>(i->second->clone());
-	}
-      atomic_prop* ap = new atomic_prop(name, env);
-      instances[p] = ap;
-      return static_cast<atomic_prop*>(ap->clone());
+	ap = i->second;
+      else
+	ap = instances[p] = new atomic_prop(name, env);
+      ap->clone();
+      return ap;
     }
 
     unsigned

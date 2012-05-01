@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -46,7 +46,7 @@ namespace spot
 	}
     }
 
-    formula* ltl_file::next()
+    const formula* ltl_file::next()
     {
       if (!in.good())
 	return 0;
@@ -60,7 +60,7 @@ namespace spot
       while (input == "");
 
       spot::ltl::parse_error_list pel;
-      formula* f = parse(input, pel);
+      const formula* f = parse(input, pel);
       int ret = spot::ltl::format_parse_errors(std::cerr, input, pel);
       if (ret)
 	exit(ret);

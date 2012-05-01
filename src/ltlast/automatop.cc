@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE)
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -84,36 +85,34 @@ namespace spot
     }
 
     void
-    automatop::accept(visitor& v)
-    {
-      v.visit(this);
-    }
-
-    void
-    automatop::accept(const_visitor& v) const
+    automatop::accept(visitor& v) const
     {
       v.visit(this);
     }
 
     automatop::map automatop::instances;
 
-    automatop*
+    const automatop*
     automatop::instance(const nfa::ptr nfa, vec* v, bool negated)
     {
       assert(nfa != 0);
       triplet p(std::make_pair(nfa, negated), v);
       map::iterator i = instances.find(p);
+      const automatop* res;
       if (i != instances.end())
 	{
 	  // The instance already exists.
 	  for (vec::iterator vi = v->begin(); vi != v->end(); ++vi)
 	    (*vi)->destroy();
 	  delete v;
-	  return static_cast<automatop*>(i->second->clone());
+	  res = i->second;
 	}
-      automatop* res = new automatop(nfa, v, negated);
-      instances[p] = res;
-      return static_cast<automatop*>(res->clone());
+      else
+	{
+	  res = instances[p] = new automatop(nfa, v, negated);
+	}
+      res->clone();
+      return res;
     }
 
     unsigned
@@ -124,12 +123,6 @@ namespace spot
 
     const formula*
     automatop::nth(unsigned n) const
-    {
-      return (*children_)[n];
-    }
-
-    formula*
-    automatop::nth(unsigned n)
     {
       return (*children_)[n];
     }
@@ -165,6 +158,5 @@ namespace spot
 	}
       return os;
     }
-
   }
 }

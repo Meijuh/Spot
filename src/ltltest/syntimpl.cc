@@ -1,7 +1,8 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// et DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6
-// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
 // Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -49,19 +50,19 @@ main(int argc, char** argv)
   int opt = atoi(argv[1]);
 
   spot::ltl::parse_error_list p1;
-  spot::ltl::formula* ftmp1 = spot::ltl::parse(argv[2], p1);
+  const spot::ltl::formula* ftmp1 = spot::ltl::parse(argv[2], p1);
 
   if (spot::ltl::format_parse_errors(std::cerr, argv[2], p1))
     return 2;
 
   spot::ltl::parse_error_list p2;
-  spot::ltl::formula* ftmp2 = spot::ltl::parse(argv[3], p2);
+  const spot::ltl::formula* ftmp2 = spot::ltl::parse(argv[3], p2);
 
   if (spot::ltl::format_parse_errors(std::cerr, argv[3], p2))
     return 2;
 
-  spot::ltl::formula* f1 = spot::ltl::negative_normal_form(ftmp1);
-  spot::ltl::formula* f2 = spot::ltl::negative_normal_form(ftmp2);
+  const spot::ltl::formula* f1 = spot::ltl::negative_normal_form(ftmp1);
+  const spot::ltl::formula* f2 = spot::ltl::negative_normal_form(ftmp2);
 
   std::string f1s = spot::ltl::to_string(f1);
   std::string f2s = spot::ltl::to_string(f2);

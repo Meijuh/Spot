@@ -1,8 +1,9 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// et DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -57,13 +58,13 @@ main(int argc, char** argv)
     syntax(argv[0]);
 
   spot::ltl::parse_error_list p1;
-  spot::ltl::formula* f1 = spot::ltl::parse(argv[1], p1);
+  const spot::ltl::formula* f1 = spot::ltl::parse(argv[1], p1);
 
   if (check_first && spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
     return 2;
 
   spot::ltl::parse_error_list p2;
-  spot::ltl::formula* f2 = spot::ltl::parse(argv[2], p2);
+  const spot::ltl::formula* f2 = spot::ltl::parse(argv[2], p2);
 
   if (spot::ltl::format_parse_errors(std::cerr, argv[2], p2))
     return 2;
@@ -72,7 +73,7 @@ main(int argc, char** argv)
 
   {
 #if (defined LUNABBREV) || (defined TUNABBREV) || (defined NENOFORM)
-    spot::ltl::formula* tmp;
+    const spot::ltl::formula* tmp;
 #endif
 #ifdef LUNABBREV
     tmp = f1;
@@ -99,7 +100,7 @@ main(int argc, char** argv)
     spot::ltl::ltl_simplifier_options opt(true, true, true, false, false);
     spot::ltl::ltl_simplifier simp(opt);
     {
-      spot::ltl::formula* tmp;
+      const spot::ltl::formula* tmp;
       tmp = f1;
       f1 = simp.simplify(f1);
       tmp->destroy();
@@ -111,7 +112,7 @@ main(int argc, char** argv)
     spot::ltl::ltl_simplifier_options opt(false, false, false, true, false);
     spot::ltl::ltl_simplifier simp(opt);
     {
-      spot::ltl::formula* tmp;
+      const spot::ltl::formula* tmp;
       tmp = f1;
       f1 = simp.simplify(f1);
       tmp->destroy();
@@ -123,7 +124,7 @@ main(int argc, char** argv)
     spot::ltl::ltl_simplifier_options opt(false, false, false, true, true);
     spot::ltl::ltl_simplifier simp(opt);
     {
-      spot::ltl::formula* tmp;
+      const spot::ltl::formula* tmp;
       tmp = f1;
       f1 = simp.simplify(f1);
       tmp->destroy();

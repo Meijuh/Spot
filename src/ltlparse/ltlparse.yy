@@ -41,11 +41,11 @@
 
 %parse-param {spot::ltl::parse_error_list &error_list}
 %parse-param {spot::ltl::environment &parse_environment}
-%parse-param {spot::ltl::formula* &result}
+%parse-param {const spot::ltl::formula* &result}
 %union
 {
   std::string* str;
-  spot::ltl::formula* ltl;
+  const spot::ltl::formula* ltl;
   unsigned num;
   minmax_t minmax;
 }
@@ -671,13 +671,13 @@ namespace spot
 {
   namespace ltl
   {
-    formula*
+    const formula*
     parse(const std::string& ltl_string,
 	  parse_error_list& error_list,
 	  environment& env,
 	  bool debug)
     {
-      formula* result = 0;
+      const formula* result = 0;
       flex_set_buffer(ltl_string.c_str(),
 		      ltlyy::parser::token::START_LTL);
       ltlyy::parser parser(error_list, env, result);
@@ -686,13 +686,13 @@ namespace spot
       return result;
     }
 
-    formula*
+    const formula*
     parse_sere(const std::string& sere_string,
 		 parse_error_list& error_list,
 		 environment& env,
 		 bool debug)
     {
-      formula* result = 0;
+      const formula* result = 0;
       flex_set_buffer(sere_string.c_str(),
 		      ltlyy::parser::token::START_SERE);
       ltlyy::parser parser(error_list, env, result);

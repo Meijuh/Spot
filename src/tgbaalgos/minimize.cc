@@ -648,7 +648,8 @@ namespace spot
       {
 	assert(f);
 
-	ltl::formula* neg_f = ltl::unop::instance(ltl::unop::Not, f->clone());
+	const ltl::formula* neg_f =
+	  ltl::unop::instance(ltl::unop::Not, f->clone());
 	aut_neg_f = ltl_to_tgba_fm(neg_f, aut_f->get_dict());
 	neg_f->destroy();
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010  Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2012  Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -43,22 +43,22 @@ namespace spot
       postfix_visitor();
       virtual ~postfix_visitor();
 
-      void visit(atomic_prop* ap);
-      void visit(unop* uo);
-      void visit(binop* bo);
-      void visit(multop* mo);
-      void visit(automatop* c);
-      void visit(constant* c);
-      void visit(bunop* c);
+      void visit(const atomic_prop* ap);
+      void visit(const unop* uo);
+      void visit(const binop* bo);
+      void visit(const multop* mo);
+      void visit(const automatop* c);
+      void visit(const constant* c);
+      void visit(const bunop* c);
 
-      virtual void doit(atomic_prop* ap);
-      virtual void doit(unop* uo);
-      virtual void doit(binop* bo);
-      virtual void doit(multop* mo);
-      virtual void doit(automatop* mo);
-      virtual void doit(constant* c);
-      virtual void doit(bunop* c);
-      virtual void doit_default(formula* f);
+      virtual void doit(const atomic_prop* ap);
+      virtual void doit(const unop* uo);
+      virtual void doit(const binop* bo);
+      virtual void doit(const multop* mo);
+      virtual void doit(const automatop* mo);
+      virtual void doit(const constant* c);
+      virtual void doit(const bunop* c);
+      virtual void doit_default(const formula* f);
     };
   }
 }

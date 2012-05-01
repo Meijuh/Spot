@@ -190,7 +190,7 @@ namespace spot
 	return os;
       }
 
-      formula*
+      const formula*
       var_to_formula(int var) const
       {
 	vf_map::const_iterator isi = next_formula_map.find(var);
@@ -216,7 +216,7 @@ namespace spot
 	return res;
       }
 
-      formula*
+      const formula*
       conj_bdd_to_formula(bdd b, multop::type op = multop::And) const
       {
 	if (b == bddfalse)
@@ -225,7 +225,7 @@ namespace spot
 	while (b != bddtrue)
 	  {
 	    int var = bdd_var(b);
-	    formula* res = var_to_formula(var);
+	    const formula* res = var_to_formula(var);
 	    bdd high = bdd_high(b);
 	    if (high == bddfalse)
 	      {
@@ -243,13 +243,13 @@ namespace spot
 	return multop::instance(op, v);
       }
 
-      formula*
+      const formula*
       conj_bdd_to_sere(bdd b) const
       {
 	return conj_bdd_to_formula(b, multop::AndRat);
       }
 
-      formula*
+      const formula*
       bdd_to_formula(bdd f)
       {
 	if (f == bddfalse)
@@ -265,7 +265,7 @@ namespace spot
 	return multop::instance(multop::Or, v);
       }
 
-      formula*
+      const formula*
       bdd_to_sere(bdd f)
       {
 	if (f == bddfalse)
@@ -297,7 +297,7 @@ namespace spot
 	      }
 	    else
 	      {
-		formula* ac = var_to_formula(var);
+		const formula* ac = var_to_formula(var);
 
 		if (!a->has_acceptance_condition(ac))
 		  a->declare_acceptance_condition(ac->clone());
@@ -369,14 +369,14 @@ namespace spot
       using postfix_visitor::doit;
 
       virtual void
-      doit(unop* node)
+      doit(const unop* node)
       {
 	if (node->op() == unop::F)
 	  res_ &= bdd_ithvar(dict_.register_a_variable(node->child()));
       }
 
       virtual void
-      doit(binop* node)
+      doit(const binop* node)
       {
 	if (node->op() == binop::U)
 	  res_ &= bdd_ithvar(dict_.register_a_variable(node->second()));
@@ -388,15 +388,15 @@ namespace spot
     };
 
     bdd translate_ratexp(const formula* f, translate_dict& dict,
-			 formula* to_concat = 0);
+			 const formula* to_concat = 0);
 
     // Rewrite rule for rational operators.
-    class ratexp_trad_visitor: public const_visitor
+    class ratexp_trad_visitor: public visitor
     {
     public:
       // negated should only be set for constants or atomic properties
       ratexp_trad_visitor(translate_dict& dict,
-			  formula* to_concat = 0)
+			  const formula* to_concat = 0)
 	: dict_(dict), to_concat_(to_concat)
       {
       }
@@ -451,15 +451,15 @@ namespace spot
 	  {
 	    bdd label = bdd_exist(cube, dict_.next_set);
 	    bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-	    formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
+	    const formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
 	    if (dest == constant::empty_word_instance())
 	      {
 		out |= label & next_to_concat();
 	      }
 	    else
 	      {
-		formula* dest2 = multop::instance(multop::Concat, dest,
-						  to_concat_->clone());
+		const formula* dest2 = multop::instance(multop::Concat, dest,
+							to_concat_->clone());
 		if (dest2 != constant::false_instance())
 		  {
 		    int x = dict_.register_next_variable(dest2);
@@ -528,7 +528,7 @@ namespace spot
       void
       visit(const bunop* bo)
       {
-	formula* f;
+	const formula* f;
 	unsigned min = bo->min();
 	unsigned max = bo->max();
 
@@ -578,8 +578,7 @@ namespace spot
 		  {
 		    bdd label = bdd_exist(cube, dict_.next_set);
 		    bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		    formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
-		    formula* dest2;
+		    const formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
 		    int x;
 		    if (dest == constant::empty_word_instance())
 		      {
@@ -588,8 +587,9 @@ namespace spot
 		      }
 		    else
 		      {
-			dest2 = multop::instance(multop::Concat, dest,
-						 f->clone());
+			const formula*
+			  dest2 = multop::instance(multop::Concat, dest,
+						   f->clone());
 			if (dest2 != constant::false_instance())
 			  {
 			    x = dict_.register_next_variable(dest2);
@@ -644,7 +644,7 @@ namespace spot
 		{
 		  delete non_final;
 		  // (a* & b*);c = (a*|b*);c
-		  formula* f = multop::instance(multop::OrRat, final);
+		  const formula* f = multop::instance(multop::OrRat, final);
 		  res_ = recurse_and_concat(f);
 		  f->destroy();
 		  break;
@@ -656,17 +656,22 @@ namespace spot
 		  // (F_1 & ... & F_n & N_1 & ... & N_m)
 		  // =   (F_1 | ... | F_n);[*] && (N_1 & ... & N_m)
 		  //   | (F_1 | ... | F_n) && (N_1 & ... & N_m);[*]
-		  formula* f = multop::instance(multop::OrRat, final);
-		  formula* n = multop::instance(multop::AndNLM, non_final);
-		  formula* t = bunop::instance(bunop::Star,
-					       constant::true_instance());
-		  formula* ft = multop::instance(multop::Concat,
-						 f->clone(), t->clone());
-		  formula* nt = multop::instance(multop::Concat,
-						 n->clone(), t);
-		  formula* ftn = multop::instance(multop::AndRat, ft, n);
-		  formula* fnt = multop::instance(multop::AndRat, f, nt);
-		  formula* all = multop::instance(multop::OrRat, ftn, fnt);
+		  const formula* f =
+		    multop::instance(multop::OrRat, final);
+		  const formula* n =
+		    multop::instance(multop::AndNLM, non_final);
+		  const formula* t =
+		    bunop::instance(bunop::Star, constant::true_instance());
+		  const formula* ft =
+		    multop::instance(multop::Concat, f->clone(), t->clone());
+		  const formula* nt =
+		    multop::instance(multop::Concat, n->clone(), t);
+		  const formula* ftn =
+		    multop::instance(multop::AndRat, ft, n);
+		  const formula* fnt =
+		    multop::instance(multop::AndRat, f, nt);
+		  const formula* all =
+		    multop::instance(multop::OrRat, ftn, fnt);
 		  res_ = recurse_and_concat(all);
 		  all->destroy();
 		  break;
@@ -680,7 +685,7 @@ namespace spot
 	      //   N_1 && (N_2;[*]) && ... && (N_n;[*])
 	      // | (N_1;[*]) && N_2 && ... && (N_n;[*])
 	      // | (N_1;[*]) && (N_2;[*]) && ... && N_n
-	      formula* star =
+	      const formula* star =
 		bunop::instance(bunop::Star, constant::true_instance());
 	      multop::vec* disj = new multop::vec;
 	      for (unsigned n = 0; n < s; ++n)
@@ -688,7 +693,7 @@ namespace spot
 		  multop::vec* conj = new multop::vec;
 		  for (unsigned m = 0; m < s; ++m)
 		    {
-		      formula* f = node->nth(m)->clone();
+		      const formula* f = node->nth(m)->clone();
 		      if (n != m)
 			f = multop::instance(multop::Concat,
 					     f, star->clone());
@@ -697,7 +702,7 @@ namespace spot
 		  disj->push_back(multop::instance(multop::AndRat, conj));
 		}
 	      star->destroy();
-	      formula* all = multop::instance(multop::OrRat, disj);
+	      const formula* all = multop::instance(multop::OrRat, disj);
 	      res_ = recurse_and_concat(all);
 	      all->destroy();
 	      break;
@@ -757,7 +762,7 @@ namespace spot
 	      bdd res = recurse(node->nth(0));
 
 	      // the tail
-	      formula* tail = node->all_but(0);
+	      const formula* tail = node->all_but(0);
 	      bdd tail_bdd;
 	      bool tail_computed = false;
 
@@ -770,7 +775,7 @@ namespace spot
 		{
 		  bdd label = bdd_exist(cube, dict_.next_set);
 		  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		  formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
+		  const formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
 
 		  if (dest->accepts_eword())
 		    {
@@ -790,11 +795,11 @@ namespace spot
 		      // If the destination is not a constant, it
 		      // means it can have successors.  Fusion the
 		      // tail and append anything to concatenate.
-		      formula* dest2 = multop::instance(multop::Fusion, dest,
-							tail->clone());
+		      const formula* dest2 =
+			multop::instance(multop::Fusion, dest, tail->clone());
 		      if (to_concat_)
 			 dest2 = multop::instance(multop::Concat, dest2,
-						 to_concat_->clone());
+						  to_concat_->clone());
 		      if (dest2 != constant::false_instance())
 			{
 			  int x = dict_.register_next_variable(dest2);
@@ -814,7 +819,7 @@ namespace spot
       }
 
       bdd
-      recurse(const formula* f, formula* to_concat = 0)
+      recurse(const formula* f, const formula* to_concat = 0)
       {
 	return translate_ratexp(f, dict_, to_concat);
       }
@@ -829,12 +834,12 @@ namespace spot
     private:
       translate_dict& dict_;
       bdd res_;
-      formula* to_concat_;
+      const formula* to_concat_;
     };
 
     bdd
     translate_ratexp(const formula* f, translate_dict& dict,
-		     formula* to_concat)
+		     const formula* to_concat)
     {
       // static unsigned indent = 0;
       // for (unsigned i = indent; i > 0; --i)
@@ -1049,7 +1054,7 @@ namespace spot
 
     // The rewrite rules used here are adapted from Jean-Michel
     // Couvreur's FM paper, augmented to support rational operators.
-    class ltl_trad_visitor: public const_visitor
+    class ltl_trad_visitor: public visitor
     {
     public:
       ltl_trad_visitor(translate_dict& dict, bool mark_all = false,
@@ -1200,8 +1205,7 @@ namespace spot
 		    }
 		  else
 		    {
-		      formula* dest2 =
-			unop::instance(op, const_cast<formula*>(dest));
+		      const formula* dest2 = unop::instance(op, dest);
 		      if (dest2 == constant::false_instance())
 			continue;
 		      int x = dict_.register_next_variable(dest2);
@@ -1241,7 +1245,7 @@ namespace spot
 		  bdd label = bdd_satoneset(all_props, var_set, bddtrue);
 		  all_props -= label;
 
-		  formula* dest =
+		  const formula* dest =
 		    dict_.bdd_to_sere(bdd_exist(f1 & label, dict_.var_set));
 
 		  // !{ Exp } is false if Exp accepts the empty word.
@@ -1369,7 +1373,7 @@ namespace spot
 		      bdd label = bdd_satoneset(all_props, var_set, bddtrue);
 		      all_props -= label;
 
-		      formula* dest =
+		      const formula* dest =
 			dict_.bdd_to_sere(bdd_exist(f1 & label,
 						    dict_.var_set));
 
@@ -1394,7 +1398,7 @@ namespace spot
 		    {
 		      bdd label = bdd_exist(cube, dict_.next_set);
 		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		      formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
+		      const formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
 
 		      if (dest == constant::empty_word_instance())
 			{
@@ -1402,8 +1406,8 @@ namespace spot
 			}
 		      else
 			{
-			  formula* dest2 = binop::instance(op, dest,
-						  node->second()->clone());
+			  const formula* dest2 =
+			    binop::instance(op, dest, node->second()->clone());
 			  if (dest2 != constant::false_instance())
 			    {
 			      int x = dict_.register_next_variable(dest2);
@@ -1443,8 +1447,8 @@ namespace spot
 		    {
 		      bdd label = bdd_exist(cube, dict_.next_set);
 		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
-		      formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
-		      formula* dest2 =
+		      const formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
+		      const formula* dest2 =
 			binop::instance(op, dest, node->second()->clone());
 
 		      bdd udest =
@@ -1563,7 +1567,7 @@ namespace spot
 
     // Check whether a formula has a R, W, or G operator at its
     // top-level (preceding logical operators do not count).
-    class ltl_possible_fair_loop_visitor: public const_visitor
+    class ltl_possible_fair_loop_visitor: public visitor
     {
     public:
       ltl_possible_fair_loop_visitor()
@@ -1737,13 +1741,13 @@ namespace spot
 	      {
 		bdd label = bdd_exist(cube, d_.next_set);
 		bdd dest_bdd = bdd_existcomp(cube, d_.next_set);
-		formula* dest =
+		const formula* dest =
 		  d_.conj_bdd_to_formula(dest_bdd);
 
 		// Handle a Miyano-Hayashi style unrolling for
 		// rational operators.  Marked nodes correspond to
 		// subformulae in the Miyano-Hayashi set.
-		formula* tmp =  d_.mt.simplify_mark(dest);
+		const formula* tmp =  d_.mt.simplify_mark(dest);
 		dest->destroy();
 		dest = tmp;
 
@@ -1759,7 +1763,7 @@ namespace spot
 		    // We have no marked operators, but still
 		    // have other rational operator to check.
 		    // Start a new marked cycle.
-		    formula* dest2 = d_.mt.mark_concat_ops(dest);
+		    const formula* dest2 = d_.mt.mark_concat_ops(dest);
 		    dest->destroy();
 		    dest = dest2;
 		  }
@@ -1864,7 +1868,7 @@ namespace spot
 		 bool fair_loop_approx, const atomic_prop_set* unobs,
 		 ltl_simplifier* simplifier)
   {
-    formula* f2;
+    const formula* f2;
     ltl_simplifier* s = simplifier;
 
     // Simplify the formula, if requested.
@@ -1942,7 +1946,7 @@ namespace spot
 
     // This is in case the initial state is equivalent to true...
     if (symb_merge)
-      f2 = const_cast<formula*>(fc.canonize(f2));
+      f2 = fc.canonize(f2);
 
     formulae_to_translate.insert(f2);
     a->set_init_state(f2);
@@ -2043,7 +2047,7 @@ namespace spot
 		// Simplify the formula, if requested.
 		if (simplifier)
 		  {
-		    formula* tmp = simplifier->simplify(dest);
+		    const formula* tmp = simplifier->simplify(dest);
 		    dest->destroy();
 		    dest = tmp;
 		    // Ignore the arc if the destination reduces to false.
@@ -2072,9 +2076,7 @@ namespace spot
 		      succs[label] = dest;
 		    else
 		      si->second =
-			multop::instance(multop::Or,
-					 const_cast<formula*>(si->second),
-					 const_cast<formula*>(dest));
+			multop::instance(multop::Or, si->second, dest);
 		  }
 	      }
 	    if (branching_postponement)

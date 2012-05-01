@@ -144,8 +144,8 @@ main(int argc, char** argv)
   o.reduce_size_strictly = true;
   spot::ltl::ltl_simplifier* simp_size = new spot::ltl::ltl_simplifier(o);
 
-  spot::ltl::formula* f1 = 0;
-  spot::ltl::formula* f2 = 0;
+  const spot::ltl::formula* f1 = 0;
+  const spot::ltl::formula* f2 = 0;
 
   std::ifstream* fin = 0;
 
@@ -201,7 +201,7 @@ main(int argc, char** argv)
     }
 
   {
-    spot::ltl::formula* ftmp1;
+    const spot::ltl::formula* ftmp1;
 
     ftmp1 = f1;
     f1 = simp_size->negative_normal_form(f1, false);
@@ -211,7 +211,7 @@ main(int argc, char** argv)
     std::string f1s_before = spot::ltl::to_string(f1);
     std::string f1l;
 
-    spot::ltl::formula* input_f = f1;
+    const spot::ltl::formula* input_f = f1;
     f1 = simp_size->simplify(input_f);
     if (!simp_size->are_equivalent(input_f, f1))
       {
@@ -222,7 +222,7 @@ main(int argc, char** argv)
       }
     else
       {
-	spot::ltl::formula* maybe_larger = simp->simplify(input_f);
+	const spot::ltl::formula* maybe_larger = simp->simplify(input_f);
 	f1l = spot::ltl::to_string(maybe_larger);
 	if (!simp->are_equivalent(input_f, maybe_larger))
 	  {

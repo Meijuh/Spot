@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -177,8 +177,8 @@ main(int argc, char **argv)
   spot::tgba* product = 0;
   spot::emptiness_check_instantiator* echeck_inst = 0;
   int exit_code = 0;
-  spot::ltl::formula* f = 0;
-  spot::ltl::formula* deadf = 0;
+  const spot::ltl::formula* f = 0;
+  const spot::ltl::formula* deadf = 0;
 
   if (dead == 0 || !strcasecmp(dead, "true"))
     {
@@ -222,7 +222,7 @@ main(int argc, char **argv)
   {
     spot::ltl::ltl_simplifier_options opt(true, true, true, true, true);
     spot::ltl::ltl_simplifier simp(opt);
-    spot::ltl::formula* r = simp.simplify(f);
+    const spot::ltl::formula* r = simp.simplify(f);
     f->destroy();
     f = r;
   }

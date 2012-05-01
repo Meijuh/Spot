@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -28,8 +29,8 @@ namespace spot
   {
     namespace formula_tree
     {
-      formula*
-      instanciate(const node_ptr np, const std::vector<formula*>& v)
+      const formula*
+      instanciate(const node_ptr np, const std::vector<const formula*>& v)
       {
 	if (node_atomic* n = dynamic_cast<node_atomic*>(np.get()))
 	  return n->i == True ? constant::true_instance() :

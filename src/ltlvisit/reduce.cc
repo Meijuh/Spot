@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2006, 2007 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -30,7 +30,7 @@ namespace spot
 {
   namespace ltl
   {
-    formula*
+    const formula*
     reduce(const formula* f, int opt)
     {
       ltl_simplifier_options o;
@@ -40,7 +40,7 @@ namespace spot
       o.containment_checks = opt & Reduce_Containment_Checks;
       o.containment_checks_stronger = opt & Reduce_Containment_Checks_Stronger;
       ltl_simplifier simplifier(o);
-      return const_cast<formula*>(simplifier.simplify(f));
+      return simplifier.simplify(f);
     }
 
     bool

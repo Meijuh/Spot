@@ -106,19 +106,16 @@ namespace spot
       ///   - [*0] []-> Exp = 1
       ///   - Exp []-> 1 = 1
       ///   - boolExp <>-> Exp = !boolExp | Exp
-      static formula* instance(type op, formula* first, formula* second);
+      static const formula* instance(type op,
+				     const formula* first,
+				     const formula* second);
 
-      virtual void accept(visitor& v);
-      virtual void accept(const_visitor& v) const;
+      virtual void accept(visitor& v) const;
 
       /// Get the first operand.
       const formula* first() const;
-      /// Get the first operand.
-      formula* first();
       /// Get the second operand.
       const formula* second() const;
-      /// Get the second operand.
-      formula* second();
 
       /// Get the type of this operator.
       type op() const;
@@ -135,18 +132,18 @@ namespace spot
       static std::ostream& dump_instances(std::ostream& os);
 
     protected:
-      typedef std::pair<formula*, formula*> pairf;
+      typedef std::pair<const formula*, const formula*> pairf;
       typedef std::pair<type, pairf> pair;
-      typedef std::map<pair, binop*> map;
+      typedef std::map<pair, const binop*> map;
       static map instances;
 
-      binop(type op, formula* first, formula* second);
+      binop(type op, const formula* first, const formula* second);
       virtual ~binop();
 
     private:
       type op_;
-      formula* first_;
-      formula* second_;
+      const formula* first_;
+      const formula* second_;
     };
 
     /// \brief Cast \a f into a binop
@@ -154,12 +151,12 @@ namespace spot
     /// Cast \a f into a binop iff it is a binop instance.  Return 0
     /// otherwise.  This is faster than \c dynamic_cast.
     inline
-    binop*
-    is_binop(formula* f)
+    const binop*
+    is_binop(const formula* f)
     {
       if (f->kind() != formula::BinOp)
 	return 0;
-      return static_cast<binop*>(f);
+      return static_cast<const binop*>(f);
     }
 
     /// \brief Cast \a f into a binop if it has type \a op.
@@ -167,15 +164,13 @@ namespace spot
     /// Cast \a f into a binop iff it is a unop instance with operator \a op.
     /// Returns 0 otherwise.
     inline
-    binop*
-    is_binop(formula* f, binop::type op)
+    const binop*
+    is_binop(const formula* f, binop::type op)
     {
-      if (f->kind() != formula::BinOp)
-	return 0;
-      binop* bo = static_cast<binop*>(f);
-      if (bo->op() != op)
-	return 0;
-      return bo;
+      if (const binop* bo = is_binop(f))
+	if (bo->op() == op)
+	  return bo;
+      return 0;
     }
 
     /// \brief Cast \a f into a binop if it has type \a op1 or \a op2.
@@ -183,15 +178,12 @@ namespace spot
     /// Cast \a f into a binop iff it is a unop instance with operator \a op1 or
     /// \a op2.  Returns 0 otherwise.
     inline
-    binop*
-    is_binop(formula* f, binop::type op1, binop::type op2)
+    const binop*
+    is_binop(const formula* f, binop::type op1, binop::type op2)
     {
-      if (f->kind() != formula::BinOp)
-	return 0;
-      binop* bo = static_cast<binop*>(f);
-      binop::type op = bo->op();
-      if (op == op1 || op == op2)
-	return bo;
+      if (const binop* bo = is_binop(f))
+	if (bo->op() == op1 || bo->op() == op2)
+	  return bo;
       return 0;
     }
 
@@ -199,8 +191,8 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    binop*
-    is_U(formula* f)
+    const binop*
+    is_U(const formula* f)
     {
       return is_binop(f, binop::U);
     }
@@ -209,8 +201,8 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    binop*
-    is_M(formula* f)
+    const binop*
+    is_M(const formula* f)
     {
       return is_binop(f, binop::M);
     }
@@ -219,8 +211,8 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    binop*
-    is_R(formula* f)
+    const binop*
+    is_R(const formula* f)
     {
       return is_binop(f, binop::R);
     }
@@ -229,8 +221,8 @@ namespace spot
     ///
     /// Return 0 otherwise.
     inline
-    binop*
-    is_W(formula* f)
+    const binop*
+    is_W(const formula* f)
     {
       return is_binop(f, binop::W);
     }

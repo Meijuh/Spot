@@ -1,7 +1,8 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// et DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2005 Laboratoire d'Informatique de Paris 6
-// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
 // Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -35,7 +36,7 @@ namespace spot
   {
     namespace
     {
-      static formula*
+      static const formula*
       ap_builder(const random_formula* rl, int n)
       {
 	assert(n == 1);
@@ -45,7 +46,7 @@ namespace spot
 	return (*i)->clone();
       }
 
-      static formula*
+      static const formula*
       true_builder(const random_formula*, int n)
       {
 	assert(n == 1);
@@ -53,7 +54,7 @@ namespace spot
 	return constant::true_instance();
       }
 
-      static formula*
+      static const formula*
       boolform_builder(const random_formula* rl, int n)
       {
 	assert(n >= 1);
@@ -61,7 +62,7 @@ namespace spot
 	return rs->rb.generate(n);
       }
 
-      static formula*
+      static const formula*
       false_builder(const random_formula*, int n)
       {
 	assert(n == 1);
@@ -69,7 +70,7 @@ namespace spot
 	return constant::false_instance();
       }
 
-      static formula*
+      static const formula*
       eword_builder(const random_formula*, int n)
       {
 	assert(n == 1);
@@ -78,14 +79,14 @@ namespace spot
       }
 
       template <unop::type Op>
-      static formula*
+      static const formula*
       unop_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
 	return unop::instance(Op, rl->generate(n - 1));
       }
 
-      static formula*
+      static const formula*
       closure_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
@@ -94,7 +95,7 @@ namespace spot
       }
 
       template <binop::type Op>
-      static formula*
+      static const formula*
       binop_builder(const random_formula* rl, int n)
       {
 	assert(n >= 3);
@@ -104,7 +105,7 @@ namespace spot
       }
 
       template <binop::type Op>
-      static formula*
+      static const formula*
       binop_SERELTL_builder(const random_formula* rl, int n)
       {
 	assert(n >= 3);
@@ -115,7 +116,7 @@ namespace spot
       }
 
       template <bunop::type Op>
-      static formula*
+      static const formula*
       bunop_unbounded_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
@@ -123,7 +124,7 @@ namespace spot
       }
 
       template <bunop::type Op>
-      static formula*
+      static const formula*
       bunop_bounded_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
@@ -133,7 +134,7 @@ namespace spot
       }
 
       template <bunop::type Op>
-      static formula*
+      static const formula*
       bunop_bool_bounded_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
@@ -145,7 +146,7 @@ namespace spot
 
 
       template <multop::type Op>
-      static formula*
+      static const formula*
       multop_builder(const random_formula* rl, int n)
       {
 	assert(n >= 3);
@@ -197,7 +198,7 @@ namespace spot
       assert(total_2_and_more_ != 0.0);
     }
 
-    formula*
+    const formula*
     random_formula::generate(int n) const
     {
       assert(n > 0);

@@ -1,8 +1,9 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -34,7 +35,7 @@ namespace spot
 {
   namespace ltl
   {
-    binop::binop(type op, formula* first, formula* second)
+    binop::binop(type op, const formula* first, const formula* second)
       : ref_formula(BinOp), op_(op), first_(first), second_(second)
     {
       // Beware: (f U g) is a pure eventuality if both operands
@@ -270,13 +271,7 @@ namespace spot
     }
 
     void
-    binop::accept(visitor& v)
-    {
-      v.visit(this);
-    }
-
-    void
-    binop::accept(const_visitor& v) const
+    binop::accept(visitor& v) const
     {
       v.visit(this);
     }
@@ -287,20 +282,8 @@ namespace spot
       return first_;
     }
 
-    formula*
-    binop::first()
-    {
-      return first_;
-    }
-
     const formula*
     binop::second() const
-    {
-      return second_;
-    }
-
-    formula*
-    binop::second()
     {
       return second_;
     }
@@ -344,8 +327,8 @@ namespace spot
 
     binop::map binop::instances;
 
-    formula*
-    binop::instance(type op, formula* first, formula* second)
+    const formula*
+    binop::instance(type op, const formula* first, const formula* second)
     {
       // Sort the operands of commutative operators, so that for
       // example the formula instance for 'a xor b' is the same as
@@ -544,17 +527,22 @@ namespace spot
 
       pairf pf(first, second);
       pair p(op, pf);
+      // FIXME: Use lower_bound or hash_map.
       map::iterator i = instances.find(p);
+      const binop* res;
       if (i != instances.end())
 	{
 	  // This instance already exists.
 	  first->destroy();
 	  second->destroy();
-	  return static_cast<binop*>(i->second->clone());
+	  res = i->second;
 	}
-      binop* ap = new binop(op, first, second);
-      instances[p] = ap;
-      return static_cast<binop*>(ap->clone());
+      else
+	{
+	  res = instances[p] = new binop(op, first, second);
+	}
+      res->clone();
+      return res;
     }
 
     unsigned

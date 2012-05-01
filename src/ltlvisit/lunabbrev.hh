@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -48,9 +51,9 @@ namespace spot
       virtual ~unabbreviate_logic_visitor();
 
       using super::visit;
-      void visit(binop* bo);
+      void visit(const binop* bo);
 
-      virtual formula* recurse(formula* f);
+      virtual const formula* recurse(const formula* f);
     };
 
     /// \brief Clone and rewrite a formula to remove most of the abbreviated
@@ -60,7 +63,7 @@ namespace spot
     /// This will rewrite binary operators such as binop::Implies,
     /// binop::Equals, and binop::Xor, using only unop::Not, multop::Or,
     /// and multop::And.
-    formula* unabbreviate_logic(const formula* f);
+    const formula* unabbreviate_logic(const formula* f);
 
   }
 }

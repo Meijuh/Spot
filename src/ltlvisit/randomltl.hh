@@ -1,7 +1,8 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -61,7 +62,7 @@ namespace spot
       /// n, because some simple simplifications are performed by the
       /// AST.  (For instance the formula <code>a | a</code> is
       /// automatically reduced to <code>a</code> by spot::ltl::multop.)
-      formula* generate(int n) const;
+      const formula* generate(int n) const;
 
       /// \brief Print the priorities of each operator, constants,
       /// and atomic propositions.
@@ -84,7 +85,7 @@ namespace spot
 	const char* name;
 	int min_n;
 	double proba;
-	typedef formula* (*builder)(const random_formula* rl, int n);
+	typedef const formula* (*builder)(const random_formula* rl, int n);
 	builder build;
 	void setup(const char* name, int min_n, builder build);
       };

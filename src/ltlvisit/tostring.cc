@@ -183,11 +183,11 @@ namespace spot
 
       // If the formula has the form (!b)[*], return b.
       static
-      formula*
+      const formula*
       strip_star_not(const formula* f)
       {
-	if (bunop* s = is_Star(f))
-	  if (unop* n = is_Not(s->child()))
+	if (const bunop* s = is_Star(f))
+	  if (const unop* n = is_Not(s->child()))
 	    return n->child();
 	return 0;
       }
@@ -195,11 +195,11 @@ namespace spot
       // If the formula as position i in multop mo has the form
       // (!b)[*];b with b being a Boolean formula, return b.
       static
-      formula*
+      const formula*
       match_goto(const multop *mo, unsigned i)
       {
 	assert(i + 1 < mo->size());
-	formula* b = strip_star_not(mo->nth(i));
+	const formula* b = strip_star_not(mo->nth(i));
 	if (!b || !b->is_boolean())
 	  return 0;
 	if (mo->nth(i + 1) == b)
@@ -207,7 +207,7 @@ namespace spot
 	return 0;
       }
 
-      class to_string_visitor: public const_visitor
+      class to_string_visitor: public visitor
       {
       public:
 	to_string_visitor(std::ostream& os,
@@ -301,13 +301,13 @@ namespace spot
 	      in_ratexp_ = true;
 	      top_level_ = true;
 	      {
-		multop* m = is_multop(bo->first(), multop::Concat);
+		const multop* m = is_multop(bo->first(), multop::Concat);
 		if (m)
 		  {
 		    unsigned s = m->size();
 		    if (m->nth(s - 1) == constant::true_instance())
 		      {
-			formula* tmp = m->all_but(s - 1);
+			const formula* tmp = m->all_but(s - 1);
 			tmp->accept(*this);
 			tmp->destroy();
 			onelast = true;
@@ -409,11 +409,11 @@ namespace spot
 	      switch (op)
 		{
 		case bunop::Star:
-		  if (multop* mo = is_Concat(c))
+		  if (const multop* mo = is_Concat(c))
 		    {
 		      unsigned s = mo->size();
 		      if (s == 2)
-			if (formula* b = match_goto(mo, 0))
+			if (const formula* b = match_goto(mo, 0))
 			  {
 			    c = b;
 			    sugar = Goto;
@@ -602,7 +602,7 @@ namespace spot
 	      if (i + 1 < max)
 		{
 		  // Try to match (!b)[*];b
-		  formula* b = match_goto(mo, i);
+		  const formula* b = match_goto(mo, i);
 		  if (b)
 		    {
 		      emit_bunop_child(b);
@@ -622,10 +622,10 @@ namespace spot
 		      continue;
 		    }
 		  // Try to match ((!b)[*];b)[*i..j];(!b)[*]
-		  if (bunop* s = is_Star(mo->nth(i)))
-		    if (formula* b2 = strip_star_not(mo->nth(i + 1)))
-		      if (multop* sc = is_Concat(s->child()))
-			if (formula* b1 = match_goto(sc, 0))
+		  if (const bunop* s = is_Star(mo->nth(i)))
+		    if (const formula* b2 = strip_star_not(mo->nth(i + 1)))
+		      if (const multop* sc = is_Concat(s->child()))
+			if (const formula* b1 = match_goto(sc, 0))
 			  if (b1 == b2)
 			    {
 			      emit_bunop_child(b1);
@@ -754,7 +754,7 @@ namespace spot
     to_spin_string(const formula* f, std::ostream& os, bool full_parent)
     {
       // Remove xor, ->, and <-> first.
-      formula* fu = unabbreviate_logic(f);
+      const formula* fu = unabbreviate_logic(f);
       // Also remove W and M.
       f = unabbreviate_wm(fu);
       fu->destroy();

@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -36,46 +36,46 @@ namespace spot
     {
     }
 
-    formula*
+    const formula*
     clone_visitor::result() const
     {
       return result_;
     }
 
     void
-    clone_visitor::visit(atomic_prop* ap)
+    clone_visitor::visit(const atomic_prop* ap)
     {
       result_ = ap->clone();
     }
 
     void
-    clone_visitor::visit(constant* c)
+    clone_visitor::visit(const constant* c)
     {
       result_ = c->clone();
     }
 
     void
-    clone_visitor::visit(bunop* bo)
+    clone_visitor::visit(const bunop* bo)
     {
       result_ = bunop::instance(bo->op(), recurse(bo->child()),
 				bo->min(), bo->max());
     }
 
     void
-    clone_visitor::visit(unop* uo)
+    clone_visitor::visit(const unop* uo)
     {
       result_ = unop::instance(uo->op(), recurse(uo->child()));
     }
 
     void
-    clone_visitor::visit(binop* bo)
+    clone_visitor::visit(const binop* bo)
     {
       result_ = binop::instance(bo->op(),
 				recurse(bo->first()), recurse(bo->second()));
     }
 
     void
-    clone_visitor::visit(automatop* ao)
+    clone_visitor::visit(const automatop* ao)
     {
       automatop::vec* res = new automatop::vec;
       for (unsigned i = 0; i < ao->size(); ++i)
@@ -84,7 +84,7 @@ namespace spot
     }
 
     void
-    clone_visitor::visit(multop* mo)
+    clone_visitor::visit(const multop* mo)
     {
       multop::vec* res = new multop::vec;
       unsigned mos = mo->size();
@@ -93,17 +93,16 @@ namespace spot
       result_ = multop::instance(mo->op(), res);
     }
 
-    formula*
-    clone_visitor::recurse(formula* f)
+    const formula*
+    clone_visitor::recurse(const formula* f)
     {
       return f->clone();
     }
 
-    formula*
+    const formula*
     clone(const formula* f)
     {
-      formula* res = const_cast<formula*>(f)->clone();
-      return res;
+      return f->clone();
     }
   }
 }

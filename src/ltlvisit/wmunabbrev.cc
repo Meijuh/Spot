@@ -44,10 +44,10 @@ namespace spot
 	}
 
 	using super::visit;
-	void visit(binop* bo)
+	void visit(const binop* bo)
 	{
-	  formula* f1 = recurse(bo->first());
-	  formula* f2 = recurse(bo->second());
+	  const formula* f1 = recurse(bo->first());
+	  const formula* f2 = recurse(bo->second());
 	  binop::type op = bo->op();
 	  switch (op)
 	    {
@@ -76,7 +76,7 @@ namespace spot
 	    }
 	}
 
-	virtual formula* recurse(formula* f)
+	virtual const formula* recurse(const formula* f)
 	{
 	  if (f->is_boolean())
 	    return f->clone();
@@ -86,11 +86,11 @@ namespace spot
       };
     }
 
-    formula*
+    const formula*
     unabbreviate_wm(const formula* f)
     {
       unabbreviate_wm_visitor v;
-      return v.recurse(const_cast<formula*>(f));
+      return v.recurse(f);
     }
   }
 }

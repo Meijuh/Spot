@@ -185,7 +185,7 @@ main(int argc, char** argv)
 	}
       else
 	{
-	  ap->insert(static_cast<spot::ltl::atomic_prop*>
+	  ap->insert(static_cast<const spot::ltl::atomic_prop*>
 		     (env.require(argv[argn])));
 	}
     }
@@ -310,14 +310,14 @@ main(int argc, char** argv)
 	  while (max_tries_u--)
 	    {
 	      spot::srand(opt_s++);
-	      spot::ltl::formula* f = 0;
+	      const spot::ltl::formula* f = 0;
 	      int max_tries_r = 1000;
 	      while (max_tries_r--)
 		{
 		  f = rf->generate(opt_f);
 		  if (opt_r)
 		    {
-		      spot::ltl::formula* g = simp.simplify(f);
+		      const spot::ltl::formula* g = simp.simplify(f);
 		      f->destroy();
 		      if (spot::ltl::length(g) < opt_r)
 			{

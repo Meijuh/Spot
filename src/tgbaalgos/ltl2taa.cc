@@ -35,7 +35,7 @@ namespace spot
     using namespace ltl;
 
     /// \brief Recursively translate a formula into a TAA.
-    class ltl2taa_visitor : public const_visitor
+    class ltl2taa_visitor : public visitor
     {
     public:
       ltl2taa_visitor(taa_tgba_formula* res, language_containment_checker* lcc,
@@ -216,7 +216,7 @@ namespace spot
 		  std::vector<const formula*> u; // Union
 		  std::vector<const formula*> a; // Acceptance conditions
 		  std::copy(i1->Q.begin(), i1->Q.end(), ii(u, u.end()));
-		  formula* f = i1->condition->clone(); // Refined rule
+		  const formula* f = i1->condition->clone(); // Refined rule
 		  if (!refined_ || !contained)
 		    {
 		      std::copy(i2->Q.begin(), i2->Q.end(), ii(u, u.end()));
@@ -394,8 +394,7 @@ namespace spot
 	{
 	  std::vector<const formula*> u; // Union
 	  std::vector<const formula*> a; // Acceptance conditions
-	  formula* f = constant::true_instance();
-	  formula* g = 0;
+	  const formula* f = constant::true_instance();
 	  for (unsigned i = 0; i < vs.size(); ++i)
 	  {
 	    if (vs[i].succ_.empty())
@@ -405,7 +404,7 @@ namespace spot
 	    f = multop::instance(multop::And, ss.condition->clone(), f);
 	    for (unsigned i = 0; i < ss.acc.size(); ++i)
 	    {
-	      g = ss.acc[i]->clone();
+	      const formula* g = ss.acc[i]->clone();
 	      a.push_back(g);
 	      to_free_.push_back(g);
 	    }

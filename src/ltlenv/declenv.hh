@@ -1,7 +1,8 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2012 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -49,12 +50,12 @@ namespace spot
       /// proposition was already declared.
       bool declare(const std::string& prop_str);
 
-      virtual ltl::formula* require(const std::string& prop_str);
+      virtual const formula* require(const std::string& prop_str);
 
       /// Get the name of the environment.
       virtual const std::string& name();
 
-      typedef std::map<const std::string, ltl::atomic_prop*> prop_map;
+      typedef std::map<const std::string, const atomic_prop*> prop_map;
 
       /// Get the map of atomic proposition known to this environment.
       const prop_map& get_prop_map() const;

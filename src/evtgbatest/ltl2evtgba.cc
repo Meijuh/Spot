@@ -1,7 +1,8 @@
-// Copyright (C) 2008, 2009 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6
-// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
 // Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -84,7 +85,7 @@ main(int argc, char** argv)
 	  while (tok)
 	    {
 	      unobservables->insert
-		(static_cast<spot::ltl::atomic_prop*>(env.require(tok)));
+		(static_cast<const spot::ltl::atomic_prop*>(env.require(tok)));
 	      tok = strtok(0, ", \t;");
 	    }
 	}
@@ -100,7 +101,7 @@ main(int argc, char** argv)
 
   spot::bdd_dict* dict = new spot::bdd_dict();
 
-  spot::ltl::formula* f = 0;
+  const spot::ltl::formula* f = 0;
 
   {
     spot::ltl::parse_error_list pel;

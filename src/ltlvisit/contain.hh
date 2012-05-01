@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -88,10 +88,10 @@ namespace spot
     ///  title = {On Translating Linear Temporal Logic into Alternating and
     ///		  Nondeterministic Automata},
     ///  institution	= {Helsinki University of Technology, Laboratory for
-    ///		           Theoretical Computer Science},
+    ///			   Theoretical Computer Science},
     ///  address	= {Espoo, Finland},
     ///  month		= dec,
-    ///  number	        = {A83},
+    ///  number		= {A83},
     ///  pages		= {132},
     ///  type		= {Research Report},
     ///  year		= {2003},
@@ -106,10 +106,11 @@ namespace spot
     ///
     /// \deprecated Use spot::ltl::ltl_simplifier instead.
 #if __GNUC__
-    formula* reduce_tau03(const formula* f,
-			  bool stronger = true) __attribute__ ((deprecated));
+    const formula* reduce_tau03(const formula* f,
+				bool stronger = true)
+      __attribute__ ((deprecated));
 #else
-    formula* reduce_tau03(const formula* f, bool stronger = true);
+    const formula* reduce_tau03(const formula* f, bool stronger = true);
 #endif
   }
 }

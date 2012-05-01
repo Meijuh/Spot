@@ -1,8 +1,9 @@
-/* Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-** de l'Epita (LRDE).
+/* -*- coding: utf-8 -*-
+** Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+** DÃ©veloppement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-** Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-** Université Pierre et Marie Curie.
+** Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+** UniversitÃ© Pierre et Marie Curie.
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -49,8 +50,8 @@ typedef std::map<std::string, bdd> formula_cache;
 {
   int token;
   std::string* str;
-  spot::ltl::formula* f;
-  std::list<spot::ltl::formula*>* list;
+  const spot::ltl::formula* f;
+  std::list<const spot::ltl::formula*>* list;
 }
 
 %code
@@ -80,7 +81,7 @@ typedef std::pair<bool, spot::ltl::formula*> pair;
 
 %destructor { delete $$; } <str>
 %destructor {
-  for (std::list<spot::ltl::formula*>::iterator i = $$->begin();
+  for (std::list<const spot::ltl::formula*>::iterator i = $$->begin();
        i != $$->end(); ++i)
     (*i)->destroy();
   delete $$;
@@ -113,14 +114,15 @@ line: strident ',' strident ',' condition ',' acc_list ';'
 	     if (i == fcache.end())
 	       {
 		 parse_error_list pel;
-		 formula* f = spot::ltl::parse(*$5, pel, parse_environment);
+		 const formula* f =
+		   spot::ltl::parse(*$5, pel, parse_environment);
 		 for (parse_error_list::iterator i = pel.begin();
 		      i != pel.end(); ++i)
 		   {
 		     // Adjust the diagnostic to the current position.
 		     location here = @5;
 		     here.end.line = here.begin.line + i->first.end.line - 1;
-		     here.end.column = 
+		     here.end.column =
 		       here.begin.column + i->first.end.column;
 		     here.begin.line += i->first.begin.line - 1;
 		     here.begin.column += i->first.begin.column;
@@ -139,7 +141,7 @@ line: strident ',' strident ',' condition ',' acc_list ';'
 	       }
 	     delete $5;
 	   }
-	 std::list<formula*>::iterator i;
+	 std::list<const formula*>::iterator i;
 	 for (i = $7->begin(); i != $7->end(); ++i)
 	   result->add_acceptance_condition(t, *i);
 	 delete $1;
@@ -170,7 +172,7 @@ condition:
 
 acc_list:
        {
-	 $$ = new std::list<formula*>;
+	 $$ = new std::list<const formula*>;
        }
        | acc_list strident
        {
@@ -180,7 +182,7 @@ acc_list:
 	   }
 	 else if (*$2 != "" && *$2 != "false")
 	   {
-	     formula* f = parse_envacc.require(*$2);
+	     const formula* f = parse_envacc.require(*$2);
 	     if (! result->has_acceptance_condition(f))
 	       {
 		 error_list.push_back(spot::tgba_parse_error(@2,
@@ -200,7 +202,7 @@ acc_list:
 acc_decl:
        | acc_decl strident
        {
-	 formula* f = parse_envacc.require(*$2);
+	 const formula* f = parse_envacc.require(*$2);
 	 if (! f)
 	   {
 	     std::string s = "acceptance condition `";

@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -40,7 +43,7 @@ namespace spot
 	{
 	}
 
-	virtual void doit(spot::ltl::atomic_prop* ap)
+	virtual void doit(const spot::ltl::atomic_prop* ap)
 	{
 	  sap->insert(ap);
 	}
@@ -56,7 +59,7 @@ namespace spot
       if (!s)
 	s = new atomic_prop_set;
       atomic_prop_collector v(s);
-      const_cast<formula*>(f)->accept(v);
+      f->accept(v);
       return s;
     }
 

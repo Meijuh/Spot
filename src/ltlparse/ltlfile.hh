@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -37,7 +37,7 @@ namespace spot
       ltl_file(const std::string& filename);
       ltl_file(const char* filename);
       /// Return the next parsed LTL formula, and 0 at end of file.
-      formula* next();
+      const formula* next();
     private:
       std::ifstream in;
     };
