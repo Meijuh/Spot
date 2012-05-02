@@ -1826,7 +1826,7 @@ namespace spot
 		  if (c_->implication_neg(b, a, true))
 		    {
 		      a->destroy();
-		      result_ = unop::instance(unop::G, b);
+		      result_ = recurse_destroy(unop::instance(unop::G, b));
 		      return;
 		    }
 		  if (b->kind() == formula::BinOp)
