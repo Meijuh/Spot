@@ -35,7 +35,7 @@ namespace spot
   /// When the language recognized by one state is included in the
   /// language recognized by an another one, the first one is merged
   /// with the second.  The algorithm is based on the following
-  /// paper, but generalized to handled TGBA directly.
+  /// paper, but generalized to handle TGBA directly.
   ///
   /// \verbatim
   /// @InProceedings{ etessami.00.concur,

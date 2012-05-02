@@ -34,7 +34,7 @@ namespace spot
   // we need to know wich one is go to one when true. So we are looping
   // through the conditions until bdd_high is true.
   // Once found, we keep only it.
-  bdd AccCompl::complement(const bdd acc)
+  bdd acc_compl::complement(const bdd acc)
   {
     bdd_cache_t::const_iterator it = cache_.find(acc);
     if (it != cache_.end())
@@ -70,7 +70,7 @@ namespace spot
   }
 
 
-  bdd AccCompl::reverse_complement(const bdd acc)
+  bdd acc_compl::reverse_complement(const bdd acc)
   {
     // We are sure that if we have no acceptance condition
     // the result is all_.

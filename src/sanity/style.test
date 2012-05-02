@@ -67,6 +67,9 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
     case $file in
     *.test);;
     *)
+      grep -E '[^<]class[ \t]+[A-Z]' $tmp &&
+        diag 'Use lower case class names.'
+
       grep '[	 ]if(' $tmp &&
 	diag 'Missing space after "if"'
 

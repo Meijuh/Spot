@@ -1,4 +1,5 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -29,10 +30,7 @@
 
 namespace spot
 {
-  // Define in kripkeprint.hh
-  class KripkeVisitor;
-
-/// \brief Concrete class for kripke states.
+  /// \brief Concrete class for kripke states.
   class state_kripke : public state
   {
     friend class kripke_explicit;

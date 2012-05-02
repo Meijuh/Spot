@@ -30,14 +30,14 @@
 
 namespace spot
 {
-  /// \brief Help class to convert a bdd of an automaton into
-  /// its complement.
-  /// This is used when you need to complement all the acceptance
-  /// conditions in an automaton. For example in the simulation.
-  class AccCompl
+  /// \brief Helper class to convert acceptance conditions into promises
+  ///
+  /// A set of acceptance conditions represented by the sum "à la Spot",
+  /// is converted into a product of promises.
+  class acc_compl
   {
     public:
-      AccCompl(bdd all, bdd neg)
+      acc_compl(bdd all, bdd neg)
         : all_(all),
           neg_(neg)
       {
