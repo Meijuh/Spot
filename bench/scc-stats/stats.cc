@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -57,16 +58,14 @@ namespace spot
 	}
 	else
 	  // No, free dst.
-	  delete dst;
+	  dst->destroy();
       }
       delete sit;
     }
     hash_type::iterator it2;
     // Free visited states.
     for (it2 = seen.begin(); it2 != seen.end(); it2++)
-    {
-      delete *it2;
-    }
+      (*it2)->destroy();
     return count;
   }
 }
@@ -114,7 +113,6 @@ int main (int argc, char* argv[])
   output.open("results");
   spot::bdd_dict* dict = new spot::bdd_dict();
   unsigned count = 0;
-  bool count_even;
   std::vector<double> acc_scc;
   std::vector<double> dead_scc;
   std::vector<double> acc_paths;
@@ -124,8 +122,7 @@ int main (int argc, char* argv[])
   unsigned k = 0;
   // Get each LTL formula.
   spot::ltl::ltl_file formulae(argv[1]);
-  spot::ltl::formula* f;
-  while((f = formulae.next()))
+  while (const spot::ltl::formula* f = formulae.next())
   {
     ++k;
     spot::tgba* a = ltl_to_tgba_fm(f, dict, /* exprop */ true);
@@ -135,7 +132,7 @@ int main (int argc, char* argv[])
     m.build_map();
     spot::state* initial_state = a->get_init_state();
     unsigned init = m.scc_of_state(initial_state);
-    delete initial_state;
+    initial_state->destroy();
     std::vector<std::vector<spot::sccs_set* > >* paths = find_paths(a, m);
     unsigned spanning_count =spot::max_spanning_paths(&(*paths)[init], m);
     spanning_paths.push_back(double(spanning_count));
@@ -175,7 +172,6 @@ int main (int argc, char* argv[])
   sort(spanning_paths.begin(), spanning_paths.end());
   sort(dead_paths.begin(), dead_paths.end());
   sort(self_loops.begin(), self_loops.end());
-  count_even = (count % 2 == 0);
   output << "Parsed Formulae : " << count << std::endl << std::endl;
 
   // Accepting SCCs

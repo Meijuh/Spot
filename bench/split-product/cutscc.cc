@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -67,16 +68,14 @@ namespace spot
 	}
 	else
 	  // No, free dst.
-	  delete dst;
+	  dst->destroy();
       }
       delete sit;
     }
     hash_type::iterator it2;
     // Free visited states.
     for (it2 = seen.begin(); it2 != seen.end(); it2++)
-    {
-      delete *it2;
-    }
+      (*it2)->destroy();
     return count;
   }
 }
@@ -165,8 +164,7 @@ int main(int argc, char* argv[])
 	    << " times to improve precision." << std::endl << std::endl;
 
   spot::ltl::ltl_file formulae(argv[1]);
-  spot::ltl::formula* f;
-  while((f = formulae.next()))
+  while (const spot::ltl::formula* f = formulae.next())
   {
     spot::tgba* a = ltl_to_tgba_fm(f, dict, /* exprop */ true);
     ++i;
