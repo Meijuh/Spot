@@ -162,7 +162,8 @@ Notes:
     real binary with the locally built libraries.)
 
   * Some tools will appear to have translated fewer automata than the
-    others.  This normally indicates bugs in the translator.  In that
-    case it is harder to compare the results.  (Normalizing the other
-    values accordingly may not be fair: maybe the translator precisely
-    failed to translate the largest automata.)
+    others.  This normally indicates bugs in the translator (incorrect
+    output) or timeouts.  In that case it is harder to compare the
+    results.  (Normalizing the other values accordingly may not be
+    fair: maybe the translator precisely failed to translate the
+    largest automata.)

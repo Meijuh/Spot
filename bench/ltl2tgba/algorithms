@@ -15,6 +15,37 @@ Algorithm
    Enabled = $HAVE_LTL2BA
 }
 
+Algorithm
+{
+   Name = "ltl3ba"
+   Path = "lbtt-translate"
+   Parameters = "--spin $LTL3BA"
+   Enabled = $HAVE_LTL3BA
+}
+
+Algorithm
+{
+   Name = "ltl3ba -M"
+   Path = "lbtt-translate"
+   Parameters = "--spin '$LTL3BA -M'"
+   Enabled = $HAVE_LTL3BA
+}
+
+Algorithm
+{
+   Name = "ltl3ba -S"
+   Path = "lbtt-translate"
+   Parameters = "--spin '$LTL3BA -S'"
+   Enabled = $HAVE_LTL3BA
+}
+
+Algorithm
+{
+   Name = "ltl3ba -M -S"
+   Path = "lbtt-translate"
+   Parameters = "--spin '$LTL3BA -M -S'"
+   Enabled = $HAVE_LTL3BA
+}
 
 Algorithm
 {
@@ -89,10 +120,25 @@ Algorithm
 
 Algorithm
 {
+   Name = "Spot FM Sim (TGBA)"
+   Path = "$LBTT_TRANSLATE"
+   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -RDS -F'"
+   Enabled = yes
+}
+
+Algorithm
+{
    Name = "Spot FM WDBA (TGBA)"
    Path = "$LBTT_TRANSLATE"
    Parameters = "--spot '$LTL2TGBA -f -t -R3f -r7 -x -Rm -F'"
    Enabled = yes
 }
 
+Algorithm
+{
+   Name = "Spot FM WDBA+Sim (TGBA)"
+   Path = "$LBTT_TRANSLATE"
+   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -Rm -RDS -F'"
+   Enabled = yes
+}
 EOF
