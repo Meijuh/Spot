@@ -178,7 +178,8 @@ syntax(char* prog)
 	    << "  -r6   reduce formula using tau03+" << std::endl
 	    << "  -r7   reduce formula using tau03+ and -r4" << std::endl
 	    << "  -rd   display the reduced formula" << std::endl
-	    << std::endl
+	    << "  -rL   disable basic rewritings producing larger formulas"
+	    << std::endl << std::endl
 
 	    << "Automaton degeneralization (after translation):"
 	    << std::endl
@@ -303,7 +304,8 @@ main(int argc, char** argv)
   bool read_neverclaim = false;
   bool scc_filter = false;
   bool simpltl = false;
-  spot::ltl::ltl_simplifier_options redopt(false, false, false, false, false);
+  spot::ltl::ltl_simplifier_options redopt(false, false, false, false,
+					   false, false, false);
   bool scc_filter_all = false;
   bool symbolic_scc_pruning = false;
   bool display_reduced_form = false;
@@ -625,6 +627,12 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-Rm"))
         {
           opt_minimize = true;
+        }
+      else if (!strcmp(argv[formula_index], "-rs"))
+        {
+	  simpltl = true;
+	  redopt.reduce_basics = true;
+	  redopt.reduce_size_strictly = true;
         }
       else if (!strcmp(argv[formula_index], "-M"))
         {
