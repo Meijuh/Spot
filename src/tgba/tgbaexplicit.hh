@@ -76,7 +76,7 @@ namespace spot
     {
     }
 
-    void destroy() const
+    virtual void destroy() const
     {
     }
 
@@ -149,10 +149,6 @@ namespace spot
     {
     }
 
-    virtual void destroy()
-    {
-    }
-
     static const int default_val;
   };
 
@@ -172,10 +168,6 @@ namespace spot
     {
     }
 
-    virtual void destroy()
-    {
-    }
-
     static const std::string default_val;
   };
 
@@ -192,10 +184,6 @@ namespace spot
 
     state_explicit_formula(const ltl::formula* label)
       : state_explicit<const ltl::formula*, ltl::formula_ptr_hash>(label)
-    {
-    }
-
-    virtual void destroy()
     {
     }
 
@@ -748,7 +736,7 @@ namespace spot
   public:
     explicit_conf(bdd_dict* d): graph(d)
     {
-      set_to_string_func(to_string);
+      this->set_to_string_func(to_string);
     };
 
     static std::string to_string(const typename Type::label_t& l)
@@ -765,7 +753,7 @@ namespace spot
   public:
     explicit_conf(bdd_dict* d): graph(d)
     {
-      set_to_string_func(to_string);
+      this->set_to_string_func(to_string);
     };
 
     static std::string to_string(const std::string& l)
@@ -780,13 +768,13 @@ namespace spot
   public:
     explicit_conf(bdd_dict* d): graph(d)
     {
-      set_to_string_func(to_string);
+      this->set_to_string_func(to_string);
     };
 
     // Enable UTF8 output for the formulae that label states.
     void enable_utf8()
     {
-      set_to_string_func(to_utf8_string);
+      this->set_to_string_func(to_utf8_string);
     }
 
     static std::string to_string(const ltl::formula* const& l)
