@@ -1567,6 +1567,7 @@ namespace spot
 			result_ = recurse_destroy(result_);
 			return true;
 		      }
+		    r->destroy();
 		  }
 	      // {s[*];r}[]->b = !s R ({r}[]->b)
 	      // if s is Boolean and r does not accept [*0];
@@ -1588,6 +1589,7 @@ namespace spot
 			result_ = recurse_destroy(result_);
 			return true;
 		      }
+		    r->destroy();
 		  }
 
 	      // {r₁;r₂;r₃}[]->b = {r₁}[]->X({r₂}[]->X({r₃}[]->b))
