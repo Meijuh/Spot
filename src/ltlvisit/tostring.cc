@@ -105,11 +105,11 @@ namespace spot
 	"1",
 	"[*0]",			// not supported
 	" xor ",		// rewritten
-	" -> ",			// rewritten
-	" <-> ",		// rewritten
+	" -> ",			// rewritten, although supported
+	" <-> ",		// rewritten, although supported
 	" U ",
 	" V ",
-	" W ",			// rewritten
+	" W ",			// rewritten, although supported
 	" M ",			// rewritten
 	"<>-> ",		// not supported
 	"<>=> ",		// not supported
@@ -118,7 +118,7 @@ namespace spot
 	"[]-> ",		// not supported
 	"[]=> ",		// not supported
 	"!",
-	"()",
+	"X",
 	"<>",
 	"[]",
 	" || ",
