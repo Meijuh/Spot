@@ -1427,6 +1427,10 @@ namespace spot
 	      // Transitions going to destinations accepting the empty
 	      // word should recognize f2, and the automaton for f1
 	      // should be understood as universal.
+	      //
+	      // The crux of this translation (the use of implication,
+	      // and the interpretation as a universal automaton) was
+	      // explained to me (adl) by Felix Klaedtke.
 	      bdd f2 = recurse(node->second());
 	      bdd f1 = translate_ratexp(node->first(), dict_);
 	      res_ = bddtrue;
