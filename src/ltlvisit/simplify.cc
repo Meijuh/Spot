@@ -235,8 +235,16 @@ namespace spot
       bool
       implication(const formula* f1, const formula* f2)
       {
-	return (options.synt_impl && syntactic_implication(f1, f2))
-	  || (options.containment_checks && contained(f1, f2));
+	trace << "[->] does " << to_string(f1) << " implies "
+	      << to_string(f2) << " ?" << std::endl;
+	if ((options.synt_impl && syntactic_implication(f1, f2))
+	    || (options.containment_checks && contained(f1, f2)))
+	  {
+	    trace << "[->] Yes" << std::endl;
+	    return true;
+	  }
+	trace << "[->] No" << std::endl;
+	return false;
       }
 
       // Return true if f1 => f2 syntactically
@@ -3910,7 +3918,7 @@ namespace spot
 		else if ((fo == binop::U && (go == binop::R || go == binop::M))
 			 || (fo == binop::W && go == binop::R))
 		  {
-		    if (syntactic_implication(f1, g1)
+		    if (syntactic_implication(f1, g2)
 			&& syntactic_implication(f2, g1)
 			&& syntactic_implication(f2, g2))
 		      return true;

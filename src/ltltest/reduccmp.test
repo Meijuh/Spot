@@ -324,6 +324,7 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x '!{a;b*;(a* && (b;c));c*}' '!a | X(!b M !{a[*] && {b;c}})'
      run 0 $x '{(a;c*;d)|(b;c)}' '(a & X(c W d)) | (b & Xc)'
      run 0 $x '!{(a;c*;d)|(b;c)}' '(X(!c M !d) | !a) & (X!c | !b)'
+     run 0 $x '(Xc R b) & (Xc W 0)' 'b & XGc'
 
      # not reduced
      run 0 $x '{a;(b[*2..4];c*;([*0]+{d;e}))*}!' \
