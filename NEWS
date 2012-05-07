@@ -179,7 +179,7 @@ New in spot 0.8 (2011-11-28):
          #define x flag==0
       because !x then evaluated to (!flag)==0 instead of !(flag==0).
 
-New in spot 0.7.1 (2001-02-07):
+New in spot 0.7.1 (2011-02-07):
 
   * The LTL parser will accept operator ~ (for not) as well
     as --> and <--> (for implication and equivalence), allowing
