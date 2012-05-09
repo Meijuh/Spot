@@ -1,7 +1,7 @@
 AC_DEFUN([AX_CHECK_BUDDY], [
   AC_ARG_WITH([included-buddy],
 	      [AC_HELP_STRING([--with-included-buddy],
-			      [use the BuDDy library inclued here])])
+			      [use the BuDDy library included here])])
   AC_CHECK_LIB([bdd], [bdd_setxor],
 	       [need_included_buddy=no],
 	       [need_included_buddy=yes])
