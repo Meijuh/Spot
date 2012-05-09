@@ -1,4 +1,4 @@
-New in spot 0.8.3a:
+New in spot 0.9 (2012-05-09):
 
   * New features:
     - Operators from the linear fragment of PSL are supported.  This
@@ -29,7 +29,7 @@ New in spot 0.8.3a:
     - A new direct simulation reduction has been implemented.  It
       works directly on TGBAs.  It is in src/tgbaalgos/simlation.hh,
       and it can be tested via ltl2tgba's -RDS option.
-    - unabbreviate_wm() is a function that rewrite the W and M operators
+    - unabbreviate_wm() is a function that rewrites the W and M operators
       of LTL formulae using R and U.  This is called whenever we output
       a formula in Spin syntax.  By combining this with the aforementioned
       PSL rewriting rules, many PSL formulae that use simple SERE can be
