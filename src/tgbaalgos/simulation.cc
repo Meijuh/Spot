@@ -121,24 +121,21 @@ namespace spot
       inline unsigned
       get_state(const state* s)
       {
-        if (state2int.find(s) == state2int.end())
+	map_state_unsigned::const_iterator i = state2int.find(s);
+        if (i == state2int.end())
 	  {
-	    state2int[s] = ++current_max;
+	    i = state2int.insert(std::make_pair(s, ++current_max)).first;
 	    previous_class_[out_->add_state(current_max)] = bddfalse;
 	  }
-
-        return state2int[s];
+        return i->second;
       }
 
       void process_link(const state* in_s,
-                        int in,
+                        int,
                         const state* out_s,
-                        int out,
+                        int,
                         const tgba_succ_iterator* si)
       {
-        (void) in;
-        (void) out;
-
         int src = get_state(in_s);
         int dst = get_state(out_s);
 
