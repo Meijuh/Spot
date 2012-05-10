@@ -35,6 +35,7 @@
 #include <string>
 #include "public.hh"
 #include "ltlast/allnodes.hh"
+#include "ltlvisit/tostring.hh"
 
   struct minmax_t { unsigned min, max; };
 }
@@ -144,6 +145,10 @@ using namespace spot::ltl;
 %destructor { $$->destroy(); } <ltl>
 
 %printer { debug_stream() << *$$; } <str>
+%printer { spot::ltl::to_string($$, debug_stream()); } <ltl>
+%printer { spot::ltl::to_string($$, debug_stream(), false, true); } sere bracedsere
+%printer { debug_stream() << $$; } <num>
+%printer { debug_stream() << $$.min << ".." << $$.max; } <minmax>
 
 %%
 result:       START_LTL subformula END_OF_INPUT
