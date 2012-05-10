@@ -120,8 +120,7 @@ syntax(char* prog)
 
 	    << "Translation algorithm:" << std::endl
             << "  -f    use Couvreur's FM algorithm for LTL"
-	    << "(default)"
-	    << std::endl
+	    << " (default)" << std::endl
             << "  -l    use Couvreur's LaCIM algorithm for LTL "
 	    << std::endl
 	    << "  -le   use Couvreur's LaCIM algorithm for ELTL"
