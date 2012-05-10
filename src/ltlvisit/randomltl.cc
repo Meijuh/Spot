@@ -285,9 +285,9 @@ namespace spot
       proba_[1].setup("boolform", 1, boolform_builder);
       proba_[2].setup("star",    2, bunop_unbounded_builder<bunop::Star>);
       proba_[3].setup("star_b",  2, bunop_bounded_builder<bunop::Star>);
-      proba_[4].setup("and",     3, multop_builder<multop::And>);
+      proba_[4].setup("and",     3, multop_builder<multop::AndRat>);
       proba_[5].setup("andNLM",  3, multop_builder<multop::AndNLM>);
-      proba_[6].setup("or",      3, multop_builder<multop::Or>);
+      proba_[6].setup("or",      3, multop_builder<multop::OrRat>);
       proba_[7].setup("concat",  3, multop_builder<multop::Concat>);
       proba_[8].setup("fusion",  3, multop_builder<multop::Fusion>);
 

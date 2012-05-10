@@ -1,6 +1,8 @@
 New in spot 0.9a:
 
-  Nothing yet.
+  * Bug fixes:
+    - The random SERE generator was using the wrong operators
+      for "and" and "or", mistaking And/Or with AndRat/OrRat.
 
 New in spot 0.9 (2012-05-09):
 
