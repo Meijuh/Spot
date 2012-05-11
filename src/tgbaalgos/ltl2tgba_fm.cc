@@ -1,8 +1,9 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
-// d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
-// Coopératifs (SRC), Université Pierre et Marie Curie.
+// d'Informatique de Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis
+// CoopÃ©ratifs (SRC), UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -97,13 +98,10 @@ namespace spot
 	  i->first->destroy();
 	dict->unregister_all_my_variables(this);
 
-	formula_to_bdd_map::iterator j = ltl_bdd_unmarked_.begin();
+	flagged_formula_to_bdd_map::iterator j = ltl_bdd_.begin();
 	// Advance the iterator before destroying previous value.
-	while (j != ltl_bdd_unmarked_.end())
-	  j++->first->destroy();
-	j = ltl_bdd_marked_.begin();
-	while (j != ltl_bdd_marked_.end())
-	  j++->first->destroy();
+	while (j != ltl_bdd_.end())
+	  j++->first.f->destroy();
       }
 
       bdd_dict* dict;
@@ -123,6 +121,37 @@ namespace spot
       ratexp_to_dfa transdfa;
       bool exprop;
 
+      enum translate_flags
+	{
+	  flags_none = 0,
+	  // Keep these bits slightly apart as we will use them as-is
+	  // in the hash function for flagged_formula.
+	  flags_mark_all = (1<<10),
+	  flags_recurring = (1<<14),
+	};
+
+      struct flagged_formula
+      {
+	const formula* f;
+	unsigned flags;		// a combination of translate_flags
+
+	bool
+	operator==(const flagged_formula& other) const
+	{
+	  return this->f == other.f && this->flags == other.flags;
+	}
+      };
+
+      struct flagged_formula_hash:
+	public std::unary_function<flagged_formula, size_t>
+      {
+	size_t
+	operator()(const flagged_formula& that) const
+	{
+	  return that.f->hash() ^ size_t(that.flags);
+	}
+      };
+
       struct translated
       {
 	bdd symbolic;
@@ -130,11 +159,10 @@ namespace spot
 	bool has_marked:1;
       };
 
-      typedef Sgi::hash_map<const formula*, translated, ptr_hash<formula> >
-              formula_to_bdd_map;
+      typedef Sgi::hash_map<flagged_formula, translated, flagged_formula_hash>
+              flagged_formula_to_bdd_map;
     private:
-      formula_to_bdd_map ltl_bdd_unmarked_;
-      formula_to_bdd_map ltl_bdd_marked_;
+      flagged_formula_to_bdd_map ltl_bdd_;
 
     public:
 
@@ -309,7 +337,7 @@ namespace spot
       }
 
       const translated&
-      ltl_to_bdd(const formula* f, bool mark_all);
+      ltl_to_bdd(const formula* f, bool mark_all, bool recurring = false);
 
     };
 
@@ -1059,9 +1087,9 @@ namespace spot
     {
     public:
       ltl_trad_visitor(translate_dict& dict, bool mark_all = false,
-		       bool exprop = false)
+		       bool exprop = false, bool recurring = false)
 	: dict_(dict), rat_seen_(false), has_marked_(false),
-	  mark_all_(mark_all), exprop_(exprop)
+	  mark_all_(mark_all), exprop_(exprop), recurring_(recurring)
       {
       }
 
@@ -1136,31 +1164,51 @@ namespace spot
 	  {
 	  case unop::F:
 	    {
-	      // r(Fy) = r(y) + a(y)r(XFy)
+	      // r(Fy) = r(y) + a(y)X(Fy)   if not recurring
+	      // r(Fy) = r(y) + a(y)        if recurring (see comment in G)
 	      const formula* child = node->child();
 	      bdd y = recurse(child);
-	      int a = dict_.register_a_variable(child);
-	      int x = dict_.register_next_variable(node);
-	      res_ = y | (bdd_ithvar(a) & bdd_ithvar(x));
+	      bdd a = bdd_ithvar(dict_.register_a_variable(child));
+	      if (!recurring_)
+		a &= bdd_ithvar(dict_.register_next_variable(node));
+	      res_ = y | a;
 	      break;
 	    }
 	  case unop::G:
 	    {
-	      // The paper suggests that we optimize GFy
+	      // Couvreur's paper suggests that we optimize GFy
 	      // as
-	      //   r(GFy) = (r(y) + a(y))r(XGFy)
+	      //   r(GFy) = (r(y) + a(y))X(GFy)
 	      // instead of
-	      //   r(GFy) = (r(y) + a(y)r(XFy)).r(XGFy)
+	      //   r(GFy) = (r(y) + a(y)X(Fy)).X(GFy)
 	      // but this is just a particular case
 	      // of the "merge all states with the same
 	      // symbolic rewriting" optimization we do later.
 	      // (r(Fy).r(GFy) and r(GFy) have the same symbolic
-	      // rewriting.)  Let's keep things simple here.
+	      // rewriting, see Fig.6 in Duret-Lutz's VECOS'11
+	      // paper for an illustration.)
+	      //
+	      // We used to keep things simple and not implement this
+	      // step, that does not change the result.  However it
+	      // turns out that this extra optimization significantly
+	      // speeds up (â‰ˆÃ—2) the translation of formulas of the
+	      // form GFa & GFb & ... GFz
+	      //
+	      // Unfortunately, our rewrite rules will put such a
+	      // formula as G(Fa & Fb & ... Fz) which has a different
+	      // form.  We could encode specifically
+	      // r(G(Fa & Fb & c)) =
+	      //   (r(a)+a(a))(r(b)+a(b))r(c)X(G(Fa & Fb & c))
+	      // but that would be lots of special cases for G.
+	      // And if we do it for G, why not for R?
+	      //
+	      // Here we generalize this trick by propagating
+	      // to "recurring" information to subformulas
+	      // and letting them decide.
 
-	      // r(Gy) = r(y)r(XGy)
-	      const formula* child = node->child();
+	      // r(Gy) = r(y)X(Gy)
 	      int x = dict_.register_next_variable(node);
-	      bdd y = recurse(child);
+	      bdd y = recurse(node->child(), /* recurring = */ true);
 	      res_ = y & bdd_ithvar(x);
 	      break;
 	    }
@@ -1294,62 +1342,64 @@ namespace spot
 	  {
 	    // r(f1 logical-op f2) = r(f1) logical-op r(f2)
 	  case binop::Xor:
-	    {
-	      bdd f1 = recurse(node->first());
-	      bdd f2 = recurse(node->second());
-	      res_ = bdd_apply(f1, f2, bddop_xor);
-	      return;
-	    }
 	  case binop::Implies:
-	    {
-	      bdd f1 = recurse(node->first());
-	      bdd f2 = recurse(node->second());
-	      res_ = bdd_apply(f1, f2, bddop_imp);
-	      return;
-	    }
 	  case binop::Equiv:
-	    {
-	      bdd f1 = recurse(node->first());
-	      bdd f2 = recurse(node->second());
-	      res_ = bdd_apply(f1, f2, bddop_biimp);
-	      return;
-	    }
+	    // These operators should only appear in Boolean formulas,
+	    // which must have been dealt with earlier (in
+	    // translate_dict::ltl_to_bdd()).
+	    assert(!"unexpected operator");
+	    break;
 	  case binop::U:
 	    {
 	      bdd f1 = recurse(node->first());
 	      bdd f2 = recurse(node->second());
-	      // r(f1 U f2) = r(f2) + a(f2)r(f1)r(X(f1 U f2))
-	      int a = dict_.register_a_variable(node->second());
-	      int x = dict_.register_next_variable(node);
-	      res_ = f2 | (bdd_ithvar(a) & f1 & bdd_ithvar(x));
+	      // r(f1 U f2) = r(f2) + a(f2)r(f1)X(f1 U f2) if not recurring
+	      // r(f1 U f2) = r(f2) + a(f2)r(f1)           if recurring
+	      f1 &= bdd_ithvar(dict_.register_a_variable(node->second()));
+	      if (!recurring_)
+		f1 &= bdd_ithvar(dict_.register_next_variable(node));
+	      res_ = f2 | f1;
 	      break;
 	    }
 	  case binop::W:
 	    {
-	      bdd f1 = recurse(node->first());
+	      // r(f1 W f2) = r(f2) + r(f1)X(f1 U f2) if not recurring
+	      // r(f1 W f2) = r(f2) + r(f1)           if recurring
+	      //
+	      // also f1 W 0 = G(f1), so we can enable recurring on f1
+	      bdd f1 = recurse(node->first(),
+			       node->second() == constant::false_instance());
 	      bdd f2 = recurse(node->second());
-	      // r(f1 W f2) = r(f2) + r(f1)r(X(f1 U f2))
-	      int x = dict_.register_next_variable(node);
-	      res_ = f2 | (f1 & bdd_ithvar(x));
+	      if (!recurring_)
+		f1 &= bdd_ithvar(dict_.register_next_variable(node));
+	      res_ = f2 | f1;
 	      break;
 	    }
 	  case binop::R:
 	    {
+	      // r(f2) is in factor, so we can propagate the recurring_ flag.
+	      // if f1=false, we can also turn it on (0 R f = Gf).
+	      res_ = recurse(node->second(),
+			     recurring_
+			     || node->first() == constant::false_instance());
+	      // r(f1 R f2) = r(f2)(r(f1) + X(f1 R f2))  if not recurring
+	      // r(f1 R f2) = r(f2)                      if recurring
+	      if (recurring_)
+		break;
 	      bdd f1 = recurse(node->first());
-	      bdd f2 = recurse(node->second());
-	      // r(f1 R f2) = r(f1)r(f2) + r(f2)r(X(f1 U f2))
-	      int x = dict_.register_next_variable(node);
-	      res_ = (f1 & f2) | (f2 & bdd_ithvar(x));
+	      res_ &= f1 | bdd_ithvar(dict_.register_next_variable(node));
 	      break;
 	    }
 	  case binop::M:
 	    {
+	      res_ = recurse(node->second(), recurring_);
 	      bdd f1 = recurse(node->first());
-	      bdd f2 = recurse(node->second());
-	      // r(f1 M f2) = r(f1)r(f2) + a(f1)r(f2)r(X(f1 M f2))
-	      int a = dict_.register_a_variable(node->first());
-	      int x = dict_.register_next_variable(node);
-	      res_ = (f1 & f2) | (bdd_ithvar(a) & f2 & bdd_ithvar(x));
+	      // r(f1 M f2) = r(f2)(r(f1) + a(f1)X(f1 M f2)) if not recurring
+	      // r(f1 M f2) = r(f2)(r(f1) + a(f1))           if recurring
+	      bdd a = bdd_ithvar(dict_.register_a_variable(node->first()));
+	      if (!recurring_)
+		a &= bdd_ithvar(dict_.register_next_variable(node));
+	      res_ &= f1 | a;
 	      break;
 	    }
 	  case binop::EConcatMarked:
@@ -1494,7 +1544,10 @@ namespace spot
 	      unsigned s = node->size();
 	      for (unsigned n = 0; n < s; ++n)
 		{
-		  bdd res = recurse(node->nth(n));
+		  // Propagate the recurring_ flag so that
+		  // G(Fa & Fb) get optimized.  See the comment in
+		  // the case handling G.
+		  bdd res = recurse(node->nth(n), recurring_);
 		  //std::cerr << "== in And (" << to_string(node->nth(n))
 		  // << ")" << std::endl;
 		  // trace_ltl_bdd(dict_, res);
@@ -1524,9 +1577,10 @@ namespace spot
       }
 
       bdd
-      recurse(const formula* f)
+      recurse(const formula* f, bool recurring = false)
       {
-	const translate_dict::translated& t = dict_.ltl_to_bdd(f, mark_all_);
+	const translate_dict::translated& t =
+	  dict_.ltl_to_bdd(f, mark_all_, recurring);
 	rat_seen_ |= t.has_rational;
 	has_marked_ |= t.has_marked;
 	return t.symbolic;
@@ -1540,19 +1594,21 @@ namespace spot
       bool has_marked_;
       bool mark_all_;
       bool exprop_;
+      bool recurring_;
     };
 
     const translate_dict::translated&
-    translate_dict::ltl_to_bdd(const formula* f, bool mark_all)
+    translate_dict::ltl_to_bdd(const formula* f, bool mark_all, bool recurring)
     {
-      formula_to_bdd_map* m;
-      if (mark_all || f->is_ltl_formula())
-	m = &ltl_bdd_marked_;
-      else
-	m = &ltl_bdd_unmarked_;
-      formula_to_bdd_map::const_iterator i = m->find(f);
+      flagged_formula ff;
+      ff.f = f;
+      ff.flags =
+	((mark_all || f->is_ltl_formula()) ? flags_mark_all : flags_none)
+	| (recurring ? flags_recurring : flags_none);
 
-      if (i != m->end())
+      flagged_formula_to_bdd_map::const_iterator i = ltl_bdd_.find(ff);
+
+      if (i != ltl_bdd_.end())
 	return i->second;
 
       translated t;
@@ -1564,14 +1620,15 @@ namespace spot
 	}
       else
 	{
-	  ltl_trad_visitor v(*this, mark_all, exprop);
+	  ltl_trad_visitor v(*this, mark_all, exprop, recurring);
 	  f->accept(v);
 	  t.symbolic = v.result();
 	  t.has_rational = v.has_rational();
 	  t.has_marked = v.has_marked();
 	}
 
-      return m->insert(std::make_pair(f->clone(), t)).first->second;
+      f->clone();
+      return ltl_bdd_.insert(std::make_pair(ff, t)).first->second;
     }
 
 
@@ -1709,7 +1766,7 @@ namespace spot
 
       ~formula_canonizer()
       {
-	translate_dict::formula_to_bdd_map::iterator i = f2b_.begin();
+	formula_to_bdd_map::iterator i = f2b_.begin();
 	while (i != f2b_.end())
 	  // Advance the iterator before destroying previous value.
 	  i++->first->destroy();
@@ -1722,7 +1779,7 @@ namespace spot
       translate(const formula* f, bool* new_flag = 0)
       {
 	// Use the cached result if available.
-	translate_dict::formula_to_bdd_map::const_iterator i = f2b_.find(f);
+	formula_to_bdd_map::const_iterator i = f2b_.find(f);
 	if (i != f2b_.end())
 	  return i->second;
 
@@ -1840,7 +1897,9 @@ namespace spot
       // Map each formula to its associated bdd.  This speed things up when
       // the same formula is translated several times, which especially
       // occurs when canonize() is called repeatedly inside exprop.
-      translate_dict::formula_to_bdd_map f2b_;
+      typedef Sgi::hash_map<const formula*, translate_dict::translated,
+			    ptr_hash<formula> > formula_to_bdd_map;
+      formula_to_bdd_map f2b_;
 
       possible_fair_loop_checker pflc_;
       bool fair_loop_approx_;
