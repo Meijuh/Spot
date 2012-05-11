@@ -44,7 +44,7 @@ Installing on a real web server
    in a .htaccess file (if allowed).
 
       # Treat *.py files as CGI scripts
-      AddHandle cgi-script .py
+      AddHandler cgi-script .py
 
       # Allow CGI execution in some directory.
       Options +ExecCGI
@@ -68,6 +68,14 @@ Installing on a real web server
 
 Debugging
 =========
+
+When working on the script, remember that the contents of spotimg/ is
+used as a cache and that a request will not be processed again if its
+result is in the cache.  So if you don't understand why the change you
+have performed has no effect, make sure you are performing some fresh
+query, or wipe the contents of the cache (i.e., erase all files inside
+spotimg/ but not the spotimg/ directory itself).
+
 
 The hash string displayed in the web browser is the query string sent
 to the CGI script, so you can simulate the call from the command line
