@@ -22,6 +22,8 @@
 #include "ltlast/allnodes.hh"
 #include <cassert>
 #include <algorithm>
+#include <set>
+#include <vector>
 #include "ltlvisit/tostring.hh"
 #include "misc/casts.hh"
 
@@ -103,21 +105,25 @@ namespace spot
 	      {
 		typedef std::set<std::pair<const formula*,
 					   const formula*> > pset;
-		pset Epairs, EMpairs;
+		pset empairs;
+		typedef std::set<const formula*> sset;
+		sset nmset;
+		typedef std::vector<const binop*> unbinop;
+		unbinop elist;
+		typedef std::vector<const unop*> ununop;
+		ununop nlist;
 
 		for (unsigned i = 0; i < mos; ++i)
 		  {
 		    const formula* f = mo->nth(i);
-
-		    if (f->kind() != formula::BinOp)
+		    if (const binop* bo = is_binop(f))
 		      {
-			res->push_back(recurse(f));
-		      }
-		    else
-		      {
-			const binop* bo = static_cast<const binop*>(f);
 			switch (bo->op())
 			  {
+			  case binop::EConcatMarked:
+			    empairs.insert(std::make_pair(bo->first(),
+							  bo->second()));
+			    // fall through
 			  case binop::Xor:
 			  case binop::Implies:
 			  case binop::Equiv:
@@ -129,29 +135,49 @@ namespace spot
 			    res->push_back(recurse(f));
 			    break;
 			  case binop::EConcat:
-			    assert(mo->op() == multop::And);
-			    Epairs.insert(std::make_pair(bo->first(),
-							 bo->second()));
-			    break;
-			  case binop::EConcatMarked:
-			    assert(mo->op() == multop::And);
-			    EMpairs.insert(std::make_pair(bo->first(),
-							  bo->second()));
+			    elist.push_back(bo);
 			    break;
 			  }
 		      }
+		    if (const unop* uo = is_unop(f))
+		      {
+			switch (uo->op())
+			  {
+			  case unop::NegClosureMarked:
+			    nmset.insert(uo->child());
+			    // fall through
+			  case unop::Not:
+			  case unop::X:
+			  case unop::F:
+			  case unop::G:
+			  case unop::Finish:
+			  case unop::Closure:
+			    res->push_back(recurse(f));
+			    break;
+			  case unop::NegClosure:
+			    nlist.push_back(uo);
+			    break;
+			  }
+		      }
+		    else
+		      {
+			res->push_back(recurse(f));
+		      }
 		  }
-		for (pset::const_iterator i = EMpairs.begin();
-		     i != EMpairs.end(); ++i)
-		  res->push_back(binop::instance(binop::EConcatMarked,
-						 i->first->clone(),
-						 i->second->clone()));
-		for (pset::const_iterator i = Epairs.begin();
-		     i != Epairs.end(); ++i)
-		  if (EMpairs.find(*i) == EMpairs.end())
-		    res->push_back(binop::instance(binop::EConcat,
-						   i->first->clone(),
-						   i->second->clone()));
+		// Keep only the non-marked EConcat for which we
+		// have not seen a similar EConcatMarked.
+		for (unbinop::const_iterator i = elist.begin();
+		     i != elist.end(); ++i)
+		  if (empairs.find(std::make_pair((*i)->first(),
+						  (*i)->second()))
+		      == empairs.end())
+		    res->push_back((*i)->clone());
+		// Keep only the non-marked NegClosure for which we
+		// have not seen a similar NegClosureMarked.
+		for (ununop::const_iterator i = nlist.begin();
+		     i != nlist.end(); ++i)
+		  if (nmset.find((*i)->child()) == nmset.end())
+		    res->push_back((*i)->clone());
 	      }
 	    }
 	  result_ = multop::instance(mo->op(), res);
@@ -212,7 +238,24 @@ namespace spot
 	void
 	visit(const unop* uo)
 	{
-	  result_ = uo->clone();
+	  switch (uo->op())
+	    {
+	    case unop::Not:
+	    case unop::X:
+	    case unop::F:
+	    case unop::G:
+	    case unop::Finish:
+	    case unop::Closure:
+	    case unop::NegClosureMarked:
+	      result_ = uo->clone();
+	      return;
+	    case unop::NegClosure:
+	      result_ = unop::instance(unop::NegClosureMarked,
+				       uo->child()->clone());
+	      return;
+	    }
+	  /* Unreachable code. */
+	  assert(0);
 	}
 
 	void
@@ -245,13 +288,13 @@ namespace spot
 	    case binop::M:
 	    case binop::R:
 	    case binop::UConcat:
+	    case binop::EConcatMarked:
 	      result_ = bo->clone();
 	      return;
-	    case binop::EConcatMarked:
 	    case binop::EConcat:
 	      {
 		const formula* f1 = bo->first()->clone();
-		const formula* f2 = recurse(bo->second());
+		const formula* f2 = bo->second()->clone();
 		result_ = binop::instance(binop::EConcatMarked, f1, f2);
 		return;
 	      }

@@ -508,6 +508,7 @@ namespace spot
 	  case unop::Finish:
 	  case unop::Closure:
 	  case unop::NegClosure:
+	  case unop::NegClosureMarked:
 	    assert(!"not a rational operator");
 	    return;
 	  case unop::Not:
@@ -1178,7 +1179,7 @@ namespace spot
 	    }
 	  case unop::Closure:
 	    {
-	      rat_seen_ = true;
+	      // rat_seen_ = true;
 	      const formula* f = node->child();
 	      if (f->accepts_eword())
 		{
@@ -1217,18 +1218,23 @@ namespace spot
 	    }
 	    break;
 
+	  case unop::NegClosureMarked:
+	    has_marked_ = true;
 	  case unop::NegClosure:
+	    rat_seen_ = true;
 	    {
-	      rat_seen_ = true;
-	      has_marked_ = true;
-
-	      if (node->child()->accepts_eword())
+	      const formula* c = node->child();
+	      if (c->accepts_eword())
 		{
 		  res_ = bddfalse;
 		  return;
 		}
-
-	      bdd f1 = translate_ratexp(node->child(), dict_);
+	      if (mark_all_)
+		{
+		  op = unop::NegClosureMarked;
+		  has_marked_ = true;
+		}
+	      bdd f1 = translate_ratexp(c, dict_);
 
 	      // trace_ltl_bdd(dict_, f1);
 

@@ -98,6 +98,7 @@
 
 \newcommand{\sere}[1]{\texttt{\{}#1\texttt{\}}}
 \newcommand{\nsere}[1]{\texttt{!\{}#1\texttt{\}}}
+\newcommand{\nsereMarked}[1]{\texttt{!+\{}#1\texttt{\}}}
 \newcommand{\seren}[1]{\texttt{\{}#1\texttt{\}!}}
 
 % rewriting rules that enlarge the formula
@@ -974,15 +975,16 @@ instance using the following methods:
 \\\texttt{is\_syntactic\_persistence()}& Whether the formula is a syntactic
   persistence property.
 \\\texttt{is\_marked()}& Whether the formula contains a special
-  ``marked'' version of the $\Esuffix$ operator.\footnotemark
+  ``marked'' version of the $\Esuffix$ or $\nsere{r}$ operators.\footnotemark
 \\\texttt{accepts\_eword()}& Whether the formula accepts
   $\eword$. (This can only be true for a SERE formula.)
 \end{tabulary}
 
-\footnotetext{This special operator is used when translating recurring
-  $\Esuffix$, it is rendered as $\EsuffixMarked$ and it obeys the same
-  simplification rules and properties as $\Esuffix$ (except for the
-  \texttt{is\_marked()} property).}
+\footnotetext{These ``marked'' operators are used when
+  translating recurring $\Esuffix$ or $\nsere{r}$ operators.  They are
+  rendered as $\EsuffixMarked$ and $\nsereMarked{r}$ and obey the
+  same simplification rules and properties as their unmarked
+  counterpart (except for the \texttt{is\_marked()} property).}
 
 \section{Pure Eventualities and Purely Universal Formul\ae{}}
 \label{sec:eventuniv}

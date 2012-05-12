@@ -47,7 +47,7 @@ namespace spot
 	// ELTL
 	Finish,
 	// Closure
-	Closure, NegClosure,
+	Closure, NegClosure, NegClosureMarked
 	};
 
       /// \brief Build an unary operator with operation \a op and

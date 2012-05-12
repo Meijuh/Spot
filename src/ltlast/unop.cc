@@ -112,7 +112,8 @@ namespace spot
 	  is.accepting_eword = false;
 	  break;
 	case NegClosure:
-	  is.not_marked = false;
+	case NegClosureMarked:
+	  is.not_marked = (op == NegClosure);
 	  is.boolean = false;
 	  is.ltl_formula = false;
 	  is.eltl_formula = false;
@@ -198,6 +199,8 @@ namespace spot
 	  return "Closure";
 	case NegClosure:
 	  return "NegClosure";
+	case NegClosureMarked:
+	  return "NegClosureMarked";
 	}
       // Unreachable code.
       assert(0);
@@ -297,6 +300,7 @@ namespace spot
 	  break;
 
 	case NegClosure:
+	case NegClosureMarked:
 	  // {1} = 0,  {[*0]} = 0
 	  if (child == constant::true_instance()
 	      || child == constant::empty_word_instance())

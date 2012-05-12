@@ -46,6 +46,7 @@ namespace spot
 	case unop::Not:
 	case unop::Closure:
 	case unop::NegClosure:
+	case unop::NegClosureMarked:
 	  this->super::visit(uo);
 	  return;
 	case unop::F:

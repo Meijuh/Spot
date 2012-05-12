@@ -418,7 +418,8 @@ namespace spot
 	visit(const unop* uo)
 	{
 	  const formula* f = uo->child();
-	  switch (uo->op())
+	  unop::type op = uo->op();
+	  switch (op)
 	    {
 	    case unop::Not:
 	      // "Not"s should be caught by nenoform_recursively().
@@ -445,8 +446,9 @@ namespace spot
 				       recurse_(f, false));
 	      return;
 	    case unop::NegClosure:
+	    case unop::NegClosureMarked:
 	      result_ = unop::instance(negated_ ?
-				       unop::Closure : uo->op(),
+				       unop::Closure : op,
 				       recurse_(f, false));
 	      return;
 	      /* !Finish(x), is not simplified */
@@ -1273,6 +1275,7 @@ namespace spot
 	      break;
 	    case unop::Closure:
 	    case unop::NegClosure:
+	    case unop::NegClosureMarked:
 	      // {e} = 1 if e accepts [*0]
 	      // !{e} = 0 if e accepts [*0]
 	      if (result_->accepts_eword())
@@ -1332,7 +1335,7 @@ namespace spot
 			multop::instance(multop::Concat, v);
 		      tail = unop::instance(op, tail);
 
-		      bool doneg = op == unop::NegClosure;
+		      bool doneg = op != unop::Closure;
 		      for (unsigned n = start; n > 0;)
 			{
 			  --n;
@@ -1398,7 +1401,7 @@ namespace spot
 			    tail = // {b[*0..j-i]} or !{b[*0..j-i]}
 			      unop::instance(op, tail);
 			    tail =
-			      dup_b_x_tail(op == unop::NegClosure,
+			      dup_b_x_tail(op != unop::Closure,
 					   c, tail, min);
 			    mo->destroy();
 			    result_ = recurse_destroy(tail);
@@ -1417,14 +1420,14 @@ namespace spot
 			unsigned min = s->min();
 			assert(min > 0);
 			const formula* tail;
-			if (op == unop::NegClosure)
-			  tail =
-			    dup_b_x_tail(true,
-					 c, constant::false_instance(), min);
-			else
+			if (op == unop::Closure)
 			  tail =
 			    dup_b_x_tail(false,
 					 c, constant::true_instance(), min);
+			else
+			  tail =
+			    dup_b_x_tail(true,
+					 c, constant::false_instance(), min);
 			result_->destroy();
 			result_ = recurse_destroy(tail);
 			return;

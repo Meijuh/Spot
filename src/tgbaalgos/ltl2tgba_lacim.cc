@@ -153,6 +153,7 @@ namespace spot
 	  case unop::Finish:
 	  case unop::Closure:
 	  case unop::NegClosure:
+	  case unop::NegClosureMarked:
 	    assert(!"unsupported operator");
 	  }
 	/* Unreachable code.  */

@@ -539,6 +539,12 @@ namespace spot
 	      in_ratexp_ = true;
 	      top_level_ = true;
 	      break;
+	    case unop::NegClosureMarked:
+	      emit(KNot);
+	      os_ << (kw_ == utf8_kw ? "̃{": "+{");
+	      in_ratexp_ = true;
+	      top_level_ = true;
+	      break;
 	    }
 
 	  if (need_parent || full_parent_)

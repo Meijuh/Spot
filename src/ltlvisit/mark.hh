@@ -32,7 +32,7 @@ namespace spot
     class mark_tools
     {
     public:
-      /// \brief Mark operators UConcat and EConcat.
+      /// \brief Mark operators NegClosure and EConcat.
       /// \ingroup ltl_rewriting
       ///
       /// \param f The formula to rewrite.

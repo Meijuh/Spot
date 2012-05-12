@@ -115,7 +115,7 @@ check '{a;b*;c}' '&!xfPsopr'
 check '{a;b*;c}!' '&!xfPgopr'
 check '!{a;b*;c}!' '&xfPsopr'  # The negative normal form is {a;b*;c}[]->0
 check '{a;b*;c}[]->0' '&!xfPsopr'
-check '!{a;b*;c}' '&!xfPgopr+'
+check '!{a;b*;c}' '&!xfPgopr'
 
 run 0 ../consterm '1'
 run 0 ../consterm '0'
