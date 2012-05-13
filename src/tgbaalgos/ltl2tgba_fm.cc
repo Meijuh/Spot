@@ -48,6 +48,65 @@ namespace spot
   namespace
   {
 
+
+    // This should only be called on And formulae and return
+    // the set of subformula that are implied by the formulas
+    // already in the And.
+    // If f = Ga & (b R c) & G(d & (e R (g R h)) & Xj) & Xk this
+    // returns the set {a,  # implied by Ga
+    //                  c,  # implied by b R c
+    //                  d, e R (g R h), g R h, h, Xj # implied by G(d & ...)
+    //                 }
+    // Leave recurring to false on first call.
+    typedef std::set<const formula*, formula_ptr_less_than> formula_set;
+    void
+    implied_subformulae(const formula* in, formula_set& rec,
+			bool recurring = false)
+    {
+      const multop* f = is_And(in);
+      if (!f)
+	{
+	  // Only recursive calls should be made with an operator that
+	  // is not And.
+	  assert(recurring);
+	  rec.insert(in);
+	  return;
+	}
+      unsigned s = f->size();
+      for (unsigned n = 0; n < s; ++n)
+	{
+	  const formula* sub = f->nth(n);
+	  // Recurring is set if we are under "G(...)" or "0 R (...)"
+	  // or (...) W 0".
+	  if (recurring)
+	    rec.insert(sub);
+	  if (const unop* g = is_G(sub))
+	    {
+	      implied_subformulae(g->child(), rec, true);
+	    }
+	  else if (const binop* w = is_W(sub))
+	    {
+	      // f W 0 = Gf
+	      if (w->second() == constant::false_instance())
+		implied_subformulae(w->first(), rec, true);
+	    }
+	  else
+	    while (const binop* b = is_binop(sub, binop::R, binop::M))
+	      {
+		// in 'f R g' and 'f M g' always evaluate 'g'.
+		sub = b->second();
+		if (b->first() == constant::false_instance())
+		  {
+		    assert(b->op() == binop::R); // because 0 M g = 0
+		    // 0 R f = Gf
+		    implied_subformulae(sub, rec, true);
+		    break;
+		  }
+		rec.insert(sub);
+	      }
+	}
+    }
+
     class translate_dict;
 
     class ratexp_to_dfa
@@ -1540,15 +1599,36 @@ namespace spot
 	  {
 	  case multop::And:
 	    {
+	      formula_set implied;
+	      implied_subformulae(node, implied);
+
+	      // std::cerr << "---" << std::endl;
+	      // for (formula_set::const_iterator i = implied.begin();
+	      // 	   i != implied.end(); ++i)
+	      // 	std::cerr << to_string(*i) << std::endl;
+
 	      res_ = bddtrue;
 	      unsigned s = node->size();
 	      for (unsigned n = 0; n < s; ++n)
 		{
+		  const formula* sub = node->nth(n);
+		  // Skip implied subformula.  For instance
+		  // when translating Fa & GFa, we should not
+		  // attempt to translate Fa.
+		  //
+		  // This optimization combines nicely with the
+		  // "recurring" optimization whereby GFp will be
+		  // translated as r(GFp) = (r(p) | a(p))X(GFp)
+		  // without showing Fp instead of r(GFp) =
+		  // r(Fp)X(GFp).  See the comment for the translation
+		  // of G.
+		  if (implied.find(sub) != implied.end())
+		    continue;
 		  // Propagate the recurring_ flag so that
 		  // G(Fa & Fb) get optimized.  See the comment in
 		  // the case handling G.
-		  bdd res = recurse(node->nth(n), recurring_);
-		  //std::cerr << "== in And (" << to_string(node->nth(n))
+		  bdd res = recurse(sub, recurring_);
+		  //std::cerr << "== in And (" << to_string(sub)
 		  // << ")" << std::endl;
 		  // trace_ltl_bdd(dict_, res);
 		  res_ &= res;
