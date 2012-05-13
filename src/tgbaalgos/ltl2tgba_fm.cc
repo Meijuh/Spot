@@ -283,16 +283,9 @@ namespace spot
 	vf_map::const_iterator isi = next_formula_map.find(var);
 	if (isi != next_formula_map.end())
 	  return isi->second->clone();
-	isi = dict->acc_formula_map.find(var);
-	if (isi != dict->acc_formula_map.end())
-	  return isi->second->clone();
-	isi = dict->var_formula_map.find(var);
-	if (isi != dict->var_formula_map.end())
-	  return isi->second->clone();
-	assert(0);
-	// Never reached, but some GCC versions complain about
-	// a missing return otherwise.
-	return 0;
+	const bdd_dict::bdd_info& i = dict->bdd_map[var];
+	assert(i.type == bdd_dict::acc || i.type == bdd_dict::var);
+	return i.f->clone();
       }
 
       bdd

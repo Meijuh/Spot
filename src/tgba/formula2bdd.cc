@@ -193,9 +193,9 @@ namespace spot
       while (b != bddtrue)
 	{
 	  int var = bdd_var(b);
-	  bdd_dict::vf_map::const_iterator isi = d->var_formula_map.find(var);
-	  assert(isi != d->var_formula_map.end());
-	  const formula* res = isi->second->clone();
+	  const bdd_dict::bdd_info& i = d->bdd_map[var];
+	  assert(i.type == bdd_dict::var);
+	  const formula* res = i.f->clone();
 
 	  bdd high = bdd_high(b);
 	  if (high == bddfalse)

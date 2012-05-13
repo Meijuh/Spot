@@ -85,12 +85,10 @@ namespace spot
 		if (bdd_high(cube) != bddfalse)
 		  {
 		    int v = bdd_var(cube);
-		    bdd_dict::vf_map::const_iterator vi =
-		      d->acc_formula_map.find(v);
-		    assert(vi != d->acc_formula_map.end());
-		    std::string s = ltl::to_string(vi->second);
-		    if (dynamic_cast<const ltl::atomic_prop*>(vi->second)
-			&& s[0] == '"')
+		    const bdd_dict::bdd_info& i = d->bdd_map[v];
+		    assert(i.type == bdd_dict::acc);
+		    std::string s = ltl::to_string(i.f);
+		    if (is_atomic_prop(i.f) && s[0] == '"')
 		      {
 			// Unquote atomic propositions.
 			s.erase(s.begin());

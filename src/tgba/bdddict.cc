@@ -35,6 +35,7 @@ namespace spot
 {
   bdd_dict::bdd_dict()
     : bdd_allocator(),
+      bdd_map(bdd_varnum()),
       next_to_now(bdd_newpair()),
       now_to_next(bdd_newpair())
   {
@@ -63,9 +64,11 @@ namespace spot
 	f = f->clone();
 	num = allocate_variables(1);
 	var_map[f] = num;
-	var_formula_map[num] = f;
+	bdd_map.resize(bdd_varnum());
+	bdd_map[num].type = var;
+	bdd_map[num].f = f;
       }
-    var_refs[num].insert(for_me);
+    bdd_map[num].refs.insert(for_me);
     return num;
   }
 
@@ -75,9 +78,11 @@ namespace spot
     if (f == bddtrue || f == bddfalse)
       return;
 
-    vf_map::iterator i = var_formula_map.find(bdd_var(f));
-    assert(i != var_formula_map.end());
-    var_refs[i->first].insert(for_me);
+    int v = bdd_var(f);
+    assert(unsigned(v) < bdd_map.size());
+    bdd_info& i = bdd_map[v];
+    assert(i.type == var);
+    i.refs.insert(for_me);
 
     register_propositions(bdd_high(f), for_me);
     register_propositions(bdd_low(f), for_me);
@@ -98,13 +103,17 @@ namespace spot
 	f = f->clone();
 	num = allocate_variables(2);
 	now_map[f] = num;
-	now_formula_map[num] = f;
+	bdd_map.resize(bdd_varnum());
+	bdd_map[num].type = now;
+	bdd_map[num].f = f;
+	bdd_map[num + 1].type = next;
+	bdd_map[num + 1].f = f;
 	// Record that num+1 should be renamed as num when
 	// the next state becomes current.
 	bdd_setpair(next_to_now, num + 1, num);
 	bdd_setpair(now_to_next, num, num + 1);
       }
-    var_refs[num].insert(for_me);
+    bdd_map[num].refs.insert(for_me); // Keep only references for now.
     return num;
   }
 
@@ -124,9 +133,13 @@ namespace spot
 	f = f->clone();
 	num = allocate_variables(1);
 	acc_map[f] = num;
-	acc_formula_map[num] = f;
+	bdd_map.resize(bdd_varnum());
+	bdd_info& i = bdd_map[num];
+	i.type = acc;
+	i.f = f;
+	i.clone_counts = 0;
       }
-    var_refs[num].insert(for_me);
+    bdd_map[num].refs.insert(for_me);
     return num;
   }
 
@@ -136,9 +149,11 @@ namespace spot
     if (f == bddtrue || f == bddfalse)
       return;
 
-    vf_map::iterator i = acc_formula_map.find(bdd_var(f));
-    assert(i != acc_formula_map.end());
-    var_refs[i->first].insert(for_me);
+    int v = bdd_var(f);
+    assert(unsigned(v) < bdd_map.size());
+    bdd_info& i = bdd_map[v];
+    assert(i.type == acc);
+    i.refs.insert(for_me);
 
     register_acceptance_variables(bdd_high(f), for_me);
     register_acceptance_variables(bdd_low(f), for_me);
@@ -146,14 +161,15 @@ namespace spot
 
 
   int
-  bdd_dict::register_clone_acc(int var, const void* for_me)
+  bdd_dict::register_clone_acc(int v, const void* for_me)
   {
-    vf_map::iterator i = acc_formula_map.find(var);
-    assert(i != acc_formula_map.end());
+    assert(unsigned(v) < bdd_map.size());
+    bdd_info& i = bdd_map[v];
+    assert(i.type == acc);
+
     std::ostringstream s;
     // FIXME: We could be smarter and reuse unused "$n" numbers.
-    s << ltl::to_string(i->second) << "$"
-      << ++clone_counts[var];
+    s << ltl::to_string(i.f) << "$" << ++i.clone_counts;
     const ltl::formula* f =
       ltl::atomic_prop::instance(s.str(),
 				 ltl::default_environment::instance());
@@ -177,8 +193,13 @@ namespace spot
       }
     int res = i->second.register_n(n);
 
+    bdd_map.resize(bdd_varnum());
+
     while (n--)
-      var_refs[res + n].insert(for_me);
+      {
+	bdd_map[res + n].type = anon;
+	bdd_map[res + n].refs.insert(for_me);
+      }
 
     return res;
   }
@@ -188,10 +209,10 @@ namespace spot
   bdd_dict::register_all_variables_of(const void* from_other,
 				      const void* for_me)
   {
-    vr_map::iterator i;
-    for (i = var_refs.begin(); i != var_refs.end(); ++i)
+    bdd_info_map::iterator i;
+    for (i = bdd_map.begin(); i != bdd_map.end(); ++i)
       {
-	ref_set& s = i->second;
+	ref_set& s = i->refs;
 	if (s.find(from_other) != s.end())
 	  s.insert(for_me);
       }
@@ -203,30 +224,21 @@ namespace spot
   }
 
   void
-  bdd_dict::unregister_variable(int var, const void* me)
+  bdd_dict::unregister_variable(int v, const void* me)
   {
-    vr_map::iterator i = var_refs.find(var);
-    assert(i != var_refs.end());
-    unregister_variable(i, me);
-  }
+    assert(unsigned(v) < bdd_map.size());
 
-  void
-  bdd_dict::unregister_variable(vr_map::iterator& cur, const void* me)
-  {
-    ref_set& s = cur->second;
+    ref_set& s = bdd_map[v].refs;
     ref_set::iterator si = s.find(me);
     if (si == s.end())
       return;
 
     s.erase(si);
 
-    int var = cur->first;
     // If var is anonymous, we should reinsert it into the free list
     // of ME's anonymous variables.
-    if (var_formula_map.find(var) == var_formula_map.end()
-	&& now_formula_map.find(var) == now_formula_map.end()
-	&& acc_formula_map.find(var) == acc_formula_map.end())
-      free_anonymous_list_of[me].release_n(var, 1);
+    if (bdd_map[v].type == anon)
+      free_anonymous_list_of[me].release_n(v, 1);
 
     if (!s.empty())
       return;
@@ -236,65 +248,52 @@ namespace spot
     // if this is a Now, a Var, or an Acc variable.
     int n = 1;
     const ltl::formula* f = 0;
-    vf_map::iterator vi = var_formula_map.find(var);
-    if (vi != var_formula_map.end())
+    switch (bdd_map[v].type)
       {
-	f = vi->second;
+      case var:
+	f = bdd_map[v].f;
 	var_map.erase(f);
-	var_formula_map.erase(vi);
-      }
-    else
-      {
-	vi = now_formula_map.find(var);
-	if (vi != now_formula_map.end())
-	  {
-	    f = vi->second;
-	    now_map.erase(f);
-	    now_formula_map.erase(vi);
-	    n = 2;
-	    bdd_setpair(next_to_now, var + 1, var + 1);
-	    bdd_setpair(now_to_next, var, var);
-	  }
-	else
-	  {
-	    vi = acc_formula_map.find(var);
-	    if (vi != acc_formula_map.end())
-	      {
-		f = vi->second;
-		acc_map.erase(f);
-		acc_formula_map.erase(vi);
-	      }
-	    else
-	      {
-		free_anonymous_list_of_type::iterator i;
-		// Nobody use this variable as an anonymous variable
-		// anymore, so remove it entirely from the anonymous
-		// free list so it can be used for something else.
-		for (i = free_anonymous_list_of.begin();
-		     i != free_anonymous_list_of.end(); ++i)
-		  i->second.remove(var, n);
-	      }
-	  }
+	break;
+      case now:
+	f = bdd_map[v].f;
+	now_map.erase(f);
+	bdd_setpair(now_to_next, v, v);
+	bdd_setpair(next_to_now, v + 1, v + 1);
+	n = 2;
+	break;
+      case next:
+	break;
+      case acc:
+	f = bdd_map[v].f;
+	acc_map.erase(f);
+	break;
+      case anon:
+	{
+	  free_anonymous_list_of_type::iterator i;
+	  // Nobody use this variable as an anonymous variable
+	  // anymore, so remove it entirely from the anonymous
+	  // free list so it can be used for something else.
+	  for (i = free_anonymous_list_of.begin();
+	       i != free_anonymous_list_of.end(); ++i)
+	    i->second.remove(v, n);
+	  break;
+	}
       }
     // Actually release the associated BDD variables, and the
     // formula itself.
-    release_variables(var, n);
+    release_variables(v, n);
     if (f)
       f->destroy();
-    var_refs.erase(cur);
+    while (n--)
+      bdd_map[v + n].type = anon;
   }
 
   void
   bdd_dict::unregister_all_my_variables(const void* me)
   {
-    vr_map::iterator i;
-    for (i = var_refs.begin(); i != var_refs.end();)
-      {
-	// Increment i++ now, we will possibly erase
-	// the current node (which would invalidate the iterator).
-	vr_map::iterator cur = i++;
-	unregister_variable(cur, me);
-      }
+    unsigned s = bdd_map.size();
+    for (unsigned i = 0; i < s; ++i)
+      unregister_variable(i, me);
     free_anonymous_list_of.erase(me);
   }
 
@@ -304,7 +303,7 @@ namespace spot
     fv_map::iterator fi = var_map.find(f);
     if (fi == var_map.end())
       return false;
-    ref_set& s = var_refs[fi->second];
+    ref_set& s = bdd_map[fi->second].refs;
     return s.find(by_me) != s.end();
   }
 
@@ -314,59 +313,59 @@ namespace spot
     fv_map::iterator fi = now_map.find(f);
     if (fi == now_map.end())
       return false;
-    ref_set& s = var_refs[fi->second];
+    ref_set& s = bdd_map[fi->second].refs;
     return s.find(by_me) != s.end();
   }
 
   bool
   bdd_dict::is_registered_acceptance_variable(const ltl::formula* f,
-					     const void* by_me)
+					      const void* by_me)
   {
     fv_map::iterator fi = acc_map.find(f);
     if (fi == acc_map.end())
       return false;
-    ref_set& s = var_refs[fi->second];
+    ref_set& s = bdd_map[fi->second].refs;
     return s.find(by_me) != s.end();
   }
 
   std::ostream&
   bdd_dict::dump(std::ostream& os) const
   {
-    fv_map::const_iterator fi;
-    os << "Atomic Propositions:" << std::endl;
-    for (fi = var_map.begin(); fi != var_map.end(); ++fi)
+    os << "Variable Map:\n";
+    unsigned s = bdd_map.size();
+    for (unsigned i = 0; i < s; ++i)
       {
-	os << "  " << fi->second << " (x"
-	   << var_refs.find(fi->second)->second.size() << "): ";
-	to_string(fi->first, os) << std::endl;
+	os << " " << i << " ";
+	const bdd_info& r = bdd_map[i];
+	switch (r.type)
+	  {
+	  case anon:
+	    os << (r.refs.empty() ? "Free" : "Anon");
+	    break;
+	  case now:
+	    os << "Now[" << to_string(r.f) << "]";
+	    break;
+	  case next:
+	    os << "Next[" << to_string(r.f) << "]";
+	    break;
+	  case acc:
+	    os << "Acc[" << to_string(r.f) << "]";
+	    break;
+	  case var:
+	    os << "Var[" << to_string(r.f) << "]";
+	    break;
+	  }
+	if (!r.refs.empty())
+	  {
+	    os << " x" << r.refs.size() << " {";
+	    for (ref_set::const_iterator si = r.refs.begin();
+		 si != r.refs.end(); ++si)
+	      os << " " << *si;
+	    os << " }";
+	  }
+	os << "\n";
       }
-    os << "States:" << std::endl;
-    for (fi = now_map.begin(); fi != now_map.end(); ++fi)
-      {
-	int refs = var_refs.find(fi->second)->second.size();
-	os << "  " << fi->second << " (x" << refs << "): Now[";
-	to_string(fi->first, os) << "]" << std::endl;
-	os << "  " << fi->second + 1 << " (x" << refs << "): Next[";
-	to_string(fi->first, os) << "]" << std::endl;
-      }
-    os << "Acceptance Conditions:" << std::endl;
-    for (fi = acc_map.begin(); fi != acc_map.end(); ++fi)
-      {
-	os << "  " << fi->second << " (x"
-	   << var_refs.find(fi->second)->second.size() << "): Acc[";
-	to_string(fi->first, os) << "]" << std::endl;
-      }
-    os << "Ref counts:" << std::endl;
-    vr_map::const_iterator ri;
-    for (ri = var_refs.begin(); ri != var_refs.end(); ++ri)
-      {
-	os << "  " << ri->first << " :";
-	for (ref_set::const_iterator si = ri->second.begin();
-	     si != ri->second.end(); ++si)
-	  os << " " << *si;
-	os << std::endl;
-      }
-    os << "Anonymous lists:" << std::endl;
+    os << "Anonymous lists:\n";
     free_anonymous_list_of_type::const_iterator ai;
     for (ai = free_anonymous_list_of.begin();
 	 ai != free_anonymous_list_of.end(); ++ai)
@@ -374,7 +373,7 @@ namespace spot
 	os << "  [" << ai->first << "] ";
 	ai->second.dump_free_list(os) << std::endl;
       }
-    os << "Free list:" << std::endl;
+    os << "Free list:\n";
     dump_free_list(os);
     os << std::endl;
     return os;
@@ -384,36 +383,62 @@ namespace spot
   bdd_dict::assert_emptiness() const
   {
     bool fail = false;
+
+    bool var_seen = false;
+    bool acc_seen = false;
+    bool now_seen = false;
+    bool next_seen = false;
+    bool refs_seen = false;
+    unsigned s = bdd_map.size();
+    for (unsigned i = 0; i < s; ++i)
+      {
+	switch (bdd_map[i].type)
+	  {
+	  case var:
+	    var_seen = true;
+	    break;
+	  case acc:
+	    acc_seen = true;
+	    break;
+	  case now:
+	    now_seen = true;
+	    break;
+	  case next:
+	    next_seen = true;
+	    break;
+	  case anon:
+	    break;
+	  }
+	refs_seen |= !bdd_map[i].refs.empty();
+      }
     if (var_map.empty()
 	&& now_map.empty()
 	&& acc_map.empty())
       {
-	if (!var_formula_map.empty())
+	if (var_seen)
 	  {
-	    std::cerr << "var_map is empty but var_formula_map is not"
-		      << std::endl;
+	    std::cerr << "var_map is empty but Var in map" << std::endl;
 	    fail = true;
 	  }
-	if (!now_formula_map.empty())
+	if (now_seen)
 	  {
-	    std::cerr << "now_map is empty but now_formula_map is not"
-		      << std::endl;
+	    std::cerr << "now_map is empty but Now in map" << std::endl;
 	    fail = true;
 	  }
-	if (!acc_formula_map.empty())
+	else if (next_seen)
 	  {
-	    std::cerr << "acc_map is empty but acc_formula_map is not"
-		      << std::endl;
+	    std::cerr << "Next variable seen (without Now) in map" << std::endl;
 	    fail = true;
 	  }
-	if (!var_refs.empty())
+	if (acc_seen)
+	  {
+	    std::cerr << "acc_map is empty but Acc in map" << std::endl;
+	    fail = true;
+	  }
+	if (refs_seen)
 	  {
 	    std::cerr << "maps are empty but var_refs is not" << std::endl;
 	    fail = true;
-	    vr_map::const_iterator i;
-	    for (i = var_refs.begin(); i != var_refs.end(); ++i)
-	      std::cerr << " " << i->first << ":" << i->second.size();
-	    std::cerr << std::endl;
 	  }
 	if (!fail)
 	  return;

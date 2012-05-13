@@ -51,50 +51,37 @@ namespace spot
 
   /// Stream handler used by Buddy to display BDD variables.
   static void
-  print_handler(std::ostream& o, int var)
+  print_handler(std::ostream& o, int v)
   {
-    bdd_dict::vf_map::const_iterator isi =
-      dict->var_formula_map.find(var);
-    if (isi != dict->var_formula_map.end())
-      to_string(isi->second, o);
-    else
+    assert(unsigned(v) < dict->bdd_map.size());
+    const bdd_dict::bdd_info& ref = dict->bdd_map[v];
+    switch (ref.type)
       {
-	isi = dict->acc_formula_map.find(var);
-	if (isi != dict->acc_formula_map.end())
+      case bdd_dict::var:
+	to_string(ref.f, o);
+	break;
+      case bdd_dict::acc:
+	if (want_acc)
 	  {
-	    if (want_acc)
-	      {
-		o << "Acc[";
-		print_ltl(isi->second, o) << "]";
-	      }
-	    else
-	      {
-		o << "\"";
-		print_ltl(isi->second, o) << "\"";
-	      }
+	    o << "Acc[";
+	    print_ltl(ref.f, o) << "]";
 	  }
 	else
 	  {
-	    isi = dict->now_formula_map.find(var);
-	    if (isi != dict->now_formula_map.end())
-	      {
-		o << "Now[";
-		print_ltl(isi->second, o) << "]";
-	      }
-	    else
-	      {
-		isi = dict->now_formula_map.find(var - 1);
-		if (isi != dict->now_formula_map.end())
-		  {
-		    o << "Next[";
-		    print_ltl(isi->second, o) << "]";
-		  }
-		else
-		  {
-		    o << "?" << var;
-		  }
-	      }
+	    o << "\"";
+	    print_ltl(ref.f, o) << "\"";
 	  }
+	break;
+      case bdd_dict::now:
+	o << "Now[";
+	print_ltl(ref.f, o) << "]";
+	break;
+      case bdd_dict::next:
+	o << "Next[";
+	print_ltl(ref.f, o) << "]";
+	break;
+      case bdd_dict::anon:
+	o << "?" << v;
       }
   }
 

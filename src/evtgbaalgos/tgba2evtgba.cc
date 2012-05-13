@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -90,7 +91,7 @@ namespace spot
 		if (low == bddfalse)
 		  {
 		    const ltl::formula* v =
-		      aut_->get_dict()->var_formula_map[bdd_var(one)];
+		      aut_->get_dict()->bdd_map[bdd_var(one)].f;
 		    res->add_transition(name_[in],
 					to_string(v),
 					ss,
@@ -125,7 +126,7 @@ namespace spot
 		if (low == bddfalse)
 		  {
 		    const ltl::formula* v =
-		      aut_->get_dict()->acc_formula_map[bdd_var(one)];
+		      aut_->get_dict()->bdd_map[bdd_var(one)].f;
 		    ss.insert(rsymbol(to_string(v)));
 		    break;
 		  }

@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -29,6 +30,7 @@
 #include <map>
 #include <iosfwd>
 #include <bdd.h>
+#include <vector>
 #include "ltlast/formula.hh"
 #include "misc/bddalloc.hh"
 
@@ -57,15 +59,23 @@ namespace spot
     typedef std::map<int, const ltl::formula*> vf_map;
 
     fv_map now_map;		///< Maps formulae to "Now" BDD variables
-    vf_map now_formula_map;	///< Maps "Now" BDD variables to formulae
     fv_map var_map;		///< Maps atomic propositions to BDD variables
-    vf_map var_formula_map;     ///< Maps BDD variables to atomic propositions
     fv_map acc_map;		///< Maps acceptance conditions to BDD variables
-    vf_map acc_formula_map;	///< Maps BDD variables to acceptance conditions
 
-    /// Clone counts.
-    typedef std::map<int, int> cc_map;
-    cc_map clone_counts;
+    /// BDD-variable reference counts.
+    typedef std::set<const void*> ref_set;
+
+    enum var_type { anon = 0, now, next, var, acc };
+    struct bdd_info {
+      bdd_info() : type(anon) {}
+      var_type type;
+      const ltl::formula* f;	// Used unless t==anon.
+      ref_set refs;
+      int clone_counts;
+    };
+    typedef std::vector<bdd_info> bdd_info_map;
+    // Map BDD variables to their meaning.
+    bdd_info_map bdd_map;
 
     /// \brief Map Next variables to Now variables.
     ///
@@ -182,13 +192,6 @@ namespace spot
     void assert_emptiness() const;
 
   protected:
-    /// BDD-variable reference counts.
-    typedef std::set<const void*> ref_set;
-    typedef std::map<int, ref_set> vr_map;
-    vr_map var_refs;
-
-    void unregister_variable(vr_map::iterator& cur, const void* me);
-
     // SWIG does not grok the following definition, no idea why.
     // It's not important for the Python interface anyway.
 #ifndef SWIG
