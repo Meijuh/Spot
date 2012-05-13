@@ -168,7 +168,7 @@ namespace spot
       mark_tools mt;
 
       typedef bdd_dict::fv_map fv_map;
-      typedef bdd_dict::vf_map vf_map;
+      typedef std::vector<const formula*> vf_map;
 
       fv_map next_map;	       ///< Maps "Next" variables to BDD variables
       vf_map next_formula_map; ///< Maps BDD variables to "Next" variables
@@ -256,6 +256,7 @@ namespace spot
 	    f = f->clone();
 	    num = dict->register_anonymous_variables(1, this);
 	    next_map[f] = num;
+	    next_formula_map.resize(bdd_varnum());
 	    next_formula_map[num] = f;
 	  }
 	next_set &= bdd_ithvar(num);
@@ -280,12 +281,15 @@ namespace spot
       const formula*
       var_to_formula(int var) const
       {
-	vf_map::const_iterator isi = next_formula_map.find(var);
-	if (isi != next_formula_map.end())
-	  return isi->second->clone();
 	const bdd_dict::bdd_info& i = dict->bdd_map[var];
-	assert(i.type == bdd_dict::acc || i.type == bdd_dict::var);
-	return i.f->clone();
+	if (i.type != bdd_dict::anon)
+	  {
+	    assert(i.type == bdd_dict::acc || i.type == bdd_dict::var);
+	    return i.f->clone();
+	  }
+	const formula* f = next_formula_map[var];
+	assert(f);
+	return f->clone();
       }
 
       bdd
