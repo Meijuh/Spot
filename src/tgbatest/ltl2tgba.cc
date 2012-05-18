@@ -623,15 +623,15 @@ main(int argc, char** argv)
         {
           reduction_dir_sim = true;
         }
-      else if (!strcmp(argv[formula_index], "-Rm"))
-        {
-          opt_minimize = true;
-        }
-      else if (!strcmp(argv[formula_index], "-rs"))
+      else if (!strcmp(argv[formula_index], "-rL"))
         {
 	  simpltl = true;
 	  redopt.reduce_basics = true;
 	  redopt.reduce_size_strictly = true;
+        }
+      else if (!strcmp(argv[formula_index], "-Rm"))
+        {
+          opt_minimize = true;
         }
       else if (!strcmp(argv[formula_index], "-M"))
         {
