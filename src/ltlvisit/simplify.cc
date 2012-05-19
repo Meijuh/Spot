@@ -4103,6 +4103,18 @@ namespace spot
       if (g == constant::true_instance()
 	  || f == constant::false_instance())
 	return true;
+      if (g == constant::false_instance()
+	  || f == constant::true_instance())
+	return false;
+
+      // Often we compare a literals (an atomic_prop or its negation)
+      // to another literal.  The result is necessarily false. To be
+      // true, the two literals would have to be equal, be we have
+      // already checked that.
+      if (f->is_in_nenoform() && g->is_in_nenoform()
+	  && (is_atomic_prop(f) || is_unop(f, unop::Not))
+	  && (is_atomic_prop(g) || is_unop(g, unop::Not)))
+	return false;
 
       // Cache lookup
       {
