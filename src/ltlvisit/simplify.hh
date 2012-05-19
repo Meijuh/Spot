@@ -24,6 +24,7 @@
 #include "ltlast/formula.hh"
 #include "bdd.h"
 #include "tgba/bdddict.hh"
+#include <iosfwd>
 
 namespace spot
 {
@@ -135,6 +136,9 @@ namespace spot
 
       /// Cached version of spot::ltl::star_normal_form().
       const formula* star_normal_form(const formula* f);
+
+      /// Dump statistics about the caches.
+      void print_stats(std::ostream& os) const;
 
     private:
       ltl_simplifier_cache* cache_;

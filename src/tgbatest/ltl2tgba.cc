@@ -177,6 +177,7 @@ syntax(char* prog)
 	    << "  -r6   reduce formula using tau03+" << std::endl
 	    << "  -r7   reduce formula using tau03+ and -r4" << std::endl
 	    << "  -rd   display the reduced formula" << std::endl
+	    << "  -rD   dump statistics about the simplifier cache" << std::endl
 	    << "  -rL   disable basic rewritings producing larger formulas"
 	    << std::endl << std::endl
 
@@ -305,6 +306,7 @@ main(int argc, char** argv)
   bool simpltl = false;
   spot::ltl::ltl_simplifier_options redopt(false, false, false, false,
 					   false, false, false);
+  bool simpcache_stats = false;
   bool scc_filter_all = false;
   bool symbolic_scc_pruning = false;
   bool display_reduced_form = false;
@@ -619,6 +621,10 @@ main(int argc, char** argv)
 	{
 	  display_reduced_form = true;
 	}
+      else if (!strcmp(argv[formula_index], "-rD"))
+	{
+	  simpcache_stats = true;
+	}
       else if (!strcmp(argv[formula_index], "-RDS"))
         {
           reduction_dir_sim = true;
@@ -879,6 +885,23 @@ main(int argc, char** argv)
 	  tm.stop("translating formula");
 	  to_free = a;
 
+	  if (simp && simpcache_stats)
+	    {
+	      simp->print_stats(std::cerr);
+	      bddStat s;
+	      bdd_stats(&s);
+	      std::cerr << "BDD produced: " << s.produced
+			<< "\n    nodenum: " << s.nodenum
+			<< "\n    maxnodenum: " << s.maxnodenum
+			<< "\n    freenodes: " <<  s.freenodes
+			<< "\n    minfreenodes: " << s.minfreenodes
+			<< "\n    varnum: " <<  s.varnum
+			<< "\n    cachesize: " << s.cachesize
+			<< "\n    gbcnum: " << s.gbcnum
+			<< std::endl;
+	      bdd_fprintstat(stderr);
+	      dict->dump(std::cerr);
+	    }
 	  delete simp;
 	}
 

@@ -121,6 +121,16 @@ namespace spot
 	opt.containment_checks |= opt.containment_checks_stronger;
       }
 
+      void
+      print_stats(std::ostream& os) const
+      {
+	os << "simplified formulae:    " << simplified_.size() << " entries\n"
+	   << "negative normal form:   " << nenoform_.size() << " entries\n"
+	   << "syntactic implications: " << syntimpl_.size() << " entries\n"
+	   << "boolean to bdd:         " << as_bdd_.size() << " entries\n"
+	   << "star normal form:       " << snf_cache_.size() << " entries\n";
+      }
+
       // Convert a Boolean formula into a BDD for easier comparison.
       bdd
       as_bdd(const formula* f)
@@ -4248,6 +4258,13 @@ namespace spot
     {
       return cache_->dict;
     }
+
+    void
+    ltl_simplifier::print_stats(std::ostream& os) const
+    {
+      cache_->print_stats(os);
+    }
+
 
   }
 }
