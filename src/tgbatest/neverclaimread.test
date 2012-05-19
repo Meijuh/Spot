@@ -1,6 +1,7 @@
 #!/bin/sh
-# Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# -*- coding: utf-8 -*-
+# Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+# DÃ©veloppement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -55,7 +56,7 @@ digraph G {
   2 -> 3 [label="p1 & !p0\n"]
   2 -> 2 [label="!p1\n"]
   2 -> 1 [label="!p1\n"]
-  3 [label="accept_all"]
+  3 [label="accept_all", peripheries=2]
   3 -> 3 [label="1\n{Acc[1]}"]
 }
 EOF

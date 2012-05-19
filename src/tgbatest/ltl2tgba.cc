@@ -826,6 +826,7 @@ main(int argc, char** argv)
 		  delete dict;
 		  return 2;
 		}
+	      assume_sba = true;
 	    }
 	  e->merge_transitions();
 	}
@@ -947,6 +948,7 @@ main(int argc, char** argv)
 	  tm.start("reducing A_f w/ SCC");
 	  aut_scc = a = spot::scc_filter(a, scc_filter_all);
 	  tm.stop("reducing A_f w/ SCC");
+	  assume_sba = false;
 	}
 
       const spot::tgba* degeneralized = 0;
@@ -988,6 +990,7 @@ main(int argc, char** argv)
           temp_dir_sim = spot::simulation(a);
           a = temp_dir_sim;
           tm.stop("Reduction w/ direct simulation");
+	  assume_sba = false;
         }
 
 
