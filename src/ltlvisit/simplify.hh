@@ -131,6 +131,15 @@ namespace spot
       /// to the constructor.
       bdd as_bdd(const formula* f);
 
+      /// \brief Clear the as_bdd() cache.
+      ///
+      /// Calling this function is recommended before running other
+      /// algorithms that create BDD variables in a more natural
+      /// order.  For instance ltl_to_tgba_fm() will usually be more
+      /// efficient if the BDD variables for atomic propositions have
+      /// not been ordered before hand.
+      void clear_as_bdd_cache();
+
       /// Return the bdd_dict used.
       bdd_dict* get_dict() const;
 

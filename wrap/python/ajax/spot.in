@@ -391,6 +391,8 @@ if dored:
     f2 = simp.simplify(f)
     f.destroy()
     f = f2
+    # This also clears the as_bdd() cache.
+    simp = None
 
 # Formula manipulation only.
 if output_type == 'f':

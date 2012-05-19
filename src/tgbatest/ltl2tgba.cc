@@ -849,6 +849,9 @@ main(int argc, char** argv)
 		  else
 		    std::cout << spot::ltl::to_string(f) << std::endl;
 		}
+	      // This helps ltl_to_tgba_fm() to order BDD variables in
+	      // a more natural way.
+	      simp->clear_as_bdd_cache();
 	    }
 
 	  if (f->is_psl_formula()

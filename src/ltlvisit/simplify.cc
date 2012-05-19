@@ -131,6 +131,19 @@ namespace spot
 	   << "star normal form:       " << snf_cache_.size() << " entries\n";
       }
 
+      void
+      clear_as_bdd_cache()
+      {
+	f2b_map::iterator i = as_bdd_.begin();
+	f2b_map::iterator end = as_bdd_.end();
+	while (i != end)
+	  {
+	    f2b_map::iterator old = i++;
+	    old->first->destroy();
+	  }
+	as_bdd_.clear();
+      }
+
       // Convert a Boolean formula into a BDD for easier comparison.
       bdd
       as_bdd(const formula* f)
@@ -4277,6 +4290,11 @@ namespace spot
       cache_->print_stats(os);
     }
 
+    void
+    ltl_simplifier::clear_as_bdd_cache()
+    {
+      cache_->clear_as_bdd_cache();
+    }
 
   }
 }
