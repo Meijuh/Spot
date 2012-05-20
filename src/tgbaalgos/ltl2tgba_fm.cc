@@ -236,6 +236,36 @@ namespace spot
       int
       register_a_variable(const formula* f)
       {
+	// A promise of 'x', noted P(x) is pretty much like the F(x)
+	// LTL formula, it ensure that 'x' will be fulfilled (= not
+	// promised anymore) eventually.
+	// So   a U b = ((a&Pb) W b)
+	//      a U (b U c) = (a&P(b U c)) W (b&P(c) W c)
+	// the latter encoding may be simplified to
+	//      a U (b U c) = (a&P(c)) W (b&P(c) W c)
+	//
+	// Similarly
+	//      a M b = (a R (b&P(a)))
+	//      (a M b) M c = (a R (b & Pa)) R (c & P(a M b))
+	//                  = (a R (b & Pa)) R (c & P(a))
+	// The rules also apply to F:
+	//   P(F(a)) = P(a)
+      again:
+	while (const binop* b = is_binop(f))
+	  {
+	    binop::type op = b->op();
+	    if (op == binop::U)
+	      f = b->second();
+	    else if (op == binop::M)
+	      f = b->first();
+	    else
+	      break;
+	  }
+	if (const unop* u = is_unop(f, unop::F))
+	  {
+	    f = u->child();
+	    goto again;
+	  }
 	int num = dict->register_acceptance_variable(f, this);
 	a_set &= bdd_ithvar(num);
 	return num;
