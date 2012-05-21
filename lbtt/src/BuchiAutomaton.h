@@ -69,10 +69,10 @@ public:
     ~BuchiState();                                  /* Destructor. */
 
     /* `edges' inherited from Graph<GraphEdgeContainer>::Node */
-    
+
     BitArray& acceptanceSets();                     /* Tell the acceptance  */
     const BitArray& acceptanceSets() const;         /* status of the state. */
-    
+
     void print                                      /* Writes information   */
       (ostream& stream,                             /* about the state to a */
        const int indent,                            /* stream.              */
@@ -84,7 +84,12 @@ public:
        const GraphOutputFormat fmt,
        const unsigned long int
          number_of_acceptance_sets)
-      const;     
+      const;
+
+    bool isDeterministic() const;     		    /* Checks wheter there is
+						     * any nondeterminism on
+						     * outgoing transitions.
+						     */
 
   private:
     BuchiState(const BuchiState&);                  /* Prevent copying and */
@@ -182,6 +187,13 @@ public:
                                                      * (determined by the
                                                      * `fmt' argument).
 						     */
+  bool isDeterministic() const;                     /* Checks whether
+                                                     * the automaton
+                                                     * is deterministic.
+						     */
+  unsigned long int nondeterminismIndex() const;    /* Computes the
+                                                     * nondeterminism index.
+						     */
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
@@ -225,7 +237,7 @@ public:
   ~BuchiTransition();                               /* Destructor. */
 
   /* `targetNode' inherited from Graph<GraphEdgeContainer>::Edge */
-    
+
   bool enabled                                      /* These functions test */
     (const BitArray& truth_assignment,              /* whether the          */
      const unsigned long int assignment_size)       /* transition is        */
@@ -249,7 +261,7 @@ public:
     (ostream& stream,                               /* about the transition */
      const int indent,                              /* (as a plain graph    */
      const GraphOutputFormat fmt) const;            /* edge) to a stream.   */
-    
+
   void print                                        /* Writes information   */
     (ostream& stream,                               /* about the transition */
      const int indent,                              /* to a stream in       */
@@ -534,7 +546,7 @@ inline BuchiAutomaton::BuchiTransition::BuchiTransition
  * Description:   Constructor for class BuchiAutomaton::BuchiTransition.
  *                Initializes a new transition to a BuchiState, guarded by an
  *                LtlFormula (which is actually a propositional formula).
- *                
+ *
  * Arguments:     target    --  Identifier of the target state of the
  *                              automaton.
  *                formula   --  A pointer to a propositional formula guarding
@@ -553,7 +565,7 @@ inline BuchiAutomaton::BuchiTransition::BuchiTransition
 /* ========================================================================= */
 inline BuchiAutomaton::BuchiTransition::~BuchiTransition()
 /* ----------------------------------------------------------------------------
- * 
+ *
  * Description:   Destructor for class BuchiAutomaton::BuchiTransition.
  *
  * Arguments:     None.
@@ -651,7 +663,7 @@ inline bool BuchiAutomaton::BuchiTransition::enabled
  *                the truth assignment.
  *
  * ------------------------------------------------------------------------- */
-{ 
+{
   return guard_formula->evaluate(truth_assignment, assignment_size);
 }
 
@@ -670,7 +682,7 @@ inline bool BuchiAutomaton::BuchiTransition::enabled
  *                the truth assignment.
  *
  * ------------------------------------------------------------------------- */
-{ 
+{
   return enabled(truth_assignment, truth_assignment.capacity());
 }
 
@@ -754,7 +766,7 @@ inline void BuchiAutomaton::BuchiTransition::print
 
 /* ========================================================================= */
 inline BuchiAutomaton::BuchiState::BuchiState
-  (const unsigned long int num_of_acceptance_sets) : 
+  (const unsigned long int num_of_acceptance_sets) :
   Node(), acceptance_sets(num_of_acceptance_sets)
 /* ----------------------------------------------------------------------------
  *
@@ -867,7 +879,7 @@ inline BuchiAutomaton::AutomatonParseException::AutomatonParseException
  *                         error message.
  *
  * Returns:       Nothing.
- * 
+ *
  * ------------------------------------------------------------------------- */
 {
 }

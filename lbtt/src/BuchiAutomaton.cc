@@ -214,7 +214,7 @@ void BuchiAutomaton::read(istream& input_stream)
 
   clear();
 
-  try 
+  try
   {
     /* Read the number of states in the generalized Büchi automaton. */
 
@@ -271,7 +271,7 @@ void BuchiAutomaton::read(istream& input_stream)
       acceptance_sets_on_states = true;
       acceptance_sets_on_transitions = false;
     }
-      
+
     BitArray acc_sets(number_of_acceptance_sets);
 
     /*
@@ -358,7 +358,7 @@ void BuchiAutomaton::read(istream& input_stream)
         state_mapping.second++;
       }
 
-      /* 
+      /*
        *  Check whether the current state is an initial state. (There must be
        *  exactly one initial state.)
        */
@@ -506,7 +506,7 @@ void BuchiAutomaton::read(istream& input_stream)
 
     if (!initial_state_fixed)
       throw AutomatonParseException("no initial state specified");
-    
+
     if (number_of_processed_states != number_of_states)
       throw AutomatonParseException("incomplete automaton definition");
   }
@@ -535,7 +535,7 @@ void BuchiAutomaton::print
  * Arguments:     stream  --  A reference to an output stream.
  *                indent  --  Number of spaces to leave to the left of output.
  *                fmt     --  Determines the format of the output.
- * 
+ *
  * Returns:       Nothing.
  *
  * ------------------------------------------------------------------------- */
@@ -641,7 +641,85 @@ void BuchiAutomaton::print
   estream.flush();
 }
 
+/* ========================================================================= */
+bool BuchiAutomaton::BuchiState::isDeterministic() const
+/* ----------------------------------------------------------------------------
+ *
+ * Description:   Checks whether there is any nondeterminism
+ *                on the outgoing transitions.
+ *
+ * Arguments:     None.
+ *
+ * Returns:       True iff the state is deterministic.
+ *
+ * ------------------------------------------------------------------------- */
+{
+  size_type size = edges().size();
 
+  if (size <= 1)
+    return true;
+
+  for (int i = 0; i < size - 1; i++)
+  {
+    for (int j = i + 1; j < size; j++)
+    {
+      Ltl::LtlFormula *f =
+	&Ltl::And::construct((static_cast<BuchiTransition*> (edges()[i]))->guard(),
+			     (static_cast<BuchiTransition*> (edges()[j]))->guard());
+      if (f->satisfiable())
+      {
+	Ltl::LtlFormula::destruct(f);
+	return false;
+      }
+      else
+      {
+	Ltl::LtlFormula::destruct(f);
+      }
+    }
+  }
+  return true;
+}
+
+/* ========================================================================= */
+bool BuchiAutomaton::isDeterministic() const
+/* ----------------------------------------------------------------------------
+ *
+ * Description:   Checks whether the automaton is deterministic.
+ *
+ * Arguments:     None.
+ *
+ * Returns:       True iff the automaton is deterministic.
+ *
+ * ------------------------------------------------------------------------- */
+{
+  unsigned long int index = 0;
+  vector<Node*>::const_iterator node;
+  for (node = nodes.begin(); node != nodes.end(); ++node)
+    if (!(static_cast<BuchiState*>(*node))->isDeterministic())
+      return false;
+  return true;
+}
+
+/* ========================================================================= */
+unsigned long int BuchiAutomaton::nondeterminismIndex() const
+/* ----------------------------------------------------------------------------
+ *
+ * Description:   Computes the nondeterminism index for the automaton.
+ *                I.e., the number for nondeterministic states.
+ *
+ * Arguments:     None.
+ *
+ * Returns:       Nondeterminism index.
+ *
+ * ------------------------------------------------------------------------- */
+{
+  unsigned long int index = 0;
+  vector<Node*>::const_iterator node;
+  for (node = nodes.begin(); node != nodes.end(); ++node)
+    if (!(static_cast<BuchiState*>(*node))->isDeterministic())
+      index++;
+  return index;
+}
 
 /******************************************************************************
  *
@@ -753,7 +831,7 @@ void BuchiAutomaton::BuchiState::print
  *                number_of_acceptance_sets  --  Number of acceptance sets in
  *                                               the automaton in which the
  *                                               state belongs.
- * 
+ *
  * Returns:       Nothing.
  *
  * ------------------------------------------------------------------------ */

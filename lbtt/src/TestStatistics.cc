@@ -84,6 +84,7 @@ void AlgorithmTestResults::fullReset()
     automaton_stats[i].number_of_buchi_transitions = 0;
     automaton_stats[i].number_of_acceptance_sets = 0;
     automaton_stats[i].number_of_msccs = 0;
+    automaton_stats[i].nondeterminism_index = 0;
     automaton_stats[i].buchi_generation_time = 0.0;
     
     for (vector<int>::iterator it

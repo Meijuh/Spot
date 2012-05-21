@@ -102,6 +102,13 @@ struct AutomatonStats
                                                      * automaton.
                                                      */
 
+  unsigned long int nondeterminism_index;           /* Nondeterminism index
+                                                     */
+
+  bool is_deterministic;                            /* True if the automaton
+                                                     * is deterministic
+                                                     */
+
   double buchi_generation_time;                     /* Time used to generate a
                                                      * Büchi automaton.
 						     */
@@ -284,6 +291,14 @@ struct TestStatistics
 						     * automata.
 						     */
 
+  BIGUINT total_nondeterminism_index[2];            /* Total nondetereminism
+                                                     * index for all the
+                                                     * generated Büchi automata.
+                                                     */
+  int total_deterministic_count[2];                 /* Total number of
+                                                     * deterministic automata
+                                                     */
+
   double total_buchi_generation_time[2];            /* Total time used when
                                                      * generating Büchi
                                                      * automata.
@@ -349,10 +364,10 @@ struct TestStatistics
 inline AutomatonStats::AutomatonStats
   (vector<Configuration::AlgorithmInformation>::size_type number_of_algorithms,
    StateSpace::size_type max_statespace_size) :
-  buchi_automaton(0), number_of_buchi_states(0),
+  buchi_automaton(0), number_of_buchi_states(0), nondeterminism_index(0),
   number_of_buchi_transitions(0), number_of_acceptance_sets(0),
   number_of_msccs(0), buchi_generation_time(0.0), number_of_product_states(0),
-  number_of_product_transitions(1),
+  number_of_product_transitions(1), is_deterministic(false),
   emptiness_check_result(max_statespace_size),
   emptiness_check_performed(false),
   cross_comparison_stats(number_of_algorithms, make_pair(false, 0)),
@@ -541,6 +556,8 @@ inline TestStatistics::TestStatistics
     total_number_of_buchi_states[i] = 0;
     total_number_of_buchi_transitions[i] = 0;
     total_number_of_acceptance_sets[i] = 0;
+    total_nondeterminism_index[i] = 0;
+    total_deterministic_count[i] = 0;
     total_number_of_product_states[i] = 0;
     total_number_of_product_transitions[i] = 0;
     total_buchi_generation_time[i] = 0.0;

@@ -1336,6 +1336,10 @@ void generateBuchiAutomaton
     automaton_stats.number_of_buchi_transitions = buchi_stats.second;
     automaton_stats.number_of_acceptance_sets
       = automaton_stats.buchi_automaton->numberOfAcceptanceSets();
+	automaton_stats.nondeterminism_index
+	  = automaton_stats.buchi_automaton->nondeterminismIndex();
+	automaton_stats.is_deterministic
+	  = automaton_stats.buchi_automaton->isDeterministic();
 
     /*
      *  Update Büchi automaton statistics for the given algorithm.
@@ -1347,6 +1351,10 @@ void generateBuchiAutomaton
       += automaton_stats.number_of_buchi_transitions;
     final_statistics[algorithm_id].total_number_of_acceptance_sets[f]
       += automaton_stats.number_of_acceptance_sets;
+    final_statistics[algorithm_id].total_nondeterminism_index[f]
+      += automaton_stats.nondeterminism_index;
+    if (automaton_stats.is_deterministic)
+    	final_statistics[algorithm_id].total_deterministic_count[f]++;
 
     if (final_statistics[algorithm_id].total_buchi_generation_time[f] < 0.0
 	|| automaton_stats.buchi_generation_time < 0.0)

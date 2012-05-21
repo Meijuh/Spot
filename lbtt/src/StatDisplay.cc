@@ -26,6 +26,7 @@
 #include "StatDisplay.h"
 #include "StringUtil.h"
 #include "TestRoundInfo.h"
+#include "Graph.h"
 
 namespace StatDisplay
 {
@@ -101,13 +102,13 @@ void printBuchiAutomatonStats
 {
   Exceptional_ostream estream(&stream, ios::failbit | ios::badbit);
 
-  const AutomatonStats& automaton_stats = 
+  const AutomatonStats& automaton_stats =
     test_results[algorithm].automaton_stats[result_id];
 
   if (configuration.global_options.verbosity <= 2)
   {
     if (!automaton_stats.buchiAutomatonComputed())
-      estream << "      N/A       N/A       N/A  N/A";
+      estream << "      N/A       N/A       N/A  N/A       N/A";
     else
     {
       if (automaton_stats.buchi_generation_time >= 0.0)
@@ -130,6 +131,9 @@ void printBuchiAutomatonStats
       changeStreamFormatting(stream, 4, 0, ios::right);
       estream << automaton_stats.number_of_acceptance_sets;
       restoreStreamFormatting(stream);
+      changeStreamFormatting(stream, 9, 0, ios::right);
+      estream << automaton_stats.nondeterminism_index;
+      restoreStreamFormatting(stream);
     }
     estream << ' ';
   }
@@ -148,9 +152,14 @@ void printBuchiAutomatonStats
                  + '\n' + string(indent, ' ') + "acceptance sets:"
                  + string(7, ' ')
                  + toString(automaton_stats.number_of_acceptance_sets)
+                 + '\n' + string(indent, ' ') + "is deterministic:"
+                 + string(6, ' ')
+                 + (automaton_stats.is_deterministic?"Yes":"No")
+                 + '\n' + string(indent, ' ') + "nondeterminism index:  "
+                 + toString(automaton_stats.nondeterminism_index)
                  + '\n' + string(indent, ' ') + "computation time:"
                  + string(6, ' ');
-    
+
       if (automaton_stats.buchi_generation_time != -1.0)
       {
 	changeStreamFormatting(stream, 9, 2, ios::fixed | ios::left);
@@ -595,7 +604,7 @@ void printBuchiIntersectionCheckStats
 	    }
 	    else
 	      estream << "    ";
-	      
+
 	    estream << ' ' + configuration.algorithmString(*alg_1);
 
 	    if (*alg_1 != alg_2)
@@ -621,7 +630,7 @@ void printBuchiIntersectionCheckStats
   estream << "\n";
   estream.flush();
 }
- 
+
 /* ========================================================================= */
 void printAllStats
   (ostream& stream, int indent,
@@ -723,7 +732,7 @@ void printCollectiveCrossComparisonStats
  * Returns:       Nothing.
  *
  * ------------------------------------------------------------------------- */
-{        
+{
   Exceptional_ostream estream(&stream, ios::failbit | ios::badbit);
 
   estream << ' ';
@@ -783,11 +792,11 @@ void printCollectiveCrossComparisonStats
       changeStreamFormatting(stream, 0, 2, ios::fixed);
       estream << percentage;
       restoreStreamFormatting(stream);
-      
+
       estream << "%)";
 
       if (percentage < 100.0)
-	estream << ' ';    
+	estream << ' ';
       if (percentage < 10.0)
 	estream << ' ';
     }
@@ -1015,7 +1024,7 @@ void printCollectiveStats(ostream& stream, int indent)
                    + '\n';
 	symbol_name_string = symbol_number_string = symbol_distribution_string
 	  = "";
-      }	
+      }
       else
       {
 	symbol_name_string += string(12 - name_string.length(), ' ');
@@ -1089,6 +1098,8 @@ void printCollectiveStats(ostream& stream, int indent)
           unsigned long int number_of_successful_instances;
           BIGUINT total_number_of_states;
           BIGUINT total_number_of_transitions;
+          BIGUINT total_nondeterminism_index;
+          int total_deterministic_count;
 
           const TestStatistics& stats = final_statistics[algorithm];
 
@@ -1243,13 +1254,17 @@ void printCollectiveStats(ostream& stream, int indent)
 	      double buchi_generation_time;
 
 	      estream << '\n' + string(22 + indent, ' ')
-                         + "|    Number of    |  Time consumed  |\n"
+                         + "|    Number of    |  Time consumed  |"
+                         + "    Number of    | Nondeterminism |\n"
 		         + string(22 + indent, ' ')
-                         + "| acceptance sets |    (seconds)    |\n"
+                         + "| acceptance sets |    (seconds)    |"
+	                     + "   determ. aut   |     index      |\n"
 		         + string(7 + indent, ' ') + string(15, '-') + '+';
 
-	      for (int j = 0; j < 2; j++)
+	      for (int j = 0; j < 3; j++)
 		estream << string(17, '-') + '+';
+
+		estream << string(16, '-') + '+';
 
 	      for (int j = 0; j < 3; j++)
 	      {
@@ -1273,6 +1288,10 @@ void printCollectiveStats(ostream& stream, int indent)
 		  buchi_generation_time = stats.total_buchi_generation_time[j];
 		  total_number_of_acceptance_sets
 		    = stats.total_number_of_acceptance_sets[j];
+		  total_deterministic_count
+		  	= stats.total_deterministic_count[j];
+		  total_nondeterminism_index
+		    = stats.total_nondeterminism_index[j];
 		}
 		else
 		{
@@ -1292,6 +1311,12 @@ void printCollectiveStats(ostream& stream, int indent)
 		  total_number_of_acceptance_sets
 		    = stats.total_number_of_acceptance_sets[0]
 		      + stats.total_number_of_acceptance_sets[1];
+		  total_deterministic_count
+		  	= stats.total_deterministic_count[0]
+		  	  + stats.total_deterministic_count[1];
+		  total_nondeterminism_index
+		    = stats.total_nondeterminism_index[0]
+		      + stats.total_nondeterminism_index[1];
 		}
 
 		number_of_successful_instances =
@@ -1331,6 +1356,40 @@ void printCollectiveStats(ostream& stream, int indent)
 		    restoreStreamFormatting(stream);
 		  }
 
+		  estream << " | ";
+
+		  if (number_of_successful_instances == 0)
+		    estream << string(15, ' ');
+		  else
+		  {
+		    changeStreamFormatting(stream, 15, 2,
+					   ios::fixed | ios::right);
+		    if (z == 0)
+		      estream << total_deterministic_count;
+		    else
+		      estream << total_deterministic_count
+			           / static_cast<double>
+			               (number_of_successful_instances);
+		    restoreStreamFormatting(stream);
+		  }
+
+		  estream << " | ";
+
+		  if (number_of_successful_instances == 0)
+		    estream << string(14, ' ');
+		  else
+		  {
+		    changeStreamFormatting(stream, 14, 2,
+					   ios::fixed | ios::right);
+		    if (z == 0)
+		      estream << total_nondeterminism_index;
+		    else
+		      estream << total_nondeterminism_index
+			           / static_cast<double>
+			               (number_of_successful_instances);
+		    restoreStreamFormatting(stream);
+		  }
+
 		  estream << " |";
 		  if (z == 0)
 		    estream << '\n' + string(indent + 15, ' ') + "(avg.) | ";
@@ -1343,7 +1402,7 @@ void printCollectiveStats(ostream& stream, int indent)
 
 	  if (algorithm + 1 < round_info.number_of_translators)
 	    estream << '\n';
-        
+
           break;
         }
 

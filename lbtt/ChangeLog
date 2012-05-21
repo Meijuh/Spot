@@ -1,3 +1,17 @@
+2012-05-21  TomÃ¡Å¡ Babiak  <xbabiak@fi.muni.cz>
+
+	Count deterministic automata and deterministic states.
+
+	* src/BuchiAutomaton.h, src/BuchiAutomaton.cc
+	(BuchiState::isDeterministic, BuchiAutomaton::isDeterministic,
+	BuchiAutomaton::nondeterminismIndex): New methods.
+	* src/TestOperations.cc (generateBuchiAutomaton): Collect
+	nondeterminism indices, and count deterministic automata.
+	* src/TestStatistics.cc, src/TestStatistics.h: Add storage
+	for these statistics.
+	* src/StatDisplay.cc (printBuchiAutomatonStats,
+	printCollectiveStats): Display these statistics.
+
 2012-04-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* doc/gpl.texi: Fix make pdf for newer texinfo.tex.
@@ -336,7 +350,7 @@
 	* src/Product.h, src/SccCollection.h: New files.
 	* src/BuchiProduct.h, src/BuchiProduct.cc, src/StateSpaceProduct.h:
 	New files for providing specializations of the general product
-	computation operation applicable to Büchi automata and state
+	computation operation applicable to BÃ¼chi automata and state
 	spaces.
 
 	* src/Makefile.am: Add BuchiProduct.h, BuchiProduct.cc,
@@ -381,7 +395,7 @@
 	Product interface for constructing the product and checking
 	it for emptiness.
 	(performBuchiIntersectionCheck): Use the Product interface
-	for constructing the intersection of Büchi automata and
+	for constructing the intersection of BÃ¼chi automata and
 	checking it for emptiness.
 
 	* src/UserCommandReader.cc: Do not include the
@@ -412,12 +426,12 @@
 	analyzing a witness for the nonemptiness of a product automaton.
 	(printAutomatonAnalysisResults): Use the Product interface
 	for constructing and analyzing a witness for the nonemptiness
-	of the intersection of two Büchi automata.
+	of the intersection of two BÃ¼chi automata.
 	(printPath): Update parameter list and documentation.  Standardize
 	the output to resemble that produced by printAcceptingCycle.
 	(printAcceptingCycle): Update parameter list and documentation.
 	Display all relevant information about an accepting execution
-	of a Büchi automaton.
+	of a BÃ¼chi automaton.
 
 2004-05-18  Heikki Tauriainen  <heikki.tauriainen@hut.fi>
 
@@ -1053,7 +1067,7 @@
 2003-07-18  Heikki Tauriainen  <heikki.tauriainen@hut.fi>
 
 	* UserCommands.cc (printAutomatonAnalysisResults): Ensure that
-	the states in a witness for the nonemptiness of two Bûchi
+	the states in a witness for the nonemptiness of two BÃ»chi
 	automata are distinct to prevent the truth valuation for the
 	atomic propositions from being defined multiple times in any
 	state of the witness.
