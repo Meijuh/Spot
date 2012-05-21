@@ -1,3 +1,12 @@
++-----------------------------------------------------------------------+
+| This version of LBTT, distributed with Spot, contains several changes |
+| that are not in the original version 1.2.1 released in 2008.          |
+| Unfortunately Heikki Tiaurainen left the TCS lab of TKK and nobody is |
+| maintaining LBTT at TKK currently.  Please report any issue with this |
+| modified version, named 1.2.1a, to <spot@lrde.epita.fr>.  See NEWS    |
+| and ChangeLog for the list of changes.                                |
++-----------------------------------------------------------------------+
+
 lbtt version 1.2.1
 ------------------
 

@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([lbtt], [1.2.1], [heikki.tauriainen@tkk.fi])
+AC_INIT([lbtt], [1.2.1a], [heikki.tauriainen@tkk.fi])
 AC_REVISION([Revision: 1.9])
 AC_CONFIG_SRCDIR([src/main.cc])
 AC_CONFIG_HEADERS([config.h])

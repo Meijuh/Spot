@@ -1,3 +1,12 @@
+2012-05-21  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Make it clearer this is not LBTT 1.2.1.
+
+	* configure.ac: Bump the version number to 1.2.1a.
+	* NEWS: Summarize all changes since 1.2.1.
+	* README: Warn this is not 1.2.1, and add pointers to NEWS and
+	ChangeLog.
+
 2012-05-21  Tomáš Babiak  <xbabiak@fi.muni.cz>
 
 	Count deterministic automata and deterministic states.

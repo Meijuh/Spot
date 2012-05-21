@@ -1,4 +1,4 @@
-lbtt NEWS -- history of user-visible changes.   9 Apr 2008
+lbtt NEWS -- history of user-visible changes.
 Copyright (C) 2008 Heikki Tauriainen
 
    Permission is granted to anyone to make or distribute verbatim copies
@@ -10,9 +10,30 @@ Copyright (C) 2008 Heikki Tauriainen
    provided also that they carry prominent notices stating who last
    changed them.
 
-Please send bug reports to <heikki.tauriainen@tkk.fi>.
++-----------------------------------------------------------------------+
+| This version of LBTT, distributed with Spot, contains several changes |
+| that are not in the original version 1.2.1 released in 2008.          |
+| Unfortunately Heikki Tiaurainen left the TCS lab of TKK and nobody is |
+| maintaining LBTT at TKK currently.  Please report any issue with this |
+| modified version, named 1.2.1a, to <spot@lrde.epita.fr>.  The list of |
+| changes follows (see ChangeLog for details).                          |
++-----------------------------------------------------------------------+
 
-Version 1.2.1
+Version 1.2.1a
+
+* Fix compilation with newer versions of Bison.
+* Fix compilation on Intel's icpc, and with recent version of G++.
+* Fix construction of manual ("make dvi" and "make pdf") for recent
+  version of texinfo.
+* Fix generation of random formulae on 64bit machines.  (They were
+  all identical.)
+* Do not complain about missing path to algorithm that are disabled in
+  the config file.
+* Don't rewrite W and M operators for Spot.
+* Count the number of nondeterministic states, and the number of
+  deterministic automata (thanks to TomÃ¡Å¡ Babiak)
+
+Version 1.2.1  (9 Apr 2008)
 
 * Fix compilation and warnings on GCC 4.3 (thanks to Alexandre Duret-Lutz
   for the patch).
@@ -20,7 +41,7 @@ Version 1.2.1
 Version 1.2.0
 
 * This release adds direct support (contributed by Alexandre Duret-Lutz)
-  for the LTL-to-Büchi translator distributed with the Spot model
+  for the LTL-to-BÃ¼chi translator distributed with the Spot model
   checking library (available at <http://spot.lip6.fr/>).
 
   lbtt 1.2.0 also supports reading input formulas from standard input
@@ -58,7 +79,7 @@ Version 1.1.0
       files used with the `--formulafile' command line option may now
       contain formulas in a variety of other formats, such as in the
       infix format used by lbtt for log messages, together with formats
-      used by some LTL-to-Büchi translator implementations (Spin,
+      used by some LTL-to-BÃ¼chi translator implementations (Spin,
       LTL2BA, LTL2AUT, Temporal Massage Parlor, Wring, Spot, LBT).
       These formats can also be used for guard formulas in automaton
       description files (however, lbtt still uses the prefix format in
@@ -95,7 +116,7 @@ Version 1.1.0
      enabled or disabled similarly to the external translators.
 
    - The `consistencyanalysis' and `buchianalysis' commands now show
-     more information about the accepting runs of Büchi automata to
+     more information about the accepting runs of BÃ¼chi automata to
      help examining the runs.  (Because of this change, the runs and
      witnesses may be longer than in previous versions of lbtt.)
 
@@ -210,7 +231,7 @@ Version 1.0.0
   operators:
   ---------------------------------------------------------------
     operator          symbol used in input      symbol used in
-                      files for LTL-to-Büchi    messages
+                      files for LTL-to-BÃ¼chi    messages
                       translators
   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     logical "exclusive or"
@@ -223,7 +244,7 @@ Version 1.0.0
                       B                         B
 
   The ^ operator is also accepted in the transition guard formulas of the
-  Büchi automata that are given to lbtt as input.
+  BÃ¼chi automata that are given to lbtt as input.
 
   Please see the included documentation for a reference on the exact
   semantics of these operators.
@@ -262,7 +283,7 @@ Version 1.0.0
 
           O: --[no]intersectiontest
           C: GlobalOptions.IntersectionTest = Yes | No
-          D: Enable or disable the Büchi automata intersection emptiness
+          D: Enable or disable the BÃ¼chi automata intersection emptiness
              test
 
           O: --profile
@@ -279,7 +300,7 @@ Version 1.0.0
           O: --nooutputnnf
           C: FormulaOptions.OutputMode = Normal
           D: Do not rewrite LTL formulas into negation normal form before
-             passing them to LTL-to Büchi translators
+             passing them to LTL-to BÃ¼chi translators
 
           O: --quiet, --silent
           D: Run all tests silently without interruption
@@ -364,7 +385,7 @@ Version 1.0.0
 
 * The additional programs `aasa_lbt' and `spin_lbt' have been replaced with
   a common `lbtt-translate' utility.  This program does not implement an
-  LTL-to-Büchi translation algorithm, however; a free LTL-to-Büchi
+  LTL-to-BÃ¼chi translation algorithm, however; a free LTL-to-BÃ¼chi
   translator that provides similar functionality to the `aasa_lbt' tool
   included in previous lbtt releases can be obtained via
   <http://www.tcs.hut.fi/Software/maria/tools/lbt/>.
