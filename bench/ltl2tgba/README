@@ -128,38 +128,51 @@ checking for wring2lbtt... wring2lbtt
 =======================
 
 The files small.txt, big.txt, and known.txt contain a summary of the
-results.  Each algorithm is described as two lines formated as
+results.  Each algorithm is described on two lines formated as
 follows.
 
-    6: Spot FM (degen)
-            834 /   2419 /  188 /      2.86      166579 /   8749162   (188)
+ 10: Spot FM (degen)
+        831   2422  188 |    521 157 |      3.01 |    165971   8723693  (188)
 
 The first line presents the name of the algorithm ("Spot FM (degen)")
-and its number for lbtt (6).  The number is useless.  In this example,
-"FM (degen)" means that the Couvreur/FM algorithm is used to translate
-LTL formula into a TGBA that is then DEGENeralized.  You may want to
-look in the file `algorithms' to see which options are used for each
-name, if the naming is unclear.
+and its number for lbtt (10).  The number is useless.  In this
+example, "FM (degen)" means that the Couvreur/FM algorithm is used to
+translate LTL formula into a TGBA that is then DEGENeralized, so you
+effectively get a Büchi automaton, which you can compare with that
+automata produced by other tools.  You may want to look in the file
+`algorithms' to see which options are used for each name, if the
+naming is unclear.
 
-The second line display 7 values:
-  1. the total number of states of all generated automata (834)
-  2. the total number of transitions of all generated automata (2419)
+The second line display 9 values:
+  1. the total number of states of all generated automata (831)
+  2. the total number of transitions of all generated automata (2422)
   3. the total number of acceptance conditions of all generated automata (188)
-  4. the cumulated translation time in seconds (2.86)
-  5. the total number of states in the synchronized products (166579)
-  6. the total number of transitions in the synchronized products (8749162)
-  7. the number of translated formulae (188)
+  4. the total number of nondeterministic states in these automata (521)
+  5. the total number of automata with some nondeterminisitic state (157)
+  6. the cumulated translation time in seconds (3.01)
+  7. the total number of states in the synchronized products (165971)
+  8. the total number of transitions in the synchronized products (8723693)
+  9. the number of translated formulae (188)
+
+For all these values (but the last!) the smaller number the better.
 
 Notes:
 
-  * Small translation times are not accurate because most of the
-    translators are run through scripts that translate their input
-    from and their output to the format understood by lbtt.  For fast
-    translators, most of the time is spent through these wrappers.
-    (For instance Spot's ltl2tgba is run through lbtt-translate, and
-    depending on how Spot has been configured w.r.t. to dynamic
-    libraries, ltl2tgba itself is often a shell script that run the
-    real binary with the locally built libraries.)
+  * Small translation times are not accurate because:
+
+    a) most of the translators are run through scripts that translate
+    their input from and their output to the format understood by
+    lbtt.  For fast translators, most of the time is spent through
+    these wrappers.  (For instance Spot's ltl2tgba is run through
+    lbtt-translate, and depending on how Spot has been configured
+    w.r.t. to dynamic libraries, ltl2tgba itself is often a shell
+    script that run the real binary with the locally built libraries.)
+
+    b) LBTT use the time() function to measure time, which usually
+    has only a 0.01s resolution.  Multiply this 0.01s by the number
+    for formulae to get the possible error (e.g. for the above example
+    188*0.01 = 1.88s, so the 3.01s should be interpreted as "within
+    3.01-1.88 and 3.01+1.88).
 
   * Some tools will appear to have translated fewer automata than the
     others.  This normally indicates bugs in the translator (incorrect

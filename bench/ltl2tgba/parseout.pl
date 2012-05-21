@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# Copyright (C) 2011 Laboratoire de Recherche et Développement de
+# Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement de
 # l'Epita.
 # Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -27,7 +27,11 @@ use warnings;
 
 my $line = 0;
 my $tool = 0;
-my ($a, $b, $acc, $time);
+my ($a, $b, $acc, $time, $det, $ndindex);
+
+my $prefix = 'All formulae';
+$prefix = 'Pos. formulae' if $ARGV[0] eq '-p';
+$prefix = 'Neg. formulae' if $ARGV[0] eq '-n';
 
 sub sep($)
 {
@@ -37,8 +41,8 @@ sub sep($)
 }
 
 format STDOUT3 =
-@<<<<<<<<<<<<<<<<<<<<< & @>>>>>> & @>>>>>> & @>>>>>>>>> & @>>>>>>>>>>> \\ % @>>
-$tool, sep($a), sep($b), sep($2), sep($3), sep($1)
+@<<<<<<<<<<<<<<<<<<<<< & @>>>>>> & @>>>>>> & @>>>>>> & @>> & @>>>>>>>>> & @>>>>>>>>>>> \\ % @>>
+$tool, sep($a), sep($b), sep($ndindex), sep($1-$det), sep($2), sep($3), sep($1)
 .
 
 format STDOUT2 =
@@ -49,8 +53,8 @@ $num, $tool, $a, $b, $acc, $time, $2, $3, $1
 format STDOUT =
 @>>: @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 $num, $tool
-       @>>>>> / @>>>>> / @>>> / @#####.##   @>>>>>>>> / @>>>>>>>>   (@>>)
-$a, $b, $acc, $time, $2, $3, $1
+     @>>>>> @>>>>> @>>> | @>>>>> @>> | @#####.## | @>>>>>>>> @>>>>>>>>  (@>>)
+$a, $b, $acc, $ndindex, $1-$det, $time, $2, $3, $1
 .
 
 $~ = STDOUT2 if (exists $ENV{'WIKIOUTPUT'});
@@ -60,16 +64,20 @@ my %impl;
 
 while (<>)
 {
+    last if /^  Failures to compute/;
+
     if (/^\s{4}(\d+):\s`(.+)'\s*(?:\(disabled\))?\s*$/)
     {
 	$impl{$1} = $2 unless exists $impl{$1};
     }
-    if (/All formulae\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|$/)
+    if (/$prefix\s*\|\s*([^|\s]*)\s*\|\s*([^|\s]*)\s*\|\s*([^|\s]*)\s*\|\s*([^|\s]*)\s*\|$/o)
     {
         $acc = $1;
 	$time = $2 || 0;
+	$det = $3 || 0;
+	$ndindex = $4;
     }
-    next unless /All formulae\s+\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|/;
+    next unless /$prefix\s+\|\s*([^|\s]*)\s*\|\s*([^|\s]*)\s*\|\s*([^|\s]*)\s*\|$/o;
     if ($line % 2)
     {
 	$num = $line >> 1;
