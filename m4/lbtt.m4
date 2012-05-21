@@ -2,7 +2,7 @@ AC_DEFUN([AX_CHECK_LBTT], [
   AC_ARG_WITH([included-lbtt],
 	      [AC_HELP_STRING([--with-included-lbtt],
 			      [use the LBTT program inclued here])])
-  AS_IF([AM_RUN_LOG([lbtt-translate --help | grep spot])],
+  AS_IF([AM_RUN_LOG([lbtt-translate --version | grep 1.2.1a])],
 	[need_included_lbtt=no],
 	[need_included_lbtt=yes])
 
