@@ -138,6 +138,8 @@ namespace spot
       /// order.  For instance ltl_to_tgba_fm() will usually be more
       /// efficient if the BDD variables for atomic propositions have
       /// not been ordered before hand.
+      ///
+      /// This also clears the language containment cache.
       void clear_as_bdd_cache();
 
       /// Return the bdd_dict used.

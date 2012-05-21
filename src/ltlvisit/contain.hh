@@ -54,6 +54,9 @@ namespace spot
 
       ~language_containment_checker();
 
+      /// Clear the cache.
+      void clear();
+
       /// Check whether L(l) is a subset of L(g).
       bool contained(const formula* l, const formula* g);
       /// Check whether L(!l) is a subset of L(g).

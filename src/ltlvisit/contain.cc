@@ -49,6 +49,12 @@ namespace spot
 
     language_containment_checker::~language_containment_checker()
     {
+      clear();
+    }
+
+    void
+    language_containment_checker::clear()
+    {
       while (!translated_.empty())
 	{
 	  trans_map::iterator i = translated_.begin();

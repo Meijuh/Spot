@@ -4294,6 +4294,7 @@ namespace spot
     ltl_simplifier::clear_as_bdd_cache()
     {
       cache_->clear_as_bdd_cache();
+      cache_->lcc.clear();
     }
 
   }
