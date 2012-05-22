@@ -77,29 +77,16 @@ namespace spot
 	  {
 	    bdd cube = bdd_satone(acc);
 	    acc -= cube;
-	    while (cube != bddtrue)
+	    const ltl::formula* f = d->oneacc_to_formula(cube);
+	    std::string s = ltl::to_string(f);
+	    if (is_atomic_prop(f) && s[0] == '"')
 	      {
-		assert(cube != bddfalse);
-		// Display the first variable that is positive.
-		// There should be only one per satisfaction.
-		if (bdd_high(cube) != bddfalse)
-		  {
-		    int v = bdd_var(cube);
-		    const bdd_dict::bdd_info& i = d->bdd_map[v];
-		    assert(i.type == bdd_dict::acc);
-		    std::string s = ltl::to_string(i.f);
-		    if (is_atomic_prop(i.f) && s[0] == '"')
-		      {
-			// Unquote atomic propositions.
-			s.erase(s.begin());
-			s.resize(s.size() - 1);
-		      }
-		    os_ << " \"";
-		    escape_str(os_, s) << "\"";
-		    break;
-		  }
-		cube = bdd_low(cube);
+		// Unquote atomic propositions.
+		s.erase(s.begin());
+		s.resize(s.size() - 1);
 	      }
+	    os_ << " \"";
+	    escape_str(os_, s) << "\"";
 	  }
 	return os_;
       }

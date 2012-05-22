@@ -159,7 +159,6 @@ namespace spot
     register_acceptance_variables(bdd_low(f), for_me);
   }
 
-
   int
   bdd_dict::register_clone_acc(int v, const void* for_me)
   {
@@ -178,6 +177,26 @@ namespace spot
     return res;
   }
 
+  const ltl::formula*
+  bdd_dict::oneacc_to_formula(int var) const
+  {
+    assert(unsigned(var) < bdd_map.size());
+    const bdd_info& i = bdd_map[var];
+    assert(i.type == acc);
+    return i.f;
+  }
+
+  const ltl::formula*
+  bdd_dict::oneacc_to_formula(bdd oneacc) const
+  {
+    assert(oneacc != bddfalse);
+    while (bdd_high(oneacc) == bddfalse)
+      {
+	oneacc = bdd_low(oneacc);
+	assert(oneacc != bddfalse);
+      }
+    return oneacc_to_formula(bdd_var(oneacc));
+  }
 
   int
   bdd_dict::register_anonymous_variables(int n, const void* for_me)

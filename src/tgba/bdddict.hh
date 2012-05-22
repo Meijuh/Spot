@@ -148,6 +148,27 @@ namespace spot
     /// automaton).
     void register_acceptance_variables(bdd f, const void* for_me);
 
+    /// \brief Convert one acceptance condition into the associated
+    /// formula.
+    ///
+    /// This version accepts a conjunction of Acc variables, in which
+    /// only one must be positive.  This positive variable will be
+    /// converted back into the associated formula.
+    ///
+    /// The returned formula is not cloned, and is valid until the BDD
+    /// variable used in \a oneacc are unregistered.
+    const ltl::formula* oneacc_to_formula(bdd oneacc) const;
+
+    /// \brief Convert one acceptance condition into the associated
+    /// formula.
+    ///
+    /// This version takes the number of a BDD variable that must has
+    /// been returned by a call to register_acceptance_variable().
+    ///
+    /// The returned formula is not cloned, and is valid until the BDD
+    /// variable \a var is unregistered.
+    const ltl::formula* oneacc_to_formula(int var) const;
+
     /// \brief Register anonymous BDD variables.
     ///
     /// Return (and maybe allocate) \a n consecutive BDD variables which
