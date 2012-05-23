@@ -107,6 +107,8 @@ namespace std {
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/simulation.hh"
 
+#include "tgbaparse/public.hh"
+
 using namespace spot::ltl;
 using namespace spot;
 %}
@@ -191,6 +193,8 @@ using namespace spot;
 %feature("new") spot::tgba::succ_iter;
 %feature("new") spot::tgba_succ_iterator::current_state;
 %feature("new") spot::simulation;
+%feature("new") spot::tgba_parse;
+
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
 %include "tgba/bdddict.hh"
@@ -215,11 +219,11 @@ using namespace spot;
   spot::explicit_graph<state_explicit_formula, tgba>;
 
 %template(explicit_string_tgba)
-  spot::explicit_graph<state_explicit_string, tgba>;
-%template(explicit_number_tgba)
-  spot::tgba_explicit<state_explicit_formula>;
+  spot::tgba_explicit<state_explicit_string>;
 %template(explicit__number_tgba)
   spot::tgba_explicit<state_explicit_number>;
+%template(explicit_formula_tgba)
+  spot::tgba_explicit<state_explicit_formula>;
 
 %template(explicit_string__tgba)
   spot::explicit_conf<tgba_explicit<state_explicit_string>,
@@ -249,6 +253,9 @@ using namespace spot;
 %include "tgbaalgos/sccfilter.hh"
 %include "tgbaalgos/stats.hh"
 %include "tgbaalgos/simulation.hh"
+
+%include "tgbaparse/public.hh"
+
 #undef ltl
 
 %extend spot::ltl::formula {
@@ -331,6 +338,13 @@ empty_parse_error_list()
   return l;
 }
 
+spot::tgba_parse_error_list
+empty_tgba_parse_error_list()
+{
+  tgba_parse_error_list l;
+  return l;
+}
+
 std::ostream&
 get_cout()
 {
@@ -373,6 +387,16 @@ unblock_signal(int signum)
 %}
 
 %extend spot::ltl::parse_error_list {
+
+bool
+__nonzero__()
+{
+  return !self->empty();
+}
+
+}
+
+%extend spot::tgba_parse_error_list {
 
 bool
 __nonzero__()

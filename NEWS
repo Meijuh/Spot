@@ -16,6 +16,8 @@ New in spot 0.9a:
     - Promises generated for formula of the form P(a U (b U c))
       are reduced into P(c), avoiding the introduction of many
       promises that imply each other.
+  * The tgba_parse() function is now available via the Python
+    bindings.
   * Bug fixes:
     - The random SERE generator was using the wrong operators
       for "and" and "or", mistaking And/Or with AndRat/OrRat.

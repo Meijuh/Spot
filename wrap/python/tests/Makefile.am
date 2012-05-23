@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Labortatoire de Recherche et Développement de
+## Copyright (C) 2010, 2012 Labortatoire de Recherche et Développement de
 ## l'EPITA.
 ## Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -38,4 +38,5 @@ TESTS = \
   minato.py \
   modgray.py \
   optionmap.py \
+  parsetgba.py \
   setxor.py

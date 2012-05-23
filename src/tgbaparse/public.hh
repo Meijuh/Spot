@@ -1,6 +1,9 @@
-// Copyright (C) 2003, 2004, 2005, 2006, 2009 Laboratoire
-// d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
-// Coopératifs (SRC), Université Pierre et Marie Curie.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2012 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita.
+// Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
+// d'Informatique de Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis
+// CoopÃ©ratifs (SRC), UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -38,10 +41,15 @@ namespace spot
   /// \addtogroup tgba_io
   /// @{
 
+#ifndef SWIG
   /// \brief A parse diagnostic with its location.
   typedef std::pair<tgbayy::location, std::string> tgba_parse_error;
   /// \brief A list of parser diagnostics, as filled by parse.
   typedef std::list<tgba_parse_error> tgba_parse_error_list;
+#else
+    // Turn parse_error_list into an opaque type for Swig.
+    struct tgba_parse_error_list {};
+#endif
 
   /// \brief Build a spot::tgba_explicit from a text file.
   /// \param filename The name of the file to parse.
