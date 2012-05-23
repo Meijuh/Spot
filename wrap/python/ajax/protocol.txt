@@ -20,6 +20,7 @@ Choosing the desired output (pick one)
   o=m     output monitor
   o=a     output automaton
   o=r     output run
+  o=v3    output LTL3BA's version  (no other argument needed)
 
 Type of formula output if o=f (pick one)
 

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.13.custom.css">
     <link rel="stylesheet" href="css/tipTip.css">
     <link rel="stylesheet" href="css/ltl2tgba.css">
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
     <script type="text/javascript" src="js/jquery.ba-bbq.min.js"></script>
@@ -20,7 +20,6 @@
         $(".tabs").tabs();
 	$("#send").button();
 	$("#results").hide();
-        $(".tabs a").click(function() {return false;});
         $(".rtip").tipTip({maxWidth: "300px", delay: 1000,
                            edgeOffset: 10,
                            defaultPosition: "right"});
@@ -137,6 +136,18 @@
 		.tipTip({maxWidth: "400px", delay: 1000,
                          edgeOffset: 10,
                          defaultPosition: "right"});
+        });
+
+	$.get("/cgi-bin/spot.py", "o=v3", function(data) {
+            if (data != 'not available') {
+	      $("#ltl3ba-link").attr("title", data)
+		  .tipTip({maxWidth: "400px", delay: 1000,
+                           edgeOffset: 10,
+                           defaultPosition: "right"});
+            } else {
+	       var index = $('#translator-tabs a[href="#tabs-tl3"]').parent().index();
+	       $("#translator-tabs").tabs("option", "disabled", [index - 1]);
+            }
         });
 
         function fold(ui, callback) {
@@ -516,7 +527,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		</label><br>
 	      </div>
 	      <div id="tabs-tl3">
-		Use <a href="http://sourceforge.net/projects/ltl3ba/">LTL3BA</a> to build:
+		Use <a href="http://sourceforge.net/projects/ltl3ba/" id="ltl3ba-link">LTL3BA</a> to build:
 		<label class="rtip" title="Stop LTL3BA once it has built a Transition-based Generalized Büchi Automaton.  Spot will take it from here and optionally apply more optimizations.">
 		  <INPUT id="ltl3ba-T" type="radio" name="lo" value="T" checked>
 		  a TGBA

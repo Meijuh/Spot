@@ -337,6 +337,21 @@ if output_type == 'v':
     unbufprint('Spot version %s\n' % spot.version())
     finish()
 
+# ltl3ba's version
+if output_type == 'v3':
+    import subprocess
+    try:
+        l3proc = subprocess.Popen(['@LTL3BA@', '-V'], stdout=subprocess.PIPE)
+        (ver, err) = l3proc.communicate()
+        err = l3proc.returncode
+    except:
+        err = 1
+    if err != 0:
+        unbufprint('not available')
+    else:
+        unbufprint(ver.replace("\n", "<br>"))
+    finish()
+
 spot.unblock_signal(signal.SIGALRM)
 spot.unblock_signal(signal.SIGTERM)
 os.setpgrp()
@@ -515,13 +530,16 @@ elif translator == 'l3':
     import subprocess
     l3file = tmpdir + "/aut"
     l3aut = open(l3file, "w+")
-    l3proc = subprocess.Popen(args, stdout=l3aut)
-    l3aut.close()
-    ret = l3proc.wait()
-    if ret != 0:
-        unbufprint('''<div class="error">ltl3ba exited with error %s</div>'''
-                   % ret)
+    try:
+        l3proc = subprocess.Popen(args, stdout=l3aut)
+        ret = l3proc.wait()
+    except:
+        unbufprint('<div class="error">Failed to run ltl3ba. Is it installed?</div>')
         finish()
+    if ret != 0:
+        unbufprint('<div class="error">ltl3ba exited with error %s</div>' % ret)
+        finish()
+    l3aut.close()
     tpel = spot.empty_tgba_parse_error_list()
     automaton = spot.tgba_parse(l3file, tpel, dict, env)
     if tpel:
