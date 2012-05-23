@@ -1,6 +1,6 @@
-New in spot 0.9a:
+New in spot 0.9.1 (2012-05-23):
 
-  * The version of LBTT we distribute include a patch from Tomáš
+  * The version of LBTT we distribute includes a patch from Tomáš
     Babiak to count the number of non-deterministic states, and the
     number of deterministic automata produced.
     See lbtt/NEWS for the list of other differences with the original
