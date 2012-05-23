@@ -30,16 +30,22 @@ namespace spot
   namespace
   {
     static
+    state_explicit_number::transition*
+    create_transition(const tgba*, tgba_explicit_number* out_aut,
+		      const state*, int in, const state*, int out)
+    {
+      return out_aut->create_transition(in, out);
+    }
+
+    static
     state_explicit_string::transition*
     create_transition(const tgba* aut, tgba_explicit_string* out_aut,
-		      const state* in_s, int in,
-		      const state* out_s, int out)
+		      const state* in_s, int, const state* out_s, int)
     {
-      std::ostringstream in_name;
-      in_name << "(#" << in << ") " << aut->format_state(in_s);
-      std::ostringstream out_name;
-      out_name << "(#" << out << ") " << aut->format_state(out_s);
-      return out_aut->create_transition(in_name.str(), out_name.str());
+      const tgba_explicit_string* a =
+	static_cast<const tgba_explicit_string*>(aut);
+      return out_aut->create_transition(a->get_label(in_s),
+					a->get_label(out_s));
     }
 
     static
@@ -193,13 +199,25 @@ namespace spot
 	res->merge_transitions();
 	return res;
       }
-    else
+    const tgba_explicit_string* as =
+      dynamic_cast<const tgba_explicit_string*>(aut);
+    if (as)
       {
 	filter_iter<tgba_explicit_string> fi(aut, sm, ss.useless_scc_map,
 					     useful, useless,
 					     remove_all_useless);
 	fi.run();
 	tgba_explicit_string* res = fi.result();
+	res->merge_transitions();
+	return res;
+      }
+    else
+      {
+	filter_iter<tgba_explicit_number> fi(aut, sm, ss.useless_scc_map,
+					     useful, useless,
+					     remove_all_useless);
+	fi.run();
+	tgba_explicit_number* res = fi.result();
 	res->merge_transitions();
 	return res;
       }
