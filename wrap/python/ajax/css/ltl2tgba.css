@@ -88,6 +88,11 @@ table.ltltable
     float: right;
 }
 
+.colleft {
+    float: left;
+    width: 49%;
+}
+
 .ltl2tgba .head .ui-icon {
     float: right;
     margin: 1px 0px;

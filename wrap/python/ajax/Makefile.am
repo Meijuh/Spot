@@ -50,6 +50,7 @@ spot.py: $(srcdir)/spot.in Makefile
 	    -e 's|[@]top_builddir[@]|@top_builddir@|g' \
 	    -e 's|[@]PACKAGE_VERSION[@]|@PACKAGE_VERSION@|g' \
 	    -e 's|[@]DOT[@]|@DOT@|g' \
+	    -e 's|[@]LTL3BA[@]|@LTL3BA@|g' \
 	    <$(srcdir)/spot.in >spot.tmp
 	chmod +x spot.tmp
 	mv -f spot.tmp $@

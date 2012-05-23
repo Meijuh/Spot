@@ -452,12 +452,15 @@ if output_type == 'f':
 translator = form.getfirst('t', 'fm')
 
 if f.is_psl_formula() and not f.is_ltl_formula() and translator != 'fm':
-    print ('''<div class="error">The PSL formula %s
+    unbufprint('''<div class="error">The PSL formula %s
 cannot be translated using this algorithm.  Please use Couveur/FM.'''
-           % format_formula(f, 'span'));
+               % format_formula(f, 'span'))
     finish()
 
 dict = spot.bdd_dict()
+
+# Should the automaton be displayed as a SBA?
+issba = False
 
 if translator == 'fm':
     exprop = False
@@ -485,12 +488,53 @@ elif translator == 'ta':
     if form.getfirst('ta', '') == 'lc':
         refined_rules = True
     automaton = spot.ltl_to_taa(f, dict, refined_rules)
-
-# Should it be displayed as a SBA?
-issba = False
+elif translator == 'l3':
+    l3out = '-T'
+    l3opt = { '-l', '-P', '-A', '-c', '-C' }
+    for lo in form.getfirst('lo', 'T'):
+        if lo == 'U':
+            l3out = '-U'
+            issba = True
+    for l3 in form.getlist('l3'):
+        if l3 == 'l':
+            l3opt.remove('-l')
+        elif l3 == 'P':
+            l3opt.remove('-P')
+        elif l3 == 'A':
+            l3opt.remove('-A')
+        elif l3 == 'C':
+            l3opt.remove('-C')
+            l3opt.remove('-c')
+        elif l3 == 'M':
+            l3opt.add('-M')
+        elif l3 == 'S':
+            l3opt.add('-S')
+    args = ["@LTL3BA@", l3out]
+    args.extend(l3opt)
+    args.extend(['-f', spot.to_spin_string(f)])
+    import subprocess
+    l3file = tmpdir + "/aut"
+    l3aut = open(l3file, "w+")
+    l3proc = subprocess.Popen(args, stdout=l3aut)
+    l3aut.close()
+    ret = l3proc.wait()
+    if ret != 0:
+        unbufprint('''<div class="error">ltl3ba exited with error %s</div>'''
+                   % ret)
+        finish()
+    tpel = spot.empty_tgba_parse_error_list()
+    automaton = spot.tgba_parse(l3file, tpel, dict, env)
+    if tpel:
+        unbufprint('''<div class="error">failed to read ltl3ba's output</div>''')
+        unbufprint('<div class="parse-error">')
+        err = spot.format_tgba_parse_errors(spot.get_cout(), "output", tpel)
+        unbufprint('</div>')
+        automaton = 0
+        finish()
 
 # Monitor output
 if output_type == 'm':
+    issba = False
     automaton = spot.scc_filter(automaton)
     automaton = spot.minimize_monitor(automaton)
     unbufprint('<div class="automata-stats">')
@@ -534,6 +578,7 @@ if prune_scc:
     # degeneralization or simulation is requested: keeping those that
     # lead to accepting states usually helps.
     automaton = spot.scc_filter(automaton, not (degen or direct_simul))
+    issba = False
 
 if wdba_minimize:
     minimized = spot.minimize_obligation_new(automaton, f)
@@ -546,6 +591,7 @@ if wdba_minimize:
 
 if direct_simul:
     automaton = spot.simulation(automaton)
+    issba = False
 
 if degen or neverclaim:
     degen = spot.tgba_sba_proxy(automaton)

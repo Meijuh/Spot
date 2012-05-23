@@ -53,21 +53,36 @@ Translator algorithm (pick one)
   t=fm    Couvreur/FM
   t=la    Couvreur/LaCIM
   t=ta    Tauriainen/TAA
+  t=l3    LTL3BA
 
-Couvreur/FM options if f=fm (pick many)
+Couvreur/FM options if t=fm (pick many)
 
   fm=od   Optimize Determinism
   fm=sm   Symbolic Merge
   fm=bp   Branching Postponement
   fm=fl   Fair-Loop approximations
 
-Couvreur/LA options if f=la
+Couvreur/LA options if t=la
 
   la=sp   Symbolic Pruning
 
-Tauriainen/TAA options if f=ta
+Tauriainen/TAA options if t=ta
 
   ta=lc   refined rules based on Language Containment
+
+LTL3BA output options if t=l3 (pick one)
+
+  lo=T    output a TGBA
+  lo=U    output a BA
+
+LTL3BA processing options if t=l3 (pick many)
+
+  l3=l    LTL formula simplification
+  l3=P    suspension in TGBA construction
+  l3=A    suspension in alternating automaton construction
+  l3=C    SCC simplifications
+  l3=M    more deterministic output
+  l3=S    direct simulation
 
 Automaton simplifications (pick many)
 
