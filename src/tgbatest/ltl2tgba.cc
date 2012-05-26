@@ -1154,8 +1154,6 @@ main(int argc, char** argv)
               degeneralized = 0;
               if (degeneralize_opt != DegenSBA)
                 to_free = 0;
-
-              aut_red = 0;
               output = -1;
             }
           if (tgta_opt)

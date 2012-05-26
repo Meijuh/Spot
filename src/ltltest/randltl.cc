@@ -71,6 +71,7 @@ syntax(char* prog)
 	    << "  -u      generate unique formulae"
 	    << std::endl
 	    << "  -s N    seed for the random number generator" << std::endl
+	    << "  -wf     append weak fairness conditions to all formulae\n"
 	    << std::endl
 	    << "Where:" << std::endl
 	    << "  F      are floating values" << std::endl
@@ -97,26 +98,21 @@ to_int(const char* s)
 
 
 // GF(p_1) & GF(p_2) & ... & GF(p_n)
-formula* GF_n(spot::ltl::atomic_prop_set* ap)
+const formula* GF_n(spot::ltl::atomic_prop_set* ap)
 {
-
-  formula* result = 0;
-
-  multop::type op =  multop::And;
-
+  const formula* result = 0;
   spot::ltl::atomic_prop_set::const_iterator i = ap->begin();
-    while (i != ap->end())
-      {
-
+  while (i != ap->end())
+    {
       std::ostringstream p;
-      p <<  (*i)->name();
+      p << (*i)->name();
       ++i;
-      formula* f = unop::instance(unop::G,
-                                  unop::instance(unop::F,
-                                                 env.require(p.str())));
-
+      const formula* f =
+	unop::instance(unop::G,
+		       unop::instance(unop::F,
+				      env.require(p.str())));
       if (result)
-        result = multop::instance(op, f, result);
+        result = multop::instance(multop::And, f, result);
       else
         result = f;
     }
@@ -140,7 +136,7 @@ main(int argc, char** argv)
   bool opt_u = false;
   spot::ltl::ltl_simplifier_options simpopt(true, true, true, true, true);
   spot::ltl::ltl_simplifier simp(simpopt);
-  bool opt_wFair = false;
+  bool opt_wfair = false;
 
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* ap = new spot::ltl::atomic_prop_set;
@@ -224,7 +220,7 @@ main(int argc, char** argv)
 	}
       else if (!strcmp(argv[argn], "-wf"))
         {
-          opt_wFair = true;
+          opt_wfair = true;
         }
       else
 	{
@@ -383,9 +379,10 @@ main(int argc, char** argv)
 			}
 		    }
 
-                  if (opt_wFair)
+                  if (opt_wfair)
                     {
-		      spot::ltl::formula* g = GF_n(atomic_prop_collect(f, 0));
+		      const spot::ltl::formula* g =
+			GF_n(atomic_prop_collect(f, 0));
 		      f = spot::ltl::unop::instance(unop::Not,
 			  spot::ltl::binop::instance(binop::Implies, g, f));
                     }
