@@ -1,5 +1,6 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement
-// de l Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -18,17 +19,10 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#ifndef SPOT_TGBAALGOS_SBA2TA_HH
-# define SPOT_TGBAALGOS_SBA2TA_HH
+#ifndef SPOT_TAALGOS_TGBA2TA_HH
+# define SPOT_TAALGOS_TGBA2TA_HH
 
-#include "misc/hash.hh"
-#include <list>
-#include <map>
-#include <set>
-#include "tgba/tgbatba.hh"
-#include "ltlast/formula.hh"
-#include <cassert>
-#include "misc/bddlt.hh"
+#include "tgba/tgba.hh"
 #include "ta/taexplicit.hh"
 #include "ta/tgtaexplicit.hh"
 
@@ -59,7 +53,7 @@ namespace spot
   ///
   /// \param degeneralized When false, the returned automaton is a generalized
   /// form of TA, called GTA (Generalized Testing Automaton).
-  /// Like TGBA, GTA use Generalized B�chi acceptance
+  /// Like TGBA, GTA use Generalized Büchi acceptance
   /// conditions intead of Buchi-accepting states: there are several acceptance
   /// sets (of transitions), and a path is accepted if it traverses
   /// at least one transition of each set infinitely often or if it contains a
@@ -100,11 +94,11 @@ namespace spot
   /// \param atomic_propositions_set The set of atomic propositions used in the
   /// input TGBA \a tgba_to_convert
   ///
-  /// \return A spot::tgta_explicit (spot::tgta) that recognizes the same 
+  /// \return A spot::tgta_explicit (spot::tgta) that recognizes the same
   ///  language as the TGBA \a tgba_to_convert.
   tgta_explicit*
   tgba_to_tgta(const tgba* tgba_to_convert, bdd atomic_propositions_set);
 
 }
 
-#endif // SPOT_TGBAALGOS_SBA2TA_HH
+#endif // SPOT_TAALGOS_TGBA2TA_HH

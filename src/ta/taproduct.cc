@@ -1,5 +1,6 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement
-// de l Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 //
 // This file is part of Spot, a model checking library.
@@ -68,8 +69,9 @@ namespace spot
   ////////////////////////////////////////////////////////////
   // ta_succ_iterator_product
   ta_succ_iterator_product::ta_succ_iterator_product(const state_ta_product* s,
-      const ta* t, const kripke* k) :
-    source_(s), ta_(t), kripke_(k)
+						     const ta* t,
+						     const kripke* k)
+    : source_(s), ta_(t), kripke_(k)
   {
     kripke_source_condition = kripke_->state_condition(s->get_kripke_state());
 
@@ -269,7 +271,8 @@ namespace spot
     bdd kripke_init_state_condition = kripke_->state_condition(
         kripke_init_state);
 
-    spot::state* artificial_initial_state = ta_->get_artificial_initial_state();
+    spot::state* artificial_initial_state =
+      ta_->get_artificial_initial_state();
 
     if (artificial_initial_state != 0)
       {
@@ -358,8 +361,6 @@ namespace spot
     return ta_->is_livelock_accepting_state(stp->get_ta_state());
   }
 
-
-
   bool
   ta_product::is_initial_state(const spot::state* s) const
   {
@@ -411,16 +412,13 @@ namespace spot
 
   }
 
-
-  ta_succ_iterator_product_by_changeset::ta_succ_iterator_product_by_changeset(
-      const state_ta_product* s, const ta* t, const kripke* k, bdd changeset) :
-    ta_succ_iterator_product(s, t, k)
+  ta_succ_iterator_product_by_changeset::
+  ta_succ_iterator_product_by_changeset(const state_ta_product* s, const ta* t,
+					const kripke* k, bdd changeset)
+    : ta_succ_iterator_product(s, t, k)
   {
     current_condition_ = changeset;
   }
-
-
-
 
   void
   ta_succ_iterator_product_by_changeset::next_kripke_dest()
@@ -465,8 +463,5 @@ namespace spot
             current_condition_);
         ta_succ_it_->first();
       }
-
   }
-
-
 }

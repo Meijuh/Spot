@@ -1,5 +1,5 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -60,7 +60,7 @@ namespace spot
     // * h: a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
     numbered_state_heap* h =
-        numbered_state_heap_hash_map_factory::instance()->build(); ///< Heap of visited states.
+        numbered_state_heap_hash_map_factory::instance()->build();
 
     // * num: the number of visited nodes.  Used to set the order of each
     //   visited node,
@@ -216,7 +216,9 @@ namespace spot
                 (a_->is_hole_state_in_ta_component(curr))
                     && a_->is_livelock_accepting_state(curr);
 
-            //may be Buchi accepting scc or livelock accepting scc (contains a livelock accepting state that have no successors in TA)
+            // May be Buchi accepting scc or livelock accepting scc
+            // (contains a livelock accepting state that have no
+            // successors in TA).
             scc.top().is_accepting = (a_->is_accepting_state(curr)
                 && (!succ->is_stuttering_transition()
                     || a_->is_livelock_accepting_state(curr)))
@@ -308,26 +310,28 @@ namespace spot
             if (is_accepting_sscc)
               {
                 trace
-                      << "PASS 1: SUCCESS : a_->is_livelock_accepting_state(curr): "
-                      << a_->is_livelock_accepting_state(curr) << std::endl;
+		  << "PASS 1: SUCCESS : a_->is_livelock_accepting_state(curr): "
+		  << a_->is_livelock_accepting_state(curr) << std::endl;
                 trace
-                  << "PASS 1: scc.top().condition : " << bdd_format_accset(
-                      a_->get_dict(), scc.top().condition) << std::endl;
+                  << "PASS 1: scc.top().condition : "
+		  << bdd_format_accset(a_->get_dict(), scc.top().condition)
+		  << std::endl;
                 trace
                   << "PASS 1: a_->all_acceptance_conditions() : "
-                      << (a_->all_acceptance_conditions()) << std::endl;
+		  << (a_->all_acceptance_conditions()) << std::endl;
                 trace
-                      << "PASS 1 CYCLE and (scc.top().condition == a_->all_acceptance_conditions()) : "
-                      << (scc.top().condition
-                          == a_->all_acceptance_conditions()) << std::endl;
+		  << ("PASS 1 CYCLE and (scc.top().condition == "
+		      "a_->all_acceptance_conditions()) : ")
+		  << (scc.top().condition
+		      == a_->all_acceptance_conditions()) << std::endl;
 
                 trace
                   << "PASS 1: bddtrue : " << (a_->all_acceptance_conditions()
-                      == bddtrue) << std::endl;
+					      == bddtrue) << std::endl;
 
                 trace
                   << "PASS 1: bddfalse : " << (a_->all_acceptance_conditions()
-                      == bddfalse) << std::endl;
+					       == bddfalse) << std::endl;
 
                 clear(h, todo, ta_init_it_);
                 return true;
@@ -418,7 +422,7 @@ namespace spot
     // * h: a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
     numbered_state_heap* h =
-        numbered_state_heap_hash_map_factory::instance()->build(); ///< Heap of visited states.
+        numbered_state_heap_hash_map_factory::instance()->build();
 
     // * num: the number of visited nodes.  Used to set the order of each
     //   visited node,

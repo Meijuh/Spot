@@ -1,5 +1,5 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
-// de l Epita_explicit (LRDE).
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -18,8 +18,8 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#ifndef SPOT_TA_TGBTA_HH
-# define SPOT_TA_TGBTA_HH
+#ifndef SPOT_TA_TGTA_HH
+# define SPOT_TA_TGTA_HH
 
 #include "tgba/tgba.hh"
 
@@ -82,4 +82,4 @@ namespace spot
 
 }
 
-#endif // SPOT_TA_TGBTA_HH
+#endif // SPOT_TA_TGTA_HH

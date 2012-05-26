@@ -1,8 +1,9 @@
-// Copyright (C) 2008 Laboratoire de Recherche et Development de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2012 Laboratoire de Recherche et DÃ©velopment de
 // l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,8 +22,8 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#ifndef SPOT_TAALGOS_EMPTINESS_HH
-# define SPOT_TAALGOS_EMPTINESS_HH
+#ifndef SPOT_TAALGOS_EMPTINESSTA_HH
+# define SPOT_TAALGOS_EMPTINESSTA_HH
 
 #include "ta/taproduct.hh"
 #include "misc/optionmap.hh"
@@ -161,4 +162,4 @@ namespace spot
     /// \ingroup ta_emptiness_check
 }
 
-#endif // SPOT_TAALGOS_EMPTINESS_HH
+#endif // SPOT_TAALGOS_EMPTINESSTA_HH

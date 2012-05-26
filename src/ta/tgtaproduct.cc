@@ -74,8 +74,8 @@ namespace spot
   // tgbtgta_succ_iterator_product
   tgta_succ_iterator_product::tgta_succ_iterator_product(
       const state_product* s, const kripke* k, const tgta* t,
-      fixed_size_pool* pool) :
-    source_(s), tgta_(t), kripke_(k), pool_(pool)
+      fixed_size_pool* pool)
+    : source_(s), tgta_(t), kripke_(k), pool_(pool)
   {
 
     state * tgta_init_state = tgta_->get_init_state();
@@ -151,9 +151,9 @@ namespace spot
       }
 
     // If one of the two successor sets is empty initially, we reset
-    // kripke_succ_it_, so that done() can detect this situation easily.  (We
-    // choose to reset kripke_succ_it_ because this variable is already used by
-    // done().)
+    // kripke_succ_it_, so that done() can detect this situation
+    // easily.  (We choose to reset kripke_succ_it_ because this
+    // variable is already used by done().)
     if (kripke_succ_it_->done())
       {
         delete kripke_succ_it_;

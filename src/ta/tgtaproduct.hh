@@ -1,8 +1,9 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,8 +22,8 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#ifndef SPOT_tgta_TGBAPRODUCT_HH
-# define SPOT_tgta_TGBAPRODUCT_HH
+#ifndef SPOT_TA_TGTAPRODUCT_HH
+# define SPOT_TA_TGTAPRODUCT_HH
 
 #include "tgba/tgba.hh"
 #include "tgba/tgbaproduct.hh"
@@ -54,7 +55,8 @@ namespace spot
   class tgta_succ_iterator_product : public tgba_succ_iterator
   {
   public:
-    tgta_succ_iterator_product(const state_product* s, const kripke* k, const tgta* tgta, fixed_size_pool* pool);
+    tgta_succ_iterator_product(const state_product* s, const kripke* k,
+			       const tgta* tgta, fixed_size_pool* pool);
 
     virtual
     ~tgta_succ_iterator_product();
@@ -107,4 +109,4 @@ namespace spot
 
 }
 
-#endif // SPOT_tgta_TGBAPRODUCT_HH
+#endif // SPOT_TA_TGTAPRODUCT_HH
