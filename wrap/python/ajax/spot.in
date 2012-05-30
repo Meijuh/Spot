@@ -341,7 +341,7 @@ if output_type == 'v':
 if output_type == 'v3':
     import subprocess
     try:
-        l3proc = subprocess.Popen(['@LTL3BA@', '-V'], stdout=subprocess.PIPE)
+        l3proc = subprocess.Popen(['@LTL3BA@', '-v'], stdout=subprocess.PIPE)
         (ver, err) = l3proc.communicate()
         err = l3proc.returncode
     except:
@@ -505,7 +505,7 @@ elif translator == 'ta':
     automaton = spot.ltl_to_taa(f, dict, refined_rules)
 elif translator == 'l3':
     l3out = '-T'
-    l3opt = { '-l', '-P', '-A', '-c', '-C' }
+    l3opt = { '-l', '-P', '-A', '-c', '-C', '-o', '-p' }
     for lo in form.getfirst('lo', 'T'):
         if lo == 'U':
             l3out = '-U'
@@ -524,6 +524,10 @@ elif translator == 'l3':
             l3opt.add('-M')
         elif l3 == 'S':
             l3opt.add('-S')
+        elif l3 == 'o':
+            l3opt.remove('-o')
+        elif l3 == 'p':
+            l3opt.remove('-p')
     args = ["@LTL3BA@", l3out]
     args.extend(l3opt)
     args.extend(['-f', spot.to_spin_string(f)])

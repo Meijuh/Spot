@@ -84,6 +84,8 @@ LTL3BA processing options if t=l3 (pick many)
   l3=C    SCC simplifications
   l3=M    more deterministic output
   l3=S    direct simulation
+  l3=o    on-the-fly simplifications
+  l3=p    a-posteriori simplifications
 
 Automaton simplifications (pick many)
 
