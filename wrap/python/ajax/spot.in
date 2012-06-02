@@ -215,7 +215,7 @@ import buddy
 def alarm_handler(signum, frame):
     unbufprint("""<p><font color="red">The script was aborted because
 it has been running for too long.</font>  Please try a shorter formula,
-or different options (not drawing automata usually helps).
+or different options.
 If you want to benchmark big formulae it is
 better to install Spot on your own computer.</p>\n""")
     finish(kill = True)

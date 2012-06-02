@@ -23,8 +23,9 @@
 nodist_noinst_SCRIPTS = spot.py
 EXTRA_DIST = $(srcdir)/spot.in README ltl2tgba.html css/ltl2tgba.css	\
   css/tipTip.css js/jquery.tipTip.minified.js js/jquery.ba-bbq.min.js	\
-  logos/lip6sys64.png logos/lrde64.png logos/spot64s.png		\
-  logos/mail.png css/ui-lightness/jquery-ui-1.8.13.custom.css		\
+  js/jquery.ba-dotimeout.min.js logos/lip6sys64.png logos/lrde64.png	\
+  logos/spot64s.png logos/mail.png					\
+  css/ui-lightness/jquery-ui-1.8.13.custom.css				\
   css/ui-lightness/images/ui-icons_222222_256x240.png			\
   css/ui-lightness/images/ui-bg_glass_100_f6f6f6_1x400.png		\
   css/ui-lightness/images/ui-bg_glass_100_fdf5ce_1x400.png		\

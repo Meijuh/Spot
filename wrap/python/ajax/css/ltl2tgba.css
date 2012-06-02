@@ -119,6 +119,12 @@ table.ltltable
     color: red;
 }
 
+.ltl2tgba .loading {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
 .ltl2tgba .neverclaim, .ltl2tgba .accrun {
     font-family: monospace;
     white-space: pre;

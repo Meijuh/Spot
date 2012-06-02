@@ -12,6 +12,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
     <script type="text/javascript" src="js/jquery.ba-bbq.min.js"></script>
+    <script type="text/javascript" src="js/jquery.ba-dotimeout.min.js"></script>
     <script type="text/javascript">
     jQuery(document).ready(function(){
         $.spotvars = { autoupdate: false,
@@ -156,11 +157,13 @@
                 .addClass("ui-icon-circle-arrow-s");
             ui.siblings('[class!="dontcollapse"]').hide('fast', callback);
         }
-        function unfold(ui) {
+        function unfold(ui, noshowsiblings) {
             var icon = ui.children(".ui-icon");
             icon.removeClass("ui-icon-circle-arrow-s")
                 .addClass("ui-icon-circle-arrow-n");
-            ui.siblings('[class!="dontcollapse"]').show('fast');
+            if (!noshowsiblings) {
+              ui.siblings('[class!="dontcollapse"]').show('fast');
+            }
         }
 
         function foldToggle(ui) {
@@ -185,6 +188,14 @@
         }
 
         function updateResults() {
+            // If the answer takes more that 200ms to arrive,
+            // display a busy indicator.
+	    $.doTimeout('res-update', 200, function(){
+              $("#results-body").hide();
+              $("#results-loading").show();
+              $("#results").show();
+              unfold($("#results-head"), true);
+            })
 	    // don't read window.location.hash, because
 	    // it has been %-decoded by firefox, which
 	    // cause problems when formulae include '&'.
@@ -193,13 +204,16 @@
 		.load("/cgi-bin/spot.py",
                       fragment,
                       function(response, status, xhr) {
+			  $.doTimeout('res-update');
 			  if (status == "error") {
 			      var msg = "Sorry but there was an error: ";
 			      $("#results-body").html(msg + xhr.status + " "
 						      + xhr.statusText);
 			  }
+			  $("#results-loading").hide();
+			  $("#results-body").show();
 			  $("#results").show();
-			  unfold($("#results-head"));
+			  unfold($("#results-head"), true);
 			  fold($("#ltl-head"), function() {
 			    if ($.spotvars.scrolldown)
 			      $('html,body').animate({scrollTop: $("#results-head").offset().top}, 'slow');
@@ -610,7 +624,9 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
       </FORM>
 	  <div id="results" class="ui-widget ui-widget-content ui-corner-all collapsible shadow">
 	    <h3 id="results-head" class="ui-widget-header ui-corner-all head">Results<span class="ui-icon ui-icon-circle-arrow-n restip">Fold</span></h3>
+	    <div id="results-loading" class="dontcollapse"><img src="css/loading.gif" class="loading" border=0 alt="loading..."></div>
 	    <div id="results-body">
+	      Loading...
 	    </div>
 	  </div>
     </div>
