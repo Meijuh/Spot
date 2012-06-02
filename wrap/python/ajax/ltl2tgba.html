@@ -1,9 +1,10 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
   <head>
-    <title>Spot's on-line LTL-to-TGBA translator</title>
+    <title>Spot's online LTL-to-TGBA translator</title>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
     <meta name="keywords" content="Spot,LTL,automata,B&uuml;chi,translation,TGBA">
+    <meta name="description" content="Translate LTL or PSL formulas into B&uuml;chi automata online using the Spot model-checking library">
     <link rev=Made href="mailto:spot@lrde.epita.fr" title="Spot's discussion list">
     <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.13.custom.css">
     <link rel="stylesheet" href="css/tipTip.css">
@@ -311,7 +312,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
       <td class="ltldocrow" rowspan=3>Boolean</td>
       <td class="ltldoc">false:</td><td><span class="formula">0</span> <span class="formula">false</span></td>
       <td class="ltldoc">not:</td><td><span class="formula">!</span> <span class="formula">~</span></td>
-      <td class="ltldoc">and:</td><td><span class="formula">&</span> <span class="formula">&&</span>
+      <td class="ltldoc">and:</td><td><span class="formula">&amp;</span> <span class="formula">&amp;&amp;</span>
                                       <span class="formula">/\</span></td>
       <td class="ltldoc">implies:</td><td><span class="formula">-&gt;</span>
 					  <span class="formula">--&gt;</span>
@@ -368,8 +369,8 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
     <tr>
       <td></td><td></td>
       <td class="ltldoc">goto:</td><td><span class="formula">[-></span><i>i..j</i><span class="formula">]</span></td>
-      <td class="ltldoc">intersection:</td><td><span class="formula">&&</span> <span class="formula">/\</span></td>
-      <td class="ltldoc"><ABBR title="Non-Length-Matching">NLM</ABBR> and:</td><td><span class="formula">&</span></td>
+      <td class="ltldoc">intersection:</td><td><span class="formula">&amp;&amp;</span> <span class="formula">/\</span></td>
+      <td class="ltldoc"><ABBR title="Non-Length-Matching">NLM</ABBR> and:</td><td><span class="formula">&amp;</span></td>
     </tr>
     <tr>
       <td></td><td></td>
@@ -548,7 +549,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		</label> or <label class="rtip" title="Run LTL3BA until it produces its final Büchi Automaton.  Spot will consider this BA has a TGBA if further optimizations have been requested below.">
 		  <INPUT id="ltl3ba-U" type="radio" name="lo" value="U">
 		  a BA
-		</label></br>
+		</label><br>
 		<div class="colleft">
 		<label class="rtip" title="LTL simplifications performed in LTL3BA are independent of those Spot may have performed upstream.">
 		  <INPUT type="checkbox" name="l3" value="l" checked>
@@ -558,7 +559,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		  <INPUT type="checkbox" name="l3" value="A" checked>
 		  suspension in alternating automaton
 		</label><br>
-		<label class="rtip" title="Suspension is a technique to postpone the verification some subformulae.  Any easy way to picture it is to look at the formula <span class='formula'>F(a)&GF(b)</span>: the <span class='formula'>GF(b)</span> part need not be checked before some <span class='formula'>a</span> has been seen.  On this example, suspension amounts to translating <span class='formula'>F(a&GF(b))</span> but the technique is more general than such LTL rewritings.">
+		<label class="rtip" title="Suspension is a technique to postpone the verification some subformulae.  Any easy way to picture it is to look at the formula <span class='formula'>F(a)&amp;GF(b)</span>: the <span class='formula'>GF(b)</span> part need not be checked before some <span class='formula'>a</span> has been seen.  On this example, suspension amounts to translating <span class='formula'>F(a&amp;GF(b))</span> but the technique is more general than such LTL rewritings.">
 		  <INPUT type="checkbox" name="l3" value="P" checked>
 		  suspension in TGBA
 		</label><br>
