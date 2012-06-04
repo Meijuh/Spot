@@ -810,12 +810,15 @@ while $f$ is a PSL formula.
 \end{align*}
 
 The $\prec$ symbol should be read as ``\emph{is a prefix of}''.  So
-the semantic for `$\sigma\vDash \sere{r}$' is that either there is
-a (non-empty) finite prefix of $\sigma$ that is a model of $r$, or any
+the semantic for `$\sigma\vDash \sere{r}$' is that either there is a
+(non-empty) finite prefix of $\sigma$ that is a model of $r$, or any
 prefix of $\sigma$ can be extended into a finite sequence $\pi$ that
 is a model of $r$.  An infinite sequence $\texttt{a;a;a;a;a;}\ldots$
-is therefore a model of the formula \samp{$\sere{a\PLUS{};\NOT
-    a}$} even though it never sees \samp{$\NOT a$}.
+is therefore a model of the formula \samp{$\sere{a\PLUS{}\CONCAT\NOT
+    a}$} even though it never sees \samp{$\NOT a$}.  The same sequence
+is not a model of \samp{$\sere{a\PLUS{}\CONCAT\NOT
+    a\CONCAT(a\STAR{}\ANDALT(a\STAR{}\CONCAT\NOT a\CONCAT
+    a\STAR{}))}$} because this SERE does accept any word.
 
 \subsection{Syntactic Sugar}\label{sec:pslsugar}
 
