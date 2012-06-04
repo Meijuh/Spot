@@ -30,6 +30,7 @@ TESTS_ENVIRONMENT = ./run
 check_SCRIPTS = run
 
 TESTS = \
+  alarm.py \
   ltlsimple.py \
   ltlparse.py \
   bddnqueen.py \

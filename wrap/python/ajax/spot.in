@@ -220,16 +220,12 @@ If you want to benchmark big formulae it is
 better to install Spot on your own computer.</p>\n""")
     finish(kill = True)
 
-def reset_alarm():
-    signal.alarm(30)
-
 def run_dot(basename, ext):
     outname = basename + '.' + ext
     # Do not call "dot" to generate a file that already exists.
     if not os.access(outname, os.F_OK):
         os.spawnlp(os.P_WAIT, dot, dot, dot_bgcolor, '-T' + ext,
                    '-Gsize=8.2,8.2', '-o', outname, basename + '.txt')
-    reset_alarm()
     # Create a unused hardlink that points to the output picture
     # just to remember how many cache entries are sharing it.
     os.link(outname, tmpdir + "/" + ext)
@@ -344,8 +340,20 @@ if output_type == 'v':
 spot.unblock_signal(signal.SIGALRM)
 spot.unblock_signal(signal.SIGTERM)
 os.setpgrp()
-signal.signal(signal.SIGALRM, alarm_handler)
-reset_alarm()
+
+child = os.fork()
+if child != 0:
+    # In parent.  We are just waiting for the termination of the
+    # child, or for the timeout alarm.  On SIGALRM, we will kill the
+    # child.
+    #
+    # We cannot avoid forking, because Python will not deliver a
+    # signal when a C function is running.  So if Spot takes too long
+    # to translate some formula, it would not get interrupted.
+    signal.signal(signal.SIGALRM, alarm_handler)
+    signal.alarm(30)
+    os.waitpid(child, 0)
+    exit(0)
 
 # Global options
 utf8 = False
