@@ -41,6 +41,7 @@
 #include "tgbaalgos/lbtt.hh"
 #include "tgba/tgbatba.hh"
 #include "tgba/tgbasgba.hh"
+#include "tgbaalgos/degen.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgba/futurecondcol.hh"
 #include "tgbaalgos/reducerun.hh"
@@ -1012,7 +1013,7 @@ main(int argc, char** argv)
 	    }
 	  else if (degeneralize_opt == DegenSBA)
 	    {
-	      degeneralized = a = new spot::tgba_sba_proxy(a);
+	      degeneralized = a = spot::degeneralize(a);
 	      assume_sba = true;
 	    }
 	  else if (labeling_opt == StateLabeled)
@@ -1066,7 +1067,7 @@ main(int argc, char** argv)
           else if (degeneralize_opt == DegenSBA)
 	    {
 	      product = product_degeneralized = a =
-		new spot::tgba_sba_proxy(product);
+		spot::degeneralize(product);
 	      assume_sba = true;
 	    }
         }
@@ -1148,7 +1149,7 @@ main(int argc, char** argv)
 		    // It is possible that we have applied other
 		    // operations to the automaton since its initial
 		    // degeneralization.  Let's degeneralize again!
-		    spot::tgba_sba_proxy* s = new spot::tgba_sba_proxy(a);
+		    spot::tgba* s = spot::degeneralize(a);
 		    spot::never_claim_reachable(std::cout, s, f, spin_comments);
 		    delete s;
 		  }
