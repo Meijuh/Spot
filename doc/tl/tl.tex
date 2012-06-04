@@ -208,8 +208,8 @@ sequence called the \textit{empty word} and denoted $\varepsilon$.  We
 denote $A^n$ the set of all sequences of length $n$ on $A$ (in
 particular $A^\omega$ is the set of infinite sequences on $A$), and
 $A^\star=\bigcup_{n\in\N}A^n$ denotes the set of all finite sequences.
-The length of $n\in\N\cup\{\omega\}$ any sequence $\sigma$ is noted
-$|\sigma|=n$.
+The length of any sequence $\sigma$ is noted $|\sigma|$, with
+$|\sigma|\in\N\cup\{\omega\}$.
 
 For any sequence $\sigma$, we denote $\sigma^{i..j}$ the finite
 subsequence built using letters from $\sigma(i)$ to $\sigma(j)$.  If
@@ -221,7 +221,7 @@ starting at letter $\sigma(i)$.
 The temporal formul\ae{} described in this document, should be
 interpreted on behaviors (or executions, or scenarios) of the system
 to verify.  In model checking we want to ensure that a formula (the
-property to verify) holds on all possibles behaviors of the system.
+property to verify) holds on all possible behaviors of the system.
 
 If we model the system as some sort of giant automaton (e.g., a Kripke
 structure) where each state represent a configuration of the system, a
@@ -246,7 +246,7 @@ model of $\varphi$).
 When a formula $\varphi$ holds on an \emph{finite} sequence $\sigma$,
 we write $\sigma \VDash \varphi$.
 
-\chapter{Temporal Syntax}
+\chapter{Temporal Syntax \& Semantics}
 
 \section{Boolean Constants}\label{sec:bool}
 
@@ -326,8 +326,8 @@ double quotes to avoid any unintended misinterpretation.
 
 \begin{itemize}
 \item \samp{"a<=b+c"} is an atomic proposition.  Double quotes can
-  therefore be used to embed language-specific constructs into an
-  atomic proposition.
+  therefore be used to embed constructs specific to the underlying formalism,
+  and still regard the resulting construction as an atomic proposition.
 \item \samp{light\_on} is an atomic proposition.
 \item \samp{Fab} is not an atomic proposition, this is actually
   equivalent to the formula \samp{F(ab)} where the temporal operator
@@ -388,20 +388,25 @@ and the above operators, we say that the formula is a \emph{Boolean
 \subsection{Semantics}
 
 \begin{align*}
-\NOT f\vDash \sigma &\iff (f\nvDash\sigma) \\
-f\AND g\vDash \sigma &\iff (f\vDash\sigma)\land(g\vDash\sigma) \\
-f\OR g\vDash \sigma &\iff (f\vDash\sigma)\lor(g\vDash\sigma) \\
-f\IMPLIES g\vDash \sigma &\iff
-           (f\nvDash\sigma)\lor(g\vDash\sigma)\\
-f\XOR g\vDash \sigma &\iff
-           ((f\vDash\sigma)\land(g\nvDash\sigma))\lor
-           ((f\nvDash\sigma)\land(g\vDash\sigma))\\
-f\EQUIV g\vDash \sigma &\iff
-           ((f\vDash\sigma)\land(g\vDash\sigma))\lor
-           ((f\nvDash\sigma)\land(g\nvDash\sigma))
+\sigma\vDash \NOT f &\iff (\sigma\nvDash f) \\
+\sigma\vDash f\AND g &\iff (\sigma\vDash f)\land(\sigma\vDash g) \\
+\sigma\vDash f\OR g &\iff (\sigma\vDash f)\lor(\sigma\vDash g) \\
+\sigma\vDash f\IMPLIES g &\iff
+           (\sigma\nvDash f)\lor(\sigma\vDash g)\\
+\sigma\vDash f\XOR g &\iff
+           ((\sigma\vDash f)\land(\sigma\nvDash g))\lor
+           ((\sigma\nvDash f)\land(\sigma\vDash g))\\
+\sigma\vDash f\EQUIV g &\iff
+           ((\sigma\vDash f)\land(\sigma\vDash g))\lor
+           ((\sigma\nvDash f)\land(\sigma\nvDash g))
 \end{align*}
 
 \subsection{Trivial Identities (Occur Automatically)}
+
+Trivial identities are applied every time an expression is
+constructed.  This means for instance that there is not way to
+construct the expression \samp{$\NOT\NOT a$} in Spot, such an attempt
+will always yield the expression \samp{$a$}.
 
 % These first rules are for the \samp{!} and \samp{->} operators.
 
@@ -480,12 +485,12 @@ temporal operators can be used to construct another temporal formula.
 \subsection{Semantics}\label{sec:opltl:sem}
 
 \begin{align*}
-  \sigma\vDash \X f &\iff f\vDash \sigma^{1..}\\
+  \sigma\vDash \X f &\iff \sigma^{1..}\vDash f\\
   \sigma\vDash \F f &\iff \exists i\in \N,\, \sigma^{i..}\vDash f\\
   \sigma\vDash \G f &\iff \forall i\in \N,\, \sigma^{i..}\vDash f\\
   \sigma\vDash f\U g &\iff \exists j\in\N,\,
   \begin{cases}
-    \forall i<j,\, f\vDash \sigma^{i..}\\
+    \forall i<j,\, \sigma^{i..}\vDash f\\
     \sigma^{j..} \vDash g\\
   \end{cases}\\
   \sigma \vDash f\W g &\iff (\sigma\vDash f\U g)\lor(\sigma\vDash\G f)\\
@@ -497,10 +502,10 @@ temporal operators can be used to construct another temporal formula.
   \sigma \vDash f\R g &\iff (\sigma \vDash f\M g)\lor(\sigma\vDash \G g)
 \end{align*}
 
-Appendix~\ref{sec:ltl-equiv} explains how to rewrite all LTL operators
-using only $\X$ and one operated chosen among $\U$, $\W$, $\M$,and
-$\R$.  This could be useful to understand the operators $\R$, $\M$,
-and $\W$ if you are only familiar with $\X$ and $\U$.
+Appendix~\ref{sec:ltl-equiv} explains how to rewrite the above LTL
+operators using only $\X$ and one operator chosen among $\U$, $\W$,
+$\M$,and $\R$.  This could be useful to understand the operators $\R$,
+$\M$, and $\W$ if you are only familiar with $\X$ and $\U$.
 
 \subsection{Trivial Identities (Occur Automatically)}
 
@@ -567,7 +572,7 @@ intersection `$\ANDALT$', and fusion `$\FUSION$'.
 
 Any Boolean formula (section~\ref{def:boolform}) is a SERE.  SERE can
 be further combined with the following operators, where $f$ and $g$
-denote arbitrary SERE and $b$ denotes a Boolean formula.
+denote arbitrary SERE.
 
 \begin{center}
 \begin{tabular}{cccccrl}
@@ -602,12 +607,14 @@ instance `$a\STAR{i,\texttt{\$}}$', `$a\STAR{i\texttt{:inf}}$' and
 \subsection{Semantics}
 
 The following semantics assume that $f$ and $g$ are two SEREs, while
-$b$ is a Boolean formula.
+$a$ is an atomic proposition.
 
 {\allowdisplaybreaks
 \begin{align*}
-  \sigma\VDash \eword & \iff |\sigma| = 0 \\
-  \sigma\VDash a      & \iff \sigma(0)(a) = 1 \\
+  \sigma\nVDash \0    &\\
+  \sigma\VDash \1     & \iff |\sigma|=1\\
+  \sigma\VDash \eword & \iff |\sigma|=0 \\
+  \sigma\VDash a      & \iff \sigma(0)(a)=1 \land |\sigma|=1\\
   \sigma\VDash f\OR g &\iff (\sigma\VDash f) \lor (\sigma\VDash g) \\
   \sigma\VDash f\ANDALT g &\iff (\sigma \VDash f) \land (\sigma\VDash g) \\
   \sigma\VDash f\AND g &\iff \exists k\in\N,\,
