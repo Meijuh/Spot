@@ -97,50 +97,48 @@ namespace spot
     class outgoing_acc
     {
       const tgba* a_;
-      typedef Sgi::hash_map<const state*, bdd,
-			    state_ptr_hash, state_ptr_equal> accmap_t;
-      mutable accmap_t accmap_;
-      mutable accmap_t accmapu_;
+      typedef std::pair<bdd, bdd> cache_entry;
+      typedef Sgi::hash_map<const state*, cache_entry,
+			    state_ptr_hash, state_ptr_equal> cache_t;
+      cache_t cache_;
 
     public:
       outgoing_acc(const tgba* a): a_(a)
       {
       }
 
-      bdd common_acc(const state* s)
+      cache_t::const_iterator fill_cache(const state* s)
       {
-	// Lookup cache
-	accmap_t::const_iterator i = accmap_.find(s);
-	if (i != accmap_.end())
-	  return i->second;
-
 	bdd common = a_->all_acceptance_conditions();
-	tgba_succ_iterator* it = a_->succ_iter(s);
-	for (it->first(); !it->done() && common != bddfalse; it->next())
-	  common &= it->current_acceptance_conditions();
-	delete it;
-
-	// Populate cache
-	accmap_[s->clone()] = common;
-	return common;
-      }
-
-      bdd union_acc(const state* s)
-      {
-	// Lookup cache
-	accmap_t::const_iterator i = accmapu_.find(s);
-	if (i != accmapu_.end())
-	  return i->second;
-
-	bdd common = bddfalse;
+	bdd union_ = bddfalse;
 	tgba_succ_iterator* it = a_->succ_iter(s);
 	for (it->first(); !it->done(); it->next())
-	  common |= it->current_acceptance_conditions();
+	  {
+	    bdd set = it->current_acceptance_conditions();
+	    common &= set;
+	    union_ |= set;
+	  }
 	delete it;
+	cache_entry e(common, union_);
+	return cache_.insert(std::make_pair(s, e)).first;
+      }
 
-	// Populate cache
-	accmapu_[s->clone()] = common;
-	return common;
+      // Intersection of all outgoing acceptance sets
+      bdd common_acc(const state* s)
+      {
+	cache_t::const_iterator i = cache_.find(s);
+	if (i == cache_.end())
+	  i = fill_cache(s);
+	return i->second.first;
+      }
+
+      // Union of all outgoing acceptance sets
+      bdd union_acc(const state* s)
+      {
+	cache_t::const_iterator i = cache_.find(s);
+	if (i == cache_.end())
+	  i = fill_cache(s);
+	return i->second.second;
       }
     };
   }
