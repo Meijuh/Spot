@@ -96,9 +96,25 @@ Algorithm
 
 Algorithm
 {
+   Name = "Spot FM Sim (degen)"
+   Path = "$LBTT_TRANSLATE"
+   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -RDS -F'"
+   Enabled = yes
+}
+
+Algorithm
+{
    Name = "Spot FM WDBA (degen)"
    Path = "$LBTT_TRANSLATE"
    Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -Rm -F'"
+   Enabled = yes
+}
+
+Algorithm
+{
+   Name = "Spot FM WDBA+Sim (degen)"
+   Path = "$LBTT_TRANSLATE"
+   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -Rm -RDS -F'"
    Enabled = yes
 }
 
