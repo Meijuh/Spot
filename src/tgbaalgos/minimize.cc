@@ -638,6 +638,7 @@ namespace spot
     if (!f && !aut_neg_f)
       {
 	// We do not now if the minimization is safe.
+	delete min_aut_f;
 	return 0;
       }
 
