@@ -1,7 +1,7 @@
 This benchmark plots the performance of the ltl2tgba_fm algorithm
-for tanslating some classes of LTL formula.
+for translating some classes of LTL formula.
 
-Execute "./run" to compute the raw numbers, then execture
+Execute "./run" to compute the raw numbers, then execute
 "gnuplot plot.gnu" to plot the figures.
 
 The authors of the following paper defined 5 classes of LTL formulae
