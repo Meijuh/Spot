@@ -1,4 +1,5 @@
 #!/bin/sh
+# -*- coding: utf-8 -*-
 # Copyright (C) 2012 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
@@ -36,3 +37,12 @@ run 0 ../ltl2tgba -Rm -kt 'Fa | XGd' > out2
 
 cmp out expected
 cmp out2 expected
+
+
+# This non-obligation formula used to be minimized by mistake when
+# translated with lacim.
+x=`../ltl2tgba -l -Rm 'F(Fa R (Gb & !a))' |
+   grep -v -- '->' |
+   sed -n 's/.*label="\(..*\)".*/\1/p' |
+   tr -d '0-9\n'`
+test -n "$x"

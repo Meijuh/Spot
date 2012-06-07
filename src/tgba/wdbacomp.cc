@@ -1,5 +1,6 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Développement de
-// l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -248,18 +249,12 @@ namespace spot
 	return !the_acceptance_cond_;
       }
 
-  protected:
-    virtual bdd
-    compute_support_conditions(const state* ostate) const
+    protected:
+      virtual bdd
+      compute_support_conditions(const state*) const
       {
-	const state_wdba_comp_proxy* s =
-	  down_cast<const state_wdba_comp_proxy*>(ostate);
-	assert(s);
-	const state* rs = s->real_state();
-	if (rs)
-	  return a_->support_conditions(rs);
-	else
-	  return bddtrue;
+	// The automaton is complete, so we always support all variables.
+	return bddtrue;
       }
 
       virtual bdd compute_support_variables(const state* ostate) const
