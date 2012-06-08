@@ -90,6 +90,7 @@ int          bddnodesize;           /* Number of allocated nodes */
 int          bddmaxnodesize;        /* Maximum allowed number of nodes */
 int          bddmaxnodeincrease;    /* Max. # of nodes used to inc. table */
 BddNode*     bddnodes;          /* All of the bdd nodes */
+int*         bddhash;           /* Unicity hash table */
 int          bddfreepos;        /* First free node */
 int          bddfreenum;        /* Number of free nodes */
 long int     bddproduced;       /* Number of new nodes ever produced */
@@ -183,13 +184,18 @@ int bdd_init(int initnodesize, int cs)
    if ((bddnodes=(BddNode*)malloc(sizeof(BddNode)*bddnodesize)) == NULL)
       return bdd_error(BDD_MEMORY);
 
+   if ((bddhash=(int*)calloc(bddnodesize, sizeof(*bddhash))) == NULL)
+     {
+       free(bddnodes);
+       return bdd_error(BDD_MEMORY);
+     }
+
    bddresized = 0;
 
    for (n=0 ; n<bddnodesize ; n++)
    {
       bddnodes[n].refcou = 0;
       LOW(n) = -1;
-      bddnodes[n].hash = 0;
       LEVEL(n) = 0;
       bddnodes[n].next = n+1;
    }
@@ -1018,8 +1024,8 @@ static void bdd_gbc_rehash(void)
 	 register unsigned int hash;
 
 	 hash = NODEHASH(LEVELp(node), LOWp(node), HIGHp(node));
-	 node->next = bddnodes[hash].hash;
-	 bddnodes[hash].hash = n;
+	 node->next = bddhash[hash];
+	 bddhash[hash] = n;
       }
       else
       {
@@ -1055,8 +1061,9 @@ void bdd_gbc(void)
    {
       if (bddnodes[n].refcou > 0)
 	 bdd_mark(n);
-      bddnodes[n].hash = 0;
    }
+
+   memset(bddhash, 0, bddnodesize*sizeof(*bddhash));
 
    bddfreepos = 0;
    bddfreenum = 0;
@@ -1071,8 +1078,8 @@ void bdd_gbc(void)
 
 	 LEVELp(node) &= MARKOFF;
 	 hash = NODEHASH(LEVELp(node), LOWp(node), HIGHp(node));
-	 node->next = bddnodes[hash].hash;
-	 bddnodes[hash].hash = n;
+	 node->next = bddhash[hash];
+	 bddhash[hash] = n;
       }
       else
       {
@@ -1313,7 +1320,7 @@ int bdd_makenode(unsigned int level, int low, int high)
 
       /* Try to find an existing node of this kind */
    hash = NODEHASH(level, low, high);
-   res = bddnodes[hash].hash;
+   res = bddhash[hash];
 
    while(res != 0)
    {
@@ -1378,8 +1385,8 @@ int bdd_makenode(unsigned int level, int low, int high)
    HIGHp(node) = high;
 
       /* Insert node */
-   node->next = bddnodes[hash].hash;
-   bddnodes[hash].hash = res;
+   node->next = bddhash[hash];
+   bddhash[hash] = res;
 
    return res;
 }
@@ -1412,14 +1419,26 @@ int bdd_noderesize(int doRehash)
       return bdd_error(BDD_MEMORY);
    bddnodes = newnodes;
 
+   /* An error while reallocating bddhash is very unlikely, because
+      the new bddhash should fit easily in the area freed by the old
+      bddnode.  */
    if (doRehash)
-      for (n=0 ; n<oldsize ; n++)
-	 bddnodes[n].hash = 0;
+     {
+       free(bddhash);
+       if ((bddhash=(int*)calloc(bddnodesize, sizeof(*bddhash))) == NULL)
+	 return bdd_error(BDD_MEMORY);
+     }
+   else
+     {
+       bddhash = (int*)realloc(bddhash, sizeof(*bddhash)*bddnodesize);
+       if (bddhash == NULL)
+	 return bdd_error(BDD_MEMORY);
+       memset(bddhash + oldsize, 0, (bddnodesize-oldsize)*sizeof(*bddhash));
+     }
 
    for (n=oldsize ; n<bddnodesize ; n++)
    {
       bddnodes[n].refcou = 0;
-      bddnodes[n].hash = 0;
       LEVEL(n) = 0;
       LOW(n) = -1;
       bddnodes[n].next = n+1;

@@ -902,14 +902,11 @@ static int mark_roots(void)
 
 	 addDependencies(dep);
       }
-
-      /* Make sure the hash field is empty. This saves a loop in the
-	 initial GBC */
-      node->hash = 0;
    }
 
-   bddnodes[0].hash = 0;
-   bddnodes[1].hash = 0;
+   /* Make sure the hash is empty. This saves a loop in the initial
+      GBC */
+   memset(bddhash, 0, bddnodesize*sizeof(*bddhash));
 
    free(dep);
    return 0;
@@ -938,8 +935,8 @@ static void reorder_gbc(void)
 	 register unsigned int hash;
 
 	 hash = NODEHASH(VARp(node), LOWp(node), HIGHp(node));
-	 node->next = bddnodes[hash].hash;
-	 bddnodes[hash].hash = n;
+	 node->next = bddhash[hash];
+	 bddhash[hash] = n;
 
       }
       else
@@ -987,8 +984,7 @@ static void reorder_rehashAll(void)
    reorder_setLevellookup();
    bddfreepos = 0;
 
-   for (n=bddnodesize-1 ; n>=0 ; n--)
-      bddnodes[n].hash = 0;
+   memset(bddhash, 0, sizeof(*bddhash)*bddnodesize);
 
    for (n=bddnodesize-1 ; n>=2 ; n--)
    {
@@ -999,8 +995,8 @@ static void reorder_rehashAll(void)
 	 register unsigned int hash;
 
 	 hash = NODEHASH(VARp(node), LOWp(node), HIGHp(node));
-	 node->next = bddnodes[hash].hash;
-	 bddnodes[hash].hash = n;
+	 node->next = bddhash[hash];
+	 bddhash[hash] = n;
       }
       else
       {
@@ -1038,7 +1034,7 @@ static int reorder_makenode(int var, int low, int high)
 
       /* Try to find an existing node of this kind */
    hash = NODEHASH(var, low, high);
-   res = bddnodes[hash].hash;
+   res = bddhash[hash];
 
    while(res != 0)
    {
@@ -1097,8 +1093,8 @@ static int reorder_makenode(int var, int low, int high)
    HIGHp(node) = high;
 
       /* Insert node in hash chain */
-   node->next = bddnodes[hash].hash;
-   bddnodes[hash].hash = res;
+   node->next = bddhash[hash];
+   bddhash[hash] = res;
 
       /* Make sure it is reference counted */
    node->refcou = 1;
@@ -1128,8 +1124,8 @@ static int reorder_downSimple(int var0)
    {
       int r;
 
-      r = bddnodes[n + vl0].hash;
-      bddnodes[n + vl0].hash = 0;
+      r = bddhash[n + vl0];
+      bddhash[n + vl0] = 0;
 
       while (r != 0)
       {
@@ -1139,8 +1135,8 @@ static int reorder_downSimple(int var0)
 	 if (VAR(LOWp(node)) != var1  &&  VAR(HIGHp(node)) != var1)
 	 {
  	       /* Node does not depend on next var, let it stay in the chain */
-	    node->next = bddnodes[n+vl0].hash;
-	    bddnodes[n+vl0].hash = r;
+	    node->next = bddhash[n+vl0];
+	    bddhash[n+vl0] = r;
 	    levels[var0].nodenum++;
 	 }
 	 else
@@ -1219,8 +1215,8 @@ static void reorder_swap(int toBeProcessed, int var0)
 
          /* Rehash the node since it got new childs */
       hash = NODEHASH(VARp(node), LOWp(node), HIGHp(node));
-      node->next = bddnodes[hash].hash;
-      bddnodes[hash].hash = toBeProcessed;
+      node->next = bddhash[hash];
+      bddhash[hash] = toBeProcessed;
 
       toBeProcessed = next;
    }
@@ -1241,8 +1237,8 @@ static void reorder_localGbc(int var0)
    for (n=0 ; n<size1 ; n++)
    {
       int hash = n+vl1;
-      int r = bddnodes[hash].hash;
-      bddnodes[hash].hash = 0;
+      int r = bddhash[hash];
+      bddhash[hash] = 0;
 
       while (r)
       {
@@ -1251,8 +1247,8 @@ static void reorder_localGbc(int var0)
 
 	 if (node->refcou > 0)
 	 {
-	    node->next = bddnodes[hash].hash;
-	    bddnodes[hash].hash = r;
+	    node->next = bddhash[hash];
+	    bddhash[hash] = r;
 	 }
 	 else
 	 {
@@ -1343,8 +1339,8 @@ static void reorder_localGbcResize(int toBeProcessed, int var0)
    for (n=0 ; n<size1 ; n++)
    {
       int hash = n+vl1;
-      int r = bddnodes[hash].hash;
-      bddnodes[hash].hash = 0;
+      int r = bddhash[hash];
+      bddhash[hash] = 0;
 
       while (r)
       {
@@ -1388,8 +1384,8 @@ static void reorder_localGbcResize(int toBeProcessed, int var0)
       int next = node->next;
       int hash = NODEHASH(VARp(node), LOWp(node), HIGHp(node));
 
-      node->next = bddnodes[hash].hash;
-      bddnodes[hash].hash = toBeProcessed;
+      node->next = bddhash[hash];
+      bddhash[hash] = toBeProcessed;
 
       toBeProcessed = next;
    }
@@ -1420,7 +1416,7 @@ static void sanitycheck(void)
 
       for (n=0 ; n<levels[v].size ; n++)
       {
-	 r = bddnodes[n+levels[v].start].hash;
+	 r = bddhash[n+levels[v].start];
 
 	 while (r)
 	 {

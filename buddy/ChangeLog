@@ -1,3 +1,20 @@
+2012-06-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Reduce the size of bddNode to improve cache efficiency.
+
+	The unicity table was mixed with the bddNode table for now
+	apparent reason.  After the hash of some node is computed,
+	bddnodes[hash] did only contain some random node (not the one
+	looked for) whose .hash member would point to the actual node with
+	this hash.  So that's a two step lookup.  With this patch, we sill
+	have a two step lookup, but the .hash member have been moved to a
+	separate array.  A consequence is that bddNode is now 16-byte long
+	(instead of 20) so it will never span across two cache lines.
+
+	* src/kernel.hh (bddNode): Remove the hash member, and move it...
+	(bddhash): ... as this new separate table.
+	* src/kernel.cc, src/reorder.cc: Adjust all code.
+
 2012-06-19  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Adjust parser construction to support Automake 1.11 and 1.12.

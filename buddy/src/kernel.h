@@ -96,7 +96,6 @@ typedef struct s_BddNode /* Node table entry */
    unsigned int level  : 22;
    int low;
    int high;
-   int hash;
    int next;
 } BddNode;
 
@@ -113,6 +112,7 @@ extern int       bddnodesize;        /* Number of allocated nodes */
 extern int       bddmaxnodesize;     /* Maximum allowed number of nodes */
 extern int       bddmaxnodeincrease; /* Max. # of nodes used to inc. table */
 extern BddNode*  bddnodes;           /* All of the bdd nodes */
+extern int*      bddhash;            /* Unicity hash table */
 extern int       bddvarnum;          /* Number of defined BDD variables */
 extern int*      bddrefstack;        /* Internal node reference stack */
 extern int*      bddrefstacktop;     /* Internal node reference stack top */
