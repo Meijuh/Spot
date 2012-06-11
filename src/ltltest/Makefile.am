@@ -36,6 +36,7 @@ check_PROGRAMS = \
   nenoform \
   reduc \
   reduccmp \
+  reduceu \
   reductau \
   reductaustr \
   syntimpl \
@@ -58,6 +59,8 @@ nenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM
 reduc_SOURCES = reduc.cc
 reduccmp_SOURCES = equals.cc
 reduccmp_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC
+reduceu_SOURCES = equals.cc
+reduceu_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC -DEVENT_UNIV
 reductau_SOURCES = equals.cc
 reductau_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC_TAU
 reductaustr_SOURCES = equals.cc
@@ -99,7 +102,8 @@ TESTS = \
   reduc0.test \
   reducpsl.test \
   reduccmp.test \
-  uwrm.test
+  uwrm.test \
+  eventuniv.test
 
 distclean-local:
 	rm -rf $(TESTS:.test=.dir)

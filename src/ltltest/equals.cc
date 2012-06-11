@@ -104,6 +104,9 @@ main(int argc, char** argv)
 #endif
 #ifdef REDUC
     spot::ltl::ltl_simplifier_options opt(true, true, true, false, false);
+#  ifdef EVENT_UNIV
+    opt.favor_event_univ = true;
+#  endif
     spot::ltl::ltl_simplifier simp(opt);
     {
       const spot::ltl::formula* tmp;

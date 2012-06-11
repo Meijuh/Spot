@@ -192,6 +192,8 @@ syntax(char* prog)
 	    << "  -rd   display the reduced formula" << std::endl
 	    << "  -rD   dump statistics about the simplifier cache" << std::endl
 	    << "  -rL   disable basic rewritings producing larger formulas"
+	    << std::endl
+	    << "  -ru   lift formulae that are eventual and universal"
 	    << std::endl << std::endl
 
 	    << "Automaton degeneralization (after translation):"
@@ -777,6 +779,12 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-RT"))
         {
           opt_bisim_ta = true;
+	}
+      else if (!strcmp(argv[formula_index], "-ru"))
+        {
+	  simpltl = true;
+	  redopt.event_univ = true;
+	  redopt.favor_event_univ = true;
         }
       else if (!strcmp(argv[formula_index], "-M"))
         {

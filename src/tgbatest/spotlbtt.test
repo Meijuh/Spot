@@ -112,6 +112,14 @@ Algorithm
 
 Algorithm
 {
+   Name = "Spot (Couvreur -- FM) reduction7+ru of formula (pre reduction)"
+   Path = "${LBTT_TRANSLATE}"
+   Parameters = "--spot '../ltl2tgba -r7 -ru -F -f -t'"
+   Enabled = yes
+}
+
+Algorithm
+{
    Name = "Spot (Couvreur -- FM), reduction of formula in FM"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -fr -r4 -F -f -t'"
@@ -253,6 +261,14 @@ Algorithm
    Name = "Compositional Suspension (-r4)"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -u -r4 -F -f -t'"
+   Enabled = yes
+}
+
+Algorithm
+{
+   Name = "Compositional Suspension (-r4 -ru)"
+   Path = "${LBTT_TRANSLATE}"
+   Parameters = "--spot '../ltl2tgba -u -r4 -ru -F -f -t'"
    Enabled = yes
 }
 

@@ -38,7 +38,8 @@ namespace spot
 			     bool containment_checks_stronger = false,
 			     bool nenoform_stop_on_boolean = false,
 			     bool reduce_size_strictly = false,
-			     bool boolean_to_isop = false)
+			     bool boolean_to_isop = false,
+			     bool favor_event_univ = false)
 	: reduce_basics(basics),
 	  synt_impl(synt_impl),
 	  event_univ(event_univ),
@@ -46,7 +47,8 @@ namespace spot
 	  containment_checks_stronger(containment_checks_stronger),
 	  nenoform_stop_on_boolean(nenoform_stop_on_boolean),
 	  reduce_size_strictly(reduce_size_strictly),
-	  boolean_to_isop(boolean_to_isop)
+	  boolean_to_isop(boolean_to_isop),
+	  favor_event_univ(favor_event_univ)
       {
       }
 
@@ -64,6 +66,8 @@ namespace spot
       bool reduce_size_strictly;
       // If true, Boolean subformulae will be rewritten in ISOP form.
       bool boolean_to_isop;
+      // Try to isolate subformulae that are eventual and universal.
+      bool favor_event_univ;
     };
 
     // fwd declaration to hide technical details.

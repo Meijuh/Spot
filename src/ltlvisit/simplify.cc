@@ -129,6 +129,7 @@ namespace spot
 	: dict(d), options(opt), lcc(d, true, true, false, false)
       {
 	options.containment_checks |= options.containment_checks_stronger;
+	options.event_univ |= options.favor_event_univ;
       }
 
       void
@@ -880,6 +881,9 @@ namespace spot
 
 	void process(const formula* f)
 	{
+	  bool e = f->is_eventual();
+	  bool u = f->is_universal();
+	  bool eu = res_EventUniv && e & u && c_->options.favor_event_univ;
 	  switch (f->kind())
 	    {
 	    case formula::UnOp:
@@ -889,21 +893,21 @@ namespace spot
 		switch (uo->op())
 		  {
 		  case unop::X:
-		    if (res_X)
+		    if (res_X && !eu)
 		      {
 			res_X->push_back(c->clone());
 			return;
 		      }
 		    break;
 		  case unop::F:
-		    if (res_FG)
+		    if (res_FG && u)
 		      if (const unop* cc = is_G(c))
 			{
 			  res_FG->push_back(((split_ & Strip_FG) == Strip_FG
 					     ? cc->child() : f)->clone());
 			  return;
 			}
-		    if (res_F)
+		    if (res_F && !eu)
 		      {
 			res_F->push_back(((split_ & Strip_F) == Strip_F
 					  ? c : f)->clone());
@@ -911,14 +915,14 @@ namespace spot
 		      }
 		    break;
 		  case unop::G:
-		    if (res_GF)
+		    if (res_GF && e)
 		      if (const unop* cc = is_F(c))
 			{
 			  res_GF->push_back(((split_ & Strip_GF) == Strip_GF
 					     ? cc->child() : f)->clone());
 			  return;
 			}
-		    if (res_G)
+		    if (res_G && !eu)
 		      {
 			res_G->push_back(((split_ & Strip_G) == Strip_G
 					  ? c : f)->clone());
@@ -966,8 +970,6 @@ namespace spot
 	    }
 	  if (c_->options.event_univ)
 	    {
-	      bool e = f->is_eventual();
-	      bool u = f->is_universal();
 	      if (res_EventUniv && e && u)
 		{
 		  res_EventUniv->push_back(f->clone());
@@ -1154,12 +1156,28 @@ namespace spot
 		  && c_->lcc.equal(result_, uo))
 		return;
 
-	      // Disabled: X(f1 & GF(f2)) = X(f1) & GF(f2)
-	      // Disabled: X(f1 | GF(f2)) = X(f1) | GF(f2)
-	      // Disabled: X(f1 & FG(f2)) = X(f1) & FG(f2)
-	      // Disabled: X(f1 | FG(f2)) = X(f1) | FG(f2)
-	      // The above make more sense when reversed,
-	      // so see them in the And and Or rewritings.
+	      // X(f1 & GF(f2)) = X(f1) & GF(f2)
+	      // X(f1 | GF(f2)) = X(f1) | GF(f2)
+	      // X(f1 & FG(f2)) = X(f1) & FG(f2)
+	      // X(f1 | FG(f2)) = X(f1) | FG(f2)
+	      //
+	      // The above usually make more sense when reversed (see
+	      // them in the And and Or rewritings), except when we
+	      // try to maximaze the size of subformula that do not
+	      // have EventUniv formulae.
+	      if (opt_.favor_event_univ)
+		if (const multop* mo = is_multop(result_,
+						 multop::Or, multop::And))
+		  {
+		    mospliter s(mospliter::Split_EventUniv, mo, c_);
+		    multop::type op = mo->op();
+		    s.res_EventUniv->push_back(unop_multop(unop::X, op,
+							   s.res_other));
+		    result_ = multop::instance(op, s.res_EventUniv);
+		    if (result_ != uo)
+		      result_ = recurse_destroy(result_);
+		    return;
+		  }
 	      break;
 
 	    case unop::F:
@@ -1259,7 +1277,8 @@ namespace spot
 		  && c_->lcc.contained(uo, result_))
 		return;
 
-	      // Disabled: F(f1 & GF(f2)) = F(f1) & GF(f2)
+	      // Disabled by default:
+	      //     F(f1 & GF(f2)) = F(f1) & GF(f2)
 	      //
 	      // As is, these two formulae are translated into
 	      // equivalent Büchi automata so the rewriting is
@@ -1272,7 +1291,86 @@ namespace spot
 	      // rule which really helps the translation. F((f1 &
 	      // GF(f2)) | (a & GF(b))) is indeed easier to translate.
 	      //
-	      // So let's not consider this rewriting rule.
+	      // So we do not consider this rewriting rule by default.
+	      // However if favor_event_univ is set, we want to move
+	      // the GF out of the F.
+	      if (opt_.favor_event_univ)
+		// F(f1&f2&FG(f3)&FG(f4)&f5&f6) =
+		//                        F(f1&f2) & FG(f3&f4) & f5 & f6
+		// if f5 and f6 are both eventual and universal.
+		if (const multop* mo = is_And(result_))
+		  {
+		    mo->clone();
+		    mospliter s(mospliter::Strip_FG |
+				mospliter::Split_EventUniv,
+				mo, c_);
+		    s.res_EventUniv->
+		      push_back(unop_multop(unop::F, multop::And,
+					    s.res_other));
+		    s.res_EventUniv->
+		      push_back(unop_unop_multop(unop::F, unop::G,
+						 multop::And, s.res_FG));
+		    result_ = multop::instance(multop::And, s.res_EventUniv);
+		    if (result_ != uo)
+		      {
+			mo->destroy();
+			result_ = recurse_destroy(result_);
+			return;
+		      }
+		    else
+		      {
+			// Revert to the previous value of result_,
+			// for the next simplification.
+			result_->destroy();
+			result_ = mo;
+		      }
+		  }
+	      // If u3 and u4 are universal formulae and h is not:
+	      // F(f1 | f2 | Fu3 | u4 | FGg | Fh)
+	      //    = F(f1 | f2 | u3 | u4 | Gg | h)
+	      // or
+	      // F(f1 | f2 | Fu3 | u4 | FGg | Fh)
+	      //    = F(f1 | f2 | h) | F(u3 | u4 | Gg)
+	      // depending on whether favor_event_univ is set.
+	      if (const multop* mo = is_Or(result_))
+		{
+		  mo->clone();
+		  int w = mospliter::Strip_F;
+		  if (opt_.favor_event_univ)
+		    w |= mospliter::Split_Univ;
+		  mospliter s(w, mo, c_);
+		  s.res_other->insert(s.res_other->end(),
+				      s.res_F->begin(), s.res_F->end());
+		  delete s.res_F;
+		  result_ = unop_multop(unop::F, multop::Or, s.res_other);
+		  if (s.res_Univ)
+		    {
+		      // Strip any F.
+		      for (multop::vec::iterator i = s.res_Univ->begin();
+			   i != s.res_Univ->end(); ++i)
+			if (const unop* u = is_F(*i))
+			  {
+			    *i = u->child()->clone();
+			    u->destroy();
+			  }
+		      const formula* fu =
+			unop_multop(unop::F, multop::Or, s.res_Univ);
+		      result_ = multop::instance(multop::Or, result_, fu);
+		    }
+		  if (result_ != uo)
+		    {
+		      mo->destroy();
+		      result_ = recurse_destroy(result_);
+		      return;
+		    }
+		  else
+		    {
+		      // Revert to the previous value of result_,
+		      // for the next simplification.
+		      result_->destroy();
+		      result_ = mo;
+		    }
+		}
 	      break;
 
 	    case unop::G:
@@ -1342,6 +1440,52 @@ namespace spot
 						   multop::Or, s.res_GF));
 		      result_ = multop::instance(multop::Or,
 						 s.res_EventUniv);
+		      if (result_ != uo)
+			{
+			  mo->destroy();
+			  result_ = recurse_destroy(result_);
+			  return;
+			}
+		      else
+			{
+			  // Revert to the previous value of result_,
+			  // for the next simplification.
+			  result_->destroy();
+			  result_ = mo;
+			}
+		    }
+		  // If e3 and e4 are eventual formulae and h is not:
+		  // G(f1 & f2 & Ge3 & e4 & GFg & Gh)
+		  //    = G(f1 & f2 & e3 & e4 & Fg & h)
+		  // or
+		  // G(f1 & f2 & Ge3 & e4 & GFg & Gh)
+		  //    = G(f1 & f2 & h) & G(e3 & e4 & Fg)
+		  // depending on whether favor_event_univ is set.
+		  else if (const multop* mo = is_And(result_))
+		    {
+		      mo->clone();
+		      int w = mospliter::Strip_G;
+		      if (opt_.favor_event_univ)
+			w |= mospliter::Split_Event;
+		      mospliter s(w, mo, c_);
+		      s.res_other->insert(s.res_other->end(),
+					  s.res_G->begin(), s.res_G->end());
+		      delete s.res_G;
+		      result_ = unop_multop(unop::G, multop::And, s.res_other);
+		      if (s.res_Event)
+			{
+			  // Strip any G.
+			  for (multop::vec::iterator i = s.res_Event->begin();
+			       i != s.res_Event->end(); ++i)
+			    if (const unop* u = is_G(*i))
+			      {
+				*i = u->child()->clone();
+				u->destroy();
+			      }
+			  const formula* ge =
+			    unop_multop(unop::G, multop::And, s.res_Event);
+			  result_ = multop::instance(multop::And, result_, ge);
+			}
 		      if (result_ != uo)
 			{
 			  mo->destroy();
@@ -1870,7 +2014,6 @@ namespace spot
 		  return;
 		}
 
-
 	      // e₁ W e₂ = Ge₁ | e₂
 	      // u₁ M u₂ = Fu₁ & u₂
 	      if (!opt_.reduce_size_strictly)
@@ -1893,6 +2036,113 @@ namespace spot
 		    }
 		}
 
+	      // In the following rewritings we assume that
+	      // - e is a pure eventuality
+	      // - u is purely universal
+	      // - q is purely universal pure eventuality
+	      // (a U (b|e)) = (a U b)|e
+	      // (a W (b|e)) = (a W b)|e
+	      // (a U (b&q)) = (a U b)&q
+	      // ((a&q) M b) = (a M b)&q
+	      // ((a|u) W b) = u|(a W b)
+	      // (a R (b&u)) = (a R b)&u
+	      // (a M (b&u)) = (a M b)&u
+	      if (opt_.favor_event_univ)
+		{
+		  if (op == binop::U || op == binop::W)
+		    if (const multop* mo = is_Or(b))
+		      {
+			b->clone();
+			mospliter s(mospliter::Split_Event, mo, c_);
+			const formula* b2 =
+			  multop::instance(multop::Or, s.res_other);
+			if (b2 != b)
+			  {
+			    b->destroy();
+			    s.res_Event->push_back(binop::instance(op, a, b2));
+			    result_ =
+			      recurse_destroy(multop::instance(multop::Or,
+							       s.res_Event));
+			    return;
+			  }
+			b2->destroy();
+			delete s.res_Event;
+		      }
+		  if (op == binop::W)
+		    if (const multop* mo = is_Or(a))
+		      {
+			a->clone();
+			mospliter s(mospliter::Split_Univ, mo, c_);
+			const formula* a2 =
+			  multop::instance(multop::Or, s.res_other);
+			if (a2 != a)
+			  {
+			    a->destroy();
+			    s.res_Univ->push_back(binop::instance(op, a2, b));
+			    result_ = recurse_destroy
+			      (multop::instance(multop::Or, s.res_Univ));
+			    return;
+			  }
+			a2->destroy();
+			delete s.res_Univ;
+		      }
+		  if (op == binop::U)
+		    if (const multop* mo = is_And(b))
+		      {
+			b->clone();
+			mospliter s(mospliter::Split_EventUniv, mo, c_);
+			const formula* b2 =
+			  multop::instance(multop::And, s.res_other);
+			if (b2 != b)
+			  {
+			    b->destroy();
+			    s.res_EventUniv->push_back(binop::instance(op,
+								       a, b2));
+			    result_ = recurse_destroy
+			      (multop::instance(multop::And, s.res_EventUniv));
+			    return;
+			  }
+			b2->destroy();
+			delete s.res_Event;
+		      }
+		  if (op == binop::M)
+		    if (const multop* mo = is_And(a))
+		      {
+			a->clone();
+			mospliter s(mospliter::Split_EventUniv, mo, c_);
+			const formula* a2 =
+			  multop::instance(multop::And, s.res_other);
+			if (a2 != a)
+			  {
+			    a->destroy();
+			    s.res_EventUniv->push_back(binop::instance(op,
+								       a2, b));
+			    result_ = recurse_destroy
+			      (multop::instance(multop::And, s.res_EventUniv));
+			    return;
+			  }
+			a2->destroy();
+			delete s.res_EventUniv;
+		      }
+		  if (op == binop::R || op == binop::M)
+		    if (const multop* mo = is_And(b))
+		      {
+			b->clone();
+			mospliter s(mospliter::Split_Univ, mo, c_);
+			const formula* b2 =
+			  multop::instance(multop::And, s.res_other);
+			if (b2 != b)
+			  {
+			    b->destroy();
+			    s.res_Univ->push_back(binop::instance(op, a, b2));
+			    result_ = recurse_destroy
+			      (multop::instance(multop::And, s.res_Univ));
+			    return;
+			  }
+			b2->destroy();
+			delete s.res_Univ;
+		      }
+		}
 
 	      trace << "bo: no eventuniv rule matched" << std::endl;
 	    }
@@ -2785,7 +3035,7 @@ namespace spot
 		    // Xa & Xb & FG(c) = X(a & b & FG(c))
 		    // For Universal&Eventual formulae f1...fn we also have:
 		    // Xa & Xb & f1...fn = X(a & b & f1...fn)
-		    if (!s.res_X->empty())
+		    if (!s.res_X->empty() && !opt_.favor_event_univ)
 		      {
 			s.res_X->push_back(allFG);
 			allFG = 0;
@@ -2794,13 +3044,49 @@ namespace spot
 					s.res_EventUniv->end());
 		      }
 		    else
-		      // We don't rewrite Ga & f1...fn = G(a & f1..fn)
-		      // similarly to what we do in the unop::Or case
-		      // as it is not clear what we'd gain by doing so.
+		      // If f1...fn are event&univ formulae, with at least
+		      // one formula of the form G(...),
+		      // Rewrite  g & f1...fn  as  g & G(f1..fn) while
+		      // stripping any leading G from f1...fn.
+		      // This gathers eventual&universal formulae
+		      // under the same term.
 		      {
-			s.res_other->insert(s.res_other->begin(),
-					    s.res_EventUniv->begin(),
-					    s.res_EventUniv->end());
+			multop::vec* eu = new multop::vec;
+			bool seen_g = false;
+			for (multop::vec::const_iterator
+			       i = s.res_EventUniv->begin();
+			     i != s.res_EventUniv->end(); ++i)
+			  {
+			    if ((*i)->is_eventual() && (*i)->is_universal())
+			      {
+				if (const unop* g = is_G(*i))
+				  {
+				    seen_g = true;
+				    eu->push_back(g->child()->clone());
+				    g->destroy();
+				  }
+				else
+				  {
+				    eu->push_back(*i);
+				  }
+			      }
+			    else
+			      s.res_other->push_back(*i);
+			  }
+			if (seen_g)
+			  {
+			    eu->push_back(allFG);
+			    allFG = 0;
+			    s.res_other->push_back(unop_multop(unop::G,
+							       multop::And,
+							       eu));
+			  }
+			else
+			  {
+			    s.res_other->insert(s.res_other->end(),
+						eu->begin(), eu->end());
+			    delete eu;
+			  }
 		      }
 		    delete s.res_EventUniv;
 
@@ -2964,7 +3250,7 @@ namespace spot
 		    //
 		    // In effect we rewrite
 		    //   Xa&Xb&GFc&GFd&Ge as X(a&b&G(Fc&Fd))&Ge
-		    if (!s.res_X->empty())
+		    if (!s.res_X->empty() && !opt_.favor_event_univ)
 		      {
 			multop::vec* event = new multop::vec;
 			for (multop::vec::iterator i = s.res_G->begin();
@@ -3511,7 +3797,7 @@ namespace spot
 		    // Xa | Xb | GF(c) = X(a | b | GF(c))
 		    // For Universal&Eventual formula f1...fn we also have:
 		    // Xa | Xb | f1...fn = X(a | b | f1...fn)
-		    if (!s.res_X->empty())
+		    if (!s.res_X->empty() && !opt_.favor_event_univ)
 		      {
 			s.res_X->push_back(allGF);
 			allGF = 0;
@@ -3519,7 +3805,8 @@ namespace spot
 					s.res_EventUniv->begin(),
 					s.res_EventUniv->end());
 		      }
-		    else if (!s.res_F->empty()
+		    else if (!opt_.favor_event_univ
+			     && !s.res_F->empty()
 			     && s.res_G->empty()
 			     && s.res_U_or_W->empty()
 			     && s.res_R_or_M->empty()
@@ -3538,7 +3825,7 @@ namespace spot
 			//   F(a|GFb)  3st.6tr. with initial self-loop
 			//   Fa|GFb    4st.8tr. without initial self-loop
 			//
-			// However, if other term are presents they will
+			// However, if other terms are presents they will
 			// prevent the formation of a self-loop, and the
 			// rewriting is unwelcome:
 			//   F(a|GFb)|Gc  5st.11tr.  without initial self-loop
@@ -3551,6 +3838,41 @@ namespace spot
 			s.res_F->insert(s.res_F->end(),
 					s.res_EventUniv->begin(),
 					s.res_EventUniv->end());
+		      }
+		    else if (opt_.favor_event_univ)
+		      {
+			s.res_EventUniv->push_back(allGF);
+			allGF = 0;
+			bool seen_f = false;
+			if (s.res_EventUniv->size() > 1)
+			  {
+			    // If some of the EventUniv formulae start
+			    // with an F, Gather them all under the
+			    // same F.  Striping any leading F.
+			    for (multop::vec::iterator i =
+				   s.res_EventUniv->begin();
+				 i != s.res_EventUniv->end(); ++i)
+			      if (const unop* u = is_F(*i))
+				{
+				  *i = u->child()->clone();
+				  u->destroy();
+				  seen_f = true;
+				}
+			    if (seen_f)
+			      {
+				const formula* eu =
+				  unop_multop(unop::F, multop::Or,
+					      s.res_EventUniv);
+				s.res_EventUniv = 0;
+				s.res_other->push_back(eu);
+			      }
+			  }
+			if (!seen_f)
+			  {
+			    s.res_other->insert(s.res_other->end(),
+						s.res_EventUniv->begin(),
+						s.res_EventUniv->end());
+			  }
 		      }
 		    else
 		      {

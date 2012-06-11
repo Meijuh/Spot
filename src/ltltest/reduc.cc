@@ -134,6 +134,13 @@ main(int argc, char** argv)
       o.containment_checks = true;
       o.containment_checks_stronger = true;
       break;
+    case 15:
+      o.reduce_basics = true;
+      o.event_univ = true;
+      o.containment_checks = true;
+      o.containment_checks_stronger = true;
+      o.favor_event_univ = true;
+      break;
     default:
       return 2;
   }

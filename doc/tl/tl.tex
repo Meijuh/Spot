@@ -108,6 +108,9 @@
 
 % rewriting rules that enlarge the formula
 \newcommand{\equiV}{\stackrel{\star}{\equiv}}
+% rewriting rules that favors event/univ
+\newcommand{\equivEU}{\stackrel{\blacktriangleup}{\equiv}}
+\newcommand{\equivNeu}{\stackrel{\smalltriangledown}{\equiv}}
 
 % marked rewriting rules
 \newcommand{\equivM}{\stackrel{\dag}{\equiv}}
@@ -1298,6 +1301,13 @@ The goals in most of these simplification are to:
   limit the sources of indeterminism.
 \end{itemize}
 
+Rewritings defined with $\equivEU$ are applied only when
+\verb|ltl_simplifier_options::favor_event_univ|' is \texttt{true}:
+they try to lift subformulas that are both eventual and universal
+\emph{higher} in the syntax tree.  Conversely, rules defined with $\equivNeu$
+are applied only when \verb|favor_event_univ|' is \texttt{false}: they
+try to \textit{lower} subformulas that are both eventual and universal.
+
 \subsection{Basic Simplifications}\label{sec:basic-simp}
 
 These simplifications are enabled with
@@ -1356,10 +1366,10 @@ $\OR$):
   (\G\F f) \OR (\G\F g) &\equiv \G\F(f\OR g)      \\
   (\X f) \AND(\X g)     &\equiv \X(f\AND g)       &
   (\X f) \OR (\X g)     &\equiv \X(f\OR g)        \\
-  (\X f) \AND(\F\G g)   &\equiv \X(f\AND \F\G g)  &
-  (\X f) \OR (\G\F g)   &\equiv \X(f\OR \G\F g)   \\
-  (\G f) \AND(\G g)     &\equiv \G(f\AND g)       &
-  (\F f) \OR (\F g)     &\equiv \F(f\OR g)        \\
+  (\X f) \AND(\F\G g)   &\equivNeu \X(f\AND \F\G g)  &
+  (\X f) \OR (\G\F g)   &\equivNeu \X(f\OR \G\F g)  \\
+  (\G f) \AND(\G g)     &\equivNeu \G(f\AND g)       &
+  (\F f) \OR (\F g)     &\equivNeu \F(f\OR g)        \\
   (f_1 \U f_2)\AND (f_3 \U f_2)&\equiv (f_1\AND f_3)\U f_2&
   (f_1 \U f_2)\OR  (f_1 \U f_3)&\equiv f_1\U (f_2\OR f_3) \\
   (f_1 \U f_2)\AND (f_3 \W f_2)&\equiv (f_1\AND f_3)\U f_2&
@@ -1409,8 +1419,8 @@ $b \OR c\OR \X(\F(a\OR b\OR c)\OR \G d)$.
 Finally the following rule is applied only when no other terms are present
 in the OR arguments:
 \begin{align*}
-  \F(f_1) \OR \ldots \OR \F(f_n) \OR \G\F(g_1) \OR \ldots \OR \G\F(g_m)
-   &\equiv \F(f_1\OR \ldots \OR f_n \OR \G\F(g_1\OR \ldots \OR g_m)) \\
+  \F(f_1) \OR \ldots \OR \F(f_n) \OR \G\F(g)
+   &\equivNeu \F(f_1\OR \ldots \OR f_n \OR \G\F(g)) \\
 \end{align*}
 
 \subsubsection{Basic Simplifications for SERE Operators}
@@ -1558,17 +1568,29 @@ $q,\,q_i$           & a pure eventuality that is also purely universal \\
 \end{center}
 
 \begin{align*}
-  \F e &\equiv e & f \U e &\equiv e & e \M f &\equiv e\AND f & u_1 \M u_2 &\equiV (\F u_1) \AND u_2 \\
-  \G u &\equiv u & f \R u &\equiv u &  u \W f &\equiv u\OR f & e_1 \W e_2 &\equiV (\G e_1) \OR e_2 \\
-  \X q &\equiv q & q \AND \X f &\equiv \X(q \AND f) & q\OR \X f &\equiv \X(q \OR f)
+  \F e        & \equiv e            & f \U e         & \equiv e                & e \M g        & \equiv e\AND g & u_1 \M u_2 & \equiV (\F u_1) \AND u_2 \\
+  \F(u)\OR q  & \equivEU \F(u\OR q) & f \U (g\OR e)  & \equivEU (f \U g)\OR e  & f\M (g\AND u) & \equivEU (f \M g)\AND u                                \\
+              &                     & f \U (g\AND q) & \equivEU (f \U g)\AND q & (f\AND q)\M g & \equivEU (f \M g)\AND q                                \\
+  \G u        & \equiv u            & u \W g         & \equiv u\OR g           & f \R u        & \equiv u       & e_1 \W e_2 & \equiV (\G e_1) \OR e_2  \\
+  \G(e)\AND q & \equiv \G(e\AND q)  & f \W (g\OR e)  & \equivEU (f \W g)\OR e  & f\R (g\AND u) & \equivEU (f \R g)\AND u                                \\
+              &                     & (f\OR u) \W g  & \equivEU (f \W g)\OR u                                                                           \\
+  \X q        & \equiv q            & q \AND \X f    & \equivNeu \X(q \AND f)  & q\OR \X f     & \equivNeu \X(q \OR f)                                  \\
+              &                     & \X(q \AND f)   & \equivEU q \AND \X f    & \X(q \OR f)   & \equivEU q\OR \X f                                     \\
 \end{align*}
+
 \begin{align*}
-  \G(f_1\OR\ldots\OR f_n \OR \G\F(g_1)\OR\ldots\OR \G\F(g_m)\OR q_1 \OR \ldots \OR q_p)&\equiv \G(f_1\OR\ldots\OR f_n)\OR \G\F(g_1\OR\ldots\OR g_m)\OR q_1 \OR \ldots q_p \\
+  \G(f_1\OR\ldots\OR f_n \OR q_1 \OR \ldots \OR q_p)&\equiv \G(f_1\OR\ldots\OR f_n)\OR q_1 \OR \ldots \OR q_p \\
+  \F(f_1\AND\ldots\AND f_n \AND q_1 \AND \ldots \AND q_p)&\equivEU \F(f_1\AND\ldots\AND f_n)\AND q_1 \AND \ldots \AND q_p \\
+  \G(f_1\AND\ldots\AND f_n \AND q_1 \AND \ldots \AND q_p)&\equivEU \G(f_1\AND\ldots\AND f_n)\AND q_1 \AND \ldots \AND q_p \\
+  \G(f_1\AND\ldots\AND f_n \AND e_1 \AND \ldots \AND e_m \AND \G(e_{m+1}) \AND \ldots\AND \G(e_p))&\equivEU \G(f_1\AND\ldots\AND f_n)\AND \G(e_1 \AND \ldots \AND e_p) \\
+  \G(f_1\AND\ldots\AND f_n \AND \G(g_1) \AND \ldots \AND \G(g_m) &\equiv \G(f_1\AND\ldots\AND f_n\AND g_1 \AND \ldots \AND g_m) \\
+  \F(f_1 \OR \ldots \OR f_n \OR u_1 \OR \ldots \OR u_m \OR \F(u_{m+1})\OR\ldots\OR \F(u_p)) &\equivEU \F(f_1\OR \ldots\OR f_n) \OR \F(u_1 \OR \ldots \OR u_p)\\
+  \F(f_1 \OR \ldots \OR f_n \OR \F(g_1) \OR \ldots \OR \G(g_m)) &\equiv \F(f_1\OR \ldots\OR f_n \OR g_1 \OR \ldots \OR g_m)\\
+  \G(f_1)\AND\ldots\AND \G(f_n) \AND \G(e_1) \AND \ldots\AND \G(e_p)&\equivEU \G(f_1\AND\ldots\AND f_n)\AND \G(e_1 \AND \ldots \AND e_p) \\
+  \F(f_1) \OR\ldots\OR \F(f_n) \OR \F(u_1)\OR\ldots\OR \F(u_p) &\equivEU \F(f_1\OR \ldots\OR f_n) \OR \F(u_1 \OR \ldots \OR u_p)\\
 \intertext{Finally the following rule is applied only when no other
     terms are present in the OR arguments:}
-  \F(f_1) \OR \ldots \OR \F(f_n) \OR \G\F(g_1) \OR \ldots \OR \G\F(g_m)
-  \OR q_1 \OR \ldots \OR q_p
-   &\equiv \F(f_1\OR \ldots \OR f_n \OR \G\F(g_1\OR \ldots\OR g_m) \OR q_1\OR \ldots q_p)
+  \F(f_1) \OR \ldots \OR \F(f_n) \OR q_1 \OR \ldots \OR q_p &\equivNeu \F(f_1\OR \ldots \OR f_n \OR q_1\OR \ldots q_p)
 \end{align*}
 
 \subsection{Simplifications Based on Implications}
