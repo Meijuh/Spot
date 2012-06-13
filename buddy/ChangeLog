@@ -1,3 +1,11 @@
+2012-06-13  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Add a function bdd_implies to decide implications between BDDs.
+
+	* src/bdd.h (bdd_implies): New function.
+	* src/bddop.c (bdd_implies): Implement it.
+	(CACHEID_IMPLIES, IMPLIES_HASH): New helper macros.
+
 2012-06-08  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Reduce the size of bddNode to improve cache efficiency.

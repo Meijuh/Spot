@@ -51,6 +51,7 @@
 #define CACHEID_PATHCOU     0x4
 #define CACHEID_SETXOR      0x5
 #define CACHEID_SUPPORT     0x6
+#define CACHEID_IMPLIES     0x7
 
    /* Hash value modifiers for replace/compose */
 #define CACHEID_REPLACE      0x0
@@ -159,6 +160,7 @@ static int    varset2svartable(BDD);
 #define APPLYHASH(l,r,op)    (TRIPLE(l,r,op))
 #define ITEHASH(f,g,h)       (TRIPLE(f,g,h))
 #define SETXORHASH(l,r)      (TRIPLE(l,r,CACHEID_SETXOR))
+#define IMPLIESHASH(l,r)     (TRIPLE(l,r,CACHEID_IMPLIES))
 #define RESTRHASH(r,var)     (PAIR(r,var))
 #define CONSTRAINHASH(f,c)   (PAIR(f,c))
 #define QUANTHASH(r)         (r)
@@ -888,6 +890,60 @@ BDD bdd_setxor(BDD l, BDD r)
   entry->a = l;
   entry->b = r;
   entry->c = CACHEID_SETXOR;
+  entry->r.res = res;
+
+  return res;
+}
+
+
+/*=== bdd_implies =========================================================*/
+
+/*
+NAME    {* bdd\_implies *}
+SECTION {* operator *}
+SHORT   {* check whether one BDD implies another *}
+PROTO   {* int bdd_setxor(BDD l, BDD r) *}
+DESCR   {* Check wether $l$ implies $r$, or whether $r$ contains $l$. *}
+RETURN  {* 1 if $l$ implies $r$, 0 otherwise *}
+*/
+int bdd_implies(BDD l, BDD r)
+{
+  BddCacheData *entry;
+  int res;
+
+  if ((l == r) || ISZERO(l) || ISONE(r))
+    return 1;
+  if (ISONE(l) || ISZERO(r))
+    return 0;
+
+  entry = BddCache_lookup(&misccache, IMPLIESHASH(l,r));
+  if (entry->a == l &&  entry->b == r  && entry->c == CACHEID_IMPLIES)
+   {
+#ifdef CACHESTATS
+      bddcachestats.opHit++;
+#endif
+      return entry->r.res;
+   }
+#ifdef CACHESTATS
+   bddcachestats.opMiss++;
+#endif
+
+  if (LEVEL(l) == LEVEL(r))
+    {
+      res = bdd_implies(LOW(l), LOW(r)) && bdd_implies(HIGH(l), HIGH(r));
+    }
+  else if (LEVEL(l) < LEVEL(r))
+    {
+      res = bdd_implies(LOW(l), r) && bdd_implies(HIGH(l), r);
+    }
+  else /* LEVEL(l) > LEVEL(r) */
+    {
+      res = bdd_implies(l, LOW(r)) && bdd_implies(l, HIGH(r));
+    }
+
+  entry->a = l;
+  entry->b = r;
+  entry->c = CACHEID_IMPLIES;
   entry->r.res = res;
 
   return res;
