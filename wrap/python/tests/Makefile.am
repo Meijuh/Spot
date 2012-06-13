@@ -31,11 +31,12 @@ check_SCRIPTS = run
 
 TESTS = \
   alarm.py \
-  ltlsimple.py \
-  ltlparse.py \
   bddnqueen.py \
-  ltl2tgba.test \
+  implies.py \
   interdep.py \
+  ltl2tgba.test \
+  ltlparse.py \
+  ltlsimple.py \
   minato.py \
   modgray.py \
   optionmap.py \

@@ -164,6 +164,7 @@ bdd bdd_xor(const bdd &l, const bdd &r);
 bdd bdd_imp(const bdd &l, const bdd &r);
 bdd bdd_biimp(const bdd &l, const bdd &r);
 bdd bdd_setxor(const bdd &l, const bdd &r);
+int bdd_implies(const bdd &l, const bdd &r);
 bdd bdd_ite(const bdd &f, const bdd &g, const bdd &h);
 bdd bdd_exist(const bdd &r, const bdd &var);
 bdd bdd_existcomp(const bdd &r, const bdd &var);
