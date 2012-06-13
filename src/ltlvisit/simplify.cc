@@ -4140,15 +4140,9 @@ namespace spot
       bool result;
 
       if (f->is_boolean() && g->is_boolean())
-	{
-	  bdd l = as_bdd(f);
-	  bdd r = as_bdd(g);
-	  result = ((l & r) == l);
-	}
+	result = bdd_implies(as_bdd(f), as_bdd(g));
       else
-	{
-	  result = syntactic_implication_aux(f, g);
-	}
+	result = syntactic_implication_aux(f, g);
 
       // Cache result
       {

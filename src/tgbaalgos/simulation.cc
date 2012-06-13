@@ -411,8 +411,7 @@ namespace spot
 		if (it1 == it2)
 		  continue;
 
-		// We detect that "a&b -> a" by testing "a&b = a".
-		if ((it1->first & it2->first) == (it1->first))
+		if (bdd_implies(it1->first, it2->first))
 		  {
 		    accu &= it2->second;
 		    ++po_size_;

@@ -241,11 +241,11 @@ namespace spot
 		    --prev;
 		    bdd common = aut->
 		      common_acceptance_conditions_of_original_state(rs);
-		    if ((common & *prev) == *prev)
+		    if (bdd_implies(*prev, common))
 		      {
 			bdd u = aut->
 			  union_acceptance_conditions_of_original_state(odest);
-			if ((u & *prev) != *prev)
+			if (!bdd_implies(*prev, u))
 			  acc -= *prev;
 		      }
 		  }
@@ -279,7 +279,7 @@ namespace spot
 		// acceptance sets common to the outgoing transition of
 		// the destination state.
 		acc |= otheracc;
-		while (next != cycle.end() && (acc & *next) == *next)
+		while (next != cycle.end() && bdd_implies(*next, acc))
 		  ++next;
 		if (next != cycle.end())
 		  {
@@ -291,7 +291,7 @@ namespace spot
 	    accepting = true;
 	    // Skip as much acceptance conditions as we can on our cycle.
 	    next = cycle.begin();
-	    while (next != expected && (acc & *next) == *next)
+	    while (next != expected && bdd_implies(*next, acc))
 	      ++next;
 	  next_is_set:
 	    state_tba_proxy* dest =

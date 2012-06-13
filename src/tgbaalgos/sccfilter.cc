@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -142,8 +142,7 @@ namespace spot
     // and we want to find that 'a' and 'b' are useless because
     // they always occur with 'c'.
     // The way we check if 'a' is useless that is to look whether
-    // USEFUL & (x -> a) == USEFUL for some other acceptance
-    // condition x.
+    // USEFUL implies (x -> a) for some other acceptance condition x.
     bdd allconds = bdd_support(negall);
     bdd allcondscopy = allconds;
     bdd useless = bddtrue;
@@ -157,7 +156,7 @@ namespace spot
 	    bdd x = bdd_ithvar(bdd_var(others));
 	    if (x != a)
 	      {
-		if ((useful & (x >> a)) == useful)
+		if (bdd_implies(useful, x >> a))
 		  {
 		    // a is useless
 		    useful = bdd_exist(useful, a);
