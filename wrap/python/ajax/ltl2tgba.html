@@ -22,6 +22,9 @@
         $(".tabs").tabs();
 	$("#send").button();
 	$("#results").hide();
+        $("abbr").tipTip({maxWidth: "300px", delay: 1000,
+                          edgeOffset: 3,
+                          defaultPosition: "below"});
         $(".rtip").tipTip({maxWidth: "300px", delay: 1000,
                            edgeOffset: 10,
                            defaultPosition: "right"});
@@ -336,7 +339,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
   </tbody>
   <tbody>
     <tr>
-      <td class="ltldocrow" rowspan=3>LTL</td>
+      <td class="ltldocrow" rowspan=3><ABBR title="Linear-time Temporal Logic">LTL</ABBR></td>
       <td></td><td></td>
       <td class="ltldoc">eventually:</td><td><span class="formula">F</span>
                                              <span class="formula">&lt;&gt;</span></td>
@@ -360,7 +363,8 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
   </tbody>
   <tbody>
     <tr>
-      <td class="ltldocrow" rowspan=3 >SERE</td>
+      <td class="ltldocrow" rowspan=3><ABBR title="Sequential Extended Regular
+  Expression">SERE</ABBR></td>
       <td class="ltldoc">ε:</td><td><span class="formula">[*0]</span></td>
       <td class="ltldoc">Kleene star:</td><td><span class="formula">[*]</span> <span class="formula">[*</span><i>i..j</i><span class="formula">]</span></td>
       <td class="ltldoc">concatenation:</td><td><span class="formula">;</span></td>
@@ -381,7 +385,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
   </tbody>
   <tbody>
     <tr>
-      <td class="ltldocrow" rowspan=2>PSL</td>
+      <td class="ltldocrow" rowspan=2><ABBR title="Property Specification Language">PSL</ABBR></td>
       <td></td><td></td>
       <td class="ltldoc">weak closure:</td><td><span class="formula">{</span><i>s</i><span class="formula">}</span></td>
       <td class="ltldoc">∀-suffix impl.:</td><td><span class="formula">{</span><i>s</i><span class="formula">}[]-></span><i>p</i><br><span class="formula">{</span><i>s</i><span class="formula">}|-></span><i>p</i><br><span class="formula">{</span><i>s</i><span class="formula">}(</span><i>p</i><span class="formula">)</span></td>
