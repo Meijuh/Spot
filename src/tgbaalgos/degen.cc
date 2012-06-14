@@ -284,10 +284,10 @@ namespace spot
                   {
                     unsigned prev = order.size() - 1;
                     bdd common = outgoing.common_acc(s.first);
-                    if ((common & order[prev]) == order[prev])
+                    if (bdd_implies(order[prev], common))
                       {
                         bdd u = outgoing.union_acc(d.first);
-                        if ((u & order[prev]) != order[prev])
+                        if (!bdd_implies(order[prev], u))
                           acc -= order[prev];
                       }
                   }
@@ -314,8 +314,7 @@ namespace spot
 	    // acceptance sets common to the outgoing transitions of
 	    // the destination state.
 	    acc |= otheracc;
-	    while (next < order.size()
-		   && (acc & order[next]) == order[next])
+	    while (next < order.size() && bdd_implies(order[next], acc))
 	      ++next;
 
 	    d.second = next;
