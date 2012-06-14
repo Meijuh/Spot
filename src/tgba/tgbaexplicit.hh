@@ -221,13 +221,9 @@ namespace spot
     virtual State* current_state() const
     {
       assert(!done());
-
-      //ugly but I can't see any other wayout
       const State* res = down_cast<const State*>(it_->dest);
       assert(res);
-
-      return
-	const_cast<State*>(res);
+      return const_cast<State*>(res);
     }
 
     virtual bdd current_condition() const
@@ -695,22 +691,12 @@ namespace spot
 
     virtual bool state_is_accepting(const spot::state* s) const
     {
+      const State* st = down_cast<const State*>(s);
       // Assume that an accepting state has only accepting output transitions
       // So we need only to check one to decide
-      tgba_explicit_succ_iterator<State>* it = this->succ_iter(s);
-      it->first();
-
-      // no transition
-      if (it->done())
-      {
-	delete it;
+      if (st->successors.empty())
 	return false;
-      }
-
-      bool res = it->current_acceptance_conditions() != bddfalse;
-      delete it;
-
-      return res;
+      return st->successors.front().acceptance_conditions != bddfalse;
     }
 
   private:
