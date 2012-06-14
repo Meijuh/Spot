@@ -191,6 +191,14 @@ namespace spot
     // and vice-versa.
     ds2num_map ds2num;
 
+    // This map is used to find transitions that go to the same
+    // destination with the same acceptance.  The integer key is
+    // (dest*2+acc) where dest is the destination state number, and
+    // acc is 1 iff the transition is accepting.  The source
+    // is always that of the current iteration.
+    typedef std::map<int, state_explicit_number::transition*> tr_cache_t;
+    tr_cache_t tr_cache;
+
     queue_t todo;
 
     const state* s0 = uniq(a->get_init_state());
@@ -333,20 +341,28 @@ namespace spot
 		todo.push_back(d);
 	      }
 
-	    // Actually create the transition.
-	    state_explicit_number::transition* t
-	      = res->create_transition(src, dest);
-	    t->condition = i->current_condition();
-	    // If the source state is accepting, we have to put
-	    // degen_acc on all outgoing transitions.  (We are still
-	    // building a TGBA; we only assure that it can be used as
-	    // an SBA.)
-	    t->acceptance_conditions = is_acc ? degen_acc : bddfalse;
+	    state_explicit_number::transition*& t =
+	      tr_cache[dest * 2 + is_acc];
+
+	    if (t == 0)
+	      {
+		// Actually create the transition.
+		t = res->create_transition(src, dest);
+		t->condition = i->current_condition();
+		// If the source state is accepting, we have to put
+		// degen_acc on all outgoing transitions.  (We are still
+		// building a TGBA; we only assure that it can be used as
+		// an SBA.)
+		t->acceptance_conditions = is_acc ? degen_acc : bddfalse;
+	      }
+	    else
+	      {
+		t->condition |= i->current_condition();
+	      }
 	  }
 	delete i;
+	tr_cache.clear();
       }
-
-    res->merge_transitions();
     return res;
   }
 }
