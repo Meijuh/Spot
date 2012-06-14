@@ -1013,7 +1013,9 @@ main(int argc, char** argv)
 	    }
 	  else if (degeneralize_opt == DegenSBA)
 	    {
+	      tm.start("degeneralization");
 	      degeneralized = a = spot::degeneralize(a);
+	      tm.stop("degeneralization");
 	      assume_sba = true;
 	    }
 	  else if (labeling_opt == StateLabeled)
@@ -1066,8 +1068,10 @@ main(int argc, char** argv)
 	    }
           else if (degeneralize_opt == DegenSBA)
 	    {
+	      tm.start("degeneralize product");
 	      product = product_degeneralized = a =
 		spot::degeneralize(product);
+	      tm.stop("degeneralize product");
 	      assume_sba = true;
 	    }
         }
