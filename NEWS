@@ -1,5 +1,12 @@
 New in spot 0.9.1a:
 
+  * Speed improvements:
+    - The unicity hash table of BuDDy has been separated separated
+      node table for better cache-friendliness.  The resulting speedup
+      is around 5% on BDD-intensive algorithms.
+    - A new BDD operation, called bdd_implies() has been added to
+      BuDDy to check wether one BDD implies another.  This benefits
+      mostly the simulation and degeneralization algorithms of Spot.
   * Bug fixes:
     - The CGI script running for ltl2tgba.html will correctly timeout
       after 30s when Spot's translation takes more time.
