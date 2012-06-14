@@ -27,7 +27,6 @@
 #include "bdd.h"
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
-#include "tgba/tgbatba.hh"
 #include "tgba/bdddict.hh"
 #include "tgba/state.hh"
 #include "misc/hashfunc.hh"
@@ -35,6 +34,8 @@
 #include "ltlast/constant.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgba/tgbasafracomplement.hh"
+#include "tgba/sba.hh"
+#include "tgbaalgos/degen.hh"
 
 namespace spot
 {
@@ -113,7 +114,7 @@ namespace spot
       int max_name() const;
 
       // Operations to get successors of a tree.
-      safra_tree* branch_accepting(const tgba_sba_proxy& a);
+      safra_tree* branch_accepting(const sba& a);
       safra_tree* succ_create(const bdd& condition,
                               cache_t& cache_transition);
       safra_tree* normalize_siblings();
@@ -324,7 +325,7 @@ namespace spot
     /// is inserted with the set of all accepting states of \c nodes
     /// as label and an unused name.
     safra_tree*
-    safra_tree::branch_accepting(const tgba_sba_proxy& a)
+    safra_tree::branch_accepting(const sba& a)
     {
       for (child_list::iterator i = children.begin(); i != children.end(); ++i)
         (*i)->branch_accepting(a);
@@ -596,7 +597,7 @@ namespace spot
     private:
       typedef std::set<int> atomic_list_t;
       typedef std::set<bdd, bdd_less_than> conjunction_list_t;
-      static void retrieve_atomics(const safra_tree* node, tgba_sba_proxy* sba,
+      static void retrieve_atomics(const safra_tree* node, sba* sba_aut,
                                    safra_tree::cache_t& cache,
                                    atomic_list_t& atomic_list);
       static void set_atomic_list(atomic_list_t& list, bdd condition);
@@ -609,13 +610,13 @@ namespace spot
     safra_determinisation::create_safra_automaton(const tgba* a)
     {
       // initialization.
-      tgba_sba_proxy* sba = new tgba_sba_proxy(a);
+      sba* sba_aut = degeneralize(a);
 
-      safra_tree_automaton* st = new safra_tree_automaton(sba);
+      safra_tree_automaton* st = new safra_tree_automaton(sba_aut);
 
       std::deque<safra_tree*> queue;
       safra_tree* q0 = new safra_tree();
-      q0->add_node(sba->get_init_state());
+      q0->add_node(sba_aut->get_init_state());
       queue.push_back(q0);
       st->set_initial_state(q0);
 
@@ -628,7 +629,7 @@ namespace spot
         // Get conjunction list and save successors.
         safra_tree::cache_t cache;
         atomic_list_t atomic_list;
-        retrieve_atomics(current, sba, cache, atomic_list);
+        retrieve_atomics(current, sba_aut, cache, atomic_list);
         conjunction_list_t conjunction = get_conj_list(atomic_list);
 
         // Create successors of the Safra's tree.
@@ -637,7 +638,7 @@ namespace spot
              i != conjunction.end(); ++i)
         {
           safra_tree* successor = new safra_tree(*current);
-          successor->branch_accepting(sba); // Step 2
+          successor->branch_accepting(*sba_aut); // Step 2
           successor->succ_create(*i, cache); // Step 3
           successor->normalize_siblings(); // Step 4
           successor->remove_empty(); // Step 5
@@ -683,7 +684,7 @@ namespace spot
         // delete node;
       }
 
-      // delete sba;
+      // delete sba_aut;
       return st;
     }
 
@@ -691,7 +692,7 @@ namespace spot
     /// of the states in the label of the node.
     void
     safra_determinisation::retrieve_atomics(const safra_tree* node,
-                                            tgba_sba_proxy* sba,
+                                            sba* sba_aut,
                                             safra_tree::cache_t& cache,
                                             atomic_list_t& atomic_list)
     {
@@ -700,7 +701,7 @@ namespace spot
            ++it)
       {
         safra_tree::tr_cache_t transitions;
-        tgba_succ_iterator* iterator = sba->succ_iter(*it);
+        tgba_succ_iterator* iterator = sba_aut->succ_iter(*it);
         for (iterator->first(); !iterator->done(); iterator->next())
         {
           bdd condition = iterator->current_condition();
