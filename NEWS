@@ -7,6 +7,9 @@ New in spot 0.9.1a:
     - A new BDD operation, called bdd_implies() has been added to
       BuDDy to check wether one BDD implies another.  This benefits
       mostly the simulation and degeneralization algorithms of Spot.
+    - A new offline implementation of the degeneralization (which
+      had always been performed on-the-fly so far) available.  This
+      especially helps the Safra complementation.
   * Bug fixes:
     - The CGI script running for ltl2tgba.html will correctly timeout
       after 30s when Spot's translation takes more time.
