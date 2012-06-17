@@ -426,7 +426,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		<INPUT type="checkbox" name="r" value="lc">
 		language containment
 	      </label>
-	      <label class="rtip floatright" title="Encode all formula using UTF-8 characters.">
+	      <label class="rtip floatright" title="Encode all formulas using UTF-8 characters.">
 		<INPUT type="checkbox" name="g" value="8">
 		UTF-8 output
 	      </label>
@@ -586,7 +586,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		  <INPUT type="checkbox" name="l3" value="M">
 		  more deterministic output
 		</label><br>
-		<label class="rtip" title="Compute a direct (a.k.a strong fair) simulation relation to reduce the size of the Büchi automaton.">
+		<label class="rtip" title="Compute a direct (a.k.a. strong fair) simulation relation to reduce the size of the Büchi automaton.">
 		  <INPUT id="ltl3ba-S" type="checkbox" name="l3" value="S">
 		  direct simulation on BA
 		</label><br>
@@ -600,9 +600,9 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		<INPUT type="checkbox" name="as" value="ps" checked>
 		prune unaccepting SCCs
 	      </label><br>
-	      <label class="rtip" title="<b>Obligation properties</b> are properties that can be represented by a Weak Deterministic B&uuml;chi Automaton (WDBA).  Any WDBA accepts a minimal form that can be constructed in a way that is similar to DFA minimization.<br>Using this option, any automaton (WDBA or not) will be tentatively minimized and the result will be used only if it is equivalent to the original automaton (i.e. if the property was indeed an obligation property).">
+	      <label class="rtip" title="<b>Obligation properties</b> are properties that can be represented by a Weak Deterministic B&uuml;chi Automaton (WDBA).  Any WDBA has a minimal form that can be constructed in a way that is similar to DFA minimization.<br>Using this option, any automaton (WDBA or not) will be tentatively determinized and minimized; the result will be used only if it is equivalent to the original automaton (i.e., if the property was indeed an obligation property).">
 		<INPUT type="checkbox" name="as" value="wd">
-		minimize obligation properties
+		determinize and minimize obligation properties
               </label><br>
 	      <label class="rtip" title="Attempt to reduce the automaton by using <b>direct simulation</b> on the TGBA.  This might also improve the determinism as a side effect.">
 		<INPUT type="checkbox" name="as" value="ds">
