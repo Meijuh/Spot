@@ -1307,8 +1307,52 @@ namespace spot
 	  case unop::X:
 	    {
 	      // r(Xy) = Next[y]
-	      int x = dict_.register_next_variable(node->child());
-	      res_ = bdd_ithvar(x);
+	      // r(X(a&b&c)) = Next[a]&Next[b]&Next[c]
+	      // r(X(a|b|c)) = Next[a]|Next[b]|Next[c]
+	      //
+	      // The special case for And is to that
+	      // (p&XF!p)|(!p&XFp)|X(Fp&F!p)      (1)
+	      // get translated as
+	      // (p&XF!p)|(!p&XFp)|XFp&XF!p       (2)
+	      // and then automatically reduced to
+	      // (p&XF!p)|(!p&XFp)
+	      //
+	      // Formula (2) appears as an example of Boolean
+	      // simplification in Wring, but our LTL rewriting
+	      // rules tend to rewrite it as (1).
+	      //
+	      // The special case for Or follows naturally, but it's
+	      // effect is less clear.  Benchmarks show that it
+	      // reduces the number of states and transitions, but it
+	      // increases the number of non-deterministic states...
+	      const formula* y = node->child();
+	      if (const multop* m = is_And(y))
+		{
+		  res_ = bddtrue;
+		  unsigned s = m->size();
+		  for (unsigned n = 0; n < s; ++n)
+		    {
+		      int x = dict_.register_next_variable(m->nth(n));
+		      res_ &= bdd_ithvar(x);
+		    }
+		}
+#if 0
+	      else if (const multop* m = is_Or(y))
+		{
+		  res_ = bddfalse;
+		  unsigned s = m->size();
+		  for (unsigned n = 0; n < s; ++n)
+		    {
+		      int x = dict_.register_next_variable(m->nth(n));
+		      res_ |= bdd_ithvar(x);
+		    }
+		}
+#endif
+	      else
+		{
+		  int x = dict_.register_next_variable(y);
+		  res_ = bdd_ithvar(x);
+		}
 	      break;
 	    }
 	  case unop::Closure:

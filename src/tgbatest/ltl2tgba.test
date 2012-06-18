@@ -201,3 +201,8 @@ run 0 ../ltl2tgba -XN -kt out.never > count.never
 run 0 ../ltl2tgba -R1q -R1t -DS -b 'FGa|FGb' > out.spot
 run 0 ../ltl2tgba -X -kt out.spot > count.spot
 cmp count.never count.spot
+
+# The following automaton should have only 4 states.
+run 0 ../ltl2tgba -R3 -ks -f '(p&XF!p)|(!p&XFp)|X(Fp&F!p)' >stdout
+grep 'transitions: 7$' stdout
+grep 'states: 4$' stdout
