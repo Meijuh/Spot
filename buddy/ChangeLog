@@ -1,3 +1,13 @@
+2012-06-19  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Adjust parser construction to support Automake 1.11 and 1.12.
+
+	* examples/bddcalc/parser.yxx: Rename as ...
+	* examples/bddcalc/parser.y: ... this.
+	* examples/bddcalc/parser_.cxx: New file that includes parser.c.
+	* examples/bddcalc/Makefile.am: Adjust.
+	* examples/bddcalc/parser.hxx: Delete this unused file.
+
 2011-11-12  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	* src/kernel.h (PAIR, TRIPLE): Redefine these hash functions using

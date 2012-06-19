@@ -19,6 +19,8 @@ bddcalc_SOURCES = \
  hashtbl.h \
  hashtbl.cxx \
  lexer.lxx \
- parser.yxx \
+ parser_.cxx \
  parser_.h \
  slist.h
+
+EXTRA_bddcalc_SOURCES = parser.y
