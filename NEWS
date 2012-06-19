@@ -22,6 +22,7 @@ New in spot 0.9.1a:
       automata.
     - The Makefile.am of BuDDy, LBTT, and Spot have been adjusted to
       accomodate Automake 1.12 (while still working with 1.11).
+    - Better error recovery when parsing broken LTL formulae.
 
 New in spot 0.9.1 (2012-05-23):
 

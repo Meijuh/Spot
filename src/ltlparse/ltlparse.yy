@@ -58,21 +58,34 @@
 #include "parsedecl.hh"
 using namespace spot::ltl;
 
-#define missing_right_op(res, op, str)			\
-  do							\
-    {							\
-      error_list.push_back(parse_error(op,		\
-       "missing right operand for \"" str "\""));	\
-      res = constant::false_instance();			\
-    }							\
+#define missing_right_op_msg(op, str)		\
+  error_list.push_back(parse_error(op,		\
+    "missing right operand for \"" str "\""));
+
+#define missing_right_op(res, op, str)		\
+  do						\
+    {						\
+      missing_right_op_msg(op, str);		\
+      res = constant::false_instance();		\
+    }						\
   while (0);
 
+// right is missing, so complain and use left.
 #define missing_right_binop(res, left, op, str)	\
   do						\
     {						\
-      left->destroy();				\
-      missing_right_op(res, op, str);		\
+      missing_right_op_msg(op, str);		\
+      res = left;				\
     }						\
+  while (0);
+
+// right is missing, so complain and use false.
+#define missing_right_binop_hard(res, left, op, str)	\
+  do							\
+    {							\
+      left->destroy();					\
+      missing_right_op(res, op, str);			\
+    }							\
   while (0);
 
 }
@@ -362,8 +375,8 @@ sere: booleanatom
 	    | sere OP_AND sere
 	      { $$ = multop::instance(multop::AndRat, $1, $3); }
 	    | sere OP_AND error
-              { missing_right_binop($$, $1, @2,
-                                    "length-matching and operator"); }
+	      { missing_right_binop($$, $1, @2,
+				    "length-matching and operator"); }
 	    | sere OP_SHORT_AND sere
 	      { $$ = multop::instance(multop::AndNLM, $1, $3); }
 	    | sere OP_SHORT_AND error
@@ -528,6 +541,10 @@ sere: booleanatom
 
 bracedsere: BRACE_OPEN sere BRACE_CLOSE
               { $$ = $2; }
+            | BRACE_OPEN sere error BRACE_CLOSE
+	      { error_list.push_back(parse_error(@3, "ignoring this"));
+		$$ = $2;
+	      }
             | BRACE_OPEN error BRACE_CLOSE
 	      { error_list.push_back(parse_error(@$,
 		 "treating this brace block as false"));
@@ -536,6 +553,11 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
             | BRACE_OPEN sere END_OF_INPUT
 	      { error_list.push_back(parse_error(@1 + @2,
 				      "missing closing brace"));
+		$$ = $2;
+	      }
+	    | BRACE_OPEN sere error END_OF_INPUT
+	      { error_list.push_back(parse_error(@3,
+                "ignoring trailing garbage and missing closing brace"));
 		$$ = $2;
 	      }
 	    | BRACE_OPEN error END_OF_INPUT
@@ -547,6 +569,10 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
 
 parenthesedsubformula: PAR_OPEN subformula PAR_CLOSE
 	      { $$ = $2; }
+	    | PAR_OPEN subformula error PAR_CLOSE
+	      { error_list.push_back(parse_error(@3, "ignoring this"));
+		$$ = $2;
+	      }
 	    | PAR_OPEN error PAR_CLOSE
 	      { error_list.push_back(parse_error(@$,
 		 "treating this parenthetical block as false"));
@@ -555,6 +581,11 @@ parenthesedsubformula: PAR_OPEN subformula PAR_CLOSE
 	    | PAR_OPEN subformula END_OF_INPUT
 	      { error_list.push_back(parse_error(@1 + @2,
 				      "missing closing parenthesis"));
+		$$ = $2;
+	      }
+	    | PAR_OPEN subformula error END_OF_INPUT
+	      { error_list.push_back(parse_error(@3,
+                "ignoring trailing garbage and missing closing parenthesis"));
 		$$ = $2;
 	      }
 	    | PAR_OPEN error END_OF_INPUT
@@ -630,12 +661,12 @@ subformula: booleanatom
             | bracedsere parenthesedsubformula
 	      { $$ = binop::instance(binop::UConcat, $1, $2); }
             | bracedsere OP_UCONCAT error
-	      { missing_right_binop($$, $1, @2,
+	      { missing_right_binop_hard($$, $1, @2,
 				    "universal overlapping concat operator"); }
             | bracedsere OP_ECONCAT subformula
 	      { $$ = binop::instance(binop::EConcat, $1, $3); }
             | bracedsere OP_ECONCAT error
-	      { missing_right_binop($$, $1, @2,
+	      { missing_right_binop_hard($$, $1, @2,
 				    "existential overlapping concat operator");
 	      }
             | bracedsere OP_UCONCAT_NONO subformula
@@ -645,7 +676,7 @@ subformula: booleanatom
 					constant::true_instance()), $3);
 	      }
             | bracedsere OP_UCONCAT_NONO error
-	      { missing_right_binop($$, $1, @2,
+	      { missing_right_binop_hard($$, $1, @2,
 				  "universal non-overlapping concat operator");
 	      }
             | bracedsere OP_ECONCAT_NONO subformula
@@ -655,7 +686,7 @@ subformula: booleanatom
 					constant::true_instance()), $3);
 	      }
             | bracedsere OP_ECONCAT_NONO error
-	      { missing_right_binop($$, $1, @2,
+	      { missing_right_binop_hard($$, $1, @2,
 				"existential non-overlapping concat operator");
 	      }
             | BRACE_OPEN sere BRACE_BANG_CLOSE

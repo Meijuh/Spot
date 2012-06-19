@@ -67,23 +67,24 @@ check '/2/3/4/5 a + b /6/7/8/' ''
 
 # leading and trailing garbage are skipped
 run 0 ../equals -E 'a U b c' 'a U b'
-run 0 ../equals -E 'a &&& b' '0 && b'
 # (check multop merging while we are at it)
 run 0 ../equals -E 'a & b & c & d e' 'a & b & c & d'
 run 0 ../equals -E 'a & (b | c) & d should work' 'a & (b | c) & d'
 # Binop recovery
-run 0 ../equals -E 'a U' 0
-run 0 ../equals -E 'a U b V c R' 0
+run 0 ../equals -E 'a U' a
+run 0 ../equals -E 'a U b V c R' 'a U b V c'
+run 0 ../equals -E 'a &&& b' 'a & b'
+run 0 ../equals -E 'a &&| b' 'a | b'
 
 # Recovery inside parentheses
-run 0 ../equals -E 'a U (b c) U e R (f g <=> h)' 'a U (0) U e R (0)'
+run 0 ../equals -E 'a U (b c) U e R (f g <=> h)' 'a U b U e R f'
 run 0 ../equals -E 'a U ((c) U e) R (<=> f g)' 'a U ((c) U e) R (0)'
 
 # Missing parentheses
 run 0 ../equals -E 'a & (a + b' 'a & (a + b)'
-run 0 ../equals -E 'a & (a + b c' 'a & (0)'
-run 0 ../equals -E 'a & (+' 'a & (0)'
-run 0 ../equals -E 'a & ('  'a & (0)'
+run 0 ../equals -E 'a & (a + b c' 'a & (a + b)'
+run 0 ../equals -E 'a & (+' 'a & 0'
+run 0 ../equals -E 'a & ('  'a & 0'
 
 # Invalid ranges
 run 0 ../equals -E '{a[*8..1];b}' '{a[*1..8];b}'
