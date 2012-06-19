@@ -4,7 +4,8 @@ EXTRA_DIST = \
   formulae.ltl \
   known \
   parseout.pl \
-  small
+  small \
+  lbtt2csv.pl
 CLEAN_FILES = \
   big.cfg big.log big.txt \
   small.cfg small.log small.txt \
