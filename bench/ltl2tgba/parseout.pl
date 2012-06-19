@@ -32,6 +32,7 @@ my ($a, $b, $acc, $time, $det, $ndindex);
 my $prefix = 'All formulae';
 $prefix = 'Pos. formulae' if $ARGV[0] eq '-p';
 $prefix = 'Neg. formulae' if $ARGV[0] eq '-n';
+shift if $ARGV[0] eq '-n' or $ARGV[0] eq '-p';
 
 sub sep($)
 {
