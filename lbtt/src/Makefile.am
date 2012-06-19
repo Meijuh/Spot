@@ -1,4 +1,4 @@
-BUILT_SOURCES = Config-parse.h NeverClaim-parse.h
+BUILT_SOURCES = Config-parse.c NeverClaim-parse.c Ltl-parse.c
 AM_YFLAGS = -d
 
 bin_PROGRAMS = lbtt lbtt-translate
@@ -10,7 +10,7 @@ lbtt_SOURCES = \
   BuchiAutomaton.cc \
   BuchiProduct.h \
   BuchiProduct.cc \
-  Config-parse.yy \
+  Config-parse_.cc \
   Config-lex.ll \
   Configuration.h \
   Configuration.cc \
@@ -26,7 +26,7 @@ lbtt_SOURCES = \
   LbttAlloc.h \
   LtlFormula.h \
   LtlFormula.cc \
-  Ltl-parse.yy \
+  Ltl-parse_.cc \
   main.cc \
   PathEvaluator.h \
   PathEvaluator.cc \
@@ -56,7 +56,7 @@ lbtt_SOURCES = \
   UserCommandReader.cc \
   UserCommands.h \
   UserCommands.cc
-EXTRA_lbtt_SOURCES = gnu-getopt.h
+EXTRA_lbtt_SOURCES = gnu-getopt.h Config-parse.y Ltl-parse.y
 lbtt_LDADD = @LIBOBJS@ @READLINELIBS@
 
 lbtt_translate_SOURCES = \
@@ -72,8 +72,8 @@ lbtt_translate_SOURCES = \
   LbtWrapper.h \
   LtlFormula.h \
   LtlFormula.cc \
-  Ltl-parse.yy \
-  NeverClaim-parse.yy \
+  Ltl-parse_.cc \
+  NeverClaim-parse_.cc \
   NeverClaim-lex.ll \
   NeverClaimAutomaton.h \
   NeverClaimAutomaton.cc \
@@ -88,5 +88,5 @@ lbtt_translate_SOURCES = \
   translate.h \
   translate.cc \
   TranslatorInterface.h
-EXTRA_lbtt_translate_SOURCES = gnu-getopt.h
+EXTRA_lbtt_translate_SOURCES = gnu-getopt.h Ltl-parse.y NeverClaim-parse.y
 lbtt_translate_LDADD = @LIBOBJS@

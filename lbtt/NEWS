@@ -23,6 +23,7 @@ Version 1.2.1a
 
 * Fix compilation with newer versions of Bison.
 * Fix compilation on Intel's icpc, and with recent version of G++.
+* Fix compilation with newer versions of Automake.
 * Fix construction of manual ("make dvi" and "make pdf") for recent
   version of texinfo.
 * Fix generation of random formulae on 64bit machines.  (They were
