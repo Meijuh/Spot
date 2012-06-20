@@ -88,8 +88,13 @@ namespace spot
 
       ~unicity_table()
       {
-	for (uniq_set::iterator i = m.begin(); i != m.end(); ++i)
-	  (*i)->destroy();
+	for (uniq_set::iterator i = m.begin(); i != m.end();)
+	  {
+	    // Advance the iterator before destroying its key.  This
+	    // avoid issues with old g++ implementations.
+	    uniq_set::iterator old = i++;
+	    (*old)->destroy();
+	  }
       }
     };
 
