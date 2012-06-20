@@ -20,9 +20,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "config.h"
 #include "formula.hh"
 #include "misc/hash.hh"
+#include "misc/casts.hh"
 #include <iostream>
+#include "unop.hh"
+#include "atomic_prop.hh"
+#include <string.h>
 
 namespace spot
 {
@@ -114,5 +119,22 @@ namespace spot
 
       return out;
     }
+
+
+    const formula* is_literal(const formula* f)
+    {
+      const unop* g = is_Not(f);
+      if (g)
+	f = g->child();
+      return is_atomic_prop(f);
+    }
+
+    int atomic_prop_cmp(const formula* f, const formula* g)
+    {
+      const atomic_prop* a = down_cast<const atomic_prop*>(f);
+      const atomic_prop* b = down_cast<const atomic_prop*>(g);
+      return strverscmp(a->name().c_str(), b->name().c_str());
+    }
+
   }
 }

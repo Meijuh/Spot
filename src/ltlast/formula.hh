@@ -354,6 +354,20 @@ namespace spot
       opkind kind_;
     };
 
+
+    /// \brief Change \a f into <code>a</code> if it is equal to
+    /// <code>!a</code> or <code>a</code>.
+    ///
+    /// Return 0 otherwise.
+    SPOT_API
+    const formula* is_literal(const formula* f);
+
+
+    /// Compare two atomic propositions.
+    SPOT_API
+    int atomic_prop_cmp(const formula* f, const formula* g);
+
+
     /// \ingroup ltl_essentials
     /// \brief Strict Weak Ordering for <code>const formula*</code>.
     ///
@@ -377,6 +391,67 @@ namespace spot
 	assert(right);
 	if (left == right)
 	  return false;
+
+	size_t l = left->hash();
+	size_t r = right->hash();
+	if (l != r)
+	  return l < r;
+	// Because the hash code assigned to each formula is the
+	// number of formulae constructed so far, it is very unlikely
+	// that we will ever reach a case were two different formulae
+	// have the same hash.  This will happen only ever with have
+	// produced 256**sizeof(size_t) formulae (i.e. max_count has
+	// looped back to 0 and started over).  In that case we can
+	// order two formulae by looking at their text representation.
+	// We could be more efficient and look at their AST, but it's
+	// not worth the burden.  (Also ordering pointers is ruled out
+	// because it breaks the determinism of the implementation.)
+	return left->dump() < right->dump();
+      }
+    };
+
+    /// \brief Strict Weak Ordering for <code>const formula*</code>
+    ///        inside ltl::multop.
+    /// \ingroup ltl_essentials
+    ///
+    /// This is the comparison functor used by to order the
+    /// ltl::multop operands.  It keeps Boolean formulae first in
+    /// order to speed up implication checks.
+    ///
+    /// Also keep literal alphabetically ordered.
+    struct formula_ptr_less_than_multop:
+      public std::binary_function<const formula*, const formula*, bool>
+    {
+      bool
+      operator()(const formula* left, const formula* right) const
+      {
+	assert(left);
+	assert(right);
+	if (left == right)
+	  return false;
+
+	// We want Boolean formulae first.
+	bool lib = left->is_boolean();
+	if (lib != right->is_boolean())
+	  return lib;
+
+	// We have two Boolean formulae
+	if (lib)
+	  {
+	    // Literals should come first
+	    const formula* litl = is_literal(left);
+	    const formula* litr = is_literal(right);
+	    if (!litl != !litr)
+	      return litl;
+	    if (litl)
+	      {
+		// And they should be sorted alphabetically
+		int cmp = atomic_prop_cmp(litl, litr);
+		if (cmp)
+		  return cmp < 0;
+	      }
+	  }
+
 	size_t l = left->hash();
 	size_t r = right->hash();
 	if (l != r)

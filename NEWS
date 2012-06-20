@@ -158,6 +158,11 @@ New in spot 1.1.4a (not relased)
       Small or Deterministic.  These can now be combined with Complete
       as Any|Complete, Small|Complete, or Deterministic|Complete.
 
+    - operands of n-ary operators (like & and |) are now ordered so
+      that Boolean terms come first.  This speeds up syntactic
+      implication checks slightly.  Also, literals are now sorted
+      using strverscmp(), so that p5 comes before p12.
+
     - All the parsers implemented in Spot now use the same type to
       store locations.
 

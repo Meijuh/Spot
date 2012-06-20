@@ -25,7 +25,7 @@ cat >expected.1<<EOF
 FGa, 0 0
 GFa, 1 1
 a U b, 1 0
-G(Fa | !r) | Fx, 0 1
+G(!r | Fa) | Fx, 0 1
 EOF
 
 cut -d, -f1 expected.1 |
@@ -36,7 +36,7 @@ cat >expected.2<<EOF
 FGa, 0 1
 GFa, 1 1
 a U b, 1 1
-G(Fa | !r) | Fx, 0 1
+G(!r | Fa) | Fx, 0 1
 EOF
 
 cut -d, -f1 expected.2 |

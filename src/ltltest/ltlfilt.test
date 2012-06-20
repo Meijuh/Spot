@@ -90,7 +90,7 @@ b W GFa
 Fb
 G(a & Xb)
 Xa
-F(a & X(b & !a))
+F(a & X(!a & b))
 a & (b | c)
 EOF
 
@@ -98,7 +98,7 @@ checkopt --simplify --eventual --unique <<EOF
 F(GFa | Gb)
 F(b W GFa)
 Fb
-F(a & X(b & !a))
+F(a & X(!a & b))
 EOF
 
 checkopt --safety <<EOF

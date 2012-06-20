@@ -199,13 +199,13 @@ namespace spot
 	      }
 	  }
 	// - AndNLM(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
-	//    AndNLM(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
+	//    AndNLM(And(Bool1,Bool2),Exps1...,Exps2...,Exps3...)
 	// - AndRat(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
-	//    AndRat(Exps1...,Exps2...,Exps3...,And(Bool1,Bool2))
+	//    AndRat(And(Bool1,Bool2),Exps1...,Exps2...,Exps3...)
 	// - OrRat(Exps1...,Bool1,Exps2...,Bool2,Exps3...) =
-	//    AndRat(Exps1...,Exps2...,Exps3...,Or(Bool1,Bool2))
+	//    AndRat(Or(Bool1,Bool2),Exps1...,Exps2...,Exps3...)
 	if (!b->empty())
-	  v->push_back(multop::instance(op, b));
+	  v->insert(v->begin(), multop::instance(op, b));
 	else
 	  delete b;
       }
@@ -240,18 +240,15 @@ namespace spot
 		i = v->erase(i);
 		continue;
 	      }
-	    if (const multop* p = is_multop(*i))
+	    if (const multop* p = is_multop(*i, op))
 	      {
-		if (p->op() == op)
-		  {
-		    unsigned ps = p->size();
-		    for (unsigned n = 0; n < ps; ++n)
-		      inlined.push_back(p->nth(n)->clone());
-		    (*i)->destroy();
-		    // FIXME: Do not use erase.  See previous FIXME.
-		    i = v->erase(i);
-		    continue;
-		  }
+		unsigned ps = p->size();
+		for (unsigned n = 0; n < ps; ++n)
+		  inlined.push_back(p->nth(n)->clone());
+		(*i)->destroy();
+		// FIXME: Do not use erase.  See previous FIXME.
+		i = v->erase(i);
+		continue;
 	      }
 	    // All operator except "Concat" and "Fusion" are
 	    // commutative, so we just keep a list of the inlined
@@ -263,13 +260,13 @@ namespace spot
 	    ++i;
 	  }
 	if (op == Concat || op == Fusion)
-	  *v = inlined;
+	  v->swap(inlined);
 	else
 	  v->insert(v->end(), inlined.begin(), inlined.end());
       }
 
       if (op != Concat && op != Fusion)
-	std::sort(v->begin(), v->end(), formula_ptr_less_than());
+	std::sort(v->begin(), v->end(), formula_ptr_less_than_multop());
 
       unsigned orig_size = v->size();
 

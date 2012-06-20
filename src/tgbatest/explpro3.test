@@ -43,13 +43,7 @@ acc = "p2" "p3";
 "s1 * s1", "s3 * s3", "a & !b", "p3";
 EOF
 
-run 0 ../explprod input1 input2 > stdout
-
-# Sort out some possible inversions in the output.
-# (The order is not guaranteed by SPOT.)
-sed 's/"p3" "p2"/"p2" "p3"/g;s/!b & a/a \& !b/g;
-     s/b & !a/!a \& b/g' stdout > tmp_ && mv tmp_ stdout
-
-cat stdout
+run 0 ../explprod input1 input2 |
+sed 's/"p3" "p2"/"p2" "p3"/g' | tee stdout
 diff stdout expected
 rm input1 input2 stdout expected
