@@ -1,4 +1,8 @@
 include ../Makefile.def
+
+# For parser.c
+AM_CPPFLAGS += -I.
+
 EXTRA_DIST = \
  readme \
  example.cal \

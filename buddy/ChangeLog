@@ -1,3 +1,10 @@
+2012-06-20  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix the recent Automake workaround for VPATH builds.
+
+	* examples/bddcalc/Makefile.am (ACLOCAL_AMFLAGS): Add -I. for
+	parse.c.  Reported by Pierre Parutto.
+
 2012-06-13  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Add a function bdd_implies to decide implications between BDDs.
