@@ -4715,11 +4715,11 @@ namespace spot
 
       // Often we compare a literals (an atomic_prop or its negation)
       // to another literal.  The result is necessarily false. To be
-      // true, the two literals would have to be equal, be we have
+      // true, the two literals would have to be equal, but we have
       // already checked that.
       if (f->is_in_nenoform() && g->is_in_nenoform()
-	  && (is_atomic_prop(f) || is_unop(f, unop::Not))
-	  && (is_atomic_prop(g) || is_unop(g, unop::Not)))
+	  && (is_atomic_prop(f) || is_Not(f))
+	  && (is_atomic_prop(g) || is_Not(g)))
 	return false;
 
       // Cache lookup
