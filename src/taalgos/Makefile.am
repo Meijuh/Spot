@@ -1,4 +1,5 @@
-## Copyright (C) 2010 Laboratoire de Recherche et Développement
+## -*- coding: utf-8 -*-
+## Copyright (C) 2010, 2012 Laboratoire de Recherche et DÃ©veloppement
 ## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.et Marie Curie.
@@ -19,27 +20,26 @@
 ## 02111-1307, USA.
 
 
-AM_CPPFLAGS = -I$(srcdir)/.. $(BUDDY_CPPFLAGS)
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 taalgosdir = $(pkgincludedir)/taalgos
 
 taalgos_HEADERS = \
-	tgba2ta.hh \
-	dotty.hh \
-	reachiter.hh \
-	stats.hh \
-	statessetbuilder.hh \
-	minimize.hh \
-  	emptinessta.hh
+  tgba2ta.hh \
+  dotty.hh \
+  reachiter.hh \
+  stats.hh \
+  statessetbuilder.hh \
+  minimize.hh \
+  emptinessta.hh
 
 noinst_LTLIBRARIES = libtaalgos.la
 libtaalgos_la_SOURCES = \
-	tgba2ta.cc \
-	dotty.cc \
-	reachiter.cc \
-  	stats.cc \
-  	statessetbuilder.cc \
-  	minimize.cc \
-  	emptinessta.cc
-
+  tgba2ta.cc \
+  dotty.cc \
+  reachiter.cc \
+  stats.cc \
+  statessetbuilder.cc \
+  minimize.cc \
+  emptinessta.cc

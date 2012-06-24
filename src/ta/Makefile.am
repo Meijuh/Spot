@@ -1,4 +1,5 @@
-## Copyright (C) 2010 Laboratoire de Recherche et Développement
+## -*- coding: utf-8 -*-
+## Copyright (C) 2010, 2012 Laboratoire de Recherche et DÃ©veloppement
 ## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -18,7 +19,7 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-AM_CPPFLAGS = -I$(srcdir)/.. $(BUDDY_CPPFLAGS)
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 tadir = $(pkgincludedir)/ta
@@ -31,8 +32,8 @@ ta_HEADERS = \
   tgtaexplicit.hh \
   tgtaproduct.hh
 
-  noinst_LTLIBRARIES = libta.la
-  libta_la_SOURCES = \
+noinst_LTLIBRARIES = libta.la
+libta_la_SOURCES = \
   ta.cc \
   taproduct.cc \
   tgta.cc \
