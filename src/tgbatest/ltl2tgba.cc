@@ -845,6 +845,7 @@ main(int argc, char** argv)
     {
       spot::tgba_bdd_concrete* concrete = 0;
       const spot::tgba* to_free = 0;
+      const spot::tgba* to_free2 = 0;
       spot::tgba* a = 0;
 
       if (from_file)
@@ -1149,6 +1150,7 @@ main(int argc, char** argv)
 
               delete testing_automata_nm;
               delete testing_automata;
+	      delete a;
               a = 0;
               degeneralized = 0;
               if (degeneralize_opt != DegenSBA)
@@ -1157,6 +1159,7 @@ main(int argc, char** argv)
             }
           if (tgta_opt)
             {
+	      to_free2 = a;
               spot::tgta* tgta = tgba_to_tgta(a, atomic_props_set_bdd);
               if (opt_bisim_ta)
                 {
@@ -1485,6 +1488,7 @@ main(int argc, char** argv)
       delete degeneralized;
       delete aut_scc;
       delete to_free;
+      delete to_free2;
       delete echeck_inst;
       delete temp_dir_sim;
     }

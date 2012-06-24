@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
-// de l Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -352,9 +353,12 @@ namespace spot
 
 
   ta_explicit::ta_explicit(const tgba* tgba, bdd all_acceptance_conditions,
-      state_ta_explicit* artificial_initial_state) :
-    tgba_(tgba), all_acceptance_conditions_(all_acceptance_conditions),
-        artificial_initial_state_(artificial_initial_state)
+			   state_ta_explicit* artificial_initial_state,
+			   bool own_tgba) :
+    tgba_(tgba),
+    all_acceptance_conditions_(all_acceptance_conditions),
+    artificial_initial_state_(artificial_initial_state),
+    own_tgba_(own_tgba)
   {
     get_dict()->register_all_variables_of(&tgba_, this);
     if (artificial_initial_state != 0)
@@ -362,7 +366,6 @@ namespace spot
         state_ta_explicit* is = add_state(artificial_initial_state);
         assert(is == artificial_initial_state);
       }
-
   }
 
   ta_explicit::~ta_explicit()
@@ -377,7 +380,8 @@ namespace spot
         delete s;
       }
     get_dict()->unregister_all_my_variables(this);
-    delete tgba_;
+    if (own_tgba_)
+      delete tgba_;
   }
 
   state_ta_explicit*
@@ -387,7 +391,6 @@ namespace spot
         states_set_.insert(s);
 
     return static_cast<state_ta_explicit*> (*add_state_to_ta.first);
-
   }
 
   void

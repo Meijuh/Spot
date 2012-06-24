@@ -1,5 +1,5 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
-// de l Epita_explicit (LRDE).
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -40,7 +40,8 @@ namespace spot
   {
   public:
     tgta_explicit(const tgba* tgba, bdd all_acceptance_conditions,
-        state_ta_explicit* artificial_initial_state);
+		  state_ta_explicit* artificial_initial_state,
+		  bool own_tgba = false);
 
     // tgba interface
     virtual spot::state*

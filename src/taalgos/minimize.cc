@@ -1,5 +1,5 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -502,7 +502,8 @@ namespace spot
 
     tgba_explicit_number* tgba = new tgba_explicit_number(ta_->get_dict());
 
-    ta_explicit* res = new ta_explicit(tgba, ta_->all_acceptance_conditions());
+    ta_explicit* res = new ta_explicit(tgba, ta_->all_acceptance_conditions(),
+				       0, /* own_tgba = */ true);
 
     partition_t partition = build_partition(ta_);
 
@@ -524,8 +525,8 @@ namespace spot
 
     tgba_explicit_number* tgba = new tgba_explicit_number(tgta_->get_dict());
 
-    tgta_explicit* res = new tgta_explicit(tgba,
-        tgta_->all_acceptance_conditions(), 0);
+    tgta_explicit* res = new tgta_explicit(tgba, tgta_->all_acceptance_conditions(),
+					   0, /* own_tgba = */ true);
 
     //TODO copier le tgta_ dans un tgta_explicit au lieu de faire un cast...
     const ta_explicit* tgta = dynamic_cast<const tgta_explicit*> (tgta_);
