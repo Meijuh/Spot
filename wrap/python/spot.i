@@ -73,6 +73,7 @@ namespace std {
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/tunabbrev.hh"
+#include "ltlvisit/apcollect.hh"
 
 #include "tgba/bdddict.hh"
 #include "tgba/bddprint.hh"
@@ -110,6 +111,15 @@ namespace std {
 #include "tgbaalgos/simulation.hh"
 
 #include "tgbaparse/public.hh"
+
+#include "ta/ta.hh"
+#include "ta/tgta.hh"
+#include "ta/taexplicit.hh"
+#include "ta/tgtaexplicit.hh"
+#include "taalgos/tgba2ta.hh"
+#include "taalgos/dotty.hh"
+#include "taalgos/stats.hh"
+#include "taalgos/minimize.hh"
 
 using namespace spot::ltl;
 using namespace spot;
@@ -176,6 +186,7 @@ using namespace spot;
 %include "ltlvisit/simplify.hh"
 %include "ltlvisit/tostring.hh"
 %include "ltlvisit/tunabbrev.hh"
+%include "ltlvisit/apcollect.hh"
 
 %feature("new") spot::emptiness_check::check;
 %feature("new") spot::emptiness_check_instantiator::construct;
@@ -197,6 +208,8 @@ using namespace spot;
 %feature("new") spot::simulation;
 %feature("new") spot::degeneralize;
 %feature("new") spot::tgba_parse;
+%feature("new") spot::tgba_to_ta;
+%feature("new") spot::tgba_to_tgta;
 
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
@@ -260,6 +273,17 @@ using namespace spot;
 %include "tgbaalgos/simulation.hh"
 
 %include "tgbaparse/public.hh"
+
+%include "ta/ta.hh"
+%include "ta/tgta.hh"
+%include "ta/taexplicit.hh"
+%include "ta/tgtaexplicit.hh"
+%include "taalgos/tgba2ta.hh"
+%include "taalgos/dotty.hh"
+%include "taalgos/stats.hh"
+%include "taalgos/minimize.hh"
+
+
 
 #undef ltl
 

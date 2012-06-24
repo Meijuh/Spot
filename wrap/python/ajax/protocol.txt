@@ -20,6 +20,7 @@ Choosing the desired output (pick one)
   o=m     output monitor
   o=a     output automaton
   o=r     output run
+  o=t     output testing automaton
   o=v3    output LTL3BA's version  (no other argument needed)
 
 Type of formula output if o=f (pick one)
@@ -48,6 +49,12 @@ Type of run output if o=r (pick one)
 
   rf=p    print run as text
   rf=d    draw run
+
+Type of testing automaton if o=t (pick one)
+
+  tf=t    TA
+  tf=g    GTA
+  tf=a    TGTA
 
 Translator algorithm (pick one)
 

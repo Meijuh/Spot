@@ -439,6 +439,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	      <li><a href="#tabs-om" class="btip" title="Create a monitor accepting all finite prefixes compatible with the formula.">Monitor</a></li>
 	      <li><a href="#tabs-oa" class="btip" title="Translate the LTL formula into B&uuml;chi automaton.">B&uuml;chi Automaton</a></li>
 	      <li><a href="#tabs-or" class="btip" title="Translate the LTL formula into B&uuml;chi automaton, and exhibit an accepting run.">B&uuml;chi Run</a></li>
+	      <li><a href="#tabs-ot" class="btip" title="Translate the LTL formula into a Testing Automaton, or some variant.">Testing Automaton</a></li>
 	      <li class="ui-icon ui-icon-circle-arrow-n ftip">Fold</li>
 	    </ul>
 	    <input type="hidden" name="o">
@@ -502,6 +503,21 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		<label class="rtip" title="Use color to show an accepting run in the automaton.">
 		  <INPUT type="radio" name="rf" value="d">
 		  draw an accepting run on top of the automaton
+		</label><br>
+	      </div>
+	      <div id="tabs-ot">
+		Translate the (simplified) formula as:<br>
+		<label class="rtip" title="Instead of reading valuations of all atomic propositions testing automata only watch the changes to these valuation.  A transitions labeled by <span class='formula'>a</span> may be crossed only if these atomic proposition change in the system.  Additionally, testing automata have two acceptance conditions: states can be Büchi accepting or livelock accepting (or both, or none).">
+		  <INPUT type="radio" name="tf" value="t">
+		  a Testing Automaton (TA)
+		</label><br>
+		<label class="rtip" title="GTA are testing automata extended with multiple Büchi acceptance conditions.">
+		  <INPUT type="radio" name="tf" value="g">
+		  a Generalized Testing Automaton (GTA)
+		</label><br>
+		<label class="rtip" title="TGTA are similar to TGBA except instead of reading valuations of all atomic propositions testing automata only watch the changes to these valuation.  They have multiple Büchi acceptance conditions on transitions, but no livelock acceptance.">
+		  <INPUT type="radio" name="tf" value="a" checked>
+		  a Transition-based Generalized Testing Automaton (TGTA)
 		</label><br>
 	      </div>
 	    </div>

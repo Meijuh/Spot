@@ -287,7 +287,10 @@ However you may download the <a href="''' + cgi.escape(autprefix)
 
 def render_automaton(automaton, dont_run_dot, issba, deco = None):
     dotsrc = spot.ostringstream()
-    spot.dotty_reachable(dotsrc, automaton, issba, deco)
+    if isinstance(automaton, spot.ta):
+        spot.dotty_reachable(dotsrc, automaton)
+    else:
+        spot.dotty_reachable(dotsrc, automaton, issba, deco)
     render_dot_maybe(dotsrc.str(), dont_run_dot)
 
 def render_formula(f):
@@ -303,15 +306,16 @@ def print_stats(automaton):
     unbufprint(", %d transition" % stats.transitions)
     if stats.transitions > 1:
         unbufprint("s")
-    count = automaton.number_of_acceptance_conditions()
-    if count > 0:
-        unbufprint(", %d acceptance condition" % count)
-        if count > 1:
-            unbufprint("s")
-        acc = automaton.all_acceptance_conditions()
-        unbufprint(": " + spot.bdd_format_accset(automaton.get_dict(), acc))
-    else:
-        unbufprint(", no acceptance condition (all cycles are accepting)")
+    if hasattr(automaton, 'number_of_acceptance_conditions'):
+        count = automaton.number_of_acceptance_conditions()
+        if count > 0:
+            unbufprint(", %d acceptance condition" % count)
+            if count > 1:
+                unbufprint("s")
+                acc = automaton.all_acceptance_conditions()
+                unbufprint(": " + spot.bdd_format_accset(automaton.get_dict(), acc))
+        else:
+            unbufprint(", no acceptance condition (all cycles are accepting)")
     unbufprint("</p>\n")
     # Decide whether we will render the automaton or not.
     # (A webserver is not a computation center...)
@@ -578,10 +582,15 @@ for s in form.getlist('as'):
     elif s == 'ds':
         direct_simul = True
 
+ta_type = None
+buchi_type = None
+
 if output_type == 'a':
     buchi_type = form.getfirst('af', 't')
 elif output_type == 'r':
     buchi_type = form.getfirst('ra', 't')
+elif output_type == 't':
+    ta_type = form.getfirst('tf', 't')
 else:
     unbufprint("Unkown output type 'o=%s'.\n" % output_type)
     automaton = 0
@@ -589,11 +598,17 @@ else:
 
 degen = False
 neverclaim = False
-if buchi_type == 's':
+
+if buchi_type == 's' or ta_type == 't':
     degen = True
 elif buchi_type == 'i':
     degen = True
     neverclaim = True
+
+if output_type == 't':
+    ta_type = form.getfirst('tf', 't')
+    if ta_type == 't':
+        degen = True
 
 if prune_scc:
     # Do not suppress all useless acceptance conditions if
@@ -634,6 +649,23 @@ if output_type == 'a':
     else: # 't' or 's'
         dont_run_dot = print_stats(degen)
         render_automaton(degen, dont_run_dot, issba)
+    degen = 0
+    automaton = 0
+    finish()
+
+# Testing automaton Output
+if output_type == 't':
+    propset = spot.atomic_prop_collect_as_bdd(f, automaton)
+    if ta_type == 'a':
+        tautomaton = spot.tgba_to_tgta(degen, propset)
+        tautomaton = spot.minimize_tgta(tautomaton)
+    else:
+        tautomaton = spot.tgba_to_ta(degen, propset,
+                                     False, False, False, False)
+        tautomaton = spot.minimize_ta(tautomaton)
+    dont_run_dot = print_stats(tautomaton)
+    render_automaton(tautomaton, dont_run_dot, False)
+    tautomaton = 0
     degen = 0
     automaton = 0
     finish()
