@@ -135,58 +135,58 @@ grep 'states: 21$' stdout
 f="FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)"
 
 run 0 ../ltl2tgba -TA -Rm -ks -in -R3f -x  -DS  "$f" >stdout
-grep 'transitions: 521$' stdout
-grep 'states: 43$' stdout
+grep 'transitions: 450$' stdout
+grep 'states: 38$' stdout
 
 
 run 0 ../ltl2tgba -TA -Rm -ks -lv -R3f -x  -DS  "$f" >stdout
-grep 'transitions: 636$' stdout
-grep 'states: 45$' stdout
+grep 'transitions: 555$' stdout
+grep 'states: 40$' stdout
 
 
 run 0 ../ltl2tgba -TA -Rm -ks "$f" >stdout
-grep 'transitions: 498$' stdout
-grep 'states: 34$' stdout
+grep 'transitions: 424$' stdout
+grep 'states: 31$' stdout
 
 
 run 0 ../ltl2tgba -TA -Rm -ks -sp -lv -in "$f" >stdout
-grep 'transitions: 566$' stdout
-grep 'states: 35$' stdout
+grep 'transitions: 485$' stdout
+grep 'states: 32$' stdout
 
 
 run 0 ../ltl2tgba -TA -Rm -ks -in -R3 -x  -DS  "$f" >stdout
-grep 'transitions: 464$' stdout
+grep 'transitions: 436$' stdout
 grep 'states: 36$' stdout
 
 run 0 ../ltl2tgba -TA -Rm -ks -sp -lv -R3 -x   -DS "$f" >stdout
-grep 'transitions: 565$' stdout
+grep 'transitions: 537$' stdout
 grep 'states: 38$' stdout
 
 
 run 0 ../ltl2tgba -TA -ks -sp -lv -DS "$f" >stdout
-grep 'transitions: 831$' stdout
-grep 'states: 56$' stdout
+grep 'transitions: 609$' stdout
+grep 'states: 46$' stdout
 
 
 run 0 ../ltl2tgba -TA -Rm -ks -sp -lv "$f" >stdout
-grep 'transitions: 585$' stdout
-grep 'states: 36$' stdout
+grep 'transitions: 504$' stdout
+grep 'states: 33$' stdout
 
 run 0 ../ltl2tgba -TGTA -Rm -ks "$f" >stdout
-grep 'transitions: 598$' stdout
-grep 'states: 35$' stdout
+grep 'transitions: 527$' stdout
+grep 'states: 32$' stdout
 
 g="G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))"
 
 run 0 ../ltl2tgba -TA -Rm -ks -DS "$g" >stdout
-grep 'transitions: 2779$' stdout
-grep 'states: 127$' stdout
+grep 'transitions: 2147$' stdout
+grep 'states: 97$' stdout
 
 
 run 0 ../ltl2tgba -TA -Rm -ks -sp "$g" >stdout
-grep 'transitions: 1219$' stdout
-grep 'states: 65$' stdout
+grep 'transitions: 887$' stdout
+grep 'states: 49$' stdout
 
 run 0 ../ltl2tgba -TGTA -Rm -ks "$g" >stdout
-grep 'transitions: 1283$' stdout
-grep 'states: 65$' stdout
+grep 'transitions: 935$' stdout
+grep 'states: 49$' stdout

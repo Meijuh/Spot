@@ -80,6 +80,7 @@ TESTS = \
   readsave.test \
   ltl2tgba.test \
   ltl2neverclaim.test \
+  ltl2ta.test \
   ltlprod.test \
   bddprod.test \
   explprod.test \
