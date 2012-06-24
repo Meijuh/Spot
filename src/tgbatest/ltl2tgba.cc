@@ -1101,18 +1101,7 @@ main(int argc, char** argv)
       //TA, STA, GTA, SGTA and TGTA
       if (ta_opt || tgta_opt)
         {
-          spot::ltl::atomic_prop_set* aps = atomic_prop_collect(f, 0);
-
-          bdd atomic_props_set_bdd = bddtrue;
-          for (spot::ltl::atomic_prop_set::const_iterator i = aps->begin(); i
-              != aps->end(); ++i)
-            {
-              bdd atomic_prop = bdd_ithvar((a->get_dict())->var_map[*i]);
-
-              atomic_props_set_bdd &= atomic_prop;
-
-            }
-          delete aps;
+	  bdd atomic_props_set_bdd = atomic_prop_collect_as_bdd(f, a);
 
           if (ta_opt)
             {

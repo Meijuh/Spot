@@ -24,6 +24,8 @@
 
 #include "apcollect.hh"
 #include "ltlvisit/postfix.hh"
+#include "tgba/tgba.hh"
+#include "tgba/bdddict.hh"
 
 namespace spot
 {
@@ -61,6 +63,19 @@ namespace spot
       atomic_prop_collector v(s);
       f->accept(v);
       return s;
+    }
+
+    bdd
+    atomic_prop_collect_as_bdd(const formula* f, tgba* a)
+    {
+      spot::ltl::atomic_prop_set aps;
+      atomic_prop_collect(f, &aps);
+      bdd_dict* d = a->get_dict();
+      bdd res = bddtrue;
+      for (atomic_prop_set::const_iterator i = aps.begin();
+	   i != aps.end(); ++i)
+	res &= bdd_ithvar(d->register_proposition(*i, a));
+      return res;
     }
 
   }

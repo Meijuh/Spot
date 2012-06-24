@@ -27,9 +27,12 @@
 
 #include <set>
 #include "ltlast/atomic_prop.hh"
+#include "bdd.h"
 
 namespace spot
 {
+  class tgba;
+
   namespace ltl
   {
     /// \addtogroup ltl_misc
@@ -49,6 +52,14 @@ namespace spot
     ///        set containing all these atomic propositions if \c s is 0.
     atomic_prop_set*
     atomic_prop_collect(const formula* f, atomic_prop_set* s = 0);
+
+    /// \brief Return the set of atomic propositions occurring in a formula, as a BDD.
+    ///
+    /// \param f the formula to inspect
+    /// \param a that automaton that should register the BDD variables used.
+    /// \return A conjunction the atomic propositions.
+    bdd
+    atomic_prop_collect_as_bdd(const formula* f, tgba* a);
 
     /// @}
   }
