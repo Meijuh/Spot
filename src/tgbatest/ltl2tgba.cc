@@ -216,7 +216,20 @@ syntax(char* prog)
 	    << "in BFS order" << std::endl
 	    << std::endl
 
-	    << "Options for performing emptiness checks:" << std::endl
+	    << "Conversion to Testing Automaton:" << std::endl
+ 	    << "  -TA   output a Generalized Testing Automaton (GTA),\n"
+	    << "          or a Testing Automaton (TA) with -DS\n"
+ 	    << "  -lv   add an artificial livelock state to obtain a "
+	    << "Single-pass (G)TA\n"
+            << "  -sp   convert into a single-pass (G)TA without artificial "
+	    << "livelock state\n"
+	    << "  -in   do not use an artificial initial state\n"
+            << "  -TGTA output a Transition-based Generalized TA"
+            << std::endl
+	    << "  -RT   reduce the (G)TA/TGTA using bisimulation.\n"
+            << std::endl
+
+	    << "Options for performing emptiness checks (on TGBA):" << std::endl
 	    << "  -e[ALGO]  run emptiness check, expect and compute an "
 	    << "accepting run" << std::endl
 	    << "  -E[ALGO]  run emptiness check, expect no accepting run"
@@ -279,26 +292,7 @@ syntax(char* prog)
 	    << std::endl
 	    << "  -v    display the BDD variables used by the automaton"
 	    << std::endl
-	    << std::endl
-  	  	<< "Options for Testing Automata:"
- 	    << std::endl
- 	    << "  -TA   Translate an LTL formula into a GTA (Generalized"
- 	    << " Testing automata), for Testing Automata (TA) add '-DS' option"
- 	    << std::endl
- 	    << "  -lv   convert into a (G)TA with an artificial livelock state,"
- 	    << " the obtained automaton is called S(G)TA "
- 	    << "(Single-pass (Generalized) Testing Automata)"
- 	    << std::endl
-            << "  -sp   convert into a (G)TA involving a single-pass emptiness "
-            << "check (without adding an artificial livelock state)"
-            << std::endl
-            << std::endl
-           << "  -in   convert into a (G)TA without an artificial initial state"
-            << std::endl
-            << "  -TGTA Translate an LTL formula into a TGTA "
-            << "(Transition-based Generalised Testing Automata)"
-            << std::endl;
-
+	    << std::endl;
 
   exit(2);
 }
@@ -343,6 +337,7 @@ main(int argc, char** argv)
   bool graph_run_tgba_opt = false;
   bool opt_reduce = false;
   bool opt_minimize = false;
+  bool opt_bisim_ta = false;
   bool opt_monitor = false;
   bool containment = false;
   bool show_fc = false;
@@ -670,6 +665,10 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-Rm"))
         {
           opt_minimize = true;
+        }
+      else if (!strcmp(argv[formula_index], "-RT"))
+        {
+          opt_bisim_ta = true;
         }
       else if (!strcmp(argv[formula_index], "-M"))
         {
@@ -1006,7 +1005,7 @@ main(int argc, char** argv)
       const spot::tgba* degeneralized = 0;
 
       spot::tgba* minimized = 0;
-      if (opt_minimize && !ta_opt && !tgta_opt)
+      if (opt_minimize)
 	{
 	  tm.start("obligation minimization");
 	  minimized = minimize_obligation(a, f);
@@ -1125,7 +1124,7 @@ main(int argc, char** argv)
                       opt_with_artificial_livelock);
 
               spot::ta* testing_automata_nm = 0;
-              if (opt_minimize)
+              if (opt_bisim_ta)
                 {
                   testing_automata_nm = testing_automata;
                   testing_automata = minimize_ta(testing_automata);
@@ -1159,7 +1158,7 @@ main(int argc, char** argv)
           if (tgta_opt)
             {
               spot::tgta* tgta = tgba_to_tgta(a, atomic_props_set_bdd);
-              if (opt_minimize)
+              if (opt_bisim_ta)
                 {
                   a = minimize_tgta(tgta);
                   minimized = a;

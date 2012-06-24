@@ -27,21 +27,21 @@ set -e
 check ()
 {
   run 0 ../ltl2tgba -TA -ks "$1"
-  run 0 ../ltl2tgba -TA -Rm -ks "$1"
+  run 0 ../ltl2tgba -TA -RT -ks "$1"
   run 0 ../ltl2tgba -TA -lv -ks "$1"
   run 0 ../ltl2tgba -TA -sp -ks "$1"
-  run 0 ../ltl2tgba -TA -Rm -lv "$1"
-  run 0 ../ltl2tgba -TA -Rm -sp -ks "$1"
+  run 0 ../ltl2tgba -TA -RT -lv "$1"
+  run 0 ../ltl2tgba -TA -RT -sp -ks "$1"
   run 0 ../ltl2tgba -TA -lv -sp -ks "$1"
   run 0 ../ltl2tgba -TA -DS -ks "$1"
-  run 0 ../ltl2tgba -TA -Rm -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -RT -DS -ks "$1"
   run 0 ../ltl2tgba -TA -lv -DS -ks "$1"
   run 0 ../ltl2tgba -TA -sp -DS -ks "$1"
-  run 0 ../ltl2tgba -TA -Rm -sp -DS -ks "$1"
-  run 0 ../ltl2tgba -TA -Rm -lv -DS -ks "$1"
-  run 0 ../ltl2tgba -TA -Rm -sp -lv -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -RT -sp -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -RT -lv -DS -ks "$1"
+  run 0 ../ltl2tgba -TA -RT -sp -lv -DS -ks "$1"
   run 0 ../ltl2tgba -TGTA -ks "$1"
-  run 0 ../ltl2tgba -TGTA -Rm -ks "$1"
+  run 0 ../ltl2tgba -TGTA -RT -ks "$1"
 }
 
 # We don't check the output, but just running these might be enough to
@@ -71,7 +71,7 @@ done
 
 
 for opt in -TA; do
-  ../ltl2tgba -ks $opt -Rm -in -DS 'a U (b U c)' > stdout
+  ../ltl2tgba -ks $opt -RT -in -DS 'a U (b U c)' > stdout
   grep 'transitions: 69$' stdout
   grep 'states: 10$' stdout
 done
@@ -79,14 +79,14 @@ done
 
 
 for opt in  -TA; do
-  ../ltl2tgba -ks $opt -Rm -DS '!(Ga U b)' > stdout
+  ../ltl2tgba -ks $opt -RT -DS '!(Ga U b)' > stdout
   grep 'transitions: 15$' stdout
   grep 'states: 5$' stdout
 done
 
 
 for opt in -TA; do
-  ../ltl2tgba -ks $opt -Rm -DS 'Ga U b' > stdout
+  ../ltl2tgba -ks $opt -RT -DS 'Ga U b' > stdout
   grep 'transitions: 13$' stdout
   grep 'states: 6$' stdout
 done
@@ -100,9 +100,9 @@ f='(G (p -> F q)) && ((X (p) U q) || ! X (p U (p && q)))'
 grep 'transitions: 96$' stdout
 grep 'states: 21$' stdout
 
-# Note:  after minimization with -TA -Rm.
+# Note:  after minimization with -TA -RT.
 # has 20 states and 89 transitions, after minimization.
-../ltl2tgba -ks -TA -Rm  -DS "$f" > stdout
+../ltl2tgba -ks -TA -RT  -DS "$f" > stdout
 grep 'transitions: 89$' stdout
 grep 'states: 20$' stdout
 
@@ -114,7 +114,7 @@ grep 'states: 449$' stdout
 
 
 f='GFa & GFb & GFc & GFd & GFe & GFg'
-../ltl2tgba -ks -TA -Rm -x -lv  -DS "$f" > stdout
+../ltl2tgba -ks -TA -RT -x -lv  -DS "$f" > stdout
 grep 'transitions: 18496$' stdout
 grep 'states: 290$' stdout
 
@@ -124,41 +124,41 @@ run 0 ../ltl2tgba -ks -TA -lv  -DS "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
 grep 'transitions: 882$' stdout
 grep 'states: 78$' stdout
 
-run 0 ../ltl2tgba -TA -Rm -ks -lv -DS  "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
+run 0 ../ltl2tgba -TA -RT -ks -lv -DS  "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
 grep 'transitions: 440$' stdout
 grep 'states: 28$' stdout
 
-run 0 ../ltl2tgba -TGTA -Rm -ks  'Gq|Gr|(G(q|FGp)&G(r|FG!p))' >stdout
+run 0 ../ltl2tgba -TGTA -RT -ks  'Gq|Gr|(G(q|FGp)&G(r|FG!p))' >stdout
 grep 'transitions: 294$' stdout
 grep 'states: 21$' stdout
 
 f="FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)"
 
-run 0 ../ltl2tgba -TA -Rm -ks -in -R3f -x  -DS  "$f" >stdout
+run 0 ../ltl2tgba -TA -RT -ks -in -R3f -x  -DS  "$f" >stdout
 grep 'transitions: 450$' stdout
 grep 'states: 38$' stdout
 
 
-run 0 ../ltl2tgba -TA -Rm -ks -lv -R3f -x  -DS  "$f" >stdout
+run 0 ../ltl2tgba -TA -RT -ks -lv -R3f -x  -DS  "$f" >stdout
 grep 'transitions: 555$' stdout
 grep 'states: 40$' stdout
 
 
-run 0 ../ltl2tgba -TA -Rm -ks "$f" >stdout
+run 0 ../ltl2tgba -TA -RT -ks "$f" >stdout
 grep 'transitions: 424$' stdout
 grep 'states: 31$' stdout
 
 
-run 0 ../ltl2tgba -TA -Rm -ks -sp -lv -in "$f" >stdout
+run 0 ../ltl2tgba -TA -RT -ks -sp -lv -in "$f" >stdout
 grep 'transitions: 485$' stdout
 grep 'states: 32$' stdout
 
 
-run 0 ../ltl2tgba -TA -Rm -ks -in -R3 -x  -DS  "$f" >stdout
+run 0 ../ltl2tgba -TA -RT -ks -in -R3 -x  -DS  "$f" >stdout
 grep 'transitions: 436$' stdout
 grep 'states: 36$' stdout
 
-run 0 ../ltl2tgba -TA -Rm -ks -sp -lv -R3 -x   -DS "$f" >stdout
+run 0 ../ltl2tgba -TA -RT -ks -sp -lv -R3 -x   -DS "$f" >stdout
 grep 'transitions: 537$' stdout
 grep 'states: 38$' stdout
 
@@ -168,25 +168,25 @@ grep 'transitions: 609$' stdout
 grep 'states: 46$' stdout
 
 
-run 0 ../ltl2tgba -TA -Rm -ks -sp -lv "$f" >stdout
+run 0 ../ltl2tgba -TA -RT -ks -sp -lv "$f" >stdout
 grep 'transitions: 504$' stdout
 grep 'states: 33$' stdout
 
-run 0 ../ltl2tgba -TGTA -Rm -ks "$f" >stdout
+run 0 ../ltl2tgba -TGTA -RT -ks "$f" >stdout
 grep 'transitions: 527$' stdout
 grep 'states: 32$' stdout
 
 g="G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))"
 
-run 0 ../ltl2tgba -TA -Rm -ks -DS "$g" >stdout
+run 0 ../ltl2tgba -TA -RT -ks -DS "$g" >stdout
 grep 'transitions: 2147$' stdout
 grep 'states: 97$' stdout
 
 
-run 0 ../ltl2tgba -TA -Rm -ks -sp "$g" >stdout
+run 0 ../ltl2tgba -TA -RT -ks -sp "$g" >stdout
 grep 'transitions: 887$' stdout
 grep 'states: 49$' stdout
 
-run 0 ../ltl2tgba -TGTA -Rm -ks "$g" >stdout
+run 0 ../ltl2tgba -TGTA -RT -ks "$g" >stdout
 grep 'transitions: 935$' stdout
 grep 'states: 49$' stdout
