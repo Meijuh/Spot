@@ -31,7 +31,7 @@
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/constant.hh"
 #include "tgba/formula2bdd.hh"
-#include "tgba/tgbatba.hh"
+#include "tgba/sba.hh"
 #include "misc/bddop.hh"
 #include <cassert>
 #include "ltlvisit/tostring.hh"
@@ -451,6 +451,8 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
 
     std::stack<state_ta_explicit*> todo;
     const tgba* tgba_ = ta->get_tgba();
+    const sba* sba_ = down_cast<const sba*>(tgba_);
+    assert(!degeneralized || sba_);
 
     // build Initial states set:
     state* tgba_init_state = tgba_->get_init_state();
@@ -465,10 +467,10 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
         state_ta_explicit* init_state;
         if (degeneralized)
           {
-            init_state = new state_ta_explicit(tgba_init_state->clone(),
-                satone_tgba_condition, true,
-                ((const tgba_sba_proxy*) tgba_)->state_is_accepting(
-                    tgba_init_state));
+            init_state =
+	      new state_ta_explicit(tgba_init_state->clone(),
+				    satone_tgba_condition, true,
+				    sba_->state_is_accepting(tgba_init_state));
           }
         else
           {
@@ -513,22 +515,18 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
                       all_props -= dest_condition;
                       state_ta_explicit* new_dest;
                       if (degeneralized)
-                  {
+			{
+			  new_dest = new state_ta_explicit
+			    (tgba_state->clone(),
+			     dest_condition,
+			     false,
+			     sba_->state_is_accepting(tgba_state));
 
-                    new_dest
-                        = new state_ta_explicit(
-                            tgba_state->clone(),
-                            dest_condition,
-                            false,
-                            ((const tgba_sba_proxy*) tgba_)->state_is_accepting(
-                                tgba_state));
-
-                  }
+			}
                       else
                         {
-                          new_dest = new state_ta_explicit(tgba_state->clone(),
-                              dest_condition, false, false);
-
+                          new_dest = new state_ta_explicit
+			    (tgba_state->clone(), dest_condition, false, false);
                         }
                       state_ta_explicit* dest = ta->add_state(new_dest);
 
