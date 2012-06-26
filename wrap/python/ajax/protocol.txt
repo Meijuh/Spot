@@ -100,6 +100,12 @@ Automaton simplifications (pick many)
   as=wd   WDBA minimiztion
   as=ds   Direct Simulation reduction
 
+Testing Automaton options (pick many)
+
+  to=l    add a catch-all livelock state
+  to=s    produce single-pass variant
+  to=m    merge bisimilar states
+
 Global options
 
   g=8     Enable UTF-8 output.

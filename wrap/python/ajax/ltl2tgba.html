@@ -70,23 +70,48 @@
               $("#ltl3ba-U").attr('checked', true);
             }
         })
+	$("#to-s").change(function() {
+	    if ($(this).is(':checked')) {
+              $("#to-l").removeAttr('checked');
+            }
+        })
+	$("#to-l").change(function() {
+	    if ($(this).is(':checked')) {
+              $("#to-s").removeAttr('checked');
+            }
+        })
+	$("#tf-t,#tf-g").change(function() {
+	    if ($(this).is(':checked')) {
+              $("#to-l,#to-s").removeAttr('disabled');
+            }
+        })
+	$("#tf-a").change(function() {
+	    if ($(this).is(':checked')) {
+              $("#to-l,#to-s").attr('disabled', true);
+            }
+        })
 
 	function hideOrShowPanels(output, duration) {
 	    switch (output)
 	    {
 	    case 'f':
-		$('#translator-tabs,#autsimp-tabs,#run-tabs').hide(duration);
+		$('#translator-tabs,#autsimp-tabs,#run-tabs,#tester-tabs').hide(duration);
 		break;
 	    case 'm':
 		$('#autsimp-tabs,#run-tabs').hide(duration);
-		$('#translator-tabs').show(duration);
+		$('#translator-tabs,#tester-tabs').show(duration);
 		break;
 	    case 'a':
 		$('#translator-tabs,#autsimp-tabs').show(duration);
+		$('#run-tabs,#tester-tabs').hide(duration);
+		break;
+	    case 't':
+		$('#translator-tabs,#autsimp-tabs,#tester-tabs').show(duration);
 		$('#run-tabs').hide(duration);
 		break;
 	    case 'r':
 		$('#translator-tabs,#autsimp-tabs,#run-tabs').show(duration);
+	        $('#tester-tabs').hide(duration);
 		break;
 	    }
         }
@@ -125,7 +150,7 @@
 		    this.value=value.join(',');
 		}
 	      });
-            $("#brcheckbox").change();
+            $("#brcheckbox,#tf-a").change();
             $.spotvars.autoupdate = true;
             $.spotvars.internalchange = false;
 	    var o = $('input[name="o"]').val();
@@ -506,17 +531,17 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		</label><br>
 	      </div>
 	      <div id="tabs-ot">
-		Translate the (simplified) formula as:<br>
+		Translate the (simplified) formula into a Büchi automaton, and then convert it into:<br>
 		<label class="rtip" title="Instead of reading valuations of all atomic propositions testing automata only watch the changes to these valuation.  A transitions labeled by <span class='formula'>a</span> may be crossed only if these atomic proposition change in the system.  Additionally, testing automata have two acceptance conditions: states can be Büchi accepting or livelock accepting (or both, or none).">
-		  <INPUT type="radio" name="tf" value="t">
+		  <INPUT id="tf-t" type="radio" name="tf" value="t">
 		  a Testing Automaton (TA)
 		</label><br>
 		<label class="rtip" title="GTA are testing automata extended with multiple Büchi acceptance conditions.">
-		  <INPUT type="radio" name="tf" value="g">
+		  <INPUT id="tf-g" type="radio" name="tf" value="g">
 		  a Generalized Testing Automaton (GTA)
 		</label><br>
 		<label class="rtip" title="TGTA are similar to TGBA except instead of reading valuations of all atomic propositions testing automata only watch the changes to these valuation.  They have multiple Büchi acceptance conditions on transitions, but no livelock acceptance.">
-		  <INPUT type="radio" name="tf" value="a" checked>
+		  <INPUT id="tf-a" type="radio" name="tf" value="a" checked>
 		  a Transition-based Generalized Testing Automaton (TGTA)
 		</label><br>
 	      </div>
@@ -642,6 +667,23 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	      </select> with these
 	      <a href="http://spot.lip6.fr/wiki/EmptinessCheckOptions">options</a>:
 	      <INPUT type="text" maxlength="40" name="eo" value="">
+	    </div>
+	  </div>
+	  <div id="tester-tabs" class="ui-widget ui-widget-content ui-corner-all collapsible shadow">
+	    <h3 class="ui-widget-header ui-corner-all head">Testing Automaton Options<span class="ui-icon ui-icon-circle-arrow-n ftip">Fold</span></h3>
+	    <div>
+	      <label class="rtip" title="Divert all livelock accepting paths to a single livelock acceptance state.">
+		<INPUT id="to-l" type="checkbox" name="to" value="l">
+		use a catch-all livelock state
+	      </label><br>
+	      <label class="rtip" title="Ensure that all livelock accepting states are also Büchi-accepting, so that the testing automaton can be tested for emptiness in a single pass.">
+		<INPUT id="to-s" type="checkbox" name="to" value="s" checked>
+		produce a single-pass testing automaton
+              </label><br>
+	      <label class="rtip" title="Merge bisimilar states in the final testing automaton.">
+		<INPUT type="checkbox" name="to" value="m" checked>
+		merge bisimilar states
+              </label><br>
 	    </div>
 	  </div>
       </FORM>

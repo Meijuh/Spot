@@ -655,16 +655,29 @@ if output_type == 'a':
 
 # Testing automaton Output
 if output_type == 't':
+    livelock = False
+    singlepass = False
+    bisimulation = False
+    for to in form.getlist('to'):
+        if to == 'l':
+            livelock = True
+        elif to == 's':
+            singlepass = True
+        elif to == 'm':
+            bisimulation = True
     propset = spot.atomic_prop_collect_as_bdd(f, automaton)
     if ta_type == 'a':
         tautomaton = spot.tgba_to_tgta(degen, propset)
-        tautomaton = spot.minimize_tgta(tautomaton)
+        if bisimulation:
+            tautomaton = spot.minimize_tgta(tautomaton)
+        issba = False
     else:
         tautomaton = spot.tgba_to_ta(degen, propset,
-                                     False, False, False, False)
-        tautomaton = spot.minimize_ta(tautomaton)
+                                     issba, True, singlepass, livelock)
+        if bisimulation:
+            tautomaton = spot.minimize_ta(tautomaton)
     dont_run_dot = print_stats(tautomaton)
-    render_automaton(tautomaton, dont_run_dot, False)
+    render_automaton(tautomaton, dont_run_dot, issba)
     tautomaton = 0
     degen = 0
     automaton = 0
