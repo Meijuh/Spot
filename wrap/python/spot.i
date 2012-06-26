@@ -79,6 +79,7 @@ namespace std {
 #include "tgba/state.hh"
 #include "tgba/succiter.hh"
 #include "tgba/tgba.hh"
+#include "tgba/sba.hh"
 #include "tgba/statebdd.hh"
 #include "tgba/taatgba.hh"
 #include "tgba/tgbabddcoredata.hh"
@@ -90,6 +91,7 @@ namespace std {
 
 #include "tgbaalgos/dottydec.hh"
 #include "tgbaalgos/dotty.hh"
+#include "tgbaalgos/degen.hh"
 #include "tgbaalgos/dupexp.hh"
 #include "tgbaalgos/emptiness.hh"
 #include "tgbaalgos/gtec/gtec.hh"
@@ -193,6 +195,7 @@ using namespace spot;
 %feature("new") spot::tgba::succ_iter;
 %feature("new") spot::tgba_succ_iterator::current_state;
 %feature("new") spot::simulation;
+%feature("new") spot::degeneralize;
 %feature("new") spot::tgba_parse;
 
 // Help SWIG with namespace lookups.
@@ -202,6 +205,7 @@ using namespace spot;
 %include "tgba/state.hh"
 %include "tgba/succiter.hh"
 %include "tgba/tgba.hh"
+%include "tgba/sba.hh"
 %include "tgba/statebdd.hh"
 %include "tgba/taatgba.hh"
 %include "tgba/tgbabddcoredata.hh"
@@ -235,6 +239,7 @@ using namespace spot;
   spot::explicit_conf<tgba_explicit<state_explicit_formula>,
 		      state_explicit_formula>;
 
+%include "tgbaalgos/degen.hh"
 %include "tgbaalgos/dottydec.hh"
 %include "tgbaalgos/dotty.hh"
 %include "tgbaalgos/dupexp.hh"

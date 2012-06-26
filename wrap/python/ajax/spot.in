@@ -616,13 +616,13 @@ if direct_simul:
     issba = False
 
 if degen or neverclaim:
-    degen = spot.tgba_sba_proxy(automaton)
+    degen = spot.degeneralize(automaton)
     issba = True
 else:
     degen = automaton
 
 if utf8:
-    spot.tgba_enable_utf8(automaton)
+    spot.tgba_enable_utf8(degen)
 
 # Buchi Automaton Output
 if output_type == 'a':
