@@ -1,4 +1,5 @@
-/*
+/* -*- coding: utf-8 -*-
+ *
  *  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005
  *  Heikki Tauriainen <Heikki.Tauriainen@tkk.fi>
  *
@@ -199,7 +200,7 @@ void BuchiAutomaton::read(istream& input_stream)
 /* ----------------------------------------------------------------------------
  *
  * Description:   Reads an automaton description (which may represent a
- *                generalized Büchi automaton) from a stream and stores it
+ *                generalized BÃ¼chi automaton) from a stream and stores it
  *                into the automaton object.
  *
  * Argument:      input_stream  --  A reference to an input stream.
@@ -216,7 +217,7 @@ void BuchiAutomaton::read(istream& input_stream)
 
   try
   {
-    /* Read the number of states in the generalized Büchi automaton. */
+    /* Read the number of states in the generalized BÃ¼chi automaton. */
 
     einput_stream >> number_of_states;
 
@@ -275,8 +276,8 @@ void BuchiAutomaton::read(istream& input_stream)
     BitArray acc_sets(number_of_acceptance_sets);
 
     /*
-     *  Allocate space for the regular Büchi automaton that will be constructed
-     *  from the generalized Büchi automaton.
+     *  Allocate space for the regular BÃ¼chi automaton that will be constructed
+     *  from the generalized BÃ¼chi automaton.
      */
 
     nodes.reserve(number_of_states);
@@ -352,7 +353,7 @@ void BuchiAutomaton::read(istream& input_stream)
         if (state_mapping.second >= number_of_states)
           throw AutomatonParseException("number of different state "
                                         "identifiers does not match the size"
-                                        " of the Büchi automaton");
+                                        " of the BÃ¼chi automaton");
 
         current_state = state_mapping.second;
         state_mapping.second++;
@@ -440,7 +441,7 @@ void BuchiAutomaton::read(istream& input_stream)
           if (state_mapping.second >= number_of_states)
             throw AutomatonParseException("number of different state "
                                           "identifiers does not match the size"
-                                          " of the Büchi automaton");
+                                          " of the BÃ¼chi automaton");
 
           neighbor_state = state_mapping.second;
           state_mapping.second++;
@@ -548,7 +549,7 @@ void BuchiAutomaton::print
   if (nodes.empty())
   {
     if (fmt == NORMAL)
-      estream << string(indent, ' ') + "The Büchi automaton is empty.\n";
+      estream << string(indent, ' ') + "The BÃ¼chi automaton is empty.\n";
   }
   else
   {
@@ -558,7 +559,7 @@ void BuchiAutomaton::print
       pair<size_type, unsigned long int> reachable_part_statistics
         = subgraphStats(initial_state);
 
-      estream << string(indent, ' ') + "The Büchi automaton consists of\n"
+      estream << string(indent, ' ') + "The BÃ¼chi automaton consists of\n"
                  + string(indent + 4, ' ')
               << statistics.first
               << " states and\n" + string(indent + 4, ' ')
@@ -734,7 +735,7 @@ void BuchiAutomaton::BuchiTransition::print
 /* ----------------------------------------------------------------------------
  *
  * Description:   Writes information about a transition between two states of
- *                a Büchi automaton.
+ *                a BÃ¼chi automaton.
  *
  * Arguments:     stream                     --  A reference to an output
  *                                               stream.
@@ -820,7 +821,7 @@ void BuchiAutomaton::BuchiState::print
    const unsigned long int number_of_acceptance_sets) const
 /* ----------------------------------------------------------------------------
  *
- * Description:   Writes information about a state of a Büchi automaton.
+ * Description:   Writes information about a state of a BÃ¼chi automaton.
  *
  * Arguments:     stream                     --  A reference to an output
  *                                               stream.

@@ -1,3 +1,13 @@
+2012-06-27  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Fix issues reported by Clang++ 3.1.
+
+	* src/Graph.h.in (PathElement::hasEdge): Check the correct
+	pointer, not the address of some member function.
+	* src/BuchiAutomaton.cc, src/Configuration.cc,
+	src/TestOperations.cc, src/TestOperations.hh: Recode these files in
+	utf-8.
+
 2012-06-19  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Adjust parsers to accommodate old and new versions of Automake.

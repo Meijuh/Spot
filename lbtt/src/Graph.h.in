@@ -43,7 +43,7 @@ using namespace std;
 namespace Graph
 {
 
-/* 
+/*
  *  Output formats for printing a graph, its edges or nodes. All output
  *  functions for these objects will accept a parameter `fmt' which can be
  *  either of these constants (and defaults to NORMAL).
@@ -53,7 +53,7 @@ namespace Graph
  *             for generating input files for the tool.
  */
 
-enum GraphOutputFormat {NORMAL, DOT};  
+enum GraphOutputFormat {NORMAL, DOT};
 
 
 
@@ -95,7 +95,7 @@ class ProductAutomaton;
  *  interface:
  *
  *    Default constructor which can be called without arguments.
- *   
+ *
  *    EdgeContainer::size_type
  *               Data type able to represent the maximum number of elements
  *               that can be stored in the container.
@@ -110,8 +110,8 @@ class ProductAutomaton;
  *    void clear()
  *               Makes the container empty.
  *
- *    EdgeContainer::iterator         
- *    EdgeContainer::const_iterator   
+ *    EdgeContainer::iterator
+ *    EdgeContainer::const_iterator
  *               Input iterators that can be used to traverse through the
  *               elements of the container. The iterators must support
  *               increment and dereferencing operations. However, support for
@@ -278,7 +278,7 @@ public:
     stats() const;                                  /* nodes and edges in
                                                      * the graph.
                                                      */
-                                                     
+
   virtual pair<size_type, unsigned long int>        /* Returns the number of */
     subgraphStats(const size_type index) const;     /* nodes and edges in a
                                                      * connected subgraph of
@@ -335,7 +335,7 @@ public:
   virtual ~Edge();                                  /* Destructor. */
 
   /* default assignment operator */
-  
+
   size_type targetNode() const;                     /* Returns the index of */
                                                     /* the target node of
                                                      * the directed edge.
@@ -364,7 +364,7 @@ protected:
 						     * for sorting Edges in an
 						     * STL container.
                                                      */
-                                                     
+
 private:
   size_type target_node;                            /* Identifier of the edge's
                                                      * target node.
@@ -388,9 +388,9 @@ public:
   Node(const Node& node);                           /* Copy constructor. */
 
   virtual ~Node();                                  /* Destructor. */
-    
+
   Node& operator=(const Node& node);                /* Assignment operator. */
-    
+
   const EdgeContainer& edges() const;               /* Returns the container of
 						     * edges beginning at the
                                                      * node.
@@ -481,9 +481,9 @@ private:
 
 class NodeIndexException : public Exception
 {
-public:                                           
+public:
   NodeIndexException();                             /* Default constructor. */
-  
+
   /* default copy constructor */
 
   ~NodeIndexException() throw();                    /* Destructor. */
@@ -1233,7 +1233,7 @@ inline ostream& operator<<
  *
  * Arguments:     stream  --  A reference to an output stream.
  *                edge    --  A reference to a constant edge to be printed.
- * 
+ *
  * Returns:       A reference to the output stream.
  *
  * ------------------------------------------------------------------------- */
@@ -1371,11 +1371,11 @@ inline const EdgeContainer& Graph<EdgeContainer>::Node::edges() const
  *
  * Arguments:     None.
  *
- * Returns:       A reference to the constant container of pointers to the 
+ * Returns:       A reference to the constant container of pointers to the
  *                edges starting from the node.
  *
  * ------------------------------------------------------------------------- */
-{ 
+{
   return outgoing_edges;
 }
 
@@ -1412,7 +1412,7 @@ template<class EdgeContainer>
 Graph<EdgeContainer>::Node::Node(const Node& node)
 /* ----------------------------------------------------------------------------
  *
- * Description:   Copy constructor for Graph<EdgeContainer>::Node. Initializes 
+ * Description:   Copy constructor for Graph<EdgeContainer>::Node. Initializes
  *                a copy of a Node.
  *
  * Argument:      node  --  A reference to a constant node to be copied.
@@ -1616,7 +1616,7 @@ inline bool Graph<EdgeContainer>::PathElement::hasEdge() const
  *
  * ------------------------------------------------------------------------- */
 {
-  return (edge != 0);
+  return edge_pointer != 0;
 }
 
 /* ========================================================================= */
@@ -1871,7 +1871,7 @@ EdgeSlist::find(const Graph<EdgeSlist>::Edge* edge) const
  *
  * Returns:       A slist<Graph<EdgeSlist>::Edge*>::const_iterator
  *                pointing to the edge in the list or
- *                slist<Graph<EdgeSlist>::Edge*>::end() if the edge 
+ *                slist<Graph<EdgeSlist>::Edge*>::end() if the edge
  *                is not found in the list.
  *
  * ------------------------------------------------------------------------- */

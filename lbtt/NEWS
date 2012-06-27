@@ -22,7 +22,7 @@ Copyright (C) 2008 Heikki Tauriainen
 Version 1.2.1a
 
 * Fix compilation with newer versions of Bison.
-* Fix compilation on Intel's icpc, and with recent version of G++.
+* Fix compilation on Intel's icpc, and recent version of G++ and Clang++.
 * Fix compilation with newer versions of Automake.
 * Fix construction of manual ("make dvi" and "make pdf") for recent
   version of texinfo.

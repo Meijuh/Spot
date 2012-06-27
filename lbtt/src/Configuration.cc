@@ -1,4 +1,5 @@
-/*
+/*  -*- coding: utf-8 -*-
+ *
  *  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005
  *  Heikki Tauriainen <Heikki.Tauriainen@tkk.fi>
  *
@@ -1048,7 +1049,7 @@ void Configuration::print(ostream& stream, int indent) const
 	         "Model checking result consistency check\n";
     if (global_options.do_intr_test)
       estream << string(indent + 4, ' ') +
-	         "Büchi automata intersection emptiness check\n";
+	         "BÃ¼chi automata intersection emptiness check\n";
   }
   else
     estream << "All automata correctness tests disabled.\n";
@@ -1396,7 +1397,7 @@ void Configuration::showCommandLineHelp(const char* program_name)
                                            "(`always', `onerror', \n"
             "                              `never', `onbreak')\n"
             "  --intersectiontest[=VALUE], --nointersectiontest\n"
-            "                              Enable or disable the Büchi "
+            "                              Enable or disable the BÃ¼chi "
                                            "automata\n"
             "                              intersection emptiness test\n"
             "  --localmodelcheck           Use local model checking in tests"

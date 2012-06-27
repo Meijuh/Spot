@@ -1,4 +1,5 @@
-/*
+/*  -*- coding: utf-8 -*-
+ *
  *  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005
  *  Heikki Tauriainen <Heikki.Tauriainen@tkk.fi>
  *
@@ -93,11 +94,11 @@ void verifyFormulaOnPath();                         /* Evaluates the LTL
 void writeFormulaeToFiles();                        /* Writes LTL formulas */
                                                     /* into a file.        */
 
-void generateBuchiAutomaton                         /* Generates a Büchi     */
+void generateBuchiAutomaton                         /* Generates a BÃ¼chi     */
   (int f,                                           /* automaton from a LTL  */
    vector<Configuration::AlgorithmInformation>      /* formula stored in a   */
      ::size_type                                    /* given file, using a   */
-     algorithm_id);                                 /* given LTL-to-Büchi
+     algorithm_id);                                 /* given LTL-to-BÃ¼chi
                                                      * translation algorithm
                   				     * for the conversion.
 						     */
@@ -118,7 +119,7 @@ void performConsistencyCheck                        /* Performs a            */
 void compareResults();                              /* Compares the model
                                                      * checking results
                                                      * obtained using some
-                                                     * LTL-to-Büchi conversion
+                                                     * LTL-to-BÃ¼chi conversion
                                                      * algorithm with the
                                                      * results given by the
                                                      * other algorithms.
@@ -126,7 +127,7 @@ void compareResults();                              /* Compares the model
 
 void performBuchiIntersectionCheck();               /* Performs pairwise
                                                      * emptiness checks on the
-                                                     * Büchi automata
+                                                     * BÃ¼chi automata
                    			             * constructed by the
                                                      * different algorithms
                                                      * from a formula and its
@@ -179,7 +180,7 @@ public:
 
 /******************************************************************************
  *
- * A class for reporting Büchi automaton generation errors.
+ * A class for reporting BÃ¼chi automaton generation errors.
  *
  *****************************************************************************/
 
@@ -361,7 +362,7 @@ FormulaGenerationException::operator=(const FormulaGenerationException& e)
 
 /* ========================================================================= */
 inline BuchiAutomatonGenerationException::BuchiAutomatonGenerationException() :
-  Exception("Büchi automaton generation failed")
+  Exception("BÃ¼chi automaton generation failed")
 /* ----------------------------------------------------------------------------
  *
  * Description:   Constructor for class BuchiAutomatonGenerationException.

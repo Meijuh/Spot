@@ -1,4 +1,5 @@
-/*
+/*  -*- coding: utf-8 -*-
+ *
  *  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005
  *  Heikki Tauriainen <Heikki.Tauriainen@tkk.fi>
  *
@@ -830,12 +831,12 @@ void generateBuchiAutomaton
  *
  * Description:   Constructs a BuchiAutomaton by invoking an external program
  *                that will perform the conversion of a LTL formula (stored
- *                into a file) into a Büchi automaton.
+ *                into a file) into a BÃ¼chi automaton.
  *
  * Arguments:     f             --  Indicates the formula to be converted into
  *                                  an automaton. 0 corresponds to the positive
  *                                  and 1 to the negated formula.
- *                algorithm_id  --  Identifier of the LTL-to-Büchi translator
+ *                algorithm_id  --  Identifier of the LTL-to-BÃ¼chi translator
  *                                  to use.
  *
  * Returns:       Nothing. The result is stored in
@@ -850,10 +851,10 @@ void generateBuchiAutomaton
     = test_results[algorithm_id].automaton_stats[f];
 
   if (automaton_stats.buchiAutomatonComputed())
-    printText("Büchi automaton (cached):\n", 3, 8);
+    printText("BÃ¼chi automaton (cached):\n", 3, 8);
   else
   {
-    printText("Büchi automaton:\n", 3, 8);
+    printText("BÃ¼chi automaton:\n", 3, 8);
 
     const Configuration::AlgorithmInformation& algorithm
       = configuration.algorithms[algorithm_id];
@@ -910,7 +911,7 @@ void generateBuchiAutomaton
       /* Execute the external program. */
 
       if (!printText("<executing translator>", 5, 10))
-	printText("<computing Büchi automaton>", 4, 10);
+	printText("<computing BÃ¼chi automaton>", 4, 10);
 
       int error_number;
       int error_pipe[2]; /* used for communicating errors in exec() */
@@ -1201,7 +1202,7 @@ void generateBuchiAutomaton
 	printText("\n\n", 1);
 
 	if (round_info.transcript_file.is_open())
-	  writeToTranscript("User break while generating Büchi automaton ("
+	  writeToTranscript("User break while generating BÃ¼chi automaton ("
 			    + configuration.algorithmString(algorithm_id)
 			    + ", "
 			    + (f == 0 ? "posi" : "nega") + "tive formula)\n");
@@ -1210,7 +1211,7 @@ void generateBuchiAutomaton
       }
 
       if (round_info.transcript_file.is_open())
-	writeToTranscript("Büchi automaton generation failed ("
+	writeToTranscript("BÃ¼chi automaton generation failed ("
                           + configuration.algorithmString(algorithm_id)
 	                  + ", "
 		  	  + (f == 0 ? "posi" : "nega")
@@ -1308,7 +1309,7 @@ void generateBuchiAutomaton
 
       if (translator_process != 0) /* fatal error, lbtt should be terminated */
 	throw Exception
-	        ("fatal internal error while generating Büchi automaton");
+	        ("fatal internal error while generating BÃ¼chi automaton");
 
       throw BuchiAutomatonGenerationException();
     }
@@ -1342,7 +1343,7 @@ void generateBuchiAutomaton
 	  = automaton_stats.buchi_automaton->isDeterministic();
 
     /*
-     *  Update Büchi automaton statistics for the given algorithm.
+     *  Update BÃ¼chi automaton statistics for the given algorithm.
      */
 
     final_statistics[algorithm_id].total_number_of_buchi_states[f]
@@ -1378,14 +1379,14 @@ void performEmptinessCheck
  *
  * Description:   Performs the emptiness check on a ProductAutomaton, i.e.,
  *                finds the states of the original state space from which an
- *                accepting cycle of the Büchi automaton can be reached.
+ *                accepting cycle of the BÃ¼chi automaton can be reached.
  *
  * Arguments:     f             --  Indicates the formula originally used for
  *                                  constructing the given product automaton.
  *                                  0 corresponds to the automaton obtained
  *                                  from the positive, 1 to the one obtained
  *                                  from the negated formula.
- *                algorithm_id  --  Identifier of the LTL-to-Büchi translator
+ *                algorithm_id  --  Identifier of the LTL-to-BÃ¼chi translator
  *                                  originally used for generating the given
  *                                  product automaton.
  *
@@ -1503,7 +1504,7 @@ void performConsistencyCheck
 /* ----------------------------------------------------------------------------
  *
  * Description:   Checks the model checking results for consistency for a
- *                particular LTL-to-Büchi conversion algorithm implementation,
+ *                particular LTL-to-BÃ¼chi conversion algorithm implementation,
  *                i.e., verifies that the model checking results for a formula
  *                and its negation are not contradictory.
  *
@@ -1576,7 +1577,7 @@ void compareResults()
 /* ----------------------------------------------------------------------------
  *
  * Description:   Compares the model checking results obtained using different
- *                LTL->Büchi conversion algorithm implementations with each
+ *                LTL->BÃ¼chi conversion algorithm implementations with each
  *                other.
  *
  * Arguments:     None.
@@ -1685,7 +1686,7 @@ void compareResults()
 void performBuchiIntersectionCheck()
 /* ----------------------------------------------------------------------------
  *
- * Description:   Tests the intersection of the Büchi automata constructed for
+ * Description:   Tests the intersection of the BÃ¼chi automata constructed for
  *                the formula and its negation for emptiness.
  *
  * Arguments:     None.
@@ -1694,10 +1695,10 @@ void performBuchiIntersectionCheck()
  *
  * ------------------------------------------------------------------------- */
 {
-  if (printText("Büchi automata intersection emptiness check:\n", 3, 4))
-    printText("<checking Büchi automata intersections for emptiness>\n", 4, 6);
+  if (printText("BÃ¼chi automata intersection emptiness check:\n", 3, 4))
+    printText("<checking BÃ¼chi automata intersections for emptiness>\n", 4, 6);
   else
-    printText("Checking Büchi automata intersections for emptiness", 2, 4);
+    printText("Checking BÃ¼chi automata intersections for emptiness", 2, 4);
 
   bool result = true;
 
@@ -1726,7 +1727,7 @@ void performBuchiIntersectionCheck()
 		    8);
 
 	  /*
-	   *  Compute the intersection of two Büchi automata constructed for
+	   *  Compute the intersection of two BÃ¼chi automata constructed for
 	   *  the positive and the negative formula, respectively.
 	   */
 
@@ -1802,7 +1803,7 @@ void performBuchiIntersectionCheck()
 
 	if (round_info.transcript_file.is_open())
 	{
-	  writeToTranscript("User break during Büchi automata intersection "
+	  writeToTranscript("User break during BÃ¼chi automata intersection "
 			    "emptiness check");
 	  round_info.transcript_file << string(8, ' ') + "(+) "
 	                                + configuration.algorithmString(alg_1)
@@ -1850,7 +1851,7 @@ void performBuchiIntersectionCheck()
 
 	if (round_info.transcript_file.is_open())
 	{
-	  writeToTranscript("Out of memory during Büchi automata "
+	  writeToTranscript("Out of memory during BÃ¼chi automata "
 			    "intersection emptiness check");
 	  round_info.transcript_file << string(8, ' ') + "(+) "
 	                                + configuration.algorithmString(alg_1)
@@ -1871,7 +1872,7 @@ void performBuchiIntersectionCheck()
 
     if (round_info.transcript_file.is_open())
     {
-      writeToTranscript("Büchi automata intersection emptiness check failed");
+      writeToTranscript("BÃ¼chi automata intersection emptiness check failed");
       printBuchiIntersectionCheckStats
 	(round_info.transcript_file, 8, algorithms);
       round_info.transcript_file << '\n';
