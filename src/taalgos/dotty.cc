@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement
+// Copyright (C) 2010, 2012 Laboratoire de Recherche et Developpement
 // de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -44,37 +44,32 @@ namespace spot
 
         int n = 0;
 
-        spot::state* artificial_initial_state =
-            t_automata_->get_artificial_initial_state();
+        artificial_initial_state_ = t_automata_->get_artificial_initial_state();
 
         ta::states_set_t init_states_set;
 
         ta::states_set_t::const_iterator it;
 
-        if (artificial_initial_state != 0)
-          {
-            init_states_set.insert(artificial_initial_state);
-
-          }
+        if (artificial_initial_state_)
+	  {
+	    init_states_set.insert(artificial_initial_state_);
+	    os_ << "  0 [label=\"\", style=invis, height=0]\n  0 -> 1\n";
+	  }
         else
-          {
-            init_states_set = t_automata_->get_initial_states_set();
-          }
+	  {
+	    init_states_set = t_automata_->get_initial_states_set();
 
-        for (it = (init_states_set.begin()); it != init_states_set.end(); it++)
-          {
-            //    cout << (*it).first << " => " << (*it).second << endl;
-
-            bdd init_condition = t_automata_->get_state_condition(*it);
-            std::string label = bdd_format_formula(t_automata_->get_dict(),
-                init_condition);
-            ++n;
-            os_ << -n << "  [label=\"\", style=invis, height=0]" << std::endl;
-            os_ << "  " << -n << " -> " << n << " " << "[label=\"" + label
-                + "\"]" << std::endl;
-
-          }
-
+	    for (it = init_states_set.begin();
+		 it != init_states_set.end(); it++)
+	      {
+		bdd init_condition = t_automata_->get_state_condition(*it);
+		std::string label = bdd_format_formula(t_automata_->get_dict(),
+						       init_condition);
+		++n;
+		os_ << "  " << -n << "  [label=\"\", style=invis, height=0]\n  "
+		    << -n << " -> " << n << " [label=\"" << label << "\"]\n";
+	      }
+	  }
       }
 
       void
@@ -87,47 +82,45 @@ namespace spot
       process_state(const state* s, int n)
       {
 
-        std::string shape = "ellipse";
-        std::string style = "solid";
+        std::string style;
         if (t_automata_->is_accepting_state(s))
-          {
-            shape = "doublecircle";
-            style = "bold";
-          }
+	  style = ",peripheries=2";
 
-        if (t_automata_->is_livelock_accepting_state(s))
-          {
-            shape = "octagon";
-            style = "bold";
-          }
-        if (t_automata_->is_livelock_accepting_state(s)
-            && t_automata_->is_accepting_state(s))
-          {
-            shape = "doubleoctagon";
-            style = "bold";
-          }
+	if (t_automata_->is_livelock_accepting_state(s))
+	  style += ",shape=box";
 
-        os_ << "  " << n << " [label=" << quote_unless_bare_word(
-            t_automata_->format_state(s)) << "]" << "[shape=\"" + shape + "\"]"
-            << "[style=\"" + style + "\"]" << std::endl;
-
+	os_ << "  " << n << " [label=";
+	if (s == artificial_initial_state_)
+	  os_ << "init";
+	else
+	  os_ << quote_unless_bare_word(t_automata_->format_state(s));
+	os_ << style << "]\n";
       }
 
       void
       process_link(int in, int out, const ta_succ_iterator* si)
       {
+	bdd_dict* d = t_automata_->get_dict();
+	std::string label =
+	  ((in == 1 && artificial_initial_state_)
+	   ? bdd_format_formula(d, si->current_condition())
+	   : bdd_format_accset(d, si->current_condition()));
+
+	if (label.empty())
+	  label = "{}";
+
+	label += ("\n" +
+		  bdd_format_accset(d, si->current_acceptance_conditions()));
+
 
         os_ << "  " << in << " -> " << out << " [label=\"";
-        escape_str(os_, bdd_format_accset(t_automata_->get_dict(),
-            si->current_condition()) + "\n" + bdd_format_accset(
-            t_automata_->get_dict(), si->current_acceptance_conditions()))
-
-        << "\"]" << std::endl;
-
+	escape_str(os_, label);
+	os_ << "\"]\n";
       }
 
     private:
       std::ostream& os_;
+      spot::state* artificial_initial_state_;
     };
 
   }

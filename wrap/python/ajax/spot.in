@@ -287,9 +287,11 @@ However you may download the <a href="''' + cgi.escape(autprefix)
 
 def render_automaton(automaton, dont_run_dot, issba, deco = None):
     dotsrc = spot.ostringstream()
-    if isinstance(automaton, spot.ta):
+    if isinstance(automaton, spot.ta): # TA/GTA
         spot.dotty_reachable(dotsrc, automaton)
-    else:
+    elif hasattr(automaton, 'as_ta'): # TGTA
+        spot.dotty_reachable(dotsrc, automaton.as_ta())
+    else:                       # TGBA
         spot.dotty_reachable(dotsrc, automaton, issba, deco)
     render_dot_maybe(dotsrc.str(), dont_run_dot)
 

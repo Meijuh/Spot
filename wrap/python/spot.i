@@ -317,6 +317,14 @@ using namespace spot;
 
 }
 
+%extend spot::tgta_explicit {
+  const spot::ta*
+  as_ta(const spot::tgta_explicit* t)
+  {
+    return dynamic_cast<const spot::ta*>(t);
+  }
+}
+
 %nodefaultctor std::ostream;
 namespace std {
   class ostream {};

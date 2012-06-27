@@ -1107,17 +1107,21 @@ main(int argc, char** argv)
             {
               spot::ta* testing_automata = 0;
 
+	      tm.start("conversion to TA");
               testing_automata
                   = tgba_to_ta(a, atomic_props_set_bdd, degeneralize_opt
                       == DegenSBA, opt_with_artificial_initial_state,
                       opt_single_pass_emptiness_check,
                       opt_with_artificial_livelock);
+	      tm.stop("conversion to TA");
 
               spot::ta* testing_automata_nm = 0;
               if (opt_bisim_ta)
                 {
+		  tm.start("TA bisimulation");
                   testing_automata_nm = testing_automata;
                   testing_automata = minimize_ta(testing_automata);
+		  tm.stop("TA bisimulation");
                 }
 
               if (output != -1)
@@ -1125,14 +1129,15 @@ main(int argc, char** argv)
                   tm.start("producing output");
                   switch (output)
                     {
-                  case 0:
-                    spot::dotty_reachable(std::cout, testing_automata);
-                    break;
-                  case 12:
-                    stats_reachable(testing_automata).dump(std::cout);
-                    break;
-                  default:
-                    assert(!"unknown output option");
+		    case 0:
+		      spot::dotty_reachable(std::cout, testing_automata);
+		      break;
+		    case 12:
+		      stats_reachable(testing_automata).dump(std::cout);
+		      break;
+		    default:
+		      std::cerr << "unsupported output option" << std::endl;
+		      exit(1);
                     }
                   tm.stop("producing output");
                 }
@@ -1148,19 +1153,39 @@ main(int argc, char** argv)
             }
           if (tgta_opt)
             {
-	      to_free2 = a;
               spot::tgta* tgta = tgba_to_tgta(a, atomic_props_set_bdd);
               if (opt_bisim_ta)
                 {
+		  tm.start("TA bisimulation");
                   a = minimize_tgta(tgta);
-                  minimized = a;
+		  tm.stop("TA bisimulation");
+		  delete tgta;
                 }
               else
                 {
                   a = tgta;
                 }
+	      to_free2 = a;
 
-              to_free = tgta;
+              if (output != -1)
+                {
+                  tm.start("producing output");
+                  switch (output)
+                    {
+		    case 0:
+		      spot::dotty_reachable(std::cout,
+					    dynamic_cast<spot::ta*>(a));
+		      break;
+		    case 12:
+		      stats_reachable(a).dump(std::cout);
+		      break;
+		    default:
+		      std::cerr << "unsupported output option" << std::endl;
+		      exit(1);
+                    }
+                  tm.stop("producing output");
+                }
+	      output = -1;
             }
         }
 
@@ -1465,6 +1490,7 @@ main(int argc, char** argv)
 	  delete ec;
 	}
 
+      delete to_free2;
       if (show_fc)
 	delete a;
       if (f)
@@ -1477,7 +1503,6 @@ main(int argc, char** argv)
       delete degeneralized;
       delete aut_scc;
       delete to_free;
-      delete to_free2;
       delete echeck_inst;
       delete temp_dir_sim;
     }
