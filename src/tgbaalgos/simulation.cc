@@ -444,7 +444,6 @@ namespace spot
 	acc_compl reverser(all_acceptance_conditions,
 			   a_->neg_acceptance_conditions());
 
-	typedef tgba_explicit_number::transition trs;
 	tgba_explicit_number* res
 	  = new tgba_explicit_number(a_->get_dict());
 	res->set_acceptance_conditions
