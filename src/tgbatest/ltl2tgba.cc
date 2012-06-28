@@ -1153,7 +1153,7 @@ main(int argc, char** argv)
             }
           if (tgta_opt)
             {
-              spot::tgta* tgta = tgba_to_tgta(a, atomic_props_set_bdd);
+              spot::tgta_explicit* tgta = tgba_to_tgta(a, atomic_props_set_bdd);
               if (opt_bisim_ta)
                 {
 		  tm.start("TA bisimulation");

@@ -289,8 +289,8 @@ def render_automaton(automaton, dont_run_dot, issba, deco = None):
     dotsrc = spot.ostringstream()
     if isinstance(automaton, spot.ta): # TA/GTA
         spot.dotty_reachable(dotsrc, automaton)
-    elif hasattr(automaton, 'as_ta'): # TGTA
-        spot.dotty_reachable(dotsrc, automaton.as_ta())
+    elif hasattr(automaton, 'get_ta'): # TGTA
+        spot.dotty_reachable(dotsrc, automaton.get_ta())
     else:                       # TGBA
         spot.dotty_reachable(dotsrc, automaton, issba, deco)
     render_dot_maybe(dotsrc.str(), dont_run_dot)

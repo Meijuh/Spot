@@ -621,28 +621,30 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
 
     // build a Generalized TA automaton involving a single_pass_emptiness_check
     // (without an artificial livelock state):
-    build_ta(tgta, atomic_propositions_set_, false, true, false);
+    ta_explicit* ta = tgta->get_ta();
+    build_ta(ta, atomic_propositions_set_, false, true, false);
 
-    trace
-      << "***tgba_to_tgbta: POST build_ta***" << std::endl;
+    trace << "***tgba_to_tgbta: POST build_ta***" << std::endl;
 
     // adapt a ta automata to build tgta automata :
-    ta::states_set_t states_set = tgta->get_states_set();
+    ta::states_set_t states_set = ta->get_states_set();
     ta::states_set_t::iterator it;
-    tgba_succ_iterator* initial_states_iter = tgta->succ_iter(
-        tgta->get_artificial_initial_state());
+    tgba_succ_iterator* initial_states_iter =
+      ta->succ_iter(ta->get_artificial_initial_state());
     initial_states_iter->first();
     if (initial_states_iter->done())
-      return tgta;
-    bdd first_state_condition = (initial_states_iter)->current_condition();
+      {
+	delete initial_states_iter;
+	return tgta;
+      }
+    bdd first_state_condition = initial_states_iter->current_condition();
     delete initial_states_iter;
 
     bdd bdd_stutering_transition = bdd_setxor(first_state_condition,
-        first_state_condition);
+					      first_state_condition);
 
     for (it = states_set.begin(); it != states_set.end(); it++)
       {
-
         state_ta_explicit* state = static_cast<state_ta_explicit*> (*it);
 
         state_ta_explicit::transitions* trans = state->get_transitions();
@@ -652,21 +654,18 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
             bool trans_empty = (trans == 0 || trans->empty());
             if (trans_empty || state->is_accepting_state())
               {
-                tgta->create_transition(state, bdd_stutering_transition,
-                    tgta->all_acceptance_conditions(), state);
+                ta->create_transition(state, bdd_stutering_transition,
+                    ta->all_acceptance_conditions(), state);
               }
 
           }
 
-        if (state->compare(tgta->get_artificial_initial_state()))
-          tgta->create_transition(state, bdd_stutering_transition, bddfalse,
-              state);
+        if (state->compare(ta->get_artificial_initial_state()))
+          ta->create_transition(state, bdd_stutering_transition, bddfalse, state);
 
         state->set_livelock_accepting_state(false);
         state->set_accepting_state(false);
-        trace
-          << "***tgba_to_tgbta: POST create_transition ***" << std::endl;
-
+        trace << "***tgba_to_tgbta: POST create_transition ***" << std::endl;
       }
 
     return tgta;

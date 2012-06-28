@@ -514,13 +514,12 @@ namespace spot
     std::list<hash_set*>::iterator itdone;
     for (itdone = partition.begin(); itdone != partition.end(); ++itdone)
       delete *itdone;
-    //delete ta_;
 
     return res;
   }
 
-  tgta*
-  minimize_tgta(const tgta* tgta_)
+  tgta_explicit*
+  minimize_tgta(const tgta_explicit* tgta_)
   {
 
     tgba_explicit_number* tgba = new tgba_explicit_number(tgta_->get_dict());
@@ -528,19 +527,17 @@ namespace spot
     tgta_explicit* res = new tgta_explicit(tgba, tgta_->all_acceptance_conditions(),
 					   0, /* own_tgba = */ true);
 
-    //TODO copier le tgta_ dans un tgta_explicit au lieu de faire un cast...
-    const ta_explicit* tgta = dynamic_cast<const tgta_explicit*> (tgta_);
+    const ta_explicit* ta = tgta_->get_ta();
 
-    partition_t partition = build_partition(tgta);
+    partition_t partition = build_partition(ta);
 
     // Build the minimal tgta automaton.
-    build_result(tgta, partition, tgba, res);
+    build_result(ta, partition, tgba, res->get_ta());
 
     // Free all the allocated memory.
     std::list<hash_set*>::iterator itdone;
     for (itdone = partition.begin(); itdone != partition.end(); ++itdone)
       delete *itdone;
-    //delete ta_;
 
     return res;
   }
