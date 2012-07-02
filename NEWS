@@ -23,6 +23,8 @@ New in spot 0.9.1a:
     - The Makefile.am of BuDDy, LBTT, and Spot have been adjusted to
       accomodate Automake 1.12 (while still working with 1.11).
     - Better error recovery when parsing broken LTL formulae.
+    - Fix errors and warnings reported by clang 3.1 and the
+      upcoming g++ 4.8.
 
 New in spot 0.9.1 (2012-05-23):
 
