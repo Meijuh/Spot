@@ -604,6 +604,39 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
     // build ta automata:
     build_ta(ta, atomic_propositions_set_, degeneralized,
         single_pass_emptiness_check, artificial_livelock_state_mode);
+
+    // (degeneralized=true) => TA
+    if (degeneralized)
+      return ta;
+
+    // (degeneralized=false) => GTA
+    // adapt a GTA to remove acceptance conditions from states
+    ta::states_set_t states_set = ta->get_states_set();
+    ta::states_set_t::iterator it;
+    for (it = states_set.begin(); it != states_set.end(); it++)
+      {
+        state_ta_explicit* state = static_cast<state_ta_explicit*> (*it);
+
+        if (state->is_accepting_state())
+          {
+
+            state_ta_explicit::transitions* trans = state->get_transitions();
+            state_ta_explicit::transitions::iterator it_trans;
+
+            for (it_trans = trans->begin(); it_trans != trans->end(); it_trans++)
+              {
+                (*it_trans)->acceptance_conditions
+                    = ta->all_acceptance_conditions();
+
+              }
+
+            state->set_accepting_state(false);
+          }
+
+      }
+
+
+
     return ta;
   }
 
