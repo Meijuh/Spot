@@ -480,6 +480,9 @@ cannot be translated using this algorithm.  Please use Couveur/FM.'''
 
 dict = spot.bdd_dict()
 
+if output_type == 't' and not (f.is_ltl_formula() and f.is_X_free()):
+    unbufprint('<b>Warning:</b> The following result assumes the input formula is stuttering insensitive.</br>')
+
 # Should the automaton be displayed as a SBA?
 issba = False
 
