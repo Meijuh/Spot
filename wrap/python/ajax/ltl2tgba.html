@@ -99,18 +99,18 @@
 		break;
 	    case 'm':
 		$('#autsimp-tabs,#run-tabs').hide(duration);
-		$('#translator-tabs,#tester-tabs').show(duration);
+		$('#translator-tabs,#tester-tabs').not('.killed').show(duration);
 		break;
 	    case 'a':
-		$('#translator-tabs,#autsimp-tabs').show(duration);
+		$('#translator-tabs,#autsimp-tabs').not('.killed').show(duration);
 		$('#run-tabs,#tester-tabs').hide(duration);
 		break;
 	    case 't':
-		$('#translator-tabs,#autsimp-tabs,#tester-tabs').show(duration);
+		$('#translator-tabs,#autsimp-tabs,#tester-tabs').not('.killed').show(duration);
 		$('#run-tabs').hide(duration);
 		break;
 	    case 'r':
-		$('#translator-tabs,#autsimp-tabs,#run-tabs').show(duration);
+		$('#translator-tabs,#autsimp-tabs,#run-tabs').not('.killed').show(duration);
 	        $('#tester-tabs').hide(duration);
 		break;
 	    }
@@ -272,7 +272,7 @@
 	$('.collapsible .head').click(function(e) {
             if (e.ctrlKey) {
                 if ($(this).attr('id') != 'ltl-head')
-                    $(this).parent().hide('fast');
+                    $(this).parent().hide('fast').addClass("killed");
             } else {
                 foldToggle($(this));
             }
