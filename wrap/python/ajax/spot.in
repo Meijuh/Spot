@@ -693,7 +693,7 @@ if output_type == 'r':
 
     print_acc_run = False
     draw_acc_run = False
-    s = form.getfirst('rf', 'p')
+    s = form.getfirst('rf', 'd')
     if s == 'p':
         print_acc_run = True
     elif s == 'd':
