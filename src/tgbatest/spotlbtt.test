@@ -201,6 +201,15 @@ Algorithm
 
 Algorithm
 {
+   Name = "Spot (Couvreur -- FM), cosimulated"
+   Path = "${LBTT_TRANSLATE}"
+   Parameters = "--spot '../ltl2tgba -F -f -t -RRS  -r4 -R3'"
+   Enabled = yes
+}
+
+
+Algorithm
+{
    Name = "Spot (Couvreur -- LaCim), simulated"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -F -f -l -t -RDS  -r4 -R3'"

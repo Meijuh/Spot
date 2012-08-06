@@ -30,12 +30,11 @@ namespace spot
   /// \addtogroup tgba_reduction
   /// @{
 
-  /// \brief Attempt to reduce the automaton by direct simulation
-  ///
-  /// When the language recognized by one state is included in the
-  /// language recognized by an another one, the first one is merged
-  /// with the second.  The algorithm is based on the following
-  /// paper, but generalized to handle TGBA directly.
+  /// \brief Attempt to reduce the automaton by direct simulation When
+  /// the suffixes (letter and acceptance conditions) seen by one
+  /// state is included in the suffixes seen by another one, the first
+  /// one is merged with the second.  The algorithm is based on the
+  /// following paper, but generalized to handle TGBA directly.
   ///
   /// \verbatim
   /// @InProceedings{ etessami.00.concur,
@@ -57,6 +56,34 @@ namespace spot
   /// \return a new automaton which is at worst a copy of the received
   /// one
   tgba* simulation(const tgba* automaton);
+
+
+  /// \brief Attempt to reduce the automaton by direct cosimulation.
+  /// When the prefixes (letter and acceptance conditions) seen by one
+  /// state is included in the prefixes seen by another one, the first
+  /// one is merged with the second.  The algorithm is based on the
+  /// following paper, but generalized to handle TGBA directly.
+  /// \verbatim
+  /// @InProceedings{Somenzi:2000:EBA:647769.734097,
+  ///    author = {Somenzi, Fabio and Bloem, Roderick},
+  ///    title = {Efficient {B\"u}chi Automata from LTL Formulae},
+  ///    booktitle = {Proceedings of the 12th International
+  ///                 Conference on Computer Aided Verification},
+  ///    series = {CAV '00},
+  ///    year = {2000},
+  ///    isbn = {3-540-67770-4},
+  ///    pages = {248--263},
+  ///    numpages = {16},
+  ///    url = {http://dl.acm.org/citation.cfm?id=647769.734097},
+  ///    acmid = {734097},
+  ///    publisher = {Springer-Verlag},
+  ///    address = {London, UK, UK},
+  /// }
+  /// \endverbatim
+  /// \param automaton the automaton to simulate.
+  /// \return a new automaton which is at worst a copy of the received
+  /// one
+  tgba* cosimulation(const tgba* automaton);
 
   /// @}
 } // End namespace spot.

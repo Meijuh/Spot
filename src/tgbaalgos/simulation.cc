@@ -78,6 +78,13 @@
 // bdd_support(sig(X)) - allacc - allclassvar
 
 
+// We have had the Cosimulation by changing the acc_compl_automaton by
+// adding a template parameter. If this parameter is set to true, we
+// record the transition in the opposite direction (we just swap
+// sources and destination). In the build result we are making the
+// same thing to rebuild the automaton.
+// In the signature,
+
 namespace spot
 {
   namespace
@@ -93,7 +100,6 @@ namespace spot
                           state_ptr_hash,
                           state_ptr_equal> map_state_unsigned;
 
-
     // Get the list of state for each class.
     typedef std::map<bdd, std::list<const state*>,
                      bdd_less_than> map_bdd_lstate;
@@ -101,6 +107,7 @@ namespace spot
 
     // This class takes an automaton and creates a copy with all
     // acceptance conditions complemented.
+    template <bool Cosimulation>
     class acc_compl_automaton:
       public tgba_reachable_iterator_depth_first
     {
@@ -139,6 +146,15 @@ namespace spot
         int src = get_state(in_s);
         int dst = get_state(out_s);
 
+
+        // In the case of the cosimulation, we want to have all the
+        // ingoing transition, and to keep the rest of the code
+        // similar, we just create equivalent transition in the other
+        // direction. Since we do not have to run through the
+        // automaton to get the signature, this is correct.
+        if (Cosimulation)
+          std::swap(src, dst);
+
         bdd acc = ac_.complement(si->current_acceptance_conditions());
 
         tgba_explicit_number::transition* t
@@ -170,7 +186,7 @@ namespace spot
       state* init_;
     };
 
-
+    template <bool Cosimulation>
     class direct_simulation
     {
       // Shortcut used in update_po and go_to_next_it.
@@ -181,7 +197,7 @@ namespace spot
 	po_size_(0),
 	all_class_var_(bddtrue)
       {
-	acc_compl_automaton
+	acc_compl_automaton<Cosimulation>
 	  acc_compl(t);
 
 	// We'll start our work by replacing all the acceptance
@@ -189,6 +205,8 @@ namespace spot
 	acc_compl.run();
 
 	a_ = acc_compl.out_;
+
+        initial_state = a_->get_init_state();
 
 	// We use the previous run to know the size of the
 	// automaton, and to class all the reachable states in the
@@ -199,11 +217,10 @@ namespace spot
 	// class. We register one bdd by state, because in the worst
 	// case, |Class| == |State|.
 	unsigned set_num = a_->get_dict()
-	  ->register_anonymous_variables(size_a_, a_);
-	bdd init = bdd_ithvar(set_num);
+	  ->register_anonymous_variables(size_a_ + 1, a_);
 
-	// Because we have already take the first element which is init.
-	++set_num;
+        bdd_initial = bdd_ithvar(set_num++);
+	bdd init = bdd_ithvar(set_num++);
 
 	used_var_.push_back(init);
 	all_class_var_ = init;
@@ -258,12 +275,12 @@ namespace spot
                  it_s != it->second.end();
                  ++it_s)
 	      {
-		// If the signature of a state is bddfalse (which is
-		// roughly equivalent to no transition) the class of
-		// this state is bddfalse instead of an anonymous
-		// variable. It allows simplifications in the signature
-		// by removing a transition which has as a destination a
-		// state with no outgoing transition.
+		// If the signature of a state is bddfalse (no
+		// transitions) the class of this state is bddfalse
+		// instead of an anonymous variable. It allows
+		// simplifications in the signature by removing a
+		// transition which has as a destination a state with
+		// no outgoing transition.
 		if (it->first == bddfalse)
 		  previous_class_[*it_s] = bddfalse;
 		else
@@ -297,10 +314,10 @@ namespace spot
       // Take a state and compute its signature.
       bdd compute_sig(const state* src)
       {
-	tgba_succ_iterator* sit = a_->succ_iter(src);
-	bdd res = bddfalse;
+        tgba_succ_iterator* sit = a_->succ_iter(src);
+        bdd res = bddfalse;
 
-	for (sit->first(); !sit->done(); sit->next())
+        for (sit->first(); !sit->done(); sit->next())
           {
             const state* dst = sit->current_state();
             bdd acc = sit->current_acceptance_conditions();
@@ -315,9 +332,15 @@ namespace spot
             dst->destroy();
           }
 
-	delete sit;
-	return res;
+        // When we Cosimulate, we add a special flag to differentiate
+        // initial state.
+        if (Cosimulation && initial_state == src)
+          res |= bdd_initial;
+
+        delete sit;
+        return res;
       }
+
 
       void update_sig()
       {
@@ -402,21 +425,20 @@ namespace spot
 	     ++it1)
           {
             bdd accu = it1->second;
-
             for (map_bdd_bdd::const_iterator it2 = now_to_next.begin();
                  it2 != now_to_next.end();
                  ++it2)
-	      {
-		// Skip the case managed by the initialization of accu.
-		if (it1 == it2)
-		  continue;
+              {
+                // Skip the case managed by the initialization of accu.
+                if (it1 == it2)
+                  continue;
 
-		if (bdd_implies(it1->first, it2->first))
-		  {
-		    accu &= it2->second;
-		    ++po_size_;
-		  }
-	      }
+                if (bdd_implies(it1->first, it2->first))
+                  {
+                    accu &= it2->second;
+                    ++po_size_;
+                  }
+              }
             relation_[it1->second] = accu;
           }
       }
@@ -476,6 +498,9 @@ namespace spot
             // Get the signature.
             bdd sig = compute_sig(*(it->second.begin()));
 
+            if (Cosimulation)
+              sig = bdd_compose(sig, bddfalse, bdd_var(bdd_initial));
+
             // Get all the variable in the signature.
             bdd sup_sig = bdd_support(sig);
 
@@ -494,7 +519,6 @@ namespace spot
 					sup_all_atomic_prop,
 					bddtrue);
 		all_atomic_prop -= one;
-
 
 		// For each possible valuation, iterator over all possible
 		// destination classes.   We use minato_isop here, because
@@ -533,6 +557,9 @@ namespace spot
 		    int src = bdd2state[previous_class_[*it->second.begin()]];
 		    int dst = bdd2state[dest];
 
+                    if (Cosimulation)
+                      std::swap(src, dst);
+
 		    // src or dst == 0 means "dest" or "prev..." isn't
 		    // in the map.  so it is a bug.
 		    assert(src != 0);
@@ -550,7 +577,9 @@ namespace spot
 
 	res->set_init_state(bdd2state[previous_class_
 				      [a_->get_init_state()]]);
+
 	res->merge_transitions();
+
 	return res;
       }
 
@@ -629,13 +658,29 @@ namespace spot
 
       // All the class variable:
       bdd all_class_var_;
+
+      // The flag to say if the outgoing state is initial or not
+      bdd bdd_initial;
+
+      // Initial state of the automaton we are working on
+      state* initial_state;
+
     };
+
   } // End namespace anonymous.
 
   tgba*
   simulation(const tgba* t)
   {
-    direct_simulation simul(t);
+    direct_simulation<false> simul(t);
+
+    return simul.run();
+  }
+
+  tgba*
+  cosimulation(const tgba* t)
+  {
+    direct_simulation<true> simul(t);
 
     return simul.run();
   }
