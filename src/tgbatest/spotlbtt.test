@@ -207,6 +207,14 @@ Algorithm
    Enabled = yes
 }
 
+Algorithm
+{
+   Name = "Spot (Couvreur -- FM), iterated simulation"
+   Path = "${LBTT_TRANSLATE}"
+   Parameters = "--spot '../ltl2tgba -F -f -t -RIS  -r4 -R3'"
+   Enabled = yes
+}
+
 
 Algorithm
 {

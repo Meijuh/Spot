@@ -85,6 +85,12 @@ namespace spot
   /// one
   tgba* cosimulation(const tgba* automaton);
 
+
+  /// \brief Run a loop: simulation / cosimulation / scc_filter until
+  /// a fix point is reached.
+  tgba* iterated_simulations(const tgba* automaton);
+
+
   /// @}
 } // End namespace spot.
 
