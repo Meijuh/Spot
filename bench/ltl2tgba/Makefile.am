@@ -12,11 +12,13 @@ CLEAN_FILES = \
   known.cfg known.log known.txt
 
 .PHONY = run
-run: small.txt big.txt known.txt wfair.txt
+run: small.txt big.txt known.txt
 
-small.txt: $(srcdir)/small $(srcdir)/algorithms $(top_srcdir)/configure.ac
+deps = $(srcdir)/algorithms $(top_srcdir)/configure.ac $(top_builddir)/src/tgbatest/ltl2tgba
+
+small.txt: $(srcdir)/small $(deps)
 	$(srcdir)/small
-big.txt: $(srcdir)/big $(srcdir)/algorithms $(top_srcdir)/configure.ac
+big.txt: $(srcdir)/big $(deps)
 	$(srcdir)/big
-known.txt: $(srcdir)/known $(srcdir)/algorithms $(srcdir)/formulae.ltl $(top_srcdir)/configure.ac
+known.txt: $(srcdir)/known $(srcdir)/formulae.ltl $(deps)
 	$(srcdir)/known
