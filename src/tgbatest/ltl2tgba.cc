@@ -1053,6 +1053,23 @@ main(int argc, char** argv)
 	    }
 	}
 
+      if (reduction_dir_sim)
+        {
+          tm.start("Reduction w/ direct simulation");
+          temp_dir_sim = spot::simulation(a);
+          a = temp_dir_sim;
+          tm.stop("Reduction w/ direct simulation");
+	  assume_sba = false;
+          if (scc_filter)
+            {
+              tm.start("reducing A_f w/ SCC");
+              delete aut_scc;
+              aut_scc = a = spot::scc_filter(a, scc_filter_all);
+              tm.stop("reducing A_f w/ SCC");
+              assume_sba = false;
+            }
+        }
+
 
       if (reduction_rev_sim)
         {
@@ -1061,16 +1078,19 @@ main(int argc, char** argv)
           a = temp_rev_sim;
           tm.stop("Reduction w/ reverse simulation");
 	  assume_sba = false;
+
+          if (scc_filter)
+            {
+              tm.start("reducing A_f w/ SCC");
+              delete aut_scc;
+              aut_scc = a = spot::scc_filter(a, scc_filter_all);
+              tm.stop("reducing A_f w/ SCC");
+              assume_sba = false;
+            }
+
+
         }
 
-      if (reduction_dir_sim)
-        {
-          tm.start("Reduction w/ direct simulation");
-          temp_dir_sim = spot::simulation(a);
-          a = temp_dir_sim;
-          tm.stop("Reduction w/ direct simulation");
-	  assume_sba = false;
-        }
 
       if (reduction_iterated_sim)
         {
