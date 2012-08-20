@@ -298,11 +298,12 @@ namespace spot
 		// transition which has as a destination a state with
 		// no outgoing transition.
 		if (it->first == bddfalse)
-		  previous_class_[*it_s] = bddfalse;
+                  previous_class_[*it_s] = bddfalse;
 		else
 		  previous_class_[*it_s] = *it_bdd;
 	      }
-            ++it_bdd;
+            if (it->first != bddfalse)
+              ++it_bdd;
           }
       }
 
@@ -415,10 +416,16 @@ namespace spot
             // by removing a transition which has as a destination a
             // state with no outgoing transition.
             if (it->first == bddfalse)
-              now_to_next[it->first] = bddfalse;
+              {
+                now_to_next[it->first] = bddfalse;
+                free_var_.push(bdd_var(*it_bdd));
+                it_bdd = used_var_.erase(it_bdd);
+              }
             else
-              now_to_next[it->first] = *it_bdd;
-            ++it_bdd;
+              {
+                now_to_next[it->first] = *it_bdd;
+                ++it_bdd;
+              }
           }
 
 	update_po(now_to_next);
