@@ -94,9 +94,13 @@ sub work_on_whole_round($)
 {
   my ($round) = @_;
 
+  $round =~ s/      parse tree.*?\n//ms;
+
   $round =~ /.*?\n\s+formula:\s+(.*?)\n/ms;
   my $formula = $1;
   $round = $'; #'
+
+
 
   $round =~ s{\n\n(.*?)(?=\n\n)}<
   work_on_algorithm ($1, $formula);
