@@ -197,27 +197,26 @@ syntax(char* prog)
 
 	    << "Automaton simplifications (after translation):"
 	    << std::endl
-	    << "  -R3   use SCC to reduce the automata" << std::endl
+	    << "  -R3   use SCC to reduce the automaton" << std::endl
 	    << "  -R3f  clean more acceptance conditions than -R3" << std::endl
 	    << "          "
 	    << "(prefer -R3 over -R3f if you degeneralize with -D, -DS, or -N)"
 	    << std::endl
-	    << "  -RDS  minimize the automaton with direct simulation"
+	    << "  -RDS  reduce the automaton with direct simulation"
 	    << std::endl
-	    << "  -RRS  minimize the automaton with reverse simulation"
+	    << "  -RRS  reduce the automaton with reverse simulation"
 	    << std::endl
-	    << "  -RPS  minimize the automaton with an alternance"
-            << " reverse simulation and simulation"
+	    << "  -RIS  iterate both direct and reverse simulations"
 	    << std::endl
-            << "  -Rm   attempt to WDBA-minimize the automata" << std::endl
+            << "  -Rm   attempt to WDBA-minimize the automaton" << std::endl
 	    << std::endl
 
             << "Automaton conversion:" << std::endl
             << "  -M    convert into a deterministic minimal monitor "
 	    << "(implies -R3 or R3b)" << std::endl
-	    << "  -s    convert to explicit automata, and number states "
+	    << "  -s    convert to explicit automaton, and number states "
 	    << "in DFS order" << std::endl
-	    << "  -S    convert to explicit automata, and number states "
+	    << "  -S    convert to explicit automaton, and number states "
 	    << "in BFS order" << std::endl
 	    << std::endl
 
@@ -1014,9 +1013,9 @@ main(int argc, char** argv)
       const spot::tgba* aut_scc = 0;
       if (scc_filter)
 	{
-	  tm.start("reducing A_f w/ SCC");
+	  tm.start("SCC-filter");
 	  aut_scc = a = spot::scc_filter(a, scc_filter_all);
-	  tm.stop("reducing A_f w/ SCC");
+	  tm.stop("SCC-filter");
 	  assume_sba = false;
 	}
 
@@ -1053,44 +1052,23 @@ main(int argc, char** argv)
 	    }
 	}
 
-      if (reduction_dir_sim)
+      if (reduction_dir_sim && !reduction_iterated_sim)
         {
-          tm.start("Reduction w/ direct simulation");
+          tm.start("direct simulation");
           temp_dir_sim = spot::simulation(a);
           a = temp_dir_sim;
-          tm.stop("Reduction w/ direct simulation");
+          tm.stop("direct simulation");
 	  assume_sba = false;
-          if (scc_filter)
-            {
-              tm.start("reducing A_f w/ SCC");
-              delete aut_scc;
-              aut_scc = a = spot::scc_filter(a, scc_filter_all);
-              tm.stop("reducing A_f w/ SCC");
-              assume_sba = false;
-            }
         }
 
-
-      if (reduction_rev_sim)
+      if (reduction_rev_sim && !reduction_iterated_sim)
         {
-          tm.start("Reduction w/ reverse simulation");
+          tm.start("reverse simulation");
           temp_rev_sim = spot::cosimulation(a);
           a = temp_rev_sim;
-          tm.stop("Reduction w/ reverse simulation");
+          tm.stop("reverse simulation");
 	  assume_sba = false;
-
-          if (scc_filter)
-            {
-              tm.start("reducing A_f w/ SCC");
-              delete aut_scc;
-              aut_scc = a = spot::scc_filter(a, scc_filter_all);
-              tm.stop("reducing A_f w/ SCC");
-              assume_sba = false;
-            }
-
-
         }
-
 
       if (reduction_iterated_sim)
         {
@@ -1101,6 +1079,13 @@ main(int argc, char** argv)
 	  assume_sba = false;
         }
 
+      if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
+	{
+	  tm.start("SCC-filter post-sim");
+	  delete aut_scc;
+	  aut_scc = a = spot::scc_filter(a, scc_filter_all);
+	  tm.stop("SCC-filter post-sim");
+	}
 
       unsigned int n_acc = a->number_of_acceptance_conditions();
       if (echeck_inst
@@ -1161,22 +1146,22 @@ main(int argc, char** argv)
 
           if (ta_opt)
             {
-              spot::ta* testing_automata = 0;
+              spot::ta* testing_automaton = 0;
 
 	      tm.start("conversion to TA");
-              testing_automata
+              testing_automaton
                   = tgba_to_ta(a, atomic_props_set_bdd, degeneralize_opt
                       == DegenSBA, opt_with_artificial_initial_state,
                       opt_single_pass_emptiness_check,
                       opt_with_artificial_livelock);
 	      tm.stop("conversion to TA");
 
-              spot::ta* testing_automata_nm = 0;
+              spot::ta* testing_automaton_nm = 0;
               if (opt_bisim_ta)
                 {
 		  tm.start("TA bisimulation");
-                  testing_automata_nm = testing_automata;
-                  testing_automata = minimize_ta(testing_automata);
+                  testing_automaton_nm = testing_automaton;
+                  testing_automaton = minimize_ta(testing_automaton);
 		  tm.stop("TA bisimulation");
                 }
 
@@ -1186,10 +1171,10 @@ main(int argc, char** argv)
                   switch (output)
                     {
 		    case 0:
-		      spot::dotty_reachable(std::cout, testing_automata);
+		      spot::dotty_reachable(std::cout, testing_automaton);
 		      break;
 		    case 12:
-		      stats_reachable(testing_automata).dump(std::cout);
+		      stats_reachable(testing_automaton).dump(std::cout);
 		      break;
 		    default:
 		      std::cerr << "unsupported output option" << std::endl;
@@ -1198,8 +1183,8 @@ main(int argc, char** argv)
                   tm.stop("producing output");
                 }
 
-              delete testing_automata_nm;
-              delete testing_automata;
+              delete testing_automaton_nm;
+              delete testing_automaton;
 	      delete a;
               a = 0;
               degeneralized = 0;
