@@ -99,6 +99,8 @@ Automaton simplifications (pick many)
   as=ps   Prune SCC
   as=wd   WDBA minimiztion
   as=ds   Direct Simulation reduction
+  as=rs   Reverse Simulation reduction
+  as=is   Iterated Simulation reduction (disables ds and rs)
 
 Testing Automaton options (pick many)
 

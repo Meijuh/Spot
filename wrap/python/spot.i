@@ -206,6 +206,8 @@ using namespace spot;
 %feature("new") spot::tgba::succ_iter;
 %feature("new") spot::tgba_succ_iterator::current_state;
 %feature("new") spot::simulation;
+%feature("new") spot::cosimulation;
+%feature("new") spot::iterated_simulations;
 %feature("new") spot::degeneralize;
 %feature("new") spot::tgba_parse;
 %feature("new") spot::tgba_to_ta;

@@ -90,6 +90,16 @@
               $("#to-l,#to-s").attr('disabled', true);
             }
         })
+	$("#as-ds,#as-rs").change(function() {
+	    if ($(this).is(':checked')) {
+              $("#as-is").removeAttr('checked');
+            }
+        })
+	$("#as-is").change(function() {
+	    if ($(this).is(':checked')) {
+              $("#as-ds,#as-rs").removeAttr('checked');
+            }
+        })
 
 	function hideOrShowPanels(output, duration) {
 	    switch (output)
@@ -645,11 +655,18 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		<INPUT type="checkbox" name="as" value="wd">
 		determinize and minimize obligation properties
               </label><br>
-	      <label class="rtip" title="Attempt to reduce the automaton by using <b>direct simulation</b> on the TGBA.  This might also improve the determinism as a side effect.">
-		<INPUT type="checkbox" name="as" value="ds">
+	      <label class="rtip" title="Attempt to reduce the automaton by using <b>direct simulation</b> on the TGBA.  Basically a state <b>A</b> can be merged into a state <b>B</b> if the <b>suffixes</b> reachable from <b>A</b> are included into those reachable from <b>B</b>.  This algorithm may also improve determinism as a side effect.">
+		<INPUT id="as-ds" type="checkbox" name="as" value="ds">
 		direct simulation
+              </label>
+	      <label class="rtip" title="Attempt to reduce the automaton by using <b>reverse simulation</b> on the TGBA.  Basically a state <b>A</b> can be merged into a state <b>B</b> if the <b>prefixes</b> reachable from <b>A</b> are included into those reachable from <b>B</b> This can also improve codeterminism as a side effect.">
+		<INPUT id="as-rs" type="checkbox" name="as" value="rs">
+		reverse simulation
+              </label>
+	      <label class="rtip" title="Apply <b>direct</b> and <b>reverse simulation</b> alternatively until the automaton is not reduced further.">
+		<INPUT id="as-is" type="checkbox" name="as" value="is">
+		iterated simulations
               </label><br>
-
 	    </div>
 	  </div>
 	  <div id="run-tabs" class="ui-widget ui-widget-content ui-corner-all collapsible shadow">
