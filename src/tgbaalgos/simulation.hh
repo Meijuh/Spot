@@ -30,11 +30,13 @@ namespace spot
   /// \addtogroup tgba_reduction
   /// @{
 
-  /// \brief Attempt to reduce the automaton by direct simulation When
-  /// the suffixes (letter and acceptance conditions) seen by one
-  /// state is included in the suffixes seen by another one, the first
-  /// one is merged with the second.  The algorithm is based on the
-  /// following paper, but generalized to handle TGBA directly.
+  /// \brief Attempt to reduce the automaton by direct simulation.
+  ///
+  /// When the suffixes (letter and acceptance conditions) reachable
+  /// from one state are included in the suffixes seen by another one,
+  /// the former state can be merged into the latter.  The algorithm is
+  /// based on the following paper, but generalized to handle TGBA
+  /// directly.
   ///
   /// \verbatim
   /// @InProceedings{ etessami.00.concur,
@@ -52,44 +54,86 @@ namespace spot
   /// }
   /// \endverbatim
   ///
+  /// Our reconstruction of the quotient automaton based on this
+  /// suffix-inclusion relation will also improve determinism.
+  ///
+  /// We recommend to call scc_filter() to first simplify the
+  /// automaton that should be reduced by simulation.
+  ///
+  /// Reducing an automaton by simulation does not change the number
+  /// of acceptance conditions.  In some rare cases (1 out of more
+  /// than 500 in our benchmark), the reduced automaton will use more
+  /// acceptance conditions than necessary, and running scc_filter()
+  /// again afterwards will remove these superfluous conditions.
+  ///
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
   tgba* simulation(const tgba* automaton);
 
-
-  /// \brief Attempt to reduce the automaton by direct cosimulation.
-  /// When the prefixes (letter and acceptance conditions) seen by one
-  /// state is included in the prefixes seen by another one, the first
-  /// one is merged with the second.  The algorithm is based on the
+  /// \brief Attempt to reduce the automaton by reverse simulation.
+  ///
+  /// When the prefixes (letter and acceptance conditions) leading to
+  /// one state are included in the prefixes leading to one, the former
+  /// state can be merged into the latter.
+  ///
+  /// Reverse simulation is discussed in the following paper, bu
   /// following paper, but generalized to handle TGBA directly.
   /// \verbatim
-  /// @InProceedings{Somenzi:2000:EBA:647769.734097,
-  ///    author = {Somenzi, Fabio and Bloem, Roderick},
-  ///    title = {Efficient {B\"u}chi Automata from LTL Formulae},
-  ///    booktitle = {Proceedings of the 12th International
-  ///                 Conference on Computer Aided Verification},
-  ///    series = {CAV '00},
-  ///    year = {2000},
-  ///    isbn = {3-540-67770-4},
-  ///    pages = {248--263},
-  ///    numpages = {16},
-  ///    url = {http://dl.acm.org/citation.cfm?id=647769.734097},
-  ///    acmid = {734097},
-  ///    publisher = {Springer-Verlag},
-  ///    address = {London, UK, UK},
+  /// @InProceedings{ somenzi.00.cav,
+  ///   author	      = {Fabio Somenzi and Roderick Bloem},
+  ///   title	      = {Efficient {B\"u}chi Automata for {LTL} Formul{\ae}},
+  ///   booktitle     = {Proceedings of the 12th International Conference on
+  ///                    Computer Aided Verification (CAV'00)},
+  ///   pages         = {247--263},
+  ///   year          = {2000},
+  ///   volume        = {1855},
+  ///   series        = {Lecture Notes in Computer Science},
+  ///   address       = {Chicago, Illinois, USA},
+  ///   publisher     = {Springer-Verlag}
   /// }
   /// \endverbatim
+  ///
+  /// Our reconstruction of the quotient automaton based on this
+  /// prefix-inclusion relation will also improve codeterminism.
+  ///
+  /// We recommend to call scc_filter() to first simplify the
+  /// automaton that should be reduced by cosimulation.
+  ///
+  /// Reducing an automaton by reverse simulation (1) does not change
+  /// the number of acceptance conditions so the resulting automaton
+  /// may have superfluous acceptance conditions, and (2) can create
+  /// SCCs that are terminal and non-accepting.  For these reasons,
+  /// you should call scc_filer() to prune useless SCCs and acceptance
+  /// conditions afterwards.
+  ///
+  /// If you plan to run both simulation() and cosimulation() on the
+  /// same automaton, you should start with simulation() so that the
+  /// codeterminism improvements achieved by cosimulation() does not
+  /// hinder the determinism improvements attempted by simulation().
+  /// (This of course assumes that you prefer determinism over
+  /// codeterminism.)
+  ///
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
   tgba* cosimulation(const tgba* automaton);
 
-
-  /// \brief Run a loop: simulation / cosimulation / scc_filter until
-  /// a fix point is reached.
+  /// \brief Iterate simulation() and cosimulation().
+  ///
+  /// Runs simulation(), cosimulation(), and scc_filter() in a loop,
+  /// until the automaton does not change size (states and
+  /// transitions).
+  ///
+  /// We recommend to call scc_filter() to first simplify the
+  /// automaton that should be reduced by iterated simulations, since
+  /// this algorithm will only call scc_filter() at the end of the
+  /// loop.
+  ///
+  /// \param automaton the automaton to simulate.
+  /// \return a new automaton which is at worst a copy of the received
+  /// one
   tgba* iterated_simulations(const tgba* automaton);
-
 
   /// @}
 } // End namespace spot.
