@@ -272,9 +272,8 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
                       && ((sscc.top().is_accepting) || (sscc.top().condition
                           == testing_automata->all_acceptance_conditions()));
 
-                  trace
-                          << "*** sscc.size()  = ***"
-                          <<  sscc.size() << std::endl;
+                  trace << "*** sscc.size()  = ***"
+			<<  sscc.size() << std::endl;
                   for (i = sscc.rem().begin(); i != sscc.rem().end(); ++i)
                     {
                       numbered_state_heap::state_index_p spi = h->index((*i));
@@ -283,27 +282,27 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
                       *spi.second = -1;
 
                       if (is_livelock_accepting_sscc)
-                        {//if it is an accepting sscc add the state to
-                          //G (=the livelock-accepting states set)
+                        {
+			  // if it is an accepting sscc add the state to
+                          // G (=the livelock-accepting states set)
                           trace << "*** sscc.size() > 1: states: ***"
                                 << testing_automata->format_state(*i)
                                 << std::endl;
                           state_ta_explicit * livelock_accepting_state =
                               down_cast<state_ta_explicit*> (*i);
 
-                        livelock_accepting_state->set_livelock_accepting_state(
-                              true);
+			  livelock_accepting_state->
+			    set_livelock_accepting_state(true);
 
-                    if (single_pass_emptiness_check)
-                      {
-                        livelock_accepting_state->set_accepting_state(
-                            true);
-                        livelock_accepting_state->stuttering_reachable_livelock
-                            = livelock_accepting_state;
-                      }
-
+			  if (single_pass_emptiness_check)
+			    {
+			      livelock_accepting_state
+				->set_accepting_state(true);
+			      livelock_accepting_state
+				->stuttering_reachable_livelock
+				= livelock_accepting_state;
+			    }
                         }
-
                     }
 
                   assert(!arc.empty());
@@ -474,8 +473,9 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
           }
         else
           {
-            init_state = new state_ta_explicit(tgba_init_state->clone(),
-                satone_tgba_condition, true, false);
+            init_state =
+	      new state_ta_explicit(tgba_init_state->clone(),
+				    satone_tgba_condition, true, false);
           }
 
         state_ta_explicit* s = ta->add_state(init_state);
@@ -491,8 +491,8 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
         state_ta_explicit* source = todo.top();
         todo.pop();
 
-        tgba_succ_iterator* tgba_succ_it = tgba_->succ_iter(
-            source->get_tgba_state());
+        tgba_succ_iterator* tgba_succ_it =
+	  tgba_->succ_iter(source->get_tgba_state());
         for (tgba_succ_it->first(); !tgba_succ_it->done(); tgba_succ_it->next())
           {
             const state* tgba_state = tgba_succ_it->current_state();
@@ -557,8 +557,7 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
 
     state_ta_explicit* artificial_livelock_accepting_state = 0;
 
-    trace
-      << "*** build_ta: artificial_livelock_accepting_state_mode = ***"
+    trace << "*** build_ta: artificial_livelock_accepting_state_mode = ***"
           << artificial_livelock_state_mode << std::endl;
 
     if (artificial_livelock_state_mode)
@@ -589,11 +588,11 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
     state* tgba_init_state = tgba_->get_init_state();
     if (artificial_initial_state_mode)
       {
-        state_ta_explicit* artificial_init_state = new state_ta_explicit(
-            tgba_init_state->clone(), bddfalse, true);
+        state_ta_explicit* artificial_init_state =
+	  new state_ta_explicit(tgba_init_state->clone(), bddfalse, true);
 
         ta = new spot::ta_explicit(tgba_, tgba_->all_acceptance_conditions(),
-            artificial_init_state);
+				   artificial_init_state);
       }
     else
       {
@@ -623,7 +622,8 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
             state_ta_explicit::transitions* trans = state->get_transitions();
             state_ta_explicit::transitions::iterator it_trans;
 
-            for (it_trans = trans->begin(); it_trans != trans->end(); it_trans++)
+            for (it_trans = trans->begin(); it_trans != trans->end();
+		 it_trans++)
               {
                 (*it_trans)->acceptance_conditions
                     = ta->all_acceptance_conditions();
@@ -694,7 +694,8 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
           }
 
         if (state->compare(ta->get_artificial_initial_state()))
-          ta->create_transition(state, bdd_stutering_transition, bddfalse, state);
+          ta->create_transition(state, bdd_stutering_transition,
+				bddfalse, state);
 
         state->set_livelock_accepting_state(false);
         state->set_accepting_state(false);
@@ -702,7 +703,5 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
       }
 
     return tgta;
-
   }
-
 }

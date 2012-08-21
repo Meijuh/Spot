@@ -524,7 +524,8 @@ namespace spot
 
     tgba_explicit_number* tgba = new tgba_explicit_number(tgta_->get_dict());
 
-    tgta_explicit* res = new tgta_explicit(tgba, tgta_->all_acceptance_conditions(),
+    tgta_explicit* res = new tgta_explicit(tgba,
+					   tgta_->all_acceptance_conditions(),
 					   0, /* own_tgba = */ true);
 
     const ta_explicit* ta = tgta_->get_ta();

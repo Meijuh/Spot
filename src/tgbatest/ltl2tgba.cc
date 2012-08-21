@@ -1174,7 +1174,7 @@ main(int argc, char** argv)
                     {
 		    case 0:
 		      spot::dotty_reachable(std::cout,
-					    dynamic_cast<spot::tgta_explicit*>(a)->get_ta());
+			    dynamic_cast<spot::tgta_explicit*>(a)->get_ta());
 		      break;
 		    case 12:
 		      stats_reachable(a).dump(std::cout);

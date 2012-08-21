@@ -53,7 +53,8 @@ namespace spot
     atomic_prop_set*
     atomic_prop_collect(const formula* f, atomic_prop_set* s = 0);
 
-    /// \brief Return the set of atomic propositions occurring in a formula, as a BDD.
+    /// \brief Return the set of atomic propositions occurring in a
+    /// formula, as a BDD.
     ///
     /// \param f the formula to inspect
     /// \param a that automaton that should register the BDD variables used.
