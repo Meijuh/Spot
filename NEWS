@@ -12,7 +12,7 @@ New in spot 0.9.2 (2012-07-02):
       node table for better cache-friendliness.  The resulting speedup
       is around 5% on BDD-intensive algorithms.
     - A new BDD operation, called bdd_implies() has been added to
-      BuDDy to check wether one BDD implies another.  This benefits
+      BuDDy to check whether one BDD implies another.  This benefits
       mostly the simulation and degeneralization algorithms of Spot.
     - A new offline implementation of the degeneralization (which
       had always been performed on-the-fly so far) available.  This

@@ -22,7 +22,7 @@ AC_DEFUN([_AX_CHECK_VALGRIND_SANITY],
 AC_DEFUN([AX_CHECK_VALGRIND], [
   AC_CHECK_PROG([VALGRIND], [valgrind], [valgrind])
   if test -n "$VALGRIND"; then
-    AC_CACHE_CHECK([wether valgrind is sane],
+    AC_CACHE_CHECK([whether valgrind is sane],
 		   [ax_cv_valgrind_sanity],
 		   [_AX_CHECK_VALGRIND_SANITY([ax_cv_valgrind_sanity=yes],
 					      [ax_cv_valgrind_sanity=no])])
