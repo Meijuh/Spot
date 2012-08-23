@@ -625,7 +625,10 @@ if prune_scc:
     # Do not suppress all useless acceptance conditions if
     # degeneralization or simulation is requested: keeping those that
     # lead to accepting states usually helps.
-    automaton = spot.scc_filter(automaton, not (degen or direct_simul))
+    automaton = spot.scc_filter(automaton, not (degen
+                                                or direct_simul
+                                                or reverse_simul
+                                                or iterated_simul))
     issba = False
 
 if wdba_minimize:
