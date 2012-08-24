@@ -639,6 +639,8 @@ if wdba_minimize:
         degen = False # No need to degeneralize anymore
         issba = True
         direct_simul = False # No need to simulate anymore
+        reverse_simul = False
+        iterated_simul = False
 
 if direct_simul and not iterated_simul:
     automaton = spot.simulation(automaton)
