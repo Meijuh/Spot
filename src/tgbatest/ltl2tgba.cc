@@ -210,6 +210,9 @@ syntax(char* prog)
 	    << std::endl
             << "  -Rm   attempt to WDBA-minimize the automaton" << std::endl
 	    << std::endl
+            << "  -RM   attempt to WDBA-minimize the automaton unless the "
+	    << "result is bigger" << std::endl
+	    << std::endl
 
             << "Automaton conversion:" << std::endl
             << "  -M    convert into a deterministic minimal monitor "
@@ -341,6 +344,7 @@ main(int argc, char** argv)
   bool graph_run_tgba_opt = false;
   bool opt_reduce = false;
   bool opt_minimize = false;
+  bool reject_bigger = false;
   bool opt_bisim_ta = false;
   bool opt_monitor = false;
   bool containment = false;
@@ -681,6 +685,11 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-Rm"))
         {
           opt_minimize = true;
+        }
+      else if (!strcmp(argv[formula_index], "-RM"))
+        {
+          opt_minimize = true;
+	  reject_bigger = true;
         }
       else if (!strcmp(argv[formula_index], "-RT"))
         {
@@ -1025,7 +1034,7 @@ main(int argc, char** argv)
       if (opt_minimize)
 	{
 	  tm.start("obligation minimization");
-	  minimized = minimize_obligation(a, f);
+	  minimized = minimize_obligation(a, f, 0, reject_bigger);
 	  tm.stop("obligation minimization");
 
 	  if (minimized == 0)

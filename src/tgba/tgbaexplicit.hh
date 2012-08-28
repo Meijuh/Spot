@@ -283,6 +283,12 @@ namespace spot
       return add_state(State::default_val);
     }
 
+    size_t num_states() const
+    {
+      // Do not use ls_.size() because it may contain aliases.
+      return sl_.size();
+    }
+
     transition*
     create_transition(State* source, const State* dest)
     {
@@ -508,7 +514,6 @@ namespace spot
       return to_string_func_(i->second);
     }
 
-    /// old implementation in tgba_explicit_string
     /// Create an alias for a state.  Any reference to \a alias_name
     /// will act as a reference to \a real_name.
     void add_state_alias(const label_t& alias, const label_t& real)

@@ -31,6 +31,10 @@ New in spot 0.9.2a:
     iterated_simulations() will alternate direct and reverse
     simulations in a loop as long as it diminishes the size of the
     automaton.
+  * minimize_obligation() has a new option to disable WDBA
+    minimization it cases it would produce a deterministic automaton
+    that is bigger than the original TGBA.  So this effectively
+    gives the choice between less states or more determinism.
 
 New in spot 0.9.2 (2012-07-02):
 

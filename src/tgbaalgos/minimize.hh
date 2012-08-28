@@ -63,9 +63,11 @@ namespace spot
 
   /// \brief Minimize a Büchi automaton in the WDBA class.
   ///
-  /// This takes a TGBA whose language is representable by
-  /// a Weak Deterministic Büchi Automaton, and construct
-  /// a minimal WDBA for this language.
+  /// This takes a TGBA whose language is representable by a Weak
+  /// Deterministic Büchi Automaton, and construct a minimal WDBA for
+  /// this language.  This essentially chains three algorithms:
+  /// determinization, acceptance adjustment (Löding's coloring
+  /// algorithm), and minimization (using a Moore-like approache).
   ///
   /// If the input automaton does not represent a WDBA language,
   /// the resulting automaton is still a WDBA, but it will not
@@ -141,9 +143,17 @@ namespace spot
   /// product(aut_neg_f,minize(aut))</code> are both empty.  If they
   /// are, the the minimization was sound.  (See the paper for full
   /// details.)
+  ///
+  /// If \a reject_bigger is set, this function will return the input
+  /// automaton \a aut_f when the minimized WDBA has more states than
+  /// the input automaton.  (More states are possible because of
+  /// determinization step during minimize_wdba().)  Note that
+  /// checking the size of the minimized WDBA occurs before ensuring
+  /// that the minimized WDBA is correct.
   tgba* minimize_obligation(const tgba* aut_f,
 			    const ltl::formula* f = 0,
-			    const tgba* aut_neg_f = 0);
+			    const tgba* aut_neg_f = 0,
+			    bool reject_bigger = false);
 
   /// @}
 }

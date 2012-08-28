@@ -169,6 +169,14 @@ Algorithm
 
 Algorithm
 {
+   Name = "Spot (Couvreur -- FM), +pre +WDBA(rejbig)"
+   Path = "${LBTT_TRANSLATE}"
+   Parameters = "--spot '../ltl2tgba -r4 -R3 -RM -F -f -t'"
+   Enabled = yes
+}
+
+Algorithm
+{
    Name = "Spot (Couvreur -- LaCIM), +pre +WDBA"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -r4 -R3b -Rm -F -l -t'"

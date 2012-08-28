@@ -47,6 +47,7 @@
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/bfssteps.hh"
+#include "tgbaalgos/stats.hh"
 
 namespace spot
 {
@@ -621,9 +622,21 @@ namespace spot
 
   tgba*
   minimize_obligation(const tgba* aut_f,
-		      const ltl::formula* f, const tgba* aut_neg_f)
+		      const ltl::formula* f, const tgba* aut_neg_f,
+		      bool reject_bigger)
   {
     tgba_explicit_number* min_aut_f = minimize_wdba(aut_f);
+
+    if (reject_bigger)
+      {
+	// Abort if min_aut_f has more states than aut_f.
+	tgba_statistics orig_size = stats_reachable(aut_f);
+	if (orig_size.states < min_aut_f->num_states())
+	  {
+	    delete min_aut_f;
+	    return const_cast<tgba*>(aut_f);
+	  }
+      }
 
     // if f is a syntactic obligation formula, the WDBA minimization
     // must be correct.

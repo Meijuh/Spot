@@ -98,7 +98,7 @@ Algorithm
 {
    Name = "Spot FM Sim (degen)"
    Path = "$LBTT_TRANSLATE"
-   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -RDS -F'"
+   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -RIS -F'"
    Enabled = yes
 }
 
@@ -114,7 +114,7 @@ Algorithm
 {
    Name = "Spot FM WDBA+Sim (degen)"
    Path = "$LBTT_TRANSLATE"
-   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -Rm -RDS -F'"
+   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -Rm -RIS -F'"
    Enabled = yes
 }
 
@@ -138,7 +138,7 @@ Algorithm
 {
    Name = "Spot FM Sim (TGBA)"
    Path = "$LBTT_TRANSLATE"
-   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -RDS -F'"
+   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -RIS -F'"
    Enabled = yes
 }
 
@@ -152,9 +152,25 @@ Algorithm
 
 Algorithm
 {
-   Name = "Spot FM WDBA+Sim (TGBA)"
+   Name = "Spot FM WDBA* (TGBA)"
    Path = "$LBTT_TRANSLATE"
-   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -Rm -RDS -F'"
+   Parameters = "--spot '$LTL2TGBA -f -t -R3f -r7 -x -RM -F'"
+   Enabled = yes
+}
+
+Algorithm
+{
+   Name = "Spot FM WDBA+ISim (TGBA)"
+   Path = "$LBTT_TRANSLATE"
+   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -Rm -RIS -F'"
+   Enabled = yes
+}
+
+Algorithm
+{
+   Name = "Spot FM WDBA*+ISim (TGBA)"
+   Path = "$LBTT_TRANSLATE"
+   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -RM -RIS -F'"
    Enabled = yes
 }
 EOF
