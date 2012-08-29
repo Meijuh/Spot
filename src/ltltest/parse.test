@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Developpement
+# Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et Developpement
 # de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -38,7 +38,7 @@ for f in \
   'p11011' \
   '(p11011)' \
   'a & b' \
-  'a & _b12' \
+  'a * _b12' \
   'a && .b.' \
   'a + b' \
   'a3214 | b' \
@@ -73,6 +73,8 @@ for f in \
   'a R ome V anille' \
   'p=0Uq=1' \
   '((p=1Rq=1)+p=0)UXq=0' \
+  '((p=1Rq=1)*p=0)UXq=0' \
+  '(Gq=1*Fp=0)UXq=0' \
   '((p=1Mq=1)Wx+p=0)RXq=0' \
   '((p=1Vq=1)Rx+p=0)WXq=0' \
   '((X(p2=0))U(X(p2=0)))+((Xp1=0)UFALSE)'

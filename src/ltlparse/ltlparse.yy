@@ -104,7 +104,8 @@ using namespace spot::ltl;
 %token OP_U "until operator" OP_R "release operator"
 %token OP_W "weak until operator" OP_M "strong release operator"
 %token OP_F "sometimes operator" OP_G "always operator"
-%token OP_X "next operator" OP_NOT "not operator" OP_STAR "star operator"
+%token OP_X "next operator" OP_NOT "not operator"
+%token OP_STAR "star operator" OP_BSTAR "bracket star operator"
 %token OP_PLUS "plus operator"
 %token OP_STAR_OPEN "opening bracket for star operator"
 %token OP_EQUAL_OPEN "opening bracket for equal operator"
@@ -137,13 +138,19 @@ using namespace spot::ltl;
 %left OP_XOR
 %left OP_AND OP_SHORT_AND
 
+/* OP_STAR can be used as an AND when occurring in some LTL formula in
+   Wring's syntax (so it has to be close to OP_AND), and as a Kleen
+   Star in SERE (so it has to be close to OP_BSTAR -- luckily
+   U/R/M/W/F/G/X are not used in SERE). */
+%left OP_STAR
+
 /* LTL operators.  */
 %right OP_U OP_R OP_M OP_W
 %nonassoc OP_F OP_G
 %nonassoc OP_X
 
 /* High priority regex operator. */
-%nonassoc OP_STAR OP_STAR_OPEN OP_PLUS OP_EQUAL_OPEN OP_GOTO_OPEN
+%nonassoc OP_BSTAR OP_STAR_OPEN OP_PLUS OP_EQUAL_OPEN OP_GOTO_OPEN
 
 /* Not has the most important priority after Wring's `=0' and `=1'.  */
 %nonassoc OP_NOT
@@ -248,7 +255,9 @@ gotoargs: OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
                "missing closing bracket for goto operator"));
 	     $$.min = $$.max = 0U; }
 
-starargs: OP_STAR
+kleen_star: OP_STAR | OP_BSTAR
+
+starargs: kleen_star
             { $$.min = 0U; $$.max = bunop::unbounded; }
         | OP_PLUS
 	    { $$.min = 1U; $$.max = bunop::unbounded; }
@@ -605,6 +614,10 @@ subformula: booleanatom
 	    | subformula OP_SHORT_AND subformula
 	      { $$ = multop::instance(multop::And, $1, $3); }
 	    | subformula OP_SHORT_AND error
+              { missing_right_binop($$, $1, @2, "and operator"); }
+	    | subformula OP_STAR subformula
+	      { $$ = multop::instance(multop::And, $1, $3); }
+	    | subformula OP_STAR error
               { missing_right_binop($$, $1, @2, "and operator"); }
 	    | subformula OP_OR subformula
 	      { $$ = multop::instance(multop::Or, $1, $3); }

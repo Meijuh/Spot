@@ -83,6 +83,7 @@
 \newcommand{\1}{\texttt{1}}
 \newcommand{\STAR}[1]{\texttt{[*#1]}}
 \newcommand{\STARALT}{\texttt{*}}
+\newcommand{\STARBIN}{\mathbin{\texttt{*}}}
 \newcommand{\EQUAL}[1]{\texttt{[=#1]}}
 \newcommand{\GOTO}[1]{\texttt{[->#1]}}
 \newcommand{\PLUS}{\texttt{[+]}}
@@ -361,12 +362,17 @@ following Boolean operators:
   \cmidrule(r){1-5} \cmidrule(l){6-7}
   negation    & $\NOT f$      & $\NOTALT f$      &                   &               & $\lnot$ \uni{00AC}  \\
   disjunction & $f\OR g$      & $f\ORALT g$      & $f\ORALTT g$      & $f\ORALTTT g$ & $\lor$ \uni{2228} & $\cup$ \uni{222A}\\
-  conjunction & $f\AND g$     & $f\ANDALT g$     & $f\ANDALTT g$     &               & $\land$ \uni{2227} & $\cap$ \uni{2229}\\
+  conjunction & $f\AND g$     & $f\ANDALT g$     & $f\ANDALTT g$     & $f\STARBIN g$\rlap{\footnotemark} & $\land$ \uni{2227} & $\cap$ \uni{2229}\\
   implication & $f\IMPLIES g$ & $f\IMPLIESALT g$ & $f\IMPLIESALTT g$ &               & $\limplies$ \uni{2192} & $\rightarrow$ \uni{27F6}, $\Rightarrow$ \uni{21D2} \uni{27F9} \\
   exclusion   & $f\XOR g$     & $f\XORALT g$     &                   &               & $\oplus$ \uni{2295} \\
   equivalence & $f\EQUIV g$   & $f\EQUIVALT g$   & $f\EQUIVALTT g$   &               & $\liff$ \uni{2194} & $\Leftrightarrow$ \uni{21D4}\\
 \end{tabular}
 \end{center}
+\footnotetext{The $\STARALT$-form of the conjunction operator
+  (allowing better compatibility with Wring and VIS) may only used in
+  temporal formul\ae.  Boolean expressions that occur inside SERE (see
+  Section~\ref{sec:sere}) may not use this form because the $\STARALT$
+  symbol is used as the Kleen star.}
 
 Additionally, an atomic proposition $a$ can be negated using the
 syntax \samp{$a$=0}, which is equivalent to \samp{$\NOT a$}.  Also
@@ -558,7 +564,7 @@ Among all the possible rewritings (see Appendix~\ref{sec:ltl-equiv})
 those two were chosen because they are easier to translate in a
 tableau construction~\cite[Fig.~11]{duret.11.vecos}.
 
-\section{SERE Operators}
+\section{SERE Operators}\label{sec:sere}
 
 The ``SERE'' acronym will be translated to different word depending on
 the source.  It can mean either ``\textit{Sequential Extended Regular

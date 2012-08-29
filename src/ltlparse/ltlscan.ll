@@ -106,7 +106,8 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 {DIAMOND}{DARROWL}		BEGIN(0); return token::OP_ECONCAT_NONO;
 ";"				BEGIN(0); return token::OP_CONCAT;
 ":"				BEGIN(0); return token::OP_FUSION;
-"*"|"[*]"			BEGIN(0); return token::OP_STAR;
+"*"				BEGIN(0); return token::OP_STAR;
+"[*]"				BEGIN(0); return token::OP_BSTAR;
 "[+]"				BEGIN(0); return token::OP_PLUS;
 "[*"				BEGIN(sqbracket); return token::OP_STAR_OPEN;
 "[="				BEGIN(sqbracket); return token::OP_EQUAL_OPEN;
@@ -141,7 +142,8 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 
   /* & and | come from Spin.  && and || from LTL2BA.
      /\, \/, and xor are from LBTT.
-     --> and <--> come from Goal.  */
+     --> and <--> come from Goal.
+     +,*,^ are from Wring. */
 "||"|"|"|"+"|"\\/"|"∨"|"∪"	BEGIN(0); return token::OP_OR;
 "&&"|"/\\"|"∧"|"∩"		BEGIN(0); return token::OP_AND;
 "&"				BEGIN(0); return token::OP_SHORT_AND;
