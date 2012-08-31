@@ -64,7 +64,7 @@ namespace spot
     /// \param ratexp Whether we are printing a SERE.
     std::ostream&
     to_utf8_string(const formula* f, std::ostream& os, bool full_parent = false,
-	      bool ratexp = false);
+		   bool ratexp = false);
 
     /// \brief Output a formula as an utf8 string which is parsable
     /// unless the formula contains automaton operators (used in ELTL formulae).
