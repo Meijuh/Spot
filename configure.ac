@@ -125,6 +125,7 @@ AC_CONFIG_FILES([
   iface/gspn/defs
   iface/gspn/Makefile
   iface/Makefile
+  src/bin/Makefile
   src/eltlparse/Makefile
   src/eltltest/defs
   src/eltltest/Makefile

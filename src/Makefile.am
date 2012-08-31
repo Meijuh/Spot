@@ -30,7 +30,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = misc ltlenv ltlast ltlvisit ltlparse eltlparse tgba		\
           tgbaalgos tgbaparse ta taalgos evtgba evtgbaalgos		\
           evtgbaparse kripke saba sabaalgos neverparse kripkeparse	\
-          . ltltest eltltest tgbatest evtgbatest sabatest sanity	\
+          . bin ltltest eltltest tgbatest evtgbatest sabatest sanity	\
           kripketest
 
 lib_LTLIBRARIES = libspot.la
