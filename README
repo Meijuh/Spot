@@ -172,6 +172,7 @@ Third party software
 buddy/            A patched version of BuDDy 2.3 (a BDD library).
 lbtt/             lbtt 1.2.1 (an LTL to Büchi automata test bench).
 ltdl/             Libtool's portable dlopen() wrapper library.
+lib/              Gnulib's portability modules.
 
 Build-system stuff
 ------------------

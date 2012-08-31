@@ -50,11 +50,15 @@ if test "x${enable_python:-yes}" = xyes; then
 fi
 
 AC_PROG_CC
+gl_EARLY
+
 AM_PROG_CC_C_O
 AC_PROG_CXX
 
 AM_PROG_LEX
 AC_PROG_YACC
+
+gl_INIT
 
 AC_LANG(C++)
 
@@ -125,6 +129,7 @@ AC_CONFIG_FILES([
   iface/gspn/defs
   iface/gspn/Makefile
   iface/Makefile
+  lib/Makefile
   src/bin/Makefile
   src/eltlparse/Makefile
   src/eltltest/defs

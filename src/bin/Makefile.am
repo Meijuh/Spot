@@ -19,9 +19,10 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-AM_CPPFLAGS = -I$(top_srcdir)/src $(BUDDY_CPPFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir)/src $(BUDDY_CPPFLAGS) \
+              -I$(top_builddir)/lib -I$(top_srcdir)/lib
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
-LDADD = $(top_builddir)/src/libspot.la
+LDADD = $(top_builddir)/src/libspot.la $(top_builddir)/lib/libgnu.a
 
 bin_PROGRAMS = ltlfilt
 ltlfilt_SOURCES = ltlfilt.cc
