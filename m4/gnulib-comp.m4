@@ -59,6 +59,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module mempcpy:
   # Code from module multiarch:
   # Code from module nocrash:
+  # Code from module progname:
   # Code from module rawmemchr:
   # Code from module size_max:
   # Code from module sleep:
@@ -166,6 +167,8 @@ AC_DEFUN([gl_INIT],
   fi
   gl_STRING_MODULE_INDICATOR([mempcpy])
   gl_MULTIARCH
+  AC_CHECK_DECLS([program_invocation_name], [], [], [#include <errno.h>])
+  AC_CHECK_DECLS([program_invocation_short_name], [], [], [#include <errno.h>])
   gl_FUNC_RAWMEMCHR
   if test $HAVE_RAWMEMCHR = 0; then
     AC_LIBOBJ([rawmemchr])
@@ -417,6 +420,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/printf-args.h
   lib/printf-parse.c
   lib/printf-parse.h
+  lib/progname.c
+  lib/progname.h
   lib/rawmemchr.c
   lib/rawmemchr.valgrind
   lib/size_max.h

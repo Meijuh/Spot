@@ -27,12 +27,13 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=tools --no-conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files argp
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=tools --no-conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files argp progname
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
   argp
+  progname
 ])
 gl_AVOID([])
 gl_SOURCE_BASE([lib])

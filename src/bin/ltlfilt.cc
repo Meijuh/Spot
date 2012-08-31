@@ -29,6 +29,8 @@
 #include <iostream>
 #include <fstream>
 #include <argp.h>
+#include "progname.h"
+
 #include "misc/_config.h"
 #include "misc/hash.hh"
 #include "ltlparse/public.hh"
@@ -549,6 +551,11 @@ run_jobs()
 int
 main(int argc, char** argv)
 {
+  set_program_name(argv[0]);
+  // Simplify the program name, because argp() uses it to report errors
+  // and display help text.
+  argv[0] = const_cast<char*>(program_name);
+
   const argp ap = { options, parse_opt, "[FILENAME...]",
 		    argp_program_doc, 0, 0, 0 };
 
