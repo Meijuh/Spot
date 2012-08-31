@@ -30,6 +30,7 @@
 #include <fstream>
 #include <argp.h>
 #include "progname.h"
+#include "error.h"
 
 #include "misc/_config.h"
 #include "misc/hash.hh"
@@ -203,10 +204,7 @@ to_int(const char* s)
   char* endptr;
   int res = strtol(s, &endptr, 10);
   if (*endptr)
-    {
-      std::cerr << "Failed to parse `" << s << "' as an integer." << std::endl;
-      exit(1);
-    }
+    error(1, 0, "failed to parse '%s' as an integer.", s);
   return res;
 }
 
@@ -253,8 +251,7 @@ parse_opt(int key, char* arg, struct argp_state* state)
 		level = arg[0] = '0';
 		return 0;
 	      }
-	  std::cerr << "Invalid simplification LEVEL: " << arg << "\n";
-	  return 1;
+	  error(1, 0, "invalid simplification level '%s'",  arg);
 	}
       break;
     case 's':
@@ -364,7 +361,7 @@ namespace
 	    if (!quiet)
 	      {
 		if (filename)
-		  std::cerr << "at " << filename << ":" << linenum << ":\n";
+		  error_at_line(0, 0, filename, linenum, "parse error:");
 		spot::ltl::format_parse_errors(std::cerr, input, pel);
 	      }
 
@@ -484,30 +481,29 @@ namespace
     }
 
     int
-    process_file(const char* filename)
+    process_stream(std::istream& is, const char* filename)
     {
       int error = 0;
       int linenum = 0;
       std::string line;
-      // Special case for stdin.
-      if (filename[0] == '-' && filename[1] == 0)
-	{
-	  while (std::getline(std::cin, line))
-	    error |= process_formula(line, "stdin", ++linenum);
-	  return error;
-	}
-
-      std::ifstream input(filename);
-      if (!input)
-	{
-	  std::cerr << "cannot open " << filename << std::endl;
-	  return 1;
-	}
-      while (std::getline(input, line))
+      while (std::getline(is, line))
 	error |= process_formula(line, filename, ++linenum);
       return error;
     }
 
+    int
+    process_file(const char* filename)
+    {
+      // Special case for stdin.
+      if (filename[0] == '-' && filename[1] == 0)
+	return process_stream(std::cin, filename);
+
+      errno = 0;
+      std::ifstream input(filename);
+      if (!input)
+	error(1, errno, "cannot open '%s'", filename);
+      return process_stream(input, filename);
+    }
   };
 }
 

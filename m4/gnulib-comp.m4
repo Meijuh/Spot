@@ -45,6 +45,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module dosname:
   # Code from module double-slash-root:
   # Code from module errno:
+  # Code from module error:
   # Code from module extensions:
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
   # Code from module float:
@@ -57,6 +58,8 @@ AC_DEFUN([gl_EARLY],
   # Code from module malloc-posix:
   # Code from module memchr:
   # Code from module mempcpy:
+  # Code from module msvc-inval:
+  # Code from module msvc-nothrow:
   # Code from module multiarch:
   # Code from module nocrash:
   # Code from module progname:
@@ -116,6 +119,14 @@ AC_DEFUN([gl_INIT],
   gl_DIRNAME_LGPL
   gl_DOUBLE_SLASH_ROOT
   gl_HEADER_ERRNO_H
+  gl_ERROR
+  if test $ac_cv_lib_error_at_line = no; then
+    AC_LIBOBJ([error])
+    gl_PREREQ_ERROR
+  fi
+  m4_ifdef([AM_XGETTEXT_OPTION],
+    [AM_][XGETTEXT_OPTION([--flag=error:3:c-format])
+     AM_][XGETTEXT_OPTION([--flag=error_at_line:5:c-format])])
   gl_FLOAT_H
   if test $REPLACE_FLOAT_LDBL = 1; then
     AC_LIBOBJ([float])
@@ -166,6 +177,14 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_MEMPCPY
   fi
   gl_STRING_MODULE_INDICATOR([mempcpy])
+  gl_MSVC_INVAL
+  if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
+    AC_LIBOBJ([msvc-inval])
+  fi
+  gl_MSVC_NOTHROW
+  if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
+    AC_LIBOBJ([msvc-nothrow])
+  fi
   gl_MULTIARCH
   AC_CHECK_DECLS([program_invocation_name], [], [], [#include <errno.h>])
   AC_CHECK_DECLS([program_invocation_short_name], [], [], [#include <errno.h>])
@@ -402,6 +421,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/dirname.h
   lib/dosname.h
   lib/errno.in.h
+  lib/error.c
+  lib/error.h
   lib/float+.h
   lib/float.c
   lib/float.in.h
@@ -416,6 +437,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/memchr.c
   lib/memchr.valgrind
   lib/mempcpy.c
+  lib/msvc-inval.c
+  lib/msvc-inval.h
+  lib/msvc-nothrow.c
+  lib/msvc-nothrow.h
   lib/printf-args.c
   lib/printf-args.h
   lib/printf-parse.c
@@ -459,6 +484,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/dirname.m4
   m4/double-slash-root.m4
   m4/errno_h.m4
+  m4/error.m4
   m4/exponentd.m4
   m4/extensions.m4
   m4/float_h.m4
@@ -473,6 +499,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/memchr.m4
   m4/mempcpy.m4
   m4/mmap-anon.m4
+  m4/msvc-inval.m4
+  m4/msvc-nothrow.m4
   m4/multiarch.m4
   m4/nocrash.m4
   m4/off_t.m4
