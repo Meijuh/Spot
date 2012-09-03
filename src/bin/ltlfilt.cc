@@ -55,7 +55,11 @@ to the extent permitted by law.";
 const char* argp_program_bug_address = "<" SPOT_PACKAGE_BUGREPORT ">";
 
 const char argp_program_doc[] ="\
-Read a list of formulas and output them back after some optional processing.";
+Read a list of formulas and output them back after some optional processing.\v\
+Exit status:\n\
+  0  if some formulas were output (skipped syntax errors do not count)\n\
+  1  if no formula were output (no match)\n\
+  2  if any error has been reported";
 
 #define OPT_SPOT 1
 #define OPT_SKIP_ERRORS 2
@@ -178,6 +182,8 @@ struct job
 typedef std::vector<job> jobs_t;
 static jobs_t jobs;
 
+static bool one_match = false;
+
 enum error_style_t { drop_errors, skip_errors };
 static error_style_t error_style = drop_errors;
 static bool quiet = false;
@@ -218,7 +224,7 @@ to_int(const char* s)
   char* endptr;
   int res = strtol(s, &endptr, 10);
   if (*endptr)
-    error(1, 0, "failed to parse '%s' as an integer.", s);
+    error(2, 0, "failed to parse '%s' as an integer.", s);
   return res;
 }
 
@@ -229,7 +235,7 @@ parse_formula_arg(const std::string& input)
   spot::ltl::parse_error_list pel;
   const spot::ltl::formula* f = spot::ltl::parse(input, pel);
   if (spot::ltl::format_parse_errors(std::cerr, input, pel))
-    error(1, 0, "parse error when parsing an argument");
+    error(2, 0, "parse error when parsing an argument");
   return f;
 }
 
@@ -278,7 +284,7 @@ parse_opt(int key, char* arg, struct argp_state* state)
 		level = arg[0] = '0';
 		return 0;
 	      }
-	  error(1, 0, "invalid simplification level '%s'",  arg);
+	  error(2, 0, "invalid simplification level '%s'",  arg);
 	}
       break;
     case 's':
@@ -373,7 +379,7 @@ parse_opt(int key, char* arg, struct argp_state* state)
     case OPT_EQUIVALENT_TO:
       {
 	if (equivalent_to)
-	  error(1, 0, "only one --equivalent-to option can be given");
+	  error(2, 0, "only one --equivalent-to option can be given");
 	equivalent_to = parse_formula_arg(arg);
 	break;
       }
@@ -418,21 +424,15 @@ namespace
 	    if (f)
 	      f->destroy();
 
-	    if (error_style == drop_errors)
-	      return 1;
 	    if (error_style == skip_errors)
-	      {
-		std::cout << input << std::endl;
-		return 1;
-	      }
-	    assert(!"unreachable");
+	      std::cout << input << std::endl;
+	    else
+	      assert(error_style == drop_errors);
+	    return !quiet;
 	  }
 
-
       if (negate)
-	{
-	  f = spot::ltl::unop::instance(spot::ltl::unop::Not, f);
-	}
+	f = spot::ltl::unop::instance(spot::ltl::unop::Not, f);
 
       if (level)
 	{
@@ -515,6 +515,7 @@ namespace
 
       if (matched)
 	{
+	  one_match = true;
 	  switch (output_format)
 	    {
 	    case spot_output:
@@ -555,7 +556,7 @@ namespace
       errno = 0;
       std::ifstream input(filename);
       if (!input)
-	error(1, errno, "cannot open '%s'", filename);
+	error(2, errno, "cannot open '%s'", filename);
       return process_stream(input, filename);
     }
   };
@@ -595,7 +596,9 @@ run_jobs()
       else
 	error |= processor.process_file(i->str);
     }
-  return error;
+  if (error)
+    return 2;
+  return one_match ? 0 : 1;
 }
 
 int
