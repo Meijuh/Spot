@@ -4260,6 +4260,12 @@ namespace spot
       return cache_->lcc.equal(f, g);
     }
 
+    bool
+    ltl_simplifier::implication(const formula* f, const formula* g)
+    {
+      return cache_->lcc.contained(f, g);
+    }
+
     bdd
     ltl_simplifier::as_bdd(const formula* f)
     {

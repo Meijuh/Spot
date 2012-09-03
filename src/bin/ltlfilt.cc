@@ -39,6 +39,7 @@
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
 #include "ltlast/unop.hh"
+#include "ltlast/multop.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/minimize.hh"
 #include "tgbaalgos/safety.hh"
@@ -57,27 +58,30 @@ const char argp_program_doc[] ="\
 Read a list of formulas and output them back after some optional processing.";
 
 #define OPT_SPOT 1
-#define OPT_SKIP_ERRORS 3
-#define OPT_DROP_ERRORS 4
-#define OPT_NNF 5
-#define OPT_LTL 10
-#define OPT_PSL 11
-#define OPT_NOX 12
-#define OPT_BOOLEAN 13
-#define OPT_EVENTUAL 14
-#define OPT_UNIVERSAL 15
-#define OPT_SYNTACTIC_SAFETY 16
-#define OPT_SYNTACTIC_GUARANTEE 17
-#define OPT_SYNTACTIC_OBLIGATION 18
-#define OPT_SYNTACTIC_RECURRENCE 19
-#define OPT_SYNTACTIC_PERSISTENCE 20
-#define OPT_SAFETY 21
-#define OPT_GUARANTEE 22
-#define OPT_OBLIGATION 23
-#define OPT_SIZE_MIN 24
-#define OPT_SIZE_MAX 25
-#define OPT_BSIZE_MIN 26
-#define OPT_BSIZE_MAX 27
+#define OPT_SKIP_ERRORS 2
+#define OPT_DROP_ERRORS 3
+#define OPT_NNF 4
+#define OPT_LTL 5
+#define OPT_PSL 6
+#define OPT_NOX 7
+#define OPT_BOOLEAN 8
+#define OPT_EVENTUAL 9
+#define OPT_UNIVERSAL 10
+#define OPT_SYNTACTIC_SAFETY 11
+#define OPT_SYNTACTIC_GUARANTEE 12
+#define OPT_SYNTACTIC_OBLIGATION 13
+#define OPT_SYNTACTIC_RECURRENCE 14
+#define OPT_SYNTACTIC_PERSISTENCE 15
+#define OPT_SAFETY 16
+#define OPT_GUARANTEE 17
+#define OPT_OBLIGATION 18
+#define OPT_SIZE_MIN 19
+#define OPT_SIZE_MAX 20
+#define OPT_BSIZE_MIN 21
+#define OPT_BSIZE_MAX 22
+#define OPT_IMPLIED_BY 23
+#define OPT_IMPLY 24
+#define OPT_EQUIVALENT_TO 25
 
 static const argp_option options[] =
   {
@@ -140,6 +144,12 @@ static const argp_option options[] =
       "match formulas with Boolean size <= INT", 0 },
     { "bsize-min", OPT_BSIZE_MIN, "INT", 0,
       "match formulas with Boolean size >= INT", 0 },
+    { "implied-by", OPT_IMPLIED_BY, "FORMULA", 0,
+      "match formulas implied by FORMULA", 0 },
+    { "imply", OPT_IMPLY, "FORMULA", 0,
+      "match formulas implying FORMULA", 0 },
+    { "equivalent-to", OPT_EQUIVALENT_TO, "FORMULA", 0,
+      "match formulas equivalent to FORMULA", 0 },
     { "invert-match", 'v', 0, 0, "Select non-matching formulas", 0},
     /**************************************************/
     { 0, 0, 0, 0, "Output options:", 6 },
@@ -198,6 +208,10 @@ static int size_max = -1;
 static int bsize_min = -1;
 static int bsize_max = -1;
 
+static const spot::ltl::formula* implied_by = 0;
+static const spot::ltl::formula* imply = 0;
+static const spot::ltl::formula* equivalent_to = 0;
+
 static int
 to_int(const char* s)
 {
@@ -207,6 +221,19 @@ to_int(const char* s)
     error(1, 0, "failed to parse '%s' as an integer.", s);
   return res;
 }
+
+
+static const spot::ltl::formula*
+parse_formula_arg(const std::string& input)
+{
+  spot::ltl::parse_error_list pel;
+  const spot::ltl::formula* f = spot::ltl::parse(input, pel);
+  if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+    error(1, 0, "parse error when parsing an argument");
+  return f;
+}
+
+
 
 static int
 parse_opt(int key, char* arg, struct argp_state* state)
@@ -327,6 +354,29 @@ parse_opt(int key, char* arg, struct argp_state* state)
     case OPT_SYNTACTIC_PERSISTENCE:
       syntactic_persistence = true;
       break;
+    case OPT_IMPLIED_BY:
+      {
+	const spot::ltl::formula* i = parse_formula_arg(arg);
+	// a→c∧b→c ≡ (a∨b)→c
+	implied_by =
+	  spot::ltl::multop::instance(spot::ltl::multop::Or, implied_by, i);
+	break;
+      }
+    case OPT_IMPLY:
+      {
+	// a→b∧a→c ≡ a→(b∧c)
+	const spot::ltl::formula* i = parse_formula_arg(arg);
+	imply =
+	  spot::ltl::multop::instance(spot::ltl::multop::And, imply, i);
+	break;
+      }
+    case OPT_EQUIVALENT_TO:
+      {
+	if (equivalent_to)
+	  error(1, 0, "only one --equivalent-to option can be given");
+	equivalent_to = parse_formula_arg(arg);
+	break;
+      }
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -425,6 +475,10 @@ namespace
 	  matched &= (bsize_min <= 0) || (l >= bsize_min);
 	  matched &= (bsize_max < 0) || (l <= bsize_max);
 	}
+
+      matched &= !implied_by || simpl.implication(implied_by, f);
+      matched &= !imply || simpl.implication(f, imply);
+      matched &= !equivalent_to || simpl.are_equivalent(f, equivalent_to);
 
       // Match obligations and subclasses using WDBA minimization.
       // Because this is costly, we compute it later, so that we don't

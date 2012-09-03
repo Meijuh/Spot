@@ -125,6 +125,14 @@ namespace spot
       /// two products, and two emptiness checks.
       bool are_equivalent(const formula* f, const formula* g);
 
+
+      /// \brief Check whether \a f implies \a g.
+      ///
+      /// This operation is costlier than syntactic_implication()
+      /// because it requires two translation, one product and one
+      /// emptiness check.
+      bool implication(const formula* f, const formula* g);
+
       /// \brief Convert a Boolean formula as a BDD.
       ///
       /// If you plan to use this method, be sure to pass a bdd_dict
