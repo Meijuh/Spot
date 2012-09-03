@@ -25,5 +25,7 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD = $(top_builddir)/src/libspot.la $(top_builddir)/lib/libgnu.a
 
 bin_PROGRAMS = ltlfilt genltl
-ltlfilt_SOURCES = ltlfilt.cc
-genltl_SOURCES = genltl.cc
+ltlfilt_SOURCES = ltlfilt.cc common_output.cc
+genltl_SOURCES = genltl.cc common_output.cc
+
+noinst_HEADERS = common_output.hh

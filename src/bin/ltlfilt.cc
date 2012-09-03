@@ -32,10 +32,11 @@
 #include "progname.h"
 #include "error.h"
 
+#include "common_output.hh"
+
 #include "misc/_config.h"
 #include "misc/hash.hh"
 #include "ltlparse/public.hh"
-#include "ltlvisit/tostring.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
 #include "ltlast/unop.hh"
@@ -61,7 +62,6 @@ Exit status:\n\
   1  if no formula were output (no match)\n\
   2  if any error has been reported";
 
-#define OPT_SPOT 1
 #define OPT_SKIP_ERRORS 2
 #define OPT_DROP_ERRORS 3
 #define OPT_NNF 4
@@ -154,18 +154,19 @@ static const argp_option options[] =
       "match formulas implying FORMULA", 0 },
     { "equivalent-to", OPT_EQUIVALENT_TO, "FORMULA", 0,
       "match formulas equivalent to FORMULA", 0 },
-    { "invert-match", 'v', 0, 0, "Select non-matching formulas", 0},
+    { "invert-match", 'v', 0, 0, "select non-matching formulas", 0},
+    { "unique", 'u', 0, 0,
+      "drop formulas that have already been output (not affected by -v)", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Output options:", 6 },
-    { "full-parentheses", 'p', 0, 0,
-      "output fully-parenthesized formulas", 0 },
-    { "spin", 's', 0, 0, "output in Spin's syntax", 0 },
-    { "spot", OPT_SPOT, 0, 0, "output in Spot's syntax (default)", 0 },
-    { "utf8", '8', 0, 0, "output using UTF-8 characters", 0 },
-    { "unique", 'u', 0, 0, "drop formulas that have already been outpout", 0 },
-    /**************************************************/
+    { 0, 0, 0, 0, "Output options:", -20 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }
+  };
+
+const struct argp_child children[] =
+  {
+    { &output_argp, 0, 0, -20 },
+    { 0, 0, 0, 0 }
   };
 
 struct job
@@ -187,9 +188,6 @@ static bool one_match = false;
 enum error_style_t { drop_errors, skip_errors };
 static error_style_t error_style = drop_errors;
 static bool quiet = false;
-enum output_format_t { spot_output, spin_output, utf8_output };
-static output_format_t output_format = spot_output;
-static bool full_parenth = false;
 static bool nnf = false;
 static bool negate = false;
 static int level = 0;
@@ -242,15 +240,11 @@ parse_formula_arg(const std::string& input)
 
 
 static int
-parse_opt(int key, char* arg, struct argp_state* state)
+parse_opt(int key, char* arg, struct argp_state*)
 {
-  (void) state;
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case '8':
-      output_format = utf8_output;
-      break;
     case 'f':
       jobs.push_back(job(arg, false));
       break;
@@ -259,9 +253,6 @@ parse_opt(int key, char* arg, struct argp_state* state)
       break;
     case 'n':
       negate = true;
-      break;
-    case 'p':
-      full_parenth = true;
       break;
     case 'q':
       quiet = true;
@@ -286,9 +277,6 @@ parse_opt(int key, char* arg, struct argp_state* state)
 	      }
 	  error(2, 0, "invalid simplification level '%s'",  arg);
 	}
-      break;
-    case 's':
-      output_format = spin_output;
       break;
     case 'u':
       unique = true;
@@ -341,9 +329,6 @@ parse_opt(int key, char* arg, struct argp_state* state)
       break;
     case OPT_SKIP_ERRORS:
       error_style = skip_errors;
-      break;
-    case OPT_SPOT:
-      output_format = spot_output;
       break;
     case OPT_SYNTACTIC_SAFETY:
       syntactic_safety = true;
@@ -516,19 +501,7 @@ namespace
       if (matched)
 	{
 	  one_match = true;
-	  switch (output_format)
-	    {
-	    case spot_output:
-	    spot::ltl::to_string(f, std::cout, full_parenth);
-	    break;
-	    case spin_output:
-	      spot::ltl::to_spin_string(f, std::cout, full_parenth);
-	      break;
-	    case utf8_output:
-	      spot::ltl::to_utf8_string(f, std::cout, full_parenth);
-	      break;
-	    }
-	  std::cout << "\n";
+	  output_formula(f);
 	}
 
       f->destroy();
@@ -610,7 +583,7 @@ main(int argc, char** argv)
   argv[0] = const_cast<char*>(program_name);
 
   const argp ap = { options, parse_opt, "[FILENAME...]",
-		    argp_program_doc, 0, 0, 0 };
+		    argp_program_doc, children, 0, 0 };
 
   if (int err = argp_parse(&ap, argc, argv, 0, 0, 0))
     exit(err);

@@ -80,8 +80,9 @@
 #include "error.h"
 #include <vector>
 
-#include "misc/_config.h"
+#include "common_output.hh"
 
+#include "misc/_config.h"
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -90,7 +91,6 @@
 #include <cstdlib>
 #include <cstring>
 #include "ltlast/allnodes.hh"
-#include "ltlvisit/tostring.hh"
 #include "ltlenv/defaultenv.hh"
 
 using namespace spot;
@@ -120,8 +120,6 @@ Automata for Certain Classes of LTL Formulas.\n\
 Translation. LNCS 2102\n\
 [rv] K. Rozier and M. Vardi (Spin'07): LTL Satisfiability Checking. \
 LNCS 4595.\n";
-
-#define OPT_SPOT 1
 
 #define OPT_AND_F 2
 #define OPT_AND_FG 3
@@ -192,14 +190,8 @@ static const argp_option options[] =
     { "u-right", OPT_U_RIGHT, "RANGE", 0, "(p1 U (p2 U (... U pn)))", 0 },
     OPT_ALIAS(gh-u2),
     OPT_ALIAS(go-phi),
-   /**************************************************/
-    { 0, 0, 0, 0, "Output options:", 6 },
-    { "full-parentheses", 'p', 0, 0,
-      "output fully-parenthesized formulas", 0 },
-    { "spin", 's', 0, 0, "output in Spin's syntax", 0 },
-    { "spot", OPT_SPOT, 0, 0, "output in Spot's syntax (default)", 0 },
-    { "utf8", '8', 0, 0, "output using UTF-8 characters", 0 },
     /**************************************************/
+    { 0, 0, 0, 0, "Output options:", -20 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }
   };
@@ -214,9 +206,12 @@ struct job
 typedef std::vector<job> jobs_t;
 static jobs_t jobs;
 
-enum output_format_t { spot_output, spin_output, utf8_output };
-static output_format_t output_format = spot_output;
-static bool full_parenth = false;
+
+const struct argp_child children[] =
+  {
+    { &output_argp, 0, 0, -20 },
+    { 0, 0, 0, 0 }
+  };
 
 // static int
 // to_int(const char* s)
@@ -275,21 +270,11 @@ enqueue_job(int pattern, const char* range)
 }
 
 static int
-parse_opt(int key, char* arg, struct argp_state* state)
+parse_opt(int key, char* arg, struct argp_state*)
 {
-  (void) state;
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case '8':
-      output_format = utf8_output;
-      break;
-    case 'p':
-      full_parenth = true;
-      break;
-    case 's':
-      output_format = spin_output;
-      break;
     case OPT_AND_F:
     case OPT_AND_FG:
     case OPT_AND_GF:
@@ -309,9 +294,6 @@ parse_opt(int key, char* arg, struct argp_state* state)
     case OPT_RV_COUNTER_CARRY_LINEAR:
     case OPT_RV_COUNTER_LINEAR:
       enqueue_job(key, arg);
-      break;
-    case OPT_SPOT:
-      output_format = spot_output;
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -888,19 +870,7 @@ output_pattern(int pattern, int n)
       error(100, 0, "internal error: pattern not implemented");
     }
 
-  switch (output_format)
-    {
-    case spot_output:
-      spot::ltl::to_string(f, std::cout, full_parenth);
-      break;
-    case spin_output:
-      spot::ltl::to_spin_string(f, std::cout, full_parenth);
-      break;
-    case utf8_output:
-      spot::ltl::to_utf8_string(f, std::cout, full_parenth);
-      break;
-    }
-  std::cout << "\n";
+  output_formula(f);
   f->destroy();
 }
 
@@ -931,7 +901,8 @@ main(int argc, char** argv)
   // and display help text.
   argv[0] = const_cast<char*>(program_name);
 
-  const argp ap = { options, parse_opt, 0, argp_program_doc, 0, 0, 0 };
+  const argp ap = { options, parse_opt, 0, argp_program_doc,
+		    children, 0, 0 };
 
   if (int err = argp_parse(&ap, argc, argv, 0, 0, 0))
     exit(err);
