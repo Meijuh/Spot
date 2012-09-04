@@ -52,6 +52,7 @@ misc_HEADERS = \
   optionmap.hh \
   random.hh \
   timer.hh \
+  unique_ptr.hh \
   version.hh
 
 noinst_LTLIBRARIES = libmisc.la

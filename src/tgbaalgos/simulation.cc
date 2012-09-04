@@ -26,6 +26,7 @@
 #include "simulation.hh"
 #include "misc/acccompl.hh"
 #include "misc/minato.hh"
+#include "misc/unique_ptr.hh"
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/sccfilter.hh"
@@ -702,7 +703,6 @@ namespace spot
       state* initial_state;
 
       automaton_size stat;
-
     };
 
   } // End namespace anonymous.
@@ -735,21 +735,18 @@ namespace spot
         prev = next;
         direct_simulation<false> simul(res);
 
-        tgba* after_simulation = simul.run();
+        unique_ptr<tgba> after_simulation(simul.run());
 
         if (res != t)
           delete res;
 
         direct_simulation<true> cosimul(after_simulation);
 
-        tgba* after_cosimulation = cosimul.run();
+        unique_ptr<tgba> after_cosimulation(cosimul.run());
 
         next = cosimul.get_stat();
 
         res = scc_filter(after_cosimulation, false);
-
-        delete after_cosimulation;
-        delete after_simulation;
       }
     while (prev != next);
 

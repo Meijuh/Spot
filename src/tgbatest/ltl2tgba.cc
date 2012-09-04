@@ -59,6 +59,7 @@
 #include "tgbaalgos/gtec/gtec.hh"
 #include "eltlparse/public.hh"
 #include "misc/timer.hh"
+#include "misc/unique_ptr.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/emptiness_stats.hh"
@@ -1364,9 +1365,8 @@ main(int argc, char** argv)
 		    // It is possible that we have applied other
 		    // operations to the automaton since its initial
 		    // degeneralization.  Let's degeneralize again!
-		    spot::tgba* s = spot::degeneralize(a);
+                    spot::unique_ptr<spot::tgba> s(spot::degeneralize(a));
 		    spot::never_claim_reachable(std::cout, s, f, spin_comments);
-		    delete s;
 		  }
 		break;
 	      }
@@ -1562,10 +1562,9 @@ main(int argc, char** argv)
 				}
 			      else if (graph_run_tgba_opt)
 				{
-				  spot::tgba* ar =
-				    spot::tgba_run_to_tgba(a, run);
+                                  spot::unique_ptr<spot::tgba>
+                                    ar(spot::tgba_run_to_tgba(a, run));
 				  spot::dotty_reachable(std::cout, ar, false);
-				  delete ar;
 				}
 			      else
 				{
