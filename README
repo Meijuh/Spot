@@ -144,6 +144,7 @@ src/              Sources for libspot.
    sabatest/      Tests for saba/, sabaalgos/.
    neverparse/    Parser for SPIN never claims.
    bin/           User tools built using the Spot library.
+      man/        Man pages for the above tools.
    sanity/        Sanity tests for the whole project.
 doc/              Documentation for libspot.
    tl/            Documentation of the Temporal Logic operators.

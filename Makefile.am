@@ -43,8 +43,8 @@ UTF8 = utf8/doc/ReleaseNotes utf8/doc/utf8cpp.html utf8/utf8.h	\
   utf8/utf8/checked.h utf8/utf8/core.h utf8/utf8/unchecked.h
 
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog $(UTF8) \
-	     m4/gnulib-cache.m4
+EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog tools/help2man \
+	     $(UTF8) m4/gnulib-cache.m4
 
 dist-hook: gen-ChangeLog
 

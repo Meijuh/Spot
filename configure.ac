@@ -104,6 +104,8 @@ AC_CHECK_PROG([WRING2LBTT], [wring2lbtt], [wring2lbtt])
 # an alias for swig-1.3.  Let's use the former when available.
 AC_CHECK_PROGS([SWIG], [swig2.0 swig], [swig])
 
+AC_SUBST([CROSS_COMPILING], [$cross_compiling])
+
 AC_CONFIG_FILES([
   Makefile
   bench/Makefile
@@ -131,6 +133,7 @@ AC_CONFIG_FILES([
   iface/Makefile
   lib/Makefile
   src/bin/Makefile
+  src/bin/man/Makefile
   src/eltlparse/Makefile
   src/eltltest/defs
   src/eltltest/Makefile
@@ -169,6 +172,7 @@ AC_CONFIG_FILES([
   wrap/python/Makefile
   wrap/python/ajax/Makefile
   wrap/python/tests/Makefile
+  tools/x-to-1
 ])
 AC_CONFIG_FILES([bench/ltl2tgba/ltl2baw.pl:bench/ltl2tgba/ltl2baw.in],
 		[chmod +x bench/ltl2tgba/ltl2baw.pl])

@@ -107,19 +107,7 @@ to the extent permitted by law.";
 const char* argp_program_bug_address = "<" SPOT_PACKAGE_BUGREPORT ">";
 
 const char argp_program_doc[] ="\
-Generate temporal logic formulas from predefined scalable patterns.\v\
-RANGE may have one of the following forms: INT, INT..INT, or ..INT\n\
-In the latter case, the missing number is assumed to be 1.\n\
-\n\
-Pattern names prefixed with 'ccj', 'gh', 'go', or 'rv' refer to:\n\
-[gh] J. Geldenhuys and H. Hansen (Spin'06): Larger automata and less \
-work for LTL model checking. LNCS 3925.\n\
-[ccj] J. Cichoń, A. Czubak, and A. Jasiński (DepCoS'09): Minimal Büchi \
-Automata for Certain Classes of LTL Formulas.\n\
-[go] P. Gastin and D. Oddoux (CAV'01): Fast LTL to Büchi Automata \
-Translation. LNCS 2102\n\
-[rv] K. Rozier and M. Vardi (Spin'07): LTL Satisfiability Checking. \
-LNCS 4595.\n";
+Generate temporal logic formulas from predefined scalable patterns.";
 
 #define OPT_AND_F 2
 #define OPT_AND_FG 3
@@ -190,7 +178,11 @@ static const argp_option options[] =
     { "u-right", OPT_U_RIGHT, "RANGE", 0, "(p1 U (p2 U (... U pn)))", 0 },
     OPT_ALIAS(gh-u2),
     OPT_ALIAS(go-phi),
-    /**************************************************/
+    { 0, 0, 0, 0, "RANGE may have one of the following forms: 'INT', "
+      "'INT..INT', or '..INT'.\nIn the latter case, the missing number "
+      "is assumed to be 1.", 0 },
+
+  /**************************************************/
     { 0, 0, 0, 0, "Output options:", -20 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }

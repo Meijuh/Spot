@@ -19,16 +19,19 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-SUBDIRS = . man
+common_dep = $(top_builddir)/configure.ac
+x_to_1 = $(top_builddir)/tools/x-to-1
+convman = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
+          "$(PERL)" "$(top_srcdir)/tools/help2man -N"
 
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(BUDDY_CPPFLAGS) \
-              -I$(top_builddir)/lib -I$(top_srcdir)/lib
-AM_CXXFLAGS = $(WARNING_CXXFLAGS)
-LDADD = $(top_builddir)/src/libspot.la $(top_builddir)/lib/libgnu.a
+dist_man1_MANS = ltlfilt.1 genltl.1
+MAINTAINERCLEANFILES = $(dist_man1_MANS)
+man_aux = $(dist_man1_MANS:.1=.x)
 
-bin_PROGRAMS = ltlfilt genltl
+ltlfilt.1: $(common_dep) $(srcdir)/ltlfilt.x $(srcdir)/../ltlfilt.cc
+	$(convman) ../ltlfilt$(EXEEXT) $(srcdir)/ltlfilt.x $@
 
-noinst_HEADERS = common_output.hh
+genltl.1: $(common_dep) $(srcdir)/genltl.x $(srcdir)/../genltl.cc
+	$(convman) ../genltl$(EXEEXT) $(srcdir)/genltl.x $@
 
-ltlfilt_SOURCES = ltlfilt.cc common_output.cc
-genltl_SOURCES = genltl.cc common_output.cc
+
