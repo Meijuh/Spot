@@ -149,6 +149,7 @@ namespace spot
   /// \ingroup ta_representation
   class state_ta_explicit : public spot::state
   {
+#ifndef SWIG
   public:
 
     /// Explicit transitions.
@@ -237,7 +238,7 @@ namespace spot
     bool is_livelock_accepting_state_;
     transitions* transitions_;
     Sgi::hash_map<int, transitions*, Sgi::hash<int> > transitions_by_condition;
-
+#endif // !SWIG
   };
 
   /// Successor iterators used by spot::ta_explicit.

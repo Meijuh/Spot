@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement
+// Copyright (C) 2010, 2012 Laboratoire de Recherche et Developpement
 // de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -213,6 +213,7 @@ namespace spot
 
   };
 
+#ifndef SWIG
   // A stack of Strongly-Connected Components
   class scc_stack_ta
   {
@@ -265,6 +266,7 @@ namespace spot
     typedef std::list<connected_component> stack_type;
     stack_type s;
   };
+#endif // !SWIG
 
 /// \addtogroup ta_representation TA representations
 /// \ingroup ta
