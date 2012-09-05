@@ -20,3 +20,5 @@ Proceedings of CAV'01.  LNCS 2102
 rv
 K. Rozier and M. Vardi: LTL Satisfiability Checking.
 Proceedings of Spin'07.  LNCS 4595.
+[SEE ALSO]
+randltl(1)

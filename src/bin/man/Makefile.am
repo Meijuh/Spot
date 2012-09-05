@@ -24,14 +24,17 @@ x_to_1 = $(top_builddir)/tools/x-to-1
 convman = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
           "$(PERL)" "$(top_srcdir)/tools/help2man -N"
 
-dist_man1_MANS = ltlfilt.1 genltl.1
+dist_man1_MANS = ltlfilt.1 genltl.1 randltl.1
 MAINTAINERCLEANFILES = $(dist_man1_MANS)
-man_aux = $(dist_man1_MANS:.1=.x)
+EXTRA_DIST = $(dist_man1_MANS:.1=.x)
 
 ltlfilt.1: $(common_dep) $(srcdir)/ltlfilt.x $(srcdir)/../ltlfilt.cc
 	$(convman) ../ltlfilt$(EXEEXT) $(srcdir)/ltlfilt.x $@
 
 genltl.1: $(common_dep) $(srcdir)/genltl.x $(srcdir)/../genltl.cc
 	$(convman) ../genltl$(EXEEXT) $(srcdir)/genltl.x $@
+
+randltl.1: $(common_dep) $(srcdir)/randltl.x $(srcdir)/../randltl.cc
+	$(convman) ../randltl$(EXEEXT) $(srcdir)/randltl.x $@
 
 

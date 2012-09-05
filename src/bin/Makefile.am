@@ -26,9 +26,10 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(BUDDY_CPPFLAGS) \
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD = $(top_builddir)/src/libspot.la $(top_builddir)/lib/libgnu.a
 
-bin_PROGRAMS = ltlfilt genltl
+bin_PROGRAMS = ltlfilt genltl randltl
 
-noinst_HEADERS = common_output.hh
+noinst_HEADERS = common_output.hh common_range.hh
 
 ltlfilt_SOURCES = ltlfilt.cc common_output.cc
-genltl_SOURCES = genltl.cc common_output.cc
+genltl_SOURCES = genltl.cc common_output.cc common_range.cc
+randltl_SOURCES = randltl.cc common_output.cc common_range.cc

@@ -81,6 +81,7 @@
 #include <vector>
 
 #include "common_output.hh"
+#include "common_range.hh"
 
 #include "misc/_config.h"
 #include <cassert>
@@ -178,10 +179,7 @@ static const argp_option options[] =
     { "u-right", OPT_U_RIGHT, "RANGE", 0, "(p1 U (p2 U (... U pn)))", 0 },
     OPT_ALIAS(gh-u2),
     OPT_ALIAS(go-phi),
-    { 0, 0, 0, 0, "RANGE may have one of the following forms: 'INT', "
-      "'INT..INT', or '..INT'.\nIn the latter case, the missing number "
-      "is assumed to be 1.", 0 },
-
+    RANGE_DOC,
   /**************************************************/
     { 0, 0, 0, 0, "Output options:", -20 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
@@ -191,8 +189,7 @@ static const argp_option options[] =
 struct job
 {
   int pattern;
-  int range_min;
-  int range_max;
+  struct range range;
 };
 
 typedef std::vector<job> jobs_t;
@@ -211,53 +208,16 @@ const struct argp_child children[] =
 //   char* endptr;
 //   int res = strtol(s, &endptr, 10);
 //   if (*endptr)
-//     error(1, 0, "failed to parse '%s' as an integer.", s);
+//     error(2, 0, "failed to parse '%s' as an integer.", s);
 //   return res;
 // }
 
 static void
-enqueue_job(int pattern, const char* range)
+enqueue_job(int pattern, const char* range_str)
 {
   job j;
   j.pattern = pattern;
-
-  // Parse the range; it should have the form INT..INT or INT:INT
-
-  char* end;
-  j.range_min = strtol(range, &end, 10);
-  if (end == range)
-    {
-      // No leading number.  It's OK as long as the string is not
-      // empty.
-      if (!*end)
-	error(1, 0, "invalid empty range");
-      j.range_min = 1;
-    }
-  if (!*end)
-    {
-      // Only one number.
-      j.range_max = j.range_min;
-    }
-  else
-    {
-      // Skip : or ..
-      if (end[0] == ':')
-	++end;
-      else if (end[0] == '.' && end[1] == '.')
-	end += 2;
-
-      // Parse the next integer.
-      char* end2;
-      j.range_max = strtol(end, &end2, 10);
-      if (end == end2)
-	error(1, 0, "invalid range '%s' (missing end?)", range);
-      if (*end2)
-	error(1, 0, "invalid range '%s' (trailing garbage?)", range);
-    }
-
-  if (j.range_min < 0 || j.range_max < 0)
-    error(1, 0, "invalid range '%s': values must be positive", range);
-
+  j.range = parse_range(range_str);
   jobs.push_back(j);
 }
 
@@ -872,12 +832,12 @@ run_jobs()
   jobs_t::const_iterator i;
   for (i = jobs.begin(); i != jobs.end(); ++i)
     {
-      int inc = (i->range_max < i->range_min) ? -1 : 1;
-      int n = i->range_min;
+      int inc = (i->range.max < i->range.min) ? -1 : 1;
+      int n = i->range.min;
       for (;;)
 	{
 	  output_pattern(i->pattern, n);
-	  if (n == i->range_max)
+	  if (n == i->range.max)
 	    break;
 	  n += inc;
 	}
