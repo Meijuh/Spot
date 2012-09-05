@@ -50,6 +50,8 @@ namespace spot
     /// \return A pointer to the supplied set, \c s, augmented with
     ///        atomic propositions occurring in \c f; or a newly allocated
     ///        set containing all these atomic propositions if \c s is 0.
+    ///        The atomic propositions inserted into \a s are not cloned, so
+    ///        they are only valid as long as \a f is.
     atomic_prop_set*
     atomic_prop_collect(const formula* f, atomic_prop_set* s = 0);
 
