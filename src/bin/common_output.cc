@@ -21,6 +21,7 @@
 
 #include "common_output.hh"
 #include <iostream>
+#include "ltlvisit/tostring.hh"
 
 #define OPT_SPOT 1
 

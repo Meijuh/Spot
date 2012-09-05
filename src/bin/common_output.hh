@@ -27,7 +27,7 @@
 #endif
 
 #include <argp.h>
-#include "ltlvisit/tostring.hh"
+#include "ltlast/formula.hh"
 
 enum output_format_t { spot_output, spin_output, utf8_output };
 extern output_format_t output_format;
