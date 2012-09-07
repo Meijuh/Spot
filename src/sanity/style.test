@@ -121,7 +121,7 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
       grep '! ' $tmp &&
 	diag 'No space after unary operators (!).'
 
-      grep ",[^ \t\"%']" $tmp &&
+      grep ",[^ \"	%'\\\\]" $tmp &&
 	diag 'Space after coma.'
 
       # The 'r' allows operator&&

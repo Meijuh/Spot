@@ -668,7 +668,7 @@ namespace spot
   class tgba_explicit: public explicit_graph<State, tgba>
   {
   public:
-    tgba_explicit(bdd_dict* dict): explicit_graph<State,tgba>(dict)
+    tgba_explicit(bdd_dict* dict): explicit_graph<State, tgba>(dict)
     {
     }
 
