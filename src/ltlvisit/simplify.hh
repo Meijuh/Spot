@@ -73,7 +73,7 @@ namespace spot
     {
     public:
       ltl_simplifier(bdd_dict* dict = 0);
-      ltl_simplifier(ltl_simplifier_options& opt, bdd_dict* dict = 0);
+      ltl_simplifier(const ltl_simplifier_options& opt, bdd_dict* dict = 0);
       ~ltl_simplifier();
 
       /// Simplify the formula \a f (using options supplied to the

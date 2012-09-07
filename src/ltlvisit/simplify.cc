@@ -115,10 +115,10 @@ namespace spot
       {
       }
 
-      ltl_simplifier_cache(bdd_dict* d, ltl_simplifier_options opt)
+      ltl_simplifier_cache(bdd_dict* d, const ltl_simplifier_options& opt)
 	: dict(d), options(opt), lcc(d, true, true, false, false)
       {
-	opt.containment_checks |= opt.containment_checks_stronger;
+	options.containment_checks |= options.containment_checks_stronger;
       }
 
       void
@@ -4199,7 +4199,8 @@ namespace spot
       cache_ = new ltl_simplifier_cache(d);
     }
 
-    ltl_simplifier::ltl_simplifier(ltl_simplifier_options& opt, bdd_dict* d)
+    ltl_simplifier::ltl_simplifier(const ltl_simplifier_options& opt,
+				   bdd_dict* d)
     {
       if (!d)
 	{
