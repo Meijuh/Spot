@@ -35,6 +35,21 @@ New in spot 0.9.2a:
     minimization it cases it would produce a deterministic automaton
     that is bigger than the original TGBA.  So this effectively
     gives the choice between less states or more determinism.
+  * Useful command-line tools are now installed in addition
+    to the library.  Some of these tools were originally written
+    for our test suite and had evolved organically into useful
+    programs with crapy interface: they have now been rewritten
+    with better argument parsing, saner defaults, and come with
+    man pages.
+    - genltl: generate LTL formulas from scallable patterns
+              This offers 20 patterns so far.
+    - randltl: generate random LTL/PSL formulas
+    - ltlfilt: filter lists of formulas according to several criteria
+               (e.g., match only safety formulas that are larger than
+	       some given size).  Besides being used as a "grep" tool
+	       for formulas, this can also be used to convert
+	       files of formulas between different syntaxes, and apply
+	       some simplifications.
 
 New in spot 0.9.2 (2012-07-02):
 
