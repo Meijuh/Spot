@@ -24,12 +24,18 @@ SUBDIRS = . man
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(BUDDY_CPPFLAGS) \
               -I$(top_builddir)/lib -I$(top_srcdir)/lib
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
-LDADD = $(top_builddir)/src/libspot.la $(top_builddir)/lib/libgnu.a
+LDADD = libcommon.a $(top_builddir)/lib/libgnu.a ../libspot.la
+
+noinst_LIBRARIES = libcommon.a
+libcommon_a_SOURCES = 				\
+  common_output.cc 				\
+  common_output.hh 				\
+  common_range.cc				\
+  common_range.hh 				\
+  common_r.cc					\
+  common_r.hh
 
 bin_PROGRAMS = ltlfilt genltl randltl
-
-noinst_HEADERS = common_output.hh common_range.hh common_r.hh
-
-ltlfilt_SOURCES = ltlfilt.cc common_output.cc common_r.cc
-genltl_SOURCES = genltl.cc common_output.cc common_range.cc
-randltl_SOURCES = randltl.cc common_output.cc common_range.cc common_r.cc
+ltlfilt_SOURCES = ltlfilt.cc
+genltl_SOURCES = genltl.cc
+randltl_SOURCES = randltl.cc
