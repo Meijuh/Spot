@@ -111,8 +111,6 @@ AC_CONFIG_FILES([
   bench/Makefile
   bench/emptchk/Makefile
   bench/emptchk/defs
-  bench/gspn-ssp/Makefile
-  bench/gspn-ssp/defs
   bench/ltlcounter/Makefile
   bench/ltlcounter/defs
   bench/ltlclasses/Makefile

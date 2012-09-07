@@ -1,5 +1,5 @@
-## Copyright (C) 2008, 2009, 2010 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## Copyright (C) 2008, 2009, 2010, 2012 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ## Copyright (C) 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -21,5 +21,5 @@
 ## Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 ## 02111-1307, USA.
 
-SUBDIRS = emptchk gspn-ssp ltl2tgba scc-stats split-product ltlcounter	\
+SUBDIRS = emptchk ltl2tgba scc-stats split-product ltlcounter	\
           ltlclasses wdba
