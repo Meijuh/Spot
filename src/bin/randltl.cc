@@ -80,6 +80,7 @@ of X to occur by 10.\n\
 #define OPT_SEED 6
 #define OPT_TREE_SIZE 7
 #define OPT_WF 8
+#define OPT_DUPS 9
 
 static const argp_option options[] =
   {
@@ -101,7 +102,8 @@ static const argp_option options[] =
     { "tree-size", OPT_TREE_SIZE, "RANGE", 0,
       "tree size of the formulas generated, before mandatory "\
       "trivial simplifications (15)", 0 },
-    { "unique", 'u', 0, 0, "do not generate duplicate formulas", 0 },
+    { "allow-dups", OPT_DUPS, 0, 0,
+      "allow duplicate formulas to be output", 0 },
     DECLARE_OPT_R,
     RANGE_DOC,
     LEVEL_DOC(3),
@@ -141,7 +143,7 @@ static bool opt_dump_priorities = false;
 static int opt_formulas = 1;
 static int opt_seed = 0;
 static range opt_tree_size = { 15, 15 };
-static bool opt_unique = false;
+static bool opt_unique = true;
 static bool opt_wf = false;
 
 void
@@ -212,11 +214,11 @@ parse_opt(int key, char* arg, struct argp_state*)
     case 'S':
       output = OutputSERE;
       break;
-    case 'u':
-      opt_unique = true;
-      break;
     case OPT_BOOLEAN_PRIORITIES:
       opt_pB = arg;
+      break;
+    case OPT_DUPS:
+      opt_unique = false;
       break;
     case OPT_LTL_PRIORITIES:
       opt_pL = arg;
