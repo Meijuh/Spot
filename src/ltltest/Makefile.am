@@ -46,12 +46,10 @@ check_PROGRAMS = \
   tunenoform
 
 noinst_PROGRAMS = \
-  genltl \
   randltl
 
 consterm_SOURCES = consterm.cc
 equals_SOURCES = equals.cc
-genltl_SOURCES = genltl.cc
 kind_SOURCES = kind.cc
 length_SOURCES = length.cc
 ltl2dot_SOURCES = readltl.cc

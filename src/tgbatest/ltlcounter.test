@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement de
-# l'EPITA (LRDE)
+# Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+# Développement de l'EPITA (LRDE)
 #
 # This file is part of Spot, a model checking library.
 #
@@ -26,8 +26,7 @@
 set -e
 
 pwd
-lcdir=../../ltltest
-lc="$lcdir/genltl"
+lc="../../bin/genltl"
 
 run='run 0'
 
@@ -48,21 +47,16 @@ check_formula()
 # so the translation of the formula stopped midway, on a formula it
 # thought it had already seen.
 
-for n in 1 2 3 4 5 6 7 8 9 10 11
-do
-  :;:;: "========== $n counters ==========" ;:;:  # only visible with "set -x"
-  f=`"$lc" 17 $n`
-  check_formula "$f"
-  f=`"$lc" 18 $n`
-  check_formula "$f"
-  f=`"$lc" 19 $n`
-  check_formula "$f"
-  f=`"$lc" 20 $n`
-  check_formula "$f"
+check_range()
+{
+  "$lc" --rv-counter $1 --rv-counter-linear $1 \
+        --rv-counter-carry $1 --rv-counter-carry-linear $1 |
+  while read line; do
+    check_formula "$line"
+  done
+}
 
-  # Only run the first two formulae under valgrind,
-  # it is too slow otherwise.
-  if test $n = 2; then
-     run=
-  fi
-done
+check_range 1..2
+# Do not run the larger formulae with valgrind, it is too slow
+run=
+check_range 3..11

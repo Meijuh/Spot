@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement de
-# l'EPITA (LRDE)
+# Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+# Développement de l'EPITA (LRDE)
 #
 # This file is part of Spot, a model checking library.
 #
@@ -22,7 +22,7 @@
 
 . ./defs
 
-lcdir=../../src/ltltest
+gen=../../src/bin/genltl
 
 echo "# Benching ltl2tgba_fm..."
 echo "# the following values are also saved to file 'results.fm'"
@@ -30,7 +30,7 @@ echo "# time1 = translation time"
 echo "# time2 = exploration time"
 echo "# n, states, transitions, user time1, system time1, wall time1, user time1, system time2, wall time2"
 for n in 1 2 3 4 5 6 7 8 9 10 11 12 13; do
-  $LTL2TGBA -T -ks -f "`$lcdir/genltl 18 $n`" >out 2>&1
+  $LTL2TGBA -T -ks -f "`$gen --rv-counter-linear $n`" >out 2>&1
   states=`sed -n 's/^states: \([0-9]*\)$/\1/p' out`
   transitions=`sed -n 's/^transitions: \([0-9]*\)$/\1/p' out`
   time=`sed -n 's/ *translating formula *| *\([0-9]*\) .*| *\([0-9]*\) .*| *\([0-9]*\) .*|.*/\1,\2,\3/p' out`
@@ -44,7 +44,7 @@ echo "# time1 = translation time"
 echo "# time2 = exploration time"
 echo "# n, states, transitions, user time1, system time1, wall time1, user time1, system time2, wall time2"
 for n in 1 2 3 4 5 6 7; do
-  $LTL2TGBA -T -ks "`$lcdir/genltl 18 $n`" >out 2>&1
+  $LTL2TGBA -T -ks -l "`$gen --rv-counter-linear $n`" >out 2>&1
   states=`sed -n 's/^states: \([0-9]*\)$/\1/p' out`
   transitions=`sed -n 's/^transitions: \([0-9]*\)$/\1/p' out`
   time=`sed -n 's/ *translating formula *| *\([0-9]*\) .*| *\([0-9]*\) .*| *\([0-9]*\) .*|.*/\1,\2,\3/p' out`
