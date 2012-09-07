@@ -32,6 +32,7 @@
 
 #include "common_output.hh"
 #include "common_range.hh"
+#include "common_r.hh"
 
 #include "misc/_config.h"
 #include <sstream>
@@ -95,9 +96,11 @@ static const argp_option options[] =
       "tree size of the formulas generated, before mandatory "\
       "trivial simplifications (15)", 0 },
     { "unique", 'u', 0, 0, "do not generate duplicate formulas", 0 },
+    DECLARE_OPT_R,
     RANGE_DOC,
+    LEVEL_DOC(3),
     /**************************************************/
-    { 0, 0, 0, 0, "Adjusting probabilities:", 3 },
+    { 0, 0, 0, 0, "Adjusting probabilities:", 4 },
     { "dump-priorities", OPT_DUMP_PRIORITIES, 0, 0,
       "show current priorities, do not generate any formula", 0 },
     { "ltl-priorities", OPT_LTL_PRIORITIES, "STRING", 0,
@@ -161,6 +164,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'P':
       output = OutputPSL;
+      break;
+    case OPT_R:
+      parse_r(arg);
       break;
     case 'S':
       output = OutputSERE;
@@ -304,6 +310,8 @@ main(int argc, char** argv)
 
   fset_t unique_set;
 
+  spot::ltl::ltl_simplifier simpl(simplifier_options());
+
   while (opt_formulas < 0 || opt_formulas--)
     {
 #define MAX_TRIALS 100000
@@ -318,6 +326,12 @@ main(int argc, char** argv)
 	  if (size != opt_tree_size.max)
 	    size = spot::rrand(size, opt_tree_size.max);
 	  f = rf->generate(size);
+	  if (simplification_level)
+	    {
+	      const spot::ltl::formula* tmp = simpl.simplify(f);
+	      f->destroy();
+	      f = tmp;
+	    }
 	  if (opt_unique)
 	    {
 	      if (unique_set.insert(f).second)

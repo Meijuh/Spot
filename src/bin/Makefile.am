@@ -28,8 +28,8 @@ LDADD = $(top_builddir)/src/libspot.la $(top_builddir)/lib/libgnu.a
 
 bin_PROGRAMS = ltlfilt genltl randltl
 
-noinst_HEADERS = common_output.hh common_range.hh
+noinst_HEADERS = common_output.hh common_range.hh common_r.hh
 
-ltlfilt_SOURCES = ltlfilt.cc common_output.cc
+ltlfilt_SOURCES = ltlfilt.cc common_output.cc common_r.cc
 genltl_SOURCES = genltl.cc common_output.cc common_range.cc
-randltl_SOURCES = randltl.cc common_output.cc common_range.cc
+randltl_SOURCES = randltl.cc common_output.cc common_range.cc common_r.cc

@@ -33,6 +33,7 @@
 #include "error.h"
 
 #include "common_output.hh"
+#include "common_r.hh"
 
 #include "misc/_config.h"
 #include "misc/hash.hh"
@@ -104,17 +105,8 @@ static const argp_option options[] =
     { 0, 0, 0, 0, "Transformation options:", 3 },
     { "negate", 'n', 0, 0, "negate each formula", 0 },
     { "nnf", OPT_NNF, 0, 0, "rewrite formulas in negative normal form", 0 },
-    { "simplify", 'r', "LEVEL", OPTION_ARG_OPTIONAL,
-      "simplify formulas according to LEVEL (see below)", 0 },
-    { 0, 0, 0, 0, "  The simplification LEVEL might be one of:", 4 },
-    { "  0", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "No rewriting", 0 },
-    { "  1", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "basic rewritings and eventual/universal rules", 0 },
-    { "  2", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "additional syntactic implication rules", 0 },
-    { "  3", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "better implications using containment (default)", 0 },
+    DECLARE_OPT_R,
+    LEVEL_DOC(4),
     /**************************************************/
     { 0, 0, 0, 0,
       "Filtering options (matching is done after transformation):", 5 },
@@ -190,7 +182,6 @@ static error_style_t error_style = drop_errors;
 static bool quiet = false;
 static bool nnf = false;
 static bool negate = false;
-static int level = 0;
 static bool unique = false;
 static bool psl = false;
 static bool ltl = false;
@@ -257,26 +248,8 @@ parse_opt(int key, char* arg, struct argp_state*)
     case 'q':
       quiet = true;
       break;
-    case 'r':
-      if (!arg)
-	{
-	  level = 3;
-	  break;
-	}
-      else
-	{
-	  if (arg[1] == 0)
-	    switch (arg[0])
-	      {
-	      case '0':
-	      case '1':
-	      case '2':
-	      case '3':
-		level = arg[0] = '0';
-		return 0;
-	      }
-	  error(2, 0, "invalid simplification level '%s'",  arg);
-	}
+    case OPT_R:
+      parse_r(arg);
       break;
     case 'u':
       unique = true;
@@ -419,7 +392,7 @@ namespace
       if (negate)
 	f = spot::ltl::unop::instance(spot::ltl::unop::Not, f);
 
-      if (level)
+      if (simplification_level)
 	{
 	  const spot::ltl::formula* res = simpl.simplify(f);
 	  f->destroy();
@@ -538,26 +511,7 @@ namespace
 static int
 run_jobs()
 {
-  spot::ltl::ltl_simplifier_options options;
-
-  switch (level)
-    {
-    case 3:
-      options.containment_checks = true;
-      options.containment_checks_stronger = true;
-      // fall through
-    case 2:
-      options.synt_impl = true;
-      // fall through
-    case 1:
-      options.reduce_basics = true;
-      options.event_univ = true;
-      // fall through
-    default:
-      break;
-    }
-
-  spot::ltl::ltl_simplifier simpl(options);
+  spot::ltl::ltl_simplifier simpl(simplifier_options());
   ltl_processor processor(simpl);
 
   int error = 0;
