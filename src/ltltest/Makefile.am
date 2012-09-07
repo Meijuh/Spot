@@ -45,9 +45,6 @@ check_PROGRAMS = \
   tunabbrev \
   tunenoform
 
-noinst_PROGRAMS = \
-  randltl
-
 consterm_SOURCES = consterm.cc
 equals_SOURCES = equals.cc
 kind_SOURCES = kind.cc
@@ -59,7 +56,6 @@ lunabbrev_SOURCES = equals.cc
 lunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DLUNABBREV
 nenoform_SOURCES = equals.cc
 nenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM
-randltl_SOURCES = randltl.cc
 reduc_SOURCES = reduc.cc
 reduccmp_SOURCES = equals.cc
 reduccmp_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC
