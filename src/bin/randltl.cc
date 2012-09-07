@@ -27,6 +27,7 @@
 #include <fstream>
 #include <argp.h>
 #include <cstdlib>
+#include <iterator>
 #include "progname.h"
 #include "error.h"
 
@@ -37,6 +38,8 @@
 #include "misc/_config.h"
 #include <sstream>
 #include "ltlast/atomic_prop.hh"
+#include "ltlast/multop.hh"
+#include "ltlast/unop.hh"
 #include "ltlvisit/randomltl.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/length.hh"
@@ -76,6 +79,7 @@ of X to occur by 10.\n\
 #define OPT_BOOLEAN_PRIORITIES 5
 #define OPT_SEED 6
 #define OPT_TREE_SIZE 7
+#define OPT_WF 8
 
 static const argp_option options[] =
   {
@@ -88,6 +92,8 @@ static const argp_option options[] =
     { "psl", 'P', 0, 0, "generate PSL formulas", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Generation:", 2 },
+    { "weak-fairness", OPT_WF, 0, 0,
+      "append some weak-fairness conditions", 0 },
     { "formulas", 'n', "INT", 0, "number of formulas to output (1)\n"\
       "use a negative value for unbounded generation", 0 },
     { "seed", OPT_SEED, "INT", 0,
@@ -136,6 +142,41 @@ static int opt_formulas = 1;
 static int opt_seed = 0;
 static range opt_tree_size = { 15, 15 };
 static bool opt_unique = false;
+static bool opt_wf = false;
+
+void
+remove_some_props(spot::ltl::atomic_prop_set& s)
+{
+  // How many propositions to remove from s?
+  // (We keep at least one.)
+  size_t n = spot::mrand(s.size());
+
+  while (n--)
+    {
+      spot::ltl::atomic_prop_set::iterator i = s.begin();
+      std::advance(i, spot::mrand(s.size()));
+      s.erase(i);
+    }
+}
+
+// GF(p_1) & GF(p_2) & ... & GF(p_n)
+const spot::ltl::formula*
+GF_n(spot::ltl::atomic_prop_set& ap)
+{
+  const spot::ltl::formula* res = 0;
+  spot::ltl::atomic_prop_set::const_iterator i;
+  for (i = ap.begin(); i != ap.end(); ++i)
+    {
+      const spot::ltl::formula* f =
+	spot::ltl::unop::instance(spot::ltl::unop::F, (*i)->clone());
+      f = spot::ltl::unop::instance(spot::ltl::unop::G, f);
+      if (res)
+        res = spot::ltl::multop::instance(spot::ltl::multop::And, f, res);
+      else
+        res = f;
+    }
+  return res;
+}
 
 static int
 to_int(const char* s)
@@ -194,6 +235,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_tree_size = parse_range(arg);
       if (opt_tree_size.min > opt_tree_size.max)
 	std::swap(opt_tree_size.min, opt_tree_size.max);
+      break;
+    case OPT_WF:
+      opt_wf = true;
       break;
     case ARGP_KEY_ARG:
       aprops.insert(static_cast<const spot::ltl::atomic_prop*>
@@ -326,6 +370,15 @@ main(int argc, char** argv)
 	  if (size != opt_tree_size.max)
 	    size = spot::rrand(size, opt_tree_size.max);
 	  f = rf->generate(size);
+
+	  if (opt_wf)
+	    {
+	      spot::ltl::atomic_prop_set s = aprops;
+	      remove_some_props(s);
+	      f = spot::ltl::multop::instance(spot::ltl::multop::And,
+					      f, GF_n(s));
+	    }
+
 	  if (simplification_level)
 	    {
 	      const spot::ltl::formula* tmp = simpl.simplify(f);
