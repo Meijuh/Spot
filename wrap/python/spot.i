@@ -108,6 +108,7 @@ namespace std {
 #include "tgbaalgos/safety.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/stats.hh"
+#include "tgbaalgos/isdet.hh"
 #include "tgbaalgos/simulation.hh"
 
 #include "tgbaparse/public.hh"
@@ -272,6 +273,7 @@ using namespace spot;
 %include "tgbaalgos/safety.hh"
 %include "tgbaalgos/sccfilter.hh"
 %include "tgbaalgos/stats.hh"
+%include "tgbaalgos/isdet.hh"
 %include "tgbaalgos/simulation.hh"
 
 %include "tgbaparse/public.hh"

@@ -63,6 +63,7 @@
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/emptiness_stats.hh"
 #include "tgbaalgos/scc.hh"
+#include "tgbaalgos/isdet.hh"
 #include "kripkeparse/public.hh"
 #include "tgbaalgos/simulation.hh"
 
@@ -1367,6 +1368,8 @@ main(int argc, char** argv)
 	      break;
 	    case 13:
 	      sub_stats_reachable(a).dump(std::cout);
+	      std::cout << "nondeterministic states: "
+			<< count_nondet_states(a) << std::endl;
 	      break;
 	    case 14:
 	      if (minimized == 0)

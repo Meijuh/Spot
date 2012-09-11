@@ -300,11 +300,17 @@ def render_formula(f):
     spot.dotty(dotsrc, f)
     render_dot_maybe(dotsrc.str(), False)
 
-def print_stats(automaton):
+def print_stats(automaton, detinfo = False):
     stats = spot.stats_reachable(automaton)
     unbufprint("<p>%d state" % stats.states)
     if stats.states > 1:
         unbufprint("s")
+    if detinfo:
+        nondet = spot.count_nondet_states(automaton)
+        if nondet == 0:
+            unbufprint(" (deterministic)")
+        else:
+            unbufprint(" (%d nondeterministic)" % nondet)
     unbufprint(", %d transition" % stats.transitions)
     if stats.transitions > 1:
         unbufprint("s")
@@ -314,8 +320,8 @@ def print_stats(automaton):
             unbufprint(", %d acceptance condition" % count)
             if count > 1:
                 unbufprint("s")
-                acc = automaton.all_acceptance_conditions()
-                unbufprint(": " + spot.bdd_format_accset(automaton.get_dict(), acc))
+            acc = automaton.all_acceptance_conditions()
+            unbufprint(": " + spot.bdd_format_accset(automaton.get_dict(), acc))
         else:
             unbufprint(", no acceptance condition (all cycles are accepting)")
     unbufprint("</p>\n")
@@ -674,7 +680,7 @@ if output_type == 'a':
         unbufprint('<div class="neverclaim">%s</div>' % cgi.escape(s.str()))
         del s
     else: # 't' or 's'
-        dont_run_dot = print_stats(degen)
+        dont_run_dot = print_stats(degen, True)
         render_automaton(degen, dont_run_dot, issba)
     degen = 0
     automaton = 0
