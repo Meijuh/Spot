@@ -36,7 +36,8 @@ libcommon_a_SOURCES =				\
   common_r.hh					\
   common_sys.hh
 
-bin_PROGRAMS = ltlfilt genltl randltl
+bin_PROGRAMS = ltlfilt genltl randltl ltl2tgba
 ltlfilt_SOURCES = ltlfilt.cc
 genltl_SOURCES = genltl.cc
 randltl_SOURCES = randltl.cc
+ltl2tgba_SOURCES = ltl2tgba.cc

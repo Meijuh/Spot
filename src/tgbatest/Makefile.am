@@ -106,6 +106,7 @@ TESTS = \
   emptchkr.test \
   ltlcounter.test \
   spotlbtt.test \
+  spotlbtt2.test \
   complementation.test \
   randpsl.test
 

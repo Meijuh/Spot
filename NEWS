@@ -54,6 +54,10 @@ New in spot 0.9.2a:
 	       files of formulas between different syntaxes, apply
 	       some simplifications, check whether to formulas are
 	       equivalent, ...
+    - ltl2tgba translate LTL/PSL formulas into Büchi automata.  A
+               fondamental change to the interface is that you may
+	       now specify the goal of the translation: do you
+	       you favor deterministic or smaller automata?
 
 New in spot 0.9.2 (2012-07-02):
 

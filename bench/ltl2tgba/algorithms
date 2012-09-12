@@ -77,100 +77,21 @@ Algorithm
    Path = "$LTL2NBA"
    Enabled = $HAVE_LTL2NBA
 }
+EOF
 
+
+for type in tgba ba; do
+  for pref in any deterministic small; do
+    for level in high; do
+       cat >>$conffile <<EOF
 Algorithm
 {
-   Name = "Spot FM (degen)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM det. (degen)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM Sim (degen)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -RIS -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM WDBA (degen)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -Rm -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM WDBA+Sim (degen)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spin '$LTL2TGBA -f -N -R3 -r7 -x -Rm -RIS -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM (TGBA)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spot '$LTL2TGBA -f -t -R3f -r7 -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM det. (TGBA)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spot '$LTL2TGBA -f -t -R3f -r7 -x -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM Sim (TGBA)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -RIS -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM WDBA (TGBA)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spot '$LTL2TGBA -f -t -R3f -r7 -x -Rm -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM WDBA* (TGBA)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spot '$LTL2TGBA -f -t -R3f -r7 -x -RM -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM WDBA+ISim (TGBA)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -Rm -RIS -F'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot FM WDBA*+ISim (TGBA)"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spot '$LTL2TGBA -f -t -R3 -r7 -x -RM -RIS -F'"
+   Name = "Spot ($type $pref $level)"
+   Path = "${LBTT_TRANSLATE}"
+   Parameters = "--spot '$LTL2TGBA --$type --$pref --$level --lbtt -F'"
    Enabled = yes
 }
 EOF
+    done
+  done
+done

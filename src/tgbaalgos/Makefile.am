@@ -48,6 +48,7 @@ tgbaalgos_HEADERS = \
   magic.hh \
   minimize.hh \
   neverclaim.hh \
+  postproc.hh \
   powerset.hh \
   projrun.hh \
   randomgraph.hh \
@@ -87,6 +88,7 @@ libtgbaalgos_la_SOURCES = \
   minimize.cc \
   ndfs_result.hxx \
   neverclaim.cc \
+  postproc.cc \
   powerset.cc \
   projrun.cc \
   randomgraph.cc \

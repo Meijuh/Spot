@@ -97,30 +97,6 @@ Algorithm
 
 Algorithm
 {
-   Name = "Spot (Couvreur -- FM), basic reduction of formula"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r1 -F -f -t'"
-   Enabled = no
-}
-
-Algorithm
-{
-   Name = "Spot (Couvreur -- FM), reduction of formula using class of formula"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r2 -F -f -t'"
-   Enabled = no
-}
-
-Algorithm
-{
-   Name = "Spot (Couvreur -- FM), reduction of formula using implies relation"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r3 -F -f -t'"
-   Enabled = no
-}
-
-Algorithm
-{
    Name = "Spot (Couvreur -- FM), reduction of formula (pre reduction)"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -r4 -F -f -t'"
@@ -249,36 +225,11 @@ Algorithm
 }
 
 
-
 Algorithm
 {
    Name = "Spot (Couvreur -- FM), degeneralized on states"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -F -f -t -DS'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot (Couvreur -- FM exprop)"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -x -t'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot (Couvreur -- FM exprop), without symb_merge"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -x -y -t'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot (Couvreur -- FM exprop), degeneralized"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -x -t -D'"
    Enabled = yes
 }
 
@@ -316,14 +267,6 @@ Algorithm
 
 Algorithm
 {
-   Name = "Spot (Couvreur -- FM), pre + post reduction, degeneralized on states"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -DS -R3 -r7 -t'"
-   Enabled = yes
-}
-
-Algorithm
-{
    Name = "Spot (Tauriainen -- TAA)"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -F -taa -t'"
@@ -338,21 +281,6 @@ Algorithm
    Enabled = yes
 }
 
-Algorithm
-{
-   Name = "Spot (Tauriainen -- TAA), refined rules + post reduction with scc"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -taa -t -c -R3'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot (Tauriainen -- TAA) refined rules + pre + post reduction"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -taa -t -c -r7 -R3'"
-   Enabled = no
-}
 
 GlobalOptions
 {
