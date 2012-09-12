@@ -28,6 +28,7 @@ cat >expected <<EOF
 sub trans.: 16
 transitions: 8
 states: 4
+nondeterministic states: 0
 EOF
 
 # These two equivalent formulae used to produce
