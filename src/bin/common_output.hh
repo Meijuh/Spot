@@ -22,9 +22,7 @@
 #ifndef SPOT_BIN_COMMON_OUTPUT_HH
 #define SPOT_BIN_COMMON_OUTPUT_HH
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "common_sys.hh"
 
 #include <argp.h>
 #include "ltlast/formula.hh"

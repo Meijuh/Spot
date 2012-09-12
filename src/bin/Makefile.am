@@ -27,13 +27,14 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD = libcommon.a $(top_builddir)/lib/libgnu.a ../libspot.la
 
 noinst_LIBRARIES = libcommon.a
-libcommon_a_SOURCES = 				\
-  common_output.cc 				\
-  common_output.hh 				\
+libcommon_a_SOURCES =				\
+  common_output.cc				\
+  common_output.hh				\
   common_range.cc				\
-  common_range.hh 				\
+  common_range.hh				\
   common_r.cc					\
-  common_r.hh
+  common_r.hh					\
+  common_sys.hh
 
 bin_PROGRAMS = ltlfilt genltl randltl
 ltlfilt_SOURCES = ltlfilt.cc

@@ -19,47 +19,11 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
-#include "common_sys.hh"
-#include "error.h"
-#include "common_r.hh"
+#ifndef SPOT_BIN_COMMON_SYS_HH
+#define SPOT_BIN_COMMON_SYS_HH
 
-int simplification_level = 0;
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
-void
-parse_r(const char* arg)
-{
-  if (!arg)
-    {
-      simplification_level = 3;
-      return;
-    }
-  if (arg[1] == 0 && arg[0] >= '0' && arg[0] <= '3')
-    {
-      simplification_level = arg[0] - '0';
-      return;
-    }
-  error(2, 0, "invalid simplification level '%s'",  arg);
-}
-
-spot::ltl::ltl_simplifier_options
-simplifier_options()
-{
-  spot::ltl::ltl_simplifier_options options;
-  switch (simplification_level)
-    {
-    case 3:
-      options.containment_checks = true;
-      options.containment_checks_stronger = true;
-      // fall through
-    case 2:
-      options.synt_impl = true;
-      // fall through
-    case 1:
-      options.reduce_basics = true;
-      options.event_univ = true;
-      // fall through
-    default:
-      break;
-    }
-  return options;
-}
+#endif // SPOT_BIN_COMMON_SYS_HH
