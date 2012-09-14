@@ -31,6 +31,7 @@
 #include "error.h"
 
 #include "common_r.hh"
+#include "common_cout.hh"
 
 #include "misc/_config.h"
 #include "ltlparse/public.hh"
@@ -246,8 +247,8 @@ namespace
 	  spot::never_claim_reachable(std::cout, aut, f);
 	  break;
 	}
-
       delete aut;
+      flush_cout();
       return 0;
     }
 

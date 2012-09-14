@@ -31,6 +31,7 @@
 #include "error.h"
 
 #include "common_output.hh"
+#include "common_cout.hh"
 #include "common_r.hh"
 
 #include "misc/_config.h"
@@ -384,6 +385,7 @@ namespace
 	      std::cout << input << std::endl;
 	    else
 	      assert(error_style == drop_errors);
+	    check_cout();
 	    return !quiet;
 	  }
 
@@ -474,7 +476,6 @@ namespace
 	  one_match = true;
 	  output_formula(f);
 	}
-
       f->destroy();
       return 0;
     }
@@ -512,16 +513,16 @@ run_jobs()
   spot::ltl::ltl_simplifier simpl(simplifier_options());
   ltl_processor processor(simpl);
 
-  int error = 0;
+  int nerror = 0;
   jobs_t::const_iterator i;
   for (i = jobs.begin(); i != jobs.end(); ++i)
     {
       if (!i->file_p)
-	error |= processor.process_formula(i->str);
+	nerror |= processor.process_formula(i->str);
       else
-	error |= processor.process_file(i->str);
+	nerror |= processor.process_file(i->str);
     }
-  if (error)
+  if (nerror)
     return 2;
   return one_match ? 0 : 1;
 }

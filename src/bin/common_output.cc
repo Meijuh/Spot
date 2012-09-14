@@ -22,6 +22,7 @@
 #include "common_output.hh"
 #include <iostream>
 #include "ltlvisit/tostring.hh"
+#include "common_cout.hh"
 
 #define OPT_SPOT 1
 
@@ -79,5 +80,8 @@ output_formula(const spot::ltl::formula* f)
       spot::ltl::to_utf8_string(f, std::cout, full_parenth);
       break;
     }
-  std::cout << "\n";
+  // Make sure we abort if we can't write to std::cout anymore
+  // (like disk full or broken pipe with SIGPIPE ignored).
+  std::cout << std::endl;
+  check_cout();
 }
