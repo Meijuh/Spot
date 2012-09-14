@@ -19,10 +19,13 @@
 // Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
 // 02111-1307, USA.
 
+#include "common_sys.hh"
 #include "common_output.hh"
 #include <iostream>
 #include "ltlvisit/tostring.hh"
+#include "ltlvisit/lbt.hh"
 #include "common_cout.hh"
+#include "error.h"
 
 #define OPT_SPOT 1
 
@@ -35,6 +38,7 @@ static const argp_option options[] =
       "output fully-parenthesized formulas", -20 },
     { "spin", 's', 0, 0, "output in Spin's syntax", -20 },
     { "spot", OPT_SPOT, 0, 0, "output in Spot's syntax (default)", -20 },
+    { "lbt", 'l', 0, 0, "output in LBT's syntax", -20 },
     { "utf8", '8', 0, 0, "output using UTF-8 characters", -20 },
     { 0, 0, 0, 0, 0, 0 }
   };
@@ -49,6 +53,9 @@ parse_opt_output(int key, char*, struct argp_state*)
     {
     case '8':
       output_format = utf8_output;
+      break;
+    case 'l':
+      output_format = lbt_output;
       break;
     case 'p':
       full_parenth = true;
@@ -65,16 +72,40 @@ parse_opt_output(int key, char*, struct argp_state*)
   return 0;
 }
 
+static
 void
-output_formula(const spot::ltl::formula* f)
+report_not_ltl(const spot::ltl::formula* f,
+	       const char* filename, int linenum, const char* syn)
+{
+  std::string s = spot::ltl::to_string(f);
+  static const char msg[] =
+    "formula '%s' cannot be written %s's syntax because it is not LTL";
+  if (filename)
+    error_at_line(2, 0, filename, linenum, msg, s.c_str(), syn);
+  else
+    error(2, 0, msg, s.c_str(), syn);
+}
+
+
+void
+output_formula(const spot::ltl::formula* f, const char* filename, int linenum)
 {
   switch (output_format)
     {
+    case lbt_output:
+      if (f->is_ltl_formula())
+	spot::ltl::to_lbt_string(f, std::cout);
+      else
+	report_not_ltl(f, filename, linenum, "LBT");
+      break;
     case spot_output:
       spot::ltl::to_string(f, std::cout, full_parenth);
       break;
     case spin_output:
-      spot::ltl::to_spin_string(f, std::cout, full_parenth);
+      if (f->is_ltl_formula())
+	spot::ltl::to_spin_string(f, std::cout, full_parenth);
+      else
+	report_not_ltl(f, filename, linenum, "Spin");
       break;
     case utf8_output:
       spot::ltl::to_utf8_string(f, std::cout, full_parenth);

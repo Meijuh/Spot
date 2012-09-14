@@ -483,7 +483,7 @@ namespace
       if (matched)
 	{
 	  one_match = true;
-	  output_formula(f);
+	  output_formula(f, filename, linenum);
 	}
       f->destroy();
       return 0;
