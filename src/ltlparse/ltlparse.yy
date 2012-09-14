@@ -94,6 +94,7 @@ using namespace spot::ltl;
 /* All tokens.  */
 
 %token START_LTL "LTL start marker"
+%token START_LBT "LBT start marker"
 %token START_SERE "SERE start marker"
 %token PAR_OPEN "opening parenthesis" PAR_CLOSE "closing parenthesis"
 %token BRACE_OPEN "opening brace" BRACE_CLOSE "closing brace"
@@ -157,7 +158,7 @@ using namespace spot::ltl;
 
 %nonassoc OP_POST_NEG OP_POST_POS
 
-%type <ltl> subformula booleanatom sere
+%type <ltl> subformula booleanatom sere lbtformula
 %type <ltl> bracedsere parenthesedsubformula
 %type <minmax> starargs equalargs sqbracketargs gotoargs
 
@@ -202,6 +203,22 @@ result:       START_LTL subformula END_OF_INPUT
 		YYACCEPT;
 	      }
 	    | START_SERE emptyinput
+              { YYABORT; }
+            | START_LBT lbtformula END_OF_INPUT
+	      { result = $2;
+		YYACCEPT;
+	      }
+	    | START_LBT enderror
+	      {
+		result = 0;
+		YYABORT;
+	      }
+	    | START_LBT lbtformula enderror
+	      {
+		result = $2;
+		YYACCEPT;
+	      }
+	    | START_LBT emptyinput
               { YYABORT; }
 
 emptyinput: END_OF_INPUT
@@ -708,6 +725,57 @@ subformula: booleanatom
 				     constant::true_instance()); }
 ;
 
+lbtformula: ATOMIC_PROP
+	      {
+		$$ = parse_environment.require(*$1);
+		if (! $$)
+		  {
+		    std::string s = "unknown atomic proposition `";
+		    s += *$1;
+		    s += "' in environment `";
+		    s += parse_environment.name();
+		    s += "'";
+		    error_list.push_back(parse_error(@1, s));
+		    delete $1;
+		    YYERROR;
+		  }
+		else
+		  delete $1;
+	      }
+            | '!' lbtformula
+	      { $$ = unop::instance(unop::Not, $2); }
+            | '&' lbtformula lbtformula
+	      { $$ = multop::instance(multop::And, $2, $3); }
+            | '|' lbtformula lbtformula
+	      { $$ = multop::instance(multop::Or, $2, $3); }
+            | '^' lbtformula lbtformula
+	      { $$ = binop::instance(binop::Xor, $2, $3); }
+            | 'i' lbtformula lbtformula
+	      { $$ = binop::instance(binop::Implies, $2, $3); }
+            | 'e' lbtformula lbtformula
+	      { $$ = binop::instance(binop::Equiv, $2, $3); }
+            | 'X' lbtformula
+	      { $$ = unop::instance(unop::X, $2); }
+            | 'F' lbtformula
+	      { $$ = unop::instance(unop::F, $2); }
+            | 'G' lbtformula
+	      { $$ = unop::instance(unop::G, $2); }
+            | 'U' lbtformula lbtformula
+	      { $$ = binop::instance(binop::U, $2, $3); }
+            | 'V' lbtformula lbtformula
+	      { $$ = binop::instance(binop::R, $2, $3); }
+            | 'R' lbtformula lbtformula
+	      { $$ = binop::instance(binop::R, $2, $3); }
+            | 'W' lbtformula lbtformula
+	      { $$ = binop::instance(binop::W, $2, $3); }
+            | 'M' lbtformula lbtformula
+	      { $$ = binop::instance(binop::M, $2, $3); }
+            | 't'
+	      { $$ = constant::true_instance(); }
+            | 'f'
+	      { $$ = constant::false_instance(); }
+            ;
+
 %%
 
 void
@@ -729,6 +797,21 @@ namespace spot
       const formula* result = 0;
       flex_set_buffer(ltl_string.c_str(),
 		      ltlyy::parser::token::START_LTL);
+      ltlyy::parser parser(error_list, env, result);
+      parser.set_debug_level(debug);
+      parser.parse();
+      return result;
+    }
+
+    const formula*
+    parse_lbt(const std::string& ltl_string,
+	  parse_error_list& error_list,
+	  environment& env,
+	  bool debug)
+    {
+      const formula* result = 0;
+      flex_set_buffer(ltl_string.c_str(),
+		      ltlyy::parser::token::START_LBT);
       ltlyy::parser parser(error_list, env, result);
       parser.set_debug_level(debug);
       parser.parse();

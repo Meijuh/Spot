@@ -60,6 +60,7 @@ flex_set_buffer(const char* buf, int start_tok)
 
 %s not_prop
 %x sqbracket
+%x lbt
 
 BOX       "[]"|"□"|"⬜"|"◻"
 DIAMOND   "<>"|"◇"|"⋄"|"♢"
@@ -79,6 +80,8 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
     {
       int t = start_token;
       start_token = 0;
+      if (t == token::START_LBT)
+        BEGIN(lbt);
       return t;
     }
   yylloc->step();
@@ -204,6 +207,19 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 			  BEGIN(not_prop);
 			  return token::ATOMIC_PROP;
 			}
+
+  /* in LBT's format, atomic proposition look like p0 or p3141592 */
+<lbt>p[0-9]+            {
+			  yylval->str = new std::string(yytext, yyleng);
+			  return token::ATOMIC_PROP;
+			}
+  /* Atomic propositions can also be enclosed in double quotes.  */
+<lbt>\"[^\"]*\"		{
+			  yylval->str = new std::string(yytext + 1,
+							yyleng - 2);
+			  return token::ATOMIC_PROP;
+			}
+
 
 <*>.			return *yytext;
 

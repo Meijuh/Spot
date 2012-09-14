@@ -72,6 +72,30 @@ namespace spot
 			 environment& env = default_environment::instance(),
 			 bool debug = false);
 
+    /// \brief Build a formula from an LTL string in LBT's format.
+    /// \param ltl_string The string to parse.
+    /// \param error_list A list that will be filled with
+    ///        parse errors that occured during parsing.
+    /// \param env The environment into which parsing should take place.
+    /// \param debug When true, causes the parser to trace its execution.
+    /// \return A pointer to the formula built from \a ltl_string, or
+    ///        0 if the input was unparsable.
+    ///
+    /// Note that the parser usually tries to recover from errors.  It can
+    /// return an non zero value even if it encountered error during the
+    /// parsing of \a ltl_string.  If you want to make sure \a ltl_string
+    /// was parsed succesfully, check \a error_list for emptiness.
+    ///
+    /// The LBT syntax, also used by the lbtt and scheck tools, is
+    /// extended to support W, and M operators (as done in lbtt), and
+    /// double-quoted atomic propositions that do not start with 'p'.
+    ///
+    /// \warning This function is not reentrant.
+    const formula* parse_lbt(const std::string& ltl_string,
+			     parse_error_list& error_list,
+			     environment& env = default_environment::instance(),
+			     bool debug = false);
+
     /// \brief Build a formula from a string representing a SERE.
     /// \param sere_string The string to parse.
     /// \param error_list A list that will be filled with

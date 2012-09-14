@@ -86,6 +86,7 @@ Exit status:\n\
 #define OPT_IMPLIED_BY 23
 #define OPT_IMPLY 24
 #define OPT_EQUIVALENT_TO 25
+#define OPT_LBT 26
 
 static const argp_option options[] =
   {
@@ -94,6 +95,7 @@ static const argp_option options[] =
     { "formula", 'f', "STRING", 0, "process the formula STRING", 0 },
     { "file", 'F', "FILENAME", 0,
       "process each line of FILENAME as a formula", 0 },
+    { "lbt-input", OPT_LBT, 0, 0, "read all formulas using LBT's prefix syntax", 0 },
     { 0, 0, 0, 0, "Error handling:", 2 },
     { "skip-errors", OPT_SKIP_ERRORS, 0, 0,
       "output erroneous lines as-is without processing", 0 },
@@ -178,6 +180,7 @@ static bool one_match = false;
 
 enum error_style_t { drop_errors, skip_errors };
 static error_style_t error_style = drop_errors;
+static bool lbt = false;
 static bool quiet = false;
 static bool nnf = false;
 static bool negate = false;
@@ -275,6 +278,8 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_GUARANTEE:
       guarantee = obligation = true;
       break;
+    case OPT_LBT:
+      lbt = true;
     case OPT_LTL:
       ltl = true;
       break;
@@ -367,7 +372,11 @@ namespace
 		    const char* filename = 0, int linenum = 0)
     {
       spot::ltl::parse_error_list pel;
-      const spot::ltl::formula* f = spot::ltl::parse(input, pel);
+      const spot::ltl::formula* f;
+      if (lbt)
+	f = spot::ltl::parse_lbt(input, pel);
+      else
+	f = spot::ltl::parse(input, pel);
 
       if (!f || pel.size() > 0)
 	  {
