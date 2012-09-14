@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -37,7 +37,8 @@ namespace spot
   /// \param g The (state-based degeneralized) automaton to output.
   ///          There should be only one acceptance condition, and
   ///          all the transitions of a state should be either all accepting
-  ///          or all unaccepting.
+  ///          or all unaccepting.  If your automaton does not satisfies
+  ///          these requirements, call degeneralize() first.
   /// \param f The (optional) formula associated to the automaton.  If given
   ///          it will be output as a comment.
   /// \param comments Whether to comment each state of the never clause

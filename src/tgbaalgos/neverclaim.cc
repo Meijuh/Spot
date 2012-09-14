@@ -24,7 +24,7 @@
 #include <ostream>
 #include <sstream>
 #include "bdd.h"
-#include "tgba/tgbatba.hh"
+#include "tgba/sba.hh"
 #include "neverclaim.hh"
 #include "tgba/bddprint.hh"
 #include "reachiter.hh"
@@ -43,7 +43,7 @@ namespace spot
 	: tgba_reachable_iterator_breadth_first(a),
 	  os_(os), f_(f), accept_all_(-1), fi_needed_(false),
 	  comments_(comments), all_acc_conds_(a->all_acceptance_conditions()),
-	  degen_(dynamic_cast<const tgba_sba_proxy*>(a))
+	  sba_(dynamic_cast<const sba*>(a))
       {
       }
 
@@ -75,10 +75,10 @@ namespace spot
       bool
       state_is_accepting(const state *s)
       {
-	// If the automaton is degeneralized on-the-fly,
-	// it's easier to just query the state_is_accepting() method.
-	if (degen_)
-	  return degen_->state_is_accepting(s);
+	// If the automaton is a SBA, it's easier to just query the
+	// state_is_accepting() method.
+	if (sba_)
+	  return sba_->state_is_accepting(s);
 
 	// Otherwise, since we are dealing with a degeneralized
 	// automaton nonetheless, the transitions leaving an accepting
@@ -197,7 +197,7 @@ namespace spot
       state* init_;
       bool comments_;
       bdd all_acc_conds_;
-      const tgba_sba_proxy* degen_;
+      const sba* sba_;
     };
   } // anonymous
 

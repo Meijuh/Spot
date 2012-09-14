@@ -23,6 +23,7 @@
 
 #include <ostream>
 #include "tgba/tgba.hh"
+#include "tgba/sba.hh"
 #include "dotty.hh"
 #include "dottydec.hh"
 #include "tgba/bddprint.hh"
@@ -42,7 +43,7 @@ namespace spot
 		dotty_decorator* dd)
 	: tgba_reachable_iterator_breadth_first(a), os_(os),
 	  mark_accepting_states_(mark_accepting_states), dd_(dd),
-	  sba_(dynamic_cast<const tgba_sba_proxy*>(a))
+	  sba_(dynamic_cast<const sba*>(a))
       {
       }
 
@@ -120,7 +121,7 @@ namespace spot
       std::ostream& os_;
       bool mark_accepting_states_;
       dotty_decorator* dd_;
-      const tgba_sba_proxy* sba_;
+      const sba* sba_;
     };
   }
 

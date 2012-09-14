@@ -598,7 +598,7 @@ namespace spot
       neg_acceptance_conditions_ &= neg;
 
       // Append neg to all acceptance conditions.
-      typename explicit_graph<State, tgba>::ls_map::iterator i;
+      typename ls_map::iterator i;
       for (i = this->ls_.begin(); i != this->ls_.end(); ++i)
 	{
 	  typename transitions_t::iterator i2;

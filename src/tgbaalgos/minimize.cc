@@ -114,7 +114,7 @@ namespace spot
 
   // From the base automaton and the list of sets, build the minimal
   // resulting automaton
-  tgba_explicit_number* build_result(const tgba* a,
+  sba_explicit_number* build_result(const tgba* a,
                                      std::list<hash_set*>& sets,
                                      hash_set* final)
   {
@@ -133,7 +133,7 @@ namespace spot
       ++num;
     }
     typedef state_explicit_number::transition trs;
-    tgba_explicit_number* res = new tgba_explicit_number(a->get_dict());
+    sba_explicit_number* res = new sba_explicit_number(a->get_dict());
     // For each transition in the initial automaton, add the corresponding
     // transition in res.
     if (!final->empty())
@@ -294,8 +294,8 @@ namespace spot
 
   }
 
-  tgba_explicit_number* minimize_dfa(const tgba_explicit_number* det_a,
-				     hash_set* final, hash_set* non_final)
+  sba_explicit_number* minimize_dfa(const tgba_explicit_number* det_a,
+				    hash_set* final, hash_set* non_final)
   {
     typedef std::list<hash_set*> partition_t;
     partition_t cur_run;
@@ -484,7 +484,7 @@ namespace spot
 #endif
 
     // Build the result.
-    tgba_explicit_number* res = build_result(det_a, done, final_copy);
+    sba_explicit_number* res = build_result(det_a, done, final_copy);
 
     // Free all the allocated memory.
     delete final_copy;
@@ -503,7 +503,7 @@ namespace spot
   }
 
 
-  tgba_explicit_number* minimize_monitor(const tgba* a)
+  sba_explicit_number* minimize_monitor(const tgba* a)
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
@@ -521,7 +521,7 @@ namespace spot
     return minimize_dfa(det_a, final, non_final);
   }
 
-  tgba_explicit_number* minimize_wdba(const tgba* a)
+  sba_explicit_number* minimize_wdba(const tgba* a)
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
@@ -596,7 +596,7 @@ namespace spot
 	      if (wdba_scc_is_accepting(det_a, m, a, sm, pm))
 		{
 		  is_useless = false;
-		  d[m] = (l | 1) - 1; // largest even number inferior or equal
+		  d[m] = l & ~1; // largest even number inferior or equal
 		}
 	      else
 		{
@@ -608,7 +608,7 @@ namespace spot
 
 	  if (!is_useless)
 	    {
-	      hash_set* dest_set = (d[m]&1) ? non_final : final;
+	      hash_set* dest_set = (d[m] & 1) ? non_final : final;
 	      const std::list<const state*>& l = sm.states_of(m);
 	      std::list<const state*>::const_iterator il;
 	      for (il = l.begin(); il != l.end(); ++il)
@@ -625,7 +625,7 @@ namespace spot
 		      const ltl::formula* f, const tgba* aut_neg_f,
 		      bool reject_bigger)
   {
-    tgba_explicit_number* min_aut_f = minimize_wdba(aut_f);
+    sba_explicit_number* min_aut_f = minimize_wdba(aut_f);
 
     if (reject_bigger)
       {
