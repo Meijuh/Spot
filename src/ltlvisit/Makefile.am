@@ -42,6 +42,7 @@ ltlvisit_HEADERS = \
   postfix.hh \
   randomltl.hh \
   reduce.hh \
+  relabel.hh \
   simpfg.hh \
   simplify.hh \
   snf.hh \
@@ -65,6 +66,7 @@ libltlvisit_la_SOURCES = \
   postfix.cc \
   randomltl.cc \
   reduce.cc \
+  relabel.cc \
   simpfg.cc \
   simplify.cc \
   snf.cc \

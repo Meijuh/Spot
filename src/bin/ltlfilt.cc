@@ -27,6 +27,7 @@
 #include <iostream>
 #include <fstream>
 #include <argp.h>
+#include <cstring>
 #include "progname.h"
 #include "error.h"
 
@@ -39,6 +40,7 @@
 #include "ltlparse/public.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
+#include "ltlvisit/relabel.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/multop.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
@@ -87,6 +89,7 @@ Exit status:\n\
 #define OPT_IMPLY 24
 #define OPT_EQUIVALENT_TO 25
 #define OPT_LBT 26
+#define OPT_RELABEL 27
 
 static const argp_option options[] =
   {
@@ -95,7 +98,8 @@ static const argp_option options[] =
     { "formula", 'f', "STRING", 0, "process the formula STRING", 0 },
     { "file", 'F', "FILENAME", 0,
       "process each line of FILENAME as a formula", 0 },
-    { "lbt-input", OPT_LBT, 0, 0, "read all formulas using LBT's prefix syntax", 0 },
+    { "lbt-input", OPT_LBT, 0, 0,
+      "read all formulas using LBT's prefix syntax", 0 },
     { 0, 0, 0, 0, "Error handling:", 2 },
     { "skip-errors", OPT_SKIP_ERRORS, 0, 0,
       "output erroneous lines as-is without processing", 0 },
@@ -106,6 +110,9 @@ static const argp_option options[] =
     { 0, 0, 0, 0, "Transformation options:", 3 },
     { "negate", 'n', 0, 0, "negate each formula", 0 },
     { "nnf", OPT_NNF, 0, 0, "rewrite formulas in negative normal form", 0 },
+    { "relabel", OPT_RELABEL, "abc|pnn", OPTION_ARG_OPTIONAL,
+      "relabel all atomic propositions, alphabetically unless " \
+      "specified otherwise", 0 },
     DECLARE_OPT_R,
     LEVEL_DOC(4),
     /**************************************************/
@@ -204,6 +211,8 @@ static int size_min = -1;
 static int size_max = -1;
 static int bsize_min = -1;
 static int bsize_max = -1;
+static bool relabeling = false;
+static spot::ltl::relabeling_style style = spot::ltl::Abc;
 
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
@@ -294,6 +303,15 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_PSL:
       psl = true;
+      break;
+    case OPT_RELABEL:
+      relabeling = true;
+      if (!arg || !strncasecmp(arg, "abc", 6))
+	style = spot::ltl::Abc;
+      else if (!strncasecmp(arg, "pnn", 4))
+	style = spot::ltl::Pnn;
+      else
+	error(2, 0, "invalid argument for --relabel: '%s'", arg);
       break;
     case OPT_SAFETY:
       safety = obligation = true;
@@ -411,6 +429,14 @@ namespace
       if (nnf)
 	{
 	  const spot::ltl::formula* res = simpl.negative_normal_form(f);
+	  f->destroy();
+	  f = res;
+	}
+
+      if (relabeling)
+	{
+	  const spot::ltl::formula* res =
+	    spot::ltl::relabel(f, style);
 	  f->destroy();
 	  f = res;
 	}

@@ -70,8 +70,9 @@ namespace spot
     void
     clone_visitor::visit(const binop* bo)
     {
+      const formula* first = recurse(bo->first());
       result_ = binop::instance(bo->op(),
-				recurse(bo->first()), recurse(bo->second()));
+				first, recurse(bo->second()));
     }
 
     void
@@ -96,7 +97,8 @@ namespace spot
     const formula*
     clone_visitor::recurse(const formula* f)
     {
-      return f->clone();
+      f->accept(*this);
+      return result_;
     }
 
     const formula*

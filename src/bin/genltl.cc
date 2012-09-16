@@ -91,6 +91,7 @@
 #include <cstring>
 #include "ltlast/allnodes.hh"
 #include "ltlenv/defaultenv.hh"
+#include "ltlvisit/relabel.hh"
 
 using namespace spot;
 using namespace spot::ltl;
@@ -818,6 +819,15 @@ output_pattern(int pattern, int n)
       break;
     default:
       error(100, 0, "internal error: pattern not implemented");
+    }
+
+  // Make sure we use only "p42"-style of atomic propositions
+  // in lbt's output.
+  if (output_format == lbt_output)
+    {
+      const spot::ltl::formula* r = spot::ltl::relabel(f, spot::ltl::Pnn);
+      f->destroy();
+      f = r;
     }
 
   output_formula(f);
