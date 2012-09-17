@@ -1,7 +1,8 @@
-## Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## -*- coding: utf-8 -*-
+## Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+## DÃ©veloppement de l'Epita (LRDE).
 ## Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-## département Systèmes Répartis Coopératifs (SRC), Université Pierre
+## dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 ## et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
@@ -26,18 +27,30 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 # Run `make TESTHEADER=foo.hh check' if you want to check only one
 # header.
-check-local:
+check-80columns:
 	INCDIR='$(top_srcdir)/src' \
 	$(SHELL) $(srcdir)/80columns.test $(TESTHEADER)
+
+check-style:
 	INCDIR='$(top_srcdir)/src' \
 	$(SHELL) $(srcdir)/style.test $(TESTHEADER)
+
+check-readme:
 	top_srcdir='$(top_srcdir)' \
 	$(PERL) $(srcdir)/readme.test
+
+check-includes:
 	CXX='$(CXX)' \
-	CPPFLAGS='$(AM_CPPFLAGS) $(CPPFLAGS)' \
+	CPPFLAGS='$(AM_CPPFLAGS) $(CPPFLAGS) $(DEFS)' \
 	CXXFLAGS='$(AM_CXXFLAGS) $(CXXFLAGS)' \
 	INCDIR='$(top_srcdir)/src' \
+	TOPBUILD='$(top_builddir)' \
 	$(SHELL) $(srcdir)/includes.test $(TESTHEADER)
+
+.PHONY: check-80columns check-style check-readme check-includes
+check-local: check-80columns check-style check-readme check-includes
+
+
 
 # Ensure we have not forgotten to include an header.
 installcheck-local:

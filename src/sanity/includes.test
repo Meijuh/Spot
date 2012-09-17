@@ -30,7 +30,13 @@ for file in `find "$INCDIR" \( -name "${1-*}.hh" \
 #include <$file>
 #include <$file>
 EOF
-   if $CXX $CPPFLAGS -DSKIP_DEPRECATED_WARNING $CXXFLAGS -c incltest.cc; then
+
+   case $file in
+    *bin/*) MOREFLAGS="-I $TOPBUILD/lib/ -I $INCDIR/../lib/ -I $TOPBUILD";;
+    *) MOREFLAGS=;;
+   esac
+
+   if $CXX $MOREFLAGS $CPPFLAGS -DSKIP_DEPRECATED_WARNING $CXXFLAGS -c incltest.cc; then
       echo "PASS: $file"
    else
       echo "FAIL: $file"
