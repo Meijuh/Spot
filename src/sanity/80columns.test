@@ -6,9 +6,14 @@ set -e
 
 rm -f failures
 
+LANG=en_US.UTF-8
+export LANG
+
 if [ "`echo '{r₁|r₂|r₃}' | wc -m`" != 11 ]; then
-  # The current local does not grok unicode.
-  # We still run this test, but only on lines are that purely ascii.
+  LANG=C
+  export LANG
+  # The current locale does not grok unicode.
+  # We still run this test, but only on lines that are purely ascii.
   x='[^	-~]' # This blank is a tab.
 else
   x='.'

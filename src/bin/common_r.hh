@@ -22,6 +22,7 @@
 #ifndef SPOT_BIN_COMMON_R_HH
 #define SPOT_BIN_COMMON_R_HH
 
+#include "common_sys.hh"
 #include "ltlvisit/simplify.hh"
 
 #define OPT_R 'r'
