@@ -99,19 +99,19 @@ namespace spot
 	  {
 	    delete wdba;
 	    wdba = 0;
-
-	    if (type_ == TGBA && level_ == High)
-	      {
-		const tgba* s = scc_filter(sim, true);
-		delete sim;
-		sim = s;
-	      }
 	  }
 	else
 	  {
 	    delete sim;
 	    sim = 0;
 	  }
+      }
+
+    if (sim && type_ == TGBA && level_ == High)
+      {
+	const tgba* s = scc_filter(sim, true);
+	delete sim;
+	return s;
       }
 
     return wdba ? wdba : sim;
