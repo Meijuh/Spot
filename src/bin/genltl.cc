@@ -244,6 +244,8 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_RV_COUNTER_CARRY:
     case OPT_RV_COUNTER_CARRY_LINEAR:
     case OPT_RV_COUNTER_LINEAR:
+    case OPT_U_LEFT:
+    case OPT_U_RIGHT:
       enqueue_job(key, arg);
       break;
     default:
