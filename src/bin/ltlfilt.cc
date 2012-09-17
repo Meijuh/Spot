@@ -41,6 +41,7 @@
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
 #include "ltlvisit/relabel.hh"
+#include "ltlvisit/wmunabbrev.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/multop.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
@@ -90,6 +91,7 @@ Exit status:\n\
 #define OPT_EQUIVALENT_TO 25
 #define OPT_LBT 26
 #define OPT_RELABEL 27
+#define OPT_REMOVE_WM 28
 
 static const argp_option options[] =
   {
@@ -113,6 +115,8 @@ static const argp_option options[] =
     { "relabel", OPT_RELABEL, "abc|pnn", OPTION_ARG_OPTIONAL,
       "relabel all atomic propositions, alphabetically unless " \
       "specified otherwise", 0 },
+    { "remove-wm", OPT_REMOVE_WM, 0, 0,
+      "rewrite operators W and M using U and R", 0 },
     DECLARE_OPT_R,
     LEVEL_DOC(4),
     /**************************************************/
@@ -213,6 +217,7 @@ static int bsize_min = -1;
 static int bsize_max = -1;
 static bool relabeling = false;
 static spot::ltl::relabeling_style style = spot::ltl::Abc;
+static bool remove_wm = false;
 
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
@@ -284,9 +289,32 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_DROP_ERRORS:
       error_style = drop_errors;
       break;
+    case OPT_EQUIVALENT_TO:
+      {
+	if (equivalent_to)
+	  error(2, 0, "only one --equivalent-to option can be given");
+	equivalent_to = parse_formula_arg(arg);
+	break;
+      }
     case OPT_GUARANTEE:
       guarantee = obligation = true;
       break;
+    case OPT_IMPLIED_BY:
+      {
+	const spot::ltl::formula* i = parse_formula_arg(arg);
+	// a→c∧b→c ≡ (a∨b)→c
+	implied_by =
+	  spot::ltl::multop::instance(spot::ltl::multop::Or, implied_by, i);
+	break;
+      }
+    case OPT_IMPLY:
+      {
+	// a→b∧a→c ≡ a→(b∧c)
+	const spot::ltl::formula* i = parse_formula_arg(arg);
+	imply =
+	  spot::ltl::multop::instance(spot::ltl::multop::And, imply, i);
+	break;
+      }
     case OPT_LBT:
       lbt = true;
     case OPT_LTL:
@@ -312,6 +340,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 	style = spot::ltl::Pnn;
       else
 	error(2, 0, "invalid argument for --relabel: '%s'", arg);
+      break;
+    case OPT_REMOVE_WM:
+      remove_wm = true;
       break;
     case OPT_SAFETY:
       safety = obligation = true;
@@ -340,29 +371,6 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_SYNTACTIC_PERSISTENCE:
       syntactic_persistence = true;
       break;
-    case OPT_IMPLIED_BY:
-      {
-	const spot::ltl::formula* i = parse_formula_arg(arg);
-	// a→c∧b→c ≡ (a∨b)→c
-	implied_by =
-	  spot::ltl::multop::instance(spot::ltl::multop::Or, implied_by, i);
-	break;
-      }
-    case OPT_IMPLY:
-      {
-	// a→b∧a→c ≡ a→(b∧c)
-	const spot::ltl::formula* i = parse_formula_arg(arg);
-	imply =
-	  spot::ltl::multop::instance(spot::ltl::multop::And, imply, i);
-	break;
-      }
-    case OPT_EQUIVALENT_TO:
-      {
-	if (equivalent_to)
-	  error(2, 0, "only one --equivalent-to option can be given");
-	equivalent_to = parse_formula_arg(arg);
-	break;
-      }
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -435,8 +443,14 @@ namespace
 
       if (relabeling)
 	{
-	  const spot::ltl::formula* res =
-	    spot::ltl::relabel(f, style);
+	  const spot::ltl::formula* res = spot::ltl::relabel(f, style);
+	  f->destroy();
+	  f = res;
+	}
+
+      if (remove_wm)
+	{
+	  const spot::ltl::formula* res = spot::ltl::unabbreviate_wm(f);
 	  f->destroy();
 	  f = res;
 	}
