@@ -43,6 +43,7 @@
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/postproc.hh"
 #include "tgbaalgos/save.hh"
+#include "tgbaalgos/stats.hh"
 #include "tgba/bddprint.hh"
 
 const char* argp_program_version = "\
@@ -70,6 +71,7 @@ If multiple formulas are supplied, several automata will be output.";
 #define OPT_DOT 6
 #define OPT_LBTT 7
 #define OPT_SPOT 8
+#define OPT_STATS 9
 
 static const argp_option options[] =
   {
@@ -85,14 +87,31 @@ static const argp_option options[] =
     { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
     { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
     { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
-      "(works only with --spot or --dot)", 0 },
+      "(ignored with --lbtt or --spin)", 0 },
+    { "stats", OPT_STATS, "FORMAT", 0,
+      "output statistics about the automaton", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Translation intent:", 4 },
+    { 0, 0, 0, 0, "The FORMAT string passed to --stats may use "\
+      "the following interpreted sequences:", 4 },
+    { "%s", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of states", 0 },
+    { "%e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of edges", 0 },
+    { "%t", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of transitions", 0 },
+    { "%a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "number of acceptance sets", 0 },
+    { "%S", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of SCCs", 0 },
+    { "%n", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "number of nondeterministic states", 0 },
+    { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "1 if the automaton is deterministic, 0 otherwise", 0 },
+    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "a single %", 0 },
+    /**************************************************/
+    { 0, 0, 0, 0, "Translation intent:", 5 },
     { "small", OPT_SMALL, 0, 0, "prefer small automata (default)", 0 },
     { "deterministic", 'D', 0, 0, "prefer deterministic automata", 0 },
     { "any", 'a', 0, 0, "no preference", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Optimization level:", 5 },
+    { 0, 0, 0, 0, "Optimization level:", 6 },
     { "low", OPT_LOW, 0, 0, "minimal optimizations (fast)", 0 },
     { "medium", OPT_MEDIUM, 0, 0, "moderate optimizations", 0 },
     { "high", OPT_HIGH, 0, 0,
@@ -111,8 +130,9 @@ const struct argp_child children[] =
 spot::postprocessor::output_type type = spot::postprocessor::TGBA;
 spot::postprocessor::output_pref pref = spot::postprocessor::Small;
 spot::postprocessor::optimization_level level = spot::postprocessor::High;
-enum output_format { Dot, Lbtt, Spin, Spot } format = Dot;
+enum output_format { Dot, Lbtt, Spin, Spot, Stats } format = Dot;
 bool utf8 = false;
+const char* stats = 0;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -166,6 +186,12 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_SPOT:
       format = Spot;
       break;
+    case OPT_STATS:
+      if (!*arg)
+	error(2, 0, "empty format string for --stats");
+      stats = arg;
+      format = Stats;
+      break;
     case OPT_TGBA:
       if (format == Spin)
 	error(2, 0, "--spin and --tgba are incompatible");
@@ -190,10 +216,11 @@ namespace
   public:
     spot::ltl::ltl_simplifier& simpl;
     spot::postprocessor& post;
+    spot::stat_printer statistics;
 
     trans_processor(spot::ltl::ltl_simplifier& simpl,
 		    spot::postprocessor& post)
-      : simpl(simpl), post(post)
+      : simpl(simpl), post(post), statistics(std::cout, stats)
     {
     }
 
@@ -251,6 +278,9 @@ namespace
 	  break;
 	case Spin:
 	  spot::never_claim_reachable(std::cout, aut, f);
+	  break;
+	case Stats:
+	  statistics.print(aut, f) << "\n";
 	  break;
 	}
       delete aut;

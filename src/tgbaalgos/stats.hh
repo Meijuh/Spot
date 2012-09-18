@@ -1,5 +1,5 @@
-// Copyright (C) 2008, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -54,6 +54,29 @@ namespace spot
   tgba_statistics stats_reachable(const tgba* g);
   /// \brief Compute subended statistics for an automaton.
   tgba_sub_statistics sub_stats_reachable(const tgba* g);
+
+  /// \brief prints various statistics about a TGBA
+  ///
+  /// This object can be configured to display various statistics
+  /// about a TGBA.  Some %-sequence of characters are interpreted in
+  /// the format string, and replaced by the corresponding statistics.
+  class stat_printer
+  {
+  public:
+    stat_printer(std::ostream& os, const char* format);
+
+    /// \brief print the configured statistics.
+    ///
+    /// The \a f argument is not needed if the Formula does not need
+    /// to be output.
+    std::ostream&
+    print(const tgba* aut, const ltl::formula* f = 0);
+
+  private:
+    std::ostream& os_;
+    const char* format_;
+    unsigned needed_;
+  };
 
   /// @}
 }

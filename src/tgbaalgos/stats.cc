@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2011 Laboratoire de Recherche et Développement
+// Copyright (C) 2008, 2011, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -25,6 +25,9 @@
 #include "tgba/tgba.hh"
 #include "stats.hh"
 #include "reachiter.hh"
+#include "ltlvisit/tostring.hh"
+#include "tgbaalgos/isdet.hh"
+#include "tgbaalgos/scc.hh"
 
 namespace spot
 {
@@ -131,4 +134,152 @@ namespace spot
     d.run();
     return s;
   }
+
+  namespace
+  {
+    enum what {
+      Formula = 1,		// %f
+      States = 2,		// %s
+      Edges = 4,		// %e
+      Trans = 8,		// %t
+      Acc = 16,			// %a
+      Scc = 32,			// %S
+      Nondetstates = 64,	// %n
+      Deterministic = 128	// %d
+    };
+  }
+
+  stat_printer::stat_printer(std::ostream& os, const char* format)
+    : os_(os), format_(format)
+  {
+    needed_ = 0;
+    // scan the format for needed statistics
+    for (const char* pos = format; *pos; ++pos)
+      if (*pos == '%')
+	{
+	  switch (*++pos)
+	    {
+	    case 'f':
+	      needed_ |= Formula;
+	      break;
+	    case 's':
+	      needed_ |= States;
+	      break;
+	    case 'e':
+	      needed_ |= Edges;
+	      break;
+	    case 't':
+	      needed_ |= Trans;
+	      break;
+	    case 'a':
+	      needed_ |= Acc;
+	      break;
+	    case 'S':
+	      needed_ |= Scc;
+	      break;
+	    case 'n':
+	      needed_ |= Nondetstates;
+	      break;
+	    case 'd':
+	      needed_ |= Deterministic;
+	      break;
+	    case '%':
+	      break;
+	    case 0:
+	      --pos;
+	      break;
+	    }
+	}
+  }
+
+  std::ostream&
+  stat_printer::print(const tgba* aut,
+		      const ltl::formula* f)
+  {
+    unsigned states = 0;
+    unsigned edges = 0;
+    unsigned trans = 0;
+    unsigned acc = 0;
+    unsigned scc = 0;
+    unsigned nondetstates = 0;
+    unsigned deterministic = 0;
+
+    if (needed_ & Trans)
+      {
+	tgba_sub_statistics s = sub_stats_reachable(aut);
+	states = s.states;
+	edges = s.transitions;
+	trans = s.sub_transitions;
+      }
+    else if (needed_ & (States | Edges))
+      {
+	tgba_sub_statistics s = sub_stats_reachable(aut);
+	states = s.states;
+	edges = s.transitions;
+      }
+    if (needed_ & Acc)
+      acc = aut->number_of_acceptance_conditions();
+
+    if (needed_ & Scc)
+      {
+	scc_map m(aut);
+	m.build_map();
+	scc = m.scc_count();
+      }
+
+    if (needed_ & Nondetstates)
+      {
+	nondetstates = count_nondet_states(aut);
+	deterministic = (nondetstates == 0);
+      }
+    else if (needed_ & Deterministic)
+      {
+	// This is more efficient than calling count_nondet_state().
+	deterministic = is_deterministic(aut);
+      }
+
+    for (const char* format = format_; *format; ++format)
+      if (*format != '%')
+	os_ << *format;
+      else
+	switch (*++format)
+	  {
+	  case 'a':
+	    os_ << acc;
+	    break;
+	  case 'e':
+	    os_ << edges;
+	    break;
+	  case 'f':
+	    assert(f);
+	    ltl::to_string(f, os_);
+	    break;
+	  case 'd':
+	    os_ << deterministic;
+	    break;
+	  case 'n':
+	    os_ << nondetstates;
+	    break;
+	  case 's':
+	    os_ << states;
+	    break;
+	  case 'S':
+	    os_ << scc;
+	    break;
+	  case 't':
+	    os_ << trans;
+	    break;
+	  case 0:
+	    --format;
+	    // fall through
+	  case '%':
+	    os_ << '%';
+	    break;
+	  default:
+	    os_ << '%' << *format;
+	    break;
+	  }
+    return os_;
+  }
+
 }
