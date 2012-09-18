@@ -1294,9 +1294,14 @@ main(int argc, char** argv)
 	}
 
       if (utf8_opt)
-	if (spot::tgba_explicit_formula* tef =
-	    dynamic_cast<spot::tgba_explicit_formula*>(a))
-	  tef->enable_utf8();
+	{
+	  if (spot::tgba_explicit_formula* tef =
+	      dynamic_cast<spot::tgba_explicit_formula*>(a))
+	    tef->enable_utf8();
+	  else if (spot::sba_explicit_formula* sef =
+		   dynamic_cast<spot::sba_explicit_formula*>(a))
+	    sef->enable_utf8();
+	}
 
       if (output != -1)
 	{

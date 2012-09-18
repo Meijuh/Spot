@@ -42,6 +42,7 @@
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/postproc.hh"
 #include "tgbaalgos/save.hh"
+#include "tgba/bddprint.hh"
 
 const char* argp_program_version = "\
 ltl2tgba (" SPOT_PACKAGE_STRING ")\n\
@@ -87,6 +88,8 @@ static const argp_option options[] =
     { "lbtt", OPT_LBTT, 0, 0, "LBTT's format", 0 },
     { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
     { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
+    { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
+      "(works only with --spot or --dot)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Translation intent:", 4 },
     { "small", OPT_SMALL, 0, 0, "prefer small automata (default)", 0 },
@@ -121,6 +124,7 @@ spot::postprocessor::output_type type = spot::postprocessor::TGBA;
 spot::postprocessor::output_pref pref = spot::postprocessor::Small;
 spot::postprocessor::optimization_level level = spot::postprocessor::High;
 enum output_format { Dot, Lbtt, Spin, Spot } format = Dot;
+bool utf8 = false;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -128,6 +132,9 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
+    case '8':
+      spot::enable_utf8();
+      break;
     case 'a':
       pref = spot::postprocessor::Any;
       break;
@@ -230,6 +237,17 @@ namespace
       bool exprop = level == spot::postprocessor::High;
       const spot::tgba* aut = ltl_to_tgba_fm(f, simpl.get_dict(), exprop);
       aut = post.run(aut, f);
+
+      if (utf8)
+	{
+	  spot::tgba* a = const_cast<spot::tgba*>(aut);
+	  if (spot::tgba_explicit_formula* tef =
+	      dynamic_cast<spot::tgba_explicit_formula*>(a))
+	    tef->enable_utf8();
+	  else if (spot::sba_explicit_formula* sef =
+		   dynamic_cast<spot::sba_explicit_formula*>(a))
+	    sef->enable_utf8();
+	}
 
       switch (format)
 	{
