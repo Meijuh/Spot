@@ -122,7 +122,6 @@ spot::postprocessor::output_pref pref = spot::postprocessor::Small;
 spot::postprocessor::optimization_level level = spot::postprocessor::High;
 enum output_format { Dot, Lbtt, Spin, Spot } format = Dot;
 
-
 static int
 parse_opt(int key, char* arg, struct argp_state*)
 {
@@ -235,7 +234,7 @@ namespace
       switch (format)
 	{
 	case Dot:
-	  spot::dotty_reachable(std::cout, aut);
+	  spot::dotty_reachable(std::cout, aut, type == spot::postprocessor::BA);
 	  break;
 	case Lbtt:
 	  spot::lbtt_reachable(std::cout, aut);
