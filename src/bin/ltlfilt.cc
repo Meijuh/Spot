@@ -31,13 +31,13 @@
 #include "progname.h"
 #include "error.h"
 
+#include "common_finput.hh"
 #include "common_output.hh"
 #include "common_cout.hh"
 #include "common_r.hh"
 
 #include "misc/_config.h"
 #include "misc/hash.hh"
-#include "ltlparse/public.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
 #include "ltlvisit/relabel.hh"
@@ -89,19 +89,12 @@ Exit status:\n\
 #define OPT_IMPLIED_BY 23
 #define OPT_IMPLY 24
 #define OPT_EQUIVALENT_TO 25
-#define OPT_LBT 26
-#define OPT_RELABEL 27
-#define OPT_REMOVE_WM 28
+#define OPT_RELABEL 26
+#define OPT_REMOVE_WM 27
 
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Input options:", 1 },
-    { "formula", 'f', "STRING", 0, "process the formula STRING", 0 },
-    { "file", 'F', "FILENAME", 0,
-      "process each line of FILENAME as a formula", 0 },
-    { "lbt-input", OPT_LBT, 0, 0,
-      "read all formulas using LBT's prefix syntax", 0 },
     { 0, 0, 0, 0, "Error handling:", 2 },
     { "skip-errors", OPT_SKIP_ERRORS, 0, 0,
       "output erroneous lines as-is without processing", 0 },
@@ -169,29 +162,15 @@ static const argp_option options[] =
 
 const struct argp_child children[] =
   {
+    { &finput_argp, 0, 0, 1 },
     { &output_argp, 0, 0, -20 },
     { 0, 0, 0, 0 }
   };
-
-struct job
-{
-  const char* str;
-  bool file_p;	// true if str is a filename, false if it is a formula
-
-  job(const char* str, bool file_p)
-    : str(str), file_p(file_p)
-  {
-  }
-};
-
-typedef std::vector<job> jobs_t;
-static jobs_t jobs;
 
 static bool one_match = false;
 
 enum error_style_t { drop_errors, skip_errors };
 static error_style_t error_style = drop_errors;
-static bool lbt = false;
 static bool quiet = false;
 static bool nnf = false;
 static bool negate = false;
@@ -238,7 +217,7 @@ static const spot::ltl::formula*
 parse_formula_arg(const std::string& input)
 {
   spot::ltl::parse_error_list pel;
-  const spot::ltl::formula* f = spot::ltl::parse(input, pel);
+  const spot::ltl::formula* f = parse_formula(input, pel);
   if (spot::ltl::format_parse_errors(std::cerr, input, pel))
     error(2, 0, "parse error when parsing an argument");
   return f;
@@ -252,12 +231,6 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case 'f':
-      jobs.push_back(job(arg, false));
-      break;
-    case 'F':
-      jobs.push_back(job(arg, true));
-      break;
     case 'n':
       negate = true;
       break;
@@ -315,8 +288,6 @@ parse_opt(int key, char* arg, struct argp_state*)
 	  spot::ltl::multop::instance(spot::ltl::multop::And, imply, i);
 	break;
       }
-    case OPT_LBT:
-      lbt = true;
     case OPT_LTL:
       ltl = true;
       break;
@@ -398,11 +369,7 @@ namespace
 		    const char* filename = 0, int linenum = 0)
     {
       spot::ltl::parse_error_list pel;
-      const spot::ltl::formula* f;
-      if (lbt)
-	f = spot::ltl::parse_lbt(input, pel);
-      else
-	f = spot::ltl::parse(input, pel);
+      const spot::ltl::formula* f = parse_formula(input, pel);
 
       if (!f || pel.size() > 0)
 	  {

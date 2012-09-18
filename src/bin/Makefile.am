@@ -30,6 +30,8 @@ noinst_LIBRARIES = libcommon.a
 libcommon_a_SOURCES =				\
   common_cout.hh				\
   common_cout.cc				\
+  common_finput.cc				\
+  common_finput.hh				\
   common_output.cc				\
   common_output.hh				\
   common_range.cc				\

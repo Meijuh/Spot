@@ -32,6 +32,7 @@
 
 #include "common_r.hh"
 #include "common_cout.hh"
+#include "common_finput.hh"
 
 #include "misc/_config.h"
 #include "ltlparse/public.hh"
@@ -73,11 +74,6 @@ If multiple formulas are supplied, several automata will be output.";
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Input options:", 1 },
-    { "formula", 'f', "STRING", 0, "process the formula STRING", 0 },
-    { "file", 'F', "FILENAME", 0,
-      "process each line of FILENAME as a formula", 0 },
-    /**************************************************/
     { 0, 0, 0, 0, "Automaton type:", 2 },
     { "tgba", OPT_TGBA, 0, 0,
       "Transition-based Generalized Büchi Automaton (default)", 0 },
@@ -106,19 +102,11 @@ static const argp_option options[] =
     { 0, 0, 0, 0, 0, 0 }
   };
 
-struct job
-{
-  const char* str;
-  bool file_p;	// true if str is a filename, false if it is a formula
-
-  job(const char* str, bool file_p)
-    : str(str), file_p(file_p)
+const struct argp_child children[] =
   {
-  }
-};
-
-typedef std::vector<job> jobs_t;
-static jobs_t jobs;
+    { &finput_argp, 0, 0, 1 },
+    { 0, 0, 0, 0 }
+  };
 
 spot::postprocessor::output_type type = spot::postprocessor::TGBA;
 spot::postprocessor::output_pref pref = spot::postprocessor::Small;
@@ -214,7 +202,7 @@ namespace
 		    const char* filename = 0, int linenum = 0)
     {
       spot::ltl::parse_error_list pel;
-      const spot::ltl::formula* f = spot::ltl::parse(input, pel);
+      const spot::ltl::formula* f = parse_formula(input, pel);
 
       if (!f || pel.size() > 0)
 	  {
@@ -252,7 +240,8 @@ namespace
       switch (format)
 	{
 	case Dot:
-	  spot::dotty_reachable(std::cout, aut, type == spot::postprocessor::BA);
+	  spot::dotty_reachable(std::cout, aut,
+				type == spot::postprocessor::BA);
 	  break;
 	case Lbtt:
 	  spot::lbtt_reachable(std::cout, aut);
@@ -331,7 +320,7 @@ main(int argc, char** argv)
   argv[0] = const_cast<char*>(program_name);
 
   const argp ap = { options, parse_opt, "[FORMULA...]",
-		    argp_program_doc, 0, 0, 0 };
+		    argp_program_doc, children, 0, 0 };
 
   if (int err = argp_parse(&ap, argc, argv, 0, 0, 0))
     exit(err);
