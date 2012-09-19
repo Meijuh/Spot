@@ -134,7 +134,7 @@ spot::postprocessor::output_pref pref = spot::postprocessor::Small;
 spot::postprocessor::optimization_level level = spot::postprocessor::High;
 enum output_format { Dot, Lbtt, Spin, Spot, Stats } format = Dot;
 bool utf8 = false;
-const char* stats = 0;
+const char* stats = "";
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
