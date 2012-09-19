@@ -57,9 +57,9 @@ to the extent permitted by law.";
 const char* argp_program_bug_address = "<" SPOT_PACKAGE_BUGREPORT ">";
 
 const char argp_program_doc[] ="\
-Translate linear formulas (LTL/PSL) into Büchi automata.\n\n\
-The default is to take the time to apply all available optimization \
-to output the smallest Transition-based Generalized Büchi Automata, \
+Translate linear-time formulas (LTL/PSL) into Büchi automata.\n\n\
+By default it will apply all available optimizations to output \
+the smallest Transition-based Generalized Büchi Automata, \
 in GraphViz's format.\n\
 If multiple formulas are supplied, several automata will be output.";
 
@@ -93,6 +93,8 @@ static const argp_option options[] =
     /**************************************************/
     { 0, 0, 0, 0, "The FORMAT string passed to --stats may use "\
       "the following interpreted sequences:", 4 },
+    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the formula, in Spot's syntax", 0 },
     { "%s", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of states", 0 },
     { "%e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of edges", 0 },
     { "%t", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of transitions", 0 },
