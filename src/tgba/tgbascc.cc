@@ -1,4 +1,4 @@
-// Copyright (C) 2009  Laboratoire de recherche et développement de l'Epita.
+// Copyright (C) 2009, 2012  Laboratoire de recherche et développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -79,8 +79,7 @@ namespace spot
   }
 
   state*
-  tgba_scc::project_state(const state* s,
-					     const tgba* t) const
+  tgba_scc::project_state(const state* s, const tgba* t) const
   {
     return aut_->project_state(s, t);
   }
