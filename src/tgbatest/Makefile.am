@@ -108,7 +108,8 @@ TESTS = \
   spotlbtt.test \
   spotlbtt2.test \
   complementation.test \
-  randpsl.test
+  randpsl.test \
+  cycles.test
 
 EXTRA_DIST = $(TESTS)
 

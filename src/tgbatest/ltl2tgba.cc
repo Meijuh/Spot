@@ -64,6 +64,7 @@
 #include "tgbaalgos/emptiness_stats.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/isdet.hh"
+#include "tgbaalgos/cycles.hh"
 #include "kripkeparse/public.hh"
 #include "tgbaalgos/simulation.hh"
 
@@ -281,6 +282,7 @@ syntax(char* prog)
 	    << "  -K    dump the graph of SCCs in dot format" << std::endl
 	    << "  -KV   verbosely dump the graph of SCCs in dot format"
 	    << std::endl
+	    << "  -KC   list cycles in automaton" << std::endl
 	    << "  -N    output the never clain for Spin (implies -DS)"
 	    << std::endl
 	    << "  -NN   output the never clain for Spin, with commented states"
@@ -521,6 +523,10 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-KV"))
 	{
 	  output = 11;
+	}
+      else if (!strcmp(argv[formula_index], "-KC"))
+	{
+	  output = 15;
 	}
       else if (!strcmp(argv[formula_index], "-l"))
 	{
@@ -1409,6 +1415,20 @@ main(int argc, char** argv)
 	      std::cout << std::endl;
 
 	      break;
+	    case 15:
+	      {
+		spot::scc_map m(a);
+		m.build_map();
+		spot::enumerate_cycles c(a, m);
+		unsigned max = m.scc_count();
+		for (unsigned n = 0; n < max; ++n)
+		  {
+		    std::cout << "Cycles in SCC #" << n << std::endl;
+		    c.run(n);
+		  }
+		break;
+	      }
+
 	    default:
 	      assert(!"unknown output option");
 	    }
