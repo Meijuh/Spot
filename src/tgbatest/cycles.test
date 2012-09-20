@@ -60,3 +60,9 @@ echo "s$x,s$w,,;"
 
 run 0 ../ltl2tgba -KC -X johnson-fig1.tgba > out
 test `wc -l < out` -eq 10
+
+
+
+run 0 ../ltl2tgba -KW '(Ga -> Gb) W c' > out
+test `grep 'is weak' out | wc -l` -eq 4
+test `grep 'is not weak' out | wc -l` -eq 1

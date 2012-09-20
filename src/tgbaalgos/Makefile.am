@@ -42,6 +42,7 @@ tgbaalgos_HEADERS = \
   emptiness_stats.hh \
   gv04.hh \
   isdet.hh \
+  isweakscc.hh \
   lbtt.hh \
   ltl2taa.hh \
   ltl2tgba_fm.hh \
@@ -82,6 +83,7 @@ libtgbaalgos_la_SOURCES = \
   emptiness.cc \
   gv04.cc \
   isdet.cc \
+  isweakscc.cc \
   lbtt.cc \
   ltl2taa.cc \
   ltl2tgba_fm.cc \

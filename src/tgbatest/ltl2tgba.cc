@@ -65,6 +65,7 @@
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/isdet.hh"
 #include "tgbaalgos/cycles.hh"
+#include "tgbaalgos/isweakscc.hh"
 #include "kripkeparse/public.hh"
 #include "tgbaalgos/simulation.hh"
 
@@ -283,6 +284,7 @@ syntax(char* prog)
 	    << "  -KV   verbosely dump the graph of SCCs in dot format"
 	    << std::endl
 	    << "  -KC   list cycles in automaton" << std::endl
+	    << "  -KW   list weak SCCs" << std::endl
 	    << "  -N    output the never clain for Spin (implies -DS)"
 	    << std::endl
 	    << "  -NN   output the never clain for Spin, with commented states"
@@ -527,6 +529,10 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-KC"))
 	{
 	  output = 15;
+	}
+      else if (!strcmp(argv[formula_index], "-KW"))
+	{
+	  output = 16;
 	}
       else if (!strcmp(argv[formula_index], "-l"))
 	{
@@ -1425,6 +1431,20 @@ main(int argc, char** argv)
 		  {
 		    std::cout << "Cycles in SCC #" << n << std::endl;
 		    c.run(n);
+		  }
+		break;
+	      }
+	    case 16:
+	      {
+		spot::scc_map m(a);
+		m.build_map();
+		unsigned max = m.scc_count();
+		for (unsigned n = 0; n < max; ++n)
+		  {
+		    bool w = spot::is_weak_scc(a, m, n);
+		    std::cout << "SCC #" << n
+			      << (w ? " is weak" : " is not weak")
+			      << std::endl;
 		  }
 		break;
 	      }
