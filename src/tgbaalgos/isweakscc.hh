@@ -35,9 +35,11 @@ namespace spot
   ///
   /// The scc_map \a map should have been built already.  The absence
   /// of accepting cycle is easy to check (the scc_map can tell
-  /// whether the SCC is non-accepting already).  For the accepting
-  /// SCCs, this function enumerates all cycles in the given SCC (it
-  /// stops if it find a non-accepting cycle).
+  /// whether the SCC is non-accepting already).  Similarly, an SCC in
+  /// which all transitions belong to all acceptance sets is
+  /// necessarily weak.
+  /// For other accepting SCCs, this function enumerates all cycles in
+  /// the given SCC (it stops if it find a non-accepting cycle).
   bool is_weak_scc(scc_map& map, unsigned scc);
 
   /// @}

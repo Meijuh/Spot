@@ -71,6 +71,10 @@ namespace spot
     // If no cycle is accepting, the SCC is weak.
     if (!map.accepting(scc))
       return true;
+    // If all transitions use all acceptance conditions, the SCC is weak.
+    if (map.useful_acc_of(scc) ==
+	bdd_support(map.get_aut()->neg_acceptance_conditions()))
+      return true;
     // If the SCC is accepting, but one cycle is not, the SCC is not
     // weak.
     weak_checker w(map);
