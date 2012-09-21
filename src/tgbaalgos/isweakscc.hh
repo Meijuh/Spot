@@ -30,14 +30,14 @@ namespace spot
 
   /// \brief Whether the SCC number \a scc in \a aut is weak.
   ///
-  /// An SCC is weak if its cycles are all accepting, or the are all
-  /// non-accepting.
+  /// An SCC is weak if either its cycles are all accepting, or they
+  /// are all non-accepting.
   ///
   /// The scc_map \a map should have been built already.  The absence
   /// of accepting cycle is easy to check (the scc_map can tell
   /// whether the SCC is non-accepting already).  For the accepting
-  /// SCC, this function works by enumerating all cycles in the given
-  /// SCC (it stops if it find a non-accepting cycle).
+  /// SCCs, this function enumerates all cycles in the given SCC (it
+  /// stops if it find a non-accepting cycle).
   bool is_weak_scc(const tgba* aut, scc_map& map, unsigned scc);
 
   /// @}

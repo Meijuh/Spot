@@ -53,8 +53,8 @@ namespace spot
 	for (set_type::iterator i = y->second.b.begin();
 	     i != y->second.b.end(); ++i)
 	  {
-	    tagged_state x = tags.find(*i);
-	    assert(x != tags.end());
+	    tagged_state x = tags_.find(*i);
+	    assert(x != tags_.end());
 	    // insert y in A(x)
 	    x->second.del.erase(y->first);
 
@@ -71,7 +71,7 @@ namespace spot
   enumerate_cycles::tag_state(const state* s)
   {
     std::pair<tagged_state, bool> p =
-      tags.insert(std::make_pair(s, state_info()));
+      tags_.insert(std::make_pair(s, state_info()));
     if (p.second)
       s->destroy();
     return p.first;
@@ -86,7 +86,7 @@ namespace spot
     e.ts = ts;
     e.succ = 0;
     e.f = false;
-    dfs.push_back(e);
+    dfs_.push_back(e);
   }
 
   void
@@ -96,9 +96,9 @@ namespace spot
 
     push_state(tag_state(sm_.one_state_of(scc)->clone()));
 
-    while (keep_going && !dfs.empty())
+    while (keep_going && !dfs_.empty())
       {
-	dfs_entry& cur = dfs.back();
+	dfs_entry& cur = dfs_.back();
 	if (cur.succ == 0)
 	  {
 	    cur.succ = aut_->succ_iter(cur.ts->first);
@@ -142,46 +142,45 @@ namespace spot
 	    tagged_state v = cur.ts;
 	    delete cur.succ;
 
-	    dfs.pop_back();
+	    dfs_.pop_back();
 	    if (f)
 	      unmark(v);
 	    v->second.reach = true;
 
 	    // Update the predecessor in the stack if there is one.
-	    if (!dfs.empty())
+	    if (!dfs_.empty())
 	      {
 		if (f)
-		  dfs.back().f = true;
+		  dfs_.back().f = true;
 		else
-		  nocycle(dfs.back().ts, v);
+		  nocycle(dfs_.back().ts, v);
 	      }
 	  }
       }
 
-    // Purge the dfs stack, in case we aborted because cycle_found()
-    // said so.
-    while (!dfs.empty())
+    // Purge the dfs_ stack, in case we aborted because cycle_found()
+    // returned false.
+    while (!dfs_.empty())
       {
-	delete dfs.back().succ;
-	dfs.pop_back();
+	delete dfs_.back().succ;
+	dfs_.pop_back();
       }
 
-
-    hash_type::iterator i = tags.begin();
-    while (i != tags.end())
+    hash_type::iterator i = tags_.begin();
+    while (i != tags_.end())
       {
 	hash_type::iterator old = i;
 	++i;
 	old->first->destroy();
       }
-    tags.clear();
-    dfs.clear();
+    tags_.clear();
+    dfs_.clear();
   }
 
   bool
   enumerate_cycles::cycle_found(const state* start)
   {
-    dfs_stack::const_iterator i = dfs.begin();
+    dfs_stack::const_iterator i = dfs_.begin();
     while (i->ts->first != start)
       ++i;
     do
@@ -189,7 +188,7 @@ namespace spot
 	std::cout << aut_->format_state(i->ts->first) << " ";
 	++i;
       }
-    while (i != dfs.end());
+    while (i != dfs_.end());
     std::cout << "\n";
     return true;
   }

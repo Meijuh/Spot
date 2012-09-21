@@ -27,6 +27,7 @@ namespace spot
 {
   namespace
   {
+    // Look for a non-accepting cycle.
     class weak_checker: public enumerate_cycles
     {
     public:
@@ -40,16 +41,16 @@ namespace spot
       virtual bool
       cycle_found(const state* start)
       {
-	dfs_stack::const_iterator i = dfs.begin();
+	dfs_stack::const_reverse_iterator i = dfs_.rbegin();
 	bdd acc = bddfalse;
-	while (i->ts->first != start)
-	  ++i;
-	do
+	for (;;)
 	  {
 	    acc |= i->succ->current_acceptance_conditions();
+	    if (i->ts->first == start)
+	      break;
 	    ++i;
+	    assert(i != dfs_.rend());
 	  }
-	while (i != dfs.end());
 	if (acc != aut_->all_acceptance_conditions())
 	  {
 	    // We have found an non-accepting cycle, so the SCC is not
