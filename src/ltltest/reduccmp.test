@@ -229,6 +229,25 @@ for x in ../reduccmp ../reductaustr; do
 
      run 0 $x '(a M c) M (b&a)' 'c M (b&a)'
 
+     run 0 $x '((a&c) U b) U c' 'b U c'
+     run 0 $x '((a&c) W b) U c' 'b U c'
+     run 0 $x '((a&c) U b) W c' 'b W c'
+     run 0 $x '((a&c) W b) W c' 'b W c'
+     run 0 $x '(a R b) R (c&a)' 'b R (c&a)'
+     run 0 $x '(a M b) R (c&a)' 'b R (c&a)'
+     run 0 $x '(a R b) M (c&a)' 'b M (c&a)'
+     run 0 $x '(a M b) M (c&a)' 'b M (c&a)'
+
+     run 0 $x '(a R (b&c)) R (c)' '(a&b&c) R c'
+     run 0 $x '(a M (b&c)) R (c)' '(a&b&c) R c'
+     run 0 $x '(a R (b&c)) M (c)' '(a R (b&c)) M (c)' # not reduced
+     run 0 $x '(a M (b&c)) M (c)' '(a&b&c) M c'
+     run 0 $x '(a W (c&b)) W b' '(a W (c&b)) | b'
+     run 0 $x '(a U (c&b)) W b' '(a U (c&b)) | b'
+     run 0 $x '(a U (c&b)) U b' '(a U (c&b)) | b'
+     run 0 $x '(a W (c&b)) U b' '(a W (c&b)) U b' # not reduced
+
+
      # Eventuality and universality class reductions
      run 0 $x 'Fa M b' 'Fa & b'
      run 0 $x 'GFa M b' 'GFa & b'

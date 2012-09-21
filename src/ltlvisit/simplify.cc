@@ -1848,6 +1848,29 @@ namespace spot
 			    }
 			}
 		    }
+		  // if a => b, then (a U c) U b = c U b
+		  // if a => b, then (a W c) U b = c U b
+		  // if c => b, then (a U c) U b = (a U c) | b
+		  if (const binop* bo = is_binop(a))
+		    {
+		      if ((bo->op() == binop::U || bo->op() == binop::W)
+			  && c_->implication(bo->first(), b))
+			{
+			  result_ = recurse_destroy
+			    (binop::instance(binop::U,
+					     bo->second()->clone(),
+					     b));
+			  a->destroy();
+			  return;
+			}
+		      else if ((bo->op() == binop::U)
+			       && c_->implication(bo->second(), b))
+			{
+			  result_ = recurse_destroy
+			    (multop::instance(multop::Or, a, b));
+			  return;
+			}
+		    }
 		  break;
 
 		case binop::R:
@@ -1889,20 +1912,35 @@ namespace spot
 			  return;
 			}
 		    }
-		  if (a->kind() == formula::BinOp)
+
+		  // if b => a, then (a R c) R b = c R b
+		  // if b => a, then (a M c) R b = c R b
+		  // if c => b, then (a R c) R b = (a & c) R b
+		  // if c => b, then (a M c) R b = (a & c) R b
+		  if (const binop* bo = is_binop(a))
 		    {
-		      // if b => a then (a R c) R b = c R b
-		      // if b => a then (a M c) R b = c R b
-		      const binop* bo = static_cast<const binop*>(a);
-		      if ((bo->op() == binop::R || bo->op() == binop::M)
-			  && c_->implication(b, bo->first()))
+		      if (bo->op() == binop::M || bo->op() == binop::R)
 			{
-			  result_ = recurse_destroy
-			    (binop::instance(binop::R,
-					     bo->second()->clone(),
-					     b));
-			  a->destroy();
-			  return;
+			  if (c_->implication(b, bo->first()))
+			    {
+			      result_ = recurse_destroy
+				(binop::instance(binop::R,
+						 bo->second()->clone(),
+						 b));
+			      a->destroy();
+			      return;
+			    }
+			  else if (c_->implication(bo->second(), b))
+			    {
+			      const formula* ac =
+				multop::instance(multop::And,
+						 bo->first()->clone(),
+						 bo->second()->clone());
+			      a->destroy();
+			      result_ = recurse_destroy
+				(binop::instance(binop::R, ac, b));
+			      return;
+			    }
 			}
 		    }
 
@@ -1954,6 +1992,31 @@ namespace spot
 			  return;
 			}
 		    }
+		  // if a => b, then (a U c) W b = c W b
+		  // if a => b, then (a W c) W b = c W b
+		  // if c => b, then (a W c) W b = (a W c) | b
+		  // if c => b, then (a U c) W b = (a U c) | b
+		  if (const binop* bo = is_binop(a))
+		    {
+		      if ((bo->op() == binop::U || bo->op() == binop::W))
+			{
+			  if (c_->implication(bo->first(), b))
+			    {
+			      result_ = recurse_destroy
+				(binop::instance(binop::W,
+						 bo->second()->clone(),
+						 b));
+			      a->destroy();
+			      return;
+			    }
+			  else if (c_->implication(bo->second(), b))
+			    {
+			      result_ = recurse_destroy
+				(multop::instance(multop::Or, a, b));
+			      return;
+			    }
+			}
+		    }
 		  break;
 
 		case binop::M:
@@ -1996,11 +2059,13 @@ namespace spot
 			  return;
 			}
 		    }
-		  if (a->kind() == formula::BinOp)
+
+		  // if b => a, then (a R c) M b = c M b
+		  // if b => a, then (a M c) M b = c M b
+		  // if c => b, then (a M c) M b = (a & c) M b
+		  if (const binop* bo = is_binop(a))
 		    {
-		      // if b => a then (a M c) M b = c M b
-		      const binop* bo = static_cast<const binop*>(a);
-		      if (bo->op() == binop::M
+		      if ((bo->op() == binop::M || bo->op() == binop::R)
 			  && c_->implication(b, bo->first()))
 			{
 			  result_ = recurse_destroy
@@ -2008,6 +2073,18 @@ namespace spot
 					     bo->second()->clone(),
 					     b));
 			  a->destroy();
+			  return;
+			}
+		      else if ((bo->op() == binop::M)
+			       && c_->implication(bo->second(), b))
+			{
+			  const formula* ac =
+			    multop::instance(multop::And,
+					     bo->first()->clone(),
+					     bo->second()->clone());
+			  a->destroy();
+			  result_ = recurse_destroy
+			    (binop::instance(binop::M, ac, b));
 			  return;
 			}
 		    }
