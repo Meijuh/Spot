@@ -1,49 +1,13 @@
 New in spot 0.9.2a:
 
-  * Support for various flavors of Testing Automata.
-    The flavors are:
-      - "classical" Testing Automata, as used for instance by
-	Geldenhuys and Hansen (Spin'06), using Büchi and
-	livelock acceptance conditions.
-      - Generalized Testing Automata, extending the previous
-	with multiple Büchi acceptance sets.
-      - Transition-based Generalized Testing Automata moving Büchi
-        acceptance to transitions, and getting rid of livelock
-        acceptance conditions by expliciting stuttering self-loops.
-    Supporting algorithms include anything required to run
-    the automata-theoretic approach using testing automata:
-      - dedicated synchronized product
-      - dedicated emptiness-check for TA and GTA, as these
-        may require two passes because of the two kinds of
-	acceptance, while a TGTA can be checked for emptiness
-	with the same one-pass algorithm as a TGBA.
-      - conversion from a TGBA to any of the above kind, with
-        options to reduce these automata with bisimulation,
-	and to produce a BA/GBA that require a single pass
-	(at the expense of determinism).
-      - output in dot format for display
-    A discussion of these automata, part of Ala Eddine BEN SALEM's
-    PhD work, should appear in a future edition of ToPNoC.
-    The web-based interface can build and display these testing
-    automata.
-  * TGBA can now be reduced by Reverse Simulation (in addition to
-    the Direct Simulation introduced in 0.9).  A function called
-    iterated_simulations() will alternate direct and reverse
-    simulations in a loop as long as it diminishes the size of the
-    automaton.
-  * minimize_obligation() has a new option to disable WDBA
-    minimization it cases it would produce a deterministic automaton
-    that is bigger than the original TGBA.  So this effectively
-    gives the choice between less states or more determinism.
-  * new functions is_deterministic() and count_nondet_states()
-    (The count of nondeterministic states is now displayed on
-    automata generated with the web interface.)
-  * Useful command-line tools are now installed in addition
-    to the library.  Some of these tools were originally written
-    for our test suite and had evolved organically into useful
-    programs with crapy interface: they have now been rewritten
-    with better argument parsing, saner defaults, and come with
-    man pages.
+  * Command-line tools
+
+    Useful command-line tools are now installed in addition to the
+    library.  Some of these tools were originally written for our test
+    suite and had evolved organically into useful programs with crapy
+    interfaces: they have now been rewritten with better argument
+    parsing, saner defaults, and they come with man pages.
+
     - genltl: generate LTL formulas from scallable patterns
               This offers 20 patterns so far.
     - randltl: generate random LTL/PSL formulas
@@ -58,6 +22,82 @@ New in spot 0.9.2a:
                fondamental change to the interface is that you may
 	       now specify the goal of the translation: do you
 	       you favor deterministic or smaller automata?
+
+    These binaries are built in the src/bin/ directory.  The former
+    test versions of genltl and randltl have been removed from the
+    source tree.  The old version of ltl2tgba with its gazillion
+    options is still is src/tgbatest/ and used for testing.
+
+  * New features in the Spot library:
+
+    - Support for various flavors of Testing Automata.
+
+      The flavors are:
+      + "classical" Testing Automata, as used for instance by
+	Geldenhuys and Hansen (Spin'06), using Büchi and
+	livelock acceptance conditions.
+      + Generalized Testing Automata, extending the previous
+	with multiple Büchi acceptance sets.
+      + Transition-based Generalized Testing Automata moving Büchi
+        acceptance to transitions, and getting rid of livelock
+        acceptance conditions by expliciting stuttering self-loops.
+
+      Supporting algorithms include anything required to run
+      the automata-theoretic approach using testing automata:
+
+      + dedicated synchronized product
+      + dedicated emptiness-check for TA and GTA, as these
+        may require two passes because of the two kinds of
+	acceptance, while a TGTA can be checked for emptiness
+	with the same one-pass algorithm as a TGBA.
+      + conversion from a TGBA to any of the above kind, with
+        options to reduce these automata with bisimulation,
+	and to produce a BA/GBA that require a single pass
+	(at the expense of determinism).
+      + output in dot format for display
+
+      A discussion of these automata, part of Ala Eddine BEN SALEM's
+      PhD work, should appear in a future edition of ToPNoC.
+      The web-based interface can build and display these testing
+      automata.
+
+    - TGBA can now be reduced by Reverse Simulation (in addition to
+      the Direct Simulation introduced in 0.9).  A function called
+      iterated_simulations() will alternate direct and reverse
+      simulations in a loop as long as it diminishes the size of the
+      automaton.
+
+    - The enumerate_cycles class implements the Loizou-Thanisch algorithm
+      to enumerate the cycles of a SCC.  As an example of use, the
+      is_weak_scc() function will tell whether an SCC is weak (all
+      its cycles are accepting, or none of them are).
+
+    - parse_lbt() will parse an LTL formula expressed in the prefix
+      syntax used (at least) by LBT, LBTT and Scheck.
+      to_lbt_string() can be used to print an LTL formula using this
+      syntax.
+
+    - minimize_obligation() has a new option to disable WDBA
+      minimization it cases it would produce a deterministic automaton
+      that is bigger than the original TGBA.  This can help
+      chosing between less states or more determinism.
+
+    - new functions is_deterministic() and count_nondet_states()
+      (The count of nondeterministic states is now displayed on
+      automata generated with the web interface.)
+
+    - A new class, "postprocessor", makes it easier to apply
+      all availlable simplification algorithms on a TGBA.
+
+  * Minor changes:
+
+    - The '*' operator can (again) be used as an AND in LTL formulas.
+      This is for compatibility with formula written in Wring's
+      syntax.  However inside SERE it is interpreted as the Kleen
+      star.
+
+    - The gspn-ssp benchmark has been removed.
+
 
 New in spot 0.9.2 (2012-07-02):
 
