@@ -1425,7 +1425,7 @@ main(int argc, char** argv)
 	      {
 		spot::scc_map m(a);
 		m.build_map();
-		spot::enumerate_cycles c(a, m);
+		spot::enumerate_cycles c(m);
 		unsigned max = m.scc_count();
 		for (unsigned n = 0; n < max; ++n)
 		  {
@@ -1441,7 +1441,7 @@ main(int argc, char** argv)
 		unsigned max = m.scc_count();
 		for (unsigned n = 0; n < max; ++n)
 		  {
-		    bool w = spot::is_weak_scc(a, m, n);
+		    bool w = spot::is_weak_scc(m, n);
 		    std::cout << "SCC #" << n
 			      << (w ? " is weak" : " is not weak")
 			      << std::endl;

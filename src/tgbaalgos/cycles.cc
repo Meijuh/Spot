@@ -23,9 +23,8 @@
 
 namespace spot
 {
-  enumerate_cycles::enumerate_cycles(const tgba* aut,
-				     const scc_map& map)
-    : aut_(aut), sm_(map)
+  enumerate_cycles::enumerate_cycles(const scc_map& map)
+    : aut_(map.get_aut()), sm_(map)
   {
   }
 

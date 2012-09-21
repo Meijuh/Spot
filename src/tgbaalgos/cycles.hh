@@ -63,12 +63,12 @@ namespace spot
   /// dfs_ stack.  Only the last portion of this stack may form a
   /// cycle.
   ///
-  /// The class constructor takes an automaton and an scc_map that
-  /// should already have been built for that automaton.  Calling
-  /// run(n) will enumerate all elementary cycles in SCC #n.  Each
-  /// time an SCC is found, the method cycle_found(s) is called with
-  /// the initial state s of the cycle: the cycle is constituted from
-  /// all the states that are on the dfs_ stack after s (including s).
+  /// The class constructor takes an scc_map that should already have
+  /// been built for its automaton.  Calling run(n) will enumerate all
+  /// elementary cycles in SCC #n.  Each time an SCC is found, the
+  /// method cycle_found(s) is called with the initial state s of the
+  /// cycle: the cycle is constituted from all the states that are on
+  /// the dfs_ stack after s (including s).
   ///
   /// You should inherit from this class and redefine the
   /// cycle_found() method to perform any work you would like to do on
@@ -130,7 +130,7 @@ namespace spot
     dfs_stack dfs_;
 
   public:
-    enumerate_cycles(const tgba* aut, const scc_map& map);
+    enumerate_cycles(const scc_map& map);
 
     /// \brief Run in SCC scc, and call \a cycle_found() for any new
     /// elementary cycle found.

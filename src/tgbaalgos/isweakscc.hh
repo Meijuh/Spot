@@ -28,7 +28,7 @@ namespace spot
   /// \addtogroup tgba_misc
   /// @{
 
-  /// \brief Whether the SCC number \a scc in \a aut is weak.
+  /// \brief Whether the SCC number \a scc in \a map is weak.
   ///
   /// An SCC is weak if either its cycles are all accepting, or they
   /// are all non-accepting.
@@ -38,7 +38,7 @@ namespace spot
   /// whether the SCC is non-accepting already).  For the accepting
   /// SCCs, this function enumerates all cycles in the given SCC (it
   /// stops if it find a non-accepting cycle).
-  bool is_weak_scc(const tgba* aut, scc_map& map, unsigned scc);
+  bool is_weak_scc(scc_map& map, unsigned scc);
 
   /// @}
 }

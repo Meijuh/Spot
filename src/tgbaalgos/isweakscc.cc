@@ -33,8 +33,8 @@ namespace spot
     public:
       bool result;
 
-      weak_checker(const tgba* aut, const scc_map& map)
-	: enumerate_cycles(aut, map), result(true)
+      weak_checker(const scc_map& map)
+	: enumerate_cycles(map), result(true)
       {
       }
 
@@ -66,14 +66,14 @@ namespace spot
   }
 
   bool
-  is_weak_scc(const tgba* aut, scc_map& map, unsigned scc)
+  is_weak_scc(scc_map& map, unsigned scc)
   {
     // If no cycle is accepting, the SCC is weak.
     if (!map.accepting(scc))
       return true;
     // If the SCC is accepting, but one cycle is not, the SCC is not
     // weak.
-    weak_checker w(aut, map);
+    weak_checker w(map);
     w.run(scc);
     return w.result;
   }
