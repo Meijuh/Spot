@@ -131,6 +131,7 @@ namespace spot
 
   public:
     enumerate_cycles(const scc_map& map);
+    virtual ~enumerate_cycles() {}
 
     /// \brief Run in SCC scc, and call \a cycle_found() for any new
     /// elementary cycle found.
