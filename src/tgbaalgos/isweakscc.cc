@@ -49,7 +49,9 @@ namespace spot
 	    if (i->ts->first == start)
 	      break;
 	    ++i;
-	    assert(i != dfs_.rend());
+	    // The const cast is here to please old g++ versions.
+	    // At least version 4.0 needs it.
+	    assert(i != const_cast<const dfs_stack&>(dfs_).rend());
 	  }
 	if (acc != aut_->all_acceptance_conditions())
 	  {
