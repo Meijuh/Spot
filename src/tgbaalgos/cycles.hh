@@ -85,6 +85,10 @@ namespace spot
     // Extra information required for the algorithm for each state.
     struct state_info
     {
+      state_info()
+	: reach(false), mark(false)
+      {
+      }
       // Whether the state has already left the stack at least once.
       bool reach;
       // set to true when the state current state w is stacked, and
