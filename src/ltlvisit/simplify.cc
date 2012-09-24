@@ -1752,18 +1752,41 @@ namespace spot
 		 If a is a pure universality formula a W b = a|b. */
 	      if (a->is_eventual() && (op == binop::M))
 		{
-		  const formula* tmp = multop::instance(multop::And, a, b);
-		  result_ = recurse(tmp);
-		  tmp->destroy();
+		  result_ =
+		    recurse_destroy(multop::instance(multop::And, a, b));
 		  return;
 		}
 	      if (a->is_universal() && (op == binop::W))
 		{
-		  const formula* tmp = multop::instance(multop::Or, a, b);
-		  result_ = recurse(tmp);
-		  tmp->destroy();
+		  result_ =
+		    recurse_destroy(multop::instance(multop::Or, a, b));
 		  return;
 		}
+
+
+	      // e₁ W e₂ = Ge₁ | e₂
+	      // u₁ M u₂ = Fu₁ & u₂
+	      if (!opt_.reduce_size_strictly)
+		{
+		  if (op == binop::W && a->is_eventual() && b->is_eventual())
+		    {
+		      result_ =
+			recurse_destroy(multop::instance
+					(multop::Or,
+					 unop::instance(unop::G, a), b));
+		      return;
+		    }
+		  if (op == binop::M && a->is_universal() && b->is_universal())
+		    {
+		      result_ =
+			recurse_destroy(multop::instance
+					(multop::And,
+					 unop::instance(unop::F, a), b));
+		      return;
+		    }
+		}
+
+
 	      trace << "bo: no eventuniv rule matched" << std::endl;
 	    }
 

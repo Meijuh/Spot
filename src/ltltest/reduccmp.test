@@ -178,6 +178,9 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x 'G(a R b)' 'Gb'
      run 0 $x 'G(a W b)' 'G(a | b)'
 
+     run 0 $x 'Fa W Fb' 'F(GFa | b)'
+     run 0 $x 'Ga M Gb' 'FGa & Gb'
+
      run 0 $x 'a & XGa' 'Ga'
      run 0 $x 'a & XG(a&b)' '(XGb)&(Ga)'
      run 0 $x 'a & b & XG(a&b)'  'G(a&b)'
