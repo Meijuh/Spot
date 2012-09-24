@@ -36,7 +36,7 @@ namespace spot
   /// monitor.  All useless SCCs should have been previously removed
   /// (using scc_filter() for instance).  Then the automaton will be
   /// determinized and minimized using the standard DFA construction
-  /// as if all states where accepting states.
+  /// as if all states were accepting states.
   ///
   /// For more detail about monitors, see the following paper:
   /// \verbatim
