@@ -18,6 +18,9 @@ since the generated files they produce are distributed.)
   GNU Bison >= 2.4.2
   SWIG >= 1.3.31
   Doxygen >= 1.4.0
+  Perl, with its Gettext module (it might be called something like
+    liblocale-gettext-perl or p5-locale-gettext in your distribution)
+  A complete LaTeX distribution, including latexmk.
 
 Bootstrap the GIT tree by running
 
