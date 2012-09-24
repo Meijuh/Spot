@@ -34,14 +34,17 @@ libcommon_a_SOURCES =				\
   common_finput.hh				\
   common_output.cc				\
   common_output.hh				\
+  common_post.cc				\
+  common_post.hh				\
   common_range.cc				\
   common_range.hh				\
   common_r.cc					\
   common_r.hh					\
   common_sys.hh
 
-bin_PROGRAMS = ltlfilt genltl randltl ltl2tgba
+bin_PROGRAMS = ltlfilt genltl randltl ltl2tgba ltl2tgta
 ltlfilt_SOURCES = ltlfilt.cc
 genltl_SOURCES = genltl.cc
 randltl_SOURCES = randltl.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
+ltl2tgta_SOURCES = ltl2tgta.cc

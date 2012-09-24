@@ -22,6 +22,7 @@ New in spot 0.9.2a:
                fondamental change to the interface is that you may
 	       now specify the goal of the translation: do you
 	       you favor deterministic or smaller automata?
+    - ltl2tgta translate LTL/PSL formulas into Testing Automata.
 
     These binaries are built in the src/bin/ directory.  The former
     test versions of genltl and randltl have been removed from the

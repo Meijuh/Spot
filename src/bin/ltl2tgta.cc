@@ -39,15 +39,16 @@
 #include "ltlparse/public.hh"
 #include "ltlvisit/simplify.hh"
 #include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgbaalgos/neverclaim.hh"
-#include "tgbaalgos/save.hh"
-#include "tgbaalgos/stats.hh"
+#include "tgbaalgos/postproc.hh"
 #include "tgba/bddprint.hh"
 
+#include "taalgos/tgba2ta.hh"
+#include "taalgos/dotty.hh"
+#include "taalgos/minimize.hh"
+
 const char* argp_program_version = "\
-ltl2tgba (" SPOT_PACKAGE_STRING ")\n\
+ltl2tgta (" SPOT_PACKAGE_STRING ")\n\
 \n\
 Copyright (C) 2012  Laboratoire de Recherche et Développement de l'Epita.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
@@ -57,52 +58,38 @@ to the extent permitted by law.";
 const char* argp_program_bug_address = "<" SPOT_PACKAGE_BUGREPORT ">";
 
 const char argp_program_doc[] ="\
-Translate linear-time formulas (LTL/PSL) into Büchi automata.\n\n\
-By default it will apply all available optimizations to output \
+Translate linear-time formulas (LTL/PSL) into Testing Automata.\n\n\
+By default it outputs a transition-based generalized Testing Automaton \
 the smallest Transition-based Generalized Büchi Automata, \
-in GraphViz's format.\n\
-If multiple formulas are supplied, several automata will be output.";
+in GraphViz's format.  The input formula is assumed to be \
+stuttering-insensitive.";
 
-#define OPT_TGBA 1
-#define OPT_DOT 2
-#define OPT_LBTT 3
-#define OPT_SPOT 4
-#define OPT_STATS 5
+#define OPT_TGTA 1
+#define OPT_TA 2
+#define OPT_GTA 3
+#define OPT_SPLV 4
+#define OPT_SPNO 5
+#define OPT_INIT 6
 
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Automaton type:", 2 },
-    { "tgba", OPT_TGBA, 0, 0,
-      "Transition-based Generalized Büchi Automaton (default)", 0 },
-    { "ba", 'B', 0, 0, "Büchi Automaton", 0 },
+    { 0, 0, 0, 0, "Automaton type:", 1 },
+    { "tgta", OPT_TGTA, 0, 0,
+      "Transition-based Generalized Testing Automaton (default)", 0 },
+    { "ta", OPT_TA, 0, 0, "Testing Automaton", 0 },
+    { "gta", OPT_GTA, 0, 0, "Generalized Testing Automaton", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Output format:", 3 },
-    { "dot", OPT_DOT, 0, 0, "GraphViz's format (default)", 0 },
-    { "lbtt", OPT_LBTT, 0, 0, "LBTT's format", 0 },
-    { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
-    { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
-    { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
-      "(ignored with --lbtt or --spin)", 0 },
-    { "stats", OPT_STATS, "FORMAT", 0,
-      "output statistics about the automaton", 0 },
+    { 0, 0, 0, 0, "Options for TA and GTA creation:", 3 },
+    { "single-pass-lv", OPT_SPLV, 0, 0,
+      "add an artificial livelock state to obtain a single-pass (G)TA", 0 },
+    { "single-pass", OPT_SPNO, 0, 0,
+      "create a single-pass (G)TA without artificial livelock state", 0 },
+    { "multiple-init", OPT_INIT, 0, 0,
+      "do not create the fake initial state", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "The FORMAT string passed to --stats may use "\
-      "the following interpreted sequences:", 4 },
-    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the formula, in Spot's syntax", 0 },
-    { "%s", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of states", 0 },
-    { "%e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of edges", 0 },
-    { "%t", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of transitions", 0 },
-    { "%a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of acceptance sets", 0 },
-    { "%S", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of SCCs", 0 },
-    { "%n", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of nondeterministic states", 0 },
-    { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "1 if the automaton is deterministic, 0 otherwise", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "a single %", 0 },
+    { 0, 0, 0, 0, "Output options:", 4 },
+    { "utf8", '8', 0, 0, "enable UTF-8 characters in output", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }
@@ -115,9 +102,14 @@ const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-enum output_format { Dot, Lbtt, Spin, Spot, Stats } format = Dot;
+enum ta_types { TGTA, GTA, TA };
+ta_types ta_type = TGTA;
+
 bool utf8 = false;
 const char* stats = "";
+bool opt_with_artificial_initial_state = true;
+bool opt_single_pass_emptiness_check = false;
+bool opt_with_artificial_livelock = false;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -137,29 +129,26 @@ parse_opt(int key, char* arg, struct argp_state*)
     case 'F':
       jobs.push_back(job(arg, true));
       break;
-    case 's':
-      format = Spin;
+    case OPT_TGTA:
+      ta_type = TGTA;
+      type = spot::postprocessor::TGBA;
+      break;
+    case OPT_GTA:
+      ta_type = GTA;
+      type = spot::postprocessor::TGBA;
+      break;
+    case OPT_TA:
+      ta_type = TA;
       type = spot::postprocessor::BA;
       break;
-    case OPT_DOT:
-      format = Dot;
+    case OPT_INIT:
+      opt_with_artificial_initial_state = false;
       break;
-    case OPT_LBTT:
-      format = Lbtt;
+    case OPT_SPLV:
+      opt_with_artificial_livelock = true;
       break;
-    case OPT_SPOT:
-      format = Spot;
-      break;
-    case OPT_STATS:
-      if (!*arg)
-	error(2, 0, "empty format string for --stats");
-      stats = arg;
-      format = Stats;
-      break;
-    case OPT_TGBA:
-      if (format == Spin)
-	error(2, 0, "--spin and --tgba are incompatible");
-      type = spot::postprocessor::TGBA;
+    case OPT_SPNO:
+      opt_single_pass_emptiness_check = true;
       break;
     case ARGP_KEY_ARG:
       // FIXME: use stat() to distinguish filename from string?
@@ -180,11 +169,10 @@ namespace
   public:
     spot::ltl::ltl_simplifier& simpl;
     spot::postprocessor& post;
-    spot::stat_printer statistics;
 
     trans_processor(spot::ltl::ltl_simplifier& simpl,
 		    spot::postprocessor& post)
-      : simpl(simpl), post(post), statistics(std::cout, stats)
+      : simpl(simpl), post(post)
     {
     }
 
@@ -228,25 +216,40 @@ namespace
 	    sef->enable_utf8();
 	}
 
-      switch (format)
+      bdd ap_set = atomic_prop_collect_as_bdd(f, aut);
+
+      if (ta_type != TGTA)
 	{
-	case Dot:
-	  spot::dotty_reachable(std::cout, aut,
-				type == spot::postprocessor::BA);
-	  break;
-	case Lbtt:
-	  spot::lbtt_reachable(std::cout, aut);
-	  break;
-	case Spot:
-	  spot::tgba_save_reachable(std::cout, aut);
-	  break;
-	case Spin:
-	  spot::never_claim_reachable(std::cout, aut, f);
-	  break;
-	case Stats:
-	  statistics.print(aut, f) << "\n";
-	  break;
+	  spot::ta* testing_automaton = 0;
+	  testing_automaton = tgba_to_ta(aut, ap_set,
+					 type == spot::postprocessor::BA,
+					 opt_with_artificial_initial_state,
+					 opt_single_pass_emptiness_check,
+					 opt_with_artificial_livelock);
+	  if (level != spot::postprocessor::Low)
+	    {
+	      spot::ta* testing_automaton_nm = testing_automaton;
+	      testing_automaton = spot::minimize_ta(testing_automaton);
+	      delete testing_automaton_nm;
+	    }
+	  spot::dotty_reachable(std::cout, testing_automaton);
+	  delete testing_automaton;
 	}
+      else
+	{
+	  spot::tgta_explicit* tgta = tgba_to_tgta(aut, ap_set);
+	  if (level != spot::postprocessor::Low)
+	    {
+	      spot::tgta_explicit* a = spot::minimize_tgta(tgta);
+	      delete tgta;
+	      tgta = a;
+	    }
+	  spot::dotty_reachable(std::cout,
+				dynamic_cast<spot::tgta_explicit*>(tgta)
+				->get_ta());
+	  delete tgta;
+	}
+
       delete aut;
       flush_cout();
       return 0;
