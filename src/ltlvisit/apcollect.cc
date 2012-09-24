@@ -66,7 +66,7 @@ namespace spot
     }
 
     bdd
-    atomic_prop_collect_as_bdd(const formula* f, tgba* a)
+    atomic_prop_collect_as_bdd(const formula* f, const tgba* a)
     {
       spot::ltl::atomic_prop_set aps;
       atomic_prop_collect(f, &aps);

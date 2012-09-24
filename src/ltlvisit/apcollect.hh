@@ -62,7 +62,7 @@ namespace spot
     /// \param a that automaton that should register the BDD variables used.
     /// \return A conjunction the atomic propositions.
     bdd
-    atomic_prop_collect_as_bdd(const formula* f, tgba* a);
+    atomic_prop_collect_as_bdd(const formula* f, const tgba* a);
 
     /// @}
   }
