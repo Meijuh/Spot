@@ -69,7 +69,6 @@ Exit status:\n\
 #define OPT_DROP_ERRORS 3
 #define OPT_NNF 4
 #define OPT_LTL 5
-#define OPT_PSL 6
 #define OPT_NOX 7
 #define OPT_BOOLEAN 8
 #define OPT_EVENTUAL 9
@@ -115,8 +114,7 @@ static const argp_option options[] =
     /**************************************************/
     { 0, 0, 0, 0,
       "Filtering options (matching is done after transformation):", 5 },
-    { "ltl", OPT_LTL, 0, 0, "match LTL formulas", 0 },
-    { "psl", OPT_PSL, 0, 0, "match PSL formulas", 0 },
+    { "ltl", OPT_LTL, 0, 0, "match only LTL formulas (no PSL operator)", 0 },
     { "nox", OPT_NOX, 0, 0, "match X-free formulas", 0 },
     { "boolean", OPT_BOOLEAN, 0, 0, "match Boolean formulas", 0 },
     { "eventual", OPT_EVENTUAL, 0, 0, "match pure eventualities", 0 },
@@ -299,9 +297,6 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_OBLIGATION:
       obligation = true;
-      break;
-    case OPT_PSL:
-      psl = true;
       break;
     case OPT_RELABEL:
       relabeling = true;
