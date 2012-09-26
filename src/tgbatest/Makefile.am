@@ -76,6 +76,7 @@ TESTS = \
   explicit2.test \
   taatgba.test \
   tgbaread.test \
+  renault.test \
   neverclaimread.test \
   readsave.test \
   ltl2tgba.test \

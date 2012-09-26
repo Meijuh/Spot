@@ -394,7 +394,17 @@ namespace spot
             free_var_.pop();
           }
 
-	assert(bdd_lstate_.size() == used_var_.size());
+	for (int i = 0; i > nb_new_color; --i)
+          {
+            assert(!used_var_.empty());
+            free_var_.push(bdd_var(used_var_.front()));
+            used_var_.pop_front();
+          }
+
+
+	assert((bdd_lstate_.size() == used_var_.size())
+               || (bdd_lstate_.find(bddfalse) != bdd_lstate_.end()
+                   && bdd_lstate_.size() == used_var_.size() + 1));
 
 	// Now we make a temporary hash_table which links the tuple
 	// "C^(i-1), N^(i-1)" to the new class coloring.  If we
