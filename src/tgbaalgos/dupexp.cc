@@ -56,8 +56,29 @@ namespace spot
 	out_->add_acceptance_conditions(t, si->current_acceptance_conditions());
       }
 
-    private:
+    protected:
       tgba_explicit_number* out_;
+    };
+
+    template <typename T>
+    class dupexp_iter_save: public dupexp_iter<T>
+    {
+    public:
+      dupexp_iter_save(const tgba* a,
+                       std::map<const state*,
+                                const state*,
+                                state_ptr_less_than>& relation)
+        : dupexp_iter<T>(a),
+          relation_(relation)
+      {
+      }
+
+      void process_state(const state* s, int n, tgba_succ_iterator*)
+      {
+        relation_[this->out_->add_state(n)] = const_cast<state*>(s);
+      }
+
+      std::map<const state*, const state*, state_ptr_less_than>& relation_;
     };
 
   } // anonymous
@@ -78,4 +99,25 @@ namespace spot
     return di.result();
   }
 
+  tgba_explicit_number*
+  tgba_dupexp_bfs(const tgba* aut,
+                  std::map<const state*,
+                           const state*, state_ptr_less_than>& rel)
+  {
+    dupexp_iter_save<tgba_reachable_iterator_breadth_first> di(aut,
+                                                               rel);
+    di.run();
+    return di.result();
+  }
+
+  tgba_explicit_number*
+  tgba_dupexp_dfs(const tgba* aut,
+                  std::map<const state*,
+                           const state*, state_ptr_less_than>& rel)
+  {
+    dupexp_iter_save<tgba_reachable_iterator_depth_first> di(aut,
+                                                             rel);
+    di.run();
+    return di.result();
+  }
 }

@@ -113,6 +113,23 @@ namespace spot
 
   /// \brief Enable UTF-8 output for bdd printers.
   void enable_utf8();
+
+
+  /// \brief Format a BDD as an irredundant sum of product.
+  /// \param dict The dictionary to use, to lookup variables.
+  /// \param b The BDD to print.
+  /// \return The BDD formated as a string.
+  std::string
+  bdd_format_isop(const bdd_dict* d, bdd b);
+
+
+  /// \brief Print a BDD as an irredundant sum of product.
+  /// \param os The output stream.
+  /// \param dict The dictionary to use, to lookup variables.
+  /// \param b The BDD to print.
+  std::ostream&
+  bdd_print_isop(std::ostream& os, const bdd_dict* d, bdd b);
+
 }
 
 #endif // SPOT_TGBA_BDDPRINT_HH

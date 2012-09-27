@@ -69,7 +69,6 @@ tripprod_SOURCES = tripprod.cc
 # because such failures will be easier to diagnose and fix.
 TESTS = \
   intvcomp.test \
-  simdet.test \
   eltl2tgba.test \
   explicit.test \
   explicit2.test \
@@ -79,6 +78,8 @@ TESTS = \
   nondet.test \
   neverclaimread.test \
   readsave.test \
+  simdet.test \
+  sim.test \
   ltl2tgba.test \
   ltl2neverclaim.test \
   ltl2neverclaim-lbtt.test \

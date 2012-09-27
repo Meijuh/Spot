@@ -133,6 +133,13 @@ namespace spot
   /// one
   tgba* iterated_simulations(const tgba* automaton);
 
+
+  tgba* dont_care_simulation(const tgba* t, int limit = -1);
+
+  tgba*
+  dont_care_iterated_simulations(const tgba* t, int limit = -1);
+
+
   /// @}
 } // End namespace spot.
 

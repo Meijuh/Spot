@@ -25,6 +25,7 @@
 #include "bddprint.hh"
 #include "ltlvisit/tostring.hh"
 #include "formula2bdd.hh"
+#include "misc/minato.hh"
 
 namespace spot
 {
@@ -241,5 +242,29 @@ namespace spot
   enable_utf8()
   {
     utf8 = true;
+  }
+
+  std::ostream&
+  bdd_print_isop(std::ostream& os, const bdd_dict* d, bdd b)
+  {
+    dict = d;
+    want_acc = true;
+    minato_isop isop(b);
+
+    bdd p;
+    while ((p = isop.next()) != bddfalse)
+      {
+        os << bdd_format_set(d, p);
+      }
+
+    return os;
+  }
+
+  std::string
+  bdd_format_isop(const bdd_dict* d, bdd b)
+  {
+    std::ostringstream os;
+    bdd_print_isop(os, d, b);
+    return os.str();
   }
 }

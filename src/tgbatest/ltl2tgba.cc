@@ -216,6 +216,8 @@ syntax(char* prog)
 	    << std::endl
 	    << "  -RIS  iterate both direct and reverse simulations"
 	    << std::endl
+            << "  -RDCS reduce the automaton with direct simulation"
+            << std::endl
             << "  -Rm   attempt to WDBA-minimize the automaton" << std::endl
 	    << std::endl
             << "  -RM   attempt to WDBA-minimize the automaton unless the "
@@ -314,6 +316,17 @@ syntax(char* prog)
   exit(2);
 }
 
+static int
+to_int(const char* s)
+{
+  char* endptr;
+  int res = strtol(s, &endptr, 10);
+  if (*endptr)
+    return -1;
+  return res;
+}
+
+
 int
 main(int argc, char** argv)
 {
@@ -374,6 +387,9 @@ main(int argc, char** argv)
   bool reduction_dir_sim = false;
   bool reduction_rev_sim = false;
   bool reduction_iterated_sim = false;
+  bool reduction_dont_care_sim = false;
+  int limit_dont_care_sim = 0;
+  bool reduction_iterated_dont_care_sim = false;
   spot::tgba* temp_dir_sim = 0;
   bool ta_opt = false;
   bool tgta_opt = false;
@@ -382,7 +398,8 @@ main(int argc, char** argv)
   bool opt_with_artificial_livelock = false;
   spot::tgba* temp_rev_sim = 0;
   spot::tgba* temp_iterated_sim = 0;
-
+  spot::tgba* temp_dont_care_sim = 0;
+  spot::tgba* temp_dont_care_iterated_sim = 0;
 
   for (;;)
     {
@@ -720,6 +737,18 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-RIS"))
         {
           reduction_iterated_sim = true;
+        }
+      else if (!strncmp(argv[formula_index], "-RDCS", 5))
+        {
+          reduction_dont_care_sim = true;
+          if (argv[formula_index][5] == '=')
+            limit_dont_care_sim = to_int(argv[formula_index] + 6);
+        }
+      else if (!strncmp(argv[formula_index], "-RDCIS", 6))
+        {
+          reduction_iterated_dont_care_sim = true;
+          if (argv[formula_index][6] == '=')
+            limit_dont_care_sim = to_int(argv[formula_index] + 7);
         }
       else if (!strcmp(argv[formula_index], "-rL"))
         {
@@ -1131,6 +1160,9 @@ main(int argc, char** argv)
               // When the minimization succeed, simulation is useless.
               reduction_dir_sim = false;
               reduction_rev_sim = false;
+              reduction_iterated_dont_care_sim = false;
+              reduction_dont_care_sim = false;
+              reduction_iterated_sim = false;
 	      assume_sba = true;
 	    }
 	}
@@ -1153,6 +1185,17 @@ main(int argc, char** argv)
 	  assume_sba = false;
         }
 
+
+      if (reduction_iterated_dont_care_sim)
+        {
+          tm.start("don't care iterated simulation");
+          temp_dont_care_iterated_sim
+            = spot::dont_care_iterated_simulations(a, limit_dont_care_sim);
+          a = temp_dont_care_iterated_sim;
+          tm.stop("don't care iterated simulation");
+	  assume_sba = false;
+        }
+
       if (reduction_iterated_sim)
         {
           tm.start("Reduction w/ iterated simulations");
@@ -1169,6 +1212,25 @@ main(int argc, char** argv)
 	  aut_scc = a = spot::scc_filter(a, scc_filter_all);
 	  tm.stop("SCC-filter post-sim");
 	}
+
+      if (reduction_dont_care_sim)
+        {
+          tm.start("don't care simulation");
+          temp_dont_care_sim
+            = spot::dont_care_simulation(a, limit_dont_care_sim);
+          a = temp_dont_care_sim;
+          tm.stop("don't care simulation");
+
+	  if (scc_filter)
+	    {
+	      tm.start("SCC-filter on don't care");
+	      a = spot::scc_filter(a, true);
+	      delete temp_dont_care_sim;
+	      temp_dont_care_sim = a;
+	      tm.stop("SCC-filter on don't care");
+	    }
+	  assume_sba = false;
+        }
 
       unsigned int n_acc = a->number_of_acceptance_conditions();
       if (echeck_inst
@@ -1673,6 +1735,8 @@ main(int argc, char** argv)
       delete temp_dir_sim;
       delete temp_rev_sim;
       delete temp_iterated_sim;
+      delete temp_dont_care_sim;
+      delete temp_dont_care_iterated_sim;
     }
   else
     {
