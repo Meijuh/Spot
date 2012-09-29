@@ -40,6 +40,8 @@ libcommon_a_SOURCES =				\
   common_range.hh				\
   common_r.cc					\
   common_r.hh					\
+  common_setup.cc				\
+  common_setup.hh				\
   common_sys.hh
 
 bin_PROGRAMS = ltlfilt genltl randltl ltl2tgba ltl2tgta

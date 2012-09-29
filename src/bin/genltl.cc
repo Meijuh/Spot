@@ -74,10 +74,10 @@
 #include <fstream>
 #include <argp.h>
 #include <cstdlib>
-#include "progname.h"
 #include "error.h"
 #include <vector>
 
+#include "common_setup.hh"
 #include "common_output.hh"
 #include "common_range.hh"
 
@@ -200,16 +200,6 @@ const struct argp_child children[] =
     { &output_argp, 0, 0, -20 },
     { 0, 0, 0, 0 }
   };
-
-// static int
-// to_int(const char* s)
-// {
-//   char* endptr;
-//   int res = strtol(s, &endptr, 10);
-//   if (*endptr)
-//     error(2, 0, "failed to parse '%s' as an integer.", s);
-//   return res;
-// }
 
 static void
 enqueue_job(int pattern, const char* range_str)
@@ -858,10 +848,7 @@ run_jobs()
 int
 main(int argc, char** argv)
 {
-  set_program_name(argv[0]);
-  // Simplify the program name, because argp() uses it to report errors
-  // and display help text.
-  argv[0] = const_cast<char*>(program_name);
+  setup(argv);
 
   const argp ap = { options, parse_opt, 0, argp_program_doc,
 		    children, 0, 0 };

@@ -26,9 +26,9 @@
 #include <argp.h>
 #include <cstdlib>
 #include <iterator>
-#include "progname.h"
 #include "error.h"
 
+#include "common_setup.hh"
 #include "common_output.hh"
 #include "common_range.hh"
 #include "common_r.hh"
@@ -252,10 +252,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 int
 main(int argc, char** argv)
 {
-  set_program_name(argv[0]);
-  // Simplify the program name, because argp() uses it to report errors
-  // and display help text.
-  argv[0] = const_cast<char*>(program_name);
+  setup(argv);
 
   const argp ap = { options, parse_opt, "PROP...", argp_program_doc,
 		    children, 0, 0 };

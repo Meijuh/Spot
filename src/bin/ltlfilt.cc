@@ -27,9 +27,9 @@
 #include <fstream>
 #include <argp.h>
 #include <cstring>
-#include "progname.h"
 #include "error.h"
 
+#include "common_setup.hh"
 #include "common_finput.hh"
 #include "common_output.hh"
 #include "common_cout.hh"
@@ -501,10 +501,7 @@ namespace
 int
 main(int argc, char** argv)
 {
-  set_program_name(argv[0]);
-  // Simplify the program name, because argp() uses it to report errors
-  // and display help text.
-  argv[0] = const_cast<char*>(program_name);
+  setup(argv);
 
   const argp ap = { options, parse_opt, "[FILENAME...]",
 		    argp_program_doc, children, 0, 0 };
