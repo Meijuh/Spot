@@ -34,7 +34,6 @@
 #include "common_finput.hh"
 #include "common_post.hh"
 
-#include "misc/_config.h"
 #include "ltlparse/public.hh"
 #include "ltlvisit/simplify.hh"
 #include "tgbaalgos/dotty.hh"
@@ -45,16 +44,6 @@
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
 #include "taalgos/minimize.hh"
-
-const char* argp_program_version = "\
-ltl2tgta (" SPOT_PACKAGE_STRING ")\n\
-\n\
-Copyright (C) 2012  Laboratoire de Recherche et Développement de l'Epita.\n\
-This is free software; see the source for copying conditions.  There is NO\n\
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,\n\
-to the extent permitted by law.";
-
-const char* argp_program_bug_address = "<" SPOT_PACKAGE_BUGREPORT ">";
 
 const char argp_program_doc[] ="\
 Translate linear-time formulas (LTL/PSL) into Testing Automata.\n\n\

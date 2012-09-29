@@ -33,7 +33,6 @@
 #include "common_range.hh"
 #include "common_r.hh"
 
-#include "misc/_config.h"
 #include <sstream>
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/multop.hh"
@@ -45,16 +44,6 @@
 #include "ltlenv/defaultenv.hh"
 #include "misc/random.hh"
 #include "misc/hash.hh"
-
-const char* argp_program_version = "\
-randltl (" SPOT_PACKAGE_STRING ")\n\
-\n\
-Copyright (C) 2012  Laboratoire de Recherche et Développement de l'Epita.\n\
-This is free software; see the source for copying conditions.  There is NO\n\
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,\n\
-to the extent permitted by law.";
-
-const char* argp_program_bug_address = "<" SPOT_PACKAGE_BUGREPORT ">";
 
 const char argp_program_doc[] ="\
 Generate random temporal logic formulas.\v\

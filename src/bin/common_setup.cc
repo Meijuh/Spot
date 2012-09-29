@@ -20,6 +20,21 @@
 // 02111-1307, USA.
 
 #include "common_setup.hh"
+#include "argp.h"
+
+const char* argp_program_bug_address = "<" PACKAGE_BUGREPORT ">";
+
+static void
+display_version(FILE *stream, struct argp_state*)
+{
+  fputs(program_name, stream);
+  fputs(" (" PACKAGE_STRING ")\n\
+\n\
+Copyright (C) 2012  Laboratoire de Recherche et Développement de l'Epita.\n\
+This is free software; see the source for copying conditions.  There is NO\n\
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,\n\
+to the extent permitted by law.\n", stream);
+}
 
 void
 setup(char** argv)
@@ -28,4 +43,6 @@ setup(char** argv)
   // errors and display help text.
   set_program_name(argv[0]);
   argv[0] = const_cast<char*>(program_name);
+
+  argp_program_version_hook = display_version;
 }

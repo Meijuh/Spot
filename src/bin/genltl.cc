@@ -81,7 +81,6 @@
 #include "common_output.hh"
 #include "common_range.hh"
 
-#include "misc/_config.h"
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -95,16 +94,6 @@
 
 using namespace spot;
 using namespace spot::ltl;
-
-const char* argp_program_version = "\
-genltl (" SPOT_PACKAGE_STRING ")\n\
-\n\
-Copyright (C) 2012  Laboratoire de Recherche et Développement de l'Epita.\n\
-This is free software; see the source for copying conditions.  There is NO\n\
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,\n\
-to the extent permitted by law.";
-
-const char* argp_program_bug_address = "<" SPOT_PACKAGE_BUGREPORT ">";
 
 const char argp_program_doc[] ="\
 Generate temporal logic formulas from predefined scalable patterns.";

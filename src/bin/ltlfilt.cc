@@ -35,7 +35,6 @@
 #include "common_cout.hh"
 #include "common_r.hh"
 
-#include "misc/_config.h"
 #include "misc/hash.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
@@ -46,16 +45,6 @@
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/minimize.hh"
 #include "tgbaalgos/safety.hh"
-
-const char* argp_program_version = "\
-ltlfilter (" SPOT_PACKAGE_STRING ")\n\
-\n\
-Copyright (C) 2012  Laboratoire de Recherche et Développement de l'Epita.\n\
-This is free software; see the source for copying conditions.  There is NO\n\
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,\n\
-to the extent permitted by law.";
-
-const char* argp_program_bug_address = "<" SPOT_PACKAGE_BUGREPORT ">";
 
 const char argp_program_doc[] ="\
 Read a list of formulas and output them back after some optional processing.\v\
