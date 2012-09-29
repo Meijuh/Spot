@@ -22,7 +22,6 @@
 #include "common_sys.hh"
 
 #include <cstdlib>
-#include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -62,7 +61,7 @@ const char argp_program_doc[] ="\
 Read a list of formulas and output them back after some optional processing.\v\
 Exit status:\n\
   0  if some formulas were output (skipped syntax errors do not count)\n\
-  1  if no formula were output (no match)\n\
+  1  if no formulas were output (no match)\n\
   2  if any error has been reported";
 
 #define OPT_SKIP_ERRORS 2
@@ -348,7 +347,7 @@ typedef Sgi::hash_set<const spot::ltl::formula*,
 
 namespace
 {
-  class ltl_processor
+  class ltl_processor: public job_processor
   {
   public:
     spot::ltl::ltl_simplifier& simpl;
@@ -360,7 +359,7 @@ namespace
     }
 
     int
-    process_formula(const std::string& input,
+    process_string(const std::string& input,
 		    const char* filename = 0, int linenum = 0)
     {
       spot::ltl::parse_error_list pel;
@@ -385,7 +384,13 @@ namespace
 	    check_cout();
 	    return !quiet;
 	  }
+      return process_formula(f, filename, linenum);
+    }
 
+    int
+    process_formula(const spot::ltl::formula* f,
+		    const char* filename = 0, int linenum = 0)
+    {
       if (negate)
 	f = spot::ltl::unop::instance(spot::ltl::unop::Not, f);
 
@@ -490,52 +495,7 @@ namespace
       f->destroy();
       return 0;
     }
-
-    int
-    process_stream(std::istream& is, const char* filename)
-    {
-      int error = 0;
-      int linenum = 0;
-      std::string line;
-      while (std::getline(is, line))
-	error |= process_formula(line, filename, ++linenum);
-      return error;
-    }
-
-    int
-    process_file(const char* filename)
-    {
-      // Special case for stdin.
-      if (filename[0] == '-' && filename[1] == 0)
-	return process_stream(std::cin, filename);
-
-      errno = 0;
-      std::ifstream input(filename);
-      if (!input)
-	error(2, errno, "cannot open '%s'", filename);
-      return process_stream(input, filename);
-    }
   };
-}
-
-static int
-run_jobs()
-{
-  spot::ltl::ltl_simplifier simpl(simplifier_options());
-  ltl_processor processor(simpl);
-
-  int nerror = 0;
-  jobs_t::const_iterator i;
-  for (i = jobs.begin(); i != jobs.end(); ++i)
-    {
-      if (!i->file_p)
-	nerror |= processor.process_formula(i->str);
-      else
-	nerror |= processor.process_file(i->str);
-    }
-  if (nerror)
-    return 2;
-  return one_match ? 0 : 1;
 }
 
 int
@@ -555,5 +515,9 @@ main(int argc, char** argv)
   if (jobs.empty())
     jobs.push_back(job("-", 1));
 
-  return run_jobs();
+  spot::ltl::ltl_simplifier simpl(simplifier_options());
+  ltl_processor processor(simpl);
+  if (processor.run())
+    return 2;
+  return one_match ? 0 : 1;
 }

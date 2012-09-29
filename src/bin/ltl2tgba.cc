@@ -21,10 +21,8 @@
 
 #include "common_sys.hh"
 
-#include <vector>
 #include <string>
 #include <iostream>
-#include <fstream>
 
 #include <argp.h>
 #include "progname.h"
@@ -36,7 +34,6 @@
 #include "common_post.hh"
 
 #include "misc/_config.h"
-#include "ltlparse/public.hh"
 #include "ltlvisit/simplify.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
@@ -131,12 +128,6 @@ parse_opt(int key, char* arg, struct argp_state*)
     case 'B':
       type = spot::postprocessor::BA;
       break;
-    case 'f':
-      jobs.push_back(job(arg, false));
-      break;
-    case 'F':
-      jobs.push_back(job(arg, true));
-      break;
     case 's':
       format = Spin;
       type = spot::postprocessor::BA;
@@ -175,7 +166,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 namespace
 {
-  class trans_processor
+  class trans_processor: public job_processor
   {
   public:
     spot::ltl::ltl_simplifier& simpl;
@@ -189,29 +180,27 @@ namespace
     }
 
     int
-    process_formula(const std::string& input,
+    process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
-      spot::ltl::parse_error_list pel;
-      const spot::ltl::formula* f = parse_formula(input, pel);
-
-      if (!f || pel.size() > 0)
-	  {
-	    if (filename)
-	      error_at_line(0, 0, filename, linenum, "parse error:");
-	    spot::ltl::format_parse_errors(std::cerr, input, pel);
-	    if (f)
-	      f->destroy();
-	    return 1;
-	  }
-
       const spot::ltl::formula* res = simpl.simplify(f);
       f->destroy();
       f = res;
-
       // This helps ltl_to_tgba_fm() to order BDD variables in a more
       // natural way (improving the degeneralization).
       simpl.clear_as_bdd_cache();
+
+      // This should not happen, because the parser we use can only
+      // read PSL/LTL formula, but since our ltl::formula* type can
+      // represent more than PSL formula, let's make this
+      // future-proof.
+      if (!f->is_psl_formula())
+	{
+	  std::string s = spot::ltl::to_string(f);
+	  error_at_line(2, 0, filename, linenum,
+			"formula '%s' is not an LTL or PSL formula",
+			s.c_str());
+	}
 
       bool exprop = level == spot::postprocessor::High;
       const spot::tgba* aut = ltl_to_tgba_fm(f, simpl.get_dict(), exprop);
@@ -251,58 +240,7 @@ namespace
       flush_cout();
       return 0;
     }
-
-    int
-    process_stream(std::istream& is, const char* filename)
-    {
-      int error = 0;
-      int linenum = 0;
-      std::string line;
-      while (std::getline(is, line))
-	error |= process_formula(line, filename, ++linenum);
-      return error;
-    }
-
-    int
-    process_file(const char* filename)
-    {
-      // Special case for stdin.
-      if (filename[0] == '-' && filename[1] == 0)
-	return process_stream(std::cin, filename);
-
-      errno = 0;
-      std::ifstream input(filename);
-      if (!input)
-	error(2, errno, "cannot open '%s'", filename);
-      return process_stream(input, filename);
-    }
   };
-}
-
-static int
-run_jobs()
-{
-  spot::ltl::ltl_simplifier simpl(simplifier_options());
-
-  spot::postprocessor postproc;
-  postproc.set_pref(pref);
-  postproc.set_type(type);
-  postproc.set_level(level);
-
-  trans_processor processor(simpl, postproc);
-
-  int error = 0;
-  jobs_t::const_iterator i;
-  for (i = jobs.begin(); i != jobs.end(); ++i)
-    {
-      if (!i->file_p)
-	error |= processor.process_formula(i->str);
-      else
-	error |= processor.process_file(i->str);
-    }
-  if (error)
-    return 2;
-  return 0;
 }
 
 int
@@ -323,5 +261,15 @@ main(int argc, char** argv)
     error(2, 0, "No formula to translate?  Run '%s --help' for usage.",
 	  program_name);
 
-  return run_jobs();
+  spot::ltl::ltl_simplifier simpl(simplifier_options());
+
+  spot::postprocessor postproc;
+  postproc.set_pref(pref);
+  postproc.set_type(type);
+  postproc.set_level(level);
+
+  trans_processor processor(simpl, postproc);
+  if (processor.run())
+    return 2;
+  return 0;
 }

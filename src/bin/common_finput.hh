@@ -51,4 +51,30 @@ const spot::ltl::formula*
 parse_formula(const std::string& s, spot::ltl::parse_error_list& error_list);
 
 
+class job_processor
+{
+public:
+  virtual ~job_processor()
+  {
+  }
+
+  virtual int
+  process_formula(const spot::ltl::formula* f,
+		  const char* filename = 0, int linenum = 0) = 0;
+
+  virtual int
+  process_string(const std::string& str,
+		 const char* filename = 0, int linenum = 0);
+  virtual int
+  process_stream(std::istream& is, const char* filename);
+
+  virtual int
+  process_file(const char* filename);
+
+  virtual int
+  run();
+};
+
+
+
 #endif // SPOT_BIN_COMMON_FINPUT_HH
