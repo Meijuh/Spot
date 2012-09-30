@@ -71,7 +71,7 @@ namespace spot
   {
     std::pair<tagged_state, bool> p =
       tags_.insert(std::make_pair(s, state_info()));
-    if (p.second)
+    if (!p.second)
       s->destroy();
     return p.first;
   }
