@@ -106,6 +106,6 @@ namespace spot
   bool
   is_deterministic(const tgba* aut)
   {
-    return !!count_nondet_states_aux(aut, false);
+    return !count_nondet_states_aux(aut, false);
   }
 }
