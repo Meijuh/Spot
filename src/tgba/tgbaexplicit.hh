@@ -250,7 +250,7 @@ namespace spot
     bdd all_acceptance_conditions_;
   };
 
-  /// Graph implementation for explicit automgon
+  /// Graph implementation for explicit automaton
   /// \ingroup tgba_representation
   template<typename State, typename Type>
   class explicit_graph: public Type
@@ -263,6 +263,7 @@ namespace spot
     typedef State state;
   protected:
     typedef Sgi::hash_map<label_t, State, label_hash_t> ls_map;
+    typedef Sgi::hash_map<label_t, State*> alias_map;
     typedef Sgi::hash_map<const State*, label_t, ptr_hash<State> > sl_map;
 
   public:
@@ -285,7 +286,6 @@ namespace spot
 
     size_t num_states() const
     {
-      // Do not use ls_.size() because it may contain aliases.
       return sl_.size();
     }
 
@@ -358,16 +358,6 @@ namespace spot
       return get_label(se);
     }
 
-    transition*
-    create_trainsition(const label_t& source, const label_t& dest)
-    {
-      // It's important that the source be created before the
-      // destination, so the first source encountered becomes the
-      // default initial state.
-      State* s = add_state(source);
-      return create_transition(s, add_state(dest));
-    }
-
     void
     complement_all_acceptance_conditions()
     {
@@ -419,16 +409,19 @@ namespace spot
       typename ls_map::iterator i = ls_.find(name);
       if (i == ls_.end())
 	{
-	  State s(name);
-	  ls_[name] = s;
-	  sl_[&ls_[name]] = name;
+	  typename alias_map::iterator j = alias_.find(name);
+	  if (j != alias_.end())
+	    return j->second;
 
-	  // The first state we add is the inititial state.
+	  State s(name);
+	  State* res =
+	    &(ls_.insert(std::make_pair(name, State(name))).first->second);
+	  sl_[res] = name;
+	  // The first state we add is the initial state.
 	  // It can also be overridden with set_init_state().
 	  if (!init_)
-	    init_ = &ls_[name];
-
-	  return &(ls_[name]);
+	    init_ = res;
+	  return res;
 	}
       return &(i->second);
     }
@@ -449,11 +442,7 @@ namespace spot
       while (i != ls_.end())
       {
 	label_t s = i->first;
-
-	// Do not erase the same state twice(Because of possible aliases).
-	if (sl_.erase(&(i->second)))
-	  i->second.destroy();
-
+	i->second.destroy();
 	++i;
 	destroy_key<label_t> dest;
 	dest.destroy(s);
@@ -518,7 +507,7 @@ namespace spot
     /// will act as a reference to \a real_name.
     void add_state_alias(const label_t& alias, const label_t& real)
     {
-      ls_[alias] = *(add_state(real));
+      alias_[alias] = add_state(real);
     }
 
 
@@ -536,7 +525,7 @@ namespace spot
     }
 
 
-    /// Acceptance conditions handlingx
+    /// Acceptance conditions handling
     void set_acceptance_conditions(bdd acc)
     {
       assert(neg_acceptance_conditions_ == bddtrue);
@@ -653,6 +642,7 @@ namespace spot
     }
 
     ls_map ls_;
+    alias_map alias_;
     sl_map sl_;
     State* init_;
 
