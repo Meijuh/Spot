@@ -33,7 +33,7 @@ namespace spot
   {
     // insert x in B(y)
     y->second.b.insert(x->first);
-    // insert y in A(x)
+    // remove y from A(x)
     x->second.del.insert(y->first);
   }
 
