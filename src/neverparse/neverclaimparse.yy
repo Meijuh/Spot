@@ -114,8 +114,17 @@ ident_list:
   | ident_list IDENT ':'
     {
       result->add_state_alias(*$2, *$1);
-      delete $1;
-      $$ = $2;
+      // Keep any identifier that start with accept.
+      if (strncmp("accept", $1->c_str(), 6))
+        {
+          delete $1;
+          $$ = $2;
+        }
+      else
+        {
+	  delete $2;
+	  $$ = $1;
+        }
     }
 
 state:
@@ -137,7 +146,7 @@ state:
       for (it = $3->begin(); it != $3->end(); ++it)
       {
 	spot::state_explicit_string::transition* t =
-	  result->create_transition(*$1,*it->second);
+	  result->create_transition(*$1, *it->second);
 
 	result->add_condition(t, it->first);
 	if (acc)
