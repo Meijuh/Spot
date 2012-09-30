@@ -205,5 +205,13 @@ namespace spot
       f->accept(v);
       return os;
     }
+
+    std::string
+    to_lbt_string(const formula* f)
+    {
+      std::ostringstream os;
+      to_lbt_string(f, os);
+      return os.str();
+    }
   }
 }

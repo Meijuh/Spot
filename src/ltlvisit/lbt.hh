@@ -24,6 +24,7 @@
 
 #include <ltlast/formula.hh>
 #include <iosfwd>
+#include <string>
 
 namespace spot
 {
@@ -44,6 +45,18 @@ namespace spot
     /// \param os The stream where it should be output.
     std::ostream&
     to_lbt_string(const formula* f, std::ostream& os);
+
+    /// \brief Output an LTL formula as a string in LBT's format.
+    ///
+    /// The formula must be an LTL formula (ELTL and PSL operators
+    /// are not supported).  The M and W operator will be output
+    /// as-is, because this is accepted by LBTT, however if you
+    /// plan to use the output with other tools, you should probably
+    /// rewrite these two operators using unabbreviate_wm().
+    ///
+    /// \param f The formula to translate.
+    std::string
+    to_lbt_string(const formula* f);
     /// @}
   }
 }
