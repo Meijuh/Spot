@@ -118,6 +118,8 @@ syntax(char* prog)
 	    << std::endl
 	    << "  -X    do not compute an automaton, read it from a file"
 	    << std::endl
+	    << "  -XL   do not compute an automaton, read it from an"
+	    << " LBTT file" << std::endl
 	    << "  -XN   do not compute an automaton, read it from a"
 	    << " neverclaim file" << std::endl
 	    << "  -Pfile  multiply the formula automaton with the TGBA read"
@@ -334,6 +336,7 @@ main(int argc, char** argv)
   bool accepting_run_replay = false;
   bool from_file = false;
   bool read_neverclaim = false;
+  bool read_lbtt = false;
   bool scc_filter = false;
   bool simpltl = false;
   spot::ltl::ltl_simplifier_options redopt(false, false, false, false,
@@ -782,6 +785,11 @@ main(int argc, char** argv)
 	  from_file = true;
 	  read_neverclaim = true;
 	}
+      else if (!strcmp(argv[formula_index], "-XL"))
+	{
+	  from_file = true;
+	  read_lbtt = true;
+	}
       else if (!strcmp(argv[formula_index], "-y"))
 	{
 	  translation = TransFM;
@@ -887,8 +895,8 @@ main(int argc, char** argv)
 
       if (from_file)
 	{
-	  spot::tgba_explicit_string* e;
-	  if (!read_neverclaim)
+	  spot::tgba_explicit_string* e = 0;
+	  if (!read_neverclaim && !read_lbtt)
 	    {
 	      spot::tgba_parse_error_list pel;
 	      tm.start("parsing automaton");
@@ -902,7 +910,7 @@ main(int argc, char** argv)
 		  return 2;
 		}
 	    }
-	  else
+	  else if (read_neverclaim)
 	    {
 	      spot::neverclaim_parse_error_list pel;
 	      tm.start("parsing neverclaim");
@@ -917,7 +925,30 @@ main(int argc, char** argv)
 		}
 	      assume_sba = true;
 	    }
-	  e->merge_transitions();
+	  else
+	    {
+	      std::string error;
+	      std::fstream f(input.c_str());
+	      if (!f)
+		{
+		  std::cerr << "cannot open " << input << std::endl;
+		  delete dict;
+		  return 2;
+		}
+	      tm.start("parsing lbtt");
+	      to_free = a =
+		const_cast<spot::tgba*>(spot::lbtt_parse(f, error, dict,
+							 env, env));
+	      tm.stop("parsing lbtt");
+	      if (!to_free)
+		{
+		  std::cerr << error << std::endl;
+		  delete dict;
+		  return 2;
+		}
+	    }
+	  if (e)
+	    e->merge_transitions();
 	}
       else
 	{

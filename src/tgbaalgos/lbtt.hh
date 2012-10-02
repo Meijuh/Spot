@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012 Laboratoire de Recherche et DÃ©veloppement de
+// l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -22,6 +25,7 @@
 
 #include "tgba/tgba.hh"
 #include <iosfwd>
+#include "ltlenv/defaultenv.hh"
 
 namespace spot
 {
@@ -31,6 +35,24 @@ namespace spot
   /// \param g The automata to print.
   /// \param os Where to print.
   std::ostream& lbtt_reachable(std::ostream& os, const tgba* g);
+
+
+  /// \brief Read an automaton in LBTT's format
+  /// \ingroup tgba_io
+  ///
+  /// \param is The stream on which the automaton should be input.
+  /// \param error A string in which to write any error message.
+  /// \param env The environment of atomic proposition into which parsing
+  ///        should take place.
+  /// \param envacc The environment of acceptance conditions into which parsing
+  ///        should take place.
+  /// \return the read tgba or 0 on error.
+  const tgba* lbtt_parse(std::istream& is, std::string& error,
+			 bdd_dict* dict,
+			 ltl::environment& env
+			 = ltl::default_environment::instance(),
+			 ltl::environment& envacc
+			 = ltl::default_environment::instance());
 }
 
 #endif // SPOT_TGBAALGOS_LBTT_HH

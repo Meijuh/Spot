@@ -597,8 +597,6 @@ namespace spot
       all_acceptance_conditions_computed_ = false;
     }
 
-  protected:
-
     bdd get_acceptance_condition(const ltl::formula* f)
     {
       bdd_dict::fv_map::iterator i = this->dict_->acc_map.find(f);
@@ -608,6 +606,8 @@ namespace spot
       v &= bdd_exist(neg_acceptance_conditions_, v);
       return v;
     }
+
+  protected:
 
     virtual bdd compute_support_conditions(const spot::state* in) const
     {

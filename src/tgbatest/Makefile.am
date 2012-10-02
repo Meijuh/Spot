@@ -93,6 +93,7 @@ TESTS = \
   degendet.test \
   degenid.test \
   kv.test \
+  lbttparse.test \
   scc.test \
   sccsimpl.test \
   obligation.test \
