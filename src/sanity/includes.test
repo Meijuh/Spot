@@ -16,6 +16,10 @@ for file in `find "$INCDIR" \( -name "${1-*}.hh" \
    b=`echo "$file" | tr '[/.a-z]' '[__A-Z]'`
    if grep "[	 ]*#.*def.* SPOT_$b\$" "$INCDIR/$file" >/dev/null; then
      :
+   elif grep 'GNU Bison 2\.6' "$INCDIR/$file" >/dev/null; then
+     # Bison 2.6, 2.6.1, 2.6.2 have a bug where position.hh
+     # include <iosfwd> instead of <iostream>.
+     continue
    elif grep 'GNU Bison' "$INCDIR/$file" >/dev/null; then
      :
    else
