@@ -263,7 +263,7 @@ namespace spot
     typedef State state;
   protected:
     typedef Sgi::hash_map<label_t, State, label_hash_t> ls_map;
-    typedef Sgi::hash_map<label_t, State*> alias_map;
+    typedef Sgi::hash_map<label_t, State*, label_hash_t> alias_map;
     typedef Sgi::hash_map<const State*, label_t, ptr_hash<State> > sl_map;
 
   public:
