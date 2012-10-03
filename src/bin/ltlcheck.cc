@@ -23,6 +23,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <cstdlib>
 #include <cstdio>
 #include <argp.h>
@@ -37,6 +38,7 @@
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/lbt.hh"
+#include "tgbaalgos/lbtt.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/randomgraph.hh"
@@ -72,8 +74,8 @@ static const argp_option options[] =
       "the formula as a (quoted) string in Spot, Spin, or LBT's syntax", 0 },
     { "%F,%S,%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the formula as a file in Spot, Spin, or LBT's syntax", 0 },
-    { "%N", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the output automaton as a Never claim", 0 },
+    { "%N,%T", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the output automaton as a Never claim, or in LBTT's format", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "State-space generation:", 4 },
     { "states", OPT_STATES, "INT", 0,
@@ -183,16 +185,18 @@ string_to_tmp(std::string str, unsigned n, std::string& tmpname)
 static void
 multiple_results(unsigned int n)
 {
-  error(2, 0, "You can only have one %%N specifier: %s",
+  error(2, 0, "you may have only one %%N or %%T specifier: %s",
 	translators[n]);
 }
 
-static spot::tgba*
+static const spot::tgba*
 run_translator(const spot::ltl::formula* f, unsigned int translator_num, char l)
 {
   std::ostringstream command;
   std::list<std::string> toclean;
   std::string result;
+  enum output_format { None, Spin, Lbtt };
+  output_format out_format = None;
 
   const char* format = translators[translator_num];
   for (const char* pos = format; *pos; ++pos)
@@ -229,6 +233,20 @@ run_translator(const spot::ltl::formula* f, unsigned int translator_num, char l)
 	    toclean.push_back(tmpname);
 	    break;
 	  }
+	case 'N':
+	case 'T':
+	  {
+	    if (*pos == 'N')
+	      out_format = Spin;
+	    else
+	      out_format = Lbtt;
+	    if (!result.empty())
+	      multiple_results(translator_num);
+	    close(create_tmpfile(translator_num, result));
+	    command << '\'' << result << '\'';
+	    toclean.push_back(result);
+	    break;
+	  }
 	case 's':
 	  command << '\'';
 	  spot::ltl::to_spin_string(f, command, true);
@@ -243,15 +261,6 @@ run_translator(const spot::ltl::formula* f, unsigned int translator_num, char l)
 	    toclean.push_back(tmpname);
 	    break;
 	  }
-	case 'N':
-	  {
-	    if (!result.empty())
-	      multiple_results(translator_num);
-	    close(create_tmpfile(translator_num, result));
-	    command << '\'' << result << '\'';
-	    toclean.push_back(result);
-	    break;
-	  }
 	case 0:
 	  --pos;
 	  // fall through
@@ -263,11 +272,14 @@ run_translator(const spot::ltl::formula* f, unsigned int translator_num, char l)
 	  break;
 	}
 
+  if (out_format == None)
+    error(2, 0, "no output specifier in: %s", format);
+
   std::string cmd = command.str();
   std::cerr << "Running [" << l << translator_num << "]: " << cmd << std::endl;
   int es = system(cmd.c_str());
 
-  spot::tgba* res = 0;
+  const spot::tgba* res = 0;
 
   if (es)
     {
@@ -277,14 +289,40 @@ run_translator(const spot::ltl::formula* f, unsigned int translator_num, char l)
     }
   else
     {
-      spot::neverclaim_parse_error_list pel;
-      res = spot::neverclaim_parse(result, pel, &dict);
-      if (!pel.empty())
+      switch (out_format)
 	{
-	  std::cerr << "Failed to parse the produced neverclaim.\n";
-	  spot::format_neverclaim_parse_errors(std::cerr, result, pel);
-	  delete res;
-	  res = 0;
+	case Spin:
+	  {
+	    spot::neverclaim_parse_error_list pel;
+	    res = spot::neverclaim_parse(result, pel, &dict);
+	    if (!pel.empty())
+	      {
+		std::cerr << "Failed to parse the produced neverclaim.\n";
+		spot::format_neverclaim_parse_errors(std::cerr, result, pel);
+		delete res;
+		res = 0;
+	      }
+	    break;
+	  }
+	case Lbtt:
+	  {
+	    std::string error;
+	    std::fstream f(result.c_str());
+	    if (!f)
+	      {
+		std::cerr << "Cannot open " << result << std::endl;
+	      }
+	    else
+	      {
+		res = spot::lbtt_parse(f, error, &dict);
+		if (!res)
+		  std::cerr << "Failed error to parse output in LBTT format: "
+			    << error << std::endl;
+	      }
+	    break;
+	  }
+	case None:
+	  assert(!"unreachable code");
 	}
     }
 
@@ -427,9 +465,7 @@ namespace
       for (size_t n = 0; n < m; ++n)
 	{
 	  pos[n] = run_translator(f, n, 'P');
-	  spot::dotty_reachable(std::cout, pos[n]);
 	  neg[n] = run_translator(nf, n, 'N');
-	  spot::dotty_reachable(std::cout, neg[n]);
 	}
 
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
