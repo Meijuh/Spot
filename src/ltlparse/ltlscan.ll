@@ -80,6 +80,8 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
       start_token = 0;
       if (t == token::START_LBT)
         BEGIN(lbt);
+      else
+        BEGIN(0);
       return t;
     }
   yylloc->step();
