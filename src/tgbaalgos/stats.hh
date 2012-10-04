@@ -24,6 +24,7 @@
 
 #include "tgba/tgba.hh"
 #include <iosfwd>
+#include "misc/formater.hh"
 
 namespace spot
 {
@@ -53,12 +54,27 @@ namespace spot
   /// \brief Compute subended statistics for an automaton.
   tgba_sub_statistics sub_stats_reachable(const tgba* g);
 
+
+  class printable_formula: public printable_value<const ltl::formula*>
+  {
+  public:
+    printable_formula&
+    operator=(const ltl::formula* new_val)
+    {
+      val_ = new_val;
+      return *this;
+    }
+
+    virtual void
+    print(std::ostream& os, const char*) const;
+  };
+
   /// \brief prints various statistics about a TGBA
   ///
   /// This object can be configured to display various statistics
   /// about a TGBA.  Some %-sequence of characters are interpreted in
   /// the format string, and replaced by the corresponding statistics.
-  class stat_printer
+  class stat_printer: protected formater
   {
   public:
     stat_printer(std::ostream& os, const char* format);
@@ -71,9 +87,16 @@ namespace spot
     print(const tgba* aut, const ltl::formula* f = 0);
 
   private:
-    std::ostream& os_;
     const char* format_;
-    unsigned needed_;
+
+    printable_formula form_;
+    printable_value<unsigned> states_;
+    printable_value<unsigned> edges_;
+    printable_value<unsigned> trans_;
+    printable_value<unsigned> acc_;
+    printable_value<unsigned> scc_;
+    printable_value<unsigned> nondetstates_;
+    printable_value<unsigned> deterministic_;
   };
 
   /// @}

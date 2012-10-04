@@ -133,151 +133,68 @@ namespace spot
     return s;
   }
 
-  namespace
+  void printable_formula::print(std::ostream& os, const char*) const
   {
-    enum what {
-      Formula = 1,		// %f
-      States = 2,		// %s
-      Edges = 4,		// %e
-      Trans = 8,		// %t
-      Acc = 16,			// %a
-      Scc = 32,			// %S
-      Nondetstates = 64,	// %n
-      Deterministic = 128	// %d
-    };
-  }
+    ltl::to_string(val_, os);
+  };
 
   stat_printer::stat_printer(std::ostream& os, const char* format)
-    : os_(os), format_(format)
+    : format_(format)
   {
-    needed_ = 0;
-    // scan the format for needed statistics
-    for (const char* pos = format; *pos; ++pos)
-      if (*pos == '%')
-	{
-	  switch (*++pos)
-	    {
-	    case 'f':
-	      needed_ |= Formula;
-	      break;
-	    case 's':
-	      needed_ |= States;
-	      break;
-	    case 'e':
-	      needed_ |= Edges;
-	      break;
-	    case 't':
-	      needed_ |= Trans;
-	      break;
-	    case 'a':
-	      needed_ |= Acc;
-	      break;
-	    case 'S':
-	      needed_ |= Scc;
-	      break;
-	    case 'n':
-	      needed_ |= Nondetstates;
-	      break;
-	    case 'd':
-	      needed_ |= Deterministic;
-	      break;
-	    case '%':
-	      break;
-	    case 0:
-	      --pos;
-	      break;
-	    }
-	}
+    declare('a', &acc_);
+    declare('d', &deterministic_);
+    declare('e', &edges_);
+    declare('f', &form_);
+    declare('n', &nondetstates_);
+    declare('s', &states_);
+    declare('S', &scc_);
+    declare('t', &trans_);
+    set_output(os);
+    prime(format);
   }
 
   std::ostream&
   stat_printer::print(const tgba* aut,
 		      const ltl::formula* f)
   {
-    unsigned states = 0;
-    unsigned edges = 0;
-    unsigned trans = 0;
-    unsigned acc = 0;
-    unsigned scc = 0;
-    unsigned nondetstates = 0;
-    unsigned deterministic = 0;
+    form_ = f;
 
-    if (needed_ & Trans)
+    if (has('t'))
       {
 	tgba_sub_statistics s = sub_stats_reachable(aut);
-	states = s.states;
-	edges = s.transitions;
-	trans = s.sub_transitions;
+	states_ = s.states;
+	edges_ = s.transitions;
+	trans_ = s.sub_transitions;
       }
-    else if (needed_ & (States | Edges))
+    else if (has('s') || has('e'))
       {
 	tgba_sub_statistics s = sub_stats_reachable(aut);
-	states = s.states;
-	edges = s.transitions;
+	states_ = s.states;
+	edges_ = s.transitions;
       }
-    if (needed_ & Acc)
-      acc = aut->number_of_acceptance_conditions();
 
-    if (needed_ & Scc)
+    if (has('a'))
+      acc_ = aut->number_of_acceptance_conditions();
+
+    if (has('S'))
       {
 	scc_map m(aut);
 	m.build_map();
-	scc = m.scc_count();
+	scc_ = m.scc_count();
       }
 
-    if (needed_ & Nondetstates)
+    if (has('n'))
       {
-	nondetstates = count_nondet_states(aut);
-	deterministic = (nondetstates == 0);
+	nondetstates_ = count_nondet_states(aut);
+	deterministic_ = (nondetstates_ == 0);
       }
-    else if (needed_ & Deterministic)
+    else if (has('d'))
       {
 	// This is more efficient than calling count_nondet_state().
-	deterministic = is_deterministic(aut);
+	deterministic_ = is_deterministic(aut);
       }
 
-    for (const char* format = format_; *format; ++format)
-      if (*format != '%')
-	os_ << *format;
-      else
-	switch (*++format)
-	  {
-	  case 'a':
-	    os_ << acc;
-	    break;
-	  case 'e':
-	    os_ << edges;
-	    break;
-	  case 'f':
-	    assert(f);
-	    ltl::to_string(f, os_);
-	    break;
-	  case 'd':
-	    os_ << deterministic;
-	    break;
-	  case 'n':
-	    os_ << nondetstates;
-	    break;
-	  case 's':
-	    os_ << states;
-	    break;
-	  case 'S':
-	    os_ << scc;
-	    break;
-	  case 't':
-	    os_ << trans;
-	    break;
-	  case 0:
-	    --format;
-	    // fall through
-	  case '%':
-	    os_ << '%';
-	    break;
-	  default:
-	    os_ << '%' << *format;
-	    break;
-	  }
-    return os_;
+    return format(format_);
   }
 
 }
