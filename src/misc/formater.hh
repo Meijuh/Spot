@@ -45,9 +45,24 @@ namespace spot
   protected:
     T val_;
   public:
-    operator T() const
+    const T& val() const
     {
       return val_;
+    }
+
+    T& val()
+    {
+      return val_;
+    }
+
+    operator const T&() const
+    {
+      return val();
+    }
+
+    operator T&()
+    {
+      return val();
     }
 
     printable_value&

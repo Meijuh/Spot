@@ -44,6 +44,7 @@
 #include "tgbaalgos/randomgraph.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/dotty.hh"
+#include "misc/formater.hh"
 
 const char argp_program_doc[] ="\
 Call several LTL/PSL translators and cross-compare their output to detect \
@@ -163,10 +164,10 @@ parse_opt(int key, char* arg, struct argp_state*)
 }
 
 static int
-create_tmpfile(unsigned int n, std::string& name)
+create_tmpfile(char c, unsigned int n, std::string& name)
 {
   char tmpname[30];
-  snprintf(tmpname, sizeof tmpname, "ltlcheck-%u-XXXXXX", n);
+  snprintf(tmpname, sizeof tmpname, "lck-%c%u-XXXXXX", c, n);
   int fd = mkstemp(tmpname);
   if (fd == -1)
     error(2, errno, "failed to create a temporary file");
@@ -174,270 +175,283 @@ create_tmpfile(unsigned int n, std::string& name)
   return fd;
 }
 
-static void
-string_to_tmp(std::string str, unsigned n, std::string& tmpname)
+namespace
 {
-  int fd = create_tmpfile(n, tmpname);
-  write(fd, str.c_str(), str.size());
-  close(fd);
-}
+  struct quoted_string: public spot::printable_value<std::string>
+  {
+    using spot::printable_value<std::string>::operator=;
 
-static void
-multiple_results(unsigned int n)
-{
-  error(2, 0, "you may have only one %%N or %%T specifier: %s",
-	translators[n]);
-}
-
-static const spot::tgba*
-run_translator(const spot::ltl::formula* f, unsigned int translator_num, char l)
-{
-  std::ostringstream command;
-  std::list<std::string> toclean;
-  std::string result;
-  enum output_format { None, Spin, Lbtt };
-  output_format out_format = None;
-
-  const char* format = translators[translator_num];
-  for (const char* pos = format; *pos; ++pos)
-    if (*pos != '%')
-      command << *pos;
-    else
-      switch (*++pos)
-	{
-	case 'f':
-	  command << '\'';
-	  spot::ltl::to_string(f, command, true);
-	  command << '\'';
-	  break;
-	case 'F':
-	  {
-	    std::string tmpname;
-	    string_to_tmp(spot::ltl::to_string(f, true) + "\n",
-			  translator_num, tmpname);
-	    command << '\'' << tmpname << '\'';
-	    toclean.push_back(tmpname);
-	    break;
-	  }
-	case 'l':
-	  command << '\'';
-	  spot::ltl::to_lbt_string(f, command);
-	  command << '\'';
-	  break;
-	case 'L':
-	  {
-	    std::string tmpname;
-	    string_to_tmp(spot::ltl::to_lbt_string(f) + "\n",
-			  translator_num, tmpname);
-	    command << '\'' << tmpname << '\'';
-	    toclean.push_back(tmpname);
-	    break;
-	  }
-	case 'N':
-	case 'T':
-	  {
-	    if (*pos == 'N')
-	      out_format = Spin;
-	    else
-	      out_format = Lbtt;
-	    if (!result.empty())
-	      multiple_results(translator_num);
-	    close(create_tmpfile(translator_num, result));
-	    command << '\'' << result << '\'';
-	    toclean.push_back(result);
-	    break;
-	  }
-	case 's':
-	  command << '\'';
-	  spot::ltl::to_spin_string(f, command, true);
-	  command << '\'';
-	  break;
-	case 'S':
-	  {
-	    std::string tmpname;
-	    string_to_tmp(spot::ltl::to_spin_string(f, true) + "\n",
-			  translator_num, tmpname);
-	    command << '\'' << tmpname << '\'';
-	    toclean.push_back(tmpname);
-	    break;
-	  }
-	case 0:
-	  --pos;
-	  // fall through
-	case '%':
-	  command << '%';
-	  break;
-	default:
-	  command << '%' << *pos;
-	  break;
-	}
-
-  if (out_format == None)
-    error(2, 0, "no output specifier in: %s", format);
-
-  std::string cmd = command.str();
-  std::cerr << "Running [" << l << translator_num << "]: " << cmd << std::endl;
-  int es = system(cmd.c_str());
-
-  const spot::tgba* res = 0;
-
-  if (es)
+    void
+    print(std::ostream& os, const char* pos) const
     {
-      std::cerr << "Execution of: " << cmd << "\n"
-		<< "  returned exit code " << WEXITSTATUS(es)
-		<< ".\n";
+      os << '\'';
+      this->spot::printable_value<std::string>::print(os, pos);
+      os << '\'';
     }
-  else
+  };
+
+  struct printable_result_filename: public spot::printable_value<std::string>
+  {
+    unsigned translator_num;
+    enum output_format { None, Spin, Lbtt };
+    mutable output_format format;
+
+    void reset(unsigned n)
     {
-      switch (out_format)
+      val_.clear();
+      translator_num = n;
+      format = None;
+    }
+
+    void
+    print(std::ostream& os, const char* pos) const
+    {
+      if (*pos == 'N')
+	format = Spin;
+      else
+	format = Lbtt;
+      if (!val_.empty())
+	error(2, 0, "you may have only one %%N or %%T specifier: %s",
+	      translators[translator_num]);
+      close(create_tmpfile('o', translator_num,
+			   const_cast<std::string&>(val_)));
+      os << '\'' << val_ << '\'';
+    }
+  };
+
+  class translator_runner: protected spot::formater
+  {
+  private:
+    // Round-specific variables
+    quoted_string string_ltl_spot;
+    quoted_string string_ltl_spin;
+    quoted_string string_ltl_lbt;
+    quoted_string filename_ltl_spot;
+    quoted_string filename_ltl_spin;
+    quoted_string filename_ltl_lbt;
+    std::list<std::string> toclean;
+    // Run-specific variables
+    printable_result_filename output;
+  public:
+    translator_runner()
+    {
+      declare('f', &string_ltl_spot);
+      declare('s', &string_ltl_spin);
+      declare('l', &string_ltl_lbt);
+      declare('F', &filename_ltl_spot);
+      declare('S', &filename_ltl_spin);
+      declare('L', &filename_ltl_lbt);
+      declare('N', &output);
+      declare('T', &output);
+
+      size_t s = translators.size();
+      assert(s);
+      for (size_t n = 0; n < s; ++n)
+	prime(translators[n]);
+
+    }
+
+    // Cleanup temporary files.
+    void round_cleanup()
+    {
+      for (std::list<std::string>::const_iterator i = toclean.begin();
+	   i != toclean.end(); ++i)
+	unlink(i->c_str());
+      toclean.clear();
+    }
+
+    void
+    string_to_tmp(std::string& str, unsigned n, std::string& tmpname)
+    {
+      int fd = create_tmpfile('i', n, tmpname);
+      write(fd, str.c_str(), str.size());
+      write(fd, "\n", 1);
+      close(fd);
+      toclean.push_back(tmpname);
+    }
+
+    void round_formula(const spot::ltl::formula* f, unsigned serial)
+    {
+      if (has('f') || has('F'))
+	string_ltl_spot = spot::ltl::to_string(f, true);
+      if (has('s') || has('S'))
+	string_ltl_spin = spot::ltl::to_spin_string(f, true);
+      if (has('l') || has('L'))
+	string_ltl_lbt = spot::ltl::to_lbt_string(f);
+      if (has('F'))
+	string_to_tmp(string_ltl_spot, serial, filename_ltl_spot);
+      if (has('S'))
+	string_to_tmp(string_ltl_spin, serial, filename_ltl_spin);
+      if (has('L'))
+	string_to_tmp(string_ltl_lbt, serial, filename_ltl_lbt);
+    }
+
+    const spot::tgba* translate(unsigned int translator_num, char l)
+    {
+      output.reset(translator_num);
+
+      std::ostringstream command;
+      format(command, translators[translator_num]);
+      toclean.push_back(output.val());
+      std::string cmd = command.str();
+      std::cerr << "Running [" << l << translator_num << "]: "
+		<< cmd << std::endl;
+      int es = system(cmd.c_str());
+
+      const spot::tgba* res = 0;
+      if (es)
 	{
-	case Spin:
-	  {
-	    spot::neverclaim_parse_error_list pel;
-	    res = spot::neverclaim_parse(result, pel, &dict);
-	    if (!pel.empty())
+	  std::cerr << "Execution of: " << cmd << "\n"
+		    << "  returned exit code " << WEXITSTATUS(es)
+		    << ".\n";
+	}
+      else
+	{
+	  switch (output.format)
+	    {
+	    case printable_result_filename::Spin:
 	      {
-		std::cerr << "Failed to parse the produced neverclaim.\n";
-		spot::format_neverclaim_parse_errors(std::cerr, result, pel);
-		delete res;
-		res = 0;
+		spot::neverclaim_parse_error_list pel;
+		res = spot::neverclaim_parse(output, pel, &dict);
+		if (!pel.empty())
+		  {
+		    std::cerr << "Failed to parse the produced neverclaim.\n";
+		    spot::format_neverclaim_parse_errors(std::cerr,
+							 output, pel);
+		    delete res;
+		    res = 0;
+		  }
+		break;
 	      }
-	    break;
-	  }
-	case Lbtt:
-	  {
-	    std::string error;
-	    std::fstream f(result.c_str());
-	    if (!f)
+	    case printable_result_filename::Lbtt:
 	      {
-		std::cerr << "Cannot open " << result << std::endl;
-	      }
-	    else
-	      {
-		res = spot::lbtt_parse(f, error, &dict);
+		std::string error;
+		std::fstream f(output.val().c_str());
+		if (!f)
+		  {
+		    std::cerr << "Cannot open " << output.val() << std::endl;
+		  }
+		else
+		  {
+		    res = spot::lbtt_parse(f, output.val(), &dict);
 		if (!res)
 		  std::cerr << "Failed error to parse output in LBTT format: "
 			    << error << std::endl;
+		  }
+		break;
 	      }
-	    break;
-	  }
-	case None:
-	  assert(!"unreachable code");
+	    case printable_result_filename::None:
+	      assert(!"unreachable code");
+	    }
 	}
+      return res;
     }
+  };
 
-  // Cleanup any temporary file.
-  for (std::list<std::string>::const_iterator i = toclean.begin();
-       i != toclean.end(); ++i)
-    unlink(i->c_str());
-  return res;
-}
+  static bool
+  is_empty(const spot::tgba* aut)
+  {
+    spot::emptiness_check* ec = spot::couvreur99(aut);
+    spot::emptiness_check_result* res = ec->check();
+    delete res;
+    delete ec;
+    return !res;
+  }
 
-static bool
-is_empty(const spot::tgba* aut)
-{
-  spot::emptiness_check* ec = spot::couvreur99(aut);
-  spot::emptiness_check_result* res = ec->check();
-  delete res;
-  delete ec;
-  return !res;
-}
+  static void
+  cross_check(const std::vector<spot::scc_map*>& maps, char l)
+  {
+    size_t m = maps.size();
 
-static void
-cross_check(const std::vector<spot::scc_map*>& maps, char l)
-{
-  size_t m = maps.size();
-
-  std::vector<bool> res(m);
-  unsigned verified = 0;
-  unsigned violated = 0;
-  for (size_t i = 0; i < m; ++i)
-    if (spot::scc_map* m = maps[i])
+    std::vector<bool> res(m);
+    unsigned verified = 0;
+    unsigned violated = 0;
+    for (size_t i = 0; i < m; ++i)
+      if (spot::scc_map* m = maps[i])
+	{
+	  // r == true iff the automaton i is accepting.
+	  bool r = false;
+	  unsigned c = m->scc_count();
+	  for (unsigned j = 0; (j < c) && !r; ++j)
+	    r |= m->accepting(j);
+	  res[i] = r;
+	  if (r)
+	    ++verified;
+	  else
+	    ++violated;
+	}
+    if (verified != 0 && violated != 0)
       {
-	// r == true iff the automaton i is accepting.
-	bool r = false;
-	unsigned c = m->scc_count();
-	for (unsigned j = 0; (j < c) && !r; ++j)
-	  r |= m->accepting(j);
-	res[i] = r;
-	if (r)
-	  ++verified;
-	else
-	  ++violated;
+	std::cerr << "error: {";
+	bool first = true;
+	for (size_t i = 0; i < m; ++i)
+	  if (maps[i] && res[i])
+	    {
+	      if (first)
+		first = false;
+	      else
+		std::cerr << ",";
+	      std::cerr << l << i;
+	    }
+	std::cerr << "} disagree with {";
+	first = true;
+	for (size_t i = 0; i < m; ++i)
+	  if (maps[i] && !res[i])
+	    {
+	      if (first)
+		first = false;
+	      else
+		std::cerr << ",";
+	      std::cerr << l << i;
+	    }
+	std::cerr << "} when evaluating the state-space\n";
       }
-  if (verified != 0 && violated != 0)
-    {
-      std::cerr << "error: {";
-      bool first = true;
-      for (size_t i = 0; i < m; ++i)
-	if (maps[i] && res[i])
-	  {
-	    if (first)
-	      first = false;
-	    else
-	      std::cerr << ",";
-	    std::cerr << l << i;
-	  }
-      std::cerr << "} disagree with {";
-      first = true;
-      for (size_t i = 0; i < m; ++i)
-	if (maps[i] && !res[i])
-	  {
-	    if (first)
-	      first = false;
-	    else
-	      std::cerr << ",";
-	    std::cerr << l << i;
-	  }
-      std::cerr << "} when evaluating the state-space\n";
-    }
-}
+  }
 
-typedef std::set<spot::state*, spot::state_ptr_less_than> state_set;
+  typedef std::set<spot::state*, spot::state_ptr_less_than> state_set;
 
-// Collect all the states of SSPACE that appear in the accepting SCCs
-// of PROD.
-static void
-states_in_acc(const spot::scc_map* m, const spot::tgba* sspace,
-	      state_set& s)
-{
-  const spot::tgba* aut = m->get_aut();
-  unsigned c = m->scc_count();
-  for (unsigned n = 0; n < c; ++n)
-    if (m->accepting(n))
-      {
-	const std::list<const spot::state*>& l = m->states_of(n);
-	for (std::list<const spot::state*>::const_iterator i = l.begin();
-	     i != l.end(); ++i)
-	  {
-	    spot::state* x = aut->project_state(*i, sspace);
-	    if (!s.insert(x).second)
-	      x->destroy();
-	  }
-      }
-}
+  // Collect all the states of SSPACE that appear in the accepting SCCs
+  // of PROD.
+  static void
+  states_in_acc(const spot::scc_map* m, const spot::tgba* sspace,
+		state_set& s)
+  {
+    const spot::tgba* aut = m->get_aut();
+    unsigned c = m->scc_count();
+    for (unsigned n = 0; n < c; ++n)
+      if (m->accepting(n))
+	{
+	  const std::list<const spot::state*>& l = m->states_of(n);
+	  for (std::list<const spot::state*>::const_iterator i = l.begin();
+	       i != l.end(); ++i)
+	    {
+	      spot::state* x = aut->project_state(*i, sspace);
+	      if (!s.insert(x).second)
+		x->destroy();
+	    }
+	}
+  }
 
-static bool
-consistency_check(const spot::scc_map* pos, const spot::scc_map* neg,
-		  const spot::tgba* sspace)
-{
-  // the states of SSPACE should appear in the accepting SCC of at
-  // least one of POS or NEG.  Maybe both.
-  state_set s;
-  states_in_acc(pos, sspace, s);
-  states_in_acc(neg, sspace, s);
-  bool res = s.size() == states;
-  state_set::iterator it;
-  for (it = s.begin(); it != s.end(); it++)
-    (*it)->destroy();
-  return res;
-}
+  static bool
+  consistency_check(const spot::scc_map* pos, const spot::scc_map* neg,
+		    const spot::tgba* sspace)
+  {
+    // the states of SSPACE should appear in the accepting SCC of at
+    // least one of POS or NEG.  Maybe both.
+    state_set s;
+    states_in_acc(pos, sspace, s);
+    states_in_acc(neg, sspace, s);
+    bool res = s.size() == states;
+    state_set::iterator it;
+    for (it = s.begin(); it != s.end(); it++)
+      (*it)->destroy();
+    return res;
+  }
 
-
-namespace
-{
   class processor: public job_processor
   {
+    translator_runner runner;
+
   public:
     int
     process_formula(const spot::ltl::formula* f,
@@ -445,6 +459,7 @@ namespace
     {
       (void) filename;
       (void) linenum;
+      static unsigned round = 0;
 
       if (filename)
 	std::cerr << filename << ":";
@@ -460,13 +475,18 @@ namespace
       std::vector<const spot::tgba*> pos(m);
       std::vector<const spot::tgba*> neg(m);
 
+      runner.round_formula(f, round);
+      for (size_t n = 0; n < m; ++n)
+	pos[n] = runner.translate(n, 'P');
+
       const spot::ltl::formula* nf =
 	spot::ltl::unop::instance(spot::ltl::unop::Not, f->clone());
+      runner.round_formula(nf, round);
       for (size_t n = 0; n < m; ++n)
-	{
-	  pos[n] = run_translator(f, n, 'P');
-	  neg[n] = run_translator(nf, n, 'N');
-	}
+	neg[n] = runner.translate(n, 'N');
+
+      ++round;
+      runner.round_cleanup();
 
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
 
