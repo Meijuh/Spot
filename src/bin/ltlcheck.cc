@@ -45,6 +45,8 @@
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/dotty.hh"
 #include "misc/formater.hh"
+#include "tgbaalgos/stats.hh"
+#include "tgbaalgos/isdet.hh"
 
 const char argp_program_doc[] ="\
 Call several LTL/PSL translators and cross-compare their output to detect \
@@ -100,6 +102,56 @@ unsigned states = 200;
 float density = 0.1;
 
 std::vector<char*> translators;
+
+struct statistics
+{
+  bool ok;
+  unsigned states;
+  unsigned edges;
+  unsigned transitions;
+  unsigned acc;
+  unsigned scc;
+  unsigned nondetstates;
+  bool nondeterministic;
+  unsigned product_states;
+  unsigned product_transitions;
+  unsigned product_scc;
+
+  static void
+  fields(std::ostream& os)
+  {
+    os << ("    \"states\",\n"
+	   "    \"edges\",\n"
+	   "    \"transitions\",\n"
+	   "    \"acc\",\n"
+	   "    \"scc\",\n"
+	   "    \"nondetstates\",\n"
+	   "    \"nondeterministic\",\n"
+	   "    \"product_states\",\n"
+	   "    \"product_transitions\",\n"
+	   "    \"product_scc\"");
+  }
+
+  void
+  to_csv(std::ostream& os)
+  {
+    os << states << ", "
+       << edges << ", "
+       << transitions << ", "
+       << acc << ", "
+       << scc << ", "
+       << nondetstates << ", "
+       << nondeterministic << ", "
+       << product_states << ", "
+       << product_transitions << ", "
+       << product_scc;
+  }
+};
+
+typedef std::vector<statistics> statistics_formula;
+typedef std::vector<statistics_formula> statistics_vector;
+statistics_vector vstats;
+std::vector<std::string> formulas;
 
 static int
 to_int(const char* s)
@@ -252,7 +304,8 @@ namespace
     }
 
     // Cleanup temporary files.
-    void round_cleanup()
+    void
+    round_cleanup()
     {
       for (std::list<std::string>::const_iterator i = toclean.begin();
 	   i != toclean.end(); ++i)
@@ -270,7 +323,8 @@ namespace
       toclean.push_back(tmpname);
     }
 
-    const std::string& formula() const
+    const std::string&
+    formula() const
     {
       // Pick the most readable format we have...
       if (!string_ltl_spot.val().empty())
@@ -283,7 +337,8 @@ namespace
       return string_ltl_spot;
     }
 
-    void round_formula(const spot::ltl::formula* f, unsigned serial)
+    void
+    round_formula(const spot::ltl::formula* f, unsigned serial)
     {
       if (has('f') || has('F'))
 	string_ltl_spot = spot::ltl::to_string(f, true);
@@ -299,7 +354,8 @@ namespace
 	string_to_tmp(string_ltl_lbt, serial, filename_ltl_lbt);
     }
 
-    const spot::tgba* translate(unsigned int translator_num, char l)
+    const spot::tgba*
+    translate(unsigned int translator_num, char l, statistics_formula* fstats)
     {
       output.reset(translator_num);
 
@@ -347,15 +403,32 @@ namespace
 		else
 		  {
 		    res = spot::lbtt_parse(f, output.val(), &dict);
-		if (!res)
-		  std::cerr << "Failed error to parse output in LBTT format: "
-			    << error << std::endl;
+		    if (!res)
+		      std::cerr << ("Failed error to parse output in "
+				    "LBTT format: ")
+				<< error << std::endl;
 		  }
 		break;
 	      }
 	    case printable_result_filename::None:
 	      assert(!"unreachable code");
 	    }
+	}
+      // Compute statistics.
+      if (res)
+	{
+	  statistics* st = &(*fstats)[translator_num];
+	  st->ok = true;
+	  spot::tgba_sub_statistics s = sub_stats_reachable(res);
+	  st->states = s.states;
+	  st->edges = s.transitions;
+	  st->transitions = s.sub_transitions;
+	  st->acc = res->number_of_acceptance_conditions();
+	  spot::scc_map m(res);
+	  m.build_map();
+	  st->scc = m.scc_count();
+	  st->nondetstates = spot::count_nondet_states(res);
+	  st->nondeterministic = st->nondetstates != 0;
 	}
       return res;
     }
@@ -479,7 +552,17 @@ namespace
       std::vector<const spot::tgba*> pos(m);
       std::vector<const spot::tgba*> neg(m);
 
+      unsigned n = vstats.size();
+      vstats.resize(n + 2);
+      statistics_formula* pstats = &vstats[n];
+      statistics_formula* nstats = &vstats[n + 1];
+      pstats->resize(m);
+      nstats->resize(m);
+
+      // ---------- Positive Formula ----------
+
       runner.round_formula(f, round);
+
       // Call formula() before printing anything else, in case it
       // complains.
       std::string fstr = runner.formula();
@@ -491,17 +574,24 @@ namespace
 	std::cerr << " ";
       std::cerr << fstr << "\n";
 
+      formulas.push_back(fstr);
+
       for (size_t n = 0; n < m; ++n)
-	pos[n] = runner.translate(n, 'P');
+	pos[n] = runner.translate(n, 'P', pstats);
+
+      // ---------- Negative Formula ----------
 
       const spot::ltl::formula* nf =
 	spot::ltl::unop::instance(spot::ltl::unop::Not, f->clone());
-      runner.round_formula(nf, round);
-      for (size_t n = 0; n < m; ++n)
-	neg[n] = runner.translate(n, 'N');
 
-      ++round;
+      runner.round_formula(nf, round);
+      formulas.push_back(runner.formula());
+
+      for (size_t n = 0; n < m; ++n)
+	neg[n] = runner.translate(n, 'N', nstats);
+
       runner.round_cleanup();
+      ++round;
 
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
 
@@ -533,6 +623,12 @@ namespace
 	    spot::scc_map* sm = new spot::scc_map(p);
 	    sm->build_map();
 	    pos_map[i] = sm;
+
+	    // Statistics
+	    (*pstats)[i].product_scc = sm->scc_count();
+	    spot::tgba_statistics s = spot::stats_reachable(p);
+	    (*pstats)[i].product_states = s.states;
+	    (*pstats)[i].product_transitions = s.transitions;
 	  }
       for (size_t i = 0; i < m; ++i)
 	if (neg[i])
@@ -542,6 +638,12 @@ namespace
 	    spot::scc_map* sm = new spot::scc_map(p);
 	    sm->build_map();
 	    neg_map[i] = sm;
+
+	    // Statistics
+	    (*nstats)[i].product_scc = sm->scc_count();
+	    spot::tgba_statistics s = spot::stats_reachable(p);
+	    (*nstats)[i].product_states = s.states;
+	    (*nstats)[i].product_transitions = s.transitions;
 	  }
 
       // cross-comparison test
@@ -583,6 +685,39 @@ namespace
   };
 }
 
+static void
+print_stats_json()
+{
+  unsigned rounds = vstats.size();
+  if (!rounds)
+    return;
+  unsigned ntrans = translators.size();
+  assert(rounds = formulas.size());
+
+  std::cout << "{\n  tools: [\n    \"" << translators[0];
+  for (unsigned t = 1; t < ntrans; ++t)
+    std::cout << "\",\n    \"" << translators[t];
+  std::cout << "\"\n  ],\n  inputs: [\n    \"" << formulas[0];
+  for (unsigned r = 1; r < rounds; ++r)
+    std::cout << "\",\n    \"" << formulas[r];
+  std::cout << ("\"\n  ],\n  fields: [\n    \"input\",\n"
+		"    \"tool\",\n");
+  statistics::fields(std::cout);
+  std::cout << "\n  ],\n  results: [";
+  bool notfirst = false;
+  for (unsigned r = 0; r < rounds; ++r)
+    for (unsigned t = 0; t < ntrans; ++t)
+      if (vstats[r][t].ok)
+	{
+	  if (notfirst)
+	    std::cout << ",";
+	  notfirst = true;
+	  std::cout << "\n    [ " << r << ", " << t << ", ";
+	  vstats[r][t].to_csv(std::cout);
+	  std::cout << " ]";
+	}
+  std::cout << "\n  ]\n}\n";
+}
 
 int
 main(int argc, char** argv)
@@ -605,5 +740,7 @@ main(int argc, char** argv)
   processor p;
   if (p.run())
     return 2;
+
+  print_stats_json();
   return 0;
 }
