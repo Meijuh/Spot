@@ -54,8 +54,8 @@ bugs, or to gather statistics.  The list of formula to use should be \
 supplied on standard input, or using the -f or -F options.\v\
 Examples:\n\
 \n\
-  Compare neverclaim produced by ltl2tgba and spin for some random formulas:\n\
-  % randltl --tree-size 20..30 a b c | \\\n\
+  Compare neverclaim produced by ltl2tgba and spin for 100 random formulas:\n\
+  % randltl -n 100 --tree-size 20..30 a b c | \\\n\
     ltlcheck 'ltl2tgba -s %f > %N' 'spin -f %s > %N'\n\
 ";
 
