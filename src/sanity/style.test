@@ -198,7 +198,7 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
 
       case $file in
 	*.hh | *.hxx)
-	  if egrep '(cout|cerr|clog)' $tmp >/dev/null; then
+	  if egrep '(<<|>>)' $tmp >/dev/null; then
 	    :
 	  else
 	    grep '#.*include.*<iostream>' $tmp &&

@@ -63,6 +63,7 @@ libmisc_la_SOURCES = \
   bddop.cc \
   escape.cc \
   freelist.cc \
+  formater.cc \
   intvcomp.cc \
   intvcmp2.cc \
   memusage.cc \

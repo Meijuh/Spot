@@ -6,7 +6,7 @@
 //
 // Spot is free software; you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
+// the Free Software Foundation; either version 3 of the License, or
 // (at your option) any later version.
 //
 // Spot is distributed in the hope that it will be useful, but WITHOUT
@@ -15,12 +15,10 @@
 // License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Spot; see the file COPYING.  If not, write to the Free
-// Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
-// 02111-1307, USA.
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_SRC_MISC_FORMATER_HH
-#define SPOT_SRC_MISC_FORMATER_HH
+#ifndef SPOT_MISC_FORMATER_HH
+#define SPOT_MISC_FORMATER_HH
 
 #include <iostream>
 #include <string>
@@ -116,17 +114,7 @@ namespace spot
 
     /// Collect the %-sequences occurring in \a fmt.
     void
-    prime(const char* fmt)
-    {
-      for (const char* pos = fmt; *pos; ++pos)
-	if (*pos == '%')
-	  {
-	    char c = *++pos;
-	    has_[c] = true;
-	    if (!c)
-	      break;
-	  }
-    }
+    prime(const char* fmt);
 
     /// Collect the %-sequences occurring in \a fmt.
     void
@@ -158,22 +146,7 @@ namespace spot
 
     /// Expand the %-sequences in \a fmt, write the result on \a output_.
     std::ostream&
-    format(const char* fmt)
-    {
-      for (const char* pos = fmt; *pos; ++pos)
-	if (*pos != '%')
-	  {
-	    *output_ << *pos;
-	  }
-	else
-	  {
-	    char c = *++pos;
-	    call_[c]->print(*output_, pos);
-	    if (!c)
-	      break;
-	  }
-      return *output_;
-    }
+    format(const char* fmt);
 
     /// Expand the %-sequences in \a fmt, write the result on \a output.
     std::ostream&
@@ -207,4 +180,4 @@ namespace spot
 
 }
 
-#endif // SPOT_SRC_MISC_FORMATER_HH
+#endif // SPOT_MISC_FORMATER_HH
