@@ -270,6 +270,19 @@ namespace
       toclean.push_back(tmpname);
     }
 
+    const std::string& formula() const
+    {
+      // Pick the most readable format we have...
+      if (!string_ltl_spot.val().empty())
+	return string_ltl_spot;
+      if (!string_ltl_spin.val().empty())
+	return string_ltl_spin;
+      if (!string_ltl_lbt.val().empty())
+	return string_ltl_lbt;
+      error(2, 0, "None of the translators need the input formula?");
+      return string_ltl_spot;
+    }
+
     void round_formula(const spot::ltl::formula* f, unsigned serial)
     {
       if (has('f') || has('F'))
@@ -461,21 +474,23 @@ namespace
       (void) linenum;
       static unsigned round = 0;
 
-      if (filename)
-	std::cerr << filename << ":";
-      if (linenum)
-	std::cerr << linenum << ":";
-      if (filename || linenum)
-	std::cerr << " ";
-      spot::ltl::to_string(f, std::cerr);
-      std::cerr << "\n";
-
       size_t m = translators.size();
 
       std::vector<const spot::tgba*> pos(m);
       std::vector<const spot::tgba*> neg(m);
 
       runner.round_formula(f, round);
+      // Call formula() before printing anything else, in case it
+      // complains.
+      std::string fstr = runner.formula();
+      if (filename)
+	std::cerr << filename << ":";
+      if (linenum)
+	std::cerr << linenum << ":";
+      if (filename || linenum)
+	std::cerr << " ";
+      std::cerr << fstr << "\n";
+
       for (size_t n = 0; n < m; ++n)
 	pos[n] = runner.translate(n, 'P');
 
