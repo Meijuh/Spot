@@ -41,6 +41,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module alloca:
   # Code from module alloca-opt:
   # Code from module argp:
+  # Code from module clock-time:
   # Code from module dirname-lgpl:
   # Code from module dosname:
   # Code from module double-slash-root:
@@ -51,9 +52,11 @@ AC_DEFUN([gl_EARLY],
   # Code from module extern-inline:
   # Code from module fcntl-h:
   # Code from module float:
+  # Code from module gethrxtime:
   # Code from module getopt-gnu:
   # Code from module getopt-posix:
   # Code from module gettext-h:
+  # Code from module gettime:
   # Code from module gettimeofday:
   # Code from module include_next:
   # Code from module intprops:
@@ -100,6 +103,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module sysexits:
   # Code from module tempname:
   # Code from module time:
+  # Code from module timespec:
   # Code from module unistd:
   # Code from module vasnprintf:
   # Code from module verify:
@@ -129,6 +133,7 @@ AC_DEFUN([gl_INIT],
   m4_ifdef([AM_XGETTEXT_OPTION],
     [AM_][XGETTEXT_OPTION([--flag=argp_error:2:c-format])
      AM_][XGETTEXT_OPTION([--flag=argp_failure:4:c-format])])
+  gl_CLOCK_TIME
   gl_DIRNAME_LGPL
   gl_DOUBLE_SLASH_ROOT
   gl_HEADER_ERRNO_H
@@ -148,6 +153,11 @@ AC_DEFUN([gl_INIT],
   fi
   if test $REPLACE_ITOLD = 1; then
     AC_LIBOBJ([itold])
+  fi
+  gl_GETHRXTIME
+  if test $ac_cv_have_decl_gethrtime = no || test $gl_cv_arithmetic_hrtime_t = no; then
+    AC_LIBOBJ([gethrxtime])
+    gl_PREREQ_GETHRXTIME
   fi
   gl_FUNC_GETOPT_GNU
   if test $REPLACE_GETOPT = 1; then
@@ -170,6 +180,7 @@ AC_DEFUN([gl_INIT],
   AC_SUBST([GNULIB_GL_UNISTD_H_GETOPT])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  gl_GETTIME
   gl_FUNC_GETTIMEOFDAY
   if test $HAVE_GETTIMEOFDAY = 0 || test $REPLACE_GETTIMEOFDAY = 1; then
     AC_LIBOBJ([gettimeofday])
@@ -297,6 +308,7 @@ AC_DEFUN([gl_INIT],
   gl_SYSEXITS
   gl_FUNC_GEN_TEMPNAME
   gl_HEADER_TIME_H
+  gl_TIMESPEC
   gl_UNISTD_H
   gl_FUNC_VASNPRINTF
   gl_FUNC_VSNPRINTF
@@ -474,11 +486,14 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/float+.h
   lib/float.c
   lib/float.in.h
+  lib/gethrxtime.c
+  lib/gethrxtime.h
   lib/getopt.c
   lib/getopt.in.h
   lib/getopt1.c
   lib/getopt_int.h
   lib/gettext.h
+  lib/gettime.c
   lib/gettimeofday.c
   lib/intprops.h
   lib/itold.c
@@ -529,6 +544,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/tempname.c
   lib/tempname.h
   lib/time.in.h
+  lib/timespec.c
+  lib/timespec.h
   lib/unistd.in.h
   lib/vasnprintf.c
   lib/vasnprintf.h
@@ -537,9 +554,11 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/wchar.in.h
   lib/xsize.c
   lib/xsize.h
+  lib/xtime.h
   m4/00gnulib.m4
   m4/alloca.m4
   m4/argp.m4
+  m4/clock_time.m4
   m4/dirname.m4
   m4/double-slash-root.m4
   m4/errno_h.m4
@@ -550,7 +569,9 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/fcntl-o.m4
   m4/fcntl_h.m4
   m4/float_h.m4
+  m4/gethrxtime.m4
   m4/getopt.m4
+  m4/gettime.m4
   m4/gettimeofday.m4
   m4/gnulib-common.m4
   m4/include_next.m4
@@ -598,6 +619,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/sysexits.m4
   m4/tempname.m4
   m4/time_h.m4
+  m4/timespec.m4
   m4/unistd_h.m4
   m4/vasnprintf.m4
   m4/vsnprintf.m4
