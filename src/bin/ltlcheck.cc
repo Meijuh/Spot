@@ -28,7 +28,7 @@
 #include <cstdio>
 #include <argp.h>
 #include "error.h"
-#include <sstream>
+#include "gethrxtime.h"
 
 #include "common_setup.hh"
 #include "common_cout.hh"
@@ -113,6 +113,7 @@ struct statistics
   unsigned scc;
   unsigned nondetstates;
   bool nondeterministic;
+  double time;
   unsigned product_states;
   unsigned product_transitions;
   unsigned product_scc;
@@ -127,6 +128,7 @@ struct statistics
 	   "    \"scc\",\n"
 	   "    \"nondetstates\",\n"
 	   "    \"nondeterministic\",\n"
+	   "    \"time\",\n"
 	   "    \"product_states\",\n"
 	   "    \"product_transitions\",\n"
 	   "    \"product_scc\"");
@@ -142,6 +144,7 @@ struct statistics
        << scc << ", "
        << nondetstates << ", "
        << nondeterministic << ", "
+       << time << ", "
        << product_states << ", "
        << product_transitions << ", "
        << product_scc;
@@ -365,7 +368,9 @@ namespace
       std::string cmd = command.str();
       std::cerr << "Running [" << l << translator_num << "]: "
 		<< cmd << std::endl;
+      xtime_t before = gethrxtime();
       int es = system(cmd.c_str());
+      xtime_t after = gethrxtime();
 
       const spot::tgba* res = 0;
       if (es)
@@ -429,6 +434,8 @@ namespace
 	  st->scc = m.scc_count();
 	  st->nondetstates = spot::count_nondet_states(res);
 	  st->nondeterministic = st->nondetstates != 0;
+          double prec = XTIME_PRECISION;
+	  st->time = (after - before) / prec;
 	}
       return res;
     }

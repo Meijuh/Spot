@@ -49,3 +49,4 @@ randltl_SOURCES = randltl.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
 ltl2tgta_SOURCES = ltl2tgta.cc
 ltlcheck_SOURCES = ltlcheck.cc
+ltlcheck_LDADD = $(LDADD) $(LIB_GETHRXTIME)
