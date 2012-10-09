@@ -99,8 +99,8 @@ namespace spot
       };
 
       const char* spin_kw[] = {
-	"0",
-	"1",
+	"false", // 0 doesn't work from the command line
+	"true",  // 1 doesn't work from the command line
 	"[*0]",			// not supported
 	" xor ",		// rewritten
 	" -> ",			// rewritten, although supported
