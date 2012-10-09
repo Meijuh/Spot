@@ -27,6 +27,9 @@
 #include <cstdlib>
 #include <cstdio>
 #include <argp.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include "error.h"
 #include "gethrxtime.h"
 
@@ -69,6 +72,7 @@ static const argp_option options[] =
     { 0, 0, 0, 0, "Specifying translator to call:", 2 },
     { "translator", 't', "COMMANDFMT", 0,
       "register one translators to call", 0 },
+    { "timeout", 'T', "NUMBER", 0, "kill translators after NUMBER seconds", 0 },
     /**************************************************/
     { 0, 0, 0, 0,
       "COMMANDFMT should specify input and output arguments using the "
@@ -100,6 +104,7 @@ const struct argp_child children[] =
 spot::bdd_dict dict;
 unsigned states = 200;
 float density = 0.1;
+unsigned timeout = 0;
 
 std::vector<char*> translators;
 
@@ -206,6 +211,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case ARGP_KEY_ARG:
       translators.push_back(arg);
       break;
+    case 'T':
+      timeout = to_pos_int(arg);
+      break;
     case OPT_DENSITY:
       density = to_probability(arg);
       break;
@@ -228,6 +236,94 @@ create_tmpfile(char c, unsigned int n, std::string& name)
     error(2, errno, "failed to create a temporary file");
   name = tmpname;
   return fd;
+}
+
+
+static volatile int alarm_on = 0;
+static volatile bool timed_out = false;
+static int child_pid = -1;
+static volatile int signal_received = 0;
+
+static void
+sig_handler(int sig)
+{
+  if (child_pid == 0)
+    error(2, 0, "child received signal %d before starting", sig);
+
+  if (sig == SIGALRM && alarm_on)
+    {
+      timed_out = true;
+      if (--alarm_on)
+	{
+	  // Send SIGTERM to children.
+	  killpg(child_pid, SIGTERM);
+	  // Try again later if it didn't work.  (alarm() will be reset
+	  // if it did work and the call to wait() returns)
+	  alarm(2);
+	}
+      else
+	{
+	  // After a few gentle tries, really kill that child.
+	  killpg(child_pid, SIGKILL);
+	}
+    }
+  else
+    {
+      // forward signal
+      killpg(child_pid, sig);
+      signal_received = sig;
+    }
+}
+
+static void
+setup_sig_handler()
+{
+  struct sigaction sa;
+  sa.sa_handler = sig_handler;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = SA_RESTART; // So that wait() doesn't get aborted by SIGALRM.
+  sigaction(SIGALRM, &sa, 0);
+  // Catch termination signals, so we can kill the subprocess.
+  sigaction(SIGHUP, &sa, 0);
+  sigaction(SIGINT, &sa, 0);
+  sigaction(SIGQUIT, &sa, 0);
+  sigaction(SIGTERM, &sa, 0);
+}
+
+static int
+exec_with_timeout(const char* cmd)
+{
+  int status;
+
+  timed_out = false;
+
+  child_pid = fork();
+  if (child_pid == -1)
+    error(2, errno, "failed to fork()");
+
+  if (child_pid == 0)
+    {
+      setpgid(0, 0);
+      execlp("sh", "sh", "-c", cmd, (char*)0);
+      error(2, errno, "failed to run 'sh'");
+    }
+  else
+    {
+      alarm(timeout);
+      // Upon SIGALRM, the child will receive up to 3
+      // signals: SIGTERM, SIGTERM, SIGKILL.
+      alarm_on = 3;
+      int w = waitpid(child_pid, &status, 0);
+      alarm_on = 0;
+
+      if (w == -1)
+	error(2, errno, "error during wait()");
+
+      alarm(0);
+      if (signal_received)
+	error(2, 0, "received signal %d", signal_received);
+    }
+  return status;
 }
 
 namespace
@@ -369,11 +465,21 @@ namespace
       std::cerr << "Running [" << l << translator_num << "]: "
 		<< cmd << std::endl;
       xtime_t before = gethrxtime();
-      int es = system(cmd.c_str());
+      int es = exec_with_timeout(cmd.c_str());
       xtime_t after = gethrxtime();
 
       const spot::tgba* res = 0;
-      if (es)
+      if (timed_out)
+	{
+	  std::cerr << "Time out during execution of: " << cmd << "\n";
+	}
+      else if (WIFSIGNALED(es))
+	{
+	  std::cerr << "Execution of: " << cmd << "\n"
+		    << "  terminated by signal " << WTERMSIG(es)
+		    << ".\n";
+	}
+      else if (WIFEXITED(es) && WEXITSTATUS(es) != 0)
 	{
 	  std::cerr << "Execution of: " << cmd << "\n"
 		    << "  returned exit code " << WEXITSTATUS(es)
@@ -743,6 +849,8 @@ main(int argc, char** argv)
   if (translators.empty())
     error(2, 0, "No translator to run?  Run '%s --help' for usage.",
 	  program_name);
+
+  setup_sig_handler();
 
   processor p;
   if (p.run())
