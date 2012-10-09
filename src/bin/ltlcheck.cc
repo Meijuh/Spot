@@ -53,14 +53,19 @@
 
 const char argp_program_doc[] ="\
 Call several LTL/PSL translators and cross-compare their output to detect \
-bugs, or to gather statistics.  The list of formula to use should be \
+bugs, or to gather statistics.  The list of formulas to use should be \
 supplied on standard input, or using the -f or -F options.\v\
 Examples:\n\
+  Compare neverclaims produced by ltl2tgba and spin for 100 random formulas,\n\
+  limiting runtime to 2 minutes:\n\
+  % randltl -n100 --tree-size=20..30 a b c | \\\n\
+    ltlcheck -T120 'ltl2tgba -s %f > %N' 'spin -f %s > %N' > results.json \n\
 \n\
-  Compare neverclaim produced by ltl2tgba and spin for 100 random formulas:\n\
-  % randltl -n 100 --tree-size 20..30 a b c | \\\n\
-    ltlcheck 'ltl2tgba -s %f > %N' 'spin -f %s > %N'\n\
-";
+Exit status:\n\
+  0  everything went fine (timeouts are OK too)\n\
+  1  some translator failed to output something we understand, or failed\n\
+     sanity checks (statistics were output nonetheless)\n\
+  2  ltlcheck aborted on error\n";
 
 
 #define OPT_STATES 1
@@ -107,6 +112,14 @@ float density = 0.1;
 unsigned timeout = 0;
 
 std::vector<char*> translators;
+bool global_error_flag = false;
+
+static std::ostream&
+global_error()
+{
+  global_error_flag = true;
+  return std::cerr;
+}
 
 struct statistics
 {
@@ -471,19 +484,18 @@ namespace
       const spot::tgba* res = 0;
       if (timed_out)
 	{
-	  std::cerr << "Time out during execution of: " << cmd << "\n";
+	  // This is not considered to be a global error.
+	  std::cerr << "warning: timeout during execution of command\n";
 	}
       else if (WIFSIGNALED(es))
 	{
-	  std::cerr << "Execution of: " << cmd << "\n"
-		    << "  terminated by signal " << WTERMSIG(es)
-		    << ".\n";
+	  global_error() << "error: execution terminated by signal "
+			 << WTERMSIG(es) << ".\n";
 	}
       else if (WIFEXITED(es) && WEXITSTATUS(es) != 0)
 	{
-	  std::cerr << "Execution of: " << cmd << "\n"
-		    << "  returned exit code " << WEXITSTATUS(es)
-		    << ".\n";
+	  global_error() << "error: execution returned exit code "
+			 << WEXITSTATUS(es) << ".\n";
 	}
       else
 	{
@@ -495,9 +507,9 @@ namespace
 		res = spot::neverclaim_parse(output, pel, &dict);
 		if (!pel.empty())
 		  {
-		    std::cerr << "Failed to parse the produced neverclaim.\n";
-		    spot::format_neverclaim_parse_errors(std::cerr,
-							 output, pel);
+		    std::ostream& err = global_error();
+		    err << "error: failed to parse the produced neverclaim.\n";
+		    spot::format_neverclaim_parse_errors(err, output, pel);
 		    delete res;
 		    res = 0;
 		  }
@@ -509,15 +521,17 @@ namespace
 		std::fstream f(output.val().c_str());
 		if (!f)
 		  {
-		    std::cerr << "Cannot open " << output.val() << std::endl;
+		    global_error() << "Cannot open " << output.val()
+				   << std::endl;
+		    global_error_flag = true;
 		  }
 		else
 		  {
-		    res = spot::lbtt_parse(f, output.val(), &dict);
+		    res = spot::lbtt_parse(f, error, &dict);
 		    if (!res)
-		      std::cerr << ("Failed error to parse output in "
-				    "LBTT format: ")
-				<< error << std::endl;
+		      global_error() << ("Failed error to parse output in "
+					 "LBTT format: ")
+				     << error << std::endl;
 		  }
 		break;
 	      }
@@ -581,7 +595,8 @@ namespace
 	}
     if (verified != 0 && violated != 0)
       {
-	std::cerr << "error: {";
+	std::ostream& err = global_error();
+	err << "error: {";
 	bool first = true;
 	for (size_t i = 0; i < m; ++i)
 	  if (maps[i] && res[i])
@@ -589,10 +604,10 @@ namespace
 	      if (first)
 		first = false;
 	      else
-		std::cerr << ",";
-	      std::cerr << l << i;
+		err << ",";
+	      err << l << i;
 	    }
-	std::cerr << "} disagree with {";
+	err << "} disagree with {";
 	first = true;
 	for (size_t i = 0; i < m; ++i)
 	  if (maps[i] && !res[i])
@@ -600,10 +615,10 @@ namespace
 	      if (first)
 		first = false;
 	      else
-		std::cerr << ",";
-	      std::cerr << l << i;
+		err << ",";
+	      err << l << i;
 	    }
-	std::cerr << "} when evaluating the state-space\n";
+	err << "} when evaluating the state-space\n";
       }
   }
 
@@ -717,7 +732,8 @@ namespace
 		spot::tgba_product* prod =
 		  new spot::tgba_product(pos[i], neg[j]);
 		if (!is_empty(prod))
-		  std::cerr << "error: P" << i << "*N" << j << " is nonempty\n";
+		  global_error() << "error: P" << i << "*N" << j
+				 << " is nonempty\n";
 		delete prod;
 	      }
 
@@ -767,10 +783,8 @@ namespace
       for (size_t i = 0; i < m; ++i)
 	if (pos_map[i] && neg_map[i] &&
 	    !(consistency_check(pos_map[i], neg_map[i], statespace)))
-	  {
-	    std::cerr << "error: inconsistency between P" << i
-		      << " and N" << i << "\n";
-	  }
+	  global_error() << "error: inconsistency between P" << i
+			 << " and N" << i << "\n";
 
       // Cleanup.
       delete ap;
@@ -793,6 +807,7 @@ namespace
 	  delete pos[n];
 	}
 
+      std::cerr << std::endl;
       return 0;
     }
   };
@@ -857,5 +872,5 @@ main(int argc, char** argv)
     return 2;
 
   print_stats_json();
-  return 0;
+  return global_error_flag;
 }
