@@ -52,4 +52,4 @@ x=`sed -n '/APrec/{
   s/.*APrec=\[\([^]]*\)\].*/\1/p
   q
 }' out | tr ' ' '\n' | wc -l`
-test "$x" = 4
+test "$x" -eq 4
