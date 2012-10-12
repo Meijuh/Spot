@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2009, 2011 Laboratoire de Recherche et
-// Developpement de l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -212,6 +213,7 @@ namespace spot
 	  ++self_loops_;
 	bdd acc = succ->current_acceptance_conditions();
 	bdd cond = succ->current_condition();
+	root_.front().supp &= bdd_support(cond);
 	// ... and point the iterator to the next successor, for
 	// the next iteration.
 	succ->next();
@@ -268,7 +270,7 @@ namespace spot
 	succ_type succs;
 	cond_set conds;
 	conds.insert(cond);
-	bdd supp = bdd_support(cond);
+	bdd supp = bddtrue;
 	bdd all = aut_->all_acceptance_conditions();
 	bdd useful = conv.as_full_product(acc);
 	while (threshold > root_.front().index)

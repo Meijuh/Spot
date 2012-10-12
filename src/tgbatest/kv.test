@@ -1,6 +1,7 @@
 #!/bin/sh
-# Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et
-# Development de l'EPITA.
+# -*- coding: utf-8 -*-
+# Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+# Développement de l'EPITA.
 #
 # This file is part of Spot, a model checking library.
 #
@@ -40,3 +41,14 @@ check '((Xp2)U(X(1)))&(p1 R(p2 R p0))'
 
 # Make sure escaped variables print OK.
 check '"G1"U"GG" && "FF"'
+
+
+# Make sure we count 4 atomic propositions in
+# G("P_1.p2" <-> (F"P_1.p3" & ("P_0.p3" | (X"P_1.CS" U "P_1.p2")))) U G"P_1.p2"
+# even after iterated simulation
+# Report from Etienne Renault.
+
+../ltl2tgba -KV -R3 -RIS >out \
+'G("P_1.p2" <-> (F"P_1.p3" & ("P_0.p3" | (X"P_1.CS" U "P_1.p2")))) U G"P_1.p2"'
+x=`sed -n '/APre/{s/.*APrec=\[\([^]]*\)\].*/\1/p;q}' out | tr ' ' '\n' | wc -l`
+test "$x" = 4

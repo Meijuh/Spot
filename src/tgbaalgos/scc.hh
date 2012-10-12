@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2009, 2010, 2011 Laboratoire de Recherche et
-// Developpement de l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -122,10 +123,14 @@ namespace spot
     /// \pre This should only be called once build_map() has run.
     const cond_set& cond_set_of(unsigned n) const;
 
-    /// \brief Return the set of atomic properties occurring in an SCC.
+    /// \brief Return the set of atomic properties occurring on the
+    /// transitions leaving states from SCC \a n.
+    ///
+    /// The transitions considered are all transitions inside SCC
+    /// \a n, as well as the transitions leaving SCC \a n.
     ///
     /// \return a BDD that is a conjuction of all atomic properties
-    /// occurring on the transitions in the SCC n.
+    /// occurring on the transitions leaving the states of SCC \a n.
     ///
     /// \pre This should only be called once build_map() has run.
     bdd ap_set_of(unsigned n) const;
