@@ -1,5 +1,9 @@
 New in spot 0.9.2a:
 
+  * License change: Spot is now distributed using GPL v3+ instead
+    of GPL v2+.  This is because we started using some third-party
+    files distributed under GPL v3+.
+
   * Command-line tools
 
     Useful command-line tools are now installed in addition to the

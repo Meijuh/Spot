@@ -55,6 +55,11 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
     grep -i 'accepting cond' $file &&
       diag 'accepting -> acceptance'
 
+    grep -i 'version 2 of the License' $file &&
+      diag 'license text should refer to version 2'
+    grep -i 'Temple Place' $file &&
+      diag 'license text should give a url instead of an address'
+
     grep Copyright $file >/dev/null ||
       diag "missing copyright"
 
