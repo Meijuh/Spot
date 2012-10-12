@@ -50,5 +50,8 @@ check '"G1"U"GG" && "FF"'
 
 ../ltl2tgba -KV -R3 -RIS >out \
 'G("P_1.p2" <-> (F"P_1.p3" & ("P_0.p3" | (X"P_1.CS" U "P_1.p2")))) U G"P_1.p2"'
-x=`sed -n '/APre/{s/.*APrec=\[\([^]]*\)\].*/\1/p;q}' out | tr ' ' '\n' | wc -l`
+x=`sed -n '/APrec/{
+  s/.*APrec=\[\([^]]*\)\].*/\1/p
+  q
+}' out | tr ' ' '\n' | wc -l`
 test "$x" = 4
