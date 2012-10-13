@@ -228,6 +228,80 @@ namespace spot
   }
 
   const tgba*
+  lbtt_read_gba(unsigned num_states, unsigned num_acc,
+		std::istream& is, std::string& error,
+		bdd_dict* dict,
+		ltl::environment& env, ltl::environment& envacc)
+  {
+    tgba_explicit_number* aut = new tgba_explicit_number(dict);
+    std::vector<const ltl::formula*> acc_f(num_acc);
+    for (unsigned n = 0; n < num_acc; ++n)
+      {
+	std::ostringstream s;
+	s << n;
+	const ltl::formula* af = acc_f[n] = envacc.require(s.str());
+	aut->declare_acceptance_condition(af->clone());
+      }
+    std::vector<bdd> acc_b(num_acc);
+    for (unsigned n = 0; n < num_acc; ++n)
+      acc_b[n] = aut->get_acceptance_condition(acc_f[n]);
+
+    for (unsigned n = 0; n < num_states; ++n)
+      {
+	int src_state = 0;
+	int initial = 0;
+	is >> src_state >> initial;
+	if (initial)
+	  aut->set_init_state(src_state);
+
+	// Read the acceptance conditions.
+	bdd acc = bddfalse;
+	for (;;)
+	  {
+	    int acc_n = 0;
+	    is >> acc_n;
+	    if (acc_n == -1)
+	      break;
+	    if (acc_n < 0 || (unsigned)acc_n >= num_acc)
+	      {
+		error += "invalid acceptance set";
+		goto fail;
+	      }
+	    acc |= acc_b[acc_n];
+	  }
+
+	// Read the transitions.
+	for (;;)
+	  {
+	    int dst_state = 0;
+	    is >> dst_state;
+	    if (dst_state == -1)
+	      break;
+
+	    std::string guard;
+	    std::getline(is, guard);
+	    ltl::parse_error_list pel;
+	    const ltl::formula* f = parse_lbt(guard, pel, env);
+	    if (!f || pel.size() > 0)
+	      {
+		error += "failed to parse guard: " + guard;
+		if (f)
+		  f->destroy();
+		goto fail;
+	      }
+	    state_explicit_number::transition* t
+	      = aut->create_transition(src_state, dst_state);
+	    aut->add_condition(t, f);
+	    t->acceptance_conditions |= acc;
+	  }
+      }
+    return aut;
+  fail:
+    delete aut;
+    return 0;
+  }
+
+  const tgba*
   lbtt_parse(std::istream& is, std::string& error, bdd_dict* dict,
 	     ltl::environment& env, ltl::environment& envacc)
   {
@@ -257,7 +331,8 @@ namespace spot
       return lbtt_read_tgba(num_states, num_acc, is, error, dict,
 			    env, envacc);
     else
-      assert(!"unsupported format");
+      return lbtt_read_gba(num_states, num_acc, is, error, dict,
+			   env, envacc);
     return 0;
   }
 }
