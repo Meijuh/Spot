@@ -29,9 +29,10 @@ namespace spot
   class printable
   {
   public:
-    ~printable()
+    virtual ~printable()
     {
     }
+
     virtual void
     print(std::ostream&, const char*) const = 0;
   };
@@ -110,6 +111,10 @@ namespace spot
       : has_(256), call_(256, &id)
     {
       call_['%'] = call_[0] = &percent;
+    }
+
+    virtual ~formater()
+    {
     }
 
     /// Collect the %-sequences occurring in \a fmt.
