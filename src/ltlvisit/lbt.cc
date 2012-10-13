@@ -90,7 +90,7 @@ namespace spot
 	  switch (bo->op())
 	    {
 	    case binop::Xor:
-
+	      os_ << "^ ";
 	      break;
 	    case binop::Implies:
 	      os_ << "i ";
