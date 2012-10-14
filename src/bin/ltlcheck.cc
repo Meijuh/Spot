@@ -268,7 +268,6 @@ static volatile bool timed_out = false;
 #if ENABLE_TIMEOUT
 static volatile int alarm_on = 0;
 static int child_pid = -1;
-static volatile int signal_received = 0;
 
 static void
 sig_handler(int sig)
@@ -297,7 +296,8 @@ sig_handler(int sig)
     {
       // forward signal
       kill(-child_pid, sig);
-      signal_received = sig;
+      // and die verbosely
+      error(2, 0, "received signal %d", sig);
     }
 }
 
@@ -346,8 +346,6 @@ exec_with_timeout(const char* cmd)
 	error(2, errno, "error during wait()");
 
       alarm(0);
-      if (signal_received)
-	error(2, 0, "received signal %d", signal_received);
     }
   return status;
 }
