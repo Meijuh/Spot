@@ -51,6 +51,14 @@
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
 
+// Disable handling of timeout on systems that miss kill() or alarm().
+// For instance MinGW.
+#if HAVE_KILL && HAVE_ALARM
+# define ENABLE_TIMEOUT 1
+#else
+# define ENABLE_TIMEOUT 0
+#endif
+
 const char argp_program_doc[] ="\
 Call several LTL/PSL translators and cross-compare their output to detect \
 bugs, or to gather statistics.  The list of formulas to use should be \
@@ -226,6 +234,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'T':
       timeout = to_pos_int(arg);
+#if !ENABLE_TIMEOUT
+      std::cerr << "warning: setting a timeout is not supported "
+		<< "on your platform" << std::endl;
+#endif
       break;
     case OPT_DENSITY:
       density = to_probability(arg);
@@ -252,8 +264,9 @@ create_tmpfile(char c, unsigned int n, std::string& name)
 }
 
 
-static volatile int alarm_on = 0;
 static volatile bool timed_out = false;
+#if ENABLE_TIMEOUT
+static volatile int alarm_on = 0;
 static int child_pid = -1;
 static volatile int signal_received = 0;
 
@@ -338,6 +351,10 @@ exec_with_timeout(const char* cmd)
     }
   return status;
 }
+#else // !ENABLE_TIMEOUT
+#define exec_with_timeout(cmd) system(cmd)
+#define setup_sig_handler() while (0);
+#endif // !ENABLE_TIMEOUT
 
 namespace
 {
