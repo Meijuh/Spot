@@ -2367,9 +2367,9 @@ namespace spot
 	}
 
 	void
-	visit(const automatop*)
+	visit(const automatop* aut)
 	{
-	  assert(0);
+	  result_ = aut->clone();
 	}
 
 	void
