@@ -753,6 +753,8 @@ namespace
       runner.round_cleanup();
       ++round;
 
+      std::cerr << "Sanity checks..." << std::endl;
+
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
 
       // intersection test
