@@ -491,6 +491,11 @@ namespace
       std::ostringstream command;
       format(command, translators[translator_num]);
       toclean.push_back(output.val());
+
+      if (output.format == printable_result_filename::None)
+	error(2, 0, "no output sequence used in %s",
+	      translators[translator_num]);
+
       std::string cmd = command.str();
       std::cerr << "Running [" << l << translator_num << "]: "
 		<< cmd << std::endl;
