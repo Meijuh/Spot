@@ -81,7 +81,8 @@ namespace spot
       proprint(is_syntactic_persistence, "p", "syntactic persistence");	\
       proprint(is_syntactic_recurrence, "r", "syntactic recurrence");	\
       proprint(is_marked, "+", "marked");				\
-      proprint(accepts_eword, "0", "accepts the empty word");
+      proprint(accepts_eword, "0", "accepts the empty word");		\
+      proprint(has_lbt_atomic_props, "l", "as LBT-style atomic props");
 
 
     std::list<std::string>

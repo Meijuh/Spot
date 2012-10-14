@@ -52,6 +52,15 @@ namespace spot
       is.syntactic_persistence = true;
       is.not_marked = true;
       is.accepting_eword = false;
+      // is.lbt_atomic_props should be true if the name has the form
+      // pNN where NN is any number of digit.
+      std::string::const_iterator pos = name.begin();
+      is.lbt_atomic_props = (pos != name.end() && *pos++ == 'p');
+      while (is.lbt_atomic_props && pos != name.end())
+	{
+	  char l = *pos++;
+	  is.lbt_atomic_props = (l >= '0' && l <= '9');
+	}
     }
 
     atomic_prop::~atomic_prop()

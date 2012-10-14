@@ -41,6 +41,7 @@
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/lbt.hh"
+#include "ltlvisit/relabel.hh"
 #include "tgbaalgos/lbtt.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/gtec/gtec.hh"
@@ -414,6 +415,8 @@ namespace
     // Run-specific variables
     printable_result_filename output;
   public:
+    using spot::formater::has;
+
     translator_runner()
     {
       declare('f', &string_ltl_spot);
@@ -703,6 +706,16 @@ namespace
       statistics_formula* nstats = &vstats[n + 1];
       pstats->resize(m);
       nstats->resize(m);
+
+      // If we need LBT atomic proposition in any of the input or
+      // output, relabel the formula.
+      if (!f->has_lbt_atomic_props() &&
+	  (runner.has('l') || runner.has('L') || runner.has('T')))
+	{
+	  const spot::ltl::formula* g = spot::ltl::relabel(f, spot::ltl::Pnn);
+	  f->destroy();
+	  f = g;
+	}
 
       // ---------- Positive Formula ----------
 

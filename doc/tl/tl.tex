@@ -40,6 +40,10 @@
 
 \newcommand{\uni}[1]{\texttt{\small U+#1}}
 
+% For tables.
+\newcommand{\newfootnotemark}[1]{\addtocounter{footnote}{#1}\footnotemark[\value{footnote}]}
+\newcommand{\newfootnotetext}[2]{\addtocounter{footnote}{#1}\footnotetext[\value{footnote}]{#2}}
+
 
 %% ---------------------- %%
 %% Mathematical symbols.  %%
@@ -991,16 +995,22 @@ instance using the following methods:
 \\\texttt{is\_syntactic\_persistence()}& Whether the formula is a syntactic
   persistence property.
 \\\texttt{is\_marked()}& Whether the formula contains a special
-  ``marked'' version of the $\Esuffix$ or $\nsere{r}$ operators.\footnotemark
+  ``marked'' version of the $\Esuffix$ or $\nsere{r}$ operators.\newfootnotemark{1}
 \\\texttt{accepts\_eword()}& Whether the formula accepts
   $\eword$. (This can only be true for a SERE formula.)
+\\\texttt{has\_lbt\_atomic\_props()}& Whether the atomic
+  propositions of the formula are all of the form ``\texttt{p}$nn$''
+  where $nn$ is a string of digits.  This is required when converting
+  formula into LBT's format.\newfootnotemark{1}
 \end{tabulary}
 
-\footnotetext{These ``marked'' operators are used when
+\newfootnotetext{-1}{These ``marked'' operators are used when
   translating recurring $\Esuffix$ or $\nsere{r}$ operators.  They are
-  rendered as $\EsuffixMarked$ and $\nsereMarked{r}$ and obey the
-  same simplification rules and properties as their unmarked
-  counterpart (except for the \texttt{is\_marked()} property).}
+  rendered as $\EsuffixMarked$ and $\nsereMarked{r}$ and obey the same
+  simplification rules and properties as their unmarked counterpart
+  (except for the \texttt{is\_marked()} property).}
+\newfootnotetext{1}{\url{http://www.tcs.hut.fi/Software/maria/tools/lbt/}}
+
 
 \section{Pure Eventualities and Purely Universal Formul\ae{}}
 \label{sec:eventuniv}

@@ -802,7 +802,7 @@ output_pattern(int pattern, int n)
 
   // Make sure we use only "p42"-style of atomic propositions
   // in lbt's output.
-  if (output_format == lbt_output)
+  if (output_format == lbt_output && !f->has_lbt_atomic_props())
     {
       const spot::ltl::formula* r = spot::ltl::relabel(f, spot::ltl::Pnn);
       f->destroy();
