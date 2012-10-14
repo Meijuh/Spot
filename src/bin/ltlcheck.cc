@@ -64,17 +64,12 @@ const char argp_program_doc[] ="\
 Call several LTL/PSL translators and cross-compare their output to detect \
 bugs, or to gather statistics.  The list of formulas to use should be \
 supplied on standard input, or using the -f or -F options.\v\
-Examples:\n\
-  Compare neverclaims produced by ltl2tgba and spin for 100 random formulas,\n\
-  limiting runtime to 2 minutes:\n\
-  % randltl -n100 --tree-size=20..30 a b c | \\\n\
-    ltlcheck -T120 'ltl2tgba -s %f > %N' 'spin -f %s > %N' > results.json \n\
-\n\
 Exit status:\n\
   0  everything went fine (timeouts are OK too)\n\
   1  some translator failed to output something we understand, or failed\n\
      sanity checks (statistics were output nonetheless)\n\
-  2  ltlcheck aborted on error\n";
+  2  ltlcheck aborted on error\n\
+";
 
 
 #define OPT_STATES 1
@@ -97,6 +92,10 @@ static const argp_option options[] =
       "the formula as a file in Spot, Spin, or LBT's syntax", 0 },
     { "%N,%T", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the output automaton as a Never claim, or in LBTT's format", 0 },
+    { 0, 0, 0, 0,
+      "If either %l, %L, or %T are used, any input formula that does "
+      "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
+      "relabeled automatically.", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "State-space generation:", 4 },
     { "states", OPT_STATES, "INT", 0,
