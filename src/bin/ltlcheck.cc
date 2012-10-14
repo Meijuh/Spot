@@ -269,7 +269,7 @@ sig_handler(int sig)
       if (--alarm_on)
 	{
 	  // Send SIGTERM to children.
-	  killpg(child_pid, SIGTERM);
+	  kill(-child_pid, SIGTERM);
 	  // Try again later if it didn't work.  (alarm() will be reset
 	  // if it did work and the call to wait() returns)
 	  alarm(2);
@@ -277,13 +277,13 @@ sig_handler(int sig)
       else
 	{
 	  // After a few gentle tries, really kill that child.
-	  killpg(child_pid, SIGKILL);
+	  kill(-child_pid, SIGKILL);
 	}
     }
   else
     {
       // forward signal
-      killpg(child_pid, sig);
+      kill(-child_pid, sig);
       signal_received = sig;
     }
 }
