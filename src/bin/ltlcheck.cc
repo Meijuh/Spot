@@ -79,11 +79,10 @@ Exit status:\n\
 #define OPT_JSON 3
 #define OPT_CSV 4
 #define OPT_DUPS 5
+#define OPT_NOCHECKS 6
 
 static const argp_option options[] =
   {
-    { "allow-dups", OPT_DUPS, 0, 0,
-      "translate duplicate formulas in input", 1 },
     /**************************************************/
     { 0, 0, 0, 0, "Specifying translator to call:", 2 },
     { "translator", 't', "COMMANDFMT", 0,
@@ -104,14 +103,21 @@ static const argp_option options[] =
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
       "relabeled automatically.", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "State-space generation:", 4 },
+    { 0, 0, 0, 0, "ltlcheck behavior:", 4 },
+    { "allow-dups", OPT_DUPS, 0, 0,
+      "translate duplicate formulas in input", 0 },
+    { "no-checks", OPT_NOCHECKS, 0, 0,
+      "do not perform any sanity checks (negated formulas "
+      "will not be translated)", 0 },
+    /**************************************************/
+    { 0, 0, 0, 0, "State-space generation:", 5 },
     { "states", OPT_STATES, "INT", 0,
       "number of the states in the state-spaces (200 by default)", 0 },
     { "density", OPT_DENSITY, "FLOAT", 0,
       "probability, between 0.0 and 1.0, to add a transition between "
       "two states (0.1 by default)", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Statistics ouput:", 5 },
+    { 0, 0, 0, 0, "Statistics output:", 6 },
     { "json", OPT_JSON, "FILENAME", OPTION_ARG_OPTIONAL,
       "output statistics as JSON in FILENAME or on standard output", 0 },
     { "csv", OPT_CSV, "FILENAME", OPTION_ARG_OPTIONAL,
@@ -135,6 +141,7 @@ const char* json_output = 0;
 const char* csv_output = 0;
 bool want_stats = false;
 bool allow_dups = false;
+bool no_checks = false;
 
 typedef Sgi::hash_set<const spot::ltl::formula*,
 		      const spot::ptr_hash<const spot::ltl::formula> > fset_t;
@@ -274,6 +281,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_JSON:
       want_stats = true;
       json_output = arg ? arg : "-";
+      break;
+    case OPT_NOCHECKS:
+      no_checks = true;
       break;
     case OPT_STATES:
       states = to_pos_int(arg);
@@ -780,12 +790,10 @@ namespace
 
 
       unsigned n = vstats.size();
-      vstats.resize(n + 2);
+      vstats.resize(n + (no_checks ? 1 : 2));
       statistics_formula* pstats = &vstats[n];
-      statistics_formula* nstats = &vstats[n + 1];
+      statistics_formula* nstats = 0;
       pstats->resize(m);
-      nstats->resize(m);
-
       formulas.push_back(fstr);
 
       for (size_t n = 0; n < m; ++n)
@@ -793,48 +801,66 @@ namespace
 
       // ---------- Negative Formula ----------
 
-      const spot::ltl::formula* nf =
-	spot::ltl::unop::instance(spot::ltl::unop::Not, f->clone());
-
-      if (!allow_dups)
+      // The negative formula is only needed when checks are
+      // activated.
+      if (!no_checks)
 	{
-	  bool res = unique_set.insert(nf->clone()).second;
-	  // It is not possible to discover that nf has already been
-	  // translated, otherwise that would mean that f had been
-	  // translated too and we would have caught it before.
-	  assert(res);
-	  (void) res;
+	  nstats = &vstats[n + 1];
+	  nstats->resize(m);
+
+	  const spot::ltl::formula* nf =
+	    spot::ltl::unop::instance(spot::ltl::unop::Not, f->clone());
+
+	  if (!allow_dups)
+	    {
+	      bool res = unique_set.insert(nf->clone()).second;
+	      // It is not possible to discover that nf has already been
+	      // translated, otherwise that would mean that f had been
+	      // translated too and we would have caught it before.
+	      assert(res);
+	      (void) res;
+	    }
+
+	  runner.round_formula(nf, round);
+	  formulas.push_back(runner.formula());
+
+	  for (size_t n = 0; n < m; ++n)
+	    neg[n] = runner.translate(n, 'N', nstats);
+	  nf->destroy();
 	}
 
-      runner.round_formula(nf, round);
-      formulas.push_back(runner.formula());
-
-      for (size_t n = 0; n < m; ++n)
-	neg[n] = runner.translate(n, 'N', nstats);
-
+      f->destroy();
       runner.round_cleanup();
       ++round;
 
-      std::cerr << "Sanity checks..." << std::endl;
+      if (!no_checks)
+	{
+	  std::cerr << "Performing sanity checks and gathering statistics..."
+		    << std::endl;
 
-      spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
-
-      // intersection test
-      for (size_t i = 0; i < m; ++i)
-	if (pos[i])
-	  for (size_t j = 0; j < m; ++j)
-	    if (neg[j])
-	      {
-		spot::tgba_product* prod =
-		  new spot::tgba_product(pos[i], neg[j]);
-		if (!is_empty(prod))
-		  global_error() << "error: P" << i << "*N" << j
-				 << " is nonempty\n";
-		delete prod;
-	      }
+	  // intersection test
+	  for (size_t i = 0; i < m; ++i)
+	    if (pos[i])
+	      for (size_t j = 0; j < m; ++j)
+		if (neg[j])
+		  {
+		    spot::tgba_product* prod =
+		      new spot::tgba_product(pos[i], neg[j]);
+		    if (!is_empty(prod))
+		      global_error() << "error: P" << i << "*N" << j
+				     << " is nonempty\n";
+		    delete prod;
+		  }
+	}
+      else
+	{
+	  std::cerr << "Gathering statistics..." << std::endl;
+	}
 
       // build products with a random state-space.
+      spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
       spot::tgba* statespace = spot::random_graph(states, density, ap, &dict);
+      delete ap;
 
       std::vector<spot::tgba*> pos_prod(m);
       std::vector<spot::tgba*> neg_prod(m);
@@ -858,57 +884,56 @@ namespace
 		(*pstats)[i].product_transitions = s.transitions;
 	      }
 	  }
-      for (size_t i = 0; i < m; ++i)
-	if (neg[i])
-	  {
-	    spot::tgba* p = new spot::tgba_product(neg[i], statespace);
-	    neg_prod[i] = p;
-	    spot::scc_map* sm = new spot::scc_map(p);
-	    sm->build_map();
-	    neg_map[i] = sm;
+      if (!no_checks)
+	for (size_t i = 0; i < m; ++i)
+	  if (neg[i])
+	    {
+	      spot::tgba* p = new spot::tgba_product(neg[i], statespace);
+	      neg_prod[i] = p;
+	      spot::scc_map* sm = new spot::scc_map(p);
+	      sm->build_map();
+	      neg_map[i] = sm;
 
-	    // Statistics
-	    if (want_stats)
-	      {
-		(*nstats)[i].product_scc = sm->scc_count();
-		spot::tgba_statistics s = spot::stats_reachable(p);
-		(*nstats)[i].product_states = s.states;
-		(*nstats)[i].product_transitions = s.transitions;
-	      }
-	  }
+	      // Statistics
+	      if (want_stats)
+		{
+		  (*nstats)[i].product_scc = sm->scc_count();
+		  spot::tgba_statistics s = spot::stats_reachable(p);
+		  (*nstats)[i].product_states = s.states;
+		  (*nstats)[i].product_transitions = s.transitions;
+		}
+	    }
 
-      // cross-comparison test
-      cross_check(pos_map, 'P');
-      cross_check(neg_map, 'N');
+      if (!no_checks)
+	{
+	  // cross-comparison test
+	  cross_check(pos_map, 'P');
+	  cross_check(neg_map, 'N');
 
-      // consistency check
-      for (size_t i = 0; i < m; ++i)
-	if (pos_map[i] && neg_map[i] &&
-	    !(consistency_check(pos_map[i], neg_map[i], statespace)))
-	  global_error() << "error: inconsistency between P" << i
-			 << " and N" << i << "\n";
+	  // consistency check
+	  for (size_t i = 0; i < m; ++i)
+	    if (pos_map[i] && neg_map[i] &&
+		!(consistency_check(pos_map[i], neg_map[i], statespace)))
+	      global_error() << "error: inconsistency between P" << i
+			     << " and N" << i << "\n";
+	}
 
       // Cleanup.
-      delete ap;
-      nf->destroy();
-      f->destroy();
 
-      for (size_t n = 0; n < m; ++n)
+      if (!no_checks)
+	for (size_t n = 0; n < m; ++n)
 	{
 	  delete neg_map[n];
 	  delete neg_prod[n];
-	  delete pos_map[n];
-	  delete pos_prod[n];
+	  delete neg[n];
 	}
-
-      delete statespace;
-
       for (size_t n = 0; n < m; ++n)
 	{
-	  delete neg[n];
+	  delete pos_map[n];
+	  delete pos_prod[n];
 	  delete pos[n];
 	}
-
+      delete statespace;
       std::cerr << std::endl;
       return 0;
     }
