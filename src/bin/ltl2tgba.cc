@@ -224,6 +224,7 @@ namespace
 	  break;
 	}
       delete aut;
+      f->destroy();
       flush_cout();
       return 0;
     }

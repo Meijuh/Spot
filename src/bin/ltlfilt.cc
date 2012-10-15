@@ -340,6 +340,13 @@ namespace
     spot::ltl::ltl_simplifier& simpl;
     fset_t unique_set;
 
+    ~ltl_processor()
+    {
+      fset_t::iterator i = unique_set.begin();
+      while (i != unique_set.end())
+	(*i++)->destroy();
+    }
+
     ltl_processor(spot::ltl::ltl_simplifier& simpl)
     : simpl(simpl)
     {

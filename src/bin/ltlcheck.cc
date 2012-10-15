@@ -143,11 +143,6 @@ bool want_stats = false;
 bool allow_dups = false;
 bool no_checks = false;
 
-typedef Sgi::hash_set<const spot::ltl::formula*,
-		      const spot::ptr_hash<const spot::ltl::formula> > fset_t;
-
-fset_t unique_set;
-
 std::vector<char*> translators;
 bool global_error_flag = false;
 
@@ -727,11 +722,23 @@ namespace
     return res;
   }
 
+  typedef
+  Sgi::hash_set<const spot::ltl::formula*,
+		const spot::ptr_hash<const spot::ltl::formula> > fset_t;
+
+
   class processor: public job_processor
   {
     translator_runner runner;
-
+    fset_t unique_set;
   public:
+    ~processor()
+    {
+      fset_t::iterator i = unique_set.begin();
+      while (i != unique_set.end())
+	(*i++)->destroy();
+    }
+
     int
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
