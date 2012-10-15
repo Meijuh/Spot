@@ -51,6 +51,7 @@
 #include "misc/formater.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
+#include "misc/escape.hh"
 
 // Disable handling of timeout on systems that miss kill() or alarm().
 // For instance MinGW.
@@ -74,6 +75,8 @@ Exit status:\n\
 
 #define OPT_STATES 1
 #define OPT_DENSITY 2
+#define OPT_JSON 3
+#define OPT_CSV 4
 
 static const argp_option options[] =
   {
@@ -104,6 +107,12 @@ static const argp_option options[] =
       "probability, between 0.0 and 1.0, to add a transition between "
       "two states (0.1 by default)", 0 },
     /**************************************************/
+    { 0, 0, 0, 0, "Statistics ouput:", 5 },
+    { "json", OPT_JSON, "FILENAME", OPTION_ARG_OPTIONAL,
+      "output statistics as JSON in FILENAME or on standard output", 0 },
+    { "csv", OPT_CSV, "FILENAME", OPTION_ARG_OPTIONAL,
+      "output statistics as CSV in FILENAME or on standard output", 0 },
+    /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }
   };
@@ -118,6 +127,9 @@ spot::bdd_dict dict;
 unsigned states = 200;
 float density = 0.1;
 unsigned timeout = 0;
+const char* json_output = 0;
+const char* csv_output = 0;
+bool want_stats = false;
 
 std::vector<char*> translators;
 bool global_error_flag = false;
@@ -147,17 +159,17 @@ struct statistics
   static void
   fields(std::ostream& os)
   {
-    os << ("    \"states\",\n"
-	   "    \"edges\",\n"
-	   "    \"transitions\",\n"
-	   "    \"acc\",\n"
-	   "    \"scc\",\n"
-	   "    \"nondetstates\",\n"
-	   "    \"nondeterministic\",\n"
-	   "    \"time\",\n"
-	   "    \"product_states\",\n"
-	   "    \"product_transitions\",\n"
-	   "    \"product_scc\"");
+    os << (" \"states\","
+	   " \"edges\","
+	   " \"transitions\","
+	   " \"acc\","
+	   " \"scc\","
+	   " \"nondetstates\","
+	   " \"nondeterministic\","
+	   " \"time\","
+	   " \"product_states\","
+	   " \"product_transitions\","
+	   " \"product_scc\"");
   }
 
   void
@@ -239,8 +251,16 @@ parse_opt(int key, char* arg, struct argp_state*)
 		<< "on your platform" << std::endl;
 #endif
       break;
+    case OPT_CSV:
+      want_stats = true;
+      csv_output = arg ? arg : "-";
+      break;
     case OPT_DENSITY:
       density = to_probability(arg);
+      break;
+    case OPT_JSON:
+      want_stats = true;
+      json_output = arg ? arg : "-";
       break;
     case OPT_STATES:
       states = to_pos_int(arg);
@@ -540,7 +560,7 @@ namespace
 	    case printable_result_filename::Lbtt:
 	      {
 		std::string error;
-		std::fstream f(output.val().c_str());
+		std::ifstream f(output.val().c_str());
 		if (!f)
 		  {
 		    global_error() << "Cannot open " << output.val()
@@ -562,7 +582,7 @@ namespace
 	    }
 	}
       // Compute statistics.
-      if (res)
+      if (res && want_stats)
 	{
 	  statistics* st = &(*fstats)[translator_num];
 	  st->ok = true;
@@ -788,10 +808,13 @@ namespace
 	    pos_map[i] = sm;
 
 	    // Statistics
-	    (*pstats)[i].product_scc = sm->scc_count();
-	    spot::tgba_statistics s = spot::stats_reachable(p);
-	    (*pstats)[i].product_states = s.states;
-	    (*pstats)[i].product_transitions = s.transitions;
+	    if (want_stats)
+	      {
+		(*pstats)[i].product_scc = sm->scc_count();
+		spot::tgba_statistics s = spot::stats_reachable(p);
+		(*pstats)[i].product_states = s.states;
+		(*pstats)[i].product_transitions = s.transitions;
+	      }
 	  }
       for (size_t i = 0; i < m; ++i)
 	if (neg[i])
@@ -803,10 +826,13 @@ namespace
 	    neg_map[i] = sm;
 
 	    // Statistics
-	    (*nstats)[i].product_scc = sm->scc_count();
-	    spot::tgba_statistics s = spot::stats_reachable(p);
-	    (*nstats)[i].product_states = s.states;
-	    (*nstats)[i].product_transitions = s.transitions;
+	    if (want_stats)
+	      {
+		(*nstats)[i].product_scc = sm->scc_count();
+		spot::tgba_statistics s = spot::stats_reachable(p);
+		(*nstats)[i].product_states = s.states;
+		(*nstats)[i].product_transitions = s.transitions;
+	      }
 	  }
 
       // cross-comparison test
@@ -848,37 +874,95 @@ namespace
 }
 
 static void
-print_stats_json()
+print_stats_csv(const char* filename)
 {
-  unsigned rounds = vstats.size();
-  if (!rounds)
-    return;
+  std::ofstream* outfile = 0;
+  std::ostream* out;
+  if (!strncmp(filename, "-", 2))
+    {
+      out = &std::cout;
+    }
+  else
+    {
+      out = outfile = new std::ofstream(filename);
+      if (!outfile)
+	error(2, errno, "cannot open '%s'", filename);
+    }
+
   unsigned ntrans = translators.size();
+  unsigned rounds = vstats.size();
   assert(rounds = formulas.size());
 
-  std::cout << "{\n  tools: [\n    \"" << translators[0];
+  *out << "\"formula\", \"tool\", ";
+  statistics::fields(*out);
+  *out << "\n";
+  for (unsigned r = 0; r < rounds; ++r)
+    for (unsigned t = 0; t < ntrans; ++t)
+      if (vstats[r][t].ok)
+	{
+	  *out << "\"";
+	  spot::escape_str(*out, formulas[r]);
+	  *out << "\", \"";
+	  spot::escape_str(*out, translators[t]);
+	  *out << "\", ";
+	  vstats[r][t].to_csv(*out);
+	  *out << "\n";
+	}
+  delete outfile;
+}
+
+static void
+print_stats_json(const char* filename)
+{
+  std::ofstream* outfile = 0;
+  std::ostream* out;
+  if (!strncmp(filename, "-", 2))
+    {
+      out = &std::cout;
+    }
+  else
+    {
+      out = outfile = new std::ofstream(filename);
+      if (!outfile)
+	error(2, errno, "cannot open '%s'", filename);
+    }
+
+  unsigned ntrans = translators.size();
+  unsigned rounds = vstats.size();
+  assert(rounds = formulas.size());
+
+  *out << "{\n  \"tools\": [\n    \"";
+  spot::escape_str(*out, translators[0]);
   for (unsigned t = 1; t < ntrans; ++t)
-    std::cout << "\",\n    \"" << translators[t];
-  std::cout << "\"\n  ],\n  inputs: [\n    \"" << formulas[0];
+    {
+      *out << "\",\n    \"";
+      spot::escape_str(*out, translators[t]);
+    }
+  *out << "\"\n  ],\n  \"inputs\": [\n    \"";
+  spot::escape_str(*out, formulas[0]);
   for (unsigned r = 1; r < rounds; ++r)
-    std::cout << "\",\n    \"" << formulas[r];
-  std::cout << ("\"\n  ],\n  fields: [\n    \"input\",\n"
-		"    \"tool\",\n");
-  statistics::fields(std::cout);
-  std::cout << "\n  ],\n  results: [";
+    {
+      *out << "\",\n    \"";
+      spot::escape_str(*out, formulas[r]);
+    }
+  *out << ("\"\n  ],\n  \"fields\": [\n    \"input\", \"tool\",");
+  statistics::fields(*out);
+  *out << "\n  ],\n  \"results\": [";
   bool notfirst = false;
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
       if (vstats[r][t].ok)
 	{
 	  if (notfirst)
-	    std::cout << ",";
+	    *out << ",";
 	  notfirst = true;
-	  std::cout << "\n    [ " << r << ", " << t << ", ";
-	  vstats[r][t].to_csv(std::cout);
-	  std::cout << " ]";
+	  *out << "\n    [ " << r << ", " << t << ", ";
+	  vstats[r][t].to_csv(*out);
+	  *out << " ]";
 	}
-  std::cout << "\n  ]\n}\n";
+  *out << "\n  ]\n}\n";
+
+  delete outfile;
 }
 
 int
@@ -905,6 +989,25 @@ main(int argc, char** argv)
   if (p.run())
     return 2;
 
-  print_stats_json();
+  if (formulas.empty())
+    {
+      error(2, 0, "no formula to translate");
+    }
+  else
+    {
+      if (global_error_flag)
+	std::cerr
+	  << ("error: some error was detected during the above runs,\n"
+	      "       please search for 'error:' messages in the above trace.")
+	  << std::endl;
+	else
+	  std::cerr << "no problem detected" << std::endl;
+    }
+
+  if (json_output)
+    print_stats_json(json_output);
+  if (csv_output)
+    print_stats_csv(csv_output);
+
   return global_error_flag;
 }

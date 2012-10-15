@@ -45,7 +45,7 @@ ltl2tgba=../ltl2tgba
   "$ltl2tgba -t -f -x -p -L -D %f > %T" \
   "$ltl2tgba -t -taa -r4 %f > %T" \
   "$ltl2tgba -t -taa -r4 -c %f > %T" \
-  "$ltl2tgba -t -taa -r4 -R3 -RDS %f > %T" > output.json
+  "$ltl2tgba -t -taa -r4 -R3 -RDS %f > %T"
 
 # Disabled because too slow, and too big automata produced.
 # "$ltl2tgba -t -lo -r4 %f > %T"
