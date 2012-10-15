@@ -35,7 +35,10 @@ options: ltlcheck is faster when it does not have to compute these
 statistics.
 
 [SEE ALSO]
-randltl(1), genltl(1), ltlfilt(1), ltl2tgba(1)
+.BR randltl (1),
+.BR genltl (1),
+.BR ltlfilt (1),
+.BR ltl2tgba (1)
 
 [BIBLIOGRAPHY]
 ltlcheck is a Spot-based reimplementation of a tool called LBTT.  LBTT

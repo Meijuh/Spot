@@ -3,4 +3,5 @@ randltl \- generate random LTL/PSL formulas
 [DESCRIPTION]
 .\" Add any additional description here
 [SEE ALSO]
-genltl(1), ltlfilt(1)
+.BR genltl (1),
+.BR ltlfilt (1)

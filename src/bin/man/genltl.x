@@ -21,4 +21,4 @@ rv
 K. Rozier and M. Vardi: LTL Satisfiability Checking.
 Proceedings of Spin'07.  LNCS 4595.
 [SEE ALSO]
-randltl(1)
+.BR randltl (1)
