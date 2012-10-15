@@ -52,6 +52,7 @@
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
 #include "misc/escape.hh"
+#include "misc/hash.hh"
 
 // Disable handling of timeout on systems that miss kill() or alarm().
 // For instance MinGW.
@@ -77,9 +78,12 @@ Exit status:\n\
 #define OPT_DENSITY 2
 #define OPT_JSON 3
 #define OPT_CSV 4
+#define OPT_DUPS 5
 
 static const argp_option options[] =
   {
+    { "allow-dups", OPT_DUPS, 0, 0,
+      "translate duplicate formulas in input", 1 },
     /**************************************************/
     { 0, 0, 0, 0, "Specifying translator to call:", 2 },
     { "translator", 't', "COMMANDFMT", 0,
@@ -130,6 +134,12 @@ unsigned timeout = 0;
 const char* json_output = 0;
 const char* csv_output = 0;
 bool want_stats = false;
+bool allow_dups = false;
+
+typedef Sgi::hash_set<const spot::ltl::formula*,
+		      const spot::ptr_hash<const spot::ltl::formula> > fset_t;
+
+fset_t unique_set;
 
 std::vector<char*> translators;
 bool global_error_flag = false;
@@ -257,6 +267,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_DENSITY:
       density = to_probability(arg);
+      break;
+    case OPT_DUPS:
+      allow_dups = true;
       break;
     case OPT_JSON:
       want_stats = true;
@@ -717,18 +730,6 @@ namespace
       (void) linenum;
       static unsigned round = 0;
 
-      size_t m = translators.size();
-
-      std::vector<const spot::tgba*> pos(m);
-      std::vector<const spot::tgba*> neg(m);
-
-      unsigned n = vstats.size();
-      vstats.resize(n + 2);
-      statistics_formula* pstats = &vstats[n];
-      statistics_formula* nstats = &vstats[n + 1];
-      pstats->resize(m);
-      nstats->resize(m);
-
       // If we need LBT atomic proposition in any of the input or
       // output, relabel the formula.
       if (!f->has_lbt_atomic_props() &&
@@ -754,6 +755,37 @@ namespace
 	std::cerr << " ";
       std::cerr << fstr << "\n";
 
+      // Make sure we do not translate the same formula twice.
+      if (!allow_dups)
+	{
+	  if (unique_set.insert(f).second)
+	    {
+	      f->clone();
+	    }
+	  else
+	    {
+	      std::cerr
+		<< ("warning: This formula or its negation has already"
+		    " been checked.\n         Use --allow-dups if it "
+		    "should not be ignored.\n")
+		<< std::endl;
+	      f->destroy();
+	      return 0;
+	    }
+	}
+
+      size_t m = translators.size();
+      std::vector<const spot::tgba*> pos(m);
+      std::vector<const spot::tgba*> neg(m);
+
+
+      unsigned n = vstats.size();
+      vstats.resize(n + 2);
+      statistics_formula* pstats = &vstats[n];
+      statistics_formula* nstats = &vstats[n + 1];
+      pstats->resize(m);
+      nstats->resize(m);
+
       formulas.push_back(fstr);
 
       for (size_t n = 0; n < m; ++n)
@@ -763,6 +795,16 @@ namespace
 
       const spot::ltl::formula* nf =
 	spot::ltl::unop::instance(spot::ltl::unop::Not, f->clone());
+
+      if (!allow_dups)
+	{
+	  bool res = unique_set.insert(nf->clone()).second;
+	  // It is not possible to discover that nf has already been
+	  // translated, otherwise that would mean that f had been
+	  // translated too and we would have caught it before.
+	  assert(res);
+	  (void) res;
+	}
 
       runner.round_formula(nf, round);
       formulas.push_back(runner.formula());
