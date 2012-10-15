@@ -211,7 +211,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- TAA), simulated"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -l -taa -t -RDS  -r4 -R3'"
+   Parameters = "--spot '../ltl2tgba -F -taa -t -RDS  -r4 -R3'"
    Enabled = yes
 }
 
