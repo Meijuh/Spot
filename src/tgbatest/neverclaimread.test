@@ -86,10 +86,14 @@ skip
 }
 EOF
 
+# We used to catch the following error:
+#   input:5.11: syntax error, unexpected closing parenthesis
+#   input:5.8-9: missing right operand for "and operator"
+# but since the guard parser is more lenient, we just assume
+# that "p1 && " is an atomic property.
+
 run 2 ../ltl2tgba -XN input > stdout 2>stderr
 cat >expected <<EOF
-input:5.11: syntax error, unexpected closing parenthesis
-input:5.8-9: missing right operand for "and operator"
 input:9.16: syntax error, unexpected closing parenthesis
 input:9.16: ignoring trailing garbage
 EOF
@@ -98,24 +102,33 @@ diff stderrfilt expected
 
 cat >formulae<<EOF
 a
-<>[] a
+FG a
 X false
-([] a) U X b
+(G a) U X b
 (a U b) U (c U d)
 true
-([]a && XXXX!a)
+(Ga && XXXX!a)
+"a > b" U "process@foo"
+GF("(a + b) == 42" U "process@foo")
 EOF
 while read f
 do
     run 0 ../ltl2tgba -b -f "!($f)" > f.tgba
+    sf=`../../bin/ltlfilt -sf "$f"`
     if test -n "$SPIN"; then
-	$SPIN -f "$f" > f.spin
-	run 0 ../ltl2tgba -E -Pf.tgba -XN f.spin
+        # Old spin versions cannot parse formulas such as ((a + b) == 42).
+	if $SPIN -f "$sf" > f.spin; then
+	  run 0 ../ltl2tgba -E -Pf.tgba -XN f.spin
+        fi
     fi
-    if test -n "$LTL2BA"; then
-	$LTL2BA -f "$f" > f.ltl2ba
-	run 0 ../ltl2tgba -E -Pf.tgba -XN f.ltl2ba
-    fi
+    case $f in
+      *\"*);;
+      *)
+      if test -n "$LTL2BA"; then
+	  $LTL2BA -f "$sf" > f.ltl2ba
+	  run 0 ../ltl2tgba -E -Pf.tgba -XN f.ltl2ba
+      fi
+    esac
     run 0 ../ltl2tgba -DS -NN -f "$f" > f.spot
     # Make sure there is no `!x' occurring in the
     # output.  Because `x' is usually #define'd, we

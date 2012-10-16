@@ -22,41 +22,29 @@
 %option noyywrap warn 8bit batch
 %option prefix="ltlyy"
 %option outfile="lex.yy.c"
+%option stack
 
 %{
 #include <string>
 #include <boost/lexical_cast.hpp>
 #include "ltlparse/parsedecl.hh"
-
-/* Hack Flex so we read from a string instead of reading from a file.  */
-#define YY_INPUT(buf, result, max_size)					\
-  do {									\
-    result = (max_size < to_parse_size) ? max_size : to_parse_size;	\
-    memcpy(buf, to_parse, result);					\
-    to_parse_size -= result;						\
-    to_parse += result;							\
-  } while (0);
+#include "misc/escape.hh"
 
 #define YY_USER_ACTION \
   yylloc->columns(yyleng);
 
-static const char* to_parse = 0;
-static size_t to_parse_size = 0;
 static int start_token = 0;
+static int parent_level = 0;
+static bool missing_parent = false;
+static bool lenient_mode = false;
 
 typedef ltlyy::parser::token token;
-
-void
-flex_set_buffer(const char* buf, int start_tok)
-{
-  to_parse = buf;
-  to_parse_size = strlen(to_parse);
-  start_token = start_tok;
-}
 
 %}
 
 %s not_prop
+%x in_par
+%x in_bra
 %x sqbracket
 %x lbt
 
@@ -78,18 +66,103 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
     {
       int t = start_token;
       start_token = 0;
-      if (t == token::START_LBT)
-        BEGIN(lbt);
-      else
-        BEGIN(0);
       return t;
     }
   yylloc->step();
 %}
 
-"("				BEGIN(0); return token::PAR_OPEN;
+
+"("				{
+				  if (!lenient_mode)
+                                    {
+				      BEGIN(0);
+				      return token::PAR_OPEN;
+                                    }
+                                  /* Parse any (...) block as a single block,
+				     taking care of nested parentheses.  The
+				     parser will then try to parse this block
+				     recursively.  */
+                                  BEGIN(in_par);
+                                  parent_level = 1;
+				  yylval->str = new std::string();
+                                }
+<in_par>{
+	 "("			++parent_level; yylval->str->append(yytext, yyleng);
+	 ")"			{
+				  if (--parent_level)
+				    {
+                                      yylval->str->append(yytext, yyleng);
+				    }
+				  else
+				    {
+                                      BEGIN(not_prop);
+				      spot::trim(*yylval->str);
+				      return token::PAR_BLOCK;
+				    }
+				}
+         [^()]+			yylval->str->append(yytext, yyleng);
+	 <<EOF>>		{
+				  unput(')');
+				  if (!missing_parent)
+                                    error_list.push_back(
+				      spot::ltl::parse_error(*yylloc,
+ 					"missing closing parenthese"));
+				  missing_parent = true;
+				}
+}
+
+"{"				{
+				  if (!lenient_mode)
+				  {
+				     BEGIN(0);
+			             return token::BRACE_OPEN;
+                                  }
+                                  /* Parse any {...} block as a single block,
+				     taking care of nested parentheses.  The
+				     parser will then try to parse this block
+				     recursively.  */
+                                  BEGIN(in_bra);
+                                  parent_level = 1;
+				  yylval->str = new std::string();
+                                }
+<in_bra>{
+	 "{"			++parent_level; yylval->str->append(yytext, yyleng);
+         "}"[ \t\n]*"!"         {
+				  if (--parent_level)
+				    {
+                                      yylval->str->append(yytext, yyleng);
+				    }
+				  else
+				    {
+                                      BEGIN(not_prop);
+				      spot::trim(*yylval->str);
+				      return token::BRA_BANG_BLOCK;
+				    }
+                                }
+	 "}"			{
+				  if (--parent_level)
+				    {
+                                      yylval->str->append(yytext, yyleng);
+				    }
+				  else
+				    {
+                                      BEGIN(not_prop);
+				      spot::trim(*yylval->str);
+				      return token::BRA_BLOCK;
+				    }
+				}
+         [^{}]+			yylval->str->append(yytext, yyleng);
+	 <<EOF>>		{
+				  unput(')');
+				  if (!missing_parent)
+                                    error_list.push_back(
+				      spot::ltl::parse_error(*yylloc,
+ 					"missing closing brace"));
+				  missing_parent = true;
+				}
+}
+
 ")"				BEGIN(not_prop); return token::PAR_CLOSE;
-"{"                             BEGIN(0); return token::BRACE_OPEN;
 "}"[ \t\n]*"!"			BEGIN(not_prop); return token::BRACE_BANG_CLOSE;
 "}"				BEGIN(not_prop); return token::BRACE_CLOSE;
 
@@ -225,7 +298,26 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 
 <<EOF>>			return token::END_OF_INPUT;
 
-%{
-  /* Dummy use of yyunput to shut up a gcc warning.  */
-  (void) &yyunput;
-%}
+%%
+
+void
+flex_set_buffer(const char* buf, int start_tok, bool lenient)
+{
+  yypush_buffer_state(YY_CURRENT_BUFFER);
+  yy_scan_string(buf);
+  start_token = start_tok;
+  if (start_tok == token::START_LBT)
+    yy_push_state(lbt);
+  else
+    yy_push_state(0);
+  lenient_mode = lenient;
+}
+
+void
+flex_unset_buffer()
+{
+  (void)&yy_top_state; // shut up a g++ warning.
+  yy_pop_state();
+  yypop_buffer_state();
+  missing_parent = false;
+}

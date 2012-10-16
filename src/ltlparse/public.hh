@@ -56,6 +56,9 @@ namespace spot
     ///        parse errors that occured during parsing.
     /// \param env The environment into which parsing should take place.
     /// \param debug When true, causes the parser to trace its execution.
+    /// \param lenient When true, parenthesized blocks that cannot be
+    ///                parsed as subformulas will be considered as
+    ///                atomic propositions.
     /// \return A pointer to the formula built from \a ltl_string, or
     ///        0 if the input was unparsable.
     ///
@@ -68,7 +71,8 @@ namespace spot
     const formula* parse(const std::string& ltl_string,
 			 parse_error_list& error_list,
 			 environment& env = default_environment::instance(),
-			 bool debug = false);
+			 bool debug = false,
+			 bool lenient = false);
 
     /// \brief Build a formula from an LTL string in LBT's format.
     /// \param ltl_string The string to parse.
@@ -100,6 +104,9 @@ namespace spot
     ///        parse errors that occured during parsing.
     /// \param env The environment into which parsing should take place.
     /// \param debug When true, causes the parser to trace its execution.
+    /// \param lenient When true, parenthesized blocks that cannot be
+    ///                parsed as subformulas will be considered as
+    ///                atomic propositions.
     /// \return A pointer to the formula built from \a sere_string, or
     ///        0 if the input was unparsable.
     ///
@@ -113,7 +120,8 @@ namespace spot
 			      parse_error_list& error_list,
 			      environment& env =
 			      default_environment::instance(),
-			      bool debug = false);
+			      bool debug = false,
+			      bool lenient = false);
 
     /// \brief Format diagnostics produced by spot::ltl::parse
     ///        or spot::ltl::ratexp

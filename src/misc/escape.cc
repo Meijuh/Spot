@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE)
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -19,6 +22,10 @@
 
 #include <sstream>
 #include <ostream>
+#include <algorithm>
+#include <functional>
+#include <cctype>
+#include <locale>
 #include "escape.hh"
 
 namespace spot
@@ -51,5 +58,17 @@ namespace spot
     std::ostringstream os;
     escape_str(os, str);
     return os.str();
+  }
+
+  void
+  trim(std::string& str)
+  {
+    str.erase(std::find_if(str.rbegin(), str.rend(),
+			   std::not1(std::ptr_fun<int, int>
+				     (std::isspace))).base(),
+	      str.end());
+    str.erase(str.begin(),
+	      std::find_if(str.begin(), str.end(),
+			   std::not1(std::ptr_fun<int, int>(std::isspace))));
   }
 }

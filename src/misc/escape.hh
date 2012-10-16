@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -38,6 +38,8 @@ namespace spot
   /// <code>\\n</code> in \a str.
   std::string escape_str(const std::string& str);
 
+  /// \brief Remove spaces at the front and back of \a str.
+  void trim(std::string& str);
   /// @}
 }
 

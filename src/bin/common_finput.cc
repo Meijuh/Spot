@@ -24,9 +24,11 @@
 #include <fstream>
 
 #define OPT_LBT 1
+#define OPT_LENIENT 2
 
 jobs_t jobs;
 bool lbt_input = false;
+static bool lenient = false;
 
 static const argp_option options[] =
   {
@@ -36,6 +38,9 @@ static const argp_option options[] =
       "process each line of FILENAME as a formula", 0 },
     { "lbt-input", OPT_LBT, 0, 0,
       "read all formulas using LBT's prefix syntax", 0 },
+    { "lenient", OPT_LENIENT, 0, 0,
+      "parenthesized blocks that cannot be parsed as subformulas "
+      "are considered as atomic properties", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -56,6 +61,9 @@ parse_opt_finput(int key, char* arg, struct argp_state*)
     case OPT_LBT:
       lbt_input = true;
       break;
+    case OPT_LENIENT:
+      lenient = true;
+      break;
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -68,7 +76,9 @@ parse_formula(const std::string& s, spot::ltl::parse_error_list& pel)
   if (lbt_input)
     return spot::ltl::parse_lbt(s, pel);
   else
-    return spot::ltl::parse(s, pel);
+    return spot::ltl::parse(s, pel,
+			    spot::ltl::default_environment::instance(),
+			    false, lenient);
 }
 
 

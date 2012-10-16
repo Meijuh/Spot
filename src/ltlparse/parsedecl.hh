@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement de
+// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE)
 // Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -31,6 +31,7 @@
 		spot::ltl::parse_error_list& error_list)
 YY_DECL;
 
-void flex_set_buffer(const char *buf, int start_tok);
+void flex_set_buffer(const char *buf, int start_tok, bool lenient);
+void flex_unset_buffer();
 
 #endif // SPOT_LTLPARSE_PARSEDECL_HH

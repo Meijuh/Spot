@@ -249,7 +249,14 @@ namespace spot
 	    os_ << "(";
 	  if (!is_bare_word(str.c_str()))
 	    {
-	      os_ << '"' << str << '"';
+	      // Spin 6 supports atomic propositions such as (a == 0)
+	      // as long as they are enclosed in parentheses.
+	      if (kw_ != spin_kw)
+		os_ << '"' << str << '"';
+	      else if (!full_parent_)
+		os_ << '(' << str << ')';
+	      else
+		os_ << str;
 	    }
 	  else
 	    {

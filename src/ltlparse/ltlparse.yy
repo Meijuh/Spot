@@ -86,6 +86,53 @@ using namespace spot::ltl;
     }							\
   while (0);
 
+  const formula*
+  try_recursive_parse(const std::string& str,
+		      const ltlyy::location& location,
+		      spot::ltl::environment& env,
+		      bool debug,
+		      bool sere,
+		      spot::ltl::parse_error_list& error_list)
+    {
+      // We want to parse a U (b U c) as two until operators applied
+      // to the atomic propositions a, b, and c.  We also want to
+      // parse a U (b == c) as one until operator applied to the
+      // atomic propositions "a" and "b == c".  The only problem is
+      // that we do not know anything about "==" or in general about
+      // the syntax of atomic proposition of our users.
+      //
+      // To support that, the lexer will return "b U c" and "b == c"
+      // as PAR_BLOCK tokens.  We then try to parse such tokens
+      // recursively.  If, as in the case of "b U c", the block is
+      // successfully parsed as a formula, we return this formula.
+      // Otherwise, we convert the string into an atomic proposition
+      // (it's up to the environment to check the syntax of this
+      // proposition, and maybe reject it).
+      spot::ltl::parse_error_list suberror;
+      const spot::ltl::formula* f;
+      if (sere)
+	f = spot::ltl::parse_sere(str, suberror, env, debug, true);
+      else
+	f = spot::ltl::parse(str, suberror, env, debug, true);
+
+      if (suberror.empty())
+	return f;
+
+      if (f)
+	f->destroy();
+
+      f = env.require(str);
+      if (!f)
+	{
+	  std::string s = "atomic proposition `";
+	  s += str;
+	  s += "' rejected by environment `";
+	  s += env.name();
+	  s += "'";
+	  error_list.push_back(parse_error(location, s));
+	}
+      return f;
+    }
 }
 
 
@@ -95,6 +142,9 @@ using namespace spot::ltl;
 %token START_LBT "LBT start marker"
 %token START_SERE "SERE start marker"
 %token PAR_OPEN "opening parenthesis" PAR_CLOSE "closing parenthesis"
+%token <str> PAR_BLOCK "(...) block"
+%token <str> BRA_BLOCK "{...} block"
+%token <str> BRA_BANG_BLOCK "{...}! block"
 %token BRACE_OPEN "opening brace" BRACE_CLOSE "closing brace"
 %token BRACE_BANG_CLOSE "closing brace-bang"
 %token OP_OR "or operator" OP_XOR "xor operator"
@@ -378,6 +428,14 @@ sere: booleanatom
 		  }
 	      }
             | bracedsere
+	    | PAR_BLOCK
+              {
+		$$ = try_recursive_parse(*$1, @1, parse_environment,
+					 debug_level(), true, error_list);
+		delete $1;
+		if (!$$)
+		  YYERROR;
+	      }
 	    | PAR_OPEN sere PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN error PAR_CLOSE
@@ -590,8 +648,24 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
 		    "treating this brace block as false"));
 		$$ = constant::false_instance();
 	      }
+            | BRA_BLOCK
+              {
+		$$ = try_recursive_parse(*$1, @1, parse_environment,
+					 debug_level(), true, error_list);
+		delete $1;
+		if (!$$)
+		  YYERROR;
+	      }
 
-parenthesedsubformula: PAR_OPEN subformula PAR_CLOSE
+parenthesedsubformula: PAR_BLOCK
+              {
+		$$ = try_recursive_parse(*$1, @1, parse_environment,
+					 debug_level(), false, error_list);
+		delete $1;
+		if (!$$)
+		  YYERROR;
+	      }
+            | PAR_OPEN subformula PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN subformula error PAR_CLOSE
 	      { error_list.push_back(parse_error(@3, "ignoring this"));
@@ -721,16 +795,25 @@ subformula: booleanatom
 	      /* {SERE}! = {SERE} <>-> 1 */
 	      { $$ = binop::instance(binop::EConcat, $2,
 				     constant::true_instance()); }
-;
+            | BRA_BANG_BLOCK
+              {
+		$$ = try_recursive_parse(*$1, @1, parse_environment,
+					 debug_level(), true, error_list);
+		delete $1;
+		if (!$$)
+		  YYERROR;
+	        $$ = binop::instance(binop::EConcat, $$,
+				     constant::true_instance());
+	      }
 
 lbtformula: ATOMIC_PROP
 	      {
 		$$ = parse_environment.require(*$1);
 		if (! $$)
 		  {
-		    std::string s = "unknown atomic proposition `";
+		    std::string s = "atomic proposition `";
 		    s += *$1;
-		    s += "' in environment `";
+		    s += "' rejected by environment `";
 		    s += parse_environment.name();
 		    s += "'";
 		    error_list.push_back(parse_error(@1, s));
@@ -790,14 +873,16 @@ namespace spot
     parse(const std::string& ltl_string,
 	  parse_error_list& error_list,
 	  environment& env,
-	  bool debug)
+	  bool debug, bool lenient)
     {
       const formula* result = 0;
       flex_set_buffer(ltl_string.c_str(),
-		      ltlyy::parser::token::START_LTL);
+		      ltlyy::parser::token::START_LTL,
+		      lenient);
       ltlyy::parser parser(error_list, env, result);
       parser.set_debug_level(debug);
       parser.parse();
+      flex_unset_buffer();
       return result;
     }
 
@@ -809,25 +894,30 @@ namespace spot
     {
       const formula* result = 0;
       flex_set_buffer(ltl_string.c_str(),
-		      ltlyy::parser::token::START_LBT);
+		      ltlyy::parser::token::START_LBT,
+		      false);
       ltlyy::parser parser(error_list, env, result);
       parser.set_debug_level(debug);
       parser.parse();
+      flex_unset_buffer();
       return result;
     }
 
     const formula*
     parse_sere(const std::string& sere_string,
-		 parse_error_list& error_list,
-		 environment& env,
-		 bool debug)
+	       parse_error_list& error_list,
+	       environment& env,
+	       bool debug,
+	       bool lenient)
     {
       const formula* result = 0;
       flex_set_buffer(sere_string.c_str(),
-		      ltlyy::parser::token::START_SERE);
+		      ltlyy::parser::token::START_SERE,
+		      lenient);
       ltlyy::parser parser(error_list, env, result);
       parser.set_debug_level(debug);
       parser.parse();
+      flex_unset_buffer();
       return result;
     }
 

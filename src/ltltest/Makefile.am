@@ -85,6 +85,7 @@ TESTS = \
   tunenoform.test \
   consterm.test \
   kind.test \
+  lenient.test \
   syntimpl.test \
   reduc.test \
   reducpsl.test \
