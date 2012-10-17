@@ -40,7 +40,8 @@ New in spot 0.9.2a:
     These binaries are built in the src/bin/ directory.  The former
     test versions of genltl and randltl have been removed from the
     source tree.  The old version of ltl2tgba with its gazillion
-    options is still is src/tgbatest/ and used for testing.
+    options is still is src/tgbatest/ and is meant to be used for
+    testing only.
 
   * New features in the Spot library:
 
@@ -72,7 +73,7 @@ New in spot 0.9.2a:
 
       A discussion of these automata, part of Ala Eddine BEN SALEM's
       PhD work, should appear in ToPNoC VI (LNCS 7400).  The web-based
-      interface and the aformentioned ltl2tgta tool, can be used
+      interface and the aformentioned ltl2tgta tool can be used
       to build testing automata.
 
     - TGBA can now be reduced by Reverse Simulation (in addition to
@@ -90,6 +91,14 @@ New in spot 0.9.2a:
       syntax used (at least) by LBT, LBTT and Scheck.
       to_lbt_string() can be used to print an LTL formula using this
       syntax.
+
+    - The LTL/PSL parser now has a lenient mode that can be usefull
+      to interpret atomic proposition with language-specific constructs.
+      In lenient mode, any (...) or {...} block that cannot be parsed
+      as formula will be assumed to be an atomic proposition.
+      For instance the input (a < b) U (process[2]@ok), normally
+      flagged as a syntax error, is read as "a < b" U "process[2]@ok"
+      in lenient mode.
 
     - minimize_obligation() has a new option to disable WDBA
       minimization it cases it would produce a deterministic automaton
@@ -109,6 +118,13 @@ New in spot 0.9.2a:
       This is for compatibility with formula written in Wring's
       syntax.  However inside SERE it is interpreted as the Kleen
       star.
+
+    - When printing a formula using Spin's LTL syntax, we don't
+      double-quote complex atomic propositions (that was not valid
+      Spin input anyway).   For instance F"foo == 2" used to be
+      output as <>"foo == 2".  We now output <>(foo == 2) instead.
+      The latter syntax is understood by Spin 6.  It can be read
+      back by Spot in lenient mode (see above).
 
     - The gspn-ssp benchmark has been removed.
 
