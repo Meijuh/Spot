@@ -108,6 +108,14 @@ using namespace spot::ltl;
       // Otherwise, we convert the string into an atomic proposition
       // (it's up to the environment to check the syntax of this
       // proposition, and maybe reject it).
+
+      if (str.empty())
+	{
+	  error_list.push_back(parse_error(location,
+					   "unexpected empty block"));
+	  return 0;
+	}
+
       spot::ltl::parse_error_list suberror;
       const spot::ltl::formula* f;
       if (sere)
@@ -802,7 +810,7 @@ subformula: booleanatom
 		delete $1;
 		if (!$$)
 		  YYERROR;
-	        $$ = binop::instance(binop::EConcat, $$,
+		$$ = binop::instance(binop::EConcat, $$,
 				     constant::true_instance());
 	      }
 

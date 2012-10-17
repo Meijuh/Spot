@@ -33,6 +33,7 @@ cat >input <<EOF
 (((a < b ) U ({(  b == c - 1  )})))
 (((((  a < b))) U ( b == c - 1)))
 (((((  a < b))) U { b == c - 1}!))
+()a
 EOF
 
 cat >expected <<EOF
@@ -44,7 +45,13 @@ cat >expected <<EOF
 "a < b" U "b == c - 1"
 "a < b" U "b == c - 1"
 "a < b" U "b == c - 1"
+Xa
 EOF
 
 run 0 $ltlfilt --lenient input > output
 cmp output expected
+
+
+
+run 2 $ltlfilt --lenient -f 'F( )' 2> stderr
+grep 'unexpected empty block' stderr
