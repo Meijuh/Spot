@@ -65,3 +65,19 @@ test "`cat size | sed -n 's/states: //p'`" = 4
 test "`cat size | sed -n 's/transitions: //p'`" = 6
 
 
+# This kind of output is returned by wring2lbtt, on the same formula.
+# (Newer versions of LBTT reject this input with missing new lines.)
+cat >wring2lbtt <<EOF
+4 1 0 1 -1 1 p0
+2 p1
+-1 1 0 -1 1 p0
+2 p1
+-1 2 0 0 -1 3 t
+-1 3 0 0 -1 3 t
+-1
+EOF
+
+run 0 ../ltl2tgba -ks -XL wring2lbtt > size
+test "`cat size | sed -n 's/states: //p'`" = 4
+test "`cat size | sed -n 's/transitions: //p'`" = 6
+

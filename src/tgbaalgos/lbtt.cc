@@ -325,9 +325,13 @@ namespace spot
 
     unsigned num_acc = 0;
     is >> num_acc;
-    std::string rest;
-    std::getline(is, rest);
-    if (rest[0] == 't' || rest[0] == 'T')
+
+    int type;
+    type = is.peek();
+    if (type == 't' || type == 'T' || type == 's' || type == 'S')
+      type = is.get();
+
+    if (type == 't' || type == 'T')
       return lbtt_read_tgba(num_states, num_acc, is, error, dict,
 			    env, envacc);
     else
