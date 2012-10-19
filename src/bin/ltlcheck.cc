@@ -133,7 +133,6 @@ const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-spot::bdd_dict dict;
 unsigned states = 200;
 float density = 0.1;
 unsigned timeout = 0;
@@ -205,6 +204,17 @@ typedef std::vector<statistics> statistics_formula;
 typedef std::vector<statistics_formula> statistics_vector;
 statistics_vector vstats;
 std::vector<std::string> formulas;
+
+// Cleanup temporary files.
+std::list<std::string> toclean;
+void
+cleanup()
+{
+  for (std::list<std::string>::const_iterator i = toclean.begin();
+       i != toclean.end(); ++i)
+    unlink(i->c_str());
+  toclean.clear();
+}
 
 static int
 to_int(const char* s)
@@ -303,6 +313,7 @@ create_tmpfile(char c, unsigned int n, std::string& name)
 
 
 static volatile bool timed_out = false;
+
 #if ENABLE_TIMEOUT
 static volatile int alarm_on = 0;
 static int child_pid = -1;
@@ -334,6 +345,8 @@ sig_handler(int sig)
     {
       // forward signal
       kill(-child_pid, sig);
+      // cleanup files
+      cleanup();
       // and die verbosely
       error(2, 0, "received signal %d", sig);
     }
@@ -439,6 +452,7 @@ namespace
   class translator_runner: protected spot::formater
   {
   private:
+    spot::bdd_dict& dict;
     // Round-specific variables
     quoted_string string_ltl_spot;
     quoted_string string_ltl_spin;
@@ -446,13 +460,13 @@ namespace
     quoted_string filename_ltl_spot;
     quoted_string filename_ltl_spin;
     quoted_string filename_ltl_lbt;
-    std::list<std::string> toclean;
     // Run-specific variables
     printable_result_filename output;
   public:
     using spot::formater::has;
 
-    translator_runner()
+    translator_runner(spot::bdd_dict& dict)
+      : dict(dict)
     {
       declare('f', &string_ltl_spot);
       declare('s', &string_ltl_spin);
@@ -468,16 +482,6 @@ namespace
       for (size_t n = 0; n < s; ++n)
 	prime(translators[n]);
 
-    }
-
-    // Cleanup temporary files.
-    void
-    round_cleanup()
-    {
-      for (std::list<std::string>::const_iterator i = toclean.begin();
-	   i != toclean.end(); ++i)
-	unlink(i->c_str());
-      toclean.clear();
     }
 
     void
@@ -589,7 +593,7 @@ namespace
 		  {
 		    res = spot::lbtt_parse(f, error, &dict);
 		    if (!res)
-		      global_error() << ("Failed error to parse output in "
+		      global_error() << ("error: failed to parse output in "
 					 "LBTT format: ")
 				     << error << std::endl;
 		  }
@@ -729,9 +733,15 @@ namespace
 
   class processor: public job_processor
   {
+    spot::bdd_dict dict;
     translator_runner runner;
     fset_t unique_set;
   public:
+    processor()
+      : runner(dict)
+    {
+    }
+
     ~processor()
     {
       fset_t::iterator i = unique_set.begin();
@@ -837,7 +847,7 @@ namespace
 	}
 
       f->destroy();
-      runner.round_cleanup();
+      cleanup();
       ++round;
 
       if (!no_checks)
