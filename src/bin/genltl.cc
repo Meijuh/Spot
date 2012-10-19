@@ -185,6 +185,7 @@ static jobs_t jobs;
 const struct argp_child children[] =
   {
     { &output_argp, 0, 0, -20 },
+    { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
   };
 
@@ -840,7 +841,7 @@ main(int argc, char** argv)
   const argp ap = { options, parse_opt, 0, argp_program_doc,
 		    children, 0, 0 };
 
-  if (int err = argp_parse(&ap, argc, argv, 0, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
     exit(err);
 
   if (jobs.empty())

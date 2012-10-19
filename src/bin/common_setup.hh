@@ -25,4 +25,6 @@
 
 void setup(char** progname);
 
+extern const struct argp misc_argp;
+
 #endif // SPOT_BIN_COMMON_SETUP_HH
