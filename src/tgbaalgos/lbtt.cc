@@ -169,9 +169,7 @@ namespace spot
 	const ltl::formula* af = acc_f[n] = envacc.require(s.str());
 	aut->declare_acceptance_condition(af->clone());
       }
-    std::vector<bdd> acc_b(num_acc);
-    for (unsigned n = 0; n < num_acc; ++n)
-      acc_b[n] = aut->get_acceptance_condition(acc_f[n]);
+    std::map<int, bdd> acc_b;
 
     for (unsigned n = 0; n < num_states; ++n)
       {
@@ -197,13 +195,25 @@ namespace spot
 		is >> acc_n;
 		if (acc_n == -1)
 		  break;
-		if (acc_n < 0 || (unsigned)acc_n >= num_acc)
+		std::map<int, bdd>::const_iterator i = acc_b.find(acc_n);
+		if (i != acc_b.end())
 		  {
-		    error += "invalid acceptance set";
-		    goto fail;
+		    acc |= i->second;
 		  }
-		acc |= acc_b[acc_n];
+		else
+		  {
+		    size_t s = acc_b.size();
+		    if (s >= num_acc)
+		      {
+			error += "more acceptance sets used than declared";
+			goto fail;
+		      }
+		    bdd a = aut->get_acceptance_condition(acc_f[s]);
+		    acc_b[acc_n] = a;
+		    acc |= a;
+		  }
 	      }
+
 	    std::string guard;
 	    std::getline(is, guard);
 	    ltl::parse_error_list pel;
@@ -242,9 +252,7 @@ namespace spot
 	const ltl::formula* af = acc_f[n] = envacc.require(s.str());
 	aut->declare_acceptance_condition(af->clone());
       }
-    std::vector<bdd> acc_b(num_acc);
-    for (unsigned n = 0; n < num_acc; ++n)
-      acc_b[n] = aut->get_acceptance_condition(acc_f[n]);
+    std::map<int, bdd> acc_b;
 
     for (unsigned n = 0; n < num_states; ++n)
       {
@@ -262,12 +270,23 @@ namespace spot
 	    is >> acc_n;
 	    if (acc_n == -1)
 	      break;
-	    if (acc_n < 0 || (unsigned)acc_n >= num_acc)
+	    std::map<int, bdd>::const_iterator i = acc_b.find(acc_n);
+	    if (i != acc_b.end())
 	      {
-		error += "invalid acceptance set";
-		goto fail;
+		acc |= i->second;
 	      }
-	    acc |= acc_b[acc_n];
+	    else
+	      {
+		size_t s = acc_b.size();
+		if (s >= num_acc)
+		  {
+		    error += "more acceptance sets used than declared";
+		    goto fail;
+		  }
+		bdd a = aut->get_acceptance_condition(acc_f[s]);
+		acc_b[acc_n] = a;
+		acc |= a;
+	      }
 	  }
 
 	// Read the transitions.
