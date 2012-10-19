@@ -373,31 +373,45 @@ namespace spot
     void
     merge_transitions()
     {
+      typedef typename transitions_t::iterator trans_t;
+      typedef std::map<int, trans_t> acc_map;
+      typedef Sgi::hash_map<const spot::state*, acc_map> dest_map;
+
       typename ls_map::iterator i;
       for (i = ls_.begin(); i != ls_.end(); ++i)
-      {
-	typename transitions_t::iterator t1;
-	for (t1 = i->second.successors.begin();
-	     t1 != i->second.successors.end(); ++t1)
 	{
-	  bdd acc = t1->acceptance_conditions;
-	  const state_explicit<label_t, label_hash_t>* dest = t1->dest;
+	  const spot::state* last_dest = 0;
+	  dest_map dm;
+	  typename dest_map::iterator dmi = dm.end();
+	  typename transitions_t::iterator t1 = i->second.successors.begin();
 
-	  // Find another transition with the same destination and
-	  // acceptance conditions.
-	  typename transitions_t::iterator t2 = t1;
-	  ++t2;
-	  while (t2 != i->second.successors.end())
-	  {
-	    typename transitions_t::iterator t2copy = t2++;
-	    if (t2copy->acceptance_conditions == acc && t2copy->dest == dest)
+	  // Loop over all outgoing transitions (cond,acc,dest), and
+	  // store them into dest_map[dest][acc] so that we can merge
+	  // conditions.
+	  while (t1 != i->second.successors.end())
 	    {
-	      t1->condition |= t2copy->condition;
-	      i->second.successors.erase(t2copy);
+	      const spot::state* dest = t1->dest;
+	      if (dest != last_dest)
+		{
+		  last_dest = dest;
+		  dmi = dm.find(dest);
+		  if (dmi == dm.end())
+		    dmi = dm.insert(std::make_pair(dest, acc_map())).first;
+		}
+	      int acc = t1->acceptance_conditions.id();
+	      typename acc_map::iterator it = dmi->second.find(acc);
+	      if (it == dmi->second.end())
+		{
+		  dmi->second[acc] = t1;
+		  ++t1;
+		}
+	      else
+		{
+		  it->second->condition |= t1->condition;
+		  t1 = i->second.successors.erase(t1);
+		}
 	    }
-	  }
 	}
-      }
     }
 
     /// Return the state_explicit for \a name, creating the state if
@@ -585,6 +599,12 @@ namespace spot
       neg_acceptance_conditions_ &= neg;
 
       // Append neg to all acceptance conditions.
+
+      // FIXME: Declaring acceptance conditions after the automaton
+      // has been constructed is very slow because we traverse the
+      // entire automaton for each new acceptance condition.  It would
+      // be better to fix the automaton in a single pass after all
+      // acceptance conditions have been declared.
       typename ls_map::iterator i;
       for (i = this->ls_.begin(); i != this->ls_.end(); ++i)
 	{
