@@ -1,5 +1,6 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE)
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,43 +24,37 @@ namespace spot
 {
   bdd acceptance_convertor::as_positive_product(bdd acc)
   {
-    // Lookup in cache.
+    // Cache lookup.
     bdd_cache_t::const_iterator it = pos_prod_cache_.find(acc);
     if (it != pos_prod_cache_.end())
       return it->second;
 
-    // Split the sum
+    // This would be one way to construct the positive product,
+    // if we did not want to populate a cache.
+    //
+    // bdd res = bddtrue;
+    // BDD a = acc.id();
+    // while (a)
+    //   {
+    //	   if (bdd_high(a))
+    //	     res &= bdd_ithvar(bdd_var(a));
+    //	   a = bdd_low(a);
+    //   }
+
+    // Skip all negative variables.
+    bdd a = acc;
+    while (a != bddfalse && bdd_high(a) == bddfalse)
+      a = bdd_low(a);
+
     bdd res = bddtrue;
-    bdd all = acc;
-    while (all != bddfalse)
+    if (a != bddfalse)
       {
-	bdd one = bdd_satone(all);
-	all -= one;
-	// Lookup the subproduct in the cache.
-	it = pos_prod_cache_.find(one);
-	if (it != pos_prod_cache_.end())
-	  {
-	    res &= it->second;
-	    continue;
-	  }
-	// Otherwise, strip negative variables.
-	bdd pos = bddfalse;
-	bdd cur = one;
-	while (cur != bddfalse)
-	  {
-	    bdd low = bdd_low(cur);
-	    if (low == bddfalse)
-	      {
-		pos = bdd_ithvar(bdd_var(cur));
-		break;
-	      }
-	    cur = low;
-	  }
-	assert(pos != bddfalse);
-	// Cache result for subproduct.
-	pos_prod_cache_[one] = pos;
-	// Augment final result.
-	res &= pos;
+	// Make a recursive call right below each positive variable,
+	// in order to populate the cache.
+	res = bdd_ithvar(bdd_var(a));
+	bdd low = bdd_low(a);
+	if (low != bddfalse)
+	  res &= as_positive_product(low);
       }
 
     // Cache final result.
