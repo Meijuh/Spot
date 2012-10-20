@@ -593,10 +593,10 @@ namespace spot
 	      break;
 	    }
 
-	  if (need_parent || full_parent_)
+	  if (need_parent)
 	    openp();
 	  uo->child()->accept(*this);
-	  if (need_parent || full_parent_)
+	  if (need_parent)
 	    closep();
 
 	  switch (uo->op())
