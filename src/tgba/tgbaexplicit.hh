@@ -710,7 +710,8 @@ namespace spot
       // So we need only to check one to decide
       if (st->successors.empty())
 	return false;
-      return st->successors.front().acceptance_conditions != bddfalse;
+      return (st->successors.front().acceptance_conditions
+	      == this->all_acceptance_conditions_);
     }
 
   private:

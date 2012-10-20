@@ -23,6 +23,7 @@
 #include "sccfilter.hh"
 #include "degen.hh"
 #include "stats.hh"
+#include "stripacc.hh"
 
 namespace spot
 {
@@ -45,6 +46,49 @@ namespace spot
       delete a;
       a = s;
     }
+
+    if (type_ == Monitor)
+      {
+	if (pref_ == Deterministic)
+	  {
+	    const tgba* m = minimize_monitor(a);
+	    delete a;
+	    return m;
+	  }
+	else
+	  {
+	    const tgba* m = strip_acceptance(a);
+	    delete a;
+	    a = m;
+	  }
+	if (pref_ == Any)
+	  return a;
+
+	const tgba* sim;
+	if (level_ == Low)
+	  sim = simulation(a);
+	else
+	  sim = iterated_simulations(a);
+	if (level_ != High)
+	  {
+	    delete a;
+	    return sim;
+	  }
+	// For Small,High we return the smallest between the output of
+	// the simulation, and that of the deterministic minimization.
+	const tgba* m = minimize_monitor(a);
+	delete a;
+	if (count_states(m) > count_states(sim))
+	  {
+	    delete m;
+	    return sim;
+	  }
+	else
+	  {
+	    delete sim;
+	    return m;
+	  }
+      }
 
     if (pref_ == Any)
       {

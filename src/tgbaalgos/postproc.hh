@@ -27,7 +27,8 @@ namespace spot
   /// \addtogroup tgba_reduction
   /// @{
 
-  /// \brief Wrap TGBA/BA post-processing algorithms in an easy interface.
+  /// \brief Wrap TGBA/BA/Monitor post-processing algorithms in an
+  /// easy interface.
   ///
   /// This class is a shell around scc_filter(),
   /// minimize_obligation(), simulation(), iterated_simulations(), and
@@ -61,7 +62,7 @@ namespace spot
     {
     }
 
-    enum output_type { TGBA, BA };
+    enum output_type { TGBA, BA, Monitor };
     void
     set_type(output_type type)
     {

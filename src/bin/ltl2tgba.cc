@@ -56,10 +56,12 @@ If multiple formulas are supplied, several automata will be output.";
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Automaton type:", 2 },
+    { 0, 0, 0, 0, "Output automaton type:", 2 },
     { "tgba", OPT_TGBA, 0, 0,
       "Transition-based Generalized Büchi Automaton (default)", 0 },
     { "ba", 'B', 0, 0, "Büchi Automaton", 0 },
+    { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
+      "of the given formula)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
     { "dot", OPT_DOT, 0, 0, "GraphViz's format (default)", 0 },
@@ -116,9 +118,13 @@ parse_opt(int key, char* arg, struct argp_state*)
     case 'B':
       type = spot::postprocessor::BA;
       break;
+    case 'M':
+      type = spot::postprocessor::Monitor;
+      break;
     case 's':
       format = Spin;
-      type = spot::postprocessor::BA;
+      if (type != spot::postprocessor::Monitor)
+	type = spot::postprocessor::BA;
       break;
     case OPT_DOT:
       format = Dot;
@@ -209,7 +215,8 @@ namespace
 	{
 	case Dot:
 	  spot::dotty_reachable(std::cout, aut,
-				type == spot::postprocessor::BA);
+				(type == spot::postprocessor::BA)
+				|| (type == spot::postprocessor::Monitor));
 	  break;
 	case Lbtt:
 	  spot::lbtt_reachable(std::cout, aut);

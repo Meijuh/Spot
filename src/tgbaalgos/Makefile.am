@@ -63,6 +63,7 @@ tgbaalgos_HEADERS = \
   se05.hh \
   simulation.hh \
   stats.hh \
+  stripacc.hh \
   tau03.hh \
   tau03opt.hh \
   reductgba_sim.hh \
@@ -105,6 +106,7 @@ libtgbaalgos_la_SOURCES = \
   se05.cc \
   simulation.cc \
   stats.cc \
+  stripacc.cc \
   tau03.cc \
   tau03opt.cc \
   reductgba_sim.cc \

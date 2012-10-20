@@ -25,17 +25,19 @@ New in spot 0.9.2a:
 	        some simplifications, check whether to formulas are
 	        equivalent, ...
 
-    - ltl2tgba: Translate LTL/PSL formulas into Büchi automata.  A
-                fondamental change to the interface is that you may
-	        now specify the goal of the translation: do you
-	        you favor deterministic or smaller automata?
+    - ltl2tgba: Translate LTL/PSL formulas into Büchi automata (TGBA,
+                BA, or Monitor).  A fondamental change to the
+                interface is that you may now specify the goal of the
+                translation: do you you favor deterministic or smaller
+                automata?
 
     - ltl2tgta: Translate LTL/PSL formulas into Testing Automata.
 
-    - ltlcheck: A tool to find bugs in translators from LTL/PSL to
-                Büchi automata.  This is essentially a Spot-based
-		reimplementation of LBTT that supports PSL in addition
-		to LTL, and that can output more statistics.
+    - ltlcheck: Compare the output of translators from LTL/PSL to
+                Büchi automata, to find bug or for benchmarking.  This
+                is essentially a Spot-based reimplementation of LBTT
+                that supports PSL in addition to LTL, and that can
+                output more statistics.
 
     These binaries are built in the src/bin/ directory.  The former
     test versions of genltl and randltl have been removed from the
@@ -113,7 +115,7 @@ New in spot 0.9.2a:
       automata generated with the web interface.)
 
     - A new class, "postprocessor", makes it easier to apply
-      all availlable simplification algorithms on a TGBA.
+      all availlable simplification algorithms on a TGBA/BA/Monitors.
 
   * Minor changes:
 
