@@ -82,15 +82,18 @@ New in spot 0.9.2a:
       simulations in a loop as long as it diminishes the size of the
       automaton.
 
-    - The enumerate_cycles class implements the Loizou-Thanisch algorithm
-      to enumerate the cycles of a SCC.  As an example of use, the
-      is_weak_scc() function will tell whether an SCC is weak (all
-      its cycles are accepting, or none of them are).
+    - The enumerate_cycles class implements the Loizou-Thanisch
+      algorithm to enumerate the cycles of a SCC.  As an example of
+      use, the is_weak_scc() function will tell whether an SCC is weak
+      (all its cycles are accepting, or none of them are).
 
     - parse_lbt() will parse an LTL formula expressed in the prefix
       syntax used (at least) by LBT, LBTT and Scheck.
       to_lbt_string() can be used to print an LTL formula using this
       syntax.
+
+    - to_wring_string() can be used to print an LTL formula into
+      Wring's syntax.
 
     - The LTL/PSL parser now has a lenient mode that can be usefull
       to interpret atomic proposition with language-specific constructs.
