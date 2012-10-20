@@ -74,7 +74,7 @@ namespace spot
     to_utf8_string(const formula* f, bool full_parent = false,
 		   bool ratexp = false);
 
-    /// \brief Output a formula as a (parsable by Spin) string.
+    /// \brief Output a formula as a string parsable by Spin.
     /// \param f The formula to translate.
     /// \param os The stream where it should be output.
     /// \param full_parent Whether or not the string should by fully
@@ -82,11 +82,20 @@ namespace spot
     std::ostream& to_spin_string(const formula* f, std::ostream& os,
 				 bool full_parent = false);
 
-    /// \brief Convert a formula into a (parsable by Spin) string.
+    /// \brief Convert a formula into a string parsable by Spin.
     /// \param f The formula to translate.
     /// \param full_parent Whether or not the string should by fully
     ///			   parenthesized.
     std::string to_spin_string(const formula* f, bool full_parent = false);
+
+    /// \brief Output a formula as a string parsable by Wring.
+    /// \param f The formula to translate.
+    /// \param os The stream where it should be output.
+    std::ostream& to_wring_string(const formula* f, std::ostream& os);
+
+    /// \brief Convert a formula into a string parsable by Wring
+    /// \param f The formula to translate.
+    std::string to_wring_string(const formula* f);
 
     /// @}
   }

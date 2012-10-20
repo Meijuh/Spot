@@ -26,6 +26,7 @@
 #include "error.h"
 
 #define OPT_SPOT 1
+#define OPT_WRING 2
 
 output_format_t output_format = spot_output;
 bool full_parenth = false;
@@ -37,6 +38,7 @@ static const argp_option options[] =
     { "spin", 's', 0, 0, "output in Spin's syntax", -20 },
     { "spot", OPT_SPOT, 0, 0, "output in Spot's syntax (default)", -20 },
     { "lbt", 'l', 0, 0, "output in LBT's syntax", -20 },
+    { "wring", OPT_WRING, 0, 0, "output in Wring's syntax", -20 },
     { "utf8", '8', 0, 0, "output using UTF-8 characters", -20 },
     { 0, 0, 0, 0, 0, 0 }
   };
@@ -63,6 +65,9 @@ parse_opt_output(int key, char*, struct argp_state*)
       break;
     case OPT_SPOT:
       output_format = spot_output;
+      break;
+    case OPT_WRING:
+      output_format = wring_output;
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -104,6 +109,12 @@ output_formula(const spot::ltl::formula* f, const char* filename, int linenum)
 	spot::ltl::to_spin_string(f, std::cout, full_parenth);
       else
 	report_not_ltl(f, filename, linenum, "Spin");
+      break;
+    case wring_output:
+      if (f->is_ltl_formula())
+	spot::ltl::to_wring_string(f, std::cout);
+      else
+	report_not_ltl(f, filename, linenum, "Wring");
       break;
     case utf8_output:
       spot::ltl::to_utf8_string(f, std::cout, full_parenth);

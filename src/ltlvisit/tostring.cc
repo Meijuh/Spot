@@ -128,6 +128,36 @@ namespace spot
 	":",			// not supported
       };
 
+      const char* wring_kw[] = {
+	"FALSE",
+	"TRUE",
+	"[*0]",			// not supported
+	" ^ ",
+	" -> ",
+	" <-> ",
+	" U ",
+	" R ",
+	" W ",			// rewritten
+	" M ",			// rewritten
+	"<>-> ",		// not supported
+	"<>=> ",		// not supported
+	"<>+> ",		// not supported
+	"<>=+> ",		// not supported
+	"[]-> ",		// not supported
+	"[]=> ",		// not supported
+	"!",
+	"X",
+	"F",
+	"G",
+	" + ",
+	" | ",			// not supported
+	" * ",
+	" && ",			// not supported
+	" & ",			// not supported
+	";",			// not supported
+	":",			// not supported
+      };
+
       const char* utf8_kw[] = {
 	"0",
 	"1",
@@ -262,6 +292,8 @@ namespace spot
 	    {
 	      os_ << str;
 	    }
+	  if (kw_ == wring_kw)
+	    os_ << "=1";
 	  if (full_parent_)
 	    os_ << ")";
 	}
@@ -518,6 +550,15 @@ namespace spot
 		      overline = true;
 		      break;
 		    }
+	      // If we negate an atomic proposition for Wring,
+	      // output prop=0.
+	      if (kw_ == wring_kw)
+		if (const ltl::atomic_prop* ap = is_atomic_prop(uo->child()))
+		  if (is_bare_word(ap->name().c_str()))
+		    {
+		      os_ << ap->name() << "=0";
+		      goto skiprec;
+		    }
 	      emit(KNot);
 	      break;
 	    case unop::X:
@@ -569,6 +610,8 @@ namespace spot
 	    default:
 	      break;
 	    }
+
+	skiprec:
 
 	  if (full_parent_ && !top_level)
 	    closep();
@@ -782,5 +825,25 @@ namespace spot
       to_spin_string(f, os, full_parent);
       return os.str();
     }
+
+    std::ostream&
+    to_wring_string(const formula* f, std::ostream& os)
+    {
+      // Remove W and M.
+      f = unabbreviate_wm(f);
+      to_string_visitor v(os, true, false, wring_kw);
+      f->accept(v);
+      f->destroy();
+      return os;
+    }
+
+    std::string
+    to_wring_string(const formula* f)
+    {
+      std::ostringstream os;
+      to_wring_string(f, os);
+      return os.str();
+    }
+
   }
 }

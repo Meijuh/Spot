@@ -92,10 +92,11 @@ static const argp_option options[] =
     { 0, 0, 0, 0,
       "COMMANDFMT should specify input and output arguments using the "
       "following character sequences:", 3 },
-    { "%f,%s,%l", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the formula as a (quoted) string in Spot, Spin, or LBT's syntax", 0 },
-    { "%F,%S,%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the formula as a file in Spot, Spin, or LBT's syntax", 0 },
+    { "%f,%s,%l,%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the formula as a (quoted) string in Spot, Spin, LBT, or Wring's syntax",
+      0 },
+    { "%F,%S,%L,%W", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the formula as a file in Spot, Spin, LBT, or Wring's syntax", 0 },
     { "%N,%T", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the output automaton as a Never claim, or in LBTT's format", 0 },
     { 0, 0, 0, 0,
@@ -458,9 +459,11 @@ namespace
     quoted_string string_ltl_spot;
     quoted_string string_ltl_spin;
     quoted_string string_ltl_lbt;
+    quoted_string string_ltl_wring;
     quoted_string filename_ltl_spot;
     quoted_string filename_ltl_spin;
     quoted_string filename_ltl_lbt;
+    quoted_string filename_ltl_wring;
     // Run-specific variables
     printable_result_filename output;
   public:
@@ -472,9 +475,11 @@ namespace
       declare('f', &string_ltl_spot);
       declare('s', &string_ltl_spin);
       declare('l', &string_ltl_lbt);
+      declare('w', &string_ltl_wring);
       declare('F', &filename_ltl_spot);
       declare('S', &filename_ltl_spin);
       declare('L', &filename_ltl_lbt);
+      declare('W', &filename_ltl_wring);
       declare('N', &output);
       declare('T', &output);
 
@@ -503,6 +508,8 @@ namespace
 	return string_ltl_spot;
       if (!string_ltl_spin.val().empty())
 	return string_ltl_spin;
+      if (!string_ltl_wring.val().empty())
+	return string_ltl_wring;
       if (!string_ltl_lbt.val().empty())
 	return string_ltl_lbt;
       error(2, 0, "None of the translators need the input formula?");
@@ -518,12 +525,16 @@ namespace
 	string_ltl_spin = spot::ltl::to_spin_string(f, true);
       if (has('l') || has('L'))
 	string_ltl_lbt = spot::ltl::to_lbt_string(f);
+      if (has('w') || has('W'))
+	string_ltl_wring = spot::ltl::to_wring_string(f);
       if (has('F'))
 	string_to_tmp(string_ltl_spot, serial, filename_ltl_spot);
       if (has('S'))
 	string_to_tmp(string_ltl_spin, serial, filename_ltl_spin);
       if (has('L'))
 	string_to_tmp(string_ltl_lbt, serial, filename_ltl_lbt);
+      if (has('W'))
+	string_to_tmp(string_ltl_wring, serial, filename_ltl_wring);
     }
 
     const spot::tgba*

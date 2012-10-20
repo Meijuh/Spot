@@ -25,7 +25,8 @@
 #include <argp.h>
 #include "ltlast/formula.hh"
 
-enum output_format_t { spot_output, spin_output, utf8_output, lbt_output };
+enum output_format_t { spot_output, spin_output, utf8_output,
+		       lbt_output, wring_output };
 extern output_format_t output_format;
 extern bool full_parenth;
 
