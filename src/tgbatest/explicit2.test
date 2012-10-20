@@ -30,8 +30,8 @@ tata
 69
 * TGBA explicit formula
 b
-* SBA explicit string, no accepting state
-S1 ACCEPTING? 0
+* SBA explicit string, 1 accepting state
+S1 ACCEPTING? 1
 S2 ACCEPTING? 0
 S3 ACCEPTING? 0
 * SBA explicit number, 1 accepting state

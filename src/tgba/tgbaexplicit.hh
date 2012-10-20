@@ -711,7 +711,7 @@ namespace spot
       if (st->successors.empty())
 	return false;
       return (st->successors.front().acceptance_conditions
-	      == this->all_acceptance_conditions_);
+	      == this->all_acceptance_conditions());
     }
 
   private:

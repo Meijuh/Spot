@@ -107,17 +107,19 @@ void create_sba_explicit_string(bdd_dict* d)
   sba_explicit<state_explicit_string>* sba =
     new sba_explicit<state_explicit_string>(d);
 
+  ltl::formula* acc = ltl::constant::true_instance();
+  sba->declare_acceptance_condition(acc);
+
   state_explicit_string* s1 = sba->add_state("STATE1");
   state_explicit_string* s2 = sba->add_state("STATE2");
   state_explicit_string* s3 = sba->add_state("STATE3");
 
-  int v = d->register_acceptance_variable(ltl::constant::true_instance(), sba);
-
   state_explicit_string::transition* t =
     sba->create_transition(s1, s2);
+  sba->add_acceptance_condition(t, acc);
 
   t = sba->create_transition(s1, s3);
-  sba->add_acceptance_conditions(t, bdd_ithvar(v));
+  sba->add_acceptance_condition(t, acc);
 
   std::cout << "S1 ACCEPTING? " << sba->state_is_accepting(s1) << std::endl;
   std::cout << "S2 ACCEPTING? " << sba->state_is_accepting(s2) << std::endl;
@@ -131,15 +133,14 @@ void create_sba_explicit_number(bdd_dict* d)
   sba_explicit<state_explicit_number>* sba =
     new sba_explicit<state_explicit_number>(d);
 
+  ltl::formula* acc = ltl::constant::true_instance();
+  sba->declare_acceptance_condition(acc);
+
   state_explicit_number* s1 = sba->add_state(1);
   state_explicit_number* s2 = sba->add_state(2);
 
-  //state 1 is accepting
-  int v = d->register_acceptance_variable(ltl::constant::true_instance(), sba);
-
-  state_explicit_number::transition* t =
-    sba->create_transition(s1, s2);
-  sba->add_acceptance_conditions(t, bdd_ithvar(v));
+  state_explicit_number::transition* t = sba->create_transition(s1, s2);
+  sba->add_acceptance_condition(t, acc);
 
   std::cout << "S1 ACCEPTING? " << sba->state_is_accepting(s1) << std::endl;
   std::cout << "S2 ACCEPTING? " << sba->state_is_accepting(s2) << std::endl;
@@ -153,19 +154,18 @@ create_sba_explicit_formula(bdd_dict* d, spot::ltl::default_environment& e)
   sba_explicit<state_explicit_formula>* sba =
     new sba_explicit<state_explicit_formula>(d);
 
+  ltl::formula* acc = ltl::constant::true_instance();
+  sba->declare_acceptance_condition(acc);
+
   state_explicit_formula* s1 = sba->add_state(e.require("a"));
   state_explicit_formula* s2 = sba->add_state(e.require("b"));
   state_explicit_formula* s3 = sba->add_state(e.require("c"));
 
-  int v = d->register_acceptance_variable(ltl::constant::true_instance(), sba);
-
-  state_explicit_formula::transition* t =
-    sba->create_transition(s1, s2);
-
-  sba->add_acceptance_conditions(t, bdd_ithvar(v));
+  state_explicit_formula::transition* t = sba->create_transition(s1, s2);
+  sba->add_acceptance_condition(t, acc);
 
   t = sba->create_transition(s1, s3);
-  sba->add_acceptance_conditions(t, bdd_ithvar(v));
+  sba->add_acceptance_condition(t, acc);
 
   std::cout << "S1 ACCEPTING? " << sba->state_is_accepting(s1) << std::endl;
   std::cout << "S2 ACCEPTING? " << sba->state_is_accepting(s2) << std::endl;
@@ -193,7 +193,7 @@ main(int argc, char** argv)
   create_tgba_explicit_formula(d, e);
 
   //check sba creation
-  std::cout << "* SBA explicit string, no accepting state" << std::endl;
+  std::cout << "* SBA explicit string, 1 accepting state" << std::endl;
   create_sba_explicit_string(d);
   std::cout << "* SBA explicit number, 1 accepting state" << std::endl;
   create_sba_explicit_number(d);
