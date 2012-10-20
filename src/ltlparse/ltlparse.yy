@@ -86,12 +86,14 @@ using namespace spot::ltl;
     }							\
   while (0);
 
+  enum parser_type { parser_ltl, parser_bool, parser_sere };
+
   const formula*
   try_recursive_parse(const std::string& str,
 		      const ltlyy::location& location,
 		      spot::ltl::environment& env,
 		      bool debug,
-		      bool sere,
+		      parser_type type,
 		      spot::ltl::parse_error_list& error_list)
     {
       // We want to parse a U (b U c) as two until operators applied
@@ -117,11 +119,19 @@ using namespace spot::ltl;
 	}
 
       spot::ltl::parse_error_list suberror;
-      const spot::ltl::formula* f;
-      if (sere)
-	f = spot::ltl::parse_sere(str, suberror, env, debug, true);
-      else
-	f = spot::ltl::parse(str, suberror, env, debug, true);
+      const spot::ltl::formula* f = 0;
+      switch (type)
+	{
+	case parser_sere:
+	  f = spot::ltl::parse_sere(str, suberror, env, debug, true);
+	  break;
+	case parser_bool:
+	  f = spot::ltl::parse_boolean(str, suberror, env, debug, true);
+	  break;
+	case parser_ltl:
+	  f = spot::ltl::parse(str, suberror, env, debug, true);
+	  break;
+	}
 
       if (suberror.empty())
 	return f;
@@ -149,6 +159,7 @@ using namespace spot::ltl;
 %token START_LTL "LTL start marker"
 %token START_LBT "LBT start marker"
 %token START_SERE "SERE start marker"
+%token START_BOOL "BOOLEAN start marker"
 %token PAR_OPEN "opening parenthesis" PAR_CLOSE "closing parenthesis"
 %token <str> PAR_BLOCK "(...) block"
 %token <str> BRA_BLOCK "{...} block"
@@ -214,7 +225,7 @@ using namespace spot::ltl;
 
 %nonassoc OP_POST_NEG OP_POST_POS
 
-%type <ltl> subformula booleanatom sere lbtformula
+%type <ltl> subformula booleanatom sere lbtformula boolformula
 %type <ltl> bracedsere parenthesedsubformula
 %type <minmax> starargs equalargs sqbracketargs gotoargs
 
@@ -243,6 +254,22 @@ result:       START_LTL subformula END_OF_INPUT
 		YYACCEPT;
 	      }
 	    | START_LTL emptyinput
+              { YYABORT; }
+            | START_BOOL boolformula END_OF_INPUT
+	      { result = $2;
+		YYACCEPT;
+	      }
+	    | START_BOOL enderror
+	      {
+		result = 0;
+		YYABORT;
+	      }
+	    | START_BOOL boolformula enderror
+	      {
+		result = $2;
+		YYACCEPT;
+	      }
+	    | START_BOOL emptyinput
               { YYABORT; }
             | START_SERE sere END_OF_INPUT
 	      { result = $2;
@@ -439,7 +466,7 @@ sere: booleanatom
 	    | PAR_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), true, error_list);
+					 debug_level(), parser_sere, error_list);
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -659,7 +686,8 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
             | BRA_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), true, error_list);
+					 debug_level(),
+					 parser_sere, error_list);
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -668,7 +696,7 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
 parenthesedsubformula: PAR_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), false, error_list);
+					 debug_level(), parser_ltl, error_list);
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -701,6 +729,75 @@ parenthesedsubformula: PAR_BLOCK
 		$$ = constant::false_instance();
 	      }
 
+
+boolformula: booleanatom
+            | PAR_BLOCK
+              {
+		$$ = try_recursive_parse(*$1, @1, parse_environment,
+					 debug_level(), parser_bool, error_list);
+		delete $1;
+		if (!$$)
+		  YYERROR;
+	      }
+            | PAR_OPEN boolformula PAR_CLOSE
+	      { $$ = $2; }
+	    | PAR_OPEN boolformula error PAR_CLOSE
+	      { error_list.push_back(parse_error(@3, "ignoring this"));
+		$$ = $2;
+	      }
+	    | PAR_OPEN error PAR_CLOSE
+	      { error_list.push_back(parse_error(@$,
+		 "treating this parenthetical block as false"));
+		$$ = constant::false_instance();
+	      }
+	    | PAR_OPEN boolformula END_OF_INPUT
+	      { error_list.push_back(parse_error(@1 + @2,
+				      "missing closing parenthesis"));
+		$$ = $2;
+	      }
+	    | PAR_OPEN boolformula error END_OF_INPUT
+	      { error_list.push_back(parse_error(@3,
+                "ignoring trailing garbage and missing closing parenthesis"));
+		$$ = $2;
+	      }
+	    | PAR_OPEN error END_OF_INPUT
+	      { error_list.push_back(parse_error(@$,
+                    "missing closing parenthesis, "
+		    "treating this parenthetical block as false"));
+		$$ = constant::false_instance();
+	      }
+	    | boolformula OP_AND boolformula
+	      { $$ = multop::instance(multop::And, $1, $3); }
+	    | boolformula OP_AND error
+              { missing_right_binop($$, $1, @2, "and operator"); }
+	    | boolformula OP_SHORT_AND boolformula
+	      { $$ = multop::instance(multop::And, $1, $3); }
+	    | boolformula OP_SHORT_AND error
+              { missing_right_binop($$, $1, @2, "and operator"); }
+	    | boolformula OP_STAR boolformula
+	      { $$ = multop::instance(multop::And, $1, $3); }
+	    | boolformula OP_STAR error
+              { missing_right_binop($$, $1, @2, "and operator"); }
+	    | boolformula OP_OR boolformula
+	      { $$ = multop::instance(multop::Or, $1, $3); }
+	    | boolformula OP_OR error
+              { missing_right_binop($$, $1, @2, "or operator"); }
+	    | boolformula OP_XOR boolformula
+	      { $$ = binop::instance(binop::Xor, $1, $3); }
+	    | boolformula OP_XOR error
+	      { missing_right_binop($$, $1, @2, "xor operator"); }
+	    | boolformula OP_IMPLIES boolformula
+	      { $$ = binop::instance(binop::Implies, $1, $3); }
+	    | boolformula OP_IMPLIES error
+	      { missing_right_binop($$, $1, @2, "implication operator"); }
+	    | boolformula OP_EQUIV boolformula
+	      { $$ = binop::instance(binop::Equiv, $1, $3); }
+	    | boolformula OP_EQUIV error
+	      { missing_right_binop($$, $1, @2, "equivalent operator"); }
+	    | OP_NOT boolformula
+	      { $$ = unop::instance(unop::Not, $2); }
+	    | OP_NOT error
+	      { missing_right_op($$, @1, "not operator"); }
 
 subformula: booleanatom
             | parenthesedsubformula
@@ -806,7 +903,7 @@ subformula: booleanatom
             | BRA_BANG_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), true, error_list);
+					 debug_level(), parser_sere, error_list);
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -886,6 +983,23 @@ namespace spot
       const formula* result = 0;
       flex_set_buffer(ltl_string.c_str(),
 		      ltlyy::parser::token::START_LTL,
+		      lenient);
+      ltlyy::parser parser(error_list, env, result);
+      parser.set_debug_level(debug);
+      parser.parse();
+      flex_unset_buffer();
+      return result;
+    }
+
+    const formula*
+    parse_boolean(const std::string& ltl_string,
+		  parse_error_list& error_list,
+		  environment& env,
+		  bool debug, bool lenient)
+    {
+      const formula* result = 0;
+      flex_set_buffer(ltl_string.c_str(),
+		      ltlyy::parser::token::START_BOOL,
 		      lenient);
       ltlyy::parser parser(error_list, env, result);
       parser.set_debug_level(debug);

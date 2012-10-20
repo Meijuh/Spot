@@ -63,7 +63,7 @@ namespace spot
     ///        0 if the input was unparsable.
     ///
     /// Note that the parser usually tries to recover from errors.  It can
-    /// return an non zero value even if it encountered error during the
+    /// return a non zero value even if it encountered error during the
     /// parsing of \a ltl_string.  If you want to make sure \a ltl_string
     /// was parsed succesfully, check \a error_list for emptiness.
     ///
@@ -73,6 +73,31 @@ namespace spot
 			 environment& env = default_environment::instance(),
 			 bool debug = false,
 			 bool lenient = false);
+
+    /// \brief Build a Boolean formula from a string.
+    /// \param ltl_string The string to parse.
+    /// \param error_list A list that will be filled with
+    ///        parse errors that occured during parsing.
+    /// \param env The environment into which parsing should take place.
+    /// \param debug When true, causes the parser to trace its execution.
+    /// \param lenient When true, parenthesized blocks that cannot be
+    ///                parsed as subformulas will be considered as
+    ///                atomic propositions.
+    /// \return A pointer to the formula built from \a ltl_string, or
+    ///        0 if the input was unparsable.
+    ///
+    /// Note that the parser usually tries to recover from errors.  It can
+    /// return a non zero value even if it encountered error during the
+    /// parsing of \a ltl_string.  If you want to make sure \a ltl_string
+    /// was parsed succesfully, check \a error_list for emptiness.
+    ///
+    /// \warning This function is not reentrant.
+    const formula* parse_boolean(const std::string& ltl_string,
+				 parse_error_list& error_list,
+				 environment& env =
+				 default_environment::instance(),
+				 bool debug = false,
+				 bool lenient = false);
 
     /// \brief Build a formula from an LTL string in LBT's format.
     /// \param ltl_string The string to parse.

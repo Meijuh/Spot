@@ -201,9 +201,9 @@ transition:
       else
 	{
 	  spot::ltl::parse_error_list pel;
-	  const spot::ltl::formula* f = spot::ltl::parse(*$3, pel,
-							 parse_environment,
-							 false, true);
+	  const spot::ltl::formula* f =
+	    spot::ltl::parse_boolean(*$3, pel, parse_environment,
+				     debug_level(), true);
 	  delete $3;
 	  for(spot::ltl::parse_error_list::const_iterator i = pel.begin();
 	  i != pel.end(); ++i)

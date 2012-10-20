@@ -113,7 +113,8 @@ line: strident ',' strident ',' condition ',' acc_list ';'
 	       {
 		 parse_error_list pel;
 		 const formula* f =
-		   spot::ltl::parse(*$5, pel, parse_environment);
+		   spot::ltl::parse_boolean(*$5, pel, parse_environment,
+					    debug_level());
 		 for (parse_error_list::iterator i = pel.begin();
 		      i != pel.end(); ++i)
 		   {
