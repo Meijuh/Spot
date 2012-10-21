@@ -1,4 +1,5 @@
-[NAME] ltlcheck \- translate LTL/PSL formulas into Büchi automata
+[NAME]
+ltlcross \- cross-compare LTL/PSL translators to Büchi automata
 [DESCRIPTION]
 .\" Add any additional description here
 [EXAMPLES]
@@ -10,7 +11,7 @@ written to \f(CWresults.json\fR.
 
 .nf
 % randltl \-n100 \-\-tree\-size=20..30 a b c | \e
-ltlcheck \-T120 'ltl2tgba \-s %f >%N' 'spin \-f %s >%N' \-\-json=results.json
+ltlcross \-T120 'ltl2tgba \-s %f >%N' 'spin \-f %s >%N' \-\-json=results.json
 .fi
 .LP
 
@@ -22,16 +23,16 @@ in LBT's format, and \f(CW%T\fR to read the output in LBTT's format
 (which is a superset of the format output by LBT).
 
 .nf
-% ltlcheck \-F input.ltl \-\-csv=results.csv \e
+% ltlcross \-F input.ltl \-\-csv=results.csv \e
            'lbt <%L >%T' \e
            'ltl3ba \-f %s >%N' \e
            'ltl2tgba \-\-lbtt %f >%T'
 .fi
 .LP
 
-If you use ltlcheck in an automated testsuite just to check for
+If you use ltlcross in an automated testsuite just to check for
 potential problems, avoid the \fB\-\-csv\fR and \fB\-\-json\fR
-options: ltlcheck is faster when it does not have to compute these
+options: ltlcross is faster when it does not have to compute these
 statistics.
 
 [SEE ALSO]
@@ -41,13 +42,13 @@ statistics.
 .BR ltl2tgba (1)
 
 [BIBLIOGRAPHY]
-ltlcheck is a Spot-based reimplementation of a tool called LBTT.  LBTT
+ltlcross is a Spot-based reimplementation of a tool called LBTT.  LBTT
 was developped by Heikki Tauriainen at the Helsinki University of
 Technology.  The main motivation for the reimplementation was to
 support PSL, and output more statistics about the translations.
 
 The sanity checks performed on the result of each translator (by
-either LBTT or ltlcheck) are described in the following paper.  Our
+either LBTT or ltlcross) are described in the following paper.  Our
 implementation will detect and reports problems (like inconsistencies
 between two translations) but unlike LBTT it does not offer an
 interactive mode to investigate such problems.

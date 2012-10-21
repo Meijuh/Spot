@@ -70,7 +70,7 @@ Exit status:\n\
   0  everything went fine (timeouts are OK too)\n\
   1  some translator failed to output something we understand, or failed\n\
      sanity checks (statistics were output nonetheless)\n\
-  2  ltlcheck aborted on error\n\
+  2  ltlcross aborted on error\n\
 ";
 
 
@@ -104,7 +104,7 @@ static const argp_option options[] =
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
       "relabeled automatically.", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "ltlcheck behavior:", 4 },
+    { 0, 0, 0, 0, "ltlcross behavior:", 4 },
     { "allow-dups", OPT_DUPS, 0, 0,
       "translate duplicate formulas in input", 0 },
     { "no-checks", OPT_NOCHECKS, 0, 0,

@@ -26,7 +26,7 @@ dist_man1_MANS = \
   genltl.1 \
   ltl2tgba.1 \
   ltl2tgta.1 \
-  ltlcheck.1 \
+  ltlcross.1 \
   ltlfilt.1 \
   randltl.1
 
@@ -39,8 +39,8 @@ ltl2tgba.1: $(common_dep) $(srcdir)/ltl2tgba.x $(srcdir)/../ltl2tgba.cc
 ltl2tgta.1: $(common_dep) $(srcdir)/ltl2tgta.x $(srcdir)/../ltl2tgta.cc
 	$(convman) ../ltl2tgta$(EXEEXT) $(srcdir)/ltl2tgta.x $@
 
-ltlcheck.1: $(common_dep) $(srcdir)/ltlcheck.x $(srcdir)/../ltlcheck.cc
-	$(convman) ../ltlcheck$(EXEEXT) $(srcdir)/ltlcheck.x $@
+ltlcross.1: $(common_dep) $(srcdir)/ltlcross.x $(srcdir)/../ltlcross.cc
+	$(convman) ../ltlcross$(EXEEXT) $(srcdir)/ltlcross.x $@
 
 ltlfilt.1: $(common_dep) $(srcdir)/ltlfilt.x $(srcdir)/../ltlfilt.cc
 	$(convman) ../ltlfilt$(EXEEXT) $(srcdir)/ltlfilt.x $@

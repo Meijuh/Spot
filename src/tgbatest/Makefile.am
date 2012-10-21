@@ -107,9 +107,9 @@ TESTS = \
   emptchkr.test \
   ltlcounter.test \
   spotlbtt.test \
-  ltlcheck.test \
+  ltlcross.test \
   spotlbtt2.test \
-  ltlcheck2.test \
+  ltlcross2.test \
   complementation.test \
   randpsl.test \
   cycles.test

@@ -42,11 +42,11 @@ libcommon_a_SOURCES =				\
   common_setup.hh				\
   common_sys.hh
 
-bin_PROGRAMS = ltlfilt genltl randltl ltl2tgba ltl2tgta ltlcheck
+bin_PROGRAMS = ltlfilt genltl randltl ltl2tgba ltl2tgta ltlcross
 ltlfilt_SOURCES = ltlfilt.cc
 genltl_SOURCES = genltl.cc
 randltl_SOURCES = randltl.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
 ltl2tgta_SOURCES = ltl2tgta.cc
-ltlcheck_SOURCES = ltlcheck.cc
-ltlcheck_LDADD = $(LDADD) $(LIB_GETHRXTIME)
+ltlcross_SOURCES = ltlcross.cc
+ltlcross_LDADD = $(LDADD) $(LIB_GETHRXTIME)
