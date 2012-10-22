@@ -15,7 +15,7 @@ Automata for Certain Classes of LTL Formulas.  Proceedings of DepCoS'09.
 .TP
 go
 P. Gastin and D. Oddoux: Fast LTL to Büchi Automata Translation.
-Proceedings of CAV'01.  LNCS 2102
+Proceedings of CAV'01.  LNCS 2102.
 .TP
 rv
 K. Rozier and M. Vardi: LTL Satisfiability Checking.
