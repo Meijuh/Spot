@@ -62,14 +62,16 @@ namespace spot
 	    case binop::W:
 	      // f1 W f2 = f2 R (f2 | f1)
 	      result_ =
-		binop::instance(binop::R, f2->clone(),
-				multop::instance(multop::Or, f2, f1));
+		binop::instance(binop::R, f2,
+				multop::instance(multop::Or,
+						 f2->clone(), f1));
 	      break;
 	    case binop::M:
 	      // f1 M f2 = f2 U (g2 & f1)
 	      result_ =
-		binop::instance(binop::U, f2->clone(),
-				multop::instance(multop::And, f2, f1));
+		binop::instance(binop::U, f2,
+				multop::instance(multop::And,
+						 f2->clone(), f1));
 	      break;
 	    }
 	}

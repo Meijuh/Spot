@@ -28,6 +28,7 @@
 #include "ltlvisit/lunabbrev.hh"
 #include "ltlvisit/tunabbrev.hh"
 #include "ltlvisit/dump.hh"
+#include "ltlvisit/wmunabbrev.hh"
 #include "ltlvisit/nenoform.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/simplify.hh"
@@ -70,7 +71,7 @@ main(int argc, char** argv)
   int exit_code;
 
   {
-#if (defined LUNABBREV) || (defined TUNABBREV) || (defined NENOFORM)
+#if defined LUNABBREV || defined TUNABBREV || defined NENOFORM || defined WM
     const spot::ltl::formula* tmp;
 #endif
 #ifdef LUNABBREV
@@ -83,6 +84,13 @@ main(int argc, char** argv)
 #ifdef TUNABBREV
     tmp = f1;
     f1 = spot::ltl::unabbreviate_ltl(f1);
+    tmp->destroy();
+    spot::ltl::dump(std::cout, f1);
+    std::cout << std::endl;
+#endif
+#ifdef WM
+    tmp = f1;
+    f1 = spot::ltl::unabbreviate_wm(f1);
     tmp->destroy();
     spot::ltl::dump(std::cout, f1);
     std::cout << std::endl;

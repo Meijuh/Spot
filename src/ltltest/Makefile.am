@@ -41,7 +41,8 @@ check_PROGRAMS = \
   syntimpl \
   tostring \
   tunabbrev \
-  tunenoform
+  tunenoform \
+  unabbrevwm
 
 consterm_SOURCES = consterm.cc
 equals_SOURCES = equals.cc
@@ -67,6 +68,8 @@ tunabbrev_SOURCES = equals.cc
 tunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DTUNABBREV
 tunenoform_SOURCES = equals.cc
 tunenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM -DTUNABBREV
+unabbrevwm_SOURCES = equals.cc
+unabbrevwm_CPPFLAGS = $(AM_CPPFLAGS) -DWM
 
 
 EXTRA_DIST = $(TESTS)
@@ -83,6 +86,7 @@ TESTS = \
   tunabbrev.test \
   nenoform.test \
   tunenoform.test \
+  unabbrevwm.test \
   consterm.test \
   kind.test \
   lenient.test \
