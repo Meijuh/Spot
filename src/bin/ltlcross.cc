@@ -80,6 +80,7 @@ Exit status:\n\
 #define OPT_CSV 4
 #define OPT_DUPS 5
 #define OPT_NOCHECKS 6
+#define OPT_STOP_ERR 7
 
 static const argp_option options[] =
   {
@@ -110,6 +111,9 @@ static const argp_option options[] =
     { "no-checks", OPT_NOCHECKS, 0, 0,
       "do not perform any sanity checks (negated formulas "
       "will not be translated)", 0 },
+    { "stop-on-error", OPT_STOP_ERR, 0, 0,
+      "stop on first execution error or failure to pass"
+      " sanity checks (timeouts are OK)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "State-space generation:", 5 },
     { "states", OPT_STATES, "INT", 0,
@@ -143,6 +147,7 @@ const char* csv_output = 0;
 bool want_stats = false;
 bool allow_dups = false;
 bool no_checks = false;
+bool stop_on_error = false;
 
 std::vector<char*> translators;
 bool global_error_flag = false;
@@ -294,6 +299,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_STATES:
       states = to_pos_int(arg);
+      break;
+    case OPT_STOP_ERR:
+      stop_on_error = true;
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -964,6 +972,9 @@ namespace
 	}
       delete statespace;
       std::cerr << std::endl;
+
+      // Shall we stop processing formulas now?
+      abort_run = global_error_flag && stop_on_error;
       return 0;
     }
   };

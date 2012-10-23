@@ -81,6 +81,10 @@ parse_formula(const std::string& s, spot::ltl::parse_error_list& pel)
 			    false, lenient);
 }
 
+job_processor::job_processor()
+  : abort_run(false)
+{
+}
 
 int
 job_processor::process_string(const std::string& input,
@@ -109,7 +113,7 @@ job_processor::process_stream(std::istream& is,
   int error = 0;
   int linenum = 0;
   std::string line;
-  while (std::getline(is, line))
+  while (!abort_run && std::getline(is, line))
     error |= process_string(line, filename, ++linenum);
   return error;
 }
@@ -133,7 +137,7 @@ job_processor::run()
 {
   int error = 0;
   jobs_t::const_iterator i;
-  for (i = jobs.begin(); i != jobs.end(); ++i)
+  for (i = jobs.begin(); i != jobs.end() && !abort_run; ++i)
     {
       if (!i->file_p)
 	error |= process_string(i->str);

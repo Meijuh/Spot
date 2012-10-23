@@ -51,7 +51,11 @@ parse_formula(const std::string& s, spot::ltl::parse_error_list& error_list);
 
 class job_processor
 {
+protected:
+  bool abort_run;  // Set to true in process_formula() to abort run().
 public:
+  job_processor();
+
   virtual ~job_processor()
   {
   }
