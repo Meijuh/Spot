@@ -1491,7 +1491,7 @@ namespace spot
 	    }
 	  case binop::W:
 	    {
-	      // r(f1 W f2) = r(f2) + r(f1)X(f1 U f2) if not recurring
+	      // r(f1 W f2) = r(f2) + r(f1)X(f1 W f2) if not recurring
 	      // r(f1 W f2) = r(f2) + r(f1)           if recurring
 	      //
 	      // also f1 W 0 = G(f1), so we can enable recurring on f1
