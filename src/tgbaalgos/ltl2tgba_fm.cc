@@ -137,14 +137,16 @@ namespace spot
     {
     public:
 
-      translate_dict(bdd_dict* dict, ltl_simplifier* ls, bool exprop)
+      translate_dict(bdd_dict* dict, ltl_simplifier* ls, bool exprop,
+		     bool single_acc)
 	: dict(dict),
 	  ls(ls),
 	  a_set(bddtrue),
 	  var_set(bddtrue),
 	  next_set(bddtrue),
 	  transdfa(*this),
-	  exprop(exprop)
+	  exprop(exprop),
+	  single_acc(single_acc)
       {
       }
 
@@ -177,6 +179,7 @@ namespace spot
 
       ratexp_to_dfa transdfa;
       bool exprop;
+      bool single_acc;
 
       enum translate_flags
 	{
@@ -234,6 +237,13 @@ namespace spot
       int
       register_a_variable(const formula* f)
       {
+	if (single_acc)
+	  {
+	    int num = dict->register_acceptance_variable
+	      (ltl::constant::true_instance(), this);
+	    a_set &= bdd_ithvar(num);
+	    return num;
+	  }
 	// A promise of 'x', noted P(x) is pretty much like the F(x)
 	// LTL formula, it ensure that 'x' will be fulfilled (= not
 	// promised anymore) eventually.
@@ -2111,7 +2121,7 @@ namespace spot
 
     assert(dict == s->get_dict());
 
-    translate_dict d(dict, s, exprop);
+    translate_dict d(dict, s, exprop, f->is_syntactic_persistence());
 
     // Compute the set of all promises that can possibly occur
     // inside the formula.
