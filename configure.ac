@@ -65,7 +65,6 @@ AC_HEADER_TR1_UNORDERED_MAP
 AC_HEADER_EXT_HASH_MAP
 
 AX_CHECK_BUDDY
-AX_CHECK_LBTT
 AX_CHECK_GSPNLIB
 AX_CHECK_BOOST([1.34], [103400])
 
@@ -96,6 +95,8 @@ AC_CHECK_PROG([MODELLA], [modella], [modella])
 AC_CHECK_PROG([LTL2NBA], [script4lbtt.py], [script4lbtt.py])
 AC_CHECK_PROG([PERL], [perl], [perl])
 AC_CHECK_PROG([SPIN], [spin], [spin])
+AC_CHECK_PROG([LBTT], [lbtt], [lbtt])
+AC_CHECK_PROG([LBTT_TRANSLATE], [lbtt-translate], [lbtt-translate])
 AX_CHECK_VALGRIND
 AC_CHECK_PROG([WRING2LBTT], [wring2lbtt], [wring2lbtt])
 # Debian has a binary for SWIG 2.0 named swig2.0 and they kept swig as

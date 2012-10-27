@@ -23,9 +23,6 @@
 if WITH_INCLUDED_BUDDY
   MAYBE_BUDDY = buddy
 endif WITH_INCLUDED_BUDDY
-if WITH_INCLUDED_LBTT
-  MAYBE_LBTT = lbtt
-endif WITH_INCLUDED_LBTT
 if NEVER
   # For Automake a conditional directory
   # is conditionally built, but unconditionally distributed.
@@ -34,8 +31,7 @@ if NEVER
   NEVER_BENCH = bench
 endif
 
-SUBDIRS = $(MAYBE_BUDDY) $(MAYBE_LBTT) \
-          $(NEVER_BENCH) doc lib src wrap ltdl iface
+SUBDIRS = $(MAYBE_BUDDY) $(NEVER_BENCH) doc lib src wrap ltdl iface
 
 UTF8 = utf8/doc/ReleaseNotes utf8/doc/utf8cpp.html utf8/utf8.h	\
   utf8/utf8/checked.h utf8/utf8/core.h utf8/utf8/unchecked.h

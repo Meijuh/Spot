@@ -33,10 +33,24 @@ later).  Especially, Python's headers files should be installed.  If
 you don't have Python installed, you should run configure with
 the --disable-python option (see below).
 
-Spot also uses modified versions of BuDDy (a binary decision diagram),
-and LBTT (an LTL to Büchi test bench).  You do not need to install
-these yourself: they are included in this package (directories buddy/
-and lbtt/) and will be built and installed alongside of Spot.
+The Boost libraries should also be installed.
+
+
+Third-party dependencies
+------------------------
+
+Spot also uses a modified version of BuDDy (a binary decision diagram
+library), that is already included in the buddy/ directory.  So you
+do not need to install it yourself.
+
+Spot used to distribute a modified version of LBTT (an LTL to Büchi
+test bench), mostly fixing errors reported by recent compilers.
+However Spot now distributes its own reimplementation of LBTT, called
+ltlcross, so the use of LBTT is completely optional.  The last
+modified version of LBTT we used to distribute can now be found at
+  http://spot.lip6.fr/dl/lbtt-1.2.1a.tar.gz
+If some lbtt binary is found on your system, it will be used in the
+test suite in addition to ltlcross.
 
 
 Building and installing
@@ -60,20 +74,13 @@ flags specific to Spot:
     CVS repository hosted by the Università di Torino.
 
   --with-included-buddy
-  --with-included-lbtt
-    After you have installed Spot the first time, LBTT and a modified
-    version of BuDDy will be installed.  The next time you reconfigure
-    Spot, configure will detect that these versions are already
-    installed, and will attempt to use these installed versions
-    directly (this is in case you had to modify one of these yourself
-    for another purpose).  These two options will *force* the use,
-    build, and installation of the included versions of these package,
-    even when compatible versions are already installed.
-
-  --without-included-lbtt
-    Explicitly Turn off the configuration and compilation of LBTT.
-    This is required on systems (such as MinGW) where LBTT does not
-    compile.
+    After you have installed Spot the first time, a modified version
+    of BuDDy will be installed.  The next time you reconfigure Spot,
+    configure will detect that this version is already installed, and
+    will attempt to use it directly (this is in case you had to modify
+    one of these yourself for another purpose).  This option will
+    *force* the use, build, and installation of the included version
+    of BuDDy, even when a compatible version is already installed.
 
   --disable-python
     Turn off the compilation of Python bindings.  These bindings are
@@ -101,7 +108,7 @@ flags specific to Spot:
       --enable-optimizations
 
 Here are the meaning of the fine-tuning options, in case
-enable/disable-devel is not enough.
+--enable/disable-devel is not enough.
 
   --disable-assert
   --enable-assert
@@ -198,7 +205,6 @@ Third party software
 --------------------
 
 buddy/            A patched version of BuDDy 2.3 (a BDD library).
-lbtt/             lbtt 1.2.1a (an LTL to Büchi automata test bench).
 ltdl/             Libtool's portable dlopen() wrapper library.
 lib/              Gnulib's portability modules.
 
