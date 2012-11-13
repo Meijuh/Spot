@@ -147,8 +147,10 @@ namespace spot
 	map_state_unsigned::const_iterator i = state2int.find(s);
         if (i == state2int.end())
 	  {
-	    i = state2int.insert(std::make_pair(s, ++current_max)).first;
-	    previous_class_[out_->add_state(current_max)] = bddfalse;
+            i = state2int.insert(std::make_pair(s, ++current_max)).first;
+            const state* to_add = out_->add_state(current_max);
+            previous_class_[to_add] = bddfalse;
+            order_.push_back(to_add);
 	  }
         return i->second;
       }
@@ -192,6 +194,7 @@ namespace spot
       size_t size;
       tgba_explicit_number* out_;
       map_state_bdd previous_class_;
+      std::list<const state*> order_;
 
     private:
       const tgba* ea_;
@@ -262,6 +265,8 @@ namespace spot
           }
 
 	relation_[init] = init;
+
+        order_ = acc_compl.order_;
       }
 
 
@@ -369,11 +374,11 @@ namespace spot
 	// all the reachable states of this automaton. We do not
 	// have to make (again) a traversal. We just have to run
 	// through this map.
-	for (map_state_bdd::iterator it = previous_class_.begin();
-	     it != previous_class_.end();
-	     ++it)
+        for (std::list<const state*>::const_iterator it = order_.begin();
+             it != order_.end();
+             ++it)
           {
-            const state* src = it->first;
+            const state* src = previous_class_.find(*it)->first;
 
             bdd_lstate_[compute_sig(src)].push_back(src);
           }
@@ -711,6 +716,9 @@ namespace spot
       state* initial_state;
 
       automaton_size stat;
+
+      // The order of the state.
+      std::list<const state*> order_;
     };
 
   } // End namespace anonymous.

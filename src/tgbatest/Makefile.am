@@ -69,6 +69,7 @@ tripprod_SOURCES = tripprod.cc
 # because such failures will be easier to diagnose and fix.
 TESTS = \
   intvcomp.test \
+  simdet.test \
   eltl2tgba.test \
   explicit.test \
   explicit2.test \
