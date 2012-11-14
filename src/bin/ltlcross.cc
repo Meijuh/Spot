@@ -502,9 +502,12 @@ namespace
     string_to_tmp(std::string& str, unsigned n, std::string& tmpname)
     {
       int fd = create_tmpfile('i', n, tmpname);
-      write(fd, str.c_str(), str.size());
-      write(fd, "\n", 1);
-      close(fd);
+      ssize_t s = str.size();
+      if (write(fd, str.c_str(), s) != s
+	  || write(fd, "\n", 1) != 1)
+	error(2, errno, "failed to write into %s", tmpname.c_str());
+      if (close(fd))
+	error(2, errno, "failed to close %s", tmpname.c_str());
       toclean.push_back(tmpname);
     }
 
