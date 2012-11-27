@@ -1,0 +1,7 @@
+((nil . ((whitespace-action . '(auto-cleanup))
+	 (whitespace-style . '(trailing lines-tail))
+	 (require-final-newline . t)))
+ (c++-mode . ((c-default-style . "gnu")
+	      (indent-tab-mode . t)
+	      (tab-width . 8)
+	      (fill-column . 70))))
