@@ -1,7 +1,9 @@
 ltlfilt
 ltl2tgba
+ltl2tgta
 randltl
 genltl
+ltlcross
 *.a
 *.1
-
+lck-*

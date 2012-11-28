@@ -50,3 +50,7 @@ config.h.in
 src/src/misc/_config.h
 _configs.sed
 stamp-h1
+*.trs
+_*_
+spot-*/*
+config.cache

@@ -8,10 +8,13 @@ lbtt
 lbtt-translate
 Config-lex.cc
 Config-parse.cc
+Config-parse.c
 Config-parse.h
 Graph.h
 NeverClaim-lex.cc
 NeverClaim-parse.cc
+NeverClaim-parse.c
 NeverClaim-parse.h
 Ltl-parse.cc
+Ltl-parse.c
 Ltl-parse.h

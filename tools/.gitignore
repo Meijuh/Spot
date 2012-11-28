@@ -8,3 +8,5 @@ config.sub
 ltmain.sh
 compile
 ylwrap
+x-to-1
+test-driver
