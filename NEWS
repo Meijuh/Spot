@@ -1,6 +1,14 @@
 New in spot 1.0a (not released):
 
-  Nothing yet.
+  * Bug fixes:
+    - Two executions of the simulation reductions could produce
+      two isomorphic automata, but with transitions in a different
+      order.
+    - ltlcross did not diagnose write errors to temporary files,
+      and certain versions of g++ would warn about it.
+    - "P0.init" is parsed as an atomic even without the double quotes,
+      but it was always output with double quotes.  This version will
+      not quote this atomic proposition anymore.
 
 New in spot 1.0 (2012-10-27):
 
