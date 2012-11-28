@@ -198,13 +198,13 @@ namespace spot
 	    || *str == 'F'
 	    || *str == 'G'
 	    || *str == 'X'
-	    || !(isalpha(*str) || *str == '_')
+	    || !(isalpha(*str) || *str == '_' || *str == '.')
 	    || !strcasecmp(str, "true")
 	    || !strcasecmp(str, "false"))
 	  return false;
 	// The remaining of the word must be alphanumeric.
 	while (*++str)
-	  if (!(isalnum(*str) || *str == '_'))
+	  if (!(isalnum(*str) || *str == '_' || *str == '.'))
 	    return false;
 	return true;
       }

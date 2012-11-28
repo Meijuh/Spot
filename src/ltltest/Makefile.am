@@ -76,6 +76,7 @@ EXTRA_DIST = $(TESTS)
 
 # Ordered by strength of the test.  Test basic features first.
 TESTS = \
+  bare.test \
   parse.test \
   parseerr.test \
   utf8.test \
