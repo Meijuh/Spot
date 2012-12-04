@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+# Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -101,8 +101,8 @@ grep 'states: 21$' stdout
 # Note:  after minimization with -TA -RT.
 # has 20 states and 89 transitions, after minimization.
 ../ltl2tgba -ks -TA -RT  -DS "$f" > stdout
-grep 'transitions: 89$' stdout
-grep 'states: 20$' stdout
+grep 'transitions: 85$' stdout
+grep 'states: 19$' stdout
 
 
 f='GFa & GFb & GFc & GFd & GFe & GFg'
@@ -119,12 +119,12 @@ grep 'states: 290$' stdout
 
 #tests with artificial livelock state:
 run 0 ../ltl2tgba -ks -TA -lv  -DS "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
-grep 'transitions: 882$' stdout
-grep 'states: 78$' stdout
+grep 'transitions: 790$' stdout
+grep 'states: 66$' stdout
 
 run 0 ../ltl2tgba -TA -RT -ks -lv -DS  "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
-grep 'transitions: 440$' stdout
-grep 'states: 28$' stdout
+grep 'transitions: 390$' stdout
+grep 'states: 26$' stdout
 
 run 0 ../ltl2tgba -TGTA -RT -ks  'Gq|Gr|(G(q|FGp)&G(r|FG!p))' >stdout
 grep 'transitions: 294$' stdout
@@ -153,16 +153,16 @@ grep 'states: 32$' stdout
 
 
 run 0 ../ltl2tgba -TA -RT -ks -in -R3 -x  -DS  "$f" >stdout
-grep 'transitions: 436$' stdout
-grep 'states: 36$' stdout
+grep 'transitions: 450$' stdout
+grep 'states: 38$' stdout
 
 run 0 ../ltl2tgba -TA -RT -ks -sp -lv -R3 -x   -DS "$f" >stdout
-grep 'transitions: 537$' stdout
-grep 'states: 38$' stdout
+grep 'transitions: 551$' stdout
+grep 'states: 40$' stdout
 
 
 run 0 ../ltl2tgba -TA -ks -sp -lv -DS "$f" >stdout
-grep 'transitions: 609$' stdout
+grep 'transitions: 597$' stdout
 grep 'states: 46$' stdout
 
 
@@ -177,7 +177,7 @@ grep 'states: 32$' stdout
 g="G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))"
 
 run 0 ../ltl2tgba -TA -RT -ks -DS "$g" >stdout
-grep 'transitions: 2147$' stdout
+grep 'transitions: 2133$' stdout
 grep 'states: 97$' stdout
 
 

@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,13 +21,15 @@
 #include "tgba/tgbaexplicit.hh"
 #include "reachiter.hh"
 #include "tgbaalgos/scc.hh"
-#include "misc/bddop.hh"
-#include <sstream>
 
 namespace spot
 {
   namespace
   {
+    // BDD.id -> Acc number
+    typedef std::map<int, unsigned> accremap_t;
+    typedef std::vector<accremap_t> remap_table_t;
+
     static
     state_explicit_number::transition*
     create_transition(const tgba*, tgba_explicit_number* out_aut,
@@ -67,20 +70,90 @@ namespace spot
     {
     public:
       typedef T output_t;
+      typedef std::map<int, bdd> map_t;
+      typedef std::vector<map_t> remap_t;
 
       filter_iter(const tgba* a,
 		  const scc_map& sm,
 		  const std::vector<bool>& useless,
-		  bdd useful, bdd strip, bool remove_all_useless)
+		  remap_table_t& remap_table,
+		  unsigned max_num,
+		  const std::vector<unsigned>& max_table,
+		  bool remove_all_useless)
 	: tgba_reachable_iterator_depth_first(a),
 	  out_(new T(a->get_dict())),
 	  sm_(sm),
 	  useless_(useless),
-	  useful_(useful),
-	  strip_(strip),
-	  all_(remove_all_useless)
+	  max_num_(max_num),
+	  all_(remove_all_useless),
+	  acc_(max_num)
       {
-	out_->set_acceptance_conditions(useful);
+	acc_[0] = bddfalse;
+	bdd tmp = a->all_acceptance_conditions();
+	bdd_dict* d = a->get_dict();
+	assert(a->number_of_acceptance_conditions() >= max_num_ - 1);
+	if (tmp != bddfalse)
+	  {
+	    for (unsigned n = max_num_ - 1; n > 0; --n)
+	      {
+		assert(tmp != bddfalse);
+		const ltl::formula* a = d->oneacc_to_formula(bdd_var(tmp));
+		out_->declare_acceptance_condition(a->clone());
+		tmp = bdd_low(tmp);
+	      }
+	    tmp = a->all_acceptance_conditions();
+	    for (unsigned n = max_num_ - 1; n > 0; --n)
+	      {
+		const ltl::formula* a = d->oneacc_to_formula(bdd_var(tmp));
+		acc_[n] = out_->get_acceptance_condition(a->clone());
+		tmp = bdd_low(tmp);
+	      }
+	  }
+	else
+	  {
+	    assert(max_num_ == 1);
+	  }
+
+	unsigned c = sm.scc_count();
+	remap_.resize(c);
+	bdd all_orig_neg = aut_->neg_acceptance_conditions();
+	bdd all_sup = bdd_support(all_orig_neg);
+
+	for (unsigned n = 0; n < c; ++n)
+	  {
+	    if (!sm.accepting(n))
+	      continue;
+
+	    bdd missingacc = bddfalse;
+	    for (unsigned a = max_table[n]; a < max_num_; ++a)
+	      missingacc |= acc_[a];
+
+	    bdd all = sm.useful_acc_of(n);
+	    while (all != bddfalse)
+	      {
+		bdd one = bdd_satoneset(all, all_sup, bddtrue);
+		all -= one;
+		bdd res = bddfalse;
+		bdd resacc = bddfalse;
+		while (one != bddtrue)
+		  {
+		    if (bdd_high(one) == bddfalse)
+		      {
+			one = bdd_low(one);
+			continue;
+		      }
+		    int vn = bdd_var(one);
+		    bdd v = bdd_ithvar(vn);
+		    resacc |= bdd_exist(all_orig_neg, v) & v;
+		    res |= acc_[remap_table[n][vn]];
+		    one = bdd_high(one);
+		  }
+		if (res != bddfalse)
+		  res |= missingacc;
+		int id = resacc.id();
+		remap_[n][id] = res;
+	      }
+	  }
       }
 
       T*
@@ -112,20 +185,24 @@ namespace spot
 	//
 	// (See the documentation of scc_filter() for a rational.)
 	unsigned u = sm_.scc_of_state(out_s);
-	if (sm_.accepting(u)
-	    && (!all_ || u == sm_.scc_of_state(in_s)))
-	  out_->add_acceptance_conditions
-	    (t, (bdd_exist(si->current_acceptance_conditions(), strip_)
-		 & useful_));
+	unsigned v = sm_.scc_of_state(in_s);
+	if (sm_.accepting(u) && (!all_ || u == v))
+	  {
+	    bdd acc = si->current_acceptance_conditions();
+	    if (acc == bddfalse)
+	      return;
+	    t->acceptance_conditions = remap_[u][acc.id()];
+	  }
       }
 
     private:
       T* out_;
       const scc_map& sm_;
       const std::vector<bool>& useless_;
-      bdd useful_;
-      bdd strip_;
+      unsigned max_num_;
       bool all_;
+      std::vector<bdd> acc_;
+      remap_t remap_;
     };
 
   } // anonymous
@@ -137,47 +214,95 @@ namespace spot
     sm.build_map();
     scc_stats ss = build_scc_stats(sm);
 
-    bdd useful = ss.useful_acc;
-    bdd negall = aut->neg_acceptance_conditions();
-    // Compute a set of useless acceptance conditions.
-    // If the acceptance combinations occurring in
-    // the automata are  { a, ab, abc, bd }, then
-    // USEFUL contains (a&!b&!c&!d)|(a&b&!c&!d)|(a&b&c&!d)|(!a&b&!c&d)
-    // and we want to find that 'a' and 'b' are useless because
-    // they always occur with 'c'.
-    // The way we check if 'a' is useless that is to look whether
-    // USEFUL implies (x -> a) for some other acceptance condition x.
-    bdd allconds = bdd_support(negall);
-    bdd allcondscopy = allconds;
-    bdd useless = bddtrue;
-    while (allconds != bddtrue)
-      {
-	bdd a = bdd_ithvar(bdd_var(allconds));
-	bdd others = allcondscopy;
+    remap_table_t remap_table(ss.scc_total);
+    std::vector<unsigned> max_table(ss.scc_total);
+    unsigned max_num = 1;
 
-	while (others != bddtrue)
+    for (unsigned n = 0; n < ss.scc_total; ++n)
+      {
+	if (!sm.accepting(n))
+	  continue;
+	bdd all = sm.useful_acc_of(n);
+	bdd negall = aut->neg_acceptance_conditions();
+
+	// Compute a set of useless acceptance conditions.
+	// If the acceptance combinations occurring in
+	// the automata are  { a, ab, abc, bd }, then
+	// ALL contains (a&!b&!c&!d)|(a&b&!c&!d)|(a&b&c&!d)|(!a&b&!c&d)
+	// and we want to find that 'a' and 'b' are useless because
+	// they always occur with 'c'.
+	// The way we check if 'a' is useless is to look whether ALL
+	// implies (x -> a) for some other acceptance condition x.
+	bdd allconds = bdd_support(negall);
+	bdd allcondscopy = allconds;
+	bdd useless = bddtrue;
+	while (allconds != bddtrue)
 	  {
-	    bdd x = bdd_ithvar(bdd_var(others));
-	    if (x != a)
+	    // Speed-up the computation of implied acceptance by
+	    // removing those that are always present.  We detect
+	    // those that appear as conjunction of positive variables
+	    // at the start of ALL.
+	    bdd prefix = bdd_satprefix(all);
+	    if (prefix != bddtrue)
 	      {
-		if (bdd_implies(useful, x >> a))
+		assert(prefix == bdd_support(prefix));
+		allcondscopy = bdd_exist(allcondscopy, prefix);
+		if (allcondscopy != bddtrue)
 		  {
-		    // a is useless
-		    useful = bdd_exist(useful, a);
+		    useless &= prefix;
+		  }
+		else
+		  {
+		    // Never erase all conditions: at least keep one.
+		    useless &= bdd_high(prefix);
+		    break;
+		  }
+		allconds = bdd_exist(allconds, prefix);
+	      }
+
+	    // Pick a non-useless acceptance condition a.
+	    bdd a = bdd_ithvar(bdd_var(allconds));
+	    // For all acceptance condition x that is not already useless...
+	    bdd others = allcondscopy;
+	    while (others != bddtrue)
+	      {
+		bdd x = bdd_ithvar(bdd_var(others));
+		// ... check whether it always implies a.
+		if (x != a && bdd_implies(all, x >> a))
+		  {
+		    // If so, a is useless.
+		    all = bdd_exist(all, a);
 		    useless &= a;
 		    allcondscopy = bdd_exist(allcondscopy, a);
 		    break;
 		  }
+		others = bdd_high(others);
 	      }
-	    others = bdd_high(others);
+	    allconds = bdd_high(allconds);
 	  }
-	allconds = bdd_high(allconds);
+
+	// We never remove ALL acceptance marks.
+	assert(negall == bddtrue || useless != bdd_support(negall));
+
+	bdd useful = bdd_exist(negall, useless);
+
+	// Go over all useful sets of acceptance marks, and give them
+	// a number.
+	unsigned num = 1;
+	// First compute the number of acceptance conditions used.
+	for (BDD c = useful.id(); c != 1; c = bdd_low(c))
+	  ++num;
+	max_table[n] = num;
+	if (num > max_num)
+	  max_num = num;
+	// Then number all of these acceptance conditions in the
+	// reverse order.  This makes sure that the associated number
+	// varies in the same direction as the bdd variables, which in
+	// turn makes sure we preserve the acceptance condition
+	// ordering (which matters for degeneralization).
+	for (BDD c = useful.id(); c != 1; c = bdd_low(c))
+	  remap_table[n].insert(std::make_pair(bdd_var(c), --num));
       }
-
-    // We never remove ALL acceptance conditions.
-    assert(negall == bddtrue || useless != bdd_support(negall));
-
-    useful = compute_all_acceptance_conditions(bdd_exist(negall, useless));
 
     // In most cases we will create a tgba_explicit_string copy of the
     // initial tgba, but this is not very space efficient as the
@@ -190,8 +315,8 @@ namespace spot
     if (af)
       {
 	filter_iter<tgba_explicit_formula> fi(af, sm, ss.useless_scc_map,
-					      useful, useless,
-					      remove_all_useless);
+					      remap_table, max_num,
+					      max_table, remove_all_useless);
 	fi.run();
 	tgba_explicit_formula* res = fi.result();
 	res->merge_transitions();
@@ -202,8 +327,8 @@ namespace spot
     if (as)
       {
 	filter_iter<tgba_explicit_string> fi(aut, sm, ss.useless_scc_map,
-					     useful, useless,
-					     remove_all_useless);
+					     remap_table, max_num,
+					     max_table, remove_all_useless);
 	fi.run();
 	tgba_explicit_string* res = fi.result();
 	res->merge_transitions();
@@ -212,8 +337,8 @@ namespace spot
     else
       {
 	filter_iter<tgba_explicit_number> fi(aut, sm, ss.useless_scc_map,
-					     useful, useless,
-					     remove_all_useless);
+					     remap_table, max_num,
+					     max_table, remove_all_useless);
 	fi.run();
 	tgba_explicit_number* res = fi.result();
 	res->merge_transitions();
