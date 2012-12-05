@@ -35,7 +35,8 @@ namespace spot
   ///
   /// \see tgba_sba_proxy, tgba_tba_proxy
   /// \ingroup tgba_misc
-  sba* degeneralize(const tgba* a);
+  sba* degeneralize(const tgba* a, bool use_z_lvl = true, bool use_cust_acc_orders = true,
+                    bool use_lvl_cache = true);
 }
 
 
