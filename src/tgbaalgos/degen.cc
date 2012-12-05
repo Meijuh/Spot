@@ -239,6 +239,8 @@ namespace spot
   degeneralize(const tgba* a, bool use_z_lvl, bool use_cust_acc_orders,
                bool use_lvl_cache)
   {
+    bool use_scc = use_lvl_cache || use_cust_acc_orders || use_z_lvl;
+
     bdd_dict* dict = a->get_dict();
 
     // The result (degeneralized) automaton uses numbered state.
@@ -295,15 +297,13 @@ namespace spot
     typedef std::map<int, state_explicit_number::transition*> tr_cache_t;
     tr_cache_t tr_cache;
 
-
-    // State level cash
+    // State level cache
     typedef std::map<const state*, int> lvl_cache_t;
     lvl_cache_t lvl_cache;
 
-    // Compute SCCs in order to use custom acc order for each SCC
-    // or lvl_cache
+    // Compute SCCs in order to use any optimization.
     scc_map m(a);
-    if (use_cust_acc_orders || use_lvl_cache)
+    if (use_cust_acc_orders || use_lvl_cache || use_z_lvl)
       m.build_map();
 
     queue_t todo;
@@ -337,15 +337,15 @@ namespace spot
     std::map<const state*, int>names;
     names[s.first] = 1;
 
-    ds2num[s] = 10000*names[s.first] + 100*s.second + m.scc_of_state(s.first);
+    ds2num[s] = 10000 * names[s.first] + 100 * s.second + m.scc_of_state(s.first);
 #else
     ds2num[s] = 0;
 #endif
 
     todo.push_back(s);
 
-    // If use_lvl_cache is on insert initial state to level cash
-    // Level cash stores first encountered level for each state.
+    // If use_lvl_cache is on insert initial state to level cache
+    // Level cache stores first encountered level for each state.
     // When entering an SCC first the lvl_cache is checked.
     // If such state exists level from chache is used.
     // If not, a new level (starting with 0) is computed.
@@ -367,7 +367,7 @@ namespace spot
 
         // Check SCC for state s
         int s_scc = -1;
-        if (use_lvl_cache || use_cust_acc_orders)
+        if (use_scc)
           s_scc = m.scc_of_state(s.first);
 
         tgba_succ_iterator* i = a->succ_iter(s.first);
@@ -382,8 +382,8 @@ namespace spot
 
             // Check whether the target's SCC is accepting
             bool is_scc_acc = false;
-            int scc = m.scc_of_state(i->current_state());
-            if (m.accepting(scc))
+            int scc = use_scc ? m.scc_of_state(i->current_state()) : -1;
+            if (!use_scc || m.accepting(scc))
               is_scc_acc = true;
 
             // The old level is slevel.  What should be the new one?
@@ -460,10 +460,11 @@ namespace spot
               {
                 acc |= otheracc;
                 // If use_z_lvl is on, start with level zero 0 when swhitching SCCs
-                unsigned next = (!use_z_lvl || s_scc == scc)?slevel:0;
+                unsigned next = (!use_z_lvl || s_scc == scc) ? slevel : 0;
 
-                // If lvl_cache is used and switching SCCs, use level from cahce
-                if (use_lvl_cache && s_scc != scc && lvl_cache.find(d.first) != lvl_cache.end())
+                // If lvl_cache is used and switching SCCs, use level from cache
+                if (use_lvl_cache && s_scc != scc 
+		    && lvl_cache.find(d.first) != lvl_cache.end())
                   {
                     d.second = lvl_cache[d.first];
                   }
@@ -497,13 +498,13 @@ namespace spot
             else
               {
 #ifdef DEGEN_DEBUG
-                dest = 10000*names[d.first] + 100*d.second + scc;
+                dest = 10000 * names[d.first] + 100 * d.second + scc;
 #else
                 dest = ds2num.size();
 #endif
                 ds2num[d] = dest;
                 todo.push_back(d);
-                // Insert new state to cash
+                // Insert new state to cache
                 if (use_lvl_cache && lvl_cache.find(d.first) == lvl_cache.end())
                   lvl_cache[d.first] = d.second;
               }

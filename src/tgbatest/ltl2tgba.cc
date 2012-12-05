@@ -197,6 +197,10 @@ syntax(char* prog)
 	    << "(SGBA)" << std::endl
 	    << "  -D    degeneralize the automaton as a TBA" << std::endl
 	    << "  -DS   degeneralize the automaton as an SBA" << std::endl
+	    << "          (append z/Z, o/O, l/L: to turn on/off options "
+            << "(default: zol)\n "
+	    << "          z: level resetting, o: adaptive order, "
+	    << "l: level cache)\n"
 	    << std::endl
 
 	    << "Automaton simplifications (after translation):"
@@ -326,6 +330,9 @@ main(int argc, char** argv)
   bool fm_exprop_opt = false;
   bool fm_symb_merge_opt = true;
   bool file_opt = false;
+  bool degen_reset = true;
+  bool degen_order = true;
+  bool degen_cache = true;
   int output = 0;
   int formula_index = 0;
   const char* echeck_algo = 0;
@@ -427,9 +434,34 @@ main(int argc, char** argv)
 	{
 	  degeneralize_opt = DegenTBA;
 	}
-      else if (!strcmp(argv[formula_index], "-DS"))
+      else if (!strncmp(argv[formula_index], "-DS", 3))
 	{
 	  degeneralize_opt = DegenSBA;
+	  const char* p = argv[formula_index] + 3;
+	  while (*p)
+	    {
+	      switch (*p++)
+		{
+		case 'o':
+		  degen_order = true;
+		  break;
+		case 'O':
+		  degen_order = false;
+		  break;
+		case 'z':
+		  degen_reset = true;
+		  break;
+		case 'Z':
+		  degen_reset = false;
+		  break;
+		case 'l':
+		  degen_cache = true;
+		  break;
+		case 'L':
+		  degen_cache = false;
+		  break;
+		}
+	    }
 	}
       else if (!strncmp(argv[formula_index], "-e", 2))
         {
@@ -1157,7 +1189,10 @@ main(int argc, char** argv)
 	  else if (degeneralize_opt == DegenSBA)
 	    {
 	      tm.start("degeneralization");
-	      degeneralized = a = spot::degeneralize(a);
+	      degeneralized = a = spot::degeneralize(a,
+						     degen_reset,
+						     degen_order,
+						     degen_cache);
 	      tm.stop("degeneralization");
 	      assume_sba = true;
 	    }
@@ -1301,7 +1336,11 @@ main(int argc, char** argv)
           else if (degeneralize_opt == DegenSBA)
 	    {
 	      tm.start("degeneralize product");
-	      product_degeneralized = a = spot::degeneralize(a);
+	      product_degeneralized = a =
+		spot::degeneralize(a,
+				   degen_reset,
+				   degen_order,
+				   degen_cache);
 	      tm.stop("degeneralize product");
 	      assume_sba = true;
 	    }
@@ -1390,7 +1429,11 @@ main(int argc, char** argv)
 		    // It is possible that we have applied other
 		    // operations to the automaton since its initial
 		    // degeneralization.  Let's degeneralize again!
-                    spot::unique_ptr<spot::tgba> s(spot::degeneralize(a));
+                    spot::unique_ptr<spot::tgba>
+		      s(spot::degeneralize(a,
+					   degen_reset,
+					   degen_order,
+					   degen_cache));
 		    spot::never_claim_reachable(std::cout, s, f, spin_comments);
 		  }
 		break;
