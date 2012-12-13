@@ -426,7 +426,6 @@ namespace spot
 	  if (j != alias_.end())
 	    return j->second;
 
-	  State s(name);
 	  State* res =
 	    &(ls_.insert(std::make_pair(name, State(name))).first->second);
 	  sl_[res] = name;
