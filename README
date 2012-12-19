@@ -1,3 +1,14 @@
+Overview
+========
+
+Spot is a model-checking library developed collaboratively by LRDE
+and LIP6. It provides algorithms and data structures to implement
+the automata-theoretic approach to LTL model checking.
+
+It is mainly meant to be used as a C++ library, but it also comes with
+a few handy command-line utilities, and some (limited) Python
+bindings.
+
 Keeping in touch
 ================
 
@@ -113,6 +124,23 @@ enable/disable-devel is not enough.
     flags from a built-in list.
 
 
+Documentation
+=============
+
+Some documentation can be found in the doc/ directory.
+
+- doc/spot.html/ contains documentation for the C++ library.
+
+- doc/tl/tl.pdf contains documentation about the various temporal
+  logic operators supported by Spot
+
+"make install" will install man pages for command-line tools.  (These
+man pages can also be found in the src/bin/man/ subdirectory of the
+source tree.)  Additional documentation about these tools can be
+found on-line at http://spot.lip6.fr/userdoc/tools.html
+
+
+
 Layout of the source tree
 =========================
 
@@ -170,7 +198,7 @@ Third party software
 --------------------
 
 buddy/            A patched version of BuDDy 2.3 (a BDD library).
-lbtt/             lbtt 1.2.1 (an LTL to Büchi automata test bench).
+lbtt/             lbtt 1.2.1a (an LTL to Büchi automata test bench).
 ltdl/             Libtool's portable dlopen() wrapper library.
 lib/              Gnulib's portability modules.
 

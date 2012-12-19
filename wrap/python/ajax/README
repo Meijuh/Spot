@@ -10,7 +10,7 @@ GraphViz package, is in the PATH.  configure should have picked it up.
 
 The "ltl3ba" tab will only be enabled if ltl3ba is available (as
 checked by ./configure) and supports options -v/-U/-T (checked by the
-CGI script).  Any version strickly greater than 1.0.1 should be OK.
+CGI script).  These option were introduced into ltl3ba version 1.0.2.
 
 
 Standalone usage
