@@ -102,13 +102,13 @@ namespace spot
     atomic_prop::instance(const std::string& name, environment& env)
     {
       pair p(name, &env);
-      // FIXME: Use lower_bound, or a hash_map.
-      map::iterator i = instances.find(p);
       const atomic_prop* ap;
-      if (i != instances.end())
-	ap = i->second;
+      std::pair<map::iterator, bool> ires =
+	instances.insert(map::value_type(p, 0));
+      if (!ires.second)
+	ap = ires.first->second;
       else
-	ap = instances[p] = new atomic_prop(name, env);
+	ap = ires.first->second = new atomic_prop(name, env);
       ap->clone();
       return ap;
     }

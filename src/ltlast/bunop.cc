@@ -262,14 +262,20 @@ namespace spot
 	}
 
       pair p(pairo(op, child), pairu(min, max));
-      map::iterator i = instances.find(p);
-      if (i != instances.end())
+
+      const formula* res;
+      std::pair<map::iterator, bool> ires =
+	instances.insert(map::value_type(p, 0));
+      if (!ires.second)
 	{
 	  // This instance already exists.
 	  child->destroy();
-	  return i->second->clone();
+	  res = ires.first->second;
 	}
-      const bunop* res = instances[p] = new bunop(op, child, min, max);
+      else
+	{
+	  res = ires.first->second = new bunop(op, child, min, max);
+	}
       res->clone();
       return res;
     }

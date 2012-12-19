@@ -314,16 +314,18 @@ namespace spot
 
       const unop* res;
       pair p(op, child);
-      map::iterator i = instances.find(p);
-      if (i != instances.end())
+
+      std::pair<map::iterator, bool> ires =
+	instances.insert(map::value_type(p, 0));
+      if (!ires.second)
 	{
 	  // This instance already exists.
 	  child->destroy();
-	  res = i->second;
+	  res = ires.first->second;
 	}
       else
 	{
-	  res = instances[p] = new unop(op, child);
+	  res = ires.first->second = new unop(op, child);
 	}
       res->clone();
       return res;

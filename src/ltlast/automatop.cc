@@ -95,19 +95,20 @@ namespace spot
     {
       assert(nfa != 0);
       triplet p(std::make_pair(nfa, negated), v);
-      map::iterator i = instances.find(p);
       const automatop* res;
-      if (i != instances.end())
+      std::pair<map::iterator, bool> ires =
+	instances.insert(map::value_type(p, 0));
+      if (!ires.second)
 	{
 	  // The instance already exists.
 	  for (vec::iterator vi = v->begin(); vi != v->end(); ++vi)
 	    (*vi)->destroy();
 	  delete v;
-	  res = i->second;
+	  res = ires.first->second;
 	}
       else
 	{
-	  res = instances[p] = new automatop(nfa, v, negated);
+	  res = ires.first->second = new automatop(nfa, v, negated);
 	}
       res->clone();
       return res;

@@ -588,21 +588,22 @@ namespace spot
       pair p(op, v);
 
       const multop* res;
-      // FIXME: Use lower_bound or hash_map.
-      map::iterator i = instances.find(p);
-      if (i != instances.end())
+      // Insert the key p with the dummy value 0 just
+      // to check if p already exists.
+      std::pair<map::iterator, bool> ires =
+	instances.insert(map::value_type(p, 0));
+      if (!ires.second)
 	{
-	  // The instance already exists.
+	  // The instance did already exists.  Free v.
 	  for (vec::iterator vi = v->begin(); vi != v->end(); ++vi)
 	    (*vi)->destroy();
 	  delete v;
-	  res = i->second;
+	  res = ires.first->second;
 	}
       else
 	{
-	  // This is the first instance of this formula.
-	  // Record the instance in the map,
-	  res = instances[p] = new multop(op, v);
+	  // The instance did not already exist. 
+	  res = ires.first->second = new multop(op, v);
 	}
       res->clone();
       return res;

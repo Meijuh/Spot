@@ -525,19 +525,20 @@ namespace spot
 
       pairf pf(first, second);
       pair p(op, pf);
-      // FIXME: Use lower_bound or hash_map.
-      map::iterator i = instances.find(p);
+
       const binop* res;
-      if (i != instances.end())
+      std::pair<map::iterator, bool> ires =
+	instances.insert(map::value_type(p, 0));
+      if (!ires.second)
 	{
 	  // This instance already exists.
 	  first->destroy();
 	  second->destroy();
-	  res = i->second;
+	  res = ires.first->second;
 	}
       else
 	{
-	  res = instances[p] = new binop(op, first, second);
+	  res = ires.first->second = new binop(op, first, second);
 	}
       res->clone();
       return res;
