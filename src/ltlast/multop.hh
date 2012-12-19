@@ -157,7 +157,7 @@ namespace spot
       struct paircmp
       {
 	bool
-	operator () (const pair& p1, const pair& p2) const
+	operator()(const pair& p1, const pair& p2) const
 	{
 	  if (p1.first != p2.first)
 	    return p1.first < p2.first;

@@ -131,15 +131,25 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
 
       # The 'r' allows operator&&
       grep '[^	 r]&&[^	 ]' $tmp &&
-	diag 'Space arround binary operators.'
+	diag 'Space around binary operators.'
 
       # The 'r' allows operator||
       grep '[^	 r]||[^	 ]' $tmp &&
-	diag 'Space arround binary operators.'
+	diag 'Space around binary operators.'
 
       # The 'r' allows operator==
-      grep '[^	 r][!<>=]=[^	 ]' $tmp &&
-	diag 'Space arround binary operators.'
+      grep '[^	 r<>][!<>=]=[^	 ]' $tmp &&
+	diag 'Space around binary operators.'
+
+      # The 'r' allows operator<<=
+      grep '[^	 r][<>][<>]=[^	 ]' $tmp &&
+	diag 'Space around binary operators.'
+
+      grep 'operator[^a-zA-Z0-9_(]*[	 ][^a-zA-Z0-9_(]*(' $tmp &&
+        diag 'Write operatorXX(...) without spaces around XX.'
+
+      grep 'operator[^(]* (' $tmp &&
+        diag 'No space before ('
 
       grep '[	 ]default:[^:].*;' $tmp &&
 	diag 'Label should be on their own line.'

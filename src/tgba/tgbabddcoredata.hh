@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -134,7 +134,7 @@ namespace spot
     tgba_bdd_core_data(const tgba_bdd_core_data& left,
 		       const tgba_bdd_core_data& right);
 
-    const tgba_bdd_core_data& operator= (const tgba_bdd_core_data& copy);
+    const tgba_bdd_core_data& operator=(const tgba_bdd_core_data& copy);
 
     /// \brief Update the variable sets to take a new pair of variables into
     /// account.

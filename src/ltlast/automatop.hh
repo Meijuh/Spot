@@ -81,7 +81,7 @@ namespace spot
       struct tripletcmp
       {
 	bool
-	operator () (const triplet& p1, const triplet& p2) const
+	operator()(const triplet& p1, const triplet& p2) const
 	{
 	  if (p1.first.first != p2.first.first)
 	    return p1.first.first < p2.first.first;

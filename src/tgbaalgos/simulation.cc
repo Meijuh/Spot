@@ -112,7 +112,7 @@ namespace spot
       {
       }
 
-      inline bool operator!= (const automaton_size& r)
+      inline bool operator!=(const automaton_size& r)
       {
         return transitions != r.transitions || states != r.states;
       }
