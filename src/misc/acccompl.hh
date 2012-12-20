@@ -35,19 +35,19 @@ namespace spot
   class acc_compl
   {
     public:
-      acc_compl(bdd all, bdd neg)
+      acc_compl(const bdd& all, const bdd& neg)
         : all_(all),
           neg_(neg)
       {
       }
 
 
-      bdd complement(const bdd acc);
-      bdd reverse_complement(const bdd acc);
+      bdd complement(const bdd& acc);
+      bdd reverse_complement(const bdd& acc);
 
     protected:
-      bdd all_;
-      bdd neg_;
+      const bdd all_;
+      const bdd neg_;
       typedef Sgi::hash_map<bdd, bdd, bdd_hash> bdd_cache_t;
       bdd_cache_t cache_;
   };
