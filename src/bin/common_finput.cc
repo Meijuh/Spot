@@ -94,7 +94,7 @@ job_processor::process_string(const std::string& input,
   spot::ltl::parse_error_list pel;
   const spot::ltl::formula* f = parse_formula(input, pel);
 
-  if (!f || pel.size() > 0)
+  if (!f || !pel.empty())
     {
       if (filename)
 	error_at_line(0, 0, filename, linenum, "parse error:");

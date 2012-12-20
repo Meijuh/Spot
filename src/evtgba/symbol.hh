@@ -83,7 +83,7 @@ namespace spot
       return s_;
     }
 
-    const rsymbol&
+    rsymbol&
     operator=(const rsymbol& rs)
     {
       if (this != &rs)

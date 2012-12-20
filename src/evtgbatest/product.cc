@@ -1,8 +1,9 @@
-// Copyright (C) 2008 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2012 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -47,7 +48,7 @@ main(int argc, char** argv)
   bool dotty = false;
   int filename_index = 1;
 
-  while (argv[filename_index][0] == '-' && filename_index < argc)
+  while (filename_index < argc && argv[filename_index][0] == '-')
     {
       if (!strcmp(argv[filename_index], "-d"))
 	debug = true;

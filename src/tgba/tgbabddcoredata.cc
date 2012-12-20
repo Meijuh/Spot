@@ -90,7 +90,7 @@ namespace spot
     assert(dict == right.dict);
   }
 
-  const tgba_bdd_core_data&
+  tgba_bdd_core_data&
   tgba_bdd_core_data::operator=(const tgba_bdd_core_data& copy)
   {
     if (this != &copy)

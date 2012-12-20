@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2012 Laboratoire de Recherche et Developpement
 // de l Epita (LRDE).
 //
@@ -64,8 +65,9 @@ namespace spot
 
     fixed_size_pool* p = const_cast<fixed_size_pool*> (&pool_);
 
-    return new tgta_succ_iterator_product(s, (const kripke*) left_,
-        (const tgta *) right_, p);
+    return new tgta_succ_iterator_product(s,
+					  down_cast<const kripke*>(left_),
+					  down_cast<const tgta*>(right_), p);
   }
 
   ////////////////////////////////////////////////////////////

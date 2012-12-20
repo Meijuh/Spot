@@ -131,7 +131,7 @@ namespace spot
     /// \brief Get the condition on the state
     bdd state_condition(const state* s) const;
     /// \brief Get the condition on the state
-    bdd state_condition(const std::string) const;
+    bdd state_condition(const std::string&) const;
 
     /// \brief Return the name of the state.
     std::string format_state(const state*) const;

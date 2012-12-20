@@ -76,7 +76,7 @@ namespace spot
     state_ta_explicit::transitions* transitions_to_livelock_states =
         new state_ta_explicit::transitions;
 
-    for (it = states_set.begin(); it != states_set.end(); it++)
+    for (it = states_set.begin(); it != states_set.end(); ++it)
       {
 
         state_ta_explicit* source = static_cast<state_ta_explicit*> (*it);
@@ -122,8 +122,8 @@ namespace spot
           {
             state_ta_explicit::transitions::iterator it_trans;
 
-            for (it_trans = transitions_to_livelock_states->begin(); it_trans
-                != transitions_to_livelock_states->end(); it_trans++)
+            for (it_trans = transitions_to_livelock_states->begin();
+		 it_trans != transitions_to_livelock_states->end(); ++it_trans)
               {
                 if (artificial_livelock_accepting_state != 0)
                   {
@@ -147,7 +147,7 @@ namespace spot
       }
     delete transitions_to_livelock_states;
 
-    for (it = states_set.begin(); it != states_set.end(); it++)
+    for (it = states_set.begin(); it != states_set.end(); ++it)
       {
 
         state_ta_explicit* state = static_cast<state_ta_explicit*> (*it);
@@ -196,7 +196,7 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
 
   ta::states_set_t::const_iterator it;
   ta::states_set_t init_states = testing_automata->get_initial_states_set();
-  for (it = init_states.begin(); it != init_states.end(); it++)
+  for (it = init_states.begin(); it != init_states.end(); ++it)
     {
       state* init_state = (*it);
       init_set.push(init_state);
@@ -610,7 +610,7 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
     // adapt a GTA to remove acceptance conditions from states
     ta::states_set_t states_set = ta->get_states_set();
     ta::states_set_t::iterator it;
-    for (it = states_set.begin(); it != states_set.end(); it++)
+    for (it = states_set.begin(); it != states_set.end(); ++it)
       {
         state_ta_explicit* state = static_cast<state_ta_explicit*> (*it);
 
@@ -621,7 +621,7 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
             state_ta_explicit::transitions::iterator it_trans;
 
             for (it_trans = trans->begin(); it_trans != trans->end();
-		 it_trans++)
+		 ++it_trans)
               {
                 (*it_trans)->acceptance_conditions
                     = ta->all_acceptance_conditions();
@@ -674,7 +674,7 @@ compute_livelock_acceptance_states(ta_explicit* testing_automata,
     bdd bdd_stutering_transition = bdd_setxor(first_state_condition,
 					      first_state_condition);
 
-    for (it = states_set.begin(); it != states_set.end(); it++)
+    for (it = states_set.begin(); it != states_set.end(); ++it)
       {
         state_ta_explicit* state = static_cast<state_ta_explicit*> (*it);
 

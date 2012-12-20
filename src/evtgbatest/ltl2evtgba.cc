@@ -58,7 +58,7 @@ main(int argc, char** argv)
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* unobservables = new spot::ltl::atomic_prop_set;
 
-  while (argv[formula_index][0] == '-' && formula_index < argc)
+  while (formula_index < argc && argv[formula_index][0] == '-')
     {
       if (!strcmp(argv[formula_index], "-d"))
 	{

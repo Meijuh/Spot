@@ -134,7 +134,7 @@ namespace spot
     tgba_bdd_core_data(const tgba_bdd_core_data& left,
 		       const tgba_bdd_core_data& right);
 
-    const tgba_bdd_core_data& operator=(const tgba_bdd_core_data& copy);
+    tgba_bdd_core_data& operator=(const tgba_bdd_core_data& copy);
 
     /// \brief Update the variable sets to take a new pair of variables into
     /// account.

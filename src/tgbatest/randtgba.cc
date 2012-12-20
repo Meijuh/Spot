@@ -311,7 +311,7 @@ struct stat_collector
 
   std::ostream&
   display(std::ostream& os,
-	  const alg_1stat_map& m, const std::string title,
+	  const alg_1stat_map& m, const std::string& title,
 	  bool total = true) const
   {
     std::ios::fmtflags old = os.flags();
@@ -418,7 +418,7 @@ ar_stats_type mar_stats;        // ... about minimized accepting runs.
 
 
 void
-print_ar_stats(ar_stats_type& ar_stats, const std::string s)
+print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
 {
   std::ios::fmtflags old = std::cout.flags();
   std::cout << std::endl << s << std::endl;
@@ -818,7 +818,7 @@ main(int argc, char** argv)
       const char** i = default_algos;
       while (*i)
 	{
-	  ec_algo a = { *i++, 0 };
+	  ec_algo a = { *(i++), 0 };
 	  ec_algos.push_back(a);
 	}
     }

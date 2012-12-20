@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
@@ -104,7 +105,7 @@ namespace spot
       safra_tree(const subset_t& nodes, safra_tree* p, int n);
       ~safra_tree();
 
-      const safra_tree& operator=(const safra_tree& other);
+      safra_tree& operator=(const safra_tree& other);
       int compare(const safra_tree* other) const;
       size_t hash() const;
 
@@ -177,7 +178,7 @@ namespace spot
         (*i)->destroy();
     }
 
-    const safra_tree&
+    safra_tree&
     safra_tree::operator=(const safra_tree& other)
     {
       if (this != &other)
@@ -816,7 +817,6 @@ namespace spot
 
       void print_safra_automaton(safra_tree_automaton* a)
       {
-        safra_tree_automaton::automaton_t node_list = a->automaton;
         typedef safra_tree_automaton::automaton_t::reverse_iterator
           automaton_cit;
         typedef safra_tree_automaton::transition_list::const_iterator

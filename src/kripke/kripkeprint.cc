@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE)
 //
@@ -88,7 +89,6 @@ namespace spot
 	  notfirst = true;
 
 	const bdd_dict* d = aut_->get_dict();
-	std::string cur = aut_->format_state(s);
 	os_ << "S" << in_s << ", \"";
 	const kripke* automata = down_cast<const kripke*>(aut_);
 	assert(automata);

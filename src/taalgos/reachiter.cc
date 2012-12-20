@@ -1,4 +1,5 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
 // de l Epita (LRDE).
 //
 //
@@ -66,7 +67,7 @@ namespace spot
         init_states_set = t_automata_->get_initial_states_set();
       }
 
-    for (it = init_states_set.begin(); it != init_states_set.end(); it++)
+    for (it = init_states_set.begin(); it != init_states_set.end(); ++it)
       {
         state* init_state = (*it);
         if (want_state(init_state))

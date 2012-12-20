@@ -218,7 +218,7 @@ namespace spot
 	    std::getline(is, guard);
 	    ltl::parse_error_list pel;
 	    const ltl::formula* f = parse_lbt(guard, pel, env);
-	    if (!f || pel.size() > 0)
+	    if (!f || !pel.empty())
 	      {
 		error += "failed to parse guard: " + guard;
 		if (f)
@@ -301,7 +301,7 @@ namespace spot
 	    std::getline(is, guard);
 	    ltl::parse_error_list pel;
 	    const ltl::formula* f = parse_lbt(guard, pel, env);
-	    if (!f || pel.size() > 0)
+	    if (!f || !pel.empty())
 	      {
 		error += "failed to parse guard: " + guard;
 		if (f)

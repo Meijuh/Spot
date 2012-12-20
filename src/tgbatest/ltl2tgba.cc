@@ -360,12 +360,10 @@ main(int argc, char** argv)
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* unobservables = 0;
   spot::tgba* system = 0;
-  const spot::tgba* product = 0;
   const spot::tgba* product_to_free = 0;
   spot::bdd_dict* dict = new spot::bdd_dict();
   spot::timer_map tm;
   bool use_timer = false;
-  bool assume_sba = false;
   bool reduction_dir_sim = false;
   bool reduction_rev_sim = false;
   bool reduction_iterated_sim = false;
@@ -892,6 +890,7 @@ main(int argc, char** argv)
       const spot::tgba* to_free = 0;
       const spot::tgba* to_free2 = 0;
       spot::tgba* a = 0;
+      bool assume_sba = false;
 
       if (from_file)
 	{
@@ -1198,10 +1197,8 @@ main(int argc, char** argv)
 
           if (ta_opt)
             {
-              spot::ta* testing_automaton = 0;
-
 	      tm.start("conversion to TA");
-              testing_automaton
+              spot::ta* testing_automaton
                   = tgba_to_ta(a, atomic_props_set_bdd, degeneralize_opt
                       == DegenSBA, opt_with_artificial_initial_state,
                       opt_single_pass_emptiness_check,
@@ -1286,7 +1283,8 @@ main(int argc, char** argv)
 
       if (system)
         {
-          product = product_to_free = a = new spot::tgba_product(system, a);
+	  const spot::tgba* product = product_to_free = a =
+	    new spot::tgba_product(system, a);
 
 	  assume_sba = false;
 

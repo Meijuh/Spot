@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement
+// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -153,7 +153,7 @@ namespace spot
   {
     dict_->unregister_all_my_variables(this);
     std::map<const std::string, state_kripke*>::iterator it;
-    for (it = ns_nodes_.begin(); it != ns_nodes_.end(); it++)
+    for (it = ns_nodes_.begin(); it != ns_nodes_.end(); ++it)
     {
       state_kripke* del_me = it->second;
       delete del_me;
@@ -195,7 +195,7 @@ namespace spot
   }
 
   bdd
-  kripke_explicit::state_condition(const std::string name) const
+  kripke_explicit::state_condition(const std::string& name) const
   {
     std::map<const std::string, state_kripke*>::const_iterator it;
     it = ns_nodes_.find(name);
@@ -247,13 +247,12 @@ namespace spot
   void kripke_explicit::add_transition(std::string source,
                                        std::string dest)
   {
-    state_kripke* neo = 0;
     std::map<std::string, state_kripke*>::iterator destination
       = ns_nodes_.find(dest);
 
     if (ns_nodes_.find(dest) == ns_nodes_.end())
     {
-      neo = new state_kripke;
+      state_kripke* neo = new state_kripke;
       add_state(dest, neo);
       add_transition(source, neo);
     }

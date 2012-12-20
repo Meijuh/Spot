@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -38,7 +39,7 @@ namespace spot
     std::string cur_format = a->format_state(cur);
     std::set<unsigned>::iterator it;
     // Check if we have at least one accepting SCC.
-    for (it = s.begin(); it != s.end() && !m.accepting(*it); it++)
+    for (it = s.begin(); it != s.end() && !m.accepting(*it); ++it)
       continue;
     assert(it != s.end());
     tovisit.push(cur);
@@ -89,10 +90,8 @@ namespace spot
 
     hash_type::iterator it2;
     // Free visited states.
-    for (it2 = seen.begin(); it2 != seen.end(); it2++)
-    {
+    for (it2 = seen.begin(); it2 != seen.end(); ++it2)
       (*it2)->destroy();
-    }
     return sub_a;
   }
 

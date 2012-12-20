@@ -199,12 +199,11 @@ namespace
 
       if (ta_type != TGTA)
 	{
-	  spot::ta* testing_automaton = 0;
-	  testing_automaton = tgba_to_ta(aut, ap_set,
-					 type == spot::postprocessor::BA,
-					 opt_with_artificial_initial_state,
-					 opt_single_pass_emptiness_check,
-					 opt_with_artificial_livelock);
+	  spot::ta* testing_automaton =
+	    tgba_to_ta(aut, ap_set, type == spot::postprocessor::BA,
+		       opt_with_artificial_initial_state,
+		       opt_single_pass_emptiness_check,
+		       opt_with_artificial_livelock);
 	  if (level != spot::postprocessor::Low)
 	    {
 	      spot::ta* testing_automaton_nm = testing_automaton;

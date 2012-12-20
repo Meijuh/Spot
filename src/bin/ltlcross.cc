@@ -744,7 +744,7 @@ namespace
     states_in_acc(neg, sspace, s);
     bool res = s.size() == states;
     state_set::iterator it;
-    for (it = s.begin(); it != s.end(); it++)
+    for (it = s.begin(); it != s.end(); ++it)
       (*it)->destroy();
     return res;
   }
@@ -1001,7 +1001,7 @@ print_stats_csv(const char* filename)
 
   unsigned ntrans = translators.size();
   unsigned rounds = vstats.size();
-  assert(rounds = formulas.size());
+  assert(rounds == formulas.size());
 
   *out << "\"formula\", \"tool\", ";
   statistics::fields(*out);
@@ -1039,7 +1039,7 @@ print_stats_json(const char* filename)
 
   unsigned ntrans = translators.size();
   unsigned rounds = vstats.size();
-  assert(rounds = formulas.size());
+  assert(rounds == formulas.size());
 
   *out << "{\n  \"tools\": [\n    \"";
   spot::escape_str(*out, translators[0]);

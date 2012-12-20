@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -37,7 +38,7 @@ namespace spot
     explicit_state_conjunction(const explicit_state_conjunction* other);
     virtual ~explicit_state_conjunction();
 
-    explicit_state_conjunction* operator=(const explicit_state_conjunction& o);
+    explicit_state_conjunction& operator=(const explicit_state_conjunction& o);
 
     /// \name Iteration
     //@{

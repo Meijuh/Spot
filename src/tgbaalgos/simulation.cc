@@ -286,7 +286,6 @@ namespace spot
 
 	// We run through the map bdd/list<state>, and we update
 	// the previous_class_ with the new data.
-	it_bdd = used_var_.begin();
 	for (map_bdd_lstate::iterator it = bdd_lstate_.begin();
 	     it != bdd_lstate_.end();
 	     ++it)

@@ -2388,7 +2388,6 @@ namespace spot
 	      && (op != multop::AndNLM)
 	      && (op != multop::OrRat)
 	      && (op != multop::Concat)
-	      && (op != multop::Concat)
 	      && (op != multop::Fusion))
 	    {
 	      bool is_and = op == multop::And;
@@ -2442,7 +2441,7 @@ namespace spot
 		      else if (c_->implication_neg(*f1, *f2, is_and))
 			{
 			  for (multop::vec::iterator j = res->begin();
-			       j != res->end(); j++)
+			       j != res->end(); ++j)
 			    if (*j)
 			      (*j)->destroy();
 			  delete res;

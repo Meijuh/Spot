@@ -36,7 +36,6 @@ namespace spot
   class tgta_product : public tgba_product
   {
   public:
-
     tgta_product(const kripke* left, const tgta* right);
 
     virtual state*
@@ -45,8 +44,6 @@ namespace spot
     virtual tgba_succ_iterator*
     succ_iter(const state* local_state, const state* global_state = 0,
         const tgba* global_automaton = 0) const;
-
-
   };
 
   /// \brief Iterate over the successors of a product computed on the fly.
@@ -100,9 +97,7 @@ namespace spot
     bdd current_condition_;
     bdd current_acceptance_conditions_;
     bdd kripke_source_condition;
-    state * kripke_current_dest_state;
-
-
+    state* kripke_current_dest_state;
   };
 
 }

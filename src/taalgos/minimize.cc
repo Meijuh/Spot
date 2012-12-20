@@ -205,7 +205,7 @@ namespace spot
 
     spot::state* artificial_initial_state = ta_->get_artificial_initial_state();
 
-    for (it = states_set.begin(); it != states_set.end(); it++)
+    for (it = states_set.begin(); it != states_set.end(); ++it)
       {
         const state* s = (*it);
 

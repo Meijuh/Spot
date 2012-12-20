@@ -288,7 +288,7 @@ namespace spot
         ta_init_states_set = ta_->get_initial_states_set();
       }
 
-    for (it = ta_init_states_set.begin(); it != ta_init_states_set.end(); it++)
+    for (it = ta_init_states_set.begin(); it != ta_init_states_set.end(); ++it)
       {
 
         if ((artificial_initial_state != 0) || (kripke_init_state_condition

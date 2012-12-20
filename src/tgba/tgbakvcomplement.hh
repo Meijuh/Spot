@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -30,7 +31,7 @@ namespace spot
   {
   public:
     bdd_ordered()
-      : order_(0)
+      : bdd_(0), order_(0)
     {};
 
     bdd_ordered(int bdd_, unsigned order_)
@@ -77,7 +78,7 @@ namespace spot
   /// \endverbatim
   ///
   /// The original automaton is used as a States-based Generalized
-  /// Büchi Automaton.
+  /// BÃ¼chi Automaton.
   ///
   /// The construction is done on-the-fly, by the
   /// \c tgba_kv_complement_succ_iterator class.

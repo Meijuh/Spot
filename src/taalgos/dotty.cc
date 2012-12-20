@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2010, 2012 Laboratoire de Recherche et Developpement
 // de l Epita (LRDE).
 //
@@ -40,8 +41,6 @@ namespace spot
       {
         os_ << "digraph G {" << std::endl;
 
-        int n = 0;
-
         artificial_initial_state_ = t_automata_->get_artificial_initial_state();
 
         ta::states_set_t init_states_set;
@@ -55,10 +54,10 @@ namespace spot
 	  }
         else
 	  {
+	    int n = 0;
 	    init_states_set = t_automata_->get_initial_states_set();
-
 	    for (it = init_states_set.begin();
-		 it != init_states_set.end(); it++)
+		 it != init_states_set.end(); ++it)
 	      {
 		bdd init_condition = t_automata_->get_state_condition(*it);
 		std::string label = bdd_format_formula(t_automata_->get_dict(),

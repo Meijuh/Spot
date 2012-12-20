@@ -166,9 +166,8 @@ namespace spot
     {
     public:
       tgba_wdba_comp_proxy(const tgba* a)
-	: a_(a)
+	: a_(a), the_acceptance_cond_(a->all_acceptance_conditions())
       {
-	the_acceptance_cond_ = a->all_acceptance_conditions();
 	if (the_acceptance_cond_ == bddfalse)
 	  {
 	    int v = get_dict()

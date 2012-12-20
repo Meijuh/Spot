@@ -160,10 +160,9 @@ int main(int argc, char* argv[])
   else if (print_formula)
   {
     spot::tgba* a;
-    const spot::ltl::formula* f1 = 0;
 
     spot::ltl::parse_error_list p1;
-    f1 = spot::ltl::parse(file, p1);
+    const spot::ltl::formula* f1 = spot::ltl::parse(file, p1);
 
     if (spot::ltl::format_parse_errors(std::cerr, file, p1))
       return 2;

@@ -180,7 +180,6 @@ namespace spot
     std::vector<const printable*> call_;
   protected:
     std::ostream* output_;
-    const char* pos_;
   };
 
 }

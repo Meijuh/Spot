@@ -1,5 +1,6 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -360,7 +361,7 @@ namespace spot
                   }
 
                 std::set<const state*, state_ptr_less_than>::const_iterator it;
-                for (it = liveset_dest.begin(); it != liveset_dest.end(); it++)
+                for (it = liveset_dest.begin(); it != liveset_dest.end(); ++it)
                   {
                     const state* succ = (*it);
                     if (heuristic_livelock_detection(succ, h, h_livelock_root,
@@ -442,7 +443,7 @@ namespace spot
 
     const ta::states_set_t init_states_set = a_->get_initial_states_set();
     ta::states_set_t::const_iterator it;
-    for (it = init_states_set.begin(); it != init_states_set.end(); it++)
+    for (it = init_states_set.begin(); it != init_states_set.end(); ++it)
       {
         state* init_state = (*it);
         ta_init_it_.push(init_state);

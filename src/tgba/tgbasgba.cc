@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -101,9 +101,8 @@ namespace spot
       }
 
       tgba_sgba_proxy_succ_iterator(tgba_succ_iterator* it, bdd acc)
-	: it_(it), emulate_acc_cond_(true)
+	: it_(it), emulate_acc_cond_(true), acceptance_condition_(acc)
       {
-        acceptance_condition_ = acc;
       }
 
       virtual
