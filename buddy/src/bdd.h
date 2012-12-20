@@ -461,23 +461,23 @@ class bdd
 
    int id(void) const;
 
-   bdd operator=(const bdd &r);
+   bdd& operator=(const bdd &r);
 
    bdd operator&(const bdd &r) const;
-   bdd operator&=(const bdd &r);
+   bdd& operator&=(const bdd &r);
    bdd operator^(const bdd &r) const;
-   bdd operator^=(const bdd &r);
+   bdd& operator^=(const bdd &r);
    bdd operator|(const bdd &r) const;
-   bdd operator|=(const bdd &r);
+   bdd& operator|=(const bdd &r);
    bdd operator!(void) const;
    bdd operator>>(const bdd &r) const;
-   bdd operator>>=(const bdd &r);
+   bdd& operator>>=(const bdd &r);
    bdd operator-(const bdd &r) const;
-   bdd operator-=(const bdd &r);
+   bdd& operator-=(const bdd &r);
    bdd operator>(const bdd &r) const;
    bdd operator<(const bdd &r) const;
    bdd operator<<(const bdd &r) const;
-   bdd operator<<=(const bdd &r);
+   bdd& operator<<=(const bdd &r);
    int operator==(const bdd &r) const;
    int operator!=(const bdd &r) const;
 
@@ -485,7 +485,7 @@ private:
    BDD root;
 
    bdd(BDD r) { root=r; if (root > 1) bdd_addref_nc(root); }
-   bdd operator=(BDD r);
+   bdd& operator=(BDD r);
 
    friend int      bdd_init(int, int);
    friend int      bdd_setvarnum(int);
@@ -808,19 +808,19 @@ inline int bdd::id(void) const
 inline bdd bdd::operator&(const bdd &r) const
 { return bdd_apply(*this,r,bddop_and); }
 
-inline bdd bdd::operator&=(const bdd &r)
+inline bdd& bdd::operator&=(const bdd &r)
 { return (*this=bdd_apply(*this,r,bddop_and)); }
 
 inline bdd bdd::operator^(const bdd &r) const
 { return bdd_apply(*this,r,bddop_xor); }
 
-inline bdd bdd::operator^=(const bdd &r)
+inline bdd& bdd::operator^=(const bdd &r)
 { return (*this=bdd_apply(*this,r,bddop_xor)); }
 
 inline bdd bdd::operator|(const bdd &r) const
 { return bdd_apply(*this,r,bddop_or); }
 
-inline bdd bdd::operator|=(const bdd &r)
+inline bdd& bdd::operator|=(const bdd &r)
 { return (*this=bdd_apply(*this,r,bddop_or)); }
 
 inline bdd bdd::operator!(void) const
@@ -829,13 +829,13 @@ inline bdd bdd::operator!(void) const
 inline bdd bdd::operator>>(const bdd &r) const
 { return bdd_apply(*this,r,bddop_imp); }
 
-inline bdd bdd::operator>>=(const bdd &r)
+inline bdd& bdd::operator>>=(const bdd &r)
 { return (*this=bdd_apply(*this,r,bddop_imp)); }
 
 inline bdd bdd::operator-(const bdd &r) const
 { return bdd_apply(*this,r,bddop_diff); }
 
-inline bdd bdd::operator-=(const bdd &r)
+inline bdd& bdd::operator-=(const bdd &r)
 { return (*this=bdd_apply(*this,r,bddop_diff)); }
 
 inline bdd bdd::operator>(const bdd &r) const
@@ -847,7 +847,7 @@ inline bdd bdd::operator<(const bdd &r) const
 inline bdd bdd::operator<<(const bdd &r) const
 { return bdd_apply(*this,r,bddop_invimp); }
 
-inline bdd bdd::operator<<=(const bdd &r)
+inline bdd& bdd::operator<<=(const bdd &r)
 { return (*this=bdd_apply(*this,r,bddop_invimp)); }
 
 inline int bdd::operator==(const bdd &r) const
@@ -856,7 +856,7 @@ inline int bdd::operator==(const bdd &r) const
 inline int bdd::operator!=(const bdd &r) const
 { return r.root!=root; }
 
-inline bdd bdd::operator=(const bdd &r)
+inline bdd& bdd::operator=(const bdd &r)
 {
   if (__likely(root != r.root))
     {
@@ -869,7 +869,7 @@ inline bdd bdd::operator=(const bdd &r)
   return *this;
 }
 
-inline bdd bdd::operator=(int r)
+inline bdd& bdd::operator=(int r)
 {
   if (__likely(root != r))
     {
