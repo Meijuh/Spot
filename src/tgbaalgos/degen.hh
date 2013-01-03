@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -33,9 +33,22 @@ namespace spot
   /// If you want to build a degeneralized automaton on-the-fly, see
   /// spot::tgba_sba_proxy or spot::tgba_tba_proxy.
   ///
+  /// When \a use_z_lvl is set, the level of the degeneralized
+  /// automaton is reset everytime an accepting SCC is exited.  If \a
+  /// use_cust_acc_orders is set, the degeneralization will compute a
+  /// custom acceptance order for each SCC (this option is disabled by
+  /// default because our benchmarks show that it usually does more
+  /// harm than good).  If \a use_lvl_cache is set, everytime an SCC
+  /// is entered on a state that as already been associated to some
+  /// level elsewhere, reuse that level).
+  ///
+  /// Any of these three options will cause the SCCs of the automaton
+  /// \a a to be computed prior to its actual degeneralization.
+  ///
   /// \see tgba_sba_proxy, tgba_tba_proxy
   /// \ingroup tgba_misc
-  sba* degeneralize(const tgba* a, bool use_z_lvl = true, bool use_cust_acc_orders = true,
+  sba* degeneralize(const tgba* a, bool use_z_lvl = true,
+		    bool use_cust_acc_orders = false,
                     bool use_lvl_cache = true);
 }
 

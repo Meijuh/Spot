@@ -331,7 +331,7 @@ main(int argc, char** argv)
   bool fm_symb_merge_opt = true;
   bool file_opt = false;
   bool degen_reset = true;
-  bool degen_order = true;
+  bool degen_order = false;
   bool degen_cache = true;
   int output = 0;
   int formula_index = 0;
