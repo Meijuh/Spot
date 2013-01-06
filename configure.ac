@@ -1,5 +1,5 @@
-# Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
+# Recherche et Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire d'Informatique de
 # Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 # Pierre et Marie Curie.
@@ -171,8 +171,6 @@ AC_CONFIG_FILES([
   wrap/python/tests/Makefile
   tools/x-to-1
 ])
-AC_CONFIG_FILES([bench/ltl2tgba/ltl2baw.pl:bench/ltl2tgba/ltl2baw.in],
-		[chmod +x bench/ltl2tgba/ltl2baw.pl])
 AC_CONFIG_FILES([doc/dot], [chmod +x doc/dot])
 AC_CONFIG_FILES([wrap/python/tests/run], [chmod +x wrap/python/tests/run])
 AC_OUTPUT

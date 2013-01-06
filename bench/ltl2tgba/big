@@ -1,10 +1,7 @@
 #!/bin/sh
 # -*- shell-script -*-
-# Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+# Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement de
 # l'Epita (LRDE)
-# Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
-# et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
 #
@@ -22,58 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 . ./defs
-
-conffile=big.cfg
-logfile=big.log
-sumfile=big.txt
-
 . "$srcdir/algorithms"
 
-cat >>"$conffile" <<EOF
-GlobalOptions
-{
-   Rounds = 100
-   Interactive = Never
-#   Verbosity = 5
-#   ComparisonCheck = no
-   ConsistencyCheck = no
-#   IntersectionCheck = no
-   TranslatorTimeout = 15min
-}
-
-StateSpaceOptions
-{
-   Size = 200
-   Propositions = 8
-}
-
-FormulaOptions
-{
-  Size = 15...20
-  Propositions = 8
-
-  AbbreviatedOperators = No
-  GenerateMode = Normal
-  OutputMode = NNF
-  PropositionPriority = 50
-
-  TruePriority = 1
-  FalsePriority = 1
-
-  AndPriority = 10
-  OrPriority = 10
-  XorPriority = 0
-  EquivalencePriority = 0
-
-  BeforePriority = 0
-  StrongReleasePriority = 0
-  WeakUntilPriority = 0
-
-  UntilPriority = 30
-  DefaultOperatorPriority = 15
-}
-
-EOF
-
-"$LBTT" --configfile="$conffile" | tee "$logfile"
-"$srcdir"/parseout.pl "$logfile" | tee "$sumfile"
+$RANDLTL -n 100 --tree-size=15..20 p1 p2 p3 p4 p5 p6 p7 p8 | ltlfilt --nnf |
+$LTLCROSS "$@" --csv=big.csv --json=big.json 2>&1 | tee big.log

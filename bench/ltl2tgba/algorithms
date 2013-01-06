@@ -1,97 +1,30 @@
-cat >"$conffile" <<EOF
-Algorithm
-{
-   Name = "Spin"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spin $SPIN"
-   Enabled = $HAVE_SPIN
-}
+# Fill "$@" with the list of translators we want to benchmark.
 
-Algorithm
-{
-   Name = "ltl2ba"
-   Path = "$LBTT_TRANSLATE"
-   Parameters = "--spin $LTL2BA"
-   Enabled = $HAVE_LTL2BA
-}
+# Add a dummy initial argument to clear "$@" and also in case one of
+# the tools starts with "-".
+set dummy
 
-Algorithm
-{
-   Name = "ltl3ba"
-   Path = "lbtt-translate"
-   Parameters = "--spin $LTL3BA"
-   Enabled = $HAVE_LTL3BA
-}
+# Add third-party tools if they are available
+test -n "$SPIN"   && set "$@" "$SPIN -f %s >%N"
+test -n "$LTL2BA" && set "$@" "$LTL2BA -f %s >%N"
+test -n "$LTL3BA" && set "$@" "$LTL3BA -f %s >%N" \
+                              "$LTL3BA -M -f %s >%N" \
+                              "$LTL3BA -S -f %s >%N" \
+                              "$LTL3BA -S -M -f %s >%N"
 
-Algorithm
-{
-   Name = "ltl3ba -M"
-   Path = "lbtt-translate"
-   Parameters = "--spin '$LTL3BA -M'"
-   Enabled = $HAVE_LTL3BA
-}
+# Use -s to output a neverclaim, like the other tools.
+set "$@" "$LTL2TGBA --det -s %s >%N" \
+         "$LTL2TGBA --small -s %s >%N"
 
-Algorithm
-{
-   Name = "ltl3ba -S"
-   Path = "lbtt-translate"
-   Parameters = "--spin '$LTL3BA -S'"
-   Enabled = $HAVE_LTL3BA
-}
-
-Algorithm
-{
-   Name = "ltl3ba -M -S"
-   Path = "lbtt-translate"
-   Parameters = "--spin '$LTL3BA -M -S'"
-   Enabled = $HAVE_LTL3BA
-}
-
-Algorithm
-{
-   Name = "Modella"
-   Path = "$MODELLA"
-   Parameters = "-o1 -g -e -r12"
-   Enabled = $HAVE_MODELLA
-}
-
-Algorithm
-{
-   Name = "Wring (RewRule+BoolOpt+AutSempl), degen"
-   Path = "$WRING2LBTT"
-   Parameters = "-d --5"
-   Enabled = $HAVE_WRING2LBTT
-}
-
-Algorithm
-{
-   Name = "Wring (RewRule+BoolOpt+AutSempl)"
-   Path = "$WRING2LBTT"
-   Parameters = "--5"
-   Enabled = $HAVE_WRING2LBTT
-}
-
-Algorithm
-{
-   Name = "NBA"
-   Path = "$LTL2NBA"
-   Enabled = $HAVE_LTL2NBA
-}
-EOF
+# If you want to add your own tool, you can add it here.
+# See 'man ltlcross' for the list of %-escape you may use
+# to specify input formula and output automaton.
+#
+# set "$@" "tool options %... > %..."
 
 
-for type in tgba ba; do
-  for pref in any deterministic small; do
-    for level in high; do
-       cat >>$conffile <<EOF
-Algorithm
-{
-   Name = "Spot ($type $pref $level)"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '$LTL2TGBA --$type --$pref --$level --lbtt -F'"
-   Enabled = yes
-}
-EOF
-    done
-  done
-done
+# Set the timeout to 5 minutes
+set "$@" --timeout=300
+
+# Finaly remove the dummy initial argument
+shift

@@ -1,7 +1,7 @@
 Makefile.in
 Makefile
-*.cfg
-*.txt
+*.csv
+*.json
 *.log
 defs
-ltl2baw.pl
+results.tex

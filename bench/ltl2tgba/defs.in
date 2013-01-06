@@ -1,5 +1,5 @@
 # -*- mode: shell-script; coding: utf-8 -*-
-# Copyright (C) 2012 Laboratoire de Recherche et Développement
+# Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 # Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -36,8 +36,8 @@ test -f "$srcdir/defs.in" || {
 
 top_builddir="@top_builddir@"
 LBT="@LBT@"
-LBTT="@LBTT@"
-LBTT_TRANSLATE="@LBTT_TRANSLATE@"
+LTLCROSS="$top_builddir/src/bin/ltlcross@EXEEXT@"
+RANDLTL="$top_builddir/src/bin/randltl@EXEEXT@"
 LTL2BA="@LTL2BA@"
 LTL3BA="@LTL3BA@"
 LTL2NBA="@LTL2NBA@"
@@ -45,17 +45,3 @@ LTL2TGBA="@top_builddir@/src/bin/ltl2tgba@EXEEXT@"
 MODELLA="@MODELLA@"
 SPIN="@SPIN@"
 WRING2LBTT="@WRING2LBTT@"
-
-($LBTT --version) >/dev/null 2>&1 || {
-  echo "$LBTT not available.  Try configuring with --with-included-lbtt."
-  exit 77
-}
-
-for var in LBT LTL2BA LTL3BA LTL2NBA MODELLA SPIN WRING2LBTT
-do
-  if eval 'test -z "$'$var'"'; then
-    eval HAVE_$var=no
-  else
-    eval HAVE_$var=yes
-  fi
-done

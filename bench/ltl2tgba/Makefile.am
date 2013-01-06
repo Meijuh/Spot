@@ -3,22 +3,38 @@ EXTRA_DIST = \
   big \
   formulae.ltl \
   known \
-  parseout.pl \
   small \
-  lbtt2csv.pl
-CLEAN_FILES = \
-  big.cfg big.log big.txt \
-  small.cfg small.log small.txt \
-  known.cfg known.log known.txt
+  sum.py
+
+OUTPUTS = known small big
+OUTCSV = $(OUTPUTS:=.csv)
+OUTJSON = $(OUTPUTS:=.json)
+OUTLOG = $(OUTPUTS:=.log)
+
+CLEANFILES = $(OUTCSV) $(OUTJSON) $(OUTLOG) \
+             results.pdf results.aux results.log results.tex
 
 .PHONY = run
-run: small.txt big.txt known.txt
 
-deps = $(srcdir)/algorithms $(top_srcdir)/configure.ac $(top_builddir)/src/tgbatest/ltl2tgba
+run: $(OUTJSON)
 
-small.txt: $(srcdir)/small $(deps)
+deps = $(srcdir)/algorithms \
+       $(top_srcdir)/configure.ac \
+       $(top_builddir)/src/bin/ltl2tgba
+
+small.json: $(srcdir)/small $(deps)
 	$(srcdir)/small
-big.txt: $(srcdir)/big $(deps)
+big.json: $(srcdir)/big $(deps)
 	$(srcdir)/big
-known.txt: $(srcdir)/known $(srcdir)/formulae.ltl $(deps)
+known.json: $(srcdir)/known $(srcdir)/formulae.ltl $(deps)
 	$(srcdir)/known
+
+results.tex: $(srcdir)/sum.py $(OUTJSON)
+	v=`git describe --always --dirty 2>/dev/null || \
+	  echo $(PACKAGE_STRING)`; \
+	$(srcdir)/sum.py $(OUTJSON) >$(@:.tex=.tmp) \
+	  --intro "Results assembled on `LANG=C date` with $$v."; \
+	mv $(@:.tex=.tmp) $@
+
+results.pdf: results.tex
+	pdflatex results.tex

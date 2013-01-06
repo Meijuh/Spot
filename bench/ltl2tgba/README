@@ -1,182 +1,156 @@
 This directory contains benchmark scripts for LTL-to-Büchi translators.
-They are all based on lbtt.
+
+====================
+ QUICK INSTRUCTIONS
+====================
+
+Running 'make run' should run three benchmarks (you may want to use
+'make run -j3' if you have three cores or more), then summarize these
+into a LaTeX document that is then compiled to 'result.pdf'.
+
+The summary script requires python3 to be installed, and the LaTeX
+compilation obviously needs some LaTeX distribution.
+
+The three benchmarks features respectively 200, 200, and 184 formulae,
+to be translated (when these tools exist) by spin, ltl2ba, ltl3ba (4
+configurations) and ltl2tgba (2 configurations).  Each translation has
+a timeout set to 10 minutes, but with a total of 4672 translations to
+perform it can take a long time.  If you want to speed things up, you
+may edit the file 'algorithms' to remove tools or lower the timeout.
+
 
 ==========
  CONTENTS
 ==========
 
+Here are the different scripts used, in case you want to customize
+this benchmark.
+
 * algorithms
 
-  The lbtt configuration of all the algorithms.  More about these below.
+  The configuration of all the translators.  This is merely a script
+  that builds the command-line of ltlcross, to be run by the next
+  three scripts.  Most of the $TOOL variables are defined by the
+  'defs' file, which is output by 'configure' after checking for
+  the presence of the said tools.
+
+  If you want to add your own tool to the mix, simply modify this file.
+
+  The timeout value, common to the three benchmarks, is also set here.
 
 * small
 * big
 * known
 
-  Run lbtt on, respectively:
-    small formulae (size 10, 4 propositions)
-    big formulae (size 12..15, 8 propositions)
-    known formulae (96 formulae from formulae.ltl)
+  Three scripts that run ltlcross on, respectively:
+    100 small formulae (size 10, 4 propositions) and their negations
+    100 big formulae (size 12..15, 8 propositions) and their negations
+    92 known formulae (from formulae.ltl) and their negations
 
   Each script generates 3 files:
-    xxxx.cfg: the configuration file for lbtt
-    xxxx.log: the log of lbtt's execution (also output when the script runs)
-    xxxx.txt: the summary of the test (also output at the end of the script)
+    xxxx.log: the log of ltlcross' execution, updated as the script goes
+    xxxx.csv: the results in CSV format
+    xxxx.json: the results in JSON format
 
-* ltl2baw.in
-* ltl2baw.pl
-
-  ltl2baw.pl is generated from ltl2baw.in by configure.  This perl
-  script converts the intermediate generalized automata computed by
-  ltl2ba into a form usable by lbtt.
+  The last two files are only output when ltlcross terminates, so if
+  you kill a script before it terminates only the xxxx.log file will
+  have been overwritten.
 
 * formulae.ltl
 
-  A list of LTL formulae used by the `known' check.
-  See ../emptchk/README for the sources.
+  A list of LTL formulae used by the `known' check.  They come
+  from three sources:
 
-* parseout.pl
+    @InProceedings{   dwyer.98.fmsp,
+      author        = {Matthew B. Dwyer and George S. Avrunin and James C.
+		      Corbett},
+      title         = {Property Specification Patterns for Finite-state
+		      Verification},
+      booktitle     = {Proceedings of the 2nd Workshop on Formal Methods in
+		      Software Practice (FMSP'98)},
+      publisher     = {ACM Press},
+      address       = {New York},
+      editor        = {Mark Ardis},
+      month         = mar,
+      year          = {1998},
+      pages         = {7--15}
+    }
 
-  This scripts is used to create *.txt files from *.log files.
+    @InProceedings{   etessami.00.concur,
+      author        = {Kousha Etessami and Gerard J. Holzmann},
+      title         = {Optimizing {B\"u}chi Automata},
+      booktitle     = {Proceedings of the 11th International Conference on
+		      Concurrency Theory (Concur'00)},
+      pages         = {153--167},
+      year          = {2000},
+      editor        = {C. Palamidessi},
+      volume        = {1877},
+      series        = {Lecture Notes in Computer Science},
+      address       = {Pennsylvania, USA},
+      publisher     = {Springer-Verlag}
+    }
 
+    @InProceedings{   somenzi.00.cav,
+      author        = {Fabio Somenzi and Roderick Bloem},
+      title         = {Efficient {B\"u}chi Automata for {LTL} Formul{\ae}},
+      booktitle     = {Proceedings of the 12th International Conference on
+		      Computer Aided Verification (CAV'00)},
+      pages         = {247--263},
+      year          = {2000},
+      volume        = {1855},
+      series        = {Lecture Notes in Computer Science},
+      address       = {Chicago, Illinois, USA},
+      publisher     = {Springer-Verlag}
+    }
 
-====================
- ALGORITHMS & TOOLS
-====================
+  In the known benchmark, we use both positive and negated versions
+  of these formulae.
 
-The page http://spot.lip6.fr/wiki/LtlTranslationBenchmark explains
-all the keys used and the different tools involved in the benchmark.
+* sym.py
 
-Spot's configure script checks for the tools needed in the
-benchmark, and the script in this directory should omit the tools
-that are not available.
+  This script reads all the *.json files, and write out a LaTeX file
+  with summary tables.
 
-
-=====================
- Running the scripts
-=====================
-
-  1) Install all the third-party translators that you want to check.
-     They must all be in $PATH and work from there.
-
-     Two difficulties comes from Modella and wring2lbtt:
-
-       * Modella 1.5.7 produces automata that are not readable by lbtt 1.1.2.
-         You have to fix the former as follows:
-
---- modella1.5.7/modella_automa.c	2004-08-30 17:19:47.000000000 +0200
-+++ modella1.5.7.fixed/modella_automa.c	2005-04-14 15:07:46.632785000 +0200
-@@ -618,6 +618,7 @@ void print_LBA(LBA* b,FILE* output){
- 	if(b->R[j]->source==i){
- 	  fprintf(output,"%d ",b->R[j]->dest);
- 	  print_form_prefix(b->R[j]->label,output);
-+	  fputc('\n',output);
- 	}
-       fprintf(output,"-1 ");
-
-
-       * The automata produced by Wring are translated to the syntax
-         understood by lbtt using `wring2lbtt' (by the same author of
-         Modella).  wring2lbtt suffers from the same "lbtt syntax"
-         problem described above, you have to fix this too before it
-         can be used.
-
-         Also wring2lbtt requires a Wring directory in the directory
-         where it is run; that makes it harder to use as a normal tool
-         from $PATH.  I use the following wrapper in my $PATH to work
-         around this.
-
-#!/bin/sh
-cd ~/src/wring2lbtt && ./wring2lbtt "$@"
-
-         This is OK because the filenames supplied by lbtt are absolute.
-
-  2) ./configure Spot, and build it.
-
-     During the configure process you should see lines such as
-
-checking for lbt... lbt
-checking for ltl2ba... ltl2ba
-checking for modella... modella
-checking for script4lbtt.py... script4lbtt.py
-checking for spin... spin
-checking for wring2lbtt... wring2lbtt
-
-     If some tool is not found, the corresponding tests will be disabled.
-     You can also use variables such as LBT, LTL2BA, MODELLA, LTL2NBA,
-     SPIN, and WRING2LBTT to specify the location of any of these scripts
-     if it is not in $PATH.  For instance
-
-        ./configure LTL2NBA=/home/adl/src/ltlnba/script4lbtt.py
-
-  3) Run `make' to build Spot.
-
-  4) cd into bench/ltl2tgba/ and execute any of
-        ./small
-        ./big
-     or ./known
-
-     Alternatively running `make run' (in that directory) will run all
-     three scripts.  If you have a multicore processor, you may want
-     to run `make -j3 run' to run these three scripts in parallel.
-     None of the tested translators use more than one core.
-
-  5) Wait...
 
 =======================
  Reading the summaries
 =======================
 
-The files small.txt, big.txt, and known.txt contain a summary of the
-results.  Each algorithm is described on two lines formated as
-follows.
+The various outputs (CSV, JSON, our LaTeX) may use the following
+column headers:
 
- 10: Spot FM (degen)
-        831   2422  188 |    521 157 |      3.01 |    165971   8723693  (188)
+* input: formula translated (as a string in the CSV output, and as
+         an index into the input table in the JSON output)
+* tool: tool used to translated this formula (idem)
+* states: number of states of the resulting automaton
+* edges: number of physical arcs between these states
+* transitions: number of logical transitions from one state to the other
+         (for instance if the atomic propositions are 'a' and 'b', and
+	 edge labeled by 'a' represents two transitions labeled by
+	 'a&b' and 'a&!b')
+* acc: number of acceptance sets used; it should always be one
+       in this automaton since we are producing (degeneralized)
+       Büchi automata.
+* scc: number of strongly conncected components in the produced automaton
+* nondetstates: number of nondeterministic states
+* nondeterministic: 0 if the automaton is deterministic
+                    (no nondeterministic state), 1 otherwise
+* time: time required by the translation (although this is measured with
+        the highest-resolution clock available, it is "wall time", so it
+	can be affected by the machine's load).
+* product_states: number of states in a product if the automaton with some
+        random Kripke structure (one unique Kripke structure is generated
+	for each formula and used with automata produced by all tools)
+* product_transitions: number of transitions in that product
+* product_scc: number of strongly connected componebts in that product
 
-The first line presents the name of the algorithm ("Spot FM (degen)")
-and its number for lbtt (10).  The number is useless.  In this
-example, "FM (degen)" means that the Couvreur/FM algorithm is used to
-translate LTL formula into a TGBA that is then DEGENeralized, so you
-effectively get a Büchi automaton, which you can compare with that
-automata produced by other tools.  You may want to look in the file
-`algorithms' to see which options are used for each name, if the
-naming is unclear.
+The summary tables produced by sum.py accumulate all these results for
+all formulae, tool by tool.  They display an additional column, called
+'count', giving the number of formulae successfully translated (the
+missing formulae correspond to timeouts).
 
-The second line display 9 values:
-  1. the total number of states of all generated automata (831)
-  2. the total number of transitions of all generated automata (2422)
-  3. the total number of acceptance conditions of all generated automata (188)
-  4. the total number of nondeterministic states in these automata (521)
-  5. the total number of automata with some nondeterminisitic state (157)
-  6. the cumulated translation time in seconds (3.01)
-  7. the total number of states in the synchronized products (165971)
-  8. the total number of transitions in the synchronized products (8723693)
-  9. the number of translated formulae (188)
+For all these values (except count), the sammler number the better.
 
-For all these values (but the last!) the smaller number the better.
 
-Notes:
-
-  * Small translation times are not accurate because:
-
-    a) most of the translators are run through scripts that translate
-    their input from and their output to the format understood by
-    lbtt.  For fast translators, most of the time is spent through
-    these wrappers.  (For instance Spot's ltl2tgba is run through
-    lbtt-translate, and depending on how Spot has been configured
-    w.r.t. to dynamic libraries, ltl2tgba itself is often a shell
-    script that run the real binary with the locally built libraries.)
-
-    b) LBTT use the time() function to measure time, which usually
-    has only a 0.01s resolution.  Multiply this 0.01s by the number
-    for formulae to get the possible error (e.g. for the above example
-    188*0.01 = 1.88s, so the 3.01s should be interpreted as "within
-    3.01-1.88 and 3.01+1.88).
-
-  * Some tools will appear to have translated fewer automata than the
-    others.  This normally indicates bugs in the translator (incorrect
-    output) or timeouts.  In that case it is harder to compare the
-    results.  (Normalizing the other values accordingly may not be
-    fair: maybe the translator precisely failed to translate the
-    largest automata.)
+More details about ltlcross (used to produce these outputs) can be
+found in its man page, and at http://spot.lip6.fr/userdoc/tools.html
