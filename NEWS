@@ -9,6 +9,19 @@ New in spot 1.0a (not released):
     - "P0.init" is parsed as an atomic even without the double quotes,
       but it was always output with double quotes.  This version will
       not quote this atomic proposition anymore.
+  * Pruning:
+    - lbtt has been removed from the distribution.  A copy of the last
+      version we distributed is still available at
+        http://spot.lip6.fr/dl/lbtt-1.2.1a.tar.gz
+      and our test suite will use it if it is installed, but the same
+      tests are already performed by ltlcross.
+    - the bench/ltl2tgba/ benchmark, that used lbtt to compare various
+      LTL-to-Büchi translators, has been updated to use ltlcross.  It
+      now output summary tables in LaTeX.  Support for Modella (no
+      longer available online), and Wring (requires a too old Perl
+      version) have been dropped.
+    - the half-baked and underdocumented "Event TGBA" support in
+      src/evtgba*/ has been removed, as it was last worked on in 2004.
 
 New in spot 1.0 (2012-10-27):
 
