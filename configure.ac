@@ -111,15 +111,12 @@ AC_CONFIG_FILES([
   bench/emptchk/Makefile
   bench/emptchk/defs
   bench/ltlcounter/Makefile
-  bench/ltlcounter/defs
   bench/ltlclasses/Makefile
-  bench/ltlclasses/defs
   bench/ltl2tgba/Makefile
   bench/ltl2tgba/defs
   bench/scc-stats/Makefile
   bench/split-product/Makefile
   bench/wdba/Makefile
-  bench/wdba/defs
   doc/Doxyfile
   doc/Makefile
   doc/tl/Makefile
