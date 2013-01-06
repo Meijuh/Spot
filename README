@@ -171,7 +171,6 @@ src/              Sources for libspot.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.
    tgbatest/      Tests for tgba/, tgbaalgos/, tgbaparse/, ta/ and taalgos/.
-   evtgba*/       Ignore these for now.
    eltlparse/     Parser for ELTL formulae.
    eltltest/      Tests for ELTL nodes in ltlast/ and eltlparse/.
    saba/          SABA (State-labeled Alternating Büchi Automata) objects.
@@ -223,7 +222,7 @@ End:
  LocalWords:  Baarir Thierry Mieg CVS Università di Torino devel src libspot ac
  LocalWords:  ltlast ltlenv ltlparse ltlvisit ltltest misc tgba TGBA tgbaalgos
  LocalWords:  gtec Tarjan tgbaparse tgbatest doc html PDF spotref pdf cgi ELTL
- LocalWords:  CGI ltl iface BDD Couvreur's evtgba emptchk kripke Kripke saba vm
+ LocalWords:  CGI ltl iface BDD Couvreur's emptchk kripke Kripke saba vm
  LocalWords:  eltlparse eltltest SABA sabaalgos sabatest ssp ltlcouter scc SCC
 LocalWords:  formulae optimizations kripkeparse kripketest Automata
 LocalWords:  neverparse ltlcounter ltlclasses parallelizing automata

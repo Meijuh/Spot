@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -26,10 +26,9 @@ AUTOMAKE_OPTIONS = subdir-objects
 # end, after building '.' (since the current directory contains
 # libspot.la needed by the tests)
 SUBDIRS = misc ltlenv ltlast ltlvisit ltlparse eltlparse tgba		\
-          tgbaalgos tgbaparse ta taalgos evtgba evtgbaalgos		\
-          evtgbaparse kripke saba sabaalgos neverparse kripkeparse	\
-          . bin ltltest eltltest tgbatest evtgbatest sabatest sanity	\
-          kripketest
+           tgbaalgos tgbaparse ta taalgos kripke saba sabaalgos		\
+           neverparse kripkeparse . bin ltltest eltltest tgbatest	\
+           sabatest sanity kripketest
 
 lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =
@@ -47,9 +46,6 @@ libspot_la_LIBADD =  \
   taalgos/libtaalgos.la \
   tgbaparse/libtgbaparse.la \
   neverparse/libneverparse.la \
-  evtgba/libevtgba.la \
-  evtgbaalgos/libevtgbaalgos.la \
-  evtgbaparse/libevtgbaparse.la \
   saba/libsaba.la \
   sabaalgos/libsabaalgos.la \
   kripke/libkripke.la \

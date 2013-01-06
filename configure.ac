@@ -131,11 +131,6 @@ AC_CONFIG_FILES([
   src/eltlparse/Makefile
   src/eltltest/defs
   src/eltltest/Makefile
-  src/evtgbaalgos/Makefile
-  src/evtgba/Makefile
-  src/evtgbaparse/Makefile
-  src/evtgbatest/defs
-  src/evtgbatest/Makefile
   src/kripke/Makefile
   src/ltlast/Makefile
   src/ltlenv/Makefile
