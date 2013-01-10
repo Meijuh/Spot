@@ -1,0 +1,55 @@
+#+TITLE: Command-line tools installed by Spot 1.0
+#+EMAIL spot@lrde.epita.fr
+#+OPTIONS: H:2 num:nil toc:t
+
+This document introduces command-line tools that are installed with
+the Spot library.  We give some examples to highlight possible
+use-cases but shall not attempt to cover all features exhaustively
+(please check the man pages for further inspiration).
+
+* Conventions
+
+For technical reasons related to the way we generate these pages, we
+use the following convention when rendering shell commands.  The
+commands issued to the shell are formatted like this with a green line
+on the left:
+
+#+NAME: helloworld
+#+BEGIN_SRC sh :results verbatim :exports both
+echo Hello World
+#+END_SRC
+
+And the output of such a command is formatted as follows, with a red
+line on the left:
+
+#+RESULTS: helloworld
+: Hello World
+
+Parts of these documents (e.g., lists of options) are actually the
+results of shell commands and will be presented as above, even if the
+corresponding commands are hidden.
+
+* Common options
+
+- [[file:ioltl.org][common input and output options for LTL/PSL formulas]]
+
+* Command-line tools
+
+- [[file:randltl.org][=randltl=]] Generate random LTL/PSL formulas.
+- [[file:ltlfilt.org][=ltlfilt=]] Filter LTL/PSL formulas.
+- [[file:genltl.org][=genltl=]] Generate LTL formulas from scalable patterns.
+- [[file:ltl2tgba.org][=ltl2tgba=]] Translate LTL/PSL formulas into Büchi automata.
+- [[file:ltl2tgta.org][=ltl2tgta=]] Translate LTL/PSL formulas into Testing automata.
+- [[file:ltlcross.org][=ltlcross=]] Cross-compare LTL/PSL-to-Büchi translators.
+
+
+# Local variables:
+# eval: (setenv "PATH" (concat "../../src/bin" path-separator (getenv "PATH")))
+# eval: (org-babel-do-load-languages 'org-babel-load-languages '((sh . t) (dot . t)))
+# eval: (setq org-confirm-babel-evaluate nil)
+# End:
+
+
+#  LocalWords:  num toc helloworld SRC LTL PSL randltl ltlfilt genltl
+#  LocalWords:  scalable ltl tgba Büchi automata tgta ltlcross eval
+#  LocalWords:  setenv concat getenv setq

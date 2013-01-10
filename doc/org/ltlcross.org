@@ -1,0 +1,373 @@
+#+TITLE: =ltlcross=
+#+EMAIL spot@lrde.epita.fr
+#+OPTIONS: H:2 num:nil toc:t
+#+LINK_UP: file:tools.html
+
+=ltlcross= is a tool for cross-comparing the output of LTL-to-Büchi
+translators.  It is actually a Spot-based clone of [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], the
+/LTL-to-Büchi Translator Testbench/, that essentially performs the
+same sanity checks.
+
+The main motivations for rewriting this tool were:
+  - support for PSL formulas in addition to LTL
+  - more statistics (like counting the number of logical transitions
+    represented by each physical edge), output in a format that
+    can be more easily be post-processed,
+  - more precise time measurement (LBTT was only precise to
+    1/100 of a second, reporting most times as "0.00s").
+
+Although =ltlcross= performs the same sanity checks as LBTT, it does
+not implement any of the interactive features of LBTT.  Essentially
+=ltlcross= will report problems, but you will be on your own to
+investigate and fix them.
+
+The core of =ltlcross= is a loop that does the following steps:
+  - Input a formula
+  - Translate the formula and its negation using each configured translator.
+    If there are 3 translators, the positive and negative translations
+    will be denoted =P0=, =N0=, =P1=, =N1=, =P2=, =N2=.
+  - Build the products of these automata with a random state-space (the same
+    state-space for all translations).
+  - Perform sanity checks between all these automata to detect any problem.
+  - Gather statistics if requested.
+
+* Formula selection
+
+Formulas to translate should be specified using the [[file:ioltl.org][common input options]].
+Standard input is read if no =-f= or =-F= option is given.
+
+* Configuring translators
+
+Each translator should be specified as a string that use some of the
+following character sequences:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltlcross --help | sed -n '/character sequences:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+#+RESULTS:
+:   %f,%s,%l,%w                the formula as a (quoted) string in Spot, Spin,
+:                              LBT, or Wring's syntax
+:   %F,%S,%L,%W                the formula as a file in Spot, Spin, LBT, or
+:                              Wring's syntax
+:   %N,%T                      the output automaton as a Never claim, or in
+:                              LBTT's format
+
+For instance here is how we could cross-compare the never claims
+output by =spin= and =ltl2tgba= for the formulas =GFa= and =X(a U b)=.
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltlcross -f 'GFa' -f 'X(a U b)' 'ltl2tgba -s %s >%N' 'spin -f %s >%N'
+#+END_SRC
+#+RESULTS:
+
+When =ltlcross= executes these commands, =%s= will be replaced
+by the formula in Spin's syntax, and =%N= will be replaced by a
+temporary file into which the output of the translator is redirected
+before it is read back by =ltlcross=.
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltlcross -f 'GFa' -f 'X(a U b)' 'ltl2tgba -s %s >%N' 'spin -f %s >%N' 2>&1
+#+END_SRC
+#+RESULTS:
+#+begin_example
+([](<>(a)))
+Running [P0]: ltl2tgba -s '([](<>(a)))' >'lck-o0-iDGV6y'
+Running [P1]: spin -f '([](<>(a)))' >'lck-o1-sA3FYp'
+Running [N0]: ltl2tgba -s '(!([](<>(a))))' >'lck-o0-1ClVQg'
+Running [N1]: spin -f '(!([](<>(a))))' >'lck-o1-wyErP7'
+Performing sanity checks and gathering statistics...
+
+(X((a) U (b)))
+Running [P0]: ltl2tgba -s '(X((a) U (b)))' >'lck-o0-ex1BYY'
+Running [P1]: spin -f '(X((a) U (b)))' >'lck-o1-UNE8dQ'
+Running [N0]: ltl2tgba -s '(!(X((a) U (b))))' >'lck-o0-coM8tH'
+Running [N1]: spin -f '(!(X((a) U (b))))' >'lck-o1-eHPoQy'
+Performing sanity checks and gathering statistics...
+
+no problem detected
+#+end_example
+
+=ltlcross= can only read two kinds of output:
+  - Never claims (only if they are restricted to representing an
+    automaton using =if=, =goto=, and =skip= statements) such as those
+    output by [[http://spinroot.com/][=spin=]], [[http://www.lsv.ens-cachan.fr/~gastin/ltl2ba/][=ltl2ba=]], [[http://sourceforge.net/projects/ltl3ba/][=ltl3ba=]], or =ltl2tgba --spin=.  These
+    should be indicated using =%N=.
+  - [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT's format]], which supports generalized Büchi automata with
+    either state-based acceptance or transition-based acceptance.
+    This output is used for instance by [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][=lbt=]], [[http://web.archive.org/web/20080607170403/http://www.science.unitn.it/~stonetta/modella.html][=modella=]], or =ltl2tgba
+    --lbtt=.  These should be indicated using =%T=.
+
+Of course all configured tools need not the same =%= sequences.
+
+* Getting statistics
+
+Detailed statistics about the result of each translation, and the
+product of that resulting automaton with the random state-space, can
+be obtained using the =--csv=FILE= or =--json=FILE= option.
+
+The following compare =ltl2tgba=, =spin=, and =lbt= on three random
+formula (where =W= and =M= operators have been removed because they
+are not supported by =spin= and =lbt=).
+
+#+BEGIN_SRC sh :results verbatim :exports code
+randltl -n 2 a b |
+ltlfilt --remove-wm |
+ltlcross --csv=results.csv \
+         'ltl2tgba -s %f >%N' \
+         'spin -f %s >%N' \
+         'lbt < %L >%T'
+#+END_SRC
+#+RESULTS:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+randltl -n 2 a b c | ltlfilt --remove-wm |
+ltlcross --csv=results.csv --json=results.json \
+         'ltl2tgba -s %f >%N' \
+         'spin -f %s >%N' \
+         'lbt < %L >%T' --csv=results.csv 2>&1
+#+END_SRC
+#+RESULTS:
+#+begin_example
+-:1: (G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1)))))))
+Running [P0]: ltl2tgba -s '(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1)))))))' >'lck-o0-eGEYaZ'
+Running [P1]: spin -f '([](((p0) U ((p0) && ([](p1)))) V (([](p1)) || ((p0) U ((p0) && ([](p1)))))))' >'lck-o1-nYpFBX'
+Running [P2]: lbt < 'lck-i0-fGdZQ0' >'lck-o2-CPs23V'
+Running [N0]: ltl2tgba -s '(!(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1))))))))' >'lck-o0-kXiZZS'
+Running [N1]: spin -f '(!([](((p0) U ((p0) && ([](p1)))) V (([](p1)) || ((p0) U ((p0) && ([](p1))))))))' >'lck-o1-7ILLzR'
+Running [N2]: lbt < 'lck-i0-9KG0wU' >'lck-o2-CcMCaQ'
+Performing sanity checks and gathering statistics...
+
+-:2: (!((G(F(p0))) -> (F(p1))))
+Running [P0]: ltl2tgba -s '(!((G(F(p0))) -> (F(p1))))' >'lck-o0-IOckzW'
+Running [P1]: spin -f '(!((<>(p1)) || (!([](<>(p0))))))' >'lck-o1-tsT3RZ'
+Running [P2]: lbt < 'lck-i1-5TJXmT' >'lck-o2-5E9jb3'
+Running [N0]: ltl2tgba -s '(G(F(p0))) -> (F(p1))' >'lck-o0-M3XRO9'
+Running [N1]: spin -f '(<>(p1)) || (!([](<>(p0))))' >'lck-o1-6nxqfd'
+Running [N2]: lbt < 'lck-i1-4hS5u6' >'lck-o2-vNItGg'
+Performing sanity checks and gathering statistics...
+
+no problem detected
+#+end_example
+
+After this execution, the file =results.csv= contains the following:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+cat results.csv
+#+END_SRC
+#+RESULTS:
+#+begin_example
+"formula", "tool",  "states", "edges", "transitions", "acc", "scc", "nondetstates", "nondeterministic", "time", "product_states", "product_transitions", "product_scc"
+"(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1)))))))", "ltl2tgba -s %f >%N", 3, 5, 9, 1, 3, 2, 1, 0.0453898, 401, 5136, 3
+"(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1)))))))", "spin -f %s >%N", 6, 13, 18, 1, 3, 6, 1, 0.0108596, 995, 14384, 5
+"(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1)))))))", "lbt < %L >%T", 8, 41, 51, 1, 3, 8, 1, 0.00343479, 1389, 42998, 5
+"(!(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1))))))))", "ltl2tgba -s %f >%N", 4, 10, 16, 1, 3, 0, 0, 0.0437875, 797, 16340, 3
+"(!(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1))))))))", "spin -f %s >%N", 7, 24, 63, 1, 4, 6, 1, 0.0061535, 1400, 64668, 4
+"(!(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1))))))))", "lbt < %L >%T", 39, 286, 614, 3, 28, 33, 1, 0.00384434, 7592, 602204, 4400
+"(!((G(F(p0))) -> (F(p1))))", "ltl2tgba -s %f >%N", 2, 4, 4, 1, 1, 0, 0, 0.0416853, 398, 4198, 1
+"(!((G(F(p0))) -> (F(p1))))", "spin -f %s >%N", 2, 3, 5, 1, 1, 1, 1, 0.00325558, 398, 5227, 1
+"(!((G(F(p0))) -> (F(p1))))", "lbt < %L >%T", 5, 10, 15, 1, 4, 5, 1, 0.00299424, 409, 6401, 12
+"(G(F(p0))) -> (F(p1))", "ltl2tgba -s %f >%N", 3, 5, 11, 1, 3, 1, 1, 0.0422192, 600, 11663, 3
+"(G(F(p0))) -> (F(p1))", "spin -f %s >%N", 3, 5, 14, 1, 3, 1, 1, 0.00293655, 600, 14840, 3
+"(G(F(p0))) -> (F(p1))", "lbt < %L >%T", 11, 18, 54, 2, 11, 5, 1, 0.0030133, 1253, 26891, 457
+#+end_example
+
+This can be loaded in any spreadsheet application.  Although we only
+supplied 2 random generated formulas, the output contains 4 formulas because
+=ltlcross= had to translate the positive and negative version of each.
+
+If we had used the option =--json=results.json= instead of
+=--cvs=results.csv=, the file =results.json= would have contained the
+following [[http://www.json.org/][JSON]] output.
+
+#+BEGIN_SRC sh :results verbatim :exports results
+cat results.json
+#+END_SRC
+#+RESULTS:
+#+begin_example
+{
+  "tools": [
+    "ltl2tgba -s %f >%N",
+    "spin -f %s >%N",
+    "lbt < %L >%T"
+  ],
+  "inputs": [
+    "(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1)))))))",
+    "(!(G(((p0) U ((p0) & (G(p1)))) R ((G(p1)) | ((p0) U ((p0) & (G(p1))))))))",
+    "(!((G(F(p0))) -> (F(p1))))",
+    "(G(F(p0))) -> (F(p1))"
+  ],
+  "fields": [
+    "input", "tool", "states", "edges", "transitions", "acc", "scc", "nondetstates", "nondeterministic", "time", "product_states", "product_transitions", "product_scc"
+  ],
+  "results": [
+    [ 0, 0, 3, 5, 9, 1, 3, 2, 1, 0.0431589, 401, 5136, 3 ],
+    [ 0, 1, 6, 13, 18, 1, 3, 6, 1, 0.0104812, 995, 14384, 5 ],
+    [ 0, 2, 8, 41, 51, 1, 3, 8, 1, 0.00321619, 1389, 42998, 5 ],
+    [ 1, 0, 4, 10, 16, 1, 3, 0, 0, 0.0443761, 797, 16340, 3 ],
+    [ 1, 1, 7, 24, 63, 1, 4, 6, 1, 0.00623927, 1400, 64668, 4 ],
+    [ 1, 2, 39, 286, 614, 3, 28, 33, 1, 0.00386306, 7592, 602204, 4400 ],
+    [ 2, 0, 2, 4, 4, 1, 1, 0, 0, 0.0414639, 398, 4198, 1 ],
+    [ 2, 1, 2, 3, 5, 1, 1, 1, 1, 0.00327304, 398, 5227, 1 ],
+    [ 2, 2, 5, 10, 15, 1, 4, 5, 1, 0.00322862, 409, 6401, 12 ],
+    [ 3, 0, 3, 5, 11, 1, 3, 1, 1, 0.0432979, 600, 11663, 3 ],
+    [ 3, 1, 3, 5, 14, 1, 3, 1, 1, 0.00296043, 600, 14840, 3 ],
+    [ 3, 2, 11, 18, 54, 2, 11, 5, 1, 0.00295457, 1253, 26891, 457 ]
+  ]
+}
+#+end_example
+
+Here the =fields= table describes the columns of the =results= table,
+and the =input= and =tool= columns contains indices relative to the
+=inputs= and =tools= table.  This format is more compact when dealing
+with lots of translators and formulas, because they don't have to be
+repeated on each line as in the CSV version.
+
+JSON data can be easily processed in any language.  For instance the
+following Python3 script averages each column for each tool,
+and presents the results in a form that can almost be copied into a
+LaTeX table (the =%= in the tool names have to be taken care of).
+
+#+BEGIN_SRC python :results output :exports both
+#!/usr/bin/python3
+import json
+data = json.load(open('results.json'))
+datacols = range(2, len(data["fields"]))
+# Index results by tool
+results = { t:[] for t in range(0, len(data["tools"])) }
+for l in data["results"]:
+  results[l[1]].append(l)
+# Average columns for each tools, and display them as a table
+print("%-18s &" % "tool", "count &",
+      " & ".join(data["fields"][2:]), "\\\\")
+for i in range(0, len(data["tools"])):
+  c = len(results[i])
+  sums = ["%6.2f" % (sum([x[j] for x in results[i]])/c)
+          for j in datacols]
+  print("%-18s & %3d & " % (data["tools"][i], c),
+        " & ".join(sums), "\\\\")
+#+END_SRC
+#+RESULTS:
+: tool               & count & states & edges & transitions & acc & scc & nondetstates & nondeterministic & time & product_states & product_transitions & product_scc \\
+: ltl2tgba -s %f >%N &   4 &    3.00 &   6.00 &  10.00 &   1.00 &   2.50 &   0.75 &   0.50 &   0.04 & 549.00 & 9334.25 &   2.50 \\
+: spin -f %s >%N     &   4 &    4.50 &  11.25 &  25.00 &   1.00 &   2.75 &   3.50 &   1.00 &   0.01 & 848.25 & 24779.75 &   3.25 \\
+: lbt < %L >%T       &   4 &   15.75 &  88.75 & 183.50 &   1.75 &  11.50 &  12.75 &   1.00 &   0.00 & 2660.75 & 169623.50 & 1218.50 \\
+
+
+When computing such statistics, you should be aware that inputs for
+which a tool failed to generate an automaton (e.g. it crashed, or it
+was killed if you used =ltlcross='s =--timeout= option to limit run
+time) are not represented in the CSV or JSON files.  However data for
+bogus automata are still included: as shown below =ltlcross= will
+report inconsistencies between automata as errors, but it does not try
+to guess who is incorrect.
+
+* Detecting problems
+
+If a translator exits with a non-zero status code, or fails to output
+an automaton =ltlcross= can read, and error will be displayed and the
+result of the translation will be discarded.
+
+Otherwise =ltlcross= performs the following checks on all translated
+formulas ($P_i$ and $N_i$ designate respectively the translation of
+positive and negative formulas by the ith translator).
+
+  - Intersection check: $P_i\otimes N_j$ must be empty for all
+    pairs of $(i,j)$.
+
+    A single failing translator might generate a lot of lines of
+    the form:
+
+    : error: P0*N1 is nonempty
+    : error: P1*N0 is nonempty
+    : error: P1*N1 is nonempty
+    : error: P1*N2 is nonempty
+    : error: P1*N3 is nonempty
+    : error: P1*N4 is nonempty
+    : error: P1*N5 is nonempty
+    : error: P1*N6 is nonempty
+    : error: P1*N7 is nonempty
+    : error: P1*N8 is nonempty
+    : error: P1*N9 is nonempty
+    : error: P2*N1 is nonempty
+    : error: P3*N1 is nonempty
+    : error: P4*N1 is nonempty
+    : error: P5*N1 is nonempty
+    : error: P6*N1 is nonempty
+    : error: P7*N1 is nonempty
+    : error: P8*N1 is nonempty
+    : error: P9*N1 is nonempty
+
+    In this example, translator number =1= looks clearly faulty
+    (at least the other 9 translators do not contradict each other).
+
+  - Cross-comparison checks: for some state-space $S$,
+    all $P_i\otimes S$ are either all empty, or all non-empty.
+    Similarly all $N_i\otimes S$ are either all empty, or all non-empty.
+
+    A cross-comparison failure could be displayed as:
+
+    : error: {P0,P2,P3,P4,P5,P6,P7,P8,P9} disagree with {P1} when evaluating the state-space
+
+  - Consistency check:
+
+    For each $i$, the products $P_i\otimes S$ and $N_i\otimes S$
+    actually cover all states of $S$.  Because $S$ does not have any
+    deadlock, any of its infinite path must be accepted by $P_i$ or
+    $N_i$ (or both).
+
+    An error in that case is displayed as
+
+    : error: inconsistency between P1 and N1
+
+The above checks are the same that are performed by [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]].
+
+If any problem was reported during the translation of one of the
+formulas, =ltlcheck= will exit with an exit status of =1=.  Statistics
+(if requested) are output nonetheless, and include any faulty
+automaton as well.
+
+* Miscellaneous options
+
+** =--stop-on-error=
+
+The =--stop-on-error= will cause =ltlcross= to abort on the first
+detected error.  This include failure to start some translator, read
+its output, or failure to passe the sanity checks.  Timeouts are
+allowed.
+
+One use for this option is when =ltlcross= is used in combination with
+=randltl= to check translators on an infinite stream of formulas.
+
+For instance the following will cross-compare =ltl2tgba= against
+=ltl3ba= until it finds an error, or your interrupt the command, or it
+runs out of memory (the hash tables used by =randltl= and =ltlcross=
+to remove duplicate formulas will keep growing).
+
+#+BEGIN_SRC sh :export code :eval no
+randltl -n -1 --tree-size 10..25 a b c | ltlcross --stop-on-error 'ltl2tgba --lbtt %f >%T' 'ltl3ba -f %s >%N'
+#+END_SRC
+
+** =--no-check=
+
+The =--no-check= option disables all sanity checks, and only use the supplied
+formulas in their positive form.
+
+When checks are enabled, the negated formulas are intermixed with the
+positives ones in the results.  Therefore the =--no-check= option can
+be used to gather statistics about a specific set of formulas.
+
+# Local variables:
+# eval: (setenv "PATH" (concat "../../src/bin" path-separator (getenv "PATH")))
+# eval: (org-babel-do-load-languages 'org-babel-load-languages '((sh . t) (dot . t) (python . t)))
+# eval: (setq org-confirm-babel-evaluate nil)
+# eval: (setq org-babel-python-command "/usr/bin/python3")
+# End:
+
+#  LocalWords:  ltlcross num toc LTL Büchi LBTT Testbench PSL SRC sed
+#  LocalWords:  automata LBT LBTT's ltl tgba GFa lck iDGV sA FYp BYY
+#  LocalWords:  ClVQg wyErP UNE dQ coM tH eHPoQy goto ba lbt modella
+#  LocalWords:  lbtt csv json randltl ltlfilt wm eGEYaZ nYpFBX fGdZQ
+#  LocalWords:  CPs kXiZZS ILLzR wU CcMCaQ IOckzW tsT RZ TJXmT jb XRO
+#  LocalWords:  nxqfd hS vNItGg acc scc nondetstates nondeterministic
+#  LocalWords:  cvs LaTeX datacols len ith otimes ltlcheck eval setq
+#  LocalWords:  setenv concat getenv

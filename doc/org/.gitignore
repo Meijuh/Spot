@@ -1,0 +1,7 @@
+*.png
+err
+*.html
+*.csv
+*.json
+scheck.ltl
+sum.py
