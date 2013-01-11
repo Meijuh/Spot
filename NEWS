@@ -9,6 +9,12 @@ New in spot 1.0a (not released):
     - "P0.init" is parsed as an atomic even without the double quotes,
       but it was always output with double quotes.  This version will
       not quote this atomic proposition anymore.
+  * Minor improvements:
+    - Four new LTL simplifications rules:
+        GF(a|Xb) = GF(a|b)
+        GF(a|Fb) = GF(a|b)
+        FG(a&Xb) = FG(a&b)
+        FG(a&Gb) = FG(a&b)
   * Pruning:
     - lbtt has been removed from the distribution.  A copy of the last
       version we distributed is still available at

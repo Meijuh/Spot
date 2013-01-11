@@ -1,8 +1,9 @@
 #! /bin/sh
-# Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-# Developpement de l'Epita (LRDE).
+# -*- coding: utf-8 -*-
+# Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+# et Developpement de l'Epita (LRDE).
 # Copyright (C) 2004, 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 # et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
@@ -97,6 +98,13 @@ for x in ../reduccmp ../reductaustr; do
 
      run 0 $x 'FX(a)' 'XF(a)'
      run 0 $x 'GX(a)' 'XG(a)'
+
+     run 0 $x 'GF(a | Xb)' 'GF(a | b)'
+     run 0 $x 'GF(a | Fb)' 'GF(a | b)'
+     run 0 $x 'GF(Xa | Fb)' 'GF(a | b)'
+     run 0 $x 'FG(a & Xb)' 'FG(a & b)'
+     run 0 $x 'FG(a & Gb)' 'FG(a & b)'
+     run 0 $x 'FG(Xa & Gb)' 'FG(a & b)'
 
      run 0 $x 'X(a) U X(b)' 'X(a U b)'
      run 0 $x 'X(a) R X(b)' 'X(a R b)'

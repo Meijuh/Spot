@@ -1313,9 +1313,11 @@ instead of $\equiv$, and they can be disabled by setting the
 The following are simplification rules for unary operators (applied
 from left to right, as usual):
 \begin{align*}
-  \X\F\G f & \equiv \F\G f & \F\X f    & \equiv \X\F f       & \G\X f     & \equiv \X\G f\\
-  \X\G\F f & \equiv \G\F f & \F(f\U g) & \equiv \F g         & \G(f \R g) & \equiv \G g       \\
-           &               & \F(f\M g) & \equiv \F (f\AND g) & \G(f \W g) & \equiv \G(f\OR g)
+  \X\F\G f & \equiv \F\G f & \F\X f           & \equiv \X\F f        & \G\X f          & \equiv \X\G f       \\
+  \X\G\F f & \equiv \G\F f & \F(f\U g)        & \equiv \F g          & \G(f \R g)      & \equiv \G g         \\
+           &               & \F(f\M g)        & \equiv \F (f\AND g)  & \G(f \W g)      & \equiv \G(f\OR g)   \\
+           &               & \F\G(f\AND \X g) & \equiv \F\G(f\AND g) & \G\F(f\OR \X g) & \equiv \G\F(f\OR g) \\
+           &               & \F\G(f\AND \G g) & \equiv \F\G(f\AND g) & \G\F(f\OR \F g) & \equiv \G\F(f\OR g) \\
 \end{align*}
 \begin{align*}
   \G(f_1\OR\ldots\OR f_n \OR \G\F(g_1)\OR\ldots\OR \G\F(g_m)) & \equiv \G(f_1\OR\ldots\OR f_n)\OR \G\F(g_1\OR\ldots\OR g_m)

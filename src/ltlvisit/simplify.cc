@@ -1,5 +1,6 @@
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1184,6 +1185,47 @@ namespace spot
 		      result_ = recurse_destroy(res);
 		      return;
 		    }
+
+		  // FG(a & Xb) = FG(a & b)
+		  // FG(a & Gb) = FG(a & b)
+		  if (const unop* g = is_G(result_))
+		    if (const multop* m = is_And(g->child()))
+		      if (!m->is_boolean())
+			{
+			  m->clone();
+			  mospliter s(mospliter::Strip_G | mospliter::Strip_X,
+				      m, c_);
+			  if (!s.res_G->empty() || !s.res_X->empty())
+			    {
+			      result_->destroy();
+			      s.res_other->insert(s.res_other->begin(),
+						  s.res_G->begin(),
+						  s.res_G->end());
+			      delete s.res_G;
+			      s.res_other->insert(s.res_other->begin(),
+						  s.res_X->begin(),
+						  s.res_X->end());
+			      delete s.res_X;
+			      const formula* in =
+				multop::instance(multop::And, s.res_other);
+			      result_ =
+				recurse_destroy(unop_unop(unop::F, unop::G,
+							  in));
+			      return;
+			    }
+			  else
+			    {
+			      for (multop::vec::iterator j =
+				     s.res_other->begin();
+				   j != s.res_other->end(); ++j)
+				if (*j)
+				  (*j)->destroy();
+			      delete s.res_other;
+			      delete s.res_G;
+			      delete s.res_X;
+			      // and continue...
+			    }
+			}
 		}
 
 	      // if Fa => a, keep a.
@@ -1288,6 +1330,47 @@ namespace spot
 			  result_ = mo;
 			}
 		    }
+
+		  // GF(a | Xb) = GF(a | b)
+		  // GF(a | Fb) = GF(a | b)
+		  if (const unop* f = is_F(result_))
+		    if (const multop* m = is_Or(f->child()))
+		      if (!m->is_boolean())
+			{
+			  m->clone();
+			  mospliter s(mospliter::Strip_F | mospliter::Strip_X,
+				      m, c_);
+			  if (!s.res_F->empty() || !s.res_X->empty())
+			    {
+			      result_->destroy();
+			      s.res_other->insert(s.res_other->begin(),
+						  s.res_F->begin(),
+						  s.res_F->end());
+			      delete s.res_F;
+			      s.res_other->insert(s.res_other->begin(),
+						  s.res_X->begin(),
+						  s.res_X->end());
+			      delete s.res_X;
+			      const formula* in =
+				multop::instance(multop::Or, s.res_other);
+			      result_ =
+				recurse_destroy(unop_unop(unop::G, unop::F,
+							  in));
+			      return;
+			    }
+			  else
+			    {
+			      for (multop::vec::iterator j =
+				     s.res_other->begin();
+				   j != s.res_other->end(); ++j)
+				if (*j)
+				  (*j)->destroy();
+			      delete s.res_other;
+			      delete s.res_F;
+			      delete s.res_X;
+			      // and continue...
+			    }
+			}
 		}
 	      // if a => Ga, keep a.
 	      if (opt_.containment_checks_stronger
