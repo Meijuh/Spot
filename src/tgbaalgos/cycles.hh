@@ -1,5 +1,6 @@
-// Copyright (C) 2012 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -108,7 +109,7 @@ namespace spot
     hash_type tags_;
 
     // A tagged_state s is a state* (s->first) associated to its
-    // state_info (s->second).  We usually handled tagged_state in the
+    // state_info (s->second).  We usually handle tagged_state in the
     // algorithm to avoid repeated lookup of the state_info data.
     typedef hash_type::iterator tagged_state;
 
@@ -155,6 +156,9 @@ namespace spot
     ///
     /// The default implementation, not very useful, will print the
     /// states in the cycle on std::cout.
+    ///
+    /// This method method should return false iff no more cycles need
+    /// should be enumerated by run().
     virtual bool cycle_found(const state* start);
 
   private:
