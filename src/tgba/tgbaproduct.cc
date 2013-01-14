@@ -465,8 +465,8 @@ namespace spot
   std::string
   tgba_product::transition_annotation(const tgba_succ_iterator* t) const
   {
-    const tgba_succ_iterator_product* i =
-      down_cast<const tgba_succ_iterator_product*>(t);
+    const tgba_succ_iterator_product_common* i =
+      down_cast<const tgba_succ_iterator_product_common*>(t);
     assert(i);
     std::string left = left_->transition_annotation(i->left_);
     std::string right = right_->transition_annotation(i->right_);
