@@ -9,6 +9,8 @@ New in spot 1.0a (not released):
     - "P0.init" is parsed as an atomic even without the double quotes,
       but it was always output with double quotes.  This version will
       not quote this atomic proposition anymore.
+    - tgba_product::transition_annotation() would segfault when
+      called in a product against a Kripke structure.
   * Minor improvements:
     - Four new LTL simplifications rules:
         GF(a|Xb) = GF(a|b)

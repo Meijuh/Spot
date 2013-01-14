@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2011 Laboratoire de Recherche et Développement
+# Copyright (C) 2011, 2013 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -51,3 +51,7 @@ run 0 ../dve2check -ddead -E $srcdir/finite.dve \
 
 run 0 ../dve2check -ddead -e $srcdir/finite.dve \
   '!(G(dead -> ("P.a==2" | "P.b==3")))'
+
+# This used to segfault because of a bug in
+# tgba_product::transition_annotation.
+run 0 ../dve2check -gp $srcdir/finite.dve true
