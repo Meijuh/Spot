@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -278,7 +279,6 @@ namespace spot
       bdd the_acceptance_cond_;
       const acc_list_t& acc_list_;
       const state_kv_complement* origin_;
-      const state_kv_complement* current_state_;
       bdd_list_t condition_list_;
       bdd_list_t::const_iterator current_condition_;
       state_rank_map highest_current_ranks_;

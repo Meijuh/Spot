@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
-// Developpement de l Epita_explicit (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -9,9 +10,9 @@
 // (at your option) any later version.
 //
 // Spot is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANta_explicitBILITY
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 // or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-// License for more deta_explicitils.
+// License for more details.
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -265,7 +266,6 @@ namespace spot
   private:
     state_ta_explicit::transitions* transitions_;
     state_ta_explicit::transitions::const_iterator i_;
-    const state_ta_explicit* source_;
   };
 
 }

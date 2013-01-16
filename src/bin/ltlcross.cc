@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -393,6 +393,8 @@ exec_with_timeout(const char* cmd)
       setpgid(0, 0);
       execlp("sh", "sh", "-c", cmd, (char*)0);
       error(2, errno, "failed to run 'sh'");
+      // never reached
+      return -1;
     }
   else
     {

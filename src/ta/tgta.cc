@@ -1,5 +1,6 @@
-// Copyright (C) 2012 Laboratoire de Recherche et Developpement
-// de l Epita_explicit (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -9,7 +10,7 @@
 // (at your option) any later version.
 //
 // Spot is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANta_explicitBILITY
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 // or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 // License for more deta_explicitils.
 //
@@ -29,5 +30,3 @@ namespace spot
 
 
 }
-
-

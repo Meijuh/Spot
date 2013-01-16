@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -43,15 +43,13 @@ namespace spot
   // ta_explicit_succ_iterator
 
   ta_explicit_succ_iterator::ta_explicit_succ_iterator(
-      const state_ta_explicit* s) :
-    source_(s)
+      const state_ta_explicit* s)
   {
     transitions_ = s->get_transitions();
   }
 
   ta_explicit_succ_iterator::ta_explicit_succ_iterator(
-      const state_ta_explicit* s, bdd condition) :
-    source_(s)
+      const state_ta_explicit* s, bdd condition)
   {
     transitions_ = s->get_transitions(condition);
   }
