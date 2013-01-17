@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis
 // Coopératifs (SRC), Université Pierre et Marie Curie.
@@ -1283,8 +1283,7 @@ main(int argc, char** argv)
 
       if (system)
         {
-	  const spot::tgba* product = product_to_free = a =
-	    new spot::tgba_product(system, a);
+	  product_to_free = a = new spot::tgba_product(system, a);
 
 	  assume_sba = false;
 
@@ -1296,14 +1295,12 @@ main(int argc, char** argv)
             degeneralize_opt = DegenTBA;
           if (degeneralize_opt == DegenTBA)
 	    {
-	      product = product_degeneralized = a =
-		new spot::tgba_tba_proxy(product);
+	      product_degeneralized = a = new spot::tgba_tba_proxy(a);
 	    }
           else if (degeneralize_opt == DegenSBA)
 	    {
 	      tm.start("degeneralize product");
-	      product = product_degeneralized = a =
-		spot::degeneralize(product);
+	      product_degeneralized = a = spot::degeneralize(a);
 	      tm.stop("degeneralize product");
 	      assume_sba = true;
 	    }

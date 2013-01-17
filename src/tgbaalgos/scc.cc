@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2008, 2009, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -233,9 +233,8 @@ namespace spot
 	    continue;
 	  }
 
-	// If we know the state, reuse the previous object.
+	// We already know the state.
 	dest->destroy();
-	dest = spi->first;
 
 	// Have we reached a maximal SCC?
 	if (spi->second >= 0)
