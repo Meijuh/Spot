@@ -1,6 +1,7 @@
 #!/bin/sh
-# Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# -*- coding: utf-8 -*-
+# Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et
+# DÃ©veloppement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -38,24 +39,29 @@ check_false()
   run 1 ../ltl2tgba -CR -e -Poutput -f "$1"
 }
 
+for f in 'GFa' 'FGb' 'GFa->GFb'; do
+  run 0 ../ltl2tgba -lo -b "$f" > output
+  check_false "!($f)"
+done
+
 # Create the prelude file.
-cat >input1 <<EOF
+cat >input1 <<'EOF'
 X=(
     0 1 true
-    1 2 \$0
+    1 2 $0
     accept 2
   )
 U=(
-    0 0 \$0
-    0 1 \$1
+    0 0 $0
+    0 1 $1
     accept 1
   )
 G=(
-    0 0 \$0
+    0 0 $0
   )
-F=U(true, \$0)
-Strong=G(F(\$0))->G(F(\$1))
-R=!U(!\$0, !\$1)
+F=U(true, $0)
+Strong=G(F($0))->G(F($1))
+R=!U(!$0, !$1)
 EOF
 
 cat >input <<EOF
@@ -152,10 +158,10 @@ check_construct input
 check_true 'a R b'
 check_false '!(a R b)'
 
-cat >input <<EOF
+cat >input <<'EOF'
 T=(
     0 1 true
-    1 0 \$0
+    1 0 $0
   )
 %
 T(f)
@@ -163,14 +169,14 @@ EOF
 
 check_construct input
 
-cat >input <<EOF
+cat >input <<'EOF'
 include input1
 Fusion=
   (
-   0 1 \$0 & !finish(\$0)
-   1 1 !finish(\$0)
-   1 2 \$1 & finish(\$0)
-   0 2 \$0 & \$1 & finish(\$0)
+   0 1 $0 & !finish($0)
+   1 1 !finish($0)
+   1 2 $1 & finish($0)
+   0 2 $0 & $1 & finish($0)
    accept 2
   )
 %
@@ -179,14 +185,14 @@ EOF
 
 check_construct input
 
-cat >input <<EOF
+cat >input <<'EOF'
 Concat=
   (
-   0 1 \$0 & !finish(\$0)
-   1 1 !finish(\$0)
-   1 2 finish(\$0)
-   0 2 \$0 & finish(\$0)
-   2 3 \$1
+   0 1 $0 & !finish($0)
+   1 1 !finish($0)
+   1 2 finish($0)
+   0 2 $0 & finish($0)
+   2 3 $1
    accept 3
   )
 %
