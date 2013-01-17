@@ -29,6 +29,7 @@ EOF
    Wpointer-arith \
    Wwrite-strings \
    Wcast-qual \
+   Wdocumentation \
    Werror
   do
     CXXFLAGS="$cf_save_CXXFLAGS $ac_cv_prog_gxx_warn_flags -$cf_opt"

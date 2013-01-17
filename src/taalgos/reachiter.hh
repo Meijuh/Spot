@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement
-// de l Epita (LRDE).
-//
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -74,21 +74,14 @@ namespace spot
     ///
     /// \param s The current state.
     /// \param n A unique number assigned to \a s.
-    /// \param si The spot::ta_succ_iterator for \a s.
     virtual void
     process_state(const state* s, int n);
     /// Called by run() to process a transition.
     ///
-    /// \param in_s The source state
     /// \param in The source state number.
-    /// \param out_s The destination state
     /// \param out The destination state number.
     /// \param si The spot::tgba_succ_iterator positionned on the current
     ///             transition.
-    ///
-    /// The in_s and out_s states are owned by the
-    /// spot::ta_reachable_iterator instance and destroyed when the
-    /// instance is destroyed.
     virtual void
     process_link(int in, int out, const ta_succ_iterator* si);
 

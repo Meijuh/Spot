@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -191,7 +191,7 @@ namespace spot
 
     /// \brief Compare two safra trees.
     ///
-    /// \param other
+    /// \param other the tree to compare too.
     ///
     /// \return 0 if the trees are the same. Otherwise
     /// a signed value.
@@ -520,7 +520,7 @@ namespace spot
     ///
     /// \param bitset a bitset of size \c this->get_nb_acceptance_pairs()
     /// filled with FALSE bits.
-    /// \return bitset[i] will be true if this state-tree is included in L_i
+    /// On return bitset[i] will be set if this state-tree is included in L_i.
     void
     safra_tree::getL(bitset_t& bitset) const
     {
@@ -538,7 +538,7 @@ namespace spot
     ///
     /// \param bitset a bitset of size \c this->get_nb_acceptance_pairs()
     /// filled with TRUE bits.
-    /// \return bitset[i] will be true if this state-tree is included in U_i
+    /// On return bitset[i] will be set if this state-tree is included in U_i.
     void
     safra_tree::getU(bitset_t& bitset) const
     {
@@ -1202,7 +1202,7 @@ namespace spot
   ///   publisher     = {Springer-Verlag}
   /// }
   ///
-  /// @param local_state
+  /// @param local_state the state from which we want to compute the successors.
   ///
   tgba_succ_iterator*
   tgba_safra_complement::succ_iter(const state* local_state,

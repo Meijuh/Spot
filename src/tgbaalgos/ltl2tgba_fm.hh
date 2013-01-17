@@ -1,4 +1,4 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -97,11 +97,12 @@ namespace spot
   /// formula are observable events, and \c unobs can be filled with
   /// additional unobservable events.
   ///
-  /// \param simpl If this parameter is set, the LTL formulae representing
-  /// each state of the automaton will be simplified
+  /// \param simplifier If this parameter is set, the LTL formulae
+  /// representing each state of the automaton will be simplified
   /// before computing the successor.  \a simpl should be configured
-  /// for the type of reduction you want, see spot::ltl::ltl_simplifier.
-  /// This idea is taken from the following paper.
+  /// for the type of reduction you want, see
+  /// spot::ltl::ltl_simplifier.  This idea is taken from the
+  /// following paper.
   /// \verbatim
   /// @InProceedings{	  thirioux.02.fmics,
   ///   author	  = {Xavier Thirioux},

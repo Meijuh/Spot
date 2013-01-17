@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et DÃ©veloppement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
-// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
 // Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -78,10 +79,10 @@ namespace spot
     /// Methods from the tgba or tgba_succ_iterator always return a
     /// new state that you should deallocate with this function.
     /// Before Spot 0.7, you had to "delete" your state directly.
-    /// Starting with Spot 0.7, you update your code to this function
-    /// instead (which simply calls "delete").  In a future version,
-    /// some subclasses will redefine destroy() to allow better memory
-    /// management (e.g. no memory allocation for explicit automata).
+    /// Starting with Spot 0.7, you should update your code to use
+    /// this function instead. destroy() usually call delete, except
+    /// in subclasses that destroy() to allow better memory management
+    /// (e.g., no memory allocation for explicit automata).
     virtual void destroy() const
     {
       delete this;
@@ -90,7 +91,7 @@ namespace spot
   protected:
     /// \brief Destructor.
     ///
-    /// \deprecated Client code should now call
+    /// Note that client code should call
     /// <code>s->destroy();</code> instead of <code>delete s;</code>.
     virtual ~state()
     {

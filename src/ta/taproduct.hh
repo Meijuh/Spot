@@ -1,5 +1,6 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement
-// de l Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -35,7 +36,7 @@ namespace spot
   public:
     /// \brief Constructor
     /// \param ta_state The state from the ta automaton.
-    /// \param kripke_state_ The state from Kripke structure.
+    /// \param kripke_state The state from Kripke structure.
     state_ta_product(state* ta_state, state* kripke_state) :
       ta_state_(ta_state), kripke_state_(kripke_state)
     {

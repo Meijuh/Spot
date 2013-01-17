@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2012 Laboratoire de Recherche et Dévelopment de
-// l'Epita (LRDE).
+// Copyright (C) 2008, 2012, 2013 Laboratoire de Recherche et
+// Dévelopment de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -99,19 +99,19 @@ namespace spot
     ///
     /// Return false if the product automaton accepts no run, otherwise true
     ///
-    /// \param disable_second_pass: is used to disable the second pass when
+    /// \param disable_second_pass is used to disable the second pass when
     /// when it is not necessary, for example when all the livelock-accepting
     /// states of the TA automaton have no successors, we call this kind of
     /// TA as STA (Single-pass Testing Automata)
     /// (see spot::tgba2ta::add_artificial_livelock_accepting_state() for an
     /// automatic transformation of any TA automaton into STA automaton
     ///
-    /// \param disable_heuristic_for_livelock_detection: disable the heuristic
+    /// \param disable_heuristic_for_livelock_detection disable the heuristic
     /// used in the first pass to detect livelock-accepting runs,
     /// this heuristic is described in the paper cited above
     virtual bool
     check(bool disable_second_pass = false,
-        bool disable_heuristic_for_livelock_detection = false);
+	  bool disable_heuristic_for_livelock_detection = false);
 
     /// \brief Check whether the product automaton contains
     /// a livelock-accepting run
