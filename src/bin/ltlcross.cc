@@ -323,6 +323,7 @@ create_tmpfile(char c, unsigned int n, std::string& name)
 
 
 static volatile bool timed_out = false;
+unsigned timeout_count = 0;
 
 #if ENABLE_TIMEOUT
 static volatile int alarm_on = 0;
@@ -575,6 +576,7 @@ namespace
 	{
 	  // This is not considered to be a global error.
 	  std::cerr << "warning: timeout during execution of command\n";
+	  ++timeout_count;
 	}
       else if (WIFSIGNALED(es))
 	{
@@ -1108,12 +1110,25 @@ main(int argc, char** argv)
   else
     {
       if (global_error_flag)
-	std::cerr
-	  << ("error: some error was detected during the above runs,\n"
-	      "       please search for 'error:' messages in the above trace.")
-	  << std::endl;
-	else
-	  std::cerr << "no problem detected" << std::endl;
+	{
+	  std::cerr
+	    << ("error: some error was detected during the above runs,\n"
+		"       please search for 'error:' messages in the above "
+		"trace.")
+	    << std::endl;
+	  if (timeout_count == 1)
+	    std::cerr << "Additionally, 1 timeout occurred." << std::endl;
+	  else if (timeout_count > 1)
+	    std::cerr << "Additionally, "
+		      << timeout_count << " timeouts occurred." << std::endl;
+	}
+      else if (timeout_count == 0)
+	std::cerr << "No problem detected." << std::endl;
+      else if (timeout_count == 1)
+	std::cerr << "1 timeout, but no other problem detected." << std::endl;
+      else
+	std::cerr << timeout_count
+		  << " timeouts, but no other problem detected." << std::endl;
     }
 
   if (json_output)
