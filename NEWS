@@ -9,6 +9,10 @@ New in spot 1.0a (not released):
     - "P0.init" is parsed as an atomic even without the double quotes,
       but it was always output with double quotes.  This version will
       not quote this atomic proposition anymore.
+    - "U", "W", "M", "R" were correctly parsed as atomic propositions
+      (instead of binary operators) when placed in double quotes, but
+      on output they were output without quotes, making the result
+      unparsable.
     - tgba_product::transition_annotation() would segfault when
       called in a product against a Kripke structure.
   * Minor improvements:

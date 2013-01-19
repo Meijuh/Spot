@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2012 Laboratoire de Recherche et
+// Copyright (C) 2008, 2010, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -191,14 +191,16 @@ namespace spot
       static bool
       is_bare_word(const char* str)
       {
-	// Bare words cannot be empty, start with the letter of a unary
-	// operator, or be the name of an existing constant.  Also they
-	// should start with an letter.
+	// Bare words cannot be empty, start with the letter of a
+	// unary operator, or be the name of an existing constant or
+	// operator.  Also they should start with an letter.
 	if (!*str
 	    || *str == 'F'
 	    || *str == 'G'
 	    || *str == 'X'
 	    || !(isalpha(*str) || *str == '_' || *str == '.')
+	    || ((*str == 'U' || *str == 'W' || *str == 'M' || *str == 'R')
+		&& str[1] == 0)
 	    || !strcasecmp(str, "true")
 	    || !strcasecmp(str, "false"))
 	  return false;
