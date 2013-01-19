@@ -27,6 +27,10 @@ New in spot 1.0a (not released):
       transition counts, just as the ltlcross tool.
     - ltlcross will display the number of timeouts at the end
       of its execution.
+    - The parser for LBT's prefix-style LTL formulas will now
+      read atomic propositions that are not of the form p1, p2...
+      This makes it possible to process formulas written in
+      ltl2dstar's syntax.
   * Pruning:
     - lbtt has been removed from the distribution.  A copy of the last
       version we distributed is still available at

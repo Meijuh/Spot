@@ -1,4 +1,5 @@
-/* Copyright (C) 2010, 2011, 2012, Laboratoire de Recherche et
+/* -*- coding: utf-8 -*-
+** Copyright (C) 2010, 2011, 2012, 2013, Laboratoire de Recherche et
 ** Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 ** département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -87,7 +88,10 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 				  yylval->str = new std::string();
                                 }
 <in_par>{
-	 "("			++parent_level; yylval->str->append(yytext, yyleng);
+	 "("			{
+				  ++parent_level;
+				  yylval->str->append(yytext, yyleng);
+				}
 	 ")"			{
 				  if (--parent_level)
 				    {
@@ -126,7 +130,10 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 				  yylval->str = new std::string();
                                 }
 <in_bra>{
-	 "{"			++parent_level; yylval->str->append(yytext, yyleng);
+	 "{"			{
+				  ++parent_level;
+				  yylval->str->append(yytext, yyleng);
+				}
          "}"[ \t\n]*"!"         {
 				  if (--parent_level)
 				    {
@@ -281,11 +288,16 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 			  return token::ATOMIC_PROP;
 			}
 
-  /* in LBT's format, atomic proposition look like p0 or p3141592 */
-<lbt>p[0-9]+            {
+  /* these are operators */
+<lbt>[eitfXFGUVRWM]	return *yytext;
+  /* in LBT's format, atomic proposition look like p0 or p3141592, but
+     for compatibility with ltl2dstar we also accept any alphanumeric
+     string that is not an operator. */
+<lbt>[a-zA-Z._][a-zA-Z0-9._]*            {
 			  yylval->str = new std::string(yytext, yyleng);
 			  return token::ATOMIC_PROP;
 			}
+
   /* Atomic propositions can also be enclosed in double quotes.  */
 <lbt>\"[^\"]*\"		{
 			  yylval->str = new std::string(yytext + 1,
