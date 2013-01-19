@@ -13,6 +13,8 @@ New in spot 1.0a (not released):
       (instead of binary operators) when placed in double quotes, but
       on output they were output without quotes, making the result
       unparsable.
+    - the to_lbt_string() functions would always output a trailing space.
+      This is not the case anymore.
     - tgba_product::transition_annotation() would segfault when
       called in a product against a Kripke structure.
   * Minor improvements:

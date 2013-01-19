@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -46,10 +46,22 @@ namespace spot
 
       class lbt_visitor: public visitor
       {
+      protected:
+	std::ostream& os_;
+	bool first_;
       public:
+
 	lbt_visitor(std::ostream& os)
-	  : os_(os)
+	  : os_(os), first_(true)
 	{
+	}
+
+	void blank()
+	{
+	  if (first_)
+	    first_ = false;
+	  else
+	    os_ << ' ';
 	}
 
 	virtual
@@ -60,23 +72,25 @@ namespace spot
 	void
 	visit(const atomic_prop* ap)
 	{
+	  blank();
 	  std::string str = ap->name();
 	  if (!is_pnum(str.c_str()))
-	    os_ << '"' << str << "\" ";
+	    os_ << '"' << str << '"';
 	  else
-	    os_ << str << ' ';
+	    os_ << str;
 	}
 
 	void
 	visit(const constant* c)
 	{
+	  blank();
 	  switch (c->val())
 	    {
 	    case constant::False:
-	      os_ << "f ";
+	      os_ << "f";
 	      break;
 	    case constant::True:
-	      os_ << "t ";
+	      os_ << "t";
 	      break;
 	    case constant::EmptyWord:
 	      assert(!"unsupported constant");
@@ -87,28 +101,29 @@ namespace spot
 	void
 	visit(const binop* bo)
 	{
+	  blank();
 	  switch (bo->op())
 	    {
 	    case binop::Xor:
-	      os_ << "^ ";
+	      os_ << "^";
 	      break;
 	    case binop::Implies:
-	      os_ << "i ";
+	      os_ << "i";
 	      break;
 	    case binop::Equiv:
-	      os_ << "e ";
+	      os_ << "e";
 	      break;
 	    case binop::U:
-	      os_ << "U ";
+	      os_ << "U";
 	      break;
 	    case binop::R:
-	      os_ << "V ";
+	      os_ << "V";
 	      break;
 	    case binop::W:
-	      os_ << "W ";
+	      os_ << "W";
 	      break;
 	    case binop::M:
-	      os_ << "M ";
+	      os_ << "M";
 	      break;
 	    case binop::UConcat:
 	    case binop::EConcat:
@@ -129,19 +144,20 @@ namespace spot
 	void
 	visit(const unop* uo)
 	{
+	  blank();
 	  switch (uo->op())
 	    {
 	    case unop::Not:
-	      os_ << "! ";
+	      os_ << "!";
 	      break;
 	    case unop::X:
-	      os_ << "X ";
+	      os_ << "X";
 	      break;
 	    case unop::F:
-	      os_ << "F ";
+	      os_ << "F";
 	      break;
 	    case unop::G:
-	      os_ << "G ";
+	      os_ << "G";
 	      break;
 	    case unop::Finish:
 	    case unop::Closure:
@@ -182,15 +198,14 @@ namespace spot
 
 	  unsigned n = mo->size();
 	  for (unsigned i = n - 1; i != 0; --i)
-	    os_ << o << ' ';
+	    {
+	      blank();
+	      os_ << o;
+	    }
 
 	  for (unsigned i = 0; i < n; ++i)
-	    {
-	      mo->nth(i)->accept(*this);
-	    }
+	    mo->nth(i)->accept(*this);
 	}
-      protected:
-	std::ostream& os_;
       };
 
     } // anonymous
