@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-## et Développement de l'Epita (LRDE).
+## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
+## Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -32,6 +32,7 @@ tgbaalgos_HEADERS = \
   compsusp.hh \
   cutscc.hh \
   cycles.hh \
+  dbacomp.hh \
   degen.hh \
   dotty.hh \
   dottydec.hh \
@@ -77,6 +78,7 @@ libtgbaalgos_la_SOURCES = \
   compsusp.cc \
   cutscc.cc \
   cycles.cc \
+  dbacomp.cc \
   degen.cc \
   dotty.cc \
   dottydec.cc \

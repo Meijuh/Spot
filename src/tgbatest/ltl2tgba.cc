@@ -70,6 +70,7 @@
 #include "tgbaalgos/simulation.hh"
 #include "tgbaalgos/compsusp.hh"
 #include "tgbaalgos/powerset.hh"
+#include "tgbaalgos/dbacomp.hh"
 
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
@@ -388,6 +389,7 @@ main(int argc, char** argv)
   bool opt_reduce = false;
   bool opt_minimize = false;
   bool opt_determinize = false;
+  bool opt_dbacomp = false;
   bool reject_bigger = false;
   bool opt_bisim_ta = false;
   bool opt_monitor = false;
@@ -472,6 +474,10 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-D"))
 	{
 	  degeneralize_opt = DegenTBA;
+	}
+      else if (!strcmp(argv[formula_index], "-DC"))
+	{
+	  opt_dbacomp = true;
 	}
       else if (!strncmp(argv[formula_index], "-DS", 3))
 	{
@@ -1441,6 +1447,14 @@ main(int argc, char** argv)
 	  tm.stop("determinization");
 	}
 
+      spot::tgba* complemented = 0;
+      if (opt_dbacomp)
+	{
+	  tm.start("DBA complement");
+	  a = complemented = dba_complement(a);
+	  tm.stop("DBA complement");
+	}
+
       const spot::tgba* expl = 0;
       switch (dupexp)
 	{
@@ -1894,8 +1908,9 @@ main(int argc, char** argv)
       delete expl;
       delete monitor;
       delete minimized;
-      delete determinized;
       delete degeneralized;
+      delete determinized;
+      delete complemented;
       delete aut_scc;
       delete to_free;
       delete echeck_inst;
