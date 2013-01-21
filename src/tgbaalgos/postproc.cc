@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,8 +29,14 @@ namespace spot
 {
   unsigned count_states(const tgba* a)
   {
-    // FIXME: the number of states can be found more
-    // efficiently in explicit automata.
+    const sba_explicit_number* se =
+      dynamic_cast<const sba_explicit_number*>(a);
+    if (se)
+      return se->num_states();
+    const tgba_explicit_number* te =
+      dynamic_cast<const tgba_explicit_number*>(a);
+    if (te)
+      return te->num_states();
     tgba_statistics st = stats_reachable(a);
     return st.states;
   }
