@@ -124,6 +124,28 @@ namespace spot
   /// only adapted to work on TBA rather than BA.
   SPOT_API tgba_explicit_number*
   tba_determinize(const tgba* aut);
+
+  /// \brief Determinize a TBA and make sure it is correct.
+  ///
+  /// Apply tba_determinize(), then check that the result is
+  /// equivalent.  If it isn't, return the original automaton.
+  ///
+  /// Only one of \a f or \a neg_aut needs to be supplied.  If
+  /// \a neg_aut is not given, it will be built from \a f.
+  ///
+  /// \param aut the automaton to minimize
+  /// \param f the formula represented by the original automaton
+  /// \param neg_aut an automaton representing the negation of \a aut
+  ///
+  /// \return a new tgba if the automaton could be determinized, \a aut if
+  /// the automaton cannot be determinized, 0 if we do not know if the
+  /// determinization is correct because neither \a f nor \a neg_aut
+  /// were supplied.
+  tgba*
+  tba_determinize_check(const tgba* aut,
+			const ltl::formula* f = 0,
+			const tgba* neg_aut = 0);
+
 }
 
 #endif // SPOT_TGBAALGOS_POWERSET_HH

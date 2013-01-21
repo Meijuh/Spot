@@ -33,6 +33,11 @@
 #include "tgba/tgbaproduct.hh"
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/dotty.hh"
+#include "tgbaalgos/gtec/gtec.hh"
+#include "tgbaalgos/sccfilter.hh"
+#include "tgbaalgos/ltl2tgba_fm.hh"
+#include "tgbaalgos/dbacomp.hh"
+#include "ltlast/unop.hh"
 
 namespace spot
 {
@@ -308,5 +313,74 @@ namespace spot
     fix_dba_acceptance(det, aut, pm);
     det->merge_transitions();
     return det;
+  }
+
+  tgba*
+  tba_determinize_check(const tgba* aut,
+			const ltl::formula* f,
+			const tgba* neg_aut)
+  {
+    const tgba* built = 0;
+    if (f == 0 && neg_aut == 0)
+      return 0;
+    if (aut->number_of_acceptance_conditions() > 1)
+      return 0;
+
+    tgba_explicit_number* det = tba_determinize(aut);
+
+    if (neg_aut == 0)
+      {
+	const ltl::formula* neg_f =
+	  ltl::unop::instance(ltl::unop::Not, f->clone());
+	neg_aut = ltl_to_tgba_fm(neg_f, aut->get_dict());
+	neg_f->destroy();
+
+	// Remove useless SCCs.
+	const tgba* tmp = scc_filter(neg_aut, true);
+	delete neg_aut;
+	built = neg_aut = tmp;
+      }
+
+    bool ok = false;
+
+    tgba* p = new tgba_product(det, neg_aut);
+    emptiness_check* ec = couvreur99(p);
+    emptiness_check_result* res = ec->check();
+    if (!res)
+      {
+	delete ec;
+	delete p;
+
+	// Complement the DBA.
+	tgba* neg_det = dba_complement(det);
+
+	tgba* p = new tgba_product(aut, neg_det);
+	emptiness_check* ec = couvreur99(p);
+	res = ec->check();
+
+	if (!res)
+	  {
+	    // Finally, we are now sure that it was safe
+	    // to determinize the automaton.
+	    ok = true;
+	  }
+
+	delete res;
+	delete ec;
+	delete p;
+	delete neg_det;
+      }
+    else
+      {
+	delete res;
+	delete ec;
+	delete p;
+      }
+    delete built;
+
+    if (ok)
+      return det;
+    delete det;
+    return const_cast<tgba*>(aut);
   }
 }
