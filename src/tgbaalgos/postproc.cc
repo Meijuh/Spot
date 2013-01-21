@@ -26,6 +26,9 @@
 #include <cstdlib>
 #include "misc/optionmap.hh"
 #include "priv/countstates.hh"
+#include "powerset.hh"
+#include "isdet.hh"
+#include "tgba/tgbatba.hh"
 
 namespace spot
 {
@@ -33,7 +36,7 @@ namespace spot
   postprocessor::postprocessor(const option_map* opt)
     : type_(TGBA), pref_(Small), level_(High),
       degen_reset_(true), degen_order_(false), degen_cache_(true),
-      simul_(-1), scc_filter_(-1), ba_simul_(-1)
+      simul_(-1), scc_filter_(-1), ba_simul_(-1), tba_determinisation_(false)
   {
     if (opt)
       {
@@ -44,6 +47,7 @@ namespace spot
 	simul_limit_ = opt->get("simul-limit", -1);
 	scc_filter_ = opt->get("scc-filter", -1);
 	ba_simul_ = opt->get("ba-simul", -1);
+	tba_determinisation_ = opt->get("tba-det", 0);
       }
   }
 
@@ -208,6 +212,50 @@ namespace spot
     else
       {
 	delete a;
+      }
+
+    // If WDBA failed attempt tba-determinization if requested.
+    if (tba_determinisation_ && !wdba && !is_deterministic(sim))
+      {
+	const tgba* tmpd = 0;
+	if (pref_ == Deterministic
+	    && f
+	    && f->is_syntactic_recurrence()
+	    && sim->number_of_acceptance_conditions() > 1)
+	  tmpd = new tgba_tba_proxy(sim);
+
+	// This threshold is arbitrary.  For producing Small automata,
+	// we assume that a deterministic automaton that is twice the
+	// size of the original will never get reduced to a smaller
+	// one.  For Deterministic automata, we accept automata that
+	// are 4 times bigger.  The larger the value, the more likely
+	// the cycle enumeration algorithm will encounter an automaton
+	// that takes *eons* to explore.
+	const tgba* in = tmpd ? tmpd : sim;
+	const tgba* tmp =
+	  tba_determinize_check(in, (pref_ == Small) ? 2 : 4, f);
+	if (tmp != 0 && tmp != in)
+	  {
+	    // There is no point in running the reverse simulation on
+	    // a deterministic automaton, since all prefixes are
+	    // unique.
+	    wdba = simulation(tmp);
+	    delete tmp;
+	    // Degeneralize the result (which is a TBA) if requested.
+	    if (type_ == BA)
+	      {
+		const tgba* d = degeneralize(wdba);
+		delete wdba;
+		wdba = d;
+	      }
+	  }
+	delete tmpd;
+	if (wdba && pref_ == Deterministic)
+	  {
+	    // disregard the result of the simulation.
+	    delete sim;
+	    sim = 0;
+	  }
       }
 
     if (wdba && sim)

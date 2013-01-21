@@ -81,6 +81,7 @@ TESTS = \
   tgbaread.test \
   renault.test \
   nondet.test \
+  det.test \
   neverclaimread.test \
   dstar.test \
   readsave.test \
