@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -127,8 +127,8 @@ namespace spot
   /// \param aut_f the automaton to minimize
   /// \param f the LTL formula represented by the automaton \a aut_f
   /// \param aut_neg_f an automaton representing the negation of \a aut_f
-  /// \return a new tgba if the automaton could be minimized, aut_f if
-  /// the automaton cannot be minimized, 0 if we do not if if the
+  /// \return a new tgba if the automaton could be minimized, \a aut_f if
+  /// the automaton cannot be minimized, 0 if we do not know if the
   /// minimization is correct because neither \a f nor \a aut_neg_f
   /// were supplied.
   ///
