@@ -86,12 +86,44 @@ namespace spot
   ///
   /// If \a pm is supplied it will be filled with the set of original states
   /// associated to each state of the deterministic automaton.
+  /// The \a merge argument can be set to false to prevent merging of
+  /// transitions.
   //@{
   SPOT_API tgba_explicit_number*
-  tgba_powerset(const tgba* aut, power_map& pm);
+  tgba_powerset(const tgba* aut, power_map& pm, bool merge = true);
   SPOT_API tgba_explicit_number*
   tgba_powerset(const tgba* aut);
   //@}
+
+
+  /// \brief Determinize a TBA using the powerset construction.
+  ///
+  /// The input automaton should have at most one acceptance
+  /// condition.  Beware that not all Büchi automata can be
+  /// determinized, and this procedure does not ensure that the
+  /// produced automaton is equivalent to \a aut.
+  ///
+  /// The construction is adapted from Section 3.2 of:
+  /// \verbatim
+  /// @InProceedings{	  dax.07.atva,
+  ///   author	  = {Christian Dax and Jochen Eisinger and Felix Klaedtke},
+  ///   title     = {Mechanizing the Powerset Construction for Restricted
+  /// 		     Classes of {$\omega$}-Automata},
+  ///   year      = 2007,
+  ///   series	  = {Lecture Notes in Computer Science},
+  ///   publisher = {Springer-Verlag},
+  ///   volume	  = 4762,
+  ///   booktitle = {Proceedings of the 5th International Symposium on
+  /// 		     Automated Technology for Verification and Analysis
+  /// 		     (ATVA'07)},
+  ///   editor	  = {Kedar S. Namjoshi and Tomohiro Yoneda and Teruo Higashino
+  /// 		     and Yoshio Okamura},
+  ///   month     = oct
+  /// }
+  /// \endverbatim
+  /// only adapted to work on TBA rather than BA.
+  SPOT_API tgba_explicit_number*
+  tba_determinize(const tgba* aut);
 }
 
 #endif // SPOT_TGBAALGOS_POWERSET_HH

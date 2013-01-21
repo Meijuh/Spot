@@ -69,6 +69,7 @@
 #include "kripkeparse/public.hh"
 #include "tgbaalgos/simulation.hh"
 #include "tgbaalgos/compsusp.hh"
+#include "tgbaalgos/powerset.hh"
 
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
@@ -234,6 +235,7 @@ syntax(char* prog)
 	    << std::endl
             << "  -RM   attempt to WDBA-minimize the automaton unless the "
 	    << "result is bigger" << std::endl
+	    << "  -RQ   determinize a TGBA (assuming it's legal!)" << std::endl
 	    << std::endl
 
             << "Automaton conversion:" << std::endl
@@ -385,6 +387,7 @@ main(int argc, char** argv)
   bool graph_run_tgba_opt = false;
   bool opt_reduce = false;
   bool opt_minimize = false;
+  bool opt_determinize = false;
   bool reject_bigger = false;
   bool opt_bisim_ta = false;
   bool opt_monitor = false;
@@ -783,6 +786,10 @@ main(int argc, char** argv)
         {
           opt_minimize = true;
 	  reject_bigger = true;
+        }
+      else if (!strcmp(argv[formula_index], "-RQ"))
+        {
+          opt_determinize = true;
         }
       else if (!strcmp(argv[formula_index], "-RT"))
         {
@@ -1425,6 +1432,15 @@ main(int argc, char** argv)
 				// pointless.
 	}
 
+      spot::tgba* determinized = 0;
+      if (opt_determinize && a->number_of_acceptance_conditions() <= 1
+	  && f->is_syntactic_recurrence())
+	{
+	  tm.start("determinization");
+	  a = determinized = tba_determinize(a);
+	  tm.stop("determinization");
+	}
+
       const spot::tgba* expl = 0;
       switch (dupexp)
 	{
@@ -1878,6 +1894,7 @@ main(int argc, char** argv)
       delete expl;
       delete monitor;
       delete minimized;
+      delete determinized;
       delete degeneralized;
       delete aut_scc;
       delete to_free;

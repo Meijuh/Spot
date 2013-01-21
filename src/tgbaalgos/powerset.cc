@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -21,15 +21,23 @@
 
 #include <set>
 #include <deque>
+#include <iterator>
+#include <vector>
 #include "powerset.hh"
 #include "misc/hash.hh"
 #include "tgbaalgos/powerset.hh"
 #include "bdd.h"
+#include "tgbaalgos/scc.hh"
+#include "tgbaalgos/cycles.hh"
+#include "tgbaalgos/gtec/gtec.hh"
+#include "tgba/tgbaproduct.hh"
+#include "tgba/bddprint.hh"
+#include "tgbaalgos/dotty.hh"
 
 namespace spot
 {
   tgba_explicit_number*
-  tgba_powerset(const tgba* aut, power_map& pm)
+  tgba_powerset(const tgba* aut, power_map& pm, bool merge)
   {
     typedef power_map::power_state power_state;
     typedef std::map<power_map::power_state, int> power_set;
@@ -104,7 +112,8 @@ namespace spot
 	    res->add_conditions(t, cond);
 	  }
       }
-    res->merge_transitions();
+    if (merge)
+      res->merge_transitions();
     return res;
   }
 
@@ -113,5 +122,191 @@ namespace spot
   {
     power_map pm;
     return tgba_powerset(aut, pm);
+  }
+
+
+  namespace
+  {
+
+    class fix_scc_acceptance: protected enumerate_cycles
+    {
+    public:
+      typedef dfs_stack::const_iterator cycle_iter;
+      typedef state_explicit_number::transition trans;
+      typedef std::set<trans*> trans_set;
+      typedef std::vector<trans_set> set_set;
+    protected:
+      const tgba* ref_;
+      power_map& refmap_;
+      trans_set reject_; // set of rejecting transitions
+      set_set accept_;	// set of cycles that are accepting
+      trans_set all_; // all non rejecting transitions
+
+    public:
+      fix_scc_acceptance(const scc_map& sm, const tgba* ref, power_map& refmap)
+	: enumerate_cycles(sm), ref_(ref), refmap_(refmap)
+      {
+      }
+
+      void fix_scc(const int m)
+      {
+	reject_.clear();
+	accept_.clear();
+	run(m);
+
+//	std::cerr << "SCC #" << m << "\n";
+//	std::cerr << "REJECT: ";
+//	print_set(std::cerr, reject_) << "\n";
+//	std::cerr << "ALL: ";
+//	print_set(std::cerr, all_) << "\n";
+//	for (set_set::const_iterator j = accept_.begin();
+//	     j != accept_.end(); ++j)
+//	  {
+//	    std::cerr << "ACCEPT: ";
+//	    print_set(std::cerr, *j) << "\n";
+//	  }
+
+	bdd acc = aut_->all_acceptance_conditions();
+	for (trans_set::iterator i = all_.begin(); i != all_.end(); ++i)
+	  {
+	    (*i)->acceptance_conditions = acc;
+	  }
+      }
+
+      bool is_cycle_accepting(cycle_iter begin, trans_set& ts) const
+      {
+	tgba_explicit_number* a =
+	  down_cast<tgba_explicit_number*>(const_cast<tgba*>(aut_));
+	// Build an automaton representing this loop.
+	tgba_explicit_number loop_a(aut_->get_dict());
+	int loop_size = std::distance(begin, dfs_.end());
+	int n;
+	cycle_iter i;
+	for (n = 1, i = begin; n <= loop_size; ++n, ++i)
+	  {
+	    trans* t = a->get_transition(i->succ);
+	    loop_a.create_transition(n - 1, n % loop_size)->condition =
+	      t->condition;
+	    if (reject_.find(t) == reject_.end())
+	      ts.insert(t);
+	  }
+	assert(i == dfs_.end());
+
+	const state* loop_a_init = loop_a.get_init_state();
+	assert(loop_a.get_label(loop_a_init) == 0);
+
+	// Check if the loop is accepting in the original automaton.
+	bool accepting = false;
+
+	// Iterate on each original state corresponding to the
+	// start of the loop in the determinized automaton.
+	const power_map::power_state& ps =
+	  refmap_.states_of(a->get_label(begin->ts->first));
+	for (power_map::power_state::const_iterator it = ps.begin();
+	     it != ps.end() && !accepting; ++it)
+	  {
+	    // Construct a product between
+	    // LOOP_A, and ORIG_A starting in *IT.
+
+	    tgba* p = new tgba_product_init(&loop_a, ref_,
+					    loop_a_init, *it);
+
+	    //spot::dotty_reachable(std::cout, p);
+
+	    couvreur99_check* ec = down_cast<couvreur99_check*>(couvreur99(p));
+	    assert(ec);
+	    emptiness_check_result* res = ec->check();
+	    if (res)
+	      accepting = true;
+	    delete res;
+	    delete ec;
+	    delete p;
+	  }
+
+	loop_a_init->destroy();
+	return accepting;
+      }
+
+      std::ostream&
+      print_set(std::ostream& o, const trans_set& s) const
+      {
+	o << "{ ";
+	for (trans_set::const_iterator i = s.begin(); i != s.end(); ++i)
+	  o << *i << " ";
+	o << "}";
+	return o;
+      }
+
+      virtual bool
+      cycle_found(const state* start)
+      {
+	cycle_iter i = dfs_.begin();
+	while (i->ts->first != start)
+	  ++i;
+	trans_set ts;
+	bool is_acc = is_cycle_accepting(i, ts);
+	do
+	  {
+	    //	    std::cerr << aut_->format_state(i->ts->first) << " ";
+	    ++i;
+	  }
+	while (i != dfs_.end());
+	//	std::cerr << "  acc=" << is_acc << "  (";
+	//	bdd_print_accset(std::cerr, aut_->get_dict(), s) << ") ";
+	//	print_set(std::cerr, ts) << "\n";
+	if (is_acc)
+	  {
+	    accept_.push_back(ts);
+	    all_.insert(ts.begin(), ts.end());
+	  }
+	else
+	  {
+	    for (trans_set::const_iterator i = ts.begin(); i != ts.end(); ++i)
+	      {
+		trans* t = *i;
+		reject_.insert(t);
+		for (set_set::iterator j = accept_.begin();
+		     j != accept_.end(); ++j)
+		  {
+		    j->erase(t);
+		  }
+		all_.erase(t);
+	      }
+	  }
+
+	return true;
+      }
+    };
+
+    static void
+    fix_dba_acceptance(tgba_explicit_number* det,
+		       const tgba* ref, power_map& refmap)
+    {
+      det->copy_acceptance_conditions_of(ref);
+
+      scc_map sm(det);
+      sm.build_map();
+
+      unsigned scc_count = sm.scc_count();
+
+      fix_scc_acceptance fsa(sm, ref, refmap);
+
+      for (unsigned m = 0; m < scc_count; ++m)
+	fsa.fix_scc(m);
+    }
+
+  }
+
+  tgba_explicit_number*
+  tba_determinize(const tgba* aut)
+  {
+    power_map pm;
+    // Do not merge transitions in the deterministic automaton.  If we
+    // add two self-loops labeled by "a" and "!a", we do not want
+    // these to be merged as "1" before the acceptance has been fixed.
+    tgba_explicit_number* det = tgba_powerset(aut, pm, false);
+    fix_dba_acceptance(det, aut, pm);
+    det->merge_transitions();
+    return det;
   }
 }
