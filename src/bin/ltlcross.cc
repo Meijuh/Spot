@@ -494,10 +494,28 @@ namespace
       declare('N', &output);
       declare('T', &output);
 
+      std::vector<bool> has(256);
       size_t s = translators.size();
       assert(s);
       for (size_t n = 0; n < s; ++n)
-	prime(translators[n]);
+	{
+	  // Check that each translator uses at least one input and
+	  // one output.
+	  has.clear();
+	  scan(translators[n], has);
+	  if (!(has['f'] || has['s'] || has['l'] || has['w']
+		|| has['F'] || has['S'] || has['L'] || has['W']))
+	    error(2, 0, "no input %%-sequence in '%s'.\n       Use "
+		  "one of %%f,%%s,%%l,%%w,%%F,%%S,%%L,%%W to indicate how "
+		  "to pass the formula.", translators[n]);
+	  if (!(has['N'] || has['T']))
+	    error(2, 0, "no output %%-sequence in '%s'.\n      Use "
+		  "one of %%N,%%T to indicate where the automaton is saved.",
+		  translators[n]);
+
+	  // Remember the %-sequences used by all translators.
+	  prime(translators[n]);
+	}
 
     }
 
@@ -526,7 +544,7 @@ namespace
 	return string_ltl_wring;
       if (!string_ltl_lbt.val().empty())
 	return string_ltl_lbt;
-      error(2, 0, "None of the translators need the input formula?");
+      assert(!"None of the translators need the input formula?");
       return string_ltl_spot;
     }
 
@@ -560,9 +578,7 @@ namespace
       format(command, translators[translator_num]);
       toclean.push_back(output.val());
 
-      if (output.format == printable_result_filename::None)
-	error(2, 0, "no output sequence used in %s",
-	      translators[translator_num]);
+      assert(output.format != printable_result_filename::None);
 
       std::string cmd = command.str();
       std::cerr << "Running [" << l << translator_num << "]: "

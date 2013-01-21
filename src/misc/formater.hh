@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -117,16 +117,32 @@ namespace spot
     {
     }
 
+    /// \brief Scan the %-sequences occuring in \a fmt.
+    ///
+    /// Set has['c'] for each %c in \a fmt.   \a has must
+    /// be 256 wide.
+    /// @{
+    void
+    scan(const char* fmt, std::vector<bool>& has) const;
+
+    void
+    scan(const std::string& fmt, std::vector<bool>& has) const
+    {
+      scan(fmt.c_str(), has);
+    }
+    /// @}
+
     /// Collect the %-sequences occurring in \a fmt.
+    /// @{
     void
     prime(const char* fmt);
 
-    /// Collect the %-sequences occurring in \a fmt.
     void
     prime(const std::string& fmt)
     {
       prime(fmt.c_str());
     }
+    /// @}
 
     /// Whether %c occurred in the primed formats.
     bool

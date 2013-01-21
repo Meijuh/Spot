@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,16 +23,22 @@
 namespace spot
 {
   void
-  formater::prime(const char* fmt)
+  formater::scan(const char* fmt, std::vector<bool>& has) const
   {
     for (const char* pos = fmt; *pos; ++pos)
       if (*pos == '%')
 	{
 	  char c = *++pos;
-	  has_[c] = true;
+	  has[c] = true;
 	  if (!c)
 	    break;
 	}
+  }
+
+  void
+  formater::prime(const char* fmt)
+  {
+    scan(fmt, has_);
   }
 
   std::ostream&
