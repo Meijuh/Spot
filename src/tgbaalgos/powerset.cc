@@ -143,20 +143,25 @@ namespace spot
     protected:
       const tgba* ref_;
       power_map& refmap_;
-      trans_set reject_; // set of rejecting transitions
-      set_set accept_;	// set of cycles that are accepting
-      trans_set all_; // all non rejecting transitions
+      trans_set reject_;	// set of rejecting transitions
+      set_set accept_;		// set of cycles that are accepting
+      trans_set all_;		// all non rejecting transitions
+      unsigned threshold_;	// maximum count of enumerated cycles
+      unsigned cycles_left_; 	// count of cycles left to explore
 
     public:
-      fix_scc_acceptance(const scc_map& sm, const tgba* ref, power_map& refmap)
-	: enumerate_cycles(sm), ref_(ref), refmap_(refmap)
+      fix_scc_acceptance(const scc_map& sm, const tgba* ref, power_map& refmap,
+			 unsigned threshold)
+	: enumerate_cycles(sm), ref_(ref), refmap_(refmap),
+	  threshold_(threshold)
       {
       }
 
-      void fix_scc(const int m)
+      bool fix_scc(const int m)
       {
 	reject_.clear();
 	accept_.clear();
+	cycles_left_ = threshold_;
 	run(m);
 
 //	std::cerr << "SCC #" << m << "\n";
@@ -176,6 +181,7 @@ namespace spot
 	  {
 	    (*i)->acceptance_conditions = acc;
 	  }
+	return threshold_ != 0 && cycles_left_ == 0;
       }
 
       bool is_cycle_accepting(cycle_iter begin, trans_set& ts) const
@@ -279,13 +285,17 @@ namespace spot
 	      }
 	  }
 
-	return true;
+	// Abort this algorithm if we have seen too much cycles, i.e.,
+	// when cycle_left_ *reaches* 0.  (If cycle_left_ == 0, that
+	// means we had no limit.)
+	return (cycles_left_ == 0) || --cycles_left_;
       }
     };
 
-    static void
+    static bool
     fix_dba_acceptance(tgba_explicit_number* det,
-		       const tgba* ref, power_map& refmap)
+		       const tgba* ref, power_map& refmap,
+		       unsigned threshold)
     {
       det->copy_acceptance_conditions_of(ref);
 
@@ -294,36 +304,45 @@ namespace spot
 
       unsigned scc_count = sm.scc_count();
 
-      fix_scc_acceptance fsa(sm, ref, refmap);
+      fix_scc_acceptance fsa(sm, ref, refmap, threshold);
 
       for (unsigned m = 0; m < scc_count; ++m)
-	fsa.fix_scc(m);
+	if (!sm.trivial(m))
+	  if (fsa.fix_scc(m))
+	    return true;
+      return false;
     }
-
   }
 
   tgba_explicit_number*
-  tba_determinize(const tgba* aut, unsigned threshold)
+  tba_determinize(const tgba* aut,
+		  unsigned threshold_states, unsigned threshold_cycles)
   {
     power_map pm;
     // Do not merge transitions in the deterministic automaton.  If we
     // add two self-loops labeled by "a" and "!a", we do not want
     // these to be merged as "1" before the acceptance has been fixed.
     tgba_explicit_number* det = tgba_powerset(aut, pm, false);
-    if ((threshold > 0)
-	&& (pm.map_.size() > pm.states.size() * threshold))
+
+    if ((threshold_states > 0)
+	&& (pm.map_.size() > pm.states.size() * threshold_states))
       {
 	delete det;
 	return 0;
       }
-    fix_dba_acceptance(det, aut, pm);
+    if (fix_dba_acceptance(det, aut, pm, threshold_cycles))
+      {
+	delete det;
+	return 0;
+      }
     det->merge_transitions();
     return det;
   }
 
   tgba*
   tba_determinize_check(const tgba* aut,
-			unsigned threshold,
+			unsigned threshold_states,
+			unsigned threshold_cycles,
 			const ltl::formula* f,
 			const tgba* neg_aut)
   {
@@ -333,7 +352,8 @@ namespace spot
     if (aut->number_of_acceptance_conditions() > 1)
       return 0;
 
-    tgba_explicit_number* det = tba_determinize(aut, threshold);
+    tgba_explicit_number* det =
+      tba_determinize(aut, threshold_states, threshold_cycles);
 
     if (!det)
       return 0;

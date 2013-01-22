@@ -1451,7 +1451,7 @@ main(int argc, char** argv)
 	  && (!f || f->is_syntactic_recurrence()))
 	{
 	  tm.start("determinization");
-	  determinized = tba_determinize(a, opt_determinize_threshold);
+	  determinized = tba_determinize(a, 0, opt_determinize_threshold);
 	  tm.stop("determinization");
 	  if (determinized)
 	    a = determinized;
@@ -1713,7 +1713,7 @@ main(int argc, char** argv)
 		{
 		  std::cout << "this is not an obligation property";
 		  const spot::tgba* tmp =
-		    tba_determinize_check(a, opt_o_threshold, f, 0);
+		    tba_determinize_check(a, 0, opt_o_threshold, f, 0);
 		  if (tmp != 0 && tmp != a)
 		    {
 		      std::cout << ", but it is a recurrence property";

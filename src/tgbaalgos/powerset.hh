@@ -123,11 +123,18 @@ namespace spot
   /// \endverbatim
   /// only adapted to work on TBA rather than BA.
   ///
-  /// If \a threshold is non null, abort the construction whenever it
-  /// would build an automaton that is more than \a threshold time
-  /// bigger (in term of states) than the original automaton.
+  /// If \a threshold_states is non null, abort the construction
+  /// whenever it would build an automaton that is more than \a
+  /// threshold_states time bigger (in term of states) than the
+  /// original automaton.
+  ///
+  /// If \a threshold_cycles is non null, abort the construction
+  /// whenever an SCC of the constructed automaton has more than \a
+  /// threshold_cycles cycles.
   SPOT_API tgba_explicit_number*
-  tba_determinize(const tgba* aut, unsigned threshold = 0);
+  tba_determinize(const tgba* aut,
+		  unsigned threshold_states = 0,
+		  unsigned threshold_cycles = 0);
 
   /// \brief Determinize a TBA and make sure it is correct.
   ///
@@ -139,9 +146,14 @@ namespace spot
   ///
   /// \param aut the automaton to minimize
   ///
-  /// \param threshold if non null, abort the construction whenever it
-  /// would build an automaton that is more than \a threshold time
-  /// bigger (in term of states) than the original automaton.
+  /// \param threshold_states if non null, abort the construction
+  /// whenever it would build an automaton that is more than \a
+  /// threshold time bigger (in term of states) than the original
+  /// automaton.
+  ///
+  /// \param threshold_cycles can be used to abort the construction
+  /// if the number of cycles in a SCC of the constructed automaton
+  /// is bigger than the supplied value.
   ///
   /// \param f the formula represented by the original automaton
   ///
@@ -153,7 +165,8 @@ namespace spot
   /// were supplied.
   SPOT_API tgba*
   tba_determinize_check(const tgba* aut,
-			unsigned threshold = 0,
+			unsigned threshold_states = 0,
+			unsigned threshold_cycles = 0,
 			const ltl::formula* f = 0,
 			const tgba* neg_aut = 0);
 

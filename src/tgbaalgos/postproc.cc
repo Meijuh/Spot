@@ -224,16 +224,24 @@ namespace spot
 	    && sim->number_of_acceptance_conditions() > 1)
 	  tmpd = new tgba_tba_proxy(sim);
 
-	// This threshold is arbitrary.  For producing Small automata,
-	// we assume that a deterministic automaton that is twice the
-	// size of the original will never get reduced to a smaller
-	// one.  For Deterministic automata, we accept automata that
-	// are 4 times bigger.  The larger the value, the more likely
-	// the cycle enumeration algorithm will encounter an automaton
-	// that takes *eons* to explore.
 	const tgba* in = tmpd ? tmpd : sim;
+
+	// These thresholds is arbitrary.
+	//
+	// For producing Small automata, we assume that a
+	// deterministic automaton that is twice the size of the
+	// original will never get reduced to a smaller one.  We also
+	// do not want more than 2^13 cycles in an SCC.
+	//
+	// For Deterministic automata, we accept automata that
+	// are 8 times bigger, with no more that 2^15 cycle per SCC.
+	// The cycle threshold is the most important limit here.  You
+	// may up it if you want to try producing larger automata.
 	const tgba* tmp =
-	  tba_determinize_check(in, (pref_ == Small) ? 2 : 4, f);
+	  tba_determinize_check(in,
+				(pref_ == Small) ? 2 : 8,
+				1 << ((pref_ == Small) ? 13 : 15),
+				f);
 	if (tmp != 0 && tmp != in)
 	  {
 	    // There is no point in running the reverse simulation on
