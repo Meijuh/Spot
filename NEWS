@@ -1,4 +1,4 @@
-New in spot 1.0a (not released):
+New in spot 1.0.1 (2013-01-23):
 
   * Bug fixes:
     - Two executions of the simulation reductions could produce
