@@ -116,15 +116,19 @@ Here =a U b U= was taken as an atomic proposition.
 
 ** Prefix parser
 
-The prefix syntax used by tools such as [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][LBT]], [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], or [[http://tcs.legacy.ics.tkk.fi/users/tlatvala/scheck/][scheck]], require
-a different parser.  For these tools, the above example formula has to
-be written =G i p0 V p1 ! p2= (atomic propositions must start with =p=
-and be followed by a number).  Spot's =--lbt-input= option can be used
-to activate the parser for this syntax.
+The prefix syntax used by tools such as [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][LBT]], [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], [[http://tcs.legacy.ics.tkk.fi/users/tlatvala/scheck/][scheck]], or
+[[www.ltl2dstar.de][ltl2dstar]] requires a different parser.  For these tools, the above
+example formula has to be written =G i p0 V p1 ! p2= (in LBT's syntax,
+atomic propositions must start with =p= and be followed by a number).
+Spot's =--lbt-input= option can be used to activate the parser for
+this syntax.
 
-As an extension to LBT's syntax, atomic propositions may also be
-double-quoted.  In that case they do not have to follow the "=p= +
-number" rule.
+As an extension to LBT's syntax, alphanumeric atomic propositions that
+follow the "=p= + number" rule will be accepted if they do not
+conflict with one of the operator (e.g., =i=, the implies operator,
+cannot be used as an atomic proposition).  Also any atomic proposition
+may be double-quoted.  These extensions are compatible with the syntax
+used by [[www.ltl2dstar.de][ltl2dstar]].
 
 =--lbt-input= is a global option that affects *all* formulas that are read.
 
