@@ -21,5 +21,6 @@
 . ./defs
 . "$srcdir/algorithms"
 
-$LTLCROSS "$@" --csv=known.csv --json=known.json < formulae.ltl 2>&1 |
+$LTLCROSS "$@" --csv=known.csv --json=known.json \
+ < "$srcdir/formulae.ltl" 2>&1 |
 tee known.log

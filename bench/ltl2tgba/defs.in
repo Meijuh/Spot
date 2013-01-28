@@ -37,6 +37,7 @@ test -f "$srcdir/defs.in" || {
 top_builddir="@top_builddir@"
 LBT="@LBT@"
 LTLCROSS="$top_builddir/src/bin/ltlcross@EXEEXT@"
+LTLFILT="$top_builddir/src/bin/ltlfilt@EXEEXT@"
 RANDLTL="$top_builddir/src/bin/randltl@EXEEXT@"
 LTL2BA="@LTL2BA@"
 LTL3BA="@LTL3BA@"
