@@ -40,15 +40,15 @@ namespace spot
 
     /// \brief Iterate over all reachable states of a spot::tgba.
     ///
-    /// This is a template method that will call add_state(), next_state(),
-    /// start(), end(), process_state(), and process_link(), while it
-    /// iterates over states.
-    void run();
+    /// This is a template method that will call add_state(),
+    /// next_state(), want_state(), start(), end(), process_state(),
+    /// and process_link(), while it iterates over states.
+    virtual void run();
 
     /// \name Todo list management.
     ///
-    /// spot::tgba_reachable_iterator_depth_first and
-    /// spot::tgba_reachable_iterator_breadth_first offer two precanned
+    /// See e.g.
+    /// spot::tgba_reachable_iterator_breadth_first for precanned
     /// implementations for these functions.
     /// \{
     /// \brief Called by run() to register newly discovered states.
@@ -98,22 +98,6 @@ namespace spot
 
   /// \ingroup tgba_generic
   /// \brief An implementation of spot::tgba_reachable_iterator that browses
-  /// states depth first.
-  class SPOT_API tgba_reachable_iterator_depth_first :
-    public tgba_reachable_iterator
-  {
-  public:
-    tgba_reachable_iterator_depth_first(const tgba* a);
-
-    virtual void add_state(const state* s);
-    virtual const state* next_state();
-
-  protected:
-    std::stack<const state*> todo; ///< A stack of states yet to explore.
-  };
-
-  /// \ingroup tgba_generic
-  /// \brief An implementation of spot::tgba_reachable_iterator that browses
   /// states breadth first.
   class SPOT_API tgba_reachable_iterator_breadth_first :
     public tgba_reachable_iterator
@@ -128,7 +112,93 @@ namespace spot
     std::deque<const state*> todo; ///< A queue of states yet to explore.
   };
 
+  /// \ingroup tgba_generic
+  /// \brief Iterate over all states of an automaton using a DFS.
+  class SPOT_API tgba_reachable_iterator_depth_first
+  {
+  public:
+    tgba_reachable_iterator_depth_first(const tgba* a);
+    virtual ~tgba_reachable_iterator_depth_first();
 
+    /// \brief Iterate over all reachable states of a spot::tgba.
+    ///
+    /// This is a template method that will call start(), end(),
+    /// want_state(), process_state(), and process_link(), while it
+    /// iterates over states.
+    virtual void run();
+
+    /// Called by add_state or next_states implementations to filter
+    /// states.  Default implementation always return true.
+    virtual bool want_state(const state* s) const;
+
+    /// Called by run() before starting its iteration.
+    virtual void start();
+    /// Called by run() once all states have been explored.
+    virtual void end();
+
+    /// Called by run() to process a state.
+    ///
+    /// \param s The current state.
+    /// \param n A unique number assigned to \a s.
+    /// \param si The spot::tgba_succ_iterator for \a s.
+    virtual void process_state(const state* s, int n, tgba_succ_iterator* si);
+    /// Called by run() to process a transition.
+    ///
+    /// \param in_s The source state
+    /// \param in The source state number.
+    /// \param out_s The destination state
+    /// \param out The destination state number.
+    /// \param si The spot::tgba_succ_iterator positionned on the current
+    ///             transition.
+    ///
+    /// The in_s and out_s states are owned by the
+    /// spot::tgba_reachable_iterator instance and destroyed when the
+    /// instance is destroyed.
+    virtual void process_link(const state* in_s, int in,
+			      const state* out_s, int out,
+			      const tgba_succ_iterator* si);
+
+  protected:
+    const tgba* aut_;		///< The spot::tgba to explore.
+
+    typedef Sgi::hash_map<const state*, int,
+			  state_ptr_hash, state_ptr_equal> seen_map;
+    seen_map seen;		///< States already seen.
+    struct stack_item
+    {
+      const state* src;
+      int src_n;
+      tgba_succ_iterator* it;
+    };
+    std::deque<stack_item> todo; ///< the DFS stack
+
+    /// Push a new state in todo.
+    virtual void push(const state* s, int sn);
+    /// Pop the DFS stack.
+    virtual void pop();
+  };
+
+  /// \ingroup tgba_generic
+  /// \brief Iterate over all states of an automaton using a DFS.
+  ///
+  /// This variant also maintains a set of states that are on the DFS
+  /// stack.  It can be checked using the on_stack() method.
+  class tgba_reachable_iterator_depth_first_stack
+    : public tgba_reachable_iterator_depth_first
+  {
+  public:
+    tgba_reachable_iterator_depth_first_stack(const tgba* a);
+    /// \brief Whether state sn is on the DFS stack.
+    ///
+    /// Note the destination state of a transition is only pushed to
+    /// the stack after process_link() has been called.
+    bool on_stack(int sn) const;
+  protected:
+    virtual void push(const state* s, int sn);
+    virtual void pop();
+
+    Sgi::hash_set<int> stack_;
+  };
 }
 
 
