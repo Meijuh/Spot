@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -39,6 +39,7 @@
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgba/bddprint.hh"
+#include "misc/optionmap.hh"
 
 const char argp_program_doc[] ="\
 Translate linear-time formulas (LTL/PSL) into Büchi automata.\n\n\
@@ -91,6 +92,8 @@ static const argp_option options[] =
       "a single %", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
+    { "extra-options", 'x', "OPTS", 0,
+      "fine-tuning options (see man page)", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -105,6 +108,7 @@ const struct argp_child children[] =
 enum output_format { Dot, Lbtt, Spin, Spot, Stats } format = Dot;
 bool utf8 = false;
 const char* stats = "";
+spot::option_map extra_options;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -125,6 +129,13 @@ parse_opt(int key, char* arg, struct argp_state*)
       format = Spin;
       if (type != spot::postprocessor::Monitor)
 	type = spot::postprocessor::BA;
+      break;
+    case 'x':
+      {
+	const char* opt = extra_options.parse_options(arg);
+	if (opt)
+	  error(2, 0, "failed to parse --options near '%s'", opt);
+      }
       break;
     case OPT_DOT:
       format = Dot;
@@ -258,7 +269,7 @@ main(int argc, char** argv)
 
   spot::ltl::ltl_simplifier simpl(simplifier_options());
 
-  spot::postprocessor postproc;
+  spot::postprocessor postproc(&extra_options);
   postproc.set_pref(pref);
   postproc.set_type(type);
   postproc.set_level(level);

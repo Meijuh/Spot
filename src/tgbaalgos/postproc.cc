@@ -24,6 +24,8 @@
 #include "degen.hh"
 #include "stats.hh"
 #include "stripacc.hh"
+#include <cstdlib>
+#include "misc/optionmap.hh"
 
 namespace spot
 {
@@ -39,6 +41,18 @@ namespace spot
       return te->num_states();
     tgba_statistics st = stats_reachable(a);
     return st.states;
+  }
+
+  postprocessor::postprocessor(const option_map* opt)
+    : type_(TGBA), pref_(Small), level_(High),
+      degen_reset(true), degen_order(false), degen_cache(true)
+  {
+    if (opt)
+      {
+	degen_order = opt->get("degen-order", 0);
+	degen_reset = opt->get("degen-reset", 1);
+	degen_cache = opt->get("degen-lcache", 1);
+      }
   }
 
   const tgba* postprocessor::run(const tgba* a, const ltl::formula* f)
@@ -100,7 +114,10 @@ namespace spot
       {
 	if (type_ == BA)
 	  {
-	    const tgba* d = degeneralize(a);
+	    const tgba* d = degeneralize(a,
+					 degen_reset,
+					 degen_order,
+					 degen_cache);
 	    delete a;
 	    a = d;
 	  }
@@ -133,7 +150,10 @@ namespace spot
 	// Degeneralize the result of the simulation if needed.
 	if (type_ == BA)
 	  {
-	    const tgba* d = degeneralize(sim);
+	    const tgba* d = degeneralize(sim,
+					 degen_reset,
+					 degen_order,
+					 degen_cache);
 	    delete sim;
 	    sim = d;
 	  }

@@ -24,6 +24,8 @@
 
 namespace spot
 {
+  class option_map;
+
   /// \addtogroup tgba_reduction
   /// @{
 
@@ -45,9 +47,9 @@ namespace spot
   /// deterministic automata or small automata.  If you don't care,
   /// less post processing will be done.
   ///
-  /// The set_level() method let you set the optimization level.
-  /// Higher level enable more costly postprocessign.  For instance
-  /// pref=Small,level=High will try two different postprocessings
+  /// The set_level() method lets you set the optimization level.
+  /// A higher level enables more costly post-processings.  For instance
+  /// pref=Small,level=High will try two different post-processings
   /// (one with minimize_obligation(), and one with
   /// iterated_simulations()) an keep the smallest result.
   /// pref=Small,level=Medium will only try the iterated_simulations()
@@ -57,10 +59,11 @@ namespace spot
   class postprocessor
   {
   public:
-    postprocessor()
-      : type_(TGBA), pref_(Small), level_(High)
-    {
-    }
+    /// \brief Construct a postprocessor.
+    ///
+    /// The \a opt argument can be used to pass extra fine-tuning
+    /// options used for debugging or benchmarking.
+    postprocessor(const option_map* opt = 0);
 
     enum output_type { TGBA, BA, Monitor };
     void
@@ -76,7 +79,6 @@ namespace spot
       pref_ = pref;
     }
 
-
     enum optimization_level { Low, Medium, High };
     void
     set_level(optimization_level level)
@@ -91,6 +93,10 @@ namespace spot
     output_type type_;
     output_pref pref_;
     optimization_level level_;
+    // Fine-tuning degeneralization options.
+    bool degen_reset;
+    bool degen_order;
+    bool degen_cache;
   };
   /// @}
 }
