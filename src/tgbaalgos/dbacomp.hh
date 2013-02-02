@@ -24,13 +24,11 @@
 
 namespace spot
 {
-
-
-  /// Complement a deterministic Büchi automaton
+  /// \brief Complement a deterministic Büchi automaton
   ///
-  /// The automaton \a aut should be deterministic and should have at
-  /// most a single acceptance condition.  It can be transition-based,
-  /// or state-based.  The resulting automaton is very unlikely to be
+  /// The automaton \a aut should be deterministic.  It does no need
+  /// to be complete.  Acceptance can be transition-based, or
+  /// state-based.  The resulting automaton is very unlikely to be
   /// deterministic.
   SPOT_API tgba_explicit_number*
   dba_complement(const tgba* aut);

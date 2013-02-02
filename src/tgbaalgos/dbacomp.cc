@@ -26,37 +26,32 @@ namespace spot
 
   namespace
   {
-    class dbacomp_iter: public tgba_reachable_iterator_depth_first
+    class dbacomp_iter: public tgba_reachable_iterator_depth_first_stack
     {
       bdd orig_acc_;
+      bdd all_neg_;
       bdd acc_;
       bdd_dict* dict_;
       tgba_explicit_number* out_;
+      int num_acc_;
+
       typedef state_explicit_number::transition trans;
     public:
       dbacomp_iter(const tgba* a)
-	: tgba_reachable_iterator_depth_first(a),
+	: tgba_reachable_iterator_depth_first_stack(a),
 	  dict_(a->get_dict()),
 	  out_(new tgba_explicit_number(dict_))
       {
 	dict_->register_all_variables_of(a, out_);
-	unsigned c = a->number_of_acceptance_conditions();
 	orig_acc_ = a->all_acceptance_conditions();
-	if (c == 1)
-	  {
-	    out_->copy_acceptance_conditions_of(a);
-	    acc_ = orig_acc_;
-	  }
-	else
-	  {
-	    // If there is no acceptance conditions in the original
-	    // automaton, add one.
-	    assert(c == 0);
-	    int accvar = dict_->register_acceptance_variable
-	      (ltl::constant::true_instance(), out_);
-	    acc_ = bdd_ithvar(accvar);
-	    out_->set_acceptance_conditions(acc_);
-	  }
+	all_neg_ = a->neg_acceptance_conditions();
+	num_acc_ =  a->number_of_acceptance_conditions();
+
+	// Register one acceptance condition for the result.
+	int accvar = dict_->register_acceptance_variable
+	  (ltl::constant::true_instance(), out_);
+	acc_ = bdd_ithvar(accvar);
+	out_->set_acceptance_conditions(acc_);
       }
 
       tgba_explicit_number*
@@ -106,19 +101,61 @@ namespace spot
 	trans* t1 = out_->create_transition(in, out);
 	t1->condition = si->current_condition();
 
-	// Negative states encode a copy of the automaton in which all
-	// accepting transitions have been removed, and all the
-	// remaining transitions are now accepting.
+	// Negative states encode NUM_ACC_ copies of the automaton.
+	// In each copy transitions labeled by one of the acceptance
+	// set have been removed, and all the remaining transitions
+	// are now accepting.
+	// For each state S, we have NUM_ACC_ additional copies
+	// labeled S*-NUM_ACC, S*-NUM_ACC+1, ... S*-NUM_ACC+(NUM_ACC-1),
 	if (a != orig_acc_)
 	  {
-	    trans* t2 = out_->create_transition(-in, -out);
-	    t2->condition = si->current_condition();
-	    t2->acceptance_conditions = acc_;
-	  }
+	    bool backlink = on_stack(out);
+	    int add = 0;
+	    if (a == bddfalse)
+	      a = all_neg_;
+	    // Iterate over all the acceptance conditions in 'a'.
+	    bdd ac = a;
+	    while (ac != bddtrue)
+	      {
+		bdd h = bdd_high(ac);
+		if (h == bddfalse)
+		  {
+		    trans* t2 = out_->create_transition(in * -num_acc_ + add,
+							out * -num_acc_ + add);
+		    t2->condition = si->current_condition();
+		    t2->acceptance_conditions = acc_;
 
-	// A non-deterministic transition between the two copies.
-	trans* t3 = out_->create_transition(in, -out);
-	t3->condition = si->current_condition();
+		    if (backlink)
+		      {
+			// Since we are closing a cycle, add
+			// a non-deterministic transition from
+			// the original automaton to this copy.
+			trans* t3 =
+			  out_->create_transition(in, out * -num_acc_ + add);
+			t3->condition = si->current_condition();
+		      }
+		    ac = bdd_low(ac);
+		  }
+		else
+		  {
+		    // We know that only one variable can be positive
+		    // on any branch, so since we have just seen such
+		    // a variable, we want to go to explore its LOW
+		    // branch for more positive variables.  The only
+		    // case where we will not do that is if the LOW
+		    // branch is false.  In that case we take the HIGH
+		    // branch to enumerate all the remaining negated
+		    // variables.
+		    bdd tmp = bdd_low(ac);
+		    if (tmp != bddfalse)
+		      ac = tmp;
+		    else
+		      ac = h;
+		  }
+		++add;
+	      }
+	    assert(add == num_acc_);
+	  }
       }
 
     };

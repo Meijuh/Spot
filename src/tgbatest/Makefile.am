@@ -107,6 +107,7 @@ TESTS = \
   lbttparse.test \
   scc.test \
   sccsimpl.test \
+  dbacomp.test \
   obligation.test \
   wdba.test \
   wdba2.test \
