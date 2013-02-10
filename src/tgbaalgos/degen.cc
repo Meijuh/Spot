@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -199,7 +199,7 @@ namespace spot
       {
         std::vector<bdd>::iterator i;
         std::cout << "Order_" << scc << ":\t";
-        for (i=order_.begin(); i!=order_.end(); i++)
+        for (i = order_.begin(); i != order_.end(); i++)
           {
             bdd_print_acc(std::cout, dict, *i);
             std::cout << ", ";
@@ -337,7 +337,8 @@ namespace spot
     std::map<const state*, int>names;
     names[s.first] = 1;
 
-    ds2num[s] = 10000 * names[s.first] + 100 * s.second + m.scc_of_state(s.first);
+    ds2num[s] =
+      10000 * names[s.first] + 100 * s.second + m.scc_of_state(s.first);
 #else
     ds2num[s] = 0;
 #endif
@@ -414,7 +415,7 @@ namespace spot
                 //    degeralize it without ignoring *prev, you'll get
                 //    two copies of states 2, depending on whether we
                 //    reach it using 1=>2 or from 2->2.  If this
-                //    example was not clear, uncomment this following
+                //    example was not clear, uncomment the following
                 //    "if" block, and play with the "degenid.test"
                 //    test case.
                 //
@@ -459,11 +460,12 @@ namespace spot
             if (is_scc_acc)
               {
                 acc |= otheracc;
-                // If use_z_lvl is on, start with level zero 0 when swhitching SCCs
+                // If use_z_lvl is on, start with level zero 0 when
+                // swhitching SCCs
                 unsigned next = (!use_z_lvl || s_scc == scc) ? slevel : 0;
 
                 // If lvl_cache is used and switching SCCs, use level from cache
-                if (use_lvl_cache && s_scc != scc 
+                if (use_lvl_cache && s_scc != scc
 		    && lvl_cache.find(d.first) != lvl_cache.end())
                   {
                     d.second = lvl_cache[d.first];
@@ -521,7 +523,8 @@ namespace spot
                 // degen_acc on all outgoing transitions.  (We are still
                 // building a TGBA; we only assure that it can be used as
                 // an SBA.)
-                t->acceptance_conditions = is_acc ? degen_acc : bddfalse;
+		if (is_acc)
+		  t->acceptance_conditions = degen_acc;
               }
             else
               {
@@ -535,7 +538,7 @@ namespace spot
 #ifdef DEGEN_DEBUG
         std::vector<bdd>::iterator i;
         std::cout << "Orig. order:  \t";
-        for (i=order.begin(); i!=order.end(); i++)
+        for (i = order.begin(); i != order.end(); i++)
           {
             bdd_print_acc(std::cout, dict, *i);
             std::cout << ", ";
