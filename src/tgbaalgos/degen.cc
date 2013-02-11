@@ -381,11 +381,21 @@ namespace spot
               names[d.first] = uniq.size();
 #endif
 
-            // Check whether the target's SCC is accepting
-            bool is_scc_acc = false;
-            int scc = use_scc ? m.scc_of_state(i->current_state()) : -1;
-            if (!use_scc || m.accepting(scc))
-              is_scc_acc = true;
+            // Check whether the target SCC is accepting
+            bool is_scc_acc;
+            int scc;
+	    if (use_scc)
+	      {
+		scc = m.scc_of_state(d.first);
+		is_scc_acc = m.accepting(scc);
+	      }
+	    else
+	      {
+		// If we have no SCC information, treat all SCCs as
+		// accepting.
+		scc = -1;
+		is_scc_acc = true;
+	      }
 
             // The old level is slevel.  What should be the new one?
             bdd acc = i->current_acceptance_conditions();
