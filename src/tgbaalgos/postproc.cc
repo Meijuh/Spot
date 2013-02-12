@@ -45,20 +45,57 @@ namespace spot
 
   postprocessor::postprocessor(const option_map* opt)
     : type_(TGBA), pref_(Small), level_(High),
-      degen_reset(true), degen_order(false), degen_cache(true)
+      degen_reset_(true), degen_order_(false), degen_cache_(true),
+      simul_(-1)
   {
     if (opt)
       {
-	degen_order = opt->get("degen-order", 0);
-	degen_reset = opt->get("degen-reset", 1);
-	degen_cache = opt->get("degen-lcache", 1);
+	degen_order_ = opt->get("degen-order", 0);
+	degen_reset_ = opt->get("degen-reset", 1);
+	degen_cache_ = opt->get("degen-lcache", 1);
+	simul_ = opt->get("simul", -1);
       }
+  }
+
+  const tgba* postprocessor::do_simul(const tgba* a)
+  {
+    // supported values for simul_:
+    // 1 => direct simulation
+    // 2 => reverse-simulation only
+    // 3 => both simulations, iterated
+    if (simul_ < 0)
+      simul_ = (level_ == Low) ? 1 : 3;
+
+    switch (simul_)
+      {
+      case 0:
+	return a;
+      case 1:
+	return simulation(a);
+      case 2:
+	return cosimulation(a);
+      case 3:
+      default:
+	return iterated_simulations(a);
+      }
+  }
+
+  const tgba* postprocessor::do_degen(const tgba* a)
+  {
+    const tgba* d = degeneralize(a,
+				 degen_reset_,
+				 degen_order_,
+				 degen_cache_);
+    delete a;
+    return d;
   }
 
   const tgba* postprocessor::run(const tgba* a, const ltl::formula* f)
   {
     if (type_ == TGBA && pref_ == Any && level_ == Low)
       return a;
+
+
 
     // Remove useless SCCs.
     {
@@ -84,11 +121,10 @@ namespace spot
 	if (pref_ == Any)
 	  return a;
 
-	const tgba* sim;
-	if (level_ == Low)
-	  sim = simulation(a);
-	else
-	  sim = iterated_simulations(a);
+	const tgba* sim = do_simul(a);
+	if (a == sim)
+	  // simulation was disabled.
+	  return a;
 	if (level_ != High)
 	  {
 	    delete a;
@@ -113,14 +149,7 @@ namespace spot
     if (pref_ == Any)
       {
 	if (type_ == BA)
-	  {
-	    const tgba* d = degeneralize(a,
-					 degen_reset,
-					 degen_order,
-					 degen_cache);
-	    delete a;
-	    a = d;
-	  }
+	  a = do_degen(a);
 	return a;
       }
 
@@ -135,31 +164,22 @@ namespace spot
 	wdba = minimize_obligation(a, f, 0, reject_bigger);
 	if (wdba == a)	// Minimization failed.
 	  wdba = 0;
-	// The WDBA is a BA, so no degeneralization required.
+	// The WDBA is a BA, so no degeneralization is required.
       }
 
     // Run a simulation when wdba failed (or was not run), or
     // at hard levels if we want a small output.
     if (!wdba || (level_ == High && pref_ == Small))
       {
-	if (level_ == Low)
-	  sim = simulation(a);
-	else
-	  sim = iterated_simulations(a);
+	sim = do_simul(a);
 
 	// Degeneralize the result of the simulation if needed.
 	if (type_ == BA)
-	  {
-	    const tgba* d = degeneralize(sim,
-					 degen_reset,
-					 degen_order,
-					 degen_cache);
-	    delete sim;
-	    sim = d;
-	  }
+	  sim = do_degen(sim);
       }
 
-    delete a;
+    if (sim != a)
+      delete a;
 
     if (wdba && sim)
       {

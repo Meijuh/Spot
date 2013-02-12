@@ -90,13 +90,17 @@ namespace spot
     const tgba* run(const tgba* input_disown, const ltl::formula* f);
 
   private:
+    const tgba* do_simul(const tgba* input);
+    const tgba* do_degen(const tgba* input);
+
     output_type type_;
     output_pref pref_;
     optimization_level level_;
-    // Fine-tuning degeneralization options.
-    bool degen_reset;
-    bool degen_order;
-    bool degen_cache;
+    // Fine-tuning options fetched from the option_map.
+    bool degen_reset_;
+    bool degen_order_;
+    bool degen_cache_;
+    int simul_;
   };
   /// @}
 }

@@ -26,3 +26,10 @@ it should reuse that level.  The "lcache" stands for "level cache".
 \fBdegen\-order\fR
 If non-zero, the degeneralization algorithm will compute one degeneralization
 order for each SCC it processes.  This is currently disabled by default.
+.TP
+\fBsimul\fR
+Set to 0 to disable simulation-based reductions.  Set to 1 to use only
+direct simulation.  Set to 2 to use only reverse simulation.  Set to 3
+to iterate both direct and reverse simulations.  The default is 3,
+except when option \fB\-\-low\fR is specified, in which case the
+default is 1.
