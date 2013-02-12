@@ -1280,6 +1280,9 @@ namespace spot
 
         list_bdd_bdd dont_care_now_to_now;
         map_bdd_state class2state;
+        list_bdd_bdd now_to_now;
+        bdd_lstate_.clear();
+
         // Compute the don't care signature for all the states.
         for (std::list<const state*>::const_iterator my_it = order_.begin();
              my_it != order_.end();
@@ -1293,19 +1296,8 @@ namespace spot
             dont_care_state2sig[src] = sig;
             dont_care_now_to_now.push_back(std::make_pair(sig, it->second));
             class2state[it->second] = it->first;
-          }
 
-        list_bdd_bdd now_to_now;
-        bdd_lstate_.clear();
-        // Compute the signature for all the states.
-        for (std::list<const state*>::const_iterator my_it = order_.begin();
-             my_it != order_.end();
-             ++my_it)
-          {
-            map_state_bdd::iterator it = previous_class_.find(*my_it);
-            const state* src = it->first;
-
-            bdd sig = compute_sig(src);
+            sig = compute_sig(src);
             bdd_lstate_[sig].push_back(src);
             state2sig[src] = sig;
             now_to_now.push_back(std::make_pair(sig, it->second));
