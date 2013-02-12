@@ -30,6 +30,15 @@ order for each SCC it processes.  This is currently disabled by default.
 \fBsimul\fR
 Set to 0 to disable simulation-based reductions.  Set to 1 to use only
 direct simulation.  Set to 2 to use only reverse simulation.  Set to 3
-to iterate both direct and reverse simulations.  The default is 3,
-except when option \fB\-\-low\fR is specified, in which case the
-default is 1.
+to iterate both direct and reverse simulations.  Set to 4 to apply
+only "don't care" direct simulation.  Set to 5 to iterate "don't care"
+direct simulation and reverse simulation.  The default is 3, except
+when option \fB\-\-low\fR is specified, in which case the default is
+1.
+.TP
+\fBsimul-limit\fR
+Can be set to a positive integer to cap the number of "don't care"
+transitions considered by the "don't care"-simulation algorithm.  A
+negative value (the default) does not enforce any limit.  Note that if
+there are \fIN\fR "don't care" transitions, the algorithm may
+potentially test 2^\fIN\fR configurations.

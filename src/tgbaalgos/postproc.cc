@@ -54,18 +54,12 @@ namespace spot
 	degen_reset_ = opt->get("degen-reset", 1);
 	degen_cache_ = opt->get("degen-lcache", 1);
 	simul_ = opt->get("simul", -1);
+	simul_limit_ = opt->get("simul-limit", -1);
       }
   }
 
   const tgba* postprocessor::do_simul(const tgba* a)
   {
-    // supported values for simul_:
-    // 1 => direct simulation
-    // 2 => reverse-simulation only
-    // 3 => both simulations, iterated
-    if (simul_ < 0)
-      simul_ = (level_ == Low) ? 1 : 3;
-
     switch (simul_)
       {
       case 0:
@@ -77,6 +71,10 @@ namespace spot
       case 3:
       default:
 	return iterated_simulations(a);
+      case 4:
+	return dont_care_simulation(a, simul_limit_);
+      case 5:
+	return dont_care_iterated_simulations(a, simul_limit_);
       }
   }
 
@@ -95,11 +93,12 @@ namespace spot
     if (type_ == TGBA && pref_ == Any && level_ == Low)
       return a;
 
-
+    if (simul_ < 0)
+      simul_ = (level_ == Low) ? 1 : 3;
 
     // Remove useless SCCs.
     {
-      const tgba* s = scc_filter(a, false);
+      const tgba* s = scc_filter(a, simul_ > 3);
       delete a;
       a = s;
     }
