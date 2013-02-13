@@ -80,6 +80,7 @@ TESTS = \
   readsave.test \
   simdet.test \
   sim.test \
+  sim2.test \
   ltl2tgba.test \
   ltl2neverclaim.test \
   ltl2neverclaim-lbtt.test \

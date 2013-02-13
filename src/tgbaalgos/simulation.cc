@@ -402,7 +402,7 @@ namespace spot
         // Contains the relation between the names of the states in
         // the automaton returned by the complementation and the one
         // get in argument to the constructor of acc_compl.
-        old_name_ = acc_compl.old_name_;
+	std::swap(old_name_, acc_compl.old_name_);
 
 	a_ = acc_compl.out_;
 
@@ -450,7 +450,7 @@ namespace spot
 
 	relation_[init] = init;
 
-        order_ = acc_compl.order_;
+	std::swap(order_, acc_compl.order_);
         all_acceptance_conditions_ = a_->all_acceptance_conditions();
       }
 
@@ -1077,8 +1077,11 @@ namespace spot
       bool could_imply(bdd left, bdd left_class,
 		       bdd right, bdd right_class)
       {
-        bdd f1 = bdd_restrict(left, on_cycle_);
-        bdd g1 = bdd_restrict(left, !on_cycle_);
+	bdd f1 = bdd_relprod(left, on_cycle_, on_cycle_);
+	bdd g1 = bdd_relprod(left, !on_cycle_, on_cycle_);
+
+        //bdd f1 = bdd_restrict(left, on_cycle_);
+        //bdd g1 = bdd_restrict(left, !on_cycle_);
 	return could_imply_aux(f1, g1, left_class,
 			       right, right_class);
       }
@@ -1099,8 +1102,11 @@ namespace spot
           {
             bdd accu = it1->second;
 
-            bdd f1 = bdd_restrict(it1->first, on_cycle_);
-            bdd g1 = bdd_restrict(it1->first, !on_cycle_);
+	    bdd f1 = bdd_relprod(it1->first, on_cycle_, on_cycle_);
+	    bdd g1 = bdd_relprod(it1->first, !on_cycle_, on_cycle_);
+
+            // bdd f1 = bdd_restrict(it1->first_, on_cycle_);
+            // bdd g1 = bdd_restrict(it1->first_, !on_cycle_);
 
             for (list_bdd_bdd::const_iterator it2 = now_to_next.begin();
                  it2 != now_to_next.end();
@@ -1125,7 +1131,8 @@ namespace spot
 
       inline bool is_out_scc(bdd b)
       {
-        return bddfalse != bdd_restrict(b, !on_cycle_);
+	return bddfalse !=  bdd_relprod(b, !on_cycle_, on_cycle_);
+        // return bddfalse != bdd_restrict(b, !on_cycle_);
       }
 
 #define create_cstr(src, dst, constraint) \
@@ -1143,6 +1150,7 @@ namespace spot
                                     const state* src_right,
                                     std::list<constraint>& constraint)
       {
+	assert(src_left != src_right);
         // Determine which is the current case.
         bool out_scc_left = is_out_scc(left);
         bool out_scc_right = is_out_scc(right);
@@ -1152,8 +1160,11 @@ namespace spot
         dest_class = bdd_existcomp(right, all_class_var_);
         const state* dst_right = revert_relation_[dest_class];
 
+	assert(src_left != dst_left || src_right != dst_right);
+
         left = bdd_exist(left, all_class_var_ & on_cycle_);
         right = bdd_exist(right, all_class_var_ & on_cycle_);
+
 
         if (!out_scc_left && out_scc_right)
           {
@@ -1163,6 +1174,8 @@ namespace spot
             if (add != bddfalse
                 && bdd_exist(add, all_acceptance_conditions_) == bddtrue)
               {
+		assert(src_right != dst_right);
+
                 constraint
                   .push_back(create_cstr(new_original_[old_name_[src_right]],
                                          new_original_[old_name_[dst_right]],
@@ -1177,6 +1190,8 @@ namespace spot
             if (add != bddfalse
                 && bdd_exist(add, all_acceptance_conditions_) == bddtrue)
               {
+		assert(src_left != dst_left);
+
                 constraint
                   .push_back(create_cstr(new_original_[old_name_[src_left]],
                                          new_original_[old_name_[dst_left]],
@@ -1191,6 +1206,7 @@ namespace spot
             if (add != bddfalse
                 && bdd_exist(add, all_acceptance_conditions_) == bddtrue)
               {
+		assert(src_left != dst_left && src_right != dst_right);
 		// FIXME: cas pas compris.
                 constraint
                   .push_back(create_cstr(new_original_[old_name_[src_left]],
@@ -1220,42 +1236,69 @@ namespace spot
                                                   const state* right,
                                                   map_state_bdd& state2sig)
       {
+	bdd pcl = previous_class_[left];
+	bdd pcr = previous_class_[right];
+
         bdd sigl = state2sig[left];
         bdd sigr = state2sig[right];
 
         std::list<constraint> res;
 
+	bdd ex = all_class_var_ & on_cycle_;
+
+	bdd both = pcl & pcr;
+	int lc = bdd_var(pcl);
+#define DEST(x) bdd_compose(bdd_existcomp(x, ex), both, lc)
+
         // Key is destination class, value is the signature part that
         // led to this destination class.
-        map_bdd_bdd sigl_map;
-        minato_isop isop(sigl);
-
-        bdd cond_acc_dest;
-        while ((cond_acc_dest = isop.next()) != bddfalse)
-          sigl_map[bdd_existcomp(cond_acc_dest, all_class_var_)]
-            |= cond_acc_dest;
+	map_bdd_bdd sigl_map;
+	{
+	  minato_isop isop(sigl & on_cycle_);
+	  bdd cond_acc_dest;
+	  while ((cond_acc_dest = isop.next()) != bddfalse)
+	    sigl_map[DEST(cond_acc_dest)]
+	      |= cond_acc_dest;
+	}
+	{
+	  minato_isop isop(sigl & !on_cycle_);
+	  bdd cond_acc_dest;
+	  while ((cond_acc_dest = isop.next()) != bddfalse)
+	    sigl_map[DEST(cond_acc_dest)]
+	      |= cond_acc_dest;
+	}
         map_bdd_bdd sigr_map;
-        minato_isop isop2(sigr);
-
-        bdd cond_acc_dest2;
-        while ((cond_acc_dest2 = isop2.next()) != bddfalse)
-          sigr_map[bdd_existcomp(cond_acc_dest2, all_class_var_)]
-            |= cond_acc_dest2;
+	{
+	  minato_isop isop2(sigr & on_cycle_);
+	  bdd cond_acc_dest2;
+	  while ((cond_acc_dest2 = isop2.next()) != bddfalse)
+	    sigr_map[DEST(cond_acc_dest2)]
+	      |= cond_acc_dest2;
+	}
+	{
+	  minato_isop isop2(sigr & !on_cycle_);
+	  bdd cond_acc_dest2;
+	  while ((cond_acc_dest2 = isop2.next()) != bddfalse)
+	    sigr_map[DEST(cond_acc_dest2)]
+	      |= cond_acc_dest2;
+	}
 
         // Iterate over the transitions of both states.
         for (map_bdd_bdd::const_iterator lit = sigl_map.begin();
              lit != sigl_map.end(); ++lit)
 	    for (map_bdd_bdd::iterator rit = sigr_map.begin();
 		 rit != sigr_map.end(); ++rit)
+	      {
 	      // And create constraints if any of the transitions
 	      // is out of the SCC and the left could imply the right.
 	      if ((is_out_scc(lit->second) || is_out_scc(rit->second))
-		  && could_imply(lit->second, previous_class_[left],
-				 rit->second, previous_class_[right]))
+		  && (bdd_exist(lit->first, on_cycle_) ==
+		      bdd_exist(rit->first, on_cycle_)))
                 {
                   create_simple_constraint(lit->second, rit->second,
                                            left, right, res);
                 }
+	      }
 
         return res;
       }
@@ -1322,7 +1365,7 @@ namespace spot
 
 
         // order_ is here for the determinism.  Here we make the diff
-        // between the two table: imply and could_imply.
+        // between the two tables: imply and could_imply.
         for (std::list<const state*>::const_iterator my_it = order_.begin();
              my_it != order_.end();
              ++my_it)
@@ -1338,22 +1381,23 @@ namespace spot
             if (care_rel == dont_care_rel)
               continue;
 
-            // If they are different: We know that dont_care_rel is
-            // '(care_rel | x)' and because it is a conjunction of
-            // variable, we can simply use bdd_exist to discover 'x'.
+            // If they are different we necessarily have
+	    // dont_care_rel == care_rel & diff
             bdd diff = bdd_exist(dont_care_rel, care_rel);
+	    assert(dont_care_rel == (care_rel & diff));
+	    assert(diff != bddtrue);
 
-            bdd a = diff;
-            while (a != bddtrue)
+	    do
               {
-                bdd cur_diff = bdd_ithvar(bdd_var(a));
+                bdd cur_diff = bdd_ithvar(bdd_var(diff));
                 cc[it->second][cur_diff]
                   = create_new_constraint(it->first,
                                           class2state[cur_diff],
                                           dont_care_state2sig);
                 ++number_constraints;
-                a = bdd_high(a);
+                diff = bdd_high(diff);
               }
+	    while (diff != bddtrue);
           }
 #ifndef NDEBUG
 	for (map_bdd_state::const_iterator i = class2state.begin();
