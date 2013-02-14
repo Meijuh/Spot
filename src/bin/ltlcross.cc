@@ -1061,23 +1061,24 @@ print_stats_json(const char* filename)
   unsigned rounds = vstats.size();
   assert(rounds == formulas.size());
 
-  *out << "{\n  \"tools\": [\n    \"";
+  *out << "{\n  \"tool\": [\n    \"";
   spot::escape_str(*out, translators[0]);
   for (unsigned t = 1; t < ntrans; ++t)
     {
       *out << "\",\n    \"";
       spot::escape_str(*out, translators[t]);
     }
-  *out << "\"\n  ],\n  \"inputs\": [\n    \"";
+  *out << "\"\n  ],\n  \"formula\": [\n    \"";
   spot::escape_str(*out, formulas[0]);
   for (unsigned r = 1; r < rounds; ++r)
     {
       *out << "\",\n    \"";
       spot::escape_str(*out, formulas[r]);
     }
-  *out << ("\"\n  ],\n  \"fields\": [\n    \"input\", \"tool\",");
+  *out << ("\"\n  ],\n  \"fields\":  [\n  \"formula\", \"tool\",");
   statistics::fields(*out);
-  *out << "\n  ],\n  \"results\": [";
+  *out << "\n  ],\n  \"inputs\":  [ 0, 1 ],";
+  *out << "\n  \"results\": [";
   bool notfirst = false;
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
