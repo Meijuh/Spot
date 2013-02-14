@@ -46,11 +46,13 @@ def process_file(filename):
   data = json.load(open(filename))
 
   ncols = len(data['fields'])
-  ntools = len(data['tools'])
+  ntools = len(data['tool'])
   datacols = range(2, ncols)
   fields = { name:index for index,name in enumerate(data["fields"]) }
   toolcol = fields['tool']
-  inputcol = fields['input']
+  inputcol = fields['formula']
+  
+  inputs = data["inputs"]
 
   # Index results by tool, then input
   results = { t:{} for t in range(0, ntools) }
@@ -59,9 +61,9 @@ def process_file(filename):
 
   for i in range(0, ntools):
     # Remove any leading directory, and trailing %...
-    name = data["tools"][i]
+    name = data["tool"][i]
     name = name[name.rfind('/', 0, name.find(' ')) + 1:]
-    data["tools"][i] = latex_escape(name[0:name.find('%')])
+    data["tool"][i] = latex_escape(name[0:name.find('%')])
 
   print(r'''
 \section*{\texttt{%s}}
@@ -76,7 +78,7 @@ def process_file(filename):
             (sum([x[j] for x in results[i].values()]))
             for j in datacols]
     print("\\texttt{%-18s} & %3d & "
-          % (data["tools"][i], len(results[i])), " & ".join(sums), "\\\\")
+          % (data["tool"][i], len(results[i])), " & ".join(sums), "\\\\")
   print(r'\end{tabular}')
 
   print(r'''\subsection*{Cross comparison}
@@ -88,7 +90,7 @@ states and more transitions.
 ''')
 
   header = '\\begin{tabular}{l'
-  for i in data["tools"]:
+  for i in data["tool"]:
     header += 'c'
   header += '}'
 
@@ -96,11 +98,11 @@ states and more transitions.
   transcol = fields['transitions']
 
   print(header)
-  for left in data["tools"]:
+  for left in data["tool"]:
     print("&", rot("\\texttt{%s}" % left), end=' ')
   print(r'\\')
   for left in range(0, ntools):
-    print("\\texttt{%-18s}" % data["tools"][left], end=' ')
+    print("\\texttt{%-18s}" % data["tool"][left], end=' ')
     for top in range(0, ntools):
       x = 0
       for k,ct in results[top].items():
