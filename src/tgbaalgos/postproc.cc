@@ -46,7 +46,7 @@ namespace spot
   postprocessor::postprocessor(const option_map* opt)
     : type_(TGBA), pref_(Small), level_(High),
       degen_reset_(true), degen_order_(false), degen_cache_(true),
-      simul_(-1)
+      simul_(-1), scc_filter_(-1)
   {
     if (opt)
       {
@@ -55,6 +55,7 @@ namespace spot
 	degen_cache_ = opt->get("degen-lcache", 1);
 	simul_ = opt->get("simul", -1);
 	simul_limit_ = opt->get("simul-limit", -1);
+	scc_filter_ = opt->get("scc-filter", -1);
       }
   }
 
@@ -95,10 +96,13 @@ namespace spot
 
     if (simul_ < 0)
       simul_ = (level_ == Low) ? 1 : 3;
+    if (scc_filter_ < 0)
+      scc_filter_ = 1;
 
     // Remove useless SCCs.
+    if (scc_filter_ > 0 || type_ == Monitor)
     {
-      const tgba* s = scc_filter(a, simul_ > 3);
+      const tgba* s = scc_filter(a, scc_filter_ > 1);
       delete a;
       a = s;
     }
@@ -194,7 +198,7 @@ namespace spot
 	  }
       }
 
-    if (sim && type_ == TGBA && level_ == High)
+    if (sim && type_ == TGBA && level_ == High && scc_filter_ != 0)
       {
 	const tgba* s = scc_filter(sim, true);
 	delete sim;

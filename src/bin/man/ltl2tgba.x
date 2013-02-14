@@ -14,6 +14,14 @@ shorthand for \fIKEY\fR=1, and !\fIKEY\fR is a shorthand for
 
 Supported options are:
 .TP
+\fBscc\-filter\fR
+Set to 1 (the default) to enable SCC-pruning and acceptance
+simplification at the beginning of post-processing.  Transitions that
+are outside of accepting SCC are removed from accepting sets, except
+those that enter into an accepting SCC.  Set to 2 to remove even these
+entering transition from the accepting sets.  Set to 0 to disable this
+SCC-pruning and acceptance simpification pass.
+.TP
 \fBdegen\-reset\fR
 If non-zero (the default), the degeneralization algorithm will reset
 its level any time it exits a non-accepting SCC.

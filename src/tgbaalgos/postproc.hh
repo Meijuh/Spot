@@ -102,6 +102,7 @@ namespace spot
     bool degen_cache_;
     int simul_;
     int simul_limit_;
+    int scc_filter_;
   };
   /// @}
 }
