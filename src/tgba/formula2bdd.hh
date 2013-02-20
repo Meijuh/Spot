@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -28,14 +28,27 @@
 
 namespace spot
 {
-  /// \brief Convert a formula into a BDD.
+  /// \brief Convert a Boolean formula into a BDD.
   ///
-  /// Convert formula \a f into a Bdd, using existing variables from \a
-  /// d, and registering new one as necessary.  \a for_me is the
-  /// address to use as owner of the variables used in the BDD.
+  /// Convert the Boolean formula \a f into a BDD, using existing
+  /// variables from \a d, and registering new ones as necessary.  \a
+  /// for_me, the address of the user of these BDD variables will be
+  /// passed to \a d when registering the variables.
+  ///
+  /// If you only use the BDD representation temporarily, for instance
+  /// passing it right away to bdd_to_formula(), you should not forget
+  /// to unregister the variables that have been registered for \a
+  /// for_me.  See bdd_dict::unregister_all_my_variables().
   bdd formula_to_bdd(const ltl::formula* f, bdd_dict* d, void* for_me);
 
-  /// Convert a BDD into a formula.
+  /// \brief Convert a BDD into a formula.
+  ///
+  /// Format the BDD as an irredundant sum of product (see the
+  /// minato_isop class for details) and map the BDD variables back
+  /// into their atomic propositions.  This works only for Boolean
+  /// formulas, and all the BDD variables used in \a f should have
+  /// been registered in \a d.  Although the result has type
+  /// ltl::formula*, it obviously does not use any temporal operator.
   const ltl::formula* bdd_to_formula(bdd f, const bdd_dict* d);
 }
 

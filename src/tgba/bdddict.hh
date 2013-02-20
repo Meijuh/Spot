@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -44,11 +44,25 @@ namespace spot
   /// atomic propositions, but they can also be acceptance conditions,
   /// or "Now/Next" variables (although the latter should be
   /// eventually removed).
+  ///
+  /// When a BDD variable is registered using a bdd_dict, it is always
+  /// associated to a "user" (or "owner") object.  This is done by
+  /// supplying the bdd_dict with a pointer to the intended user of
+  /// the variable.  When the user object dies, it should release the
+  /// BDD variables it was using by calling (for instance)
+  /// unregister_all_my_variables(), giving the same pointer.
+  /// Variables can also by unregistered one by one using
+  /// unregister_variable().
   class bdd_dict: public bdd_allocator
   {
   public:
 
     bdd_dict();
+
+    /// \brief Destroy the BDD dict.
+    ///
+    /// This always calls assert_emptiness() to diagnose cases where
+    /// variables have not been unregistered.
     ~bdd_dict();
 
     /// Formula-to-BDD-variable maps.
@@ -206,8 +220,15 @@ namespace spot
 
     /// \brief Make sure the dictionary is empty.
     ///
-    /// This will print diagnostics and abort if the dictionary
-    /// is not empty.  Use for debugging.
+    /// This will print diagnostics if the dictionary is not empty.
+    /// Use for debugging.  This is called automatically by the
+    /// destructor.  When Spot is compiled in development mode (i.e.,
+    /// with <code>./configure --enable-devel</code>), this function
+    /// will abort if the dictionary is not empty.
+    ///
+    /// The errors detected by this function usually indicate missing
+    /// calls to unregister_variable() or
+    /// unregister_all_my_variables().
     void assert_emptiness() const;
 
   protected:
