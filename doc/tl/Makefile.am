@@ -1,5 +1,5 @@
-## Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement de
-## l'Epita (LRDE).
+## Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -21,8 +21,10 @@ all: $(srcdir)/tl.pdf
 
 # The second -e '$$pdflatex... ' line can be replaced by -pdflatex on
 # recent version of latexmk; but version 4.13a, installed on some
-# of our hosts, does not support it.
-LATEXMK = BIBINPUTS='$(srcdir)' latexmk -pdf -ps- -dvi- -e '$$bibtex_use=2' \
+# of our hosts, does not support it.  Add -pvc- because some people
+# turn pvc on in their config file.
+LATEXMK = BIBINPUTS='$(srcdir)' latexmk -pdf -ps- -dvi- -pvc- \
+  -e '$$bibtex_use=2' \
   -e '$$pdflatex="pdflatex %O \"\\def\\SpotVersion{$(VERSION)}\\input{%S}\""'
 
 dist_pdf_DATA = $(srcdir)/tl.pdf
