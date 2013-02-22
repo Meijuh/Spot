@@ -29,13 +29,14 @@ tgbaalgosdir = $(pkgincludedir)/tgbaalgos
 
 tgbaalgos_HEADERS = \
   bfssteps.hh \
+  complete.hh \
   compsusp.hh \
   cutscc.hh \
   cycles.hh \
   dbacomp.hh \
   degen.hh \
-  dotty.hh \
   dottydec.hh \
+  dotty.hh \
   dupexp.hh \
   eltl2tgba_lacim.hh \
   emptiness.hh \
@@ -56,12 +57,13 @@ tgbaalgos_HEADERS = \
   randomgraph.hh \
   reachiter.hh \
   reducerun.hh \
+  reductgba_sim.hh \
   replayrun.hh \
   rundotdec.hh \
   safety.hh \
   save.hh \
-  scc.hh \
   sccfilter.hh \
+  scc.hh \
   se05.hh \
   simulation.hh \
   stats.hh \
@@ -69,12 +71,12 @@ tgbaalgos_HEADERS = \
   tau03.hh \
   tau03opt.hh \
   translate.hh \
-  reductgba_sim.hh \
   word.hh
 
 noinst_LTLIBRARIES = libtgbaalgos.la
 libtgbaalgos_la_SOURCES = \
   bfssteps.cc \
+  complete.cc \
   compsusp.cc \
   cutscc.cc \
   cycles.cc \
@@ -102,6 +104,7 @@ libtgbaalgos_la_SOURCES = \
   randomgraph.cc \
   reachiter.cc \
   reducerun.cc \
+  reductgba_sim.cc \
   replayrun.cc \
   rundotdec.cc \
   safety.cc \
@@ -115,7 +118,6 @@ libtgbaalgos_la_SOURCES = \
   tau03.cc \
   tau03opt.cc \
   translate.cc \
-  reductgba_sim.cc \
   weight.cc \
   weight.hh \
   word.cc
