@@ -51,7 +51,7 @@ def process_file(filename):
   fields = { name:index for index,name in enumerate(data["fields"]) }
   toolcol = fields['tool']
   inputcol = fields['formula']
-  
+
   inputs = data["inputs"]
 
   # Index results by tool, then input
@@ -67,9 +67,9 @@ def process_file(filename):
 
   print(r'''
 \section*{\texttt{%s}}
-\subsection*{Cumulative summary}''' % filename)
+\subsection*{Cumulative summary}''' % latex_escape(filename))
 
-  print('\\begin{tabular}{l' + ('r' * (ncols - 1)) + '}\n',
+  print('\\noindent\\begin{tabular}{l' + ('r' * (ncols - 1)) + '}\n',
         " & ".join(rot(latex_escape(["tool", "count"] + data["fields"][2:]))),
         "\\\\")
   for i in range(0, ntools):
@@ -89,7 +89,7 @@ states and more transitions.
 
 ''')
 
-  header = '\\begin{tabular}{l'
+  header = '\\noindent{\\small\\begin{tabular}{l'
   for i in data["tool"]:
     header += 'c'
   header += '}'
@@ -114,7 +114,7 @@ states and more transitions.
             x += 1
       print("&", x, end=' ')
     print(r"\\")
-  print(r'\end{tabular}')
+  print(r'\end{tabular}}')
 
 
 def main():
@@ -129,7 +129,7 @@ def main():
   args = p.parse_args()
 
   print(r'''\documentclass{article}
-\usepackage[a4paper,landscape,margin=2cm]{geometry}
+\usepackage[a4paper,landscape,margin=1cm]{geometry}
 \usepackage{adjustbox}
 \usepackage{array}
 
@@ -138,7 +138,7 @@ def main():
     l%
     <{\egroup}%
 }
-\newcommand*\rot{\multicolumn{1}{R{45}{1em}}}% no optional argument here, please!
+\newcommand*\rot{\multicolumn{1}{R{90}{0em}}}% no optional argument here, please!
 
 \begin{document}
 ''')
