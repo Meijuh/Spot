@@ -159,3 +159,14 @@ S6, S6, "p1 | p2 | p3", ZZ;
 EOF
 run 0 ../ltl2tgba -X -R3 -b aut7.txt > out7.txt
 test `grep '^acc' out7.txt | wc -w` = 4
+
+
+run 0 ../ltl2tgba -R3 -b '(GFa&GFb) | (GFc&GFd)' > out8.txt
+test `grep '^acc' out8.txt | wc -w` = 4
+
+# This formula gives a 12-state automaton in which one acceptance
+# condition can be removed, and after what direct simulation should
+# simplify the automaton to 6 states.
+run 0 ../ltl2tgba -R3 -s -RDS -ks \
+  '(G(!((b) R (a)))) R (((c) R (!(d))) U (G((a) | (!(G(e))))))' > out9.txt
+grep 'states: 6$' out9.txt

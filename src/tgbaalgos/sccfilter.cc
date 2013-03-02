@@ -78,23 +78,21 @@ namespace spot
 		  const std::vector<bool>& useless,
 		  remap_table_t& remap_table,
 		  unsigned max_num,
-		  const std::vector<unsigned>& max_table,
 		  bool remove_all_useless)
 	: tgba_reachable_iterator_depth_first(a),
 	  out_(new T(a->get_dict())),
 	  sm_(sm),
 	  useless_(useless),
-	  max_num_(max_num),
 	  all_(remove_all_useless),
 	  acc_(max_num)
       {
 	acc_[0] = bddfalse;
 	bdd tmp = a->all_acceptance_conditions();
 	bdd_dict* d = a->get_dict();
-	assert(a->number_of_acceptance_conditions() >= max_num_ - 1);
+	assert(a->number_of_acceptance_conditions() >= max_num - 1);
 	if (tmp != bddfalse)
 	  {
-	    for (unsigned n = max_num_ - 1; n > 0; --n)
+	    for (unsigned n = max_num - 1; n > 0; --n)
 	      {
 		assert(tmp != bddfalse);
 		const ltl::formula* a = d->oneacc_to_formula(bdd_var(tmp));
@@ -102,7 +100,7 @@ namespace spot
 		tmp = bdd_low(tmp);
 	      }
 	    tmp = a->all_acceptance_conditions();
-	    for (unsigned n = max_num_ - 1; n > 0; --n)
+	    for (unsigned n = max_num - 1; n > 0; --n)
 	      {
 		const ltl::formula* a = d->oneacc_to_formula(bdd_var(tmp));
 		acc_[n] = out_->get_acceptance_condition(a->clone());
@@ -111,7 +109,7 @@ namespace spot
 	  }
 	else
 	  {
-	    assert(max_num_ == 1);
+	    assert(max_num == 1);
 	  }
 
 	unsigned c = sm.scc_count();
@@ -121,12 +119,9 @@ namespace spot
 
 	for (unsigned n = 0; n < c; ++n)
 	  {
+	    //std::cerr << "SCC #" << n << "\n";
 	    if (!sm.accepting(n))
 	      continue;
-
-	    bdd missingacc = bddfalse;
-	    for (unsigned a = max_table[n]; a < max_num_; ++a)
-	      missingacc |= acc_[a];
 
 	    bdd all = sm.useful_acc_of(n);
 	    while (all != bddfalse)
@@ -148,9 +143,8 @@ namespace spot
 		    res |= acc_[remap_table[n][vn]];
 		    one = bdd_high(one);
 		  }
-		if (res != bddfalse)
-		  res |= missingacc;
 		int id = resacc.id();
+		//std::cerr << resacc << " -> " << res << "\n";
 		remap_[n][id] = res;
 	      }
 	  }
@@ -191,7 +185,15 @@ namespace spot
 	    bdd acc = si->current_acceptance_conditions();
 	    if (acc == bddfalse)
 	      return;
-	    t->acceptance_conditions = remap_[u][acc.id()];
+	    map_t::const_iterator i = this->remap_[u].find(acc.id());
+	    if (i != this->remap_[u].end())
+	      {
+		t->acceptance_conditions = i->second;
+	      }
+	    else
+	      {
+		//t->acceptance_conditions = this->remap_[v][acc.id()];
+	      }
 	  }
       }
 
@@ -199,7 +201,6 @@ namespace spot
       T* out_;
       const scc_map& sm_;
       const std::vector<bool>& useless_;
-      unsigned max_num_;
       bool all_;
       std::vector<bdd> acc_;
       remap_t remap_;
@@ -215,11 +216,9 @@ namespace spot
 		       const std::vector<bool>& useless,
 		       remap_table_t& remap_table,
 		       unsigned max_num,
-		       const std::vector<unsigned>& max_table,
 		       bool remove_all_useless,
 		       bdd susp_pos, bool early_susp, bdd ignored)
-	: super(a, sm, useless, remap_table, max_num, max_table,
-		remove_all_useless),
+	: super(a, sm, useless, remap_table, max_num, remove_all_useless),
 	  susp_pos(susp_pos), early_susp(early_susp), ignored(ignored)
       {
       }
@@ -258,7 +257,16 @@ namespace spot
 	    bdd acc = si->current_acceptance_conditions();
 	    if (acc == bddfalse)
 	      return;
-	    t->acceptance_conditions = this->remap_[u][acc.id()];
+	    typename super::map_t::const_iterator i =
+	      this->remap_[u].find(acc.id());
+	    if (i != this->remap_[u].end())
+	      {
+		t->acceptance_conditions = i->second;
+	      }
+	    else
+	      {
+		// t->acceptance_conditions = this->remap_[v][acc.id()];
+	      }
 	  }
       }
     protected:
@@ -283,6 +291,8 @@ namespace spot
 
     remap_table_t remap_table(ss.scc_total);
     std::vector<unsigned> max_table(ss.scc_total);
+    std::vector<bdd> useful_table(ss.scc_total);
+    std::vector<bdd> useless_table(ss.scc_total);
     unsigned max_num = 1;
 
     for (unsigned n = 0; n < ss.scc_total; ++n)
@@ -291,6 +301,8 @@ namespace spot
 	  continue;
 	bdd all = sm->useful_acc_of(n);
 	bdd negall = aut->neg_acceptance_conditions();
+
+	//std::cerr << "SCC #" << n << "; used = " << all << std::endl;
 
 	// Compute a set of useless acceptance conditions.
 	// If the acceptance combinations occurring in
@@ -351,7 +363,11 @@ namespace spot
 	// We never remove ALL acceptance marks.
 	assert(negall == bddtrue || useless != bdd_support(negall));
 
+
+	useless_table[n] = useless;
 	bdd useful = bdd_exist(negall, useless);
+
+	//std::cerr << "SCC #" << n << "; useful = " << useful << std::endl;
 
 	// Go over all useful sets of acceptance marks, and give them
 	// a number.
@@ -362,6 +378,29 @@ namespace spot
 	max_table[n] = num;
 	if (num > max_num)
 	  max_num = num;
+
+	useful_table[n] = useful;
+      }
+
+    // Now that we know about the max number of acceptance conditions,
+    // use add extra acceptance conditions to those SCC that do not
+    // have enough.
+    for (unsigned n = 0; n < ss.scc_total; ++n)
+      {
+	if (!sm->accepting(n))
+	  continue;
+	//std::cerr << "SCC " << n << "\n";
+	bdd useful = useful_table[n];
+
+	int missing = max_num - max_table[n];
+	bdd useless = useless_table[n];
+	while (missing--)
+	  {
+	    //std::cerr << useful << "  :  " << useless << std::endl;
+	    useful &= bdd_nithvar(bdd_var(useless));
+	    useless = bdd_high(useless);
+	  }
+	int num = max_num;
 	// Then number all of these acceptance conditions in the
 	// reverse order.  This makes sure that the associated number
 	// varies in the same direction as the bdd variables, which in
@@ -369,6 +408,8 @@ namespace spot
 	// ordering (which matters for degeneralization).
 	for (BDD c = useful.id(); c != 1; c = bdd_low(c))
 	  remap_table[n].insert(std::make_pair(bdd_var(c), --num));
+
+	max_table[n] = max_num;
       }
 
     tgba* ret;
@@ -387,7 +428,6 @@ namespace spot
 	    filter_iter<tgba_explicit_formula> fi(af, *sm,
 						  ss.useless_scc_map,
 						  remap_table, max_num,
-						  max_table,
 						  remove_all_useless);
 	    fi.run();
 	    tgba_explicit_formula* res = fi.result();
@@ -399,7 +439,6 @@ namespace spot
 	    filter_iter_susp<tgba_explicit_formula> fi(af, *sm,
 						       ss.useless_scc_map,
 						       remap_table, max_num,
-						       max_table,
 						       remove_all_useless,
 						       susp, early_susp,
 						       ignored);
@@ -417,7 +456,6 @@ namespace spot
 	  {
 	    filter_iter<tgba_explicit_string> fi(aut, *sm, ss.useless_scc_map,
 						 remap_table, max_num,
-						 max_table,
 						 remove_all_useless);
 	    fi.run();
 	    tgba_explicit_string* res = fi.result();
@@ -431,7 +469,6 @@ namespace spot
 		filter_iter<tgba_explicit_number> fi(aut, *sm,
 						     ss.useless_scc_map,
 						     remap_table, max_num,
-						     max_table,
 						     remove_all_useless);
 		fi.run();
 		tgba_explicit_number* res = fi.result();
@@ -443,7 +480,6 @@ namespace spot
 		filter_iter_susp<tgba_explicit_number> fi(aut, *sm,
 							  ss.useless_scc_map,
 							  remap_table, max_num,
-							  max_table,
 							  remove_all_useless,
 							  susp, early_susp,
 							  ignored);
