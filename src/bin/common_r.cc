@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -42,7 +42,7 @@ parse_r(const char* arg)
 spot::ltl::ltl_simplifier_options
 simplifier_options()
 {
-  spot::ltl::ltl_simplifier_options options;
+  spot::ltl::ltl_simplifier_options options(false, false, false);
   switch (simplification_level)
     {
     case 3:

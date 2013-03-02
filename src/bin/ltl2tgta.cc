@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -243,6 +243,8 @@ main(int argc, char** argv)
 
   const argp ap = { options, parse_opt, "[FORMULA...]",
 		    argp_program_doc, children, 0, 0 };
+
+  simplification_level = 3;
 
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
     exit(err);

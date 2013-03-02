@@ -247,6 +247,8 @@ main(int argc, char** argv)
   const argp ap = { options, parse_opt, "[FORMULA...]",
 		    argp_program_doc, children, 0, 0 };
 
+  simplification_level = 3;
+
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
     exit(err);
 
