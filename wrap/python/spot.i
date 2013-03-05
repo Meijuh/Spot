@@ -238,7 +238,7 @@ using namespace spot;
 
 %template(explicit_string_tgba)
   spot::tgba_explicit<state_explicit_string>;
-%template(explicit__number_tgba)
+%template(explicit_number_tgba)
   spot::tgba_explicit<state_explicit_number>;
 %template(explicit_formula_tgba)
   spot::tgba_explicit<state_explicit_formula>;
@@ -251,6 +251,30 @@ using namespace spot;
 		      state_explicit_number>;
 %template(explicit_formula__tgba)
   spot::explicit_conf<tgba_explicit<state_explicit_formula>,
+		      state_explicit_formula>;
+
+%template(explicit_graph__string_sba)
+  spot::explicit_graph<state_explicit_string, sba>;
+%template(explicit_graph__number_sba)
+  spot::explicit_graph<state_explicit_number, sba>;
+%template(explicit_graph__formula_sba)
+  spot::explicit_graph<state_explicit_formula, sba>;
+
+%template(explicit_string_sba)
+  spot::sba_explicit<state_explicit_string>;
+%template(explicit_number_sba)
+  spot::sba_explicit<state_explicit_number>;
+%template(explicit_formula_sba)
+  spot::sba_explicit<state_explicit_formula>;
+
+%template(explicit_string__sba)
+  spot::explicit_conf<sba_explicit<state_explicit_string>,
+                      state_explicit_string>;
+%template(explicit_number__sba)
+  spot::explicit_conf<sba_explicit<state_explicit_number>,
+		      state_explicit_number>;
+%template(explicit_formula__sba)
+  spot::explicit_conf<sba_explicit<state_explicit_formula>,
 		      state_explicit_formula>;
 
 %include "tgbaalgos/degen.hh"

@@ -1167,10 +1167,11 @@ main(int argc, char** argv)
 	    }
 	}
 
+      const spot::tgba* monitor = 0;
       if (opt_monitor)
 	{
 	  tm.start("Monitor minimization");
-	  minimized = a = minimize_monitor(a);
+	  monitor = a = minimize_monitor(a);
 	  tm.stop("Monitor minimization");
 	  assume_sba = false; 	// All states are accepting, so double
 				// circles in the dot output are
@@ -1620,6 +1621,7 @@ main(int argc, char** argv)
       delete product_to_free;
       delete system;
       delete expl;
+      delete monitor;
       delete minimized;
       delete degeneralized;
       delete aut_scc;
