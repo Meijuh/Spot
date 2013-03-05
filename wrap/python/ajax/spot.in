@@ -298,8 +298,12 @@ def render_formula(f):
     spot.dotty(dotsrc, f)
     render_dot_maybe(dotsrc.str(), False)
 
-def print_stats(automaton, detinfo = False):
-    stats = spot.sub_stats_reachable(automaton)
+def print_stats(automaton, detinfo = False, ta = False):
+    if ta: # TA/GTA
+        stats = spot.stats_reachable(automaton)
+        detinfo = False
+    else:
+        stats = spot.sub_stats_reachable(automaton)
     unbufprint("<p>%d state" % stats.states)
     if stats.states > 1:
         unbufprint("s")
@@ -309,11 +313,16 @@ def print_stats(automaton, detinfo = False):
             unbufprint(" (deterministic)")
         else:
             unbufprint(" (%d nondeterministic)" % nondet)
-    unbufprint(", %d edge%s (%d transition%s)"
-               % (stats.transitions,
-                  's' if stats.transitions > 1 else '',
-                  stats.sub_transitions,
-                  's' if stats.sub_transitions > 1 else ''))
+    if not hasattr(stats, 'sub_transitions'):
+        unbufprint(", %d transition" % stats.transitions)
+        if stats.transitions > 1:
+            unbufprint("s")
+    else:
+        unbufprint(", %d edge%s (%d transition%s)"
+                   % (stats.transitions,
+                      's' if stats.transitions > 1 else '',
+                      stats.sub_transitions,
+                      's' if stats.sub_transitions > 1 else ''))
     if hasattr(automaton, 'number_of_acceptance_conditions'):
         count = automaton.number_of_acceptance_conditions()
         if count > 0:
@@ -715,7 +724,7 @@ if output_type == 't':
                                      issba, True, singlepass, livelock)
         if bisimulation:
             tautomaton = spot.minimize_ta(tautomaton)
-    dont_run_dot = print_stats(tautomaton)
+    dont_run_dot = print_stats(tautomaton, ta = True)
     render_automaton(tautomaton, dont_run_dot, issba)
     tautomaton = 0
     degen = 0
