@@ -1,5 +1,5 @@
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -37,14 +37,16 @@ namespace spot
 			     bool containment_checks = false,
 			     bool containment_checks_stronger = false,
 			     bool nenoform_stop_on_boolean = false,
-			     bool reduce_size_strictly = false)
+			     bool reduce_size_strictly = false,
+			     bool boolean_to_isop = false)
 	: reduce_basics(basics),
 	  synt_impl(synt_impl),
 	  event_univ(event_univ),
 	  containment_checks(containment_checks),
 	  containment_checks_stronger(containment_checks_stronger),
 	  nenoform_stop_on_boolean(nenoform_stop_on_boolean),
-	  reduce_size_strictly(reduce_size_strictly)
+	  reduce_size_strictly(reduce_size_strictly),
+	  boolean_to_isop(boolean_to_isop)
       {
       }
 
@@ -60,6 +62,8 @@ namespace spot
       // will be disabled.  Those larger formulae are normally easier
       // to translate, so we recommend to set this to false.
       bool reduce_size_strictly;
+      // If true, Boolean subformulae will be rewritten in ISOP form.
+      bool boolean_to_isop;
     };
 
     // fwd declaration to hide technical details.
@@ -153,6 +157,13 @@ namespace spot
 
       /// Cached version of spot::ltl::star_normal_form().
       const formula* star_normal_form(const formula* f);
+
+      /// \brief Rewrite a Boolean formula \a f into as an irredundant
+      /// sum of product.
+      ///
+      /// This uses a cache, so it is OK to call this with identical
+      /// arguments.
+      const formula* boolean_to_isop(const formula* f);
 
       /// Dump statistics about the caches.
       void print_stats(std::ostream& os) const;

@@ -92,6 +92,7 @@ TESTS = \
   kind.test \
   lbt.test \
   lenient.test \
+  isop.test \
   syntimpl.test \
   reduc.test \
   reducpsl.test \

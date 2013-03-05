@@ -4,6 +4,16 @@ New in spot 1.0.1a (not released):
     - the on-line ltl2tgba.html interface can output deterministic or
       non-deterministic monitors.  However, and unlike the ltl2tgba
       command-line tool, it doesn't different output formats.
+    - the class ltl::ltl_simplifier now has an option to rewrite Boolean
+      subformulaes as irredundante-sum-of-product during the simplification
+      of any LTL/PSL formula.  The service is also available as a method
+      ltl_simplifier::boolean_to_isop() that applies this rewriting
+      to a Boolean formula and implements a cache.
+      ltlfilt as a new option --boolean-to-isop to try to apply the
+      above rewriting from the command-line:
+      	    % ltlfilt --boolean-to-isop -f 'GF((a->b)&(b->c))'
+	    GF((!a & !b) | (b & c))
+      This is currently not used anywhere else in the library.
   * Bug fixes:
     - 'ltl2tgba --high' is documented to be the same as 'ltl2tgba',
       but by default ltl2tgba forgot to enable LTL simplifications based

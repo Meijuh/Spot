@@ -32,6 +32,7 @@
 #include "ltlvisit/contain.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/snf.hh"
+#include "tgba/formula2bdd.hh"
 #include <cassert>
 
 namespace spot
@@ -105,6 +106,16 @@ namespace spot
 	      old->first->destroy();
 	    }
 	}
+	{
+	  f2f_map::iterator i = bool_isop_.begin();
+	  f2f_map::iterator end = bool_isop_.end();
+	  while (i != end)
+	    {
+	      f2f_map::iterator old = i++;
+	      old->second->destroy();
+	      old->first->destroy();
+	    }
+	}
 
 	dict->unregister_all_my_variables(this);
       }
@@ -127,7 +138,8 @@ namespace spot
 	   << "negative normal form:   " << nenoform_.size() << " entries\n"
 	   << "syntactic implications: " << syntimpl_.size() << " entries\n"
 	   << "boolean to bdd:         " << as_bdd_.size() << " entries\n"
-	   << "star normal form:       " << snf_cache_.size() << " entries\n";
+	   << "star normal form:       " << snf_cache_.size() << " entries\n"
+	   << "boolean isop:           " << bool_isop_.size() << " entries\n";
       }
 
       void
@@ -374,12 +386,26 @@ namespace spot
 	return ltl::star_normal_form(f, &snf_cache_);
       }
 
+      const formula*
+      boolean_to_isop(const formula* f)
+      {
+	f2f_map::const_iterator it = bool_isop_.find(f);
+	if (it != bool_isop_.end())
+	  return it->second->clone();
+
+	assert(f->is_boolean());
+	const formula* res = bdd_to_formula(as_bdd(f), dict);
+	bool_isop_[f->clone()] = res->clone();
+	return res;
+      }
+
     private:
       f2b_map as_bdd_;
       f2f_map simplified_;
       f2f_map nenoform_;
       syntimpl_cache_t syntimpl_;
       snf_cache snf_cache_;
+      f2f_map bool_isop_;
     };
 
 
@@ -3976,9 +4002,16 @@ namespace spot
 	    trace << " miss" << std::endl;
 	  }
 
-	simplify_visitor v(c);
-	f->accept(v);
-	result = v.result();
+	if (f->is_boolean() && c->options.boolean_to_isop)
+	  {
+	    result = c->boolean_to_isop(f);
+	  }
+	else
+	  {
+	    simplify_visitor v(c);
+	    f->accept(v);
+	    result = v.result();
+	  }
 
         trace << "** simplify_recursively(" << to_string(f) << ") result: "
 	      << to_string(result) << std::endl;
@@ -4459,6 +4492,12 @@ namespace spot
       return cache_->star_normal_form(f);
     }
 
+    const formula*
+    ltl_simplifier::boolean_to_isop(const formula* f)
+    {
+      return cache_->boolean_to_isop(f);
+    }
+
     bdd_dict*
     ltl_simplifier::get_dict() const
     {
@@ -4477,6 +4516,5 @@ namespace spot
       cache_->clear_as_bdd_cache();
       cache_->lcc.clear();
     }
-
   }
 }

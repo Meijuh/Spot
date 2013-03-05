@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -76,6 +76,7 @@ Exit status:\n\
 #define OPT_EQUIVALENT_TO 25
 #define OPT_RELABEL 26
 #define OPT_REMOVE_WM 27
+#define OPT_BOOLEAN_TO_ISOP 28
 
 static const argp_option options[] =
   {
@@ -95,6 +96,9 @@ static const argp_option options[] =
       "specified otherwise", 0 },
     { "remove-wm", OPT_REMOVE_WM, 0, 0,
       "rewrite operators W and M using U and R", 0 },
+    { "boolean-to-isop", OPT_BOOLEAN_TO_ISOP, 0, 0,
+      "rewrite Boolean subformulas as irredundant sum of products "
+      "(implies at least -r1)", 0 },
     DECLARE_OPT_R,
     LEVEL_DOC(4),
     /**************************************************/
@@ -159,6 +163,7 @@ static error_style_t error_style = drop_errors;
 static bool quiet = false;
 static bool nnf = false;
 static bool negate = false;
+static bool boolean_to_isop = false;
 static bool unique = false;
 static bool psl = false;
 static bool ltl = false;
@@ -237,6 +242,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_BOOLEAN:
       boolean = true;
+      break;
+    case OPT_BOOLEAN_TO_ISOP:
+      boolean_to_isop = true;
       break;
     case OPT_BSIZE_MIN:
       bsize_min = to_int(arg);
@@ -389,7 +397,7 @@ namespace
       if (negate)
 	f = spot::ltl::unop::instance(spot::ltl::unop::Not, f);
 
-      if (simplification_level)
+      if (simplification_level || boolean_to_isop)
 	{
 	  const spot::ltl::formula* res = simpl.simplify(f);
 	  f->destroy();
@@ -507,7 +515,11 @@ main(int argc, char** argv)
   if (jobs.empty())
     jobs.push_back(job("-", 1));
 
-  spot::ltl::ltl_simplifier simpl(simplifier_options());
+  if (boolean_to_isop && simplification_level == 0)
+    simplification_level = 1;
+  spot::ltl::ltl_simplifier_options opt = simplifier_options();
+  opt.boolean_to_isop = boolean_to_isop;
+  spot::ltl::ltl_simplifier simpl(opt);
   ltl_processor processor(simpl);
   if (processor.run())
     return 2;
