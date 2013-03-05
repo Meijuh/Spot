@@ -108,8 +108,8 @@
 		$('#translator-tabs,#autsimp-tabs,#run-tabs,#tester-tabs').hide(duration);
 		break;
 	    case 'm':
-		$('#autsimp-tabs,#run-tabs').hide(duration);
-		$('#translator-tabs,#tester-tabs').not('.killed').show(duration);
+		$('#autsimp-tabs,#run-tabs,#tester-tabs').hide(duration);
+		$('#translator-tabs').not('.killed').show(duration);
 		break;
 	    case 'a':
 		$('#translator-tabs,#autsimp-tabs').not('.killed').show(duration);
