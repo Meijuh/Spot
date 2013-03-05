@@ -1,6 +1,28 @@
 New in spot 1.0.1a (not released):
 
-  * Nothing yet.
+  * New features:
+    - the on-line ltl2tgba.html interface can output deterministic or
+      non-deterministic monitors.  However, and unlike the ltl2tgba
+      command-line tool, it doesn't different output formats.
+  * Bug fixes:
+    - 'ltl2tgba --high' is documented to be the same as 'ltl2tgba',
+      but by default ltl2tgba forgot to enable LTL simplifications based
+      on language containment, which --high do enable.  There are now
+      enabled by default.
+    - the on-line ltl2tgba.html interface failed to output monitors,
+      testing automata, and generalized testing automata due to two
+      issues with the Python bindings.  It also used to display
+      Testing Automaton Options when the desired output was set to Monitor.
+    - bench/ltl2tgba would not work in a VPATH build.
+    - a typo caused some .dir-locals.el configuration parameters to be
+      silently ignored by emacs
+    - improved Doxygen comments for formula_to_bdd, bdd_to_formula,
+      and bdd_dict.
+    - src/tgbatest/ltl2tgba (not to be confused with src/bin/ltl2tgba)
+      would have a memory leak when passed the conflicting option -M
+      and -O.  It probably has many other problems.  Do not use
+      src/tgbatest/ltl2tgba if you are not writing a test case for
+      Spot.  Use src/bin/ltl2tgba instead.
 
 New in spot 1.0.1 (2013-01-23):
 
@@ -97,7 +119,7 @@ New in spot 1.0 (2012-10-27):
 
     The former test versions of genltl and randltl have been removed
     from the source tree.  The old version of ltl2tgba with its
-    gazillion options is still is src/tgbatest/ and is meant to be
+    gazillion options is still in src/tgbatest/ and is meant to be
     used for testing only.  Although ltlcross is meant to replace
     LBTT, we are still using both tools in this release; however this
     is likely to be the last release of Spot that redistributes LBTT.
