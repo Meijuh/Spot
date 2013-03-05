@@ -36,9 +36,10 @@ Type of automaton if o=a (pick one)
   af=s    SBA
   af=i    Spin neverclaim
 
-Type of monitor if o=m (pick one -- no choice)
+Type of monitor if o=m (pick one)
 
-  mf=d
+  mf=d    deterministic
+  mf=n    nondeterministic
 
 Type of automaton for run if o=r (pick one)
 

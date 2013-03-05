@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -84,8 +84,8 @@ namespace spot
       level_ = level;
     }
 
-    /// Return the optimized automaton and delete \a input.
-    const tgba* run(const tgba* input, const ltl::formula* f);
+    /// Return the optimized automaton and delete \a input_disown.
+    const tgba* run(const tgba* input_disown, const ltl::formula* f);
 
   private:
     output_type type_;

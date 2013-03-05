@@ -571,9 +571,15 @@ elif translator == 'l3':
 
 # Monitor output
 if output_type == 'm':
-    issba = False
-    automaton = spot.scc_filter(automaton)
-    automaton = spot.minimize_monitor(automaton)
+    issba = True
+    mf = form.getfirst('mf', 'd')
+    pp = spot.postprocessor()
+    pp.set_type(spot.postprocessor.Monitor)
+    if mf == 'd':
+        pp.set_pref(spot.postprocessor.Deterministic)
+    elif mf == 'n':
+        pp.set_pref(spot.postprocessor.Small)
+    automaton = pp.run(automaton, f)
     unbufprint('<div class="automata-stats">')
     dont_run_dot = print_stats(automaton)
     unbufprint('</div>')
