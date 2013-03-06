@@ -38,7 +38,50 @@ namespace spot
   /// necessarily weak.
   /// For other accepting SCCs, this function enumerates all cycles in
   /// the given SCC (it stops if it find a non-accepting cycle).
-  bool is_weak_scc(scc_map& map, unsigned scc);
+  bool is_weak_scc(scc_map& map, unsigned scc, bool easydetect = true);
+
+  /// \brief Whether the SCC number \a scc in \a map is complete
+  ///
+  /// A SCC is complete iff for all states for all label there exist
+  /// a transition that stay into this SCC.
+  bool
+  is_complete_scc(const tgba *a, scc_map& map, unsigned scc);
+
+  /// \brief Whether the SCC number \a scc in \a map is syntactically weak.
+  ///
+  /// An SCC is syntactically weak iff the lowest label of states inside 
+  /// this SCC corresponds to an obligation label
+  ///
+  /// Work only on tgba where labels are formula 
+  /// 
+  /// The scc_map \a map should have been built already.  The absence
+  /// of accepting cycle is easy to check (the scc_map can tell
+  /// whether the SCC is non-accepting already).  Similarly, an SCC in
+  /// which all transitions belong to all acceptance sets is
+  /// necessarily weak.
+  /// For other accepting SCCs, this function enumerates all cycles in
+  /// the given SCC (it stops if it find a non-accepting cycle).
+  bool is_syntactic_weak_scc(const tgba *a, scc_map& map, unsigned scc);
+
+  /// \brief wether a SCC is syntactically characterized by a gurarantee 
+  /// formula
+  ///
+  /// Work only on tgba where labels are formula 
+  bool is_syntactic_terminal_scc(const tgba *a, scc_map& map, unsigned scc);
+
+  /// \brief wether a SCC is terminal using an heuristic
+  ///
+  /// The heuristic try to characterize the SCC by loking if the SCC 
+  /// is complete and all cycle are fully accepting ( all transitions 
+  /// have all acceptance conditions)
+  bool
+  is_terminal_heuristic (const tgba *a, scc_map& map, unsigned scc);
+
+  /// \brief wether a SCC is weak using an heuristic
+  /// 
+  /// The heuristic looks if all path are fully accepting 
+  bool
+  is_weak_heuristic(scc_map& map, unsigned scc);
 
   /// @}
 }
