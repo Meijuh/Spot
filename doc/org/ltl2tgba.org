@@ -4,9 +4,10 @@
 #+LINK_UP: file:tools.html
 
 This tool translates LTL or PSL formulas into two kinds of Büchi
-automata.  The default is to output Transition-based Generalized Büchi
-Automata (hereinafter abbreviated TGBA), but more traditional Büchi
-automata (BA) may be requested using the =-B= option.
+automata, or to monitors.  The default is to output Transition-based
+Generalized Büchi Automata (hereinafter abbreviated TGBA), but more
+traditional Büchi automata (BA) may be requested using the =-B=
+option.
 
 * TGBA and BA
 
@@ -200,7 +201,7 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 :       --stats=FORMAT         output statistics about the automaton
 
 
-The =-8= option can be used to improve the readability of the output
+Option =-8= can be used to improve the readability of the output
 if your system can display UTF-8 correctly.
 
 #+BEGIN_SRC sh :results verbatim :exports code
