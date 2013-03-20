@@ -80,3 +80,8 @@ EXTRA_DIST = \
   $(ORG_FILES) \
   $(srcdir)/org-stamp \
   userdoc
+
+.PHONY: org-deploy
+org-deploy: $(srcdir)/org-stamp
+	cd $(srcdir); \
+	rsync -P -z -u -v -r -l -C --delete userdoc/ spot:www_spot/userdoc
