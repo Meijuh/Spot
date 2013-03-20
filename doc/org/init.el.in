@@ -1,0 +1,33 @@
+(require 'org-publish)
+(require 'org-install)
+
+
+(print (concat "Org " (org-version)))
+(setq org-export-htmlize-output-type 'css)
+
+(setq org-babel-python-command "/usr/bin/python3")
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((sh . t)
+   (dot . t)
+   (python . t)))
+(setq org-confirm-babel-evaluate nil)
+
+(setq org-publish-project-alist
+      '(("spot-html"
+	:base-directory "@abs_top_srcdir@/doc/org/"
+	:base-extension "org"
+	:publishing-directory "@abs_top_srcdir@/doc/userdoc/"
+	:recursive t
+	:publishing-function org-publish-org-to-html
+	:style "\n<link rel=\"stylesheet\" type=\"text/css\" href=\"syntax.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://spot.lip6.fr/css/spot-zenburn.css\" />"
+	:auto-preamble t)
+       ("spot-static"
+	:base-directory "@abs_top_srcdir@/doc/org/"
+	:base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf"
+	:publishing-directory "@abs_top_srcdir@/doc/userdoc/"
+	:recursive t
+	:publishing-function org-publish-attachment)
+       ("spot-all" :components ("spot-html" "spot-static"))))
+
+(org-publish-all t)

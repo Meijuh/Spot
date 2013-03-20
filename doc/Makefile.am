@@ -26,7 +26,7 @@ SUBDIRS = tl
 
 .PHONY: doc fast-doc
 
-all-local: $(srcdir)/stamp
+all-local: $(srcdir)/stamp $(srcdir)/org-stamp
 
 doc:
 	-rm -f $(srcdir)/stamp
@@ -49,9 +49,34 @@ $(srcdir)/spot.html $(srcdir)/spot.tag: $(srcdir)/stamp
 # Spot documentation.
 dist_pkgdata_DATA = $(srcdir)/spot.tag
 
+.PHONY: org
+org:
+	cd $(top_srcdir) && make doc/org/init.el
+	rm -rf $(srcdir)/userdoc; mkdir -p tmp; cd tmp; \
+	$(EMACS) --batch -Q -l $(abs_srcdir)/org/init.el
+	rm -rf tmp
+
+ORG_FILES = \
+  org/.dir-locals.el \
+  org/init.el \
+  org/syntax.css \
+  org/genltl.org \
+  org/ioltl.org \
+  org/ltl2tgba.org \
+  org/ltl2tgta.org \
+  org/ltlcross.org \
+  org/ltlfilt.org \
+  org/randltl.org \
+  org/tools.org
+
+$(srcdir)/org-stamp: $(ORG_FILES) $(configure_ac)
+	make org && touch $@
+
 EXTRA_DIST = \
   footer.html \
   mainpage.dox \
   $(srcdir)/stamp \
   $(srcdir)/spot.html \
-  org/.dir-locals.el
+  $(ORG_FILES) \
+  $(srcdir)/org-stamp \
+  userdoc

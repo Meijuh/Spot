@@ -181,7 +181,9 @@ src/              Sources for libspot.
       man/        Man pages for the above tools.
    sanity/        Sanity tests for the whole project.
 doc/              Documentation for libspot.
+   org/           Source of userdoc/ as org-mode files.
    tl/            Documentation of the Temporal Logic operators.
+   userdoc/       HTML documentation about the command-line tools.
    spot.html/     HTML reference manual for the library.
 bench/            Benchmarks for ...
    emptchk/       ... emptiness-check algorithms,

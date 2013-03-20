@@ -5,3 +5,4 @@ err
 *.json
 scheck.ltl
 sum.py
+init.el

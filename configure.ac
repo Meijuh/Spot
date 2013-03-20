@@ -91,7 +91,7 @@ if test x$enable_warnings = xyes; then
 fi
 
 AM_CONDITIONAL([NEVER], [false])
-# We need the absolute path for dot in the "doc/dot" script. Other place
+# We need the absolute path for dot in the "doc/dot" script. Other places
 # only require a relative path.
 AC_PATH_PROG([DOT], [dot])
 AC_CHECK_PROG([LBT], [lbt], [lbt])
@@ -102,6 +102,7 @@ AC_CHECK_PROG([LTL2NBA], [script4lbtt.py], [script4lbtt.py])
 AC_CHECK_PROG([PERL], [perl], [perl])
 AC_CHECK_PROG([SPIN], [spin], [spin])
 AC_CHECK_PROG([LBTT], [lbtt], [lbtt])
+AC_CHECK_PROG([EMACS], [emacs], [emacs])
 AC_CHECK_PROG([LBTT_TRANSLATE], [lbtt-translate], [lbtt-translate])
 AX_CHECK_VALGRIND
 AC_CHECK_PROG([WRING2LBTT], [wring2lbtt], [wring2lbtt])
@@ -126,6 +127,7 @@ AC_CONFIG_FILES([
   doc/Doxyfile
   doc/Makefile
   doc/tl/Makefile
+  doc/org/init.el
   iface/dve2/defs
   iface/dve2/Makefile
   iface/gspn/defs
