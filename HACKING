@@ -16,6 +16,7 @@ since the generated files they produce are distributed.)
   GNU Libtool >= 2.4
   GNU Flex (the version seems to matters, we used 2.5.35)
   GNU Bison >= 2.4.2
+  GNU Emacs (preferably >= 24 but it may work with older versions)
   SWIG >= 1.3.31
   Doxygen >= 1.4.0
   Perl, with its Gettext module (it might be called something like
@@ -52,6 +53,18 @@ Do that right before running make.  The timestamp of doc/stamp
 is compared to configure.ac and Doxygen.in to decide if the
 documentation is out-of-date.  The above command pretends the
 documentation has just been built.
+
+
+Avoiding org-mode runs
+----------------------
+
+The files in doc/org/ are org-mode files (a mode of Emacs that we use
+to author documents that embed executable snippets), they are used to
+generate the doc/userdoc/ HTML documentation.  If for some reason you
+don't have emacs, or you simply want not to rebuild these files, use
+another "magic touch":
+
+  touch doc/org-stamp
 
 
 Debugging Libtool executables
