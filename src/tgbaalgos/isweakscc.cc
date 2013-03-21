@@ -16,9 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_ISWEAKSCC_CC
-# define SPOT_TGBAALGOS_ISWEAKSCC_CC
-
 #include "cycles.hh"
 #include "tgba/tgbaexplicit.hh"
 #include "ltlast/formula.hh"
@@ -182,5 +179,3 @@ namespace spot
 	    && is_complete_scc(map, scc));
   }
 }
-
-#endif // SPOT_TGBAALGOS_ISWEAKSCC_CC
