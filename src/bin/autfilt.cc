@@ -39,6 +39,7 @@
 #include "twaalgos/product.hh"
 #include "twaalgos/isdet.hh"
 #include "twaalgos/stutter.hh"
+#include "twaalgos/isunamb.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
 #include "misc/random.hh"
@@ -80,6 +81,7 @@ enum {
   OPT_IS_COMPLETE,
   OPT_IS_DETERMINISTIC,
   OPT_IS_EMPTY,
+  OPT_IS_UNAMBIGUOUS,
   OPT_KEEP_STATES,
   OPT_MASK_ACC,
   OPT_MERGE,
@@ -179,6 +181,8 @@ static const argp_option options[] =
       "keep deterministic automata", 0 },
     { "is-empty", OPT_IS_EMPTY, 0, 0,
       "keep automata with an empty language", 0 },
+    { "is-unambiguous", OPT_IS_UNAMBIGUOUS, 0, 0,
+      "keep only unambiguous automata", 0 },
     { "intersect", OPT_INTERSECT, "FILENAME", 0,
       "keep automata whose languages have an non-empty intersection with"
       " the automaton from FILENAME", 0 },
@@ -234,6 +238,7 @@ static struct opt_t
 static bool opt_merge = false;
 static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
+static bool opt_is_unambiguous = false;
 static bool opt_invert = false;
 static range opt_states = { 0, std::numeric_limits<int>::max() };
 static range opt_edges = { 0, std::numeric_limits<int>::max() };
@@ -343,6 +348,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_IS_EMPTY:
       opt_is_empty = true;
+      break;
+    case OPT_IS_UNAMBIGUOUS:
+      opt_is_unambiguous = true;
       break;
     case OPT_MERGE:
       opt_merge = true;
@@ -522,6 +530,10 @@ namespace
 	matched &= is_complete(aut);
       if (opt_is_deterministic)
 	matched &= is_deterministic(aut);
+      if (opt_is_deterministic)
+	matched &= is_deterministic(aut);
+      else if (opt_is_unambiguous)
+	matched &= is_unambiguous(aut);
       if (opt->are_isomorphic)
         matched &= opt->isomorphism_checker->is_isomorphic(aut);
       if (opt_is_empty)

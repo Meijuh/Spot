@@ -225,7 +225,7 @@ New in spot 1.99b (not yet released)
       new options to produce unambiguous TGBA, i.e., TGBAs in which
       every word is accepted by at most one path.  The ltl2tgba
       command line has a new option, --unambigous (or -U) to produce
-      these automata.
+      these automata, and autfilt has a --is-unambiguous filter.
 
   * Noteworthy code changes
 

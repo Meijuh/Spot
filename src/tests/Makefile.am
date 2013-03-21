@@ -211,6 +211,7 @@ TESTS_twa = \
   babiak.test \
   monitor.test \
   dra2dba.test \
+  unambig.test \
   ltlcross4.test \
   ltl2dstar.test \
   ltl2dstar2.test \

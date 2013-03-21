@@ -1,0 +1,84 @@
+#!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2013, 2015 Laboratoire de Recherche et Developpement
+# de l'Epita
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+. ./defs
+
+set -e
+
+ltl2tgba=../../bin/ltl2tgba
+autfilt=../../bin/autfilt
+
+for f in 'Ga' \
+         'Ga | Gb' \
+         'Ga | GFb' \
+         'Ga | FGb' \
+         'XFGa | GFb | Gc' \
+         '(Ga -> Gb) W c' \
+	 'F(a & !b & (!c W b))'
+do
+  $ltl2tgba -UH "$f" | $autfilt -q --is-unambiguous
+  $ltl2tgba -UH "!($f)" | $autfilt -q --is-unambiguous
+done
+
+for f in FGa
+do
+  $ltl2tgba -H "$f" | $autfilt -qv --is-unambiguous
+  $ltl2tgba -UH "$f" | $autfilt -q --is-unambiguous
+done
+
+# All these should be detected as ambiguous automata
+cat >input<<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0
+[0] 0
+[1] 0
+[0&1] 0 {0}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 2 Inf(0) & Inf(1)
+--BODY--
+State: 0
+[0] 0
+[1] 0 {0}
+[0&1] 0 {0 1}
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0
+[0] 1 {0}
+[1] 1
+State: 1
+[0] 1 {0}
+--END--
+EOF
+
+run 1 $autfilt -q --is-unambiguous input

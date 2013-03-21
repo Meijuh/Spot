@@ -59,6 +59,7 @@
 #include "misc/formater.hh"
 #include "twaalgos/stats.hh"
 #include "twaalgos/isdet.hh"
+#include "twaalgos/isunamb.hh"
 #include "misc/escape.hh"
 #include "misc/hash.hh"
 #include "misc/random.hh"
@@ -293,6 +294,7 @@ struct statistics
   std::vector<double> product_states;
   std::vector<double> product_transitions;
   std::vector<double> product_scc;
+  bool ambiguous;
 
   static void
   fields(std::ostream& os, bool show_exit, bool show_sr)
@@ -316,7 +318,8 @@ struct statistics
 	   "\"nondet_aut\","
 	   "\"terminal_aut\","
 	   "\"weak_aut\","
-	   "\"strong_aut\"");
+	   "\"strong_aut\","
+	   "\"ambiguous_aut\"");
     size_t m = products_avg ? 1U : products;
     for (size_t i = 0; i < m; ++i)
       os << ",\"product_states\",\"product_transitions\",\"product_scc\"";
@@ -353,7 +356,8 @@ struct statistics
 	   << nondeterministic << ','
 	   << terminal_aut << ','
 	   << weak_aut << ','
-	   << strong_aut;
+	   << strong_aut << ','
+	   << ambiguous;
 	if (!products_avg)
 	  {
 	    for (size_t i = 0; i < products; ++i)
@@ -381,7 +385,7 @@ struct statistics
       {
 	size_t m = products_avg ? 1U : products;
 	m *= 3;
-	m += 13 + show_sr * 6;
+	m += 14 + show_sr * 6;
 	os << na;
 	for (size_t i = 0; i < m; ++i)
 	  os << ',' << na;
@@ -688,6 +692,7 @@ namespace
 		st->weak_aut = true;
 	      else
 		st->terminal_aut = true;
+	      st->ambiguous = !spot::is_unambiguous(res);
 	    }
 	}
       output.cleanup();

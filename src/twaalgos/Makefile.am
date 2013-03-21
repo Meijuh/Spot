@@ -46,6 +46,7 @@ twaalgos_HEADERS = \
   gv04.hh \
   hoa.hh \
   isdet.hh \
+  isunamb.hh \
   isweakscc.hh \
   lbtt.hh \
   ltl2taa.hh \
@@ -101,6 +102,7 @@ libtwaalgos_la_SOURCES = \
   gv04.cc \
   hoa.cc \
   isdet.cc \
+  isunamb.cc \
   isweakscc.cc \
   lbtt.cc \
   ltl2taa.cc \
