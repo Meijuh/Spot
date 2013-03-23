@@ -1,6 +1,33 @@
 New in spot 1.0.2a (not released):
 
-  Nothing yet.
+  * New features in the library
+
+    - Postprocessor now takes an optional option_map argument that can
+      be used to specify fine-tuning options, making it easier to
+      benchmark different scenarios while developing new
+      postprocessings.
+
+    - The degeneralization algorithm has learned three new tricks:
+      level reset, level caching, and SCC-based ordering.  The former
+      two are enabled by default.  Benchmarking has shown that the
+      latter one does not always have a positive effect, so it is
+      disabled by default.
+
+    - The scc_filter() function, which removes dead SCCs and also
+      simplify acceptance conditions, has learnt how to simplify
+      acceptance conditions in a few tricky situations that were not
+      simplified previously.
+
+    - An experimental "don't care" (direct) simulation has been
+      implemented.  This simulations consider the acceptance
+      of out-of-SCC transitions as "don't care".  It is not
+      enabled by default because it currently is very slow.
+
+  * Command-line tools
+
+    - ltl2tgba and ltl2tgta now honor a new --extra-options (or -x)
+      flag to fine-tune the algorithm used.   The available options
+      are documented in the spot-x (7) manpage.
 
 New in spot 1.0.2 (2013-03-06):
 
