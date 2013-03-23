@@ -8,3 +8,4 @@ spot-x \- Common fine-tuning options.
 .\" Add any additional description here
 [SEE ALSO]
 .BR ltl2tgba (1)
+.BR ltl2tgta (1)

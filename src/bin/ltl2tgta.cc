@@ -42,6 +42,7 @@
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
 #include "taalgos/minimize.hh"
+#include "misc/optionmap.hh"
 
 const char argp_program_doc[] ="\
 Translate linear-time formulas (LTL/PSL) into Testing Automata.\n\n\
@@ -78,6 +79,8 @@ static const argp_option options[] =
     { "utf8", '8', 0, 0, "enable UTF-8 characters in output", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
+    { "extra-options", 'x', "OPTS", 0,
+      "fine-tuning options (see spot-x (7))", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -94,6 +97,7 @@ ta_types ta_type = TGTA;
 
 bool utf8 = false;
 const char* stats = "";
+spot::option_map extra_options;
 bool opt_with_artificial_initial_state = true;
 bool opt_single_pass_emptiness_check = false;
 bool opt_with_artificial_livelock = false;
@@ -109,6 +113,13 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'B':
       type = spot::postprocessor::BA;
+      break;
+    case 'x':
+      {
+	const char* opt = extra_options.parse_options(arg);
+	if (opt)
+	  error(2, 0, "failed to parse --options near '%s'", opt);
+      }
       break;
     case OPT_TGTA:
       ta_type = TGTA;
@@ -255,7 +266,7 @@ main(int argc, char** argv)
 
   spot::ltl::ltl_simplifier simpl(simplifier_options());
 
-  spot::postprocessor postproc;
+  spot::postprocessor postproc(&extra_options);
   postproc.set_pref(pref);
   postproc.set_type(type);
   postproc.set_level(level);
