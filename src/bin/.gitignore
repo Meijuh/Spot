@@ -4,6 +4,8 @@ ltl2tgta
 randltl
 genltl
 ltlcross
+spot-x
 *.a
 *.1
+*.7
 lck-*

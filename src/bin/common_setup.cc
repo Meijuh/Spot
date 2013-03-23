@@ -66,6 +66,15 @@ static const argp_option options[] =
     { 0, 0, 0, 0, 0, 0 }
   };
 
+static const argp_option options_hidden[] =
+  {
+    { "version", OPT_VERSION, 0, OPTION_HIDDEN, "print program version", -1 },
+    { "help", OPT_HELP, 0, OPTION_HIDDEN, "print this help", -1 },
+    // We support this option just in case, but we don't advertise it.
+    { "usage", OPT_USAGE, 0, OPTION_HIDDEN, "show short usage", -1 },
+    { 0, 0, 0, 0, 0, 0 }
+  };
+
 static int
 parse_opt_misc(int key, char*, struct argp_state* state)
 {
@@ -91,3 +100,6 @@ parse_opt_misc(int key, char*, struct argp_state* state)
 
 
 const struct argp misc_argp = { options, parse_opt_misc, 0, 0, 0, 0, 0 };
+
+const struct argp misc_argp_hidden = { options_hidden, parse_opt_misc,
+				       0, 0, 0, 0, 0 };

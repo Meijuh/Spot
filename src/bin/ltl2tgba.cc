@@ -93,7 +93,7 @@ static const argp_option options[] =
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
-      "fine-tuning options (see man page)", 0 },
+      "fine-tuning options (see spot-x (7))", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 

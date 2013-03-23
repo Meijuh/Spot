@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -26,5 +26,6 @@
 void setup(char** progname);
 
 extern const struct argp misc_argp;
+extern const struct argp misc_argp_hidden;
 
 #endif // SPOT_BIN_COMMON_SETUP_HH

@@ -28,7 +28,8 @@ dist_man1_MANS = \
   ltl2tgta.1 \
   ltlcross.1 \
   ltlfilt.1 \
-  randltl.1
+  randltl.1 \
+  spot-x.7
 
 MAINTAINERCLEANFILES = $(dist_man1_MANS)
 EXTRA_DIST = $(dist_man1_MANS:.1=.x)
@@ -50,3 +51,6 @@ genltl.1: $(common_dep) $(srcdir)/genltl.x $(srcdir)/../genltl.cc
 
 randltl.1: $(common_dep) $(srcdir)/randltl.x $(srcdir)/../randltl.cc
 	$(convman) ../randltl$(EXEEXT) $(srcdir)/randltl.x $@
+
+spot-x.7: $(common_dep) $(srcdir)/spot-x.x $(srcdir)/../spot-x.cc
+	$(convman) ../spot-x$(EXEEXT) $(srcdir)/spot-x.x $@
