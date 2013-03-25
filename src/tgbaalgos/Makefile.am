@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
 ## et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -66,6 +66,7 @@ tgbaalgos_HEADERS = \
   stripacc.hh \
   tau03.hh \
   tau03opt.hh \
+  translate.hh \
   reductgba_sim.hh \
   weight.hh
 
@@ -109,6 +110,7 @@ libtgbaalgos_la_SOURCES = \
   stripacc.cc \
   tau03.cc \
   tau03opt.cc \
+  translate.cc \
   reductgba_sim.cc \
   weight.cc
 

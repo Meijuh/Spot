@@ -89,7 +89,7 @@ namespace spot
     /// Return the optimized automaton and delete \a input_disown.
     const tgba* run(const tgba* input_disown, const ltl::formula* f);
 
-  private:
+  protected:
     const tgba* do_simul(const tgba* input);
     const tgba* do_degen(const tgba* input);
 

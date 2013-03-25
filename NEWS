@@ -2,10 +2,16 @@ New in spot 1.0.2a (not released):
 
   * New features in the library
 
-    - Postprocessor now takes an optional option_map argument that can
-      be used to specify fine-tuning options, making it easier to
-      benchmark different scenarios while developing new
+    - The postprocessor class now takes an optional option_map
+      argument that can be used to specify fine-tuning options, making
+      it easier to benchmark different scenarios while developing new
       postprocessings.
+
+    - A new translator class implements a complete translation chain,
+      from LTL/PSL to TGBA/BA/Monitor.  It performs pre- and
+      post-processings in addition to the core translation, and offers
+      an interface similar to that used in the postprocessor class, to
+      specify the intent of the translation.
 
     - The degeneralization algorithm has learned three new tricks:
       level reset, level caching, and SCC-based ordering.  The former
@@ -26,7 +32,7 @@ New in spot 1.0.2a (not released):
   * Command-line tools
 
     - ltl2tgba and ltl2tgta now honor a new --extra-options (or -x)
-      flag to fine-tune the algorithm used.   The available options
+      flag to fine-tune the algorithms used.   The available options
       are documented in the spot-x (7) manpage.
 
 New in spot 1.0.2 (2013-03-06):
