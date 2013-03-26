@@ -35,6 +35,13 @@ New in spot 1.0.2a (not released):
       flag to fine-tune the algorithms used.   The available options
       are documented in the spot-x (7) manpage.
 
+  * Documentation
+
+    - org-mode files used to generate the documentation about
+      command-line tools (shown at http://spot.lip6.fr/userdoc/tools.html)
+      is distributed in doc/org/.  The resulting html files are also
+      in doc/userdoc/.
+
 New in spot 1.0.2 (2013-03-06):
 
   * New features:
