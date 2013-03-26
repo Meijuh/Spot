@@ -53,8 +53,8 @@ Usage with Spot
   The function load_dve2() defined in dve2.hh in this directory
   will accept "model.dve" or "model.dve2C" as file argument.
   In the former case, it will call "divine compile --ltsmin"
-  if "model.dve2C" does not exist or is older.  Then load
-  "model.dve2C" dynamically.
+  if "model.dve2C" does not exist or is older.  Then it will
+  load "model.dve2C" dynamically.
 
   load_dve2() also requires a set of atomic propositions that should
   be observed in the model.  These are usually the atomic propositions
@@ -100,7 +100,9 @@ Usage with Spot
   be enclosed in double quote.
 
   Caveat: "P_0.j >= 2" and " P_0.j>=2" (watch the spaces!) are
-  considered to be two atomic propositions with the same semantics.
+  considered to be two distinct atomic propositions with the same
+  semantics.
+
 
 Examples
 ========

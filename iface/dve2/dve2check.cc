@@ -1,5 +1,5 @@
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE)
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,7 +21,7 @@
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
-#include "tgbaalgos/ltl2tgba_fm.hh"
+#include "tgbaalgos/translate.hh"
 #include "tgbaalgos/emptiness.hh"
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaalgos/postproc.hh"
@@ -203,15 +203,15 @@ main(int argc, char **argv)
   if (exit_code)
     goto safe_exit;
 
-  tm.start("reducing formula");
+  tm.start("translating formula");
   {
-    spot::ltl::ltl_simplifier_options opt(true, true, true, true, true);
-    spot::ltl::ltl_simplifier simp(opt);
-    const spot::ltl::formula* r = simp.simplify(f);
-    f->destroy();
-    f = r;
+    spot::translator trans(dict);
+    if (deterministic)
+      trans.set_pref(spot::postprocessor::Deterministic);
+
+    prop = trans.run(&f);
   }
-  tm.stop("reducing formula");
+  tm.stop("translating formula");
 
   atomic_prop_collect(f, &ap);
 
@@ -242,18 +242,6 @@ main(int argc, char **argv)
         goto safe_exit;
       }
     }
-
-
-  tm.start("translating formula");
-  prop = spot::ltl_to_tgba_fm(f, dict);
-  tm.stop("translating formula");
-
-  if (deterministic)
-    post.set_pref(spot::postprocessor::Deterministic);
-
-  tm.start("postprocessing A_f");
-  prop = post.run(prop, f);
-  tm.stop("postprocessing A_f");
 
   if (output == DotFormula)
     {
