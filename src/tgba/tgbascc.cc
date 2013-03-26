@@ -1,4 +1,6 @@
-// Copyright (C) 2009, 2012  Laboratoire de recherche et développement de l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2012, 2013 Laboratoire de recherche et
+// dÃ©veloppement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -45,8 +47,8 @@ namespace spot
 
   tgba_succ_iterator*
   tgba_scc::succ_iter(const state* local_state,
-					 const state* global_state,
-					 const tgba* global_automaton) const
+		      const state* global_state,
+		      const tgba* global_automaton) const
   {
     return aut_->succ_iter(local_state, global_state, global_automaton);
   }
