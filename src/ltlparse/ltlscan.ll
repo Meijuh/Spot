@@ -26,8 +26,9 @@
 %option stack
 
 %{
+#include <cstdlib>
 #include <string>
-#include <boost/lexical_cast.hpp>
+
 #include "ltlparse/parsedecl.hh"
 #include "misc/escape.hh"
 
@@ -197,20 +198,21 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 "["{ARROWL}			BEGIN(sqbracket); return token::OP_GOTO_OPEN;
 <sqbracket>"]"			BEGIN(0); return token::OP_SQBKT_CLOSE;
 <sqbracket>[0-9]+		{
-                                  unsigned num = 0;
-                                  try {
-                                    num = boost::lexical_cast<unsigned>(yytext);
-				    yylval->num = num;
-				    return token::OP_SQBKT_NUM;
-                                  }
-                                  catch (boost::bad_lexical_cast &)
-                                  {
-                                    error_list.push_back(
-				      spot::ltl::parse_error(*yylloc,
-					"value too large ignored"));
-				    // Skip this number and read next token
-                                    yylloc->step();
-				  }
+				  errno = 0;
+				  unsigned long n = strtoul(yytext, 0, 10);
+                                  yylval->num = n;
+				  if (errno || yylval->num != n)
+				    {
+                                      error_list.push_back(
+				        spot::ltl::parse_error(*yylloc,
+					  "value too large ignored"));
+				      // Skip this number and read next token
+                                      yylloc->step();
+                                    }
+				  else
+                                    {
+                                      return token::OP_SQBKT_NUM;
+                                    }
 				}
   /* .. is from PSL and EDL
    : is from Verilog and PSL
