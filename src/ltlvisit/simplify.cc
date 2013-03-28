@@ -2600,6 +2600,8 @@ namespace spot
 			  {
 			    if (!(*res)[n])
 			      continue;
+			    if ((*res)[n]->is_X_free())
+			      continue;
 
 			    const formula* xarg = is_XWU((*res)[n]);
 			    if (xarg)
@@ -2612,8 +2614,6 @@ namespace spot
 			    // - X(...)
 			    // - b | X(b R ...)
 			    // - b | X(b M ...)
-			    if ((*res)[n]->is_X_free())
-			      continue;
 
 			    const binop* barg = is_bXbRM((*res)[n]);
 			    if (barg)
@@ -2636,12 +2636,17 @@ namespace spot
 				  {					\
 				    unsigned y = a2->size();		\
 				    for (unsigned n = 0; n < y; ++n)	\
-				      xgset.				\
-					insert(a2->nth(n)->clone());	\
+				      {					\
+				        const formula* sub = a2->nth(n); \
+					if (xgset.insert(sub).second)	\
+					  sub->clone();			\
+			              }					\
 				  }					\
 				else					\
 				  {					\
-				    xgset.insert(g->child()->clone());	\
+				  const formula* sub = g->child();	\
+				  if (xgset.insert(sub).second)		\
+				    sub->clone();			\
 				  }
 				HANDLE_G;
 			      }
@@ -2657,13 +2662,15 @@ namespace spot
 				      }
 				    else
 				      {
-					xset.insert(x->clone());
+					if (xset.insert(x).second)
+					  x->clone();
 				      }
 				  }
 			      }
 			    else
 			      {
-				xset.insert(c->clone());
+				if (xset.insert(c).second)
+				  c->clone();
 			      }
 			    (*res)[n]->destroy();
 			    (*res)[n] = 0;
@@ -3307,6 +3314,8 @@ namespace spot
 			  {
 			    if (!(*res)[n])
 			      continue;
+			    if ((*res)[n]->is_X_free())
+			      continue;
 
 			    const formula* xarg = is_XRM((*res)[n]);
 			    if (xarg)
@@ -3319,8 +3328,6 @@ namespace spot
 			    // - X(...)
 			    // - b & X(b W ...)
 			    // - b & X(b U ...)
-			    if ((*res)[n]->is_X_free())
-			      continue;
 
 			    const binop* barg = is_bXbWU((*res)[n]);
 			    if (barg)
@@ -3328,7 +3335,6 @@ namespace spot
 				rmset[barg->second()].insert(n);
 				continue;
 			      }
-
 
 			    const unop* uo = is_X((*res)[n]);
 			    if (!uo)
@@ -3344,12 +3350,17 @@ namespace spot
 				  {					\
 				    unsigned y = o2->size();		\
 				    for (unsigned n = 0; n < y; ++n)	\
-				      xfset.				\
-					insert(o2->nth(n)->clone());	\
+				      {					\
+				        const formula* sub = o2->nth(n); \
+					if (xfset.insert(sub).second)	\
+					  sub->clone();			\
+				      }					\
 				    }					\
 				else					\
 				  {					\
-				    xfset.insert(f->child()->clone());	\
+				    const formula* sub = f->child();	\
+				    if (xfset.insert(sub).second)	\
+				      sub->clone();			\
 				  }
 				HANDLE_F;
 			      }
@@ -3365,13 +3376,15 @@ namespace spot
 				      }
 				    else
 				      {
-					xset.insert(x->clone());
+					if (xset.insert(x).second)
+					  x->clone();
 				      }
 				  }
 			      }
 			    else
 			      {
-				xset.insert(c->clone());
+				if (xset.insert(c).second)
+				  c->clone();
 			      }
 			    (*res)[n]->destroy();
 			    (*res)[n] = 0;
@@ -3989,7 +4002,12 @@ namespace spot
       simplify_recursively(const formula* f,
 			   ltl_simplifier_cache* c)
       {
+#ifdef TRACE
+	static int srec = 0;
+	for (int i = srec; i; --i)
+	  trace << ' ';
 	trace << "** simplify_recursively(" << to_string(f) << ")";
+#endif
 
 	const formula* result = c->lookup_simplified(f);
 	if (result)
@@ -4002,6 +4020,10 @@ namespace spot
 	    trace << " miss" << std::endl;
 	  }
 
+#ifdef TRACE
+	++srec;
+#endif
+
 	if (f->is_boolean() && c->options.boolean_to_isop)
 	  {
 	    result = c->boolean_to_isop(f);
@@ -4013,8 +4035,13 @@ namespace spot
 	    result = v.result();
 	  }
 
+#ifdef TRACE
+	--srec;
+	for (int i = srec; i; --i)
+	  trace << ' ';
         trace << "** simplify_recursively(" << to_string(f) << ") result: "
 	      << to_string(result) << std::endl;
+#endif
 
 	c->cache_simplified(f, result);
 	return result;

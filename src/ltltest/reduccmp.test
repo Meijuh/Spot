@@ -99,6 +99,9 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x 'FX(a)' 'XF(a)'
      run 0 $x 'GX(a)' 'XG(a)'
 
+     run 0 $x '(Xf W 0) | X(f W 0)' 'XGf'
+     run 0 $x 'XFa & FXa' 'XFa'
+
      run 0 $x 'GF(a | Xb)' 'GF(a | b)'
      run 0 $x 'GF(a | Fb)' 'GF(a | b)'
      run 0 $x 'GF(Xa | Fb)' 'GF(a | b)'

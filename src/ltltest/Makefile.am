@@ -95,6 +95,7 @@ TESTS = \
   isop.test \
   syntimpl.test \
   reduc.test \
+  reduc0.test \
   reducpsl.test \
   reduccmp.test \
   uwrm.test
