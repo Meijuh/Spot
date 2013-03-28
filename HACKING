@@ -125,7 +125,7 @@ Running coverage tests
 
 First, compile (and link) Spot with coverage enabled.
 
-  % ./configure CXX='gcc --coverage'
+  % ./configure CXX='g++ --coverage'
   % make
 
 Then run the test suite (or any program you want to study).
