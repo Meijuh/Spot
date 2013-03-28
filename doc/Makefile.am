@@ -72,6 +72,8 @@ ORG_FILES = \
 $(srcdir)/org-stamp: $(ORG_FILES) $(configure_ac)
 	make org && touch $@
 
+$(srcdir)/userdoc: $(srcdir)/org-stamp
+
 EXTRA_DIST = \
   footer.html \
   mainpage.dox \
@@ -79,7 +81,7 @@ EXTRA_DIST = \
   $(srcdir)/spot.html \
   $(ORG_FILES) \
   $(srcdir)/org-stamp \
-  userdoc
+  $(srcdir)/userdoc
 
 .PHONY: org-deploy
 org-deploy: $(srcdir)/org-stamp
