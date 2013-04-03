@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
@@ -1449,7 +1449,7 @@ namespace spot
 
 		  const formula* dest2 = unop::instance(op, dest);
 
-		  if (dest == constant::false_instance())
+		  if (dest2 == constant::false_instance())
 		    continue;
 
 		  int x = dict_.register_next_variable(dest2);

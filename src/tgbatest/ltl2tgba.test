@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+# Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -204,3 +204,8 @@ cmp count.never count.spot
 run 0 ../ltl2tgba -R3 -ks -f '(p&XF!p)|(!p&XFp)|X(Fp&F!p)' >stdout
 grep 'transitions: 7$' stdout
 grep 'states: 4$' stdout
+
+# A bug in the translation of !{xxx} when xxx reduces to false caused
+# the following formula to be considered equivalent to anything...
+../../bin/ltlfilt -f '!{[*2] && [*0..1]}' --equivalent-to 'false' && exit 1
+../../bin/ltlfilt -f '!{[*2] && [*0..1]}' --equivalent-to 'true'
