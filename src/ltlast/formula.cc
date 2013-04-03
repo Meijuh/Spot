@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -82,7 +82,7 @@ namespace spot
       proprint(is_syntactic_recurrence, "r", "syntactic recurrence");	\
       proprint(is_marked, "+", "marked");				\
       proprint(accepts_eword, "0", "accepts the empty word");		\
-      proprint(has_lbt_atomic_props, "l", "as LBT-style atomic props");
+      proprint(has_lbt_atomic_props, "l", "has LBT-style atomic props");
 
 
     std::list<std::string>
