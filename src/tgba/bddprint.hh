@@ -1,6 +1,9 @@
-// Copyright (C) 2003, 2004, 2012  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
+// Copyright (C) 2003, 2004 Laboratoire d'Informatique de
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -120,7 +123,7 @@ namespace spot
   /// \param b The BDD to print.
   /// \return The BDD formated as a string.
   std::string
-  bdd_format_isop(const bdd_dict* d, bdd b);
+  bdd_format_isop(const bdd_dict* dict, bdd b);
 
 
   /// \brief Print a BDD as an irredundant sum of product.
@@ -128,7 +131,7 @@ namespace spot
   /// \param dict The dictionary to use, to lookup variables.
   /// \param b The BDD to print.
   std::ostream&
-  bdd_print_isop(std::ostream& os, const bdd_dict* d, bdd b);
+  bdd_print_isop(std::ostream& os, const bdd_dict* dict, bdd b);
 
 }
 
