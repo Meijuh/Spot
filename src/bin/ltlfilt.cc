@@ -354,6 +354,13 @@ namespace
       fset_t::iterator i = unique_set.begin();
       while (i != unique_set.end())
 	(*i++)->destroy();
+
+      if (equivalent_to)
+	equivalent_to->destroy();
+      if (implied_by)
+	implied_by->destroy();
+      if (imply)
+	imply->destroy();
     }
 
     ltl_processor(spot::ltl::ltl_simplifier& simpl)
