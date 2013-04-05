@@ -29,6 +29,17 @@ New in spot 1.0.2a (not released):
       of out-of-SCC transitions as "don't care".  It is not
       enabled by default because it currently is very slow.
 
+    - remove_x() is a function that take a formula, and rewrite it
+      without the X operator.  The rewriting is only correct for
+      stutter-insensitive LTL formulas (See K. Etessami's paper in IFP
+      vol. 75(6). 2000) This algorithm is accessible from the
+      command-line using ltlfilt's --remove-x option.
+
+    - is_stutter_insensitive() takes any LTL formula, and check
+      whether it is stutter-insensitive.  This algorithm is accessible
+      from the command-line using ltlfilt's --stutter-insensitive
+      option.
+
   * Command-line tools
 
     - ltl2tgba and ltl2tgta now honor a new --extra-options (or -x)

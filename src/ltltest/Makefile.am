@@ -90,6 +90,7 @@ TESTS = \
   unabbrevwm.test \
   consterm.test \
   kind.test \
+  remove_x.test \
   lbt.test \
   lenient.test \
   isop.test \

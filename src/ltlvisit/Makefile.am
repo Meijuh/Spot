@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+## Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 ## Developpement de l'Epita (LRDE).
 ## Copyright (C) 2004, 2005, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -41,6 +41,7 @@ ltlvisit_HEADERS = \
   randomltl.hh \
   reduce.hh \
   relabel.hh \
+  remove_x.hh \
   simpfg.hh \
   simplify.hh \
   snf.hh \
@@ -65,6 +66,7 @@ libltlvisit_la_SOURCES = \
   randomltl.cc \
   reduce.cc \
   relabel.cc \
+  remove_x.cc \
   simpfg.cc \
   simplify.cc \
   snf.cc \

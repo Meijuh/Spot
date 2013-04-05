@@ -38,6 +38,7 @@
 #include "ltlvisit/length.hh"
 #include "ltlvisit/relabel.hh"
 #include "ltlvisit/wmunabbrev.hh"
+#include "ltlvisit/remove_x.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/multop.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
@@ -77,6 +78,8 @@ Exit status:\n\
 #define OPT_RELABEL 26
 #define OPT_REMOVE_WM 27
 #define OPT_BOOLEAN_TO_ISOP 28
+#define OPT_REMOVE_X 29
+#define OPT_STUTTER_INSENSITIVE 30
 
 static const argp_option options[] =
   {
@@ -99,6 +102,9 @@ static const argp_option options[] =
     { "boolean-to-isop", OPT_BOOLEAN_TO_ISOP, 0, 0,
       "rewrite Boolean subformulas as irredundant sum of products "
       "(implies at least -r1)", 0 },
+    { "remove-x", OPT_REMOVE_X, 0, 0,
+      "remove X operators (valid only for stutter-insensitive properties)",
+      0 },
     DECLARE_OPT_R,
     LEVEL_DOC(4),
     /**************************************************/
@@ -139,6 +145,9 @@ static const argp_option options[] =
       "match formulas implying FORMULA", 0 },
     { "equivalent-to", OPT_EQUIVALENT_TO, "FORMULA", 0,
       "match formulas equivalent to FORMULA", 0 },
+    { "stutter-insensitive", OPT_STUTTER_INSENSITIVE, 0, 0,
+      "match stutter-insensitive LTL formulas", 0 },
+    { "stutter-invariant", 0, 0, OPTION_ALIAS, 0, 0 },
     { "invert-match", 'v', 0, 0, "select non-matching formulas", 0},
     { "unique", 'u', 0, 0,
       "drop formulas that have already been output (not affected by -v)", 0 },
@@ -187,6 +196,8 @@ static int bsize_max = -1;
 static bool relabeling = false;
 static spot::ltl::relabeling_style style = spot::ltl::Abc;
 static bool remove_wm = false;
+static bool remove_x = false;
+static bool stutter_insensitive = false;
 
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
@@ -305,6 +316,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_REMOVE_WM:
       remove_wm = true;
       break;
+    case OPT_REMOVE_X:
+      remove_x = true;
+      break;
     case OPT_SAFETY:
       safety = obligation = true;
       break;
@@ -316,6 +330,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_SKIP_ERRORS:
       error_style = skip_errors;
+      break;
+    case OPT_STUTTER_INSENSITIVE:
+      stutter_insensitive = true;
       break;
     case OPT_SYNTACTIC_SAFETY:
       syntactic_safety = true;
@@ -404,6 +421,21 @@ namespace
       if (negate)
 	f = spot::ltl::unop::instance(spot::ltl::unop::Not, f);
 
+      if (remove_x)
+	{
+	  // If simplification are enabled, we do them before and after.
+	  if (simplification_level)
+	    {
+	      const spot::ltl::formula* res = simpl.simplify(f);
+	      f->destroy();
+	      f = res;
+	    }
+
+	  const spot::ltl::formula* res = spot::ltl::remove_x(f);
+	  f->destroy();
+	  f = res;
+	}
+
       if (simplification_level || boolean_to_isop)
 	{
 	  const spot::ltl::formula* res = simpl.simplify(f);
@@ -463,6 +495,7 @@ namespace
       matched &= !implied_by || simpl.implication(implied_by, f);
       matched &= !imply || simpl.implication(f, imply);
       matched &= !equivalent_to || simpl.are_equivalent(f, equivalent_to);
+      matched &= !stutter_insensitive || is_stutter_insensitive(f);
 
       // Match obligations and subclasses using WDBA minimization.
       // Because this is costly, we compute it later, so that we don't
@@ -522,6 +555,8 @@ main(int argc, char** argv)
   if (jobs.empty())
     jobs.push_back(job("-", 1));
 
+  // --stutter-insensitive implies --ltl
+  ltl |= stutter_insensitive;
   if (boolean_to_isop && simplification_level == 0)
     simplification_level = 1;
   spot::ltl::ltl_simplifier_options opt = simplifier_options();
