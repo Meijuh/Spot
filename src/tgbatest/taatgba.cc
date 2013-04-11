@@ -34,8 +34,6 @@ main()
   spot::taa_tgba_string* a = new spot::taa_tgba_string(dict);
 
   typedef spot::taa_tgba::transition trans;
-  typedef spot::taa_tgba::state state;
-  typedef spot::taa_tgba::state_set state_set;
 
   std::string ss1_values[] = { "state 2", "state 3" };
   std::vector<std::string> ss1_vector(ss1_values, ss1_values + 2);
