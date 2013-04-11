@@ -73,12 +73,5 @@ Note that for the =--lbt= output, each formula is relabeled using
 =p0=, =p1=, ...  before it is output, when the pattern (like
 =--ccj-alpha=) use different names.
 
-# Local variables:
-# eval: (setenv "PATH" (concat "../../src/bin" path-separator (getenv "PATH")))
-# eval: (org-babel-do-load-languages 'org-babel-load-languages '((sh . t) (dot . t)))
-# eval: (setq org-confirm-babel-evaluate nil)
-# End:
-
-
 #  LocalWords:  genltl num toc LTL scalable SRC sed gh pn fg FG gf qn
 #  LocalWords:  ccj Xp XXp Xq XXq rv GFp lbt

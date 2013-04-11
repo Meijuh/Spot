@@ -13,6 +13,9 @@
    (python . t)))
 (setq org-confirm-babel-evaluate nil)
 
+(setq org-babel-sh-command
+      (concat "PATH=@abs_top_builddir@/src/bin" path-separator "$PATH sh"))
+
 (setq org-publish-project-alist
       '(("spot-html"
 	:base-directory "@abs_top_srcdir@/doc/org/"

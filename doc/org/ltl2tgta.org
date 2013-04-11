@@ -328,13 +328,6 @@ Ala Eddine BEN SALEM's PhD work, and should appear in a future edition
 of ToPNoC (LNCS 7400).
 
 
-# Local variables:
-# eval: (setenv "PATH" (concat "../../src/bin" path-separator (getenv "PATH")))
-# eval: (org-babel-do-load-languages 'org-babel-load-languages '((sh . t) (dot . t)))
-# eval: (setq org-confirm-babel-evaluate nil)
-# End:
-
-
 #  LocalWords:  ltl tgta num toc Automata automata GraphViz UTF Gb na
 #  LocalWords:  Geldenhuys tgba SRC init invis nb Acc augb sed png fn
 #  LocalWords:  cmdline Tpng txt Büchi livelock gba gta GFa GFb TGTAs

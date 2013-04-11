@@ -700,13 +700,6 @@ Because they accept all finite executions that could be extended to
 match the formula, monitor cannot be used to check for eventualities
 such as =F(a)=.  Any finite execution can be extended to match =F(a)=.
 
-# Local variables:
-# eval: (setenv "PATH" (concat "../../src/bin" path-separator (getenv "PATH")))
-# eval: (org-babel-do-load-languages 'org-babel-load-languages '((sh . t) (dot . t)))
-# eval: (setq org-confirm-babel-evaluate nil)
-# End:
-
-
 #  LocalWords:  ltl tgba num toc PSL Büchi automata SRC GFb invis Acc
 #  LocalWords:  ltlfilt filenames GraphViz vectorial pdf Tpdf dotex
 #  LocalWords:  sed png cmdline Tpng txt iff GFa ba utf UTF lbtt Fb

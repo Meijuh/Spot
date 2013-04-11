@@ -313,13 +313,6 @@ Boolean formula (generated using the priorities set by
 =star_b= is the bounded version, and =andNLM= is the
 non-length-matching variant of the =and= operator.
 
-# Local variables:
-# eval: (setenv "PATH" (concat "../../src/bin" path-separator (getenv "PATH")))
-# eval: (org-babel-do-load-languages 'org-babel-load-languages '((sh . t) (dot . t)))
-# eval: (setq org-confirm-babel-evaluate nil)
-# End:
-
-
 #  LocalWords:  randltl num toc LTL PSL SRC Gb sed utf UTF lbt LBT's
 #  LocalWords:  Xc GFb Gc Xb Fb XFb Xa dups ltlfilt Fc XXc GX GFc XG
 #  LocalWords:  rewritings ltl ap GF ANDed GFa boolean EConcat eword

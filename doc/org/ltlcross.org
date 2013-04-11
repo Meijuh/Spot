@@ -358,13 +358,6 @@ When checks are enabled, the negated formulas are intermixed with the
 positives ones in the results.  Therefore the =--no-check= option can
 be used to gather statistics about a specific set of formulas.
 
-# Local variables:
-# eval: (setenv "PATH" (concat "../../src/bin" path-separator (getenv "PATH")))
-# eval: (org-babel-do-load-languages 'org-babel-load-languages '((sh . t) (dot . t) (python . t)))
-# eval: (setq org-confirm-babel-evaluate nil)
-# eval: (setq org-babel-python-command "/usr/bin/python3")
-# End:
-
 #  LocalWords:  ltlcross num toc LTL Büchi LBTT Testbench PSL SRC sed
 #  LocalWords:  automata LBT LBTT's ltl tgba GFa lck iDGV sA FYp BYY
 #  LocalWords:  ClVQg wyErP UNE dQ coM tH eHPoQy goto ba lbt modella

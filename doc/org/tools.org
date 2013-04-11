@@ -42,14 +42,6 @@ corresponding commands are hidden.
 - [[file:ltl2tgta.org][=ltl2tgta=]] Translate LTL/PSL formulas into Testing automata.
 - [[file:ltlcross.org][=ltlcross=]] Cross-compare LTL/PSL-to-Büchi translators.
 
-
-# Local variables:
-# eval: (setenv "PATH" (concat "../../src/bin" path-separator (getenv "PATH")))
-# eval: (org-babel-do-load-languages 'org-babel-load-languages '((sh . t) (dot . t)))
-# eval: (setq org-confirm-babel-evaluate nil)
-# End:
-
-
 #  LocalWords:  num toc helloworld SRC LTL PSL randltl ltlfilt genltl
 #  LocalWords:  scalable ltl tgba Büchi automata tgta ltlcross eval
 #  LocalWords:  setenv concat getenv setq

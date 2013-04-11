@@ -127,6 +127,8 @@ ltlfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
       --safety               match safety formulas (even pathological)
       --size-max=INT         match formulas with size <= INT
       --size-min=INT         match formulas with size >= INT
+      --stutter-insensitive, --stutter-invariant
+                             match stutter-insensitive LTL formulas
       --syntactic-guarantee  match syntactic-guarantee formulas
       --syntactic-obligation match syntactic-obligation formulas
       --syntactic-persistence   match syntactic-persistence formulas
@@ -217,15 +219,6 @@ ltlfilt -f 'a U (b U a)' --equivalent-to 'b U a'
 The commands prints the formula and returns an exit status of 0 if the
 two formulas are equivalent.  It would print nothing and set the exit
 status to 1, were the two formulas not equivalent.
-
-
-
-# Local variables:
-# eval: (setenv "PATH" (concat "../../src/bin" path-separator (getenv "PATH")))
-# eval: (org-babel-do-load-languages 'org-babel-load-languages '((sh . t) (dot . t)))
-# eval: (setq org-confirm-babel-evaluate nil)
-# End:
-
 
 #  LocalWords:  ltlfilt num toc LTL PSL syntaxes LBT's SRC GFp scheck
 #  LocalWords:  ltl EOF lbt Gp Fp Xp XFp XXp randltl ary nnf wm abc
