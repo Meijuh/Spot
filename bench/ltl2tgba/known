@@ -19,7 +19,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 . ./defs
-. "$srcdir/algorithms"
 
 $LTLCROSS "$@" --csv=known.csv --json=known.json \
  < "$srcdir/formulae.ltl" 2>&1 |

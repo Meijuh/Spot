@@ -26,24 +26,18 @@ may edit the file 'algorithms' to remove tools or lower the timeout.
 Here are the different scripts used, in case you want to customize
 this benchmark.
 
-* algorithms
+* tools
 
   The configuration of all the translators.  This is merely a script
   that builds the command-line of ltlcross, to be run by the next
-  three scripts.  Most of the $TOOL variables are defined by the
-  'defs' file, which is output by 'configure' after checking for
-  the presence of the said tools.
+  three scripts.  Most of the variables (like $SPIN, $LTL2BA, etc) are
+  defined by the 'defs' file, which is output by 'configure' after
+  checking for the presence of the said tools.
 
-  If you want to add your own tool to the mix, simply modify this file.
+  If you want to add your own tool to the mix, simply modify this
+  'tools' file.
 
   The timeout value, common to the three benchmarks, is also set here.
-
-  You can also benchmark some simulations algorithms by setting the
-  variable "BENCH_SIMULATION". For example by running:
-
-  BENCH_SIMULATION=t make -j3 run
-
-  You run the simulation benchmark on the three kind of formulae.
 
 * small
 * big
@@ -161,3 +155,21 @@ For all these values (except count), the sammler number the better.
 
 More details about ltlcross (used to produce these outputs) can be
 found in its man page, and at http://spot.lip6.fr/userdoc/tools.html
+
+
+==============================================
+ Running differents configurations / toolsets
+==============================================
+
+Instead of modifying the 'tools' file, you can also set the TOOLS
+environment variable to point to another file.
+
+For instance try
+
+  TOOLS=./tools.sim make -j3 run
+
+to benchmark several simulation-related options.
+
+
+
+

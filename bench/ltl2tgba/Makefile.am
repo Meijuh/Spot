@@ -18,11 +18,12 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 EXTRA_DIST = \
-  algorithms \
   big \
   formulae.ltl \
   known \
   small \
+  tools \
+  tools.sim \
   sum.py
 
 OUTPUTS = known small big
@@ -37,7 +38,7 @@ CLEANFILES = $(OUTCSV) $(OUTJSON) $(OUTLOG) \
 
 run: $(OUTJSON)
 
-deps = $(srcdir)/algorithms \
+deps = $(srcdir)/tools \
        $(top_srcdir)/configure.ac \
        $(top_builddir)/src/bin/ltl2tgba
 

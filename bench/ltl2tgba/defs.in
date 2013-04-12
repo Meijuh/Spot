@@ -46,3 +46,5 @@ LTL2TGBA="@top_builddir@/src/bin/ltl2tgba@EXEEXT@"
 MODELLA="@MODELLA@"
 SPIN="@SPIN@"
 WRING2LBTT="@WRING2LBTT@"
+
+. ${TOOLS-$srcdir/tools}
