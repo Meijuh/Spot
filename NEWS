@@ -1,6 +1,6 @@
 New in spot 1.0.2a (not released):
 
-  * New features in the library
+  * New features in the library:
 
     - The postprocessor class now takes an optional option_map
       argument that can be used to specify fine-tuning options, making
@@ -40,18 +40,34 @@ New in spot 1.0.2a (not released):
       from the command-line using ltlfilt's --stutter-insensitive
       option.
 
-  * Command-line tools
+  * Command-line tools:
 
     - ltl2tgba and ltl2tgta now honor a new --extra-options (or -x)
       flag to fine-tune the algorithms used.   The available options
       are documented in the spot-x (7) manpage.
 
-  * Documentation
+    - The output format of 'ltlcross --json' has been changed slightly.
+      In a future version we will offer some reporting script that turn
+      such JSON output into various tables and graphs, and these change
+      are required to make the format usable for other benchmarks (not
+      just ltlcross).
+
+  * Documentation:
 
     - org-mode files used to generate the documentation about
       command-line tools (shown at http://spot.lip6.fr/userdoc/tools.html)
       is distributed in doc/org/.  The resulting html files are also
       in doc/userdoc/.
+
+  * Bug fixes:
+
+     - There was a memory leak in the LTL simplification code, that could
+       only be triggered when disabling advanced simplifications.
+
+     - The translation of the PSL formula !{xxx} was incorrect when xxx
+       simplified to false.
+
+     - Various warnings triggered by new compilers.
 
 New in spot 1.0.2 (2013-03-06):
 
