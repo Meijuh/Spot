@@ -37,6 +37,24 @@ value) is a shorthand for KEY=1, while !KEY is a shorthand for KEY=0.";
 
 static const argp_option options[] =
   {
+    { 0, 0, 0, 0, "Translation options:", 0 },
+    { DOC("comp-susp", "Set to 1 to enable compositional suspension, \
+as described in our SPIN'13 paper (see Bibliography below).  Set to 2, \
+to build only the skeleton TGBA without composing it.  Set to 0 (the \
+default) to disable.") },
+    { DOC("early-susp", "When set to 1, start compositional suspension on \
+the transitions that enter accepting SCCs, and not only on the transitions \
+inside accepting SCCs.  This option defaults to 0, and is only used when \
+comp-susp=1.") },
+    { DOC("skel-simul", "Default to 1.  Set to 0 to disable simulation \
+on the skeleton automaton during compositional suspension. Only used when \
+comp-susp=1.") },
+    { DOC("skel-wdba", "Set to 0 to disable WDBA \
+minimization on the skeleton automaton during compositional suspension. \
+Set to 1 always WDBA-minimize the skeleton .  Set to 2 to keep the WDBA \
+only if it is smaller than the original skeleton.  This option is only \
+used when comp-susp=1 and default to 1 or 2 depending on whether --small \
+or --deterministic is specified.") },
     { 0, 0, 0, 0, "Postprocessing options:", 0 },
     { DOC("scc-filter", "Set to 1 (the default) to enable \
 SCC-pruning and acceptance simplification at the beginning of \

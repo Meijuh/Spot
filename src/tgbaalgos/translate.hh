@@ -52,18 +52,21 @@ namespace spot
       : postprocessor(opt), simpl_(simpl), simpl_owned_(0)
     {
       assert(simpl);
+      setup_opt(opt);
     }
 
     translator(bdd_dict* dict, const option_map* opt = 0)
       : postprocessor(opt)
     {
       build_simplifier(dict);
+      setup_opt(opt);
     }
 
     translator(const option_map* opt = 0)
       : postprocessor(opt)
     {
       build_simplifier(0);
+      setup_opt(opt);
     }
 
     ~translator()
@@ -71,8 +74,6 @@ namespace spot
       // simpl_owned_ is 0 if simpl_ was supplied to the constructor.
       delete simpl_owned_;
     }
-
-    void build_simplifier(bdd_dict* dict);
 
     typedef postprocessor::output_type output_type;
 
@@ -111,10 +112,17 @@ namespace spot
     /// the caller.
     const tgba* run(const ltl::formula** f);
 
+  protected:
+    void setup_opt(const option_map* opt);
+    void build_simplifier(bdd_dict* dict);
 
   private:
     ltl::ltl_simplifier* simpl_;
     ltl::ltl_simplifier* simpl_owned_;
+    int comp_susp_;
+    int early_susp_;
+    int skel_wdba_;
+    int skel_simul_;
   };
   /// @}
 }
