@@ -90,7 +90,7 @@ namespace spot
     const tgba* run(const tgba* input_disown, const ltl::formula* f);
 
   protected:
-    const tgba* do_simul(const tgba* input);
+    const tgba* do_simul(const tgba* input, int opt);
     const tgba* do_degen(const tgba* input);
 
     output_type type_;
@@ -103,6 +103,7 @@ namespace spot
     int simul_;
     int simul_limit_;
     int scc_filter_;
+    int ba_simul_;
   };
   /// @}
 }

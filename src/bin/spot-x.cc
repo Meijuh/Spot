@@ -67,6 +67,11 @@ number of \"don't care\" transitions considered by the \
 \"don't care\"-simulation algorithm. A negative value (the default) \
 does not enforce any limit. Note that if there are N \"don't care\" \
 transitions, the algorithm may potentially test 2^N configurations.") },
+    { DOC("ba-simul", "Set to 0 to disable simulation-based reductions \
+on the Büchi automaton (i.e., after degeneralization has been performed). \
+Set to 1 to use only direct simulation.  Set to 2 to use only reverse \
+simulation.  Set to 3 to iterate both direct and reverse simulations.   \
+The default is 3 in --high mode, and 0 otherwise.") },
     { 0, 0, 0, 0, 0, 0 }
   };
 

@@ -46,7 +46,7 @@ namespace spot
   postprocessor::postprocessor(const option_map* opt)
     : type_(TGBA), pref_(Small), level_(High),
       degen_reset_(true), degen_order_(false), degen_cache_(true),
-      simul_(-1), scc_filter_(-1)
+      simul_(-1), scc_filter_(-1), ba_simul_(-1)
   {
     if (opt)
       {
@@ -56,12 +56,13 @@ namespace spot
 	simul_ = opt->get("simul", -1);
 	simul_limit_ = opt->get("simul-limit", -1);
 	scc_filter_ = opt->get("scc-filter", -1);
+	ba_simul_ = opt->get("ba-simul", -1);
       }
   }
 
-  const tgba* postprocessor::do_simul(const tgba* a)
+  const tgba* postprocessor::do_simul(const tgba* a, int opt)
   {
-    switch (simul_)
+    switch (opt)
       {
       case 0:
 	return a;
@@ -86,7 +87,14 @@ namespace spot
 				 degen_order_,
 				 degen_cache_);
     delete a;
-    return d;
+    if (ba_simul_ <= 0)
+      return d;
+
+    const tgba* s = do_simul(d, ba_simul_);
+    if (s != d)
+      delete d;
+
+    return s;
   }
 
   const tgba* postprocessor::run(const tgba* a, const ltl::formula* f)
@@ -96,6 +104,8 @@ namespace spot
 
     if (simul_ < 0)
       simul_ = (level_ == Low) ? 1 : 3;
+    if (ba_simul_ < 0)
+      ba_simul_ = (level_ == High) ? 3 : 0;
     if (scc_filter_ < 0)
       scc_filter_ = 1;
 
@@ -124,7 +134,7 @@ namespace spot
 	if (pref_ == Any)
 	  return a;
 
-	const tgba* sim = do_simul(a);
+	const tgba* sim = do_simul(a, simul_);
 	if (a == sim)
 	  // simulation was disabled.
 	  return a;
@@ -174,15 +184,19 @@ namespace spot
     // at hard levels if we want a small output.
     if (!wdba || (level_ == High && pref_ == Small))
       {
-	sim = do_simul(a);
+	sim = do_simul(a, simul_);
+
+	if (sim != a)
+	  delete a;
 
 	// Degeneralize the result of the simulation if needed.
 	if (type_ == BA)
 	  sim = do_degen(sim);
       }
-
-    if (sim != a)
-      delete a;
+    else
+      {
+	delete a;
+      }
 
     if (wdba && sim)
       {
