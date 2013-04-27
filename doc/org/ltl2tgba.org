@@ -646,7 +646,7 @@ $txt
 [[file:monitor1.png]]
 
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -M '(Xa & Fb) | Gc'
+ltl2tgba -MD '(Xa & Fb) | Gc'
 #+END_SRC
 #+RESULTS:
 #+begin_example
@@ -654,16 +654,20 @@ digraph G {
   0 [label="", style=invis, height=0]
   0 -> 1
   1 [label="1", peripheries=2]
-  1 -> 2 [label="1\n"]
-  1 -> 3 [label="c\n"]
-  2 [label="2", peripheries=2]
+  1 -> 2 [label="c\n"]
+  1 -> 3 [label="!c\n"]
+  2 [label="4", peripheries=2]
   2 -> 4 [label="a\n"]
+  2 -> 5 [label="c & !a\n"]
   3 [label="3", peripheries=2]
-  3 -> 3 [label="c\n"]
-  4 [label="4", peripheries=2]
+  3 -> 4 [label="a\n"]
+  4 [label="2", peripheries=2]
   4 -> 4 [label="1\n"]
+  5 [label="0", peripheries=2]
+  5 -> 5 [label="c\n"]
 }
 #+end_example
+
 #+NAME: monitor2
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba -MD '(Xa & Fb) | Gc' | sed 's/\\/\\\\/'
