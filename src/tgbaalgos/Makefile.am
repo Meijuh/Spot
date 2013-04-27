@@ -29,6 +29,7 @@ tgbaalgosdir = $(pkgincludedir)/tgbaalgos
 
 tgbaalgos_HEADERS = \
   bfssteps.hh \
+  compsusp.hh \
   cutscc.hh \
   cycles.hh \
   degen.hh \
@@ -73,6 +74,7 @@ tgbaalgos_HEADERS = \
 noinst_LTLIBRARIES = libtgbaalgos.la
 libtgbaalgos_la_SOURCES = \
   bfssteps.cc \
+  compsusp.cc \
   cutscc.cc \
   cycles.cc \
   degen.cc \

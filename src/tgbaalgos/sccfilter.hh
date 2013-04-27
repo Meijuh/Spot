@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,6 +23,7 @@
 
 namespace spot
 {
+  class scc_map;
 
   /// \brief Prune unaccepting SCCs and remove superfluous acceptance
   /// conditions.
@@ -45,7 +46,19 @@ namespace spot
   /// remove_all_useless is \c false because some algorithms (like the
   /// degeneralization) will work better if transitions going to an
   /// accepting SCC are accepting.
-  tgba* scc_filter(const tgba* aut, bool remove_all_useless = false);
+  ///
+  /// If \a given_sm is supplied, the function will use its result
+  /// without computing a map of its own.
+  ///
+  /// If \a susp is different from bddtrue, it should be a conjunction
+  /// of (positive) variables to be removed from transitions going to
+  /// non-accepting SCCs.  If early_susp is false, the previous
+  /// variable are also removed from transitions entering an accepting
+  /// SCC.  ignored is a conjunction of positive variables that should
+  /// be removed everywhere.
+  tgba* scc_filter(const tgba* aut, bool remove_all_useless = false,
+		   scc_map* given_sm = 0, bdd susp = bddtrue,
+		   bool early_susp = false, bdd ignored = bddtrue);
 
 }
 

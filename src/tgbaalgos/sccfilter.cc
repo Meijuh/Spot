@@ -195,7 +195,7 @@ namespace spot
 	  }
       }
 
-    private:
+    protected:
       T* out_;
       const scc_map& sm_;
       const std::vector<bool>& useless_;
@@ -205,14 +205,81 @@ namespace spot
       remap_t remap_;
     };
 
+    template<class T>
+    class filter_iter_susp: public filter_iter<T>
+    {
+    public:
+      typedef filter_iter<T> super;
+      filter_iter_susp(const tgba* a,
+		       const scc_map& sm,
+		       const std::vector<bool>& useless,
+		       remap_table_t& remap_table,
+		       unsigned max_num,
+		       const std::vector<unsigned>& max_table,
+		       bool remove_all_useless,
+		       bdd susp_pos, bool early_susp, bdd ignored)
+	: super(a, sm, useless, remap_table, max_num, max_table,
+		remove_all_useless),
+	  susp_pos(susp_pos), early_susp(early_susp), ignored(ignored)
+      {
+      }
+
+
+      void
+      process_link(const state* in_s, int in,
+		   const state* out_s, int out,
+		   const tgba_succ_iterator* si)
+      {
+	unsigned u = this->sm_.scc_of_state(out_s);
+	unsigned v = this->sm_.scc_of_state(in_s);
+	bool destacc = this->sm_.accepting(u);
+
+	typename super::output_t::state::transition* t =
+	  create_transition(this->aut_, this->out_, in_s, in, out_s, out);
+
+	bdd cond = bdd_exist(si->current_condition(), ignored);
+	// Remove suspended variables on transitions going to
+	// non-accepting SCC, or on transition between SCC unless
+	// early_susp is set.
+	if (!destacc || (!early_susp && (u != this->sm_.scc_of_state(in_s))))
+	  cond = bdd_exist(cond, susp_pos);
+
+	this->out_->add_conditions(t, cond);
+
+	// Regardless of all_, do not output any acceptance condition
+	// if the destination is not in an accepting SCC.
+	//
+	// If all_ is set, do not output any acceptance condition if the
+	// source is not in the same SCC as dest.
+	//
+	// (See the documentation of scc_filter() for a rational.)
+	if (destacc && (!this->all_ || u == v))
+	  {
+	    bdd acc = si->current_acceptance_conditions();
+	    if (acc == bddfalse)
+	      return;
+	    t->acceptance_conditions = this->remap_[u][acc.id()];
+	  }
+      }
+    protected:
+      bdd susp_pos;
+      bool early_susp;
+      bdd ignored;
+    };
+
   } // anonymous
 
 
-  tgba* scc_filter(const tgba* aut, bool remove_all_useless)
+  tgba* scc_filter(const tgba* aut, bool remove_all_useless,
+		   scc_map* given_sm, bdd susp, bool early_susp, bdd ignored)
   {
-    scc_map sm(aut);
-    sm.build_map();
-    scc_stats ss = build_scc_stats(sm);
+    scc_map* sm = given_sm;
+    if (!sm)
+      {
+	sm = new scc_map(aut);
+	sm->build_map();
+      }
+    scc_stats ss = build_scc_stats(*sm);
 
     remap_table_t remap_table(ss.scc_total);
     std::vector<unsigned> max_table(ss.scc_total);
@@ -220,9 +287,9 @@ namespace spot
 
     for (unsigned n = 0; n < ss.scc_total; ++n)
       {
-	if (!sm.accepting(n))
+	if (!sm->accepting(n))
 	  continue;
-	bdd all = sm.useful_acc_of(n);
+	bdd all = sm->useful_acc_of(n);
 	bdd negall = aut->neg_acceptance_conditions();
 
 	// Compute a set of useless acceptance conditions.
@@ -304,6 +371,7 @@ namespace spot
 	  remap_table[n].insert(std::make_pair(bdd_var(c), --num));
       }
 
+    tgba* ret;
     // In most cases we will create a tgba_explicit_string copy of the
     // initial tgba, but this is not very space efficient as the
     // labels are built using the "format_state()" string output of
@@ -314,36 +382,81 @@ namespace spot
       dynamic_cast<const tgba_explicit_formula*>(aut);
     if (af)
       {
-	filter_iter<tgba_explicit_formula> fi(af, sm, ss.useless_scc_map,
-					      remap_table, max_num,
-					      max_table, remove_all_useless);
-	fi.run();
-	tgba_explicit_formula* res = fi.result();
-	res->merge_transitions();
-	return res;
-      }
-    const tgba_explicit_string* as =
-      dynamic_cast<const tgba_explicit_string*>(aut);
-    if (as)
-      {
-	filter_iter<tgba_explicit_string> fi(aut, sm, ss.useless_scc_map,
-					     remap_table, max_num,
-					     max_table, remove_all_useless);
-	fi.run();
-	tgba_explicit_string* res = fi.result();
-	res->merge_transitions();
-	return res;
+	if (susp == bddtrue)
+	  {
+	    filter_iter<tgba_explicit_formula> fi(af, *sm,
+						  ss.useless_scc_map,
+						  remap_table, max_num,
+						  max_table,
+						  remove_all_useless);
+	    fi.run();
+	    tgba_explicit_formula* res = fi.result();
+	    res->merge_transitions();
+	    ret = res;
+	  }
+	else
+	  {
+	    filter_iter_susp<tgba_explicit_formula> fi(af, *sm,
+						       ss.useless_scc_map,
+						       remap_table, max_num,
+						       max_table,
+						       remove_all_useless,
+						       susp, early_susp,
+						       ignored);
+	    fi.run();
+	    tgba_explicit_formula* res = fi.result();
+	    res->merge_transitions();
+	    ret = res;
+	  }
       }
     else
       {
-	filter_iter<tgba_explicit_number> fi(aut, sm, ss.useless_scc_map,
-					     remap_table, max_num,
-					     max_table, remove_all_useless);
-	fi.run();
-	tgba_explicit_number* res = fi.result();
-	res->merge_transitions();
-	return res;
+	const tgba_explicit_string* as =
+	  dynamic_cast<const tgba_explicit_string*>(aut);
+	if (as)
+	  {
+	    filter_iter<tgba_explicit_string> fi(aut, *sm, ss.useless_scc_map,
+						 remap_table, max_num,
+						 max_table,
+						 remove_all_useless);
+	    fi.run();
+	    tgba_explicit_string* res = fi.result();
+	    res->merge_transitions();
+	    ret = res;
+	  }
+	else
+	  {
+	    if (susp == bddtrue)
+	      {
+		filter_iter<tgba_explicit_number> fi(aut, *sm,
+						     ss.useless_scc_map,
+						     remap_table, max_num,
+						     max_table,
+						     remove_all_useless);
+		fi.run();
+		tgba_explicit_number* res = fi.result();
+		res->merge_transitions();
+		ret = res;
+	      }
+	    else
+	      {
+		filter_iter_susp<tgba_explicit_number> fi(aut, *sm,
+							  ss.useless_scc_map,
+							  remap_table, max_num,
+							  max_table,
+							  remove_all_useless,
+							  susp, early_susp,
+							  ignored);
+		fi.run();
+		tgba_explicit_number* res = fi.result();
+		res->merge_transitions();
+		ret = res;
+	      }
+	  }
       }
+    if (!given_sm)
+      delete sm;
+    return ret;
   }
 
 }

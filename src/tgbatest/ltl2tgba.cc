@@ -67,6 +67,7 @@
 #include "tgbaalgos/isweakscc.hh"
 #include "kripkeparse/public.hh"
 #include "tgbaalgos/simulation.hh"
+#include "tgbaalgos/compsusp.hh"
 
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
@@ -136,6 +137,8 @@ syntax(char* prog)
 	    << "  -le   use Couvreur's LaCIM algorithm for ELTL"
 	    << std::endl
             << "  -taa  use Tauriainen's TAA-based algorithm for LTL"
+	    << std::endl
+	    << "  -u    use Compositional translation"
 	    << std::endl
 	    << std::endl
 
@@ -337,7 +340,8 @@ main(int argc, char** argv)
   bool utf8_opt = false;
   enum { NoDegen, DegenTBA, DegenSBA } degeneralize_opt = NoDegen;
   enum { TransitionLabeled, StateLabeled } labeling_opt = TransitionLabeled;
-  enum { TransFM, TransLaCIM, TransLaCIM_ELTL, TransLaCIM_ELTL_ops, TransTAA }
+  enum { TransFM, TransLaCIM, TransLaCIM_ELTL, TransLaCIM_ELTL_ops, TransTAA,
+	 TransCompo }
     translation = TransFM;
   bool fm_red = false;
   bool fm_exprop_opt = false;
@@ -400,6 +404,11 @@ main(int argc, char** argv)
   spot::tgba* temp_iterated_sim = 0;
   spot::tgba* temp_dont_care_sim = 0;
   spot::tgba* temp_dont_care_iterated_sim = 0;
+  bool cs_nowdba = true;
+  bool cs_wdba_smaller = false;
+  bool cs_nosimul = true;
+  bool cs_early_start = false;
+  bool cs_oblig = false;
 
   for (;;)
     {
@@ -826,6 +835,50 @@ main(int argc, char** argv)
 	      tok = strtok(0, ", \t;");
 	    }
 	}
+      else if (!strncmp(argv[formula_index], "-u", 2))
+	{
+	  translation = TransCompo;
+	  const char* c = argv[formula_index] + 2;
+	  while (*c != 0)
+	    {
+	      switch (*c)
+		{
+		case '2':
+		  cs_nowdba = false;
+		  cs_wdba_smaller = true;
+		  break;
+		case 'w':
+		  cs_nowdba = false;
+		  cs_wdba_smaller = false;
+		  break;
+		case 's':
+		  cs_nosimul = false;
+		  break;
+		case 'e':
+		  cs_early_start = true;
+		  break;
+		case 'W':
+		  cs_nowdba = true;
+		  break;
+		case 'S':
+		  cs_nosimul = true;
+		  break;
+		case 'E':
+		  cs_early_start = false;
+		  break;
+		case 'o':
+		  cs_oblig = true;
+		  break;
+		case 'O':
+		  cs_oblig = false;
+		  break;
+		default:
+		  std::cerr << "Unknown suboption `" << *c
+			    << "' for option -u" << std::endl;
+		}
+	      ++c;
+	    }
+	}
       else if (!strcmp(argv[formula_index], "-v"))
 	{
 	  output = 5;
@@ -906,6 +959,7 @@ main(int argc, char** argv)
 	case TransFM:
 	case TransLaCIM:
 	case TransTAA:
+	case TransCompo:
 	  {
 	    spot::ltl::parse_error_list pel;
 	    tm.start("parsing formula");
@@ -1037,7 +1091,7 @@ main(int argc, char** argv)
 
 	  if (f->is_psl_formula()
 	      && !f->is_ltl_formula()
-	      && translation != TransFM)
+	      && (translation != TransFM && translation != TransCompo))
 	    {
 	      std::cerr << "Only the FM algorithm can translate PSL formulae;"
 			<< " I'm using it for this formula." << std::endl;
@@ -1055,6 +1109,13 @@ main(int argc, char** argv)
 				       unobservables,
 				       fm_red ? simp : 0);
 	      break;
+	    case TransCompo:
+	      {
+		a = spot::compsusp(f, dict,
+				   cs_nowdba, cs_nosimul, cs_early_start,
+				   false, cs_wdba_smaller, cs_oblig);
+		break;
+	      }
 	    case TransTAA:
 	      a = spot::ltl_to_taa(f, dict, containment);
 	      break;

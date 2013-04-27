@@ -240,6 +240,21 @@ Algorithm
    Enabled = yes
 }
 
+Algorithm
+{
+   Name = "Compositional Suspension"
+   Path = "${LBTT_TRANSLATE}"
+   Parameters = "--spot '../ltl2tgba -u -F -f -t'"
+   Enabled = yes
+}
+
+Algorithm
+{
+   Name = "Compositional Suspension (-r4)"
+   Path = "${LBTT_TRANSLATE}"
+   Parameters = "--spot '../ltl2tgba -u -r4 -F -f -t'"
+   Enabled = yes
+}
 
 Algorithm
 {
