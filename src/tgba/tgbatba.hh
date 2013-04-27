@@ -1,8 +1,9 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita.
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -130,7 +131,7 @@ namespace spot
   /// be degeneralized on the fly.
   ///
   /// This is similar to tgba_tba_proxy, except that automata produced
-  /// with this algorithms can also been see as State-based Büchi
+  /// with this algorithms can also been seen as State-based BÃ¼chi
   /// Automata (SBA).  See tgba_sba_proxy::state_is_accepting().  (An
   /// SBA is a TBA, and a TBA is a TGBA.)
   ///
@@ -138,6 +139,14 @@ namespace spot
   /// automaton uses N acceptance conditions, the output automaton can
   /// have at most max(N,1)+1 times more states and transitions.
   /// (This is only max(N,1) for tgba_tba_proxy.)
+  ///
+  /// If you want to degeneralize an automaton once for all, and not
+  /// on-the-fly, consider using degeneralize() instead because it is
+  /// usually faster.  Also the degeneralize() function implements
+  /// several SCC-based optimizations that are not implemented in this
+  /// one.
+  ///
+  /// \see degeneralize
   class tgba_sba_proxy : public tgba_tba_proxy
   {
   public:
