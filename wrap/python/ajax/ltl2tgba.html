@@ -568,6 +568,7 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 	      <li><a href="#tabs-tla" class="btip" title="Builds a purely symbolic automaton, using BDDs to encode the transition relation.  The translation itself is fast (it uses a number of BDD operations that is linear in the size of the formula), but the resulting symbolic encoding is better used symbolically.  If you develop it explicitly (e.g. to draw it, as on this page) the result can easily have an exponential number of states.">Couvreur/LaCIM</a></li>
 	      <li><a href="#tabs-tta" class="btip" title="An implementation of Heikki Tauriainen's Ph.D. thesis algorithm to translate LTL formulas via very weak alternating automata with transition-based generalized acceptance conditions.">Tauriainen/TAA</a></li>
 	      <li><a href="#tabs-tl3" class="btip" title="An improved version of LTL2BA, overhauled by Tomáš Babiak during his Ph.D., and described at TACAS'12.<br>LTL3BA is not part of Spot.  Options in this tab correspond to options offered by LTL3BA, and have some overlap with the options offered by Spot upstream and downstream.">LTL3BA</a></li>
+	      <li><a href="#tabs-tcs" class="btip" title="Compositionnal suspension.<br>Work in progress.">Comp.Susp.</a></li>
 	      <li class="ui-icon ui-icon-circle-arrow-n ftip">Fold</li>
 	    </ul>
 	    <input type="hidden" name="t" value="fm">
@@ -644,6 +645,28 @@ an identifier: <span class="formula">aUb</span> is an atomic proposition, unlike
 		<label class="rtip" title="Compute a direct (a.k.a. strong fair) simulation relation to reduce the size of the Büchi automaton.">
 		  <INPUT id="ltl3ba-S" type="checkbox" name="l3" value="S">
 		  direct simulation on BA
+		</label><br>
+	      </div>
+	      <div id="tabs-tcs">
+		<label class="rtip" title="Apply WDBA minimization on intermediate automaton.  We can only do it if the input formula is an obligation (in this case there is nothing to suspend and the automaton we process is already the final one) or if the intermediate automaton has the shape of a guarantee property.">
+		  <INPUT type="checkbox" name="cs" value="w" checked>
+		  WDBA minimization of intermediate automaton
+		</label><br>
+		<label class="rtip" title="Apply direct simulation on intermediate automaton.  This is only done when the WDBA minimization could not work.">
+		  <INPUT type="checkbox" name="cs" value="s" checked>
+		  direct simulation on intermediate automaton
+		</label><br>
+		<label class="rtip" title="Start suspension on transitions that enter accepting SCCs instead of waiting to be in the SCC.">
+		  <INPUT type="checkbox" name="cs" value="e">
+		  early start of suspended automata
+		</label><br>
+		<label class="rtip" title="Output the intermediate automaton with labels showing where suspended formulae should be attached.">
+		  <INPUT type="checkbox" name="cs" value="c">
+		  do not compose suspended formulas (for debugging)
+		</label><br>
+		<label class="rtip" title="Consider obligation subformulas as atomic propositions initially, and compose their WDBA-minimized translation.">
+		  <INPUT type="checkbox" name="cs" value="o">
+		  compose WDBA-minimized obligation sub-formulas
 		</label><br>
 	      </div>
 	    </div>

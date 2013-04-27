@@ -98,6 +98,7 @@ namespace std {
 #include "tgbaalgos/ltl2taa.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/ltl2tgba_lacim.hh"
+#include "tgbaalgos/compsusp.hh"
 #include "tgbaalgos/magic.hh"
 #include "tgbaalgos/minimize.hh"
 #include "tgbaalgos/neverclaim.hh"
@@ -197,6 +198,7 @@ using namespace spot;
 %feature("new") spot::ltl_to_taa;
 %feature("new") spot::ltl_to_tgba_fm;
 %feature("new") spot::ltl_to_tgba_lacim;
+%feature("new") spot::compsusp;
 %feature("new") spot::minimize_wdba;
 %feature("new") spot::minimize_monitor;
 %feature("new") spot::scc_filter;
@@ -294,6 +296,7 @@ using namespace spot;
 %include "tgbaalgos/ltl2taa.hh"
 %include "tgbaalgos/ltl2tgba_fm.hh"
 %include "tgbaalgos/ltl2tgba_lacim.hh"
+%include "tgbaalgos/compsusp.hh"
 %include "tgbaalgos/magic.hh"
 %include "tgbaalgos/minimize.hh"
 %include "tgbaalgos/neverclaim.hh"

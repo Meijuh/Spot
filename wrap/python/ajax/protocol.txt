@@ -63,6 +63,7 @@ Translator algorithm (pick one)
   t=la    Couvreur/LaCIM
   t=ta    Tauriainen/TAA
   t=l3    LTL3BA
+  t=cs    Compositional Suspension
 
 Couvreur/FM options if t=fm (pick many)
 
@@ -94,6 +95,14 @@ LTL3BA processing options if t=l3 (pick many)
   l3=S    direct simulation
   l3=o    on-the-fly simplifications
   l3=p    a-posteriori simplifications
+
+Compositional Suspension options (pick many)
+
+  cs=w    WDBA minimization
+  cs=s    simulation
+  cs=e    early start of suspended automatas
+  cs=c    do not compose suspended formulae (for debugging)
+  cs=o    compose obligation subformulae
 
 Automaton simplifications (pick many)
 

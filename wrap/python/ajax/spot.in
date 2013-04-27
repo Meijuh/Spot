@@ -91,7 +91,7 @@ if not script:
                 return True
             return False
 
-    server_address=('',8000)
+    server_address=('', 8000)
     if not os.access(imgdir, os.F_OK):
         # 493 = 0755 but we would have to write 0755 or 0o755
         # depending on the python version...
@@ -577,6 +577,23 @@ elif translator == 'l3':
         unbufprint('</div>')
         automaton = 0
         finish()
+elif translator == 'cs':
+    donot_inject = False
+    cs_nowdba = True
+    cs_nosimul = True
+    cs_early_start = False
+    for cs in form.getlist('cs'):
+        if cs == 'c':
+            donot_inject = True
+        elif cs == 'w':
+            cs_nowdba = False
+        elif cs == 's':
+            cs_nosimul = False
+        elif cs == 'e':
+            cs_early_start = True
+
+    automaton = spot.compsusp(f, dict, cs_nowdba, cs_nosimul,
+                              cs_early_start, donot_inject)
 
 # Monitor output
 if output_type == 'm':
