@@ -1,5 +1,12 @@
 New in spot 1.0.2a (not released):
 
+  Several of the new features described below are discribed in
+
+    Tomáš Babiak, Thomas Badie, Alexandre Duret-Lutz, Mojmír
+    Křetínský, Jan Strejček: Compositional Approach to Suspension and
+    Other Improvements to LTL Translation.  To appear in the
+    proceedings of SPIN'13.
+
   * New features in the library:
 
     - The postprocessor class now takes an optional option_map
@@ -17,12 +24,12 @@ New in spot 1.0.2a (not released):
       level reset, level caching, and SCC-based ordering.  The former
       two are enabled by default.  Benchmarking has shown that the
       latter one does not always have a positive effect, so it is
-      disabled by default.
+      disabled by default.  (See SPIN'13 paper.)
 
     - The scc_filter() function, which removes dead SCCs and also
       simplify acceptance conditions, has learnt how to simplify
       acceptance conditions in a few tricky situations that were not
-      simplified previously.
+      simplified previously.  (See SPIN'13 paper.)
 
     - An experimental "don't care" (direct) simulation has been
       implemented.  This simulations consider the acceptance
@@ -40,11 +47,21 @@ New in spot 1.0.2a (not released):
       from the command-line using ltlfilt's --stutter-insensitive
       option.
 
+    - A new translation, called compsusp(), for "Compositional
+      Suspension" is implemented on top of ltl_to_tgba_fm().
+      (See SPIN'13 paper.)
+
+    - Some experimental LTL rewriting rules that trie to gather
+      suspendable formulas are implemented and can be activated
+      with the favor_event_univ option of ltl_simplifier.  As
+      always please check doc/tl/tl.tex for the list of rules.
+
   * Command-line tools:
 
     - ltl2tgba and ltl2tgta now honor a new --extra-options (or -x)
-      flag to fine-tune the algorithms used.   The available options
-      are documented in the spot-x (7) manpage.
+      flag to fine-tune the algorithms used.  The available options
+      are documented in the spot-x (7) manpage.  For instance use '-x
+      comp-susp' to use the afore-mentioned compositional suspension.
 
     - The output format of 'ltlcross --json' has been changed slightly.
       In a future version we will offer some reporting script that turn
