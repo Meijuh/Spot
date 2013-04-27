@@ -56,6 +56,19 @@ New in spot 1.0.2a (not released):
       with the favor_event_univ option of ltl_simplifier.  As
       always please check doc/tl/tl.tex for the list of rules.
 
+    - Several functions have been introduced to check the
+      strength of an SCC.
+        is_inherently_weak_scc()
+	is_weak_scc()
+	is_syntactic_weak_scc()
+	is_complete_scc()
+	is_terminal_scc()
+	is_syntactic_terminal_scc()
+
+      Beware that the costly is_weak_scc() function introduced in Spot
+      1.0, which is based on a cycle enumeration, has been renammed to
+      is_inherently_weak_scc() to match established vocabulary.
+
   * Command-line tools:
 
     - ltl2tgba and ltl2tgta now honor a new --extra-options (or -x)

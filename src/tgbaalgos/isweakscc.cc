@@ -1,5 +1,5 @@
-// Copyright (C) 2012 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -67,14 +67,10 @@ namespace spot
   }
 
   bool
-  is_weak_scc(scc_map& map, unsigned scc, bool easydetect)
+  is_inherently_weak_scc(scc_map& map, unsigned scc)
   {
     // If no cycle is accepting, the SCC is weak.
     if (!map.accepting(scc))
-      return true;
-    // If all transitions use all acceptance conditions, the SCC is weak.
-    if (easydetect && map.useful_acc_of(scc) ==
-    	bdd_support(map.get_aut()->neg_acceptance_conditions()))
       return true;
     // If the SCC is accepting, but one cycle is not, the SCC is not
     // weak.
@@ -84,104 +80,106 @@ namespace spot
   }
 
   bool
-  is_syntactic_weak_scc(const spot::tgba *a, scc_map& map, unsigned scc)
+  is_weak_scc(scc_map& map, unsigned scc)
   {
+    // If no cycle is accepting, the SCC is weak.
+    if (!map.accepting(scc))
+      return true;
+    // If all transitions use all acceptance conditions, the SCC is weak.
+    return (map.useful_acc_of(scc)
+	    == bdd_support(map.get_aut()->neg_acceptance_conditions()));
+  }
+
+  bool
+  is_syntactic_weak_scc(scc_map& map, unsigned scc)
+  {
+    const tgba_explicit_formula* aut =
+      dynamic_cast<const tgba_explicit_formula*>(map.get_aut());
+    if (!aut)
+      return false;
+
     const std::list<const spot::state*> states = map.states_of(scc);
     std::list<const spot::state*>::const_iterator it;
-    for (it =  states.begin(); it != states.end(); it++)
+    for (it = states.begin(); it != states.end(); ++it)
       {
-	const state_explicit_formula *s =
-	  dynamic_cast<const state_explicit_formula *>(*it);
-	const ltl::formula *f = dynamic_cast<const ltl::formula*>
-	  (((const tgba_explicit_formula*) a)->get_label(s));
-
-	if ((f->is_syntactic_obligation() ||
-	    f->is_syntactic_persistence() ||
-	    f->is_syntactic_safety()))
+	const state_explicit_formula* s =
+	  down_cast<const state_explicit_formula*>(*it);
+	assert(s);
+	if (aut->get_label(s)->is_syntactic_persistence())
 	  return true;
-
       }
     return false;
   }
 
   bool
-  is_syntactic_terminal_scc(const spot::tgba *a, scc_map& map, unsigned scc)
+  is_syntactic_terminal_scc(scc_map& map, unsigned scc)
   {
+    const tgba_explicit_formula* aut =
+      dynamic_cast<const tgba_explicit_formula*>(map.get_aut());
+    if (!aut)
+      return false;
+
     const std::list<const spot::state*> states = map.states_of(scc);
     std::list<const spot::state*>::const_iterator it;
-    for (it =  states.begin(); it != states.end(); it++)
+    for (it = states.begin(); it != states.end(); ++it)
       {
-	const state_explicit_formula *s =
-	  dynamic_cast<const state_explicit_formula *>(*it);
-	const ltl::formula *f = dynamic_cast<const ltl::formula*>
-	  (((const tgba_explicit_formula*) a)->get_label(s));
-
-	if (f->is_syntactic_guarantee())
+	const state_explicit_formula* s =
+	  down_cast<const state_explicit_formula*>(*it);
+	assert(s);
+	if (aut->get_label(s)->is_syntactic_guarantee())
 	  return true;
-
       }
     return false;
   }
 
   bool
-  is_weak_heuristic(scc_map& map, unsigned scc)
+  is_complete_scc(scc_map& map, unsigned scc)
   {
-    if (!map.accepting (scc))
-      return true;
-    if (map.useful_acc_of(scc) ==
-	bdd_support(map.get_aut()->neg_acceptance_conditions()))
-      return true;
-    return false;
-  }
-
-  bool
-  is_complete_scc(const spot::tgba *a, scc_map& map, unsigned scc)
-  {
+    const spot::tgba *a = map.get_aut();
     const std::list<const spot::state*> states = map.states_of(scc);
     std::list<const spot::state*>::const_iterator it;
-    for (it =  states.begin(); it != states.end(); it++)
+    for (it = states.begin(); it != states.end(); ++it)
       {
-	const state *s = (*it);
+	const state *s = *it;
 	tgba_succ_iterator* it = a->succ_iter(s);
 	it->first();
 
-	// No successors cannot be complete
+	// If a state has no successors, the SCC is not complete.
 	if (it->done())
 	  {
 	    delete it;
 	    return false;
 	  }
 
+	// Sum guards on all outgoing transitions.
 	bdd sumall = bddfalse;
-	while (!it->done())
+	do
 	  {
 	    const state *next = it->current_state();
-	    unsigned sccnum = map.scc_of_state(next);
-
 	    // check it's the same scc
-	    if (sccnum == scc)
+	    if (map.scc_of_state(next) == scc)
 	      sumall |= it->current_condition();
 	    next->destroy();
+	    if (sumall == bddtrue)
+	      break;
 	    it->next();
 	  }
+	while (!it->done());
 	delete it;
 
 	if (sumall != bddtrue)
-	  {
-	    return false;
-	  }
+	  return false;
       }
     return true;
   }
 
   bool
-  is_terminal_heuristic (const tgba *a, scc_map& map, unsigned scc)
+  is_terminal_scc(scc_map& map, unsigned scc)
   {
     // If all transitions use all acceptance conditions, the SCC is weak.
-    if (map.useful_acc_of(scc) ==
-    	bdd_support(map.get_aut()->neg_acceptance_conditions()))
-      return is_complete_scc(a, map, scc);
-    return false;
+    return ((map.useful_acc_of(scc) ==
+	     bdd_support(map.get_aut()->neg_acceptance_conditions()))
+	    && is_complete_scc(map, scc));
   }
 }
 
