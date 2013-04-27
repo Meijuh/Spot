@@ -48,6 +48,7 @@
 #include "tgbaalgos/randomgraph.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/dotty.hh"
+#include "tgbaalgos/isweakscc.hh"
 #include "misc/formater.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
@@ -167,8 +168,15 @@ struct statistics
   unsigned transitions;
   unsigned acc;
   unsigned scc;
+  unsigned nonacc_scc;
+  unsigned terminal_scc;
+  unsigned weak_scc;
+  unsigned strong_scc;
   unsigned nondetstates;
   bool nondeterministic;
+  bool terminal_aut;
+  bool weak_aut;
+  bool strong_aut;
   double time;
   unsigned product_states;
   unsigned product_transitions;
@@ -182,8 +190,15 @@ struct statistics
 	   " \"transitions\","
 	   " \"acc\","
 	   " \"scc\","
-	   " \"nondetstates\","
-	   " \"nondeterministic\","
+	   " \"nonacc_scc\","
+	   " \"terminal_scc\","
+	   " \"weak_scc\","
+	   " \"strong_scc\","
+	   " \"nondet_states\","
+	   " \"nondet_aut\","
+	   " \"terminal_aut\","
+	   " \"weak_aut\","
+	   " \"strong_aut\","
 	   " \"time\","
 	   " \"product_states\","
 	   " \"product_transitions\","
@@ -198,8 +213,15 @@ struct statistics
        << transitions << ", "
        << acc << ", "
        << scc << ", "
+       << nonacc_scc << ", "
+       << terminal_scc << ", "
+       << weak_scc << ", "
+       << strong_scc << ", "
        << nondetstates << ", "
        << nondeterministic << ", "
+       << terminal_aut << ", "
+       << weak_aut << ", "
+       << strong_aut << ", "
        << time << ", "
        << product_states << ", "
        << product_transitions << ", "
@@ -658,9 +680,27 @@ namespace
 	  st->acc = res->number_of_acceptance_conditions();
 	  spot::scc_map m(res);
 	  m.build_map();
+	  unsigned c = m.scc_count();
 	  st->scc = m.scc_count();
 	  st->nondetstates = spot::count_nondet_states(res);
 	  st->nondeterministic = st->nondetstates != 0;
+	  for (unsigned n = 0; n < c; ++n)
+	    {
+	      if (!m.accepting(n))
+		++st->nonacc_scc;
+	      else if (is_terminal_scc(m, n))
+		++st->terminal_scc;
+	      else if (is_weak_scc(m, n))
+		++st->weak_scc;
+	      else
+		++st->strong_scc;
+	    }
+	  if (st->strong_scc)
+	    st->strong_aut = true;
+	  else if (st->weak_scc)
+	    st->weak_aut = true;
+	  else
+	    st->terminal_aut = true;
           double prec = XTIME_PRECISION;
 	  st->time = (after - before) / prec;
 	}

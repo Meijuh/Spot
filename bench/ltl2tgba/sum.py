@@ -65,6 +65,8 @@ def process_file(filename):
     name = name[name.rfind('/', 0, name.find(' ')) + 1:]
     data["tool"][i] = latex_escape(name[0:name.find('%')])
 
+  timecol = fields['time']
+
   print(r'''
 \section*{\texttt{%s}}
 \subsection*{Cumulative summary}''' % latex_escape(filename))
@@ -74,7 +76,7 @@ def process_file(filename):
         "\\\\")
   for i in range(0, ntools):
     # Compute sums over each column.
-    sums = [("%6.2f" if j == 9 else "%6d") %
+    sums = [("%6.2f" if j == timecol else "%6d") %
             (sum([x[j] for x in results[i].values()]))
             for j in datacols]
     print("\\texttt{%-18s} & %3d & "

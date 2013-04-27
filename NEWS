@@ -82,6 +82,10 @@ New in spot 1.0.2a (not released):
       are required to make the format usable for other benchmarks (not
       just ltlcross).
 
+    - ltlcross will now count the number of non-accepting, terminal,
+      weak, and strong SCCs, as well as the number of terminal, weak,
+      and strong automata produced by each tool.
+
   * Documentation:
 
     - org-mode files used to generate the documentation about
