@@ -1,4 +1,4 @@
-New in spot 1.0.2a (not released):
+New in spot 1.1 (2013-04-28):
 
   Several of the new features described below are discribed in
 
@@ -31,6 +31,15 @@ New in spot 1.0.2a (not released):
       acceptance conditions in a few tricky situations that were not
       simplified previously.  (See SPIN'13 paper.)
 
+    - A new translation, called compsusp(), for "Compositional
+      Suspension" is implemented on top of ltl_to_tgba_fm().
+      (See SPIN'13 paper.)
+
+    - Some experimental LTL rewriting rules that trie to gather
+      suspendable formulas are implemented and can be activated
+      with the favor_event_univ option of ltl_simplifier.  As
+      always please check doc/tl/tl.tex for the list of rules.
+
     - An experimental "don't care" (direct) simulation has been
       implemented.  This simulations consider the acceptance
       of out-of-SCC transitions as "don't care".  It is not
@@ -46,15 +55,6 @@ New in spot 1.0.2a (not released):
       whether it is stutter-insensitive.  This algorithm is accessible
       from the command-line using ltlfilt's --stutter-insensitive
       option.
-
-    - A new translation, called compsusp(), for "Compositional
-      Suspension" is implemented on top of ltl_to_tgba_fm().
-      (See SPIN'13 paper.)
-
-    - Some experimental LTL rewriting rules that trie to gather
-      suspendable formulas are implemented and can be activated
-      with the favor_event_univ option of ltl_simplifier.  As
-      always please check doc/tl/tl.tex for the list of rules.
 
     - Several functions have been introduced to check the
       strength of an SCC.
@@ -93,15 +93,25 @@ New in spot 1.0.2a (not released):
       is distributed in doc/org/.  The resulting html files are also
       in doc/userdoc/.
 
+  * Web interface:
+
+    - A new "Compositional Suspension" tab has been added to experiment
+      with compositional suspension.
+
+  * Benchmarks:
+
+    - See bench/spin13/README for instructions to reproduce our Spin'13
+      benchmark for the compositional suspension.
+
   * Bug fixes:
 
-     - There was a memory leak in the LTL simplification code, that could
-       only be triggered when disabling advanced simplifications.
+    - There was a memory leak in the LTL simplification code, that could
+      only be triggered when disabling advanced simplifications.
 
-     - The translation of the PSL formula !{xxx} was incorrect when xxx
-       simplified to false.
+    - The translation of the PSL formula !{xxx} was incorrect when xxx
+      simplified to false.
 
-     - Various warnings triggered by new compilers.
+    - Various warnings triggered by new compilers.
 
 New in spot 1.0.2 (2013-03-06):
 
