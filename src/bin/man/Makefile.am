@@ -28,11 +28,12 @@ dist_man1_MANS = \
   ltl2tgta.1 \
   ltlcross.1 \
   ltlfilt.1 \
-  randltl.1 \
+  randltl.1
+dist_man7_MANS = \
   spot-x.7
 
-MAINTAINERCLEANFILES = $(dist_man1_MANS)
-EXTRA_DIST = $(dist_man1_MANS:.1=.x)
+MAINTAINERCLEANFILES = $(dist_man1_MANS) $(dist_man7_MANS)
+EXTRA_DIST = $(dist_man1_MANS:.1=.x) $(dist_man7_MANS:.7=.x)
 
 ltl2tgba.1: $(common_dep) $(srcdir)/ltl2tgba.x $(srcdir)/../ltl2tgba.cc
 	$(convman) ../ltl2tgba$(EXEEXT) $(srcdir)/ltl2tgba.x $@
