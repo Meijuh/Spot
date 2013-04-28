@@ -58,7 +58,7 @@ org:
 
 ORG_FILES = \
   org/.dir-locals.el \
-  org/init.el \
+  org/init.el.in \
   org/syntax.css \
   org/genltl.org \
   org/ioltl.org \
