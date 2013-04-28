@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+## Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et Développement
 ## de l'Epita (LRDE).
 ## Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -31,7 +31,7 @@ if NEVER
   NEVER_BENCH = bench
 endif
 
-SUBDIRS = $(MAYBE_BUDDY) $(NEVER_BENCH) doc lib src wrap ltdl iface
+SUBDIRS = $(MAYBE_BUDDY) $(NEVER_BENCH) lib src wrap ltdl iface doc
 
 UTF8 = utf8/doc/ReleaseNotes utf8/doc/utf8cpp.html utf8/utf8.h	\
   utf8/utf8/checked.h utf8/utf8/core.h utf8/utf8/unchecked.h
