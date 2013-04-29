@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -429,7 +429,7 @@ R_n(std::string name, int n)
       p << name << i + 1;
       pi = env.require(p.str());
 
-      const formula* fg = G_(F_(pi->clone()));
+      const formula* fg = F_(G_(pi->clone()));
 
       const formula* f = Or_(gf, fg);
 

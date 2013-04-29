@@ -1,6 +1,8 @@
 New in spot 1.1a (not yet released):
 
-  Nothing yet.
+  Bug fixes:
+
+    - genltl --gh-r generated the wrong formulas due to a typo.
 
 New in spot 1.1 (2013-04-28):
 
