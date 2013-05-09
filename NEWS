@@ -1,6 +1,30 @@
 New in spot 1.1a (not yet released):
 
-  Bug fixes:
+  * New features:
+
+    - lbtt_reachable(), the function that outputs a TGBA in LBTT's
+      format, has a new option to indicate that the TGBA being printed
+      is in fact a Büchi automaton.  In this case it outputs an LBTT
+      automaton with state-based acceptance.
+
+      The output of the guards has also been changed in two ways:
+      1. atomic propositions that do not match p[0-9]+ are always
+         double-quoted.  This avoids issues where t or f were used as
+         atomic propositions in the formula, output as-is in the
+         automaton, and read back as true or false.  Other names that
+         correspond to LBT operators would cause problem as well.
+      2. formulas that label transitions are now output as
+         irredundant-sums-of-products.
+
+    - 'ltl2tgba --ba --lbtt' will now output automata with state-based
+      acceptance.  You can use 'ltl2tgba --ba --lbtt=t' to force the
+      output of transition-based acceptance like in the previous
+      versions.
+
+      Some illustrations of this point and the previous one can be
+      found in the man page for ltl2tgba(1).
+
+  * Bug fixes:
 
     - genltl --gh-r generated the wrong formulas due to a typo.
 

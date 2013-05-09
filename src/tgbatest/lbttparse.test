@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012 Laboratoire de Recherche et Développement
+# Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -38,8 +38,29 @@ do
   tr=`cat size | sed -n 's/transitions: //p'`
   l=`expr $st \* 2 + $tr + 1`
   test "$s" -eq "$l"
-done
 
+  # Do the same with bin/ltl2tgba
+  run 0 ../../bin/ltl2tgba --low --any --lbtt "$f" >out3
+  cmp out out3
+  head -n 1 out3 | grep t
+  # Make sure we output the state-based format
+  # for BA...
+  run 0 ../../bin/ltl2tgba --ba --lbtt --low --any "$f" >out4
+  head -n 1 out4 | grep t && exit 1
+  s4=`wc -l < out4`
+  test "$s" -eq "$s4"
+  run 0 ../ltl2tgba -t -XL out4 > out5
+  s5=`wc -l < out5`
+  test "$s" -eq "$s5"
+  # ... unless --lbtt=t is used.
+  run 0 ../../bin/ltl2tgba --ba --lbtt=t --low --any "$f" >out6
+  head -n 1 out6 | grep t
+  s6=`wc -l < out6`
+  test "$s" -eq "$s6"
+  run 0 ../ltl2tgba -t -XL out6 > out7
+  s7=`wc -l < out7`
+  test "$s" -eq "$s7"
+done
 
 # This is the output of 'lbt' on the formula 'U p0 p1'.
 cat >Up0p1 <<EOF

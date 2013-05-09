@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -25,10 +25,10 @@
 #include <string>
 #include <ostream>
 #include <sstream>
-#include "tgba/bddprint.hh"
 #include "tgba/tgbaexplicit.hh"
 #include "reachiter.hh"
 #include "misc/bddlt.hh"
+#include "ltlvisit/lbt.hh"
 #include "ltlparse/public.hh"
 
 namespace spot
@@ -70,54 +70,64 @@ namespace spot
       split_map sm;
     };
 
-    // Convert a BDD formula to the syntax used by LBTT's transition guards.
-    // Conjunctions are printed by bdd_format_sat, so we just have
-    // to handle the other cases.
-    static std::string
-    bdd_to_lbtt(bdd b, const bdd_dict* d)
-    {
-      if (b == bddfalse)
-	return "f";
-      else if (b == bddtrue)
-	return "t";
-      else
-	{
-	  bdd cube = bdd_satone(b);
-	  b -= cube;
-	  if (b != bddfalse)
-	    {
-	      return "| " + bdd_to_lbtt(b, d) + " " + bdd_to_lbtt(cube, d);
-	    }
-	  else
-	    {
-	      std::string res = "";
-	      for (int count = bdd_nodecount(cube); count > 1; --count)
-		res += "& ";
-	      return res + bdd_format_sat(d, cube);
-	    }
-	}
-
-    }
-
     class lbtt_bfs : public tgba_reachable_iterator_breadth_first
     {
     public:
-      lbtt_bfs(const tgba* a, std::ostream& os)
+      lbtt_bfs(const tgba* a, std::ostream& os, bool sba_format)
 	: tgba_reachable_iterator_breadth_first(a),
 	  os_(os),
-	  acc_count_(a->number_of_acceptance_conditions()),
-	  acs_(a->all_acceptance_conditions())
+	  all_acc_conds_(a->all_acceptance_conditions()),
+	  acs_(all_acc_conds_),
+	  sba_format_(sba_format),
+	  // If outputting with state-based acceptance, check if the
+	  // automaton can be converted into an sba. This makes the
+	  // state_is_accepting() function more efficient.
+	  sba_(sba_format ? dynamic_cast<const sba*>(a) : 0)
       {
       }
 
+      bool
+      state_is_accepting(const state *s) const
+      {
+	// If the automaton has a SBA type, it's easier to just query the
+	// state_is_accepting() method.
+	if (sba_)
+	  return sba_->state_is_accepting(s);
+
+	// Otherwise, since we are dealing with a degeneralized
+	// automaton nonetheless, the transitions leaving an accepting
+	// state are either all accepting, or all non-accepting.  So
+	// we just check the acceptance of the first transition.  This
+	// is not terribly efficient since we have to create the
+	// iterator.
+	tgba_succ_iterator* it = aut_->succ_iter(s);
+	it->first();
+	bool accepting =
+	  !it->done() && it->current_acceptance_conditions() == all_acc_conds_;
+	delete it;
+	return accepting;
+      }
+
+
       void
-      process_state(const state*, int n, tgba_succ_iterator*)
+      process_state(const state* s, int n, tgba_succ_iterator*)
       {
 	--n;
 	if (n == 0)
-	  body_ << "0 1" << std::endl;
+	  body_ << "0 1";
 	else
-	  body_ << "-1" << std::endl << n << " 0" << std::endl;
+	  body_ << "-1\n" << n << " 0";
+	// Do we have state-based acceptance?
+	if (sba_format_)
+	  {
+	    // We support only one acceptance condition in the
+	    // state-based format.
+	    if (state_is_accepting(s))
+	      body_ << " 0 -1";
+	    else
+	      body_ << " -1";
+	  }
+	body_ << "\n";
       }
 
       void
@@ -125,31 +135,44 @@ namespace spot
 		   const state*, int out, const tgba_succ_iterator* si)
       {
 	body_ << out - 1 << " ";
-	acs_.split(body_, si->current_acceptance_conditions());
-	body_ << "-1 " << bdd_to_lbtt(si->current_condition(),
-				      aut_->get_dict()) << std::endl;
+	if (!sba_format_)
+	  {
+	    acs_.split(body_, si->current_acceptance_conditions());
+	    body_ << "-1 ";
+	  }
+	const ltl::formula* f = bdd_to_formula(si->current_condition(),
+					       aut_->get_dict());
+	to_lbt_string(f, body_);
+	f->destroy();
+	body_ << "\n";
       }
 
       void
       end()
       {
-	os_ << seen.size() << " " << acc_count_ << "t" << std::endl
-	    << body_.str() << "-1" << std::endl;
+	os_ << seen.size() << " ";
+	if (sba_format_)
+	  os_ << "1";
+	else
+	  os_ << aut_->number_of_acceptance_conditions() << "t";
+	os_ << "\n" << body_.str() << "-1" << std::endl;
       }
 
     private:
       std::ostream& os_;
       std::ostringstream body_;
-      unsigned acc_count_;
+      bdd all_acc_conds_;
       acceptance_cond_splitter acs_;
+      bool sba_format_;
+      const sba* sba_;
     };
 
   } // anonymous
 
   std::ostream&
-  lbtt_reachable(std::ostream& os, const tgba* g)
+  lbtt_reachable(std::ostream& os, const tgba* g, bool sba)
   {
-    lbtt_bfs b(g, os);
+    lbtt_bfs b(g, os, sba);
     b.run();
     return os;
   }

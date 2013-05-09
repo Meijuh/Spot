@@ -37,4 +37,5 @@ ltl2tgba=../../bin/ltl2tgba
 "$ltl2tgba --lbtt -x comp-susp,!skel-wdba --lbtt --small %f >%T" \
 "$ltl2tgba --lbtt -x comp-susp,early-susp --lbtt --small %f >%T" \
 "$ltl2tgba --lbtt -x comp-susp,!skel-wdba,!skel-simul --lbtt --small %f >%T" \
+"$ltl2tgba --lbtt --ba --high %f > %T" \
 --json=output.json --csv=output.csv

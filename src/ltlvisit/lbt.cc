@@ -33,10 +33,11 @@ namespace spot
   {
     namespace
     {
+      // Does str match p[0-9]+ ?
       static bool
       is_pnum(const char* str)
       {
-	if (str[0] != 'p')
+	if (str[0] != 'p' || str[1] == 0)
 	  return false;
 	while (*++str)
 	  if (*str < '0' || *str > '9')

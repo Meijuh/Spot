@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -29,13 +29,15 @@
 
 namespace spot
 {
-  /// \brief Print reachable states in LBTT format.
+  /// \brief Print reachable states in LBTT's format.
   /// \ingroup tgba_io
   ///
   /// \param g The automata to print.
   /// \param os Where to print.
-  std::ostream& lbtt_reachable(std::ostream& os, const tgba* g);
-
+  /// \param sba Assume \a g is an SBA and use LBTT's state-based
+  /// acceptance format (similar to LBT's format).
+  std::ostream& lbtt_reachable(std::ostream& os, const tgba* g,
+			       bool sba = false);
 
   /// \brief Read an automaton in LBTT's format
   /// \ingroup tgba_io

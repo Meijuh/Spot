@@ -67,7 +67,9 @@ static const argp_option options[] =
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
     { "dot", OPT_DOT, 0, 0, "GraphViz's format (default)", 0 },
-    { "lbtt", OPT_LBTT, 0, 0, "LBTT's format", 0 },
+    { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
+      "LBTT's format (add =t to force transition-based acceptance even"
+      " on Büchi automata)", 0 },
     { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
     { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
     { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
@@ -106,7 +108,7 @@ const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-enum output_format { Dot, Lbtt, Spin, Spot, Stats } format = Dot;
+enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats } format = Dot;
 bool utf8 = false;
 const char* stats = "";
 spot::option_map extra_options;
@@ -142,7 +144,17 @@ parse_opt(int key, char* arg, struct argp_state*)
       format = Dot;
       break;
     case OPT_LBTT:
-      format = Lbtt;
+      if (arg)
+	{
+	  if (arg[0] == 't' && arg[1] == 0)
+	    format = Lbtt_t;
+	  else
+	    error(2, 0, "unknown argument for --lbtt: '%s'", arg);
+	}
+      else
+	{
+	  format = Lbtt;
+	}
       break;
     case OPT_SPOT:
       format = Spot;
@@ -220,7 +232,10 @@ namespace
 				|| (type == spot::postprocessor::Monitor));
 	  break;
 	case Lbtt:
-	  spot::lbtt_reachable(std::cout, aut);
+	  spot::lbtt_reachable(std::cout, aut, type == spot::postprocessor::BA);
+	  break;
+	case Lbtt_t:
+	  spot::lbtt_reachable(std::cout, aut, false);
 	  break;
 	case Spot:
 	  spot::tgba_save_reachable(std::cout, aut);
