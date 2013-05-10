@@ -94,6 +94,7 @@ TESTS = \
   consterm.test \
   kind.test \
   remove_x.test \
+  ltlfilt.test \
   lbt.test \
   lenient.test \
   isop.test \

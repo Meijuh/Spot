@@ -273,6 +273,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 	equivalent_to = parse_formula_arg(arg);
 	break;
       }
+    case OPT_EVENTUAL:
+      eventual = true;
+      break;
     case OPT_GUARANTEE:
       guarantee = obligation = true;
       break;
@@ -348,6 +351,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_SYNTACTIC_PERSISTENCE:
       syntactic_persistence = true;
+      break;
+    case OPT_UNIVERSAL:
+      universal = true;
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -495,7 +501,8 @@ namespace
       matched &= !implied_by || simpl.implication(implied_by, f);
       matched &= !imply || simpl.implication(f, imply);
       matched &= !equivalent_to || simpl.are_equivalent(f, equivalent_to);
-      matched &= !stutter_insensitive || is_stutter_insensitive(f);
+      matched &= !stutter_insensitive || (f->is_ltl_formula()
+					  && is_stutter_insensitive(f));
 
       // Match obligations and subclasses using WDBA minimization.
       // Because this is costly, we compute it later, so that we don't
