@@ -29,6 +29,8 @@
 #include "powerset.hh"
 #include "isdet.hh"
 #include "tgba/tgbatba.hh"
+#include "dtbasat.hh"
+#include "complete.hh"
 
 namespace spot
 {
@@ -48,6 +50,7 @@ namespace spot
 	scc_filter_ = opt->get("scc-filter", -1);
 	ba_simul_ = opt->get("ba-simul", -1);
 	tba_determinisation_ = opt->get("tba-det", 0);
+	sat_minimize_ = opt->get("sat-minimize", 0);
       }
   }
 
@@ -182,7 +185,8 @@ namespace spot
 	return a;
       }
 
-    const tgba* wdba = 0;
+    bool dba_is_wdba = false;
+    const tgba* dba = 0;
     const tgba* sim = 0;
 
     // (Small,Low) is the only configuration where we do not run
@@ -190,15 +194,17 @@ namespace spot
     if (pref_ != Small || level_ != Low)
       {
 	bool reject_bigger = (pref_ == Small) && (level_ == Medium);
-	wdba = minimize_obligation(a, f, 0, reject_bigger);
-	if (wdba == a)	// Minimization failed.
-	  wdba = 0;
+	dba = minimize_obligation(a, f, 0, reject_bigger);
+	if (dba == a)	// Minimization failed.
+	  dba = 0;
+	else
+	  dba_is_wdba = true;
 	// The WDBA is a BA, so no degeneralization is required.
       }
 
     // Run a simulation when wdba failed (or was not run), or
     // at hard levels if we want a small output.
-    if (!wdba || (level_ == High && pref_ == Small))
+    if (!dba || (level_ == High && pref_ == Small))
       {
 	sim = do_simul(a, simul_);
 
@@ -206,6 +212,8 @@ namespace spot
 	  delete a;
 
 	// Degeneralize the result of the simulation if needed.
+	// FIXME: We should not do that if
+	// tba_determinisation/sat-minimization is used?
 	if (type_ == BA)
 	  sim = do_degen(sim);
       }
@@ -214,8 +222,14 @@ namespace spot
 	delete a;
       }
 
-    // If WDBA failed attempt tba-determinization if requested.
-    if (tba_determinisation_ && !wdba && !is_deterministic(sim))
+    // If WDBA failed, but the simulation returned a deterministic
+    // automaton, use it as dba.
+    assert(dba || sim);
+    if (!dba && is_deterministic(sim))
+      std::swap(sim, dba);
+
+    // If we don't have a DBA, attempt tba-determinization if requested.
+    if (tba_determinisation_ && !dba)
       {
 	const tgba* tmpd = 0;
 	if (pref_ == Deterministic
@@ -247,18 +261,11 @@ namespace spot
 	    // There is no point in running the reverse simulation on
 	    // a deterministic automaton, since all prefixes are
 	    // unique.
-	    wdba = simulation(tmp);
+	    dba = simulation(tmp);
 	    delete tmp;
-	    // Degeneralize the result (which is a TBA) if requested.
-	    if (type_ == BA)
-	      {
-		const tgba* d = degeneralize(wdba);
-		delete wdba;
-		wdba = d;
-	      }
 	  }
 	delete tmpd;
-	if (wdba && pref_ == Deterministic)
+	if (dba && pref_ == Deterministic)
 	  {
 	    // disregard the result of the simulation.
 	    delete sim;
@@ -266,12 +273,48 @@ namespace spot
 	  }
       }
 
-    if (wdba && sim)
+    // Now dba contains either the result of WDBA-minimization (in
+    // that case dba_is_wdba=true), or some deterministic automaton
+    // that is either the result of the simulation or of the
+    // TBA-determinization (dba_is_wdba=false in both cases).
+
+    // Attempt SAT-minimization if requested.
+    if (sat_minimize_ && dba && !dba_is_wdba)
       {
-	if (count_states(wdba) > count_states(sim))
+	// This only work on deterministic TBA, so degeneralize
+	// if needed.
+	const tgba* tmpd = 0;
+	if (dba->number_of_acceptance_conditions() != 1)
+	  tmpd = new tgba_tba_proxy(dba);
+
+	const tgba* in = tmpd ? tmpd : dba;
+
+	const tgba* cmp = tgba_complete(in);
+	const tgba* res = dba_sat_minimize(cmp);
+	delete cmp;
+	delete tmpd;
+	if (res != 0)
 	  {
-	    delete wdba;
-	    wdba = 0;
+	    delete dba;
+	    dba = scc_filter(res, true);
+	    delete res;
+	  }
+      }
+    // Degeneralize the dba resulting from tba-determinization
+    // or sat-minimization (which is a TBA) if requested.
+    if (dba && !dba_is_wdba && type_ == BA)
+      {
+	const tgba* d = degeneralize(dba);
+	delete dba;
+	dba = d;
+      }
+
+    if (dba && sim)
+      {
+	if (count_states(dba) > count_states(sim))
+	  {
+	    delete dba;
+	    dba = 0;
 	  }
 	else
 	  {
@@ -280,13 +323,24 @@ namespace spot
 	  }
       }
 
-    if (sim && type_ == TGBA && level_ == High && scc_filter_ != 0)
-      {
-	const tgba* s = scc_filter(sim, true);
-	delete sim;
-	return s;
-      }
 
-    return wdba ? wdba : sim;
+    if (type_ == TGBA && level_ == High && scc_filter_ != 0)
+      {
+	if (dba && !dba_is_wdba) // WDBA is already clean.
+	  {
+	    // FIXME: if dba_sat_minimize has been run, scc_filter has
+	    // also been run.
+	    const tgba* s = scc_filter(dba, true);
+	    delete dba;
+	    return s;
+	  }
+	else if (sim)
+	  {
+	    const tgba* s = scc_filter(sim, true);
+	    delete sim;
+	    return s;
+	  }
+      }
+    return dba ? dba : sim;
   }
 }
