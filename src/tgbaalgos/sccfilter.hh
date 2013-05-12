@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -56,10 +56,24 @@ namespace spot
   /// variable are also removed from transitions entering an accepting
   /// SCC.  ignored is a conjunction of positive variables that should
   /// be removed everywhere.
+  ///
+  /// \warning Calling scc_filter on a TGBA that has the SBA property
+  /// (i.e., transitions leaving accepting states are all marked as
+  /// accepting) may destroy this property.  Use scc_filter_states()
+  /// instead.
   tgba* scc_filter(const tgba* aut, bool remove_all_useless = false,
 		   scc_map* given_sm = 0, bdd susp = bddtrue,
 		   bool early_susp = false, bdd ignored = bddtrue);
 
+  /// \brief Prune unaccepting SCCs.
+  ///
+  /// This is an abridged version of scc_filter(), that only remove
+  /// useless states, without touching at the acceptance conditions.
+  ///
+  /// Especially, if the input TGBA has the SBA property, (i.e.,
+  /// transitions leaving accepting states are all marked as
+  /// accepting), then the output TGBA will also have that property.
+  tgba* scc_filter_states(const tgba* aut, scc_map* given_sm = 0);
 }
 
 #endif // SPOT_TGBAALGOS_SCC_HH

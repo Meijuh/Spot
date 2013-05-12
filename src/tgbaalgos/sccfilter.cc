@@ -66,6 +66,53 @@ namespace spot
     }
 
     template<class T>
+    class filter_iter_states: public tgba_reachable_iterator_depth_first
+    {
+    public:
+      typedef T output_t;
+
+      filter_iter_states(const tgba* a,
+			 const scc_map& sm,
+			 const std::vector<bool>& useless)
+	: tgba_reachable_iterator_depth_first(a),
+	  out_(new T(a->get_dict())),
+	  sm_(sm),
+	  useless_(useless)
+      {
+	a->get_dict()->register_all_variables_of(a, out_);
+	out_->set_acceptance_conditions(a->all_acceptance_conditions());
+      }
+
+      T*
+      result()
+      {
+	return out_;
+      }
+
+      bool
+      want_state(const state* s) const
+      {
+	return !useless_[sm_.scc_of_state(s)];
+      }
+
+      void
+      process_link(const state* in_s, int in,
+		   const state* out_s, int out,
+		   const tgba_succ_iterator* si)
+      {
+	typename output_t::state::transition* t =
+	  create_transition(this->aut_, out_, in_s, in, out_s, out);
+	t->condition = si->current_condition();
+	t->acceptance_conditions = si->current_acceptance_conditions();
+      }
+
+    protected:
+      T* out_;
+      const scc_map& sm_;
+      const std::vector<bool>& useless_;
+    };
+
+    template<class T>
     class filter_iter: public tgba_reachable_iterator_depth_first
     {
     public:
@@ -488,6 +535,57 @@ namespace spot
 		res->merge_transitions();
 		ret = res;
 	      }
+	  }
+      }
+    if (!given_sm)
+      delete sm;
+    return ret;
+  }
+
+  tgba* scc_filter_states(const tgba* aut, scc_map* given_sm)
+  {
+    scc_map* sm = given_sm;
+    if (!sm)
+      {
+	sm = new scc_map(aut);
+	sm->build_map();
+      }
+    scc_stats ss = build_scc_stats(*sm);
+
+    tgba* ret;
+
+    const tgba_explicit_formula* af =
+      dynamic_cast<const tgba_explicit_formula*>(aut);
+    if (af)
+      {
+	filter_iter_states<tgba_explicit_formula> fi(af, *sm,
+						     ss.useless_scc_map);
+	fi.run();
+	tgba_explicit_formula* res = fi.result();
+	res->merge_transitions();
+	ret = res;
+      }
+    else
+      {
+	const tgba_explicit_string* as =
+	  dynamic_cast<const tgba_explicit_string*>(aut);
+	if (as)
+	  {
+	    filter_iter_states<tgba_explicit_string> fi(aut, *sm,
+							ss.useless_scc_map);
+	    fi.run();
+	    tgba_explicit_string* res = fi.result();
+	    res->merge_transitions();
+	    ret = res;
+	  }
+	else
+	  {
+	    filter_iter_states<tgba_explicit_number> fi(aut, *sm,
+							ss.useless_scc_map);
+	    fi.run();
+	    tgba_explicit_number* res = fi.result();
+	    res->merge_transitions();
+	    ret = res;
 	  }
       }
     if (!given_sm)

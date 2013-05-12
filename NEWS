@@ -24,6 +24,12 @@ New in spot 1.1a (not yet released):
       Some illustrations of this point and the previous one can be
       found in the man page for ltl2tgba(1).
 
+    - There is a new function scc_filter_states() that removes all
+      useless states from a TGBA.  It is actually an abbridged version
+      of scc_filter() that does not alter the acceptance conditions of
+      the automaton.  scc_filter_state() should be used when
+      post-processing TGBAs that actually represent BAs.
+
   * Bug fixes:
 
     - genltl --gh-r generated the wrong formulas due to a typo.

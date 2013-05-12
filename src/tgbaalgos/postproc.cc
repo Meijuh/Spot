@@ -110,12 +110,20 @@ namespace spot
       scc_filter_ = 1;
 
     // Remove useless SCCs.
-    if (scc_filter_ > 0 || type_ == Monitor)
-    {
-      const tgba* s = scc_filter(a, scc_filter_ > 1);
-      delete a;
-      a = s;
-    }
+    if (type_ == Monitor)
+      {
+	// Do not bother about acceptance conditions, they we be
+	// ignored.
+	const tgba* s = scc_filter_states(a);
+	delete a;
+	a = s;
+      }
+    else if (scc_filter_ > 0)
+      {
+	const tgba* s = scc_filter(a, scc_filter_ > 1);
+	delete a;
+	a = s;
+      }
 
     if (type_ == Monitor)
       {
