@@ -42,6 +42,14 @@ New in spot 1.1a (not yet released):
     - ltlcross has a new option --seed, that makes it possible to
       change the seed used by the random graph generator.
 
+    - ltlcross has a new option --products=N to check the result of
+      each translation against N different state spaces, and everage
+      the statistics of these N products.  N default to 1; larger
+      values increase the chances to detect inconsistencies in the
+      translations, and also make the average size of the product
+      built against the translated automata a more pertinent
+      statistic.
+
     - bdd_dict::unregister_all_typed_variables() is a new function,
       making it easy to unregister all BDD variables of a given type
       owned by some object.

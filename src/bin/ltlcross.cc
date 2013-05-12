@@ -84,6 +84,7 @@ Exit status:\n\
 #define OPT_NOCHECKS 6
 #define OPT_STOP_ERR 7
 #define OPT_SEED 8
+#define OPT_PRODUCTS 9
 
 static const argp_option options[] =
   {
@@ -126,6 +127,9 @@ static const argp_option options[] =
       "two states (0.1 by default)", 0 },
     { "seed", OPT_SEED, "INT", 0,
       "seed for the random number generator (0 by default)", 0 },
+    { "products", OPT_PRODUCTS, "INT", 0,
+      "number of product to perform (1 by default), statistics will be "
+      "averaged", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Statistics output:", 6 },
     { "json", OPT_JSON, "FILENAME", OPTION_ARG_OPTIONAL,
@@ -154,6 +158,7 @@ bool allow_dups = false;
 bool no_checks = false;
 bool stop_on_error = false;
 int seed = 0;
+unsigned products = 1;
 
 std::vector<char*> translators;
 bool global_error_flag = false;
@@ -167,6 +172,16 @@ global_error()
 
 struct statistics
 {
+  statistics()
+    : ok(false),
+      // Initialize these, because they accumulate values from several
+      // products.
+      product_states(0),
+      product_transitions(0),
+      product_scc(0)
+  {
+  }
+
   bool ok;
   unsigned states;
   unsigned edges;
@@ -183,9 +198,9 @@ struct statistics
   bool weak_aut;
   bool strong_aut;
   double time;
-  unsigned product_states;
-  unsigned product_transitions;
-  unsigned product_scc;
+  double product_states;
+  double product_transitions;
+  double product_scc;
 
   static void
   fields(std::ostream& os)
@@ -320,6 +335,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_JSON:
       want_stats = true;
       json_output = arg ? arg : "-";
+      break;
+    case OPT_PRODUCTS:
+      products = to_pos_int(arg);
       break;
     case OPT_NOCHECKS:
       no_checks = true;
@@ -727,7 +745,7 @@ namespace
   }
 
   static void
-  cross_check(const std::vector<spot::scc_map*>& maps, char l)
+  cross_check(const std::vector<spot::scc_map*>& maps, char l, unsigned p)
   {
     size_t m = maps.size();
 
@@ -773,7 +791,11 @@ namespace
 		err << ",";
 	      err << l << i;
 	    }
-	err << "} when evaluating the state-space\n";
+	err << "} when evaluating ";
+	if (products > 1)
+	  err << "state-space #" << p << "/" << products;
+	else
+	  err << "the state-space";
       }
   }
 
@@ -896,7 +918,6 @@ namespace
       std::vector<const spot::tgba*> pos(m);
       std::vector<const spot::tgba*> neg(m);
 
-
       unsigned n = vstats.size();
       vstats.resize(n + (no_checks ? 1 : 2));
       statistics_formula* pstats = &vstats[n];
@@ -965,86 +986,119 @@ namespace
 	  std::cerr << "Gathering statistics..." << std::endl;
 	}
 
-      // build products with a random state-space.
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
-      spot::srand(seed);
-      spot::tgba* statespace = spot::random_graph(states, density, ap, &dict);
-      delete ap;
 
-      std::vector<spot::tgba*> pos_prod(m);
-      std::vector<spot::tgba*> neg_prod(m);
-      std::vector<spot::scc_map*> pos_map(m);
-      std::vector<spot::scc_map*> neg_map(m);
-      for (size_t i = 0; i < m; ++i)
-	if (pos[i])
-	  {
-	    spot::tgba* p = new spot::tgba_product(pos[i], statespace);
-	    pos_prod[i] = p;
-	    spot::scc_map* sm = new spot::scc_map(p);
-	    sm->build_map();
-	    pos_map[i] = sm;
+      for (unsigned p = 0; p < products; ++p)
+	{
+	  // build a random state-space.
+	  spot::srand(seed);
+	  spot::tgba* statespace = spot::random_graph(states, density,
+						      ap, &dict);
 
-	    // Statistics
-	    if (want_stats)
+	  // Products of the state space with the positive automata.
+	  std::vector<spot::tgba*> pos_prod(m);
+	  // Products of the state space with the negative automata.
+	  std::vector<spot::tgba*> neg_prod(m);
+	  // Associated SCC maps.
+	  std::vector<spot::scc_map*> pos_map(m);
+	  std::vector<spot::scc_map*> neg_map(m);
+	  for (size_t i = 0; i < m; ++i)
+	    if (pos[i])
 	      {
-		(*pstats)[i].product_scc = sm->scc_count();
-		spot::tgba_statistics s = spot::stats_reachable(p);
-		(*pstats)[i].product_states = s.states;
-		(*pstats)[i].product_transitions = s.transitions;
-	      }
-	  }
-      if (!no_checks)
-	for (size_t i = 0; i < m; ++i)
-	  if (neg[i])
-	    {
-	      spot::tgba* p = new spot::tgba_product(neg[i], statespace);
-	      neg_prod[i] = p;
-	      spot::scc_map* sm = new spot::scc_map(p);
-	      sm->build_map();
-	      neg_map[i] = sm;
+		spot::tgba* p = new spot::tgba_product(pos[i], statespace);
+		pos_prod[i] = p;
+		spot::scc_map* sm = new spot::scc_map(p);
+		sm->build_map();
+		pos_map[i] = sm;
 
-	      // Statistics
-	      if (want_stats)
+		// Statistics
+		if (want_stats)
+		  {
+		    (*pstats)[i].product_scc += sm->scc_count();
+		    spot::tgba_statistics s = spot::stats_reachable(p);
+		    (*pstats)[i].product_states += s.states;
+		    (*pstats)[i].product_transitions += s.transitions;
+		  }
+	      }
+
+
+	  if (!no_checks)
+	    for (size_t i = 0; i < m; ++i)
+	      if (neg[i])
 		{
-		  (*nstats)[i].product_scc = sm->scc_count();
-		  spot::tgba_statistics s = spot::stats_reachable(p);
-		  (*nstats)[i].product_states = s.states;
-		  (*nstats)[i].product_transitions = s.transitions;
+		  spot::tgba* p = new spot::tgba_product(neg[i], statespace);
+		  neg_prod[i] = p;
+		  spot::scc_map* sm = new spot::scc_map(p);
+		  sm->build_map();
+		  neg_map[i] = sm;
+
+		  // Statistics
+		  if (want_stats)
+		    {
+		      (*nstats)[i].product_scc += sm->scc_count();
+		      spot::tgba_statistics s = spot::stats_reachable(p);
+		      (*nstats)[i].product_states += s.states;
+		      (*nstats)[i].product_transitions += s.transitions;
+		    }
 		}
+
+	  if (!no_checks)
+	    {
+	      // cross-comparison test
+	      cross_check(pos_map, 'P', p);
+	      cross_check(neg_map, 'N', p);
+
+	      // consistency check
+	      for (size_t i = 0; i < m; ++i)
+		if (pos_map[i] && neg_map[i] &&
+		    !(consistency_check(pos_map[i], neg_map[i], statespace)))
+		  {
+		    global_error() << "error: inconsistency between P" << i
+				   << " and N" << i;
+		    if (products > 1)
+		      global_error() << " for state-space #" << p
+				     << "/" << products << "\n";
+		    else
+		      global_error() << "\n";
+		  }
 	    }
 
-      if (!no_checks)
-	{
-	  // cross-comparison test
-	  cross_check(pos_map, 'P');
-	  cross_check(neg_map, 'N');
+	  // Cleanup.
 
-	  // consistency check
+	  if (!no_checks)
+	    for (size_t i = 0; i < m; ++i)
+	      {
+		delete neg_map[i];
+		delete neg_prod[i];
+		if (want_stats)
+		  {
+		    (*nstats)[i].product_scc /= products;
+		    (*nstats)[i].product_states /= products;
+		    (*nstats)[i].product_transitions /= products;
+		  }
+	      }
 	  for (size_t i = 0; i < m; ++i)
-	    if (pos_map[i] && neg_map[i] &&
-		!(consistency_check(pos_map[i], neg_map[i], statespace)))
-	      global_error() << "error: inconsistency between P" << i
-			     << " and N" << i << "\n";
+	    {
+	      delete pos_map[i];
+	      delete pos_prod[i];
+	      if (want_stats)
+		{
+		  (*pstats)[i].product_scc /= products;
+		  (*pstats)[i].product_states /= products;
+		  (*pstats)[i].product_transitions /= products;
+		}
+	    }
+	  delete statespace;
+	  ++seed;
 	}
-
-      // Cleanup.
+      std::cerr << std::endl;
+      delete ap;
 
       if (!no_checks)
-	for (size_t n = 0; n < m; ++n)
-	{
-	  delete neg_map[n];
-	  delete neg_prod[n];
-	  delete neg[n];
-	}
-      for (size_t n = 0; n < m; ++n)
-	{
-	  delete pos_map[n];
-	  delete pos_prod[n];
-	  delete pos[n];
-	}
-      delete statespace;
-      ++seed;
-      std::cerr << std::endl;
+	for (size_t i = 0; i < m; ++i)
+	  delete neg[i];
+      for (size_t i = 0; i < m; ++i)
+	delete pos[i];
 
       // Shall we stop processing formulas now?
       abort_run = global_error_flag && stop_on_error;

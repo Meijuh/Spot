@@ -23,7 +23,7 @@
 ltl2tgba=../../bin/ltl2tgba
 
 ../../bin/randltl -P -n 100 p1 p2 p3 p4 p5 p6 --tree-size 5..15 |
-../../bin/ltlcross \
+../../bin/ltlcross --products=3 \
 "$ltl2tgba --lbtt --any --low %f > %T" \
 "$ltl2tgba --lbtt --any --medium %f > %T" \
 "$ltl2tgba --lbtt --any --high %f > %T" \

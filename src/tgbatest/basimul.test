@@ -54,9 +54,7 @@ ltl2tgba=../../bin/ltl2tgba
 #    --spin -x ba-simul=2
 #    --spin -x ba-simul=3
 
-
-for seed in 1 2 3; do
-  ../../bin/ltlcross --seed=$seed --density=0.$seed \
+../../bin/ltlcross --seed=0 --products=5 --json=out.json \
     -f 'X((F(Xa | b) W c) U (Xc W (a & d)))' \
     -f '((<> p5 V ((p0 U p1) <-> (p5 \/ p1))) -> ((<> p4 V p2) M p2))' \
     -f '!p2 & (Fp5 R (((p0 U p1) & (p5 | p1)) | (!p5 & (!p0 R !p1))))' \
@@ -73,4 +71,3 @@ for seed in 1 2 3; do
     "$ltl2tgba --ba --high --spin -x ba-simul=1 %f >%N" \
     "$ltl2tgba --ba --high --spin -x ba-simul=2 %f >%N" \
     "$ltl2tgba --ba --high --spin -x ba-simul=3 %f >%N"
-done

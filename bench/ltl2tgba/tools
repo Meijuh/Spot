@@ -43,8 +43,9 @@ set "$@" \
 #
 # set "$@" "tool options %... > %..."
 
-# Set the timeout to 5 minutes
-set "$@" --timeout=300
+# Set the timeout to 5 minutes, and average
+# products on 5 state-spaces.
+set "$@" --timeout=300 --products=5
 
 # Finaly remove the dummy initial argument
 shift
