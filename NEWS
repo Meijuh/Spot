@@ -30,6 +30,15 @@ New in spot 1.1a (not yet released):
       the automaton.  scc_filter_state() should be used when
       post-processing TGBAs that actually represent BAs.
 
+    - simulation_sba(), cosimulation_sba(), and
+      iterated_simulations_sba() are new functions that apply to TGBAs
+      that actually represent BAs.  They preserve the imporant
+      property that if a state of the BA is is accepting, the outgoing
+      transitions of that state are all accepting in the TGBA that
+      represent the BA.  This is something that was not preserved by
+      functions cosimultion() and iterated_simulations() as mentionned
+      in the bug fixes below.
+
     - ltlcross has a new option --seed, that makes it possible to
       change the seed used by the random graph generator.
 
@@ -40,6 +49,14 @@ New in spot 1.1a (not yet released):
     - ltlfilt --stutter-invariant would trigger an assert on PSL formulas.
     - ltl2tgba, ltl2tgta, ltlcross, and ltlfilt, would all choke on empty
       lines in a file of formulas.  They now ignore empty lines.
+    - The iterated simulation applied on degeneralized TGBA was bogus
+      for two reasons: one was that cosimulation was applied using the
+      generic cosimulation for TGBA, and the second is that
+      SCC-filtering, performed between iterations, was also a
+      TGBA-based algorithm.  Both of these algorithms could lose the
+      property that if a TGBA represents a BA, all the outgoing
+      transitions of a state should be accepting.  As a consequence, some
+      formulas where translated to incorrect Büchi automata.
 
 New in spot 1.1 (2013-04-28):
 

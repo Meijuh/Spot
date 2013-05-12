@@ -212,7 +212,6 @@ namespace spot
         return false;
       }
 
-
       int transitions;
       int states;
     };
@@ -223,7 +222,7 @@ namespace spot
     // automaton is similar to the old one, except that the acceptance
     // condition on the transitions are complemented.
     // There is a specialization below.
-    template <bool Cosimulation, bool ReverseComplement = false>
+    template <bool Cosimulation, bool Sba>
     class acc_compl_automaton:
       public tgba_reachable_iterator_depth_first
     {
@@ -243,16 +242,10 @@ namespace spot
                          const state*, int,
                          const tgba_succ_iterator* si)
        {
-         bdd acc = ReverseComplement
-           ? ac_.reverse_complement(si->current_acceptance_conditions())
-           : ac_.complement(si->current_acceptance_conditions());
-
-         const tgba_explicit_succ_iterator<state_explicit_number>* tmpit =
-           down_cast<const tgba_explicit_succ_iterator
-                                     <state_explicit_number>*>(si);
+         bdd acc = ac_.complement(si->current_acceptance_conditions());
 
          typename tgba_explicit_number::transition* t =
-           ea_->get_transition(tmpit);
+           ea_->get_transition(si);
 
          t->acceptance_conditions = acc;
        }
@@ -281,10 +274,10 @@ namespace spot
       acc_compl ac_;
     };
 
-    // The specialization for Cosimulation equals to true: We need to
-    // copy.
-    template <>
-    class acc_compl_automaton<true>:
+    // The specialization for Cosimulation equals to true: We copy the
+    // automaton and transpose it at the same time.
+    template <bool Sba>
+    class acc_compl_automaton<true, Sba>:
       public tgba_reachable_iterator_depth_first
     {
     public:
@@ -292,13 +285,16 @@ namespace spot
       : tgba_reachable_iterator_depth_first(a),
 	size(0),
         out_(new tgba_explicit_number(a->get_dict())),
-	ea_(a),
-	ac_(ea_->all_acceptance_conditions(),
-	    ea_->neg_acceptance_conditions()),
+	ac_(a->all_acceptance_conditions(),
+	    a->neg_acceptance_conditions()),
 	current_max(0)
       {
-        init_ = ea_->get_init_state();
+	a->get_dict()->register_all_variables_of(a, out_);
+	out_->set_acceptance_conditions(a->all_acceptance_conditions());
+
+        const state* init_ = a->get_init_state();
         out_->set_init_state(get_state(init_));
+	init_->destroy();
       }
 
       inline unsigned
@@ -325,19 +321,32 @@ namespace spot
         unsigned src = get_state(in_s);
         unsigned dst = get_state(out_s);
 
-        // In the case of the cosimulation, we want to have all the
-        // ingoing transition, and to keep the rest of the code
-        // similar, we just create equivalent transition in the other
-        // direction. Since we do not have to run through the
-        // automaton to get the signature, this is correct.
-        std::swap(src, dst);
-
-        bdd acc = ac_.complement(si->current_acceptance_conditions());
+	// Note the order of src and dst: the transition is reversed.
         tgba_explicit_number::transition* t
-           = out_->create_transition(src, dst);
+           = out_->create_transition(dst, src);
 
-        out_->add_acceptance_conditions(t, acc);
-        out_->add_conditions(t, si->current_condition());
+        t->condition = si->current_condition();
+	if (!Sba)
+	  {
+	    bdd acc = ac_.complement(si->current_acceptance_conditions());
+	    t->acceptance_conditions = acc;
+	  }
+	else
+	  {
+	    // If the acceptance is interpreted as state-based, to
+	    // apply the reverse simulation on a SBA, we should pull
+	    // the acceptance of the destination state on its incoming
+	    // arcs (which now become outgoing args after
+	    // transposition).
+	    tgba_succ_iterator* it = out_->succ_iter(out_s);
+	    it->first();
+	    if (!it->done())
+	      {
+		bdd acc = ac_.complement(it->current_acceptance_conditions());
+		t->acceptance_conditions = acc;
+	      }
+	    delete it;
+	  }
       }
 
       void process_state(const state*, int, tgba_succ_iterator*)
@@ -347,8 +356,6 @@ namespace spot
 
       ~acc_compl_automaton()
       {
-        // Because we don't know what get_init_state returns...
-        init_->destroy();
       }
 
     public:
@@ -359,16 +366,14 @@ namespace spot
       map_state_state old_name_;
 
     private:
-      const state* init_;
-      const tgba* ea_;
       acc_compl ac_;
       map_state_unsigned state2int;
       unsigned current_max;
     };
 
     // The direct_simulation. If Cosimulation is true, we are doing a
-    // cosimulation. Seems obvious, but it's better to be clear.
-    template <bool Cosimulation>
+    // cosimulation.
+    template <bool Cosimulation, bool Sba>
     class direct_simulation
     {
     protected:
@@ -393,7 +398,7 @@ namespace spot
         scc_map_->build_map();
         old_a_ = a_;
 
-	acc_compl_automaton<Cosimulation> acc_compl(a_);
+	acc_compl_automaton<Cosimulation, Sba> acc_compl(a_);
 
 	// We'll start our work by replacing all the acceptance
 	// conditions by their complement.
@@ -401,7 +406,7 @@ namespace spot
 
         // Contains the relation between the names of the states in
         // the automaton returned by the complementation and the one
-        // get in argument to the constructor of acc_compl.
+        // passed to the constructor of acc_compl.
 	std::swap(old_name_, acc_compl.old_name_);
 
 	a_ = acc_compl.out_;
@@ -417,9 +422,10 @@ namespace spot
 	// class. We register one bdd by state, because in the worst
 	// case, |Class| == |State|.
 	unsigned set_num = a_->get_dict()
-	  ->register_anonymous_variables(size_a_ + 1, a_);
+	  ->register_anonymous_variables(size_a_ + 1, this);
 
-        all_proms_ = bdd_support(a_->all_acceptance_conditions());
+        all_acceptance_conditions_ = a_->all_acceptance_conditions();
+        all_proms_ = bdd_support(all_acceptance_conditions_);
 
         bdd_initial = bdd_ithvar(set_num++);
 	bdd init = bdd_ithvar(set_num++);
@@ -451,7 +457,6 @@ namespace spot
 	relation_[init] = init;
 
 	std::swap(order_, acc_compl.order_);
-        all_acceptance_conditions_ = a_->all_acceptance_conditions();
       }
 
 
@@ -460,16 +465,17 @@ namespace spot
       // function simulation.
       virtual ~direct_simulation()
       {
+	a_->get_dict()->unregister_all_my_variables(this);
         delete scc_map_;
+
         if (!dont_delete_old_)
-          delete old_a_;
-        // Since a_ is a new automaton only if we are doing a
-        // cosimulation.
+	  delete old_a_;
+        // a_ is a new automaton only if we are doing a cosimulation.
         if (Cosimulation)
           delete a_;
       }
 
-      // We update the name of the classes.
+      // Update the name of the classes.
       void update_previous_class()
       {
 	std::list<bdd>::iterator it_bdd = used_var_.begin();
@@ -535,35 +541,37 @@ namespace spot
           {
             const state* dst = sit->current_state();
             bdd acc = bddtrue;
-            map_constraint::const_iterator it;
-            // We are using new_original_[old_name_[...]] because we
-            // give the constraints in the original automaton, so we
-            // need to use this heavy computation.
-            if (map_cst_
-                && ((it = map_cst_
-                       ->find(std::make_pair(new_original_[old_name_[src]],
-                                             new_original_[old_name_[dst]])))
-                    != map_cst_->end()))
-              {
-                acc = it->second;
-              }
-            else
-              {
-                acc = sit->current_acceptance_conditions();
-              }
 
-            // to_add is a conjunction of the acceptance condition,
-            // the label of the transition and the class of the
-            // destination and all the class it implies.
-            bdd to_add = acc & sit->current_condition()
-              & relation_[previous_class_[dst]];
+	    map_constraint::const_iterator it;
+	    // We are using new_original_[old_name_[...]] because
+	    // we have the constraints in the original automaton
+	    // which has been duplicated twice to get the current
+	    // automaton.
+	    if (map_cst_
+		&& ((it = map_cst_
+		     ->find(std::make_pair(new_original_[old_name_[src]],
+					   new_original_[old_name_[dst]])))
+		    != map_cst_->end()))
+	      {
+		acc = it->second;
+	      }
+	    else
+	      {
+		acc = sit->current_acceptance_conditions();
+	      }
 
-            res |= to_add;
-            dst->destroy();
-          }
+	    // to_add is a conjunction of the acceptance condition,
+	    // the label of the transition and the class of the
+	    // destination and all the class it implies.
+	    bdd to_add = acc & sit->current_condition()
+	      & relation_[previous_class_[dst]];
+
+	    res |= to_add;
+	    dst->destroy();
+	  }
 
         // When we Cosimulate, we add a special flag to differentiate
-        // initial state.
+        // the initial state from the other.
         if (Cosimulation && initial_state == src)
           res |= bdd_initial;
 
@@ -728,10 +736,10 @@ namespace spot
 	acc_compl reverser(all_acceptance_conditions_,
 			   a_->neg_acceptance_conditions());
 
-	tgba_explicit_number* res
-	  = new tgba_explicit_number(a_->get_dict());
-	res->set_acceptance_conditions
-	  (all_acceptance_conditions_);
+	bdd_dict* d = a_->get_dict();
+	tgba_explicit_number* res = new tgba_explicit_number(d);
+	d->register_all_variables_of(a_, res);
+	res->set_acceptance_conditions(all_acceptance_conditions_);
 
 	bdd sup_all_acc = bdd_support(all_acceptance_conditions_);
 	// Non atomic propositions variables (= acc and class)
@@ -746,10 +754,15 @@ namespace spot
 
             // The difference between the two next lines is:
             // the first says "if you see A", the second "if you
-            // see A and all the class implied by it".
+            // see A and all the classes implied by it".
             bdd2state[part] = current_max;
             bdd2state[relation_[part]] = current_max;
           }
+
+	// Acceptance of states.  Only used if Sba && Cosimulation.
+	std::vector<bdd> accst;
+	if (Sba && Cosimulation)
+	  accst.resize(current_max + 1, bddfalse);
 
         stat.states = bdd_lstate_.size();
         stat.transitions = 0;
@@ -788,7 +801,7 @@ namespace spot
 					bddtrue);
 		all_atomic_prop -= one;
 
-		// For each possible valuation, iterator over all possible
+		// For each possible valuation, iterate over all possible
 		// destination classes.   We use minato_isop here, because
 		// if the same valuation of atomic properties can go
 		// to two different classes C1 and C2, iterating on
@@ -815,13 +828,13 @@ namespace spot
 		    // Keep only ones who are acceptance condition.
 		    bdd acc = bdd_existcomp(cond_acc_dest, sup_all_acc);
 
-		    // Keep the other !
+		    // Keep the other!
 		    bdd cond = bdd_existcomp(cond_acc_dest,
 					     sup_all_atomic_prop);
 
 		    // Because we have complemented all the acceptance
-		    // condition on the input automaton, we must re
-		    // invert them to create a new transition.
+		    // conditions on the input automaton, we must
+		    // revert them to create a new transition.
 		    acc = reverser.reverse_complement(acc);
 
 		    // Take the id of the source and destination.  To
@@ -842,9 +855,12 @@ namespace spot
 		    // Create the transition, add the condition and the
 		    // acceptance condition.
 		    tgba_explicit_number::transition* t
-		      = res->create_transition(src , dst);
-		    res->add_conditions(t, cond);
-		    res->add_acceptance_conditions(t, acc);
+		      = res->create_transition(src, dst);
+		    t->condition = cond;
+		    if (Sba && Cosimulation)
+		      accst[dst] = acc;
+		    else
+		      t->acceptance_conditions = acc;
 		  }
 	      }
           }
@@ -853,6 +869,23 @@ namespace spot
 				      [a_->get_init_state()]]);
 
 	res->merge_transitions();
+
+	// Mark all accepting state in a second pass, when
+	// dealing with SBA in cosimulation.
+	if (Sba && Cosimulation)
+	  for (unsigned snum = current_max; snum > 0; --snum)
+	    {
+	      const state* s = res->get_state(snum);
+	      tgba_succ_iterator* it = res->succ_iter(s);
+	      bdd acc = accst[snum];
+	      for (it->first(); !it->done(); it->next())
+		{
+		  tgba_explicit_number::transition* t =
+		    res->get_transition(it);
+		  t->acceptance_conditions = acc;
+		}
+	      delete it;
+	    }
 
         res_is_deterministic = nb_minato == nb_satoneset;
 
@@ -968,7 +1001,7 @@ namespace spot
     };
 
     // For now, we don't try to handle cosimulation.
-    class direct_simulation_dont_care: public direct_simulation<false>
+    class direct_simulation_dont_care: public direct_simulation<false, false>
     {
       typedef std::vector<std::list<constraint> > constraints;
       typedef std::map<bdd,                  // Source Class.
@@ -981,11 +1014,11 @@ namespace spot
 
     public:
       direct_simulation_dont_care(const tgba* t)
-        : direct_simulation<false>(t)
+      : direct_simulation(t)
       {
         // This variable is used in the new signature.
         on_cycle_ =
-          bdd_ithvar(a_->get_dict()->register_anonymous_variables(1, a_));
+          bdd_ithvar(a_->get_dict()->register_anonymous_variables(1, this));
 
         // This one is used for the iteration on all the
         // possibilities. Avoid computing two times "no constraints".
@@ -999,7 +1032,6 @@ namespace spot
 	notap = (bdd_support(all_acceptance_conditions_)
                  & all_class_var_ & on_cycle_);
       }
-
 
       // This function computes the don't care signature of the state
       // src. This signature is similar to the classic one, excepts
@@ -1481,7 +1513,7 @@ namespace spot
         else if (cstr.empty())
           empty_seen_ = true;
 
-        direct_simulation<false> dir_sim(original_, &cstr);
+        direct_simulation<false, false> dir_sim(original_, &cstr);
         tgba* tmp = dir_sim.run();
         automaton_size cur_size = dir_sim.get_stat();
         if (*min == 0 || min_size_ > cur_size)
@@ -1529,21 +1561,35 @@ namespace spot
   tgba*
   simulation(const tgba* t)
   {
-    direct_simulation<false> simul(t);
+    direct_simulation<false, false> simul(t);
+    return simul.run();
+  }
 
+  tgba*
+  simulation_sba(const tgba* t)
+  {
+    direct_simulation<false, true> simul(t);
     return simul.run();
   }
 
   tgba*
   cosimulation(const tgba* t)
   {
-    direct_simulation<true> simul(t);
-
+    direct_simulation<true, false> simul(t);
     return simul.run();
   }
 
   tgba*
-  iterated_simulations(const tgba* t)
+  cosimulation_sba(const tgba* t)
+  {
+    direct_simulation<true, true> simul(t);
+    return simul.run();
+  }
+
+
+  template<bool Sba>
+  tgba*
+  iterated_simulations_(const tgba* t)
   {
     tgba* res = const_cast<tgba*> (t);
     automaton_size prev;
@@ -1552,8 +1598,7 @@ namespace spot
     do
       {
         prev = next;
-        direct_simulation<false> simul(res);
-
+        direct_simulation<false, Sba> simul(res);
         tgba* maybe_res = simul.run();
 
         if (res != t)
@@ -1566,24 +1611,34 @@ namespace spot
           }
 
         unique_ptr<tgba> after_simulation(maybe_res);
-
-        direct_simulation<true> cosimul(after_simulation);
-
+        direct_simulation<true, Sba> cosimul(after_simulation);
         unique_ptr<tgba> after_cosimulation(cosimul.run());
-
         next = cosimul.get_stat();
-
-        res = scc_filter(after_cosimulation, false);
+	if (Sba)
+	  res = scc_filter_states(after_cosimulation);
+	else
+	  res = scc_filter(after_cosimulation, false);
       }
     while (prev != next);
-
     return res;
+  }
+
+  tgba*
+  iterated_simulations(const tgba* t)
+  {
+    return iterated_simulations_<false>(t);
+  }
+
+  tgba*
+  iterated_simulations_sba(const tgba* t)
+  {
+    return iterated_simulations_<true>(t);
   }
 
   tgba*
   dont_care_simulation(const tgba* t, int limit)
   {
-    direct_simulation<false> sim(t);
+    direct_simulation<false, false> sim(t);
     tgba* tmp = sim.run();
 
     direct_simulation_dont_care s(tmp);
@@ -1613,12 +1668,9 @@ namespace spot
         if (res != t)
           delete res;
 
-        direct_simulation<true> cosimul(after_simulation);
-
+        direct_simulation<true, false> cosimul(after_simulation);
         unique_ptr<tgba> after_cosimulation(cosimul.run());
-
         next = cosimul.get_stat();
-
         res = scc_filter(after_cosimulation, true);
       }
     while (prev != next);

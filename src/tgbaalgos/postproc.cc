@@ -80,6 +80,23 @@ namespace spot
       }
   }
 
+  const tgba* postprocessor::do_ba_simul(const tgba* a, int opt)
+  {
+    switch (opt)
+      {
+      case 0:
+	return a;
+      case 1:
+	return simulation_sba(a);
+      case 2:
+	return cosimulation_sba(a);
+      case 3:
+      default:
+	return iterated_simulations_sba(a);
+      }
+  }
+
+
   const tgba* postprocessor::do_degen(const tgba* a)
   {
     const tgba* d = degeneralize(a,
@@ -90,7 +107,7 @@ namespace spot
     if (ba_simul_ <= 0)
       return d;
 
-    const tgba* s = do_simul(d, ba_simul_);
+    const tgba* s = do_ba_simul(d, ba_simul_);
     if (s != d)
       delete d;
 

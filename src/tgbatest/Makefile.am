@@ -110,6 +110,7 @@ TESTS = \
   dfs.test \
   emptchkr.test \
   ltlcounter.test \
+  basimul.test \
   spotlbtt.test \
   ltlcross.test \
   spotlbtt2.test \

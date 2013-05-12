@@ -91,6 +91,7 @@ namespace spot
 
   protected:
     const tgba* do_simul(const tgba* input, int opt);
+    const tgba* do_ba_simul(const tgba* input, int opt);
     const tgba* do_degen(const tgba* input);
 
     output_type type_;

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -20,7 +20,6 @@
 #ifndef SPOT_TGBAALGOS_SIMULATION_HH
 # define SPOT_TGBAALGOS_SIMULATION_HH
 
-
 namespace spot
 {
   class tgba;
@@ -28,6 +27,7 @@ namespace spot
   /// \addtogroup tgba_reduction
   /// @{
 
+  /// @{
   /// \brief Attempt to reduce the automaton by direct simulation.
   ///
   /// When the suffixes (letter and acceptance conditions) reachable
@@ -68,7 +68,10 @@ namespace spot
   /// \return a new automaton which is at worst a copy of the received
   /// one
   tgba* simulation(const tgba* automaton);
+  tgba* simulation_sba(const tgba* automaton);
+  /// @}
 
+  /// @{
   /// \brief Attempt to reduce the automaton by reverse simulation.
   ///
   /// When the prefixes (letter and acceptance conditions) leading to
@@ -116,7 +119,10 @@ namespace spot
   /// \return a new automaton which is at worst a copy of the received
   /// one
   tgba* cosimulation(const tgba* automaton);
+  tgba* cosimulation_sba(const tgba* automaton);
+  /// @}
 
+  /// @{
   /// \brief Iterate simulation() and cosimulation().
   ///
   /// Runs simulation(), cosimulation(), and scc_filter() in a loop,
@@ -132,6 +138,8 @@ namespace spot
   /// \return a new automaton which is at worst a copy of the received
   /// one
   tgba* iterated_simulations(const tgba* automaton);
+  tgba* iterated_simulations_sba(const tgba* automaton);
+  /// @}
 
 
   tgba* dont_care_simulation(const tgba* t, int limit = -1);

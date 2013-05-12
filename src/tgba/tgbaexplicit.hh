@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita.
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -318,6 +318,15 @@ namespace spot
       return const_cast<transition*>(&(*(si->get_iterator())));
     }
 
+    transition*
+    get_transition(const tgba_succ_iterator* si)
+    {
+      const tgba_explicit_succ_iterator<State>* tmp
+	= down_cast<const tgba_explicit_succ_iterator<State>*>(si);
+      assert(tmp);
+      return get_transition(tmp);
+    }
+
     void add_condition(transition* t, const ltl::formula* f)
     {
       t->condition &= formula_to_bdd(f, dict_, this);
@@ -336,10 +345,22 @@ namespace spot
       return dict_->is_registered_acceptance_variable(f, this);
     }
 
-    //old tgba explicit labelled interface
+    //old tgba explicit labeled interface
     bool has_state(const label_t& name)
     {
       return ls_.find(name) != ls_.end();
+    }
+
+    /// \brief Return the state associated to a given label.
+    ///
+    /// This is similar to add_state(), except that it returns 0 if
+    /// the state does not exist.
+    const State* get_state(const label_t& name)
+    {
+      typename ls_map::const_iterator i = ls_.find(name);
+      if (i == ls_.end())
+	return 0;
+      return &i->second;
     }
 
     const label_t& get_label(const State* s) const
