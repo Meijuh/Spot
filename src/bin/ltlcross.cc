@@ -54,6 +54,7 @@
 #include "tgbaalgos/isdet.hh"
 #include "misc/escape.hh"
 #include "misc/hash.hh"
+#include "misc/random.hh"
 
 // Disable handling of timeout on systems that miss kill() or alarm().
 // For instance MinGW.
@@ -82,6 +83,7 @@ Exit status:\n\
 #define OPT_DUPS 5
 #define OPT_NOCHECKS 6
 #define OPT_STOP_ERR 7
+#define OPT_SEED 8
 
 static const argp_option options[] =
   {
@@ -122,6 +124,8 @@ static const argp_option options[] =
     { "density", OPT_DENSITY, "FLOAT", 0,
       "probability, between 0.0 and 1.0, to add a transition between "
       "two states (0.1 by default)", 0 },
+    { "seed", OPT_SEED, "INT", 0,
+      "seed for the random number generator (0 by default)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Statistics output:", 6 },
     { "json", OPT_JSON, "FILENAME", OPTION_ARG_OPTIONAL,
@@ -149,6 +153,7 @@ bool want_stats = false;
 bool allow_dups = false;
 bool no_checks = false;
 bool stop_on_error = false;
+int seed = 0;
 
 std::vector<char*> translators;
 bool global_error_flag = false;
@@ -318,6 +323,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_NOCHECKS:
       no_checks = true;
+      break;
+    case OPT_SEED:
+      seed = to_pos_int(arg);
       break;
     case OPT_STATES:
       states = to_pos_int(arg);
@@ -959,6 +967,7 @@ namespace
 
       // build products with a random state-space.
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
+      spot::srand(seed);
       spot::tgba* statespace = spot::random_graph(states, density, ap, &dict);
       delete ap;
 
@@ -1034,6 +1043,7 @@ namespace
 	  delete pos[n];
 	}
       delete statespace;
+      ++seed;
       std::cerr << std::endl;
 
       // Shall we stop processing formulas now?
