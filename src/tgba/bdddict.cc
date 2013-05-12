@@ -246,6 +246,7 @@ namespace spot
     assert(unsigned(v) < bdd_map.size());
 
     ref_set& s = bdd_map[v].refs;
+    // If the variable is not owned by me, ignore it.
     ref_set::iterator si = s.find(me);
     if (si == s.end())
       return;
@@ -312,6 +313,17 @@ namespace spot
     for (unsigned i = 0; i < s; ++i)
       unregister_variable(i, me);
     free_anonymous_list_of.erase(me);
+  }
+
+  void
+  bdd_dict::unregister_all_typed_variables(var_type type, const void* me)
+  {
+    unsigned s = bdd_map.size();
+    for (unsigned i = 0; i < s; ++i)
+      if (bdd_map[i].type == type)
+	unregister_variable(i, me);
+    if (type == anon)
+      free_anonymous_list_of.erase(me);
   }
 
   bool

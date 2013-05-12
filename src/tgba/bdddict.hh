@@ -203,6 +203,10 @@ namespace spot
     /// Usually called in the destructor if \a me.
     void unregister_all_my_variables(const void* me);
 
+    /// \brief Release all variables of a given type, used by an
+    /// object.
+    void unregister_all_typed_variables(var_type type, const void* me);
+
     /// \brief Release a variable used by \a me.
     void unregister_variable(int var, const void* me);
 

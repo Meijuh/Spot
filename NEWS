@@ -42,6 +42,10 @@ New in spot 1.1a (not yet released):
     - ltlcross has a new option --seed, that makes it possible to
       change the seed used by the random graph generator.
 
+    - bdd_dict::unregister_all_typed_variables() is a new function,
+      making it easy to unregister all BDD variables of a given type
+      owned by some object.
+
   * Bug fixes:
 
     - genltl --gh-r generated the wrong formulas due to a typo.

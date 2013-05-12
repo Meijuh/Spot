@@ -243,10 +243,13 @@ namespace spot
 
     bdd_dict* dict = a->get_dict();
 
-    // The result (degeneralized) automaton uses numbered state.
+    // The result (degeneralized) automaton uses numbered states.
     sba_explicit_number* res = new sba_explicit_number(dict);
+
+    // We use the same BDD variables as the input, except for the
+    // acceptance.
     dict->register_all_variables_of(a, res);
-    // FIXME: unregister acceptance conditions.
+    dict->unregister_all_typed_variables(bdd_dict::acc, res);
 
     // Invent a new acceptance set for the degeneralized automaton.
     int accvar =
