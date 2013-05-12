@@ -31,10 +31,12 @@ checkopt()
   diff exp out
 }
 
-
+# The empty lines in the file are meant, we want to make sure that
+# they are ignored.
 cat >formulas <<EOF
 GFa | FGb
 F(GFa | Gb)
+
 F(b W GFa)
 GFa | Gb
 b W GFa
@@ -44,6 +46,7 @@ G(a & Xb)
 Xa
 F(a & !Xa & Xb)
 {a & {b|c} }
+
 EOF
 
 checkopt --eventual <<EOF

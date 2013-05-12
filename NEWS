@@ -38,6 +38,8 @@ New in spot 1.1a (not yet released):
     - genltl --gh-r generated the wrong formulas due to a typo.
     - ltlfilt --eventual and --universal were not handled properly.
     - ltlfilt --stutter-invariant would trigger an assert on PSL formulas.
+    - ltl2tgba, ltl2tgta, ltlcross, and ltlfilt, would all choke on empty
+      lines in a file of formulas.  They now ignore empty lines.
 
 New in spot 1.1 (2013-04-28):
 
