@@ -216,9 +216,43 @@ ltlfilt -f 'a U (b U a)' --equivalent-to 'b U a'
 #+RESULTS:
 : a U (b U a)
 
-The commands prints the formula and returns an exit status of 0 if the
+The command prints the formula and returns an exit status of 0 if the
 two formulas are equivalent.  It would print nothing and set the exit
 status to 1, were the two formulas not equivalent.
+
+
+If the formula =F(a & X(!a & Gb))= stutter-invariant?
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt -f 'F(a & X(!a & Gb))' --stutter-invariant
+#+END_SRC
+#+RESULTS:
+: F(a & X(!a & Gb))
+
+Yes it is.  And since it is stutter-invariant, there exist some
+equivalent formulas that do not use =X= operator.  The =--remove-x=
+option gives one:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt -f 'F(a & X(!a & Gb))' --remove-x
+#+END_SRC
+#+RESULTS:
+: F(a & ((a & (a U (!a & Gb)) & ((!b U !a) | (b U !a))) | (!a & (!a U (a & !a & Gb)) & ((!b U a) | (b U a))) | (b & (b U (!a & Gb & !b)) & ((!a U !b) | (a U !b))) | (!b & (!b U (!a & b & Gb)) & ((!a U b) | (a U b))) | (!a & Gb & (G!a | Ga) & (Gb | G!b))))
+
+We could even verify that the resulting horrible formula is equivalent
+to the original one:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt -f 'F(a & X(!a & Gb))' --remove-x | ltlfilt --equivalent-to 'F(a & X(!a & Gb))'
+#+END_SRC
+#+RESULTS:
+: F(a & ((a & (a U (!a & Gb)) & ((!b U !a) | (b U !a))) | (!a & (!a U (a & !a & Gb)) & ((!b U a) | (b U a))) | (b & (b U (!a & Gb & !b)) & ((!a U !b) | (a U !b))) | (!b & (!b U (!a & b & Gb)) & ((!a U b) | (a U b))) | (!a & Gb & (G!a | Ga) & (Gb | G!b))))
+
+It is therefore equivalent, but that is not a surprise since the
+=--stutter-invariant= filter is actually implemented using exactly
+[[http://homepages.inf.ed.ac.uk/kousha/note_on_stut_tl_lpi.ps][this procedure]] (calling the =remove_x()= function, and checking the
+equivalence of the resulting formula with the original one).
+
 
 #  LocalWords:  ltlfilt num toc LTL PSL syntaxes LBT's SRC GFp scheck
 #  LocalWords:  ltl EOF lbt Gp Fp Xp XFp XXp randltl ary nnf wm abc
