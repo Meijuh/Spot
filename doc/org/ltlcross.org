@@ -31,7 +31,8 @@ The core of =ltlcross= is a loop that does the following steps:
     If there are 3 translators, the positive and negative translations
     will be denoted =P0=, =N0=, =P1=, =N1=, =P2=, =N2=.
   - Build the products of these automata with a random state-space (the same
-    state-space for all translations).
+    state-space for all translations).  (If the =--products=N= option is given,
+    =N= products are performed instead.)
   - Perform sanity checks between all these automata to detect any problem.
   - Gather statistics if requested.
 
@@ -109,6 +110,8 @@ Detailed statistics about the result of each translation, and the
 product of that resulting automaton with the random state-space, can
 be obtained using the =--csv=FILE= or =--json=FILE= option.
 
+** CSV or JSON output (or both!)
+
 The following compare =ltl2tgba=, =spin=, and =lbt= on three random
 formula (where =W= and =M= operators have been rewritten away because
 they are not supported by =spin= and =lbt=).
@@ -179,9 +182,9 @@ This can be loaded in any spreadsheet application.  Although we only
 supplied 2 random generated formulas, the output contains 4 formulas because
 =ltlcross= had to translate the positive and negative version of each.
 
-If we had used the option =--json=results.json= instead of
-=--cvs=results.csv=, the file =results.json= would have contained the
-following [[http://www.json.org/][JSON]] output.
+If we had used the option =--json=results.json= instead of (or in
+addition to) =--cvs=results.csv=, the file =results.json= would have
+contained the following [[http://www.json.org/][JSON]] output.
 
 #+BEGIN_SRC sh :results verbatim :exports results
 cat results.json
@@ -271,6 +274,112 @@ bogus automata are still included: as shown below =ltlcross= will
 report inconsistencies between automata as errors, but it does not try
 to guess who is incorrect.
 
+** Description of the columns
+
+=formula= and =tool= contain the formula translated and the command
+run to translate it.  In the CSV, these columns contain the actual
+text.  In the JSON output, these column contains an index into the
+=formula= and =tool= table declared separately.
+
+=states=, =edged=, =transitions=, =acc= are size measures for the
+automaton that was translated.  =acc= counts the number of acceptance
+sets.  When building (degeneralized) Büchi automata, it will always be
+=1=, so its value is meaningful only when evaluating translations to
+generalized Büchi automata.  =edges= counts the actual number of edges
+in the graph supporting the automaton; an edge (labeled by a Boolean
+formula) might actually represent several transitions (each labeled by
+assignment of all atomic propositions).  For instance in an automaton
+where the atomic proposition are $a$ and $b$, one edge labeled by
+$a\lor b$ actually represents three transitions $a b$, $a\bar b$, and
+$\bar a b$.
+
+The following picture displays two automata for the LTL formula =a U
+b=.  They both have 2 states and 3 edges, however they differ in the
+number of transitions (7 versus 8), because the initial self-loop is
+more constrained in the first automaton.  A smaller number of
+transition is therefore an indication of a more constrained automaton.
+
+#+BEGIN_SRC dot :file edges.png :cmdline -Tpng :exports results
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="A1"]
+  1 -> 2 [label="b\n"]
+  1 -> 1 [label="a & !b\n"]
+  2 [label="B1", peripheries=2]
+  2 -> 2 [label="1"]
+
+  3 [label="", style=invis, height=0]
+  3 -> 4
+  4 [label="A2"]
+  4 -> 5 [label="b\n"]
+  4 -> 4 [label="a\n"]
+  5 [label="B2", peripheries=2]
+  5 -> 5 [label="1"]
+}
+#+END_SRC
+
+#+RESULTS:
+[[file:edges.png]]
+
+
+=scc= counts the number of strongly-connected components in the automaton.  These SCCs are
+also partitioned on four sets based on their strengths:
+- =nonacc_scc= for non-accepting SCCs (such as states A1 and A2 in the
+  previous picture)
+- =terminal_scc= for SCCs that consist of a single state with an
+  accepting self-loop labeled by true (such as states B1 and B2
+  in the previous picture)
+- =weak_scc= for non-terminal SCCs in which all cycles are accepting
+- and =strong_scc= for accepting SCCs in which some cycles are not accepting.
+
+These SCC strengths can be used to compute the strength of the
+automaton as a whole:
+- an automaton is terminal if it contains only non-accepting or
+  terminal SCCs,
+- an automaton is weak if it it contains only non-accepting,
+  terminal, or weak SCCs,
+- an automaton is strong if it contains at least one strong SCC.
+
+This classification is used to fill the =terminal_aut=, =weak_aut=,
+=strong_aut= columns with Boolean values.  Only one of these should
+contain =1=.  We usually prefer terminal automata over weak automata,
+and weak automata over strong automata, because the emptiness check
+of terminal (and weak) automata is easier.
+
+=nondetstates= counts the number of non-deterministic states in the
+automaton.  =nondeterministic= is a Boolean value indicating if the
+automaton is not deterministic.  For instance in the previous picture
+showing two automata for =a U b=, the first automaton is deterministic
+(these two fields will contain 0), while the second automaton contain
+a nondeterministic state (state A2 has two possible successors for the
+assignment $ab$) and is therefore not deterministic.
+
+=time= obviously contains the time used by the translation.  Time is
+measured with some high-resolution clock when available (that's
+nanosecond accuracy under Linux), but because translator commands are
+executed through a shell, it also includes the time to start a shell.
+(This extra cost apply identically to all translators, so it is not unfair.)
+
+Finally, =product_states=, =product_transitions=, and =product_scc=
+count the number of state, transitions and strongly-connect components
+in the product that has been built between the translated automaton
+and a random model.  For a given formula, the same random model is of
+course used against the automata translated by all tools.  Comparing
+the size of these product might give another indication of the
+"conciseness" of a translated automaton.
+
+There is of course a certain "luck factor" in the size of the product.
+Maybe some translator built a very dumb automaton, with many useless
+states, in which just a very tiny part is translated concisely.  By
+luck, the random model generated might synchronize with this tiny part
+only, and ignore the part with all the useless states.  A way to
+lessen this luck factor is to increase the number of products
+performed against the translated automaton.  If option =--products=N=
+is used, =N= products are builds instead of one, and the fields
+=product_states=, =product_transitions=, and =product_scc= contain
+average values.
+
 * Detecting problems
 
 If a translator exits with a non-zero status code, or fails to output
@@ -318,6 +427,11 @@ positive and negative formulas by the ith translator).
 
     : error: {P0,P2,P3,P4,P5,P6,P7,P8,P9} disagree with {P1} when evaluating the state-space
 
+    If =--products=N= is used with =N= greater than one, the number of
+    the state-space is also printed.  This number is of no use by
+    itself, except to explain why you may get multiple disagreement
+    between the same sets of automata.
+
   - Consistency check:
 
     For each $i$, the products $P_i\otimes S$ and $N_i\otimes S$
@@ -329,7 +443,11 @@ positive and negative formulas by the ith translator).
 
     : error: inconsistency between P1 and N1
 
-The above checks are the same that are performed by [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]].
+    If =--products=N= is used with =N= greater than one, the number of
+    the state-space in which the inconsistency was detected is also
+    printed.
+
+The above checks are similar to those that are performed by [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]].
 
 If any problem was reported during the translation of one of the
 formulas, =ltlcheck= will exit with an exit status of =1=.  Statistics
