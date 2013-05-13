@@ -1,6 +1,7 @@
+;; htmlize is not always in the load-path.  On Debian it can be found here.
+(setq load-path (cons "/usr/share/emacs/site-lisp/emacs-goodies-el" load-path))
 (require 'org-publish)
 (require 'org-install)
-
 
 (print (concat "Org " (org-version)))
 (setq org-export-htmlize-output-type 'css)
