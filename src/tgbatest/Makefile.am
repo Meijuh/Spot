@@ -122,6 +122,7 @@ TESTS = \
   emptchkr.test \
   ltlcounter.test \
   basimul.test \
+  satmin.test \
   spotlbtt.test \
   ltlcross.test \
   spotlbtt2.test \
