@@ -174,8 +174,20 @@ struct statistics
 {
   statistics()
     : ok(false),
-      // Initialize these, because they accumulate values from several
-      // products.
+      states(0),
+      transitions(0),
+      acc(0),
+      scc(0),
+      nonacc_scc(0),
+      terminal_scc(0),
+      weak_scc(0),
+      strong_scc(0),
+      nondetstates(0),
+      nondeterministic(false),
+      terminal_aut(false),
+      weak_aut(false),
+      strong_aut(false),
+      time(0),
       product_states(0),
       product_transitions(0),
       product_scc(0)
