@@ -3,6 +3,9 @@ New in spot 1.1.4a (not relased)
   * All the parsers implemented in Spot now use the same type
     to store locations.
 
+  * ltlcross has a new option --color to color its output.  It is enabled
+    by default when the output is a terminal.
+
   * Cleanup of exported symbols
 
     All symbols in the library now have hidden visibility on ELF systems.

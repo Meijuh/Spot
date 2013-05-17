@@ -32,6 +32,7 @@
 #include <sys/wait.h>
 #include "error.h"
 #include "gethrxtime.h"
+#include "argmatch.h"
 
 #include "common_setup.hh"
 #include "common_cout.hh"
@@ -85,6 +86,7 @@ Exit status:\n\
 #define OPT_STOP_ERR 7
 #define OPT_SEED 8
 #define OPT_PRODUCTS 9
+#define OPT_COLOR 10
 
 static const argp_option options[] =
   {
@@ -138,6 +140,10 @@ static const argp_option options[] =
       "output statistics as CSV in FILENAME or on standard output", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
+    { "color", OPT_COLOR, "WHEN", OPTION_ARG_OPTIONAL,
+      "colorize output; WHEN can be 'never', 'always' (the default if "
+      "--color is used without argument), or "
+      "'auto' (the default if --color is not used)", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -147,6 +153,28 @@ const struct argp_child children[] =
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
   };
+
+
+enum color_type { color_never, color_always, color_if_tty };
+
+static char const *const color_args[] =
+{
+  "always", "yes", "force",
+  "never", "no", "none",
+  "auto", "tty", "if-tty", 0
+};
+static color_type const color_types[] =
+{
+  color_always, color_always, color_always,
+  color_never, color_never, color_never,
+  color_if_tty, color_if_tty, color_if_tty
+};
+ARGMATCH_VERIFY(color_args, color_types);
+
+color_type color_opt = color_if_tty;
+const char* bright_red = "\033[01;31m";
+const char* bright_white = "\033[01;37m";
+const char* reset_color = "\033[m";
 
 unsigned states = 200;
 float density = 0.1;
@@ -167,8 +195,18 @@ static std::ostream&
 global_error()
 {
   global_error_flag = true;
+  if (color_opt)
+    std::cerr << bright_red;
   return std::cerr;
 }
+
+static void
+end_error()
+{
+  if (color_opt)
+    std::cerr << reset_color;
+}
+
 
 struct statistics
 {
@@ -334,6 +372,14 @@ parse_opt(int key, char* arg, struct argp_state*)
 		<< "on your platform" << std::endl;
 #endif
       break;
+    case OPT_COLOR:
+      {
+	if (arg)
+	  color_opt = XARGMATCH("--color", arg, color_args, color_types);
+	else
+	  color_opt = color_always;
+	break;
+      }
     case OPT_CSV:
       want_stats = true;
       csv_output = arg ? arg : "-";
@@ -658,11 +704,13 @@ namespace
 	{
 	  global_error() << "error: execution terminated by signal "
 			 << WTERMSIG(es) << ".\n";
+	  end_error();
 	}
       else if (WIFEXITED(es) && WEXITSTATUS(es) != 0)
 	{
 	  global_error() << "error: execution returned exit code "
 			 << WEXITSTATUS(es) << ".\n";
+	  end_error();
 	}
       else
 	{
@@ -677,6 +725,7 @@ namespace
 		    std::ostream& err = global_error();
 		    err << "error: failed to parse the produced neverclaim.\n";
 		    spot::format_neverclaim_parse_errors(err, output, pel);
+		    end_error();
 		    delete res;
 		    res = 0;
 		  }
@@ -690,15 +739,18 @@ namespace
 		  {
 		    global_error() << "Cannot open " << output.val()
 				   << std::endl;
-		    global_error_flag = true;
+		    end_error();
 		  }
 		else
 		  {
 		    res = spot::lbtt_parse(f, error, &dict);
 		    if (!res)
-		      global_error() << ("error: failed to parse output in "
-					 "LBTT format: ")
-				     << error << std::endl;
+		      {
+			global_error() << ("error: failed to parse output in "
+					   "LBTT format: ")
+				       << error << std::endl;
+			end_error();
+		      }
 		  }
 		break;
 	      }
@@ -808,6 +860,7 @@ namespace
 	  err << "state-space #" << p << "/" << products << "\n";
 	else
 	  err << "the state-space\n";
+	end_error();
       }
   }
 
@@ -905,7 +958,11 @@ namespace
 	std::cerr << linenum << ":";
       if (filename || linenum)
 	std::cerr << " ";
+      if (color_opt)
+	std::cerr << bright_white;
       std::cerr << fstr << "\n";
+      if (color_opt)
+	std::cerr << reset_color;
 
       // Make sure we do not translate the same formula twice.
       if (!allow_dups)
@@ -987,8 +1044,11 @@ namespace
 		    spot::tgba_product* prod =
 		      new spot::tgba_product(pos[i], neg[j]);
 		    if (!is_empty(prod))
-		      global_error() << "error: P" << i << "*N" << j
-				     << " is nonempty\n";
+		      {
+			global_error() << "error: P" << i << "*N" << j
+				       << " is nonempty\n";
+			end_error();
+		      }
 		    delete prod;
 		  }
 	}
@@ -1065,13 +1125,15 @@ namespace
 		if (pos_map[i] && neg_map[i] &&
 		    !(consistency_check(pos_map[i], neg_map[i], statespace)))
 		  {
-		    global_error() << "error: inconsistency between P" << i
-				   << " and N" << i;
+		    std::ostream& err = global_error();
+		    err << "error: inconsistency between P" << i
+			<< " and N" << i;
 		    if (products > 1)
-		      global_error() << " for state-space #" << p
-				     << "/" << products << "\n";
+		      err << " for state-space #" << p
+			  << "/" << products << "\n";
 		    else
-		      global_error() << "\n";
+		      err << "\n";
+		    end_error();
 		  }
 	    }
 
@@ -1230,6 +1292,9 @@ main(int argc, char** argv)
     error(2, 0, "No translator to run?  Run '%s --help' for usage.",
 	  program_name);
 
+  if (color_opt == color_if_tty)
+    color_opt = isatty(STDERR_FILENO) ? color_always : color_never;
+
   setup_sig_handler();
 
   processor p;
@@ -1244,16 +1309,17 @@ main(int argc, char** argv)
     {
       if (global_error_flag)
 	{
-	  std::cerr
-	    << ("error: some error was detected during the above runs,\n"
-		"       please search for 'error:' messages in the above "
-		"trace.")
-	    << std::endl;
+	  std::ostream& err = global_error();
+	  err << ("error: some error was detected during the above runs,\n"
+		  "       please search for 'error:' messages in the above "
+		  "trace.")
+	      << std::endl;
 	  if (timeout_count == 1)
-	    std::cerr << "Additionally, 1 timeout occurred." << std::endl;
+	    err << "Additionally, 1 timeout occurred." << std::endl;
 	  else if (timeout_count > 1)
-	    std::cerr << "Additionally, "
-		      << timeout_count << " timeouts occurred." << std::endl;
+	    err << "Additionally, "
+		<< timeout_count << " timeouts occurred." << std::endl;
+	  end_error();
 	}
       else if (timeout_count == 0)
 	std::cerr << "No problem detected." << std::endl;
