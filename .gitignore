@@ -54,3 +54,6 @@ stamp-h1
 _*_
 spot-*/*
 config.cache
+*.json
+*.fdb_latexmk
+*.xz
