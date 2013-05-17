@@ -40,13 +40,19 @@ AC_DEFUN([gl_EARLY],
   AC_REQUIRE([gl_PROG_AR_RANLIB])
   # Code from module alloca:
   # Code from module alloca-opt:
+  # Code from module argmatch:
   # Code from module argp:
+  # Code from module c-ctype:
+  # Code from module c-strcase:
+  # Code from module c-strcaseeq:
   # Code from module clock-time:
+  # Code from module configmake:
   # Code from module dirname-lgpl:
   # Code from module dosname:
   # Code from module double-slash-root:
   # Code from module errno:
   # Code from module error:
+  # Code from module exitfail:
   # Code from module extensions:
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
   # Code from module extern-inline:
@@ -60,11 +66,15 @@ AC_DEFUN([gl_EARLY],
   # Code from module gettimeofday:
   # Code from module include_next:
   # Code from module intprops:
+  # Code from module isatty:
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
+  # Code from module localcharset:
   # Code from module lstat:
   # Code from module malloc-gnu:
   # Code from module malloc-posix:
+  # Code from module mbrtowc:
+  # Code from module mbsinit:
   # Code from module memchr:
   # Code from module mempcpy:
   # Code from module mkstemp:
@@ -74,6 +84,9 @@ AC_DEFUN([gl_EARLY],
   # Code from module nocrash:
   # Code from module pathmax:
   # Code from module progname:
+  # Code from module quote:
+  # Code from module quotearg:
+  # Code from module quotearg-simple:
   # Code from module rawmemchr:
   # Code from module secure_getenv:
   # Code from module size_max:
@@ -92,6 +105,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module stdlib:
   # Code from module strcase:
   # Code from module strchrnul:
+  # Code from module streq:
   # Code from module strerror:
   # Code from module strerror-override:
   # Code from module string:
@@ -111,6 +125,10 @@ AC_DEFUN([gl_EARLY],
   # Code from module verify:
   # Code from module vsnprintf:
   # Code from module wchar:
+  # Code from module wctype-h:
+  # Code from module xalloc:
+  # Code from module xalloc-die:
+  # Code from module xalloc-oversized:
   # Code from module xsize:
 ])
 
@@ -138,6 +156,7 @@ AC_SUBST([LTALLOCA])
     [AM_][XGETTEXT_OPTION([--flag=argp_error:2:c-format])
      AM_][XGETTEXT_OPTION([--flag=argp_failure:4:c-format])])
   gl_CLOCK_TIME
+  gl_CONFIGMAKE_PREP
   gl_DIRNAME_LGPL
   gl_DOUBLE_SLASH_ROOT
   gl_HEADER_ERRNO_H
@@ -187,7 +206,16 @@ AC_SUBST([LTALLOCA])
     gl_PREREQ_GETTIMEOFDAY
   fi
   gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
+  gl_FUNC_ISATTY
+  if test $REPLACE_ISATTY = 1; then
+    AC_LIBOBJ([isatty])
+    gl_PREREQ_ISATTY
+  fi
+  gl_UNISTD_MODULE_INDICATOR([isatty])
   AC_REQUIRE([gl_LARGEFILE])
+  gl_LOCALCHARSET
+  LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(abs_top_builddir)/$gl_source_base\""
+  AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
   gl_FUNC_LSTAT
   if test $REPLACE_LSTAT = 1; then
     AC_LIBOBJ([lstat])
@@ -204,6 +232,18 @@ AC_SUBST([LTALLOCA])
     AC_LIBOBJ([malloc])
   fi
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
+  gl_FUNC_MBRTOWC
+  if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
+    AC_LIBOBJ([mbrtowc])
+    gl_PREREQ_MBRTOWC
+  fi
+  gl_WCHAR_MODULE_INDICATOR([mbrtowc])
+  gl_FUNC_MBSINIT
+  if test $HAVE_MBSINIT = 0 || test $REPLACE_MBSINIT = 1; then
+    AC_LIBOBJ([mbsinit])
+    gl_PREREQ_MBSINIT
+  fi
+  gl_WCHAR_MODULE_INDICATOR([mbsinit])
   gl_FUNC_MEMCHR
   if test $HAVE_MEMCHR = 0 || test $REPLACE_MEMCHR = 1; then
     AC_LIBOBJ([memchr])
@@ -234,6 +274,8 @@ AC_SUBST([LTALLOCA])
   gl_PATHMAX
   AC_CHECK_DECLS([program_invocation_name], [], [], [#include <errno.h>])
   AC_CHECK_DECLS([program_invocation_short_name], [], [], [#include <errno.h>])
+  gl_QUOTE
+  gl_QUOTEARG
   gl_FUNC_RAWMEMCHR
   if test $HAVE_RAWMEMCHR = 0; then
     AC_LIBOBJ([rawmemchr])
@@ -322,6 +364,8 @@ AC_SUBST([LTALLOCA])
   gl_FUNC_VSNPRINTF
   gl_STDIO_MODULE_INDICATOR([vsnprintf])
   gl_WCHAR_H
+  gl_WCTYPE_H
+  gl_XALLOC
   gl_XSIZE
   # End of code from modules
   m4_ifval(gl_LIBSOURCES_LIST, [
@@ -465,6 +509,8 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/snippet/warn-on-use.h
   lib/alloca.c
   lib/alloca.in.h
+  lib/argmatch.c
+  lib/argmatch.h
   lib/argp-ba.c
   lib/argp-eexst.c
   lib/argp-fmtstream.c
@@ -480,12 +526,21 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/argp.h
   lib/asnprintf.c
   lib/basename-lgpl.c
+  lib/c-ctype.c
+  lib/c-ctype.h
+  lib/c-strcase.h
+  lib/c-strcasecmp.c
+  lib/c-strcaseeq.h
+  lib/c-strncasecmp.c
+  lib/config.charset
   lib/dirname-lgpl.c
   lib/dirname.h
   lib/dosname.h
   lib/errno.in.h
   lib/error.c
   lib/error.h
+  lib/exitfail.c
+  lib/exitfail.h
   lib/fcntl.in.h
   lib/float+.h
   lib/float.c
@@ -500,9 +555,14 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/gettime.c
   lib/gettimeofday.c
   lib/intprops.h
+  lib/isatty.c
   lib/itold.c
+  lib/localcharset.c
+  lib/localcharset.h
   lib/lstat.c
   lib/malloc.c
+  lib/mbrtowc.c
+  lib/mbsinit.c
   lib/memchr.c
   lib/memchr.valgrind
   lib/mempcpy.c
@@ -518,8 +578,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/printf-parse.h
   lib/progname.c
   lib/progname.h
+  lib/quote.h
+  lib/quotearg.c
+  lib/quotearg.h
   lib/rawmemchr.c
   lib/rawmemchr.valgrind
+  lib/ref-add.sin
+  lib/ref-del.sin
   lib/secure_getenv.c
   lib/size_max.h
   lib/sleep.c
@@ -533,6 +598,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strcasecmp.c
   lib/strchrnul.c
   lib/strchrnul.valgrind
+  lib/streq.h
   lib/strerror-override.c
   lib/strerror-override.h
   lib/strerror.c
@@ -559,6 +625,12 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/verify.h
   lib/vsnprintf.c
   lib/wchar.in.h
+  lib/wctype-h.c
+  lib/wctype.in.h
+  lib/xalloc-die.c
+  lib/xalloc-oversized.h
+  lib/xalloc.h
+  lib/xmalloc.c
   lib/xsize.c
   lib/xsize.h
   lib/xtime.c
@@ -567,6 +639,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/alloca.m4
   m4/argp.m4
   m4/clock_time.m4
+  m4/codeset.m4
+  m4/configmake.m4
   m4/dirname.m4
   m4/double-slash-root.m4
   m4/errno_h.m4
@@ -581,15 +655,24 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/getopt.m4
   m4/gettime.m4
   m4/gettimeofday.m4
+  m4/glibc21.m4
   m4/gnulib-common.m4
   m4/include_next.m4
   m4/intmax_t.m4
   m4/inttypes_h.m4
+  m4/isatty.m4
   m4/largefile.m4
+  m4/localcharset.m4
+  m4/locale-fr.m4
+  m4/locale-ja.m4
+  m4/locale-zh.m4
   m4/longlong.m4
   m4/lstat.m4
   m4/malloc.m4
   m4/math_h.m4
+  m4/mbrtowc.m4
+  m4/mbsinit.m4
+  m4/mbstate_t.m4
   m4/memchr.m4
   m4/mempcpy.m4
   m4/mkstemp.m4
@@ -601,6 +684,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/off_t.m4
   m4/pathmax.m4
   m4/printf.m4
+  m4/quote.m4
+  m4/quotearg.m4
   m4/rawmemchr.m4
   m4/secure_getenv.m4
   m4/size_max.m4
@@ -636,6 +721,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/warn-on-use.m4
   m4/wchar_h.m4
   m4/wchar_t.m4
+  m4/wctype_h.m4
   m4/wint_t.m4
+  m4/xalloc.m4
   m4/xsize.m4
 ])
