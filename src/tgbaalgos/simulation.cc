@@ -1014,7 +1014,7 @@ namespace spot
 
     public:
       direct_simulation_dont_care(const tgba* t)
-      : direct_simulation(t)
+      : direct_simulation<false, false>(t)
       {
         // This variable is used in the new signature.
         on_cycle_ =
