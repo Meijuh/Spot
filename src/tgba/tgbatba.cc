@@ -1,5 +1,5 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita.
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -399,7 +399,11 @@ namespace spot
   {
     // We will use one acceptance condition for this automata.
     // Let's call it Acc[True].
-    int v = get_dict()
+    bdd_dict* d = get_dict();
+    d->register_all_variables_of(a, this);
+    d->unregister_all_typed_variables(bdd_dict::acc, this);
+
+    int v = d
       ->register_acceptance_variable(ltl::constant::true_instance(), this);
     the_acceptance_cond_ = bdd_ithvar(v);
 
