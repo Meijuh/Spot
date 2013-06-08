@@ -42,55 +42,55 @@ namespace spot
   /// (until it returns a null pointer) to enumerate all the visited acceptance
   /// paths. The implemented algorithm is the following:
   ///
-  /// \verbatim
-  /// procedure check ()
-  /// begin
-  ///   call dfs_blue(s0);
-  /// end;
-  ///
-  /// procedure dfs_blue (s)
-  /// begin
-  ///   s.color = blue;
-  ///   for all t in post(s) do
-  ///     if t.color == white then
-  ///       call dfs_blue(t);
-  ///     end if;
-  ///     if (the edge (s,t) is accepting) then
-  ///       target = s;
-  ///       call dfs_red(t);
-  ///     end if;
-  ///   end for;
-  /// end;
-  ///
-  /// procedure dfs_red(s)
-  /// begin
-  ///   s.color = red;
-  ///   if s == target then
-  ///     report cycle
-  ///   end if;
-  ///   for all t in post(s) do
-  ///     if t.color == blue then
-  ///       call dfs_red(t);
-  ///     end if;
-  ///   end for;
-  /// end;
-  /// \endverbatim
+  /** \verbatim
+      procedure check ()
+      begin
+        call dfs_blue(s0);
+      end;
+     
+      procedure dfs_blue (s)
+      begin
+        s.color = blue;
+        for all t in post(s) do
+          if t.color == white then
+            call dfs_blue(t);
+          end if;
+          if (the edge (s,t) is accepting) then
+            target = s;
+            call dfs_red(t);
+          end if;
+        end for;
+      end;
+     
+      procedure dfs_red(s)
+      begin
+        s.color = red;
+        if s == target then
+          report cycle
+        end if;
+        for all t in post(s) do
+          if t.color == blue then
+            call dfs_red(t);
+          end if;
+        end for;
+      end;
+      \endverbatim */
   ///
   /// This algorithm is an adaptation to TBA of the one
   /// (which deals with accepting states) presented in
   ///
-  /// \verbatim
-  ///  Article{         courcoubetis.92.fmsd,
-  ///    author        = {Costas Courcoubetis and Moshe Y. Vardi and Pierre
-  ///                    Wolper and Mihalis Yannakakis},
-  ///    title         = {Memory-Efficient Algorithm for the Verification of
-  ///                    Temporal Properties},
-  ///    journal       = {Formal Methods in System Design},
-  ///    pages         = {275--288},
-  ///    year          = {1992},
-  ///    volume        = {1}
-  ///  }
-  /// \endverbatim
+  /** \verbatim
+       Article{         courcoubetis.92.fmsd,
+         author        = {Costas Courcoubetis and Moshe Y. Vardi and Pierre
+                         Wolper and Mihalis Yannakakis},
+         title         = {Memory-Efficient Algorithm for the Verification of
+                         Temporal Properties},
+         journal       = {Formal Methods in System Design},
+         pages         = {275--288},
+         year          = {1992},
+         volume        = {1}
+       }
+      \endverbatim */
   ///
   /// \bug The name is misleading.  Magic-search is the algorithm
   /// from \c godefroid.93.pstv, not \c courcoubetis.92.fmsd.
@@ -105,15 +105,15 @@ namespace spot
   /// During the visit of \a a, the returned checker does not store explicitely
   /// the traversed states but uses the bit-state hashing technic presented in:
   ///
-  /// \verbatim
-  /// @book{Holzmann91,
-  ///    author = {G.J. Holzmann},
-  ///    title = {Design and Validation of Computer Protocols},
-  ///    publisher = {Prentice-Hall},
-  ///    address = {Englewood Cliffs, New Jersey},
-  ///    year = {1991}
-  /// }
-  /// \endverbatim
+  /** \verbatim
+      @book{Holzmann91,
+         author = {G.J. Holzmann},
+         title = {Design and Validation of Computer Protocols},
+         publisher = {Prentice-Hall},
+         address = {Englewood Cliffs, New Jersey},
+         year = {1991}
+      }
+      \endverbatim */
   ///
   /// Consequently, the detection of an acceptence cycle is not ensured.
   ///

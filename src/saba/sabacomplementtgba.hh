@@ -36,17 +36,17 @@ namespace spot
   /// are expected to reduce the size of the automaton.
   ///
   /// This algorithm comes from:
-  /// \verbatim
-  /// @Article{         gurumurthy.03.lncs,
-  ///   title         = {On complementing nondeterministic {B\"uchi} automata},
-  ///   author        = {Gurumurthy, S. and Kupferman, O. and Somenzi, F. and
-  ///                   Vardi, M.Y.},
-  ///   journal       = {Lecture Notes in Computer Science},
-  ///   pages         = {96--110},
-  ///   year          = {2003},
-  ///   publisher     = {Springer-Verlag}
-  /// }
-  /// \endverbatim
+  /** \verbatim
+      @Article{         gurumurthy.03.lncs,
+        title         = {On complementing nondeterministic {B\"uchi} automata},
+        author        = {Gurumurthy, S. and Kupferman, O. and Somenzi, F. and
+                        Vardi, M.Y.},
+        journal       = {Lecture Notes in Computer Science},
+        pages         = {96--110},
+        year          = {2003},
+        publisher     = {Springer-Verlag}
+      }
+      \endverbatim */
   ///
   /// The construction is done on-the-fly, by the
   /// \c saba_complement_succ_iterator class.

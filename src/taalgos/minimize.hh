@@ -38,22 +38,22 @@ namespace spot
   /// achieved using any algorithm based on partition refinement
   ///
   /// For more detail about this type of algorithm, see the following paper:
-  /// \verbatim
-  /// @InProceedings{valmari.09.icatpn,
-  /// author = {Antti Valmari},
-  /// title = {Bisimilarity Minimization in in O(m logn) Time},
-  /// booktitle = {Proceedings of the 30th International Conference on
-  ///                the Applications and Theory of Petri Nets
-  ///                (ICATPN'09)},
-  /// series = {Lecture Notes in Computer Science},
-  /// publisher = {Springer},
-  /// isbn = {978-3-642-02423-8},
-  /// pages = {123--142},
-  /// volume = 5606,
-  ///  url = {http://dx.doi.org/10.1007/978-3-642-02424-5_9},
-  /// year = {2009}
-  /// }
-  /// \endverbatim
+  /** \verbatim
+      @InProceedings{valmari.09.icatpn,
+      author = {Antti Valmari},
+      title = {Bisimilarity Minimization in in O(m logn) Time},
+      booktitle = {Proceedings of the 30th International Conference on
+                     the Applications and Theory of Petri Nets
+                     (ICATPN'09)},
+      series = {Lecture Notes in Computer Science},
+      publisher = {Springer},
+      isbn = {978-3-642-02423-8},
+      pages = {123--142},
+      volume = 5606,
+       url = {http://dx.doi.org/10.1007/978-3-642-02424-5_9},
+      year = {2009}
+      }
+      \endverbatim */
   ///
   /// \param ta_ the TA automaton to convert into a simplified TA
   ta*

@@ -30,19 +30,19 @@ namespace spot
   ///
   /// This class implements a non-recursive version of the algorithm
   /// on page 170 of:
-  /// \verbatim
-  /// @Article{loizou.82.is,
-  ///   author =  {George Loizou and Peter Thanisch},
-  ///   title =   {Enumerating the Cycles of a Digraph: A New
-  ///              Preprocessing Strategy},
-  ///   journal = {Information Sciences},
-  ///   year = 	  {1982},
-  ///   volume =  {27},
-  ///   number =  {3},
-  ///   pages =   {163--182},
-  ///   month =   aug
-  /// }
-  /// \endverbatim
+  /** \verbatim
+      @Article{loizou.82.is,
+        author =  {George Loizou and Peter Thanisch},
+        title =   {Enumerating the Cycles of a Digraph: A New
+                   Preprocessing Strategy},
+        journal = {Information Sciences},
+        year = 	  {1982},
+        volume =  {27},
+        number =  {3},
+        pages =   {163--182},
+        month =   aug
+      }
+      \endverbatim */
   /// (the additional preprocessings described later in that paper are
   /// not implemented).
   ///

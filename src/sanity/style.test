@@ -76,7 +76,20 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
       -0777 $file || diag "always put 'ingroup' before 'brief'"
 
     # Strip comments and strings.
-    sed 's,[	 ]*//.*,,;s,"[^"]*","",g' < $file > $tmp
+    #
+    # Multi-line comments of the form
+    # /* Line 1
+    #    Line 2
+    #    Line 3 */
+    # are replaced by
+    # //
+    # //
+    # //
+    # to keep the line numbers correct in the diagnostics.
+    perl -pe 'sub f {my $a = shift; $a =~ s:[^\n]*://:g; return "$a"}
+              s,/\*(.*?)\*/,f($1),sge;
+              s,//.*?\n,//\n,g;
+              s,"[^"\n]*","",g' -0777 <$file >$tmp
 
     grep '[	 ]$' $tmp &&
       diag 'Trailing whitespace.'

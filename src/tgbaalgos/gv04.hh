@@ -34,23 +34,23 @@ namespace spot
   ///
   /// The original algorithm, coming from the following paper, has only
   /// been slightly modified to work on transition-based automata.
-  /// \verbatim
-  /// @InProceedings{geldenhuys.04.tacas,
-  ///   author  = {Jaco Geldenhuys and Antti Valmari},
-  ///   title   = {Tarjan's Algorithm Makes On-the-Fly {LTL} Verification
-  ///             More Efficient},
-  ///   booktitle = {Proceedings of the 10th International Conference on Tools
-  ///             and Algorithms for the Construction and Analysis of Systems
-  ///             (TACAS'04)},
-  ///   editor  = {Kurt Jensen and Andreas Podelski},
-  ///   pages   = {205--219},
-  ///   year    = {2004},
-  ///   publisher = {Springer-Verlag},
-  ///   series  = {Lecture Notes in Computer Science},
-  ///   volume  = {2988},
-  ///   isbn    = {3-540-21299-X}
-  /// }
-  /// \endverbatim
+  /** \verbatim
+      @InProceedings{geldenhuys.04.tacas,
+        author  = {Jaco Geldenhuys and Antti Valmari},
+        title   = {Tarjan's Algorithm Makes On-the-Fly {LTL} Verification
+                  More Efficient},
+        booktitle = {Proceedings of the 10th International Conference on Tools
+                  and Algorithms for the Construction and Analysis of Systems
+                  (TACAS'04)},
+        editor  = {Kurt Jensen and Andreas Podelski},
+        pages   = {205--219},
+        year    = {2004},
+        publisher = {Springer-Verlag},
+        series  = {Lecture Notes in Computer Science},
+        volume  = {2988},
+        isbn    = {3-540-21299-X}
+      }
+      \endverbatim */
   emptiness_check* explicit_gv04_check(const tgba* a,
 				       option_map o = option_map());
 }

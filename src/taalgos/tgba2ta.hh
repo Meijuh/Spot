@@ -30,19 +30,19 @@ namespace spot
   /// \brief Build a spot::ta_explicit* (TA) from an LTL formula.
   ///
   /// This is based on the following paper.
-  /// \verbatim
-  ///  @InProceedings{        geldenhuys.06.spin,
-  ///  author        = {Jaco Geldenhuys and Henri Hansen},
-  ///  title         = {Larger Automata and Less Work for {LTL} Model Checking},
-  ///  booktitle     = {Proceedings of the 13th International SPIN Workshop
-  ///                  (SPIN'06)},
-  ///  year          = {2006},
-  ///  pages         = {53--70},
-  ///  series        = {Lecture Notes in Computer Science},
-  ///  volume        = {3925},
-  ///  publisher     = {Springer}
-  /// }
-  /// \endverbatim
+  /** \verbatim
+       @InProceedings{        geldenhuys.06.spin,
+       author        = {Jaco Geldenhuys and Henri Hansen},
+       title         = {Larger Automata and Less Work for {LTL} Model Checking},
+       booktitle     = {Proceedings of the 13th International SPIN Workshop
+                       (SPIN'06)},
+       year          = {2006},
+       pages         = {53--70},
+       series        = {Lecture Notes in Computer Science},
+       volume        = {3925},
+       publisher     = {Springer}
+      }
+      \endverbatim */
   ///
   /// \param tgba_to_convert The TGBA automaton to convert into a TA automaton
   ///

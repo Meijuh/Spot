@@ -37,55 +37,55 @@ namespace spot
   /// During the visit of \a a, the returned checker stores explicitely all
   /// the traversed states. The implemented algorithm is the following:
   ///
-  /// \verbatim
-  /// procedure check ()
-  /// begin
-  ///   weight = 0; // the null vector
-  ///   call dfs_blue(s0);
-  /// end;
-  ///
-  /// procedure dfs_blue (s)
-  /// begin
-  ///   s.color = cyan;
-  ///   s.acc = emptyset;
-  ///   s.weight = weight;
-  ///   for all t in post(s) do
-  ///     let (s, l, a, t) be the edge from s to t;
-  ///     if t.color == white then
-  ///       for all b in a do
-  ///         weight[b] = weight[b] + 1;
-  ///       end for;
-  ///       call dfs_blue(t);
-  ///       for all b in a do
-  ///         weight[b] = weight[b] - 1;
-  ///       end for;
-  ///     end if;
-  ///     Acc = s.acc U a;
-  ///     if t.color == cyan &&
-  ///               (Acc U support(weight - t.weight) U t.acc) == all_acc then
-  ///       report a cycle;
-  ///     else if Acc not included in t.acc then
-  ///       t.acc := t.acc U Acc;
-  ///       call dfs_red(t, Acc);
-  ///     end if;
-  ///   end for;
-  ///   s.color = blue;
-  /// end;
-  ///
-  /// procedure dfs_red(s, Acc)
-  /// begin
-  ///   for all t in post(s) do
-  ///     let (s, l, a, t) be the edge from s to t;
-  ///     if t.color == cyan &&
-  ///                 (Acc U support(weight - t.weight) U t.acc) == all_acc then
-  ///       report a cycle;
-  ///     else if t.color != white and Acc not included in t.acc then
-  ///       t.acc := t.acc U Acc;
-  ///       call dfs_red(t, Acc);
-  ///     end if;
-  ///   end for;
-  /// end;
-  /// \endverbatim
+  /** \verbatim
+      procedure check ()
+      begin
+        weight = 0; // the null vector
+        call dfs_blue(s0);
+      end;
+     
+      procedure dfs_blue (s)
+      begin
+        s.color = cyan;
+        s.acc = emptyset;
+        s.weight = weight;
+        for all t in post(s) do
+          let (s, l, a, t) be the edge from s to t;
+          if t.color == white then
+            for all b in a do
+              weight[b] = weight[b] + 1;
+            end for;
+            call dfs_blue(t);
+            for all b in a do
+              weight[b] = weight[b] - 1;
+            end for;
+          end if;
+          Acc = s.acc U a;
+          if t.color == cyan &&
+                    (Acc U support(weight - t.weight) U t.acc) == all_acc then
+            report a cycle;
+          else if Acc not included in t.acc then
+            t.acc := t.acc U Acc;
+            call dfs_red(t, Acc);
+          end if;
+        end for;
+        s.color = blue;
+      end;
+     
+      procedure dfs_red(s, Acc)
+      begin
+        for all t in post(s) do
+          let (s, l, a, t) be the edge from s to t;
+          if t.color == cyan &&
+                      (Acc U support(weight - t.weight) U t.acc) == all_acc then
+            report a cycle;
+          else if t.color != white and Acc not included in t.acc then
+            t.acc := t.acc U Acc;
+            call dfs_red(t, Acc);
+          end if;
+        end for;
+      end;
+      \endverbatim */
   ///
   /// This algorithm is a generalisation to TGBA of the one implemented in
   /// spot::explicit_se05_search. It is based on the acceptance set labelling

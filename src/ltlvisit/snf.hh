@@ -37,16 +37,16 @@ namespace spot
     /// corresponds to the E° operation defined in the following
     /// paper.
     ///
-    /// \verbatim
-    /// @Article{	  bruggeman.96.tcs,
-    ///   author	= {Anne Br{\"u}ggemann-Klein},
-    ///   title		= {Regular Expressions into Finite Automata},
-    ///   journal	= {Theoretical Computer Science},
-    ///   year		= {1996},
-    ///   volume	= {120},
-    ///   pages		= {87--98}
-    /// }
-    /// \endverbatim
+    /** \verbatim
+        @Article{	  bruggeman.96.tcs,
+          author	= {Anne Br{\"u}ggemann-Klein},
+          title		= {Regular Expressions into Finite Automata},
+          journal	= {Theoretical Computer Science},
+          year		= {1996},
+          volume	= {120},
+          pages		= {87--98}
+        }
+        \endverbatim */
     ///
     /// \param sere the SERE to rewrite
     /// \param cache an optional cache

@@ -83,22 +83,22 @@ namespace spot
     /// \brief Reduce a formula using language containment relationships.
     ///
     /// The method is taken from table 4.1 in
-    /// \verbatim
-    ///@TechReport{	  tauriainen.03.a83,
-    ///  author	= {Heikki Tauriainen},
-    ///  title = {On Translating Linear Temporal Logic into Alternating and
-    ///		  Nondeterministic Automata},
-    ///  institution	= {Helsinki University of Technology, Laboratory for
-    ///			   Theoretical Computer Science},
-    ///  address	= {Espoo, Finland},
-    ///  month		= dec,
-    ///  number		= {A83},
-    ///  pages		= {132},
-    ///  type		= {Research Report},
-    ///  year		= {2003},
-    ///  note		= {Reprint of Licentiate's thesis}
-    ///}
-    /// \endverbatim
+    /** \verbatim
+       @TechReport{	  tauriainen.03.a83,
+         author	= {Heikki Tauriainen},
+         title = {On Translating Linear Temporal Logic into Alternating and
+       		  Nondeterministic Automata},
+         institution	= {Helsinki University of Technology, Laboratory for
+       			   Theoretical Computer Science},
+         address	= {Espoo, Finland},
+         month		= dec,
+         number		= {A83},
+         pages		= {132},
+         type		= {Research Report},
+         year		= {2003},
+         note		= {Reprint of Licentiate's thesis}
+       }
+        \endverbatim */
     ///
     /// (The "dagged" cells in the tables are not handled here.)
     ///

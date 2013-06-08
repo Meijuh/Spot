@@ -28,20 +28,20 @@ namespace spot
   /// \brief Build a spot::taa* from an LTL formula.
   ///
   /// This is based on the following.
-  /// \verbatim
-  /// @techreport{HUT-TCS-A104,
-  ///     address = {Espoo, Finland},
-  ///     author  = {Heikki Tauriainen},
-  ///     month   = {September},
-  ///     note    = {Doctoral dissertation},
-  ///     number  = {A104},
-  ///     pages   = {xii+229},
-  ///     title   = {Automata and Linear Temporal Logic: Translations
-  ///                with Transition-Based Acceptance},
-  ///     type    = {Research Report},
-  ///     year    = {2006}
-  /// }
-  /// \endverbatim
+  /** \verbatim
+      @techreport{HUT-TCS-A104,
+          address = {Espoo, Finland},
+          author  = {Heikki Tauriainen},
+          month   = {September},
+          note    = {Doctoral dissertation},
+          number  = {A104},
+          pages   = {xii+229},
+          title   = {Automata and Linear Temporal Logic: Translations
+                     with Transition-Based Acceptance},
+          type    = {Research Report},
+          year    = {2006}
+      }
+      \endverbatim */
   ///
   /// \param f The formula to translate into an automaton.
   /// \param dict The spot::bdd_dict the constructed automata should use.

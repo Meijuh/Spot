@@ -53,21 +53,21 @@ namespace spot
   /// \param env The environment in which to declare the acceptance conditions.
   ///
   /// This algorithms is adapted from the one in Fig 6.2 page 48 of
-  /// \verbatim
-  /// @TechReport{	  tauriainen.00.a66,
-  ///   author	= {Heikki Tauriainen},
-  ///   title   = {Automated Testing of {B\"u}chi Automata Translators for
-  /// 		  {L}inear {T}emporal {L}ogic},
-  ///   address	= {Espoo, Finland},
-  ///   institution = {Helsinki University of Technology, Laboratory for
-  /// 		  Theoretical Computer Science},
-  ///   number	= {A66},
-  ///   year	= {2000},
-  ///   url	= {http://citeseer.nj.nec.com/tauriainen00automated.html},
-  ///   type	= {Research Report},
-  ///   note	= {Reprint of Master's thesis}
-  /// }
-  /// \endverbatim
+  /** \verbatim
+      @TechReport{	  tauriainen.00.a66,
+        author	= {Heikki Tauriainen},
+        title   = {Automated Testing of {B\"u}chi Automata Translators for
+      		  {L}inear {T}emporal {L}ogic},
+        address	= {Espoo, Finland},
+        institution = {Helsinki University of Technology, Laboratory for
+      		  Theoretical Computer Science},
+        number	= {A66},
+        year	= {2000},
+        url	= {http://citeseer.nj.nec.com/tauriainen00automated.html},
+        type	= {Research Report},
+        note	= {Reprint of Master's thesis}
+      }
+      \endverbatim */
   ///
   /// Although the intent is similar, there are some differences with
   /// between the above published algorithm and this implementation .

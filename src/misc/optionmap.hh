@@ -40,11 +40,11 @@ namespace spot
     /// sign). If not specified, the default value is 1.
     ///
     /// The following three lines are equivalent.
-    /// \verbatim
-    /// optA !optB optC=4194304
-    /// optA=1, optB=0, optC=4096K
-    /// optC = 4M; optA !optB
-    /// \endverbatim
+    /** \verbatim
+        optA !optB optC=4194304
+        optA=1, optB=0, optC=4096K
+        optC = 4M; optA !optB
+        \endverbatim */
     ///
     /// \return A non-null pointer to the option for which an expected integer
     /// value cannot be parsed.

@@ -80,20 +80,20 @@ namespace spot
     /// \brief Check whether a formula is a pure eventuality.
     ///
     /// Pure eventuality formulae are defined in
-    /// \verbatim
-    /// @InProceedings{	  etessami.00.concur,
-    /// author		= {Kousha Etessami and Gerard J. Holzmann},
-    /// title		= {Optimizing {B\"u}chi Automata},
-    /// booktitle	= {Proceedings of the 11th International Conference on
-    /// 		  Concurrency Theory (Concur'2000)},
-    /// pages		= {153--167},
-    /// year		= {2000},
-    /// editor		= {C. Palamidessi},
-    /// volume		= {1877},
-    /// series		= {Lecture Notes in Computer Science},
-    /// publisher	= {Springer-Verlag}
-    /// }
-    /// \endverbatim
+    /** \verbatim
+        @InProceedings{	  etessami.00.concur,
+        author		= {Kousha Etessami and Gerard J. Holzmann},
+        title		= {Optimizing {B\"u}chi Automata},
+        booktitle	= {Proceedings of the 11th International Conference on
+        		  Concurrency Theory (Concur'2000)},
+        pages		= {153--167},
+        year		= {2000},
+        editor		= {C. Palamidessi},
+        volume		= {1877},
+        series		= {Lecture Notes in Computer Science},
+        publisher	= {Springer-Verlag}
+        }
+        \endverbatim */
     ///
     /// A word that satisfies a pure eventuality can be prefixed by
     /// anything and still satisfies the formula.
@@ -109,20 +109,20 @@ namespace spot
     /// \brief Check whether a formula is purely universal.
     ///
     /// Purely universal formulae are defined in
-    /// \verbatim
-    /// @InProceedings{	  etessami.00.concur,
-    /// author		= {Kousha Etessami and Gerard J. Holzmann},
-    /// title		= {Optimizing {B\"u}chi Automata},
-    /// booktitle	= {Proceedings of the 11th International Conference on
-    /// 		  Concurrency Theory (Concur'2000)},
-    /// pages		= {153--167},
-    /// year		= {2000},
-    /// editor		= {C. Palamidessi},
-    /// volume		= {1877},
-    /// series		= {Lecture Notes in Computer Science},
-    /// publisher	= {Springer-Verlag}
-    /// }
-    /// \endverbatim
+    /** \verbatim
+        @InProceedings{	  etessami.00.concur,
+        author		= {Kousha Etessami and Gerard J. Holzmann},
+        title		= {Optimizing {B\"u}chi Automata},
+        booktitle	= {Proceedings of the 11th International Conference on
+        		  Concurrency Theory (Concur'2000)},
+        pages		= {153--167},
+        year		= {2000},
+        editor		= {C. Palamidessi},
+        volume		= {1877},
+        series		= {Lecture Notes in Computer Science},
+        publisher	= {Springer-Verlag}
+        }
+        \endverbatim */
     ///
     /// Any (non-empty) suffix of a word that satisfies if purely
     /// universal formula also satisfies the formula.

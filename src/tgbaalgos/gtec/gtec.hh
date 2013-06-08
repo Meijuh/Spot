@@ -35,23 +35,23 @@ namespace spot
   /// \brief Check whether the language of an automate is empty.
   ///
   /// This is based on the following paper.
-  /// \verbatim
-  /// @InProceedings{couvreur.99.fm,
-  ///   author    = {Jean-Michel Couvreur},
-  ///   title     = {On-the-fly Verification of Temporal Logic},
-  ///   pages     = {253--271},
-  ///   editor    = {Jeannette M. Wing and Jim Woodcock and Jim Davies},
-  ///   booktitle = {Proceedings of the World Congress on Formal Methods in
-  ///                the Development of Computing Systems (FM'99)},
-  ///   publisher = {Springer-Verlag},
-  ///   series    = {Lecture Notes in Computer Science},
-  ///   volume    = {1708},
-  ///   year      = {1999},
-  ///   address   = {Toulouse, France},
-  ///   month     = {September},
-  ///   isbn      = {3-540-66587-0}
-  /// }
-  /// \endverbatim
+  /** \verbatim
+      @InProceedings{couvreur.99.fm,
+        author    = {Jean-Michel Couvreur},
+        title     = {On-the-fly Verification of Temporal Logic},
+        pages     = {253--271},
+        editor    = {Jeannette M. Wing and Jim Woodcock and Jim Davies},
+        booktitle = {Proceedings of the World Congress on Formal Methods in
+                     the Development of Computing Systems (FM'99)},
+        publisher = {Springer-Verlag},
+        series    = {Lecture Notes in Computer Science},
+        volume    = {1708},
+        year      = {1999},
+        address   = {Toulouse, France},
+        month     = {September},
+        isbn      = {3-540-66587-0}
+      }
+      \endverbatim */
   ///
   /// A recursive definition of the algorithm would look as follows,
   /// but the implementation is of course not recursive.
@@ -60,36 +60,36 @@ namespace spot
   /// positive DFS order or 0 if it is dead, SCC is and ACC are two
   /// stacks.)
   ///
-  /// \verbatim
-  /// check(<Sigma, Q, delta, q, F>, H, SCC, ACC)
-  ///   if q is not in H   // new state
-  ///       H[q] = H.size + 1
-  ///       SCC.push(<H[q], {}>)
-  ///       forall <a, s> : <q, _, a, s> in delta
-  ///           ACC.push(a)
-  ///           res = check(<Sigma, Q, delta, s, F>, H, SCC, ACC)
-  ///           if res
-  ///               return res
-  ///       <n, _> = SCC.top()
-  ///       if n = H[q]
-  ///           SCC.pop()
-  ///           mark_reachable_states_as_dead(<Sigma, Q, delta, q, F>, H$)
-  ///       return 0
-  ///   else
-  ///       if H[q] = 0 // dead state
-  ///           ACC.pop()
-  ///           return true
-  ///       else // state in stack: merge SCC
-  ///           all = {}
-  ///           do
-  ///               <n, a> = SCC.pop()
-  ///               all = all union a union { ACC.pop() }
-  ///           until n <= H[q]
-  ///           SCC.push(<n, all>)
-  ///           if all != F
-  ///               return 0
-  ///           return new emptiness_check_result(necessary data)
-  /// \endverbatim
+  /** \verbatim
+      check(<Sigma, Q, delta, q, F>, H, SCC, ACC)
+        if q is not in H   // new state
+            H[q] = H.size + 1
+            SCC.push(<H[q], {}>)
+            forall <a, s> : <q, _, a, s> in delta
+                ACC.push(a)
+                res = check(<Sigma, Q, delta, s, F>, H, SCC, ACC)
+                if res
+                    return res
+            <n, _> = SCC.top()
+            if n = H[q]
+                SCC.pop()
+                mark_reachable_states_as_dead(<Sigma, Q, delta, q, F>, H$)
+            return 0
+        else
+            if H[q] = 0 // dead state
+                ACC.pop()
+                return true
+            else // state in stack: merge SCC
+                all = {}
+                do
+                    <n, a> = SCC.pop()
+                    all = all union a union { ACC.pop() }
+                until n <= H[q]
+                SCC.push(<n, all>)
+                if all != F
+                    return 0
+                return new emptiness_check_result(necessary data)
+      \endverbatim */
   ///
   /// check() returns 0 iff the automaton's language is empty.  It
   /// returns an instance of emptiness_check_result.  If the automaton

@@ -33,20 +33,20 @@ namespace spot
   ///
   /// This algorithm implements a derecursived version the Minato-Morreale
   /// algorithm presented in the following paper.
-  /// \verbatim
-  /// @InProceedings{   minato.92.sasimi,
-  ///   author        = {Shin-ichi Minato},
-  ///   title         = {Fast Generation of Irredundant Sum-of-Products Forms
-  ///                   from Binary Decision Diagrams},
-  ///   booktitle     = {Proceedings of the third Synthesis and Simulation
-  ///                   and Meeting International Interchange workshop
-  ///                   (SASIMI'92)},
-  ///   pages         = {64--73},
-  ///   year          = {1992},
-  ///   address       = {Kobe, Japan},
-  ///   month         = {April}
-  /// }
-  /// \endverbatim
+  /** \verbatim
+      @InProceedings{   minato.92.sasimi,
+        author        = {Shin-ichi Minato},
+        title         = {Fast Generation of Irredundant Sum-of-Products Forms
+                        from Binary Decision Diagrams},
+        booktitle     = {Proceedings of the third Synthesis and Simulation
+                        and Meeting International Interchange workshop
+                        (SASIMI'92)},
+        pages         = {64--73},
+        year          = {1992},
+        address       = {Kobe, Japan},
+        month         = {April}
+      }
+      \endverbatim */
   class minato_isop
   {
   public:

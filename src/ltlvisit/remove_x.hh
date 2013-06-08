@@ -31,18 +31,18 @@ namespace spot
     /// This function may also be applied to stutter-sensitive formulas,
     /// but in that case the resulting formula is not equivalent.
     ///
-    /// \verbatim
-    /// @Article{         etessami.00.ipl,
-    ///   author        = {Kousha Etessami},
-    ///   title         = {A note on a question of {P}eled and {W}ilke regarding
-    ///                   stutter-invariant {LTL}},
-    ///   journal       = {Information Processing Letters},
-    ///   volume        = {75},
-    ///   number        = {6},
-    ///   year          = {2000},
-    ///   pages         = {261--263}
-    /// }
-    /// \endverbatim
+    /** \verbatim
+        @Article{         etessami.00.ipl,
+          author        = {Kousha Etessami},
+          title         = {A note on a question of {P}eled and {W}ilke regarding
+                          stutter-invariant {LTL}},
+          journal       = {Information Processing Letters},
+          volume        = {75},
+          number        = {6},
+          year          = {2000},
+          pages         = {261--263}
+        }
+        \endverbatim */
     const formula* remove_x(const formula* f);
 
     /// \brief Whether an LTL formula \a f is stutter-insensitive.
@@ -51,18 +51,18 @@ namespace spot
     /// <code>remove_x(f)</code> is equivalent to \a f.  This only
     /// works for LTL formulas, not PSL formulas.
     ///
-    /// \verbatim
-    /// @Article{         etessami.00.ipl,
-    ///   author        = {Kousha Etessami},
-    ///   title         = {A note on a question of {P}eled and {W}ilke regarding
-    ///                   stutter-invariant {LTL}},
-    ///   journal       = {Information Processing Letters},
-    ///   volume        = {75},
-    ///   number        = {6},
-    ///   year          = {2000},
-    ///   pages         = {261--263}
-    /// }
-    /// \endverbatim
+    /** \verbatim
+        @Article{         etessami.00.ipl,
+          author        = {Kousha Etessami},
+          title         = {A note on a question of {P}eled and {W}ilke regarding
+                          stutter-invariant {LTL}},
+          journal       = {Information Processing Letters},
+          volume        = {75},
+          number        = {6},
+          year          = {2000},
+          pages         = {261--263}
+        }
+        \endverbatim */
     bool is_stutter_insensitive(const formula* f);
   }
 }

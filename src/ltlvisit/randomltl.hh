@@ -117,24 +117,24 @@ namespace spot
       ///
       /// The default priorities are defined as follows:
       ///
-      /// \verbatim
-      /// ap      n
-      /// false   1
-      /// true    1
-      /// not     1
-      /// F       1
-      /// G       1
-      /// X       1
-      /// equiv   1
-      /// implies 1
-      /// xor     1
-      /// R       1
-      /// U       1
-      /// W       1
-      /// M       1
-      /// and     1
-      /// or      1
-      /// \endverbatim
+      /** \verbatim
+          ap      n
+          false   1
+          true    1
+          not     1
+          F       1
+          G       1
+          X       1
+          equiv   1
+          implies 1
+          xor     1
+          R       1
+          U       1
+          W       1
+          M       1
+          and     1
+          or      1
+          \endverbatim */
       ///
       /// Where \c n is the number of atomic propositions in the
       /// set passed to the constructor.
@@ -168,17 +168,17 @@ namespace spot
       ///
       /// The default priorities are defined as follows:
       ///
-      /// \verbatim
-      /// ap      n
-      /// false   1
-      /// true    1
-      /// not     1
-      /// equiv   1
-      /// implies 1
-      /// xor     1
-      /// and     1
-      /// or      1
-      /// \endverbatim
+      /** \verbatim
+          ap      n
+          false   1
+          true    1
+          not     1
+          equiv   1
+          implies 1
+          xor     1
+          and     1
+          or      1
+          \endverbatim */
       ///
       /// Where \c n is the number of atomic propositions in the
       /// set passed to the constructor.
@@ -207,19 +207,19 @@ namespace spot
       ///
       /// The default priorities are defined as follows:
       ///
-      /// \verbatim
-      /// eword    1
-      /// boolform 1
-      /// star     1
-      /// star_b   1
-      /// equal_b  1
-      /// goto_b   1
-      /// and      1
-      /// andNLM   1
-      /// or       1
-      /// concat   1
-      /// fusion   1
-      /// \endverbatim
+      /** \verbatim
+          eword    1
+          boolform 1
+          star     1
+          star_b   1
+          equal_b  1
+          goto_b   1
+          and      1
+          andNLM   1
+          or       1
+          concat   1
+          fusion   1
+          \endverbatim */
       ///
       /// Where "boolfrom" designates a Boolean formula generated
       /// by random_boolean.
@@ -252,27 +252,27 @@ namespace spot
       ///
       /// The default priorities are defined as follows:
       ///
-      /// \verbatim
-      /// ap      n
-      /// false   1
-      /// true    1
-      /// not     1
-      /// F       1
-      /// G       1
-      /// X       1
-      /// Closure 1
-      /// equiv   1
-      /// implies 1
-      /// xor     1
-      /// R       1
-      /// U       1
-      /// W       1
-      /// M       1
-      /// and     1
-      /// or      1
-      /// EConcat 1
-      /// UConcat 1
-      /// \endverbatim
+      /** \verbatim
+          ap      n
+          false   1
+          true    1
+          not     1
+          F       1
+          G       1
+          X       1
+          Closure 1
+          equiv   1
+          implies 1
+          xor     1
+          R       1
+          U       1
+          W       1
+          M       1
+          and     1
+          or      1
+          EConcat 1
+          UConcat 1
+          \endverbatim */
       ///
       /// Where \c n is the number of atomic propositions in the
       /// set passed to the constructor.
