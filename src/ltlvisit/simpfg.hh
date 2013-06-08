@@ -29,6 +29,7 @@ namespace spot
 {
   namespace ltl
   {
+    /// \ingroup ltl_visitor
     /// \brief Replace <code>true U f</code> and <code>false R g</code> by
     /// <code>F f</code> and <code>G g</code>.
     ///
@@ -39,7 +40,6 @@ namespace spot
     /// - false R a = G a
     /// - a W false = G a
     ///
-    /// \ingroup ltl_visitor
     class simplify_f_g_visitor : public clone_visitor
     {
       typedef clone_visitor super;
@@ -53,6 +53,7 @@ namespace spot
       virtual const formula* recurse(const formula* f);
     };
 
+    /// \ingroup ltl_rewriting
     /// \brief Replace <code>true U f</code> and <code>false R g</code> by
     /// <code>F f</code> and <code>G g</code>.
     ///
@@ -63,7 +64,6 @@ namespace spot
     /// - false R a = G a
     /// - a W false = G a
     ///
-    /// \ingroup ltl_rewriting
     const formula* simplify_f_g(const formula* f);
   }
 }

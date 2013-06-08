@@ -31,8 +31,8 @@
 namespace spot
 {
 
-  /// \brief Degeneralize a spot::tgba on the fly, producing a TBA.
   /// \ingroup tgba_on_the_fly_algorithms
+  /// \brief Degeneralize a spot::tgba on the fly, producing a TBA.
   ///
   /// This class acts as a proxy in front of a spot::tgba, that should
   /// be degeneralized on the fly.  The result is still a spot::tgba,
@@ -124,8 +124,8 @@ namespace spot
     tgba_tba_proxy& operator=(const tgba_tba_proxy&);
   };
 
-  /// \brief Degeneralize a spot::tgba on the fly, producing an SBA.
   /// \ingroup tgba_on_the_fly_algorithms
+  /// \brief Degeneralize a spot::tgba on the fly, producing an SBA.
   ///
   /// This class acts as a proxy in front of a spot::tgba, that should
   /// be degeneralized on the fly.

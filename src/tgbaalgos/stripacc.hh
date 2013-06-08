@@ -24,10 +24,10 @@
 
 namespace spot
 {
+  /// \ingroup tgba_misc
   /// \brief Duplicate automaton \a a, removing all acceptance sets.
   ///
   /// This is equivalent to marking all states/transitions as accepting.
-  /// \ingroup tgba_misc
   sba_explicit_number* strip_acceptance(const tgba* a);
 }
 

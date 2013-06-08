@@ -27,8 +27,8 @@ namespace spot
   struct tgba_run;
   class tgba;
 
-  /// \brief Replay a tgba_run on a tgba.
   /// \ingroup tgba_run
+  /// \brief Replay a tgba_run on a tgba.
   ///
   /// This is similar to print_tgba_run(), except that the run is
   /// actually replayed on the automaton while it is printed.  Doing

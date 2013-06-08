@@ -31,8 +31,8 @@ namespace spot
   /// \addtogroup tgba_dotty Decorating the dot output
   /// \ingroup tgba_io
 
-  /// \brief Choose state and link styles for spot::dotty_reachable.
   /// \ingroup tgba_dotty
+  /// \brief Choose state and link styles for spot::dotty_reachable.
   class dotty_decorator
   {
   public:

@@ -76,8 +76,8 @@ namespace spot
 #endif
     /// @}
 
-    /// \brief Check whether a formula is a pure eventuality.
     /// \ingroup ltl_misc
+    /// \brief Check whether a formula is a pure eventuality.
     ///
     /// Pure eventuality formulae are defined in
     /// \verbatim
@@ -105,8 +105,8 @@ namespace spot
     bool is_eventual(const formula* f);
 #endif
 
-    /// \brief Check whether a formula is purely universal.
     /// \ingroup ltl_misc
+    /// \brief Check whether a formula is purely universal.
     ///
     /// Purely universal formulae are defined in
     /// \verbatim

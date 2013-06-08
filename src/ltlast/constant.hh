@@ -29,8 +29,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief A constant (True or False)
     /// \ingroup ltl_ast
+    /// \brief A constant (True or False)
     class constant : public formula
     {
     public:

@@ -26,8 +26,8 @@
 namespace spot
 {
 
-  /// \brief A state for spot::ta_product.
   /// \ingroup ta_emptiness_check
+  /// \brief A state for spot::ta_product.
   ///
   /// This state is in fact a pair of state: the state from the TA
   /// automaton and that of Kripke structure.
@@ -132,9 +132,9 @@ namespace spot
 
   };
 
+  /// \ingroup ta_emptiness_check
   /// \brief A lazy product between a Testing automaton and a Kripke structure.
   /// (States are computed on the fly.)
-  /// \ingroup ta_emptiness_check
   class ta_product : public ta
   {
   public:

@@ -28,9 +28,9 @@ namespace spot
   {
     enum relabeling_style { Abc, Pnn };
 
+    /// \ingroup ltl_rewriting
     /// \brief Relabel the atomic proposition in a formula.
     ///
-    /// \ingroup ltl_rewriting
     const formula* relabel(const formula* f, relabeling_style style);
   }
 }

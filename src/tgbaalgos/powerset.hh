@@ -76,8 +76,8 @@ namespace spot
   };
 
 
-  /// \brief Build a deterministic automaton, ignoring acceptance conditions.
   /// \ingroup tgba_misc
+  /// \brief Build a deterministic automaton, ignoring acceptance conditions.
   ///
   /// This create a deterministic automaton that recognizes the
   /// same language as \a aut would if its acceptance conditions

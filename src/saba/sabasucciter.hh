@@ -23,8 +23,8 @@
 
 namespace spot
 {
-  /// \brief Iterate over a conjunction of saba_state.
   /// \ingroup saba_essentials
+  /// \brief Iterate over a conjunction of saba_state.
   ///
   /// This class provides the basic functionalities required to
   /// iterate over a conjunction of states of a saba.
@@ -87,8 +87,8 @@ namespace spot
   };
 
 
-  /// \brief Iterate over the successors of a saba_state.
   /// \ingroup saba_essentials
+  /// \brief Iterate over the successors of a saba_state.
   ///
   /// This class provides the basic functionalities required to
   /// iterate over the successors of a state of a saba. Since

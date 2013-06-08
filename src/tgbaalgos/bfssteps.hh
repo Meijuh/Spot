@@ -28,8 +28,8 @@
 
 namespace spot
 {
-  /// \brief Make a BFS in a spot::tgba to compute a tgba_run::steps.
   /// \ingroup tgba_misc
+  /// \brief Make a BFS in a spot::tgba to compute a tgba_run::steps.
   ///
   /// This class should be used to compute the shortest path
   /// between a state of a spot::tgba and the first transition or

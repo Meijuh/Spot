@@ -73,8 +73,8 @@ namespace spot
     // fwd declaration to hide technical details.
     class ltl_simplifier_cache;
 
-    /// \brief Rewrite or simplify \a f in various ways.
     /// \ingroup ltl_rewriting
+    /// \brief Rewrite or simplify \a f in various ways.
     class ltl_simplifier
     {
     public:

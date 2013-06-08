@@ -24,8 +24,8 @@
 
 namespace spot
 {
-  /// \brief Build a spot::tgba_bdd_concrete from an ELTL formula.
   /// \ingroup tgba_ltl
+  /// \brief Build a spot::tgba_bdd_concrete from an ELTL formula.
   ///
   /// This is based on the following paper.
   /// \verbatim

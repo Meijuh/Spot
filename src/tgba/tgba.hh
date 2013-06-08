@@ -41,8 +41,8 @@ namespace spot
   /// \addtogroup tgba_essentials Essential TGBA types
   /// \ingroup tgba
 
-  /// \brief A Transition-based Generalized Büchi Automaton.
   /// \ingroup tgba_essentials
+  /// \brief A Transition-based Generalized Büchi Automaton.
   ///
   /// The acronym TGBA (Transition-based Generalized Büchi Automaton)
   /// was coined by Dimitra Giannakopoulou and Flavio Lerda

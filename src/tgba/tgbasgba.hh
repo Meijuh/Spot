@@ -25,9 +25,9 @@
 namespace spot
 {
 
+  /// \ingroup tgba_on_the_fly_algorithms
   /// \brief Change the labeling-mode of spot::tgba on the fly, producing a
   /// state-based generalized Büchi automaton.
-  /// \ingroup tgba_on_the_fly_algorithms
   ///
   /// This class acts as a proxy in front of a spot::tgba, that should
   /// label on states on-the-fly.  The result is still a spot::tgba,

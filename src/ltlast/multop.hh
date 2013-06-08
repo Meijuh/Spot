@@ -34,8 +34,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief Multi-operand operators.
     /// \ingroup ltl_ast
+    /// \brief Multi-operand operators.
     class multop : public ref_formula
     {
     public:

@@ -30,9 +30,9 @@ namespace spot
 {
   namespace ltl
   {
+    /// \ingroup ltl_visitor
     /// \brief Clone and rewrite a formula to remove most of the
     /// abbreviated LTL and logical operators.
-    /// \ingroup ltl_visitor
     ///
     /// The rewriting performed on logical operator is
     /// the same as the one done by spot::ltl::unabbreviate_logic_visitor.

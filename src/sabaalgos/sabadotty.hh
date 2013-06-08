@@ -25,8 +25,8 @@ namespace spot
 {
   class saba;
 
-  /// \brief Print reachable states in dot format.
   /// \ingroup saba_io
+  /// \brief Print reachable states in dot format.
   std::ostream&
   saba_dotty_reachable(std::ostream& os,
                        const saba* g);

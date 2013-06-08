@@ -26,8 +26,8 @@
 namespace spot
 {
 
-  /// \brief Abstract class for saba states.
   /// \ingroup saba_essentials
+  /// \brief Abstract class for saba states.
   class saba_state
   {
   public:
@@ -78,8 +78,8 @@ namespace spot
     }
   };
 
-  /// \brief Strict Weak Ordering for \c saba_state*.
   /// \ingroup saba_essentials
+  /// \brief Strict Weak Ordering for \c saba_state*.
   ///
   /// This is meant to be used as a comparison functor for
   /// STL \c map whose key are of type \c saba_state*.
@@ -101,8 +101,8 @@ namespace spot
     }
   };
 
-  /// \brief An Equivalence Relation for \c saba_state*.
   /// \ingroup saba_essentials
+  /// \brief An Equivalence Relation for \c saba_state*.
   ///
   /// This is meant to be used as a comparison functor for
   /// Sgi \c hash_map whose key are of type \c saba_state*.
@@ -125,9 +125,9 @@ namespace spot
     }
   };
 
-  /// \brief Hash Function for \c saba_state*.
   /// \ingroup saba_essentials
   /// \ingroup hash_funcs
+  /// \brief Hash Function for \c saba_state*.
   ///
   /// This is meant to be used as a hash functor for
   /// Sgi's \c hash_map whose key are of type \c saba_state*.
@@ -155,9 +155,9 @@ namespace spot
 
   typedef boost::shared_ptr<const saba_state> shared_saba_state;
 
+  /// \ingroup saba_essentials
   /// \brief Strict Weak Ordering for \c shared_saba_state
   /// (shared_ptr<const saba_state*>).
-  /// \ingroup saba_essentials
   ///
   /// This is meant to be used as a comparison functor for
   /// STL \c map whose key are of type \c shared_saba_state.
@@ -182,9 +182,9 @@ namespace spot
     }
   };
 
+  /// \ingroup saba_essentials
   /// \brief An Equivalence Relation for \c shared_saba_state
   /// (shared_ptr<const saba_state*>).
-  /// \ingroup saba_essentials
   ///
   /// This is meant to be used as a comparison functor for
   /// Sgi \c hash_map whose key are of type \c shared_saba_state.
@@ -210,10 +210,10 @@ namespace spot
     }
   };
 
-  /// \brief Hash Function for \c shared_saba_state
-  ///  (shared_ptr<const saba_state*>).
   /// \ingroup saba_essentials
   /// \ingroup hash_funcs
+  /// \brief Hash Function for \c shared_saba_state
+  ///  (shared_ptr<const saba_state*>).
   ///
   /// This is meant to be used as a hash functor for
   /// Sgi's \c hash_map whose key are of type

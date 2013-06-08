@@ -60,8 +60,8 @@ namespace spot
 
   typedef std::vector<bdd_ordered> acc_list_t;
 
-  /// \brief Build a complemented automaton.
   /// \ingroup tgba_on_the_fly_algorithms
+  /// \brief Build a complemented automaton.
   ///
   /// The construction comes from:
   /// \verbatim

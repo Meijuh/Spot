@@ -30,8 +30,8 @@ namespace spot
   class bdd_dict;
   class tgba;
 
-  /// \brief Construct a tgba randomly.
   /// \ingroup tgba_misc
+  /// \brief Construct a tgba randomly.
   ///
   /// \param n The number of states wanted in the automata (>0).  All states
   ///          will be connected, and there will be no dead state.

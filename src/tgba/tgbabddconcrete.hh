@@ -29,8 +29,8 @@
 
 namespace spot
 {
-  /// \brief A concrete spot::tgba implemented using BDDs.
   /// \ingroup tgba_representation
+  /// \brief A concrete spot::tgba implemented using BDDs.
   class tgba_bdd_concrete: public tgba
   {
   public:

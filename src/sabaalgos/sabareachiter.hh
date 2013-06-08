@@ -26,8 +26,8 @@
 
 namespace spot
 {
-  /// \brief Iterate over all reachable states of a spot::saba.
   /// \ingroup saba_generic
+  /// \brief Iterate over all reachable states of a spot::saba.
   class saba_reachable_iterator
   {
   public:
@@ -112,9 +112,9 @@ namespace spot
     seen_map seen;		///< States already seen.
   };
 
+  /// \ingroup saba_generic
   /// \brief An implementation of spot::saba_reachable_iterator that browses
   /// states depth first.
-  /// \ingroup saba_generic
   class saba_reachable_iterator_depth_first : public saba_reachable_iterator
   {
   public:
@@ -127,9 +127,9 @@ namespace spot
     std::stack<const saba_state*> todo; ///< A stack of states yet to explore.
   };
 
+  /// \ingroup saba_generic
   /// \brief An implementation of spot::saba_reachable_iterator that browses
   /// states breadth first.
-  /// \ingroup saba_generic
   class saba_reachable_iterator_breadth_first : public saba_reachable_iterator
   {
   public:

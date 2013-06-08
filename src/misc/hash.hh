@@ -74,8 +74,8 @@
 namespace spot
 {
 
-  /// \brief A hash function for pointers.
   /// \ingroup hash_funcs
+  /// \brief A hash function for pointers.
   template <class T>
   struct ptr_hash :
     public std::unary_function<const T*, size_t>
@@ -87,8 +87,8 @@ namespace spot
     }
   };
 
-  /// \brief A hash function for strings.
   /// \ingroup hash_funcs
+  /// \brief A hash function for strings.
   /// @{
 #if defined(SPOT_HAVE_UNORDERED_MAP) || defined(SPOT_HAVE_TR1_UNORDERED_MAP)
   typedef Sgi::hash<std::string> string_hash;
@@ -107,8 +107,8 @@ namespace spot
   /// @}
 #endif
 
-  /// \brief A hash function that returns identity
   /// \ingroup hash_funcs
+  /// \brief A hash function that returns identity
   template<typename T>
   struct identity_hash:
     public std::unary_function<const T&, size_t>

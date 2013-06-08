@@ -44,8 +44,8 @@ namespace spot
   /// \addtogroup ta_essentials Essential TA types
   /// \ingroup ta
 
-  /// \brief A Testing Automaton.
   /// \ingroup ta_essentials
+  /// \brief A Testing Automaton.
   ///
   /// The Testing Automata (TA) were introduced by
   /// Henri Hansen, Wojciech Penczek and Antti Valmari
@@ -174,8 +174,8 @@ namespace spot
 
   };
 
-  /// \brief Iterate over the successors of a state.
   /// \ingroup ta_essentials
+  /// \brief Iterate over the successors of a state.
   ///
   /// This class provides the basic functionalities required to
   /// iterate over the successors of a state, as well as querying

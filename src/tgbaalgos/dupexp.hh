@@ -27,25 +27,25 @@
 
 namespace spot
 {
+  /// \ingroup tgba_misc
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in bread first order as they are processed.
-  /// \ingroup tgba_misc
   tgba_explicit_number* tgba_dupexp_bfs(const tgba* aut);
+  /// \ingroup tgba_misc
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in depth first order as they are processed.
-  /// \ingroup tgba_misc
   tgba_explicit_number* tgba_dupexp_dfs(const tgba* aut);
 
+  /// \ingroup tgba_misc
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in bread first order as they are processed.
-  /// \ingroup tgba_misc
   tgba_explicit_number*
   tgba_dupexp_bfs(const tgba* aut,
                   std::map<const state*, const state*,
                            state_ptr_less_than>& relation);
+  /// \ingroup tgba_misc
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in depth first order as they are processed.
-  /// \ingroup tgba_misc
   tgba_explicit_number*
   tgba_dupexp_dfs(const tgba* aut,
                   std::map<const state*, const state*,

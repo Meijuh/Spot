@@ -25,8 +25,8 @@
 
 namespace spot
 {
-  /// \brief Basic implementation of saba_state_conjunction.
   /// \ingroup saba_essentials
+  /// \brief Basic implementation of saba_state_conjunction.
   ///
   /// This class provides a basic implementation to
   /// iterate over a conjunction of states of a saba.

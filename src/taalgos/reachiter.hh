@@ -27,8 +27,8 @@
 
 namespace spot
 {
-  /// \brief Iterate over all reachable states of a spot::ta.
   /// \ingroup ta_generic
+  /// \brief Iterate over all reachable states of a spot::ta.
   class ta_reachable_iterator
   {
   public:
@@ -94,9 +94,9 @@ namespace spot
     seen_map seen; ///< States already seen.
   };
 
+  /// \ingroup ta_generic
   /// \brief An implementation of spot::ta_reachable_iterator that browses
   /// states depth first.
-  /// \ingroup ta_generic
   class ta_reachable_iterator_depth_first : public ta_reachable_iterator
   {
   public:
@@ -111,9 +111,9 @@ namespace spot
     std::stack<const state*> todo; ///< A stack of states yet to explore.
   };
 
+  /// \ingroup ta_generic
   /// \brief An implementation of spot::ta_reachable_iterator that browses
   /// states breadth first.
-  /// \ingroup ta_generic
   class ta_reachable_iterator_breadth_first : public ta_reachable_iterator
   {
   public:

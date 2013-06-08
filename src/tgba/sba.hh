@@ -23,8 +23,8 @@
 
 namespace spot
 {
-  /// \brief A State-based Generalized Büchi Automaton.
   /// \ingroup tgba_essentials
+  /// \brief A State-based Generalized Büchi Automaton.
   ///
   /// An SBA is a TGBA in which the outgoing transitions of
   /// a state are either all accepting (in which case the

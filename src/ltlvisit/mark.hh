@@ -30,8 +30,8 @@ namespace spot
     class mark_tools
     {
     public:
-      /// \brief Mark operators NegClosure and EConcat.
       /// \ingroup ltl_rewriting
+      /// \brief Mark operators NegClosure and EConcat.
       ///
       /// \param f The formula to rewrite.
       const formula* mark_concat_ops(const formula* f);

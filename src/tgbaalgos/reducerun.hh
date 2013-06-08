@@ -27,8 +27,8 @@ namespace spot
   class tgba;
   struct tgba_run;
 
-  /// \brief Reduce an accepting run.
   /// \ingroup tgba_run
+  /// \brief Reduce an accepting run.
   ///
   /// Return a run which is accepting for \a and that is no longer
   /// that \a org.

@@ -29,8 +29,8 @@
 
 namespace spot
 {
-  /// \brief Build a complemented automaton.
   /// \ingroup tgba_on_the_fly_algorithms
+  /// \brief Build a complemented automaton.
   ///
   /// It creates an automaton that recognizes the
   /// negated language of \a aut.

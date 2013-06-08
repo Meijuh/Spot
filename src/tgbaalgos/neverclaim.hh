@@ -28,8 +28,8 @@
 
 namespace spot
 {
-  /// \brief Print reachable states in Spin never claim format.
   /// \ingroup tgba_io
+  /// \brief Print reachable states in Spin never claim format.
   ///
   /// \param os The output stream to print on.
   /// \param g The (state-based degeneralized) automaton to output.

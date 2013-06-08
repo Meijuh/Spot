@@ -32,8 +32,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief A reference-counted LTL formula.
     /// \ingroup ltl_ast
+    /// \brief A reference-counted LTL formula.
     class ref_formula : public formula
     {
     protected:

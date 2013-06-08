@@ -34,8 +34,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief Unary operators.
     /// \ingroup ltl_ast
+    /// \brief Unary operators.
     class unop : public ref_formula
     {
     public:

@@ -29,8 +29,8 @@
 
 namespace spot
 {
-  /// \brief Print reachable states in LBTT's format.
   /// \ingroup tgba_io
+  /// \brief Print reachable states in LBTT's format.
   ///
   /// \param g The automata to print.
   /// \param os Where to print.
@@ -39,8 +39,8 @@ namespace spot
   std::ostream& lbtt_reachable(std::ostream& os, const tgba* g,
 			       bool sba = false);
 
-  /// \brief Read an automaton in LBTT's format
   /// \ingroup tgba_io
+  /// \brief Read an automaton in LBTT's format
   ///
   /// \param is The stream on which the automaton should be input.
   /// \param error A string in which to write any error message.

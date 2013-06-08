@@ -27,8 +27,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief Read LTL formulae from a file, one by one
     /// \ingroup ltl_io
+    /// \brief Read LTL formulae from a file, one by one
     class ltl_file
     {
     public:

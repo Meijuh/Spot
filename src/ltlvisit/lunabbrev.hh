@@ -29,9 +29,9 @@ namespace spot
 {
   namespace ltl
   {
+    /// \ingroup ltl_visitor
     /// \brief Clone and rewrite a formula to remove most of the
     /// abbreviated logical operators.
-    /// \ingroup ltl_visitor
     ///
     /// This will rewrite binary operators such as binop::Implies,
     /// binop::Equals, and binop::Xor, using only unop::Not, multop::Or,
@@ -54,9 +54,9 @@ namespace spot
       virtual const formula* recurse(const formula* f);
     };
 
+    /// \ingroup ltl_rewriting
     /// \brief Clone and rewrite a formula to remove most of the abbreviated
     /// logical operators.
-    /// \ingroup ltl_rewriting
     ///
     /// This will rewrite binary operators such as binop::Implies,
     /// binop::Equals, and binop::Xor, using only unop::Not, multop::Or,

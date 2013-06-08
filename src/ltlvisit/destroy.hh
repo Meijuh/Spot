@@ -29,13 +29,13 @@ namespace spot
   namespace ltl
   {
 #if __GNUC__
-    /// \brief Destroys a formula
     /// \ingroup ltl_essential
+    /// \brief Destroys a formula
     /// \deprecated Use f->destroy() instead.
     void destroy(const formula *f) __attribute__ ((deprecated));
 #else
-    /// \brief Destroys a formula
     /// \ingroup ltl_essential
+    /// \brief Destroys a formula
     /// \deprecated Use f->destroy() instead.
     void destroy(const formula *f);
 #endif

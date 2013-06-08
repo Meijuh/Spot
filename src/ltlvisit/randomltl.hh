@@ -31,8 +31,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief Base class for random formula generators
     /// \ingroup ltl_io
+    /// \brief Base class for random formula generators
     class random_formula
     {
     public:
@@ -98,8 +98,8 @@ namespace spot
     };
 
 
-    /// \brief Generate random LTL formulae.
     /// \ingroup ltl_io
+    /// \brief Generate random LTL formulae.
     ///
     /// This class recursively constructs LTL formulae of a given
     /// size.  The formulae will use the use atomic propositions from
@@ -151,8 +151,8 @@ namespace spot
       random_ltl(int size, const atomic_prop_set* ap);
     };
 
-    /// \brief Generate random Boolean formulae.
     /// \ingroup ltl_io
+    /// \brief Generate random Boolean formulae.
     ///
     /// This class recursively constructs Boolean formulae of a given size.
     /// The formulae will use the use atomic propositions from the
@@ -191,8 +191,8 @@ namespace spot
       random_boolean(const atomic_prop_set* ap);
     };
 
-    /// \brief Generate random SERE.
     /// \ingroup ltl_io
+    /// \brief Generate random SERE.
     ///
     /// This class recursively constructs SERE of a given size.
     /// The formulae will use the use atomic propositions from the
@@ -234,8 +234,8 @@ namespace spot
       random_boolean rb;
     };
 
-    /// \brief Generate random PSL formulae.
     /// \ingroup ltl_io
+    /// \brief Generate random PSL formulae.
     ///
     /// This class recursively constructs PSL formulae of a given size.
     /// The formulae will use the use atomic propositions from the

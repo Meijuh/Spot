@@ -29,8 +29,8 @@ namespace spot
 {
   namespace ltl
   {
-    /// \brief An environment that describes atomic propositions.
     /// \ingroup ltl_essential
+    /// \brief An environment that describes atomic propositions.
     class environment
     {
     public:

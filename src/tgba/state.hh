@@ -33,8 +33,8 @@
 namespace spot
 {
 
-  /// \brief Abstract class for states.
   /// \ingroup tgba_essentials
+  /// \brief Abstract class for states.
   class state
   {
   public:
@@ -98,8 +98,8 @@ namespace spot
     }
   };
 
-  /// \brief Strict Weak Ordering for \c state*.
   /// \ingroup tgba_essentials
+  /// \brief Strict Weak Ordering for \c state*.
   ///
   /// This is meant to be used as a comparison functor for
   /// STL \c map whose key are of type \c state*.
@@ -121,8 +121,8 @@ namespace spot
     }
   };
 
-  /// \brief An Equivalence Relation for \c state*.
   /// \ingroup tgba_essentials
+  /// \brief An Equivalence Relation for \c state*.
   ///
   /// This is meant to be used as a comparison functor for
   /// Sgi \c hash_map whose key are of type \c state*.
@@ -145,9 +145,9 @@ namespace spot
     }
   };
 
-  /// \brief Hash Function for \c state*.
   /// \ingroup tgba_essentials
   /// \ingroup hash_funcs
+  /// \brief Hash Function for \c state*.
   ///
   /// This is meant to be used as a hash functor for
   /// Sgi's \c hash_map whose key are of type \c state*.
@@ -177,9 +177,9 @@ namespace spot
 
   inline void shared_state_deleter(state* s) { s->destroy(); }
 
+  /// \ingroup tgba_essentials
   /// \brief Strict Weak Ordering for \c shared_state
   /// (shared_ptr<const state*>).
-  /// \ingroup tgba_essentials
   ///
   /// This is meant to be used as a comparison functor for
   /// STL \c map whose key are of type \c shared_state.
@@ -203,9 +203,9 @@ namespace spot
     }
   };
 
+  /// \ingroup tgba_essentials
   /// \brief An Equivalence Relation for \c shared_state
   /// (shared_ptr<const state*>).
-  /// \ingroup tgba_essentials
   ///
   /// This is meant to be used as a comparison functor for
   /// Sgi \c hash_map whose key are of type \c shared_state.
@@ -231,9 +231,9 @@ namespace spot
     }
   };
 
-  /// \brief Hash Function for \c shared_state (shared_ptr<const state*>).
   /// \ingroup tgba_essentials
   /// \ingroup hash_funcs
+  /// \brief Hash Function for \c shared_state (shared_ptr<const state*>).
   ///
   /// This is meant to be used as a hash functor for
   /// Sgi's \c hash_map whose key are of type

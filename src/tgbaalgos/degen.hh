@@ -24,6 +24,7 @@ namespace spot
   class sba;
   class tgba;
 
+  /// \ingroup tgba_misc
   /// \brief Degeneralize a spot::tgba into an equivalent sba with
   /// only one acceptance condition.
   ///
@@ -46,7 +47,6 @@ namespace spot
   /// \a a to be computed prior to its actual degeneralization.
   ///
   /// \see tgba_sba_proxy, tgba_tba_proxy
-  /// \ingroup tgba_misc
   sba* degeneralize(const tgba* a, bool use_z_lvl = true,
 		    bool use_cust_acc_orders = false,
                     bool use_lvl_cache = true);

@@ -30,8 +30,8 @@ namespace spot
   class tgba;
   class dotty_decorator;
 
-  /// \brief Print reachable states in dot format.
   /// \ingroup tgba_io
+  /// \brief Print reachable states in dot format.
   ///
   /// If \a assume_sba is set, this assumes that the automaton
   /// is an SBA and use double elipse to mark accepting states.

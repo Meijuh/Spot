@@ -26,6 +26,7 @@ namespace spot
 
   class kripke;
 
+  /// \ingroup tgba_io
   /// \brief Save the reachable part of Kripke structure in text format.
   ///
   /// The states will be named with the value returned by the
@@ -34,9 +35,9 @@ namespace spot
   /// function only for debugging.  Use
   /// kripke_save_reachable_renumbered() for large output.
   ///
-  /// \ingroup tgba_io
   std::ostream& kripke_save_reachable(std::ostream& os, const kripke* k);
 
+  /// \ingroup tgba_io
   /// \brief Save the reachable part of Kripke structure in text format.
   ///
   /// States will be renumbered with sequential number.  This is much
@@ -44,7 +45,6 @@ namespace spot
   /// state names.  The drawback is that any information carried by
   /// the state name is lost.
   ///
-  /// \ingroup tgba_io
   std::ostream& kripke_save_reachable_renumbered(std::ostream& os,
 						 const kripke* k);
 

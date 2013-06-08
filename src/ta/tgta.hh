@@ -24,8 +24,8 @@
 namespace spot
 {
 
-  /// \brief A Transition-based Generalized Testing Automaton (TGTA).
   /// \ingroup ta_essentials
+  /// \brief A Transition-based Generalized Testing Automaton (TGTA).
   ///
   ///  Transition-based Generalized Testing Automaton (TGTA) is a new kind of
   /// automaton that combines features from both TA and TGBA.

@@ -24,8 +24,8 @@
 
 namespace spot
 {
-  /// \brief Multiplies two spot::tgba_bdd_concrete automata.
   /// \ingroup tgba_algorithms
+  /// \brief Multiplies two spot::tgba_bdd_concrete automata.
   ///
   /// This function builds the resulting product as another
   /// spot::tgba_bdd_concrete automaton.

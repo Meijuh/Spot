@@ -36,8 +36,8 @@ namespace spot
   /// \addtogroup saba_essentials Essential SABA types
   /// \ingroup saba
 
-  /// \brief A State-based Alternating (Generalized) Büchi Automaton.
   /// \ingroup saba_essentials
+  /// \brief A State-based Alternating (Generalized) Büchi Automaton.
   ///
   /// Browsing such automaton can be achieved using two functions:
   /// \c get_init_state, and \c succ_iter.  The former returns

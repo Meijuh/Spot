@@ -28,8 +28,8 @@ namespace spot
 {
   class fair_kripke;
 
-  /// \brief Iterator code for a Fair Kripke structure.
   /// \ingroup kripke
+  /// \brief Iterator code for a Fair Kripke structure.
   ///
   /// This iterator can be used to simplify the writing
   /// of an iterator on a Fair Kripke structure (or lookalike).
@@ -62,8 +62,8 @@ namespace spot
     bdd acc_cond_;
   };
 
-  /// \brief Interface for a Fair Kripke structure.
   /// \ingroup kripke
+  /// \brief Interface for a Fair Kripke structure.
   ///
   /// A Kripke structure is a graph in which each node (=state) is
   /// labeled by a conjunction of atomic proposition, and a set of

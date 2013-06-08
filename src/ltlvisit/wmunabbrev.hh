@@ -26,6 +26,7 @@ namespace spot
   {
     class formula;
 
+    /// \ingroup ltl_rewriting
     /// \brief Rewrite a formula to remove the W and M operators.
     ///
     /// This is necessary if you want to use the formula with a tool
@@ -34,7 +35,6 @@ namespace spot
     /// <code>a W b</code> is replaced by <code>b R (b | a)</code>,
     /// and <code>a M b</code> is replaced by <code>b U (b & a)</code>.
     ///
-    /// \ingroup ltl_rewriting
     const formula* unabbreviate_wm(const formula* f);
   }
 }

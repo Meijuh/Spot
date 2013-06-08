@@ -26,8 +26,8 @@
 
 namespace spot
 {
-  /// \brief Build a spot::ta_explicit* (TA) from an LTL formula.
   /// \ingroup tgba_ta
+  /// \brief Build a spot::ta_explicit* (TA) from an LTL formula.
   ///
   /// This is based on the following paper.
   /// \verbatim
@@ -85,10 +85,10 @@ namespace spot
       bool single_pass_emptiness_check = false,
       bool artificial_livelock_state_mode = false);
 
-  /// \brief Build a spot::tgta_explicit* (TGTA) from an LTL formula.
   /// \ingroup tgba_ta
-  /// \param tgba_to_convert The TGBA automaton to convert into a TGTA automaton
+  /// \brief Build a spot::tgta_explicit* (TGTA) from an LTL formula.
   ///
+  /// \param tgba_to_convert The TGBA automaton to convert into a TGTA automaton
   /// \param atomic_propositions_set The set of atomic propositions used in the
   /// input TGBA \a tgba_to_convert
   ///

@@ -33,8 +33,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief A declarative environment.
     /// \ingroup ltl_environment
+    /// \brief A declarative environment.
     ///
     /// This environment recognizes all atomic propositions
     /// that have been previously declared.  It will reject other.

@@ -63,6 +63,18 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
     grep Copyright $file >/dev/null ||
       diag "missing copyright"
 
+    # A doxygen comments such as
+    #
+    # | \brief foo
+    # | \ingroup bar
+    # |
+    # | baz
+    #
+    # will be output as "foobaz."  But if the first two lines
+    # are reversed, it's output correctly.
+    perl -ne '/(.*\\brief.*\n.*\\ingroup.*)/ && print("$1\n") && exit(1)' \
+      -0777 $file || diag "always put 'ingroup' before 'brief'"
+
     # Strip comments and strings.
     sed 's,[	 ]*//.*,,;s,"[^"]*","",g' < $file > $tmp
 

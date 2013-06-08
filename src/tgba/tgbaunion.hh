@@ -23,8 +23,8 @@
 
 namespace spot
 {
-  /// \brief A state for spot::tgba_union.
   /// \ingroup tgba_on_the_fly_algorithms
+  /// \brief A state for spot::tgba_union.
   ///
   /// This state is in fact a pair.
   /// If the first member equals 0 and the second is different from 0,

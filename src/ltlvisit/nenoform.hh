@@ -29,8 +29,8 @@ namespace spot
 {
   namespace ltl
   {
-    /// \brief Build the negative normal form of \a f.
     /// \ingroup ltl_rewriting
+    /// \brief Build the negative normal form of \a f.
     ///
     /// All negations of the formula are pushed in front of the
     /// atomic propositions.

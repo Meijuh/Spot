@@ -30,8 +30,8 @@
 namespace spot
 {
 
-  /// \brief Manage list of free integers.
   /// \ingroup misc_tools
+  /// \brief Manage list of free integers.
   class free_list
   {
   public:

@@ -37,8 +37,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief Binary operator.
     /// \ingroup ltl_ast
+    /// \brief Binary operator.
     class binop : public ref_formula
     {
     public:

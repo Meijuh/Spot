@@ -23,8 +23,8 @@
 
 namespace spot
 {
-  /// \brief Complement a weak deterministic Büchi automaton
   /// \ingroup tgba_on_the_fly_algorithms
+  /// \brief Complement a weak deterministic Büchi automaton
   /// \param aut a weak deterministic Büchi automaton to complement
   /// \return a new automaton that recognizes the complement language
   tgba* wdba_complement(const tgba* aut);

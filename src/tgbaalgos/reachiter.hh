@@ -29,8 +29,8 @@
 
 namespace spot
 {
-  /// \brief Iterate over all reachable states of a spot::tgba.
   /// \ingroup tgba_generic
+  /// \brief Iterate over all reachable states of a spot::tgba.
   class tgba_reachable_iterator
   {
   public:
@@ -95,9 +95,9 @@ namespace spot
     seen_map seen;		///< States already seen.
   };
 
+  /// \ingroup tgba_generic
   /// \brief An implementation of spot::tgba_reachable_iterator that browses
   /// states depth first.
-  /// \ingroup tgba_generic
   class tgba_reachable_iterator_depth_first : public tgba_reachable_iterator
   {
   public:
@@ -110,9 +110,9 @@ namespace spot
     std::stack<const state*> todo; ///< A stack of states yet to explore.
   };
 
+  /// \ingroup tgba_generic
   /// \brief An implementation of spot::tgba_reachable_iterator that browses
   /// states breadth first.
-  /// \ingroup tgba_generic
   class tgba_reachable_iterator_breadth_first : public tgba_reachable_iterator
   {
   public:

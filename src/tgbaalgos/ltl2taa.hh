@@ -24,8 +24,8 @@
 
 namespace spot
 {
-  /// \brief Build a spot::taa* from an LTL formula.
   /// \ingroup tgba_ltl
+  /// \brief Build a spot::taa* from an LTL formula.
   ///
   /// This is based on the following.
   /// \verbatim

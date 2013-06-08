@@ -27,8 +27,8 @@
 
 namespace spot
 {
-  /// \brief Comparison functor for BDDs.
   /// \ingroup misc_tools
+  /// \brief Comparison functor for BDDs.
   struct bdd_less_than :
     public std::binary_function<const bdd&, const bdd&, bool>
   {
@@ -39,8 +39,8 @@ namespace spot
     }
   };
 
-  /// \brief Hash functor for BDDs.
   /// \ingroup misc_tools
+  /// \brief Hash functor for BDDs.
   struct bdd_hash :
     public std::unary_function<const bdd&, size_t>
   {

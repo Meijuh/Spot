@@ -28,8 +28,8 @@
 namespace spot
 {
 
-  /// \brief A state for spot::tgba_product.
   /// \ingroup tgba_on_the_fly_algorithms
+  /// \brief A state for spot::tgba_product.
   ///
   /// This state is in fact a pair of state: the state from the left
   /// automaton and that of the right.

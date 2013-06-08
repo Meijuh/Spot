@@ -29,9 +29,9 @@ namespace spot
 {
   namespace ltl
   {
+    /// \ingroup ltl_visitor
     /// \brief Apply an algorithm on each node of an AST,
     /// during a postfix traversal.
-    /// \ingroup ltl_visitor
     ///
     /// Override one or more of the postifix_visitor::doit methods
     /// with the algorithm to apply.

@@ -22,8 +22,8 @@
 
 namespace spot
 {
-  /// \brief Return Spot's version.
   /// \ingroup misc_tools
+  /// \brief Return Spot's version.
   const char* version();
 }
 

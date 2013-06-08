@@ -23,8 +23,8 @@
 namespace spot
 {
 
-  /// \brief Wrap a tgba to offer information about upcoming conditions.
   /// \ingroup tgba
+  /// \brief Wrap a tgba to offer information about upcoming conditions.
   ///
   /// This class is a spot::tgba wrapper that simply add a new method,
   /// future_conditions(), to any spot::tgba.

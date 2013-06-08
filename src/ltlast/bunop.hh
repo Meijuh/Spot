@@ -31,8 +31,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief Bounded unary operator.
     /// \ingroup ltl_ast
+    /// \brief Bounded unary operator.
     class bunop : public ref_formula
     {
     public:

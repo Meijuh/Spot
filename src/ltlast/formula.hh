@@ -62,9 +62,9 @@ namespace spot
     /// \ingroup ltl_algorithm
 
 
-    /// \brief An LTL formula.
     /// \ingroup ltl_essential
     /// \ingroup ltl_ast
+    /// \brief An LTL formula.
     ///
     /// The only way you can work with a formula is to
     /// build a spot::ltl::visitor or spot::ltl::const_visitor.
@@ -353,8 +353,8 @@ namespace spot
       opkind kind_;
     };
 
-    /// \brief Strict Weak Ordering for <code>const formula*</code>.
     /// \ingroup ltl_essentials
+    /// \brief Strict Weak Ordering for <code>const formula*</code>.
     ///
     /// This is meant to be used as a comparison functor for
     /// STL \c map whose key are of type <code>const formula*</code>.
@@ -394,9 +394,9 @@ namespace spot
       }
     };
 
-    /// \brief Hash Function for <code>const formula*</code>.
     /// \ingroup ltl_essentials
     /// \ingroup hash_funcs
+    /// \brief Hash Function for <code>const formula*</code>.
     ///
     /// This is meant to be used as a hash functor for
     /// Sgi's \c hash_map whose key are of type <code>const formula*</code>.

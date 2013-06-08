@@ -28,8 +28,8 @@ namespace spot
 {
   namespace ltl
   {
-    /// \brief Compute the length of a formula.
     /// \ingroup ltl_misc
+    /// \brief Compute the length of a formula.
     ///
     /// The length of a formula is the number of atomic propositions,
     /// constants, and operators (logical and temporal) occurring in
@@ -42,8 +42,8 @@ namespace spot
     /// to have length one.
     int length(const formula* f);
 
-    /// \brief Compute the length of a formula, squashing Boolean formulae
     /// \ingroup ltl_misc
+    /// \brief Compute the length of a formula, squashing Boolean formulae
     ///
     /// This is similar to spot::ltl::length(), except all Boolean
     /// formulae are assumed to have length one.

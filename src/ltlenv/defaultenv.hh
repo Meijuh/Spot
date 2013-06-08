@@ -30,8 +30,8 @@ namespace spot
   namespace ltl
   {
 
-    /// \brief A laxist environment.
     /// \ingroup ltl_environment
+    /// \brief A laxist environment.
     ///
     /// This environment recognizes all atomic propositions.
     ///

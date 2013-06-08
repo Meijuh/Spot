@@ -25,8 +25,8 @@
 
 namespace spot
 {
-  /// \brief Complement a TGBA and produce a SABA.
   /// \ingroup saba
+  /// \brief Complement a TGBA and produce a SABA.
   ///
   /// The original TGBA is transformed into a States-based
   /// Büchi Automaton.

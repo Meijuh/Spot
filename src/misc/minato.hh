@@ -27,9 +27,9 @@
 
 namespace spot
 {
+  /// \ingroup misc_tools
   /// \brief Generate an irredundant sum-of-products (ISOP) form of a
   /// BDD function.
-  /// \ingroup misc_tools
   ///
   /// This algorithm implements a derecursived version the Minato-Morreale
   /// algorithm presented in the following paper.

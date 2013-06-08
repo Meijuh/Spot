@@ -26,8 +26,8 @@
 
 namespace spot
 {
-  /// \brief Iterate over the successors of a state.
   /// \ingroup tgba_essentials
+  /// \brief Iterate over the successors of a state.
   ///
   /// This class provides the basic functionalities required to
   /// iterate over the successors of a state, as well as querying

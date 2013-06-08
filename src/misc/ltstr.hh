@@ -26,8 +26,8 @@
 namespace spot
 {
 
-  /// \brief Strict Weak Ordering for \c char*.
   /// \ingroup misc_tools
+  /// \brief Strict Weak Ordering for \c char*.
   ///
   /// This is meant to be used as a comparison functor for
   /// STL \c map whose key are of type <code>const char*</code>.

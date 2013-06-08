@@ -23,8 +23,8 @@
 namespace spot
 {
 
-  /// \brief Iterator code for Kripke structure
   /// \ingroup kripke
+  /// \brief Iterator code for Kripke structure
   ///
   /// This iterator can be used to simplify the writing
   /// of an iterator on a Kripke structure (or lookalike).
@@ -55,8 +55,8 @@ namespace spot
     bdd cond_;
   };
 
-  /// \brief Interface for a Kripke structure
   /// \ingroup kripke
+  /// \brief Interface for a Kripke structure
   ///
   /// A Kripke structure is a graph in which each node (=state) is
   /// labeled by a conjunction of atomic proposition.

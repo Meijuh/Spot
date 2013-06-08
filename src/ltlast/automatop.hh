@@ -32,8 +32,8 @@ namespace spot
 {
   namespace ltl
   {
-    /// \brief Automaton operators.
     /// \ingroup eltl_ast
+    /// \brief Automaton operators.
     ///
     class automatop : public ref_formula
     {

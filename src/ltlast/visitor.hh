@@ -30,8 +30,8 @@ namespace spot
 {
   namespace ltl
   {
-    /// \brief Formula visitor
     /// \ingroup ltl_essential
+    /// \brief Formula visitor
     ///
     /// Implementing visitors is the prefered way
     /// to traverse a formula, since it does not

@@ -26,8 +26,9 @@
 
 namespace spot
 {
-  /// \brief Manage a map of options.
   /// \ingroup misc_tools
+  /// \brief Manage a map of options.
+  ///
   /// Each option is defined by a string and is associated to an integer value.
   class option_map
   {

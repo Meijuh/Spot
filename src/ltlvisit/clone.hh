@@ -30,8 +30,8 @@ namespace spot
 {
   namespace ltl
   {
-    /// \brief Clone a formula.
     /// \ingroup ltl_visitor
+    /// \brief Clone a formula.
     ///
     /// This visitor is public, because it's convenient
     /// to derive from it and override part of its methods.
@@ -60,13 +60,13 @@ namespace spot
     };
 
 #if __GNUC__
-    /// \brief Clone a formula.
     /// \ingroup ltl_essential
+    /// \brief Clone a formula.
     /// \deprecated Use f->clone() instead.
     const formula* clone(const formula* f) __attribute__ ((deprecated));
 #else
-    /// \brief Clone a formula.
     /// \ingroup ltl_essential
+    /// \brief Clone a formula.
     /// \deprecated Use f->clone() instead.
     const formula* clone(const formula* f);
 #endif

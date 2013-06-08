@@ -24,9 +24,9 @@
 namespace spot
 {
 
+  /// \ingroup tgba
   /// \brief Wrap a tgba to offer information about strongly connected
   /// components.
-  /// \ingroup tgba
   ///
   /// This class is a spot::tgba wrapper that simply add a new method
   /// scc_of_state() to retrieve the number of a SCC a state belongs to.
