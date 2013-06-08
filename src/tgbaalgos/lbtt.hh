@@ -44,6 +44,8 @@ namespace spot
   ///
   /// \param is The stream on which the automaton should be input.
   /// \param error A string in which to write any error message.
+  /// \param dict The dictionary that should register the BDD variables
+  /// used by the automaton built.
   /// \param env The environment of atomic proposition into which parsing
   ///        should take place.
   /// \param envacc The environment of acceptance conditions into which parsing

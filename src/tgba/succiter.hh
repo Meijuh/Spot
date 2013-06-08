@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -68,10 +68,9 @@ namespace spot
     /// or \c next() and before any enquiry about the current state.
     ///
     /// The usual way to do this is with a \c for loop.
-    /// \code
-    ///    for (s->first(); !s->done(); s->next())
-    ///      ...
-    /// \endcode
+    ///
+    ///     for (s->first(); !s->done(); s->next())
+    ///       ...
     virtual bool done() const = 0;
 
     //@}

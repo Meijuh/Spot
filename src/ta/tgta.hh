@@ -1,4 +1,4 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -27,20 +27,22 @@ namespace spot
   /// \ingroup ta_essentials
   /// \brief A Transition-based Generalized Testing Automaton (TGTA).
   ///
-  ///  Transition-based Generalized Testing Automaton (TGTA) is a new kind of
-  /// automaton that combines features from both TA and TGBA.
-  /// From TA, we take the idea of labeling transitions with changesets,
-  /// however we remove the use of livelock-acceptance (because it may require
-  /// a two-pass emptiness check), and the implicit stuttering.  From TGBA, we
-  /// inherit the use of transition-based generalized acceptance conditions.
-  ///  The resulting Chimera, which we call \emph{Transition-based
-  ///  Generalized Testing Automaton} (TGTA), accepts only
-  ///  stuttering-insensitive languages like TA, and inherits advantages from
-  ///  both TA and TGBA: it has a simple one-pass emptiness-check procedure
-  /// (the same as algorithm the one for TGBA), and can benefit from reductions
-  ///  based on the stuttering of the properties pretty much like a TA.
-  ///  Livelock acceptance states, which are no longer supported are emulated
-  ///using states with a Büchi accepting self-loop labeled by empty changeset.
+  /// Transition-based Generalized Testing Automaton (TGTA) is a new
+  /// kind of automaton that combines features from both TA and TGBA.
+  /// From TA, we take the idea of labeling transitions with
+  /// changesets, however we remove the use of livelock-acceptance
+  /// (because it may require a two-pass emptiness check), and the
+  /// implicit stuttering.  From TGBA, we inherit the use of
+  /// transition-based generalized acceptance conditions.  The
+  /// resulting Chimera, which we call "Transition-based Generalized
+  /// Testing Automaton" (TGTA), accepts only stuttering-insensitive
+  /// languages like TA, and inherits advantages from both TA and
+  /// TGBA: it has a simple one-pass emptiness-check procedure (the
+  /// same as algorithm the one for TGBA), and can benefit from
+  /// reductions based on the stuttering of the properties pretty much
+  /// like a TA.  Livelock acceptance states, which are no longer
+  /// supported are emulated using states with a Büchi accepting
+  /// self-loop labeled by empty changeset.
   ///
   /// Browsing such automaton can be achieved using two functions:
   /// \c get_initial_state and \c

@@ -63,11 +63,12 @@ namespace spot
   /// cycle.
   ///
   /// The class constructor takes an scc_map that should already have
-  /// been built for its automaton.  Calling run(n) will enumerate all
-  /// elementary cycles in SCC #n.  Each time an SCC is found, the
-  /// method cycle_found(s) is called with the initial state s of the
-  /// cycle: the cycle is constituted from all the states that are on
-  /// the dfs_ stack after s (including s).
+  /// been built for its automaton.  Calling <code>run(n)</code> will
+  /// enumerate all elementary cycles in SCC <code>n</code>.  Each
+  /// time an SCC is found, the method cycle_found(s) is called with
+  /// the initial state s of the cycle: the cycle is constituted from
+  /// all the states that are on the \c dfs_ stack after \c s
+  /// (including \c s).
   ///
   /// You should inherit from this class and redefine the
   /// cycle_found() method to perform any work you would like to do on

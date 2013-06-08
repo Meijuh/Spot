@@ -127,6 +127,8 @@ namespace spot
   /// \param aut_f the automaton to minimize
   /// \param f the LTL formula represented by the automaton \a aut_f
   /// \param aut_neg_f an automaton representing the negation of \a aut_f
+  /// \param reject_bigger Whether the minimal WDBA should be discarded if
+  /// it has more states than the input.
   /// \return a new tgba if the automaton could be minimized, \a aut_f if
   /// the automaton cannot be minimized, 0 if we do not know if the
   /// minimization is correct because neither \a f nor \a aut_neg_f

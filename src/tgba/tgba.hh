@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -139,11 +139,11 @@ namespace spot
 
     /// \brief Get the dictionary associated to the automaton.
     ///
-    /// State are represented as BDDs.  The dictionary allows
-    /// to map BDD variables back to formulae, and vice versa.
-    /// This is useful when dealing with several automata (which
-    /// may use the same BDD variable for different formula),
-    /// or simply when printing.
+    /// Atomic propositions and acceptance conditions are represented
+    /// as BDDs.  The dictionary allows to map BDD variables back to
+    /// formulae, and vice versa.  This is useful when dealing with
+    /// several automata (which may use the same BDD variable for
+    /// different formula), or simply when printing.
     virtual bdd_dict* get_dict() const = 0;
 
     /// \brief Format the state as a string for printing.
