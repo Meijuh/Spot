@@ -221,7 +221,7 @@ two formulas are equivalent.  It would print nothing and set the exit
 status to 1, were the two formulas not equivalent.
 
 
-If the formula =F(a & X(!a & Gb))= stutter-invariant?
+Is the formula =F(a & X(!a & Gb))= stutter-invariant?
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltlfilt -f 'F(a & X(!a & Gb))' --stutter-invariant
@@ -250,8 +250,8 @@ ltlfilt -f 'F(a & X(!a & Gb))' --remove-x | ltlfilt --equivalent-to 'F(a & X(!a 
 
 It is therefore equivalent, but that is not a surprise since the
 =--stutter-invariant= filter is actually implemented using exactly
-[[http://homepages.inf.ed.ac.uk/kousha/note_on_stut_tl_lpi.ps][this procedure]] (calling the =remove_x()= function, and checking the
-equivalence of the resulting formula with the original one).
+[[http://homepages.inf.ed.ac.uk/kousha/note_on_stut_tl_lpi.ps][this procedure]] (calling the =remove_x()= function, and building automata
+to check the equivalence of the resulting formula with the original one).
 
 
 #  LocalWords:  ltlfilt num toc LTL PSL syntaxes LBT's SRC GFp scheck
