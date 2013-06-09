@@ -1,4 +1,4 @@
-New in spot 1.1.1a (not released)
+New in spot 1.1.2 (2013-06-09)
 
   * Bug fixes:
     - Uninitialized variables in ltlcross (affect the count of terminal
