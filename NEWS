@@ -1,6 +1,10 @@
 New in spot 1.1.1a (not released)
 
-  Nothing yet.
+  * Bug fixes:
+    - Uninitialized variables in ltlcross (affect the count of terminal
+      weak, and strong SCCs).
+    - Workaround an old GCC bug to allow compilation with g++ <= 4.5
+    - Fix several Doxygen comments so that they display correctly.
 
 New in spot 1.1.1 (2013-05-13):
 
