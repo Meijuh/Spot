@@ -351,20 +351,31 @@ namespace spot
 
 	//std::cerr << "SCC #" << n << "; used = " << all << std::endl;
 
-	// Compute a set of useless acceptance conditions.
+	// Compute a set of useless acceptance sets.
 	// If the acceptance combinations occurring in
 	// the automata are  { a, ab, abc, bd }, then
 	// ALL contains (a&!b&!c&!d)|(a&b&!c&!d)|(a&b&c&!d)|(!a&b&!c&d)
 	// and we want to find that 'a' and 'b' are useless because
 	// they always occur with 'c'.
 	// The way we check if 'a' is useless is to look whether ALL
-	// implies (x -> a) for some other acceptance condition x.
-	bdd allconds = bdd_support(negall);
-	bdd allcondscopy = allconds;
+	// implies (x -> a) for some other acceptance set x.
+	//
+	// The two while() loops in the code perform the equivalent of
+	//    for all a in allconds_a:
+	//       for all x in allconds_x:
+	//          check whether x -> a
+	//          ...
+	//
+	// Initially allconds_a = allconds_x contains all acceptance
+	// sets.  However when an acceptance set 'a' is determined to
+	// be useless, it can be removed from allconds_x from future
+	// iterations.
+	bdd allconds_a = bdd_support(negall);
+	bdd allconds_x = allconds_a;
 	bdd useless = bddtrue;
-	while (allconds != bddtrue)
+	while (allconds_a != bddtrue)
 	  {
-	    // Speed-up the computation of implied acceptance by
+	    // Speed-up the computation of implied acceptance sets by
 	    // removing those that are always present.  We detect
 	    // those that appear as conjunction of positive variables
 	    // at the start of ALL.
@@ -372,8 +383,8 @@ namespace spot
 	    if (prefix != bddtrue)
 	      {
 		assert(prefix == bdd_support(prefix));
-		allcondscopy = bdd_exist(allcondscopy, prefix);
-		if (allcondscopy != bddtrue)
+		allconds_a = bdd_exist(allconds_a, prefix);
+		if (allconds_a != bddtrue)
 		  {
 		    useless &= prefix;
 		  }
@@ -383,33 +394,33 @@ namespace spot
 		    useless &= bdd_high(prefix);
 		    break;
 		  }
-		allconds = bdd_exist(allconds, prefix);
+		allconds_x = bdd_exist(allconds_x, prefix);
 	      }
 
-	    // Pick a non-useless acceptance condition a.
-	    bdd a = bdd_ithvar(bdd_var(allconds));
-	    // For all acceptance condition x that is not already useless...
-	    bdd others = allcondscopy;
+	    // Pick an acceptance set 'a'.
+	    bdd a = bdd_ithvar(bdd_var(allconds_a));
+	    // For all acceptance sets 'x' that are not already
+	    // useless...
+	    bdd others = allconds_x;
 	    while (others != bddtrue)
 	      {
 		bdd x = bdd_ithvar(bdd_var(others));
-		// ... check whether it always implies a.
+		// ... check whether 'x' always implies 'a'.
 		if (x != a && bdd_implies(all, x >> a))
 		  {
-		    // If so, a is useless.
+		    // If so, 'a' is useless.
 		    all = bdd_exist(all, a);
 		    useless &= a;
-		    allcondscopy = bdd_exist(allcondscopy, a);
+		    allconds_x = bdd_exist(allconds_x, a);
 		    break;
 		  }
 		others = bdd_high(others);
 	      }
-	    allconds = bdd_high(allconds);
+	    allconds_a = bdd_high(allconds_a);
 	  }
 
 	// We never remove ALL acceptance marks.
 	assert(negall == bddtrue || useless != bdd_support(negall));
-
 
 	useless_table[n] = useless;
 	bdd useful = bdd_exist(negall, useless);
