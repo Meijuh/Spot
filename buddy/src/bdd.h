@@ -52,6 +52,38 @@
 #define __unlikely(expr) (expr)
 #endif
 
+#if defined _WIN32 || defined __CYGWIN__
+  #define BUDDY_HELPER_DLL_IMPORT __declspec(dllimport)
+  #define BUDDY_HELPER_DLL_EXPORT __declspec(dllexport)
+  #define BUDDY_HELPER_DLL_LOCAL
+#else
+  #if __GNUC__ >= 4
+    #define BUDDY_HELPER_DLL_IMPORT __attribute__ ((visibility ("default")))
+    #define BUDDY_HELPER_DLL_EXPORT __attribute__ ((visibility ("default")))
+    #define BUDDY_HELPER_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
+  #else
+    #define BUDDY_HELPER_DLL_IMPORT
+    #define BUDDY_HELPER_DLL_EXPORT
+    #define BUDDY_HELPER_DLL_LOCAL
+  #endif
+#endif
+
+// BUDDY_API is used for the public API symbols. It either DLL imports
+// or DLL exports (or does nothing for static build) BUDDY_LOCAL is
+// used for non-api symbols.
+#ifdef BUDDY_DLL
+  #ifdef BUDDY_DLL_EXPORTS
+    #define BUDDY_API BUDDY_HELPER_DLL_EXPORT
+  #else
+    #define BUDDY_API BUDDY_HELPER_DLL_IMPORT
+  #endif
+  #define BUDDY_LOCAL BUDDY_HELPER_DLL_LOCAL
+#else
+  #define BUDDY_API
+  #define BUDDY_LOCAL
+#endif
+#define BUDDY_API_VAR extern BUDDY_API
+
    /* Allow this headerfile to define C++ constructs if requested */
 #ifdef __cplusplus
 #define CPLUSPLUS
@@ -235,149 +267,149 @@ typedef int  (*bddsizehandler)(void);
 typedef void (*bddfilehandler)(FILE *, int);
 typedef void (*bddallsathandler)(char*, int);
 
-extern bddinthandler  bdd_error_hook(bddinthandler);
-extern bddgbchandler  bdd_gbc_hook(bddgbchandler);
-extern bdd2inthandler bdd_resize_hook(bdd2inthandler);
-extern bddinthandler  bdd_reorder_hook(bddinthandler);
-extern bddfilehandler bdd_file_hook(bddfilehandler);
+BUDDY_API bddinthandler  bdd_error_hook(bddinthandler);
+BUDDY_API bddgbchandler  bdd_gbc_hook(bddgbchandler);
+BUDDY_API bdd2inthandler bdd_resize_hook(bdd2inthandler);
+BUDDY_API bddinthandler  bdd_reorder_hook(bddinthandler);
+BUDDY_API bddfilehandler bdd_file_hook(bddfilehandler);
 
-extern int      bdd_init(int, int);
-extern void     bdd_done(void);
-extern int      bdd_setvarnum(int);
-extern int      bdd_extvarnum(int);
-extern int      bdd_isrunning(void) __purefn;
-extern int      bdd_setmaxnodenum(int);
-extern int      bdd_setmaxincrease(int);
-extern int      bdd_setminfreenodes(int);
-extern int      bdd_getnodenum(void) __purefn;
-extern int      bdd_getallocnum(void) __purefn;
-extern char*    bdd_versionstr(void) __purefn;
-extern int      bdd_versionnum(void) __constfn;
-extern void     bdd_stats(bddStat *);
-extern void     bdd_cachestats(bddCacheStat *);
-extern void     bdd_fprintstat(FILE *);
-extern void     bdd_printstat(void);
-extern void     bdd_default_gbchandler(int, bddGbcStat *);
-extern void     bdd_default_errhandler(int) __noreturnfn;
-extern const char *bdd_errstring(int) __constfn;
-extern void     bdd_clear_error(void);
+BUDDY_API int      bdd_init(int, int);
+BUDDY_API void     bdd_done(void);
+BUDDY_API int      bdd_setvarnum(int);
+BUDDY_API int      bdd_extvarnum(int);
+BUDDY_API int      bdd_isrunning(void) __purefn;
+BUDDY_API int      bdd_setmaxnodenum(int);
+BUDDY_API int      bdd_setmaxincrease(int);
+BUDDY_API int      bdd_setminfreenodes(int);
+BUDDY_API int      bdd_getnodenum(void) __purefn;
+BUDDY_API int      bdd_getallocnum(void) __purefn;
+BUDDY_API char*    bdd_versionstr(void) __purefn;
+BUDDY_API int      bdd_versionnum(void) __constfn;
+BUDDY_API void     bdd_stats(bddStat *);
+BUDDY_API void     bdd_cachestats(bddCacheStat *);
+BUDDY_API void     bdd_fprintstat(FILE *);
+BUDDY_API void     bdd_printstat(void);
+BUDDY_API void     bdd_default_gbchandler(int, bddGbcStat *);
+BUDDY_API void     bdd_default_errhandler(int) __noreturnfn;
+BUDDY_API const char *bdd_errstring(int) __constfn;
+BUDDY_API void     bdd_clear_error(void);
 #ifndef CPLUSPLUS
-extern BDD      bdd_true(void) __constfn;
-extern BDD      bdd_false(void) __constfn;
+BUDDY_API BDD      bdd_true(void) __constfn;
+BUDDY_API BDD      bdd_false(void) __constfn;
 #endif
-extern int      bdd_varnum(void) __purefn;
-extern BDD      bdd_ithvar(int) __purefn;
-extern BDD      bdd_nithvar(int) __purefn;
-extern int      bdd_var(BDD) __purefn;
-extern BDD      bdd_low(BDD) __purefn;
-extern BDD      bdd_high(BDD) __purefn;
-extern int      bdd_varlevel(int) __purefn;
-extern BDD      bdd_addref_nc(BDD);
-extern BDD      bdd_addref(BDD);
-extern BDD      bdd_delref_nc(BDD);
-extern BDD      bdd_delref(BDD);
-extern void     bdd_gbc(void);
-extern int      bdd_scanset(BDD, int**, int*);
-extern BDD      bdd_makeset(int *, int);
-extern bddPair* bdd_copypair(bddPair*);
-extern bddPair* bdd_mergepairs(bddPair*, bddPair*);
-extern bddPair* bdd_newpair(void);
-extern int      bdd_setpair(bddPair*, int, int);
-extern int      bdd_setpairs(bddPair*, int*, int*, int);
-extern int      bdd_setbddpair(bddPair*, int, BDD);
-extern int      bdd_setbddpairs(bddPair*, int*, BDD*, int);
-extern void     bdd_resetpair(bddPair *);
-extern void     bdd_freepair(bddPair*);
+BUDDY_API int      bdd_varnum(void) __purefn;
+BUDDY_API BDD      bdd_ithvar(int) __purefn;
+BUDDY_API BDD      bdd_nithvar(int) __purefn;
+BUDDY_API int      bdd_var(BDD) __purefn;
+BUDDY_API BDD      bdd_low(BDD) __purefn;
+BUDDY_API BDD      bdd_high(BDD) __purefn;
+BUDDY_API int      bdd_varlevel(int) __purefn;
+BUDDY_API BDD      bdd_addref_nc(BDD);
+BUDDY_API BDD      bdd_addref(BDD);
+BUDDY_API BDD      bdd_delref_nc(BDD);
+BUDDY_API BDD      bdd_delref(BDD);
+BUDDY_API void     bdd_gbc(void);
+BUDDY_API int      bdd_scanset(BDD, int**, int*);
+BUDDY_API BDD      bdd_makeset(int *, int);
+BUDDY_API bddPair* bdd_copypair(bddPair*);
+BUDDY_API bddPair* bdd_mergepairs(bddPair*, bddPair*);
+BUDDY_API bddPair* bdd_newpair(void);
+BUDDY_API int      bdd_setpair(bddPair*, int, int);
+BUDDY_API int      bdd_setpairs(bddPair*, int*, int*, int);
+BUDDY_API int      bdd_setbddpair(bddPair*, int, BDD);
+BUDDY_API int      bdd_setbddpairs(bddPair*, int*, BDD*, int);
+BUDDY_API void     bdd_resetpair(bddPair *);
+BUDDY_API void     bdd_freepair(bddPair*);
 
   /* In bddop.c */
 
-extern int      bdd_setcacheratio(int);
-extern BDD      bdd_buildcube(int, int, BDD *);
-extern BDD      bdd_ibuildcube(int, int, int *);
-extern BDD      bdd_not(BDD);
-extern BDD      bdd_apply(BDD, BDD, int);
-extern BDD      bdd_and(BDD, BDD);
-extern BDD      bdd_or(BDD, BDD);
-extern BDD      bdd_xor(BDD, BDD);
-extern BDD      bdd_imp(BDD, BDD);
-extern BDD      bdd_biimp(BDD, BDD);
-extern BDD      bdd_setxor(BDD, BDD);
-extern int      bdd_implies(BDD, BDD);
-extern BDD      bdd_ite(BDD, BDD, BDD);
-extern BDD      bdd_restrict(BDD, BDD);
-extern BDD      bdd_constrain(BDD, BDD);
-extern BDD      bdd_replace(BDD, bddPair*);
-extern BDD      bdd_compose(BDD, BDD, BDD);
-extern BDD      bdd_veccompose(BDD, bddPair*);
-extern BDD      bdd_simplify(BDD, BDD);
-extern BDD      bdd_exist(BDD, BDD);
-extern BDD      bdd_existcomp(BDD, BDD);
-extern BDD      bdd_forall(BDD, BDD);
-extern BDD      bdd_forallcomp(BDD, BDD);
-extern BDD      bdd_unique(BDD, BDD);
-extern BDD      bdd_uniquecomp(BDD, BDD);
-extern BDD      bdd_appex(BDD, BDD, int, BDD);
-extern BDD      bdd_appexcomp(BDD, BDD, int, BDD);
-extern BDD      bdd_appall(BDD, BDD, int, BDD);
-extern BDD      bdd_appallcomp(BDD, BDD, int, BDD);
-extern BDD      bdd_appuni(BDD, BDD, int, BDD);
-extern BDD      bdd_appunicomp(BDD, BDD, int, BDD);
-extern BDD      bdd_support(BDD);
-extern BDD      bdd_satone(BDD);
-extern BDD      bdd_satoneset(BDD, BDD, BDD);
-extern BDD      bdd_fullsatone(BDD);
-extern BDD	bdd_satprefix(BDD *);
-extern void     bdd_allsat(BDD r, bddallsathandler handler);
-extern double   bdd_satcount(BDD);
-extern double   bdd_satcountset(BDD, BDD);
-extern double   bdd_satcountln(BDD);
-extern double   bdd_satcountlnset(BDD, BDD);
-extern int      bdd_nodecount(BDD);
-extern int      bdd_anodecount(BDD *, int);
-extern int*     bdd_varprofile(BDD);
-extern double   bdd_pathcount(BDD);
+BUDDY_API int      bdd_setcacheratio(int);
+BUDDY_API BDD      bdd_buildcube(int, int, BDD *);
+BUDDY_API BDD      bdd_ibuildcube(int, int, int *);
+BUDDY_API BDD      bdd_not(BDD);
+BUDDY_API BDD      bdd_apply(BDD, BDD, int);
+BUDDY_API BDD      bdd_and(BDD, BDD);
+BUDDY_API BDD      bdd_or(BDD, BDD);
+BUDDY_API BDD      bdd_xor(BDD, BDD);
+BUDDY_API BDD      bdd_imp(BDD, BDD);
+BUDDY_API BDD      bdd_biimp(BDD, BDD);
+BUDDY_API BDD      bdd_setxor(BDD, BDD);
+BUDDY_API int      bdd_implies(BDD, BDD);
+BUDDY_API BDD      bdd_ite(BDD, BDD, BDD);
+BUDDY_API BDD      bdd_restrict(BDD, BDD);
+BUDDY_API BDD      bdd_constrain(BDD, BDD);
+BUDDY_API BDD      bdd_replace(BDD, bddPair*);
+BUDDY_API BDD      bdd_compose(BDD, BDD, BDD);
+BUDDY_API BDD      bdd_veccompose(BDD, bddPair*);
+BUDDY_API BDD      bdd_simplify(BDD, BDD);
+BUDDY_API BDD      bdd_exist(BDD, BDD);
+BUDDY_API BDD      bdd_existcomp(BDD, BDD);
+BUDDY_API BDD      bdd_forall(BDD, BDD);
+BUDDY_API BDD      bdd_forallcomp(BDD, BDD);
+BUDDY_API BDD      bdd_unique(BDD, BDD);
+BUDDY_API BDD      bdd_uniquecomp(BDD, BDD);
+BUDDY_API BDD      bdd_appex(BDD, BDD, int, BDD);
+BUDDY_API BDD      bdd_appexcomp(BDD, BDD, int, BDD);
+BUDDY_API BDD      bdd_appall(BDD, BDD, int, BDD);
+BUDDY_API BDD      bdd_appallcomp(BDD, BDD, int, BDD);
+BUDDY_API BDD      bdd_appuni(BDD, BDD, int, BDD);
+BUDDY_API BDD      bdd_appunicomp(BDD, BDD, int, BDD);
+BUDDY_API BDD      bdd_support(BDD);
+BUDDY_API BDD      bdd_satone(BDD);
+BUDDY_API BDD      bdd_satoneset(BDD, BDD, BDD);
+BUDDY_API BDD      bdd_fullsatone(BDD);
+BUDDY_API BDD	bdd_satprefix(BDD *);
+BUDDY_API void     bdd_allsat(BDD r, bddallsathandler handler);
+BUDDY_API double   bdd_satcount(BDD);
+BUDDY_API double   bdd_satcountset(BDD, BDD);
+BUDDY_API double   bdd_satcountln(BDD);
+BUDDY_API double   bdd_satcountlnset(BDD, BDD);
+BUDDY_API int      bdd_nodecount(BDD);
+BUDDY_API int      bdd_anodecount(BDD *, int);
+BUDDY_API int*     bdd_varprofile(BDD);
+BUDDY_API double   bdd_pathcount(BDD);
 
 
 /* In file "bddio.c" */
 
-extern void     bdd_printall(void);
-extern void     bdd_fprintall(FILE *);
-extern void     bdd_fprinttable(FILE *, BDD);
-extern void     bdd_printtable(BDD);
-extern void     bdd_fprintset(FILE *, BDD);
-extern void     bdd_printset(BDD);
-extern int      bdd_fnprintdot(char *, BDD);
-extern void     bdd_fprintdot(FILE *, BDD);
-extern void     bdd_printdot(BDD);
-extern int      bdd_fnsave(char *, BDD);
-extern int      bdd_save(FILE *, BDD);
-extern int      bdd_fnload(char *, BDD *);
-extern int      bdd_load(FILE *ifile, BDD *);
+BUDDY_API void     bdd_printall(void);
+BUDDY_API void     bdd_fprintall(FILE *);
+BUDDY_API void     bdd_fprinttable(FILE *, BDD);
+BUDDY_API void     bdd_printtable(BDD);
+BUDDY_API void     bdd_fprintset(FILE *, BDD);
+BUDDY_API void     bdd_printset(BDD);
+BUDDY_API int      bdd_fnprintdot(char *, BDD);
+BUDDY_API void     bdd_fprintdot(FILE *, BDD);
+BUDDY_API void     bdd_printdot(BDD);
+BUDDY_API int      bdd_fnsave(char *, BDD);
+BUDDY_API int      bdd_save(FILE *, BDD);
+BUDDY_API int      bdd_fnload(char *, BDD *);
+BUDDY_API int      bdd_load(FILE *ifile, BDD *);
 
 /* In file reorder.c */
 
-extern int      bdd_swapvar(int v1, int v2);
-extern void     bdd_default_reohandler(int);
-extern void     bdd_reorder(int);
-extern int      bdd_reorder_gain(void) __purefn;
-extern bddsizehandler bdd_reorder_probe(bddsizehandler);
-extern void     bdd_clrvarblocks(void);
-extern int      bdd_addvarblock(BDD, int);
-extern int      bdd_intaddvarblock(int, int, int);
-extern void     bdd_varblockall(void);
-extern bddfilehandler bdd_blockfile_hook(bddfilehandler);
-extern int      bdd_autoreorder(int);
-extern int      bdd_autoreorder_times(int, int);
-extern int      bdd_var2level(int);
-extern int      bdd_level2var(int);
-extern int      bdd_getreorder_times(void) __purefn;
-extern int      bdd_getreorder_method(void) __purefn;
-extern void     bdd_enable_reorder(void);
-extern void     bdd_disable_reorder(void);
-extern int      bdd_reorder_verbose(int);
-extern void     bdd_setvarorder(int *);
-extern void     bdd_printorder(void);
-extern void     bdd_fprintorder(FILE *);
+BUDDY_API int      bdd_swapvar(int v1, int v2);
+BUDDY_API void     bdd_default_reohandler(int);
+BUDDY_API void     bdd_reorder(int);
+BUDDY_API int      bdd_reorder_gain(void) __purefn;
+BUDDY_API bddsizehandler bdd_reorder_probe(bddsizehandler);
+BUDDY_API void     bdd_clrvarblocks(void);
+BUDDY_API int      bdd_addvarblock(BDD, int);
+BUDDY_API int      bdd_intaddvarblock(int, int, int);
+BUDDY_API void     bdd_varblockall(void);
+BUDDY_API bddfilehandler bdd_blockfile_hook(bddfilehandler);
+BUDDY_API int      bdd_autoreorder(int);
+BUDDY_API int      bdd_autoreorder_times(int, int);
+BUDDY_API int      bdd_var2level(int);
+BUDDY_API int      bdd_level2var(int);
+BUDDY_API int      bdd_getreorder_times(void) __purefn;
+BUDDY_API int      bdd_getreorder_method(void) __purefn;
+BUDDY_API void     bdd_enable_reorder(void);
+BUDDY_API void     bdd_disable_reorder(void);
+BUDDY_API int      bdd_reorder_verbose(int);
+BUDDY_API void     bdd_setvarorder(int *);
+BUDDY_API void     bdd_printorder(void);
+BUDDY_API void     bdd_fprintorder(FILE *);
 
 #ifdef CPLUSPLUS
 }
@@ -388,8 +420,8 @@ extern void     bdd_fprintorder(FILE *);
 
 #ifndef CPLUSPLUS
 
-extern const BDD bddfalse;
-extern const BDD bddtrue;
+BUDDY_API_VAR const BDD bddfalse;
+BUDDY_API_VAR const BDD bddtrue;
 
 #endif /* CPLUSPLUS */
 
@@ -449,9 +481,9 @@ extern const BDD bddtrue;
 
 /*=== User BDD class ===================================================*/
 
-class bvec;
+class BUDDY_API bvec;
 
-class bdd
+class BUDDY_API bdd
 {
  public:
 
@@ -588,15 +620,15 @@ private:
 
 /*=== BDD constants ====================================================*/
 
-extern const bdd bddfalsepp;
-extern const bdd bddtruepp;
+BUDDY_API_VAR const bdd bddfalsepp;
+BUDDY_API_VAR const bdd bddtruepp;
 
 #define bddtrue bddtruepp
 #define bddfalse bddfalsepp
 
 /*=== C++ interface ====================================================*/
 
-extern int bdd_cpp_init(int, int);
+BUDDY_API int bdd_cpp_init(int, int);
 
 inline void bdd_stats(bddStat& s)
 { bdd_stats(&s); }
@@ -891,31 +923,31 @@ inline bdd bdd_false(void)
 
 /*=== Iostream printing ================================================*/
 
-class bdd_ioformat
+class BUDDY_API bdd_ioformat
 {
  public:
    bdd_ioformat(int f) { format=f; }
  private:
-   bdd_ioformat(void)  { }
+   BUDDY_LOCAL bdd_ioformat(void)  { }
    int format;
-   static int curformat;
+   BUDDY_LOCAL static int curformat;
 
    friend std::ostream &operator<<(std::ostream &, const bdd_ioformat &);
    friend std::ostream &operator<<(std::ostream &, const bdd &);
 };
 
-std::ostream &operator<<(std::ostream &, const bdd &);
-std::ostream &operator<<(std::ostream &, const bdd_ioformat &);
+BUDDY_API std::ostream &operator<<(std::ostream &, const bdd &);
+BUDDY_API std::ostream &operator<<(std::ostream &, const bdd_ioformat &);
 
-extern bdd_ioformat bddset;
-extern bdd_ioformat bddtable;
-extern bdd_ioformat bdddot;
-extern bdd_ioformat bddall;
-extern bdd_ioformat fddset;
+BUDDY_API_VAR bdd_ioformat bddset;
+BUDDY_API_VAR bdd_ioformat bddtable;
+BUDDY_API_VAR bdd_ioformat bdddot;
+BUDDY_API_VAR bdd_ioformat bddall;
+BUDDY_API_VAR bdd_ioformat fddset;
 
 typedef void (*bddstrmhandler)(std::ostream &, int);
 
-extern bddstrmhandler bdd_strm_hook(bddstrmhandler);
+BUDDY_API bddstrmhandler bdd_strm_hook(bddstrmhandler);
 
 #endif /* CPLUSPLUS */
 

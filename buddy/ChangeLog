@@ -1,3 +1,12 @@
+2013-06-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Restrict the number of exported symbols.
+
+	* src/bdd.hh, src/bvec.hh, src/fdd.hh: Declare all exported
+	symbols using BUDDY_API, a new macro that sets visibility=default.
+	* src/Makefile.am: Compile with -fvisibility=hidden by default,
+	and compile the C++ part with -fvisibility-inlines-hidden as well.
+
 2012-06-20  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Fix the recent Automake workaround for VPATH builds.

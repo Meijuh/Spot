@@ -46,31 +46,31 @@ extern "C" {
 #endif
 
 /* In file fdd.c */
-   
-extern int  fdd_extdomain(int*, int);
-extern int  fdd_overlapdomain(int, int);
-extern void fdd_clearall(void);
-extern int  fdd_domainnum(void);
-extern int  fdd_domainsize(int);
-extern int  fdd_varnum(int);
-extern int* fdd_vars(int);
-extern BDD  fdd_ithvar(int, int);
-extern int  fdd_scanvar(BDD, int);
-extern int* fdd_scanallvar(BDD);
-extern BDD  fdd_ithset(int);
-extern BDD  fdd_domain(int);
-extern BDD  fdd_equals(int, int);
-extern bddfilehandler fdd_file_hook(bddfilehandler);
+
+BUDDY_API int  fdd_extdomain(int*, int);
+BUDDY_API int  fdd_overlapdomain(int, int);
+BUDDY_API void fdd_clearall(void);
+BUDDY_API int  fdd_domainnum(void);
+BUDDY_API int  fdd_domainsize(int);
+BUDDY_API int  fdd_varnum(int);
+BUDDY_API int* fdd_vars(int);
+BUDDY_API BDD  fdd_ithvar(int, int);
+BUDDY_API int  fdd_scanvar(BDD, int);
+BUDDY_API int* fdd_scanallvar(BDD);
+BUDDY_API BDD  fdd_ithset(int);
+BUDDY_API BDD  fdd_domain(int);
+BUDDY_API BDD  fdd_equals(int, int);
+BUDDY_API bddfilehandler fdd_file_hook(bddfilehandler);
 #ifdef CPLUSPLUS
-extern bddstrmhandler fdd_strm_hook(bddstrmhandler);
+BUDDY_API bddstrmhandler fdd_strm_hook(bddstrmhandler);
 #endif
-extern void fdd_printset(BDD);
-extern void fdd_fprintset(FILE*, BDD);
-extern int  fdd_scanset(BDD, int**, int*);
-extern BDD  fdd_makeset(int*, int);
-extern int  fdd_intaddvarblock(int, int, int);
-extern int  fdd_setpair(bddPair*, int, int);
-extern int  fdd_setpairs(bddPair*, int*, int*, int);
+BUDDY_API void fdd_printset(BDD);
+BUDDY_API void fdd_fprintset(FILE*, BDD);
+BUDDY_API int  fdd_scanset(BDD, int**, int*);
+BUDDY_API BDD  fdd_makeset(int*, int);
+BUDDY_API int  fdd_intaddvarblock(int, int, int);
+BUDDY_API int  fdd_setpair(bddPair*, int, int);
+BUDDY_API int  fdd_setpairs(bddPair*, int*, int*, int);
 
 #ifdef CPLUSPLUS
 }
@@ -121,8 +121,8 @@ inline bdd* fdd_conpp(int bitnum, int var)
 inline bdd* fdd_varpp(int bitnum, int var)
 { return fdd_transfer( bitnum, fdd_var(bitnum, var) ); }
 
-extern int fdd_isconst(int bitnum, bdd *e);
-extern int fdd_val(int bitnum, bdd *e);
+BUDDY_API int fdd_isconst(int bitnum, bdd *e);
+BUDDY_API int fdd_val(int bitnum, bdd *e);
 
 inline bdd* fdd_add(int bitnum, bdd *left, bdd *right)
 { return fdd_termopr(bitnum, left, right,bdd::fddAdd); }

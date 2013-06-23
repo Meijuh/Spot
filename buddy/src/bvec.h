@@ -74,39 +74,39 @@ extern "C" {
 #endif
 
    /* Prototypes for bvec.c */
-extern BVEC bvec_copy(BVEC v);
-extern BVEC bvec_true(int bitnum);
-extern BVEC bvec_false(int bitnum);
-extern BVEC bvec_con(int bitnum, int val);
-extern BVEC bvec_var(int bitnum, int offset, int step);
-extern BVEC bvec_varfdd(int var);
-extern BVEC bvec_varvec(int bitnum, int *var);
-extern BVEC bvec_coerce(int bitnum, BVEC v);
-extern int  bvec_isconst(BVEC e) __purefn;
-extern int  bvec_val(BVEC e) __purefn;
-extern void bvec_free(BVEC v);
-extern BVEC bvec_addref(BVEC v);
-extern BVEC bvec_delref(BVEC v);
-extern BVEC bvec_map1(BVEC a, BDD (*fun)(BDD));
-extern BVEC bvec_map2(BVEC a, BVEC b, BDD (*fun)(BDD,BDD));
-extern BVEC bvec_map3(BVEC a, BVEC b, BVEC c, BDD (*fun)(BDD,BDD,BDD));
-extern BVEC bvec_add(BVEC left, BVEC right);
-extern BVEC bvec_sub(BVEC left, BVEC right);
-extern BVEC bvec_mulfixed(BVEC e, int c);
-extern BVEC bvec_mul(BVEC left, BVEC right);
-extern int  bvec_divfixed(BVEC e, int c, BVEC *res, BVEC *rem);
-extern int  bvec_div(BVEC left, BVEC right, BVEC *res, BVEC *rem);
-extern BVEC bvec_ite(BDD a, BVEC b, BVEC c);
-extern BVEC bvec_shlfixed(BVEC e, int pos, BDD c);
-extern BVEC bvec_shl(BVEC l, BVEC r, BDD c);
-extern BVEC bvec_shrfixed(BVEC e, int pos, BDD c);
-extern BVEC bvec_shr(BVEC l, BVEC r, BDD c);
-extern BDD  bvec_lth(BVEC left, BVEC right);
-extern BDD  bvec_lte(BVEC left, BVEC right);
-extern BDD  bvec_gth(BVEC left, BVEC right);
-extern BDD  bvec_gte(BVEC left, BVEC right);
-extern BDD  bvec_equ(BVEC left, BVEC right);
-extern BDD  bvec_neq(BVEC left, BVEC right);
+BUDDY_API BVEC bvec_copy(BVEC v);
+BUDDY_API BVEC bvec_true(int bitnum);
+BUDDY_API BVEC bvec_false(int bitnum);
+BUDDY_API BVEC bvec_con(int bitnum, int val);
+BUDDY_API BVEC bvec_var(int bitnum, int offset, int step);
+BUDDY_API BVEC bvec_varfdd(int var);
+BUDDY_API BVEC bvec_varvec(int bitnum, int *var);
+BUDDY_API BVEC bvec_coerce(int bitnum, BVEC v);
+BUDDY_API int  bvec_isconst(BVEC e) __purefn;
+BUDDY_API int  bvec_val(BVEC e) __purefn;
+BUDDY_API void bvec_free(BVEC v);
+BUDDY_API BVEC bvec_addref(BVEC v);
+BUDDY_API BVEC bvec_delref(BVEC v);
+BUDDY_API BVEC bvec_map1(BVEC a, BDD (*fun)(BDD));
+BUDDY_API BVEC bvec_map2(BVEC a, BVEC b, BDD (*fun)(BDD,BDD));
+BUDDY_API BVEC bvec_map3(BVEC a, BVEC b, BVEC c, BDD (*fun)(BDD,BDD,BDD));
+BUDDY_API BVEC bvec_add(BVEC left, BVEC right);
+BUDDY_API BVEC bvec_sub(BVEC left, BVEC right);
+BUDDY_API BVEC bvec_mulfixed(BVEC e, int c);
+BUDDY_API BVEC bvec_mul(BVEC left, BVEC right);
+BUDDY_API int  bvec_divfixed(BVEC e, int c, BVEC *res, BVEC *rem);
+BUDDY_API int  bvec_div(BVEC left, BVEC right, BVEC *res, BVEC *rem);
+BUDDY_API BVEC bvec_ite(BDD a, BVEC b, BVEC c);
+BUDDY_API BVEC bvec_shlfixed(BVEC e, int pos, BDD c);
+BUDDY_API BVEC bvec_shl(BVEC l, BVEC r, BDD c);
+BUDDY_API BVEC bvec_shrfixed(BVEC e, int pos, BDD c);
+BUDDY_API BVEC bvec_shr(BVEC l, BVEC r, BDD c);
+BUDDY_API BDD  bvec_lth(BVEC left, BVEC right);
+BUDDY_API BDD  bvec_lte(BVEC left, BVEC right);
+BUDDY_API BDD  bvec_gth(BVEC left, BVEC right);
+BUDDY_API BDD  bvec_gte(BVEC left, BVEC right);
+BUDDY_API BDD  bvec_equ(BVEC left, BVEC right);
+BUDDY_API BDD  bvec_neq(BVEC left, BVEC right);
 
 #ifdef CPLUSPLUS
 }
@@ -121,7 +121,7 @@ extern BDD  bvec_neq(BVEC left, BVEC right);
 
 /*=== User BVEC class ==================================================*/
 
-class bvec
+class BUDDY_API bvec
 {
  public:
 
@@ -152,10 +152,13 @@ private:
    friend int  bvec_isconst(const bvec &e);
    friend int  bvec_val(const bvec &e);
    friend bvec bvec_copy(const bvec &v);
+   BUDDY_API
    friend bvec bvec_map1(const bvec &a,
 			 bdd (*fun)(const bdd &));
+   BUDDY_API
    friend bvec bvec_map2(const bvec &a, const bvec &b,
 			 bdd (*fun)(const bdd &, const bdd &));
+   BUDDY_API
    friend bvec bvec_map3(const bvec &a, const bvec &b, const bvec &c,
 			 bdd (*fun)(const bdd &, const bdd &, const bdd &));
    friend bvec bvec_add(const bvec &left, const bvec &right);
@@ -197,7 +200,7 @@ public:
    bdd operator!=(const bvec &a) const { return bvec_neq(*this, a); }
 };
 
-std::ostream &operator<<(std::ostream &, const bvec &);
+BUDDY_API std::ostream &operator<<(std::ostream &, const bvec &);
 
 inline bvec bvec_truepp(int bitnum)
 { return bvec_true(bitnum); }
