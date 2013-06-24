@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -27,17 +27,68 @@
 #include <ltlvisit/tostring.hh>
 #include <ltlast/atomic_prop.hh>
 #include <ltlenv/defaultenv.hh>
+#include "misc/bddalloc.hh"
 #include "bdddict.hh"
 
 namespace spot
 {
+
+  // Empty anonymous namespace so that the style checker does no
+  // complain about bdd_dict_priv (which should not be in an anonymous
+  // namespace).
+  namespace
+  {
+  }
+
+  class bdd_dict_priv: public bdd_allocator
+  {
+  public:
+
+    class anon_free_list : public spot::free_list
+    {
+    public:
+      // WARNING: We need a default constructor so this can be used in
+      // a hash; but we should ensure that no object in the hash is
+      // constructed with p==0.
+      anon_free_list(bdd_dict_priv* p = 0)
+	: priv_(p)
+      {
+      }
+
+      virtual int
+      extend(int n)
+      {
+	assert(priv_);
+	int b = priv_->allocate_variables(n);
+	free_anonymous_list_of_type::iterator i;
+	for (i = priv_->free_anonymous_list_of.begin();
+	     i != priv_->free_anonymous_list_of.end(); ++i)
+	  if (&i->second != this)
+	    i->second.insert(b, n);
+	return b;
+      }
+
+    private:
+      bdd_dict_priv* priv_;
+    };
+
+    bdd_dict_priv()
+    {
+      free_anonymous_list_of[0] = anon_free_list(this);
+    }
+
+    /// List of unused anonymous variable number for each automaton.
+    typedef std::map<const void*, anon_free_list> free_anonymous_list_of_type;
+    free_anonymous_list_of_type free_anonymous_list_of;
+  };
+
   bdd_dict::bdd_dict()
-    : bdd_allocator(),
+    // Initialize priv_ first, because it also initializes BuDDy
+    : priv_(new bdd_dict_priv()),
       bdd_map(bdd_varnum()),
       next_to_now(bdd_newpair()),
       now_to_next(bdd_newpair())
   {
-    free_anonymous_list_of[0] = anon_free_list(this);
   }
 
   bdd_dict::~bdd_dict()
@@ -45,6 +96,7 @@ namespace spot
     assert_emptiness();
     bdd_freepair(next_to_now);
     bdd_freepair(now_to_next);
+    delete priv_;
   }
 
   int
@@ -60,7 +112,7 @@ namespace spot
     else
       {
 	f = f->clone();
-	num = allocate_variables(1);
+	num = priv_->allocate_variables(1);
 	var_map[f] = num;
 	bdd_map.resize(bdd_varnum());
 	bdd_map[num].type = var;
@@ -99,7 +151,7 @@ namespace spot
     else
       {
 	f = f->clone();
-	num = allocate_variables(2);
+	num = priv_->allocate_variables(2);
 	now_map[f] = num;
 	bdd_map.resize(bdd_varnum());
 	bdd_map[num].type = now;
@@ -129,7 +181,7 @@ namespace spot
     else
       {
 	f = f->clone();
-	num = allocate_variables(1);
+	num = priv_->allocate_variables(1);
 	acc_map[f] = num;
 	bdd_map.resize(bdd_varnum());
 	bdd_info& i = bdd_map[num];
@@ -199,14 +251,14 @@ namespace spot
   int
   bdd_dict::register_anonymous_variables(int n, const void* for_me)
   {
-    free_anonymous_list_of_type::iterator i =
-      free_anonymous_list_of.find(for_me);
+    typedef bdd_dict_priv::free_anonymous_list_of_type fal;
+    fal::iterator i = priv_->free_anonymous_list_of.find(for_me);
 
-    if (i == free_anonymous_list_of.end())
+    if (i == priv_->free_anonymous_list_of.end())
       {
- 	typedef free_anonymous_list_of_type fal;
-	i = (free_anonymous_list_of.insert
-	     (fal::value_type(for_me, free_anonymous_list_of[0]))).first;
+	i = (priv_->free_anonymous_list_of.insert
+	     (fal::value_type(for_me,
+			      priv_->free_anonymous_list_of[0]))).first;
       }
     int res = i->second.register_n(n);
 
@@ -234,10 +286,10 @@ namespace spot
 	  s.insert(for_me);
       }
 
-    free_anonymous_list_of_type::const_iterator j =
-      free_anonymous_list_of.find(from_other);
-    if (j != free_anonymous_list_of.end())
-      free_anonymous_list_of[for_me] = j->second;
+    bdd_dict_priv::free_anonymous_list_of_type::const_iterator j =
+      priv_->free_anonymous_list_of.find(from_other);
+    if (j != priv_->free_anonymous_list_of.end())
+      priv_->free_anonymous_list_of[for_me] = j->second;
   }
 
   void
@@ -256,7 +308,7 @@ namespace spot
     // If var is anonymous, we should reinsert it into the free list
     // of ME's anonymous variables.
     if (bdd_map[v].type == anon)
-      free_anonymous_list_of[me].release_n(v, 1);
+      priv_->free_anonymous_list_of[me].release_n(v, 1);
 
     if (!s.empty())
       return;
@@ -287,19 +339,19 @@ namespace spot
 	break;
       case anon:
 	{
-	  free_anonymous_list_of_type::iterator i;
+	  bdd_dict_priv::free_anonymous_list_of_type::iterator i;
 	  // Nobody use this variable as an anonymous variable
 	  // anymore, so remove it entirely from the anonymous
 	  // free list so it can be used for something else.
-	  for (i = free_anonymous_list_of.begin();
-	       i != free_anonymous_list_of.end(); ++i)
+	  for (i = priv_->free_anonymous_list_of.begin();
+	       i != priv_->free_anonymous_list_of.end(); ++i)
 	    i->second.remove(v, n);
 	  break;
 	}
       }
     // Actually release the associated BDD variables, and the
     // formula itself.
-    release_variables(v, n);
+    priv_->release_variables(v, n);
     if (f)
       f->destroy();
     while (n--)
@@ -312,7 +364,7 @@ namespace spot
     unsigned s = bdd_map.size();
     for (unsigned i = 0; i < s; ++i)
       unregister_variable(i, me);
-    free_anonymous_list_of.erase(me);
+    priv_->free_anonymous_list_of.erase(me);
   }
 
   void
@@ -323,7 +375,7 @@ namespace spot
       if (bdd_map[i].type == type)
 	unregister_variable(i, me);
     if (type == anon)
-      free_anonymous_list_of.erase(me);
+      priv_->free_anonymous_list_of.erase(me);
   }
 
   bool
@@ -395,15 +447,15 @@ namespace spot
 	os << "\n";
       }
     os << "Anonymous lists:\n";
-    free_anonymous_list_of_type::const_iterator ai;
-    for (ai = free_anonymous_list_of.begin();
-	 ai != free_anonymous_list_of.end(); ++ai)
+    bdd_dict_priv::free_anonymous_list_of_type::const_iterator ai;
+    for (ai = priv_->free_anonymous_list_of.begin();
+	 ai != priv_->free_anonymous_list_of.end(); ++ai)
       {
 	os << "  [" << ai->first << "] ";
 	ai->second.dump_free_list(os) << std::endl;
       }
     os << "Free list:\n";
-    dump_free_list(os);
+    priv_->dump_free_list(os);
     os << std::endl;
     return os;
   }
@@ -481,23 +533,5 @@ namespace spot
   }
 
 
-  bdd_dict::anon_free_list::anon_free_list(bdd_dict* d)
-    : dict_(d)
-  {
-  }
-
-  int
-  bdd_dict::anon_free_list::extend(int n)
-  {
-    assert(dict_);
-    int b = dict_->allocate_variables(n);
-
-    free_anonymous_list_of_type::iterator i;
-    for (i = dict_->free_anonymous_list_of.begin();
-	 i != dict_->free_anonymous_list_of.end(); ++i)
-      if (&i->second != this)
-	i->second.insert(b, n);
-    return b;
-  }
 
 }

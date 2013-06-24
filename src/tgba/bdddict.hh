@@ -30,10 +30,11 @@
 #include <bdd.h>
 #include <vector>
 #include "ltlast/formula.hh"
-#include "misc/bddalloc.hh"
 
 namespace spot
 {
+  /// \brief Private data for bdd_dict.
+  class bdd_dict_priv;
 
   /// \ingroup tgba_essentials
   /// \brief Map BDD variables to formulae.
@@ -53,8 +54,9 @@ namespace spot
   /// unregister_all_my_variables(), giving the same pointer.
   /// Variables can also by unregistered one by one using
   /// unregister_variable().
-  class bdd_dict: public bdd_allocator
+  class bdd_dict
   {
+    bdd_dict_priv* priv_;
   public:
 
     bdd_dict();
@@ -234,27 +236,6 @@ namespace spot
     /// calls to unregister_variable() or
     /// unregister_all_my_variables().
     void assert_emptiness() const;
-
-  protected:
-    // SWIG does not grok the following definition, no idea why.
-    // It's not important for the Python interface anyway.
-#ifndef SWIG
-    class anon_free_list : public spot::free_list
-    {
-    public:
-      // WARNING: We need a default constructor so this can be used in
-      // a hash; but we should ensure that no object in the hash is
-      // constructed with d==0.
-      anon_free_list(bdd_dict* d = 0);
-      virtual int extend(int n);
-    private:
-      bdd_dict* dict_;
-    };
-#endif
-
-    /// List of unused anonymous variable number for each automaton.
-    typedef std::map<const void*, anon_free_list> free_anonymous_list_of_type;
-    free_anonymous_list_of_type free_anonymous_list_of;
 
   private:
     // Disallow copy.
