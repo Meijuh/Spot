@@ -161,6 +161,7 @@ AC_CONFIG_FILES([
   src/Makefile
   src/misc/Makefile
   src/neverparse/Makefile
+  src/priv/Makefile
   src/sanity/Makefile
   src/saba/Makefile
   src/sabaalgos/Makefile

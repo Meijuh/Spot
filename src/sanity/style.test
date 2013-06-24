@@ -242,6 +242,12 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
 	    grep '#.*include.*<iostream>' $tmp &&
 	      diag 'Avoid <iostream> in headers, better use <iosfwd>.'
 	  fi
+	  # Headers from src/priv/ are not installed, so may only be
+	  # included from *.cc files or from other src/priv/ headers
+	  # (in the latter case they do not have to specify the priv/
+	  # directory, so they will not match this regex).
+	  grep '#.*include.*priv/' $tmp &&
+	      diag 'Do not include private headers in public headers.'
 	  ;;
 	*.cc)
 	  if grep 'namespace$' $tmp >/dev/null; then

@@ -155,6 +155,10 @@ Core directories
 ----------------
 
 src/              Sources for libspot.
+   bin/           User tools built using the Spot library.
+      man/        Man pages for the above tools.
+   eltlparse/     Parser for ELTL formulae.
+   eltltest/      Tests for ELTL nodes in ltlast/ and eltlparse/.
    kripke/        Kripke Structure interface.
    kripkeparse/   Parser for explicit Kripke.
    kripketest/    Tests for kripke explicit.
@@ -164,6 +168,8 @@ src/              Sources for libspot.
    ltlvisit/      Visitors of LTL formulae.
    ltltest/       Tests for ltlast/, ltlenv/, ltlparse/, and ltlvisit/.
    misc/          Miscellaneous support files.
+   neverparse/    Parser for SPIN never claims.
+   priv/          Private algorithms, used internally but not exported.
    tgba/          TGBA objects and cousins.
    tgbaalgos/     Algorithms on TGBA.
       gtec/       Couvreur's Emptiness-Check.
@@ -171,14 +177,9 @@ src/              Sources for libspot.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.
    tgbatest/      Tests for tgba/, tgbaalgos/, tgbaparse/, ta/ and taalgos/.
-   eltlparse/     Parser for ELTL formulae.
-   eltltest/      Tests for ELTL nodes in ltlast/ and eltlparse/.
    saba/          SABA (State-labeled Alternating Büchi Automata) objects.
    sabaalgos/     Algorithms on SABA.
    sabatest/      Tests for saba/, sabaalgos/.
-   neverparse/    Parser for SPIN never claims.
-   bin/           User tools built using the Spot library.
-      man/        Man pages for the above tools.
    sanity/        Sanity tests for the whole project.
 doc/              Documentation for libspot.
    org/           Source of userdoc/ as org-mode files.

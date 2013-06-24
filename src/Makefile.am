@@ -25,7 +25,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 # List directories in the order they must be built.  Keep tests at the
 # end, after building '.' (since the current directory contains
 # libspot.la needed by the tests)
-SUBDIRS = misc ltlenv ltlast ltlvisit ltlparse eltlparse tgba		\
+SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse eltlparse tgba	\
            tgbaalgos tgbaparse ta taalgos kripke saba sabaalgos		\
            neverparse kripkeparse . bin ltltest eltltest tgbatest	\
            sabatest sanity kripketest
@@ -34,22 +34,23 @@ lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =
 libspot_la_LDFLAGS = $(BUDDY_LDFLAGS) -no-undefined
 libspot_la_LIBADD =  \
-  misc/libmisc.la \
+  eltlparse/libeltlparse.la \
+  kripke/libkripke.la \
+  kripkeparse/libkripkeparse.la \
+  ltlast/libltlast.la \
   ltlenv/libltlenv.la \
   ltlparse/libltlparse.la \
   ltlvisit/libltlvisit.la \
-  ltlast/libltlast.la \
-  eltlparse/libeltlparse.la \
-  tgba/libtgba.la \
-  tgbaalgos/libtgbaalgos.la \
-  ta/libta.la \
-  taalgos/libtaalgos.la \
-  tgbaparse/libtgbaparse.la \
+  misc/libmisc.la \
   neverparse/libneverparse.la \
-  saba/libsaba.la \
+  priv/libpriv.la \
   sabaalgos/libsabaalgos.la \
-  kripke/libkripke.la \
-  kripkeparse/libkripkeparse.la
+  saba/libsaba.la \
+  taalgos/libtaalgos.la \
+  ta/libta.la \
+  tgbaalgos/libtgbaalgos.la \
+  tgba/libtgba.la \
+  tgbaparse/libtgbaparse.la
 
 # Dummy C++ source to cause C++ linking.
 nodist_EXTRA_libspot_la_SOURCES = _.cc

@@ -24,7 +24,7 @@
 #include <limits>
 #include "tgba/tgbaexplicit.hh"
 #include "simulation.hh"
-#include "misc/acccompl.hh"
+#include "priv/acccompl.hh"
 #include "misc/minato.hh"
 #include "misc/unique_ptr.hh"
 #include "tgba/bddprint.hh"

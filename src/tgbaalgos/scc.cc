@@ -24,7 +24,7 @@
 #include "scc.hh"
 #include "tgba/bddprint.hh"
 #include "misc/escape.hh"
-#include "misc/accconv.hh"
+#include "priv/accconv.hh"
 
 namespace spot
 {
