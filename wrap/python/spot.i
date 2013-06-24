@@ -45,7 +45,6 @@ namespace std {
 
 #include "misc/version.hh"
 #include "misc/minato.hh"
-#include "misc/modgray.hh"
 #include "misc/optionmap.hh"
 #include "misc/random.hh"
 
@@ -160,9 +159,6 @@ using namespace spot;
 %include "misc/minato.hh"
 %include "misc/optionmap.hh"
 %include "misc/random.hh"
-
-%feature("director") spot::loopless_modular_mixed_radix_gray_code;
-%include "misc/modgray.hh"
 
 %include "ltlast/formula.hh"
 %include "ltlast/refformula.hh"

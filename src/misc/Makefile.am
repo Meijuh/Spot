@@ -45,7 +45,6 @@ misc_HEADERS = \
   intvcmp2.hh \
   ltstr.hh \
   minato.hh \
-  modgray.hh \
   memusage.hh \
   mspool.hh \
   optionmap.hh \
@@ -64,7 +63,6 @@ libmisc_la_SOURCES = \
   freelist.cc \
   intvcomp.cc \
   intvcmp2.cc \
-  modgray.cc \
   memusage.cc \
   minato.cc \
   optionmap.cc \
