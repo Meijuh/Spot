@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_ACCCONV_HH
-# define SPOT_MISC_ACCCONV_HH
+#ifndef SPOT_PRIV_ACCCONV_HH
+# define SPOT_PRIV_ACCCONV_HH
 
 #include <bdd.h>
 #include "misc/hash.hh"
@@ -48,4 +48,4 @@ namespace spot
 
 }
 
-#endif // SPOT_MISC_ACCCONV_HH
+#endif // SPOT_PRIV_ACCCONV_HH

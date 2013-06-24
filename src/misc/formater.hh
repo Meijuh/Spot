@@ -20,6 +20,7 @@
 #ifndef SPOT_MISC_FORMATER_HH
 #define SPOT_MISC_FORMATER_HH
 
+#include "common.hh"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -101,7 +102,7 @@ namespace spot
   };
 
 
-  class formater
+  class SPOT_API formater
   {
     printable_id id;
     printable_percent percent;

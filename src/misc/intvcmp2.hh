@@ -1,4 +1,5 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -19,8 +20,9 @@
 #ifndef SPOT_MISC_INTVCMP2_HH
 # define SPOT_MISC_INTVCMP2_HH
 
-#include <vector>
-#include <stddef.h>
+# include "common.hh"
+# include <vector>
+# include <stddef.h>
 
 namespace spot
 {
@@ -33,7 +35,7 @@ namespace spot
   /// assert will be triggered if \a dest_size is too small.  On
   /// return, \a dest_size will be set to the actually number of int
   /// filled in \a dest
-  void
+  SPOT_API void
   int_array_array_compress2(const int* array, size_t n,
 			   int* dest, size_t& dest_size);
 
@@ -41,7 +43,7 @@ namespace spot
   ///        array of size \a size.
   ///
   /// \a size must be the exact expected size of uncompressed array.
-  void
+  SPOT_API void
   int_array_array_decompress2(const int* array, size_t array_size,
 			     int* res, size_t size);
 

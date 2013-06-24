@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -20,7 +23,8 @@
 #ifndef SPOT_MISC_BAREWORD_HH
 # define SPOT_MISC_BAREWORD_HH
 
-#include <string>
+# include "common.hh"
+# include <string>
 
 namespace spot
 {
@@ -28,13 +32,14 @@ namespace spot
   /// @{
   /// \brief Whether a word is bare.
   ///
-  /// Bare words should start with a letter or an underscore, and
-  /// consist solely of alphanumeric characters and underscores.
-  bool is_bare_word(const char* str);
+  /// Bare words should start with a letter, an underscore, or a dot,
+  /// and consist solely of alphanumeric characters, underscores, and
+  /// dots.
+  SPOT_API bool is_bare_word(const char* str);
 
   /// \brief Double-quote words that are not bare.
   /// \see is_bare_word
-  std::string quote_unless_bare_word(const std::string& str);
+  SPOT_API std::string quote_unless_bare_word(const std::string& str);
   /// @}
 }
 

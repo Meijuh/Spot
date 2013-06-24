@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE)
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -20,6 +23,7 @@
 #ifndef SPOT_MISC_OPTIONMAP_HH
 # define SPOT_MISC_OPTIONMAP_HH
 
+#include "common.hh"
 #include <string>
 #include <map>
 #include <iosfwd>
@@ -30,7 +34,7 @@ namespace spot
   /// \brief Manage a map of options.
   ///
   /// Each option is defined by a string and is associated to an integer value.
-  class option_map
+  class SPOT_API option_map
   {
   public:
     /// \brief Add the parsed options to the map.
@@ -76,7 +80,8 @@ namespace spot
     int& operator[](const char* option);
 
     /// \brief Print the option_map \a m.
-    friend std::ostream& operator<<(std::ostream& os, const option_map& m);
+    friend SPOT_API std::ostream&
+      operator<<(std::ostream& os, const option_map& m);
 
   private:
     std::map<std::string, int> options_;

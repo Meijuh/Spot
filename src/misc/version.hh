@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -20,11 +23,13 @@
 #ifndef SPOT_MISC_VERSION_HH
 # define SPOT_MISC_VERSION_HH
 
+# include "common.hh"
+
 namespace spot
 {
   /// \ingroup misc_tools
   /// \brief Return Spot's version.
-  const char* version();
+  SPOT_API const char* version();
 }
 
 #endif // SPOT_MISC_VERSION_HH

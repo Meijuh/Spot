@@ -44,7 +44,6 @@ namespace std {
 #include <signal.h>
 
 #include "misc/version.hh"
-#include "misc/bddalloc.hh"
 #include "misc/minato.hh"
 #include "misc/modgray.hh"
 #include "misc/optionmap.hh"
@@ -158,7 +157,6 @@ using namespace spot;
 %rename(TrueVal) True;
 
 %include "misc/version.hh"
-%include "misc/bddalloc.hh"
 %include "misc/minato.hh"
 %include "misc/optionmap.hh"
 %include "misc/random.hh"

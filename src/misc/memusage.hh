@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
 // Copyright (C) 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -20,6 +23,7 @@
 #ifndef SPOT_MISC_MEMUSAGE_HH
 # define SPOT_MISC_MEMUSAGE_HH
 
+#include "common.hh"
 
 namespace spot
 {
@@ -27,7 +31,7 @@ namespace spot
   ///
   /// \return The total number of pages in use by the program if known.
   /// -1 otherwise.
-  int memusage();
+  SPOT_API int memusage();
 }
 
 #endif // SPOT_MISC_MEMUSAGE_HH

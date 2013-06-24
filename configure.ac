@@ -60,6 +60,14 @@ gl_INIT
 
 AC_LANG(C++)
 
+# Use -Werror since using -fvisibility under MinGW is only a warning.
+# (The option is ignored anyway since this does not make sense under windows).
+AC_SUBST([VISIBILITY_CXXFLAGS])
+AX_CHECK_COMPILE_FLAG([-Werror -fvisibility=hidden],
+  [VISIBILITY_CXXFLAGS="$VISIBILITY_CXXFLAGS -fvisibility=hidden -DSPOT_BUILD"
+  AX_CHECK_COMPILE_FLAG([-fvisibility-inlines-hidden],
+    [VISIBILITY_CXXFLAGS="$VISIBILITY_CXXFLAGS -fvisibility-inlines-hidden"])])
+
 AC_HEADER_UNORDERED_MAP
 AC_HEADER_TR1_UNORDERED_MAP
 AC_HEADER_EXT_HASH_MAP

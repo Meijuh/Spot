@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -20,6 +23,7 @@
 #ifndef SPOT_MISC_RANDOM_HH
 # define SPOT_MISC_RANDOM_HH
 
+# include "common.hh"
 # include <cmath>
 
 namespace spot
@@ -31,25 +35,25 @@ namespace spot
   /// \brief Reset the seed of the pseudo-random number generator.
   ///
   /// \see drand, mrand, rrand
-  void srand(unsigned int seed);
+  SPOT_API void srand(unsigned int seed);
 
   /// \brief Compute a pseudo-random integer value between \a min and
   /// \a max included.
   ///
   /// \see drand, mrand, srand
-  int rrand(int min, int max);
+  SPOT_API int rrand(int min, int max);
 
   /// \brief Compute a pseudo-random integer value between 0 and
   /// \a max-1 included.
   ///
   /// \see drand, rrand, srand
-  int mrand(int max);
+  SPOT_API int mrand(int max);
 
   /// \brief Compute a pseudo-random double value
   /// between 0.0 and 1.0 (1.0 excluded).
   ///
   /// \see mrand, rrand, srand
-  double drand();
+  SPOT_API double drand();
 
   /// \brief Compute a pseudo-random double value
   /// following a standard normal distribution.  (Odeh & Evans)
@@ -57,14 +61,14 @@ namespace spot
   /// This uses a polynomial approximation of the inverse cumulated
   /// density function from Odeh & Evans, Journal of Applied
   /// Statistics, 1974, vol 23, pp 96-97.
-  double nrand();
+  SPOT_API double nrand();
 
   /// \brief Compute a pseudo-random double value
   /// following a standard normal distribution.  (Box-Muller)
   ///
   /// This uses the polar form of the Box-Muller transform
   /// to generate random values.
-  double bmrand();
+  SPOT_API double bmrand();
 
   /// \brief Compute pseudo-random integer value between 0
   /// and \a n included, following a binomial distribution
@@ -112,7 +116,7 @@ namespace spot
   /// following a Poisson distribution with parameter \a p.
   ///
   /// \pre <code>p > 0</code>
-  int prand(double p);
+  SPOT_API int prand(double p);
   /// @}
 }
 

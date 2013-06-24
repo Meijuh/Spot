@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2010, 2012  Laboratoire de Recherche et Développement
+# Copyright (C) 2010, 2012, 2013  Laboratoire de Recherche et Développement
 # de l'Epita
 # Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -24,9 +24,8 @@ import spot
 import buddy
 import sys
 
-alloc = spot.bdd_allocator()
-
-alloc.allocate_variables(3)
+buddy.bdd_init(10000, 10000)
+buddy.bdd_setvarnum(3)
 
 a = buddy.bdd_ithvar(0)
 b = buddy.bdd_ithvar(1)

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2009, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -23,6 +23,7 @@
 #ifndef SPOT_MISC_TIMER_HH
 # define SPOT_MISC_TIMER_HH
 
+# include "common.hh"
 # include "misc/_config.h"
 # include <cassert>
 # include <iosfwd>
@@ -200,7 +201,7 @@ namespace spot
     }
 
     /// Format information about all timers in a table.
-    std::ostream&
+    SPOT_API std::ostream&
     print(std::ostream& os) const;
 
     /// \brief Remove information about all timers.

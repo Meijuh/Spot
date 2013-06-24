@@ -86,10 +86,13 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
     # //
     # //
     # to keep the line numbers correct in the diagnostics.
+    #
+    # Also get read of the SPOT_API tags.
     perl -pe 'sub f {my $a = shift; $a =~ s:[^\n]*://:g; return "$a"}
               s,/\*(.*?)\*/,f($1),sge;
               s,//.*?\n,//\n,g;
-              s,"[^"\n]*","",g' -0777 <$file >$tmp
+              s,"[^"\n]*","",g;
+              s,SPOT_API ,,g' -0777 <$file >$tmp
 
     grep '[	 ]$' $tmp &&
       diag 'Trailing whitespace.'

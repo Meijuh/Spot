@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#ifndef SPOT_MISC_ACCCOMPL_HH
-# define SPOT_MISC_ACCCOMPL_HH
+#ifndef SPOT_PRIV_ACCCOMPL_HH
+# define SPOT_PRIV_ACCCOMPL_HH
 
 #include <map>
 #include <bdd.h>
@@ -53,4 +53,4 @@ namespace spot
   };
 } // End namespace Spot
 
-#endif // !SPOT_MISC_ACCCOMPL_HH
+#endif // SPOT_PRIV_ACCCOMPL_HH

@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -19,17 +20,20 @@
 #ifndef SPOT_MISC_BDDOP_HH
 # define SPOT_MISC_BDDOP_HH
 
+#include "common.hh"
 #include "bdd.h"
 
 namespace spot
 {
   /// \brief Compute all acceptance conditions from all neg acceptance
   /// conditions.
-  bdd compute_all_acceptance_conditions(bdd neg_acceptance_conditions);
+  SPOT_API bdd
+  compute_all_acceptance_conditions(bdd neg_acceptance_conditions);
 
   /// \brief Compute neg acceptance conditions from all acceptance
   /// conditions.
-  bdd compute_neg_acceptance_conditions(bdd all_acceptance_conditions);
+  SPOT_API bdd
+  compute_neg_acceptance_conditions(bdd all_acceptance_conditions);
 }
 
 #endif // SPOT_MISC_BDDOP_HH

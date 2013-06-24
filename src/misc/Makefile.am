@@ -1,8 +1,9 @@
-## Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## -*- coding: utf-8 -*-
+## Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+## DÃ©veloppement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-## Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-## Université Pierre et Marie Curie.
+## Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+## UniversitÃ© Pierre et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -20,7 +21,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
-AM_CXXFLAGS = $(WARNING_CXXFLAGS)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS) $(VISIBILITY_CXXFLAGS)
 
 miscdir = $(pkgincludedir)/misc
 
@@ -35,6 +36,7 @@ misc_HEADERS = \
   bddlt.hh \
   bddop.hh \
   casts.hh \
+  common.hh \
   escape.hh \
   fixpool.hh \
   formater.hh \
@@ -45,8 +47,8 @@ misc_HEADERS = \
   intvcmp2.hh \
   ltstr.hh \
   minato.hh \
-  memusage.hh \
   modgray.hh \
+  memusage.hh \
   mspool.hh \
   optionmap.hh \
   random.hh \
@@ -62,13 +64,13 @@ libmisc_la_SOURCES = \
   bddalloc.cc \
   bddop.cc \
   escape.cc \
-  freelist.cc \
   formater.cc \
+  freelist.cc \
   intvcomp.cc \
   intvcmp2.cc \
+  modgray.cc \
   memusage.cc \
   minato.cc \
-  modgray.cc \
   optionmap.cc \
   random.cc \
   timer.cc \

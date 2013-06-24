@@ -1,7 +1,8 @@
-## Copyright (C) 2010, 2011 Laboratoire de Recherche et Development de
+## -*- coding: utf-8 -*-
+## Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et Development de
 ## l'Epita (LRDE).
 ## Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-## département Systèmes Répartis Coopératifs (SRC), Université Pierre
+## dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 ## et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
@@ -39,7 +40,8 @@ _spot_la_LDFLAGS = -avoid-version -module
 _spot_la_LIBADD = $(top_builddir)/src/libspot.la
 
 $(srcdir)/spot_wrap.cxx: $(srcdir)/spot.i
-	$(SWIG) -c++ -python -I$(srcdir) -I$(top_srcdir)/src $(srcdir)/spot.i
+	$(SWIG) -c++ -python -DSPOT_API= -I$(srcdir) \
+	-I$(top_srcdir)/src $(srcdir)/spot.i
 
 $(srcdir)/spot.py: $(srcdir)/spot.i
 	$(MAKE) $(AM_MAKEFLAGS) spot_wrap.cxx
@@ -51,7 +53,7 @@ _buddy_la_SOURCES = $(srcdir)/buddy_wrap.cxx
 _buddy_la_LDFLAGS = -avoid-version -module $(BUDDY_LDFLAGS)
 
 $(srcdir)/buddy_wrap.cxx: $(srcdir)/buddy.i
-	$(SWIG) -c++ -python $(BUDDY_CPPFLAGS) $(srcdir)/buddy.i
+	$(SWIG) -c++ -python -DBUDDY_API= $(BUDDY_CPPFLAGS) $(srcdir)/buddy.i
 
 $(srcdir)/buddy.py: $(srcdir)/buddy.i
 	$(MAKE) $(AM_MAKEFLAGS) buddy_wrap.cxx
