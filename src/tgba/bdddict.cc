@@ -27,7 +27,7 @@
 #include <ltlvisit/tostring.hh>
 #include <ltlast/atomic_prop.hh>
 #include <ltlenv/defaultenv.hh>
-#include "misc/bddalloc.hh"
+#include "priv/bddalloc.hh"
 #include "bdddict.hh"
 
 namespace spot

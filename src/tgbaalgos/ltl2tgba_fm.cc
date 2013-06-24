@@ -21,7 +21,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "misc/hash.hh"
-#include "misc/bddalloc.hh"
 #include "misc/bddlt.hh"
 #include "misc/minato.hh"
 #include "ltlast/visitor.hh"

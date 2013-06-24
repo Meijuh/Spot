@@ -22,10 +22,15 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS) $(VISIBILITY_CXXFLAGS)
 
 noinst_HEADERS = \
   acccompl.hh \
-  accconv.hh
+  accconv.hh \
+  bddalloc.hh \
+  freelist.hh
 
 noinst_LTLIBRARIES = libpriv.la
 libpriv_la_SOURCES = \
   acccompl.cc \
-  accconv.cc
+  accconv.cc \
+  bddalloc.cc \
+  freelist.cc
+
 

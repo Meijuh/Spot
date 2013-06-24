@@ -30,7 +30,6 @@ DISTCLEANFILES = _config.h
 
 misc_HEADERS = \
   bareword.hh \
-  bddalloc.hh \
   bddlt.hh \
   bddop.hh \
   casts.hh \
@@ -38,7 +37,6 @@ misc_HEADERS = \
   escape.hh \
   fixpool.hh \
   formater.hh \
-  freelist.hh \
   hash.hh \
   hashfunc.hh \
   intvcomp.hh \
@@ -56,11 +54,9 @@ misc_HEADERS = \
 noinst_LTLIBRARIES = libmisc.la
 libmisc_la_SOURCES = \
   bareword.cc \
-  bddalloc.cc \
   bddop.cc \
   escape.cc \
   formater.cc \
-  freelist.cc \
   intvcomp.cc \
   intvcmp2.cc \
   memusage.cc \

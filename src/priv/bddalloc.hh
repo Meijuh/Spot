@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -17,8 +20,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_BDDALLOC_HH
-# define SPOT_MISC_BDDALLOC_HH
+#ifndef SPOT_PRIV_BDDALLOC_HH
+# define SPOT_PRIV_BDDALLOC_HH
 
 #include "freelist.hh"
 #include <list>
@@ -52,4 +55,4 @@ namespace spot
 
 }
 
-#endif // SPOT_MISC_BDDALLOC_HH
+#endif // SPOT_PRIV_BDDALLOC_HH
