@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -28,6 +28,7 @@ namespace spot
   class unique_ptr
   {
     typedef T* pointer;
+    typedef const T* const_pointer;
   public:
     unique_ptr(pointer ptr)
       : ptr_(ptr)
@@ -46,6 +47,12 @@ namespace spot
 
     pointer
     operator->()
+    {
+      return ptr_;
+    }
+
+    const_pointer
+    operator->() const
     {
       return ptr_;
     }
