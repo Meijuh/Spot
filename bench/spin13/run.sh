@@ -195,7 +195,7 @@ EOF
 
    cat >>run.mk <<EOF
 ${prefix}sum.tex: $presults
-	../ltl2tgba/sum.py --intro "Version: $v; Date: `date -I`; Host: $h." \\
+	../ltl2tgba/sum.py --intro "Version: $v; Date: `date +%Y-%m-%d`; Host: $h." \\
 	$presults >${prefix}sum.tex
 
 EOF
@@ -207,7 +207,7 @@ EOF
     all="$all ${prefix}sum.pdf ${prefix}sum.tex $results $csv $log $html"
 done
 
-arch=`date -I`.tar.xz
+arch=`date +%Y-%m-%d`.tar.xz
 cat >>run.mk <<EOF
 _all: $arch
 
