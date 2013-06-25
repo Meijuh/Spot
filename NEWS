@@ -1,6 +1,24 @@
 New in spot 1.1.4a (not relased)
 
-  Nothing yet.
+  * Cleanup of exported symbols
+
+    All symbols in the library now have hidden visibility on ELF systems.
+    Public classes and functions have been marked explicitely for export
+    with the SPOT_API macro.
+
+    During this massive update, some of functions that should not have
+    been made public in the first place have been moved away so that
+    they can only be used from the library.  Some old of unused
+    functions have been removed.
+
+    removed:
+      - class loopless_modular_mixed_radix_gray_code
+
+    hidden:
+      - class acc_compl
+      - class acceptance_convertor
+      - class bdd_allocator
+      - class free_list
 
 New in spot 1.1.4 (2013-07-29)
 
