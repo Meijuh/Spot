@@ -1,5 +1,6 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Développement de
-// l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -24,10 +25,11 @@
 namespace spot
 {
   /// \ingroup tgba_on_the_fly_algorithms
-  /// \brief Complement a weak deterministic Büchi automaton
-  /// \param aut a weak deterministic Büchi automaton to complement
+  /// \brief Complement a weak deterministic BÃ¼chi automaton
+  /// \param aut a weak deterministic BÃ¼chi automaton to complement
   /// \return a new automaton that recognizes the complement language
-  tgba* wdba_complement(const tgba* aut);
+  SPOT_API tgba*
+  wdba_complement(const tgba* aut);
 }
 
 #endif

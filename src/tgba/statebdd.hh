@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement de
+// l'Epita.
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -27,7 +30,7 @@ namespace spot
 {
   /// A state whose representation is a BDD.
   /// \ingroup tgba_representation
-  class state_bdd: public state
+  class SPOT_API state_bdd: public state
   {
   public:
     state_bdd(bdd s)

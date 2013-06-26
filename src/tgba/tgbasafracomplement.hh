@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,7 +21,7 @@
 # define SPOT_TGBA_TGBASAFRACOMPLEMENT_HH
 
 # include <vector>
-# include "tgba/tgba.hh"
+# include "tgba.hh"
 
 #ifndef TRANSFORM_TO_TBA
 # define TRANSFORM_TO_TBA 0
@@ -40,13 +41,13 @@ namespace spot
   /// 2. Interpreting this deterministic Rabin automaton as a
   ///    deterministic Streett will produce a complemented automaton.
   /// 3. Then we use a transformation from deterministic Streett
-  ///    automaton to nondeterministic B�chi automaton.
+  ///    automaton to nondeterministic Büchi automaton.
   ///
   ///  Safra construction is done in \a tgba_complement, the transformation
   ///  is done on-the-fly when successors are called.
   ///
   /// \sa safra_determinisation, tgba_safra_complement::succ_iter.
-  class tgba_safra_complement : public tgba
+  class SPOT_API tgba_safra_complement : public tgba
   {
   public:
     tgba_safra_complement(const tgba* a);
@@ -89,10 +90,9 @@ namespace spot
   /// \brief Produce a dot output of the Safra automaton associated
   /// to \a a.
   ///
-  /// @param a The \c tgba_safra_complement with an intermediate Safra
+  /// \param a The \c tgba_safra_complement with an intermediate Safra
   /// automaton to display
-  ///
-  void display_safra(const tgba_safra_complement* a);
+  void SPOT_API display_safra(const tgba_safra_complement* a);
 }
 
 #endif  // SPOT_TGBA_TGBASAFRACOMPLEMENT_HH

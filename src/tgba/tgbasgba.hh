@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -32,7 +32,7 @@ namespace spot
   /// This class acts as a proxy in front of a spot::tgba, that should
   /// label on states on-the-fly.  The result is still a spot::tgba,
   /// but acceptances conditions are also on states.
-  class tgba_sgba_proxy : public tgba
+  class SPOT_API tgba_sgba_proxy : public tgba
   {
   public:
     tgba_sgba_proxy(const tgba* a, bool no_zero_acc = true);

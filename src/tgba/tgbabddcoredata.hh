@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -28,7 +29,7 @@
 namespace spot
 {
   /// Core data for a TGBA encoded using BDDs.
-  struct tgba_bdd_core_data
+  struct SPOT_API tgba_bdd_core_data
   {
     /// \brief encodes the transition relation of the TGBA.
     ///
@@ -42,7 +43,7 @@ namespace spot
     /// \brief encodes the acceptance conditions
     ///
     /// <tt>a U b</tt>, or <tt>F b</tt>, both imply that \c b should
-    /// be verified eventually.  We encode this with generalized Büchi
+    /// be verified eventually.  We encode this with generalized BÃ¼chi
     /// acceptating conditions.  An acceptance set, called
     /// <tt>Acc[b]</tt>, hold all the state that do not promise to
     /// verify \c b eventually.  (I.e., all the states that contain \c

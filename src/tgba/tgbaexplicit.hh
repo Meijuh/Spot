@@ -38,7 +38,7 @@ namespace spot
 {
   // How to destroy the label of a state.
   template<typename T>
-  struct destroy_key
+  struct SPOT_API destroy_key
   {
     void destroy(T t)
     {
@@ -47,7 +47,7 @@ namespace spot
   };
 
   template<>
-  struct destroy_key<const ltl::formula*>
+  struct SPOT_API destroy_key<const ltl::formula*>
   {
     void destroy(const ltl::formula* t)
     {
@@ -58,7 +58,7 @@ namespace spot
   /// States used by spot::explicit_graph implementation
   /// \ingroup tgba_representation
   template<typename Label, typename label_hash>
-  class state_explicit: public spot::state
+  class SPOT_API state_explicit: public spot::state
   {
   public:
     state_explicit()
@@ -133,7 +133,7 @@ namespace spot
 
   /// States labeled by an int
   /// \ingroup tgba_representation
-  class state_explicit_number:
+  class SPOT_API state_explicit_number:
     public state_explicit<int, identity_hash<int> >
   {
   public:
@@ -152,7 +152,7 @@ namespace spot
 
   /// States labeled by a string
   /// \ingroup tgba_representation
-  class state_explicit_string:
+  class SPOT_API state_explicit_string:
     public state_explicit<std::string, string_hash>
   {
   public:
@@ -171,7 +171,7 @@ namespace spot
 
   /// States labeled by a formula
   /// \ingroup tgba_representation
-  class state_explicit_formula:
+  class SPOT_API state_explicit_formula:
     public state_explicit<const ltl::formula*, ltl::formula_ptr_hash>
   {
   public:
@@ -191,7 +191,8 @@ namespace spot
   /// Successor iterators used by spot::tgba_explicit.
   /// \ingroup tgba_representation
   template<typename State>
-  class tgba_explicit_succ_iterator: public tgba_succ_iterator
+  class SPOT_API tgba_explicit_succ_iterator:
+    public tgba_succ_iterator
   {
   public:
     tgba_explicit_succ_iterator(const State* start,
@@ -251,7 +252,7 @@ namespace spot
   /// Graph implementation for explicit automaton
   /// \ingroup tgba_representation
   template<typename State, typename Type>
-  class explicit_graph: public Type
+  class SPOT_API explicit_graph: public Type
   {
   public:
     typedef typename State::label_t label_t;
@@ -694,7 +695,8 @@ namespace spot
   };
 
   template <typename State>
-  class tgba_explicit: public explicit_graph<State, tgba>
+  class SPOT_API tgba_explicit:
+    public explicit_graph<State, tgba>
   {
   public:
     tgba_explicit(bdd_dict* dict): explicit_graph<State, tgba>(dict)
@@ -712,7 +714,8 @@ namespace spot
   };
 
   template <typename State>
-  class sba_explicit: public explicit_graph<State, sba>
+  class SPOT_API sba_explicit:
+    public explicit_graph<State, sba>
   {
   public:
     sba_explicit(bdd_dict* dict): explicit_graph<State, sba>(dict)
@@ -752,7 +755,7 @@ namespace spot
   /// Configuration of graph automata
   /// \ingroup tgba_representation
   template<class graph, typename Type>
-  class explicit_conf: public graph
+  class SPOT_API explicit_conf: public graph
   {
   public:
     explicit_conf(bdd_dict* d): graph(d)
@@ -769,7 +772,7 @@ namespace spot
   };
 
   template<class graph>
-  class explicit_conf<graph, state_explicit_string>: public graph
+  class SPOT_API explicit_conf<graph, state_explicit_string>: public graph
   {
   public:
     explicit_conf(bdd_dict* d): graph(d)
@@ -784,7 +787,7 @@ namespace spot
   };
 
   template<class graph>
-  class explicit_conf<graph, state_explicit_formula>: public graph
+  class SPOT_API explicit_conf<graph, state_explicit_formula>: public graph
   {
   public:
     explicit_conf(bdd_dict* d): graph(d)

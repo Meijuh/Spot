@@ -64,7 +64,7 @@ namespace spot
   /// we never represent transitions!  Transition informations are
   /// obtained by querying the iterator over the successors of
   /// a state.
-  class tgba
+  class SPOT_API tgba
   {
   protected:
     tgba();

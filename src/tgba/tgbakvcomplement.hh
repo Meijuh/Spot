@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -27,7 +27,7 @@
 
 namespace spot
 {
-  class bdd_ordered
+  class SPOT_API bdd_ordered
   {
   public:
     bdd_ordered()
@@ -83,7 +83,7 @@ namespace spot
   /// The construction is done on-the-fly, by the
   /// \c tgba_kv_complement_succ_iterator class.
   /// \see tgba_kv_complement_succ_iterator
-  class tgba_kv_complement : public tgba
+  class SPOT_API tgba_kv_complement : public tgba
   {
   public:
     tgba_kv_complement(const tgba* a);

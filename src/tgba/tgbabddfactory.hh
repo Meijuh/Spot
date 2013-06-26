@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
 // Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -28,7 +31,7 @@ namespace spot
   ///
   /// A spot::tgba_bdd_concrete can be constructed from anything that
   /// supplies core data and their associated dictionary.
-  class tgba_bdd_factory
+  class SPOT_API tgba_bdd_factory
   {
   public:
     virtual ~tgba_bdd_factory() {}

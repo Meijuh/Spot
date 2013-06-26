@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2003, 2004, 2013  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -29,7 +29,7 @@ namespace spot
   ///
   /// This function builds the resulting product as another
   /// spot::tgba_bdd_concrete automaton.
-  tgba_bdd_concrete*
+  SPOT_API tgba_bdd_concrete*
   product(const tgba_bdd_concrete* left, const tgba_bdd_concrete* right);
 }
 

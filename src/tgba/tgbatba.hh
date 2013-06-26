@@ -49,7 +49,7 @@ namespace spot
   /// transitions.
   ///
   /// \see tgba_sba_proxy
-  class tgba_tba_proxy : public tgba
+  class SPOT_API tgba_tba_proxy : public tgba
   {
   public:
     tgba_tba_proxy(const tgba* a);
@@ -147,7 +147,7 @@ namespace spot
   /// one.
   ///
   /// \see degeneralize
-  class tgba_sba_proxy : public tgba_tba_proxy
+  class SPOT_API tgba_sba_proxy : public tgba_tba_proxy
   {
   public:
     tgba_sba_proxy(const tgba* a);

@@ -1,4 +1,6 @@
-// Copyright (C) 2009  Laboratoire de recherche et développement de l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013 Laboratoire de recherche et dÃ©veloppement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -32,7 +34,7 @@ namespace spot
   /// This new method returns a set of conditions that can be
   /// seen on a transitions accessible (maybe indirectly) from
   /// the given state.
-  class future_conditions_collector : public tgba_scc
+  class SPOT_API future_conditions_collector : public tgba_scc
   {
   public:
     typedef scc_map::cond_set cond_set;

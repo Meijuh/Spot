@@ -24,7 +24,6 @@
 # define SPOT_TGBA_FORMULA2BDD_HH
 
 # include "bdddict.hh"
-# include "ltlast/formula.hh"
 
 namespace spot
 {
@@ -39,7 +38,8 @@ namespace spot
   /// passing it right away to bdd_to_formula(), you should not forget
   /// to unregister the variables that have been registered for \a
   /// for_me.  See bdd_dict::unregister_all_my_variables().
-  bdd formula_to_bdd(const ltl::formula* f, bdd_dict* d, void* for_me);
+  SPOT_API bdd
+  formula_to_bdd(const ltl::formula* f, bdd_dict* d, void* for_me);
 
   /// \brief Convert a BDD into a formula.
   ///
@@ -49,7 +49,8 @@ namespace spot
   /// formulas, and all the BDD variables used in \a f should have
   /// been registered in \a d.  Although the result has type
   /// ltl::formula*, it obviously does not use any temporal operator.
-  const ltl::formula* bdd_to_formula(bdd f, const bdd_dict* d);
+  SPOT_API const
+  ltl::formula* bdd_to_formula(bdd f, const bdd_dict* d);
 }
 
 #endif // SPOT_TGBA_FORMULA2BDD_HH

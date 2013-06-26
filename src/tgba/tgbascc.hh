@@ -1,4 +1,6 @@
-// Copyright (C) 2009  Laboratoire de recherche et développement de l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013 Laboratoire de recherche et dÃ©veloppement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -30,7 +32,7 @@ namespace spot
   ///
   /// This class is a spot::tgba wrapper that simply add a new method
   /// scc_of_state() to retrieve the number of a SCC a state belongs to.
-  class tgba_scc : public tgba
+  class SPOT_API tgba_scc : public tgba
   {
   public:
     /// \brief Create a tgba_scc wrapper for \a aut.

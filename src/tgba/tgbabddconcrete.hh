@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Développement
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -31,7 +31,7 @@ namespace spot
 {
   /// \ingroup tgba_representation
   /// \brief A concrete spot::tgba implemented using BDDs.
-  class tgba_bdd_concrete: public tgba
+  class SPOT_API tgba_bdd_concrete: public tgba
   {
   public:
     /// \brief Construct a tgba_bdd_concrete with unknown initial state.

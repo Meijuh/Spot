@@ -54,7 +54,7 @@ namespace spot
   /// unregister_all_my_variables(), giving the same pointer.
   /// Variables can also by unregistered one by one using
   /// unregister_variable().
-  class bdd_dict
+  class SPOT_API bdd_dict
   {
     bdd_dict_priv* priv_;
   public:

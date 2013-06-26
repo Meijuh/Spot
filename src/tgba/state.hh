@@ -23,6 +23,7 @@
 #ifndef SPOT_TGBA_STATE_HH
 # define SPOT_TGBA_STATE_HH
 
+#include "misc/common.hh"
 #include <cstddef>
 #include <bdd.h>
 #include <cassert>
@@ -35,7 +36,7 @@ namespace spot
 
   /// \ingroup tgba_essentials
   /// \brief Abstract class for states.
-  class state
+  class SPOT_API state
   {
   public:
     /// \brief Compares two states (that come from the same automaton).

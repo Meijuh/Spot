@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -19,6 +22,13 @@
 
 #ifndef SPOT_TGBA_PUBLIC_HH
 # define SPOT_TGBA_PUBLIC_HH
+
+// This file should not exist.
+#if __GNUC__
+#ifndef SKIP_DEPRECATED_WARNING
+#warning This file is deprecated.  Include tgba.hh or what you need.
+#endif
+#endif
 
 # include "tgba.hh"
 # include "tgbabddconcrete.hh"

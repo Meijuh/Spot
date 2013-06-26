@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2009, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -32,7 +32,7 @@ namespace spot
 {
   /// \brief A self-loop Transition-based Alternating Automaton (TAA)
   /// which is seen as a TGBA (abstract class, see below).
-  class taa_tgba : public tgba
+  class SPOT_API taa_tgba : public tgba
   {
   public:
     taa_tgba(bdd_dict* dict);
@@ -83,7 +83,7 @@ namespace spot
   };
 
   /// Set of states deriving from spot::state.
-  class state_set : public spot::state
+  class SPOT_API state_set : public spot::state
   {
   public:
     state_set(const taa_tgba::state_set* s, bool delete_me = false)
@@ -107,7 +107,7 @@ namespace spot
     bool delete_me_;
   };
 
-  class taa_succ_iterator : public tgba_succ_iterator
+  class SPOT_API taa_succ_iterator : public tgba_succ_iterator
   {
   public:
     taa_succ_iterator(const taa_tgba::state_set* s, bdd all_acc);
@@ -152,7 +152,7 @@ namespace spot
   /// A taa_tgba instance with states labeled by a given type.
   /// Still an abstract class, see below.
   template<typename label, typename label_hash>
-  class taa_tgba_labelled : public taa_tgba
+  class SPOT_API taa_tgba_labelled : public taa_tgba
   {
   public:
     taa_tgba_labelled(bdd_dict* dict) : taa_tgba(dict) {};
@@ -324,7 +324,7 @@ namespace spot
     }
   };
 
-  class taa_tgba_string :
+  class SPOT_API taa_tgba_string :
     public taa_tgba_labelled<std::string, string_hash>
   {
   public:
@@ -336,7 +336,7 @@ namespace spot
     virtual std::string clone_if(const std::string& label) const;
   };
 
-  class taa_tgba_formula :
+  class SPOT_API taa_tgba_formula :
     public taa_tgba_labelled<const ltl::formula*, ltl::formula_ptr_hash>
   {
   public:

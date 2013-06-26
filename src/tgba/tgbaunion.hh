@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -32,7 +33,7 @@ namespace spot
   /// If the first member is different from 0 and the second is 0,
   /// the state belongs to the right automaton.
   /// If both members are 0, the state is the initial state.
-  class state_union : public state
+  class SPOT_API state_union : public state
   {
   public:
     /// \brief Constructor
@@ -75,7 +76,7 @@ namespace spot
   };
 
    /// \brief Iterate over the successors of an union computed on the fly.
-  class tgba_succ_iterator_union: public tgba_succ_iterator
+  class SPOT_API tgba_succ_iterator_union: public tgba_succ_iterator
   {
   public:
     tgba_succ_iterator_union(tgba_succ_iterator* left,
@@ -107,7 +108,7 @@ namespace spot
   };
 
   /// \brief A lazy union.  (States are computed on the fly.)
-  class tgba_union: public tgba
+  class SPOT_API tgba_union: public tgba
   {
   public:
     /// \brief Constructor.

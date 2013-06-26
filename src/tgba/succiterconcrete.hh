@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
+// l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -28,7 +31,8 @@ namespace spot
 {
   /// A concrete iterator over successors of a TGBA state.
   /// \ingroup tgba_representation
-  class tgba_succ_iterator_concrete: public tgba_succ_iterator
+  class SPOT_API tgba_succ_iterator_concrete:
+    public tgba_succ_iterator
   {
   public:
     /// \brief Build a spot::tgba_succ_iterator_concrete.

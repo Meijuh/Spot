@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2009, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -23,7 +23,7 @@
 #include <iosfwd>
 #include <set>
 #include <vector>
-#include "tgba/public.hh"
+#include "tgba/tgba.hh"
 #include "tgbaalgos/scc.hh"
 
 namespace spot

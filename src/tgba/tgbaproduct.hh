@@ -1,8 +1,9 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -33,7 +34,7 @@ namespace spot
   ///
   /// This state is in fact a pair of state: the state from the left
   /// automaton and that of the right.
-  class state_product : public state
+  class SPOT_API state_product : public state
   {
   public:
     /// \brief Constructor
@@ -77,7 +78,7 @@ namespace spot
 
 
   /// \brief A lazy product.  (States are computed on the fly.)
-  class tgba_product: public tgba
+  class SPOT_API tgba_product: public tgba
   {
   public:
     /// \brief Constructor.
@@ -130,7 +131,7 @@ namespace spot
   };
 
   /// \brief A lazy product with different initial states.
-  class tgba_product_init: public tgba_product
+  class SPOT_API tgba_product_init: public tgba_product
   {
   public:
     tgba_product_init(const tgba* left, const tgba* right,
