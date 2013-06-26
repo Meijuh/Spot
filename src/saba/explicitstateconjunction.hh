@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,7 +20,8 @@
 #ifndef SPOT_SABA_EXPLICITSTATECONJUNCTION_HH
 # define SPOT_SABA_EXPLICITSTATECONJUNCTION_HH
 
-#include <misc/hash.hh>
+#include "misc/common.hh"
+#include "misc/hash.hh"
 #include "sabasucciter.hh"
 
 namespace spot
@@ -30,7 +31,7 @@ namespace spot
   ///
   /// This class provides a basic implementation to
   /// iterate over a conjunction of states of a saba.
-  class explicit_state_conjunction : public saba_state_conjunction
+  class SPOT_API explicit_state_conjunction : public saba_state_conjunction
   {
   public:
 

@@ -1,4 +1,6 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Developpement de l'Epita
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et
+// Developpement de l'Epita
 //
 // This file is part of Spot, a model checking library.
 //
@@ -39,7 +41,7 @@ namespace spot
   ///
   /// This class implements kripke_succ_iterator::current_condition(),
   /// and kripke_succ_iterator::current_acceptance_conditions().
-  class kripke_succ_iterator : public tgba_succ_iterator
+  class SPOT_API kripke_succ_iterator : public tgba_succ_iterator
   {
   public:
     /// \brief Constructor
@@ -78,7 +80,7 @@ namespace spot
   /// need not be defined.
   ///
   /// See also spot::kripke_succ_iterator.
-  class kripke: public fair_kripke
+  class SPOT_API kripke: public fair_kripke
   {
   public:
     virtual ~kripke();

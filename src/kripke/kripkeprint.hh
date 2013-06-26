@@ -1,4 +1,5 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -20,7 +21,9 @@
 #ifndef SPOT_KRIPKE_KRIPKEPRINT_HH
 # define SPOT_KRIPKE_KRIPKEPRINT_HH
 
+# include "misc/common.hh"
 # include <iosfwd>
+
 namespace spot
 {
 
@@ -35,7 +38,8 @@ namespace spot
   /// function only for debugging.  Use
   /// kripke_save_reachable_renumbered() for large output.
   ///
-  std::ostream& kripke_save_reachable(std::ostream& os, const kripke* k);
+  SPOT_API std::ostream&
+  kripke_save_reachable(std::ostream& os, const kripke* k);
 
   /// \ingroup tgba_io
   /// \brief Save the reachable part of Kripke structure in text format.
@@ -45,9 +49,9 @@ namespace spot
   /// state names.  The drawback is that any information carried by
   /// the state name is lost.
   ///
-  std::ostream& kripke_save_reachable_renumbered(std::ostream& os,
-						 const kripke* k);
+  SPOT_API std::ostream&
+  kripke_save_reachable_renumbered(std::ostream& os, const kripke* k);
 
 } // End namespace spot
 
-#endif /* !KRIPKEPRINT_HH_ */
+#endif // SPOT_KRIPKE_KRIPKEPRINT_HH

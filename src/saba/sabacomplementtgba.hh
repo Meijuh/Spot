@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -51,7 +51,7 @@ namespace spot
   /// The construction is done on-the-fly, by the
   /// \c saba_complement_succ_iterator class.
   /// \see saba_complement_succ_iterator
-  class saba_complement_tgba : public saba
+  class SPOT_API saba_complement_tgba : public saba
   {
   public:
     saba_complement_tgba(const tgba* a);

@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -19,6 +20,7 @@
 #ifndef SPOT_SABA_SABASTATE_HH
 # define SPOT_SABA_SABASTATE_HH
 
+#include "misc/common.hh"
 #include <bdd.h>
 #include <functional>
 #include <boost/shared_ptr.hpp>
@@ -28,7 +30,7 @@ namespace spot
 
   /// \ingroup saba_essentials
   /// \brief Abstract class for saba states.
-  class saba_state
+  class SPOT_API saba_state
   {
   public:
     /// \brief Compares two states (that come from the same automaton).

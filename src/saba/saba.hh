@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -25,7 +26,7 @@
 
 namespace spot
 {
-  /// \defgroup saba SABA (State-based Alternating Büchi Automata)
+  /// \defgroup saba SABA (State-based Alternating BÃ¼chi Automata)
   ///
   /// Spot was centered around non-deterministic \ref tgba.
   /// Alternating automata are an extension to non-deterministic
@@ -37,7 +38,7 @@ namespace spot
   /// \ingroup saba
 
   /// \ingroup saba_essentials
-  /// \brief A State-based Alternating (Generalized) Büchi Automaton.
+  /// \brief A State-based Alternating (Generalized) BÃ¼chi Automaton.
   ///
   /// Browsing such automaton can be achieved using two functions:
   /// \c get_init_state, and \c succ_iter.  The former returns
@@ -48,7 +49,7 @@ namespace spot
   /// we never represent transitions!  Transition informations are
   /// obtained by querying the iterator over the successors of
   /// a state.
-  class saba
+  class SPOT_API saba
   {
   protected:
     saba();

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE)
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,7 +29,7 @@
 namespace spot
 {
   /// \brief Concrete class for kripke states.
-  class state_kripke : public state
+  class SPOT_API state_kripke : public state
   {
     friend class kripke_explicit;
     friend class kripke_explicit_succ_iterator;
@@ -90,7 +90,7 @@ namespace spot
 
   /// \class kripke_explicit_succ_iterator
   /// \brief Implement iterator pattern on successor of a state_kripke.
-  class kripke_explicit_succ_iterator : public kripke_succ_iterator
+  class SPOT_API kripke_explicit_succ_iterator : public kripke_succ_iterator
   {
   public:
     kripke_explicit_succ_iterator(const state_kripke*, bdd);
@@ -111,7 +111,7 @@ namespace spot
 
   /// \class kripke_explicit
   /// \brief Kripke Structure.
-  class kripke_explicit : public kripke
+  class SPOT_API kripke_explicit : public kripke
   {
   public:
     kripke_explicit(bdd_dict*);
@@ -183,4 +183,4 @@ namespace spot
     std::map<const state_kripke*, std::string> sn_nodes_;
   };
 }
-#endif /* !SPOT_KRIPKEEXPLICIT_HH_ */
+#endif // SPOT_KRIPKE_KRIPKEEXPLICIT_HH

@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -28,7 +29,7 @@ namespace spot
 {
   /// \ingroup saba_generic
   /// \brief Iterate over all reachable states of a spot::saba.
-  class saba_reachable_iterator
+  class SPOT_API saba_reachable_iterator
   {
   public:
     saba_reachable_iterator(const saba* a);
@@ -115,7 +116,8 @@ namespace spot
   /// \ingroup saba_generic
   /// \brief An implementation of spot::saba_reachable_iterator that browses
   /// states depth first.
-  class saba_reachable_iterator_depth_first : public saba_reachable_iterator
+  class SPOT_API saba_reachable_iterator_depth_first:
+    public saba_reachable_iterator
   {
   public:
     saba_reachable_iterator_depth_first(const saba* a);
@@ -130,7 +132,8 @@ namespace spot
   /// \ingroup saba_generic
   /// \brief An implementation of spot::saba_reachable_iterator that browses
   /// states breadth first.
-  class saba_reachable_iterator_breadth_first : public saba_reachable_iterator
+  class SPOT_API saba_reachable_iterator_breadth_first:
+    public saba_reachable_iterator
   {
   public:
     saba_reachable_iterator_breadth_first(const saba* a);

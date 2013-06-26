@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -28,7 +29,7 @@ namespace spot
   ///
   /// This class provides the basic functionalities required to
   /// iterate over a conjunction of states of a saba.
-  class saba_state_conjunction
+  class SPOT_API saba_state_conjunction
   {
   public:
     virtual
@@ -95,7 +96,7 @@ namespace spot
   /// transitions of an alternating automaton are defined as a
   /// boolean function with conjunctions (universal) and
   /// disjunctions (non-deterministic),
-  class saba_succ_iterator
+  class SPOT_API saba_succ_iterator
   {
   public:
     virtual

@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -19,6 +20,7 @@
 #ifndef SPOT_SABAALGOS_SABADOTTY_HH
 # define SPOT_SABAALGOS_SABADOTTY_HH
 
+#include "misc/common.hh"
 #include <iosfwd>
 
 namespace spot
@@ -27,7 +29,7 @@ namespace spot
 
   /// \ingroup saba_io
   /// \brief Print reachable states in dot format.
-  std::ostream&
+  SPOT_API std::ostream&
   saba_dotty_reachable(std::ostream& os,
                        const saba* g);
 }

@@ -1,4 +1,6 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Developpement de l'Epita
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et
+// Developpement de l'Epita
 //
 // This file is part of Spot, a model checking library.
 //
@@ -44,7 +46,7 @@ namespace spot
   ///
   /// This class implements fair_kripke_succ_iterator::current_condition(),
   /// and fair_kripke_succ_iterator::current_acceptance_conditions().
-  class fair_kripke_succ_iterator : public tgba_succ_iterator
+  class SPOT_API fair_kripke_succ_iterator : public tgba_succ_iterator
   {
   public:
     /// \brief Constructor
@@ -86,7 +88,7 @@ namespace spot
   /// class and need not be defined.
   ///
   /// See also spot::fair_kripke_succ_iterator.
-  class fair_kripke : public tgba
+  class SPOT_API fair_kripke : public tgba
   {
   public:
     /// \brief The condition that label the state \a s.
