@@ -20,6 +20,14 @@
 #ifndef SPOT_MISC_COMMON_HH
 #  define SPOT_MISC_COMMON_HH
 
+#ifdef __GNUC__
+#define SPOT_DEPRECATED __attribute__ ((deprecated))
+#elif defined(_MSC_VER)
+#define SPOT_DEPRECATED __declspec(deprecated)
+#else
+#define SPOT_DEPRECATED func
+#endif
+
 #if defined _WIN32 || defined __CYGWIN__
   #define SPOT_HELPER_DLL_IMPORT __declspec(dllimport)
   #define SPOT_HELPER_DLL_EXPORT __declspec(dllexport)

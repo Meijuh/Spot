@@ -1,7 +1,8 @@
-// Copyright (C) 2009 Laboratoire de Recherche et DÃ©veloppement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013 Laboratoire de Recherche et DÃƒÂ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -22,23 +23,18 @@
 #ifndef SPOT_LTLVISIT_DESTROY_HH
 # define SPOT_LTLVISIT_DESTROY_HH
 
-#include "ltlvisit/postfix.hh"
+# include "misc/common.hh"
+# include "ltlvisit/postfix.hh"
 
 namespace spot
 {
   namespace ltl
   {
-#if __GNUC__
     /// \ingroup ltl_essential
     /// \brief Destroys a formula
     /// \deprecated Use f->destroy() instead.
-    void destroy(const formula *f) __attribute__ ((deprecated));
-#else
-    /// \ingroup ltl_essential
-    /// \brief Destroys a formula
-    /// \deprecated Use f->destroy() instead.
+    SPOT_API SPOT_DEPRECATED
     void destroy(const formula *f);
-#endif
   }
 }
 

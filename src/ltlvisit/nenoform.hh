@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -44,7 +44,7 @@ namespace spot
     /// or spot::ltl::unabbreviate_ltl first.  (Calling these functions
     /// after spot::ltl::negative_normal_form would likely produce a
     /// formula which is not in negative normal form.)
-    const formula*
+    SPOT_API const formula*
     negative_normal_form(const formula* f, bool negated = false);
   }
 }

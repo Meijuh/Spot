@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et DÃƒÂ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -34,6 +37,7 @@ namespace spot
     ///
     /// \c dot is part of the GraphViz package
     /// http://www.research.att.com/sw/tools/graphviz/
+    SPOT_API
     std::ostream& dotty(std::ostream& os, const formula* f);
   }
 }

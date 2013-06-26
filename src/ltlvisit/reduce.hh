@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2006 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -68,12 +68,8 @@ namespace spot
     /// \return the reduced formula
     ///
     /// \deprecated Use spot::ltl::ltl_simplifier instead.
-#if __GNUC__
-    const formula*
-    reduce(const formula* f, int opt = Reduce_All) __attribute__ ((deprecated));
-#else
-    const formula* reduce(const formula* f, int opt = Reduce_All);
-#endif
+    SPOT_API SPOT_DEPRECATED const formula*
+    reduce(const formula* f, int opt = Reduce_All);
     /// @}
 
     /// \ingroup ltl_misc
@@ -99,11 +95,8 @@ namespace spot
     /// anything and still satisfies the formula.
     ///
     /// \deprecated Use f->is_eventual() instead.
-#if __GNUC__
-    bool is_eventual(const formula* f) __attribute__ ((deprecated));
-#else
+    SPOT_API SPOT_DEPRECATED
     bool is_eventual(const formula* f);
-#endif
 
     /// \ingroup ltl_misc
     /// \brief Check whether a formula is purely universal.
@@ -128,11 +121,8 @@ namespace spot
     /// universal formula also satisfies the formula.
     ///
     /// \deprecated Use f->is_universal() instead.
-#if __GNUC__
-    bool is_universal(const formula* f) __attribute__ ((deprecated));
-#else
+    SPOT_API SPOT_DEPRECATED
     bool is_universal(const formula* f);
-#endif
   }
 }
 

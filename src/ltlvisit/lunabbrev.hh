@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -41,7 +41,7 @@ namespace spot
     /// to derive from it and override some of its methods.
     /// But if you just want the functionality, consider using
     /// spot::ltl::unabbreviate_logic instead.
-    class unabbreviate_logic_visitor : public clone_visitor
+    class SPOT_API unabbreviate_logic_visitor : public clone_visitor
     {
       typedef clone_visitor super;
     public:
@@ -61,7 +61,7 @@ namespace spot
     /// This will rewrite binary operators such as binop::Implies,
     /// binop::Equals, and binop::Xor, using only unop::Not, multop::Or,
     /// and multop::And.
-    const formula* unabbreviate_logic(const formula* f);
+    SPOT_API const formula* unabbreviate_logic(const formula* f);
 
   }
 }

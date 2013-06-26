@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -37,7 +37,7 @@ namespace spot
     /// to derive from it and override part of its methods.
     /// But if you just want the functionality, consider using
     /// spot::ltl::formula::clone instead, it is way faster.
-    class clone_visitor : public visitor
+    class SPOT_API clone_visitor : public visitor
     {
     public:
       clone_visitor();
@@ -59,17 +59,11 @@ namespace spot
       const formula* result_;
     };
 
-#if __GNUC__
     /// \ingroup ltl_essential
     /// \brief Clone a formula.
     /// \deprecated Use f->clone() instead.
+    SPOT_API SPOT_DEPRECATED
     const formula* clone(const formula* f) __attribute__ ((deprecated));
-#else
-    /// \ingroup ltl_essential
-    /// \brief Clone a formula.
-    /// \deprecated Use f->clone() instead.
-    const formula* clone(const formula* f);
-#endif
   }
 }
 

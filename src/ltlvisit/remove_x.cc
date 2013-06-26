@@ -20,6 +20,7 @@
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/clone.hh"
 #include "ltlvisit/apcollect.hh"
+#include "ltlvisit/remove_x.hh"
 
 namespace spot
 {

@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,9 +22,9 @@
 #ifndef SPOT_LTLAST_BUNOP_HH
 # define SPOT_LTLAST_BUNOP_HH
 
+#include "refformula.hh"
 #include <map>
 #include <iosfwd>
-#include "refformula.hh"
 #include "constant.hh"
 
 namespace spot
@@ -33,7 +34,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Bounded unary operator.
-    class bunop : public ref_formula
+    class SPOT_API bunop : public ref_formula
     {
     public:
       enum type { Star };

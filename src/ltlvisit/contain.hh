@@ -1,7 +1,8 @@
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 // Copyright (C) 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -31,8 +32,8 @@ namespace spot
 {
   namespace ltl
   {
-    // Check containment of language represented by LTL formulae.
-    class language_containment_checker
+    /// Check containment between LTL formulae.
+    class SPOT_API language_containment_checker
     {
       struct record_
       {
@@ -44,7 +45,7 @@ namespace spot
 			    record_, formula_ptr_hash> trans_map;
     public:
       /// This class uses spot::ltl_to_tgba_fm to translate LTL
-      /// formulae.  See that class for the meaning of these options.
+      /// formulae.  See that function for the meaning of these options.
       language_containment_checker(bdd_dict* dict, bool exprop,
 				   bool symb_merge,
 				   bool branching_postponement,
@@ -106,13 +107,9 @@ namespace spot
     /// reduce some U, R, and X usages.
     ///
     /// \deprecated Use spot::ltl::ltl_simplifier instead.
-#if __GNUC__
+    SPOT_API SPOT_DEPRECATED
     const formula* reduce_tau03(const formula* f,
-				bool stronger = true)
-      __attribute__ ((deprecated));
-#else
-    const formula* reduce_tau03(const formula* f, bool stronger = true);
-#endif
+				bool stronger = true);
   }
 }
 

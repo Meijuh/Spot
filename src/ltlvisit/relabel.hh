@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -29,8 +29,8 @@ namespace spot
     enum relabeling_style { Abc, Pnn };
 
     /// \ingroup ltl_rewriting
-    /// \brief Relabel the atomic proposition in a formula.
-    ///
+    /// \brief Relabel the atomic propositions in a formula.
+    SPOT_API
     const formula* relabel(const formula* f, relabeling_style style);
   }
 }

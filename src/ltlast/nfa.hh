@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2010, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,6 +22,7 @@
 #ifndef SPOT_LTLAST_NFA_HH
 # define SPOT_LTLAST_NFA_HH
 
+# include "misc/common.hh"
 # include "misc/hash.hh"
 # include <boost/shared_ptr.hpp>
 # include <list>
@@ -32,7 +34,7 @@ namespace spot
   namespace ltl
   {
     /// Forward declaration. See below.
-    class succ_iterator;
+    class SPOT_API succ_iterator;
     /// Forward declaration. NFA's labels are reprensented by nodes
     /// which are defined in formula_tree.hh, included in nfa.cc.
     namespace formula_tree
@@ -45,7 +47,7 @@ namespace spot
     /// States are represented by integers.
     /// Labels are represented by formula_tree's nodes.
     /// Currently, only one initial state is possible.
-    class nfa
+    class SPOT_API nfa
     {
     public:
       struct transition;
@@ -118,7 +120,7 @@ namespace spot
       nfa& operator=(const nfa& other);
     };
 
-    class succ_iterator
+    class SPOT_API succ_iterator
     {
     public:
       succ_iterator(const nfa::state::const_iterator s)

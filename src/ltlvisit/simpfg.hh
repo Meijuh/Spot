@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -40,7 +40,7 @@ namespace spot
     /// - false R a = G a
     /// - a W false = G a
     ///
-    class simplify_f_g_visitor : public clone_visitor
+    class SPOT_API simplify_f_g_visitor : public clone_visitor
     {
       typedef clone_visitor super;
     public:
@@ -64,7 +64,7 @@ namespace spot
     /// - false R a = G a
     /// - a W false = G a
     ///
-    const formula* simplify_f_g(const formula* f);
+    SPOT_API const formula* simplify_f_g(const formula* f);
   }
 }
 

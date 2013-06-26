@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -33,7 +33,7 @@ namespace spot
 
     /// \ingroup ltl_io
     /// \brief Base class for random formula generators
-    class random_formula
+    class SPOT_API random_formula
     {
     public:
       random_formula(unsigned proba_size,
@@ -110,7 +110,7 @@ namespace spot
     /// Also, each atomic proposition has as much chance as each
     /// constant (i.e., true and false) to be picked.  This can be
     /// tuned using parse_options().
-    class random_ltl: public random_formula
+    class SPOT_API random_ltl: public random_formula
     {
     public:
       /// Create a random LTL generator using atomic propositions from \a ap.
@@ -160,7 +160,7 @@ namespace spot
     /// constant and all Boolean operators supported by Spot.
     ///
     /// By default each operator has equal chance to be selected.
-    class random_boolean: public random_formula
+    class SPOT_API random_boolean: public random_formula
     {
     public:
       /// Create a random Boolean formula generator using atomic
@@ -200,7 +200,7 @@ namespace spot
     /// constant and all SERE operators supported by Spot.
     ///
     /// By default each operator has equal chance to be selected.
-    class random_sere: public random_formula
+    class SPOT_API random_sere: public random_formula
     {
     public:
       /// Create a random SERE genere using atomic propositions from \a ap.
@@ -241,7 +241,7 @@ namespace spot
     /// The formulae will use the use atomic propositions from the
     /// set of propositions passed to the constructor, in addition to the
     /// constant and all PSL operators supported by Spot.
-    class random_psl: public random_ltl
+    class SPOT_API random_psl: public random_ltl
     {
     public:
       /// Create a random PSL generator using atomic propositions from \a ap.

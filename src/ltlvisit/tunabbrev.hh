@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement de
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -44,7 +44,7 @@ namespace spot
     /// to derive from it and override some of its methods.
     /// But if you just want the functionality, consider using
     /// spot::ltl::unabbreviate_ltl instead.
-    class unabbreviate_ltl_visitor : public unabbreviate_logic_visitor
+    class SPOT_API unabbreviate_ltl_visitor : public unabbreviate_logic_visitor
     {
       typedef unabbreviate_logic_visitor super;
     public:
@@ -65,7 +65,7 @@ namespace spot
     ///
     /// This will also rewrite unary operators such as unop::F,
     /// and unop::G, using only binop::U, and binop::R.
-    const formula* unabbreviate_ltl(const formula* f);
+    SPOT_API const formula* unabbreviate_ltl(const formula* f);
   }
 }
 

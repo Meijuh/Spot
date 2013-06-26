@@ -1,7 +1,8 @@
-// Copyright (C) 2012 Laboratoire de Recherche et Developement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Developement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -40,6 +41,7 @@ namespace spot
     ///
     /// If squash_boolean is set, all Boolean formulae are assumed
     /// to have length one.
+    SPOT_API
     int length(const formula* f);
 
     /// \ingroup ltl_misc
@@ -47,6 +49,7 @@ namespace spot
     ///
     /// This is similar to spot::ltl::length(), except all Boolean
     /// formulae are assumed to have length one.
+    SPOT_API
     int length_boolone(const formula* f);
   }
 }

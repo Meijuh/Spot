@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 //
@@ -18,6 +19,8 @@
 
 #ifndef SPOT_LTLVISIT_REMOVE_X_HH
 # define SPOT_LTLVISIT_REMOVE_X_HH
+
+# include "misc/common.hh"
 
 namespace spot
 {
@@ -43,6 +46,7 @@ namespace spot
           pages         = {261--263}
         }
         \endverbatim */
+    SPOT_API
     const formula* remove_x(const formula* f);
 
     /// \brief Whether an LTL formula \a f is stutter-insensitive.
@@ -63,6 +67,7 @@ namespace spot
           pages         = {261--263}
         }
         \endverbatim */
+    SPOT_API
     bool is_stutter_insensitive(const formula* f);
   }
 }

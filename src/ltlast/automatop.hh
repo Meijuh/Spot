@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2012 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -22,11 +22,11 @@
 #ifndef SPOT_LTLAST_AUTOMATOP_HH
 # define SPOT_LTLAST_AUTOMATOP_HH
 
+# include "refformula.hh"
 # include <vector>
 # include <iosfwd>
 # include <map>
 # include "nfa.hh"
-# include "refformula.hh"
 
 namespace spot
 {
@@ -35,7 +35,7 @@ namespace spot
     /// \ingroup eltl_ast
     /// \brief Automaton operators.
     ///
-    class automatop : public ref_formula
+    class SPOT_API automatop : public ref_formula
     {
     public:
       /// List of formulae.

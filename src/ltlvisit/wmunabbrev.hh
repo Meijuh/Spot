@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -20,6 +20,8 @@
 #ifndef SPOT_LTLVISIT_WMUNABBREV_HH
 # define SPOT_LTLVISIT_WMUNABBREV_HH
 
+# include "misc/common.hh"
+
 namespace spot
 {
   namespace ltl
@@ -35,7 +37,7 @@ namespace spot
     /// <code>a W b</code> is replaced by <code>b R (b | a)</code>,
     /// and <code>a M b</code> is replaced by <code>b U (b & a)</code>.
     ///
-    const formula* unabbreviate_wm(const formula* f);
+    SPOT_API const formula* unabbreviate_wm(const formula* f);
   }
 }
 

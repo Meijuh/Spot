@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -41,7 +41,7 @@ namespace spot
     ///
     /// \param f The formula to translate.
     /// \param os The stream where it should be output.
-    std::ostream&
+    SPOT_API std::ostream&
     to_lbt_string(const formula* f, std::ostream& os);
 
     /// \brief Output an LTL formula as a string in LBT's format.
@@ -53,7 +53,7 @@ namespace spot
     /// rewrite these two operators using unabbreviate_wm().
     ///
     /// \param f The formula to translate.
-    std::string
+    SPOT_API std::string
     to_lbt_string(const formula* f);
     /// @}
   }

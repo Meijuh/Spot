@@ -1,4 +1,5 @@
-// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 //
@@ -31,7 +32,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief A constant (True or False)
-    class constant : public formula
+    class SPOT_API constant : public formula
     {
     public:
       enum type { False, True, EmptyWord };

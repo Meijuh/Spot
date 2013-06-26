@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 //
 // This file is part of Spot, a model checking library.
@@ -23,6 +23,7 @@
 #ifndef SPOT_LTLAST_FORMULA_HH
 # define SPOT_LTLAST_FORMULA_HH
 
+#include "misc/common.hh"
 #include <string>
 #include <cassert>
 #include "predecl.hh"
@@ -68,7 +69,7 @@ namespace spot
     ///
     /// The only way you can work with a formula is to
     /// build a spot::ltl::visitor or spot::ltl::const_visitor.
-    class formula
+    class SPOT_API formula
     {
     public:
       /// Kind of a sub-formula
@@ -420,11 +421,13 @@ namespace spot
     };
 
     /// Print the properties of formula \a f on stream \a out.
+    SPOT_API
     std::ostream& print_formula_props(std::ostream& out,
 				      const formula* f,
 				      bool abbreviated = false);
 
     /// List the properties of formula \a f.
+    SPOT_API
     std::list<std::string> list_formula_props(const formula* f);
   }
 }

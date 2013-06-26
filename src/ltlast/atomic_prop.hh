@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -25,10 +25,10 @@
 #ifndef SPOT_LTLAST_ATOMIC_PROP_HH
 # define SPOT_LTLAST_ATOMIC_PROP_HH
 
+#include "refformula.hh"
 #include <string>
 #include <iosfwd>
 #include <map>
-#include "refformula.hh"
 #include "ltlenv/environment.hh"
 
 namespace spot
@@ -38,7 +38,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Atomic propositions.
-    class atomic_prop : public ref_formula
+    class SPOT_API atomic_prop : public ref_formula
     {
     public:
       /// Build an atomic proposition with name \a name in

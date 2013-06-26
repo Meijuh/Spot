@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Developpement
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -50,8 +50,8 @@ namespace spot
     ///
     /// \param sere the SERE to rewrite
     /// \param cache an optional cache
-    const formula* star_normal_form(const formula* sere,
-				    snf_cache* cache = 0);
+    SPOT_API const formula*
+    star_normal_form(const formula* sere, snf_cache* cache = 0);
   }
 }
 

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -40,7 +40,7 @@ namespace spot
     /// \param full_parent Whether or not the string should by fully
     ///			   parenthesized.
     /// \param ratexp Whether we are printing a SERE.
-    std::ostream&
+    SPOT_API std::ostream&
     to_string(const formula* f, std::ostream& os, bool full_parent = false,
 	      bool ratexp = false);
 
@@ -50,7 +50,7 @@ namespace spot
     /// \param full_parent Whether or not the string should by fully
     ///			   parenthesized.
     /// \param ratexp Whether we are printing a SERE.
-    std::string
+    SPOT_API std::string
     to_string(const formula* f, bool full_parent = false, bool ratexp = false);
 
     /// \brief Output a formula as an utf8 string which is parsable unless
@@ -60,7 +60,7 @@ namespace spot
     /// \param full_parent Whether or not the string should by fully
     ///			   parenthesized.
     /// \param ratexp Whether we are printing a SERE.
-    std::ostream&
+    SPOT_API std::ostream&
     to_utf8_string(const formula* f, std::ostream& os, bool full_parent = false,
 		   bool ratexp = false);
 
@@ -70,7 +70,7 @@ namespace spot
     /// \param full_parent Whether or not the string should by fully
     ///			   parenthesized.
     /// \param ratexp Whether we are printing a SERE.
-    std::string
+    SPOT_API std::string
     to_utf8_string(const formula* f, bool full_parent = false,
 		   bool ratexp = false);
 
@@ -79,23 +79,27 @@ namespace spot
     /// \param os The stream where it should be output.
     /// \param full_parent Whether or not the string should by fully
     ///			   parenthesized.
-    std::ostream& to_spin_string(const formula* f, std::ostream& os,
-				 bool full_parent = false);
+    SPOT_API std::ostream&
+    to_spin_string(const formula* f, std::ostream& os,
+		   bool full_parent = false);
 
     /// \brief Convert a formula into a string parsable by Spin.
     /// \param f The formula to translate.
     /// \param full_parent Whether or not the string should by fully
     ///			   parenthesized.
-    std::string to_spin_string(const formula* f, bool full_parent = false);
+    SPOT_API std::string
+    to_spin_string(const formula* f, bool full_parent = false);
 
     /// \brief Output a formula as a string parsable by Wring.
     /// \param f The formula to translate.
     /// \param os The stream where it should be output.
-    std::ostream& to_wring_string(const formula* f, std::ostream& os);
+    SPOT_API std::ostream&
+    to_wring_string(const formula* f, std::ostream& os);
 
     /// \brief Convert a formula into a string parsable by Wring
     /// \param f The formula to translate.
-    std::string to_wring_string(const formula* f);
+    SPOT_API std::string
+    to_wring_string(const formula* f);
 
     /// @}
   }

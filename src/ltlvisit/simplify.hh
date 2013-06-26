@@ -75,7 +75,7 @@ namespace spot
 
     /// \ingroup ltl_rewriting
     /// \brief Rewrite or simplify \a f in various ways.
-    class ltl_simplifier
+    class SPOT_API ltl_simplifier
     {
     public:
       ltl_simplifier(bdd_dict* dict = 0);
