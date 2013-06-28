@@ -1,4 +1,5 @@
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -42,7 +43,8 @@ namespace spot
   /// necessarily weak.
   /// For other accepting SCCs, this function enumerates all cycles in
   /// the given SCC (it stops if it find a non-accepting cycle).
-  bool is_inherently_weak_scc(scc_map& map, unsigned scc);
+  SPOT_API bool
+  is_inherently_weak_scc(scc_map& map, unsigned scc);
 
   /// \brief Whether the SCC number \a scc in \a map is weak.
   ///
@@ -52,7 +54,8 @@ namespace spot
   /// Note that terminal SCCs are also weak with that definition.
   ///
   /// The scc_map \a map should have been built already.
-  bool is_weak_scc(scc_map& map, unsigned scc);
+  SPOT_API bool
+  is_weak_scc(scc_map& map, unsigned scc);
 
   /// \brief Whether the SCC number \a scc in \a map is complete.
   ///
@@ -60,7 +63,8 @@ namespace spot
   /// a transition that stays into this SCC.
   ///
   /// The scc_map \a map should have been built already.
-  bool is_complete_scc(scc_map& map, unsigned scc);
+  SPOT_API bool
+  is_complete_scc(scc_map& map, unsigned scc);
 
   /// \brief Whether the SCC number \a scc in \a map is syntactically
   /// weak.
@@ -70,7 +74,8 @@ namespace spot
   /// syntactic-persistence formula.
   ///
   /// The scc_map \a map should have been built already.
-  bool is_syntactic_weak_scc(scc_map& map, unsigned scc);
+  SPOT_API bool
+  is_syntactic_weak_scc(scc_map& map, unsigned scc);
 
   /// \brief Whether the SCC number \a scc in \a map is syntactically
   /// terminal.
@@ -80,14 +85,16 @@ namespace spot
   /// syntactic-guarantee formula.
   ///
   /// The scc_map \a map should have been built already.
-  bool is_syntactic_terminal_scc(scc_map& map, unsigned scc);
+  SPOT_API bool
+  is_syntactic_terminal_scc(scc_map& map, unsigned scc);
 
   /// \brief Whether the SCC number \a scc in \a map is terminal.
   ///
   /// An SCC is terminal if it is weak, complete, and accepting.
   ///
   /// The scc_map \a map should have been built already.
-  bool is_terminal_scc(scc_map& map, unsigned scc);
+  SPOT_API bool
+  is_terminal_scc(scc_map& map, unsigned scc);
 
   /// @}
 }

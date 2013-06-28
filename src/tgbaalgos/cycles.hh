@@ -76,7 +76,7 @@ namespace spot
   /// run() method will terminate.  If it returns true, the run()
   /// method will search for the next elementary cycle and call
   /// cycle_found() again if it finds another cycle.
-  class enumerate_cycles
+  class SPOT_API enumerate_cycles
   {
   protected:
     typedef Sgi::hash_set<const state*,

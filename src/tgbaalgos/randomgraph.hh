@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -77,7 +78,7 @@ namespace spot
   /// \f$1+(n-1)d\f$ and variance \f$(n-1)d(1-d)\f$.  (This is less
   /// accurate, but faster than considering all possible \a n
   /// successors one by one.)
-  tgba*
+  SPOT_API tgba*
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, bdd_dict* dict,
 	       int n_acc = 0, float a = 0.1, float t = 0.5,

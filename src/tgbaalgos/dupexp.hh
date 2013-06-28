@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -30,23 +30,25 @@ namespace spot
   /// \ingroup tgba_misc
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in bread first order as they are processed.
-  tgba_explicit_number* tgba_dupexp_bfs(const tgba* aut);
+  SPOT_API tgba_explicit_number*
+  tgba_dupexp_bfs(const tgba* aut);
   /// \ingroup tgba_misc
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in depth first order as they are processed.
-  tgba_explicit_number* tgba_dupexp_dfs(const tgba* aut);
+  SPOT_API tgba_explicit_number*
+  tgba_dupexp_dfs(const tgba* aut);
 
   /// \ingroup tgba_misc
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in bread first order as they are processed.
-  tgba_explicit_number*
+  SPOT_API tgba_explicit_number*
   tgba_dupexp_bfs(const tgba* aut,
                   std::map<const state*, const state*,
                            state_ptr_less_than>& relation);
   /// \ingroup tgba_misc
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in depth first order as they are processed.
-  tgba_explicit_number*
+  SPOT_API tgba_explicit_number*
   tgba_dupexp_dfs(const tgba* aut,
                   std::map<const state*, const state*,
                            state_ptr_less_than>& relation);

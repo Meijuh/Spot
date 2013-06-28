@@ -1,5 +1,8 @@
-// Copyright (C) 2004, 2011  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
+// Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -20,7 +23,8 @@
 #ifndef SPOT_TGBAALGOS_DOTTYDEC_HH
 # define SPOT_TGBAALGOS_DOTTYDEC_HH
 
-#include <string>
+# include "misc/common.hh"
+# include <string>
 
 namespace spot
 {
@@ -33,7 +37,7 @@ namespace spot
 
   /// \ingroup tgba_dotty
   /// \brief Choose state and link styles for spot::dotty_reachable.
-  class dotty_decorator
+  class SPOT_API dotty_decorator
   {
   public:
     virtual ~dotty_decorator();

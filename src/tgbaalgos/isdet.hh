@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -32,14 +32,16 @@ namespace spot
   /// The automaton is deterministic if it has 0 nondeterministic states,
   /// but it is more efficient to call is_deterministic() if you do not
   /// care about the number of nondeterministic states.
-  unsigned count_nondet_states(const tgba* aut);
+  SPOT_API unsigned
+  count_nondet_states(const tgba* aut);
 
   /// \brief Return true iff \a aut is deterministic.
   ///
   /// This function is more efficient than count_nondet_states() when
   /// the automaton is nondeterministic, because it can return before
   /// the entire automaton has been explored.
-  bool is_deterministic(const tgba* aut);
+  SPOT_API bool
+  is_deterministic(const tgba* aut);
 
   /// @}
 }

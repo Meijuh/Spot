@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -20,7 +23,8 @@
 #ifndef SPOT_TGBAALGOS_PROJRUN_HH
 # define SPOT_TGBAALGOS_PROJRUN_HH
 
-#include <iosfwd>
+# include "misc/common.hh"
+# include <iosfwd>
 
 namespace spot
 {
@@ -37,9 +41,10 @@ namespace spot
   /// \param a_run the automata on which the run was generated
   /// \param a_proj the automata on which to project the run
   /// \return true iff the run could be completed
-  tgba_run* project_tgba_run(const tgba* a_run,
-			     const tgba* a_proj,
-			     const tgba_run* run);
+  SPOT_API tgba_run*
+  project_tgba_run(const tgba* a_run, const tgba* a_proj,
+
+const tgba_run* run);
 }
 
 #endif // SPOT_TGBAALGOS_PROJRUN_HH

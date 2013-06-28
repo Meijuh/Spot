@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -22,6 +23,14 @@
 
 #ifndef SPOT_TGBAALGOS_REDUCTGBA_SIM_HH
 #define SPOT_TGBAALGOS_REDUCTGBA_SIM_HH
+
+#if __GNUC__
+#ifndef SKIP_DEPRECATED_WARNING
+#warning This file is deprecated.  Use postproc.hh instead.
+#endif
+#endif
+
+#include "misc/common.hh"
 
 namespace spot
 {
@@ -55,7 +64,6 @@ namespace spot
 #endif
     };
 
-#if __GNUC__
   /// \brief Simplify the automaton using a simulation relation.
   ///
   /// Do not use this obsolete function.
@@ -66,23 +74,10 @@ namespace spot
   ///             simulation-related flag will cause direct simulation
   ///             to be applied.
   /// \return the reduced automaton
-  /// \deprecated Use scc_filter(), minimize_wdba(), or simulation().
-  const tgba* reduc_tgba_sim(const tgba* a, int opt = Reduce_All)
-  __attribute__ ((deprecated));
-#else
-  /// \brief Simplify the automaton using a simulation relation.
-  ///
-  /// Do not use this obsolete function.
-  ///
-  /// \param a the automata to reduce
-  /// \param opt a conjonction of spot::reduce_tgba_options specifying
-  ///             which optimizations to apply.  Actually any
-  ///             simulation-related flag will cause direct simulation
-  ///             to be applied.
-  /// \return the reduced automaton
-  /// \deprecated Use scc_filter(), minimize_wdba(), or simulation().
+  /// \deprecated Use scc_filter(), minimize_wdba(), simulation(),
+  /// or postprocessor.
+  SPOT_API SPOT_DEPRECATED
   const tgba* reduc_tgba_sim(const tgba* a, int opt = Reduce_All);
-#endif
 
   /// @}
 }

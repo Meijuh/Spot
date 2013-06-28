@@ -1,8 +1,9 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -121,7 +122,7 @@ namespace spot
       \endverbatim */
   ///
   /// \return A spot::tgba_explicit that recognizes the language of \a f.
-  tgba_explicit_formula*
+  SPOT_API tgba_explicit_formula*
   ltl_to_tgba_fm(const ltl::formula* f, bdd_dict* dict,
 		 bool exprop = false, bool symb_merge = true,
 		 bool branching_postponement = false,

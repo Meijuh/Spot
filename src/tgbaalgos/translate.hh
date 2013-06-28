@@ -45,7 +45,7 @@ namespace spot
   /// The semantic of these three methods is inherited from the
   /// spot::postprocessor class, but the optimization level is
   /// additionally used to select which LTL simplifications to enable.
-  class translator: protected postprocessor
+  class SPOT_API translator: protected postprocessor
   {
   public:
     translator(ltl::ltl_simplifier* simpl, const option_map* opt = 0)

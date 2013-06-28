@@ -19,6 +19,7 @@
 #include "cycles.hh"
 #include "tgba/tgbaexplicit.hh"
 #include "ltlast/formula.hh"
+#include "isweakscc.hh"
 
 namespace spot
 {

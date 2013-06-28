@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -34,7 +35,7 @@ namespace spot
   /// \brief Highlight a spot::tgba_run on a spot::tgba.
   ///
   /// An instance of this class can be passed to spot::dotty_reachable.
-  class tgba_run_dotty_decorator: public dotty_decorator
+  class SPOT_API tgba_run_dotty_decorator: public dotty_decorator
   {
   public:
     tgba_run_dotty_decorator(const tgba_run* run);

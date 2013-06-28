@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
-// et Développement de l'Epita.
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
+// Recherche et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -31,7 +31,7 @@
 namespace spot
 {
 
-  struct scc_stats
+  struct SPOT_API scc_stats
   {
     /// Total number of SCCs.
     unsigned scc_total;
@@ -67,7 +67,7 @@ namespace spot
   };
 
   /// Build a map of Strongly Connected components in in a TGBA.
-  class scc_map
+  class SPOT_API scc_map
   {
   public:
     typedef std::map<unsigned, bdd> succ_type;
@@ -247,13 +247,15 @@ namespace spot
     unsigned self_loops_; // Self loops count.
  };
 
-  scc_stats build_scc_stats(const tgba* a);
-  scc_stats build_scc_stats(const scc_map& m);
+  SPOT_API scc_stats
+  build_scc_stats(const tgba* a);
+  SPOT_API scc_stats
+  build_scc_stats(const scc_map& m);
 
-  std::ostream& dump_scc_dot(const tgba* a, std::ostream& out,
-			     bool verbose = false);
-  std::ostream& dump_scc_dot(const scc_map& m, std::ostream& out,
-			     bool verbose = false);
+  SPOT_API std::ostream&
+  dump_scc_dot(const tgba* a, std::ostream& out, bool verbose = false);
+  SPOT_API std::ostream&
+  dump_scc_dot(const scc_map& m, std::ostream& out, bool verbose = false);
 }
 
 #endif // SPOT_TGBAALGOS_SCC_HH

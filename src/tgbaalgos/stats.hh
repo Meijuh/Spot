@@ -1,7 +1,8 @@
-// Copyright (C) 2008, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2011, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -32,7 +33,7 @@ namespace spot
   /// \addtogroup tgba_misc
   /// @{
 
-  struct tgba_statistics
+  struct SPOT_API tgba_statistics
   {
     unsigned transitions;
     unsigned states;
@@ -41,7 +42,7 @@ namespace spot
     std::ostream& dump(std::ostream& out) const;
   };
 
-  struct tgba_sub_statistics: public tgba_statistics
+  struct SPOT_API tgba_sub_statistics: public tgba_statistics
   {
     unsigned sub_transitions;
 
@@ -50,12 +51,12 @@ namespace spot
   };
 
   /// \brief Compute statistics for an automaton.
-  tgba_statistics stats_reachable(const tgba* g);
+  SPOT_API tgba_statistics stats_reachable(const tgba* g);
   /// \brief Compute subended statistics for an automaton.
-  tgba_sub_statistics sub_stats_reachable(const tgba* g);
+  SPOT_API tgba_sub_statistics sub_stats_reachable(const tgba* g);
 
 
-  class printable_formula: public printable_value<const ltl::formula*>
+  class SPOT_API printable_formula: public printable_value<const ltl::formula*>
   {
   public:
     printable_formula&
@@ -74,7 +75,7 @@ namespace spot
   /// This object can be configured to display various statistics
   /// about a TGBA.  Some %-sequence of characters are interpreted in
   /// the format string, and replaced by the corresponding statistics.
-  class stat_printer: protected formater
+  class SPOT_API stat_printer: protected formater
   {
   public:
     stat_printer(std::ostream& os, const char* format);

@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2010 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2010, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -46,7 +47,8 @@ namespace spot
   /// \param f The formula to translate into an automaton.
   /// \param dict The spot::bdd_dict the constructed automata should use.
   /// \return A spot::tgba_bdd_concrete that recognizes the language of \a f.
-  tgba_bdd_concrete* eltl_to_tgba_lacim(const ltl::formula* f, bdd_dict* dict);
+  SPOT_API tgba_bdd_concrete*
+  eltl_to_tgba_lacim(const ltl::formula* f, bdd_dict* dict);
 }
 
 #endif // SPOT_TGBAALGOS_LTL2TGBA_LACIM_HH

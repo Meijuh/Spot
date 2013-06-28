@@ -1,7 +1,8 @@
-// Copyright (C) 2008, 2009, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2011, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
-// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
 // Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -31,7 +32,7 @@ namespace spot
 {
   /// \ingroup tgba_generic
   /// \brief Iterate over all reachable states of a spot::tgba.
-  class tgba_reachable_iterator
+  class SPOT_API tgba_reachable_iterator
   {
   public:
     tgba_reachable_iterator(const tgba* a);
@@ -98,7 +99,8 @@ namespace spot
   /// \ingroup tgba_generic
   /// \brief An implementation of spot::tgba_reachable_iterator that browses
   /// states depth first.
-  class tgba_reachable_iterator_depth_first : public tgba_reachable_iterator
+  class SPOT_API tgba_reachable_iterator_depth_first :
+    public tgba_reachable_iterator
   {
   public:
     tgba_reachable_iterator_depth_first(const tgba* a);
@@ -113,7 +115,8 @@ namespace spot
   /// \ingroup tgba_generic
   /// \brief An implementation of spot::tgba_reachable_iterator that browses
   /// states breadth first.
-  class tgba_reachable_iterator_breadth_first : public tgba_reachable_iterator
+  class SPOT_API tgba_reachable_iterator_breadth_first :
+    public tgba_reachable_iterator
   {
   public:
     tgba_reachable_iterator_breadth_first(const tgba* a);

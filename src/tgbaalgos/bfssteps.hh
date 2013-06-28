@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -38,7 +39,7 @@ namespace spot
   /// These conditions should be specified by defining bfs_steps::match()
   /// in a subclass.  Also the search can be restricted to some set of
   /// states with a proper definition of bfs_steps::filter().
-  class bfs_steps
+  class SPOT_API bfs_steps
   {
   public:
     bfs_steps(const tgba* a);

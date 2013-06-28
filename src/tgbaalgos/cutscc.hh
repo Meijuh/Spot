@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2009, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 //
@@ -20,7 +21,6 @@
 #ifndef SPOT_TGBAALGOS_CUTSCC_HH
 # define SPOT_TGBAALGOS_CUTSCC_HH
 
-#include <iosfwd>
 #include <set>
 #include <vector>
 #include "tgba/tgba.hh"
@@ -34,10 +34,14 @@ namespace spot
     unsigned size;
   };
 
-  std::vector<std::vector<sccs_set* > >* find_paths(tgba* a, const scc_map& m);
-  unsigned max_spanning_paths(std::vector<sccs_set* >* paths, scc_map& m);
-  std::list<tgba*> split_tgba(tgba* a, const scc_map& m,
-			      unsigned split_number);
+  SPOT_API std::vector<std::vector<sccs_set* > >*
+  find_paths(tgba* a, const scc_map& m);
+
+  SPOT_API unsigned
+  max_spanning_paths(std::vector<sccs_set* >* paths, scc_map& m);
+
+  SPOT_API std::list<tgba*>
+  split_tgba(tgba* a, const scc_map& m, unsigned split_number);
 
 }
 

@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement de
+// l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -43,7 +46,7 @@ namespace spot
         weight = 0; // the null vector
         call dfs_blue(s0);
       end;
-     
+
       procedure dfs_blue (s)
       begin
         s.color = cyan;
@@ -71,7 +74,7 @@ namespace spot
         end for;
         s.color = blue;
       end;
-     
+
       procedure dfs_red(s, Acc)
       begin
         for all t in post(s) do
@@ -95,8 +98,8 @@ namespace spot
   /// the path stored in the blue stack. Such a vector is associated to each
   /// state of this stack.
   ///
-  emptiness_check* explicit_tau03_opt_search(const tgba *a,
-					     option_map o = option_map());
+  SPOT_API emptiness_check*
+  explicit_tau03_opt_search(const tgba *a, option_map o = option_map());
 
   /// @}
 }

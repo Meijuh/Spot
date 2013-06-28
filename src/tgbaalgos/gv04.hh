@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -51,8 +54,8 @@ namespace spot
         isbn    = {3-540-21299-X}
       }
       \endverbatim */
-  emptiness_check* explicit_gv04_check(const tgba* a,
-				       option_map o = option_map());
+  SPOT_API emptiness_check*
+  explicit_gv04_check(const tgba* a, option_map o = option_map());
 }
 
 #endif // SPOT_TGBAALGOS_GV04_HH

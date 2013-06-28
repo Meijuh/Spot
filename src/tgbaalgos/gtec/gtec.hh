@@ -1,8 +1,9 @@
-// Copyright (C) 2008 Laboratoire de Recherche et Development de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2013 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -135,7 +136,7 @@ namespace spot
   /// states that belong to the same SCC will be considered when
   /// choosing a successor.  Otherwise, only the successor of the
   /// topmost state on the DFS stack are considered.
-  emptiness_check*
+  SPOT_API emptiness_check*
   couvreur99(const tgba* a,
 	     option_map options = option_map(),
 	     const numbered_state_heap_factory* nshf
@@ -145,7 +146,7 @@ namespace spot
   /// \brief An implementation of the Couvreur99 emptiness-check algorithm.
   ///
   /// See the documentation for spot::couvreur99.
-  class couvreur99_check: public emptiness_check, public ec_statistics
+  class SPOT_API couvreur99_check: public emptiness_check, public ec_statistics
   {
   public:
     couvreur99_check(const tgba* a,
@@ -190,7 +191,7 @@ namespace spot
   /// known states first.
   ///
   /// See the documentation for spot::couvreur99.
-  class couvreur99_check_shy : public couvreur99_check
+  class SPOT_API couvreur99_check_shy : public couvreur99_check
   {
   public:
     couvreur99_check_shy(const tgba* a,

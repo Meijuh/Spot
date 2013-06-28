@@ -1,6 +1,9 @@
-// Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
+// Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
+// Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -48,7 +51,7 @@ namespace spot
       begin
         call dfs_blue(s0);
       end;
-     
+
       procedure dfs_blue (s)
       begin
         s.color = cyan;
@@ -67,7 +70,7 @@ namespace spot
         end for;
         s.color = blue;
       end;
-     
+
       procedure dfs_red(s)
       begin
         if s.color == cyan then
@@ -99,8 +102,9 @@ namespace spot
   ///
   /// \sa spot::explicit_magic_search
   ///
-  emptiness_check* explicit_se05_search(const tgba *a,
-                                        option_map o = option_map());
+  SPOT_API emptiness_check*
+  explicit_se05_search(const tgba *a, option_map o = option_map());
+
   /// \brief Returns an emptiness checker on the spot::tgba automaton \a a.
   ///
   /// \pre The automaton \a a must have at most one acceptance condition (i.e.
@@ -128,8 +132,9 @@ namespace spot
   ///
   /// \sa spot::explicit_se05_search
   ///
-  emptiness_check* bit_state_hashing_se05_search(const tgba *a, size_t size,
-						 option_map o = option_map());
+  SPOT_API emptiness_check*
+  bit_state_hashing_se05_search(const tgba *a, size_t size,
+				option_map o = option_map());
 
 
   /// \brief Wrapper for the two se05 implementations.
@@ -138,7 +143,8 @@ namespace spot
   /// bit_state_hashing_se05_search() according to the \c "bsh" option
   /// in the \c option_map.  If \c "bsh" is set and non null, its value
   /// is used as the size of the hash map.
-  emptiness_check* se05(const tgba *a, option_map o);
+  SPOT_API emptiness_check*
+  se05(const tgba *a, option_map o);
 
   /// @}
 }

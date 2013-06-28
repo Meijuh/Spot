@@ -49,10 +49,11 @@ namespace spot
   /// This interface is subject to change, and clients aiming for
   /// long-term stability should better use the services of the
   /// spot::translator class instead.
-  tgba* compsusp(const ltl::formula* f, bdd_dict* dict,
-		 bool no_wdba = false, bool no_simulation = false,
-		 bool early_susp = false, bool no_susp_product = false,
-		 bool wdba_smaller = false, bool oblig = false);
+  SPOT_API tgba*
+  compsusp(const ltl::formula* f, bdd_dict* dict,
+	   bool no_wdba = false, bool no_simulation = false,
+	   bool early_susp = false, bool no_susp_product = false,
+	   bool wdba_smaller = false, bool oblig = false);
 }
 
 #endif // SPOT_TGBAALGOS_COMPSUSP_HH

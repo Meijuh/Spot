@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et Development de
+// l'Epita (LRDE).
 // Copyright (C) 2004, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -20,13 +23,13 @@
 #ifndef SPOT_TGBAALGOS_GTEC_NSHEAP_HH
 # define SPOT_TGBAALGOS_GTEC_NSHEAP_HH
 
-#include "tgba/state.hh"
-#include "misc/hash.hh"
+# include "tgba/state.hh"
+# include "misc/hash.hh"
 
 namespace spot
 {
   /// Iterator on numbered_state_heap objects.
-  class numbered_state_heap_const_iterator
+  class SPOT_API numbered_state_heap_const_iterator
   {
   public:
     virtual ~numbered_state_heap_const_iterator() {}
@@ -46,7 +49,7 @@ namespace spot
   };
 
   /// Keep track of a large quantity of indexed states.
-  class numbered_state_heap
+  class SPOT_API numbered_state_heap
   {
   public:
     typedef std::pair<const state*, int*> state_index_p;
@@ -95,7 +98,7 @@ namespace spot
   };
 
   /// Abstract factory for numbered_state_heap
-  class numbered_state_heap_factory
+  class SPOT_API numbered_state_heap_factory
   {
   public:
     virtual ~numbered_state_heap_factory() {}
@@ -103,7 +106,7 @@ namespace spot
   };
 
   /// A straightforward implementation of numbered_state_heap with a hash map.
-  class numbered_state_heap_hash_map : public numbered_state_heap
+  class SPOT_API numbered_state_heap_hash_map : public numbered_state_heap
   {
   public:
     virtual ~numbered_state_heap_hash_map();
@@ -127,7 +130,7 @@ namespace spot
   /// \brief Factory for numbered_state_heap_hash_map.
   ///
   /// This class is a singleton.  Retrieve the instance using instance().
-  class numbered_state_heap_hash_map_factory:
+  class SPOT_API numbered_state_heap_hash_map_factory:
     public numbered_state_heap_factory
   {
   public:

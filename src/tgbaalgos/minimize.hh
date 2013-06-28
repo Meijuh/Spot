@@ -57,7 +57,7 @@ namespace spot
   /// \param a the automaton to convert into a minimal deterministic monitor
   /// \pre Dead SCCs should have been removed from \a a before
   ///      calling this function.
-  sba_explicit_number* minimize_monitor(const tgba* a);
+  SPOT_API sba_explicit_number* minimize_monitor(const tgba* a);
 
   /// \brief Minimize a Büchi automaton in the WDBA class.
   ///
@@ -93,7 +93,7 @@ namespace spot
         month     = oct
       }
       \endverbatim */
-  sba_explicit_number* minimize_wdba(const tgba* a);
+  SPOT_API sba_explicit_number* minimize_wdba(const tgba* a);
 
   /// \brief Minimize an automaton if it represents an obligation property.
   ///
@@ -150,10 +150,10 @@ namespace spot
   /// determinization step during minimize_wdba().)  Note that
   /// checking the size of the minimized WDBA occurs before ensuring
   /// that the minimized WDBA is correct.
-  tgba* minimize_obligation(const tgba* aut_f,
-			    const ltl::formula* f = 0,
-			    const tgba* aut_neg_f = 0,
-			    bool reject_bigger = false);
+  SPOT_API tgba* minimize_obligation(const tgba* aut_f,
+				     const ltl::formula* f = 0,
+				     const tgba* aut_neg_f = 0,
+				     bool reject_bigger = false);
 
   /// @}
 }

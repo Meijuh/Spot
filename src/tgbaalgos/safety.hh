@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE)
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -45,7 +46,8 @@ namespace spot
   /// \param sm an scc_map of the automaton if available (it will be
   /// built otherwise.  If you supply an scc_map you should call
   /// build_map() before passing it to this function.
-  bool is_guarantee_automaton(const tgba* aut, const scc_map* sm = 0);
+  SPOT_API bool
+  is_guarantee_automaton(const tgba* aut, const scc_map* sm = 0);
 
   /// \brief Whether a minimized WDBA represents a safety property.
   ///
@@ -54,8 +56,8 @@ namespace spot
   /// only accepting transitions.
   ///
   /// \param aut the automaton to check
-  bool is_safety_mwdba(const tgba* aut);
-
+  SPOT_API bool
+  is_safety_mwdba(const tgba* aut);
 
 }
 

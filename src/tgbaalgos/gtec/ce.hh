@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement de
+// l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -27,7 +30,7 @@
 namespace spot
 {
   /// Compute a counter example from a spot::couvreur99_check_status
-  class couvreur99_check_result:
+  class SPOT_API couvreur99_check_result:
     public emptiness_check_result,
     public acss_statistics
   {

@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -41,10 +42,11 @@ namespace spot
   ///          it will be output as a comment.
   /// \param comments Whether to comment each state of the never clause
   ///          with the label of the \a g automaton.
-  std::ostream& never_claim_reachable(std::ostream& os,
-				      const tgba* g,
-				      const ltl::formula* f = 0,
-				      bool comments = false);
+  SPOT_API std::ostream&
+  never_claim_reachable(std::ostream& os,
+			const tgba* g,
+			const ltl::formula* f = 0,
+			bool comments = false);
 }
 
 #endif // SPOT_TGBAALGOS_NEVERCLAIM_HH

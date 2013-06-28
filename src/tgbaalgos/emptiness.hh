@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -73,7 +74,7 @@ namespace spot
   /// Instances of these class should not last longer than the
   /// instances of emptiness_check that produced them as they
   /// may reference data internal to the check.
-  class emptiness_check_result
+  class SPOT_API emptiness_check_result
   {
   public:
     emptiness_check_result(const tgba* a, option_map o = option_map())
@@ -129,7 +130,7 @@ namespace spot
   };
 
   /// Common interface to emptiness check algorithms.
-  class emptiness_check
+  class SPOT_API emptiness_check
   {
   public:
     emptiness_check(const tgba* a, option_map o = option_map())
@@ -190,7 +191,7 @@ namespace spot
 
 
   // Dynamically create emptiness checks.  Given their name and options.
-  class emptiness_check_instantiator
+  class SPOT_API emptiness_check_instantiator
   {
   public:
     /// \brief Create an emptiness-check instantiator, given the name
@@ -250,7 +251,7 @@ namespace spot
   /// @{
 
   /// An accepted run, for a tgba.
-  struct tgba_run
+  struct SPOT_API tgba_run
   {
     struct step {
       const state* s;
@@ -285,15 +286,15 @@ namespace spot
   /// This is unlike replay_tgba_run(), which will ensure the run
   /// actually exists in the automaton (and will also display any
   /// transition annotation).
-  std::ostream& print_tgba_run(std::ostream& os,
-                               const tgba* a,
-                               const tgba_run* run);
+  SPOT_API std::ostream&
+  print_tgba_run(std::ostream& os, const tgba* a, const tgba_run* run);
 
   /// \brief Return an explicit_tgba corresponding to \a run (i.e. comparable
   /// states are merged).
   ///
   /// \pre \a run must correspond to an actual run of the automaton \a a.
-  tgba* tgba_run_to_tgba(const tgba* a, const tgba_run* run);
+  SPOT_API tgba*
+  tgba_run_to_tgba(const tgba* a, const tgba_run* run);
 
   /// @}
 

@@ -56,7 +56,7 @@ namespace spot
   /// when minimized_obligation failed to produce an automaton smaller
   /// than its input.  pref=Small,level=Low will only run
   /// simulation().
-  class postprocessor
+  class SPOT_API postprocessor
   {
   public:
     /// \brief Construct a postprocessor.

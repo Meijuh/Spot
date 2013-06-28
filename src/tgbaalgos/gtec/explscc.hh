@@ -1,7 +1,8 @@
-// Copyright (C) 2011  Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -29,7 +30,8 @@
 namespace spot
 {
   /// An SCC storing all its states explicitly.
-  class explicit_connected_component: public scc_stack::connected_component
+  class SPOT_API explicit_connected_component:
+    public scc_stack::connected_component
   {
   public:
     virtual ~explicit_connected_component() {}
@@ -46,7 +48,8 @@ namespace spot
 
   /// A straightforward implementation of explicit_connected_component
   /// using a hash.
-  class connected_component_hash_set: public explicit_connected_component
+  class SPOT_API connected_component_hash_set:
+    public explicit_connected_component
   {
   public:
     virtual ~connected_component_hash_set() {}

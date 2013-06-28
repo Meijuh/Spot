@@ -20,6 +20,8 @@
 #ifndef SPOT_TGBAALGOS_SIMULATION_HH
 # define SPOT_TGBAALGOS_SIMULATION_HH
 
+# include "misc/common.hh"
+
 namespace spot
 {
   class tgba;
@@ -67,8 +69,8 @@ namespace spot
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
-  tgba* simulation(const tgba* automaton);
-  tgba* simulation_sba(const tgba* automaton);
+  SPOT_API tgba* simulation(const tgba* automaton);
+  SPOT_API tgba* simulation_sba(const tgba* automaton);
   /// @}
 
   /// @{
@@ -118,8 +120,8 @@ namespace spot
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
-  tgba* cosimulation(const tgba* automaton);
-  tgba* cosimulation_sba(const tgba* automaton);
+  SPOT_API tgba* cosimulation(const tgba* automaton);
+  SPOT_API tgba* cosimulation_sba(const tgba* automaton);
   /// @}
 
   /// @{
@@ -137,14 +139,15 @@ namespace spot
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
-  tgba* iterated_simulations(const tgba* automaton);
-  tgba* iterated_simulations_sba(const tgba* automaton);
+  SPOT_API tgba* iterated_simulations(const tgba* automaton);
+  SPOT_API tgba* iterated_simulations_sba(const tgba* automaton);
   /// @}
 
 
-  tgba* dont_care_simulation(const tgba* t, int limit = -1);
+  SPOT_API tgba*
+  dont_care_simulation(const tgba* t, int limit = -1);
 
-  tgba*
+  SPOT_API tgba*
   dont_care_iterated_simulations(const tgba* t, int limit = -1);
 
 

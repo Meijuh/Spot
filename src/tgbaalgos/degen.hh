@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
@@ -18,6 +19,8 @@
 
 #ifndef SPOT_TGBAALGOS_DEGEN_HH
 # define SPOT_TGBAALGOS_DEGEN_HH
+
+# include "misc/common.hh"
 
 namespace spot
 {
@@ -47,9 +50,10 @@ namespace spot
   /// \a a to be computed prior to its actual degeneralization.
   ///
   /// \see tgba_sba_proxy, tgba_tba_proxy
-  sba* degeneralize(const tgba* a, bool use_z_lvl = true,
-		    bool use_cust_acc_orders = false,
-                    bool use_lvl_cache = true);
+  SPOT_API sba*
+  degeneralize(const tgba* a, bool use_z_lvl = true,
+	       bool use_cust_acc_orders = false,
+	       bool use_lvl_cache = true);
 }
 
 

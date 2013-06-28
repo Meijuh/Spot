@@ -23,7 +23,7 @@
 SUBDIRS = gtec
 
 AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
-AM_CXXFLAGS = $(WARNING_CXXFLAGS)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS) $(VISIBILITY_CXXFLAGS)
 
 tgbaalgosdir = $(pkgincludedir)/tgbaalgos
 

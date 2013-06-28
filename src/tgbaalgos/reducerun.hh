@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2010, 2013 Laboratoire de Recherche et Développement de
 // l'Epita.
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
@@ -22,6 +23,8 @@
 #ifndef SPOT_TGBAALGOS_REDUCERUN_HH
 # define SPOT_TGBAALGOS_REDUCERUN_HH
 
+# include "misc/common.hh"
+
 namespace spot
 {
   class tgba;
@@ -32,7 +35,8 @@ namespace spot
   ///
   /// Return a run which is accepting for \a a and that is no longer
   /// than \a org.
-  tgba_run* reduce_run(const tgba* a, const tgba_run* org);
+  SPOT_API tgba_run*
+  reduce_run(const tgba* a, const tgba_run* org);
 }
 
 #endif // SPOT_TGBAALGOS_REDUCERUN_HH

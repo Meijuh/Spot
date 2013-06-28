@@ -1,8 +1,8 @@
-// -*- coding: utf-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -23,7 +23,8 @@
 #ifndef SPOT_TGBAALGOS_DOTTY_HH
 # define SPOT_TGBAALGOS_DOTTY_HH
 
-#include <iosfwd>
+# include <iosfwd>
+# include "misc/common.hh"
 
 namespace spot
 {
@@ -41,7 +42,7 @@ namespace spot
   /// decorators.  If no decorator is specified, the dotty_decorator
   /// is used.
   /// labels the transitions are encoded in UTF-8.
-  std::ostream&
+  SPOT_API std::ostream&
   dotty_reachable(std::ostream& os,
 		  const tgba* g,
 		  bool assume_sba = false,

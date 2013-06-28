@@ -36,8 +36,8 @@ namespace spot
   /// \param os Where to print.
   /// \param sba Assume \a g is an SBA and use LBTT's state-based
   /// acceptance format (similar to LBT's format).
-  std::ostream& lbtt_reachable(std::ostream& os, const tgba* g,
-			       bool sba = false);
+  SPOT_API std::ostream&
+  lbtt_reachable(std::ostream& os, const tgba* g, bool sba = false);
 
   /// \ingroup tgba_io
   /// \brief Read an automaton in LBTT's format
@@ -51,12 +51,11 @@ namespace spot
   /// \param envacc The environment of acceptance conditions into which parsing
   ///        should take place.
   /// \return the read tgba or 0 on error.
-  const tgba* lbtt_parse(std::istream& is, std::string& error,
-			 bdd_dict* dict,
-			 ltl::environment& env
-			 = ltl::default_environment::instance(),
-			 ltl::environment& envacc
-			 = ltl::default_environment::instance());
+  SPOT_API const tgba*
+  lbtt_parse(std::istream& is, std::string& error,
+	     bdd_dict* dict,
+	     ltl::environment& env = ltl::default_environment::instance(),
+	     ltl::environment& envacc = ltl::default_environment::instance());
 }
 
 #endif // SPOT_TGBAALGOS_LBTT_HH
