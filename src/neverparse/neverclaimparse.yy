@@ -25,6 +25,7 @@
 %debug
 %error-verbose
 %lex-param { spot::neverclaim_parse_error_list& error_list }
+%define api.location.type "spot::location"
 
 %code requires
 {
@@ -49,9 +50,6 @@
 %code
 {
 #include "ltlast/constant.hh"
-  /* Unfortunately Bison 2.3 uses the same guards in all parsers :( */
-#undef BISON_POSITION_HH
-#undef BISON_LOCATION_HH
 #include "ltlparse/public.hh"
 
 /* neverclaimparse.hh and parsedecl.hh include each other recursively.
@@ -234,7 +232,7 @@ src_dest: formula opt_dest
 	  i != pel.end(); ++i)
 	    {
 	      // Adjust the diagnostic to the current position.
-	      location here = @1;
+	      spot::location here = @1;
 	      here.end.line = here.begin.line + i->first.end.line - 1;
 	      here.end.column = here.begin.column + i->first.end.column -1;
 	      here.begin.line += i->first.begin.line - 1;
@@ -276,7 +274,7 @@ namespace spot
     if (neverclaimyyopen(name))
       {
 	error_list.push_back
-	  (neverclaim_parse_error(neverclaimyy::location(),
+	  (neverclaim_parse_error(spot::location(),
 				  std::string("Cannot open file ") + name));
 	return 0;
       }

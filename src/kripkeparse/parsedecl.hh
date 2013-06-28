@@ -1,4 +1,5 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -22,11 +23,11 @@
 
 # include <string>
 # include "kripkeparse.hh"
-# include "location.hh"
+# include "misc/location.hh"
 
 # define YY_DECL \
   int kripkeyylex (kripkeyy::parser::semantic_type *yylval, \
-                   kripkeyy::location *yylloc)
+                   spot::location *yylloc)
 
 YY_DECL;
 

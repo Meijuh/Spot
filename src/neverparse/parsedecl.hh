@@ -1,4 +1,5 @@
-// Copyright (C) 2010, 2013 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2013 Laboratoire de Recherche et DÃ©veloppement
 // de l'EPITA.
 //
 // This file is part of Spot, a model checking library.
@@ -21,11 +22,11 @@
 
 #include <string>
 #include "neverclaimparse.hh"
-#include "location.hh"
+#include "misc/location.hh"
 
 # define YY_DECL \
   int neverclaimyylex(neverclaimyy::parser::semantic_type *yylval, \
-                      neverclaimyy::location *yylloc, \
+                      spot::location *yylloc, \
                       spot::neverclaim_parse_error_list& error_list)
 YY_DECL;
 

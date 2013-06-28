@@ -1,5 +1,5 @@
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -60,7 +60,7 @@ namespace spot
       parse_error_list::iterator it;
       for (it = error_list.begin(); it != error_list.end(); ++it)
 	{
-	  ltlyy::location& l = it->first;
+	  location& l = it->first;
 	  l.begin.column = b2u[l.begin.column];
 	  l.end.column = b2u[l.end.column];
 	}
@@ -78,7 +78,7 @@ namespace spot
 	for (it = error_list.begin(); it != error_list.end(); ++it)
 	  {
 	    os << ">>> " << ltl_string << std::endl;
-	    const ltlyy::location& l = it->first;
+	    const location& l = it->first;
 
 	    unsigned n = 1;
 	    for (; n < 4 + l.begin.column; ++n)

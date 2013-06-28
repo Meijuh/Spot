@@ -1,5 +1,5 @@
-## Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
-## et Développement de l'Epita (LRDE).
+## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
+## Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -31,8 +31,6 @@ LTLPARSE_YY = ltlparse.yy
 FROM_LTLPARSE_YY_MAIN = ltlparse.cc
 FROM_LTLPARSE_YY_OTHERS = \
   stack.hh \
-  position.hh \
-  location.hh \
   ltlparse.hh
 FROM_LTLPARSE_YY = $(FROM_LTLPARSE_YY_MAIN) $(FROM_LTLPARSE_YY_OTHERS)
 
@@ -60,6 +58,5 @@ libltlparse_la_SOURCES = \
 
 ltlparse_HEADERS = \
   ltlfile.hh \
-  location.hh \
-  public.hh \
-  position.hh
+  public.hh
+

@@ -1,4 +1,5 @@
-// Copyright (C) 2008 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -20,11 +21,11 @@
 # define SPOT_ELTLPARSE_PARSEDECL_HH
 
 #include "eltlparse.hh"
-#include "location.hh"
+#include "misc/location.hh"
 
 # define YY_DECL \
   int eltlyylex (eltlyy::parser::semantic_type *yylval, \
-		 eltlyy::location *yylloc, \
+		 spot::location *yylloc, \
 		 spot::eltl::parse_error_list_t &pe)
 YY_DECL;
 

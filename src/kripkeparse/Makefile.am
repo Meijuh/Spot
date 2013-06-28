@@ -1,4 +1,4 @@
-## Copyright (C) 2011 Laboratoire de Recherche et Développement de
+## Copyright (C) 2011, 2013 Laboratoire de Recherche et Développement de
 ## l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -22,10 +22,7 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=)
 
 kripkeparsedir = $(pkgincludedir)/kripkeparse
 
-kripkeparse_HEADERS = \
-  public.hh \
-  location.hh \
-  position.hh
+kripkeparse_HEADERS = public.hh
 
 noinst_LTLIBRARIES = libkripkeparse.la
 
@@ -33,8 +30,6 @@ KRIPKEPARSE_YY = kripkeparse.yy
 FROM_KRIPKEPARSE_YY_MAIN = kripkeparse.cc
 FROM_KRIPKEPARSE_YY_OTHERS = \
   stack.hh \
-  position.hh \
-  location.hh \
   kripkeparse.hh
 
 FROM_KRIPKEPARSE_YY = \

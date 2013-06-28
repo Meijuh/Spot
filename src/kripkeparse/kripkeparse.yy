@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE)
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -24,6 +24,7 @@
 %name-prefix "kripkeyy"
 %debug
 %error-verbose
+%define api.location.type "spot::location"
 
 %code requires
 {
@@ -54,9 +55,6 @@ typedef std::map<std::string, bdd> formula_cache;
 %code
 {
 #include "kripke/kripkeexplicit.hh"
-  /* Unfortunately Bison 2.3 uses the same guards in all parsers :( */
-#undef BISON_POSITION_HH
-#undef BISON_LOCATION_HH
 #include "ltlparse/public.hh"
 #include <map>
 
@@ -117,7 +115,7 @@ strident "," condition "," follow_list ";"
            i != pel.end(); ++i)
       {
         //Adjust the diagnostic to the current position.
-        location here = @3;
+	spot::location here = @3;
         here.end.line = here.begin.line + i->first.end.line - 1;
         here.end.column =
           here.begin.column + i->first.end.column;
@@ -209,8 +207,8 @@ namespace spot
     if (kripkeyyopen(name))
     {
       error_list.push_back
-        (kripke_parse_error(kripkeyy::location(),
-                          std::string("Cannot open file ") + name));
+        (kripke_parse_error(spot::location(),
+			    std::string("Cannot open file ") + name));
       return 0;
     }
     formula_cache fcache;

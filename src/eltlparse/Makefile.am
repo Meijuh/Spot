@@ -1,5 +1,6 @@
-## Copyright (C) 2008, 2011 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## -*- coding: utf-8 -*-
+## Copyright (C) 2008, 2011, 2013 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -28,8 +29,6 @@ ELTLPARSE_YY = eltlparse.yy
 FROM_ELTLPARSE_YY_MAIN = eltlparse.cc
 FROM_ELTLPARSE_YY_OTHERS = \
   stack.hh \
-  position.hh \
-  location.hh \
   eltlparse.hh
 FROM_ELTLPARSE_YY = $(FROM_ELTLPARSE_YY_MAIN) $(FROM_ELTLPARSE_YY_OTHERS)
 
@@ -54,7 +53,5 @@ libeltlparse_la_SOURCES = \
   eltlscan.ll \
   parsedecl.hh
 
-eltlparse_HEADERS = \
-  public.hh \
-  location.hh \
-  position.hh
+eltlparse_HEADERS = public.hh
+

@@ -41,11 +41,13 @@ misc_HEADERS = \
   hashfunc.hh \
   intvcomp.hh \
   intvcmp2.hh \
+  location.hh \
   ltstr.hh \
   minato.hh \
   memusage.hh \
   mspool.hh \
   optionmap.hh \
+  position.hh \
   random.hh \
   timer.hh \
   unique_ptr.hh \

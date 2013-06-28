@@ -1,6 +1,7 @@
-// Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2003, 2005, 2013 Laboratoire d'Informatique de Paris
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -22,11 +23,11 @@
 
 #include <string>
 #include "tgbaparse.hh"
-#include "location.hh"
+#include "misc/location.hh"
 
 # define YY_DECL \
   int tgbayylex (tgbayy::parser::semantic_type *yylval, \
-		 tgbayy::location *yylloc)
+		 spot::location *yylloc)
 YY_DECL;
 
 namespace spot

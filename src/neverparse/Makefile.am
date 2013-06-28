@@ -1,5 +1,6 @@
-## Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## -*- coding: utf-8 -*-
+## Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
+## DÃ©veloppement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -22,10 +23,7 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=)
 
 neverparsedir = $(pkgincludedir)/neverparse
 
-neverparse_HEADERS = \
-  public.hh \
-  location.hh \
-  position.hh
+neverparse_HEADERS = public.hh
 
 noinst_LTLIBRARIES = libneverparse.la
 
@@ -33,8 +31,6 @@ NEVERCLAIMPARSE_YY = neverclaimparse.yy
 FROM_NEVERCLAIMPARSE_YY_MAIN = neverclaimparse.cc
 FROM_NEVERCLAIMPARSE_YY_OTHERS = \
   stack.hh \
-  position.hh \
-  location.hh \
   neverclaimparse.hh
 
 FROM_NEVERCLAIMPARSE_YY = $(FROM_NEVERCLAIMPARSE_YY_MAIN) $(FROM_NEVERCLAIMPARSE_YY_OTHERS)

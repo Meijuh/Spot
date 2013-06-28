@@ -1,5 +1,6 @@
-/* Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
-** et Développement de l'Epita (LRDE).
+/* -*- coding: utf-8 -*-
+** Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
+** Recherche et DÃ©veloppement de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -22,6 +23,7 @@
 %name-prefix "eltlyy"
 %debug
 %error-verbose
+%define api.location.type "spot::location"
 
 %code requires
 {
@@ -527,7 +529,7 @@ namespace spot
       if (flex_open(name))
       {
 	error_list.push_back
-	  (parse_error(eltlyy::location(),
+	  (parse_error(spot::location(),
 		       spair("-", std::string("Cannot open file ") + name)));
 	return 0;
       }

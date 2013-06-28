@@ -1,5 +1,8 @@
 New in spot 1.1.4a (not relased)
 
+  * All the parsers implemented in Spot now use the same type
+    to store locations.
+
   * Cleanup of exported symbols
 
     All symbols in the library now have hidden visibility on ELF systems.

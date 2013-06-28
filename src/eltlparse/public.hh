@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2012 Laboratoire de Recherche et
+// Copyright (C) 2008, 2010, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -21,22 +21,14 @@
 # define SPOT_ELTLPARSE_PUBLIC_HH
 
 # include "ltlast/formula.hh"
-// Unfortunately Bison 2.3 uses the same guards in all parsers :(
-# undef BISON_LOCATION_HH
-# undef BISON_POSITION_HH
 # include "ltlenv/defaultenv.hh"
 # include "ltlast/nfa.hh"
-# include "eltlparse/location.hh"
+# include "misc/location.hh"
 # include <string>
 # include <list>
 # include <map>
 # include <utility>
 # include <iosfwd>
-
-// namespace
-// {
-//   typedef std::map<std::string, spot::ltl::nfa::ptr> nfamap;
-// }
 
 namespace spot
 {
@@ -49,7 +41,7 @@ namespace spot
 
     typedef std::pair<std::string, std::string> spair;
     /// \brief A parse diagnostic <location, <file, message>>.
-    typedef std::pair<eltlyy::location, spair> parse_error;
+    typedef std::pair<spot::location, spair> parse_error;
     /// \brief A list of parser diagnostics, as filled by parse.
     typedef std::list<parse_error> parse_error_list;
 

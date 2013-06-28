@@ -24,10 +24,7 @@
 # define SPOT_LTLPARSE_PUBLIC_HH
 
 # include "ltlast/formula.hh"
-// Unfortunately Bison 2.3 uses the same guards in all parsers :(
-# undef BISON_LOCATION_HH
-# undef BISON_POSITION_HH
-# include "ltlparse/location.hh"
+# include "misc/location.hh"
 # include "ltlenv/defaultenv.hh"
 # include <string>
 # include <list>
@@ -43,7 +40,7 @@ namespace spot
 
 #ifndef SWIG
     /// \brief A parse diagnostic with its location.
-    typedef std::pair<ltlyy::location, std::string> parse_error;
+    typedef std::pair<location, std::string> parse_error;
     /// \brief A list of parser diagnostics, as filled by parse.
     typedef std::list<parse_error> parse_error_list;
 #else

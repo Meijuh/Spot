@@ -1,5 +1,6 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2013 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,10 +21,7 @@
 # define SPOT_NEVERPARSE_PUBLIC_HH
 
 # include "tgba/tgbaexplicit.hh"
-// Unfortunately Bison 2.3 uses the same guards in all parsers :(
-# undef BISON_LOCATION_HH
-# undef BISON_POSITION_HH
-# include "neverparse/location.hh"
+# include "misc/location.hh"
 # include "ltlenv/defaultenv.hh"
 # include <string>
 # include <list>
@@ -36,7 +34,7 @@ namespace spot
   /// @{
 
   /// \brief A parse diagnostic with its location.
-  typedef std::pair<neverclaimyy::location, std::string> neverclaim_parse_error;
+  typedef std::pair<spot::location, std::string> neverclaim_parse_error;
   /// \brief A list of parser diagnostics, as filled by parse.
   typedef std::list<neverclaim_parse_error> neverclaim_parse_error_list;
 

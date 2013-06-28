@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et Développement
 // de l'Epita.
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
@@ -24,10 +24,7 @@
 # define SPOT_TGBAPARSE_PUBLIC_HH
 
 # include "tgba/tgbaexplicit.hh"
-// Unfortunately Bison 2.3 uses the same guards in all parsers :(
-# undef BISON_LOCATION_HH
-# undef BISON_POSITION_HH
-# include "tgbaparse/location.hh"
+# include "misc/location.hh"
 # include "ltlenv/defaultenv.hh"
 # include <string>
 # include <list>
@@ -41,7 +38,7 @@ namespace spot
 
 #ifndef SWIG
   /// \brief A parse diagnostic with its location.
-  typedef std::pair<tgbayy::location, std::string> tgba_parse_error;
+  typedef std::pair<spot::location, std::string> tgba_parse_error;
   /// \brief A list of parser diagnostics, as filled by parse.
   typedef std::list<tgba_parse_error> tgba_parse_error_list;
 #else

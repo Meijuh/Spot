@@ -1,5 +1,5 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+** Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
 ** Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ** Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -26,6 +26,7 @@
 %name-prefix "tgbayy"
 %debug
 %error-verbose
+%define api.location.type "spot::location"
 
 %code requires
 {
@@ -55,9 +56,6 @@ typedef std::map<std::string, bdd> formula_cache;
 %code
 {
 #include "ltlast/constant.hh"
-  /* Unfortunately Bison 2.3 uses the same guards in all parsers :( */
-#undef BISON_POSITION_HH
-#undef BISON_LOCATION_HH
 #include "ltlparse/public.hh"
 #include <map>
 
@@ -119,7 +117,7 @@ line: strident ',' strident ',' condition ',' acc_list ';'
 		      i != pel.end(); ++i)
 		   {
 		     // Adjust the diagnostic to the current position.
-		     location here = @5;
+		     spot::location here = @5;
 		     here.end.line = here.begin.line + i->first.end.line - 1;
 		     here.end.column =
 		       here.begin.column + i->first.end.column;
@@ -239,7 +237,7 @@ namespace spot
     if (tgbayyopen(name))
       {
 	error_list.push_back
-	  (tgba_parse_error(tgbayy::location(),
+	  (tgba_parse_error(spot::location(),
 			    std::string("Cannot open file ") + name));
 	return 0;
       }
