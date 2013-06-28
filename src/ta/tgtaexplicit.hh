@@ -1,4 +1,5 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -34,7 +35,7 @@ namespace spot
 
   /// Explicit representation of a spot::tgta.
   /// \ingroup ta_representation
-  class tgta_explicit : public tgta
+  class SPOT_API tgta_explicit : public tgta
   {
   public:
     tgta_explicit(const tgba* tgba, bdd all_acceptance_conditions,

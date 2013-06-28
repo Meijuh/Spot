@@ -85,7 +85,7 @@ namespace spot
   /// between a TA and a Kripke structure
   ///
   /// See the paper cited above.
-  class ta_check : public ec_statistics
+  class SPOT_API ta_check : public ec_statistics
   {
   public:
     ta_check(const ta_product* a, option_map o = option_map());

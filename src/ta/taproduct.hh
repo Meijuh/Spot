@@ -31,7 +31,7 @@ namespace spot
   ///
   /// This state is in fact a pair of state: the state from the TA
   /// automaton and that of Kripke structure.
-  class state_ta_product : public state
+  class SPOT_API state_ta_product : public state
   {
   public:
     /// \brief Constructor
@@ -73,7 +73,7 @@ namespace spot
   };
 
   /// \brief Iterate over the successors of a product computed on the fly.
-  class ta_succ_iterator_product : public ta_succ_iterator
+  class SPOT_API ta_succ_iterator_product : public ta_succ_iterator
   {
   public:
     ta_succ_iterator_product(const state_ta_product* s, const ta* t,
@@ -135,7 +135,7 @@ namespace spot
   /// \ingroup ta_emptiness_check
   /// \brief A lazy product between a Testing automaton and a Kripke structure.
   /// (States are computed on the fly.)
-  class ta_product : public ta
+  class SPOT_API ta_product: public ta
   {
   public:
     /// \brief Constructor.
@@ -208,21 +208,17 @@ namespace spot
   };
 
 
-   class ta_succ_iterator_product_by_changeset : public ta_succ_iterator_product
+  class SPOT_API ta_succ_iterator_product_by_changeset :
+    public ta_succ_iterator_product
   {
   public:
     ta_succ_iterator_product_by_changeset(const state_ta_product* s,
-        const ta* t, const kripke* k, bdd changeset);
+					  const ta* t, const kripke* k,
+					  bdd changeset);
 
-
-
-    /// \brief Move to the next successor in the kripke structure
-    void
-    next_kripke_dest();
-
-
-   };
-
+    /// \brief Move to the next successor in the Kripke structure
+    void next_kripke_dest();
+  };
 
 }
 

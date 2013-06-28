@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -79,7 +79,7 @@ namespace spot
   ///
   /// \return A spot::ta_explicit that recognizes the same language as the
   /// TGBA \a tgba_to_convert.
-  ta_explicit*
+  SPOT_API ta_explicit*
   tgba_to_ta(const tgba* tgba_to_convert, bdd atomic_propositions_set,
       bool degeneralized = true, bool artificial_initial_state_mode = true,
       bool single_pass_emptiness_check = false,
@@ -94,7 +94,7 @@ namespace spot
   ///
   /// \return A spot::tgta_explicit (spot::tgta) that recognizes the same
   ///  language as the TGBA \a tgba_to_convert.
-  tgta_explicit*
+  SPOT_API tgta_explicit*
   tgba_to_tgta(const tgba* tgba_to_convert, bdd atomic_propositions_set);
 
 }

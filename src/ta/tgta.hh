@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
@@ -57,7 +58,7 @@ namespace spot
   /// a state.
 
 
-  class tgta : public tgba
+  class SPOT_API tgta : public tgba
   {
 
   protected:

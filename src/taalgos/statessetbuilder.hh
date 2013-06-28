@@ -1,4 +1,5 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2013 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -25,7 +26,7 @@ namespace spot
 {
 
   /// \brief Compute states set for an automaton.
-  std::set<const state*> get_states_set(const ta* t);
+  SPOT_API std::set<const state*> get_states_set(const ta* t);
 
   /// @}
 }

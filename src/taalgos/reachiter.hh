@@ -29,7 +29,7 @@ namespace spot
 {
   /// \ingroup ta_generic
   /// \brief Iterate over all reachable states of a spot::ta.
-  class ta_reachable_iterator
+  class SPOT_API ta_reachable_iterator
   {
   public:
     ta_reachable_iterator(const ta* a);
@@ -97,7 +97,8 @@ namespace spot
   /// \ingroup ta_generic
   /// \brief An implementation of spot::ta_reachable_iterator that browses
   /// states depth first.
-  class ta_reachable_iterator_depth_first : public ta_reachable_iterator
+  class SPOT_API ta_reachable_iterator_depth_first
+    : public ta_reachable_iterator
   {
   public:
     ta_reachable_iterator_depth_first(const ta* a);
@@ -114,7 +115,8 @@ namespace spot
   /// \ingroup ta_generic
   /// \brief An implementation of spot::ta_reachable_iterator that browses
   /// states breadth first.
-  class ta_reachable_iterator_breadth_first : public ta_reachable_iterator
+  class SPOT_API ta_reachable_iterator_breadth_first
+    : public ta_reachable_iterator
   {
   public:
     ta_reachable_iterator_breadth_first(const ta* a);

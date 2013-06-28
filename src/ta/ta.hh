@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Developpement
-// de l Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+// Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -50,7 +51,7 @@ namespace spot
   /// The Testing Automata (TA) were introduced by
   /// Henri Hansen, Wojciech Penczek and Antti Valmari
   /// in "Stuttering-insensitive automata for on-the-fly detection of livelock
-  /// properties" In Proc. of FMICSÕ02, vol. 66(2) of Electronic Notes in
+  /// properties" In Proc. of FMICSÃ•02, vol. 66(2) of Electronic Notes in
   /// Theoretical Computer Science.Elsevier.
   ///
   /// While a TGBA automaton observes the value of the atomic propositions, the
@@ -74,7 +75,7 @@ namespace spot
   /// obtained by querying the iterator over the successors of
   /// a state.
 
-  class ta
+  class SPOT_API ta
   {
 
   public:

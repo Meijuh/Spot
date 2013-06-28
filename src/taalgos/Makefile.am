@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.et Marie Curie.
 ##
@@ -19,7 +19,7 @@
 
 
 AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
-AM_CXXFLAGS = $(WARNING_CXXFLAGS)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS) $(VISIBILITY_CXXFLAGS)
 
 taalgosdir = $(pkgincludedir)/taalgos
 

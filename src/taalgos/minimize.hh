@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -56,7 +56,7 @@ namespace spot
       \endverbatim */
   ///
   /// \param ta_ the TA automaton to convert into a simplified TA
-  ta*
+  SPOT_API ta*
   minimize_ta(const ta* ta_);
 
 
@@ -70,7 +70,7 @@ namespace spot
   /// the acceptance conditions of the outgoing transitions.
   ///
   /// \param tgta_ the TGTA automaton to convert into a simplified TGTA
-  tgta_explicit*
+  SPOT_API tgta_explicit*
   minimize_tgta(const tgta_explicit* tgta_);
 
 /// @}

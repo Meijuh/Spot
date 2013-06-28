@@ -38,7 +38,7 @@ namespace spot
 
   /// Explicit representation of a spot::ta.
   /// \ingroup ta_representation
-  class ta_explicit : public ta
+  class SPOT_API ta_explicit : public ta
   {
   public:
     ta_explicit(const tgba* tgba, bdd all_acceptance_conditions,
@@ -146,7 +146,7 @@ namespace spot
 
   /// states used by spot::ta_explicit.
   /// \ingroup ta_representation
-  class state_ta_explicit : public spot::state
+  class SPOT_API state_ta_explicit : public spot::state
   {
 #ifndef SWIG
   public:
@@ -241,7 +241,7 @@ namespace spot
   };
 
   /// Successor iterators used by spot::ta_explicit.
-  class ta_explicit_succ_iterator : public ta_succ_iterator
+  class SPOT_API ta_explicit_succ_iterator : public ta_succ_iterator
   {
   public:
     ta_explicit_succ_iterator(const state_ta_explicit* s);

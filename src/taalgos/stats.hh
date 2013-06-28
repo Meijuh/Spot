@@ -1,8 +1,6 @@
-// Copyright (C) 2008 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
-// Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -31,7 +29,7 @@ namespace spot
   /// \addtogroup ta_misc
   /// @{
 
-  struct ta_statistics
+  struct SPOT_API ta_statistics
   {
     unsigned transitions;
     unsigned states;
@@ -41,7 +39,7 @@ namespace spot
   };
 
   /// \brief Compute statistics for an automaton.
-  ta_statistics stats_reachable(const ta* t);
+  SPOT_API ta_statistics stats_reachable(const ta* t);
 
   /// @}
 }

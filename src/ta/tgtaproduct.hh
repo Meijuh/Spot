@@ -1,9 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
-// Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -33,7 +30,7 @@ namespace spot
 {
 
   /// \brief A lazy product.  (States are computed on the fly.)
-  class tgta_product : public tgba_product
+  class SPOT_API tgta_product : public tgba_product
   {
   public:
     tgta_product(const kripke* left, const tgta* right);
@@ -47,7 +44,7 @@ namespace spot
   };
 
   /// \brief Iterate over the successors of a product computed on the fly.
-  class tgta_succ_iterator_product : public tgba_succ_iterator
+  class SPOT_API tgta_succ_iterator_product : public tgba_succ_iterator
   {
   public:
     tgta_succ_iterator_product(const state_product* s, const kripke* k,
