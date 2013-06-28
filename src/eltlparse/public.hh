@@ -55,6 +55,7 @@ namespace spot
     ///        0 if the file could not be opened.
     ///
     /// \warning This function is not reentrant.
+    SPOT_API
     const formula* parse_file(const std::string& filename,
 			      parse_error_list& error_list,
 			      environment& env =
@@ -71,6 +72,7 @@ namespace spot
     ///        0 if the input was unparsable.
     ///
     /// \warning This function is not reentrant.
+    SPOT_API
     const formula* parse_string(const std::string& eltl_string,
 				parse_error_list& error_list,
 				environment& env =
@@ -82,6 +84,7 @@ namespace spot
     /// \param error_list The error list filled by spot::eltl::parse while
     ///        parsing \a eltl_string.
     /// \return \c true iff any diagnostic was output.
+    SPOT_API
     bool
     format_parse_errors(std::ostream& os,
 			parse_error_list& error_list);

@@ -38,7 +38,7 @@ namespace spot
 
 
 
-  kripke_explicit*
+  SPOT_API kripke_explicit*
   kripke_parse(const std::string& name,
                kripke_parse_error_list& error_list,
                bdd_dict* dict,
@@ -53,6 +53,7 @@ namespace spot
   /// \param error_list The error list filled by spot::ltl::parse while
   ///        parsing \a ltl_string.
   /// \return \c true if any diagnostic was output.
+  SPOT_API
   bool format_kripke_parse_errors(std::ostream& os,
                                   const std::string& filename,
                                   kripke_parse_error_list& error_list);

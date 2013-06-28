@@ -66,6 +66,7 @@ namespace spot
     /// was parsed succesfully, check \a error_list for emptiness.
     ///
     /// \warning This function is not reentrant.
+    SPOT_API
     const formula* parse(const std::string& ltl_string,
 			 parse_error_list& error_list,
 			 environment& env = default_environment::instance(),
@@ -90,6 +91,7 @@ namespace spot
     /// was parsed succesfully, check \a error_list for emptiness.
     ///
     /// \warning This function is not reentrant.
+    SPOT_API
     const formula* parse_boolean(const std::string& ltl_string,
 				 parse_error_list& error_list,
 				 environment& env =
@@ -116,6 +118,7 @@ namespace spot
     /// double-quoted atomic propositions that do not start with 'p'.
     ///
     /// \warning This function is not reentrant.
+    SPOT_API
     const formula* parse_lbt(const std::string& ltl_string,
 			     parse_error_list& error_list,
 			     environment& env = default_environment::instance(),
@@ -139,6 +142,7 @@ namespace spot
     /// was parsed succesfully, check \a error_list for emptiness.
     ///
     /// \warning This function is not reentrant.
+    SPOT_API
     const formula* parse_sere(const std::string& sere_string,
 			      parse_error_list& error_list,
 			      environment& env =
@@ -159,6 +163,7 @@ namespace spot
     /// \param error_list The error list filled by spot::ltl::parse
     ///        or spot::ltl::parse_sere while parsing \a input_string.
     /// \return \c true iff any diagnostic was output.
+    SPOT_API
     bool format_parse_errors(std::ostream& os,
 			     const std::string& input_string,
 			     const parse_error_list& error_list);
@@ -186,6 +191,7 @@ namespace spot
     /// \param input_string The string that were parsed.
     /// \param error_list The error list filled by spot::ltl::parse
     ///        or spot::ltl::parse_sere while parsing \a input_string.
+    SPOT_API
     void
     fix_utf8_locations(const std::string& input_string,
 		       parse_error_list& error_list);

@@ -21,7 +21,7 @@
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(srcdir)/.. -I.. -DYY_NO_INPUT
 # Disable -Werror because too many versions of flex yield warnings.
-AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=) $(VISIBILITY_CXXFLAGS)
 
 ltlparsedir = $(pkgincludedir)/ltlparse
 

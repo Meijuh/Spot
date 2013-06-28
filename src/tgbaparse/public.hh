@@ -65,6 +65,7 @@ namespace spot
   /// was parsed succesfully, check \a error_list for emptiness.
   ///
   /// \warning This function is not reentrant.
+  SPOT_API
   tgba_explicit_string* tgba_parse(const std::string& filename,
 				   tgba_parse_error_list& error_list,
 				   bdd_dict* dict,
@@ -80,6 +81,7 @@ namespace spot
   /// \param error_list The error list filled by spot::ltl::parse while
   ///        parsing \a ltl_string.
   /// \return \c true iff any diagnostic was output.
+  SPOT_API
   bool format_tgba_parse_errors(std::ostream& os,
 				const std::string& filename,
 				tgba_parse_error_list& error_list);

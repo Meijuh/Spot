@@ -55,14 +55,13 @@ namespace spot
   /// was parsed succesfully, check \a error_list for emptiness.
   ///
   /// \warning This function is not reentrant.
-  tgba_explicit_string* neverclaim_parse(
-    const std::string& filename,
-    neverclaim_parse_error_list&
-    error_list,
-    bdd_dict* dict,
-    ltl::environment& env
-    = ltl::default_environment::instance(),
-    bool debug = false);
+  SPOT_API tgba_explicit_string*
+  neverclaim_parse(const std::string& filename,
+		   neverclaim_parse_error_list&
+		   error_list,
+		   bdd_dict* dict,
+		   ltl::environment& env = ltl::default_environment::instance(),
+		   bool debug = false);
 
   /// \brief Format diagnostics produced by spot::neverclaim_parse.
   /// \param os Where diagnostics should be output.
@@ -70,9 +69,10 @@ namespace spot
   /// \param error_list The error list filled by spot::ltl::parse while
   ///        parsing \a ltl_string.
   /// \return \c true iff any diagnostic was output.
-  bool format_neverclaim_parse_errors(std::ostream& os,
-                                const std::string& filename,
-                                neverclaim_parse_error_list& error_list);
+  SPOT_API bool
+  format_neverclaim_parse_errors(std::ostream& os,
+				 const std::string& filename,
+				 neverclaim_parse_error_list& error_list);
   /// @}
 }
 

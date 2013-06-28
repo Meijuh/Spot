@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,7 +30,7 @@ namespace spot
 
     /// \ingroup ltl_io
     /// \brief Read LTL formulae from a file, one by one
-    class ltl_file
+    class SPOT_API ltl_file
     {
     public:
       ltl_file(const std::string& filename);
