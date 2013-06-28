@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+## Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 ## Développement de l'Epita (LRDE).
 ## Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -51,13 +51,21 @@ check-local: check-80columns check-style check-readme check-includes
 
 
 # Ensure we have not forgotten to include an header.
-installcheck-local:
+check-installed-includes:
 	CXX='$(CXX)' \
 	CPPFLAGS='-I $(includedir) -I$(pkgincludedir) $(LIBGSPN_CPPFLAGS) $(CPPFLAGS)' \
 	CXXFLAGS='$(AM_CXXFLAGS) $(CXXFLAGS)' \
 	INCDIR='$(pkgincludedir)' \
 	$(SHELL) $(srcdir)/includes.test $(TESTHEADER)
 
+# Any installed header should contain a SPOT_API tag somewhere.
+check-installed-private:
+	INCDIR='$(pkgincludedir)' \
+	SRCDIR='$(top_srcdir)/src' \
+	$(SHELL) $(srcdir)/private.test $(TESTHEADER)
+
+
+installcheck-local: check-installed-includes check-installed-private
 
 CLEANFILES = failures incltest.*
-EXTRA_DIST = includes.test 80columns.test style.test readme.test
+EXTRA_DIST = includes.test 80columns.test style.test readme.test private.test
