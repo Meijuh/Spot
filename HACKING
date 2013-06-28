@@ -189,13 +189,26 @@ compiler error), while most others (like randtgba, dve2check, randltl,
 Coding conventions
 ==================
 
-Here are the conventions we follow in Spot, so that the code looks
+Here some of the conventions we follow in Spot, so that the code looks
 homogeneous.  Please follow these strictly.  Since this is free
 software, uniformity of the code matters a lot.  Most of these
 conventions are derived from the GNU Coding Standards
 (http://www.gnu.org/prep/standards.html) with the notable exception
 that we do not put a space before the opening parenthesis in function
 calls (this is hardly readable when chaining method calls).
+
+Besides cosmetics, some of these conventions are also here
+to prevent bugs and make it easier to devise safety checks.
+
+The directory src/sanity/ contains some scripts that are executed
+during 'make check' or 'make installcheck' to check some of the
+conventions discussed below.
+
+For instance we have a check to ensure that any header can be included
+twice, and we have another check to ensure that any header contains a
+include guard that follow our naming convention.  This way we do not
+forget guards, and we do not forget to rename them when a file is
+copied into another one.
 
 
 Encoding
@@ -207,6 +220,41 @@ Encoding
     encoding for the project), feel free to convert them to UTF-8.
     In emacs the simplest way to convert the file is to add a comment
     with -*- coding: utf-8 -*- at the top or bottom of the file.
+
+Exporting symbols
+-----------------
+
+  Since we are building a library, it is important to make a clear
+  distinction between what is private and what is public.  In our
+  setup, everything is private by default and has to be explicitely
+  made public.
+
+  * If a private symbol is needed only by one module, keep it inside
+    the *.cc file, in an anonymous namespace.  Also mark it as static
+    if it is a function or variable.  This is the best way to let the
+    compiler and linker know that the symbol is not used elsewhere.
+
+  * If a symbol could be used by several modules of the library but
+    should still be private to the library, use a *.hh/*.cc pair of
+    files, but list both files in the _SOURCES variable of that
+    directory (see for instance weight.hh in tgbaalgos/Makefile.am).
+    This will ensure that weight.hh is not installed.
+    Needless to say, no public header should include such private
+    header.
+
+  * The directory src/priv/ can be used to store file that are globaly
+    private the library, and that do not really fit belongs to other
+    directories.
+
+  * Functions and classes that are public should be marked with
+    the SPOT_API macro.  This macro is defined in misc/common.hh,
+    but you need not include it in a file that already include
+    another public header.
+
+  * Do not make a symbol public just because you can.
+
+  * Read http://www.akkadia.org/drepper/dsohowto.pdf for more
+    information about how shared library work and why
 
 Comments
 --------
@@ -427,7 +475,7 @@ Other style recommandations
 
   * Avoid <iostream>, <ostream>, etc. in headers whenever possible.
     Prefer <iosfwd> when predeclarations are sufficient, and then
-    use for instance use just <ostream> in the corresponding .cc file.
+    for instance use just <ostream> in the corresponding .cc file.
     (A plain <iostream> is needed when using std::cout, std::cerr, etc.)
 
   * Always declare helper functions and other local class definitions
