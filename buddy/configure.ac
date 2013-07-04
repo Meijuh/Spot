@@ -20,6 +20,18 @@ AC_PROG_CXX
 
 LT_INIT([win32-dll])
 
+# Use -Werror since using -fvisibility under MinGW is only a warning.
+# (The option is ignored anyway since this does not make sense under windows).
+AX_CHECK_COMPILE_FLAG([-Werror -fvisibility=hidden],
+  [CFLAGS="$CFLAGS -fvisibility=hidden"])
+AC_LANG(C++)
+AX_CHECK_COMPILE_FLAG([-Werror -fvisibility=hidden],
+  [CXXFLAGS="$CXXFLAGS -fvisibility=hidden"
+  AX_CHECK_COMPILE_FLAG([-fvisibility-inlines-hidden],
+    [CXXFLAGS="$CXXFLAGS -fvisibility-inlines-hidden"])])
+AC_LANG(C)
+
+
 adl_ENABLE_DEBUG
 ad_GCC_OPTIM
 adl_NDEBUG
@@ -30,6 +42,7 @@ buddy_DEBUG_FLAGS
 if test x$enable_warnings = xyes; then
   CF_GCC_WARNINGS
 fi
+
 
 AC_CONFIG_HEADERS([config.h])
 
