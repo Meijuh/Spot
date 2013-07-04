@@ -22,7 +22,7 @@
 
 AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS) -DYY_NO_INPUT
 # Disable -Werror because too many versions of flex yield warnings.
-AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=) $(VISIBILITY_CXXFLAGS)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=)
 
 tgbaparsedir = $(pkgincludedir)/tgbaparse
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -55,12 +55,11 @@ namespace spot
   // \a dead an atomic proposition or constant to use for looping on
   //         dead states
   // \a verbose whether to output verbose messages
-  kripke* load_dve2(const std::string& file,
-		    bdd_dict* dict,
-		    const ltl::atomic_prop_set* to_observe,
-		    const ltl::formula* dead = ltl::constant::true_instance(),
-		    int compress = 0,
-		    bool verbose = true);
+  SPOT_API kripke*
+  load_dve2(const std::string& file, bdd_dict* dict,
+	    const ltl::atomic_prop_set* to_observe,
+	    const ltl::formula* dead = ltl::constant::true_instance(),
+	    int compress = 0, bool verbose = true);
 }
 
 #endif // SPOT_IFACE_DVE2_DVE2_HH

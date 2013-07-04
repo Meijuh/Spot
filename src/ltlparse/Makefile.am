@@ -1,8 +1,9 @@
+## -*- coding: utf-8 -*-
 ## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
-## Recherche et Développement de l'Epita (LRDE).
+## Recherche et DÃ©veloppement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
-## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-## Université Pierre et Marie Curie.
+## 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+## UniversitÃ© Pierre et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -21,7 +22,7 @@
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(srcdir)/.. -I.. -DYY_NO_INPUT
 # Disable -Werror because too many versions of flex yield warnings.
-AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=) $(VISIBILITY_CXXFLAGS)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=)
 
 ltlparsedir = $(pkgincludedir)/ltlparse
 

@@ -21,7 +21,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 AM_CPPFLAGS = -I$(srcdir)/.. -I..
-AM_CXXFLAGS = $(WARNING_CXXFLAGS) $(VISIBILITY_CXXFLAGS)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 ltlastdir = $(pkgincludedir)/ltlast
 

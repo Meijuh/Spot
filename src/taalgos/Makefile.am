@@ -2,7 +2,7 @@
 ## Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
 ## Développement de l'Epita (LRDE).
 ##
-## This file is part of Spot, a model checking library.et Marie Curie.
+## This file is part of Spot, a model checking library.
 ##
 ## Spot is free software; you can redistribute it and/or modify it
 ## under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 
 AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
-AM_CXXFLAGS = $(WARNING_CXXFLAGS) $(VISIBILITY_CXXFLAGS)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 taalgosdir = $(pkgincludedir)/taalgos
 

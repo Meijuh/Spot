@@ -1,9 +1,9 @@
 ## -*- coding: utf-8 -*-
 ## Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 ## Developpement de l'Epita (LRDE).
-## Copyright (C) 2004, 2005, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
-## département Systèmes Répartis Coopératifs (SRC), Université Pierre
-## et Marie Curie.
+## Copyright (C) 2004, 2005, 2006 Laboratoire d'Informatique de Paris
+## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
+## Université Pierre et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -21,7 +21,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
-AM_CXXFLAGS = $(WARNING_CXXFLAGS) $(VISIBILITY_CXXFLAGS)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 ltlvisitdir = $(pkgincludedir)/ltlvisit
 
