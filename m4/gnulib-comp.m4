@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2012 Free Software Foundation, Inc.
+# Copyright (C) 2002-2013 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -75,6 +75,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module pathmax:
   # Code from module progname:
   # Code from module rawmemchr:
+  # Code from module secure_getenv:
   # Code from module size_max:
   # Code from module sleep:
   # Code from module snippet/_Noreturn:
@@ -117,10 +118,8 @@ AC_DEFUN([gl_EARLY],
 # "Check for header files, types and library functions".
 AC_DEFUN([gl_INIT],
 [
-  AM_CONDITIONAL([GL_COND_LIBTOOL], [false])
-  gl_cond_libtool=false
-  gl_libdeps=
-  gl_ltlibdeps=
+  AM_CONDITIONAL([GL_COND_LIBTOOL], [true])
+  gl_cond_libtool=true
   gl_m4_base='m4'
   m4_pushdef([AC_LIBOBJ], m4_defn([gl_LIBOBJ]))
   m4_pushdef([AC_REPLACE_FUNCS], m4_defn([gl_REPLACE_FUNCS]))
@@ -129,6 +128,10 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='lib'
+changequote(,)dnl
+LTALLOCA=`echo "$ALLOCA" | sed -e 's/\.[^.]* /.lo /g;s/\.[^.]*$/.lo/'`
+changequote([, ])dnl
+AC_SUBST([LTALLOCA])
   gl_FUNC_ALLOCA
   gl_ARGP
   m4_ifdef([AM_XGETTEXT_OPTION],
@@ -156,10 +159,6 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([itold])
   fi
   gl_GETHRXTIME
-  if test $ac_cv_have_decl_gethrtime = no || test $gl_cv_arithmetic_hrtime_t = no; then
-    AC_LIBOBJ([gethrxtime])
-    gl_PREREQ_GETHRXTIME
-  fi
   gl_FUNC_GETOPT_GNU
   if test $REPLACE_GETOPT = 1; then
     AC_LIBOBJ([getopt])
@@ -241,6 +240,12 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_RAWMEMCHR
   fi
   gl_STRING_MODULE_INDICATOR([rawmemchr])
+  gl_FUNC_SECURE_GETENV
+  if test $HAVE_SECURE_GETENV = 0; then
+    AC_LIBOBJ([secure_getenv])
+    gl_PREREQ_SECURE_GETENV
+  fi
+  gl_STDLIB_MODULE_INDICATOR([secure_getenv])
   gl_SIZE_MAX
   gl_FUNC_SLEEP
   if test $HAVE_SLEEP = 0 || test $REPLACE_SLEEP = 1; then
@@ -395,10 +400,6 @@ changequote([, ])dnl
     AC_SUBST([gltests_LIBOBJS], [$gltests_libobjs])
     AC_SUBST([gltests_LTLIBOBJS], [$gltests_ltlibobjs])
   ])
-  LIBGNU_LIBDEPS="$gl_libdeps"
-  AC_SUBST([LIBGNU_LIBDEPS])
-  LIBGNU_LTLIBDEPS="$gl_ltlibdeps"
-  AC_SUBST([LIBGNU_LTLIBDEPS])
 ])
 
 # Like AC_LIBOBJ, except that the module name goes
@@ -519,6 +520,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/progname.h
   lib/rawmemchr.c
   lib/rawmemchr.valgrind
+  lib/secure_getenv.c
   lib/size_max.h
   lib/sleep.c
   lib/stat.c
@@ -550,6 +552,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/time.in.h
   lib/timespec.c
   lib/timespec.h
+  lib/unistd.c
   lib/unistd.in.h
   lib/vasnprintf.c
   lib/vasnprintf.h
@@ -558,6 +561,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/wchar.in.h
   lib/xsize.c
   lib/xsize.h
+  lib/xtime.c
   lib/xtime.h
   m4/00gnulib.m4
   m4/alloca.m4
@@ -598,6 +602,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/pathmax.m4
   m4/printf.m4
   m4/rawmemchr.m4
+  m4/secure_getenv.m4
   m4/size_max.m4
   m4/sleep.m4
   m4/ssize_t.m4

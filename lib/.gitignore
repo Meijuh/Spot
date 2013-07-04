@@ -1,6 +1,7 @@
 alloca.h
 arg-nonnull.h
 c++defs.h
+dummy.c
 fcntl.h
 getopt.h
 libgnu.a
@@ -14,3 +15,4 @@ time.h
 unistd.h
 warn-on-use.h
 wchar.h
+wctype.h

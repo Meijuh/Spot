@@ -1,5 +1,6 @@
-/* A C macro for declaring that specific arguments must not be NULL.
-   Copyright (C) 2009-2013 Free Software Foundation, Inc.
+/* Look up an environment variable more securely.
+
+   Copyright 2013 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published
@@ -14,13 +15,27 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-/* _GL_ARG_NONNULL((n,...,m)) tells the compiler and static analyzer tools
-   that the values passed as arguments n, ..., m must be non-NULL pointers.
-   n = 1 stands for the first argument, n = 2 for the second argument etc.  */
-#ifndef _GL_ARG_NONNULL
-# if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || __GNUC__ > 3
-#  define _GL_ARG_NONNULL(params) __attribute__ ((__nonnull__ params))
+#include <config.h>
+
+#include <stdlib.h>
+
+#if !HAVE___SECURE_GETENV
+# if HAVE_ISSETUGID
+#  include <unistd.h>
 # else
-#  define _GL_ARG_NONNULL(params)
+#  undef issetugid
+#  define issetugid() 1
 # endif
 #endif
+
+char *
+secure_getenv (char const *name)
+{
+#if HAVE___SECURE_GETENV
+  return __secure_getenv (name);
+#else
+  if (issetugid ())
+    return 0;
+  return getenv (name);
+#endif
+}
