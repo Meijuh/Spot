@@ -1,5 +1,5 @@
-/* Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
-** l'Epita (LRDE).
+/* Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
+** Développement de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -23,6 +23,7 @@
 %{
 #include <string>
 #include "neverparse/parsedecl.hh"
+#include "misc/escape.hh"
 
 #define YY_USER_ACTION \
   yylloc->columns(yyleng);
@@ -30,8 +31,12 @@
 #define YY_NEVER_INTERACTIVE 1
 
 typedef neverclaimyy::parser::token token;
+static int parent_level = 0;
+static bool missing_parent = false;
 
 %}
+
+%x in_par
 
 eol      \n|\r|\n\r|\r\n
 
@@ -50,11 +55,46 @@ eol      \n|\r|\n\r|\r\n
 "skip"			return token::SKIP;
 "if"			return token::IF;
 "fi"			return token::FI;
+"do"			return token::DO;
+"od"			return token::OD;
 "->"			return token::ARROW;
 "goto"			return token::GOTO;
 "false"|"0"		return token::FALSE;
+"atomic"		return token::ATOMIC;
+"assert"		return token::ASSERT;
 
-("!"[ \t]*)?"(".*")"|"true"|"1"   {
+("!"[ \t]*)?"("		{
+			  parent_level = 1;
+			  BEGIN(in_par);
+			  yylval->str = new std::string(yytext,yyleng);
+			}
+
+<in_par>{
+	 "("		{
+			  ++parent_level;
+			  yylval->str->append(yytext, yyleng);
+			}
+	 ")"		{
+	                  yylval->str->append(yytext, yyleng);
+			  if (!--parent_level)
+			    {
+                              BEGIN(0);
+			      spot::trim(*yylval->str);
+			      return token::FORMULA;
+			    }
+			}
+         [^()]+		yylval->str->append(yytext, yyleng);
+	 <<EOF>>	{
+			  unput(')');
+			  if (!missing_parent)
+                             error_list.push_back(
+			       spot::neverclaim_parse_error(*yylloc,
+ 				"missing closing parenthese"));
+				  missing_parent = true;
+			}
+}
+
+"true"|"1"		{
                           yylval->str = new std::string(yytext, yyleng);
 			  return token::FORMULA;
                         }
@@ -95,5 +135,6 @@ namespace spot
   neverclaimyyclose()
   {
     fclose(yyin);
+    missing_parent = false;
   }
 }
