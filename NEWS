@@ -1,6 +1,13 @@
 New in spot 1.1.2a (not releaased)
 
-  Nothing yet.
+  * New feature:
+    - The neverclaim parser now understands the new style of output
+      used by Spin 6.24 and later.
+  * Bug fixes:
+    - The scc_filter() function could abort with a BDD error.  If all
+      the acceptance sets of an SCC but the first one were useless.
+    - The script in bench/spin13/ would not work on MacOS X because
+      of some non-portable command.
 
 New in spot 1.1.2 (2013-06-09)
 
