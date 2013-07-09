@@ -21,7 +21,7 @@ ltl2tgba --help | sed -n '/Input options:/,/^$/p' | sed '1d;$d'
 :       --lenient              parenthesized blocks that cannot be parsed as
 :                              subformulas are considered as atomic properties
 
-=-f= is used to pass one formula one the command line, but this option can
+=-f= is used to pass one formula on the command line, but this option can
 be repeated to pass multiple formulas.
 
 =-F= is used to read formulas from a file (one formula per line).
@@ -149,17 +149,17 @@ ltlfilt --help | sed -n '/Output options:/,/^$/p' | sed '1d;$d'
 
 #  LocalWords:  syntaxes LTL PSL num toc SRC ltl tgba sed FILENAME
 
-The =--spot=, =--utf-8=, =--spin=, =--wring= select different
-output syntax as seen in [[tab:formula-syntaxes][the above table]].  The =-p= option can
-be used to request that parenthesis be used at all levels.
+The =--spot=, =--utf-8=, =--spin=, =--wring= options select different
+output syntaxes as seen in [[tab:formula-syntaxes][the above table]].  The =-p= option can
+be used to request that parentheses be used at all levels.
 
-Note that by default Spot always output parentheses around operators
+Note that by default Spot always outputs parentheses around operators
 such as =U=, because not all tools agree on their associativity.  For
 instance =a U b U c= is read by Spot as =a U (b U c)= (because =U= is
 right-associative in the PSL standard), while Spin (among other tools)
 with read it as =(a U b) U c=.
 
-The =--lbt= option request an output in LBT's prefix format, and in
+The =--lbt= option requests an output in LBT's prefix format, and in
 that case discussing associativity and parentheses makes no sense.
 
 #  LocalWords:  lbt LBT's filename UTF gfa GFa ltlfilt LBTT scheck
