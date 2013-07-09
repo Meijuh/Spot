@@ -8,6 +8,7 @@ New in spot 1.1.2a (not releaased)
       the acceptance sets of an SCC but the first one were useless.
     - The script in bench/spin13/ would not work on MacOS X because
       of some non-portable command.
+    - A memory corruption in ltlcross.
 
 New in spot 1.1.2 (2013-06-09)
 

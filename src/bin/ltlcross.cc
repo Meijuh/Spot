@@ -970,7 +970,6 @@ namespace
 	  nf->destroy();
 	}
 
-      f->destroy();
       cleanup();
       ++round;
 
@@ -999,6 +998,7 @@ namespace
 	}
 
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
+      f->destroy();
 
       for (unsigned p = 0; p < products; ++p)
 	{
