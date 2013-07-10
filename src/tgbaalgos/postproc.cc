@@ -22,26 +22,13 @@
 #include "simulation.hh"
 #include "sccfilter.hh"
 #include "degen.hh"
-#include "stats.hh"
 #include "stripacc.hh"
 #include <cstdlib>
 #include "misc/optionmap.hh"
+#include "priv/countstates.hh"
 
 namespace spot
 {
-  unsigned count_states(const tgba* a)
-  {
-    const sba_explicit_number* se =
-      dynamic_cast<const sba_explicit_number*>(a);
-    if (se)
-      return se->num_states();
-    const tgba_explicit_number* te =
-      dynamic_cast<const tgba_explicit_number*>(a);
-    if (te)
-      return te->num_states();
-    tgba_statistics st = stats_reachable(a);
-    return st.states;
-  }
 
   postprocessor::postprocessor(const option_map* opt)
     : type_(TGBA), pref_(Small), level_(High),

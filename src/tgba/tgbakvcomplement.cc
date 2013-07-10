@@ -29,7 +29,7 @@
 #include "misc/hashfunc.hh"
 #include "ltlast/formula.hh"
 #include "ltlast/constant.hh"
-#include "tgbaalgos/stats.hh"
+#include "priv/countstates.hh"
 
 namespace spot
 {
@@ -601,10 +601,7 @@ namespace spot
     int v = get_dict()
       ->register_acceptance_variable(ltl::constant::true_instance(), this);
     the_acceptance_cond_ = bdd_ithvar(v);
-    {
-      spot::tgba_statistics a_size =  spot::stats_reachable(automaton_);
-      nb_states_ = a_size.states;
-    }
+    nb_states_ = count_states(automaton_);
     get_acc_list();
   }
 

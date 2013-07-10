@@ -24,6 +24,7 @@ noinst_HEADERS = \
   acccompl.hh \
   accconv.hh \
   bddalloc.hh \
+  countstates.hh \
   freelist.hh
 
 noinst_LTLIBRARIES = libpriv.la
@@ -31,6 +32,7 @@ libpriv_la_SOURCES = \
   acccompl.cc \
   accconv.cc \
   bddalloc.cc \
+  countstates.cc \
   freelist.cc
 
 

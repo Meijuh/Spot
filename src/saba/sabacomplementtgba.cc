@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -28,7 +28,7 @@
 #include "misc/hashfunc.hh"
 #include "ltlast/formula.hh"
 #include "ltlast/constant.hh"
-#include "tgbaalgos/stats.hh"
+#include "priv/countstates.hh"
 
 #include "sabacomplementtgba.hh"
 #include "explicitstateconjunction.hh"
@@ -376,10 +376,7 @@ namespace spot
     int v = get_dict()
       ->register_acceptance_variable(ltl::constant::true_instance(), this);
     the_acceptance_cond_ = bdd_ithvar(v);
-    {
-      spot::tgba_statistics a_size =  spot::stats_reachable(automaton_);
-      nb_states_ = a_size.states;
-    }
+    nb_states_ = count_states(automaton_);
   }
 
   saba_complement_tgba::~saba_complement_tgba()

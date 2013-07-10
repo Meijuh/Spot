@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -45,7 +46,7 @@
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/bfssteps.hh"
-#include "tgbaalgos/stats.hh"
+#include "priv/countstates.hh"
 
 namespace spot
 {
@@ -535,7 +536,7 @@ namespace spot
 
       // This corresponds to the algorithm in Fig. 1 of "Efficient
       // minimization of deterministic weak omega-automata" written by
-      // Christof Löding and published in Information Processing
+      // Christof LÃ¶ding and published in Information Processing
       // Letters 79 (2001) pp 105--109.
 
       // We also keep track of whether an SCC is useless
@@ -554,7 +555,7 @@ namespace spot
       unsigned k = (scc_count | 1) + 1;
 
       // SCC are numbered in topological order
-      // (but in the reverse order as Löding's)
+      // (but in the reverse order as LÃ¶ding's)
       for (unsigned m = 0; m < scc_count; ++m)
 	{
 	  bool is_useless = true;
@@ -628,8 +629,8 @@ namespace spot
     if (reject_bigger)
       {
 	// Abort if min_aut_f has more states than aut_f.
-	tgba_statistics orig_size = stats_reachable(aut_f);
-	if (orig_size.states < min_aut_f->num_states())
+	unsigned orig_states = count_states(aut_f);
+	if (orig_states < min_aut_f->num_states())
 	  {
 	    delete min_aut_f;
 	    return const_cast<tgba*>(aut_f);
