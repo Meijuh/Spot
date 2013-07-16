@@ -20,7 +20,8 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS) \
+              -I$(top_builddir)/lib -I$(top_srcdir)/lib
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 miscdir = $(pkgincludedir)/misc
@@ -50,6 +51,7 @@ misc_HEADERS = \
   position.hh \
   random.hh \
   timer.hh \
+  tmpfile.hh \
   unique_ptr.hh \
   version.hh
 
@@ -66,4 +68,5 @@ libmisc_la_SOURCES = \
   optionmap.cc \
   random.cc \
   timer.cc \
+  tmpfile.cc \
   version.cc
