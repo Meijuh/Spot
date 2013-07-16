@@ -56,6 +56,7 @@
 #include "misc/escape.hh"
 #include "misc/hash.hh"
 #include "misc/random.hh"
+#include "misc/tmpfile.hh"
 
 // Disable handling of timeout on systems that miss kill() or alarm().
 // For instance MinGW.
@@ -304,17 +305,6 @@ typedef std::vector<statistics_formula> statistics_vector;
 statistics_vector vstats;
 std::vector<std::string> formulas;
 
-// Cleanup temporary files.
-std::list<std::string> toclean;
-void
-cleanup()
-{
-  for (std::list<std::string>::const_iterator i = toclean.begin();
-       i != toclean.end(); ++i)
-    unlink(i->c_str());
-  toclean.clear();
-}
-
 static int
 to_int(const char* s)
 {
@@ -415,19 +405,6 @@ parse_opt(int key, char* arg, struct argp_state*)
   return 0;
 }
 
-static int
-create_tmpfile(char c, unsigned int n, std::string& name)
-{
-  char tmpname[30];
-  snprintf(tmpname, sizeof tmpname, "lck-%c%u-XXXXXX", c, n);
-  int fd = mkstemp(tmpname);
-  if (fd == -1)
-    error(2, errno, "failed to create a temporary file");
-  name = tmpname;
-  return fd;
-}
-
-
 static volatile bool timed_out = false;
 unsigned timeout_count = 0;
 
@@ -463,7 +440,7 @@ sig_handler(int sig)
       // forward signal
       kill(-child_pid, sig);
       // cleanup files
-      cleanup();
+      spot::cleanup_tmpfiles();
       // and die verbosely
       error(2, 0, "received signal %d", sig);
     }
@@ -539,17 +516,33 @@ namespace
     }
   };
 
-  struct printable_result_filename: public spot::printable_value<std::string>
+  struct printable_result_filename:
+    public spot::printable_value<spot::temporary_file*>
   {
     unsigned translator_num;
     enum output_format { None, Spin, Lbtt };
     mutable output_format format;
 
+    printable_result_filename()
+    {
+      val_ = 0;
+    }
+
+    ~printable_result_filename()
+    {
+      delete val_;
+    }
+
     void reset(unsigned n)
     {
-      val_.clear();
       translator_num = n;
       format = None;
+    }
+
+    void cleanup()
+    {
+      delete val_;
+      val_ = 0;
     }
 
     void
@@ -559,11 +552,13 @@ namespace
 	format = Spin;
       else
 	format = Lbtt;
-      if (!val_.empty())
+      if (val_)
 	error(2, 0, "you may have only one %%N or %%T specifier: %s",
 	      translators[translator_num]);
-      close(create_tmpfile('o', translator_num,
-			   const_cast<std::string&>(val_)));
+      char prefix[30];
+      snprintf(prefix, sizeof prefix, "lcr-o%u-", translator_num);
+      const_cast<printable_result_filename*>(this)->val_
+	= spot::create_tmpfile(prefix);
       os << '\'' << val_ << '\'';
     }
   };
@@ -628,14 +623,16 @@ namespace
     void
     string_to_tmp(std::string& str, unsigned n, std::string& tmpname)
     {
-      int fd = create_tmpfile('i', n, tmpname);
+      char prefix[30];
+      snprintf(prefix, sizeof prefix, "lcr-i%u-", n);
+      spot::open_temporary_file* tmpfile = spot::create_open_tmpfile(prefix);
+      tmpname = tmpfile->name();
+      int fd = tmpfile->fd();
       ssize_t s = str.size();
       if (write(fd, str.c_str(), s) != s
 	  || write(fd, "\n", 1) != 1)
 	error(2, errno, "failed to write into %s", tmpname.c_str());
-      if (close(fd))
-	error(2, errno, "failed to close %s", tmpname.c_str());
-      toclean.push_back(tmpname);
+      tmpfile->close();
     }
 
     const std::string&
@@ -682,7 +679,6 @@ namespace
 
       std::ostringstream command;
       format(command, translators[translator_num]);
-      toclean.push_back(output.val());
 
       assert(output.format != printable_result_filename::None);
 
@@ -719,12 +715,13 @@ namespace
 	    case printable_result_filename::Spin:
 	      {
 		spot::neverclaim_parse_error_list pel;
-		res = spot::neverclaim_parse(output, pel, &dict);
+		std::string filename = output.val()->name();
+		res = spot::neverclaim_parse(filename, pel, &dict);
 		if (!pel.empty())
 		  {
 		    std::ostream& err = global_error();
 		    err << "error: failed to parse the produced neverclaim.\n";
-		    spot::format_neverclaim_parse_errors(err, output, pel);
+		    spot::format_neverclaim_parse_errors(err, filename, pel);
 		    end_error();
 		    delete res;
 		    res = 0;
@@ -734,7 +731,7 @@ namespace
 	    case printable_result_filename::Lbtt:
 	      {
 		std::string error;
-		std::ifstream f(output.val().c_str());
+		std::ifstream f(output.val()->name());
 		if (!f)
 		  {
 		    global_error() << "Cannot open " << output.val()
@@ -794,6 +791,7 @@ namespace
           double prec = XTIME_PRECISION;
 	  st->time = (after - before) / prec;
 	}
+      output.cleanup();
       return res;
     }
   };
@@ -1027,7 +1025,7 @@ namespace
 	  nf->destroy();
 	}
 
-      cleanup();
+      spot::cleanup_tmpfiles();
       ++round;
 
       if (!no_checks)
