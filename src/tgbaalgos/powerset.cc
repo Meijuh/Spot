@@ -303,13 +303,19 @@ namespace spot
   }
 
   tgba_explicit_number*
-  tba_determinize(const tgba* aut)
+  tba_determinize(const tgba* aut, unsigned threshold)
   {
     power_map pm;
     // Do not merge transitions in the deterministic automaton.  If we
     // add two self-loops labeled by "a" and "!a", we do not want
     // these to be merged as "1" before the acceptance has been fixed.
     tgba_explicit_number* det = tgba_powerset(aut, pm, false);
+    if ((threshold > 0)
+	&& (pm.map_.size() > pm.states.size() * threshold))
+      {
+	delete det;
+	return 0;
+      }
     fix_dba_acceptance(det, aut, pm);
     det->merge_transitions();
     return det;
@@ -317,6 +323,7 @@ namespace spot
 
   tgba*
   tba_determinize_check(const tgba* aut,
+			unsigned threshold,
 			const ltl::formula* f,
 			const tgba* neg_aut)
   {
@@ -326,7 +333,10 @@ namespace spot
     if (aut->number_of_acceptance_conditions() > 1)
       return 0;
 
-    tgba_explicit_number* det = tba_determinize(aut);
+    tgba_explicit_number* det = tba_determinize(aut, threshold);
+
+    if (!det)
+      return 0;
 
     if (neg_aut == 0)
       {

@@ -337,10 +337,12 @@ to_int(const char* s)
   char* endptr;
   int res = strtol(s, &endptr, 10);
   if (*endptr)
-    return -1;
+    {
+      std::cerr << "Failed to parse `" << s << "' as an integer." << std::endl;
+      exit(1);
+    }
   return res;
 }
-
 
 int
 main(int argc, char** argv)
@@ -389,6 +391,8 @@ main(int argc, char** argv)
   bool opt_reduce = false;
   bool opt_minimize = false;
   bool opt_determinize = false;
+  unsigned opt_determinize_threshold = 0;
+  unsigned opt_o_threshold = 0;
   bool opt_dbacomp = false;
   bool reject_bigger = false;
   bool opt_bisim_ta = false;
@@ -649,10 +653,12 @@ main(int argc, char** argv)
 	  output = 8;
 	  spin_comments = true;
 	}
-      else if (!strcmp(argv[formula_index], "-O"))
+      else if (!strncmp(argv[formula_index], "-O", 2))
 	{
 	  output = 14;
           opt_minimize = true;
+	  if (argv[formula_index][2] != 0)
+	    opt_o_threshold = to_int(argv[formula_index] + 2);
 	}
       else if (!strcmp(argv[formula_index], "-p"))
 	{
@@ -793,9 +799,11 @@ main(int argc, char** argv)
           opt_minimize = true;
 	  reject_bigger = true;
         }
-      else if (!strcmp(argv[formula_index], "-RQ"))
+      else if (!strncmp(argv[formula_index], "-RQ", 3))
         {
           opt_determinize = true;
+	  if (argv[formula_index][3] != 0)
+	    opt_determinize_threshold = to_int(argv[formula_index] + 3);
         }
       else if (!strcmp(argv[formula_index], "-RT"))
         {
@@ -1443,8 +1451,10 @@ main(int argc, char** argv)
 	  && (!f || f->is_syntactic_recurrence()))
 	{
 	  tm.start("determinization");
-	  a = determinized = tba_determinize(a);
+	  determinized = tba_determinize(a, opt_determinize_threshold);
 	  tm.stop("determinization");
+	  if (determinized)
+	    a = determinized;
 	}
 
       spot::tgba* complemented = 0;
@@ -1702,7 +1712,8 @@ main(int argc, char** argv)
 	      if (minimized == 0)
 		{
 		  std::cout << "this is not an obligation property";
-		  const spot::tgba* tmp = tba_determinize_check(a, f);
+		  const spot::tgba* tmp =
+		    tba_determinize_check(a, opt_o_threshold, f, 0);
 		  if (tmp != 0 && tmp != a)
 		    {
 		      std::cout << ", but it is a recurrence property";

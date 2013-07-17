@@ -122,8 +122,12 @@ namespace spot
   /// }
   /// \endverbatim
   /// only adapted to work on TBA rather than BA.
+  ///
+  /// If \a threshold is non null, abort the construction whenever it
+  /// would build an automaton that is more than \a threshold time
+  /// bigger (in term of states) than the original automaton.
   SPOT_API tgba_explicit_number*
-  tba_determinize(const tgba* aut);
+  tba_determinize(const tgba* aut, unsigned threshold = 0);
 
   /// \brief Determinize a TBA and make sure it is correct.
   ///
@@ -134,15 +138,22 @@ namespace spot
   /// \a neg_aut is not given, it will be built from \a f.
   ///
   /// \param aut the automaton to minimize
+  ///
+  /// \param threshold if non null, abort the construction whenever it
+  /// would build an automaton that is more than \a threshold time
+  /// bigger (in term of states) than the original automaton.
+  ///
   /// \param f the formula represented by the original automaton
+  ///
   /// \param neg_aut an automaton representing the negation of \a aut
   ///
   /// \return a new tgba if the automaton could be determinized, \a aut if
   /// the automaton cannot be determinized, 0 if we do not know if the
   /// determinization is correct because neither \a f nor \a neg_aut
   /// were supplied.
-  tgba*
+  SPOT_API tgba*
   tba_determinize_check(const tgba* aut,
+			unsigned threshold = 0,
 			const ltl::formula* f = 0,
 			const tgba* neg_aut = 0);
 
