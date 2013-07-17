@@ -103,6 +103,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module stdint:
   # Code from module stdio:
   # Code from module stdlib:
+  # Code from module stpcpy:
   # Code from module strcase:
   # Code from module strchrnul:
   # Code from module streq:
@@ -307,6 +308,12 @@ AC_SUBST([LTALLOCA])
   gl_STDINT_H
   gl_STDIO_H
   gl_STDLIB_H
+  gl_FUNC_STPCPY
+  if test $HAVE_STPCPY = 0; then
+    AC_LIBOBJ([stpcpy])
+    gl_PREREQ_STPCPY
+  fi
+  gl_STRING_MODULE_INDICATOR([stpcpy])
   gl_STRCASE
   if test $HAVE_STRCASECMP = 0; then
     AC_LIBOBJ([strcasecmp])
@@ -595,6 +602,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdint.in.h
   lib/stdio.in.h
   lib/stdlib.in.h
+  lib/stpcpy.c
   lib/strcasecmp.c
   lib/strchrnul.c
   lib/strchrnul.valgrind
@@ -699,6 +707,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint_h.m4
   m4/stdio_h.m4
   m4/stdlib_h.m4
+  m4/stpcpy.m4
   m4/strcase.m4
   m4/strchrnul.m4
   m4/strerror.m4
