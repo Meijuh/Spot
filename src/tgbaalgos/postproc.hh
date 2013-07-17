@@ -107,6 +107,7 @@ namespace spot
     int ba_simul_;
     bool tba_determinisation_;
     bool sat_minimize_;
+    int dtgba_sat_minimize_;
   };
   /// @}
 }

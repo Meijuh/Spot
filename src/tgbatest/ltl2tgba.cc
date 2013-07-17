@@ -73,6 +73,7 @@
 #include "tgbaalgos/dbacomp.hh"
 #include "tgbaalgos/complete.hh"
 #include "tgbaalgos/dtbasat.hh"
+#include "tgbaalgos/dtgbasat.hh"
 
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
@@ -432,6 +433,7 @@ main(int argc, char** argv)
   bool cs_oblig = false;
   bool opt_complete = false;
   int opt_dtbasat = -1;
+  int opt_dtgbasat = -1;
 
   for (;;)
     {
@@ -798,6 +800,14 @@ main(int argc, char** argv)
 	  redopt.reduce_basics = true;
 	  redopt.reduce_size_strictly = true;
         }
+      else if (!strncmp(argv[formula_index], "-RG", 3))
+        {
+	  if (argv[formula_index][3] != 0)
+	    opt_dtgbasat = to_int(argv[formula_index] + 3);
+	  else
+	    opt_dtgbasat = 0;
+          //output = -1;
+        }
       else if (!strcmp(argv[formula_index], "-Rm"))
         {
           opt_minimize = true;
@@ -818,7 +828,7 @@ main(int argc, char** argv)
 	  if (argv[formula_index][3] != 0)
 	    opt_dtbasat = to_int(argv[formula_index] + 3);
 	  else
-	    opt_dtbasat = -1;
+	    opt_dtbasat = 0;
           //output = -1;
         }
       else if (!strcmp(argv[formula_index], "-RT"))
@@ -1520,6 +1530,14 @@ main(int argc, char** argv)
 	  tm.start("dtbasat");
 	  satminimized = dba_sat_minimize(a, opt_dtbasat);
 	  tm.stop("dtbasat");
+	  if (satminimized)
+	    a = satminimized;
+	}
+      else if (opt_dtgbasat >= 0)
+	{
+	  tm.start("dtgbasat");
+	  satminimized = dtgba_sat_minimize(a, opt_dtgbasat);
+	  tm.stop("dtgbasat");
 	  if (satminimized)
 	    a = satminimized;
 	}

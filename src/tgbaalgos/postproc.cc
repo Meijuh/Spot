@@ -30,6 +30,7 @@
 #include "isdet.hh"
 #include "tgba/tgbatba.hh"
 #include "dtbasat.hh"
+#include "dtgbasat.hh"
 #include "complete.hh"
 
 namespace spot
@@ -51,6 +52,7 @@ namespace spot
 	ba_simul_ = opt->get("ba-simul", -1);
 	tba_determinisation_ = opt->get("tba-det", 0);
 	sat_minimize_ = opt->get("sat-minimize", 0);
+	dtgba_sat_minimize_ = opt->get("dtgba-sat-minimize", -1);
       }
   }
 
@@ -300,6 +302,24 @@ namespace spot
 	    delete res;
 	  }
       }
+    else if (dtgba_sat_minimize_ >= 0 && dba && !dba_is_wdba)
+      {
+	const tgba* cmp = tgba_complete(dba);
+	const tgba* res =
+	  dtgba_sat_minimize(cmp,
+			     dtgba_sat_minimize_
+			     ? dtgba_sat_minimize_
+			     : dba->number_of_acceptance_conditions());
+	delete cmp;
+	if (res != 0)
+	  {
+	    delete dba;
+	    dba = scc_filter(res, true);
+	    delete res;
+	  }
+      }
+
+
     // Degeneralize the dba resulting from tba-determinization
     // or sat-minimization (which is a TBA) if requested.
     if (dba && !dba_is_wdba && type_ == BA)
