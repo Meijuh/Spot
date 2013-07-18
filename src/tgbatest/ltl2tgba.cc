@@ -71,6 +71,8 @@
 #include "tgbaalgos/compsusp.hh"
 #include "tgbaalgos/powerset.hh"
 #include "tgbaalgos/dbacomp.hh"
+#include "tgbaalgos/complete.hh"
+#include "tgbaalgos/dtbasat.hh"
 
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
@@ -402,7 +404,7 @@ main(int argc, char** argv)
   bool spin_comments = false;
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* unobservables = 0;
-  spot::tgba* system = 0;
+  spot::tgba* system_aut = 0;
   const spot::tgba* product_to_free = 0;
   spot::bdd_dict* dict = new spot::bdd_dict();
   spot::timer_map tm;
@@ -428,6 +430,8 @@ main(int argc, char** argv)
   bool cs_nosimul = true;
   bool cs_early_start = false;
   bool cs_oblig = false;
+  bool opt_complete = false;
+  int opt_dtbasat = -1;
 
   for (;;)
     {
@@ -596,8 +600,8 @@ main(int argc, char** argv)
 	  tm.start("reading -KP's argument");
 
 	  spot::kripke_parse_error_list pel;
-	  system = spot::kripke_parse(argv[formula_index] + 3,
-				      pel, dict, env, debug_opt);
+	  system_aut = spot::kripke_parse(argv[formula_index] + 3,
+					  pel, dict, env, debug_opt);
 	  if (spot::format_kripke_parse_errors(std::cerr,
 					       argv[formula_index] + 2, pel))
 	    return 2;
@@ -678,7 +682,7 @@ main(int argc, char** argv)
 	    return 2;
 	  s->merge_transitions();
 	  tm.stop("reading -P's argument");
-	  system = s;
+	  system_aut = s;
 	}
       else if (!strcmp(argv[formula_index], "-r"))
 	{
@@ -764,6 +768,10 @@ main(int argc, char** argv)
 	{
 	  simpcache_stats = true;
 	}
+      else if (!strcmp(argv[formula_index], "-RC"))
+	{
+	  opt_complete = true;
+	}
       else if (!strcmp(argv[formula_index], "-RDS"))
         {
           reduction_dir_sim = true;
@@ -804,6 +812,14 @@ main(int argc, char** argv)
           opt_determinize = true;
 	  if (argv[formula_index][3] != 0)
 	    opt_determinize_threshold = to_int(argv[formula_index] + 3);
+        }
+      else if (!strncmp(argv[formula_index], "-RS", 3))
+        {
+	  if (argv[formula_index][3] != 0)
+	    opt_dtbasat = to_int(argv[formula_index] + 3);
+	  else
+	    opt_dtbasat = -1;
+          //output = -1;
         }
       else if (!strcmp(argv[formula_index], "-RT"))
         {
@@ -1435,6 +1451,17 @@ main(int argc, char** argv)
 	    }
 	}
 
+      spot::tgba* determinized = 0;
+      if (opt_determinize && a->number_of_acceptance_conditions() <= 1
+	  && (!f || f->is_syntactic_recurrence()))
+	{
+	  tm.start("determinization 2");
+	  determinized = tba_determinize(a, 0, opt_determinize_threshold);
+	  tm.stop("determinization 2");
+	  if (determinized)
+	    a = determinized;
+	}
+
       const spot::tgba* monitor = 0;
       if (opt_monitor)
 	{
@@ -1446,15 +1473,55 @@ main(int argc, char** argv)
 				// pointless.
 	}
 
-      spot::tgba* determinized = 0;
-      if (opt_determinize && a->number_of_acceptance_conditions() <= 1
-	  && (!f || f->is_syntactic_recurrence()))
+      if (degeneralized || determinized)
+	{
+	  if (reduction_dir_sim && !reduction_iterated_sim)
+	    {
+	      tm.start("direct simulation 2");
+	      spot::tgba* tmp = spot::simulation(a);
+	      delete temp_dir_sim;
+	      a = temp_dir_sim = tmp;
+	      tm.stop("direct simulation 2");
+	      assume_sba = false;
+	    }
+
+	  if (reduction_rev_sim && !reduction_iterated_sim)
+	    {
+	      tm.start("reverse simulation 2");
+	      spot::tgba* tmp = spot::cosimulation(a);
+	      delete temp_rev_sim;
+	      a = temp_rev_sim = tmp;
+	      tm.stop("reverse simulation 2");
+	      assume_sba = false;
+	    }
+
+	  if (reduction_iterated_sim)
+	    {
+	      tm.start("Reduction w/ iterated simulations");
+	      spot::tgba* tmp = spot::iterated_simulations(a);
+	      delete temp_iterated_sim;
+	      a = temp_iterated_sim = tmp;
+	      tm.stop("Reduction w/ iterated simulations");
+	      assume_sba = false;
+	    }
+	}
+
+      spot::tgba* completed = 0;
+      if (opt_complete)
 	{
 	  tm.start("determinization");
-	  determinized = tba_determinize(a, 0, opt_determinize_threshold);
+	  a = completed = tgba_complete(a);
 	  tm.stop("determinization");
-	  if (determinized)
-	    a = determinized;
+	}
+
+      spot::tgba* satminimized = 0;
+      if (opt_dtbasat >= 0)
+	{
+	  tm.start("dtbasat");
+	  satminimized = dba_sat_minimize(a, opt_dtbasat);
+	  tm.stop("dtbasat");
+	  if (satminimized)
+	    a = satminimized;
 	}
 
       spot::tgba* complemented = 0;
@@ -1463,6 +1530,29 @@ main(int argc, char** argv)
 	  tm.start("DBA complement");
 	  a = complemented = dba_complement(a);
 	  tm.stop("DBA complement");
+	}
+
+      if (complemented || satminimized || determinized)
+	{
+	  if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
+	    {
+	      tm.start("SCC-filter post-sim");
+	      delete aut_scc;
+	      // Do not filter_all for SBA
+	      aut_scc = a = spot::scc_filter(a, assume_sba ?
+					     false : scc_filter_all);
+	      tm.stop("SCC-filter post-sim");
+	    }
+	}
+
+      if (opt_monitor)
+	{
+	  tm.start("Monitor minimization");
+	  minimized = a = minimize_monitor(a);
+	  tm.stop("Monitor minimization");
+	  assume_sba = false; 	// All states are accepting, so double
+				// circles in the dot output are
+				// pointless.
 	}
 
       const spot::tgba* expl = 0;
@@ -1569,9 +1659,9 @@ main(int argc, char** argv)
 
       spot::tgba* product_degeneralized = 0;
 
-      if (system)
+      if (system_aut)
         {
-	  product_to_free = a = new spot::tgba_product(system, a);
+	  product_to_free = a = new spot::tgba_product(system_aut, a);
 
 	  assume_sba = false;
 
@@ -1921,12 +2011,14 @@ main(int argc, char** argv)
         f->destroy();
       delete product_degeneralized;
       delete product_to_free;
-      delete system;
+      delete system_aut;
       delete expl;
       delete monitor;
       delete minimized;
+      delete satminimized;
       delete degeneralized;
       delete determinized;
+      delete completed;
       delete complemented;
       delete aut_scc;
       delete to_free;

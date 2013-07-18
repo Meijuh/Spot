@@ -37,6 +37,7 @@ tgbaalgos_HEADERS = \
   degen.hh \
   dottydec.hh \
   dotty.hh \
+  dtbasat.hh \
   dupexp.hh \
   eltl2tgba_lacim.hh \
   emptiness.hh \
@@ -84,6 +85,7 @@ libtgbaalgos_la_SOURCES = \
   degen.cc \
   dotty.cc \
   dottydec.cc \
+  dtbasat.cc \
   dupexp.cc \
   eltl2tgba_lacim.cc \
   emptiness.cc \
