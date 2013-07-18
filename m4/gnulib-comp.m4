@@ -78,6 +78,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module memchr:
   # Code from module mempcpy:
   # Code from module mkstemp:
+  # Code from module mkstemps:
   # Code from module msvc-inval:
   # Code from module msvc-nothrow:
   # Code from module multiarch:
@@ -263,6 +264,12 @@ AC_SUBST([LTALLOCA])
     gl_PREREQ_MKSTEMP
   fi
   gl_STDLIB_MODULE_INDICATOR([mkstemp])
+  gl_FUNC_MKSTEMPS
+  if test $HAVE_MKSTEMPS = 0; then
+    AC_LIBOBJ([mkstemps])
+  fi
+  gl_MODULE_INDICATOR([mkstemps])
+  gl_STDLIB_MODULE_INDICATOR([mkstemps])
   gl_MSVC_INVAL
   if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
     AC_LIBOBJ([msvc-inval])
@@ -574,6 +581,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/memchr.valgrind
   lib/mempcpy.c
   lib/mkstemp.c
+  lib/mkstemps.c
   lib/msvc-inval.c
   lib/msvc-inval.h
   lib/msvc-nothrow.c
@@ -684,6 +692,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/memchr.m4
   m4/mempcpy.m4
   m4/mkstemp.m4
+  m4/mkstemps.m4
   m4/mmap-anon.m4
   m4/msvc-inval.m4
   m4/msvc-nothrow.m4
