@@ -1,7 +1,9 @@
 alloca.h
 arg-nonnull.h
 c++defs.h
+configmake.h
 dummy.c
+errno.h
 fcntl.h
 getopt.h
 libgnu.a
@@ -11,6 +13,7 @@ stdlib.h
 string.h
 strings.h
 sys/
+sysexits.h
 time.h
 unistd.h
 warn-on-use.h
