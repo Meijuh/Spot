@@ -1,7 +1,8 @@
-// Copyright (C) 2009 Laboratoire de Recherche et DÃ©veloppement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -19,6 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "config.h"
 #include "timer.hh"
 #include <iostream>
 #include <iomanip>

@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -16,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "config.h"
 #include <cassert>
 #include "bddop.hh"
 
