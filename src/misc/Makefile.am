@@ -51,6 +51,7 @@ misc_HEADERS = \
   optionmap.hh \
   position.hh \
   random.hh \
+  satsolver.hh \
   timer.hh \
   tmpfile.hh \
   unique_ptr.hh \
@@ -69,6 +70,7 @@ libmisc_la_SOURCES = \
   minato.cc \
   optionmap.cc \
   random.cc \
+  satsolver.cc \
   timer.cc \
   tmpfile.cc \
   version.cc

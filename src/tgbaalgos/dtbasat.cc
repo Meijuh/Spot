@@ -29,6 +29,7 @@
 #include "ltlast/constant.hh"
 #include "stats.hh"
 #include "misc/tmpfile.hh"
+#include "misc/satsolver.hh"
 
 // If the following DEBUG macro is set to 1, the temporary files used
 // to communicate with the SAT-solver will be left in the current
@@ -60,7 +61,6 @@ namespace spot
 {
   namespace
   {
-
     static bdd_dict* debug_dict = 0;
 
     struct transition
@@ -707,25 +707,13 @@ namespace spot
 
 	cnf = create_tmpfile("dtba-sat-", ".cnf");
 
-	// FIXME: we should use proper temporary names
 	std::fstream cnfs(cnf->name(),
 			  std::ios_base::trunc | std::ios_base::out);
 	dtba_to_sat(cnfs, a, *current);
 	cnfs.close();
 
 	out = create_tmpfile("dtba-sat-", ".out");
-
-	const char* satsolver = getenv("SATSOLVER");
-	if (!satsolver)
-	  satsolver = "glucose";
-
-	std::string s(satsolver);
-	s += " ";
-	s += cnf->name();
-	s += " > ";
-	s += out->name();
-	system(s.c_str());
-
+	satsolver(cnf, out);
 	current_solution = get_solution(out->name());
       }
     while (target_state_number == -1 && !current_solution.empty());

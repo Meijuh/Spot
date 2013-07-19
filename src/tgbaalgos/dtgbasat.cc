@@ -30,6 +30,7 @@
 #include "stats.hh"
 #include "ltlenv/defaultenv.hh"
 #include "misc/tmpfile.hh"
+#include "misc/satsolver.hh"
 
 // If the following DEBUG macro is set to 1, the temporary files used
 // to communicate with the SAT-solver will be left in the current
@@ -902,18 +903,7 @@ namespace spot
 	cnfs.close();
 
 	out = create_tmpfile("dtba-sat-", ".out");
-
-	const char* satsolver = getenv("SATSOLVER");
-	if (!satsolver)
-	  satsolver = "glucose";
-
-	std::string s(satsolver);
-	s += " ";
-	s += cnf->name();
-	s += " > ";
-	s += out->name();
-	system(s.c_str());
-
+	satsolver(cnf, out);
 	current_solution = get_solution(out->name());
       }
     while (!current_solution.empty());
