@@ -57,3 +57,7 @@ config.cache
 *.json
 *.fdb_latexmk
 *.xz
+dt*ba-sat.cnf
+dt*ba-sat.out
+dt*ba-sat.dbg
+*.exe
