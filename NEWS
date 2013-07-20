@@ -1,6 +1,11 @@
 New in spot 1.1.3a (not released)
 
-  * Nothing yet.
+  * Bug fixes:
+    - The parser for neverclaim, updated in 1.1.3, would fail to
+      parse guards of the form (a) || (b) output by ltl2ba or
+      ltl3ba, and would only understand ((a) || (b)).
+    - When used from ltlcross, the same parser would fail to
+      parser further neverclaims after the first failure.
 
 New in spot 1.1.3 (2013-07-09)
 

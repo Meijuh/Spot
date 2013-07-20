@@ -74,6 +74,10 @@ eol      \n|\r|\n\r|\r\n
 			  ++parent_level;
 			  yylval->str->append(yytext, yyleng);
 			}
+         /* if we match ")&&(" or ")||(", stay in <in_par> mode */
+         ")"[ \t]*("&&"|"||")[ \t]*"(" {
+	                  yylval->str->append(yytext, yyleng);
+			}
 	 ")"		{
 	                  yylval->str->append(yytext, yyleng);
 			  if (!--parent_level)
@@ -128,6 +132,10 @@ namespace spot
         if (!yyin)
 	  return 1;
       }
+    // Reset the lexer in case a previous parse
+    // ended badly.
+    BEGIN(0);
+    YY_NEW_FILE;
     return 0;
   }
 
