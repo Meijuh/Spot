@@ -35,6 +35,23 @@ potential problems, avoid the \fB\-\-csv\fR and \fB\-\-json\fR
 options: ltlcross is faster when it does not have to compute these
 statistics.
 
+[ENVIRONMENT VARIABLES]
+
+.TP
+\fBSPOT_TMPDIR\fR, \fBTMPDIR\fR
+These variables control in which directory temporary files (e.g.,
+those who contain the input and output when interfacing with
+translators) are created.  \fBTMPDIR\fR is only read if
+\fBSPOT_TMPDIR\fR does not exist.  If none of these environment
+variables exist, or if their value is empty, files are created in the
+current directory.
+
+.TP
+\fBSPOT_TMPKEEP\fR
+When this variable is defined, temporary files are not removed.
+This is mostly useful for debugging.
+
+
 [SEE ALSO]
 .BR randltl (1),
 .BR genltl (1),

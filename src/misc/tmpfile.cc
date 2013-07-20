@@ -30,20 +30,40 @@ namespace spot
   {
     std::list<temporary_file*> to_clean;
 
-    static
-    int create_temporary_file(const char* prefix,
-			      const char* suffix,
-			      char** name)
+    static const char*
+    get_tmpdir()
+    {
+      const char* res = secure_getenv("SPOT_TMPDIR");
+      if (res)
+	return res;
+      return secure_getenv("TMPDIR");
+    }
+
+    static int
+    create_temporary_file(const char* prefix,
+			  const char* suffix,
+			  char** name)
       throw(std::bad_alloc, std::runtime_error)
     {
+      static const char* tmpdir = get_tmpdir();
+      static int tmpdirlen = tmpdir ? strlen(tmpdir) : 0;
+
       size_t len = strlen(prefix);
       size_t slen = 0;
       if (suffix)
 	len += slen = strlen(suffix);
-      *name = static_cast<char*>(malloc(len + 6 + 1));
+      *name = static_cast<char*>(malloc(tmpdirlen + 1 + len + 6 + 1));
       if (!name)
 	throw std::bad_alloc();
-      char* x = stpcpy(stpcpy(*name, prefix), "XXXXXX");
+      char* x = *name;
+      if (tmpdir)
+	{
+	  x = stpcpy(x, tmpdir);
+	  if (x[-1] != '/')
+	    *x++ = '/';
+	}
+      x = stpcpy(x, prefix);
+      x = stpcpy(x, "XXXXXX");
       int fd;
       if (suffix)
 	{
@@ -68,7 +88,9 @@ namespace spot
 
   temporary_file::~temporary_file()
   {
-    unlink(name_);
+    static bool must_unlink = !secure_getenv("SPOT_TMPKEEP");
+    if (must_unlink)
+      unlink(name_);
     free(name_);
     to_clean.erase(cleanpos_);
   }
