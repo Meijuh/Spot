@@ -50,6 +50,8 @@
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/isweakscc.hh"
+#include "tgbaalgos/reducerun.hh"
+#include "tgbaalgos/word.hh"
 #include "misc/formater.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
@@ -175,6 +177,7 @@ ARGMATCH_VERIFY(color_args, color_types);
 color_type color_opt = color_if_tty;
 const char* bright_red = "\033[01;31m";
 const char* bright_white = "\033[01;37m";
+const char* bright_yellow = "\033[01;33m";
 const char* reset_color = "\033[m";
 
 unsigned states = 200;
@@ -200,6 +203,15 @@ global_error()
     std::cerr << bright_red;
   return std::cerr;
 }
+
+static std::ostream&
+example()
+{
+  if (color_opt)
+    std::cerr << bright_yellow;
+  return std::cerr;
+}
+
 
 static void
 end_error()
@@ -796,14 +808,40 @@ namespace
     }
   };
 
-  static bool
-  is_empty(const spot::tgba* aut)
+  static void
+  check_empty_prod(const spot::tgba* aut_i, const spot::tgba* aut_j,
+		   size_t i, size_t j)
   {
-    spot::emptiness_check* ec = spot::couvreur99(aut);
+    spot::tgba_product* prod = new spot::tgba_product(aut_i, aut_j);
+    spot::emptiness_check* ec = spot::couvreur99(prod);
     spot::emptiness_check_result* res = ec->check();
+
+    if (res)
+      {
+	global_error() << "error: P" << i << "*N" << j
+		       << " is nonempty";
+
+	spot::tgba_run* run = res->accepting_run();
+	if (run)
+	  {
+	    const spot::tgba_run* runmin = reduce_run(prod, run);
+	    delete run;
+	    std::cerr << "; both automata accept the infinite word\n"
+		      << "       ";
+	    spot::tgba_word w(runmin);
+	    w.simplify();
+	    w.print(example(), prod->get_dict()) << "\n";
+	    delete runmin;
+	  }
+	else
+	  {
+	    std::cerr << "\n";
+	  }
+	end_error();
+      }
     delete res;
     delete ec;
-    return !res;
+    delete prod;
   }
 
   static void
@@ -1038,17 +1076,7 @@ namespace
 	    if (pos[i])
 	      for (size_t j = 0; j < m; ++j)
 		if (neg[j])
-		  {
-		    spot::tgba_product* prod =
-		      new spot::tgba_product(pos[i], neg[j]);
-		    if (!is_empty(prod))
-		      {
-			global_error() << "error: P" << i << "*N" << j
-				       << " is nonempty\n";
-			end_error();
-		      }
-		    delete prod;
-		  }
+		  check_empty_prod(pos[i], neg[j], i, j);
 	}
       else
 	{

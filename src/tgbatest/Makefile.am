@@ -108,6 +108,7 @@ TESTS = \
   emptchk.test \
   emptchke.test \
   dfs.test \
+  ltlcrossce.test \
   emptchkr.test \
   ltlcounter.test \
   basimul.test \

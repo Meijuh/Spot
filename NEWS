@@ -6,6 +6,10 @@ New in spot 1.1.4a (not relased)
   * ltlcross has a new option --color to color its output.  It is enabled
     by default when the output is a terminal.
 
+  * ltlcross will give an example of infinite word accepted by the
+    two automata when the product between a positive automaton and
+    a negative automaton is non-empty.
+
   * Environment variables SPOT_TMPDIR and SPOT_TMPKEEP control where
     temporary files are created and if they should be erased.  Read
     the man page of ltlcross for detail.

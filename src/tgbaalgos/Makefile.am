@@ -68,7 +68,8 @@ tgbaalgos_HEADERS = \
   tau03.hh \
   tau03opt.hh \
   translate.hh \
-  reductgba_sim.hh
+  reductgba_sim.hh \
+  word.hh
 
 noinst_LTLIBRARIES = libtgbaalgos.la
 libtgbaalgos_la_SOURCES = \
@@ -114,6 +115,7 @@ libtgbaalgos_la_SOURCES = \
   translate.cc \
   reductgba_sim.cc \
   weight.cc \
-  weight.hh
+  weight.hh \
+  word.cc
 
 libtgbaalgos_la_LIBADD = gtec/libgtec.la

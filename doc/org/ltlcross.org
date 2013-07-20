@@ -396,28 +396,32 @@ positive and negative formulas by the ith translator).
     A single failing translator might generate a lot of lines of
     the form:
 
-    : error: P0*N1 is nonempty
-    : error: P1*N0 is nonempty
-    : error: P1*N1 is nonempty
-    : error: P1*N2 is nonempty
-    : error: P1*N3 is nonempty
-    : error: P1*N4 is nonempty
-    : error: P1*N5 is nonempty
-    : error: P1*N6 is nonempty
-    : error: P1*N7 is nonempty
-    : error: P1*N8 is nonempty
-    : error: P1*N9 is nonempty
-    : error: P2*N1 is nonempty
-    : error: P3*N1 is nonempty
-    : error: P4*N1 is nonempty
-    : error: P5*N1 is nonempty
-    : error: P6*N1 is nonempty
-    : error: P7*N1 is nonempty
-    : error: P8*N1 is nonempty
-    : error: P9*N1 is nonempty
+    : error: P0*N1 is nonempty; both automata accept the infinite word
+    :        cycle{p0 & !p1}
+    : error: P1*N0 is nonempty; both automata accept the infinite word
+    :        p0; !p1; cycle{p0 & p1}
+    : error: P1*N1 is nonempty; both automata accept the infinite word
+    :        p0; cycle{!p1 & !p0}
+    : error: P1*N2 is nonempty; both automata accept the infinite word
+    :        p0; !p1; cycle{p0 & p1}
+    : error: P1*N3 is nonempty; both automata accept the infinite word
+    :        p0; !p1; cycle{p0 & p1}
+    : error: P1*N4 is nonempty; both automata accept the infinite word
+    :        p0; cycle{!p1 & !p0}
+    : error: P2*N1 is nonempty; both automata accept the infinite word
+    :        p0; !p1; !p0; cycle{!p1 & !p0; p0 & !p1; !p1; !p1; p0 & !p1}
+    : error: P3*N1 is nonempty; both automata accept the infinite word
+    :        p0; !p1; !p1 & !p0; cycle{p0 & !p1}
+    : error: P4*N1 is nonempty; both automata accept the infinite word
+    :        p0; !p1; !p1 & !p0; cycle{p0 & !p1}
 
     In this example, translator number =1= looks clearly faulty
-    (at least the other 9 translators do not contradict each other).
+    (at least the other 4 translators do not contradict each other).
+
+    Examples of infinite words that are accepted by both automata
+    always have the form of a lasso: a (possibly empty) finite prefix
+    followed by a cycle that should be repeated infinitely often.
+    The cycle part is denoted by =cycle{...}=.
 
   - Cross-comparison checks: for some state-space $S$,
     all $P_i\otimes S$ are either all empty, or all non-empty.
