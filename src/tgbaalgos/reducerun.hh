@@ -1,7 +1,7 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2010, 2013 Laboratoire de Recherche et DÃ©veloppement de
 // l'Epita.
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -30,8 +30,8 @@ namespace spot
   /// \ingroup tgba_run
   /// \brief Reduce an accepting run.
   ///
-  /// Return a run which is accepting for \a and that is no longer
-  /// that \a org.
+  /// Return a run which is accepting for \a a and that is no longer
+  /// than \a org.
   tgba_run* reduce_run(const tgba* a, const tgba_run* org);
 }
 
