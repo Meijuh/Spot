@@ -89,9 +89,9 @@ Exit status:\n\
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Specifying translator to call:", 2 },
+    { 0, 0, 0, 0, "Specifying translators to call:", 2 },
     { "translator", 't', "COMMANDFMT", 0,
-      "register one translators to call", 0 },
+      "register one translator to call", 0 },
     { "timeout", 'T', "NUMBER", 0, "kill translators after NUMBER seconds", 0 },
     /**************************************************/
     { 0, 0, 0, 0,
