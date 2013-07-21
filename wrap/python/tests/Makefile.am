@@ -24,6 +24,7 @@ EXTRA_DIST = \
   ltl2tgba.py
 
 LOG_COMPILER = ./run
+LOG_DRIVER = $(TEST_LOG_DRIVER)
 # ensure run is rebuilt before the tests are run.
 check_SCRIPTS = run
 

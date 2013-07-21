@@ -186,6 +186,18 @@ compiler error), while most others (like randtgba, dve2check, randltl,
 ...) do fine.
 
 
+Log driver for testsuite
+------------------------
+
+The PASS/FAIL status for each test of the testsuite is printed by
+tools/test-driver.  This script can be changed to format the output
+differently.  When we use Teamcity (for continuous integration) we
+change the output format to something that Teamcity will understand
+with:
+
+  make check TEST_LOG_DRIVER=$PWD/tools/test-driver-teamcity
+
+
 Coding conventions
 ==================
 
