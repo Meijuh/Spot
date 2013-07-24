@@ -31,6 +31,7 @@ check_SCRIPTS = defs
 # Keep this sorted alphabetically.
 check_PROGRAMS = \
   bddprod \
+  bitvect \
   complement \
   explicit \
   explicit2 \
@@ -48,6 +49,7 @@ check_PROGRAMS = \
 # Keep this sorted alphabetically.
 bddprod_SOURCES  = ltlprod.cc
 bddprod_CXXFLAGS = -DBDD_CONCRETE_PRODUCT
+bitvect_SOURCES  = bitvect.cc
 complement_SOURCES = complementation.cc
 explicit_SOURCES = explicit.cc
 explicit2_SOURCES = explicit2.cc
@@ -69,6 +71,7 @@ tripprod_SOURCES = tripprod.cc
 # because such failures will be easier to diagnose and fix.
 TESTS = \
   intvcomp.test \
+  bitvect.test \
   eltl2tgba.test \
   explicit.test \
   explicit2.test \

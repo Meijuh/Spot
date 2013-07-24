@@ -33,6 +33,7 @@ misc_HEADERS = \
   bareword.hh \
   bddlt.hh \
   bddop.hh \
+  bitvect.hh \
   casts.hh \
   common.hh \
   escape.hh \
@@ -59,6 +60,7 @@ noinst_LTLIBRARIES = libmisc.la
 libmisc_la_SOURCES = \
   bareword.cc \
   bddop.cc \
+  bitvect.cc \
   escape.cc \
   formater.cc \
   intvcomp.cc \
