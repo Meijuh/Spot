@@ -157,6 +157,7 @@ Core directories
 src/              Sources for libspot.
    bin/           User tools built using the Spot library.
       man/        Man pages for the above tools.
+   dstarparse/    Parser for the output of ltl2dstar.
    eltlparse/     Parser for ELTL formulae.
    eltltest/      Tests for ELTL nodes in ltlast/ and eltlparse/.
    kripke/        Kripke Structure interface.

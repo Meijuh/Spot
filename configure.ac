@@ -147,6 +147,7 @@ AC_CONFIG_FILES([
   lib/Makefile
   src/bin/Makefile
   src/bin/man/Makefile
+  src/dstarparse/Makefile
   src/eltlparse/Makefile
   src/eltltest/defs
   src/eltltest/Makefile

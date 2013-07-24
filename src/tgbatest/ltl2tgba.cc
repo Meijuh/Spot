@@ -45,6 +45,7 @@
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaparse/public.hh"
 #include "neverparse/public.hh"
+#include "dstarparse/public.hh"
 #include "tgbaalgos/dupexp.hh"
 #include "tgbaalgos/minimize.hh"
 #include "taalgos/minimize.hh"
@@ -119,6 +120,10 @@ syntax(char* prog)
 	    << std::endl
 	    << "  -X    do not compute an automaton, read it from a file"
 	    << std::endl
+	    << "  -XD   do not compute an automaton, read it from an"
+	    << " ltl2dstar file" << std::endl
+	    << "  -XDB  read the from an ltl2dstar file and convert it to "
+	    << "TGBA" << std::endl
 	    << "  -XL   do not compute an automaton, read it from an"
 	    << " LBTT file" << std::endl
 	    << "  -XN   do not compute an automaton, read it from a"
@@ -361,8 +366,8 @@ main(int argc, char** argv)
   bool accepting_run = false;
   bool accepting_run_replay = false;
   bool from_file = false;
-  bool read_neverclaim = false;
-  bool read_lbtt = false;
+  enum { ReadSpot, ReadLbtt, ReadNeverclaim, ReadDstar } readformat = ReadSpot;
+  bool nra2nba = false;
   bool scc_filter = false;
   bool simpltl = false;
   spot::ltl::ltl_simplifier_options redopt(false, false, false, false,
@@ -899,16 +904,28 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-X"))
 	{
 	  from_file = true;
+	  readformat = ReadSpot;
 	}
-      else if (!strcmp(argv[formula_index], "-XN"))
+      else if (!strcmp(argv[formula_index], "-XD"))
 	{
 	  from_file = true;
-	  read_neverclaim = true;
+	  readformat = ReadDstar;
+	}
+      else if (!strcmp(argv[formula_index], "-XDB"))
+	{
+	  from_file = true;
+	  readformat = ReadDstar;
+	  nra2nba = true;
 	}
       else if (!strcmp(argv[formula_index], "-XL"))
 	{
 	  from_file = true;
-	  read_lbtt = true;
+	  readformat = ReadLbtt;
+	}
+      else if (!strcmp(argv[formula_index], "-XN"))
+	{
+	  from_file = true;
+	  readformat = ReadNeverclaim;
 	}
       else if (!strcmp(argv[formula_index], "-y"))
 	{
@@ -1018,59 +1035,102 @@ main(int argc, char** argv)
       if (from_file)
 	{
 	  spot::tgba_explicit_string* e = 0;
-	  if (!read_neverclaim && !read_lbtt)
+	  switch (readformat)
 	    {
-	      spot::tgba_parse_error_list pel;
-	      tm.start("parsing automaton");
-	      to_free = a = e = spot::tgba_parse(input, pel, dict,
-						 env, env, debug_opt);
-	      tm.stop("parsing automaton");
-	      if (spot::format_tgba_parse_errors(std::cerr, input, pel))
+	    case ReadSpot:
 		{
-		  delete to_free;
-		  delete dict;
-		  return 2;
+		  spot::tgba_parse_error_list pel;
+		  tm.start("parsing automaton");
+		  to_free = a = e = spot::tgba_parse(input, pel, dict,
+						     env, env, debug_opt);
+		  tm.stop("parsing automaton");
+		  if (spot::format_tgba_parse_errors(std::cerr, input, pel))
+		    {
+		      delete to_free;
+		      delete dict;
+		      return 2;
+		    }
 		}
-	    }
-	  else if (read_neverclaim)
-	    {
-	      spot::neverclaim_parse_error_list pel;
-	      tm.start("parsing neverclaim");
-	      to_free = a = e = spot::neverclaim_parse(input, pel, dict,
-						       env, debug_opt);
-	      tm.stop("parsing neverclaim");
-	      if (spot::format_neverclaim_parse_errors(std::cerr, input, pel))
-		{
-		  delete to_free;
-		  delete dict;
-		  return 2;
-		}
-	      assume_sba = true;
-	    }
-	  else
-	    {
-	      std::string error;
-	      std::fstream f(input.c_str());
-	      if (!f)
-		{
-		  std::cerr << "cannot open " << input << std::endl;
-		  delete dict;
-		  return 2;
-		}
-	      tm.start("parsing lbtt");
-	      to_free = a =
-		const_cast<spot::tgba*>(spot::lbtt_parse(f, error, dict,
-							 env, env));
-	      tm.stop("parsing lbtt");
-	      if (!to_free)
-		{
-		  std::cerr << error << std::endl;
-		  delete dict;
-		  return 2;
-		}
+	      break;
+	    case ReadNeverclaim:
+	      {
+		spot::neverclaim_parse_error_list pel;
+		tm.start("parsing neverclaim");
+		to_free = a = e = spot::neverclaim_parse(input, pel, dict,
+							 env, debug_opt);
+		tm.stop("parsing neverclaim");
+		if (spot::format_neverclaim_parse_errors(std::cerr, input, pel))
+		  {
+		    delete to_free;
+		    delete dict;
+		    return 2;
+		  }
+		assume_sba = true;
+	      }
+	      break;
+	    case ReadLbtt:
+	      {
+		std::string error;
+		std::fstream f(input.c_str());
+		if (!f)
+		  {
+		    std::cerr << "cannot open " << input << std::endl;
+		    delete dict;
+		    return 2;
+		  }
+		tm.start("parsing lbtt");
+		to_free = a =
+		  const_cast<spot::tgba*>(spot::lbtt_parse(f, error, dict,
+							   env, env));
+		tm.stop("parsing lbtt");
+		if (!to_free)
+		  {
+		    std::cerr << error << std::endl;
+		    delete dict;
+		    return 2;
+		  }
+	      }
+	      break;
+	    case ReadDstar:
+	      {
+		spot::dstar_parse_error_list pel;
+		tm.start("parsing dstar");
+		spot::dstar_aut* daut;
+		daut = spot::dstar_parse(input, pel, dict,
+					 env, debug_opt);
+		if (nra2nba)
+		  {
+		    if (daut->type == spot::Rabin)
+		      {
+			to_free = a = spot::nra_to_nba(daut);
+			assume_sba = true;
+		      }
+		    else
+		      {
+			to_free = a = spot::nsa_to_tgba(daut);
+			assume_sba = false;
+		      }
+		  }
+		else
+		  {
+		    to_free = a = daut->aut;
+		    daut->aut = 0;
+		    assume_sba = false;
+		  }
+		delete daut;
+		tm.stop("parsing dstar");
+		if (spot::format_dstar_parse_errors(std::cerr, input, pel))
+		  {
+		    delete to_free;
+		    delete dict;
+		    return 2;
+		  }
+	      }
+	      break;
 	    }
 	  if (e)
 	    e->merge_transitions();
+
 	}
       else
 	{

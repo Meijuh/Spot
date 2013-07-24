@@ -80,6 +80,7 @@ TESTS = \
   renault.test \
   nondet.test \
   neverclaimread.test \
+  dstar.test \
   readsave.test \
   simdet.test \
   sim.test \
