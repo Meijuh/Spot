@@ -10,6 +10,17 @@ New in spot 1.1.4a (not relased)
     two automata when the product between a positive automaton and
     a negative automaton is non-empty.
 
+  * ltlcross can now read the Rabin and Streett automata output by
+    ltl2dstar.  This type of output should be specified using '%D':
+
+      ltlcross 'ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-s %L %D'
+
+    However because Spot only supports Büchi acceptance, these Rabin
+    and Streett automata are immediately converted to TGBA before
+    further processing by ltlcross.  This is still interesting to
+    search for bugs in translators to Rabin or Streett automata, but
+    the statistics might not be very relevant.
+
   * Environment variables SPOT_TMPDIR and SPOT_TMPKEEP control where
     temporary files are created and if they should be erased.  Read
     the man page of ltlcross for detail.

@@ -38,6 +38,7 @@
 #include "common_cout.hh"
 #include "common_finput.hh"
 #include "neverparse/public.hh"
+#include "dstarparse/public.hh"
 #include "ltlast/unop.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/apcollect.hh"
@@ -107,8 +108,9 @@ static const argp_option options[] =
       0 },
     { "%F,%S,%L,%W", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the formula as a file in Spot, Spin, LBT, or Wring's syntax", 0 },
-    { "%N,%T", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the output automaton as a Never claim, or in LBTT's format", 0 },
+    { "%N,%T,%D", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the output automaton as a Never claim, in LBTT's or in LTL2DSTAR's "
+      "format", 0 },
     { 0, 0, 0, 0,
       "If either %l, %L, or %T are used, any input formula that does "
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
@@ -532,7 +534,7 @@ namespace
     public spot::printable_value<spot::temporary_file*>
   {
     unsigned translator_num;
-    enum output_format { None, Spin, Lbtt };
+    enum output_format { None, Spin, Lbtt, Dstar };
     mutable output_format format;
 
     printable_result_filename()
@@ -562,10 +564,15 @@ namespace
     {
       if (*pos == 'N')
 	format = Spin;
-      else
+      else if (*pos == 'T')
 	format = Lbtt;
+      else if (*pos == 'D')
+	format = Dstar;
+      else
+	assert(!"BUG");
+
       if (val_)
-	error(2, 0, "you may have only one %%N or %%T specifier: %s",
+	error(2, 0, "you may have only one %%D, %%N, or %%T specifier: %s",
 	      translators[translator_num]);
       char prefix[30];
       snprintf(prefix, sizeof prefix, "lcr-o%u-", translator_num);
@@ -604,6 +611,7 @@ namespace
       declare('S', &filename_ltl_spin);
       declare('L', &filename_ltl_lbt);
       declare('W', &filename_ltl_wring);
+      declare('D', &output);
       declare('N', &output);
       declare('T', &output);
 
@@ -621,9 +629,9 @@ namespace
 	    error(2, 0, "no input %%-sequence in '%s'.\n       Use "
 		  "one of %%f,%%s,%%l,%%w,%%F,%%S,%%L,%%W to indicate how "
 		  "to pass the formula.", translators[n]);
-	  if (!(has['N'] || has['T']))
-	    error(2, 0, "no output %%-sequence in '%s'.\n      Use "
-		  "one of %%N,%%T to indicate where the automaton is saved.",
+	  if (!(has['D'] || has['N'] || has['T']))
+	    error(2, 0, "no output %%-sequence in '%s'.\n      Use one of "
+		  "%%D,%%N,%%T to indicate where the automaton is saved.",
 		  translators[n]);
 
 	  // Remember the %-sequences used by all translators.
@@ -761,6 +769,29 @@ namespace
 			end_error();
 		      }
 		  }
+		break;
+	      }
+	    case printable_result_filename::Dstar:
+	      {
+		spot::dstar_parse_error_list pel;
+		std::string filename = output.val()->name();
+		spot::dstar_aut* aut;
+		aut = spot::dstar_parse(filename, pel, &dict);
+		if (!pel.empty())
+		  {
+		    std::ostream& err = global_error();
+		    err << "error: failed to parse the produced DSTAR"
+		      " output.\n";
+		    spot::format_dstar_parse_errors(err, filename, pel);
+		    end_error();
+		    delete aut;
+		    res = 0;
+		  }
+		if (aut->type == spot::Rabin)
+		  res = spot::nra_to_nba(aut);
+		else
+		  res = spot::nsa_to_tgba(aut);
+		delete aut;
 		break;
 	      }
 	    case printable_result_filename::None:

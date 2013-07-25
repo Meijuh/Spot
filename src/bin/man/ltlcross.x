@@ -30,6 +30,22 @@ in LBT's format, and \f(CW%T\fR to read the output in LBTT's format
 .fi
 .LP
 
+Rabin or Streett automata output by ltl2dstar can be read from a
+file specified with \f(CW%D\fR.  For instance:
+
+.nf
+% ltlcross \-F input.ltl \e
+  'ltl2dstar \-\-ltl2nba=spin:path/ltl2tgba@\-s %L %D' \e
+  'ltl2dstar \-\-automata=streett \-\-ltl2nba=spin:path/ltl2tgba@\-s %L %D' \e
+.fi
+.LP
+
+However because Spot only supports Büchi acceptance, these Rabin and
+Streett automata are immediately converted to TGBA before further
+processing by ltlcross.  This is still interesting to search for bugs
+in translators to Rabin or Streett automata, but the statistics might
+not be very relevant.
+
 If you use ltlcross in an automated testsuite just to check for
 potential problems, avoid the \fB\-\-csv\fR and \fB\-\-json\fR
 options: ltlcross is faster when it does not have to compute these
@@ -75,3 +91,4 @@ th02
 H. Tauriainen and K. Heljanko: Testing LTL formula translation into
 Büchi automata.  Int. J. on Software Tools for Technology Transfer.
 Volume 4, number 1, October 2002.
+

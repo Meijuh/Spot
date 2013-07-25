@@ -1,0 +1,72 @@
+#!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2013 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Do some quick translations to make sure the neverclaims produced by
+# spot actually look correct!  We do that by parsing them via ltlcross.
+# ltl2neverclaim-lbtt.test does the same with LBTT if it is installed.
+
+. ./defs
+set -e
+
+# Skip this test if ltl2dstar is not installed.
+(ltl2dstar --version) || exit 77
+
+ltlfilt=../../bin/ltlfilt
+ltl2tgba=../../bin/ltl2tgba
+ltlcross=../../bin/ltlcross
+randltl=../../bin/randltl
+ltlfilt=../../bin/ltlfilt
+
+$ltlfilt -f 'a U b' -l |
+ltl2dstar --ltl2nba=spin:$ltl2tgba@-s - - |
+../ltl2tgba -XDB - |
+tee out
+
+cat >expected <<EOF
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="1"]
+  1 -> 1 [label="a & !b\n"]
+  1 -> 2 [label="a & !b\n"]
+  1 -> 3 [label="b\n"]
+  1 -> 4 [label="b\n"]
+  2 [label="2"]
+  2 -> 2 [label="a & !b\n"]
+  2 -> 4 [label="b\n"]
+  3 [label="5"]
+  3 -> 3 [label="1\n"]
+  3 -> 4 [label="1\n"]
+  4 [label="6", peripheries=2]
+  4 -> 4 [label="1\n{Acc[1]}"]
+}
+EOF
+
+
+diff expected out
+
+$randltl -n 15 a b | $ltlfilt --nnf --remove-wm |
+$ltlcross -F - -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
+--timeout=10 \
+"$ltl2tgba -s %f >%N" \
+"ltl2dstar --automata=rabin --output=nba --ltl2nba=spin:$ltl2tgba@-s %L %T" \
+"ltl2dstar --automata=rabin --ltl2nba=spin:$ltl2tgba@-s %L %D" \
+"ltl2dstar --automata=streett --output=nba --ltl2nba=spin:$ltl2tgba@-s %L %T" \
+"ltl2dstar --automata=streett --ltl2nba=spin:$ltl2tgba@-s %L %D"
