@@ -805,9 +805,9 @@ namespace
 	    }
 	err << "} when evaluating ";
 	if (products > 1)
-	  err << "state-space #" << p << "/" << products;
+	  err << "state-space #" << p << "/" << products << "\n";
 	else
-	  err << "the state-space";
+	  err << "the state-space\n";
       }
   }
 

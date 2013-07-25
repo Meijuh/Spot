@@ -5,7 +5,8 @@ New in spot 1.1.3a (not released)
       parse guards of the form (a) || (b) output by ltl2ba or
       ltl3ba, and would only understand ((a) || (b)).
     - When used from ltlcross, the same parser would fail to
-      parser further neverclaims after the first failure.
+      parse further neverclaims after the first failure.
+    - Add a missing newline in some error message of ltlcross.
 
 New in spot 1.1.3 (2013-07-09)
 
