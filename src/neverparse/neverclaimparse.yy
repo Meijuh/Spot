@@ -21,7 +21,6 @@
 %locations
 %defines
 %expect 0 // No shift/reduce
-%expect-rr 0 // No reduce/reduce
 %name-prefix "neverclaimyy"
 %debug
 %error-verbose
