@@ -1071,18 +1071,24 @@ main(int argc, char** argv)
 	    case ReadLbtt:
 	      {
 		std::string error;
-		std::fstream f(input.c_str());
-		if (!f)
+		std::istream* in = &std::cin;
+		std::fstream* f = 0;
+		if (input != "-")
 		  {
-		    std::cerr << "cannot open " << input << std::endl;
-		    delete dict;
-		    return 2;
+		    in = f = new std::fstream(input.c_str());
+		    if (!*f)
+		      {
+			std::cerr << "cannot open " << input << std::endl;
+			delete dict;
+			return 2;
+		      }
 		  }
 		tm.start("parsing lbtt");
 		to_free = a =
-		  const_cast<spot::tgba*>(spot::lbtt_parse(f, error, dict,
+		  const_cast<spot::tgba*>(spot::lbtt_parse(*in, error, dict,
 							   env, env));
 		tm.stop("parsing lbtt");
+		delete f;
 		if (!to_free)
 		  {
 		    std::cerr << error << std::endl;
