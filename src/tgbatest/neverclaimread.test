@@ -117,7 +117,8 @@ cat >input <<EOF
 never { /* p0 || p1  */
 accept_init:
         if
-        :: (p1) || (p0) -> goto accept_all
+        :: (p1) && (p0) -> goto accept_all
+        :: (p1) && !(p0) -> goto accept_all
         fi;
 accept_all:
         skip
@@ -130,19 +131,15 @@ digraph G {
   0 [label="", style=invis, height=0]
   0 -> 1
   1 [label="accept_init", peripheries=2]
-  1 -> 2 [label="p1 | p0\n{Acc[1]}"]
+  1 -> 2 [label="p1\n{Acc[1]}"]
   2 [label="accept_all", peripheries=2]
   2 -> 2 [label="1\n{Acc[1]}"]
 }
 EOF
 
-# Sort out some possible inversions in the output.
-# (The order is not guaranteed by SPOT.)
-sed -e 's/p0 | p1/p1 | p0/g' stdout > tmp_ && mv tmp_ stdout
 diff stdout expected
 
 rm input stdout expected
-
 
 # Test broken guards in input
 cat >input <<EOF

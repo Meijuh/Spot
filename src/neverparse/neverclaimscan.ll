@@ -75,7 +75,7 @@ eol      \n|\r|\n\r|\r\n
 			  yylval->str->append(yytext, yyleng);
 			}
          /* if we match ")&&(" or ")||(", stay in <in_par> mode */
-         ")"[ \t]*("&&"|"||")[ \t]*"(" {
+         ")"[ \t]*("&&"|"||")[ \t!]*"(" {
 	                  yylval->str->append(yytext, yyleng);
 			}
 	 ")"		{
