@@ -1,4 +1,4 @@
-New in spot 1.1.3a (not released)
+New in spot 1.1.4 (2013-07-29)
 
   * Bug fixes:
     - The parser for neverclaim, updated in 1.1.3, would fail to
@@ -14,6 +14,7 @@ New in spot 1.1.3a (not released)
       explain that {SERE} has the semantics of a closure operator that
       is not exactly what one could expect after reading the PSL
       standard.
+    - Various typos.
 
 New in spot 1.1.3 (2013-07-09)
 
