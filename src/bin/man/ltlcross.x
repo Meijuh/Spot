@@ -15,7 +15,7 @@ ltlcross \-T120 'ltl2tgba \-s %f >%N' 'spin \-f %s >%N' \-\-json=results.json
 .fi
 .LP
 
-The next command compare lbt, ltl3ba, and ltl2tgba(1) on a set of
+The next command compares lbt, ltl3ba, and ltl2tgba(1) on a set of
 formulas saved in file \f(CWinput.ltl\fR.  Statistics are again writen
 as CSV into \f(CWresults.csv\fR.  Note the use of \f(CW%L\fR to
 indicate that the formula passed to lbt should be written into a file
