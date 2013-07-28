@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.61])
-AC_INIT([spot], [1.1.4], [spot@lrde.epita.fr])
+AC_INIT([spot], [1.1.4a], [spot@lrde.epita.fr])
 AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 gnu tar-ustar color-tests parallel-tests])
@@ -175,3 +175,14 @@ AC_CONFIG_FILES([
 AC_CONFIG_FILES([doc/dot], [chmod +x doc/dot])
 AC_CONFIG_FILES([wrap/python/tests/run], [chmod +x wrap/python/tests/run])
 AC_OUTPUT
+
+case $VERSION:$enable_devel in
+  *[[abcdefghijklmnopqrstuvwxyz]]:yes)
+    echo
+    echo '==================================================================='
+    echo ' This is a development version of Spot: Assertions and debuging    '
+    echo ' code are enabled by default.  If you find this too slow or        '
+    echo ' plan to do some benchmarking, run configure with --disable-devel. '
+    echo '==================================================================='
+  ;;
+esac
