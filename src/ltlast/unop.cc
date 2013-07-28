@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -292,19 +292,19 @@ namespace spot
 	  // {0} = 0, {1} = 1,  {b} = b
 	  if (child->is_boolean())
 	    return child;
-	  // {[*0]} = 1
+	  // {[*0]} = 0
 	  if (child == constant::empty_word_instance())
-	    return constant::true_instance();
+	    return constant::false_instance();
 	  break;
 
 	case NegClosure:
 	case NegClosureMarked:
-	  // {1} = 0,  {[*0]} = 0
-	  if (child == constant::true_instance()
-	      || child == constant::empty_word_instance())
+	  // {1} = 0
+	  if (child == constant::true_instance())
 	    return constant::false_instance();
-	  // {0} = 1
-	  if (child == constant::false_instance())
+	  // {0} = 1,  {[*0]} = 1
+	  if (child == constant::false_instance()
+	      || child == constant::empty_word_instance())
 	    return constant::true_instance();
 	  // {b} = !b
 	  if (child->is_boolean())

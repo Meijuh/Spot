@@ -1367,12 +1367,6 @@ namespace spot
 	    {
 	      // rat_seen_ = true;
 	      const formula* f = node->child();
-	      if (f->accepts_eword())
-		{
-		  res_ = bddtrue;
-		  return;
-		}
-
 	      tgba_succ_iterator* i = dict_.transdfa.succ(f);
 	      res_ = bddfalse;
 
@@ -1410,11 +1404,6 @@ namespace spot
 	    rat_seen_ = true;
 	    {
 	      const formula* c = node->child();
-	      if (c->accepts_eword())
-		{
-		  res_ = bddfalse;
-		  return;
-		}
 	      if (mark_all_)
 		{
 		  op = unop::NegClosureMarked;

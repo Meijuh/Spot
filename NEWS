@@ -7,6 +7,13 @@ New in spot 1.1.3a (not released)
     - When used from ltlcross, the same parser would fail to
       parse further neverclaims after the first failure.
     - Add a missing newline in some error message of ltlcross.
+    - Expressions like {SERE} were wrongly translated and simplified
+      for SEREs that accept the empty word: they were wrongly reduced
+      to true.  Simplification and translation rules have been fixed,
+      and the doc/tl/tl.pdf specifications have been updated to better
+      explain that {SERE} has the semantics of a closure operator that
+      is not exactly what one could expect after reading the PSL
+      standard.
 
 New in spot 1.1.3 (2013-07-09)
 

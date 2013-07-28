@@ -209,3 +209,11 @@ grep 'states: 4$' stdout
 # the following formula to be considered equivalent to anything...
 ../../bin/ltlfilt -f '!{[*2] && [*0..1]}' --equivalent-to 'false' && exit 1
 ../../bin/ltlfilt -f '!{[*2] && [*0..1]}' --equivalent-to 'true'
+
+# Test some equivalences fixed in Spot 1.1.4
+../../bin/ltlfilt    -f '{{a;b}[*]}'  --equivalent-to 'a & Xb'
+../../bin/ltlfilt -r -f '{{a;b}[*]}'  --equivalent-to 'a & Xb'
+../../bin/ltlfilt    -f '!{{a;b}[*]}' --equivalent-to '!a | X!b'
+../../bin/ltlfilt -r -f '!{{a;b}[*]}' --equivalent-to '!a | X!b'
+../../bin/ltlfilt    -f '{a[*];b[*]}' --equivalent-to 'a | b'
+../../bin/ltlfilt -r -f '{a[*];b[*]}' --equivalent-to 'a | b'

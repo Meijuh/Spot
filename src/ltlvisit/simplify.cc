@@ -1550,16 +1550,17 @@ namespace spot
 	    case unop::Closure:
 	    case unop::NegClosure:
 	    case unop::NegClosureMarked:
-	      // {e} = 1 if e accepts [*0]
-	      // !{e} = 0 if e accepts [*0]
+	      // {e[*]} = {e}
+	      // !{e[*]} = !{e}
 	      if (result_->accepts_eword())
-		{
-		  result_->destroy();
-		  result_ = ((op == unop::Closure)
-			     ? constant::true_instance()
-			     : constant::false_instance());
-		  return;
-		}
+		if (const bunop* bo = is_Star(result_))
+		  {
+		    result_ =
+		      recurse_destroy(unop::instance(op,
+						     bo->child()->clone()));
+		    bo->destroy();
+		    return;
+		  }
 	      if (!opt_.reduce_size_strictly)
 		if (const multop* mo = is_OrRat(result_))
 		  {
@@ -1578,6 +1579,26 @@ namespace spot
 		  }
 	      if (const multop* mo = is_Concat(result_))
 		{
+		  if (mo->accepts_eword())
+		    {
+		      if (opt_.reduce_size_strictly)
+			break;
+		      // If all terms accept the empty word, we have
+		      // {e₁;e₂;e₃} =  {e₁}|{e₂}|{e₃}
+		      // !{e₁;e₂;e₃} = !{e₁}&!{e₂}&!{e₃}
+		      multop::vec* v = new multop::vec;
+		      unsigned end = mo->size();
+		      v->reserve(end);
+		      for (unsigned i = 0; i < end; ++i)
+			v->push_back(unop::instance(op, mo->nth(i)->clone()));
+		      mo->destroy();
+		      result_ = multop::instance(op == unop::Closure ?
+						 multop::Or : multop::And, v);
+		      result_ = recurse_destroy(result_);
+		      return;
+		    }
+
+		  // Some term does not accept the empty word.
 		  unsigned end = mo->size() - 1;
 		  // {b₁;b₂;b₃*;e₁;f₁;e₂;f₂;e₂;e₃;e₄}
 		  //    = b₁&X(b₂&X(b₃ W {e₁;f₁;e₂;f₂}))
@@ -1601,15 +1622,25 @@ namespace spot
 		  unsigned s = end + 1 - start;
 		  if (s != mo->size())
 		    {
-		      multop::vec* v = new multop::vec;
-		      v->reserve(s);
-		      for (unsigned n = start; n <= end; ++n)
-			v->push_back(mo->nth(n)->clone());
-		      const formula* tail =
-			multop::instance(multop::Concat, v);
-		      tail = unop::instance(op, tail);
-
 		      bool doneg = op != unop::Closure;
+		      const formula* tail;
+		      if (s > 0)
+			{
+			  multop::vec* v = new multop::vec;
+			  v->reserve(s);
+			  for (unsigned n = start; n <= end; ++n)
+			    v->push_back(mo->nth(n)->clone());
+			  tail = multop::instance(multop::Concat, v);
+			  tail = unop::instance(op, tail);
+			}
+		      else
+			{
+			  if (doneg)
+			    tail = constant::false_instance();
+			  else
+			    tail = constant::true_instance();
+			}
+
 		      for (unsigned n = start; n > 0;)
 			{
 			  --n;

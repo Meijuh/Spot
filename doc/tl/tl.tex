@@ -833,6 +833,13 @@ is not a model of \samp{$\sere{a\PLUS{}\CONCAT\NOT
     a\CONCAT(a\STAR{}\ANDALT(a\STAR{}\CONCAT\NOT a\CONCAT
     a\STAR{}))}$} because this SERE does accept any word.
 
+Note that the semantics of $\sere{r}$ comes from the
+$\mathsf{cl}(\cdot)$ operator defined by~\citet{dax.09.atva}.  This
+differs from the interpretation of a SERE in the context of a temporal
+formula given by the PSL standard~\citep[Appendix~B.3.1.1.2,
+item~7]{psl.04.lrm}: the $\mathit{cl}(\cdot)$ semantics accepts more
+words.
+
 \subsection{Syntactic Sugar}\label{sec:pslsugar}
 
 The syntax on the left is equivalent to the syntax on the right.
@@ -869,8 +876,8 @@ formula $b$, the following rewritings are systematically performed
 & \nsere{\1} & \equiv \0 \\
   \sere{\eword}\Asuffix f&\equiv \1
 & \sere{\eword}\Esuffix f&\equiv \0
-& \sere{\eword} & \equiv \1
-& \nsere{\eword} & \equiv \0 \\
+& \sere{\eword} & \equiv \0
+& \nsere{\eword} & \equiv \1 \\
   \sere{b}\Asuffix f&\equiv (\NOT{b})\OR f
 & \sere{b}\Esuffix f&\equiv b\AND f
 & \sere{b} &\equiv b
@@ -1531,10 +1538,12 @@ denoted with $\equiV$ can be disabled by setting the
 
 Here are basic the rewritings for the weak closure and its negation:
 \begin{align*}
-  \sere{r}&\equiv \1\text{~if~}\varepsilon\VDash r&
-  \nsere{r}&\equiv \0\text{~if~}\varepsilon\VDash r\\
-  \sere{r_1;r_2}&\equiv \sere{r_1}\text{~if~}\varepsilon\VDash r_2&
-  \nsere{r_1;r_2}&\equiv \nsere{r_1}\text{~if~}\varepsilon\VDash r_2\\
+  \sere{r\STAR{}}&\equiv \sere{r}&
+  \nsere{r\STAR{}}&\equiv \nsere{r}\\
+  \sere{r_1;r_2}&\equiv \sere{r_1}\phantom{{}\OR\sere{r_2}}\quad\text{if~}\varepsilon\not\VDash r_1\land\varepsilon\VDash r_2&
+  \nsere{r_1;r_2}&\equiv \nsere{r_1}\phantom{{}\AND\nsere{r_2}}\quad\text{if~}\varepsilon\not\VDash r_1\land\varepsilon\VDash r_2\\
+  \sere{r_1;r_2}&\equiv \sere{r_1}\OR\sere{r_2}\quad\text{if~}\varepsilon\VDash r_1\land\varepsilon\VDash r_2&
+  \nsere{r_1;r_2}&\equiv \nsere{r_1}\AND\nsere{r_2}\quad\text{if~}\varepsilon\VDash r_1\land\varepsilon\VDash r_2\\
   \sere{b;r}&\equiV b\AND\X\sere{r}&
   \nsere{b;r}&\equiV (\NOT b)\OR\X\nsere{r}\\
   \sere{b\STAR{};r}&\equiv b\W\sere{r}&
