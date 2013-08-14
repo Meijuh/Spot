@@ -45,6 +45,8 @@ tgba_HEADERS = \
   tgbabddfactory.hh \
   tgbaexplicit.hh \
   tgbakvcomplement.hh \
+  tgbamask.hh \
+  tgbaproxy.hh \
   tgbascc.hh \
   tgbaproduct.hh \
   tgbasgba.hh \
@@ -70,6 +72,8 @@ libtgba_la_SOURCES = \
   tgbaexplicit.cc \
   tgbakvcomplement.cc \
   tgbaproduct.cc \
+  tgbamask.cc \
+  tgbaproxy.cc \
   tgbasafracomplement.cc \
   tgbascc.cc \
   tgbasgba.cc \
