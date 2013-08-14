@@ -30,6 +30,7 @@
 #include <functional>
 #include <boost/shared_ptr.hpp>
 #include "misc/casts.hh"
+#include "misc/hash.hh"
 
 namespace spot
 {
@@ -171,6 +172,11 @@ namespace spot
     }
   };
 
+  typedef Sgi::hash_set<const state*,
+			spot::state_ptr_hash,
+			spot::state_ptr_equal> state_set;
+
+
   // Functions related to shared_ptr.
   //////////////////////////////////////////////////
 
@@ -258,6 +264,10 @@ namespace spot
       return that->hash();
     }
   };
+
+  typedef Sgi::hash_set<shared_state,
+			state_shared_ptr_hash,
+			state_shared_ptr_equal> shared_state_set;
 
 }
 

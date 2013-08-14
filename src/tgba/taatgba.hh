@@ -83,19 +83,19 @@ namespace spot
   };
 
   /// Set of states deriving from spot::state.
-  class SPOT_API state_set : public spot::state
+  class SPOT_API set_state : public spot::state
   {
   public:
-    state_set(const taa_tgba::state_set* s, bool delete_me = false)
+    set_state(const taa_tgba::state_set* s, bool delete_me = false)
       : s_(s), delete_me_(delete_me)
     {
     }
 
     virtual int compare(const spot::state*) const;
     virtual size_t hash() const;
-    virtual state_set* clone() const;
+    virtual set_state* clone() const;
 
-    virtual ~state_set()
+    virtual ~set_state()
     {
       if (delete_me_)
 	delete s_;
@@ -117,7 +117,7 @@ namespace spot
     virtual void next();
     virtual bool done() const;
 
-    virtual state_set* current_state() const;
+    virtual set_state* current_state() const;
     virtual bdd current_condition() const;
     virtual bdd current_acceptance_conditions() const;
 
@@ -128,7 +128,7 @@ namespace spot
     typedef std::pair<iterator, iterator> iterator_pair;
     typedef std::vector<iterator_pair> bounds_t;
     typedef Sgi::hash_map<
-      const spot::state_set*, std::vector<taa_tgba::transition*>,
+      const spot::set_state*, std::vector<taa_tgba::transition*>,
       state_ptr_hash, state_ptr_equal> seen_map;
 
     struct distance_sort :
@@ -218,15 +218,15 @@ namespace spot
 
     /// \brief Format the state as a string for printing.
     ///
-    /// If state is a spot::state_set of only one element, then the
+    /// If state is a spot::set_state of only one element, then the
     /// string corresponding to state->get_state() is returned.
     ///
     /// Otherwise a string composed of each string corresponding to
-    /// each state->get_state() in the spot::state_set is returned,
+    /// each state->get_state() in the spot::set_state is returned,
     /// e.g. like {string_1,...,string_n}.
     virtual std::string format_state(const spot::state* s) const
     {
-      const spot::state_set* se = down_cast<const spot::state_set*>(s);
+      const spot::set_state* se = down_cast<const spot::set_state*>(s);
       assert(se);
       const state_set* ss = se->get_state();
       return format_state_set(ss);

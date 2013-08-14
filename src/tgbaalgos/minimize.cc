@@ -81,7 +81,7 @@ namespace spot
   }
 
   // Find all states of an automaton.
-  void state_set(const tgba* a, hash_set* seen)
+  void build_state_set(const tgba* a, hash_set* seen)
   {
     std::queue<const state*> tovisit;
     // Perform breadth-first traversal.
@@ -515,7 +515,7 @@ namespace spot
 
     // non_final contain all states.
     // final is empty: there is no acceptance condition
-    state_set(det_a, non_final);
+    build_state_set(det_a, non_final);
 
     return minimize_dfa(det_a, final, non_final);
   }

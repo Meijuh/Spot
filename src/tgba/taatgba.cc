@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE)
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -61,7 +61,7 @@ namespace spot
   taa_tgba::get_init_state() const
   {
     assert(init_);
-    return new spot::state_set(init_);
+    return new spot::set_state(init_);
   }
 
   tgba_succ_iterator*
@@ -69,7 +69,7 @@ namespace spot
                      const spot::state* global_state,
                      const tgba* global_automaton) const
   {
-    const spot::state_set* s = down_cast<const spot::state_set*>(state);
+    const spot::set_state* s = down_cast<const spot::set_state*>(state);
     assert(s);
     (void) global_state;
     (void) global_automaton;
@@ -103,7 +103,7 @@ namespace spot
   bdd
   taa_tgba::compute_support_conditions(const spot::state* s) const
   {
-    const spot::state_set* se = down_cast<const spot::state_set*>(s);
+    const spot::set_state* se = down_cast<const spot::set_state*>(s);
     assert(se);
     const state_set* ss = se->get_state();
 
@@ -119,7 +119,7 @@ namespace spot
   bdd
   taa_tgba::compute_support_variables(const spot::state* s) const
   {
-    const spot::state_set* se = down_cast<const spot::state_set*>(s);
+    const spot::set_state* se = down_cast<const spot::set_state*>(s);
     assert(se);
     const state_set* ss = se->get_state();
 
@@ -137,15 +137,15 @@ namespace spot
   `----------*/
 
   const taa_tgba::state_set*
-  state_set::get_state() const
+  set_state::get_state() const
   {
     return s_;
   }
 
   int
-  state_set::compare(const spot::state* other) const
+  set_state::compare(const spot::state* other) const
   {
-    const state_set* o = down_cast<const state_set*>(other);
+    const set_state* o = down_cast<const set_state*>(other);
     assert(o);
 
     const taa_tgba::state_set* s1 = get_state();
@@ -166,7 +166,7 @@ namespace spot
   }
 
   size_t
-  state_set::hash() const
+  set_state::hash() const
   {
     size_t res = 0;
     taa_tgba::state_set::const_iterator it = s_->begin();
@@ -178,13 +178,13 @@ namespace spot
     return res;
   }
 
-  state_set*
-  state_set::clone() const
+  set_state*
+  set_state::clone() const
   {
     if (delete_me_ && s_)
-      return new spot::state_set(new taa_tgba::state_set(*s_), true);
+      return new spot::set_state(new taa_tgba::state_set(*s_), true);
     else
-      return new spot::state_set(s_, false);
+      return new spot::set_state(s_, false);
   }
 
   /*--------------.
@@ -241,7 +241,7 @@ namespace spot
       assert(p > 0);
       t->dst = ss;
       // Boxing to be able to insert ss in the map directly.
-      spot::state_set* b = new spot::state_set(ss);
+      spot::set_state* b = new spot::set_state(ss);
 
       // If no contradiction, then look for another transition to
       // merge with the new one.
@@ -304,7 +304,7 @@ namespace spot
     for (seen_map::iterator i = seen_.begin(); i != seen_.end();)
     {
       // Advance the iterator before deleting the state set.
-      const spot::state_set* s = i->first;
+      const spot::set_state* s = i->first;
       ++i;
       delete s;
     }
@@ -333,11 +333,11 @@ namespace spot
     return i_ == succ_.end();
   }
 
-  spot::state_set*
+  spot::set_state*
   taa_succ_iterator::current_state() const
   {
     assert(!done());
-    return new spot::state_set(new taa_tgba::state_set(*(*i_)->dst), true);
+    return new spot::set_state(new taa_tgba::state_set(*(*i_)->dst), true);
   }
 
   bdd

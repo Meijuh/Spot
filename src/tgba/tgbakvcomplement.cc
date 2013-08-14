@@ -91,9 +91,6 @@ namespace spot
     typedef Sgi::hash_map<shared_state, rank_t,
                           state_shared_ptr_hash,
                           state_shared_ptr_equal> state_rank_map;
-    typedef Sgi::hash_set<shared_state,
-                          state_shared_ptr_hash,
-                          state_shared_ptr_equal> state_set;
 
     ////////////////////////////////////////
     // state_kv_complement
@@ -106,7 +103,8 @@ namespace spot
     {
     public:
       state_kv_complement();
-      state_kv_complement(state_rank_map state_map, state_set state_filter);
+      state_kv_complement(state_rank_map state_map,
+			  shared_state_set state_filter);
       virtual ~state_kv_complement() {}
 
       virtual int compare(const state* other) const;
@@ -115,11 +113,11 @@ namespace spot
 
       void add(shared_state state, const rank_t& rank);
       const state_rank_map& get_state_map() const;
-      const state_set& get_filter_set() const;
+      const shared_state_set& get_filter_set() const;
       bool accepting() const;
     private:
       state_rank_map state_map_;
-      state_set state_filter_;
+      shared_state_set state_filter_;
     };
 
     state_kv_complement::state_kv_complement()
@@ -127,7 +125,7 @@ namespace spot
     }
 
     state_kv_complement::state_kv_complement(state_rank_map state_map,
-                                       state_set state_filter)
+					     shared_state_set state_filter)
       : state_map_(state_map), state_filter_(state_filter)
     {
     }
@@ -169,8 +167,8 @@ namespace spot
       }
 
       {
-        state_set::const_iterator i = state_filter_.begin();
-        state_set::const_iterator j = other->state_filter_.begin();
+        shared_state_set::const_iterator i = state_filter_.begin();
+        shared_state_set::const_iterator j = other->state_filter_.begin();
         while (i != state_filter_.end() && j != other->state_filter_.end())
         {
           int result = (*i)->compare(j->get());
@@ -200,7 +198,7 @@ namespace spot
       }
 
       {
-        state_set::const_iterator i = state_filter_.begin();
+        shared_state_set::const_iterator i = state_filter_.begin();
         while (i != state_filter_.end())
         {
           hash ^= (*i)->hash();
@@ -230,7 +228,7 @@ namespace spot
       return state_map_;
     }
 
-    const state_set&
+    const shared_state_set&
     state_kv_complement::get_filter_set() const
     {
       return state_filter_;
@@ -283,7 +281,7 @@ namespace spot
       bdd_list_t::const_iterator current_condition_;
       state_rank_map highest_current_ranks_;
       state_rank_map current_ranks_;
-      state_set highest_state_set_;
+      shared_state_set highest_state_set_;
     };
 
     tgba_kv_complement_succ_iterator::
@@ -455,10 +453,10 @@ namespace spot
       }
 
       // Highest $O$ set of the algorithm.
-      state_set s_set = origin_->get_filter_set();
+      shared_state_set s_set = origin_->get_filter_set();
       highest_state_set_.clear();
 
-      for (state_set::const_iterator i = s_set.begin();
+      for (shared_state_set::const_iterator i = s_set.begin();
            i != s_set.end();
            ++i)
       {
@@ -523,7 +521,7 @@ namespace spot
 
       // If the filter set is empty, all the states of the map
       // that are associated to an even rank create the new filter set.
-      state_set filter;
+      shared_state_set filter;
       if (origin_->get_filter_set().empty())
       {
         for (state_rank_map::const_iterator i = current_ranks_.begin();
@@ -536,7 +534,7 @@ namespace spot
       {
         // It the filter set is non-empty, we delete from this set states
         // that are now associated to an odd rank.
-        for (state_set::const_iterator i = highest_state_set_.begin();
+        for (shared_state_set::const_iterator i = highest_state_set_.begin();
              i != highest_state_set_.end();
              ++i)
         {
@@ -651,7 +649,7 @@ namespace spot
     ss << "{ set: {" << std::endl;
 
     const state_rank_map& state_map = s->get_state_map();
-    const state_set& state_filter = s->get_filter_set();
+    const shared_state_set& state_filter = s->get_filter_set();
 
     for (state_rank_map::const_iterator i = state_map.begin();
          i != state_map.end();
@@ -662,7 +660,7 @@ namespace spot
     }
     ss << "} odd-less: {";
 
-    for (state_set::const_iterator i = state_filter.begin();
+    for (shared_state_set::const_iterator i = state_filter.begin();
          i != state_filter.end();
          ++i)
       ss << "  " << automaton_->format_state(i->get()) << std::endl;
