@@ -35,14 +35,17 @@ namespace spot
     class nra_to_nba_worker: public tgba_reachable_iterator_depth_first
     {
     public:
-      nra_to_nba_worker(const dstar_aut* a):
-	tgba_reachable_iterator_depth_first(a->aut),
-	out_(new tgba_explicit_number(a->aut->get_dict())),
+      // AUT is the automate we iterate on, while A is the automaton
+      // we read the acceptance conditions from.  Separating the two
+      // makes its possible to mask AUT, as needed in dra_to_dba().
+      nra_to_nba_worker(const dstar_aut* a, const tgba* aut):
+	tgba_reachable_iterator_depth_first(aut),
+	out_(new tgba_explicit_number(aut->get_dict())),
 	d_(a),
 	num_states_(a->aut->num_states())
       {
 	bdd_dict* bd = out_->get_dict();
-	bd->register_all_variables_of(a->aut, out_);
+	bd->register_all_variables_of(aut, out_);
 
 	// Invent a new acceptance set for the degeneralized automaton.
 	int accvar =
@@ -113,16 +116,24 @@ namespace spot
 
   }
 
+  // In dra_to_dba() we call this function with a second argument
+  // that is a masked version of nra->aut.
+  SPOT_LOCAL
+  tgba* nra_to_nba(const dstar_aut* nra, const tgba* aut)
+  {
+    assert(nra->type == Rabin);
+    nra_to_nba_worker w(nra, aut);
+    w.run();
+    tgba_explicit_number* res1 = w.result();
+    tgba* res2 = scc_filter_states(res1);
+    delete res1;
+    return res2;
+  }
+
   SPOT_API
   tgba* nra_to_nba(const dstar_aut* nra)
   {
-    assert(nra->type == Rabin);
-    nra_to_nba_worker w(nra);
-    w.run();
-    tgba_explicit_number* aut = w.result();
-    tgba* res = scc_filter_states(aut);
-    delete aut;
-    return res;
+    return nra_to_nba(nra, nra->aut);
   }
 
 }

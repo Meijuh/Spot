@@ -52,6 +52,8 @@ EXTRA_DIST = $(DSTARPARSE_YY)
 
 libdstarparse_la_SOURCES = \
   fmterror.cc \
+  dra2dba.cc \
+  dstar2tgba.cc \
   nra2nba.cc \
   nsa2tgba.cc \
   $(FROM_DSTARPARSE_YY) \

@@ -124,6 +124,8 @@ syntax(char* prog)
 	    << " ltl2dstar file" << std::endl
 	    << "  -XDB  read the from an ltl2dstar file and convert it to "
 	    << "TGBA" << std::endl
+	    << "  -XDD  read the from an ltl2dstar file and convert it to "
+	    << "TGBA,\n       keeping it deterministic when possible\n"
 	    << "  -XL   do not compute an automaton, read it from an"
 	    << " LBTT file" << std::endl
 	    << "  -XN   do not compute an automaton, read it from a"
@@ -368,6 +370,7 @@ main(int argc, char** argv)
   bool from_file = false;
   enum { ReadSpot, ReadLbtt, ReadNeverclaim, ReadDstar } readformat = ReadSpot;
   bool nra2nba = false;
+  bool dra2dba = false;
   bool scc_filter = false;
   bool simpltl = false;
   spot::ltl::ltl_simplifier_options redopt(false, false, false, false,
@@ -917,6 +920,13 @@ main(int argc, char** argv)
 	  readformat = ReadDstar;
 	  nra2nba = true;
 	}
+      else if (!strcmp(argv[formula_index], "-XDD"))
+	{
+	  from_file = true;
+	  readformat = ReadDstar;
+	  nra2nba = true;
+	  dra2dba = true;
+	}
       else if (!strcmp(argv[formula_index], "-XL"))
 	{
 	  from_file = true;
@@ -1104,11 +1114,22 @@ main(int argc, char** argv)
 		spot::dstar_aut* daut;
 		daut = spot::dstar_parse(input, pel, dict,
 					 env, debug_opt);
+		tm.stop("parsing dstar");
+		if (spot::format_dstar_parse_errors(std::cerr, input, pel))
+		  {
+		    delete to_free;
+		    delete dict;
+		    return 2;
+		  }
+		tm.start("dstar2tgba");
 		if (nra2nba)
 		  {
 		    if (daut->type == spot::Rabin)
 		      {
-			to_free = a = spot::nra_to_nba(daut);
+			if (dra2dba)
+			  to_free = a = spot::dstar_to_tgba(daut);
+			else
+			  to_free = a = spot::nra_to_nba(daut);
 			assume_sba = true;
 		      }
 		    else
@@ -1123,14 +1144,8 @@ main(int argc, char** argv)
 		    daut->aut = 0;
 		    assume_sba = false;
 		  }
+		tm.stop("dstar2tgba");
 		delete daut;
-		tm.stop("parsing dstar");
-		if (spot::format_dstar_parse_errors(std::cerr, input, pel))
-		  {
-		    delete to_free;
-		    delete dict;
-		    return 2;
-		  }
 	      }
 	      break;
 	    }

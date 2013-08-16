@@ -106,13 +106,40 @@ namespace spot
 
   /// \brief Convert a non-deterministic Rabin automaton into a
   /// non-deterministic Büchi automaton.
-  SPOT_API
-  tgba* nra_to_nba(const dstar_aut* nra);
+  SPOT_API tgba*
+  nra_to_nba(const dstar_aut* nra);
+
+  /// \brief Convert a non-deterministic Rabin automaton into a
+  /// non-deterministic Büchi automaton.
+  ///
+  /// This version simply ignores all states in \a ignore.
+  SPOT_API tgba*
+  nra_to_nba(const dstar_aut* nra, const state_set* ignore);
+
+  /// \brief Convert a deterministic Rabin automaton into a
+  /// deterministic Büchi automaton when possible.
+  ///
+  /// See "Deterministic ω-automata vis-a-vis Deterministic Büchi
+  /// Automata", S. Krishnan, A. Puri, and R. Brayton (ISAAC'94) for
+  /// more details.
+  ///
+  /// If the DRA is DBA-realizable, return that DBA.  Otherwise,
+  /// return NULL.
+  SPOT_API tgba*
+  dra_to_dba(const dstar_aut* dra);
 
   /// \brief Convert a non-deterministic Streett automaton into a
   /// non-deterministic tgba.
-  SPOT_API
-  tgba* nsa_to_tgba(const dstar_aut* nra);
+  SPOT_API tgba*
+  nsa_to_tgba(const dstar_aut* nra);
+
+  /// \brief Convert a Rabin or Streett automaton into a TGBA.
+  ///
+  /// For DRA, this function uses dra_to_dba() when possible, or fall
+  /// back to nra_to_nba().
+  SPOT_API tgba*
+  dstar_to_tgba(const dstar_aut* dstar);
+
 
   /// @}
 }
