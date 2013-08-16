@@ -546,12 +546,12 @@ ltl2tgba --help | sed -n '/^ *%/p'
 #+RESULTS:
 :   %%                         a single %
 :   %a                         number of acceptance sets
+:   %c                         number of SCCs
 :   %d                         1 if the automaton is deterministic, 0 otherwise
 :   %e                         number of edges
 :   %f                         the formula, in Spot's syntax
 :   %n                         number of nondeterministic states
 :   %s                         number of states
-:   %S                         number of SCCs
 :   %t                         number of transitions
 
 For instance we can study the size of the automata generated for the

@@ -1,29 +1,44 @@
 New in spot 1.1.4a (not relased)
 
+  * Changes to command-line tools:
+
+    - ltlcross has a new option --color to color its output.  It is
+      enabled by default when the output is a terminal.
+
+    - ltlcross will give an example of infinite word accepted by the
+      two automata when the product between a positive automaton and a
+      negative automaton is non-empty.
+
+    - ltlcross can now read the Rabin and Streett automata output by
+      ltl2dstar.  This type of output should be specified using '%D':
+
+        ltlcross 'ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-s %L %D'
+
+      However because Spot only supports Büchi acceptance, these Rabin
+      and Streett automata are immediately converted to TGBA before
+      further processing by ltlcross.  This is still interesting to
+      search for bugs in translators to Rabin or Streett automata, but
+      the statistics might not be very relevant.
+
+    - To help with debugging problems detected by ltlcross, the
+      environment variables SPOT_TMPDIR and SPOT_TMPKEEP control where
+      temporary files are created and if they should be erased.  Read
+      the man page of ltlcross for details.
+
+    - There is a new command, named dstar2tgba, that converts a
+      deterministic Rabin or Streett automaton as output by
+      ltl2dstar into a TGBA, BA or Monitor.   When a deterministic
+      Rabin automaton is realizable by a deterministic Büchi automaton,
+      the conversion preserve determinism.   (This is not implemented
+      for Streett.)
+
+    - The %S escape sequence used by ltl2tgba --stats to display the
+      number of SCCs in the output automaton has been renamed to %c.
+      This makes it more homogeneous with the --stats option of the
+      new dstar2tgba command.
+
   * All the parsers implemented in Spot now use the same type
     to store locations.
-
-  * ltlcross has a new option --color to color its output.  It is enabled
-    by default when the output is a terminal.
-
-  * ltlcross will give an example of infinite word accepted by the
-    two automata when the product between a positive automaton and
-    a negative automaton is non-empty.
-
-  * ltlcross can now read the Rabin and Streett automata output by
-    ltl2dstar.  This type of output should be specified using '%D':
-
-      ltlcross 'ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-s %L %D'
-
-    However because Spot only supports Büchi acceptance, these Rabin
-    and Streett automata are immediately converted to TGBA before
-    further processing by ltlcross.  This is still interesting to
-    search for bugs in translators to Rabin or Streett automata, but
-    the statistics might not be very relevant.
-
-  * Environment variables SPOT_TMPDIR and SPOT_TMPKEEP control where
-    temporary files are created and if they should be erased.  Read
-    the man page of ltlcross for detail.
 
   * Degeneralization was not indempotant on automata with an accepting
     initial state that was on a cycle, but without self-loop.

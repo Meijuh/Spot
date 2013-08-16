@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -26,9 +26,8 @@
 #include "error.h"
 
 #include "common_setup.hh"
-#include "common_r.hh"
-#include "common_cout.hh"
 #include "common_finput.hh"
+#include "common_cout.hh"
 #include "common_post.hh"
 
 #include "ltlast/formula.hh"
@@ -38,16 +37,17 @@
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
-#include "tgbaalgos/translate.hh"
 #include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
+#include "dstarparse/public.hh"
+#include "tgbaalgos/scc.hh"
 
 const char argp_program_doc[] ="\
-Translate linear-time formulas (LTL/PSL) into Büchi automata.\n\n\
-By default it will apply all available optimizations to output \
-the smallest Transition-based Generalized Büchi Automata, \
-in GraphViz's format.\n\
-If multiple formulas are supplied, several automata will be output.";
+Convert Rabin and Streett automata into Büchi automata.\n\n\
+This reads the output format of ltl2dstar and will output a \n\
+Transition-based Generalized Büchi Automata in GraphViz's format by default.\n\
+If multiple files are supplied (one automaton per file), several automata\n\
+will be output.";
 
 #define OPT_TGBA 1
 #define OPT_DOT 2
@@ -57,6 +57,10 @@ If multiple formulas are supplied, several automata will be output.";
 
 static const argp_option options[] =
   {
+    /**************************************************/
+    { 0, 0, 0, 0, "Input:", 1 },
+    { "file", 'F', "FILENAME", 0,
+      "process the automaton in FILENAME", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output automaton type:", 2 },
     { "tgba", OPT_TGBA, 0, 0,
@@ -78,19 +82,24 @@ static const argp_option options[] =
       "output statistics about the automaton", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "The FORMAT string passed to --stats may use "\
-      "the following interpreted sequences:", 4 },
-    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the formula, in Spot's syntax", 0 },
-    { "%s", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of states", 0 },
-    { "%e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of edges", 0 },
-    { "%t", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of transitions", 0 },
-    { "%a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of acceptance sets", 0 },
-    { "%c", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of SCCs", 0 },
+      "the following interpreted sequences (capitals for input,"
+      " minuscules for output):", 4 },
+    { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "name of the input file", 0 },
+    { "%S, %s", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "number of states", 0 },
+    { "%E, %e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "number of edges", 0 },
+    { "%T, %t", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "number of transitions", 0 },
+    { "%A, %a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "number of acceptance pairs or sets", 0 },
+    { "%C, %c", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "number of SCCs", 0 },
     { "%n", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of nondeterministic states", 0 },
+      "number of nondeterministic states in output", 0 },
     { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "1 if the automaton is deterministic, 0 otherwise", 0 },
+      "1 if the output is deterministic, 0 otherwise", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     /**************************************************/
@@ -102,7 +111,6 @@ static const argp_option options[] =
 
 const struct argp_child children[] =
   {
-    { &finput_argp, 0, 0, 1 },
     { &post_argp, 0, 0, 20 },
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
@@ -124,6 +132,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'B':
       type = spot::postprocessor::BA;
+      break;
+    case 'F':
+      jobs.push_back(job(arg, true));
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
@@ -171,8 +182,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       type = spot::postprocessor::TGBA;
       break;
     case ARGP_KEY_ARG:
-      // FIXME: use stat() to distinguish filename from string?
-      jobs.push_back(job(arg, false));
+      jobs.push_back(job(arg, true));
       break;
 
     default:
@@ -184,34 +194,114 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 namespace
 {
-  class trans_processor: public job_processor
+  /// \brief prints various statistics about a TGBA
+  ///
+  /// This object can be configured to display various statistics
+  /// about a TGBA.  Some %-sequence of characters are interpreted in
+  /// the format string, and replaced by the corresponding statistics.
+  class dstar_stat_printer: protected spot::stat_printer
   {
   public:
-    spot::translator& trans;
-    spot::stat_printer statistics;
+    dstar_stat_printer(std::ostream& os, const char* format)
+      : spot::stat_printer(os, format)
+    {
+      declare('A', &daut_acc_);
+      declare('C', &daut_scc_);
+      declare('E', &daut_edges_);
+      declare('F', &filename_);
+      declare('f', &filename_);	// Override the formula printer.
+      declare('S', &daut_states_);
+      declare('T', &daut_trans_);
+    }
 
-    trans_processor(spot::translator& trans)
-      : trans(trans), statistics(std::cout, stats)
+    /// \brief print the configured statistics.
+    ///
+    /// The \a f argument is not needed if the Formula does not need
+    /// to be output.
+    std::ostream&
+    print(const spot::dstar_aut* daut, const spot::tgba* aut,
+	  const char* filename)
+    {
+      filename_ = filename;
+
+      if (has('T'))
+	{
+	  spot::tgba_sub_statistics s = sub_stats_reachable(daut->aut);
+	  daut_states_ = s.states;
+	  daut_edges_ = s.transitions;
+	  daut_trans_ = s.sub_transitions;
+	}
+      else if (has('E'))
+	{
+	  spot::tgba_sub_statistics s = sub_stats_reachable(daut->aut);
+	  daut_states_ = s.states;
+	  daut_edges_ = s.transitions;
+	}
+      else if (has('S'))
+	{
+	  daut_states_ = daut->aut->num_states();
+	}
+
+      if (has('A'))
+	daut_acc_ = daut->accpair_count;
+
+      if (has('C'))
+	{
+	  spot::scc_map m(daut->aut);
+	  m.build_map();
+	  daut_scc_ = m.scc_count();
+	}
+
+      return this->spot::stat_printer::print(aut);
+    }
+
+  private:
+    spot::printable_value<const char*> filename_;
+    spot::printable_value<unsigned> daut_states_;
+    spot::printable_value<unsigned> daut_edges_;
+    spot::printable_value<unsigned> daut_trans_;
+    spot::printable_value<unsigned> daut_acc_;
+    spot::printable_value<unsigned> daut_scc_;
+  };
+
+
+  class dstar_processor: public job_processor
+  {
+  public:
+    spot::postprocessor& post;
+    dstar_stat_printer statistics;
+
+    dstar_processor(spot::postprocessor& post)
+      : post(post), statistics(std::cout, stats)
     {
     }
 
     int
-    process_formula(const spot::ltl::formula* f,
-		    const char* filename = 0, int linenum = 0)
+    process_formula(const spot::ltl::formula*, const char*, int)
     {
-      const spot::tgba* aut = trans.run(&f);
+      assert(!"should not happen");
+      return 0;
+    }
 
-      // This should not happen, because the parser we use can only
-      // read PSL/LTL formula, but since our ltl::formula* type can
-      // represent more than PSL formula, let's make this
-      // future-proof.
-      if (!f->is_psl_formula())
+
+    int
+    process_file(const char* filename)
+    {
+      spot::dstar_parse_error_list pel;
+      spot::dstar_aut* daut;
+      spot::bdd_dict dict;
+      daut = spot::dstar_parse(filename, pel, &dict);
+      if (spot::format_dstar_parse_errors(std::cerr, filename, pel))
 	{
-	  std::string s = spot::ltl::to_string(f);
-	  error_at_line(2, 0, filename, linenum,
-			"formula '%s' is not an LTL or PSL formula",
-			s.c_str());
+	  delete daut;
+	  return 2;
 	}
+      if (!daut)
+	{
+	  error(2, 0, "failed to read automaton from %s", filename);
+	}
+      spot::tgba* nba = spot::dstar_to_tgba(daut);
+      const spot::tgba* aut = post.run(nba, 0);
 
       if (utf8)
 	{
@@ -241,14 +331,15 @@ namespace
 	  spot::tgba_save_reachable(std::cout, aut);
 	  break;
 	case Spin:
-	  spot::never_claim_reachable(std::cout, aut, f);
+	  spot::never_claim_reachable(std::cout, aut);
 	  break;
 	case Stats:
-	  statistics.print(aut, f) << "\n";
+	  // FIXME: filename
+	  statistics.print(daut, aut, filename) << "\n";
 	  break;
 	}
       delete aut;
-      f->destroy();
+      delete daut;
       flush_cout();
       return 0;
     }
@@ -260,24 +351,21 @@ main(int argc, char** argv)
 {
   setup(argv);
 
-  const argp ap = { options, parse_opt, "[FORMULA...]",
+  const argp ap = { options, parse_opt, "[FILENAMES...]",
 		    argp_program_doc, children, 0, 0 };
-
-  simplification_level = 3;
 
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
     exit(err);
 
   if (jobs.empty())
-    error(2, 0, "No formula to translate?  Run '%s --help' for usage.",
-	  program_name);
+    jobs.push_back(job("-", true));
 
-  spot::translator trans(&extra_options);
-  trans.set_pref(pref);
-  trans.set_type(type);
-  trans.set_level(level);
+  spot::postprocessor post(&extra_options);
+  post.set_pref(pref);
+  post.set_type(type);
+  post.set_level(level);
 
-  trans_processor processor(trans);
+  dstar_processor processor(post);
   if (processor.run())
     return 2;
   return 0;

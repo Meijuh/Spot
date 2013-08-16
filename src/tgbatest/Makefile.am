@@ -111,6 +111,7 @@ TESTS = \
   wdba2.test \
   babiak.test \
   ltl2dstar.test \
+  ltl2dstar2.test \
   randtgba.test \
   emptchk.test \
   emptchke.test \

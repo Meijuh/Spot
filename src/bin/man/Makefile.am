@@ -23,6 +23,7 @@ convman = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
           "$(PERL)" "$(top_srcdir)/tools/help2man -N -L 'en_US.UTF-8'"
 
 dist_man1_MANS = \
+  dstar2tgba.1 \
   genltl.1 \
   ltl2tgba.1 \
   ltl2tgta.1 \
@@ -34,6 +35,9 @@ dist_man7_MANS = \
 
 MAINTAINERCLEANFILES = $(dist_man1_MANS) $(dist_man7_MANS)
 EXTRA_DIST = $(dist_man1_MANS:.1=.x) $(dist_man7_MANS:.7=.x)
+
+dstar2tgba.1: $(common_dep) $(srcdir)/dstar2tgba.x $(srcdir)/../dstar2tgba.cc
+	$(convman) ../dstar2tgba$(EXEEXT) $(srcdir)/dstar2tgba.x $@
 
 ltl2tgba.1: $(common_dep) $(srcdir)/ltl2tgba.x $(srcdir)/../ltl2tgba.cc
 	$(convman) ../ltl2tgba$(EXEEXT) $(srcdir)/ltl2tgba.x $@

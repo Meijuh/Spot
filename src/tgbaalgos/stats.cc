@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2011, 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2008, 2011, 2012, 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -142,12 +142,13 @@ namespace spot
     : format_(format)
   {
     declare('a', &acc_);
+    declare('c', &scc_);
     declare('d', &deterministic_);
     declare('e', &edges_);
     declare('f', &form_);
     declare('n', &nondetstates_);
     declare('s', &states_);
-    declare('S', &scc_);
+    declare('S', &scc_);	// Historical.  Deprecated.  Use %c instead.
     declare('t', &trans_);
     set_output(os);
     prime(format);
@@ -176,7 +177,7 @@ namespace spot
     if (has('a'))
       acc_ = aut->number_of_acceptance_conditions();
 
-    if (has('S'))
+    if (has('c') || has('S'))
       {
 	scc_map m(aut);
 	m.build_map();
