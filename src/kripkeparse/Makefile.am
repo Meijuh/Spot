@@ -16,7 +16,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AM_CPPFLAGS = -I$(srcdir)/.. $(BUDDY_CPPFLAGS) -DYY_NO_INPUT
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS) -DYY_NO_INPUT
 # Disable -Werror because too many versions of flex yield warnings.
 AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=)
 
