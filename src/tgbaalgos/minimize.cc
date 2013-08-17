@@ -46,6 +46,8 @@
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/bfssteps.hh"
+#include "tgbaalgos/isdet.hh"
+#include "tgbaalgos/dbacomp.hh"
 #include "priv/countstates.hh"
 
 namespace spot
@@ -647,29 +649,37 @@ namespace spot
     if (is_guarantee_automaton(aut_f))
       return min_aut_f;
 
-    if (!f && !aut_neg_f)
-      {
-	// We do not now if the minimization is safe.
-	delete min_aut_f;
-	return 0;
-      }
-
     const tgba* to_free = 0;
 
     // Build negation automaton if not supplied.
     if (!aut_neg_f)
       {
-	assert(f);
+	if (f)
+	  {
+	    // If we know the formula, simply build the automaton for
+	    // its negation.
+	    const ltl::formula* neg_f =
+	      ltl::unop::instance(ltl::unop::Not, f->clone());
+	    aut_neg_f = ltl_to_tgba_fm(neg_f, aut_f->get_dict());
+	    neg_f->destroy();
 
-	const ltl::formula* neg_f =
-	  ltl::unop::instance(ltl::unop::Not, f->clone());
-	aut_neg_f = ltl_to_tgba_fm(neg_f, aut_f->get_dict());
-	neg_f->destroy();
-
-	// Remove useless SCCs.
-	const tgba* tmp = scc_filter(aut_neg_f, true);
-	delete aut_neg_f;
-	to_free = aut_neg_f = tmp;
+	    // Remove useless SCCs.
+	    const tgba* tmp = scc_filter(aut_neg_f, true);
+	    delete aut_neg_f;
+	    to_free = aut_neg_f = tmp;
+	  }
+	else if (is_deterministic(aut_f))
+	  {
+	    // If the automaton is deterministic, complementing is
+	    // easy.
+	    to_free = aut_neg_f = dba_complement(aut_f);
+	  }
+	else
+	  {
+	    // Otherwise, we cannot check if the minimization is safe.
+	    delete min_aut_f;
+	    return 0;
+	  }
       }
 
     // If the negation is a guarantee automaton, then the

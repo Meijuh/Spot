@@ -35,7 +35,10 @@ randltl=../../bin/randltl
 
 
 # Make sure all recurrence formulas are translated into deterministic
-# Büchi automata by the DRA->TGBA converster.
+# Büchi automata by the DRA->TGBA converter.
+# (Note that ltl2tgba is not called with -D when want to make
+# sure we get a deterministic output even if the automaton generated
+# by Spot initially was non-deterministic)
 
 $randltl -n -1 a b --tree-size=5..15 |
 $ltlfilt --syntactic-recurrence --remove-wm -r -u \
@@ -56,6 +59,26 @@ while read f; do
   test $det -eq 1;
 done < formulas
 
+echo ==========================
+
+# For obligation formulas, the output of dstar2tgba should
+# have the same size as the input when option -D is used.
+$randltl -n -1 a b --tree-size=5..15 |
+$ltlfilt --obligation --size-min=4 --size-max=15 --relabel=abc \
+         --remove-wm -r -u |
+head -n 20 > formulas
+
+while read f; do
+  expected=`$ltl2tgba "$f" -BD --stats '%s %e 1 %d'`
+  $ltlfilt -f "$f" -l |
+  ltl2dstar --ltl2nba=spin:$ltl2tgba@-sD - foo
+  echo "$f"
+  output=`$dstar2tgba foo -BD --stats '%s %e %d 1'`
+  # the '1 %d' matching '%d 1' makes sure input and output are deterministic.
+  test "$output" = "$expected";
+done < formulas
+
+echo ==========================
 
 # Now make sure that some obviously non-deterministic property
 # are not translated to deterministic.
