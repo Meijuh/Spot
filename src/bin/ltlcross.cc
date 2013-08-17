@@ -787,11 +787,11 @@ namespace
 		    delete aut;
 		    res = 0;
 		  }
-		if (aut->type == spot::Rabin)
-		  res = spot::nra_to_nba(aut);
 		else
-		  res = spot::nsa_to_tgba(aut);
-		delete aut;
+		  {
+		    res = dstar_to_tgba(aut);
+		    delete aut;
+		  }
 		break;
 	      }
 	    case printable_result_filename::None:
