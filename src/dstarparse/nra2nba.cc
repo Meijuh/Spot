@@ -37,7 +37,7 @@ namespace spot
     public:
       // AUT is the automate we iterate on, while A is the automaton
       // we read the acceptance conditions from.  Separating the two
-      // makes its possible to mask AUT, as needed in dra_to_dba().
+      // makes its possible to mask AUT, as needed in dra_to_ba().
       nra_to_nba_worker(const dstar_aut* a, const tgba* aut):
 	tgba_reachable_iterator_depth_first(aut),
 	out_(new tgba_explicit_number(aut->get_dict())),

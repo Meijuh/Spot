@@ -52,7 +52,7 @@ EXTRA_DIST = $(DSTARPARSE_YY)
 
 libdstarparse_la_SOURCES = \
   fmterror.cc \
-  dra2dba.cc \
+  dra2ba.cc \
   dstar2tgba.cc \
   nra2nba.cc \
   nsa2tgba.cc \

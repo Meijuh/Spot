@@ -54,6 +54,14 @@ namespace spot
   {
     typedef std::list<const state*> state_list;
 
+    // The function that takes aut and dra is first arguments are
+    // either called on the main automaton, in which case dra->aut ==
+    // aut, or it is called on a sub-automaton in which case aut is a
+    // masked version of dra->aut.  So we should always explore the
+    // automaton aut, but because the state of aut are states of
+    // dra->aut, we can use dra->aut to get labels, and dra->acccs to
+    // retrive acceptances.
+
     static bool
     filter_states(const tgba* aut,
 		  const dstar_aut* dra,
@@ -212,17 +220,23 @@ namespace spot
 
 
 
-    class dra_to_dba_worker: public tgba_reachable_iterator_depth_first
+    class dra_to_ba_worker: public tgba_reachable_iterator_depth_first
     {
     public:
-      dra_to_dba_worker(const tgba_explicit_number* a, const state_set& final):
-	tgba_reachable_iterator_depth_first(a),
+      dra_to_ba_worker(const dstar_aut* a,
+		       const state_set& final,
+		       const scc_map& sm,
+		       const std::vector<bool>& realizable):
+	tgba_reachable_iterator_depth_first(a->aut),
 	in_(a),
-	out_(new tgba_explicit_number(a->get_dict())),
-	final_(final)
+	out_(new tgba_explicit_number(a->aut->get_dict())),
+	final_(final),
+	num_states_(a->aut->num_states()),
+	sm_(sm),
+	realizable_(realizable)
       {
-	bdd_dict* bd = a->get_dict();
-	bd->register_all_variables_of(a, out_);
+	bdd_dict* bd = a->aut->get_dict();
+	bd->register_all_variables_of(a->aut, out_);
 
 	// Invent a new acceptance set for the degeneralized automaton.
 	int accvar =
@@ -243,36 +257,104 @@ namespace spot
 		   const state* sout, int,
 		   const tgba_succ_iterator* si)
       {
-	int in = in_->get_label(sin);
-	int out = in_->get_label(sout);
+	int in = in_->aut->get_label(sin);
+	int out = in_->aut->get_label(sout);
+	unsigned in_scc = sm_.scc_of_state(sin);
 
 	typedef state_explicit_number::transition trans;
 	trans* t = out_->create_transition(in, out);
 	bdd cond = t->condition = si->current_condition();
 
-	if (final_.find(sin) != final_.end())
-	  t->acceptance_conditions = acc_;
+	if (realizable_[in_scc])
+	  {
+	    if (final_.find(sin) != final_.end())
+	      t->acceptance_conditions = acc_;
+	  }
+	else if (sm_.scc_of_state(sout) == in_scc)
+	  {
+	    // Create one clone of the SCC per accepting pair,
+	    // removing states from the Ui part of the (Li, Ui) pairs.
+	    // (Or the Ei part of Löding's (Ei, Fi) pairs.)
+	    bitvect& l = in_->accsets->at(2 * in);
+	    bitvect& u = in_->accsets->at(2 * in + 1);
+	    for (size_t i = 0; i < in_->accpair_count; ++i)
+	      {
+		int shift = num_states_ * (i + 1);
+		// In the Ui set. (Löding's Ei set.)
+		if (!u.get(i))
+		  {
+		    // Transition t1 is a non-deterministic jump
+		    // from the original automaton to the i-th clone.
+		    //
+		    // Transition t2 constructs the clone.
+		    //
+		    // Löding creates transition t1 regardless of the
+		    // acceptance set.  We restrict it to the non-Li
+		    // states.  Both his definition and this
+		    // implementation create more transitions than needed:
+		    // we do not need more than one transition per
+		    // accepting cycle.
+		    trans* t1 = out_->create_transition(in, out + shift);
+		    t1->condition = cond;
+
+		    trans* t2 = out_->create_transition(in + shift,
+							out + shift);
+		    t2->condition = cond;
+		    // In the Li set. (Löding's Fi set.)
+		    if (l.get(i))
+		      t2->acceptance_conditions = acc_;
+		  }
+	      }
+	  }
       }
 
     protected:
-      const tgba_explicit_number* in_;
+      const dstar_aut* in_;
       tgba_explicit_number* out_;
-      const tgba* d_;
       const state_set& final_;
+      size_t num_states_;
       bdd acc_;
+      const scc_map& sm_;
+      const std::vector<bool>& realizable_;
     };
 
   }
 
 
-  tgba* dra_to_dba(const dstar_aut* dra)
+  tgba* dra_to_ba(const dstar_aut* dra, bool* dba)
   {
     assert(dra->type == Rabin);
 
     state_list final;
     state_list nonfinal;
-    if (!filter_scc(dra->aut, dra, final, nonfinal))
-      return 0;
+
+    // Iterate over all non-trivial SCCs.
+    scc_map sm(dra->aut);
+    sm.build_map();
+    unsigned scc_max = sm.scc_count();
+
+    bool dba_realizable = true;
+    std::vector<bool> realizable(scc_max);
+
+    for (unsigned scc = 0; scc < scc_max; ++scc)
+      {
+	if (sm.trivial(scc))
+	  {
+	    realizable[scc] = true;
+	    continue;
+	  }
+
+	// Get the list of states of that SCC
+	const std::list<const state*>& sl = sm.states_of(scc);
+	assert(!sl.empty());
+	bool scc_realizable = filter_states(dra->aut, dra, sl, final, nonfinal);
+	dba_realizable &= scc_realizable;
+	realizable[scc] = scc_realizable;
+	//std::cerr << "realizable[" << scc << "] = " << scc_realizable << "\n";
+      }
+
+    if (dba)
+      *dba = dba_realizable;
 
     // for (state_list::const_iterator i = final.begin();
     // 	 i != final.end(); ++i)
@@ -282,7 +364,7 @@ namespace spot
     //   std::cerr << dra->aut->get_label(*i) << " is non-final\n";
 
     state_set fs(final.begin(), final.end());
-    dra_to_dba_worker w(dra->aut, fs);
+    dra_to_ba_worker w(dra, fs, sm, realizable);
     w.run();
     tgba_explicit_number* res1 = w.result();
     tgba* res2 = scc_filter_states(res1);

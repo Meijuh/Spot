@@ -26,11 +26,18 @@ New in spot 1.1.4a (not relased)
       the man page of ltlcross for details.
 
     - There is a new command, named dstar2tgba, that converts a
-      deterministic Rabin or Streett automaton as output by
-      ltl2dstar into a TGBA, BA or Monitor.   When a deterministic
-      Rabin automaton is realizable by a deterministic Büchi automaton,
-      the conversion preserve determinism.   (This is not implemented
-      for Streett.)
+      deterministic Rabin or Streett automaton (expressed in the
+      output format of ltl2dstar) into a TGBA, BA or Monitor.
+
+      In the case of Rabin acceptance, the conversion will output a
+      deterministic Büchi automaton if one such automaton exist.  Even
+      if no such automaton exists, the conversion will actually
+      preserves the determinism of any SCC that can be kept
+      deterministic.
+
+      In the case of Streett acceptance, the conversion produces
+      non-deterministic Büchi automata with Generalized acceptance.
+      These are then degeneralized if requested.
 
     - The %S escape sequence used by ltl2tgba --stats to display the
       number of SCCs in the output automaton has been renamed to %c.

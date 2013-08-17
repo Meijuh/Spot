@@ -26,14 +26,9 @@ namespace spot
     switch (daut->type)
       {
       case spot::Rabin:
-	{
-	  tgba* res = dra_to_dba(daut);
-	  if (res)
-	    return res;
-	  return nra_to_nba(daut);
-	}
+	return dra_to_ba(daut);
       case spot::Streett:
-	return spot::nsa_to_tgba(daut);
+	return nsa_to_tgba(daut);
       }
     assert(!"unreachable code");
     return 0;
