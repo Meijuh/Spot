@@ -53,6 +53,7 @@
 #include "tgbaalgos/isweakscc.hh"
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaalgos/word.hh"
+#include "tgbaalgos/dbacomp.hh"
 #include "misc/formater.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
@@ -91,6 +92,7 @@ Exit status:\n\
 #define OPT_SEED 8
 #define OPT_PRODUCTS 9
 #define OPT_COLOR 10
+#define OPT_NOCOMP 11
 
 static const argp_option options[] =
   {
@@ -122,6 +124,8 @@ static const argp_option options[] =
     { "no-checks", OPT_NOCHECKS, 0, 0,
       "do not perform any sanity checks (negated formulas "
       "will not be translated)", 0 },
+    { "no-complement", OPT_NOCOMP, 0, 0,
+      "do not complement deterministic automata to perform extra checks", 0 },
     { "stop-on-error", OPT_STOP_ERR, 0, 0,
       "stop on first execution error or failure to pass"
       " sanity checks (timeouts are OK)", 0 },
@@ -190,6 +194,7 @@ const char* csv_output = 0;
 bool want_stats = false;
 bool allow_dups = false;
 bool no_checks = false;
+bool no_complement = false;
 bool stop_on_error = false;
 int seed = 0;
 unsigned products = 1;
@@ -403,6 +408,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_NOCHECKS:
       no_checks = true;
+      no_complement = true;
+      break;
+    case OPT_NOCOMP:
+      no_complement = true;
       break;
     case OPT_SEED:
       seed = to_pos_int(arg);
@@ -850,7 +859,7 @@ namespace
 
   static void
   check_empty_prod(const spot::tgba* aut_i, const spot::tgba* aut_j,
-		   size_t i, size_t j)
+		   size_t i, size_t j, bool icomp, bool jcomp)
   {
     spot::tgba_product* prod = new spot::tgba_product(aut_i, aut_j);
     spot::emptiness_check* ec = spot::couvreur99(prod);
@@ -858,8 +867,17 @@ namespace
 
     if (res)
       {
-	global_error() << "error: P" << i << "*N" << j
-		       << " is nonempty";
+	std::ostream& err = global_error();
+	err << "error: ";
+	if (icomp)
+	  err << "Comp(N" << i << ")";
+	else
+	  err << "P" << i;
+	if (jcomp)
+	  err << "*Comp(P" << j << ")";
+	else
+	  err << "*N" << j;
+	err << " is nonempty";
 
 	spot::tgba_run* run = res->accepting_run();
 	if (run)
@@ -1059,9 +1077,16 @@ namespace
 	    }
 	}
 
+      // These store the result of the translation of the positive and
+      // negative formulas.
       size_t m = translators.size();
       std::vector<const spot::tgba*> pos(m);
       std::vector<const spot::tgba*> neg(m);
+      // These store the complement of the above results, when we can
+      // compute it easily.
+      std::vector<const spot::tgba*> comp_pos(m);
+      std::vector<const spot::tgba*> comp_neg(m);
+
 
       unsigned n = vstats.size();
       vstats.resize(n + (no_checks ? 1 : 2));
@@ -1071,7 +1096,17 @@ namespace
       formulas.push_back(fstr);
 
       for (size_t n = 0; n < m; ++n)
-	pos[n] = runner.translate(n, 'P', pstats);
+	{
+	  pos[n] = runner.translate(n, 'P', pstats);
+	  // If the automaton is deterministic, compute its complement
+	  // as well.  Note that if we have computed statistics
+	  // already, there is no need to call is_deterministic()
+	  // again.
+	  if (!no_complement && pos[n]
+	      && ((want_stats && !(*pstats)[n].nondeterministic)
+		  || (!want_stats && is_deterministic(pos[n]))))
+	    comp_pos[n] = dba_complement(pos[n]);
+	}
 
       // ---------- Negative Formula ----------
 
@@ -1099,7 +1134,17 @@ namespace
 	  formulas.push_back(runner.formula());
 
 	  for (size_t n = 0; n < m; ++n)
-	    neg[n] = runner.translate(n, 'N', nstats);
+	    {
+	      neg[n] = runner.translate(n, 'N', nstats);
+	      // If the automaton is deterministic, compute its
+	      // complement as well.  Note that if we have computed
+	      // statistics already, there is no need to call
+	      // is_deterministic() again.
+	      if (!no_complement && neg[n]
+		  && ((want_stats && !(*nstats)[n].nondeterministic)
+		      || (!want_stats && is_deterministic(neg[n]))))
+		comp_neg[n] = dba_complement(neg[n]);
+	    }
 	  nf->destroy();
 	}
 
@@ -1116,7 +1161,33 @@ namespace
 	    if (pos[i])
 	      for (size_t j = 0; j < m; ++j)
 		if (neg[j])
-		  check_empty_prod(pos[i], neg[j], i, j);
+		  {
+		    check_empty_prod(pos[i], neg[j], i, j, false, false);
+
+		    // Deal with the extra complemented automata if we
+		    // have some.
+
+		    // If comp_pos[j] and comp_neg[j] exist for the
+		    // same j, it means pos[j] and neg[j] were both
+		    // deterministic.  In that case, we will want to
+		    // make sure that comp_pos[j]*comp_neg[j] is empty
+		    // to assert the complementary of pos[j] and
+		    // neg[j].  However using comp_pos[j] and
+		    // comp_neg[j] against other translator will not
+		    // give us any more insight than pos[j] and
+		    // neg[j].  So we only do intersection checks with
+		    // a complement automata when one of the two
+		    // translation was not deterministic.
+
+		    if (i != j && comp_pos[j] && !comp_neg[j])
+		      check_empty_prod(pos[i], comp_pos[j], i, j, false, true);
+		    if (i != j && comp_neg[i] && !comp_neg[i])
+		      check_empty_prod(comp_neg[i], neg[j], i, j, true, false);
+		    if (comp_pos[i] && comp_neg[j] &&
+			(i == j || (!comp_neg[i] && !comp_pos[j])))
+		      check_empty_prod(comp_pos[i], comp_neg[j],
+				       i, j, true, true);
+		  }
 	}
       else
 	{
@@ -1236,7 +1307,11 @@ namespace
 
       if (!no_checks)
 	for (size_t i = 0; i < m; ++i)
-	  delete neg[i];
+	  {
+	    delete neg[i];
+	    delete comp_neg[i];
+	    delete comp_pos[i];
+	  }
       for (size_t i = 0; i < m; ++i)
 	delete pos[i];
 

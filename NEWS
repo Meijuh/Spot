@@ -20,6 +20,12 @@ New in spot 1.1.4a (not relased)
       search for bugs in translators to Rabin or Streett automata, but
       the statistics might not be very relevant.
 
+    - When ltlcross obtains a deterministic automaton from a
+      translator it will now complement this automaton to perform
+      additional intersection checks.  This is complementation is done
+      only for deterministic automata (because that is cheap) and can
+      be disabled with --no-complement.
+
     - To help with debugging problems detected by ltlcross, the
       environment variables SPOT_TMPDIR and SPOT_TMPKEEP control where
       temporary files are created and if they should be erased.  Read

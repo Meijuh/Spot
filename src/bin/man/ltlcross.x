@@ -81,14 +81,28 @@ Technology.  The main motivation for the reimplementation was to
 support PSL, and output more statistics about the translations.
 
 The sanity checks performed on the result of each translator (by
-either LBTT or ltlcross) are described in the following paper.  Our
-implementation will detect and reports problems (like inconsistencies
-between two translations) but unlike LBTT it does not offer an
-interactive mode to investigate such problems.
+either LBTT or ltlcross) are described in the following paper.
 
 .TP
 th02
 H. Tauriainen and K. Heljanko: Testing LTL formula translation into
 Büchi automata.  Int. J. on Software Tools for Technology Transfer.
 Volume 4, number 1, October 2002.
+
+LBTT did not implement Test 2 described in this paper.  ltlcross
+implements a slight variation: when an automaton produced by some
+translator is deterministic, its complement is built and used for
+additional cross-comparisons with other tools.  If the translation P1
+of the positive formula and the translation N1 of the negative formula
+both yield deterministic automata (this may only happen for obligation
+properties) then the emptiness check of Comp(P1)*Comp(N1) is
+equivalent to Test 2 of Tauriainen and Heljanko.  If only one
+automaton is deterministic, say P1, it can still be used to check we
+can be used to check the result of another translators, for instance
+checking the emptiness of Comp(P1)*P2.
+
+Our implementation will detect and reports problems (like
+inconsistencies between two translations) but unlike LBTT it does not
+offer an interactive mode to investigate such problems.
+
 

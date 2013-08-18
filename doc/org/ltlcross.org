@@ -8,32 +8,38 @@ translators.  It is actually a Spot-based clone of [[http://www.tcs.hut.fi/Softw
 /LTL-to-Büchi Translator Testbench/, that essentially performs the
 same sanity checks.
 
-The main motivations for rewriting this tool were:
+The main differences are:
   - support for PSL formulas in addition to LTL
   - more statistics, especially:
     - the number of logical transitions represented by each physical edge,
     - the number of deterministic states and automata
     - the number of SCCs with their various strengths (nonaccepting, terminal, weak, strong)
     - the number of terminal, weak, and strong automata
-  - output in a format that can be more easily be post-processed,
+  - statistics output in a format that can be more easily be post-processed,
   - more precise time measurement (LBTT was only precise to
-    1/100 of a second, reporting most times as "0.00s").
+    1/100 of a second, reporting most times as "0.00s"),
+  - support for deterministic Rabin or Streett automata written in
+    [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dsar='s format]],
+  - additional intersection checks with the complement of any
+    deterministic automaton produced by a translator.
 
 Although =ltlcross= performs the same sanity checks as LBTT, it does
 not implement any of the interactive features of LBTT.  In our almost
 10-year usage of LBTT, we never had to use its interactive features to
 understand bugs in our translation.  Therefore =ltlcross= will report
-problems, but you will be on your own to investigate and fix them.
+problems, maybe with a conterexample, but you will be on your own to
+investigate and fix them.
 
 The core of =ltlcross= is a loop that does the following steps:
   - Input a formula
   - Translate the formula and its negation using each configured translator.
     If there are 3 translators, the positive and negative translations
-    will be denoted =P0=, =N0=, =P1=, =N1=, =P2=, =N2=.
+    will be denoted =P0=, =N0=, =P1=, =N1=, =P2=, =N2=.  Optionally
+    build complemented automata denoted =Comp(P0)=, =Comp(N0)=, etc.
+  - Perform sanity checks between all these automata to detect any problem.
   - Build the products of these automata with a random state-space (the same
     state-space for all translations).  (If the =--products=N= option is given,
     =N= products are performed instead.)
-  - Perform sanity checks between all these automata to detect any problem.
   - Gather statistics if requested.
 
 * Formula selection
@@ -54,8 +60,8 @@ ltlcross --help | sed -n '/character sequences:/,/^$/p' | sed '1d;$d'
 :                              LBT, or Wring's syntax
 :   %F,%S,%L,%W                the formula as a file in Spot, Spin, LBT, or
 :                              Wring's syntax
-:   %N,%T                      the output automaton as a Never claim, or in
-:                              LBTT's format
+:   %N,%T,%D                   the output automaton as a Never claim, in LBTT's
+:                              or in LTL2DSTAR's format
 
 For instance here is how we could cross-compare the never claims
 output by =spin= and =ltl2tgba= for the formulas =GFa= and =X(a U b)=.
@@ -92,17 +98,55 @@ Performing sanity checks and gathering statistics...
 no problem detected
 #+end_example
 
-=ltlcross= can only read two kinds of output:
+=ltlcross= can only read three kinds of output:
   - Never claims (only if they are restricted to representing an
     automaton using =if=, =goto=, and =skip= statements) such as those
     output by [[http://spinroot.com/][=spin=]], [[http://www.lsv.ens-cachan.fr/~gastin/ltl2ba/][=ltl2ba=]], [[http://sourceforge.net/projects/ltl3ba/][=ltl3ba=]], or =ltl2tgba --spin=.  These
-    should be indicated using =%N=.
+    should be indicated using =%N=.  The newer syntax introduced by
+    Spin 6.24, using =do= instead of =if=, is also supported.
   - [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT's format]], which supports generalized Büchi automata with
     either state-based acceptance or transition-based acceptance.
     This output is used for instance by [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][=lbt=]], [[http://web.archive.org/web/20080607170403/http://www.science.unitn.it/~stonetta/modella.html][=modella=]], or =ltl2tgba
     --lbtt=.  These should be indicated using =%T=.
+  - [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dsar='s format]], which support deterministic Rabin or Streett
+    automata.  After =ltlcross= reads such input, it immediately
+    convert it into a Büchi automaton.  Rabin automata are converted
+    to (degeneralized) Büchi automata and the conversion will preserve
+    the determinism anytime a deterministic Büchi automaton exists for
+    that property (this determinism is good for the complemented
+    intersection check discussed below).  Streett automata are
+    converted to non-deterministic TGBA, where generalized acceptance
+    conditions are used to reduce the size of the automaton you would
+    get by the classical conversion from Streett to Büchi.
+    This kind of output (Rabin or Streett) should be indicated with =%T=.
 
-Of course all configured tools need not the same =%= sequences.
+Of course all configured tools need not use the same =%= sequences.
+The following list shows some typical configurations for some existing
+tools:
+
+  - '=spin -f %s >%N='
+  - '=ltl2ba -f %s >%N='
+  - '=ltl3ba -f -S %s >%N='
+  - '=ltl3ba -f -S -M %s >%N=' (more deterministic output)
+  - '=modella -r12 -g -e %L %T='
+  - '=/path/to/script4lbtt.py %L %T=' (script supplied by [[http://www.ti.informatik.uni-kiel.de/~fritz/][ltl2nba]] for
+    its interface with LBTT)
+  - '=ltl2tgba -s %s >%N=' (smaller output, Büchi automaton)
+  - '=ltl2tgba -s -D %s >%N=' (more deterministic output, Büchi automaton)
+  - '=ltl2tgba --lbtt %s >%T=' (smaller output, TGBA)
+  - '=ltl2tgba --lbtt -D %s >%T=' (more deterministic output, TGBA)
+  - '=lbt <%L >%T='
+  - '=ltl2dstar --ltl2nba=spin:path/tp/ltl2tgba@-sD %L %T='
+    (deterministic Rabin output)
+  - '=ltl2dstar --automata=streett --ltl2nba=spin:path/tp/ltl2tgba@-sD
+    %L %T=' (deterministic Streett output)
+  - '=ltl2dstar --ltl2nba=spin:path/tp/ltl2tgba@-sD %L - | dstar2tgba
+    -s >%N=' (external conversion from Rabin to Büchi done by
+    =dstar2tgba= for additional reduction of the Büchi automaton than
+    what =ltlcross= would provide)
+  - '=java -jar Rabinizer.jar -ltl2dstar %F %D; mv %D.dst %D=' (Rabinizer
+    uses the last =%D= argument as a prefix to which it always append =.dst=,
+    so we have to rename =%D.dst= as =%D= so that =ltlcross= can find the file)
 
 * Getting statistics
 
@@ -423,6 +467,24 @@ positive and negative formulas by the ith translator).
     followed by a cycle that should be repeated infinitely often.
     The cycle part is denoted by =cycle{...}=.
 
+  - Complemented intersection check.  If $P_i$ and $P_j$ are
+    deterministic, we =ltlcross= builds their complements, $Comp(P_i)$
+    and $Comp(P_j)$, and then ensures that $Comp(P_i)\otimes
+    Comp(P_j)$ is empty.  If only one of them is deterministic,
+    for instance $P_i$, we check that $P_j\otimes Comp(P_i)$ for all
+    $j \ne i$; likewise if it's $N_i$ that is deterministic.
+
+    This check is only done for deterministic automata, because
+    complementation is cheap is that case.  When validating a
+    translator with =ltlcross=, we highly recommend to include a
+    translator with good deterministic output to augment test
+    coverage.  Using '=ltl2tgba -lD %f >%T=' will produce
+    deterministic automata for all obligation properties and many
+    recurrence properties.  Using '=ltl2dstar
+    --ltl2nba=spin:pathto/ltl2tgba@-sD %L %D=' is more expansive, but
+    it will produce a deterministic Büchi automaton whenever one
+    exists.
+
   - Cross-comparison checks: for some state-space $S$,
     all $P_i\otimes S$ are either all empty, or all non-empty.
     Similarly all $N_i\otimes S$ are either all empty, or all non-empty.
@@ -451,7 +513,9 @@ positive and negative formulas by the ith translator).
     the state-space in which the inconsistency was detected is also
     printed.
 
-The above checks are similar to those that are performed by [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]].
+The above checks are similar to those that are performed by [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]],
+except for the complemented intersection check, which is only done in
+=ltlcross=.
 
 If any problem was reported during the translation of one of the
 formulas, =ltlcheck= will exit with an exit status of =1=.  Statistics
