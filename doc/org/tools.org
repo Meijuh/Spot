@@ -41,6 +41,8 @@ corresponding commands are hidden.
 - [[file:ltl2tgba.org][=ltl2tgba=]] Translate LTL/PSL formulas into Büchi automata.
 - [[file:ltl2tgta.org][=ltl2tgta=]] Translate LTL/PSL formulas into Testing automata.
 - [[file:ltlcross.org][=ltlcross=]] Cross-compare LTL/PSL-to-Büchi translators.
+- [[file:dstar2tgba.org][=dstar2tgba=]] Convert deterministic Rabin or Streett automata into
+  Büchi automata.
 
 #  LocalWords:  num toc helloworld SRC LTL PSL randltl ltlfilt genltl
 #  LocalWords:  scalable ltl tgba Büchi automata tgta ltlcross eval

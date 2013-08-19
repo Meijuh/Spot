@@ -39,6 +39,9 @@ New in spot 1.1.4a (not relased)
       non-deterministic Büchi automata with Generalized acceptance.
       These are then degeneralized if requested.
 
+      See http://spot.lip6.fr/userdoc/dstar2tgba.html for some
+      examples, and the man page for more reference.
+
     - The %S escape sequence used by ltl2tgba --stats to display the
       number of SCCs in the output automaton has been renamed to %c.
       This makes it more homogeneous with the --stats option of the
