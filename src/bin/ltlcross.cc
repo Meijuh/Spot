@@ -562,6 +562,7 @@ namespace
     void
     print(std::ostream& os, const char* pos) const
     {
+      output_format old_format = format;
       if (*pos == 'N')
 	format = Spin;
       else if (*pos == 'T')
@@ -572,12 +573,20 @@ namespace
 	assert(!"BUG");
 
       if (val_)
-	error(2, 0, "you may have only one %%D, %%N, or %%T specifier: %s",
-	      translators[translator_num]);
-      char prefix[30];
-      snprintf(prefix, sizeof prefix, "lcr-o%u-", translator_num);
-      const_cast<printable_result_filename*>(this)->val_
-	= spot::create_tmpfile(prefix);
+	{
+	  // It's OK to use a specified multiple time, but it's not OK
+	  // to mix the formats.
+	  if (format != old_format)
+	    error(2, 0, "you may not mix %%D, %%N, and %%T specifiers: %s",
+		  translators[translator_num]);
+	}
+      else
+	{
+	  char prefix[30];
+	  snprintf(prefix, sizeof prefix, "lcr-o%u-", translator_num);
+	  const_cast<printable_result_filename*>(this)->val_
+	    = spot::create_tmpfile(prefix);
+	}
       os << '\'' << val_ << '\'';
     }
   };
