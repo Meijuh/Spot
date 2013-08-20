@@ -297,9 +297,11 @@ namespace spot
       dict& d;
       int size_;
       bdd ap_;
+      bool state_based_;
     public:
-      filler_dfs(const tgba* aut, dict& d, bdd ap)
-	:tgba_reachable_iterator_depth_first(aut), d(d), ap_(ap)
+      filler_dfs(const tgba* aut, dict& d, bdd ap, bool state_based)
+	: tgba_reachable_iterator_depth_first(aut), d(d), ap_(ap),
+	  state_based_(state_based)
       {
 	d.nvars = 0;
 
@@ -395,36 +397,78 @@ namespace spot
 
 	std::swap(d.state_to_int, seen);
 
-	for (int i = 1; i <= d.cand_size; ++i)
-	  for (int j = 1; j <= d.cand_size; ++j)
-	    {
-	      bdd all = bddtrue;
-	      while (all != bddfalse)
+	if (!state_based_)
+	  {
+	    for (int i = 1; i <= d.cand_size; ++i)
+	      for (int j = 1; j <= d.cand_size; ++j)
 		{
-		  bdd one = bdd_satoneset(all, ap_, bddfalse);
-		  all -= one;
-
-		  transition t(i, one, j);
-		  d.transid[t] = ++d.nvars;
-		  d.revtransid.insert(dict::rev_map::value_type(d.nvars, t));
-
-		  // Create the variable for the accepting transition
-		  // immediately afterwards.  It helps parsing the
-		  // result.
-		  for (unsigned n = 0; n < d.cand_nacc; ++n)
+		  bdd all = bddtrue;
+		  while (all != bddfalse)
 		    {
-		      transition_acc ta(i, one, d.cand_acc[n], j);
-		      d.transaccid[ta] = ++d.nvars;
-		      d.revtransaccid.insert(dict::rev_acc_map::
-					     value_type(d.nvars, ta));
+		      bdd one = bdd_satoneset(all, ap_, bddfalse);
+		      all -= one;
+
+		      transition t(i, one, j);
+		      d.transid[t] = ++d.nvars;
+		      d.revtransid.insert(dict::rev_map::
+					  value_type(d.nvars, t));
+
+		      // Create the variable for the accepting transition
+		      // immediately afterwards.  It helps parsing the
+		      // result.
+		      for (unsigned n = 0; n < d.cand_nacc; ++n)
+			{
+			  transition_acc ta(i, one, d.cand_acc[n], j);
+			  d.transaccid[ta] = ++d.nvars;
+			  d.revtransaccid.insert(dict::rev_acc_map::
+						 value_type(d.nvars, ta));
+			}
 		    }
 		}
-	    }
+	  }
+	else // state based
+	  {
+	    for (int i = 1; i <= d.cand_size; ++i)
+	      for (unsigned n = 0; n < d.cand_nacc; ++n)
+		{
+		  ++d.nvars;
+		  for (int j = 1; j <= d.cand_size; ++j)
+		    {
+		      bdd all = bddtrue;
+		      while (all != bddfalse)
+			{
+			  bdd one = bdd_satoneset(all, ap_, bddfalse);
+			  all -= one;
+
+			  transition_acc ta(i, one, d.cand_acc[n], j);
+			  d.transaccid[ta] = d.nvars;
+			  d.revtransaccid.insert(dict::rev_acc_map::
+						 value_type(d.nvars, ta));
+			}
+		    }
+		}
+	    for (int i = 1; i <= d.cand_size; ++i)
+	      for (int j = 1; j <= d.cand_size; ++j)
+		{
+		  bdd all = bddtrue;
+		  while (all != bddfalse)
+		    {
+		      bdd one = bdd_satoneset(all, ap_, bddfalse);
+		      all -= one;
+
+		      transition t(i, one, j);
+		      d.transid[t] = ++d.nvars;
+		      d.revtransid.insert(dict::rev_map::
+					  value_type(d.nvars, t));
+		    }
+		}
+	  }
       }
     };
 
     static
-    void dtgba_to_sat(std::ostream& out, const tgba* ref, dict& d)
+    void dtgba_to_sat(std::ostream& out, const tgba* ref, dict& d,
+		      bool state_based)
     {
       int nclauses = 0;
       int ref_size = 0;
@@ -439,7 +483,7 @@ namespace spot
 
       // Number all the SAT variable we may need.
       {
-	filler_dfs f(ref, d, ap);
+	filler_dfs f(ref, d, ap, state_based);
 	f.run();
 	ref_size = f.size();
       }
@@ -527,6 +571,9 @@ namespace spot
 
 		      state_pair p2(q2, dp);
 		      int succ = d.prodid[p2];
+
+		      if (pit->second == succ)
+			continue;
 
 		      dout << pit->first << " ∧ " << t << "δ → " << p2 << "\n";
 		      out << -pit->second << " " << -ti << " "
@@ -617,7 +664,8 @@ namespace spot
 					      bdd one = bdd_satone(all_f);
 					      all_f -= one;
 
-					      transition_acc ta(q2, l, one, q1);
+					      transition_acc ta(q2, l,
+								one, q1);
 					      int tai = d.transaccid[ta];
 					      assert(tai != 0);
 					      out << " " << -tai;
@@ -639,7 +687,8 @@ namespace spot
 					      bdd one = bdd_satone(all_);
 					      all_ -= one;
 
-					      transition_acc ta(q2, l, one, q1);
+					      transition_acc ta(q2, l,
+								one, q1);
 					      if (notfirst)
 						out << " ∧ ";
 					      else
@@ -656,7 +705,8 @@ namespace spot
 					      bdd one = bdd_satone(all_f);
 					      all_f -= one;
 
-					      transition_acc ta(q2, l, one, q1);
+					      transition_acc ta(q2, l,
+								one, q1);
 					      int tai = d.transaccid[ta];
 					      assert(tai != 0);
 
@@ -681,6 +731,9 @@ namespace spot
 
 					path p2(p.src_cand, p.src_ref,
 						q3, dp, f2, f2p);
+					int p2id = d.pathid[p2];
+					if (pid == p2id)
+					  continue;
 #if DEBUG
 					dout << "(13) " << p << " ∧ "
 					     << t << "δ ";
@@ -729,7 +782,6 @@ namespace spot
 					    out << tai << " ";
 					  }
 
-					int p2id = d.pathid[p2];
 					out << p2id << " 0\n";
 					++nclauses;
 				      }
@@ -766,7 +818,8 @@ namespace spot
 
 
     static tgba_explicit_number*
-    sat_build(const std::string& solution, dict& satdict, const tgba* aut)
+    sat_build(const std::string& solution, dict& satdict, const tgba* aut,
+	      bool state_based)
     {
       bdd_dict* autdict = aut->get_dict();
       tgba_explicit_number* a = new tgba_explicit_number(autdict);
@@ -792,6 +845,7 @@ namespace spot
 #endif
 
       dout << "--- transition variables ---\n";
+      std::map<int, bdd> state_acc;
       for (;;)
 	{
 	  int v;
@@ -816,6 +870,14 @@ namespace spot
 	      last_sat_trans = &t->second;
 
 	      dout << v << "\t" << t->second << "δ\n";
+
+	      if (state_based)
+		{
+		  std::map<int, bdd>::const_iterator i =
+		    state_acc.find(t->second.src);
+		  if (i != state_acc.end())
+		    last_aut_trans->acceptance_conditions = i->second;
+		}
 	    }
 	  else
 	    {
@@ -831,7 +893,14 @@ namespace spot
 		      ta->second.src == last_sat_trans->src &&
 		      ta->second.cond == last_sat_trans->cond &&
 		      ta->second.dst == last_sat_trans->dst)
-		    last_aut_trans->acceptance_conditions |= ta->second.acc;
+		    {
+		      assert(!state_based);
+		      last_aut_trans->acceptance_conditions |= ta->second.acc;
+		    }
+		  else if (state_based)
+		    {
+		      state_acc[ta->second.src] |= ta->second.acc;
+		    }
 		}
 	    }
 	}
@@ -868,9 +937,13 @@ namespace spot
   }
 
   tgba_explicit_number*
-  dtgba_sat_minimize(const tgba* a, unsigned cand_nacc)
+  dtgba_sat_minimize(const tgba* a, unsigned cand_nacc,
+		     int target_state_number, bool state_based)
   {
-    int ref_states = stats_reachable(a).states;
+    int ref_states =
+      target_state_number == -1
+      ? stats_reachable(a).states - 1
+      : target_state_number;
 
     std::string current_solution;
     std::string last_solution;
@@ -892,23 +965,39 @@ namespace spot
 	delete last;
 	last = current;
 	current = new dict(a);
-	current->cand_size = --ref_states;
+	current->cand_size = ref_states--;
 	current->cand_nacc = cand_nacc;
 
 	cnf = create_tmpfile("dtgba-sat-", ".cnf");
 
 	std::fstream cnfs(cnf->name(),
 			  std::ios_base::trunc | std::ios_base::out);
-	dtgba_to_sat(cnfs, a, *current);
+	dtgba_to_sat(cnfs, a, *current, state_based);
 	cnfs.close();
 
-	out = create_tmpfile("dtba-sat-", ".out");
+	out = create_tmpfile("dtgba-sat-", ".out");
 	satsolver(cnf, out);
 	current_solution = get_solution(out->name());
       }
-    while (!current_solution.empty());
+    while (target_state_number == -1 && !current_solution.empty());
 
-    delete current;
+    if (target_state_number != -1)
+      {
+	std::swap(current_solution, last_solution);
+	if (last_solution.empty())
+	  {
+	    last = 0;
+	    delete current;
+	  }
+	else
+	  {
+	    last = current;
+	  }
+      }
+    else
+      {
+	delete current;
+      }
 
     tgba_explicit_number* res;
     if (last == 0)
@@ -922,7 +1011,7 @@ namespace spot
       }
     else
       {
-	res = sat_build(last_solution, *last, a);
+	res = sat_build(last_solution, *last, a, state_based);
 	delete last;
       }
 

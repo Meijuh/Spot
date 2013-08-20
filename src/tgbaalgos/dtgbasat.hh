@@ -33,11 +33,23 @@ namespace spot
   ///
   /// \param cand_nacc is the number of acceptance sets in the result.
   ///
-  /// This functions attempts to find the smallest TGBA with \a
-  /// cand_nacc acceptance sets that is equivalent to \a a.  If no
-  /// smaller TGBA is found, a null pointer is returned.
+  /// \param state_based set to true to force all outgoing transitions
+  /// of a state to share the same acceptance conditions, effectively
+  /// turning the TGBA into a TBA.
+  ///
+  /// \param target_state_number the expected number of states wanted
+  /// in the resulting automaton.  If \a target_state_number is left
+  /// to its default value of -1, this function will attempt to build
+  /// the smallest possible deterministic TGBA is can produce.
+  ///
+  /// This functions attempts to find a TGBA with \a cand_nacc
+  /// acceptance sets and target_state_number states that is
+  /// equivalent to \a a.  If no such TGBA is found, a null pointer is
+  /// returned.
   SPOT_API tgba_explicit_number*
-  dtgba_sat_minimize(const tgba* a, unsigned cand_nacc);
+  dtgba_sat_minimize(const tgba* a, unsigned cand_nacc,
+		     int target_state_number = -1,
+		     bool state_based = false);
 }
 
 #endif // SPOT_TGBAALGOS_DTGBASAT_HH

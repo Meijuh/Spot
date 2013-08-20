@@ -89,8 +89,8 @@ $ltlcross -F formulas \
   --timeout=60 \
   "$ltl2tgba --det --lbtt %f >%T" \
   "$ltl2tgba --det --lbtt -x tba-det %f >%T" \
-  "$ltl2tgba --det --lbtt -x tba-det,sat-minimize %f >%T" \
-  "$ltl2tgba --det --lbtt -x tba-det,dtgba-sat-minimize=0 %f >%T" \
-  "$ltl2tgba --det --lbtt -x dtgba-sat-minimize=0 %f >%T" \
-  "$ltl2tgba --det --lbtt -x tba-det,dtgba-sat-minimize=3 %f >%T" \
+  "$ltl2tgba --det --lbtt -x tba-det,dtba-sat-minimize=0 %f >%T" \
+  "$ltl2tgba --det --lbtt -x tba-det,dtgba-sat-minimize-acc=0 %f >%T" \
+  "$ltl2tgba --det --lbtt -x dtgba-sat-minimize-acc=0 %f >%T" \
+  "$ltl2tgba --det --lbtt -x tba-det,dtgba-sat-minimize-acc=3 %f >%T" \
   --json=det.json

@@ -51,8 +51,14 @@ namespace spot
 	scc_filter_ = opt->get("scc-filter", -1);
 	ba_simul_ = opt->get("ba-simul", -1);
 	tba_determinisation_ = opt->get("tba-det", 0);
-	sat_minimize_ = opt->get("sat-minimize", 0);
+	dtba_sat_minimize_ = opt->get("dtba-sat-minimize", -1);
 	dtgba_sat_minimize_ = opt->get("dtgba-sat-minimize", -1);
+	dtgba_sat_minimize_acc_ = opt->get("dtgba-sat-minimize-acc", -1);
+	if (dtgba_sat_minimize_ >= 0 && dtgba_sat_minimize_acc_ == -1)
+	  dtgba_sat_minimize_acc_ = 0;
+	if (dtgba_sat_minimize_ == -1 && dtgba_sat_minimize_acc_ >= 0)
+	  dtgba_sat_minimize_ = 0;
+	state_based_ = opt->get("state-based", 0);
       }
   }
 
@@ -188,6 +194,7 @@ namespace spot
       }
 
     bool dba_is_wdba = false;
+    bool dba_is_minimal = false;
     const tgba* dba = 0;
     const tgba* sim = 0;
 
@@ -200,7 +207,7 @@ namespace spot
 	if (dba == a)	// Minimization failed.
 	  dba = 0;
 	else
-	  dba_is_wdba = true;
+	  dba_is_minimal = dba_is_wdba = true;
 	// The WDBA is a BA, so no degeneralization is required.
       }
 
@@ -242,7 +249,7 @@ namespace spot
 
 	const tgba* in = tmpd ? tmpd : sim;
 
-	// These thresholds is arbitrary.
+	// These thresholds are arbitrary.
 	//
 	// For producing Small automata, we assume that a
 	// deterministic automaton that is twice the size of the
@@ -281,25 +288,40 @@ namespace spot
     // TBA-determinization (dba_is_wdba=false in both cases).
 
     // Attempt SAT-minimization if requested.
-    if (sat_minimize_ && dba && !dba_is_wdba)
+    if (dtba_sat_minimize_ >= 0 && dba && !dba_is_wdba)
       {
 	// This only work on deterministic TBA, so degeneralize
 	// if needed.
 	const tgba* tmpd = 0;
 	if (dba->number_of_acceptance_conditions() != 1)
-	  tmpd = new tgba_tba_proxy(dba);
+	  {
+	    // If we are seeking a minimal DBA with unknown number of
+	    // states, then we should start from the degeneralized,
+	    // because the input TBA might be smaller.
+	    if (state_based_ && dtba_sat_minimize_ == 0)
+	      tmpd = degeneralize(dba);
+	    else
+	      tmpd = new tgba_tba_proxy(dba);
+	  }
 
 	const tgba* in = tmpd ? tmpd : dba;
 
 	const tgba* cmp = tgba_complete(in);
-	const tgba* res = dba_sat_minimize(cmp);
+	const tgba* res = dtba_sat_minimize(cmp,
+					    dtba_sat_minimize_ == 0
+					    ? -1 : dtba_sat_minimize_,
+					    state_based_);
 	delete cmp;
 	delete tmpd;
 	if (res != 0)
 	  {
 	    delete dba;
-	    dba = scc_filter(res, true);
+	    if (state_based_)
+	      dba = scc_filter_states(res);
+	    else
+	      dba = scc_filter(res, true);
 	    delete res;
+	    dba_is_minimal = true;
 	  }
       }
     else if (dtgba_sat_minimize_ >= 0 && dba && !dba_is_wdba)
@@ -307,15 +329,26 @@ namespace spot
 	const tgba* cmp = tgba_complete(dba);
 	const tgba* res =
 	  dtgba_sat_minimize(cmp,
-			     dtgba_sat_minimize_
-			     ? dtgba_sat_minimize_
-			     : dba->number_of_acceptance_conditions());
+			     dtgba_sat_minimize_acc_
+			     ? dtgba_sat_minimize_acc_
+			     : dba->number_of_acceptance_conditions(),
+			     dtgba_sat_minimize_ == 0
+			     ? -1 : dtgba_sat_minimize_,
+			     state_based_);
 	delete cmp;
 	if (res != 0)
 	  {
 	    delete dba;
-	    dba = scc_filter(res, true);
+	    if (state_based_)
+	      // FIXME: This does not simplify generalized acceptance
+	      // conditions, but calling scc_filter() would break the
+	      // BA-typeness of res by removing acceptance marks from
+	      // out-of-SCC transitions.
+	      dba = scc_filter_states(res);
+	    else
+	      dba = scc_filter(res, true);
 	    delete res;
+	    dba_is_minimal = true;
 	  }
       }
 
@@ -346,10 +379,8 @@ namespace spot
 
     if (type_ == TGBA && level_ == High && scc_filter_ != 0)
       {
-	if (dba && !dba_is_wdba) // WDBA is already clean.
+	if (dba && !dba_is_minimal) // WDBA is already clean.
 	  {
-	    // FIXME: if dba_sat_minimize has been run, scc_filter has
-	    // also been run.
 	    const tgba* s = scc_filter(dba, true);
 	    delete dba;
 	    return s;

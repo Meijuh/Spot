@@ -106,8 +106,10 @@ namespace spot
     int scc_filter_;
     int ba_simul_;
     bool tba_determinisation_;
-    bool sat_minimize_;
+    int dtba_sat_minimize_;
     int dtgba_sat_minimize_;
+    int dtgba_sat_minimize_acc_;
+    bool state_based_;
   };
   /// @}
 }

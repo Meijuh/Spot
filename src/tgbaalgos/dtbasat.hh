@@ -36,11 +36,16 @@ namespace spot
   /// to its default value of -1, this function will attempt to build
   /// the smallest possible deterministic TBA is can produce.
   ///
+  /// \param state_based set to true to force all outgoing transitions
+  /// of a state to share the same acceptance condition, effectively
+  /// turning the TBA into a BA.
+  ///
   /// If no automaton with \a target_state_number states is found, or
   /// (in case <code>target_state_number == -1</code>) if no smaller
   /// automaton is found, then a null pointer is returned.
   SPOT_API tgba_explicit_number*
-  dba_sat_minimize(const tgba* a, int target_state_number = -1);
+  dtba_sat_minimize(const tgba* a, int target_state_number = -1,
+		    bool state_based = false);
 }
 
 #endif // SPOT_TGBAALGOS_DTBASAT_HH
