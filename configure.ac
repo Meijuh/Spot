@@ -67,7 +67,8 @@ AC_LANG(C++)
 AX_CHECK_COMPILE_FLAG([-Werror -fvisibility=hidden],
   [CXXFLAGS="$CXXFLAGS -fvisibility=hidden"
   AX_CHECK_COMPILE_FLAG([-fvisibility-inlines-hidden],
-    [CXXFLAGS="$CXXFLAGS -fvisibility-inlines-hidden -DSPOT_BUILD"])])
+    [CXXFLAGS="$CXXFLAGS -fvisibility-inlines-hidden"])])
+CXXFLAGS="$CXXFLAGS -DSPOT_BUILD"
 
 AC_HEADER_UNORDERED_MAP
 AC_HEADER_TR1_UNORDERED_MAP
