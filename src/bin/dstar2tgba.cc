@@ -24,6 +24,7 @@
 
 #include <argp.h>
 #include "error.h"
+#include "gethrxtime.h"
 
 #include "common_setup.hh"
 #include "common_finput.hh"
@@ -102,6 +103,9 @@ static const argp_option options[] =
       "1 if the output is deterministic, 0 otherwise", 0 },
     { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the output is complete, 0 otherwise", 0 },
+    { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "conversion time (including post-processings, but not parsing)"
+      " in seconds", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     /**************************************************/
@@ -222,7 +226,7 @@ namespace
     /// to be output.
     std::ostream&
     print(const spot::dstar_aut* daut, const spot::tgba* aut,
-	  const char* filename)
+	  const char* filename, double run_time)
     {
       filename_ = filename;
 
@@ -254,7 +258,7 @@ namespace
 	  daut_scc_ = m.scc_count();
 	}
 
-      return this->spot::stat_printer::print(aut);
+      return this->spot::stat_printer::print(aut, 0, run_time);
     }
 
   private:
@@ -302,8 +306,15 @@ namespace
 	{
 	  error(2, 0, "failed to read automaton from %s", filename);
 	}
+
+      const xtime_t before = gethrxtime();
+
       spot::tgba* nba = spot::dstar_to_tgba(daut);
       const spot::tgba* aut = post.run(nba, 0);
+
+      const xtime_t after = gethrxtime();
+      const double prec = XTIME_PRECISION;
+      const double conversion_time = (after - before) / prec;
 
       if (utf8)
 	{
@@ -336,8 +347,7 @@ namespace
 	  spot::never_claim_reachable(std::cout, aut);
 	  break;
 	case Stats:
-	  // FIXME: filename
-	  statistics.print(daut, aut, filename) << "\n";
+	  statistics.print(daut, aut, filename, conversion_time) << "\n";
 	  break;
 	}
       delete aut;

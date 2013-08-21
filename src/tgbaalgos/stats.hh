@@ -83,9 +83,10 @@ namespace spot
     /// \brief print the configured statistics.
     ///
     /// The \a f argument is not needed if the Formula does not need
-    /// to be output.
+    /// to be output, and so is \a run_time).
     std::ostream&
-    print(const tgba* aut, const ltl::formula* f = 0);
+      print(const tgba* aut, const ltl::formula* f = 0,
+	    double run_time = -1.);
 
   private:
     const char* format_;
@@ -99,6 +100,7 @@ namespace spot
     printable_value<unsigned> nondetstates_;
     printable_value<unsigned> deterministic_;
     printable_value<unsigned> complete_;
+    printable_value<double> run_time_;
   };
 
   /// @}

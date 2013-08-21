@@ -24,6 +24,7 @@
 
 #include <argp.h>
 #include "error.h"
+#include "gethrxtime.h"
 
 #include "common_setup.hh"
 #include "common_r.hh"
@@ -93,6 +94,9 @@ static const argp_option options[] =
       "1 if the automaton is deterministic, 0 otherwise", 0 },
     { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the automaton is complete, 0 otherwise", 0 },
+    { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "translation time (including pre- and post-processings, but not parsing)"
+      " in seconds", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     /**************************************************/
@@ -201,7 +205,11 @@ namespace
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
+      const xtime_t before = gethrxtime();
       const spot::tgba* aut = trans.run(&f);
+      const xtime_t after = gethrxtime();
+      const double prec = XTIME_PRECISION;
+      const double translation_time = (after - before) / prec;
 
       // This should not happen, because the parser we use can only
       // read PSL/LTL formula, but since our ltl::formula* type can
@@ -246,7 +254,7 @@ namespace
 	  spot::never_claim_reachable(std::cout, aut, f);
 	  break;
 	case Stats:
-	  statistics.print(aut, f) << "\n";
+	  statistics.print(aut, f, translation_time) << "\n";
 	  break;
 	}
       delete aut;

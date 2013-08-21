@@ -148,6 +148,7 @@ namespace spot
     declare('f', &form_);
     declare('n', &nondetstates_);
     declare('p', &complete_);
+    declare('r', &run_time_);
     declare('s', &states_);
     declare('S', &scc_);	// Historical.  Deprecated.  Use %c instead.
     declare('t', &trans_);
@@ -157,9 +158,11 @@ namespace spot
 
   std::ostream&
   stat_printer::print(const tgba* aut,
-		      const ltl::formula* f)
+		      const ltl::formula* f,
+		      double run_time)
   {
     form_ = f;
+    run_time_ = run_time;
 
     if (has('t'))
       {

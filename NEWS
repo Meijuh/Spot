@@ -54,7 +54,9 @@ New in spot 1.1.4a (not relased)
       new dstar2tgba command.
 
       Additionally, the %p escape can now be used to show whether the
-      output automaton is complete.
+      output automaton is complete, and the %r escape will give the
+      number of seconds spent building the output automaton (excluding
+      the time spent parsing the input).
 
   * All the parsers implemented in Spot now use the same type
     to store locations.
