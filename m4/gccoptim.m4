@@ -49,7 +49,7 @@ EOF
   done
   rm -f conftest*
   AC_LANG_POP([C++])
-  CXXFLAGS="$cf_save_CFLAGS $ac_cv_prog_gxx_opt_flags"])
+  CXXFLAGS="$cf_save_CXXFLAGS $ac_cv_prog_gxx_opt_flags"])
 else
   case $enable_optimizations in
     no) ;;
