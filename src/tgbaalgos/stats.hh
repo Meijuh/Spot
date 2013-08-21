@@ -98,6 +98,7 @@ namespace spot
     printable_value<unsigned> scc_;
     printable_value<unsigned> nondetstates_;
     printable_value<unsigned> deterministic_;
+    printable_value<unsigned> complete_;
   };
 
   /// @}

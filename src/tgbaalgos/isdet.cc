@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -30,10 +30,9 @@ namespace spot
     count_nondet_states_aux(const tgba* aut, bool count = true)
     {
       unsigned res = 0;
-      typedef std::set<const state*, state_ptr_less_than> seen_set;
       typedef std::deque<const state*> todo_list;
 
-      seen_set seen;
+      state_set seen;
       todo_list todo;
       {
 	const state* s = aut->get_init_state();
@@ -46,9 +45,8 @@ namespace spot
 	  todo.pop_front();
 
 	  tgba_succ_iterator* i = aut->succ_iter(src);
-	  tgba_succ_iterator* j = aut->succ_iter(src);
-	  unsigned in = 0;
 	  bool nondeterministic = false;
+	  bdd available = bddtrue;
 	  for (i->first(); !i->done(); i->next())
 	    {
 	      // If we know the state is nondeterministic, just skip the
@@ -57,22 +55,11 @@ namespace spot
 	      // destination states.
 	      if (!nondeterministic)
 		{
-		  ++in;
-		  // Move j to the transition that follows i.
-		  j->first();
-		  for (unsigned jn = 0; jn < in; ++jn)
-		    j->next();
-		  // Make sure transitions after i are not conflicting.
-		  while (!j->done())
-		    {
-		      if ((i->current_condition() & j->current_condition())
-			  != bddfalse)
-			{
-			  nondeterministic = true;
-			  break;
-			}
-		      j->next();
-		    }
+		  bdd label = i->current_condition();
+		  if (!bdd_implies(label, available))
+		    nondeterministic = true;
+		  else
+		    available -= label;
 		}
 	      const state* dst = i->current_state();
 	      if (seen.insert(dst).second)
@@ -80,13 +67,12 @@ namespace spot
 	      else
 		dst->destroy();
 	    }
-	  delete j;
 	  delete i;
 	  res += nondeterministic;
 	  if (!count && nondeterministic)
 	    break;
 	}
-      for (seen_set::const_iterator i = seen.begin(); i != seen.end();)
+      for (state_set::const_iterator i = seen.begin(); i != seen.end();)
 	{
 	  const state* s = *i++;
 	  s->destroy();
@@ -105,5 +91,48 @@ namespace spot
   is_deterministic(const tgba* aut)
   {
     return !count_nondet_states_aux(aut, false);
+  }
+
+  bool
+  is_complete(const tgba* aut)
+  {
+    state_set seen;
+    typedef std::deque<const state*> todo_list;
+    todo_list todo;
+    bool complete = true;
+    {
+      const state* s = aut->get_init_state();
+      seen.insert(s);
+      todo.push_back(s);
+    }
+    while (!todo.empty())
+      {
+	const state* src = todo.front();
+	todo.pop_front();
+
+	tgba_succ_iterator* i = aut->succ_iter(src);
+	bdd available = bddtrue;
+	for (i->first(); !i->done(); i->next())
+	  {
+	    available -= i->current_condition();
+	    const state* dst = i->current_state();
+	    if (seen.insert(dst).second)
+	      todo.push_back(dst);
+	    else
+	      dst->destroy();
+	  }
+	delete i;
+	if (available != bddfalse)
+	  {
+	    complete = false;
+	    break;
+	  }
+      }
+    for (state_set::const_iterator i = seen.begin(); i != seen.end();)
+      {
+	const state* s = *i++;
+	s->destroy();
+      }
+    return complete;
   }
 }

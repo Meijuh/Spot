@@ -91,6 +91,8 @@ static const argp_option options[] =
       "number of nondeterministic states", 0 },
     { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the automaton is deterministic, 0 otherwise", 0 },
+    { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "1 if the automaton is complete, 0 otherwise", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     /**************************************************/

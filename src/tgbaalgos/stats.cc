@@ -147,6 +147,7 @@ namespace spot
     declare('e', &edges_);
     declare('f', &form_);
     declare('n', &nondetstates_);
+    declare('p', &complete_);
     declare('s', &states_);
     declare('S', &scc_);	// Historical.  Deprecated.  Use %c instead.
     declare('t', &trans_);
@@ -193,6 +194,11 @@ namespace spot
       {
 	// This is more efficient than calling count_nondet_state().
 	deterministic_ = is_deterministic(aut);
+      }
+
+    if (has('p'))
+      {
+	complete_ = is_complete(aut);
       }
 
     return format(format_);

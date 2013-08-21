@@ -53,6 +53,9 @@ New in spot 1.1.4a (not relased)
       This makes it more homogeneous with the --stats option of the
       new dstar2tgba command.
 
+      Additionally, the %p escape can now be used to show whether the
+      output automaton is complete.
+
   * All the parsers implemented in Spot now use the same type
     to store locations.
 

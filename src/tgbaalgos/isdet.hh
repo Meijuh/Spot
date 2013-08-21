@@ -43,6 +43,13 @@ namespace spot
   SPOT_API bool
   is_deterministic(const tgba* aut);
 
+  /// \Brief Return true iff \a aut is complete.
+  ///
+  /// An automaton is complete if its translation relation is total,
+  /// i.e., each state as a successor for any possible configuration.
+  SPOT_API bool
+  is_complete(const tgba* aut);
+
   /// @}
 }
 
