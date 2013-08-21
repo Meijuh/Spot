@@ -1,8 +1,5 @@
-## Copyright (C) 2008, 2009, 2010, 2012, 2013 Laboratoire de Recherche
-## et Développement de l'Epita (LRDE).
-## Copyright (C) 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
-## département Systèmes Répartis Coopératifs (SRC), Université Pierre
-## et Marie Curie.
+## Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement de
+## l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -19,5 +16,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = emptchk ltl2tgba scc-stats split-product ltlcounter	\
-          ltlclasses wdba spin13 dtgbasat
+EXTRA_DIST = formulas prepare.sh rundbamin.pl stat.sh stats.sh tabl.pl \
+             tabl1.pl tabl2.pl tabl3.pl tabl4.pl
+
+

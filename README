@@ -188,6 +188,7 @@ doc/              Documentation for libspot.
    userdoc/       HTML documentation about the command-line tools.
    spot.html/     HTML reference manual for the library.
 bench/            Benchmarks for ...
+   dtgbasat/      ... SAT-based minimization of DTGBA,
    emptchk/       ... emptiness-check algorithms,
    ltl2tgba/      ... LTL-to-Büchi translation algorithms,
    ltlcounter/    ... translation of a class of LTL formulae,

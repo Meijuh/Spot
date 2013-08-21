@@ -125,6 +125,7 @@ AC_SUBST([CROSS_COMPILING], [$cross_compiling])
 AC_CONFIG_FILES([
   Makefile
   bench/Makefile
+  bench/dtgbasat/Makefile
   bench/emptchk/Makefile
   bench/emptchk/defs
   bench/ltlcounter/Makefile
