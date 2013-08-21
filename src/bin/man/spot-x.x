@@ -18,7 +18,7 @@ Describes the WDBA-minimization algorithm implemented in Spot.
 2.
 Tomáš Babiak, Thomas Badie, Alexandre Duret-Lutz, Mojmír Křetínský,
 Jan Strejček: Compositional Approach to Suspension and Other
-Improvements to LTL Translation.  Proceedings of SPIN'13.  LNCS XXXX.
+Improvements to LTL Translation.  Proceedings of SPIN'13.  LNCS 7976.
 
 Describes the compositional suspension, the simulation-based
 reductions, and the SCC-based simplifications.
@@ -26,3 +26,4 @@ reductions, and the SCC-based simplifications.
 [SEE ALSO]
 .BR ltl2tgba (1)
 .BR ltl2tgta (1)
+.BR dstar2tgba (1)

@@ -90,6 +90,8 @@ on the Büchi automaton (i.e., after degeneralization has been performed). \
 Set to 1 to use only direct simulation.  Set to 2 to use only reverse \
 simulation.  Set to 3 to iterate both direct and reverse simulations.   \
 The default is 3 in --high mode, and 0 otherwise.") },
+    { DOC("wdba-minimize", "Set to 0 to disable WDBA-minimization.  \
+Enabled by default.") },
     { 0, 0, 0, 0, 0, 0 }
   };
 

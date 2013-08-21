@@ -59,6 +59,7 @@ namespace spot
 	if (dtgba_sat_minimize_ == -1 && dtgba_sat_minimize_acc_ >= 0)
 	  dtgba_sat_minimize_ = 0;
 	state_based_ = opt->get("state-based", 0);
+	wdba_minimize_ = opt->get("wdba-minimize", 1);
       }
   }
 
@@ -200,7 +201,7 @@ namespace spot
 
     // (Small,Low) is the only configuration where we do not run
     // WDBA-minimization.
-    if (pref_ != Small || level_ != Low)
+    if ((pref_ != Small || level_ != Low) && wdba_minimize_)
       {
 	bool reject_bigger = (pref_ == Small) && (level_ == Medium);
 	dba = minimize_obligation(a, f, 0, reject_bigger);

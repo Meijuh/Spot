@@ -110,6 +110,7 @@ namespace spot
     int dtgba_sat_minimize_;
     int dtgba_sat_minimize_acc_;
     bool state_based_;
+    bool wdba_minimize_;
   };
   /// @}
 }
