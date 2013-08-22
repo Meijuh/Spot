@@ -1,3 +1,4 @@
+
 // -*- coding: utf-8 -*-
 // Copyright (C) 2013 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
@@ -92,6 +93,37 @@ simulation.  Set to 3 to iterate both direct and reverse simulations.   \
 The default is 3 in --high mode, and 0 otherwise.") },
     { DOC("wdba-minimize", "Set to 0 to disable WDBA-minimization.  \
 Enabled by default.") },
+    { DOC("tba-det", "Set to 1 to attempt a powerset determinization \
+if the TGBA is not already deterministic.  Doing so will degeneralize \
+the automaton.  This is disabled by default, unless sat-minimize is set.") },
+    { DOC("sat-minimize",
+	  "Set to 1 to enable SAT-based minimization of deterministic \
+TGBA: it starts with the number of states of the input, and iteratively \
+tries to find a deterministic TGBA with one less state. Set to 2 to perform \
+a binary search instead.  Disabled (0) by default.  The sat solver to use \
+can be set with the SPOT_SATSOLVER environment variable (see below).  By \
+default the procedure looks for a TGBA with the same number of acceptance \
+set; this can be changed with the sat-acc option, or of course by using -B \
+to construct a Büchi automaton.  Enabling SAT-based minimization will \
+also enable tba-det.") },
+    { DOC("sat-states",
+	  "When this is set to some positive integer, the SAT-based \
+minimization will attempt to construct a TGBA with the given number of \
+states.  It may however return an automaton with less states if some of \
+these are unreachable or useless.  Setting sat-states automatically \
+enables sat-minimize, but no iteration is performed.  If no equivalent \
+automaton could be constructed with the given number of states, the original \
+automaton is returned.") },
+    { DOC("sat-acc",
+	  "When this is set to some positive integer, the SAT-based will \
+attempt to construct a TGBA with the given number of acceptance sets. \
+states.  It may however return an automaton with less acceptance sets if \
+some of these are useless.  Setting sat-acc automatically \
+sets sat-minimize to 1 if not set differently.") },
+    { DOC("state-based",
+	  "Set to 1 to instruct the SAT-minimization procedure to produce \
+a TGBA where all outgoing transition of a state have the same acceptance \
+sets.  By default this is only enabled when option -B is used.") },
     { 0, 0, 0, 0, 0, 0 }
   };
 

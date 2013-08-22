@@ -51,8 +51,10 @@
 #define DEBUG 0
 #if DEBUG
 #define dout out << "c "
+#define trace std::cerr
 #else
-#define dout while (0) out
+#define dout while (0) std::cout
+#define trace dout
 #endif
 
 namespace spot
@@ -317,7 +319,31 @@ namespace spot
 
 #if DEBUG
       debug_dict = ref->get_dict();
+      dout << "ref_size: " << ref_size << "\n";
+      dout << "cand_size: " << d.cand_size << "\n";
 #endif
+
+      // dout << "symmetry-breaking clauses\n";
+      // int k = 1;
+      // bdd all = bddtrue;
+      // while (all != bddfalse)
+      // 	{
+      // 	  bdd s = bdd_satoneset(all, ap, bddfalse);
+      // 	  all -= s;
+      // 	  for (int q1 = 1; q1 < d.cand_size; ++q1)
+      // 	    for (int q2 = q1 + 2; q2 <= d.cand_size; ++q2)
+      // 	      if ((q1 - 1) * d.cand_size + q2 + 2 <= k)
+      // 		{
+      // 		  transition t(q1, s, q2);
+      // 		  int ti = d.transid[t];
+      // 		  dout << "¬" << t << "\n";
+      // 		  out << -ti << " 0\n";
+      // 		  ++nclauses;
+      // 		}
+      // 	  ++k;
+      // 	}
+      // if (!nclauses)
+      // 	dout << "(none)\n";
 
       dout << "(1) the candidate automaton is complete\n";
       for (int q1 = 1; q1 <= d.cand_size; ++q1)
@@ -712,86 +738,89 @@ namespace spot
   }
 
   tgba_explicit_number*
-  dtba_sat_minimize(const tgba* a, int target_state_number,
-		    bool state_based)
+  dtba_sat_synthetize(const tgba* a, int target_state_number,
+		      bool state_based)
   {
-    int ref_states =
-      target_state_number == -1
-      ? stats_reachable(a).states - 1
-      : target_state_number;
-
-    std::string current_solution;
-    std::string last_solution;
-    dict* last = 0;
+    trace << "dtba_sat_synthetize(..., states = " << target_state_number
+	  << ", state_based = " << state_based << ")\n";
+    std::string solution;
     dict* current = 0;
     temporary_file* cnf = 0;
     temporary_file* out = 0;
 
-    do
-      {
-	if (DEBUG && current)
-	  {
-	    xrename(out->name(), "dtba-sat.out");
-	    xrename(cnf->name(), "dtba-sat.cnf");
-	  }
-	delete out;
-	delete cnf;
-	std::swap(current_solution, last_solution);
-	delete last;
-	last = current;
-	current = new dict;
-	current->cand_size = ref_states--;
+    current = new dict;
+    current->cand_size = target_state_number;
 
-	cnf = create_tmpfile("dtba-sat-", ".cnf");
+    cnf = create_tmpfile("dtba-sat-", ".cnf");
+    std::fstream cnfs(cnf->name(),
+		      std::ios_base::trunc | std::ios_base::out);
+    dtba_to_sat(cnfs, a, *current, state_based);
+    cnfs.close();
 
-	std::fstream cnfs(cnf->name(),
-			  std::ios_base::trunc | std::ios_base::out);
-	dtba_to_sat(cnfs, a, *current, state_based);
-	cnfs.close();
+    out = create_tmpfile("dtba-sat-", ".out");
+    satsolver(cnf, out);
 
-	out = create_tmpfile("dtba-sat-", ".out");
-	satsolver(cnf, out);
-	current_solution = get_solution(out->name());
-      }
-    while (target_state_number == -1 && !current_solution.empty());
+    solution = get_solution(out->name());
 
-    if (target_state_number != -1)
-      {
-	std::swap(current_solution, last_solution);
-	if (last_solution.empty())
-	  {
-	    last = 0;
-	    delete current;
-	  }
-	else
-	  {
-	    last = current;
-	  }
-      }
-    else
-      {
-	delete current;
-      }
+    tgba_explicit_number* res = 0;
+    if (!solution.empty())
+      res = sat_build(solution, *current, a, state_based);
 
-    tgba_explicit_number* res;
-    if (last == 0)
+    delete current;
+
+    if (DEBUG)
       {
-	res = 0;
-	if (DEBUG)
-	  {
-	    xrename(out->name(), "dtba-sat.out");
-	    xrename(cnf->name(), "dtba-sat.cnf");
-	  }
-      }
-    else
-      {
-	res = sat_build(last_solution, *last, a, state_based);
-	delete last;
+	xrename(out->name(), "dtba-sat.out");
+	xrename(cnf->name(), "dtba-sat.cnf");
       }
 
     delete out;
     delete cnf;
+    trace << "dtba_sat_synthetize(...) = " << res << "\n";
     return res;
   }
 
+  tgba_explicit_number*
+  dtba_sat_minimize(const tgba* a, bool state_based)
+  {
+    int n_states = stats_reachable(a).states;
+
+    tgba_explicit_number* prev = 0;
+    for (;;)
+      {
+	tgba_explicit_number* next =
+	  dtba_sat_synthetize(prev ? prev : a, --n_states, state_based);
+	if (next == 0)
+	  break;
+	delete prev;
+	prev = next;
+      }
+    return prev;
+  }
+
+  tgba_explicit_number*
+  dtba_sat_minimize_dichotomy(const tgba* a, bool state_based)
+  {
+    int max_states = stats_reachable(a).states - 1;
+    int min_states = 1;
+
+    tgba_explicit_number* prev = 0;
+    while (min_states <= max_states)
+      {
+	int target = (max_states + min_states) / 2;
+	tgba_explicit_number* next =
+	  dtba_sat_synthetize(prev ? prev : a, target, state_based);
+	if (next == 0)
+	  {
+	    min_states = target + 1;
+	  }
+	else
+	  {
+	    delete prev;
+	    prev = next;
+	    max_states = target - 1;
+	  }
+      }
+    return prev;
+  }
 }

@@ -51,15 +51,24 @@ namespace spot
 	scc_filter_ = opt->get("scc-filter", -1);
 	ba_simul_ = opt->get("ba-simul", -1);
 	tba_determinisation_ = opt->get("tba-det", 0);
-	dtba_sat_minimize_ = opt->get("dtba-sat-minimize", -1);
-	dtgba_sat_minimize_ = opt->get("dtgba-sat-minimize", -1);
-	dtgba_sat_minimize_acc_ = opt->get("dtgba-sat-minimize-acc", -1);
-	if (dtgba_sat_minimize_ >= 0 && dtgba_sat_minimize_acc_ == -1)
-	  dtgba_sat_minimize_acc_ = 0;
-	if (dtgba_sat_minimize_ == -1 && dtgba_sat_minimize_acc_ >= 0)
-	  dtgba_sat_minimize_ = 0;
+	sat_minimize_ = opt->get("sat-minimize", 0);
+	sat_states_ = opt->get("sat-states", 0);
+	sat_acc_ = opt->get("sat-acc", 0);
 	state_based_ = opt->get("state-based", 0);
 	wdba_minimize_ = opt->get("wdba-minimize", 1);
+
+	if (sat_acc_ && sat_minimize_ == 0)
+	  sat_minimize_ = 1;	// 2?
+	if (sat_states_ && sat_minimize_ == 0)
+	  sat_minimize_ = 1;
+	if (sat_minimize_)
+	  {
+	    tba_determinisation_ = 1;
+	    if (sat_acc_ <= 0)
+	      sat_acc_ = -1;
+	    if (sat_states_ <= 0)
+	      sat_states_ = -1;
+	  }
       }
   }
 
@@ -128,6 +137,8 @@ namespace spot
       ba_simul_ = (level_ == High) ? 3 : 0;
     if (scc_filter_ < 0)
       scc_filter_ = 1;
+    if (type_ == BA)
+      state_based_ = true;
 
     // Remove useless SCCs.
     if (type_ == Monitor)
@@ -198,6 +209,7 @@ namespace spot
     bool dba_is_minimal = false;
     const tgba* dba = 0;
     const tgba* sim = 0;
+    int original_acc = a->number_of_acceptance_conditions();
 
     // (Small,Low) is the only configuration where we do not run
     // WDBA-minimization.
@@ -287,56 +299,60 @@ namespace spot
     // that case dba_is_wdba=true), or some deterministic automaton
     // that is either the result of the simulation or of the
     // TBA-determinization (dba_is_wdba=false in both cases).
-
-    // Attempt SAT-minimization if requested.
-    if (dtba_sat_minimize_ >= 0 && dba && !dba_is_wdba)
+    if (sat_minimize_ && dba && !dba_is_wdba)
       {
-	// This only work on deterministic TBA, so degeneralize
-	// if needed.
-	const tgba* tmpd = 0;
-	if (dba->number_of_acceptance_conditions() != 1)
+	unsigned target_acc;
+	if (type_ == BA)
+	  target_acc = 1;
+	else if (sat_acc_ != -1)
+	  target_acc = sat_acc_;
+	else
+	  // Take the number of acceptance conditions from the input
+	  // automaton, not from dba, because dba has always one.
+	  target_acc = original_acc;
+
+	const tgba* in = 0;
+	const tgba* to_free = 0;
+	if (target_acc == 1)
 	  {
 	    // If we are seeking a minimal DBA with unknown number of
 	    // states, then we should start from the degeneralized,
 	    // because the input TBA might be smaller.
-	    if (state_based_ && dtba_sat_minimize_ == 0)
-	      tmpd = degeneralize(dba);
+	    if (state_based_)
+	      to_free = in = degeneralize(dba);
+	    else if (dba->number_of_acceptance_conditions() != 1)
+	      to_free = in = new tgba_tba_proxy(dba);
 	    else
-	      tmpd = new tgba_tba_proxy(dba);
+	      in = dba;
 	  }
-
-	const tgba* in = tmpd ? tmpd : dba;
+	else
+	  {
+	    in = dba;
+	  }
 
 	const tgba* cmp = tgba_complete(in);
-	const tgba* res = dtba_sat_minimize(cmp,
-					    dtba_sat_minimize_ == 0
-					    ? -1 : dtba_sat_minimize_,
-					    state_based_);
-	delete cmp;
-	delete tmpd;
-	if (res != 0)
+	const tgba* res = 0;
+	if (target_acc == 1)
 	  {
-	    delete dba;
-	    if (state_based_)
-	      dba = scc_filter_states(res);
-	    else
-	      dba = scc_filter(res, true);
-	    delete res;
-	    dba_is_minimal = true;
+	    if (sat_states_ != -1)
+	      res = dtba_sat_synthetize(cmp, sat_states_, state_based_);
+	    else if (sat_minimize_ == 1)
+	      res = dtba_sat_minimize(cmp, state_based_);
+	    else  // sat_minimize_ == 2
+	      res = dtba_sat_minimize_dichotomy(cmp, state_based_);
 	  }
-      }
-    else if (dtgba_sat_minimize_ >= 0 && dba && !dba_is_wdba)
-      {
-	const tgba* cmp = tgba_complete(dba);
-	const tgba* res =
-	  dtgba_sat_minimize(cmp,
-			     dtgba_sat_minimize_acc_
-			     ? dtgba_sat_minimize_acc_
-			     : dba->number_of_acceptance_conditions(),
-			     dtgba_sat_minimize_ == 0
-			     ? -1 : dtgba_sat_minimize_,
-			     state_based_);
+	else
+	  {
+	    if (sat_states_ != -1)
+	      res = dtgba_sat_synthetize(cmp, target_acc, sat_states_,
+					 state_based_);
+	    else if (sat_minimize_ == 1)
+	      res = dtgba_sat_minimize(cmp, target_acc, state_based_);
+	    else  // sat_minimize_ == 2
+	      res = dtgba_sat_minimize_dichotomy(cmp, target_acc, state_based_);
+	  }
 	delete cmp;
+	delete to_free;
 	if (res != 0)
 	  {
 	    delete dba;
@@ -353,10 +369,11 @@ namespace spot
 	  }
       }
 
-
-    // Degeneralize the dba resulting from tba-determinization
-    // or sat-minimization (which is a TBA) if requested.
-    if (dba && !dba_is_wdba && type_ == BA)
+    // Degeneralize the dba resulting from tba-determinization or
+    // sat-minimization (which is a TBA) if requested and needed.
+    if (dba && !dba_is_wdba && type_ == BA
+	&& !(dba_is_minimal && state_based_
+	     && dba->number_of_acceptance_conditions() == 1))
       {
 	const tgba* d = degeneralize(dba);
 	delete dba;

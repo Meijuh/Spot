@@ -1528,7 +1528,7 @@ main(int argc, char** argv)
       if (opt_dtbasat >= 0)
 	{
 	  tm.start("dtbasat");
-	  satminimized = dtba_sat_minimize(a, opt_dtbasat);
+	  satminimized = dtba_sat_synthetize(a, opt_dtbasat);
 	  tm.stop("dtbasat");
 	  if (satminimized)
 	    a = satminimized;

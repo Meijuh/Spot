@@ -20,36 +20,54 @@
 #ifndef SPOT_TGBAALGOS_DTGBASAT_HH
 # define SPOT_TGBAALGOS_DTGBASAT_HH
 
-#include <iosfwd>
-#include "tgba/tgba.hh"
 #include "tgba/tgbaexplicit.hh"
 
 namespace spot
 {
-  /// \brief Attempt to reduce a deterministic TGBA with a SAT solver.
+  /// \brief Attempt to synthetize am equivalent deterministic TGBA
+  /// with a SAT solver.
   ///
-  /// \param a the TGBA to reduce.  It should have only one acceptance
-  ///  set and be deterministic.  I.e., it should be a deterministic TBA.
+  /// \param a the input TGBA.  It should be a deterministic TGBA.
   ///
-  /// \param cand_nacc is the number of acceptance sets in the result.
+  /// \param target_acc_number is the number of acceptance sets wanted
+  /// in the result.
+  ///
+  /// \param target_state_number is the desired number of states in
+  /// the result.  The output may have less than \a
+  /// target_state_number reachable states.
   ///
   /// \param state_based set to true to force all outgoing transitions
   /// of a state to share the same acceptance conditions, effectively
   /// turning the TGBA into a TBA.
   ///
-  /// \param target_state_number the expected number of states wanted
-  /// in the resulting automaton.  If \a target_state_number is left
-  /// to its default value of -1, this function will attempt to build
-  /// the smallest possible deterministic TGBA is can produce.
-  ///
-  /// This functions attempts to find a TGBA with \a cand_nacc
+  /// This functions attempts to find a TGBA with \a target_acc_number
   /// acceptance sets and target_state_number states that is
   /// equivalent to \a a.  If no such TGBA is found, a null pointer is
   /// returned.
   SPOT_API tgba_explicit_number*
-  dtgba_sat_minimize(const tgba* a, unsigned cand_nacc,
-		     int target_state_number = -1,
+  dtgba_sat_synthetize(const tgba* a, unsigned target_acc_number,
+		       int target_state_number,
+		       bool state_based = false);
+
+  /// \brief Attempt to minimize a deterministic TGBA with a SAT solver.
+  ///
+  /// This calls dtgba_sat_synthetize() in a loop, with a decreasing
+  /// number of states, and returns the last successfully built TGBA.
+  ///
+  /// If no smaller TGBA exist, this returns a null pointer.
+  SPOT_API tgba_explicit_number*
+  dtgba_sat_minimize(const tgba* a, unsigned target_acc_number,
 		     bool state_based = false);
+
+  /// \brief Attempt to minimize a deterministic TGBA with a SAT solver.
+  ///
+  /// This calls dtgba_sat_synthetize() in a loop, but attempting to
+  /// find the minimum number of states using a binary search.
+  //
+  /// If no smaller TBA exist, this returns a null pointer.
+  SPOT_API tgba_explicit_number*
+  dtgba_sat_minimize_dichotomy(const tgba* a, unsigned target_acc_number,
+			       bool state_based = false);
 }
 
 #endif // SPOT_TGBAALGOS_DTGBASAT_HH
