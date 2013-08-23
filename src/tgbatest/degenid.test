@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2011 Laboratoire de Recherche et Développement
+# Copyright (C) 2011, 2013 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -36,3 +36,32 @@ for f in 'FGa|GFb' 'GFa & GFb & GFc' 'GF(a->FGb)&GF(c->FGd)'; do
     done
   done
 done
+
+
+# This is another 6-state degeneralized automaton that
+# we used the "redegeneralize" to a 8-state BA...
+cat > bug <<EOF
+acc = "1";
+"1", "2", "!b | !a", "1";
+"1", "5", "a & b", "1";
+"2", "2", "b & !a", "1";
+"2", "3", "!b & !a", "1";
+"2", "4", "a", "1";
+"5", "1", "a & !b",;
+"5", "2", "!b & !a",;
+"5", "5", "a & b",;
+"5", "6", "b & !a",;
+"3", "1", "a & b",;
+"3", "2", "b & !a",;
+"3", "3", "!b & !a",;
+"3", "4", "a & !b",;
+"4", "1", "b",;
+"4", "5", "a & !b",;
+"4", "6", "!b & !a",;
+"6", "1", "!b",;
+"6", "3", "b & !a",;
+"6", "4", "a & b",;
+EOF
+
+run 0 ../ltl2tgba -ks -X -DS bug > out
+grep 'states: 6' out

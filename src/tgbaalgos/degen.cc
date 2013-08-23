@@ -188,8 +188,7 @@ namespace spot
 
         acc = temp;
         unsigned next = slevel;
-        while (next < order_.size()
-               && (acc & order_[next]) == order_[next])
+        while (next < order_.size() && bdd_implies(order_[next], acc))
           ++next;
         return next;
       }
@@ -314,8 +313,8 @@ namespace spot
     const state* s0 = uniq(a->get_init_state());
     degen_state s(s0, 0);
 
-    // As an heuristic, if the initial state has accepting self-loops,
-    // start the degeneralization on the accepting level.
+    // As an heuristic, if the initial state at least one accepting
+    // self-loop, start the degeneralization on the accepting level.
     {
       bdd all = a->all_acceptance_conditions();
       tgba_succ_iterator* it = a->succ_iter(s0);
@@ -335,6 +334,18 @@ namespace spot
         }
       delete it;
     }
+    // Otherwise, check for acceptance conditions common to all
+    // outgoing transitions, and assume we have already seen these and
+    // start on the associated level.
+    if (s.second == 0)
+      {
+	bdd acc = outgoing.common_acc(s.first);
+	if (use_cust_acc_orders)
+	  s.second = orders.next_level(m.initial(), s.second, acc);
+	else
+	  while (s.second < order.size() && bdd_implies(order[s.second], acc))
+	    ++s.second;
+      }
 
 #ifdef DEGEN_DEBUG
     std::map<const state*, int>names;
@@ -426,7 +437,7 @@ namespace spot
                 //    1=>1, 1=>2, 2->2, 2->1 This is already an SBA,
                 //    with 1 as accepting state.  However if you try
                 //    degeralize it without ignoring *prev, you'll get
-                //    two copies of states 2, depending on whether we
+                //    two copies of state 2, depending on whether we
                 //    reach it using 1=>2 or from 2->2.  If this
                 //    example was not clear, uncomment the following
                 //    "if" block, and play with the "degenid.test"
@@ -485,7 +496,7 @@ namespace spot
                   }
                 else
                   {
-                  // If using custom acc orders, get next level for this scc
+		    // If using custom acc orders, get next level for this scc
                     if (use_cust_acc_orders)
                       d.second = orders.next_level(scc, next, acc);
                     // Else compute level according the global acc order
@@ -495,7 +506,7 @@ namespace spot
                         // acceptance sets common to the outgoing transitions of
                         // the destination state.
                         while (next < order.size()
-                               && (acc & order[next]) == order[next])
+			       && bdd_implies(order[next], acc))
                           ++next;
 
                         d.second = next;

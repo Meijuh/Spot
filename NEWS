@@ -14,6 +14,9 @@ New in spot 1.1.4a (not relased)
     temporary files are created and if they should be erased.  Read
     the man page of ltlcross for detail.
 
+  * Degeneralization was not indempotant on automata with an accepting
+    initial state that was on a cycle, but without self-loop.
+
   * Cleanup of exported symbols
 
     All symbols in the library now have hidden visibility on ELF systems.
