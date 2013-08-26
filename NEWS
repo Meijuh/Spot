@@ -15,10 +15,10 @@ New in spot 1.1.4a (not relased)
         ltlcross 'ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-s %L %D'
 
       However because Spot only supports Büchi acceptance, these Rabin
-      and Streett automata are immediately converted to TGBA before
+      and Streett automata are immediately converted to TGBAs before
       further processing by ltlcross.  This is still interesting to
       search for bugs in translators to Rabin or Streett automata, but
-      the statistics might not be very relevant.
+      the statistics (of the resulting TGBAs) might not be very relevant.
 
     - When ltlcross obtains a deterministic automaton from a
       translator it will now complement this automaton to perform
@@ -66,31 +66,110 @@ New in spot 1.1.4a (not relased)
       default.  See the spot-x(7) man page for documentation about the
       related options: sat-minimize, sat-states, sat-acc, state-based.
 
-  * All the parsers implemented in Spot now use the same type
-    to store locations.
+  * New functions and classes in the library:
 
-  * Degeneralization was not indempotant on automata with an accepting
-    initial state that was on a cycle, but without self-loop.
+    - dtba_sat_synthetize(): Use a SAT-solver to build an equivalent
+      deterministic TBA with a fixed number of states.
 
-  * Cleanup of exported symbols
+    - dtba_sat_minimize(), dtba_sat_minimize_dichotomy(): Iterate
+      dtba_sat_synthetize() to reduce the number of states of a TBA.
 
-    All symbols in the library now have hidden visibility on ELF systems.
-    Public classes and functions have been marked explicitely for export
-    with the SPOT_API macro.
+    - dtgba_sat_synthetize(), dtgba_sat_minimize(),
+      dtgba_sat_minimize_dichotomy(): Likewise, for deterministic TGBA.
 
-    During this massive update, some of functions that should not have
-    been made public in the first place have been moved away so that
-    they can only be used from the library.  Some old of unused
-    functions have been removed.
+    - is_complete(): Check whether a TGBA is complete.
 
-    removed:
-      - class loopless_modular_mixed_radix_gray_code
+    - tgba_complete(): Complete an automaton by adding a sink state
+      if needed.
 
-    hidden:
-      - class acc_compl
-      - class acceptance_convertor
-      - class bdd_allocator
-      - class free_list
+    - dtgba_complement(): Complement a deterministic TGBA.
+
+    - satsolver(): Run an (external) SAT solver, honoring the
+      SPOT_SATSOLVER environment variable if set.
+
+    - tba_determinize(): Run a power-set construction, and attempt
+      to fix the acceptance simulation to build a deterministic TBA.
+
+    - dstar_parse(): Read a Streett or Rabin automaton in
+      ltl2dstar's format.  Note that this format allows only
+      deterministic automata.
+
+    - nra_to_nba(): Convert a (possibly non-deterministic) Rabin
+      automaton to a non-deterministic Büchi automaton.
+
+    - dra_to_ba(): Convert a deterministic Rabin automaton to a Büchi
+      automaton, preserving acceptance in all SCCs where this is possible.
+
+    - nsa_to_tgba(): Convert a (possibly non-deterministic) Streett
+      automaton to a non-deterministic TGBA.
+
+    - dstar_to_tgba(): Convert any automaton returned by dstar_parse()
+      into a TGBA.
+
+    - build_tgba_mask_keep(): Build a masked TGBA that shows only
+      a subset of states of another TGBA.
+
+    - build_tgba_mask_ignore(): Build a masked TGBA that ignore
+      a subset of states of another TGBA.
+
+    - class tgba_proxy: Helps writing on-the-fly algorithms that
+      delegate most of their methods to the original automaton.
+
+    - class bitvect: A dynamic bit vector implementation.
+
+    - class word: An infinite word, stored as prefix + cycle, with a
+      simplify() methods to simplify cycle and prefix in obvious ways.
+
+    - class temporary_file: A temporary file.  Can be instanciated with
+      create_tmp_file() or create_open_tmpfile().
+
+    - count_state(): Return the number of states of a TGBA.  Implement
+      a couple of specializations for classes where is can be know
+      without exploration.
+
+  * Noteworthy internal changes:
+
+    - When minimize_obligation() is not given the formula associated
+      to the input automaton, but that automaton is deterministic, it
+      can still attempt to call minimize_wdba() and check the correcteness
+      using dtgba_complement().
+
+    - tgba_reachable_iterator_depth_first has been redesigned to
+      effectively perform a DFS.  As a consequence, it does not
+      inherit anymore from tgba_reachable_iterator.
+
+    - All the parsers implemented in Spot now use the same type to
+      store locations.
+
+    - Cleanup of exported symbols
+
+      All symbols in the library now have hidden visibility on ELF systems.
+      Public classes and functions have been marked explicitely for export
+      with the SPOT_API macro.
+
+      During this massive update, some of functions that should not have
+      been made public in the first place have been moved away so that
+      they can only be used from the library.  Some old of unused
+      functions have been removed.
+
+      removed:
+	- class loopless_modular_mixed_radix_gray_code
+
+      hidden:
+	- class acc_compl
+	- class acceptance_convertor
+	- class bdd_allocator
+	- class free_list
+
+  * Bug fixes:
+
+    - Degeneralization was not indempotant on automata with an
+      accepting initial state that was on a cycle, but without
+      self-loop.
+
+    - Configuring with --enable-optimization would reset the value of
+      CXXFLAGS.
+
 
 New in spot 1.1.4 (2013-07-29)
 
