@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "dbacomp.hh"
+#include "dtgbacomp.hh"
 #include "ltlast/constant.hh"
 #include "reachiter.hh"
 
@@ -26,7 +26,7 @@ namespace spot
 
   namespace
   {
-    class dbacomp_iter: public tgba_reachable_iterator_depth_first_stack
+    class dtgbacomp_iter: public tgba_reachable_iterator_depth_first_stack
     {
       bdd orig_acc_;
       bdd all_neg_;
@@ -37,7 +37,7 @@ namespace spot
 
       typedef state_explicit_number::transition trans;
     public:
-      dbacomp_iter(const tgba* a)
+      dtgbacomp_iter(const tgba* a)
 	: tgba_reachable_iterator_depth_first_stack(a),
 	  dict_(a->get_dict()),
 	  out_(new tgba_explicit_number(dict_))
@@ -162,9 +162,9 @@ namespace spot
 
   } // anonymous
 
-  tgba_explicit_number* dba_complement(const tgba* aut)
+  tgba_explicit_number* dtgba_complement(const tgba* aut)
   {
-    dbacomp_iter dci(aut);
+    dtgbacomp_iter dci(aut);
     dci.run();
     return dci.result();
   }

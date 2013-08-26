@@ -70,7 +70,7 @@
 #include "tgbaalgos/simulation.hh"
 #include "tgbaalgos/compsusp.hh"
 #include "tgbaalgos/powerset.hh"
-#include "tgbaalgos/dbacomp.hh"
+#include "tgbaalgos/dtgbacomp.hh"
 #include "tgbaalgos/complete.hh"
 #include "tgbaalgos/dtbasat.hh"
 #include "tgbaalgos/dtgbasat.hh"
@@ -396,7 +396,7 @@ main(int argc, char** argv)
   bool opt_determinize = false;
   unsigned opt_determinize_threshold = 0;
   unsigned opt_o_threshold = 0;
-  bool opt_dbacomp = false;
+  bool opt_dtgbacomp = false;
   bool reject_bigger = false;
   bool opt_bisim_ta = false;
   bool opt_monitor = false;
@@ -487,7 +487,7 @@ main(int argc, char** argv)
 	}
       else if (!strcmp(argv[formula_index], "-DC"))
 	{
-	  opt_dbacomp = true;
+	  opt_dtgbacomp = true;
 	}
       else if (!strncmp(argv[formula_index], "-DS", 3))
 	{
@@ -1543,11 +1543,11 @@ main(int argc, char** argv)
 	}
 
       spot::tgba* complemented = 0;
-      if (opt_dbacomp)
+      if (opt_dtgbacomp)
 	{
-	  tm.start("DBA complement");
-	  a = complemented = dba_complement(a);
-	  tm.stop("DBA complement");
+	  tm.start("DTGBA complement");
+	  a = complemented = dtgba_complement(a);
+	  tm.stop("DTGBA complement");
 	}
 
       if (complemented || satminimized || determinized)

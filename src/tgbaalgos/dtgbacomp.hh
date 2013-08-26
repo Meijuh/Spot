@@ -17,21 +17,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_DBACOMP_HH
-# define SPOT_TGBAALGOS_DBACOMP_HH
+#ifndef SPOT_TGBAALGOS_DTGBACOMP_HH
+# define SPOT_TGBAALGOS_DTGBACOMP_HH
 
 #include "tgba/tgbaexplicit.hh"
 
 namespace spot
 {
-  /// \brief Complement a deterministic Büchi automaton
+  /// \brief Complement a deterministic TGBA
   ///
   /// The automaton \a aut should be deterministic.  It does no need
   /// to be complete.  Acceptance can be transition-based, or
   /// state-based.  The resulting automaton is very unlikely to be
   /// deterministic.
   SPOT_API tgba_explicit_number*
-  dba_complement(const tgba* aut);
+  dtgba_complement(const tgba* aut);
 }
 
-#endif // SPOT_TGBAALGOS_DBACOMP_HH
+#endif // SPOT_TGBAALGOS_DTGBACOMP_HH

@@ -53,7 +53,7 @@
 #include "tgbaalgos/isweakscc.hh"
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaalgos/word.hh"
-#include "tgbaalgos/dbacomp.hh"
+#include "tgbaalgos/dtgbacomp.hh"
 #include "misc/formater.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
@@ -1105,7 +1105,7 @@ namespace
 	  if (!no_complement && pos[n]
 	      && ((want_stats && !(*pstats)[n].nondeterministic)
 		  || (!want_stats && is_deterministic(pos[n]))))
-	    comp_pos[n] = dba_complement(pos[n]);
+	    comp_pos[n] = dtgba_complement(pos[n]);
 	}
 
       // ---------- Negative Formula ----------
@@ -1143,7 +1143,7 @@ namespace
 	      if (!no_complement && neg[n]
 		  && ((want_stats && !(*nstats)[n].nondeterministic)
 		      || (!want_stats && is_deterministic(neg[n]))))
-		comp_neg[n] = dba_complement(neg[n]);
+		comp_neg[n] = dtgba_complement(neg[n]);
 	    }
 	  nf->destroy();
 	}

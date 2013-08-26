@@ -47,7 +47,7 @@
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/bfssteps.hh"
 #include "tgbaalgos/isdet.hh"
-#include "tgbaalgos/dbacomp.hh"
+#include "tgbaalgos/dtgbacomp.hh"
 #include "priv/countstates.hh"
 
 namespace spot
@@ -672,7 +672,7 @@ namespace spot
 	  {
 	    // If the automaton is deterministic, complementing is
 	    // easy.
-	    to_free = aut_neg_f = dba_complement(aut_f);
+	    to_free = aut_neg_f = dtgba_complement(aut_f);
 	  }
 	else
 	  {

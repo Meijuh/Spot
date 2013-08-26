@@ -33,7 +33,7 @@ tgbaalgos_HEADERS = \
   compsusp.hh \
   cutscc.hh \
   cycles.hh \
-  dbacomp.hh \
+  dtgbacomp.hh \
   degen.hh \
   dottydec.hh \
   dotty.hh \
@@ -82,7 +82,7 @@ libtgbaalgos_la_SOURCES = \
   compsusp.cc \
   cutscc.cc \
   cycles.cc \
-  dbacomp.cc \
+  dtgbacomp.cc \
   degen.cc \
   dotty.cc \
   dottydec.cc \

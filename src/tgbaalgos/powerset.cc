@@ -36,7 +36,7 @@
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgbaalgos/dbacomp.hh"
+#include "tgbaalgos/dtgbacomp.hh"
 #include "ltlast/unop.hh"
 
 namespace spot
@@ -382,7 +382,7 @@ namespace spot
 	delete p;
 
 	// Complement the DBA.
-	tgba* neg_det = dba_complement(det);
+	tgba* neg_det = dtgba_complement(det);
 
 	tgba* p = new tgba_product(aut, neg_det);
 	emptiness_check* ec = couvreur99(p);
