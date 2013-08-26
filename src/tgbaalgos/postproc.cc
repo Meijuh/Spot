@@ -126,9 +126,12 @@ namespace spot
     return s;
   }
 
+#define PREF_ (pref_ & (Small | Deterministic))
+#define COMP_ (pref_ & Complete)
+
   const tgba* postprocessor::run(const tgba* a, const ltl::formula* f)
   {
-    if (type_ == TGBA && pref_ == Any && level_ == Low)
+    if (type_ == TGBA && PREF_ == Any && level_ == Low)
       return a;
 
     if (simul_ < 0)
@@ -143,7 +146,7 @@ namespace spot
     // Remove useless SCCs.
     if (type_ == Monitor)
       {
-	// Do not bother about acceptance conditions, they we be
+	// Do not bother about acceptance conditions, they will be
 	// ignored.
 	const tgba* s = scc_filter_states(a);
 	delete a;
@@ -158,7 +161,7 @@ namespace spot
 
     if (type_ == Monitor)
       {
-	if (pref_ == Deterministic)
+	if (PREF_ == Deterministic)
 	  {
 	    const tgba* m = minimize_monitor(a);
 	    delete a;
@@ -170,7 +173,7 @@ namespace spot
 	    delete a;
 	    a = m;
 	  }
-	if (pref_ == Any)
+	if (PREF_ == Any)
 	  return a;
 
 	const tgba* sim = do_simul(a, simul_);
@@ -189,16 +192,22 @@ namespace spot
 	if (count_states(m) > count_states(sim))
 	  {
 	    delete m;
-	    return sim;
 	  }
 	else
 	  {
 	    delete sim;
-	    return m;
+	    sim = m;
 	  }
+	if (COMP_ == Complete)
+	  {
+	    const tgba* s = tgba_complete(sim);
+	    delete sim;
+	    sim = s;
+	  }
+	return sim;
       }
 
-    if (pref_ == Any)
+    if (PREF_ == Any)
       {
 	if (type_ == BA)
 	  a = do_degen(a);
@@ -213,9 +222,9 @@ namespace spot
 
     // (Small,Low) is the only configuration where we do not run
     // WDBA-minimization.
-    if ((pref_ != Small || level_ != Low) && wdba_minimize_)
+    if ((PREF_ != Small || level_ != Low) && wdba_minimize_)
       {
-	bool reject_bigger = (pref_ == Small) && (level_ == Medium);
+	bool reject_bigger = (PREF_ == Small) && (level_ == Medium);
 	dba = minimize_obligation(a, f, 0, reject_bigger);
 	if (dba == a)	// Minimization failed.
 	  dba = 0;
@@ -226,7 +235,7 @@ namespace spot
 
     // Run a simulation when wdba failed (or was not run), or
     // at hard levels if we want a small output.
-    if (!dba || (level_ == High && pref_ == Small))
+    if (!dba || (level_ == High && PREF_ == Small))
       {
 	sim = do_simul(a, simul_);
 
@@ -254,7 +263,7 @@ namespace spot
     if (tba_determinisation_ && !dba)
       {
 	const tgba* tmpd = 0;
-	if (pref_ == Deterministic
+	if (PREF_ == Deterministic
 	    && f
 	    && f->is_syntactic_recurrence()
 	    && sim->number_of_acceptance_conditions() > 1)
@@ -275,8 +284,8 @@ namespace spot
 	// may up it if you want to try producing larger automata.
 	const tgba* tmp =
 	  tba_determinize_check(in,
-				(pref_ == Small) ? 2 : 8,
-				1 << ((pref_ == Small) ? 13 : 15),
+				(PREF_ == Small) ? 2 : 8,
+				1 << ((PREF_ == Small) ? 13 : 15),
 				f);
 	if (tmp != 0 && tmp != in)
 	  {
@@ -287,7 +296,7 @@ namespace spot
 	    delete tmp;
 	  }
 	delete tmpd;
-	if (dba && pref_ == Deterministic)
+	if (dba && PREF_ == Deterministic)
 	  {
 	    // disregard the result of the simulation.
 	    delete sim;
@@ -401,15 +410,26 @@ namespace spot
 	  {
 	    const tgba* s = scc_filter(dba, true);
 	    delete dba;
-	    return s;
+	    assert(!sim);
+	    dba = s;
 	  }
 	else if (sim)
 	  {
 	    const tgba* s = scc_filter(sim, true);
 	    delete sim;
-	    return s;
+	    assert(!dba);
+	    sim = s;
 	  }
       }
-    return dba ? dba : sim;
+
+    sim = dba ? dba : sim;
+
+    if (COMP_ == Complete)
+      {
+	const tgba* s = tgba_complete(sim);
+	delete sim;
+	sim = s;
+      }
+    return sim;
   }
 }

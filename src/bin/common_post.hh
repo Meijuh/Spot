@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -28,6 +28,7 @@ extern const struct argp post_argp;
 
 extern spot::postprocessor::output_type type;
 extern spot::postprocessor::output_pref pref;
+extern spot::postprocessor::output_pref comp;
 extern spot::postprocessor::optimization_level level;
 
 #endif // SPOT_BIN_COMMON_FINPUT_HH

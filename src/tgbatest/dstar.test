@@ -155,6 +155,8 @@ EOF
 
 diff expected stdout
 
+test "`../../bin/dstar2tgba -D dsa.dstar --stats '%s %t %p %d'`" = "2 5 0 0"
+test "`../../bin/dstar2tgba -DC dsa.dstar --stats '%s %t %p %d'`" = "3 8 1 0"
 
 
 
@@ -233,3 +235,5 @@ digraph G {
 EOF
 
 diff expected stdout
+
+test "`../../bin/dstar2tgba -D dra.dstar --stats '%s %t %p %d'`" = "3 12 1 1"

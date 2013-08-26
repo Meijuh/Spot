@@ -80,12 +80,19 @@ namespace spot
       {
 	// add a transition to a sink state if the state is not complete.
 	bdd all = bddtrue;
-	for (i->first(); !i->done(); i->next())
+	bdd acc = bddfalse;
+	i->first();
+	// In case the automaton use state-based acceptance, propagate
+	// the acceptance of the first transition to the one we add.
+	if (!i->done())
+	  acc = i->current_acceptance_conditions();
+	for (; !i->done(); i->next())
 	  all -= i->current_condition();
 	if (all != bddfalse)
 	  {
 	    trans* t = out_->create_transition(n, 0);
 	    t->condition = all;
+	    t->acceptance_conditions = acc | addacc_;
 	  }
       }
 

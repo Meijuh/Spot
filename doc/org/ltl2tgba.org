@@ -319,6 +319,8 @@ ltl2tgba --help | sed -n '/Translation intent:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :   -a, --any                  no preference
+:   -C, --complete             output a complete automaton (combine with other
+:                              intents)
 :   -D, --deterministic        prefer deterministic automata
 :       --small                prefer small automata (default)
 
@@ -472,6 +474,11 @@ $txt
 You can augment the number of terms in the disjunction to magnify the
 difference.  For N terms, the =--small= automaton has N+1 states,
 while the =--deterministic= automaton needs 2^N-1 states.
+
+Add the =--complete= option if you want to obtain a complete
+automaton, with a sink state capturing that rejected words that would
+not otherwise have a run in the output automaton.
+
 
 A last parameter that can be used to tune the translation is the amount
 of pre- and post-processing performed.  These two steps can be adjusted

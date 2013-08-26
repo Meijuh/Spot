@@ -274,6 +274,8 @@ dstar2tgba --help | sed -n '/Translation intent:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :   -a, --any                  no preference
+:   -C, --complete             output a complete automaton (combine with other
+:                              intents)
 :   -D, --deterministic        prefer deterministic automata
 :       --small                prefer small automata (default)
 
@@ -327,8 +329,8 @@ For instance here is a complex command that will
 
 The statistics displayed in this case are: =%S=, the number of states
 of the input (Rabin) automaton, =%s=, the number of states of the
-output (Büchi) automaton, and =%d=, whether the output automaton is
-deterministic or not.
+output (Büchi) automaton, =%d=, whether the output automaton is
+deterministic, and =%p= whether the automaton is complete.
 
 #+BEGIN_SRC sh :results verbatim :exports both
 randltl -n -1 --tree-size=10..15 a b c |
@@ -338,40 +340,42 @@ while read f; do
   echo "$f"
   ltlfilt -l -f "$f" |
   ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-sD - - |
-  dstar2tgba -B --stats='  DRA: %Sst.; BA: %sst.; det.? %d'
+  dstar2tgba -B --stats='  DRA: %Sst.; BA: %sst.; det.? %d; complete? %p'
 done
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
 F(a | !b)
-  DRA: 2st.; BA: 2st.; det.? 1
+  DRA: 2st.; BA: 2st.; det.? 1; complete? 1
 Fa | (Xc U (c & Xc))
-  DRA: 5st.; BA: 5st.; det.? 1
+  DRA: 5st.; BA: 5st.; det.? 1; complete? 1
 X(((!b & XGc) | (b & XF!c)) U (!a & ((!b & XGc) | (b & XF!c))))
-  DRA: 8st.; BA: 7st.; det.? 1
+  DRA: 8st.; BA: 7st.; det.? 1; complete? 0
 !b | !a
-  DRA: 3st.; BA: 2st.; det.? 1
+  DRA: 3st.; BA: 2st.; det.? 1; complete? 0
 F!a
-  DRA: 2st.; BA: 2st.; det.? 1
+  DRA: 2st.; BA: 2st.; det.? 1; complete? 1
 F(Ga R (b | Ga))
-  DRA: 10st.; BA: 10st.; det.? 0
+  DRA: 10st.; BA: 10st.; det.? 0; complete? 0
 !c U (!c & !a)
-  DRA: 3st.; BA: 2st.; det.? 1
+  DRA: 3st.; BA: 2st.; det.? 1; complete? 0
 !c | FGb
-  DRA: 4st.; BA: 5st.; det.? 0
+  DRA: 4st.; BA: 5st.; det.? 0; complete? 0
 G(c U a)
-  DRA: 4st.; BA: 3st.; det.? 1
+  DRA: 4st.; BA: 3st.; det.? 1; complete? 0
 c & Gb
-  DRA: 3st.; BA: 2st.; det.? 1
+  DRA: 3st.; BA: 2st.; det.? 1; complete? 0
 #+end_example
 
 An important point you should be aware of when comparing these numbers
 of states is that the deterministic automata produced by =ltl2dstar=
 are complete, while the automata produced by =dstar2tgba=
-(deterministic or not) are not complete.  This can explain a
-difference of one state (the "sink" state, which is not output by
-=dstar2tgba=).
+(deterministic or not) are not complete by default.  This can explain
+a difference of one state (the so called "sink" state).
+
+You can instruct =dstar2tgba= to output a complete automaton using the
+=--complete= option (or =-C= for short).
 
 ** Conversion from Rabin and Streett to TGBA
 

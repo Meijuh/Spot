@@ -373,7 +373,7 @@ main(int argc, char** argv)
     jobs.push_back(job("-", true));
 
   spot::postprocessor post(&extra_options);
-  post.set_pref(pref);
+  post.set_pref(pref | comp);
   post.set_type(type);
   post.set_level(level);
 

@@ -72,7 +72,17 @@ namespace spot
       type_ = type;
     }
 
-    enum output_pref { Any, Small, Deterministic };
+    enum
+    {
+      Any = 0,
+      Small = 1,
+      Deterministic = 2,
+      // 3 reserved for unambiguous
+      // Combine Complete as 'Small | Complete' or 'Deterministic | Complete'
+      Complete = 4
+    };
+    typedef int output_pref;
+
     void
     set_pref(output_pref pref)
     {
@@ -95,7 +105,7 @@ namespace spot
     const tgba* do_degen(const tgba* input);
 
     output_type type_;
-    output_pref pref_;
+    int pref_;
     optimization_level level_;
     // Fine-tuning options fetched from the option_map.
     bool degen_reset_;

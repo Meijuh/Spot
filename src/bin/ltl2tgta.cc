@@ -267,7 +267,7 @@ main(int argc, char** argv)
   spot::ltl::ltl_simplifier simpl(simplifier_options());
 
   spot::postprocessor postproc(&extra_options);
-  postproc.set_pref(pref);
+  postproc.set_pref(pref | comp);
   postproc.set_type(type);
   postproc.set_level(level);
 

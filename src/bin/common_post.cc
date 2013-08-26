@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,6 +23,7 @@
 
 spot::postprocessor::output_type type = spot::postprocessor::TGBA;
 spot::postprocessor::output_pref pref = spot::postprocessor::Small;
+spot::postprocessor::output_pref comp = spot::postprocessor::Any;
 spot::postprocessor::optimization_level level = spot::postprocessor::High;
 
 #define OPT_SMALL 1
@@ -37,6 +38,8 @@ static const argp_option options[] =
     { "small", OPT_SMALL, 0, 0, "prefer small automata (default)", 0 },
     { "deterministic", 'D', 0, 0, "prefer deterministic automata", 0 },
     { "any", 'a', 0, 0, "no preference", 0 },
+    { "complete", 'C', 0, 0, "output a complete automaton (combine "
+      "with other intents)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Optimization level:", 21 },
     { "low", OPT_LOW, 0, 0, "minimal optimizations (fast)", 0 },
@@ -54,6 +57,9 @@ parse_opt_post(int key, char*, struct argp_state*)
     {
     case 'a':
       pref = spot::postprocessor::Any;
+      break;
+    case 'C':
+      comp = spot::postprocessor::Complete;
       break;
     case 'D':
       pref = spot::postprocessor::Deterministic;

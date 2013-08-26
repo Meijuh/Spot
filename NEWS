@@ -58,13 +58,17 @@ New in spot 1.1.4a (not relased)
       number of seconds spent building the output automaton (excluding
       the time spent parsing the input).
 
-    - ltl2tgba and dstar2tgba can use a SAT-solver to minimize
-      deterministic automata.  Doing so is only needed on properties
-      that are stronger than obligations (for which our
+    - ltl2tgba, ltl2tgta, and dstar2tgba have a --complete option
+      to output complete automata.
+
+    - ltl2tgba, ltl2tgta, and dstar2tgba can use a SAT-solver to
+      minimize deterministic automata.  Doing so is only needed on
+      properties that are stronger than obligations (for which our
       WDBA-minimization procedure will return a minimimal
       deterministic automaton more efficiently) and is disabled by
       default.  See the spot-x(7) man page for documentation about the
       related options: sat-minimize, sat-states, sat-acc, state-based.
+
 
   * New functions and classes in the library:
 
@@ -137,6 +141,10 @@ New in spot 1.1.4a (not relased)
     - tgba_reachable_iterator_depth_first has been redesigned to
       effectively perform a DFS.  As a consequence, it does not
       inherit anymore from tgba_reachable_iterator.
+
+    - postproc::set_pref() was used to accept an argument among Any,
+      Small or Deterministic.  These can now be combined with Complete
+      as Any|Complete, Small|Complete, or Deterministic|Complete.
 
     - All the parsers implemented in Spot now use the same type to
       store locations.
