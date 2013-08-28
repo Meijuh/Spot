@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -27,6 +27,7 @@
 
 #define OPT_SPOT 1
 #define OPT_WRING 2
+#define OPT_LATEX 3
 
 output_format_t output_format = spot_output;
 bool full_parenth = false;
@@ -40,6 +41,7 @@ static const argp_option options[] =
     { "lbt", 'l', 0, 0, "output in LBT's syntax", -20 },
     { "wring", OPT_WRING, 0, 0, "output in Wring's syntax", -20 },
     { "utf8", '8', 0, 0, "output using UTF-8 characters", -20 },
+    { "latex", OPT_LATEX, 0, 0, "output using LaTeX macros", -20 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -62,6 +64,9 @@ parse_opt_output(int key, char*, struct argp_state*)
       break;
     case 's':
       output_format = spin_output;
+      break;
+    case OPT_LATEX:
+      output_format = latex_output;
       break;
     case OPT_SPOT:
       output_format = spot_output;
@@ -118,6 +123,9 @@ output_formula(const spot::ltl::formula* f, const char* filename, int linenum)
       break;
     case utf8_output:
       spot::ltl::to_utf8_string(f, std::cout, full_parenth);
+      break;
+    case latex_output:
+      spot::ltl::to_latex_string(f, std::cout, full_parenth);
       break;
     }
   // Make sure we abort if we can't write to std::cout anymore

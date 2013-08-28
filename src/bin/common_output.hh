@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -26,7 +26,7 @@
 #include "ltlast/formula.hh"
 
 enum output_format_t { spot_output, spin_output, utf8_output,
-		       lbt_output, wring_output };
+		       lbt_output, wring_output, latex_output };
 extern output_format_t output_format;
 extern bool full_parenth;
 

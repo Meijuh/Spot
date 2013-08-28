@@ -69,6 +69,10 @@ New in spot 1.1.4a (not relased)
       default.  See the spot-x(7) man page for documentation about the
       related options: sat-minimize, sat-states, sat-acc, state-based.
 
+    - ltlfilt, genltl, and randltl now have a --latex option to output
+      formulas in a way that its easier to embed in a LaTeX document.
+      Each operator is output as a command such as \U, \F, etc.
+      doc/tl/spotltl.sty gives one possible definition for each macro.
 
   * New functions and classes in the library:
 
@@ -130,6 +134,8 @@ New in spot 1.1.4a (not relased)
     - count_state(): Return the number of states of a TGBA.  Implement
       a couple of specializations for classes where is can be know
       without exploration.
+
+    - to_latex_string(): Output a formula using LaTeX syntax.
 
   * Noteworthy internal changes:
 

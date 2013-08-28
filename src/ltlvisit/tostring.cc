@@ -49,12 +49,12 @@ namespace spot
 	KR,
 	KW,
 	KM,
-	KEConcat,
-	KEConcatNext,
-	KEConcatMarked,
-	KEConcatMarkedNext,
-	KUConcat,
-	KUConcatNext,
+	KSeq,
+	KSeqNext,
+	KSeqMarked,
+	KSeqMarkedNext,
+	KTriggers,
+	KTriggersNext,
 	KNot,
 	KX,
 	KF,
@@ -66,6 +66,13 @@ namespace spot
 	KAndNLM,
 	KConcat,
 	KFusion,
+	KOpenSERE,
+	KCloseSERE,
+	KCloseBunop,
+	KStarBunop,
+	KPlusBunop,
+	KEqualBunop,
+	KGotoBunop,
       };
 
       const char* spot_kw[] = {
@@ -96,6 +103,13 @@ namespace spot
 	" & ",
 	";",
 	":",
+	"{",
+	"}",
+	"]",
+	"[*",
+	"[+]",
+	"[=",
+	"[->",
       };
 
       const char* spin_kw[] = {
@@ -126,6 +140,13 @@ namespace spot
 	" & ",			// not supported
 	";",			// not supported
 	":",			// not supported
+	"{",			// not supported
+	"}",			// not supported
+	"]",			// not supported
+	"[*",			// not supported
+	"[+]",			// not supported
+	"[=",			// not supported
+	"[->",			// not supported
       };
 
       const char* wring_kw[] = {
@@ -156,6 +177,13 @@ namespace spot
 	" & ",			// not supported
 	";",			// not supported
 	":",			// not supported
+	"{",			// not supported
+	"}",			// not supported
+	"]",			// not supported
+	"[*",			// not supported
+	"[+]",			// not supported
+	"[=",			// not supported
+	"[->",			// not supported
       };
 
       const char* utf8_kw[] = {
@@ -186,6 +214,50 @@ namespace spot
 	" & ",
 	";",
 	":",
+	"{",
+	"}",
+	"]",
+	"[*",
+	"[+]",
+	"[=",
+	"[->",
+      };
+
+      const char* latex_kw[] = {
+	"\\ffalse",
+	"\\ttrue",
+	"\\eword",
+	" \\lxor ",
+	" \\limplies ",
+	" \\liff ",
+	" \\U ",
+	" \\R ",
+	" \\W ",
+	" \\M ",
+	"\\seq ",
+	"\\seqX ",
+	"\\seqM ",
+	"\\seqXM ",
+	"\\triggers ",
+	"\\triggersX ",
+	"\\lnot ",
+	"\\X ",
+	"\\F ",
+	"\\G ",
+	" \\lor ",
+	" \\SereOr ",
+	" \\land ",
+	" \\SereAnd ",
+	" \\SereAndNLM ",
+	" \\SereConcat ",
+	" \\SereFusion ",
+	"\\{",
+	"\\}",
+	"}",
+	"\\SereStar{",
+	"\\SerePlus{}",
+	"\\SereEqual{",
+	"\\SereGoto{",
       };
 
       static bool
@@ -258,17 +330,23 @@ namespace spot
 	void
 	openp() const
 	{
-	  os_ << (in_ratexp_ ? "{" : "(");
+	  if (in_ratexp_)
+	    emit(KOpenSERE);
+	  else
+	    os_ << "(";
 	}
 
 	void
 	closep() const
 	{
-	  os_ << (in_ratexp_ ? "}" : ")");
+	  if (in_ratexp_)
+	    emit(KCloseSERE);
+	  else
+	    os_ << ")";
 	}
 
 	std::ostream&
-	emit(int symbol)
+	emit(int symbol) const
 	{
 	  return os_ << kw_[symbol];
 	}
@@ -292,7 +370,28 @@ namespace spot
 	    }
 	  else
 	    {
-	      os_ << str;
+	      if (kw_ == latex_kw)
+		{
+		  size_t s = str.size();
+		  while (str[s - 1] >= '0' && str[s - 1] <= '9')
+		    {
+		      --s;
+		      assert(s != 0); // bare words cannot start with letters
+		    }
+		  if (s > 1)
+		    os_ << "\\mathit{";
+		  os_ << str.substr(0, s);
+		  if (s > 1)
+		    os_ << "}";
+		  if (s != str.size())
+		    os_ << "_{"
+			<< str.substr(s)
+			<< "}";
+		}
+	      else
+		{
+		  os_ << str;
+		}
 	    }
 	  if (kw_ == wring_kw)
 	    os_ << "=1";
@@ -336,8 +435,8 @@ namespace spot
 	    case binop::UConcat:
 	    case binop::EConcat:
 	    case binop::EConcatMarked:
-	      os_ << "{";
 	      in_ratexp_ = true;
+	      openp();
 	      top_level_ = true;
 	      {
 		const multop* m = is_multop(bo->first(), multop::Concat);
@@ -384,26 +483,26 @@ namespace spot
 	      emit(KM);
 	      break;
 	    case binop::UConcat:
-	      os_ << "}";
-	      emit(onelast ? KUConcatNext : KUConcat);
+	      closep();
+	      emit(onelast ? KTriggersNext : KTriggers);
 	      in_ratexp_ = false;
-	      top_level_ = top_level;
+	      top_level_ = false;
 	      break;
 	    case binop::EConcat:
+	      emit(KCloseSERE);
 	      if (bo->second() == constant::true_instance())
 		{
-		  os_ << "}!";
+		  os_ << "!";
 		  in_ratexp_ = false;
 		  goto second_done;
 		}
-	      os_ << "}";
-	      emit(onelast ? KEConcatNext : KEConcat);
+	      emit(onelast ? KSeqNext : KSeq);
 	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
 	    case binop::EConcatMarked:
 	      os_ << "}";
-	      emit(onelast ? KEConcatMarkedNext : KEConcatMarked);
+	      emit(onelast ? KSeqMarkedNext : KSeqMarked);
 	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
@@ -471,16 +570,16 @@ namespace spot
 	    case Star:
 	      if (min == 1 && max == bunop::unbounded)
 		{
-		  os_ << "[+]";
+		  emit(KPlusBunop);
 		  return;
 		}
-	      os_ << "[*";
+	      emit(KStarBunop);
 	      break;
 	    case Equal:
-	      os_ << "[=";
+	      emit(KEqualBunop);
 	      break;
 	    case Goto:
-	      os_ << "[->";
+	      emit(KGotoBunop);
 	      default_min = 1;
 	      default_max = 1;
 	      break;
@@ -517,7 +616,7 @@ namespace spot
 		    os_ << max;
 		}
 	    }
-	  os_ << "]";
+	  emit(KCloseBunop);
 	}
 
 	void
@@ -667,12 +766,15 @@ namespace spot
 		      // in which case it's b[=1].
 		      if (i + 2 < max && mo->nth(i) == mo->nth(i + 2))
 			{
-			  os_ << "[=1]";
+			  emit(KEqualBunop);
+			  os_ << "1";
+			  emit(KCloseBunop);
 			  i += 2;
 			}
 		      else
 			{
-			  os_ << "[->]";
+			  emit(KGotoBunop);
+			  emit(KCloseBunop);
 			  ++i;
 			}
 		      continue;
@@ -685,7 +787,7 @@ namespace spot
 			  if (b1 == b2)
 			    {
 			      emit_bunop_child(b1);
-			      os_ << "[=";
+			      emit(KEqualBunop);
 			      unsigned min = s->min();
 			      os_ << min;
 			      unsigned max = s->max();
@@ -695,7 +797,7 @@ namespace spot
 				  if (max != bunop::unbounded)
 				    os_ << max;
 				}
-			      os_ << "]";
+			      emit(KCloseBunop);
 			      ++i;
 			      continue;
 			    }
@@ -846,6 +948,25 @@ namespace spot
       to_wring_string(f, os);
       return os.str();
     }
+
+    std::ostream&
+    to_latex_string(const formula* f, std::ostream& os,
+		    bool full_parent, bool ratexp)
+    {
+      to_string_visitor v(os, full_parent, ratexp, latex_kw);
+      f->accept(v);
+      return os;
+    }
+
+    std::string
+    to_latex_string(const formula* f,
+		    bool full_parent, bool ratexp)
+    {
+      std::ostringstream os;
+      to_latex_string(f, os, full_parent, ratexp);
+      return os.str();
+    }
+
 
   }
 }

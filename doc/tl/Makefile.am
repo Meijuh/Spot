@@ -28,7 +28,7 @@ LATEXMK = BIBINPUTS='$(srcdir)' latexmk -pdf -ps- -dvi- -pvc- \
   -e '$$pdflatex="pdflatex %O \"\\def\\SpotVersion{$(VERSION)}\\input{%S}\""'
 
 dist_pdf_DATA = $(srcdir)/tl.pdf
-EXTRA_DIST = tl.tex tl.bib
+EXTRA_DIST = tl.tex tl.bib spotltl.sty
 
 # latexmk produces its output in the current directory, and may not
 # update its timestamp when no rebuild was necessary.  This can cause

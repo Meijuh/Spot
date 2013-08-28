@@ -95,6 +95,7 @@ TESTS = \
   kind.test \
   remove_x.test \
   ltlfilt.test \
+  latex.test \
   lbt.test \
   lenient.test \
   isop.test \

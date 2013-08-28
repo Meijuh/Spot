@@ -101,6 +101,27 @@ namespace spot
     SPOT_API std::string
     to_wring_string(const formula* f);
 
+    /// \brief Output a formula as an LaTeX string which is parsable unless
+    /// the formula contains automaton operators (used in ELTL formulae).
+    /// \param f The formula to translate.
+    /// \param os The stream where it should be output.
+    /// \param full_parent Whether or not the string should by fully
+    ///			   parenthesized.
+    /// \param ratexp Whether we are printing a SERE.
+    SPOT_API std::ostream&
+    to_latex_string(const formula* f, std::ostream& os,
+		    bool full_parent = false, bool ratexp = false);
+
+    /// \brief Output a formula as a LaTeX string which is parsable
+    /// unless the formula contains automaton operators (used in ELTL formulae).
+    /// \param f The formula to translate.
+    /// \param full_parent Whether or not the string should by fully
+    ///			   parenthesized.
+    /// \param ratexp Whether we are printing a SERE.
+    SPOT_API std::string
+    to_latex_string(const formula* f,
+		    bool full_parent = false, bool ratexp = false);
+
     /// @}
   }
 }
