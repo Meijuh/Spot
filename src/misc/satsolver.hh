@@ -21,6 +21,7 @@
 #define SPOT_MISC_SATSOLVER_HH
 
 #include "common.hh"
+#include <vector>
 
 namespace spot
 {
@@ -41,6 +42,14 @@ namespace spot
   /// printable interface.
   SPOT_API int
   satsolver(printable* input, printable* output);
+
+
+  typedef std::vector<int> sat_solution;
+
+  /// \brief Extract the solution of a SAT solver output.
+  SPOT_API sat_solution
+  satsolver_get_solution(const char* filename);
+
 }
 
 #endif // SPOT_MISC_SATSOLVER_HH

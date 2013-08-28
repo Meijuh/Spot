@@ -22,6 +22,9 @@
 #include <cstdlib>
 #include <sstream>
 #include <stdexcept>
+#include "satsolver.hh"
+#include <fstream>
+#include <limits>
 
 namespace spot
 {
@@ -67,4 +70,44 @@ namespace spot
     static satsolver_command cmd;
     return cmd.run(input, output);
   }
+
+  sat_solution
+  satsolver_get_solution(const char* filename)
+  {
+    sat_solution sol;
+    std::istream* in;
+    if (filename[0] == '-' && filename[1] == 0)
+      in = &std::cin;
+    else
+      in = new std::fstream(filename, std::ios_base::in);
+
+    int c;
+    while ((c = in->get()) != EOF)
+      {
+	// If a line does not start with 'v ', ignore it.
+	if (c != 'v' || in->get() != ' ')
+	  {
+	    in->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	    continue;
+	  }
+	// Otherwise, read integers one by one.
+	int i;
+	while (*in >> i)
+	  {
+	    if (i == 0)
+	      goto done;
+	    sol.push_back(i);
+	  }
+	if (!in->eof())
+	  // If we haven't reached end-of-file, then we just attempted
+	  // to extract something that wasn't an integer.  Clear the
+	  // fail bit so that will loop over.
+	  in->clear();
+      }
+  done:
+    if (in != &std::cin)
+      delete in;
+    return sol;
+  }
+
 }

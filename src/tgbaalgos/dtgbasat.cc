@@ -800,28 +800,8 @@ namespace spot
       out << "p cnf " << d.nvars << " " << nclauses;
     }
 
-
-
-    static std::string
-    get_solution(const char* filename)
-    {
-      std::fstream in(filename, std::ios_base::in);
-      std::string line;
-      while (std::getline(in, line))
-	{
-	  if (line.empty() || line[0] == 'c')
-	    continue;
-	  if (line[0] == 'v')
-	    break;
-	}
-      if (line[0] == 'v')
-	return line.c_str() + 1;
-      return "";
-    }
-
-
     static tgba_explicit_number*
-    sat_build(const std::string& solution, dict& satdict, const tgba* aut,
+    sat_build(const sat_solution& solution, dict& satdict, const tgba* aut,
 	      bool state_based)
     {
       bdd_dict* autdict = aut->get_dict();
@@ -833,7 +813,6 @@ namespace spot
       for (int s = 1; s < satdict.cand_size; ++s)
 	a->add_state(s);
 
-      std::stringstream sol(solution);
       state_explicit_number::transition* last_aut_trans = 0;
       const transition* last_sat_trans = 0;
 
@@ -841,20 +820,14 @@ namespace spot
       std::fstream out("dtgba-sat.dbg",
 		       std::ios_base::trunc | std::ios_base::out);
       std::set<int> positive;
-#else
-      // "out" is not used, but it has to exist for the dout() macro to
-      // compile.
-      std::ostream& out(std::cout);
 #endif
 
       dout << "--- transition variables ---\n";
       std::map<int, bdd> state_acc;
-      for (;;)
+      for (sat_solution::const_iterator i = solution.begin();
+	   i != solution.end(); ++i)
 	{
-	  int v;
-	  sol >> v;
-	  if (!sol)
-	    break;
+	  int v = *i;
 
 	  if (v < 0)  // FIXME: maybe we can have (v < NNN)?
 	    continue;
@@ -946,7 +919,6 @@ namespace spot
     trace << "dtgba_sat_synthetize(..., acc = " << target_acc_number
 	  << ", states = " << target_state_number
 	  << ", state_based = " << state_based << ")\n";
-    std::string solution;
     dict* current = 0;
     temporary_file* cnf = 0;
     temporary_file* out = 0;
@@ -964,7 +936,7 @@ namespace spot
     out = create_tmpfile("dtgba-sat-", ".out");
     satsolver(cnf, out);
 
-    solution = get_solution(out->name());
+    sat_solution solution = satsolver_get_solution(out->name());
 
     tgba_explicit_number* res = 0;
     if (!solution.empty())

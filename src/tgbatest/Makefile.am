@@ -43,6 +43,7 @@ check_PROGRAMS = \
   ltlprod \
   mixprod \
   powerset \
+  readsat \
   taatgba \
   tgbaread \
   tripprod
@@ -65,6 +66,7 @@ ltlprod_SOURCES  = ltlprod.cc
 mixprod_SOURCES  = mixprod.cc
 powerset_SOURCES = powerset.cc
 randtgba_SOURCES = randtgba.cc
+readsat_SOURCES = readsat.cc
 taatgba_SOURCES = taatgba.cc
 tgbaread_SOURCES = tgbaread.cc
 tripprod_SOURCES = tripprod.cc

@@ -18,7 +18,8 @@ is used by the sat\-minimize option described above.  The default value
 is \f(CW"glucose %I >%O"\fR.  The escape sequences \f(CW%I\fR and \f(CW%O\fR
 respectively denote the names of the input and output files.  These
 temporary files are created in the directory specified by \fBSPOT_TMPDIR\fR
-or \fBTMPDIR\fR (see below).
+or \fBTMPDIR\fR (see below).  The SAT-solver should follow the convention
+of the SAT Competition for its input and output format.
 
 .TP
 \fBSPOT_TMPDIR\fR, \fBTMPDIR\fR
