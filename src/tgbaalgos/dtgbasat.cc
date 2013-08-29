@@ -298,10 +298,12 @@ namespace spot
       int size_;
       bdd ap_;
       bool state_based_;
+      scc_map& sm_;
     public:
-      filler_dfs(const tgba* aut, dict& d, bdd ap, bool state_based)
+      filler_dfs(const tgba* aut, dict& d, bdd ap, bool state_based,
+		 scc_map& sm)
 	: tgba_reachable_iterator_depth_first(aut), d(d), ap_(ap),
-	  state_based_(state_based)
+	  state_based_(state_based), sm_(sm)
       {
 	d.nvars = 0;
 
@@ -363,37 +365,41 @@ namespace spot
 	if (d.cand_size == -1)
 	  d.cand_size = size_ - 1;
 
-	int seen_size = seen.size();
-	for (int i = 1; i <= seen_size; ++i)
+	for (dict::state_map::const_iterator i2 = seen.begin();
+	     i2 != seen.end(); ++i2)
 	  {
+	    int i = i2->second;
+	    d.int_to_state[i] = i2->first;
+	    unsigned i_scc = sm_.scc_of_state(i2->first);
 	    for (int j = 1; j <= d.cand_size; ++j)
 	      {
 		d.prodid[state_pair(j, i)] = ++d.nvars;
 
+		for (dict::state_map::const_iterator k2 = seen.begin();
+		     k2 != seen.end(); ++k2)
+		  {
+		    int k = k2->second;
+		    if (sm_.scc_of_state(k2->first) != i_scc)
+		      continue;
+		    for (int l = 1; l <= d.cand_size; ++l)
+		      {
+			size_t sf = d.all_cand_acc.size();
+			for (size_t f = 0; f < sf; ++f)
+			  {
+			    size_t sfp = d.all_ref_acc.size();
+			    for (size_t fp = 0; fp < sfp; ++fp)
+			      {
+				path p(j, i, l, k,
+				       d.all_cand_acc[f],
+				       d.all_ref_acc[fp]);
+				d.pathid[p] = ++d.nvars;
+			      }
 
-		for (int k = 1; k <= seen_size; ++k)
-		  for (int l = 1; l <= d.cand_size; ++l)
-		    {
-		      size_t sf = d.all_cand_acc.size();
-		      for (size_t f = 0; f < sf; ++f)
-			{
-			  size_t sfp = d.all_ref_acc.size();
-			  for (size_t fp = 0; fp < sfp; ++fp)
-			    {
-			      path p(j, i, l, k,
-				     d.all_cand_acc[f],
-				     d.all_ref_acc[fp]);
-			      d.pathid[p] = ++d.nvars;
-			    }
-
-			}
-		    }
+			  }
+		      }
+		  }
 	      }
 	  }
-
-	for (dict::state_map::const_iterator i = seen.begin();
-	     i != seen.end(); ++i)
-	  d.int_to_state[i->second] = i->first;
 
 	std::swap(d.state_to_int, seen);
 
@@ -491,7 +497,7 @@ namespace spot
 
       // Number all the SAT variable we may need.
       {
-	filler_dfs f(ref, d, ap, state_based);
+	filler_dfs f(ref, d, ap, state_based, sm);
 	f.run();
 	ref_size = f.size();
       }
@@ -623,211 +629,223 @@ namespace spot
       bdd all_acc = ref->all_acceptance_conditions();
 
       // construction of constraints (11,12,13)
-      for (int q1 = 1; q1 <= d.cand_size; ++q1)
-	for (int q1p = 1; q1p <= ref_size; ++q1p)
-	  for (int q2 = 1; q2 <= d.cand_size; ++q2)
-	    for (int q2p = 1; q2p <= ref_size; ++q2p)
-	      {
-		size_t sf = d.all_cand_acc.size();
-		size_t sfp = d.all_ref_acc.size();
-		for (size_t f = 0; f < sf; ++f)
-		  for (size_t fp = 0; fp < sfp; ++fp)
-		    {
-		      path p(q1, q1p, q2, q2p,
-			     d.all_cand_acc[f], d.all_ref_acc[fp]);
-
-		      dout << "(11&12&13) paths from " << p << "\n";
-
-		      int pid = d.pathid[p];
-
-		      tgba_succ_iterator* it =
-			ref->succ_iter(d.int_to_state[q2p]);
-
-		      for (it->first(); !it->done(); it->next())
+      for (int q1p = 1; q1p <= ref_size; ++q1p)
+	{
+	  unsigned q1p_scc = sm.scc_of_state(d.int_to_state[q1p]);
+	  for (int q2p = 1; q2p <= ref_size; ++q2p)
+	    {
+	      // We are only interested in transition that can form a
+	      // cycle, so they must belong to the same SCC.
+	      if (sm.scc_of_state(d.int_to_state[q2p]) != q1p_scc)
+		continue;
+	      for (int q1 = 1; q1 <= d.cand_size; ++q1)
+		for (int q2 = 1; q2 <= d.cand_size; ++q2)
+		  {
+		    size_t sf = d.all_cand_acc.size();
+		    size_t sfp = d.all_ref_acc.size();
+		    for (size_t f = 0; f < sf; ++f)
+		      for (size_t fp = 0; fp < sfp; ++fp)
 			{
-			  const state* dps = it->current_state();
-			  int dp = d.state_to_int[dps];
-			  dps->destroy();
+			  path p(q1, q1p, q2, q2p,
+				 d.all_cand_acc[f], d.all_ref_acc[fp]);
 
-			  for (int q3 = 1; q3 <= d.cand_size; ++q3)
+			  dout << "(11&12&13) paths from " << p << "\n";
+
+			  int pid = d.pathid[p];
+
+			  tgba_succ_iterator* it =
+			    ref->succ_iter(d.int_to_state[q2p]);
+
+			  for (it->first(); !it->done(); it->next())
 			    {
-			      bdd all = it->current_condition();
-			      bdd curacc = it->current_acceptance_conditions();
-
-			      while (all != bddfalse)
+			      const state* dps = it->current_state();
+			      // Skip destinations not in the SCC.
+			      if (sm.scc_of_state(dps) != q1p_scc)
 				{
-				  bdd l = bdd_satoneset(all, ap, bddfalse);
-				  all -= l;
+				  dps->destroy();
+				  continue;
+				}
+			      int dp = d.state_to_int[dps];
+			      dps->destroy();
 
-				  transition t(q2, l, q3);
-				  int ti = d.transid[t];
+			      for (int q3 = 1; q3 <= d.cand_size; ++q3)
+				{
+				  bdd all = it->current_condition();
+				  bdd curacc =
+				    it->current_acceptance_conditions();
 
-				  if (dp == q1p && q3 == q1) // (11,12) loop
+				  while (all != bddfalse)
 				    {
-				      bdd unio =  curacc | d.all_ref_acc[fp];
-				      if (unio != all_acc)
+				      bdd l = bdd_satoneset(all, ap, bddfalse);
+				      all -= l;
+
+				      transition t(q2, l, q3);
+				      int ti = d.transid[t];
+
+				      if (dp == q1p && q3 == q1) // (11,12) loop
 					{
+					  bdd unio = curacc | d.all_ref_acc[fp];
+					  if (unio != all_acc)
+					    {
 #if DEBUG
-					  dout << "(11) " << p << " ∧ "
-					       << t << "δ → ¬(";
+					      dout << "(11) " << p << " ∧ "
+						   << t << "δ → ¬(";
 
-					  bdd all_ = d.all_cand_acc.back();
-					  all_ -= d.all_cand_acc[f];
-					  bool notfirst = false;
-					  while (all_ != bddfalse)
-					    {
-					      bdd one = bdd_satone(all_);
-					      all_ -= one;
+					      bdd all_ = d.all_cand_acc.back();
+					      all_ -= d.all_cand_acc[f];
+					      bool notfirst = false;
+					      while (all_ != bddfalse)
+						{
+						  bdd one = bdd_satone(all_);
+						  all_ -= one;
 
-					      transition_acc ta(q2, l,
-								one, q1);
-					      if (notfirst)
-						out << " ∧ ";
-					      else
-						notfirst = true;
-					      out << ta << "FC";
-					    }
-					  out << ")\n";
+						  transition_acc ta(q2, l,
+								    one, q1);
+						  if (notfirst)
+						    out << " ∧ ";
+						  else
+						    notfirst = true;
+						  out << ta << "FC";
+						}
+					      out << ")\n";
 #endif // DEBUG
-					  out << -pid << " " << -ti;
+					      out << -pid << " " << -ti;
 
-					  // 11
-					  bdd all_f = d.all_cand_acc.back();
-					  all_f -= d.all_cand_acc[f];
-					  while (all_f != bddfalse)
-					    {
-					      bdd one = bdd_satone(all_f);
-					      all_f -= one;
+					      // 11
+					      bdd all_f = d.all_cand_acc.back();
+					      all_f -= d.all_cand_acc[f];
+					      while (all_f != bddfalse)
+						{
+						  bdd one = bdd_satone(all_f);
+						  all_f -= one;
 
-					      transition_acc ta(q2, l,
-								one, q1);
-					      int tai = d.transaccid[ta];
-					      assert(tai != 0);
-					      out << " " << -tai;
-					    }
-					  out << " 0\n";
-					  ++nclauses;
-					}
-				      else
-					{
-#if DEBUG
-					  dout << "(12) " << p << " ∧ "
-					       << t << "δ → (";
-
-					  bdd all_ = d.all_cand_acc.back();
-					  all_ -= d.all_cand_acc[f];
-					  bool notfirst = false;
-					  while (all_ != bddfalse)
-					    {
-					      bdd one = bdd_satone(all_);
-					      all_ -= one;
-
-					      transition_acc ta(q2, l,
-								one, q1);
-					      if (notfirst)
-						out << " ∧ ";
-					      else
-						notfirst = true;
-					      out << ta << "FC";
-					    }
-					  out << ")\n";
-#endif // DEBUG
-					  // 12
-					  bdd all_f = d.all_cand_acc.back();
-					  all_f -= d.all_cand_acc[f];
-					  while (all_f != bddfalse)
-					    {
-					      bdd one = bdd_satone(all_f);
-					      all_f -= one;
-
-					      transition_acc ta(q2, l,
-								one, q1);
-					      int tai = d.transaccid[ta];
-					      assert(tai != 0);
-
-					      out << -pid << " " << -ti
-						  << " " << tai << " 0\n";
+						  transition_acc ta(q2, l,
+								    one, q1);
+						  int tai = d.transaccid[ta];
+						  assert(tai != 0);
+						  out << " " << -tai;
+						}
+					      out << " 0\n";
 					      ++nclauses;
 					    }
-					  // out << -pid << " " << -ti
-					  //     << " " << pcompid << " 0\n";
-					  // ++nclauses;
-					}
-				    }
-				  // (13) augmenting paths (always).
-				  {
-				    size_t sf = d.all_cand_acc.size();
-				    for (size_t f = 0; f < sf; ++f)
-				      {
-
-					bdd f2 = p.acc_cand |
-					  d.all_cand_acc[f];
-					bdd f2p = p.acc_ref | curacc;
-
-					path p2(p.src_cand, p.src_ref,
-						q3, dp, f2, f2p);
-					int p2id = d.pathid[p2];
-					if (pid == p2id)
-					  continue;
+					  else
+					    {
 #if DEBUG
-					dout << "(13) " << p << " ∧ "
-					     << t << "δ ";
+					      dout << "(12) " << p << " ∧ "
+						   << t << "δ → (";
 
-					bdd biga_ = d.all_cand_acc[f];
-					while (biga_ != bddfalse)
+					      bdd all_ = d.all_cand_acc.back();
+					      all_ -= d.all_cand_acc[f];
+					      bool notfirst = false;
+					      while (all_ != bddfalse)
+						{
+						  bdd one = bdd_satone(all_);
+						  all_ -= one;
+
+						  transition_acc ta(q2, l,
+								    one, q1);
+						  if (notfirst)
+						    out << " ∧ ";
+						  else
+						    notfirst = true;
+						  out << ta << "FC";
+						}
+					      out << ")\n";
+#endif // DEBUG
+					      // 12
+					      bdd all_f = d.all_cand_acc.back();
+					      all_f -= d.all_cand_acc[f];
+					      while (all_f != bddfalse)
+						{
+						  bdd one = bdd_satone(all_f);
+						  all_f -= one;
+
+						  transition_acc ta(q2, l,
+								    one, q1);
+						  int tai = d.transaccid[ta];
+						  assert(tai != 0);
+
+						  out << -pid << " " << -ti
+						      << " " << tai << " 0\n";
+						  ++nclauses;
+						}
+					    }
+					}
+				      // (13) augmenting paths (always).
+				      {
+					size_t sf = d.all_cand_acc.size();
+					for (size_t f = 0; f < sf; ++f)
 					  {
-					    bdd a = bdd_satone(biga_);
-					    biga_ -= a;
 
-					    transition_acc ta(q2, l, a, q3);
-					    out <<  " ∧ " << ta << "FC";
-					  }
-					biga_ = d.all_cand_acc.back()
-					  - d.all_cand_acc[f];
-					while (biga_ != bddfalse)
-					  {
-					    bdd a = bdd_satone(biga_);
-					    biga_ -= a;
+					    bdd f2 = p.acc_cand |
+					      d.all_cand_acc[f];
+					    bdd f2p = p.acc_ref | curacc;
 
-					    transition_acc ta(q2, l, a, q3);
-					    out << " ∧ ¬" << ta << "FC";
-					  }
-					out << " → " << p2 << "\n";
+					    path p2(p.src_cand, p.src_ref,
+						    q3, dp, f2, f2p);
+					    int p2id = d.pathid[p2];
+					    if (pid == p2id)
+					      continue;
+#if DEBUG
+					    dout << "(13) " << p << " ∧ "
+						 << t << "δ ";
+
+					    bdd biga_ = d.all_cand_acc[f];
+					    while (biga_ != bddfalse)
+					      {
+						bdd a = bdd_satone(biga_);
+						biga_ -= a;
+
+						transition_acc ta(q2, l, a, q3);
+						out <<  " ∧ " << ta << "FC";
+					      }
+					    biga_ = d.all_cand_acc.back()
+					      - d.all_cand_acc[f];
+					    while (biga_ != bddfalse)
+					      {
+						bdd a = bdd_satone(biga_);
+						biga_ -= a;
+
+						transition_acc ta(q2, l, a, q3);
+						out << " ∧ ¬" << ta << "FC";
+					      }
+					    out << " → " << p2 << "\n";
 #endif
-					out << -pid << " " << -ti << " ";
-					bdd biga = d.all_cand_acc[f];
-					while (biga != bddfalse)
-					  {
-					    bdd a = bdd_satone(biga);
-					    biga -= a;
+					    out << -pid << " " << -ti << " ";
+					    bdd biga = d.all_cand_acc[f];
+					    while (biga != bddfalse)
+					      {
+						bdd a = bdd_satone(biga);
+						biga -= a;
 
-					    transition_acc ta(q2, l, a, q3);
-					    int tai = d.transaccid[ta];
-					    out << -tai << " ";
+						transition_acc ta(q2, l, a, q3);
+						int tai = d.transaccid[ta];
+						out << -tai << " ";
+					      }
+					    biga = d.all_cand_acc.back()
+					      - d.all_cand_acc[f];
+					    while (biga != bddfalse)
+					      {
+						bdd a = bdd_satone(biga);
+						biga -= a;
+
+						transition_acc ta(q2, l, a, q3);
+						int tai = d.transaccid[ta];
+						out << tai << " ";
+					      }
+
+					    out << p2id << " 0\n";
+					    ++nclauses;
 					  }
-					biga = d.all_cand_acc.back()
-					  - d.all_cand_acc[f];
-					while (biga != bddfalse)
-					  {
-					    bdd a = bdd_satone(biga);
-					    biga -= a;
-
-					    transition_acc ta(q2, l, a, q3);
-					    int tai = d.transaccid[ta];
-					    out << tai << " ";
-					  }
-
-					out << p2id << " 0\n";
-					++nclauses;
 				      }
-				  }
+				    }
 				}
 			    }
+			  delete it;
 			}
-		      delete it;
-		    }
-	      }
-
+		  }
+	    }
+	}
       out.seekp(0);
       out << "p cnf " << d.nvars << " " << nclauses;
     }

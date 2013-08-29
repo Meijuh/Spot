@@ -217,10 +217,12 @@ namespace spot
       int size_;
       bdd ap_;
       bool state_based_;
+      scc_map& sm_;
     public:
-      filler_dfs(const tgba* aut, dict& d, bdd ap, bool state_based)
+      filler_dfs(const tgba* aut, dict& d, bdd ap, bool state_based,
+		 scc_map& sm)
 	: tgba_reachable_iterator_depth_first(aut), d(d), ap_(ap),
-	  state_based_(state_based)
+	  state_based_(state_based), sm_(sm)
       {
 	d.nvars = 0;
       }
@@ -237,27 +239,31 @@ namespace spot
 	if (d.cand_size == -1)
 	  d.cand_size = size_ - 1;
 
-	int seen_size = seen.size();
-	for (int i = 1; i <= seen_size; ++i)
+	for (dict::state_map::const_iterator i2 = seen.begin();
+	     i2 != seen.end(); ++i2)
 	  {
+	    int i = i2->second;
+	    d.int_to_state[i] = i2->first;
+	    unsigned i_scc = sm_.scc_of_state(i2->first);
+
 	    for (int j = 1; j <= d.cand_size; ++j)
 	      {
 		d.prodid[state_pair(j, i)] = ++d.nvars;
 
-		for (int k = 1; k <= seen_size; ++k)
-		  for (int l = 1; l <= d.cand_size; ++l)
+		for (dict::state_map::const_iterator k2 = seen.begin();
+		     k2 != seen.end(); ++k2)
+		  {
+		    int k = k2->second;
+		    if (sm_.scc_of_state(k2->first) != i_scc)
+		      continue;
+		    for (int l = 1; l <= d.cand_size; ++l)
 		    {
 		      path p(j, i, l, k);
 		      d.pathid_ref[p] = ++d.nvars;
 		      d.pathid_cand[p] = ++d.nvars;
 		    }
+		  }
 	      }
-	  }
-
-	for (dict::state_map::const_iterator i = seen.begin();
-	     i != seen.end(); ++i)
-	  {
-	    d.int_to_state[i->second] = i->first;
 	  }
 
 	std::swap(d.state_to_int, seen);
@@ -314,7 +320,7 @@ namespace spot
 
       // Number all the SAT variable we may need.
       {
-	filler_dfs f(ref, d, ap, state_based);
+	filler_dfs f(ref, d, ap, state_based, sm);
 	f.run();
 	ref_size = f.size();
       }
@@ -450,158 +456,185 @@ namespace spot
       // construction of contraints (4,5) : all loops in the product
       // where no accepting run is detected in the ref. automaton,
       // must also be marked as not accepting in the cand. automaton
-      for (int q1 = 1; q1 <= d.cand_size; ++q1)
-	for (int q1p = 1; q1p <= ref_size; ++q1p)
-	  {
-	    for (int q2 = 1; q2 <= d.cand_size; ++q2)
-	      for (int q2p = 1; q2p <= ref_size; ++q2p)
-		{
-		  path p1(q1, q1p, q2, q2p);
+      for (int q1p = 1; q1p <= ref_size; ++q1p)
+	{
+	  unsigned q1p_scc = sm.scc_of_state(d.int_to_state[q1p]);
+	  for (int q2p = 1; q2p <= ref_size; ++q2p)
+	    {
+	      // We are only interested in transition that can form a
+	      // cycle, so they must belong to the same SCC.
+	      if (sm.scc_of_state(d.int_to_state[q2p]) != q1p_scc)
+		continue;
+	      for (int q1 = 1; q1 <= d.cand_size; ++q1)
+		for (int q2 = 1; q2 <= d.cand_size; ++q2)
+		  {
+		    path p1(q1, q1p, q2, q2p);
 
-		  dout << "(4&5) matching paths from reference based on "
-		       << p1 << "\n";
+		    dout << "(4&5) matching paths from reference based on "
+			 << p1 << "\n";
 
-		  int pid1 = d.pathid_ref[p1];
+		    int pid1 = d.pathid_ref[p1];
 
-		  tgba_succ_iterator* it = ref->succ_iter(d.int_to_state[q2p]);
-		  for (it->first(); !it->done(); it->next())
-		    {
-		      const state* dps = it->current_state();
-		      int dp = d.state_to_int[dps];
-		      dps->destroy();
-		      if (it->current_acceptance_conditions() == all_acc)
-			continue;
-		      for (int q3 = 1; q3 <= d.cand_size; ++q3)
-			{
-			  if (dp == q1p && q3 == q1) // (4) looping
-			    {
-			      bdd all = it->current_condition();
-			      while (all != bddfalse)
-				{
-				  bdd s = bdd_satoneset(all, ap, bddfalse);
-				  all -= s;
+		    tgba_succ_iterator* it =
+		      ref->succ_iter(d.int_to_state[q2p]);
+		    for (it->first(); !it->done(); it->next())
+		      {
+			const state* dps = it->current_state();
+			// Skip destinations not in the SCC.
+			if (sm.scc_of_state(dps) != q1p_scc)
+			  {
+			    dps->destroy();
+			    continue;
+			  }
+			int dp = d.state_to_int[dps];
+			dps->destroy();
 
-				  transition t(q2, s, q1);
-				  int ti = d.transid[t];
-				  int ta = d.transacc[t];
+			if (it->current_acceptance_conditions() == all_acc)
+			  continue;
+			for (int q3 = 1; q3 <= d.cand_size; ++q3)
+			  {
+			    if (dp == q1p && q3 == q1) // (4) looping
+			      {
+				bdd all = it->current_condition();
+				while (all != bddfalse)
+				  {
+				    bdd s = bdd_satoneset(all, ap, bddfalse);
+				    all -= s;
 
-				  dout << p1 << "R ∧ " << t << "δ → ¬" << t
-				       << "F\n";
-				  out << -pid1 << " " << -ti << " "
-				      << -ta << " 0\n";
-				  ++nclauses;
-				}
+				    transition t(q2, s, q1);
+				    int ti = d.transid[t];
+				    int ta = d.transacc[t];
+
+				    dout << p1 << "R ∧ " << t << "δ → ¬" << t
+					 << "F\n";
+				    out << -pid1 << " " << -ti << " "
+					<< -ta << " 0\n";
+				    ++nclauses;
+				  }
 
 
-			    }
-			  else // (5) not looping
-			    {
-			      path p2 = path(q1, q1p, q3, dp);
-			      int pid2 = d.pathid_ref[p2];
+			      }
+			    else // (5) not looping
+			      {
+				path p2 = path(q1, q1p, q3, dp);
+				int pid2 = d.pathid_ref[p2];
 
-			      if (pid1 == pid2)
-				continue;
+				if (pid1 == pid2)
+				  continue;
 
-			      bdd all = it->current_condition();
-			      while (all != bddfalse)
-				{
-				  bdd s = bdd_satoneset(all, ap, bddfalse);
-				  all -= s;
+				bdd all = it->current_condition();
+				while (all != bddfalse)
+				  {
+				    bdd s = bdd_satoneset(all, ap, bddfalse);
+				    all -= s;
 
-				  transition t(q2, s, q3);
-				  int ti = d.transid[t];
+				    transition t(q2, s, q3);
+				    int ti = d.transid[t];
 
-				  dout << p1 << "R ∧ " << t << "δ → " << p2
-				       << "R\n";
-				  out << -pid1 << " " << -ti << " "
-				      << pid2 << " 0\n";
-				  ++nclauses;
-				}
-			    }
-			}
-		    }
-		  delete it;
-		}
-	  }
-
+				    dout << p1 << "R ∧ " << t << "δ → " << p2
+					 << "R\n";
+				    out << -pid1 << " " << -ti << " "
+					<< pid2 << " 0\n";
+				    ++nclauses;
+				  }
+			      }
+			  }
+		      }
+		    delete it;
+		  }
+	    }
+	}
       // construction of contraints (6,7): all loops in the product
       // where accepting run is detected in the ref. automaton, must
       // also be marked as accepting in the candidate.
-      for (int q1 = 1; q1 <= d.cand_size; ++q1)
-	for (int q1p = 1; q1p <= ref_size; ++q1p)
-	  {
-	    for (int q2 = 1; q2 <= d.cand_size; ++q2)
-	      for (int q2p = 1; q2p <= ref_size; ++q2p)
-		{
-		  path p1(q1, q1p, q2, q2p);
-		  dout << "(6&7) matching paths from candidate based on "
-		       << p1 << "\n";
-		  int pid1 = d.pathid_cand[p1];
+      for (int q1p = 1; q1p <= ref_size; ++q1p)
+	{
+	  unsigned q1p_scc = sm.scc_of_state(d.int_to_state[q1p]);
+	  for (int q2p = 1; q2p <= ref_size; ++q2p)
+	    {
+	      // We are only interested in transition that can form a
+	      // cycle, so they must belong to the same SCC.
+	      if (sm.scc_of_state(d.int_to_state[q2p]) != q1p_scc)
+		continue;
+	      for (int q1 = 1; q1 <= d.cand_size; ++q1)
+		for (int q2 = 1; q2 <= d.cand_size; ++q2)
+		  {
+		    path p1(q1, q1p, q2, q2p);
+		    dout << "(6&7) matching paths from candidate based on "
+			 << p1 << "\n";
+		    int pid1 = d.pathid_cand[p1];
 
-		  tgba_succ_iterator* it = ref->succ_iter(d.int_to_state[q2p]);
-		  for (it->first(); !it->done(); it->next())
-		    {
-		      const state* dps = it->current_state();
-		      int dp = d.state_to_int[dps];
-		      dps->destroy();
-		      for (int q3 = 1; q3 <= d.cand_size; q3++)
-			{
-			  if (dp == q1p && q3 == q1) // (6) looping
-			    {
-			      // We only care about the looping case if
-			      // it is accepting in the reference.
-			      if (it->current_acceptance_conditions()
-				  != all_acc)
-				continue;
-			      bdd all = it->current_condition();
-			      while (all != bddfalse)
-				{
-				  bdd s = bdd_satoneset(all, ap, bddfalse);
-				  all -= s;
+		    tgba_succ_iterator* it =
+		      ref->succ_iter(d.int_to_state[q2p]);
+		    for (it->first(); !it->done(); it->next())
+		      {
+			const state* dps = it->current_state();
+			// Skip destinations not in the SCC.
+			if (sm.scc_of_state(dps) != q1p_scc)
+			  {
+			    dps->destroy();
+			    continue;
+			  }
+			int dp = d.state_to_int[dps];
+			dps->destroy();
+			for (int q3 = 1; q3 <= d.cand_size; q3++)
+			  {
+			    if (dp == q1p && q3 == q1) // (6) looping
+			      {
+				// We only care about the looping case if
+				// it is accepting in the reference.
+				if (it->current_acceptance_conditions()
+				    != all_acc)
+				  continue;
+				bdd all = it->current_condition();
+				while (all != bddfalse)
+				  {
+				    bdd s = bdd_satoneset(all, ap, bddfalse);
+				    all -= s;
 
-				  transition t(q2, s, q1);
-				  int ti = d.transid[t];
-				  int ta = d.transacc[t];
+				    transition t(q2, s, q1);
+				    int ti = d.transid[t];
+				    int ta = d.transacc[t];
 
-				  dout << p1 << "C ∧ " << t << "δ → " << t
-				       << "F\n";
-				  out << -pid1 << " " << -ti << " " << ta
-				      << " 0\n";
-				  ++nclauses;
-				}
-			    }
-			  else // (7) no loop
-			    {
-			      path p2 = path(q1, q1p, q3, dp);
-			      int pid2 = d.pathid_cand[p2];
+				    dout << p1 << "C ∧ " << t << "δ → " << t
+					 << "F\n";
+				    out << -pid1 << " " << -ti << " " << ta
+					<< " 0\n";
+				    ++nclauses;
+				  }
+			      }
+			    else // (7) no loop
+			      {
+				path p2 = path(q1, q1p, q3, dp);
+				int pid2 = d.pathid_cand[p2];
 
-			      if (pid1 == pid2)
-				continue;
+				if (pid1 == pid2)
+				  continue;
 
-			      bdd all = it->current_condition();
-			      while (all != bddfalse)
-				{
-				  bdd s = bdd_satoneset(all, ap, bddfalse);
-				  all -= s;
+				bdd all = it->current_condition();
+				while (all != bddfalse)
+				  {
+				    bdd s = bdd_satoneset(all, ap, bddfalse);
+				    all -= s;
 
-				  transition t(q2, s, q3);
-				  int ti = d.transid[t];
-				  int ta = d.transacc[t];
+				    transition t(q2, s, q3);
+				    int ti = d.transid[t];
+				    int ta = d.transacc[t];
 
-				  dout << p1 << "C ∧ " << t << "δ ∧ ¬"
-				       << t << "F → " << p2 << "C\n";
+				    dout << p1 << "C ∧ " << t << "δ ∧ ¬"
+					 << t << "F → " << p2 << "C\n";
 
-				  out << -pid1 << " " << -ti << " "
-				      << ta << " " << pid2 << " 0\n";
-				  ++nclauses;
-				}
-			    }
-			}
-		    }
-		  delete it;
-		}
-	  }
-
+				    out << -pid1 << " " << -ti << " "
+					<< ta << " " << pid2 << " 0\n";
+				    ++nclauses;
+				  }
+			      }
+			  }
+		      }
+		    delete it;
+		  }
+	    }
+	}
       out.seekp(0);
       out << "p cnf " << d.nvars << " " << nclauses;
     }
