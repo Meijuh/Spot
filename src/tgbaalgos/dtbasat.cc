@@ -300,6 +300,18 @@ namespace spot
       sm.build_map();
       bdd ap = sm.aprec_set_of(sm.initial());
 
+      // Count the number of atomic propositions
+      int nap = 0;
+      {
+	bdd cur = ap;
+	while (cur != bddtrue)
+	  {
+	    ++nap;
+	    cur = bdd_high(cur);
+	  }
+	nap = 1 << nap;
+      }
+
       // Number all the SAT variable we may need.
       {
 	filler_dfs f(ref, d, ap, state_based);
@@ -323,27 +335,26 @@ namespace spot
       dout << "cand_size: " << d.cand_size << "\n";
 #endif
 
-      // dout << "symmetry-breaking clauses\n";
-      // int k = 1;
-      // bdd all = bddtrue;
-      // while (all != bddfalse)
-      // 	{
-      // 	  bdd s = bdd_satoneset(all, ap, bddfalse);
-      // 	  all -= s;
-      // 	  for (int q1 = 1; q1 < d.cand_size; ++q1)
-      // 	    for (int q2 = q1 + 2; q2 <= d.cand_size; ++q2)
-      // 	      if ((q1 - 1) * d.cand_size + q2 + 2 <= k)
-      // 		{
-      // 		  transition t(q1, s, q2);
-      // 		  int ti = d.transid[t];
-      // 		  dout << "¬" << t << "\n";
-      // 		  out << -ti << " 0\n";
-      // 		  ++nclauses;
-      // 		}
-      // 	  ++k;
-      // 	}
-      // if (!nclauses)
-      // 	dout << "(none)\n";
+      dout << "symmetry-breaking clauses\n";
+      int j = 0;
+      bdd all = bddtrue;
+      while (all != bddfalse)
+ 	{
+ 	  bdd s = bdd_satoneset(all, ap, bddfalse);
+ 	  all -= s;
+ 	  for (int i = 1; i < d.cand_size; ++i)
+ 	    for (int k = (i - 1) * nap + j + 3; k <= d.cand_size; ++k)
+	      {
+		transition t(i, s, k);
+		int ti = d.transid[t];
+		dout << "¬" << t << "\n";
+		out << -ti << " 0\n";
+		++nclauses;
+	      }
+ 	  ++j;
+ 	}
+      if (!nclauses)
+ 	dout << "(none)\n";
 
       dout << "(1) the candidate automaton is complete\n";
       for (int q1 = 1; q1 <= d.cand_size; ++q1)

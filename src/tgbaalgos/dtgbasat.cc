@@ -477,6 +477,17 @@ namespace spot
       sm.build_map();
       bdd ap = sm.aprec_set_of(sm.initial());
 
+      // Count the number of atomic propositions
+      int nap = 0;
+      {
+	bdd cur = ap;
+	while (cur != bddtrue)
+	  {
+	    ++nap;
+	    cur = bdd_high(cur);
+	  }
+	nap = 1 << nap;
+      }
 
       // Number all the SAT variable we may need.
       {
@@ -484,12 +495,6 @@ namespace spot
 	f.run();
 	ref_size = f.size();
       }
-
-#if DEBUG
-      debug_dict = ref->get_dict();
-      dout << "ref_size: " << ref_size << "\n";
-      dout << "cand_size: " << d.cand_size << "\n";
-#endif
 
       // empty automaton is impossible
       if (d.cand_size == 0)
@@ -500,6 +505,33 @@ namespace spot
 
       // An empty line for the header
       out << "                                                 \n";
+
+#if DEBUG
+      debug_dict = ref->get_dict();
+      dout << "ref_size: " << ref_size << "\n";
+      dout << "cand_size: " << d.cand_size << "\n";
+#endif
+
+      dout << "symmetry-breaking clauses\n";
+      int j = 0;
+      bdd all = bddtrue;
+      while (all != bddfalse)
+ 	{
+ 	  bdd s = bdd_satoneset(all, ap, bddfalse);
+ 	  all -= s;
+ 	  for (int i = 1; i < d.cand_size; ++i)
+ 	    for (int k = (i - 1) * nap + j + 3; k <= d.cand_size; ++k)
+	      {
+		transition t(i, s, k);
+		int ti = d.transid[t];
+		dout << "¬" << t << "\n";
+		out << -ti << " 0\n";
+		++nclauses;
+	      }
+ 	  ++j;
+ 	}
+      if (!nclauses)
+ 	dout << "(none)\n";
 
       dout << "(8) the candidate automaton is complete\n";
       for (int q1 = 1; q1 <= d.cand_size; ++q1)
