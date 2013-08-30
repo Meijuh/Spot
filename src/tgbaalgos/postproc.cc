@@ -143,6 +143,8 @@ namespace spot
     if (type_ == BA)
       state_based_ = true;
 
+    int original_acc = a->number_of_acceptance_conditions();
+
     // Remove useless SCCs.
     if (type_ == Monitor)
       {
@@ -218,7 +220,6 @@ namespace spot
     bool dba_is_minimal = false;
     const tgba* dba = 0;
     const tgba* sim = 0;
-    int original_acc = a->number_of_acceptance_conditions();
 
     // (Small,Low) is the only configuration where we do not run
     // WDBA-minimization.
@@ -243,9 +244,8 @@ namespace spot
 	  delete a;
 
 	// Degeneralize the result of the simulation if needed.
-	// FIXME: We should not do that if
-	// tba_determinisation/sat-minimization is used?
-	if (type_ == BA)
+	// No need to do that if tba_determinisation_ will be used.
+	if (type_ == BA && !tba_determinisation_)
 	  sim = do_degen(sim);
       }
     else
@@ -257,7 +257,17 @@ namespace spot
     // automaton, use it as dba.
     assert(dba || sim);
     if (!dba && is_deterministic(sim))
-      std::swap(sim, dba);
+      {
+	std::swap(sim, dba);
+	// We postponed degeneralization above i case we would need
+	// to perform TBA-determinisation, but now it is clear
+	// that we won't perform it.  So do degeneralize.
+	if (tba_determinisation_ && type_ == BA)
+	  {
+	    dba = do_degen(dba);
+	    assert(is_deterministic(dba));
+	  }
+      }
 
     // If we don't have a DBA, attempt tba-determinization if requested.
     if (tba_determinisation_ && !dba)
@@ -302,6 +312,12 @@ namespace spot
 	    delete sim;
 	    sim = 0;
 	  }
+	else
+	  {
+	    // degeneralize sim, because we did not do it earlier
+	    if (type_ == BA)
+	      sim = do_degen(sim);
+	  }
       }
 
     // Now dba contains either the result of WDBA-minimization (in
@@ -317,7 +333,8 @@ namespace spot
 	  target_acc = sat_acc_;
 	else
 	  // Take the number of acceptance conditions from the input
-	  // automaton, not from dba, because dba has always one.
+	  // automaton, not from dba, because dba often has been
+	  // degeneralized to beform tba_determinize_check().
 	  target_acc = original_acc;
 
 	const tgba* in = 0;
