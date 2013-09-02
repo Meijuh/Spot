@@ -323,8 +323,10 @@ namespace spot
     // Now dba contains either the result of WDBA-minimization (in
     // that case dba_is_wdba=true), or some deterministic automaton
     // that is either the result of the simulation or of the
-    // TBA-determinization (dba_is_wdba=false in both cases).
-    if (sat_minimize_ && dba && !dba_is_wdba)
+    // TBA-determinization (dba_is_wdba=false in both cases).  If the
+    // dba is a WDBA, we do not have to run SAT-minimization.  A
+    // negative value in sat_minimize_ can for its use for debugging.
+    if (sat_minimize_ && dba && (!dba_is_wdba || sat_minimize_ < 0))
       {
 	unsigned target_acc;
 	if (type_ == BA)
@@ -334,8 +336,9 @@ namespace spot
 	else
 	  // Take the number of acceptance conditions from the input
 	  // automaton, not from dba, because dba often has been
-	  // degeneralized to beform tba_determinize_check().
-	  target_acc = original_acc;
+	  // degeneralized to beform tba_determinize_check().  MAke
+	  // sure it is at least 1.
+	  target_acc = original_acc > 0 ? original_acc : 1;
 
 	const tgba* in = 0;
 	const tgba* to_free = 0;
@@ -362,7 +365,7 @@ namespace spot
 	  {
 	    if (sat_states_ != -1)
 	      res = dtba_sat_synthetize(cmp, sat_states_, state_based_);
-	    else if (sat_minimize_ == 1)
+	    else if (sat_minimize_ == 1 || sat_minimize_ == -1)
 	      res = dtba_sat_minimize(cmp, state_based_);
 	    else  // sat_minimize_ == 2
 	      res = dtba_sat_minimize_dichotomy(cmp, state_based_);
@@ -372,7 +375,7 @@ namespace spot
 	    if (sat_states_ != -1)
 	      res = dtgba_sat_synthetize(cmp, target_acc, sat_states_,
 					 state_based_);
-	    else if (sat_minimize_ == 1)
+	    else if (sat_minimize_ == 1 || sat_minimize_ == -1)
 	      res = dtgba_sat_minimize(cmp, target_acc, state_based_);
 	    else  // sat_minimize_ == 2
 	      res = dtgba_sat_minimize_dichotomy(cmp, target_acc, state_based_);
