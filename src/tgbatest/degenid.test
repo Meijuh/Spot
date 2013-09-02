@@ -65,3 +65,41 @@ EOF
 
 run 0 ../ltl2tgba -ks -X -DS bug > out
 grep 'states: 6' out
+
+
+# This 8-state degeneralized automaton used
+# to be "degeneralized" to a 9-state BA...
+cat > bug2 <<EOF
+acc = "1";
+"1", "2", "1",;
+"2", "3", "1", "1";
+"3", "3", "a & !b",;
+"3", "4", "a & b",;
+"3", "5", "!a & !b",;
+"3", "6", "b & !a",;
+"4", "3", "a", "1";
+"4", "5", "!a", "1";
+"5", "3", "a & !b",;
+"5", "4", "a & b",;
+"5", "6", "b & !a",;
+"5", "7", "!a & !b",;
+"6", "3", "a & !b", "1";
+"6", "4", "a & b", "1";
+"6", "6", "b & !a", "1";
+"6", "7", "!a & !b", "1";
+"7", "3", "a & !b",;
+"7", "4", "a & b",;
+"7", "8", "b & !a",;
+"7", "7", "!a & !b",;
+"8", "4", "a",;
+"8", "8", "!a",;
+EOF
+
+run 0 ../ltl2tgba -ks -X -DS bug2 >out
+grep 'states: 8' out
+
+
+# This automaton should have a 3-state BA, but it's really
+# easy to obtain a 4-state BA when tweaking the degeneralization
+# to ignore arc entering an SCC.
+test 3 = "`../../bin/ltl2tgba -B 'G(a|G(b|Fc))' --stats=%s`"

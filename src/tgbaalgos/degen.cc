@@ -155,6 +155,50 @@ namespace spot
       }
     };
 
+
+    // Check whether a state has an accepting self-loop, with a catch.
+    class has_acc_loop
+    {
+      const tgba* a_;
+      typedef Sgi::hash_map<const state*, bool,
+                            state_ptr_hash, state_ptr_equal> cache_t;
+      cache_t cache_;
+      unicity_table uniq_;
+
+    public:
+      has_acc_loop(const tgba* a, unicity_table& uniq):
+	a_(a),
+	uniq_(uniq)
+      {
+      }
+
+      bool check(const state* s)
+      {
+	std::pair<cache_t::iterator, bool> p =
+	  cache_.insert(std::make_pair(s, false));
+	if (p.second)
+	  {
+	    bdd all = a_->all_acceptance_conditions();
+	    tgba_succ_iterator* it = a_->succ_iter(s);
+	    for (it->first(); !it->done(); it->next())
+	      {
+		// Look only for transitions that are accepting.
+		if (all != it->current_acceptance_conditions())
+		  continue;
+		// Look only for self-loops.
+		const state* dest = uniq_(it->current_state());
+		if (dest == s)
+		  {
+		    p.first->second = true;
+		    break;
+		  }
+	      }
+	    delete it;
+	  }
+        return p.first->second;
+      }
+    };
+
     // Order of accepting sets (for one SCC)
     class acc_order
     {
@@ -287,6 +331,9 @@ namespace spot
     // from the input automaton.
     unicity_table uniq;
 
+    // Accepting loop checker, for some heuristics.
+    has_acc_loop acc_loop(a, uniq);
+
     // These maps make it possible to convert degen_state to number
     // and vice-versa.
     ds2num_map ds2num;
@@ -305,7 +352,7 @@ namespace spot
 
     // Compute SCCs in order to use any optimization.
     scc_map m(a);
-    if (use_cust_acc_orders || use_lvl_cache || use_z_lvl)
+    if (use_scc)
       m.build_map();
 
     queue_t todo;
@@ -315,25 +362,8 @@ namespace spot
 
     // As an heuristic, if the initial state at least one accepting
     // self-loop, start the degeneralization on the accepting level.
-    {
-      bdd all = a->all_acceptance_conditions();
-      tgba_succ_iterator* it = a->succ_iter(s0);
-      for (it->first(); !it->done(); it->next())
-        {
-          // Look only for transitions that are accepting.
-          if (all != it->current_acceptance_conditions())
-            continue;
-          // Look only for self-loops.
-          const state* dest = uniq(it->current_state());
-          if (dest == s0)
-            {
-              // The initial state has an accepting self-loop.
-              s.second = order.size();
-              break;
-            }
-        }
-      delete it;
-    }
+    if (acc_loop.check(s0))
+      s.second = order.size();
     // Otherwise, check for acceptance conditions common to all
     // outgoing transitions, and assume we have already seen these and
     // start on the associated level.
@@ -394,7 +424,6 @@ namespace spot
             if (names.find(d.first) == names.end())
               names[d.first] = uniq.size();
 #endif
-
             // Check whether the target SCC is accepting
             bool is_scc_acc;
             int scc;
@@ -483,11 +512,6 @@ namespace spot
             // }
             if (is_scc_acc)
               {
-                acc |= otheracc;
-                // If use_z_lvl is on, start with level zero 0 when
-                // swhitching SCCs
-                unsigned next = (!use_z_lvl || s_scc == scc) ? slevel : 0;
-
                 // If lvl_cache is used and switching SCCs, use level from cache
                 if (use_lvl_cache && s_scc != scc
 		    && lvl_cache.find(d.first) != lvl_cache.end())
@@ -496,20 +520,45 @@ namespace spot
                   }
                 else
                   {
+		    // Complete (or replace) the acceptance sets of
+		    // this link with the acceptance sets common to
+		    // all transitions leaving the destination state.
+		    if (s_scc == scc)
+		      acc |= otheracc;
+		    else
+		      acc = otheracc;
+
+		    // If use_z_lvl is on, start with level zero 0 when
+		    // swhitching SCCs
+		    unsigned next = (!use_z_lvl || s_scc == scc) ? slevel : 0;
+
 		    // If using custom acc orders, get next level for this scc
                     if (use_cust_acc_orders)
-                      d.second = orders.next_level(scc, next, acc);
+		      {
+			d.second = orders.next_level(scc, next, acc);
+		      }
                     // Else compute level according the global acc order
                     else
                       {
-                        // Consider both the current acceptance sets, and the
-                        // acceptance sets common to the outgoing transitions of
-                        // the destination state.
-                        while (next < order.size()
-			       && bdd_implies(order[next], acc))
-                          ++next;
-
-                        d.second = next;
+			// As a heuristic, if we enter the SCC on a
+			// state that has at least one accepting
+			// self-loop, start the degeneralization on
+			// the accepting level.
+			if (s_scc != scc && acc_loop.check(d.first))
+			  {
+			    d.second = order.size();
+			  }
+			else
+			  {
+			    // Consider both the current acceptance
+			    // sets, and the acceptance sets common to
+			    // the outgoing transitions of the
+			    // destination state.
+			    while (next < order.size()
+				   && bdd_implies(order[next], acc))
+			      ++next;
+			    d.second = next;
+			  }
                       }
                   }
               }
