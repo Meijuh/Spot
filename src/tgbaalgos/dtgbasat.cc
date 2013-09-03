@@ -476,7 +476,7 @@ namespace spot
     void dtgba_to_sat(std::ostream& out, const tgba* ref, dict& d,
 		      bool state_based)
     {
-      int nclauses = 0;
+      clause_counter nclauses;
       int ref_size = 0;
 
       scc_map sm(ref);
@@ -536,7 +536,7 @@ namespace spot
 	      }
  	  ++j;
  	}
-      if (!nclauses)
+      if (!nclauses.nb_clauses())
  	dout << "(none)\n";
 
       dout << "(8) the candidate automaton is complete\n";
@@ -847,7 +847,7 @@ namespace spot
 	    }
 	}
       out.seekp(0);
-      out << "p cnf " << d.nvars << " " << nclauses;
+      out << "p cnf " << d.nvars << " " << nclauses.nb_clauses();
     }
 
     static tgba_explicit_number*
@@ -977,11 +977,22 @@ namespace spot
     current->cand_size = target_state_number;
     current->cand_nacc = target_acc_number;
 
-    cnf = create_tmpfile("dtgba-sat-", ".cnf");
-    std::fstream cnfs(cnf->name(),
-		      std::ios_base::trunc | std::ios_base::out);
-    dtgba_to_sat(cnfs, a, *current, state_based);
-    cnfs.close();
+    try
+      {
+	cnf = create_tmpfile("dtgba-sat-", ".cnf");
+	std::fstream cnfs(cnf->name(),
+			  std::ios_base::trunc | std::ios_base::out);
+	dtgba_to_sat(cnfs, a, *current, state_based);
+	cnfs.close();
+      }
+    catch (...)
+      {
+	if (DEBUG)
+	  xrename(cnf->name(), "dgtba-sat.cnf");
+	delete current;
+	delete cnf;
+	throw;
+      }
 
     out = create_tmpfile("dtgba-sat-", ".out");
     satsolver(cnf, out);

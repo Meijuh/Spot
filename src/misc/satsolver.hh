@@ -22,10 +22,48 @@
 
 #include "common.hh"
 #include <vector>
+#include <stdexcept>
 
 namespace spot
 {
   class printable;
+
+  class clause_counter
+  {
+  private:
+    int count_;
+
+  public:
+    clause_counter()
+      : count_(0)
+    {
+    }
+
+    void check() const
+    {
+      if (count_ < 0)
+	throw std::runtime_error("too many SAT clauses (more than INT_MAX)");
+    }
+
+    clause_counter& operator++()
+    {
+      ++count_;
+      check();
+      return *this;
+    }
+
+    clause_counter& operator+=(int n)
+    {
+      count_ += n;
+      check();
+      return *this;
+    }
+
+    int nb_clauses() const
+    {
+      return count_;
+    }
+  };
 
   /// \brief Run a SAT solver.
   ///
