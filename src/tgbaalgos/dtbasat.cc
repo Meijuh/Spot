@@ -660,6 +660,7 @@ namespace spot
 #if DEBUG
       std::fstream out("dtba-sat.dbg",
 		       std::ios_base::trunc | std::ios_base::out);
+      out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
       std::set<int> positive;
 #endif
 
@@ -774,6 +775,7 @@ namespace spot
 	cnf = create_tmpfile("dtba-sat-", ".cnf");
 	std::fstream cnfs(cnf->name(),
 			  std::ios_base::trunc | std::ios_base::out);
+	cnfs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	dtba_to_sat(cnfs, a, *current, state_based);
 	cnfs.close();
       }
