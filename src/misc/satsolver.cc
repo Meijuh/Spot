@@ -25,6 +25,7 @@
 #include "satsolver.hh"
 #include <fstream>
 #include <limits>
+#include <sys/wait.h>
 
 namespace spot
 {
@@ -58,7 +59,26 @@ namespace spot
 	declare('O', out);
 	std::ostringstream s;
 	format(s, satsolver);
-	return system(s.str().c_str());
+	int res = system(s.str().c_str());
+	if (res < 0 || (WIFEXITED(res) && WEXITSTATUS(res) == 127))
+	  {
+	    s << ": failed to execute";
+	    throw std::runtime_error(s.str());
+	  }
+	// For POSIX shells, "The exit status of a command that
+	// terminated because it received a signal shall be reported
+	// as greater than 128."
+	if (WIFEXITED(res) && WEXITSTATUS(res) >= 128)
+	  {
+	    s << ": terminated by signal";
+	    throw std::runtime_error(s.str());
+	  }
+	if (WIFSIGNALED(res))
+	  {
+	    s << ": terminated by signal " << WTERMSIG(res);
+	    throw std::runtime_error(s.str());
+	  }
+	return res;
       }
     };
   }
