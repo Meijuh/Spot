@@ -250,6 +250,9 @@ namespace spot
 	      {
 		d.prodid[state_pair(j, i)] = ++d.nvars;
 
+		if (sm_.trivial(i_scc))
+		  continue;
+
 		for (dict::state_map::const_iterator k2 = seen.begin();
 		     k2 != seen.end(); ++k2)
 		  {
@@ -407,13 +410,18 @@ namespace spot
 	  int q1 = pit->first.a;
 	  int q1p = pit->first.b;
 
-	  dout << "(2) states Cand[" << q1 << "] and Ref[" << q1p
-	       << "] are 0-length paths\n";
-	  path p(q1, q1p, q1, q1p);
-	  dout << pit->first << " → (" << p << "R ∧ " << p << "C)\n";
-	  out << -pit->second << " " << d.pathid_ref[p] <<" 0\n";
-	  out << -pit->second << " " << d.pathid_cand[p] <<" 0\n";
-	  nclauses += 2;
+	  unsigned q1p_scc = sm.scc_of_state(d.int_to_state[q1p]);
+
+	  if (!sm.trivial(q1p_scc))
+	    {
+	      dout << "(2) states Cand[" << q1 << "] and Ref[" << q1p
+		   << "] are 0-length paths\n";
+	      path p(q1, q1p, q1, q1p);
+	      dout << pit->first << " → (" << p << "R ∧ " << p << "C)\n";
+	      out << -pit->second << " " << d.pathid_ref[p] << " 0\n";
+	      out << -pit->second << " " << d.pathid_cand[p] << " 0\n";
+	      nclauses += 2;
+	    }
 
 	  dout << "(3) augmenting paths based on Cand[" << q1
 	       << "] and Ref[" << q1p << "]\n";
@@ -459,6 +467,8 @@ namespace spot
       for (int q1p = 1; q1p <= ref_size; ++q1p)
 	{
 	  unsigned q1p_scc = sm.scc_of_state(d.int_to_state[q1p]);
+	  if (sm.trivial(q1p_scc))
+	    continue;
 	  for (int q2p = 1; q2p <= ref_size; ++q2p)
 	    {
 	      // We are only interested in transition that can form a
@@ -550,6 +560,8 @@ namespace spot
       for (int q1p = 1; q1p <= ref_size; ++q1p)
 	{
 	  unsigned q1p_scc = sm.scc_of_state(d.int_to_state[q1p]);
+	  if (sm.trivial(q1p_scc))
+	    continue;
 	  for (int q2p = 1; q2p <= ref_size; ++q2p)
 	    {
 	      // We are only interested in transition that can form a
