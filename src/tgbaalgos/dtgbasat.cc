@@ -96,6 +96,32 @@ namespace spot
       }
     };
 
+    struct src_cond
+    {
+      int src;
+      bdd cond;
+
+      src_cond(int src, bdd cond)
+	: src(src), cond(cond)
+      {
+      }
+
+      bool operator<(const src_cond& other) const
+      {
+	if (this->src < other.src)
+	  return true;
+	if (this->src > other.src)
+	  return false;
+	return this->cond.id() < other.cond.id();
+      }
+
+      bool operator==(const src_cond& other) const
+      {
+	return (this->src == other.src
+		&& this->cond.id() == other.cond.id());
+      }
+    };
+
     struct transition_acc
     {
       int src;
@@ -875,6 +901,7 @@ namespace spot
 
       dout << "--- transition variables ---\n";
       std::map<int, bdd> state_acc;
+      std::set<src_cond> seen_trans;
       for (sat_solution::const_iterator i = solution.begin();
 	   i != solution.end(); ++i)
 	{
@@ -891,19 +918,24 @@ namespace spot
 
 	  if (t != satdict.revtransid.end())
 	    {
-	      last_aut_trans = a->create_transition(t->second.src,
-						    t->second.dst);
-	      last_aut_trans->condition = t->second.cond;
-	      last_sat_trans = &t->second;
-
-	      dout << v << "\t" << t->second << "δ\n";
-
-	      if (state_based)
+	      // Skip (s,l,d2) if we have already seen some (s,l,d1).
+	      if (seen_trans.insert(src_cond(t->second.src,
+					     t->second.cond)).second)
 		{
-		  std::map<int, bdd>::const_iterator i =
-		    state_acc.find(t->second.src);
-		  if (i != state_acc.end())
-		    last_aut_trans->acceptance_conditions = i->second;
+		  last_aut_trans = a->create_transition(t->second.src,
+							t->second.dst);
+		  last_aut_trans->condition = t->second.cond;
+		  last_sat_trans = &t->second;
+
+		  dout << v << "\t" << t->second << "δ\n";
+
+		  if (state_based)
+		    {
+		      std::map<int, bdd>::const_iterator i =
+			state_acc.find(t->second.src);
+		      if (i != state_acc.end())
+			last_aut_trans->acceptance_conditions = i->second;
+		    }
 		}
 	    }
 	  else

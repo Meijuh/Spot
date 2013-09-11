@@ -95,6 +95,32 @@ namespace spot
       }
     };
 
+    struct src_cond
+    {
+      int src;
+      bdd cond;
+
+      src_cond(int src, bdd cond)
+	: src(src), cond(cond)
+      {
+      }
+
+      bool operator<(const src_cond& other) const
+      {
+	if (this->src < other.src)
+	  return true;
+	if (this->src > other.src)
+	  return false;
+	return this->cond.id() < other.cond.id();
+      }
+
+      bool operator==(const src_cond& other) const
+      {
+	return (this->src == other.src
+		&& this->cond.id() == other.cond.id());
+      }
+    };
+
     struct state_pair
     {
       int a;
@@ -678,6 +704,7 @@ namespace spot
 
       dout << "--- transition variables ---\n";
       std::set<int> acc_states;
+      std::set<src_cond> seen_trans;
       for (sat_solution::const_iterator i = solution.begin();
 	   i != solution.end(); ++i)
 	{
@@ -694,17 +721,22 @@ namespace spot
 
 	  if (t != satdict.revtransid.end())
 	    {
-	      last_aut_trans = a->create_transition(t->second.src,
-						    t->second.dst);
-	      last_aut_trans->condition = t->second.cond;
-	      last_sat_trans = &t->second;
+	      // Skip (s,l,d2) if we have already seen some (s,l,d1).
+	      if (seen_trans.insert(src_cond(t->second.src,
+					     t->second.cond)).second)
+		{
+		  last_aut_trans = a->create_transition(t->second.src,
+							t->second.dst);
+		  last_aut_trans->condition = t->second.cond;
+		  last_sat_trans = &t->second;
 
-	      dout << v << "\t" << t->second << "δ\n";
+		  dout << v << "\t" << t->second << "δ\n";
 
-	      // Mark the transition as accepting if the source is.
-	      if (state_based
-		  && acc_states.find(t->second.src) != acc_states.end())
-		last_aut_trans->acceptance_conditions = acc;
+		  // Mark the transition as accepting if the source is.
+		  if (state_based
+		      && acc_states.find(t->second.src) != acc_states.end())
+		    last_aut_trans->acceptance_conditions = acc;
+		}
 	    }
 	  else
 	    {
