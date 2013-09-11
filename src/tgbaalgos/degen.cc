@@ -106,7 +106,8 @@ namespace spot
       }
     };
 
-    // Acceptance set common to all outgoing transitions of some state.
+    // Acceptance set common to all outgoing transitions (of the same
+    // SCC -- we do not care about the other) of some state.
     class outgoing_acc
     {
       const tgba* a_;
@@ -114,19 +115,28 @@ namespace spot
       typedef Sgi::hash_map<const state*, cache_entry,
                             state_ptr_hash, state_ptr_equal> cache_t;
       cache_t cache_;
+      const scc_map* sm_;
 
     public:
-      outgoing_acc(const tgba* a): a_(a)
+      outgoing_acc(const tgba* a, const scc_map* sm): a_(a), sm_(sm)
       {
       }
 
       cache_t::const_iterator fill_cache(const state* s)
       {
+	unsigned s1 = sm_ ? sm_->scc_of_state(s) : 0;
         bdd common = a_->all_acceptance_conditions();
         bdd union_ = bddfalse;
         tgba_succ_iterator* it = a_->succ_iter(s);
         for (it->first(); !it->done(); it->next())
           {
+	    // Ignore transitions that leave the SCC of s.
+	    const state* d = it->current_state();
+	    unsigned s2 = sm_ ? sm_->scc_of_state(d) : 0;
+	    d->destroy();
+	    if (s2 != s1)
+	      continue;
+
             bdd set = it->current_acceptance_conditions();
             common &= set;
             union_ |= set;
@@ -325,8 +335,6 @@ namespace spot
     // Initialize scc_orders
     scc_orders orders(a->all_acceptance_conditions());
 
-    outgoing_acc outgoing(a);
-
     // Make sure we always use the same pointer for identical states
     // from the input automaton.
     unicity_table uniq;
@@ -354,6 +362,9 @@ namespace spot
     scc_map m(a);
     if (use_scc)
       m.build_map();
+
+    // Cache for common outgoing acceptances.
+    outgoing_acc outgoing(a, use_scc ? &m : 0);
 
     queue_t todo;
 

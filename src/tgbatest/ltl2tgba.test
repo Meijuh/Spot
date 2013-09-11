@@ -150,11 +150,10 @@ for opt in '' -D -DS; do
   ../ltl2tgba -ks -f -R3 $opt "$f" > stdout
   grep 'transitions: 15$' stdout
   grep 'states: 6$' stdout
+  ../ltl2tgba -ks -f -R3f $opt "$f" > stdout
+  grep 'transitions: 15$' stdout
+  grep 'states: 6$' stdout
 done
-# Note: this is worse with -R3f.
-../ltl2tgba -ks -f -R3f -DS "$f" > stdout
-grep 'transitions: 17$' stdout
-grep 'states: 7$' stdout
 
 # Make sure 'GFa & GFb & GFc & GFd & GFe & GFf'
 # has 7 states and 34 transitions after degeneralization.

@@ -85,7 +85,7 @@ done
 
 for opt in -TA; do
   ../ltl2tgba -ks $opt -RT -DS 'Ga U b' > stdout
-  grep 'transitions: 13$' stdout
+  grep 'transitions: 11$' stdout
   grep 'states: 6$' stdout
 done
 
@@ -119,11 +119,11 @@ grep 'states: 290$' stdout
 
 #tests with artificial livelock state:
 run 0 ../ltl2tgba -ks -TA -lv  -DS "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
-grep 'transitions: 790$' stdout
+grep 'transitions: 784$' stdout
 grep 'states: 66$' stdout
 
 run 0 ../ltl2tgba -TA -RT -ks -lv -DS  "Gq|Gr|(G(q|FGp)&G(r|FG!p))" >stdout
-grep 'transitions: 390$' stdout
+grep 'transitions: 384$' stdout
 grep 'states: 26$' stdout
 
 run 0 ../ltl2tgba -TGTA -RT -ks  'Gq|Gr|(G(q|FGp)&G(r|FG!p))' >stdout
@@ -138,7 +138,7 @@ grep 'states: 38$' stdout
 
 
 run 0 ../ltl2tgba -TA -RT -ks -lv -R3f -x  -DS  "$f" >stdout
-grep 'transitions: 555$' stdout
+grep 'transitions: 551$' stdout
 grep 'states: 40$' stdout
 
 
