@@ -31,6 +31,7 @@
 #include "ltlenv/defaultenv.hh"
 #include "misc/tmpfile.hh"
 #include "misc/satsolver.hh"
+#include "isweakscc.hh"
 
 // If the following DEBUG macro is set to 1, the temporary files used
 // to communicate with the SAT-solver will be left in the current
@@ -373,6 +374,8 @@ namespace spot
 	    int i = i2->second;
 	    d.int_to_state[i] = i2->first;
 	    unsigned i_scc = sm_.scc_of_state(i2->first);
+	    bool is_weak = is_weak_scc(sm_, i_scc);
+
 	    for (int j = 1; j <= d.cand_size; ++j)
 	      {
 		for (dict::state_map::const_iterator k2 = seen.begin();
@@ -383,11 +386,11 @@ namespace spot
 		      continue;
 		    for (int l = 1; l <= d.cand_size; ++l)
 		      {
-			size_t sf = d.all_cand_acc.size();
-			for (size_t f = 0; f < sf; ++f)
+			size_t sfp = is_weak ? 1 : d.all_ref_acc.size();
+			for (size_t fp = 0; fp < sfp; ++fp)
 			  {
-			    size_t sfp = d.all_ref_acc.size();
-			    for (size_t fp = 0; fp < sfp; ++fp)
+			    size_t sf = d.all_cand_acc.size();
+			    for (size_t f = 0; f < sf; ++f)
 			      {
 				path p(j, i, l, k,
 				       d.all_cand_acc[f],
@@ -630,11 +633,14 @@ namespace spot
 	      // cycle, so they must belong to the same SCC.
 	      if (sm.scc_of_state(d.int_to_state[q2p]) != q1p_scc)
 		continue;
+	      bool is_weak = is_weak_scc(sm, q1p_scc);
+	      bool is_acc = sm.accepting(q1p_scc);
+
 	      for (int q1 = 1; q1 <= d.cand_size; ++q1)
 		for (int q2 = 1; q2 <= d.cand_size; ++q2)
 		  {
 		    size_t sf = d.all_cand_acc.size();
-		    size_t sfp = d.all_ref_acc.size();
+		    size_t sfp = is_weak ? 1 : d.all_ref_acc.size();
 		    for (size_t f = 0; f < sf; ++f)
 		      for (size_t fp = 0; fp < sfp; ++fp)
 			{
@@ -676,8 +682,10 @@ namespace spot
 
 				      if (dp == q1p && q3 == q1) // (11,12) loop
 					{
-					  bdd unio = curacc | d.all_ref_acc[fp];
-					  if (unio != all_acc)
+					  if ((!is_acc) ||
+					      (!is_weak &&
+					       (curacc |
+						d.all_ref_acc[fp]) != all_acc))
 					    {
 #if DEBUG
 					      dout << "(11) " << p << " ∧ "
@@ -771,7 +779,8 @@ namespace spot
 
 					    bdd f2 = p.acc_cand |
 					      d.all_cand_acc[f];
-					    bdd f2p = p.acc_ref | curacc;
+					    bdd f2p = is_weak ? bddfalse
+					      : p.acc_ref | curacc;
 
 					    path p2(p.src_cand, p.src_ref,
 						    q3, dp, f2, f2p);
