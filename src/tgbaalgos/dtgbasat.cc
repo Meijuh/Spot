@@ -160,30 +160,6 @@ namespace spot
       }
     };
 
-    struct state_pair
-    {
-      int a;
-      int b;
-
-      state_pair(int a, int b)
-	: a(a), b(b)
-      {
-      }
-
-      bool operator<(const state_pair& other) const
-      {
-	if (this->a < other.a)
-	  return true;
-	if (this->a > other.a)
-	  return false;
-	if (this->b < other.b)
-	  return true;
-	if (this->b > other.b)
-	  return false;
-	return false;
-      }
-    };
-
     struct path
     {
       int src_cand;
@@ -192,6 +168,13 @@ namespace spot
       int dst_ref;
       bdd acc_cand;
       bdd acc_ref;
+
+      path(int src_cand, int src_ref)
+	: src_cand(src_cand), src_ref(src_ref),
+	  dst_cand(src_cand), dst_ref(src_ref),
+	  acc_cand(bddfalse), acc_ref(bddfalse)
+      {
+      }
 
       path(int src_cand, int src_ref,
 	   int dst_cand, int dst_ref,
@@ -233,12 +216,6 @@ namespace spot
       }
 
     };
-
-    std::ostream& operator<<(std::ostream& os, const state_pair& p)
-    {
-      os << "<" << p.a << "," << p.b << ">";
-      return os;
-    }
 
     std::ostream& operator<<(std::ostream& os, const transition& t)
     {
@@ -287,7 +264,6 @@ namespace spot
       rev_map revtransid;
       rev_acc_map revtransaccid;
 
-      std::map<state_pair, int> prodid;
       std::map<path, int> pathid;
       int nvars;
       typedef Sgi::hash_map<const state*, int,
@@ -399,8 +375,6 @@ namespace spot
 	    unsigned i_scc = sm_.scc_of_state(i2->first);
 	    for (int j = 1; j <= d.cand_size; ++j)
 	      {
-		d.prodid[state_pair(j, i)] = ++d.nvars;
-
 		for (dict::state_map::const_iterator k2 = seen.begin();
 		     k2 != seen.end(); ++k2)
 		  {
@@ -599,25 +573,18 @@ namespace spot
 	}
 
       dout << "(9) the initial state is reachable\n";
-      dout << state_pair(1, 1) << "\n";
-      out << d.prodid[state_pair(1, 1)] << " 0\n";
+      dout << path(1, 1) << "\n";
+      out << d.pathid[path(1, 1)] << " 0\n";
       ++nclauses;
 
-      for (std::map<state_pair, int>::const_iterator pit = d.prodid.begin();
-	   pit != d.prodid.end(); ++pit)
+      for (int q1 = 1; q1 <= d.cand_size; ++q1)
+	for (int q1p = 1; q1p <= ref_size; ++q1p)
 	{
-	  int q1 = pit->first.a;
-	  int q1p = pit->first.b;
-
-	  dout << "(9) states Cand[" << q1 << "] and Ref[" << q1p
-	       << "] are 0-length paths\n";
-	  path p(q1, q1p, q1, q1p, bddfalse, bddfalse);
-	  dout << pit->first << " → " << p << "\n";
-	  out << -pit->second << " " << d.pathid[p] <<" 0\n";
-	  ++nclauses;
-
 	  dout << "(10) augmenting paths based on Cand[" << q1
 	       << "] and Ref[" << q1p << "]\n";
+	  path p1(q1, q1p);
+	  int p1id = d.pathid[p1];
+
 	  tgba_succ_iterator* it = ref->succ_iter(d.int_to_state[q1p]);
 	  for (it->first(); !it->done(); it->next())
 	    {
@@ -636,15 +603,14 @@ namespace spot
 		      transition t(q1, s, q2);
 		      int ti = d.transid[t];
 
-		      state_pair p2(q2, dp);
-		      int succ = d.prodid[p2];
+		      path p2(q2, dp);
+		      int succ = d.pathid[p2];
 
-		      if (pit->second == succ)
+		      if (p1id == succ)
 			continue;
 
-		      dout << pit->first << " ∧ " << t << "δ → " << p2 << "\n";
-		      out << -pit->second << " " << -ti << " "
-			  << succ << " 0\n";
+		      dout << p1 << " ∧ " << t << "δ → " << p2 << "\n";
+		      out << -p1id << " " << -ti << " " << succ << " 0\n";
 		      ++nclauses;
 		    }
 		}
@@ -964,13 +930,7 @@ namespace spot
 	    }
 	}
 #if DEBUG
-      dout << "--- state_pair variables ---\n";
-      for (std::map<state_pair, int>::const_iterator pit =
-	     satdict.prodid.begin(); pit != satdict.prodid.end(); ++pit)
-	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << "\t" << pit->first << "\n";
-
-      dout << "--- pathit variables ---\n";
+      dout << "--- pathid variables ---\n";
       for (std::map<path, int>::const_iterator pit =
 	     satdict.pathid.begin();
 	   pit != satdict.pathid.end(); ++pit)
