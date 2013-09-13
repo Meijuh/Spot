@@ -287,6 +287,8 @@ namespace spot
 		      continue;
 		    for (int l = 1; l <= d.cand_size; ++l)
 		    {
+		      if (i == k && j == l)
+			continue;
 		      path p(j, i, l, k);
 		      d.pathid_ref[p] = ++d.nvars;
 		      d.pathid_cand[p] = ++d.nvars;
@@ -436,19 +438,6 @@ namespace spot
 	  int q1 = pit->first.a;
 	  int q1p = pit->first.b;
 
-	  unsigned q1p_scc = sm.scc_of_state(d.int_to_state[q1p]);
-
-	  if (!sm.trivial(q1p_scc))
-	    {
-	      dout << "(2) states Cand[" << q1 << "] and Ref[" << q1p
-		   << "] are 0-length paths\n";
-	      path p(q1, q1p, q1, q1p);
-	      dout << pit->first << " → (" << p << "R ∧ " << p << "C)\n";
-	      out << -pit->second << " " << d.pathid_ref[p] << " 0\n";
-	      out << -pit->second << " " << d.pathid_cand[p] << " 0\n";
-	      nclauses += 2;
-	    }
-
 	  dout << "(3) augmenting paths based on Cand[" << q1
 	       << "] and Ref[" << q1p << "]\n";
 	  tgba_succ_iterator* it = ref->succ_iter(d.int_to_state[q1p]);
@@ -509,7 +498,11 @@ namespace spot
 		    dout << "(4&5) matching paths from reference based on "
 			 << p1 << "\n";
 
-		    int pid1 = d.pathid_ref[p1];
+		    int pid1;
+		    if (q1 == q2 && q1p == q2p)
+		      pid1 = d.prodid[state_pair(q1, q1p)];
+		    else
+		      pid1 = d.pathid_ref[p1];
 
 		    tgba_succ_iterator* it =
 		      ref->succ_iter(d.int_to_state[q2p]);
@@ -600,7 +593,12 @@ namespace spot
 		    path p1(q1, q1p, q2, q2p);
 		    dout << "(6&7) matching paths from candidate based on "
 			 << p1 << "\n";
-		    int pid1 = d.pathid_cand[p1];
+
+		    int pid1;
+		    if (q1 == q2 && q1p == q2p)
+		      pid1 = d.prodid[state_pair(q1, q1p)];
+		    else
+		      pid1 = d.pathid_cand[p1];
 
 		    tgba_succ_iterator* it =
 		      ref->succ_iter(d.int_to_state[q2p]);
