@@ -68,7 +68,15 @@ ORG_FILES = \
   org/ltlcross.org \
   org/ltlfilt.org \
   org/randltl.org \
-  org/tools.org
+  org/tools.org \
+  org/satmin.org \
+  org/satmin.tex \
+  $(srcdir)/org/satmin.png
+
+$(srcdir)/org/satmin.png: org/satmin.tex
+	cd $(srcdir)/org && \
+	pdflatex -shell-escape satmin.tex && \
+	rm -f satmin.pdf satmin.aux satmin.log
 
 $(srcdir)/org-stamp: $(ORG_FILES) $(configure_ac)
 	make org && touch $@

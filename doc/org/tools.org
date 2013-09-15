@@ -44,6 +44,10 @@ corresponding commands are hidden.
 - [[file:dstar2tgba.org][=dstar2tgba=]] Convert deterministic Rabin or Streett automata into
   Büchi automata.
 
+* Advanced uses
+
+- [[file:satmin.org][SAT-based minimization of Deterministic (Generalized) Büchi automata]]
+
 #  LocalWords:  num toc helloworld SRC LTL PSL randltl ltlfilt genltl
 #  LocalWords:  scalable ltl tgba Büchi automata tgta ltlcross eval
 #  LocalWords:  setenv concat getenv setq

@@ -68,6 +68,8 @@ New in spot 1.1.4a (not relased)
       deterministic automaton more efficiently) and is disabled by
       default.  See the spot-x(7) man page for documentation about the
       related options: sat-minimize, sat-states, sat-acc, state-based.
+      See also http://spot.lip6.fr/userdoc/satmin.html for some
+      examples.
 
     - ltlfilt, genltl, and randltl now have a --latex option to output
       formulas in a way that its easier to embed in a LaTeX document.
