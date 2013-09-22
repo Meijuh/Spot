@@ -141,7 +141,10 @@ ltlfilt --help | sed -n '/Output options:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :   -8, --utf8                 output using UTF-8 characters
+:       --format=FORMAT        specify how each line should be output (default:
+:                              "%f")
 :   -l, --lbt                  output in LBT's syntax
+:       --latex                output using LaTeX macros
 :   -p, --full-parentheses     output fully-parenthesized formulas
 :   -s, --spin                 output in Spin's syntax
 :       --spot                 output in Spot's syntax (default)
@@ -150,8 +153,14 @@ ltlfilt --help | sed -n '/Output options:/,/^$/p' | sed '1d;$d'
 #  LocalWords:  syntaxes LTL PSL num toc SRC ltl tgba sed FILENAME
 
 The =--spot=, =--utf-8=, =--spin=, =--wring= options select different
-output syntaxes as seen in [[tab:formula-syntaxes][the above table]].  The =-p= option can
-be used to request that parentheses be used at all levels.
+output syntaxes as seen in [[tab:formula-syntaxes][the above table]].
+
+Option =--latex= causes formulas to be output using LaTeX macros for
+each operator.  You may define these macros as you wish, and some
+example definitions are in =doc/tl/spotltl.sty=.
+
+The =-p= option can be used to request that parentheses be used at all
+levels.
 
 Note that by default Spot always outputs parentheses around operators
 such as =U=, because not all tools agree on their associativity.  For
@@ -161,6 +170,17 @@ with read it as =(a U b) U c=.
 
 The =--lbt= option requests an output in LBT's prefix format, and in
 that case discussing associativity and parentheses makes no sense.
+
+The =--format= option can be used to fine-tune the way the formula is
+output.  Not using the =--format= option is equivalent to using
+=--format=%f=.  The semantic of the available =%=-sequences differ
+from tool to tool:
+
+|           | =%f=           | =%F=           | =%L=              |
+|-----------+----------------+----------------+-------------------|
+| [[file:ltlfilt.org][=ltlfilt=]] | output formula | input filename | input line        |
+| [[file:genltl.org][=genltl=]]  | output formula | pattern name   | pattern parameter |
+| [[file:randltl.org][=randltl=]] | output formula | (empty)        | formula number    |
 
 #  LocalWords:  lbt LBT's filename UTF gfa GFa ltlfilt LBTT scheck
 #  LocalWords:  utf associativity

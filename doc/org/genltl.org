@@ -47,7 +47,7 @@ genltl --help | sed -n '/Pattern selection:/,/^$/p' | sed '1d;$d'
                              (p1 U (p2 U (... U pn)))
 #+end_example
 
-An example is probably all it takes to explain how this tool works:
+An example is probably all it takes to understand how this tool works:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 genltl --and-gf=1..5 --u-left=1..5
@@ -69,9 +69,47 @@ p1 U p2
 =genltl= supports the [[file:ioltl.org][common option for output of LTL formulas]], so you
 may output these pattern for various tools.
 
-Note that for the =--lbt= output, each formula is relabeled using
+For instance here is the same formulas, but formatted in a way that is
+suitable for being included in a LaTeX table.
+
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl --and-gf=1..5 --u-left=1..5 --latex --format='%F & %L & $%f$ \\'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+and-gf & 1 & $\G \F p_{1}$ \\
+and-gf & 2 & $\G \F p_{1} \land \G \F p_{2}$ \\
+and-gf & 3 & $\G \F p_{1} \land \G \F p_{2} \land \G \F p_{3}$ \\
+and-gf & 4 & $\G \F p_{1} \land \G \F p_{2} \land \G \F p_{3} \land \G \F p_{4}$ \\
+and-gf & 5 & $\G \F p_{1} \land \G \F p_{2} \land \G \F p_{3} \land \G \F p_{4} \land \G \F p_{5}$ \\
+u-left & 1 & $p_{1}$ \\
+u-left & 2 & $p_{1} \U p_{2}$ \\
+u-left & 3 & $(p_{1} \U p_{2}) \U p_{3}$ \\
+u-left & 4 & $((p_{1} \U p_{2}) \U p_{3}) \U p_{4}$ \\
+u-left & 5 & $(((p_{1} \U p_{2}) \U p_{3}) \U p_{4}) \U p_{5}$ \\
+#+end_example
+
+Note that for the =--lbt= syntax, each formula is relabeled using
 =p0=, =p1=, ...  before it is output, when the pattern (like
-=--ccj-alpha=) use different names.
+=--ccj-alpha=) use different names.  Compare:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl --ccj-alpha=3
+#+END_SRC
+#+RESULTS:
+: F(F(Fq3 & q2) & q1) & F(F(Fp3 & p2) & p1)
+
+with
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl --ccj-alpha=3 --lbt
+#+END_SRC
+#+RESULTS:
+: & F & p2 F & p1 F p0 F & F & F p3 p4 p5
+
+This is because most tools using =lbt='s syntax require atomic
+propositions to have the form =pNN=.
 
 #  LocalWords:  genltl num toc LTL scalable SRC sed gh pn fg FG gf qn
 #  LocalWords:  ccj Xp XXp Xq XXq rv GFp lbt

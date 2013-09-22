@@ -20,14 +20,17 @@
 #include "common_sys.hh"
 #include "common_output.hh"
 #include <iostream>
+#include <sstream>
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/lbt.hh"
+#include "misc/formater.hh"
 #include "common_cout.hh"
 #include "error.h"
 
 #define OPT_SPOT 1
 #define OPT_WRING 2
 #define OPT_LATEX 3
+#define OPT_FORMAT 4
 
 output_format_t output_format = spot_output;
 bool full_parenth = false;
@@ -42,13 +45,126 @@ static const argp_option options[] =
     { "wring", OPT_WRING, 0, 0, "output in Wring's syntax", -20 },
     { "utf8", '8', 0, 0, "output using UTF-8 characters", -20 },
     { "latex", OPT_LATEX, 0, 0, "output using LaTeX macros", -20 },
+    { "format", OPT_FORMAT, "FORMAT", 0,
+      "specify how each line should be output (default: \"%f\")", -20 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
 const struct argp output_argp = { options, parse_opt_output, 0, 0, 0, 0, 0 };
 
+static
+void
+report_not_ltl(const spot::ltl::formula* f,
+	       const char* filename, int linenum, const char* syn)
+{
+  std::string s = spot::ltl::to_string(f);
+  static const char msg[] =
+    "formula '%s' cannot be written %s's syntax because it is not LTL";
+  if (filename)
+    error_at_line(2, 0, filename, linenum, msg, s.c_str(), syn);
+  else
+    error(2, 0, msg, s.c_str(), syn);
+}
+
+static void
+stream_formula(std::ostream& out,
+	       const spot::ltl::formula* f, const char* filename, int linenum)
+{
+  switch (output_format)
+    {
+    case lbt_output:
+      if (f->is_ltl_formula())
+	spot::ltl::to_lbt_string(f, out);
+      else
+	report_not_ltl(f, filename, linenum, "LBT");
+      break;
+    case spot_output:
+      spot::ltl::to_string(f, out, full_parenth);
+      break;
+    case spin_output:
+      if (f->is_ltl_formula())
+	spot::ltl::to_spin_string(f, out, full_parenth);
+      else
+	report_not_ltl(f, filename, linenum, "Spin");
+      break;
+    case wring_output:
+      if (f->is_ltl_formula())
+	spot::ltl::to_wring_string(f, out);
+      else
+	report_not_ltl(f, filename, linenum, "Wring");
+      break;
+    case utf8_output:
+      spot::ltl::to_utf8_string(f, out, full_parenth);
+      break;
+    case latex_output:
+      spot::ltl::to_latex_string(f, out, full_parenth);
+      break;
+    }
+}
+
+namespace
+{
+  struct formula_with_location
+  {
+    const spot::ltl::formula* f;
+    const char* filename;
+    int line;
+  };
+
+  class printable_formula:
+    public spot::printable_value<const formula_with_location*>
+  {
+  public:
+    printable_formula&
+    operator=(const formula_with_location* new_val)
+    {
+      val_ = new_val;
+      return *this;
+    }
+
+    virtual void
+    print(std::ostream& os, const char*) const
+    {
+      stream_formula(os,
+		     val_->f,
+		     val_->filename,
+		     val_->line);
+    }
+  };
+
+  class formula_printer: protected spot::formater
+  {
+  public:
+    formula_printer(std::ostream& os, const char* format)
+      : format_(format)
+    {
+      declare('f', &fl_);
+      declare('F', &filename_);
+      declare('L', &line_);
+      set_output(os);
+    }
+
+    std::ostream&
+    print(const formula_with_location& fl)
+    {
+      fl_ = &fl;
+      filename_ = fl.filename ? fl.filename : "";
+      line_ = fl.line;
+      return format(format_);
+    }
+
+  private:
+    const char* format_;
+    printable_formula fl_;
+    spot::printable_value<const char*> filename_;
+    spot::printable_value<int> line_;
+  };
+}
+
+static formula_printer* format = 0;
+
 int
-parse_opt_output(int key, char*, struct argp_state*)
+parse_opt_output(int key, char* arg, struct argp_state*)
 {
   // This switch is alphabetically-ordered.
   switch (key)
@@ -74,60 +190,30 @@ parse_opt_output(int key, char*, struct argp_state*)
     case OPT_WRING:
       output_format = wring_output;
       break;
+    case OPT_FORMAT:
+      delete format;
+      format = new formula_printer(std::cout, arg);
+      break;
     default:
       return ARGP_ERR_UNKNOWN;
     }
   return 0;
 }
 
-static
-void
-report_not_ltl(const spot::ltl::formula* f,
-	       const char* filename, int linenum, const char* syn)
-{
-  std::string s = spot::ltl::to_string(f);
-  static const char msg[] =
-    "formula '%s' cannot be written %s's syntax because it is not LTL";
-  if (filename)
-    error_at_line(2, 0, filename, linenum, msg, s.c_str(), syn);
-  else
-    error(2, 0, msg, s.c_str(), syn);
-}
-
 
 void
 output_formula(const spot::ltl::formula* f, const char* filename, int linenum)
 {
-  switch (output_format)
+  if (!format)
     {
-    case lbt_output:
-      if (f->is_ltl_formula())
-	spot::ltl::to_lbt_string(f, std::cout);
-      else
-	report_not_ltl(f, filename, linenum, "LBT");
-      break;
-    case spot_output:
-      spot::ltl::to_string(f, std::cout, full_parenth);
-      break;
-    case spin_output:
-      if (f->is_ltl_formula())
-	spot::ltl::to_spin_string(f, std::cout, full_parenth);
-      else
-	report_not_ltl(f, filename, linenum, "Spin");
-      break;
-    case wring_output:
-      if (f->is_ltl_formula())
-	spot::ltl::to_wring_string(f, std::cout);
-      else
-	report_not_ltl(f, filename, linenum, "Wring");
-      break;
-    case utf8_output:
-      spot::ltl::to_utf8_string(f, std::cout, full_parenth);
-      break;
-    case latex_output:
-      spot::ltl::to_latex_string(f, std::cout, full_parenth);
-      break;
+      stream_formula(std::cout, f, filename, linenum);
     }
+  else
+    {
+      formula_with_location fl = { f, filename, linenum };
+      format->print(fl);
+    }
+
   // Make sure we abort if we can't write to std::cout anymore
   // (like disk full or broken pipe with SIGPIPE ignored).
   std::cout << std::endl;

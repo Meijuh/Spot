@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -107,6 +107,14 @@ static const argp_option options[] =
       "listed by --dump-priorities.", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output options:", -20 },
+    { 0, 0, 0, 0, "The FORMAT string passed to --format may use "\
+      "the following interpreted sequences:", -19 },
+    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the formula (in the selected syntax)", 0 },
+    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the (serial) number of the formula", 0 },
+    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "a single %", 0 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }
   };
@@ -387,7 +395,8 @@ main(int argc, char** argv)
       if (trials == 0)
 	error(2, 0, "failed to generate a new unique formula after %d trials",
 	      MAX_TRIALS);
-      output_formula(f);
+      static int count = 0;
+      output_formula(f, 0, ++count);
       f->destroy();
     };
 

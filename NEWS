@@ -76,6 +76,10 @@ New in spot 1.1.4a (not relased)
       Each operator is output as a command such as \U, \F, etc.
       doc/tl/spotltl.sty gives one possible definition for each macro.
 
+    - ltlfilt, genltl, and randltl have a new --format option to
+      indicate how to present the output formula, possibly with
+      information about the input.
+
   * New functions and classes in the library:
 
     - dtba_sat_synthetize(): Use a SAT-solver to build an equivalent

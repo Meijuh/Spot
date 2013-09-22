@@ -96,26 +96,52 @@ using namespace spot::ltl;
 const char argp_program_doc[] ="\
 Generate temporal logic formulas from predefined scalable patterns.";
 
-#define OPT_AND_F 2
-#define OPT_AND_FG 3
-#define OPT_AND_GF 4
-#define OPT_CCJ_ALPHA 5
-#define OPT_CCJ_BETA 6
-#define OPT_CCJ_BETA_PRIME 7
-#define OPT_GH_Q  8
-#define OPT_GH_R  9
-#define OPT_GO_THETA 10
-#define OPT_OR_FG 11
-#define OPT_OR_G 12
-#define OPT_OR_GF 13
-#define OPT_R_LEFT 14
-#define OPT_R_RIGHT 15
-#define OPT_RV_COUNTER 16
-#define OPT_RV_COUNTER_CARRY 17
-#define OPT_RV_COUNTER_CARRY_LINEAR 18
-#define OPT_RV_COUNTER_LINEAR 19
-#define OPT_U_LEFT 20
-#define OPT_U_RIGHT 21
+#define OPT_AND_F 1
+#define OPT_AND_FG 2
+#define OPT_AND_GF 3
+#define OPT_CCJ_ALPHA 4
+#define OPT_CCJ_BETA 5
+#define OPT_CCJ_BETA_PRIME 6
+#define OPT_GH_Q 7
+#define OPT_GH_R 8
+#define OPT_GO_THETA 9
+#define OPT_OR_FG 10
+#define OPT_OR_G 11
+#define OPT_OR_GF 12
+#define OPT_R_LEFT 13
+#define OPT_R_RIGHT 14
+#define OPT_RV_COUNTER 15
+#define OPT_RV_COUNTER_CARRY 16
+#define OPT_RV_COUNTER_CARRY_LINEAR 17
+#define OPT_RV_COUNTER_LINEAR 18
+#define OPT_U_LEFT 19
+#define OPT_U_RIGHT 20
+#define LAST_CLASS 20
+
+const char* const class_name[LAST_CLASS] =
+  {
+    "and-f",
+    "and-fg",
+    "and-gf",
+    "ccj-alpha",
+    "ccj-beta",
+    "ccj-beta-prime",
+    "gh-q",
+    "gh-r",
+    "go-theta",
+    "or-fg",
+    "or-g",
+    "or-gf",
+    "or-r-left",
+    "or-r-right",
+    "rv-counter",
+    "rv-counter-carry",
+    "rv-counter-carry-linear",
+    "rv-counter-linear",
+    "u-left",
+    "u-right",
+  };
+
 
 #define OPT_ALIAS(o) { #o, 0, 0, OPTION_ALIAS, 0, 0 }
 
@@ -168,6 +194,16 @@ static const argp_option options[] =
     RANGE_DOC,
   /**************************************************/
     { 0, 0, 0, 0, "Output options:", -20 },
+    { 0, 0, 0, 0, "The FORMAT string passed to --format may use "\
+      "the following interpreted sequences:", -19 },
+    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the formula (in the selected syntax)", 0 },
+    { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the name of the pattern", 0 },
+    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the argument of the pattern", 0 },
+    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "a single %", 0 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }
   };
@@ -810,7 +846,7 @@ output_pattern(int pattern, int n)
       f = r;
     }
 
-  output_formula(f);
+  output_formula(f, class_name[pattern - 1], n);
   f->destroy();
 }
 

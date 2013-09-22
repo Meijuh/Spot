@@ -153,6 +153,16 @@ static const argp_option options[] =
       "drop formulas that have already been output (not affected by -v)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output options:", -20 },
+    { 0, 0, 0, 0, "The FORMAT string passed to --format may use "\
+      "the following interpreted sequences:", -19 },
+    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the formula (in the selected syntax)", 0 },
+    { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the name of the input file", 0 },
+    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the original line number in the input file", 0 },
+    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "a single %", 0 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }
   };
