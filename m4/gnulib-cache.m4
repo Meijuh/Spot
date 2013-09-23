@@ -27,7 +27,7 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=tools --no-conditional-dependencies --libtool --macro-prefix=gl --no-vc-files argmatch argp error gethrxtime isatty mkstemp mkstemps progname stpcpy sys_wait
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=tools --no-conditional-dependencies --libtool --macro-prefix=gl --no-vc-files argmatch argp error gethrxtime isatty mkstemp mkstemps progname stpcpy strverscmp sys_wait
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -41,6 +41,7 @@ gl_MODULES([
   mkstemps
   progname
   stpcpy
+  strverscmp
   sys_wait
 ])
 gl_AVOID([])

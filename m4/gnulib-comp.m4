@@ -114,6 +114,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module strings:
   # Code from module strndup:
   # Code from module strnlen:
+  # Code from module strverscmp:
   # Code from module sys_stat:
   # Code from module sys_time:
   # Code from module sys_types:
@@ -361,6 +362,12 @@ AC_SUBST([LTALLOCA])
     gl_PREREQ_STRNLEN
   fi
   gl_STRING_MODULE_INDICATOR([strnlen])
+  gl_FUNC_STRVERSCMP
+  if test $HAVE_STRVERSCMP = 0; then
+    AC_LIBOBJ([strverscmp])
+    gl_PREREQ_STRVERSCMP
+  fi
+  gl_STRING_MODULE_INDICATOR([strverscmp])
   gl_HEADER_SYS_STAT_H
   AC_PROG_MKDIR_P
   gl_HEADER_SYS_TIME_H
@@ -624,6 +631,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strncasecmp.c
   lib/strndup.c
   lib/strnlen.c
+  lib/strverscmp.c
   lib/sys_stat.in.h
   lib/sys_time.in.h
   lib/sys_types.in.h
@@ -724,6 +732,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/strings_h.m4
   m4/strndup.m4
   m4/strnlen.m4
+  m4/strverscmp.m4
   m4/sys_socket_h.m4
   m4/sys_stat_h.m4
   m4/sys_time_h.m4
