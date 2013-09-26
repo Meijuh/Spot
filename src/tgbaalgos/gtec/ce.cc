@@ -1,5 +1,5 @@
-// Copyright (C) 2010, 2011  Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -27,8 +27,6 @@ namespace spot
 {
   namespace
   {
-    typedef Sgi::hash_set<const state*,
-			  state_ptr_hash, state_ptr_equal> state_set;
     class shortest_path: public bfs_steps
     {
     public:
