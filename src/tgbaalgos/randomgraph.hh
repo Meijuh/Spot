@@ -70,8 +70,8 @@ namespace spot
       }
       \endverbatim */
   ///
-  /// Although the intent is similar, there are some differences with
-  /// between the above published algorithm and this implementation .
+  /// Although the intent is similar, there are some differences
+  /// between the above published algorithm and this implementation.
   /// First labels are on transitions, and acceptance conditions are
   /// generated too.  Second, the number of successors of a node is
   /// chosen in \f$[1,n]\f$ following a normal distribution with mean
