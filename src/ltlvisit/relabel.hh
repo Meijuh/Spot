@@ -20,7 +20,8 @@
 #ifndef SPOT_LTLVISIT_RELABEL_HH
 # define SPOT_LTLVISIT_RELABEL_HH
 
-#include <ltlast/formula.hh>
+#include "ltlast/formula.hh"
+#include "misc/hash.hh"
 
 namespace spot
 {
@@ -28,10 +29,38 @@ namespace spot
   {
     enum relabeling_style { Abc, Pnn };
 
+
+    struct relabeling_map: public Sgi::hash_map<const formula*,
+						const formula*,
+						ptr_hash<formula> >
+    {
+      ~relabeling_map()
+      {
+	for (iterator i = begin(); i != end(); ++i)
+	  i->second->destroy();
+      }
+    };
+
     /// \ingroup ltl_rewriting
     /// \brief Relabel the atomic propositions in a formula.
+    ///
+    /// If \a m is non-null, it is filled with correspondence
+    /// between the new names (keys) and the old names (values).
     SPOT_API
-    const formula* relabel(const formula* f, relabeling_style style);
+    const formula* relabel(const formula* f, relabeling_style style,
+			   relabeling_map* m = 0);
+
+
+    /// \ingroup ltl_rewriting
+    /// \brief Relabel Boolean subexpressions in a formula using
+    /// atomic propositions.
+    ///
+    /// If \a m is non-null, it is filled with correspondence
+    /// between the new names (keys) and the old names (values).
+    SPOT_API
+    const formula* relabel_bse(const formula* f, relabeling_style style,
+			       relabeling_map* m = 0);
+
   }
 }
 

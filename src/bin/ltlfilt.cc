@@ -52,34 +52,35 @@ Exit status:\n\
   1  if no formulas were output (no match)\n\
   2  if any error has been reported";
 
-#define OPT_SKIP_ERRORS 2
-#define OPT_DROP_ERRORS 3
-#define OPT_NNF 4
-#define OPT_LTL 5
-#define OPT_NOX 7
-#define OPT_BOOLEAN 8
-#define OPT_EVENTUAL 9
-#define OPT_UNIVERSAL 10
-#define OPT_SYNTACTIC_SAFETY 11
-#define OPT_SYNTACTIC_GUARANTEE 12
-#define OPT_SYNTACTIC_OBLIGATION 13
-#define OPT_SYNTACTIC_RECURRENCE 14
-#define OPT_SYNTACTIC_PERSISTENCE 15
-#define OPT_SAFETY 16
-#define OPT_GUARANTEE 17
-#define OPT_OBLIGATION 18
-#define OPT_SIZE_MIN 19
-#define OPT_SIZE_MAX 20
-#define OPT_BSIZE_MIN 21
-#define OPT_BSIZE_MAX 22
-#define OPT_IMPLIED_BY 23
-#define OPT_IMPLY 24
-#define OPT_EQUIVALENT_TO 25
-#define OPT_RELABEL 26
-#define OPT_REMOVE_WM 27
-#define OPT_BOOLEAN_TO_ISOP 28
-#define OPT_REMOVE_X 29
-#define OPT_STUTTER_INSENSITIVE 30
+#define OPT_SKIP_ERRORS 1
+#define OPT_DROP_ERRORS 2
+#define OPT_NNF 3
+#define OPT_LTL 4
+#define OPT_NOX 5
+#define OPT_BOOLEAN 6
+#define OPT_EVENTUAL 7
+#define OPT_UNIVERSAL 8
+#define OPT_SYNTACTIC_SAFETY 9
+#define OPT_SYNTACTIC_GUARANTEE 10
+#define OPT_SYNTACTIC_OBLIGATION 11
+#define OPT_SYNTACTIC_RECURRENCE 12
+#define OPT_SYNTACTIC_PERSISTENCE 13
+#define OPT_SAFETY 14
+#define OPT_GUARANTEE 15
+#define OPT_OBLIGATION 16
+#define OPT_SIZE_MIN 17
+#define OPT_SIZE_MAX 18
+#define OPT_BSIZE_MIN 19
+#define OPT_BSIZE_MAX 20
+#define OPT_IMPLIED_BY 21
+#define OPT_IMPLY 22
+#define OPT_EQUIVALENT_TO 23
+#define OPT_RELABEL 24
+#define OPT_RELABEL_BOOL 25
+#define OPT_REMOVE_WM 26
+#define OPT_BOOLEAN_TO_ISOP 27
+#define OPT_REMOVE_X 28
+#define OPT_STUTTER_INSENSITIVE 29
 
 static const argp_option options[] =
   {
@@ -96,6 +97,9 @@ static const argp_option options[] =
     { "nnf", OPT_NNF, 0, 0, "rewrite formulas in negative normal form", 0 },
     { "relabel", OPT_RELABEL, "abc|pnn", OPTION_ARG_OPTIONAL,
       "relabel all atomic propositions, alphabetically unless " \
+      "specified otherwise", 0 },
+    { "relabel-bool", OPT_RELABEL_BOOL, "abc|pnn", OPTION_ARG_OPTIONAL,
+      "relabel Boolean subexpressions, alphabetically unless " \
       "specified otherwise", 0 },
     { "remove-wm", OPT_REMOVE_WM, 0, 0,
       "rewrite operators W and M using U and R", 0 },
@@ -203,7 +207,8 @@ static int size_min = -1;
 static int size_max = -1;
 static int bsize_min = -1;
 static int bsize_max = -1;
-static bool relabeling = false;
+enum relabeling_mode { NoRelabeling = 0, ApRelabeling, BseRelabeling };
+static relabeling_mode relabeling = NoRelabeling;
 static spot::ltl::relabeling_style style = spot::ltl::Abc;
 static bool remove_wm = false;
 static bool remove_x = false;
@@ -318,13 +323,16 @@ parse_opt(int key, char* arg, struct argp_state*)
       obligation = true;
       break;
     case OPT_RELABEL:
-      relabeling = true;
+    case OPT_RELABEL_BOOL:
+      relabeling = (key == OPT_RELABEL_BOOL ? BseRelabeling : ApRelabeling);
       if (!arg || !strncasecmp(arg, "abc", 6))
 	style = spot::ltl::Abc;
       else if (!strncasecmp(arg, "pnn", 4))
 	style = spot::ltl::Pnn;
       else
-	error(2, 0, "invalid argument for --relabel: '%s'", arg);
+	error(2, 0, "invalid argument for --relabel%s: '%s'",
+	      (key == OPT_RELABEL_BOOL ? "-bool" : ""),
+	      arg);
       break;
     case OPT_REMOVE_WM:
       remove_wm = true;
@@ -466,11 +474,24 @@ namespace
 	  f = res;
 	}
 
-      if (relabeling)
+      switch (relabeling)
 	{
-	  const spot::ltl::formula* res = spot::ltl::relabel(f, style);
-	  f->destroy();
-	  f = res;
+	case ApRelabeling:
+	  {
+	    const spot::ltl::formula* res = spot::ltl::relabel(f, style);
+	    f->destroy();
+	    f = res;
+	    break;
+	  }
+	case BseRelabeling:
+	  {
+	    const spot::ltl::formula* res = spot::ltl::relabel_bse(f, style);
+	    f->destroy();
+	    f = res;
+	    break;
+	  }
+	case NoRelabeling:
+	  break;
 	}
 
       if (remove_wm)

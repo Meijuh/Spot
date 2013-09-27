@@ -32,6 +32,7 @@ check_PROGRAMS = \
   length \
   ltl2dot \
   ltl2text \
+  ltlrel \
   lunabbrev \
   nenoform \
   reduc \
@@ -52,6 +53,7 @@ length_SOURCES = length.cc
 ltl2dot_SOURCES = readltl.cc
 ltl2dot_CPPFLAGS = $(AM_CPPFLAGS) -DDOTTY
 ltl2text_SOURCES = readltl.cc
+ltlrel_SOURCES = ltlrel.cc
 lunabbrev_SOURCES = equals.cc
 lunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DLUNABBREV
 nenoform_SOURCES = equals.cc
@@ -94,6 +96,7 @@ TESTS = \
   consterm.test \
   kind.test \
   remove_x.test \
+  ltlrel.test \
   ltlfilt.test \
   latex.test \
   lbt.test \

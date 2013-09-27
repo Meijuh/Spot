@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -144,6 +144,31 @@ namespace spot
 	v->push_back(nth(pos)->clone());
       for (unsigned pos = n + 1; pos < s; ++pos)
 	v->push_back(nth(pos)->clone());
+      return instance(op_, v);
+    }
+
+    unsigned
+    multop::boolean_count() const
+    {
+      unsigned pos = 0;
+      unsigned s = size();
+      while (pos < s && nth(pos)->is_boolean())
+	++pos;
+      return pos;
+    }
+
+    const formula*
+    multop::boolean_operands(unsigned* width) const
+    {
+      unsigned s = boolean_count();
+      if (width)
+	*width = s;
+      if (!s)
+	return 0;
+      vec* v = new vec(children_->begin(),
+		       children_->begin() + s);
+      for (unsigned n = 0; n < s; ++n)
+	(*v)[n]->clone();
       return instance(op_, v);
     }
 
@@ -599,7 +624,7 @@ namespace spot
 	}
       else
 	{
-	  // The instance did not already exist. 
+	  // The instance did not already exist.
 	  res = ires.first->second = new multop(op, v);
 	}
       res->clone();

@@ -138,6 +138,23 @@ namespace spot
       /// return a new formula <code>a|b|d</code>.
       const formula* all_but(unsigned n) const;
 
+      /// \brief return the number of Boolean operands in the binop.
+      ///
+      /// For instance if \c f <code>a|b|Xc|Gd</code>, this
+      /// returns 2.
+      unsigned boolean_count() const;
+
+      /// \brief return the Boolean part of the binop.
+      ///
+      /// For instance if \c f <code>a|b|Xc|Gd</code>, this
+      /// returns <code>a|b</code>.  Return 0 if there is no
+      /// Boolean operand.
+      ///
+      /// If \a width is not null, it is filled with the number
+      /// of Boolean operands extracted (i.e., the result
+      /// of boolean_count())
+      const formula* boolean_operands(unsigned* width = 0) const;
+
       /// Get the type of this operator.
       type op() const;
       /// Get the type of this operator, as a string.

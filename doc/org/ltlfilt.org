@@ -104,6 +104,86 @@ ltlfilt --lenient --relabel=pnn -f '(a < b) U (process[2]@ok)'
 #+RESULTS:
 : p0 U p1
 
+
+Finally, there is a second variant of the relabeling procedure that is
+enabled by =--relabel-bool=abc= or =--relabel-book=pnn=.  With this
+option, Boolean subformulas that do not interfere with other
+subformulas will be changed into atomic propositions.  For instance:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt -f '(a & !b) & GF(a & !b) & FG(!c)' --relabel-bool=pnn
+ltlfilt -f '(a & !b) & GF(a & !b) & FG(!c & a)' --relabel-bool=pnn
+#+END_SRC
+#+RESULTS:
+: p0 & GFp0 & FGp1
+: p0 & p1 & GF(p0 & p1) & FG(p0 & p2)
+
+In the first formula, the independent =a & !b= and =!c= subformulae
+were respectively renamed =p0= and =p1=.  In the second formula, =a &
+!b= and =!c & a= are dependent so they could not be renamed; instead
+=a=, =!b= and =c= were renamed as =p0=, =p1= and =p2=.
+
+This option was originally developed to remove superfluous formulas
+from benchmarks of LTL translators.  For instance the automata
+generated for =GF(a|b)= and =GF(p0)= should be structurally
+equivalent: replacing =p0= by =a|b= in the second automaton should
+turn in into the first automaton, and vice-versa.  (However algorithms
+dealing with =GF(a|b)= might be slower because they have to deal with
+more atomic propositions.)  So given a long list of LTL formulas, we
+can combine =--relabel-bool= and =-u= to keep only one instance of
+formulas that are equivalent after such relabeling.  We also suggest
+to use =--nnf= so that =!FG(a -> b)= would become =GF(p0)=
+as well.  For instance here are some LTL formulas extracted from an
+[[http://www.fi.muni.cz/~xrehak/publications/verificationresults.ps.gz][industrial project]]:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt --nnf -u --relabel-bool <<EOF
+G (hfe_rdy -> F !hfe_req)
+G (lup_sr_valid -> F lup_sr_clean )
+G F (hfe_req)
+reset && X G (!reset)
+G ( (F hfe_clk) && (F ! hfe_clk) )
+G ( (F lup_clk) && (F ! lup_clk) )
+G F (lup_sr_clean)
+G ( ( !(lup_addr_5_ <-> (X lup_addr_5_)) || !(lup_addr_6_ <-> (X lup_addr_6_)) || !(lup_addr_7_ <-> (X lup_addr_7_)) || !(lup_addr_8_ <-> (X lup_addr_8_)) ) -> ( (X !lup_sr_clean) && X ( (!( !(lup_addr_5_ <-> (X lup_addr_5_)) || !(lup_addr_6_ <-> (X lup_addr_6_)) || !(lup_addr_7_ <-> (X lup_addr_7_)) || !(lup_addr_8_ <-> (X lup_addr_8_)) )) U lup_sr_clean ) ) )
+G F ( !(lup_addr_5_ <-> (X lup_addr_5_)) || !(lup_addr_6_ <-> (X lup_addr_6_)) || !(lup_addr_7_ <-> (X lup_addr_7_)) || !(lup_addr_8_ <-> (X lup_addr_8_)) )
+(lup_addr_8__5__eq_0)
+((hfe_block_0__eq_0)&&(hfe_block_1__eq_0)&&(hfe_block_2__eq_0)&&(hfe_block_3__eq_0))
+G ((lup_addr_8__5__eq_0) -> X( (lup_addr_8__5__eq_0) || (lup_addr_8__5__eq_1) ) )
+G ((lup_addr_8__5__eq_1) -> X( (lup_addr_8__5__eq_1) || (lup_addr_8__5__eq_2) ) )
+G ((lup_addr_8__5__eq_2) -> X( (lup_addr_8__5__eq_2) || (lup_addr_8__5__eq_3) ) )
+G ((lup_addr_8__5__eq_3) -> X( (lup_addr_8__5__eq_3) || (lup_addr_8__5__eq_4) ) )
+G ((lup_addr_8__5__eq_4) -> X( (lup_addr_8__5__eq_4) || (lup_addr_8__5__eq_5) ) )
+G ((lup_addr_8__5__eq_5) -> X( (lup_addr_8__5__eq_5) || (lup_addr_8__5__eq_6) ) )
+G ((lup_addr_8__5__eq_6) -> X( (lup_addr_8__5__eq_6) || (lup_addr_8__5__eq_7) ) )
+G ((lup_addr_8__5__eq_7) -> X( (lup_addr_8__5__eq_7) || (lup_addr_8__5__eq_8) ) )
+G ((lup_addr_8__5__eq_8) -> X( (lup_addr_8__5__eq_8) || (lup_addr_8__5__eq_9) ) )
+G ((lup_addr_8__5__eq_9) -> X( (lup_addr_8__5__eq_9) || (lup_addr_8__5__eq_10) ) )
+G ((lup_addr_8__5__eq_10) -> X( (lup_addr_8__5__eq_10) || (lup_addr_8__5__eq_11) ) )
+G ((lup_addr_8__5__eq_11) -> X( (lup_addr_8__5__eq_11) || (lup_addr_8__5__eq_12) ) )
+G ((lup_addr_8__5__eq_12) -> X( (lup_addr_8__5__eq_12) || (lup_addr_8__5__eq_13) ) )
+G ((lup_addr_8__5__eq_13) -> X( (lup_addr_8__5__eq_13) || (lup_addr_8__5__eq_14) ) )
+G ((lup_addr_8__5__eq_14) -> X( (lup_addr_8__5__eq_14) || (lup_addr_8__5__eq_15) ) )
+G ((lup_addr_8__5__eq_15) -> X( (lup_addr_8__5__eq_15) || (lup_addr_8__5__eq_0) ) )
+G (((X hfe_clk) -> hfe_clk)->((hfe_req->X hfe_req)&&((!hfe_req) -> (X !hfe_req))))
+G (((X lup_clk) -> lup_clk)->((lup_sr_clean->X lup_sr_clean)&&((!lup_sr_clean) -> (X !lup_sr_clean))))
+EOF
+#+END_SRC
+#+RESULTS:
+: G(a | Fb)
+: GFa
+: a & XG!a
+: G(Fa & F!a)
+: G((((!a & X!a) | (a & Xa)) & ((!b & X!b) | (b & Xb)) & ((!c & X!c) | (c & Xc)) & ((!d & X!d) | (d & Xd))) | (X!e & X((((!a & X!a) | (a & Xa)) & ((!b & X!b) | (b & Xb)) & ((!c & X!c) | (c & Xc)) & ((!d & X!d) | (d & Xd))) U e)))
+: GF((!a & Xa) | (a & X!a) | (!b & Xb) | (b & X!b) | (!c & Xc) | (c & X!c) | (!d & Xd) | (d & X!d))
+: a
+: G(!a | X(a | b))
+: G((!b & Xb) | ((!a | Xa) & (a | X!a)))
+
+Here 29 formulas were reduced into 9 formulas after relabeling of
+Boolean subexpression and removing of duplicate formulas.  In other
+words the original set of formulas contains 9 different patterns.
+
 * Filtering
 
 =ltlfilt= supports many ways to filter formulas:
