@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -77,7 +78,8 @@ namespace spot
     clone_visitor::visit(const automatop* ao)
     {
       automatop::vec* res = new automatop::vec;
-      for (unsigned i = 0; i < ao->size(); ++i)
+      unsigned aos = ao->size();
+      for (unsigned i = 0; i < aos; ++i)
         res->push_back(recurse(ao->nth(i)));
       result_ = automatop::instance(ao->get_nfa(), res, ao->is_negated());
     }
@@ -87,6 +89,7 @@ namespace spot
     {
       multop::vec* res = new multop::vec;
       unsigned mos = mo->size();
+      res->reserve(mos);
       for (unsigned i = 0; i < mos; ++i)
 	res->push_back(recurse(mo->nth(i)));
       result_ = multop::instance(mo->op(), res);
