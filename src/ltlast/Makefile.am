@@ -20,7 +20,8 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AM_CPPFLAGS = -I$(srcdir)/.. -I..
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. \
+              -I$(top_builddir)/lib -I$(top_srcdir)/lib
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 ltlastdir = $(pkgincludedir)/ltlast
