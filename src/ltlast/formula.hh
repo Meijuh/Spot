@@ -360,7 +360,22 @@ namespace spot
     ///
     /// Return 0 otherwise.
     SPOT_API
-    const formula* is_literal(const formula* f);
+    const formula* get_literal(const formula* f);
+
+    /// Return true iff f is a literal.
+    inline
+    bool
+    is_literal(const formula* f)
+    {
+      return (f->kind() == formula::AtomicProp
+	      // The only unary operator that is Boolean is Not,
+	      // and if f is in nenoform, Not can only occur in
+	      // front of an atomic proposition.  So with this
+	      // check we do not have to cast f to check what
+	      // operator it is and the type of its child.
+	      || (f->is_boolean() && f->is_in_nenoform()
+		  && f->kind() == formula::UnOp));
+    }
 
 
     /// Compare two atomic propositions.
@@ -419,7 +434,7 @@ namespace spot
     /// order to speed up implication checks.
     ///
     /// Also keep literal alphabetically ordered.
-    struct formula_ptr_less_than_multop:
+    struct formula_ptr_less_than_bool_first:
       public std::binary_function<const formula*, const formula*, bool>
     {
       bool
@@ -438,17 +453,24 @@ namespace spot
 	// We have two Boolean formulae
 	if (lib)
 	  {
-	    // Literals should come first
-	    const formula* litl = is_literal(left);
-	    const formula* litr = is_literal(right);
-	    if (!litl != !litr)
-	      return litl;
-	    if (litl)
+	    bool lconst = left->kind() == formula::Constant;
+	    bool rconst = right->kind() == formula::Constant;
+	    if (lconst != rconst)
+	      return lconst;
+	    if (!lconst)
 	      {
-		// And they should be sorted alphabetically
-		int cmp = atomic_prop_cmp(litl, litr);
-		if (cmp)
-		  return cmp < 0;
+		// Literals should come first
+		const formula* litl = get_literal(left);
+		const formula* litr = get_literal(right);
+		if (!litl != !litr)
+		  return litl;
+		if (litl)
+		  {
+		    // And they should be sorted alphabetically
+		    int cmp = atomic_prop_cmp(litl, litr);
+		    if (cmp)
+		      return cmp < 0;
+		  }
 	      }
 	  }
 

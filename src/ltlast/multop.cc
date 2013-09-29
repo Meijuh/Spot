@@ -167,6 +167,8 @@ namespace spot
 	*width = s;
       if (!s)
 	return 0;
+      if (s == 1)
+	return nth(0)->clone();
       vec* v = new vec(children_->begin(),
 		       children_->begin() + s);
       for (unsigned n = 0; n < s; ++n)
@@ -277,7 +279,7 @@ namespace spot
 		i = v->erase(i);
 		continue;
 	      }
-	    // All operator except "Concat" and "Fusion" are
+	    // All operators except "Concat" and "Fusion" are
 	    // commutative, so we just keep a list of the inlined
 	    // arguments that should later be added to the vector.
 	    // For concat we have to keep track of the order of
@@ -293,7 +295,7 @@ namespace spot
       }
 
       if (op != Concat && op != Fusion)
-	std::sort(v->begin(), v->end(), formula_ptr_less_than_multop());
+	std::sort(v->begin(), v->end(), formula_ptr_less_than_bool_first());
 
       unsigned orig_size = v->size();
 

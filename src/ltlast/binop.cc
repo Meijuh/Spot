@@ -339,9 +339,9 @@ namespace spot
 	case Xor:
 	  {
 	    // Xor is commutative: sort operands.
-	    formula_ptr_less_than cmp;
-	    if (cmp(second, first) > 0)
-	      std::swap(first, second);
+	    formula_ptr_less_than_bool_first cmp;
+	    if (cmp(second, first))
+	      std::swap(second, first);
 	  }
 	  //   - (1 ^ Exp) = !Exp
 	  //   - (0 ^ Exp) = Exp
@@ -363,9 +363,9 @@ namespace spot
 	case Equiv:
 	  {
 	    // Equiv is commutative: sort operands.
-	    formula_ptr_less_than cmp;
-	    if (cmp(second, first) > 0)
-	      std::swap(first, second);
+	    formula_ptr_less_than_bool_first cmp;
+	    if (cmp(second, first))
+	      std::swap(second, first);
 	  }
 	  //   - (0 <=> Exp) = !Exp
 	  //   - (1 <=> Exp) = Exp

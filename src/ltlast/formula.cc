@@ -120,8 +120,7 @@ namespace spot
       return out;
     }
 
-
-    const formula* is_literal(const formula* f)
+    const formula* get_literal(const formula* f)
     {
       const unop* g = is_Not(f);
       if (g)
