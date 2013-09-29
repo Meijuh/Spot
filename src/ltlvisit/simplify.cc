@@ -343,7 +343,7 @@ namespace spot
 
       // Return true iff the option set (syntactic implication
       // or containment checks) allow to prove that
-      //   - !f2 => f2   (case where right=false)
+      //   - !f1 => f2   (case where right=false)
       //   - f1 => !f2   (case where right=true)
       bool
       implication_neg(const formula* f1, const formula* f2, bool right)
@@ -2784,65 +2784,59 @@ namespace spot
 	      constant* neutral = is_and
 		? constant::false_instance() : constant::true_instance();
 
-	      multop::vec::iterator f1 = res->begin();
+	      result_ = multop::instance(op, res);
+	      const multop* check = is_multop(result_, op);
+	      if (!check)
+		return;
 
-	      while (f1 != res->end())
+	      unsigned s = check->size();
+	      unsigned i = 0;
+	      res = new multop::vec;
+	      res->reserve(s);
+	      while (i < s)
 		{
-		  multop::vec::iterator f2 = f1;
-		  ++f2;
-		  while (f2 != res->end())
+		  const formula* fi = check->nth(i);
+		  const formula* fo = check->all_but(i);
+		  // if fi => fo, then fi | fo = fo
+		  // if fo => fi, then fi & fo = fo
+		  if ((op == multop::Or && c_->implication(fi, fo))
+		      || (op == multop::And && c_->implication(fo, fi)))
 		    {
-		      assert(f1 != f2);
-		      // if f1 => f2, then f1 | f2 = f2
-		      // if f2 => f1, then f1 & f2 = f2
-		      if ((op == multop::Or && c_->implication(*f1, *f2))
-			  || (op == multop::And && c_->implication(*f2, *f1)))
+		      check->destroy();
+		      check = is_multop(fo, op);
+		      if (!check)
 			{
-			  // Remove f1.
-			  (*f1)->destroy();
-			  *f1 = 0;
-			  ++f1;
-			  break;
-			}
-		      // if f2 => f1, then f1 | f2 = f1
-		      // if f1 => f2, then f1 & f2 = f1
-		      else if ((op == multop::Or && c_->implication(*f2, *f1))
-			       || (op == multop::And
-				   && c_->implication(*f1, *f2)))
-			{
-			  // Remove f2.
-			  (*f2)->destroy();
-			  // replace it by the last element from the array.
-			  // and start again at the current position.
-			  if (f2 != --res->end())
-			    {
-			      *f2 = res->back();
-			      res->pop_back();
-			      continue;
-			    }
-			  else
-			    {
-			      res->pop_back();
-			      break;
-			    }
-			}
-		      // if f1 => !f2, then f1 & f2 = false
-		      // if !f1 => f2, then f1 | f2 = true
-		      else if (c_->implication_neg(*f1, *f2, is_and))
-			{
-			  for (multop::vec::iterator j = res->begin();
-			       j != res->end(); ++j)
-			    if (*j)
-			      (*j)->destroy();
+			  result_ = fo;
+			  for (unsigned j = 0; j < i; ++j)
+			    (*res)[j]->destroy();
 			  delete res;
-			  result_ = neutral;
 			  return;
 			}
-		      else
-			++f2;
+		      --s;
 		    }
-		  ++f1;
+		  // if fi => !fo, then fi & fo = false
+		  // if fo => !fi, then fi & fo = false
+		  // if !fi => fo, then fi | fo = true
+		  // if !fo => fi, then fi | fo = true
+		  else if (c_->implication_neg(fi, fo, is_and)
+			   || c_->implication_neg(fo, fi, is_and))
+		    {
+		      fo->destroy();
+		      check->destroy();
+		      result_ = neutral;
+		      for (unsigned j = 0; j < i; ++j)
+			(*res)[j]->destroy();
+		      delete res;
+		      return;
+		    }
+		  else
+		    {
+		      fo->destroy();
+		      res->push_back(fi->clone());
+		      ++i;
+		    }
 		}
+	      check->destroy();
 	    }
 
 	  assert(!res->empty());
@@ -4417,278 +4411,345 @@ namespace spot
       formula::opkind fk = f->kind();
       formula::opkind gk = g->kind();
 
-      // Deal with all lines except the first two.
-      switch (fk)
-	{
-	case formula::Constant:
-	case formula::AtomicProp:
-	case formula::BUnOp:
-	case formula::AutomatOp:
-	  break;
-
-	case formula::UnOp:
+      // We first process all lines from the table except the
+      // first two, and then we process the first two as a fallback.
+      //
+      // However for Boolean formulas we skip the bottom lines
+      // (keeping only the first one) to prevent them from being
+      // further split.
+      if (!f->is_boolean())
+	// Deal with all lines of the table except the first two.
+	switch (fk)
 	  {
-	    const unop* f_ = down_cast<const unop*>(f);
-	    unop::type fo = f_->op();
-
-	    if ((fo == unop::X || fo == unop::F) && g->is_eventual()
-		&& syntactic_implication(f_->child(), g))
-	      return true;
-	    if (gk == formula::UnOp)
-	      {
-		const unop* g_ = down_cast<const unop*>(g);
-		unop::type go = g_->op();
-		if (fo == unop::X)
-		  {
-		    if (go == unop::X
-			&& syntactic_implication(f_->child(), g_->child()))
-		      return true;
-		  }
-	      }
-	    else if (gk == formula::BinOp && fo == unop::G)
-	      {
-		const binop* g_ = down_cast<const binop*>(g);
-		binop::type go = g_->op();
-		const formula* g1 = g_->first();
-		const formula* g2 = g_->second();
-		if ((go == binop::U || go == binop::R)
-		    && syntactic_implication(f_->child(), g2))
-		  return true;
-		else if (go == binop::W
-			 && (syntactic_implication(f_->child(), g1)
-			     || syntactic_implication(f_->child(), g2)))
-		  return true;
-		else if (go == binop::M
-			 && (syntactic_implication(f_->child(), g1)
-			     && syntactic_implication(f_->child(), g2)))
-		  return true;
-	      }
-	    // First column.
-	    if (fo == unop::G && syntactic_implication(f_->child(), g))
-	      return true;
+	  case formula::Constant:
+	  case formula::AtomicProp:
+	  case formula::BUnOp:
+	  case formula::AutomatOp:
 	    break;
-	  }
 
-	case formula::BinOp:
-	  {
-	    const binop* f_ = down_cast<const binop*>(f);
-	    binop::type fo = f_->op();
-	    const formula* f1 = f_->first();
-	    const formula* f2 = f_->second();
+	  case formula::UnOp:
+	    {
+	      const unop* f_ = down_cast<const unop*>(f);
+	      unop::type fo = f_->op();
 
-	    if (gk == formula::UnOp)
-	      {
-		const unop* g_ = down_cast<const unop*>(g);
-		unop::type go = g_->op();
-		if (go == unop::F)
-		  {
-		    if (fo == binop::U)
-		      {
-			if (syntactic_implication(f2, g_->child()))
-			  return true;
-		      }
-		    else if (fo == binop::W)
-		      {
-			if (syntactic_implication(f1, g_->child())
-			    && syntactic_implication(f2, g_->child()))
-			  return true;
-		      }
-		    else if (fo == binop::R)
-		      {
-			if (syntactic_implication(f2, g_->child()))
-			  return true;
-		      }
-		    else if (fo == binop::M)
-		      {
-			if (syntactic_implication(f1, g_->child())
-			    || syntactic_implication(f2, g_->child()))
-			  return true;
-		      }
-		  }
-	      }
-	    else if (gk == formula::BinOp)
-	      {
-		const binop* g_ = down_cast<const binop*>(g);
-		binop::type go = g_->op();
-		const formula* g1 = g_->first();
-		const formula* g2 = g_->second();
-
-		if ((fo == binop::U && (go == binop::U || go == binop::W))
-		    || (fo == binop::W && go == binop::W)
-		    || (fo == binop::R &&  go == binop::R)
-		    || (fo == binop::M && (go == binop::R || go == binop::M)))
-		  {
-		    if (syntactic_implication(f1, g1)
-			&& syntactic_implication(f2, g2))
-		      return true;
-		  }
-		else if (fo == binop::W && go == binop::U)
-		  {
-		    if (syntactic_implication(f1, g2)
-			&& syntactic_implication(f2, g2))
-		      return true;
-		  }
-		else if (fo == binop::R && go == binop::M)
-		  {
-		    if (syntactic_implication(f2, g1)
-			&& syntactic_implication(f2, g2))
-		      return true;
-		  }
-		else if ((fo == binop::U && (go == binop::R || go == binop::M))
-			 || (fo == binop::W && go == binop::R))
-		  {
-		    if (syntactic_implication(f1, g2)
-			&& syntactic_implication(f2, g1)
-			&& syntactic_implication(f2, g2))
-		      return true;
-		  }
-		else if ((fo == binop::M && (go == binop::U || go == binop::W))
-			 || (fo == binop::R && go == binop::W))
-		  {
-		    if (syntactic_implication(f1, g2)
-			&& syntactic_implication(f2, g1))
-		      return true;
-		  }
-	      }
-
-	    // First column.
-	    if (fo == binop::U || fo == binop::W)
-	      {
-		if (syntactic_implication(f1, g)
-		    && syntactic_implication(f2, g))
-		  return true;
-	      }
-	    else if (fo == binop::R || fo == binop::M)
-	      {
-		if (syntactic_implication(f2, g))
-		  return true;
-	      }
-	    break;
-	  }
-	case formula::MultOp:
-	  {
-	    const multop* f_ = down_cast<const multop*>(f);
-	    multop::type fo = f_->op();
-	    unsigned fs = f_->size();
-
-	    // First column.
-	    switch (fo)
-	      {
-	      case multop::Or:
+	      if ((fo == unop::X || fo == unop::F) && g->is_eventual()
+		  && syntactic_implication(f_->child(), g))
+		return true;
+	      if (gk == formula::UnOp)
 		{
-		  bool b = true;
-		  for (unsigned i = 0; i < fs; ++i)
-		    if (!syntactic_implication(f_->nth(i), g))
-		      {
-			b &= false;
-			break;
-		      }
-		  if (b)
+		  const unop* g_ = down_cast<const unop*>(g);
+		  unop::type go = g_->op();
+		  if (fo == unop::X)
+		    {
+		      if (go == unop::X
+			  && syntactic_implication(f_->child(), g_->child()))
+			return true;
+		    }
+		}
+	      else if (gk == formula::BinOp && fo == unop::G)
+		{
+		  const binop* g_ = down_cast<const binop*>(g);
+		  binop::type go = g_->op();
+		  const formula* g1 = g_->first();
+		  const formula* g2 = g_->second();
+		  if ((go == binop::U || go == binop::R)
+		      && syntactic_implication(f_->child(), g2))
 		    return true;
-		  break;
-		}
-	      case multop::And:
-		{
-		  for (unsigned i = 0; i < fs; ++i)
-		    if (syntactic_implication(f_->nth(i), g))
-		      return true;
-		  break;
-		}
-	      case multop::Concat:
-	      case multop::Fusion:
-	      case multop::AndNLM:
-	      case multop::AndRat:
-	      case multop::OrRat:
-		break;
-	      }
-	    break;
-	  }
-	}
-
-      // First two lines.
-      switch (gk)
-	{
-	case formula::Constant:
-	case formula::AtomicProp:
-	case formula::BUnOp:
-	case formula::AutomatOp:
-	  break;
-
-	case formula::UnOp:
-	  {
-	    const unop* g_ = down_cast<const unop*>(g);
-	    unop::type go = g_->op();
-	    if (go == unop::F)
-	      {
-		if (syntactic_implication(f, g_->child()))
-		  return true;
-	      }
-	    else if (go == unop::G || go == unop::X)
-	      {
-		if (f->is_universal()
-		    && syntactic_implication(f, g_->child()))
-		  return true;
-	      }
-	    break;
-	  }
-	case formula::BinOp:
-	  {
-	    const binop* g_ = down_cast<const binop*>(g);
-	    binop::type go = g_->op();
-	    const formula* g1 = g_->first();
-	    const formula* g2 = g_->second();
-
-	    if (go == binop::U || go == binop::W)
-	      {
-		if (syntactic_implication(f, g2))
-		  return true;
-	      }
-	    else if (go == binop::M || go == binop::R)
-	      {
-		if (syntactic_implication(f, g1)
-		    && syntactic_implication(f, g2))
-		  return true;
-	      }
-	    break;
-	  }
-	case formula::MultOp:
-	  {
-	    const multop* g_ = down_cast<const multop*>(g);
-	    multop::type go = g_->op();
-	    unsigned gs = g_->size();
-
-	    switch (go)
-	      {
-	      case multop::And:
-		{
-		  bool b = true;
-		  for (unsigned i = 0; i < gs; ++i)
-		    if (!syntactic_implication(f, g_->nth(i)))
-		      {
-			b &= false;
-			break;
-		      }
-		  if (b)
+		  else if (go == binop::W
+			   && (syntactic_implication(f_->child(), g1)
+			       || syntactic_implication(f_->child(), g2)))
 		    return true;
-		  break;
+		  else if (go == binop::M
+			   && (syntactic_implication(f_->child(), g1)
+			       && syntactic_implication(f_->child(), g2)))
+		    return true;
 		}
-	      case multop::Or:
+	      // First column.
+	      if (fo == unop::G && syntactic_implication(f_->child(), g))
+		return true;
+	      break;
+	    }
+
+	  case formula::BinOp:
+	    {
+	      const binop* f_ = down_cast<const binop*>(f);
+	      binop::type fo = f_->op();
+	      const formula* f1 = f_->first();
+	      const formula* f2 = f_->second();
+
+	      if (gk == formula::UnOp)
 		{
-		  for (unsigned i = 0; i < gs; ++i)
-		    if (syntactic_implication(f, g_->nth(i)))
+		  const unop* g_ = down_cast<const unop*>(g);
+		  unop::type go = g_->op();
+		  if (go == unop::F)
+		    {
+		      if (fo == binop::U)
+			{
+			  if (syntactic_implication(f2, g_->child()))
+			    return true;
+			}
+		      else if (fo == binop::W)
+			{
+			  if (syntactic_implication(f1, g_->child())
+			      && syntactic_implication(f2, g_->child()))
+			    return true;
+			}
+		      else if (fo == binop::R)
+			{
+			  if (syntactic_implication(f2, g_->child()))
+			    return true;
+			}
+		      else if (fo == binop::M)
+			{
+			  if (syntactic_implication(f1, g_->child())
+			      || syntactic_implication(f2, g_->child()))
+			    return true;
+			}
+		    }
+		}
+	      else if (gk == formula::BinOp)
+		{
+		  const binop* g_ = down_cast<const binop*>(g);
+		  binop::type go = g_->op();
+		  const formula* g1 = g_->first();
+		  const formula* g2 = g_->second();
+
+		  if ((fo == binop::U && (go == binop::U || go == binop::W))
+		      || (fo == binop::W && go == binop::W)
+		      || (fo == binop::R && go == binop::R)
+		      || (fo == binop::M && (go == binop::R
+					     || go == binop::M)))
+		    {
+		      if (syntactic_implication(f1, g1)
+			  && syntactic_implication(f2, g2))
+			return true;
+		    }
+		  else if (fo == binop::W && go == binop::U)
+		    {
+		      if (syntactic_implication(f1, g2)
+			  && syntactic_implication(f2, g2))
+			return true;
+		    }
+		  else if (fo == binop::R && go == binop::M)
+		    {
+		      if (syntactic_implication(f2, g1)
+			  && syntactic_implication(f2, g2))
+			return true;
+		    }
+		  else if ((fo == binop::U
+			    && (go == binop::R || go == binop::M))
+			   || (fo == binop::W && go == binop::R))
+		    {
+		      if (syntactic_implication(f1, g2)
+			  && syntactic_implication(f2, g1)
+			  && syntactic_implication(f2, g2))
+			return true;
+		    }
+		  else if ((fo == binop::M
+			    && (go == binop::U || go == binop::W))
+			   || (fo == binop::R && go == binop::W))
+		    {
+		      if (syntactic_implication(f1, g2)
+			  && syntactic_implication(f2, g1))
+			return true;
+		    }
+		}
+
+	      // First column.
+	      if (fo == binop::U || fo == binop::W)
+		{
+		  if (syntactic_implication(f1, g)
+		      && syntactic_implication(f2, g))
+		    return true;
+		}
+	      else if (fo == binop::R || fo == binop::M)
+		{
+		  if (syntactic_implication(f2, g))
+		    return true;
+		}
+	      break;
+	    }
+	  case formula::MultOp:
+	    {
+	      const multop* f_ = down_cast<const multop*>(f);
+	      multop::type fo = f_->op();
+	      unsigned fs = f_->size();
+
+	      // First column.
+	      switch (fo)
+		{
+		case multop::Or:
+		  {
+		    if (f->is_boolean())
+		      break;
+		    unsigned i = 0;
+		    // If we are checking something like
+		    //   (a | b | Xc) => g,
+		    // split it into
+		    //   (a | b) => g
+		    //   Xc      => g
+		    if (const formula* bops = f_->boolean_operands(&i))
+		      {
+			bool r = syntactic_implication(bops, g);
+			bops->destroy();
+			if (!r)
+			  break;
+		      }
+		    bool b = true;
+		    for (; i < fs; ++i)
+		      if (!syntactic_implication(f_->nth(i), g))
+			{
+			  b = false;
+			  break;
+			}
+		    if (b)
 		      return true;
+		    break;
+		  }
+		case multop::And:
+		  {
+		    if (f->is_boolean())
+		      break;
+		    unsigned i = 0;
+		    // If we are checking something like
+		    //   (a & b & Xc) => g,
+		    // split it into
+		    //   (a & b) => g
+		    //   Xc      => g
+		    if (const formula* bops = f_->boolean_operands(&i))
+		      {
+			bool r = syntactic_implication(bops, g);
+			bops->destroy();
+			if (r)
+			  return true;
+		      }
+		    for (; i < fs; ++i)
+		      if (syntactic_implication(f_->nth(i), g))
+			return true;
+		    break;
+		  }
+		case multop::Concat:
+		case multop::Fusion:
+		case multop::AndNLM:
+		case multop::AndRat:
+		case multop::OrRat:
 		  break;
 		}
-	      case multop::Concat:
-	      case multop::Fusion:
-	      case multop::AndNLM:
-	      case multop::AndRat:
-	      case multop::OrRat:
-		break;
-	      }
-	    break;
+	      break;
+	    }
 	  }
-	}
+      // First two lines of the table.
+      // (Don't check equality, it has already be done.)
+      if (!g->is_boolean())
+	switch (gk)
+	  {
+	  case formula::Constant:
+	  case formula::AtomicProp:
+	  case formula::BUnOp:
+	  case formula::AutomatOp:
+	    break;
+
+	  case formula::UnOp:
+	    {
+	      const unop* g_ = down_cast<const unop*>(g);
+	      unop::type go = g_->op();
+	      if (go == unop::F)
+		{
+		  if (syntactic_implication(f, g_->child()))
+		    return true;
+		}
+	      else if (go == unop::G || go == unop::X)
+		{
+		  if (f->is_universal()
+		      && syntactic_implication(f, g_->child()))
+		    return true;
+		}
+	      break;
+	    }
+	  case formula::BinOp:
+	    {
+	      const binop* g_ = down_cast<const binop*>(g);
+	      binop::type go = g_->op();
+	      const formula* g1 = g_->first();
+	      const formula* g2 = g_->second();
+
+	      if (go == binop::U || go == binop::W)
+		{
+		  if (syntactic_implication(f, g2))
+		    return true;
+		}
+	      else if (go == binop::M || go == binop::R)
+		{
+		  if (syntactic_implication(f, g1)
+		      && syntactic_implication(f, g2))
+		    return true;
+		}
+	      break;
+	    }
+	  case formula::MultOp:
+	    {
+	      const multop* g_ = down_cast<const multop*>(g);
+	      multop::type go = g_->op();
+	      unsigned gs = g_->size();
+
+	      switch (go)
+		{
+		case multop::And:
+		  {
+		    unsigned i = 0;
+		    // If we are checking something like
+		    //   f => (a & b & Xc),
+		    // split it into
+		    //   f => (a & b)
+		    //   f => Xc
+		    if (const formula* bops = g_->boolean_operands(&i))
+		      {
+			bool r = syntactic_implication(f, bops);
+			bops->destroy();
+			if (!r)
+			  break;
+		      }
+		    bool b = true;
+		    for (; i < gs; ++i)
+		      if (!syntactic_implication(f, g_->nth(i)))
+			{
+			  b = false;
+			  break;
+			}
+		    if (b)
+		      return true;
+		    break;
+		  }
+		case multop::Or:
+		  {
+		    unsigned i = 0;
+		    // If we are checking something like
+		    //   f => (a | b | Xc),
+		    // split it into
+		    //   f => (a | b)
+		    //   f => Xc
+		    if (const formula* bops = g_->boolean_operands(&i))
+		      {
+			bool r = syntactic_implication(f, bops);
+			bops->destroy();
+			if (r)
+			  return true;
+		      }
+		    for (; i < gs; ++i)
+		      if (syntactic_implication(f, g_->nth(i)))
+			return true;
+		    break;
+		  }
+		case multop::Concat:
+		case multop::Fusion:
+		case multop::AndNLM:
+		case multop::AndRat:
+		case multop::OrRat:
+		  break;
+		}
+	      break;
+	    }
+	  }
       return false;
     }
 
@@ -4713,13 +4774,11 @@ namespace spot
 	  || f == constant::true_instance())
 	return false;
 
-      // Often we compare a literals (an atomic_prop or its negation)
+      // Often we compare a literal (an atomic_prop or its negation)
       // to another literal.  The result is necessarily false. To be
       // true, the two literals would have to be equal, but we have
       // already checked that.
-      if (f->is_in_nenoform() && g->is_in_nenoform()
-	  && (is_atomic_prop(f) || is_Not(f))
-	  && (is_atomic_prop(g) || is_Not(g)))
+      if (is_literal(f) && is_literal(g))
 	return false;
 
       // Cache lookup

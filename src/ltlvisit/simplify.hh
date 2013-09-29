@@ -121,7 +121,7 @@ namespace spot
       ///
       /// If \a right is true, this method returns whether
       /// \a f implies !\a g.  If \a right is false, this returns
-      /// whether !\a g implies \a g.
+      /// whether !\a f implies \a g.
       bool syntactic_implication_neg(const formula* f, const formula* g,
 				     bool right);
 

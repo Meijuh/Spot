@@ -65,6 +65,11 @@ for x in ../reduccmp ../reductaustr; do
   run 0 $x 'a | (b U a) | a' '(b U a)'
   run 0 $x 'a U (b U a)' '(b U a)'
 
+  run 0 $x 'a & c & (b W a)' 'a & c'
+  run 0 $x 'a & d & c & e & f & g & b & (x W (g & f))' 'a&b&c&d&e&f&g'
+  run 0 $x '(F!a & X(!b R a)) | (Ga & X(b U !a))' 'F!a & X(!b R a)'
+  run 0 $x 'd & ((!a & d) | (a & d))' '(!a & d) | (a & d)'
+
   run 0 $x 'a <-> !a' '0'
   run 0 $x 'a <-> a' '1'
   run 0 $x 'a ^ a' '0'
