@@ -44,7 +44,7 @@ $(FROM_KRIPKEPARSE_YY_MAIN): $(srcdir)/$(KRIPKEPARSE_YY)
 ## $(srcdir)/$(KRIPKEPARSE_YY), it will also use the value of $(srcdir)/
 ## in the generated include statements.
 	cd $(srcdir) && \
-	  bison -Wall -Werror --report=all \
+	  $(BISON) -Wall -Werror --report=all $(BISON_EXTRA_FLAGS) \
 	  $(KRIPKEPARSE_YY) -o $(FROM_KRIPKEPARSE_YY_MAIN)
 $(FROM_KRIPKEPARSE_YY_OTHERS): $(KRIPKEPARSE_YY)
 	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) $(FROM_KRIPKEPARSE_YY_MAIN)

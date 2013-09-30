@@ -67,7 +67,7 @@ namespace spot
 %parse-param {const spot::ltl::formula* &result}
 %lex-param {spot::eltl::parse_error_list_t &pe}
 %expect 0
-%pure-parser
+
 %union
 {
   int ival;

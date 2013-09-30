@@ -197,7 +197,7 @@ using namespace spot::ltl;
 /* Priorities.  */
 
 /* Low priority SERE-LTL binding operator. */
-%right OP_UCONCAT OP_ECONCAT OP_UCONCAT_NONO OP_ECONCAT_NONO
+%nonassoc OP_UCONCAT OP_ECONCAT OP_UCONCAT_NONO OP_ECONCAT_NONO
 
 %left OP_CONCAT
 %left OP_FUSION
@@ -222,10 +222,10 @@ using namespace spot::ltl;
 /* High priority regex operator. */
 %nonassoc OP_BSTAR OP_STAR_OPEN OP_PLUS OP_EQUAL_OPEN OP_GOTO_OPEN
 
-/* Not has the most important priority after Wring's `=0' and `=1'.  */
+/* Not has the most important priority (after Wring's `=0' and `=1',
+   but as those can only attach to atomic proposition, they do not
+   need any precedence).  */
 %nonassoc OP_NOT
-
-%nonassoc OP_POST_NEG OP_POST_POS
 
 %type <ltl> subformula booleanatom sere lbtformula boolformula
 %type <ltl> bracedsere parenthesedsubformula

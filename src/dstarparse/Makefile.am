@@ -43,7 +43,7 @@ $(FROM_DSTARPARSE_YY_MAIN): $(srcdir)/$(DSTARPARSE_YY)
 ## $(srcdir)/$(DSTARPARSE_YY), it will also use the value of $(srcdir)/
 ## in the generated include statements.
 	cd $(srcdir) && \
-	  bison -Wall -Werror --report=all \
+	  $(BISON) -Wall -Werror --report=all $(BISON_EXTRA_FLAGS) \
 	  $(DSTARPARSE_YY) -o $(FROM_DSTARPARSE_YY_MAIN)
 $(FROM_DSTARPARSE_YY_OTHERS): $(DSTARPARSE_YY)
 	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) $(FROM_DSTARPARSE_YY_MAIN)

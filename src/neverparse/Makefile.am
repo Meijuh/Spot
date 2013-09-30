@@ -43,7 +43,7 @@ $(FROM_NEVERCLAIMPARSE_YY_MAIN): $(srcdir)/$(NEVERCLAIMPARSE_YY)
 ## $(srcdir)/$(NEVERCLAIMPARSE_YY), it will also use the value of $(srcdir)/
 ## in the generated include statements.
 	cd $(srcdir) && \
-	  bison -Wall -Werror --report=all \
+	  $(BISON) -Wall -Werror --report=all $(BISON_EXTRA_FLAGS) \
 	  $(NEVERCLAIMPARSE_YY) -o $(FROM_NEVERCLAIMPARSE_YY_MAIN)
 $(FROM_NEVERCLAIMPARSE_YY_OTHERS): $(NEVERCLAIMPARSE_YY)
 	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) $(FROM_NEVERCLAIMPARSE_YY_MAIN)

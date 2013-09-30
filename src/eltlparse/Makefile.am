@@ -40,7 +40,7 @@ $(FROM_ELTLPARSE_YY_MAIN): $(srcdir)/$(ELTLPARSE_YY)
 ## $(srcdir)/$(ELTLPARSE_YY), it will also use the value of $(srcdir)/
 ## in the generated include statements.
 	cd $(srcdir) && \
-	  bison -Wall -Werror --report=all \
+	  $(BISON) -Wall -Werror --report=all $(BISON_EXTRA_FLAGS) \
 	  $(ELTLPARSE_YY) -o $(FROM_ELTLPARSE_YY_MAIN)
 $(FROM_ELTLPARSE_YY_OTHERS): $(ELTLPARSE_YY)
 	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) $(FROM_ELTLPARSE_YY_MAIN)
