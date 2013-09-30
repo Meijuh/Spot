@@ -39,7 +39,9 @@ namespace spot
   postprocessor::postprocessor(const option_map* opt)
     : type_(TGBA), pref_(Small), level_(High),
       degen_reset_(true), degen_order_(false), degen_cache_(true),
-      simul_(-1), scc_filter_(-1), ba_simul_(-1), tba_determinisation_(false)
+      simul_(-1), scc_filter_(-1), ba_simul_(-1), tba_determinisation_(false),
+      sat_minimize_(0), sat_acc_(0), sat_states_(0), state_based_(false),
+      wdba_minimize_(true)
   {
     if (opt)
       {
@@ -52,8 +54,8 @@ namespace spot
 	ba_simul_ = opt->get("ba-simul", -1);
 	tba_determinisation_ = opt->get("tba-det", 0);
 	sat_minimize_ = opt->get("sat-minimize", 0);
-	sat_states_ = opt->get("sat-states", 0);
 	sat_acc_ = opt->get("sat-acc", 0);
+	sat_states_ = opt->get("sat-states", 0);
 	state_based_ = opt->get("state-based", 0);
 	wdba_minimize_ = opt->get("wdba-minimize", 1);
 
