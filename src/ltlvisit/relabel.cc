@@ -160,11 +160,15 @@ namespace spot
     // Boolean-subexpression relabeler
     //////////////////////////////////////////////////////////////////////
 
-    // Detecting Boolean subexpression is not a problem.  Further more
-    // because we are already representing LTL formulas with
-    // sharing of identical sub-expressions we can easily rename a
-    // subexpression only once.   However this scheme fails has two
-    // problems:
+    // Here we want to rewrite a formula such as
+    //   "a & b & X(c & d) & GF(c & d)" into "p0 & Xp1 & GFp1"
+    // where Boolean subexpressions are replaced by fresh propositions.
+    //
+    // Detecting Boolean subexpressions is not a problem.
+    // Furthermore, because we are already representing LTL formulas
+    // with sharing of identical sub-expressions we can easily rename
+    // a subexpression (such as c&d above) only once.  However this
+    // scheme has two problems:
     //
     //   1. It will not detect inter-dependent Boolean subexpressions.
     //      For instance it will mistakenly relabel "(a & b) U (a & !b)"
@@ -180,13 +184,13 @@ namespace spot
     // The way we compute the subexpressions that can be relabeled is
     // by transforming the formula syntax tree into an undirected
     // graph, and computing the cut points of this graph.  The cut
-    // points (or articulation points) are the node whose removal
+    // points (or articulation points) are the nodes whose removal
     // would split the graph in two components.  To ensure that a
-    // Boolean operator is only considered as a cut-point if it would
+    // Boolean operator is only considered as a cut point if it would
     // separate all of its children from the rest of the graph, we
     // connect all the children of Boolean operators.
     //
-    // For instance (a & b) U (c & d) has two (Boolean) cut-points
+    // For instance (a & b) U (c & d) has two (Boolean) cut points
     // corresponding to the two AND operators:
     //
     //             (a&b)U(c&d)
@@ -210,8 +214,20 @@ namespace spot
     //                        c
     //
     // Note that if the children of a&b and b&c were not connected,
-    // a&b and b&c would be considered as cut-points because they
+    // a&b and b&c would be considered as cut points because they
     // separate "a" or "!c" from the rest of the graph.
+    //
+    // The relabeling of a formula is therefore done in 3 passes:
+    //  1. convert the formula's syntax tree into an undirected graph,
+    //     adding links between children of Boolean operators
+    //  2. compute the (Boolean) cut points of that graph, using the
+    //     Hopcroft-Tarjan algorithm (see below for a reference)
+    //  3. recursively scan the formula's tree until we reach
+    //     either a (Boolean) cut point or an atomic proposition, and
+    //     replace that node by a fresh atomic proposition.
+    //
+    // In the example above (a&b)U(b&!c), the last recursion
+    // stop a, b, and !c, producing (p0&p1)U(p1&p2).
     namespace
     {
       typedef std::vector<const formula*> succ_vec;
