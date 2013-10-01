@@ -1,5 +1,7 @@
-Bootstraping from GIT
-=====================
+Bootstraping from the GIT repository
+====================================
+
+(If you are building from a tarball, skip this section.)
 
 Some files in SPOT's source tree are generated.  They are distributed
 so that users do not need to tools to rebuild them, but we don't keep
@@ -15,9 +17,9 @@ since the generated files they produce are distributed.)
   GNU Automake >= 1.11
   GNU Libtool >= 2.4
   GNU Flex (the version seems to matters, we used 2.5.35)
-  GNU Bison >= 2.4.2
+  GNU Bison >= 2.7
   GNU Emacs (preferably >= 24 but it may work with older versions)
-  SWIG >= 1.3.31
+  SWIG >= 2.0
   Doxygen >= 1.4.0
   Perl, with its Gettext module (it might be called something like
     liblocale-gettext-perl or p5-locale-gettext in your distribution)
