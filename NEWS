@@ -1,4 +1,4 @@
-New in spot 1.1.4a (not relased)
+New in spot 1.2 (2013-10-01)
 
   * Changes to command-line tools:
 
@@ -63,8 +63,8 @@ New in spot 1.1.4a (not relased)
 
     - ltl2tgba, ltl2tgta, and dstar2tgba can use a SAT-solver to
       minimize deterministic automata.  Doing so is only needed on
-      properties that are stronger than obligations (for which our
-      WDBA-minimization procedure will return a minimimal
+      properties that are stronger than obligations (for obligations
+      our WDBA-minimization procedure will return a minimimal
       deterministic automaton more efficiently) and is disabled by
       default.  See the spot-x(7) man page for documentation about the
       related options: sat-minimize, sat-states, sat-acc, state-based.
@@ -156,11 +156,12 @@ New in spot 1.1.4a (not relased)
     - When minimize_obligation() is not given the formula associated
       to the input automaton, but that automaton is deterministic, it
       can still attempt to call minimize_wdba() and check the correcteness
-      using dtgba_complement().
+      using dtgba_complement().  This allows dstar2tgba to apply
+      WDBA-minimization on deterministic Rabin automata.
 
     - tgba_reachable_iterator_depth_first has been redesigned to
       effectively perform a DFS.  As a consequence, it does not
-      inherit anymore from tgba_reachable_iterator.
+      inherit from tgba_reachable_iterator anymore.
 
     - postproc::set_pref() was used to accept an argument among Any,
       Small or Deterministic.  These can now be combined with Complete
@@ -170,6 +171,10 @@ New in spot 1.1.4a (not relased)
       that Boolean terms come first.  This speeds up syntactic
       implication checks slightly.  Also, literals are now sorted
       using strverscmp(), so that p5 comes before p12.
+
+    - Syntactic implication checks have been generalized slightly
+      (for instance 'a & b & F(a & b)' is now reduced to 'a & b'
+      while it was not changed in previous versions).
 
     - All the parsers implemented in Spot now use the same type to
       store locations.
