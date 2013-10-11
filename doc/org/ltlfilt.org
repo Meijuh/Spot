@@ -21,7 +21,7 @@ For instance the following will convert two LTL formulas expressed
 using infix notation (with different names supported for the same
 operators) and convert it into LBT's syntax.
 
-#+BEGIN_SRC sh :results verbatim :exports results
+#+BEGIN_SRC sh :results verbatim :exports both
 ltlfilt -l -f 'p1 U (p2 & GFp3)' -f 'X<>[]p4'
 #+END_SRC
 #+RESULTS:
