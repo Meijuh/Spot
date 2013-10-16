@@ -32,16 +32,26 @@ namespace spot
   /// \addtogroup misc_tools
   /// @{
 
-  /// \brief Escape characters <code>"</code>, <code>\\</code>, and
-  /// <code>\\n</code> in \a str.
-  SPOT_API std::ostream& escape_str(std::ostream& os, const std::string& str);
+  /// \brief Double characters <code>"</code> in strings.
+  ///
+  /// In CSV files, as defined by RFC4180, double-quoted string that
+  /// contain double-quotes should simply duplicate those quotes.
+  SPOT_API std::ostream&
+  escape_rfc4180(std::ostream& os, const std::string& str);
 
   /// \brief Escape characters <code>"</code>, <code>\\</code>, and
   /// <code>\\n</code> in \a str.
-  SPOT_API std::string escape_str(const std::string& str);
+  SPOT_API std::ostream&
+  escape_str(std::ostream& os, const std::string& str);
+
+  /// \brief Escape characters <code>"</code>, <code>\\</code>, and
+  /// <code>\\n</code> in \a str.
+  SPOT_API std::string
+  escape_str(const std::string& str);
 
   /// \brief Remove spaces at the front and back of \a str.
-  SPOT_API void trim(std::string& str);
+  SPOT_API void
+  trim(std::string& str);
   /// @}
 }
 

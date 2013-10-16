@@ -32,6 +32,22 @@
 namespace spot
 {
   std::ostream&
+  escape_rfc4180(std::ostream& os, const std::string& str)
+  {
+    for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
+      switch (*i)
+	{
+	case '"':
+	  os << "\"\"";
+	  break;
+	default:
+	  os << *i;
+	  break;
+	}
+    return os;
+  }
+
+  std::ostream&
   escape_str(std::ostream& os, const std::string& str)
   {
     for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)

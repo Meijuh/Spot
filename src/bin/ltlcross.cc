@@ -275,46 +275,46 @@ struct statistics
   static void
   fields(std::ostream& os)
   {
-    os << (" \"states\","
-	   " \"edges\","
-	   " \"transitions\","
-	   " \"acc\","
-	   " \"scc\","
-	   " \"nonacc_scc\","
-	   " \"terminal_scc\","
-	   " \"weak_scc\","
-	   " \"strong_scc\","
-	   " \"nondet_states\","
-	   " \"nondet_aut\","
-	   " \"terminal_aut\","
-	   " \"weak_aut\","
-	   " \"strong_aut\","
-	   " \"time\","
-	   " \"product_states\","
-	   " \"product_transitions\","
-	   " \"product_scc\"");
+    os << ("\"states\","
+	   "\"edges\","
+	   "\"transitions\","
+	   "\"acc\","
+	   "\"scc\","
+	   "\"nonacc_scc\","
+	   "\"terminal_scc\","
+	   "\"weak_scc\","
+	   "\"strong_scc\","
+	   "\"nondet_states\","
+	   "\"nondet_aut\","
+	   "\"terminal_aut\","
+	   "\"weak_aut\","
+	   "\"strong_aut\","
+	   "\"time\","
+	   "\"product_states\","
+	   "\"product_transitions\","
+	   "\"product_scc\"");
   }
 
   void
   to_csv(std::ostream& os)
   {
-    os << states << ", "
-       << edges << ", "
-       << transitions << ", "
-       << acc << ", "
-       << scc << ", "
-       << nonacc_scc << ", "
-       << terminal_scc << ", "
-       << weak_scc << ", "
-       << strong_scc << ", "
-       << nondetstates << ", "
-       << nondeterministic << ", "
-       << terminal_aut << ", "
-       << weak_aut << ", "
-       << strong_aut << ", "
-       << time << ", "
-       << product_states << ", "
-       << product_transitions << ", "
+    os << states << ','
+       << edges << ','
+       << transitions << ','
+       << acc << ','
+       << scc << ','
+       << nonacc_scc << ','
+       << terminal_scc << ','
+       << weak_scc << ','
+       << strong_scc << ','
+       << nondetstates << ','
+       << nondeterministic << ','
+       << terminal_aut << ','
+       << weak_aut << ','
+       << strong_aut << ','
+       << time << ','
+       << product_states << ','
+       << product_transitions << ','
        << product_scc;
   }
 };
@@ -935,7 +935,7 @@ namespace
 	      if (first)
 		first = false;
 	      else
-		err << ",";
+		err << ',';
 	      err << l << i;
 	    }
 	err << "} disagree with {";
@@ -946,7 +946,7 @@ namespace
 	      if (first)
 		first = false;
 	      else
-		err << ",";
+		err << ',';
 	      err << l << i;
 	    }
 	err << "} when evaluating ";
@@ -1322,6 +1322,7 @@ namespace
   };
 }
 
+// Output an RFC4180-compatible CSV file.
 static void
 print_stats_csv(const char* filename)
 {
@@ -1342,20 +1343,20 @@ print_stats_csv(const char* filename)
   unsigned rounds = vstats.size();
   assert(rounds == formulas.size());
 
-  *out << "\"formula\", \"tool\", ";
+  *out << "\"formula\",\"tool\",";
   statistics::fields(*out);
-  *out << "\n";
+  *out << "\r\n";
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
       if (vstats[r][t].ok)
 	{
 	  *out << "\"";
-	  spot::escape_str(*out, formulas[r]);
-	  *out << "\", \"";
-	  spot::escape_str(*out, translators[t]);
-	  *out << "\", ";
+	  spot::escape_rfc4180(*out, formulas[r]);
+	  *out << "\",\"";
+	  spot::escape_rfc4180(*out, translators[t]);
+	  *out << "\",";
 	  vstats[r][t].to_csv(*out);
-	  *out << "\n";
+	  *out << "\r\n";
 	}
   delete outfile;
 }
@@ -1394,7 +1395,7 @@ print_stats_json(const char* filename)
       *out << "\",\n    \"";
       spot::escape_str(*out, formulas[r]);
     }
-  *out << ("\"\n  ],\n  \"fields\":  [\n  \"formula\", \"tool\",");
+  *out << ("\"\n  ],\n  \"fields\":  [\n  \"formula\",\"tool\",");
   statistics::fields(*out);
   *out << "\n  ],\n  \"inputs\":  [ 0, 1 ],";
   *out << "\n  \"results\": [";
@@ -1404,9 +1405,9 @@ print_stats_json(const char* filename)
       if (vstats[r][t].ok)
 	{
 	  if (notfirst)
-	    *out << ",";
+	    *out << ',';
 	  notfirst = true;
-	  *out << "\n    [ " << r << ", " << t << ", ";
+	  *out << "\n    [ " << r << ',' << t << ',';
 	  vstats[r][t].to_csv(*out);
 	  *out << " ]";
 	}
