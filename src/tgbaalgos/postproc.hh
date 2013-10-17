@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -110,7 +110,8 @@ namespace spot
     // Fine-tuning options fetched from the option_map.
     bool degen_reset_;
     bool degen_order_;
-    bool degen_cache_;
+    int degen_cache_;
+    bool degen_lskip_;
     int simul_;
     int simul_limit_;
     int scc_filter_;
