@@ -212,6 +212,7 @@ Third party software
 buddy/            A patched version of BuDDy 2.3 (a BDD library).
 ltdl/             Libtool's portable dlopen() wrapper library.
 lib/              Gnulib's portability modules.
+utf8/             Nemanja Trifunovic's utf-8 routines.
 
 Build-system stuff
 ------------------
