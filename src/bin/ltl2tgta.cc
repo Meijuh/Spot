@@ -36,7 +36,7 @@
 #include "ltlvisit/simplify.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgbaalgos/postproc.hh"
+#include "tgbaalgos/translate.hh"
 #include "tgba/bddprint.hh"
 
 #include "taalgos/tgba2ta.hh"
@@ -159,12 +159,10 @@ namespace
   class trans_processor: public job_processor
   {
   public:
-    spot::ltl::ltl_simplifier& simpl;
-    spot::postprocessor& post;
+    spot::translator& trans;
 
-    trans_processor(spot::ltl::ltl_simplifier& simpl,
-		    spot::postprocessor& post)
-      : simpl(simpl), post(post)
+    trans_processor(spot::translator& trans)
+      : trans(trans)
     {
     }
 
@@ -172,12 +170,7 @@ namespace
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
-      const spot::ltl::formula* res = simpl.simplify(f);
-      f->destroy();
-      f = res;
-      // This helps ltl_to_tgba_fm() to order BDD variables in a more
-      // natural way (improving the degeneralization).
-      simpl.clear_as_bdd_cache();
+      const spot::tgba* aut = trans.run(&f);
 
       // This should not happen, because the parser we use can only
       // read PSL/LTL formula, but since our ltl::formula* type can
@@ -190,10 +183,6 @@ namespace
 			"formula '%s' is not an LTL or PSL formula",
 			s.c_str());
 	}
-
-      bool exprop = level == spot::postprocessor::High;
-      const spot::tgba* aut = ltl_to_tgba_fm(f, simpl.get_dict(), exprop);
-      aut = post.run(aut, f);
 
       if (utf8)
 	{
@@ -264,14 +253,12 @@ main(int argc, char** argv)
     error(2, 0, "No formula to translate?  Run '%s --help' for usage.",
 	  program_name);
 
-  spot::ltl::ltl_simplifier simpl(simplifier_options());
+  spot::translator trans(&extra_options);
+  trans.set_pref(pref | comp);
+  trans.set_type(type);
+  trans.set_level(level);
 
-  spot::postprocessor postproc(&extra_options);
-  postproc.set_pref(pref | comp);
-  postproc.set_type(type);
-  postproc.set_level(level);
-
-  trans_processor processor(simpl, postproc);
+  trans_processor processor(trans);
   if (processor.run())
     return 2;
   return 0;
