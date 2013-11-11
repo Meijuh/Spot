@@ -19,7 +19,7 @@ The main differences are:
   - more precise time measurement (LBTT was only precise to
     1/100 of a second, reporting most times as "0.00s"),
   - support for deterministic Rabin or Streett automata written in
-    [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dsar='s format]],
+    [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dstar='s format]],
   - additional intersection checks with the complement of any
     deterministic automaton produced by a translator.
 
@@ -126,8 +126,8 @@ tools:
 
   - '=spin -f %s >%N='
   - '=ltl2ba -f %s >%N='
-  - '=ltl3ba -f -S %s >%N='
-  - '=ltl3ba -f -S -M %s >%N=' (more deterministic output)
+  - '=ltl3ba -S -f %s >%N='
+  - '=ltl3ba -S -M -f %s >%N=' (more deterministic output)
   - '=modella -r12 -g -e %L %T='
   - '=/path/to/script4lbtt.py %L %T=' (script supplied by [[http://www.ti.informatik.uni-kiel.de/~fritz/][ltl2nba]] for
     its interface with LBTT)
@@ -156,8 +156,8 @@ be obtained using the =--csv=FILE= or =--json=FILE= option.
 
 ** CSV or JSON output (or both!)
 
-The following compare =ltl2tgba=, =spin=, and =lbt= on three random
-formula (where =W= and =M= operators have been rewritten away because
+The following compare =ltl2tgba=, =spin=, and =lbt= on two random
+formulas (where =W= and =M= operators have been rewritten away because
 they are not supported by =spin= and =lbt=).
 
 #+BEGIN_SRC sh :results verbatim :exports code
