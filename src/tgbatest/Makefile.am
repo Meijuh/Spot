@@ -114,6 +114,7 @@ TESTS = \
   wdba.test \
   wdba2.test \
   babiak.test \
+  ltlcross4.test \
   ltl2dstar.test \
   ltl2dstar2.test \
   randtgba.test \

@@ -116,7 +116,10 @@ static const argp_option options[] =
     { 0, 0, 0, 0,
       "If either %l, %L, or %T are used, any input formula that does "
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
-      "relabeled automatically.", 0 },
+      "relabeled automatically.\n"
+      "Furthermore, if COMMANDFMT has the form \"{NAME}CMD\", then only CMD "
+      "will be passed to the shell, and NAME will be used to name the tool "
+      "in the CSV or JSON outputs.", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "ltlcross behavior:", 4 },
     { "allow-dups", OPT_DUPS, 0, 0,
@@ -199,7 +202,61 @@ bool stop_on_error = false;
 int seed = 0;
 unsigned products = 1;
 
-std::vector<char*> translators;
+
+struct translator_spec
+{
+  // The translator command, as specified on the command-line.
+  // If this has the form of
+  //    {name}cmd
+  // then it is split in two components.
+  // Otherwise, spec=cmd=name.
+  const char* spec;
+  // actual shell command (or spec)
+  const char* cmd;
+  // name of the translator (or spec)
+  const char* name;
+
+  translator_spec(const char* spec)
+    : spec(spec), cmd(spec), name(spec)
+  {
+    if (*cmd != '{')
+      return;
+
+    // Match the closing '}'
+    const char* pos = cmd;
+    unsigned count = 1;
+    while (*++pos)
+      {
+	if (*pos == '{')
+	  ++count;
+	else if (*pos == '}')
+	  if (!--count)
+	    {
+	      name = strndup(cmd + 1, pos - cmd - 1);
+	      cmd = pos + 1;
+	      while (*cmd == ' ' || *cmd == '\t')
+		++cmd;
+	      break;
+	    }
+      }
+  }
+
+  translator_spec(const translator_spec& other)
+    : spec(other.spec), cmd(other.cmd), name(other.name)
+  {
+    if (name != spec)
+      name = strdup(name);
+  }
+
+  ~translator_spec()
+  {
+    if (name != spec)
+      free(const_cast<char*>(name));
+  }
+};
+
+std::vector<translator_spec> translators;
+
 bool global_error_flag = false;
 
 static std::ostream&
@@ -587,7 +644,7 @@ namespace
 	  // to mix the formats.
 	  if (format != old_format)
 	    error(2, 0, "you may not mix %%D, %%N, and %%T specifiers: %s",
-		  translators[translator_num]);
+		  translators[translator_num].spec);
 	}
       else
 	{
@@ -641,19 +698,20 @@ namespace
 	  // Check that each translator uses at least one input and
 	  // one output.
 	  has.clear();
-	  scan(translators[n], has);
+	  const translator_spec& t = translators[n];
+	  scan(t.cmd, has);
 	  if (!(has['f'] || has['s'] || has['l'] || has['w']
 		|| has['F'] || has['S'] || has['L'] || has['W']))
 	    error(2, 0, "no input %%-sequence in '%s'.\n       Use "
 		  "one of %%f,%%s,%%l,%%w,%%F,%%S,%%L,%%W to indicate how "
-		  "to pass the formula.", translators[n]);
+		  "to pass the formula.", t.spec);
 	  if (!(has['D'] || has['N'] || has['T']))
 	    error(2, 0, "no output %%-sequence in '%s'.\n      Use one of "
 		  "%%D,%%N,%%T to indicate where the automaton is saved.",
-		  translators[n]);
+		  t.spec);
 
 	  // Remember the %-sequences used by all translators.
-	  prime(translators[n]);
+	  prime(t.cmd);
 	}
 
     }
@@ -716,7 +774,7 @@ namespace
       output.reset(translator_num);
 
       std::ostringstream command;
-      format(command, translators[translator_num]);
+      format(command, translators[translator_num].cmd);
 
       assert(output.format != printable_result_filename::None);
 
@@ -1353,7 +1411,7 @@ print_stats_csv(const char* filename)
 	  *out << "\"";
 	  spot::escape_rfc4180(*out, formulas[r]);
 	  *out << "\",\"";
-	  spot::escape_rfc4180(*out, translators[t]);
+	  spot::escape_rfc4180(*out, translators[t].name);
 	  *out << "\",";
 	  vstats[r][t].to_csv(*out);
 	  *out << "\r\n";
@@ -1382,11 +1440,11 @@ print_stats_json(const char* filename)
   assert(rounds == formulas.size());
 
   *out << "{\n  \"tool\": [\n    \"";
-  spot::escape_str(*out, translators[0]);
+  spot::escape_str(*out, translators[0].name);
   for (unsigned t = 1; t < ntrans; ++t)
     {
       *out << "\",\n    \"";
-      spot::escape_str(*out, translators[t]);
+      spot::escape_str(*out, translators[t].name);
     }
   *out << "\"\n  ],\n  \"formula\": [\n    \"";
   spot::escape_str(*out, formulas[0]);

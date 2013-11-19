@@ -425,6 +425,50 @@ is used, =N= products are builds instead of one, and the fields
 =product_states=, =product_transitions=, and =product_scc= contain
 average values.
 
+** Changing the name of the translators
+
+By default, the names used in the CSV and JSON output to designate the
+translators are the command specified on the command line.
+
+For instance in the following, =ltl2tgba= is run in two
+configurations, and the strings =ltl2tgba -s --small %f >%N= and
+=ltl2tgba -s --deter %f >%N= appear verbatim in the output:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlcross -f a -f Ga 'ltl2tgba -s --small %f >%N' 'ltl2tgba -s --deter %f >%N' --csv
+#+END_SRC
+#+RESULTS:
+: "formula","tool","states","edges","transitions","acc","scc","nonacc_scc","terminal_scc","weak_scc","strong_scc","nondet_states","nondet_aut","terminal_aut","weak_aut","strong_aut","time","product_states","product_transitions","product_scc"
+: "(a)","ltl2tgba -s --small %f >%N",2,2,3,1,2,1,1,0,0,0,0,1,0,0,0.0309309,201,4092,2
+: "(a)","ltl2tgba -s --deter %f >%N",2,2,3,1,2,1,1,0,0,0,0,1,0,0,0.0280637,201,4092,2
+: "(!(a))","ltl2tgba -s --small %f >%N",2,2,3,1,2,1,1,0,0,0,0,1,0,0,0.026676,201,4098,2
+: "(!(a))","ltl2tgba -s --deter %f >%N",2,2,3,1,2,1,1,0,0,0,0,1,0,0,0.0250905,201,4098,2
+: "(G(a))","ltl2tgba -s --small %f >%N",1,1,1,1,1,0,0,1,0,0,0,0,1,0,0.0244696,200,2023,1
+: "(G(a))","ltl2tgba -s --deter %f >%N",1,1,1,1,1,0,0,1,0,0,0,0,1,0,0.0240073,200,2023,1
+: "(!(G(a)))","ltl2tgba -s --small %f >%N",2,3,4,1,2,1,1,0,0,0,0,1,0,0,0.0229872,400,8166,2
+: "(!(G(a)))","ltl2tgba -s --deter %f >%N",2,3,4,1,2,1,1,0,0,0,0,1,0,0,0.0229391,400,8166,2
+
+To present these results graphically, or even when analyzing these
+data, it might be convenient to give each configured tool a shorter
+name.  =ltlcross= supports the specification of such short names by
+looking whether the command specification for a translator has the
+form "={short name}actual command=".
+
+For instance:
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlcross -f a -f Ga '{small} ltl2tgba -s --small %f >%N' '{deter} ltl2tgba -s --deter %f >%N' --csv
+#+END_SRC
+#+RESULTS:
+: "formula","tool","states","edges","transitions","acc","scc","nonacc_scc","terminal_scc","weak_scc","strong_scc","nondet_states","nondet_aut","terminal_aut","weak_aut","strong_aut","time","product_states","product_transitions","product_scc"
+: "(a)","small",2,2,3,1,2,1,1,0,0,0,0,1,0,0,0.0272853,201,4092,2
+: "(a)","deter",2,2,3,1,2,1,1,0,0,0,0,1,0,0,0.02555,201,4092,2
+: "(!(a))","small",2,2,3,1,2,1,1,0,0,0,0,1,0,0,0.0242986,201,4098,2
+: "(!(a))","deter",2,2,3,1,2,1,1,0,0,0,0,1,0,0,0.0239094,201,4098,2
+: "(G(a))","small",1,1,1,1,1,0,0,1,0,0,0,0,1,0,0.0232251,200,2023,1
+: "(G(a))","deter",1,1,1,1,1,0,0,1,0,0,0,0,1,0,0.0230073,200,2023,1
+: "(!(G(a)))","small",2,3,4,1,2,1,1,0,0,0,0,1,0,0,0.0226587,400,8166,2
+: "(!(G(a)))","deter",2,3,4,1,2,1,1,0,0,0,0,1,0,0,0.0229191,400,8166,2
+
 * Detecting problems
 
 If a translator exits with a non-zero status code, or fails to output

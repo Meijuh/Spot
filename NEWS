@@ -1,5 +1,13 @@
 New in spot 1.2a (not released)
 
+  * New features:
+    - commands for translators specified to ltlcross can now
+      be given "short names" to be used in the CSV or JSON output.
+      For instance
+         ltlcross '{small} ltl2tgba -s --small %f >%N' ...
+      will run the command "ltl2tgba -s --small %f >%N", but only
+      print "small" in output files.
+
   * Bug fixes:
     - ltlcross' CSV output now stricly follows RFC 4180.
 
