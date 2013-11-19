@@ -93,6 +93,7 @@ Exit status:\n\
 #define OPT_PRODUCTS 9
 #define OPT_COLOR 10
 #define OPT_NOCOMP 11
+#define OPT_OMIT 12
 
 static const argp_option options[] =
   {
@@ -150,6 +151,8 @@ static const argp_option options[] =
       "output statistics as JSON in FILENAME or on standard output", 0 },
     { "csv", OPT_CSV, "FILENAME", OPTION_ARG_OPTIONAL,
       "output statistics as CSV in FILENAME or on standard output", 0 },
+    { "omit-missing", OPT_OMIT, 0, 0,
+      "do not output statistics for timeouts or failed translations", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "color", OPT_COLOR, "WHEN", OPTION_ARG_OPTIONAL,
@@ -165,7 +168,6 @@ const struct argp_child children[] =
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
   };
-
 
 enum color_type { color_never, color_always, color_if_tty };
 
@@ -201,7 +203,7 @@ bool no_complement = false;
 bool stop_on_error = false;
 int seed = 0;
 unsigned products = 1;
-
+bool opt_omit = false;
 
 struct translator_spec
 {
@@ -289,6 +291,9 @@ struct statistics
 {
   statistics()
     : ok(false),
+      status_str(0),
+      status_code(0),
+      time(0),
       states(0),
       transitions(0),
       acc(0),
@@ -302,14 +307,18 @@ struct statistics
       terminal_aut(false),
       weak_aut(false),
       strong_aut(false),
-      time(0),
       product_states(0),
       product_transitions(0),
       product_scc(0)
   {
   }
 
+  // If OK is false, only the status_str, status_code, and time fields
+  // should be valid.
   bool ok;
+  const char* status_str;
+  int status_code;
+  double time;
   unsigned states;
   unsigned edges;
   unsigned transitions;
@@ -324,15 +333,17 @@ struct statistics
   bool terminal_aut;
   bool weak_aut;
   bool strong_aut;
-  double time;
   double product_states;
   double product_transitions;
   double product_scc;
 
   static void
-  fields(std::ostream& os)
+  fields(std::ostream& os, bool all)
   {
-    os << ("\"states\","
+    if (all)
+      os << "\"exit_status\",\"exit_code\",";
+    os << ("\"time\","
+	   "\"states\","
 	   "\"edges\","
 	   "\"transitions\","
 	   "\"acc\","
@@ -346,33 +357,53 @@ struct statistics
 	   "\"terminal_aut\","
 	   "\"weak_aut\","
 	   "\"strong_aut\","
-	   "\"time\","
 	   "\"product_states\","
 	   "\"product_transitions\","
 	   "\"product_scc\"");
   }
 
   void
-  to_csv(std::ostream& os)
+  to_csv(std::ostream& os, bool all, const char* na = "")
   {
-    os << states << ','
-       << edges << ','
-       << transitions << ','
-       << acc << ','
-       << scc << ','
-       << nonacc_scc << ','
-       << terminal_scc << ','
-       << weak_scc << ','
-       << strong_scc << ','
-       << nondetstates << ','
-       << nondeterministic << ','
-       << terminal_aut << ','
-       << weak_aut << ','
-       << strong_aut << ','
-       << time << ','
-       << product_states << ','
-       << product_transitions << ','
-       << product_scc;
+    if (all)
+      os << '"' << status_str << "\"," << status_code << ',';
+    os << time << ',';
+    if (ok)
+      os << states << ','
+	 << edges << ','
+	 << transitions << ','
+	 << acc << ','
+	 << scc << ','
+	 << nonacc_scc << ','
+	 << terminal_scc << ','
+	 << weak_scc << ','
+	 << strong_scc << ','
+	 << nondetstates << ','
+	 << nondeterministic << ','
+	 << terminal_aut << ','
+	 << weak_aut << ','
+	 << strong_aut << ','
+	 << product_states << ','
+	 << product_transitions << ','
+	 << product_scc;
+    else
+      os << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na << ','
+	 << na;
   }
 };
 
@@ -469,6 +500,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_NOCOMP:
       no_complement = true;
+      break;
+    case OPT_OMIT:
+      opt_omit = true;
       break;
     case OPT_SEED:
       seed = to_pos_int(arg);
@@ -784,27 +818,37 @@ namespace
       int es = exec_with_timeout(cmd.c_str());
       xtime_t after = gethrxtime();
 
+      const char* status_str = 0;
+
       const spot::tgba* res = 0;
       if (timed_out)
 	{
 	  // This is not considered to be a global error.
 	  std::cerr << "warning: timeout during execution of command\n";
 	  ++timeout_count;
+	  status_str = "timeout";
+	  es = -1;
 	}
       else if (WIFSIGNALED(es))
 	{
+	  status_str = "signal";
+	  es = WTERMSIG(es);
 	  global_error() << "error: execution terminated by signal "
-			 << WTERMSIG(es) << ".\n";
+			 << es << ".\n";
 	  end_error();
 	}
       else if (WIFEXITED(es) && WEXITSTATUS(es) != 0)
 	{
+	  es = WEXITSTATUS(es);
+	  status_str = "exit code";
 	  global_error() << "error: execution returned exit code "
-			 << WEXITSTATUS(es) << ".\n";
+			 << es << ".\n";
 	  end_error();
 	}
       else
 	{
+	  status_str = "ok";
+	  es = 0;
 	  switch (output.format)
 	    {
 	    case printable_result_filename::Spin:
@@ -814,6 +858,8 @@ namespace
 		res = spot::neverclaim_parse(filename, pel, &dict);
 		if (!pel.empty())
 		  {
+		    status_str = "parse error";
+		    es = -1;
 		    std::ostream& err = global_error();
 		    err << "error: failed to parse the produced neverclaim.\n";
 		    spot::format_neverclaim_parse_errors(err, filename, pel);
@@ -829,6 +875,8 @@ namespace
 		std::ifstream f(output.val()->name());
 		if (!f)
 		  {
+		    status_str = "no output";
+		    es = -1;
 		    global_error() << "Cannot open " << output.val()
 				   << std::endl;
 		    end_error();
@@ -838,6 +886,8 @@ namespace
 		    res = spot::lbtt_parse(f, error, &dict);
 		    if (!res)
 		      {
+			status_str = "parse error";
+			es = -1;
 			global_error() << ("error: failed to parse output in "
 					   "LBTT format: ")
 				       << error << std::endl;
@@ -854,6 +904,8 @@ namespace
 		aut = spot::dstar_parse(filename, pel, &dict);
 		if (!pel.empty())
 		  {
+		    status_str = "parse error";
+		    es = -1;
 		    std::ostream& err = global_error();
 		    err << "error: failed to parse the produced DSTAR"
 		      " output.\n";
@@ -873,41 +925,48 @@ namespace
 	      assert(!"unreachable code");
 	    }
 	}
-      // Compute statistics.
-      if (res && want_stats)
+
+      if (want_stats)
 	{
 	  statistics* st = &(*fstats)[translator_num];
-	  st->ok = true;
-	  spot::tgba_sub_statistics s = sub_stats_reachable(res);
-	  st->states = s.states;
-	  st->edges = s.transitions;
-	  st->transitions = s.sub_transitions;
-	  st->acc = res->number_of_acceptance_conditions();
-	  spot::scc_map m(res);
-	  m.build_map();
-	  unsigned c = m.scc_count();
-	  st->scc = m.scc_count();
-	  st->nondetstates = spot::count_nondet_states(res);
-	  st->nondeterministic = st->nondetstates != 0;
-	  for (unsigned n = 0; n < c; ++n)
-	    {
-	      if (!m.accepting(n))
-		++st->nonacc_scc;
-	      else if (is_terminal_scc(m, n))
-		++st->terminal_scc;
-	      else if (is_weak_scc(m, n))
-		++st->weak_scc;
-	      else
-		++st->strong_scc;
-	    }
-	  if (st->strong_scc)
-	    st->strong_aut = true;
-	  else if (st->weak_scc)
-	    st->weak_aut = true;
-	  else
-	    st->terminal_aut = true;
-          double prec = XTIME_PRECISION;
+	  st->status_str = status_str;
+	  st->status_code = es;
+	  double prec = XTIME_PRECISION;
 	  st->time = (after - before) / prec;
+
+	  // Compute statistics.
+	  if (res)
+	    {
+	      st->ok = true;
+	      spot::tgba_sub_statistics s = sub_stats_reachable(res);
+	      st->states = s.states;
+	      st->edges = s.transitions;
+	      st->transitions = s.sub_transitions;
+	      st->acc = res->number_of_acceptance_conditions();
+	      spot::scc_map m(res);
+	      m.build_map();
+	      unsigned c = m.scc_count();
+	      st->scc = m.scc_count();
+	      st->nondetstates = spot::count_nondet_states(res);
+	      st->nondeterministic = st->nondetstates != 0;
+	      for (unsigned n = 0; n < c; ++n)
+		{
+		  if (!m.accepting(n))
+		    ++st->nonacc_scc;
+		  else if (is_terminal_scc(m, n))
+		    ++st->terminal_scc;
+		  else if (is_weak_scc(m, n))
+		    ++st->weak_scc;
+		  else
+		    ++st->strong_scc;
+		}
+	      if (st->strong_scc)
+		st->strong_aut = true;
+	      else if (st->weak_scc)
+		st->weak_aut = true;
+	      else
+		st->terminal_aut = true;
+	    }
 	}
       output.cleanup();
       return res;
@@ -1401,18 +1460,18 @@ print_stats_csv(const char* filename)
   assert(rounds == formulas.size());
 
   *out << "\"formula\",\"tool\",";
-  statistics::fields(*out);
+  statistics::fields(*out, !opt_omit);
   *out << "\r\n";
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
-      if (vstats[r][t].ok)
+      if (!opt_omit || vstats[r][t].ok)
 	{
 	  *out << "\"";
 	  spot::escape_rfc4180(*out, formulas[r]);
 	  *out << "\",\"";
 	  spot::escape_rfc4180(*out, translators[t].name);
 	  *out << "\",";
-	  vstats[r][t].to_csv(*out);
+	  vstats[r][t].to_csv(*out, !opt_omit);
 	  *out << "\r\n";
 	}
   delete outfile;
@@ -1453,19 +1512,19 @@ print_stats_json(const char* filename)
       spot::escape_str(*out, formulas[r]);
     }
   *out << ("\"\n  ],\n  \"fields\":  [\n  \"formula\",\"tool\",");
-  statistics::fields(*out);
+  statistics::fields(*out, !opt_omit);
   *out << "\n  ],\n  \"inputs\":  [ 0, 1 ],";
   *out << "\n  \"results\": [";
   bool notfirst = false;
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
-      if (vstats[r][t].ok)
+      if (!opt_omit || vstats[r][t].ok)
 	{
 	  if (notfirst)
 	    *out << ',';
 	  notfirst = true;
 	  *out << "\n    [ " << r << ',' << t << ',';
-	  vstats[r][t].to_csv(*out);
+	  vstats[r][t].to_csv(*out, !opt_omit, "null");
 	  *out << " ]";
 	}
   *out << "\n  ]\n}\n";

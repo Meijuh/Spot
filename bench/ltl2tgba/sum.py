@@ -47,23 +47,26 @@ def process_file(filename):
 
   ncols = len(data['fields'])
   ntools = len(data['tool'])
-  datacols = range(2, ncols)
+  datacols = range(4, ncols)
   fields = { name:index for index,name in enumerate(data["fields"]) }
   toolcol = fields['tool']
   inputcol = fields['formula']
+  statescol = fields['states']
 
   inputs = data["inputs"]
 
   # Index results by tool, then input
   results = { t:{} for t in range(0, ntools) }
   for l in data["results"]:
+    if l[statescol] == None:
+      continue
     results[l[toolcol]][l[inputcol]] = l
 
   for i in range(0, ntools):
     # Remove any leading directory, and trailing %...
     name = data["tool"][i]
     name = name[name.rfind('/', 0, name.find(' ')) + 1:]
-    data["tool"][i] = latex_escape(name[0:name.find('%')])
+    data["tool"][i] = latex_escape(name[0:(name+'%').find('%')])
 
   timecol = fields['time']
 
@@ -72,7 +75,7 @@ def process_file(filename):
 \subsection*{Cumulative summary}''' % latex_escape(filename))
 
   print('\\noindent\\begin{tabular}{l' + ('r' * (ncols - 1)) + '}\n',
-        " & ".join(rot(latex_escape(["tool", "count"] + data["fields"][2:]))),
+        " & ".join(rot(latex_escape(["tool", "count"] + data["fields"][4:]))),
         "\\\\")
   for i in range(0, ntools):
     # Compute sums over each column.
@@ -96,7 +99,6 @@ states and more transitions.
     header += 'c'
   header += '}'
 
-  statescol = fields['states']
   transcol = fields['transitions']
 
   print(header)

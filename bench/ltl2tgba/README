@@ -117,40 +117,16 @@ this benchmark.
  Reading the summaries
 =======================
 
-The various outputs (CSV, JSON, our LaTeX) may use the following
-column headers:
-
-* input: formula translated (as a string in the CSV output, and as
-         an index into the input table in the JSON output)
-* tool: tool used to translated this formula (idem)
-* states: number of states of the resulting automaton
-* edges: number of physical arcs between these states
-* transitions: number of logical transitions from one state to the other
-         (for instance if the atomic propositions are 'a' and 'b', and
-	 edge labeled by 'a' represents two transitions labeled by
-	 'a&b' and 'a&!b')
-* acc: number of acceptance sets used; it should always be one
-       in this automaton since we are producing (degeneralized)
-       Büchi automata.
-* scc: number of strongly conncected components in the produced automaton
-* nondetstates: number of nondeterministic states
-* nondeterministic: 0 if the automaton is deterministic
-                    (no nondeterministic state), 1 otherwise
-* time: time required by the translation (although this is measured with
-        the highest-resolution clock available, it is "wall time", so it
-	can be affected by the machine's load).
-* product_states: number of states in a product if the automaton with some
-        random Kripke structure (one unique Kripke structure is generated
-	for each formula and used with automata produced by all tools)
-* product_transitions: number of transitions in that product
-* product_scc: number of strongly connected componebts in that product
+The various outputs (CSV, JSON, our LaTeX) use column headers
+that are described in doc/userdoc/ltlcross.html and also
+in the ltlcross man page.
 
 The summary tables produced by sum.py accumulate all these results for
 all formulae, tool by tool.  They display an additional column, called
 'count', giving the number of formulae successfully translated (the
 missing formulae correspond to timeouts).
 
-For all these values (except count), the sammler number the better.
+For all these values (except count), smaller numbers are better.
 
 
 More details about ltlcross (used to produce these outputs) can be

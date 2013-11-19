@@ -25,17 +25,17 @@
 set dummy
 
 # Add third-party tools if they are available.
-test -n "$SPIN"   && set "$@" "$SPIN -f %s >%N"
-test -n "$LTL2BA" && set "$@" "$LTL2BA -f %s >%N"
-test -n "$LTL3BA" && set "$@" "$LTL3BA -f %s >%N" \
-        "$LTL3BA -M -f %s >%N" \
-        "$LTL3BA -S -f %s >%N" \
-        "$LTL3BA -S -M -f %s >%N"
+test -n "$SPIN"   && set "$@" "{spin} $SPIN -f %s >%N"
+test -n "$LTL2BA" && set "$@" "{ltl2ba} $LTL2BA -f %s >%N"
+test -n "$LTL3BA" && set "$@" "{ltl3ba} $LTL3BA -f %s >%N" \
+        "{ltl3ba-M} $LTL3BA -M -f %s >%N" \
+        "{ltl3ba-S} $LTL3BA -S -f %s >%N" \
+        "{ltl3ba-SM} $LTL3BA -S -M -f %s >%N"
 
 # Use -s to output a neverclaim, like the other tools.
 set "$@" \
-    "$LTL2TGBA --det -s %s >%N" \
-    "$LTL2TGBA --small -s %s >%N"
+    "{ltl2tgba-D} $LTL2TGBA --det -s %s >%N" \
+    "{ltl2tgba} $LTL2TGBA --small -s %s >%N"
 
 # If you want to add your own tool, you can add it here.
 # See 'man ltlcross' for the list of %-escapes you may use

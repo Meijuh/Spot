@@ -68,6 +68,110 @@ When this variable is defined, temporary files are not removed.
 This is mostly useful for debugging.
 
 
+[OUTPUT DATA]
+
+The following columns are output in the CSV or JSON files.
+
+.TP 7
+\fBformula\fR
+The formula translated.
+
+.TP
+\fBtool\fR
+The tool used to translate this formula.  This is either the value of the
+full \fICOMMANDFMT\fR string specified on the command-line, or,
+if \fICOMMANDFMT\fR has the form \f(CW{\fISHORTNAME\fR\f(CW}\fR\FiCMD\fR,
+the value of \fISHORTNAME\fR.
+
+.TP
+\fBexit_status\fR, \fBexit_code\fR
+Information about how the execution of the translator went.  If the
+option \fB\-\-omit\-missing\fR is given, these two columns are omitted
+and only the lines corresponding to successful translation are output.
+Otherwise, \fBexit_status\fR is a string that can take the following
+values:
+
+.RS
+.TP
+\f(CW"ok"\fR
+The translator ran succesfully (this does not imply that the produced
+automaton is correct) and ltlcross could parse the resulting
+automaton.  In this case \fBexit_code\fR is always 0.
+
+.TP
+\f(CW"timeout"\fR
+The translator ran for more than the number of seconds
+specified with the \fB\-\-timeout\fR option.  In this
+case \fBexit_code\fR is always -1.
+
+.TP
+\f(CW"exit code"\fR
+The translator terminated with a non-zero exit code.
+\fBexit_code\fR contains that value.
+
+.TP
+\f(CW"signal"\fR
+The translator terminated with a signal.
+\fBexit_code\fR contains that signal's number.
+
+.TP
+\f(CW"parse error"\fR
+The translator terminated normally, but ltlcross could not
+parse its output.  In this case \fBexit_code\fR is always -1.
+
+.TP
+\f(CW"no output"\fR
+The translator terminated normally, but without creating the specified
+output file.  In this case \fBexit_code\fR is always -1.
+.RE
+
+.TP
+\fBtime\fR
+A floating point number giving the run time of the translator in seconds.
+This is reported for all executions, even failling ones.
+
+.PP
+Unless the \fB\-\-omit\-missing\fR option is used, data for all the
+following columns might be missing.
+
+.TP
+\fBstate\fR, \fBedges\fR, \fBtransitions\fR, \fBacc\fR
+The number of states, edges, transitions, and acceptance sets in the
+translated automaton.  Column \fBedges\fR counts the number of edges
+(labeled by Boolean formulas) in the automaton seen as a graph, while
+\fBtransitions\fR counts the number of assignment-labeled transitions
+that might have been merged into a formula-labeled edge.  For instance
+an edge labeled by \f(CWtrue\fR will be counted as 2^3=8 transitions if
+the automaton mention 3 atomic propositions.
+
+.TP
+\fBscc\fR, \fBnonacc_scc\fR, \fBterminal_scc\fR, \fBweak_scc\fR, \fBstrong_scc\fR
+The number of strongly connected components in the automaton.  The
+\fBscc\fR column gives the total number, while the other columns only
+count the SCCs that are non-accepting (a.k.a. transiant), terminal
+(recognizes and accepts all words), weak (do not recognize all words,
+but accepts all recognized words), or strong (accept some words, but
+reject some recognized words).
+
+.TP
+\fBnondet_states\fR, \fBnondet_aut\fR
+The number of nondeterministic states, and a Boolean indicating whether the
+automaton is nondeterministic.
+
+.TP
+\fBterminal_aut\fR, \fBweak_aut\fR, \fBstrong_aut\fR
+Three Boolean used to indicate whether the automaton is terminal (no
+weak nor strong SCCs), weak (some weak SCCs but no strong SCCs), or strong
+(some strong SCCs).
+
+.TP
+\fBproduct_states\fR, \fBproduct_transitions\fR, \fBproduct_scc\fR
+Size of the product between the translated automaton and a randomly
+generated state-space.  For a given formula, the same state-space is
+of course used the result of each translator.  When the
+\fB\-\-products\fR=\fIN\fR option is used, these values are averaged
+over the \fIN\fR products performed.
+
 [SEE ALSO]
 .BR randltl (1),
 .BR genltl (1),

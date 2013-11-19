@@ -303,7 +303,7 @@ var tfield;
 
         for (var m = 0; m < nfields; ++m)
         {
-          if (m == ifield || m == tfield)
+          if (!is_datacol(m))
             continue;
           var tmp = [];
           for (var t = 0; t < ntools; ++t)
@@ -352,16 +352,29 @@ var tfield;
         for (var c = 0; c < nfields; ++c)
         {
           var name = rawdata.fields[c];
-          results.addColumn('number', name, name);
+	  if (name == 'exit_status')
+            results.addColumn('string', name, name);
+	  else
+            results.addColumn('number', name, name);
           fields[name] = c;
         }
 	// FIXME: we should uses rawdata.inputs to set ifield and tfield
         tfield = fields['tool'];
         ifield = fields['formula'];
+	sfield = fields['states'];
+	esfield = fields['exit_status'];
+	ecfield = fields['exit_code'];
+
+	is_datacol = function(c) {
+           return (c != ifield && c != tfield && c != esfield && c != ecfield);
+        }
+
         nresults = rawdata.results.length;
 	for (var r = 0; r < nresults; ++r)
         {
           var row = rawdata.results[r];
+	  if (row[sfield] == null)
+	    continue;
 	  results.addRow(row);
           hashres[[row[tfield],row[ifield]]] = row;
         }
@@ -412,7 +425,7 @@ var tfield;
         var col = 2;
 	for (var c = 0; c < nfields; ++c)
         {
-           if (c != ifield && c != tfield)
+           if (is_datacol(c))
            {
              aggreg.push({column:c, aggregation: google.visualization.data.sum, type: 'number'})
              aggreg.push({column:c, aggregation: google.visualization.data.avg, type: 'number'})
@@ -469,7 +482,7 @@ var tfield;
         var pos = 3;
         for (var m = 0; m < nfields; ++m)
         {
-          if (m != ifield && m != tfield)
+          if (is_datacol(m))
           {
             var row = [rawdata.fields[m]];
             var max = sumresults.getColumnRange(pos + 2)['max'];
@@ -498,7 +511,7 @@ var tfield;
         sel3.append($("<option>").attr('value', -1).text('(nothing)'));
 	for (var c = 0; c < nfields; ++c)
         {
-           if (c != ifield && c != tfield)
+           if (is_datacol(c))
            {
              sel.append($("<option>").attr('value', c).text(rawdata.fields[c]));
              sel2.append($("<option>").attr('value', c).text(rawdata.fields[c]));
@@ -525,7 +538,7 @@ var tfield;
         var first = true;
 	for (var c = 0; c < nfields; ++c)
         {
-           if (c != ifield && c != tfield)
+           if (is_datacol(c))
            {
              sel.append($("<option>").attr('value', c).text(rawdata.fields[c]));
              if (first)

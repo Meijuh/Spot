@@ -7,7 +7,13 @@ New in spot 1.2a (not released)
          ltlcross '{small} ltl2tgba -s --small %f >%N' ...
       will run the command "ltl2tgba -s --small %f >%N", but only
       print "small" in output files.
-
+    - ltlcross' CSV and JSON output now contains two additional
+      columns: exit_status and exit_code, used to report failures of
+      the translator.  If the translation failed, only the time is
+      reported, and the rest of the statistics, which are missing,
+      area left empty (in CVS) or null (in JSON).  A new option,
+      --omit-missing can be used to remove lines for failed
+      translations, and remove these two columns.
   * Bug fixes:
     - ltlcross' CSV output now stricly follows RFC 4180.
     - ltlcross failed to report missing input or output escape sequences

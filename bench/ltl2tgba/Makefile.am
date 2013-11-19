@@ -34,9 +34,11 @@ OUTLOG = $(OUTPUTS:=.log)
 CLEANFILES = $(OUTCSV) $(OUTJSON) $(OUTLOG) \
              results.pdf results.aux results.log results.tex
 
-.PHONY = run
+.PHONY = run json
 
-run: $(OUTJSON)
+run: results.pdf
+
+json: $(OUTJSON)
 
 deps = $(srcdir)/tools \
        $(top_srcdir)/configure.ac \
