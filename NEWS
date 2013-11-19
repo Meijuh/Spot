@@ -10,6 +10,8 @@ New in spot 1.2a (not released)
 
   * Bug fixes:
     - ltlcross' CSV output now stricly follows RFC 4180.
+    - ltlcross failed to report missing input or output escape sequences
+      on all but the first configured translator.
 
 New in spot 1.2 (2013-10-01)
 

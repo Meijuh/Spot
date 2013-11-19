@@ -690,14 +690,13 @@ namespace
       declare('N', &output);
       declare('T', &output);
 
-      std::vector<bool> has(256);
       size_t s = translators.size();
       assert(s);
       for (size_t n = 0; n < s; ++n)
 	{
 	  // Check that each translator uses at least one input and
 	  // one output.
-	  has.clear();
+	  std::vector<bool> has(256);
 	  const translator_spec& t = translators[n];
 	  scan(t.cmd, has);
 	  if (!(has['f'] || has['s'] || has['l'] || has['w']

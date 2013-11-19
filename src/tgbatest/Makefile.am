@@ -79,6 +79,7 @@ TESTS = \
   eltl2tgba.test \
   explicit.test \
   explicit2.test \
+  ltlcross3.test \
   taatgba.test \
   tgbaread.test \
   renault.test \
