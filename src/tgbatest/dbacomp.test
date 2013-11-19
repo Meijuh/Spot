@@ -19,6 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 . ./defs
+set -e
 
 # This automaton used to trigger a bug in the complementation: its
 # intersection with the complement was not empty!
