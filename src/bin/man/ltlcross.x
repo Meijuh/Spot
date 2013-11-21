@@ -179,20 +179,26 @@ over the \fIN\fR products performed.
 .BR ltl2tgba (1)
 
 [BIBLIOGRAPHY]
+If you would like to give a reference to this tool in an article,
+we suggest you cite the following paper:
+.TP
+\(bu
+Alexandre Duret-Lutz: Manipulating LTL formulas using Spot 1.0.
+Proceedings of ATVA'13.  LNCS 8172.
+.PP
 ltlcross is a Spot-based reimplementation of a tool called LBTT.  LBTT
 was developped by Heikki Tauriainen at the Helsinki University of
 Technology.  The main motivation for the reimplementation was to
 support PSL, and output more statistics about the translations.
 
 The sanity checks performed on the result of each translator (by
-either LBTT or ltlcross) are described in the following paper.
-
+either LBTT or ltlcross) are described in the following paper:
 .TP
-th02
+\(bu
 H. Tauriainen and K. Heljanko: Testing LTL formula translation into
 Büchi automata.  Int. J. on Software Tools for Technology Transfer.
 Volume 4, number 1, October 2002.
-
+.PP
 LBTT did not implement Test 2 described in this paper.  ltlcross
 implements a slight variation: when an automaton produced by some
 translator is deterministic, its complement is built and used for

@@ -3,6 +3,13 @@ genltl \- generate LTL formulas from scalable patterns
 [DESCRIPTION]
 .\" Add any additional description here
 [BIBLIOGRAPHY]
+If you would like to give a reference to this tool in an article,
+we suggest you cite the following paper:
+.TP
+\(bu
+Alexandre Duret-Lutz: Manipulating LTL formulas using Spot 1.0.
+Proceedings of ATVA'13.  LNCS 8172.
+.PP
 Prefixes used in pattern names refer to the following papers:
 .TP
 gh

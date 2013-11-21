@@ -48,6 +48,35 @@ corresponding commands are hidden.
 
 - [[file:satmin.org][SAT-based minimization of Deterministic (Generalized) Büchi automata]]
 
+* Citing
+
+If you want to refer to these tools in an article, please cite one of
+the following articles:
+
+- *Manipulating LTL formulas using Spot 1.0*, /Alexandre Duret-Lutz/.
+  In Proc. of ATVA'13, LNCS 8172, pp. 442--445.  Hanoi, Vietnam,
+  Oct. 2013.  ([[http://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.13.atva][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.13.atva.pdf][pdf]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.13.atva.slides.pdf][slides]])
+
+  This focuses on =ltlfilt=, =randltl=, and =ltlcross=.
+
+- *LTL translation improvements in Spot*, /Alexandre Duret-Lutz/.
+  In Proc. of VECoS'11.  Electronic Workshops in Computing. Tunis, Tunisia, Sep. 2011.
+  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.11.vecos][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.11.vecos.pdf][pdf]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.11.vecos.slides.pdf][slides]])
+
+  This describes the translation from LTL to TGBA used by =ltl2tgba=
+  and =ltl2tgta=.
+
+- *Model checking using generalized testing automata*, /Ala Eddine Ben
+  Salem/, /Alexandre Duret-Lutz/, and /Fabrice Kordon/.  In
+  Transactions on Petri Nets and Other Models of Concurrency (ToPNoC
+  VI), 7400:94--112, 2012.  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#bensalem.12.topnoc][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/bensalem.12.topnoc.pdf][pdf]])
+
+  This describes the generalized testing automata produced by =ltl2tgta=.
+
+
+Check the man page for each tool for additional references about the
+algorithms or data sources used.
+
 #  LocalWords:  num toc helloworld SRC LTL PSL randltl ltlfilt genltl
 #  LocalWords:  scalable ltl tgba Büchi automata tgta ltlcross eval
 #  LocalWords:  setenv concat getenv setq

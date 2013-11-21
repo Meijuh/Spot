@@ -80,5 +80,16 @@ p[0-9]+ as double-quoted strings.
   0 -1 & ! "b" ! "a"
   -1
 
+[BIBLIOGRAPHY]
+If you would like to give a reference to this tool in an article,
+we suggest you cite one of the following papers:
+.TP
+\(bu
+Alexandre Duret-Lutz: LTL translation improvements in Spot. Proceedings of VECoS'11.
+.TP
+\(bu
+Alexandre Duret-Lutz: Manipulating LTL formulas using Spot 1.0.
+Proceedings of ATVA'13.  LNCS 8172.
+
 [SEE ALSO]
 .BR spot-x (7)
