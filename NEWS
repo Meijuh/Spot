@@ -14,6 +14,9 @@ New in spot 1.2a (not released)
       area left empty (in CVS) or null (in JSON).  A new option,
       --omit-missing can be used to remove lines for failed
       translations, and remove these two columns.
+    - if ltlcross is used with --products=+5 instead of --products=5
+      then the stastics for each of the five products will be output
+      separately instead of being averaged.
   * Bug fixes:
     - ltlcross' CSV output now stricly follows RFC 4180.
     - ltlcross failed to report missing input or output escape sequences

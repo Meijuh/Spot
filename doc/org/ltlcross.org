@@ -444,6 +444,14 @@ is used, =N= products are builds instead of one, and the fields
 =product_states=, =product_transitions=, and =product_scc= contain
 average values.
 
+If the option =--products=+N= is used (with a =+= in front of the
+number), then no average value is computed.  Instead, three columns
+=product_states=, =product_transitions=, and =product_scc= are output
+for each individual product (i.e., $3\times N$ columns are output).
+This might be useful if you want to compute different kind of
+statistic (e.g., a median instead of a mean) or if you want to build
+scatter plots of all these products.
+
 ** Changing the name of the translators
 
 By default, the names used in the CSV and JSON output to designate the

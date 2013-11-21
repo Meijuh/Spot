@@ -142,9 +142,9 @@ static const argp_option options[] =
       "two states (0.1 by default)", 0 },
     { "seed", OPT_SEED, "INT", 0,
       "seed for the random number generator (0 by default)", 0 },
-    { "products", OPT_PRODUCTS, "INT", 0,
-      "number of product to perform (1 by default), statistics will be "
-      "averaged", 0 },
+    { "products", OPT_PRODUCTS, "[+]INT", 0,
+      "number of products to perform (1 by default), statistics will be "
+      "averaged unless the number is prefixed with '+'", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Statistics output:", 6 },
     { "json", OPT_JSON, "FILENAME", OPTION_ARG_OPTIONAL,
@@ -203,6 +203,7 @@ bool no_complement = false;
 bool stop_on_error = false;
 int seed = 0;
 unsigned products = 1;
+bool products_avg = true;
 bool opt_omit = false;
 
 struct translator_spec
@@ -306,10 +307,7 @@ struct statistics
       nondeterministic(false),
       terminal_aut(false),
       weak_aut(false),
-      strong_aut(false),
-      product_states(0),
-      product_transitions(0),
-      product_scc(0)
+      strong_aut(false)
   {
   }
 
@@ -333,9 +331,9 @@ struct statistics
   bool terminal_aut;
   bool weak_aut;
   bool strong_aut;
-  double product_states;
-  double product_transitions;
-  double product_scc;
+  std::vector<double> product_states;
+  std::vector<double> product_transitions;
+  std::vector<double> product_scc;
 
   static void
   fields(std::ostream& os, bool all)
@@ -356,10 +354,10 @@ struct statistics
 	   "\"nondet_aut\","
 	   "\"terminal_aut\","
 	   "\"weak_aut\","
-	   "\"strong_aut\","
-	   "\"product_states\","
-	   "\"product_transitions\","
-	   "\"product_scc\"");
+	   "\"strong_aut\"");
+    size_t m = products_avg ? 1U : products;
+    for (size_t i = 0; i < m; ++i)
+      os << ",\"product_states\",\"product_transitions\",\"product_scc\"";
   }
 
   void
@@ -369,41 +367,64 @@ struct statistics
       os << '"' << status_str << "\"," << status_code << ',';
     os << time << ',';
     if (ok)
-      os << states << ','
-	 << edges << ','
-	 << transitions << ','
-	 << acc << ','
-	 << scc << ','
-	 << nonacc_scc << ','
-	 << terminal_scc << ','
-	 << weak_scc << ','
-	 << strong_scc << ','
-	 << nondetstates << ','
-	 << nondeterministic << ','
-	 << terminal_aut << ','
-	 << weak_aut << ','
-	 << strong_aut << ','
-	 << product_states << ','
-	 << product_transitions << ','
-	 << product_scc;
+      {
+	os << states << ','
+	   << edges << ','
+	   << transitions << ','
+	   << acc << ','
+	   << scc << ','
+	   << nonacc_scc << ','
+	   << terminal_scc << ','
+	   << weak_scc << ','
+	   << strong_scc << ','
+	   << nondetstates << ','
+	   << nondeterministic << ','
+	   << terminal_aut << ','
+	   << weak_aut << ','
+	   << strong_aut;
+	if (!products_avg)
+	  {
+	    for (size_t i = 0; i < products; ++i)
+	      os << ',' << product_states[i]
+		 << ',' << product_transitions[i]
+		 << ',' << product_scc[i];
+	  }
+	else
+	  {
+	    double st = 0.0;
+	    double tr = 0.0;
+	    double sc = 0.0;
+	    for (size_t i = 0; i < products; ++i)
+	      {
+		st += product_states[i];
+		tr += product_transitions[i];
+		sc += product_scc[i];
+	      }
+	    os << ',' << (st / products)
+	       << ',' << (tr / products)
+	       << ',' << (sc / products);
+	  }
+      }
     else
-      os << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na << ','
-	 << na;
+      {
+	os << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na << ','
+	   << na;
+	size_t m = products_avg ? 1U : products;
+	for (size_t i = 0; i < m; ++i)
+	  os << ',' << na << ',' << na << ',' << na;
+      }
   }
 };
 
@@ -492,6 +513,11 @@ parse_opt(int key, char* arg, struct argp_state*)
       json_output = arg ? arg : "-";
       break;
     case OPT_PRODUCTS:
+      if (*arg == '+')
+	{
+	  products_avg = false;
+	  ++arg;
+	}
       products = to_pos_int(arg);
       break;
     case OPT_NOCHECKS:
@@ -1313,6 +1339,19 @@ namespace
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
       f->destroy();
 
+      if (want_stats)
+	for (size_t i = 0; i < m; ++i)
+	  {
+	    (*pstats)[i].product_states.reserve(products);
+	    (*pstats)[i].product_transitions.reserve(products);
+	    (*pstats)[i].product_scc.reserve(products);
+	    if (neg[i])
+	      {
+		(*nstats)[i].product_states.reserve(products);
+		(*nstats)[i].product_transitions.reserve(products);
+		(*nstats)[i].product_scc.reserve(products);
+	      }
+	  }
       for (unsigned p = 0; p < products; ++p)
 	{
 	  // build a random state-space.
@@ -1339,13 +1378,12 @@ namespace
 		// Statistics
 		if (want_stats)
 		  {
-		    (*pstats)[i].product_scc += sm->scc_count();
+		    (*pstats)[i].product_scc.push_back(sm->scc_count());
 		    spot::tgba_statistics s = spot::stats_reachable(p);
-		    (*pstats)[i].product_states += s.states;
-		    (*pstats)[i].product_transitions += s.transitions;
+		    (*pstats)[i].product_states.push_back(s.states);
+		    (*pstats)[i].product_transitions.push_back(s.transitions);
 		  }
 	      }
-
 
 	  if (!no_checks)
 	    for (size_t i = 0; i < m; ++i)
@@ -1360,10 +1398,10 @@ namespace
 		  // Statistics
 		  if (want_stats)
 		    {
-		      (*nstats)[i].product_scc += sm->scc_count();
+		      (*nstats)[i].product_scc.push_back(sm->scc_count());
 		      spot::tgba_statistics s = spot::stats_reachable(p);
-		      (*nstats)[i].product_states += s.states;
-		      (*nstats)[i].product_transitions += s.transitions;
+		      (*nstats)[i].product_states.push_back(s.states);
+		      (*nstats)[i].product_transitions.push_back(s.transitions);
 		    }
 		}
 
@@ -1391,29 +1429,16 @@ namespace
 	    }
 
 	  // Cleanup.
-
 	  if (!no_checks)
 	    for (size_t i = 0; i < m; ++i)
 	      {
 		delete neg_map[i];
 		delete neg_prod[i];
-		if (want_stats)
-		  {
-		    (*nstats)[i].product_scc /= products;
-		    (*nstats)[i].product_states /= products;
-		    (*nstats)[i].product_transitions /= products;
-		  }
 	      }
 	  for (size_t i = 0; i < m; ++i)
 	    {
 	      delete pos_map[i];
 	      delete pos_prod[i];
-	      if (want_stats)
-		{
-		  (*pstats)[i].product_scc /= products;
-		  (*pstats)[i].product_states /= products;
-		  (*pstats)[i].product_transitions /= products;
-		}
 	    }
 	  delete statespace;
 	  ++seed;
