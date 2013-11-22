@@ -25,6 +25,7 @@
 #include <map>
 #include <utility>
 #include "scc.hh"
+#include "isweakscc.hh"
 #include "tgba/bddprint.hh"
 #include "ltlast/constant.hh"
 #include "stats.hh"
@@ -214,8 +215,10 @@ namespace spot
       typedef std::map<int, transition> rev_map;
       rev_map revtransid;
       rev_map revtransacc;
+      std::set<int> weak_scc;
 
       std::map<state_pair, int> prodid;
+      std::map<state_pair, int> pathcand;
       std::map<path, int> pathid_ref;
       std::map<path, int> pathid_cand;
       int nvars;
@@ -251,6 +254,10 @@ namespace spot
 	  state_based_(state_based), sm_(sm)
       {
 	d.nvars = 0;
+	unsigned count = sm.scc_count();
+	for (unsigned i = 0; i < count; ++i)
+	  if (!sm_.trivial(i) && is_weak_scc(sm, i))
+	    d.weak_scc.insert(i);
       }
 
       int size()
@@ -276,7 +283,10 @@ namespace spot
 	      {
 		d.prodid[state_pair(j, i)] = ++d.nvars;
 
+		// skip weak or trivial SCCs
 		if (sm_.trivial(i_scc))
+		  continue;
+		if (d.weak_scc.find(i_scc) != d.weak_scc.end())
 		  continue;
 
 		for (dict::state_map::const_iterator k2 = seen.begin();
@@ -322,6 +332,17 @@ namespace spot
 		    d.revtransacc.insert(dict::rev_map::value_type(ta, t));
 		  }
 	      }
+	  }
+
+
+	if (!d.weak_scc.empty())
+	  {
+	    for (int i = 1; i <= d.cand_size; ++i)
+	      for (int j = 1; j <= d.cand_size; ++j)
+		{
+		  state_pair pc(i, j);
+		  d.pathcand[pc] = ++d.nvars;
+		}
 	  }
       }
     };
@@ -474,6 +495,49 @@ namespace spot
 	  delete it;
 	}
 
+      if (!d.weak_scc.empty())
+	{
+	  dout << "Rules for tracking paths in the candidate\n";
+
+	  for (int q1 = 1; q1 <= d.cand_size; q1++)
+	    {
+	      state_pair q1q1(q1, q1);
+	      int q1q1id = d.pathcand[q1q1];
+	      dout << q1q1 << "C\n";
+	      out << q1q1id << " 0\n";
+	      ++nclauses;
+	      for (int q2 = 1; q2 <= d.cand_size; q2++)
+		{
+		  state_pair q1q2(q1, q2);
+		  int q1q2id = d.pathcand[q1q2];
+
+		  for (int q3 = 1; q3 <= d.cand_size; q3++)
+		    {
+		      if (q3 == q1)
+			continue;
+		      state_pair q1q3(q1, q3);
+		      int q1q3id = d.pathcand[q1q3];
+
+		      bdd all = bddtrue;
+		      while (all != bddfalse)
+			{
+			  bdd s = bdd_satoneset(all, ap, bddfalse);
+			  all -= s;
+
+			  transition t(q2, s, q3);
+			  int ti = d.transid[t];
+
+			  dout << q1q2 << "C ∧ " << t << "δ → "
+			       << q1q3 << "C\n";
+			  out << -q1q2id << ' ' << -ti << ' ' << q1q3id
+			      << " 0\n";
+			  ++nclauses;
+			}
+		    }
+		}
+	    }
+	}
+
       bdd all_acc = ref->all_acceptance_conditions();
 
       // construction of contraints (4,5) : all loops in the product
@@ -490,87 +554,163 @@ namespace spot
 	      // cycle, so they must belong to the same SCC.
 	      if (sm.scc_of_state(d.int_to_state[q2p]) != q1p_scc)
 		continue;
-	      for (int q1 = 1; q1 <= d.cand_size; ++q1)
-		for (int q2 = 1; q2 <= d.cand_size; ++q2)
-		  {
-		    path p1(q1, q1p, q2, q2p);
-
-		    dout << "(4&5) matching paths from reference based on "
-			 << p1 << "\n";
-
-		    int pid1;
-		    if (q1 == q2 && q1p == q2p)
-		      pid1 = d.prodid[state_pair(q1, q1p)];
-		    else
-		      pid1 = d.pathid_ref[p1];
-
-		    tgba_succ_iterator* it =
-		      ref->succ_iter(d.int_to_state[q2p]);
-		    for (it->first(); !it->done(); it->next())
+	      if (d.weak_scc.find(q1p_scc) == d.weak_scc.end())
+		{
+		  // The SCC is not weak.
+		  for (int q1 = 1; q1 <= d.cand_size; ++q1)
+		    for (int q2 = 1; q2 <= d.cand_size; ++q2)
 		      {
-			const state* dps = it->current_state();
-			// Skip destinations not in the SCC.
-			if (sm.scc_of_state(dps) != q1p_scc)
+			path p1(q1, q1p, q2, q2p);
+
+			dout << "(4&5) matching paths from reference based on "
+			     << p1 << "\n";
+
+			int pid1;
+			if (q1 == q2 && q1p == q2p)
+			  pid1 = d.prodid[state_pair(q1, q1p)];
+			else
+			  pid1 = d.pathid_ref[p1];
+
+			tgba_succ_iterator* it =
+			  ref->succ_iter(d.int_to_state[q2p]);
+			for (it->first(); !it->done(); it->next())
 			  {
+			    const state* dps = it->current_state();
+			    // Skip destinations not in the SCC.
+			    if (sm.scc_of_state(dps) != q1p_scc)
+			      {
+				dps->destroy();
+				continue;
+			      }
+			    int dp = d.state_to_int[dps];
 			    dps->destroy();
-			    continue;
-			  }
-			int dp = d.state_to_int[dps];
-			dps->destroy();
 
-			if (it->current_acceptance_conditions() == all_acc)
-			  continue;
-			for (int q3 = 1; q3 <= d.cand_size; ++q3)
-			  {
-			    if (dp == q1p && q3 == q1) // (4) looping
+			    if (it->current_acceptance_conditions() == all_acc)
+			      continue;
+			    for (int q3 = 1; q3 <= d.cand_size; ++q3)
 			      {
-				bdd all = it->current_condition();
-				while (all != bddfalse)
+				if (dp == q1p && q3 == q1) // (4) looping
 				  {
-				    bdd s = bdd_satoneset(all, ap, bddfalse);
-				    all -= s;
+				    bdd all = it->current_condition();
+				    while (all != bddfalse)
+				      {
+					bdd s = bdd_satoneset(all, ap,
+							      bddfalse);
+					all -= s;
 
-				    transition t(q2, s, q1);
-				    int ti = d.transid[t];
-				    int ta = d.transacc[t];
+					transition t(q2, s, q1);
+					int ti = d.transid[t];
+					int ta = d.transacc[t];
 
-				    dout << p1 << "R ∧ " << t << "δ → ¬" << t
-					 << "F\n";
-				    out << -pid1 << " " << -ti << " "
-					<< -ta << " 0\n";
-				    ++nclauses;
+					dout << p1 << "R ∧ " << t << "δ → ¬"
+					     << t << "F\n";
+					out << -pid1 << " " << -ti << " "
+					    << -ta << " 0\n";
+					++nclauses;
+				      }
+
+
 				  }
-
-
-			      }
-			    else // (5) not looping
-			      {
-				path p2 = path(q1, q1p, q3, dp);
-				int pid2 = d.pathid_ref[p2];
-
-				if (pid1 == pid2)
-				  continue;
-
-				bdd all = it->current_condition();
-				while (all != bddfalse)
+				else // (5) not looping
 				  {
-				    bdd s = bdd_satoneset(all, ap, bddfalse);
-				    all -= s;
+				    path p2 = path(q1, q1p, q3, dp);
+				    int pid2 = d.pathid_ref[p2];
 
-				    transition t(q2, s, q3);
-				    int ti = d.transid[t];
+				    if (pid1 == pid2)
+				      continue;
 
-				    dout << p1 << "R ∧ " << t << "δ → " << p2
-					 << "R\n";
-				    out << -pid1 << " " << -ti << " "
-					<< pid2 << " 0\n";
-				    ++nclauses;
+				    bdd all = it->current_condition();
+				    while (all != bddfalse)
+				      {
+					bdd s = bdd_satoneset(all, ap,
+							      bddfalse);
+					all -= s;
+
+					transition t(q2, s, q3);
+					int ti = d.transid[t];
+
+					dout << p1 << "R ∧ " << t << "δ → "
+					     << p2 << "R\n";
+					out << -pid1 << " " << -ti << " "
+					    << pid2 << " 0\n";
+					++nclauses;
+				      }
 				  }
 			      }
 			  }
+			delete it;
 		      }
-		    delete it;
-		  }
+		}
+	      else		// The SCC is weak.
+		{
+		  for (int q1 = 1; q1 <= d.cand_size; ++q1)
+		    {
+		      state_pair q1q1p(q1, q1p);
+		      int q1q1pid = d.prodid[q1q1p];
+
+		      for (int q2 = 1; q2 <= d.cand_size; ++q2)
+			{
+			  state_pair q2q2p(q2, q2p);
+			  int q2q2pid = d.prodid[q2q2p];
+
+			  state_pair q1q2(q1, q2);
+			  int q1q2id = d.pathcand[q1q2];
+
+			  tgba_succ_iterator* it =
+			    ref->succ_iter(d.int_to_state[q2p]);
+
+
+			  for (it->first(); !it->done(); it->next())
+			    {
+			      const state* dps = it->current_state();
+			      int dp = d.state_to_int[dps];
+			      dps->destroy();
+			      // Skip destinations different from q1.
+			      if (dp != q1p)
+				continue;
+
+			      bdd all = it->current_condition();
+			      while (all != bddfalse)
+				{
+				  bdd s = bdd_satoneset(all, ap,
+							bddfalse);
+				  all -= s;
+
+				  transition t(q2, s, q1);
+				  int tid = d.transid[t];
+				  int tacc = d.transacc[t];
+
+				  if (sm.accepting(q1p_scc))
+				    {
+				      dout << q1q1p << " ∧ "
+					   << q2q2p << " ∧ "
+					   << q1q2 << "C ∧ "
+					   << t << "δ → " << t << "F \n";
+				      out << -q1q1pid << ' '
+					  << -q2q2pid << ' '
+					  << -q1q2id << ' '
+					  << -tid << ' '
+					  << tacc << " 0\n";
+				    }
+				  else
+				    {
+				      dout << q1q1p << " ∧ "
+					   << q2q2p << " ∧ "
+					   << q1q2 << "C ∧ "
+					   << t << "δ → ¬" << t << "F \n";
+				      out << -q1q1pid << ' '
+					  << -q2q2pid << ' '
+					  << -q1q2id << ' '
+					  << -tid << ' '
+					  << -tacc << " 0\n";
+				    }
+				  ++nclauses;
+				}
+			    }
+			  delete it;
+			}
+		    }
+		}
 	    }
 	}
       // construction of contraints (6,7): all loops in the product
@@ -586,6 +726,9 @@ namespace spot
 	      // We are only interested in transition that can form a
 	      // cycle, so they must belong to the same SCC.
 	      if (sm.scc_of_state(d.int_to_state[q2p]) != q1p_scc)
+		continue;
+	      // Weak SCCs have already be dealt with.
+	      if (d.weak_scc.find(q1p_scc) != d.weak_scc.end())
 		continue;
 	      for (int q1 = 1; q1 <= d.cand_size; ++q1)
 		for (int q2 = 1; q2 <= d.cand_size; ++q2)
