@@ -135,7 +135,17 @@ Unless the \fB\-\-omit\-missing\fR option is used, data for all the
 following columns might be missing.
 
 .TP
-\fBstate\fR, \fBedges\fR, \fBtransitions\fR, \fBacc\fR
+\fBin_type\fR, \fBin_states\fR, \fBin_edges\fR, \fBin_transitions\fR, \fBin_acc\fR , \fBin_scc\fR
+These columns are only output if \f(CW%D\fR appears in any command
+specification, i.e., if any of the tools output some Streett or Rabin
+automata.  In this case \fBin_type\fR contains a string that is either
+\f(CWDRA\fR (Deterministic Rabin Automaton) or \f(CWDSA\fR
+(Deterministic Streett Automaton).  The other columns respectively
+give the number of states, edges, transitions, acceptance pairs, and
+strongly connected components in that automaton.
+
+.TP
+\fBstates\fR, \fBedges\fR, \fBtransitions\fR, \fBacc\fR
 The number of states, edges, transitions, and acceptance sets in the
 translated automaton.  Column \fBedges\fR counts the number of edges
 (labeled by Boolean formulas) in the automaton seen as a graph, while
@@ -143,6 +153,12 @@ translated automaton.  Column \fBedges\fR counts the number of edges
 that might have been merged into a formula-labeled edge.  For instance
 an edge labeled by \f(CWtrue\fR will be counted as 2^3=8 transitions if
 the automaton mention 3 atomic propositions.
+
+If the translator produced a Streett or Rabin automaton, these columns
+contains the size of a TGBA (or BA) produced by ltlcross from that
+Streett or Rabin automaton.  Check \fBin_states\fR, \fBin_edges\fR,
+\fBin_transitions\fR, and \fBin_acc\fR for statistics about the actual
+input automaton.
 
 .TP
 \fBscc\fR, \fBnonacc_scc\fR, \fBterminal_scc\fR, \fBweak_scc\fR, \fBstrong_scc\fR

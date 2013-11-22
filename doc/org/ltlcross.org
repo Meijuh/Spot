@@ -348,10 +348,22 @@ executed through a shell, it also includes the time to start a shell.
 
 
 All the values that follow will be missing if =exit_status= is not
-equal to "=ok=".  (You instruct =ltlcross= to not output lines with
+equal to "=ok=".  (You may instruct =ltlcross= not to output lines with
 such missing data with the option =--omit-missing=.)
 
-=states=, =edged=, =transitions=, =acc= are size measures for the
+The columns =in_type=, =in_states=, =in_edges=, =in_transitions=,
+=in_acc=, and =in_scc= are only output if one of the translator
+produces Rabin or Streett automata (i.e., if =%D= is used to specify
+one output filename for any translator).  In that case these columns
+give the type (DRA or DSA) of the produced automaton, as well as its
+size (states, edges, transitions, number of acceptance pairs, and
+number of SCCs).  This input automaton is then converted by =ltlcross=
+into a TGBA before being checked the result of other translators, and
+all the following columns are measures of that converted automaton.
+(Aside from parsing them and converting them to TGBA, Spot has no support
+for Rabin automata and Streett automata.)
+
+=states=, =edges=, =transitions=, =acc= are size measures for the
 automaton that was translated.  =acc= counts the number of acceptance
 sets.  When building (degeneralized) Büchi automata, it will always be
 =1=, so its value is meaningful only when evaluating translations to

@@ -111,3 +111,16 @@ test `grep '"exit code",1' out.csv | wc -l` -eq 0
 check_csv out.csv
 
 test $q -eq `expr $p + 12`
+
+
+# Check with Rabin/Streett output
+run 1 ../../bin/ltlcross "$ltl2tgba -s %f >%N" 'false %f >%D' \
+      -f a --csv=out.csv 2>stderr
+q=`sed 's/[^,]//g;q' out.csv | wc -c`
+grep '"exit_status"' out.csv
+grep '"exit_code"' out.csv
+test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
+test `grep '"exit code",1' out.csv | wc -l` -eq 2
+check_csv out.csv
+
+test $q -eq `expr $p + 6`

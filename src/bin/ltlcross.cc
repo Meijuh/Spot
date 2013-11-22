@@ -205,6 +205,7 @@ int seed = 0;
 unsigned products = 1;
 bool products_avg = true;
 bool opt_omit = false;
+bool has_sr = false; // Has Streett or Rabin automata to process.
 
 struct translator_spec
 {
@@ -292,10 +293,18 @@ struct statistics
 {
   statistics()
     : ok(false),
+      has_in(false),
       status_str(0),
       status_code(0),
       time(0),
+      in_type(0),
+      in_states(0),
+      in_edges(0),
+      in_transitions(0),
+      in_acc(0),
+      in_scc(0),
       states(0),
+      edges(0),
       transitions(0),
       acc(0),
       scc(0),
@@ -314,9 +323,17 @@ struct statistics
   // If OK is false, only the status_str, status_code, and time fields
   // should be valid.
   bool ok;
+  // has in_* data to display.
+  bool has_in;
   const char* status_str;
   int status_code;
   double time;
+  const char* in_type;
+  unsigned in_states;
+  unsigned in_edges;
+  unsigned in_transitions;
+  unsigned in_acc;
+  unsigned in_scc;
   unsigned states;
   unsigned edges;
   unsigned transitions;
@@ -336,12 +353,15 @@ struct statistics
   std::vector<double> product_scc;
 
   static void
-  fields(std::ostream& os, bool all)
+  fields(std::ostream& os, bool show_exit, bool show_sr)
   {
-    if (all)
+    if (show_exit)
       os << "\"exit_status\",\"exit_code\",";
-    os << ("\"time\","
-	   "\"states\","
+    os << "\"time\",";
+    if (show_sr)
+      os << ("\"in_type\",\"in_states\",\"in_edges\",\"in_transitions\","
+	     "\"in_acc\",\"in_scc\",");
+    os << ("\"states\","
 	   "\"edges\","
 	   "\"transitions\","
 	   "\"acc\","
@@ -361,13 +381,23 @@ struct statistics
   }
 
   void
-  to_csv(std::ostream& os, bool all, const char* na = "")
+  to_csv(std::ostream& os, bool show_exit, bool show_sr, const char* na = "")
   {
-    if (all)
+    if (show_exit)
       os << '"' << status_str << "\"," << status_code << ',';
     os << time << ',';
     if (ok)
       {
+	if (has_in)
+	  os << '"' << in_type << "\","
+	     << in_states << ','
+	     << in_edges << ','
+	     << in_transitions << ','
+	     << in_acc << ','
+	     << in_scc << ',';
+	else if (show_sr)
+	  os << na << ',' << na << ',' << na << ','
+	     << na << ',' << na << ',' << na << ',';
 	os << states << ','
 	   << edges << ','
 	   << transitions << ','
@@ -407,23 +437,12 @@ struct statistics
       }
     else
       {
-	os << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na << ','
-	   << na;
 	size_t m = products_avg ? 1U : products;
+	m *= 3;
+	m += 13 + show_sr * 6;
+	os << na;
 	for (size_t i = 0; i < m; ++i)
-	  os << ',' << na << ',' << na << ',' << na;
+	  os << ',' << na;
       }
   }
 };
@@ -764,10 +783,12 @@ namespace
 	    error(2, 0, "no input %%-sequence in '%s'.\n       Use "
 		  "one of %%f,%%s,%%l,%%w,%%F,%%S,%%L,%%W to indicate how "
 		  "to pass the formula.", t.spec);
-	  if (!(has['D'] || has['N'] || has['T']))
+	  bool has_d = has['D'];
+	  if (!(has_d || has['N'] || has['T']))
 	    error(2, 0, "no output %%-sequence in '%s'.\n      Use one of "
 		  "%%D,%%N,%%T to indicate where the automaton is saved.",
 		  t.spec);
+	  has_sr |= has_d;
 
 	  // Remember the %-sequences used by all translators.
 	  prime(t.cmd);
@@ -942,6 +963,34 @@ namespace
 		  }
 		else
 		  {
+		    // Gather statistics about the input automaton
+		    if (want_stats)
+		      {
+			statistics* st = &(*fstats)[translator_num];
+			st->has_in = true;
+
+			switch (aut->type)
+			  {
+			  case spot::Rabin:
+			    st->in_type = "DRA";
+			    break;
+			  case spot::Streett:
+			    st->in_type = "DSA";
+			    break;
+			  }
+
+			spot::tgba_sub_statistics s =
+			  sub_stats_reachable(aut->aut);
+			st->in_states= s.states;
+			st->in_edges = s.transitions;
+			st->in_transitions = s.sub_transitions;
+			st->in_acc = aut->accpair_count;
+
+			spot::scc_map m(aut->aut);
+			m.build_map();
+			st->in_scc = m.scc_count();
+		      }
+		    // convert it into TGBA for further processing
 		    res = dstar_to_tgba(aut);
 		    delete aut;
 		  }
@@ -972,7 +1021,7 @@ namespace
 	      spot::scc_map m(res);
 	      m.build_map();
 	      unsigned c = m.scc_count();
-	      st->scc = m.scc_count();
+	      st->scc = c;
 	      st->nondetstates = spot::count_nondet_states(res);
 	      st->nondeterministic = st->nondetstates != 0;
 	      for (unsigned n = 0; n < c; ++n)
@@ -1485,7 +1534,7 @@ print_stats_csv(const char* filename)
   assert(rounds == formulas.size());
 
   *out << "\"formula\",\"tool\",";
-  statistics::fields(*out, !opt_omit);
+  statistics::fields(*out, !opt_omit, has_sr);
   *out << "\r\n";
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
@@ -1496,7 +1545,7 @@ print_stats_csv(const char* filename)
 	  *out << "\",\"";
 	  spot::escape_rfc4180(*out, translators[t].name);
 	  *out << "\",";
-	  vstats[r][t].to_csv(*out, !opt_omit);
+	  vstats[r][t].to_csv(*out, !opt_omit, has_sr);
 	  *out << "\r\n";
 	}
   delete outfile;
@@ -1537,7 +1586,7 @@ print_stats_json(const char* filename)
       spot::escape_str(*out, formulas[r]);
     }
   *out << ("\"\n  ],\n  \"fields\":  [\n  \"formula\",\"tool\",");
-  statistics::fields(*out, !opt_omit);
+  statistics::fields(*out, !opt_omit, has_sr);
   *out << "\n  ],\n  \"inputs\":  [ 0, 1 ],";
   *out << "\n  \"results\": [";
   bool notfirst = false;
@@ -1549,7 +1598,7 @@ print_stats_json(const char* filename)
 	    *out << ',';
 	  notfirst = true;
 	  *out << "\n    [ " << r << ',' << t << ',';
-	  vstats[r][t].to_csv(*out, !opt_omit, "null");
+	  vstats[r][t].to_csv(*out, !opt_omit, has_sr, "null");
 	  *out << " ]";
 	}
   *out << "\n  ]\n}\n";

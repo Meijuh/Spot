@@ -17,6 +17,11 @@ New in spot 1.2a (not released)
     - if ltlcross is used with --products=+5 instead of --products=5
       then the stastics for each of the five products will be output
       separately instead of being averaged.
+    - if ltlcross is used with tools that produce deterministic Streett
+      or Rabin automata (as specified with %D), then the statistics
+      output in CSV or JSON will have some extra columns to report
+      the size of these input automata before ltlcross converts them
+      into TGBA to perform its regular checks.
   * Bug fixes:
     - ltlcross' CSV output now stricly follows RFC 4180.
     - ltlcross failed to report missing input or output escape sequences

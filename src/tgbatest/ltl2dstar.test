@@ -54,4 +54,10 @@ $ltlcross -F - -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
 "ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L - | $dstar2tgba --low -s >%N" \
 "ltl2dstar $STR --output=nba --ltl2nba=spin:$ltl2tgba@-s %L %T" \
 "ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L %D" \
-"ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L - | $dstar2tgba --low -s >%N"
+"ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L - | $dstar2tgba --low -s >%N" \
+--csv=out.csv
+
+grep '"in_type"' out.csv
+grep '"DSA"' out.csv
+grep '"DRA"' out.csv
+grep ',,,,' out.csv
