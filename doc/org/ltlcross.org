@@ -118,7 +118,7 @@ no problem detected
     converted to non-deterministic TGBA, where generalized acceptance
     conditions are used to reduce the size of the automaton you would
     get by the classical conversion from Streett to Büchi.
-    This kind of output (Rabin or Streett) should be indicated with =%T=.
+    This kind of output (Rabin or Streett) should be indicated with =%D=.
 
 Of course all configured tools need not use the same =%= sequences.
 The following list shows some typical configurations for some existing
@@ -136,17 +136,18 @@ tools:
   - '=ltl2tgba --lbtt %s >%T=' (smaller output, TGBA)
   - '=ltl2tgba --lbtt -D %s >%T=' (more deterministic output, TGBA)
   - '=lbt <%L >%T='
-  - '=ltl2dstar --ltl2nba=spin:path/tp/ltl2tgba@-sD %L %T='
+  - '=ltl2dstar --ltl2nba=spin:path/tp/ltl2tgba@-sD %L %D='
     (deterministic Rabin output)
   - '=ltl2dstar --automata=streett --ltl2nba=spin:path/tp/ltl2tgba@-sD
-    %L %T=' (deterministic Streett output)
+    %L %D=' (deterministic Streett output)
   - '=ltl2dstar --ltl2nba=spin:path/tp/ltl2tgba@-sD %L - | dstar2tgba
     -s >%N=' (external conversion from Rabin to Büchi done by
-    =dstar2tgba= for additional reduction of the Büchi automaton than
+    =dstar2tgba= for more reduction of the Büchi automaton than
     what =ltlcross= would provide)
   - '=java -jar Rabinizer.jar -ltl2dstar %F %D; mv %D.dst %D=' (Rabinizer
     uses the last =%D= argument as a prefix to which it always append =.dst=,
     so we have to rename =%D.dst= as =%D= so that =ltlcross= can find the file)
+  - '=ltl3dra -f %s >%D='
 
 * Getting statistics
 
