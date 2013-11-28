@@ -252,23 +252,23 @@ Exporting symbols
     should still be private to the library, use a *.hh/*.cc pair of
     files, but list both files in the _SOURCES variable of that
     directory (see for instance weight.hh in tgbaalgos/Makefile.am).
-    This will ensure that weight.hh is not installed.
-    Needless to say, no public header should include such private
+    This will ensure that the header is not installed.
+    Needless to say, no public header should include such a private
     header.
 
-  * The directory src/priv/ can be used to store file that are globaly
-    private the library, and that do not really fit belongs to other
-    directories.
+  * The directory src/priv/ can be used to store files that are
+    globaly private the library, and that do not really belongs to
+    other directories.
 
   * Functions and classes that are public should be marked with
     the SPOT_API macro.  This macro is defined in misc/common.hh,
-    but you need not include it in a file that already include
+    but you need not include it in a file that already includes
     another public header.
 
   * Do not make a symbol public just because you can.
 
   * Read http://www.akkadia.org/drepper/dsohowto.pdf for more
-    information about how shared library work and why
+    information about how shared libraries work and why.
 
 Comments
 --------
