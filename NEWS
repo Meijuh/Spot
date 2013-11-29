@@ -22,6 +22,15 @@ New in spot 1.2a (not released)
       output in CSV or JSON will have some extra columns to report
       the size of these input automata before ltlcross converts them
       into TGBA to perform its regular checks.
+    - ltlfilt, ltl2tgba, ltl2tgta, and ltlcross can now read formulas
+      from CSV files.  Use option -F FILE/COL to read formulas from
+      column COL of FILE.  Use -F FILE/-COL if the first line of
+      FILE be ignored.
+    - when ltlfilt processes formulas from a CSV file, it will output
+      each CSV line whose formula matches the given constraints, with
+      the rewriten formula.  The new escape sequence %< (text in
+      columns before the formula) and %> (text after) can be used
+      with the --format option to alter this output.
   * Bug fixes:
     - ltlcross' CSV output now stricly follows RFC 4180.
     - ltlcross failed to report missing input or output escape sequences

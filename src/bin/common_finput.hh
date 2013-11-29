@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -56,9 +56,7 @@ protected:
 public:
   job_processor();
 
-  virtual ~job_processor()
-  {
-  }
+  virtual ~job_processor();
 
   virtual int
   process_formula(const spot::ltl::formula* f,
@@ -75,6 +73,11 @@ public:
 
   virtual int
   run();
+
+  char* real_filename;
+  long int col_to_read;
+  char* prefix;
+  char* suffix;
 };
 
 

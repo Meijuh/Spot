@@ -22,6 +22,7 @@
 #include "ltlparse/public.hh"
 
 #include <fstream>
+#include <cstring>
 
 #define OPT_LBT 1
 #define OPT_LENIENT 2
@@ -34,8 +35,10 @@ static const argp_option options[] =
   {
     { 0, 0, 0, 0, "Input options:", 1 },
     { "formula", 'f', "STRING", 0, "process the formula STRING", 0 },
-    { "file", 'F', "FILENAME", 0,
-      "process each line of FILENAME as a formula", 0 },
+    { "file", 'F', "FILENAME[/COL]", 0,
+      "process each line of FILENAME as a formula; if COL is a "
+      "positive integer, assume a CSV file and read column COL; use "
+      "a negative COL to drop the first line of the CSV file", 0 },
     { "lbt-input", OPT_LBT, 0, 0,
       "read all formulas using LBT's prefix syntax", 0 },
     { "lenient", OPT_LENIENT, 0, 0,
@@ -82,9 +85,21 @@ parse_formula(const std::string& s, spot::ltl::parse_error_list& pel)
 }
 
 job_processor::job_processor()
-  : abort_run(false)
+  : abort_run(false), real_filename(0),
+    col_to_read(0), prefix(0), suffix(0)
 {
 }
+
+job_processor::~job_processor()
+{
+  if (real_filename)
+    free(real_filename);
+  if (prefix)
+    free(prefix);
+  if (suffix)
+    free(suffix);
+}
+
 
 int
 job_processor::process_string(const std::string& input,
@@ -113,9 +128,139 @@ job_processor::process_stream(std::istream& is,
   int error = 0;
   int linenum = 0;
   std::string line;
+
+  // Discard the first line of a CSV file if requested.
+  if (col_to_read < 0)
+    {
+      std::getline(is, line);
+      col_to_read = -col_to_read;
+    }
+
+  // Each line of the file and send them to process_string,
+  // optionally extracting a column of a CSV file.
   while (!abort_run && std::getline(is, line))
     if (!line.empty())
-      error |= process_string(line, filename, ++linenum);
+      {
+	if (col_to_read == 0)
+	  {
+	    error |= process_string(line, filename, ++linenum);
+	  }
+	else // We are reading column COL_TO_READ in a CSV file.
+	  {
+	    // FIXME: This code assumes an entire CSV row was been
+	    // fetched by getline().  This is incorrect for processing
+	    // CSV files with fields that contain newlines inside
+	    // double-quoted strings.  Patching this code to deal with
+	    // such files is left as an exercise for the first user
+	    // who encounters the issue.
+	    const char* str = line.c_str();
+	    const char* col1_start = str;
+	    // Delimiters for the extracted column.
+	    const char* coln_start = str;
+	    const char* coln_end = 0;
+	    // The current column.  (1-based)
+	    int colnum = 1;
+	    // Whether we are parsing a double-quoted string.
+	    bool instring = false;
+	    // Note that RFC 4180 has strict rules about
+	    // double-quotes: ① if a field is double-quoted, the first
+	    // and last characters of the field should be
+	    // double-quotes; ② if a field contains a double-quote
+	    // then it should be double quoted, and the occurrences
+	    // of double-quotes should be doubled.  Therefore a CSV file
+	    // may no contain a line such as:
+	    //    foo,bar"ba""z",12
+	    // Tools have different interpretation of such a line.
+	    // For instance Python's pandas.read_csv() function will
+	    // load the second field verbatim as the string 'bar"ba""z"',
+	    // while R's read.csv() function will load it as the
+	    // string 'barba"z'.  We use this second interpretation, because
+	    // it also makes it possible to parse CSVs fields formatted
+	    // with leading spaces (often for cosmetic purpose).  When
+	    // extracting the second field of
+	    //    foo, "ba""z", 12
+	    // we will return ' baz' and the leading space will be ignored
+	    // by our LTL formula parser.
+	    while (*str)
+	      {
+		switch (*str)
+		  {
+		  case '"':
+		    // Doubled double-quotes are used to escape
+		    // double-quotes.
+		    if (instring && str[1] == '"')
+		      ++str;
+		    else
+		      instring = !instring;
+		    break;
+		  case ',':
+		    if (!instring)
+		      {
+			if (col_to_read == colnum)
+			  coln_end = str;
+			++colnum;
+			if (col_to_read == colnum)
+			  coln_start = str + 1;
+		      }
+		    break;
+		  }
+		// Once we have the end delimiter for our target
+		// column, we have all we need.
+		if (coln_end)
+		  break;
+		++str;
+	      }
+	    if (!*str)
+	      {
+		if (colnum != col_to_read)
+		  // Skip this line as it has no enough columns.
+		  continue;
+		else
+		  // The target columns ends at the end of the line.
+		  coln_end = str;
+	      }
+
+	    // Skip the line if it has an empty field.
+	    if (coln_start == coln_end)
+	      continue;
+
+	    // save the contents before and after that columns for the
+	    // %< and %> escapes (ignoring the trailing and leading
+	    // commas).
+	    prefix = (col_to_read != 1) ?
+	      strndup(col1_start, coln_start - col1_start - 1) : 0;
+	    suffix = (*coln_end != 0) ? strdup(coln_end + 1) : 0;
+	    std::string field(coln_start, coln_end);
+	    // Remove double-quotes if any.
+	    if (field.find('"') != std::string::npos)
+	      {
+		unsigned dst = 0;
+		bool instring = false;
+		for (; coln_start != coln_end; ++coln_start)
+		  if (*coln_start == '"')
+		    // A doubled double-quote instead a double-quoted
+		    // string is an escaped double-quote.
+		    if (instring && coln_start[1] == '"')
+		      field[dst++] = *++coln_start;
+		    else
+		      instring = !instring;
+		  else
+		    field[dst++] = *coln_start;
+		field.resize(dst);
+	      }
+	    error |= process_string(field, filename, ++linenum);
+	    if (prefix)
+	      {
+		free(prefix);
+		prefix = 0;
+	      }
+	    if (suffix)
+	      {
+		free(suffix);
+		suffix = 0;
+	      }
+	  }
+      }
   return error;
 }
 
@@ -128,9 +273,46 @@ job_processor::process_file(const char* filename)
 
   errno = 0;
   std::ifstream input(filename);
-  if (!input)
-    error(2, errno, "cannot open '%s'", filename);
-  return process_stream(input, filename);
+  if (input)
+    return process_stream(input, filename);
+  int saved_errno = errno;
+
+  // If we have a filename like "foo/NN" such
+  // that:
+  // ① foo/NN is not a file (already the case),
+  // ② NN is a number > 0,
+  // ③ foo is a file,
+  // then it means we want to open foo as
+  // a CSV file and process column NN.
+
+  if (const char* slash = strrchr(filename, '/'))
+    {
+      char* end;
+      errno = 0;
+      long int col = strtol(slash + 1, &end, 10);
+      // strtol ate all remaining characters and NN is positive
+      if (errno == 0 && !*end && col != 0)
+	{
+	  col_to_read = col;
+	  if (real_filename)
+	    free(real_filename);
+	  real_filename = strndup(filename, slash - filename);
+
+	  // Special case for stdin.
+	  if (real_filename[0] == '-' && real_filename[1] == 0)
+	    return process_stream(std::cin, real_filename);
+
+	  std::ifstream input(real_filename);
+	  if (input)
+	    return process_stream(input, real_filename);
+
+	  error(2, errno, "cannot open '%s' nor '%s'",
+		filename, real_filename);
+	}
+    }
+
+  error(2, saved_errno, "cannot open '%s'", filename);
+  return -1;
 }
 
 int

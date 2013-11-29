@@ -165,6 +165,12 @@ static const argp_option options[] =
       "the name of the input file", 0 },
     { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the original line number in the input file", 0 },
+    { "%<", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the part of the line before the formula if it "
+      "comes from a column extracted from a CSV file", 0 },
+    { "%>", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the part of the line after the formula if it "
+      "comes from a column extracted from a CSV file", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
@@ -571,7 +577,7 @@ namespace
       if (matched)
 	{
 	  one_match = true;
-	  output_formula(f, filename, linenum);
+	  output_formula(f, filename, linenum, prefix, suffix);
 	}
       f->destroy();
       return 0;
@@ -584,7 +590,7 @@ main(int argc, char** argv)
 {
   setup(argv);
 
-  const argp ap = { options, parse_opt, "[FILENAME...]",
+  const argp ap = { options, parse_opt, "[FILENAME[/COL]...]",
 		    argp_program_doc, children, 0, 0 };
 
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))

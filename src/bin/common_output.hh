@@ -35,6 +35,7 @@ extern const struct argp output_argp;
 int parse_opt_output(int key, char* arg, struct argp_state* state);
 
 void output_formula(const spot::ltl::formula* f,
-		    const char* filename = 0, int linenum = 0);
+		    const char* filename = 0, int linenum = 0,
+		    const char* prefix = 0, const char* suffix = 0);
 
 #endif // SPOT_BIN_COMMON_OUTPUT_HH

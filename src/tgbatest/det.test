@@ -56,7 +56,7 @@ cat >formulas <<'EOF'
 1,4,G(G!a | F!c | G!b)
 EOF
 
-cut -d, -f3 <formulas | $ltl2tgba -x tba-det --det --stats '%d,%s,%f' -F - > out
+$ltl2tgba -x tba-det --det --stats '%d,%s,%f' -F formulas/3 > out
 diff formulas out
 
 cat >in.tgba <<'EOF'

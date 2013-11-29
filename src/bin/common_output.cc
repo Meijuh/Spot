@@ -109,6 +109,8 @@ namespace
     const spot::ltl::formula* f;
     const char* filename;
     int line;
+    const char* prefix;
+    const char* suffix;
   };
 
   class printable_formula:
@@ -141,6 +143,8 @@ namespace
       declare('f', &fl_);
       declare('F', &filename_);
       declare('L', &line_);
+      declare('<', &prefix_);
+      declare('>', &suffix_);
       set_output(os);
     }
 
@@ -150,6 +154,8 @@ namespace
       fl_ = &fl;
       filename_ = fl.filename ? fl.filename : "";
       line_ = fl.line;
+      prefix_ = fl.prefix ? fl.prefix : "";
+      suffix_ = fl.suffix ? fl.suffix : "";
       return format(format_);
     }
 
@@ -158,6 +164,8 @@ namespace
     printable_formula fl_;
     spot::printable_value<const char*> filename_;
     spot::printable_value<int> line_;
+    spot::printable_value<const char*> prefix_;
+    spot::printable_value<const char*> suffix_;
   };
 }
 
@@ -202,15 +210,20 @@ parse_opt_output(int key, char* arg, struct argp_state*)
 
 
 void
-output_formula(const spot::ltl::formula* f, const char* filename, int linenum)
+output_formula(const spot::ltl::formula* f, const char* filename, int linenum,
+	       const char* prefix, const char* suffix)
 {
   if (!format)
     {
+      if (prefix)
+	std::cout << prefix << ",";
       stream_formula(std::cout, f, filename, linenum);
+      if (suffix)
+	std::cout << "," << suffix;
     }
   else
     {
-      formula_with_location fl = { f, filename, linenum };
+      formula_with_location fl = { f, filename, linenum, prefix, suffix };
       format->print(fl);
     }
 

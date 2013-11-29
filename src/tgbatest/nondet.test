@@ -28,8 +28,8 @@ a U b, 1 0
 G(!r | Fa) | Fx, 0 1
 EOF
 
-cut -d, -f1 expected.1 |
-../../bin/ltl2tgba -F- --stats='%f, %d %p' >out.1
+# also test the filename/COL syntax
+../../bin/ltl2tgba -F expected.1/1 --stats='%f, %d %p' >out.1
 diff out.1 expected.1
 
 cat >expected.2<<EOF
@@ -39,8 +39,8 @@ a U b, 1 1
 G(!r | Fa) | Fx, 0 1
 EOF
 
-cut -d, -f1 expected.2 |
-../../bin/ltl2tgba -C -F- --stats='%f, %d %p' >out.2
+# filename/COL should also work when filename=-
+../../bin/ltl2tgba -C -F-/1 --stats='%f, %d %p' <expected.2 >out.2
 diff out.2 expected.2
 
 
