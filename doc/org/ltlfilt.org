@@ -351,6 +351,9 @@ ltlfilt --lbt-input -F scheck.ltl --guarantee --format=%L
 : 3
 : 4
 
+[[file:csv.org][More examples of how to use =--format= to create CSV files are on a
+separate page]]
+
 #  LocalWords:  ltlfilt num toc LTL PSL syntaxes LBT's SRC GFp scheck
 #  LocalWords:  ltl EOF lbt Gp Fp Xp XFp XXp randltl ary nnf wm abc
 #  LocalWords:  pnn Xb Fc XFb XXd sed boolean bsize nox Gb Fb Xa XGb

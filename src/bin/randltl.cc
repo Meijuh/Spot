@@ -396,7 +396,7 @@ main(int argc, char** argv)
 	error(2, 0, "failed to generate a new unique formula after %d trials",
 	      MAX_TRIALS);
       static int count = 0;
-      output_formula(f, 0, ++count);
+      output_formula_checked(f, 0, ++count);
       f->destroy();
     };
 

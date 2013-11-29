@@ -46,6 +46,7 @@ corresponding commands are hidden.
 
 * Advanced uses
 
+- [[file:csv.org][Reading and writing CSV files]]
 - [[file:satmin.org][SAT-based minimization of Deterministic (Generalized) Büchi automata]]
 
 * Citing

@@ -60,6 +60,7 @@ ORG_FILES = \
   org/.dir-locals.el \
   org/init.el.in \
   org/syntax.css \
+  org/csv.org \
   org/dstar2tgba.org \
   org/genltl.org \
   org/ioltl.org \

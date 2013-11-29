@@ -551,15 +551,19 @@ following sequence of characters (other characters are output as-is):
 ltl2tgba --help | sed -n '/^ *%/p'
 #+END_SRC
 #+RESULTS:
-:   %%                         a single %
-:   %a                         number of acceptance sets
-:   %c                         number of SCCs
-:   %d                         1 if the automaton is deterministic, 0 otherwise
-:   %e                         number of edges
-:   %f                         the formula, in Spot's syntax
-:   %n                         number of nondeterministic states
-:   %s                         number of states
-:   %t                         number of transitions
+#+begin_example
+  %%                         a single %
+  %a                         number of acceptance sets
+  %c                         number of SCCs
+  %d                         1 if the automaton is deterministic, 0 otherwise
+  %e                         number of edges
+  %f                         the formula, in Spot's syntax
+  %n                         number of nondeterministic states
+  %p                         1 if the automaton is complete, 0 otherwise
+  %r                         translation time (including pre- and
+  %s                         number of states
+  %t                         number of transitions
+#+end_example
 
 For instance we can study the size of the automata generated for the
 right-nested =U= formulas as follows:
@@ -591,6 +595,9 @@ with =!x&y= and =!x&!y=.
 Two automata with the same structures (states and edges) but differing
 labels, may have a different count of transitions, e.g., if one has
 more restricted labels.
+
+[[file:csv.org][More examples of how to use =--stats= to create CSV
+files are on a separate page]].
 
 * Building Monitors
 

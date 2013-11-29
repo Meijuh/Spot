@@ -846,7 +846,7 @@ output_pattern(int pattern, int n)
       f = r;
     }
 
-  output_formula(f, class_name[pattern - 1], n);
+  output_formula_checked(f, class_name[pattern - 1], n);
   f->destroy();
 }
 

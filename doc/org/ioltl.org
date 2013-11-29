@@ -16,7 +16,10 @@ ltl2tgba --help | sed -n '/Input options:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :   -f, --formula=STRING       process the formula STRING
-:   -F, --file=FILENAME        process each line of FILENAME as a formula
+:   -F, --file=FILENAME[/COL]  process each line of FILENAME as a formula; if COL
+:                              is a positive integer, assume a CSV file and read
+:                              column COL; usea negative COL to drop the first
+:                              line of the CSV file
 :       --lbt-input            read all formulas using LBT's prefix syntax
 :       --lenient              parenthesized blocks that cannot be parsed as
 :                              subformulas are considered as atomic properties
@@ -27,7 +30,12 @@ be repeated to pass multiple formulas.
 =-F= is used to read formulas from a file (one formula per line).
 This option can also be repeated to pass multiple files.  If the
 filename specified is =-= (as in =-F-=), then formulas are read from
-standard input.
+standard input.  If a filename is suffixed with =/COL=, where =COL= is
+a positive integer, then the file is assumed to be a CSV file, and
+formulas are read from its =COL=-th column.  Use =/-COL= to read from
+column =COL= and ignore the first line of the CSV file (which often
+contains column headers).  We have [[file:csv.org][examples of reading or writing CSV
+files on a separate page]].
 
 ** Default parser
 
@@ -132,6 +140,7 @@ used by [[http://www.ltl2dstar.de][ltl2dstar]].
 
 =--lbt-input= is a global option that affects *all* formulas that are read.
 
+
 * Common output options
 
 All tools that output LTL/PSL formulas implement the following options:
@@ -140,15 +149,18 @@ All tools that output LTL/PSL formulas implement the following options:
 ltlfilt --help | sed -n '/Output options:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
-:   -8, --utf8                 output using UTF-8 characters
-:       --format=FORMAT        specify how each line should be output (default:
-:                              "%f")
-:   -l, --lbt                  output in LBT's syntax
-:       --latex                output using LaTeX macros
-:   -p, --full-parentheses     output fully-parenthesized formulas
-:   -s, --spin                 output in Spin's syntax
-:       --spot                 output in Spot's syntax (default)
-:       --wring                output in Wring's syntax
+#+begin_example
+  -8, --utf8                 output using UTF-8 characters
+      --csv                  quote the formula for use in a CSV file
+      --format=FORMAT        specify how each line should be output (default:
+                             "%f")
+  -l, --lbt                  output in LBT's syntax
+      --latex                output using LaTeX macros
+  -p, --full-parentheses     output fully-parenthesized formulas
+  -s, --spin                 output in Spin's syntax
+      --spot                 output in Spot's syntax (default)
+      --wring                output in Wring's syntax
+#+end_example
 
 #  LocalWords:  syntaxes LTL PSL num toc SRC ltl tgba sed FILENAME
 
@@ -171,16 +183,23 @@ with read it as =(a U b) U c=.
 The =--lbt= option requests an output in LBT's prefix format, and in
 that case discussing associativity and parentheses makes no sense.
 
+The =--csv= causes the formulas to be double-quoted (with inner
+double-quotes doubled, as per RFC 4180), regardless of the selected
+format.  This is needed if the formula should appear in a CSV file,
+and you want to be robust to formulas that contains commas or
+double-quotes.  We have [[file:csv.org][examples of reading or writing CSV files on a
+separate page]].
+
 The =--format= option can be used to fine-tune the way the formula is
 output.  Not using the =--format= option is equivalent to using
 =--format=%f=.  The semantic of the available =%=-sequences differ
 from tool to tool:
 
-|           | =%f=           | =%F=           | =%L=              |
-|-----------+----------------+----------------+-------------------|
-| [[file:ltlfilt.org][=ltlfilt=]] | output formula | input filename | input line        |
-| [[file:genltl.org][=genltl=]]  | output formula | pattern name   | pattern parameter |
-| [[file:randltl.org][=randltl=]] | output formula | (empty)        | formula number    |
+|           | =%f=           | =%F=           | =%L=              | =%<=         | =%>=          |
+|-----------+----------------+----------------+-------------------+--------------+---------------|
+| [[file:ltlfilt.org][=ltlfilt=]] | output formula | input filename | input line        | leading text | trailing text |
+| [[file:genltl.org][=genltl=]]  | output formula | pattern name   | pattern parameter | (empty)      | (empty)       |
+| [[file:randltl.org][=randltl=]] | output formula | (empty)        | formula number    | (empty)      | (empty)       |
 
 #  LocalWords:  lbt LBT's filename UTF gfa GFa ltlfilt LBTT scheck
 #  LocalWords:  utf associativity

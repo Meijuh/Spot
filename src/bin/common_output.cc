@@ -24,6 +24,7 @@
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/lbt.hh"
 #include "misc/formater.hh"
+#include "misc/escape.hh"
 #include "common_cout.hh"
 #include "error.h"
 
@@ -31,9 +32,11 @@
 #define OPT_WRING 2
 #define OPT_LATEX 3
 #define OPT_FORMAT 4
+#define OPT_CSV 5
 
 output_format_t output_format = spot_output;
 bool full_parenth = false;
+bool escape_csv = false;
 
 static const argp_option options[] =
   {
@@ -45,6 +48,8 @@ static const argp_option options[] =
     { "wring", OPT_WRING, 0, 0, "output in Wring's syntax", -20 },
     { "utf8", '8', 0, 0, "output using UTF-8 characters", -20 },
     { "latex", OPT_LATEX, 0, 0, "output using LaTeX macros", -20 },
+    { "csv-escape", OPT_CSV, 0, 0, "quote the formula for use in a CSV file",
+      -20 },
     { "format", OPT_FORMAT, "FORMAT", 0,
       "specify how each line should be output (default: \"%f\")", -20 },
     { 0, 0, 0, 0, 0, 0 }
@@ -102,6 +107,26 @@ stream_formula(std::ostream& out,
     }
 }
 
+static void
+stream_escapable_formula(std::ostream& os,
+			 const spot::ltl::formula* f,
+			 const char* filename, int linenum)
+{
+  if (escape_csv)
+    {
+      std::ostringstream out;
+      stream_formula(out, f, filename, linenum);
+      os << '"';
+      spot::escape_rfc4180(os, out.str());
+      os << '"';
+    }
+  else
+    {
+      stream_formula(os, f, filename, linenum);
+    }
+}
+
+
 namespace
 {
   struct formula_with_location
@@ -127,10 +152,7 @@ namespace
     virtual void
     print(std::ostream& os, const char*) const
     {
-      stream_formula(os,
-		     val_->f,
-		     val_->filename,
-		     val_->line);
+      stream_escapable_formula(os, val_->f, val_->filename, val_->line);
     }
   };
 
@@ -189,6 +211,9 @@ parse_opt_output(int key, char* arg, struct argp_state*)
     case 's':
       output_format = spin_output;
       break;
+    case OPT_CSV:
+      escape_csv = true;
+      break;
     case OPT_LATEX:
       output_format = latex_output;
       break;
@@ -210,25 +235,33 @@ parse_opt_output(int key, char* arg, struct argp_state*)
 
 
 void
-output_formula(const spot::ltl::formula* f, const char* filename, int linenum,
+output_formula(std::ostream& out,
+	       const spot::ltl::formula* f, const char* filename, int linenum,
 	       const char* prefix, const char* suffix)
 {
   if (!format)
     {
       if (prefix)
-	std::cout << prefix << ",";
-      stream_formula(std::cout, f, filename, linenum);
+	out << prefix << ",";
+      stream_escapable_formula(out, f, filename, linenum);
       if (suffix)
-	std::cout << "," << suffix;
+	out << "," << suffix;
     }
   else
     {
       formula_with_location fl = { f, filename, linenum, prefix, suffix };
       format->print(fl);
     }
+}
 
+void
+output_formula_checked(const spot::ltl::formula* f,
+		       const char* filename, int linenum,
+		       const char* prefix, const char* suffix)
+{
+  output_formula(std::cout, f, filename, linenum, prefix, suffix);
+  std::cout << std::endl;
   // Make sure we abort if we can't write to std::cout anymore
   // (like disk full or broken pipe with SIGPIPE ignored).
-  std::cout << std::endl;
   check_cout();
 }

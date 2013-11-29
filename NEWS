@@ -31,6 +31,11 @@ New in spot 1.2a (not released)
       the rewriten formula.  The new escape sequence %< (text in
       columns before the formula) and %> (text after) can be used
       with the --format option to alter this output.
+    - ltlfile, genltl, randltl, and ltl2tgba have a --csv-escape option
+      to help escape formulas in CSV files.
+    - Please check
+            http://spot.lip6.fr/userdoc/csv.html
+      for some discussion and examples of the last few features.
   * Bug fixes:
     - ltlcross' CSV output now stricly follows RFC 4180.
     - ltlcross failed to report missing input or output escape sequences

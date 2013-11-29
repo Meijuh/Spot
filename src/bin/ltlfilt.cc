@@ -577,7 +577,7 @@ namespace
       if (matched)
 	{
 	  one_match = true;
-	  output_formula(f, filename, linenum, prefix, suffix);
+	  output_formula_checked(f, filename, linenum, prefix, suffix);
 	}
       f->destroy();
       return 0;

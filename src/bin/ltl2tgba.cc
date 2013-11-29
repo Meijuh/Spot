@@ -30,6 +30,7 @@
 #include "common_r.hh"
 #include "common_cout.hh"
 #include "common_finput.hh"
+#include "common_output.hh"
 #include "common_post.hh"
 
 #include "ltlast/formula.hh"
@@ -55,6 +56,7 @@ If multiple formulas are supplied, several automata will be output.";
 #define OPT_LBTT 3
 #define OPT_SPOT 4
 #define OPT_STATS 5
+#define OPT_CSV 6
 
 static const argp_option options[] =
   {
@@ -67,6 +69,8 @@ static const argp_option options[] =
       "of the given formula)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
+    { "csv-escape", OPT_CSV, 0, 0, "quote formula output by %f in --format "
+      "for use in CSV file", 0 },
     { "dot", OPT_DOT, 0, 0, "GraphViz's format (default)", 0 },
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
       "LBTT's format (add =t to force transition-based acceptance even"
@@ -127,6 +131,7 @@ parse_opt(int key, char* arg, struct argp_state*)
     {
     case '8':
       spot::enable_utf8();
+      output_format = utf8_output;
       break;
     case 'B':
       type = spot::postprocessor::BA;
@@ -145,6 +150,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 	if (opt)
 	  error(2, 0, "failed to parse --options near '%s'", opt);
       }
+      break;
+    case OPT_CSV:
+      escape_csv = true;
       break;
     case OPT_DOT:
       format = Dot;
@@ -194,7 +202,7 @@ namespace
   {
   public:
     spot::translator& trans;
-    spot::stat_printer statistics;
+    aut_stat_printer statistics;
 
     trans_processor(spot::translator& trans)
       : trans(trans), statistics(std::cout, stats)
