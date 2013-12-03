@@ -370,19 +370,18 @@ namespace spot
 
 	for (dict::state_map::const_iterator i2 = seen.begin();
 	     i2 != seen.end(); ++i2)
+	  d.int_to_state[i2->second] = i2->first;
+
+	for (int i = 1; i <= size_; ++i)
 	  {
-	    int i = i2->second;
-	    d.int_to_state[i] = i2->first;
-	    unsigned i_scc = sm_.scc_of_state(i2->first);
+	    unsigned i_scc = sm_.scc_of_state(d.int_to_state[i]);
 	    bool is_weak = is_weak_scc(sm_, i_scc);
 
 	    for (int j = 1; j <= d.cand_size; ++j)
 	      {
-		for (dict::state_map::const_iterator k2 = seen.begin();
-		     k2 != seen.end(); ++k2)
+		for (int k = 1; k <= size_; ++k)
 		  {
-		    int k = k2->second;
-		    if (sm_.scc_of_state(k2->first) != i_scc)
+		    if (sm_.scc_of_state(d.int_to_state[k]) != i_scc)
 		      continue;
 		    for (int l = 1; l <= d.cand_size; ++l)
 		      {

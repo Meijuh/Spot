@@ -272,28 +272,29 @@ namespace spot
 	if (d.cand_size == -1)
 	  d.cand_size = size_ - 1;
 
+	// Reverse the "seen" map.  States are labeled from 1 to size_.
 	for (dict::state_map::const_iterator i2 = seen.begin();
 	     i2 != seen.end(); ++i2)
+	  d.int_to_state[i2->second] = i2->first;
+
+	for (int i = 1; i <= size_; ++i)
 	  {
-	    int i = i2->second;
-	    d.int_to_state[i] = i2->first;
-	    unsigned i_scc = sm_.scc_of_state(i2->first);
+	    unsigned i_scc = sm_.scc_of_state(d.int_to_state[i]);
+
+	    bool is_weak = sm_.trivial(i_scc)
+	      || (d.weak_scc.find(i_scc) != d.weak_scc.end());
 
 	    for (int j = 1; j <= d.cand_size; ++j)
 	      {
 		d.prodid[state_pair(j, i)] = ++d.nvars;
 
 		// skip weak or trivial SCCs
-		if (sm_.trivial(i_scc))
-		  continue;
-		if (d.weak_scc.find(i_scc) != d.weak_scc.end())
+		if (is_weak)
 		  continue;
 
-		for (dict::state_map::const_iterator k2 = seen.begin();
-		     k2 != seen.end(); ++k2)
+		for (int k = 1; k <= size_; ++k)
 		  {
-		    int k = k2->second;
-		    if (sm_.scc_of_state(k2->first) != i_scc)
+		    if (sm_.scc_of_state(d.int_to_state[k]) != i_scc)
 		      continue;
 		    for (int l = 1; l <= d.cand_size; ++l)
 		    {
