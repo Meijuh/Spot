@@ -40,7 +40,7 @@ namespace spot
 	satsolver = getenv("SPOT_SATSOLVER");
 	if (!satsolver)
 	  {
-	    satsolver = "glucose %I >%O";
+	    satsolver = "glucose -verb=0 %I >%O";
 	    return;
 	  }
 	prime(satsolver);
