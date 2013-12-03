@@ -391,7 +391,7 @@ The following options can be used to fine-tune this procedure:
      any loop to lower the number of states.  Note that $n$ should be
      the number of states in a complete automaton, while =ltl2tgba=
      and =dstar2tgba= both remove sink states in their output by
-     default (use option =--complete=) to output a complete automaton.
+     default (use option =--complete= to output a complete automaton).
      Also note that even with the =--complete= option, the output
      automaton may have appear to have less states because the other
      are unreachable.
