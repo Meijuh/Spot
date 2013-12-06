@@ -37,7 +37,12 @@ New in spot 1.2a (not released)
             http://spot.lip6.fr/userdoc/csv.html
       for some discussion and examples of the last few features.
   * Bug fixes:
-    - ltlcross' CSV output now stricly follows RFC 4180.
+    - ltlcross' CSV output has been changed to be more RFC 4180
+      compliant: it no longuer output useless cosmetic spaces, and
+      use double-quotes with proper escaping for strings.  The only
+      RFC 4180 rule that it does not follow is that it will terminate
+      lines with \n instead of \r\n because the latter cause issues
+      with a couple of tools.
     - ltlcross failed to report missing input or output escape sequences
       on all but the first configured translator.
 

@@ -1535,18 +1535,18 @@ print_stats_csv(const char* filename)
 
   *out << "\"formula\",\"tool\",";
   statistics::fields(*out, !opt_omit, has_sr);
-  *out << "\r\n";
+  *out << '\n';
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
       if (!opt_omit || vstats[r][t].ok)
 	{
-	  *out << "\"";
+	  *out << '"';
 	  spot::escape_rfc4180(*out, formulas[r]);
 	  *out << "\",\"";
 	  spot::escape_rfc4180(*out, translators[t].name);
 	  *out << "\",";
 	  vstats[r][t].to_csv(*out, !opt_omit, has_sr);
-	  *out << "\r\n";
+	  *out << '\n';
 	}
   delete outfile;
 }
