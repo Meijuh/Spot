@@ -83,18 +83,10 @@ namespace spot
     };
   }
 
-  int satsolver(printable* input, printable* output)
-  {
-    // Make this static, so the SPOT_SATSOLVER lookup is done only on
-    // the first call to run_sat().
-    static satsolver_command cmd;
-    return cmd.run(input, output);
-  }
-
-  sat_solution
+  satsolver::solution
   satsolver_get_solution(const char* filename)
   {
-    sat_solution sol;
+    satsolver::solution sol;
     std::istream* in;
     if (filename[0] == '-' && filename[1] == 0)
       in = &std::cin;
@@ -130,4 +122,47 @@ namespace spot
     return sol;
   }
 
+  satsolver::satsolver()
+    : cnf_tmp_(0), cnf_stream_(0)
+  {
+    start();
+  }
+
+  void satsolver::start()
+  {
+    cnf_tmp_ = create_tmpfile("sat-", ".cnf");
+    cnf_stream_ = new std::fstream(cnf_tmp_->name(),
+				   std::ios_base::trunc | std::ios_base::out);
+    cnf_stream_->exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  }
+
+  satsolver::~satsolver()
+  {
+    delete cnf_tmp_;
+    delete cnf_stream_;
+  }
+
+  std::ostream& satsolver::operator()()
+  {
+    return *cnf_stream_;
+  }
+
+  satsolver::solution_pair
+  satsolver::get_solution()
+  {
+    delete cnf_stream_;		// Close the file.
+    cnf_stream_ = 0;
+
+    temporary_file* output = create_tmpfile("sat-", ".out");
+    solution_pair p;
+
+    // Make this static, so the SPOT_SATSOLVER lookup is done only on
+    // the first call to run_sat().
+    static satsolver_command cmd;
+
+    p.first = cmd.run(cnf_tmp_, output);
+    p.second = satsolver_get_solution(output->name());
+    delete output;
+    return p;
+  }
 }

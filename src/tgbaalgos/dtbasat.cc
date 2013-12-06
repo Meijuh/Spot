@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include "dtbasat.hh"
 #include "reachiter.hh"
@@ -29,25 +28,16 @@
 #include "tgba/bddprint.hh"
 #include "ltlast/constant.hh"
 #include "stats.hh"
-#include "misc/tmpfile.hh"
 #include "misc/satsolver.hh"
 
-// If the following DEBUG macro is set to 1, the temporary files used
-// to communicate with the SAT-solver will be left in the current
-// directory.  (The files dtba-sat.cnf and dtba-sat.out contain the
-// input and output for the last successful minimization attempted, or
-// for the only failed attempt if the minimization failed.)
+// If you set the SPOT_TMPKEEP environment variable the temporary
+// file used to communicate with the sat solver will be left in
+// the current directory.
 //
-// Additionally, the CNF file will be output with a comment before
-// each clause, and an additional output file (dtba-sat.dbg) will be
-// created with a list of all positive variables in the result and
-// their meaning.
-//
-// Note that the code use unique temporary filenames, so it is safe to
-// run several such minimizations in parallel.  It only when DEBUG=1
-// that some of these files will be renamed to the above hard-coded
-// names, possibly causing confusion if multiple minimizations are
-// debugged in parallel and in the same directory.
+// Additionally, if the following DEBUG macro is set to 1, the CNF
+// file will be output with a comment before each clause, and an
+// additional output file (dtba-sat.dbg) will be created with a list
+// of all positive variables in the result and their meaning.
 
 #define DEBUG 0
 #if DEBUG
@@ -820,8 +810,8 @@ namespace spot
     }
 
     static tgba_explicit_number*
-    sat_build(const sat_solution& solution, dict& satdict, const tgba* aut,
-	      bool state_based)
+    sat_build(const satsolver::solution& solution, dict& satdict,
+	      const tgba* aut, bool state_based)
     {
       bdd_dict* autdict = aut->get_dict();
       tgba_explicit_number* a = new tgba_explicit_number(autdict);
@@ -847,7 +837,7 @@ namespace spot
       dout << "--- transition variables ---\n";
       std::set<int> acc_states;
       std::set<src_cond> seen_trans;
-      for (sat_solution::const_iterator i = solution.begin();
+      for (satsolver::solution::const_iterator i = solution.begin();
 	   i != solution.end(); ++i)
 	{
 	  int v = *i;
@@ -930,17 +920,6 @@ namespace spot
       a->merge_transitions();
       return a;
     }
-
-    static bool
-    xrename(const char* from, const char* to)
-    {
-      if (!rename(from, to))
-	return false;
-      std::ostringstream msg;
-      msg << "cannot rename " << from << " to " << to;
-      perror(msg.str().c_str());
-      return true;
-    }
   }
 
   tgba_explicit_number*
@@ -949,50 +928,19 @@ namespace spot
   {
     trace << "dtba_sat_synthetize(..., states = " << target_state_number
 	  << ", state_based = " << state_based << ")\n";
-    dict* current = 0;
-    temporary_file* cnf = 0;
-    temporary_file* out = 0;
+    dict d;
+    d.cand_size = target_state_number;
 
-    current = new dict;
-    current->cand_size = target_state_number;
+    satsolver solver;
+    satsolver::solution_pair solution;
 
-    try
-      {
-	cnf = create_tmpfile("dtba-sat-", ".cnf");
-	std::fstream cnfs(cnf->name(),
-			  std::ios_base::trunc | std::ios_base::out);
-	cnfs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	dtba_to_sat(cnfs, a, *current, state_based);
-	cnfs.close();
-      }
-    catch (...)
-      {
-	if (DEBUG)
-	  xrename(cnf->name(), "dtba-sat.cnf");
-	delete current;
-	delete cnf;
-	throw;
-      }
-
-    out = create_tmpfile("dtba-sat-", ".out");
-    satsolver(cnf, out);
-
-    sat_solution solution = satsolver_get_solution(out->name());
+    dtba_to_sat(solver(), a, d, state_based);
+    solution = solver.get_solution();
 
     tgba_explicit_number* res = 0;
-    if (!solution.empty())
-      res = sat_build(solution, *current, a, state_based);
+    if (!solution.second.empty())
+      res = sat_build(solution.second, d, a, state_based);
 
-    delete current;
-
-    if (DEBUG)
-      {
-	xrename(out->name(), "dtba-sat.out");
-	xrename(cnf->name(), "dtba-sat.cnf");
-      }
-
-    delete out;
-    delete cnf;
     trace << "dtba_sat_synthetize(...) = " << res << "\n";
     return res;
   }

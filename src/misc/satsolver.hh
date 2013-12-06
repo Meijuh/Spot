@@ -21,8 +21,10 @@
 #define SPOT_MISC_SATSOLVER_HH
 
 #include "common.hh"
+#include "tmpfile.hh"
 #include <vector>
 #include <stdexcept>
+#include <iosfwd>
 
 namespace spot
 {
@@ -65,29 +67,37 @@ namespace spot
     }
   };
 
-  /// \brief Run a SAT solver.
+  /// \brief Interface with a SAT solver.
   ///
-  /// Run a SAT solver using the input in file \a input,
-  /// and sending output in file \a output.
+  /// Call start() to create some temporary file, then send DIMACs
+  /// text to the stream returned by operator(), and finally call
+  /// get_solution().
   ///
-  /// These two arguments are instance of printable, as
-  /// they will be evaluated in a %-escaped string such as
-  ///    "satsolver %I >%O"
-  /// This command can be overridden using the
-  /// <code>SPOT_SATSOLVER</code> environment variable.
-  ///
-  /// Note that temporary_file instances implement the
-  /// printable interface.
-  SPOT_API int
-  satsolver(printable* input, printable* output);
+  /// The satsolver called can be configured via the
+  /// <code>SPOT_SATSOLVER</code> environment variable.  It
+  /// defaults to
+  ///    "satsolver -verb=0 %I >%O"
+  /// where %I and %O are replaced by input and output files.
+  class SPOT_API satsolver
+  {
+  public:
+    satsolver();
+    ~satsolver();
 
+    void start();
+    std::ostream& operator()();
 
-  typedef std::vector<int> sat_solution;
+    typedef std::vector<int> solution;
+    typedef std::pair<int, solution> solution_pair;
+    solution_pair get_solution();
+  private:
+    temporary_file* cnf_tmp_;
+    std::ostream* cnf_stream_;
+  };
 
   /// \brief Extract the solution of a SAT solver output.
-  SPOT_API sat_solution
+  SPOT_API satsolver::solution
   satsolver_get_solution(const char* filename);
-
 }
 
 #endif // SPOT_MISC_SATSOLVER_HH
