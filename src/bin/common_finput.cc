@@ -126,7 +126,7 @@ job_processor::process_stream(std::istream& is,
 			      const char* filename)
 {
   int error = 0;
-  int linenum = 0;
+  int linenum = 1;
   std::string line;
 
   // Discard the first line of a CSV file if requested.
@@ -134,6 +134,7 @@ job_processor::process_stream(std::istream& is,
     {
       std::getline(is, line);
       col_to_read = -col_to_read;
+      ++linenum;
     }
 
   // Each line of the file and send them to process_string,
@@ -143,17 +144,39 @@ job_processor::process_stream(std::istream& is,
       {
 	if (col_to_read == 0)
 	  {
-	    error |= process_string(line, filename, ++linenum);
+	    error |= process_string(line, filename, linenum++);
 	  }
 	else // We are reading column COL_TO_READ in a CSV file.
 	  {
-	    // FIXME: This code assumes an entire CSV row was been
-	    // fetched by getline().  This is incorrect for processing
-	    // CSV files with fields that contain newlines inside
-	    // double-quoted strings.  Patching this code to deal with
-	    // such files is left as an exercise for the first user
-	    // who encounters the issue.
-	    const char* str = line.c_str();
+	    // If the line we have read contains an odd number
+	    // of double-quotes, then it is an incomplete CSV line
+	    // that should be completed by the next lines.
+	    unsigned dquotes = 0;
+	    std::string fullline;
+	    unsigned csvlines = 0;
+	    do
+	      {
+		++csvlines;
+		size_t s = line.size();
+		for (unsigned i = 0; i < s; ++i)
+		  dquotes += line[i] == '"';
+		if (fullline.empty())
+		  fullline = line;
+		else
+		  (fullline += '\n') += line;
+		if (!(dquotes &= 1))
+		  break;
+	      }
+	    while (std::getline(is, line));
+	    if (dquotes)
+	      error_at_line(2, errno, filename, linenum,
+			    "mismatched double-quote, "
+			    "reached EOF while parsing this line");
+
+	    // Now that we have a full CSV line, extract the right
+	    // column.
+
+	    const char* str = fullline.c_str();
 	    const char* col1_start = str;
 	    // Delimiters for the extracted column.
 	    const char* coln_start = str;
@@ -248,7 +271,8 @@ job_processor::process_stream(std::istream& is,
 		    field[dst++] = *coln_start;
 		field.resize(dst);
 	      }
-	    error |= process_string(field, filename, ++linenum);
+	    error |= process_string(field, filename, linenum);
+	    linenum += csvlines;
 	    if (prefix)
 	      {
 		free(prefix);

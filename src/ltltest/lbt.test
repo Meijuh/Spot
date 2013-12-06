@@ -101,6 +101,9 @@ test `wc -l < formulas.2` -eq 168
 test `wc -l < formulas.3` -eq 168
 test `wc -l < formulas.4` -eq 168
 
+run 0 $ltlfilt formulas.2 --csv-escape --format='%L,%f' > formulas.5
+run 0 $ltlfilt formulas.5/2 --csv-escape --format='%L,%f' > formulas.6
+cmp formulas.5 formulas.6
 
 # Make sure ltl2dstar-style litterals always get quoted.
 test "`$ltlfilt -l --lbt-input -f 'G F a'`" = 'G F "a"'
