@@ -1,12 +1,14 @@
-New in spot 1.2a (not released)
+New in spot 1.2.1 (2013-12-11)
 
   * New features:
+
     - commands for translators specified to ltlcross can now
       be given "short names" to be used in the CSV or JSON output.
       For instance
          ltlcross '{small} ltl2tgba -s --small %f >%N' ...
       will run the command "ltl2tgba -s --small %f >%N", but only
       print "small" in output files.
+
     - ltlcross' CSV and JSON output now contains two additional
       columns: exit_status and exit_code, used to report failures of
       the translator.  If the translation failed, only the time is
@@ -14,35 +16,44 @@ New in spot 1.2a (not released)
       area left empty (in CVS) or null (in JSON).  A new option,
       --omit-missing can be used to remove lines for failed
       translations, and remove these two columns.
+
     - if ltlcross is used with --products=+5 instead of --products=5
       then the stastics for each of the five products will be output
       separately instead of being averaged.
+
     - if ltlcross is used with tools that produce deterministic Streett
       or Rabin automata (as specified with %D), then the statistics
       output in CSV or JSON will have some extra columns to report
       the size of these input automata before ltlcross converts them
       into TGBA to perform its regular checks.
+
     - ltlfilt, ltl2tgba, ltl2tgta, and ltlcross can now read formulas
       from CSV files.  Use option -F FILE/COL to read formulas from
       column COL of FILE.  Use -F FILE/-COL if the first line of
       FILE be ignored.
+
     - when ltlfilt processes formulas from a CSV file, it will output
       each CSV line whose formula matches the given constraints, with
       the rewriten formula.  The new escape sequence %< (text in
       columns before the formula) and %> (text after) can be used
       with the --format option to alter this output.
+
     - ltlfile, genltl, randltl, and ltl2tgba have a --csv-escape option
       to help escape formulas in CSV files.
+
     - Please check
             http://spot.lip6.fr/userdoc/csv.html
       for some discussion and examples of the last few features.
+
   * Bug fixes:
+
     - ltlcross' CSV output has been changed to be more RFC 4180
       compliant: it no longuer output useless cosmetic spaces, and
       use double-quotes with proper escaping for strings.  The only
       RFC 4180 rule that it does not follow is that it will terminate
       lines with \n instead of \r\n because the latter cause issues
       with a couple of tools.
+
     - ltlcross failed to report missing input or output escape sequences
       on all but the first configured translator.
 
