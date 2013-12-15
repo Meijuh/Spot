@@ -160,11 +160,10 @@ const spot::ltl::formula*
 GF_n(spot::ltl::atomic_prop_set& ap)
 {
   const spot::ltl::formula* res = 0;
-  spot::ltl::atomic_prop_set::const_iterator i;
-  for (i = ap.begin(); i != ap.end(); ++i)
+  for (auto v: ap)
     {
       const spot::ltl::formula* f =
-	spot::ltl::unop::instance(spot::ltl::unop::F, (*i)->clone());
+	spot::ltl::unop::instance(spot::ltl::unop::F, v->clone());
       f = spot::ltl::unop::instance(spot::ltl::unop::G, f);
       if (res)
         res = spot::ltl::multop::instance(spot::ltl::multop::And, f, res);
@@ -406,11 +405,8 @@ main(int argc, char** argv)
 
   delete rf;
   // Cleanup the unicity table.
-  {
-    fset_t::const_iterator i;
-    for (i = unique_set.begin(); i != unique_set.end(); ++i)
-      (*i)->destroy();
-  }
+  for (auto i: unique_set)
+    i->destroy();
   // Cleanup the atomic_prop set.
   destroy_atomic_prop_set(aprops);
   return 0;

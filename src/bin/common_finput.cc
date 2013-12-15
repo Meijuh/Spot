@@ -343,13 +343,14 @@ int
 job_processor::run()
 {
   int error = 0;
-  jobs_t::const_iterator i;
-  for (i = jobs.begin(); i != jobs.end() && !abort_run; ++i)
+  for (auto& j: jobs)
     {
-      if (!i->file_p)
-	error |= process_string(i->str);
+      if (!j.file_p)
+	error |= process_string(j.str);
       else
-	error |= process_file(i->str);
+	error |= process_file(j.str);
+      if (abort_run)
+	break;
     }
   return error;
 }

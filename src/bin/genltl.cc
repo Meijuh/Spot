@@ -853,15 +853,14 @@ output_pattern(int pattern, int n)
 static void
 run_jobs()
 {
-  jobs_t::const_iterator i;
-  for (i = jobs.begin(); i != jobs.end(); ++i)
+  for (auto& j: jobs)
     {
-      int inc = (i->range.max < i->range.min) ? -1 : 1;
-      int n = i->range.min;
+      int inc = (j.range.max < j.range.min) ? -1 : 1;
+      int n = j.range.min;
       for (;;)
 	{
-	  output_pattern(i->pattern, n);
-	  if (n == i->range.max)
+	  output_pattern(j.pattern, n);
+	  if (n == j.range.max)
 	    break;
 	  n += inc;
 	}

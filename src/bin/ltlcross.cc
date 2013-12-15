@@ -1161,16 +1161,12 @@ namespace
     unsigned c = m->scc_count();
     for (unsigned n = 0; n < c; ++n)
       if (m->accepting(n))
-	{
-	  const std::list<const spot::state*>& l = m->states_of(n);
-	  for (std::list<const spot::state*>::const_iterator i = l.begin();
-	       i != l.end(); ++i)
-	    {
-	      spot::state* x = aut->project_state(*i, sspace);
-	      if (!s.insert(x).second)
-		x->destroy();
+	for (auto i: m->states_of(n))
+	  {
+	    spot::state* x = aut->project_state(i, sspace);
+	    if (!s.insert(x).second)
+	      x->destroy();
 	    }
-	}
   }
 
   static bool
@@ -1183,9 +1179,8 @@ namespace
     states_in_acc(pos, sspace, s);
     states_in_acc(neg, sspace, s);
     bool res = s.size() == states;
-    state_set::iterator it;
-    for (it = s.begin(); it != s.end(); ++it)
-      (*it)->destroy();
+    for (auto i: s)
+      i->destroy();
     return res;
   }
 
