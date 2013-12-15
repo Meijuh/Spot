@@ -93,8 +93,8 @@ namespace spot
   private:
     tgba_bdd_core_data data_;	///< Core data for the new automata.
 
-    typedef Sgi::hash_map<const ltl::formula*, bdd,
-			  ltl::formula_ptr_hash> acc_map_;
+    typedef std::unordered_map<const ltl::formula*, bdd,
+			       ltl::formula_ptr_hash> acc_map_;
     acc_map_ acc_;		///< BDD associated to each acceptance condition
   };
 

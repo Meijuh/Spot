@@ -497,14 +497,14 @@ namespace spot
     /// \brief Hash Function for <code>const formula*</code>.
     ///
     /// This is meant to be used as a hash functor for
-    /// Sgi's \c hash_map whose key are of type <code>const formula*</code>.
+    /// \c unordered_map whose key are of type <code>const formula*</code>.
     ///
     /// For instance here is how one could declare
     /// a map of \c const::formula*.
     /// \code
     ///   // Remember how many times each formula has been seen.
-    ///   Sgi::hash_map<const spot::ltl::formula*, int,
-    ///                 const spot::ltl::formula_ptr_hash> seen;
+    ///   std::unordered_map<const spot::ltl::formula*, int,
+    ///                      const spot::ltl::formula_ptr_hash> seen;
     /// \endcode
     struct formula_ptr_hash:
       public std::unary_function<const formula*, size_t>

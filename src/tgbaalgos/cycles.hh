@@ -79,8 +79,8 @@ namespace spot
   class SPOT_API enumerate_cycles
   {
   protected:
-    typedef Sgi::hash_set<const state*,
-			  state_ptr_hash, state_ptr_equal> set_type;
+    typedef std::unordered_set<const state*,
+			       state_ptr_hash, state_ptr_equal> set_type;
 
     // Extra information required for the algorithm for each state.
     struct state_info
@@ -105,8 +105,8 @@ namespace spot
     };
 
     // Store the state_info for all visited states.
-    typedef Sgi::hash_map<const state*, state_info,
-			  state_ptr_hash, state_ptr_equal> hash_type;
+    typedef std::unordered_map<const state*, state_info,
+			       state_ptr_hash, state_ptr_equal> hash_type;
     hash_type tags_;
 
     // A tagged_state s is a state* (s->first) associated to its

@@ -236,7 +236,8 @@ namespace spot
     bool is_accepting_state_;
     bool is_livelock_accepting_state_;
     transitions* transitions_;
-    Sgi::hash_map<int, transitions*, Sgi::hash<int> > transitions_by_condition;
+    std::unordered_map<int, transitions*, std::hash<int>>
+      transitions_by_condition;
 #endif // !SWIG
   };
 

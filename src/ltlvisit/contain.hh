@@ -41,8 +41,8 @@ namespace spot
 	typedef std::map<const record_*, bool> incomp_map;
 	incomp_map incompatible;
       };
-      typedef Sgi::hash_map<const formula*,
-			    record_, formula_ptr_hash> trans_map;
+      typedef std::unordered_map<const formula*,
+				 record_, formula_ptr_hash> trans_map;
     public:
       /// This class uses spot::ltl_to_tgba_fm to translate LTL
       /// formulae.  See that function for the meaning of these options.

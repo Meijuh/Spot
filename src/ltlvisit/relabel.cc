@@ -91,8 +91,8 @@ namespace spot
       class relabeler: public clone_visitor
       {
       public:
-	typedef Sgi::hash_map<const formula*, const formula*,
-			      ptr_hash<formula> > map;
+	typedef std::unordered_map<const formula*, const formula*,
+				   ptr_hash<formula> > map;
 	map newname;
 	ap_generator* gen;
 	relabeling_map* oldnames;
@@ -363,8 +363,8 @@ namespace spot
 	unsigned num; // serial number, in pre-order
 	unsigned low; // lowest number accessible via unstacked descendants
       };
-      typedef Sgi::hash_map<const formula*, data_entry,
-			    const formula_ptr_hash> fmap_t;
+      typedef std::unordered_map<const formula*, data_entry,
+				 const formula_ptr_hash> fmap_t;
       struct stack_entry
       {
 	const formula* grand_parent;

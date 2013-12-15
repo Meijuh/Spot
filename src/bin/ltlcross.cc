@@ -1190,8 +1190,8 @@ namespace
   }
 
   typedef
-  Sgi::hash_set<const spot::ltl::formula*,
-		const spot::ptr_hash<const spot::ltl::formula> > fset_t;
+  std::unordered_set<const spot::ltl::formula*,
+		     const spot::ptr_hash<const spot::ltl::formula> > fset_t;
 
 
   class processor: public job_processor

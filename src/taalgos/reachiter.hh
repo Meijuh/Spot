@@ -89,8 +89,8 @@ namespace spot
 
     const ta* t_automata_; ///< The spot::ta to explore.
 
-    typedef Sgi::hash_map<const state*, int, state_ptr_hash, state_ptr_equal>
-        seen_map;
+    typedef std::unordered_map<const state*, int,
+			       state_ptr_hash, state_ptr_equal> seen_map;
     seen_map seen; ///< States already seen.
   };
 

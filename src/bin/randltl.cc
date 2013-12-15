@@ -344,8 +344,9 @@ main(int argc, char** argv)
     error(2, 0, "No atomic proposition supplied?   Run '%s --help' for usage.",
 	  program_name);
 
-  typedef Sgi::hash_set<const spot::ltl::formula*,
-			const spot::ptr_hash<const spot::ltl::formula> > fset_t;
+  typedef
+    std::unordered_set<const spot::ltl::formula*,
+		       const spot::ptr_hash<const spot::ltl::formula>> fset_t;
 
   fset_t unique_set;
 

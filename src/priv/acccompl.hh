@@ -48,7 +48,7 @@ namespace spot
     protected:
       const bdd all_;
       const bdd neg_;
-      typedef Sgi::hash_map<bdd, bdd, bdd_hash> bdd_cache_t;
+      typedef std::unordered_map<bdd, bdd, bdd_hash> bdd_cache_t;
       bdd_cache_t cache_;
   };
 } // End namespace Spot

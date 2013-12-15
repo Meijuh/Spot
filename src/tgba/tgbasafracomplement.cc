@@ -763,8 +763,8 @@ namespace spot
     //////////////////////////////
     namespace test
     {
-      typedef Sgi::hash_map<const state*, int,
-			    state_ptr_hash, state_ptr_equal> stnum_t;
+      typedef std::unordered_map<const state*, int,
+				 state_ptr_hash, state_ptr_equal> stnum_t;
 
       void print_safra_tree(const safra_tree* this_node,
                             stnum_t& node_names,

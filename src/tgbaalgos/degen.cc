@@ -60,8 +60,8 @@ namespace spot
     };
 
     // Associate the degeneralized state to its number.
-    typedef Sgi::hash_map<degen_state, int,
-                          degen_state_hash, degen_state_equal> ds2num_map;
+    typedef std::unordered_map<degen_state, int,
+			       degen_state_hash, degen_state_equal> ds2num_map;
 
     // Queue of state to be processed.
     typedef std::deque<degen_state> queue_t;
@@ -69,7 +69,7 @@ namespace spot
     // Memory management for the input states.
     class unicity_table
     {
-      typedef Sgi::hash_set<const state*,
+      typedef std::unordered_set<const state*,
                             state_ptr_hash, state_ptr_equal> uniq_set;
       uniq_set m;
     public:
@@ -112,8 +112,8 @@ namespace spot
     {
       const tgba* a_;
       typedef std::pair<bdd, bdd> cache_entry;
-      typedef Sgi::hash_map<const state*, cache_entry,
-                            state_ptr_hash, state_ptr_equal> cache_t;
+      typedef std::unordered_map<const state*, cache_entry,
+				 state_ptr_hash, state_ptr_equal> cache_t;
       cache_t cache_;
       const scc_map* sm_;
 
@@ -170,8 +170,8 @@ namespace spot
     class has_acc_loop
     {
       const tgba* a_;
-      typedef Sgi::hash_map<const state*, bool,
-                            state_ptr_hash, state_ptr_equal> cache_t;
+      typedef std::unordered_map<const state*, bool,
+				 state_ptr_hash, state_ptr_equal> cache_t;
       cache_t cache_;
       unicity_table& uniq_;
 

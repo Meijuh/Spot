@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de recherche et développement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de recherche et dÃ©veloppement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -226,8 +227,8 @@ namespace spot
     };
     typedef std::list<transition> accepting_transitions_list;
 
-    typedef Sgi::hash_set<const state*,
-                          state_ptr_hash, state_ptr_equal> state_set;
+    typedef std::unordered_set<const state*,
+			       state_ptr_hash, state_ptr_equal> state_set;
 
     void clean(stack_type& st1, state_set& seen, state_set& dead)
     {
@@ -457,8 +458,9 @@ namespace spot
 	}
     }
 
-    typedef Sgi::hash_multimap<const state*, transition,
-			       state_ptr_hash, state_ptr_equal> m_source_trans;
+    typedef std::unordered_multimap<const state*, transition,
+				    state_ptr_hash,
+				    state_ptr_equal> m_source_trans;
 
     template<bool cycle>
     class min_path: public bfs_steps

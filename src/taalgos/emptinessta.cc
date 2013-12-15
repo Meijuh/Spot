@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -72,14 +72,15 @@ namespace spot
     //   it is also used as a key in H.
     std::stack<pair_state_iter> todo;
 
-    Sgi::hash_map<const state*, std::string, state_ptr_hash, state_ptr_equal>
-        colour;
+    std::unordered_map<const state*, std::string,
+		       state_ptr_hash, state_ptr_equal> colour;
 
     trace
       << "PASS 1" << std::endl;
 
-    Sgi::hash_map<const state*, std::set<const state*, state_ptr_less_than>,
-        state_ptr_hash, state_ptr_equal> liveset;
+    std::unordered_map<const state*,
+		       std::set<const state*, state_ptr_less_than>,
+		       state_ptr_hash, state_ptr_equal> liveset;
 
     std::stack<spot::state*> livelock_roots;
 

@@ -28,8 +28,8 @@ namespace spot
   namespace ltl
   {
 
-    typedef Sgi::hash_map<const formula*, const formula*,
-			  ptr_hash<formula> > snf_cache;
+    typedef std::unordered_map<const formula*, const formula*,
+			       ptr_hash<formula>> snf_cache;
 
     /// Helper to rewrite a sere in Star Normal Form.
     ///

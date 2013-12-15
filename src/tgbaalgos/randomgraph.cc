@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2012 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2010, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005, 2007 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -126,7 +126,7 @@ namespace spot
       *i &= bdd_exist(allneg, *i);
 
 
-    // Using Sgi::hash_set instead of std::set for these sets is 3
+    // Using std::unordered_set instead of std::set for these sets is 3
     // times slower (tested on a 50000 nodes example).  Use an int
     // (the index into states[]), not the tgba_explicit::state*
     // directly, because the later would yield different graphs

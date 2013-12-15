@@ -1,8 +1,9 @@
-// Copyright (C) 2008, 2011 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2011, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006, 2007  Laboratoire
-// d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
-// Coopératifs (SRC), Université Pierre et Marie Curie.
+// d'Informatique de Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis
+// CoopÃ©ratifs (SRC), UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -610,8 +611,8 @@ namespace spot
     }
 
   protected:
-    typedef Sgi::hash_set<const state*,
-			  state_ptr_hash, state_ptr_equal> set_type;
+    typedef std::unordered_set<const state*,
+			       state_ptr_hash, state_ptr_equal> set_type;
     set_type states;
   };
 
@@ -895,15 +896,15 @@ namespace spot
     virtual numbered_state_heap_const_iterator* iterator() const;
 
   protected:
-    typedef Sgi::hash_map<const state*, int,
-			  state_ptr_hash, state_ptr_equal> hash_type;
+    typedef std::unordered_map<const state*, int,
+			       state_ptr_hash, state_ptr_equal> hash_type;
     hash_type h;		///< Map of visited states.
 
     typedef std::list<const state*> state_list;
-    typedef Sgi::hash_map<const state*, state_list,
-			  state_ptr_hash, state_ptr_equal> f_map;
-    typedef Sgi::hash_map<const void*, f_map,
-			  ptr_hash<void> > contained_map;
+    typedef std::unordered_map<const state*, state_list,
+			       state_ptr_hash, state_ptr_equal> f_map;
+    typedef std::unordered_map<const void*, f_map,
+			       ptr_hash<void> > contained_map;
     contained_map contained;
 
     friend class numbered_state_heap_ssp_const_iterator;

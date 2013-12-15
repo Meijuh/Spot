@@ -30,10 +30,6 @@
 
 #  include <unordered_map>
 #  include <unordered_set>
-   namespace Sgi = std;
-#  define hash_map unordered_map
-#  define hash_multimap unordered_multimap
-#  define hash_set unordered_set
 
 namespace spot
 {
@@ -60,7 +56,7 @@ namespace spot
 
   /// \ingroup hash_funcs
   /// \brief A hash function for strings.
-  typedef Sgi::hash<std::string> string_hash;
+  typedef std::hash<std::string> string_hash;
 
   /// \ingroup hash_funcs
   /// \brief A hash function that returns identity

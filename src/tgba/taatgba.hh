@@ -127,9 +127,9 @@ namespace spot
     typedef taa_tgba::state::const_iterator iterator;
     typedef std::pair<iterator, iterator> iterator_pair;
     typedef std::vector<iterator_pair> bounds_t;
-    typedef Sgi::hash_map<
-      const spot::set_state*, std::vector<taa_tgba::transition*>,
-      state_ptr_hash, state_ptr_equal> seen_map;
+    typedef std::unordered_map<const spot::set_state*,
+			       std::vector<taa_tgba::transition*>,
+			       state_ptr_hash, state_ptr_equal> seen_map;
 
     struct distance_sort :
       public std::binary_function<const iterator_pair&,
@@ -252,12 +252,10 @@ namespace spot
   protected:
     typedef label label_t;
 
-    typedef Sgi::hash_map<
-      const label, taa_tgba::state*, label_hash
-    > ns_map;
-    typedef Sgi::hash_map<
-      const taa_tgba::state*, label, ptr_hash<taa_tgba::state>
-    > sn_map;
+    typedef std::unordered_map<const label, taa_tgba::state*,
+			       label_hash> ns_map;
+    typedef std::unordered_map<const taa_tgba::state*, label,
+			       ptr_hash<taa_tgba::state>> sn_map;
 
     ns_map name_state_map_;
     sn_map state_name_map_;

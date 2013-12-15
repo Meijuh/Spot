@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -36,7 +36,7 @@ namespace spot
       class dotty_visitor: public visitor
       {
       public:
-	typedef Sgi::hash_map<const formula*, int, ptr_hash<formula> > map;
+	typedef std::unordered_map<const formula*, int, ptr_hash<formula>> map;
 	dotty_visitor(std::ostream& os, map& m)
 	  : os_(os), father_(-1), node_(m), sinks_(new std::ostringstream)
 	{

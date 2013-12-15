@@ -66,9 +66,9 @@ namespace spot
     /// The class becomes owner of \a state.
     void add(saba_state* state);
   private:
-    typedef Sgi::hash_set<shared_saba_state,
-                          spot::saba_state_shared_ptr_hash,
-                          spot::saba_state_shared_ptr_equal> saba_state_set_t;
+    typedef std::unordered_set<shared_saba_state,
+			       saba_state_shared_ptr_hash,
+			       saba_state_shared_ptr_equal> saba_state_set_t;
     saba_state_set_t set_;
     saba_state_set_t::iterator it_;
   };

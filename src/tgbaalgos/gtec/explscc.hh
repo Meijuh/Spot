@@ -56,8 +56,8 @@ namespace spot
     virtual const state* has_state(const state* s) const;
     virtual void insert(const state* s);
   protected:
-    typedef Sgi::hash_set<const state*,
-			  state_ptr_hash, state_ptr_equal> set_type;
+    typedef std::unordered_set<const state*,
+			       state_ptr_hash, state_ptr_equal> set_type;
     set_type states;
   };
 

@@ -91,8 +91,8 @@ namespace spot
   protected:
     const tgba* aut_;	///< The spot::tgba to explore.
 
-    typedef Sgi::hash_map<const state*, int,
-			  state_ptr_hash, state_ptr_equal> seen_map;
+    typedef std::unordered_map<const state*, int,
+			       state_ptr_hash, state_ptr_equal> seen_map;
     seen_map seen;		///< States already seen.
   };
 
@@ -161,8 +161,8 @@ namespace spot
   protected:
     const tgba* aut_;		///< The spot::tgba to explore.
 
-    typedef Sgi::hash_map<const state*, int,
-			  state_ptr_hash, state_ptr_equal> seen_map;
+    typedef std::unordered_map<const state*, int,
+			       state_ptr_hash, state_ptr_equal> seen_map;
     seen_map seen;		///< States already seen.
     struct stack_item
     {
@@ -197,7 +197,7 @@ namespace spot
     virtual void push(const state* s, int sn);
     virtual void pop();
 
-    Sgi::hash_set<int> stack_;
+    std::unordered_set<int> stack_;
   };
 }
 

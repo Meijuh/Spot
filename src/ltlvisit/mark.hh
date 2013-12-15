@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -42,8 +43,8 @@ namespace spot
       ~mark_tools();
 
     private:
-      typedef Sgi::hash_map<const formula*, const formula*,
-			    ptr_hash<formula> > f2f_map;
+      typedef std::unordered_map<const formula*, const formula*,
+				 ptr_hash<formula>> f2f_map;
       f2f_map simpmark_;
       f2f_map markops_;
       visitor* simpvisitor_;

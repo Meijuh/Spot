@@ -52,9 +52,10 @@ namespace spot
     ///
     /// Note that the hash value is guaranteed to be unique for all
     /// equal states (in compare()'s sense) for only has long has one
-    /// of these states exists.  So it's OK to use a spot::saba_state as a
-    /// key in a \c hash_map because the mere use of the state as a
-    /// key in the hash will ensure the state continues to exist.
+    /// of these states exists.  So it's OK to use a spot::saba_state
+    /// as a key in an \c unordered_map because the mere use of the
+    /// state as a key in the hash will ensure the state continues to
+    /// exist.
     ///
     /// However if you create the state, get its hash key, delete the
     /// state, recreate the same state, and get its hash key, you may
@@ -63,7 +64,7 @@ namespace spot
     /// occur only when the state is BDD-encoded, because BDD numbers
     /// (used to build the hash value) can be reused for other
     /// formulas.  That probably doesn't matter, since the hash value
-    /// is meant to be used in a \c hash_map, but it had to be noted.
+    /// is meant to be used in an \c unordered_map, but it had to be noted.
     virtual size_t hash() const = 0;
 
     /// Duplicate a state.
@@ -107,13 +108,13 @@ namespace spot
   /// \brief An Equivalence Relation for \c saba_state*.
   ///
   /// This is meant to be used as a comparison functor for
-  /// Sgi \c hash_map whose key are of type \c saba_state*.
+  /// \c unordered_map whose keys are of type \c saba_state*.
   ///
   /// For instance here is how one could declare
   /// a map of \c saba_state*.
   /// \code
   ///   // Remember how many times each state has been visited.
-  ///   Sgi::hash_map<spot::saba_state*, int, spot::saba_state_ptr_hash,
+  ///   std::unordered_map<spot::saba_state*, int, spot::saba_state_ptr_hash,
   ///                                    spot::saba_state_ptr_equal> seen;
   /// \endcode
   struct saba_state_ptr_equal:
@@ -132,13 +133,13 @@ namespace spot
   /// \brief Hash Function for \c saba_state*.
   ///
   /// This is meant to be used as a hash functor for
-  /// Sgi's \c hash_map whose key are of type \c saba_state*.
+  /// an \c unordered_map whose keys are of type \c saba_state*.
   ///
   /// For instance here is how one could declare
   /// a map of \c saba_state*.
   /// \code
   ///   // Remember how many times each state has been visited.
-  ///   Sgi::hash_map<spot::saba_state*, int, spot::saba_state_ptr_hash,
+  ///   std::unordered_map<spot::saba_state*, int, spot::saba_state_ptr_hash,
   ///                                    spot::saba_state_ptr_equal> seen;
   /// \endcode
   struct saba_state_ptr_hash:
@@ -162,7 +163,7 @@ namespace spot
   /// (shared_ptr<const saba_state*>).
   ///
   /// This is meant to be used as a comparison functor for
-  /// STL \c map whose key are of type \c shared_saba_state.
+  /// STL \c map whose keys are of type \c shared_saba_state.
   ///
   /// For instance here is how one could declare
   /// a map of \c shared_saba_state.
@@ -189,15 +190,15 @@ namespace spot
   /// (shared_ptr<const saba_state*>).
   ///
   /// This is meant to be used as a comparison functor for
-  /// Sgi \c hash_map whose key are of type \c shared_saba_state.
+  /// an \c unordred_map whose keys are of type \c shared_saba_state.
   ///
   /// For instance here is how one could declare
   /// a map of \c shared_saba_state
   /// \code
   ///   // Remember how many times each state has been visited.
-  ///   Sgi::hash_map<shared_saba_state, int,
-  ///                 spot::saba_state_shared_ptr_hash,
-  ///                 spot::saba_state_shared_ptr_equal> seen;
+  ///   std::unordered_map<shared_saba_state, int,
+  ///                      saba_state_shared_ptr_hash,
+  ///                      saba_state_shared_ptr_equal> seen;
   /// \endcode
   struct saba_state_shared_ptr_equal:
     public std::binary_function<shared_saba_state,
@@ -218,16 +219,16 @@ namespace spot
   ///  (shared_ptr<const saba_state*>).
   ///
   /// This is meant to be used as a hash functor for
-  /// Sgi's \c hash_map whose key are of type
+  /// \c unordered_map whose key are of type
   /// \c shared_saba_state.
   ///
   /// For instance here is how one could declare
   /// a map of \c shared_saba_state.
   /// \code
   ///   // Remember how many times each state has been visited.
-  ///   Sgi::hash_map<shared_saba_state, int,
-  ///                 spot::saba_state_shared_ptr_hash,
-  ///                 spot::saba_state_shared_ptr_equal> seen;
+  ///   std::unordered_map<shared_saba_state, int,
+  ///                      saba_state_shared_ptr_hash,
+  ///                      saba_state_shared_ptr_equal> seen;
   /// \endcode
   struct saba_state_shared_ptr_hash:
     public std::unary_function<shared_saba_state, size_t>

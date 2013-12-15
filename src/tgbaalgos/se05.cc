@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -436,10 +437,10 @@ namespace spot
 
     class explicit_se05_search_heap
     {
-      typedef Sgi::hash_set<const state*,
-                state_ptr_hash, state_ptr_equal> hcyan_type;
-      typedef Sgi::hash_map<const state*, color,
-                state_ptr_hash, state_ptr_equal> hash_type;
+      typedef std::unordered_set<const state*,
+				 state_ptr_hash, state_ptr_equal> hcyan_type;
+      typedef std::unordered_map<const state*, color,
+				 state_ptr_hash, state_ptr_equal> hash_type;
     public:
       enum { Safe = 1 };
 
@@ -572,8 +573,8 @@ namespace spot
     class bsh_se05_search_heap
     {
     private:
-      typedef Sgi::hash_set<const state*,
-                state_ptr_hash, state_ptr_equal> hcyan_type;
+      typedef std::unordered_set<const state*,
+				 state_ptr_hash, state_ptr_equal> hcyan_type;
     public:
       enum { Safe = 0 };
 

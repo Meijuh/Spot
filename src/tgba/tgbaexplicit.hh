@@ -261,9 +261,9 @@ namespace spot
     typedef typename State::transition transition;
     typedef State state;
   protected:
-    typedef Sgi::hash_map<label_t, State, label_hash_t> ls_map;
-    typedef Sgi::hash_map<label_t, State*, label_hash_t> alias_map;
-    typedef Sgi::hash_map<const State*, label_t, ptr_hash<State> > sl_map;
+    typedef std::unordered_map<label_t, State, label_hash_t> ls_map;
+    typedef std::unordered_map<label_t, State*, label_hash_t> alias_map;
+    typedef std::unordered_map<const State*, label_t, ptr_hash<State> > sl_map;
 
   public:
 
@@ -397,8 +397,8 @@ namespace spot
     {
       typedef typename transitions_t::iterator trans_t;
       typedef std::map<int, trans_t> acc_map;
-      typedef Sgi::hash_map<const spot::state*, acc_map,
-			    ptr_hash<spot::state> > dest_map;
+      typedef std::unordered_map<const spot::state*, acc_map,
+				 ptr_hash<spot::state> > dest_map;
 
       typename ls_map::iterator i;
       for (i = ls_.begin(); i != ls_.end(); ++i)

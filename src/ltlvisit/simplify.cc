@@ -44,10 +44,10 @@ namespace spot
     // The name of this class is public, but not its contents.
     class ltl_simplifier_cache
     {
-      typedef Sgi::hash_map<const formula*, const formula*,
-			    ptr_hash<formula> > f2f_map;
-      typedef Sgi::hash_map<const formula*, bdd,
-			    ptr_hash<formula> > f2b_map;
+      typedef std::unordered_map<const formula*, const formula*,
+				 ptr_hash<formula>> f2f_map;
+      typedef std::unordered_map<const formula*, bdd,
+				 ptr_hash<formula>> f2b_map;
       typedef std::pair<const formula*, const formula*> pairf;
       typedef std::map<pairf, bool> syntimpl_cache_t;
     public:
@@ -2857,11 +2857,11 @@ namespace spot
 		    // a & (b | X(b M a)) = b M a
 		    if (!mo->is_X_free())
 		      {
-			typedef Sgi::hash_set<const formula*,
-					      ptr_hash<formula> > fset_t;
-			typedef Sgi::hash_map<const formula*,
-					      std::set<unsigned>,
-					      ptr_hash<formula> > fmap_t;
+			typedef std::unordered_set<const formula*,
+						   ptr_hash<formula>> fset_t;
+			typedef std::unordered_map<const formula*,
+						   std::set<unsigned>,
+						   ptr_hash<formula>> fmap_t;
 			fset_t xgset; // XG(...)
 			fset_t xset;  // X(...)
 			fmap_t wuset; // (X...)W(...) or (X...)U(...)
@@ -3131,9 +3131,9 @@ namespace spot
 		    // F(a) & (a M b) = a M b
 		    // F(b) & (a W b) = a U b
 		    // F(b) & (a U b) = a U b
-		    typedef Sgi::hash_map<const formula*,
-					  multop::vec::iterator,
-					  ptr_hash<formula> > fmap_t;
+		    typedef std::unordered_map<const formula*,
+					       multop::vec::iterator,
+					       ptr_hash<formula>> fmap_t;
 		    fmap_t uwmap; // associates "b" to "a U b" or "a W b"
 		    fmap_t rmmap; // associates "a" to "a R b" or "a M b"
 		    // (a U b) & (c U b) = (a & c) U b
@@ -3606,11 +3606,11 @@ namespace spot
 		    // a | (b & X(b U a)) = b U a
 		    if (!mo->is_X_free())
 		      {
-			typedef Sgi::hash_set<const formula*,
-					      ptr_hash<formula> > fset_t;
-			typedef Sgi::hash_map<const formula*,
-					      std::set<unsigned>,
-					      ptr_hash<formula> > fmap_t;
+			typedef std::unordered_set<const formula*,
+						   ptr_hash<formula>> fset_t;
+			typedef std::unordered_map<const formula*,
+						   std::set<unsigned>,
+						   ptr_hash<formula>> fmap_t;
 			fset_t xfset; // XF(...)
 			fset_t xset;  // X(...)
 			fmap_t rmset; // (X...)R(...) or (X...)M(...) or
@@ -3922,9 +3922,9 @@ namespace spot
 		    // G(a) | (a W b) = a W b
 		    // G(b) | (a R b) = a R b.
 		    // G(b) | (a M b) = a R b.
-		    typedef Sgi::hash_map<const formula*,
-					  multop::vec::iterator,
-					  ptr_hash<formula> > fmap_t;
+		    typedef std::unordered_map<const formula*,
+					       multop::vec::iterator,
+					       ptr_hash<formula>> fmap_t;
 		    fmap_t uwmap; // associates "a" to "a U b" or "a W b"
 		    fmap_t rmmap; // associates "b" to "a R b" or "a M b"
 		    // (a U b) | (a U c) = a U (b | c)

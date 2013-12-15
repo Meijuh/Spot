@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -52,8 +53,8 @@ namespace spot
     bdd all_acc = bddfalse;
     bdd expected_all_acc = a->all_acceptance_conditions();
     bool all_acc_seen = false;
-    typedef Sgi::hash_map<const state*, std::set<int>,
-                          state_ptr_hash, state_ptr_equal> state_map;
+    typedef std::unordered_map<const state*, std::set<int>,
+			       state_ptr_hash, state_ptr_equal> state_map;
     state_map seen;
 
     if (run->prefix.empty())

@@ -111,8 +111,8 @@ namespace spot
 
   private:
     bdd the_acceptance_cond_;
-    typedef Sgi::hash_map<const state*, bdd,
-			  state_ptr_hash, state_ptr_equal> accmap_t;
+    typedef std::unordered_map<const state*, bdd,
+			       state_ptr_hash, state_ptr_equal> accmap_t;
     mutable accmap_t accmap_;
     mutable accmap_t accmapu_;
 

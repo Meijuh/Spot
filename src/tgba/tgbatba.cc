@@ -44,7 +44,7 @@ namespace spot
       }
 
       // Note: There is a default copy constructor, needed by
-      // Sgi::hash_set.  It does not clone the state "s", because the
+      // std::unordered_set.  It does not clone the state "s", because the
       // destructor will not destroy it either.  Actually, the states
       // are all destroyed in the tgba_tba_proxy destructor.
 
@@ -127,9 +127,9 @@ namespace spot
       }
     };
 
-    typedef Sgi::hash_set<state_tba_proxy,
-			  state_tba_proxy_hash,
-			  state_tba_proxy_equal> uniq_map_t;
+    typedef std::unordered_set<state_tba_proxy,
+			       state_tba_proxy_hash,
+			       state_tba_proxy_equal> uniq_map_t;
 
     typedef std::pair<const state_tba_proxy*, bool> state_ptr_bool_t;
 
@@ -382,9 +382,9 @@ namespace spot
     protected:
       const bdd the_acceptance_cond_;
 
-      typedef Sgi::hash_map<state_ptr_bool_t, bdd,
-			    state_ptr_bool_hash,
-			    state_ptr_bool_equal> transmap_t;
+      typedef std::unordered_map<state_ptr_bool_t, bdd,
+				 state_ptr_bool_hash,
+				 state_ptr_bool_equal> transmap_t;
       transmap_t transmap_;
       typedef transmap_t::const_iterator mapit_t;
       typedef std::list<mapit_t> translist_t;

@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE)
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -71,8 +72,8 @@ namespace spot
 
   bool is_safety_mwdba(const tgba* aut)
   {
-    typedef Sgi::hash_set<const state*,
-			  state_ptr_hash, state_ptr_equal> seen_map;
+    typedef std::unordered_set<const state*,
+			       state_ptr_hash, state_ptr_equal> seen_map;
     seen_map seen;		   // States already seen.
     std::deque<const state*> todo; // A queue of states yet to explore.
 

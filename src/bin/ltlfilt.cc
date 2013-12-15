@@ -385,8 +385,9 @@ parse_opt(int key, char* arg, struct argp_state*)
   return 0;
 }
 
-typedef Sgi::hash_set<const spot::ltl::formula*,
-		      const spot::ptr_hash<const spot::ltl::formula> > fset_t;
+typedef
+std::unordered_set<const spot::ltl::formula*,
+		   const spot::ptr_hash<const spot::ltl::formula>> fset_t;
 
 namespace
 {

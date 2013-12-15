@@ -116,7 +116,7 @@ namespace spot
   state_ta_explicit::get_transitions(bdd condition) const
   {
 
-    Sgi::hash_map<int, transitions*, Sgi::hash<int> >::const_iterator i =
+    std::unordered_map<int, transitions*, std::hash<int> >::const_iterator i =
         transitions_by_condition.find(condition.id());
 
     if (i == transitions_by_condition.end())
@@ -334,8 +334,8 @@ namespace spot
         }
     delete trans;
 
-    Sgi::hash_map<int, transitions*, Sgi::hash<int> >::iterator i =
-        transitions_by_condition.begin();
+    std::unordered_map<int, transitions*, std::hash<int> >::iterator i =
+      transitions_by_condition.begin();
     while (i != transitions_by_condition.end())
       {
         delete i->second;

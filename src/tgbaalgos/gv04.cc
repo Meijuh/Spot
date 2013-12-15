@@ -1,7 +1,8 @@
-// Copyright (C) 2008, 2010, 2011 Laboratoire de recherche et
-// développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2010, 2011, 2013 Laboratoire de recherche et
+// dÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
-// (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
 // Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -58,8 +59,8 @@ namespace spot
       bdd accepting;
 
       // Map of visited states.
-      typedef Sgi::hash_map<const state*, size_t,
-			    state_ptr_hash, state_ptr_equal> hash_type;
+      typedef std::unordered_map<const state*, size_t,
+				 state_ptr_hash, state_ptr_equal> hash_type;
       hash_type h;
 
       // Stack of visited states on the path.

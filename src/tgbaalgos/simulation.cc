@@ -101,13 +101,13 @@ namespace spot
     // Some useful typedef:
 
     // Used to get the signature of the state.
-    typedef Sgi::hash_map<const state*, bdd,
-                          state_ptr_hash,
-                          state_ptr_equal> map_state_bdd;
+    typedef std::unordered_map<const state*, bdd,
+			       state_ptr_hash,
+			       state_ptr_equal> map_state_bdd;
 
-    typedef Sgi::hash_map<const state*, unsigned,
-                          state_ptr_hash,
-                          state_ptr_equal> map_state_unsigned;
+    typedef std::unordered_map<const state*, unsigned,
+			       state_ptr_hash,
+			       state_ptr_equal> map_state_unsigned;
 
     typedef std::map<const state*, const state*,
                      state_ptr_less_than> map_state_state;

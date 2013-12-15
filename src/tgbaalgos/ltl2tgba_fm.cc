@@ -120,8 +120,8 @@ namespace spot
     private:
       translate_dict& dict_;
       std::vector<tgba_explicit_formula*> automata_;
-      typedef Sgi::hash_map<const formula*, tgba_explicit_formula*,
-			    formula_ptr_hash> f2a_t;
+      typedef std::unordered_map<const formula*, tgba_explicit_formula*,
+				 formula_ptr_hash> f2a_t;
       f2a_t f2a_;
     };
 
@@ -218,8 +218,9 @@ namespace spot
 	bool has_marked:1;
       };
 
-      typedef Sgi::hash_map<flagged_formula, translated, flagged_formula_hash>
-              flagged_formula_to_bdd_map;
+      typedef
+      std::unordered_map<flagged_formula, translated,
+			 flagged_formula_hash> flagged_formula_to_bdd_map;
     private:
       flagged_formula_to_bdd_map ltl_bdd_;
 
@@ -1893,7 +1894,8 @@ namespace spot
       }
 
     private:
-      typedef Sgi::hash_map<const formula*, bool, formula_ptr_hash> pfl_map;
+      typedef std::unordered_map<const formula*, bool,
+				 formula_ptr_hash> pfl_map;
       pfl_map pfl_;
     };
 
@@ -2039,13 +2041,14 @@ namespace spot
       // We do this because many formulae (such as `aR(bRc)' and
       // `aR(bRc).(bRc)') are equivalent, and are trivially identified
       // by looking at the set of successors.
-      typedef Sgi::hash_map<bdd, const formula*, bdd_hash> bdd_to_formula_map;
+      typedef std::unordered_map<bdd, const formula*,
+				 bdd_hash> bdd_to_formula_map;
       bdd_to_formula_map b2f_;
       // Map each formula to its associated bdd.  This speed things up when
       // the same formula is translated several times, which especially
       // occurs when canonize() is called repeatedly inside exprop.
-      typedef Sgi::hash_map<const formula*, translate_dict::translated,
-			    ptr_hash<formula> > formula_to_bdd_map;
+      typedef std::unordered_map<const formula*, translate_dict::translated,
+				 ptr_hash<formula> > formula_to_bdd_map;
       formula_to_bdd_map f2b_;
 
       possible_fair_loop_checker pflc_;
@@ -2057,7 +2060,8 @@ namespace spot
   }
 
   typedef std::map<bdd, bdd, bdd_less_than> prom_map;
-  typedef Sgi::hash_map<const formula*, prom_map, formula_ptr_hash> dest_map;
+  typedef std::unordered_map<const formula*, prom_map,
+			     formula_ptr_hash> dest_map;
 
   static void
   fill_dests(translate_dict& d, dest_map& dests, bdd label, const formula* dest)

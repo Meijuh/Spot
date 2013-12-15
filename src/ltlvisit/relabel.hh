@@ -30,9 +30,9 @@ namespace spot
     enum relabeling_style { Abc, Pnn };
 
 
-    struct relabeling_map: public Sgi::hash_map<const formula*,
-						const formula*,
-						ptr_hash<formula> >
+    struct relabeling_map: public std::unordered_map<const formula*,
+						     const formula*,
+						     ptr_hash<formula>>
     {
       ~relabeling_map()
       {

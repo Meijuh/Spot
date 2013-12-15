@@ -102,8 +102,8 @@ namespace spot
     private:
       state* add_state(int name);
 
-      typedef Sgi::hash_map<int, state*, Sgi::hash<int> > is_map;
-      typedef Sgi::hash_map<const state*, int, ptr_hash<state> > si_map;
+      typedef std::unordered_map<int, state*, std::hash<int>> is_map;
+      typedef std::unordered_map<const state*, int, ptr_hash<state>> si_map;
 
       is_map is_;
       si_map si_;

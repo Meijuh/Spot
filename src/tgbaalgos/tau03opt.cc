@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -409,10 +410,10 @@ namespace spot
 
     class explicit_tau03_opt_search_heap
     {
-      typedef Sgi::hash_map<const state*, std::pair<weight, bdd>,
-                state_ptr_hash, state_ptr_equal> hcyan_type;
-      typedef Sgi::hash_map<const state*, std::pair<color, bdd>,
-                state_ptr_hash, state_ptr_equal> hash_type;
+      typedef std::unordered_map<const state*, std::pair<weight, bdd>,
+				 state_ptr_hash, state_ptr_equal> hcyan_type;
+      typedef std::unordered_map<const state*, std::pair<color, bdd>,
+				 state_ptr_hash, state_ptr_equal> hash_type;
     public:
       class color_ref
       {

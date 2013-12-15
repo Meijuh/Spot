@@ -90,8 +90,8 @@ namespace spot
     };
 
     // Associate the build state to its number.
-    typedef Sgi::hash_map<build_state, int,
-                          build_state_hash, build_state_equal> bs2num_map;
+    typedef std::unordered_map<build_state, int,
+			       build_state_hash, build_state_equal> bs2num_map;
 
     // Queue of state to be processed.
     typedef std::deque<build_state> queue_t;

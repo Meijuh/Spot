@@ -223,8 +223,8 @@ namespace spot
 				// between each of these SCC.
     std::stack<bdd> arc_cond_;	// A stack of conditions
 				// between each of these SCC.
-    typedef Sgi::hash_map<const state*, int,
-			  state_ptr_hash, state_ptr_equal> hash_type;
+    typedef std::unordered_map<const state*, int,
+			       state_ptr_hash, state_ptr_equal> hash_type;
     hash_type h_;		// Map of visited states.  Values >= 0
                                 // designate maximal SCC.  Values < 0
                                 // number states that are part of

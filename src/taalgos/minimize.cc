@@ -40,9 +40,10 @@
 
 namespace spot
 {
-  typedef Sgi::hash_set<const state*, state_ptr_hash, state_ptr_equal> hash_set;
-  typedef Sgi::hash_map<const state*, unsigned, state_ptr_hash, state_ptr_equal>
-      hash_map;
+  typedef std::unordered_set<const state*,
+			     state_ptr_hash, state_ptr_equal> hash_set;
+  typedef std::unordered_map<const state*, unsigned,
+			     state_ptr_hash, state_ptr_equal> hash_map;
   typedef std::list<hash_set*> partition_t;
 
   namespace

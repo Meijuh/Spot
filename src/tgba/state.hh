@@ -127,13 +127,13 @@ namespace spot
   /// \brief An Equivalence Relation for \c state*.
   ///
   /// This is meant to be used as a comparison functor for
-  /// Sgi \c hash_map whose key are of type \c state*.
+  /// an \c unordered_map whose key are of type \c state*.
   ///
   /// For instance here is how one could declare
   /// a map of \c state*.
   /// \code
   ///   // Remember how many times each state has been visited.
-  ///   Sgi::hash_map<spot::state*, int, spot::state_ptr_hash,
+  ///   std::unordered_map<spot::state*, int, spot::state_ptr_hash,
   ///                                    spot::state_ptr_equal> seen;
   /// \endcode
   struct state_ptr_equal:
@@ -152,13 +152,13 @@ namespace spot
   /// \brief Hash Function for \c state*.
   ///
   /// This is meant to be used as a hash functor for
-  /// Sgi's \c hash_map whose key are of type \c state*.
+  /// an \c unordered_map whose key are of type \c state*.
   ///
   /// For instance here is how one could declare
   /// a map of \c state*.
   /// \code
   ///   // Remember how many times each state has been visited.
-  ///   Sgi::hash_map<spot::state*, int, spot::state_ptr_hash,
+  ///   std::unordered_map<spot::state*, int, spot::state_ptr_hash,
   ///                                    spot::state_ptr_equal> seen;
   /// \endcode
   struct state_ptr_hash:
@@ -172,9 +172,8 @@ namespace spot
     }
   };
 
-  typedef Sgi::hash_set<const state*,
-			spot::state_ptr_hash,
-			spot::state_ptr_equal> state_set;
+  typedef std::unordered_set<const state*,
+			     state_ptr_hash, state_ptr_equal> state_set;
 
 
   // Functions related to shared_ptr.
@@ -215,15 +214,15 @@ namespace spot
   /// (shared_ptr<const state*>).
   ///
   /// This is meant to be used as a comparison functor for
-  /// Sgi \c hash_map whose key are of type \c shared_state.
+  /// un \c unordered_map whose key are of type \c shared_state.
   ///
   /// For instance here is how one could declare
   /// a map of \c shared_state
   /// \code
   ///   // Remember how many times each state has been visited.
-  ///   Sgi::hash_map<shared_state, int,
-  ///                 spot::state_shared_ptr_hash,
-  ///                 spot::state_shared_ptr_equal> seen;
+  ///   std::unordered_map<shared_state, int,
+  ///                      state_shared_ptr_hash,
+  ///                      state_shared_ptr_equal> seen;
   /// \endcode
   struct state_shared_ptr_equal:
     public std::binary_function<shared_state,
@@ -243,16 +242,16 @@ namespace spot
   /// \brief Hash Function for \c shared_state (shared_ptr<const state*>).
   ///
   /// This is meant to be used as a hash functor for
-  /// Sgi's \c hash_map whose key are of type
+  /// an \c unordered_map whose key are of type
   /// \c shared_state.
   ///
   /// For instance here is how one could declare
   /// a map of \c shared_state.
   /// \code
   ///   // Remember how many times each state has been visited.
-  ///   Sgi::hash_map<shared_state, int,
-  ///                 spot::state_shared_ptr_hash,
-  ///                 spot::state_shared_ptr_equal> seen;
+  ///   std::unordered_map<shared_state, int,
+  ///                      state_shared_ptr_hash,
+  ///                      state_shared_ptr_equal> seen;
   /// \endcode
   struct state_shared_ptr_hash:
     public std::unary_function<shared_state, size_t>
@@ -265,9 +264,9 @@ namespace spot
     }
   };
 
-  typedef Sgi::hash_set<shared_state,
-			state_shared_ptr_hash,
-			state_shared_ptr_equal> shared_state_set;
+  typedef std::unordered_set<shared_state,
+			     state_shared_ptr_hash,
+			     state_shared_ptr_equal> shared_state_set;
 
 }
 

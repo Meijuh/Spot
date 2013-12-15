@@ -238,12 +238,6 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
       grep '[^a-zA-Z0-9_](\*[a-zA-Z0-9_]*)\.' $tmp &&
 	diag 'Use "x->y", not "(*x).y"'
 
-      grep 'std::hash' $tmp &&
-	diag 'use Sgi:: for hash and hash_map'
-
-      grep 'Sgi::[^h]' $tmp &&
-	diag 'Sgi:: is for hash and hash_map only'
-
       egrep 'bdd_(false|true)[	]*\(' $tmp &&
 	diag 'Use bddfalse and bddtrue instead of bdd_false() and bdd_true()'
 

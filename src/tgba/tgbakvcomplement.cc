@@ -88,9 +88,9 @@ namespace spot
     };
 
     // typedefs.
-    typedef Sgi::hash_map<shared_state, rank_t,
-                          state_shared_ptr_hash,
-                          state_shared_ptr_equal> state_rank_map;
+    typedef std::unordered_map<shared_state, rank_t,
+			       state_shared_ptr_hash,
+			       state_shared_ptr_equal> state_rank_map;
 
     ////////////////////////////////////////
     // state_kv_complement

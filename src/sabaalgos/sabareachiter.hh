@@ -108,8 +108,9 @@ namespace spot
   protected:
     const saba* automata_;	///< The spot::saba to explore.
 
-    typedef Sgi::hash_map<const saba_state*, int,
-			  saba_state_ptr_hash, saba_state_ptr_equal> seen_map;
+    typedef
+      std::unordered_map<const saba_state*, int,
+			 saba_state_ptr_hash, saba_state_ptr_equal> seen_map;
     seen_map seen;		///< States already seen.
   };
 

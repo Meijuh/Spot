@@ -260,9 +260,9 @@ namespace spot
 
       std::map<path, int> pathid;
       int nvars;
-      typedef Sgi::hash_map<const state*, int,
-			    state_ptr_hash, state_ptr_equal> state_map;
-      typedef Sgi::hash_map<int, const state*> int_map;
+      typedef std::unordered_map<const state*, int,
+				 state_ptr_hash, state_ptr_equal> state_map;
+      typedef std::unordered_map<int, const state*> int_map;
       state_map state_to_int;
       int_map int_to_state;
       int cand_size;

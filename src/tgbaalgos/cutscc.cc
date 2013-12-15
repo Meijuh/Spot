@@ -35,8 +35,8 @@ namespace spot
       tgba_explicit_string* sub_a = new tgba_explicit_string(a->get_dict());
       state* cur = a->get_init_state();
       std::queue<state*> tovisit;
-      typedef Sgi::hash_set<const state*,
-			    state_ptr_hash, state_ptr_equal> hash_type;
+      typedef std::unordered_set<const state*,
+				 state_ptr_hash, state_ptr_equal> hash_type;
       // Setup
       hash_type seen;
       unsigned scc_number;

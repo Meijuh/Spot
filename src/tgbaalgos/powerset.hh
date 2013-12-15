@@ -34,8 +34,8 @@ namespace spot
   {
     typedef std::set<const state*, state_ptr_less_than> power_state;
     typedef std::map<int, power_state> power_map_data;
-    typedef Sgi::hash_set<const state*, state_ptr_hash,
-			  state_ptr_equal> state_set;
+    typedef std::unordered_set<const state*, state_ptr_hash,
+			       state_ptr_equal> state_set;
 
     ~power_map()
     {

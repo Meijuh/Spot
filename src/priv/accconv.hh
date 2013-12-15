@@ -41,7 +41,7 @@ namespace spot
 
   protected:
     bdd allneg_;
-    typedef Sgi::hash_map<bdd, bdd, bdd_hash> bdd_cache_t;
+    typedef std::unordered_map<bdd, bdd, bdd_hash> bdd_cache_t;
     bdd_cache_t pos_prod_cache_;
     bdd_cache_t full_prod_cache_;
   };

@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2009, 2010, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2010, 2012, 2013 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -221,15 +222,16 @@ namespace spot
       bool root_;
 
       /// BDD associated to each automatop A representing finish(A).
-      typedef Sgi::hash_map<const ltl::formula*, bdd,
-			    ltl::formula_ptr_hash> finish_map_;
+      typedef std::unordered_map<const ltl::formula*, bdd,
+				 ltl::formula_ptr_hash> finish_map_;
 
       finish_map_ finish_;
 
       // Table containing the two now variables associated with each state.
       // TODO: a little documentation about that.
-      typedef Sgi::hash_map<
-	const nfa::state*, std::pair<int, int>, ptr_hash<nfa::state> > nmap;
+      typedef std::unordered_map<const nfa::state*,
+				 std::pair<int, int>,
+				 ptr_hash<nfa::state>> nmap;
 
       std::pair<int, int>&
       recurse_state(const nfa::ptr& nfa, const nfa::state* s,
