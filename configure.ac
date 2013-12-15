@@ -118,10 +118,6 @@ AC_CACHE_CHECK([whether $CXX $CXXFLAGS supports C++11 features],
 test "x$ax_cv_cxx_compile_cxx11" = xyes ||
   AC_ERROR([unable to compile C++11 with this compiler])
 
-AC_HEADER_UNORDERED_MAP
-AC_HEADER_TR1_UNORDERED_MAP
-AC_HEADER_EXT_HASH_MAP
-
 AX_CHECK_BUDDY
 AX_CHECK_GSPNLIB
 AX_CHECK_BOOST([1.34], [103400])
