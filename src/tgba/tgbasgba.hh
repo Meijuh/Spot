@@ -66,8 +66,8 @@ namespace spot
     bool emulate_acc_cond_;
     bdd acceptance_condition_;
     // Disallow copy.
-    tgba_sgba_proxy(const tgba_sgba_proxy&);
-    tgba_sgba_proxy& operator=(const tgba_sgba_proxy&);
+    tgba_sgba_proxy(const tgba_sgba_proxy&) = delete;
+    tgba_sgba_proxy& operator=(const tgba_sgba_proxy&) = delete;
   };
 
 }

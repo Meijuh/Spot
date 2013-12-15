@@ -151,8 +151,8 @@ namespace spot
     bdd all_acceptance_conditions_;
     bdd neg_acceptance_conditions_;
     // Disallow copy.
-    tgba_union(const tgba_union&);
-    tgba_union& operator=(const tgba_union&);
+    tgba_union(const tgba_union&) = delete;
+    tgba_union& operator=(const tgba_union&) = delete;
   };
 
 

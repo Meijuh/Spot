@@ -78,8 +78,8 @@ namespace spot
 
   private:
     // Disallow copy.
-    taa_tgba(const taa_tgba& other);
-    taa_tgba& operator=(const taa_tgba& other);
+    taa_tgba(const taa_tgba& other) = delete;
+    taa_tgba& operator=(const taa_tgba& other) = delete;
   };
 
   /// Set of states deriving from spot::state.

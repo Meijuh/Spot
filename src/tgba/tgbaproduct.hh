@@ -126,8 +126,8 @@ namespace spot
 
   private:
     // Disallow copy.
-    tgba_product(const tgba_product&);
-    tgba_product& operator=(const tgba_product&);
+    tgba_product(const tgba_product&) = delete;
+    tgba_product& operator=(const tgba_product&) = delete;
   };
 
   /// \brief A lazy product with different initial states.

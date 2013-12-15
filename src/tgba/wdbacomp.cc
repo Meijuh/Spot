@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -271,8 +271,8 @@ namespace spot
       bdd the_acceptance_cond_;
 
       // Disallow copy.
-      tgba_wdba_comp_proxy(const tgba_wdba_comp_proxy&);
-      tgba_wdba_comp_proxy& operator=(const tgba_wdba_comp_proxy&);
+      tgba_wdba_comp_proxy(const tgba_wdba_comp_proxy&) = delete;
+      tgba_wdba_comp_proxy& operator=(const tgba_wdba_comp_proxy&) = delete;
     };
 
   }

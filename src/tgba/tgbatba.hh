@@ -120,8 +120,8 @@ namespace spot
     mutable void* uniq_map_;
 
     // Disallow copy.
-    tgba_tba_proxy(const tgba_tba_proxy&);
-    tgba_tba_proxy& operator=(const tgba_tba_proxy&);
+    tgba_tba_proxy(const tgba_tba_proxy&) = delete;
+    tgba_tba_proxy& operator=(const tgba_tba_proxy&) = delete;
   };
 
   /// \ingroup tgba_on_the_fly_algorithms

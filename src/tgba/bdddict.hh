@@ -239,8 +239,8 @@ namespace spot
 
   private:
     // Disallow copy.
-    bdd_dict(const bdd_dict& other);
-    bdd_dict& operator=(const bdd_dict& other);
+    bdd_dict(const bdd_dict& other) = delete;
+    bdd_dict& operator=(const bdd_dict& other) = delete;
   };
 
 
