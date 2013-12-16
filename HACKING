@@ -225,6 +225,30 @@ forget guards, and we do not forget to rename them when a file is
 copied into another one.
 
 
+C++11
+-----
+
+  Spot uses some C++11 features, and therefore requires a C++11
+  compiler.  However (1) fully C++11-compliant compilers are
+  not yet well deployed, and (2) development tools have yet
+  to be updated to provide suitable C++11 support.  For instance
+  Swig 2.0, which we use for the Python bindings, does not
+  understand C++11.  The upcoming release of Swig 3 has better
+  support for C++11, we should switch to it as soon as possible.
+
+  In the meantime, try to keep the C++11-specific syntax in the *.cc
+  files as much as possible.
+
+  Use only C++11 features that are available in clang 3.1 and g++ 4.6:
+   - http://gcc.gnu.org/projects/cxx0x.html
+   - http://clang.llvm.org/cxx_status.html
+
+  Library interfaces that should not be used:
+   - emplace() is not implemented for associative containers
+     (std::map, std::set, and their unordered ffriends) is
+     before g++ 4.8.  Use
+       x.insert(std::make_pair(...)) instead of x.emplace(...)
+
 Encoding
 --------
 
@@ -273,7 +297,7 @@ Exporting symbols
 Comments
 --------
 
-  * The language to use is American.
+  * The language to use is American English.
 
   * When comments are sentences, they should start with a capital and
     end with a dot.  Dots that end sentences should be followed by two
@@ -478,13 +502,13 @@ Naming
 Other style recommandations
 ---------------------------
 
-  * Do not use the NULL macro, it is not always implemented in a way
-    which is compatible with all pointer types.  Always use 0 instead.
+  * The original C++98 code used 0 for null pointers (and never NULL).
+    Feel free to replace these by uses of C++11's nullptr instead.
 
   * Limit the scope of local variables by defining them as late as
     possible.  Do not reuse a local variables for two different things.
 
-  * Do not systematically initialise local variables with 0 or other
+  * Do not systematically initialize local variables with 0 or other
     meaningless values.  This hides errors to valgrind.
 
   * Avoid <iostream>, <ostream>, etc. in headers whenever possible.
