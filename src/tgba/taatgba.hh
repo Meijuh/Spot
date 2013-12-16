@@ -78,8 +78,8 @@ namespace spot
 
   private:
     // Disallow copy.
-    taa_tgba(const taa_tgba& other) = delete;
-    taa_tgba& operator=(const taa_tgba& other) = delete;
+    taa_tgba(const taa_tgba& other) SPOT_DELETED;
+    taa_tgba& operator=(const taa_tgba& other) SPOT_DELETED;
   };
 
   /// Set of states deriving from spot::state.
@@ -255,7 +255,7 @@ namespace spot
     typedef std::unordered_map<const label, taa_tgba::state*,
 			       label_hash> ns_map;
     typedef std::unordered_map<const taa_tgba::state*, label,
-			       ptr_hash<taa_tgba::state>> sn_map;
+			       ptr_hash<taa_tgba::state> > sn_map;
 
     ns_map name_state_map_;
     sn_map state_name_map_;

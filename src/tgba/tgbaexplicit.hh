@@ -709,8 +709,8 @@ namespace spot
 
   private:
     // Disallow copy.
-    tgba_explicit(const tgba_explicit<State>& other) = delete;
-    tgba_explicit& operator=(const tgba_explicit& other) = delete;
+    tgba_explicit(const tgba_explicit<State>& other) SPOT_DELETED;
+    tgba_explicit& operator=(const tgba_explicit& other) SPOT_DELETED;
   };
 
   template <typename State>
@@ -739,8 +739,8 @@ namespace spot
 
   private:
     // Disallow copy.
-    sba_explicit(const sba_explicit<State>& other) = delete;
-    sba_explicit& operator=(const sba_explicit& other) = delete;
+    sba_explicit(const sba_explicit<State>& other) SPOT_DELETED;
+    sba_explicit& operator=(const sba_explicit& other) SPOT_DELETED;
   };
 
 

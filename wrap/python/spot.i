@@ -155,6 +155,7 @@ using namespace spot;
 %rename(FalseVal) False;
 %rename(TrueVal) True;
 
+%include "misc/common.hh"
 %include "misc/version.hh"
 %include "misc/minato.hh"
 %include "misc/optionmap.hh"

@@ -64,4 +64,13 @@
 #endif
 #define SPOT_API_VAR extern SPOT_API
 
+
+// Swig 2.0 does not understand '= delete'.  This already
+// works with the development version of Swig 3.
+#ifdef SWIG
+  #define SPOT_DELETED
+#else
+  #define SPOT_DELETED = delete
+#endif
+
 #endif // SPOT_MISC_COMMON_HH

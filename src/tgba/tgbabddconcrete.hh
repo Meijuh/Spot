@@ -91,8 +91,8 @@ namespace spot
     bdd init_;			///< Initial state.
   private:
     // Disallow copy.
-    tgba_bdd_concrete(const tgba_bdd_concrete&) = delete;
-    tgba_bdd_concrete& operator=(const tgba_bdd_concrete&) = delete;
+    tgba_bdd_concrete(const tgba_bdd_concrete&) SPOT_DELETED;
+    tgba_bdd_concrete& operator=(const tgba_bdd_concrete&) SPOT_DELETED;
   };
 }
 

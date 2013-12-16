@@ -175,8 +175,8 @@ namespace spot
     private:
       ltl_simplifier_cache* cache_;
       // Copy disallowed.
-      ltl_simplifier(const ltl_simplifier&) = delete;
-      void operator=(const ltl_simplifier&) = delete;
+      ltl_simplifier(const ltl_simplifier&) SPOT_DELETED;
+      void operator=(const ltl_simplifier&) SPOT_DELETED;
 
       bool owndict;
     };

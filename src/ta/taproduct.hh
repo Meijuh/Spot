@@ -202,8 +202,8 @@ namespace spot
     const kripke* kripke_;
 
     // Disallow copy.
-    ta_product(const ta_product&) = delete;
-    ta_product& operator=(const ta_product&) = delete;
+    ta_product(const ta_product&) SPOT_DELETED;
+    ta_product& operator=(const ta_product&) SPOT_DELETED;
   };
 
 

@@ -271,8 +271,8 @@ namespace spot
       bdd the_acceptance_cond_;
 
       // Disallow copy.
-      tgba_wdba_comp_proxy(const tgba_wdba_comp_proxy&) = delete;
-      tgba_wdba_comp_proxy& operator=(const tgba_wdba_comp_proxy&) = delete;
+      tgba_wdba_comp_proxy(const tgba_wdba_comp_proxy&) SPOT_DELETED;
+      tgba_wdba_comp_proxy& operator=(const tgba_wdba_comp_proxy&) SPOT_DELETED;
     };
 
   }
