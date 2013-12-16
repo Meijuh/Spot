@@ -150,7 +150,6 @@ namespace spot
     bdd right_var_missing_;
     bdd all_acceptance_conditions_;
     bdd neg_acceptance_conditions_;
-    bddPair* right_common_acc_;
     // Disallow copy.
     tgba_union(const tgba_union&);
     tgba_union& operator=(const tgba_union&);
