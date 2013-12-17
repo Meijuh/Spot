@@ -127,6 +127,7 @@ TESTS = \
   ltlcounter.test \
   basimul.test \
   satmin.test \
+  satmin2.test \
   spotlbtt.test \
   ltlcross.test \
   spotlbtt2.test \
