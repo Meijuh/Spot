@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include "dtbasat.hh"
 #include "reachiter.hh"
@@ -901,6 +902,8 @@ namespace spot
 	     satdict.prodid.begin(); pit != satdict.prodid.end(); ++pit)
 	if (positive.find(pit->second) != positive.end())
 	  dout << pit->second << "\t" << pit->first << "\n";
+	else
+	  dout << -pit->second << "\t¬" << pit->first << "C\n";
 
       dout << "--- pathid_cand variables ---\n";
       for (std::map<path, int>::const_iterator pit =
@@ -908,6 +911,9 @@ namespace spot
 	   pit != satdict.pathid_cand.end(); ++pit)
 	if (positive.find(pit->second) != positive.end())
 	  dout << pit->second << "\t" << pit->first << "C\n";
+	else
+	  dout << -pit->second << "\t¬" << pit->first << "C\n";
+
 
       dout << "--- pathid_ref variables ---\n";
       for (std::map<path, int>::const_iterator pit =
@@ -915,6 +921,18 @@ namespace spot
 	   pit != satdict.pathid_ref.end(); ++pit)
 	if (positive.find(pit->second) != positive.end())
 	  dout << pit->second << "\t" << pit->first << "R\n";
+	else
+	  dout << -pit->second << "\t¬" << pit->first << "C\n";
+
+      dout << "--- pathcand variables ---\n";
+      for (std::map<state_pair, int>::const_iterator pit =
+	     satdict.pathcand.begin();
+	   pit != satdict.pathcand.end(); ++pit)
+	if (positive.find(pit->second) != positive.end())
+	  dout << pit->second << "\t" << pit->first << "C\n";
+	else
+	  dout << -pit->second << "\t¬" << pit->first << "C\n";
+
 #endif
 
       a->merge_transitions();
