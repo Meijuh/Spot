@@ -72,32 +72,19 @@ AX_CHECK_COMPILE_FLAG([-Werror -fvisibility=hidden],
 CXXFLAGS="$CXXFLAGS -DSPOT_BUILD"
 
 # Turn on C++11 support
-AX_CHECK_COMPILE_FLAG([-std=c++11 -stdlib=libc++],
-                      [CXXFLAGS="$CXXFLAGS -std=c++11 -stdlib=libc++"
-                       stdpass=true])
-if ! "${stdpass-false}"; then
-  AX_CHECK_COMPILE_FLAG([-std=c++11],
-                        [CXXFLAGS="$CXXFLAGS -std=c++11"
-                         stdpass=true])
-fi
-if ! "${stdpass-false}"; then
-  AX_CHECK_COMPILE_FLAG([-std=c++0x],
-                        [CXXFLAGS="$CXXFLAGS -std=c++0x"
-                         stdpass=true])
-fi
+m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody],
+[AC_LANG_SOURCE([#include <memory>
+#include <string>
 
-if ! "${stdpass-false}"; then
-  AC_ERROR([unable to turn on C++11 mode with this compiler])
-fi
-
-m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody], [
-  template <typename T>
+   template <typename T>
     struct check
     {
       static_assert(sizeof(int) <= sizeof(T), "not big enough");
     };
 
     typedef check<check<bool>> right_angle_brackets;
+
+    auto f = std::make_shared<std::string>("shared_ptr");
 
     int a;
     decltype(a) b;
@@ -107,16 +94,17 @@ m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody], [
     check_type&& cr = static_cast<check_type&&>(c);
 
     auto d = a;
-])
+])])
 
-AC_CACHE_CHECK([whether $CXX $CXXFLAGS supports C++11 features],
-               [ax_cv_cxx_compile_cxx11],
-[AC_COMPILE_IFELSE([AC_LANG_SOURCE([_AX_CXX_COMPILE_STDCXX_11_testbody])],
-  [ax_cv_cxx_compile_cxx11=yes],
-  [ax_cv_cxx_compile_cxx11=no])])
-
-test "x$ax_cv_cxx_compile_cxx11" = xyes ||
-  AC_ERROR([unable to compile C++11 with this compiler])
+for f in -std=c++11 '-std=c++11 -stdlib=libc++' -std=c++0x
+do
+  AX_CHECK_COMPILE_FLAG([$f], [CXXFLAGS="$CXXFLAGS $f" stdpass=true], [], [],
+                        [_AX_CXX_COMPILE_STDCXX_11_testbody])
+  ${stdpass-false} && break
+done
+if ! "${stdpass-false}"; then
+  AC_ERROR([unable to turn on C++11 mode with this compiler])
+fi
 
 AX_CHECK_BUDDY
 AX_CHECK_GSPNLIB
