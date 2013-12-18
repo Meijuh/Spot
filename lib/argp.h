@@ -620,7 +620,7 @@ __argp_usage (const struct argp_state *__state)
 }
 
 ARGP_EI int
-__NTH (__option_is_short (const struct argp_option *__opt))
+__option_is_short (const struct argp_option *__opt)
 {
   if (__opt->flags & OPTION_DOC)
     return 0;
@@ -632,7 +632,7 @@ __NTH (__option_is_short (const struct argp_option *__opt))
 }
 
 ARGP_EI int
-__NTH (__option_is_end (const struct argp_option *__opt))
+__option_is_end (const struct argp_option *__opt)
 {
   return !__opt->key && !__opt->name && !__opt->doc && !__opt->group;
 }
