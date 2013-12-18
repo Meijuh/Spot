@@ -24,7 +24,7 @@
 
 # include "formula.hh"
 # include <vector>
-# include <boost/shared_ptr.hpp>
+# include <memory>
 # include "multop.hh"
 # include "binop.hh"
 # include "unop.hh"
@@ -44,8 +44,7 @@ namespace spot
       {
 	virtual ~node() {};
       };
-      /// We use boost::shared_ptr to easily handle deletion.
-      typedef boost::shared_ptr<node> node_ptr;
+      typedef std::shared_ptr<node> node_ptr;
 
       struct SPOT_API node_unop : node
       {

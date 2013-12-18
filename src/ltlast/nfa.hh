@@ -24,7 +24,7 @@
 
 # include "misc/common.hh"
 # include "misc/hash.hh"
-# include <boost/shared_ptr.hpp>
+# include <memory>
 # include <list>
 # include <set>
 # include <map>
@@ -52,10 +52,10 @@ namespace spot
     public:
       struct transition;
       typedef std::list<transition*> state;
-      typedef boost::shared_ptr<formula_tree::node> label;
+      typedef std::shared_ptr<formula_tree::node> label;
       /// Iterator over the successors of a state.
       typedef succ_iterator iterator;
-      typedef boost::shared_ptr<nfa> ptr;
+      typedef std::shared_ptr<nfa> ptr;
 
       /// Explicit transitions.
       struct transition

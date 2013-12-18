@@ -32,7 +32,6 @@
 #include <limits>
 #include <cerrno>
 #include <algorithm>
-#include <boost/shared_ptr.hpp>
 #include "public.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlast/formula_tree.hh"
@@ -376,9 +375,9 @@ nfa_arg: ARG
 	    CHECK_ARITY(@1, $1, $3->children.size(), arity);
 
 	    // Hack to return the right type without screwing with the
-	    // boost::shared_ptr memory handling by using get for
-	    // example. FIXME: Wait for the next version of boost and
-	    // modify the %union to handle formula_tree::node_ptr.
+	    // std::shared_ptr memory handling by using get for
+	    // example. FIXME: modify the %union to handle
+	    // formula_tree::node_ptr.
 	    formula_tree::node_unop* tmp1 = new formula_tree::node_unop;
 	    tmp1->op = unop::Not;
 	    tmp1->child = realias(i->second, $3->children);

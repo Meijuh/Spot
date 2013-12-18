@@ -28,7 +28,7 @@
 #include <bdd.h>
 #include <cassert>
 #include <functional>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "misc/casts.hh"
 #include "misc/hash.hh"
 
@@ -179,7 +179,7 @@ namespace spot
   // Functions related to shared_ptr.
   //////////////////////////////////////////////////
 
-  typedef boost::shared_ptr<const state> shared_state;
+  typedef std::shared_ptr<const state> shared_state;
 
   inline void shared_state_deleter(state* s) { s->destroy(); }
 

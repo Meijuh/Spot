@@ -23,7 +23,8 @@
 #include "misc/common.hh"
 #include <bdd.h>
 #include <functional>
-#include <boost/shared_ptr.hpp>
+#include <memory>
+#include <cassert>
 
 namespace spot
 {
@@ -156,7 +157,7 @@ namespace spot
   // Functions related to shared_ptr.
   //////////////////////////////////////////////////
 
-  typedef boost::shared_ptr<const saba_state> shared_saba_state;
+  typedef std::shared_ptr<const saba_state> shared_saba_state;
 
   /// \ingroup saba_essentials
   /// \brief Strict Weak Ordering for \c shared_saba_state
