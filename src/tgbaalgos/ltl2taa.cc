@@ -1,4 +1,5 @@
-// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -17,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <utility>
+#include <algorithm>
 #include "ltlast/visitor.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/lunabbrev.hh"

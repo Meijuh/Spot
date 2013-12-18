@@ -20,6 +20,7 @@
 #include <iostream>
 #include <string>
 #include <queue>
+#include <algorithm>
 #include "tgba/tgbaexplicit.hh"
 #include "cutscc.hh"
 
