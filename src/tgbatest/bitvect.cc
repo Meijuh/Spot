@@ -64,6 +64,9 @@ int main()
   *x |= *w;
   ECHO(x);
 
+  std::cout << "subset? " << w->is_subset_of(*x)
+	    << ' ' << w->is_subset_of(*v) << '\n';
+
   for (size_t i = 0; i < 30; ++i)
     w->push_back((i & 3) == 0);
   ECHO(w);

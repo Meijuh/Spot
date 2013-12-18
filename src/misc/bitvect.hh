@@ -298,6 +298,23 @@ namespace spot
       return *this;
     }
 
+    bool is_subset_of(const bitvect& other) const
+    {
+      assert(other.block_count_ >= block_count_);
+
+      size_t i;
+      for (i = 0; i < block_count_ - 1; ++i)
+	if ((storage_[i] & other.storage_[i]) != other.storage_[i])
+	  return false;
+
+      // The last block might not be fully used, compare only the
+      // relevant portion.
+      const size_t bpb = 8 * sizeof(bitvect::block_t);
+      block_t mask = (1UL << (size() % bpb)) - 1;
+      return ((storage_[i] & mask & other.storage_[i])
+	      == (other.storage_[i] & mask));
+    }
+
     bool operator==(const bitvect& other) const
     {
       if (other.size_ != size_)
