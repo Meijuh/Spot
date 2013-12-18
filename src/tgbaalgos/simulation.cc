@@ -26,7 +26,6 @@
 #include "simulation.hh"
 #include "priv/acccompl.hh"
 #include "misc/minato.hh"
-#include "misc/unique_ptr.hh"
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/sccfilter.hh"
@@ -1599,25 +1598,28 @@ namespace spot
       {
         prev = next;
         direct_simulation<false, Sba> simul(res);
-        tgba* maybe_res = simul.run();
+        tgba* after_simulation = simul.run();
 
         if (res != t)
           delete res;
 
         if (simul.result_is_deterministic())
           {
-            res = maybe_res;
+            res = after_simulation;
             break;
           }
 
-        unique_ptr<tgba> after_simulation(maybe_res);
         direct_simulation<true, Sba> cosimul(after_simulation);
-        unique_ptr<tgba> after_cosimulation(cosimul.run());
+	tgba* after_cosimulation = cosimul.run();
         next = cosimul.get_stat();
+
+	delete after_simulation;
+
 	if (Sba)
 	  res = scc_filter_states(after_cosimulation);
 	else
 	  res = scc_filter(after_cosimulation, false);
+	delete after_cosimulation;
       }
     while (prev != next);
     return res;
@@ -1663,15 +1665,18 @@ namespace spot
       {
         prev = next;
 
-        unique_ptr<tgba> after_simulation(dont_care_simulation(res, limit));
+	tgba* after_simulation = dont_care_simulation(res, limit);
 
         if (res != t)
           delete res;
 
         direct_simulation<true, false> cosimul(after_simulation);
-        unique_ptr<tgba> after_cosimulation(cosimul.run());
+	tgba* after_cosimulation = cosimul.run();
+	delete after_simulation;
+
         next = cosimul.get_stat();
         res = scc_filter(after_cosimulation, true);
+	delete after_cosimulation;
       }
     while (prev != next);
 

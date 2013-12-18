@@ -54,7 +54,6 @@ misc_HEADERS = \
   satsolver.hh \
   timer.hh \
   tmpfile.hh \
-  unique_ptr.hh \
   version.hh
 
 noinst_LTLIBRARIES = libmisc.la
