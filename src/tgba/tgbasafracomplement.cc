@@ -22,7 +22,8 @@
 #include <deque>
 #include <cassert>
 #include <sstream>
-#include <boost/dynamic_bitset.hpp>
+#include <algorithm>
+#include "misc/bitvect.hh"
 #include "bdd.h"
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
@@ -38,8 +39,6 @@
 
 namespace spot
 {
-  typedef boost::dynamic_bitset<> bitset_t;
-
   namespace
   {
     // forward decl.
@@ -121,8 +120,8 @@ namespace spot
       safra_tree* mark();
 
       // To get Rabin/Streett acceptance conditions.
-      void getL(bitset_t& bitset) const;
-      void getU(bitset_t& bitset) const;
+      void getL(bitvect& bitset) const;
+      void getU(bitvect& bitset) const;
 
       /// \brief Is this node the root of the tree?
       bool is_root() const
@@ -522,11 +521,11 @@ namespace spot
     /// filled with FALSE bits.
     /// On return bitset[i] will be set if this state-tree is included in L_i.
     void
-    safra_tree::getL(bitset_t& bitset) const
+    safra_tree::getL(bitvect& bitset) const
     {
       assert(bitset.size() > static_cast<unsigned>(name));
       if (marked && !nodes.empty())
-        bitset[name] = true;
+        bitset.set(name);
       for (child_list::const_iterator i = children.begin();
            i != children.end();
            ++i)
@@ -540,11 +539,11 @@ namespace spot
     /// filled with TRUE bits.
     /// On return bitset[i] will be set if this state-tree is included in U_i.
     void
-    safra_tree::getU(bitset_t& bitset) const
+    safra_tree::getU(bitvect& bitset) const
     {
       assert(bitset.size() > static_cast<unsigned>(name));
       if (!nodes.empty())
-        bitset[name] = false;
+        bitset.clear(name);
       for (child_list::const_iterator i = children.begin();
            i != children.end();
            ++i)
@@ -774,14 +773,16 @@ namespace spot
         std::string conditions;
         if (this_node->is_root())
         {
-          bitset_t l(nb_accepting_conditions);
-          bitset_t u(nb_accepting_conditions);
-          u.flip();
-          this_node->getL(l);
-          this_node->getU(u);
+          bitvect* l = make_bitvect(nb_accepting_conditions);
+	  bitvect* u = make_bitvect(nb_accepting_conditions);
+          u->set_all();
+          this_node->getL(*l);
+          this_node->getU(*u);
           std::stringstream s;
-          s << "\\nL:" << l << ", U:" << u;
+          s << "\\nL:" << *l << ", U:" << *u;
           conditions = s.str();
+	  delete u;
+	  delete l;
         }
 
         std::cout << "node" << this_node << "[label=\"";
@@ -869,9 +870,10 @@ namespace spot
     class state_complement : public state
     {
     public:
-      state_complement(bitset_t U, bitset_t L, const safra_tree* tree,
+      state_complement(bitvect* U, bitvect* L, const safra_tree* tree,
                        bool use_bitset = true);
       state_complement(const state_complement& other);
+      virtual ~state_complement();
 
       /// \return the safra tree associated to this state.
       const safra_tree* get_safra() const
@@ -880,15 +882,15 @@ namespace spot
       }
 
       /// \return in which sets U this state is included.
-      bitset_t get_U() const
+      const bitvect& get_U() const
       {
-        return U;
+        return *U;
       }
 
       /// \return in which sets L this state is included.
-      bitset_t get_L() const
+      const bitvect& get_L() const
       {
-        return L;
+        return *L;
       }
 
       /// \return whether this state track an infinite run.
@@ -901,20 +903,16 @@ namespace spot
       virtual size_t hash() const;
       virtual state_complement* clone() const;
 
-      virtual ~state_complement()
-      {
-      }
-
       std::string to_string() const;
       const state* get_state() const;
     private:
-      bitset_t U;
-      bitset_t L;
+      bitvect* U;
+      bitvect* L;
       const safra_tree* tree;
       bool use_bitset;
     };
 
-    state_complement::state_complement(bitset_t L, bitset_t U,
+    state_complement::state_complement(bitvect* L, bitvect* U,
                                        const safra_tree* tree,
                                        bool use_bitset)
       : state(), U(U), L(L), tree(tree), use_bitset(use_bitset)
@@ -924,10 +922,16 @@ namespace spot
     state_complement::state_complement(const state_complement& other)
       : state()
     {
-      U = other.U;
-      L = other.L;
+      U = other.U->clone();
+      L = other.L->clone();
       tree = other.tree;
       use_bitset = other.use_bitset;
+    }
+
+    state_complement::~state_complement()
+    {
+      delete U;
+      delete L;
     }
 
     int
@@ -939,11 +943,11 @@ namespace spot
       assert(s);
 #if TRANSFORM_TO_TBA
       // When we transform to TBA instead of TGBA, states depend on the U set.
-      if (U != s->U)
-        return (U < s->U) ? -1 : 1;
+      if (*U != *s->U)
+        return (*U < *s->U) ? -1 : 1;
 #endif
-      if (L != s->L)
-        return (L < s->L) ? -1 : 1;
+      if (*L != *s->L)
+        return (*L < *s->L) ? -1 : 1;
       if (use_bitset != s->use_bitset)
         return use_bitset - s->use_bitset;
       return tree->compare(s->tree);
@@ -954,16 +958,10 @@ namespace spot
     {
       size_t hash = tree->hash();
       hash ^= wang32_hash(use_bitset);
-
-      size_t size_bitset = L.size();
-      for (unsigned i = 0; i < size_bitset; ++i)
-      {
-        hash ^= wang32_hash(L[i]);
+      hash ^= L->hash();
 #if TRANSFORM_TO_TBA
-        hash ^= wang32_hash(U[i]);
+      hash ^= U->hash();
 #endif
-      }
-
       return hash;
     }
 
@@ -986,9 +984,9 @@ namespace spot
       ss << tree;
       if (use_bitset)
       {
-        ss << " - I:" << L;
+        ss << " - I:" << *L;
 #if TRANSFORM_TO_TBA
-        ss << " J:" << U;
+        ss << " J:" << *U;
 #endif
       }
       return ss.str();
@@ -1165,8 +1163,9 @@ namespace spot
   tgba_safra_complement::get_init_state() const
   {
     safra_tree_automaton* a = static_cast<safra_tree_automaton*>(safra_);
-    bitset_t empty(a->get_nb_acceptance_pairs());
-    return new state_complement(empty, empty, a->get_initial_state(), false);
+    bitvect* empty = make_bitvect(a->get_nb_acceptance_pairs());
+    return new state_complement(empty->clone(), empty,
+				a->get_initial_state(), false);
   }
 
 
@@ -1223,36 +1222,41 @@ namespace spot
       bdd condition = bddfalse;
       tgba_safra_complement_succ_iterator::succ_list_t succ_list;
       int nb_acceptance_pairs = a->get_nb_acceptance_pairs();
-      bitset_t e(nb_acceptance_pairs);
+      bitvect* e = make_bitvect(nb_acceptance_pairs);
 
       if (!s->get_use_bitset()) // if \delta'(q, a)
       {
         for (trans_iter i = tr->second.begin(); i != tr->second.end(); ++i)
         {
-          state_complement* s1 = new state_complement(e, e, i->second, false);
-          state_complement* s2 = new state_complement(e, e, i->second, true);
+          state_complement* s1 = new state_complement(e->clone(), e->clone(),
+						      i->second, false);
+          state_complement* s2 = new state_complement(e->clone(), e->clone(),
+						      i->second, true);
           succ_list.insert(std::make_pair(i->first, s1));
           succ_list.insert(std::make_pair(i->first, s2));
         }
       }
       else
       {
-        bitset_t l(nb_acceptance_pairs);
-        bitset_t u(nb_acceptance_pairs);
-        u.flip();
-        s->get_safra()->getL(l); // {i : q \in L_i}
-        s->get_safra()->getU(u); // {j : q \in U_i}
+        bitvect* l = make_bitvect(nb_acceptance_pairs);
+        bitvect* u = make_bitvect(nb_acceptance_pairs);
+        u->set_all();
+        s->get_safra()->getL(*l); // {i : q \in L_i}
+        s->get_safra()->getU(*u); // {j : q \in U_i}
         state_complement* st;
 
 #if TRANSFORM_TO_TBA
-        bitset_t newI = s->get_L() | l; // {I' = I \cup {i : q \in L_i}}
-        bitset_t newJ = s->get_U() | u; // {J' = J \cup {j : q \in U_i}}
+        bitvect* newI = s->get_L().clone();
+	*newI |= *l; // {I' = I \cup {i : q \in L_i}}
+        bitvect* newJ = s->get_U().clone();
+	*newJ |= *u; // {J' = J \cup {j : q \in U_i}}
 
-        if (newI.is_subset_of(newJ)) // \delta'((q, I, J), a) if I'\subseteq J'
+	// \delta'((q, I, J), a) if I'\subseteq J'
+        if (newI->is_subset_of(*newJ))
         {
           for (trans_iter i = tr->second.begin(); i != tr->second.end(); ++i)
           {
-            st = new state_complement(e, e, i->second, true);
+            st = new state_complement(e->clone(), e->clone(), i->second, true);
             succ_list.insert(std::make_pair(i->first, st));
           }
           condition = the_acceptance_cond_;
@@ -1265,22 +1269,30 @@ namespace spot
             succ_list.insert(std::make_pair(i->first, st));
           }
         }
+	delete newI;
+	delete newJ;
 #else
-        bitset_t S = s->get_L();
-        bitset_t pending = (S | l) - u;  // {pending = S \cup {i : q \in L_i}
-                                          // \setminus {j : q \in U_j})}
+	// {pending = S \cup {i : q \in L_i} \setminus {j : q \in U_j})}
+	const bitvect& S = s->get_L();
+        bitvect* pending = S.clone();
+	*pending |= *l;
+	*pending -= *u;
         for (trans_iter i = tr->second.begin(); i != tr->second.end(); ++i)
         {
-          st = new state_complement(pending, e, i->second, true);
+          st = new state_complement(pending->clone(), e->clone(),
+				    i->second, true);
           succ_list.insert(std::make_pair(i->first, st));
         }
+	delete pending;
 
-        for (unsigned i = 0; i < l.size(); ++i)
-          if (!S[i])
+        for (unsigned i = 0; i < l->size(); ++i)
+          if (!S.get(i))
 	    condition |= acceptance_cond_vec_[i];
 #endif
+	delete u;
+	delete l;
       }
-
+      delete e;
       return new tgba_safra_complement_succ_iterator(succ_list, condition);
     }
     assert(!"Safra automaton does not find this node");
