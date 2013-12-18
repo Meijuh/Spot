@@ -24,7 +24,7 @@
 # define SPOT_MISC_RANDOM_HH
 
 # include "common.hh"
-# include <cmath>
+# include <random>
 
 namespace spot
 {
@@ -55,69 +55,18 @@ namespace spot
   /// \see mrand, rrand, srand
   SPOT_API double drand();
 
-  /// \brief Compute a pseudo-random double value
-  /// following a standard normal distribution.  (Odeh & Evans)
-  ///
-  /// This uses a polynomial approximation of the inverse cumulated
-  /// density function from Odeh & Evans, Journal of Applied
-  /// Statistics, 1974, vol 23, pp 96-97.
-  SPOT_API double nrand();
-
-  /// \brief Compute a pseudo-random double value
-  /// following a standard normal distribution.  (Box-Muller)
-  ///
-  /// This uses the polar form of the Box-Muller transform
-  /// to generate random values.
-  SPOT_API double bmrand();
-
   /// \brief Compute pseudo-random integer value between 0
   /// and \a n included, following a binomial distribution
   /// for probability \a p.
-  ///
-  /// \a gen must be a random function computing a pseudo-random
-  /// double value following a standard normal distribution.
-  /// Use nrand() or bmrand().
-  ///
-  /// Usually approximating a binomial distribution using a normal
-  /// distribution and is accurate only if <code>n*p</code> and
-  /// <code>n*(1-p)</code> are greater than 5.
-  template<double (*gen)()>
-  class barand
+  class SPOT_API barand : protected std::binomial_distribution<>
   {
   public:
-    barand(int n, double p)
-      : n_(n), m_(n * p), s_(sqrt(n * p * (1 - p)))
+    barand(int n, double p) : binomial_distribution(n, p)
     {
     }
 
-    int
-    rand() const
-    {
-      int res;
-
-      for (;;)
-	{
-	  double x = gen() * s_ + m_;
-	  if (x < 0.0)
-	    continue;
-	  res = static_cast<int> (x);
-          if (res <= n_)
-	    break;
-        }
-      return res;
-    }
-  protected:
-    const int n_;
-    const double m_;
-    const double s_;
+    int rand();
   };
-
-  /// \brief Return a pseudo-random positive integer value
-  /// following a Poisson distribution with parameter \a p.
-  ///
-  /// \pre <code>p > 0</code>
-  SPOT_API int prand(double p);
-  /// @}
 }
 
 #endif // SPOT_MISC_RANDOM_HH

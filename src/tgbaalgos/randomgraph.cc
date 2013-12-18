@@ -149,7 +149,7 @@ namespace spot
     // We want to connect each node to a number of successors between
     // 1 and n.  If the probability to connect to each successor is d,
     // the number of connected successors follows a binomial distribution.
-    barand<nrand> bin(n - 1, d);
+    barand bin(n - 1, d);
 
     while (!nodes_to_process.empty())
       {

@@ -21,121 +21,43 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "config.h"
-#include "_config.h"
 #include "random.hh"
-#include <cstdlib>
 
 namespace spot
 {
+  std::mt19937 gen;
+
   void
   srand(unsigned int seed)
   {
-#if SPOT_HAVE_SRAND48 && SPOT_HAVE_DRAND48
-    ::srand48(seed);
-#else
-    ::srand(seed);
-#endif
+    gen.seed(seed);
   }
 
   double
   drand()
   {
-#if SPOT_HAVE_SRAND48 && SPOT_HAVE_DRAND48
-    return ::drand48();
-#else
-    double r = ::rand();
-    return r / (1.0 + RAND_MAX);
-#endif
+    return
+      std::generate_canonical<double,
+			      std::numeric_limits<double>::digits>(gen);
   }
 
   int
   mrand(int max)
   {
-    return static_cast<int>(max * drand());
+    std::uniform_int_distribution<> dis(0, max - 1);
+    return dis(gen);
   }
 
   int
   rrand(int min, int max)
   {
-    return min + static_cast<int>((max - min + 1) * drand());
-  }
-
-  double
-  nrand()
-  {
-    const double r = drand();
-
-    const double lim = 1.e-20;
-    if (r < lim)
-      return -1./lim;
-    if (r > 1.0 - lim)
-      return 1./lim;
-
-    double t;
-    if (r < 0.5)
-      t = sqrt(-2.0 * log(r));
-    else
-      t = sqrt(-2.0 * log(1.0 - r));
-
-    const double p0 = 0.322232431088;
-    const double p1 = 1.0;
-    const double p2 = 0.342242088547;
-    const double p3 = 0.204231210245e-1;
-    const double p4 = 0.453642210148e-4;
-    const double q0 = 0.099348462606;
-    const double q1 = 0.588581570495;
-    const double q2 = 0.531103462366;
-    const double q3 = 0.103537752850;
-    const double q4 = 0.385607006340e-2;
-    const double p = p0 + t * (p1 + t * (p2 + t * (p3 + t * p4)));
-    const double q = q0 + t * (q1 + t * (q2 + t * (q3 + t * q4)));
-
-    if (r < 0.5)
-      return (p / q) - t;
-    else
-      return t - (p / q);
-  }
-
-  double
-  bmrand()
-  {
-    static double next;
-    static bool has_next = false;
-
-    if (has_next)
-      {
-	has_next = false;
-	return next;
-      }
-
-    double x;
-    double y;
-    double r;
-    do
-      {
-	x = 2.0 * drand() - 1.0;
-	y = 2.0 * drand() - 1.0;
-	r = x * x + y * y;
-      }
-    while (r >= 1.0 || r == 0.0);
-    r = sqrt(-2 * log(r) / r);
-    next = y * r;
-    has_next = true;
-    return x * r;
+    std::uniform_int_distribution<> dis(min, max);
+    return dis(gen);
   }
 
   int
-  prand(double p)
+  barand::rand()
   {
-    double s = 0.0;
-    long x = 0;
-
-    while (s < p)
-      {
-	s -= log(1.0 - drand());
-	++x;
-      }
-    return x - 1;
+    return (*this)(gen);
   }
-
 }
