@@ -108,7 +108,6 @@ fi
 
 AX_CHECK_BUDDY
 AX_CHECK_GSPNLIB
-AX_CHECK_BOOST([1.34], [103400])
 
 AC_CHECK_HEADERS([sys/times.h])
 AC_CHECK_FUNCS([times srand48 drand48 kill alarm])

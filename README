@@ -33,8 +33,6 @@ later).  Especially, Python's headers files should be installed.  If
 you don't have Python installed, you should run configure with
 the --disable-python option (see below).
 
-The Boost libraries should also be installed.
-
 
 Third-party dependencies
 ------------------------
