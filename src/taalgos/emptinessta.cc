@@ -28,7 +28,7 @@
 
 #include "emptinessta.hh"
 #include "misc/memusage.hh"
-#include <math.h>
+#include <cstdlib>
 #include "tgba/bddprint.hh"
 
 namespace spot
