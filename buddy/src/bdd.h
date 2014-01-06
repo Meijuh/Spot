@@ -487,13 +487,33 @@ class BUDDY_API bdd
 {
  public:
 
-   bdd(void)         { root=0; }
-   bdd(const bdd &r) { root=r.root; if (root > 1) bdd_addref_nc(root); }
-   ~bdd(void)        { if (root > 1) bdd_delref_nc(root); }
+   bdd(void) noexcept
+   {
+     root=0;
+   }
+   bdd(const bdd &r) noexcept
+   {
+     root=r.root;
+     if (root > 1)
+       bdd_addref_nc(root);
+   }
 
-   int id(void) const;
+   bdd(bdd&& r) noexcept
+   {
+     root=r.root;
+     r.root = 0;
+   }
 
-   bdd& operator=(const bdd &r);
+   ~bdd(void) noexcept
+   {
+     if (root > 1)
+       bdd_delref_nc(root);
+   }
+
+   int id(void) const noexcept;
+
+   bdd& operator=(const bdd &r) noexcept;
+   bdd& operator=(bdd&& r) noexcept;
 
    bdd operator&(const bdd &r) const;
    bdd& operator&=(const bdd &r);
@@ -510,14 +530,14 @@ class BUDDY_API bdd
    bdd operator<(const bdd &r) const;
    bdd operator<<(const bdd &r) const;
    bdd& operator<<=(const bdd &r);
-   int operator==(const bdd &r) const;
-   int operator!=(const bdd &r) const;
+   int operator==(const bdd &r) const noexcept;
+   int operator!=(const bdd &r) const noexcept;
 
 private:
    BDD root;
 
-   bdd(BDD r) { root=r; if (root > 1) bdd_addref_nc(root); }
-   bdd& operator=(BDD r);
+   bdd(BDD r) noexcept { root=r; if (root > 1) bdd_addref_nc(root); }
+   bdd& operator=(BDD r) noexcept;
 
    friend int      bdd_init(int, int);
    friend int      bdd_setvarnum(int);
@@ -543,7 +563,7 @@ private:
    friend bdd      bdd_imp(const bdd &, const bdd &);
    friend bdd      bdd_biimp(const bdd &, const bdd &);
    friend bdd      bdd_setxor(const bdd &, const bdd &);
-   friend int      bdd_implies(const bdd &, const bdd &);
+   friend int      bdd_implies(const bdd &, const bdd &) noexcept;
    friend bdd      bdd_ite(const bdd &, const bdd &, const bdd &);
    friend bdd      bdd_restrict(const bdd &, const bdd &);
    friend bdd      bdd_constrain(const bdd &, const bdd &);
@@ -704,7 +724,7 @@ inline bdd bdd_biimp(const bdd &l, const bdd &r)
 inline bdd bdd_setxor(const bdd &l, const bdd &r)
 { return bdd_setxor(l.root, r.root); }
 
-inline int bdd_implies(const bdd &l, const bdd &r)
+inline int bdd_implies(const bdd &l, const bdd &r) noexcept
 { return bdd_implies(l.root, r.root); }
 
 inline bdd bdd_ite(const bdd &f, const bdd &g, const bdd &h)
@@ -834,7 +854,7 @@ inline int bdd_addvarblock(const bdd &v, int f)
 
 /*=== Inline C++ functions =============================================*/
 
-inline int bdd::id(void) const
+inline int bdd::id(void) const noexcept
 { return root; }
 
 inline bdd bdd::operator&(const bdd &r) const
@@ -882,13 +902,13 @@ inline bdd bdd::operator<<(const bdd &r) const
 inline bdd& bdd::operator<<=(const bdd &r)
 { return (*this=bdd_apply(*this,r,bddop_invimp)); }
 
-inline int bdd::operator==(const bdd &r) const
+inline int bdd::operator==(const bdd &r) const noexcept
 { return r.root==root; }
 
-inline int bdd::operator!=(const bdd &r) const
+inline int bdd::operator!=(const bdd &r) const noexcept
 { return r.root!=root; }
 
-inline bdd& bdd::operator=(const bdd &r)
+inline bdd& bdd::operator=(const bdd &r) noexcept
 {
   if (__likely(root != r.root))
     {
@@ -901,7 +921,16 @@ inline bdd& bdd::operator=(const bdd &r)
   return *this;
 }
 
-inline bdd& bdd::operator=(int r)
+inline bdd& bdd::operator=(bdd&& r) noexcept
+{
+  if (root > 1)
+    bdd_delref_nc(root);
+  root = r.root;
+  r.root = 0;
+  return *this;
+}
+
+inline bdd& bdd::operator=(int r) noexcept
 {
   if (__likely(root != r))
     {

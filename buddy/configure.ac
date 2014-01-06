@@ -43,6 +43,41 @@ if test x$enable_warnings = xyes; then
   CF_GCC_WARNINGS
 fi
 
+# Turn on C++11 support
+AC_LANG(C++)
+m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody],
+[AC_LANG_SOURCE([#include <memory>
+#include <string>
+
+   template <typename T>
+    struct check
+    {
+      static_assert(sizeof(int) <= sizeof(T), "not big enough");
+    };
+
+    typedef check<check<bool>> right_angle_brackets;
+
+    auto f = std::make_shared<std::string>("shared_ptr");
+
+    int a;
+    decltype(a) b;
+
+    typedef check<int> check_type;
+    check_type c;
+    check_type&& cr = static_cast<check_type&&>(c);
+
+    auto d = a;
+])])
+
+for f in -std=c++11 '-std=c++11 -stdlib=libc++' -std=c++0x
+do
+  AX_CHECK_COMPILE_FLAG([$f], [CXXFLAGS="$CXXFLAGS $f" stdpass=true], [], [],
+                        [_AX_CXX_COMPILE_STDCXX_11_testbody])
+  ${stdpass-false} && break
+done
+if ! "${stdpass-false}"; then
+  AC_ERROR([unable to turn on C++11 mode with this compiler])
+fi
 
 AC_CONFIG_HEADERS([config.h])
 

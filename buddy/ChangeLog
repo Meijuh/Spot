@@ -1,3 +1,14 @@
+2014-01-06  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
+
+	Enable C++11 and add a move constructor/assignment operator.
+
+	* configure.ac: Enable C++11 mode.
+	* src/bdd.hh: Use noexport, and add a move constructor and
+	move assignment operator.  The move version of these method
+	do not have to increment the reference counter, saving time.
+	On a small test run, this change saved 24% of the calls to
+	bdd_addref_nc().
+
 2013-06-23  Alexandre Duret-Lutz  <adl@lrde.epita.fr>
 
 	Restrict the number of exported symbols.
