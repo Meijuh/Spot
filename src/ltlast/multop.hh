@@ -181,19 +181,19 @@ namespace spot
       static std::ostream& dump_instances(std::ostream& os);
 
     protected:
-      typedef std::pair<type, vec*> pair;
+      typedef std::pair<type, vec*> key;
       /// Comparison functor used internally by ltl::multop.
       struct paircmp
       {
 	bool
-	operator()(const pair& p1, const pair& p2) const
+	operator()(const key& p1, const key& p2) const
 	{
 	  if (p1.first != p2.first)
 	    return p1.first < p2.first;
 	  return *p1.second < *p2.second;
 	}
       };
-      typedef std::map<pair, const multop*, paircmp> map;
+      typedef std::map<key, const multop*, paircmp> map;
       static map instances;
 
       multop(type op, vec* v);

@@ -72,8 +72,8 @@ namespace spot
       atomic_prop(const std::string& name, environment& env);
       virtual ~atomic_prop();
 
-      typedef std::pair<std::string, environment*> pair;
-      typedef std::map<pair, const atomic_prop*> map;
+      typedef std::pair<std::string, environment*> key;
+      typedef std::map<key, const atomic_prop*> map;
       static map instances;
 
     private:

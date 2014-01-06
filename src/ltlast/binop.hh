@@ -31,6 +31,7 @@
 #include "refformula.hh"
 #include <map>
 #include <iosfwd>
+#include <tuple>
 
 namespace spot
 {
@@ -142,9 +143,8 @@ namespace spot
       static std::ostream& dump_instances(std::ostream& os);
 
     protected:
-      typedef std::pair<const formula*, const formula*> pairf;
-      typedef std::pair<type, pairf> pair;
-      typedef std::map<pair, const binop*> map;
+      typedef std::tuple<type, const formula*, const formula*> key;
+      typedef std::map<key, const binop*> map;
       static map instances;
 
       binop(type op, const formula* first, const formula* second);

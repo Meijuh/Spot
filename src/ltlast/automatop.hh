@@ -24,6 +24,7 @@
 
 # include "refformula.hh"
 # include <vector>
+# include <tuple>
 # include <iosfwd>
 # include <map>
 # include "nfa.hh"
@@ -89,21 +90,21 @@ namespace spot
 
 
     protected:
-      typedef std::pair<std::pair<nfa::ptr, bool>, vec*> triplet;
+      typedef std::tuple<nfa::ptr, bool, vec*> key;
       /// Comparison functor used internally by ltl::automatop.
       struct tripletcmp
       {
 	bool
-	operator()(const triplet& p1, const triplet& p2) const
+	operator()(const key& p1, const key& p2) const
 	{
-	  if (p1.first.first != p2.first.first)
-	    return p1.first.first < p2.first.first;
-	  if (p1.first.second != p2.first.second)
-	    return p1.first.second < p2.first.second;
-	  return *p1.second < *p2.second;
+	  if (std::get<0>(p1) != std::get<0>(p2))
+	    return std::get<0>(p1) < std::get<0>(p2);
+	  if (std::get<1>(p1) != std::get<1>(p2))
+	    return std::get<1>(p1) < std::get<1>(p2);
+	  return *std::get<2>(p1) < *std::get<2>(p2);
 	}
       };
-      typedef std::map<triplet, const automatop*, tripletcmp> map;
+      typedef std::map<key, const automatop*> map;
       static map instances;
 
       automatop(const nfa::ptr, vec* v, bool negated);

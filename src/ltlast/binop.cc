@@ -22,6 +22,7 @@
 
 #include "config.h"
 #include <cassert>
+#include <cstddef>
 #include <utility>
 #include "binop.hh"
 #include "unop.hh"
@@ -250,11 +251,9 @@ namespace spot
     binop::~binop()
     {
       // Get this instance out of the instance map.
-      pairf pf(first(), second());
-      pair p(op(), pf);
-      map::iterator i = instances.find(p);
-      assert (i != instances.end());
-      instances.erase(i);
+      size_t c = instances.erase(key(op(), first(), second()));
+      assert(c == 1);
+      (void) c;			// For the NDEBUG case.
 
       // Dereference children.
       first()->destroy();
@@ -506,12 +505,9 @@ namespace spot
 	  break;
 	}
 
-      pairf pf(first, second);
-      pair p(op, pf);
-
       const binop* res;
-      std::pair<map::iterator, bool> ires =
-	instances.insert(map::value_type(p, 0));
+      auto ires = instances.insert(std::make_pair(key(op, first, second),
+						  nullptr));
       if (!ires.second)
 	{
 	  // This instance already exists.
@@ -536,15 +532,12 @@ namespace spot
     std::ostream&
     binop::dump_instances(std::ostream& os)
     {
-      for (map::iterator i = instances.begin(); i != instances.end(); ++i)
-	{
-	  os << i->second << " = "
-	     << i->second->ref_count_() << " * "
-	     << i->second->dump()
-	     << std::endl;
-	}
+      for (const auto& i: instances)
+	os << i.second << " = "
+	   << i.second->ref_count_() << " * "
+	   << i.second->dump()
+	   << std::endl;
       return os;
-
     }
 
 

@@ -21,6 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "config.h"
+#include <cstddef>
 #include <cassert>
 #include <utility>
 #include <algorithm>
@@ -94,10 +95,9 @@ namespace spot
     multop::~multop()
     {
       // Get this instance out of the instance map.
-      pair p(op(), children_);
-      map::iterator i = instances.find(p);
-      assert (i != instances.end());
-      instances.erase(i);
+      size_t c = instances.erase(key(op(), children_));
+      assert(c == 1);
+      (void) c;			// For the NDEBUG case.
 
       // Dereference children.
       unsigned s = size();
@@ -593,19 +593,16 @@ namespace spot
 	  // to ensure that [*0] is not accepted.
 	  v->insert(v->begin(), constant::true_instance());
 	}
-      // The hash key.
-      pair p(op, v);
 
       const multop* res;
-      // Insert the key p with the dummy value 0 just
+      // Insert the key with the dummy nullptr just
       // to check if p already exists.
-      std::pair<map::iterator, bool> ires =
-	instances.insert(map::value_type(p, 0));
+      auto ires = instances.insert(std::make_pair(key(op, v), nullptr));
       if (!ires.second)
 	{
 	  // The instance did already exists.  Free v.
-	  for (vec::iterator vi = v->begin(); vi != v->end(); ++vi)
-	    (*vi)->destroy();
+	  for (auto f: *v)
+	    f->destroy();
 	  delete v;
 	  res = ires.first->second;
 	}
@@ -636,13 +633,11 @@ namespace spot
     std::ostream&
     multop::dump_instances(std::ostream& os)
     {
-      for (map::iterator i = instances.begin(); i != instances.end(); ++i)
-	{
-	  os << i->second << " = "
-	     << i->second->ref_count_() << " * "
-	     << i->second->dump()
-	     << std::endl;
-	}
+      for (const auto& i: instances)
+	os << i.second << " = "
+	   << i.second->ref_count_() << " * "
+	   << i.second->dump()
+	   << std::endl;
       return os;
     }
 

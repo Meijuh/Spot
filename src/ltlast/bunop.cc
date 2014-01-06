@@ -66,15 +66,14 @@ namespace spot
 
     bunop::~bunop()
     {
-      // one_star_ should never get delete.  Otherwise, that means
-      // is has been destroyed too much, or not cloned enough.
+      // one_star_ should never get deleted.  Otherwise, that means it
+      // has been destroyed too much, or not cloned enough.
       assert(this != one_star_);
 
       // Get this instance out of the instance map.
-      pair p(pairo(op(), child()), pairu(min_, max_));
-      map::iterator i = instances.find(p);
-      assert (i != instances.end());
-      instances.erase(i);
+      size_t c = instances.erase(key(op(), child(), min_, max_));
+      assert(c == 1);
+      (void) c;			// For the NDEBUG case.
 
       // Dereference child.
       child()->destroy();
@@ -239,11 +238,9 @@ namespace spot
 	  }
 	}
 
-      pair p(pairo(op, child), pairu(min, max));
-
       const formula* res;
-      std::pair<map::iterator, bool> ires =
-	instances.insert(map::value_type(p, 0));
+      auto ires = instances.insert(std::make_pair(key(op, child, min, max),
+						  nullptr));
       if (!ires.second)
 	{
 	  // This instance already exists.
@@ -303,13 +300,11 @@ namespace spot
     std::ostream&
     bunop::dump_instances(std::ostream& os)
     {
-      for (map::iterator i = instances.begin(); i != instances.end(); ++i)
-	{
-	  os << i->second << " = "
-	     << i->second->ref_count_() << " * "
-	     << i->second->dump()
-	     << std::endl;
-	}
+      for (const auto& i: instances)
+	os << i.second << " = "
+	   << i.second->ref_count_() << " * "
+	   << i.second->dump()
+	   << std::endl;
       return os;
     }
 

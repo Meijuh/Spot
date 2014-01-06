@@ -115,8 +115,8 @@ namespace spot
       static std::ostream& dump_instances(std::ostream& os);
 
     protected:
-      typedef std::pair<type, const formula*> pair;
-      typedef std::map<pair, const unop*> map;
+      typedef std::pair<type, const formula*> key;
+      typedef std::map<key, const unop*> map;
       static map instances;
 
       unop(type op, const formula* child);

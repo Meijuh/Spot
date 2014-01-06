@@ -25,6 +25,7 @@
 #include "refformula.hh"
 #include <map>
 #include <iosfwd>
+#include <tuple>
 #include "constant.hh"
 
 namespace spot
@@ -140,10 +141,8 @@ namespace spot
       }
 
     protected:
-      typedef std::pair<unsigned, unsigned> pairu;
-      typedef std::pair<type, const formula*> pairo;
-      typedef std::pair<pairo, pairu> pair;
-      typedef std::map<pair, const bunop*> map;
+      typedef std::tuple<type, const formula*, unsigned, unsigned> key;
+      typedef std::map<key, const bunop*> map;
       static map instances;
 
       bunop(type op, const formula* child, unsigned min, unsigned max);

@@ -23,6 +23,7 @@
 #include "config.h"
 #include "atomic_prop.hh"
 #include "visitor.hh"
+#include <cstddef>
 #include <cassert>
 #include <ostream>
 
@@ -67,10 +68,9 @@ namespace spot
     atomic_prop::~atomic_prop()
     {
       // Get this instance out of the instance map.
-      pair p(name(), &env());
-      map::iterator i = instances.find(p);
-      assert (i != instances.end());
-      instances.erase(i);
+      size_t c = instances.erase(key(name(), &env()));
+      assert(c == 1);
+      (void) c;			// For the NDEBUG case.
     }
 
     std::string
@@ -90,10 +90,8 @@ namespace spot
     const atomic_prop*
     atomic_prop::instance(const std::string& name, environment& env)
     {
-      pair p(name, &env);
       const atomic_prop* ap;
-      std::pair<map::iterator, bool> ires =
-	instances.insert(map::value_type(p, 0));
+      auto ires = instances.insert(std::make_pair(key(name, &env), nullptr));
       if (!ires.second)
 	ap = ires.first->second;
       else
@@ -111,13 +109,10 @@ namespace spot
     std::ostream&
     atomic_prop::dump_instances(std::ostream& os)
     {
-
-      for (map::iterator i = instances.begin(); i != instances.end(); ++i)
-	{
-	  os << i->second << " = " << i->second->ref_count_()
-	     << " * atomic_prop(" << i->first.first << ", "
-	     << i->first.second->name() << ")" << std::endl;
-	}
+      for (const auto& i: instances)
+	os << i.second << " = " << i.second->ref_count_()
+	   << " * atomic_prop(" << i.first.first << ", "
+	   << i.first.second->name() << ")" << std::endl;
       return os;
     }
 

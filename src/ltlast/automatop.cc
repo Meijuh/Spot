@@ -19,6 +19,7 @@
 
 #include "config.h"
 #include <iostream>
+#include <cstddef>
 #include "automatop.hh"
 #include "nfa.hh"
 #include "visitor.hh"
@@ -60,10 +61,9 @@ namespace spot
     automatop::~automatop()
     {
       // Get this instance out of the instance map.
-      triplet p(std::make_pair(get_nfa(), negated_), children_);
-      map::iterator i = instances.find(p);
-      assert (i != instances.end());
-      instances.erase(i);
+      size_t c = instances.erase(key(get_nfa(), negated_, children_));
+      assert(c == 1);
+      (void) c;			// For the NDEBUG case.
 
       // Dereference children.
       unsigned s = size();
@@ -97,11 +97,10 @@ namespace spot
     const automatop*
     automatop::instance(const nfa::ptr nfa, vec* v, bool negated)
     {
-      assert(nfa != 0);
-      triplet p(std::make_pair(nfa, negated), v);
+      assert(nfa);
       const automatop* res;
-      std::pair<map::iterator, bool> ires =
-	instances.insert(map::value_type(p, 0));
+      auto ires = instances.insert(std::make_pair(key(nfa, negated, v),
+						  nullptr));
       if (!ires.second)
 	{
 	  // The instance already exists.
@@ -127,13 +126,11 @@ namespace spot
     std::ostream&
     automatop::dump_instances(std::ostream& os)
     {
-      for (map::iterator i = instances.begin(); i != instances.end(); ++i)
-	{
-	  os << i->second << " = "
-	     << i->second->ref_count_() << " * "
-	     << i->second->dump()
-	     << std::endl;
-	}
+      for (const auto& i: instances)
+	os << i.second << " = "
+	   << i.second->ref_count_() << " * "
+	   << i.second->dump()
+	   << std::endl;
       return os;
     }
   }

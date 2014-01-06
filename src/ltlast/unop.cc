@@ -24,6 +24,7 @@
 #include "unop.hh"
 #include "visitor.hh"
 #include <cassert>
+#include <cstddef>
 #include <iostream>
 #include "constant.hh"
 #include "atomic_prop.hh"
@@ -146,10 +147,9 @@ namespace spot
     unop::~unop()
     {
       // Get this instance out of the instance map.
-      pair p(op(), child());
-      map::iterator i = instances.find(p);
-      assert (i != instances.end());
-      instances.erase(i);
+      size_t c = instances.erase(key(op(), child()));
+      assert(c == 1);
+      (void) c;			// For the NDEBUG case.
 
       // Dereference child.
       child()->destroy();
@@ -302,10 +302,7 @@ namespace spot
 	}
 
       const unop* res;
-      pair p(op, child);
-
-      std::pair<map::iterator, bool> ires =
-	instances.insert(map::value_type(p, 0));
+      auto ires = instances.insert(std::make_pair(key(op, child), nullptr));
       if (!ires.second)
 	{
 	  // This instance already exists.
@@ -329,13 +326,11 @@ namespace spot
     std::ostream&
     unop::dump_instances(std::ostream& os)
     {
-      for (map::iterator i = instances.begin(); i != instances.end(); ++i)
-	{
-	  os << i->second << " = "
-	     << i->second->ref_count_() << " * "
-	     << i->second->dump()
-	     << std::endl;
-	}
+      for (const auto& i: instances)
+	os << i.second << " = "
+	   << i.second->ref_count_() << " * "
+	   << i.second->dump()
+	   << std::endl;
       return os;
     }
 
