@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -35,7 +35,8 @@ namespace spot
   {
     int  flex_open(const std::string& name);
     void flex_close();
-    void flex_scan_string(const char* s);
+    void flex_set_buffer(const std::string& buf);
+    void flex_unset_buffer();
   }
 }
 

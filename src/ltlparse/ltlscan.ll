@@ -1,6 +1,6 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2010, 2011, 2012, 2013, Laboratoire de Recherche et
-** Développement de l'Epita (LRDE).
+** Copyright (C) 2010, 2011, 2012, 2013, 2014, Laboratoire de
+** Recherche et Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 ** département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ** et Marie Curie.
@@ -315,10 +315,11 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 %%
 
 void
-flex_set_buffer(const char* buf, int start_tok, bool lenient)
+flex_set_buffer(const std::string& buf,
+		int start_tok, bool lenient)
 {
   yypush_buffer_state(YY_CURRENT_BUFFER);
-  yy_scan_string(buf);
+  (void) yy_scan_bytes(buf.c_str(), buf.size());
   start_token = start_tok;
   if (start_tok == token::START_LBT)
     yy_push_state(lbt);

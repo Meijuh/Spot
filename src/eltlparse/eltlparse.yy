@@ -1,6 +1,6 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
-** Recherche et Développement de l'Epita (LRDE).
+** Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
+** de Recherche et Développement de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -552,7 +552,7 @@ namespace spot
 		 environment& env,
 		 bool debug)
     {
-      flex_scan_string(eltl_string.c_str());
+      flex_set_buffer(eltl_string);
       const formula* result = 0;
       nfamap nmap;
       aliasmap amap;
@@ -561,6 +561,7 @@ namespace spot
       parser.set_debug_level(debug);
       parser.parse();
       error_list = pe.list_;
+      flex_unset_buffer();
       return result;
     }
   }

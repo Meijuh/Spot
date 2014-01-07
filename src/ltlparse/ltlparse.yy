@@ -1,6 +1,6 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-** et Développement de l'Epita (LRDE).
+** Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+** Recherche et Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ** Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ** Université Pierre et Marie Curie.
@@ -983,7 +983,7 @@ namespace spot
 	  bool debug, bool lenient)
     {
       const formula* result = 0;
-      flex_set_buffer(ltl_string.c_str(),
+      flex_set_buffer(ltl_string,
 		      ltlyy::parser::token::START_LTL,
 		      lenient);
       ltlyy::parser parser(error_list, env, result);
@@ -1000,7 +1000,7 @@ namespace spot
 		  bool debug, bool lenient)
     {
       const formula* result = 0;
-      flex_set_buffer(ltl_string.c_str(),
+      flex_set_buffer(ltl_string,
 		      ltlyy::parser::token::START_BOOL,
 		      lenient);
       ltlyy::parser parser(error_list, env, result);
@@ -1017,7 +1017,7 @@ namespace spot
 	  bool debug)
     {
       const formula* result = 0;
-      flex_set_buffer(ltl_string.c_str(),
+      flex_set_buffer(ltl_string,
 		      ltlyy::parser::token::START_LBT,
 		      false);
       ltlyy::parser parser(error_list, env, result);
@@ -1035,7 +1035,7 @@ namespace spot
 	       bool lenient)
     {
       const formula* result = 0;
-      flex_set_buffer(sere_string.c_str(),
+      flex_set_buffer(sere_string,
 		      ltlyy::parser::token::START_SERE,
 		      lenient);
       ltlyy::parser parser(error_list, env, result);

@@ -1,4 +1,5 @@
-/* Copyright (C) 2008 Laboratoire de Recherche et Développement
+/* -*- coding: utf-8 -*-
+** Copyright (C) 2008, 2014 Laboratoire de Recherche et Développement
 ** de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
@@ -19,6 +20,7 @@
 %option noyywrap
 %option prefix="eltlyy"
 %option outfile="lex.yy.c"
+%option stack
 
 %{
 #include <string>
@@ -190,9 +192,19 @@ namespace spot
     }
 
     void
-    flex_scan_string(const char* s)
+    flex_set_buffer(const std::string& buf)
     {
-      yy_scan_string(s);
+      yypush_buffer_state(YY_CURRENT_BUFFER);
+      (void) yy_scan_bytes(buf.c_str(), buf.size());
+      yy_push_state(0);
+    }
+
+    void
+    flex_unset_buffer()
+    {
+      (void)&yy_top_state; // shut up a g++ warning.
+      yy_pop_state();
+      yypop_buffer_state();
     }
   }
 }
