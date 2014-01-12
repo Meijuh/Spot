@@ -214,8 +214,8 @@ _atoi(char* yytext, int base)
 {
   errno = 0;
   long i = strtol(yytext, 0, base);
-  if (i > std::numeric_limits<long>::max() ||
-      i < std::numeric_limits<long>::min() || errno == ERANGE)
+  if (i > std::numeric_limits<int>::max() ||
+      i < std::numeric_limits<int>::min() || errno == ERANGE)
     return -1;
   return i;
 }
