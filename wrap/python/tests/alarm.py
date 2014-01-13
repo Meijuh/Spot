@@ -59,8 +59,8 @@ if child != 0:
     exit(1)
 
 # This is expected to take WAY more that 2s.
-print "Before"
+print("Before")
 spot.ltl_to_tgba_fm(f, d, True)
-print "After"
+print("After")
 
 exit(1)
