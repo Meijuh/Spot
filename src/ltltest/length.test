@@ -34,3 +34,5 @@ len 'a|b|c'       5 1
 len '!a|b|!c'     7 1
 len '!(!a|b|!c)'  8 1
 len '!X(!a|b|!c)' 9 3
+len 'Xa|(b|c)'    6 4
+len 'Xa&(b|c)'    6 4

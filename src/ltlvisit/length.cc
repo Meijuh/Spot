@@ -88,11 +88,27 @@ namespace spot
 	    }
 
 	  unsigned s = mo->size();
+          unsigned operator_count = s - 1;
 	  for (unsigned i = 0; i < s; ++i)
-	    mo->nth(i)->accept(*this);
+            {
+              // Ignore all boolean values. We only want to count them once.
+              if (!mo->nth(i)->is_boolean())
+                mo->nth(i)->accept(*this);
+              else
+                --operator_count;
+            }
+
+          // if operator_count has decreased, it means that we have encountered
+          // boolean values.
+          if (operator_count < s - 1)
+            {
+              ++result_;
+              ++operator_count;
+            }
+
 	  // "a & b & c" should count for 5, even though it is
 	  // stored as And(a,b,c).
-	  result_ += s - 1;
+	  result_ += operator_count;
 	}
 
       };
