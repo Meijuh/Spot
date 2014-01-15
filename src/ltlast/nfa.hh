@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2013 Laboratoire de Recherche et
+// Copyright (C) 2008, 2010, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -34,7 +34,7 @@ namespace spot
   namespace ltl
   {
     /// Forward declaration. See below.
-    class SPOT_API succ_iterator;
+    class succ_iterator;
     /// Forward declaration. NFA's labels are reprensented by nodes
     /// which are defined in formula_tree.hh, included in nfa.cc.
     namespace formula_tree
