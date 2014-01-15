@@ -120,7 +120,10 @@ namespace spot
 
     block_t res = fnv<sizeof(block_t)>::init();
     size_t i;
-    for (i = 0; i < block_count_ - 1; ++i)
+    size_t m = used_blocks();
+    if (m == 0)
+      return res;
+    for (i = 0; i < m - 1; ++i)
       {
 	res ^= storage_[i];
 	res *= fnv<sizeof(block_t)>::prime();

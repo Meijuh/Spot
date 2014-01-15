@@ -25,7 +25,9 @@
 #  include <cstdlib>
 #  include <cassert>
 #  include <iosfwd>
-# include <iostream>
+#  include <iostream>
+#  include <algorithm>
+
 namespace spot
 {
   /// \addtogroup misc_tools
@@ -125,6 +127,13 @@ namespace spot
     }
 
   public:
+
+    size_t used_blocks() const
+    {
+      const size_t bpb = 8 * sizeof(block_t);
+      return (size_ - 1) / bpb + 1;
+    }
+
     /// Append one bit.
     void push_back(bool val)
     {
@@ -256,24 +265,27 @@ namespace spot
 
     bitvect& operator|=(const bitvect& other)
     {
-      assert(other.block_count_ <= block_count_);
-      for (size_t i = 0; i < other.block_count_; ++i)
+      assert(other.size_ <= size_);
+      unsigned m = std::min(other.block_count_, block_count_);
+      for (size_t i = 0; i < m; ++i)
 	storage_[i] |= other.storage_[i];
       return *this;
     }
 
     bitvect& operator&=(const bitvect& other)
     {
-      assert(other.block_count_ <= block_count_);
-      for (size_t i = 0; i < other.block_count_; ++i)
+      assert(other.size_ <= size_);
+      unsigned m = std::min(other.block_count_, block_count_);
+      for (size_t i = 0; i < m; ++i)
 	storage_[i] &= other.storage_[i];
       return *this;
     }
 
     bitvect& operator^=(const bitvect& other)
     {
-      assert(other.block_count_ <= block_count_);
-      for (size_t i = 0; i < other.block_count_; ++i)
+      assert(other.size_ <= size_);
+      unsigned m = std::min(other.block_count_, block_count_);
+      for (size_t i = 0; i < m; ++i)
 	storage_[i] ^= other.storage_[i];
       return *this;
     }
@@ -288,10 +300,13 @@ namespace spot
 
     bool operator==(const bitvect& other) const
     {
-      if (other.block_count_ != block_count_)
+      if (other.size_ != size_)
 	return false;
+      if (size_ == 0)
+	return true;
       size_t i;
-      for (i = 0; i < other.block_count_ - 1; ++i)
+      size_t m = other.used_blocks();
+      for (i = 0; i < m - 1; ++i)
 	if (storage_[i] != other.storage_[i])
 	  return false;
       // The last block might not be fully used, compare only the
@@ -308,10 +323,13 @@ namespace spot
 
     bool operator<(const bitvect& other) const
     {
-      if (block_count_ != other.block_count_)
-	return block_count_ < other.block_count_;
+      if (size_ != other.size_)
+	return size_ < other.size_;
+      if (size_ == 0)
+	return false;
       size_t i;
-      for (i = 0; i < other.block_count_ - 1; ++i)
+      size_t m = other.used_blocks();
+      for (i = 0; i < m - 1; ++i)
 	if (storage_[i] > other.storage_[i])
 	  return false;
       // The last block might not be fully used, compare only the
@@ -374,7 +392,7 @@ namespace spot
 	      ++indexb;
 	      res->push_back(storage_[indexb], bpb);
 	      count -= bpb;
-	      assert(indexb != indexe || bpb == 0);
+	      assert(indexb != indexe || count == 0);
 	    }
 	  if (count > 0)
 	    {
