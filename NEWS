@@ -1,6 +1,18 @@
 New in spot 1.2.1a (not released)
 
-  Nothing yet.
+  * Bug fixes:
+
+    - Fix compilation *and* behavior of bitvectors on 32-bit
+      architectures.
+    - Fix some compilation errors observed using the antique G++ 4.0.1.
+    - Fix compatibility with Python 3 in the test suite.
+    - Fix a couple of new clang warnings (like "unused private member").
+    - Add some missing #includes that are not included indirectly
+      with the C++ compiler is in C++11 mode.
+    - Fix detection of numbers that are too large in the ELTL parser.
+    - Fix a memory leak in the ELTL parser, and avoid some unnecessary
+      calls to strlen() at the same time.
+
 
 New in spot 1.2.1 (2013-12-11)
 
