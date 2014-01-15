@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -26,6 +26,7 @@
 #include <cmath>
 #include <hashfunc.hh>
 #include <cstring>
+#include <climits>
 
 namespace spot
 {
@@ -42,9 +43,20 @@ namespace spot
       return n;
     }
 
-    // Fowler–Noll–Vo hash parameters for 64bits
+    // Fowler-Noll-Vo hash parameters.
+    // Add specializations as needed.
     template<int numbytes>
     struct fnv
+    {
+    };
+
+    // Do not define the following if ULONG_MAX cannot
+    // hold a 64-bit value, otherwise the parser will
+    // choke when parsing the constants.
+#if ULONG_MAX >> 31 >> 31 >> 1 > 0
+    // Fowler-Noll-Vo hash parameters for 64bits
+    template<>
+    struct fnv<8>
     {
       static unsigned long init()
       {
@@ -56,19 +68,20 @@ namespace spot
 	return 1099511628211UL;
       }
     };
+#endif
 
-    // Fowler–Noll–Vo hash parameters for 32bits
+    // Fowler-Noll-Vo hash parameters for 32bits
     template<>
     struct fnv<4>
     {
-      static unsigned int init()
+      static unsigned long init()
       {
-	return 2166136261U;
+	return 2166136261UL;
       }
 
-      static unsigned int prime()
+      static unsigned long prime()
       {
-	return 16777619U;
+	return 16777619UL;
       }
     };
 
