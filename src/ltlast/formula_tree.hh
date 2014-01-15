@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -37,38 +37,41 @@ namespace spot
     /// Trees representing formulae where atomic propositions are unknown.
     namespace formula_tree
     {
-      struct node
+      // These struct should not need to be made public using
+      // SPOT_API, unfortunately dynamic_cast<> with g++-4.0.1 fails
+      // on Darwin if we do not.
+      struct SPOT_API node
       {
 	virtual ~node() {};
       };
       /// We use boost::shared_ptr to easily handle deletion.
       typedef boost::shared_ptr<node> node_ptr;
 
-      struct node_unop : node
+      struct SPOT_API node_unop : node
       {
 	unop::type op;
 	node_ptr child;
       };
-      struct node_binop : node
+      struct SPOT_API node_binop : node
       {
 	binop::type op;
 	node_ptr lhs;
 	node_ptr rhs;
       };
-      struct node_multop : node
+      struct SPOT_API node_multop : node
       {
 	multop::type op;
 	node_ptr lhs;
 	node_ptr rhs;
       };
-      struct node_nfa : node
+      struct SPOT_API node_nfa : node
       {
 	std::vector<node_ptr> children;
 	spot::ltl::nfa::ptr nfa;
       };
       /// Integer values for True and False used in node_atomic.
       enum { True = -1, False = -2 };
-      struct node_atomic : node
+      struct SPOT_API node_atomic : node
       {
 	int i;
       };
