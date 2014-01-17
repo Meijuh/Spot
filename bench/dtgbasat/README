@@ -48,7 +48,7 @@ To reproduce, follow these instructions:
 
 9) Actually run all experiments
 
-   % make -j4 stat.mk
+   % make -j4 -f stat.mk
 
    This will build a CSV file called "all.log".
 
