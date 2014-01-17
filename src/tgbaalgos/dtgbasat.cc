@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -947,6 +947,8 @@ namespace spot
   dtgba_sat_synthetize(const tgba* a, unsigned target_acc_number,
 		       int target_state_number, bool state_based)
   {
+    if (target_state_number == 0)
+      return 0;
     trace << "dtgba_sat_synthetize(..., acc = " << target_acc_number
 	  << ", states = " << target_state_number
 	  << ", state_based = " << state_based << ")\n";
@@ -983,6 +985,8 @@ namespace spot
 			       --n_states, state_based);
 	if (next == 0)
 	  break;
+	else
+	  n_states = stats_reachable(next).states;
 	delete prev;
 	prev = next;
       }
@@ -1011,7 +1015,7 @@ namespace spot
 	  {
 	    delete prev;
 	    prev = next;
-	    max_states = target - 1;
+	    max_states = stats_reachable(next).states - 1;
 	  }
       }
     return prev;
