@@ -60,7 +60,7 @@ print "\\documentclass{standalone}\n
 
 print "\\begin{document}\n";
 print "\\begin{tabular}{lrcr|r|rrrr|rrr|rr|rrr|rrr|rrrr}";
-print "\\multicolumn{24}{l}{Column \\textbf{type} shows how the initial deterministic automaton was obtained: T = translation produces DTGBA; W = WDBA minimization works; P = powerset construction transforms TBA to DTBA; R = DRA to DBA.}\\\\\n";
+print "\\multicolumn{24}{l}{Column \\textbf{type} shows how the initial det. aut. was obtained: T = translation produces DTGBA; W = WDBA minimization works; P = powerset construction transforms TBA to DTBA; R = DRA to DBA.}\\\\\n";
 print "\\multicolumn{24}{l}{Column \\textbf{C.} tells whether the output automaton is complete: rejecting sink states are always omitted (add 1 state when C=0 if you want the size of the complete automaton).}\\\\\n";
 print "&&&&DRA&\\multicolumn{4}{|c}{DTGBA} & \\multicolumn{3}{|c}{DBA} &  \\multicolumn{2}{|c}{DBA\\footnotesize minimizer}&  \\multicolumn{3}{|c}{min DBA} & \\multicolumn{3}{|c}{minDTBA} & \\multicolumn{4}{|c}{minDTGBA}\\\\\n";
 print "formula & \$m\$ & type & C. & st. & st. & tr. & acc. & time & st. & tr. & time & st. & time & st. & tr. & time & st. & tr. & time & st. & tr. & acc. & time \\\\\n";
@@ -69,6 +69,20 @@ sub nonnull($)
 {
     return 1 if $_[0] == 0;
     return $_[0];
+}
+
+sub getlastsuccesful($$)
+{
+    my ($n,$type) = @_;
+    open LOG, "<$n.$type.satlog" or return "";
+    my $min = "";
+    while (my $line = <LOG>)
+    {
+	my @f = split(/,/, $line);
+	$min = $f[1] if $f[1] ne '';
+    }
+    $min = ", \$\\le\$$min" if $min ne "";
+    return $min;
 }
 
 
@@ -95,6 +109,7 @@ foreach my $tab (@w)
 	print "\\arrayrulecolor{lightgray}\\hline\\arrayrulecolor{black}";
     }
 
+    my $n = $tab->[52];
     my $f = $tab->[0];
     $f =~ s/\&/\\land /g;
     $f =~ s/\|/\\lor /g;
@@ -169,12 +184,14 @@ foreach my $tab (@w)
 
     if ($tab->[21] =~ /\s*-\s*/) #  minDBA
     {
-	print "\\multicolumn{3}{c|}{(killed)}&";
+	my $s = getlastsuccesful($n, "DBA");
+	print "\\multicolumn{3}{c|}{(killed$s)}&";
 	$tab->[21] = 0+'inf';
     }
     elsif ($tab->[21] =~ /\s*!\s*/) #  minDBA
     {
-	print "\\multicolumn{3}{c|}{(intmax)}&";
+	my $s = getlastsuccesful($n, "DBA");
+	print "\\multicolumn{3}{c|}{(intmax$s)}&";
 	$tab->[21] = 0+'inf';
     }
     else
@@ -188,12 +205,14 @@ foreach my $tab (@w)
 
     if ($tab->[39] =~ /\s*-\s*/) # min DTBA
     {
-	print "\\multicolumn{3}{c|}{(killed)}&";
+	my $s = getlastsuccesful($n, "DTBA");
+	print "\\multicolumn{3}{c|}{(killed$s)}&";
 	$tab->[39] = 0+'inf';
     }
     elsif ($tab->[39] =~ /\s*!\s*/) # min DTBA
     {
-	print "\\multicolumn{3}{c|}{(intmax)}&";
+	my $s = getlastsuccesful($n, "DTBA");
+	print "\\multicolumn{3}{c|}{(intmax$s)}&";
 	$tab->[39] = 0+'inf';
     }
     else
@@ -208,12 +227,14 @@ foreach my $tab (@w)
 
     if ($tab->[30] =~ /\s*-\s*/)   # minTGBA
     {
-	print "\\multicolumn{4}{c}{(killed)}";
+	my $s = getlastsuccesful($n, "DTGBA");
+	print "\\multicolumn{4}{c}{(killed$s)}";
 	$tab->[30] = 0+'inf';
     }
     elsif ($tab->[30] =~ /\s*!\s*/)   # minTGBA
     {
-	print "\\multicolumn{4}{c}{(intmax)}";
+	my $s = getlastsuccesful($n, "DTGBA");
+	print "\\multicolumn{4}{c}{(intmax$s)}";
 	$tab->[30] = 0+'inf';
     }
     else

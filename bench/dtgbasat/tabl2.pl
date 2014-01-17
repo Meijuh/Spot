@@ -83,6 +83,21 @@ sub nonnull($)
     return $_[0];
 }
 
+sub getlastsuccesful($$)
+{
+    my ($n,$type) = @_;
+    open LOG, "<$n.$type.satlog" or return "";
+    my $min = "";
+    while (my $line = <LOG>)
+    {
+	my @f = split(/,/, $line);
+	$min = $f[1] if $f[1] ne '';
+    }
+    $min = ", \$\\le\$$min" if $min ne "";
+    return $min;
+}
+
+
 
 my $lasttype = '';
 my $linenum = 0;
@@ -107,6 +122,7 @@ foreach my $tab (@w)
 #	print "\\arrayrulecolor{lightgray}\\hline\\arrayrulecolor{black}";
     }
 
+    my $n = $tab->[52];
     my $f = $tab->[0];
     $f =~ s/\&/\\land /g;
     $f =~ s/\|/\\lor /g;
@@ -178,12 +194,14 @@ foreach my $tab (@w)
 
     if ($tab->[21] =~ /\s*-\s*/) #  minDBA
     {
-	print "\\multicolumn{1}{c|}{(killed)}&";
+        my $s = getlastsuccesful($n, "DBA");
+	print "\\multicolumn{1}{c|}{(killed$s)}&";
 	$tab->[21] = 0+'inf';
     }
     elsif ($tab->[21] =~ /\s*!\s*/) #  minDBA
     {
-	print "\\multicolumn{1}{c|}{(INTMAX)}&";
+        my $s = getlastsuccesful($n, "DBA");
+	print "\\multicolumn{1}{c|}{(intmax$s)}&";
 	$tab->[21] = 0+'inf';
     }
     else
@@ -198,12 +216,14 @@ foreach my $tab (@w)
 
     if ($tab->[39] =~ /\s*-\s*/) # min DTBA
     {
-	print "\\multicolumn{2}{c|}{(killed)}&";
+        my $s = getlastsuccesful($n, "DTBA");
+	print "\\multicolumn{2}{c|}{(killed$s)}&";
 	$tab->[39] = 0+'inf';
     }
     elsif ($tab->[39] =~ /\s*!\s*/) # min DTBA
     {
-	print "\\multicolumn{2}{c|}{(INTMAX)}&";
+        my $s = getlastsuccesful($n, "DTBA");
+	print "\\multicolumn{2}{c|}{(intmax$s)}&";
 	$tab->[39] = 0+'inf';
     }
     else
@@ -218,12 +238,14 @@ foreach my $tab (@w)
 
     if ($tab->[30] =~ /\s*-\s*/)   # minTGBA
     {
-	print "\\multicolumn{3}{c}{(killed)}";
+        my $s = getlastsuccesful($n, "DTGBA");
+	print "\\multicolumn{3}{c}{(killed$s)}";
 	$tab->[30] = 0+'inf';
     }
     elsif ($tab->[30] =~ /\s*!\s*/)   # minTGBA
     {
-	print "\\multicolumn{3}{c}{(INTMAX)}";
+        my $s = getlastsuccesful($n, "DTGBA");
+	print "\\multicolumn{3}{c}{(intmax$s)}";
 	$tab->[30] = 0+'inf';
     }
     else

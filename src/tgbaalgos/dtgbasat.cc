@@ -30,7 +30,9 @@
 #include "stats.hh"
 #include "ltlenv/defaultenv.hh"
 #include "misc/satsolver.hh"
+#include "misc/timer.hh"
 #include "isweakscc.hh"
+#include "dotty.hh"
 
 // If you set the SPOT_TMPKEEP environment variable the temporary
 // file used to communicate with the sat solver will be left in
@@ -465,9 +467,11 @@ namespace spot
       }
     };
 
+    typedef std::pair<int, int> sat_stats;
+
     static
-    void dtgba_to_sat(std::ostream& out, const tgba* ref, dict& d,
-		      bool state_based)
+    sat_stats dtgba_to_sat(std::ostream& out, const tgba* ref,
+			   dict& d, bool state_based)
     {
       clause_counter nclauses;
       int ref_size = 0;
@@ -499,7 +503,7 @@ namespace spot
       if (d.cand_size == 0)
 	{
 	  out << "p cnf 1 2\n-1 0\n1 0\n";
-	  return;
+	  return std::make_pair(1, 2);
 	}
 
       // An empty line for the header
@@ -839,6 +843,7 @@ namespace spot
 	}
       out.seekp(0);
       out << "p cnf " << d.nvars << " " << nclauses.nb_clauses();
+      return std::make_pair(d.nvars, nclauses.nb_clauses());
     }
 
     static tgba_explicit_number*
@@ -960,12 +965,45 @@ namespace spot
     satsolver solver;
     satsolver::solution_pair solution;
 
-    dtgba_to_sat(solver(), a, d, state_based);
+    timer_map t;
+    t.start("encode");
+    sat_stats s = dtgba_to_sat(solver(), a, d, state_based);
+    t.stop("encode");
+    t.start("solve");
     solution = solver.get_solution();
+    t.stop("solve");
 
     tgba_explicit_number* res = 0;
     if (!solution.second.empty())
       res = sat_build(solution.second, d, a, state_based);
+
+    static const char* log = getenv("SPOT_SATLOG");
+    if (log)
+      {
+	std::fstream out(log,
+			 std::ios_base::app | std::ios_base::out);
+	out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	const timer& te = t.timer("encode");
+	const timer& ts = t.timer("solve");
+	out << target_state_number << ',';
+	if (res)
+	  {
+	    tgba_sub_statistics st = sub_stats_reachable(res);
+	    out << st.states << ',' << st.transitions
+		<< ',' << st.sub_transitions;
+	  }
+	else
+	  {
+	    out << ",,";
+	  }
+	out << ','
+	    << s.first << ',' << s.second << ','
+	    << te.utime() << ',' << te.stime() << ','
+	    << ts.utime() << ',' << ts.stime() << '\n';
+      }
+    static const char* show = getenv("SPOT_SATSHOW");
+    if (show && res)
+      dotty_reachable(std::cout, res);
 
     trace << "dtgba_sat_synthetize(...) = " << res << "\n";
     return res;
