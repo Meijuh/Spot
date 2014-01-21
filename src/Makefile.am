@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
-## Développement de l'Epita (LRDE).
+## Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche
+## et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -25,10 +25,10 @@ AUTOMAKE_OPTIONS = subdir-objects
 # List directories in the order they must be built.  Keep tests at the
 # end, after building '.' (since the current directory contains
 # libspot.la needed by the tests)
-SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse eltlparse tgba	\
-          tgbaalgos tgbaparse ta taalgos kripke saba sabaalgos		\
+SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse eltlparse graph	\
+          tgba tgbaalgos tgbaparse ta taalgos kripke saba sabaalgos	\
           neverparse kripkeparse dstarparse . bin ltltest eltltest	\
-          tgbatest sabatest kripketest sanity
+          graphtest tgbatest sabatest kripketest sanity
 
 lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =
