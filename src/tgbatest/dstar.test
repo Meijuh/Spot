@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013 Laboratoire de Recherche et
+# Copyright (C) 2013, 2014 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -237,3 +237,33 @@ EOF
 diff expected stdout
 
 test "`../../bin/dstar2tgba -D dra.dstar --stats '%s %t %p %d'`" = "3 12 1 1"
+
+# This has caused a crash at some point when dealing with 0-sized
+# bitsets to represent acceptance sets.
+cat >aut.dsa <<EOF
+DSA v2 explicit
+Comment: "Streett{Safra[NBA=1]}"
+States: 1
+Acceptance-Pairs: 0
+Start: 0
+AP: 0
+---
+State: 0
+Acc-Sig:
+0
+EOF
+run 0 ../ltl2tgba -XDD aut.dsa | tee stdout
+
+cat >expected<<EOF
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="0"]
+  1 -> 1 [label="1\n"]
+  1 -> 2 [label="1\n"]
+  2 [label="1"]
+  2 -> 2 [label="1\n"]
+}
+EOF
+
+diff expected stdout

@@ -131,7 +131,7 @@ namespace spot
     size_t used_blocks() const
     {
       const size_t bpb = 8 * sizeof(block_t);
-      return (size_ - 1) / bpb + 1;
+      return (size_ + bpb - 1) / bpb;
     }
 
     /// Append one bit.
