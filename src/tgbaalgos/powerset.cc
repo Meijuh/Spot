@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2010, 2011, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2011, 2013, 2014 Laboratoire de Recherche
+// et DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -54,8 +55,7 @@ namespace spot
 
     {
       power_state ps;
-      state* s = aut->get_init_state();
-      pm.states.insert(s);
+      const state* s = pm.canonicalize(aut->get_init_state());
       ps.insert(s);
       todo.push_back(ps);
       seen[ps] = 1;
@@ -325,7 +325,7 @@ namespace spot
     tgba_explicit_number* det = tgba_powerset(aut, pm, false);
 
     if ((threshold_states > 0)
-	&& (pm.map_.size() > pm.states.size() * threshold_states))
+	&& (pm.map_.size() > pm.states_.size() * threshold_states))
       {
 	delete det;
 	return 0;

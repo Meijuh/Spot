@@ -1,4 +1,5 @@
-// Copyright (C) 2012 Laboratoire de Recherche et Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -47,14 +48,12 @@ namespace spot
 	q.pop_back();
 
 	y->second.mark = false;
-	for (set_type::iterator i = y->second.b.begin();
-	     i != y->second.b.end(); ++i)
+	for (auto s: y->second.b)
 	  {
-	    tagged_state x = tags_.find(*i);
+	    tagged_state x = tags_.find(s);
 	    assert(x != tags_.end());
 	    // insert y in A(x)
 	    x->second.del.erase(y->first);
-
 	    // unmark x recursively if marked
 	    if (x->second.mark)
 	      q.push_back(x);

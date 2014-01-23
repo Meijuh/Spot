@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita.
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -34,21 +34,6 @@ namespace spot
   {
     typedef std::set<const state*, state_ptr_less_than> power_state;
     typedef std::map<int, power_state> power_map_data;
-    typedef std::unordered_set<const state*, state_ptr_hash,
-			       state_ptr_equal> state_set;
-
-    ~power_map()
-    {
-      // Release all states.
-      state_set::const_iterator i = states.begin();
-      while (i != states.end())
-	{
-	  // Advance the iterator before deleting the key.
-	  const state* s = *i;
-	  ++i;
-	  s->destroy();
-	}
-    }
 
     const power_state&
     states_of(int s) const
@@ -59,21 +44,11 @@ namespace spot
     const state*
     canonicalize(const state* s)
     {
-      state_set::const_iterator i = states.find(s);
-      if (i != states.end())
-	{
-	  s->destroy();
-	  s = *i;
-	}
-      else
-	{
-	  states.insert(s);
-	}
-      return s;
+      return states_(s);
     }
 
     power_map_data map_;
-    state_set states;
+    state_unicity_table states_;
   };
 
 

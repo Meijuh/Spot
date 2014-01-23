@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -52,6 +52,8 @@
 
 namespace spot
 {
+  // FIXME: do we really want to use unordered_set instead of set here?
+  // This calls for benchmarking.
   typedef std::unordered_set<const state*,
 			     state_ptr_hash, state_ptr_equal> hash_set;
   typedef std::unordered_map<const state*, unsigned,
@@ -184,36 +186,13 @@ namespace spot
 			   power_map& pm, const state* dest)
 	: bfs_steps(det_a), scc_n(scc_n), sm(sm), pm(pm), dest(dest)
       {
-	seen.insert(dest);
-      }
-
-      virtual
-      ~wdba_search_acc_loop()
-      {
-	hash_set::const_iterator i = seen.begin();
-	while (i != seen.end())
-	  {
-	    hash_set::const_iterator old = i;
-	    ++i;
-	    (*old)->destroy();
-	  }
+	seen(dest);
       }
 
       virtual const state*
       filter(const state* s)
       {
-	// Use the state from seen.
-	hash_set::const_iterator i = seen.find(s);
-	if (i == seen.end())
-	  {
-	    seen.insert(s);
-	  }
-	else
-	  {
-	    s->destroy();
-	    s = *i;
-	  }
-	// Ignore states outside SCC #n.
+	s = seen(s);
 	if (sm.scc_of_state(s) != scc_n)
 	  return 0;
 	return s;
@@ -229,7 +208,7 @@ namespace spot
       scc_map& sm;
       power_map& pm;
       const state* dest;
-      hash_set seen;
+      state_unicity_table seen;
     };
 
 

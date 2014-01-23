@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2011, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -174,6 +174,64 @@ namespace spot
 
   typedef std::unordered_set<const state*,
 			     state_ptr_hash, state_ptr_equal> state_set;
+
+
+  /// \ingroup tgba_essentials
+  /// \brief Render state pointers unique via a hash table.
+  class SPOT_API state_unicity_table
+  {
+    state_set m;
+  public:
+
+    /// \brief Canonicalize state pointer.
+    ///
+    /// If this is the first time a state is seen, this return the
+    /// state pointer as-is, otherwise it frees the state and returns
+    /// a point to the previously seen copy.
+    ///
+    /// States are owned by the table and will be freed on
+    /// destruction.
+    const state* operator()(const state* s)
+    {
+      auto p = m.insert(s);
+      if (!p.second)
+	s->destroy();
+      return *p.first;
+    }
+
+    /// \brief Canonicalize state pointer.
+    ///
+    /// Same as operator(), except that a nullptr
+    /// is returned if the state is not new.
+    const state* is_new(const state* s)
+    {
+      auto p = m.insert(s);
+      if (!p.second)
+	{
+	  s->destroy();
+	  return nullptr;
+	}
+      return *p.first;
+    }
+
+    ~state_unicity_table()
+    {
+      for (state_set::iterator i = m.begin(); i != m.end();)
+	{
+	  // Advance the iterator before destroying its key.  This
+	  // avoid issues with old g++ implementations.
+	  state_set::iterator old = i++;
+	  (*old)->destroy();
+	}
+    }
+
+    size_t
+    size()
+    {
+      return m.size();
+    }
+  };
+
 
 
   // Functions related to shared_ptr.

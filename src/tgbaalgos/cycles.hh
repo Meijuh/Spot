@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -79,9 +79,6 @@ namespace spot
   class SPOT_API enumerate_cycles
   {
   protected:
-    typedef std::unordered_set<const state*,
-			       state_ptr_hash, state_ptr_equal> set_type;
-
     // Extra information required for the algorithm for each state.
     struct state_info
     {
@@ -98,10 +95,10 @@ namespace spot
       // that a contributed to a contributed to a cycle.
       bool mark;
       // Deleted successors (in the paper, states deleted from A(x))
-      set_type del;
+      state_set del;
       // Predecessors of the current states, that could not yet
       // contribute to a cycle.
-      set_type b;
+      state_set b;
     };
 
     // Store the state_info for all visited states.

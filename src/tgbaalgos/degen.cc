@@ -67,37 +67,6 @@ namespace spot
     // Queue of state to be processed.
     typedef std::deque<degen_state> queue_t;
 
-    // Memory management for the input states.
-    class unicity_table
-    {
-      state_set m;
-    public:
-      const state* operator()(const state* s)
-      {
-	auto p = m.insert(s);
-	if (!p.second)
-	  s->destroy();
-	return *p.first;
-      }
-
-      ~unicity_table()
-      {
-	for (state_set::iterator i = m.begin(); i != m.end();)
-	  {
-	    // Advance the iterator before destroying its key.  This
-	    // avoid issues with old g++ implementations.
-	    state_set::iterator old = i++;
-	    (*old)->destroy();
-	  }
-      }
-
-      size_t
-      size()
-      {
-        return m.size();
-      }
-    };
-
     // Acceptance set common to all outgoing transitions (of the same
     // SCC -- we do not care about the other) of some state.
     class outgoing_acc
@@ -165,10 +134,10 @@ namespace spot
       typedef std::unordered_map<const state*, bool,
 				 state_ptr_hash, state_ptr_equal> cache_t;
       cache_t cache_;
-      unicity_table& uniq_;
+      state_unicity_table& uniq_;
 
     public:
-      has_acc_loop(const tgba* a, unicity_table& uniq):
+      has_acc_loop(const tgba* a, state_unicity_table& uniq):
 	a_(a),
 	uniq_(uniq)
       {
@@ -329,7 +298,7 @@ namespace spot
 
     // Make sure we always use the same pointer for identical states
     // from the input automaton.
-    unicity_table uniq;
+    state_unicity_table uniq;
 
     // Accepting loop checker, for some heuristics.
     has_acc_loop acc_loop(a, uniq);

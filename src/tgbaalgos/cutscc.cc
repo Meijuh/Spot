@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -33,12 +33,10 @@ namespace spot
 	    const std::set<unsigned>& s)
     {
       tgba_explicit_string* sub_a = new tgba_explicit_string(a->get_dict());
-      state* cur = a->get_init_state();
-      std::queue<state*> tovisit;
-      typedef std::unordered_set<const state*,
-				 state_ptr_hash, state_ptr_equal> hash_type;
+      const state* cur = a->get_init_state();
+      std::queue<const state*> tovisit;
       // Setup
-      hash_type seen;
+      state_unicity_table seen;
       unsigned scc_number;
       std::string cur_format = a->format_state(cur);
       std::set<unsigned>::iterator it;
@@ -46,8 +44,7 @@ namespace spot
       for (it = s.begin(); it != s.end() && !m.accepting(*it); ++it)
 	continue;
       assert(it != s.end());
-      tovisit.push(cur);
-      seen.insert(cur);
+      tovisit.push(seen(cur));
       sub_a->add_state(cur_format);
       sub_a->copy_acceptance_conditions_of(a);
       // If the initial is not part of one of the desired SCC, exit
@@ -68,15 +65,8 @@ namespace spot
 	      // Is the successor included in one of the desired SCC ?
 	      if (s.find(scc_number) != s.end())
 		{
-		  if (seen.find(dst) == seen.end())
-		    {
-		      tovisit.push(dst);
-		      seen.insert(dst); // has_state?
-		    }
-		  else
-		    {
-		      dst->destroy();
-		    }
+		  if (seen.is_new(dst))
+		    tovisit.push(dst);
 		  state_explicit_string::transition* t =
 		    sub_a->create_transition(cur_format, dst_format);
 		  sub_a->add_conditions(t, sit->current_condition());
@@ -90,11 +80,6 @@ namespace spot
 	    }
 	  delete sit;
 	}
-
-      hash_type::iterator it2;
-      // Free visited states.
-      for (it2 = seen.begin(); it2 != seen.end(); ++it2)
-	(*it2)->destroy();
       return sub_a;
     }
 

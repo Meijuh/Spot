@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -72,16 +72,10 @@ namespace spot
 
   bool is_safety_mwdba(const tgba* aut)
   {
-    typedef std::unordered_set<const state*,
-			       state_ptr_hash, state_ptr_equal> seen_map;
-    seen_map seen;		   // States already seen.
+    state_unicity_table seen;	   // States already seen.
     std::deque<const state*> todo; // A queue of states yet to explore.
 
-    {
-      state* s = aut->get_init_state();
-      todo.push_back(s);
-      seen.insert(s);
-    }
+    todo.push_back(seen(aut->get_init_state()));
 
     bdd all_acc = aut->all_acceptance_conditions();
 
@@ -100,28 +94,11 @@ namespace spot
 		all_accepting = false;
 		break;
 	      }
-	    state* d = it->current_state();
-	    if (seen.find(d) != seen.end())
-	      {
-		d->destroy();
-	      }
-	    else
-	      {
-		seen.insert(d);
-		todo.push_back(d);
-	      }
+	    if (const state* d = seen.is_new(it->current_state()))
+	      todo.push_back(d);
 	  }
 	delete it;
       }
-
-    seen_map::const_iterator it = seen.begin();
-    while (it != seen.end())
-      {
-	seen_map::const_iterator old = it;
-	++it;
-	(*old)->destroy();
-      }
-
     return all_accepting;
   }
 
