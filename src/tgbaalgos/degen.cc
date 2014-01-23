@@ -1,5 +1,6 @@
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -69,32 +70,23 @@ namespace spot
     // Memory management for the input states.
     class unicity_table
     {
-      typedef std::unordered_set<const state*,
-                            state_ptr_hash, state_ptr_equal> uniq_set;
-      uniq_set m;
+      state_set m;
     public:
       const state* operator()(const state* s)
       {
-        uniq_set::const_iterator i = m.find(s);
-        if (i == m.end())
-          {
-            m.insert(s);
-            return s;
-          }
-        else
-          {
-            s->destroy();
-            return *i;
-          }
+	auto p = m.insert(s);
+	if (!p.second)
+	  s->destroy();
+	return *p.first;
       }
 
       ~unicity_table()
       {
-	for (uniq_set::iterator i = m.begin(); i != m.end();)
+	for (state_set::iterator i = m.begin(); i != m.end();)
 	  {
 	    // Advance the iterator before destroying its key.  This
 	    // avoid issues with old g++ implementations.
-	    uniq_set::iterator old = i++;
+	    state_set::iterator old = i++;
 	    (*old)->destroy();
 	  }
       }
