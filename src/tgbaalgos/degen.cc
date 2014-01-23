@@ -173,7 +173,7 @@ namespace spot
       typedef Sgi::hash_map<const state*, bool,
                             state_ptr_hash, state_ptr_equal> cache_t;
       cache_t cache_;
-      unicity_table uniq_;
+      unicity_table& uniq_;
 
     public:
       has_acc_loop(const tgba* a, unicity_table& uniq):
