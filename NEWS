@@ -1,4 +1,4 @@
-New in spot 1.2.1a (not released)
+New in spot 1.2.2 (2014-01-24)
 
   * Bug fixes:
 
@@ -8,11 +8,10 @@ New in spot 1.2.1a (not released)
     - Fix compatibility with Python 3 in the test suite.
     - Fix a couple of new clang warnings (like "unused private member").
     - Add some missing #includes that are not included indirectly
-      with the C++ compiler is in C++11 mode.
+      when the C++ compiler is in C++11 mode.
     - Fix detection of numbers that are too large in the ELTL parser.
     - Fix a memory leak in the ELTL parser, and avoid some unnecessary
       calls to strlen() at the same time.
-
 
 New in spot 1.2.1 (2013-12-11)
 
