@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2011, 2013 Laboratoire de Recherche et
+// Copyright (C) 2008, 2011, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006, 2007  Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
@@ -365,9 +365,7 @@ namespace spot
     state** state_array = 0;
     size_t size_states = 0;
 
-    tgba_succ_iterator* i = data_->operand->succ_iter(s->right());
-
-    for (i->first(); !i->done(); i->next())
+    for (auto i: data_->operand->succ(s))
       {
 	all_conds_ = i->current_condition();
 	outside_ = !all_conds_;
@@ -454,8 +452,6 @@ namespace spot
 	  free(props_[j].prop[conj]);
 	free(props_[j].prop);
       }
-
-    delete i;
     return new tgba_succ_iterator_gspn_ssp(succ_tgba_, size_tgba_,
 					   bdd_array, state_array,
 					   size_states, props_,

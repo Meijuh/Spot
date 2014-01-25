@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -277,8 +277,7 @@ namespace spot
 	  const state* rs = p.second;
 	  int src = seen[p];
 
-	  tgba_succ_iterator* li = left->succ_iter(ls);
-	  for (li->first(); !li->done(); li->next())
+	  for (auto li: left->succ(ls))
 	    {
 	      state_pair d(li->current_state(), ris);
 	      bdd lc = li->current_condition();

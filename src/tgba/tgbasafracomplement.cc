@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -153,10 +153,9 @@ namespace spot
       name = other.name;
       parent = 0;
       nodes = other.nodes;
-      for (child_list::const_iterator i = other.children.begin();
-           i != other.children.end(); ++i)
+      for (auto i: other.children)
       {
-        safra_tree* c = new safra_tree(**i);
+        safra_tree* c = new safra_tree(*i);
         c->parent = this;
         children.push_back(c);
       }
@@ -170,11 +169,10 @@ namespace spot
 
     safra_tree::~safra_tree()
     {
-      for (child_list::iterator i = children.begin(); i != children.end(); ++i)
-        delete *i;
-
-      for (subset_t::iterator i = nodes.begin(); i != nodes.end(); ++i)
-        (*i)->destroy();
+      for (auto c: children)
+        delete c;
+      for (auto n: nodes)
+        n->destroy();
     }
 
     safra_tree&
@@ -237,13 +235,10 @@ namespace spot
       hash ^= wang32_hash(name);
       hash ^= wang32_hash(marked);
 
-      for (subset_t::const_iterator i = nodes.begin(); i != nodes.end(); ++i)
-        hash ^= (*i)->hash();
-
-      for (child_list::const_iterator i = children.begin();
-           i != children.end();
-           ++i)
-        hash ^= (*i)->hash();
+      for (auto n: nodes)
+        hash ^= n->hash();
+      for (auto c: children)
+        hash ^= c->hash();
 
       return hash;
     }
@@ -262,13 +257,12 @@ namespace spot
     safra_tree::max_name() const
     {
       int max_name = name;
-      for (child_list::const_iterator i = children.begin();
-           i != children.end(); ++i)
-        max_name = std::max(max_name, (*i)->max_name());
+      for (auto c: children)
+        max_name = std::max(max_name, c->max_name());
       return max_name;
     }
 
-    /// \brief Get an unused name in the tree for a new node.
+    /// \brief Get a unused name in the tree for a new node.
     ///
     /// The root of the tree maintains a list of unused names.
     /// When this list is empty, new names are computed.
@@ -287,9 +281,8 @@ namespace spot
             const safra_tree* current = queue.front();
             queue.pop_front();
             used_names.insert(current->name);
-            for (child_list::const_iterator i = current->children.begin();
-                 i != current->children.end(); ++i)
-              queue.push_back(*i);
+	    for (auto c: current->children)
+              queue.push_back(c);
           }
 
           int l = 0;
@@ -325,13 +318,13 @@ namespace spot
     safra_tree*
     safra_tree::branch_accepting(const sba& a)
     {
-      for (child_list::iterator i = children.begin(); i != children.end(); ++i)
-        (*i)->branch_accepting(a);
+      for (auto c: children)
+        c->branch_accepting(a);
 
       subset_t subset;
-      for (subset_t::const_iterator i = nodes.begin(); i != nodes.end(); ++i)
-        if (a.state_is_accepting(*i))
-          subset.insert(*i);
+      for (auto n: nodes)
+        if (a.state_is_accepting(n))
+          subset.insert(n);
 
       if (!subset.empty())
         children.push_back(new safra_tree(subset, this, get_new_name()));
@@ -354,22 +347,20 @@ namespace spot
     {
       subset_t new_subset;
 
-      for (subset_t::iterator i = nodes.begin(); i != nodes.end(); ++i)
+      for (auto n: nodes)
       {
-	cache_t::const_iterator it = cache_transition.find(*i);
+	cache_t::const_iterator it = cache_transition.find(n);
         if (it == cache_transition.end())
           continue;
 
         const tr_cache_t& transitions = it->second;
-        for (tr_cache_t::const_iterator t_it = transitions.begin();
-             t_it != transitions.end();
-             ++t_it)
+        for (auto t: transitions)
         {
-          if ((t_it->first & condition) != bddfalse)
+          if ((t.first & condition) != bddfalse)
           {
-            if (new_subset.find(t_it->second) == new_subset.end())
+            if (new_subset.find(t.second) == new_subset.end())
             {
-              const state* s = t_it->second->clone();
+              const state* s = t.second->clone();
               new_subset.insert(s);
             }
           }
@@ -377,8 +368,8 @@ namespace spot
       }
       nodes = new_subset;
 
-      for (child_list::iterator i = children.begin(); i != children.end(); ++i)
-        (*i)->succ_create(condition, cache_transition);
+      for (auto c: children)
+        c->succ_create(condition, cache_transition);
 
       return this;
     }
@@ -391,18 +382,16 @@ namespace spot
     safra_tree::normalize_siblings()
     {
       std::set<const state*, state_ptr_less_than> node_set;
-      for (child_list::iterator child_it = children.begin();
-           child_it != children.end();
-           ++child_it)
+      for (auto c: children)
       {
-        subset_t::iterator node_it = (*child_it)->nodes.begin();
-        while (node_it != (*child_it)->nodes.end())
+        subset_t::iterator node_it = c->nodes.begin();
+        while (node_it != c->nodes.end())
         {
 	  if (!node_set.insert(*node_it).second)
 	  {
             const state* s = *node_it;
-            (*child_it)->remove_node_from_children(*node_it);
-            (*child_it)->nodes.erase(node_it++);
+            c->remove_node_from_children(*node_it);
+            c->nodes.erase(node_it++);
             s->destroy();
           }
 	  else
@@ -411,7 +400,7 @@ namespace spot
 	  }
         }
 
-        (*child_it)->normalize_siblings();
+        c->normalize_siblings();
       }
 
       return this;
@@ -421,18 +410,16 @@ namespace spot
     void
     safra_tree::remove_node_from_children(const state* state)
     {
-      for (child_list::iterator child_it = children.begin();
-           child_it != children.end();
-           ++child_it)
+      for (auto c: children)
       {
-        subset_t::iterator it = (*child_it)->nodes.find(state);
-        if (it != (*child_it)->nodes.end())
+        subset_t::iterator it = c->nodes.find(state);
+        if (it != c->nodes.end())
         {
           const spot::state* s = *it;
-          (*child_it)->nodes.erase(it);
+	  c->nodes.erase(it);
           s->destroy();
         }
-        (*child_it)->remove_node_from_children(state);
+        c->remove_node_from_children(state);
       }
     }
 
@@ -470,12 +457,10 @@ namespace spot
     safra_tree::mark()
     {
       std::set<const state*, state_ptr_less_than> node_set;
-      for (child_list::const_iterator child_it = children.begin();
-           child_it != children.end();
-           ++child_it)
+      for (auto c: children)
       {
-        node_set.insert((*child_it)->nodes.begin(), (*child_it)->nodes.end());
-        (*child_it)->mark();
+        node_set.insert(c->nodes.begin(), c->nodes.end());
+        c->mark();
       }
 
       char same = node_set.size() == nodes.size();
@@ -500,10 +485,8 @@ namespace spot
       if (same)
       {
         marked = true;
-        for (child_list::iterator i = children.begin();
-             i != children.end();
-             ++i)
-          delete *i;
+        for (auto c: children)
+          delete c;
         children = child_list();
       }
 
@@ -526,10 +509,8 @@ namespace spot
       assert(bitset.size() > static_cast<unsigned>(name));
       if (marked && !nodes.empty())
         bitset.set(name);
-      for (child_list::const_iterator i = children.begin();
-           i != children.end();
-           ++i)
-        (*i)->getL(bitset);
+      for (auto c: children)
+        c->getL(bitset);
     }
 
     /// Returns in which sets U (the semantic differs according to Rabin or
@@ -544,10 +525,8 @@ namespace spot
       assert(bitset.size() > static_cast<unsigned>(name));
       if (!nodes.empty())
         bitset.clear(name);
-      for (child_list::const_iterator i = children.begin();
-           i != children.end();
-           ++i)
-        (*i)->getU(bitset);
+      for (auto c: children)
+        c->getU(bitset);
     }
 
     bool
@@ -632,12 +611,11 @@ namespace spot
 
         // Create successors of the Safra's tree.
         safra_tree_automaton::transition_list transitions;
-        for (conjunction_list_t::const_iterator i = conjunction.begin();
-             i != conjunction.end(); ++i)
+        for (auto i: conjunction)
         {
           safra_tree* successor = new safra_tree(*current);
           successor->branch_accepting(*sba_aut); // Step 2
-          successor->succ_create(*i, cache); // Step 3
+          successor->succ_create(i, cache); // Step 3
           successor->normalize_siblings(); // Step 4
           successor->remove_empty(); // Step 5
           successor->mark(); // Step 6
@@ -646,7 +624,7 @@ namespace spot
           safra_tree_ptr_equal comparator(successor);
           if (st->automaton.find(successor) != st->automaton.end())
           {
-            transitions[*i] = st->automaton.find(successor)->first;
+            transitions[i] = st->automaton.find(successor)->first;
           }
           else
           {
@@ -654,12 +632,12 @@ namespace spot
               std::find_if(queue.begin(), queue.end(), comparator);
             if (item_in_queue != queue.end())
             {
-              transitions[*i] = *item_in_queue;
+              transitions[i] = *item_in_queue;
             }
             else
             {
               delete_this_successor = false;
-              transitions[*i] = successor;
+              transitions[i] = successor;
               queue.push_back(successor);
             }
           }
@@ -672,13 +650,9 @@ namespace spot
 
         queue.pop_front();
 
-        for (safra_tree::cache_t::iterator i = cache.begin();
-             i != cache.end();
-             ++i)
-          for (safra_tree::tr_cache_t::iterator j = i->second.begin();
-               j != i->second.end();
-               ++j)
-            j->second->destroy();
+        for (auto i: cache)
+          for (auto j: i.second)
+            j.second->destroy();
         // delete node;
       }
 
@@ -694,21 +668,17 @@ namespace spot
                                             safra_tree::cache_t& cache,
                                             atomic_list_t& atomic_list)
     {
-      for (safra_tree::subset_t::iterator it = node->nodes.begin();
-           it != node->nodes.end();
-           ++it)
+      for (auto n: node->nodes)
       {
         safra_tree::tr_cache_t transitions;
-        tgba_succ_iterator* iterator = sba_aut->succ_iter(*it);
-        for (iterator->first(); !iterator->done(); iterator->next())
+	for (auto iterator: sba_aut->succ(n))
         {
           bdd condition = iterator->current_condition();
           typedef std::pair<bdd, const state*> bdd_state;
           transitions.insert(bdd_state(condition, iterator->current_state()));
           set_atomic_list(atomic_list, condition);
         }
-        delete iterator;
-        cache[*it] = transitions;
+        cache[n] = transitions;
       }
     }
 
@@ -741,16 +711,15 @@ namespace spot
       {
         bdd result = bddtrue;
         unsigned position = 1;
-        for (atomic_list_t::const_iterator a_it = atomics.begin();
-             a_it != atomics.end();
-             ++a_it, position <<= 1)
+        for (auto a: atomics)
         {
           bdd this_atomic;
           if (position & i)
-            this_atomic = bdd_ithvar(*a_it);
+            this_atomic = bdd_ithvar(a);
           else
-            this_atomic = bdd_nithvar(*a_it);
-          result = bdd_apply(result, this_atomic, bddop_and);
+            this_atomic = bdd_nithvar(a);
+          result &= this_atomic;
+	  position <<= 1;
         }
         list.insert(result);
       }
@@ -787,14 +756,12 @@ namespace spot
 
         std::cout << "node" << this_node << "[label=\"";
         std::cout << this_node->name << "|";
-        for (safra_tree::subset_t::const_iterator j = this_node->nodes.begin();
-             j != this_node->nodes.end();
-             ++j)
+        for (auto j: this_node->nodes)
         {
-	  stnum_t::const_iterator it = node_names.find(*j);
+	  stnum_t::const_iterator it = node_names.find(j);
 	  int name;
           if (it == node_names.end())
-	    name = node_names[*j] = current_node++;
+	    name = node_names[j] = current_node++;
 	  else
 	    name = it->second;
           std::cout << name << ", ";
@@ -820,8 +787,6 @@ namespace spot
       {
         typedef safra_tree_automaton::automaton_t::reverse_iterator
           automaton_cit;
-        typedef safra_tree_automaton::transition_list::const_iterator
-          trans_cit;
         stnum_t node_names;
         int current_node = 0;
         int nb_accepting_conditions = a->get_nb_acceptance_pairs();
@@ -840,20 +805,19 @@ namespace spot
           std::cout << "}" << std::endl;
 
           // Successors.
-          for (trans_cit j = i->second.begin(); j != i->second.end(); ++j)
+          for (const auto& j: i->second)
             std::cout << "node" << i->first << "->"
-                      << "node" << j->second <<
-              " [label=\"" << bddset << j->first << "\"];" << std::endl;
+                      << "node" << j.second <<
+              " [label=\"" << bddset << j.first << "\"];" << std::endl;
         }
 
 	// Output the real name of all states.
 	std::cout << "{ rank=sink; legend [shape=none,margin=0,label=<\n"
 		  << "<TABLE BORDER='1' CELLBORDER='0' CELLSPACING='0'>\n";
 
-	for (stnum_t::const_iterator it = node_names.begin();
-	     it != node_names.end(); ++it)
-	  std::cout << "<TR><TD>" << it->second << "</TD><TD>"
-		    << a->get_sba()->format_state(it->first)
+	for (const auto& nn: node_names)
+	  std::cout << "<TR><TD>" << nn.second << "</TD><TD>"
+		    << a->get_sba()->format_state(nn.first)
 		    << "</TD></TR>\n";
 	std::cout << "</TABLE>\n"
 		  << ">]}" << std::endl;
@@ -1008,8 +972,8 @@ namespace spot
       virtual
       ~tgba_safra_complement_succ_iterator()
       {
-        for (succ_list_t::iterator i = list_.begin(); i != list_.end(); ++i)
-          delete i->second;
+        for (auto& p: list_)
+          delete p.second;
       }
 
       virtual void first();
@@ -1076,12 +1040,8 @@ namespace spot
 
   safra_tree_automaton::~safra_tree_automaton()
   {
-    for (automaton_t::iterator i = automaton.begin();
-         i != automaton.end();
-         ++i)
-    {
-      delete i->first;
-    }
+    for (auto& p: automaton)
+      delete p.first;
     delete a_;
   }
 
@@ -1092,10 +1052,8 @@ namespace spot
       return max_nb_pairs_;
 
     int max = -1;
-    for (automaton_t::const_iterator i = automaton.begin();
-         i != automaton.end();
-         ++i)
-      max = std::max(max, i->first->max_name());
+    for (auto& p: automaton)
+      max = std::max(max, p.first->max_name());
     return max_nb_pairs_ = max + 1;
   }
 
@@ -1215,8 +1173,6 @@ namespace spot
     safra_tree_automaton::automaton_t::const_iterator tr =
       a->automaton.find(const_cast<safra_tree*>(s->get_safra()));
 
-    typedef safra_tree_automaton::transition_list::const_iterator trans_iter;
-
     if (tr != a->automaton.end())
     {
       bdd condition = bddfalse;
@@ -1226,14 +1182,14 @@ namespace spot
 
       if (!s->get_use_bitset()) // if \delta'(q, a)
       {
-        for (trans_iter i = tr->second.begin(); i != tr->second.end(); ++i)
+        for (auto& p: tr->second)
         {
           state_complement* s1 = new state_complement(e->clone(), e->clone(),
-						      i->second, false);
+						      p.second, false);
           state_complement* s2 = new state_complement(e->clone(), e->clone(),
-						      i->second, true);
-          succ_list.insert(std::make_pair(i->first, s1));
-          succ_list.insert(std::make_pair(i->first, s2));
+						      p.second, true);
+          succ_list.insert(std::make_pair(p.first, s1));
+          succ_list.insert(std::make_pair(p.first, s2));
         }
       }
       else
@@ -1254,19 +1210,19 @@ namespace spot
 	// \delta'((q, I, J), a) if I'\subseteq J'
         if (newI->is_subset_of(*newJ))
         {
-          for (trans_iter i = tr->second.begin(); i != tr->second.end(); ++i)
+          for (auto& p: tr->second)
           {
-            st = new state_complement(e->clone(), e->clone(), i->second, true);
-            succ_list.insert(std::make_pair(i->first, st));
+            st = new state_complement(e->clone(), e->clone(), p.second, true);
+            succ_list.insert(std::make_pair(p.first, st));
           }
           condition = the_acceptance_cond_;
         }
         else  // \delta'((q, I, J), a)
         {
-          for (trans_iter i = tr->second.begin(); i != tr->second.end(); ++i)
+          for (auto& p: tr->second)
           {
-            st = new state_complement(newI, newJ, i->second, true);
-            succ_list.insert(std::make_pair(i->first, st));
+            st = new state_complement(newI, newJ, p.second, true);
+            succ_list.insert(std::make_pair(p.first, st));
           }
         }
 	delete newI;
@@ -1277,11 +1233,11 @@ namespace spot
         bitvect* pending = S.clone();
 	*pending |= *l;
 	*pending -= *u;
-        for (trans_iter i = tr->second.begin(); i != tr->second.end(); ++i)
+        for (auto& p: tr->second)
         {
           st = new state_complement(pending->clone(), e->clone(),
-				    i->second, true);
-          succ_list.insert(std::make_pair(i->first, st));
+				    p.second, true);
+          succ_list.insert(std::make_pair(p.first, st));
         }
 	delete pending;
 
@@ -1341,16 +1297,14 @@ namespace spot
     const state_complement* s = down_cast<const state_complement*>(state);
     assert(s);
     typedef safra_tree_automaton::automaton_t::const_iterator auto_it;
-    typedef safra_tree_automaton::transition_list::const_iterator trans_it;
     auto_it node(a->automaton.find(const_cast<safra_tree*>(s->get_safra())));
 
     if (node == a->automaton.end())
       return bddtrue;
 
     bdd res = bddtrue;
-    trans_it i;
-    for (i = node->second.begin(); i != node->second.end(); ++i)
-      res |= i->first;
+    for (auto& i: node->second)
+      res |= i.first;
     return res;
   }
 
@@ -1361,16 +1315,14 @@ namespace spot
     const state_complement* s = down_cast<const state_complement*>(state);
     assert(s);
     typedef safra_tree_automaton::automaton_t::const_iterator auto_it;
-    typedef safra_tree_automaton::transition_list::const_iterator trans_it;
     auto_it node(a->automaton.find(const_cast<safra_tree*>(s->get_safra())));
 
     if (node == a->automaton.end())
       return bddtrue;
 
     bdd res = bddtrue;
-    trans_it i;
-    for (i = node->second.begin(); i != node->second.end(); ++i)
-      res &= bdd_support(i->first);
+    for (auto& i: node->second)
+      res &= bdd_support(i.first);
     return res;
   }
 

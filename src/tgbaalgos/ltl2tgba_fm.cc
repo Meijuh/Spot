@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
 // Coopératifs (SRC), Université Pierre et Marie Curie.
@@ -152,8 +152,8 @@ namespace spot
       ~translate_dict()
       {
 	fv_map::iterator i;
-	for (i = next_map.begin(); i != next_map.end(); ++i)
-	  i->first->destroy();
+	for (auto& i: next_map)
+	  i.first->destroy();
 	dict->unregister_all_my_variables(this);
 
 	flagged_formula_to_bdd_map::iterator j = ltl_bdd_.begin();
@@ -306,10 +306,10 @@ namespace spot
       {
 	fv_map::const_iterator fi;
 	os << "Next Variables:" << std::endl;
-	for (fi = next_map.begin(); fi != next_map.end(); ++fi)
+	for (auto& fi: next_map)
 	{
-	  os << "  " << fi->second << ": Next[";
-	  to_string(fi->first, os) << "]" << std::endl;
+	  os << "  " << fi.second << ": Next[";
+	  to_string(fi.first, os) << "]" << std::endl;
 	}
 	os << "Shared Dict:" << std::endl;
 	dict->dump(os);
@@ -1005,9 +1005,8 @@ namespace spot
 
     ratexp_to_dfa::~ratexp_to_dfa()
     {
-      std::vector<tgba_explicit_formula*>::const_iterator it;
-      for (it = automata_.begin(); it != automata_.end(); ++it)
-	delete *it;
+      for (auto i: automata_)
+	delete i;
     }
 
     tgba_explicit_formula*
@@ -1087,13 +1086,12 @@ namespace spot
       // SCC are numbered in topological order
       for (unsigned n = 0; n < scc_count; ++n)
 	{
-	  bool coacc = false;
-	  const std::list<const state*>& st = sm->states_of(n);
 	  // The SCC is coaccessible if any of its states
 	  // is final (i.e., it accepts [*0])...
-	  std::list<const state*>::const_iterator it;
-	  for (it = st.begin(); it != st.end(); ++it)
-	    if (a->get_label(*it)->accepts_eword())
+	  bool coacc = false;
+	  const std::list<const state*>& st = sm->states_of(n);
+	  for (auto l: st)
+	    if (a->get_label(l)->accepts_eword())
 	      {
 		coacc = true;
 		break;
@@ -1101,10 +1099,8 @@ namespace spot
 	  if (!coacc)
 	    {
 	      // ... or if any of its successors is coaccessible.
-	      const scc_map::succ_type& succ = sm->succ(n);
-	      for (scc_map::succ_type::const_iterator i = succ.begin();
-		   i != succ.end(); ++i)
-		if (coaccessible[i->first])
+	      for (auto& i: sm->succ(n))
+		if (coaccessible[i.first])
 		  {
 		    coacc = true;
 		    break;
@@ -1113,13 +1109,13 @@ namespace spot
 	  if (!coacc)
 	    {
 	      // Mark all formulas of this SCC as useless.
-	      for (it = st.begin(); it != st.end(); ++it)
-		f2a_[a->get_label(*it)] = 0;
+	      for (auto f: st)
+		f2a_[a->get_label(f)] = nullptr;
 	    }
 	  else
 	    {
-	      for (it = st.begin(); it != st.end(); ++it)
-		f2a_[a->get_label(*it)] = a;
+	      for (auto f: st)
+		f2a_[a->get_label(f)] = a;
 	    }
 	  coaccessible[n] = coacc;
 	}
@@ -1136,6 +1132,7 @@ namespace spot
 	}
     }
 
+    // FIXME: use the new tgba::succ() interface
     tgba_succ_iterator*
     ratexp_to_dfa::succ(const formula* f)
     {

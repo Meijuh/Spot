@@ -93,26 +93,24 @@ namespace spot
     tovisit.push(init);
     seen->insert(init);
     while (!tovisit.empty())
-    {
-      const state* src = tovisit.front();
-      tovisit.pop();
-
-      tgba_succ_iterator* sit = a->succ_iter(src);
-      for (sit->first(); !sit->done(); sit->next())
       {
-        const state* dst = sit->current_state();
-        // Is it a new state ?
-        if (seen->find(dst) == seen->end())
+	const state* src = tovisit.front();
+	tovisit.pop();
+
+	for (auto sit: a->succ(src))
 	  {
-	    // Register the successor for later processing.
-	    tovisit.push(dst);
-	    seen->insert(dst);
+	    const state* dst = sit->current_state();
+	    // Is it a new state ?
+	    if (seen->find(dst) == seen->end())
+	      {
+		// Register the successor for later processing.
+		tovisit.push(dst);
+		seen->insert(dst);
+	      }
+	    else
+	      dst->destroy();
 	  }
-        else
-          dst->destroy();
       }
-      delete sit;
-    }
   }
 
   // From the base automaton and the list of sets, build the minimal
@@ -128,13 +126,13 @@ namespace spot
     std::list<hash_set*>::iterator sit;
     unsigned num = 0;
     for (sit = sets.begin(); sit != sets.end(); ++sit)
-    {
-      hash_set::iterator hit;
-      hash_set* h = *sit;
-      for (hit = h->begin(); hit != h->end(); ++hit)
-        state_num[*hit] = num;
-      ++num;
-    }
+      {
+	hash_set::iterator hit;
+	hash_set* h = *sit;
+	for (hit = h->begin(); hit != h->end(); ++hit)
+	  state_num[*hit] = num;
+	++num;
+      }
     typedef state_explicit_number::transition trs;
     sba_explicit_number* res = new sba_explicit_number(a->get_dict());
     // For each transition in the initial automaton, add the corresponding
@@ -142,31 +140,29 @@ namespace spot
     if (!final->empty())
       res->declare_acceptance_condition(ltl::constant::true_instance());
     for (sit = sets.begin(); sit != sets.end(); ++sit)
-    {
-      hash_set::iterator hit;
-      hash_set* h = *sit;
+      {
+	hash_set::iterator hit;
+	hash_set* h = *sit;
 
-      // Pick one state.
-      const state* src = *h->begin();
-      unsigned src_num = state_num[src];
-      bool accepting = (final->find(src) != final->end());
+	// Pick one state.
+	const state* src = *h->begin();
+	unsigned src_num = state_num[src];
+	bool accepting = (final->find(src) != final->end());
 
-      // Connect it to all destinations.
-      tgba_succ_iterator* succit = a->succ_iter(src);
-      for (succit->first(); !succit->done(); succit->next())
-        {
-          const state* dst = succit->current_state();
-	  hash_map::const_iterator i = state_num.find(dst);
-          dst->destroy();
-	  if (i == state_num.end()) // Ignore useless destinations.
-	    continue;
-          trs* t = res->create_transition(src_num, i->second);
-          res->add_conditions(t, succit->current_condition());
-          if (accepting)
-            res->add_acceptance_condition(t, ltl::constant::true_instance());
-        }
-      delete succit;
-    }
+	// Connect it to all destinations.
+	for (auto succit: a->succ(src))
+	  {
+	    const state* dst = succit->current_state();
+	    hash_map::const_iterator i = state_num.find(dst);
+	    dst->destroy();
+	    if (i == state_num.end()) // Ignore useless destinations.
+	      continue;
+	    trs* t = res->create_transition(src_num, i->second);
+	    res->add_conditions(t, succit->current_condition());
+	    if (accepting)
+	      res->add_acceptance_condition(t, ltl::constant::true_instance());
+	  }
+      }
     res->merge_transitions();
     const state* init_state = a->get_init_state();
     unsigned init_num = state_num[init_state];
@@ -362,8 +358,7 @@ namespace spot
 	      {
 		const state* src = *hi;
 		bdd f = bddfalse;
-		tgba_succ_iterator* si = det_a->succ_iter(src);
-		for (si->first(); !si->done(); si->next())
+		for (auto si: det_a->succ(src))
 		  {
 		    const state* dst = si->current_state();
 		    hash_map::const_iterator i = state_set_map.find(dst);
@@ -378,7 +373,6 @@ namespace spot
 		      continue;
 		    f |= (bdd_ithvar(i->second) & si->current_condition());
 		  }
-		delete si;
 
 		// Have we already seen this formula ?
 		bdd_states_map::iterator bsi = bdd_map.find(f);

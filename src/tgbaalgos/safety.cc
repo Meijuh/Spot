@@ -85,8 +85,7 @@ namespace spot
 	const state* s = todo.front();
 	todo.pop_front();
 
-	tgba_succ_iterator* it = aut->succ_iter(s);
-	for (it->first(); !it->done(); it->next())
+	for (auto it: aut->succ(s))
 	  {
 	    bdd acc = it->current_acceptance_conditions();
 	    if (acc != all_acc)
@@ -97,7 +96,6 @@ namespace spot
 	    if (const state* d = seen.is_new(it->current_state()))
 	      todo.push_back(d);
 	  }
-	delete it;
       }
     return all_accepting;
   }

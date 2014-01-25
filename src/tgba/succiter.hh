@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -99,6 +99,73 @@ namespace spot
 
     //@}
   };
+
+  class tgba;
+
+  namespace internal
+  {
+    struct SPOT_API succ_iterator
+    {
+    protected:
+      tgba_succ_iterator* it_;
+    public:
+
+      succ_iterator(tgba_succ_iterator* it):
+	it_(it)
+      {
+      }
+
+      bool operator==(succ_iterator o) const
+      {
+	return it_ == o.it_;
+      }
+
+      bool operator!=(succ_iterator o) const
+      {
+	return it_ != o.it_;
+      }
+
+      const tgba_succ_iterator* operator*() const
+      {
+	return it_;
+      }
+
+      void operator++()
+      {
+	it_->next();
+	if (it_->done())
+	  it_ = nullptr;
+      }
+    };
+
+    class SPOT_API succ_iterable
+    {
+    protected:
+      const tgba* aut_;
+      tgba_succ_iterator* it_;
+    public:
+      succ_iterable(const tgba* aut, tgba_succ_iterator* it)
+	: aut_(aut), it_(it)
+      {
+      }
+
+      ~succ_iterable()
+      {
+	delete it_;
+      }
+
+      succ_iterator begin()
+      {
+	it_->first();
+	return it_->done() ? nullptr : it_;
+      }
+
+      succ_iterator end()
+      {
+	return nullptr;
+      }
+    };
+  }
 }
 
 

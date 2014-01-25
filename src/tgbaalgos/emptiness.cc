@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -345,29 +345,26 @@ namespace spot
             next = l->begin()->s;
           }
 
-        // browse the actual outgoing transitions
-        tgba_succ_iterator* j = a->succ_iter(s);
-        s->destroy(); // FIXME: is it always legitimate to destroy s before j?
-        for (j->first(); !j->done(); j->next())
+        // browse the actual outgoing transitions and
+	// look for next;
+	const state* the_next = nullptr;
+	for (auto j: a->succ(s))
           {
             if (j->current_condition() != label
                 || j->current_acceptance_conditions() != acc)
               continue;
 
             const state* s2 = j->current_state();
-            if (s2->compare(next) != 0)
+            if (s2->compare(next) == 0)
               {
-                s2->destroy();
-                continue;
-              }
-            else
-              {
-                s = s2;
-                break;
-              }
+		the_next = s2;
+		break;
+	      }
+	    s2->destroy();
           }
-        assert(!j->done());
-        delete j;
+        assert(res);
+        s->destroy();
+	s = the_next;
 
         state_map::const_iterator its = seen.find(next);
         if (its == seen.end())

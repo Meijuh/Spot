@@ -88,8 +88,7 @@ namespace spot
 	unsigned s1 = sm_ ? sm_->scc_of_state(s) : 0;
         bdd common = a_->all_acceptance_conditions();
         bdd union_ = bddfalse;
-        tgba_succ_iterator* it = a_->succ_iter(s);
-        for (it->first(); !it->done(); it->next())
+	for (auto it: a_->succ(s))
           {
 	    // Ignore transitions that leave the SCC of s.
 	    const state* d = it->current_state();
@@ -102,7 +101,6 @@ namespace spot
             common &= set;
             union_ |= set;
           }
-        delete it;
         cache_entry e(common, union_);
         return cache_.insert(std::make_pair(s, e)).first;
       }
@@ -150,8 +148,7 @@ namespace spot
 	if (p.second)
 	  {
 	    bdd all = a_->all_acceptance_conditions();
-	    tgba_succ_iterator* it = a_->succ_iter(s);
-	    for (it->first(); !it->done(); it->next())
+	    for (auto it: a_->succ(s))
 	      {
 		// Look only for transitions that are accepting.
 		if (all != it->current_acceptance_conditions())
@@ -164,7 +161,6 @@ namespace spot
 		    break;
 		  }
 	      }
-	    delete it;
 	  }
         return p.first->second;
       }
@@ -387,8 +383,7 @@ namespace spot
         if (use_scc)
           s_scc = m.scc_of_state(s.first);
 
-        tgba_succ_iterator* i = a->succ_iter(s.first);
-        for (i->first(); !i->done(); i->next())
+	for (auto i: a->succ(s.first))
           {
             degen_state d(uniq(i->current_state()), 0);
 
@@ -576,7 +571,6 @@ namespace spot
                 t->condition |= i->current_condition();
               }
           }
-        delete i;
         tr_cache.clear();
       }
 

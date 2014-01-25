@@ -1,8 +1,9 @@
-// Copyright (C) 2009, 2011, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2013, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,12 +24,14 @@
 # define SPOT_TGBA_TGBA_HH
 
 #include "state.hh"
-#include "succiter.hh"
 #include "bdddict.hh"
+#include "succiter.hh"
 
 namespace spot
 {
-  /// \defgroup tgba TGBA (Transition-based Generalized Büchi Automata)
+  class tgba_succ_iterator;
+
+  /// \defgroup tgba TGBA (Transition-based Generalized BÃ¼chi Automata)
   ///
   /// Spot is centered around the spot::tgba type.  This type and its
   /// cousins are listed \ref tgba_essentials "here".  This is an
@@ -42,15 +45,15 @@ namespace spot
   /// \ingroup tgba
 
   /// \ingroup tgba_essentials
-  /// \brief A Transition-based Generalized Büchi Automaton.
+  /// \brief A Transition-based Generalized BÃ¼chi Automaton.
   ///
-  /// The acronym TGBA (Transition-based Generalized Büchi Automaton)
+  /// The acronym TGBA (Transition-based Generalized BÃ¼chi Automaton)
   /// was coined by Dimitra Giannakopoulou and Flavio Lerda
   /// in "From States to Transitions: Improving Translation of LTL
-  /// Formulae to Büchi Automata".  (FORTE'02)
+  /// Formulae to BÃ¼chi Automata".  (FORTE'02)
   ///
   /// TGBAs are transition-based, meanings their labels are put
-  /// on arcs, not on nodes.  They use Generalized Büchi acceptance
+  /// on arcs, not on nodes.  They use Generalized BÃ¼chi acceptance
   /// conditions: there are several acceptance sets (of
   /// transitions), and a path can be accepted only if it traverses
   /// at least one transition of each set infinitely often.
@@ -105,8 +108,18 @@ namespace spot
     /// product automaton.  Otherwise, 0.
     virtual tgba_succ_iterator*
     succ_iter(const state* local_state,
-	      const state* global_state = 0,
-	      const tgba* global_automaton = 0) const = 0;
+	      const state* global_state = nullptr,
+	      const tgba* global_automaton = nullptr) const = 0;
+
+    /// \brief Build an iterable over the successors of \a s.
+    ///
+    /// This is meant to be used as
+    /// <code>for (auto i: aut->out(s)) { /* i->current_state() */ }</code>.
+    internal::succ_iterable
+    succ(const state* s) const
+    {
+      return {this, succ_iter(s)};
+    }
 
     /// \brief Get a formula that must hold whatever successor is taken.
     ///

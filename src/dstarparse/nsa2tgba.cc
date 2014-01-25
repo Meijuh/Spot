@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -153,8 +153,7 @@ namespace spot
         todo.pop_front();
         int src = bs2num[s];
 
-        tgba_succ_iterator* i = a->succ_iter(a->get_state(s.s));
-        for (i->first(); !i->done(); i->next())
+	for (auto i: a->succ(a->get_state(s.s)))
 	  {
 	    int dlabel = label(a, i->current_state());
 
@@ -216,7 +215,6 @@ namespace spot
 		t->condition = i->current_condition();
 	      }
 	  }
-	delete i;
       }
 
 

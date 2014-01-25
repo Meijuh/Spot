@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -208,17 +208,14 @@ namespace spot
       {
         // Get successors states.
         bdd condition = it->first;
-        tgba_succ_iterator* iterator =
-          automaton_->succ_iter(origin_->get_state());
         std::vector<shared_state> state_list;
-        for (iterator->first(); !iterator->done(); iterator->next())
-        {
-          bdd c = iterator->current_condition();
-          if ((c & condition) != bddfalse)
-            state_list.push_back(shared_state(iterator->current_state(),
-					      shared_state_deleter));
-        }
-        delete iterator;
+	for (auto iterator: automaton_->succ(origin_->get_state()))
+	  {
+	    bdd c = iterator->current_condition();
+	    if ((c & condition) != bddfalse)
+	      state_list.push_back(shared_state(iterator->current_state(),
+						shared_state_deleter));
+	  }
 
         // Make the conjunction with ranks.
         std::vector<int> current_ranks(state_list.size(), max_rank);
@@ -292,14 +289,11 @@ namespace spot
       std::set<int> atomics;
       delete_condition_list();
 
-      tgba_succ_iterator* iterator =
-        automaton_->succ_iter(origin_->get_state());
-      for (iterator->first(); !iterator->done(); iterator->next())
+      for (auto iterator: automaton_->succ(origin_->get_state()))
       {
         bdd c = iterator->current_condition();
         get_atomics(atomics, c);
       }
-      delete iterator;
 
       // Compute the conjunction of all those atomic properties.
       unsigned atomics_size = atomics.size();

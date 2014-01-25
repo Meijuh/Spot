@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -44,10 +44,9 @@ namespace spot
 	  const state* src = todo.front();
 	  todo.pop_front();
 
-	  tgba_succ_iterator* i = aut->succ_iter(src);
 	  bool nondeterministic = false;
 	  bdd available = bddtrue;
-	  for (i->first(); !i->done(); i->next())
+	  for (auto i: aut->succ(src))
 	    {
 	      // If we know the state is nondeterministic, just skip the
 	      // test for the remaining transitions.  But don't break
@@ -67,7 +66,6 @@ namespace spot
 	      else
 		dst->destroy();
 	    }
-	  delete i;
 	  res += nondeterministic;
 	  if (!count && nondeterministic)
 	    break;
@@ -110,9 +108,8 @@ namespace spot
 	const state* src = todo.front();
 	todo.pop_front();
 
-	tgba_succ_iterator* i = aut->succ_iter(src);
 	bdd available = bddtrue;
-	for (i->first(); !i->done(); i->next())
+	for (auto i: aut->succ(src))
 	  {
 	    available -= i->current_condition();
 	    const state* dst = i->current_state();
@@ -121,7 +118,6 @@ namespace spot
 	    else
 	      dst->destroy();
 	  }
-	delete i;
 	if (available != bddfalse)
 	  {
 	    complete = false;

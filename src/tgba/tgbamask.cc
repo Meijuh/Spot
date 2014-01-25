@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -36,8 +36,8 @@ namespace spot
     {
       ~succ_iter_filtered()
       {
-	for (first(); !done(); next())
-	  it_->dest->destroy();
+	for (auto& t: trans_)
+	  t.dest->destroy();
       }
 
       void first()
@@ -138,15 +138,11 @@ namespace spot
 
   tgba_succ_iterator*
   tgba_mask::succ_iter(const state* local_state,
-		       const state* global_state,
-		       const tgba* global_automaton) const
+		       const state*,
+		       const tgba*) const
   {
-    tgba_succ_iterator* it = original_->succ_iter(local_state,
-						  global_state,
-						  global_automaton);
-
     succ_iter_filtered* res = new succ_iter_filtered;
-    for (it->first(); !it->done(); it->next())
+    for (auto it: original_->succ(local_state))
       {
 	const state* s = it->current_state();
 	if (!wanted(s))
@@ -159,7 +155,6 @@ namespace spot
 			 it->current_acceptance_conditions() };
 	res->trans_.push_back(t);
       }
-    delete it;
     return res;
   }
 

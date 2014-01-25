@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -189,8 +189,7 @@ namespace spot
                       << std::endl;
                 typename heap::color_ref c = h.get_color_ref(f.s);
                 assert(!c.is_white());
-                tgba_succ_iterator* i = a_->succ_iter(f.s);
-                for (i->first(); !i->done(); i->next())
+		for (auto i: a_->succ(f.s))
                   {
                    inc_transitions();
                    const state *s_prime = i->current_state();
@@ -211,7 +210,6 @@ namespace spot
                         dfs_red(acu);
                      }
                   }
-                delete i;
                 if (c.get_acc() == all_cond)
                   {
                     trace << "DFS_BLUE propagation is successful, report a"

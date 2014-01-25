@@ -72,8 +72,8 @@ namespace spot
 	bdd all_vars = bddtrue;
 	power_state::const_iterator i;
 
-	for (i = src.begin(); i != src.end(); ++i)
-	  all_vars &= aut->support_variables(*i);
+	for (auto s: src)
+	  all_vars &= aut->support_variables(s);
 
 	// Compute all possible combinations of these variables.
 	bdd all_conds = bddtrue;
@@ -84,17 +84,10 @@ namespace spot
 
 	    // Construct the set of all states reachable via COND.
 	    power_state dest;
-	    for (i = src.begin(); i != src.end(); ++i)
-	      {
-		tgba_succ_iterator *si = aut->succ_iter(*i);
-		for (si->first(); !si->done(); si->next())
-		  if ((cond >> si->current_condition()) == bddtrue)
-		    {
-		      const state* s = pm.canonicalize(si->current_state());
-		      dest.insert(s);
-		    }
-		delete si;
-	      }
+	    for (auto s: src)
+	      for (auto si: aut->succ(s))
+		if ((cond >> si->current_condition()) == bddtrue)
+		  dest.insert(pm.canonicalize(si->current_state()));
 	    if (dest.empty())
 	      continue;
 	    // Add that transition.
@@ -177,10 +170,8 @@ namespace spot
 //	  }
 
 	bdd acc = aut_->all_acceptance_conditions();
-	for (trans_set::iterator i = all_.begin(); i != all_.end(); ++i)
-	  {
-	    (*i)->acceptance_conditions = acc;
-	  }
+	for (auto i: all_)
+	  i->acceptance_conditions = acc;
 	return threshold_ != 0 && cycles_left_ == 0;
       }
 
@@ -213,17 +204,13 @@ namespace spot
 	// start of the loop in the determinized automaton.
 	const power_map::power_state& ps =
 	  refmap_.states_of(a->get_label(begin->ts->first));
-	for (power_map::power_state::const_iterator it = ps.begin();
-	     it != ps.end() && !accepting; ++it)
+	for (auto s: ps)
 	  {
 	    // Construct a product between
-	    // LOOP_A, and ORIG_A starting in *IT.
-
-	    tgba* p = new tgba_product_init(&loop_a, ref_,
-					    loop_a_init, *it);
+	    // LOOP_A, and ORIG_A starting in S.
+	    tgba* p = new tgba_product_init(&loop_a, ref_, loop_a_init, s);
 
 	    //spot::dotty_reachable(std::cout, p);
-
 	    couvreur99_check* ec = down_cast<couvreur99_check*>(couvreur99(p));
 	    assert(ec);
 	    emptiness_check_result* res = ec->check();
@@ -232,6 +219,8 @@ namespace spot
 	    delete res;
 	    delete ec;
 	    delete p;
+	    if (accepting)
+	      break;
 	  }
 
 	loop_a_init->destroy();
@@ -242,8 +231,8 @@ namespace spot
       print_set(std::ostream& o, const trans_set& s) const
       {
 	o << "{ ";
-	for (trans_set::const_iterator i = s.begin(); i != s.end(); ++i)
-	  o << *i << " ";
+	for (auto i: s)
+	  o << i << " ";
 	o << "}";
 	return o;
       }
@@ -272,15 +261,11 @@ namespace spot
 	  }
 	else
 	  {
-	    for (trans_set::const_iterator i = ts.begin(); i != ts.end(); ++i)
+	    for (auto t: ts)
 	      {
-		trans* t = *i;
 		reject_.insert(t);
-		for (set_set::iterator j = accept_.begin();
-		     j != accept_.end(); ++j)
-		  {
-		    j->erase(t);
-		  }
+		for (auto& j: accept_)
+		  j.erase(t);
 		all_.erase(t);
 	      }
 	  }

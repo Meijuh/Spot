@@ -1,4 +1,5 @@
-// Copyright (C) 2012 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -38,16 +39,13 @@ create_tgba_explicit_string(bdd_dict* d)
    tgba->create_transition(s1, s2);
   (void) t;
 
-  tgba_explicit_succ_iterator<state_explicit_string>* it
-    = tgba->succ_iter(tgba->get_init_state());
-  for (it->first(); !it->done(); it->next())
+  for (auto it: tgba->succ(tgba->get_init_state()))
     {
-      state_explicit_string* se = it->current_state();
+      state_explicit_string* se =
+	down_cast<state_explicit_string*>(it->current_state());
       std::cout << se->label() << std::endl;
       se->destroy();
     }
-  delete it;
-
   delete tgba;
 }
 
@@ -63,16 +61,13 @@ create_tgba_explicit_number(bdd_dict* d)
     tgba->create_transition(s1, s2);
   (void) t;
 
-  tgba_explicit_succ_iterator<state_explicit_number>* it =
-    tgba->succ_iter(tgba->get_init_state());
-  for (it->first(); !it->done(); it->next())
+  for (auto it: tgba->succ(tgba->get_init_state()))
     {
-      state_explicit_number* s = it->current_state();
+      state_explicit_number* s =
+	down_cast<state_explicit_number*>(it->current_state());
       std::cout << s->label() << std::endl;
       s->destroy();
     }
-
-  delete it;
   delete tgba;
 }
 
@@ -89,16 +84,13 @@ create_tgba_explicit_formula(bdd_dict* d, spot::ltl::default_environment& e)
     tgba->create_transition(s1, s2);
   (void) t;
 
-  tgba_explicit_succ_iterator<state_explicit_formula>* it =
-    tgba->succ_iter(tgba->get_init_state());
-  for (it->first(); !it->done(); it->next())
+  for (auto it: tgba->succ(tgba->get_init_state()))
     {
-      state_explicit_formula* s = it->current_state();
+      state_explicit_formula* s =
+	down_cast<state_explicit_formula*>(it->current_state());
       to_string(s->label(), std::cout) << std::endl;
       s->destroy();
     }
-
-  delete it;
   delete tgba;
 }
 

@@ -1,8 +1,9 @@
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et DÃ©veloppement de l'Epita.
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -517,10 +518,12 @@ namespace spot
       return i->second;
 
     bdd common = a_->all_acceptance_conditions();
-    tgba_succ_iterator* it = a_->succ_iter(s);
-    for (it->first(); !it->done() && common != bddfalse; it->next())
-      common &= it->current_acceptance_conditions();
-    delete it;
+    for (auto it: a_->succ(s))
+      {
+	common &= it->current_acceptance_conditions();
+	if (common == bddfalse)
+	  break;
+      }
 
     // Populate cache
     accmap_[s->clone()] = common;
@@ -537,10 +540,8 @@ namespace spot
       return i->second;
 
     bdd common = bddfalse;
-    tgba_succ_iterator* it = a_->succ_iter(s);
-    for (it->first(); !it->done(); it->next())
+    for (auto it: a_->succ(s))
       common |= it->current_acceptance_conditions();
-    delete it;
 
     // Populate cache
     accmapu_[s->clone()] = common;
@@ -618,8 +619,7 @@ namespace spot
 	bdd all = a->all_acceptance_conditions();
 
 	state* init = a->get_init_state();
-	tgba_succ_iterator* it = a->succ_iter(init);
-	for (it->first(); !it->done(); it->next())
+	for (auto it: a->succ(init))
 	  {
 	    // Look only for transitions that are accepting.
 	    if (all != it->current_acceptance_conditions())
@@ -635,13 +635,11 @@ namespace spot
 		// The cycle_start_ points to the right starting
 		// point already, so just return.
 		dest->destroy();
-		delete it;
 		init->destroy();
 		return;
 	      }
 	    dest->destroy();
 	  }
-	delete it;
 	init->destroy();
       }
 

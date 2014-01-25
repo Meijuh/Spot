@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -325,13 +325,11 @@ namespace spot
            i != sr_map.end();
            ++i)
       {
-        tgba_succ_iterator* iterator = automaton_->succ_iter(i->first.get());
-        for (iterator->first(); !iterator->done(); iterator->next())
+	for (auto iterator: automaton_->succ(i->first.get()))
         {
           bdd c = iterator->current_condition();
           get_atomics(atomics, c);
         }
-        delete iterator;
       }
 
       // Compute the conjunction of all those atomic properties.
@@ -433,8 +431,7 @@ namespace spot
            i != sr_map.end();
            ++i)
       {
-        tgba_succ_iterator* iterator = automaton_->succ_iter(i->first.get());
-        for (iterator->first(); !iterator->done(); iterator->next())
+	for (auto iterator: automaton_->succ(i->first.get()))
         {
           bdd c = iterator->current_condition();
           if ((c & condition) != bddfalse)
@@ -449,7 +446,6 @@ namespace spot
               highest_current_ranks_[s] = i->second;
           }
         }
-        delete iterator;
       }
 
       // Highest $O$ set of the algorithm.
@@ -460,8 +456,7 @@ namespace spot
            i != s_set.end();
            ++i)
       {
-        tgba_succ_iterator* iterator = automaton_->succ_iter(i->get());
-        for (iterator->first(); !iterator->done(); iterator->next())
+	for (auto iterator: automaton_->succ(i->get()))
         {
           bdd c = iterator->current_condition();
           if ((c & condition) != bddfalse)
@@ -470,7 +465,6 @@ namespace spot
             highest_state_set_.insert(s);
           }
         }
-        delete iterator;
       }
 
       current_ranks_ = highest_current_ranks_;
@@ -683,22 +677,18 @@ namespace spot
   bdd
   tgba_kv_complement::compute_support_conditions(const state* state) const
   {
-    tgba_succ_iterator* i = succ_iter(state);
-    bdd result = bddtrue;
-    for (i->first(); !i->done(); i->next())
+    bdd result = bddfalse;
+    for (auto i: succ(state))
       result |= i->current_condition();
-    delete i;
     return result;
   }
 
   bdd
   tgba_kv_complement::compute_support_variables(const state* state) const
   {
-    tgba_succ_iterator* i = succ_iter(state);
     bdd result = bddtrue;
-    for (i->first(); !i->done(); i->next())
+    for (auto i: succ(state))
       result &= bdd_support(i->current_condition());
-    delete i;
     return result;
   }
 

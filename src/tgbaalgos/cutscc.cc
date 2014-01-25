@@ -55,8 +55,7 @@ namespace spot
 	{
 	  cur = tovisit.front();
 	  tovisit.pop();
-	  tgba_succ_iterator* sit = a->succ_iter(cur);
-	  for (sit->first(); !sit->done(); sit->next())
+	  for (auto sit: a->succ(cur))
 	    {
 	      cur_format = a->format_state(cur);
 	      state* dst = sit->current_state();
@@ -78,7 +77,6 @@ namespace spot
 		  dst->destroy();
 		}
 	    }
-	  delete sit;
 	}
       return sub_a;
     }

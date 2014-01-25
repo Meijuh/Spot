@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -156,12 +156,10 @@ namespace spot
     void add_to_map(const std::list<constraint>& list,
                     map_constraint& feed_me)
     {
-      for (std::list<constraint>::const_iterator it = list.begin();
-           it != list.end();
-           ++it)
+      for (auto& p: list)
         {
-          if (feed_me.find(it->first) == feed_me.end())
-            feed_me[it->first] = it->second;
+          if (feed_me.find(p.first) == feed_me.end())
+            feed_me[p.first] = p.second;
         }
     }
 
@@ -434,13 +432,8 @@ namespace spot
 	// We fetch the result the run of acc_compl_automaton which
 	// has recorded all the state in a hash table, and we set all
 	// to init.
-	for (map_state_bdd::iterator it
-	       = acc_compl.previous_class_.begin();
-	     it != acc_compl.previous_class_.end();
-	     ++it)
-          {
-            previous_class_[it->first] = init;
-          }
+	for (auto& p: acc_compl.previous_class_)
+	  previous_class_[p.first] = init;
 
 	// Put all the anonymous variable in a queue, and record all
 	// of these in a variable all_class_var_ which will be used
@@ -481,26 +474,21 @@ namespace spot
 
 	// We run through the map bdd/list<state>, and we update
 	// the previous_class_ with the new data.
-	for (map_bdd_lstate::iterator it = bdd_lstate_.begin();
-	     it != bdd_lstate_.end();
-	     ++it)
+	for (auto& p: bdd_lstate_)
           {
-            for (std::list<const state*>::iterator it_s = it->second.begin();
-                 it_s != it->second.end();
-                 ++it_s)
-	      {
-		// If the signature of a state is bddfalse (no
-		// transitions) the class of this state is bddfalse
-		// instead of an anonymous variable. It allows
-		// simplifications in the signature by removing a
-		// transition which has as a destination a state with
-		// no outgoing transition.
-		if (it->first == bddfalse)
-                  previous_class_[*it_s] = bddfalse;
-		else
-		  previous_class_[*it_s] = *it_bdd;
-	      }
-              ++it_bdd;
+	    // If the signature of a state is bddfalse (no
+	    // transitions) the class of this state is bddfalse
+	    // instead of an anonymous variable. It allows
+	    // simplifications in the signature by removing a
+	    // transition which has as a destination a state with
+	    // no outgoing transition.
+	    if (p.first == bddfalse)
+	      for (auto s: p.second)
+		previous_class_[s] = bddfalse;
+	    else
+	      for (auto s: p.second)
+		previous_class_[s] = *it_bdd;
+	    ++it_bdd;
           }
       }
 
@@ -533,10 +521,9 @@ namespace spot
       // Take a state and compute its signature.
       bdd compute_sig(const state* src)
       {
-        tgba_succ_iterator* sit = a_->succ_iter(src);
         bdd res = bddfalse;
 
-        for (sit->first(); !sit->done(); sit->next())
+        for (auto sit: a_->succ(src))
           {
             const state* dst = sit->current_state();
             bdd acc = bddtrue;
@@ -574,7 +561,6 @@ namespace spot
         if (Cosimulation && initial_state == src)
           res |= bdd_initial;
 
-        delete sit;
         return res;
       }
 
@@ -585,12 +571,9 @@ namespace spot
 	// all the reachable states of this automaton. We do not
 	// have to make (again) a traversal. We just have to run
 	// through this map.
-        for (std::list<const state*>::const_iterator it = order_.begin();
-             it != order_.end();
-             ++it)
+        for (auto s: order_)
           {
-            const state* src = previous_class_.find(*it)->first;
-
+            const state* src = previous_class_.find(s)->first;
             bdd_lstate_[compute_sig(src)].push_back(src);
           }
       }
@@ -636,22 +619,17 @@ namespace spot
 
 	std::list<bdd>::iterator it_bdd = used_var_.begin();
 
-	for (map_bdd_lstate::iterator it = bdd_lstate_.begin();
-	     it != bdd_lstate_.end();
-	     ++it)
+	for (auto& p: bdd_lstate_)
           {
-            // If the signature of a state is bddfalse (which is
-            // roughly equivalent to no transition) the class of
-            // this state is bddfalse instead of an anonymous
-            // variable. It allows simplifications in the signature
-            // by removing a transition which has as a destination a
-            // state with no outgoing transition.
-            if (it->first == bddfalse)
-                now_to_next[it->first] = bddfalse;
-            else
-              now_to_next[it->first] = *it_bdd;
-
-            ++it_bdd;
+	    // If the signature of a state is bddfalse (no
+	    // transitions) the class of this state is bddfalse
+	    // instead of an anonymous variable. It allows
+	    // simplifications in the signature by removing a
+	    // transition which has as a destination a state with
+	    // no outgoing transition.
+	    now_to_next[p.first] =
+	      (p.first == bddfalse) ? bddfalse : *it_bdd;
+	    ++it_bdd;
           }
 
 	update_po(now_to_next, relation_);
@@ -745,11 +723,10 @@ namespace spot
 	bdd nonapvars = sup_all_acc & bdd_support(all_class_var_);
 
 	// Create one state per partition.
-	for (map_bdd_lstate::iterator it = bdd_lstate_.begin();
-	     it != bdd_lstate_.end(); ++it)
+	for (auto& p: bdd_lstate_)
           {
             res->add_state(++current_max);
-            bdd part = previous_class_[*it->second.begin()];
+            bdd part = previous_class_[*p.second.begin()];
 
             // The difference between the two next lines is:
             // the first says "if you see A", the second "if you
@@ -771,12 +748,10 @@ namespace spot
 
 	// For each partition, we will create
 	// all the transitions between the states.
-	for (map_bdd_lstate::iterator it = bdd_lstate_.begin();
-	     it != bdd_lstate_.end();
-	     ++it)
+	for (auto& p: bdd_lstate_)
           {
             // Get the signature.
-            bdd sig = compute_sig(*(it->second.begin()));
+            bdd sig = compute_sig(*(p.second.begin()));
 
             if (Cosimulation)
               sig = bdd_compose(sig, bddfalse, bdd_var(bdd_initial));
@@ -840,7 +815,7 @@ namespace spot
 		    // know the source, we must take a random state in
 		    // the list which is in the class we currently
 		    // work on.
-		    int src = bdd2state[previous_class_[*it->second.begin()]];
+		    int src = bdd2state[previous_class_[*p.second.begin()]];
 		    int dst = bdd2state[dest];
 
                     if (Cosimulation)
@@ -875,15 +850,13 @@ namespace spot
 	  for (unsigned snum = current_max; snum > 0; --snum)
 	    {
 	      const state* s = res->get_state(snum);
-	      tgba_succ_iterator* it = res->succ_iter(s);
 	      bdd acc = accst[snum];
-	      for (it->first(); !it->done(); it->next())
+	      for (auto it: res->succ(s))
 		{
 		  tgba_explicit_number::transition* t =
 		    res->get_transition(it);
 		  t->acceptance_conditions = acc;
 		}
-	      delete it;
 	    }
 
         res_is_deterministic = nb_minato == nb_satoneset;
@@ -899,33 +872,23 @@ namespace spot
       // where is the new class name.
       void print_partition()
       {
-	for (map_bdd_lstate::iterator it = bdd_lstate_.begin();
-	     it != bdd_lstate_.end();
-	     ++it)
+	for (auto& p: bdd_lstate_)
           {
             std::cerr << "partition: "
-                      << bdd_format_isop(a_->get_dict(), it->first)
+                      << bdd_format_isop(a_->get_dict(), p.first)
                       << std::endl;
-
-            for (std::list<const state*>::iterator it_s = it->second.begin();
-                 it_s != it->second.end();
-                 ++it_s)
-	      {
-		std::cerr << "  - "
-			  << a_->format_state(*it_s) << std::endl;
-	      }
+            for (auto s: p.second)
+	      std::cerr << "  - " << a_->format_state(s) << '\n';
           }
 
 	std::cerr << "\nPrevious iteration\n" << std::endl;
 
-	for (map_state_bdd::const_iterator it = previous_class_.begin();
-	     it != previous_class_.end();
-	     ++it)
+	for (auto p: previous_class_)
           {
-            std::cerr << a_->format_state(it->first)
+            std::cerr << a_->format_state(p.first)
                       << " was in "
-                      << bdd_format_set(a_->get_dict(), it->second)
-                      << std::endl;
+                      << bdd_format_set(a_->get_dict(), p.second)
+                      << '\n';
           }
       }
 
@@ -1039,13 +1002,12 @@ namespace spot
       // signature later.
       bdd dont_care_compute_sig(const state* src)
       {
-        tgba_succ_iterator* sit = a_->succ_iter(src);
         bdd res = bddfalse;
 
         unsigned scc = scc_map_->scc_of_state(old_name_[src]);
         bool sccacc = scc_map_->accepting(scc);
 
-        for (sit->first(); !sit->done(); sit->next())
+	for (auto sit: a_->succ(src))
           {
             const state* dst = sit->current_state();
             bdd cl = previous_class_[dst];
@@ -1061,8 +1023,6 @@ namespace spot
             bdd to_add = acc & sit->current_condition() & relation_[cl];
             res |= to_add;
           }
-
-        delete sit;
         return res;
       }
 
@@ -1315,22 +1275,15 @@ namespace spot
 	}
 
         // Iterate over the transitions of both states.
-        for (map_bdd_bdd::const_iterator lit = sigl_map.begin();
-             lit != sigl_map.end(); ++lit)
-	    for (map_bdd_bdd::iterator rit = sigr_map.begin();
-		 rit != sigr_map.end(); ++rit)
-	      {
-	      // And create constraints if any of the transitions
-	      // is out of the SCC and the left could imply the right.
-	      if ((is_out_scc(lit->second) || is_out_scc(rit->second))
-		  && (bdd_exist(lit->first, on_cycle_) ==
-		      bdd_exist(rit->first, on_cycle_)))
-                {
-                  create_simple_constraint(lit->second, rit->second,
-                                           left, right, res);
-                }
-	      }
-
+        for (auto lp: sigl_map)
+	  for (auto rp: sigr_map)
+	    // And create constraints if any of the transitions
+	    // is out of the SCC and the left could imply the right.
+	    if ((is_out_scc(lp.second) || is_out_scc(rp.second))
+		&& (bdd_exist(lp.first, on_cycle_) ==
+		    bdd_exist(rp.first, on_cycle_)))
+	      create_simple_constraint(lp.second, rp.second,
+				       left, right, res);
         return res;
       }
 
@@ -1358,11 +1311,9 @@ namespace spot
         bdd_lstate_.clear();
 
         // Compute the don't care signature for all the states.
-        for (std::list<const state*>::const_iterator my_it = order_.begin();
-             my_it != order_.end();
-             ++my_it)
+        for (auto s: order_)
           {
-            map_state_bdd::iterator it = previous_class_.find(*my_it);
+            map_state_bdd::iterator it = previous_class_.find(s);
             const state* src = it->first;
 
             bdd sig = dont_care_compute_sig(src);
@@ -1384,12 +1335,8 @@ namespace spot
 
         constraint_list cc;
 
-        for (map_bdd_bdd::iterator it = relation.begin();
-             it != relation.end();
-             ++it)
-          {
-            revert_relation_[it->second] = class2state[it->first];
-          }
+        for (auto p: relation)
+	  revert_relation_[p.second] = class2state[p.first];
 
         int number_constraints = 0;
         relation_ = relation;
@@ -1397,11 +1344,9 @@ namespace spot
 
         // order_ is here for the determinism.  Here we make the diff
         // between the two tables: imply and could_imply.
-        for (std::list<const state*>::const_iterator my_it = order_.begin();
-             my_it != order_.end();
-             ++my_it)
+        for (auto s: order_)
           {
-            map_state_bdd::iterator it = previous_class_.find(*my_it);
+            map_state_bdd::iterator it = previous_class_.find(s);
             assert(relation.find(it->second) != relation.end());
             assert(dont_care_relation.find(it->second)
                    != dont_care_relation.end());
