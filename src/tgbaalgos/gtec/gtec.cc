@@ -115,27 +115,29 @@ namespace spot
     for (;;)
       {
 	// Remove each destination of this iterator.
-	for (i->first(); !i->done(); i->next())
-	  {
-	    inc_transitions();
+	if (i->first())
+	  do
+	    {
+	      inc_transitions();
 
-	    state* s = i->current_state();
-	    numbered_state_heap::state_index_p spi = ecs_->h->index(s);
+	      state* s = i->current_state();
+	      numbered_state_heap::state_index_p spi = ecs_->h->index(s);
 
-	    // This state is not necessary in H, because if we were
-	    // doing inclusion checking during the emptiness-check
-	    // (redefining find()), the index `s' can be included in a
-	    // larger state and will not be found by index().  We can
-	    // safely ignore such states.
-	    if (!spi.first)
-	      continue;
+	      // This state is not necessary in H, because if we were
+	      // doing inclusion checking during the emptiness-check
+	      // (redefining find()), the index `s' can be included in a
+	      // larger state and will not be found by index().  We can
+	      // safely ignore such states.
+	      if (!spi.first)
+		continue;
 
-	    if (*spi.second != -1)
-	      {
-		*spi.second = -1;
-		to_remove.push(ecs_->aut->succ_iter(spi.first));
-	      }
-	  }
+	      if (*spi.second != -1)
+		{
+		  *spi.second = -1;
+		  to_remove.push(ecs_->aut->succ_iter(spi.first));
+		}
+	    }
+	  while (i->next());
 	ecs_->aut->release_iter(i);
 	if (to_remove.empty())
 	  break;

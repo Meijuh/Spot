@@ -86,9 +86,8 @@ namespace spot
 	// is not terribly efficient since we have to create the
 	// iterator.
 	tgba_succ_iterator* it = aut_->succ_iter(s);
-	it->first();
 	bool accepting =
-	  !it->done() && it->current_acceptance_conditions() == all_acc_conds_;
+	  it->first() && it->current_acceptance_conditions() == all_acc_conds_;
 	aut_->release_iter(it);
 	return accepting;
       }
@@ -111,8 +110,7 @@ namespace spot
 	    if (state_is_accepting(s))
 	      {
 		tgba_succ_iterator* it = aut_->succ_iter(s);
-		it->first();
-		if (it->done())
+		if (!it->first())
 		  label = "accept_S" + ns;
 		else
 		  {
@@ -136,8 +134,7 @@ namespace spot
       process_state(const state* s, int n, tgba_succ_iterator*)
       {
 	tgba_succ_iterator* it = aut_->succ_iter(s);
-	it->first();
-	if (it->done())
+	if (!it->first())
 	  {
 	    if (fi_needed_ != 0)
 	      os_ << "  fi;\n";

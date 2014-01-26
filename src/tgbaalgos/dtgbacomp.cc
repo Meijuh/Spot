@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -78,8 +78,10 @@ namespace spot
       {
 	// add a transition to a sink state if the state is not complete.
 	bdd all = bddtrue;
-	for (i->first(); !i->done(); i->next())
-	  all -= i->current_condition();
+	if (i->first())
+	  do
+	    all -= i->current_condition();
+	  while (i->next());
 	if (all != bddfalse)
 	  {
 	    trans* t = out_->create_transition(n, 0);

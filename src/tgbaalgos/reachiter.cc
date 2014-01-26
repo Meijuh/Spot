@@ -61,27 +61,29 @@ namespace spot
 	int tn = seen[t];
 	tgba_succ_iterator* si = aut_->succ_iter(t);
 	process_state(t, tn, si);
-	for (si->first(); !si->done(); si->next())
-	  {
-	    const state* current = si->current_state();
-	    seen_map::const_iterator s = seen.find(current);
-	    bool ws = want_state(current);
-	    if (s == seen.end())
-	      {
-		seen[current] = ++n;
-		if (ws)
-		  {
-		    add_state(current);
-		    process_link(t, tn, current, n, si);
-		  }
-	      }
-	    else
-	      {
-		if (ws)
-		  process_link(t, tn, s->first, s->second, si);
-		current->destroy();
-	      }
-	  }
+	if (si->first())
+	  do
+	    {
+	      const state* current = si->current_state();
+	      seen_map::const_iterator s = seen.find(current);
+	      bool ws = want_state(current);
+	      if (s == seen.end())
+		{
+		  seen[current] = ++n;
+		  if (ws)
+		    {
+		      add_state(current);
+		      process_link(t, tn, current, n, si);
+		    }
+		}
+	      else
+		{
+		  if (ws)
+		    process_link(t, tn, s->first, s->second, si);
+		  current->destroy();
+		}
+	    }
+	  while (si->next());
 	aut_->release_iter(si);
       }
     end();

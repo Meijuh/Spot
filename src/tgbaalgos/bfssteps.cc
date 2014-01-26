@@ -72,8 +72,7 @@ namespace spot
       {
 	const state* src = todo.front();
 	todo.pop_front();
-	tgba_succ_iterator* i = a_->succ_iter(src);
-	for (i->first(); !i->done(); i->next())
+	for (auto i: a_->succ(src))
 	  {
 	    const state* dest = filter(i->current_state());
 
@@ -88,7 +87,6 @@ namespace spot
 	      {
 		// Found it!
                 finalize(father, s, start, l);
-		a_->release_iter(i);
 		return dest;
 	      }
 
@@ -100,7 +98,6 @@ namespace spot
 		father[dest] = s;
 	      }
 	  }
-	a_->release_iter(i);
       }
     return 0;
   }

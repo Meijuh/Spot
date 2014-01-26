@@ -101,9 +101,8 @@ namespace spot
 	// is not terribly efficient since we have to create the
 	// iterator.
 	tgba_succ_iterator* it = aut_->succ_iter(s);
-	it->first();
-	bool accepting =
-	  !it->done() && it->current_acceptance_conditions() == all_acc_conds_;
+	bool accepting = it->first()
+	  && it->current_acceptance_conditions() == all_acc_conds_;
 	aut_->release_iter(it);
 	return accepting;
       }

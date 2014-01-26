@@ -134,10 +134,9 @@ namespace spot
     for (auto s: map.states_of(scc))
       {
 	tgba_succ_iterator* it = a->succ_iter(s);
-	it->first();
 
 	// If a state has no successors, the SCC is not complete.
-	if (it->done())
+	if (!it->first())
 	  {
 	    a->release_iter(it);
 	    return false;
@@ -154,9 +153,8 @@ namespace spot
 	    next->destroy();
 	    if (sumall == bddtrue)
 	      break;
-	    it->next();
 	  }
-	while (!it->done());
+	while (it->next());
 	a->release_iter(it);
 
 	if (sumall != bddtrue)

@@ -62,14 +62,14 @@ namespace spot
 	l = &run->cycle;
 	in = "cycle";
 	if (!debug)
-	  os << "No prefix.\nCycle:" << std::endl;
+	  os << "No prefix.\nCycle:\n";
       }
     else
       {
 	l = &run->prefix;
 	in = "prefix";
 	if (!debug)
-	  os << "Prefix:" << std::endl;
+	  os << "Prefix:\n";
       }
 
     tgba_run::steps::const_iterator i = l->begin();
@@ -78,9 +78,9 @@ namespace spot
       {
 	if (debug)
 	  os << "ERROR: First state of run (in " << in << "): "
-	     << a->format_state(i->s) << std::endl
-	     << "does not match initial state of automata: "
-	     << a->format_state(s) << std::endl;
+	     << a->format_state(i->s)
+	     << "\ndoes not match initial state of automata: "
+	     << a->format_state(s) << '\n';
 	s->destroy();
 	return false;
       }
@@ -112,7 +112,7 @@ namespace spot
 	  {
 	    os << "  ";
 	  }
-	os << a->format_state(s) << std::endl;
+	os << a->format_state(s) << '\n';
 
 	// expected outgoing transition
 	bdd label = i->label;
@@ -133,7 +133,7 @@ namespace spot
 		in = "cycle";
 		i = l->begin();
 		if (!debug)
-		  os << "Cycle:" << std::endl;
+		  os << "Cycle:\n";
 	      }
 	    next = l->begin()->s;
 	  }
@@ -144,24 +144,26 @@ namespace spot
 	// destroy it right now.
 	if (!debug)
 	  s->destroy();
-	for (j->first(); !j->done(); j->next())
-	  {
-	    if (j->current_condition() != label
-		|| j->current_acceptance_conditions() != acc)
-	      continue;
-
-	    const state* s2 = j->current_state();
-	    if (s2->compare(next))
-	      {
-		s2->destroy();
+	if (j->first())
+	  do
+	    {
+	      if (j->current_condition() != label
+		  || j->current_acceptance_conditions() != acc)
 		continue;
-	      }
-	    else
-	      {
-		s = s2;
-		break;
-	      }
-	  }
+
+	      const state* s2 = j->current_state();
+	      if (s2->compare(next))
+		{
+		  s2->destroy();
+		  continue;
+		}
+	      else
+		{
+		  s = s2;
+		  break;
+		}
+	    }
+	  while (j->next());
 	if (j->done())
 	  {
 	    if (debug)
@@ -170,24 +172,26 @@ namespace spot
 		   << bdd_format_formula(a->get_dict(), label)
 		   << " and acc=" << bdd_format_accset(a->get_dict(), acc)
 		   << " leaving state " << serial
-		   << " for state " << a->format_state(next)
-		   << std::endl
+		   << " for state " << a->format_state(next) << '\n'
 		   << "The following transitions leave state " << serial
-		   << ":" << std::endl;
-		for (j->first(); !j->done(); j->next())
-		  {
-		    const state* s2 = j->current_state();
-		    os << "  *";
-		    print_annotation(os, a, j);
-		    os << " label="
-		       << bdd_format_formula(a->get_dict(),
-					     j->current_condition())
-		       << " and acc="
-		       << bdd_format_accset(a->get_dict(),
-					    j->current_acceptance_conditions())
-		       << " going to " << a->format_state(s2) << std::endl;
-		    s2->destroy();
-		  }
+		   << ":\n";
+		if (j->first())
+		  do
+		    {
+		      const state* s2 = j->current_state();
+		      os << "  *";
+		      print_annotation(os, a, j);
+		      os << " label="
+			 << bdd_format_formula(a->get_dict(),
+					       j->current_condition())
+			 << " and acc="
+			 << (bdd_format_accset
+			     (a->get_dict(),
+			      j->current_acceptance_conditions()))
+			 << " going to " << a->format_state(s2) << '\n';
+		      s2->destroy();
+		    }
+		  while (j->next());
 	      }
 	    a->release_iter(j);
 	    s->destroy();
@@ -228,8 +232,7 @@ namespace spot
 		if (debug)
 		  os << "all acceptance conditions ("
 		     << bdd_format_accset(a->get_dict(), all_acc)
-		     << ") have been seen"
-		     << std::endl;
+		     << ") have been seen\n";
 	      }
 	  }
       }
@@ -238,11 +241,10 @@ namespace spot
       {
 	if (debug)
 	  os << "ERROR: The cycle's acceptance conditions ("
-	     << bdd_format_accset(a->get_dict(), all_acc) << ") do not"
-	     << std::endl
-	     << "match those of the automata ("
+	     << bdd_format_accset(a->get_dict(), all_acc)
+	     << ") do not\nmatch those of the automaton ("
 	     << bdd_format_accset(a->get_dict(), expected_all_acc)
-	     << std::endl;
+	     << ")\n";
 	return false;
       }
 

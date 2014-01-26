@@ -57,8 +57,7 @@ namespace spot
 	assert(!it->done());
 	state* dest = it->current_state();
 	bdd cond = it->current_condition();
-	it->next();
-	result = (!dest->compare(s)) && it->done() && (cond == bddtrue);
+	result = (!it->next()) && (cond == bddtrue) && (!dest->compare(s));
 	dest->destroy();
 	aut->release_iter(it);
       }

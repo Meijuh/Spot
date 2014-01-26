@@ -106,17 +106,18 @@ namespace spot
 		  << ")" << std::endl;
 
 	    tgba_succ_iterator* iter = stack[dftop].lasttr;
+	    bool cont;
 	    if (!iter)
 	      {
 		iter = stack[dftop].lasttr = a_->succ_iter(stack[dftop].s);
-		iter->first();
+		cont = iter->first();
 	      }
 	    else
 	      {
-		iter->next();
+		cont = iter->next();
 	      }
 
-	    if (iter->done())
+	    if (!cont)
 	      {
 		trace << " No more successors" << std::endl;
 		pop();

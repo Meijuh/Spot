@@ -95,14 +95,15 @@ namespace spot
     while (keep_going && !dfs_.empty())
       {
 	dfs_entry& cur = dfs_.back();
+	bool cont;
 	if (cur.succ == 0)
 	  {
 	    cur.succ = aut_->succ_iter(cur.ts->first);
-	    cur.succ->first();
+	    cont = cur.succ->first();
 	  }
 	else
-	  cur.succ->next();
-	if (!cur.succ->done())
+	  cont = cur.succ->next();
+	if (cont)
 	  {
 	    // Explore one successor.
 
