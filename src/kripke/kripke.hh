@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita
 //
 // This file is part of Spot, a model checking library.
@@ -48,7 +48,16 @@ namespace spot
     ///
     /// The \a cond argument will be the one returned
     /// by kripke_succ_iterator::current_condition().
-    kripke_succ_iterator(const bdd& cond);
+    kripke_succ_iterator(const bdd& cond)
+      : cond_(cond)
+    {
+    }
+
+    void recycle(const bdd& cond)
+    {
+      cond_ = cond;
+    }
+
     virtual ~kripke_succ_iterator();
 
     virtual bdd current_condition() const;

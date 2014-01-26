@@ -1,4 +1,6 @@
-// Copyright (C) 2009, 2010 Laboratoire de Recherche et Developpement de l'Epita
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2014 Laboratoire de Recherche et
+// Developpement de l'Epita
 //
 // This file is part of Spot, a model checking library.
 //
@@ -19,11 +21,6 @@
 
 namespace spot
 {
-
-  kripke_succ_iterator::kripke_succ_iterator(const bdd& cond)
-    : cond_(cond)
-  {
-  }
 
   kripke_succ_iterator::~kripke_succ_iterator()
   {

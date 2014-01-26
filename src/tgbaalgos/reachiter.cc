@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2011, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2013, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -81,7 +82,7 @@ namespace spot
 		current->destroy();
 	      }
 	  }
-	delete si;
+	aut_->release_iter(si);
       }
     end();
   }
@@ -174,7 +175,7 @@ namespace spot
   void
   tgba_reachable_iterator_depth_first::pop()
   {
-    delete todo.back().it;
+    aut_->release_iter(todo.back().it);
     todo.pop_back();
     if (!todo.empty())
       todo.back().it->next();

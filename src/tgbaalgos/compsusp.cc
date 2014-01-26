@@ -339,7 +339,8 @@ namespace spot
 		  else
 		    break;
 		}
-	      delete ri;
+	      if (ri)
+		right->release_iter(ri);
 	    }
 	}
       delete left;

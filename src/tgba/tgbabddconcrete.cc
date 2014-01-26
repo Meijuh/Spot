@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2014 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 // Copyright (C) 2003 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -106,6 +107,15 @@ namespace spot
 	bdd varused = bdd_support(succ_set);
 	bdd global_conds = global_automaton->support_conditions(global_state);
 	succ_set = bdd_appexcomp(succ_set, global_conds, bddop_and, varused);
+      }
+    // Do not allocate an iterator if we can reuse one.
+    if (iter_cache_)
+      {
+	tgba_succ_iterator_concrete* res =
+	  down_cast<tgba_succ_iterator_concrete*>(iter_cache_);
+	iter_cache_ = nullptr;
+	res->recycle(succ_set);
+	return res;
       }
     return new tgba_succ_iterator_concrete(data_, succ_set);
   }

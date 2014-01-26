@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -92,6 +93,16 @@ namespace spot
       right_missing_(right_missing),
       left_neg_(left_neg), right_neg_(right_neg)
   {
+  }
+
+  void
+  tgba_succ_iterator_union::recycle(const tgba* l, tgba_succ_iterator* left,
+				    const tgba* r, tgba_succ_iterator* right)
+  {
+    l->release_iter(left_);
+    left_ = left;
+    r->release_iter(right_);
+    right_ = right;
   }
 
   tgba_succ_iterator_union::~tgba_succ_iterator_union()
@@ -278,44 +289,45 @@ namespace spot
     (void) global_automaton;
     const state_union* s = down_cast<const state_union*>(local_state);
     assert(s);
-    tgba_succ_iterator_union* res = 0;
     // Is it the initial state ?
+    tgba_succ_iterator* li;
+    tgba_succ_iterator* ri;
     if (!s->left() && !s->right())
-    {
-      // Yes, create an iterator with both initial states.
-      state* left_init = left_->get_init_state();
-      state* right_init = right_->get_init_state();
-      tgba_succ_iterator* li = left_->succ_iter(left_init);
-      tgba_succ_iterator* ri = right_->succ_iter(right_init);
-      res = new tgba_succ_iterator_union(li, ri, left_acc_missing_,
-					 right_acc_missing_,
-					 left_var_missing_,
-					 right_var_missing_);
-      left_init->destroy();
-      right_init->destroy();
-    }
+      {
+	// Yes, create an iterator with both initial states.
+	state* left_init = left_->get_init_state();
+	state* right_init = right_->get_init_state();
+	li = left_->succ_iter(left_init);
+	ri = right_->succ_iter(right_init);
+	left_init->destroy();
+	right_init->destroy();
+      }
+    // No, create an iterator based on the corresponding state
+    // in the left or in the right automaton.
+    else if (s->left())
+      {
+        li = left_->succ_iter(s->left());
+	ri = nullptr;
+      }
     else
-    {
-      // No, create an iterator based on the corresponding state
-      // in the left or in the right automaton.
-      if (s->left())
       {
-        tgba_succ_iterator* li = left_->succ_iter(s->left());
-	res = new tgba_succ_iterator_union(li, 0, left_acc_missing_,
-					   right_acc_missing_,
-					   left_var_missing_,
-					   right_var_missing_);
+	li = nullptr;
+	ri = right_->succ_iter(s->right());
       }
-      else
+
+    if (iter_cache_)
       {
-	tgba_succ_iterator* ri = right_->succ_iter(s->right());
-	res = new tgba_succ_iterator_union(0, ri, left_acc_missing_,
-					   right_acc_missing_,
-					   left_var_missing_,
-					   right_var_missing_);
+	tgba_succ_iterator_union* res =
+	  down_cast<tgba_succ_iterator_union*>(iter_cache_);
+	res->recycle(left_, li, right_, ri);
+	iter_cache_ = nullptr;
+	return res;
       }
-    }
-    return res;
+    return new tgba_succ_iterator_union(li, ri,
+					left_acc_missing_,
+					right_acc_missing_,
+					left_var_missing_,
+					right_var_missing_);
   }
 
   bdd

@@ -170,14 +170,29 @@ namespace spot
       typedef tgba_tba_proxy::cycle_list::const_iterator iterator;
     public:
       tgba_tba_proxy_succ_iterator(const state* rs,
-				   tgba_succ_iterator* it,
+				   tgba::succ_iterable&& iterable,
 				   iterator expected,
 				   const list& cycle,
 				   bdd the_acceptance_cond,
 				   const tgba_tba_proxy* aut)
 	: the_acceptance_cond_(the_acceptance_cond)
       {
-	for (it->first(); !it->done(); it->next())
+	recycle(rs, std::move(iterable), expected, cycle, aut);
+      }
+
+      void recycle(const state* rs,
+		   tgba::succ_iterable&& iterable,
+		   iterator expected,
+		   const list& cycle,
+		   const tgba_tba_proxy* aut)
+      {
+	if (!transmap_.empty())
+	  {
+	    translist_.clear();
+	    transmap_.clear();
+	  }
+
+	for (auto it: iterable)
 	  {
 	    bool accepting;
 	    bdd acc = it->current_acceptance_conditions();
@@ -324,20 +339,11 @@ namespace spot
 		dest->destroy();
 	      }
 	  }
-	delete it;
       }
 
       virtual
       ~tgba_tba_proxy_succ_iterator()
       {
-	for (transmap_t::const_iterator i = transmap_.begin();
-	     i != transmap_.end();)
-	  {
-	    const state* d = i->first.first;
-	    // Advance i before deleting d.
-	    ++i;
-	    d->destroy();
-	  }
       }
 
       // iteration
@@ -492,17 +498,23 @@ namespace spot
 
   tgba_succ_iterator*
   tgba_tba_proxy::succ_iter(const state* local_state,
-			    const state* global_state,
-			    const tgba* global_automaton) const
+			    const state*, const tgba*) const
   {
     const state_tba_proxy* s =
       down_cast<const state_tba_proxy*>(local_state);
     assert(s);
-
     const state* rs = s->real_state();
-    tgba_succ_iterator* it = a_->succ_iter(rs, global_state, global_automaton);
 
-    return new tgba_tba_proxy_succ_iterator(rs, it,
+    if (iter_cache_)
+      {
+	tgba_tba_proxy_succ_iterator* res =
+	  down_cast<tgba_tba_proxy_succ_iterator*>(iter_cache_);
+	res->recycle(rs, a_->succ(rs),
+		     s->acceptance_iterator(), acc_cycle_, this);
+	iter_cache_ = nullptr;
+	return res;
+      }
+    return new tgba_tba_proxy_succ_iterator(rs, a_->succ(rs),
 					    s->acceptance_iterator(),
 					    acc_cycle_, the_acceptance_cond_,
 					    this);

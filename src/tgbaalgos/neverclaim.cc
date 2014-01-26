@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -88,7 +89,7 @@ namespace spot
 	it->first();
 	bool accepting =
 	  !it->done() && it->current_acceptance_conditions() == all_acc_conds_;
-	delete it;
+	aut_->release_iter(it);
 	return accepting;
       }
 
@@ -123,7 +124,7 @@ namespace spot
 		      label = "accept_all";
 		    current->destroy();
 		  }
-		delete it;
+		aut_->release_iter(it);
 	      }
 	    else
 	      label = "T0_S" + ns;
@@ -149,7 +150,7 @@ namespace spot
 	  }
 	else
 	  {
-	    state* current =it->current_state();
+	    state* current = it->current_state();
 	    if (state_is_accepting(s)
 		&& it->current_condition() == bddtrue
 		&& s->compare(init_) != 0
@@ -167,8 +168,8 @@ namespace spot
 	      }
 	    current->destroy();
 	  }
-	  delete it;
-       }
+	aut_->release_iter(it);
+      }
 
       void
       process_link(const state*, int in, const state*, int out,

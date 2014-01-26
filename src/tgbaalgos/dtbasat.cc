@@ -438,8 +438,7 @@ namespace spot
 
 	  dout << "(3) augmenting paths based on Cand[" << q1
 	       << "] and Ref[" << q1p << "]\n";
-	  tgba_succ_iterator* it = ref->succ_iter(d.int_to_state[q1p]);
-	  for (it->first(); !it->done(); it->next())
+	  for (auto it: ref->succ(d.int_to_state[q1p]))
 	    {
 	      const state* dps = it->current_state();
 	      int dp = d.state_to_int[dps];
@@ -469,7 +468,6 @@ namespace spot
 		    }
 		}
 	    }
-	  delete it;
 	}
 
       bdd all_acc = ref->all_acceptance_conditions();
@@ -502,9 +500,7 @@ namespace spot
 		    else
 		      pid1 = d.pathid_ref[p1];
 
-		    tgba_succ_iterator* it =
-		      ref->succ_iter(d.int_to_state[q2p]);
-		    for (it->first(); !it->done(); it->next())
+		    for (auto it: ref->succ(d.int_to_state[q2p]))
 		      {
 			const state* dps = it->current_state();
 			// Skip destinations not in the SCC.
@@ -567,7 +563,6 @@ namespace spot
 			      }
 			  }
 		      }
-		    delete it;
 		  }
 	    }
 	}
@@ -598,9 +593,7 @@ namespace spot
 		    else
 		      pid1 = d.pathid_cand[p1];
 
-		    tgba_succ_iterator* it =
-		      ref->succ_iter(d.int_to_state[q2p]);
-		    for (it->first(); !it->done(); it->next())
+		    for (auto it: ref->succ(d.int_to_state[q2p]))
 		      {
 			const state* dps = it->current_state();
 			// Skip destinations not in the SCC.
@@ -665,7 +658,6 @@ namespace spot
 			      }
 			  }
 		      }
-		    delete it;
 		  }
 	    }
 	}

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita.
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita.
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -200,6 +200,12 @@ namespace spot
       : start_(start),
 	all_acceptance_conditions_(all_acc)
     {
+    }
+
+    void recycle(const State* start, bdd all_acc)
+    {
+      start_ = start;
+      all_acceptance_conditions_ = all_acc;
     }
 
     virtual void first()
@@ -508,6 +514,14 @@ namespace spot
       (void) global_state;
       (void) global_automaton;
 
+      if (this->iter_cache_)
+	{
+	  tgba_explicit_succ_iterator<State>* it =
+	    down_cast<tgba_explicit_succ_iterator<State>*>(this->iter_cache_);
+	  it->recycle(s, this->all_acceptance_conditions());
+	  this->iter_cache_ = nullptr;
+	  return it;
+	}
       return
 	new tgba_explicit_succ_iterator<State>(s,
 					       this

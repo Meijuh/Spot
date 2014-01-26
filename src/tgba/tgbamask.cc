@@ -141,7 +141,16 @@ namespace spot
 		       const state*,
 		       const tgba*) const
   {
-    succ_iter_filtered* res = new succ_iter_filtered;
+    succ_iter_filtered* res;
+    if (iter_cache_)
+      {
+	res = down_cast<succ_iter_filtered*>(iter_cache_);
+	iter_cache_ = nullptr;
+      }
+    else
+      {
+	res = new succ_iter_filtered;
+      }
     for (auto it: original_->succ(local_state))
       {
 	const state* s = it->current_state();

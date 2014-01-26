@@ -582,8 +582,7 @@ namespace spot
 	  path p1(q1, q1p);
 	  int p1id = d.pathid[p1];
 
-	  tgba_succ_iterator* it = ref->succ_iter(d.int_to_state[q1p]);
-	  for (it->first(); !it->done(); it->next())
+	  for (auto it: ref->succ(d.int_to_state[q1p]))
 	    {
 	      const state* dps = it->current_state();
 	      int dp = d.state_to_int[dps];
@@ -612,7 +611,6 @@ namespace spot
 		    }
 		}
 	    }
-	  delete it;
 	}
 
       bdd all_acc = ref->all_acceptance_conditions();
@@ -645,10 +643,7 @@ namespace spot
 
 			  int pid = d.pathid[p];
 
-			  tgba_succ_iterator* it =
-			    ref->succ_iter(d.int_to_state[q2p]);
-
-			  for (it->first(); !it->done(); it->next())
+			  for (auto it: ref->succ(d.int_to_state[q2p]))
 			    {
 			      const state* dps = it->current_state();
 			      // Skip destinations not in the SCC.
@@ -836,7 +831,6 @@ namespace spot
 				    }
 				}
 			    }
-			  delete it;
 			}
 		  }
 	    }

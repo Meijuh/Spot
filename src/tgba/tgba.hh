@@ -71,8 +71,48 @@ namespace spot
   {
   protected:
     tgba();
+    // Any iterator returned via release_iter.
+    mutable tgba_succ_iterator* iter_cache_;
 
   public:
+
+#ifndef SWIG
+    class succ_iterable
+    {
+    protected:
+      const tgba* aut_;
+      tgba_succ_iterator* it_;
+    public:
+      succ_iterable(const tgba* aut, tgba_succ_iterator* it)
+	: aut_(aut), it_(it)
+      {
+      }
+
+      succ_iterable(succ_iterable&& other)
+	: aut_(other.aut_), it_(other.it_)
+      {
+	other.it_ = nullptr;
+      }
+
+      ~succ_iterable()
+      {
+	if (it_)
+	  aut_->release_iter(it_);
+      }
+
+      internal::succ_iterator begin()
+      {
+	it_->first();
+	return it_->done() ? nullptr : it_;
+      }
+
+      internal::succ_iterator end()
+      {
+	return nullptr;
+      }
+    };
+#endif
+
     virtual ~tgba();
 
     /// \brief Get the initial state of the automaton.
@@ -111,14 +151,28 @@ namespace spot
 	      const state* global_state = nullptr,
 	      const tgba* global_automaton = nullptr) const = 0;
 
+#ifndef SWIG
     /// \brief Build an iterable over the successors of \a s.
     ///
     /// This is meant to be used as
     /// <code>for (auto i: aut->out(s)) { /* i->current_state() */ }</code>.
-    internal::succ_iterable
+    succ_iterable
     succ(const state* s) const
     {
       return {this, succ_iter(s)};
+    }
+#endif
+
+    /// \brief Release an iterator after usage.
+    ///
+    /// This iterator can then be reused by succ_iter() to avoid
+    /// memory allocation.
+    void release_iter(tgba_succ_iterator* i) const
+    {
+      if (iter_cache_)
+	delete i;
+      else
+	iter_cache_ = i;
     }
 
     /// \brief Get a formula that must hold whatever successor is taken.

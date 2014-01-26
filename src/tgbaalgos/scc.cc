@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita.
+// Copyright (C) 2008, 2009, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -199,7 +199,7 @@ namespace spot
 		  root_.front().succ.insert(std::make_pair(num, cond));
 	      }
 
-	    delete succ;
+	    aut_->release_iter(succ);
 	    // Do not destroy CURR: it is a key in H.
 	    continue;
 	  }

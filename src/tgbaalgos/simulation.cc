@@ -335,14 +335,12 @@ namespace spot
 	    // the acceptance of the destination state on its incoming
 	    // arcs (which now become outgoing args after
 	    // transposition).
-	    tgba_succ_iterator* it = out_->succ_iter(out_s);
-	    it->first();
-	    if (!it->done())
+	    for (auto it: out_->succ(out_s))
 	      {
 		bdd acc = ac_.complement(it->current_acceptance_conditions());
 		t->acceptance_conditions = acc;
+		break;
 	      }
-	    delete it;
 	  }
       }
 

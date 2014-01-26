@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013 Laboratoire de recherche et
+// Copyright (C) 2009, 2012, 2013, 2014 Laboratoire de recherche et
 // développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -50,6 +50,11 @@ namespace spot
 		      const state* global_state,
 		      const tgba* global_automaton) const
   {
+    if (iter_cache_)
+      {
+	aut_->release_iter(iter_cache_);
+	iter_cache_ = nullptr;
+      }
     return aut_->succ_iter(local_state, global_state, global_automaton);
   }
 

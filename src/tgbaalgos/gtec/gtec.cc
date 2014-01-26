@@ -1,8 +1,9 @@
-// Copyright (C) 2008, 2011 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2011, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -135,7 +136,7 @@ namespace spot
 		to_remove.push(ecs_->aut->succ_iter(spi.first));
 	      }
 	  }
-	delete i;
+	ecs_->aut->release_iter(i);
 	if (to_remove.empty())
 	  break;
 	i = to_remove.top();
@@ -212,8 +213,7 @@ namespace spot
 		remove_component(curr);
 		ecs_->root.pop();
 	      }
-
-	    delete succ;
+	    ecs_->aut->release_iter(succ);
 	    // Do not destroy CURR: it is a key in H.
 	    continue;
 	  }
@@ -288,7 +288,7 @@ namespace spot
 	    // Release all iterators in TODO.
 	    while (!todo.empty())
 	      {
-		delete todo.top().second;
+		ecs_->aut->release_iter(todo.top().second);
 		todo.pop();
 		dec_depth();
 	      }
@@ -325,14 +325,13 @@ namespace spot
 					     couvreur99_check_shy* shy)
 	: s(s), n(n)
   {
-    tgba_succ_iterator* iter = shy->ecs_->aut->succ_iter(s);
-    for (iter->first(); !iter->done(); iter->next(), shy->inc_transitions())
+    for (auto iter: shy->ecs_->aut->succ(s))
       {
 	q.push_back(successor(iter->current_acceptance_conditions(),
 			      iter->current_state()));
 	shy->inc_depth();
+	shy->inc_transitions();
       }
-    delete iter;
   }
 
   couvreur99_check_shy::couvreur99_check_shy(const tgba* a,

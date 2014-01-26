@@ -1,8 +1,9 @@
-// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -86,6 +87,15 @@ namespace spot
 					fixed_size_pool* pool)
 	: left_(left), right_(right), pool_(pool)
       {
+      }
+
+      void recycle(const tgba* l, tgba_succ_iterator* left,
+		   const tgba* r, tgba_succ_iterator* right)
+      {
+	l->release_iter(left_);
+	left_ = left;
+	r->release_iter(right_);
+	right_ = right;
       }
 
       virtual ~tgba_succ_iterator_product_common()
@@ -389,6 +399,15 @@ namespace spot
 					      global_state, global_automaton);
     tgba_succ_iterator* ri = right_->succ_iter(s->right(),
 					       global_state, global_automaton);
+
+    if (iter_cache_)
+      {
+	tgba_succ_iterator_product_common* it =
+	  down_cast<tgba_succ_iterator_product_common*>(iter_cache_);
+	it->recycle(left_, li, right_, ri);
+	iter_cache_ = nullptr;
+	return it;
+      }
 
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);
     if (left_kripke_)

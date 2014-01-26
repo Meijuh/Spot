@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2011, 2013 Laboratoire de recherche et
-// développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2010, 2011, 2013, 2014 Laboratoire de recherche
+// et développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -80,7 +80,7 @@ namespace spot
       ~gv04()
       {
 	for (stack_type::iterator i = stack.begin(); i != stack.end(); ++i)
-	  delete i->lasttr;
+	  a_->release_iter(i->lasttr);
 	hash_type::const_iterator s = h.begin();
 	while (s != h.end())
 	  {
@@ -203,7 +203,7 @@ namespace spot
 	    assert(static_cast<unsigned int>(top + 1) == stack.size());
 	    for (int i = top; i >= dftop; --i)
 	      {
-		delete stack[i].lasttr;
+		a_->release_iter(stack[i].lasttr);
 		stack.pop_back();
 		dec_depth();
 	      }

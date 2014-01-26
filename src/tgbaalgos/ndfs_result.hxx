@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de recherche et développement de
-// l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014 Laboratoire de recherche et
+// développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -230,11 +230,11 @@ namespace spot
     typedef std::unordered_set<const state*,
 			       state_ptr_hash, state_ptr_equal> state_set;
 
-    void clean(stack_type& st1, state_set& seen, state_set& dead)
+    void clean(const tgba* a, stack_type& st1, state_set& seen, state_set& dead)
     {
       while (!st1.empty())
 	{
-	  delete st1.front().it;
+	  a->release_iter(st1.front().it);
 	  st1.pop_front();
 	}
       for (state_set::iterator i = seen.begin(); i != seen.end();)
@@ -309,7 +309,7 @@ namespace spot
                           covered_acc |= acc;
                           if (covered_acc == a_->all_acceptance_conditions())
                             {
-                              clean(st1, seen, dead);
+                              clean(a_, st1, seen, dead);
                               s_prime->destroy();
                               return true;
                             }
@@ -334,7 +334,7 @@ namespace spot
               ndfsr_trace << "  all the successors have been visited"
                           << std::endl;
               stack_item f_dest(f);
-              delete st1.front().it;
+              a_->release_iter(st1.front().it);
               st1.pop_front();
               if (!st1.empty() && (f_dest.acc & covered_acc) != f_dest.acc)
                 {
@@ -351,7 +351,7 @@ namespace spot
                       covered_acc |= f_dest.acc;
                       if (covered_acc == a_->all_acceptance_conditions())
                         {
-                          clean(st1, seen, dead);
+                          clean(a_, st1, seen, dead);
                           return true;
                         }
                     }
@@ -364,7 +364,7 @@ namespace spot
             }
         }
 
-      clean(st1, seen, dead);
+      clean(a_, st1, seen, dead);
       return false;
     }
 

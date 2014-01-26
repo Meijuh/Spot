@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de recherche et développement de
-// l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014 Laboratoire de recherche et
+// développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -68,13 +68,13 @@ namespace spot
         while (!st_blue.empty())
           {
             h.pop_notify(st_blue.front().s);
-            delete st_blue.front().it;
+            a_->release_iter(st_blue.front().it);
             st_blue.pop_front();
           }
         while (!st_red.empty())
           {
             h.pop_notify(st_red.front().s);
-            delete st_red.front().it;
+            a_->release_iter(st_red.front().it);
             st_red.pop_front();
           }
       }
@@ -159,7 +159,7 @@ namespace spot
       void pop(stack_type& st)
       {
         dec_depth();
-        delete st.front().it;
+	a_->release_iter(st.front().it);
         st.pop_front();
       }
 

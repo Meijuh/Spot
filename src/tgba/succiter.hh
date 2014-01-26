@@ -27,6 +27,8 @@
 
 namespace spot
 {
+  class tgba;
+
   /// \ingroup tgba_essentials
   /// \brief Iterate over the successors of a state.
   ///
@@ -100,8 +102,6 @@ namespace spot
     //@}
   };
 
-  class tgba;
-
   namespace internal
   {
     struct SPOT_API succ_iterator
@@ -135,34 +135,6 @@ namespace spot
 	it_->next();
 	if (it_->done())
 	  it_ = nullptr;
-      }
-    };
-
-    class SPOT_API succ_iterable
-    {
-    protected:
-      const tgba* aut_;
-      tgba_succ_iterator* it_;
-    public:
-      succ_iterable(const tgba* aut, tgba_succ_iterator* it)
-	: aut_(aut), it_(it)
-      {
-      }
-
-      ~succ_iterable()
-      {
-	delete it_;
-      }
-
-      succ_iterator begin()
-      {
-	it_->first();
-	return it_->done() ? nullptr : it_;
-      }
-
-      succ_iterator end()
-      {
-	return nullptr;
       }
     };
   }

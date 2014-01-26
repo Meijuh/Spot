@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2011, 2012, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -214,9 +214,8 @@ namespace spot
 
       ~callback_context()
       {
-	callback_context::transitions_t::const_iterator it;
-	for (it = transitions.begin(); it != transitions.end(); ++it)
-	  (*it)->destroy();
+	for (auto t: transitions)
+	  t->destroy();
       }
     };
 
@@ -258,6 +257,13 @@ namespace spot
 			 bdd cond)
 	: kripke_succ_iterator(cond), cc_(cc)
       {
+      }
+
+      void recycle(const callback_context* cc, bdd cond)
+      {
+	delete cc_;
+	cc_ = cc;
+	kripke_succ_iterator::recycle(cond);
       }
 
       ~dve2_succ_iterator()
@@ -661,6 +667,11 @@ namespace spot
 
       ~dve2_kripke()
       {
+	if (iter_cache_)
+	  {
+	    delete iter_cache_;
+	    iter_cache_ = nullptr;
+	  }
 	delete[] format_filter_;
 	delete[] vname_;
 	if (compress_)
@@ -857,6 +868,14 @@ namespace spot
 	      cc->transitions.push_back(local_state->clone());
 	  }
 
+	if (iter_cache_)
+	  {
+	    dve2_succ_iterator* it =
+	      down_cast<dve2_succ_iterator*>(iter_cache_);
+	    it->recycle(cc, scond);
+	    iter_cache_ = nullptr;
+	    return it;
+	  }
 	return new dve2_succ_iterator(cc, scond);
       }
 

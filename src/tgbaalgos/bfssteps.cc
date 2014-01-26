@@ -1,4 +1,4 @@
-// Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2004, 2014  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -88,7 +88,7 @@ namespace spot
 	      {
 		// Found it!
                 finalize(father, s, start, l);
-		delete i;
+		a_->release_iter(i);
 		return dest;
 	      }
 
@@ -100,7 +100,7 @@ namespace spot
 		father[dest] = s;
 	      }
 	  }
-	delete i;
+	a_->release_iter(i);
       }
     return 0;
   }

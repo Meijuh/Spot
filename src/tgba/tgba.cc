@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2014 Laboratoire de Recherche et Developpement de
 // l'EPITA (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -24,7 +25,8 @@
 namespace spot
 {
   tgba::tgba()
-    : last_support_conditions_input_(0),
+    : iter_cache_(nullptr),
+      last_support_conditions_input_(0),
       last_support_variables_input_(0),
       num_acc_(-1)
   {
@@ -36,6 +38,7 @@ namespace spot
       last_support_conditions_input_->destroy();
     if (last_support_variables_input_)
       last_support_variables_input_->destroy();
+    delete iter_cache_;
   }
 
   bdd

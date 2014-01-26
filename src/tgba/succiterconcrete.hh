@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -45,7 +45,19 @@ namespace spot
     /// \param d The core data of the automata.
     ///   These contains sets of variables useful to split a BDD, and
     ///   compute acceptance conditions.
-    tgba_succ_iterator_concrete(const tgba_bdd_core_data& d, bdd successors);
+    tgba_succ_iterator_concrete(const tgba_bdd_core_data& d, bdd successors)
+      : data_(d)
+    {
+      recycle(successors);
+    }
+
+    void recycle(bdd successors)
+    {
+      succ_set_ = successors;
+      succ_set_left_ = successors;
+      current_ = bddfalse;
+    }
+
     virtual ~tgba_succ_iterator_concrete();
 
     // iteration

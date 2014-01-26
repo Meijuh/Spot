@@ -136,7 +136,7 @@ namespace spot
 	    // No more successors.
 	    bool f = cur.f;
 	    tagged_state v = cur.ts;
-	    delete cur.succ;
+	    aut_->release_iter(cur.succ);
 
 	    dfs_.pop_back();
 	    if (f)
@@ -158,7 +158,7 @@ namespace spot
     // returned false.
     while (!dfs_.empty())
       {
-	delete dfs_.back().succ;
+	aut_->release_iter(dfs_.back().succ);
 	dfs_.pop_back();
       }
 

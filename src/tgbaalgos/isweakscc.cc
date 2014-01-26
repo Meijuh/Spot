@@ -1,5 +1,6 @@
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -96,12 +97,10 @@ namespace spot
     if (!aut)
       return false;
 
-    const std::list<const spot::state*> states = map.states_of(scc);
-    std::list<const spot::state*>::const_iterator it;
-    for (it = states.begin(); it != states.end(); ++it)
+    for (auto ss: map.states_of(scc))
       {
 	const state_explicit_formula* s =
-	  down_cast<const state_explicit_formula*>(*it);
+	  down_cast<const state_explicit_formula*>(ss);
 	assert(s);
 	if (aut->get_label(s)->is_syntactic_persistence())
 	  return true;
@@ -117,12 +116,10 @@ namespace spot
     if (!aut)
       return false;
 
-    const std::list<const spot::state*> states = map.states_of(scc);
-    std::list<const spot::state*>::const_iterator it;
-    for (it = states.begin(); it != states.end(); ++it)
+    for (auto ss: map.states_of(scc))
       {
 	const state_explicit_formula* s =
-	  down_cast<const state_explicit_formula*>(*it);
+	  down_cast<const state_explicit_formula*>(ss);
 	assert(s);
 	if (aut->get_label(s)->is_syntactic_guarantee())
 	  return true;
@@ -134,18 +131,15 @@ namespace spot
   is_complete_scc(scc_map& map, unsigned scc)
   {
     const spot::tgba *a = map.get_aut();
-    const std::list<const spot::state*> states = map.states_of(scc);
-    std::list<const spot::state*>::const_iterator it;
-    for (it = states.begin(); it != states.end(); ++it)
+    for (auto s: map.states_of(scc))
       {
-	const state *s = *it;
 	tgba_succ_iterator* it = a->succ_iter(s);
 	it->first();
 
 	// If a state has no successors, the SCC is not complete.
 	if (it->done())
 	  {
-	    delete it;
+	    a->release_iter(it);
 	    return false;
 	  }
 
@@ -163,7 +157,7 @@ namespace spot
 	    it->next();
 	  }
 	while (!it->done());
-	delete it;
+	a->release_iter(it);
 
 	if (sumall != bddtrue)
 	  return false;

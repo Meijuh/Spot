@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2011, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -83,6 +83,9 @@ namespace spot
 			     tgba_succ_iterator* right,
 			     bdd left_missing,
 			     bdd right_missing, bdd left_var, bdd right_var);
+
+    void recycle(const tgba* l, tgba_succ_iterator* left,
+		 const tgba* r, tgba_succ_iterator* right);
 
     virtual ~tgba_succ_iterator_union();
 

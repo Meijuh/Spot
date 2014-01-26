@@ -110,7 +110,7 @@ namespace spot
     {
     public:
       ratexp_to_dfa(translate_dict& dict);
-      tgba_succ_iterator* succ(const formula* f);
+      std::pair<tgba_explicit_formula*, const state*> succ(const formula* f);
       const formula* get_label(const formula* f, const state* s) const;
       ~ratexp_to_dfa();
 
@@ -1133,7 +1133,7 @@ namespace spot
     }
 
     // FIXME: use the new tgba::succ() interface
-    tgba_succ_iterator*
+    std::pair<tgba_explicit_formula*, const state*>
     ratexp_to_dfa::succ(const formula* f)
     {
       f2a_t::const_iterator it = f2a_.find(f);
@@ -1145,13 +1145,11 @@ namespace spot
 
       // If a is nul, f has an empty language.
       if (!a)
-	return 0;
+	return {nullptr, nullptr};
 
       assert(a->has_state(f));
       // This won't create a new state.
-      const state* s = a->add_state(f);
-
-      return a->succ_iter(s);
+      return {a, a->add_state(f)};
     }
 
     const formula*
@@ -1364,12 +1362,11 @@ namespace spot
 	    {
 	      // rat_seen_ = true;
 	      const formula* f = node->child();
-	      tgba_succ_iterator* i = dict_.transdfa.succ(f);
+	      auto p = dict_.transdfa.succ(f);
 	      res_ = bddfalse;
-
-	      if (!i)
+	      if (!p.first)
 		break;
-	      for (i->first(); !i->done(); i->next())
+	      for (auto i: p.first->succ(p.second))
 		{
 		  bdd label = i->current_condition();
 		  state* s = i->current_state();
@@ -1391,7 +1388,6 @@ namespace spot
 		      res_ |= label & bdd_ithvar(x);
 		    }
 		}
-	      delete i;
 	    }
 	    break;
 

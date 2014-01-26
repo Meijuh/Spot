@@ -60,7 +60,7 @@ namespace spot
 	it->next();
 	result = (!dest->compare(s)) && it->done() && (cond == bddtrue);
 	dest->destroy();
-	delete it;
+	aut->release_iter(it);
       }
 
     // Free the scc_map if we created it.

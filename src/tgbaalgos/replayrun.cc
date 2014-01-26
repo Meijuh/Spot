@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -189,7 +189,7 @@ namespace spot
 		    s2->destroy();
 		  }
 	      }
-	    delete j;
+	    a->release_iter(j);
 	    s->destroy();
 	    return false;
 	  }
@@ -211,7 +211,7 @@ namespace spot
 	    bdd_print_accset(os, a->get_dict(), acc);
 	    os << std::endl;
 	  }
-	delete j;
+	a->release_iter(j);
 
 	// Sum acceptance conditions.
 	//

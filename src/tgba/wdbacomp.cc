@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -93,6 +93,12 @@ namespace spot
 					 bdd the_acceptance_cond)
 	: it_(it), the_acceptance_cond_(the_acceptance_cond), left_(bddtrue)
       {
+      }
+
+      void recycle(const tgba* a, tgba_succ_iterator* it)
+      {
+	a->release_iter(it_);
+	it_ = it;
       }
 
       virtual
@@ -197,9 +203,17 @@ namespace spot
 	assert(s);
 
 	const state* o = s->real_state();
-	tgba_succ_iterator* it = 0;
+	tgba_succ_iterator* it = nullptr;
 	if (o)
-	   it = a_->succ_iter(s->real_state(), global_state, global_automaton);
+	  it = a_->succ_iter(s->real_state(), global_state, global_automaton);
+	if (iter_cache_)
+	  {
+	    tgba_wdba_comp_proxy_succ_iterator* res =
+	      down_cast<tgba_wdba_comp_proxy_succ_iterator*>(iter_cache_);
+	    res->recycle(a_, it);
+	    iter_cache_ = nullptr;
+	    return res;
+	  }
 	return new tgba_wdba_comp_proxy_succ_iterator(it,
 						      the_acceptance_cond_);
       }
