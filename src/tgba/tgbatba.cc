@@ -348,16 +348,18 @@ namespace spot
 
       // iteration
 
-      void
+      bool
       first()
       {
 	it_ = translist_.begin();
+	return it_ != translist_.end();
       }
 
-      void
+      bool
       next()
       {
 	++it_;
+	return it_ != translist_.end();
       }
 
       bool

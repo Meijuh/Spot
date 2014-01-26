@@ -102,8 +102,7 @@ namespace spot
 
       internal::succ_iterator begin()
       {
-	it_->first();
-	return it_->done() ? nullptr : it_;
+	return it_->first() ? it_ : nullptr;
       }
 
       internal::succ_iterator end()

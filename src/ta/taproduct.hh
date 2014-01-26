@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -83,12 +83,9 @@ namespace spot
     ~ta_succ_iterator_product();
 
     // iteration
-    void
-    first();
-    void
-    next();
-    bool
-    done() const;
+    bool first();
+    bool next();
+    bool done() const;
 
     // inspection
     state_ta_product*
@@ -106,10 +103,8 @@ namespace spot
   protected:
     //@{
     /// Internal routines to advance to the next successor.
-    void
-    step_();
-    void
-    next_non_stuttering_();
+    void step_();
+    bool next_non_stuttering_();
 
     /// \brief Move to the next successor in the kripke structure
     void

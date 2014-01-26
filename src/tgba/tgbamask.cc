@@ -40,14 +40,16 @@ namespace spot
 	  t.dest->destroy();
       }
 
-      void first()
+      bool first()
       {
 	it_ = trans_.begin();
+	return it_ != trans_.end();
       }
 
-      virtual void next()
+      bool next()
       {
 	++it_;
+	return it_ != trans_.end();
       }
 
       bool done() const

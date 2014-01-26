@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -97,8 +97,8 @@ namespace spot
 
     ~kripke_explicit_succ_iterator();
 
-    virtual void first();
-    virtual void next();
+    virtual bool first();
+    virtual bool next();
     virtual bool done() const;
 
     virtual state_kripke* current_state() const;

@@ -29,16 +29,18 @@ namespace spot
   {
   }
 
-  void
+  bool
   tgba_succ_iterator_concrete::first()
   {
     succ_set_left_ = succ_set_;
     current_ = bddfalse;
     if (!done())
-      next();
+      return next();
+    else
+      return false;
   }
 
-  void
+  bool
   tgba_succ_iterator_concrete::next()
   {
     assert(!done());
@@ -86,7 +88,7 @@ namespace spot
 
 	succ_set_left_ -= current_;
 	if (succ_set_left_ == bddfalse) // No more successors?
-	  return;
+	  return false;
 
 	// Pick one transition, and extract its destination.
 	bdd trans = bdd_satoneset(succ_set_left_, data_.next_set,
@@ -157,6 +159,8 @@ namespace spot
 	current_state_ = bdd_replace(dest, data_.dict->next_to_now);
       }
     while ((current_state_ & data_.relation) == bddfalse);
+
+    return succ_set_left_ != bddfalse;
   }
 
   bool

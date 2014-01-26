@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2011, 2012, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 //
@@ -150,17 +150,18 @@ namespace spot
 
   }
 
-  void
+  bool
   ta_succ_iterator_product::first()
   {
 
     next_kripke_dest();
 
     if (!done())
-      next_non_stuttering_();
+      return next_non_stuttering_();
+    return false;
   }
 
-  void
+  bool
   ta_succ_iterator_product::next()
   {
     delete current_state_;
@@ -173,11 +174,11 @@ namespace spot
       step_();
 
     if (!done())
-      next_non_stuttering_();
-
+      return next_non_stuttering_();
+    return false;
   }
 
-  void
+  bool
   ta_succ_iterator_product::next_non_stuttering_()
   {
 
@@ -190,7 +191,7 @@ namespace spot
             current_state_ = new state_ta_product(source_->get_ta_state(),
                 kripke_current_dest_state->clone());
             current_acceptance_conditions_ = bddfalse;
-            return;
+            return true;
           }
 
         if (!ta_succ_it_->done())
@@ -199,11 +200,12 @@ namespace spot
                 kripke_current_dest_state->clone());
             current_acceptance_conditions_
                 = ta_succ_it_->current_acceptance_conditions();
-            return;
+            return true;
           }
 
         step_();
       }
+    return false;
   }
 
   bool

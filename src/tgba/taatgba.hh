@@ -113,8 +113,8 @@ namespace spot
     taa_succ_iterator(const taa_tgba::state_set* s, bdd all_acc);
     virtual ~taa_succ_iterator();
 
-    virtual void first();
-    virtual void next();
+    virtual bool first();
+    virtual bool next();
     virtual bool done() const;
 
     virtual set_state* current_state() const;

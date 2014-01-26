@@ -272,15 +272,17 @@ namespace spot
       }
 
       virtual
-      void first()
+      bool first()
       {
 	it_ = cc_->transitions.begin();
+	return it_ != cc_->transitions.end();
       }
 
       virtual
-      void next()
+      bool next()
       {
 	++it_;
+	return it_ != cc_->transitions.end();
       }
 
       virtual

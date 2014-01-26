@@ -61,8 +61,8 @@ namespace spot
     virtual ~tgba_succ_iterator_concrete();
 
     // iteration
-    void first();
-    void next();
+    bool first();
+    bool next();
     bool done() const;
 
     // inspection

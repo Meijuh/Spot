@@ -976,8 +976,8 @@ namespace spot
           delete p.second;
       }
 
-      virtual void first();
-      virtual void next();
+      virtual bool first();
+      virtual bool next();
       virtual bool done() const;
       virtual state_complement* current_state() const;
       virtual bdd current_condition() const;
@@ -988,16 +988,18 @@ namespace spot
       succ_list_t::const_iterator it_;
     };
 
-    void
+    bool
     tgba_safra_complement_succ_iterator::first()
     {
       it_ = list_.begin();
+      return it_ != list_.end();
     }
 
-    void
+    bool
     tgba_safra_complement_succ_iterator::next()
     {
       ++it_;
+      return it_ != list_.end();
     }
 
     bool

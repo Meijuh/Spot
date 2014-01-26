@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Developpement
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
 // de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -173,19 +173,16 @@ namespace spot
 
   }
 
-  void
+  bool
   tgta_succ_iterator_product::first()
   {
 
     next_kripke_dest();
-    trace
-      << "*** first() .... if(done()) = ***" << done() << std::endl;
-    if (!done())
-      find_next_succ_();
-
+    trace << "*** first() .... if(done()) = ***" << done() << std::endl;
+    return find_next_succ_();
   }
 
-  void
+  bool
   tgta_succ_iterator_product::next()
   {
     current_state_->destroy();
@@ -193,18 +190,14 @@ namespace spot
 
     step_();
 
-    trace
-      << "*** next() .... if(done()) = ***" << done() << std::endl;
+    trace << "*** next() .... if(done()) = ***" << done() << std::endl;
 
-    if (!done())
-      find_next_succ_();
-
+    return find_next_succ_();
   }
 
-  void
+  bool
   tgta_succ_iterator_product::find_next_succ_()
   {
-
     while (!done())
       {
         if (!tgta_succ_it_->done())
@@ -214,11 +207,12 @@ namespace spot
                 tgta_succ_it_->current_state(), pool_);
             current_acceptance_conditions_
                 = tgta_succ_it_->current_acceptance_conditions();
-            return;
+            return true;
           }
 
         step_();
       }
+    return false;
   }
 
   bool

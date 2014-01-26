@@ -208,14 +208,16 @@ namespace spot
       all_acceptance_conditions_ = all_acc;
     }
 
-    virtual void first()
+    virtual bool first()
     {
       it_ = start_->successors.begin();
+      return it_ != start_->successors.end();
     }
 
-    virtual void next()
+    virtual bool next()
     {
       ++it_;
+      return it_ != start_->successors.end();
     }
 
     virtual bool done() const

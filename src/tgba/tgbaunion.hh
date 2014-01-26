@@ -90,8 +90,8 @@ namespace spot
     virtual ~tgba_succ_iterator_union();
 
     // iteration
-    void first();
-    void next();
+    bool first();
+    bool next();
     bool done() const;
 
     // inspection

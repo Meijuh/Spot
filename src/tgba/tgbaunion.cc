@@ -111,62 +111,94 @@ namespace spot
     delete right_;
   }
 
-  void
+  bool
   tgba_succ_iterator_union::next()
   {
     // Is it the initial state ?
     if (left_ && right_)
-    {
-      // Yes, first iterate on the successors of the initial state of the
-      // left automaton.
-      if (!left_->done())
       {
-	left_->next();
+	// Yes, first iterate on the successors of the initial state of the
+	// left automaton.
 	if (!left_->done())
-	  current_cond_ = left_->current_condition();
+	  {
+	    if (left_->next())
+	      {
+		current_cond_ = left_->current_condition();
+		return true;
+	      }
+	    else if (!right_->done())
+	      {
+		current_cond_ = right_->current_condition();
+		return true;
+	      }
+	    else
+	      {
+		return false;
+	      }
+	  }
+	// Now iterate with the successors of the initial state of the right
+	// automaton.
 	else
-	  current_cond_ = right_->current_condition();
+	  {
+	    if (right_->next())
+	      {
+		current_cond_ = right_->current_condition();
+		return true;
+	      }
+	    else
+	      {
+		return false;
+	      }
+	  }
       }
-      // Now iterate with the successors of the initial state of the right
-      // automaton.
-      else
-      {
-	right_->next();
-	if (!right_->done())
-	  current_cond_ = right_->current_condition();
-      }
-    }
     else
-    {
-      // No, iterate either on the left or the right automaton.
-      if (left_)
       {
-	left_->next();
-	if (!left_->done())
-	  current_cond_ = left_->current_condition();
+	// No, iterate either on the left or the right automaton.
+	if (left_)
+	  {
+	    if (left_->next())
+	      {
+		current_cond_ = left_->current_condition();
+		return true;
+	      }
+	    else
+	      {
+		return false;
+	      }
+	  }
+	else
+	  {
+	    if (right_->next())
+	      {
+		current_cond_ = right_->current_condition();
+		return true;
+	      }
+	    else
+	      {
+		return false;
+	      }
+	  }
       }
-      else
-      {
-	right_->next();
-	if (!right_->done())
-	  current_cond_ = right_->current_condition();
-      }
-    }
   }
 
-  void
+  bool
   tgba_succ_iterator_union::first()
   {
+    bool r = false;
     if (right_)
-    {
-      right_->first();
-      current_cond_ = right_->current_condition();
-    }
+      {
+	r = right_->first();
+	if (r)
+	  current_cond_ = right_->current_condition();
+      }
+    bool l = false;
     if (left_)
-    {
-      left_->first();
-      current_cond_ = left_->current_condition();
-    }
+      {
+	l = left_->first();
+	if (l)
+	  current_cond_ = left_->current_condition();
+      }
+    return r || l;
   }
 
   bool

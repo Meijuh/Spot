@@ -99,14 +99,16 @@ namespace spot
   {
   }
 
-  void kripke_explicit_succ_iterator::first()
+  bool kripke_explicit_succ_iterator::first()
   {
     it_ = s_->get_succ().begin();
+    return it_ != s_->get_succ().end();
   }
 
-  void kripke_explicit_succ_iterator::next()
+  bool kripke_explicit_succ_iterator::next()
   {
     ++it_;
+    return it_ != s_->get_succ().end();
   }
 
   bool kripke_explicit_succ_iterator::done() const

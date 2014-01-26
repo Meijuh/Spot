@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2011, 2012, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -113,16 +114,16 @@ namespace spot
 
       // iteration
 
-      void
+      bool
       first()
       {
-	it_->first();
+	return it_->first();
       }
 
-      void
+      bool
       next()
       {
-	it_->next();
+	return it_->next();
       }
 
       bool

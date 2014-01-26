@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -54,24 +54,26 @@ namespace spot
     transitions_ = s->get_transitions(condition);
   }
 
-  void
+  bool
   ta_explicit_succ_iterator::first()
   {
-    if (transitions_ != 0)
-      i_ = transitions_->begin();
+    if (!transitions_)
+      return false;
+    i_ = transitions_->begin();
+    return i_ != transitions_->end();
   }
 
-  void
+  bool
   ta_explicit_succ_iterator::next()
   {
     ++i_;
+    return i_ != transitions_->end();
   }
 
   bool
   ta_explicit_succ_iterator::done() const
   {
-    return transitions_ == 0 || transitions_->empty() || i_
-        == transitions_->end();
+    return !transitions_ || i_ == transitions_->end();
   }
 
   state*

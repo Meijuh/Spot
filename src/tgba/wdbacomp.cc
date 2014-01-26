@@ -109,20 +109,32 @@ namespace spot
 
       // iteration
 
-      void
+      bool
       first()
       {
+	left_ = bddtrue;
 	if (it_)
 	  it_->first();
-	left_ = bddtrue;
+	// Return true even if it_ is done, because
+	// we have to build a sink state.
+	return true;
       }
 
-      void
+      bool
       next()
       {
-	left_ -= current_condition();
-	if (it_)
-	  it_->next();
+	if (!it_ || it_->done())
+	  {
+	    left_ = bddfalse;
+	    return false;
+	  }
+	left_ -= it_->current_condition();
+	if (left_ == bddfalse)
+	  return false;
+	it_->next();
+	// Return true even if it_ is done, because
+	// we have to build a sink state.
+	return true;
       }
 
       bool

@@ -258,8 +258,8 @@ namespace spot
 				       const state_kv_complement* origin);
       virtual ~tgba_kv_complement_succ_iterator() {};
 
-      virtual void first();
-      virtual void next();
+      virtual bool first();
+      virtual bool next();
       virtual bool done() const;
       virtual state_kv_complement* current_state() const;
       virtual bdd current_condition() const;
@@ -470,24 +470,25 @@ namespace spot
       current_ranks_ = highest_current_ranks_;
     }
 
-    void
+    bool
     tgba_kv_complement_succ_iterator::first()
     {
       current_condition_ = condition_list_.begin();
-      if (done())
-        return;
+      if (current_condition_ == condition_list_.end())
+        return false;
 
       successor_highest_rank(*current_condition_);
 
       if (!is_valid_rank())
         next_valid_rank();
+      return current_condition_ != condition_list_.end();
     }
 
-    void
+    bool
     tgba_kv_complement_succ_iterator::next()
     {
-      if (done())
-        return;
+      if (current_condition_ == condition_list_.end())
+        return false;
 
       if (!next_valid_rank())
       {
@@ -499,12 +500,13 @@ namespace spot
             next_valid_rank();
         }
       }
+      return current_condition_ != condition_list_.end();
     }
 
     bool
     tgba_kv_complement_succ_iterator::done() const
     {
-      return (current_condition_ == condition_list_.end());
+      return current_condition_ == condition_list_.end();
     }
 
     state_kv_complement*

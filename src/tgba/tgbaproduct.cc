@@ -104,26 +104,24 @@ namespace spot
 	delete right_;
       }
 
-      virtual void next_non_false_() = 0;
+      virtual bool next_non_false_() = 0;
 
-    void first()
+      bool first()
       {
 	if (!right_)
-	  return;
+	  return false;
 
-	left_->first();
-	right_->first();
 	// If one of the two successor sets is empty initially, we
 	// reset right_, so that done() can detect this situation
 	// easily.  (We choose to reset right_ because this variable
 	// is already used by done().)
-	if (left_->done() || right_->done())
+	if (!(left_->first() && right_->first()))
 	  {
 	    delete right_;
 	    right_ = 0;
-	    return;
+	    return false;
 	  }
-	next_non_false_();
+	return next_non_false_();
       }
 
       bool done() const
@@ -166,19 +164,18 @@ namespace spot
       {
       }
 
-      void step_()
+      bool step_()
       {
-	left_->next();
-	if (left_->done())
-	  {
-	    left_->first();
-	    right_->next();
-	  }
+	if (left_->next())
+	  return true;
+	left_->first();
+	return right_->next();
       }
 
-      void next_non_false_()
+      bool next_non_false_()
       {
-	while (!done())
+	assert(!done());
+	do
 	  {
 	    bdd l = left_->current_condition();
 	    bdd r = right_->current_condition();
@@ -187,16 +184,18 @@ namespace spot
 	    if (current_cond != bddfalse)
 	      {
 		current_cond_ = current_cond;
-		return;
+		return true;
 	      }
-	    step_();
 	  }
+	while (step_());
+	return false;
       }
 
-      void next()
+      bool next()
       {
-	step_();
-	next_non_false_();
+	if (step_())
+	  return next_non_false_();
+	return false;
       }
 
       bdd current_condition() const
@@ -235,12 +234,13 @@ namespace spot
       {
       }
 
-      void next_non_false_()
+      bool next_non_false_()
       {
 	// All the transitions of left_ iterator have the
 	// same label, because it is a Kripke structure.
 	bdd l = left_->current_condition();
-	while (!right_->done())
+	assert(!right_->done());
+	do
 	  {
 	    bdd r = right_->current_condition();
 	    bdd current_cond = l & r;
@@ -248,21 +248,21 @@ namespace spot
 	    if (current_cond != bddfalse)
 	      {
 		current_cond_ = current_cond;
-		return;
+		return true;
 	      }
-	    right_->next();
 	  }
+	while (right_->next());
+	return false;
       }
 
-      void next()
+      bool next()
       {
-	left_->next();
-	if (left_->done())
-	  {
-	    left_->first();
-	    right_->next();
-	    next_non_false_();
-	  }
+	if (left_->next())
+	  return true;
+	left_->first();
+	if (right_->next())
+	  return next_non_false_();
+	return false;
       }
 
       bdd current_condition() const

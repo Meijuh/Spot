@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -191,12 +191,9 @@ namespace spot
     {
     }
 
-    virtual void
-    first() = 0;
-    virtual void
-    next() = 0;
-    virtual bool
-    done() const = 0;
+    virtual bool first() = 0;
+    virtual bool next() = 0;
+    virtual bool done() const = 0;
 
     virtual state*
     current_state() const = 0;

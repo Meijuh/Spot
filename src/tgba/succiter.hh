@@ -53,17 +53,21 @@ namespace spot
     /// This method can be called several times to make multiple
     /// passes over successors.
     ///
-    /// \warning One should always call \c done() to
-    /// ensure there is a successor, even after \c first().  A
-    /// common trap is to assume that there is at least one
-    /// successor: this is wrong.
-    virtual void first() = 0;
+    /// \warning One should always call \c done() (or better: check
+    /// the return value of first()) to ensure there is a successor,
+    /// even after \c first().  A common trap is to assume that there
+    /// is at least one successor: this is wrong.
+    ///
+    /// \return whether there is actually a successor
+    virtual bool first() = 0;
 
     /// \brief Jump to the next successor (if any).
     ///
-    /// \warning Again, one should always call \c done() to ensure
-    /// there is a successor.
-    virtual void next() = 0;
+    /// \warning Again, one should always call \c done() (or better:
+    /// check the return value of next()) ensure there is a successor.
+    ///
+    /// \return whether there is actually a successor
+    virtual bool next() = 0;
 
     /// \brief Check whether the iteration is finished.
     ///
@@ -132,8 +136,7 @@ namespace spot
 
       void operator++()
       {
-	it_->next();
-	if (it_->done())
+	if (!it_->next())
 	  it_ = nullptr;
       }
     };
