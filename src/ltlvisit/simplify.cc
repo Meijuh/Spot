@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -994,13 +994,12 @@ namespace spot
 	  : split_(split), c_(cache)
 	{
 	  init();
-	  multop::vec::const_iterator end = v->end();
-	  for (multop::vec::const_iterator i = v->begin(); i < end; ++i)
+	  for (auto f: *v)
 	    {
-	      if (*i) // skip null pointers left by previous simplifications
+	      if (f) // skip null pointers left by previous simplifications
 		{
-		  process(*i);
-		  (*i)->destroy();
+		  process(f);
+		  f->destroy();
 		}
 	    }
 	  delete v;
@@ -1259,11 +1258,9 @@ namespace spot
 			    }
 			  else
 			    {
-			      for (multop::vec::iterator j =
-				     s.res_other->begin();
-				   j != s.res_other->end(); ++j)
-				if (*j)
-				  (*j)->destroy();
+			      for (auto f: *s.res_other)
+				if (f)
+				  f->destroy();
 			      delete s.res_other;
 			      delete s.res_G;
 			      delete s.res_X;
@@ -1346,11 +1343,10 @@ namespace spot
 		  if (s.res_Univ)
 		    {
 		      // Strip any F.
-		      for (multop::vec::iterator i = s.res_Univ->begin();
-			   i != s.res_Univ->end(); ++i)
-			if (const unop* u = is_F(*i))
+		      for (auto& f: *s.res_Univ)
+			if (const unop* u = is_F(f))
 			  {
-			    *i = u->child()->clone();
+			    f = u->child()->clone();
 			    u->destroy();
 			  }
 		      const formula* fu =
@@ -1475,11 +1471,10 @@ namespace spot
 		      if (s.res_Event)
 			{
 			  // Strip any G.
-			  for (multop::vec::iterator i = s.res_Event->begin();
-			       i != s.res_Event->end(); ++i)
-			    if (const unop* u = is_G(*i))
+			  for (auto& f: *s.res_Event)
+			    if (const unop* u = is_G(f))
 			      {
-				*i = u->child()->clone();
+				f = u->child()->clone();
 				u->destroy();
 			      }
 			  const formula* ge =
@@ -1530,11 +1525,9 @@ namespace spot
 			    }
 			  else
 			    {
-			      for (multop::vec::iterator j =
-				     s.res_other->begin();
-				   j != s.res_other->end(); ++j)
-				if (*j)
-				  (*j)->destroy();
+			      for (auto f: *s.res_other)
+				if (f)
+				  f->destroy();
 			      delete s.res_other;
 			      delete s.res_F;
 			      delete s.res_X;
@@ -2962,11 +2955,8 @@ namespace spot
 			    if (gs == wuset.end())
 			      continue;
 
-			    const std::set<unsigned>& s = gs->second;
-			    std::set<unsigned>::const_iterator g;
-			    for (g = s.begin(); g != s.end(); ++g)
+			    for (unsigned pos: gs->second)
 			      {
-				unsigned pos = *g;
 				const binop* wu = is_binop((*res)[pos]);
 				if (wu)
 				  {
@@ -3027,15 +3017,14 @@ namespace spot
 			    multop::vec* xgv = new multop::vec;
 			    xgv->reserve(xgs);
 			    fset_t::iterator i;
-			    for (i = xgset.begin(); i != xgset.end(); ++i)
-			      xgv->push_back(*i);
+			    for (auto f: xgset)
+			      xgv->push_back(f);
 			    const formula* gv =
 			      multop::instance(multop::And, xgv);
 			    xv->push_back(unop::instance(unop::G, gv));
 			  }
-			fset_t::iterator j;
-			for (j = xset.begin(); j != xset.end(); ++j)
-			  xv->push_back(*j);
+			for (auto f: xset)
+			  xv->push_back(f);
 			const formula* av =
 			  multop::instance(multop::And, xv);
 			res->push_back(unop::instance(unop::X, av));
@@ -3078,13 +3067,11 @@ namespace spot
 		      {
 			multop::vec* eu = new multop::vec;
 			bool seen_g = false;
-			for (multop::vec::const_iterator
-			       i = s.res_EventUniv->begin();
-			     i != s.res_EventUniv->end(); ++i)
+			for (auto f: *s.res_EventUniv)
 			  {
-			    if ((*i)->is_eventual() && (*i)->is_universal())
+			    if (f->is_eventual() && f->is_universal())
 			      {
-				if (const unop* g = is_G(*i))
+				if (const unop* g = is_G(f))
 				  {
 				    seen_g = true;
 				    eu->push_back(g->child()->clone());
@@ -3092,11 +3079,11 @@ namespace spot
 				  }
 				else
 				  {
-				    eu->push_back(*i);
+				    eu->push_back(f);
 				  }
 			      }
 			    else
-			      s.res_other->push_back(*i);
+			      s.res_other->push_back(f);
 			  }
 			if (seen_g)
 			  {
@@ -3139,7 +3126,7 @@ namespace spot
 		    // (a U b) & (c U b) = (a & c) U b
 		    // (a U b) & (c W b) = (a & c) U b
 		    // (a W b) & (c W b) = (a & c) W b
-		    for (multop::vec::iterator i = s.res_U_or_W->begin();
+		    for (auto i = s.res_U_or_W->begin();
 			 i != s.res_U_or_W->end(); ++i)
 		      {
 			const binop* bo = static_cast<const binop*>(*i);
@@ -3171,7 +3158,7 @@ namespace spot
 		    // (a R b) & (a R c) = a R (b & c)
 		    // (a R b) & (a M c) = a M (b & c)
 		    // (a M b) & (a M c) = a M (b & c)
-		    for (multop::vec::iterator i = s.res_R_or_M->begin();
+		    for (auto i = s.res_R_or_M->begin();
 			 i != s.res_R_or_M->end(); ++i)
 		      {
 			const binop* bo = static_cast<const binop*>(*i);
@@ -3204,7 +3191,7 @@ namespace spot
 		    // F(a) & (a M b) = a M b
 		    // F(b) & (a W b) = a U b
 		    // F(b) & (a U b) = a U b
-		    for (multop::vec::iterator i = s.res_F->begin();
+		    for (auto i = s.res_F->begin();
 			 i != s.res_F->end(); ++i)
 		      {
 			bool superfluous = false;
@@ -3278,12 +3265,11 @@ namespace spot
 		    if (!s.res_X->empty() && !opt_.favor_event_univ)
 		      {
 			multop::vec* event = new multop::vec;
-			for (multop::vec::iterator i = s.res_G->begin();
-			     i != s.res_G->end(); ++i)
-			  if ((*i)->is_eventual())
+			for (auto& f: *s.res_G)
+			  if (f->is_eventual())
 			    {
-			      event->push_back(*i);
-			      *i = 0; // Remove it from res_G.
+			      event->push_back(f);
+			      f = 0; // Remove it from res_G.
 			    }
 			s.res_X->push_back(unop_multop(unop::G,
 						       multop::And, event));
@@ -3317,13 +3303,12 @@ namespace spot
 			  multop::instance(multop::And, s.res_Bool);
 
 			multop::vec* ares = new multop::vec;
-			for (multop::vec::iterator i = s.res_other->begin();
-			     i != s.res_other->end(); ++i)
-			  switch ((*i)->kind())
+			for (auto& f: *s.res_other)
+			  switch (f->kind())
 			    {
 			    case formula::BUnOp:
 			      {
-				const bunop* r = down_cast<const bunop*>(*i);
+				const bunop* r = down_cast<const bunop*>(f);
 				// b && r[*i..j] = b & r  if i<=1<=j
 				//               = 0      otherwise
 				switch (r->op())
@@ -3333,14 +3318,14 @@ namespace spot
 				      goto returnfalse;
 				    ares->push_back(r->child()->clone());
 				    r->destroy();
-				    *i = 0;
+				    f = 0;
 				    break;
 				  }
 				break;
 			      }
 			    case formula::MultOp:
 			      {
-				const multop* r = down_cast<const multop*>(*i);
+				const multop* r = down_cast<const multop*>(f);
 				unsigned rs = r->size();
 				switch (r->op())
 				  {
@@ -3349,7 +3334,7 @@ namespace spot
 				    for (unsigned j = 0; j < rs; ++j)
 				      ares->push_back(r->nth(j)->clone());
 				    r->destroy();
-				    *i = 0;
+				    f = 0;
 				    break;
 				  case multop::Concat:
 				    // b && {r1;...;rn} =
@@ -3390,7 +3375,7 @@ namespace spot
 					  goto returnfalse;
 					}
 				      r->destroy();
-				      *i = 0;
+				      f = 0;
 				      break;
 				    }
 				  default:
@@ -3400,8 +3385,8 @@ namespace spot
 			      }
 			    default:
 			    common:
-			      ares->push_back(*i);
-			      *i = 0;
+			      ares->push_back(f);
+			      f = 0;
 			      break;
 			    }
 			delete s.res_other;
@@ -3414,14 +3399,12 @@ namespace spot
 			return;
 		      returnfalse:
 			b->destroy();
-			for (multop::vec::iterator i = s.res_other->begin();
-			     i != s.res_other->end(); ++i)
-			  if (*i)
-			    (*i)->destroy();
+			for (auto f: *s.res_other)
+			  if (f)
+			    f->destroy();
 			delete s.res_other;
-			for (multop::vec::iterator i = ares->begin();
-			     i != ares->end(); ++i)
-			  (*i)->destroy();
+			for (auto f: *ares)
+			  f->destroy();
 			delete ares;
 			result_ = constant::false_instance();
 			return;
@@ -3441,14 +3424,13 @@ namespace spot
 			multop::vec* tail1 = new multop::vec;
 			multop::vec* head2 = new multop::vec;
 			multop::vec* tail2 = new multop::vec;
-			for (multop::vec::iterator i = s.res_other->begin();
-			     i != s.res_other->end(); ++i)
+			for (auto& i: *s.res_other)
 			  {
-			    if (!*i)
+			    if (!i)
 			      continue;
-			    if ((*i)->kind() != formula::MultOp)
+			    if (i->kind() != formula::MultOp)
 			      continue;
-			    const multop* f = down_cast<const multop*>(*i);
+			    const multop* f = down_cast<const multop*>(i);
 			    const formula* h = f->nth(0);
 			    if (!h->is_boolean())
 			      continue;
@@ -3461,8 +3443,8 @@ namespace spot
 				for (unsigned j = 1; j < s; ++j)
 				  tail->push_back(f->nth(j)->clone());
 				tail1->push_back(multop::instance(op, tail));
-				(*i)->destroy();
-				*i = 0;
+				i->destroy();
+				i = 0;
 			      }
 			    else if (op == multop::Fusion)
 			      {
@@ -3472,8 +3454,8 @@ namespace spot
 				for (unsigned j = 1; j < s; ++j)
 				  tail->push_back(f->nth(j)->clone());
 				tail2->push_back(multop::instance(op, tail));
-				(*i)->destroy();
-				*i = 0;
+				i->destroy();
+				i = 0;
 			      }
 			    else
 			      {
@@ -3519,14 +3501,13 @@ namespace spot
 			multop::vec* tail3 = new multop::vec;
 			multop::vec* head4 = new multop::vec;
 			multop::vec* tail4 = new multop::vec;
-			for (multop::vec::iterator i = s.res_other->begin();
-			     i != s.res_other->end(); ++i)
+			for (auto& i: *s.res_other)
 			  {
-			    if (!*i)
+			    if (!i)
 			      continue;
-			    if ((*i)->kind() != formula::MultOp)
+			    if (i->kind() != formula::MultOp)
 			      continue;
-			    const multop* f = down_cast<const multop*>(*i);
+			    const multop* f = down_cast<const multop*>(i);
 			    unsigned s = f->size() - 1;
 			    const formula* t = f->nth(s);
 			    if (!t->is_boolean())
@@ -3539,8 +3520,8 @@ namespace spot
 				for (unsigned j = 0; j < s; ++j)
 				  head->push_back(f->nth(j)->clone());
 				head3->push_back(multop::instance(op, head));
-				(*i)->destroy();
-				*i = 0;
+				i->destroy();
+				i = 0;
 			      }
 			    else if (op == multop::Fusion)
 			      {
@@ -3549,8 +3530,8 @@ namespace spot
 				for (unsigned j = 0; j < s; ++j)
 				  head->push_back(f->nth(j)->clone());
 				head4->push_back(multop::instance(op, head));
-				(*i)->destroy();
-				*i = 0;
+				i->destroy();
+				i = 0;
 			      }
 			    else
 			      {
@@ -3718,11 +3699,8 @@ namespace spot
 			    fmap_t::const_iterator gs = rmset.find(x);
 			    if (gs == rmset.end())
 			      continue;
-			    const std::set<unsigned>& s = gs->second;
-			    std::set<unsigned>::const_iterator g;
-			    for (g = s.begin(); g != s.end(); ++g)
+			    for (unsigned pos: gs->second)
 			      {
-				unsigned pos = *g;
 				const binop* rm = is_binop((*res)[pos]);
 				if (rm)
 				  {
@@ -3791,17 +3769,15 @@ namespace spot
 			    // Group all XF(a)|XF(b|c|...)|... as XF(a|b|c|...)
 			    multop::vec* xfv = new multop::vec;
 			    xfv->reserve(xfs);
-			    fset_t::iterator i;
-			    for (i = xfset.begin(); i != xfset.end(); ++i)
-			      xfv->push_back(*i);
+			    for (auto f: xfset)
+			      xfv->push_back(f);
 			    const formula* fv =
 			      multop::instance(multop::Or, xfv);
 			    xv->push_back(unop::instance(unop::F, fv));
 			  }
 			// Also gather the remaining Xa | X(b|c) as X(b|c).
-			fset_t::iterator j;
-			for (j = xset.begin(); j != xset.end(); ++j)
-			  xv->push_back(*j);
+			for (auto f: xset)
+			  xv->push_back(f);
 			const formula* ov = multop::instance(multop::Or, xv);
 			res->push_back(unop::instance(unop::X, ov));
 		      }
@@ -3874,12 +3850,10 @@ namespace spot
 			    // If some of the EventUniv formulae start
 			    // with an F, Gather them all under the
 			    // same F.  Striping any leading F.
-			    for (multop::vec::iterator i =
-				   s.res_EventUniv->begin();
-				 i != s.res_EventUniv->end(); ++i)
-			      if (const unop* u = is_F(*i))
+			    for (auto& f: *s.res_EventUniv)
+			      if (const unop* u = is_F(f))
 				{
-				  *i = u->child()->clone();
+				  f = u->child()->clone();
 				  u->destroy();
 				  seen_f = true;
 				}
@@ -3930,7 +3904,7 @@ namespace spot
 		    // (a U b) | (a U c) = a U (b | c)
 		    // (a W b) | (a U c) = a W (b | c)
 		    // (a W b) | (a W c) = a W (b | c)
-		    for (multop::vec::iterator i = s.res_U_or_W->begin();
+		    for (auto i = s.res_U_or_W->begin();
 			 i != s.res_U_or_W->end(); ++i)
 		      {
 			const binop* bo = static_cast<const binop*>(*i);
@@ -3962,7 +3936,7 @@ namespace spot
 		    // (a R b) | (c R b) = (a | c) R b
 		    // (a R b) | (c M b) = (a | c) R b
 		    // (a M b) | (c M b) = (a | c) M b
-		    for (multop::vec::iterator i = s.res_R_or_M->begin();
+		    for (auto i = s.res_R_or_M->begin();
 			 i != s.res_R_or_M->end(); ++i)
 		      {
 			const binop* bo = static_cast<const binop*>(*i);
@@ -3995,11 +3969,10 @@ namespace spot
 		    // G(a) | (a W b) = a W b
 		    // G(b) | (a R b) = a R b.
 		    // G(b) | (a M b) = a R b.
-		    for (multop::vec::iterator i = s.res_G->begin();
-			 i != s.res_G->end(); ++i)
+		    for (auto& f: *s.res_G)
 		      {
 			bool superfluous = false;
-			const unop* uo = static_cast<const unop*>(*i);
+			const unop* uo = static_cast<const unop*>(f);
 			const formula* c = uo->child();
 
 			fmap_t::iterator j = uwmap.find(c);
@@ -4036,8 +4009,8 @@ namespace spot
 			  }
 			if (superfluous)
 			  {
-			    (*i)->destroy();
-			    *i = 0;
+			    f->destroy();
+			    f = 0;
 			  }
 		      }
 
@@ -4067,12 +4040,11 @@ namespace spot
 		    if (!s.res_X->empty())
 		      {
 			multop::vec* univ = new multop::vec;
-			for (multop::vec::iterator i = s.res_F->begin();
-			     i != s.res_F->end(); ++i)
-			  if ((*i)->is_universal())
+			for (auto& f: *s.res_F)
+			  if (f->is_universal())
 			    {
-			      univ->push_back(*i);
-			      *i = 0; // Remove it from res_F.
+			      univ->push_back(f);
+			      f = 0; // Remove it from res_F.
 			    }
 			s.res_X->push_back(unop_multop(unop::F,
 						       multop::Or, univ));
@@ -4160,14 +4132,13 @@ namespace spot
 			multop::vec* tail1 = new multop::vec;
 			multop::vec* head2 = new multop::vec;
 			multop::vec* tail2 = new multop::vec;
-			for (multop::vec::iterator i = s.res_other->begin();
-			     i != s.res_other->end(); ++i)
+			for (auto& i: *s.res_other)
 			  {
-			    if (!*i)
+			    if (!i)
 			      continue;
-			    if ((*i)->kind() != formula::MultOp)
+			    if (i->kind() != formula::MultOp)
 			      continue;
-			    const multop* f = down_cast<const multop*>(*i);
+			    const multop* f = down_cast<const multop*>(i);
 			    const formula* h = f->nth(0);
 			    if (!h->is_boolean())
 			      continue;
@@ -4180,8 +4151,8 @@ namespace spot
 				for (unsigned j = 1; j < s; ++j)
 				  tail->push_back(f->nth(j)->clone());
 				tail1->push_back(multop::instance(op, tail));
-				(*i)->destroy();
-				*i = 0;
+				i->destroy();
+				i = 0;
 			      }
 			    else if (op == multop::Fusion)
 			      {
@@ -4191,8 +4162,8 @@ namespace spot
 				for (unsigned j = 1; j < s; ++j)
 				  tail->push_back(f->nth(j)->clone());
 				tail2->push_back(multop::instance(op, tail));
-				(*i)->destroy();
-				*i = 0;
+				i->destroy();
+				i = 0;
 			      }
 			    else
 			      {
@@ -4238,14 +4209,13 @@ namespace spot
 			multop::vec* tail3 = new multop::vec;
 			multop::vec* head4 = new multop::vec;
 			multop::vec* tail4 = new multop::vec;
-			for (multop::vec::iterator i = s.res_other->begin();
-			     i != s.res_other->end(); ++i)
+			for (auto& i: *s.res_other)
 			  {
-			    if (!*i)
+			    if (!i)
 			      continue;
-			    if ((*i)->kind() != formula::MultOp)
+			    if (i->kind() != formula::MultOp)
 			      continue;
-			    const multop* f = down_cast<const multop*>(*i);
+			    const multop* f = down_cast<const multop*>(i);
 			    unsigned s = f->size() - 1;
 			    const formula* t = f->nth(s);
 			    if (!t->is_boolean())
@@ -4258,8 +4228,8 @@ namespace spot
 				for (unsigned j = 0; j < s; ++j)
 				  head->push_back(f->nth(j)->clone());
 				head3->push_back(multop::instance(op, head));
-				(*i)->destroy();
-				*i = 0;
+				i->destroy();
+				i = 0;
 			      }
 			    else if (op == multop::Fusion)
 			      {
@@ -4268,8 +4238,8 @@ namespace spot
 				for (unsigned j = 0; j < s; ++j)
 				  head->push_back(f->nth(j)->clone());
 				head4->push_back(multop::instance(op, head));
-				(*i)->destroy();
-				*i = 0;
+				i->destroy();
+				i = 0;
 			      }
 			    else
 			      {

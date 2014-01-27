@@ -95,9 +95,8 @@ namespace spot
 	    std::ostringstream msg;
 	    if (o != seen.end())
 	      {
-		std::set<int>::const_iterator d;
-		for (d = o->second.begin(); d != o->second.end(); ++d)
-		  msg << " == " << *d;
+		for (auto d: o->second)
+		  msg << " == " << d;
 		o->second.insert(serial);
 		s->destroy();
 		s = o->first;
