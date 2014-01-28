@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -118,7 +118,7 @@ namespace spot
 
         ta_succ_iterator_product* iter = a_->succ_iter(init);
         iter->first();
-        todo.push(pair_state_iter(init, iter));
+        todo.emplace(init, iter);
 
         inc_depth();
 
@@ -245,7 +245,7 @@ namespace spot
 
                 ta_succ_iterator_product* iter = a_->succ_iter(dest);
                 iter->first();
-                todo.push(pair_state_iter(dest, iter));
+                todo.emplace(dest, iter);
                 //colour[dest] = GREY;
                 inc_depth();
 
@@ -467,7 +467,7 @@ namespace spot
             sscc.top().is_accepting = t->is_livelock_accepting_state(init);
             ta_succ_iterator_product* iter = t->succ_iter(init);
             iter->first();
-            todo.push(pair_state_iter(init, iter));
+            todo.emplace(init, iter);
             inc_depth();
 
           }
@@ -561,7 +561,7 @@ namespace spot
 
                 ta_succ_iterator_product* iter = t->succ_iter(dest);
                 iter->first();
-                todo.push(pair_state_iter(dest, iter));
+                todo.emplace(dest, iter);
                 inc_depth();
                 continue;
               }

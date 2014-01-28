@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2014  Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 // Copyright (C) 2004, 2011  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -30,10 +33,10 @@ namespace spot
     int n = 1;
     for (tgba_run::steps::const_iterator i = run->prefix.begin();
 	 i != run->prefix.end(); ++i, ++n)
-      map_[i->s].first.push_back(step_num(i, n));
+      map_[i->s].first.emplace_back(i, n);
     for (tgba_run::steps::const_iterator i = run->cycle.begin();
 	 i != run->cycle.end(); ++i, ++n)
-      map_[i->s].second.push_back(step_num(i, n));
+      map_[i->s].second.emplace_back(i, n);
   }
 
   tgba_run_dotty_decorator::~tgba_run_dotty_decorator()
@@ -55,19 +58,17 @@ namespace spot
     std::string sep = "(";
     bool in_prefix = false;
     bool in_cycle = false;
-    for (step_set::const_iterator j = i->second.first.begin();
-	 j != i->second.first.end(); ++j)
+    for (auto j: i->second.first)
       {
-	os << sep << j->second;
+	os << sep << j.second;
 	sep = ", ";
 	in_prefix = true;
       }
     if (sep == ", ")
       sep = "; ";
-    for (step_set::const_iterator j = i->second.second.begin();
-	 j != i->second.second.end(); ++j)
+    for (auto j: i->second.second)
       {
-	os << sep << j->second;
+	os << sep << j.second;
 	sep = ", ";
 	in_cycle = true;
       }

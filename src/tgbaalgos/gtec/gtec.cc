@@ -173,7 +173,7 @@ namespace spot
       arc.push(bddfalse);
       tgba_succ_iterator* iter = ecs_->aut->succ_iter(init);
       iter->first();
-      todo.push(pair_state_iter(init, iter));
+      todo.emplace(init, iter);
       inc_depth();
     }
 
@@ -242,7 +242,7 @@ namespace spot
 	    arc.push(acc);
 	    tgba_succ_iterator* iter = ecs_->aut->succ_iter(dest);
 	    iter->first();
-	    todo.push(pair_state_iter(dest, iter));
+	    todo.emplace(dest, iter);
 	    inc_depth();
 	    continue;
 	  }
@@ -329,8 +329,8 @@ namespace spot
   {
     for (auto iter: shy->ecs_->aut->succ(s))
       {
-	q.push_back(successor(iter->current_acceptance_conditions(),
-			      iter->current_state()));
+	q.emplace_back(iter->current_acceptance_conditions(),
+		       iter->current_state());
 	shy->inc_depth();
 	shy->inc_transitions();
       }
@@ -351,7 +351,7 @@ namespace spot
     const state* i = ecs_->aut->get_init_state();
     ecs_->h->insert(i, ++num);
     ecs_->root.push(num);
-    todo.push_back(todo_item(i, num, this));
+    todo.emplace_back(i, num, this);
     inc_depth(1);
   }
 
@@ -510,7 +510,7 @@ namespace spot
 	    ecs_->h->insert(succ.s, ++num);
 	    ecs_->root.push(num);
 	    arc.push(succ.acc);
-	    todo.push_back(todo_item(succ.s, num, this));
+	    todo.emplace_back(succ.s, num, this);
 	    pos = todo.back().q.begin();
 	    inc_depth();
 	    continue;

@@ -59,8 +59,8 @@
 using namespace spot::ltl;
 
 #define missing_right_op_msg(op, str)		\
-  error_list.push_back(parse_error(op,		\
-    "missing right operand for \"" str "\""));
+  error_list.emplace_back(op,			\
+    "missing right operand for \"" str "\"");
 
 #define missing_right_op(res, op, str)		\
   do						\
@@ -115,8 +115,7 @@ using namespace spot::ltl;
 
       if (str.empty())
 	{
-	  error_list.push_back(parse_error(location,
-					   "unexpected empty block"));
+	  error_list.emplace_back(location, "unexpected empty block");
 	  return 0;
 	}
 
@@ -149,7 +148,7 @@ using namespace spot::ltl;
 	  s += "' rejected by environment `";
 	  s += env.name();
 	  s += "'";
-	  error_list.push_back(parse_error(location, s));
+	  error_list.emplace_back(location, s);
 	}
       return f;
     }
@@ -308,14 +307,13 @@ result:       START_LTL subformula END_OF_INPUT
 
 emptyinput: END_OF_INPUT
               {
-		error_list.push_back(parse_error(@$, "empty input"));
+		error_list.emplace_back(@$, "empty input");
 		result = 0;
 	      }
 
 enderror: error END_OF_INPUT
               {
-		error_list.push_back(parse_error(@1,
-						 "ignoring trailing garbage"));
+		error_list.emplace_back(@1, "ignoring trailing garbage");
 	      }
 
 
@@ -349,12 +347,11 @@ gotoargs: OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
 	  | OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_CLOSE
            { $$.min = $$.max = $2; }
 	  | OP_GOTO_OPEN error OP_SQBKT_CLOSE
-           { error_list.push_back(parse_error(@$,
-	       "treating this goto block as [->]"));
+           { error_list.emplace_back(@$, "treating this goto block as [->]");
              $$.min = $$.max = 1U; }
           | OP_GOTO_OPEN error_opt END_OF_INPUT
-	   { error_list.push_back(parse_error(@$,
-               "missing closing bracket for goto operator"));
+	   { error_list.
+	       emplace_back(@$, "missing closing bracket for goto operator");
 	     $$.min = $$.max = 0U; }
 
 kleen_star: OP_STAR | OP_BSTAR
@@ -366,23 +363,20 @@ starargs: kleen_star
 	| OP_STAR_OPEN sqbracketargs
 	    { $$ = $2; }
 	| OP_STAR_OPEN error OP_SQBKT_CLOSE
-            { error_list.push_back(parse_error(@$,
-		"treating this star block as [*]"));
+            { error_list.emplace_back(@$, "treating this star block as [*]");
               $$.min = 0U; $$.max = bunop::unbounded; }
         | OP_STAR_OPEN error_opt END_OF_INPUT
-	    { error_list.push_back(parse_error(@$,
-                "missing closing bracket for star"));
+	    { error_list.emplace_back(@$, "missing closing bracket for star");
 	      $$.min = $$.max = 0U; }
 
 equalargs: OP_EQUAL_OPEN sqbracketargs
 	    { $$ = $2; }
 	| OP_EQUAL_OPEN error OP_SQBKT_CLOSE
-            { error_list.push_back(parse_error(@$,
-		"treating this equal block as [*]"));
+            { error_list.emplace_back(@$, "treating this equal block as [*]");
               $$.min = 0U; $$.max = bunop::unbounded; }
         | OP_EQUAL_OPEN error_opt END_OF_INPUT
-	    { error_list.push_back(parse_error(@$,
-                "missing closing bracket for equal operator"));
+	    { error_list.
+		emplace_back(@$, "missing closing bracket for equal operator");
 	      $$.min = $$.max = 0U; }
 
 
@@ -399,7 +393,7 @@ booleanatom: ATOMIC_PROP
 		    s += "' in environment `";
 		    s += parse_environment.name();
 		    s += "'";
-		    error_list.push_back(parse_error(@1, s));
+		    error_list.emplace_back(@1, s);
 		    delete $1;
 		    YYERROR;
 		  }
@@ -416,7 +410,7 @@ booleanatom: ATOMIC_PROP
 		    s += "' in environment `";
 		    s += parse_environment.name();
 		    s += "'";
-		    error_list.push_back(parse_error(@1, s));
+		    error_list.emplace_back(@1, s);
 		    delete $1;
 		    YYERROR;
 		  }
@@ -433,7 +427,7 @@ booleanatom: ATOMIC_PROP
 		    s += "' in environment `";
 		    s += parse_environment.name();
 		    s += "'";
-		    error_list.push_back(parse_error(@1, s));
+		    error_list.emplace_back(@1, s);
 		    delete $1;
 		    YYERROR;
 		  }
@@ -455,11 +449,10 @@ sere: booleanatom
 		  }
 		else
 		  {
-		    error_list.push_back(parse_error(@2,
+		    error_list.emplace_back(@2,
                        "not a boolean expression: inside a SERE `!' can only "
-                       "be applied to a Boolean expression"));
-		    error_list.push_back(parse_error(@$,
-				"treating this block as false"));
+                       "be applied to a Boolean expression");
+		    error_list.emplace_back(@$, "treating this block as false");
 		    $2->destroy();
 		    $$ = constant::false_instance();
 		  }
@@ -476,19 +469,19 @@ sere: booleanatom
 	    | PAR_OPEN sere PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN error PAR_CLOSE
-	      { error_list.push_back(parse_error(@$,
-		 "treating this parenthetical block as false"));
+	      { error_list.
+		  emplace_back(@$,
+			       "treating this parenthetical block as false");
 		$$ = constant::false_instance();
 	      }
 	    | PAR_OPEN sere END_OF_INPUT
-	      { error_list.push_back(parse_error(@1 + @2,
-				      "missing closing parenthesis"));
+	      { error_list.emplace_back(@1 + @2, "missing closing parenthesis");
 		$$ = $2;
 	      }
 	    | PAR_OPEN error END_OF_INPUT
-	      { error_list.push_back(parse_error(@$,
+	      { error_list.emplace_back(@$,
                     "missing closing parenthesis, "
-		    "treating this parenthetical block as false"));
+		    "treating this parenthetical block as false");
 		$$ = constant::false_instance();
 	      }
 	    | sere OP_AND sere
@@ -517,7 +510,7 @@ sere: booleanatom
 	      {
 		if ($2.max < $2.min)
 		  {
-		    error_list.push_back(parse_error(@2, "reversed range"));
+		    error_list.emplace_back(@2, "reversed range");
 		    std::swap($2.max, $2.min);
 		  }
 		$$ = bunop::instance(bunop::Star, $1, $2.min, $2.max);
@@ -526,7 +519,7 @@ sere: booleanatom
 	      {
 		if ($1.max < $1.min)
 		  {
-		    error_list.push_back(parse_error(@1, "reversed range"));
+		    error_list.emplace_back(@1, "reversed range");
 		    std::swap($1.max, $1.min);
 		  }
 		$$ = bunop::instance(bunop::Star, constant::true_instance(),
@@ -536,7 +529,7 @@ sere: booleanatom
 	      {
 		if ($2.max < $2.min)
 		  {
-		    error_list.push_back(parse_error(@2, "reversed range"));
+		    error_list.emplace_back(@2, "reversed range");
 		    std::swap($2.max, $2.min);
 		  }
 		if ($1->is_boolean())
@@ -545,11 +538,11 @@ sere: booleanatom
 		  }
 		else
 		  {
-		    error_list.push_back(parse_error(@1,
+		    error_list.emplace_back(@1,
 				"not a boolean expression: [=...] can only "
-				"be applied to a Boolean expression"));
-		    error_list.push_back(parse_error(@$,
-				"treating this block as false"));
+				"be applied to a Boolean expression");
+		    error_list.emplace_back(@$,
+				"treating this block as false");
 		    $1->destroy();
 		    $$ = constant::false_instance();
 		  }
@@ -558,7 +551,7 @@ sere: booleanatom
 	      {
 		if ($2.max < $2.min)
 		  {
-		    error_list.push_back(parse_error(@2, "reversed range"));
+		    error_list.emplace_back(@2, "reversed range");
 		    std::swap($2.max, $2.min);
 		  }
 		if ($1->is_boolean())
@@ -567,11 +560,11 @@ sere: booleanatom
 		  }
 		else
 		  {
-		    error_list.push_back(parse_error(@1,
+		    error_list.emplace_back(@1,
 				"not a boolean expression: [->...] can only "
-				"be applied to a Boolean expression"));
-		    error_list.push_back(parse_error(@$,
-				"treating this block as false"));
+				"be applied to a Boolean expression");
+		    error_list.emplace_back(@$,
+				"treating this block as false");
 		    $1->destroy();
 		    $$ = constant::false_instance();
 		  }
@@ -586,18 +579,17 @@ sere: booleanatom
 		  {
 		    if (!$1->is_boolean())
 		      {
-			error_list.push_back(parse_error(@1,
+			error_list.emplace_back(@1,
                          "not a boolean expression: inside SERE `<->' can only "
-                         "be applied to Boolean expressions"));
+                         "be applied to Boolean expressions");
                       }
 		    if (!$3->is_boolean())
 		      {
-			error_list.push_back(parse_error(@3,
+			error_list.emplace_back(@3,
                          "not a boolean expression: inside SERE `<->' can only "
-                         "be applied to Boolean expressions"));
+                         "be applied to Boolean expressions");
                       }
-		    error_list.push_back(parse_error(@$,
-				"treating this block as false"));
+		    error_list.emplace_back(@$, "treating this block as false");
 		    $1->destroy();
 		    $3->destroy();
 		    $$ = constant::false_instance();
@@ -615,12 +607,11 @@ sere: booleanatom
 		  {
 		    if (!$1->is_boolean())
 		      {
-			error_list.push_back(parse_error(@1,
+			error_list.emplace_back(@1,
                          "not a boolean expression: inside SERE `->' can only "
-                         "be applied to a Boolean expression"));
+                         "be applied to a Boolean expression");
                       }
-		    error_list.push_back(parse_error(@$,
-				"treating this block as false"));
+		    error_list.emplace_back(@$, "treating this block as false");
 		    $1->destroy();
 		    $3->destroy();
 		    $$ = constant::false_instance();
@@ -638,18 +629,17 @@ sere: booleanatom
 		  {
 		    if (!$1->is_boolean())
 		      {
-			error_list.push_back(parse_error(@1,
+			error_list.emplace_back(@1,
                          "not a boolean expression: inside SERE `<->' can only "
-                         "be applied to Boolean expressions"));
+                         "be applied to Boolean expressions");
                       }
 		    if (!$3->is_boolean())
 		      {
-			error_list.push_back(parse_error(@3,
+			error_list.emplace_back(@3,
                          "not a boolean expression: inside SERE `<->' can only "
-                         "be applied to Boolean expressions"));
+                         "be applied to Boolean expressions");
                       }
-		    error_list.push_back(parse_error(@$,
-				"treating this block as false"));
+		    error_list.emplace_back(@$, "treating this block as false");
 		    $1->destroy();
 		    $3->destroy();
 		    $$ = constant::false_instance();
@@ -661,28 +651,28 @@ sere: booleanatom
 bracedsere: BRACE_OPEN sere BRACE_CLOSE
               { $$ = $2; }
             | BRACE_OPEN sere error BRACE_CLOSE
-	      { error_list.push_back(parse_error(@3, "ignoring this"));
+	      { error_list.emplace_back(@3, "ignoring this");
 		$$ = $2;
 	      }
             | BRACE_OPEN error BRACE_CLOSE
-	      { error_list.push_back(parse_error(@$,
-		 "treating this brace block as false"));
+	      { error_list.emplace_back(@$,
+					"treating this brace block as false");
 		$$ = constant::false_instance();
 	      }
             | BRACE_OPEN sere END_OF_INPUT
-	      { error_list.push_back(parse_error(@1 + @2,
-				      "missing closing brace"));
+	      { error_list.emplace_back(@1 + @2,
+					"missing closing brace");
 		$$ = $2;
 	      }
 	    | BRACE_OPEN sere error END_OF_INPUT
-	      { error_list.push_back(parse_error(@3,
-                "ignoring trailing garbage and missing closing brace"));
+	      { error_list. emplace_back(@3,
+                  "ignoring trailing garbage and missing closing brace");
 		$$ = $2;
 	      }
 	    | BRACE_OPEN error END_OF_INPUT
-	      { error_list.push_back(parse_error(@$,
+	      { error_list.emplace_back(@$,
                     "missing closing brace, "
-		    "treating this brace block as false"));
+		    "treating this brace block as false");
 		$$ = constant::false_instance();
 	      }
             | BRA_BLOCK
@@ -706,28 +696,27 @@ parenthesedsubformula: PAR_BLOCK
             | PAR_OPEN subformula PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN subformula error PAR_CLOSE
-	      { error_list.push_back(parse_error(@3, "ignoring this"));
+	      { error_list.emplace_back(@3, "ignoring this");
 		$$ = $2;
 	      }
 	    | PAR_OPEN error PAR_CLOSE
-	      { error_list.push_back(parse_error(@$,
-		 "treating this parenthetical block as false"));
+	      { error_list.emplace_back(@$,
+		 "treating this parenthetical block as false");
 		$$ = constant::false_instance();
 	      }
 	    | PAR_OPEN subformula END_OF_INPUT
-	      { error_list.push_back(parse_error(@1 + @2,
-				      "missing closing parenthesis"));
+	      { error_list.emplace_back(@1 + @2, "missing closing parenthesis");
 		$$ = $2;
 	      }
 	    | PAR_OPEN subformula error END_OF_INPUT
-	      { error_list.push_back(parse_error(@3,
-                "ignoring trailing garbage and missing closing parenthesis"));
+	      { error_list.emplace_back(@3,
+                "ignoring trailing garbage and missing closing parenthesis");
 		$$ = $2;
 	      }
 	    | PAR_OPEN error END_OF_INPUT
-	      { error_list.push_back(parse_error(@$,
+	      { error_list.emplace_back(@$,
                     "missing closing parenthesis, "
-		    "treating this parenthetical block as false"));
+		    "treating this parenthetical block as false");
 		$$ = constant::false_instance();
 	      }
 
@@ -744,28 +733,28 @@ boolformula: booleanatom
             | PAR_OPEN boolformula PAR_CLOSE
 	      { $$ = $2; }
 	    | PAR_OPEN boolformula error PAR_CLOSE
-	      { error_list.push_back(parse_error(@3, "ignoring this"));
+	      { error_list.emplace_back(@3, "ignoring this");
 		$$ = $2;
 	      }
 	    | PAR_OPEN error PAR_CLOSE
-	      { error_list.push_back(parse_error(@$,
-		 "treating this parenthetical block as false"));
+	      { error_list.emplace_back(@$,
+		 "treating this parenthetical block as false");
 		$$ = constant::false_instance();
 	      }
 	    | PAR_OPEN boolformula END_OF_INPUT
-	      { error_list.push_back(parse_error(@1 + @2,
-				      "missing closing parenthesis"));
+	      { error_list.emplace_back(@1 + @2,
+					"missing closing parenthesis");
 		$$ = $2;
 	      }
 	    | PAR_OPEN boolformula error END_OF_INPUT
-	      { error_list.push_back(parse_error(@3,
-                "ignoring trailing garbage and missing closing parenthesis"));
+	      { error_list.emplace_back(@3,
+                "ignoring trailing garbage and missing closing parenthesis");
 		$$ = $2;
 	      }
 	    | PAR_OPEN error END_OF_INPUT
-	      { error_list.push_back(parse_error(@$,
+	      { error_list.emplace_back(@$,
                     "missing closing parenthesis, "
-		    "treating this parenthetical block as false"));
+		    "treating this parenthetical block as false");
 		$$ = constant::false_instance();
 	      }
 	    | boolformula OP_AND boolformula
@@ -923,7 +912,7 @@ lbtformula: ATOMIC_PROP
 		    s += "' rejected by environment `";
 		    s += parse_environment.name();
 		    s += "'";
-		    error_list.push_back(parse_error(@1, s));
+		    error_list.emplace_back(@1, s);
 		    delete $1;
 		    YYERROR;
 		  }
@@ -969,7 +958,7 @@ lbtformula: ATOMIC_PROP
 void
 ltlyy::parser::error(const location_type& location, const std::string& message)
 {
-  error_list.push_back(parse_error(location, message));
+  error_list.emplace_back(location, message);
 }
 
 namespace spot

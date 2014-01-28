@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -121,8 +121,7 @@ strident "," condition "," follow_list ";"
           here.begin.column + i->first.end.column;
         here.begin.line += i->first.begin.line - 1;
         here.begin.column += i->first.begin.column;
-        error_list.push_back(spot::kripke_parse_error(here,
-                                                    i->second));
+        error_list.emplace_back(here, i->second);
       }
       if (f)
         result->add_condition(f, *$1);
@@ -154,8 +153,7 @@ string: STRING
        | UNTERMINATED_STRING
        {
 	 $$ = $1;
-         error_list.push_back(spot::kripke_parse_error(@1,
-	 					     "unterminated string"));
+         error_list.emplace_back(@1, "unterminated string");
        }
 ;
 
@@ -192,7 +190,7 @@ void
 kripkeyy::parser::error(const location_type& location,
                         const std::string& message)
 {
-  error_list.push_back(spot::kripke_parse_error(location, message));
+  error_list.emplace_back(location, message);
 }
 
 namespace spot

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -39,14 +39,14 @@ namespace spot
     // original algorithm, because in many cases we are trying to
     // build ISOPs out of formulae that are already cubes.
     cube_.push(bdd_satprefix(input));
-    todo_.push(local_vars(input, input, bdd_support(input)));
+    todo_.emplace(input, input, bdd_support(input));
   }
 
   minato_isop::minato_isop(bdd input, bdd vars)
     : ret_(bddfalse)
   {
     cube_.push(bdd_satprefix(input));
-    todo_.push(local_vars(input, input, vars));
+    todo_.emplace(input, input, vars);
   }
 
   bdd
@@ -129,7 +129,7 @@ namespace spot
 		}
 
 	      cube_.push(cube_.top() & v0);
-	      todo_.push(local_vars(l.f0_min - l.f1_max, l.f0_max, l.vars));
+	      todo_.emplace(l.f0_min - l.f1_max, l.f0_max, l.vars);
 	    }
 	    continue;
 
@@ -138,7 +138,7 @@ namespace spot
 	    l.g0 = ret_;
 	    cube_.pop();
 	    cube_.push(cube_.top() & l.v1);
-	    todo_.push(local_vars(l.f1_min - l.f0_max, l.f1_max, l.vars));
+	    todo_.emplace(l.f1_min - l.f0_max, l.f1_max, l.vars);
 	    continue;
 
 	  case local_vars::ThirdStep:
@@ -148,7 +148,7 @@ namespace spot
 	    {
 	      bdd fs_max = l.f0_max & l.f1_max;
 	      bdd fs_min = fs_max & ((l.f0_min - l.g0) | (l.f1_min - l.g1));
-	      todo_.push(local_vars(fs_min, fs_max, l.vars));
+	      todo_.emplace(fs_min, fs_max, l.vars);
 	    }
 	    continue;
 

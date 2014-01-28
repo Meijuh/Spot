@@ -148,12 +148,12 @@ namespace spot
     private:
 
       void push(stack_type& st, const state* s,
-                        const bdd& label, const bdd& acc)
+		const bdd& label, const bdd& acc)
       {
         inc_depth();
         tgba_succ_iterator* i = a_->succ_iter(s);
         i->first();
-        st.push_front(stack_item(s, i, label, acc));
+        st.emplace_front(s, i, label, acc);
       }
 
       void pop(stack_type& st)

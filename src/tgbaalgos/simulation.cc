@@ -1317,7 +1317,7 @@ namespace spot
             bdd sig = dont_care_compute_sig(src);
             dont_care_bdd_lstate[sig].push_back(src);
             dont_care_state2sig[src] = sig;
-            dont_care_now_to_now.push_back(std::make_pair(sig, it->second));
+            dont_care_now_to_now.emplace_back(sig, it->second);
             class2state[it->second] = it->first;
 
             sig = compute_sig(src);

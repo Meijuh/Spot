@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement
-// de l Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2014 Laboratoire de Recherche et
+// Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -52,7 +53,7 @@ namespace spot
   void
   scc_stack_ta::push(int index)
   {
-    s.push_front(connected_component(index));
+    s.emplace_front(index);
   }
 
   std::list<state*>&

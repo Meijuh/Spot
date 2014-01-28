@@ -147,12 +147,12 @@ namespace spot
       state* init = aut_->get_init_state();
       num_ = -1;
       h_.insert(std::make_pair(init, num_));
-      root_.push_front(scc(num_));
+      root_.emplace_front(num_);
       arc_acc_.push(bddfalse);
       arc_cond_.push(bddfalse);
       tgba_succ_iterator* iter = aut_->succ_iter(init);
       iter->first();
-      todo_.push(pair_state_iter(init, iter));
+      todo_.emplace(init, iter);
     }
 
     while (!todo_.empty())
@@ -224,12 +224,12 @@ namespace spot
 	    // Yes.  Number it, stack it, and register its successors
 	    // for later processing.
 	    h_.insert(std::make_pair(dest, --num_));
-	    root_.push_front(scc(num_));
+	    root_.emplace_front(num_);
 	    arc_acc_.push(acc);
 	    arc_cond_.push(cond);
 	    tgba_succ_iterator* iter = aut_->succ_iter(dest);
 	    iter->first();
-	    todo_.push(pair_state_iter(dest, iter));
+	    todo_.emplace(dest, iter);
 	    continue;
 	  }
 

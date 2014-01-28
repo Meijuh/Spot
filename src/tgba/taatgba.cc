@@ -206,9 +206,8 @@ namespace spot
     }
 
     bounds_t bounds;
-    for (taa_tgba::state_set::const_iterator i = s->begin();
-	 i != s->end(); ++i)
-      bounds.push_back(std::make_pair((*i)->begin(), (*i)->end()));
+    for (auto& i: *s)
+      bounds.emplace_back(i->begin(), i->end());
 
     /// Sorting might make the cartesian product faster by not
     /// exploring all possibilities.
@@ -216,8 +215,8 @@ namespace spot
 
     std::vector<iterator> pos;
     pos.reserve(bounds.size());
-    for (bounds_t::const_iterator i = bounds.begin(); i != bounds.end(); ++i)
-      pos.push_back(i->first);
+    for (auto i: bounds)
+      pos.push_back(i.first);
 
     while (pos[0] != bounds[0].second)
     {

@@ -152,7 +152,7 @@ namespace spot
         inc_depth();
         tgba_succ_iterator* i = a_->succ_iter(s);
         i->first();
-        st.push_front(stack_item(s, i, label, acc));
+        st.emplace_front(s, i, label, acc);
       }
 
       void pop(stack_type& st)
@@ -321,7 +321,7 @@ namespace spot
 	typedef std::pair<bdd, unsigned> cond_level;
 	std::stack<cond_level> condition_stack;
 	unsigned depth = 1;
-	condition_stack.push(cond_level(bddfalse, 0));
+	condition_stack.emplace(bddfalse, 0);
 
         while (!st_red.empty())
           {
@@ -376,7 +376,7 @@ namespace spot
 		      {
 			bdd old = acu;
 			acu |= acc;
-			condition_stack.push(cond_level(acu - old, depth));
+			condition_stack.emplace(acu - old, depth);
 		      }
 		    ++depth;
 		  }

@@ -263,7 +263,7 @@ namespace spot
       seen.insert(start);
       tgba_succ_iterator* i = a_->succ_iter(start);
       i->first();
-      st1.push_front(stack_item(start, i, bddfalse, bddfalse));
+      st1.emplace_front(start, i, bddfalse, bddfalse);
 
       while (!st1.empty())
         {
@@ -292,7 +292,7 @@ namespace spot
                       seen.insert(s_prime);
                       tgba_succ_iterator* i = a_->succ_iter(s_prime);
                       i->first();
-                      st1.push_front(stack_item(s_prime, i, label, acc));
+                      st1.emplace_front(s_prime, i, label, acc);
                     }
                   else if ((acc & covered_acc) != acc)
                     {

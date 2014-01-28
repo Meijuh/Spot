@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -140,7 +140,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       type = spot::postprocessor::BA;
       break;
     case 'F':
-      jobs.push_back(job(arg, true));
+      jobs.emplace_back(arg, true);
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
@@ -188,7 +188,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       type = spot::postprocessor::TGBA;
       break;
     case ARGP_KEY_ARG:
-      jobs.push_back(job(arg, true));
+      jobs.emplace_back(arg, true);
       break;
 
     default:
@@ -370,7 +370,7 @@ main(int argc, char** argv)
     exit(err);
 
   if (jobs.empty())
-    jobs.push_back(job("-", true));
+    jobs.emplace_back("-", true);
 
   spot::postprocessor post(&extra_options);
   post.set_pref(pref | comp);

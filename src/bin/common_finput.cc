@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -56,10 +56,10 @@ parse_opt_finput(int key, char* arg, struct argp_state*)
   switch (key)
     {
     case 'f':
-      jobs.push_back(job(arg, false));
+      jobs.emplace_back(arg, false);
       break;
     case 'F':
-      jobs.push_back(job(arg, true));
+      jobs.emplace_back(arg, true);
       break;
     case OPT_LBT:
       lbt_input = true;

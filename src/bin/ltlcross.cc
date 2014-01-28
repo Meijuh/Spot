@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1613,7 +1613,7 @@ main(int argc, char** argv)
     exit(err);
 
   if (jobs.empty())
-    jobs.push_back(job("-", 1));
+    jobs.emplace_back("-", 1);
 
   if (translators.empty())
     error(2, 0, "No translator to run?  Run '%s --help' for usage.",

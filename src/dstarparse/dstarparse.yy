@@ -1,6 +1,6 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2013 Laboratoire de Recherche et Développement de
-** l'Epita (LRDE).
+** Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+** de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -309,7 +309,7 @@ void
 dstaryy::parser::error(const location_type& location,
 		       const std::string& message)
 {
-  error_list.push_back(spot::dstar_parse_error(location, message));
+  error_list.emplace_back(location, message);
 }
 
 namespace spot
@@ -323,9 +323,8 @@ namespace spot
   {
     if (dstaryyopen(name))
       {
-	error_list.push_back
-	  (dstar_parse_error(spot::location(),
-			     std::string("Cannot open file ") + name));
+	error_list.emplace_back(spot::location(),
+				std::string("Cannot open file ") + name);
 	return 0;
       }
     result_ r;

@@ -1,6 +1,6 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
-** Développement de l'Epita (LRDE).
+** Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche
+** et Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ** Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ** Université Pierre et Marie Curie.
@@ -123,8 +123,7 @@ line: strident ',' strident ',' condition ',' acc_list ';'
 		       here.begin.column + i->first.end.column;
 		     here.begin.line += i->first.begin.line - 1;
 		     here.begin.column += i->first.begin.column;
-		     error_list.push_back(spot::tgba_parse_error(here,
-								 i->second));
+		     error_list.emplace_back(here, i->second);
 		   }
 		 if (f)
 		   result->add_condition(t, f);
@@ -151,8 +150,7 @@ string: STRING
        | UNTERMINATED_STRING
        {
 	 $$ = $1;
-	 error_list.push_back(spot::tgba_parse_error(@1,
-						     "unterminated string"));
+	 error_list.emplace_back(@1, "unterminated string");
        }
 
 strident: string | IDENT
@@ -182,8 +180,8 @@ acc_list:
 	     const formula* f = parse_envacc.require(*$2);
 	     if (! result->has_acceptance_condition(f))
 	       {
-		 error_list.push_back(spot::tgba_parse_error(@2,
-			 "undeclared acceptance condition `" + *$2 + "'"));
+		 error_list.emplace_back(@2,
+			 "undeclared acceptance condition `" + *$2 + "'");
 		 f->destroy();
 		 // $2 will be destroyed on error recovery.
 		 YYERROR;
@@ -207,7 +205,7 @@ acc_decl:
 	     s += "' unknown in environment `";
 	     s += parse_envacc.name();
 	     s += "'";
-	     error_list.push_back(spot::tgba_parse_error(@2, s));
+	     error_list.emplace_back(@2, s);
 	     YYERROR;
 	   }
 	 result->declare_acceptance_condition(f);
@@ -221,7 +219,7 @@ void
 tgbayy::parser::error(const location_type& location,
 		      const std::string& message)
 {
-  error_list.push_back(spot::tgba_parse_error(location, message));
+  error_list.emplace_back(location, message);
 }
 
 namespace spot
@@ -236,9 +234,8 @@ namespace spot
   {
     if (tgbayyopen(name))
       {
-	error_list.push_back
-	  (tgba_parse_error(spot::location(),
-			    std::string("Cannot open file ") + name));
+	error_list.emplace_back(spot::location(),
+				std::string("Cannot open file ") + name);
 	return 0;
       }
     formula_cache fcache;
