@@ -213,31 +213,31 @@ namespace spot
 
     std::ostream& operator<<(std::ostream& os, const transition& t)
     {
-      os << "<" << t.src << ","
+      os << '<' << t.src << ','
 	 << bdd_format_formula(debug_dict, t.cond)
-	 << "," << t.dst << ">";
+	 << ',' << t.dst << '>';
       return os;
     }
 
 
     std::ostream& operator<<(std::ostream& os, const transition_acc& t)
     {
-      os << "<" << t.src << ","
-	 << bdd_format_formula(debug_dict, t.cond) << ","
+      os << '<' << t.src << ','
+	 << bdd_format_formula(debug_dict, t.cond) << ','
 	 << bdd_format_accset(debug_dict, t.acc)
-	 << "," << t.dst << ">";
+	 << ',' << t.dst << '>';
       return os;
     }
 
     std::ostream& operator<<(std::ostream& os, const path& p)
     {
-      os << "<"
-	 << p.src_cand << ","
-	 << p.src_ref << ","
-	 << p.dst_cand << ","
+      os << '<'
+	 << p.src_cand << ','
+	 << p.src_ref << ','
+	 << p.dst_cand << ','
 	 << p.dst_ref << ", "
 	 << bdd_format_accset(debug_dict, p.acc_cand) << ", "
-	 << bdd_format_accset(debug_dict, p.acc_ref) << ">";
+	 << bdd_format_accset(debug_dict, p.acc_ref) << '>';
       return os;
     }
 
@@ -511,8 +511,8 @@ namespace spot
 
 #if DEBUG
       debug_dict = ref->get_dict();
-      dout << "ref_size: " << ref_size << "\n";
-      dout << "cand_size: " << d.cand_size << "\n";
+      dout << "ref_size: " << ref_size << '\n';
+      dout << "cand_size: " << d.cand_size << '\n';
 #endif
 
       dout << "symmetry-breaking clauses\n";
@@ -527,7 +527,7 @@ namespace spot
 	      {
 		transition t(i, s, k);
 		int ti = d.transid[t];
-		dout << "¬" << t << "\n";
+		dout << "¬" << t << '\n';
 		out << -ti << " 0\n";
 		++nclauses;
 	      }
@@ -554,7 +554,7 @@ namespace spot
 		  if (q2 != d.cand_size)
 		    out << " ∨ ";
 		}
-	      out << "\n";
+	      out << '\n';
 #endif
 
 	      for (int q2 = 1; q2 <= d.cand_size; q2++)
@@ -562,7 +562,7 @@ namespace spot
 		  transition t(q1, s, q2);
 		  int ti = d.transid[t];
 
-		  out << ti << " ";
+		  out << ti << ' ';
 		}
 	      out << "0\n";
 	      ++nclauses;
@@ -570,7 +570,7 @@ namespace spot
 	}
 
       dout << "(9) the initial state is reachable\n";
-      dout << path(1, 1) << "\n";
+      dout << path(1, 1) << '\n';
       out << d.pathid[path(1, 1)] << " 0\n";
       ++nclauses;
 
@@ -605,8 +605,8 @@ namespace spot
 		      if (p1id == succ)
 			continue;
 
-		      dout << p1 << " ∧ " << t << "δ → " << p2 << "\n";
-		      out << -p1id << " " << -ti << " " << succ << " 0\n";
+		      dout << p1 << " ∧ " << t << "δ → " << p2 << '\n';
+		      out << -p1id << ' ' << -ti << ' ' << succ << " 0\n";
 		      ++nclauses;
 		    }
 		}
@@ -639,7 +639,7 @@ namespace spot
 			  path p(q1, q1p, q2, q2p,
 				 d.all_cand_acc[f], d.all_ref_acc[fp]);
 
-			  dout << "(11&12&13) paths from " << p << "\n";
+			  dout << "(11&12&13) paths from " << p << '\n';
 
 			  int pid = d.pathid[p];
 
@@ -698,7 +698,7 @@ namespace spot
 						}
 					      out << ")\n";
 #endif // DEBUG
-					      out << -pid << " " << -ti;
+					      out << -pid << ' ' << -ti;
 
 					      // 11
 					      bdd all_f = d.all_cand_acc.back();
@@ -712,7 +712,7 @@ namespace spot
 								    one, q1);
 						  int tai = d.transaccid[ta];
 						  assert(tai != 0);
-						  out << " " << -tai;
+						  out << ' ' << -tai;
 						}
 					      out << " 0\n";
 					      ++nclauses;
@@ -754,8 +754,8 @@ namespace spot
 						  int tai = d.transaccid[ta];
 						  assert(tai != 0);
 
-						  out << -pid << " " << -ti
-						      << " " << tai << " 0\n";
+						  out << -pid << ' ' << -ti
+						      << ' ' << tai << " 0\n";
 						  ++nclauses;
 						}
 					    }
@@ -799,9 +799,9 @@ namespace spot
 						transition_acc ta(q2, l, a, q3);
 						out << " ∧ ¬" << ta << "FC";
 					      }
-					    out << " → " << p2 << "\n";
+					    out << " → " << p2 << '\n';
 #endif
-					    out << -pid << " " << -ti << " ";
+					    out << -pid << ' ' << -ti << ' ';
 					    bdd biga = d.all_cand_acc[f];
 					    while (biga != bddfalse)
 					      {
@@ -810,7 +810,7 @@ namespace spot
 
 						transition_acc ta(q2, l, a, q3);
 						int tai = d.transaccid[ta];
-						out << -tai << " ";
+						out << -tai << ' ';
 					      }
 					    biga = d.all_cand_acc.back()
 					      - d.all_cand_acc[f];
@@ -821,7 +821,7 @@ namespace spot
 
 						transition_acc ta(q2, l, a, q3);
 						int tai = d.transaccid[ta];
-						out << tai << " ";
+						out << tai << ' ';
 					      }
 
 					    out << p2id << " 0\n";
@@ -836,7 +836,7 @@ namespace spot
 	    }
 	}
       out.seekp(0);
-      out << "p cnf " << d.nvars << " " << nclauses.nb_clauses();
+      out << "p cnf " << d.nvars << ' ' << nclauses.nb_clauses();
       return std::make_pair(d.nvars, nclauses.nb_clauses());
     }
 
@@ -891,7 +891,7 @@ namespace spot
 		  last_aut_trans->condition = t->second.cond;
 		  last_sat_trans = &t->second;
 
-		  dout << v << "\t" << t->second << "δ\n";
+		  dout << v << '\t' << t->second << "δ\n";
 
 		  if (state_based)
 		    {
@@ -910,7 +910,7 @@ namespace spot
 	      // increasing order.
 	      if (ta != satdict.revtransaccid.end())
 		{
-		  dout << v << "\t" << ta->second << "F\n";
+		  dout << v << '\t' << ta->second << "F\n";
 
 		  if (last_sat_trans &&
 		      ta->second.src == last_sat_trans->src &&
@@ -933,7 +933,7 @@ namespace spot
 	     satdict.pathid.begin();
 	   pit != satdict.pathid.end(); ++pit)
 	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << "\t" << pit->first << "C\n";
+	  dout << pit->second << '\t' << pit->first << "C\n";
 #endif
 
       a->merge_transitions();
@@ -999,7 +999,7 @@ namespace spot
     if (show && res)
       dotty_reachable(std::cout, res);
 
-    trace << "dtgba_sat_synthetize(...) = " << res << "\n";
+    trace << "dtgba_sat_synthetize(...) = " << res << '\n';
     return res;
   }
 

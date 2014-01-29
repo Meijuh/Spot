@@ -84,6 +84,13 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
     grep Copyright $file >/dev/null ||
       diag "missing copyright"
 
+    # If some grep implementation ignore LC_ALL=C, this rule might be
+    # a problem on utf-8 characters such as "δ" which really
+    # corresponds to multiple bytes, but might be matched as a single
+    # character by grep.
+    grep '<< *"\([^\\]\|\\.\)"' $file &&
+      diag "Use << 'c' instead" 'of << "c".'
+
     # A doxygen comments such as
     #
     # | \brief foo
@@ -210,7 +217,7 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
       grep '[	 ];' $tmp &&
 	diag 'No space before semicolon.'
 
-      grep -v 'for (.*;;)' $tmp | grep ';[^	 ")]' &&
+      grep -v 'for (.*;;)' $tmp | grep ';[^	 ")'"']" &&
 	diag 'Must have space or newline after semicolon.'
 
       grep '}.*}' $tmp &&

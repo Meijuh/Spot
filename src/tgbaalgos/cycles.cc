@@ -182,11 +182,11 @@ namespace spot
       ++i;
     do
       {
-	std::cout << aut_->format_state(i->ts->first) << " ";
+	std::cout << aut_->format_state(i->ts->first) << ' ';
 	++i;
       }
     while (i != dfs_.end());
-    std::cout << "\n";
+    std::cout << '\n';
     return true;
   }
 

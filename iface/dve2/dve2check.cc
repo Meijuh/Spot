@@ -1,4 +1,5 @@
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -186,7 +187,7 @@ main(int argc, char **argv)
       if (!echeck_inst)
 	{
 	  std::cerr << "Failed to parse argument of -e/-E near `"
-		    << err <<  "'" << std::endl;
+		    << err <<  "'\n";
 	  exit_code = 1;
 	  goto safe_exit;
 	}

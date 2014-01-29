@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -166,7 +166,7 @@ namespace spot
 
 	for (unsigned n = 0; n < c; ++n)
 	  {
-	    //std::cerr << "SCC #" << n << "\n";
+	    //std::cerr << "SCC #" << n << '\n';
 	    if (!sm.accepting(n))
 	      continue;
 
@@ -191,7 +191,7 @@ namespace spot
 		    one = bdd_high(one);
 		  }
 		int id = resacc.id();
-		//std::cerr << resacc << " -> " << res << "\n";
+		//std::cerr << resacc << " -> " << res << '\n';
 		remap_[n][id] = res;
 	      }
 	  }
@@ -447,7 +447,7 @@ namespace spot
       {
 	if (!sm->accepting(n))
 	  continue;
-	//std::cerr << "SCC " << n << "\n";
+	//std::cerr << "SCC " << n << '\n';
 	bdd useful = useful_table[n];
 
 	int missing = max_num - max_table[n];

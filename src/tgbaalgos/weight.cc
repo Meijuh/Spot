@@ -1,7 +1,8 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2014 Laboratoire de Recherche et Developpement
+// de l'Epita.
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -114,7 +115,7 @@ namespace spot
   {
     weight::weight_vector::const_iterator it;
     for (it = w.m.begin(); it != w.m.end(); ++it)
-      os << "(" << it->first << "," << it->second << ")";
+      os << '(' << it->first << ',' << it->second << ')';
     return os;
   }
 

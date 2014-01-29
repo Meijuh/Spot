@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Developement de
-// l'Epita (LRDE).
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Developement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -47,7 +47,7 @@ main(int argc, char **argv)
   spot::ltl::relabeling_map* m = new spot::ltl::relabeling_map;
   const spot::ltl::formula* f2 = spot::ltl::relabel_bse(f1, spot::ltl::Pnn, m);
   f1->destroy();
-  spot::ltl::to_string(f2, std::cout) << "\n";
+  spot::ltl::to_string(f2, std::cout) << '\n';
 
 
   typedef std::map<std::string, std::string> map_t;
@@ -59,7 +59,7 @@ main(int argc, char **argv)
   for (map_t::const_iterator i = sorted_map.begin();
        i != sorted_map.end(); ++i)
     std::cout << "  " << i->first << "   ->   "
-	      << i->second << "\n";
+	      << i->second << '\n';
   f2->destroy();
   delete m;
 

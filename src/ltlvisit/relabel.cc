@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -57,7 +57,7 @@ namespace spot
 	const formula* next()
 	{
 	  std::ostringstream s;
-	  s << "p" << nn++;
+	  s << 'p' << nn++;
 	  return default_environment::instance().require(s.str());
 	}
       };
@@ -401,7 +401,7 @@ namespace spot
 
 	while (!s.empty())
 	  {
-	    // std::cerr << "-- visiting " << to_string(s.top().parent) << "\n";
+	    // std::cerr << "-- visiting " << to_string(s.top().parent) << '\n';
 	    stack_entry& e  = s.top();
 	    if (e.current_child != e.last_child)
 	      {
@@ -414,8 +414,8 @@ namespace spot
 		    continue;
 		  }
 		// std::cerr << "  grand parent is "
-		// 	  << to_string(e.grand_parent) << "\n"
-		// 	  << "  child is " << to_string(child) << "\n";
+		// 	  << to_string(e.grand_parent)
+		// 	  << "\n  child is " << to_string(child) << '\n';
 		data_entry d = { num, num };
 		std::pair<fmap_t::iterator, bool> i =
 		  data.insert(fmap_t::value_type(child, d));

@@ -89,7 +89,7 @@ namespace spot
 	os << "  " << a->format_state(i->s) << std::endl;
 	os << "  |  ";
 	bdd_print_formula(os, d, i->label);
-	os << "\t";
+	os << '\t';
 	bdd_print_accset(os, d, i->acc);
 	os << std::endl;
       }
@@ -100,9 +100,9 @@ namespace spot
 	os << "  " << a->format_state(i->s) << std::endl;
 	os << "  |  ";
 	bdd_print_formula(os, d, i->label);
-	os << "\t";
+	os << '\t';
 	bdd_print_accset(os, d, i->acc);
-	os << std::endl;
+	os << '\n';
       }
     return os;
   }
@@ -288,7 +288,7 @@ namespace spot
     std::string format_state(const tgba* a, const state* s, int n)
     {
       std::ostringstream os;
-      os << a->format_state(s) << " (" << n << ")";
+      os << a->format_state(s) << " (" << n << ')';
       return os.str();
     }
   }

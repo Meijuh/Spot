@@ -291,7 +291,7 @@ namespace spot
     random_formula::dump_priorities(std::ostream& os) const
     {
       for (unsigned i = 0; i < proba_size_; ++i)
-	os << proba_[i].name << "\t" << proba_[i].proba << std::endl;
+	os << proba_[i].name << '\t' << proba_[i].proba << '\n';
       return os;
     }
 

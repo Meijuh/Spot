@@ -309,7 +309,7 @@ namespace spot
 	for (auto& fi: next_map)
 	{
 	  os << "  " << fi.second << ": Next[";
-	  to_string(fi.first, os) << "]" << std::endl;
+	  to_string(fi.first, os) << ']' << std::endl;
 	}
 	os << "Shared Dict:" << std::endl;
 	dict->dump(os);
@@ -447,7 +447,7 @@ namespace spot
     trace_ltl_bdd(const translate_dict& d, bdd f)
     {
       std::cerr << "Displaying BDD ";
-      bdd_print_set(std::cerr, d.dict, f) << ":" << std::endl;
+      bdd_print_set(std::cerr, d.dict, f) << ":\n";
 
       minato_isop isop(f);
       bdd cube;
@@ -459,7 +459,7 @@ namespace spot
 	  bdd_print_set(std::cerr, d.dict, label) << " => ";
 	  bdd_print_set(std::cerr, d.dict, dest_bdd) << " = "
 						     << to_string(dest)
-						     << std::endl;
+						     << '\n';
 	  dest->destroy();
 	}
       return std::cerr;
@@ -970,7 +970,7 @@ namespace spot
       // std::cerr << "translate_ratexp[" << to_string(f);
       // if (to_concat)
       // 	std::cerr << ", " << to_string(to_concat);
-      // std::cerr << "]" << std::endl;
+      // std::cerr << ']' << std::endl;
       // ++indent;
       bdd res;
       if (!f->is_boolean())
@@ -1690,7 +1690,7 @@ namespace spot
 		  // the case handling G.
 		  bdd res = recurse(sub, recurring_);
 		  //std::cerr << "== in And (" << to_string(sub)
-		  // << ")" << std::endl;
+		  // << ')' << std::endl;
 		  // trace_ltl_bdd(dict_, res);
 		  res_ &= res;
 		}

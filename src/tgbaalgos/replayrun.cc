@@ -38,7 +38,7 @@ namespace spot
       std::string s = a->transition_annotation(i);
       if (s == "")
 	return;
-      os << " " << s;
+      os << ' ' << s;
     }
   }
 
@@ -210,7 +210,7 @@ namespace spot
 	    os << "  |  ";
 	    print_annotation(os, a, j);
 	    bdd_print_formula(os, a->get_dict(), label);
-	    os << "\t";
+	    os << '\t';
 	    bdd_print_accset(os, a->get_dict(), acc);
 	    os << std::endl;
 	  }

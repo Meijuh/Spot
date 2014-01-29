@@ -56,7 +56,7 @@ namespace spot
 	  do
 	    {
 	      state* dest = si->current_state();
-	      os_ << "\"" << cur << "\", \"";
+	      os_ << '"' << cur << "\", \"";
 	      escape_str(os_, aut_->format_state(dest));
 	      os_ << "\", \"";
 	      escape_str(os_, bdd_format_formula(d, si->current_condition()));
@@ -87,7 +87,7 @@ namespace spot
 		s.resize(s.size() - 1);
 	      }
 	    os_ << " \"";
-	    escape_str(os_, s) << "\"";
+	    escape_str(os_, s) << '"';
 	  }
 	return os_;
       }

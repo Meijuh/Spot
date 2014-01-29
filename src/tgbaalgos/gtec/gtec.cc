@@ -392,7 +392,7 @@ namespace spot
     for (todo_list::const_iterator ti = todo.begin(); ti != todo.end(); ++ti)
       {
 	++pos;
-	os << "#" << pos << " s:" << ti->s << " n:" << ti->n
+	os << '#' << pos << " s:" << ti->s << " n:" << ti->n
 	   << " q:{";
 	for (succ_queue::const_iterator qi = ti->q.begin(); qi != ti->q.end();)
 	  {
@@ -401,7 +401,7 @@ namespace spot
 	    if (qi != ti->q.end())
 	      os << ", ";
 	  }
-	os << "}" << std::endl;
+	os << '}' << std::endl;
       }
   }
 

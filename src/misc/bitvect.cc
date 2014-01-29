@@ -185,7 +185,7 @@ namespace spot
 	os.width(w);
 	os << i;
 	os.width(1);
-	os << ": " << a.at(i) << "\n";
+	os << ": " << a.at(i) << '\n';
       }
     return os;
   }

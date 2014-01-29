@@ -177,25 +177,25 @@ namespace spot
 
     std::ostream& operator<<(std::ostream& os, const state_pair& p)
     {
-      os << "<" << p.a << "," << p.b << ">";
+      os << '<' << p.a << ',' << p.b << '>';
       return os;
     }
 
     std::ostream& operator<<(std::ostream& os, const transition& t)
     {
-      os << "<" << t.src << ","
+      os << '<' << t.src << ','
 	 << bdd_format_formula(debug_dict, t.cond)
-	 << "," << t.dst << ">";
+	 << ',' << t.dst << '>';
       return os;
     }
 
     std::ostream& operator<<(std::ostream& os, const path& p)
     {
-      os << "<"
-	 << p.src_cand << ","
-	 << p.src_ref << ","
-	 << p.dst_cand << ","
-	 << p.dst_ref << ">";
+      os << '<'
+	 << p.src_cand << ','
+	 << p.src_ref << ','
+	 << p.dst_cand << ','
+	 << p.dst_ref << '>';
       return os;
     }
 
@@ -366,8 +366,8 @@ namespace spot
 
 #if DEBUG
       debug_dict = ref->get_dict();
-      dout << "ref_size: " << ref_size << "\n";
-      dout << "cand_size: " << d.cand_size << "\n";
+      dout << "ref_size: " << ref_size << '\n';
+      dout << "cand_size: " << d.cand_size << '\n';
 #endif
 
       dout << "symmetry-breaking clauses\n";
@@ -382,7 +382,7 @@ namespace spot
 	      {
 		transition t(i, s, k);
 		int ti = d.transid[t];
-		dout << "¬" << t << "\n";
+		dout << "¬" << t << '\n';
 		out << -ti << " 0\n";
 		++nclauses;
 	      }
@@ -409,7 +409,7 @@ namespace spot
 		  if (q2 != d.cand_size)
 		    out << " ∨ ";
 		}
-	      out << "\n";
+	      out << '\n';
 #endif
 
 	      for (int q2 = 1; q2 <= d.cand_size; q2++)
@@ -417,7 +417,7 @@ namespace spot
 		  transition t(q1, s, q2);
 		  int ti = d.transid[t];
 
-		  out << ti << " ";
+		  out << ti << ' ';
 		}
 	      out << "0\n";
 
@@ -426,7 +426,7 @@ namespace spot
 	}
 
       dout << "(2) the initial state is reachable\n";
-      dout << state_pair(1, 1) << "\n";
+      dout << state_pair(1, 1) << '\n';
       out << d.prodid[state_pair(1, 1)] << " 0\n";
       ++nclauses;
 
@@ -461,8 +461,8 @@ namespace spot
 		      if (pit->second == succ)
 			continue;
 
-		      dout << pit->first << " ∧ " << t << "δ → " << p2 << "\n";
-		      out << -pit->second << " " << -ti << " "
+		      dout << pit->first << " ∧ " << t << "δ → " << p2 << '\n';
+		      out << -pit->second << ' ' << -ti << ' '
 			  << succ << " 0\n";
 		      ++nclauses;
 		    }
@@ -492,7 +492,7 @@ namespace spot
 		    path p1(q1, q1p, q2, q2p);
 
 		    dout << "(4&5) matching paths from reference based on "
-			 << p1 << "\n";
+			 << p1 << '\n';
 
 		    int pid1;
 		    if (q1 == q2 && q1p == q2p)
@@ -530,7 +530,7 @@ namespace spot
 
 				    dout << p1 << "R ∧ " << t << "δ → ¬" << t
 					 << "F\n";
-				    out << -pid1 << " " << -ti << " "
+				    out << -pid1 << ' ' << -ti << ' '
 					<< -ta << " 0\n";
 				    ++nclauses;
 				  }
@@ -556,7 +556,7 @@ namespace spot
 
 				    dout << p1 << "R ∧ " << t << "δ → " << p2
 					 << "R\n";
-				    out << -pid1 << " " << -ti << " "
+				    out << -pid1 << ' ' << -ti << ' '
 					<< pid2 << " 0\n";
 				    ++nclauses;
 				  }
@@ -585,7 +585,7 @@ namespace spot
 		  {
 		    path p1(q1, q1p, q2, q2p);
 		    dout << "(6&7) matching paths from candidate based on "
-			 << p1 << "\n";
+			 << p1 << '\n';
 
 		    int pid1;
 		    if (q1 == q2 && q1p == q2p)
@@ -625,7 +625,7 @@ namespace spot
 
 				    dout << p1 << "C ∧ " << t << "δ → " << t
 					 << "F\n";
-				    out << -pid1 << " " << -ti << " " << ta
+				    out << -pid1 << ' ' << -ti << ' ' << ta
 					<< " 0\n";
 				    ++nclauses;
 				  }
@@ -651,8 +651,8 @@ namespace spot
 				    dout << p1 << "C ∧ " << t << "δ ∧ ¬"
 					 << t << "F → " << p2 << "C\n";
 
-				    out << -pid1 << " " << -ti << " "
-					<< ta << " " << pid2 << " 0\n";
+				    out << -pid1 << ' ' << -ti << ' '
+					<< ta << ' ' << pid2 << " 0\n";
 				    ++nclauses;
 				  }
 			      }
@@ -662,7 +662,7 @@ namespace spot
 	    }
 	}
       out.seekp(0);
-      out << "p cnf " << d.nvars << " " << nclauses.nb_clauses();
+      out << "p cnf " << d.nvars << ' ' << nclauses.nb_clauses();
       return std::make_pair(d.nvars, nclauses.nb_clauses());
     }
 
@@ -719,7 +719,7 @@ namespace spot
 		  last_aut_trans->condition = t->second.cond;
 		  last_sat_trans = &t->second;
 
-		  dout << v << "\t" << t->second << "δ\n";
+		  dout << v << '\t' << t->second << "δ\n";
 
 		  // Mark the transition as accepting if the source is.
 		  if (state_based
@@ -732,7 +732,7 @@ namespace spot
 	      t = satdict.revtransacc.find(v);
 	      if (t != satdict.revtransacc.end())
 		{
-		  dout << v << "\t" << t->second << "F\n";
+		  dout << v << '\t' << t->second << "F\n";
 		  if (last_sat_trans && t->second == *last_sat_trans)
 		    {
 		      assert(!state_based);
@@ -757,7 +757,7 @@ namespace spot
       for (std::map<state_pair, int>::const_iterator pit =
 	     satdict.prodid.begin(); pit != satdict.prodid.end(); ++pit)
 	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << "\t" << pit->first << "\n";
+	  dout << pit->second << '\t' << pit->first << "C\n";
 	else
 	  dout << -pit->second << "\t¬" << pit->first << "C\n";
 
@@ -766,17 +766,16 @@ namespace spot
 	     satdict.pathid_cand.begin();
 	   pit != satdict.pathid_cand.end(); ++pit)
 	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << "\t" << pit->first << "C\n";
+	  dout << pit->second << '\t' << pit->first << "C\n";
 	else
 	  dout << -pit->second << "\t¬" << pit->first << "C\n";
-
 
       dout << "--- pathid_ref variables ---\n";
       for (std::map<path, int>::const_iterator pit =
 	     satdict.pathid_ref.begin();
 	   pit != satdict.pathid_ref.end(); ++pit)
 	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << "\t" << pit->first << "R\n";
+	  dout << pit->second << '\t' << pit->first << "R\n";
 	else
 	  dout << -pit->second << "\t¬" << pit->first << "C\n";
 
@@ -785,7 +784,7 @@ namespace spot
 	     satdict.pathcand.begin();
 	   pit != satdict.pathcand.end(); ++pit)
 	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << "\t" << pit->first << "C\n";
+	  dout << pit->second << '\t' << pit->first << "C\n";
 	else
 	  dout << -pit->second << "\t¬" << pit->first << "C\n";
 
@@ -850,7 +849,7 @@ namespace spot
     if (show && res)
       dotty_reachable(std::cout, res);
 
-    trace << "dtba_sat_synthetize(...) = " << res << "\n";
+    trace << "dtba_sat_synthetize(...) = " << res << '\n';
     return res;
   }
 

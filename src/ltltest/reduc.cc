@@ -1,4 +1,4 @@
-// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2006, 2007 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -258,11 +258,11 @@ main(int argc, char** argv)
     // If -h is set, we want to print only formulae that have become larger.
     if (!f2 && (!hidereduc || (length_f1_after > length_f1_before)))
       {
-	std::cout << length_f1_before << " " << length_f1_after
-		  << " '" << f1s_before << "' reduce to '" << f1s_after << "'";
+	std::cout << length_f1_before << ' ' << length_f1_after
+		  << " '" << f1s_before << "' reduce to '" << f1s_after << '\'';
 	if (f1l != "" && f1l != f1s_after)
-	  std::cout << " or (w/o rss) to '" << f1l << "'";
-	std::cout << std::endl;
+	  std::cout << " or (w/o rss) to '" << f1l << '\'';
+	std::cout << '\n';
       }
 
     if (f2)
@@ -311,7 +311,7 @@ main(int argc, char** argv)
       float before = sum_before;
       float after = sum_after;
       std::cout << "gain: "
-		<< (1 - (after / before)) * 100 << "%" << std::endl;
+		<< (1 - (after / before)) * 100 << '%' << std::endl;
       delete fin;
     }
 

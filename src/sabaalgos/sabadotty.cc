@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -46,7 +47,7 @@ namespace spot
       void
       end()
       {
-	os_ << "}" << std::endl;
+	os_ << '}' << std::endl;
       }
 
       void
@@ -57,9 +58,8 @@ namespace spot
           + "\\n"
           + bdd_format_accset(automata_->get_dict(),
 			      s->acceptance_conditions());
-	os_ << "  " << n << " "
-	    << "[label=\"" << label << "\"];"
-	    << std::endl;
+	os_ << "  " << n << ' '
+	    << "[label=\"" << label << "\"];\n";
       }
 
       void
@@ -76,8 +76,7 @@ namespace spot
 			     si->current_condition());
 
 	os_ << "  " << in << " -> s" << in << "sc" << sc_id
-	    << " [label=\"" << label << "\", arrowhead=\"none\"];"
-	    << std::endl;
+	    << " [label=\"" << label << "\", arrowhead=\"none\"];\n";
       }
 
       void
@@ -88,8 +87,7 @@ namespace spot
                    const saba_succ_iterator*)
       {
         os_ << "  s" << in << "sc" << sc_id << " -> " << out
-	    << " [label=\"\"];"
-	    << std::endl;
+	    << " [label=\"\"];\n";
       }
 
     private:

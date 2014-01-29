@@ -1,5 +1,6 @@
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -31,7 +32,7 @@ namespace spot
     for (it = error_list.begin(); it != error_list.end(); ++it)
       {
 	if (filename != "-")
-	  os << filename << ":";
+	  os << filename << ':';
 	os << it->first << ": ";
 	os << it->second << std::endl;
 	printed = true;

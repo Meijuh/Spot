@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -61,15 +61,15 @@ namespace spot
 	const char* sep = t.is_running() ? "+|" : " |";
 
 	os << std::setw(22) << name << sep
-	   << std::setw(6) << t.utime() << " "
+	   << std::setw(6) << t.utime() << ' '
 	   << std::setw(8) << (total.utime ?
 			       100.0 * t.utime() / total.utime : 0.)
 	   << sep
-	   << std::setw(6) << t.stime() << " "
+	   << std::setw(6) << t.stime() << ' '
 	   << std::setw(8) << (total.stime ?
 			       100.0 * t.stime() / total.stime : 0.)
 	   << sep
-	   << std::setw(6) << t.utime() + t.stime() << " "
+	   << std::setw(6) << t.utime() + t.stime() << ' '
 	   << std::setw(8) << (grand_total ?
 			       (100.0 * (t.utime() + t.stime()) /
 				grand_total) : 0.)
@@ -80,13 +80,13 @@ namespace spot
     os << std::setw(79) << std::setfill('-') << "" << std::setfill(' ')
        << std::endl
        << std::setw(22) << "TOTAL" << " |"
-       << std::setw(6) << total.utime << " "
+       << std::setw(6) << total.utime << ' '
        << std::setw(8) << 100.
        << " |"
-       << std::setw(6) << total.stime << " "
+       << std::setw(6) << total.stime << ' '
        << std::setw(8) << 100.
        << " |"
-       << std::setw(6) << grand_total << " "
+       << std::setw(6) << grand_total << ' '
        << std::setw(8) << 100.
        << " |"
        << std::endl;

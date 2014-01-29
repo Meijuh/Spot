@@ -60,7 +60,7 @@ namespace spot
 	  {
 	    bdd acc = bdd_satone(b);
 	    b -= acc;
-	    os << sm[acc] << " ";
+	    os << sm[acc] << ' ';
 	  }
 	return os;
       }
@@ -126,14 +126,14 @@ namespace spot
 	    else
 	      body_ << " -1";
 	  }
-	body_ << "\n";
+	body_ << '\n';
       }
 
       void
       process_link(const state*, int,
 		   const state*, int out, const tgba_succ_iterator* si)
       {
-	body_ << out - 1 << " ";
+	body_ << out - 1 << ' ';
 	if (!sba_format_)
 	  {
 	    acs_.split(body_, si->current_acceptance_conditions());
@@ -143,18 +143,18 @@ namespace spot
 					       aut_->get_dict());
 	to_lbt_string(f, body_);
 	f->destroy();
-	body_ << "\n";
+	body_ << '\n';
       }
 
       void
       end()
       {
-	os_ << seen.size() << " ";
+	os_ << seen.size() << ' ';
 	if (sba_format_)
-	  os_ << "1";
+	  os_ << '1';
 	else
-	  os_ << aut_->number_of_acceptance_conditions() << "t";
-	os_ << "\n" << body_.str() << "-1" << std::endl;
+	  os_ << aut_->number_of_acceptance_conditions() << 't';
+	os_ << '\n' << body_.str() << "-1" << std::endl;
       }
 
     private:

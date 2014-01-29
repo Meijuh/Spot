@@ -1,5 +1,6 @@
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -222,7 +223,7 @@ namespace spot
     //   bs2num_map::iterator i = bs2num.begin();
     //   while (i != bs2num.end())
     // 	{
-    // 	  std::cerr << i->second << ": (" << i->first.s << ",";
+    // 	  std::cerr << i->second << ": (" << i->first.s << ',';
     // 	  if (i->first.pend)
     // 	    std::cerr << *i->first.pend << ")\n";
     // 	  else

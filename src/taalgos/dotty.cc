@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Developpement
-// de l Epita (LRDE).
+// Copyright (C) 2010, 2012, 2014 Laboratoire de Recherche et
+// Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -72,7 +72,7 @@ namespace spot
       void
       end()
       {
-        os_ << "}" << std::endl;
+        os_ << '}' << std::endl;
       }
 
       void

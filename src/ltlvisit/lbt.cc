@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -88,10 +88,10 @@ namespace spot
 	  switch (c->val())
 	    {
 	    case constant::False:
-	      os_ << "f";
+	      os_ << 'f';
 	      break;
 	    case constant::True:
-	      os_ << "t";
+	      os_ << 't';
 	      break;
 	    case constant::EmptyWord:
 	      assert(!"unsupported constant");
@@ -106,25 +106,25 @@ namespace spot
 	  switch (bo->op())
 	    {
 	    case binop::Xor:
-	      os_ << "^";
+	      os_ << '^';
 	      break;
 	    case binop::Implies:
-	      os_ << "i";
+	      os_ << 'i';
 	      break;
 	    case binop::Equiv:
-	      os_ << "e";
+	      os_ << 'e';
 	      break;
 	    case binop::U:
-	      os_ << "U";
+	      os_ << 'U';
 	      break;
 	    case binop::R:
-	      os_ << "V";
+	      os_ << 'V';
 	      break;
 	    case binop::W:
-	      os_ << "W";
+	      os_ << 'W';
 	      break;
 	    case binop::M:
-	      os_ << "M";
+	      os_ << 'M';
 	      break;
 	    case binop::UConcat:
 	    case binop::EConcat:
@@ -149,16 +149,16 @@ namespace spot
 	  switch (uo->op())
 	    {
 	    case unop::Not:
-	      os_ << "!";
+	      os_ << '!';
 	      break;
 	    case unop::X:
-	      os_ << "X";
+	      os_ << 'X';
 	      break;
 	    case unop::F:
-	      os_ << "F";
+	      os_ << 'F';
 	      break;
 	    case unop::G:
-	      os_ << "G";
+	      os_ << 'G';
 	      break;
 	    case unop::Finish:
 	    case unop::Closure:

@@ -157,16 +157,16 @@ namespace spot
 	cycles_left_ = threshold_;
 	run(m);
 
-//	std::cerr << "SCC #" << m << "\n";
+//	std::cerr << "SCC #" << m << '\n';
 //	std::cerr << "REJECT: ";
-//	print_set(std::cerr, reject_) << "\n";
+//	print_set(std::cerr, reject_) << '\n';
 //	std::cerr << "ALL: ";
-//	print_set(std::cerr, all_) << "\n";
+//	print_set(std::cerr, all_) << '\n';
 //	for (set_set::const_iterator j = accept_.begin();
 //	     j != accept_.end(); ++j)
 //	  {
 //	    std::cerr << "ACCEPT: ";
-//	    print_set(std::cerr, *j) << "\n";
+//	    print_set(std::cerr, *j) << '\n';
 //	  }
 
 	bdd acc = aut_->all_acceptance_conditions();
@@ -232,8 +232,8 @@ namespace spot
       {
 	o << "{ ";
 	for (auto i: s)
-	  o << i << " ";
-	o << "}";
+	  o << i << ' ';
+	o << '}';
 	return o;
       }
 
@@ -247,13 +247,13 @@ namespace spot
 	bool is_acc = is_cycle_accepting(i, ts);
 	do
 	  {
-	    //	    std::cerr << aut_->format_state(i->ts->first) << " ";
+	    //	    std::cerr << aut_->format_state(i->ts->first) << ' ';
 	    ++i;
 	  }
 	while (i != dfs_.end());
 	//	std::cerr << "  acc=" << is_acc << "  (";
 	//	bdd_print_accset(std::cerr, aut_->get_dict(), s) << ") ";
-	//	print_set(std::cerr, ts) << "\n";
+	//	print_set(std::cerr, ts) << '\n';
 	if (is_acc)
 	  {
 	    accept_.push_back(ts);

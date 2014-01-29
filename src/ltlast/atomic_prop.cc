@@ -112,7 +112,7 @@ namespace spot
       for (const auto& i: instances)
 	os << i.second << " = " << i.second->ref_count_()
 	   << " * atomic_prop(" << i.first.first << ", "
-	   << i.first.second->name() << ")" << std::endl;
+	   << i.first.second->name() << ')' << std::endl;
       return os;
     }
 

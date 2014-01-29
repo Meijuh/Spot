@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -242,10 +242,10 @@ output_formula(std::ostream& out,
   if (!format)
     {
       if (prefix)
-	out << prefix << ",";
+	out << prefix << ',';
       stream_escapable_formula(out, f, filename, linenum);
       if (suffix)
-	out << "," << suffix;
+	out << ',' << suffix;
     }
   else
     {

@@ -1,8 +1,9 @@
-// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
+// Recherche et DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -316,7 +317,7 @@ struct stat_collector
   {
     std::ios::fmtflags old = os.flags();
     os << std::setw(25) << "" << " | "
-       << std::setw(30) << std::left << title << std::right << "|" << std::endl
+       << std::setw(30) << std::left << title << std::right << '|' << std::endl
        << std::setw(25) << "algorithm"
        << " |   min   < mean  < max | total |  n"
        << std::endl
@@ -328,10 +329,10 @@ struct stat_collector
       {
 	os << std::setw(25) << i->first << " |"
 	   << std::setw(6) << i->second.min
-	   << " "
+	   << ' '
 	   << std::setw(8)
 	   << static_cast<float>(i->second.tot) / i->second.n
-	   << " "
+	   << ' '
 	   << std::setw(6) << i->second.max
 	   << " |";
 	if (total)
@@ -436,17 +437,17 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
 	   i != ar_stats.end(); ++i)
     std::cout << std::setw(25) << i->first << " |"
               << std::setw(6) << i->second.min_prefix
-              << " "
+              << ' '
               << std::setw(8)
               << static_cast<float>(i->second.tot_prefix) / i->second.n
-              << " "
+              << ' '
               << std::setw(6) << i->second.max_prefix
               << " |"
               << std::setw(6) << i->second.min_cycle
-              << " "
+              << ' '
               << std::setw(8)
               << static_cast<float>(i->second.tot_cycle) / i->second.n
-              << " "
+              << ' '
               << std::setw(6) << i->second.max_cycle
               << " |"
               << std::setw(4) << i->second.n
@@ -466,18 +467,18 @@ print_ar_stats(ar_stats_type& ar_stats, const std::string& s)
     std::cout << std::setw(25) << i->first << " |"
               << std::setw(6)
               << i->second.min_run
-              << " "
+              << ' '
               << std::setw(8)
               << static_cast<float>(i->second.tot_prefix
                                     + i->second.tot_cycle) / i->second.n
-              << " "
+              << ' '
               << std::setw(6)
               << i->second.max_run
               << " |"
               << std::setw(6) << i->second.tot_prefix
-              << " "
+              << ' '
               << std::setw(6) << i->second.tot_cycle
-              << " "
+              << ' '
               << std::setw(8) << i->second.tot_prefix + i->second.tot_cycle
               << " |"
               << std::setw(4) << i->second.n
@@ -796,14 +797,14 @@ main(int argc, char** argv)
   if (tok)
     {
       std::cerr << "failed to parse probabilities near `"
-		<< tok << "'" << std::endl;
+		<< tok << '\'' << std::endl;
       exit(2);
     }
 
   if (opt_l > opt_f)
     {
       std::cerr << "-l's argument (" << opt_l << ") should not be larger than "
-		<< "-f's (" << opt_f << ")" << std::endl;
+		<< "-f's (" << opt_f << ')' << std::endl;
       exit(2);
     }
 
@@ -840,7 +841,7 @@ main(int argc, char** argv)
 							  &err);
 	  if (ec_algos[i].inst == 0)
 	    {
-	      std::cerr << "Parse error after `" << err << "'" << std::endl;
+	      std::cerr << "Parse error after `" << err << '\'' << std::endl;
 	      exit(1);
 	    }
 	  ec_algos[i].inst->options().set(options);
@@ -1059,8 +1060,8 @@ main(int argc, char** argv)
 				    }
 				  if (opt_z && !opt_paper)
 				    std::cout << " [" << run->prefix.size()
-					      << "+" << run->cycle.size()
-					      << "]";
+					      << '+' << run->cycle.size()
+					      << ']';
 
 				  if (opt_reduce)
 				    {
@@ -1088,9 +1089,9 @@ main(int argc, char** argv)
 					{
 					  std::cout << " ["
 						    << redrun->prefix.size()
-						    << "+"
+						    << '+'
 						    << redrun->cycle.size()
-						    << "]";
+						    << ']';
 					}
 				      delete redrun;
 				    }
@@ -1234,7 +1235,7 @@ main(int argc, char** argv)
 
 	  int n = -1;
 
-	  std::cout << std::setw(25)  << algo << " " << std::setw(8);
+	  std::cout << std::setw(25)  << algo << ' ' << std::setw(8);
 
 	  ec_iter i = stats["states"].find(algo);
 	  if (i != stats["states"].end())
@@ -1244,7 +1245,7 @@ main(int argc, char** argv)
 	    }
 	  else
 	    std::cout << "";
-	  std::cout << " " << std::setw(8);
+	  std::cout << ' ' << std::setw(8);
 
 	  i = stats["transitions"].find(algo);
 	  if (i != stats["transitions"].end())
@@ -1254,7 +1255,7 @@ main(int argc, char** argv)
 	    }
 	  else
 	    std::cout << "";
-	  std::cout << " " << std::setw(8);
+	  std::cout << ' ' << std::setw(8);
 
 	  i = stats["max. depth"].find(algo);
 	  if (i != stats["max. depth"].end())
@@ -1265,7 +1266,7 @@ main(int argc, char** argv)
 	  else
 	    std::cout << "";
 	  if (n >= 0)
-	    std::cout << " " << std::setw(8) << n;
+	    std::cout << ' ' << std::setw(8) << n;
 	  std::cout << std::endl;
 	}
 
@@ -1277,14 +1278,14 @@ main(int argc, char** argv)
 	{
 	  const std::string algo = ec_algos[ai].name;
 
-	  std::cout << std::setw(25)  << algo << " " << std::setw(8);
+	  std::cout << std::setw(25)  << algo << ' ' << std::setw(8);
 
 	  ec_iter i = stats2["search space states"].find(algo);
 	  if (i != stats2["search space states"].end())
 	    std::cout << i->second.tot / i->second.n;
 	  else
 	    std::cout << "";
-	  std::cout << " " << std::setw(8);
+	  std::cout << ' ' << std::setw(8);
 
 	  i = stats2["(non unique) states for cycle"].find(algo);
 	  if (i != stats2["(non unique) states for cycle"].end())
@@ -1301,7 +1302,7 @@ main(int argc, char** argv)
       std::cout << "The check failed for the following seeds:";
       for (std::set<int>::const_iterator i = failed_seeds.begin();
 	   i != failed_seeds.end(); ++i)
-	std::cout << " " << *i;
+	std::cout << ' ' << *i;
       std::cout << std::endl;
     }
 

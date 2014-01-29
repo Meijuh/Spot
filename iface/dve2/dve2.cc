@@ -440,8 +440,8 @@ namespace spot
 		  std::cerr << "Possible states are:";
 		  for (ei = enum_map[type_num].begin();
 		       ei != enum_map[type_num].end(); ++ei)
-		    std::cerr << " " << ei->first;
-		  std::cerr << std::endl;
+		    std::cerr << ' ' << ei->first;
+		  std::cerr << '\n';
 
 		  free(name);
 		  ++errors;
@@ -566,8 +566,8 @@ namespace spot
 		  std::cerr << "Possible states are:";
 		  for (ei = enum_map[type_num].begin();
 		       ei != enum_map[type_num].end(); ++ei)
-		    std::cerr << " " << ei->first;
-		  std::cerr << std::endl;
+		    std::cerr << ' ' << ei->first;
+		  std::cerr << '\n';
 
 		  free(name);
 		  ++errors;
@@ -906,7 +906,7 @@ namespace spot
 		++i;
 		continue;
 	      }
-	    res << vname_[i] << "=" << vars[i];
+	    res << vname_[i] << '=' << vars[i];
 	    ++i;
 	    if (i == state_size_)
 	      break;
@@ -993,7 +993,7 @@ namespace spot
 	if (verbose)
 	  std::cerr << "Execution of `" << command.c_str()
 		    << "' returned exit code " << WEXITSTATUS(res)
-		    << "." << std::endl;
+		    << ".\n";
 	return true;
       }
     return false;
@@ -1088,7 +1088,7 @@ namespace spot
       {
 	if (verbose)
 	  std::cerr << "Failed to resolve some symbol while loading `"
-		    << file << "'" << std::endl;
+		    << file << "'\n";
 	delete d;
 	lt_dlexit();
 	return 0;

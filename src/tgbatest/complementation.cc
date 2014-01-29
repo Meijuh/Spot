@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -110,7 +111,7 @@ int main(int argc, char* argv[])
           print_formula = true; break;
         default:
           std::cerr << "unrecognized option `-" << argv[i][1]
-                    << "'" << std::endl;
+                    << '\'' << std::endl;
           return 2;
       }
     }

@@ -183,9 +183,9 @@ namespace spot
 	      return ltl::unop::instance(ltl::unop::G, i->second->clone());
 
 	    std::ostringstream s;
-	    s << "[";
+	    s << '[';
 	    to_string(f, s);
-	    s << "]";
+	    s << ']';
 	    res = suspenv.require(s.str());
 	    // We have to clone f, because it is not always a sub-tree
 	    // of the original formula.  (Think n-ary operators.)

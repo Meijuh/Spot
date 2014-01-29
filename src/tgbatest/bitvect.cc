@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -27,14 +27,14 @@ void ruler()
     if (x % 10 == 0)
       std::cout << x / 10;
     else
-      std::cout << "_";
+      std::cout << '_';
   std::cout << "\n   ";
   for (size_t x = 0; x < 76; ++x)
     std::cout << x % 10;
   std::cout << "\n\n";
 }
 
-#define ECHO(name) std::cout << #name": " << *name << "\n"
+#define ECHO(name) std::cout << #name": " << *name << '\n'
 
 int main()
 {

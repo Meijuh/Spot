@@ -347,7 +347,7 @@ namespace
 	  spot::never_claim_reachable(std::cout, aut);
 	  break;
 	case Stats:
-	  statistics.print(daut, aut, filename, conversion_time) << "\n";
+	  statistics.print(daut, aut, filename, conversion_time) << '\n';
 	  break;
 	}
       delete aut;

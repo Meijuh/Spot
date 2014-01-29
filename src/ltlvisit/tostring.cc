@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE)
+// Copyright (C) 2008, 2010, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE)
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -333,7 +333,7 @@ namespace spot
 	  if (in_ratexp_)
 	    emit(KOpenSERE);
 	  else
-	    os_ << "(";
+	    os_ << '(';
 	}
 
 	void
@@ -342,7 +342,7 @@ namespace spot
 	  if (in_ratexp_)
 	    emit(KCloseSERE);
 	  else
-	    os_ << ")";
+	    os_ << ')';
 	}
 
 	std::ostream&
@@ -356,7 +356,7 @@ namespace spot
 	{
 	  std::string str = ap->name();
 	  if (full_parent_)
-	    os_ << "(";
+	    os_ << '(';
 	  if (!is_bare_word(str.c_str()))
 	    {
 	      // Spin 6 supports atomic propositions such as (a == 0)
@@ -382,11 +382,11 @@ namespace spot
 		    os_ << "\\mathit{";
 		  os_ << str.substr(0, s);
 		  if (s > 1)
-		    os_ << "}";
+		    os_ << '}';
 		  if (s != str.size())
 		    os_ << "_{"
 			<< str.substr(s)
-			<< "}";
+			<< '}';
 		}
 	      else
 		{
@@ -396,7 +396,7 @@ namespace spot
 	  if (kw_ == wring_kw)
 	    os_ << "=1";
 	  if (full_parent_)
-	    os_ << ")";
+	    os_ << ')';
 	}
 
 	void
@@ -492,7 +492,7 @@ namespace spot
 	      emit(KCloseSERE);
 	      if (bo->second() == constant::true_instance())
 		{
-		  os_ << "!";
+		  os_ << '!';
 		  in_ratexp_ = false;
 		  goto second_done;
 		}
@@ -501,7 +501,7 @@ namespace spot
 	      top_level_ = false;
 	      break;
 	    case binop::EConcatMarked:
-	      os_ << "}";
+	      os_ << '}';
 	      emit(onelast ? KSeqMarkedNext : KSeqMarked);
 	      in_ratexp_ = false;
 	      top_level_ = false;
@@ -676,13 +676,13 @@ namespace spot
 	      need_parent = true;
 	      break;
 	    case unop::Closure:
-	      os_ << "{";
+	      os_ << '{';
 	      in_ratexp_ = true;
 	      top_level_ = true;
 	      break;
 	    case unop::NegClosure:
 	      emit(KNot);
-	      os_ << "{";
+	      os_ << '{';
 	      in_ratexp_ = true;
 	      top_level_ = true;
 	      break;
@@ -704,7 +704,7 @@ namespace spot
 	    {
 	    case unop::Closure:
 	    case unop::NegClosure:
-	      os_ << "}";
+	      os_ << '}';
 	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
@@ -731,18 +731,18 @@ namespace spot
 	  bool top_level = top_level_;
 	  top_level_ = false;
 	  if (!top_level)
-	    os_ << "(";
-	  os_ << ao->get_nfa()->get_name() << "(";
+	    os_ << '(';
+	  os_ << ao->get_nfa()->get_name() << '(';
 	  unsigned max = ao->size();
 	  ao->nth(0)->accept(*this);
 	  for (unsigned n = 1; n < max; ++n)
 	    {
-	      os_ << ",";
+	      os_ << ',';
 	      ao->nth(n)->accept(*this);
 	    }
-	  os_ << ")";
+	  os_ << ')';
 	  if (!top_level)
-	    os_ << ")";
+	    os_ << ')';
 	}
 
 	void
@@ -767,7 +767,7 @@ namespace spot
 		      if (i + 2 < max && mo->nth(i) == mo->nth(i + 2))
 			{
 			  emit(KEqualBunop);
-			  os_ << "1";
+			  os_ << '1';
 			  emit(KCloseBunop);
 			  i += 2;
 			}

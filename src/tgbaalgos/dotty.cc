@@ -1,7 +1,8 @@
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012, 2014 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -56,7 +57,7 @@ namespace spot
       void
       end()
       {
-	os_ << "}" << std::endl;
+	os_ << '}' << std::endl;
       }
 
       void
@@ -83,7 +84,7 @@ namespace spot
 	    accepting = false;
 	  }
 
-	os_ << "  " << n << " "
+	os_ << "  " << n << ' '
 	    << dd_->state_decl(aut_, s, n, si,
 			       escape_str(aut_->format_state(s)),
 			       accepting)
@@ -109,7 +110,7 @@ namespace spot
 	    label += s;
 	  }
 
-	os_ << "  " << in << " -> " << out << " "
+	os_ << "  " << in << " -> " << out << ' '
 	    << dd_->link_decl(aut_, in_s, in, out_s, out, si,
 			      escape_str(label))
 	    << '\n';

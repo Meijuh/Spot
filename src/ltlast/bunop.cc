@@ -89,7 +89,7 @@ namespace spot
 	out << "unbounded";
       else
 	out << max_;
-      out << ")";
+      out << ')';
       return out.str();
     }
 
@@ -144,7 +144,7 @@ namespace spot
 		out << max_;
 	    }
 	}
-      out << "]";
+      out << ']';
       return out.str();
     }
 

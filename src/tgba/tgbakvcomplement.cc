@@ -82,7 +82,7 @@ namespace spot
              << bdd_format_accset(a->get_dict(), condition.get_bdd())
              << "} ";
         }
-        ss << "}";
+        ss << '}';
         return ss.str();
       }
     };
@@ -652,14 +652,14 @@ namespace spot
          ++i)
     {
       ss << "  {" << automaton_->format_state(i->first.get())
-         << ", " << i->second.format(this) << "}" << std::endl;
+         << ", " << i->second.format(this) << "}\n";
     }
     ss << "} odd-less: {";
 
     for (shared_state_set::const_iterator i = state_filter.begin();
          i != state_filter.end();
          ++i)
-      ss << "  " << automaton_->format_state(i->get()) << std::endl;
+      ss << "  " << automaton_->format_state(i->get()) << '\n';
     ss << "} }";
     return ss.str();
   }

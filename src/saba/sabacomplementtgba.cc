@@ -425,11 +425,11 @@ namespace spot
       dynamic_cast<const saba_state_complement_tgba*>(state);
     assert(s);
     std::ostringstream ss;
-    ss << "{"
-       << "original: " << automaton_->format_state(s->get_state()) << std::endl
-       << "rank: " << s->get_rank() << "}" << std::endl
-       << "acc: " << bdd_format_accset(get_dict(), s->acceptance_conditions())
-       << "}";
+    ss << "{ original: " << automaton_->format_state(s->get_state())
+       << "\n  rank: " << s->get_rank()
+       << "\n  acc: " << bdd_format_accset(get_dict(),
+					   s->acceptance_conditions())
+       << " }";
     return ss.str();
   }
 

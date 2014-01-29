@@ -1,5 +1,6 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2014 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -33,16 +34,16 @@ int check_vv(int* data, int size, unsigned expected = 0)
 
   std::cout << "WC[" << output.size() << "] ";
   for (size_t i = 0; i < output.size(); ++i)
-    std::cout << output[i] << " ";
-  std::cout << std::endl;
+    std::cout << output[i] << ' ';
+  std::cout << '\n';
 
   std::vector<int> decomp;
   spot::int_vector_vector_decompress(output, decomp, size);
 
   std::cout << "WD[" << decomp.size() << "] ";
   for (size_t i = 0; i < decomp.size(); ++i)
-    std::cout << decomp[i] << " ";
-  std::cout << std::endl;
+    std::cout << decomp[i] << ' ';
+  std::cout << '\n';
 
   int res = (decomp != input);
 
@@ -51,8 +52,8 @@ int check_vv(int* data, int size, unsigned expected = 0)
       std::cout << "*** cmp error *** " << std::endl;
       std::cout << "WE[" << size << "] ";
       for (int i = 0; i < size; ++i)
-	std::cout << data[i] << " ";
-      std::cout << std::endl;
+	std::cout << data[i] << ' ';
+      std::cout << '\n';
     }
 
   if (expected && (output.size() * sizeof(int) != expected))
@@ -63,7 +64,7 @@ int check_vv(int* data, int size, unsigned expected = 0)
       res = 1;
     }
 
-  std::cout << std::endl;
+  std::cout << '\n';
 
   return !!res;
 }
@@ -75,16 +76,16 @@ int check_av(int* data, int size, unsigned expected = 0)
 
   std::cout << "VC[" << v->size() << "] ";
   for (size_t i = 0; i < v->size(); ++i)
-    std::cout << (*v)[i] << " ";
-  std::cout << std::endl;
+    std::cout << (*v)[i] << ' ';
+  std::cout << '\n';
 
   int* decomp = new int[size];
   spot::int_vector_array_decompress(v, decomp, size);
 
   std::cout << "VD[" << size << "] ";
   for (int i = 0; i < size; ++i)
-    std::cout << decomp[i] << " ";
-  std::cout << std::endl;
+    std::cout << decomp[i] << ' ';
+  std::cout << '\n';
 
   int res = memcmp(data, decomp, size * sizeof(int));
 
@@ -93,8 +94,8 @@ int check_av(int* data, int size, unsigned expected = 0)
       std::cout << "*** cmp error *** " << res << std::endl;
       std::cout << "VE[" << size << "] ";
       for (int i = 0; i < size; ++i)
-	std::cout << data[i] << " ";
-      std::cout << std::endl;
+	std::cout << data[i] << ' ';
+      std::cout << '\n';
     }
 
   if (expected && (v->size() * sizeof(int) != expected))
@@ -105,7 +106,7 @@ int check_av(int* data, int size, unsigned expected = 0)
       res = 1;
     }
 
-  std::cout << std::endl;
+  std::cout << '\n';
 
   delete v;
   delete[] decomp;
@@ -120,16 +121,16 @@ int check_aa(int* data, int size, unsigned expected = 0)
 
   std::cout << "AC[" << csize << "] ";
   for (size_t i = 0; i < csize; ++i)
-    std::cout << comp[i] << " ";
-  std::cout << std::endl;
+    std::cout << comp[i] << ' ';
+  std::cout << '\n';
 
   int* decomp = new int[size];
   spot::int_array_array_decompress(comp, csize, decomp, size);
 
   std::cout << "AD[" << size << "] ";
   for (int i = 0; i < size; ++i)
-    std::cout << decomp[i] << " ";
-  std::cout << std::endl;
+    std::cout << decomp[i] << ' ';
+  std::cout << '\n';
 
   int res = memcmp(data, decomp, size * sizeof(int));
 
@@ -138,8 +139,8 @@ int check_aa(int* data, int size, unsigned expected = 0)
       std::cout << "*** cmp error *** " << res << std::endl;
       std::cout << "AE[" << size << "] ";
       for (int i = 0; i < size; ++i)
-	std::cout << data[i] << " ";
-      std::cout << std::endl;
+	std::cout << data[i] << ' ';
+      std::cout << '\n';
     }
 
   if (expected && (csize * sizeof(int) != expected))
@@ -150,7 +151,7 @@ int check_aa(int* data, int size, unsigned expected = 0)
       res = 1;
     }
 
-  std::cout << std::endl;
+  std::cout << '\n';
 
   delete[] comp;
   delete[] decomp;

@@ -1,8 +1,9 @@
-// Copyright (C) 2009, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
-// Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2012, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
+// Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
+// Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -63,24 +64,24 @@ namespace spot
 	if (want_acc)
 	  {
 	    o << "Acc[";
-	    print_ltl(ref.f, o) << "]";
+	    print_ltl(ref.f, o) << ']';
 	  }
 	else
 	  {
-	    o << "\"";
-	    print_ltl(ref.f, o) << "\"";
+	    o << '"';
+	    print_ltl(ref.f, o) << '"';
 	  }
 	break;
       case bdd_dict::now:
 	o << "Now[";
-	print_ltl(ref.f, o) << "]";
+	print_ltl(ref.f, o) << ']';
 	break;
       case bdd_dict::next:
 	o << "Next[";
-	print_ltl(ref.f, o) << "]";
+	print_ltl(ref.f, o) << ']';
 	break;
       case bdd_dict::anon:
-	o << "?" << v;
+	o << '?' << v;
       }
   }
 
@@ -95,13 +96,11 @@ namespace spot
 	if (varset[v] < 0)
 	  continue;
 	if (not_first)
-	  *where << " ";
+	  *where << ' ';
 	else
 	  not_first = true;
 	if (varset[v] == 0)
-	  // The space is important for LBTT, but we have to hide it
-	  // from our style checking droid.
-	  *where << "!"" ";
+	  *where << "! ";
 	print_handler(*where, v);
       }
   }
@@ -123,7 +122,7 @@ namespace spot
     for (int v = 0; v < size; ++v)
       if (varset[v] > 0)
 	{
-	  *where << " ";
+	  *where << ' ';
 	  print_handler(*where, v);
 	}
   }
@@ -160,7 +159,7 @@ namespace spot
     first_done = false;
     bdd_allsat(b, print_accset_handler);
     if (first_done)
-      *where << "}";
+      *where << '}';
     return os;
   }
 

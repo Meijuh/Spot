@@ -493,7 +493,7 @@ namespace spot
 	    size_t n = m.states_of(state).size();
 	    ostr << " (" << n << " state";
 	    if (n > 1)
-	      ostr << "s";
+	      ostr << 's';
 	    ostr << ")\\naccs=";
 	    escape_str(ostr, bdd_format_accset(m.get_aut()->get_dict(),
 					       m.acc_set_of(state)));
@@ -515,7 +515,7 @@ namespace spot
 					    m.aprec_set_of(state)));
 	    ostr << "]\\n useful=[";
 	    escape_str(ostr, bdd_format_accset(m.get_aut()->get_dict(),
-					       m.useful_acc_of(state))) << "]";
+					       m.useful_acc_of(state))) << ']';
 	  }
 
 	out << "  " << state << " [shape=box,"
@@ -543,7 +543,7 @@ namespace spot
 	  }
       }
 
-    out << "}" << std::endl;
+    out << '}' << std::endl;
 
     return out;
   }

@@ -755,7 +755,7 @@ namespace spot
         }
 
         std::cout << "node" << this_node << "[label=\"";
-        std::cout << this_node->name << "|";
+        std::cout << this_node->name << '|';
         for (auto j: this_node->nodes)
         {
 	  stnum_t::const_iterator it = node_names.find(j);
@@ -799,16 +799,16 @@ namespace spot
              i != a->automaton.rend();
              ++i)
         {
-          std::cout << "subgraph sg" << i->first << "{" << std::endl;
+          std::cout << "subgraph sg" << i->first << '{' << std::endl;
           print_safra_tree(i->first, node_names, current_node,
                            nb_accepting_conditions);
-          std::cout << "}" << std::endl;
+          std::cout << "}\n";
 
           // Successors.
           for (const auto& j: i->second)
             std::cout << "node" << i->first << "->"
                       << "node" << j.second <<
-              " [label=\"" << bddset << j.first << "\"];" << std::endl;
+              " [label=\"" << bddset << j.first << "\"];\n";
         }
 
 	// Output the real name of all states.
@@ -819,10 +819,7 @@ namespace spot
 	  std::cout << "<TR><TD>" << nn.second << "</TD><TD>"
 		    << a->get_sba()->format_state(nn.first)
 		    << "</TD></TR>\n";
-	std::cout << "</TABLE>\n"
-		  << ">]}" << std::endl;
-
-        std::cout << "}" << std::endl;
+	std::cout << "</TABLE>\n>]}\n}\n";
       }
     } // test
 

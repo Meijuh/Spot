@@ -67,7 +67,7 @@ namespace spot
 	  os_ << "  fi;\n";
 	if (accept_all_ != -1)
 	  os_ << "accept_all:\n  skip\n";
-	os_ << "}" << std::endl;
+	os_ << '}' << std::endl;
 	init_->destroy();
       }
 
@@ -138,7 +138,7 @@ namespace spot
 	  {
 	    if (fi_needed_ != 0)
 	      os_ << "  fi;\n";
-	    os_ << get_state_label(s, n) << ":";
+	    os_ << get_state_label(s, n) << ':';
 	    if (comments_)
 	      os_ << " /* " << aut_->format_state(s) << " */";
 	    os_ << "\n  if\n  :: (0) -> goto "
@@ -157,7 +157,7 @@ namespace spot
 	      {
 		if (fi_needed_)
 		  os_ << "  fi;\n";
-		os_ << get_state_label(s, n) << ":";
+		os_ << get_state_label(s, n) << ':';
 		if (comments_)
 		  os_ << " /* " << aut_->format_state(s) << " */";
 		os_ << "\n  if\n";

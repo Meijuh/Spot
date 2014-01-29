@@ -1061,11 +1061,11 @@ namespace
 	std::ostream& err = global_error();
 	err << "error: ";
 	if (icomp)
-	  err << "Comp(N" << i << ")";
+	  err << "Comp(N" << i << ')';
 	else
-	  err << "P" << i;
+	  err << 'P' << i;
 	if (jcomp)
-	  err << "*Comp(P" << j << ")";
+	  err << "*Comp(P" << j << ')';
 	else
 	  err << "*N" << j;
 	err << " is nonempty";
@@ -1079,12 +1079,12 @@ namespace
 		      << "       ";
 	    spot::tgba_word w(runmin);
 	    w.simplify();
-	    w.print(example(), prod->get_dict()) << "\n";
+	    w.print(example(), prod->get_dict()) << '\n';
 	    delete runmin;
 	  }
 	else
 	  {
-	    std::cerr << "\n";
+	    std::cerr << '\n';
 	  }
 	end_error();
       }
@@ -1142,7 +1142,7 @@ namespace
 	    }
 	err << "} when evaluating ";
 	if (products > 1)
-	  err << "state-space #" << p << "/" << products << "\n";
+	  err << "state-space #" << p << '/' << products << '\n';
 	else
 	  err << "the state-space\n";
 	end_error();
@@ -1233,14 +1233,14 @@ namespace
       // complains.
       std::string fstr = runner.formula();
       if (filename)
-	std::cerr << filename << ":";
+	std::cerr << filename << ':';
       if (linenum)
-	std::cerr << linenum << ":";
+	std::cerr << linenum << ':';
       if (filename || linenum)
-	std::cerr << " ";
+	std::cerr << ' ';
       if (color_opt)
 	std::cerr << bright_white;
-      std::cerr << fstr << "\n";
+      std::cerr << fstr << '\n';
       if (color_opt)
 	std::cerr << reset_color;
 
@@ -1465,9 +1465,9 @@ namespace
 			<< " and N" << i;
 		    if (products > 1)
 		      err << " for state-space #" << p
-			  << "/" << products << "\n";
+			  << '/' << products << '\n';
 		    else
-		      err << "\n";
+		      err << '\n';
 		    end_error();
 		  }
 	    }

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -51,14 +51,14 @@ namespace spot
     static std::ostream&
     dump_hash_set(const hash_set* hs, const ta* aut, std::ostream& out)
     {
-      out << "{";
+      out << '{';
       const char* sep = "";
       for (hash_set::const_iterator i = hs->begin(); i != hs->end(); ++i)
         {
           out << sep << aut->format_state(*i);
           sep = ", ";
         }
-      out << "}";
+      out << '}';
       return out;
     }
 
@@ -475,7 +475,7 @@ namespace spot
 #ifdef TRACE
       trace << "Final partition: ";
       for (partition_t::const_iterator i = done.begin(); i != done.end(); ++i)
-	trace << format_hash_set(*i, ta_) << " ";
+	trace << format_hash_set(*i, ta_) << ' ';
       trace << std::endl;
 #endif
 

@@ -64,14 +64,14 @@ namespace spot
     static std::ostream&
     dump_hash_set(const hash_set* hs, const tgba* aut, std::ostream& out)
     {
-      out << "{";
+      out << '{';
       const char* sep = "";
       for (hash_set::const_iterator i = hs->begin(); i != hs->end(); ++i)
 	{
 	  out << sep << aut->format_state(*i);
 	  sep = ", ";
 	}
-      out << "}";
+      out << '}';
       return out;
     }
 
@@ -453,7 +453,7 @@ namespace spot
 #ifdef TRACE
     trace << "Final partition: ";
     for (partition_t::const_iterator i = done.begin(); i != done.end(); ++i)
-      trace << format_hash_set(*i, det_a) << " ";
+      trace << format_hash_set(*i, det_a) << ' ';
     trace << std::endl;
 #endif
 

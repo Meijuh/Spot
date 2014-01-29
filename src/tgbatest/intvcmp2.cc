@@ -1,5 +1,6 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2014 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,7 +30,7 @@ int check_aa(int* data, int size, unsigned expected = 0)
 
   std::cout << "AC[" << csize << "] ";
   for (size_t i = 0; i < csize; ++i)
-    std::cout << comp[i] << " ";
+    std::cout << comp[i] << ' ';
   std::cout << std::endl;
 
   int* decomp = new int[size + 30];
@@ -37,7 +38,7 @@ int check_aa(int* data, int size, unsigned expected = 0)
 
   std::cout << "AD[" << size << "] ";
   for (int i = 0; i < size; ++i)
-    std::cout << decomp[i] << " ";
+    std::cout << decomp[i] << ' ';
   std::cout << std::endl;
 
   int res = memcmp(data, decomp, size * sizeof(int));
@@ -47,7 +48,7 @@ int check_aa(int* data, int size, unsigned expected = 0)
       std::cout << "*** cmp error *** " << res << std::endl;
       std::cout << "AE[" << size << "] ";
       for (int i = 0; i < size; ++i)
-	std::cout << data[i] << " ";
+	std::cout << data[i] << ' ';
       std::cout << std::endl;
     }
 

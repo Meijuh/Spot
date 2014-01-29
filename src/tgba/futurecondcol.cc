@@ -1,4 +1,6 @@
-// Copyright (C) 2009  Laboratoire de recherche et développement de l'Epita.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2014 Laboratoire de recherche et dÃ©veloppement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -81,7 +83,7 @@ namespace spot
 	  str << ", ";
 	bdd_print_formula(str, get_dict(), *i);
       }
-    str << "]";
+    str << ']';
     return str.str();
   }
 }

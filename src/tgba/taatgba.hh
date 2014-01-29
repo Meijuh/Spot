@@ -242,7 +242,7 @@ namespace spot
 	os << "State: " << label_to_string(i->first) << std::endl;
 	for (i2 = i->second->begin(); i2 != i->second->end(); ++i2)
 	{
-	  os << " " << format_state_set((*i2)->dst)
+	  os << ' ' << format_state_set((*i2)->dst)
 	     << ", C:" << (*i2)->condition
 	     << ", A:" << (*i2)->acceptance_conditions << std::endl;
 	}

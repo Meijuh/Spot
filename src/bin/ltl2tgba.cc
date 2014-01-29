@@ -262,7 +262,7 @@ namespace
 	  spot::never_claim_reachable(std::cout, aut, f);
 	  break;
 	case Stats:
-	  statistics.print(aut, f, translation_time) << "\n";
+	  statistics.print(aut, f, translation_time) << '\n';
 	  break;
 	}
       delete aut;

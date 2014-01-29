@@ -103,7 +103,7 @@ namespace spot
 	    trace << "Main iteration (top = " << top
 		  << ", dftop = " << dftop
 		  << ", s = " << a_->format_state(stack[dftop].s)
-		  << ")" << std::endl;
+		  << ')' << std::endl;
 
 	    tgba_succ_iterator* iter = stack[dftop].lasttr;
 	    bool cont;
@@ -170,7 +170,7 @@ namespace spot
       push(const state* s, bool accepting)
       {
 	trace << "  push(s = " << a_->format_state(s)
-	      << ", accepting = " << accepting << ")" << std::endl;
+	      << ", accepting = " << accepting << ")\n";
 
 	h[s] = ++top;
 
@@ -194,7 +194,7 @@ namespace spot
       void
       pop()
       {
-	trace << "  pop()" << std::endl;
+	trace << "  pop()\n";
 
 	int p = stack[dftop].pre;
 	if (p >= 0)
@@ -217,10 +217,9 @@ namespace spot
       lowlinkupdate(int f, int t)
       {
 	trace << "  lowlinkupdate(f = " << f << ", t = " << t
-	      << ")" << std::endl
-	      << "    t.lowlink = " << stack[t].lowlink << std::endl
-	      << "    f.lowlink = " << stack[f].lowlink << std::endl
-	      << "    f.acc = " << stack[f].acc << std::endl;
+	      << ")\n    t.lowlink = " << stack[t].lowlink
+	      << "\n    f.lowlink = " << stack[f].lowlink
+	      << "\n    f.acc = " << stack[f].acc << '\n';
 	int stack_t_lowlink = stack[t].lowlink;
 	if (stack_t_lowlink <= stack[f].lowlink)
 	  {
@@ -228,16 +227,16 @@ namespace spot
 	      violation = true;
 	    stack[f].lowlink = stack_t_lowlink;
 	    trace << "    f.lowlink updated to "
-		  << stack[f].lowlink << std::endl;
+		  << stack[f].lowlink << '\n';
 	  }
       }
 
       virtual std::ostream&
       print_stats(std::ostream& os) const
       {
-	os << h.size() << " unique states visited" << std::endl;
-	os << transitions() << " transitions explored" << std::endl;
-	os << max_depth() << " items max on stack" << std::endl;
+	os << h.size() << " unique states visited\n";
+	os << transitions() << " transitions explored\n";
+	os << max_depth() << " items max on stack\n";
 	return os;
       }
 

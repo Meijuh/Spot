@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -74,7 +74,7 @@ main(int argc, char** argv)
       std::cout << "Test f1 < f2" << std::endl;
       if (c->syntactic_implication(f1, f2))
 	{
-	  std::cout << f1s << " < " << f2s << std::endl;
+	  std::cout << f1s << " < " << f2s << '\n';
 	  exit_return = 1;
 	}
       break;
@@ -83,7 +83,7 @@ main(int argc, char** argv)
       std::cout << "Test !f1 < f2" << std::endl;
       if (c->syntactic_implication_neg(f1, f2, false))
 	{
-	  std::cout << "!(" << f1s << ") < " << f2s << std::endl;
+	  std::cout << "!(" << f1s << ") < " << f2s << '\n';
 	  exit_return = 1;
 	}
       break;
@@ -92,7 +92,7 @@ main(int argc, char** argv)
       std::cout << "Test f1 < !f2" << std::endl;
       if (c->syntactic_implication_neg(f1, f2, true))
 	{
-	  std::cout << f1s << " < !(" << f2s << ")" << std::endl;
+	  std::cout << f1s << " < !(" << f2s << ")\n";
 	  exit_return = 1;
 	}
       break;
@@ -100,8 +100,8 @@ main(int argc, char** argv)
       break;
     }
 
-  spot::ltl::dump(std::cout, f1) << std::endl;
-  spot::ltl::dump(std::cout, f2) << std::endl;
+  spot::ltl::dump(std::cout, f1) << '\n';
+  spot::ltl::dump(std::cout, f2) << '\n';
 
   f1->destroy();
   f2->destroy();

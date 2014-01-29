@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -218,7 +218,7 @@ namespace spot
 
     std::ostringstream s;
     // FIXME: We could be smarter and reuse unused "$n" numbers.
-    s << ltl::to_string(i.f) << "$" << ++i.clone_counts;
+    s << ltl::to_string(i.f) << '$' << ++i.clone_counts;
     const ltl::formula* f =
       ltl::atomic_prop::instance(s.str(),
 				 ltl::default_environment::instance());
@@ -416,7 +416,7 @@ namespace spot
     unsigned s = bdd_map.size();
     for (unsigned i = 0; i < s; ++i)
       {
-	os << " " << i << " ";
+	os << ' ' << i << ' ';
 	const bdd_info& r = bdd_map[i];
 	switch (r.type)
 	  {
@@ -424,16 +424,16 @@ namespace spot
 	    os << (r.refs.empty() ? "Free" : "Anon");
 	    break;
 	  case now:
-	    os << "Now[" << to_string(r.f) << "]";
+	    os << "Now[" << to_string(r.f) << ']';
 	    break;
 	  case next:
-	    os << "Next[" << to_string(r.f) << "]";
+	    os << "Next[" << to_string(r.f) << ']';
 	    break;
 	  case acc:
-	    os << "Acc[" << to_string(r.f) << "]";
+	    os << "Acc[" << to_string(r.f) << ']';
 	    break;
 	  case var:
-	    os << "Var[" << to_string(r.f) << "]";
+	    os << "Var[" << to_string(r.f) << ']';
 	    break;
 	  }
 	if (!r.refs.empty())
@@ -441,10 +441,10 @@ namespace spot
 	    os << " x" << r.refs.size() << " {";
 	    for (ref_set::const_iterator si = r.refs.begin();
 		 si != r.refs.end(); ++si)
-	      os << " " << *si;
+	      os << ' ' << *si;
 	    os << " }";
 	  }
-	os << "\n";
+	os << '\n';
       }
     os << "Anonymous lists:\n";
     bdd_dict_priv::free_anonymous_list_of_type::const_iterator ai;
@@ -456,7 +456,7 @@ namespace spot
       }
     os << "Free list:\n";
     priv_->dump_free_list(os);
-    os << std::endl;
+    os << '\n';
     return os;
   }
 

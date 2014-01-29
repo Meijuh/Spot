@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -156,7 +156,7 @@ namespace spot
   {
     for (std::map<std::string, int>::const_iterator it = m.options_.begin();
 	 it != m.options_.end(); ++it)
-      os << "\"" << it->first << "\" = " << it->second << std::endl;
+      os << '"' << it->first << "\" = " << it->second << '\n';
     return os;
   }
 }

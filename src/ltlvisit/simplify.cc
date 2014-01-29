@@ -4323,7 +4323,7 @@ namespace spot
 	static int srec = 0;
 	for (int i = srec; i; --i)
 	  trace << ' ';
-	trace << "** simplify_recursively(" << to_string(f) << ")";
+	trace << "** simplify_recursively(" << to_string(f) << ')';
 #endif
 
 	const formula* result = c->lookup_simplified(f);
