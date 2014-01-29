@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-## Développement de l'Epita (LRDE).
+## Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+## et Développement de l'Epita (LRDE).
 ## Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -53,7 +53,7 @@ check-local: check-80columns check-style check-readme check-includes
 # Ensure we have not forgotten to include an header.
 check-installed-includes:
 	CXX='$(CXX)' \
-	CPPFLAGS='-I $(includedir) -I$(pkgincludedir) $(LIBGSPN_CPPFLAGS) $(CPPFLAGS)' \
+	CPPFLAGS='-I $(includedir) -I$(pkgincludedir) $(CPPFLAGS)' \
 	CXXFLAGS='$(AM_CXXFLAGS) $(CXXFLAGS)' \
 	INCDIR='$(pkgincludedir)' \
 	$(SHELL) $(srcdir)/includes.test $(TESTHEADER)

@@ -61,16 +61,6 @@ should read the file INSTALL for generic instructions.
 In addition to its usual options, ./configure will accept some
 flags specific to Spot:
 
-  --with-gspn=DIR
-    Turns on GreatSPN support.  DIR should designate the root of
-    GreatSPN source tree.  (./configure will then run
-    DIR/SOURCES/contrib/version.sh to find the GreatSPN build tree.)
-
-    GreatSPN had to be modified in order to be used as a library
-    (thanks Soheib Baarir and Yann Thierry-Mieg for this work), and
-    presently these modifications are only available on the GreatSPN
-    CVS repository hosted by the Università di Torino.
-
   --with-included-buddy
     After you have installed Spot the first time, a modified version
     of BuDDy will be installed.  The next time you reconfigure Spot,
@@ -201,8 +191,6 @@ wrap/             Wrappers for other languages.
       ajax/       LTL-to-TGBA translator with web interface, using Ajax.
 iface/            Interfaces to other libraries.
    dve2/          Interface with DiVinE2.
-   gspn/          GreatSPN interface.
-      examples/   Supporting models used by the test cases.
 
 Third party software
 --------------------

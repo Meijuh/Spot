@@ -107,7 +107,6 @@ if ! "${stdpass-false}"; then
 fi
 
 AX_CHECK_BUDDY
-AX_CHECK_GSPNLIB
 
 AC_CHECK_HEADERS([sys/times.h])
 AC_CHECK_FUNCS([times kill alarm])
@@ -173,8 +172,6 @@ AC_CONFIG_FILES([
   doc/org/init.el
   iface/dve2/defs
   iface/dve2/Makefile
-  iface/gspn/defs
-  iface/gspn/Makefile
   iface/Makefile
   lib/Makefile
   src/bin/Makefile

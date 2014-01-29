@@ -1,8 +1,6 @@
-## Copyright (C) 2008, 2011 Laboratoire de Recherche et Développement
+## -*- coding: utf-8 -*-
+## Copyright (C) 2011, 2014 Laboratoire de Recherche et DÃ©veloppement
 ## de l'Epita (LRDE).
-## Copyright (C) 2003 Laboratoire d'Informatique de Paris 6 (LIP6),
-## département Systèmes Répartis Coopératifs (SRC), Université Pierre
-## et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -20,7 +18,3 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SUBDIRS = dve2
-
-if WITH_GSPN
-  SUBDIRS += gspn
-endif
