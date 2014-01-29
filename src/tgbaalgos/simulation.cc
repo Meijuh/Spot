@@ -149,7 +149,7 @@ namespace spot
     typedef std::map<constraint_key, bdd,
                      constraint_key_comparator> map_constraint;
 
-    typedef std::pair<constraint_key, bdd> constraint;
+    typedef std::tuple<const state*, const state*, bdd> constraint;
 
     // Helper to create the map of constraints to give to the
     // simulation.
@@ -157,10 +157,9 @@ namespace spot
                     map_constraint& feed_me)
     {
       for (auto& p: list)
-        {
-          if (feed_me.find(p.first) == feed_me.end())
-            feed_me[p.first] = p.second;
-        }
+	feed_me.insert(std::make_pair(std::make_pair(std::get<0>(p),
+						     std::get<1>(p)),
+				      std::get<2>(p)));
     }
 
 
@@ -1124,9 +1123,6 @@ namespace spot
         // return bddfalse != bdd_restrict(b, !on_cycle_);
       }
 
-#define create_cstr(src, dst, constraint) \
-      std::make_pair(std::make_pair(src, dst), constraint)
-
       // This method solves three kind of problems, where we have two
       // conjunctions of variable (that corresponds to a particular
       // transition), and where left could imply right.
@@ -1165,10 +1161,9 @@ namespace spot
               {
 		assert(src_right != dst_right);
 
-                constraint
-                  .push_back(create_cstr(new_original_[old_name_[src_right]],
-                                         new_original_[old_name_[dst_right]],
-                                         add));
+                constraint.emplace_back(new_original_[old_name_[src_right]],
+					new_original_[old_name_[dst_right]],
+					add);
               }
           }
         else if (out_scc_left && !out_scc_right)
@@ -1181,10 +1176,9 @@ namespace spot
               {
 		assert(src_left != dst_left);
 
-                constraint
-                  .push_back(create_cstr(new_original_[old_name_[src_left]],
-                                         new_original_[old_name_[dst_left]],
-                                         add));
+                constraint.emplace_back(new_original_[old_name_[src_left]],
+					new_original_[old_name_[dst_left]],
+					add);
               }
           }
         else if (out_scc_left && out_scc_right)
@@ -1197,14 +1191,12 @@ namespace spot
               {
 		assert(src_left != dst_left && src_right != dst_right);
 		// FIXME: cas pas compris.
-                constraint
-                  .push_back(create_cstr(new_original_[old_name_[src_left]],
-                                         new_original_[old_name_[dst_left]],
-                                         add));
-		constraint
-		  .push_back(create_cstr(new_original_[old_name_[src_right]],
-					 new_original_[old_name_[dst_right]],
-                                         add));
+                constraint.emplace_back(new_original_[old_name_[src_left]],
+					new_original_[old_name_[dst_left]],
+					add);
+		constraint.emplace_back(new_original_[old_name_[src_right]],
+					new_original_[old_name_[dst_right]],
+					add);
               }
 
           }
