@@ -58,8 +58,7 @@ namespace spot
 
     // * h: a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
-    numbered_state_heap* h =
-        numbered_state_heap_hash_map_factory::instance()->build();
+    hash_type h;
 
     // * num: the number of visited nodes.  Used to set the order of each
     //   visited node,
@@ -107,13 +106,13 @@ namespace spot
         state_ta_product* init = new state_ta_product(
             (ta_init_it_->current_state()), kripke_init_state->clone());
 
-        numbered_state_heap::state_index_p h_init = h->find(init);
+        if (!h.insert(std::make_pair(init, num + 1)).second)
+	  {
+	    init->destroy();
+	    continue;
+	  }
 
-        if (h_init.first)
-          continue;
-
-        h->insert(init, ++num);
-        scc.push(num);
+        scc.push(++num);
         arc.push(bddfalse);
 
         ta_succ_iterator_product* iter = a_->succ_iter(init);
@@ -143,29 +142,25 @@ namespace spot
                 // Backtrack TODO.
                 todo.pop();
                 dec_depth();
-                trace
-                  << "PASS 1 : backtrack" << std::endl;
+                trace << "PASS 1 : backtrack\n";
 
                 if (a_->is_livelock_accepting_state(curr)
                     && !a_->is_accepting_state(curr))
                   {
                     livelock_acceptance_states_not_found = false;
-                    trace
-                      << "PASS 1 : livelock accepting state found" << std::endl;
-
+                    trace << "PASS 1 : livelock accepting state found\n";
                   }
 
                 // fill rem with any component removed,
-                numbered_state_heap::state_index_p spi =
-                    h->index(curr->clone());
-                assert(spi.first);
+		auto i = h.find(curr);
+                assert(i != h.end());
 
                 scc.rem().push_front(curr);
                 inc_depth();
 
                 // set the h value of the Backtracked state to negative value.
                 // colour[curr] = BLUE;
-                *spi.second = -std::abs(*spi.second);
+                i->second = -std::abs(i->second);
 
                 // Backtrack livelock_roots.
                 if (activate_heuristic && !livelock_roots.empty()
@@ -176,21 +171,11 @@ namespace spot
                 // remove that SSCC from the ROOT stacks.  We must
                 // discard from H all reachable states from this SSCC.
                 assert(!scc.empty());
-                if (scc.top().index == std::abs(*spi.second))
+                if (scc.top().index == std::abs(i->second))
                   {
                     // removing states
-                    std::list<state*>::iterator i;
-
-                    for (i = scc.rem().begin(); i != scc.rem().end(); ++i)
-                      {
-                        numbered_state_heap::state_index_p spi = h->index(
-                            (*i)->clone());
-                        assert(spi.first->compare(*i) == 0);
-                        assert(*spi.second != -1);
-                        *spi.second = -1;
-                        //colour[*i] = BLACK;
-
-                      }
+                    for (auto j: scc.rem())
+		      h[j] = -1; //colour[*i] = BLACK;
                     dec_depth(scc.rem().size());
                     scc.pop();
                     assert(!arc.empty());
@@ -205,8 +190,7 @@ namespace spot
 
             // We have a successor to look at.
             inc_transitions();
-            trace
-              << "PASS 1: transition" << std::endl;
+            trace << "PASS 1: transition\n";
             // Fetch the values destination state we are interested in...
             state* dest = succ->current_state();
 
@@ -232,15 +216,12 @@ namespace spot
             // We do not need SUCC from now on.
 
             // Are we going to a new state?
-            numbered_state_heap::state_index_p spi = h->find(dest);
-
-            // Is this a new state?
-            if (!spi.first)
+	    auto p = h.insert(std::make_pair(dest, num + 1));
+            if (p.second)
               {
                 // Number it, stack it, and register its successors
                 // for later processing.
-                h->insert(dest, ++num);
-                scc.push(num);
+                scc.push(++num);
                 arc.push(acc_cond);
 
                 ta_succ_iterator_product* iter = a_->succ_iter(dest);
@@ -258,7 +239,7 @@ namespace spot
               }
 
             // If we have reached a dead component, ignore it.
-            if (*spi.second == -1)
+            if (p.first->second == -1)
               continue;
 
             // Now this is the most interesting case.  We have reached a
@@ -272,12 +253,11 @@ namespace spot
             // ROOT is ascending: we just have to merge all SSCCs from the
             // top of ROOT that have an index greater to the one of
             // the SSCC of S2 (called the "threshold").
-            int threshold = std::abs(*spi.second);
+            int threshold = std::abs(p.first->second);
             std::list<state*> rem;
             bool acc = false;
 
-            trace
-              << "***PASS 1: CYCLE***" << std::endl;
+            trace << "***PASS 1: CYCLE***\n";
 
             while (threshold < scc.top().index)
               {
@@ -310,15 +290,15 @@ namespace spot
             if (is_accepting_sscc)
               {
                 trace
-		  << "PASS 1: SUCCESS : a_->is_livelock_accepting_state(curr): "
-		  << a_->is_livelock_accepting_state(curr) << std::endl;
+		  << "PASS 1: SUCCESS: a_->is_livelock_accepting_state(curr): "
+		  << a_->is_livelock_accepting_state(curr) << '\n';
                 trace
                   << "PASS 1: scc.top().condition : "
 		  << bdd_format_accset(a_->get_dict(), scc.top().condition)
-		  << std::endl;
+		  << '\n';
                 trace
                   << "PASS 1: a_->all_acceptance_conditions() : "
-		  << (a_->all_acceptance_conditions()) << std::endl;
+		  << (a_->all_acceptance_conditions()) << '\n';
                 trace
 		  << ("PASS 1 CYCLE and (scc.top().condition == "
 		      "a_->all_acceptance_conditions()) : ")
@@ -326,12 +306,12 @@ namespace spot
 		      == a_->all_acceptance_conditions()) << std::endl;
 
                 trace
-                  << "PASS 1: bddtrue : " << (a_->all_acceptance_conditions()
-					      == bddtrue) << std::endl;
+                  << "PASS 1: bddtrue: " << (a_->all_acceptance_conditions()
+					     == bddtrue) << '\n';
 
                 trace
-                  << "PASS 1: bddfalse : " << (a_->all_acceptance_conditions()
-					       == bddfalse) << std::endl;
+                  << "PASS 1: bddfalse: " << (a_->all_acceptance_conditions()
+					      == bddfalse) << '\n';
 
                 clear(h, todo, ta_init_it_);
                 return true;
@@ -341,9 +321,8 @@ namespace spot
             if (activate_heuristic && a_->is_livelock_accepting_state(curr)
                 && is_stuttering_transition)
               {
-                trace
-                  << "PASS 1: heuristic livelock detection " << std::endl;
-                const state* dest = spi.first;
+                trace << "PASS 1: heuristic livelock detection \n";
+                const state* dest = p.first->first;
                 std::set<const state*, state_ptr_less_than> liveset_dest =
                     liveset[dest];
 
@@ -352,28 +331,23 @@ namespace spot
 
                 int h_livelock_root = 0;
                 if (!livelock_roots.empty())
-                  h_livelock_root = *(h->find((livelock_roots.top()))).second;
+                  h_livelock_root = h[livelock_roots.top()];
 
                 if (heuristic_livelock_detection(dest, h, h_livelock_root,
-                    liveset_curr))
+						 liveset_curr))
                   {
                     clear(h, todo, ta_init_it_);
                     return true;
                   }
 
                 std::set<const state*, state_ptr_less_than>::const_iterator it;
-                for (it = liveset_dest.begin(); it != liveset_dest.end(); ++it)
-                  {
-                    const state* succ = (*it);
-                    if (heuristic_livelock_detection(succ, h, h_livelock_root,
-                        liveset_curr))
-                      {
-                        clear(h, todo, ta_init_it_);
-                        return true;
-                      }
-
-                  }
-
+                for (const state* succ: liveset_dest)
+		  if (heuristic_livelock_detection(succ, h, h_livelock_root,
+						   liveset_curr))
+		    {
+		      clear(h, todo, ta_init_it_);
+		      return true;
+		    }
               }
           }
 
@@ -389,26 +363,23 @@ namespace spot
 
   bool
   ta_check::heuristic_livelock_detection(const state * u,
-      numbered_state_heap* h, int h_livelock_root, std::set<const state*,
+      hash_type& h, int h_livelock_root, std::set<const state*,
           state_ptr_less_than> liveset_curr)
   {
-    numbered_state_heap::state_index_p hu = h->find(u);
+    int hu = h[u];
 
-    if (*hu.second > 0) // colour[u] == GREY
+    if (hu > 0) // colour[u] == GREY
       {
 
-        if (*hu.second >= h_livelock_root)
+        if (hu >= h_livelock_root)
           {
-            trace
-              << "PASS 1: heuristic livelock detection SUCCESS" << std::endl;
+            trace << "PASS 1: heuristic livelock detection SUCCESS\n";
             return true;
           }
 
         liveset_curr.insert(u);
       }
-
     return false;
-
   }
 
   bool
@@ -421,8 +392,7 @@ namespace spot
 
     // * h: a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
-    numbered_state_heap* h =
-        numbered_state_heap_hash_map_factory::instance()->build();
+    hash_type h;
 
     // * num: the number of visited nodes.  Used to set the order of each
     //   visited node,
@@ -448,7 +418,6 @@ namespace spot
       {
         state* init_state = (*it);
         ta_init_it_.push(init_state);
-
       }
 
     while (!ta_init_it_.empty())
@@ -457,19 +426,19 @@ namespace spot
           {
             state* init = ta_init_it_.front();
             ta_init_it_.pop();
-            numbered_state_heap::state_index_p h_init = h->find(init);
 
-            if (h_init.first)
-              continue;
+	    if (!h.insert(std::make_pair(init, num + 1)).second)
+	      {
+		init->destroy();
+		continue;
+	      }
 
-            h->insert(init, ++num);
             sscc.push(num);
             sscc.top().is_accepting = t->is_livelock_accepting_state(init);
             ta_succ_iterator_product* iter = t->succ_iter(init);
             iter->first();
             todo.emplace(init, iter);
             inc_depth();
-
           }
 
         while (!todo.empty())
@@ -488,13 +457,11 @@ namespace spot
                 // Backtrack TODO.
                 todo.pop();
                 dec_depth();
-                trace
-                  << "PASS 2 : backtrack" << std::endl;
+                trace << "PASS 2 : backtrack\n";
 
                 // fill rem with any component removed,
-                numbered_state_heap::state_index_p spi =
-                    h->index(curr->clone());
-                assert(spi.first);
+		auto i = h.find(curr);
+                assert(i != h.end());
 
                 sscc.rem().push_front(curr);
                 inc_depth();
@@ -503,19 +470,11 @@ namespace spot
                 // remove that SSCC from the ROOT stacks.  We must
                 // discard from H all reachable states from this SSCC.
                 assert(!sscc.empty());
-                if (sscc.top().index == *spi.second)
+                if (sscc.top().index == i->second)
                   {
                     // removing states
-                    std::list<state*>::iterator i;
-
-                    for (i = sscc.rem().begin(); i != sscc.rem().end(); ++i)
-                      {
-                        numbered_state_heap::state_index_p spi = h->index(
-                            (*i)->clone());
-                        assert(spi.first->compare(*i) == 0);
-                        assert(*spi.second != -1);
-                        *spi.second = -1;
-                      }
+                    for (auto j: sscc.rem())
+		      h[j] = -1;
                     dec_depth(sscc.rem().size());
                     sscc.pop();
                   }
@@ -528,8 +487,7 @@ namespace spot
 
             // We have a successor to look at.
             inc_transitions();
-            trace
-              << "PASS 2 : transition" << std::endl;
+            trace << "PASS 2 : transition\n";
             // Fetch the values destination state we are interested in...
             state* dest = succ->current_state();
 
@@ -539,10 +497,10 @@ namespace spot
             succ->next();
             // We do not need SUCC from now on.
 
-            numbered_state_heap::state_index_p spi = h->find(dest);
+            auto i = h.find(dest);
 
             // Is this a new state?
-            if (!spi.first)
+            if (i == h.end())
               {
 
                 // Are we going to a new state through a stuttering transition?
@@ -555,7 +513,7 @@ namespace spot
 
                 // Number it, stack it, and register its successors
                 // for later processing.
-                h->insert(dest, ++num);
+                h[dest] = ++num;
                 sscc.push(num);
                 sscc.top().is_accepting = t->is_livelock_accepting_state(dest);
 
@@ -565,24 +523,26 @@ namespace spot
                 inc_depth();
                 continue;
               }
+	    else
+	      {
+		dest->destroy();
+	      }
 
             // If we have reached a dead component, ignore it.
-            if (*spi.second == -1)
+            if (i->second == -1)
               continue;
 
             //self loop state
-            if (!curr->compare(spi.first))
+            if (!curr->compare(i->first))
               {
-                state * self_loop_state = (curr);
+                state* self_loop_state = curr;
 
                 if (t->is_livelock_accepting_state(self_loop_state))
                   {
                     clear(h, todo, ta_init_it_);
-                    trace
-                      << "PASS 2: SUCCESS" << std::endl;
+                    trace << "PASS 2: SUCCESS\n";
                     return true;
                   }
-
               }
 
             // Now this is the most interesting case.  We have reached a
@@ -596,7 +556,7 @@ namespace spot
             // ROOT is ascending: we just have to merge all SSCCs from the
             // top of ROOT that have an index greater to the one of
             // the SSCC of S2 (called the "threshold").
-            int threshold = *spi.second;
+            int threshold = i->second;
             std::list<state*> rem;
             bool acc = false;
 
@@ -634,11 +594,11 @@ namespace spot
   }
 
   void
-  ta_check::clear(numbered_state_heap* h, std::stack<pair_state_iter> todo,
+  ta_check::clear(hash_type& h, std::stack<pair_state_iter> todo,
       std::queue<spot::state*> init_states)
   {
 
-    set_states(states() + h->size());
+    set_states(states() + h.size());
 
     while (!init_states.empty())
       {
@@ -653,15 +613,14 @@ namespace spot
         todo.pop();
         dec_depth();
       }
-    delete h;
   }
 
   void
-  ta_check::clear(numbered_state_heap* h, std::stack<pair_state_iter> todo,
+  ta_check::clear(hash_type& h, std::stack<pair_state_iter> todo,
       spot::ta_succ_iterator* init_states_it)
   {
 
-    set_states(states() + h->size());
+    set_states(states() + h.size());
 
     delete init_states_it;
 
@@ -672,7 +631,6 @@ namespace spot
         todo.pop();
         dec_depth();
       }
-    delete h;
   }
 
   std::ostream&

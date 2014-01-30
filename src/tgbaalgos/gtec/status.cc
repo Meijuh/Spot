@@ -1,5 +1,8 @@
+// -*- coding: utf-8 -*-
+// Copyright (C) 2014 Laboratoire de Recherche et DÃ©veloppement de
+// l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -22,31 +25,34 @@
 
 namespace spot
 {
-  couvreur99_check_status::couvreur99_check_status
-    (const tgba* aut,
-     const numbered_state_heap_factory* nshf)
-      : aut(aut),
-	h(nshf->build())
+  couvreur99_check_status::couvreur99_check_status(const tgba* aut)
+    : aut(aut)
   {
   }
 
   couvreur99_check_status::~couvreur99_check_status()
   {
-    delete h;
+    hash_type::iterator i = h.begin();
+    while (i != h.end())
+      {
+	// Advance the iterator before deleting the key.
+	const state* s = i->first;
+	++i;
+	s->destroy();
+      }
   }
 
   void
   couvreur99_check_status::print_stats(std::ostream& os) const
   {
-    os << h->size() << " unique states visited" << std::endl;
+    os << h.size() << " unique states visited" << std::endl;
     os << root.size()
-       << " strongly connected components in search stack"
-       << std::endl;
+       << " strongly connected components in search stack\n";
   }
 
   int
   couvreur99_check_status::states() const
   {
-    return h->size();
+    return h.size();
   }
 }

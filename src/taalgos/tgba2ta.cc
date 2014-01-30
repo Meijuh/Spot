@@ -1,6 +1,6 @@
 // -*- coding utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -35,7 +35,6 @@
 #include "ltlvisit/tostring.hh"
 #include <iostream>
 #include "tgba/bddprint.hh"
-#include "tgbaalgos/gtec/nsheap.hh"
 #include <stack>
 #include "tgba2ta.hh"
 #include "taalgos/statessetbuilder.hh"
@@ -164,9 +163,9 @@ namespace spot
 
       // * h: a hash of all visited nodes, with their order,
       //   (it is called "Hash" in Couvreur's paper)
-      numbered_state_heap* h =
-	numbered_state_heap_hash_map_factory::instance()->build();
-      ///< Heap of visited states.
+      typedef std::unordered_map<const state*, int,
+				 state_ptr_hash, state_ptr_equal> hash_type;
+      hash_type h; ///< Heap of visited states.
 
       // * num: the number of visited nodes.  Used to set the order of each
       //   visited node,
@@ -182,13 +181,8 @@ namespace spot
       // * init: the set of the depth-first search initial states
       std::stack<state*> init_set;
 
-      ta::states_set_t::const_iterator it;
-      ta::states_set_t init_states = testing_automata->get_initial_states_set();
-      for (it = init_states.begin(); it != init_states.end(); ++it)
-	{
-	  state* init_state = (*it);
-	  init_set.push(init_state);
-	}
+      for (state* s: testing_automata->get_initial_states_set())
+	init_set.push(s);
 
       while (!init_set.empty())
 	{
@@ -196,31 +190,31 @@ namespace spot
 
 	  {
 	    state_ta_explicit* init =
-              down_cast<state_ta_explicit*> (init_set.top());
+	      down_cast<state_ta_explicit*> (init_set.top());
 	    init_set.pop();
-	    state_ta_explicit* init_clone = init;
-	    numbered_state_heap::state_index_p h_init = h->find(init_clone);
 
-	    if (h_init.first)
-	      continue;
+	    if (!h.insert(std::make_pair(init, num + 1)).second)
+	      {
+		init->destroy();
+		continue;
+	      }
 
-	    h->insert(init_clone, ++num);
-	    sscc.push(num);
+	    sscc.push(++num);
 	    arc.push(bddfalse);
 	    sscc.top().is_accepting
               = testing_automata->is_accepting_state(init);
 	    tgba_succ_iterator* iter = testing_automata->succ_iter(init);
 	    iter->first();
-	    todo.push(pair_state_iter(init, iter));
+	    todo.emplace(init, iter);
 	  }
 
 	  while (!todo.empty())
 	    {
 	      state* curr = todo.top().first;
 
-	      numbered_state_heap::state_index_p spi = h->find(curr);
+	      auto i = h.find(curr);
 	      // If we have reached a dead component, ignore it.
-	      if (*spi.second == -1)
+	      if (i != h.end() && i->second == -1)
 		{
 		  todo.pop();
 		  continue;
@@ -238,16 +232,14 @@ namespace spot
 		  todo.pop();
 
 		  // fill rem with any component removed,
-		  numbered_state_heap::state_index_p spi = h->index(curr);
-		  assert(spi.first);
-
+		  assert(i != h.end());
 		  sscc.rem().push_front(curr);
 
 		  // When backtracking the root of an SSCC, we must also
 		  // remove that SSCC from the ROOT stacks.  We must
 		  // discard from H all reachable states from this SSCC.
 		  assert(!sscc.empty());
-		  if (sscc.top().index == *spi.second)
+		  if (sscc.top().index == i->second)
 		    {
 		      // removing states
 		      std::list<state*>::iterator i;
@@ -256,25 +248,20 @@ namespace spot
 			    || (sscc.top().condition ==
 				testing_automata->all_acceptance_conditions()));
 
-		      trace << "*** sscc.size()  = ***"
-			    <<  sscc.size() << std::endl;
-		      for (i = sscc.rem().begin(); i != sscc.rem().end(); ++i)
+		      trace << "*** sscc.size()  = ***" <<  sscc.size() << '\n';
+		      for (auto j: sscc.rem())
 			{
-			  numbered_state_heap::state_index_p spi =
-			    h->index((*i));
-			  assert(spi.first->compare(*i) == 0);
-			  assert(*spi.second != -1);
-			  *spi.second = -1;
+			  h[j] = -1;
 
 			  if (is_livelock_accepting_sscc)
 			    {
 			      // if it is an accepting sscc add the state to
 			      // G (=the livelock-accepting states set)
 			      trace << "*** sscc.size() > 1: states: ***"
-				    << testing_automata->format_state(*i)
-				    << std::endl;
-			      state_ta_explicit * livelock_accepting_state =
-				down_cast<state_ta_explicit*> (*i);
+				    << testing_automata->format_state(j)
+				    << '\n';
+			      state_ta_explicit* livelock_accepting_state =
+				down_cast<state_ta_explicit*>(j);
 
 			      livelock_accepting_state->
 				set_livelock_accepting_state(true);
@@ -317,22 +304,21 @@ namespace spot
 	      bool is_stuttering_transition =
 		testing_automata->get_state_condition(curr)
 		== testing_automata->get_state_condition(dest);
-	      state* dest_clone = dest;
-	      spi = h->find(dest_clone);
+	      auto id = h.find(dest);
 
 	      // Is this a new state?
-	      if (!spi.first)
+	      if (id == h.end())
 		{
 		  if (!is_stuttering_transition)
 		    {
 		      init_set.push(dest);
-		      dest_clone->destroy();
+		      dest->destroy();
 		      continue;
 		    }
 
 		  // Number it, stack it, and register its successors
 		  // for later processing.
-		  h->insert(dest_clone, ++num);
+		  h[dest] = ++num;
 		  sscc.push(num);
 		  arc.push(acc_cond);
 		  sscc.top().is_accepting =
@@ -340,17 +326,18 @@ namespace spot
 
 		  tgba_succ_iterator* iter = testing_automata->succ_iter(dest);
 		  iter->first();
-		  todo.push(pair_state_iter(dest, iter));
+		  todo.emplace(dest, iter);
 		  continue;
 		}
+	      dest->destroy();
 
 	      // If we have reached a dead component, ignore it.
-	      if (*spi.second == -1)
+	      if (id->second == -1)
 		continue;
 
 	      trace << "***compute_livelock_acceptance_states: CYCLE***\n";
 
-	      if (!curr->compare(dest))
+	      if (!curr->compare(id->first))
 		{
 		  state_ta_explicit * self_loop_state =
 		    down_cast<state_ta_explicit*> (curr);
@@ -385,7 +372,7 @@ namespace spot
 	      // ROOT is ascending: we just have to merge all SSCCs from the
 	      // top of ROOT that have an index greater to the one of
 	      // the SSCC of S2 (called the "threshold").
-	      int threshold = *spi.second;
+	      int threshold = id->second;
 	      std::list<state*> rem;
 	      bool acc = false;
 
@@ -415,7 +402,6 @@ namespace spot
 	    }
 
 	}
-      delete h;
 
       if ((artificial_livelock_acc_state != 0)
 	  || single_pass_emptiness_check)

@@ -1,7 +1,8 @@
-// Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -47,17 +48,15 @@ namespace spot
       filter(const state* s)
       {
 	r->inc_ars_prefix_states();
-	numbered_state_heap::state_index_p sip = ecs->h->find(s);
+	auto i = ecs->h.find(s);
+	s->destroy();
 	// Ignore unknown states ...
-	if (!sip.first)
-	  {
-	    s->destroy();
-	    return 0;
-	  }
+	if (i == ecs->h.end())
+	  return nullptr;
 	// ... as well as dead states.
-	if (*sip.second == -1)
-	  return 0;
-	return sip.first;
+	if (i->second == -1)
+	  return nullptr;
+	return i->first;
       }
 
       bool
@@ -83,14 +82,11 @@ namespace spot
   unsigned
   couvreur99_check_result::acss_states() const
   {
-    unsigned count = 0;
     int scc_root = ecs_->root.top().index;
-
-    numbered_state_heap_const_iterator* i = ecs_->h->iterator();
-    for (i->first(); !i->done(); i->next())
-      if (i->get_index() >= scc_root)
+    unsigned count = 0;
+    for (auto i: ecs_->h)
+      if (i.second >= scc_root)
 	++count;
-    delete i;
     return count;
   }
 
@@ -190,18 +186,16 @@ namespace spot
 	  virtual const state*
 	  filter(const state* s)
 	  {
-	    numbered_state_heap::state_index_p sip = ecs->h->find(s);
+	    auto i = ecs->h.find(s);
+	    s->destroy();
 	    // Ignore unknown states.
-	    if (!sip.first)
-	      {
-		s->destroy();
-		return 0;
-	      }
+	    if (i == ecs->h.end())
+	      return 0;
 	    // Stay in the final SCC.
-	    if (*sip.second < scc_root)
+	    if (i->second < scc_root)
 	      return 0;
 	    r->inc_ars_cycle_states();
-	    return sip.first;
+	    return i->first;
 	  }
 
 	  virtual bool

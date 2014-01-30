@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
+## Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et Developpement
 ## de l'Epita (LRDE).
 ## Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -29,7 +29,6 @@ gtec_HEADERS = \
   ce.hh \
   explscc.hh \
   gtec.hh \
-  nsheap.hh \
   sccstack.hh \
   status.hh
 
@@ -38,6 +37,5 @@ libgtec_la_SOURCES = \
   ce.cc \
   explscc.cc \
   gtec.cc \
-  nsheap.cc \
   sccstack.cc \
   status.cc

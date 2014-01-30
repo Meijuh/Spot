@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2008, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -137,10 +137,7 @@ namespace spot
   /// choosing a successor.  Otherwise, only the successor of the
   /// topmost state on the DFS stack are considered.
   SPOT_API emptiness_check*
-  couvreur99(const tgba* a,
-	     option_map options = option_map(),
-	     const numbered_state_heap_factory* nshf
-	     = numbered_state_heap_hash_map_factory::instance());
+  couvreur99(const tgba* a, option_map options = option_map());
 
 
   /// \brief An implementation of the Couvreur99 emptiness-check algorithm.
@@ -149,10 +146,7 @@ namespace spot
   class SPOT_API couvreur99_check: public emptiness_check, public ec_statistics
   {
   public:
-    couvreur99_check(const tgba* a,
-		     option_map o = option_map(),
-		     const numbered_state_heap_factory* nshf
-		     = numbered_state_heap_hash_map_factory::instance());
+    couvreur99_check(const tgba* a, option_map o = option_map());
     virtual ~couvreur99_check();
 
     /// Check whether the automaton's language is empty.
@@ -194,10 +188,7 @@ namespace spot
   class SPOT_API couvreur99_check_shy : public couvreur99_check
   {
   public:
-    couvreur99_check_shy(const tgba* a,
-			 option_map o = option_map(),
-			 const numbered_state_heap_factory* nshf
-			 = numbered_state_heap_hash_map_factory::instance());
+    couvreur99_check_shy(const tgba* a, option_map o = option_map());
     virtual ~couvreur99_check_shy();
 
     virtual emptiness_check_result* check();
@@ -247,20 +238,6 @@ namespace spot
     // If the "group2" option is set (it implies "group"), we
     // reprocess the successor states of SCC that have been merged.
     bool group2_;
-    // If the onepass option is true, do only one pass.  This cancels
-    // all the "shyness" of the algorithm, but we need the framework
-    // of the implementation when working with GreatSPN.
-    bool onepass_;
-
-    /// \brief find the SCC number of a unprocessed state.
-    ///
-    /// Sometimes we want to modify some of the above structures when
-    /// looking up a new state.  This happens for instance when find()
-    /// must perform inclusion checking and add new states to process
-    /// to TODO during this step.  (Because TODO must be known,
-    /// sub-classing spot::numbered_state_heap is not enough.)  Then
-    /// overriding this method is the way to go.
-    virtual numbered_state_heap::state_index_p find_state(const state* s);
   };
 
 

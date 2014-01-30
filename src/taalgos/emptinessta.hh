@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2008, 2012, 2013, 2014 Laboratoire de Recherche et
 // Dévelopment de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -25,7 +25,6 @@
 
 #include "ta/taproduct.hh"
 #include "misc/optionmap.hh"
-#include "tgbaalgos/gtec/nsheap.hh"
 #include "tgbaalgos/emptiness_stats.hh"
 #include <stack>
 #include <queue>
@@ -87,6 +86,8 @@ namespace spot
   /// See the paper cited above.
   class SPOT_API ta_check : public ec_statistics
   {
+    typedef std::unordered_map<const state*, int,
+			       state_ptr_hash, state_ptr_equal> hash_type;
   public:
     ta_check(const ta_product* a, option_map o = option_map());
     virtual
@@ -126,18 +127,18 @@ namespace spot
 
   protected:
     void
-    clear(numbered_state_heap* h, std::stack<pair_state_iter> todo, std::queue<
+    clear(hash_type& h, std::stack<pair_state_iter> todo, std::queue<
         spot::state*> init_set);
 
     void
-    clear(numbered_state_heap* h, std::stack<pair_state_iter> todo,
+    clear(hash_type& h, std::stack<pair_state_iter> todo,
         spot::ta_succ_iterator* init_states_it);
 
     /// the heuristic for livelock-accepting runs detection, it's described
     /// in the paper cited above
     bool
     heuristic_livelock_detection(const state * stuttering_succ,
-        numbered_state_heap* h, int h_livelock_root, std::set<const state*,
+        hash_type& h, int h_livelock_root, std::set<const state*,
             state_ptr_less_than> liveset_curr);
 
     const ta_product* a_; ///< The automaton.

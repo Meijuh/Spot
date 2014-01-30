@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -24,7 +24,6 @@
 # define SPOT_TGBAALGOS_GTEC_STATUS_HH
 
 #include "sccstack.hh"
-#include "nsheap.hh"
 #include "tgba/tgba.hh"
 #include <iosfwd>
 
@@ -38,13 +37,17 @@ namespace spot
   class SPOT_API couvreur99_check_status
   {
   public:
-    couvreur99_check_status(const tgba* aut,
-			   const numbered_state_heap_factory* nshf);
+    couvreur99_check_status(const tgba* aut);
+
     ~couvreur99_check_status();
 
     const tgba* aut;
     scc_stack root;
-    numbered_state_heap* h;	///< Heap of visited states.
+
+    typedef std::unordered_map<const state*, int,
+			       state_ptr_hash, state_ptr_equal> hash_type;
+    hash_type h;
+
     const state* cycle_seed;
 
     /// Output statistics about this object.

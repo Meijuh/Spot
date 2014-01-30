@@ -40,14 +40,12 @@ namespace spot
     typedef std::pair<const spot::state*, tgba_succ_iterator*> pair_state_iter;
   }
 
-  couvreur99_check::couvreur99_check(const tgba* a,
-				     option_map o,
-				     const numbered_state_heap_factory* nshf)
+  couvreur99_check::couvreur99_check(const tgba* a, option_map o)
     : emptiness_check(a, o),
       removed_components(0)
   {
     poprem_ = o.get("poprem", 1);
-    ecs_ = new couvreur99_check_status(a, nshf);
+    ecs_ = new couvreur99_check_status(a);
     stats["removed components"] =
 	static_cast<spot::unsigned_statistics::unsigned_fun>
 	(&couvreur99_check::get_removed_components);
@@ -85,14 +83,8 @@ namespace spot
       {
 	assert(!ecs_->root.rem().empty());
 	dec_depth(ecs_->root.rem().size());
-	std::list<const state*>::iterator i;
-	for (i = ecs_->root.rem().begin(); i != ecs_->root.rem().end(); ++i)
-	  {
-	    numbered_state_heap::state_index_p spi = ecs_->h->index(*i);
-	    assert(spi.first == *i);
-	    assert(*spi.second != -1);
-	    *spi.second = -1;
-	  }
+	for (auto i: ecs_->root.rem())
+	  ecs_->h[i] = -1;
 	// ecs_->root.rem().clear();
 	return;
       }
@@ -106,10 +98,7 @@ namespace spot
     // (FROM should be in H, otherwise it means all reachable
     // states from FROM have already been removed and there is no
     // point in calling remove_component.)
-    numbered_state_heap::state_index_p spi = ecs_->h->index(from);
-    assert(spi.first == from);
-    assert(*spi.second != -1);
-    *spi.second = -1;
+    ecs_->h[from] = -1;
     tgba_succ_iterator* i = ecs_->aut->succ_iter(from);
 
     for (;;)
@@ -121,20 +110,14 @@ namespace spot
 	      inc_transitions();
 
 	      state* s = i->current_state();
-	      numbered_state_heap::state_index_p spi = ecs_->h->index(s);
+	      auto j = ecs_->h.find(s);
+	      assert(j != ecs_->h.end());
+	      s->destroy();
 
-	      // This state is not necessary in H, because if we were
-	      // doing inclusion checking during the emptiness-check
-	      // (redefining find()), the index `s' can be included in a
-	      // larger state and will not be found by index().  We can
-	      // safely ignore such states.
-	      if (!spi.first)
-		continue;
-
-	      if (*spi.second != -1)
+	      if (j->second != -1)
 		{
-		  *spi.second = -1;
-		  to_remove.push(ecs_->aut->succ_iter(spi.first));
+		  j->second = -1;
+		  to_remove.push(ecs_->aut->succ_iter(j->first));
 		}
 	    }
 	  while (i->next());
@@ -168,7 +151,7 @@ namespace spot
     // Setup depth-first search from the initial state.
     {
       state* init = ecs_->aut->get_init_state();
-      ecs_->h->insert(init, 1);
+      ecs_->h[init] = 1;
       ecs_->root.push(1);
       arc.push(bddfalse);
       tgba_succ_iterator* iter = ecs_->aut->succ_iter(init);
@@ -197,18 +180,18 @@ namespace spot
 	    // If poprem is used, fill rem with any component removed,
 	    // so that remove_component() does not have to traverse
 	    // the SCC again.
-	    numbered_state_heap::state_index_p spi = ecs_->h->index(curr);
-	    assert(spi.first);
+	    auto i = ecs_->h.find(curr);
+	    assert(i != ecs_->h.end());
 	    if (poprem_)
 	      {
-		ecs_->root.rem().push_front(spi.first);
+		ecs_->root.rem().push_front(i->first);
 		inc_depth();
 	      }
 	    // When backtracking the root of an SCC, we must also
 	    // remove that SCC from the ARC/ROOT stacks.  We must
 	    // discard from H all reachable states from this SCC.
 	    assert(!ecs_->root.empty());
-	    if (ecs_->root.top().index == *spi.second)
+	    if (ecs_->root.top().index == i->second)
 	      {
 		assert(!arc.empty());
 		arc.pop();
@@ -232,13 +215,12 @@ namespace spot
 	// We do not need SUCC from now on.
 
 	// Are we going to a new state?
-	numbered_state_heap::state_index_p spi = ecs_->h->find(dest);
-	if (!spi.first)
+	auto p = ecs_->h.insert(std::make_pair(dest, num + 1));
+	if (p.second)
 	  {
-	    // Yes.  Number it, stack it, and register its successors
-	    // for later processing.
-	    ecs_->h->insert(dest, ++num);
-	    ecs_->root.push(num);
+	    // Yes.  Bump number, stack the stack, and register its
+	    // successors for later processing.
+	    ecs_->root.push(++num);
 	    arc.push(acc);
 	    tgba_succ_iterator* iter = ecs_->aut->succ_iter(dest);
 	    iter->first();
@@ -246,9 +228,10 @@ namespace spot
 	    inc_depth();
 	    continue;
 	  }
+	dest->destroy();
 
 	// If we have reached a dead component, ignore it.
-	if (*spi.second == -1)
+	if (p.first->second == -1)
 	  continue;
 
 	// Now this is the most interesting case.  We have reached a
@@ -262,7 +245,7 @@ namespace spot
 	// ROOT is ascending: we just have to merge all SCCs from the
 	// top of ROOT that have an index greater to the one of
 	// the SCC of S2 (called the "threshold").
-	int threshold = *spi.second;
+	int threshold = p.first->second;
 	std::list<const state*> rem;
 	while (threshold < ecs_->root.top().index)
 	  {
@@ -296,7 +279,7 @@ namespace spot
 	      }
 	    // Use this state to start the computation of an accepting
 	    // cycle.
-	    ecs_->cycle_seed = spi.first;
+	    ecs_->cycle_seed = p.first->first;
             set_states(ecs_->states());
 	    return new couvreur99_check_result(ecs_, options());
 	  }
@@ -336,20 +319,16 @@ namespace spot
       }
   }
 
-  couvreur99_check_shy::couvreur99_check_shy(const tgba* a,
-					     option_map o,
-					     const numbered_state_heap_factory*
-					     nshf)
-    : couvreur99_check(a, o, nshf), num(1)
+  couvreur99_check_shy::couvreur99_check_shy(const tgba* a, option_map o)
+    : couvreur99_check(a, o), num(1)
   {
     group_ = o.get("group", 1);
     group2_ = o.get("group2", 0);
     group_ |= group2_;
-    onepass_ = o.get("onepass", 0);
 
     // Setup depth-first search from the initial state.
     const state* i = ecs_->aut->get_init_state();
-    ecs_->h->insert(i, ++num);
+    ecs_->h[i] = ++num;
     ecs_->root.push(num);
     todo.emplace_back(i, num, this);
     inc_depth(1);
@@ -367,15 +346,13 @@ namespace spot
     while (!todo.empty())
       {
 	succ_queue& queue = todo.back().q;
-	for (succ_queue::iterator q = queue.begin();
-	     q != queue.end(); ++q)
+	for (auto& q: queue)
 	  {
-	    // Destroy the state if it is a clone of a
-	    // state in the heap...
-	    numbered_state_heap::state_index_p spi = ecs_->h->index(q->s);
-	    // ... or if it is an unknown state.
-	    if (spi.first == 0)
-	      q->s->destroy();
+	    // Destroy the state if it is a clone of a state in the
+	    // heap or if it is an unknown state.
+	    auto i = ecs_->h.find(q.s);
+	    if (i == ecs_->h.end() || i->first != q.s)
+	      q.s->destroy();
 	  }
 	dec_depth(todo.back().q.size() + 1);
 	todo.pop_back();
@@ -387,21 +364,21 @@ namespace spot
   void
   couvreur99_check_shy::dump_queue(std::ostream& os)
   {
-    os << "--- TODO ---" << std::endl;
+    os << "--- TODO ---\n";
     unsigned pos = 0;
-    for (todo_list::const_iterator ti = todo.begin(); ti != todo.end(); ++ti)
+    for (auto& ti: todo)
       {
 	++pos;
-	os << '#' << pos << " s:" << ti->s << " n:" << ti->n
+	os << '#' << pos << " s:" << ti.s << " n:" << ti.n
 	   << " q:{";
-	for (succ_queue::const_iterator qi = ti->q.begin(); qi != ti->q.end();)
+	for (auto qi = ti.q.begin(); qi != ti.q.end();)
 	  {
 	    os << qi->s;
 	    ++qi;
-	    if (qi != ti->q.end())
+	    if (qi != ti.q.end())
 	      os << ", ";
 	  }
-	os << '}' << std::endl;
+	os << "}\n";
       }
   }
 
@@ -450,9 +427,10 @@ namespace spot
 	    // the SCC again.
 	    if (poprem_)
 	      {
-		numbered_state_heap::state_index_p spi = ecs_->h->index(curr);
-		assert(spi.first);
-		ecs_->root.rem().push_front(spi.first);
+		auto i = ecs_->h.find(curr);
+		assert(i != ecs_->h.end());
+		assert(i->first == curr);
+		ecs_->root.rem().push_front(i->first);
 		inc_depth();
 	      }
 
@@ -479,35 +457,31 @@ namespace spot
 	// which state we are considering.  Otherwise just pick the
 	// first one.
 	succ_queue::iterator old;
-	if (onepass_)
-	  pos = queue.end();
 	if (pos == queue.end())
 	  old = queue.begin();
 	else
 	  old = pos;
-	successor succ = *old;
-	// Beware: the implementation of find_state in ifage/gspn/ssp.cc
-	// uses POS and modifies QUEUE.
-	numbered_state_heap::state_index_p sip = find_state(succ.s);
 	if (pos != queue.end())
 	  ++pos;
-	int* i = sip.second;
+	//int* i = sip.second;
 
-	trace << "picked state " << succ.s << std::endl;
+	successor succ = *old;
+	trace << "picked state " << succ.s << '\n';
+	auto i = ecs_->h.find(succ.s);
 
-	if (!i)
+	if (i == ecs_->h.end())
 	  {
 	    // It's a new state.
 	    // If we are seeking known states, just skip it.
 	    if (pos != queue.end())
 	      continue;
 
-	    trace << "new state" << std::endl;
+	    trace << "new state\n";
 
 	    // Otherwise, number it and stack it so we recurse.
 	    queue.erase(old);
 	    dec_depth();
-	    ecs_->h->insert(succ.s, ++num);
+	    ecs_->h[succ.s] = ++num;
 	    ecs_->root.push(num);
 	    arc.push(succ.acc);
 	    todo.emplace_back(succ.s, num, this);
@@ -516,17 +490,20 @@ namespace spot
 	    continue;
 	  }
 
+	// It's an known state.  Use i->first from now on.
+	succ.s->destroy();
+
 	queue.erase(old);
 	dec_depth();
 
 	// Skip dead states.
-	if (*i == -1)
+	if (i->second == -1)
 	  {
-	    trace << "dead state" << std::endl;
+	    trace << "dead state\n";
 	    continue;
 	  }
 
-	trace << "merging..." << std::endl;
+	trace << "merging...\n";
 
 	// Now this is the most interesting case.  We have
 	// reached a state S1 which is already part of a
@@ -542,7 +519,7 @@ namespace spot
 	// merge all SCCs from the top of ROOT that have
 	// an index greater to the one of the SCC of S2
 	// (called the "threshold").
-	int threshold = *i;
+	int threshold = i->second;
 	std::list<const state*> rem;
 	bdd acc = succ.acc;
 	while (threshold < ecs_->root.top().index)
@@ -571,7 +548,7 @@ namespace spot
 	  {
 	    // Use this state to start the computation of an accepting
 	    // cycle.
-	    ecs_->cycle_seed = sip.first;
+	    ecs_->cycle_seed = i->first;
 
 	    // We have found an accepting SCC.  Clean up TODO.
 	    clear_todo();
@@ -595,10 +572,11 @@ namespace spot
 
 		if (poprem_)
 		  {
-		    numbered_state_heap::state_index_p spi =
-		      ecs_->h->index(todo.back().s);
-		    assert(spi.first);
-		    ecs_->root.rem().push_front(spi.first);
+		    const state* s = todo.back().s;
+		    auto i = ecs_->h.find(s);
+		    assert(i != ecs_->h.end());
+		    assert(i->first == s);
+		    ecs_->root.rem().push_front(i->first);
 		    // Don't change the stack depth, since
 		    // we are just moving the state from TODO to REM.
 		  }
@@ -613,20 +591,12 @@ namespace spot
       }
   }
 
-  numbered_state_heap::state_index_p
-  couvreur99_check_shy::find_state(const state* s)
-  {
-    return ecs_->h->find(s);
-  }
-
   emptiness_check*
-  couvreur99(const tgba* a,
-	     option_map o,
-	     const numbered_state_heap_factory* nshf)
+  couvreur99(const tgba* a, option_map o)
   {
     if (o.get("shy"))
-      return new couvreur99_check_shy(a, o, nshf);
-    return  new couvreur99_check(a, o, nshf);
+      return new couvreur99_check_shy(a, o);
+    return  new couvreur99_check(a, o);
   }
 
 }
