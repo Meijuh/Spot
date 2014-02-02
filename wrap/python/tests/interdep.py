@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
-# de l'EPITA.
+# Copyright (C) 2010, 2012, 2014 Laboratoire de Recherche et
+# Développement de l'EPITA.
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
 # (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 # Pierre et Marie Curie.
@@ -42,3 +42,7 @@ while not iter.done():
            # it means buddy can grok spot's objects.
     iter.next()
 sys.stdout.write("%s\n" % b)
+del b
+del c
+del f
+del a

@@ -1,6 +1,8 @@
 New in spot 1.2.2a (not yet released)
 
-  Nothing yet.
+  * Bug fixes:
+
+    - More fixes for Python 3 compatibility.
 
 New in spot 1.2.2 (2014-01-24)
 

@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2012 Laboratoire de Recherche et Développement
+# Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -40,5 +40,9 @@ a = spot.tgba_parse(filename, p, d)
 assert not p
 
 spot.dotty_reachable(spot.get_cout(), a)
+
+del p
+del a
+del d
 
 os.unlink(filename)
