@@ -1,7 +1,8 @@
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2012, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -72,7 +73,7 @@ namespace spot
 	visit(const unop* uo)
 	{
 	  ++result_;
-	  // Boolean formula have length one.
+	  // Boolean formulas have length one.
 	  if (!uo->is_boolean())
 	    uo->child()->accept(*this);
 	}
@@ -80,7 +81,7 @@ namespace spot
 	virtual void
 	visit(const multop* mo)
 	{
-	  // Boolean formula have length one.
+	  // Boolean formulas have length one.
 	  if (mo->is_boolean())
 	    {
 	      ++result_;
@@ -88,27 +89,24 @@ namespace spot
 	    }
 
 	  unsigned s = mo->size();
-          unsigned operator_count = s - 1;
+	  unsigned bool_seen = 0;
 	  for (unsigned i = 0; i < s; ++i)
             {
-              // Ignore all boolean values. We only want to count them once.
-              if (!mo->nth(i)->is_boolean())
-                mo->nth(i)->accept(*this);
+	      const formula* f = mo->nth(i);
+              // Ignore all Boolean children. We only want to count them once.
+              if (f->is_boolean())
+                ++bool_seen;
               else
-                --operator_count;
+                f->accept(*this);
             }
 
-          // if operator_count has decreased, it means that we have encountered
-          // boolean values.
-          if (operator_count < s - 1)
-            {
-              ++result_;
-              ++operator_count;
-            }
-
-	  // "a & b & c" should count for 5, even though it is
-	  // stored as And(a,b,c).
-	  result_ += operator_count;
+	  // "a & b & c" should count for 5, even though it is stored
+	  // as And(a,b,c).  So add the number of operators here (it
+	  // is either s - 1 or s - bool_seen depending on whether
+	  // Boolean children were encountered).  If Boolean were
+	  // seen, also add one (!!bool_seen) to account for the
+	  // "global" Boolean term.
+	  result_ += s - !bool_seen - bool_seen + !!bool_seen;
 	}
 
       };

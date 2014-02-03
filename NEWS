@@ -3,6 +3,9 @@ New in spot 1.2.2a (not yet released)
   * Bug fixes:
 
     - More fixes for Python 3 compatibility.
+    - Fix calculation of length_boolone(), were 'Xa|b|c' was
+      considered as length 6 instead of 4 (because it is 'Xa|(b|a)'
+      were (b|a) is Boolean).
 
 New in spot 1.2.2 (2014-01-24)
 
