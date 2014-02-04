@@ -339,7 +339,7 @@ The =--format= option can be used the alter the way formulas are output (for ins
 #+HTML: <code>--latex --format='$%f$'</code>
 to enclose formula in LaTeX format with =$...$=).  You may also find
 =--format= useful in more complex scenarios.  For instance you could
-print the only the line numbers containing formulas matching some
+print only the line numbers containing formulas matching some
 criterion.  In the following, we print only the numbers of the lines
 of =scheck.ltl= that contain guarantee formulas:
 
