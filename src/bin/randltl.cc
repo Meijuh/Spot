@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -283,7 +283,8 @@ main(int argc, char** argv)
       break;
     case OutputSERE:
       rf = rs = new spot::ltl::random_sere(&aprops);
-      tok_pS = rf->parse_options(opt_pS);
+      tok_pS = rs->parse_options(opt_pS);
+      tok_pB = rs->rb.parse_options(opt_pB);
       if (opt_pL)
 	error(2, 0, "option --ltl-priorities unsupported for SERE output");
       break;
@@ -335,6 +336,7 @@ main(int argc, char** argv)
 	default:
 	  error(2, 0, "internal error: unknown type of output");
 	}
+      destroy_atomic_prop_set(aprops);
       exit(0);
     }
 
@@ -409,10 +411,6 @@ main(int argc, char** argv)
       (*i)->destroy();
   }
   // Cleanup the atomic_prop set.
-  {
-    spot::ltl::atomic_prop_set::const_iterator i = aprops.begin();
-    while (i != aprops.end())
-      (*(i++))->destroy();
-  }
+  destroy_atomic_prop_set(aprops);
   return 0;
 }

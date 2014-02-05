@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -191,9 +191,7 @@ namespace spot
 	  else
 	    assert(!"unexpected max_n");
 	}
-      assert(total_1_ != 0.0);
-      assert(total_2_ != 0.0);
-      assert(total_2_and_more_ != 0.0);
+      assert(total_2_and_more_ >= total_2_);
     }
 
     const formula*
@@ -203,6 +201,30 @@ namespace spot
 
       double r = drand();
       op_proba* p;
+
+      // Approximate impossible cases.
+      if (n == 1 && total_1_ == 0.0)
+	{
+	  if (total_2_ != 0.0)
+	    n = 2;
+	  else
+	    n = 3;
+	}
+      else if (n == 2 && total_2_ == 0.0)
+	{
+	  if (total_1_ != 0.0)
+	    n = 1;
+	  else
+	    n = 3;
+	}
+      else if (n > 2 && total_2_and_more_ == 0.0)
+	{
+	  if (total_1_ != 0.0)
+	    n = 1;
+	  else
+	    assert(total_2_ == 0.0);
+	}
+
 
       if (n == 1)
 	{

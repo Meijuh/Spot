@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -39,6 +39,11 @@ namespace spot
     /// Set of atomic propositions.
     typedef std::set<const atomic_prop*,
 		     formula_ptr_less_than> atomic_prop_set;
+
+    /// \brief Destroy all the atomic propositions in an
+    /// atomic_prop_set.
+    SPOT_API void
+    destroy_atomic_prop_set(atomic_prop_set& as);
 
     /// \brief Return the set of atomic propositions occurring in a formula.
     ///

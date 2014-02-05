@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -52,6 +52,14 @@ namespace spot
 	atomic_prop_set* sap;
       };
     }
+
+    void destroy_atomic_prop_set(atomic_prop_set& aprops)
+    {
+      atomic_prop_set::const_iterator i = aprops.begin();
+      while (i != aprops.end())
+	(*(i++))->destroy();
+    }
+
 
     atomic_prop_set*
     atomic_prop_collect(const formula* f, atomic_prop_set* s)
