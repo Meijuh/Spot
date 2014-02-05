@@ -6,6 +6,10 @@ New in spot 1.2.2a (not yet released)
     - Fix calculation of length_boolone(), were 'Xa|b|c' was
       considered as length 6 instead of 4 (because it is 'Xa|(b|a)'
       were (b|a) is Boolean).
+    - Fix Clang-3.5 warnings.
+    - randltl -S did not honor --boolean-priorities.
+    - randltl had trouble generating formulas when all unary, or
+      all binary/n-ary operators were disabled.
 
 New in spot 1.2.2 (2014-01-24)
 
