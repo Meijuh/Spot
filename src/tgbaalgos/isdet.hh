@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -43,7 +43,7 @@ namespace spot
   SPOT_API bool
   is_deterministic(const tgba* aut);
 
-  /// \Brief Return true iff \a aut is complete.
+  /// \brief Return true iff \a aut is complete.
   ///
   /// An automaton is complete if its translation relation is total,
   /// i.e., each state as a successor for any possible configuration.

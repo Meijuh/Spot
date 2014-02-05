@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -55,9 +55,9 @@ namespace spot
     /// \brief acceptance sets encoded as 2*num_state bit-vectors of
     /// num_pairs bits
     ///
-    /// Assuming $F=\{(L_0,U_0),\ldots,(L_i,U_i),\ldots\}$,
-    /// $s\in L_i$ iff <code>accsets->at(s * 2).get(i)$</code>,
-    /// an $s\in $U_i$ iff <code>accsets->at(s * 2 + 1).get(i)</code>.
+    /// Assuming F={(L₀,U₀),…,(Lᵢ,Uᵢ),…},
+    /// s∈Lᵢ iff <code>accsets->at(s * 2).get(i)</code>,
+    /// s∈Uᵢ iff <code>accsets->at(s * 2 + 1).get(i)</code>.
     bitvect_array* accsets;
 
     ~dstar_aut()
