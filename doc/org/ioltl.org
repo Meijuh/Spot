@@ -1,7 +1,7 @@
 #+TITLE: Common input and output options for LTL/PSL formulas
 #+EMAIL spot@lrde.epita.fr
 #+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: file:tools.html
+#+LINK_UP: tools.html
 
 Spot supports different syntaxes for LTL/PSL formulas.  This pages
 document the options, common to all tools where it makes sense, that

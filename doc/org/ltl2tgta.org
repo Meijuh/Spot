@@ -1,7 +1,7 @@
 #+TITLE: =ltl2tgta=
 #+EMAIL spot@lrde.epita.fr
 #+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: file:tools.html
+#+LINK_UP: tools.html
 
 This tool generates various form of Testing Automata, i.e., automata
 that observe the /changes/ of atomic propositions, not their values.

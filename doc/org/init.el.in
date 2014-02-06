@@ -20,6 +20,11 @@
 (setq org-babel-sh-command
       (concat "PATH=@abs_top_builddir@/src/bin" path-separator "$PATH sh"))
 
+(setq org-export-html-home/up-format
+"<div id=\"org-div-home-and-up\" style=\"text-align:center;white-space:nowrap;\">
+ <a accesskey=\"h\" href=\"%s\">UP</a> | <a accesskey=\"H\" href=\"%s\">HOME</a>
+</div>")
+
 (setq org-publish-project-alist
       '(("spot-html"
 	:base-directory "@abs_top_srcdir@/doc/org/"

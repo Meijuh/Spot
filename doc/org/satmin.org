@@ -1,7 +1,7 @@
 #+TITLE: SAT-based Minimization of Deterministic (Generalized) Büchi Automata
 #+EMAIL spot@lrde.epita.fr
 #+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: file:tools.html
+#+LINK_UP: tools.html
 
 This page explains how to use [[file:ltl2tgba.org][=ltl2tgba=]] or [[file:dstar2tgba.org][=dstar2tgba=]] to minimize
 deterministic automata using a SAT solver.

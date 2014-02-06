@@ -1,7 +1,7 @@
 #+TITLE: =randltl=
 #+EMAIL spot@lrde.epita.fr
 #+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: file:tools.html
+#+LINK_UP: tools.html
 
 This tool generates random formulas.  By default, it will generate one
 random LTL formula using atomic propositions supplied on the
