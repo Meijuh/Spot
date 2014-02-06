@@ -10,6 +10,7 @@ New in spot 1.2.2a (not yet released)
     - randltl -S did not honor --boolean-priorities.
     - randltl had trouble generating formulas when all unary, or
       all binary/n-ary operators were disabled.
+    - Fix spurious testsuite failure when using Pandas 0.13.
 
 New in spot 1.2.2 (2014-01-24)
 
