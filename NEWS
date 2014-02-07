@@ -11,6 +11,15 @@ New in spot 1.2.2a (not yet released)
     - randltl had trouble generating formulas when all unary, or
       all binary/n-ary operators were disabled.
     - Fix spurious testsuite failure when using Pandas 0.13.
+    - Add the time spent in child processes when measuring time
+      with the timer class.
+    - Fix determinism of the SAT-based minimization encoding.
+      (It would sometimes produce different equivalent automata,
+      because of a different encoding order.)
+    - A the SAT-based minimization is asked for a 10-state automaton
+      and return a 6-state automaton, do not ask for a 9-state
+      automaton in the next iteration...
+
 
 New in spot 1.2.2 (2014-01-24)
 

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -69,8 +69,8 @@ namespace spot
 #ifdef SPOT_HAVE_TIMES
       struct tms tmp;
       times(&tmp);
-      start_.utime = tmp.tms_utime;
-      start_.stime = tmp.tms_stime;
+      start_.utime = tmp.tms_utime + tmp.tms_cutime;
+      start_.stime = tmp.tms_stime + tmp.tms_cstime;
 #else
       start_.utime = clock();
 #endif
@@ -83,8 +83,8 @@ namespace spot
 #ifdef SPOT_HAVE_TIMES
       struct tms tmp;
       times(&tmp);
-      total_.utime += tmp.tms_utime - start_.utime;
-      total_.stime += tmp.tms_stime - start_.stime;
+      total_.utime += tmp.tms_utime + tmp.tms_cutime - start_.utime;
+      total_.stime += tmp.tms_stime + tmp.tms_cstime - start_.stime;
 #else
       total_.utime += clock() - start_.utime;
 #endif
