@@ -401,3 +401,57 @@ The following options can be used to fine-tune this procedure:
 
 When options =-B= and =-x sat-minimize= both used, =-x state-based= and
 =-x sat-acc=1= are implied.
+
+
+* Logging statistics
+
+If the environment variable =SPOT_SATLOG= is set to the name of a
+file, the minimization function will append statistics about each of
+its iterations in this file.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+rm -f stats.csv
+export SPOT_SATLOG=stats.csv
+ltlfilt -f "Ga R (F!b & (c U b))" -l |
+ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-Ds - - |
+dstar2tgba -D -x sat-minimize,sat-acc=2 --stats='input(states=%S) output(states=%s, acc-sets=%a, det=%d)'
+echo
+cat stats.csv
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+input(states=11) output(states=5, acc-sets=2, det=1)
+
+9,9,44,72,44064,9043076,917,20,292,12
+8,7,31,56,22272,4203158,417,7,231,9
+6,6,28,48,10512,1369289,137,1,76,2
+5,,,,7200,785942,77,1,25,1
+#+end_example
+
+The generated CSV file use the following columns:
+- the n passed to the SAT-based minimization algorithm
+  (it means the input automaton had n+1 states)
+- number of reachable states in the output of
+  the minimization.
+- number of edges in the output
+- number of transitions
+- number of variables in the SAT problem
+- number of clauses in the SAT problem
+- user time for encoding the SAT problem
+- system time for encoding the SAT problem
+- user time for solving the SAT problem
+- system time for solving the SAT problem
+
+Times are measured with the times() function, and expressed
+in ticks (usually: 1/100 of seconds).
+
+In the above example, you can see that also the input DRA had 11
+states, the minimization function received a 10-state DBA (one state
+was probably simplified using simulation-based simplifications) and
+started looking for an equivalent 9-state DTBA which it found.  Then
+looking for a 8-state DTBA, it found a solution with only 7 states,
+etc.  No solution where found when looking for a 5-state DTBA, so the
+minimal complete DTBA has 6 states.  The output of =dstar2tgba= has 5
+states just because it is not complete (the =--complete= option was
+not given, so the useless sink state was removed).

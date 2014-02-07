@@ -1,5 +1,12 @@
 New in spot 1.2.2a (not yet released)
 
+  * New features:
+
+    - The SPOT_SATLOG environment variable can be set to a filename to
+      obtain statistics about the different iterations of the
+      SAT-based minimization.  For an example, see
+      http://spot.lip6.fr/userdoc/satmin.html
+
   * Bug fixes:
 
     - More fixes for Python 3 compatibility.

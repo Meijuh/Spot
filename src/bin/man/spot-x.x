@@ -12,6 +12,18 @@ spot-x \- Common fine-tuning options.
 [ENVIRONMENT VARIABLES]
 
 .TP
+\fBSPOT_SATLOG\fR
+If set to a filename, the SAT-based minimization routines will append
+statistics about each iteration to the named file.  Each line lists
+the following comma-separated values: requested number of states,
+number of reachable states in the output, number of edges in the
+output, number of transitions in the output, number of variables in
+the SAT problem, number of clauses in the SAT problem, user time for
+encoding the SAT problem, system time for encoding the SAT problem,
+user time for solving the SAT problem, system time for solving the SAT
+problem.
+
+.TP
 \fBSPOT_SATSOLVER\fR
 If set, this variable should indicate how to call a SAT\-solver.  This
 is used by the sat\-minimize option described above.  The default
