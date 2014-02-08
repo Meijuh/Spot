@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -40,7 +40,7 @@ namespace spot
 	satsolver = getenv("SPOT_SATSOLVER");
 	if (!satsolver)
 	  {
-	    satsolver = "glucose -verb=0 %I >%O";
+	    satsolver = "glucose -verb=0 -model %I >%O";
 	    return;
 	  }
 	prime(satsolver);

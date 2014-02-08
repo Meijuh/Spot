@@ -24,15 +24,16 @@ user time for solving the SAT problem, system time for solving the SAT
 problem.
 
 .TP
-\fBSPOT_SATSOLVER\fR
-If set, this variable should indicate how to call a SAT\-solver.  This
-is used by the sat\-minimize option described above.  The default
-value is \f(CW"glucose -verb=0 %I >%O"\fR.  The escape sequences
-\f(CW%I\fR and \f(CW%O\fR respectively denote the names of the input
-and output files.  These temporary files are created in the directory
-specified by \fBSPOT_TMPDIR\fR or \fBTMPDIR\fR (see below).  The
-SAT-solver should follow the convention of the SAT Competition for its
-input and output format.
+\fBSPOT_SATSOLVER\fR If set, this variable should indicate how to call
+a SAT\-solver.  This is used by the sat\-minimize option described
+above.  The default value is \f(CW"glucose -verb=0 -model %I >%O"\fR,
+it is correct for glucose version 3.0 (for older versions, remove the
+\fCW(-model\fR option).  The escape sequences \f(CW%I\fR and
+\f(CW%O\fR respectively denote the names of the input and output
+files.  These temporary files are created in the directory specified
+by \fBSPOT_TMPDIR\fR or \fBTMPDIR\fR (see below).  The SAT-solver
+should follow the convention of the SAT Competition for its input and
+output format.
 
 .TP
 \fBSPOT_TMPDIR\fR, \fBTMPDIR\fR

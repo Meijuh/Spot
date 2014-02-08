@@ -35,14 +35,15 @@ Let us first state a few facts about this minimization procedure.
 * How change the SAT solver used
 
 The environment variable =SPOT_SATSOLVER= can be used to change the
-SAT solver used by Spot.  The default is "=glucose %I >%O=", therefore
-if you have installed [[https://www.lri.fr/~simon/?page=glucose][=glucose=]] in your =$PATH=, it should work right
-away.  Otherwise you may redefine this variable to point the correct
-location or to another SAT solver.  The =%I= and =%O= sequences will be
-replaced by the names of temporary files containing the input for the
-SAT solver and receiving its output.  We assume that the SAT solver
-should follow the conventions of the [[http://www.satcompetition.org/][SAT competition]] for input and
-output.
+SAT solver used by Spot.  The default is "=glucose -verb=0 -model %I
+>%O=", therefore if you have installed [[http://www.labri.fr/perso/lsimon/glucose/][=glucose= 3.0]] in your =$PATH=,
+it should work right away.  Otherwise you may redefine this variable
+to point the correct location or to another SAT solver (for older
+versions of glucose, remove the =-model= option).  The =%I= and =%O=
+sequences will be replaced by the names of temporary files containing
+the input for the SAT solver and receiving its output.  We assume that
+the SAT solver should follow the conventions of the [[http://www.satcompetition.org/][SAT competition]]
+for input and output.
 
 * Enabling SAT-based minimization for deterministic automata
 
@@ -163,7 +164,7 @@ $txt
 #+RESULTS:
 [[file:gfaexxb3.png]]
 
-Clearly this is automaton benefit from the transition-based
+Clearly this is automaton benefits from the transition-based
 acceptance.  If we want a traditional Büchi automaton, with
 state-based acceptance, we only need to add the =-B= option.  The
 result will of course be slightly bigger.
@@ -300,7 +301,7 @@ resulting 11-state DRA is converted into a 9-state DTBA by
 that the formula was a recurrence.
 
 As far as SAT-based minimization goes, =dstar2tgba= will take the same
-options as =ltl2tgba=, so we for instance check that the smallest DTBA
+options as =ltl2tgba=.  For instance we can see that the smallest DTBA
 has 6 states:
 
 #+BEGIN_SRC sh :results verbatim :exports both
@@ -399,8 +400,8 @@ The following options can be used to fine-tune this procedure:
      to belong to the same acceptance sets.
 - =-x !wdba-minimize= :: disable WDBA minimization.
 
-When options =-B= and =-x sat-minimize= both used, =-x state-based= and
-=-x sat-acc=1= are implied.
+When options =-B= and =-x sat-minimize= are both used, =-x
+state-based= and =-x sat-acc=1= are implied.
 
 
 * Logging statistics
@@ -420,14 +421,12 @@ cat stats.csv
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-input(states=11) output(states=5, acc-sets=2, det=1)
-
-9,9,44,72,44064,9043076,917,20,292,12
-8,7,31,56,22272,4203158,417,7,231,9
-6,6,28,48,10512,1369289,137,1,76,2
-5,,,,7200,785942,77,1,25,1
-#+end_example
+: input(states=11) output(states=5, acc-sets=2, det=1)
+:
+: 9,8,35,64,44064,9043076,930,22,290,21
+: 7,7,33,56,14504,2191905,224,4,106,4
+: 6,6,28,48,10512,1358243,137,0,44,1
+: 5,,,,7200,782342,78,1,26,2
 
 The generated CSV file use the following columns:
 - the n passed to the SAT-based minimization algorithm
@@ -447,11 +446,15 @@ Times are measured with the times() function, and expressed
 in ticks (usually: 1/100 of seconds).
 
 In the above example, you can see that also the input DRA had 11
-states, the minimization function received a 10-state DBA (one state
-was probably simplified using simulation-based simplifications) and
-started looking for an equivalent 9-state DTBA which it found.  Then
-looking for a 8-state DTBA, it found a solution with only 7 states,
-etc.  No solution where found when looking for a 5-state DTBA, so the
-minimal complete DTBA has 6 states.  The output of =dstar2tgba= has 5
-states just because it is not complete (the =--complete= option was
-not given, so the useless sink state was removed).
+states.  In the first line of the =stats.csv= file, you can see the
+minimization function searching for a 9 state DTBA or obtaining a
+8-state solution.  (If the minimization function searched for a
+9-state DTBA, it means it received a 10-state complete DTBA, so the
+simplification performed before the minimization procedure managed to
+convert the 11-state DRA into a 10-state DTBA.)  Starting from the
+8-state solution, it looked for (and found) a 7-state solution, and
+then a 6-state solution.  The search for a 5-state complete DTBA
+failed.  The final output is reported with 5 states, because by
+default we output trim automata. If the =--complete= option had been
+given, the useless sink state would have been kept and the output
+automaton would have 6 states.

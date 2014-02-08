@@ -6,6 +6,10 @@ New in spot 1.2.2a (not yet released)
       obtain statistics about the different iterations of the
       SAT-based minimization.  For an example, see
       http://spot.lip6.fr/userdoc/satmin.html
+    - The default value for the SPOT_SATSOLVER environment
+      variable has been changed to "glucose -verb=0 -model %I >%O".
+      This assumes that glucose 3.0 is installed.   For older
+      versions of glucose, remove the "-model" option.
 
   * Bug fixes:
 
