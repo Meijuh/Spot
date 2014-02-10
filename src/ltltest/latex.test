@@ -55,7 +55,7 @@ cat <<\EOF
 EOF
 ) > output.tex
 
-TEXINPUTS=$srcdir/../../../doc/tl: \
+TEXINPUTS=$top_srcdir/doc/tl: \
 latexmk -f -silent -pdf -ps- -dvi- -pvc- output.tex
 
 # latexmk will have a non-zero exit status on failure, so we will

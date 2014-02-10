@@ -51,9 +51,9 @@ dist_pkgdata_DATA = $(srcdir)/spot.tag
 
 .PHONY: org
 org:
-	cd $(top_srcdir) && make doc/org/init.el
+	cd $(top_builddir) && make doc/org/init.el
 	rm -rf $(srcdir)/userdoc; mkdir -p tmp; cd tmp; \
-	$(EMACS) --batch -Q -l $(abs_srcdir)/org/init.el
+	$(EMACS) --batch -Q -l ../org/init.el
 	rm -rf tmp
 
 ORG_FILES = \

@@ -51,6 +51,7 @@ cd $testSubDir
 
 DOT='@DOT@'
 VALGRIND='@VALGRIND@'
+top_srcdir='../@top_srcdir@'
 
 run()
 {
