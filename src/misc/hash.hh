@@ -1,8 +1,9 @@
-// Copyright (C) 2008, 2011 Laboratoire de Recherche et DÃ©veloppement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2011, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
-// Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// Paris 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -80,6 +81,13 @@ namespace spot
   struct ptr_hash :
     public std::unary_function<const T*, size_t>
   {
+    // A default constructor is needed if the ptr_hash object is
+    // stored in a const member.  This occur with the clang version
+    // installed by OS X 10.9.
+    ptr_hash()
+    {
+    }
+
     size_t operator()(const T* p) const
     {
       return knuth32_hash(reinterpret_cast<const char*>(p)
@@ -97,6 +105,12 @@ namespace spot
     public Sgi::hash<const char*>,
     public std::unary_function<const std::string&, size_t>
   {
+    // A default constructor is needed if the string_hash object is
+    // stored in a const member.
+    string_hash()
+    {
+    }
+
     size_t operator()(const std::string& s) const
     {
       // We are living dangerously.  Be sure to call operator()
@@ -113,6 +127,12 @@ namespace spot
   struct identity_hash:
     public std::unary_function<const T&, size_t>
   {
+    // A default constructor is needed if the string_hash object is
+    // stored in a const member.
+    identity_hash()
+    {
+    }
+
     size_t operator()(const T& s) const
     {
       return s;
