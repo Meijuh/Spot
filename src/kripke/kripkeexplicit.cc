@@ -1,5 +1,6 @@
-// Copyright (C) 2011, 2012 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE)
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012, 2014 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -247,7 +248,7 @@ namespace spot
   void kripke_explicit::add_transition(std::string source,
                                        std::string dest)
   {
-    std::map<std::string, state_kripke*>::iterator destination
+    std::map<const std::string, state_kripke*>::iterator destination
       = ns_nodes_.find(dest);
 
     if (ns_nodes_.find(dest) == ns_nodes_.end())
