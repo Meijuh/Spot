@@ -5,7 +5,7 @@ To reproduce, follow these instructions:
 
 1) Compile Spot and install if it is not already done.
 
-2) Compile Glucose from https://www.lri.fr/~simon/?page=glucose
+2) Compile Glucose 3 from http://www.labri.fr/perso/lsimon/glucose/
    and make sure the 'glucose' binary is in your PATH.
 
 3) Compile ltl2dstar from http://www.ltl2dstar.de/ and
