@@ -445,12 +445,12 @@ The generated CSV file use the following columns:
 Times are measured with the times() function, and expressed
 in ticks (usually: 1/100 of seconds).
 
-In the above example, you can see that also the input DRA had 11
+In the above example, the input DRA had 11
 states.  In the first line of the =stats.csv= file, you can see the
-minimization function searching for a 9 state DTBA or obtaining a
-8-state solution.  (If the minimization function searched for a
+minimization function searching for a 9 state DTBA and obtaining a
+8-state solution.  (Since the minimization function searched for a
 9-state DTBA, it means it received a 10-state complete DTBA, so the
-simplification performed before the minimization procedure managed to
+processings performed before the minimization procedure managed to
 convert the 11-state DRA into a 10-state DTBA.)  Starting from the
 8-state solution, it looked for (and found) a 7-state solution, and
 then a 6-state solution.  The search for a 5-state complete DTBA
