@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -52,18 +52,31 @@ namespace spot
 
       virtual void accept(visitor& v) const;
 
-      /// Get the number of argument.
-      unsigned size() const;
+      /// Get the number of arguments.
+      unsigned size() const
+      {
+	return children_->size();
+      }
+
       /// \brief Get the nth argument.
       ///
       /// Starting with \a n = 0.
-      const formula* nth(unsigned n) const;
+      const formula* nth(unsigned n) const
+      {
+	return (*children_)[n];
+      }
 
       /// Get the NFA of this operator.
-      const spot::ltl::nfa::ptr get_nfa() const;
+      const spot::ltl::nfa::ptr get_nfa() const
+      {
+	return nfa_;
+      }
 
       /// Whether the automaton is negated.
-      bool is_negated() const;
+      bool is_negated() const
+      {
+	return negated_;
+      }
 
       /// Return a canonic representation of the atomic proposition
       std::string dump() const;

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -100,7 +100,8 @@ namespace spot
       instances.erase(i);
 
       // Dereference children.
-      for (unsigned n = 0; n < size(); ++n)
+      unsigned s = size();
+      for (unsigned n = 0; n < s; ++n)
 	nth(n)->destroy();
 
       delete children_;
@@ -122,18 +123,6 @@ namespace spot
     multop::accept(visitor& v) const
     {
       v.visit(this);
-    }
-
-    unsigned
-    multop::size() const
-    {
-      return children_->size();
-    }
-
-    const formula*
-    multop::nth(unsigned n) const
-    {
-      return (*children_)[n];
     }
 
     const formula*
@@ -174,12 +163,6 @@ namespace spot
       for (unsigned n = 0; n < s; ++n)
 	(*v)[n]->clone();
       return instance(op_, v);
-    }
-
-    multop::type
-    multop::op() const
-    {
-      return op_;
     }
 
     const char*

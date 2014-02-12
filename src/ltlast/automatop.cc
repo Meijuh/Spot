@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE)
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -30,6 +30,8 @@ namespace spot
     automatop::automatop(const nfa::ptr nfa, vec* v, bool negated)
       : ref_formula(AutomatOp), nfa_(nfa), children_(v), negated_(negated)
     {
+      assert(nfa);
+
       is.boolean = false;
       is.sugar_free_boolean = true;
       is.in_nenoform = true;
@@ -64,7 +66,8 @@ namespace spot
       instances.erase(i);
 
       // Dereference children.
-      for (unsigned n = 0; n < size(); ++n)
+      unsigned s = size();
+      for (unsigned n = 0; n < s; ++n)
 	nth(n)->destroy();
 
       delete children_;
@@ -113,31 +116,6 @@ namespace spot
 	}
       res->clone();
       return res;
-    }
-
-    unsigned
-    automatop::size() const
-    {
-      return children_->size();
-    }
-
-    const formula*
-    automatop::nth(unsigned n) const
-    {
-      return (*children_)[n];
-    }
-
-    const spot::ltl::nfa::ptr
-    automatop::get_nfa() const
-    {
-      assert(nfa_ != 0);
-      return nfa_;
-    }
-
-    bool
-    automatop::is_negated() const
-    {
-      return negated_;
     }
 
     unsigned

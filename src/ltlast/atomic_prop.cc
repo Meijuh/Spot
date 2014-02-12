@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -83,18 +83,6 @@ namespace spot
     atomic_prop::accept(visitor& v) const
     {
       v.visit(this);
-    }
-
-    const std::string&
-    atomic_prop::name() const
-    {
-      return name_;
-    }
-
-    environment&
-    atomic_prop::env() const
-    {
-      return *env_;
     }
 
     atomic_prop::map atomic_prop::instances;

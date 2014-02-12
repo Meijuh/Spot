@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -49,9 +49,16 @@ namespace spot
       virtual void accept(visitor& visitor) const;
 
       /// Get the name of the atomic proposition.
-      const std::string& name() const;
+      const std::string& name() const
+      {
+	return name_;
+      }
+
       /// Get the environment of the atomic proposition.
-      environment& env() const;
+      environment& env() const
+      {
+	return *env_;
+      }
 
       /// Return a canonic representation of the atomic proposition
       virtual std::string dump() const;

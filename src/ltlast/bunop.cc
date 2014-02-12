@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -98,30 +98,6 @@ namespace spot
     bunop::accept(visitor& v) const
     {
       v.visit(this);
-    }
-
-    const formula*
-    bunop::child() const
-    {
-      return child_;
-    }
-
-    unsigned
-    bunop::min() const
-    {
-      return min_;
-    }
-
-    unsigned
-    bunop::max() const
-    {
-      return max_;
-    }
-
-    bunop::type
-    bunop::op() const
-    {
-      return op_;
     }
 
     const char*

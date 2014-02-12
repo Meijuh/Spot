@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 //
 // This file is part of Spot, a model checking library.
@@ -39,7 +39,11 @@ namespace spot
       virtual void accept(visitor& v) const;
 
       /// Return the value of the constant.
-      type val() const;
+      type val() const
+      {
+	return val_;
+      }
+
       /// Return the value of the constant as a string.
       const char* val_name() const;
 

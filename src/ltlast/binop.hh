@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -112,12 +112,23 @@ namespace spot
       virtual void accept(visitor& v) const;
 
       /// Get the first operand.
-      const formula* first() const;
+      const formula* first() const
+      {
+	return first_;
+      }
+
       /// Get the second operand.
-      const formula* second() const;
+      const formula* second() const
+      {
+	return second_;
+      }
 
       /// Get the type of this operator.
-      type op() const;
+      type op() const
+      {
+	return op_;
+      }
+
       /// Get the type of this operator, as a string.
       const char* op_name() const;
 

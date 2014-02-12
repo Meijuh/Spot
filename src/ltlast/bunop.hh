@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -87,12 +87,22 @@ namespace spot
       virtual void accept(visitor& v) const;
 
       /// Get the sole operand of this operator.
-      const formula* child() const;
+      const formula* child() const
+      {
+	return child_;
+      }
 
       /// Minimum number of repetition.
-      unsigned min() const;
+      unsigned min() const
+      {
+	return min_;
+      }
+
       /// Minimum number of repetition.
-      unsigned max() const;
+      unsigned max() const
+      {
+	return max_;
+      }
 
       /// \brief A string representation of the operator.
       ///
@@ -100,7 +110,11 @@ namespace spot
       std::string format() const;
 
       /// Get the type of this operator.
-      type op() const;
+      type op() const
+      {
+	return op_;
+      }
+
       /// Get the type of this operator, as a string.
       const char* op_name() const;
 
