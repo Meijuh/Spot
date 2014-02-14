@@ -1,6 +1,66 @@
 New in spot 1.2.3a (not yet released)
 
-  Nothing yet.
+  * Major changes (including backward incompatible changes):
+
+    - Spot is now compiling in C++11 mode.  The set of features we use
+      requires GCC >= 4.6 or Clang >= 3.1.  These minimum versions
+      are old enough that it should not be an issue to most people.
+
+    - Boost is not used anymore.
+
+    - The tgba_succ_iterator interface has changed.  Methods next(),
+      and first() should now return a bool indicating whether the
+      current iteration is valid.
+
+    - The tgba base class has a new method, release_iter(), that can
+      be called to five a used iterator back to its automaton.  This
+      iterator is then stored in a protected member, iter_cache_, and
+      all implementations of succ_iter() can be updated to recycle
+      iter_cache_ (if available) instead of allocating a new iterator.
+
+    - The tgba base class has a new method, succ(), to support
+      C++11' range-based for loop, and hide all the above change.
+
+      Instead of the following syntax:
+
+	tgba_succ_iterator* i = aut->succ_iter(s);
+	for (i->first(); !i->done(); i->next())
+	  {
+	     // use i->current_state()
+	     //     i->current_condition()
+	     //     i->current_acceptance_conditions()
+	  }
+	delete i;
+
+      We now prefer:
+
+	for (auto i: aut->succ(s))
+	  {
+	    // use i->current_state()
+	    //     i->current_condition()
+	    //     i->current_acceptance_conditions()
+	  }
+
+      And the above syntax is really just syntactic suggar for
+
+	tgba_succ_iterator* i = aut->succ_iter(s);
+	if (i->first())
+	  do
+	    {
+	      // use i->current_state()
+	      //     i->current_condition()
+	      //     i->current_acceptance_conditions()
+	    }
+	  while (i->next());
+	aut->release_iter(i); // allow the automaton to recycle the iterator
+
+      Where the virtual calls to done() and delete have been avoided.
+
+    - The long unused interface for GreatSPN (or rather, interface to
+      a non-public, customized version of GreatSPN) has been removed.
+      As a consequence, the we could get rid of many cruft in the
+      implementation of Couvreur's FM'99 emptiness check.
+
 
 New in spot 1.2.3 (2014-02-11)
 
