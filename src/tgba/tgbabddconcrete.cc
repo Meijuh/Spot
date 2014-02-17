@@ -128,27 +128,6 @@ namespace spot
     return bdd_relprod(s->as_bdd(), data_.relation, data_.notvar_set);
   }
 
-  bdd
-  tgba_bdd_concrete::compute_support_variables(const state* st) const
-  {
-    const state_bdd* s = down_cast<const state_bdd*>(st);
-    assert(s);
-    bdd succ_set = data_.relation & s->as_bdd();
-    // bdd_support must be called BEFORE bdd_exist
-    // because bdd_exist(bdd_support((a&Next[f])|(!a&Next[g])),Next[*])
-    // is obviously not the same as bdd_support(a|!a).
-    // In other words: we cannot reuse compute_support_conditions() for
-    // this computation.
-    //
-    // Also we need to inject the support of acceptance conditions, because a
-    // "Next[f]" that looks like one transition might in fact be two
-    // transitions if the acceptance condition distinguish between
-    // letters, e.g. "Next[f] & ((a & Acc[1]) | (!a))"
-    return bdd_exist(bdd_support(succ_set)
-		     & data_.acceptance_conditions_support,
-		     data_.notvar_set);
-  }
-
   std::string
   tgba_bdd_concrete::format_state(const state* state) const
   {

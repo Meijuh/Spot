@@ -685,13 +685,4 @@ namespace spot
     return result;
   }
 
-  bdd
-  tgba_kv_complement::compute_support_variables(const state* state) const
-  {
-    bdd result = bddtrue;
-    for (auto i: succ(state))
-      result &= bdd_support(i->current_condition());
-    return result;
-  }
-
 } // end namespace spot.

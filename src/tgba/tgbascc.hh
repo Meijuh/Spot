@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2013 Laboratoire de recherche et développement
-// de l'Epita.
+// Copyright (C) 2009, 2013, 2014 Laboratoire de recherche et
+// développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -70,7 +70,6 @@ namespace spot
     virtual bdd neg_acceptance_conditions() const;
 
     virtual bdd compute_support_conditions(const state* state) const;
-    virtual bdd compute_support_variables(const state* state) const;
 
   protected:
     const tgba* aut_;		// The wrapped TGBA.

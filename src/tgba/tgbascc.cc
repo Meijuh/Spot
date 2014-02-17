@@ -108,10 +108,4 @@ namespace spot
     return aut_->support_conditions(state);
   }
 
-  bdd
-  tgba_scc::compute_support_variables
-    (const state* state) const
-  {
-    return aut_->support_variables(state);
-  }
 }

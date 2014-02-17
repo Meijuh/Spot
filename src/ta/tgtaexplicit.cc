@@ -1,4 +1,5 @@
-// Copyright (C) 2010, 2011, 2012 Laboratoire de Recherche et
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2011, 2012, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -54,14 +55,6 @@ namespace spot
     const state_ta_explicit* s = down_cast<const state_ta_explicit*>(in);
     assert(s);
     return ta_.get_tgba()->support_conditions(s->get_tgba_state());
-  }
-
-  bdd
-  tgta_explicit::compute_support_variables(const spot::state* in) const
-  {
-    const state_ta_explicit* s = down_cast<const state_ta_explicit*>(in);
-    assert(s);
-    return ta_.get_tgba()->support_variables(s->get_tgba_state());
   }
 
   bdd_dict*

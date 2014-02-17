@@ -65,7 +65,6 @@ namespace spot
 
   protected:
     virtual bdd compute_support_conditions(const spot::state* state) const;
-    virtual bdd compute_support_variables(const spot::state* state) const;
 
     typedef std::vector<taa_tgba::state_set*> ss_vec;
 

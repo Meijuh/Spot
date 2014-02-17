@@ -471,10 +471,9 @@ namespace spot
       }
     delete m;
 
-    // These have already been destroyed.
+    // This has already been destroyed.
     // Prevent destroying by tgba::~tgba.
     this->last_support_conditions_input_ = 0;
-    this->last_support_variables_input_ = 0;
   }
 
   state*
@@ -609,15 +608,6 @@ namespace spot
       down_cast<const state_tba_proxy*>(state);
     assert(s);
     return a_->support_conditions(s->real_state());
-  }
-
-  bdd
-  tgba_tba_proxy::compute_support_variables(const state* state) const
-  {
-    const state_tba_proxy* s =
-      down_cast<const state_tba_proxy*>(state);
-    assert(s);
-    return a_->support_variables(s->real_state());
   }
 
   ////////////////////////////////////////////////////////////////////////

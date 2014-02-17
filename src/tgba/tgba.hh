@@ -189,20 +189,6 @@ namespace spot
     /// last return value for efficiency.
     bdd support_conditions(const state* state) const;
 
-    /// \brief Get the conjunctions of variables tested by
-    ///        the outgoing transitions of \a state.
-    ///
-    /// All variables tested by outgoing transitions must be
-    /// returned.  This is mandatory.
-    ///
-    /// This is used as an hint by some \c succ_iter() to reduce the
-    /// number of successor to compute in a product.
-    ///
-    /// Sub classes should implement compute_support_variables(),
-    /// this function is just a wrapper that will cache the
-    /// last return value for efficiency.
-    bdd support_variables(const state* state) const;
-
     /// \brief Get the dictionary associated to the automaton.
     ///
     /// Atomic propositions and acceptance conditions are represented
@@ -280,14 +266,9 @@ namespace spot
   protected:
     /// Do the actual computation of tgba::support_conditions().
     virtual bdd compute_support_conditions(const state* state) const = 0;
-    /// Do the actual computation of tgba::support_variables().
-    virtual bdd compute_support_variables(const state* state) const = 0;
-  protected:
     mutable const state* last_support_conditions_input_;
-    mutable const state* last_support_variables_input_;
   private:
     mutable bdd last_support_conditions_output_;
-    mutable bdd last_support_variables_output_;
     mutable int num_acc_;
   };
 

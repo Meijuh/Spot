@@ -139,7 +139,6 @@ namespace spot
 
   protected:
     virtual bdd compute_support_conditions(const state* state) const;
-    virtual bdd compute_support_variables(const state* state) const;
 
   private:
     bdd_dict* dict_;

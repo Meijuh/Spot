@@ -27,7 +27,6 @@ namespace spot
   tgba::tgba()
     : iter_cache_(nullptr),
       last_support_conditions_input_(0),
-      last_support_variables_input_(0),
       num_acc_(-1)
   {
   }
@@ -36,8 +35,6 @@ namespace spot
   {
     if (last_support_conditions_input_)
       last_support_conditions_input_->destroy();
-    if (last_support_variables_input_)
-      last_support_variables_input_->destroy();
     delete iter_cache_;
   }
 
@@ -53,20 +50,6 @@ namespace spot
 	last_support_conditions_input_ = state->clone();
       }
     return last_support_conditions_output_;
-  }
-
-  bdd
-  tgba::support_variables(const state* state) const
-  {
-    if (!last_support_variables_input_
-	|| last_support_variables_input_->compare(state) != 0)
-      {
-	last_support_variables_output_ = compute_support_variables(state);
-	if (last_support_variables_input_)
-	  last_support_variables_input_->destroy();
-	last_support_variables_input_ = state->clone();
-      }
-    return last_support_variables_output_;
   }
 
   state*

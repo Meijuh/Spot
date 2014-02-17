@@ -264,17 +264,4 @@ namespace spot
       return acceptance_condition_;
     return a_->support_conditions(s->real_state());
   }
-
-  bdd
-  tgba_sgba_proxy::compute_support_variables(const state* state) const
-  {
-    const state_sgba_proxy* s =
-      down_cast<const state_sgba_proxy*>(state);
-    assert(s);
-
-    if (emulate_acc_cond_)
-      return bdd_support(acceptance_condition_);
-    return a_->support_variables(s->real_state());
-  }
-
 }

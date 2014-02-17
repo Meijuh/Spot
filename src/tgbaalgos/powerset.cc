@@ -70,13 +70,12 @@ namespace spot
 	todo.pop_front();
 	// Compute all variables occurring on outgoing arcs.
 	bdd all_vars = bddtrue;
-	power_state::const_iterator i;
-
 	for (auto s: src)
-	  all_vars &= aut->support_variables(s);
+	  for (auto i: aut->succ(s))
+	    all_vars &= bdd_support(i->current_condition());
 
-	// Compute all possible combinations of these variables.
 	bdd all_conds = bddtrue;
+	// Iterate over all possible conditions
 	while (all_conds != bddfalse)
 	  {
 	    bdd cond = bdd_satoneset(all_conds, all_vars, bddtrue);

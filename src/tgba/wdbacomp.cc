@@ -280,18 +280,6 @@ namespace spot
 	return bddtrue;
       }
 
-      virtual bdd compute_support_variables(const state* ostate) const
-      {
-	const state_wdba_comp_proxy* s =
-	  down_cast<const state_wdba_comp_proxy*>(ostate);
-	assert(s);
-	const state* rs = s->real_state();
-	if (rs)
-	  return a_->support_variables(rs);
-	else
-	  return bddtrue;
-      }
-
       const tgba* a_;
     private:
       bdd the_acceptance_cond_;

@@ -91,11 +91,5 @@ namespace spot
   {
     return original_->support_conditions(state);
   }
-
-  bdd
-  tgba_proxy::compute_support_variables(const state* state) const
-  {
-    return original_->support_variables(state);
-  }
 }
 

@@ -491,10 +491,9 @@ namespace spot
       }
 
       this->dict_->unregister_all_my_variables(this);
-      // These have already been destroyed by subclasses.
+      // Thus has already been destroyed by subclasses.
       // Prevent destroying by tgba::~tgba.
       this->last_support_conditions_input_ = 0;
-      this->last_support_variables_input_ = 0;
     }
 
     virtual State* get_init_state() const
@@ -678,21 +677,6 @@ namespace spot
       typename transitions_t::const_iterator i;
       for (i = st.begin(); i != st.end(); ++i)
 	res |= i->condition;
-
-      return res;
-    }
-
-    virtual bdd compute_support_variables(const spot::state* in) const
-    {
-      const State* s = down_cast<const State*>(in);
-      assert(s);
-      const transitions_t& st = s->successors;
-
-      bdd res = bddtrue;
-
-      typename transitions_t::const_iterator i;
-      for (i = st.begin(); i != st.end(); ++i)
-	res &= bdd_support(i->condition);
 
       return res;
     }

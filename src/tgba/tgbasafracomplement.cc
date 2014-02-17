@@ -1307,24 +1307,6 @@ namespace spot
     return res;
   }
 
-  bdd
-  tgba_safra_complement::compute_support_variables(const state* state) const
-  {
-    const safra_tree_automaton* a = static_cast<safra_tree_automaton*>(safra_);
-    const state_complement* s = down_cast<const state_complement*>(state);
-    assert(s);
-    typedef safra_tree_automaton::automaton_t::const_iterator auto_it;
-    auto_it node(a->automaton.find(const_cast<safra_tree*>(s->get_safra())));
-
-    if (node == a->automaton.end())
-      return bddtrue;
-
-    bdd res = bddtrue;
-    for (auto& i: node->second)
-      res &= bdd_support(i.first);
-    return res;
-  }
-
   // display_safra: debug routine.
   //////////////////////////////
   void display_safra(const tgba_safra_complement* a)

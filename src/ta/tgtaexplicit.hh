@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -64,7 +64,6 @@ namespace spot
     succ_iter_by_changeset(const spot::state* s, bdd change_set) const;
   protected:
     virtual bdd compute_support_conditions(const spot::state* state) const;
-    virtual bdd compute_support_variables(const spot::state* state) const;
 
     ta_explicit ta_;
   };

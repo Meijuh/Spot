@@ -376,20 +376,6 @@ namespace spot
       return right_->support_conditions(s->right());
   }
 
-  bdd
-  tgba_union::compute_support_variables(const state* in) const
-  {
-    const state_union* s = down_cast<const state_union*>(in);
-    assert(s);
-    if (!s->left() && !s->right())
-      return (left_->support_variables(left_->get_init_state())
-	      & right_->support_variables(right_->get_init_state()));
-    if (s->left())
-      return left_->support_variables(s->left());
-    else
-      return right_->support_variables(s->right());
-  }
-
   bdd_dict*
   tgba_union::get_dict() const
   {

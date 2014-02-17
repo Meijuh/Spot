@@ -116,22 +116,6 @@ namespace spot
     return res;
   }
 
-  bdd
-  taa_tgba::compute_support_variables(const spot::state* s) const
-  {
-    const spot::set_state* se = down_cast<const spot::set_state*>(s);
-    assert(se);
-    const state_set* ss = se->get_state();
-
-    bdd res = bddtrue;
-    taa_tgba::state_set::const_iterator i;
-    taa_tgba::state::const_iterator j;
-    for (i = ss->begin(); i != ss->end(); ++i)
-      for (j = (*i)->begin(); j != (*i)->end(); ++j)
-	res &= bdd_support((*j)->condition);
-    return res;
-  }
-
   /*----------.
   | state_set |
   `----------*/

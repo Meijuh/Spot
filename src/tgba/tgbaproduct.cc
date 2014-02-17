@@ -363,11 +363,6 @@ namespace spot
 	last_support_conditions_input_->destroy();
 	last_support_conditions_input_ = 0;
       }
-    if (last_support_variables_input_)
-      {
-	last_support_variables_input_->destroy();
-	last_support_variables_input_ = 0;
-      }
   }
 
   state*
@@ -427,16 +422,6 @@ namespace spot
     assert(s);
     bdd lsc = left_->support_conditions(s->left());
     bdd rsc = right_->support_conditions(s->right());
-    return lsc & rsc;
-  }
-
-  bdd
-  tgba_product::compute_support_variables(const state* in) const
-  {
-    const state_product* s = down_cast<const state_product*>(in);
-    assert(s);
-    bdd lsc = left_->support_variables(s->left());
-    bdd rsc = right_->support_variables(s->right());
     return lsc & rsc;
   }
 

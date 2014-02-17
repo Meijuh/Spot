@@ -1,5 +1,6 @@
-// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2013, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -27,7 +28,7 @@ namespace spot
 
   /// \ingroup tgba_on_the_fly_algorithms
   /// \brief Change the labeling-mode of spot::tgba on the fly, producing a
-  /// state-based generalized Büchi automaton.
+  /// state-based generalized BÃ¼chi automaton.
   ///
   /// This class acts as a proxy in front of a spot::tgba, that should
   /// label on states on-the-fly.  The result is still a spot::tgba,
@@ -57,7 +58,6 @@ namespace spot
     bdd state_acceptance_conditions(const state* state) const;
   protected:
     virtual bdd compute_support_conditions(const state* state) const;
-    virtual bdd compute_support_variables(const state* state) const;
 
   private:
     const tgba* a_;

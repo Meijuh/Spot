@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita
 //
 // This file is part of Spot, a model checking library.
@@ -101,7 +101,6 @@ namespace spot
 
   protected:
     virtual bdd compute_support_conditions(const state* s) const;
-    virtual bdd compute_support_variables(const state* s) const;
   };
 
 }

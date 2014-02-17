@@ -56,6 +56,10 @@ New in spot 1.2.3a (not yet released)
 
       Where the virtual calls to done() and delete have been avoided.
 
+    - tgba::support_variables() and tgba::compute_support_variables()
+      methods have been removed from the TGBA interface and all
+      subclasses.
+
     - The long unused interface for GreatSPN (or rather, interface to
       a non-public, customized version of GreatSPN) has been removed.
       As a consequence, the we could get rid of many cruft in the
