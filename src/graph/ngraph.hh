@@ -30,7 +30,7 @@ namespace spot
 	    typename State_Name,
 	    typename Name_Hash = std::hash<State_Name>,
 	    typename Name_Equal = std::equal_to<State_Name>>
-  class named_graph
+  class SPOT_API named_graph
   {
   protected:
     Graph& g_;

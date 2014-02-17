@@ -20,6 +20,7 @@
 #ifndef SPOT_GRAPH_GRAPH_HH
 # define SPOT_GRAPH_GRAPH_HH
 
+#include "misc/common.hh"
 #include <vector>
 #include <type_traits>
 #include <tuple>
@@ -28,7 +29,7 @@
 namespace spot
 {
   template <typename State_Data, typename Trans_Data, bool Alternating = false>
-  class digraph;
+  class SPOT_API digraph;
 
   namespace internal
   {
@@ -40,7 +41,7 @@ namespace spot
     // instance.
 
     template <typename Data, bool boxed = !std::is_class<Data>::value>
-    struct boxed_label
+    struct SPOT_API boxed_label
     {
       typedef Data data_t;
       Data label;
@@ -69,7 +70,7 @@ namespace spot
     };
 
     template <>
-    struct boxed_label<void, true>: public std::tuple<>
+    struct SPOT_API boxed_label<void, true>: public std::tuple<>
     {
       typedef std::tuple<> data_t;
       std::tuple<>& data()
@@ -85,7 +86,7 @@ namespace spot
     };
 
     template <typename Data>
-    struct boxed_label<Data, false>: public Data
+    struct SPOT_API boxed_label<Data, false>: public Data
     {
       typedef Data data_t;
 
@@ -120,7 +121,7 @@ namespace spot
     // one without.
 
     template <typename Transition, typename State_Data>
-    struct distate_storage: public State_Data
+    struct SPOT_API distate_storage: public State_Data
     {
       Transition succ; // First outgoing transition (used when iterating)
       Transition succ_tail;	// Last outgoing transition (used for
@@ -142,7 +143,7 @@ namespace spot
     // Again two implementation: one with label, and one without.
 
     template <typename State, typename Transition, typename Trans_Data>
-    struct trans_storage: public Trans_Data
+    struct SPOT_API trans_storage: public Trans_Data
     {
       typedef Transition transition;
 
@@ -171,7 +172,7 @@ namespace spot
     // of that list.
 
     template <typename Graph>
-    class trans_iterator
+    class SPOT_API trans_iterator
     {
     public:
       typedef typename Graph::transition transition;
@@ -224,7 +225,7 @@ namespace spot
     // Fake container listing the outgoing transitions of a state.
 
     template <typename Graph>
-    class state_out
+    class SPOT_API state_out
     {
     public:
       typedef typename Graph::transition transition;
