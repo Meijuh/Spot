@@ -191,17 +191,11 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgba_sgba_proxy::succ_iter(const state* local_state,
-			    const state* global_state,
-			    const tgba* global_automaton) const
+  tgba_sgba_proxy::succ_iter(const state* state) const
   {
-    const state_sgba_proxy* s =
-      down_cast<const state_sgba_proxy*>(local_state);
+    const state_sgba_proxy* s = down_cast<const state_sgba_proxy*>(state);
     assert(s);
-
-    tgba_succ_iterator* it = a_->succ_iter(s->real_state(),
-					   global_state, global_automaton);
-
+    tgba_succ_iterator* it = a_->succ_iter(s->real_state());
     return new tgba_sgba_proxy_succ_iterator(it);
   }
 

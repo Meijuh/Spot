@@ -175,16 +175,12 @@ namespace spot
     return dict_;
   }
 
-  // FIXME : Change the bddtrue.
+  // FIXME: Change the bddtrue.
   kripke_explicit_succ_iterator*
-  kripke_explicit::succ_iter(const spot::state* local_state,
-                            const spot::state* global_state,
-                            const tgba* global_automaton) const
+  kripke_explicit::succ_iter(const spot::state* st) const
   {
-    const state_kripke* s = down_cast<const state_kripke*>(local_state);
+    const state_kripke* s = down_cast<const state_kripke*>(st);
     assert(s);
-    (void) global_state;
-    (void) global_automaton;
     state_kripke* it = const_cast<state_kripke*>(s);
     return new kripke_explicit_succ_iterator(it, bddtrue);
   }

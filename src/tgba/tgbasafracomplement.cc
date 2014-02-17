@@ -1161,13 +1161,10 @@ namespace spot
   /// @param local_state the state from which we want to compute the successors.
   ///
   tgba_succ_iterator*
-  tgba_safra_complement::succ_iter(const state* local_state,
-                             const state* /* = 0 */,
-                             const tgba* /* = 0 */) const
+  tgba_safra_complement::succ_iter(const state* state) const
   {
     const safra_tree_automaton* a = static_cast<safra_tree_automaton*>(safra_);
-    const state_complement* s =
-      down_cast<const state_complement*>(local_state);
+    const state_complement* s = down_cast<const state_complement*>(state);
     assert(s);
     safra_tree_automaton::automaton_t::const_iterator tr =
       a->automaton.find(const_cast<safra_tree*>(s->get_safra()));

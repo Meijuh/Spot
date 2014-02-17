@@ -498,11 +498,9 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgba_tba_proxy::succ_iter(const state* local_state,
-			    const state*, const tgba*) const
+  tgba_tba_proxy::succ_iter(const state* st) const
   {
-    const state_tba_proxy* s =
-      down_cast<const state_tba_proxy*>(local_state);
+    const state_tba_proxy* s = down_cast<const state_tba_proxy*>(st);
     assert(s);
     const state* rs = s->real_state();
 

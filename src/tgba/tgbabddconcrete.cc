@@ -93,21 +93,11 @@ namespace spot
   }
 
   tgba_succ_iterator_concrete*
-  tgba_bdd_concrete::succ_iter(const state* local_state,
-			       const state* global_state,
-			       const tgba* global_automaton) const
+  tgba_bdd_concrete::succ_iter(const state* state) const
   {
-    const state_bdd* s = down_cast<const state_bdd*>(local_state);
+    const state_bdd* s = down_cast<const state_bdd*>(state);
     assert(s);
     bdd succ_set = data_.relation & s->as_bdd();
-    // If we are in a product, inject the local conditions of
-    // all other automata to limit the number of successors.
-    if (global_automaton)
-      {
-	bdd varused = bdd_support(succ_set);
-	bdd global_conds = global_automaton->support_conditions(global_state);
-	succ_set = bdd_appexcomp(succ_set, global_conds, bddop_and, varused);
-      }
     // Do not allocate an iterator if we can reuse one.
     if (iter_cache_)
       {

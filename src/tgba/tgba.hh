@@ -126,29 +126,8 @@ namespace spot
     /// The iterator has been allocated with \c new.  It is the
     /// responsability of the caller to \c delete it when no
     /// longer needed.
-    ///
-    /// During synchornized products, additional informations are
-    /// passed about the entire product and its state.  Recall that
-    /// products can be nested, forming a tree of spot::tgba where
-    /// most values are computed on demand.  \a global_automaton
-    /// designate the root spot::tgba, and \a global_state its
-    /// state.  This two objects can be used by succ_iter() to
-    /// restrict the set of successors to compute.
-    ///
-    /// \param local_state The state whose successors are to be explored.
-    /// This pointer is not adopted in any way by \c succ_iter, and
-    /// it is still the caller's responsability to destroy it when
-    /// appropriate (this can be done during the lifetime of
-    /// the iterator).
-    /// \param global_state In a product, the state of the global
-    /// product automaton.  Otherwise, 0.  Like \a locale_state,
-    /// \a global_state is not adopted by \c succ_iter.
-    /// \param global_automaton In a product, the global
-    /// product automaton.  Otherwise, 0.
     virtual tgba_succ_iterator*
-    succ_iter(const state* local_state,
-	      const state* global_state = nullptr,
-	      const tgba* global_automaton = nullptr) const = 0;
+    succ_iter(const state* local_state) const = 0;
 
 #ifndef SWIG
     /// \brief Build an iterable over the successors of \a s.

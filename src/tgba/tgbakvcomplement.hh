@@ -91,10 +91,7 @@ namespace spot
 
     // tgba interface
     virtual state* get_init_state() const;
-    virtual tgba_succ_iterator*
-    succ_iter(const state* local_state,
-	      const state* global_state = 0,
-	      const tgba* global_automaton = 0) const;
+    virtual tgba_succ_iterator* succ_iter(const state* state) const;
 
     virtual bdd_dict* get_dict() const;
     virtual std::string format_state(const state* state) const;

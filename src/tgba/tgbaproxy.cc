@@ -38,16 +38,14 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgba_proxy::succ_iter(const state* local_state,
-			const state* global_state,
-			const tgba* global_automaton) const
+  tgba_proxy::succ_iter(const state* state) const
   {
     if (iter_cache_)
       {
 	original_->release_iter(iter_cache_);
 	iter_cache_ = nullptr;
       }
-    return original_->succ_iter(local_state, global_state, global_automaton);
+    return original_->succ_iter(state);
   }
 
   bdd_dict*

@@ -206,18 +206,16 @@ namespace spot
       }
 
       virtual tgba_succ_iterator*
-      succ_iter(const state* local_state,
-		const state* global_state = 0,
-		const tgba* global_automaton = 0) const
+      succ_iter(const state* st) const
       {
 	const state_wdba_comp_proxy* s =
-	  down_cast<const state_wdba_comp_proxy*>(local_state);
+	  down_cast<const state_wdba_comp_proxy*>(st);
 	assert(s);
 
 	const state* o = s->real_state();
 	tgba_succ_iterator* it = nullptr;
 	if (o)
-	  it = a_->succ_iter(s->real_state(), global_state, global_automaton);
+	  it = a_->succ_iter(s->real_state());
 	if (iter_cache_)
 	  {
 	    tgba_wdba_comp_proxy_succ_iterator* res =
@@ -226,8 +224,7 @@ namespace spot
 	    iter_cache_ = nullptr;
 	    return res;
 	  }
-	return new tgba_wdba_comp_proxy_succ_iterator(it,
-						      the_acceptance_cond_);
+	return new tgba_wdba_comp_proxy_succ_iterator(it, the_acceptance_cond_);
       }
 
       virtual bdd_dict*

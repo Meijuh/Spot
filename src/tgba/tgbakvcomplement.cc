@@ -616,17 +616,15 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgba_kv_complement::succ_iter(const state* local_state,
-                             const state*,
-                             const tgba*) const
+  tgba_kv_complement::succ_iter(const state* state) const
   {
-    const state_kv_complement* state =
-      down_cast<const state_kv_complement*>(local_state);
-    assert(state);
+    const state_kv_complement* s =
+      down_cast<const state_kv_complement*>(state);
+    assert(s);
 
     return new tgba_kv_complement_succ_iterator(automaton_,
-                                             the_acceptance_cond_,
-                                             acc_list_, state);
+						the_acceptance_cond_,
+						acc_list_, s);
   }
 
   bdd_dict*

@@ -43,8 +43,7 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgta_explicit::succ_iter(const spot::state* state, const spot::state*,
-			   const tgba*) const
+  tgta_explicit::succ_iter(const spot::state* state) const
   {
     return ta_.succ_iter(state);
   }

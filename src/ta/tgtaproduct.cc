@@ -57,10 +57,9 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgta_product::succ_iter(const state* local_state, const state*,
-      const tgba*) const
+  tgta_product::succ_iter(const state* state) const
   {
-    const state_product* s = down_cast<const state_product*> (local_state);
+    const state_product* s = down_cast<const state_product*> (state);
     assert(s);
 
     fixed_size_pool* p = const_cast<fixed_size_pool*> (&pool_);

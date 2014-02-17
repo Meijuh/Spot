@@ -60,6 +60,9 @@ New in spot 1.2.3a (not yet released)
       methods have been removed from the TGBA interface and all
       subclasses.
 
+    - tgba::succ_iter() now takes only one argument.  The optional
+      global_state and global_automaton arguments have been removed.
+
     - The long unused interface for GreatSPN (or rather, interface to
       a non-public, customized version of GreatSPN) has been removed.
       As a consequence, the we could get rid of many cruft in the

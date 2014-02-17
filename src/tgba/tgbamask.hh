@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -48,9 +48,7 @@ namespace spot
     virtual state* get_init_state() const;
 
     virtual tgba_succ_iterator*
-    succ_iter(const state* local_state,
-	      const state* global_state = 0,
-	      const tgba* global_automaton = 0) const;
+    succ_iter(const state* local_state) const;
 
     virtual bool wanted(const state* s) const = 0;
 

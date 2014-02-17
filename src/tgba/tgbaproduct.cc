@@ -374,26 +374,12 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgba_product::succ_iter(const state* local_state,
-			  const state* global_state,
-			  const tgba* global_automaton) const
+  tgba_product::succ_iter(const state* state) const
   {
-    const state_product* s =
-      down_cast<const state_product*>(local_state);
+    const state_product* s = down_cast<const state_product*>(state);
     assert(s);
-
-    // If global_automaton is not specified, THIS is the root of a
-    // product tree.
-    if (!global_automaton)
-      {
-	global_automaton = this;
-	global_state = local_state;
-      }
-
-    tgba_succ_iterator* li = left_->succ_iter(s->left(),
-					      global_state, global_automaton);
-    tgba_succ_iterator* ri = right_->succ_iter(s->right(),
-					       global_state, global_automaton);
+    tgba_succ_iterator* li = left_->succ_iter(s->left());
+    tgba_succ_iterator* ri = right_->succ_iter(s->right());
 
     if (iter_cache_)
       {

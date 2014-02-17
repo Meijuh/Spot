@@ -65,14 +65,10 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  taa_tgba::succ_iter(const spot::state* state,
-                     const spot::state* global_state,
-                     const tgba* global_automaton) const
+  taa_tgba::succ_iter(const spot::state* state) const
   {
     const spot::set_state* s = down_cast<const spot::set_state*>(state);
     assert(s);
-    (void) global_state;
-    (void) global_automaton;
     return new taa_succ_iterator(s->get_state(), all_acceptance_conditions());
   }
 

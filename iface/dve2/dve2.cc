@@ -848,11 +848,10 @@ namespace spot
 
       virtual
       dve2_succ_iterator*
-      succ_iter(const state* local_state,
-		const state*, const tgba*) const
+      succ_iter(const state* st) const
       {
 	// This may also compute successors in state_condition_last_cc
-	bdd scond = compute_state_condition(local_state);
+	bdd scond = compute_state_condition(st);
 
 	callback_context* cc;
 	if (state_condition_last_cc_)
@@ -863,11 +862,11 @@ namespace spot
 	else
 	  {
 	    int t;
-	    cc = build_cc(get_vars(local_state), t);
+	    cc = build_cc(get_vars(st), t);
 
 	    // Add a self-loop to dead-states if we care about these.
 	    if (t == 0 && scond != bddfalse)
-	      cc->transitions.push_back(local_state->clone());
+	      cc->transitions.push_back(st->clone());
 	  }
 
 	if (iter_cache_)

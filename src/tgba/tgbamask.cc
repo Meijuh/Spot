@@ -139,9 +139,7 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgba_mask::succ_iter(const state* local_state,
-		       const state*,
-		       const tgba*) const
+  tgba_mask::succ_iter(const state* state) const
   {
     succ_iter_filtered* res;
     if (iter_cache_)
@@ -153,9 +151,9 @@ namespace spot
       {
 	res = new succ_iter_filtered;
       }
-    for (auto it: original_->succ(local_state))
+    for (auto it: original_->succ(state))
       {
-	const state* s = it->current_state();
+	const spot::state* s = it->current_state();
 	if (!wanted(s))
 	  {
 	    s->destroy();

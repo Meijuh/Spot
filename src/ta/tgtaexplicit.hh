@@ -46,8 +46,7 @@ namespace spot
     virtual spot::state* get_init_state() const;
 
     virtual tgba_succ_iterator*
-    succ_iter(const spot::state* local_state, const spot::state* global_state =
-        0, const tgba* global_automaton = 0) const;
+    succ_iter(const spot::state* local_state) const;
 
     virtual bdd_dict*
     get_dict() const;

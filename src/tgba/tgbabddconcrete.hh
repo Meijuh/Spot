@@ -62,9 +62,7 @@ namespace spot
     bdd get_init_bdd() const;
 
     virtual tgba_succ_iterator_concrete*
-    succ_iter(const state* local_state,
-	      const state* global_state = 0,
-	      const tgba* global_automaton = 0) const;
+    succ_iter(const state* local_state) const;
 
     virtual std::string format_state(const state* state) const;
 

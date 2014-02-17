@@ -313,13 +313,9 @@ namespace spot
   }
 
   tgba_succ_iterator_union*
-  tgba_union::succ_iter(const state* local_state,
-			const state* global_state,
-			const tgba* global_automaton) const
+  tgba_union::succ_iter(const state* st) const
   {
-    (void) global_state;
-    (void) global_automaton;
-    const state_union* s = down_cast<const state_union*>(local_state);
+    const state_union* s = down_cast<const state_union*>(st);
     assert(s);
     // Is it the initial state ?
     tgba_succ_iterator* li;
