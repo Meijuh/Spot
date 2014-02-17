@@ -42,6 +42,7 @@ namespace spot
     template <typename Data, bool boxed = !std::is_class<Data>::value>
     struct boxed_label
     {
+      typedef Data data_t;
       Data label;
 
       template <typename... Args>
@@ -68,13 +69,26 @@ namespace spot
     };
 
     template <>
-    struct boxed_label<void, true>
+    struct boxed_label<void, true>: public std::tuple<>
     {
+      typedef std::tuple<> data_t;
+      std::tuple<>& data()
+      {
+	return *this;
+      }
+
+      const std::tuple<>& data() const
+      {
+	return *this;
+      }
+
     };
 
     template <typename Data>
     struct boxed_label<Data, false>: public Data
     {
+      typedef Data data_t;
+
       template <typename... Args>
       boxed_label(Args&&... args):
 	Data{std::forward<Args>(args)...}
@@ -302,15 +316,16 @@ namespace spot
       return s;
     }
 
-    // May not be called on states with no data.
-    State_Data
+    // Do not use State_Data& as return type, because State_Data might
+    // be void.
+    typename state_storage_t::data_t&
     state_data(state s)
     {
       return states_[s].data();
     }
 
     // May not be called on states with no data.
-    State_Data
+    const typename state_storage_t::data_t&
     state_data(state s) const
     {
       return states_[s].data();

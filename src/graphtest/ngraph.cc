@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include "graph/ngraph.hh"
+#include "tgba/state.hh"
 
 template <typename SL, typename TL>
 void
@@ -339,6 +340,74 @@ bool f8()
   return f == 69;
 }
 
+struct my_state: public spot::state
+{
+public:
+  virtual ~my_state() noexcept
+  {
+  }
+
+  virtual int compare(const spot::state* other) const
+  {
+    auto o = down_cast<const my_state*>(other);
+    assert(o);
+
+    // Do not simply return "other - this", it might not fit in an int.
+    if (o < this)
+      return -1;
+    if (o > this)
+      return 1;
+    return 0;
+  }
+
+  virtual size_t hash() const
+  {
+    return
+      reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
+  }
+
+  virtual my_state*
+  clone() const
+  {
+    return const_cast<my_state*>(this);
+  }
+
+  virtual void destroy() const
+  {
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const my_state&)
+  {
+    return os;
+  }
+};
+
+bool f9()
+{
+  typedef spot::digraph<my_state, int_pair> graph_t;
+  graph_t g(3);
+  spot::named_graph<graph_t, std::string> gg(g);
+  auto s1 = gg.new_state("s1");
+  gg.new_state("s2");
+  gg.new_state("s3");
+  gg.new_transition("s1", "s2", 1, 3);
+  gg.new_transition("s1", "s3", 2, 5);
+  gg.new_transition("s2", "s3", 3, 7);
+  gg.new_transition("s3", "s2", 4, 9);
+
+  dot(std::cout, gg);
+
+  int f = 0;
+  for (auto& t: g.out(s1))
+    {
+      f += t.one + t.two;
+    }
+
+
+  return (f == 11) &&
+    g.state_data(s1).compare(&g.state_data(gg.get_state("s1"))) == 0 &&
+    g.state_data(s1).compare(&g.state_data(gg.get_state("s2"))) != 0;
+}
 
 int main()
 {
@@ -350,6 +419,7 @@ int main()
   bool a6 = f6();
   bool a7 = f7();
   bool a8 = f8();
+  bool a9 = f9();
   std::cout << a1 << ' '
 	    << a2 << ' '
 	    << a3 << ' '
@@ -357,6 +427,7 @@ int main()
 	    << a5 << ' '
 	    << a6 << ' '
 	    << a7 << ' '
-	    << a8 << '\n';
-  return !(a1 && a2 && a3 && a4 && a5 && a6 && a7 && a8);
+	    << a8 << ' '
+	    << a9 << '\n';
+  return !(a1 && a2 && a3 && a4 && a5 && a6 && a7 && a8 && a9);
 }
