@@ -1,4 +1,5 @@
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -29,9 +30,9 @@ namespace spot
     // Transformation of ω-Automata: Complexity and Connection to
     // Second Order Logic.  Section 3.4.3: Rabin to Büchi.
     //
-    // However beware that the {...,(Ei,Fi),...} pairs used by
-    // are the reversed compared to the {...,(Li,Ui),...} pairs
-    // used by several other people.  We have Ei=Ui and Fi=Li.
+    // However beware that the {...,(Ei,Fi),...} pairs used by Löding
+    // are reversed compared to the {...,(Li,Ui),...} pairs used by
+    // several other people.  We have Ei=Ui and Fi=Li.
     class nra_to_nba_worker: public tgba_reachable_iterator_depth_first
     {
     public:
