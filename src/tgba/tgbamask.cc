@@ -145,6 +145,7 @@ namespace spot
     if (iter_cache_)
       {
 	res = down_cast<succ_iter_filtered*>(iter_cache_);
+	res->trans_.clear();
 	iter_cache_ = nullptr;
       }
     else
