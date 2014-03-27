@@ -76,48 +76,7 @@ namespace spot
       transitions::const_iterator it_;
     };
 
-
-    class tgba_mask_keep: public tgba_mask
-    {
-      const state_set& mask_;
-    public:
-      tgba_mask_keep(const tgba* masked,
-		     const state_set& mask,
-		     const state* init)
-	: tgba_mask(masked, init),
-	  mask_(mask)
-      {
-      }
-
-      bool wanted(const state* s) const
-      {
-	state_set::const_iterator i = mask_.find(s);
-	return i != mask_.end();
-      }
-    };
-
-    class tgba_mask_ignore: public tgba_mask
-    {
-      const state_set& mask_;
-    public:
-      tgba_mask_ignore(const tgba* masked,
-		       const state_set& mask,
-		       const state* init)
-	: tgba_mask(masked, init),
-	  mask_(mask)
-      {
-      }
-
-      bool wanted(const state* s) const
-      {
-	state_set::const_iterator i = mask_.find(s);
-	return i == mask_.end();
-      }
-    };
-
-
   }
-
 
   tgba_mask::tgba_mask(const tgba* masked,
 		       const state* init)
@@ -155,17 +114,77 @@ namespace spot
     for (auto it: original_->succ(state))
       {
 	const spot::state* s = it->current_state();
-	if (!wanted(s))
+	bdd acc = it->current_acceptance_conditions();
+	if (!wanted(s, acc))
 	  {
 	    s->destroy();
 	    continue;
 	  }
-	transition t = { s,
-			 it->current_condition(),
-			 it->current_acceptance_conditions() };
-	res->trans_.push_back(t);
+	res->trans_.emplace_back(transition {s, it->current_condition(), acc});
       }
     return res;
+  }
+
+  namespace
+  {
+
+    class tgba_mask_keep: public tgba_mask
+    {
+      const state_set& mask_;
+    public:
+      tgba_mask_keep(const tgba* masked,
+		     const state_set& mask,
+		     const state* init)
+	: tgba_mask(masked, init),
+	  mask_(mask)
+      {
+      }
+
+      bool wanted(const state* s, const bdd&) const
+      {
+	state_set::const_iterator i = mask_.find(s);
+	return i != mask_.end();
+      }
+    };
+
+    class tgba_mask_ignore: public tgba_mask
+    {
+      const state_set& mask_;
+    public:
+      tgba_mask_ignore(const tgba* masked,
+		       const state_set& mask,
+		       const state* init)
+	: tgba_mask(masked, init),
+	  mask_(mask)
+      {
+      }
+
+      bool wanted(const state* s, const bdd&) const
+      {
+	state_set::const_iterator i = mask_.find(s);
+	return i == mask_.end();
+      }
+    };
+
+    class tgba_mask_acc_ignore: public tgba_mask
+    {
+      const bdd& mask_;
+    public:
+      tgba_mask_acc_ignore(const tgba* masked,
+			   const bdd& mask,
+			   const state* init)
+	: tgba_mask(masked, init),
+	  mask_(mask)
+      {
+      }
+
+      bool wanted(const state*, const bdd& acc) const
+      {
+	return (acc & mask_) == bddfalse;
+      }
+    };
+
+
   }
 
 
@@ -183,6 +202,14 @@ namespace spot
 			 const state* init)
   {
     return new tgba_mask_ignore(to_mask, to_ignore, init);
+  }
+
+  const tgba*
+  build_tgba_mask_acc_ignore(const tgba* to_mask,
+			     const bdd to_ignore,
+			     const state* init)
+  {
+    return new tgba_mask_acc_ignore(to_mask, to_ignore, init);
   }
 
 }

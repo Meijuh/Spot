@@ -42,6 +42,7 @@ check_PROGRAMS = \
   intvcomp \
   intvcmp2 \
   ltlprod \
+  maskacc \
   mixprod \
   powerset \
   readsat \
@@ -64,6 +65,7 @@ intvcomp_SOURCES = intvcomp.cc
 intvcmp2_SOURCES = intvcmp2.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
 ltlprod_SOURCES  = ltlprod.cc
+maskacc_SOURCES  = maskacc.cc
 mixprod_SOURCES  = mixprod.cc
 powerset_SOURCES = powerset.cc
 randtgba_SOURCES = randtgba.cc
@@ -89,6 +91,7 @@ TESTS = \
   neverclaimread.test \
   dstar.test \
   readsave.test \
+  maskacc.test \
   simdet.test \
   sim.test \
   sim2.test \

@@ -21,6 +21,7 @@
 # define SPOT_TGBA_TGBAMASK_HH
 
 #include "tgbaproxy.hh"
+#include "bdd.h"
 
 namespace spot
 {
@@ -50,7 +51,7 @@ namespace spot
     virtual tgba_succ_iterator*
     succ_iter(const state* local_state) const;
 
-    virtual bool wanted(const state* s) const = 0;
+    virtual bool wanted(const state* s, const bdd& acc) const = 0;
 
   protected:
     const state* init_;
@@ -77,6 +78,23 @@ namespace spot
   build_tgba_mask_ignore(const tgba* to_mask,
 			 const state_set& to_ignore,
 			 const state* init = 0);
+
+
+  /// \ingroup tgba_on_the_fly_algorithms
+  /// \brief Mask a TGBA, rejecting some acceptance set of transitions.
+  ///
+  /// This will ignore all transitions labeled by the acceptance ACC
+  /// such that ACC & TO_IGNORE != bddfalse.  The initial state can
+  /// optionally be reset to \a init.
+  ///
+  /// Note that the acceptance condition of the automaton (i.e. the
+  /// set of all acceptance set) is not changed, because so far this
+  /// function is only needed in graph algorithms that do not call
+  /// all_acceptance_conditions().
+  SPOT_API const tgba*
+  build_tgba_mask_acc_ignore(const tgba* to_mask,
+			     const bdd to_ignore,
+			     const state* init = 0);
 
 }
 

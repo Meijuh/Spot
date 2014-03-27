@@ -19,6 +19,7 @@ ltlmagic
 ltlprod
 Makefile
 Makefile.in
+maskacc
 mixprod
 output1
 output2
