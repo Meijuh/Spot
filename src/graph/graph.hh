@@ -24,7 +24,7 @@
 #include <vector>
 #include <type_traits>
 #include <tuple>
-
+#include <cassert>
 
 namespace spot
 {
@@ -197,7 +197,7 @@ namespace spot
 				trans_storage_t&>::type
       operator*()
       {
-	return g_->transitions_[t_];
+	return g_->trans_storage(t_);
       }
 
       trans_iterator operator++()
@@ -242,6 +242,11 @@ namespace spot
       trans_iterator<Graph> end()
       {
 	return {nullptr, 0};
+      }
+
+      void recycle(transition t)
+      {
+	t_ = t;
       }
 
     protected:
@@ -309,6 +314,16 @@ namespace spot
       transitions_.resize(1);
     }
 
+    unsigned num_states() const
+    {
+      return states_.size();
+    }
+
+    unsigned num_transitions() const
+    {
+      return transitions_.size();
+    }
+
     template <typename... Args>
     state new_state(Args&&... args)
     {
@@ -317,11 +332,26 @@ namespace spot
       return s;
     }
 
+    state_storage_t&
+    state_storage(state s)
+    {
+      assert(s < states_.size());
+      return states_[s];
+    }
+
+    const state_storage_t&
+    state_storage(state s) const
+    {
+      assert(s < states_.size());
+      return states_[s];
+    }
+
     // Do not use State_Data& as return type, because State_Data might
     // be void.
     typename state_storage_t::data_t&
     state_data(state s)
     {
+      assert(s < states_.size());
       return states_[s].data();
     }
 
@@ -329,17 +359,49 @@ namespace spot
     const typename state_storage_t::data_t&
     state_data(state s) const
     {
+      assert(s < states_.size());
       return states_[s].data();
+    }
+
+    trans_storage_t&
+    trans_storage(transition s)
+    {
+      assert(s < transitions_.size());
+      return transitions_[s];
+    }
+
+    const trans_storage_t&
+    trans_storage(transition s) const
+    {
+      assert(s < transitions_.size());
+      return transitions_[s];
+    }
+
+    typename trans_storage_t::data_t&
+    trans_data(transition s)
+    {
+      assert(s < transitions_.size());
+      return transitions_[s].data();
+    }
+
+    const typename trans_storage_t::data_t&
+    trans_data(transition s) const
+    {
+      assert(s < transitions_.size());
+      return transitions_[s].data();
     }
 
     template <typename... Args>
     transition
     new_transition(state src, out_state dst, Args&&... args)
     {
+      assert(src < states_.size());
+
       transition t = transitions_.size();
       transitions_.emplace_back(dst, 0, std::forward<Args>(args)...);
 
       transition st = states_[src].succ_tail;
+      assert(st < t || !st);
       if (!st)
 	states_[src].succ = t;
       else

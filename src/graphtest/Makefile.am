@@ -22,12 +22,13 @@ AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 LDADD = ../libspot.la
 
-noinst_PROGRAMS = graph ngraph
+noinst_PROGRAMS = graph ngraph tgbagraph
 
 graph_SOURCES = graph.cc
 ngraph_SOURCES = ngraph.cc
+tgbagraph_SOURCES = tgbagraph.cc
 
-TESTS = graph.test ngraph.test
+TESTS = graph.test ngraph.test tgbagraph.test
 
 EXTRA_DIST = $(TESTS)
 
