@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012 Laboratoire de Recherche et
+// Copyright (C) 2009, 2011, 2012, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -35,29 +35,38 @@ namespace spot
     {
     public:
       dupexp_iter(const tgba* a)
-	: T(a), out_(new tgba_explicit_number(a->get_dict()))
+	: T(a), out_(new tgba_digraph(a->get_dict()))
       {
 	out_->copy_acceptance_conditions_of(a);
+	a->get_dict()->register_all_variables_of(a, out_);
       }
 
-      tgba_explicit_number*
+      tgba_digraph*
       result()
       {
 	return out_;
       }
 
-      void
+      virtual void
+      process_state(const state*, int n, tgba_succ_iterator*)
+      {
+	unsigned ns = out_->get_graph().new_state();
+	assert(ns == static_cast<unsigned>(n) - 1);
+	(void)ns;
+      }
+
+      virtual void
       process_link(const state*, int in,
 		   const state*, int out,
 		   const tgba_succ_iterator* si)
       {
-	state_explicit_number::transition* t = out_->create_transition(in, out);
-	out_->add_conditions(t, si->current_condition());
-	out_->add_acceptance_conditions(t, si->current_acceptance_conditions());
+	out_->get_graph().new_transition(in - 1, out - 1,
+					 si->current_condition(),
+					 si->current_acceptance_conditions());
       }
 
     protected:
-      tgba_explicit_number* out_;
+      tgba_digraph* out_;
     };
 
     template <typename T>
@@ -68,14 +77,16 @@ namespace spot
                        std::map<const state*,
                                 const state*,
                                 state_ptr_less_than>& relation)
-        : dupexp_iter<T>(a),
-          relation_(relation)
+        : dupexp_iter<T>(a), relation_(relation)
       {
       }
 
-      void process_state(const state* s, int n, tgba_succ_iterator*)
+      virtual void
+      end()
       {
-        relation_[this->out_->add_state(n)] = const_cast<state*>(s);
+	for (auto s: this->seen)
+	  relation_[this->out_->state_from_number(s.second - 1)]
+	    = const_cast<state*>(s.first);
       }
 
       std::map<const state*, const state*, state_ptr_less_than>& relation_;
@@ -83,7 +94,7 @@ namespace spot
 
   } // anonymous
 
-  tgba_explicit_number*
+  tgba_digraph*
   tgba_dupexp_bfs(const tgba* aut)
   {
     dupexp_iter<tgba_reachable_iterator_breadth_first> di(aut);
@@ -91,7 +102,7 @@ namespace spot
     return di.result();
   }
 
-  tgba_explicit_number*
+  tgba_digraph*
   tgba_dupexp_dfs(const tgba* aut)
   {
     dupexp_iter<tgba_reachable_iterator_depth_first> di(aut);
@@ -99,7 +110,7 @@ namespace spot
     return di.result();
   }
 
-  tgba_explicit_number*
+  tgba_digraph*
   tgba_dupexp_bfs(const tgba* aut,
                   std::map<const state*,
                            const state*, state_ptr_less_than>& rel)
@@ -110,7 +121,7 @@ namespace spot
     return di.result();
   }
 
-  tgba_explicit_number*
+  tgba_digraph*
   tgba_dupexp_dfs(const tgba* aut,
                   std::map<const state*,
                            const state*, state_ptr_less_than>& rel)

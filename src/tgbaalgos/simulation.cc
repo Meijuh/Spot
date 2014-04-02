@@ -103,13 +103,12 @@ namespace spot
     typedef std::unordered_map<const state*, bdd,
 			       state_ptr_hash,
 			       state_ptr_equal> map_state_bdd;
-
-    typedef std::unordered_map<const state*, unsigned,
-			       state_ptr_hash,
-			       state_ptr_equal> map_state_unsigned;
+    typedef std::vector<bdd> vector_state_bdd;
 
     typedef std::map<const state*, const state*,
                      state_ptr_less_than> map_state_state;
+
+    typedef std::vector<const state*> vector_state_state;
 
 
     // Get the list of state for each class.
@@ -214,7 +213,7 @@ namespace spot
 
     // This class takes an automaton, and return a (maybe new)
     // automaton. If Cosimulation is equal to true, we create a new
-    // automaton. Otherwise, we create a new one.  The returned
+    // automaton. Otherwise, we reuse the input one.  The returned
     // automaton is similar to the old one, except that the acceptance
     // condition on the transitions are complemented.
     // There is a specialization below.
@@ -223,50 +222,46 @@ namespace spot
       public tgba_reachable_iterator_depth_first
     {
     public:
-       acc_compl_automaton(const tgba* a)
-       : tgba_reachable_iterator_depth_first(a),
- 	size(0),
- 	ea_(down_cast<tgba_explicit_number*>(const_cast<tgba*>(a))),
- 	ac_(ea_->all_acceptance_conditions(),
- 	    ea_->neg_acceptance_conditions())
-       {
-         assert(ea_);
-         out_ = ea_;
-       }
+      acc_compl_automaton(const tgba* a)
+	: tgba_reachable_iterator_depth_first(a),
+	  ea_(down_cast<tgba_digraph*>(const_cast<tgba*>(a))),
+	  ac_(ea_->all_acceptance_conditions(),
+	      ea_->neg_acceptance_conditions())
+      {
+	assert(ea_);
+	out_ = ea_;
+      }
 
-       void process_link(const state*, int,
-                         const state*, int,
-                         const tgba_succ_iterator* si)
-       {
-         bdd acc = ac_.complement(si->current_acceptance_conditions());
+      void process_link(const state*, int,
+			const state*, int,
+			const tgba_succ_iterator* si)
+      {
+	bdd& acc = ea_->trans_data(si).acc;
+	acc = ac_.complement(acc);
+      }
 
-         typename tgba_explicit_number::transition* t =
-           ea_->get_transition(si);
 
-         t->acceptance_conditions = acc;
-       }
+      virtual void
+      end()
+      {
+	unsigned s = seen.size();
+	old_name_.resize(s);
+	for (unsigned i = 0; i < s; ++i)
+	  old_name_[i] = ea_->state_from_number(i);
+	size = s;
+      }
 
-       void process_state(const state* s, int, tgba_succ_iterator*)
-       {
-         ++size;
-         previous_class_[s] = bddfalse;
-         old_name_[s] = s;
-         order_.push_back(s);
-       }
-
-       ~acc_compl_automaton()
-       {
-       }
+      ~acc_compl_automaton()
+      {
+      }
 
     public:
       size_t size;
-      tgba_explicit_number* out_;
-      map_state_bdd previous_class_;
-      std::list<const state*> order_;
-      map_state_state old_name_;
+      tgba_digraph* out_;
+      vector_state_state old_name_;
 
     private:
-      tgba_explicit_number* ea_;
+      tgba_digraph* ea_;
       acc_compl ac_;
     };
 
@@ -280,72 +275,64 @@ namespace spot
       acc_compl_automaton(const tgba* a)
       : tgba_reachable_iterator_depth_first(a),
 	size(0),
-        out_(new tgba_explicit_number(a->get_dict())),
+        out_(new tgba_digraph(a->get_dict())),
 	ac_(a->all_acceptance_conditions(),
 	    a->neg_acceptance_conditions()),
-	current_max(0)
+	current_max(0),
+ 	ea_(down_cast<tgba_digraph*>(const_cast<tgba*>(a)))
       {
 	a->get_dict()->register_all_variables_of(a, out_);
-	out_->set_acceptance_conditions(a->all_acceptance_conditions());
+	out_->copy_acceptance_conditions_of(a);
 
         const state* init_ = a->get_init_state();
-        out_->set_init_state(get_state(init_));
 	init_->destroy();
       }
 
-      inline unsigned
-      get_state(const state* s)
+      virtual void
+      process_link(const state*, int src,
+		   const state* out_s, int dst,
+		   const tgba_succ_iterator* si)
       {
-	map_state_unsigned::const_iterator i = state2int.find(s);
-        if (i == state2int.end())
-	  {
-	    i = state2int.insert(std::make_pair(s, ++current_max)).first;
-            state* in_new_aut = out_->add_state(current_max);
-	    previous_class_[in_new_aut] = bddfalse;
-            old_name_[in_new_aut] = s;
-            order_.push_back(in_new_aut);
-	  }
-        return i->second;
-      }
+	auto& g = out_->get_graph();
+	{
+	  // Create as many states as needed.
+	  unsigned m = std::max(src - 1, dst - 1);
+	  for (unsigned ms = out_->num_states(); ms <= m; ++ms)
+	    g.new_state();
+	}
 
-      void process_link(const state* in_s,
-                        int,
-                        const state* out_s,
-                        int,
-                        const tgba_succ_iterator* si)
-      {
-        unsigned src = get_state(in_s);
-        unsigned dst = get_state(out_s);
-
-	// Note the order of src and dst: the transition is reversed.
-        tgba_explicit_number::transition* t
-           = out_->create_transition(dst, src);
-
-        t->condition = si->current_condition();
+	bdd acc;
 	if (!Sba)
 	  {
-	    bdd acc = ac_.complement(si->current_acceptance_conditions());
-	    t->acceptance_conditions = acc;
+	    acc = ac_.complement(si->current_acceptance_conditions());
 	  }
 	else
 	  {
 	    // If the acceptance is interpreted as state-based, to
 	    // apply the reverse simulation on a SBA, we should pull
 	    // the acceptance of the destination state on its incoming
-	    // arcs (which now become outgoing args after
+	    // arcs (which now become outgoing arcs after
 	    // transposition).
-	    for (auto it: out_->succ(out_s))
+	    acc = bddfalse;
+	    for (auto it: ea_->succ(out_s))
 	      {
-		bdd acc = ac_.complement(it->current_acceptance_conditions());
-		t->acceptance_conditions = acc;
+		acc = ac_.complement(it->current_acceptance_conditions());
 		break;
 	      }
 	  }
+
+	// Note the order of src and dst: the transition is reversed.
+	g.new_transition(dst - 1, src - 1,
+			 si->current_condition(), acc);
       }
 
-      void process_state(const state*, int, tgba_succ_iterator*)
+      virtual void end()
       {
-        ++size;
+	unsigned s = this->seen.size();
+	old_name_.resize(s);
+	for (unsigned i = 0; i < s; ++i)
+	  old_name_[i] = ea_->state_from_number(i);
+	size = s;
       }
 
       ~acc_compl_automaton()
@@ -354,15 +341,13 @@ namespace spot
 
     public:
       size_t size;
-      tgba_explicit_number* out_;
-      map_state_bdd previous_class_;
-      std::list<const state*> order_;
-      map_state_state old_name_;
+      tgba_digraph* out_;
+      vector_state_state old_name_;
 
     private:
       acc_compl ac_;
-      map_state_unsigned state2int;
       unsigned current_max;
+      tgba_digraph* ea_;
     };
 
     // The direct_simulation. If Cosimulation is true, we are doing a
@@ -391,6 +376,7 @@ namespace spot
         scc_map_ = new scc_map(a_);
         scc_map_->build_map();
         old_a_ = a_;
+
 
 	acc_compl_automaton<Cosimulation, Sba> acc_compl(a_);
 
@@ -426,11 +412,10 @@ namespace spot
 
 	used_var_.push_back(init);
 
-	// We fetch the result the run of acc_compl_automaton which
-	// has recorded all the state in a hash table, and we set all
-	// to init.
-	for (auto& p: acc_compl.previous_class_)
-	  previous_class_[p.first] = init;
+	// Initialize all classes to init.
+	previous_class_.resize(size_a_);
+	for (unsigned s = 0; s < size_a_; ++s)
+	  previous_class_[s] = init;
 
 	// Put all the anonymous variable in a queue, and record all
 	// of these in a variable all_class_var_ which will be used
@@ -444,8 +429,6 @@ namespace spot
           }
 
 	relation_[init] = init;
-
-	std::swap(order_, acc_compl.order_);
       }
 
 
@@ -481,10 +464,10 @@ namespace spot
 	    // no outgoing transition.
 	    if (p.first == bddfalse)
 	      for (auto s: p.second)
-		previous_class_[s] = bddfalse;
+		previous_class_[a_->state_number(s)] = bddfalse;
 	    else
 	      for (auto s: p.second)
-		previous_class_[s] = *it_bdd;
+		previous_class_[a_->state_number(s)] = *it_bdd;
 	    ++it_bdd;
           }
       }
@@ -532,8 +515,9 @@ namespace spot
 	    // automaton.
 	    if (map_cst_
 		&& ((it = map_cst_
-		     ->find(std::make_pair(new_original_[old_name_[src]],
-					   new_original_[old_name_[dst]])))
+		     ->find(std::make_pair
+			    (new_original_[old_name_[a_->state_number(src)]],
+			     new_original_[old_name_[a_->state_number(dst)]])))
 		    != map_cst_->end()))
 	      {
 		acc = it->second;
@@ -547,7 +531,7 @@ namespace spot
 	    // the label of the transition and the class of the
 	    // destination and all the class it implies.
 	    bdd to_add = acc & sit->current_condition()
-	      & relation_[previous_class_[dst]];
+	      & relation_[previous_class_[a_->state_number(dst)]];
 
 	    res |= to_add;
 	    dst->destroy();
@@ -564,15 +548,11 @@ namespace spot
 
       void update_sig()
       {
-	// Here we suppose that previous_class_ always contains
-	// all the reachable states of this automaton. We do not
-	// have to make (again) a traversal. We just have to run
-	// through this map.
-        for (auto s: order_)
-          {
-            const state* src = previous_class_.find(s)->first;
-            bdd_lstate_[compute_sig(src)].push_back(src);
-          }
+	for (unsigned s = 0; s < size_a_; ++s)
+	  {
+	    const state* src = a_->state_from_number(s);
+	    bdd_lstate_[compute_sig(src)].push_back(src);
+	  }
       }
 
 
@@ -723,7 +703,7 @@ namespace spot
 	for (auto& p: bdd_lstate_)
           {
             res->add_state(++current_max);
-            bdd part = previous_class_[*p.second.begin()];
+            bdd part = previous_class_[a_->state_number(*p.second.begin())];
 
             // The difference between the two next lines is:
             // the first says "if you see A", the second "if you
@@ -812,7 +792,8 @@ namespace spot
 		    // know the source, we must take a random state in
 		    // the list which is in the class we currently
 		    // work on.
-		    int src = bdd2state[previous_class_[*p.second.begin()]];
+		    int src = bdd2state[previous_class_
+					[a_->state_number(*p.second.begin())]];
 		    int dst = bdd2state[dest];
 
                     if (Cosimulation)
@@ -837,7 +818,7 @@ namespace spot
           }
 
 	res->set_init_state(bdd2state[previous_class_
-				      [a_->get_init_state()]]);
+				      [a_->get_init_state_number()]]);
 
 	res->merge_transitions();
 
@@ -880,19 +861,20 @@ namespace spot
 
 	std::cerr << "\nPrevious iteration\n" << std::endl;
 
-	for (auto p: previous_class_)
+	unsigned ps = previous_class_.size();
+	for (unsigned p = 0; p < ps; ++p)
           {
-            std::cerr << a_->format_state(p.first)
+            std::cerr << a_->format_state(a_->state_from_number(p))
                       << " was in "
-                      << bdd_format_set(a_->get_dict(), p.second)
+                      << bdd_format_set(a_->get_dict(), previous_class_[p])
                       << '\n';
           }
       }
 
     protected:
       // The automaton which is simulated.
-      tgba_explicit_number* a_;
-      tgba_explicit_number* old_a_;
+      tgba_digraph* a_;
+      tgba_digraph* old_a_;
 
       // Relation is aimed to represent the same thing than
       // rel_. The difference is in the way it does.
@@ -903,7 +885,7 @@ namespace spot
       map_bdd_bdd relation_;
 
       // Represent the class of each state at the previous iteration.
-      map_state_bdd previous_class_;
+      vector_state_bdd previous_class_;
 
       // The list of state for each class at the current_iteration.
       // Computed in `update_sig'.
@@ -936,10 +918,8 @@ namespace spot
 
       automaton_size stat;
 
-      // The order of the state.
-      std::list<const state*> order_;
       scc_map* scc_map_;
-      map_state_state old_name_;
+      vector_state_state old_name_;
       map_state_state new_original_;
 
       // This table link a state in the current automaton with a state
@@ -1001,16 +981,16 @@ namespace spot
       {
         bdd res = bddfalse;
 
-        unsigned scc = scc_map_->scc_of_state(old_name_[src]);
+        unsigned scc = scc_map_->scc_of_state(old_name_[a_->state_number(src)]);
         bool sccacc = scc_map_->accepting(scc);
 
 	for (auto sit: a_->succ(src))
           {
             const state* dst = sit->current_state();
-            bdd cl = previous_class_[dst];
+            bdd cl = previous_class_[a_->state_number(dst)];
             bdd acc;
 
-            if (scc != scc_map_->scc_of_state(old_name_[dst]))
+            if (scc != scc_map_->scc_of_state(old_name_[a_->state_number(dst)]))
               acc = !on_cycle_;
             else if (sccacc)
               acc = on_cycle_ & sit->current_acceptance_conditions();
@@ -1150,6 +1130,11 @@ namespace spot
         left = bdd_exist(left, all_class_var_ & on_cycle_);
         right = bdd_exist(right, all_class_var_ & on_cycle_);
 
+	unsigned src_left_n = a_->state_number(src_left);
+	unsigned src_right_n = a_->state_number(src_right);
+	unsigned dst_left_n = a_->state_number(dst_left);
+	unsigned dst_right_n = a_->state_number(dst_right);
+
 
         if (!out_scc_left && out_scc_right)
           {
@@ -1161,8 +1146,8 @@ namespace spot
               {
 		assert(src_right != dst_right);
 
-                constraint.emplace_back(new_original_[old_name_[src_right]],
-					new_original_[old_name_[dst_right]],
+                constraint.emplace_back(new_original_[old_name_[src_right_n]],
+					new_original_ [old_name_[dst_right_n]],
 					add);
               }
           }
@@ -1176,8 +1161,8 @@ namespace spot
               {
 		assert(src_left != dst_left);
 
-                constraint.emplace_back(new_original_[old_name_[src_left]],
-					new_original_[old_name_[dst_left]],
+                constraint.emplace_back(new_original_[old_name_[src_left_n]],
+					new_original_[old_name_[dst_left_n]],
 					add);
               }
           }
@@ -1191,11 +1176,11 @@ namespace spot
               {
 		assert(src_left != dst_left && src_right != dst_right);
 		// FIXME: cas pas compris.
-                constraint.emplace_back(new_original_[old_name_[src_left]],
-					new_original_[old_name_[dst_left]],
+                constraint.emplace_back(new_original_[old_name_[src_left_n]],
+					new_original_[old_name_[dst_left_n]],
 					add);
-		constraint.emplace_back(new_original_[old_name_[src_right]],
-					new_original_[old_name_[dst_right]],
+		constraint.emplace_back(new_original_[old_name_[src_right_n]],
+					new_original_[old_name_[dst_right_n]],
 					add);
               }
 
@@ -1217,8 +1202,8 @@ namespace spot
                                                   const state* right,
                                                   map_state_bdd& state2sig)
       {
-	bdd pcl = previous_class_[left];
-	bdd pcr = previous_class_[right];
+	bdd pcl = previous_class_[a_->state_number(left)];
+	bdd pcr = previous_class_[a_->state_number(right)];
 
         bdd sigl = state2sig[left];
         bdd sigr = state2sig[right];
@@ -1301,21 +1286,20 @@ namespace spot
         bdd_lstate_.clear();
 
         // Compute the don't care signature for all the states.
-        for (auto s: order_)
+	for (unsigned s = 0; s < size_a_; ++s)
           {
-            map_state_bdd::iterator it = previous_class_.find(s);
-            const state* src = it->first;
-
+	    const state* src = a_->state_from_number(s);
+	    bdd clas = previous_class_[s];
             bdd sig = dont_care_compute_sig(src);
             dont_care_bdd_lstate[sig].push_back(src);
             dont_care_state2sig[src] = sig;
-            dont_care_now_to_now.emplace_back(sig, it->second);
-            class2state[it->second] = it->first;
+            dont_care_now_to_now.emplace_back(sig, clas);
+            class2state[clas] = src;
 
             sig = compute_sig(src);
             bdd_lstate_[sig].push_back(src);
             state2sig[src] = sig;
-            now_to_now.push_back(std::make_pair(sig, it->second));
+            now_to_now.push_back(std::make_pair(sig, clas));
           }
 
         map_bdd_bdd dont_care_relation;
@@ -1332,17 +1316,16 @@ namespace spot
         relation_ = relation;
 
 
-        // order_ is here for the determinism.  Here we make the diff
-        // between the two tables: imply and could_imply.
-        for (auto s: order_)
+        // make the diff between the two tables: imply and
+        // could_imply.
+	for (unsigned s = 0; s < size_a_; ++s)
           {
-            map_state_bdd::iterator it = previous_class_.find(s);
-            assert(relation.find(it->second) != relation.end());
-            assert(dont_care_relation.find(it->second)
-                   != dont_care_relation.end());
+            bdd clas = previous_class_[s];
+            assert(relation.find(clas) != relation.end());
+            assert(dont_care_relation.find(clas) != dont_care_relation.end());
 
-            bdd care_rel = relation[it->second];
-            bdd dont_care_rel = dont_care_relation[it->second];
+            bdd care_rel = relation[clas];
+            bdd dont_care_rel = dont_care_relation[clas];
 
             if (care_rel == dont_care_rel)
               continue;
@@ -1356,8 +1339,8 @@ namespace spot
 	    do
               {
                 bdd cur_diff = bdd_ithvar(bdd_var(diff));
-                cc[it->second][cur_diff]
-                  = create_new_constraint(it->first,
+                cc[clas][cur_diff]
+                  = create_new_constraint(a_->state_from_number(s),
                                           class2state[cur_diff],
                                           dont_care_state2sig);
                 ++number_constraints;
@@ -1368,7 +1351,7 @@ namespace spot
 #ifndef NDEBUG
 	for (map_bdd_state::const_iterator i = class2state.begin();
 	     i != class2state.end(); ++i)
-	  assert(previous_class_[i->second] == i->first);
+	  assert(previous_class_[a_->state_number(i->second)] == i->first);
 #endif
 
         tgba* min = 0;
