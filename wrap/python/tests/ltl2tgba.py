@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+# Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -51,7 +51,7 @@ except getopt.GetoptError:
     usage(prog)
 
 exit_code = 0
-debug_opt = 0
+debug_opt = False
 degeneralize_opt = None
 output = 0
 fm_opt = 0
@@ -62,7 +62,7 @@ for o, a in opts:
     elif o == '-A':
         output = 4
     elif o == '-d':
-        debug_opt = 1
+        debug_opt = True
     elif o == '-D':
         degeneralize_opt = 1
     elif o == '-f':
