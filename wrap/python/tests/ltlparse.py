@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -29,7 +29,7 @@ p = spot.empty_parse_error_list()
 l = ['GFa', 'a U (((b)) xor c)', '!(FFx <=> Fx)', 'a \/ a \/ b \/ a \/ a'];
 
 for str1 in l:
-    f = spot.parse(str1, p, e, 0)
+    f = spot.parse(str1, p, e, False)
     if spot.format_parse_errors(spot.get_cout(), str1, p):
         sys.exit(1)
     str2 = str(f)
