@@ -93,9 +93,6 @@ namespace spot
     // Some useful typedef:
 
     // Used to get the signature of the state.
-    typedef std::unordered_map<const state*, bdd,
-			       state_ptr_hash,
-			       state_ptr_equal> map_state_bdd;
     typedef std::vector<bdd> vector_state_bdd;
 
     typedef std::vector<const state*> vector_state_state;
@@ -105,8 +102,7 @@ namespace spot
     typedef std::map<bdd, std::list<unsigned>,
                      bdd_less_than> map_bdd_lstate;
 
-    typedef std::map<bdd, const state*,
-                     bdd_less_than> map_bdd_state;
+    typedef std::map<bdd, unsigned, bdd_less_than> map_bdd_state;
 
     // Our constraint: (state_src, state_dst) = to_add.
     // We define the couple of state as the key of the constraint.
@@ -974,8 +970,8 @@ namespace spot
       //   - xβP₁ ⇒ αP₁ where x is unknown.
       //   - xαP₁ ⇒ yβP₁ where x, y are unknown.
       void create_simple_constraint(bdd left, bdd right,
-                                    const state* src_left,
-                                    const state* src_right,
+                                    unsigned src_left,
+                                    unsigned src_right,
                                     std::list<constraint>& constraint)
       {
 	assert(src_left != src_right);
@@ -984,20 +980,14 @@ namespace spot
         bool out_scc_right = is_out_scc(right);
         bdd dest_class = bdd_existcomp(left, all_class_var_);
         assert(revert_relation_.find(dest_class) != revert_relation_.end());
-        const state* dst_left = revert_relation_[dest_class];
+        unsigned dst_left = revert_relation_[dest_class];
         dest_class = bdd_existcomp(right, all_class_var_);
-        const state* dst_right = revert_relation_[dest_class];
+        unsigned dst_right = revert_relation_[dest_class];
 
 	assert(src_left != dst_left || src_right != dst_right);
 
         left = bdd_exist(left, all_class_var_ & on_cycle_);
         right = bdd_exist(right, all_class_var_ & on_cycle_);
-
-	unsigned src_left_n = a_->state_number(src_left);
-	unsigned src_right_n = a_->state_number(src_right);
-	unsigned dst_left_n = a_->state_number(dst_left);
-	unsigned dst_right_n = a_->state_number(dst_right);
-
 
         if (!out_scc_left && out_scc_right)
           {
@@ -1009,8 +999,8 @@ namespace spot
               {
 		assert(src_right != dst_right);
 
-                constraint.emplace_back(new_original_[src_right_n],
-					new_original_[dst_right_n],
+                constraint.emplace_back(new_original_[src_right],
+					new_original_[dst_right],
 					add);
               }
           }
@@ -1024,8 +1014,8 @@ namespace spot
               {
 		assert(src_left != dst_left);
 
-                constraint.emplace_back(new_original_[src_left_n],
-					new_original_[dst_left_n],
+                constraint.emplace_back(new_original_[src_left],
+					new_original_[dst_left],
 					add);
               }
           }
@@ -1039,11 +1029,11 @@ namespace spot
               {
 		assert(src_left != dst_left && src_right != dst_right);
 		// FIXME: cas pas compris.
-                constraint.emplace_back(new_original_[src_left_n],
-					new_original_[dst_left_n],
+                constraint.emplace_back(new_original_[src_left],
+					new_original_[dst_left],
 					add);
-		constraint.emplace_back(new_original_[src_right_n],
-					new_original_[dst_right_n],
+		constraint.emplace_back(new_original_[src_right],
+					new_original_[dst_right],
 					add);
               }
 
@@ -1061,12 +1051,12 @@ namespace spot
       // because we check for equality in the destination part of the
       // signature. We may just check the destination that can be
       // implied instead.
-      std::list<constraint> create_new_constraint(const state* left,
-                                                  const state* right,
-                                                  map_state_bdd& state2sig)
+      std::list<constraint> create_new_constraint(unsigned left,
+                                                  unsigned right,
+                                                  vector_state_bdd& state2sig)
       {
-	bdd pcl = previous_class_[a_->state_number(left)];
-	bdd pcr = previous_class_[a_->state_number(right)];
+	bdd pcl = previous_class_[left];
+	bdd pcr = previous_class_[right];
 
         bdd sigl = state2sig[left];
         bdd sigr = state2sig[right];
@@ -1140,8 +1130,8 @@ namespace spot
         // Compute the don't care signatures,
         map_bdd_lstate dont_care_bdd_lstate;
         // Useful to keep track of who is who.
-        map_state_bdd dont_care_state2sig;
-        map_state_bdd state2sig;
+        vector_state_bdd dont_care_state2sig(size_a_);
+        vector_state_bdd state2sig(size_a_);
 
         list_bdd_bdd dont_care_now_to_now;
         map_bdd_state class2state;
@@ -1151,17 +1141,16 @@ namespace spot
         // Compute the don't care signature for all the states.
 	for (unsigned s = 0; s < size_a_; ++s)
           {
-	    const state* src = a_->state_from_number(s);
 	    bdd clas = previous_class_[s];
             bdd sig = dont_care_compute_sig(s);
             dont_care_bdd_lstate[sig].push_back(s);
-            dont_care_state2sig[src] = sig;
+            dont_care_state2sig[s] = sig;
             dont_care_now_to_now.emplace_back(sig, clas);
-            class2state[clas] = src;
+            class2state[clas] = s;
 
             sig = compute_sig(s);
             bdd_lstate_[sig].push_back(s);
-            state2sig[src] = sig;
+            state2sig[s] = sig;
             now_to_now.push_back(std::make_pair(sig, clas));
           }
 
@@ -1203,7 +1192,7 @@ namespace spot
               {
                 bdd cur_diff = bdd_ithvar(bdd_var(diff));
                 cc[clas][cur_diff]
-                  = create_new_constraint(a_->state_from_number(s),
+                  = create_new_constraint(s,
                                           class2state[cur_diff],
                                           dont_care_state2sig);
                 ++number_constraints;
@@ -1212,9 +1201,8 @@ namespace spot
 	    while (diff != bddtrue);
           }
 #ifndef NDEBUG
-	for (map_bdd_state::const_iterator i = class2state.begin();
-	     i != class2state.end(); ++i)
-	  assert(previous_class_[a_->state_number(i->second)] == i->first);
+	for (auto& i: class2state)
+	  assert(previous_class_[i.second] == i.first);
 #endif
 
         tgba* min = 0;
