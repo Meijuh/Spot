@@ -41,17 +41,20 @@ namespace spot
   /// \ingroup tgba_misc
   /// \brief Build an explicit automaton from all states of \a aut,
   /// numbering states in bread first order as they are processed.
+  /// \a aut the automaton to duplicate
+  /// \a relation a map of all the new states (represented by
+  /// their number) to the old states.
   SPOT_API tgba_digraph*
-  tgba_dupexp_bfs(const tgba* aut,
-                  std::map<const state*, const state*,
-                           state_ptr_less_than>& relation);
+  tgba_dupexp_bfs(const tgba* aut, std::vector<const state*>& relation);
+
   /// \ingroup tgba_misc
   /// \brief Build an explicit automata from all states of \a aut,
   /// numbering states in depth first order as they are processed.
+  /// \a aut the automaton to duplicate
+  /// \a relation a map of all the new states (represented by
+  /// their number) to the old states.
   SPOT_API tgba_digraph*
-  tgba_dupexp_dfs(const tgba* aut,
-                  std::map<const state*, const state*,
-                           state_ptr_less_than>& relation);
+  tgba_dupexp_dfs(const tgba* aut, std::vector<const state*>& relation);
 }
 
 #endif // SPOT_TGBAALGOS_DUPEXP_HH

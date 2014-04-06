@@ -98,9 +98,6 @@ namespace spot
 			       state_ptr_equal> map_state_bdd;
     typedef std::vector<bdd> vector_state_bdd;
 
-    typedef std::map<const state*, const state*,
-                     state_ptr_less_than> map_state_state;
-
     typedef std::vector<const state*> vector_state_state;
 
 
@@ -393,15 +390,12 @@ namespace spot
             bdd acc = bddtrue;
 
 	    map_constraint::const_iterator it;
-	    // We are using
-	    // new_original_[old_a_->state_from_number(...)] because
-	    // we have the constraints in the original automaton which
-	    // has been duplicated twice to get the current automaton.
+	    // Check if we have a constraint about this edge in the
+	    // original automaton.
 	    if (map_cst_
 		&& ((it = map_cst_
-		     ->find(std::make_pair
-			    (new_original_[old_a_->state_from_number(src)],
-			     new_original_[old_a_->state_from_number(t.dst)])))
+		     ->find(std::make_pair(new_original_[src],
+					   new_original_[t.dst])))
 		    != map_cst_->end()))
 	      {
 		acc = it->second;
@@ -798,11 +792,7 @@ namespace spot
       automaton_size stat;
 
       scc_map* scc_map_;
-      map_state_state new_original_;
-
-      // This table link a state in the current automaton with a state
-      // in the original one.
-      map_state_state old_old_name_;
+      std::vector<const state*> new_original_;
 
       const map_constraint* map_cst_;
 
@@ -1019,10 +1009,9 @@ namespace spot
               {
 		assert(src_right != dst_right);
 
-                constraint.emplace_back
-		  (new_original_[old_a_->state_from_number(src_right_n)],
-		   new_original_[old_a_->state_from_number(dst_right_n)],
-		   add);
+                constraint.emplace_back(new_original_[src_right_n],
+					new_original_[dst_right_n],
+					add);
               }
           }
         else if (out_scc_left && !out_scc_right)
@@ -1035,10 +1024,9 @@ namespace spot
               {
 		assert(src_left != dst_left);
 
-                constraint.emplace_back
-		  (new_original_[old_a_->state_from_number(src_left_n)],
-		   new_original_[old_a_->state_from_number(dst_left_n)],
-		   add);
+                constraint.emplace_back(new_original_[src_left_n],
+					new_original_[dst_left_n],
+					add);
               }
           }
         else if (out_scc_left && out_scc_right)
@@ -1051,14 +1039,12 @@ namespace spot
               {
 		assert(src_left != dst_left && src_right != dst_right);
 		// FIXME: cas pas compris.
-                constraint.emplace_back
-		  (new_original_[old_a_->state_from_number(src_left_n)],
-		   new_original_[old_a_->state_from_number(dst_left_n)],
-		   add);
-		constraint.emplace_back
-		  (new_original_[old_a_->state_from_number(src_right_n)],
-		   new_original_[old_a_->state_from_number(dst_right_n)],
-		   add);
+                constraint.emplace_back(new_original_[src_left_n],
+					new_original_[dst_left_n],
+					add);
+		constraint.emplace_back(new_original_[src_right_n],
+					new_original_[dst_right_n],
+					add);
               }
 
           }

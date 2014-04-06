@@ -73,10 +73,7 @@ namespace spot
     class dupexp_iter_save: public dupexp_iter<T>
     {
     public:
-      dupexp_iter_save(const tgba* a,
-                       std::map<const state*,
-                                const state*,
-                                state_ptr_less_than>& relation)
+      dupexp_iter_save(const tgba* a, std::vector<const state*>& relation)
         : dupexp_iter<T>(a), relation_(relation)
       {
       }
@@ -84,12 +81,12 @@ namespace spot
       virtual void
       end()
       {
+	relation_.resize(this->seen.size());
 	for (auto s: this->seen)
-	  relation_[this->out_->state_from_number(s.second - 1)]
-	    = const_cast<state*>(s.first);
+	  relation_[s.second - 1] = const_cast<state*>(s.first);
       }
 
-      std::map<const state*, const state*, state_ptr_less_than>& relation_;
+      std::vector<const state*>& relation_;
     };
 
   } // anonymous
@@ -111,23 +108,17 @@ namespace spot
   }
 
   tgba_digraph*
-  tgba_dupexp_bfs(const tgba* aut,
-                  std::map<const state*,
-                           const state*, state_ptr_less_than>& rel)
+  tgba_dupexp_bfs(const tgba* aut, std::vector<const state*>& rel)
   {
-    dupexp_iter_save<tgba_reachable_iterator_breadth_first> di(aut,
-                                                               rel);
+    dupexp_iter_save<tgba_reachable_iterator_breadth_first> di(aut, rel);
     di.run();
     return di.result();
   }
 
   tgba_digraph*
-  tgba_dupexp_dfs(const tgba* aut,
-                  std::map<const state*,
-                           const state*, state_ptr_less_than>& rel)
+  tgba_dupexp_dfs(const tgba* aut, std::vector<const state*>& rel)
   {
-    dupexp_iter_save<tgba_reachable_iterator_depth_first> di(aut,
-                                                             rel);
+    dupexp_iter_save<tgba_reachable_iterator_depth_first> di(aut, rel);
     di.run();
     return di.result();
   }
