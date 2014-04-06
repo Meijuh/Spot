@@ -387,13 +387,19 @@ namespace spot
 	res = sim;
       }
 
+    // Create a map of suspended formulae to BDD variables.
     spot::formula_bdd_map susp;
-    ltl_suspender_visitor::fmap_t::const_iterator it;
-    for (it = g2s.begin(); it != g2s.end(); ++it)
+    for (auto& it: g2s)
       {
-	bdd_dict::fv_map::const_iterator j = dict->var_map.find(it->first);
-	assert(j != dict->var_map.end());
-	susp[it->second] = bdd_ithvar(j->second);
+	auto j = dict->var_map.find(it.first);
+	// If no BDD variable of this suspended formula exist in the
+	// BDD dict, it means the suspended subformulae was never
+	// actually used in the automaton.  Just skip it.  FIXME: It
+	// would be better if we had a way to check that the variable
+	// is used in this automaton, and not in some automaton
+	// (sharing the same dictionary.)
+	if (j != dict->var_map.end())
+	  susp[it.second] = bdd_ithvar(j->second);
       }
 
     // Remove suspendable formulae from non-accepting SCCs.
