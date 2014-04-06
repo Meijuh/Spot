@@ -82,13 +82,6 @@
 // bdd_support(sig(X)) - allacc - allclassvar
 
 
-// We have had the Cosimulation by changing the acc_compl_automaton by
-// adding a template parameter. If this parameter is set to true, we
-// record the transition in the opposite direction (we just swap
-// sources and destination). In the build result we are making the
-// same thing to rebuild the automaton.
-// In the signature,
-
 // TODO LIST: Play on the order of the selection in the
 // dont_care_simulation. The good place to work is in add_to_map_imply.
 
@@ -112,7 +105,7 @@ namespace spot
 
 
     // Get the list of state for each class.
-    typedef std::map<bdd, std::list<const state*>,
+    typedef std::map<bdd, std::list<unsigned>,
                      bdd_less_than> map_bdd_lstate;
 
     typedef std::map<bdd, const state*,
@@ -211,145 +204,6 @@ namespace spot
       int states;
     };
 
-    // This class takes an automaton, and return a (maybe new)
-    // automaton. If Cosimulation is equal to true, we create a new
-    // automaton. Otherwise, we reuse the input one.  The returned
-    // automaton is similar to the old one, except that the acceptance
-    // condition on the transitions are complemented.
-    // There is a specialization below.
-    template <bool Cosimulation, bool Sba>
-    class acc_compl_automaton:
-      public tgba_reachable_iterator_depth_first
-    {
-    public:
-      acc_compl_automaton(const tgba* a)
-	: tgba_reachable_iterator_depth_first(a),
-	  ea_(down_cast<tgba_digraph*>(const_cast<tgba*>(a))),
-	  ac_(ea_->all_acceptance_conditions(),
-	      ea_->neg_acceptance_conditions())
-      {
-	assert(ea_);
-	out_ = ea_;
-      }
-
-      void process_link(const state*, int,
-			const state*, int,
-			const tgba_succ_iterator* si)
-      {
-	bdd& acc = ea_->trans_data(si).acc;
-	acc = ac_.complement(acc);
-      }
-
-
-      virtual void
-      end()
-      {
-	unsigned s = seen.size();
-	old_name_.resize(s);
-	for (unsigned i = 0; i < s; ++i)
-	  old_name_[i] = ea_->state_from_number(i);
-	size = s;
-      }
-
-      ~acc_compl_automaton()
-      {
-      }
-
-    public:
-      size_t size;
-      tgba_digraph* out_;
-      vector_state_state old_name_;
-
-    private:
-      tgba_digraph* ea_;
-      acc_compl ac_;
-    };
-
-    // The specialization for Cosimulation equals to true: We copy the
-    // automaton and transpose it at the same time.
-    template <bool Sba>
-    class acc_compl_automaton<true, Sba>:
-      public tgba_reachable_iterator_depth_first
-    {
-    public:
-      acc_compl_automaton(const tgba* a)
-      : tgba_reachable_iterator_depth_first(a),
-	size(0),
-        out_(new tgba_digraph(a->get_dict())),
-	ac_(a->all_acceptance_conditions(),
-	    a->neg_acceptance_conditions()),
-	current_max(0),
- 	ea_(down_cast<tgba_digraph*>(const_cast<tgba*>(a)))
-      {
-	a->get_dict()->register_all_variables_of(a, out_);
-	out_->copy_acceptance_conditions_of(a);
-
-        const state* init_ = a->get_init_state();
-	init_->destroy();
-      }
-
-      virtual void
-      process_link(const state*, int src,
-		   const state* out_s, int dst,
-		   const tgba_succ_iterator* si)
-      {
-	auto& g = out_->get_graph();
-	{
-	  // Create as many states as needed.
-	  unsigned m = std::max(src - 1, dst - 1);
-	  for (unsigned ms = out_->num_states(); ms <= m; ++ms)
-	    g.new_state();
-	}
-
-	bdd acc;
-	if (!Sba)
-	  {
-	    acc = ac_.complement(si->current_acceptance_conditions());
-	  }
-	else
-	  {
-	    // If the acceptance is interpreted as state-based, to
-	    // apply the reverse simulation on a SBA, we should pull
-	    // the acceptance of the destination state on its incoming
-	    // arcs (which now become outgoing arcs after
-	    // transposition).
-	    acc = bddfalse;
-	    for (auto it: ea_->succ(out_s))
-	      {
-		acc = ac_.complement(it->current_acceptance_conditions());
-		break;
-	      }
-	  }
-
-	// Note the order of src and dst: the transition is reversed.
-	g.new_transition(dst - 1, src - 1,
-			 si->current_condition(), acc);
-      }
-
-      virtual void end()
-      {
-	unsigned s = this->seen.size();
-	old_name_.resize(s);
-	for (unsigned i = 0; i < s; ++i)
-	  old_name_[i] = ea_->state_from_number(i);
-	size = s;
-      }
-
-      ~acc_compl_automaton()
-      {
-      }
-
-    public:
-      size_t size;
-      tgba_digraph* out_;
-      vector_state_state old_name_;
-
-    private:
-      acc_compl ac_;
-      unsigned current_max;
-      tgba_digraph* ea_;
-    };
-
     // The direct_simulation. If Cosimulation is true, we are doing a
     // cosimulation.
     template <bool Cosimulation, bool Sba>
@@ -364,8 +218,7 @@ namespace spot
           po_size_(0),
           all_class_var_(bddtrue),
           map_cst_(map_cst),
-          original_(t),
-          dont_delete_old_(false)
+          original_(t)
       {
         // We need to do a dupexp for being able to run scc_map later.
         // new_original_ is the map that contains the relation between
@@ -378,25 +231,58 @@ namespace spot
         old_a_ = a_;
 
 
-	acc_compl_automaton<Cosimulation, Sba> acc_compl(a_);
+	acc_compl ac(a_->all_acceptance_conditions(),
+		     a_->neg_acceptance_conditions());
 
-	// We'll start our work by replacing all the acceptance
-	// conditions by their complement.
-	acc_compl.run();
-
-        // Contains the relation between the names of the states in
-        // the automaton returned by the complementation and the one
-        // passed to the constructor of acc_compl.
-	std::swap(old_name_, acc_compl.old_name_);
-
-	a_ = acc_compl.out_;
+	// Replace all the acceptance conditions by their complements.
+	// (In the case of Cosimulation, we also flip the transitions.)
+	{
+	  if (Cosimulation)
+	    {
+	      bdd_dict* bd = a_->get_dict();
+	      a_ = new tgba_digraph(bd);
+	      bd->register_all_variables_of(old_a_, a_);
+	      a_->copy_acceptance_conditions_of(old_a_);
+	    }
+	  tgba_digraph::graph_t& gout = a_->get_graph();
+	  tgba_digraph::graph_t& gin = old_a_->get_graph();
+	  unsigned ns = gin.num_states();
+	  if (Cosimulation)
+	    gout.new_states(ns);
+	  for (unsigned s = 0; s < ns; ++s)
+	    {
+	      for (auto& t: gin.out(s))
+		{
+		  bdd acc;
+		  if (Sba && Cosimulation)
+		    {
+		      // If the acceptance is interpreted as
+		      // state-based, to apply the reverse simulation
+		      // on a SBA, we should pull the acceptance of
+		      // the destination state on its incoming arcs
+		      // (which now become outgoing arcs after
+		      // transposition).
+		      acc = bddfalse;
+		      for (auto& td: gin.out(t.dst))
+			{
+			  acc = ac.complement(td.acc);
+			  break;
+			}
+		    }
+		  else
+		    {
+		      acc = ac.complement(t.acc);
+		    }
+		  if (Cosimulation)
+		    gout.new_transition(t.dst, s, t.cond, acc);
+		  else
+		    t.acc = acc;
+		}
+	    }
+	  size_a_ = ns;
+	}
 
         initial_state = a_->get_init_state();
-
-	// We use the previous run to know the size of the
-	// automaton, and to class all the reachable states in the
-	// map previous_class_.
-	size_a_ = acc_compl.size;
 
 	// Now, we have to get the bdd which will represent the
 	// class. We register one bdd by state, because in the worst
@@ -440,8 +326,7 @@ namespace spot
 	a_->get_dict()->unregister_all_my_variables(this);
         delete scc_map_;
 
-        if (!dont_delete_old_)
-	  delete old_a_;
+	delete old_a_;
         // a_ is a new automaton only if we are doing a cosimulation.
         if (Cosimulation)
           delete a_;
@@ -464,10 +349,10 @@ namespace spot
 	    // no outgoing transition.
 	    if (p.first == bddfalse)
 	      for (auto s: p.second)
-		previous_class_[a_->state_number(s)] = bddfalse;
+		previous_class_[s] = bddfalse;
 	    else
 	      for (auto s: p.second)
-		previous_class_[a_->state_number(s)] = *it_bdd;
+		previous_class_[s] = *it_bdd;
 	    ++it_bdd;
           }
       }
@@ -499,47 +384,44 @@ namespace spot
       }
 
       // Take a state and compute its signature.
-      bdd compute_sig(const state* src)
+      bdd compute_sig(unsigned src)
       {
         bdd res = bddfalse;
 
-        for (auto sit: a_->succ(src))
+        for (auto& t: a_->get_graph().out(src))
           {
-            const state* dst = sit->current_state();
             bdd acc = bddtrue;
 
 	    map_constraint::const_iterator it;
-	    // We are using new_original_[old_name_[...]] because
-	    // we have the constraints in the original automaton
-	    // which has been duplicated twice to get the current
-	    // automaton.
+	    // We are using
+	    // new_original_[old_a_->state_from_number(...)] because
+	    // we have the constraints in the original automaton which
+	    // has been duplicated twice to get the current automaton.
 	    if (map_cst_
 		&& ((it = map_cst_
 		     ->find(std::make_pair
-			    (new_original_[old_name_[a_->state_number(src)]],
-			     new_original_[old_name_[a_->state_number(dst)]])))
+			    (new_original_[old_a_->state_from_number(src)],
+			     new_original_[old_a_->state_from_number(t.dst)])))
 		    != map_cst_->end()))
 	      {
 		acc = it->second;
 	      }
 	    else
 	      {
-		acc = sit->current_acceptance_conditions();
+		acc = t.acc;
 	      }
 
 	    // to_add is a conjunction of the acceptance condition,
 	    // the label of the transition and the class of the
 	    // destination and all the class it implies.
-	    bdd to_add = acc & sit->current_condition()
-	      & relation_[previous_class_[a_->state_number(dst)]];
+	    bdd to_add = acc & t.cond & relation_[previous_class_[t.dst]];
 
 	    res |= to_add;
-	    dst->destroy();
 	  }
 
         // When we Cosimulate, we add a special flag to differentiate
         // the initial state from the other.
-        if (Cosimulation && initial_state == src)
+        if (Cosimulation && src == 0)
           res |= bdd_initial;
 
         return res;
@@ -549,10 +431,7 @@ namespace spot
       void update_sig()
       {
 	for (unsigned s = 0; s < size_a_; ++s)
-	  {
-	    const state* src = a_->state_from_number(s);
-	    bdd_lstate_[compute_sig(src)].push_back(src);
-	  }
+	  bdd_lstate_[compute_sig(s)].push_back(s);
       }
 
 
@@ -703,7 +582,7 @@ namespace spot
 	for (auto& p: bdd_lstate_)
           {
             res->add_state(++current_max);
-            bdd part = previous_class_[a_->state_number(*p.second.begin())];
+            bdd part = previous_class_[p.second.front()];
 
             // The difference between the two next lines is:
             // the first says "if you see A", the second "if you
@@ -728,7 +607,7 @@ namespace spot
 	for (auto& p: bdd_lstate_)
           {
             // Get the signature.
-            bdd sig = compute_sig(*(p.second.begin()));
+            bdd sig = compute_sig(p.second.front());
 
             if (Cosimulation)
               sig = bdd_compose(sig, bddfalse, bdd_var(bdd_initial));
@@ -792,8 +671,7 @@ namespace spot
 		    // know the source, we must take a random state in
 		    // the list which is in the class we currently
 		    // work on.
-		    int src = bdd2state[previous_class_
-					[a_->state_number(*p.second.begin())]];
+		    int src = bdd2state[previous_class_[p.second.front()]];
 		    int dst = bdd2state[dest];
 
                     if (Cosimulation)
@@ -817,8 +695,7 @@ namespace spot
 	      }
           }
 
-	res->set_init_state(bdd2state[previous_class_
-				      [a_->get_init_state_number()]]);
+	res->set_init_state(bdd2state[previous_class_[0]]);
 
 	res->merge_transitions();
 
@@ -856,7 +733,9 @@ namespace spot
                       << bdd_format_isop(a_->get_dict(), p.first)
                       << std::endl;
             for (auto s: p.second)
-	      std::cerr << "  - " << a_->format_state(s) << '\n';
+	      std::cerr << "  - "
+			<< a_->format_state(a_->state_from_number(s))
+			<< '\n';
           }
 
 	std::cerr << "\nPrevious iteration\n" << std::endl;
@@ -919,7 +798,6 @@ namespace spot
       automaton_size stat;
 
       scc_map* scc_map_;
-      vector_state_state old_name_;
       map_state_state new_original_;
 
       // This table link a state in the current automaton with a state
@@ -931,10 +809,6 @@ namespace spot
       const tgba* original_;
 
       bdd all_acceptance_conditions_;
-
-      // This variable is used when we return the copy, so we avoid
-      // deleting what we return. It is better!
-      bool dont_delete_old_;
 
       bool res_is_deterministic;
     };
@@ -977,27 +851,26 @@ namespace spot
       // that if the transition is on a SCC, we add a on_cycle_ on it,
       // otherwise we add !on_cycle_. This allows us to split the
       // signature later.
-      bdd dont_care_compute_sig(const state* src)
+      bdd dont_care_compute_sig(unsigned src)
       {
         bdd res = bddfalse;
 
-        unsigned scc = scc_map_->scc_of_state(old_name_[a_->state_number(src)]);
+        unsigned scc = scc_map_->scc_of_state(old_a_->state_from_number(src));
         bool sccacc = scc_map_->accepting(scc);
 
-	for (auto sit: a_->succ(src))
+	for (auto& t: a_->get_graph().out(src))
           {
-            const state* dst = sit->current_state();
-            bdd cl = previous_class_[a_->state_number(dst)];
+            bdd cl = previous_class_[t.dst];
             bdd acc;
 
-            if (scc != scc_map_->scc_of_state(old_name_[a_->state_number(dst)]))
+            if (scc != scc_map_->scc_of_state(old_a_->state_from_number(t.dst)))
               acc = !on_cycle_;
             else if (sccacc)
-              acc = on_cycle_ & sit->current_acceptance_conditions();
+              acc = on_cycle_ & t.acc;
             else
               acc = on_cycle_ & all_proms_;
 
-            bdd to_add = acc & sit->current_condition() & relation_[cl];
+            bdd to_add = acc & t.cond & relation_[cl];
             res |= to_add;
           }
         return res;
@@ -1146,9 +1019,10 @@ namespace spot
               {
 		assert(src_right != dst_right);
 
-                constraint.emplace_back(new_original_[old_name_[src_right_n]],
-					new_original_ [old_name_[dst_right_n]],
-					add);
+                constraint.emplace_back
+		  (new_original_[old_a_->state_from_number(src_right_n)],
+		   new_original_[old_a_->state_from_number(dst_right_n)],
+		   add);
               }
           }
         else if (out_scc_left && !out_scc_right)
@@ -1161,9 +1035,10 @@ namespace spot
               {
 		assert(src_left != dst_left);
 
-                constraint.emplace_back(new_original_[old_name_[src_left_n]],
-					new_original_[old_name_[dst_left_n]],
-					add);
+                constraint.emplace_back
+		  (new_original_[old_a_->state_from_number(src_left_n)],
+		   new_original_[old_a_->state_from_number(dst_left_n)],
+		   add);
               }
           }
         else if (out_scc_left && out_scc_right)
@@ -1176,12 +1051,14 @@ namespace spot
               {
 		assert(src_left != dst_left && src_right != dst_right);
 		// FIXME: cas pas compris.
-                constraint.emplace_back(new_original_[old_name_[src_left_n]],
-					new_original_[old_name_[dst_left_n]],
-					add);
-		constraint.emplace_back(new_original_[old_name_[src_right_n]],
-					new_original_[old_name_[dst_right_n]],
-					add);
+                constraint.emplace_back
+		  (new_original_[old_a_->state_from_number(src_left_n)],
+		   new_original_[old_a_->state_from_number(dst_left_n)],
+		   add);
+		constraint.emplace_back
+		  (new_original_[old_a_->state_from_number(src_right_n)],
+		   new_original_[old_a_->state_from_number(dst_right_n)],
+		   add);
               }
 
           }
@@ -1290,14 +1167,14 @@ namespace spot
           {
 	    const state* src = a_->state_from_number(s);
 	    bdd clas = previous_class_[s];
-            bdd sig = dont_care_compute_sig(src);
-            dont_care_bdd_lstate[sig].push_back(src);
+            bdd sig = dont_care_compute_sig(s);
+            dont_care_bdd_lstate[sig].push_back(s);
             dont_care_state2sig[src] = sig;
             dont_care_now_to_now.emplace_back(sig, clas);
             class2state[clas] = src;
 
-            sig = compute_sig(src);
-            bdd_lstate_[sig].push_back(src);
+            sig = compute_sig(s);
+            bdd_lstate_[sig].push_back(s);
             state2sig[src] = sig;
             now_to_now.push_back(std::make_pair(sig, clas));
           }

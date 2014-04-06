@@ -149,8 +149,10 @@ namespace spot
 
   class tgba_digraph: public tgba
   {
-  protected:
+  public:
     typedef digraph<tgba_graph_state, tgba_graph_trans_data> graph_t;
+
+  protected:
     graph_t g_;
     bdd_dict* dict_;
     bdd all_acceptance_conditions_;

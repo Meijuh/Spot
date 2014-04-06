@@ -332,6 +332,15 @@ namespace spot
       return s;
     }
 
+    template <typename... Args>
+    state new_states(unsigned n, Args&&... args)
+    {
+      state s = states_.size();
+      while (n--)
+	states_.emplace_back(std::forward<Args>(args)...);
+      return s;
+    }
+
     state_storage_t&
     state_storage(state s)
     {
