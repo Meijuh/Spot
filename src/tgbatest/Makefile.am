@@ -96,6 +96,7 @@ TESTS = \
   ltl2neverclaim.test \
   ltl2neverclaim-lbtt.test \
   ltl2ta.test \
+  ltl2ta2.test \
   ltlprod.test \
   bddprod.test \
   explprod.test \

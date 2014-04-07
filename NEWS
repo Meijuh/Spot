@@ -11,6 +11,9 @@ New in spot 1.2.3a (not yet released)
   * Bug fixes:
 
     - Change the Python bindings to make them compatible with Swig 3.0.
+    - "ltl2tgta --ta" could crash in certain conditions due to the
+      introduction of a simulation-based reduction after
+      degeneralization.
 
 New in spot 1.2.3 (2014-02-11)
 
