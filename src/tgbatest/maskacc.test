@@ -35,15 +35,15 @@ EOF
 
 cat >expect1 <<EOF
 acc = "B" "A";
-"s1", "s2", "a", "A";
-"s2", "s3", "a",;
-"s3", "s2", "b",;
-"s3", "s4", "b", "A";
-acc = "B" "A";
 "s1", "s3", "b", "B";
 "s3", "s2", "b",;
 "s2", "s3", "a",;
 "s2", "s4", "a", "B";
+acc = "B" "A";
+"s1", "s2", "a", "A";
+"s2", "s3", "a",;
+"s3", "s2", "b",;
+"s3", "s4", "b", "A";
 EOF
 
 run 0 ../maskacc input1 | tee stdout

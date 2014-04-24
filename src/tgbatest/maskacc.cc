@@ -47,12 +47,12 @@ main(int argc, char** argv)
   if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel))
     return 2;
 
-  bdd all = aut->all_acceptance_conditions();
-  while (all != bddfalse)
-    {
-      bdd one = bdd_satone(all);
-      all -= one;
+  bdd allneg = aut->neg_acceptance_conditions();
 
+  for (bdd cur = allneg; cur != bddtrue; cur = bdd_low(cur))
+    {
+      int i = bdd_var(cur);
+      bdd one = bdd_compose(allneg, bdd_nithvar(i), i);
       const spot::tgba* masked = spot::build_tgba_mask_acc_ignore(aut, one);
       spot::tgba_save_reachable(std::cout, masked);
       delete masked;
