@@ -25,6 +25,7 @@
 #include <type_traits>
 #include <tuple>
 #include <cassert>
+#include <iterator>
 
 namespace spot
 {
@@ -172,13 +173,29 @@ namespace spot
     // of that list.
 
     template <typename Graph>
-    class SPOT_API trans_iterator
+    class SPOT_API trans_iterator:
+      std::iterator<std::forward_iterator_tag,
+		    typename
+		    std::conditional<std::is_const<Graph>::value,
+				     const typename Graph::trans_storage_t,
+				     typename Graph::trans_storage_t>::type>
     {
+      typedef
+	std::iterator<std::forward_iterator_tag,
+		      typename
+		      std::conditional<std::is_const<Graph>::value,
+				       const typename Graph::trans_storage_t,
+				       typename Graph::trans_storage_t>::type>
+	super;
     public:
       typedef typename Graph::transition transition;
-      typedef typename Graph::trans_storage_t trans_storage_t;
 
-      trans_iterator(Graph* g, transition t): t_(t), g_(g)
+      trans_iterator()
+	: g_(nullptr), t_(0)
+      {
+      }
+
+      trans_iterator(Graph* g, transition t): g_(g), t_(t)
       {
       }
 
@@ -192,9 +209,7 @@ namespace spot
 	return t_ != o.t_;
       }
 
-      typename std::conditional<std::is_const<Graph>::value,
-				const trans_storage_t&,
-				trans_storage_t&>::type
+      typename super::reference
       operator*()
       {
 	return g_->trans_storage(t_);
@@ -214,8 +229,8 @@ namespace spot
       }
 
     protected:
-      transition t_;
       Graph* g_;
+      transition t_;
     };
 
     //////////////////////////////////////////////////
@@ -230,7 +245,7 @@ namespace spot
     public:
       typedef typename Graph::transition transition;
       state_out(Graph* g, transition t):
-	t_(t), g_(g)
+	g_(g), t_(t)
       {
       }
 
@@ -241,7 +256,7 @@ namespace spot
 
       trans_iterator<Graph> end()
       {
-	return {nullptr, 0};
+	return {};
       }
 
       void recycle(transition t)
@@ -250,8 +265,8 @@ namespace spot
       }
 
     protected:
-      transition t_;
       Graph* g_;
+      transition t_;
     };
 
   }
