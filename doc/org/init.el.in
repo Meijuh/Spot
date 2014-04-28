@@ -8,6 +8,9 @@
 ; the .org-timestamp directory does not always exist, is not always
 ; created by org, and that causes issues on our buildfarm.
 (setq org-publish-use-timestamps-flag nil)
+;; The default value of writing to ~/.org-timestamps causes race
+;; conditions when doing concurrent builds.
+(setq org-publish-timestamp-directory "@abs_top_builddir@/.org-timestamps/")
 
 (setq org-babel-python-command "/usr/bin/python3")
 (org-babel-do-load-languages
