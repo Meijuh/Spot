@@ -215,6 +215,12 @@ namespace spot
 	return g_->trans_storage(t_);
       }
 
+      typename super::pointer
+      operator->()
+      {
+	return &g_->trans_storage(t_);
+      }
+
       trans_iterator operator++()
       {
 	t_ = operator*().next_succ;
@@ -226,6 +232,11 @@ namespace spot
 	trans_iterator ti = *this;
 	t_ = operator*().next_succ;
 	return ti;
+      }
+
+      operator bool() const
+      {
+	return t_;
       }
 
     protected:
@@ -278,7 +289,11 @@ namespace spot
   {
     friend class internal::trans_iterator<digraph>;
     friend class internal::trans_iterator<const digraph>;
+
   public:
+    typedef internal::trans_iterator<digraph> iterator;
+    typedef internal::trans_iterator<const digraph> const_iterator;
+
     static constexpr bool alternating()
     {
       return Alternating;

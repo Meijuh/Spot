@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
-## Recherche et Développement de l'Epita (LRDE).
+## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
+## de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -66,6 +66,7 @@ tgbaalgos_HEADERS = \
   save.hh \
   sccfilter.hh \
   scc.hh \
+  sccinfo.hh \
   se05.hh \
   simulation.hh \
   stats.hh \
@@ -114,6 +115,7 @@ libtgbaalgos_la_SOURCES = \
   safety.cc \
   save.cc \
   scc.cc \
+  sccinfo.cc \
   sccfilter.cc \
   se05.cc \
   simulation.cc \

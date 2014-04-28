@@ -62,6 +62,7 @@
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/emptiness_stats.hh"
 #include "tgbaalgos/scc.hh"
+#include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/isdet.hh"
 #include "tgbaalgos/cycles.hh"
 #include "tgbaalgos/isweakscc.hh"
@@ -1802,10 +1803,24 @@ main(int argc, char** argv)
 	      build_scc_stats(a).dump(std::cout);
 	      break;
 	    case 10:
-	      dump_scc_dot(a, std::cout, false);
+	      {
+		const spot::tgba_digraph* g =
+		  dynamic_cast<const spot::tgba_digraph*>(a);
+		if (!g)
+		  dump_scc_dot(a, std::cout, false);
+		else
+		  dump_scc_info_dot(std::cout, g);
+	      }
 	      break;
 	    case 11:
-	      dump_scc_dot(a, std::cout, true);
+	      {
+		//const spot::tgba_digraph* g =
+		//  dynamic_cast<const spot::tgba_digraph*>(a);
+		//if (!g)
+		  dump_scc_dot(a, std::cout, true);
+		//else
+		//  dump_scc_info_dot(std::cout, g);
+	      }
 	      break;
 	    case 12:
 	      stats_reachable(a).dump(std::cout);
