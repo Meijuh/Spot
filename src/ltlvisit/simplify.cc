@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -3456,22 +3456,14 @@ namespace spot
 			    if (op == multop::Concat)
 			      {
 				head1->push_back(h->clone());
-				multop::vec* tail = new multop::vec;
-				unsigned s = f->size();
-				for (unsigned j = 1; j < s; ++j)
-				  tail->push_back(f->nth(j)->clone());
-				tail1->push_back(multop::instance(op, tail));
+				tail1->push_back(f->all_but(0));
 				(*i)->destroy();
 				*i = 0;
 			      }
 			    else if (op == multop::Fusion)
 			      {
 				head2->push_back(h->clone());
-				multop::vec* tail = new multop::vec;
-				unsigned s = f->size();
-				for (unsigned j = 1; j < s; ++j)
-				  tail->push_back(f->nth(j)->clone());
-				tail2->push_back(multop::instance(op, tail));
+				tail2->push_back(f->all_but(0));
 				(*i)->destroy();
 				*i = 0;
 			      }
@@ -3535,20 +3527,14 @@ namespace spot
 			    if (op == multop::Concat)
 			      {
 				tail3->push_back(t->clone());
-				multop::vec* head = new multop::vec;
-				for (unsigned j = 0; j < s; ++j)
-				  head->push_back(f->nth(j)->clone());
-				head3->push_back(multop::instance(op, head));
+				head3->push_back(f->all_but(s));
 				(*i)->destroy();
 				*i = 0;
 			      }
 			    else if (op == multop::Fusion)
 			      {
 				tail4->push_back(t->clone());
-				multop::vec* head = new multop::vec;
-				for (unsigned j = 0; j < s; ++j)
-				  head->push_back(f->nth(j)->clone());
-				head4->push_back(multop::instance(op, head));
+				head4->push_back(f->all_but(s));
 				(*i)->destroy();
 				*i = 0;
 			      }
@@ -4155,6 +4141,8 @@ namespace spot
 			//                    head1   tail1
 			// {b1:r1}&{b2:r2} = {b1∧b2}:{r1&r2}
 			//                    head2   tail2
+			// BEWARE: The second rule is correct only when
+			// both r1 and r2 do not accept [*0].
 
 			multop::vec* head1 = new multop::vec;
 			multop::vec* tail1 = new multop::vec;
@@ -4175,22 +4163,20 @@ namespace spot
 			    if (op == multop::Concat)
 			      {
 				head1->push_back(h->clone());
-				multop::vec* tail = new multop::vec;
-				unsigned s = f->size();
-				for (unsigned j = 1; j < s; ++j)
-				  tail->push_back(f->nth(j)->clone());
-				tail1->push_back(multop::instance(op, tail));
+				tail1->push_back(f->all_but(0));
 				(*i)->destroy();
 				*i = 0;
 			      }
 			    else if (op == multop::Fusion)
 			      {
+				const formula* t = f->all_but(0);
+				if (t->accepts_eword())
+				  {
+				    t->destroy();
+				    continue;
+				  }
 				head2->push_back(h->clone());
-				multop::vec* tail = new multop::vec;
-				unsigned s = f->size();
-				for (unsigned j = 1; j < s; ++j)
-				  tail->push_back(f->nth(j)->clone());
-				tail2->push_back(multop::instance(op, tail));
+				tail2->push_back(t);
 				(*i)->destroy();
 				*i = 0;
 			      }
@@ -4228,83 +4214,6 @@ namespace spot
 			  {
 			    delete head2;
 			    delete tail2;
-			  }
-
-			// {r1;b1}&{r2;b2} = {r1&r2};{b1∧b2}
-			//                    head3   tail3
-			// {r1:b1}&{r2:b2} = {r1&r2}:{b1∧b2}
-			//                    head4   tail4
-			multop::vec* head3 = new multop::vec;
-			multop::vec* tail3 = new multop::vec;
-			multop::vec* head4 = new multop::vec;
-			multop::vec* tail4 = new multop::vec;
-			for (multop::vec::iterator i = s.res_other->begin();
-			     i != s.res_other->end(); ++i)
-			  {
-			    if (!*i)
-			      continue;
-			    if ((*i)->kind() != formula::MultOp)
-			      continue;
-			    const multop* f = down_cast<const multop*>(*i);
-			    unsigned s = f->size() - 1;
-			    const formula* t = f->nth(s);
-			    if (!t->is_boolean())
-			      continue;
-			    multop::type op = f->op();
-			    if (op == multop::Concat)
-			      {
-				tail3->push_back(t->clone());
-				multop::vec* head = new multop::vec;
-				for (unsigned j = 0; j < s; ++j)
-				  head->push_back(f->nth(j)->clone());
-				head3->push_back(multop::instance(op, head));
-				(*i)->destroy();
-				*i = 0;
-			      }
-			    else if (op == multop::Fusion)
-			      {
-				tail4->push_back(t->clone());
-				multop::vec* head = new multop::vec;
-				for (unsigned j = 0; j < s; ++j)
-				  head->push_back(f->nth(j)->clone());
-				head4->push_back(multop::instance(op, head));
-				(*i)->destroy();
-				*i = 0;
-			      }
-			    else
-			      {
-				continue;
-			      }
-			  }
-			if (!head3->empty())
-			  {
-			    const formula* h =
-			      multop::instance(multop::AndNLM, head3);
-			    const formula* t =
-			      multop::instance(multop::And, tail3);
-			    const formula* f =
-			      multop::instance(multop::Concat, h, t);
-			    s.res_other->push_back(f);
-			  }
-			else
-			  {
-			    delete head3;
-			    delete tail3;
-			  }
-			if (!head4->empty())
-			  {
-			    const formula* h =
-			      multop::instance(multop::AndNLM, head4);
-			    const formula* t =
-			      multop::instance(multop::And, tail4);
-			    const formula* f =
-			      multop::instance(multop::Fusion, h, t);
-			    s.res_other->push_back(f);
-			  }
-			else
-			  {
-			    delete head4;
-			    delete tail4;
 			  }
 
 			result_ = multop::instance(multop::AndNLM, s.res_other);

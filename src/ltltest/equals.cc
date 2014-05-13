@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -68,7 +68,7 @@ main(int argc, char** argv)
   if (spot::ltl::format_parse_errors(std::cerr, argv[2], p2))
     return 2;
 
-  int exit_code;
+  int exit_code = 0;
 
   {
 #if defined LUNABBREV || defined TUNABBREV || defined NENOFORM || defined WM
@@ -112,6 +112,14 @@ main(int argc, char** argv)
       const spot::ltl::formula* tmp;
       tmp = f1;
       f1 = simp.simplify(f1);
+
+      if (!simp.are_equivalent(f1, tmp))
+	{
+	  std::cerr << "Source and simplified formulae are not equivalent!\n";
+	  std::cerr << "Simplified: " << spot::ltl::to_string(f1) << "\n";
+	  exit_code = 1;
+	}
+
       tmp->destroy();
     }
     spot::ltl::dump(std::cout, f1);
@@ -124,6 +132,14 @@ main(int argc, char** argv)
       const spot::ltl::formula* tmp;
       tmp = f1;
       f1 = simp.simplify(f1);
+
+      if (!simp.are_equivalent(f1, tmp))
+	{
+	  std::cerr << "Source and simplified formulae are not equivalent!\n";
+	  std::cerr << "Simplified: " << spot::ltl::to_string(f1) << "\n";
+	  exit_code = 1;
+	}
+
       tmp->destroy();
     }
     spot::ltl::dump(std::cout, f1);
@@ -136,13 +152,21 @@ main(int argc, char** argv)
       const spot::ltl::formula* tmp;
       tmp = f1;
       f1 = simp.simplify(f1);
+
+      if (!simp.are_equivalent(f1, tmp))
+	{
+	  std::cerr << "Source and simplified formulae are not equivalent!\n";
+	  std::cerr << "Simplified: " << spot::ltl::to_string(f1) << "\n";
+	  exit_code = 1;
+	}
+
       tmp->destroy();
     }
     spot::ltl::dump(std::cout, f1);
     std::cout << std::endl;
 #endif
 
-    exit_code = f1 != f2;
+    exit_code |= f1 != f2;
 
 #if (!defined(REDUC) && !defined(REDUC_TAU) && !defined(REDUC_TAUSTR))
     spot::ltl::ltl_simplifier simp;
@@ -150,8 +174,11 @@ main(int argc, char** argv)
 
     if (!simp.are_equivalent(f1, f2))
       {
-	std::cerr << "Source and destination formulae are not equivalent!"
-		  << std::endl;
+#if (!defined(REDUC) && !defined(REDUC_TAU) && !defined(REDUC_TAUSTR))
+	std::cerr << "Source and destination formulae are not equivalent!\n";
+#else
+	std::cerr << "Simpl. and destination formulae are not equivalent!\n";
+#endif
 	exit_code = 1;
       }
 
