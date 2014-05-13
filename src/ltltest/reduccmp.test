@@ -348,6 +348,8 @@ for x in ../reduccmp ../reductaustr; do
      run 0 $x '{s[*]}<>->b' 'b M s'
      run 0 $x '{s[+]}<>->b' 'b M s'
      run 0 $x '{s[*2..]}<>->b' 's & X(b M s)'
+     run 0 $x '{1:a*}!' 'a'
+     run 0 $x '{(1;1):a*}!' 'Xa'
      run 0 $x '{a;b*;c;d*}<>->e' 'a & X(b U (c & (e | X(e M d))))'
      run 0 $x '{a:b*:c:d*}<>->e' 'a & ((c & (e M d)) M b)'
      run 0 $x '{a|b*|c|d*}<>->e' '((a | c) & e) | (e M b) | (e M d)'

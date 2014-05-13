@@ -17,6 +17,8 @@ New in spot 1.2.3a (not yet released)
     - Fix three incorrect simplifications rules, all related to the
       factorization of Boolean subformulas in operands of the
       non-length-matching "&" SERE operator.
+    - Fix incorrect translation of the fusion operator (":") in SERE
+      such as {xx;1}:yy[*] where the left operand has 1 as tail.
 
 New in spot 1.2.3 (2014-02-11)
 

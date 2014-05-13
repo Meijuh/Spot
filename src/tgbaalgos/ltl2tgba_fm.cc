@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
 // Coopératifs (SRC), Université Pierre et Marie Curie.
@@ -912,11 +912,12 @@ namespace spot
 
 		    }
 
-		  if (dest->kind() != formula::Constant)
+		  // If the destination is not 0 or [*0], it means it
+		  // can have successors.  Fusion the tail and append
+		  // anything to concatenate.
+		  if (dest->kind() != formula::Constant
+		      || dest == ltl::constant::true_instance())
 		    {
-		      // If the destination is not a constant, it
-		      // means it can have successors.  Fusion the
-		      // tail and append anything to concatenate.
 		      const formula* dest2 =
 			multop::instance(multop::Fusion, dest, tail->clone());
 		      if (to_concat_)
