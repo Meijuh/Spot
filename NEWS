@@ -14,9 +14,11 @@ New in spot 1.2.3a (not yet released)
     - "ltl2tgta --ta" could crash in certain conditions due to the
       introduction of a simulation-based reduction after
       degeneralization.
-    - Fix three incorrect simplifications rules, all related to the
-      factorization of Boolean subformulas in operands of the
-      non-length-matching "&" SERE operator.
+    - Fix four incorrect formula-simplification rules, three were
+      related to the factorization of Boolean subformulas in
+      operands of the non-length-matching "&" SERE operator, and
+      a fourth one could only be enabled by explicitely passing the
+      favor_event_univ option to the simplifier (not the default).
     - Fix incorrect translation of the fusion operator (":") in SERE
       such as {xx;1}:yy[*] where the left operand has 1 as tail.
 

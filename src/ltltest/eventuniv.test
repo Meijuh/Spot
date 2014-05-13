@@ -1,7 +1,7 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement
-# de l'Epita (LRDE).
+# Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+# Developpement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -48,7 +48,7 @@ check 'a U (b | Fc)'  '(a U b) | Fc'
 check 'a W (b | Fc)'  '(a W b) | Fc'
 check 'a U (b & GFc)' '(a U b) & GFc'
 check 'a W (b & GFc)' 'a W (b & GFc)'  # Unchanged
-check '(a | Gc) W g'  '(a W g) | Gc'
+check '(a | Gc) W g'  '(a | Gc) W g'   # Unchanged
 check '(a | Gc) U g'  '(a | Gc) U g'   # Unchanged
 
 check '(a & GFc) M b' '(a M b) & GFc'

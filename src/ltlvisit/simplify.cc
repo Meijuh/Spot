@@ -2075,7 +2075,6 @@ namespace spot
 	      // (a W (b|e)) = (a W b)|e
 	      // (a U (b&q)) = (a U b)&q
 	      // ((a&q) M b) = (a M b)&q
-	      // ((a|u) W b) = u|(a W b)
 	      // (a R (b&u)) = (a R b)&u
 	      // (a M (b&u)) = (a M b)&u
 	      if (opt_.favor_event_univ)
@@ -2098,24 +2097,6 @@ namespace spot
 			  }
 			b2->destroy();
 			delete s.res_Event;
-		      }
-		  if (op == binop::W)
-		    if (const multop* mo = is_Or(a))
-		      {
-			a->clone();
-			mospliter s(mospliter::Split_Univ, mo, c_);
-			const formula* a2 =
-			  multop::instance(multop::Or, s.res_other);
-			if (a2 != a)
-			  {
-			    a->destroy();
-			    s.res_Univ->push_back(binop::instance(op, a2, b));
-			    result_ = recurse_destroy
-			      (multop::instance(multop::Or, s.res_Univ));
-			    return;
-			  }
-			a2->destroy();
-			delete s.res_Univ;
 		      }
 		  if (op == binop::U)
 		    if (const multop* mo = is_And(b))
