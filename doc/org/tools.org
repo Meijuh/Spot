@@ -60,9 +60,9 @@ the following articles:
 
   This focuses on =ltlfilt=, =randltl=, and =ltlcross=.
 
-- *LTL translation improvements in Spot*, /Alexandre Duret-Lutz/.
-  In Proc. of VECoS'11.  Electronic Workshops in Computing. Tunis, Tunisia, Sep. 2011.
-  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.11.vecos][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.11.vecos.pdf][pdf]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.11.vecos.slides.pdf][slides]])
+- *LTL translation improvements in Spot 1.0*, /Alexandre Duret-Lutz/.
+  Int. J. on Critical Computer-Based Systems, 5(1/2):31--54, March 2014.
+  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.14.ijccbs][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.14.ijccbs.draft.pdf][pdf]])
 
   This describes the translation from LTL to TGBA used by =ltl2tgba=
   and =ltl2tgta=.
