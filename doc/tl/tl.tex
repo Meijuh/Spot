@@ -1469,27 +1469,53 @@ SERE.
 
 Starred subformul\ae{} are rewritten in Star Normal
 Form~\cite{bruggeman.96.tcs} with:
-\[r\STAR{\mvar{0}..\mvar{j}} \equiv r^\circ\STAR{\mvar{0}..\mvar{j}} \]
+\[r\STAR{} \equiv r^\circ\STAR{} \]
 where $r^\circ$ is recursively defined as follows:
 \begin{align*}
   r^\circ &= r\text{~if~} \varepsilon\not\VDash r \\
   \eword^\circ &= \0 &
   (r_1\CONCAT r_2)^\circ &= r_1^\circ\OR r_2^\circ \text{~if~} \varepsilon\VDash r_1\text{~and~}\varepsilon\VDash r_2\\
-  r\STAR{\mvar{0}..\mvar{j}}^\circ &= r^\circ &
+  r\STAR{\mvar{i}..\mvar{j}}^\circ &= r^\circ \text{~if~} i=0 \text{~or~} \varepsilon\VDash r&
   (r_1\AND r_2)^\circ &= r_1^\circ\OR r_2^\circ \text{~if~} \varepsilon\VDash r_1\text{~and~}\varepsilon\VDash r_2\\
   (r_1\OR r_2)^\circ &= r_1^\circ \OR r_2^\circ &
   (r_1\ANDALT r_2)^\circ &= r_1 \ANDALT r_2
 \end{align*}
 
 Note: the original SNF definition~\cite{bruggeman.96.tcs} does not
-include \samp{$\FUSION$}, \samp{$\AND$}, and \samp{$\ANDALT$}
-operators, and it guarantees that $\forall r,\,\varepsilon\not\VDash
-r^\circ$ because $r^\circ$ is stripping all the stars and empty words
-that occur in $r$.  For instance $\sere{a\STAR{}\CONCAT
-  b\STAR{}\CONCAT\sere{\1\OR c}}^\circ\STAR{} = \sere{a\OR b\OR
+include \samp{$\AND$} and \samp{$\ANDALT$} operators, and it
+guarantees that $\forall r,\,\varepsilon\not\VDash r^\circ$ because
+$r^\circ$ is stripping all the stars and empty words that occur in
+$r$.  For instance $\sere{a\STAR{}\CONCAT
+  b\STAR{}\CONCAT\sere{\eword\OR c}}^\circ\STAR{} = \sere{a\OR b\OR
   c}\STAR{}$.  Our extended definition still respects this property in
-presence of \samp{$\FUSION$} and \samp{$\AND$} operators, but
-unfortunately not when the \samp{$\ANDALT$} operator is used.
+presence of \samp{$\AND$} operators, but unfortunately not when the
+\samp{$\ANDALT$} operator is used.
+
+We extend the above definition to bounded repetitions with:
+\begin{align*}
+  r\STAR{\mvar{i}..\mvar{j}} & \equiv r^\square\STAR{\0..\mvar{j}}\quad\text{if}\quad\varepsilon\VDash r\STAR{\mvar{i}..\mvar{j}}
+\end{align*}
+where $r^\square$ is recursively defined as follows:
+\begin{align*}
+  r^\square &= r\text{~if~} \varepsilon\not\VDash r \\
+  \eword^\square &= \0 &
+  (r_1\CONCAT r_2)^\square &= r_1\CONCAT r_2\\
+  r\STAR{\mvar{i}..\mvar{j}}^\square &= r^\square\STAR{\mvar{\max(1,i)}..\mvar{j}} \text{~if~} i=0 \text{~or~} \varepsilon\VDash r &
+  (r_1\AND r_2)^\square &= r_1^\square\OR r_2^\square \text{~if~} \varepsilon\VDash r_1\text{~and~}\varepsilon\VDash r_2\\
+  (r_1\OR r_2)^\square &= r_1^\square \OR r_2^\square &
+  (r_1\ANDALT r_2)^\square &= r_1 \ANDALT r_2
+\end{align*}
+The differences between $^\square$ and $^\circ$ are in the handling
+of $r\STAR{\mvar{i}..\mvar{j}}$ and in the handling of $r_1\CONCAT r_2$.
+
+% Indeed $(c\STAR{}\OR\1)\STAR{0..1}$ is not equivalent to
+% $(c\STAR{}\OR\1)^\circ\STAR{0..1}\equiv(c\OR\1)\STAR{0..1}\equiv
+% 1\STAR{0..1}$ but to
+% $(c\STAR{}\OR\1)^\square\STAR{0..1}\equiv(c\PLUS{}\OR\1)\STAR{0..1}$.
+
+% Similarly $(a\STAR{}\CONCAT b\STAR{})\STAR{0..1})$ is definitely not
+% equal to $(a\PLUS{}\OR b\PLUS{})\STAR{0..1}).
+
 
 \subsubsection{Basic Simplifications SERE-LTL Binding Operators}
 
