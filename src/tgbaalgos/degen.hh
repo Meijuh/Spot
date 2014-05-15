@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -44,7 +44,9 @@ namespace spot
   /// default because our benchmarks show that it usually does more
   /// harm than good).  If \a use_lvl_cache is set, everytime an SCC
   /// is entered on a state that as already been associated to some
-  /// level elsewhere, reuse that level).
+  /// level elsewhere, reuse that level (set it to 2 to keep the
+  /// smallest number, 3 to keep the largest level, and 1 to keep the
+  /// first level found).
   ///
   /// Any of these three options will cause the SCCs of the automaton
   /// \a a to be computed prior to its actual degeneralization.
@@ -53,7 +55,8 @@ namespace spot
   SPOT_API sba*
   degeneralize(const tgba* a, bool use_z_lvl = true,
 	       bool use_cust_acc_orders = false,
-	       bool use_lvl_cache = true);
+	       int use_lvl_cache = 1,
+	       bool skip_levels = true);
 }
 
 

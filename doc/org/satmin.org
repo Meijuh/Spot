@@ -31,8 +31,10 @@ Let us first state a few facts about this minimization procedure.
    automaton: when the number of clauses output by Spot (and to be fed
    to the SAT solver) exceeds $2^{31}$, or when the SAT-solver was
    killed by a signal.
+6) Details about the SAT encoding used in the two procedures can be
+   found in our [[http://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf][FORTE'14 paper]].
 
-* How change the SAT solver used
+* How to change the SAT solver used
 
 The environment variable =SPOT_SATSOLVER= can be used to change the
 SAT solver used by Spot.  The default is "=glucose -verb=0 -model %I

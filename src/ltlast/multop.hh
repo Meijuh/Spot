@@ -140,7 +140,7 @@ namespace spot
 
       /// \brief construct a formula without the nth child.
       ///
-      /// If the formula \c f is <code>a|b|c|d</code> and <code>d</code>
+      /// If the formula \c f is <code>a|b|c|d</code> and <code>c</code>
       /// is child number 2, then calling <code>f->all_but(2)</code> will
       /// return a new formula <code>a|b|d</code>.
       const formula* all_but(unsigned n) const;

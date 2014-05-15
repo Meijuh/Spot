@@ -85,11 +85,22 @@ If you would like to give a reference to this tool in an article,
 we suggest you cite one of the following papers:
 .TP
 \(bu
-Alexandre Duret-Lutz: LTL translation improvements in Spot. Proceedings of VECoS'11.
+Alexandre Duret-Lutz: LTL translation improvements in Spot 1.0.
+Int. J. on Critical Computer-Based Systems, 5(1/2):31--54, March 2014.
 .TP
 \(bu
 Alexandre Duret-Lutz: Manipulating LTL formulas using Spot 1.0.
 Proceedings of ATVA'13.  LNCS 8172.
+.TP
+\(bu
+Tomáš Babiak, Thomas Badie, Alexandre Duret-Lutz, Mojmír Křetínský,
+and Jan Strejček: Compositional approach to suspension and other
+improvements to LTL translation.  Proceedings of SPIN'13.  LNCS 7976.
+.TP
+\(bu
+Souheib Baarir and Alexandre Duret-Lutz: Mechanizing the minimization
+of deterministic generalized Büchi automata.  Proceedings of FORTE'14.
+LNCS 8461.
 
 [SEE ALSO]
 .BR spot-x (7)

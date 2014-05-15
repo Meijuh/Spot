@@ -913,11 +913,12 @@ namespace spot
 
 		    }
 
-		  if (dest->kind() != formula::Constant)
+		  // If the destination is not 0 or [*0], it means it
+		  // can have successors.  Fusion the tail and append
+		  // anything to concatenate.
+		  if (dest->kind() != formula::Constant
+		      || dest == ltl::constant::true_instance())
 		    {
-		      // If the destination is not a constant, it
-		      // means it can have successors.  Fusion the
-		      // tail and append anything to concatenate.
 		      const formula* dest2 =
 			multop::instance(multop::Fusion, dest, tail->clone());
 		      if (to_concat_)

@@ -1,4 +1,4 @@
-New in spot 1.2.3a (not yet released)
+New in spot 1.2.4a (not yet released)
 
   * Major changes (including backward incompatible changes):
 
@@ -69,6 +69,30 @@ New in spot 1.2.3a (not yet released)
       implementation of Couvreur's FM'99 emptiness check.
 
 
+New in spot 1.2.4 (2014-05-15)
+
+  * New features:
+
+    - "-B -x degen-lskip" can be used to disable level-skipping in the
+      degeralization procedure called by ltl2tgba and dstar2tgba.
+      This is mostly meant for running experiments.
+    - "-B -x degen-lcache=N" can be used to experiment with different
+      type of level caching during degeneralization.
+
+  * Bug fixes:
+
+    - Change the Python bindings to make them compatible with Swig 3.0.
+    - "ltl2tgta --ta" could crash in certain conditions due to the
+      introduction of a simulation-based reduction after
+      degeneralization.
+    - Fix four incorrect formula-simplification rules, three were
+      related to the factorization of Boolean subformulas in
+      operands of the non-length-matching "&" SERE operator, and
+      a fourth one could only be enabled by explicitely passing the
+      favor_event_univ option to the simplifier (not the default).
+    - Fix incorrect translation of the fusion operator (":") in SERE
+      such as {xx;1}:yy[*] where the left operand has 1 as tail.
+
 New in spot 1.2.3 (2014-02-11)
 
   * New features:
@@ -100,8 +124,8 @@ New in spot 1.2.3 (2014-02-11)
     - Fix determinism of the SAT-based minimization encoding.
       (It would sometimes produce different equivalent automata,
       because of a different encoding order.)
-    - A the SAT-based minimization is asked for a 10-state automaton
-      and return a 6-state automaton, do not ask for a 9-state
+    - If the SAT-based minimization is asked for a 10-state automaton
+      and returns a 6-state automaton, do not ask for a 9-state
       automaton in the next iteration...
     - Fix some compilation issue with the version of Apple's Clang
       that is installed with MacOS X 10.9.

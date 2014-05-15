@@ -417,13 +417,21 @@ namespace spot
 
       std::stack<state_ta_explicit*> todo;
       const tgba* tgba_ = ta->get_tgba();
-      const sba* sba_ = down_cast<const sba*>(tgba_);
-      assert(!degeneralized || sba_);
 
       // build Initial states set:
       state* tgba_init_state = tgba_->get_init_state();
 
       bdd tgba_condition = tgba_->support_conditions(tgba_init_state);
+
+      bool is_acc = false;
+      if (degeneralized)
+	{
+	  tgba_succ_iterator* it = tgba_->succ_iter(tgba_init_state);
+	  it->first();
+	  if (!it->done())
+	    is_acc = it->current_acceptance_conditions() != bddfalse;
+	  delete it;
+	}
 
       bdd satone_tgba_condition;
       while ((satone_tgba_condition = bdd_satoneset(tgba_condition,
@@ -431,21 +439,9 @@ namespace spot
 						    bddtrue)) != bddfalse)
 	{
 	  tgba_condition -= satone_tgba_condition;
-	  state_ta_explicit* init_state;
-	  if (degeneralized)
-	    {
-	      init_state = new
-		state_ta_explicit(tgba_init_state->clone(),
-				  satone_tgba_condition, true,
-				  sba_->state_is_accepting(tgba_init_state));
-	    }
-	  else
-	    {
-	      init_state = new
-		state_ta_explicit(tgba_init_state->clone(),
-				  satone_tgba_condition, true, false);
-	    }
-
+	  state_ta_explicit* init_state = new
+	    state_ta_explicit(tgba_init_state->clone(),
+			      satone_tgba_condition, true, is_acc);
 	  state_ta_explicit* s = ta->add_state(init_state);
 	  assert(s == init_state);
 	  ta->add_to_initial_states_set(s);
@@ -478,6 +474,17 @@ namespace spot
 
 		  bdd all_props = bddtrue;
 		  bdd dest_condition;
+
+		  bool is_acc = false;
+		  if (degeneralized)
+		  {
+		    tgba_succ_iterator* it = tgba_->succ_iter(tgba_state);
+		    it->first();
+		    if (!it->done())
+		      is_acc = it->current_acceptance_conditions() != bddfalse;
+		    delete it;
+		  }
+
 		  if (satone_tgba_condition == source->get_tgba_condition())
 		    while ((dest_condition =
 			    bdd_satoneset(all_props,
@@ -485,21 +492,9 @@ namespace spot
 			   != bddfalse)
 		      {
 			all_props -= dest_condition;
-			state_ta_explicit* new_dest;
-			if (degeneralized)
-			  {
-			    new_dest = new state_ta_explicit
-			      (tgba_state->clone(),
-			       dest_condition,
-			       false,
-			       sba_->state_is_accepting(tgba_state));
-			  }
-			else
-			  {
-			    new_dest = new state_ta_explicit
-			      (tgba_state->clone(),
-			       dest_condition, false, false);
-			  }
+			state_ta_explicit* new_dest =
+			  new state_ta_explicit(tgba_state->clone(),
+						dest_condition, false, is_acc);
 			state_ta_explicit* dest = ta->add_state(new_dest);
 
 			if (dest != new_dest)

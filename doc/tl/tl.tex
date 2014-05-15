@@ -1460,13 +1460,11 @@ SERE.
     \0 &\text{else}\\
   \end{cases}\\
   \sere{b_1\CONCAT r_1}\ANDALT\sere{b_2\CONCAT r_2} &\equiv \sere{b_1\ANDALT b_2}\CONCAT\sere{r_1\ANDALT r_2} &
-  \sere{b_1\CONCAT r_1}\AND   \sere{b_2\CONCAT r_2} &\equiv \sere{b_1\ANDALT b_2}\CONCAT\sere{r_1\AND    r_2} \\
+  \sere{r_1\CONCAT b_1}\ANDALT\sere{r_2\CONCAT b_2} &\equiv \sere{r_1\ANDALT r_2}\CONCAT\sere{b_1\ANDALT b_2} \\
   \sere{b_1\FUSION r_1}\ANDALT\sere{b_2\FUSION r_2} &\equiv \sere{b_1\ANDALT b_2}\FUSION\sere{r_1\ANDALT r_2} &
-  \sere{b_1\FUSION r_1}\AND   \sere{b_2\FUSION r_2} &\equiv \sere{b_1\ANDALT b_2}\FUSION\sere{r_1\AND    r_2} \\
-  \sere{r_1\CONCAT b_1}\ANDALT\sere{r_2\CONCAT b_2} &\equiv \sere{r_1\ANDALT r_2}\CONCAT\sere{b_1\ANDALT b_2} &
-  \sere{r_1\CONCAT b_1}\AND   \sere{r_2\CONCAT b_2} &\equiv \sere{r_1\ANDALT r_2}\CONCAT\sere{b_1\AND    b_2} \\
-  \sere{r_1\FUSION b_1}\ANDALT\sere{r_2\FUSION b_2} &\equiv \sere{r_1\ANDALT r_2}\FUSION\sere{b_1\ANDALT b_2} &
-  \sere{r_1\FUSION b_1}\AND   \sere{r_2\FUSION b_2} &\equiv \sere{r_1\ANDALT r_2}\FUSION\sere{b_1\AND    b_2} \\
+  \sere{r_1\FUSION b_1}\ANDALT\sere{r_2\FUSION b_2} &\equiv \sere{r_1\ANDALT r_2}\FUSION\sere{b_1\ANDALT b_2} \\
+  \sere{b_1\CONCAT r_1}\AND \sere{b_2\CONCAT r_2} &\equiv \sere{b_1\ANDALT b_2}\CONCAT\sere{r_1\AND r_2} \\
+  \sere{b_1\FUSION r_1}\AND \sere{b_2\FUSION r_2} &\equiv \sere{b_1\ANDALT b_2}\FUSION\sere{r_1\AND r_2} \mathrlap{\quad\text{if~}\varepsilon\nVDash r_1\land\varepsilon\nVDash r_2}\\
 \end{align*}
 
 Starred subformul\ae{} are rewritten in Star Normal
@@ -1582,7 +1580,6 @@ $q,\,q_i$           & a pure eventuality that is also purely universal \\
               &                     & f \U (g\AND q) & \equivEU (f \U g)\AND q & (f\AND q)\M g & \equivEU (f \M g)\AND q                                \\
   \G u        & \equiv u            & u \W g         & \equiv u\OR g           & f \R u        & \equiv u       & e_1 \W e_2 & \equiV (\G e_1) \OR e_2  \\
   \G(e)\AND q & \equiv \G(e\AND q)  & f \W (g\OR e)  & \equivEU (f \W g)\OR e  & f\R (g\AND u) & \equivEU (f \R g)\AND u                                \\
-              &                     & (f\OR u) \W g  & \equivEU (f \W g)\OR u                                                                           \\
   \X q        & \equiv q            & q \AND \X f    & \equivNeu \X(q \AND f)  & q\OR \X f     & \equivNeu \X(q \OR f)                                  \\
               &                     & \X(q \AND f)   & \equivEU q \AND \X f    & \X(q \OR f)   & \equivEU q\OR \X f                                     \\
 \end{align*}

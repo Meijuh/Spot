@@ -25,6 +25,7 @@
 #include "ltlast/constant.hh"
 #include <deque>
 #include <vector>
+#include <algorithm>
 #include "tgbaalgos/scc.hh"
 #include "tgba/bddprint.hh"
 
@@ -174,7 +175,7 @@ namespace spot
 
     public:
       unsigned
-      next_level(bdd all, int slevel, bdd acc)
+      next_level(bdd all, int slevel, bdd acc, bool skip_levels)
       {
         bdd temp = acc;
         if (all != found_)
@@ -200,7 +201,11 @@ namespace spot
         acc = temp;
         unsigned next = slevel;
         while (next < order_.size() && bdd_implies(order_[next], acc))
-          ++next;
+	  {
+	    ++next;
+	    if (!skip_levels)
+	      break;
+	  }
         return next;
       }
 
@@ -223,16 +228,18 @@ namespace spot
     {
       bdd all_;
       std::map<int, acc_order> orders_;
+      bool skip_levels_;
 
     public:
-      scc_orders(bdd all): all_(all)
+      scc_orders(bdd all, bool skip_levels):
+	all_(all), skip_levels_(skip_levels)
       {
       }
 
       unsigned
       next_level(int scc, int slevel, bdd acc)
       {
-        return orders_[scc].next_level(all_, slevel, acc);
+        return orders_[scc].next_level(all_, slevel, acc, skip_levels_);
       }
 
       void
@@ -247,7 +254,7 @@ namespace spot
 
   sba*
   degeneralize(const tgba* a, bool use_z_lvl, bool use_cust_acc_orders,
-               bool use_lvl_cache)
+               int use_lvl_cache, bool skip_levels)
   {
     bool use_scc = use_lvl_cache || use_cust_acc_orders || use_z_lvl;
 
@@ -290,7 +297,7 @@ namespace spot
     }
 
     // Initialize scc_orders
-    scc_orders orders(a->all_acceptance_conditions());
+    scc_orders orders(a->all_acceptance_conditions(), skip_levels);
 
     // Make sure we always use the same pointer for identical states
     // from the input automaton.
@@ -312,7 +319,7 @@ namespace spot
     tr_cache_t tr_cache;
 
     // State level cache
-    typedef std::map<const state*, int> lvl_cache_t;
+    typedef std::map<const state*, unsigned> lvl_cache_t;
     lvl_cache_t lvl_cache;
 
     // Compute SCCs in order to use any optimization.
@@ -342,7 +349,11 @@ namespace spot
 	  s.second = orders.next_level(m.initial(), s.second, acc);
 	else
 	  while (s.second < order.size() && bdd_implies(order[s.second], acc))
-	    ++s.second;
+	    {
+	      ++s.second;
+	      if (!skip_levels)
+		break;
+	    }
       }
 
 #ifdef DEGEN_DEBUG
@@ -479,7 +490,8 @@ namespace spot
             // }
             if (is_scc_acc)
               {
-                // If lvl_cache is used and switching SCCs, use level from cache
+                // If lvl_cache is used and switching SCCs, use level
+                // from cache
                 if (use_lvl_cache && s_scc != scc
 		    && lvl_cache.find(d.first) != lvl_cache.end())
                   {
@@ -520,10 +532,17 @@ namespace spot
 			    // Consider both the current acceptance
 			    // sets, and the acceptance sets common to
 			    // the outgoing transitions of the
-			    // destination state.
-			    while (next < order.size()
-				   && bdd_implies(order[next], acc))
-			      ++next;
+			    // destination state.  But don't do
+			    // that if the state is accepting and we
+			    // are not skipping levels.
+			    if (skip_levels || !is_acc)
+			      while (next < order.size()
+				     && bdd_implies(order[next], acc))
+				{
+				  ++next;
+				  if (!skip_levels)
+				    break;
+				}
 			    d.second = next;
 			  }
                       }
@@ -547,8 +566,23 @@ namespace spot
                 ds2num[d] = dest;
                 todo.push_back(d);
                 // Insert new state to cache
-                if (use_lvl_cache && lvl_cache.find(d.first) == lvl_cache.end())
-                  lvl_cache[d.first] = d.second;
+
+		if (use_lvl_cache)
+		  {
+		    std::pair<lvl_cache_t::iterator, bool> res =
+		      lvl_cache.insert(lvl_cache_t::value_type(d.first,
+							       d.second));
+
+		    if (!res.second)
+		      {
+			if (use_lvl_cache == 3)
+			  res.first->second =
+			    std::max(res.first->second, d.second);
+			else if (use_lvl_cache == 2)
+			  res.first->second =
+			    std::min(res.first->second, d.second);
+		      }
+		  }
               }
 
             state_explicit_number::transition*& t =
