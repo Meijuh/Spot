@@ -116,7 +116,7 @@ main(int argc, char** argv)
       if (!simp.are_equivalent(f1, tmp))
 	{
 	  std::cerr << "Source and simplified formulae are not equivalent!\n";
-	  std::cerr << "Simplified: " << spot::ltl::to_string(f1) << "\n";
+	  std::cerr << "Simplified: " << spot::ltl::to_string(f1) << '\n';
 	  exit_code = 1;
 	}
 
@@ -136,7 +136,7 @@ main(int argc, char** argv)
       if (!simp.are_equivalent(f1, tmp))
 	{
 	  std::cerr << "Source and simplified formulae are not equivalent!\n";
-	  std::cerr << "Simplified: " << spot::ltl::to_string(f1) << "\n";
+	  std::cerr << "Simplified: " << spot::ltl::to_string(f1) << '\n';
 	  exit_code = 1;
 	}
 
@@ -156,7 +156,7 @@ main(int argc, char** argv)
       if (!simp.are_equivalent(f1, tmp))
 	{
 	  std::cerr << "Source and simplified formulae are not equivalent!\n";
-	  std::cerr << "Simplified: " << spot::ltl::to_string(f1) << "\n";
+	  std::cerr << "Simplified: " << spot::ltl::to_string(f1) << '\n';
 	  exit_code = 1;
 	}
 
