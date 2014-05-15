@@ -107,6 +107,16 @@ namespace spot
 	    }
 	}
 	{
+	  snf_cache::iterator i = snfb_cache_.begin();
+	  snf_cache::iterator end = snfb_cache_.end();
+	  while (i != end)
+	    {
+	      snf_cache::iterator old = i++;
+	      old->second->destroy();
+	      old->first->destroy();
+	    }
+	}
+	{
 	  f2f_map::iterator i = bool_isop_.begin();
 	  f2f_map::iterator end = bool_isop_.end();
 	  while (i != end)
@@ -388,6 +398,13 @@ namespace spot
       }
 
       const formula*
+      star_normal_form_bounded(const formula* f)
+      {
+	return ltl::star_normal_form_bounded(f, &snfb_cache_);
+      }
+
+
+      const formula*
       boolean_to_isop(const formula* f)
       {
 	f2f_map::const_iterator it = bool_isop_.find(f);
@@ -406,6 +423,7 @@ namespace spot
       f2f_map nenoform_;
       syntimpl_cache_t syntimpl_;
       snf_cache snf_cache_;
+      snf_cache snfb_cache_;
       f2f_map bool_isop_;
     };
 
@@ -1081,7 +1099,10 @@ namespace spot
 		min = 0;
 	      if (min == 0)
 		{
-		  const formula* s = c_->star_normal_form(h);
+		  const formula* s =
+		    bo->max() == bunop::unbounded ?
+		    c_->star_normal_form(h) :
+		    c_->star_normal_form_bounded(h);
 		  h->destroy();
 		  h = s;
 		}

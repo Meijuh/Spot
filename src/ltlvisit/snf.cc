@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Developpement
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -31,6 +31,7 @@ namespace spot
       // E°
       class snf_visitor: public visitor
       {
+      protected:
 	const formula* result_;
 	snf_cache* cache_;
       public:
@@ -144,21 +145,50 @@ namespace spot
 	  if (!f->accepts_eword())
 	    return f->clone();
 
-	  if (cache_)
-	    {
-	      snf_cache::const_iterator i = cache_->find(f);
-	      if (i != cache_->end())
-		return i->second->clone();
-	    }
+	  snf_cache::const_iterator i = cache_->find(f);
+	  if (i != cache_->end())
+	    return i->second->clone();
 
 	  f->accept(*this);
 
-	  if (cache_)
-	    (*cache_)[f->clone()] = result_->clone();
+	  (*cache_)[f->clone()] = result_->clone();
 	  return result_;
 	}
       };
 
+      // E^□
+      class snf_visitor_bounded: public snf_visitor
+      {
+      public:
+	snf_visitor_bounded(snf_cache* c): snf_visitor(c)
+	{
+	}
+
+	void
+	visit(const bunop* bo)
+	{
+	  bunop::type op = bo->op();
+	  switch (op)
+	    {
+	    case bunop::Star:
+	      assert(bo->accepts_eword());
+	      result_ = bunop::instance(bunop::Star,
+					recurse(bo->child()),
+					std::max(bo->min(), 1U),
+					bo->max());
+	      break;
+	    }
+	}
+
+	void
+	visit(const multop* mo)
+	{
+	  if (mo->op() == multop::Concat)
+	    result_ = mo->clone();
+	  else
+	    this->snf_visitor::visit(mo);
+	}
+      };
     }
 
 
@@ -166,6 +196,13 @@ namespace spot
     star_normal_form(const formula* sere, snf_cache* cache)
     {
       snf_visitor v(cache);
+      return v.recurse(sere);
+    }
+
+    const formula*
+    star_normal_form_bounded(const formula* sere, snf_cache* cache)
+    {
+      snf_visitor_bounded v(cache);
       return v.recurse(sere);
     }
 
