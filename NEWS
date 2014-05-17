@@ -1,6 +1,8 @@
 New in spot 1.2.4a (not yet released)
 
-  Nothing yet.
+  * Bug fixes:
+
+    - Fix simplification of bounded repetition in SERE formulas.
 
 New in spot 1.2.4 (2014-05-15)
 
