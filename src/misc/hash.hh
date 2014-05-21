@@ -75,6 +75,18 @@ namespace spot
       return s;
     }
   };
+
+
+  struct pair_hash
+  {
+    template<typename T, typename U>
+    std::size_t operator()(const std::pair<T, U> &p) const
+    {
+      return wang32_hash(static_cast<size_t>(p.first) ^
+			 static_cast<size_t>(p.second));
+    }
+  };
+
 }
 
 #endif // SPOT_MISC_HASH_HH

@@ -239,10 +239,79 @@ namespace spot
 	return t_;
       }
 
+      transition trans() const
+      {
+	return t_;
+      }
+
     protected:
       Graph* g_;
       transition t_;
     };
+
+    template <typename Graph>
+    class SPOT_API killer_trans_iterator: public trans_iterator<Graph>
+    {
+      typedef trans_iterator<Graph> super;
+    public:
+      typedef typename Graph::state_storage_t state_storage_t;
+      typedef typename Graph::transition transition;
+
+      killer_trans_iterator(Graph* g, transition t, state_storage_t& src):
+	super(g, t), src_(src), prev_(0)
+      {
+      }
+
+      killer_trans_iterator operator++()
+      {
+	prev_ = this->t_;
+	this->t_ = this->operator*().next_succ;
+	return *this;
+      }
+
+      killer_trans_iterator operator++(int)
+      {
+	killer_trans_iterator ti = *this;
+	prev_ = this->t_;
+	this->t_ = this->operator*().next_succ;
+	return ti;
+      }
+
+      // Erase the current transition and advance the iterator.
+      void erase()
+      {
+	transition next = this->operator*().next_succ;
+
+	// Update source state and previous transitions
+	if (prev_)
+	  {
+	    this->g_->trans_storage(prev_).next_succ = next;
+	  }
+	else
+	  {
+	    if (src_.succ == this->t_)
+	      src_.succ = next;
+	  }
+	if (src_.succ_tail == this->t_)
+	  {
+	    src_.succ_tail = prev_;
+	    assert(next == 0);
+	  }
+
+	// Erased transitions have themselves as next_succ.
+	this->operator*().next_succ = this->t_;
+
+	// Advance iterator to next transitions.
+	this->t_ = next;
+
+	++this->g_->killed_trans_;
+      }
+
+    protected:
+      state_storage_t& src_;
+      transition prev_;
+    };
+
 
     //////////////////////////////////////////////////
     // State OUT
@@ -289,6 +358,7 @@ namespace spot
   {
     friend class internal::trans_iterator<digraph>;
     friend class internal::trans_iterator<const digraph>;
+    friend class internal::killer_trans_iterator<digraph>;
 
   public:
     typedef internal::trans_iterator<digraph> iterator;
@@ -325,7 +395,8 @@ namespace spot
   protected:
     state_vector states_;
     trans_vector transitions_;
-
+    // Number of erased transitions.
+    unsigned killed_trans_;
   public:
     /// \brief construct an empty graph
     ///
@@ -334,6 +405,7 @@ namespace spot
     /// limits, but just hints to pre-allocate a data structure that
     /// may hold that much items.
     digraph(unsigned max_states = 10, unsigned max_trans = 0)
+      : killed_trans_(0)
     {
       states_.reserve(max_states);
       if (max_trans == 0)
@@ -351,7 +423,15 @@ namespace spot
 
     unsigned num_transitions() const
     {
-      return transitions_.size();
+      return transitions_.size() - killed_trans_ - 1;
+    }
+
+    bool valid_trans(transition t) const
+    {
+      // Erased transitions have their next_succ pointing to
+      // themselves.
+      return (t < transitions_.size() &&
+	      transitions_[t].next_succ != t);
     }
 
     template <typename... Args>
@@ -449,10 +529,28 @@ namespace spot
       return t;
     }
 
+    state index_of_state(state_storage_t& ss)
+    {
+      assert(!states_.empty());
+      return &ss - &states_.front();
+    }
+
+    transition index_of_transition(trans_storage_t& tt)
+    {
+      assert(!transitions_.empty());
+      return &tt - &transitions_.front();
+    }
+
     internal::state_out<digraph>
     out(state src)
     {
       return {this, states_[src].succ};
+    }
+
+    internal::state_out<digraph>
+    out(state_storage_t& src)
+    {
+      return out(index_of_state(src));
     }
 
     internal::state_out<const digraph>
@@ -461,14 +559,22 @@ namespace spot
       return {this, states_[src].succ};
     }
 
-    unsigned nb_states() const
+    internal::state_out<const digraph>
+    out(state_storage_t& src) const
     {
-      return states_.size();
+      return out(index_of_state(src));
     }
 
-    unsigned nb_trans() const
+    internal::killer_trans_iterator<digraph>
+    out_iteraser(state_storage_t& src)
     {
-      return transitions_.size();
+      return {this, src.succ, src};
+    }
+
+    internal::killer_trans_iterator<digraph>
+    out_iteraser(state src)
+    {
+      return out_iteraser(state_storage(src));
     }
 
     const state_vector& states() const
@@ -479,6 +585,42 @@ namespace spot
     state_vector& states()
     {
       return states_;
+    }
+
+    void defrag()
+    {
+      if (killed_trans_ == 0)	// Nothing to do.
+	return;
+
+      // Shift all transitions in transitions_.  The algorithm is
+      // similar to remove_if, but it also keeps the correspondence
+      // between the old and new index as newidx[old] = new.
+      unsigned tend = transitions_.size();
+      std::vector<transition> newidx(tend);
+      unsigned dest = 1;
+      for (transition t = 1; t < tend; ++t)
+	{
+	  if (transitions_[t].next_succ == t)
+	    continue;
+	  if (t != dest)
+	    transitions_[dest] = std::move(transitions_[t]);
+	  newidx[t] = dest;
+	  ++dest;
+	}
+
+      transitions_.resize(dest);
+      killed_trans_ = 0;
+
+      // Adjust next_succ pointers in all transitions.
+      for (transition t = 1; t < dest; ++t)
+	transitions_[t].next_succ = newidx[transitions_[t].next_succ];
+
+      // Adjust succ and succ_tails pointers in all states.
+      for (auto& s: states_)
+	{
+	  s.succ = newidx[s.succ];
+	  s.succ_tail = newidx[s.succ_tail];
+	}
     }
 
   };

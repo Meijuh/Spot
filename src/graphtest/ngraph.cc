@@ -73,7 +73,7 @@ void
 dot(std::ostream& out, const spot::digraph<SL, TL>& g)
 {
   out << "digraph {\n";
-  unsigned c = g.nb_states();
+  unsigned c = g.num_states();
   for (unsigned s = 0; s < c; ++s)
     {
       out << ' ' << s;
@@ -93,7 +93,7 @@ dot(std::ostream& out, const spot::named_graph<G1, G2, G3, G4>& g)
 {
   out << "digraph {\n";
   auto& gg = g.graph();
-  unsigned c = gg.nb_states();
+  unsigned c = gg.num_states();
   for (unsigned s = 0; s < c; ++s)
     {
       out << ' ' << s;

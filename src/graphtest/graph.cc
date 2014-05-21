@@ -55,7 +55,7 @@ void
 dot(std::ostream& out, spot::digraph<SL, TL>& g)
 {
   out << "digraph {\n";
-  unsigned c = g.nb_states();
+  unsigned c = g.num_states();
   for (unsigned s = 0; s < c; ++s)
     {
       out << ' ' << s;

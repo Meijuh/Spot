@@ -233,7 +233,7 @@ namespace spot
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
       assert(s);
-      assert(s->succ < g_.num_transitions());
+      assert(!s->succ || g_.valid_trans(s->succ));
 
       if (this->iter_cache_)
 	{
@@ -307,6 +307,47 @@ namespace spot
     virtual bdd compute_support_conditions(const state*) const
     {
       return bddtrue;
+    }
+
+    /// Iterate over all transitions, and merge those with compatible
+    /// extremities and acceptance.
+    void merge_transitions()
+    {
+      for (auto& s: g_.states())
+	{
+	  // Map a pair (dest state, acc) to the first transition seen
+	  // with such characteristic.
+
+	  typedef std::pair<graph_t::state, int> key_t;
+	  std::unordered_map<key_t, graph_t::transition, pair_hash> trmap;
+
+	  auto t = g_.out_iteraser(s);
+	  while (t)
+	    {
+	      // Simply skip false transitions.
+	      if (t->cond == bddfalse)
+		{
+		  t.erase();
+		  continue;
+		}
+
+	      key_t k(t->dst, t->acc.id());
+	      auto p = trmap.insert(make_pair(k, t.trans()));
+	      if (!p.second)
+		{
+		  // A previous transitions exist for k, merge the
+		  // condition, and schedule the transition for
+		  // removal.
+		  g_.trans_data(p.first->second).cond |= t->cond;
+		  t.erase();
+		}
+	      else
+		{
+		  ++t;
+		}
+	    }
+	}
+      g_.defrag();
     }
   };
 
