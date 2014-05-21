@@ -17,10 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "sccfilter.hh"
 #include "tgba/tgbaexplicit.hh"
+#include "sccfilter.hh"
 #include "reachiter.hh"
 #include "tgbaalgos/scc.hh"
+#include "tgbaalgos/sccinfo.hh"
 
 namespace spot
 {
@@ -555,6 +556,10 @@ namespace spot
 
   tgba* scc_filter_states(const tgba* aut, scc_map* given_sm)
   {
+    const tgba_digraph* autg = dynamic_cast<const tgba_digraph*>(aut);
+    if (autg && !given_sm)
+      return scc_filter_states(autg, nullptr);
+
     scc_map* sm = given_sm;
     if (!sm)
       {
@@ -602,6 +607,52 @@ namespace spot
     if (!given_sm)
       delete sm;
     return ret;
+  }
+
+  tgba_digraph* scc_filter_states(const tgba_digraph* aut, scc_info* given_si)
+  {
+    // Compute scc_info if not supplied.
+    scc_info* si = given_si;
+    if (!si)
+      si = new scc_info(aut);
+
+    // Renumber all useful states.
+    unsigned in_n = aut->num_states(); // Number of input states.
+    unsigned out_n = 0;		       // Number of output states.
+    std::vector<unsigned> inout; // Associate old states to new ones.
+    inout.reserve(in_n);
+    for (unsigned i = 0; i < in_n; ++i)
+      if (si->is_useful_state(i))
+	inout.push_back(out_n++);
+      else
+	inout.push_back(-1U);
+
+    // scc_info is not useful anymore.
+    if (!given_si)
+      delete si;
+
+    bdd_dict* bd = aut->get_dict();
+    tgba_digraph* filtered = new tgba_digraph(bd);
+    bd->register_all_variables_of(aut, filtered);
+    filtered->copy_acceptance_conditions_of(aut);
+    const tgba_digraph::graph_t& ing = aut->get_graph();
+    tgba_digraph::graph_t& outg = filtered->get_graph();
+    outg.new_states(out_n);
+    for (unsigned isrc = 0; isrc < in_n; ++isrc)
+      {
+	unsigned osrc = inout[isrc];
+	if (osrc >= out_n)
+	  continue;
+	for (auto& t: ing.out(isrc))
+	  {
+	    unsigned odst = inout[t.dst];
+	    if (odst >= out_n)
+	      continue;
+	    outg.new_transition(osrc, odst, t.cond, t.acc);
+	  }
+      }
+    filtered->set_init_state(aut->get_init_state_number());
+    return filtered;
   }
 
 }

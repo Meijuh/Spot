@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -20,11 +20,16 @@
 #ifndef SPOT_TGBAALGOS_SCCFILTER_HH
 # define SPOT_TGBAALGOS_SCCFILTER_HH
 
-#include "tgba/tgba.hh"
+#include "misc/common.hh"
+#include <bdd.h>
 
 namespace spot
 {
   class scc_map;
+  class tgba;
+  class tgba_digraph;
+  class scc_info;
+
 
   /// \brief Prune unaccepting SCCs and remove superfluous acceptance
   /// conditions.
@@ -75,8 +80,13 @@ namespace spot
   /// Especially, if the input TGBA has the SBA property, (i.e.,
   /// transitions leaving accepting states are all marked as
   /// accepting), then the output TGBA will also have that property.
+  /// @{
   SPOT_API tgba*
   scc_filter_states(const tgba* aut, scc_map* given_sm = 0);
+
+  SPOT_API tgba_digraph*
+  scc_filter_states(const tgba_digraph* aut, scc_info* given_si = 0);
+  /// @}
 }
 
 #endif // SPOT_TGBAALGOS_SCC_HH
