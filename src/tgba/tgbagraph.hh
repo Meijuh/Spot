@@ -21,6 +21,7 @@
 # define SPOT_TGBA_TGBAGRAPH_HH
 
 #include "graph/graph.hh"
+#include "graph/ngraph.hh"
 #include "tgba/bdddict.hh"
 #include "tgba/tgba.hh"
 #include "misc/bddop.hh"
@@ -176,6 +177,15 @@ namespace spot
     graph_t& get_graph()
     {
       return g_;
+    }
+
+    template <typename State_Name,
+	      typename Name_Hash = std::hash<State_Name>,
+	      typename Name_Equal = std::equal_to<State_Name>>
+    named_graph<graph_t, State_Name, Name_Hash, Name_Equal>*
+    create_namer()
+    {
+      return new named_graph<graph_t, State_Name, Name_Hash, Name_Equal>(g_);
     }
 
     const graph_t& get_graph() const

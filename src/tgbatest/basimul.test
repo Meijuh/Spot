@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013 Laboratoire de Recherche et Développement de
+# Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -59,6 +59,7 @@ ltl2tgba=../../bin/ltl2tgba
     -f '((<> p5 V ((p0 U p1) <-> (p5 \/ p1))) -> ((<> p4 V p2) M p2))' \
     -f '!p2 & (Fp5 R (((p0 U p1) & (p5 | p1)) | (!p5 & (!p0 R !p1))))' \
     -f '! ((p0 /\ p4) <-> ! ((! p0 U (p0 W p4)) /\ (X p5 -> ([] p3 /\ p5))))' \
+    -f '(X <> (<> X p0 /\ X (p5 <-> p0)) W (p3 W p0))' \
     "$ltl2tgba --ba --high --lbtt=t -x ba-simul=0 %f >%T" \
     "$ltl2tgba --ba --high --lbtt=t -x ba-simul=1 %f >%T" \
     "$ltl2tgba --ba --high --lbtt=t -x ba-simul=2 %f >%T" \

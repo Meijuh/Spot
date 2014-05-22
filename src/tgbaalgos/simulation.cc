@@ -31,7 +31,6 @@
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/dupexp.hh"
-#include "tgbaalgos/dotty.hh"
 
 // The way we developed this algorithm is the following: We take an
 // automaton, and reverse all these acceptance conditions.  We reverse
@@ -275,8 +274,6 @@ namespace spot
 	  size_a_ = ns;
 	}
 
-        initial_state = a_->get_init_state();
-
 	// Now, we have to get the bdd which will represent the
 	// class. We register one bdd by state, because in the worst
 	// case, |Class| == |State|.
@@ -370,7 +367,7 @@ namespace spot
       }
 
       // The core loop of the algorithm.
-      tgba* run()
+      tgba_digraph* run()
       {
         main_loop();
 	return build_result();
@@ -540,17 +537,8 @@ namespace spot
 
 
       // Build the minimal resulting automaton.
-      tgba* build_result()
+      tgba_digraph* build_result()
       {
-	// Now we need to create a state per partition. But the
-	// problem is that we don't know exactly the class. We know
-	// that it is a combination of the acceptance condition
-	// contained in all_class_var_. So we need to make a little
-	// workaround. We will create a map which will associate bdd
-	// and unsigned.
-	std::map<bdd, unsigned, bdd_less_than> bdd2state;
-	unsigned int current_max = 0;
-
 	// We have all the a_'s acceptances conditions
 	// complemented.  So we need to complement it when adding a
 	// transition.  We *must* keep the complemented because it
@@ -560,7 +548,7 @@ namespace spot
 			   a_->neg_acceptance_conditions());
 
 	bdd_dict* d = a_->get_dict();
-	tgba_explicit_number* res = new tgba_explicit_number(d);
+	tgba_digraph* res = new tgba_digraph(d);
 	d->register_all_variables_of(a_, res);
 	res->set_acceptance_conditions(all_acceptance_conditions_);
 
@@ -568,23 +556,22 @@ namespace spot
 	// Non atomic propositions variables (= acc and class)
 	bdd nonapvars = sup_all_acc & bdd_support(all_class_var_);
 
+	auto* gb = res->create_namer<int>();
+
 	// Create one state per partition.
 	for (auto& p: bdd_lstate_)
           {
-            res->add_state(++current_max);
-            bdd part = previous_class_[p.second.front()];
-
-            // The difference between the two next lines is:
-            // the first says "if you see A", the second "if you
-            // see A and all the classes implied by it".
-            bdd2state[part] = current_max;
-            bdd2state[relation_[part]] = current_max;
+            bdd cl = previous_class_[p.second.front()];
+	    // A state may be referred to either by
+	    // its class, or by all the implied classes.
+	    auto s = gb->new_state(cl.id());
+	    gb->alias_state(s, relation_[cl].id());
           }
 
 	// Acceptance of states.  Only used if Sba && Cosimulation.
 	std::vector<bdd> accst;
 	if (Sba && Cosimulation)
-	  accst.resize(current_max + 1, bddfalse);
+	  accst.resize(res->num_states(), bddfalse);
 
         stat.states = bdd_lstate_.size();
         stat.transitions = 0;
@@ -592,11 +579,15 @@ namespace spot
         unsigned nb_satoneset = 0;
         unsigned nb_minato = 0;
 
-	// For each partition, we will create
+	// For each class, we will create
 	// all the transitions between the states.
 	for (auto& p: bdd_lstate_)
           {
-            // Get the signature.
+	    // All states in p.second have the same class, so just
+	    // pick the class of the first one first one.
+	    bdd src = previous_class_[p.second.front()];
+
+            // Get the signature to derive successors.
             bdd sig = compute_sig(p.second.front());
 
             if (Cosimulation)
@@ -642,7 +633,7 @@ namespace spot
 
 		    // Take the transition, and keep only the variable which
 		    // are used to represent the class.
-		    bdd dest = bdd_existcomp(cond_acc_dest,
+		    bdd dst = bdd_existcomp(cond_acc_dest,
 					     all_class_var_);
 
 		    // Keep only ones who are acceptance condition.
@@ -657,53 +648,48 @@ namespace spot
 		    // revert them to create a new transition.
 		    acc = reverser.reverse_complement(acc);
 
-		    // Take the id of the source and destination.  To
-		    // know the source, we must take a random state in
-		    // the list which is in the class we currently
-		    // work on.
-		    int src = bdd2state[previous_class_[p.second.front()]];
-		    int dst = bdd2state[dest];
-
-                    if (Cosimulation)
-                      std::swap(src, dst);
-
-		    // src or dst == 0 means "dest" or "prev..." isn't
-		    // in the map.  so it is a bug.
-		    assert(src != 0);
-		    assert(dst != 0);
-
-		    // Create the transition, add the condition and the
-		    // acceptance condition.
-		    tgba_explicit_number::transition* t
-		      = res->create_transition(src, dst);
-		    t->condition = cond;
-		    if (Sba && Cosimulation)
-		      accst[dst] = acc;
+		    if (Cosimulation)
+		      {
+			gb->new_transition(dst.id(), src.id(),
+					   cond, Sba ? bddfalse : acc);
+			if (Sba)
+			  // acc should be attached to src, or rather,
+			  // in our transition-based representation)
+			  // to all transitions leaving src.  As we
+			  // can't do this here, store this in a table
+			  // so we can fix it later.
+			  accst[gb->get_state(src.id())] = acc;
+		      }
 		    else
-		      t->acceptance_conditions = acc;
+		      {
+			gb->new_transition(src.id(), dst.id(), cond, acc);
+		      }
 		  }
 	      }
           }
 
-	res->set_init_state(bdd2state[previous_class_[0]]);
+	res->set_init_state(gb->get_state(previous_class_
+					  [a_->get_init_state_number()].id()));
 
-	res->merge_transitions();
+	res->merge_transitions(); // FIXME: is this really needed?
 
 	// Mark all accepting state in a second pass, when
 	// dealing with SBA in cosimulation.
 	if (Sba && Cosimulation)
-	  for (unsigned snum = current_max; snum > 0; --snum)
-	    {
-	      const state* s = res->get_state(snum);
-	      bdd acc = accst[snum];
-	      for (auto it: res->succ(s))
-		{
-		  tgba_explicit_number::transition* t =
-		    res->get_transition(it);
-		  t->acceptance_conditions = acc;
-		}
-	    }
+	  {
+	    tgba_digraph::graph_t& g = res->get_graph();
+	    unsigned ns = res->num_states();
+	    for (unsigned s = 0; s < ns; ++s)
+	      {
+		bdd acc = accst[s];
+		if (acc == bddfalse)
+		  continue;
+		for (auto& t: g.out(s))
+		  t.acc = acc;
+	      }
+	  }
 
+	delete gb;
         res_is_deterministic = nb_minato == nb_satoneset;
 
 	return res;
@@ -779,9 +765,6 @@ namespace spot
 
       // The flag to say if the outgoing state is initial or not
       bdd bdd_initial;
-
-      // Initial state of the automaton we are working on
-      state* initial_state;
 
       bdd all_proms_;
 
@@ -1120,7 +1103,7 @@ namespace spot
         return min_size_;
       }
 
-      tgba* run()
+      tgba_digraph* run()
       {
         // Iterate the simulation until the end. We just don't return
         // an automaton. This allows us to get all the information
@@ -1205,7 +1188,7 @@ namespace spot
 	  assert(previous_class_[i.second] == i.first);
 #endif
 
-        tgba* min = 0;
+        tgba_digraph* min = 0;
 
         map_constraint cstr;
 
@@ -1264,7 +1247,7 @@ namespace spot
       // Compute recursively all the combinations.
       void rec(constraint_list constraints,
                map_constraint cstr,
-               tgba** min,
+               tgba_digraph** min,
                int max_depth = std::numeric_limits<int>::max())
       {
         assert(max_depth > 0);
@@ -1282,7 +1265,7 @@ namespace spot
           empty_seen_ = true;
 
         direct_simulation<false, false> dir_sim(original_, &cstr);
-        tgba* tmp = dir_sim.run();
+        tgba_digraph* tmp = dir_sim.run();
         automaton_size cur_size = dir_sim.get_stat();
         if (*min == 0 || min_size_ > cur_size)
           {
@@ -1367,7 +1350,7 @@ namespace spot
       {
         prev = next;
         direct_simulation<false, Sba> simul(res);
-        tgba* after_simulation = simul.run();
+        tgba_digraph* after_simulation = simul.run();
 
         if (res != t)
           delete res;
@@ -1379,9 +1362,8 @@ namespace spot
           }
 
         direct_simulation<true, Sba> cosimul(after_simulation);
-	tgba* after_cosimulation = cosimul.run();
+	tgba_digraph* after_cosimulation = cosimul.run();
         next = cosimul.get_stat();
-
 	delete after_simulation;
 
 	if (Sba)
