@@ -77,6 +77,13 @@ namespace spot
       return p.first->second;
     }
 
+    /// \brief Give an alternate name to a state.
+    /// \return true iff the newname was already used.
+    bool alias_state(state s, name newname)
+    {
+      return !name_to_state.insert(std::make_pair(newname, s)).second;
+    }
+
     state get_state(name n) const
     {
       return name_to_state.at(n);

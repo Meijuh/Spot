@@ -389,10 +389,12 @@ bool f9()
   spot::named_graph<graph_t, std::string> gg(g);
   auto s1 = gg.new_state("s1");
   gg.new_state("s2");
-  gg.new_state("s3");
+  auto s3 = gg.new_state("s3");
+  gg.alias_state(s3, "s3b");
+
   gg.new_transition("s1", "s2", 1, 3);
   gg.new_transition("s1", "s3", 2, 5);
-  gg.new_transition("s2", "s3", 3, 7);
+  gg.new_transition("s2", "s3b", 3, 7);
   gg.new_transition("s3", "s2", 4, 9);
 
   dot(std::cout, gg);
