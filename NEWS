@@ -3,6 +3,7 @@ New in spot 1.2.4a (not yet released)
   * Bug fixes:
 
     - Fix simplification of bounded repetition in SERE formulas.
+    - Fix parsing of neverclaims produced by Modella.
 
 New in spot 1.2.4 (2014-05-15)
 

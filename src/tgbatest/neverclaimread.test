@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+# et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -171,6 +171,40 @@ input:9.16: syntax error, unexpected $undefined, expecting fi or ':'
 EOF
 grep input: stderr >> stderrfilt
 diff stderrfilt expected
+
+
+# This output from MoDeLLa was not property parsed by Spot because of
+# the missing parentheses around p0.  Report from František Blahoudek.
+cat >input <<EOF
+never{
+T0_init:
+	if
+	:: true -> goto T1
+	:: p0 -> goto T2
+	fi;
+T1:
+	if
+	:: true -> goto T1
+	:: p0 -> goto accept_T3
+	fi;
+T2:
+	if
+	:: p0 -> goto accept_T3
+	fi;
+accept_T3:
+	if
+	:: p0 -> goto T2
+	fi;
+}
+EOF
+cat >expected<<EOF
+transitions: 6
+states: 4
+EOF
+
+run 0 ../ltl2tgba -ks -XN input > output
+diff output expected
+
 
 cat >formulae<<EOF
 a
