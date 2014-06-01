@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis
 // Coopératifs (SRC), Université Pierre et Marie Curie.
@@ -37,6 +37,7 @@
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
+#include "tgbaalgos/hoaf.hh"
 #include "tgba/tgbatba.hh"
 #include "tgba/tgbasgba.hh"
 #include "tgbaalgos/degen.hh"
@@ -403,6 +404,7 @@ main(int argc, char** argv)
   bool containment = false;
   bool show_fc = false;
   bool spin_comments = false;
+  const char* hoaf_opt = 0;
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* unobservables = 0;
   spot::tgba* system_aut = 0;
@@ -580,6 +582,11 @@ main(int argc, char** argv)
 	{
 	  accepting_run = true;
 	  graph_run_tgba_opt = true;
+	}
+      else if (!strncmp(argv[formula_index], "-H", 2))
+	{
+	  output = 17;
+	  hoaf_opt = argv[formula_index] + 2;
 	}
       else if (!strcmp(argv[formula_index], "-k"))
 	{
@@ -1883,7 +1890,11 @@ main(int argc, char** argv)
 		  }
 		break;
 	      }
-
+	    case 17:
+	      {
+		hoaf_reachable(std::cout, a, hoaf_opt, f) << '\n';
+		break;
+	      }
 	    default:
 	      assert(!"unknown output option");
 	    }

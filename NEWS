@@ -1,10 +1,16 @@
 New in spot 1.2.4a (not yet released)
 
-  * New feature:
+  * New features:
 
     - The online ltl2tgba translator will automatically attempt to
       parse a formula using LBT's syntax if it cannot parse it using
       the normal infix syntax.
+
+    - ltl2tgba and dstar2tgba have a new experimental option --hoaf to
+      output automata in the Hanoï Omega Automaton Format whose
+      current draft is at http://adl.github.io/hoaf/
+      The corresponding C++ function is spot::hoaf_reachable() in
+      tgbaalgos/hoaf.hh.
 
   * Documentation:
 
