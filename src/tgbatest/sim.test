@@ -45,8 +45,8 @@ run 0 ../ltl2tgba  -RDCIS -b XXXXGFa > out.tgba
 
 cat >expected.tgba <<EOF
 acc = "a";
-"1", "1", "a", "a";
-"1", "1", "!a",;
+"0", "0", "a", "a";
+"0", "0", "!a",;
 EOF
 
 diff out.tgba expected.tgba

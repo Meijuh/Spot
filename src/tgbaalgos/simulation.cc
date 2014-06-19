@@ -1309,28 +1309,28 @@ namespace spot
   } // End namespace anonymous.
 
 
-  tgba*
+  tgba_digraph*
   simulation(const tgba* t)
   {
     direct_simulation<false, false> simul(t);
     return simul.run();
   }
 
-  tgba*
+  tgba_digraph*
   simulation_sba(const tgba* t)
   {
     direct_simulation<false, true> simul(t);
     return simul.run();
   }
 
-  tgba*
+  tgba_digraph*
   cosimulation(const tgba* t)
   {
     direct_simulation<true, false> simul(t);
     return simul.run();
   }
 
-  tgba*
+  tgba_digraph*
   cosimulation_sba(const tgba* t)
   {
     direct_simulation<true, true> simul(t);
@@ -1339,21 +1339,19 @@ namespace spot
 
 
   template<bool Sba>
-  tgba*
+  tgba_digraph*
   iterated_simulations_(const tgba* t)
   {
-    tgba* res = const_cast<tgba*> (t);
+    tgba_digraph* res = 0;
     automaton_size prev;
     automaton_size next;
 
     do
       {
         prev = next;
-        direct_simulation<false, Sba> simul(res);
+        direct_simulation<false, Sba> simul(res ? res : t);
         tgba_digraph* after_simulation = simul.run();
-
-        if (res != t)
-          delete res;
+	delete res;
 
         if (simul.result_is_deterministic())
           {
@@ -1376,53 +1374,51 @@ namespace spot
     return res;
   }
 
-  tgba*
+  tgba_digraph*
   iterated_simulations(const tgba* t)
   {
     return iterated_simulations_<false>(t);
   }
 
-  tgba*
+  tgba_digraph*
   iterated_simulations_sba(const tgba* t)
   {
     return iterated_simulations_<true>(t);
   }
 
-  tgba*
+  tgba_digraph*
   dont_care_simulation(const tgba* t, int limit)
   {
     direct_simulation<false, false> sim(t);
-    tgba* tmp = sim.run();
+    tgba_digraph* tmp = sim.run();
 
     direct_simulation_dont_care s(tmp);
     if (limit > 0)
       s.set_limit(limit);
 
-    tgba* res = s.run();
+    tgba_digraph* res = s.run();
     delete tmp;
 
     return res;
   }
 
 
-  tgba*
+  tgba_digraph*
   dont_care_iterated_simulations(const tgba* t, int limit)
   {
-    tgba* res = const_cast<tgba*> (t);
+    tgba_digraph* res = 0;
     automaton_size prev;
     automaton_size next;
 
     do
       {
         prev = next;
-
-	tgba* after_simulation = dont_care_simulation(res, limit);
-
-        if (res != t)
-          delete res;
+	tgba_digraph* after_simulation =
+	  dont_care_simulation(res ? res : t, limit);
+	delete res;
 
         direct_simulation<true, false> cosimul(after_simulation);
-	tgba* after_cosimulation = cosimul.run();
+	tgba_digraph* after_cosimulation = cosimul.run();
 	delete after_simulation;
 
         next = cosimul.get_stat();

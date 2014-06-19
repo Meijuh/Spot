@@ -67,10 +67,16 @@ namespace spot
   /// (i.e., transitions leaving accepting states are all marked as
   /// accepting) may destroy this property.  Use scc_filter_states()
   /// instead.
+  /// @{
   SPOT_API tgba*
   scc_filter(const tgba* aut, bool remove_all_useless = false,
 	     scc_map* given_sm = 0, bdd susp = bddtrue,
 	     bool early_susp = false, bdd ignored = bddtrue);
+
+  SPOT_API tgba_digraph*
+  scc_filter(const tgba_digraph* aut, bool remove_all_useless = false,
+	     scc_info* given_si = 0);
+  /// @}
 
   /// \brief Prune unaccepting SCCs.
   ///

@@ -609,50 +609,198 @@ namespace spot
     return ret;
   }
 
-  tgba_digraph* scc_filter_states(const tgba_digraph* aut, scc_info* given_si)
+  //////////////////////////////////////////////////////////////////////
+
+  namespace
   {
-    // Compute scc_info if not supplied.
-    scc_info* si = given_si;
-    if (!si)
-      si = new scc_info(aut);
 
-    // Renumber all useful states.
-    unsigned in_n = aut->num_states(); // Number of input states.
-    unsigned out_n = 0;		       // Number of output states.
-    std::vector<unsigned> inout; // Associate old states to new ones.
-    inout.reserve(in_n);
-    for (unsigned i = 0; i < in_n; ++i)
-      if (si->is_useful_state(i))
-	inout.push_back(out_n++);
-      else
-	inout.push_back(-1U);
+    typedef std::tuple<bool, bdd, bdd> filtered_trans;
 
-    // scc_info is not useful anymore.
-    if (!given_si)
-      delete si;
 
-    bdd_dict* bd = aut->get_dict();
-    tgba_digraph* filtered = new tgba_digraph(bd);
-    bd->register_all_variables_of(aut, filtered);
-    filtered->copy_acceptance_conditions_of(aut);
-    const tgba_digraph::graph_t& ing = aut->get_graph();
-    tgba_digraph::graph_t& outg = filtered->get_graph();
-    outg.new_states(out_n);
-    for (unsigned isrc = 0; isrc < in_n; ++isrc)
+    // SCC filters are objects with two methods:
+    //  state(src) return true iff s should be kept
+    //  trans(src, dst, cond, acc) returns a triplet
+    //     (keep, cond2, acc2) where keep is a Boolean stating if the
+    //                      transition should be kept, and cond2/acc2
+    //                      give replacement values for cond/acc
+    struct id_filter
+    {
+      scc_info* si;
+      id_filter(scc_info* si)
+	: si(si)
       {
-	unsigned osrc = inout[isrc];
-	if (osrc >= out_n)
-	  continue;
-	for (auto& t: ing.out(isrc))
-	  {
-	    unsigned odst = inout[t.dst];
-	    if (odst >= out_n)
-	      continue;
-	    outg.new_transition(osrc, odst, t.cond, t.acc);
-	  }
       }
-    filtered->set_init_state(aut->get_init_state_number());
-    return filtered;
+
+      // Accept all states
+      bool state(unsigned)
+      {
+	return true;
+      }
+
+      // Accept all transitions, unmodified
+      filtered_trans trans(unsigned, unsigned, bdd cond, bdd acc)
+      {
+	return filtered_trans{true, cond, acc};
+      }
+    };
+
+    // Remove useless states.
+    struct state_filter: id_filter
+    {
+      state_filter(scc_info* si)
+	: id_filter(si)
+      {
+      }
+
+      bool state(unsigned s)
+      {
+	return si->is_useful_state(s);
+      }
+    };
+
+    // Remove acceptance conditions from all transitions outside of
+    // non-accepting SCCs.
+    struct acc_filter_all: id_filter
+    {
+      acc_filter_all(scc_info* si)
+	: id_filter(si)
+      {
+      }
+
+      filtered_trans trans(unsigned src, unsigned dst,
+			   bdd cond, bdd acc)
+      {
+	unsigned u = si->scc_of(src);
+	// If the transition is between two SCCs, or in a
+	// non-accepting SCC.  Remove the acceptance sets.
+	if (!si->is_accepting_scc(u) || u != si->scc_of(dst))
+	  acc = bddfalse;
+
+	return filtered_trans(true, cond, acc);
+      }
+    };
+
+    // Remove acceptance conditions from all transitions whose
+    // destination is not an accepting SCCs.
+    struct acc_filter_some: id_filter
+    {
+      acc_filter_some(scc_info* si)
+	: id_filter(si)
+      {
+      }
+
+      filtered_trans trans(unsigned, unsigned dst,
+			   bdd cond, bdd acc)
+      {
+	if (!si->is_accepting_scc(si->scc_of(dst)))
+	  acc = bddfalse;
+	return filtered_trans(true, cond, acc);
+      }
+    };
+
+    template<typename F1, typename F2>
+    struct compose_filters
+    {
+      F1 f1;
+      F2 f2;
+
+      compose_filters(scc_info* si)
+	: f1(si), f2(si)
+      {
+      }
+
+      bool state(unsigned s)
+      {
+	return f1.state(s) && f2.state(s);
+      }
+
+      filtered_trans trans(unsigned src, unsigned dst,
+			   bdd cond, bdd acc)
+      {
+	auto res = f1.trans(src, dst, cond, acc);
+	if (!std::get<0>(res))
+	  return res;
+	return f2.trans(src, dst, std::get<1>(res), std::get<2>(res));
+      }
+    };
+
+    template<class F>
+    tgba_digraph* scc_filter_apply(const tgba_digraph* aut, scc_info* given_si)
+    {
+      // Compute scc_info if not supplied.
+      scc_info* si = given_si;
+      if (!si)
+	si = new scc_info(aut);
+
+
+      F filter(si);
+
+      // Renumber all useful states.
+      unsigned in_n = aut->num_states(); // Number of input states.
+      unsigned out_n = 0;		 // Number of output states.
+      std::vector<unsigned> inout; // Associate old states to new ones.
+      inout.reserve(in_n);
+      for (unsigned i = 0; i < in_n; ++i)
+	if (filter.state(i))
+	  inout.push_back(out_n++);
+	else
+	  inout.push_back(-1U);
+
+      bdd_dict* bd = aut->get_dict();
+      tgba_digraph* filtered = new tgba_digraph(bd);
+      bd->register_all_variables_of(aut, filtered);
+      filtered->copy_acceptance_conditions_of(aut);
+      const tgba_digraph::graph_t& ing = aut->get_graph();
+      tgba_digraph::graph_t& outg = filtered->get_graph();
+      outg.new_states(out_n);
+      for (unsigned isrc = 0; isrc < in_n; ++isrc)
+	{
+	  unsigned osrc = inout[isrc];
+	  if (osrc >= out_n)
+	    continue;
+	  for (auto& t: ing.out(isrc))
+	    {
+	      unsigned odst = inout[t.dst];
+	      if (odst >= out_n)
+		continue;
+	      bool want;
+	      bdd cond;
+	      bdd acc;
+	      std::tie(want, cond, acc) =
+		filter.trans(isrc, t.dst, t.cond, t.acc);
+	      if (want)
+		outg.new_transition(osrc, odst, cond, acc);
+	    }
+	}
+      if (!given_si)
+	delete si;
+      // If the initial state has been filtered out, we don't attempt
+      // to fix it.
+      auto init = inout[aut->get_init_state_number()];
+      if (init < out_n)
+	filtered->set_init_state(init);
+      return filtered;
+    }
+
+
+  }
+
+  tgba_digraph*
+  scc_filter_states(const tgba_digraph* aut, scc_info* given_si)
+  {
+    return scc_filter_apply<state_filter>(aut, given_si);
+  }
+
+  tgba_digraph*
+  scc_filter(const tgba_digraph* aut, bool remove_all_useless,
+	     scc_info* given_si)
+  {
+    if (remove_all_useless)
+      return scc_filter_apply<compose_filters<state_filter,
+					      acc_filter_all>>(aut, given_si);
+    else
+      return scc_filter_apply<compose_filters<state_filter,
+					      acc_filter_some>>(aut, given_si);
   }
 
 }

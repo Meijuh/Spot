@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,6 +21,7 @@
 # define SPOT_TGBAALGOS_SIMULATION_HH
 
 # include "misc/common.hh"
+# include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -69,8 +70,8 @@ namespace spot
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
-  SPOT_API tgba* simulation(const tgba* automaton);
-  SPOT_API tgba* simulation_sba(const tgba* automaton);
+  SPOT_API tgba_digraph* simulation(const tgba* automaton);
+  SPOT_API tgba_digraph* simulation_sba(const tgba* automaton);
   /// @}
 
   /// @{
@@ -120,8 +121,8 @@ namespace spot
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
-  SPOT_API tgba* cosimulation(const tgba* automaton);
-  SPOT_API tgba* cosimulation_sba(const tgba* automaton);
+  SPOT_API tgba_digraph* cosimulation(const tgba* automaton);
+  SPOT_API tgba_digraph* cosimulation_sba(const tgba* automaton);
   /// @}
 
   /// @{
@@ -139,15 +140,15 @@ namespace spot
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
-  SPOT_API tgba* iterated_simulations(const tgba* automaton);
-  SPOT_API tgba* iterated_simulations_sba(const tgba* automaton);
+  SPOT_API tgba_digraph* iterated_simulations(const tgba* automaton);
+  SPOT_API tgba_digraph* iterated_simulations_sba(const tgba* automaton);
   /// @}
 
 
-  SPOT_API tgba*
+  SPOT_API tgba_digraph*
   dont_care_simulation(const tgba* t, int limit = -1);
 
-  SPOT_API tgba*
+  SPOT_API tgba_digraph*
   dont_care_iterated_simulations(const tgba* t, int limit = -1);
 
 
