@@ -97,7 +97,7 @@ namespace spot
       {
       }
 
-      // if Data is a POS type, G++ 4.8.2 wants default values for all
+      // if Data is a POD type, G++ 4.8.2 wants default values for all
       // label fields unless we define this default constructor here.
       explicit boxed_label()
       {

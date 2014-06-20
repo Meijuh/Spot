@@ -174,11 +174,6 @@ namespace spot
       last_support_conditions_input_ = 0;
     }
 
-    graph_t& get_graph()
-    {
-      return g_;
-    }
-
     template <typename State_Name,
 	      typename Name_Hash = std::hash<State_Name>,
 	      typename Name_Equal = std::equal_to<State_Name>>
@@ -186,6 +181,11 @@ namespace spot
     create_namer()
     {
       return new named_graph<graph_t, State_Name, Name_Hash, Name_Equal>(g_);
+    }
+
+    graph_t& get_graph()
+    {
+      return g_;
     }
 
     const graph_t& get_graph() const
