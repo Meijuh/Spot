@@ -66,8 +66,9 @@ namespace spot
 
     std::vector<unsigned> sccof_;
     std::vector<scc_node> node_;
+    const tgba_digraph* aut_;
 
-    const scc_node& node(unsigned scc)
+    const scc_node& node(unsigned scc) const
     {
       assert(scc < node_.size());
       return node_[scc];
@@ -76,52 +77,69 @@ namespace spot
   public:
     scc_info(const tgba_digraph* aut);
 
-    unsigned scc_count()
+    const tgba_digraph* get_aut() const
+    {
+      return aut_;
+    }
+
+    unsigned scc_count() const
     {
       return node_.size();
     }
 
-    unsigned scc_of(unsigned st)
+    unsigned scc_of(unsigned st) const
     {
       assert(st < sccof_.size());
       return sccof_[st];
     }
 
-    const std::list<unsigned>& states_of(unsigned scc)
+    const std::list<unsigned>& states_of(unsigned scc) const
     {
       return node(scc).states;
     }
 
-    const scc_succs& succ(unsigned scc)
+    const scc_succs& succ(unsigned scc) const
     {
       return node(scc).succ;
     }
 
-    bool is_trivial(unsigned scc)
+    bool is_trivial(unsigned scc) const
     {
       return node(scc).trivial;
     }
 
-    bdd acc(unsigned scc)
+    bdd acc(unsigned scc) const
     {
       return node(scc).acc;
     }
 
-    bool is_accepting_scc(unsigned scc)
+    bool is_accepting_scc(unsigned scc) const
     {
       return node(scc).accepting;
     }
 
-    bool is_useful_scc(unsigned scc)
+    bool is_useful_scc(unsigned scc) const
     {
       return node(scc).useful;
     }
 
-    bool is_useful_state(unsigned st)
+    bool is_useful_state(unsigned st) const
     {
       return node(scc_of(st)).useful;
     }
 
+   /// \brief Return the set of all used acceptance combinations, for
+   /// each accepting SCC.
+   ///
+   /// If SCC #i use {a,b} and {c}, which
+   /// are normally respectively encoded as
+   ///    Acc[a]&!Acc[b]&!Acc[c] | !Acc[a]&Acc[b]&!Acc[c]
+   /// and
+   ///    !Acc[a]&!Acc[b]&Acc[c]
+   /// then the vector will contain
+   ///    Acc[a]&Acc[b] | Acc[c]
+   /// at position #i.
+    std::vector<bdd> used_acc() const;
   };
 
 

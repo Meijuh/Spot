@@ -23,6 +23,7 @@
 #include <queue>
 #include "tgba/bddprint.hh"
 #include "misc/escape.hh"
+#include "priv/accconv.hh"
 
 namespace spot
 {
@@ -45,6 +46,7 @@ namespace spot
   }
 
   scc_info::scc_info(const tgba_digraph* aut)
+    : aut_(aut)
   {
     unsigned n = aut->num_states();
     sccof_.resize(n, -1U);
@@ -223,6 +225,29 @@ namespace spot
 	  useful |= node_[j.dst].useful;
 	node_[i].useful = useful;
       }
+  }
+
+
+  std::vector<bdd> scc_info::used_acc() const
+  {
+    auto& g = aut_->get_graph();
+    unsigned n = g.num_states();
+    std::vector<bdd> result(scc_count());
+    acceptance_convertor conv(aut_->neg_acceptance_conditions());
+
+    for (unsigned src = 0; src < n; ++src)
+      {
+	unsigned src_scc = scc_of(src);
+	if (!is_accepting_scc(src_scc))
+	  continue;
+	for (auto& t: g.out(src))
+	  {
+	    if (scc_of(t.dst) != src_scc)
+	      continue;
+	    result[src_scc] |= conv.as_full_product(t.acc);
+	  }
+      }
+    return result;
   }
 
   std::ostream&

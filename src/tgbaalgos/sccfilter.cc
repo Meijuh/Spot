@@ -609,13 +609,17 @@ namespace spot
     return ret;
   }
 
+
+  //////////////////////////////////////////////////////////////////////
+  // The goal is to remove all the code above this line eventually, so
+  // do not waste your time code common to both sides of this note.
   //////////////////////////////////////////////////////////////////////
 
   namespace
   {
 
     typedef std::tuple<bool, bdd, bdd> filtered_trans;
-
+    typedef std::pair<bdd, bdd> acc_pair;
 
     // SCC filters are objects with two methods:
     //  state(src) return true iff s should be kept
@@ -635,6 +639,11 @@ namespace spot
       bool state(unsigned)
       {
 	return true;
+      }
+
+      acc_pair accsets(bdd all, bdd all_neg)
+      {
+	return acc_pair(all, all_neg);
       }
 
       // Accept all transitions, unmodified
@@ -698,11 +707,250 @@ namespace spot
       }
     };
 
-    template<typename F1, typename F2>
+    //
+    struct acc_filter_simplify: id_filter
+    {
+      std::vector<bdd> acc_;
+      typedef std::map<int, bdd> map_t;
+      typedef std::vector<map_t> remap_t;
+      remap_t remap_;
+
+      acc_filter_simplify(scc_info* si)
+	: id_filter(si)
+      {
+      }
+
+      acc_pair accsets(bdd in_all, bdd in_all_neg)
+      {
+	unsigned scc_count = si->scc_count();
+	remap_table_t remap_table(scc_count);
+	std::vector<unsigned> max_table(scc_count);
+	std::vector<bdd> useful_table(scc_count);
+	std::vector<bdd> useless_table(scc_count);
+	unsigned max_num = 1;
+	const tgba_digraph* aut = si->get_aut();
+
+	std::vector<bdd> used_acc = si->used_acc();
+
+	for (unsigned n = 0; n < scc_count; ++n)
+	  {
+	    if (!si->is_accepting_scc(n))
+	      continue;
+	    bdd all = used_acc[n];
+
+	    //std::cerr << "SCC #" << n << "; used = " << all << std::endl;
+
+	    // Compute a set of useless acceptance sets.
+	    // If the acceptance combinations occurring in
+	    // the automata are  { a, ab, abc, bd }, then
+	    // ALL contains (a&!b&!c&!d)|(a&b&!c&!d)|(a&b&c&!d)|(!a&b&!c&d)
+	    // and we want to find that 'a' and 'b' are useless because
+	    // they always occur with 'c'.
+	    // The way we check if 'a' is useless is to look whether ALL
+	    // implications (x -> a) for some other acceptance set x.
+	    //
+	    // The two while() loops in the code perform the equivalent of
+	    //    for all a in allconds_a:
+	    //       for all x in allconds_x:
+	    //          check whether x -> a
+	    //          ...
+	    //
+	    // Initially allconds_a = allconds_x contains all acceptance
+	    // sets.  However when an acceptance set 'a' is determined to
+	    // be useless, it can be removed from allconds_x from future
+	    // iterations.
+	    bdd allconds_a = bdd_support(in_all_neg);
+	    bdd allconds_x = allconds_a;
+	    bdd useless = bddtrue;
+	    while (allconds_a != bddtrue)
+	      {
+		// Speed-up the computation of implied acceptance sets by
+		// removing those that are always present.  We detect
+		// those that appear as conjunction of positive variables
+		// at the start of ALL.
+		bdd prefix = bdd_satprefix(all);
+		if (prefix != bddtrue)
+		  {
+		    assert(prefix == bdd_support(prefix));
+		    allconds_a = bdd_exist(allconds_a, prefix);
+		    if (allconds_a != bddtrue)
+		      {
+			useless &= prefix;
+		      }
+		    else
+		      {
+			// Never erase all conditions: at least keep one.
+			useless &= bdd_high(prefix);
+			break;
+		      }
+		    allconds_x = bdd_exist(allconds_x, prefix);
+		  }
+
+		// Pick an acceptance set 'a'.
+		bdd a = bdd_ithvar(bdd_var(allconds_a));
+		// For all acceptance sets 'x' that are not already
+		// useless...
+		bdd others = allconds_x;
+		while (others != bddtrue)
+		  {
+		    bdd x = bdd_ithvar(bdd_var(others));
+		    // ... check whether 'x' always implies 'a'.
+		    if (x != a && bdd_implies(all, x >> a))
+		      {
+			// If so, 'a' is useless.
+			all = bdd_exist(all, a);
+			useless &= a;
+			allconds_x = bdd_exist(allconds_x, a);
+			break;
+		      }
+		    others = bdd_high(others);
+		  }
+		allconds_a = bdd_high(allconds_a);
+	      }
+
+	    // We never remove ALL acceptance marks.
+	    assert(in_all_neg == bddtrue || useless != bdd_support(in_all_neg));
+
+	    useless_table[n] = useless;
+	    bdd useful = bdd_exist(in_all_neg, useless);
+
+	    //std::cerr << "SCC #" << n << "; useful = " << useful << std::endl;
+
+	    // Go over all useful sets of acceptance marks, and give them
+	    // a number.
+	    unsigned num = 1;
+	    // First compute the number of acceptance conditions used.
+	    for (BDD c = useful.id(); c != 1; c = bdd_low(c))
+	      ++num;
+	    max_table[n] = num;
+	    if (num > max_num)
+	      max_num = num;
+
+	    useful_table[n] = useful;
+	  }
+
+	// Now that we know about the max number of acceptance
+	// conditions, add extra acceptance conditions to those SCC
+	// that do not have enough.
+	for (unsigned n = 0; n < scc_count; ++n)
+	  {
+	    if (!si->is_accepting_scc(n))
+	      continue;
+	    //std::cerr << "SCC " << n << '\n';
+	    bdd useful = useful_table[n];
+
+	    int missing = max_num - max_table[n];
+	    bdd useless = useless_table[n];
+	    while (missing--)
+	      {
+		//std::cerr << useful << "  :  " << useless << std::endl;
+		useful &= bdd_nithvar(bdd_var(useless));
+		useless = bdd_high(useless);
+	      }
+	    int num = max_num;
+	    // Then number all of these acceptance conditions in the
+	    // reverse order.  This makes sure that the associated number
+	    // varies in the same direction as the bdd variables, which in
+	    // turn makes sure we preserve the acceptance condition
+	    // ordering (which matters for degeneralization).
+	    for (BDD c = useful.id(); c != 1; c = bdd_low(c))
+	      remap_table[n].insert(std::make_pair(bdd_var(c), --num));
+
+	    max_table[n] = max_num;
+	  }
+
+	acc_.resize(max_num);
+	acc_[0] = bddfalse;
+	bdd tmp = in_all;
+	assert(aut->number_of_acceptance_conditions() >= max_num - 1);
+
+	bdd all = bddfalse;
+	bdd all_neg = bddtrue;
+
+	if (tmp != bddfalse)
+	  {
+	    for (unsigned n = max_num - 1; n > 0; --n)
+	      {
+	    	assert(tmp != bddfalse);
+		int v = bdd_var(tmp);
+		bdd vn = bdd_nithvar(v);
+		all = (all & vn) | (all_neg & bdd_ithvar(v));
+		all_neg &= vn;
+	    	tmp = bdd_low(tmp);
+	      }
+	    tmp = in_all;
+	    for (unsigned n = max_num - 1; n > 0; --n)
+	      {
+		int v = bdd_var(tmp);
+		acc_[n] = bdd_compose(all_neg, bdd_nithvar(v), v);
+		tmp = bdd_low(tmp);
+	      }
+	  }
+	else
+	  {
+	    assert(max_num == 1);
+	  }
+
+	remap_.resize(scc_count);
+	bdd all_orig_neg = in_all_neg;
+	bdd all_sup = bdd_support(all_orig_neg);
+
+	for (unsigned n = 0; n < scc_count; ++n)
+	  {
+	    //std::cerr << "SCC #" << n << '\n';
+	    if (!si->is_accepting_scc(n))
+	      continue;
+
+	    bdd all = used_acc[n];
+	    while (all != bddfalse)
+	      {
+		bdd one = bdd_satoneset(all, all_sup, bddtrue);
+		all -= one;
+		bdd res = bddfalse;
+		bdd resacc = bddfalse;
+		while (one != bddtrue)
+		  {
+		    if (bdd_high(one) == bddfalse)
+		      {
+			one = bdd_low(one);
+			continue;
+		      }
+		    int vn = bdd_var(one);
+		    bdd v = bdd_ithvar(vn);
+		    resacc |= bdd_exist(all_orig_neg, v) & v;
+		    res |= acc_[remap_table[n][vn]];
+		    one = bdd_high(one);
+		  }
+		int id = resacc.id();
+		//std::cerr << resacc << " -> " << res << '\n';
+		remap_[n][id] = res;
+	      }
+	  }
+	return acc_pair{all, all_neg};
+      }
+
+      filtered_trans trans(unsigned src, unsigned, bdd cond, bdd acc)
+      {
+	if (acc != bddfalse)
+	  {
+	    unsigned u = si->scc_of(src);
+	    auto i = remap_[u].find(acc.id());
+	    if (i != remap_[u].end())
+	      acc = i->second;
+	    else
+	      acc = bddfalse;
+	  }
+	return filtered_trans{true, cond, acc};
+      }
+
+    };
+
+
+    template<typename F1, typename... F2>
     struct compose_filters
     {
       F1 f1;
-      F2 f2;
+      compose_filters<F2...> f2;
 
       compose_filters(scc_info* si)
 	: f1(si), f2(si)
@@ -712,6 +960,12 @@ namespace spot
       bool state(unsigned s)
       {
 	return f1.state(s) && f2.state(s);
+      }
+
+      acc_pair accsets(bdd all, bdd all_neg)
+      {
+	auto t = f1.accsets(all, all_neg);
+	return f2.accsets(t.first, t.second);
       }
 
       filtered_trans trans(unsigned src, unsigned dst,
@@ -724,14 +978,24 @@ namespace spot
       }
     };
 
+    // If there is nothing to compose, use the filter as-is.
+    template<typename F1>
+    struct compose_filters<F1>: F1
+    {
+      compose_filters(scc_info* si)
+	: F1(si)
+      {
+      }
+    };
+
     template<class F>
-    tgba_digraph* scc_filter_apply(const tgba_digraph* aut, scc_info* given_si)
+    tgba_digraph* scc_filter_apply(const tgba_digraph* aut,
+				   scc_info* given_si)
     {
       // Compute scc_info if not supplied.
       scc_info* si = given_si;
       if (!si)
 	si = new scc_info(aut);
-
 
       F filter(si);
 
@@ -749,7 +1013,11 @@ namespace spot
       bdd_dict* bd = aut->get_dict();
       tgba_digraph* filtered = new tgba_digraph(bd);
       bd->register_all_variables_of(aut, filtered);
-      filtered->copy_acceptance_conditions_of(aut);
+      {
+	bdd all = aut->all_acceptance_conditions();
+	bdd neg = aut->neg_acceptance_conditions();
+	filtered->set_acceptance_conditions(filter.accsets(all, neg).first);
+      }
       const tgba_digraph::graph_t& ing = aut->get_graph();
       tgba_digraph::graph_t& outg = filtered->get_graph();
       outg.new_states(out_n);
@@ -797,10 +1065,14 @@ namespace spot
   {
     if (remove_all_useless)
       return scc_filter_apply<compose_filters<state_filter,
-					      acc_filter_all>>(aut, given_si);
+					      acc_filter_all,
+					      acc_filter_simplify>>
+	(aut, given_si);
     else
       return scc_filter_apply<compose_filters<state_filter,
-					      acc_filter_some>>(aut, given_si);
+					      acc_filter_some,
+					      acc_filter_simplify>>
+	(aut, given_si);
   }
 
 }
