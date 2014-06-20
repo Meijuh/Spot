@@ -470,8 +470,10 @@ namespace spot
 	    // simplifications in the signature by removing a
 	    // transition which has as a destination a state with
 	    // no outgoing transition.
-	    now_to_next[p.first] =
-	      (p.first == bddfalse) ? bddfalse : *it_bdd;
+	    bdd acc = bddfalse;
+	    if (p.first != bddfalse)
+	      acc = *it_bdd;
+	    now_to_next[p.first] = acc;
 	    ++it_bdd;
           }
 
@@ -650,15 +652,17 @@ namespace spot
 
 		    if (Cosimulation)
 		      {
-			gb->new_transition(dst.id(), src.id(),
-					   cond, Sba ? bddfalse : acc);
 			if (Sba)
-			  // acc should be attached to src, or rather,
-			  // in our transition-based representation)
-			  // to all transitions leaving src.  As we
-			  // can't do this here, store this in a table
-			  // so we can fix it later.
-			  accst[gb->get_state(src.id())] = acc;
+			  {
+			    // acc should be attached to src, or rather,
+			    // in our transition-based representation)
+			    // to all transitions leaving src.  As we
+			    // can't do this here, store this in a table
+			    // so we can fix it later.
+			    accst[gb->get_state(src.id())] = acc;
+			    acc = bddfalse;
+			  }
+			gb->new_transition(dst.id(), src.id(), cond, acc);
 		      }
 		    else
 		      {

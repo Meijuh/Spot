@@ -347,7 +347,7 @@ namespace spot
 		else if (c_prime.get_color() == CYAN &&
 			 (all_acc == ((use_red_weights ?
 				       (current_weight - c_prime.get_weight())
-				       : bddfalse)
+				       : bdd_false())
 				      | c_prime.get_acc()
 				      | acc
 				      | acu)))

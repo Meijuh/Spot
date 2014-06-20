@@ -246,7 +246,8 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
       grep '[^a-zA-Z0-9_](\*[a-zA-Z0-9_]*)\.' $tmp &&
 	diag 'Use "x->y", not "(*x).y"'
 
-      egrep 'bdd_(false|true)[	]*\(' $tmp &&
+      # we allow these functions only in ?...:...
+      egrep 'bdd_(false|true)[	]*\(' $tmp | grep -v '[?:]' &&
 	diag 'Use bddfalse and bddtrue instead of bdd_false() and bdd_true()'
 
       res=`perl -ne '$/ = undef;

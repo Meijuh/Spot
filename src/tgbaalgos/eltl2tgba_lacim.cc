@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -195,7 +195,10 @@ namespace spot
 
 	// Update finish_ with finish(node).
 	// FIXME: when node is loop, it does not make sense; hence the bddtrue.
-	finish_[node] = !node->get_nfa()->is_loop() ? bddtrue : finish;
+	if (!node->get_nfa()->is_loop())
+	  finish_[node] = bddtrue;
+	else
+	  finish_[node] = finish;
 
 	bdd tmp = bddtrue;
 	for (nmap::iterator it = m.begin(); it != m.end(); ++it)

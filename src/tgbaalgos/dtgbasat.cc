@@ -768,8 +768,9 @@ namespace spot
 
 					    bdd f2 = p.acc_cand |
 					      d.all_cand_acc[f];
-					    bdd f2p = is_weak ? bddfalse
-					      : p.acc_ref | curacc;
+					    bdd f2p = bddfalse;
+					    if (!is_weak)
+					      f2p = p.acc_ref | curacc;
 
 					    path p2(p.src_cand, p.src_ref,
 						    q3, dp, f2, f2p);
