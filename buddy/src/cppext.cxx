@@ -57,8 +57,8 @@ bdd_ioformat bddall(IOFORMAT_ALL);
 bdd_ioformat fddset(IOFORMAT_FDDSET);
 
    /* Constant true and false extension */
-const bdd bddtruepp = bdd_true();
-const bdd bddfalsepp = bdd_false();
+const bddxtrue bddtruepp;
+const bddxfalse bddfalsepp;
 
    /* Internal prototypes */
 static void bdd_printset_rec(ostream&, int, int*);

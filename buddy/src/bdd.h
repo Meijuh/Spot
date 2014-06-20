@@ -483,6 +483,9 @@ BUDDY_API_VAR const BDD bddtrue;
 
 class BUDDY_API bvec;
 
+class BUDDY_API bddxfalse;
+class BUDDY_API bddxtrue;
+
 class BUDDY_API bdd
 {
  public:
@@ -491,11 +494,22 @@ class BUDDY_API bdd
    {
      root=0;
    }
+
    bdd(const bdd &r) noexcept
    {
      root=r.root;
      if (root > 1)
        bdd_addref_nc(root);
+   }
+
+   bdd(const bddxfalse &) noexcept
+   {
+     root = 0;
+   }
+
+   bdd(const bddxtrue &) noexcept
+   {
+     root = 1;
    }
 
    bdd(bdd&& r) noexcept
@@ -515,6 +529,9 @@ class BUDDY_API bdd
    bdd& operator=(const bdd &r) noexcept;
    bdd& operator=(bdd&& r) noexcept;
 
+   bdd& operator=(const bddxtrue&) noexcept;
+   bdd& operator=(const bddxfalse&) noexcept;
+
    bdd operator&(const bdd &r) const;
    bdd& operator&=(const bdd &r);
    bdd operator^(const bdd &r) const;
@@ -531,9 +548,13 @@ class BUDDY_API bdd
    bdd operator<<(const bdd &r) const;
    bdd& operator<<=(const bdd &r);
    int operator==(const bdd &r) const noexcept;
+   int operator==(const bddxfalse&) const noexcept;
+   int operator==(const bddxtrue&) const noexcept;
    int operator!=(const bdd &r) const noexcept;
+   int operator!=(const bddxfalse&) const noexcept;
+   int operator!=(const bddxtrue&) const noexcept;
 
-private:
+protected:
    BDD root;
 
    bdd(BDD r) noexcept { root=r; if (root > 1) bdd_addref_nc(root); }
@@ -541,8 +562,8 @@ private:
 
    friend int      bdd_init(int, int);
    friend int      bdd_setvarnum(int);
-   friend bdd      bdd_true(void);
-   friend bdd      bdd_false(void);
+   friend bddxtrue bdd_true(void);
+   friend bddxfalse bdd_false(void);
    friend bdd      bdd_ithvarpp(int);
    friend bdd      bdd_nithvarpp(int);
    friend int      bdd_var(const bdd &);
@@ -637,11 +658,28 @@ private:
    friend bdd  bvec_neq(const bvec &left, const bvec &right);
 };
 
+class bddxfalse: public bdd
+{
+public:
+  bddxfalse(void) noexcept
+    {
+      root=0;
+    }
+};
+
+class bddxtrue: public bdd
+{
+public:
+  bddxtrue(void) noexcept
+    {
+      root=1;
+    }
+};
 
 /*=== BDD constants ====================================================*/
 
-BUDDY_API_VAR const bdd bddfalsepp;
-BUDDY_API_VAR const bdd bddtruepp;
+BUDDY_API_VAR const bddxfalse bddfalsepp;
+BUDDY_API_VAR const bddxtrue bddtruepp;
 
 #define bddtrue bddtruepp
 #define bddfalse bddfalsepp
@@ -905,8 +943,20 @@ inline bdd& bdd::operator<<=(const bdd &r)
 inline int bdd::operator==(const bdd &r) const noexcept
 { return r.root==root; }
 
+inline int bdd::operator==(const bddxfalse&) const noexcept
+{ return root==0; }
+
+inline int bdd::operator==(const bddxtrue&) const noexcept
+{ return root==1; }
+
 inline int bdd::operator!=(const bdd &r) const noexcept
 { return r.root!=root; }
+
+inline int bdd::operator!=(const bddxfalse&) const noexcept
+{ return root!=0; }
+
+inline int bdd::operator!=(const bddxtrue&) const noexcept
+{ return root!=1; }
 
 inline bdd& bdd::operator=(const bdd &r) noexcept
 {
@@ -943,11 +993,27 @@ inline bdd& bdd::operator=(int r) noexcept
   return *this;
 }
 
-inline bdd bdd_true(void)
-{ return 1; }
+inline bdd& bdd::operator=(const bddxfalse &) noexcept
+{
+  if (root > 1)
+    bdd_delref_nc(root);
+  root = 0;
+  return *this;
+}
 
-inline bdd bdd_false(void)
-{ return 0; }
+inline bdd& bdd::operator=(const bddxtrue &) noexcept
+{
+  if (root > 1)
+    bdd_delref_nc(root);
+  root = 1;
+  return *this;
+}
+
+inline bddxtrue bdd_true(void)
+{ return bddxtrue(); }
+
+inline bddxfalse bdd_false(void)
+{ return bddxfalse(); }
 
 
 /*=== Iostream printing ================================================*/
