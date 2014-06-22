@@ -946,8 +946,13 @@ namespace spot
     };
 
 
+    // This pre-declaration is needed to work around a limitation in
+    // g++ 4.6.
+    template<typename... F>
+    struct compose_filters;
+
     template<typename F1, typename... F2>
-    struct compose_filters
+    struct compose_filters<F1, F2...>
     {
       F1 f1;
       compose_filters<F2...> f2;
