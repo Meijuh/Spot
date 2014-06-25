@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -51,7 +51,7 @@ namespace spot
       virtual const formula* require(const std::string& prop_str);
 
       /// Get the name of the environment.
-      virtual const std::string& name();
+      virtual const std::string& name() const;
 
       typedef std::map<const std::string, const atomic_prop*> prop_map;
 

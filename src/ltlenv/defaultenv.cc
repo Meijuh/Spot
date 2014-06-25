@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -39,7 +39,7 @@ namespace spot
     }
 
     const std::string&
-    default_environment::name()
+    default_environment::name() const
     {
       static std::string name("default environment");
       return name;

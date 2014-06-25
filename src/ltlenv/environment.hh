@@ -1,8 +1,9 @@
-// Copyright (C) 2008, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2012, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
-// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
-// Université Pierre et Marie Curie.
+// 6 (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC),
+// UniversitÃ© Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -54,7 +55,7 @@ namespace spot
       virtual const formula* require(const std::string& prop_str) = 0;
 
       /// Get the name of the environment.
-      virtual const std::string& name() = 0;
+      virtual const std::string& name() const = 0;
 
       virtual
       ~environment()

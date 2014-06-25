@@ -52,7 +52,7 @@ namespace spot
       }
 
       const std::string&
-      name()
+      name() const
       {
 	static std::string name("suspended environment");
 	return name;
