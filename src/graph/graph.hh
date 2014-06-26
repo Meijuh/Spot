@@ -446,6 +446,7 @@ namespace spot
     state new_states(unsigned n, Args&&... args)
     {
       state s = states_.size();
+      states_.reserve(s + n);
       while (n--)
 	states_.emplace_back(std::forward<Args>(args)...);
       return s;
