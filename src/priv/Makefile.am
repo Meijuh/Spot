@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2013 Laboratoire de Recherche et
+## Copyright (C) 2013, 2014 Laboratoire de Recherche et
 ## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -23,6 +23,7 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 noinst_HEADERS = \
   acccompl.hh \
   accconv.hh \
+  accmap.hh \
   bddalloc.hh \
   countstates.hh \
   freelist.hh

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2012 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2012, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -56,7 +56,7 @@ main(int argc, char** argv)
     return 2;
 
   spot::tgba_parse_error_list pel2;
-  spot::tgba_explicit_string* a2 = spot::tgba_parse(argv[2], pel2, dict, env);
+  spot::tgba* a2 = spot::tgba_parse(argv[2], pel2, dict, env);
   if (spot::format_tgba_parse_errors(std::cerr, argv[2], pel2))
     return 2;
 

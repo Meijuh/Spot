@@ -676,7 +676,7 @@ main(int argc, char** argv)
 	  tm.start("reading -P's argument");
 
 	  spot::tgba_parse_error_list pel;
-	  spot::tgba_explicit_string* s;
+	  spot::tgba_digraph* s;
 	  s = spot::tgba_parse(argv[formula_index] + 2,
 			       pel, dict, env, env, debug_opt);
 	  if (spot::format_tgba_parse_errors(std::cerr,
@@ -1096,6 +1096,7 @@ main(int argc, char** argv)
 	    {
 	    case ReadSpot:
 		{
+		  spot::tgba_digraph* e;
 		  spot::tgba_parse_error_list pel;
 		  tm.start("parsing automaton");
 		  to_free = a = e = spot::tgba_parse(input, pel, dict,
@@ -1107,6 +1108,7 @@ main(int argc, char** argv)
 		      delete dict;
 		      return 2;
 		    }
+		  e->merge_transitions();
 		}
 	      break;
 	    case ReadNeverclaim:

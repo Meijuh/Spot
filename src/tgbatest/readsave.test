@@ -1,8 +1,9 @@
 #!/bin/sh
-# Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# -*- coding: utf-8 -*-
+# Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
+# DÃ©veloppement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 # et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
@@ -36,9 +37,9 @@ EOF
 
 cat >expected <<\EOF
 acc = "c" "d";
-"s1", "s2", "a & !b", "c" "d";
-"s2", "state 3", "\"F\\G\"", "c";
-"state 3", "s1", "1",;
+"0", "1", "a & !b", "c" "d";
+"1", "2", "\"F\\G\"", "c";
+"2", "0", "1",;
 EOF
 
 # Sort out some possible inversions in the output.
@@ -71,10 +72,10 @@ EOF
 
 cat >expected <<\EOF
 acc = "c";
-"s1", "s2", "a", "c";
-"s1", "s2", "!b",;
-"s2", "s1", "!b",;
-"s2", "s1", "a", "c";
+"0", "1", "a", "c";
+"0", "1", "!b",;
+"1", "0", "!b",;
+"1", "0", "a", "c";
 EOF
 
 run 0 ../ltl2tgba -b -X input > stdout
@@ -85,13 +86,18 @@ run 0 ../randtgba -t 1 -n 20 -d 0.2 a b -a 2 0.1 >input
 sed 's/"b & a"/"a \& b"/g;s/"a1" "a0"/"a0" "a1"/g' input > tmp_ &&
   mv tmp_ input
 cat input
+# the first read-write can renumber the states
 run 0 ../ltl2tgba -b -X input > stdout
 sed 's/"b & a"/"a \& b"/g;s/"a1" "a0"/"a0" "a1"/g' stdout > tmp_ &&
-  mv tmp_ stdout
+mv tmp_ stdout
+test `wc -l < input` = `wc -l < stdout`
+# But this second shout output the same as the first
+run 0 ../ltl2tgba -b -X input > stdout2
+sed 's/"b & a"/"a \& b"/g;s/"a1" "a0"/"a0" "a1"/g' stdout2 > tmp_ &&
+mv tmp_ stdout2
+diff stdout stdout2
 
-diff input stdout
-
-rm -f input stdout
+rm -f input stdout stdout2
 
 
 # Check the position of syntax errors in the diagnostics:

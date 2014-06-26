@@ -233,6 +233,14 @@ using namespace spot;
 %include "tgba/tgbaproduct.hh"
 %include "tgba/tgbatba.hh"
 
+// We won't parse tgba_digraph, so just pretend it is a subclass of tgba.
+%nodefaultctor spot::tgba_digraph;
+namespace spot {
+  class tgba_digraph: public tgba
+  {
+  };
+}
+
 %template(explicit_graph__string_tgba)
   spot::explicit_graph<state_explicit_string, tgba>;
 %template(explicit_graph__number_tgba)

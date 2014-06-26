@@ -1,5 +1,7 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2003, 2005, 2013 Laboratoire d'Informatique de Paris
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita.
+// Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
 //
@@ -35,19 +37,6 @@ namespace spot
   int tgbayyopen(const std::string& name);
   void tgbayyclose();
 }
-
-
-// Gross kludge to compile yy::Parser in another namespace (tgbayy::)
-// but still use yy::Location.  The reason is that Bison's C++
-// skeleton does not support anything close to %name-prefix at the
-// moment.  All parser are named yy::Parser which makes it somewhat
-// difficult to define multiple parsers.
-// namespace tgbayy
-// {
-//   using namespace yy;
-// }
-// #define yy tgbayy
-
 
 
 #endif // SPOT_TGBAPARSE_PARSEDECL_HH

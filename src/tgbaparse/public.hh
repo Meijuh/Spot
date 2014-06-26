@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2009, 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita.
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
 // Coopératifs (SRC), Université Pierre et Marie Curie.
@@ -23,7 +23,7 @@
 #ifndef SPOT_TGBAPARSE_PUBLIC_HH
 # define SPOT_TGBAPARSE_PUBLIC_HH
 
-# include "tgba/tgbaexplicit.hh"
+# include "tgba/tgbagraph.hh"
 # include "misc/location.hh"
 # include "ltlenv/defaultenv.hh"
 # include <string>
@@ -46,7 +46,7 @@ namespace spot
     struct tgba_parse_error_list {};
 #endif
 
-  /// \brief Build a spot::tgba_explicit from a text file.
+  /// \brief Build a spot::tgba_digraph from a text file.
   /// \param filename The name of the file to parse.
   /// \param error_list A list that will be filled with
   ///        parse errors that occured during parsing.
@@ -66,14 +66,14 @@ namespace spot
   ///
   /// \warning This function is not reentrant.
   SPOT_API
-  tgba_explicit_string* tgba_parse(const std::string& filename,
-				   tgba_parse_error_list& error_list,
-				   bdd_dict* dict,
-				   ltl::environment& env
-				   = ltl::default_environment::instance(),
-				   ltl::environment& envacc
-				   = ltl::default_environment::instance(),
-				   bool debug = false);
+  tgba_digraph* tgba_parse(const std::string& filename,
+			   tgba_parse_error_list& error_list,
+			   bdd_dict* dict,
+			   ltl::environment& env
+			   = ltl::default_environment::instance(),
+			   ltl::environment& envacc
+			   = ltl::default_environment::instance(),
+			   bool debug = false);
 
   /// \brief Format diagnostics produced by spot::tgba_parse.
   /// \param os Where diagnostics should be output.

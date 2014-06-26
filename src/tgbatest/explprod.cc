@@ -1,7 +1,8 @@
-// Copyright (C) 2008 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2014 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -47,11 +48,11 @@ main(int argc, char** argv)
 
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::tgba_parse_error_list pel1;
-  spot::tgba_explicit_string* a1 = spot::tgba_parse(argv[1], pel1, dict, env);
+  spot::tgba* a1 = spot::tgba_parse(argv[1], pel1, dict, env);
   if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel1))
     return 2;
   spot::tgba_parse_error_list pel2;
-  spot::tgba_explicit_string* a2 = spot::tgba_parse(argv[2], pel2, dict, env);
+  spot::tgba* a2 = spot::tgba_parse(argv[2], pel2, dict, env);
   if (spot::format_tgba_parse_errors(std::cerr, argv[2], pel2))
     return 2;
 

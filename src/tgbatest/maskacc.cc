@@ -1,3 +1,4 @@
+// -*- coding: utf-8 -*-
 // Copyright (C) 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
@@ -43,7 +44,7 @@ main(int argc, char** argv)
 
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::tgba_parse_error_list pel;
-  spot::tgba_explicit_string* aut = spot::tgba_parse(argv[1], pel, dict, env);
+  spot::tgba* aut = spot::tgba_parse(argv[1], pel, dict, env);
   if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel))
     return 2;
 
