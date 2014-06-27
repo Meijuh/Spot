@@ -49,7 +49,7 @@ namespace spot
 	void
 	visit(const atomic_prop*)
 	{
-	  assert(!"unexpected operator");
+	  SPOT_UNIMPLEMENTED();
 	}
 
 	void
@@ -76,19 +76,19 @@ namespace spot
 	void
 	visit(const unop*)
 	{
-	  assert(!"unexpected operator");
+	  SPOT_UNIMPLEMENTED();
 	}
 
 	void
 	visit(const binop*)
 	{
-	  assert(!"unexpected operator");
+	  SPOT_UNIMPLEMENTED();
 	}
 
 	void
 	visit(const automatop*)
 	{
-	  assert(!"unexpected operator");
+	  SPOT_UNIMPLEMENTED();
 	}
 
 	void
@@ -100,7 +100,7 @@ namespace spot
 	    case multop::And:
 	    case multop::Or:
 	    case multop::Fusion:
-	      assert(!"unexpected operator");
+	      SPOT_UNIMPLEMENTED();
 	      break;
 	    case multop::Concat:
 	    case multop::AndNLM:

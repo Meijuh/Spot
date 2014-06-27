@@ -1,5 +1,6 @@
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2012, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -94,7 +95,7 @@ namespace spot
 	    case multop::AndRat:
 	    case multop::Concat:
 	    case multop::Fusion:
-	      assert(!"unexpected operator");
+	      SPOT_UNIMPLEMENTED();
 	    case multop::Or:
 	      for (unsigned i = 0; i < mos; ++i)
 		res->push_back(recurse(mo->nth(i)));
@@ -252,8 +253,7 @@ namespace spot
 				       uo->child()->clone());
 	      return;
 	    }
-	  /* Unreachable code. */
-	  assert(0);
+	  SPOT_UNREACHABLE();
 	}
 
 	void
@@ -280,7 +280,7 @@ namespace spot
 	    case binop::Xor:
 	    case binop::Implies:
 	    case binop::Equiv:
-	      assert(!"mark not defined on logic abbreviations");
+	      SPOT_UNIMPLEMENTED();
 	    case binop::U:
 	    case binop::W:
 	    case binop::M:
@@ -297,8 +297,7 @@ namespace spot
 		return;
 	      }
 	    }
-	  /* Unreachable code. */
-	  assert(0);
+	  SPOT_UNREACHABLE();
 	}
 
 	const formula*

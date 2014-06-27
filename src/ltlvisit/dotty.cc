@@ -95,7 +95,7 @@ namespace spot
 	void
 	visit(const automatop*)
 	{
-	  assert(0);
+	  SPOT_UNIMPLEMENTED();
 	}
 
 	void

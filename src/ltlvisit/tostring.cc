@@ -847,7 +847,7 @@ namespace spot
 	      break;
 	    case multop::Concat:
 	      // Handled by resugar_concat.
-	      assert(0);
+	      SPOT_UNREACHABLE();
 	      break;
 	    case multop::Fusion:
 	      k = KFusion;

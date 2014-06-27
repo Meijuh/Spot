@@ -189,9 +189,7 @@ namespace spot
 	case NegClosureMarked:
 	  return "NegClosureMarked";
 	}
-      // Unreachable code.
-      assert(0);
-      return 0;
+      SPOT_UNREACHABLE();
     }
 
     unop::map unop::instances;

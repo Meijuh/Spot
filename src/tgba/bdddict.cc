@@ -529,7 +529,7 @@ namespace spot
 	std::cerr << "some maps are not empty" << std::endl;
       }
     dump(std::cerr);
-    assert(0);
+    abort();
   }
 
 

@@ -1169,26 +1169,26 @@ namespace spot
     safra_tree_automaton::automaton_t::const_iterator tr =
       a->automaton.find(const_cast<safra_tree*>(s->get_safra()));
 
-    if (tr != a->automaton.end())
-    {
-      bdd condition = bddfalse;
-      tgba_safra_complement_succ_iterator::succ_list_t succ_list;
-      int nb_acceptance_pairs = a->get_nb_acceptance_pairs();
-      bitvect* e = make_bitvect(nb_acceptance_pairs);
+    assert(tr != a->automaton.end());
 
-      if (!s->get_use_bitset()) // if \delta'(q, a)
+    bdd condition = bddfalse;
+    tgba_safra_complement_succ_iterator::succ_list_t succ_list;
+    int nb_acceptance_pairs = a->get_nb_acceptance_pairs();
+    bitvect* e = make_bitvect(nb_acceptance_pairs);
+
+    if (!s->get_use_bitset()) // if \delta'(q, a)
       {
         for (auto& p: tr->second)
-        {
-          state_complement* s1 = new state_complement(e->clone(), e->clone(),
-						      p.second, false);
-          state_complement* s2 = new state_complement(e->clone(), e->clone(),
-						      p.second, true);
-          succ_list.insert(std::make_pair(p.first, s1));
-          succ_list.insert(std::make_pair(p.first, s2));
-        }
+	  {
+	    state_complement* s1 = new state_complement(e->clone(), e->clone(),
+							p.second, false);
+	    state_complement* s2 = new state_complement(e->clone(), e->clone(),
+							p.second, true);
+	    succ_list.insert(std::make_pair(p.first, s1));
+	    succ_list.insert(std::make_pair(p.first, s2));
+	  }
       }
-      else
+    else
       {
         bitvect* l = make_bitvect(nb_acceptance_pairs);
         bitvect* u = make_bitvect(nb_acceptance_pairs);
@@ -1205,22 +1205,23 @@ namespace spot
 
 	// \delta'((q, I, J), a) if I'\subseteq J'
         if (newI->is_subset_of(*newJ))
-        {
-          for (auto& p: tr->second)
-          {
-            st = new state_complement(e->clone(), e->clone(), p.second, true);
-            succ_list.insert(std::make_pair(p.first, st));
-          }
-          condition = the_acceptance_cond_;
-        }
+	  {
+	    for (auto& p: tr->second)
+	      {
+		st = new state_complement(e->clone(), e->clone(),
+					  p.second, true);
+		succ_list.insert(std::make_pair(p.first, st));
+	      }
+	    condition = the_acceptance_cond_;
+	  }
         else  // \delta'((q, I, J), a)
-        {
-          for (auto& p: tr->second)
-          {
-            st = new state_complement(newI, newJ, p.second, true);
-            succ_list.insert(std::make_pair(p.first, st));
-          }
-        }
+	  {
+	    for (auto& p: tr->second)
+	      {
+		st = new state_complement(newI, newJ, p.second, true);
+		succ_list.insert(std::make_pair(p.first, st));
+	      }
+	  }
 	delete newI;
 	delete newJ;
 #else
@@ -1230,11 +1231,11 @@ namespace spot
 	*pending |= *l;
 	*pending -= *u;
         for (auto& p: tr->second)
-        {
-          st = new state_complement(pending->clone(), e->clone(),
-				    p.second, true);
-          succ_list.insert(std::make_pair(p.first, st));
-        }
+	  {
+	    st = new state_complement(pending->clone(), e->clone(),
+				      p.second, true);
+	    succ_list.insert(std::make_pair(p.first, st));
+	  }
 	delete pending;
 
         for (unsigned i = 0; i < l->size(); ++i)
@@ -1244,11 +1245,8 @@ namespace spot
 	delete u;
 	delete l;
       }
-      delete e;
-      return new tgba_safra_complement_succ_iterator(succ_list, condition);
-    }
-    assert(!"Safra automaton does not find this node");
-    return 0;
+    delete e;
+    return new tgba_safra_complement_succ_iterator(succ_list, condition);
   }
 
   bdd_dict*

@@ -300,9 +300,7 @@ namespace spot
 	case UConcat:
 	  return "UConcat";
 	}
-      // Unreachable code.
-      assert(0);
-      return 0;
+      SPOT_UNREACHABLE();
     }
 
     binop::map binop::instances;

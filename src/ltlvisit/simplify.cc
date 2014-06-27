@@ -185,7 +185,7 @@ namespace spot
 	    else if (f == constant::false_instance())
 	      result = bddfalse;
 	    else
-	      assert(!"Unsupported operator");
+	      SPOT_UNIMPLEMENTED();
 	    break;
 	  case formula::AtomicProp:
 	    result = bdd_ithvar(dict->register_proposition(f, this));
@@ -213,7 +213,7 @@ namespace spot
 		  op = bddop_biimp;
 		  break;
 		default:
-		  assert(!"Unsupported operator");
+		  SPOT_UNIMPLEMENTED();
 		}
 	      result = bdd_apply(as_bdd(bo->first()), as_bdd(bo->second()), op);
 	      break;
@@ -244,14 +244,14 @@ namespace spot
 		case multop::OrRat:
 		case multop::Concat:
 		case multop::Fusion:
-		  assert(!"Unsupported operator");
+		  SPOT_UNIMPLEMENTED();
 		  break;
 		}
 	      break;
 	    }
 	  case formula::BUnOp:
 	  case formula::AutomatOp:
-	    assert(!"Unsupported operator");
+	    SPOT_UNIMPLEMENTED();
 	    break;
 	  }
 
@@ -490,9 +490,7 @@ namespace spot
 	    {
 	    case unop::Not:
 	      // "Not"s should be caught by nenoform_recursively().
-	      assert(!"Not should not occur");
-	      //result_ = recurse_(f, negated_ ^ true);
-	      return;
+	      SPOT_UNREACHABLE();
 	    case unop::X:
 	      /* !Xa == X!a */
 	      result_ = unop::instance(unop::X, recurse(f));
@@ -525,8 +523,7 @@ namespace spot
 		result_ = unop::instance(unop::Not, result_);
 	      return;
 	    }
-	  /* Unreachable code.  */
-	  assert(0);
+	  SPOT_UNREACHABLE();
 	}
 
 	void
@@ -630,8 +627,7 @@ namespace spot
 					recurse_(f1, false), recurse(f2));
 	      return;
 	    }
-	  // Unreachable code.
-	  assert(0);
+	  SPOT_UNREACHABLE();
 	}
 
 	void
@@ -2182,7 +2178,7 @@ namespace spot
 		case binop::Xor:
 		case binop::Equiv:
 		case binop::Implies:
-		  assert(!"operator not supported for implication rules");
+		  SPOT_UNIMPLEMENTED();
 		  return;
 		case binop::UConcat:
 		case binop::EConcat:

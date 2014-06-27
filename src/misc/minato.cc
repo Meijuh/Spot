@@ -157,8 +157,7 @@ namespace spot
 	    todo_.pop();
 	    continue;
 	  }
-	// Unreachable code.
-	assert(0);
+	SPOT_UNREACHABLE();
       }
     return bddfalse;
   }

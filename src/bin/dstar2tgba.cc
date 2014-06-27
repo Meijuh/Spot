@@ -285,8 +285,7 @@ namespace
     int
     process_formula(const spot::ltl::formula*, const char*, int)
     {
-      assert(!"should not happen");
-      return 0;
+      SPOT_UNREACHABLE();
     }
 
 

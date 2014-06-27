@@ -107,9 +107,7 @@ namespace spot
 	case Star:
 	  return "Star";
 	}
-      // Unreachable code.
-      assert(0);
-      return 0;
+      SPOT_UNREACHABLE();
     }
 
     std::string

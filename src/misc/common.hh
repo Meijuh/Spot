@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -16,6 +16,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#include <cstdlib>
+#include <stdexcept>
 
 #ifndef SPOT_MISC_COMMON_HH
 #  define SPOT_MISC_COMMON_HH
@@ -72,5 +75,24 @@
 #else
   #define SPOT_DELETED = delete
 #endif
+
+
+// Do not use those in code, prefer SPOT_UNREACHABLE() instead.
+#if defined __clang__ || defined __GNU__
+#  define SPOT_UNREACHABLE_BUILTIN() __builtin_unreachable()
+# elif defined _MSC_VER
+#  define SPOT_UNREACHABLE_BUILTIN() __assume(0)
+# else
+#  define SPOT_UNREACHABLE_BUILTIN() abort()
+#endif
+
+// The extra parentheses in assert() is so that this
+// pattern is not caught by the style checker.
+#define SPOT_UNREACHABLE() do {			\
+     assert(!("unreachable code reached"));	\
+     SPOT_UNREACHABLE_BUILTIN();		\
+   } while (0)
+
+#define SPOT_UNIMPLEMENTED() throw std::runtime_error("unimplemented");
 
 #endif // SPOT_MISC_COMMON_HH

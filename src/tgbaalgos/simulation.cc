@@ -1026,7 +1026,7 @@ namespace spot
 
           }
         else
-          assert(0);
+          SPOT_UNREACHABLE();
       }
 
 

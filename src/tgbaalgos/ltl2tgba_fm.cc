@@ -615,8 +615,7 @@ namespace spot
 	    res_ = now_to_concat();
 	    return;
 	  }
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
@@ -631,8 +630,7 @@ namespace spot
 	  case unop::Closure:
 	  case unop::NegClosure:
 	  case unop::NegClosureMarked:
-	    assert(!"not a rational operator");
-	    return;
+	    SPOT_UNREACHABLE();	// Because not rational operator
 	  case unop::Not:
 	    {
 	      // Not can only appear in front of Boolean
@@ -644,8 +642,7 @@ namespace spot
 	      return;
 	    }
 	  }
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
@@ -726,20 +723,19 @@ namespace spot
 	      }
 	    return;
 	  }
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
       visit(const binop*)
       {
-	assert(!"not a rational operator");
+	SPOT_UNREACHABLE();	// Not a rational operator
       }
 
       void
       visit(const automatop*)
       {
-	assert(!"not a rational operator");
+	SPOT_UNREACHABLE();	// Not a rational operator
       }
 
       void
@@ -938,7 +934,7 @@ namespace spot
 	    }
 	  case multop::And:
 	  case multop::Or:
-	    assert(!"not a rational operator");
+	    SPOT_UNREACHABLE();	// Not a rational operator
 	  }
       }
 
@@ -1238,11 +1234,9 @@ namespace spot
 	    res_ = bddfalse;
 	    return;
 	  case constant::EmptyWord:
-	    assert(!"Not an LTL operator");
-	    return;
+	    SPOT_UNIMPLEMENTED();
 	  }
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
@@ -1443,15 +1437,14 @@ namespace spot
 	    break;
 
 	  case unop::Finish:
-	    assert(!"unsupported operator");
-	    break;
+	    SPOT_UNIMPLEMENTED();
 	  }
       }
 
       void
       visit(const bunop*)
       {
-	assert(!"Not an LTL operator");
+	SPOT_UNREACHABLE(); 	// Not an LTL operator
       }
 
       void
@@ -1468,8 +1461,7 @@ namespace spot
 	    // These operators should only appear in Boolean formulas,
 	    // which must have been dealt with earlier (in
 	    // translate_dict::ltl_to_bdd()).
-	    assert(!"unexpected operator");
-	    break;
+	    SPOT_UNREACHABLE();
 	  case binop::U:
 	    {
 	      bdd f1 = recurse(node->first());
@@ -1651,7 +1643,7 @@ namespace spot
       void
       visit(const automatop*)
       {
-	assert(!"unsupported operator");
+	SPOT_UNIMPLEMENTED();
       }
 
       void
@@ -1712,8 +1704,7 @@ namespace spot
 	  case multop::AndNLM:
 	  case multop::AndRat:
 	  case multop::OrRat:
-	    assert(!"Not an LTL operator");
-	    break;
+	    SPOT_UNREACHABLE(); // Not an LTL operator
 	  }
 
       }
@@ -1839,20 +1830,19 @@ namespace spot
 	    // FIXME: we might need to add Acc[1]
 	    return;
 	  }
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
       visit(const automatop*)
       {
-	assert(!"unsupported operator");
+	SPOT_UNIMPLEMENTED();
       }
 
       void
       visit(const bunop*)
       {
-	assert(!"unsupported operator");
+	SPOT_UNIMPLEMENTED();
       }
 
       void

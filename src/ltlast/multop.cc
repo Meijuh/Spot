@@ -185,9 +185,7 @@ namespace spot
 	case Fusion:
 	  return "Fusion";
 	}
-      // Unreachable code.
-      assert(0);
-      return 0;
+      SPOT_UNREACHABLE();
     }
 
     namespace

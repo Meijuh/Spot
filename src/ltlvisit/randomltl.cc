@@ -189,7 +189,7 @@ namespace spot
 	  else if (proba_[i].min_n > 2)
 	    total_2_and_more_ += proba_[i].proba;
 	  else
-	    assert(!"unexpected max_n");
+	    SPOT_UNREACHABLE(); // unexpected max_n
 	}
       assert(total_2_and_more_ >= total_2_);
     }

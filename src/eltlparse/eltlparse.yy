@@ -138,10 +138,7 @@ namespace spot
     	res->rhs = realias(a->rhs, v);
     	return node_ptr(res);
       }
-
-      /* Unreachable code.  */
-      assert(0);
-      return node_ptr(static_cast<node_unop*>(0));
+      SPOT_UNREACHABLE();
     }
   }
 }

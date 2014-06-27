@@ -94,7 +94,7 @@ namespace spot
 	      os_ << 't';
 	      break;
 	    case constant::EmptyWord:
-	      assert(!"unsupported constant");
+	      SPOT_UNIMPLEMENTED();
 	      break;
 	    }
 	}
@@ -129,7 +129,7 @@ namespace spot
 	    case binop::UConcat:
 	    case binop::EConcat:
 	    case binop::EConcatMarked:
-	      assert(!"unsupported operator");
+	      SPOT_UNIMPLEMENTED();
 	      break;
 	    }
 	  bo->first()->accept(*this);
@@ -139,7 +139,7 @@ namespace spot
 	void
 	visit(const bunop*)
 	{
-	  assert(!"unsupported operator");
+	  SPOT_UNIMPLEMENTED();
 	}
 
 	void
@@ -164,7 +164,7 @@ namespace spot
 	    case unop::Closure:
 	    case unop::NegClosure:
 	    case unop::NegClosureMarked:
-	      assert(!"unsupported operator");
+	      SPOT_UNIMPLEMENTED();
 	      break;
 	    }
 	  uo->child()->accept(*this);
@@ -173,7 +173,7 @@ namespace spot
 	void
 	visit(const automatop*)
 	{
-	  assert(!"unsupported operator");
+	  SPOT_UNIMPLEMENTED();
 	}
 
 	void
@@ -193,7 +193,7 @@ namespace spot
 	    case multop::AndNLM:
 	    case multop::Concat:
 	    case multop::Fusion:
-	      assert(!"unsupported operator");
+	      SPOT_UNIMPLEMENTED();
 	      break;
 	    }
 

@@ -100,9 +100,7 @@ namespace spot
 	case EmptyWord:
 	  return "constant(e)";
 	}
-      // Unreachable code.
-      assert(0);
-      return "BUG";
+      SPOT_UNREACHABLE();
     }
 
     void
@@ -123,9 +121,7 @@ namespace spot
 	case EmptyWord:
 	  return "[*0]";
 	}
-      // Unreachable code.
-      assert(0);
-      return 0;
+      SPOT_UNREACHABLE();
     }
   }
 }

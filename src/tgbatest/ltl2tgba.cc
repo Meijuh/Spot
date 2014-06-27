@@ -1901,7 +1901,7 @@ main(int argc, char** argv)
 	      }
 
 	    default:
-	      assert(!"unknown output option");
+	      SPOT_UNREACHABLE();
 	    }
 	  tm.stop("producing output");
 	}

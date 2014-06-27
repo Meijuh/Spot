@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -53,10 +53,7 @@ namespace spot
 	  return multop::instance(n->op,
 				  instanciate(n->lhs, v),
 				  instanciate(n->rhs, v));
-
-	/* Unreachable code.  */
-	assert(0);
-	return 0;
+	SPOT_UNREACHABLE();
       }
 
       size_t
@@ -78,10 +75,7 @@ namespace spot
 	  return std::max(arity(n->lhs), arity(n->rhs));
 	if (node_multop* n = dynamic_cast<node_multop*>(np.get()))
 	  return std::max(arity(n->lhs), arity(n->rhs));
-
-	/* Unreachable code.  */
-	assert(0);
-	return 0;
+	SPOT_UNREACHABLE();
       }
     }
   }

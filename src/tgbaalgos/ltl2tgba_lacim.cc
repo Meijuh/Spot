@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -76,10 +76,9 @@ namespace spot
 	    res_ = bddfalse;
 	    return;
 	  case constant::EmptyWord:
-	    assert(!"unsupported operator");
+	    SPOT_UNIMPLEMENTED();
 	  }
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
@@ -152,16 +151,15 @@ namespace spot
 	  case unop::Closure:
 	  case unop::NegClosure:
 	  case unop::NegClosureMarked:
-	    assert(!"unsupported operator");
+	    SPOT_UNIMPLEMENTED();
 	  }
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
       visit(const bunop*)
       {
-	assert(!"unsupported operator");
+	SPOT_UNIMPLEMENTED();
       }
 
       void
@@ -230,17 +228,15 @@ namespace spot
 	  case binop::UConcat:
 	  case binop::EConcat:
 	  case binop::EConcatMarked:
-	    assert(!"unsupported operator");
-	    break;
+	    SPOT_UNIMPLEMENTED();
 	  }
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
       visit(const automatop*)
       {
-	assert(!"unsupported operator");
+	SPOT_UNIMPLEMENTED();
       }
 
       void
@@ -268,7 +264,7 @@ namespace spot
 	  case multop::AndNLM:
 	  case multop::AndRat:
 	  case multop::OrRat:
-	    assert(!"unsupported operator");
+	    SPOT_UNIMPLEMENTED();
 	  }
 	assert(op != -1);
 	unsigned s = node->size();

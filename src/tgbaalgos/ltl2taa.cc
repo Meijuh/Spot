@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -103,11 +103,9 @@ namespace spot
 	  case constant::False:
 	    return;
 	  case constant::EmptyWord:
-	    assert(!"unsupported operator");
-	    return;
+	    SPOT_UNIMPLEMENTED();
 	}
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
@@ -134,7 +132,7 @@ namespace spot
 	  }
 	  case unop::F:
 	  case unop::G:
-	    assert(0); // TBD
+	    SPOT_UNIMPLEMENTED(); // TBD
 	    return;
 	  case unop::Not:
 	    // Done in recurse
@@ -144,17 +142,15 @@ namespace spot
 	  case unop::Closure:
 	  case unop::NegClosure:
 	  case unop::NegClosureMarked:
-	    assert(!"unsupported operator");
-	    return;
+	    SPOT_UNIMPLEMENTED();
 	}
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
       visit(const bunop*)
       {
-	assert(!"unsupported operator");
+	SPOT_UNIMPLEMENTED();
       }
 
       void
@@ -254,14 +250,12 @@ namespace spot
 	case binop::Xor:
 	case binop::Implies:
 	case binop::Equiv:
-	  assert(0); // TBD
 	case binop::UConcat:
 	case binop::EConcat:
 	case binop::EConcatMarked:
-	  assert(!"unsupported operator");
+	  SPOT_UNIMPLEMENTED();
 	}
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
@@ -335,18 +329,15 @@ namespace spot
 	  case multop::AndNLM:
 	  case multop::AndRat:
 	  case multop::OrRat:
-	    assert(!"unsupported operator");
-	    return;
+	    SPOT_UNIMPLEMENTED();
 	}
-	/* Unreachable code.  */
-	assert(0);
+	SPOT_UNREACHABLE();
       }
 
       void
-      visit(const automatop* node)
+      visit(const automatop*)
       {
-	(void) node;
-	assert(!"unsupported operator");
+	SPOT_UNIMPLEMENTED();
       }
 
       ltl2taa_visitor

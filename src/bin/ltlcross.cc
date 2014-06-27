@@ -715,7 +715,7 @@ namespace
       else if (*pos == 'D')
 	format = Dstar;
       else
-	assert(!"BUG");
+	SPOT_UNREACHABLE();
 
       if (val_)
 	{
@@ -823,7 +823,7 @@ namespace
 	return string_ltl_wring;
       if (!string_ltl_lbt.val().empty())
 	return string_ltl_lbt;
-      assert(!"None of the translators need the input formula?");
+      SPOT_UNREACHABLE();
       return string_ltl_spot;
     }
 
@@ -997,7 +997,7 @@ namespace
 		break;
 	      }
 	    case printable_result_filename::None:
-	      assert(!"unreachable code");
+	      SPOT_UNREACHABLE();
 	    }
 	}
 
