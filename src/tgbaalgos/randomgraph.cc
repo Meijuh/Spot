@@ -112,10 +112,7 @@ namespace spot
       i = bdd_compose(allneg, i, bdd_var(i));
 
     // Using std::unordered_set instead of std::set for these sets is 3
-    // times slower (tested on a 50000 nodes example).  Use an int
-    // (the index into states[]), not the tgba_explicit::state*
-    // directly, because the later would yield different graphs
-    // depending on the memory layout.
+    // times slower (tested on a 50000 nodes example).
     typedef std::set<int> node_set;
     node_set nodes_to_process;
     node_set unreachable_nodes;
