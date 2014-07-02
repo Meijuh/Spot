@@ -1144,8 +1144,9 @@ main(int argc, char** argv)
 		  }
 		tm.start("parsing lbtt");
 		to_free = a =
-		  const_cast<spot::tgba*>(spot::lbtt_parse(*in, error, dict,
-							   env, env));
+		  const_cast<spot::tgba_digraph*>(spot::lbtt_parse(*in,
+								   error, dict,
+								   env, env));
 		tm.stop("parsing lbtt");
 		delete f;
 		if (!to_free)

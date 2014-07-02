@@ -28,24 +28,42 @@
 
 namespace spot
 {
-  class acc_mapper
+  class acc_mapper_common
   {
+  protected:
     bdd_dict* dict_;
     tgba_digraph* aut_;
     ltl::environment& env_;
-    std::unordered_map<std::string, int> map_;
     bdd neg_;
 
-  public:
-    acc_mapper(tgba_digraph *aut,
-	       ltl::environment& env = ltl::default_environment::instance())
+    acc_mapper_common(tgba_digraph *aut, ltl::environment& env)
       : dict_(aut->get_dict()), aut_(aut), env_(env), neg_(bddtrue)
     {
     }
 
+  public:
     const ltl::environment& get_env() const
     {
       return env_;
+    }
+
+    // Commit all acceptance set to the automaton.
+    void commit()
+    {
+       aut_->set_acceptance_conditions(neg_);
+    }
+  };
+
+  class acc_mapper_string: public acc_mapper_common
+  {
+    std::unordered_map<std::string, int> map_;
+
+  public:
+    acc_mapper_string(tgba_digraph *aut,
+		      ltl::environment& env
+		      = ltl::default_environment::instance())
+      : acc_mapper_common(aut, env)
+    {
     }
 
     // Declare an acceptance name.
@@ -54,7 +72,7 @@ namespace spot
       auto i = map_.find(name);
       if (i != map_.end())
 	return true;
-      const ltl::formula* f = env_.require(name);
+      auto f = env_.require(name);
       if (!f)
 	return false;
       int v = dict_->register_acceptance_variable(f, aut_);
@@ -62,12 +80,6 @@ namespace spot
       map_[name] = v;
       neg_ &= bdd_nithvar(v);
       return true;
-    }
-
-    // Commit all acceptance set to the automaton.
-    void commit()
-    {
-       aut_->set_acceptance_conditions(neg_);
     }
 
     std::pair<bool, bdd> lookup(std::string name) const
@@ -79,7 +91,54 @@ namespace spot
 					       bdd_nithvar(p->second),
 					       p->second));
     }
+  };
 
+  // The acceptance sets are named using count integers, but we do not
+  // assume the numbers are necessarily consecutive.
+  class acc_mapper_int: public acc_mapper_common
+  {
+    std::vector<bdd> usable_;
+    unsigned used_;
+    std::map<int, bdd> map_;
+
+  public:
+    acc_mapper_int(tgba_digraph *aut,
+		   unsigned count,
+		   ltl::environment& env = ltl::default_environment::instance())
+      : acc_mapper_common(aut, env), usable_(count), used_(0)
+    {
+      std::vector<int> vmap(count);
+      for (unsigned n = 0; n < count; ++n)
+	{
+	  std::ostringstream s;
+	  s << n;
+	  auto f = env.require(s.str());
+	  int v = dict_->register_acceptance_variable(f, aut_);
+	  f->destroy();
+	  vmap[n] = v;
+	  neg_ &= bdd_nithvar(v);
+      }
+      for (unsigned n = 0; n < count; ++n)
+	{
+	  int v = vmap[n];
+	  usable_[n] = bdd_compose(neg_, bdd_nithvar(v), v);
+	}
+      commit();
+    }
+
+    std::pair<bool, bdd> lookup(unsigned n)
+    {
+       auto p = map_.find(n);
+       if (p != map_.end())
+	 return std::make_pair(true, p->second);
+       if (used_ < usable_.size())
+	 {
+	   bdd res = usable_[used_++];
+	   map_[n] = res;
+	   return std::make_pair(true, res);
+	 }
+       return std::make_pair(false, bddfalse);
+    }
   };
 
 }

@@ -24,10 +24,12 @@
 #include <map>
 #include <string>
 #include <ostream>
-#include <sstream>
+#include <memory>
 #include "tgba/tgbaexplicit.hh"
+#include "tgba/formula2bdd.hh"
 #include "reachiter.hh"
 #include "misc/bddlt.hh"
+#include "priv/accmap.hh"
 #include "ltlvisit/lbt.hh"
 #include "ltlparse/public.hh"
 
@@ -166,7 +168,141 @@ namespace spot
       const sba* sba_;
     };
 
+    static
+    const tgba_digraph*
+    lbtt_read_tgba(unsigned num_states, unsigned num_acc,
+		   std::istream& is, std::string& error,
+		   bdd_dict* dict,
+		   ltl::environment& env, ltl::environment& envacc)
+    {
+      auto aut = std::unique_ptr<tgba_digraph>(new tgba_digraph(dict));
+      acc_mapper_int acc_b(aut.get(), num_acc, envacc);
+      auto& g = aut->get_graph();
+      g.new_states(num_states);
+
+      for (unsigned n = 0; n < num_states; ++n)
+	{
+	  int src_state = 0;
+	  int initial = 0;
+	  is >> src_state >> initial;
+	  if (initial)
+	    aut->set_init_state(src_state);
+
+	  // Read the transitions.
+	  for (;;)
+	    {
+	      int dst_state = 0;
+	      is >> dst_state;
+	      if (dst_state == -1)
+		break;
+
+	      // Read the acceptance conditions.
+	      bdd acc = bddfalse;
+	      for (;;)
+		{
+		  int acc_n = 0;
+		  is >> acc_n;
+		  if (acc_n == -1)
+		    break;
+		  auto p = acc_b.lookup(acc_n);
+		  if (p.first)
+		    {
+		      acc |= p.second;
+		    }
+		  else
+		    {
+		      error += "more acceptance sets used than declared";
+		      return nullptr;
+		    }
+		}
+
+	      std::string guard;
+	      std::getline(is, guard);
+	      ltl::parse_error_list pel;
+	      const ltl::formula* f = parse_lbt(guard, pel, env);
+	      if (!f || !pel.empty())
+		{
+		  error += "failed to parse guard: " + guard;
+		  if (f)
+		    f->destroy();
+		  return nullptr;
+		}
+	      bdd cond = formula_to_bdd(f, dict, aut.get());
+	      f->destroy();
+	      g.new_transition(src_state, dst_state, cond, acc);
+	    }
+	}
+      return aut.release();
+    }
+
+    const tgba_digraph*
+    lbtt_read_gba(unsigned num_states, unsigned num_acc,
+		  std::istream& is, std::string& error,
+		  bdd_dict* dict,
+		  ltl::environment& env, ltl::environment& envacc)
+    {
+      auto aut = std::unique_ptr<tgba_digraph>(new tgba_digraph(dict));
+      acc_mapper_int acc_b(aut.get(), num_acc, envacc);
+      auto& g = aut->get_graph();
+      g.new_states(num_states);
+
+      for (unsigned n = 0; n < num_states; ++n)
+	{
+	  int src_state = 0;
+	  int initial = 0;
+	  is >> src_state >> initial;
+	  if (initial)
+	    aut->set_init_state(src_state);
+
+	  // Read the acceptance conditions.
+	  bdd acc = bddfalse;
+	  for (;;)
+	    {
+	      int acc_n = 0;
+	      is >> acc_n;
+	      if (acc_n == -1)
+		break;
+	      auto p = acc_b.lookup(acc_n);
+	      if (p.first)
+		{
+		  acc |= p.second;
+		}
+	      else
+		{
+		  error += "more acceptance sets used than declared";
+		  return nullptr;
+		}
+	    }
+
+	  // Read the transitions.
+	  for (;;)
+	    {
+	      int dst_state = 0;
+	      is >> dst_state;
+	      if (dst_state == -1)
+		break;
+
+	      std::string guard;
+	      std::getline(is, guard);
+	      ltl::parse_error_list pel;
+	      const ltl::formula* f = parse_lbt(guard, pel, env);
+	      if (!f || !pel.empty())
+		{
+		  error += "failed to parse guard: " + guard;
+		  if (f)
+		    f->destroy();
+		  return nullptr;
+		}
+	      bdd cond = formula_to_bdd(f, dict, aut.get());
+	      f->destroy();
+	      g.new_transition(src_state, dst_state, cond, acc);
+	    }
+	}
+      return aut.release();
+    }
+
   } // anonymous
+
 
   std::ostream&
   lbtt_reachable(std::ostream& os, const tgba* g, bool sba)
@@ -176,173 +312,8 @@ namespace spot
     return os;
   }
 
-  const tgba*
-  lbtt_read_tgba(unsigned num_states, unsigned num_acc,
-		 std::istream& is, std::string& error,
-		 bdd_dict* dict,
-		 ltl::environment& env, ltl::environment& envacc)
-  {
-    tgba_explicit_number* aut = new tgba_explicit_number(dict);
-    std::vector<const ltl::formula*> acc_f(num_acc);
-    for (unsigned n = 0; n < num_acc; ++n)
-      {
-	std::ostringstream s;
-	s << n;
-	const ltl::formula* af = acc_f[n] = envacc.require(s.str());
-	aut->declare_acceptance_condition(af->clone());
-      }
-    std::map<int, bdd> acc_b;
 
-    for (unsigned n = 0; n < num_states; ++n)
-      {
-	int src_state = 0;
-	int initial = 0;
-	is >> src_state >> initial;
-	if (initial)
-	  aut->set_init_state(src_state);
-
-	// Read the transitions.
-	for (;;)
-	  {
-	    int dst_state = 0;
-	    is >> dst_state;
-	    if (dst_state == -1)
-	      break;
-
-	    // Read the acceptance conditions.
-	    bdd acc = bddfalse;
-	    for (;;)
-	      {
-		int acc_n = 0;
-		is >> acc_n;
-		if (acc_n == -1)
-		  break;
-		std::map<int, bdd>::const_iterator i = acc_b.find(acc_n);
-		if (i != acc_b.end())
-		  {
-		    acc |= i->second;
-		  }
-		else
-		  {
-		    size_t s = acc_b.size();
-		    if (s >= num_acc)
-		      {
-			error += "more acceptance sets used than declared";
-			goto fail;
-		      }
-		    bdd a = aut->get_acceptance_condition(acc_f[s]);
-		    acc_b[acc_n] = a;
-		    acc |= a;
-		  }
-	      }
-
-	    std::string guard;
-	    std::getline(is, guard);
-	    ltl::parse_error_list pel;
-	    const ltl::formula* f = parse_lbt(guard, pel, env);
-	    if (!f || !pel.empty())
-	      {
-		error += "failed to parse guard: " + guard;
-		if (f)
-		  f->destroy();
-		goto fail;
-	      }
-	    state_explicit_number::transition* t
-	      = aut->create_transition(src_state, dst_state);
-	    aut->add_condition(t, f);
-	    t->acceptance_conditions |= acc;
-	  }
-      }
-    return aut;
-  fail:
-    delete aut;
-    return 0;
-  }
-
-  const tgba*
-  lbtt_read_gba(unsigned num_states, unsigned num_acc,
-		std::istream& is, std::string& error,
-		bdd_dict* dict,
-		ltl::environment& env, ltl::environment& envacc)
-  {
-    tgba_explicit_number* aut = new tgba_explicit_number(dict);
-    std::vector<const ltl::formula*> acc_f(num_acc);
-    for (unsigned n = 0; n < num_acc; ++n)
-      {
-	std::ostringstream s;
-	s << n;
-	const ltl::formula* af = acc_f[n] = envacc.require(s.str());
-	aut->declare_acceptance_condition(af->clone());
-      }
-    std::map<int, bdd> acc_b;
-
-    for (unsigned n = 0; n < num_states; ++n)
-      {
-	int src_state = 0;
-	int initial = 0;
-	is >> src_state >> initial;
-	if (initial)
-	  aut->set_init_state(src_state);
-
-	// Read the acceptance conditions.
-	bdd acc = bddfalse;
-	for (;;)
-	  {
-	    int acc_n = 0;
-	    is >> acc_n;
-	    if (acc_n == -1)
-	      break;
-	    std::map<int, bdd>::const_iterator i = acc_b.find(acc_n);
-	    if (i != acc_b.end())
-	      {
-		acc |= i->second;
-	      }
-	    else
-	      {
-		size_t s = acc_b.size();
-		if (s >= num_acc)
-		  {
-		    error += "more acceptance sets used than declared";
-		    goto fail;
-		  }
-		bdd a = aut->get_acceptance_condition(acc_f[s]);
-		acc_b[acc_n] = a;
-		acc |= a;
-	      }
-	  }
-
-	// Read the transitions.
-	for (;;)
-	  {
-	    int dst_state = 0;
-	    is >> dst_state;
-	    if (dst_state == -1)
-	      break;
-
-	    std::string guard;
-	    std::getline(is, guard);
-	    ltl::parse_error_list pel;
-	    const ltl::formula* f = parse_lbt(guard, pel, env);
-	    if (!f || !pel.empty())
-	      {
-		error += "failed to parse guard: " + guard;
-		if (f)
-		  f->destroy();
-		goto fail;
-	      }
-	    state_explicit_number::transition* t
-	      = aut->create_transition(src_state, dst_state);
-	    aut->add_condition(t, f);
-	    t->acceptance_conditions |= acc;
-	  }
-      }
-    return aut;
-  fail:
-    delete aut;
-    return 0;
-  }
-
-  const tgba*
+  const tgba_digraph*
   lbtt_parse(std::istream& is, std::string& error, bdd_dict* dict,
 	     ltl::environment& env, ltl::environment& envacc)
   {
@@ -361,7 +332,7 @@ namespace spot
       {
 	std::string header;
 	std::getline(is, header);
-	return new sba_explicit_number(dict);
+	return new tgba_digraph(dict);
       }
 
     unsigned num_acc = 0;
@@ -378,6 +349,5 @@ namespace spot
     else
       return lbtt_read_gba(num_states, num_acc, is, error, dict,
 			   env, envacc);
-    return 0;
   }
 }

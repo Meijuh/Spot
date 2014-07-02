@@ -45,7 +45,7 @@
 
 %parse-param {spot::tgba_parse_error_list& error_list}
 %parse-param {spot::ltl::environment& parse_environment}
-%parse-param {spot::acc_mapper& acc_map}
+%parse-param {spot::acc_mapper_string& acc_map}
 %parse-param {spot::tgba_digraph*& result}
 %parse-param {named_tgba_t*& namer}
 %parse-param {formula_cache& fcache}
@@ -233,7 +233,7 @@ namespace spot
     formula_cache fcache;
     tgba_digraph* result = new tgba_digraph(dict);
     auto namer = result->create_namer<std::string>();
-    spot::acc_mapper acc_map(result, envacc);
+    spot::acc_mapper_string acc_map(result, envacc);
     tgbayy::parser parser(error_list, env, acc_map, result, namer, fcache);
     parser.set_debug_level(debug);
     parser.parse();

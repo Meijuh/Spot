@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -23,7 +23,7 @@
 #ifndef SPOT_TGBAALGOS_LBTT_HH
 # define SPOT_TGBAALGOS_LBTT_HH
 
-#include "tgba/tgba.hh"
+#include "tgba/tgbagraph.hh"
 #include <iosfwd>
 #include "ltlenv/defaultenv.hh"
 
@@ -51,7 +51,7 @@ namespace spot
   /// \param envacc The environment of acceptance conditions into which parsing
   ///        should take place.
   /// \return the read tgba or 0 on error.
-  SPOT_API const tgba*
+  SPOT_API const tgba_digraph*
   lbtt_parse(std::istream& is, std::string& error,
 	     bdd_dict* dict,
 	     ltl::environment& env = ltl::default_environment::instance(),
