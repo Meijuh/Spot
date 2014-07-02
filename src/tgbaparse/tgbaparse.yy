@@ -232,7 +232,7 @@ namespace spot
       }
     formula_cache fcache;
     tgba_digraph* result = new tgba_digraph(dict);
-    auto* namer = result->create_namer<std::string>();
+    auto namer = result->create_namer<std::string>();
     spot::acc_mapper acc_map(result, envacc);
     tgbayy::parser parser(error_list, env, acc_map, result, namer, fcache);
     parser.set_debug_level(debug);
