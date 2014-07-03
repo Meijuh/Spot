@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -29,6 +29,7 @@
 #include <bdd.h>
 #include "misc/optionmap.hh"
 #include "tgba/state.hh"
+#include "tgba/tgbagraph.hh"
 #include "emptiness_stats.hh"
 
 namespace spot
@@ -293,7 +294,7 @@ namespace spot
   /// states are merged).
   ///
   /// \pre \a run must correspond to an actual run of the automaton \a a.
-  SPOT_API tgba*
+  SPOT_API tgba_digraph*
   tgba_run_to_tgba(const tgba* a, const tgba_run* run);
 
   /// @}

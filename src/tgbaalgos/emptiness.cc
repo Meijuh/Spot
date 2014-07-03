@@ -24,7 +24,6 @@
 #include "emptiness.hh"
 #include "tgba/tgba.hh"
 #include "tgba/bddprint.hh"
-#include "tgba/tgbaexplicit.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/gv04.hh"
 #include "tgbaalgos/magic.hh"
@@ -283,30 +282,21 @@ namespace spot
   // tgba_run_to_tgba
   //////////////////////////////////////////////////////////////////////
 
-  namespace
-  {
-    std::string format_state(const tgba* a, const state* s, int n)
-    {
-      std::ostringstream os;
-      os << a->format_state(s) << " (" << n << ')';
-      return os.str();
-    }
-  }
-
-  tgba*
+  tgba_digraph*
   tgba_run_to_tgba(const tgba* a, const tgba_run* run)
   {
-    tgba_explicit_string* res = new tgba_explicit_string(a->get_dict());
-    res->copy_acceptance_conditions_of(a);
+    auto d = a->get_dict();
+    auto res = new tgba_digraph(d);
+    auto& g = res->get_graph();
+    d->register_all_variables_of(a, res);
 
     const state* s = a->get_init_state();
-    int number = 1;
-    state_explicit_string* source;
-    state_explicit_string* dest;
+    unsigned src;
+    unsigned dst;
     const tgba_run::steps* l;
     bdd seen_acc = bddfalse;
 
-    typedef std::unordered_map<const state*, state_explicit_string*,
+    typedef std::unordered_map<const state*, unsigned,
 			       state_ptr_hash, state_ptr_equal> state_map;
     state_map seen;
 
@@ -318,9 +308,8 @@ namespace spot
     tgba_run::steps::const_iterator i = l->begin();
 
     assert(s->compare(i->s) == 0);
-    source = res->set_init_state(format_state(a, i->s, number));
-    ++number;
-    seen.insert(std::make_pair(i->s, source));
+    src = g.new_state();
+    seen.insert(std::make_pair(i->s, src));
 
     for (; i != l->end();)
       {
@@ -366,32 +355,23 @@ namespace spot
         s->destroy();
 	s = the_next;
 
-        state_map::const_iterator its = seen.find(next);
-        if (its == seen.end())
-          {
-            dest = res->add_state(format_state(a, next, number));
-            ++number;
-            seen.insert(std::make_pair(next, dest));
-          }
-        else
-          dest = its->second;
 
-        state_explicit_string::transition* t =
-	  res->create_transition(source, dest);
-        res->add_conditions(t, label);
-        res->add_acceptance_conditions(t, acc);
-        source = dest;
+	auto p = seen.insert(std::make_pair(next, 0));
+	if (p.second)
+	  p.first->second = g.new_state();
+	dst = p.first->second;
+
+	g.new_transition(src, dst, label, acc);
+	src = dst;
 
         // Sum acceptance conditions.
         if (l == &run->cycle && i != l->begin())
-            seen_acc |= acc;
+	  seen_acc |= acc;
       }
+
     s->destroy();
 
     assert(seen_acc == a->all_acceptance_conditions());
-
-    res->merge_transitions();
-
     return res;
   }
 
