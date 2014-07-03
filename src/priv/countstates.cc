@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -19,23 +19,19 @@
 
 #include "countstates.hh"
 #include "tgba/tgbaexplicit.hh"
+#include "tgba/tgbagraph.hh"
 #include "tgbaalgos/stats.hh"
 
 namespace spot
 {
   unsigned count_states(const tgba* a)
   {
-    const sba_explicit_number* se =
-      dynamic_cast<const sba_explicit_number*>(a);
-    if (se)
-      return se->num_states();
-    const tgba_explicit_number* te =
-      dynamic_cast<const tgba_explicit_number*>(a);
-    if (te)
-      return te->num_states();
-    tgba_statistics st = stats_reachable(a);
-    return st.states;
+    if (auto b = dynamic_cast<const tgba_digraph*>(a))
+      return b->num_states();
+    if (auto b = dynamic_cast<const sba_explicit_number*>(a))
+      return b->num_states();
+    if (auto b = dynamic_cast<const tgba_explicit_number*>(a))
+      return b->num_states();
+    return stats_reachable(a).states;
   }
-
-
 }
