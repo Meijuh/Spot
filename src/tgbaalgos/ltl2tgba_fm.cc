@@ -733,12 +733,6 @@ namespace spot
       }
 
       void
-      visit(const automatop*)
-      {
-	SPOT_UNREACHABLE();	// Not a rational operator
-      }
-
-      void
       visit(const multop* node)
       {
 	multop::type op = node->op();
@@ -1641,12 +1635,6 @@ namespace spot
       }
 
       void
-      visit(const automatop*)
-      {
-	SPOT_UNIMPLEMENTED();
-      }
-
-      void
       visit(const multop* node)
       {
 	switch (node->op())
@@ -1831,12 +1819,6 @@ namespace spot
 	    return;
 	  }
 	SPOT_UNREACHABLE();
-      }
-
-      void
-      visit(const automatop*)
-      {
-	SPOT_UNIMPLEMENTED();
       }
 
       void

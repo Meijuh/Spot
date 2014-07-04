@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2011, 2013 Laboratoire de Recherche et
-## Développement de l'Epita (LRDE).
+## Copyright (C) 2009, 2010, 2011, 2013, 2014 Laboratoire de Recherche
+## et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -29,13 +29,11 @@ ltlastdir = $(pkgincludedir)/ltlast
 ltlast_HEADERS = \
   allnodes.hh \
   atomic_prop.hh \
-  automatop.hh \
   binop.hh \
   bunop.hh \
   constant.hh \
   formula.hh \
   multop.hh \
-  nfa.hh \
   predecl.hh \
   refformula.hh \
   unop.hh \
@@ -44,14 +42,10 @@ ltlast_HEADERS = \
 noinst_LTLIBRARIES = libltlast.la
 libltlast_la_SOURCES = \
   atomic_prop.cc \
-  automatop.cc \
   binop.cc \
   bunop.cc \
   constant.cc \
   formula.cc \
-  formula_tree.cc \
-  formula_tree.hh \
   multop.cc \
-  nfa.cc \
   refformula.cc \
   unop.cc

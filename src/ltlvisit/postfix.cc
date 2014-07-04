@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -57,15 +57,6 @@ namespace spot
     }
 
     void
-    postfix_visitor::visit(const automatop* ao)
-    {
-      unsigned s = ao->size();
-      for (unsigned i = 0; i < s; ++i)
-	ao->nth(i)->accept(*this);
-      doit(ao);
-    }
-
-    void
     postfix_visitor::visit(const multop* mo)
     {
       unsigned s = mo->size();
@@ -109,12 +100,6 @@ namespace spot
     postfix_visitor::doit(const multop* mo)
     {
       doit_default(mo);
-    }
-
-    void
-    postfix_visitor::doit(const automatop* ao)
-    {
-      doit_default(ao);
     }
 
     void

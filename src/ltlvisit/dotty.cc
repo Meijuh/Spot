@@ -93,12 +93,6 @@ namespace spot
 	}
 
 	void
-	visit(const automatop*)
-	{
-	  SPOT_UNIMPLEMENTED();
-	}
-
-	void
 	visit(const multop* mo)
 	{
 	  if (!draw_node_(mo, mo->op_name()))

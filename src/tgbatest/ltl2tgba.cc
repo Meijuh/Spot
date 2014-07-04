@@ -2035,12 +2035,10 @@ main(int argc, char** argv)
   spot::ltl::unop::dump_instances(std::cerr);
   spot::ltl::binop::dump_instances(std::cerr);
   spot::ltl::multop::dump_instances(std::cerr);
-  spot::ltl::automatop::dump_instances(std::cerr);
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
-  assert(spot::ltl::automatop::instance_count() == 0);
   delete dict;
   return exit_code;
 }

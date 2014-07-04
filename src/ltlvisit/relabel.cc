@@ -24,6 +24,7 @@
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
 #include <map>
+#include <set>
 #include <stack>
 
 #include <iostream>
@@ -285,13 +286,6 @@ namespace spot
 	      g[l].push_back(r);
 	      g[r].push_back(l);
 	    }
-	}
-
-	void
-	visit(const automatop* ao)
-	{
-	  for (unsigned i = 0; i < ao->size(); ++i)
-	    recurse(ao->nth(i));
 	}
 
 	void

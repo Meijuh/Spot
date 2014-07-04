@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -72,16 +72,6 @@ namespace spot
       const formula* first = recurse(bo->first());
       result_ = binop::instance(bo->op(),
 				first, recurse(bo->second()));
-    }
-
-    void
-    clone_visitor::visit(const automatop* ao)
-    {
-      automatop::vec* res = new automatop::vec;
-      unsigned aos = ao->size();
-      for (unsigned i = 0; i < aos; ++i)
-        res->push_back(recurse(ao->nth(i)));
-      result_ = automatop::instance(ao->get_nfa(), res, ao->is_negated());
     }
 
     void

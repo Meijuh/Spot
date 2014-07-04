@@ -724,28 +724,6 @@ namespace spot
 	}
 
 	void
-	visit(const automatop* ao)
-	{
-	  // Warning: this string isn't parsable because the automaton
-	  // operators used may not be defined.
-	  bool top_level = top_level_;
-	  top_level_ = false;
-	  if (!top_level)
-	    os_ << '(';
-	  os_ << ao->get_nfa()->get_name() << '(';
-	  unsigned max = ao->size();
-	  ao->nth(0)->accept(*this);
-	  for (unsigned n = 1; n < max; ++n)
-	    {
-	      os_ << ',';
-	      ao->nth(n)->accept(*this);
-	    }
-	  os_ << ')';
-	  if (!top_level)
-	    os_ << ')';
-	}
-
-	void
 	resugar_concat(const multop* mo)
 	{
 	  unsigned max = mo->size();

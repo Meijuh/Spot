@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -46,7 +46,6 @@ namespace spot
       virtual void visit(const binop* node) = 0;
       virtual void visit(const unop* node) = 0;
       virtual void visit(const multop* node) = 0;
-      virtual void visit(const automatop* node) = 0;
       virtual void visit(const bunop* node) = 0;
     };
   }

@@ -250,7 +250,6 @@ namespace spot
 	      break;
 	    }
 	  case formula::BUnOp:
-	  case formula::AutomatOp:
 	    SPOT_UNIMPLEMENTED();
 	    break;
 	  }
@@ -628,18 +627,6 @@ namespace spot
 	      return;
 	    }
 	  SPOT_UNREACHABLE();
-	}
-
-	void
-	visit(const automatop* ao)
-	{
-	  bool negated = negated_;
-	  negated_ = false;
-	  automatop::vec* res = new automatop::vec;
-	  unsigned aos = ao->size();
-	  for (unsigned i = 0; i < aos; ++i)
-	    res->push_back(recurse(ao->nth(i)));
-	  result_ = automatop::instance(ao->get_nfa(), res, negated);
 	}
 
 	void
@@ -2748,12 +2735,6 @@ namespace spot
 	}
 
 	void
-	visit(const automatop* aut)
-	{
-	  result_ = aut->clone();
-	}
-
-	void
 	visit(const multop* mo)
 	{
 	  unsigned mos = mo->size();
@@ -4302,7 +4283,6 @@ namespace spot
 	  case formula::Constant:
 	  case formula::AtomicProp:
 	  case formula::BUnOp:
-	  case formula::AutomatOp:
 	    break;
 
 	  case formula::UnOp:
@@ -4524,7 +4504,6 @@ namespace spot
 	  case formula::Constant:
 	  case formula::AtomicProp:
 	  case formula::BUnOp:
-	  case formula::AutomatOp:
 	    break;
 
 	  case formula::UnOp:

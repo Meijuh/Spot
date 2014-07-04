@@ -171,12 +171,6 @@ namespace spot
 	}
 
 	void
-	visit(const automatop*)
-	{
-	  SPOT_UNIMPLEMENTED();
-	}
-
-	void
 	visit(const multop* mo)
 	{
 	  char o = 0;

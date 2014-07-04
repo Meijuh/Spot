@@ -78,12 +78,6 @@ namespace spot
 	}
 
 	void
-	visit(const automatop* ao)
-	{
-	  result_ = ao->clone();
-	}
-
-	void
 	visit(const multop* mo)
 	{
 	  unsigned mos = mo->size();
@@ -254,12 +248,6 @@ namespace spot
 	      return;
 	    }
 	  SPOT_UNREACHABLE();
-	}
-
-	void
-	visit(const automatop* ao)
-	{
-	  result_ = ao->clone();
 	}
 
 	void

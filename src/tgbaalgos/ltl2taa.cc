@@ -334,12 +334,6 @@ namespace spot
 	SPOT_UNREACHABLE();
       }
 
-      void
-      visit(const automatop*)
-      {
-	SPOT_UNIMPLEMENTED();
-      }
-
       ltl2taa_visitor
       recurse(const formula* f)
       {

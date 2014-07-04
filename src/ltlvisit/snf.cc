@@ -86,12 +86,6 @@ namespace spot
 	}
 
 	void
-	visit(const automatop*)
-	{
-	  SPOT_UNIMPLEMENTED();
-	}
-
-	void
 	visit(const multop* mo)
 	{
 	  multop::type op = mo->op();

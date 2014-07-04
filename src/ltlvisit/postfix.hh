@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -46,7 +46,6 @@ namespace spot
       void visit(const unop* uo);
       void visit(const binop* bo);
       void visit(const multop* mo);
-      void visit(const automatop* c);
       void visit(const constant* c);
       void visit(const bunop* c);
 
@@ -54,7 +53,6 @@ namespace spot
       virtual void doit(const unop* uo);
       virtual void doit(const binop* bo);
       virtual void doit(const multop* mo);
-      virtual void doit(const automatop* mo);
       virtual void doit(const constant* c);
       virtual void doit(const bunop* c);
       virtual void doit_default(const formula* f);

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 //
 // This file is part of Spot, a model checking library.
@@ -78,8 +78,7 @@ namespace spot
 		    UnOp,
 		    BinOp,
 		    MultOp,
-		    BUnOp,
-		    AutomatOp };
+		    BUnOp };
 
     protected:
       formula(opkind k) : count_(max_count++), kind_(k)

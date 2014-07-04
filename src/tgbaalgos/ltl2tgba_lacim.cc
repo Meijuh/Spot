@@ -234,12 +234,6 @@ namespace spot
       }
 
       void
-      visit(const automatop*)
-      {
-	SPOT_UNIMPLEMENTED();
-      }
-
-      void
       visit(const multop* node)
       {
 	int op = -1;
