@@ -61,3 +61,11 @@ dt*ba-sat.cnf
 dt*ba-sat.out
 dt*ba-sat.dbg
 *.exe
+*.tex
+*.out
+*.cnf
+*.html
+*.dstar
+*.satlog
+*.png
+
