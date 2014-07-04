@@ -666,23 +666,23 @@ namespace spot
       return std::make_pair(d.nvars, nclauses.nb_clauses());
     }
 
-    static tgba_explicit_number*
+    static tgba_digraph*
     sat_build(const satsolver::solution& solution, dict& satdict,
 	      const tgba* aut, bool state_based)
     {
-      bdd_dict* autdict = aut->get_dict();
-      tgba_explicit_number* a = new tgba_explicit_number(autdict);
+      auto autdict = aut->get_dict();
+      auto a = new tgba_digraph(autdict);
       autdict->register_all_variables_of(aut, a);
 
       const ltl::formula* t = ltl::constant::true_instance();
       bdd acc = bdd_ithvar(autdict->register_acceptance_variable(t, a));
       a->set_acceptance_conditions(acc);
 
-      for (int s = 1; s < satdict.cand_size; ++s)
-	a->add_state(s);
+      auto& g = a->get_graph();
+      g.new_states(satdict.cand_size);
 
-      state_explicit_number::transition* last_aut_trans = 0;
-      const transition* last_sat_trans = 0;
+      unsigned last_aut_trans = -1U;
+      const transition* last_sat_trans = nullptr;
 
 #if DEBUG
       std::fstream out("dtba-sat.dbg",
@@ -694,11 +694,8 @@ namespace spot
       dout << "--- transition variables ---\n";
       std::set<int> acc_states;
       std::set<src_cond> seen_trans;
-      for (satsolver::solution::const_iterator i = solution.begin();
-	   i != solution.end(); ++i)
+      for (int v: solution)
 	{
-	  int v = *i;
-
 	  if (v < 0)  // FIXME: maybe we can have (v < NNN)?
 	    continue;
 
@@ -714,17 +711,19 @@ namespace spot
 	      if (seen_trans.insert(src_cond(t->second.src,
 					     t->second.cond)).second)
 		{
-		  last_aut_trans = a->create_transition(t->second.src,
-							t->second.dst);
-		  last_aut_trans->condition = t->second.cond;
-		  last_sat_trans = &t->second;
-
-		  dout << v << '\t' << t->second << "δ\n";
-
+		  bdd accept = bddfalse;
 		  // Mark the transition as accepting if the source is.
 		  if (state_based
 		      && acc_states.find(t->second.src) != acc_states.end())
-		    last_aut_trans->acceptance_conditions = acc;
+		    accept = acc;
+
+		  last_aut_trans = g.new_transition(t->second.src - 1,
+						    t->second.dst -1,
+						    t->second.cond,
+						    accept);
+		  last_sat_trans = &t->second;
+
+		  dout << v << '\t' << t->second << "δ\n";
 		}
 	    }
 	  else
@@ -738,7 +737,7 @@ namespace spot
 		      assert(!state_based);
 		      // This assumes that the SAT solvers output
 		      // variables in increasing order.
-		      last_aut_trans->acceptance_conditions = acc;
+		      g.trans_data(last_aut_trans).acc = acc;
 		    }
 		  else if (state_based)
 		    {
@@ -754,53 +753,37 @@ namespace spot
 	}
 #if DEBUG
       dout << "--- state_pair variables ---\n";
-      for (std::map<state_pair, int>::const_iterator pit =
-	     satdict.prodid.begin(); pit != satdict.prodid.end(); ++pit)
-	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << '\t' << pit->first << "C\n";
+      for (auto pit: satdict.prodid)
+	if (positive.find(pit.second) != positive.end())
+	  dout << pit.second << '\t' << pit.first << "C\n";
 	else
-	  dout << -pit->second << "\t¬" << pit->first << "C\n";
+	  dout << -pit.second << "\t¬" << pit.first << "C\n";
 
       dout << "--- pathid_cand variables ---\n";
-      for (std::map<path, int>::const_iterator pit =
-	     satdict.pathid_cand.begin();
-	   pit != satdict.pathid_cand.end(); ++pit)
-	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << '\t' << pit->first << "C\n";
+      for (auto pit: satdict.pathid_cand)
+	if (positive.find(pit.second) != positive.end())
+	  dout << pit.second << '\t' << pit.first << "C\n";
 	else
-	  dout << -pit->second << "\t¬" << pit->first << "C\n";
+	  dout << -pit.second << "\t¬" << pit.first << "C\n";
 
       dout << "--- pathid_ref variables ---\n";
-      for (std::map<path, int>::const_iterator pit =
-	     satdict.pathid_ref.begin();
-	   pit != satdict.pathid_ref.end(); ++pit)
-	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << '\t' << pit->first << "R\n";
+      for (auto pit: satdict.pathid_ref)
+	if (positive.find(pit.second) != positive.end())
+	  dout << pit.second << '\t' << pit.first << "R\n";
 	else
-	  dout << -pit->second << "\t¬" << pit->first << "C\n";
-
-      dout << "--- pathcand variables ---\n";
-      for (std::map<state_pair, int>::const_iterator pit =
-	     satdict.pathcand.begin();
-	   pit != satdict.pathcand.end(); ++pit)
-	if (positive.find(pit->second) != positive.end())
-	  dout << pit->second << '\t' << pit->first << "C\n";
-	else
-	  dout << -pit->second << "\t¬" << pit->first << "C\n";
-
+	  dout << -pit.second << "\t¬" << pit.first << "C\n";
 #endif
-
       a->merge_transitions();
       return a;
     }
   }
 
-  tgba_explicit_number*
+  tgba_digraph*
   dtba_sat_synthetize(const tgba* a, int target_state_number,
 		      bool state_based)
   {
     if (target_state_number == 0)
-      return 0;
+      return nullptr;
     trace << "dtba_sat_synthetize(..., states = " << target_state_number
 	  << ", state_based = " << state_based << ")\n";
     dict d;
@@ -817,7 +800,7 @@ namespace spot
     solution = solver.get_solution();
     t.stop("solve");
 
-    tgba_explicit_number* res = 0;
+    tgba_digraph* res = nullptr;
     if (!solution.second.empty())
       res = sat_build(solution.second, d, a, state_based);
 
@@ -853,17 +836,17 @@ namespace spot
     return res;
   }
 
-  tgba_explicit_number*
+  tgba_digraph*
   dtba_sat_minimize(const tgba* a, bool state_based)
   {
     int n_states = stats_reachable(a).states;
 
-    tgba_explicit_number* prev = 0;
+    tgba_digraph* prev = nullptr;
     for (;;)
       {
-	tgba_explicit_number* next =
+	tgba_digraph* next =
 	  dtba_sat_synthetize(prev ? prev : a, --n_states, state_based);
-	if (next == 0)
+	if (!next)
 	  break;
 	else
 	  n_states = stats_reachable(next).states;
@@ -874,19 +857,19 @@ namespace spot
     return prev;
   }
 
-  tgba_explicit_number*
+  tgba_digraph*
   dtba_sat_minimize_dichotomy(const tgba* a, bool state_based)
   {
     int max_states = stats_reachable(a).states - 1;
     int min_states = 1;
 
-    tgba_explicit_number* prev = 0;
+    tgba_digraph* prev = nullptr;
     while (min_states <= max_states)
       {
 	int target = (max_states + min_states) / 2;
-	tgba_explicit_number* next =
+	tgba_digraph* next =
 	  dtba_sat_synthetize(prev ? prev : a, target, state_based);
-	if (next == 0)
+	if (!next)
 	  {
 	    min_states = target + 1;
 	  }

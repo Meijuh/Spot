@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -20,7 +20,7 @@
 #ifndef SPOT_TGBAALGOS_DTGBASAT_HH
 # define SPOT_TGBAALGOS_DTGBASAT_HH
 
-#include "tgba/tgbaexplicit.hh"
+#include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -44,7 +44,7 @@ namespace spot
   /// acceptance sets and target_state_number states that is
   /// equivalent to \a a.  If no such TGBA is found, a null pointer is
   /// returned.
-  SPOT_API tgba_explicit_number*
+  SPOT_API tgba_digraph*
   dtgba_sat_synthetize(const tgba* a, unsigned target_acc_number,
 		       int target_state_number,
 		       bool state_based = false);
@@ -55,7 +55,7 @@ namespace spot
   /// number of states, and returns the last successfully built TGBA.
   ///
   /// If no smaller TGBA exist, this returns a null pointer.
-  SPOT_API tgba_explicit_number*
+  SPOT_API tgba_digraph*
   dtgba_sat_minimize(const tgba* a, unsigned target_acc_number,
 		     bool state_based = false);
 
@@ -65,7 +65,7 @@ namespace spot
   /// find the minimum number of states using a binary search.
   //
   /// If no smaller TBA exist, this returns a null pointer.
-  SPOT_API tgba_explicit_number*
+  SPOT_API tgba_digraph*
   dtgba_sat_minimize_dichotomy(const tgba* a, unsigned target_acc_number,
 			       bool state_based = false);
 }
