@@ -40,7 +40,6 @@ tgbaalgos_HEADERS = \
   dtbasat.hh \
   dtgbasat.hh \
   dupexp.hh \
-  eltl2tgba_lacim.hh \
   emptiness.hh \
   emptiness_stats.hh \
   gv04.hh \
@@ -90,7 +89,6 @@ libtgbaalgos_la_SOURCES = \
   dtbasat.cc \
   dtgbasat.cc \
   dupexp.cc \
-  eltl2tgba_lacim.cc \
   emptiness.cc \
   gv04.cc \
   isdet.cc \

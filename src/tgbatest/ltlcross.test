@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012, 2013 Laboratoire de Recherche et
+# Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -48,6 +48,3 @@ ltl2tgba=../ltl2tgba
   "$ltl2tgba -t -taa -r4 -c %f > %T" \
   "$ltl2tgba -t -taa -r4 -R3 -RDS %f > %T"
 
-# Disabled because too slow, and too big automata produced.
-# "$ltl2tgba -t -lo -r4 %f > %T"
-# "$ltl2tgba -t -lo -R3b -r4 %f > %T" \

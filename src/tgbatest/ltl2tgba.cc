@@ -54,9 +54,7 @@
 #include "tgbaalgos/rundotdec.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/safety.hh"
-#include "tgbaalgos/eltl2tgba_lacim.hh"
 #include "tgbaalgos/gtec/gtec.hh"
-#include "eltlparse/public.hh"
 #include "misc/timer.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/scc.hh"
@@ -105,9 +103,9 @@ syntax(char* prog)
   if (slash && (strncmp(slash + 1, "lt-", 3) == 0))
     prog = slash + 4;
 
-  std::cerr << "Usage: "<< prog << " [-f|-l|-le|-taa] [OPTIONS...] formula"
+  std::cerr << "Usage: "<< prog << " [-f|-l|-taa] [OPTIONS...] formula"
 	    << std::endl
-            << "       "<< prog << " [-f|-l|-le|-taa] -F [OPTIONS...] file"
+            << "       "<< prog << " [-f|-l|-taa] -F [OPTIONS...] file"
 	    << std::endl
             << "       "<< prog << " -X [OPTIONS...] file" << std::endl
 	    << std::endl
@@ -146,8 +144,6 @@ syntax(char* prog)
 	    << " (default)" << std::endl
             << "  -l    use Couvreur's LaCIM algorithm for LTL "
 	    << std::endl
-	    << "  -le   use Couvreur's LaCIM algorithm for ELTL"
-	    << std::endl
             << "  -taa  use Tauriainen's TAA-based algorithm for LTL"
 	    << std::endl
 	    << "  -u    use Compositional translation"
@@ -169,14 +165,12 @@ syntax(char* prog)
 	    << "(implies -f)" << std::endl
 	    << std::endl
 
-	    << "Options for Couvreur's LaCIM algorithm (-l or -le):"
+	    << "Options for Couvreur's LaCIM algorithm (-l):"
 	    << std::endl
 	    << "  -a    display the acceptance_conditions BDD, not the "
 	    << "reachability graph"
 	    << std::endl
 	    << "  -A    same as -a, but as a set" << std::endl
-	    << "  -lo   pre-define standard LTL operators as automata "
-	    << "(implies -le)" << std::endl
 	    << "  -r    display the relation BDD, not the reachability graph"
 	    << std::endl
 	    << "  -R    same as -r, but as a set" << std::endl
@@ -357,9 +351,7 @@ main(int argc, char** argv)
   bool utf8_opt = false;
   enum { NoDegen, DegenTBA, DegenSBA } degeneralize_opt = NoDegen;
   enum { TransitionLabeled, StateLabeled } labeling_opt = TransitionLabeled;
-  enum { TransFM, TransLaCIM, TransLaCIM_ELTL, TransLaCIM_ELTL_ops, TransTAA,
-	 TransCompo }
-    translation = TransFM;
+  enum { TransFM, TransLaCIM, TransTAA, TransCompo } translation = TransFM;
   bool fm_red = false;
   bool fm_exprop_opt = false;
   bool fm_symb_merge_opt = true;
@@ -624,16 +616,6 @@ main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-l"))
 	{
 	  translation = TransLaCIM;
-	}
-      else if (!strcmp(argv[formula_index], "-le"))
-	{
-	  /* -lo is documented to imply -le, so do not overwrite it. */
-	  if (translation != TransLaCIM_ELTL_ops)
-	    translation = TransLaCIM_ELTL;
-	}
-      else if (!strcmp(argv[formula_index], "-lo"))
-	{
-	  translation = TransLaCIM_ELTL_ops;
 	}
       else if (!strcmp(argv[formula_index], "-L"))
 	{
@@ -1050,34 +1032,6 @@ main(int argc, char** argv)
 	    exit_code = spot::ltl::format_parse_errors(std::cerr, input, pel);
 	  }
 	  break;
-	case TransLaCIM_ELTL:
-	  {
-	    spot::eltl::parse_error_list p;
-	    tm.start("parsing formula");
-	    f = spot::eltl::parse_string(input, p, env, false);
-	    tm.stop("parsing formula");
-	    exit_code = spot::eltl::format_parse_errors(std::cerr, p);
-	  }
-	  break;
-	case TransLaCIM_ELTL_ops:
-	  {
-	    // Call the LTL parser first to handle operators such as
-	    // [] or <> and rewrite the output as a string with G or F.
-	    // Then prepend definitions of usual LTL operators, and parse
-	    // the result again as an ELTL formula.
-	    spot::ltl::parse_error_list pel;
-	    tm.start("parsing formula");
-	    f = spot::ltl::parse(input, pel, env, debug_opt);
-	    input = ltl_defs();
-	    input += "%";
-	    input += spot::ltl::to_string(f, true);
-	    f->destroy();
-	    spot::eltl::parse_error_list p;
-	    f = spot::eltl::parse_string(input, p, env, debug_opt);
-	    tm.stop("parsing formula");
-	    exit_code = spot::eltl::format_parse_errors(std::cerr, p);
-	  }
-	  break;
 	}
     }
 
@@ -1260,10 +1214,6 @@ main(int argc, char** argv)
 	      break;
 	    case TransLaCIM:
 	      a = concrete = spot::ltl_to_tgba_lacim(f, dict);
-	      break;
-	    case TransLaCIM_ELTL:
-	    case TransLaCIM_ELTL_ops:
-	      a = concrete = spot::eltl_to_tgba_lacim(f, dict);
 	      break;
 	    }
 	  tm.stop("translating formula");

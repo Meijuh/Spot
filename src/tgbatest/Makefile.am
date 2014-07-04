@@ -79,7 +79,6 @@ tripprod_SOURCES = tripprod.cc
 TESTS = \
   intvcomp.test \
   bitvect.test \
-  eltl2tgba.test \
   explicit.test \
   explicit2.test \
   ltlcross3.test \

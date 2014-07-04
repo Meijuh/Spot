@@ -1,7 +1,0 @@
-eltlparse.cc
-eltlparse.hh
-*.output
-eltlscan.cc
-location.hh
-position.hh
-stack.hh

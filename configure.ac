@@ -177,9 +177,6 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/bin/man/Makefile
   src/dstarparse/Makefile
-  src/eltlparse/Makefile
-  src/eltltest/defs
-  src/eltltest/Makefile
   src/kripke/Makefile
   src/graph/Makefile
   src/graphtest/Makefile
