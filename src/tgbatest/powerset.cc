@@ -55,7 +55,7 @@ main(int argc, char** argv)
 
 
 #ifndef DOTTY
-  spot::tgba_explicit_number* e = spot::tgba_powerset(a);
+  auto e = spot::tgba_powerset(a);
   spot::tgba_save_reachable(std::cout, e);
   delete e;
 #else

@@ -25,7 +25,7 @@
 
 # include <list>
 # include <map>
-# include "tgba/tgbaexplicit.hh"
+# include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -33,12 +33,12 @@ namespace spot
   struct SPOT_API power_map
   {
     typedef std::set<const state*, state_ptr_less_than> power_state;
-    typedef std::map<int, power_state> power_map_data;
+    typedef std::map<unsigned, power_state> power_map_data;
 
     const power_state&
-    states_of(int s) const
+    states_of(unsigned s) const
     {
-      return map_.find(s)->second;
+      return map_.at(s);
     }
 
     const state*
@@ -64,9 +64,9 @@ namespace spot
   /// The \a merge argument can be set to false to prevent merging of
   /// transitions.
   //@{
-  SPOT_API tgba_explicit_number*
+  SPOT_API tgba_digraph*
   tgba_powerset(const tgba* aut, power_map& pm, bool merge = true);
-  SPOT_API tgba_explicit_number*
+  SPOT_API tgba_digraph*
   tgba_powerset(const tgba* aut);
   //@}
 
@@ -106,7 +106,7 @@ namespace spot
   /// If \a threshold_cycles is non null, abort the construction
   /// whenever an SCC of the constructed automaton has more than \a
   /// threshold_cycles cycles.
-  SPOT_API tgba_explicit_number*
+  SPOT_API tgba_digraph*
   tba_determinize(const tgba* aut,
 		  unsigned threshold_states = 0,
 		  unsigned threshold_cycles = 0);

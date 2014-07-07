@@ -209,7 +209,7 @@ namespace spot
 
 
     bool
-    wdba_scc_is_accepting(const tgba_explicit_number* det_a, unsigned scc_n,
+    wdba_scc_is_accepting(const tgba_digraph* det_a, unsigned scc_n,
 			  const tgba* orig_a, scc_map& sm, power_map& pm)
     {
       // Get some state from the SCC #n.
@@ -244,24 +244,25 @@ namespace spot
       bool accepting = false;
 
       // Iterate on each original state corresponding to start.
-      const power_map::power_state& ps = pm.states_of(det_a->get_label(start));
-      for (power_map::power_state::const_iterator it = ps.begin();
-	   it != ps.end() && !accepting; ++it)
+      const power_map::power_state& ps =
+	pm.states_of(det_a->state_number(start));
+      for (auto& it: ps)
 	{
 	  // Contrustruct a product between
 	  // LOOP_A, and ORIG_A starting in *IT.
 
-	  tgba* p = new tgba_product_init(&loop_a, orig_a,
-					  loop_a_init, *it);
-
+	  tgba* p = new tgba_product_init(&loop_a, orig_a, loop_a_init, it);
 	  emptiness_check* ec = couvreur99(p);
 	  emptiness_check_result* res = ec->check();
-
-	  if (res)
-	    accepting = true;
 	  delete res;
 	  delete ec;
 	  delete p;
+
+	  if (res)
+	    {
+	      accepting = true;
+	      break;
+	    }
 	}
 
       loop_a_init->destroy();
@@ -270,7 +271,7 @@ namespace spot
 
   }
 
-  sba_explicit_number* minimize_dfa(const tgba_explicit_number* det_a,
+  sba_explicit_number* minimize_dfa(const tgba_digraph* det_a,
 				    hash_set* final, hash_set* non_final)
   {
     typedef std::list<hash_set*> partition_t;
@@ -481,7 +482,7 @@ namespace spot
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
-    tgba_explicit_number* det_a;
+    tgba_digraph* det_a;
 
     {
       power_map pm;
@@ -500,7 +501,7 @@ namespace spot
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
 
-    tgba_explicit_number* det_a;
+    tgba_digraph* det_a;
 
     {
       power_map pm;

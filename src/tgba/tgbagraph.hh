@@ -77,7 +77,7 @@ namespace spot
     {
     }
 
-    tgba_graph_trans_data(bdd cond, bdd acc)
+    tgba_graph_trans_data(bdd cond, bdd acc = bddfalse)
       : cond(cond), acc(acc)
     {
     }
@@ -162,7 +162,10 @@ namespace spot
 
   public:
     tgba_digraph(bdd_dict* dict)
-      : dict_(dict), init_(nullptr)
+      : dict_(dict),
+	all_acceptance_conditions_(bddfalse),
+	neg_acceptance_conditions_(bddtrue),
+	init_(nullptr)
     {
     }
 

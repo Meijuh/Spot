@@ -42,7 +42,7 @@
 
 namespace spot
 {
-  tgba_explicit_number*
+  tgba_digraph*
   tgba_powerset(const tgba* aut, power_map& pm, bool merge)
   {
     typedef power_map::power_state power_state;
@@ -51,18 +51,21 @@ namespace spot
 
     power_set seen;
     todo_list todo;
-    tgba_explicit_number* res = new tgba_explicit_number(aut->get_dict());
+    auto d = aut->get_dict();
+    auto res = new tgba_digraph(d);
+    d->register_all_variables_of(aut, res);
+    d->unregister_all_typed_variables(bdd_dict::acc, res);
+    auto& g = res->get_graph();
 
     {
       power_state ps;
       const state* s = pm.canonicalize(aut->get_init_state());
       ps.insert(s);
       todo.push_back(ps);
-      seen[ps] = 1;
-      pm.map_[1] = ps;
+      unsigned num = g.new_state();
+      seen[ps] = num;
+      pm.map_[num] = ps;
     }
-
-    unsigned state_num = 1;
 
     while (!todo.empty())
       {
@@ -92,21 +95,18 @@ namespace spot
 	    // Add that transition.
 	    power_set::const_iterator i = seen.find(dest);
 	    int dest_num;
-	    state_explicit_number::transition* t;
 	    if (i != seen.end())
 	      {
 		dest_num = i->second;
-                t = res->create_transition(seen[src], dest_num);
 	      }
 	    else
 	      {
-		dest_num = ++state_num;
+		dest_num = g.new_state();
 		seen[dest] = dest_num;
 		pm.map_[dest_num] = dest;
 		todo.push_back(dest);
-                t = res->create_transition(seen[src], dest_num);
 	      }
-	    res->add_conditions(t, cond);
+	    g.new_transition(seen[src], dest_num, cond);
 	  }
       }
     if (merge)
@@ -114,7 +114,7 @@ namespace spot
     return res;
   }
 
-  tgba_explicit_number*
+  tgba_digraph*
   tgba_powerset(const tgba* aut)
   {
     power_map pm;
@@ -129,7 +129,7 @@ namespace spot
     {
     public:
       typedef dfs_stack::const_iterator cycle_iter;
-      typedef state_explicit_number::transition trans;
+      typedef tgba_graph_trans_data trans;
       typedef std::set<trans*> trans_set;
       typedef std::vector<trans_set> set_set;
     protected:
@@ -170,31 +170,32 @@ namespace spot
 
 	bdd acc = aut_->all_acceptance_conditions();
 	for (auto i: all_)
-	  i->acceptance_conditions = acc;
+	  i->acc = acc;
 	return threshold_ != 0 && cycles_left_ == 0;
       }
 
       bool is_cycle_accepting(cycle_iter begin, trans_set& ts) const
       {
-	tgba_explicit_number* a =
-	  down_cast<tgba_explicit_number*>(const_cast<tgba*>(aut_));
+	auto a = down_cast<tgba_digraph*>(const_cast<tgba*>(aut_));
+
 	// Build an automaton representing this loop.
-	tgba_explicit_number loop_a(aut_->get_dict());
+	tgba_digraph loop_a(aut_->get_dict());
+	auto& g = loop_a.get_graph();
 	int loop_size = std::distance(begin, dfs_.end());
+	g.new_states(loop_size);
 	int n;
 	cycle_iter i;
 	for (n = 1, i = begin; n <= loop_size; ++n, ++i)
 	  {
-	    trans* t = a->get_transition(i->succ);
-	    loop_a.create_transition(n - 1, n % loop_size)->condition =
-	      t->condition;
+	    trans* t = &a->trans_data(i->succ);
+	    g.new_transition(n - 1, n % loop_size, t->cond);
 	    if (reject_.find(t) == reject_.end())
 	      ts.insert(t);
 	  }
 	assert(i == dfs_.end());
 
 	const state* loop_a_init = loop_a.get_init_state();
-	assert(loop_a.get_label(loop_a_init) == 0);
+	assert(loop_a.state_number(loop_a_init) == 0);
 
 	// Check if the loop is accepting in the original automaton.
 	bool accepting = false;
@@ -202,7 +203,7 @@ namespace spot
 	// Iterate on each original state corresponding to the
 	// start of the loop in the determinized automaton.
 	const power_map::power_state& ps =
-	  refmap_.states_of(a->get_label(begin->ts->first));
+	  refmap_.states_of(a->state_number(begin->ts->first));
 	for (auto s: ps)
 	  {
 	    // Construct a product between
@@ -213,13 +214,14 @@ namespace spot
 	    couvreur99_check* ec = down_cast<couvreur99_check*>(couvreur99(p));
 	    assert(ec);
 	    emptiness_check_result* res = ec->check();
-	    if (res)
-	      accepting = true;
 	    delete res;
 	    delete ec;
 	    delete p;
-	    if (accepting)
-	      break;
+	    if (res)
+	      {
+		accepting = true;
+		break;
+	      }
 	  }
 
 	loop_a_init->destroy();
@@ -277,7 +279,7 @@ namespace spot
     };
 
     static bool
-    fix_dba_acceptance(tgba_explicit_number* det,
+    fix_dba_acceptance(tgba_digraph* det,
 		       const tgba* ref, power_map& refmap,
 		       unsigned threshold)
     {
@@ -298,7 +300,7 @@ namespace spot
     }
   }
 
-  tgba_explicit_number*
+  tgba_digraph*
   tba_determinize(const tgba* aut,
 		  unsigned threshold_states, unsigned threshold_cycles)
   {
@@ -306,7 +308,7 @@ namespace spot
     // Do not merge transitions in the deterministic automaton.  If we
     // add two self-loops labeled by "a" and "!a", we do not want
     // these to be merged as "1" before the acceptance has been fixed.
-    tgba_explicit_number* det = tgba_powerset(aut, pm, false);
+    auto det = tgba_powerset(aut, pm, false);
 
     if ((threshold_states > 0)
 	&& (pm.map_.size() > pm.states_.size() * threshold_states))
@@ -336,8 +338,7 @@ namespace spot
     if (aut->number_of_acceptance_conditions() > 1)
       return 0;
 
-    tgba_explicit_number* det =
-      tba_determinize(aut, threshold_states, threshold_cycles);
+    auto det = tba_determinize(aut, threshold_states, threshold_cycles);
 
     if (!det)
       return 0;
