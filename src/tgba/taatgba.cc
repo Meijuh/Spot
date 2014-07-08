@@ -275,6 +275,8 @@ namespace spot
 	  && (i == seen_.end() || j == i->second.end()))
       {
 	seen_[b].push_back(t);
+	if (i != seen_.end())
+	  delete b;
 	succ_.push_back(t);
       }
       else
