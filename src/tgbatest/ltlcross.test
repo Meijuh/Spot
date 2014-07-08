@@ -25,15 +25,12 @@ ltl2tgba=../ltl2tgba
 
 ../../bin/randltl -n 100 p1 p2 p3 p4 p5 p6 --tree-size 5..15 |
 ../../bin/ltlcross --products=2 \
-  "$ltl2tgba -t -l %f > %T" \
-  "$ltl2tgba -t -l -R3b -r4 %f > %T" \
   "$ltl2tgba -t -f %f > %T" \
   "$ltl2tgba -t -f -y %f > %T" \
   "$ltl2tgba -t -f -r4 %f > %T" \
   "$ltl2tgba -t -f -R3 %f > %T" \
   "$ltl2tgba -t -f -R3 -Rm %f > %T" \
   "$ltl2tgba -t -f -R3 -RM %f > %T" \
-  "$ltl2tgba -t -l -R3b -Rm %f > %T" \
   "$ltl2tgba -t -f -D %f > %T" \
   "$ltl2tgba -t -f -D %f > %T" \
   "$ltl2tgba -t -f -r4 -R3 -RDS %f > %T" \

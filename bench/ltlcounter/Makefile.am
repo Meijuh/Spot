@@ -1,5 +1,5 @@
-# Copyright (C) 2009 Laboratoire de Recherche et Développement de
-# l'EPITA (LRDE)
+# Copyright (C) 2009, 2014 Laboratoire de Recherche et Développement
+# de l'EPITA (LRDE)
 #
 # This file is part of Spot, a model checking library.
 #
@@ -18,4 +18,4 @@
 
 EXTRA_DIST = run plot.gnu
 
-CLEANFILES = results.fm results.lacim results.fm.eps results.lacim.eps
+CLEANFILES = results.fm results.taa results.fm.eps results.taa.eps

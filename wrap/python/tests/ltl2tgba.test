@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright (C) 2014 Laboratoire de Recherche et
+# Développement de l'EPITA.
 # Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -24,15 +26,15 @@ set -e
 # We don't check the output, but just running these might be enough to
 # trigger assertions.
 
-./run $srcdir/ltl2tgba.py a
-./run $srcdir/ltl2tgba.py 'a U b'
-./run $srcdir/ltl2tgba.py 'X a'
-./run $srcdir/ltl2tgba.py 'a & b & c'
-./run $srcdir/ltl2tgba.py 'a | b | (c U (d & (g U (h ^ i))))'
-./run $srcdir/ltl2tgba.py 'Xa & (b U !a) & (b U !a)'
-./run $srcdir/ltl2tgba.py 'Fa & Xb & GFc & Gd'
-./run $srcdir/ltl2tgba.py 'Fa & Xa & GFc & Gc'
-./run $srcdir/ltl2tgba.py 'Fc & X(a | Xb) & GF(a | Xb) & Gc'
+./run $srcdir/ltl2tgba.py -T a
+./run $srcdir/ltl2tgba.py -T 'a U b'
+./run $srcdir/ltl2tgba.py -T 'X a'
+./run $srcdir/ltl2tgba.py -T 'a & b & c'
+./run $srcdir/ltl2tgba.py -T 'a | b | (c U (d & (g U (h ^ i))))'
+./run $srcdir/ltl2tgba.py -T 'Xa & (b U !a) & (b U !a)'
+./run $srcdir/ltl2tgba.py -T 'Fa & Xb & GFc & Gd'
+./run $srcdir/ltl2tgba.py -T 'Fa & Xa & GFc & Gc'
+./run $srcdir/ltl2tgba.py -T 'Fc & X(a | Xb) & GF(a | Xb) & Gc'
 
 ./run $srcdir/ltl2tgba.py -f a
 ./run $srcdir/ltl2tgba.py -f 'a U b'

@@ -172,7 +172,11 @@ namespace spot
   /// States labeled by a formula
   /// \ingroup tgba_representation
   class SPOT_API state_explicit_formula:
+#ifndef SWIG
     public state_explicit<const ltl::formula*, ltl::formula_ptr_hash>
+#else
+    public state
+#endif
   {
   public:
     state_explicit_formula():

@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -41,9 +41,9 @@ check_psl ()
 check_ltl ()
 {
   check_psl "$@"
-  # Make cross products with LaCIM
-  run 0 ../ltl2tgba -l -R3b -b "$1" > out.tgba
-  run 0 ../ltl2tgba -l -R3b -Pout.tgba -E "!($1)"
+  # Make cross products with TAA
+  run 0 ../ltl2tgba -taa -R3 -b "$1" > out.tgba
+  run 0 ../ltl2tgba -taa -R3 -Pout.tgba -E "!($1)"
 }
 
 check_ltl a

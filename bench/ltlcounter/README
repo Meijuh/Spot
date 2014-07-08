@@ -20,5 +20,5 @@ This benchmark used this familly of formulae to plot the performance
 of the ltl2tgba_fm algorithm.  Studying the behaviour of ltl2tgba_fm
 on this class of formulae helped us to improve the translation.
 
-Execute "./run" to compute the raw numbers, then execture
+Execute "./run" to compute the raw numbers, then execute
 "gnuplot plot.gnu" to plot the figures.

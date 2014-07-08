@@ -15,11 +15,11 @@ plot 'results.fm' using 1:($4+$5) '%lf,%lf,%lf,%lf,%*lf,%*lf,%lf,%*lf,%*lf' \
         with lines title "States"
 
 
-set output 'results.lacim.eps'
+set output 'results.taa.eps'
 
-plot 'results.lacim' using 1:($4+$5) '%lf,%lf,%lf,%lf,%*lf,%*lf,%lf,%*lf,%*lf' \
+plot 'results.taa' using 1:($4+$5) '%lf,%lf,%lf,%lf,%*lf,%*lf,%lf,%*lf,%*lf' \
         with filledcurve x1 title "Total Time" axes x1y2, \
-     'results.lacim' using 1:4 '%lf,%lf,%lf,%lf,%*lf,%*lf,%lf,%*lf,%*lf' \
+     'results.taa' using 1:4 '%lf,%lf,%lf,%lf,%*lf,%*lf,%lf,%*lf,%*lf' \
         with filledcurve x1 title "Translation Time" axes x1y2, \
-     'results.lacim' using 1:2 '%lf,%lf,%lf,%lf,%*lf,%*lf,%lf,%*lf,%*lf' \
+     'results.taa' using 1:2 '%lf,%lf,%lf,%lf,%*lf,%*lf,%lf,%*lf,%*lf' \
         with lines title "States"

@@ -30,7 +30,6 @@
 #include "ltlvisit/apcollect.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
-#include "tgbaalgos/ltl2tgba_lacim.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/ltl2taa.hh"
 #include "tgba/bddprint.hh"
@@ -142,8 +141,6 @@ syntax(char* prog)
 	    << "Translation algorithm:" << std::endl
             << "  -f    use Couvreur's FM algorithm for LTL"
 	    << " (default)" << std::endl
-            << "  -l    use Couvreur's LaCIM algorithm for LTL "
-	    << std::endl
             << "  -taa  use Tauriainen's TAA-based algorithm for LTL"
 	    << std::endl
 	    << "  -u    use Compositional translation"
@@ -163,19 +160,6 @@ syntax(char* prog)
 	    << "(implies -f)" << std::endl
 	    << "  -y    do not merge states with same symbolic representation "
 	    << "(implies -f)" << std::endl
-	    << std::endl
-
-	    << "Options for Couvreur's LaCIM algorithm (-l):"
-	    << std::endl
-	    << "  -a    display the acceptance_conditions BDD, not the "
-	    << "reachability graph"
-	    << std::endl
-	    << "  -A    same as -a, but as a set" << std::endl
-	    << "  -r    display the relation BDD, not the reachability graph"
-	    << std::endl
-	    << "  -R    same as -r, but as a set" << std::endl
-	    << "  -R3b  symbolically prune unaccepting SCC from BDD relation"
-	    << std::endl
 	    << std::endl
 
 	    << "Options for Tauriainen's TAA-based algorithm (-taa):"
@@ -351,7 +335,7 @@ main(int argc, char** argv)
   bool utf8_opt = false;
   enum { NoDegen, DegenTBA, DegenSBA } degeneralize_opt = NoDegen;
   enum { TransitionLabeled, StateLabeled } labeling_opt = TransitionLabeled;
-  enum { TransFM, TransLaCIM, TransTAA, TransCompo } translation = TransFM;
+  enum { TransFM, TransTAA, TransCompo } translation = TransFM;
   bool fm_red = false;
   bool fm_exprop_opt = false;
   bool fm_symb_merge_opt = true;
@@ -377,7 +361,6 @@ main(int argc, char** argv)
 					   false, false, false);
   bool simpcache_stats = false;
   bool scc_filter_all = false;
-  bool symbolic_scc_pruning = false;
   bool display_reduced_form = false;
   bool post_branching = false;
   bool fair_loop_approx = false;
@@ -443,14 +426,7 @@ main(int argc, char** argv)
 	  utf8_opt = true;
 	  spot::enable_utf8();
 	}
-      else if (!strcmp(argv[formula_index], "-a"))
-	{
-	  output = 2;
-	}
-      else if (!strcmp(argv[formula_index], "-A"))
-	{
-	  output = 4;
-	}
+
       else if (!strcmp(argv[formula_index], "-b"))
 	{
 	  output = 7;
@@ -613,10 +589,6 @@ main(int argc, char** argv)
 	{
 	  output = 16;
 	}
-      else if (!strcmp(argv[formula_index], "-l"))
-	{
-	  translation = TransLaCIM;
-	}
       else if (!strcmp(argv[formula_index], "-L"))
 	{
 	  fair_loop_approx = true;
@@ -668,10 +640,6 @@ main(int argc, char** argv)
 	  tm.stop("reading -P's argument");
 	  system_aut = s;
 	}
-      else if (!strcmp(argv[formula_index], "-r"))
-	{
-	  output = 1;
-	}
       else if (!strcmp(argv[formula_index], "-r1"))
 	{
 	  simpltl = true;
@@ -714,10 +682,6 @@ main(int argc, char** argv)
 	  redopt.containment_checks = true;
 	  redopt.containment_checks_stronger = true;
 	}
-      else if (!strcmp(argv[formula_index], "-R"))
-	{
-	  output = 3;
-	}
       else if (!strcmp(argv[formula_index], "-R1q")
 	       || !strcmp(argv[formula_index], "-R1t")
 	       || !strcmp(argv[formula_index], "-R2q")
@@ -739,10 +703,6 @@ main(int argc, char** argv)
 	{
 	  scc_filter = true;
 	  scc_filter_all = true;
-	}
-      else if (!strcmp(argv[formula_index], "-R3b"))
-	{
-	  symbolic_scc_pruning = true;
 	}
       else if (!strcmp(argv[formula_index], "-rd"))
 	{
@@ -1021,7 +981,6 @@ main(int argc, char** argv)
       switch (translation)
 	{
 	case TransFM:
-	case TransLaCIM:
 	case TransTAA:
 	case TransCompo:
 	  {
@@ -1037,7 +996,6 @@ main(int argc, char** argv)
 
   if (f || from_file)
     {
-      spot::tgba_bdd_concrete* concrete = 0;
       const spot::tgba* to_free = 0;
       const spot::tgba* to_free2 = 0;
       spot::tgba* a = 0;
@@ -1212,9 +1170,6 @@ main(int argc, char** argv)
 	    case TransTAA:
 	      a = spot::ltl_to_taa(f, dict, containment);
 	      break;
-	    case TransLaCIM:
-	      a = concrete = spot::ltl_to_tgba_lacim(f, dict);
-	      break;
 	    }
 	  tm.stop("translating formula");
 	  to_free = a;
@@ -1240,35 +1195,7 @@ main(int argc, char** argv)
 	}
 
       if (opt_monitor && !scc_filter)
-	{
-	  if (dynamic_cast<const spot::tgba_bdd_concrete*>(a))
-	    symbolic_scc_pruning = true;
-	  else
-	    scc_filter = true;
-	}
-
-      if (symbolic_scc_pruning)
-        {
-	  const spot::tgba_bdd_concrete* bc =
-	    dynamic_cast<const spot::tgba_bdd_concrete*>(a);
-	  if (!bc)
-	    {
-	      std::cerr << ("Error: Automaton is not symbolic: cannot "
-			    "prune SCCs symbolically.\n"
-			    "       Try -R3 instead of -R3b, or use "
-			    "another translation.")
-			<< std::endl;
-	      exit(2);
-	    }
-	  else
-	    {
-	      tm.start("reducing A_f w/ symbolic SCC pruning");
-	      if (bc)
-		const_cast<spot::tgba_bdd_concrete*>(bc)
-		  ->delete_unaccepting_scc();
-	      tm.stop("reducing A_f w/ symbolic SCC pruning");
-	    }
-	}
+	scc_filter = true;
 
       // Remove dead SCCs and useless acceptance conditions before
       // degeneralization.
@@ -1700,28 +1627,6 @@ main(int argc, char** argv)
 	    {
 	    case 0:
 	      spot::dotty_reachable(std::cout, a, assume_sba);
-	      break;
-	    case 1:
-	      if (concrete)
-		spot::bdd_print_dot(std::cout, concrete->get_dict(),
-				    concrete->get_core_data().relation);
-	      break;
-	    case 2:
-	      if (concrete)
-		spot::bdd_print_dot(std::cout, concrete->get_dict(),
-				    concrete->
-				    get_core_data().acceptance_conditions);
-	      break;
-	    case 3:
-	      if (concrete)
-		spot::bdd_print_set(std::cout, concrete->get_dict(),
-				    concrete->get_core_data().relation);
-	      break;
-	    case 4:
-	      if (concrete)
-		spot::bdd_print_set(std::cout, concrete->get_dict(),
-				    concrete->
-				    get_core_data().acceptance_conditions);
 	      break;
 	    case 5:
 	      a->get_dict()->dump(std::cout);

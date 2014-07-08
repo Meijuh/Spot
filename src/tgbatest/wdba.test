@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2010 Laboratoire de Recherche et Développement
+# Copyright (C) 2010, 2014 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -114,7 +114,7 @@ while read f; do
   # to detect any crash.  Do that only for the first few formula, because
   # it takes a long time.
   if test $i -lt 5; then
-    run 0 ../ltl2tgba -l -R3b -DS -Rm "!($f)" >/dev/null
+    run 0 ../ltl2tgba -taa -DS -Rm "!($f)" >/dev/null
     i=`expr $i + 1`
   fi
 

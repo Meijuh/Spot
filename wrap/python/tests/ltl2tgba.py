@@ -31,14 +31,11 @@ def usage(prog):
     sys.stderr.write("""Usage: %s [OPTIONS...] formula
 
 Options:
-  -a   display the acceptance_conditions BDD, not the reachability graph
-  -A   same as -a, but as a set
   -d   turn on traces during parsing
   -D   degeneralize the automaton
   -f   use Couvreur's FM algorithm for translation
-  -r   display the relation BDD, not the reachability graph
-  -R   same as -r, but as a set
   -t   display reachable states in LBTT's format
+  -T   use ltl2taa for translation
   -v   display the BDD variables used by the automaton
 """ % prog)
     sys.exit(2)
@@ -46,7 +43,7 @@ Options:
 
 prog = sys.argv[0]
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'aAdDfrRtv')
+    opts, args = getopt.getopt(sys.argv[1:], 'dDftTv')
 except getopt.GetoptError:
     usage(prog)
 
@@ -55,24 +52,19 @@ debug_opt = False
 degeneralize_opt = None
 output = 0
 fm_opt = 0
+taa_opt = 0
 
 for o, a in opts:
-    if o == '-a':
-        output = 2
-    elif o == '-A':
-        output = 4
-    elif o == '-d':
+    if o == '-d':
         debug_opt = True
     elif o == '-D':
         degeneralize_opt = 1
     elif o == '-f':
         fm_opt = 1
-    elif o == '-r':
-        output = 1
-    elif o == '-R':
-        output = 3
     elif o == '-t':
         output = 6
+    elif o == '-T':
+        taa_opt = 1
     elif o == '-v':
         output = 5
     else:
@@ -98,8 +90,10 @@ if f:
     if fm_opt:
         a = spot.ltl_to_tgba_fm(f, dict)
         concrete = 0
+    elif taa_opt:
+        a = concrete = spot.ltl_to_taa(f, dict)
     else:
-        a = concrete = spot.ltl_to_tgba_lacim(f, dict)
+        assert "unspecified translator"
     f.destroy()
     del f
 
@@ -109,24 +103,6 @@ if f:
 
     if output == 0:
         spot.dotty_reachable(cout, a)
-    elif output == 1:
-        if concrete:
-            spot.bdd_print_dot(cout, concrete.get_dict(),
-                               concrete.get_core_data().relation)
-    elif output == 2:
-        if concrete:
-            spot.bdd_print_dot(cout, concrete.get_dict(),
-                               concrete.get_core_data().acceptance_conditions)
-    elif output == 3:
-        if concrete:
-            spot.bdd_print_set(cout, concrete.get_dict(),
-                               concrete.get_core_data().relation)
-        spot.nl_cout()
-    elif output == 4:
-        if concrete:
-            spot.bdd_print_set(cout, concrete.get_dict(),
-                               concrete.get_core_data().acceptance_conditions)
-        spot.nl_cout()
     elif output == 5:
         a.get_dict().dump(cout)
     elif output == 6:

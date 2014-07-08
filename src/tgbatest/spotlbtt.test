@@ -34,30 +34,6 @@ set -e
 cat > config <<EOF
 Algorithm
 {
-   Name = "Spot (Couvreur -- LaCIM)"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -l -F -t'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot (Couvreur -- LaCIM), reduction of formula"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -l -F -t -r4'"
-   Enabled = yes
-}
-
-Algorithm
-{
-   Name = "Spot (Couvreur -- LaCIM), degeneralized"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -l -F -t -D'"
-   Enabled = no
-}
-
-Algorithm
-{
    Name = "Spot (Couvreur -- LaCIM), fake"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -F -T'"
@@ -138,14 +114,6 @@ Algorithm
 
 Algorithm
 {
-   Name = "Spot (Couvreur -- LaCIM), +pre +WDBA"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r4 -R3b -Rm -F -l -t'"
-   Enabled = yes
-}
-
-Algorithm
-{
    Name = "Spot (Couvreur -- FM), without symb_merge"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -F -f -y -t'"
@@ -198,15 +166,6 @@ Algorithm
    Name = "Spot (Couvreur -- FM), iterated simulation"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -F -f -t -RIS  -r4 -R3'"
-   Enabled = yes
-}
-
-
-Algorithm
-{
-   Name = "Spot (Couvreur -- LaCim), simulated"
-   Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -l -t -RDS  -r4 -R3'"
    Enabled = yes
 }
 

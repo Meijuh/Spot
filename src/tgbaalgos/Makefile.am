@@ -48,7 +48,6 @@ tgbaalgos_HEADERS = \
   lbtt.hh \
   ltl2taa.hh \
   ltl2tgba_fm.hh \
-  ltl2tgba_lacim.hh \
   magic.hh \
   minimize.hh \
   neverclaim.hh \
@@ -96,7 +95,6 @@ libtgbaalgos_la_SOURCES = \
   lbtt.cc \
   ltl2taa.cc \
   ltl2tgba_fm.cc \
-  ltl2tgba_lacim.cc \
   magic.cc \
   minimize.cc \
   ndfs_result.hxx \

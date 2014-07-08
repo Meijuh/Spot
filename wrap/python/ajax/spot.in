@@ -1,6 +1,6 @@
 #!@PYTHON@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+# Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -518,10 +518,6 @@ if translator == 'fm':
     automaton = spot.ltl_to_tgba_fm(f, dict,
                                     exprop, symb_merge,
                                     branching_postponement, fair_loop_approx)
-elif translator == 'la':
-    automaton = spot.ltl_to_tgba_lacim(f, dict)
-    if form.getfirst('la', '') == 'sp':
-        automaton.delete_unaccepting_scc()
 elif translator == 'ta':
     refined_rules = False
     if form.getfirst('ta', '') == 'lc':
@@ -594,6 +590,9 @@ elif translator == 'cs':
 
     automaton = spot.compsusp(f, dict, cs_nowdba, cs_nosimul,
                               cs_early_start, donot_inject)
+else:
+    unbufprint('''<div class="error">unsupported translator</div>''')
+    finish()
 
 # Monitor output
 if output_type == 'm':

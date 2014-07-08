@@ -30,19 +30,11 @@ tgba_HEADERS = \
   bddprint.hh \
   formula2bdd.hh \
   futurecondcol.hh \
-  public.hh \
   sba.hh \
   state.hh \
-  statebdd.hh \
   succiter.hh \
-  succiterconcrete.hh \
   taatgba.hh \
   tgba.hh \
-  tgbabddconcrete.hh \
-  tgbabddconcretefactory.hh \
-  tgbabddconcreteproduct.hh \
-  tgbabddcoredata.hh \
-  tgbabddfactory.hh \
   tgbaexplicit.hh \
   tgbagraph.hh \
   tgbakvcomplement.hh \
@@ -62,14 +54,8 @@ libtgba_la_SOURCES = \
   bddprint.cc \
   formula2bdd.cc \
   futurecondcol.cc \
-  succiterconcrete.cc \
-  statebdd.cc \
   taatgba.cc \
   tgba.cc \
-  tgbabddconcrete.cc \
-  tgbabddconcretefactory.cc \
-  tgbabddconcreteproduct.cc \
-  tgbabddcoredata.cc \
   tgbaexplicit.cc \
   tgbakvcomplement.cc \
   tgbaproduct.cc \

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2012 Laboratoire de Recherche et
+// Copyright (C) 2008, 2009, 2012, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -25,9 +25,8 @@
 #include <cstdlib>
 #include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
-#include "tgbaalgos/ltl2tgba_lacim.hh"
 #include "tgba/tgbaproduct.hh"
-#include "tgba/tgbabddconcreteproduct.hh"
+#include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/dotty.hh"
 
 void
@@ -61,16 +60,11 @@ main(int argc, char** argv)
 
   spot::bdd_dict* dict = new spot::bdd_dict();
   {
-    spot::tgba_bdd_concrete* a1 = spot::ltl_to_tgba_lacim(f1, dict);
-    spot::tgba_bdd_concrete* a2 = spot::ltl_to_tgba_lacim(f2, dict);
+    auto a1 = spot::ltl_to_tgba_fm(f1, dict);
+    auto a2 = spot::ltl_to_tgba_fm(f2, dict);
     f1->destroy();
     f2->destroy();
-
-#ifdef BDD_CONCRETE_PRODUCT
-    spot::tgba_bdd_concrete* p = spot::product(a1, a2);
-#else
-    spot::tgba_product* p = new spot::tgba_product(a1, a2);
-#endif
+    auto p = new spot::tgba_product(a1, a2);
     spot::dotty_reachable(std::cout, p);
     delete p;
     delete a1;

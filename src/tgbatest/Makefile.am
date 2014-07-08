@@ -31,7 +31,6 @@ noinst_PROGRAMS = ltl2tgba randtgba
 check_SCRIPTS = defs
 # Keep this sorted alphabetically.
 check_PROGRAMS = \
-  bddprod \
   bitvect \
   complement \
   explicit \
@@ -43,7 +42,6 @@ check_PROGRAMS = \
   intvcmp2 \
   ltlprod \
   maskacc \
-  mixprod \
   powerset \
   readsat \
   taatgba \
@@ -51,8 +49,6 @@ check_PROGRAMS = \
   tripprod
 
 # Keep this sorted alphabetically.
-bddprod_SOURCES  = ltlprod.cc
-bddprod_CXXFLAGS = -DBDD_CONCRETE_PRODUCT
 bitvect_SOURCES  = bitvect.cc
 complement_SOURCES = complementation.cc
 explicit_SOURCES = explicit.cc
@@ -66,7 +62,6 @@ intvcmp2_SOURCES = intvcmp2.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
 ltlprod_SOURCES  = ltlprod.cc
 maskacc_SOURCES  = maskacc.cc
-mixprod_SOURCES  = mixprod.cc
 powerset_SOURCES = powerset.cc
 randtgba_SOURCES = randtgba.cc
 readsat_SOURCES = readsat.cc
@@ -100,13 +95,11 @@ TESTS = \
   ltl2ta.test \
   ltl2ta2.test \
   ltlprod.test \
-  bddprod.test \
   explprod.test \
   explpro2.test \
   explpro3.test \
   explpro4.test \
   tripprod.test \
-  mixprod.test \
   dupexp.test \
   degendet.test \
   degenid.test \

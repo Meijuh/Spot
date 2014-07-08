@@ -62,6 +62,8 @@ namespace std {
 
 #include "ltlparse/public.hh"
 
+#include "tgba/bdddict.hh"
+
 #include "ltlvisit/dotty.hh"
 #include "ltlvisit/dump.hh"
 #include "ltlvisit/lunabbrev.hh"
@@ -71,17 +73,12 @@ namespace std {
 #include "ltlvisit/tunabbrev.hh"
 #include "ltlvisit/apcollect.hh"
 
-#include "tgba/bdddict.hh"
 #include "tgba/bddprint.hh"
 #include "tgba/state.hh"
 #include "tgba/succiter.hh"
 #include "tgba/tgba.hh"
 #include "tgba/sba.hh"
-#include "tgba/statebdd.hh"
 #include "tgba/taatgba.hh"
-#include "tgba/tgbabddcoredata.hh"
-#include "tgba/succiterconcrete.hh"
-#include "tgba/tgbabddconcrete.hh"
 #include "tgba/tgbaexplicit.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgba/tgbatba.hh"
@@ -95,7 +92,6 @@ namespace std {
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/ltl2taa.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgbaalgos/ltl2tgba_lacim.hh"
 #include "tgbaalgos/compsusp.hh"
 #include "tgbaalgos/magic.hh"
 #include "tgbaalgos/minimize.hh"
@@ -175,6 +171,8 @@ using namespace spot;
 
 %include "ltlparse/public.hh"
 
+%include "tgba/bdddict.hh"
+
 %include "ltlvisit/dotty.hh"
 %include "ltlvisit/dump.hh"
 %include "ltlvisit/lunabbrev.hh"
@@ -192,7 +190,6 @@ using namespace spot;
 %feature("new") spot::explicit_se05_search;
 %feature("new") spot::ltl_to_taa;
 %feature("new") spot::ltl_to_tgba_fm;
-%feature("new") spot::ltl_to_tgba_lacim;
 %feature("new") spot::compsusp;
 %feature("new") spot::minimize_wdba;
 %feature("new") spot::minimize_monitor;
@@ -218,17 +215,12 @@ using namespace spot;
 
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
-%include "tgba/bdddict.hh"
 %include "tgba/bddprint.hh"
 %include "tgba/state.hh"
 %include "tgba/succiter.hh"
 %include "tgba/tgba.hh"
 %include "tgba/sba.hh"
-%include "tgba/statebdd.hh"
 %include "tgba/taatgba.hh"
-%include "tgba/tgbabddcoredata.hh"
-%include "tgba/succiterconcrete.hh"
-%include "tgba/tgbabddconcrete.hh"
 %include "tgba/tgbaexplicit.hh"
 %include "tgba/tgbaproduct.hh"
 %include "tgba/tgbatba.hh"
@@ -240,6 +232,13 @@ namespace spot {
   {
   };
 }
+
+%template(tgba_explicit_succ_iterator__string)
+  spot::tgba_explicit_succ_iterator<state_explicit_string>;
+%template(tgba_explicit_succ_iterator__number)
+  spot::tgba_explicit_succ_iterator<state_explicit_number>;
+%template(tgba_explicit_succ_iterator__formula)
+  spot::tgba_explicit_succ_iterator<state_explicit_formula>;
 
 %template(explicit_graph__string_tgba)
   spot::explicit_graph<state_explicit_string, tgba>;
@@ -298,7 +297,6 @@ namespace spot {
 %include "tgbaalgos/lbtt.hh"
 %include "tgbaalgos/ltl2taa.hh"
 %include "tgbaalgos/ltl2tgba_fm.hh"
-%include "tgbaalgos/ltl2tgba_lacim.hh"
 %include "tgbaalgos/compsusp.hh"
 %include "tgbaalgos/magic.hh"
 %include "tgbaalgos/minimize.hh"
