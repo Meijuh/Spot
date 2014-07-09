@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -42,9 +42,7 @@ namespace spot
   /// The BDD library uses integers to designate Boolean variables in
   /// its decision diagrams.  This class is used to map such integers
   /// to objects actually used in Spot.  These objects are usually
-  /// atomic propositions, but they can also be acceptance conditions,
-  /// or "Now/Next" variables (although the latter should be
-  /// eventually removed).
+  /// atomic propositions, but they can also be acceptance conditions.
   ///
   /// When a BDD variable is registered using a bdd_dict, it is always
   /// associated to a "user" (or "owner") object.  This is done by
@@ -72,14 +70,13 @@ namespace spot
     /// BDD-variable-to-formula maps.
     typedef std::map<int, const ltl::formula*> vf_map;
 
-    fv_map now_map;		///< Maps formulae to "Now" BDD variables
     fv_map var_map;		///< Maps atomic propositions to BDD variables
     fv_map acc_map;		///< Maps acceptance conditions to BDD variables
 
     /// BDD-variable reference counts.
     typedef std::set<const void*> ref_set;
 
-    enum var_type { anon = 0, now, next, var, acc };
+    enum var_type { anon = 0, var, acc };
     struct bdd_info {
       bdd_info() : type(anon) {}
       var_type type;
@@ -90,15 +87,6 @@ namespace spot
     typedef std::vector<bdd_info> bdd_info_map;
     // Map BDD variables to their meaning.
     bdd_info_map bdd_map;
-
-    /// \brief Map Next variables to Now variables.
-    ///
-    /// Use with BuDDy's bdd_replace() function.
-    bddPair* next_to_now;
-    /// \brief Map Now variables to Next variables.
-    ///
-    /// Use with BuDDy's bdd_replace() function.
-    bddPair* now_to_next;
 
     /// \brief Register an atomic proposition.
     ///
@@ -120,19 +108,6 @@ namespace spot
     /// been registered by register_proposition() for another
     /// automaton).
     void register_propositions(bdd f, const void* for_me);
-
-    /// \brief Register a couple of Now/Next variables
-    ///
-    /// Return (and maybe allocate) two BDD variables for a state
-    /// associated to formula \a f.  The \a for_me argument should point
-    /// to the object using this BDD variable, this is used for
-    /// reference counting.  It is perfectly safe to call this
-    /// function several time with the same arguments.
-    ///
-    /// \return The first variable number.  Add one to get the second
-    /// variable.  Use bdd_ithvar() or bdd_nithvar() to convert this
-    /// to a BDD.
-    int register_state(const ltl::formula* f, const void* for_me);
 
     /// \brief Register an atomic proposition.
     ///
@@ -215,7 +190,6 @@ namespace spot
     /// @{
     /// Check whether formula \a f has already been registered by \a by_me.
     bool is_registered_proposition(const ltl::formula* f, const void* by_me);
-    bool is_registered_state(const ltl::formula* f, const void* by_me);
     bool is_registered_acceptance_variable(const ltl::formula* f,
 					   const void* by_me);
     /// @}

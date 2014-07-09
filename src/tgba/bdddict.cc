@@ -85,17 +85,13 @@ namespace spot
   bdd_dict::bdd_dict()
     // Initialize priv_ first, because it also initializes BuDDy
     : priv_(new bdd_dict_priv()),
-      bdd_map(bdd_varnum()),
-      next_to_now(bdd_newpair()),
-      now_to_next(bdd_newpair())
+      bdd_map(bdd_varnum())
   {
   }
 
   bdd_dict::~bdd_dict()
   {
     assert_emptiness();
-    bdd_freepair(next_to_now);
-    bdd_freepair(now_to_next);
     delete priv_;
   }
 
@@ -136,35 +132,6 @@ namespace spot
 
     register_propositions(bdd_high(f), for_me);
     register_propositions(bdd_low(f), for_me);
-  }
-
-  int
-  bdd_dict::register_state(const ltl::formula* f, const void* for_me)
-  {
-    int num;
-    // Do not build a state that already exists.
-    fv_map::iterator sii = now_map.find(f);
-    if (sii != now_map.end())
-      {
-	num = sii->second;
-      }
-    else
-      {
-	f = f->clone();
-	num = priv_->allocate_variables(2);
-	now_map[f] = num;
-	bdd_map.resize(bdd_varnum());
-	bdd_map[num].type = now;
-	bdd_map[num].f = f;
-	bdd_map[num + 1].type = next;
-	bdd_map[num + 1].f = f;
-	// Record that num+1 should be renamed as num when
-	// the next state becomes current.
-	bdd_setpair(next_to_now, num + 1, num);
-	bdd_setpair(now_to_next, num, num + 1);
-      }
-    bdd_map[num].refs.insert(for_me); // Keep only references for now.
-    return num;
   }
 
   int
@@ -315,7 +282,7 @@ namespace spot
 
     // ME was the last user of this variable.
     // Let's free it.  First, we need to find
-    // if this is a Now, a Var, or an Acc variable.
+    // if this is a Var or an Acc variable.
     int n = 1;
     const ltl::formula* f = 0;
     switch (bdd_map[v].type)
@@ -323,15 +290,6 @@ namespace spot
       case var:
 	f = bdd_map[v].f;
 	var_map.erase(f);
-	break;
-      case now:
-	f = bdd_map[v].f;
-	now_map.erase(f);
-	bdd_setpair(now_to_next, v, v);
-	bdd_setpair(next_to_now, v + 1, v + 1);
-	n = 2;
-	break;
-      case next:
 	break;
       case acc:
 	f = bdd_map[v].f;
@@ -389,16 +347,6 @@ namespace spot
   }
 
   bool
-  bdd_dict::is_registered_state(const ltl::formula* f, const void* by_me)
-  {
-    fv_map::iterator fi = now_map.find(f);
-    if (fi == now_map.end())
-      return false;
-    ref_set& s = bdd_map[fi->second].refs;
-    return s.find(by_me) != s.end();
-  }
-
-  bool
   bdd_dict::is_registered_acceptance_variable(const ltl::formula* f,
 					      const void* by_me)
   {
@@ -422,12 +370,6 @@ namespace spot
 	  {
 	  case anon:
 	    os << (r.refs.empty() ? "Free" : "Anon");
-	    break;
-	  case now:
-	    os << "Now[" << to_string(r.f) << ']';
-	    break;
-	  case next:
-	    os << "Next[" << to_string(r.f) << ']';
 	    break;
 	  case acc:
 	    os << "Acc[" << to_string(r.f) << ']';
@@ -467,8 +409,6 @@ namespace spot
 
     bool var_seen = false;
     bool acc_seen = false;
-    bool now_seen = false;
-    bool next_seen = false;
     bool refs_seen = false;
     unsigned s = bdd_map.size();
     for (unsigned i = 0; i < s; ++i)
@@ -481,34 +421,16 @@ namespace spot
 	  case acc:
 	    acc_seen = true;
 	    break;
-	  case now:
-	    now_seen = true;
-	    break;
-	  case next:
-	    next_seen = true;
-	    break;
 	  case anon:
 	    break;
 	  }
 	refs_seen |= !bdd_map[i].refs.empty();
       }
-    if (var_map.empty()
-	&& now_map.empty()
-	&& acc_map.empty())
+    if (var_map.empty() && acc_map.empty())
       {
 	if (var_seen)
 	  {
 	    std::cerr << "var_map is empty but Var in map" << std::endl;
-	    fail = true;
-	  }
-	if (now_seen)
-	  {
-	    std::cerr << "now_map is empty but Now in map" << std::endl;
-	    fail = true;
-	  }
-	else if (next_seen)
-	  {
-	    std::cerr << "Next variable seen (without Now) in map" << std::endl;
 	    fail = true;
 	  }
 	if (acc_seen)

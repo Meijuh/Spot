@@ -72,14 +72,6 @@ namespace spot
 	    print_ltl(ref.f, o) << '"';
 	  }
 	break;
-      case bdd_dict::now:
-	o << "Now[";
-	print_ltl(ref.f, o) << ']';
-	break;
-      case bdd_dict::next:
-	o << "Next[";
-	print_ltl(ref.f, o) << ']';
-	break;
       case bdd_dict::anon:
 	o << '?' << v;
       }
