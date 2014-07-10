@@ -678,8 +678,7 @@ namespace spot
       bdd acc = bdd_ithvar(autdict->register_acceptance_variable(t, a));
       a->set_acceptance_conditions(acc);
 
-      auto& g = a->get_graph();
-      g.new_states(satdict.cand_size);
+      a->new_states(satdict.cand_size);
 
       unsigned last_aut_trans = -1U;
       const transition* last_sat_trans = nullptr;
@@ -717,10 +716,10 @@ namespace spot
 		      && acc_states.find(t->second.src) != acc_states.end())
 		    accept = acc;
 
-		  last_aut_trans = g.new_transition(t->second.src - 1,
-						    t->second.dst -1,
-						    t->second.cond,
-						    accept);
+		  last_aut_trans = a->new_transition(t->second.src - 1,
+						     t->second.dst - 1,
+						     t->second.cond,
+						     accept);
 		  last_sat_trans = &t->second;
 
 		  dout << v << '\t' << t->second << "δ\n";
@@ -737,7 +736,7 @@ namespace spot
 		      assert(!state_based);
 		      // This assumes that the SAT solvers output
 		      // variables in increasing order.
-		      g.trans_data(last_aut_trans).acc = acc;
+		      a->trans_data(last_aut_trans).acc = acc;
 		    }
 		  else if (state_based)
 		    {

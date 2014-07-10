@@ -55,14 +55,13 @@ namespace spot
     auto res = new tgba_digraph(d);
     d->register_all_variables_of(aut, res);
     d->unregister_all_typed_variables(bdd_dict::acc, res);
-    auto& g = res->get_graph();
 
     {
       power_state ps;
       const state* s = pm.canonicalize(aut->get_init_state());
       ps.insert(s);
       todo.push_back(ps);
-      unsigned num = g.new_state();
+      unsigned num = res->new_state();
       seen[ps] = num;
       pm.map_[num] = ps;
     }
@@ -101,12 +100,12 @@ namespace spot
 	      }
 	    else
 	      {
-		dest_num = g.new_state();
+		dest_num = res->new_state();
 		seen[dest] = dest_num;
 		pm.map_[dest_num] = dest;
 		todo.push_back(dest);
 	      }
-	    g.new_transition(seen[src], dest_num, cond);
+	    res->new_transition(seen[src], dest_num, cond);
 	  }
       }
     if (merge)
@@ -180,15 +179,14 @@ namespace spot
 
 	// Build an automaton representing this loop.
 	tgba_digraph loop_a(aut_->get_dict());
-	auto& g = loop_a.get_graph();
 	int loop_size = std::distance(begin, dfs_.end());
-	g.new_states(loop_size);
+	loop_a.new_states(loop_size);
 	int n;
 	cycle_iter i;
 	for (n = 1, i = begin; n <= loop_size; ++n, ++i)
 	  {
 	    trans* t = &a->trans_data(i->succ);
-	    g.new_transition(n - 1, n % loop_size, t->cond);
+	    loop_a.new_transition(n - 1, n % loop_size, t->cond);
 	    if (reject_.find(t) == reject_.end())
 	      ts.insert(t);
 	  }

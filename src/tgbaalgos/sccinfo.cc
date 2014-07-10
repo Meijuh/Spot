@@ -81,7 +81,7 @@ namespace spot
       num_ = -1;
       h_[init] = num_;
       root_.emplace_front(num_, bddfalse, bddfalse);
-      todo_.emplace(init, aut->get_graph().out(init).begin());
+      todo_.emplace(init, aut->out(init).begin());
     }
 
     while (!todo_.empty())
@@ -148,7 +148,7 @@ namespace spot
 	    // for later processing.
 	    h_[dest] = --num_;
 	    root_.emplace_front(num_, cond, acc);
-	    todo_.emplace(dest, aut->get_graph().out(dest).begin());
+	    todo_.emplace(dest, aut->out(dest).begin());
 	    continue;
 	  }
 
@@ -230,8 +230,7 @@ namespace spot
 
   std::vector<bdd> scc_info::used_acc() const
   {
-    auto& g = aut_->get_graph();
-    unsigned n = g.num_states();
+    unsigned n = aut_->num_states();
     std::vector<bdd> result(scc_count());
     acceptance_convertor conv(aut_->neg_acceptance_conditions());
 
@@ -240,7 +239,7 @@ namespace spot
 	unsigned src_scc = scc_of(src);
 	if (!is_accepting_scc(src_scc))
 	  continue;
-	for (auto& t: g.out(src))
+	for (auto& t: aut_->out(src))
 	  {
 	    if (scc_of(t.dst) != src_scc)
 	      continue;

@@ -236,14 +236,12 @@ namespace spot
 	      bd->register_all_variables_of(old_a_, a_);
 	      a_->copy_acceptance_conditions_of(old_a_);
 	    }
-	  tgba_digraph::graph_t& gout = a_->get_graph();
-	  tgba_digraph::graph_t& gin = old_a_->get_graph();
-	  unsigned ns = gin.num_states();
+	  unsigned ns = old_a_->num_states();
 	  if (Cosimulation)
-	    gout.new_states(ns);
+	    a_->new_states(ns);
 	  for (unsigned s = 0; s < ns; ++s)
 	    {
-	      for (auto& t: gin.out(s))
+	      for (auto& t: old_a_->out(s))
 		{
 		  bdd acc;
 		  if (Sba && Cosimulation)
@@ -255,7 +253,7 @@ namespace spot
 		      // (which now become outgoing arcs after
 		      // transposition).
 		      acc = bddfalse;
-		      for (auto& td: gin.out(t.dst))
+		      for (auto& td: old_a_->out(t.dst))
 			{
 			  acc = ac.complement(td.acc);
 			  break;
@@ -266,7 +264,7 @@ namespace spot
 		      acc = ac.complement(t.acc);
 		    }
 		  if (Cosimulation)
-		    gout.new_transition(t.dst, s, t.cond, acc);
+		    a_->new_transition(t.dst, s, t.cond, acc);
 		  else
 		    t.acc = acc;
 		}
@@ -378,7 +376,7 @@ namespace spot
       {
         bdd res = bddfalse;
 
-        for (auto& t: a_->get_graph().out(src))
+        for (auto& t: a_->out(src))
           {
             bdd acc = bddtrue;
 
@@ -681,14 +679,13 @@ namespace spot
 	// dealing with SBA in cosimulation.
 	if (Sba && Cosimulation)
 	  {
-	    tgba_digraph::graph_t& g = res->get_graph();
 	    unsigned ns = res->num_states();
 	    for (unsigned s = 0; s < ns; ++s)
 	      {
 		bdd acc = accst[s];
 		if (acc == bddfalse)
 		  continue;
-		for (auto& t: g.out(s))
+		for (auto& t: res->out(s))
 		  t.acc = acc;
 	      }
 	  }
@@ -831,7 +828,7 @@ namespace spot
         unsigned scc = scc_map_->scc_of_state(old_a_->state_from_number(src));
         bool sccacc = scc_map_->accepting(scc);
 
-	for (auto& t: a_->get_graph().out(src))
+	for (auto& t: a_->out(src))
           {
             bdd cl = previous_class_[t.dst];
             bdd acc;

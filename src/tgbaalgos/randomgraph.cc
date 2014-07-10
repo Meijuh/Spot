@@ -76,7 +76,7 @@ namespace spot
 	if (drand() < a)
 	  ac |= *i;
 
-      aut->get_graph().new_transition(src, dest, p, ac);
+      aut->new_transition(src, dest, p, ac);
     }
   }
 
@@ -117,7 +117,7 @@ namespace spot
     node_set nodes_to_process;
     node_set unreachable_nodes;
 
-    res->get_graph().new_states(n);
+    res->new_states(n);
 
     std::vector<unsigned> state_randomizer(n);
     state_randomizer[0] = 0;

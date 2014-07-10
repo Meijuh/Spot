@@ -50,7 +50,7 @@ namespace spot
       virtual void
       process_state(const state*, int n, tgba_succ_iterator*)
       {
-	unsigned ns = out_->get_graph().new_state();
+	unsigned ns = out_->new_state();
 	assert(ns == static_cast<unsigned>(n) - 1);
 	(void)ns;
       }
@@ -60,9 +60,9 @@ namespace spot
 		   const state*, int out,
 		   const tgba_succ_iterator* si)
       {
-	out_->get_graph().new_transition(in - 1, out - 1,
-					 si->current_condition(),
-					 si->current_acceptance_conditions());
+	out_->new_transition(in - 1, out - 1,
+			     si->current_condition(),
+			     si->current_acceptance_conditions());
       }
 
     protected:

@@ -1023,15 +1023,13 @@ namespace spot
 	bdd neg = aut->neg_acceptance_conditions();
 	filtered->set_acceptance_conditions(filter.accsets(all, neg).first);
       }
-      const tgba_digraph::graph_t& ing = aut->get_graph();
-      tgba_digraph::graph_t& outg = filtered->get_graph();
-      outg.new_states(out_n);
+      filtered->new_states(out_n);
       for (unsigned isrc = 0; isrc < in_n; ++isrc)
 	{
 	  unsigned osrc = inout[isrc];
 	  if (osrc >= out_n)
 	    continue;
-	  for (auto& t: ing.out(isrc))
+	  for (auto& t: aut->out(isrc))
 	    {
 	      unsigned odst = inout[t.dst];
 	      if (odst >= out_n)
@@ -1042,7 +1040,7 @@ namespace spot
 	      std::tie(want, cond, acc) =
 		filter.trans(isrc, t.dst, t.cond, t.acc);
 	      if (want)
-		outg.new_transition(osrc, odst, cond, acc);
+		filtered->new_transition(osrc, odst, cond, acc);
 	    }
 	}
       if (!given_si)

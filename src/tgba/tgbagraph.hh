@@ -221,7 +221,6 @@ namespace spot
       return g_.num_transitions();
     }
 
-
     void set_init_state(graph_t::state s)
     {
       init_ = &g_.state_data(s);
@@ -296,6 +295,10 @@ namespace spot
       return g_.trans_data(i->pos());
     }
 
+    tgba_graph_trans_data& trans_data(unsigned t)
+    {
+      return g_.trans_data(t);
+    }
 
     void set_acceptance_conditions(bdd all)
     {
@@ -309,6 +312,34 @@ namespace spot
 	}
       all_acceptance_conditions_ =
 	compute_all_acceptance_conditions(neg_acceptance_conditions_);
+    }
+
+    unsigned new_state()
+    {
+      return g_.new_state();
+    }
+
+    unsigned new_states(unsigned n)
+    {
+      return g_.new_states(n);
+    }
+
+    unsigned new_transition(unsigned src, unsigned dst,
+			    bdd cond, bdd acc = bddfalse)
+    {
+      return g_.new_transition(src, dst, cond, acc);
+    }
+
+    internal::state_out<const graph_t>
+    out(unsigned src) const
+    {
+      return g_.out(src);
+    }
+
+    internal::state_out<graph_t>
+    out(unsigned src)
+    {
+      return g_.out(src);
     }
 
     /// \brief Copy the acceptance conditions of another tgba.

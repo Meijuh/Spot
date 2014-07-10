@@ -851,8 +851,7 @@ namespace spot
       autdict->unregister_all_typed_variables(bdd_dict::acc, aut);
       a->set_acceptance_conditions(satdict.all_cand_acc.back());
 
-      auto& g = a->get_graph();
-      g.new_states(satdict.cand_size);
+      a->new_states(satdict.cand_size);
 
       // Last transition set in the automaton.
       unsigned last_aut_trans = -1U;
@@ -894,10 +893,10 @@ namespace spot
 			acc = i->second;
 		    }
 
-		  last_aut_trans = g.new_transition(t->second.src - 1,
-						    t->second.dst - 1,
-						    t->second.cond,
-						    acc);
+		  last_aut_trans = a->new_transition(t->second.src - 1,
+						     t->second.dst - 1,
+						     t->second.cond,
+						     acc);
 		  last_sat_trans = &t->second;
 
 		  dout << v << '\t' << t->second << "δ\n";
@@ -919,7 +918,7 @@ namespace spot
 		      ta->second.dst == last_sat_trans->dst)
 		    {
 		      assert(!state_based);
-		      g.trans_data(last_aut_trans).acc |= ta->second.acc;
+		      a->trans_data(last_aut_trans).acc |= ta->second.acc;
 		    }
 		  else if (state_based)
 		    {

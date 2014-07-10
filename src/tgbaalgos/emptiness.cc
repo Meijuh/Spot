@@ -287,7 +287,6 @@ namespace spot
   {
     auto d = a->get_dict();
     auto res = new tgba_digraph(d);
-    auto& g = res->get_graph();
     d->register_all_variables_of(a, res);
 
     const state* s = a->get_init_state();
@@ -308,7 +307,7 @@ namespace spot
     tgba_run::steps::const_iterator i = l->begin();
 
     assert(s->compare(i->s) == 0);
-    src = g.new_state();
+    src = res->new_state();
     seen.insert(std::make_pair(i->s, src));
 
     for (; i != l->end();)
@@ -358,10 +357,10 @@ namespace spot
 
 	auto p = seen.insert(std::make_pair(next, 0));
 	if (p.second)
-	  p.first->second = g.new_state();
+	  p.first->second = res->new_state();
 	dst = p.first->second;
 
-	g.new_transition(src, dst, label, acc);
+	res->new_transition(src, dst, label, acc);
 	src = dst;
 
         // Sum acceptance conditions.

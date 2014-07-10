@@ -177,8 +177,7 @@ namespace spot
     {
       auto aut = std::unique_ptr<tgba_digraph>(new tgba_digraph(dict));
       acc_mapper_int acc_b(aut.get(), num_acc, envacc);
-      auto& g = aut->get_graph();
-      g.new_states(num_states);
+      aut->new_states(num_states);
 
       for (unsigned n = 0; n < num_states; ++n)
 	{
@@ -229,7 +228,7 @@ namespace spot
 		}
 	      bdd cond = formula_to_bdd(f, dict, aut.get());
 	      f->destroy();
-	      g.new_transition(src_state, dst_state, cond, acc);
+	      aut->new_transition(src_state, dst_state, cond, acc);
 	    }
 	}
       return aut.release();
@@ -243,8 +242,7 @@ namespace spot
     {
       auto aut = std::unique_ptr<tgba_digraph>(new tgba_digraph(dict));
       acc_mapper_int acc_b(aut.get(), num_acc, envacc);
-      auto& g = aut->get_graph();
-      g.new_states(num_states);
+      aut->new_states(num_states);
 
       for (unsigned n = 0; n < num_states; ++n)
 	{
@@ -295,7 +293,7 @@ namespace spot
 		}
 	      bdd cond = formula_to_bdd(f, dict, aut.get());
 	      f->destroy();
-	      g.new_transition(src_state, dst_state, cond, acc);
+	      aut->new_transition(src_state, dst_state, cond, acc);
 	    }
 	}
       return aut.release();
