@@ -181,8 +181,6 @@ bench/            Benchmarks for ...
    ltl2tgba/      ... LTL-to-Büchi translation algorithms,
    ltlcounter/    ... translation of a class of LTL formulae,
    ltlclasses/    ... translation of more classes of LTL formulae,
-   scc-stats/     ... SCC statistics after translation of LTL formulae,
-   split-product/ ... parallelizing gain after splitting LTL automata,
    spin13/        ... compositional suspension and other improvements,
    wdba/          ... WDBA minimization (for obligation properties).
 wrap/             Wrappers for other languages.

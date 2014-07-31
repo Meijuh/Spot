@@ -31,7 +31,6 @@ tgbaalgos_HEADERS = \
   bfssteps.hh \
   complete.hh \
   compsusp.hh \
-  cutscc.hh \
   cycles.hh \
   dtgbacomp.hh \
   degen.hh \
@@ -79,7 +78,6 @@ libtgbaalgos_la_SOURCES = \
   bfssteps.cc \
   complete.cc \
   compsusp.cc \
-  cutscc.cc \
   cycles.cc \
   dtgbacomp.cc \
   degen.cc \
