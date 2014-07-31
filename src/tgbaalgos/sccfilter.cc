@@ -466,7 +466,7 @@ namespace spot
 	// turn makes sure we preserve the acceptance condition
 	// ordering (which matters for degeneralization).
 	for (BDD c = useful.id(); c != 1; c = bdd_low(c))
-	  remap_table[n].insert(std::make_pair(bdd_var(c), --num));
+	  remap_table[n].emplace(bdd_var(c), --num);
 
 	max_table[n] = max_num;
       }
@@ -854,7 +854,7 @@ namespace spot
 	    // turn makes sure we preserve the acceptance condition
 	    // ordering (which matters for degeneralization).
 	    for (BDD c = useful.id(); c != 1; c = bdd_low(c))
-	      remap_table[n].insert(std::make_pair(bdd_var(c), --num));
+	      remap_table[n].emplace(bdd_var(c), --num);
 
 	    max_table[n] = max_num;
 	  }

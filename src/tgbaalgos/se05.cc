@@ -470,7 +470,7 @@ namespace spot
                 int i = phc->erase(ps);
                 assert(i == 1);
                 (void)i;
-                ph->insert(std::make_pair(ps, c));
+                ph->emplace(ps, c);
               }
             else
               {
@@ -540,7 +540,7 @@ namespace spot
           if (c == CYAN)
             hc.insert(s);
           else
-            h.insert(std::make_pair(s, c));
+            h.emplace(s, c);
         }
 
       void pop_notify(const state*) const

@@ -353,9 +353,7 @@ namespace spot
 	{
 	  int enum_count = d->get_state_variable_type_value_count(i);
 	  for (int j = 0; j < enum_count; ++j)
-	    enum_map[i]
-	      .insert(std::make_pair(d->get_state_variable_type_value(i, j),
-				     j));
+	    enum_map[i].emplace(d->get_state_variable_type_value(i, j), j);
 	}
 
       for (ltl::atomic_prop_set::const_iterator ap = aps->begin();

@@ -103,7 +103,7 @@ namespace spot
             union_ |= set;
           }
         cache_entry e(common, union_);
-        return cache_.insert(std::make_pair(s, e)).first;
+        return cache_.emplace(s, e).first;
       }
 
       // Intersection of all outgoing acceptance sets
@@ -144,8 +144,7 @@ namespace spot
 
       bool check(const state* s)
       {
-	std::pair<cache_t::iterator, bool> p =
-	  cache_.insert(std::make_pair(s, false));
+	auto p = cache_.emplace(s, false);
 	if (p.second)
 	  {
 	    bdd all = a_->all_acceptance_conditions();
@@ -569,9 +568,7 @@ namespace spot
 
 		if (use_lvl_cache)
 		  {
-		    std::pair<lvl_cache_t::iterator, bool> res =
-		      lvl_cache.insert(lvl_cache_t::value_type(d.first,
-							       d.second));
+		    auto res = lvl_cache.emplace(d.first, d.second);
 
 		    if (!res.second)
 		      {

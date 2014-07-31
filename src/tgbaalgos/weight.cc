@@ -39,7 +39,7 @@ namespace spot
         {
           weight::weight_vector::iterator it = pm->find(v);
           if (it == pm->end())
-            pm->insert(std::make_pair(v, 1));
+            pm->emplace(v, 1);
           else
             ++(it->second);
 	  break;

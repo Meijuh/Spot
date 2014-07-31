@@ -175,8 +175,7 @@ namespace spot
 	    build_state d(dlabel, pend);
             // Have we already seen this destination?
             int dest;
-	    std::pair<bs2num_map::iterator, bool> dres =
-	      bs2num.insert(bs2num_map::value_type(d, 0));
+	    auto dres = bs2num.emplace(d, 0);
             if (!dres.second)
               {
                 dest = dres.first->second;
@@ -199,8 +198,7 @@ namespace spot
 		build_state d(label(a, i->current_state()), pend);
 		// Have we already seen this destination?
 		int dest;
-		std::pair<bs2num_map::iterator, bool> dres =
-		  bs2num.insert(bs2num_map::value_type(d, 0));
+		auto dres = bs2num.emplace(d, 0);
 		if (!dres.second)
 		  {
 		    dest = dres.first->second;

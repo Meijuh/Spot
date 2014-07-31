@@ -66,8 +66,7 @@ namespace spot
   enumerate_cycles::tagged_state
   enumerate_cycles::tag_state(const state* s)
   {
-    std::pair<tagged_state, bool> p =
-      tags_.insert(std::make_pair(s, state_info()));
+    auto p = tags_.emplace(s, state_info());
     if (!p.second)
       s->destroy();
     return p.first;

@@ -141,9 +141,9 @@ namespace spot
                     map_constraint& feed_me)
     {
       for (auto& p: list)
-	feed_me.insert(std::make_pair(std::make_pair(std::get<0>(p),
-						     std::get<1>(p)),
-				      std::get<2>(p)));
+	feed_me.emplace(std::make_pair(std::get<0>(p),
+				       std::get<1>(p)),
+			std::get<2>(p));
     }
 
 

@@ -308,7 +308,7 @@ namespace spot
 
     assert(s->compare(i->s) == 0);
     src = res->new_state();
-    seen.insert(std::make_pair(i->s, src));
+    seen.emplace(i->s, src);
 
     for (; i != l->end();)
       {
@@ -355,7 +355,7 @@ namespace spot
 	s = the_next;
 
 
-	auto p = seen.insert(std::make_pair(next, 0));
+	auto p = seen.emplace(next, 0);
 	if (p.second)
 	  p.first->second = res->new_state();
 	dst = p.first->second;

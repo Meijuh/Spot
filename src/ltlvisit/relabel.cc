@@ -110,8 +110,7 @@ namespace spot
 
 	const formula* rename(const formula* old)
 	{
-	  std::pair<map::iterator, bool> r =
-	    newname.insert(map::value_type(old, 0));
+	  auto r = newname.emplace(old, nullptr);
 	  if (!r.second)
 	    {
 	      return r.first->second->clone();
@@ -327,9 +326,7 @@ namespace spot
 	void
 	recurse(const formula* f)
 	{
-	  std::pair<fgraph::iterator, bool> i =
-	    g.insert(fgraph::value_type(f, succ_vec()));
-
+	  auto i = g.emplace(f, succ_vec());
 	  if (!s.empty())
 	    {
 	      const formula* top = s.top();
@@ -356,6 +353,10 @@ namespace spot
       {
 	unsigned num; // serial number, in pre-order
 	unsigned low; // lowest number accessible via unstacked descendants
+	data_entry(unsigned num = 0, unsigned low = 0)
+	  : num(num), low(low)
+	{
+	}
       };
       typedef std::unordered_map<const formula*, data_entry,
 				 const formula_ptr_hash> fmap_t;
@@ -410,9 +411,9 @@ namespace spot
 		// std::cerr << "  grand parent is "
 		// 	  << to_string(e.grand_parent)
 		// 	  << "\n  child is " << to_string(child) << '\n';
-		data_entry d = { num, num };
-		std::pair<fmap_t::iterator, bool> i =
-		  data.insert(fmap_t::value_type(child, d));
+		auto i = data.emplace(std::piecewise_construct,
+				      std::forward_as_tuple(child),
+				      std::forward_as_tuple(num, num));
 		if (i.second)	// New destination.
 		  {
 		    ++num;

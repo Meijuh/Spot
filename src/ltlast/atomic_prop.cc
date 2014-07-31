@@ -91,7 +91,7 @@ namespace spot
     atomic_prop::instance(const std::string& name, environment& env)
     {
       const atomic_prop* ap;
-      auto ires = instances.insert(std::make_pair(key(name, &env), nullptr));
+      auto ires = instances.emplace(key(name, &env), nullptr);
       if (!ires.second)
 	ap = ires.first->second;
       else

@@ -146,7 +146,7 @@ namespace spot
       self_loops_ = 0;
       state* init = aut_->get_init_state();
       num_ = -1;
-      h_.insert(std::make_pair(init, num_));
+      h_.emplace(init, num_);
       root_.emplace_front(num_);
       arc_acc_.push(bddfalse);
       arc_cond_.push(bddfalse);
@@ -196,7 +196,7 @@ namespace spot
 		// Record the transition between the SCC being popped
 		// and the previous SCC.
 		if (!root_.empty())
-		  root_.front().succ.insert(std::make_pair(num, cond));
+		  root_.front().succ.emplace(num, cond);
 	      }
 
 	    aut_->release_iter(succ);
@@ -223,7 +223,7 @@ namespace spot
 	  {
 	    // Yes.  Number it, stack it, and register its successors
 	    // for later processing.
-	    h_.insert(std::make_pair(dest, --num_));
+	    h_.emplace(dest, --num_);
 	    root_.emplace_front(num_);
 	    arc_acc_.push(acc);
 	    arc_cond_.push(cond);
@@ -244,7 +244,7 @@ namespace spot
 	    // dest SCC labelled with cond.
 	    succ_type::iterator i = root_.front().succ.find(dest);
 	    if (i == root_.front().succ.end())
-	      root_.front().succ.insert(std::make_pair(dest, cond));
+	      root_.front().succ.emplace(dest, cond);
 	    else
 	      i->second |= cond;
 

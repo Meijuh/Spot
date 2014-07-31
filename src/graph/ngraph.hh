@@ -64,7 +64,7 @@ namespace spot
     template <typename... Args>
     state new_state(name n, Args&&... args)
     {
-      auto p = name_to_state.insert(std::make_pair(n, 0U));
+      auto p = name_to_state.emplace(n, 0U);
       if (p.second)
 	{
 	  unsigned s = g_.new_state(std::forward<Args>(args)...);
@@ -81,7 +81,7 @@ namespace spot
     /// \return true iff the newname was already used.
     bool alias_state(state s, name newname)
     {
-      return !name_to_state.insert(std::make_pair(newname, s)).second;
+      return !name_to_state.emplace(newname, s).second;
     }
 
     state get_state(name n) const

@@ -203,8 +203,7 @@ namespace spot
 	  }
 
 	dst = si->current_state();
-	std::pair<seen_map::iterator, bool> res =
-	  seen.insert(std::make_pair(dst, n));
+	auto res = seen.emplace(dst, n);
 	if (!res.second)
 	  {
 	    // The state has already been seen.

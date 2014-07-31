@@ -114,8 +114,7 @@ namespace spot
 			switch (bo->op())
 			  {
 			  case binop::EConcatMarked:
-			    empairs.insert(std::make_pair(bo->first(),
-							  bo->second()));
+			    empairs.emplace(bo->first(), bo->second());
 			    // fall through
 			  case binop::Xor:
 			  case binop::Implies:

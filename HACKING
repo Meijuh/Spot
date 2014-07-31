@@ -229,25 +229,12 @@ C++11
 -----
 
   Spot uses some C++11 features, and therefore requires a C++11
-  compiler.  However (1) fully C++11-compliant compilers are
-  not yet well deployed, and (2) development tools have yet
-  to be updated to provide suitable C++11 support.  For instance
-  Swig 2.0, which we use for the Python bindings, does not
-  understand C++11.  The upcoming release of Swig 3 has better
-  support for C++11, we should switch to it as soon as possible.
+  compiler.  The code relies on features that are not available in
+  version of g++ older than 4.8, so this is our minimum requirement
+  for now.  Avoid features that require 4.9.
 
-  In the meantime, try to keep the C++11-specific syntax in the *.cc
-  files as much as possible.
-
-  Use only C++11 features that are available in clang 3.1 and g++ 4.6:
-   - http://gcc.gnu.org/projects/cxx0x.html
-   - http://clang.llvm.org/cxx_status.html
-
-  Library interfaces that should not be used:
-   - emplace() is not implemented for associative containers
-     (std::map, std::set, and their unordered ffriends) is
-     before g++ 4.8.  Use
-       x.insert(std::make_pair(...)) instead of x.emplace(...)
+  Reasonably recent versions of clang should work as well.  Our
+  build farm has clang++ 3.5.
 
 Encoding
 --------

@@ -504,8 +504,7 @@ namespace spot
 	}
 
       const binop* res;
-      auto ires = instances.insert(std::make_pair(key(op, first, second),
-						  nullptr));
+      auto ires = instances.emplace(key(op, first, second), nullptr);
       if (!ires.second)
 	{
 	  // This instance already exists.

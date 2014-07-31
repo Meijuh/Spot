@@ -215,7 +215,7 @@ namespace spot
 	// We do not need SUCC from now on.
 
 	// Are we going to a new state?
-	auto p = ecs_->h.insert(std::make_pair(dest, num + 1));
+	auto p = ecs_->h.emplace(dest, num + 1);
 	if (p.second)
 	  {
 	    // Yes.  Bump number, stack the stack, and register its

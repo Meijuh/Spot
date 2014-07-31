@@ -315,8 +315,8 @@ namespace spot
 	    transmap_t::iterator id = transmap_.find(key);
 	    if (id == transmap_.end()) // No
 	      {
-		mapit_t pos = transmap_
-		  .insert(std::make_pair(key, it->current_condition())).first;
+		mapit_t pos =
+		  transmap_.emplace(key, it->current_condition()).first;
 		// Keep the order of the transitions in the
 		// degeneralized automaton related to the order of the
 		// transitions in the input automaton: in the past we

@@ -193,7 +193,7 @@ namespace spot
 	      down_cast<state_ta_explicit*> (init_set.top());
 	    init_set.pop();
 
-	    if (!h.insert(std::make_pair(init, num + 1)).second)
+	    if (!h.emplace(init, num + 1).second)
 	      {
 		init->destroy();
 		continue;

@@ -1749,7 +1749,7 @@ namespace spot
 	}
 
       f->clone();
-      return ltl_bdd_.insert(std::make_pair(ff, t)).first->second;
+      return ltl_bdd_.emplace(ff, t).first->second;
     }
 
 
@@ -1974,7 +1974,7 @@ namespace spot
 	if (b2f_.find(t.symbolic) == b2f_.end())
 	  b2f_[t.symbolic] = f;
 
-	return f2b_.insert(std::make_pair(f->clone(), t)).first->second;
+	return f2b_.emplace(f->clone(), t).first->second;
       }
 
       const formula*

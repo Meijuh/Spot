@@ -106,7 +106,7 @@ namespace spot
         state_ta_product* init = new state_ta_product(
             (ta_init_it_->current_state()), kripke_init_state->clone());
 
-        if (!h.insert(std::make_pair(init, num + 1)).second)
+        if (!h.emplace(init, num + 1).second)
 	  {
 	    init->destroy();
 	    continue;
@@ -216,7 +216,7 @@ namespace spot
             // We do not need SUCC from now on.
 
             // Are we going to a new state?
-	    auto p = h.insert(std::make_pair(dest, num + 1));
+	    auto p = h.emplace(dest, num + 1);
             if (p.second)
               {
                 // Number it, stack it, and register its successors
@@ -427,7 +427,7 @@ namespace spot
             state* init = ta_init_it_.front();
             ta_init_it_.pop();
 
-	    if (!h.insert(std::make_pair(init, num + 1)).second)
+	    if (!h.emplace(init, num + 1).second)
 	      {
 		init->destroy();
 		continue;

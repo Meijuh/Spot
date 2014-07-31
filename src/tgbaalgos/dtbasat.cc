@@ -312,10 +312,10 @@ namespace spot
 
 		    transition t(i, one, j);
 		    d.transid[t] = ++d.nvars;
-		    d.revtransid.insert(dict::rev_map::value_type(d.nvars, t));
+		    d.revtransid.emplace(d.nvars, t);
 		    int ta = d.transacc[t] =
 		      state_based_ ? transacc : ++d.nvars;
-		    d.revtransacc.insert(dict::rev_map::value_type(ta, t));
+		    d.revtransacc.emplace(ta, t);
 		  }
 	      }
 	  }

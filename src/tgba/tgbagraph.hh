@@ -386,7 +386,7 @@ namespace spot
 		}
 
 	      key_t k(t->dst, t->acc.id());
-	      auto p = trmap.insert(make_pair(k, t.trans()));
+	      auto p = trmap.emplace(k, t.trans());
 	      if (!p.second)
 		{
 		  // A previous transitions exist for k, merge the

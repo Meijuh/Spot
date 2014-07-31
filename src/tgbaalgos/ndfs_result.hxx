@@ -557,7 +557,7 @@ namespace spot
 	    {
 	      ndfsr_trace << a_->format_state(i->source) << " (-> "
 			  << a_->format_state(i->dest) << ") ";
-	      target.insert(std::make_pair(i->source, *i));
+	      target.emplace(i->source, *i);
 	    }
 	}
       ndfsr_trace << std::endl;
@@ -605,7 +605,7 @@ namespace spot
 		      << a_->format_state(begin) << std::endl;
 	  transition tmp;
 	  tmp.source = tmp.dest = 0; // Initialize to please GCC 4.0.1 (Darwin).
-	  target.insert(std::make_pair(begin, tmp));
+	  target.emplace(begin, tmp);
 	  min_path<true> s(this, a_, target, h_);
 	  const state* res = s.search(current.dest->clone(), run->cycle);
 	  assert(res);
@@ -623,7 +623,7 @@ namespace spot
       // Register all states from the cycle as target of the BFS.
       for (tgba_run::steps::const_iterator i = run->cycle.begin();
 	   i != run->cycle.end(); ++i)
-        target.insert(std::make_pair(i->s, tmp));
+        target.emplace(i->s, tmp);
 
       const state* prefix_start = a_->get_init_state();
       // There are two cases: either the initial state is already on

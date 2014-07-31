@@ -484,7 +484,7 @@ namespace spot
       void add_new_state(const state* s, color c)
         {
           assert(h.find(s) == h.end());
-          h.insert(std::make_pair(s, c));
+          h.emplace(s, c);
         }
 
       void pop_notify(const state*) const

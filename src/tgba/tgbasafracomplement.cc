@@ -1184,8 +1184,8 @@ namespace spot
 							p.second, false);
 	    state_complement* s2 = new state_complement(e->clone(), e->clone(),
 							p.second, true);
-	    succ_list.insert(std::make_pair(p.first, s1));
-	    succ_list.insert(std::make_pair(p.first, s2));
+	    succ_list.emplace(p.first, s1);
+	    succ_list.emplace(p.first, s2);
 	  }
       }
     else
@@ -1210,7 +1210,7 @@ namespace spot
 	      {
 		st = new state_complement(e->clone(), e->clone(),
 					  p.second, true);
-		succ_list.insert(std::make_pair(p.first, st));
+		succ_list.emplace(p.first, st);
 	      }
 	    condition = the_acceptance_cond_;
 	  }
@@ -1219,7 +1219,7 @@ namespace spot
 	    for (auto& p: tr->second)
 	      {
 		st = new state_complement(newI, newJ, p.second, true);
-		succ_list.insert(std::make_pair(p.first, st));
+		succ_list.emplace(p.first, st);
 	      }
 	  }
 	delete newI;
@@ -1234,7 +1234,7 @@ namespace spot
 	  {
 	    st = new state_complement(pending->clone(), e->clone(),
 				      p.second, true);
-	    succ_list.insert(std::make_pair(p.first, st));
+	    succ_list.emplace(p.first, st);
 	  }
 	delete pending;
 

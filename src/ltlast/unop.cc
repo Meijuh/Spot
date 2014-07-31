@@ -300,7 +300,7 @@ namespace spot
 	}
 
       const unop* res;
-      auto ires = instances.insert(std::make_pair(key(op, child), nullptr));
+      auto ires = instances.emplace(key(op, child), nullptr);
       if (!ires.second)
 	{
 	  // This instance already exists.

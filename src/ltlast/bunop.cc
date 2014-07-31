@@ -237,8 +237,7 @@ namespace spot
 	}
 
       const formula* res;
-      auto ires = instances.insert(std::make_pair(key(op, child, min, max),
-						  nullptr));
+      auto ires = instances.emplace(key(op, child, min, max), nullptr);
       if (!ires.second)
 	{
 	  // This instance already exists.

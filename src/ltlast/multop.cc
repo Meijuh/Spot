@@ -595,7 +595,7 @@ namespace spot
       const multop* res;
       // Insert the key with the dummy nullptr just
       // to check if p already exists.
-      auto ires = instances.insert(std::make_pair(key(op, v), nullptr));
+      auto ires = instances.emplace(key(op, v), nullptr);
       if (!ires.second)
 	{
 	  // The instance did already exists.  Free v.

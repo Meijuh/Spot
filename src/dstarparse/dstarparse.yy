@@ -259,7 +259,7 @@ transitions:
   | transitions NUMBER opt_eols
   {
     std::pair<map_t::iterator, bool> i =
-      result.dest_map.insert(std::make_pair($2, *result.cur_guard));
+      result.dest_map.emplace($2, *result.cur_guard);
     if (!i.second)
       i.first->second |= *result.cur_guard;
     ++result.cur_guard;

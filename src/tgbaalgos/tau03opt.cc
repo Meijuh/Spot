@@ -445,7 +445,7 @@ namespace spot
               {
                 assert(c != CYAN);
                 std::pair<hash_type::iterator, bool> p;
-                p = ph->insert(std::make_pair(ps, std::make_pair(c, *acc)));
+                p = ph->emplace(ps, std::make_pair(c, *acc));
                 assert(p.second);
                 acc = &(p.first->second.second);
                 int i = phc->erase(ps);
@@ -536,7 +536,9 @@ namespace spot
           assert(hc.find(s) == hc.end() && h.find(s) == h.end());
           assert(c == CYAN);
           (void)c;
-          hc.insert(std::make_pair(s, std::make_pair(w, bddfalse)));
+          hc.emplace(std::piecewise_construct,
+		     std::forward_as_tuple(s),
+		     std::forward_as_tuple(w, bddfalse));
         }
 
       void pop_notify(const state*) const

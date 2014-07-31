@@ -431,7 +431,7 @@ namespace spot
 		  last_dest = dest;
 		  dmi = dm.find(dest);
 		  if (dmi == dm.end())
-		    dmi = dm.insert(std::make_pair(dest, acc_map())).first;
+		    dmi = dm.emplace(dest, acc_map()).first;
 		}
 	      int acc = t1->acceptance_conditions.id();
 	      typename acc_map::iterator it = dmi->second.find(acc);
@@ -460,8 +460,7 @@ namespace spot
 	  if (j != alias_.end())
 	    return j->second;
 
-	  State* res =
-	    &(ls_.insert(std::make_pair(name, State(name))).first->second);
+	  State* res = &(ls_.emplace(name, State(name)).first->second);
 	  sl_[res] = name;
 	  // The first state we add is the initial state.
 	  // It can also be overridden with set_init_state().

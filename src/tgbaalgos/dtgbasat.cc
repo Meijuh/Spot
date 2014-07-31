@@ -411,8 +411,7 @@ namespace spot
 
 		      transition t(i, one, j);
 		      d.transid[t] = ++d.nvars;
-		      d.revtransid.insert(dict::rev_map::
-					  value_type(d.nvars, t));
+		      d.revtransid.emplace(d.nvars, t);
 
 		      // Create the variable for the accepting transition
 		      // immediately afterwards.  It helps parsing the
@@ -421,8 +420,7 @@ namespace spot
 			{
 			  transition_acc ta(i, one, d.cand_acc[n], j);
 			  d.transaccid[ta] = ++d.nvars;
-			  d.revtransaccid.insert(dict::rev_acc_map::
-						 value_type(d.nvars, ta));
+			  d.revtransaccid.emplace(d.nvars, ta);
 			}
 		    }
 		}
@@ -443,8 +441,7 @@ namespace spot
 
 			  transition_acc ta(i, one, d.cand_acc[n], j);
 			  d.transaccid[ta] = d.nvars;
-			  d.revtransaccid.insert(dict::rev_acc_map::
-						 value_type(d.nvars, ta));
+			  d.revtransaccid.emplace(d.nvars, ta);
 			}
 		    }
 		}
@@ -459,8 +456,7 @@ namespace spot
 
 		      transition t(i, one, j);
 		      d.transid[t] = ++d.nvars;
-		      d.revtransid.insert(dict::rev_map::
-					  value_type(d.nvars, t));
+		      d.revtransid.emplace(d.nvars, t);
 		    }
 		}
 	  }
