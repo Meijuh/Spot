@@ -63,11 +63,29 @@ New in spot 1.2.4a (not yet released)
     - tgba::succ_iter() now takes only one argument.  The optional
       global_state and global_automaton arguments have been removed.
 
+  * Removed features
+
     - The long unused interface for GreatSPN (or rather, interface to
       a non-public, customized version of GreatSPN) has been removed.
       As a consequence, the we could get rid of many cruft in the
       implementation of Couvreur's FM'99 emptiness check.
 
+    - Support for symbolic, BDD-encoded TGBAs has been removed.  This
+      includes the tgba_bdd_concrete class and associated supporting
+      classes, as well as the ltl_to_tgba_lacim() LTL translation
+      algorithm.  Historically, this TGBA implementation and LTL
+      translation were the first to be implemented in Spot (by
+      mistake!) and this resulted in many bad design decisions.  In
+      practice they were of no use as we only work with explicit
+      automata (i.e. not symbolic) in Spot, and those produced by
+      these techniques are simply too big.
+
+    - All support for ELTL, i.e., LTL logic extended with operators
+      represented by automata have been removed.  It was never used in
+      practice because it had no practical user interface, and the
+      translation was a purely-based BDD encoding producing huge
+      automata (when viewed explictely), using the above and non
+      longuer supported tgba_bdd_concrete class.
 
 New in spot 1.2.4 (2014-05-15)
 
