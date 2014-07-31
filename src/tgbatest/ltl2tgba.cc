@@ -1025,6 +1025,7 @@ main(int argc, char** argv)
 	      break;
 	    case ReadNeverclaim:
 	      {
+		spot::tgba_digraph* e;
 		spot::neverclaim_parse_error_list pel;
 		tm.start("parsing neverclaim");
 		to_free = a = e = spot::neverclaim_parse(input, pel, dict,
@@ -1037,6 +1038,7 @@ main(int argc, char** argv)
 		    return 2;
 		  }
 		assume_sba = true;
+		e->merge_transitions();
 	      }
 	      break;
 	    case ReadLbtt:

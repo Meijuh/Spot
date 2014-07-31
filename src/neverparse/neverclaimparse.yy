@@ -33,18 +33,29 @@
 #include <cstring>
 #include "ltlast/constant.hh"
 #include "public.hh"
+#include "tgba/formula2bdd.hh"
 
-  typedef std::pair<const spot::ltl::formula*, std::string*> pair;
+/* Cache parsed formulae.  Labels on arcs are frequently identical and
+   it would be a waste of time to parse them to formula* over and
+   over, and to register all their atomic_propositions in the
+   bdd_dict.  Keep the bdd result around so we can reuse it.  */
+  typedef std::map<std::string, bdd> formula_cache;
+
+  typedef std::pair<const bdd*, std::string*> pair;
+  typedef typename spot::tgba_digraph::namer<std::string>::type named_tgba_t;
 }
 
 %parse-param {spot::neverclaim_parse_error_list& error_list}
 %parse-param {spot::ltl::environment& parse_environment}
-%parse-param {spot::tgba_explicit_string*& result}
+%parse-param {spot::tgba_digraph*& result}
+%parse-param {named_tgba_t*& namer}
+%parse-param {formula_cache& fcache}
 %union
 {
   std::string* str;
   pair* p;
   std::list<pair>* list;
+  const bdd* b;
 }
 
 %code
@@ -74,24 +85,24 @@ static bool accept_all_seen = false;
 %token ASSERT "assert"
 %token <str> FORMULA "boolean formula"
 %token <str> IDENT "identifier"
-%type <str> formula opt_dest
+%type <b> formula
+%type <str> opt_dest
 %type <p> transition src_dest
 %type <list> transitions transition_block
 %type <str> ident_list
 
 
 %destructor { delete $$; } <str>
-%destructor { $$->first->destroy(); delete $$->second; delete $$; } <p>
+%destructor { delete $$->second; delete $$; } <p>
 %destructor {
   for (std::list<pair>::iterator i = $$->begin();
        i != $$->end(); ++i)
   {
-    i->first->destroy();
     delete i->second;
   }
   delete $$;
   } <list>
-  %printer {
+%printer {
     if ($$)
       debug_stream() << *$$;
     else
@@ -111,11 +122,12 @@ states:
 ident_list:
     IDENT ':'
     {
+      namer->new_state(*$1);
       $$ = $1;
     }
   | ident_list IDENT ':'
     {
-      result->add_state_alias(*$2, *$1);
+      namer->alias_state(namer->get_state(*$1), *$2);
       // Keep any identifier that starts with accept.
       if (strncmp("accept", $1->c_str(), 6))
         {
@@ -146,11 +158,10 @@ state:
       if (*$1 == "accept_all")
 	accept_all_seen = true;
 
-      spot::state_explicit_string::transition* t = result->create_transition(*$1, *$1);
-      bool acc = !strncmp("accept", $1->c_str(), 6);
-      if (acc)
-	result->add_acceptance_condition(t,
-					 spot::ltl::constant::true_instance());
+      namer->new_transition(*$1, *$1, bddtrue,
+			    !strncmp("accept", $1->c_str(), 6) ?
+			    result->all_acceptance_conditions() :
+			    static_cast<const bdd>(bddfalse));
       delete $1;
     }
   | ident_list { delete $1; }
@@ -158,22 +169,15 @@ state:
   | ident_list transition_block
     {
       std::list<pair>::iterator it;
-      bool acc = !strncmp("accept", $1->c_str(), 6);
-      for (it = $2->begin(); it != $2->end(); ++it)
-      {
-	spot::state_explicit_string::transition* t =
-	  result->create_transition(*$1, *it->second);
-
-	result->add_condition(t, it->first);
-	if (acc)
-	  result
-	    ->add_acceptance_condition(t, spot::ltl::constant::true_instance());
-      }
+      bdd acc = !strncmp("accept", $1->c_str(), 6) ?
+	result->all_acceptance_conditions() :
+	static_cast<const bdd>(bddfalse);
+      for (auto& p: *$2)
+	namer->new_transition(*$1, *p.second, *p.first, acc);
       // Free the list
       delete $1;
-      for (std::list<pair>::iterator it = $2->begin();
-	   it != $2->end(); ++it)
-	delete it->second;
+      for (auto& p: *$2)
+	delete p.second;
       delete $2;
     }
 
@@ -191,7 +195,43 @@ transitions:
     }
 
 
-formula: FORMULA | "false" { $$ = new std::string("0"); }
+formula: FORMULA
+     {
+       formula_cache::const_iterator i = fcache.find(*$1);
+       if (i == fcache.end())
+	 {
+	   parse_error_list pel;
+	   const formula* f =
+	     spot::ltl::parse_boolean(*$1, pel, parse_environment,
+				      debug_level(), true);
+	   for (auto& j: pel)
+	     {
+	       // Adjust the diagnostic to the current position.
+	       spot::location here = @1;
+	       here.end.line = here.begin.line + j.first.end.line - 1;
+	       here.end.column = here.begin.column + j.first.end.column;
+	       here.begin.line += j.first.begin.line - 1;
+	       here.begin.column += j.first.begin.column;
+	       error_list.emplace_back(here, j.second);
+	     }
+           bdd cond = bddfalse;
+	   if (f)
+	     {
+	       cond = formula_to_bdd(f, result->get_dict(), result);
+	       f->destroy();
+	     }
+	   $$ = &(fcache[*$1] = cond);
+	 }
+       else
+	 {
+	   $$ = &i->second;
+	 }
+       delete $1;
+     }
+   | "false"
+     {
+       $$ = &bddfalse;
+     }
 
 opt_dest:
   /* empty */
@@ -218,28 +258,12 @@ src_dest: formula opt_dest
       //   fi
       if (!$2)
 	{
-	  delete $1;
 	  $$ = 0;
 	}
       else
 	{
-	  spot::ltl::parse_error_list pel;
-	  const spot::ltl::formula* f =
-	    spot::ltl::parse_boolean(*$1, pel, parse_environment,
-				     debug_level(), true);
-	  delete $1;
-	  for(spot::ltl::parse_error_list::const_iterator i = pel.begin();
-	  i != pel.end(); ++i)
-	    {
-	      // Adjust the diagnostic to the current position.
-	      spot::location here = @1;
-	      here.end.line = here.begin.line + i->first.end.line - 1;
-	      here.end.column = here.begin.column + i->first.end.column -1;
-	      here.begin.line += i->first.begin.line - 1;
-	      here.begin.column += i->first.begin.column - 1;
-	      error(here, i->second);
-	    }
-	  $$ = new pair(f, $2);
+	  $$ = new pair($1, $2);
+	  namer->new_state(*$2);
 	}
     }
 
@@ -264,7 +288,7 @@ neverclaimyy::parser::error(const location_type& location,
 
 namespace spot
 {
-  tgba_explicit_string*
+  tgba_digraph*
   neverclaim_parse(const std::string& name,
 		   neverclaim_parse_error_list& error_list,
 		   bdd_dict* dict,
@@ -277,23 +301,28 @@ namespace spot
 				std::string("Cannot open file ") + name);
 	return 0;
       }
-    tgba_explicit_string* result = new tgba_explicit_string(dict);
-    result->declare_acceptance_condition(spot::ltl::constant::true_instance());
-    neverclaimyy::parser parser(error_list, env, result);
+    formula_cache fcache;
+    tgba_digraph* result = new tgba_digraph(dict);
+    auto namer = result->create_namer<std::string>();
+
+    const ltl::formula* t = ltl::constant::true_instance();
+    bdd acc = bdd_ithvar(dict->register_acceptance_variable(t, result));
+    result->set_acceptance_conditions(acc);
+
+    neverclaimyy::parser parser(error_list, env, result, namer, fcache);
     parser.set_debug_level(debug);
     parser.parse();
     neverclaimyyclose();
 
     if (accept_all_needed && !accept_all_seen)
       {
-	spot::state_explicit_string::transition* t =
-	  result->create_transition("accept_all", "accept_all");
-	result->add_acceptance_condition
-	  (t, spot::ltl::constant::true_instance());
+	unsigned n = namer->new_state("accept_all");
+	result->new_transition(n, n, bddtrue, acc);
       }
     accept_all_needed = false;
     accept_all_seen = false;
 
+    delete namer;
     return result;
   }
 }

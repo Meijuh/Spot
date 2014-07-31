@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2010, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,7 +20,7 @@
 #ifndef SPOT_NEVERPARSE_PUBLIC_HH
 # define SPOT_NEVERPARSE_PUBLIC_HH
 
-# include "tgba/tgbaexplicit.hh"
+# include "tgba/tgbagraph.hh"
 # include "misc/location.hh"
 # include "ltlenv/defaultenv.hh"
 # include <string>
@@ -55,7 +55,7 @@ namespace spot
   /// was parsed succesfully, check \a error_list for emptiness.
   ///
   /// \warning This function is not reentrant.
-  SPOT_API tgba_explicit_string*
+  SPOT_API tgba_digraph*
   neverclaim_parse(const std::string& filename,
 		   neverclaim_parse_error_list&
 		   error_list,

@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+# Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -47,14 +47,14 @@ cat >expected <<EOF
 digraph G {
   0 [label="", style=invis, height=0]
   0 -> 1
-  1 [label="T2_init"]
+  1 [label="0"]
   1 -> 1 [label="1\n"]
   1 -> 2 [label="p0 & p1\n"]
-  2 [label="T1"]
+  2 [label="1"]
   2 -> 3 [label="p1 & !p0\n"]
   2 -> 2 [label="!p1\n"]
   2 -> 1 [label="!p1\n"]
-  3 [label="accept_all", peripheries=2]
+  3 [label="2", peripheries=2]
   3 -> 3 [label="1\n{Acc[1]}"]
 }
 EOF
@@ -91,14 +91,14 @@ cat >expected <<EOF
 digraph G {
   0 [label="", style=invis, height=0]
   0 -> 1
-  1 [label="T2_init"]
+  1 [label="0"]
   1 -> 1 [label="1\n"]
   1 -> 2 [label="p0 & p1\n"]
-  2 [label="T1"]
+  2 [label="1"]
   2 -> 3 [label="p1 & !p0\n"]
   2 -> 2 [label="!p1\n"]
   2 -> 1 [label="!p1\n"]
-  3 [label="accept_all", peripheries=2]
+  3 [label="2", peripheries=2]
   3 -> 3 [label="1\n{Acc[1]}"]
 }
 EOF
@@ -130,9 +130,9 @@ cat >expected <<EOF
 digraph G {
   0 [label="", style=invis, height=0]
   0 -> 1
-  1 [label="accept_init", peripheries=2]
+  1 [label="0", peripheries=2]
   1 -> 2 [label="p1\n{Acc[1]}"]
-  2 [label="accept_all", peripheries=2]
+  2 [label="1", peripheries=2]
   2 -> 2 [label="1\n{Acc[1]}"]
 }
 EOF
