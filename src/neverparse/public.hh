@@ -38,7 +38,7 @@ namespace spot
   /// \brief A list of parser diagnostics, as filled by parse.
   typedef std::list<neverclaim_parse_error> neverclaim_parse_error_list;
 
-  /// \brief Build a spot::tgba_explicit from a Spin never claim file.
+  /// \brief Build a spot::tgba_digraph from a Spin never claim file.
   /// \param filename The name of the file to parse.
   /// \param error_list A list that will be filled with
   ///        parse errors that occured during parsing.
