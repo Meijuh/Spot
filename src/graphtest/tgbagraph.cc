@@ -82,6 +82,11 @@ void f1()
 
   std::cerr << tg.num_transitions() << '\n';
   assert(tg.num_transitions() == 5);
+
+  // Add enough states so that the state vector is reallocated.
+  for (unsigned i = 0; i < 100; ++i)
+    tg.new_state();
+  spot::dotty_reachable(std::cout, &tg);
 }
 
 int main()

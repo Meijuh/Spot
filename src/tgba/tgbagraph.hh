@@ -33,6 +33,11 @@ namespace spot
   struct SPOT_API tgba_graph_state: public spot::state
   {
   public:
+    tgba_graph_state():
+      spot::state()
+    {
+    }
+
     virtual ~tgba_graph_state() noexcept
     {
     }
@@ -158,14 +163,14 @@ namespace spot
     bdd_dict* dict_;
     bdd all_acceptance_conditions_;
     bdd neg_acceptance_conditions_;
-    mutable const tgba_graph_state* init_;
+    mutable unsigned init_number_;
 
   public:
     tgba_digraph(bdd_dict* dict)
       : dict_(dict),
 	all_acceptance_conditions_(bddfalse),
 	neg_acceptance_conditions_(bddtrue),
-	init_(nullptr)
+	init_number_(0)
     {
     }
 
@@ -223,31 +228,28 @@ namespace spot
 
     void set_init_state(graph_t::state s)
     {
-      init_ = &g_.state_data(s);
+      assert(s < num_states());
+      init_number_ = s;
     }
 
     void set_init_state(const state* s)
     {
-      init_ = down_cast<const tgba_graph_state*>(s);
-      assert(init_);
-    }
-
-    virtual tgba_graph_state* get_init_state() const
-    {
-      if (num_states() == 0)
-	const_cast<graph_t&>(g_).new_state();
-      if (!init_)
-	init_ = &g_.state_data(0);
-      return const_cast<tgba_graph_state*>(init_);
+      set_init_state(state_number(s));
     }
 
     virtual graph_t::state get_init_state_number() const
     {
       if (num_states() == 0)
 	const_cast<graph_t&>(g_).new_state();
-      if (!init_)
-	return 0;
-      return state_number(init_);
+      return init_number_;
+    }
+
+    // FIXME: The return type ought to be const.
+    virtual tgba_graph_state* get_init_state() const
+    {
+      if (num_states() == 0)
+	const_cast<graph_t&>(g_).new_state();
+      return const_cast<tgba_graph_state*>(state_from_number(init_number_));
     }
 
     virtual tgba_succ_iterator*
@@ -276,7 +278,7 @@ namespace spot
       return s - &g_.state_storage(0);
     }
 
-    const state*
+    const tgba_graph_state*
     state_from_number(graph_t::state n) const
     {
       return &g_.state_data(n);
