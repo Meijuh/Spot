@@ -21,7 +21,6 @@
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "ltlast/constant.hh"
-#include "tgba/tgbaexplicit.hh"
 
 namespace spot
 {
@@ -42,7 +41,7 @@ namespace spot
       // makes its possible to mask AUT, as needed in dra_to_ba().
       nra_to_nba_worker(const dstar_aut* a, const tgba* aut):
 	tgba_reachable_iterator_depth_first(aut),
-	out_(new tgba_explicit_number(aut->get_dict())),
+	out_(new tgba_digraph(aut->get_dict())),
 	d_(a),
 	num_states_(a->aut->num_states())
       {
@@ -55,9 +54,14 @@ namespace spot
 					   out_);
 	acc_ = bdd_ithvar(accvar);
 	out_->set_acceptance_conditions(acc_);
+	out_->new_states(num_states_ * (d_->accpair_count + 1));
+
+	auto i = aut->get_init_state();
+	out_->set_init_state(a->aut->state_number(i));
+	i->destroy();
       }
 
-      tgba_explicit_number*
+      tgba_digraph*
       result()
       {
 	return out_;
@@ -71,9 +75,8 @@ namespace spot
 	int in = d_->aut->state_number(sin);
 	int out = d_->aut->state_number(sout);
 
-	typedef state_explicit_number::transition trans;
-	trans* t = out_->create_transition(in, out);
-	bdd cond = t->condition = si->current_condition();
+	bdd cond = si->current_condition();
+	out_->new_transition(in, out, cond);
 
 	// Create one clone of the automaton per accepting pair,
 	// removing states from the Ui part of the (Li, Ui) pairs.
@@ -97,20 +100,18 @@ namespace spot
 		// implementation create more transitions than needed:
 		// we do not need more than one transition per
 		// accepting cycle.
-		trans* t1 = out_->create_transition(in, out + shift);
-		t1->condition = cond;
+		out_->new_transition(in, out + shift, cond);
 
-		trans* t2 = out_->create_transition(in + shift, out + shift);
-		t2->condition = cond;
-		// In the Li set. (Löding's Fi set.)
-		if (l.get(i))
-		  t2->acceptance_conditions = acc_;
+		bdd acc = bddfalse;
+		if (l.get(i))	// In the Li set. (Löding's Fi set.)
+		  acc = acc_;
+		out_->new_transition(in + shift, out + shift, cond, acc);
 	      }
 	  }
       }
 
     protected:
-      tgba_explicit_number* out_;
+      tgba_digraph* out_;
       const dstar_aut* d_;
       size_t num_states_;
       bdd acc_;
@@ -126,8 +127,8 @@ namespace spot
     assert(nra->type == Rabin);
     nra_to_nba_worker w(nra, aut);
     w.run();
-    tgba_explicit_number* res1 = w.result();
-    tgba* res2 = scc_filter_states(res1);
+    auto res1 = w.result();
+    auto res2 = scc_filter_states(res1);
     delete res1;
     return res2;
   }

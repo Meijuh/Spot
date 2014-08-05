@@ -68,6 +68,7 @@ namespace spot
     std::vector<scc_node> node_;
     const tgba_digraph* aut_;
 
+
     const scc_node& node(unsigned scc) const
     {
       assert(scc < node_.size());
@@ -85,6 +86,11 @@ namespace spot
     unsigned scc_count() const
     {
       return node_.size();
+    }
+
+    bool reachable_state(unsigned st) const
+    {
+      return scc_of(st) != -1U;
     }
 
     unsigned scc_of(unsigned st) const
@@ -125,7 +131,7 @@ namespace spot
 
     bool is_useful_state(unsigned st) const
     {
-      return node(scc_of(st)).useful;
+      return reachable_state(st) && node(scc_of(st)).useful;
     }
 
    /// \brief Return the set of all used acceptance combinations, for
