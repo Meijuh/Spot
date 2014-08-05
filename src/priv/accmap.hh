@@ -93,19 +93,20 @@ namespace spot
     }
   };
 
-  // The acceptance sets are named using count integers, but we do not
-  // assume the numbers are necessarily consecutive.
-  class acc_mapper_int: public acc_mapper_common
+
+  // The acceptance sets are named using count consecutive integers.
+  class acc_mapper_consecutive_int: public acc_mapper_common
   {
-    std::vector<bdd> usable_;
-    unsigned used_;
+  protected:
+    std::vector<bdd> vec_;
     std::map<int, bdd> map_;
 
   public:
-    acc_mapper_int(tgba_digraph *aut,
-		   unsigned count,
-		   ltl::environment& env = ltl::default_environment::instance())
-      : acc_mapper_common(aut, env), usable_(count), used_(0)
+    acc_mapper_consecutive_int(tgba_digraph *aut,
+			       unsigned count,
+			       ltl::environment& env =
+			       ltl::default_environment::instance())
+      : acc_mapper_common(aut, env), vec_(count)
     {
       std::vector<int> vmap(count);
       for (unsigned n = 0; n < count; ++n)
@@ -121,9 +122,34 @@ namespace spot
       for (unsigned n = 0; n < count; ++n)
 	{
 	  int v = vmap[n];
-	  usable_[n] = bdd_compose(neg_, bdd_nithvar(v), v);
+	  vec_[n] = bdd_compose(neg_, bdd_nithvar(v), v);
 	}
       commit();
+    }
+
+    std::pair<bool, bdd> lookup(unsigned n)
+    {
+      if (n < vec_.size())
+	return std::make_pair(true, vec_[n]);
+      else
+	return std::make_pair(false, bddfalse);
+    }
+  };
+
+  // The acceptance sets are named using count integers, but we do not
+  // assume the numbers are necessarily consecutive.
+  class acc_mapper_int: public acc_mapper_consecutive_int
+  {
+    unsigned used_;
+    std::map<int, bdd> map_;
+
+  public:
+    acc_mapper_int(tgba_digraph *aut,
+		   unsigned count,
+		   ltl::environment& env =
+		   ltl::default_environment::instance())
+      : acc_mapper_consecutive_int(aut, count, env), used_(0)
+    {
     }
 
     std::pair<bool, bdd> lookup(unsigned n)
@@ -131,16 +157,15 @@ namespace spot
        auto p = map_.find(n);
        if (p != map_.end())
 	 return std::make_pair(true, p->second);
-       if (used_ < usable_.size())
+       if (used_ < vec_.size())
 	 {
-	   bdd res = usable_[used_++];
+	   bdd res = vec_[used_++];
 	   map_[n] = res;
 	   return std::make_pair(true, res);
 	 }
        return std::make_pair(false, bddfalse);
     }
   };
-
 }
 
 #endif // SPOT_PRIV_ACCCONV_HH

@@ -22,7 +22,7 @@
 #include "public.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "ltlenv/defaultenv.hh"
-#include "tgba/tgbaexplicit.hh"
+#include "priv/accmap.hh"
 
 namespace spot
 {
@@ -61,8 +61,6 @@ namespace spot
       }
     };
 
-    typedef std::pair<const state*, build_state> degen_state;
-
     struct build_state_hash
     {
       size_t
@@ -100,13 +98,6 @@ namespace spot
 
   }
 
-  int label(const tgba_digraph* aut, state* s)
-  {
-    int label = aut->state_number(s);
-    s->destroy();
-    return label;
-  }
-
   SPOT_API
   tgba* nsa_to_tgba(const dstar_aut* nsa)
   {
@@ -114,29 +105,12 @@ namespace spot
     tgba_digraph* a = nsa->aut;
     bdd_dict* dict = a->get_dict();
 
-    tgba_explicit_number* res = new tgba_explicit_number(dict);
+    tgba_digraph* res = new tgba_digraph(dict);
     dict->register_all_variables_of(a, res);
 
-    // Create accpair_count acceptance sets for tge TGBA.
-    size_t npairs = nsa->accpair_count;
-    std::vector<bdd> acc_b(npairs);
-    {
-      ltl::environment& envacc = ltl::default_environment::instance();
-      std::vector<const ltl::formula*> acc_f(npairs);
-      for (unsigned n = 0; n < npairs; ++n)
-	{
-	  std::ostringstream s;
-	  s << n;
-	  const ltl::formula* af = acc_f[n] = envacc.require(s.str());
-	  res->declare_acceptance_condition(af->clone());
-	}
-      bdd allacc = bddfalse;
-      for (unsigned n = 0; n < npairs; ++n)
-	{
-	  const ltl::formula* af = acc_f[n];
-	  allacc |= acc_b[n] = res->get_acceptance_condition(af);
-	}
-    }
+    // Create accpair_count acceptance sets for the output.
+    unsigned npairs = nsa->accpair_count;
+    acc_mapper_consecutive_int acc_b(res, npairs);
 
     // These maps make it possible to convert build_state to number
     // and vice-versa.
@@ -144,9 +118,8 @@ namespace spot
 
     queue_t todo;
 
-    build_state s(label(a, a->get_init_state()));
-
-    bs2num[s] = 0;
+    build_state s(a->get_init_state_number());
+    bs2num[s] = res->new_state();
     todo.push_back(s);
 
     while (!todo.empty())
@@ -155,25 +128,23 @@ namespace spot
         todo.pop_front();
         int src = bs2num[s];
 
-	for (auto i: a->succ(a->state_from_number(s.s)))
+	for (auto& t: a->out(s.s))
 	  {
-	    int dlabel = label(a, i->current_state());
-
 	    bitvect* pend = 0;
 	    bdd acc = bddfalse;
 	    if (s.pend)
 	      {
 		pend = s.pend->clone();
-		*pend |= nsa->accsets->at(2 * dlabel); // L
-		*pend -= nsa->accsets->at(2 * dlabel + 1); // U
+		*pend |= nsa->accsets->at(2 * t.dst); // L
+		*pend -= nsa->accsets->at(2 * t.dst + 1); // U
 
 		for (size_t i = 0; i < npairs; ++i)
 		  if (!pend->get(i))
-		    acc |= acc_b[i];
+		    acc |= acc_b.lookup(i).second;
 	      }
 
 
-	    build_state d(dlabel, pend);
+	    build_state d(t.dst, pend);
             // Have we already seen this destination?
             int dest;
 	    auto dres = bs2num.emplace(d, 0);
@@ -182,21 +153,18 @@ namespace spot
                 dest = dres.first->second;
 		delete d.pend;
               }
-            else
+            else		// No, this is a new state
               {
-		dest = dres.first->second = bs2num.size() - 1;
+		dest = dres.first->second = res->new_state();
                 todo.push_back(d);
 	      }
-	    state_explicit_number::transition* t =
-	      res->create_transition(src, dest);
-	    t->condition = i->current_condition();
-	    t->acceptance_conditions = acc;
+	    res->new_transition(src, dest, t.cond, acc);
 
 	    // Jump to level ∅
 	    if (s.pend == 0)
 	      {
 		bitvect* pend = make_bitvect(npairs);
-		build_state d(label(a, i->current_state()), pend);
+		build_state d(t.dst, pend);
 		// Have we already seen this destination?
 		int dest;
 		auto dres = bs2num.emplace(d, 0);
@@ -205,14 +173,12 @@ namespace spot
 		    dest = dres.first->second;
 		    delete d.pend;
 		  }
-		else
+		else		// No, this is a new state
 		  {
-		    dest = dres.first->second = bs2num.size() - 1;
+		    dest = dres.first->second = res->new_state();
 		    todo.push_back(d);
 		  }
-		state_explicit_number::transition* t =
-		  res->create_transition(src, dest);
-		t->condition = i->current_condition();
+		res->new_transition(src, dest, t.cond);
 	      }
 	  }
       }
