@@ -20,7 +20,7 @@
 #include "compsusp.hh"
 #include "sccfilter.hh"
 #include "scc.hh"
-#include "tgba/tgbaexplicit.hh"
+#include "tgba/tgbagraph.hh"
 #include "ltl2tgba_fm.hh"
 #include "minimize.hh"
 #include "simulation.hh"
@@ -207,7 +207,7 @@ namespace spot
 
     typedef std::pair<const state*, const state*> state_pair;
 
-    typedef std::map<state_pair, int> pair_map;
+    typedef std::map<state_pair, unsigned> pair_map;
     typedef std::deque<state_pair> pair_queue;
 
     static
@@ -222,7 +222,7 @@ namespace spot
       const tgba* right = iterated_simulations(a2);
       delete a2;
 
-      tgba_explicit_number* res = new tgba_explicit_number(dict);
+      tgba_digraph* res = new tgba_digraph(dict);
       dict->register_all_variables_of(left, res);
       dict->register_all_variables_of(right, res);
       dict->unregister_variable(bdd_var(v), res);
@@ -263,11 +263,10 @@ namespace spot
       state_pair p(left->get_init_state(), 0);
       state* ris = right->get_init_state();
       p.second = ris;
-      seen[p] = 0;
+      unsigned i = res->new_state();
+      seen[p] = i;
       todo.push_back(p);
-      res->set_init_state(0);
-
-      typedef state_explicit_number::transition trans;
+      res->set_init_state(i);
 
       while (!todo.empty())
 	{
@@ -317,22 +316,21 @@ namespace spot
 		      ra = (ri->current_acceptance_conditions() & rma) | radd;
 		    }
 
-		  int dest = seen.size();
+		  int dest;
 		  pair_map::const_iterator i = seen.find(d);
-		  if (i != seen.end())
+		  if (i != seen.end()) // Is this an existing state?
 		    {
 		      dest = i->second;
 		    }
 		  else
 		    {
+		      dest = res->new_state();
 		      seen[d] = dest;
 		      todo.push_back(d);
 		    }
 
-		  trans* t = res->create_transition(src, dest);
-		  t->condition = bdd_exist(cond, v);
 		  bdd la = (li->current_acceptance_conditions() & lma) | ladd;
-		  t->acceptance_conditions = ra & la;
+		  res->new_transition(src, dest, bdd_exist(cond, v), ra & la);
 
 		  if (ri)
 		    ri->next();
@@ -345,10 +343,10 @@ namespace spot
 	}
       delete left;
       delete right;
-
       return res;
     }
   }
+
 
   tgba*
   compsusp(const ltl::formula* f, bdd_dict* dict,
