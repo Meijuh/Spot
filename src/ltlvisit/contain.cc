@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2006, 2007 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -148,11 +148,8 @@ namespace spot
       if (i != translated_.end())
 	return &i->second;
 
-      const tgba_explicit_formula* e =
-	ltl_to_tgba_fm(f, dict_, exprop_, symb_merge_,
-		       branching_postponement_,
-		       fair_loop_approx_);
-
+      auto e = ltl_to_tgba_fm(f, dict_, exprop_, symb_merge_,
+			      branching_postponement_, fair_loop_approx_);
       record_& r = translated_[f->clone()];
       r.translation = e;
       return &r;
