@@ -22,6 +22,7 @@
 #include "public.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "ltlenv/defaultenv.hh"
+#include "tgba/tgbaexplicit.hh"
 
 namespace spot
 {
@@ -99,9 +100,9 @@ namespace spot
 
   }
 
-  int label(const tgba_explicit_number* aut, state* s)
+  int label(const tgba_digraph* aut, state* s)
   {
-    int label = aut->get_label(s);
+    int label = aut->state_number(s);
     s->destroy();
     return label;
   }
@@ -110,7 +111,7 @@ namespace spot
   tgba* nsa_to_tgba(const dstar_aut* nsa)
   {
     assert(nsa->type == Streett);
-    tgba_explicit_number* a = nsa->aut;
+    tgba_digraph* a = nsa->aut;
     bdd_dict* dict = a->get_dict();
 
     tgba_explicit_number* res = new tgba_explicit_number(dict);
@@ -154,7 +155,7 @@ namespace spot
         todo.pop_front();
         int src = bs2num[s];
 
-	for (auto i: a->succ(a->get_state(s.s)))
+	for (auto i: a->succ(a->state_from_number(s.s)))
 	  {
 	    int dlabel = label(a, i->current_state());
 

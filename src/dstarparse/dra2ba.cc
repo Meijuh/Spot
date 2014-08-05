@@ -19,6 +19,7 @@
 
 #include "public.hh"
 #include "tgba/tgbamask.hh"
+#include "tgba/tgbaexplicit.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/gtec/gtec.hh"
@@ -121,12 +122,12 @@ namespace spot
       // u=[u₁,u₂,...] be bitvectors where bit lᵢ (resp. uᵢ)
       // indicates that Lᵢ (resp. Uᵢ) has been visited in the SCC.
       state_list::const_iterator it = sl.begin();
-      int num = dra->aut->get_label(*it++);
+      int num = dra->aut->state_number(*it++);
       bitvect* l = dra->accsets->at(num * 2).clone();
       bitvect* u = dra->accsets->at(num * 2 + 1).clone();
       for (; it != sl.end(); ++it)
 	{
-	  num = dra->aut->get_label(*it);
+	  num = dra->aut->state_number(*it);
 	  *l |= dra->accsets->at(num * 2);
 	  *u |= dra->accsets->at(num * 2 + 1);
 	}
@@ -177,7 +178,7 @@ namespace spot
       state_set unknown;
       for (it = sl.begin(); it != sl.end(); ++it)
 	{
-	  num = dra->aut->get_label(*it);
+	  num = dra->aut->state_number(*it);
 	  bitvect* l2 = dra->accsets->at(num * 2).clone();
 	  *l2 &= *l;
 	  if (!l2->is_fully_clear())
@@ -258,8 +259,8 @@ namespace spot
 		   const state* sout, int,
 		   const tgba_succ_iterator* si)
       {
-	int in = in_->aut->get_label(sin);
-	int out = in_->aut->get_label(sout);
+	int in = in_->aut->state_number(sin);
+	int out = in_->aut->state_number(sout);
 	unsigned in_scc = sm_.scc_of_state(sin);
 
 	typedef state_explicit_number::transition trans;

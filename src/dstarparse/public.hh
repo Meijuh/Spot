@@ -20,7 +20,7 @@
 #ifndef SPOT_DSTARPARSE_PUBLIC_HH
 # define SPOT_DSTARPARSE_PUBLIC_HH
 
-# include "tgba/tgbaexplicit.hh"
+# include "tgba/tgbagraph.hh"
 # include "misc/location.hh"
 # include "ltlenv/defaultenv.hh"
 # include <string>
@@ -47,7 +47,7 @@ namespace spot
   {
     // Transition structure of the automaton.
     // This is encoded as a TGBA without acceptance condition.
-    tgba_explicit_number* aut;
+    tgba_digraph* aut;
     /// Type of the acceptance.
     dstar_type type;
     /// Number of acceptance pairs.
@@ -68,7 +68,7 @@ namespace spot
   };
 
 
-  /// \brief Build a spot::tgba_explicit from ltl2dstar's output.
+  /// \brief Build a spot::tgba_digraph from ltl2dstar's output.
   /// \param filename The name of the file to parse.
   /// \param error_list A list that will be filled with
   ///        parse errors that occured during parsing.

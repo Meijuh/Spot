@@ -45,7 +45,8 @@
     map_t dest_map;
     int cur_state;
 
-    unsigned state_count;
+    unsigned state_count = 0;
+    unsigned start_state = 0;
     std::vector<std::string> aps;
 
     bool state_count_seen:1;
@@ -53,7 +54,7 @@
     bool start_state_seen:1;
     bool aps_seen:1;
 
-    result_() :
+    result_():
       state_count_seen(false),
       accpair_count_seen(false),
       start_state_seen(false),
@@ -146,6 +147,8 @@ header: auttype opt_eols V2 opt_eols EXPLICIT opt_eols sizes
 	result.d->aut = 0;
 	YYABORT;
       }
+    result.d->aut->new_states(result.state_count);;
+    result.d->aut->set_init_state(result.start_state);
     fill_guards(result);
   }
 
@@ -173,7 +176,7 @@ sizes:
   }
   | sizes START opt_eols NUMBER opt_eols
   {
-    result.d->aut->set_init_state($4);
+    result.start_state = $4;
     result.start_state_seen = true;
   }
   | sizes AP opt_eols NUMBER opt_eols aps
@@ -270,11 +273,7 @@ states:
   {
     for (map_t::const_iterator i = result.dest_map.begin();
 	 i != result.dest_map.end(); ++i)
-      {
-	spot::tgba_explicit_number::transition* t =
-	  result.d->aut->create_transition(result.cur_state, i->first);
-	t->condition = i->second;
-      }
+      result.d->aut->new_transition(result.cur_state, i->first, i->second);
   }
 %%
 
@@ -329,7 +328,7 @@ namespace spot
       }
     result_ r;
     r.d = new dstar_aut;
-    r.d->aut = new tgba_explicit_number(dict);
+    r.d->aut = new tgba_digraph(dict);
     r.d->accsets = 0;
     r.env = &env;
     dstaryy::parser parser(error_list, r);

@@ -21,6 +21,7 @@
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "ltlast/constant.hh"
+#include "tgba/tgbaexplicit.hh"
 
 namespace spot
 {
@@ -67,8 +68,8 @@ namespace spot
 		   const state* sout, int,
 		   const tgba_succ_iterator* si)
       {
-	int in = d_->aut->get_label(sin);
-	int out = d_->aut->get_label(sout);
+	int in = d_->aut->state_number(sin);
+	int out = d_->aut->state_number(sout);
 
 	typedef state_explicit_number::transition trans;
 	trans* t = out_->create_transition(in, out);
