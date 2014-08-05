@@ -19,7 +19,6 @@
 
 #include "public.hh"
 #include "tgba/tgbamask.hh"
-#include "tgba/tgbaexplicit.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/gtec/gtec.hh"
@@ -231,7 +230,7 @@ namespace spot
 		       const std::vector<bool>& realizable):
 	tgba_reachable_iterator_depth_first(a->aut),
 	in_(a),
-	out_(new tgba_explicit_number(a->aut->get_dict())),
+	out_(new tgba_digraph(a->aut->get_dict())),
 	final_(final),
 	num_states_(a->aut->num_states()),
 	sm_(sm),
@@ -246,9 +245,11 @@ namespace spot
 					   out_);
 	acc_ = bdd_ithvar(accvar);
 	out_->set_acceptance_conditions(acc_);
+	out_->new_states(num_states_ * (a->accpair_count + 1));
+	out_->set_init_state(a->aut->get_init_state_number());
       }
 
-      tgba_explicit_number*
+      tgba_digraph*
       result()
       {
 	return out_;
@@ -263,14 +264,13 @@ namespace spot
 	int out = in_->aut->state_number(sout);
 	unsigned in_scc = sm_.scc_of_state(sin);
 
-	typedef state_explicit_number::transition trans;
-	trans* t = out_->create_transition(in, out);
-	bdd cond = t->condition = si->current_condition();
+	bdd cond = si->current_condition();
+	unsigned t = out_->new_transition(in, out, cond);
 
 	if (realizable_[in_scc])
 	  {
 	    if (final_.find(sin) != final_.end())
-	      t->acceptance_conditions = acc_;
+	      out_->trans_data(t).acc = acc_;
 	  }
 	else if (sm_.scc_of_state(sout) == in_scc)
 	  {
@@ -296,15 +296,12 @@ namespace spot
 		    // implementation create more transitions than needed:
 		    // we do not need more than one transition per
 		    // accepting cycle.
-		    trans* t1 = out_->create_transition(in, out + shift);
-		    t1->condition = cond;
+		    out_->new_transition(in, out + shift, cond);
 
-		    trans* t2 = out_->create_transition(in + shift,
-							out + shift);
-		    t2->condition = cond;
-		    // In the Li set. (Löding's Fi set.)
-		    if (l.get(i))
-		      t2->acceptance_conditions = acc_;
+		    bdd acc = bddfalse;
+		    if (l.get(i))	// In the Li set. (Löding's Fi set.)
+		      acc = acc_;
+		    out_->new_transition(in + shift, out + shift, cond, acc);
 		  }
 	      }
 	  }
@@ -312,7 +309,7 @@ namespace spot
 
     protected:
       const dstar_aut* in_;
-      tgba_explicit_number* out_;
+      tgba_digraph* out_;
       const state_set& final_;
       size_t num_states_;
       bdd acc_;
@@ -368,8 +365,8 @@ namespace spot
     state_set fs(final.begin(), final.end());
     dra_to_ba_worker w(dra, fs, sm, realizable);
     w.run();
-    tgba_explicit_number* res1 = w.result();
-    tgba* res2 = scc_filter_states(res1);
+    auto res1 = w.result();
+    auto res2 = scc_filter_states(res1);
     delete res1;
     return res2;
   }
