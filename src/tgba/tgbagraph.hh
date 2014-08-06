@@ -360,9 +360,12 @@ namespace spot
       return neg_acceptance_conditions_;
     }
 
-    virtual bdd compute_support_conditions(const state*) const
+    virtual bdd compute_support_conditions(const state* s) const
     {
-      return bddtrue;
+      bdd sum = bddfalse;
+      for (auto& t: out(state_number(s)))
+	sum |= t.cond;
+      return sum;
     }
 
     /// Iterate over all transitions, and merge those with compatible

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE)
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acccompl.hh"
+#include <cassert>
 
 namespace spot
 {
@@ -60,6 +61,8 @@ namespace spot
     if (acc == bddtrue)
       return all_;
 
+    assert(acc != bddfalse);
+
     // Since we never cache a unique positive bdd, we can reuse the
     // same cache.  In fact the only kind of acc we will receive in
     // this method, are a conjunction of positive acceptance
@@ -70,12 +73,13 @@ namespace spot
 
     bdd res = all_;
     bdd cond = acc;
+    bdd neg = bddtrue;
     while (cond != bddtrue)
     {
-      res &= bdd_nithvar(bdd_var(cond));
+      neg &= bdd_nithvar(bdd_var(cond));
       cond = bdd_high(cond);
     }
-
+    res &= neg;
     cache_[acc] = res;
 
     return res;

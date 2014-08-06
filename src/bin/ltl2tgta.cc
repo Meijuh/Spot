@@ -33,6 +33,7 @@
 #include "common_post.hh"
 
 #include "ltlparse/public.hh"
+#include "ltlvisit/tostring.hh"
 #include "ltlvisit/simplify.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
@@ -182,17 +183,6 @@ namespace
 	  error_at_line(2, 0, filename, linenum,
 			"formula '%s' is not an LTL or PSL formula",
 			s.c_str());
-	}
-
-      if (utf8)
-	{
-	  spot::tgba* a = const_cast<spot::tgba*>(aut);
-	  if (spot::tgba_explicit_formula* tef =
-	      dynamic_cast<spot::tgba_explicit_formula*>(a))
-	    tef->enable_utf8();
-	  else if (spot::sba_explicit_formula* sef =
-		   dynamic_cast<spot::sba_explicit_formula*>(a))
-	    sef->enable_utf8();
 	}
 
       bdd ap_set = atomic_prop_collect_as_bdd(f, aut);

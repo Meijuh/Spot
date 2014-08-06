@@ -94,6 +94,16 @@ namespace spot
       return state_to_name.at(s);
     }
 
+    bool has_state(name n) const
+    {
+      return name_to_state.find(n) != name_to_state.end();
+    }
+
+    state_to_name_t& names()
+    {
+      return state_to_name;
+    }
+
     template <typename... Args>
     transition
     new_transition(name src, name dst, Args&&... args)

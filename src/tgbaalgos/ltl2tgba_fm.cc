@@ -36,7 +36,9 @@
 #include "ltl2tgba_fm.hh"
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/scc.hh"
+#include "tgba/tgbaexplicit.hh"
 //#include "tgbaalgos/dotty.hh"
+#include "priv/acccompl.hh"
 
 namespace spot
 {
@@ -401,33 +403,6 @@ namespace spot
 	  v->push_back(conj_bdd_to_sere(cube));
 
 	return multop::instance(multop::OrRat, v);
-      }
-
-      void
-      conj_bdd_to_acc(tgba_explicit_formula* a, bdd b,
-		      state_explicit_formula::transition* t)
-      {
-	assert(b != bddfalse);
-	while (b != bddtrue)
-	  {
-	    int var = bdd_var(b);
-	    bdd high = bdd_high(b);
-	    if (high == bddfalse)
-	      {
-		// Simply ignore negated acceptance variables.
-		b = bdd_low(b);
-	      }
-	    else
-	      {
-		const formula* ac = var_to_formula(var);
-
-		if (!a->has_acceptance_condition(ac))
-		  a->declare_acceptance_condition(ac->clone());
-		a->add_acceptance_condition(t, ac);
-		b = high;
-	      }
-	    assert(b != bddfalse);
-	  }
       }
 
       const translated&
@@ -2048,7 +2023,7 @@ namespace spot
   }
 
 
-  tgba_explicit_formula*
+  tgba_digraph*
   ltl_to_tgba_fm(const formula* f, bdd_dict* dict,
 		 bool exprop, bool symb_merge, bool branching_postponement,
 		 bool fair_loop_approx, const atomic_prop_set* unobs,
@@ -2128,14 +2103,15 @@ namespace spot
     bdd all_events = observable_events | unobservable_events;
 
 
-    tgba_explicit_formula* a = new tgba_explicit_formula(dict);
+    tgba_digraph* a = new tgba_digraph(dict);
+    auto namer = a->create_namer<const formula*, formula_ptr_hash>();
 
     // This is in case the initial state is equivalent to true...
     if (symb_merge)
       f2 = fc.canonize(f2);
 
     formulae_to_translate.insert(f2);
-    a->set_init_state(f2);
+    a->set_init_state(namer->new_state(f2));
 
     while (!formulae_to_translate.empty())
       {
@@ -2273,7 +2249,8 @@ namespace spot
 
 	// Check for an arc going to 1 (True).  Register it first, that
 	// way it will be explored before others during model checking.
-	dest_map::const_iterator i = dests.find(constant::true_instance());
+	auto truef = constant::true_instance();
+	dest_map::const_iterator i = dests.find(truef);
 	// COND_FOR_TRUE is the conditions of the True arc, so we
 	// can remove them from all other arcs.  It might sounds that
 	// this is not needed when exprop is used, but in fact it is
@@ -2296,7 +2273,7 @@ namespace spot
 	    // When translating LTL for an event-based logic with
 	    // unobservable events, the 1 state should accept all events,
 	    // even unobservable events.
-	    if (unobs && now == constant::true_instance())
+	    if (unobs && now == truef)
 	      cond_for_true = all_events;
 	    else
 	      {
@@ -2308,44 +2285,38 @@ namespace spot
 		assert(fair_loop_approx || j->first == bddtrue);
 		cond_for_true = j->second;
 	      }
-	    if (!a->has_state(constant::true_instance()))
-	      formulae_to_translate.insert(constant::true_instance());
-	    state_explicit_formula::transition* t =
-	      a->create_transition(now, constant::true_instance());
-	    t->condition = cond_for_true;
+	    if (!namer->has_state(truef))
+	      {
+		formulae_to_translate.insert(truef);
+		namer->new_state(truef);
+	      }
+	    namer->new_transition(now, truef, cond_for_true, bddtrue);
 	  }
 	// Register other transitions.
 	for (i = dests.begin(); i != dests.end(); ++i)
 	  {
 	    const formula* dest = i->first;
+	    if (dest == truef)
+	      continue;
+
 	    // The cond_for_true optimization can cause some
 	    // transitions to be removed.  So we have to remember
 	    // whether a formula is actually reachable.
 	    bool reachable = false;
-
 	    // Will this be a new state?
-	    bool seen = a->has_state(dest);
+	    bool seen = namer->has_state(dest);
 
-	    if (dest != constant::true_instance())
+	    for (auto& j: i->second)
 	      {
-		for (prom_map::const_iterator j = i->second.begin();
-		     j != i->second.end(); ++j)
-		  {
-		    bdd cond = j->second - cond_for_true;
-		    if (cond == bddfalse) // Skip false transitions.
-		      continue;
-		    state_explicit_formula::transition* t =
-		      a->create_transition(now, dest);
-		    t->condition = cond;
-		    d.conj_bdd_to_acc(a, j->first, t);
-		    reachable = true;
-		  }
-	      }
-	    else
-	      {
-		// "1" is reachable.
+		bdd cond = j.second - cond_for_true;
+		if (cond == bddfalse) // Skip false transitions.
+		  continue;
+		if (!reachable && !seen)
+		  namer->new_state(dest);
 		reachable = true;
+		namer->new_transition(now, dest, cond, j.first);
 	      }
+
 	    if (reachable && !seen)
 	      formulae_to_translate.insert(dest);
 	    else
@@ -2353,9 +2324,21 @@ namespace spot
 	  }
       }
 
+    for (auto n: namer->names())
+      n->destroy();
+    delete namer;
+
     dict->register_propositions(fc.used_vars(), a);
+    a->set_acceptance_conditions(d.a_set);
     // Turn all promises into real acceptance conditions.
-    a->complement_all_acceptance_conditions();
+    acc_compl ac(a->all_acceptance_conditions(),
+		 a->neg_acceptance_conditions());
+
+    unsigned ns = a->num_states();
+    for (unsigned s = 0; s < ns; ++s)
+      for (auto& t: a->out(s))
+	t.acc = ac.reverse_complement(t.acc);
+
 
     if (!simplifier)
       // This should not be deleted before we have registered all propositions.

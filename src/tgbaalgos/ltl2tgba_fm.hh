@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -24,14 +24,14 @@
 # define SPOT_TGBAALGOS_LTL2TGBA_FM_HH
 
 #include "ltlast/formula.hh"
-#include "tgba/tgbaexplicit.hh"
+#include "tgba/tgbagraph.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/simplify.hh"
 
 namespace spot
 {
   /// \ingroup tgba_ltl
-  /// \brief Build a spot::tgba_explicit* from an LTL formula.
+  /// \brief Build a spot::tgba_digraph* from an LTL formula.
   ///
   /// This is based on the following paper.
   /** \verbatim
@@ -122,7 +122,7 @@ namespace spot
       \endverbatim */
   ///
   /// \return A spot::tgba_explicit that recognizes the language of \a f.
-  SPOT_API tgba_explicit_formula*
+  SPOT_API tgba_digraph*
   ltl_to_tgba_fm(const ltl::formula* f, bdd_dict* dict,
 		 bool exprop = false, bool symb_merge = true,
 		 bool branching_postponement = false,

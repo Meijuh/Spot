@@ -120,14 +120,14 @@ while read f; do
 
   # If the labels of the state have only digits, assume the minimization
   # worked.
-  x=`../ltl2tgba -f -Rm "!($f)" |
-     grep -v -- '->' |
-     sed -n 's/.*label="\(..*\)".*/\1/p' |
-     tr -d '0-9\n'`
-  case $x in
-  "") echo "wrongly minimized !($f)"; success=false;;
-  *) echo "OK !($f)";;
-  esac
+  ../ltl2tgba -kt -Rm "!($f)" > out1
+  ../ltl2tgba -kt -R3 "!($f)" > out2
+  if cmp out1 out2; then
+     echo "OK !($f)";
+  else
+     echo "wrongly minimized !($f)";
+     success=false;
+  fi
 done < non-obligations.txt
 
 $success
