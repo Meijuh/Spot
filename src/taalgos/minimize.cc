@@ -35,7 +35,7 @@
 #include "misc/bddlt.hh"
 #include "ta/tgtaexplicit.hh"
 #include "taalgos/statessetbuilder.hh"
-#include "tgba/tgbaexplicit.hh"
+#include "tgba/tgbagraph.hh"
 #include "tgba/bddprint.hh"
 
 namespace spot
@@ -74,7 +74,7 @@ namespace spot
     // automaton
     static void
     build_result(const ta* a, std::list<hash_set*>& sets,
-		 tgba_explicit_number* result_tgba, ta_explicit* result)
+		 tgba_digraph* result_tgba, ta_explicit* result)
     {
       // For each set, create a state in the tgbaulting automaton.
       // For a state s, state_num[s] is the number of the state in the minimal
@@ -88,6 +88,7 @@ namespace spot
 	  hash_set* h = *sit;
 	  for (hit = h->begin(); hit != h->end(); ++hit)
 	    state_num[*hit] = num;
+	  result_tgba->new_state();
 	  ++num;
 	}
 
@@ -102,7 +103,6 @@ namespace spot
 	  const state* src = *hit;
 	  unsigned src_num = state_num[src];
 
-	  state* tgba_state = result_tgba->add_state(src_num);
 	  bdd tgba_condition = bddtrue;
 	  bool is_initial_state = a->is_initial_state(src);
 	  if ((a->get_artificial_initial_state() == 0) && is_initial_state)
@@ -112,7 +112,7 @@ namespace spot
 	    a->is_livelock_accepting_state(src);
 
 	  state_ta_explicit* new_src =
-	    new state_ta_explicit(tgba_state,
+	    new state_ta_explicit(result_tgba->state_from_number(src_num),
 				  tgba_condition, is_initial_state,
 				  is_accepting_state,
 				  is_livelock_accepting_state);
@@ -143,7 +143,6 @@ namespace spot
 	      if (i == state_num.end()) // Ignore useless destinations.
 		continue;
 
-	      state* tgba_state = result_tgba->add_state(i->second);
 	      bdd tgba_condition = bddtrue;
 	      is_initial_state = a->is_initial_state(dst);
 	      if ((a->get_artificial_initial_state() == 0) && is_initial_state)
@@ -153,7 +152,7 @@ namespace spot
 		a->is_livelock_accepting_state(dst);
 
 	      state_ta_explicit* new_dst =
-		new state_ta_explicit(tgba_state,
+		new state_ta_explicit(result_tgba->state_from_number(i->second),
 				      tgba_condition, is_initial_state,
 				      is_accepting_state,
 				      is_livelock_accepting_state);
@@ -487,10 +486,9 @@ namespace spot
   minimize_ta(const ta* ta_)
   {
 
-    tgba_explicit_number* tgba = new tgba_explicit_number(ta_->get_dict());
-
-    ta_explicit* res = new ta_explicit(tgba, ta_->all_acceptance_conditions(),
-				       0, /* own_tgba = */ true);
+    auto tgba = new tgba_digraph(ta_->get_dict());
+    auto res = new ta_explicit(tgba, ta_->all_acceptance_conditions(),
+			       0, /* own_tgba = */ true);
 
     partition_t partition = build_partition(ta_);
 
@@ -509,11 +507,9 @@ namespace spot
   minimize_tgta(const tgta_explicit* tgta_)
   {
 
-    tgba_explicit_number* tgba = new tgba_explicit_number(tgta_->get_dict());
-
-    tgta_explicit* res = new tgta_explicit(tgba,
-					   tgta_->all_acceptance_conditions(),
-					   0, /* own_tgba = */ true);
+    auto tgba = new tgba_digraph(tgta_->get_dict());
+    auto res = new tgta_explicit(tgba, tgta_->all_acceptance_conditions(),
+				 0, /* own_tgba = */ true);
 
     const ta_explicit* ta = tgta_->get_ta();
 
