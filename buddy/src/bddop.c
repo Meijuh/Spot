@@ -917,7 +917,8 @@ int bdd_implies(BDD l, BDD r)
     return 0;
 
   entry = BddCache_lookup(&misccache, IMPLIESHASH(l,r));
-  if (entry->a == l &&  entry->b == r  && entry->c == CACHEID_IMPLIES)
+   // Check entry->b last, because not_rec() does not initialize it.
+  if (entry->a == l && entry->c == CACHEID_IMPLIES && entry->b == r)
    {
 #ifdef CACHESTATS
       bddcachestats.opHit++;
@@ -1758,7 +1759,7 @@ static BDD simplify_rec(BDD f, BDD d)
 
    entry = BddCache_lookup(&applycache, APPLYHASH(f,d,bddop_simplify));
 
-   // Check entry->c last, because not_rec() does not initialize it.
+   // Check entry->b last, because not_rec() does not initialize it.
    if (entry->a == f  &&  entry->c == bddop_simplify  &&  entry->b == d)
    {
 #ifdef CACHESTATS
