@@ -33,9 +33,10 @@
 #include "ltlvisit/tostring.hh"
 #include <cassert>
 #include <memory>
+#include <utility>
 #include "ltl2tgba_fm.hh"
 #include "tgba/bddprint.hh"
-#include "tgbaalgos/scc.hh"
+#include "tgbaalgos/sccinfo.hh"
 #include "tgba/tgbaexplicit.hh"
 //#include "tgbaalgos/dotty.hh"
 #include "priv/acccompl.hh"
@@ -110,20 +111,23 @@ namespace spot
 
     class ratexp_to_dfa
     {
+      typedef typename tgba_digraph::namer<const formula*,
+					   formula_ptr_hash>::type namer;
     public:
       ratexp_to_dfa(translate_dict& dict);
-      std::pair<tgba_explicit_formula*, const state*> succ(const formula* f);
-      const formula* get_label(const formula* f, const state* s) const;
+      std::tuple<const tgba_digraph*, const namer*, const state*>
+      succ(const formula* f);
       ~ratexp_to_dfa();
 
     protected:
-      tgba_explicit_formula* translate(const formula* f);
+      typedef std::pair<tgba_digraph*, const namer*> labelled_aut;
+      labelled_aut translate(const formula* f);
 
     private:
       translate_dict& dict_;
-      std::vector<tgba_explicit_formula*> automata_;
-      typedef std::unordered_map<const formula*, tgba_explicit_formula*,
+      typedef std::unordered_map<const formula*, labelled_aut,
 				 formula_ptr_hash> f2a_t;
+      std::vector<labelled_aut> automata_;
       f2a_t f2a_;
     };
 
@@ -972,23 +976,29 @@ namespace spot
     ratexp_to_dfa::~ratexp_to_dfa()
     {
       for (auto i: automata_)
-	delete i;
+	{
+	  delete i.first;
+	  for (auto n: i.second->names())
+	    n->destroy();
+	  delete i.second;
+	}
     }
 
-    tgba_explicit_formula*
+    ratexp_to_dfa::labelled_aut
     ratexp_to_dfa::translate(const formula* f)
     {
       assert(f->is_in_nenoform());
 
-      tgba_explicit_formula* a = new tgba_explicit_formula(dict_.dict);
+      auto a = new tgba_digraph(dict_.dict);
+      auto namer = a->create_namer<const formula*, formula_ptr_hash>();
 
       typedef std::set<const formula*, formula_ptr_less_than> set_type;
       set_type formulae_to_translate;
 
       f->clone();
       formulae_to_translate.insert(f);
-      a->set_init_state(f);
-
+      namer->new_state(f);
+      //a->set_init_state(f);
 
       while (!formulae_to_translate.empty())
 	{
@@ -1011,22 +1021,24 @@ namespace spot
 		dict_.bdd_to_sere(bdd_exist(res & label, dict_.var_set));
 
 	      f2a_t::const_iterator i = f2a_.find(dest);
-	      if (i != f2a_.end() && i->second == 0)
+	      if (i != f2a_.end() && i->second.first == nullptr)
 		{
 		  // This state is useless.  Ignore it.
 		  dest->destroy();
 		  continue;
 		}
 
-	      bool seen = a->has_state(dest);
-	      state_explicit_formula::transition* t =
-		a->create_transition(now, dest);
-	      t->condition = label;
-
-	      if (!seen)
-		formulae_to_translate.insert(dest);
+	      if (!namer->has_state(dest))
+		{
+		  formulae_to_translate.insert(dest);
+		  namer->new_state(dest);
+		}
 	      else
-		dest->destroy();
+		{
+		  dest->destroy();
+		}
+
+	      namer->new_transition(now, dest, label);
 	    }
 	}
 
@@ -1042,10 +1054,9 @@ namespace spot
       // eliminating SCCs that are not coaccessible.  It does not
       // actually remove the states, it simply marks the corresponding
       // formulae as associated to the null pointer in the f2a_ map.
-      // The method succ() and get_label() interpret this as False.
+      // The method succ() interprets this as False.
 
-      scc_map* sm = new scc_map(a);
-      sm->build_map();
+      scc_info* sm = new scc_info(a);
       unsigned scc_count = sm->scc_count();
       // Remember whether each SCC is coaccessible.
       std::vector<bool> coaccessible(scc_count);
@@ -1055,9 +1066,9 @@ namespace spot
 	  // The SCC is coaccessible if any of its states
 	  // is final (i.e., it accepts [*0])...
 	  bool coacc = false;
-	  const std::list<const state*>& st = sm->states_of(n);
+	  auto& st = sm->states_of(n);
 	  for (auto l: st)
-	    if (a->get_label(l)->accepts_eword())
+	    if (namer->get_name(l)->accepts_eword())
 	      {
 		coacc = true;
 		break;
@@ -1066,7 +1077,7 @@ namespace spot
 	    {
 	      // ... or if any of its successors is coaccessible.
 	      for (auto& i: sm->succ(n))
-		if (coaccessible[i.first])
+		if (coaccessible[i.dst])
 		  {
 		    coacc = true;
 		    break;
@@ -1076,65 +1087,57 @@ namespace spot
 	    {
 	      // Mark all formulas of this SCC as useless.
 	      for (auto f: st)
-		f2a_[a->get_label(f)] = nullptr;
+		f2a_.emplace(std::piecewise_construct,
+			     std::forward_as_tuple(namer->get_name(f)),
+			     std::forward_as_tuple(nullptr, nullptr));
 	    }
 	  else
 	    {
 	      for (auto f: st)
-		f2a_[a->get_label(f)] = a;
+		f2a_.emplace(std::piecewise_construct,
+			     std::forward_as_tuple(namer->get_name(f)),
+			     std::forward_as_tuple(a, namer));
 	    }
 	  coaccessible[n] = coacc;
 	}
       delete sm;
       if (coaccessible[scc_count - 1])
 	{
-	  automata_.push_back(a);
-	  return a;
+	  automata_.emplace_back(a, namer);
+	  return labelled_aut(a, namer);
 	}
       else
 	{
 	  delete a;
-	  return 0;
+	  for (auto n: namer->names())
+	    n->destroy();
+	  delete namer;
+	  return labelled_aut(nullptr, nullptr);
 	}
     }
 
     // FIXME: use the new tgba::succ() interface
-    std::pair<tgba_explicit_formula*, const state*>
+    std::tuple<const tgba_digraph*,
+	       const ratexp_to_dfa::namer*,
+	       const state*>
     ratexp_to_dfa::succ(const formula* f)
     {
       f2a_t::const_iterator it = f2a_.find(f);
-      tgba_explicit_formula* a;
+      labelled_aut a;
       if (it != f2a_.end())
 	a = it->second;
       else
 	a = translate(f);
 
-      // If a is nul, f has an empty language.
-      if (!a)
-	return {nullptr, nullptr};
+      // If a is null, f has an empty language.
+      if (!a.first)
+	return std::forward_as_tuple(nullptr, nullptr, nullptr);
 
-      assert(a->has_state(f));
-      // This won't create a new state.
-      return {a, a->add_state(f)};
+      auto namer = a.second;
+      assert(namer->has_state(f));
+      auto st = a.first->state_from_number(namer->get_state(f));
+      return std::forward_as_tuple(a.first, namer, st);
     }
-
-    const formula*
-    ratexp_to_dfa::get_label(const formula* f, const state* s) const
-    {
-      f2a_t::const_iterator it = f2a_.find(f);
-      assert(it != f2a_.end());
-      tgba_explicit_formula* a = it->second;
-      assert(a != 0);
-
-      const formula* f2 = a->get_label(s);
-      f2a_t::const_iterator it2 = f2a_.find(f2);
-      assert(it2 != f2a_.end());
-      if (it2->second == 0)
-	return constant::false_instance();
-
-      return f2->clone();
-    }
-
 
     // The rewrite rules used here are adapted from Jean-Michel
     // Couvreur's FM paper, augmented to support rational operators.
@@ -1328,22 +1331,25 @@ namespace spot
 	      const formula* f = node->child();
 	      auto p = dict_.transdfa.succ(f);
 	      res_ = bddfalse;
-	      if (!p.first)
+	      auto aut = std::get<0>(p);
+	      auto namer = std::get<1>(p);
+	      auto st = std::get<2>(p);
+	      if (!aut)
 		break;
-	      for (auto i: p.first->succ(p.second))
+	      for (auto i: aut->succ(st))
 		{
 		  bdd label = i->current_condition();
 		  state* s = i->current_state();
-		  const formula* dest = dict_.transdfa.get_label(f, s);
-		  s->destroy();
+		  const formula* dest =
+		    namer->get_name(aut->state_number(s));
 
 		  if (dest->accepts_eword())
 		    {
-		      dest->destroy();
 		      res_ |= label;
 		    }
 		  else
 		    {
+		      dest->clone();
 		      const formula* dest2 = unop::instance(op, dest);
 		      if (dest2 == constant::false_instance())
 			continue;
