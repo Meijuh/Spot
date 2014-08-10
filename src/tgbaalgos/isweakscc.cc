@@ -90,44 +90,6 @@ namespace spot
   }
 
   bool
-  is_syntactic_weak_scc(scc_map& map, unsigned scc)
-  {
-    const tgba_explicit_formula* aut =
-      dynamic_cast<const tgba_explicit_formula*>(map.get_aut());
-    if (!aut)
-      return false;
-
-    for (auto ss: map.states_of(scc))
-      {
-	const state_explicit_formula* s =
-	  down_cast<const state_explicit_formula*>(ss);
-	assert(s);
-	if (aut->get_label(s)->is_syntactic_persistence())
-	  return true;
-      }
-    return false;
-  }
-
-  bool
-  is_syntactic_terminal_scc(scc_map& map, unsigned scc)
-  {
-    const tgba_explicit_formula* aut =
-      dynamic_cast<const tgba_explicit_formula*>(map.get_aut());
-    if (!aut)
-      return false;
-
-    for (auto ss: map.states_of(scc))
-      {
-	const state_explicit_formula* s =
-	  down_cast<const state_explicit_formula*>(ss);
-	assert(s);
-	if (aut->get_label(s)->is_syntactic_guarantee())
-	  return true;
-      }
-    return false;
-  }
-
-  bool
   is_complete_scc(scc_map& map, unsigned scc)
   {
     const spot::tgba *a = map.get_aut();

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -65,28 +65,6 @@ namespace spot
   /// The scc_map \a map should have been built already.
   SPOT_API bool
   is_complete_scc(scc_map& map, unsigned scc);
-
-  /// \brief Whether the SCC number \a scc in \a map is syntactically
-  /// weak.
-  ///
-  /// This works only on tgba whose labels are formulas.  An SCC is
-  /// syntactically weak if one of its states is labeled by a
-  /// syntactic-persistence formula.
-  ///
-  /// The scc_map \a map should have been built already.
-  SPOT_API bool
-  is_syntactic_weak_scc(scc_map& map, unsigned scc);
-
-  /// \brief Whether the SCC number \a scc in \a map is syntactically
-  /// terminal.
-  ///
-  /// This works only on tgba whose labels are formulas.  An SCC is
-  /// syntactically terminal if one of its states is labeled by a
-  /// syntactic-guarantee formula.
-  ///
-  /// The scc_map \a map should have been built already.
-  SPOT_API bool
-  is_syntactic_terminal_scc(scc_map& map, unsigned scc);
 
   /// \brief Whether the SCC number \a scc in \a map is terminal.
   ///
