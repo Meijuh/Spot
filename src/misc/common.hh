@@ -95,4 +95,9 @@
 
 #define SPOT_UNIMPLEMENTED() throw std::runtime_error("unimplemented");
 
+
+// Useful when forwarding methods such as:
+//   auto func(int param) SPOT_RETURN(implem_.func(param));
+#define SPOT_RETURN(code) -> decltype(code) { return code; }
+
 #endif // SPOT_MISC_COMMON_HH

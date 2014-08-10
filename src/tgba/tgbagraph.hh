@@ -332,17 +332,20 @@ namespace spot
       return g_.new_transition(src, dst, cond, acc);
     }
 
-    internal::state_out<const graph_t>
-    out(unsigned src) const
-    {
-      return g_.out(src);
-    }
+    auto out(unsigned src) const
+      SPOT_RETURN(g_.out(src));
+    auto out(unsigned src)
+      SPOT_RETURN(g_.out(src));
 
-    internal::state_out<graph_t>
-    out(unsigned src)
-    {
-      return g_.out(src);
-    }
+    auto states() const
+      SPOT_RETURN(g_.states());
+    auto states()
+      SPOT_RETURN(g_.states());
+
+    auto transitions() const
+      SPOT_RETURN(g_.transitions());
+    auto transitions()
+      SPOT_RETURN(g_.transitions());
 
     /// \brief Copy the acceptance conditions of another tgba.
     void copy_acceptance_conditions_of(const tgba *a)
