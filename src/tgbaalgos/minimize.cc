@@ -223,22 +223,23 @@ namespace spot
       (void)reached;
 
       // Build an automaton representing this loop.
-      tgba_explicit_number loop_a(det_a->get_dict());
+      tgba_digraph loop_a(det_a->get_dict());
       tgba_run::steps::const_iterator i;
       int loop_size = loop.size();
+      loop_a.new_states(loop_size);
       int n;
       for (n = 1, i = loop.begin(); n < loop_size; ++n, ++i)
 	{
-	  loop_a.create_transition(n - 1, n)->condition = i->label;
+	  loop_a.new_transition(n - 1, n, i->label);
 	  i->s->destroy();
 	}
       assert(i != loop.end());
-      loop_a.create_transition(n - 1, 0)->condition = i->label;
+      loop_a.new_transition(n - 1, 0, i->label);
       i->s->destroy();
       assert(++i == loop.end());
 
+      loop_a.set_init_state(0U);
       const state* loop_a_init = loop_a.get_init_state();
-      assert(loop_a.get_label(loop_a_init) == 0);
 
       // Check if the loop is accepting in the original automaton.
       bool accepting = false;
@@ -250,7 +251,7 @@ namespace spot
 	{
 	  // Contrustruct a product between
 	  // LOOP_A, and ORIG_A starting in *IT.
-
+	  // FIXME: This could be sped up a lot!
 	  tgba* p = new tgba_product_init(&loop_a, orig_a, loop_a_init, it);
 	  emptiness_check* ec = couvreur99(p);
 	  emptiness_check_result* res = ec->check();
