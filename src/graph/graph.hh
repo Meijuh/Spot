@@ -588,6 +588,16 @@ namespace spot
       return states_;
     }
 
+    const trans_vector& transitions() const
+    {
+      return transitions_;
+    }
+
+    trans_vector& transitions()
+    {
+      return transitions_;
+    }
+
     void defrag()
     {
       if (killed_trans_ == 0)	// Nothing to do.
