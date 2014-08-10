@@ -18,111 +18,96 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "complete.hh"
-#include "reachiter.hh"
 #include "ltlast/constant.hh"
+#include "dupexp.hh"
 
 namespace spot
 {
-
-  namespace
+  unsigned tgba_complete_here(tgba_digraph* aut)
   {
-    class tgbacomplete_iter:
-      public tgba_reachable_iterator_depth_first_stack
-    {
-      bdd_dict* dict_;
-      tgba_explicit_number* out_;
-      bdd addacc_;
-
-      typedef state_explicit_number::transition trans;
-    public:
-      tgbacomplete_iter(const tgba* a)
-	: tgba_reachable_iterator_depth_first_stack(a),
-	  dict_(a->get_dict()),
-	  out_(new tgba_explicit_number(dict_)),
-	  addacc_(bddfalse)
+    unsigned n = aut->num_states();
+    unsigned sink = -1U;
+    bdd allacc = aut->all_acceptance_conditions();
+    if (allacc == bddfalse)
       {
-	dict_->register_all_variables_of(a, out_);
-
-	if (a->number_of_acceptance_conditions() == 0)
-	  {
-	    const ltl::formula* t = ltl::constant::true_instance();
-	    int accvar =
-	      dict_->register_acceptance_variable(t, out_);
-	    addacc_ = bdd_ithvar(accvar);
-	    out_->set_acceptance_conditions(addacc_);
-	  }
-	else
-	  {
-	    out_->set_acceptance_conditions(a->all_acceptance_conditions());
-	  }
+	// We cannot safely complete an automaton if it has no
+	// acceptance set as the added sink would become accepting.
+	// In this case, add an acceptance set to all transitions.
+	const ltl::formula* t = ltl::constant::true_instance();
+	int v = aut->get_dict()->register_acceptance_variable(t, aut);
+	allacc = bdd_ithvar(v);
+	aut->set_acceptance_conditions(allacc);
+	for (auto& t: aut->transitions())
+	  t.acc = allacc;
       }
-
-      tgba_explicit_number*
-      result()
+    else
       {
-	return out_;
-      }
-
-      void
-      end()
-      {
-	out_->merge_transitions();
-	// create a sink state if needed.
-	if (out_->has_state(0))
+	// If some acceptance sets were used, loop over the states and
+	// seek a state that has only self loops, and that is not
+	// accepting.  This will be our sink state.
+	for (unsigned i = 0; i < n; ++i)
 	  {
-	    trans* t = out_->create_transition(0, 0);
-	    t->condition = bddtrue;
+	    bool selfloop = true;
+	    bdd accsum = bddfalse;
+	    for (auto& t: aut->out(i))
+	      {
+		if (t.dst != i)	// Not a self-loop
+		  {
+		    selfloop = false;
+		    break;
+		  }
+		accsum |= t.acc;
+	      }
+	    if (selfloop && accsum != allacc) // We have found a sink!
+	      {
+		sink = i;
+		break;
+	      }
 	  }
       }
-
-      void process_state(const state*, int n,
-			 tgba_succ_iterator* i)
+    // If we haven't found any sink, simply add one.
+    if (sink == -1U)
       {
-	// add a transition to a sink state if the state is not complete.
-	bdd all = bddtrue;
+	sink = aut->new_state();
+	++n;
+      }
+
+    // Now complete all states (including the sink).
+    for (unsigned i = 0; i < n; ++i)
+      {
+	bdd missingcond = bddtrue;
 	bdd acc = bddfalse;
-	if (i->first())
+	for (auto& t: aut->out(i))
 	  {
-	    // In case the automaton use state-based acceptance, propagate
-	    // the acceptance of the first transition to the one we add.
-	    acc = i->current_acceptance_conditions();
-
-	    do
-	      all -= i->current_condition();
-	    while (i->next());
+	    missingcond -= t.cond;
+	    // FIXME: This is ugly.
+	    //
+	    // In case the automaton uses state-based acceptance, we
+	    // need to put the new transition in the same set as all
+	    // the other.
+	    //
+	    // In case the automaton uses transition-based acceptance,
+	    // it does not matter what acceptance set we put the new
+	    // transition into.
+	    //
+	    // So in both cases, we put the transition in the same
+	    // acceptance sets as the last outgoing transition of the
+	    // state.
+	    acc = t.acc;
 	  }
-	if (all != bddfalse)
-	  {
-	    trans* t = out_->create_transition(n, 0);
-	    t->condition = all;
-	    t->acceptance_conditions = acc | addacc_;
-	  }
+	// In case the automaton use state-based acceptance, propagate
+	// the acceptance of the first transition to the one we add.
+	if (missingcond != bddfalse)
+	  aut->new_transition(i, sink, missingcond, acc);
       }
-
-      void
-      process_link(const state*, int in,
-		   const state*, int out,
-		   const tgba_succ_iterator* si)
-      {
-	assert(in > 0);
-	assert(out > 0);
-	trans* t1 = out_->create_transition(in, out);
-
-	t1->condition = si->current_condition();
-	t1->acceptance_conditions =
-	  si->current_acceptance_conditions() | addacc_;
-      }
-
-    };
-
-  } // anonymous
-
-  tgba_explicit_number* tgba_complete(const tgba* aut)
-  {
-    tgbacomplete_iter ci(aut);
-    ci.run();
-    return ci.result();
+    return sink;
   }
+
+  tgba_digraph* tgba_complete(const tgba* aut)
+  {
+    tgba_digraph* res = tgba_dupexp_dfs(aut);
+    tgba_complete_here(res);
+    return res;
+  }
+
 }
-
-

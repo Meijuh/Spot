@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -20,13 +20,23 @@
 #ifndef SPOT_TGBAALGOS_COMPLETE_HH
 # define SPOT_TGBAALGOS_COMPLETE_HH
 
-#include "tgba/tgbaexplicit.hh"
+#include "tgba/tgbagraph.hh"
 
 namespace spot
 {
-  /// Complete a TGBA
-  SPOT_API tgba_explicit_number*
-  tgba_complete(const tgba* aut);
+  /// \brief Complete a tgba_digraph in place.
+  ///
+  /// If the tgba has no acceptance set, one will be added.  The
+  /// returned value is the number of the sink state (it can be a new
+  /// state added for completion, or an existing non-accepting state
+  /// that has been reused as sink state because it had not outgoing
+  /// transitions apart from self-loops.)
+  SPOT_API unsigned tgba_complete_here(tgba_digraph* aut);
+
+  /// \brief Clone a tgba and complete it.
+  ///
+  /// If the tgba has no acceptance set, one will be added.
+  SPOT_API tgba_digraph* tgba_complete(const tgba* aut);
 }
 
 #endif // SPOT_TGBAALGOS_COMPLETE_HH
