@@ -99,7 +99,7 @@ namespace spot
       return name_to_state.find(n) != name_to_state.end();
     }
 
-    state_to_name_t& names()
+    const state_to_name_t& names() const
     {
       return state_to_name;
     }
