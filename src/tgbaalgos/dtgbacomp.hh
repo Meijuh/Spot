@@ -20,7 +20,7 @@
 #ifndef SPOT_TGBAALGOS_DTGBACOMP_HH
 # define SPOT_TGBAALGOS_DTGBACOMP_HH
 
-#include "tgba/tgbaexplicit.hh"
+#include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -30,7 +30,7 @@ namespace spot
   /// to be complete.  Acceptance can be transition-based, or
   /// state-based.  The resulting automaton is very unlikely to be
   /// deterministic.
-  SPOT_API tgba_explicit_number*
+  SPOT_API tgba_digraph*
   dtgba_complement(const tgba* aut);
 }
 

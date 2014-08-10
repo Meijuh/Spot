@@ -19,124 +19,87 @@
 
 #include "dtgbacomp.hh"
 #include "ltlast/constant.hh"
-#include "reachiter.hh"
+#include "dupexp.hh"
 
 namespace spot
 {
-
-  namespace
+  tgba_digraph* dtgba_complement(const tgba* aut)
   {
-    class dtgbacomp_iter: public tgba_reachable_iterator_depth_first_stack
-    {
-      bdd orig_acc_;
-      bdd all_neg_;
-      bdd acc_;
-      bdd_dict* dict_;
-      tgba_explicit_number* out_;
-      int num_acc_;
+    // Clone the original automaton.
+    tgba_digraph* res = tgba_dupexp_dfs(aut);
 
-      typedef state_explicit_number::transition trans;
-    public:
-      dtgbacomp_iter(const tgba* a)
-	: tgba_reachable_iterator_depth_first_stack(a),
-	  dict_(a->get_dict()),
-	  out_(new tgba_explicit_number(dict_))
+    auto dict = res->get_dict();
+
+    bdd oldaccs = aut->all_acceptance_conditions();
+    bdd oldnegs = aut->neg_acceptance_conditions();
+
+    // We will modify res in place, and the resulting
+    // automaton will only have one acceptance set.
+    dict->unregister_all_typed_variables(bdd_dict::acc, res);
+    bdd theacc =
+      bdd_ithvar(dict->register_acceptance_variable
+		 (ltl::constant::true_instance(), res));
+    res->set_acceptance_conditions(theacc);
+
+    unsigned num_acc =  aut->number_of_acceptance_conditions();
+    unsigned n = res->num_states();
+    // We will duplicate the automaton as many times as we have
+    // acceptance sets, and we need one extra sink state.
+    res->new_states(num_acc * n + 1);
+    unsigned sink = res->num_states() - 1;
+    // The sink state has an accepting self-loop.
+    res->new_transition(sink, sink, bddtrue, theacc);
+
+    for (unsigned src = 0; src < n; ++src)
       {
-	dict_->register_all_variables_of(a, out_);
-	orig_acc_ = a->all_acceptance_conditions();
-	all_neg_ = a->neg_acceptance_conditions();
-	num_acc_ =  a->number_of_acceptance_conditions();
-
-	// Register one acceptance condition for the result.
-	int accvar = dict_->register_acceptance_variable
-	  (ltl::constant::true_instance(), out_);
-	acc_ = bdd_ithvar(accvar);
-	out_->set_acceptance_conditions(acc_);
-      }
-
-      tgba_explicit_number*
-      result()
-      {
-	return out_;
-      }
-
-      void
-      end()
-      {
-	out_->merge_transitions();
-	// create a sink state if needed.
-	if (out_->has_state(0))
+	// Keep track of all conditions on transition leaving state
+	// SRC, so we can complete it.
+	bdd missingcond = bddtrue;
+	for (auto& t: res->out(src))
 	  {
-	    trans* t = out_->create_transition(0, 0);
-	    t->condition = bddtrue;
-	    t->acceptance_conditions = acc_;
-	  }
-      }
+	    if (t.dst >= n)	// Ignore transition we added.
+	      break;
+	    missingcond -= t.cond;
+	    bdd curacc = t.acc;
+	    // The original transition must not accept anymore.
+	    t.acc = bddfalse;
+	    // Transition that were fully accepting are never cloned.
+	    if (curacc == oldaccs)
+	      continue;
+	    // Save t.cond and t.dst as the reference to t
+	    // is invalided by calls to new_transition().
+	    unsigned dst = t.dst;
+	    bdd cond = t.cond;
+	    // We want all acceptance bdd variable to appear in curacc.
+	    if (curacc == bddfalse)
+	      curacc = oldnegs;
 
-      void process_state(const state*, int n,
-			 tgba_succ_iterator* i)
-      {
-	// add a transition to a sink state if the state is not complete.
-	bdd all = bddtrue;
-	if (i->first())
-	  do
-	    all -= i->current_condition();
-	  while (i->next());
-	if (all != bddfalse)
-	  {
-	    trans* t = out_->create_transition(n, 0);
-	    t->condition = all;
-	  }
-      }
-
-      void
-      process_link(const state*, int in,
-		   const state*, int out,
-		   const tgba_succ_iterator* si)
-      {
-	assert(in > 0);
-	assert(out > 0);
-	bdd a = si->current_acceptance_conditions();
-
-	// Positive states represent a non-accepting copy of the
-	// original automaton.
-	trans* t1 = out_->create_transition(in, out);
-	t1->condition = si->current_condition();
-
-	// Negative states encode NUM_ACC_ copies of the automaton.
-	// In each copy transitions labeled by one of the acceptance
-	// set have been removed, and all the remaining transitions
-	// are now accepting.
-	// For each state S, we have NUM_ACC_ additional copies
-	// labeled S*-NUM_ACC, S*-NUM_ACC+1, ... S*-NUM_ACC+(NUM_ACC-1),
-	if (a != orig_acc_)
-	  {
-	    bool backlink = on_stack(out);
-	    int add = 0;
-	    if (a == bddfalse)
-	      a = all_neg_;
-	    // Iterate over all the acceptance conditions in 'a'.
-	    bdd ac = a;
-	    while (ac != bddtrue)
+	    // Iterate over all the acceptance conditions in 'curacc',
+	    // an duplicate it each each clone for which it does not
+	    // belong to the acceptance set.
+	    unsigned add = 0;
+	    while (curacc != bddtrue)
 	      {
-		bdd h = bdd_high(ac);
+		add += n;
+		bdd h = bdd_high(curacc);
 		if (h == bddfalse)
 		  {
-		    trans* t2 = out_->create_transition(in * -num_acc_ + add,
-							out * -num_acc_ + add);
-		    t2->condition = si->current_condition();
-		    t2->acceptance_conditions = acc_;
+		    // Clone the transition
+		    res->new_transition(src + add, dst + add, cond, theacc);
+		    assert(dst + add < sink);
+		    // Using `t' is disallowed from now on as it is a
+		    // reference to a transition that may have been
+		    // reallocated.
 
-		    if (backlink)
-		      {
-			// Since we are closing a cycle, add
-			// a non-deterministic transition from
-			// the original automaton to this copy.
-			trans* t3 =
-			  out_->create_transition(in, out * -num_acc_ + add);
-			t3->condition = si->current_condition();
-		      }
-		    ac = bdd_low(ac);
+		    // At least one transition per cycle should have a
+		    // nondeterministic copy from the original clone.
+		    // We use state numbers to select it, as any cycle
+		    // is guaranteed to have at least one transition
+		    // with dst <= src.  FIXME: Computing a feedback
+		    // arc set would be better.
+		    if (dst <= src)
+		      res->new_transition(src, dst + add, cond);
+		    curacc = bdd_low(curacc);
 		  }
 		else
 		  {
@@ -148,26 +111,21 @@ namespace spot
 		    // branch is false.  In that case we take the HIGH
 		    // branch to enumerate all the remaining negated
 		    // variables.
-		    bdd tmp = bdd_low(ac);
+		    bdd tmp = bdd_low(curacc);
 		    if (tmp != bddfalse)
-		      ac = tmp;
+		      curacc = tmp;
 		    else
-		      ac = h;
+		      curacc = h;
 		  }
-		++add;
 	      }
-	    assert(add == num_acc_);
+	    assert(add == num_acc * n);
 	  }
+	// Complete the original automaton.
+	if (missingcond != bddfalse)
+	  res->new_transition(src, sink, missingcond);
       }
-
-    };
-
-  } // anonymous
-
-  tgba_explicit_number* dtgba_complement(const tgba* aut)
-  {
-    dtgbacomp_iter dci(aut);
-    dci.run();
-    return dci.result();
+    res->merge_transitions();
+    // FIXME: Remove unreachable states.
+    return res;
   }
 }
