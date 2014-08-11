@@ -49,7 +49,7 @@ namespace spot
 
   // This function is defined in nra2nba.cc, and used only here.
   SPOT_LOCAL
-  tgba* nra_to_nba(const dstar_aut* nra, const tgba* aut);
+  tgba_digraph* nra_to_nba(const dstar_aut* nra, const tgba* aut);
 
   namespace
   {
@@ -320,7 +320,7 @@ namespace spot
   }
 
 
-  tgba* dra_to_ba(const dstar_aut* dra, bool* dba)
+  tgba_digraph* dra_to_ba(const dstar_aut* dra, bool* dba)
   {
     assert(dra->type == Rabin);
 

@@ -378,13 +378,22 @@ namespace std {
 %inline %{
 
 // A variant of minimize_obligation() that always return a new object.
-const spot::tgba*
+const spot::tgba_digraph*
 minimize_obligation_new(const spot::tgba* a, const spot::ltl::formula* f)
 {
-  const tgba* res = spot::minimize_obligation(a, f);
+  auto aa = dynamic_cast<const spot::tgba_digraph*>(a);
+  bool freeit = false;
+  if (!aa)
+    {
+      freeit = true;
+      aa = tgba_dupexp_dfs(a);
+    }
+  auto res = spot::minimize_obligation(aa, f);
   // Return 0 if the output is the same as the input, otherwise
   // it is hard for swig to know if the output is "new" or not.
-  if (res == a)
+  if (freeit)
+    delete aa;
+  if (res == aa)
     return 0;
   else
     return res;

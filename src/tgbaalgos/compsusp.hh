@@ -21,6 +21,7 @@
 # define SPOT_TGBAALGOS_COMPSUSP_HH
 
 #include "ltlast/formula.hh"
+#include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -49,7 +50,7 @@ namespace spot
   /// This interface is subject to change, and clients aiming for
   /// long-term stability should better use the services of the
   /// spot::translator class instead.
-  SPOT_API tgba*
+  SPOT_API tgba_digraph*
   compsusp(const ltl::formula* f, bdd_dict* dict,
 	   bool no_wdba = false, bool no_simulation = false,
 	   bool early_susp = false, bool no_susp_product = false,

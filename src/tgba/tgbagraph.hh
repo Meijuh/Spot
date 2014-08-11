@@ -411,6 +411,48 @@ namespace spot
 	}
       g_.defrag();
     }
+
+
+  protected:
+    unsigned bprops_ = 0;
+
+  public:
+    enum bprop {
+      StateBasedAcc = 1,
+      SingleAccSet = 2,
+      SBA = StateBasedAcc | SingleAccSet,
+    };
+
+    bool get_bprop(bprop p) const
+    {
+      return (bprops_ & p) == p;
+    }
+
+    void set_bprop(bprop p)
+    {
+      bprops_ |= p;
+    }
+
+    void clear_bprop(bprop p)
+    {
+      bprops_ &= ~p;
+    }
+
+    bool state_is_accepting(unsigned s) const
+    {
+      assert(get_bprop(StateBasedAcc));
+      for (auto& t: g_.out(s))
+	// Stop at the first transition, since the remaining should be
+	// labeled identically.
+	return t.acc == all_acceptance_conditions_;
+      return false;
+    }
+
+    bool state_is_accepting(const state* s) const
+    {
+      return state_is_accepting(state_number(s));
+    }
+
   };
 
 }

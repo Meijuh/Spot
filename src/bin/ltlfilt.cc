@@ -548,8 +548,8 @@ namespace
       // other reasons.
       if (matched && obligation)
 	{
-	  spot::tgba* aut = ltl_to_tgba_fm(f, simpl.get_dict());
-	  spot::tgba* min = minimize_obligation(aut, f);
+	  auto aut = ltl_to_tgba_fm(f, simpl.get_dict());
+	  auto min = minimize_obligation(aut, f);
 	  assert(min);
 	  if (aut == min)
 	    {

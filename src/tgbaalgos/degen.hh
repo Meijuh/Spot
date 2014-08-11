@@ -20,13 +20,10 @@
 #ifndef SPOT_TGBAALGOS_DEGEN_HH
 # define SPOT_TGBAALGOS_DEGEN_HH
 
-# include "misc/common.hh"
+# include "tgba/tgbagraph.hh"
 
 namespace spot
 {
-  class sba;
-  class tgba;
-
   /// \ingroup tgba_misc
   /// \brief Degeneralize a spot::tgba into an equivalent sba with
   /// only one acceptance condition.
@@ -52,7 +49,7 @@ namespace spot
   /// \a a to be computed prior to its actual degeneralization.
   ///
   /// \see tgba_sba_proxy, tgba_tba_proxy
-  SPOT_API sba*
+  SPOT_API tgba_digraph*
   degeneralize(const tgba* a, bool use_z_lvl = true,
 	       bool use_cust_acc_orders = false,
 	       int use_lvl_cache = 1,

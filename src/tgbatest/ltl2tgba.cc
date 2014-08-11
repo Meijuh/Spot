@@ -1003,7 +1003,6 @@ main(int argc, char** argv)
 
       if (from_file)
 	{
-	  spot::tgba_explicit_string* e = 0;
 	  switch (readformat)
 	    {
 	    case ReadSpot:
@@ -1113,9 +1112,6 @@ main(int argc, char** argv)
 	      }
 	      break;
 	    }
-	  if (e)
-	    e->merge_transitions();
-
 	}
       else
 	{
@@ -1204,19 +1200,36 @@ main(int argc, char** argv)
       const spot::tgba* aut_scc = 0;
       if (scc_filter)
 	{
+	  auto aa = dynamic_cast<const spot::tgba_digraph*>(a);
+	  bool freeit = false;
+	  if (!aa)
+	    {
+	      freeit = true;
+	      aa = tgba_dupexp_dfs(a);
+	    }
+	  assert(aa);
 	  tm.start("SCC-filter");
-	  aut_scc = a = spot::scc_filter(a, scc_filter_all);
+	  aut_scc = a = spot::scc_filter(aa, scc_filter_all);
 	  tm.stop("SCC-filter");
 	  assume_sba = false;
+	  if (freeit)
+	    delete aa;
 	}
 
       const spot::tgba* degeneralized = 0;
 
-      spot::tgba* minimized = 0;
+      spot::tgba_digraph* minimized = 0;
       if (opt_minimize)
 	{
 	  tm.start("obligation minimization");
-	  minimized = minimize_obligation(a, f, 0, reject_bigger);
+	  auto aa = dynamic_cast<const spot::tgba_digraph*>(a);
+	  bool freeit = false;
+	  if (!aa)
+	    {
+	      freeit = true;
+	      aa = tgba_dupexp_dfs(a);
+	    }
+	  minimized = minimize_obligation(aa, f, 0, reject_bigger);
 	  tm.stop("obligation minimization");
 
 	  if (minimized == 0)
@@ -1229,7 +1242,7 @@ main(int argc, char** argv)
 		  exit(2);
 		}
 	    }
-	  else if (minimized == a)
+	  else if (minimized == aa)
 	    {
 	      minimized = 0;
 	    }
@@ -1244,6 +1257,8 @@ main(int argc, char** argv)
               reduction_iterated_sim = false;
 	      assume_sba = true;
 	    }
+	  if (freeit)
+	    delete aa;
 	}
 
       if (reduction_dir_sim && !reduction_iterated_sim)
@@ -1302,8 +1317,10 @@ main(int argc, char** argv)
 
 	  if (scc_filter)
 	    {
+	      auto aa = down_cast<const spot::tgba_digraph*>(a);
+	      assert(aa);
 	      tm.start("SCC-filter on don't care");
-	      a = spot::scc_filter(a, true);
+	      a = spot::scc_filter(aa, true);
 	      delete temp_dont_care_sim;
 	      temp_dont_care_sim = a;
 	      tm.stop("SCC-filter on don't care");
@@ -1438,8 +1455,10 @@ main(int argc, char** argv)
 	    {
 	      tm.start("SCC-filter post-sim");
 	      delete aut_scc;
+	      auto aa = down_cast<const spot::tgba_digraph*>(a);
+	      assert(aa);
 	      // Do not filter_all for SBA
-	      aut_scc = a = spot::scc_filter(a, assume_sba ?
+	      aut_scc = a = spot::scc_filter(aa, assume_sba ?
 					     false : scc_filter_all);
 	      tm.stop("SCC-filter post-sim");
 	    }
@@ -1448,7 +1467,7 @@ main(int argc, char** argv)
       if (opt_monitor)
 	{
 	  tm.start("Monitor minimization");
-	  minimized = a = minimize_monitor(a);
+	  a = minimized = minimize_monitor(a);
 	  tm.stop("Monitor minimization");
 	  assume_sba = false; 	// All states are accepting, so double
 				// circles in the dot output are
@@ -1610,16 +1629,6 @@ main(int argc, char** argv)
       if (show_fc)
 	{
 	  a = new spot::future_conditions_collector(a, true);
-	}
-
-      if (utf8_opt)
-	{
-	  if (spot::tgba_explicit_formula* tef =
-	      dynamic_cast<spot::tgba_explicit_formula*>(a))
-	    tef->enable_utf8();
-	  else if (spot::sba_explicit_formula* sef =
-		   dynamic_cast<spot::sba_explicit_formula*>(a))
-	    sef->enable_utf8();
 	}
 
       if (output != -1)

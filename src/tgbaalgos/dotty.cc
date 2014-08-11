@@ -28,7 +28,7 @@
 #include "tgba/bddprint.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
-#include "tgba/tgbatba.hh"
+#include "tgba/tgbagraph.hh"
 #include "tgba/formula2bdd.hh"
 
 namespace spot
@@ -130,6 +130,9 @@ namespace spot
   {
     if (!dd)
       dd = dotty_decorator::instance();
+    if (const tgba_digraph* gd = dynamic_cast<const tgba_digraph*>(g))
+      assume_sba |= gd->get_bprop(tgba_digraph::StateBasedAcc);
+
     dotty_bfs d(os, g, assume_sba, dd);
     d.run();
     return os;

@@ -75,7 +75,7 @@ namespace spot
       }
   }
 
-  const tgba* postprocessor::do_simul(const tgba* a, int opt)
+  const tgba_digraph* postprocessor::do_simul(const tgba_digraph* a, int opt)
   {
     switch (opt)
       {
@@ -95,7 +95,8 @@ namespace spot
       }
   }
 
-  const tgba* postprocessor::do_ba_simul(const tgba* a, int opt)
+  const tgba_digraph* postprocessor::do_ba_simul(const tgba_digraph* a,
+						 int opt)
   {
     switch (opt)
       {
@@ -112,18 +113,16 @@ namespace spot
   }
 
 
-  const tgba* postprocessor::do_degen(const tgba* a)
+  const tgba_digraph* postprocessor::do_degen(const tgba_digraph* a)
   {
-    const tgba* d = degeneralize(a,
-				 degen_reset_,
-				 degen_order_,
-				 degen_cache_,
-				 degen_lskip_);
+    auto d = degeneralize(a,
+			  degen_reset_, degen_order_,
+			  degen_cache_, degen_lskip_);
     delete a;
     if (ba_simul_ <= 0)
       return d;
 
-    const tgba* s = do_ba_simul(d, ba_simul_);
+    auto s = do_ba_simul(d, ba_simul_);
     if (s != d)
       delete d;
 
@@ -133,7 +132,8 @@ namespace spot
 #define PREF_ (pref_ & (Small | Deterministic))
 #define COMP_ (pref_ & Complete)
 
-  const tgba* postprocessor::run(const tgba* a, const ltl::formula* f)
+  const tgba_digraph*
+  postprocessor::run(const tgba_digraph* a, const ltl::formula* f)
   {
     if (type_ == TGBA && PREF_ == Any && level_ == Low)
       return a;
@@ -154,13 +154,13 @@ namespace spot
       {
 	// Do not bother about acceptance conditions, they will be
 	// ignored.
-	const tgba* s = scc_filter_states(a);
+	auto s = scc_filter_states(a);
 	delete a;
 	a = s;
       }
     else if (scc_filter_ > 0)
       {
-	const tgba* s = scc_filter(a, scc_filter_ > 1);
+	auto s = scc_filter(a, scc_filter_ > 1);
 	delete a;
 	a = s;
       }
@@ -169,20 +169,18 @@ namespace spot
       {
 	if (PREF_ == Deterministic)
 	  {
-	    const tgba* m = minimize_monitor(a);
+	    auto m = minimize_monitor(a);
 	    delete a;
 	    return m;
 	  }
 	else
 	  {
-	    const tgba* m = strip_acceptance(a);
-	    delete a;
-	    a = m;
+	    strip_acceptance_here(const_cast<tgba_digraph*>(a));
 	  }
 	if (PREF_ == Any)
 	  return a;
 
-	const tgba* sim = do_simul(a, simul_);
+	auto sim = do_simul(a, simul_);
 	if (a == sim)
 	  // simulation was disabled.
 	  return a;
@@ -193,9 +191,9 @@ namespace spot
 	  }
 	// For Small,High we return the smallest between the output of
 	// the simulation, and that of the deterministic minimization.
-	const tgba* m = minimize_monitor(a);
+	auto m = minimize_monitor(a);
 	delete a;
-	if (count_states(m) > count_states(sim))
+	if (m->num_states() > sim->num_states())
 	  {
 	    delete m;
 	  }
@@ -206,7 +204,7 @@ namespace spot
 	  }
 	if (COMP_ == Complete)
 	  {
-	    const tgba* s = tgba_complete(sim);
+	    auto s = tgba_complete(sim);
 	    delete sim;
 	    sim = s;
 	  }
@@ -222,8 +220,8 @@ namespace spot
 
     bool dba_is_wdba = false;
     bool dba_is_minimal = false;
-    const tgba* dba = 0;
-    const tgba* sim = 0;
+    const tgba_digraph* dba = 0;
+    const tgba_digraph* sim = 0;
 
     // (Small,Low) is the only configuration where we do not run
     // WDBA-minimization.
@@ -231,7 +229,7 @@ namespace spot
       {
 	bool reject_bigger = (PREF_ == Small) && (level_ == Medium);
 	dba = minimize_obligation(a, f, 0, reject_bigger);
-	if (dba == a)	// Minimization failed.
+	if (dba == a || dba == 0) // Minimization failed.
 	  dba = 0;
 	else
 	  dba_is_minimal = dba_is_wdba = true;
@@ -243,7 +241,6 @@ namespace spot
     if (!dba || (level_ == High && PREF_ == Small))
       {
 	sim = do_simul(a, simul_);
-
 	if (sim != a)
 	  delete a;
 
@@ -363,8 +360,8 @@ namespace spot
 	    in = dba;
 	  }
 
-	const tgba* cmp = tgba_complete(in);
-	const tgba* res = 0;
+	const tgba_digraph* cmp = tgba_complete(in);
+	const tgba_digraph* res = 0;
 	if (target_acc == 1)
 	  {
 	    if (sat_states_ != -1)
@@ -408,14 +405,14 @@ namespace spot
 	&& !(dba_is_minimal && state_based_
 	     && dba->number_of_acceptance_conditions() == 1))
       {
-	const tgba* d = degeneralize(dba);
+	auto d = degeneralize(dba);
 	delete dba;
 	dba = d;
       }
 
     if (dba && sim)
       {
-	if (count_states(dba) > count_states(sim))
+	if (dba->num_states() > sim->num_states())
 	  {
 	    delete dba;
 	    dba = 0;
@@ -432,14 +429,14 @@ namespace spot
       {
 	if (dba && !dba_is_minimal) // WDBA is already clean.
 	  {
-	    const tgba* s = scc_filter(dba, true);
+	    auto s = scc_filter(dba, true);
 	    delete dba;
 	    assert(!sim);
 	    dba = s;
 	  }
 	else if (sim)
 	  {
-	    const tgba* s = scc_filter(sim, true);
+	    auto s = scc_filter(sim, true);
 	    delete sim;
 	    assert(!dba);
 	    sim = s;
@@ -450,7 +447,7 @@ namespace spot
 
     if (COMP_ == Complete)
       {
-	const tgba* s = tgba_complete(sim);
+	auto s = tgba_complete(sim);
 	delete sim;
 	sim = s;
       }

@@ -21,7 +21,7 @@
 
 namespace spot
 {
-  tgba*
+  tgba_digraph*
   dstar_to_tgba(const dstar_aut* daut)
   {
     switch (daut->type)

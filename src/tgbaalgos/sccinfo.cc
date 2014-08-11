@@ -76,13 +76,14 @@ namespace spot
 
 
     // Setup depth-first search from the initial state.
-    {
-      unsigned init = aut->get_init_state_number();
-      num_ = -1;
-      h_[init] = num_;
-      root_.emplace_front(num_, bddfalse, bddfalse);
-      todo_.emplace(init, aut->out(init).begin());
-    }
+    if (n > 0)
+      {
+	unsigned init = aut->get_init_state_number();
+	num_ = -1;
+	h_[init] = num_;
+	root_.emplace_front(num_, bddfalse, bddfalse);
+	todo_.emplace(init, aut->out(init).begin());
+      }
 
     while (!todo_.empty())
       {
@@ -237,7 +238,7 @@ namespace spot
     for (unsigned src = 0; src < n; ++src)
       {
 	unsigned src_scc = scc_of(src);
-	if (!is_accepting_scc(src_scc))
+	if (src_scc == -1U || !is_accepting_scc(src_scc))
 	  continue;
 	for (auto& t: aut_->out(src))
 	  {

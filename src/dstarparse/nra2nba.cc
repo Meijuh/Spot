@@ -122,7 +122,7 @@ namespace spot
   // In dra_to_dba() we call this function with a second argument
   // that is a masked version of nra->aut.
   SPOT_LOCAL
-  tgba* nra_to_nba(const dstar_aut* nra, const tgba* aut)
+  tgba_digraph* nra_to_nba(const dstar_aut* nra, const tgba* aut)
   {
     assert(nra->type == Rabin);
     nra_to_nba_worker w(nra, aut);
@@ -134,7 +134,7 @@ namespace spot
   }
 
   SPOT_API
-  tgba* nra_to_nba(const dstar_aut* nra)
+  tgba_digraph* nra_to_nba(const dstar_aut* nra)
   {
     return nra_to_nba(nra, nra->aut);
   }

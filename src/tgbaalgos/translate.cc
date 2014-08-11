@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -61,7 +61,7 @@ namespace spot
     simpl_owned_ = simpl_ = new ltl::ltl_simplifier(options, dict);
   }
 
-  const tgba* translator::run(const ltl::formula** f)
+  const tgba_digraph* translator::run(const ltl::formula** f)
   {
     const ltl::formula* r = simpl_->simplify(*f);
     (*f)->destroy();
@@ -71,7 +71,7 @@ namespace spot
     // natural way (improving the degeneralization).
     simpl_->clear_as_bdd_cache();
 
-    const tgba* aut;
+    const tgba_digraph* aut;
     if (comp_susp_ > 0)
       {
 	int skel_wdba = skel_wdba_;
@@ -91,10 +91,10 @@ namespace spot
     return aut;
   }
 
-  const tgba* translator::run(const ltl::formula* f)
+  const tgba_digraph* translator::run(const ltl::formula* f)
   {
     f->clone();
-    const tgba* aut = run(&f);
+    auto aut = run(&f);
     f->destroy();
     return aut;
   }

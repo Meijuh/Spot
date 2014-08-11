@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -22,42 +22,13 @@
 
 namespace spot
 {
-  namespace
+  void strip_acceptance_here(tgba_digraph* a)
   {
-    class strip_iter: public tgba_reachable_iterator_depth_first
-    {
-    public:
-      strip_iter(const tgba* a)
-	: tgba_reachable_iterator_depth_first(a),
-	  out_(new sba_explicit_number(a->get_dict()))
-      {
-      }
-
-      sba_explicit_number*
-      result()
-      {
-	return out_;
-      }
-
-      void
-      process_link(const state*, int in,
-		   const state*, int out,
-		   const tgba_succ_iterator* si)
-      {
-	state_explicit_number::transition* t = out_->create_transition(in, out);
-	out_->add_conditions(t, si->current_condition());
-      }
-
-    private:
-      sba_explicit_number* out_;
-    };
-  }
-
-  sba_explicit_number*
-  strip_acceptance(const tgba* a)
-  {
-    strip_iter si(a);
-    si.run();
-    return si.result();
+    unsigned n = a->num_states();
+    for (unsigned s = 0; s < n; ++s)
+      for (auto& t: a->out(s))
+	t.acc = bddfalse;
+    a->set_acceptance_conditions(bddfalse);
+    a->get_dict()->unregister_all_typed_variables(bdd_dict::acc, a);
   }
 }

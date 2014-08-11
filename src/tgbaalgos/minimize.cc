@@ -48,7 +48,6 @@
 #include "tgbaalgos/bfssteps.hh"
 #include "tgbaalgos/isdet.hh"
 #include "tgbaalgos/dtgbacomp.hh"
-#include "priv/countstates.hh"
 
 namespace spot
 {
@@ -115,30 +114,43 @@ namespace spot
 
   // From the base automaton and the list of sets, build the minimal
   // resulting automaton
-  sba_explicit_number* build_result(const tgba* a,
-                                     std::list<hash_set*>& sets,
-                                     hash_set* final)
+  tgba_digraph* build_result(const tgba* a,
+			     std::list<hash_set*>& sets,
+			     hash_set* final)
   {
+    auto dict = a->get_dict();
+    auto res = new tgba_digraph(dict);
+    dict->register_all_variables_of(a, res);
+    dict->unregister_all_typed_variables(bdd_dict::acc, res);
+    res->set_bprop(tgba_digraph::StateBasedAcc);
+
     // For each set, create a state in the resulting automaton.
     // For a state s, state_num[s] is the number of the state in the minimal
     // automaton.
     hash_map state_num;
     std::list<hash_set*>::iterator sit;
-    unsigned num = 0;
     for (sit = sets.begin(); sit != sets.end(); ++sit)
       {
 	hash_set::iterator hit;
 	hash_set* h = *sit;
+	unsigned num = res->new_state();
 	for (hit = h->begin(); hit != h->end(); ++hit)
 	  state_num[*hit] = num;
-	++num;
       }
-    typedef state_explicit_number::transition trs;
-    sba_explicit_number* res = new sba_explicit_number(a->get_dict());
+
     // For each transition in the initial automaton, add the corresponding
     // transition in res.
+    bdd allacc = bddfalse;
     if (!final->empty())
-      res->declare_acceptance_condition(ltl::constant::true_instance());
+      {
+	res->set_bprop(tgba_digraph::SingleAccSet);
+	int accvar =
+	  dict->register_acceptance_variable(ltl::constant::true_instance(),
+					     res);
+	allacc = bdd_ithvar(accvar);
+	res->set_acceptance_conditions(allacc);
+      }
+
     for (sit = sets.begin(); sit != sets.end(); ++sit)
       {
 	hash_set::iterator hit;
@@ -157,17 +169,21 @@ namespace spot
 	    dst->destroy();
 	    if (i == state_num.end()) // Ignore useless destinations.
 	      continue;
-	    trs* t = res->create_transition(src_num, i->second);
-	    res->add_conditions(t, succit->current_condition());
+	    bdd acc = bddfalse;
 	    if (accepting)
-	      res->add_acceptance_condition(t, ltl::constant::true_instance());
+	      acc = allacc;
+	    res->new_transition(src_num, i->second,
+				succit->current_condition(), acc);
 	  }
       }
     res->merge_transitions();
-    const state* init_state = a->get_init_state();
-    unsigned init_num = state_num[init_state];
-    init_state->destroy();
-    res->set_init_state(init_num);
+    if (res->num_states() > 0)
+      {
+	const state* init_state = a->get_init_state();
+	unsigned init_num = state_num[init_state];
+	init_state->destroy();
+	res->set_init_state(init_num);
+      }
     return res;
   }
 
@@ -212,6 +228,7 @@ namespace spot
     wdba_scc_is_accepting(const tgba_digraph* det_a, unsigned scc_n,
 			  const tgba* orig_a, scc_map& sm, power_map& pm)
     {
+
       // Get some state from the SCC #n.
       const state* start = sm.one_state_of(scc_n)->clone();
 
@@ -272,8 +289,8 @@ namespace spot
 
   }
 
-  sba_explicit_number* minimize_dfa(const tgba_digraph* det_a,
-				    hash_set* final, hash_set* non_final)
+  tgba_digraph* minimize_dfa(const tgba_digraph* det_a,
+			     hash_set* final, hash_set* non_final)
   {
     typedef std::list<hash_set*> partition_t;
     partition_t cur_run;
@@ -460,7 +477,7 @@ namespace spot
 #endif
 
     // Build the result.
-    sba_explicit_number* res = build_result(det_a, done, final_copy);
+    auto* res = build_result(det_a, done, final_copy);
 
     // Free all the allocated memory.
     delete final_copy;
@@ -479,7 +496,7 @@ namespace spot
   }
 
 
-  sba_explicit_number* minimize_monitor(const tgba* a)
+  tgba_digraph* minimize_monitor(const tgba* a)
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
@@ -497,7 +514,7 @@ namespace spot
     return minimize_dfa(det_a, final, non_final);
   }
 
-  sba_explicit_number* minimize_wdba(const tgba* a)
+  tgba_digraph* minimize_wdba(const tgba* a)
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
@@ -596,21 +613,21 @@ namespace spot
     return minimize_dfa(det_a, final, non_final);
   }
 
-  tgba*
-  minimize_obligation(const tgba* aut_f,
+  tgba_digraph*
+  minimize_obligation(const tgba_digraph* aut_f,
 		      const ltl::formula* f, const tgba* aut_neg_f,
 		      bool reject_bigger)
   {
-    sba_explicit_number* min_aut_f = minimize_wdba(aut_f);
+    auto min_aut_f = minimize_wdba(aut_f);
 
     if (reject_bigger)
       {
 	// Abort if min_aut_f has more states than aut_f.
-	unsigned orig_states = count_states(aut_f);
+	unsigned orig_states = aut_f->num_states();
 	if (orig_states < min_aut_f->num_states())
 	  {
 	    delete min_aut_f;
-	    return const_cast<tgba*>(aut_f);
+	    return const_cast<tgba_digraph*>(aut_f);
 	  }
       }
 
@@ -653,7 +670,7 @@ namespace spot
 	  {
 	    // Otherwise, we cannot check if the minimization is safe.
 	    delete min_aut_f;
-	    return 0;
+	    return nullptr;
 	  }
       }
 
@@ -705,6 +722,6 @@ namespace spot
     if (ok)
       return min_aut_f;
     delete min_aut_f;
-    return const_cast<tgba*>(aut_f);
+    return const_cast<tgba_digraph*>(aut_f);
   }
 }

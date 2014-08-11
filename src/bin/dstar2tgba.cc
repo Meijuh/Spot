@@ -307,8 +307,8 @@ namespace
 
       const xtime_t before = gethrxtime();
 
-      spot::tgba* nba = spot::dstar_to_tgba(daut);
-      const spot::tgba* aut = post.run(nba, 0);
+      auto nba = spot::dstar_to_tgba(daut);
+      auto aut = post.run(nba, 0);
 
       const xtime_t after = gethrxtime();
       const double prec = XTIME_PRECISION;

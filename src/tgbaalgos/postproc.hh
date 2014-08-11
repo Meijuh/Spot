@@ -20,7 +20,7 @@
 #ifndef SPOT_TGBAALGOS_POSTPROC_HH
 # define SPOT_TGBAALGOS_POSTPROC_HH
 
-#include "tgba/tgba.hh"
+#include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -97,12 +97,13 @@ namespace spot
     }
 
     /// Return the optimized automaton and delete \a input_disown.
-    const tgba* run(const tgba* input_disown, const ltl::formula* f);
+    const tgba_digraph* run(const tgba_digraph* input_disown,
+			    const ltl::formula* f);
 
   protected:
-    const tgba* do_simul(const tgba* input, int opt);
-    const tgba* do_ba_simul(const tgba* input, int opt);
-    const tgba* do_degen(const tgba* input);
+    const tgba_digraph* do_simul(const tgba_digraph* input, int opt);
+    const tgba_digraph* do_ba_simul(const tgba_digraph* input, int opt);
+    const tgba_digraph* do_degen(const tgba_digraph* input);
 
     output_type type_;
     int pref_;

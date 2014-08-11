@@ -20,8 +20,8 @@
 #include "tgba/tgbaexplicit.hh"
 #include "sccfilter.hh"
 #include "reachiter.hh"
-#include "tgbaalgos/scc.hh"
-#include "tgbaalgos/sccinfo.hh"
+#include "scc.hh"
+#include "sccinfo.hh"
 
 namespace spot
 {
@@ -903,7 +903,8 @@ namespace spot
 
 	if (keep && acc != bddfalse)
 	  {
-	    unsigned u = this->si->scc_of(src);
+	    unsigned u = this->si->scc_of(dst);
+
 	    auto i = remap_[u].find(acc.id());
 	    if (i != remap_[u].end())
 	      acc = i->second;
@@ -920,6 +921,12 @@ namespace spot
     tgba_digraph* scc_filter_apply(const tgba_digraph* aut,
 				   scc_info* given_si, Args&&... args)
     {
+      bdd_dict* bd = aut->get_dict();
+      tgba_digraph* filtered = new tgba_digraph(bd);
+      unsigned in_n = aut->num_states(); // Number of input states.
+      if (in_n == 0)			 // Nothing to filter.
+	return filtered;
+
       // Compute scc_info if not supplied.
       scc_info* si = given_si;
       if (!si)
@@ -928,7 +935,6 @@ namespace spot
       F filter(si, std::forward<Args>(args)...);
 
       // Renumber all useful states.
-      unsigned in_n = aut->num_states(); // Number of input states.
       unsigned out_n = 0;		 // Number of output states.
       std::vector<unsigned> inout; // Associate old states to new ones.
       inout.reserve(in_n);
@@ -938,8 +944,6 @@ namespace spot
 	else
 	  inout.push_back(-1U);
 
-      bdd_dict* bd = aut->get_dict();
-      tgba_digraph* filtered = new tgba_digraph(bd);
       bd->register_all_variables_of(aut, filtered);
       {
 	bdd all = aut->all_acceptance_conditions();
@@ -989,14 +993,17 @@ namespace spot
   scc_filter(const tgba_digraph* aut, bool remove_all_useless,
 	     scc_info* given_si)
   {
+    tgba_digraph* res;
     if (remove_all_useless)
-      return scc_filter_apply<state_filter
-			      <acc_filter_all
-			       <acc_filter_simplify<>>>>(aut, given_si);
+      res = scc_filter_apply<state_filter
+			     <acc_filter_all
+			      <acc_filter_simplify<>>>>(aut, given_si);
     else
-      return scc_filter_apply<state_filter
-			      <acc_filter_some
-			       <acc_filter_simplify<>>>>(aut, given_si);
+      res = scc_filter_apply<state_filter
+			     <acc_filter_some
+			      <acc_filter_simplify<>>>>(aut, given_si);
+    res->merge_transitions();
+    return res;
   }
 
   tgba_digraph*
@@ -1004,22 +1011,25 @@ namespace spot
 		  bdd suspvars, bdd ignoredvars, bool early_susp,
 		  scc_info* given_si)
   {
+    tgba_digraph* res;
     if (remove_all_useless)
-      return scc_filter_apply<susp_filter
-			      <state_filter
-			       <acc_filter_all
-				<acc_filter_simplify<>>>>>(aut, given_si,
-							   suspvars,
-							   ignoredvars,
-							   early_susp);
+      res = scc_filter_apply<susp_filter
+			     <state_filter
+			      <acc_filter_all
+			       <acc_filter_simplify<>>>>>(aut, given_si,
+							  suspvars,
+							  ignoredvars,
+							  early_susp);
     else
-      return scc_filter_apply<susp_filter
-			      <state_filter
-			       <acc_filter_some
-				<acc_filter_simplify<>>>>>(aut, given_si,
-							   suspvars,
-							   ignoredvars,
-							   early_susp);
+      res = scc_filter_apply<susp_filter
+			     <state_filter
+			      <acc_filter_some
+			       <acc_filter_simplify<>>>>>(aut, given_si,
+							  suspvars,
+							  ignoredvars,
+							  early_susp);
+    res->merge_transitions();
+    return res;
   }
 
 }

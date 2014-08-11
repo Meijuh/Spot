@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,16 +20,16 @@
 #ifndef SPOT_TGBAALGOS_STRIPACC_HH
 # define SPOT_TGBAALGOS_STRIPACC_HH
 
-# include "tgba/tgbaexplicit.hh"
+# include "tgba/tgbagraph.hh"
 
 namespace spot
 {
   /// \ingroup tgba_misc
-  /// \brief Duplicate automaton \a a, removing all acceptance sets.
+  /// \brief Remove all acceptance sets from a tgba_digraph.
   ///
   /// This is equivalent to marking all states/transitions as accepting.
-  SPOT_API sba_explicit_number*
-  strip_acceptance(const tgba* a);
+  SPOT_API void
+  strip_acceptance_here(tgba_digraph* a);
 }
 
 #endif // SPOT_TGBAALGOS_STRIPACC_HH

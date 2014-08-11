@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -103,14 +103,14 @@ namespace spot
     ///
     /// The formula \a f is simplified internally, but it is not
     /// not destroyed (this is the responsibility of the caller).
-    const tgba* run(const ltl::formula* f);
+    const tgba_digraph* run(const ltl::formula* f);
 
     /// \brief Convert \a f into an automaton, and update f.
     ///
     /// The formula <code>*f</code> is destroyed, and replaced
     /// by the simplified version, which should be destroyed by
     /// the caller.
-    const tgba* run(const ltl::formula** f);
+    const tgba_digraph* run(const ltl::formula** f);
 
   protected:
     void setup_opt(const option_map* opt);

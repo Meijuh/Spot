@@ -99,7 +99,7 @@ namespace spot
   }
 
   SPOT_API
-  tgba* nsa_to_tgba(const dstar_aut* nsa)
+  tgba_digraph* nsa_to_tgba(const dstar_aut* nsa)
   {
     assert(nsa->type == Streett);
     tgba_digraph* a = nsa->aut;

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,7 +20,7 @@
 #ifndef SPOT_TGBAALGOS_MINIMIZE_HH
 # define SPOT_TGBAALGOS_MINIMIZE_HH
 
-# include "tgba/tgbaexplicit.hh"
+# include "tgba/tgbagraph.hh"
 # include "ltlast/formula.hh"
 
 namespace spot
@@ -57,7 +57,7 @@ namespace spot
   /// \param a the automaton to convert into a minimal deterministic monitor
   /// \pre Dead SCCs should have been removed from \a a before
   ///      calling this function.
-  SPOT_API sba_explicit_number* minimize_monitor(const tgba* a);
+  SPOT_API tgba_digraph* minimize_monitor(const tgba* a);
 
   /// \brief Minimize a Büchi automaton in the WDBA class.
   ///
@@ -93,7 +93,7 @@ namespace spot
         month     = oct
       }
       \endverbatim */
-  SPOT_API sba_explicit_number* minimize_wdba(const tgba* a);
+  SPOT_API tgba_digraph* minimize_wdba(const tgba* a);
 
   /// \brief Minimize an automaton if it represents an obligation property.
   ///
@@ -150,10 +150,10 @@ namespace spot
   /// determinization step during minimize_wdba().)  Note that
   /// checking the size of the minimized WDBA occurs before ensuring
   /// that the minimized WDBA is correct.
-  SPOT_API tgba* minimize_obligation(const tgba* aut_f,
-				     const ltl::formula* f = 0,
-				     const tgba* aut_neg_f = 0,
-				     bool reject_bigger = false);
+  SPOT_API tgba_digraph* minimize_obligation(const tgba_digraph* aut_f,
+					     const ltl::formula* f = 0,
+					     const tgba* aut_neg_f = 0,
+					     bool reject_bigger = false);
 
   /// @}
 }

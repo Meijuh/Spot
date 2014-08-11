@@ -349,7 +349,7 @@ namespace spot
   }
 
 
-  tgba*
+  tgba_digraph*
   compsusp(const ltl::formula* f, bdd_dict* dict,
 	   bool no_wdba, bool no_simulation,
 	   bool early_susp, bool no_susp_product, bool wdba_smaller,
@@ -371,18 +371,11 @@ namespace spot
 
     if (!no_wdba)
       {
-	tgba* min = minimize_obligation(res, g, 0, wdba_smaller);
+	tgba_digraph* min = minimize_obligation(res, g, 0, wdba_smaller);
 	if (min != res)
 	  {
 	    delete res;
-	    // FIXME: minimize_obligation does not yet return a
-	    // tgba_digraph, so we convert the result using dupexp.
-	    // Once minimize_obligation is fixed, we should remove the
-	    // call to dupexp.
-	    assert(dynamic_cast<tgba_digraph*>(min) == nullptr);
-	    res = tgba_dupexp_dfs(min);
-	    delete min;
-	    //res = min;
+	    res = min;
 	    no_simulation = true;
 	  }
       }

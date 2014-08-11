@@ -19,7 +19,7 @@
 
 
 #include "degen.hh"
-#include "tgba/tgbaexplicit.hh"
+#include "tgba/tgbagraph.hh"
 #include "misc/hash.hh"
 #include "misc/hashfunc.hh"
 #include "ltlast/constant.hh"
@@ -251,7 +251,7 @@ namespace spot
     };
   }
 
-  sba*
+  tgba_digraph*
   degeneralize(const tgba* a, bool use_z_lvl, bool use_cust_acc_orders,
                int use_lvl_cache, bool skip_levels)
   {
@@ -259,8 +259,9 @@ namespace spot
 
     bdd_dict* dict = a->get_dict();
 
-    // The result (degeneralized) automaton uses numbered states.
-    sba_explicit_number* res = new sba_explicit_number(dict);
+    // The result automaton is an SBA.
+    auto res = new tgba_digraph(dict);
+    res->set_bprop(tgba_digraph::SBA);
 
     // We use the same BDD variables as the input, except for the
     // acceptance.
@@ -314,7 +315,7 @@ namespace spot
     // (dest*2+acc) where dest is the destination state number, and
     // acc is 1 iff the transition is accepting.  The source
     // is always that of the current iteration.
-    typedef std::map<int, state_explicit_number::transition*> tr_cache_t;
+    typedef std::map<int, unsigned> tr_cache_t;
     tr_cache_t tr_cache;
 
     // State level cache
@@ -355,16 +356,7 @@ namespace spot
 	    }
       }
 
-#ifdef DEGEN_DEBUG
-    std::map<const state*, int>names;
-    names[s.first] = 1;
-
-    ds2num[s] =
-      10000 * names[s.first] + 100 * s.second + m.scc_of_state(s.first);
-#else
-    ds2num[s] = 0;
-#endif
-
+    ds2num[s] = res->new_state();
     todo.push_back(s);
 
     // If use_lvl_cache is on insert initial state to level cache
@@ -557,11 +549,7 @@ namespace spot
               }
             else
               {
-#ifdef DEGEN_DEBUG
-                dest = 10000 * names[d.first] + 100 * d.second + scc;
-#else
-                dest = ds2num.size();
-#endif
+                dest = res->new_state();
                 ds2num[d] = dest;
                 todo.push_back(d);
                 // Insert new state to cache
@@ -582,24 +570,24 @@ namespace spot
 		  }
               }
 
-            state_explicit_number::transition*& t =
-              tr_cache[dest * 2 + is_acc];
+            unsigned& t = tr_cache[dest * 2 + is_acc];
 
             if (t == 0)
               {
-                // Actually create the transition.
-                t = res->create_transition(src, dest);
-                t->condition = i->current_condition();
-                // If the source state is accepting, we have to put
-                // degen_acc on all outgoing transitions.  (We are still
-                // building a TGBA; we only assure that it can be used as
-                // an SBA.)
+                // Actually create the transition.  If the source
+                // state is accepting, we have to put degen_acc on all
+                // outgoing transitions.  (We are still building a
+                // TGBA; we only assure that it can be used as an
+                // SBA.)
+		bdd acc = bddfalse;
 		if (is_acc)
-		  t->acceptance_conditions = degen_acc;
+		  acc = degen_acc;
+                t = res->new_transition(src, dest,
+					i->current_condition(), acc);
               }
             else
               {
-                t->condition |= i->current_condition();
+                res->trans_data(t).cond |= i->current_condition();
               }
           }
         tr_cache.clear();

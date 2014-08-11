@@ -34,7 +34,6 @@
 #include "ltlast/constant.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgba/tgbasafracomplement.hh"
-#include "tgba/sba.hh"
 #include "tgbaalgos/degen.hh"
 
 namespace spot
@@ -54,7 +53,7 @@ namespace spot
     /// \brief Automaton with Safra's tree as states.
     struct safra_tree_automaton
     {
-      safra_tree_automaton(const tgba* sba);
+      safra_tree_automaton(const tgba_digraph* sba);
       ~safra_tree_automaton();
       typedef std::map<bdd, const safra_tree*, bdd_less_than> transition_list;
       typedef
@@ -67,14 +66,14 @@ namespace spot
       int get_nb_acceptance_pairs() const;
       safra_tree* get_initial_state() const;
       void set_initial_state(safra_tree* s);
-      const tgba* get_sba(void) const
+      const tgba_digraph* get_sba(void) const
       {
 	return a_;
       }
     private:
       mutable int max_nb_pairs_;
       safra_tree* initial_state;
-      const tgba* a_;
+      const tgba_digraph* a_;
     };
 
     /// \brief A Safra tree, used as state during the determinization
@@ -112,7 +111,7 @@ namespace spot
       int max_name() const;
 
       // Operations to get successors of a tree.
-      safra_tree* branch_accepting(const sba& a);
+      safra_tree* branch_accepting(const tgba_digraph& a);
       safra_tree* succ_create(const bdd& condition,
                               cache_t& cache_transition);
       safra_tree* normalize_siblings();
@@ -316,7 +315,7 @@ namespace spot
     /// is inserted with the set of all accepting states of \c nodes
     /// as label and an unused name.
     safra_tree*
-    safra_tree::branch_accepting(const sba& a)
+    safra_tree::branch_accepting(const tgba_digraph& a)
     {
       for (auto c: children)
         c->branch_accepting(a);
@@ -574,7 +573,8 @@ namespace spot
     private:
       typedef std::set<int> atomic_list_t;
       typedef std::set<bdd, bdd_less_than> conjunction_list_t;
-      static void retrieve_atomics(const safra_tree* node, sba* sba_aut,
+      static void retrieve_atomics(const safra_tree* node,
+				   tgba_digraph* sba_aut,
                                    safra_tree::cache_t& cache,
                                    atomic_list_t& atomic_list);
       static void set_atomic_list(atomic_list_t& list, bdd condition);
@@ -587,7 +587,7 @@ namespace spot
     safra_determinisation::create_safra_automaton(const tgba* a)
     {
       // initialization.
-      sba* sba_aut = degeneralize(a);
+      auto sba_aut = degeneralize(a);
 
       safra_tree_automaton* st = new safra_tree_automaton(sba_aut);
 
@@ -664,7 +664,7 @@ namespace spot
     /// of the states in the label of the node.
     void
     safra_determinisation::retrieve_atomics(const safra_tree* node,
-                                            sba* sba_aut,
+                                            tgba_digraph* sba_aut,
                                             safra_tree::cache_t& cache,
                                             atomic_list_t& atomic_list)
     {
@@ -1031,7 +1031,7 @@ namespace spot
   // safra_tree_automaton
   ////////////////////////
 
-  safra_tree_automaton::safra_tree_automaton(const tgba* a)
+  safra_tree_automaton::safra_tree_automaton(const tgba_digraph* a)
     : max_nb_pairs_(-1), initial_state(0), a_(a)
   {
     a->get_dict()->register_all_variables_of(a, this);
