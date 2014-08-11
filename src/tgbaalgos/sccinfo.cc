@@ -249,6 +249,15 @@ namespace spot
     return result;
   }
 
+  bdd scc_info::scc_ap_support(unsigned scc) const
+  {
+    bdd support = bddtrue;
+    for (auto s: states_of(scc))
+      for (auto& t: aut_->out(s))
+	support &= bdd_support(t.cond);
+    return support;
+  }
+
   std::ostream&
   dump_scc_info_dot(std::ostream& out,
 		    const tgba_digraph* aut, scc_info* sccinfo)
@@ -306,6 +315,5 @@ namespace spot
       delete m;
     return out;
   }
-
 
 }

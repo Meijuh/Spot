@@ -254,80 +254,11 @@ namespace spot
       remap_t remap_;
     };
 
-    template<class T>
-    class filter_iter_susp: public filter_iter<T>
-    {
-    public:
-      typedef filter_iter<T> super;
-      filter_iter_susp(const tgba* a,
-		       const scc_map& sm,
-		       const std::vector<bool>& useless,
-		       remap_table_t& remap_table,
-		       unsigned max_num,
-		       bool remove_all_useless,
-		       bdd susp_pos, bool early_susp, bdd ignored)
-	: super(a, sm, useless, remap_table, max_num, remove_all_useless),
-	  susp_pos(susp_pos), early_susp(early_susp), ignored(ignored)
-      {
-      }
-
-
-      void
-      process_link(const state* in_s, int in,
-		   const state* out_s, int out,
-		   const tgba_succ_iterator* si)
-      {
-	unsigned u = this->sm_.scc_of_state(out_s);
-	unsigned v = this->sm_.scc_of_state(in_s);
-	bool destacc = this->sm_.accepting(u);
-
-	typename super::output_t::state::transition* t =
-	  create_transition(this->aut_, this->out_, in_s, in, out_s, out);
-
-	bdd cond = bdd_exist(si->current_condition(), ignored);
-	// Remove suspended variables on transitions going to
-	// non-accepting SCC, or on transition between SCC unless
-	// early_susp is set.
-	if (!destacc || (!early_susp && (u != this->sm_.scc_of_state(in_s))))
-	  cond = bdd_exist(cond, susp_pos);
-
-	this->out_->add_conditions(t, cond);
-
-	// Regardless of all_, do not output any acceptance condition
-	// if the destination is not in an accepting SCC.
-	//
-	// If all_ is set, do not output any acceptance condition if the
-	// source is not in the same SCC as dest.
-	//
-	// (See the documentation of scc_filter() for a rational.)
-	if (destacc && (!this->all_ || u == v))
-	  {
-	    bdd acc = si->current_acceptance_conditions();
-	    if (acc == bddfalse)
-	      return;
-	    typename super::map_t::const_iterator i =
-	      this->remap_[u].find(acc.id());
-	    if (i != this->remap_[u].end())
-	      {
-		t->acceptance_conditions = i->second;
-	      }
-	    else
-	      {
-		// t->acceptance_conditions = this->remap_[v][acc.id()];
-	      }
-	  }
-      }
-    protected:
-      bdd susp_pos;
-      bool early_susp;
-      bdd ignored;
-    };
-
   } // anonymous
 
 
   tgba* scc_filter(const tgba* aut, bool remove_all_useless,
-		   scc_map* given_sm, bdd susp, bool early_susp, bdd ignored)
+		   scc_map* given_sm)
   {
     scc_map* sm = given_sm;
     if (!sm)
@@ -482,30 +413,14 @@ namespace spot
       dynamic_cast<const tgba_explicit_formula*>(aut);
     if (af)
       {
-	if (susp == bddtrue)
-	  {
-	    filter_iter<tgba_explicit_formula> fi(af, *sm,
-						  ss.useless_scc_map,
-						  remap_table, max_num,
-						  remove_all_useless);
-	    fi.run();
-	    tgba_explicit_formula* res = fi.result();
-	    res->merge_transitions();
-	    ret = res;
-	  }
-	else
-	  {
-	    filter_iter_susp<tgba_explicit_formula> fi(af, *sm,
-						       ss.useless_scc_map,
-						       remap_table, max_num,
-						       remove_all_useless,
-						       susp, early_susp,
-						       ignored);
-	    fi.run();
-	    tgba_explicit_formula* res = fi.result();
-	    res->merge_transitions();
-	    ret = res;
-	  }
+	filter_iter<tgba_explicit_formula> fi(af, *sm,
+					      ss.useless_scc_map,
+					      remap_table, max_num,
+					      remove_all_useless);
+	fi.run();
+	tgba_explicit_formula* res = fi.result();
+	res->merge_transitions();
+	ret = res;
       }
     else
       {
@@ -523,30 +438,14 @@ namespace spot
 	  }
 	else
 	  {
-	    if (susp == bddtrue)
-	      {
-		filter_iter<tgba_explicit_number> fi(aut, *sm,
-						     ss.useless_scc_map,
-						     remap_table, max_num,
-						     remove_all_useless);
-		fi.run();
-		tgba_explicit_number* res = fi.result();
-		res->merge_transitions();
-		ret = res;
-	      }
-	    else
-	      {
-		filter_iter_susp<tgba_explicit_number> fi(aut, *sm,
-							  ss.useless_scc_map,
-							  remap_table, max_num,
-							  remove_all_useless,
-							  susp, early_susp,
-							  ignored);
-		fi.run();
-		tgba_explicit_number* res = fi.result();
-		res->merge_transitions();
-		ret = res;
-	      }
+	    filter_iter<tgba_explicit_number> fi(aut, *sm,
+						 ss.useless_scc_map,
+						 remap_table, max_num,
+						 remove_all_useless);
+	    fi.run();
+	    tgba_explicit_number* res = fi.result();
+	    res->merge_transitions();
+	    ret = res;
 	  }
       }
     if (!given_sm)
@@ -621,6 +520,7 @@ namespace spot
     typedef std::tuple<bool, bdd, bdd> filtered_trans;
     typedef std::pair<bdd, bdd> acc_pair;
 
+
     // SCC filters are objects with two methods:
     //  state(src) return true iff s should be kept
     //  trans(src, dst, cond, acc) returns a triplet
@@ -654,87 +554,153 @@ namespace spot
     };
 
     // Remove useless states.
-    struct state_filter: id_filter
+    template <class next_filter = id_filter>
+    struct state_filter: next_filter
     {
-      state_filter(scc_info* si)
-	: id_filter(si)
+      template<typename... Args>
+      state_filter(scc_info* si, Args&&... args)
+	: next_filter(si, std::forward<Args>(args)...)
       {
       }
 
       bool state(unsigned s)
       {
-	return si->is_useful_state(s);
+	return this->next_filter::state(s) && this->si->is_useful_state(s);
       }
     };
 
-    // Remove acceptance conditions from all transitions outside of
-    // non-accepting SCCs.
-    struct acc_filter_all: id_filter
+    // Suspension filter, used only by compsusp.cc
+    template <class next_filter = id_filter>
+    struct susp_filter: next_filter
     {
-      acc_filter_all(scc_info* si)
-	: id_filter(si)
+      bdd suspvars;
+      bdd ignoredvars;
+      bool early_susp;
+
+      template<typename... Args>
+      susp_filter(scc_info* si,
+		  bdd suspvars, bdd ignoredvars, bool early_susp,
+		  Args&&... args)
+	: next_filter(si, std::forward<Args>(args)...),
+	  suspvars(suspvars),
+	  ignoredvars(ignoredvars),
+	  early_susp(early_susp)
       {
       }
 
       filtered_trans trans(unsigned src, unsigned dst,
 			   bdd cond, bdd acc)
       {
-	unsigned u = si->scc_of(src);
-	// If the transition is between two SCCs, or in a
-	// non-accepting SCC.  Remove the acceptance sets.
-	if (!si->is_accepting_scc(u) || u != si->scc_of(dst))
-	  acc = bddfalse;
+	bool keep;
+	std::tie(keep, cond, acc) =
+	  this->next_filter::trans(src, dst, cond, acc);
 
-	return filtered_trans(true, cond, acc);
+	if (keep)
+	  {
+	    // Always remove ignored variables
+	    cond = bdd_exist(cond, ignoredvars);
+
+	    // Remove the suspension variables only if
+	    // the destination in not in an accepting SCC,
+	    // or if we are between SCC with early_susp unset.
+	    unsigned u = this->si->scc_of(dst);
+	    if (!this->si->is_accepting_scc(u)
+		|| (!early_susp && (u != this->si->scc_of(src))))
+	      cond = bdd_exist(cond, suspvars);
+	  }
+
+	return filtered_trans(keep, cond, acc);
+      }
+    };
+
+    // Remove acceptance conditions from all transitions outside of
+    // non-accepting SCCs.
+    template <class next_filter = id_filter>
+    struct acc_filter_all: next_filter
+    {
+      template<typename... Args>
+      acc_filter_all(scc_info* si, Args&&... args)
+	: next_filter(si, std::forward<Args>(args)...)
+      {
+      }
+
+      filtered_trans trans(unsigned src, unsigned dst,
+			   bdd cond, bdd acc)
+      {
+	bool keep;
+	std::tie(keep, cond, acc) =
+	  this->next_filter::trans(src, dst, cond, acc);
+
+	if (keep)
+	  {
+	    unsigned u = this->si->scc_of(src);
+	    // If the transition is between two SCCs, or in a
+	    // non-accepting SCC.  Remove the acceptance sets.
+	    if (!this->si->is_accepting_scc(u) || u != this->si->scc_of(dst))
+	      acc = bddfalse;
+	  }
+
+	return filtered_trans(keep, cond, acc);
       }
     };
 
     // Remove acceptance conditions from all transitions whose
     // destination is not an accepting SCCs.
-    struct acc_filter_some: id_filter
+    template <class next_filter = id_filter>
+    struct acc_filter_some: next_filter
     {
-      acc_filter_some(scc_info* si)
-	: id_filter(si)
+      template<typename... Args>
+      acc_filter_some(scc_info* si, Args&&... args)
+	: next_filter(si, std::forward<Args>(args)...)
       {
       }
 
-      filtered_trans trans(unsigned, unsigned dst,
+      filtered_trans trans(unsigned src, unsigned dst,
 			   bdd cond, bdd acc)
       {
-	if (!si->is_accepting_scc(si->scc_of(dst)))
+	bool keep;
+	std::tie(keep, cond, acc) =
+	  this->next_filter::trans(src, dst, cond, acc);
+
+	if (!this->si->is_accepting_scc(this->si->scc_of(dst)))
 	  acc = bddfalse;
-	return filtered_trans(true, cond, acc);
+	return filtered_trans(keep, cond, acc);
       }
     };
 
-    //
-    struct acc_filter_simplify: id_filter
+    // Simplify redundant acceptance sets used in each SCCs.
+    template <class next_filter = id_filter>
+    struct acc_filter_simplify: next_filter
     {
       std::vector<bdd> acc_;
       typedef std::map<int, bdd> map_t;
       typedef std::vector<map_t> remap_t;
       remap_t remap_;
 
-      acc_filter_simplify(scc_info* si)
-	: id_filter(si)
+      template<typename... Args>
+      acc_filter_simplify(scc_info* si, Args&&... args)
+	: next_filter(si, std::forward<Args>(args)...)
       {
       }
 
       acc_pair accsets(bdd in_all, bdd in_all_neg)
       {
-	unsigned scc_count = si->scc_count();
+	std::tie(in_all, in_all_neg) =
+	  this->next_filter::accsets(in_all, in_all_neg);
+
+	unsigned scc_count = this->si->scc_count();
 	remap_table_t remap_table(scc_count);
 	std::vector<unsigned> max_table(scc_count);
 	std::vector<bdd> useful_table(scc_count);
 	std::vector<bdd> useless_table(scc_count);
 	unsigned max_num = 1;
-	const tgba_digraph* aut = si->get_aut();
+	const tgba_digraph* aut = this->si->get_aut();
 
-	std::vector<bdd> used_acc = si->used_acc();
+	std::vector<bdd> used_acc = this->si->used_acc();
 
 	for (unsigned n = 0; n < scc_count; ++n)
 	  {
-	    if (!si->is_accepting_scc(n))
+	    if (!this->si->is_accepting_scc(n))
 	      continue;
 	    bdd all = used_acc[n];
 
@@ -834,7 +800,7 @@ namespace spot
 	// that do not have enough.
 	for (unsigned n = 0; n < scc_count; ++n)
 	  {
-	    if (!si->is_accepting_scc(n))
+	    if (!this->si->is_accepting_scc(n))
 	      continue;
 	    //std::cerr << "SCC " << n << '\n';
 	    bdd useful = useful_table[n];
@@ -898,7 +864,7 @@ namespace spot
 	for (unsigned n = 0; n < scc_count; ++n)
 	  {
 	    //std::cerr << "SCC #" << n << '\n';
-	    if (!si->is_accepting_scc(n))
+	    if (!this->si->is_accepting_scc(n))
 	      continue;
 
 	    bdd all = used_acc[n];
@@ -929,80 +895,37 @@ namespace spot
 	return acc_pair{all, all_neg};
       }
 
-      filtered_trans trans(unsigned src, unsigned, bdd cond, bdd acc)
+      filtered_trans trans(unsigned src, unsigned dst, bdd cond, bdd acc)
       {
-	if (acc != bddfalse)
+	bool keep;
+	std::tie(keep, cond, acc) =
+	  this->next_filter::trans(src, dst, cond, acc);
+
+	if (keep && acc != bddfalse)
 	  {
-	    unsigned u = si->scc_of(src);
+	    unsigned u = this->si->scc_of(src);
 	    auto i = remap_[u].find(acc.id());
 	    if (i != remap_[u].end())
 	      acc = i->second;
 	    else
 	      acc = bddfalse;
 	  }
-	return filtered_trans{true, cond, acc};
+	return filtered_trans{keep, cond, acc};
       }
 
     };
 
 
-    // This pre-declaration is needed to work around a limitation in
-    // g++ 4.6.
-    template<typename... F>
-    struct compose_filters;
-
-    template<typename F1, typename... F2>
-    struct compose_filters<F1, F2...>
-    {
-      F1 f1;
-      compose_filters<F2...> f2;
-
-      compose_filters(scc_info* si)
-	: f1(si), f2(si)
-      {
-      }
-
-      bool state(unsigned s)
-      {
-	return f1.state(s) && f2.state(s);
-      }
-
-      acc_pair accsets(bdd all, bdd all_neg)
-      {
-	auto t = f1.accsets(all, all_neg);
-	return f2.accsets(t.first, t.second);
-      }
-
-      filtered_trans trans(unsigned src, unsigned dst,
-			   bdd cond, bdd acc)
-      {
-	auto res = f1.trans(src, dst, cond, acc);
-	if (!std::get<0>(res))
-	  return res;
-	return f2.trans(src, dst, std::get<1>(res), std::get<2>(res));
-      }
-    };
-
-    // If there is nothing to compose, use the filter as-is.
-    template<typename F1>
-    struct compose_filters<F1>: F1
-    {
-      compose_filters(scc_info* si)
-	: F1(si)
-      {
-      }
-    };
-
-    template<class F>
+    template<class F, typename... Args>
     tgba_digraph* scc_filter_apply(const tgba_digraph* aut,
-				   scc_info* given_si)
+				   scc_info* given_si, Args&&... args)
     {
       // Compute scc_info if not supplied.
       scc_info* si = given_si;
       if (!si)
 	si = new scc_info(aut);
 
-      F filter(si);
+      F filter(si, std::forward<Args>(args)...);
 
       // Renumber all useful states.
       unsigned in_n = aut->num_states(); // Number of input states.
@@ -1059,7 +982,7 @@ namespace spot
   tgba_digraph*
   scc_filter_states(const tgba_digraph* aut, scc_info* given_si)
   {
-    return scc_filter_apply<state_filter>(aut, given_si);
+    return scc_filter_apply<state_filter<>>(aut, given_si);
   }
 
   tgba_digraph*
@@ -1067,15 +990,36 @@ namespace spot
 	     scc_info* given_si)
   {
     if (remove_all_useless)
-      return scc_filter_apply<compose_filters<state_filter,
-					      acc_filter_all,
-					      acc_filter_simplify>>
-	(aut, given_si);
+      return scc_filter_apply<state_filter
+			      <acc_filter_all
+			       <acc_filter_simplify<>>>>(aut, given_si);
     else
-      return scc_filter_apply<compose_filters<state_filter,
-					      acc_filter_some,
-					      acc_filter_simplify>>
-	(aut, given_si);
+      return scc_filter_apply<state_filter
+			      <acc_filter_some
+			       <acc_filter_simplify<>>>>(aut, given_si);
+  }
+
+  tgba_digraph*
+  scc_filter_susp(const tgba_digraph* aut, bool remove_all_useless,
+		  bdd suspvars, bdd ignoredvars, bool early_susp,
+		  scc_info* given_si)
+  {
+    if (remove_all_useless)
+      return scc_filter_apply<susp_filter
+			      <state_filter
+			       <acc_filter_all
+				<acc_filter_simplify<>>>>>(aut, given_si,
+							   suspvars,
+							   ignoredvars,
+							   early_susp);
+    else
+      return scc_filter_apply<susp_filter
+			      <state_filter
+			       <acc_filter_some
+				<acc_filter_simplify<>>>>>(aut, given_si,
+							   suspvars,
+							   ignoredvars,
+							   early_susp);
   }
 
 }

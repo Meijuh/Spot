@@ -19,12 +19,13 @@
 
 #include "compsusp.hh"
 #include "sccfilter.hh"
-#include "scc.hh"
+#include "sccinfo.hh"
 #include "tgba/tgbagraph.hh"
 #include "ltl2tgba_fm.hh"
 #include "minimize.hh"
 #include "simulation.hh"
 #include "safety.hh"
+#include "dupexp.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/clone.hh"
@@ -211,15 +212,15 @@ namespace spot
     typedef std::deque<state_pair> pair_queue;
 
     static
-    tgba*
+    tgba_digraph*
     susp_prod(tgba* left, const ltl::formula* f, bdd v)
     {
       bdd_dict* dict = left->get_dict();
-      const tgba* a1 = ltl_to_tgba_fm(f, dict, true, true);
+      const tgba_digraph* a1 = ltl_to_tgba_fm(f, dict, true, true);
 
-      const tgba* a2 = scc_filter(a1, false);
+      const tgba_digraph* a2 = scc_filter(a1, false);
       delete a1;
-      const tgba* right = iterated_simulations(a2);
+      const tgba_digraph* right = iterated_simulations(a2);
       delete a2;
 
       tgba_digraph* res = new tgba_digraph(dict);
@@ -359,10 +360,11 @@ namespace spot
     ltl_suspender_visitor v(g2s, a2o, oblig);
     const ltl::formula* g = v.recurse(f);
 
-    tgba* res;
+    tgba_digraph* res;
     {
       // Translate the patched formula, and remove useless SCCs.
-      tgba* aut = spot::ltl_to_tgba_fm(g, dict, true, true, false, false, 0, 0);
+      tgba_digraph* aut =
+	spot::ltl_to_tgba_fm(g, dict, true, true, false, false, 0, 0);
       res = scc_filter(aut, false);
       delete aut;
     }
@@ -373,14 +375,21 @@ namespace spot
 	if (min != res)
 	  {
 	    delete res;
-	    res = min;
+	    // FIXME: minimize_obligation does not yet return a
+	    // tgba_digraph, so we convert the result using dupexp.
+	    // Once minimize_obligation is fixed, we should remove the
+	    // call to dupexp.
+	    assert(dynamic_cast<tgba_digraph*>(min) == nullptr);
+	    res = tgba_dupexp_dfs(min);
+	    delete min;
+	    //res = min;
 	    no_simulation = true;
 	  }
       }
 
     if (!no_simulation)
       {
-	tgba* sim = spot::iterated_simulations(res);
+	tgba_digraph* sim = spot::iterated_simulations(res);
 	delete res;
 	res = sim;
       }
@@ -407,21 +416,20 @@ namespace spot
       suspvars &= i->second;
 
     bdd allaccap = bddtrue; // set of atomic prop used in accepting SCCs.
-    tgba* aut = res;
+    tgba_digraph* aut = res;
     {
-      scc_map sm(aut);
-      sm.build_map();
+      scc_info si(aut);
 
       // Restrict suspvars to the set of suspension labels that occur
       // in accepting SCC.
-      unsigned sn = sm.scc_count();
+      unsigned sn = si.scc_count();
       for (unsigned n = 0; n < sn; n++)
-	if (sm.accepting(n))
-	  allaccap &= sm.ap_set_of(n);
+	if (si.is_accepting_scc(n))
+	  allaccap &= si.scc_ap_support(n);
 
       bdd ignored = bdd_exist(suspvars, allaccap);
       suspvars = bdd_existcomp(suspvars, allaccap);
-      res = scc_filter(aut, false, &sm, suspvars, early_susp, ignored);
+      res = scc_filter_susp(aut, false, suspvars, ignored, early_susp, &si);
     }
     delete aut;
 

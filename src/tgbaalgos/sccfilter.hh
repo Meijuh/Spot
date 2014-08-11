@@ -56,13 +56,6 @@ namespace spot
   /// If \a given_sm is supplied, the function will use its result
   /// without computing a map of its own.
   ///
-  /// If \a susp is different from bddtrue, it should be a conjunction
-  /// of (positive) variables to be removed from transitions going to
-  /// non-accepting SCCs.  If early_susp is false, the previous
-  /// variable are also removed from transitions entering an accepting
-  /// SCC.  ignored is a conjunction of positive variables that should
-  /// be removed everywhere.
-  ///
   /// \warning Calling scc_filter on a TGBA that has the SBA property
   /// (i.e., transitions leaving accepting states are all marked as
   /// accepting) may destroy this property.  Use scc_filter_states()
@@ -70,8 +63,7 @@ namespace spot
   /// @{
   SPOT_API tgba*
   scc_filter(const tgba* aut, bool remove_all_useless = false,
-	     scc_map* given_sm = 0, bdd susp = bddtrue,
-	     bool early_susp = false, bdd ignored = bddtrue);
+	     scc_map* given_sm = 0);
 
   SPOT_API tgba_digraph*
   scc_filter(const tgba_digraph* aut, bool remove_all_useless = false,
@@ -92,6 +84,21 @@ namespace spot
 
   SPOT_API tgba_digraph*
   scc_filter_states(const tgba_digraph* aut, scc_info* given_si = 0);
+
+  /// \brief Prune unaccepting SCCs, superfluous acceptance
+  /// sets, and suspension variables.
+  ///
+  /// In addition to removing useless states, and acceptance sets,
+  /// this remove all ignoredvars occurring in conditions, and all
+  /// suspvars in conditions leadings to non-accepting SCC (as well
+  /// as the conditions between two SCCs if early_susp is false).
+  ///
+  /// This is used by compsusp(), and is probably useless for any
+  /// other use.
+  SPOT_API tgba_digraph*
+  scc_filter_susp(const tgba_digraph* aut, bool remove_all_useless,
+		  bdd suspvars, bdd ignoredvars, bool early_susp,
+		  scc_info* given_si = 0);
   /// @}
 }
 

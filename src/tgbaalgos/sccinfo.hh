@@ -146,6 +146,8 @@ namespace spot
    ///    Acc[a]&Acc[b] | Acc[c]
    /// at position #i.
     std::vector<bdd> used_acc() const;
+
+    bdd scc_ap_support(unsigned scc) const;
   };
 
 
