@@ -169,19 +169,17 @@ namespace spot
       typedef tgba_tba_proxy::cycle_list list;
       typedef tgba_tba_proxy::cycle_list::const_iterator iterator;
     public:
-      tgba_tba_proxy_succ_iterator(const state* rs,
-				   tgba::succ_iterable&& iterable,
+      tgba_tba_proxy_succ_iterator(tgba::succ_iterable&& iterable,
 				   iterator expected,
 				   const list& cycle,
 				   bdd the_acceptance_cond,
 				   const tgba_tba_proxy* aut)
 	: the_acceptance_cond_(the_acceptance_cond)
       {
-	recycle(rs, std::move(iterable), expected, cycle, aut);
+	recycle(std::move(iterable), expected, cycle, aut);
       }
 
-      void recycle(const state* rs,
-		   tgba::succ_iterable&& iterable,
+      void recycle(tgba::succ_iterable&& iterable,
 		   iterator expected,
 		   const list& cycle,
 		   const tgba_tba_proxy* aut)
@@ -204,110 +202,43 @@ namespace spot
 	    bdd otheracc =
 	      aut->common_acceptance_conditions_of_original_state(odest);
 
-	    iterator next;
-	    // bddtrue is a special condition used for tgba_sba_proxy
-	    // to denote the (N+1)th copy of the state, after all
-	    // acceptance conditions have been traversed.  Such state
-	    // is always accepting, so do not check acc for this.
-	    // bddtrue is also used by tgba_tba_proxy if the automaton
-	    // does not use acceptance conditions.  In that case, all
-	    // states are accepting.
-	    if (*expected == bddtrue)
+	    // A transition in the *EXPECTED acceptance set should
+	    // be directed to the next acceptance set.  If the
+	    // current transition is also in the next acceptance
+	    // set, then go to the one after, etc.
+	    //
+	    // See Denis Oddoux's PhD thesis for a nice
+	    // explanation (in French).
+	    // @PhDThesis{	  oddoux.03.phd,
+	    //   author	= {Denis Oddoux},
+	    //   title	= {Utilisation des automates alternants pour un
+	    // 		  model-checking efficace des logiques
+	    //		  temporelles lin{\'e}aires.},
+	    //   school	= {Universit{\'e}e Paris 7},
+	    //   year	= {2003},
+	    //   address= {Paris, France},
+	    //   month	= {December}
+	    // }
+	    iterator next = expected;
+	    // Consider both the current acceptance sets, and the
+	    // acceptance sets common to the outgoing transition of
+	    // the destination state.
+	    acc |= otheracc;
+	    while (next != cycle.end() && bdd_implies(*next, acc))
+	      ++next;
+	    if (next != cycle.end())
 	      {
-		// When degeneralizing to SBA, ignore the last
-		// expected acceptance set (the value of *prev below)
-		// if it is common to all other outgoing transitions (of the
-		// current state) AND if it is not used by any outgoing
-		// transition of the destination state.
-		//
-		// 1) It's correct to do that, because this acceptance
-		//    set is common to other outgoing transitions.
-		//    Therefore if we make a cycle to this state we
-		//    will eventually see that acceptance set thanks
-		//    to the "pulling" of the common acceptance sets
-		//    of the destination state (cf. "odest").
-		//
-		// 2) It's also desirable because it makes the
-		//    degeneralization idempotent (up to a renaming of
-		//    states).  Consider the following automaton where
-		//    1 is initial and => marks accepting transitions:
-		//    1=>1, 1=>2, 2->2, 2->1 This is already an SBA,
-		//    with 1 as accepting state.  However if you try
-		//    degeralize it without ignoring *prev, we'll get
-		//    two copies of states 2, depending on whether we
-		//    reach it using 1=>2 or from 2->2.  If this
-		//    example was not clear, uncomment this following
-		//    "if" block, and play with the "degenid.test"
-		//    test case.
-		//
-		// 3) Ignoring all common acceptance sets would also
-		//    be correct, but it would make the
-		//    degeneralization produce larger automata in some
-		//    cases.  The current condition to ignore only one
-		//    acceptance set if is this not used by the next
-		//    state is a heuristic that is compatible with
-		//    point 2) above while not causing more states to
-		//    be generated in our benchmark of 188 formulae
-		//    from the literature.
-		if (expected != cycle.begin())
-		  {
-		    iterator prev = expected;
-		    --prev;
-		    bdd common = aut->
-		      common_acceptance_conditions_of_original_state(rs);
-		    if (bdd_implies(*prev, common))
-		      {
-			bdd u = aut->
-			  union_acceptance_conditions_of_original_state(odest);
-			if (!bdd_implies(*prev, u))
-			  acc -= *prev;
-		      }
-		  }
-		// Use the acceptance sets common to all outgoing
-		// transition of the destination state.  In case of a
-		// self-loop, we will be adding back the acceptance
-		// set we removed.  This is what we want.
-		acc |= otheracc;
+		accepting = false;
 	      }
 	    else
 	      {
-		// A transition in the *EXPECTED acceptance set should
-		// be directed to the next acceptance set.  If the
-		// current transition is also in the next acceptance
-		// set, then go to the one after, etc.
-		//
-		// See Denis Oddoux's PhD thesis for a nice
-		// explanation (in French).
-		// @PhDThesis{	  oddoux.03.phd,
-		//   author	= {Denis Oddoux},
-		//   title	= {Utilisation des automates alternants pour un
-		// 		  model-checking efficace des logiques
-		//		  temporelles lin{\'e}aires.},
-		//   school	= {Universit{\'e}e Paris 7},
-		//   year	= {2003},
-		//   address= {Paris, France},
-		//   month	= {December}
-		// }
-		next = expected;
-		// Consider both the current acceptance sets, and the
-		// acceptance sets common to the outgoing transition of
-		// the destination state.
-		acc |= otheracc;
-		while (next != cycle.end() && bdd_implies(*next, acc))
+		// The transition is accepting.
+		accepting = true;
+		// Skip as much acceptance conditions as we can on our cycle.
+		next = cycle.begin();
+		while (next != expected && bdd_implies(*next, acc))
 		  ++next;
-		if (next != cycle.end())
-		  {
-		    accepting = false;
-		    goto next_is_set;
-		  }
 	      }
-	    // The transition is accepting.
-	    accepting = true;
-	    // Skip as much acceptance conditions as we can on our cycle.
-	    next = cycle.begin();
-	    while (next != expected && bdd_implies(*next, acc))
-	      ++next;
-	  next_is_set:
 	    state_tba_proxy* dest =
 	      down_cast<state_tba_proxy*>(aut->create_state(odest, next));
 	    // Is DEST already reachable with the same value of ACCEPTING?
@@ -508,12 +439,12 @@ namespace spot
       {
 	tgba_tba_proxy_succ_iterator* res =
 	  down_cast<tgba_tba_proxy_succ_iterator*>(iter_cache_);
-	res->recycle(rs, a_->succ(rs),
+	res->recycle(a_->succ(rs),
 		     s->acceptance_iterator(), acc_cycle_, this);
 	iter_cache_ = nullptr;
 	return res;
       }
-    return new tgba_tba_proxy_succ_iterator(rs, a_->succ(rs),
+    return new tgba_tba_proxy_succ_iterator(a_->succ(rs),
 					    s->acceptance_iterator(),
 					    acc_cycle_, the_acceptance_cond_,
 					    this);
@@ -606,66 +537,6 @@ namespace spot
       down_cast<const state_tba_proxy*>(state);
     assert(s);
     return a_->support_conditions(s->real_state());
-  }
-
-  ////////////////////////////////////////////////////////////////////////
-  // tgba_sba_proxy
-
-  tgba_sba_proxy::tgba_sba_proxy(const tgba* a)
-    : tgba_tba_proxy(a)
-  {
-    if (a->number_of_acceptance_conditions() > 0)
-      {
-	cycle_start_ = acc_cycle_.insert(acc_cycle_.end(), bddtrue);
-
-	bdd all = a->all_acceptance_conditions();
-
-	state* init = a->get_init_state();
-	for (auto it: a->succ(init))
-	  {
-	    // Look only for transitions that are accepting.
-	    if (all != it->current_acceptance_conditions())
-	      continue;
-	    // Look only for self-loops.
-	    state* dest = it->current_state();
-	    if (dest->compare(init) == 0)
-	      {
-		// The initial state has an accepting self-loop.
-		// In that case it is better to start the accepting
-		// cycle on a "acceptance" state.  This will avoid
-		// duplication of the initial state.
-		// The cycle_start_ points to the right starting
-		// point already, so just return.
-		dest->destroy();
-		init->destroy();
-		return;
-	      }
-	    dest->destroy();
-	  }
-	init->destroy();
-      }
-
-    // If we arrive here either because the number of acceptance
-    // condition is 0, or because the initial state has no accepting
-    // self-loop, start the acceptance cycle on the first condition
-    // (that is a non-accepting state if the number of conditions is
-    // not 0).
-    cycle_start_ = acc_cycle_.begin();
-  }
-
-  state*
-  tgba_sba_proxy::get_init_state() const
-  {
-    return create_state(a_->get_init_state(), cycle_start_);
-  }
-
-  bool
-  tgba_sba_proxy::state_is_accepting(const state* state) const
-  {
-    const state_tba_proxy* s =
-      down_cast<const state_tba_proxy*>(state);
-    assert(s);
-    return bddtrue == s->acceptance_cond();
   }
 
 }

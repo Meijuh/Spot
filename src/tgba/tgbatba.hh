@@ -47,8 +47,6 @@ namespace spot
   /// If the input automaton uses N acceptance conditions, the output
   /// automaton can have at most max(N,1) times more states and
   /// transitions.
-  ///
-  /// \see tgba_sba_proxy
   class SPOT_API tgba_tba_proxy : public tgba
   {
   public:
@@ -118,48 +116,6 @@ namespace spot
     // Disallow copy.
     tgba_tba_proxy(const tgba_tba_proxy&) SPOT_DELETED;
     tgba_tba_proxy& operator=(const tgba_tba_proxy&) SPOT_DELETED;
-  };
-
-  /// \ingroup tgba_on_the_fly_algorithms
-  /// \brief Degeneralize a spot::tgba on the fly, producing an SBA.
-  ///
-  /// This class acts as a proxy in front of a spot::tgba, that should
-  /// be degeneralized on the fly.
-  ///
-  /// This is similar to tgba_tba_proxy, except that automata produced
-  /// with this algorithms can also been seen as State-based Büchi
-  /// Automata (SBA).  See tgba_sba_proxy::state_is_accepting().  (An
-  /// SBA is a TBA, and a TBA is a TGBA.)
-  ///
-  /// This extra property has a small cost in size: if the input
-  /// automaton uses N acceptance conditions, the output automaton can
-  /// have at most max(N,1)+1 times more states and transitions.
-  /// (This is only max(N,1) for tgba_tba_proxy.)
-  ///
-  /// If you want to degeneralize an automaton once for all, and not
-  /// on-the-fly, consider using degeneralize() instead because it is
-  /// usually faster.  Also the degeneralize() function implements
-  /// several SCC-based optimizations that are not implemented in this
-  /// one.
-  ///
-  /// \see degeneralize
-  class SPOT_API tgba_sba_proxy : public tgba_tba_proxy
-  {
-  public:
-    tgba_sba_proxy(const tgba* a);
-
-    /// \brief Whether the state is accepting.
-    ///
-    /// A particularity of a spot::tgba_sba_proxy automaton is that
-    /// when a state has an outgoing accepting arc, all its outgoing
-    /// arcs are accepting.  The state itself can therefore be
-    /// considered accepting.  This is useful in algorithms working on
-    /// degeneralized automata with state acceptance conditions.
-    bool state_is_accepting(const state* state) const;
-
-    virtual state* get_init_state() const;
-  protected:
-    cycle_list::iterator cycle_start_;
   };
 
 }

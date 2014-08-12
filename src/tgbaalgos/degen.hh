@@ -31,9 +31,6 @@ namespace spot
   /// This algorithms will build a new explicit automaton that has
   /// at most (N+1) times the number of states of the original automaton.
   ///
-  /// If you want to build a degeneralized automaton on-the-fly, see
-  /// spot::tgba_sba_proxy or spot::tgba_tba_proxy.
-  ///
   /// When \a use_z_lvl is set, the level of the degeneralized
   /// automaton is reset everytime an accepting SCC is exited.  If \a
   /// use_cust_acc_orders is set, the degeneralization will compute a
@@ -48,7 +45,7 @@ namespace spot
   /// Any of these three options will cause the SCCs of the automaton
   /// \a a to be computed prior to its actual degeneralization.
   ///
-  /// \see tgba_sba_proxy, tgba_tba_proxy
+  /// \see tgba_tba_proxy
   SPOT_API tgba_digraph*
   degeneralize(const tgba* a, bool use_z_lvl = true,
 	       bool use_cust_acc_orders = false,

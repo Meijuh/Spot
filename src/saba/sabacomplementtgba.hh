@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2010, 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -66,7 +66,7 @@ namespace spot
     virtual std::string format_state(const saba_state* state) const;
     virtual bdd all_acceptance_conditions() const;
   private:
-    const tgba_sba_proxy* automaton_;
+    const tgba_digraph* automaton_;
     bdd the_acceptance_cond_;
     unsigned nb_states_;
   }; // end class tgba_saba_complement.

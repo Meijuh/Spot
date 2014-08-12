@@ -1660,7 +1660,7 @@ main(int argc, char** argv)
 	    case 8:
 	      {
 		assert(degeneralize_opt == DegenSBA);
-		if (assume_sba || dynamic_cast<const spot::tgba_sba_proxy*>(a))
+		if (assume_sba)
 		  spot::never_claim_reachable(std::cout, a, f, spin_comments);
 		else
 		  {

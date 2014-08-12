@@ -24,6 +24,7 @@
 #include <tgba/bddprint.hh>
 #include <tgba/state.hh>
 #include "misc/hash.hh"
+#include "tgbaalgos/degen.hh"
 #include "tgbaalgos/bfssteps.hh"
 #include "misc/hashfunc.hh"
 #include "ltlast/formula.hh"
@@ -149,7 +150,7 @@ namespace spot
       typedef std::map<bdd, state_conjunction_list_t, bdd_less_than>
       bdd_list_t;
 
-      saba_complement_tgba_succ_iterator(const tgba_sba_proxy* automaton,
+      saba_complement_tgba_succ_iterator(const tgba_digraph* automaton,
                                          bdd the_acceptance_cond,
                                          const saba_state_complement_tgba*
                                          origin);
@@ -166,7 +167,7 @@ namespace spot
       void state_conjunction();
       void delete_condition_list();
 
-      const tgba_sba_proxy* automaton_;
+      const tgba_digraph* automaton_;
       bdd the_acceptance_cond_;
       const saba_state_complement_tgba* origin_;
       bdd_list_t condition_list_;
@@ -176,12 +177,13 @@ namespace spot
     };
 
     saba_complement_tgba_succ_iterator::
-    saba_complement_tgba_succ_iterator(const tgba_sba_proxy* automaton,
+    saba_complement_tgba_succ_iterator(const tgba_digraph* automaton,
                                       bdd the_acceptance_cond,
                                       const saba_state_complement_tgba* origin)
       : automaton_(automaton), the_acceptance_cond_(the_acceptance_cond),
         origin_(origin)
     {
+      assert(automaton->get_bprop(tgba_digraph::SBA));
       // If state not accepting or rank is even
       if (((origin_->get_rank() & 1) == 0) ||
           !automaton_->state_is_accepting(origin_->get_state()))
@@ -364,13 +366,13 @@ namespace spot
   } // end namespace anonymous.
 
   saba_complement_tgba::saba_complement_tgba(const tgba* a)
-    : automaton_(new tgba_sba_proxy(a))
+    : automaton_(degeneralize(a))
   {
     get_dict()->register_all_variables_of(automaton_, this);
     int v = get_dict()
       ->register_acceptance_variable(ltl::constant::true_instance(), this);
     the_acceptance_cond_ = bdd_ithvar(v);
-    nb_states_ = count_states(automaton_);
+    nb_states_ = automaton_->num_states();
   }
 
   saba_complement_tgba::~saba_complement_tgba()

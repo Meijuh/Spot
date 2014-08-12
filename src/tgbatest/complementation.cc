@@ -31,6 +31,7 @@
 #include "ltlast/unop.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/emptiness_stats.hh"
+#include "tgbaalgos/degen.hh"
 #include "tgba/tgbatba.hh"
 
 #include "tgba/tgbasafracomplement.hh"
@@ -215,11 +216,10 @@ int main(int argc, char* argv[])
               << a->number_of_acceptance_conditions()
               << std::endl;
 
-    spot::tgba *buchi = new spot::tgba_sba_proxy(a);
-    a_size =  spot::stats_reachable(buchi);
+    auto buchi = spot::degeneralize(a);
     std::cout << "Buchi: "
-              << a_size.states << ", "
-              << a_size.transitions << ", "
+              << buchi->num_states()
+	      << buchi->num_transitions()
               << buchi->number_of_acceptance_conditions()
               << std::endl;
     delete buchi;
