@@ -22,7 +22,6 @@
 #include <utility>
 #include <cmath>
 #include <limits>
-#include "tgba/tgbaexplicit.hh"
 #include "simulation.hh"
 #include "priv/acccompl.hh"
 #include "misc/minato.hh"

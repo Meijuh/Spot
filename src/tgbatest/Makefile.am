@@ -33,9 +33,6 @@ check_SCRIPTS = defs
 check_PROGRAMS = \
   bitvect \
   complement \
-  explicit \
-  explicit2 \
-  explicit3 \
   expldot \
   explprod \
   intvcomp \
@@ -51,9 +48,6 @@ check_PROGRAMS = \
 # Keep this sorted alphabetically.
 bitvect_SOURCES  = bitvect.cc
 complement_SOURCES = complementation.cc
-explicit_SOURCES = explicit.cc
-explicit2_SOURCES = explicit2.cc
-explicit3_SOURCES = explicit3.cc
 expldot_SOURCES  = powerset.cc
 expldot_CXXFLAGS = -DDOTTY
 explprod_SOURCES = explprod.cc
@@ -74,8 +68,6 @@ tripprod_SOURCES = tripprod.cc
 TESTS = \
   intvcomp.test \
   bitvect.test \
-  explicit.test \
-  explicit2.test \
   ltlcross3.test \
   taatgba.test \
   tgbaread.test \

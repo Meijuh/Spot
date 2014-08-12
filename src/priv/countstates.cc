@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "countstates.hh"
-#include "tgba/tgbaexplicit.hh"
 #include "tgba/tgbagraph.hh"
 #include "tgbaalgos/stats.hh"
 
@@ -27,10 +26,6 @@ namespace spot
   unsigned count_states(const tgba* a)
   {
     if (auto b = dynamic_cast<const tgba_digraph*>(a))
-      return b->num_states();
-    if (auto b = dynamic_cast<const sba_explicit_number*>(a))
-      return b->num_states();
-    if (auto b = dynamic_cast<const tgba_explicit_number*>(a))
       return b->num_states();
     return stats_reachable(a).states;
   }

@@ -60,15 +60,9 @@ namespace spot
   /// (i.e., transitions leaving accepting states are all marked as
   /// accepting) may destroy this property.  Use scc_filter_states()
   /// instead.
-  /// @{
-  SPOT_API tgba*
-  scc_filter(const tgba* aut, bool remove_all_useless = false,
-	     scc_map* given_sm = 0);
-
   SPOT_API tgba_digraph*
   scc_filter(const tgba_digraph* aut, bool remove_all_useless = false,
 	     scc_info* given_si = 0);
-  /// @}
 
   /// \brief Prune unaccepting SCCs.
   ///
@@ -78,10 +72,6 @@ namespace spot
   /// Especially, if the input TGBA has the SBA property, (i.e.,
   /// transitions leaving accepting states are all marked as
   /// accepting), then the output TGBA will also have that property.
-  /// @{
-  SPOT_API tgba*
-  scc_filter_states(const tgba* aut, scc_map* given_sm = 0);
-
   SPOT_API tgba_digraph*
   scc_filter_states(const tgba_digraph* aut, scc_info* given_si = 0);
 
@@ -99,7 +89,6 @@ namespace spot
   scc_filter_susp(const tgba_digraph* aut, bool remove_all_useless,
 		  bdd suspvars, bdd ignoredvars, bool early_susp,
 		  scc_info* given_si = 0);
-  /// @}
 }
 
 #endif // SPOT_TGBAALGOS_SCC_HH

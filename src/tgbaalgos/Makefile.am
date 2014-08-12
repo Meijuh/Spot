@@ -56,7 +56,6 @@ tgbaalgos_HEADERS = \
   randomgraph.hh \
   reachiter.hh \
   reducerun.hh \
-  reductgba_sim.hh \
   replayrun.hh \
   rundotdec.hh \
   safety.hh \
@@ -103,7 +102,6 @@ libtgbaalgos_la_SOURCES = \
   randomgraph.cc \
   reachiter.cc \
   reducerun.cc \
-  reductgba_sim.cc \
   replayrun.cc \
   rundotdec.cc \
   safety.cc \

@@ -615,7 +615,7 @@ namespace spot
 
   tgba_digraph*
   minimize_obligation(const tgba_digraph* aut_f,
-		      const ltl::formula* f, const tgba* aut_neg_f,
+		      const ltl::formula* f, const tgba_digraph* aut_neg_f,
 		      bool reject_bigger)
   {
     auto min_aut_f = minimize_wdba(aut_f);
@@ -656,7 +656,7 @@ namespace spot
 	    neg_f->destroy();
 
 	    // Remove useless SCCs.
-	    const tgba* tmp = scc_filter(aut_neg_f, true);
+	    auto tmp = scc_filter(aut_neg_f, true);
 	    delete aut_neg_f;
 	    to_free = aut_neg_f = tmp;
 	  }

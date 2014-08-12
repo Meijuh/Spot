@@ -35,7 +35,6 @@ tgba_HEADERS = \
   succiter.hh \
   taatgba.hh \
   tgba.hh \
-  tgbaexplicit.hh \
   tgbagraph.hh \
   tgbakvcomplement.hh \
   tgbamask.hh \
@@ -56,7 +55,6 @@ libtgba_la_SOURCES = \
   futurecondcol.cc \
   taatgba.cc \
   tgba.cc \
-  tgbaexplicit.cc \
   tgbakvcomplement.cc \
   tgbaproduct.cc \
   tgbamask.cc \

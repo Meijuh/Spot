@@ -25,7 +25,6 @@
 #include <string>
 #include <ostream>
 #include <memory>
-#include "tgba/tgbaexplicit.hh"
 #include "tgba/formula2bdd.hh"
 #include "reachiter.hh"
 #include "misc/bddlt.hh"
@@ -81,11 +80,13 @@ namespace spot
 	  all_acc_conds_(a->all_acceptance_conditions()),
 	  acs_(all_acc_conds_),
 	  sba_format_(sba_format),
-	  // If outputting with state-based acceptance, check if the
-	  // automaton can be converted into an sba. This makes the
-	  // state_is_accepting() function more efficient.
-	  sba_(sba_format ? dynamic_cast<const sba*>(a) : 0)
+	  // Check if the automaton can be converted into a
+	  // tgba_digraph. This makes the state_is_accepting()
+	  // function more efficient.
+	  sba_(dynamic_cast<const tgba_digraph*>(a))
       {
+	if (sba_ && !sba_->get_bprop(tgba_digraph::SBA))
+	  sba_ = nullptr;
       }
 
       bool
@@ -165,7 +166,7 @@ namespace spot
       bdd all_acc_conds_;
       acceptance_cond_splitter acs_;
       bool sba_format_;
-      const sba* sba_;
+      const tgba_digraph* sba_;
     };
 
     static

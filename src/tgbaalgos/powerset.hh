@@ -143,7 +143,7 @@ namespace spot
 			unsigned threshold_states = 0,
 			unsigned threshold_cycles = 0,
 			const ltl::formula* f = 0,
-			const tgba* neg_aut = 0);
+			const tgba_digraph* neg_aut = 0);
 
 }
 

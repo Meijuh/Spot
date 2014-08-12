@@ -35,7 +35,6 @@
 
 #include "ltlast/formula.hh"
 #include "ltlvisit/tostring.hh"
-#include "tgba/tgbaexplicit.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/neverclaim.hh"

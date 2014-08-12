@@ -23,7 +23,6 @@
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
-#include "tgba/tgbaexplicit.hh"
 #include "tgbaalgos/powerset.hh"
 #include "tgbaparse/public.hh"
 #include "tgbaalgos/save.hh"

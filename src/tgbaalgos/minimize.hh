@@ -152,7 +152,7 @@ namespace spot
   /// that the minimized WDBA is correct.
   SPOT_API tgba_digraph* minimize_obligation(const tgba_digraph* aut_f,
 					     const ltl::formula* f = 0,
-					     const tgba* aut_neg_f = 0,
+					     const tgba_digraph* aut_neg_f = 0,
 					     bool reject_bigger = false);
 
   /// @}

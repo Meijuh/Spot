@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cycles.hh"
-#include "tgba/tgbaexplicit.hh"
 #include "ltlast/formula.hh"
 #include "isweakscc.hh"
 

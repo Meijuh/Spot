@@ -1301,10 +1301,19 @@ main(int argc, char** argv)
 
       if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
 	{
+	  auto aa = dynamic_cast<const spot::tgba_digraph*>(a);
+	  bool freeit = false;
+	  if (!aa)
+	    {
+	      freeit = true;
+	      aa = spot::tgba_dupexp_dfs(a);
+	    }
 	  tm.start("SCC-filter post-sim");
 	  delete aut_scc;
-	  aut_scc = a = spot::scc_filter(a, scc_filter_all);
+	  aut_scc = a = spot::scc_filter(aa, scc_filter_all);
 	  tm.stop("SCC-filter post-sim");
+	  if (freeit)
+	    delete aa;
 	}
 
       if (reduction_dont_care_sim)

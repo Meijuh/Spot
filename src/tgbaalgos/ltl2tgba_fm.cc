@@ -37,7 +37,6 @@
 #include "ltl2tgba_fm.hh"
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/sccinfo.hh"
-#include "tgba/tgbaexplicit.hh"
 //#include "tgbaalgos/dotty.hh"
 #include "priv/acccompl.hh"
 

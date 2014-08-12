@@ -79,7 +79,6 @@ namespace std {
 #include "tgba/tgba.hh"
 #include "tgba/sba.hh"
 #include "tgba/taatgba.hh"
-#include "tgba/tgbaexplicit.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgba/tgbatba.hh"
 
@@ -221,7 +220,6 @@ using namespace spot;
 %include "tgba/tgba.hh"
 %include "tgba/sba.hh"
 %include "tgba/taatgba.hh"
-%include "tgba/tgbaexplicit.hh"
 %include "tgba/tgbaproduct.hh"
 %include "tgba/tgbatba.hh"
 
@@ -232,61 +230,6 @@ namespace spot {
   {
   };
 }
-
-%template(tgba_explicit_succ_iterator__string)
-  spot::tgba_explicit_succ_iterator<state_explicit_string>;
-%template(tgba_explicit_succ_iterator__number)
-  spot::tgba_explicit_succ_iterator<state_explicit_number>;
-%template(tgba_explicit_succ_iterator__formula)
-  spot::tgba_explicit_succ_iterator<state_explicit_formula>;
-
-%template(explicit_graph__string_tgba)
-  spot::explicit_graph<state_explicit_string, tgba>;
-%template(explicit_graph__number_tgba)
-  spot::explicit_graph<state_explicit_number, tgba>;
-%template(explicit_graph__formula_tgba)
-  spot::explicit_graph<state_explicit_formula, tgba>;
-
-%template(explicit_string_tgba)
-  spot::tgba_explicit<state_explicit_string>;
-%template(explicit_number_tgba)
-  spot::tgba_explicit<state_explicit_number>;
-%template(explicit_formula_tgba)
-  spot::tgba_explicit<state_explicit_formula>;
-
-%template(explicit_string__tgba)
-  spot::explicit_conf<tgba_explicit<state_explicit_string>,
-                      state_explicit_string>;
-%template(explicit_number__tgba)
-  spot::explicit_conf<tgba_explicit<state_explicit_number>,
-		      state_explicit_number>;
-%template(explicit_formula__tgba)
-  spot::explicit_conf<tgba_explicit<state_explicit_formula>,
-		      state_explicit_formula>;
-
-%template(explicit_graph__string_sba)
-  spot::explicit_graph<state_explicit_string, sba>;
-%template(explicit_graph__number_sba)
-  spot::explicit_graph<state_explicit_number, sba>;
-%template(explicit_graph__formula_sba)
-  spot::explicit_graph<state_explicit_formula, sba>;
-
-%template(explicit_string_sba)
-  spot::sba_explicit<state_explicit_string>;
-%template(explicit_number_sba)
-  spot::sba_explicit<state_explicit_number>;
-%template(explicit_formula_sba)
-  spot::sba_explicit<state_explicit_formula>;
-
-%template(explicit_string__sba)
-  spot::explicit_conf<sba_explicit<state_explicit_string>,
-                      state_explicit_string>;
-%template(explicit_number__sba)
-  spot::explicit_conf<sba_explicit<state_explicit_number>,
-		      state_explicit_number>;
-%template(explicit_formula__sba)
-  spot::explicit_conf<sba_explicit<state_explicit_formula>,
-		      state_explicit_formula>;
 
 %include "tgbaalgos/degen.hh"
 %include "tgbaalgos/dottydec.hh"
@@ -397,17 +340,6 @@ minimize_obligation_new(const spot::tgba* a, const spot::ltl::formula* f)
     return 0;
   else
     return res;
-}
-
-void
-tgba_enable_utf8(spot::tgba* a)
-{
-  if (spot::tgba_explicit_formula* tef =
-      dynamic_cast<spot::tgba_explicit_formula*>(a))
-    tef->enable_utf8();
-  else if (spot::sba_explicit_formula* sef =
-	   dynamic_cast<spot::sba_explicit_formula*>(a))
-    sef->enable_utf8();
 }
 
 spot::ltl::parse_error_list

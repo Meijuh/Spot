@@ -700,9 +700,6 @@ if degen or neverclaim:
 else:
     degen = automaton
 
-if utf8:
-    spot.tgba_enable_utf8(degen)
-
 # Buchi Automaton Output
 if output_type == 'a':
     if buchi_type == 'i':

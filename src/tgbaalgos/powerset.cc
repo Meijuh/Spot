@@ -328,7 +328,7 @@ namespace spot
 			unsigned threshold_states,
 			unsigned threshold_cycles,
 			const ltl::formula* f,
-			const tgba* neg_aut)
+			const tgba_digraph* neg_aut)
   {
     const tgba* built = 0;
     if (f == 0 && neg_aut == 0)
@@ -349,7 +349,7 @@ namespace spot
 	neg_f->destroy();
 
 	// Remove useless SCCs.
-	const tgba* tmp = scc_filter(neg_aut, true);
+	auto tmp = scc_filter(neg_aut, true);
 	delete neg_aut;
 	built = neg_aut = tmp;
       }
