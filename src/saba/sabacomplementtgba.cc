@@ -24,6 +24,7 @@
 #include <tgba/bddprint.hh>
 #include <tgba/state.hh>
 #include "misc/hash.hh"
+#include "misc/bddlt.hh"
 #include "tgbaalgos/degen.hh"
 #include "tgbaalgos/bfssteps.hh"
 #include "misc/hashfunc.hh"

@@ -119,7 +119,7 @@ run 0 ../ltl2tgba -e -R3 '(G!{(b;1)*;a} && ({1;1[*3]*}[]->{(b&!a)[*2];!b&!a}))'
 
 # Make sure 'a U (b U c)' has 3 states and 6 transitions,
 # before and after degeneralization.
-for opt in '' -D -DS; do
+for opt in '' -DT -DS; do
   ../ltl2tgba -ks -f -R3 $opt 'a U (b U c)' > stdout
   grep 'transitions: 6$' stdout
   grep 'states: 3$' stdout
@@ -127,7 +127,7 @@ done
 
 # Make sure '!(Ga U b)' has 3 states and 6 transitions,
 # before and after degeneralization.
-for opt in '' -D -DS; do
+for opt in '' -DT -DS; do
   ../ltl2tgba -kt -f -R3 $opt '!(Ga U b)' > stdout
   grep 'sub trans.: 11$' stdout
   grep 'transitions: 6$' stdout
@@ -136,7 +136,7 @@ done
 
 # Make sure 'Ga U b' has 4 states and 6 transitions,
 # before and after degeneralization.
-for opt in '' -D -DS; do
+for opt in '' -DT -DS; do
   ../ltl2tgba -kt -f -R3 $opt 'Ga U b' > stdout
   grep 'sub trans.: 12$' stdout
   grep 'transitions: 6$' stdout
@@ -146,7 +146,7 @@ done
 # Make sure '(G (p -> F q)) && ((X (p) U q) || ! X (p U (p && q)))'
 # has 6 states and 15 transitions, before and after degeneralization.
 f='(G (p -> F q)) && ((X (p) U q) || ! X (p U (p && q)))'
-for opt in '' -D -DS; do
+for opt in '' -DT -DS; do
   ../ltl2tgba -ks -f -R3 $opt "$f" > stdout
   grep 'transitions: 15$' stdout
   grep 'states: 6$' stdout

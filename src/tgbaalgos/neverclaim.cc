@@ -23,9 +23,9 @@
 #include <ostream>
 #include <sstream>
 #include "bdd.h"
-#include "tgba/tgbagraph.hh"
 #include "neverclaim.hh"
 #include "tgba/bddprint.hh"
+#include "tgba/tgbagraph.hh"
 #include "reachiter.hh"
 #include "ltlvisit/tostring.hh"
 #include "tgba/formula2bdd.hh"

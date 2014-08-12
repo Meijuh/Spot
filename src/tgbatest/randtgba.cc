@@ -45,7 +45,7 @@
 #include "tgbaparse/public.hh"
 #include "misc/random.hh"
 #include "misc/optionmap.hh"
-#include "tgba/tgbatba.hh"
+#include "tgbaalgos/degen.hh"
 #include "tgba/tgbaproduct.hh"
 #include "misc/timer.hh"
 
@@ -928,7 +928,7 @@ main(int argc, char** argv)
 		{
 		  spot::tgba* degen = 0;
 		  if (opt_degen && real_n_acc > 1)
-		    degen = new spot::tgba_tba_proxy(a);
+		    degen = degeneralize_tba(a);
 
 		  int n_alg = ec_algos.size();
 		  int n_ec = 0;

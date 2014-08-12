@@ -32,7 +32,6 @@
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/emptiness_stats.hh"
 #include "tgbaalgos/degen.hh"
-#include "tgba/tgbatba.hh"
 
 #include "tgba/tgbasafracomplement.hh"
 #include "tgba/tgbakvcomplement.hh"

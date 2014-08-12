@@ -37,7 +37,6 @@
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
 #include "tgba/tgbaproduct.hh"
-#include "tgba/tgbatba.hh"
 #include "tgba/wdbacomp.hh"
 #include "tgbaalgos/powerset.hh"
 #include "tgbaalgos/gtec/gtec.hh"

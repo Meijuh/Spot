@@ -31,16 +31,16 @@ ltl2tgba=../ltl2tgba
   "$ltl2tgba -t -f -R3 %f > %T" \
   "$ltl2tgba -t -f -R3 -Rm %f > %T" \
   "$ltl2tgba -t -f -R3 -RM %f > %T" \
-  "$ltl2tgba -t -f -D %f > %T" \
-  "$ltl2tgba -t -f -D %f > %T" \
+  "$ltl2tgba -t -f -DT %f > %T" \
+  "$ltl2tgba -t -f -DS %f > %T" \
   "$ltl2tgba -t -f -r4 -R3 -RDS %f > %T" \
   "$ltl2tgba -t -f -r4 -R3 -RRS %f > %T" \
   "$ltl2tgba -t -f -r4 -R3 -RIS %f > %T" \
   "$ltl2tgba -t -f -r4 -R3 -RDS -DS %f > %T" \
   "$ltl2tgba -t -f -x -p %f > %T" \
   "$ltl2tgba -t -f -x -p -L %f > %T" \
-  "$ltl2tgba -t -f -x -p -D %f > %T" \
-  "$ltl2tgba -t -f -x -p -L -D %f > %T" \
+  "$ltl2tgba -t -f -x -p -DT %f > %T" \
+  "$ltl2tgba -t -f -x -p -L -DT %f > %T" \
   "$ltl2tgba -t -taa -r4 %f > %T" \
   "$ltl2tgba -t -taa -r4 -c %f > %T" \
   "$ltl2tgba -t -taa -r4 -R3 -RDS %f > %T"

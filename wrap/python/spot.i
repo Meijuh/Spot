@@ -79,7 +79,6 @@ namespace std {
 #include "tgba/tgba.hh"
 #include "tgba/taatgba.hh"
 #include "tgba/tgbaproduct.hh"
-#include "tgba/tgbatba.hh"
 
 #include "tgbaalgos/dottydec.hh"
 #include "tgbaalgos/dotty.hh"
@@ -201,6 +200,7 @@ using namespace spot;
 %feature("new") spot::cosimulation;
 %feature("new") spot::iterated_simulations;
 %feature("new") spot::degeneralize;
+%feature("new") spot::degeneralize_tba;
 %feature("new") spot::tgba_parse;
 %feature("new") spot::tgba_to_ta;
 %feature("new") spot::tgba_to_tgta;
@@ -219,7 +219,6 @@ using namespace spot;
 %include "tgba/tgba.hh"
 %include "tgba/taatgba.hh"
 %include "tgba/tgbaproduct.hh"
-%include "tgba/tgbatba.hh"
 
 // We won't parse tgba_digraph, so just pretend it is a subclass of tgba.
 %nodefaultctor spot::tgba_digraph;

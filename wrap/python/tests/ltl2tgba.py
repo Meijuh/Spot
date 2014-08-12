@@ -99,7 +99,7 @@ if f:
 
     degeneralized = None
     if degeneralize_opt:
-        a = degeneralized = spot.tgba_tba_proxy(a)
+        a = degeneralized = spot.degeneralize(a)
 
     if output == 0:
         spot.dotty_reachable(cout, a)

@@ -20,11 +20,12 @@
 #define SPOT_SABA_SABACOMPLEMENTTGBA_HH
 
 #include <tgba/tgba.hh>
-#include <tgba/tgbatba.hh>
 #include "saba.hh"
 
 namespace spot
 {
+  class tgba_digraph;
+
   /// \ingroup saba
   /// \brief Complement a TGBA and produce a SABA.
   ///

@@ -28,7 +28,6 @@
 #include "priv/countstates.hh"
 #include "powerset.hh"
 #include "isdet.hh"
-#include "tgba/tgbatba.hh"
 #include "dtbasat.hh"
 #include "dtgbasat.hh"
 #include "complete.hh"
@@ -273,14 +272,14 @@ namespace spot
     // If we don't have a DBA, attempt tba-determinization if requested.
     if (tba_determinisation_ && !dba)
       {
-	const tgba* tmpd = 0;
+	const tgba_digraph* tmpd = 0;
 	if (PREF_ == Deterministic
 	    && f
 	    && f->is_syntactic_recurrence()
 	    && sim->number_of_acceptance_conditions() > 1)
-	  tmpd = new tgba_tba_proxy(sim);
+	  tmpd = degeneralize_tba(sim);
 
-	const tgba* in = tmpd ? tmpd : sim;
+	auto in = tmpd ? tmpd : sim;
 
 	// These thresholds are arbitrary.
 	//
@@ -293,7 +292,7 @@ namespace spot
 	// are 8 times bigger, with no more that 2^15 cycle per SCC.
 	// The cycle threshold is the most important limit here.  You
 	// may up it if you want to try producing larger automata.
-	const tgba* tmp =
+	auto tmp =
 	  tba_determinize_check(in,
 				(PREF_ == Small) ? 2 : 8,
 				1 << ((PREF_ == Small) ? 13 : 15),
@@ -341,8 +340,8 @@ namespace spot
 	  // sure it is at least 1.
 	  target_acc = original_acc > 0 ? original_acc : 1;
 
-	const tgba* in = 0;
-	const tgba* to_free = 0;
+	const tgba_digraph* in = 0;
+	const tgba_digraph* to_free = 0;
 	if (target_acc == 1)
 	  {
 	    // If we are seeking a minimal DBA with unknown number of
@@ -351,7 +350,7 @@ namespace spot
 	    if (state_based_)
 	      to_free = in = degeneralize(dba);
 	    else if (dba->number_of_acceptance_conditions() != 1)
-	      to_free = in = new tgba_tba_proxy(dba);
+	      to_free = in = degeneralize_tba(dba);
 	    else
 	      in = dba;
 	  }

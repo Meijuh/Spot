@@ -45,12 +45,21 @@ namespace spot
   /// Any of these three options will cause the SCCs of the automaton
   /// \a a to be computed prior to its actual degeneralization.
   ///
-  /// \see tgba_tba_proxy
+  /// The degeneralize_tba() variant produce a degeneralized automaton
+  /// with transition-based acceptance.
+  /// \@{
   SPOT_API tgba_digraph*
   degeneralize(const tgba* a, bool use_z_lvl = true,
 	       bool use_cust_acc_orders = false,
 	       int use_lvl_cache = 1,
 	       bool skip_levels = true);
+
+  SPOT_API tgba_digraph*
+  degeneralize_tba(const tgba* a, bool use_z_lvl = true,
+		   bool use_cust_acc_orders = false,
+		   int use_lvl_cache = 1,
+		   bool skip_levels = true);
+  /// \@}
 }
 
 

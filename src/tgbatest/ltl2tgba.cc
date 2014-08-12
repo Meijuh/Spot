@@ -36,7 +36,6 @@
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
-#include "tgba/tgbatba.hh"
 #include "tgba/tgbasgba.hh"
 #include "tgbaalgos/degen.hh"
 #include "tgba/tgbaproduct.hh"
@@ -190,7 +189,7 @@ syntax(char* prog)
 	    << std::endl
             << "  -lS   move generalized acceptance conditions to states "
 	    << "(SGBA)" << std::endl
-	    << "  -D    degeneralize the automaton as a TBA" << std::endl
+	    << "  -DT   degeneralize the automaton as a TBA" << std::endl
 	    << "  -DS   degeneralize the automaton as an SBA" << std::endl
 	    << "          (append z/Z, o/O, l/L: to turn on/off options "
             << "(default: zol)\n "
@@ -451,15 +450,18 @@ main(int argc, char** argv)
 	}
       else if (!strcmp(argv[formula_index], "-D"))
 	{
-	  degeneralize_opt = DegenTBA;
+	  std::cerr << "-D was renamed to -DT\n";
+	  abort();
 	}
       else if (!strcmp(argv[formula_index], "-DC"))
 	{
 	  opt_dtgbacomp = true;
 	}
-      else if (!strncmp(argv[formula_index], "-DS", 3))
+      else if (!strncmp(argv[formula_index], "-DS", 3)
+	       || !strncmp(argv[formula_index], "-DT", 3))
 	{
-	  degeneralize_opt = DegenSBA;
+	  degeneralize_opt =
+	    argv[formula_index][2] == 'S' ? DegenSBA : DegenTBA;
 	  const char* p = argv[formula_index] + 3;
 	  while (*p)
 	    {
@@ -1354,7 +1356,10 @@ main(int argc, char** argv)
 	{
 	  if (degeneralize_opt == DegenTBA)
 	    {
-	      degeneralized = a = new spot::tgba_tba_proxy(a);
+	      degeneralized = a = spot::degeneralize_tba(a,
+							 degen_reset,
+							 degen_order,
+							 degen_cache);
 	    }
 	  else if (degeneralize_opt == DegenSBA)
 	    {
@@ -1604,7 +1609,13 @@ main(int argc, char** argv)
             degeneralize_opt = DegenTBA;
           if (degeneralize_opt == DegenTBA)
 	    {
-	      product_degeneralized = a = new spot::tgba_tba_proxy(a);
+	      tm.start("degeneralize product");
+	      product_degeneralized = a =
+		spot::degeneralize_tba(a,
+				       degen_reset,
+				       degen_order,
+				       degen_cache);
+	      tm.stop("degeneralize product");
 	    }
           else if (degeneralize_opt == DegenSBA)
 	    {

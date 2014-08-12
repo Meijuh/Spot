@@ -24,9 +24,9 @@ set -e
 ltl2tgba=../../bin/ltl2tgba
 
 cat >formulas <<'EOF'
-1,14,X((a M F((!b & !c) | (b & c))) W (G!c U b))
+1,13,X((a M F((!b & !c) | (b & c))) W (G!c U b))
 1,5,X(((a & b) R (!a U !c)) R b)
-1,10,XXG(Fa U Xb)
+1,9,XXG(Fa U Xb)
 1,5,(!a M !b) W F!c
 1,3,(b & Fa & GFc) R a
 1,2,(a R (b W a)) W G(!a M (b | c))
