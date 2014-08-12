@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-## Developpement de l'Epita (LRDE).
+## Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+## et Developpement de l'Epita (LRDE).
 ## Copyright (C) 2004, 2005, 2006 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -29,7 +29,6 @@ ltlvisit_HEADERS = \
   apcollect.hh \
   contain.hh \
   clone.hh \
-  destroy.hh \
   dotty.hh \
   dump.hh \
   lbt.hh \
@@ -38,7 +37,6 @@ ltlvisit_HEADERS = \
   nenoform.hh \
   postfix.hh \
   randomltl.hh \
-  reduce.hh \
   relabel.hh \
   remove_x.hh \
   simpfg.hh \
@@ -53,7 +51,6 @@ libltlvisit_la_SOURCES = \
   apcollect.cc \
   contain.cc \
   clone.cc \
-  destroy.cc \
   dotty.cc \
   dump.cc \
   lbt.cc \
@@ -64,7 +61,6 @@ libltlvisit_la_SOURCES = \
   nenoform.cc \
   postfix.cc \
   randomltl.cc \
-  reduce.cc \
   relabel.cc \
   remove_x.cc \
   simpfg.cc \

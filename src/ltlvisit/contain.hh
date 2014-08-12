@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -80,36 +80,6 @@ namespace spot
       /* Translation Maps */
       trans_map translated_;
     };
-
-    /// \brief Reduce a formula using language containment relationships.
-    ///
-    /// The method is taken from table 4.1 in
-    /** \verbatim
-       @TechReport{	  tauriainen.03.a83,
-         author	= {Heikki Tauriainen},
-         title = {On Translating Linear Temporal Logic into Alternating and
-       		  Nondeterministic Automata},
-         institution	= {Helsinki University of Technology, Laboratory for
-       			   Theoretical Computer Science},
-         address	= {Espoo, Finland},
-         month		= dec,
-         number		= {A83},
-         pages		= {132},
-         type		= {Research Report},
-         year		= {2003},
-         note		= {Reprint of Licentiate's thesis}
-       }
-        \endverbatim */
-    ///
-    /// (The "dagged" cells in the tables are not handled here.)
-    ///
-    /// If \a stronger is set, additional rules are used to further
-    /// reduce some U, R, and X usages.
-    ///
-    /// \deprecated Use spot::ltl::ltl_simplifier instead.
-    SPOT_API SPOT_DEPRECATED
-    const formula* reduce_tau03(const formula* f,
-				bool stronger = true);
   }
 }
 

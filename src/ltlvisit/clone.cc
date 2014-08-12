@@ -91,11 +91,5 @@ namespace spot
       f->accept(*this);
       return result_;
     }
-
-    const formula*
-    clone(const formula* f)
-    {
-      return f->clone();
-    }
   }
 }

@@ -57,12 +57,6 @@ namespace spot
     protected:
       const formula* result_;
     };
-
-    /// \ingroup ltl_essential
-    /// \brief Clone a formula.
-    /// \deprecated Use f->clone() instead.
-    SPOT_API SPOT_DEPRECATED
-    const formula* clone(const formula* f) __attribute__ ((deprecated));
   }
 }
 
