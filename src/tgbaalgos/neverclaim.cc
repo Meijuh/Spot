@@ -23,7 +23,7 @@
 #include <ostream>
 #include <sstream>
 #include "bdd.h"
-#include "tgba/sba.hh"
+#include "tgba/tgbagraph.hh"
 #include "neverclaim.hh"
 #include "tgba/bddprint.hh"
 #include "reachiter.hh"
@@ -42,8 +42,9 @@ namespace spot
 	: tgba_reachable_iterator_breadth_first(a),
 	  os_(os), f_(f), accept_all_(-1), fi_needed_(false),
 	  comments_(comments), all_acc_conds_(a->all_acceptance_conditions()),
-	  sba_(dynamic_cast<const sba*>(a))
+	  sba_(dynamic_cast<const tgba_digraph*>(a))
       {
+	assert(!sba_ || sba_->get_bprop(tgba_digraph::StateBasedAcc));
       }
 
       void
@@ -193,7 +194,7 @@ namespace spot
       state* init_;
       bool comments_;
       bdd all_acc_conds_;
-      const sba* sba_;
+      const tgba_digraph* sba_;
     };
   } // anonymous
 

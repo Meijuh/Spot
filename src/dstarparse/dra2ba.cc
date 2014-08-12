@@ -238,6 +238,7 @@ namespace spot
       {
 	bdd_dict* bd = a->aut->get_dict();
 	bd->register_all_variables_of(a->aut, out_);
+	out_->set_bprop(tgba_digraph::StateBasedAcc);
 
 	// Invent a new acceptance set for the degeneralized automaton.
 	int accvar =

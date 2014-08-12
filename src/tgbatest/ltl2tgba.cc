@@ -1089,10 +1089,13 @@ main(int argc, char** argv)
 		  {
 		    if (daut->type == spot::Rabin)
 		      {
+			spot::tgba_digraph* res;
 			if (dra2dba)
-			  to_free = a = spot::dstar_to_tgba(daut);
+			  res = spot::dstar_to_tgba(daut);
 			else
-			  to_free = a = spot::nra_to_nba(daut);
+			  res = spot::nra_to_nba(daut);
+			to_free = a = res;
+			assert(res->get_bprop(spot::tgba_digraph::SBA));
 			assume_sba = true;
 		      }
 		    else

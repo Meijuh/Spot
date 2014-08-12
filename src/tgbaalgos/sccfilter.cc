@@ -499,7 +499,11 @@ namespace spot
   tgba_digraph*
   scc_filter_states(const tgba_digraph* aut, scc_info* given_si)
   {
-    return scc_filter_apply<state_filter<>>(aut, given_si);
+    bool sb = aut->get_bprop(tgba_digraph::StateBasedAcc);
+    auto res = scc_filter_apply<state_filter<>>(aut, given_si);
+    if (sb)
+      res->set_bprop(tgba_digraph::StateBasedAcc);
+    return res;
   }
 
   tgba_digraph*

@@ -52,6 +52,8 @@ namespace spot
 	int accvar =
 	  bd->register_acceptance_variable(ltl::constant::true_instance(),
 					   out_);
+	out_->set_bprop(tgba_digraph::StateBasedAcc);
+
 	acc_ = bdd_ithvar(accvar);
 	out_->set_acceptance_conditions(acc_);
 	out_->new_states(num_states_ * (d_->accpair_count + 1));

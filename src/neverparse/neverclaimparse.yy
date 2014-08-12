@@ -309,6 +309,8 @@ namespace spot
     bdd acc = bdd_ithvar(dict->register_acceptance_variable(t, result));
     result->set_acceptance_conditions(acc);
 
+    result->set_bprop(tgba_digraph::SBA);
+
     neverclaimyy::parser parser(error_list, env, result, namer, fcache);
     parser.set_debug_level(debug);
     parser.parse();

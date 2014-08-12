@@ -550,6 +550,8 @@ namespace spot
 	tgba_digraph* res = new tgba_digraph(d);
 	d->register_all_variables_of(a_, res);
 	res->set_acceptance_conditions(all_acceptance_conditions_);
+	if (Sba)
+	  res->set_bprop(tgba_digraph::StateBasedAcc);
 
 	bdd sup_all_acc = bdd_support(all_acceptance_conditions_);
 	// Non atomic propositions variables (= acc and class)

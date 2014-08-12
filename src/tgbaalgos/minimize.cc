@@ -143,7 +143,6 @@ namespace spot
     bdd allacc = bddfalse;
     if (!final->empty())
       {
-	res->set_bprop(tgba_digraph::SingleAccSet);
 	int accvar =
 	  dict->register_acceptance_variable(ltl::constant::true_instance(),
 					     res);

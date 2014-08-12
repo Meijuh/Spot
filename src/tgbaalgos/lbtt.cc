@@ -244,6 +244,7 @@ namespace spot
       auto aut = std::unique_ptr<tgba_digraph>(new tgba_digraph(dict));
       acc_mapper_int acc_b(aut.get(), num_acc, envacc);
       aut->new_states(num_states);
+      aut->set_bprop(tgba_digraph::StateBasedAcc);
 
       for (unsigned n = 0; n < num_states; ++n)
 	{

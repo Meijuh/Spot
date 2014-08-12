@@ -21,8 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ostream>
-#include "tgba/tgba.hh"
-#include "tgba/sba.hh"
+#include "tgba/tgbagraph.hh"
 #include "dotty.hh"
 #include "dottydec.hh"
 #include "tgba/bddprint.hh"
@@ -42,7 +41,7 @@ namespace spot
 		dotty_decorator* dd)
 	: tgba_reachable_iterator_breadth_first(a), os_(os),
 	  mark_accepting_states_(mark_accepting_states), dd_(dd),
-	  sba_(dynamic_cast<const sba*>(a))
+	  sba_(dynamic_cast<const tgba_digraph*>(a))
       {
       }
 
@@ -120,7 +119,7 @@ namespace spot
       std::ostream& os_;
       bool mark_accepting_states_;
       dotty_decorator* dd_;
-      const sba* sba_;
+      const tgba_digraph* sba_;
     };
   }
 

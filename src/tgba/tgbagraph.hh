@@ -314,6 +314,11 @@ namespace spot
 	}
       all_acceptance_conditions_ =
 	compute_all_acceptance_conditions(neg_acceptance_conditions_);
+
+      if (number_of_acceptance_conditions() == 1)
+	set_bprop(tgba_digraph::SingleAccSet);
+      else
+	clear_bprop(tgba_digraph::SingleAccSet);
     }
 
     unsigned new_state()

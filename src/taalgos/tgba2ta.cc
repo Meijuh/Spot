@@ -29,7 +29,6 @@
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/constant.hh"
 #include "tgba/formula2bdd.hh"
-#include "tgba/sba.hh"
 #include "misc/bddop.hh"
 #include <cassert>
 #include "ltlvisit/tostring.hh"
