@@ -53,6 +53,7 @@ libtgba_la_SOURCES = \
   futurecondcol.cc \
   taatgba.cc \
   tgba.cc \
+  tgbagraph.cc \
   tgbakvcomplement.cc \
   tgbaproduct.cc \
   tgbamask.cc \

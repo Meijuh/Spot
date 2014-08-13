@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dtgbacomp.hh"
-#include "ltlast/constant.hh"
 #include "dupexp.hh"
 
 namespace spot
@@ -28,18 +27,12 @@ namespace spot
     // Clone the original automaton.
     tgba_digraph* res = tgba_dupexp_dfs(aut);
 
-    auto dict = res->get_dict();
-
     bdd oldaccs = aut->all_acceptance_conditions();
     bdd oldnegs = aut->neg_acceptance_conditions();
 
     // We will modify res in place, and the resulting
     // automaton will only have one acceptance set.
-    dict->unregister_all_typed_variables(bdd_dict::acc, res);
-    bdd theacc =
-      bdd_ithvar(dict->register_acceptance_variable
-		 (ltl::constant::true_instance(), res));
-    res->set_acceptance_conditions(theacc);
+    res->set_single_acceptance_set();
 
     unsigned num_acc =  aut->number_of_acceptance_conditions();
     unsigned n = res->num_states();
@@ -48,7 +41,7 @@ namespace spot
     res->new_states(num_acc * n + 1);
     unsigned sink = res->num_states() - 1;
     // The sink state has an accepting self-loop.
-    res->new_transition(sink, sink, bddtrue, theacc);
+    res->new_acc_transition(sink, sink, bddtrue);
 
     for (unsigned src = 0; src < n; ++src)
       {
@@ -85,7 +78,7 @@ namespace spot
 		if (h == bddfalse)
 		  {
 		    // Clone the transition
-		    res->new_transition(src + add, dst + add, cond, theacc);
+		    res->new_acc_transition(src + add, dst + add, cond);
 		    assert(dst + add < sink);
 		    // Using `t' is disallowed from now on as it is a
 		    // reference to a transition that may have been

@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "complete.hh"
-#include "ltlast/constant.hh"
 #include "dupexp.hh"
 
 namespace spot
@@ -33,10 +32,7 @@ namespace spot
 	// We cannot safely complete an automaton if it has no
 	// acceptance set as the added sink would become accepting.
 	// In this case, add an acceptance set to all transitions.
-	const ltl::formula* t = ltl::constant::true_instance();
-	int v = aut->get_dict()->register_acceptance_variable(t, aut);
-	allacc = bdd_ithvar(v);
-	aut->set_acceptance_conditions(allacc);
+	allacc = aut->set_single_acceptance_set();
 	for (auto& t: aut->transitions())
 	  t.acc = allacc;
       }

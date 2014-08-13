@@ -23,7 +23,6 @@
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/sccfilter.hh"
-#include "ltlast/constant.hh"
 
 namespace spot
 {
@@ -239,13 +238,7 @@ namespace spot
 	bdd_dict* bd = a->aut->get_dict();
 	bd->register_all_variables_of(a->aut, out_);
 	out_->set_bprop(tgba_digraph::StateBasedAcc);
-
-	// Invent a new acceptance set for the degeneralized automaton.
-	int accvar =
-	  bd->register_acceptance_variable(ltl::constant::true_instance(),
-					   out_);
-	acc_ = bdd_ithvar(accvar);
-	out_->set_acceptance_conditions(acc_);
+	acc_ = out_->set_single_acceptance_set();
 	out_->new_states(num_states_ * (a->accpair_count + 1));
 	out_->set_init_state(a->aut->get_init_state_number());
       }
@@ -299,10 +292,9 @@ namespace spot
 		    // accepting cycle.
 		    out_->new_transition(in, out + shift, cond);
 
-		    bdd acc = bddfalse;
-		    if (l.get(i))	// In the Li set. (Löding's Fi set.)
-		      acc = acc_;
-		    out_->new_transition(in + shift, out + shift, cond, acc);
+		    // Acceptance transitions are those in the Li set. (Löding's Fi set.)
+		    out_->new_acc_transition(in + shift, out + shift, cond,
+					     l.get(i));
 		  }
 	      }
 	  }

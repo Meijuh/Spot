@@ -22,7 +22,6 @@
 #include "tgba/tgbagraph.hh"
 #include "misc/hash.hh"
 #include "misc/hashfunc.hh"
-#include "ltlast/constant.hh"
 #include <deque>
 #include <vector>
 #include <algorithm>
@@ -261,19 +260,13 @@ namespace spot
 
       // The result automaton is an SBA.
       auto res = new tgba_digraph(dict);
+      res->set_single_acceptance_set();
       if (want_sba)
 	res->set_bprop(tgba_digraph::StateBasedAcc);
 
       // We use the same BDD variables as the input, except for the
       // acceptance.
       dict->register_all_variables_of(a, res);
-      dict->unregister_all_typed_variables(bdd_dict::acc, res);
-
-      // Invent a new acceptance set for the degeneralized automaton.
-      int accvar =
-	dict->register_acceptance_variable(ltl::constant::true_instance(), res);
-      bdd degen_acc = bdd_ithvar(accvar);
-      res->set_acceptance_conditions(degen_acc);
 
       // Create an order of acceptance conditions.  Each entry in this
       // vector correspond to an acceptance set.  Each index can
@@ -600,23 +593,11 @@ namespace spot
 
 	      unsigned& t = tr_cache[dest * 2 + is_acc];
 
-	      if (t == 0)
-		{
-		  // Actually create the transition.  If the source
-		  // state is accepting, we have to put degen_acc on all
-		  // outgoing transitions.  (We are still building a
-		  // TGBA; we only assure that it can be used as an
-		  // SBA.)
-		  bdd acc = bddfalse;
-		  if (is_acc)
-		    acc = degen_acc;
-		  t = res->new_transition(src, dest,
-					  i->current_condition(), acc);
-		}
-	      else
-		{
-		  res->trans_data(t).cond |= i->current_condition();
-		}
+	      if (t == 0)	// Create transition.
+		t = res->new_acc_transition(src, dest,
+					    i->current_condition(), is_acc);
+	      else		// Update existing transition.
+		res->trans_data(t).cond |= i->current_condition();
 	    }
 	  tr_cache.clear();
 	}

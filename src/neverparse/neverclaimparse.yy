@@ -31,7 +31,6 @@
 {
 #include <string>
 #include <cstring>
-#include "ltlast/constant.hh"
 #include "public.hh"
 #include "tgba/formula2bdd.hh"
 
@@ -168,7 +167,6 @@ state:
   | ident_list "false" { delete $1; }
   | ident_list transition_block
     {
-      std::list<pair>::iterator it;
       bdd acc = !strncmp("accept", $1->c_str(), 6) ?
 	result->all_acceptance_conditions() :
 	static_cast<const bdd>(bddfalse);
@@ -304,11 +302,7 @@ namespace spot
     formula_cache fcache;
     tgba_digraph* result = new tgba_digraph(dict);
     auto namer = result->create_namer<std::string>();
-
-    const ltl::formula* t = ltl::constant::true_instance();
-    bdd acc = bdd_ithvar(dict->register_acceptance_variable(t, result));
-    result->set_acceptance_conditions(acc);
-
+    result->set_single_acceptance_set();
     result->set_bprop(tgba_digraph::SBA);
 
     neverclaimyy::parser parser(error_list, env, result, namer, fcache);
@@ -319,7 +313,7 @@ namespace spot
     if (accept_all_needed && !accept_all_seen)
       {
 	unsigned n = namer->new_state("accept_all");
-	result->new_transition(n, n, bddtrue, acc);
+	result->new_acc_transition(n, n, bddtrue);
       }
     accept_all_needed = false;
     accept_all_seen = false;

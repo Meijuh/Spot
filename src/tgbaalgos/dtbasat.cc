@@ -26,7 +26,6 @@
 #include <utility>
 #include "scc.hh"
 #include "tgba/bddprint.hh"
-#include "ltlast/constant.hh"
 #include "stats.hh"
 #include "misc/satsolver.hh"
 #include "misc/timer.hh"
@@ -673,11 +672,7 @@ namespace spot
       auto autdict = aut->get_dict();
       auto a = new tgba_digraph(autdict);
       autdict->register_all_variables_of(aut, a);
-
-      const ltl::formula* t = ltl::constant::true_instance();
-      bdd acc = bdd_ithvar(autdict->register_acceptance_variable(t, a));
-      a->set_acceptance_conditions(acc);
-
+      bdd acc = a->set_single_acceptance_set();
       a->new_states(satdict.cand_size);
 
       unsigned last_aut_trans = -1U;
@@ -710,16 +705,13 @@ namespace spot
 	      if (seen_trans.insert(src_cond(t->second.src,
 					     t->second.cond)).second)
 		{
-		  bdd accept = bddfalse;
 		  // Mark the transition as accepting if the source is.
-		  if (state_based
-		      && acc_states.find(t->second.src) != acc_states.end())
-		    accept = acc;
+		  bool accept = state_based
+		    && acc_states.find(t->second.src) != acc_states.end();
 
-		  last_aut_trans = a->new_transition(t->second.src - 1,
-						     t->second.dst - 1,
-						     t->second.cond,
-						     accept);
+		  last_aut_trans =
+		    a->new_acc_transition(t->second.src - 1, t->second.dst - 1,
+					  t->second.cond, accept);
 		  last_sat_trans = &t->second;
 
 		  dout << v << '\t' << t->second << "δ\n";
