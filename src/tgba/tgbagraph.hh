@@ -160,13 +160,13 @@ namespace spot
 
   protected:
     graph_t g_;
-    bdd_dict* dict_;
+    bdd_dict_ptr dict_;
     bdd all_acceptance_conditions_;
     bdd neg_acceptance_conditions_;
     mutable unsigned init_number_;
 
   public:
-    tgba_digraph(bdd_dict* dict)
+    tgba_digraph(bdd_dict_ptr dict)
       : dict_(dict),
 	all_acceptance_conditions_(bddfalse),
 	neg_acceptance_conditions_(bddtrue),
@@ -211,7 +211,7 @@ namespace spot
       return g_;
     }
 
-    virtual bdd_dict* get_dict() const
+    virtual bdd_dict_ptr get_dict() const
     {
       return this->dict_;
     }

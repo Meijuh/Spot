@@ -150,7 +150,7 @@ namespace spot
     virtual ta_succ_iterator_product*
     succ_iter(const spot::state* s, bdd changeset) const;
 
-    virtual bdd_dict*
+    virtual bdd_dict_ptr
     get_dict() const;
 
     virtual std::string
@@ -192,7 +192,7 @@ namespace spot
     }
 
   private:
-    bdd_dict* dict_;
+    bdd_dict_ptr dict_;
     const ta* ta_;
     const kripke* kripke_;
 

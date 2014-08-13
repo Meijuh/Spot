@@ -84,7 +84,7 @@ f = spot.parse(args[0], p, e, debug_opt)
 if spot.format_parse_errors(cerr, args[0], p):
     exit_code = 1
 
-dict = spot.bdd_dict()
+dict = spot.make_bdd_dict()
 
 if f:
     if fm_opt:
@@ -118,8 +118,6 @@ if f:
 
 else:
     exit_code = 1
-
-del dict;
 
 assert spot.atomic_prop.instance_count() == 0
 assert spot.unop.instance_count() == 0

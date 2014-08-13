@@ -31,7 +31,7 @@ namespace spot
   class acc_mapper_common
   {
   protected:
-    bdd_dict* dict_;
+    bdd_dict_ptr dict_;
     tgba_digraph* aut_;
     ltl::environment& env_;
     bdd neg_;

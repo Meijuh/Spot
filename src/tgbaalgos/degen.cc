@@ -208,7 +208,7 @@ namespace spot
       }
 
       void
-      print(int scc, const bdd_dict* dict)
+      print(int scc, const bdd_dict_ptr dict)
       {
         std::vector<bdd>::iterator i;
         std::cout << "Order_" << scc << ":\t";
@@ -241,7 +241,7 @@ namespace spot
       }
 
       void
-      print(const bdd_dict* dict)
+      print(const bdd_dict_ptr dict)
       {
         std::map<int, acc_order>::iterator i;
         for (i = orders_.begin(); i != orders_.end(); i++)
@@ -256,7 +256,7 @@ namespace spot
     {
       bool use_scc = use_lvl_cache || use_cust_acc_orders || use_z_lvl;
 
-      bdd_dict* dict = a->get_dict();
+      bdd_dict_ptr dict = a->get_dict();
 
       // The result automaton is an SBA.
       auto res = new tgba_digraph(dict);

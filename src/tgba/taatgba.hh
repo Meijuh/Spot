@@ -35,7 +35,7 @@ namespace spot
   class SPOT_API taa_tgba : public tgba
   {
   public:
-    taa_tgba(bdd_dict* dict);
+    taa_tgba(bdd_dict_ptr dict);
 
     struct transition;
     typedef std::list<transition*> state;
@@ -55,7 +55,7 @@ namespace spot
     virtual ~taa_tgba();
     virtual spot::state* get_init_state() const;
     virtual tgba_succ_iterator* succ_iter(const spot::state* state) const;
-    virtual bdd_dict* get_dict() const;
+    virtual bdd_dict_ptr get_dict() const;
     virtual std::string format_state(const spot::state* state) const = 0;
     virtual bdd all_acceptance_conditions() const;
     virtual bdd neg_acceptance_conditions() const;
@@ -65,7 +65,7 @@ namespace spot
 
     typedef std::vector<taa_tgba::state_set*> ss_vec;
 
-    bdd_dict* dict_;
+    bdd_dict_ptr dict_;
     mutable bdd all_acceptance_conditions_;
     mutable bool all_acceptance_conditions_computed_;
     bdd neg_acceptance_conditions_;
@@ -151,7 +151,7 @@ namespace spot
   class SPOT_API taa_tgba_labelled : public taa_tgba
   {
   public:
-    taa_tgba_labelled(bdd_dict* dict) : taa_tgba(dict) {};
+    taa_tgba_labelled(bdd_dict_ptr dict) : taa_tgba(dict) {};
 
     void set_init_state(const label& s)
     {
@@ -322,7 +322,7 @@ namespace spot
     public taa_tgba_labelled<std::string, string_hash>
   {
   public:
-    taa_tgba_string(bdd_dict* dict) :
+    taa_tgba_string(bdd_dict_ptr dict) :
       taa_tgba_labelled<std::string, string_hash>(dict) {};
     ~taa_tgba_string();
   protected:
@@ -334,7 +334,7 @@ namespace spot
     public taa_tgba_labelled<const ltl::formula*, ltl::formula_ptr_hash>
   {
   public:
-    taa_tgba_formula(bdd_dict* dict) :
+    taa_tgba_formula(bdd_dict_ptr dict) :
       taa_tgba_labelled<const ltl::formula*, ltl::formula_ptr_hash>(dict) {};
     ~taa_tgba_formula();
   protected:

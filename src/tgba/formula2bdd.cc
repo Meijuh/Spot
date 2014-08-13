@@ -35,7 +35,7 @@ namespace spot
     class formula_to_bdd_visitor: public ltl::visitor
     {
     public:
-      formula_to_bdd_visitor(bdd_dict* d, void* owner)
+      formula_to_bdd_visitor(bdd_dict_ptr d, void* owner)
 	: d_(d), owner_(owner)
       {
       }
@@ -167,14 +167,14 @@ namespace spot
       }
 
     private:
-      bdd_dict* d_;
+      bdd_dict_ptr d_;
       void* owner_;
       bdd res_;
     };
 
     // Convert a BDD which is known to be a conjonction into a formula.
     static const ltl::formula*
-    conj_to_formula(bdd b, const bdd_dict* d)
+    conj_to_formula(bdd b, const bdd_dict_ptr d)
     {
       if (b == bddfalse)
 	return constant::false_instance();
@@ -207,7 +207,7 @@ namespace spot
   } // anonymous
 
   bdd
-  formula_to_bdd(const formula* f, bdd_dict* d, void* for_me)
+  formula_to_bdd(const formula* f, bdd_dict_ptr d, void* for_me)
   {
     formula_to_bdd_visitor v(d, for_me);
     f->accept(v);
@@ -215,7 +215,7 @@ namespace spot
   }
 
   const formula*
-  bdd_to_formula(bdd f, const bdd_dict* d)
+  bdd_to_formula(bdd f, const bdd_dict_ptr d)
   {
     if (f == bddfalse)
       return constant::false_instance();

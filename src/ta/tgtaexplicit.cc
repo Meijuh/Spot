@@ -56,7 +56,7 @@ namespace spot
     return ta_.get_tgba()->support_conditions(s->get_tgba_state());
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   tgta_explicit::get_dict() const
   {
     return ta_.get_dict();

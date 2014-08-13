@@ -328,7 +328,7 @@ namespace spot
 
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   ta_product::get_dict() const
   {
     return dict_;

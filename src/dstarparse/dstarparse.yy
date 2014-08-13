@@ -279,7 +279,7 @@ states:
 
 static void fill_guards(result_& r)
 {
-  spot::bdd_dict* d = r.d->aut->get_dict();
+  spot::bdd_dict_ptr d = r.d->aut->get_dict();
 
   size_t nap = r.aps.size();
   int* vars = new int[nap];
@@ -316,7 +316,7 @@ namespace spot
   dstar_aut*
   dstar_parse(const std::string& name,
 	      dstar_parse_error_list& error_list,
-	      bdd_dict* dict,
+	      bdd_dict_ptr dict,
 	      ltl::environment& env,
 	      bool debug)
   {

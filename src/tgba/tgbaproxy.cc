@@ -48,7 +48,7 @@ namespace spot
     return original_->succ_iter(state);
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   tgba_proxy::get_dict() const
   {
     return original_->get_dict();

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -25,10 +25,10 @@
 
 #include "ltlvisit/apcollect.hh"
 #include "ltlenv/defaultenv.hh"
+#include "tgba/bdddict.hh"
 
 namespace spot
 {
-  class bdd_dict;
   class tgba;
 
   /// \ingroup tgba_misc
@@ -80,7 +80,7 @@ namespace spot
   /// successors one by one.)
   SPOT_API tgba*
   random_graph(int n, float d,
-	       const ltl::atomic_prop_set* ap, bdd_dict* dict,
+	       const ltl::atomic_prop_set* ap, bdd_dict_ptr dict,
 	       int n_acc = 0, float a = 0.1, float t = 0.5,
 	       ltl::environment* env = &ltl::default_environment::instance());
 }

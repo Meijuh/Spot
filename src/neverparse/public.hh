@@ -59,7 +59,7 @@ namespace spot
   neverclaim_parse(const std::string& filename,
 		   neverclaim_parse_error_list&
 		   error_list,
-		   bdd_dict* dict,
+		   bdd_dict_ptr dict,
 		   ltl::environment& env = ltl::default_environment::instance(),
 		   bool debug = false);
 

@@ -493,7 +493,7 @@ cannot be translated using this algorithm.  Please use Couveur/FM.'''
                % format_formula(f, 'span'))
     finish()
 
-dict = spot.bdd_dict()
+dict = spot.make_bdd_dict()
 
 if output_type == 't' and not (f.is_ltl_formula() and f.is_X_free()):
     unbufprint('<b>Warning:</b> The following result assumes the input formula is stuttering insensitive.</br>')

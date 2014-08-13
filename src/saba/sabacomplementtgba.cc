@@ -415,7 +415,7 @@ namespace spot
                                                   state);
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   saba_complement_tgba::get_dict() const
   {
     return automaton_->get_dict();

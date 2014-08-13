@@ -63,7 +63,7 @@ namespace spot
     virtual saba_succ_iterator*
     succ_iter(const saba_state* local_state) const;
 
-    virtual bdd_dict* get_dict() const;
+    virtual bdd_dict_ptr get_dict() const;
     virtual std::string format_state(const saba_state* state) const;
     virtual bdd all_acceptance_conditions() const;
   private:

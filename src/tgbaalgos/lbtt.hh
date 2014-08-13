@@ -53,7 +53,7 @@ namespace spot
   /// \return the read tgba or 0 on error.
   SPOT_API const tgba_digraph*
   lbtt_parse(std::istream& is, std::string& error,
-	     bdd_dict* dict,
+	     bdd_dict_ptr dict,
 	     ltl::environment& env = ltl::default_environment::instance(),
 	     ltl::environment& envacc = ltl::default_environment::instance());
 }

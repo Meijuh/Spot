@@ -39,7 +39,7 @@ namespace spot
   /// to unregister the variables that have been registered for \a
   /// for_me.  See bdd_dict::unregister_all_my_variables().
   SPOT_API bdd
-  formula_to_bdd(const ltl::formula* f, bdd_dict* d, void* for_me);
+  formula_to_bdd(const ltl::formula* f, bdd_dict_ptr d, void* for_me);
 
   /// \brief Convert a BDD into a formula.
   ///
@@ -50,7 +50,7 @@ namespace spot
   /// been registered in \a d.  Although the result has type
   /// ltl::formula*, it obviously does not use any temporal operator.
   SPOT_API const
-  ltl::formula* bdd_to_formula(bdd f, const bdd_dict* d);
+  ltl::formula* bdd_to_formula(bdd f, const bdd_dict_ptr d);
 }
 
 #endif // SPOT_TGBA_FORMULA2BDD_HH

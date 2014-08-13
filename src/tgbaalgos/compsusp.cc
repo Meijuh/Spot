@@ -215,7 +215,7 @@ namespace spot
     tgba_digraph*
     susp_prod(tgba* left, const ltl::formula* f, bdd v)
     {
-      bdd_dict* dict = left->get_dict();
+      bdd_dict_ptr dict = left->get_dict();
       const tgba_digraph* a1 = ltl_to_tgba_fm(f, dict, true, true);
 
       const tgba_digraph* a2 = scc_filter(a1, false);
@@ -350,7 +350,7 @@ namespace spot
 
 
   tgba_digraph*
-  compsusp(const ltl::formula* f, bdd_dict* dict,
+  compsusp(const ltl::formula* f, bdd_dict_ptr dict,
 	   bool no_wdba, bool no_simulation,
 	   bool early_susp, bool no_susp_product, bool wdba_smaller,
 	   bool oblig)

@@ -33,7 +33,7 @@ namespace spot
   | taa_tgba |
   `--------*/
 
-  taa_tgba::taa_tgba(bdd_dict* dict)
+  taa_tgba::taa_tgba(bdd_dict_ptr dict)
     : dict_(dict),
       all_acceptance_conditions_(bddfalse),
       all_acceptance_conditions_computed_(false),
@@ -72,7 +72,7 @@ namespace spot
     return new taa_succ_iterator(s->get_state(), all_acceptance_conditions());
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   taa_tgba::get_dict() const
   {
     return dict_;

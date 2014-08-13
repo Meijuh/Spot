@@ -48,7 +48,7 @@ namespace spot
     virtual tgba_succ_iterator*
     succ_iter(const spot::state* local_state) const;
 
-    virtual bdd_dict*
+    virtual bdd_dict_ptr
     get_dict() const;
 
     const ta_explicit* get_ta() const { return &ta_; }

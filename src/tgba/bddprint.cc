@@ -31,7 +31,7 @@
 namespace spot
 {
   /// Global dictionary used by print_handler() to lookup variables.
-  static const bdd_dict* dict;
+  static bdd_dict_ptr dict;
 
   /// Global flag to enable Acc[x] output (instead of `x').
   static bool want_acc;
@@ -98,7 +98,7 @@ namespace spot
   }
 
   std::ostream&
-  bdd_print_sat(std::ostream& os, const bdd_dict* d, bdd b)
+  bdd_print_sat(std::ostream& os, bdd_dict_ptr d, bdd b)
   {
     dict = d;
     where = &os;
@@ -120,7 +120,7 @@ namespace spot
   }
 
   std::ostream&
-  bdd_print_acc(std::ostream& os, const bdd_dict* d, bdd b)
+  bdd_print_acc(std::ostream& os, bdd_dict_ptr d, bdd b)
   {
     dict = d;
     where = &os;
@@ -143,7 +143,7 @@ namespace spot
   }
 
   std::ostream&
-  bdd_print_accset(std::ostream& os, const bdd_dict* d, bdd b)
+  bdd_print_accset(std::ostream& os, bdd_dict_ptr d, bdd b)
   {
     dict = d;
     where = &os;
@@ -156,7 +156,7 @@ namespace spot
   }
 
   std::string
-  bdd_format_accset(const bdd_dict* d, bdd b)
+  bdd_format_accset(bdd_dict_ptr d, bdd b)
   {
     std::ostringstream os;
     bdd_print_accset(os, d, b);
@@ -164,7 +164,7 @@ namespace spot
   }
 
   std::string
-  bdd_format_sat(const bdd_dict* d, bdd b)
+  bdd_format_sat(bdd_dict_ptr d, bdd b)
   {
     std::ostringstream os;
     bdd_print_sat(os, d, b);
@@ -172,7 +172,7 @@ namespace spot
   }
 
   std::ostream&
-  bdd_print_set(std::ostream& os, const bdd_dict* d, bdd b)
+  bdd_print_set(std::ostream& os, bdd_dict_ptr d, bdd b)
   {
     dict = d;
     want_acc = true;
@@ -183,7 +183,7 @@ namespace spot
   }
 
   std::string
-  bdd_format_set(const bdd_dict* d, bdd b)
+  bdd_format_set(const bdd_dict_ptr d, bdd b)
   {
     std::ostringstream os;
     bdd_print_set(os, d, b);
@@ -191,7 +191,7 @@ namespace spot
   }
 
   std::ostream&
-  bdd_print_formula(std::ostream& os, const bdd_dict* d, bdd b)
+  bdd_print_formula(std::ostream& os, bdd_dict_ptr d, bdd b)
   {
     const ltl::formula* f = bdd_to_formula(b, d);
     print_ltl(f, os);
@@ -200,7 +200,7 @@ namespace spot
   }
 
   std::string
-  bdd_format_formula(const bdd_dict* d, bdd b)
+  bdd_format_formula(bdd_dict_ptr d, bdd b)
   {
     std::ostringstream os;
     bdd_print_formula(os, d, b);
@@ -208,7 +208,7 @@ namespace spot
   }
 
   std::ostream&
-  bdd_print_dot(std::ostream& os, const bdd_dict* d, bdd b)
+  bdd_print_dot(std::ostream& os, bdd_dict_ptr d, bdd b)
   {
     dict = d;
     want_acc = true;
@@ -219,7 +219,7 @@ namespace spot
   }
 
   std::ostream&
-  bdd_print_table(std::ostream& os, const bdd_dict* d, bdd b)
+  bdd_print_table(std::ostream& os, bdd_dict_ptr d, bdd b)
   {
     dict = d;
     want_acc = true;
@@ -236,7 +236,7 @@ namespace spot
   }
 
   std::ostream&
-  bdd_print_isop(std::ostream& os, const bdd_dict* d, bdd b)
+  bdd_print_isop(std::ostream& os, bdd_dict_ptr d, bdd b)
   {
     dict = d;
     want_acc = true;
@@ -252,7 +252,7 @@ namespace spot
   }
 
   std::string
-  bdd_format_isop(const bdd_dict* d, bdd b)
+  bdd_format_isop(bdd_dict_ptr d, bdd b)
   {
     std::ostringstream os;
     bdd_print_isop(os, d, b);

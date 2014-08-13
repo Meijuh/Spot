@@ -1249,7 +1249,7 @@ namespace spot
     return new tgba_safra_complement_succ_iterator(succ_list, condition);
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   tgba_safra_complement::get_dict() const
   {
     return automaton_->get_dict();

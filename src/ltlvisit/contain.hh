@@ -46,7 +46,7 @@ namespace spot
     public:
       /// This class uses spot::ltl_to_tgba_fm to translate LTL
       /// formulae.  See that function for the meaning of these options.
-      language_containment_checker(bdd_dict* dict, bool exprop,
+      language_containment_checker(bdd_dict_ptr dict, bool exprop,
 				   bool symb_merge,
 				   bool branching_postponement,
 				   bool fair_loop_approx);
@@ -72,7 +72,7 @@ namespace spot
       record_* register_formula_(const formula* f);
 
       /* Translation options */
-      bdd_dict* dict_;
+      bdd_dict_ptr dict_;
       bool exprop_;
       bool symb_merge_;
       bool branching_postponement_;

@@ -372,7 +372,7 @@ namespace spot
       return right_->support_conditions(s->right());
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   tgba_union::get_dict() const
   {
     return dict_;

@@ -82,7 +82,7 @@ namespace spot
 
   tgba*
   random_graph(int n, float d,
-	       const ltl::atomic_prop_set* ap, bdd_dict* dict,
+	       const ltl::atomic_prop_set* ap, bdd_dict_ptr dict,
 	       int n_acc, float a, float t,
 	       ltl::environment* env)
   {

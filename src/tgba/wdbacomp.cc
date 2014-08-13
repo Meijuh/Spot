@@ -227,7 +227,7 @@ namespace spot
 	return new tgba_wdba_comp_proxy_succ_iterator(it, the_acceptance_cond_);
       }
 
-      virtual bdd_dict*
+      virtual bdd_dict_ptr
       get_dict() const
       {
 	return a_->get_dict();

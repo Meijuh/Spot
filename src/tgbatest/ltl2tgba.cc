@@ -381,7 +381,7 @@ main(int argc, char** argv)
   spot::ltl::atomic_prop_set* unobservables = 0;
   spot::tgba* system_aut = 0;
   const spot::tgba* product_to_free = 0;
-  spot::bdd_dict* dict = new spot::bdd_dict();
+  auto dict = spot::make_bdd_dict();
   spot::timer_map tm;
   bool use_timer = false;
   bool reduction_dir_sim = false;
@@ -1018,7 +1018,6 @@ main(int argc, char** argv)
 		  if (spot::format_tgba_parse_errors(std::cerr, input, pel))
 		    {
 		      delete to_free;
-		      delete dict;
 		      return 2;
 		    }
 		  e->merge_transitions();
@@ -1035,7 +1034,6 @@ main(int argc, char** argv)
 		if (spot::format_neverclaim_parse_errors(std::cerr, input, pel))
 		  {
 		    delete to_free;
-		    delete dict;
 		    return 2;
 		  }
 		assume_sba = true;
@@ -1053,7 +1051,6 @@ main(int argc, char** argv)
 		    if (!*f)
 		      {
 			std::cerr << "cannot open " << input << std::endl;
-			delete dict;
 			return 2;
 		      }
 		  }
@@ -1067,7 +1064,6 @@ main(int argc, char** argv)
 		if (!to_free)
 		  {
 		    std::cerr << error << std::endl;
-		    delete dict;
 		    return 2;
 		  }
 	      }
@@ -1083,7 +1079,6 @@ main(int argc, char** argv)
 		if (spot::format_dstar_parse_errors(std::cerr, input, pel))
 		  {
 		    delete to_free;
-		    delete dict;
 		    return 2;
 		  }
 		tm.start("dstar2tgba");
@@ -1978,6 +1973,5 @@ main(int argc, char** argv)
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
-  delete dict;
   return exit_code;
 }

@@ -53,7 +53,7 @@ namespace spot
 {
   namespace
   {
-    static bdd_dict* debug_dict = 0;
+    static bdd_dict_ptr debug_dict;
 
     struct transition
     {

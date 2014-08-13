@@ -51,7 +51,7 @@ namespace spot
       typedef std::pair<const formula*, const formula*> pairf;
       typedef std::map<pairf, bool> syntimpl_cache_t;
     public:
-      bdd_dict* dict;
+      bdd_dict_ptr dict;
       ltl_simplifier_options options;
       language_containment_checker lcc;
 
@@ -130,12 +130,12 @@ namespace spot
 	dict->unregister_all_my_variables(this);
       }
 
-      ltl_simplifier_cache(bdd_dict* d)
+      ltl_simplifier_cache(bdd_dict_ptr d)
 	: dict(d), lcc(d, true, true, false, false)
       {
       }
 
-      ltl_simplifier_cache(bdd_dict* d, const ltl_simplifier_options& opt)
+      ltl_simplifier_cache(bdd_dict_ptr d, const ltl_simplifier_options& opt)
 	: dict(d), options(opt), lcc(d, true, true, false, false)
       {
 	options.containment_checks |= options.containment_checks_stronger;
@@ -4694,43 +4694,20 @@ namespace spot
     /////////////////////////////////////////////////////////////////////
     // ltl_simplifier
 
-    ltl_simplifier::ltl_simplifier(bdd_dict* d)
+    ltl_simplifier::ltl_simplifier(bdd_dict_ptr d)
     {
-      if (!d)
-	{
-	  d = new bdd_dict;
-	  owndict = true;
-	}
-      else
-	{
-	  owndict = false;
-	}
       cache_ = new ltl_simplifier_cache(d);
     }
 
     ltl_simplifier::ltl_simplifier(const ltl_simplifier_options& opt,
-				   bdd_dict* d)
+				   bdd_dict_ptr d)
     {
-      if (!d)
-	{
-	  d = new bdd_dict;
-	  owndict = true;
-	}
-      else
-	{
-	  owndict = false;
-	}
       cache_ = new ltl_simplifier_cache(d, opt);
     }
 
     ltl_simplifier::~ltl_simplifier()
     {
-      bdd_dict* todelete = 0;
-      if (owndict)
-	todelete = cache_->dict;
       delete cache_;
-      // It has to be deleted after the cache.
-      delete todelete;
     }
 
     const formula*
@@ -4794,7 +4771,7 @@ namespace spot
       return cache_->boolean_to_isop(f);
     }
 
-    bdd_dict*
+    bdd_dict_ptr
     ltl_simplifier::get_dict() const
     {
       return cache_->dict;

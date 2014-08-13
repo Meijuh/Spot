@@ -490,7 +490,7 @@ namespace spot
     return new ta_explicit_succ_iterator(s, condition);
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   ta_explicit::get_dict() const
   {
     return tgba_->get_dict();

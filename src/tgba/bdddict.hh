@@ -29,6 +29,7 @@
 #include <iosfwd>
 #include <bdd.h>
 #include <vector>
+#include <memory>
 #include "ltlast/formula.hh"
 
 namespace spot
@@ -227,7 +228,12 @@ namespace spot
     bdd_dict& operator=(const bdd_dict& other) SPOT_DELETED;
   };
 
+  typedef std::shared_ptr<bdd_dict> bdd_dict_ptr;
 
+  inline bdd_dict_ptr make_bdd_dict()
+  {
+    return std::make_shared<bdd_dict>();
+  }
 }
 
 #endif // SPOT_TGBA_BDDDICT_HH

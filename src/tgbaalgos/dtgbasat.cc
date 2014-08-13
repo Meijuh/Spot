@@ -56,7 +56,7 @@ namespace spot
 {
   namespace
   {
-    static bdd_dict* debug_dict = 0;
+    static bdd_dict_ptr debug_dict = 0;
 
     struct transition
     {
@@ -303,7 +303,7 @@ namespace spot
       {
 	d.nvars = 0;
 
-	bdd_dict* bd = aut->get_dict();
+	bdd_dict_ptr bd = aut->get_dict();
 	ltl::default_environment& env = ltl::default_environment::instance();
 
 	d.cand_acc.resize(d.cand_nacc);

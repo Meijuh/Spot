@@ -41,7 +41,7 @@ namespace spot
   SPOT_API kripke_explicit*
   kripke_parse(const std::string& name,
                kripke_parse_error_list& error_list,
-               bdd_dict* dict,
+               bdd_dict_ptr dict,
                ltl::environment& env
                = ltl::default_environment::instance(),
                bool debug = false);

@@ -219,7 +219,7 @@ namespace spot
   tgba_digraph*
   tgba_parse(const std::string& name,
 	     tgba_parse_error_list& error_list,
-	     bdd_dict* dict,
+	     bdd_dict_ptr dict,
 	     environment& env,
 	     environment& envacc,
 	     bool debug)

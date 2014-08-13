@@ -97,7 +97,7 @@ namespace spot
       void
       process_link(int in, int out, const ta_succ_iterator* si)
       {
-	bdd_dict* d = t_automata_->get_dict();
+	bdd_dict_ptr d = t_automata_->get_dict();
 	std::string label =
 	  ((in == 1 && artificial_initial_state_)
 	   ? bdd_format_formula(d, si->current_condition())

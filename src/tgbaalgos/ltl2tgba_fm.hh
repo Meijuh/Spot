@@ -123,7 +123,7 @@ namespace spot
   ///
   /// \return A spot::tgba_digraph that recognizes the language of \a f.
   SPOT_API tgba_digraph*
-  ltl_to_tgba_fm(const ltl::formula* f, bdd_dict* dict,
+  ltl_to_tgba_fm(const ltl::formula* f, bdd_dict_ptr dict,
 		 bool exprop = false, bool symb_merge = true,
 		 bool branching_postponement = false,
 		 bool fair_loop_approx = false,

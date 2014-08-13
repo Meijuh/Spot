@@ -33,9 +33,8 @@ out = open(filename, 'w+')
 out.write(contents)
 out.close()
 
-d = spot.bdd_dict()
 p = spot.empty_tgba_parse_error_list()
-a = spot.tgba_parse(filename, p, d)
+a = spot.tgba_parse(filename, p, spot.make_bdd_dict())
 
 assert not p
 
@@ -43,6 +42,5 @@ spot.dotty_reachable(spot.get_cout(), a)
 
 del p
 del a
-del d
 
 os.unlink(filename)

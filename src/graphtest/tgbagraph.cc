@@ -25,18 +25,18 @@
 
 void f1()
 {
-  spot::bdd_dict d;
+  auto d = spot::make_bdd_dict();
 
   auto& e = spot::ltl::default_environment::instance();
 
-  spot::tgba_digraph tg(&d);
+  spot::tgba_digraph tg(d);
 
   auto* f1 = e.require("p1");
   auto* f2 = e.require("p2");
-  bdd p1 = bdd_ithvar(d.register_proposition(f1, &tg));
-  bdd p2 = bdd_ithvar(d.register_proposition(f2, &tg));
-  bdd a1 = bdd_ithvar(d.register_acceptance_variable(f1, &tg));
-  bdd a2 = bdd_ithvar(d.register_acceptance_variable(f2, &tg));
+  bdd p1 = bdd_ithvar(d->register_proposition(f1, &tg));
+  bdd p2 = bdd_ithvar(d->register_proposition(f2, &tg));
+  bdd a1 = bdd_ithvar(d->register_acceptance_variable(f1, &tg));
+  bdd a2 = bdd_ithvar(d->register_acceptance_variable(f2, &tg));
   f1->destroy();
   f2->destroy();
 

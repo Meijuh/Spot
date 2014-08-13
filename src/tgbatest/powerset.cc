@@ -44,7 +44,7 @@ main(int argc, char** argv)
   if (argc != 2)
     syntax(argv[0]);
 
-  spot::bdd_dict* dict = new spot::bdd_dict();
+  auto dict = spot::make_bdd_dict();
 
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::tgba_parse_error_list pel;
@@ -67,6 +67,5 @@ main(int argc, char** argv)
   assert(spot::ltl::atomic_prop::instance_count() != 0);
   delete a;
   assert(spot::ltl::atomic_prop::instance_count() == 0);
-  delete dict;
   return exit_code;
 }

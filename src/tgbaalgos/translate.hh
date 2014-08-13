@@ -55,7 +55,7 @@ namespace spot
       setup_opt(opt);
     }
 
-    translator(bdd_dict* dict, const option_map* opt = 0)
+    translator(bdd_dict_ptr dict, const option_map* opt = 0)
       : postprocessor(opt)
     {
       build_simplifier(dict);
@@ -65,7 +65,7 @@ namespace spot
     translator(const option_map* opt = 0)
       : postprocessor(opt)
     {
-      build_simplifier(0);
+      build_simplifier(make_bdd_dict());
       setup_opt(opt);
     }
 
@@ -114,7 +114,7 @@ namespace spot
 
   protected:
     void setup_opt(const option_map* opt);
-    void build_simplifier(bdd_dict* dict);
+    void build_simplifier(bdd_dict_ptr dict);
 
   private:
     ltl::ltl_simplifier* simpl_;

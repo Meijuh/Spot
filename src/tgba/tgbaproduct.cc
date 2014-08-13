@@ -411,7 +411,7 @@ namespace spot
     return lsc & rsc;
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   tgba_product::get_dict() const
   {
     return dict_;

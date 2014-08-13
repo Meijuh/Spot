@@ -41,7 +41,7 @@ namespace spot
 
       void process_state(const state* s, int, tgba_succ_iterator* si)
       {
-	const bdd_dict* d = aut_->get_dict();
+	const bdd_dict_ptr d = aut_->get_dict();
 	os_ << '"';
 	escape_str(os_, aut_->format_state(s));
 	os_ << "\", \"";
@@ -88,7 +88,7 @@ namespace spot
 	else
 	  notfirst = true;
 
-	const bdd_dict* d = aut_->get_dict();
+	const bdd_dict_ptr d = aut_->get_dict();
 	os_ << 'S' << in_s << ", \"";
 	const kripke* automata = down_cast<const kripke*>(aut_);
 	assert(automata);

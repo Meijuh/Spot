@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -27,11 +28,9 @@
 int
 main()
 {
-  spot::bdd_dict* dict = new spot::bdd_dict();
-
   spot::ltl::default_environment& e =
     spot::ltl::default_environment::instance();
-  spot::taa_tgba_string* a = new spot::taa_tgba_string(dict);
+  spot::taa_tgba_string* a = new spot::taa_tgba_string(spot::make_bdd_dict());
 
   typedef spot::taa_tgba::transition trans;
 
@@ -49,7 +48,6 @@ main()
   spot::dotty_reachable(std::cout, a);
 
   delete a;
-  delete dict;
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);

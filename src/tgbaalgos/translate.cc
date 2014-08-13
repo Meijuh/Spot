@@ -41,7 +41,7 @@ namespace spot
       }
   }
 
-  void translator::build_simplifier(bdd_dict* dict)
+  void translator::build_simplifier(bdd_dict_ptr dict)
   {
     ltl::ltl_simplifier_options options(false, false, false);
     switch (level_)

@@ -31,7 +31,7 @@ namespace spot
   {
     tgba_word(const tgba_run* run);
     void simplify();
-    std::ostream& print(std::ostream& os, bdd_dict* d) const;
+    std::ostream& print(std::ostream& os, bdd_dict_ptr d) const;
 
     typedef std::list<bdd> seq_t;
     seq_t prefix;

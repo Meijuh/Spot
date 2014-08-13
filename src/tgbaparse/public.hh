@@ -68,7 +68,7 @@ namespace spot
   SPOT_API
   tgba_digraph* tgba_parse(const std::string& filename,
 			   tgba_parse_error_list& error_list,
-			   bdd_dict* dict,
+			   bdd_dict_ptr dict,
 			   ltl::environment& env
 			   = ltl::default_environment::instance(),
 			   ltl::environment& envacc

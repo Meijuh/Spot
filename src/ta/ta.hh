@@ -129,7 +129,7 @@ namespace spot
     /// This is useful when dealing with several automata (which
     /// may use the same BDD variable for different formula),
     /// or simply when printing.
-    virtual bdd_dict*
+    virtual bdd_dict_ptr
     get_dict() const = 0;
 
     /// \brief Format the state as a string for printing.

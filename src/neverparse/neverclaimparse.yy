@@ -289,7 +289,7 @@ namespace spot
   tgba_digraph*
   neverclaim_parse(const std::string& name,
 		   neverclaim_parse_error_list& error_list,
-		   bdd_dict* dict,
+		   bdd_dict_ptr dict,
 		   environment& env,
 		   bool debug)
   {

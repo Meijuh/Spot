@@ -80,7 +80,7 @@ namespace spot
 		 const tgba* a,
 		 const tgba_run* run)
   {
-    bdd_dict* d = a->get_dict();
+    bdd_dict_ptr d = a->get_dict();
     os << "Prefix:" << std::endl;
     for (tgba_run::steps::const_iterator i = run->prefix.begin();
 	 i != run->prefix.end(); ++i)

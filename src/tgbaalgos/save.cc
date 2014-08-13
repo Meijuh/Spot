@@ -50,7 +50,7 @@ namespace spot
       void
       process_state(const state* s, int, tgba_succ_iterator* si)
       {
-	const bdd_dict* d = aut_->get_dict();
+	const bdd_dict_ptr d = aut_->get_dict();
 	std::string cur = escape_str(aut_->format_state(s));
 	if (si->first())
 	  do
@@ -73,7 +73,7 @@ namespace spot
       std::ostream&
       print_acc(bdd acc)
       {
-	const bdd_dict* d = aut_->get_dict();
+	const bdd_dict_ptr d = aut_->get_dict();
 	while (acc != bddfalse)
 	  {
 	    bdd cube = bdd_satone(acc);

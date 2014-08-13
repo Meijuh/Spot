@@ -56,7 +56,7 @@ namespace spot
     return aut_->succ_iter(state);
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   tgba_scc::get_dict() const
   {
     return aut_->get_dict();

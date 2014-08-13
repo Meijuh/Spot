@@ -1,4 +1,5 @@
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// -*- coding: utf-8 -*-
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -78,8 +79,9 @@ namespace spot
     class SPOT_API ltl_simplifier
     {
     public:
-      ltl_simplifier(bdd_dict* dict = 0);
-      ltl_simplifier(const ltl_simplifier_options& opt, bdd_dict* dict = 0);
+      ltl_simplifier(bdd_dict_ptr dict = make_bdd_dict());
+      ltl_simplifier(const ltl_simplifier_options& opt,
+		     bdd_dict_ptr dict = make_bdd_dict());
       ~ltl_simplifier();
 
       /// Simplify the formula \a f (using options supplied to the
@@ -157,7 +159,7 @@ namespace spot
       void clear_as_bdd_cache();
 
       /// Return the bdd_dict used.
-      bdd_dict* get_dict() const;
+      bdd_dict_ptr get_dict() const;
 
       /// Cached version of spot::ltl::star_normal_form().
       const formula* star_normal_form(const formula* f);
@@ -177,8 +179,6 @@ namespace spot
       // Copy disallowed.
       ltl_simplifier(const ltl_simplifier&) SPOT_DELETED;
       void operator=(const ltl_simplifier&) SPOT_DELETED;
-
-      bool owndict;
     };
   }
 

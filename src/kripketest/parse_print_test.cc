@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Laboratoire de Recherche et Developpement
+// Copyright (C) 2011, 2014 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -28,9 +28,8 @@ int main(int argc, char** argv)
 {
   int return_value = 0;
   kripke_parse_error_list pel;
-  bdd_dict* dict = new bdd_dict;
 
-  kripke_explicit* k = kripke_parse(argv[1], pel, dict);
+  kripke_explicit* k = kripke_parse(argv[1], pel, make_bdd_dict());
   if (!pel.empty())
   {
     format_kripke_parse_errors(std::cerr, argv[1], pel);
@@ -41,7 +40,6 @@ int main(int argc, char** argv)
     kripke_save_reachable(std::cout, k);
 
   delete k;
-  delete dict;
   assert(ltl::atomic_prop::instance_count() == 0);
   assert(ltl::unop::instance_count() == 0);
   assert(ltl::binop::instance_count() == 0);

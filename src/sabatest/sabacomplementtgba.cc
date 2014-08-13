@@ -64,15 +64,12 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  spot::bdd_dict* dict = new spot::bdd_dict();
-  spot::tgba* a;
-
   spot::ltl::parse_error_list p1;
   const spot::ltl::formula* f1 = spot::ltl::parse(formula, p1);
   if (spot::ltl::format_parse_errors(std::cerr, formula, p1))
     return 2;
 
-  a = spot::ltl_to_tgba_fm(f1, dict);
+  auto a = spot::ltl_to_tgba_fm(f1, spot::make_bdd_dict());
 
   spot::saba_complement_tgba* complement =
     new spot::saba_complement_tgba(a);
@@ -82,5 +79,4 @@ int main(int argc, char* argv[])
   delete complement;
   delete a;
   f1->destroy();
-  delete dict;
 }

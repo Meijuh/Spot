@@ -199,7 +199,7 @@ namespace spot
     return new tgba_sgba_proxy_succ_iterator(it);
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   tgba_sgba_proxy::get_dict() const
   {
     return a_->get_dict();

@@ -739,7 +739,7 @@ namespace
   class translator_runner: protected spot::formater
   {
   private:
-    spot::bdd_dict& dict;
+    spot::bdd_dict_ptr dict;
     // Round-specific variables
     quoted_string string_ltl_spot;
     quoted_string string_ltl_spin;
@@ -754,7 +754,7 @@ namespace
   public:
     using spot::formater::has;
 
-    translator_runner(spot::bdd_dict& dict)
+    translator_runner(spot::bdd_dict_ptr dict)
       : dict(dict)
     {
       declare('f', &string_ltl_spot);
@@ -902,7 +902,7 @@ namespace
 	      {
 		spot::neverclaim_parse_error_list pel;
 		std::string filename = output.val()->name();
-		res = spot::neverclaim_parse(filename, pel, &dict);
+		res = spot::neverclaim_parse(filename, pel, dict);
 		if (!pel.empty())
 		  {
 		    status_str = "parse error";
@@ -930,7 +930,7 @@ namespace
 		  }
 		else
 		  {
-		    res = spot::lbtt_parse(f, error, &dict);
+		    res = spot::lbtt_parse(f, error, dict);
 		    if (!res)
 		      {
 			status_str = "parse error";
@@ -948,7 +948,7 @@ namespace
 		spot::dstar_parse_error_list pel;
 		std::string filename = output.val()->name();
 		spot::dstar_aut* aut;
-		aut = spot::dstar_parse(filename, pel, &dict);
+		aut = spot::dstar_parse(filename, pel, dict);
 		if (!pel.empty())
 		  {
 		    status_str = "parse error";
@@ -1191,12 +1191,12 @@ namespace
 
   class processor: public job_processor
   {
-    spot::bdd_dict dict;
+    spot::bdd_dict_ptr dict = spot::make_bdd_dict();
     translator_runner runner;
     fset_t unique_set;
   public:
-    processor()
-      : runner(dict)
+    processor():
+      runner(dict)
     {
     }
 
@@ -1401,7 +1401,7 @@ namespace
 	  // build a random state-space.
 	  spot::srand(seed);
 	  spot::tgba* statespace = spot::random_graph(states, density,
-						      ap, &dict);
+						      ap, dict);
 
 	  // Products of the state space with the positive automata.
 	  std::vector<spot::tgba*> pos_prod(m);

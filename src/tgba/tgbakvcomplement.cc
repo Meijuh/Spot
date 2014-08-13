@@ -627,7 +627,7 @@ namespace spot
 						acc_list_, s);
   }
 
-  bdd_dict*
+  bdd_dict_ptr
   tgba_kv_complement::get_dict() const
   {
     return automaton_->get_dict();

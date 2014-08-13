@@ -156,7 +156,7 @@ main(int argc, char **argv)
 
 
   spot::ltl::atomic_prop_set ap;
-  spot::bdd_dict* dict = new spot::bdd_dict();
+  auto dict = spot::make_bdd_dict();
   spot::kripke* model = 0;
   const spot::tgba* prop = 0;
   spot::tgba* product = 0;
@@ -367,7 +367,6 @@ main(int argc, char **argv)
   delete model;
   if (f)
     f->destroy();
-  delete dict;
 
   deadf->destroy();
 

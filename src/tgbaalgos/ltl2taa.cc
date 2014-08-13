@@ -418,7 +418,7 @@ namespace spot
   } // anonymous
 
   taa_tgba*
-  ltl_to_taa(const ltl::formula* f, bdd_dict* dict, bool refined_rules)
+  ltl_to_taa(const ltl::formula* f, bdd_dict_ptr dict, bool refined_rules)
   {
     // TODO: s/unabbreviate_ltl/unabbreviate_logic/
     const ltl::formula* f1 = ltl::unabbreviate_ltl(f);
@@ -426,9 +426,9 @@ namespace spot
     f1->destroy();
 
     spot::taa_tgba_formula* res = new spot::taa_tgba_formula(dict);
-    bdd_dict b;
     language_containment_checker* lcc =
-      new language_containment_checker(&b, false, false, false, false);
+      new language_containment_checker(make_bdd_dict(),
+				       false, false, false, false);
     ltl2taa_visitor v(res, lcc, refined_rules);
     f2->accept(v);
     taa_tgba* taa = v.result(); // Careful: before the destroy!

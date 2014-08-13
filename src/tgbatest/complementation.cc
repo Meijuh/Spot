@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  spot::bdd_dict* dict = new spot::bdd_dict();
+  auto dict = spot::make_bdd_dict();
   if (print_automaton || print_safra)
   {
     spot::ltl::environment& env(spot::ltl::default_environment::instance());
@@ -317,8 +317,6 @@ int main(int argc, char* argv[])
     f1->destroy();
 
   }
-
-  delete dict;
 
   return return_value;
 }

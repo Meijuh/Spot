@@ -328,7 +328,7 @@ namespace spot
     int
     convert_aps(const ltl::atomic_prop_set* aps,
 		const dve2_interface* d,
-		bdd_dict* dict,
+		bdd_dict_ptr dict,
 		const ltl::formula* dead,
 		prop_set& out)
     {
@@ -604,8 +604,8 @@ namespace spot
     {
     public:
 
-      dve2_kripke(const dve2_interface* d, bdd_dict* dict, const prop_set* ps,
-		  const ltl::formula* dead, int compress)
+      dve2_kripke(const dve2_interface* d, bdd_dict_ptr dict,
+		  const prop_set* ps, const ltl::formula* dead, int compress)
 	: d_(d),
 	  state_size_(d_->get_state_variable_count()),
 	  dict_(dict), ps_(ps),
@@ -913,7 +913,7 @@ namespace spot
       }
 
       virtual
-      spot::bdd_dict* get_dict() const
+      spot::bdd_dict_ptr get_dict() const
       {
 	return dict_;
       }
@@ -921,7 +921,7 @@ namespace spot
     private:
       const dve2_interface* d_;
       int state_size_;
-      bdd_dict* dict_;
+      bdd_dict_ptr dict_;
       const char** vname_;
       bool* format_filter_;
       const prop_set* ps_;
@@ -998,7 +998,7 @@ namespace spot
 
 
   kripke*
-  load_dve2(const std::string& file_arg, bdd_dict* dict,
+  load_dve2(const std::string& file_arg, bdd_dict_ptr dict,
 	    const ltl::atomic_prop_set* to_observe,
 	    const ltl::formula* dead,
 	    int compress,

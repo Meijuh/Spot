@@ -52,7 +52,7 @@ main(int argc, char** argv)
       filename_index = 2;
     }
 
-  spot::bdd_dict* dict = new spot::bdd_dict();
+  auto dict = spot::make_bdd_dict();
 
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::tgba_parse_error_list pel;
@@ -72,11 +72,9 @@ main(int argc, char** argv)
       return 1;
     }
 
-  delete dict;
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
-
   return 0;
 }

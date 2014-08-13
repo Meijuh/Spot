@@ -126,7 +126,7 @@ namespace spot
     virtual tgba_succ_iterator_union*
     succ_iter(const state* state) const;
 
-    virtual bdd_dict* get_dict() const;
+    virtual bdd_dict_ptr get_dict() const;
 
     virtual std::string format_state(const state* state) const;
 
@@ -139,7 +139,7 @@ namespace spot
     virtual bdd compute_support_conditions(const state* state) const;
 
   private:
-    bdd_dict* dict_;
+    bdd_dict_ptr dict_;
     const tgba* left_;
     const tgba* right_;
     bdd left_acc_missing_;

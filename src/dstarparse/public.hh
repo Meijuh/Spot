@@ -88,7 +88,7 @@ namespace spot
   SPOT_API dstar_aut*
   dstar_parse(const std::string& filename,
 	      dstar_parse_error_list& error_list,
-	      bdd_dict* dict,
+	      bdd_dict_ptr dict,
 	      ltl::environment& env = ltl::default_environment::instance(),
 	      bool debug = false);
 

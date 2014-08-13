@@ -585,7 +585,7 @@ main(int argc, char** argv)
 
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* ap = new spot::ltl::atomic_prop_set;
-  spot::bdd_dict* dict = new spot::bdd_dict();
+  auto dict = spot::make_bdd_dict();
 
   spot::ltl::ltl_simplifier_options simpopt(true, true, true, true, true);
   spot::ltl::ltl_simplifier simp(simpopt);
@@ -1322,6 +1322,5 @@ main(int argc, char** argv)
 
   delete ap;
   delete apf;
-  delete dict;
   return exit_code;
 }

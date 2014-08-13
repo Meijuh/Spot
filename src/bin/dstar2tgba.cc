@@ -293,8 +293,7 @@ namespace
     {
       spot::dstar_parse_error_list pel;
       spot::dstar_aut* daut;
-      spot::bdd_dict dict;
-      daut = spot::dstar_parse(filename, pel, &dict);
+      daut = spot::dstar_parse(filename, pel, spot::make_bdd_dict());
       if (spot::format_dstar_parse_errors(std::cerr, filename, pel))
 	{
 	  delete daut;

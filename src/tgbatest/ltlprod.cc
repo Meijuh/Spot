@@ -58,7 +58,7 @@ main(int argc, char** argv)
   if (spot::ltl::format_parse_errors(std::cerr, argv[2], pel2))
     return 2;
 
-  spot::bdd_dict* dict = new spot::bdd_dict();
+  auto dict = spot::make_bdd_dict();
   {
     auto a1 = spot::ltl_to_tgba_fm(f1, dict);
     auto a2 = spot::ltl_to_tgba_fm(f2, dict);
@@ -75,6 +75,5 @@ main(int argc, char** argv)
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
-  delete dict;
   return exit_code;
 }

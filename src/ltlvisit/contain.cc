@@ -37,7 +37,7 @@ namespace spot
   {
 
     language_containment_checker::language_containment_checker
-      (bdd_dict* dict, bool exprop, bool symb_merge,
+      (bdd_dict_ptr dict, bool exprop, bool symb_merge,
        bool branching_postponement, bool fair_loop_approx)
       : dict_(dict), exprop_(exprop), symb_merge_(symb_merge),
       branching_postponement_(branching_postponement),
