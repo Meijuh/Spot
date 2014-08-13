@@ -102,11 +102,9 @@ namespace spot
   tgba_digraph* nsa_to_tgba(const dstar_aut* nsa)
   {
     assert(nsa->type == Streett);
-    tgba_digraph* a = nsa->aut;
-    bdd_dict* dict = a->get_dict();
-
-    tgba_digraph* res = new tgba_digraph(dict);
-    dict->register_all_variables_of(a, res);
+    auto a = nsa->aut;
+    auto res = new tgba_digraph(a->get_dict());
+    res->copy_ap_of(a);
 
     // Create accpair_count acceptance sets for the output.
     unsigned npairs = nsa->accpair_count;

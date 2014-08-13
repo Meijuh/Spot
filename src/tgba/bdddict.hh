@@ -169,11 +169,21 @@ namespace spot
 
     /// \brief Duplicate the variable usage of another object.
     ///
-    /// This tells this dictionary that the \a for_me object
-    /// will be using the same BDD variables as the \a from_other objects.
-    /// This ensure that the variables won't be freed when \a from_other
-    /// is deleted if \a from_other is still alive.
+    /// This tells this dictionary that the \a for_me object will be
+    /// using the same BDD variables as the \a from_other objects.
+    /// This ensures that the variables won't be freed when \a
+    /// from_other is deleted if \a from_other is still alive.
     void register_all_variables_of(const void* from_other, const void* for_me);
+
+    /// \brief Register the same propositions as another object.
+    ///
+    /// This tells this dictionary that the \a for_me object will be
+    /// using the same BDD variable used for atomic propositions by
+    /// the \a from_other object.  This ensures that the variables
+    /// won't be freed when \a from_other is deleted if \a from_other
+    /// is still alive.
+    void register_all_propositions_of(const void* from_other,
+				      const void* for_me);
 
     /// \brief Release all variables used by an object.
     ///

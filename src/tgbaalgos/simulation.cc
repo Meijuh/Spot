@@ -230,9 +230,8 @@ namespace spot
 	{
 	  if (Cosimulation)
 	    {
-	      bdd_dict* bd = a_->get_dict();
-	      a_ = new tgba_digraph(bd);
-	      bd->register_all_variables_of(old_a_, a_);
+	      a_ = new tgba_digraph(a_->get_dict());
+	      a_->copy_ap_of(old_a_);
 	      a_->copy_acceptance_conditions_of(old_a_);
 	    }
 	  unsigned ns = old_a_->num_states();
@@ -546,9 +545,8 @@ namespace spot
 	acc_compl reverser(all_acceptance_conditions_,
 			   a_->neg_acceptance_conditions());
 
-	bdd_dict* d = a_->get_dict();
-	tgba_digraph* res = new tgba_digraph(d);
-	d->register_all_variables_of(a_, res);
+	tgba_digraph* res = new tgba_digraph(a_->get_dict());
+	res->copy_ap_of(a_);
 	res->set_acceptance_conditions(all_acceptance_conditions_);
 	if (Sba)
 	  res->set_bprop(tgba_digraph::StateBasedAcc);

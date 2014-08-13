@@ -287,7 +287,8 @@ namespace spot
   {
     auto d = a->get_dict();
     auto res = new tgba_digraph(d);
-    d->register_all_variables_of(a, res);
+    res->copy_ap_of(a);
+    res->copy_acceptance_conditions_of(a);
 
     const state* s = a->get_init_state();
     unsigned src;

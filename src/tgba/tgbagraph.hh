@@ -351,6 +351,11 @@ namespace spot
       set_acceptance_conditions(a->neg_acceptance_conditions());
     }
 
+    void copy_ap_of(const tgba* a)
+    {
+      dict_->register_all_propositions_of(a, this);
+    }
+
     virtual bdd all_acceptance_conditions() const
     {
       return all_acceptance_conditions_;

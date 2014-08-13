@@ -245,18 +245,31 @@ namespace spot
   bdd_dict::register_all_variables_of(const void* from_other,
 				      const void* for_me)
   {
-    bdd_info_map::iterator i;
-    for (i = bdd_map.begin(); i != bdd_map.end(); ++i)
+    auto j = priv_->free_anonymous_list_of.find(from_other);
+    if (j != priv_->free_anonymous_list_of.end())
+      priv_->free_anonymous_list_of[for_me] = j->second;
+
+    for (auto& i: bdd_map)
       {
-	ref_set& s = i->refs;
+	ref_set& s = i.refs;
 	if (s.find(from_other) != s.end())
 	  s.insert(for_me);
       }
 
-    bdd_dict_priv::free_anonymous_list_of_type::const_iterator j =
-      priv_->free_anonymous_list_of.find(from_other);
-    if (j != priv_->free_anonymous_list_of.end())
-      priv_->free_anonymous_list_of[for_me] = j->second;
+  }
+
+  void
+  bdd_dict::register_all_propositions_of(const void* from_other,
+					 const void* for_me)
+  {
+    for (auto& i: bdd_map)
+      {
+	if (i.type != var_type::var)
+	  continue;
+	ref_set& s = i.refs;
+	if (s.find(from_other) != s.end())
+	  s.insert(for_me);
+      }
   }
 
   void

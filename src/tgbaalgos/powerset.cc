@@ -51,10 +51,8 @@ namespace spot
 
     power_set seen;
     todo_list todo;
-    auto d = aut->get_dict();
-    auto res = new tgba_digraph(d);
-    d->register_all_variables_of(aut, res);
-    d->unregister_all_typed_variables(bdd_dict::acc, res);
+    auto res = new tgba_digraph(aut->get_dict());
+    res->copy_ap_of(aut);
 
     {
       power_state ps;

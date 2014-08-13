@@ -260,13 +260,10 @@ namespace spot
 
       // The result automaton is an SBA.
       auto res = new tgba_digraph(dict);
+      res->copy_ap_of(a);
       res->set_single_acceptance_set();
       if (want_sba)
 	res->set_bprop(tgba_digraph::StateBasedAcc);
-
-      // We use the same BDD variables as the input, except for the
-      // acceptance.
-      dict->register_all_variables_of(a, res);
 
       // Create an order of acceptance conditions.  Each entry in this
       // vector correspond to an acceptance set.  Each index can

@@ -671,7 +671,7 @@ namespace spot
     {
       auto autdict = aut->get_dict();
       auto a = new tgba_digraph(autdict);
-      autdict->register_all_variables_of(aut, a);
+      a->copy_ap_of(aut);
       bdd acc = a->set_single_acceptance_set();
       a->new_states(satdict.cand_size);
 

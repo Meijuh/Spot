@@ -44,10 +44,7 @@ namespace spot
 	d_(a),
 	num_states_(a->aut->num_states())
       {
-	bdd_dict* bd = out_->get_dict();
-	bd->register_all_variables_of(aut, out_);
-
-	// Invent a new acceptance set for the degeneralized automaton.
+	out_->copy_ap_of(aut);
 	out_->set_single_acceptance_set();
 	out_->set_bprop(tgba_digraph::StateBasedAcc);
 	out_->new_states(num_states_ * (d_->accpair_count + 1));

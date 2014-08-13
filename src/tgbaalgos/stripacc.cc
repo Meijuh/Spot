@@ -29,6 +29,5 @@ namespace spot
       for (auto& t: a->out(s))
 	t.acc = bddfalse;
     a->set_acceptance_conditions(bddfalse);
-    a->get_dict()->unregister_all_typed_variables(bdd_dict::acc, a);
   }
 }

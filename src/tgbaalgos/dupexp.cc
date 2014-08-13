@@ -38,7 +38,7 @@ namespace spot
 	: T(a), out_(new tgba_digraph(a->get_dict()))
       {
 	out_->copy_acceptance_conditions_of(a);
-	a->get_dict()->register_all_variables_of(a, out_);
+	out_->copy_ap_of(a);
       }
 
       tgba_digraph*

@@ -119,8 +119,7 @@ namespace spot
   {
     auto dict = a->get_dict();
     auto res = new tgba_digraph(dict);
-    dict->register_all_variables_of(a, res);
-    dict->unregister_all_typed_variables(bdd_dict::acc, res);
+    res->copy_ap_of(a);
     res->set_bprop(tgba_digraph::StateBasedAcc);
 
     // For each set, create a state in the resulting automaton.
@@ -139,15 +138,9 @@ namespace spot
 
     // For each transition in the initial automaton, add the corresponding
     // transition in res.
-    bdd allacc = bddfalse;
+
     if (!final->empty())
-      {
-	int accvar =
-	  dict->register_acceptance_variable(ltl::constant::true_instance(),
-					     res);
-	allacc = bdd_ithvar(accvar);
-	res->set_acceptance_conditions(allacc);
-      }
+      res->set_single_acceptance_set();
 
     for (sit = sets.begin(); sit != sets.end(); ++sit)
       {
@@ -167,11 +160,8 @@ namespace spot
 	    dst->destroy();
 	    if (i == state_num.end()) // Ignore useless destinations.
 	      continue;
-	    bdd acc = bddfalse;
-	    if (accepting)
-	      acc = allacc;
-	    res->new_transition(src_num, i->second,
-				succit->current_condition(), acc);
+	    res->new_acc_transition(src_num, i->second,
+				    succit->current_condition(), accepting);
 	  }
       }
     res->merge_transitions();

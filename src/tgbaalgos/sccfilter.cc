@@ -434,11 +434,11 @@ namespace spot
     tgba_digraph* scc_filter_apply(const tgba_digraph* aut,
 				   scc_info* given_si, Args&&... args)
     {
-      bdd_dict* bd = aut->get_dict();
-      tgba_digraph* filtered = new tgba_digraph(bd);
+      tgba_digraph* filtered = new tgba_digraph(aut->get_dict());
       unsigned in_n = aut->num_states(); // Number of input states.
       if (in_n == 0)			 // Nothing to filter.
 	return filtered;
+      filtered->copy_ap_of(aut);
 
       // Compute scc_info if not supplied.
       scc_info* si = given_si;
@@ -457,7 +457,6 @@ namespace spot
 	else
 	  inout.push_back(-1U);
 
-      bd->register_all_variables_of(aut, filtered);
       {
 	bdd all = aut->all_acceptance_conditions();
 	bdd neg = aut->neg_acceptance_conditions();

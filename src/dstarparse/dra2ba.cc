@@ -235,8 +235,7 @@ namespace spot
 	sm_(sm),
 	realizable_(realizable)
       {
-	bdd_dict* bd = a->aut->get_dict();
-	bd->register_all_variables_of(a->aut, out_);
+	out_->copy_ap_of(a->aut);
 	out_->set_bprop(tgba_digraph::StateBasedAcc);
 	acc_ = out_->set_single_acceptance_set();
 	out_->new_states(num_states_ * (a->accpair_count + 1));
@@ -292,7 +291,8 @@ namespace spot
 		    // accepting cycle.
 		    out_->new_transition(in, out + shift, cond);
 
-		    // Acceptance transitions are those in the Li set. (Löding's Fi set.)
+		    // Acceptance transitions are those in the Li
+		    // set. (Löding's Fi set.)
 		    out_->new_acc_transition(in + shift, out + shift, cond,
 					     l.get(i));
 		  }
