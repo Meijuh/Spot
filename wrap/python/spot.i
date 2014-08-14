@@ -28,8 +28,34 @@
 
 %module(directors="1") spot
 
+%include "std_shared_ptr.i"
 %include "std_string.i"
 %include "std_list.i"
+
+ // git grep 'typedef.*std::shared_ptr' | grep -v const
+ // sed 's/.*<\(.*\)>.*/%shared_ptr(spot::\1)/g'
+%shared_ptr(spot::bdd_dict)
+%shared_ptr(spot::dstar_aut)
+%shared_ptr(spot::dstar_aut)
+%shared_ptr(spot::future_conditions_collector)
+%shared_ptr(spot::kripke)
+%shared_ptr(spot::saba)
+%shared_ptr(spot::saba_complement_tgba)
+%shared_ptr(spot::ta)
+%shared_ptr(spot::taa_tgba_formula)
+%shared_ptr(spot::taa_tgba_string)
+%shared_ptr(spot::ta_explicit)
+%shared_ptr(spot::ta_product)
+%shared_ptr(spot::taa_tgba)
+%shared_ptr(spot::tgba)
+%shared_ptr(spot::tgba_digraph)
+%shared_ptr(spot::tgba_kv_complement)
+%shared_ptr(spot::tgba_product)
+%shared_ptr(spot::tgba_product_init)
+%shared_ptr(spot::tgba_safra_complement)
+%shared_ptr(spot::tgba_sgba_proxy)
+%shared_ptr(spot::tgta)
+%shared_ptr(spot::tgta_explicit)
 
 namespace std {
    %template(liststr) list<string>;
@@ -76,6 +102,7 @@ namespace std {
 #include "tgba/bddprint.hh"
 #include "tgba/state.hh"
 #include "tgba/succiter.hh"
+#include "tgba/fwd.hh"
 #include "tgba/tgba.hh"
 #include "tgba/taatgba.hh"
 #include "tgba/tgbaproduct.hh"
@@ -185,37 +212,16 @@ using namespace spot;
 %feature("new") spot::emptiness_check_result::accepting_run;
 %feature("new") spot::explicit_magic_search;
 %feature("new") spot::explicit_se05_search;
-%feature("new") spot::ltl_to_taa;
-%feature("new") spot::ltl_to_tgba_fm;
-%feature("new") spot::compsusp;
-%feature("new") spot::minimize_wdba;
-%feature("new") spot::minimize_monitor;
-%feature("new") spot::scc_filter;
-%feature("new") spot::tgba_dupexp_bfs;
-%feature("new") spot::tgba_dupexp_dfs;
 %feature("new") spot::tgba::get_init_state;
 %feature("new") spot::tgba::succ_iter;
 %feature("new") spot::tgba_succ_iterator::current_state;
-%feature("new") spot::simulation;
-%feature("new") spot::cosimulation;
-%feature("new") spot::iterated_simulations;
-%feature("new") spot::degeneralize;
-%feature("new") spot::degeneralize_tba;
-%feature("new") spot::tgba_parse;
-%feature("new") spot::tgba_to_ta;
-%feature("new") spot::tgba_to_tgta;
-%feature("new") spot::postprocessor::run;
-
-// The argument to postprocessor::run() will be deleted.
-// Apparently SWIG can only disown arguments based on their
-// names...
-%apply SWIGTYPE *DISOWN { SWIGTYPE * input_disown };
 
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
 %include "tgba/bddprint.hh"
 %include "tgba/state.hh"
 %include "tgba/succiter.hh"
+%include "tgba/fwd.hh"
 %include "tgba/tgba.hh"
 %include "tgba/taatgba.hh"
 %include "tgba/tgbaproduct.hh"
@@ -313,32 +319,7 @@ namespace std {
   };
 }
 
-%feature("new") minimize_obligation_new;
-
 %inline %{
-
-// A variant of minimize_obligation() that always return a new object.
-const spot::tgba_digraph*
-minimize_obligation_new(const spot::tgba* a, const spot::ltl::formula* f)
-{
-  auto aa = dynamic_cast<const spot::tgba_digraph*>(a);
-  bool freeit = false;
-  if (!aa)
-    {
-      freeit = true;
-      aa = tgba_dupexp_dfs(a);
-    }
-  auto res = spot::minimize_obligation(aa, f);
-  // Return 0 if the output is the same as the input, otherwise
-  // it is hard for swig to know if the output is "new" or not.
-  if (freeit)
-    delete aa;
-  if (res == aa)
-    return 0;
-  else
-    return res;
-}
-
 spot::ltl::parse_error_list
 empty_parse_error_list()
 {

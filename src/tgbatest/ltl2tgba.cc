@@ -324,8 +324,16 @@ to_int(const char* s)
   return res;
 }
 
+spot::tgba_digraph_ptr ensure_digraph(const spot::tgba_ptr& a)
+{
+  auto aa = std::dynamic_pointer_cast<spot::tgba_digraph>(a);
+  if (aa)
+    return aa;
+  return spot::tgba_dupexp_dfs(a);
+}
+
 int
-main(int argc, char** argv)
+checked_main(int argc, char** argv)
 {
   int exit_code = 0;
 
@@ -379,8 +387,7 @@ main(int argc, char** argv)
   bool spin_comments = false;
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* unobservables = 0;
-  spot::tgba* system_aut = 0;
-  const spot::tgba* product_to_free = 0;
+  spot::tgba_ptr system_aut = 0;
   auto dict = spot::make_bdd_dict();
   spot::timer_map tm;
   bool use_timer = false;
@@ -390,16 +397,11 @@ main(int argc, char** argv)
   bool reduction_dont_care_sim = false;
   int limit_dont_care_sim = 0;
   bool reduction_iterated_dont_care_sim = false;
-  spot::tgba* temp_dir_sim = 0;
   bool ta_opt = false;
   bool tgta_opt = false;
   bool opt_with_artificial_initial_state = true;
   bool opt_single_pass_emptiness_check = false;
   bool opt_with_artificial_livelock = false;
-  spot::tgba* temp_rev_sim = 0;
-  spot::tgba* temp_iterated_sim = 0;
-  spot::tgba* temp_dont_care_sim = 0;
-  spot::tgba* temp_dont_care_iterated_sim = 0;
   bool cs_nowdba = true;
   bool cs_wdba_smaller = false;
   bool cs_nosimul = true;
@@ -632,7 +634,7 @@ main(int argc, char** argv)
 	  tm.start("reading -P's argument");
 
 	  spot::tgba_parse_error_list pel;
-	  spot::tgba_digraph* s;
+	  spot::tgba_digraph_ptr s;
 	  s = spot::tgba_parse(argv[formula_index] + 2,
 			       pel, dict, env, env, debug_opt);
 	  if (spot::format_tgba_parse_errors(std::cerr,
@@ -998,9 +1000,7 @@ main(int argc, char** argv)
 
   if (f || from_file)
     {
-      const spot::tgba* to_free = 0;
-      const spot::tgba* to_free2 = 0;
-      spot::tgba* a = 0;
+      spot::tgba_ptr a = 0;
       bool assume_sba = false;
 
       if (from_file)
@@ -1009,33 +1009,27 @@ main(int argc, char** argv)
 	    {
 	    case ReadSpot:
 		{
-		  spot::tgba_digraph* e;
+		  spot::tgba_digraph_ptr e;
 		  spot::tgba_parse_error_list pel;
 		  tm.start("parsing automaton");
-		  to_free = a = e = spot::tgba_parse(input, pel, dict,
+		  a = e = spot::tgba_parse(input, pel, dict,
 						     env, env, debug_opt);
 		  tm.stop("parsing automaton");
 		  if (spot::format_tgba_parse_errors(std::cerr, input, pel))
-		    {
-		      delete to_free;
-		      return 2;
-		    }
+		    return 2;
 		  e->merge_transitions();
 		}
 	      break;
 	    case ReadNeverclaim:
 	      {
-		spot::tgba_digraph* e;
+		spot::tgba_digraph_ptr e;
 		spot::neverclaim_parse_error_list pel;
 		tm.start("parsing neverclaim");
-		to_free = a = e = spot::neverclaim_parse(input, pel, dict,
+		a = e = spot::neverclaim_parse(input, pel, dict,
 							 env, debug_opt);
 		tm.stop("parsing neverclaim");
 		if (spot::format_neverclaim_parse_errors(std::cerr, input, pel))
-		  {
-		    delete to_free;
-		    return 2;
-		  }
+		  return 2;
 		assume_sba = true;
 		e->merge_transitions();
 	      }
@@ -1055,13 +1049,10 @@ main(int argc, char** argv)
 		      }
 		  }
 		tm.start("parsing lbtt");
-		to_free = a =
-		  const_cast<spot::tgba_digraph*>(spot::lbtt_parse(*in,
-								   error, dict,
-								   env, env));
+		a = spot::lbtt_parse(*in, error, dict, env, env);
 		tm.stop("parsing lbtt");
 		delete f;
-		if (!to_free)
+		if (!a)
 		  {
 		    std::cerr << error << std::endl;
 		    return 2;
@@ -1072,43 +1063,37 @@ main(int argc, char** argv)
 	      {
 		spot::dstar_parse_error_list pel;
 		tm.start("parsing dstar");
-		spot::dstar_aut* daut;
-		daut = spot::dstar_parse(input, pel, dict,
-					 env, debug_opt);
+		auto daut = spot::dstar_parse(input, pel, dict, env, debug_opt);
 		tm.stop("parsing dstar");
 		if (spot::format_dstar_parse_errors(std::cerr, input, pel))
-		  {
-		    delete to_free;
-		    return 2;
-		  }
+		  return 2;
 		tm.start("dstar2tgba");
 		if (nra2nba)
 		  {
 		    if (daut->type == spot::Rabin)
 		      {
-			spot::tgba_digraph* res;
+			spot::tgba_digraph_ptr res;
 			if (dra2dba)
 			  res = spot::dstar_to_tgba(daut);
 			else
 			  res = spot::nra_to_nba(daut);
-			to_free = a = res;
+			a = res;
 			assert(res->get_bprop(spot::tgba_digraph::SBA));
 			assume_sba = true;
 		      }
 		    else
 		      {
-			to_free = a = spot::nsa_to_tgba(daut);
+			a = spot::nsa_to_tgba(daut);
 			assume_sba = false;
 		      }
 		  }
 		else
 		  {
-		    to_free = a = daut->aut;
+		    a = daut->aut;
 		    daut->aut = 0;
 		    assume_sba = false;
 		  }
 		tm.stop("dstar2tgba");
-		delete daut;
 	      }
 	      break;
 	    }
@@ -1170,7 +1155,6 @@ main(int argc, char** argv)
 	      break;
 	    }
 	  tm.stop("translating formula");
-	  to_free = a;
 
 	  if (simp && simpcache_stats)
 	    {
@@ -1197,42 +1181,24 @@ main(int argc, char** argv)
 
       // Remove dead SCCs and useless acceptance conditions before
       // degeneralization.
-      const spot::tgba* aut_scc = 0;
       if (scc_filter)
 	{
-	  auto aa = dynamic_cast<const spot::tgba_digraph*>(a);
-	  bool freeit = false;
-	  if (!aa)
-	    {
-	      freeit = true;
-	      aa = tgba_dupexp_dfs(a);
-	    }
-	  assert(aa);
 	  tm.start("SCC-filter");
-	  aut_scc = a = spot::scc_filter(aa, scc_filter_all);
+	  a = spot::scc_filter(ensure_digraph(a), scc_filter_all);
 	  tm.stop("SCC-filter");
 	  assume_sba = false;
-	  if (freeit)
-	    delete aa;
 	}
 
-      const spot::tgba* degeneralized = 0;
-
-      spot::tgba_digraph* minimized = 0;
+      bool wdba_minimization_is_success = false;
       if (opt_minimize)
 	{
+	  auto aa = ensure_digraph(a);
 	  tm.start("obligation minimization");
-	  auto aa = dynamic_cast<const spot::tgba_digraph*>(a);
-	  bool freeit = false;
-	  if (!aa)
-	    {
-	      freeit = true;
-	      aa = tgba_dupexp_dfs(a);
-	    }
-	  minimized = minimize_obligation(aa, f, 0, reject_bigger);
+	  auto minimized = minimize_obligation(aa,
+					       f, 0, reject_bigger);
 	  tm.stop("obligation minimization");
 
-	  if (minimized == 0)
+	  if (!minimized)
 	    {
 	      // if (!f)
 		{
@@ -1244,11 +1210,12 @@ main(int argc, char** argv)
 	    }
 	  else if (minimized == aa)
 	    {
-	      minimized = 0;
+	      minimized = nullptr;
 	    }
 	  else
 	    {
 	      a = minimized;
+	      wdba_minimization_is_success = true;
               // When the minimization succeed, simulation is useless.
               reduction_dir_sim = false;
               reduction_rev_sim = false;
@@ -1257,15 +1224,12 @@ main(int argc, char** argv)
               reduction_iterated_sim = false;
 	      assume_sba = true;
 	    }
-	  if (freeit)
-	    delete aa;
 	}
 
       if (reduction_dir_sim && !reduction_iterated_sim)
         {
           tm.start("direct simulation");
-          temp_dir_sim = spot::simulation(a);
-          a = temp_dir_sim;
+          a = spot::simulation(a);
           tm.stop("direct simulation");
 	  assume_sba = false;
         }
@@ -1273,8 +1237,7 @@ main(int argc, char** argv)
       if (reduction_rev_sim && !reduction_iterated_sim)
         {
           tm.start("reverse simulation");
-          temp_rev_sim = spot::cosimulation(a);
-          a = temp_rev_sim;
+          a = spot::cosimulation(a);
           tm.stop("reverse simulation");
 	  assume_sba = false;
         }
@@ -1283,9 +1246,7 @@ main(int argc, char** argv)
       if (reduction_iterated_dont_care_sim)
         {
           tm.start("don't care iterated simulation");
-          temp_dont_care_iterated_sim
-            = spot::dont_care_iterated_simulations(a, limit_dont_care_sim);
-          a = temp_dont_care_iterated_sim;
+	  a = spot::dont_care_iterated_simulations(a, limit_dont_care_sim);
           tm.stop("don't care iterated simulation");
 	  assume_sba = false;
         }
@@ -1293,45 +1254,30 @@ main(int argc, char** argv)
       if (reduction_iterated_sim)
         {
           tm.start("Reduction w/ iterated simulations");
-          temp_iterated_sim = spot::iterated_simulations(a);
-          a = temp_iterated_sim;
+          a = spot::iterated_simulations(a);
           tm.stop("Reduction w/ iterated simulations");
 	  assume_sba = false;
         }
 
       if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
 	{
-	  auto aa = dynamic_cast<const spot::tgba_digraph*>(a);
-	  bool freeit = false;
-	  if (!aa)
-	    {
-	      freeit = true;
-	      aa = spot::tgba_dupexp_dfs(a);
-	    }
 	  tm.start("SCC-filter post-sim");
-	  delete aut_scc;
-	  aut_scc = a = spot::scc_filter(aa, scc_filter_all);
+	  a = spot::scc_filter(ensure_digraph(a), scc_filter_all);
 	  tm.stop("SCC-filter post-sim");
-	  if (freeit)
-	    delete aa;
 	}
 
       if (reduction_dont_care_sim)
         {
           tm.start("don't care simulation");
-          temp_dont_care_sim
-            = spot::dont_care_simulation(a, limit_dont_care_sim);
-          a = temp_dont_care_sim;
+	  a = spot::dont_care_simulation(a, limit_dont_care_sim);
           tm.stop("don't care simulation");
 
 	  if (scc_filter)
 	    {
-	      auto aa = down_cast<const spot::tgba_digraph*>(a);
+	      auto aa = std::static_pointer_cast<const spot::tgba_digraph>(a);
 	      assert(aa);
 	      tm.start("SCC-filter on don't care");
 	      a = spot::scc_filter(aa, true);
-	      delete temp_dont_care_sim;
-	      temp_dont_care_sim = a;
 	      tm.stop("SCC-filter on don't care");
 	    }
 	  assume_sba = false;
@@ -1351,57 +1297,49 @@ main(int argc, char** argv)
 	{
 	  if (degeneralize_opt == DegenTBA)
 	    {
-	      degeneralized = a = spot::degeneralize_tba(a,
-							 degen_reset,
-							 degen_order,
-							 degen_cache);
+	      a = spot::degeneralize_tba(a, degen_reset, degen_order,
+					 degen_cache);
 	    }
 	  else if (degeneralize_opt == DegenSBA)
 	    {
 	      tm.start("degeneralization");
-	      degeneralized = a = spot::degeneralize(a,
-						     degen_reset,
-						     degen_order,
-						     degen_cache);
+	      a = spot::degeneralize(a, degen_reset, degen_order,
+				     degen_cache);
 	      tm.stop("degeneralization");
 	      assume_sba = true;
 	    }
 	  else if (labeling_opt == StateLabeled)
 	    {
-	      degeneralized = a = new spot::tgba_sgba_proxy(a);
+	      a = spot::make_sgba(a);
 	    }
 	}
 
-      spot::tgba* determinized = 0;
       if (opt_determinize && a->number_of_acceptance_conditions() <= 1
 	  && (!f || f->is_syntactic_recurrence()))
 	{
 	  tm.start("determinization 2");
-	  determinized = tba_determinize(a, 0, opt_determinize_threshold);
+	  auto determinized = tba_determinize(a, 0, opt_determinize_threshold);
 	  tm.stop("determinization 2");
 	  if (determinized)
 	    a = determinized;
 	}
 
-      const spot::tgba* monitor = 0;
       if (opt_monitor)
 	{
 	  tm.start("Monitor minimization");
-	  monitor = a = minimize_monitor(a);
+	  a = minimize_monitor(a);
 	  tm.stop("Monitor minimization");
 	  assume_sba = false; 	// All states are accepting, so double
 				// circles in the dot output are
 				// pointless.
 	}
 
-      if (degeneralized || determinized)
+      if (degeneralize_opt != NoDegen || opt_determinize)
 	{
 	  if (reduction_dir_sim && !reduction_iterated_sim)
 	    {
 	      tm.start("direct simulation 2");
-	      spot::tgba* tmp = spot::simulation(a);
-	      delete temp_dir_sim;
-	      a = temp_dir_sim = tmp;
+	      a = spot::simulation(a);
 	      tm.stop("direct simulation 2");
 	      assume_sba = false;
 	    }
@@ -1409,9 +1347,7 @@ main(int argc, char** argv)
 	  if (reduction_rev_sim && !reduction_iterated_sim)
 	    {
 	      tm.start("reverse simulation 2");
-	      spot::tgba* tmp = spot::cosimulation(a);
-	      delete temp_rev_sim;
-	      a = temp_rev_sim = tmp;
+	      a = spot::cosimulation(a);
 	      tm.stop("reverse simulation 2");
 	      assume_sba = false;
 	    }
@@ -1419,27 +1355,23 @@ main(int argc, char** argv)
 	  if (reduction_iterated_sim)
 	    {
 	      tm.start("Reduction w/ iterated simulations");
-	      spot::tgba* tmp = spot::iterated_simulations(a);
-	      delete temp_iterated_sim;
-	      a = temp_iterated_sim = tmp;
+	      a = spot::iterated_simulations(a);
 	      tm.stop("Reduction w/ iterated simulations");
 	      assume_sba = false;
 	    }
 	}
 
-      spot::tgba* completed = 0;
       if (opt_complete)
 	{
 	  tm.start("determinization");
-	  a = completed = tgba_complete(a);
+	  a = tgba_complete(a);
 	  tm.stop("determinization");
 	}
 
-      spot::tgba* satminimized = 0;
       if (opt_dtbasat >= 0)
 	{
 	  tm.start("dtbasat");
-	  satminimized = dtba_sat_synthetize(a, opt_dtbasat);
+	  auto satminimized = dtba_sat_synthetize(a, opt_dtbasat);
 	  tm.stop("dtbasat");
 	  if (satminimized)
 	    a = satminimized;
@@ -1447,31 +1379,30 @@ main(int argc, char** argv)
       else if (opt_dtgbasat >= 0)
 	{
 	  tm.start("dtgbasat");
-	  satminimized = dtgba_sat_minimize(a, opt_dtgbasat);
+	  auto satminimized = dtgba_sat_minimize(a, opt_dtgbasat);
 	  tm.stop("dtgbasat");
 	  if (satminimized)
 	    a = satminimized;
 	}
 
-      spot::tgba* complemented = 0;
       if (opt_dtgbacomp)
 	{
 	  tm.start("DTGBA complement");
-	  a = complemented = dtgba_complement(a);
+	  a = dtgba_complement(a);
 	  tm.stop("DTGBA complement");
 	}
 
-      if (complemented || satminimized || determinized)
+      if (opt_determinize || opt_dtgbacomp || opt_dtbasat >= 0
+	  || opt_dtgbasat >= 0)
 	{
 	  if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
 	    {
 	      tm.start("SCC-filter post-sim");
-	      delete aut_scc;
-	      auto aa = down_cast<const spot::tgba_digraph*>(a);
+	      auto aa = std::dynamic_pointer_cast<const spot::tgba_digraph>(a);
 	      assert(aa);
 	      // Do not filter_all for SBA
-	      aut_scc = a = spot::scc_filter(aa, assume_sba ?
-					     false : scc_filter_all);
+	      a = spot::scc_filter(aa, assume_sba ?
+				   false : scc_filter_all);
 	      tm.stop("SCC-filter post-sim");
 	    }
 	}
@@ -1479,23 +1410,22 @@ main(int argc, char** argv)
       if (opt_monitor)
 	{
 	  tm.start("Monitor minimization");
-	  a = minimized = minimize_monitor(a);
+	  a = minimize_monitor(a);
 	  tm.stop("Monitor minimization");
 	  assume_sba = false; 	// All states are accepting, so double
 				// circles in the dot output are
 				// pointless.
 	}
 
-      const spot::tgba* expl = 0;
       switch (dupexp)
 	{
 	case NoneDup:
 	  break;
 	case BFS:
-	  expl = a = tgba_dupexp_bfs(a);
+	  a = tgba_dupexp_bfs(a);
 	  break;
 	case DFS:
-	  expl = a = tgba_dupexp_dfs(a);
+	  a = tgba_dupexp_dfs(a);
 	  break;
 	}
 
@@ -1507,14 +1437,14 @@ main(int argc, char** argv)
           if (ta_opt)
             {
 	      tm.start("conversion to TA");
-              spot::ta* testing_automaton
+              auto testing_automaton
                   = tgba_to_ta(a, atomic_props_set_bdd, degeneralize_opt
                       == DegenSBA, opt_with_artificial_initial_state,
                       opt_single_pass_emptiness_check,
                       opt_with_artificial_livelock);
 	      tm.stop("conversion to TA");
 
-              spot::ta* testing_automaton_nm = 0;
+              spot::ta_ptr testing_automaton_nm = 0;
               if (opt_bisim_ta)
                 {
 		  tm.start("TA bisimulation");
@@ -1540,31 +1470,22 @@ main(int argc, char** argv)
                     }
                   tm.stop("producing output");
                 }
-
-              delete testing_automaton_nm;
-              delete testing_automaton;
-	      delete a;
               a = 0;
-              degeneralized = 0;
-              if (degeneralize_opt != DegenSBA)
-                to_free = 0;
               output = -1;
             }
           if (tgta_opt)
             {
-              spot::tgta_explicit* tgta = tgba_to_tgta(a, atomic_props_set_bdd);
+              auto tgta = tgba_to_tgta(a, atomic_props_set_bdd);
               if (opt_bisim_ta)
                 {
 		  tm.start("TA bisimulation");
                   a = minimize_tgta(tgta);
 		  tm.stop("TA bisimulation");
-		  delete tgta;
                 }
               else
                 {
                   a = tgta;
                 }
-	      to_free2 = a;
 
               if (output != -1)
                 {
@@ -1572,8 +1493,8 @@ main(int argc, char** argv)
                   switch (output)
                     {
 		    case 0:
-		      spot::dotty_reachable(std::cout,
-			    dynamic_cast<spot::tgta_explicit*>(a)->get_ta());
+		      spot::dotty_reachable(std::cout, std::dynamic_pointer_cast
+					    <spot::tgta_explicit>(a)->get_ta());
 		      break;
 		    case 12:
 		      stats_reachable(a).dump(std::cout);
@@ -1588,11 +1509,9 @@ main(int argc, char** argv)
             }
         }
 
-      spot::tgba* product_degeneralized = 0;
-
       if (system_aut)
         {
-	  product_to_free = a = new spot::tgba_product(system_aut, a);
+	  a = spot::product(system_aut, a);
 
 	  assume_sba = false;
 
@@ -1605,21 +1524,19 @@ main(int argc, char** argv)
           if (degeneralize_opt == DegenTBA)
 	    {
 	      tm.start("degeneralize product");
-	      product_degeneralized = a =
-		spot::degeneralize_tba(a,
-				       degen_reset,
-				       degen_order,
-				       degen_cache);
+	      a = spot::degeneralize_tba(a,
+					 degen_reset,
+					 degen_order,
+					 degen_cache);
 	      tm.stop("degeneralize product");
 	    }
           else if (degeneralize_opt == DegenSBA)
 	    {
 	      tm.start("degeneralize product");
-	      product_degeneralized = a =
-		spot::degeneralize(a,
-				   degen_reset,
-				   degen_order,
-				   degen_cache);
+	      a = spot::degeneralize(a,
+				     degen_reset,
+				     degen_order,
+				     degen_cache);
 	      tm.stop("degeneralize product");
 	      assume_sba = true;
 	    }
@@ -1646,7 +1563,7 @@ main(int argc, char** argv)
 
       if (show_fc)
 	{
-	  a = new spot::future_conditions_collector(a, true);
+	  a = spot::make_future_conditions_collector(a, true);
 	}
 
       if (output != -1)
@@ -1676,12 +1593,9 @@ main(int argc, char** argv)
 		    // It is possible that we have applied other
 		    // operations to the automaton since its initial
 		    // degeneralization.  Let's degeneralize again!
-                    spot::tgba* s = spot::degeneralize(a,
-						       degen_reset,
-						       degen_order,
-						       degen_cache);
+                    auto s = spot::degeneralize(a, degen_reset,
+						degen_order, degen_cache);
 		    spot::never_claim_reachable(std::cout, s, f, spin_comments);
-		    delete s;
 		  }
 		break;
 	      }
@@ -1691,18 +1605,18 @@ main(int argc, char** argv)
 	      break;
 	    case 10:
 	      {
-		const spot::tgba_digraph* g =
-		  dynamic_cast<const spot::tgba_digraph*>(a);
-		if (!g)
+		auto aa =
+		  std::dynamic_pointer_cast<const spot::tgba_digraph>(a);
+		if (!aa)
 		  dump_scc_dot(a, std::cout, false);
 		else
-		  dump_scc_info_dot(std::cout, g);
+		  dump_scc_info_dot(std::cout, aa);
 	      }
 	      break;
 	    case 11:
 	      {
-		//const spot::tgba_digraph* g =
-		//  dynamic_cast<const spot::tgba_digraph*>(a);
+		//const spot::tgba_digraph_ptr g =
+		//  dynamic_cast<const spot::tgba_digraph_ptr>(a);
 		//if (!g)
 		  dump_scc_dot(a, std::cout, true);
 		//else
@@ -1718,21 +1632,18 @@ main(int argc, char** argv)
 			<< count_nondet_states(a) << std::endl;
 	      break;
 	    case 14:
-	      if (minimized == 0)
+	      if (!wdba_minimization_is_success)
 		{
 		  std::cout << "this is not an obligation property";
-		  const spot::tgba* tmp =
-		    tba_determinize_check(a, 0, opt_o_threshold, f, 0);
+		  auto tmp = tba_determinize_check(ensure_digraph(a),
+						   0, opt_o_threshold, f, 0);
 		  if (tmp != 0 && tmp != a)
-		    {
-		      std::cout << ", but it is a recurrence property";
-		      delete tmp;
-		    }
+		    std::cout << ", but it is a recurrence property";
 		}
 	      else
 		{
-		  bool g = is_guarantee_automaton(minimized);
-		  bool s = is_safety_mwdba(minimized);
+		  bool g = is_guarantee_automaton(a);
+		  bool s = is_safety_mwdba(a);
 		  if (g && !s)
 		    {
 		      std::cout << "this is a guarantee property (hence, "
@@ -1898,10 +1809,8 @@ main(int argc, char** argv)
 				}
 			      else if (graph_run_tgba_opt)
 				{
-                                  spot::tgba* ar =
-				    spot::tgba_run_to_tgba(a, run);
+                                  auto ar = spot::tgba_run_to_tgba(a, run);
 				  spot::dotty_reachable(std::cout, ar, false);
-				  delete ar;
 				}
 			      else
 				{
@@ -1923,31 +1832,9 @@ main(int argc, char** argv)
 	  while (search_many);
 	  delete ec;
 	}
-
-      delete to_free2;
-      if (show_fc)
-	delete a;
       if (f)
         f->destroy();
-      delete product_degeneralized;
-      delete product_to_free;
-      delete system_aut;
-      delete expl;
-      delete monitor;
-      delete minimized;
-      delete satminimized;
-      delete degeneralized;
-      delete determinized;
-      delete completed;
-      delete complemented;
-      delete aut_scc;
-      delete to_free;
       delete echeck_inst;
-      delete temp_dir_sim;
-      delete temp_rev_sim;
-      delete temp_iterated_sim;
-      delete temp_dont_care_sim;
-      delete temp_dont_care_iterated_sim;
     }
   else
     {
@@ -1965,6 +1852,14 @@ main(int argc, char** argv)
       delete unobservables;
     }
 
+  return exit_code;
+}
+
+
+int
+main(int argc, char** argv)
+{
+  int exit_code = checked_main(argc, argv);
   spot::ltl::atomic_prop::dump_instances(std::cerr);
   spot::ltl::unop::dump_instances(std::cerr);
   spot::ltl::binop::dump_instances(std::cerr);

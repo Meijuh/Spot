@@ -30,6 +30,7 @@ tgba_HEADERS = \
   bddprint.hh \
   formula2bdd.hh \
   futurecondcol.hh \
+  fwd.hh \
   state.hh \
   succiter.hh \
   taatgba.hh \

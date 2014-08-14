@@ -37,12 +37,12 @@ namespace spot
     class never_claim_bfs : public tgba_reachable_iterator_breadth_first
     {
     public:
-      never_claim_bfs(const tgba* a, std::ostream& os,
+      never_claim_bfs(const const_tgba_ptr& a, std::ostream& os,
 		      const ltl::formula* f, bool comments)
 	: tgba_reachable_iterator_breadth_first(a),
 	  os_(os), f_(f), accept_all_(-1), fi_needed_(false),
 	  comments_(comments), all_acc_conds_(a->all_acceptance_conditions()),
-	  sba_(dynamic_cast<const tgba_digraph*>(a))
+	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
       {
 	assert(!sba_ || sba_->get_bprop(tgba_digraph::StateBasedAcc));
       }
@@ -194,12 +194,12 @@ namespace spot
       state* init_;
       bool comments_;
       bdd all_acc_conds_;
-      const tgba_digraph* sba_;
+      const_tgba_digraph_ptr sba_;
     };
   } // anonymous
 
   std::ostream&
-  never_claim_reachable(std::ostream& os, const tgba* g,
+  never_claim_reachable(std::ostream& os, const const_tgba_ptr& g,
 			const ltl::formula* f, bool comments)
   {
     assert(g->number_of_acceptance_conditions() <= 1);

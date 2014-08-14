@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -108,6 +108,9 @@ namespace spot
   private:
     mutable int num_acc_;
   };
+
+  typedef std::shared_ptr<saba> saba_ptr;
+  typedef std::shared_ptr<const saba> const_saba_ptr;
 
 } // end namespace spot.
 

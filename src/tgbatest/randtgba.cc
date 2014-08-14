@@ -85,8 +85,9 @@ const char* default_algos[] = {
 std::vector<ec_algo> ec_algos;
 
 spot::emptiness_check*
-cons_emptiness_check(int num, const spot::tgba* a,
-		     const spot::tgba* degen, unsigned int n_acc)
+cons_emptiness_check(int num, spot::const_tgba_ptr a,
+		     const spot::const_tgba_ptr& degen,
+		     unsigned int n_acc)
 {
   spot::emptiness_check_instantiator* inst = ec_algos[num].inst;
   if (n_acc < inst->min_acceptance_conditions()
@@ -94,7 +95,7 @@ cons_emptiness_check(int num, const spot::tgba* a,
     a = degen;
   if (a)
     return inst->instantiate(a);
-  return 0;
+  return nullptr;
 }
 
 void
@@ -578,8 +579,8 @@ main(int argc, char** argv)
 
   bool stop_on_first_difference = false;
 
-  spot::tgba* formula = 0;
-  spot::tgba* product = 0;
+  spot::tgba_ptr formula = nullptr;
+  spot::tgba_ptr product = nullptr;
 
   spot::option_map options;
 
@@ -905,13 +906,12 @@ main(int argc, char** argv)
 		std::cout << "seed: " << opt_ec_seed << std::endl;
 	      spot::srand(opt_ec_seed);
 
-	      spot::tgba* a;
-	      spot::tgba* r = a = spot::random_graph(opt_n, opt_d, apf, dict,
-						     opt_n_acc, opt_a, opt_t,
-						     &env);
 
+	      spot::tgba_ptr a =
+		spot::random_graph(opt_n, opt_d, apf, dict,
+				   opt_n_acc, opt_a, opt_t, &env);
 	      if (formula)
-		a = product = new spot::tgba_product(formula, a);
+		a = spot::product(formula, a);
 
 	      int real_n_acc = a->number_of_acceptance_conditions();
 
@@ -926,7 +926,7 @@ main(int argc, char** argv)
 		}
 	      else
 		{
-		  spot::tgba* degen = 0;
+		  spot::tgba_ptr degen = nullptr;
 		  if (opt_degen && real_n_acc > 1)
 		    degen = degeneralize_tba(a);
 
@@ -1134,12 +1134,7 @@ main(int argc, char** argv)
 				<< std::endl;
 		      failed_seeds.insert(opt_ec_seed);
 		    }
-
-		  delete degen;
 		}
-
-	      delete product;
-	      delete r;
 
 	      if (opt_ec)
 		{
@@ -1155,7 +1150,6 @@ main(int argc, char** argv)
 	  opt_ec_seed += init_opt_ec;
 	}
 
-      delete formula;
       if (opt_F)
         --opt_F;
       opt_ec = init_opt_ec;

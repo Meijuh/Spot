@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 Laboratoire de
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
 // Recherche et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -77,7 +77,7 @@ namespace spot
     ///
     /// This will note compute the map initially.  You should call
     /// build_map() to do so.
-    scc_map(const tgba* aut);
+    scc_map(const const_tgba_ptr& aut);
 
     ~scc_map();
 
@@ -85,7 +85,7 @@ namespace spot
     void build_map();
 
     /// Get the automaton for which the map has been constructed.
-    const tgba* get_aut() const;
+    const_tgba_ptr get_aut() const;
 
     /// \brief Get the number of SCC in the automaton.
     ///
@@ -216,7 +216,7 @@ namespace spot
       bdd useful_acc;
     };
 
-    const tgba* aut_;		// Automata to decompose.
+    const_tgba_ptr aut_;		// Automata to decompose.
     typedef std::list<scc> stack_type;
     stack_type root_;		// Stack of SCC roots.
     std::stack<bdd> arc_acc_;	// A stack of acceptance conditions
@@ -248,12 +248,13 @@ namespace spot
  };
 
   SPOT_API scc_stats
-  build_scc_stats(const tgba* a);
+  build_scc_stats(const const_tgba_ptr& a);
   SPOT_API scc_stats
   build_scc_stats(const scc_map& m);
 
   SPOT_API std::ostream&
-  dump_scc_dot(const tgba* a, std::ostream& out, bool verbose = false);
+  dump_scc_dot(const const_tgba_ptr& a,
+	       std::ostream& out, bool verbose = false);
   SPOT_API std::ostream&
   dump_scc_dot(const scc_map& m, std::ostream& out, bool verbose = false);
 }

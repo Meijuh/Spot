@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -42,7 +42,7 @@ namespace spot
   class SPOT_API bfs_steps
   {
   public:
-    bfs_steps(const tgba* a);
+    bfs_steps(const const_tgba_ptr& a);
     virtual ~bfs_steps();
 
     /// \brief Start the search from \a start, and append the
@@ -99,7 +99,7 @@ namespace spot
 			  tgba_run::steps& l);
 
   protected:
-    const tgba* a_;		///< The spot::tgba we are searching into.
+    const_tgba_ptr a_;		///< The spot::tgba we are searching into.
   };
 
 

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -23,11 +23,11 @@
 #ifndef SPOT_TGBAALGOS_TAU03OPT_HH
 # define SPOT_TGBAALGOS_TAU03OPT_HH
 
-#include "misc/optionmap.hh"
+# include "misc/optionmap.hh"
+# include "tgba/fwd.hh"
 
 namespace spot
 {
-  class tgba;
   class emptiness_check;
 
   /// \addtogroup emptiness_check_algorithms
@@ -99,7 +99,8 @@ namespace spot
   /// state of this stack.
   ///
   SPOT_API emptiness_check*
-  explicit_tau03_opt_search(const tgba *a, option_map o = option_map());
+  explicit_tau03_opt_search(const const_tgba_ptr& a,
+			    option_map o = option_map());
 
   /// @}
 }

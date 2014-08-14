@@ -171,7 +171,7 @@ namespace
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
-      const spot::tgba* aut = trans.run(&f);
+      auto aut = trans.run(&f);
 
       // This should not happen, because the parser we use can only
       // read PSL/LTL formula, but since our ltl::formula* type can
@@ -189,36 +189,22 @@ namespace
 
       if (ta_type != TGTA)
 	{
-	  spot::ta* testing_automaton =
+	  auto testing_automaton =
 	    tgba_to_ta(aut, ap_set, type == spot::postprocessor::BA,
 		       opt_with_artificial_initial_state,
 		       opt_single_pass_emptiness_check,
 		       opt_with_artificial_livelock);
 	  if (level != spot::postprocessor::Low)
-	    {
-	      spot::ta* testing_automaton_nm = testing_automaton;
-	      testing_automaton = spot::minimize_ta(testing_automaton);
-	      delete testing_automaton_nm;
-	    }
+	    testing_automaton = spot::minimize_ta(testing_automaton);
 	  spot::dotty_reachable(std::cout, testing_automaton);
-	  delete testing_automaton;
 	}
       else
 	{
-	  spot::tgta_explicit* tgta = tgba_to_tgta(aut, ap_set);
+	  auto tgta = tgba_to_tgta(aut, ap_set);
 	  if (level != spot::postprocessor::Low)
-	    {
-	      spot::tgta_explicit* a = spot::minimize_tgta(tgta);
-	      delete tgta;
-	      tgta = a;
-	    }
-	  spot::dotty_reachable(std::cout,
-				dynamic_cast<spot::tgta_explicit*>(tgta)
-				->get_ta());
-	  delete tgta;
+	    tgta = spot::minimize_tgta(tgta);
+	  spot::dotty_reachable(std::cout, tgta->get_ta());
 	}
-
-      delete aut;
       f->destroy();
       flush_cout();
       return 0;

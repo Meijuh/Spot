@@ -38,9 +38,9 @@ namespace spot
   class SPOT_API tgta_explicit : public tgta
   {
   public:
-    tgta_explicit(const tgba* tgba, bdd all_acceptance_conditions,
-		  state_ta_explicit* artificial_initial_state,
-		  bool own_tgba = false);
+    tgta_explicit(const const_tgba_ptr& tgba,
+		  bdd all_acceptance_conditions,
+		  state_ta_explicit* artificial_initial_state);
 
     // tgba interface
     virtual spot::state* get_init_state() const;
@@ -51,8 +51,8 @@ namespace spot
     virtual bdd_dict_ptr
     get_dict() const;
 
-    const ta_explicit* get_ta() const { return &ta_; }
-    ta_explicit* get_ta() { return &ta_; }
+    const_ta_explicit_ptr get_ta() const { return ta_; }
+    ta_explicit_ptr get_ta() { return ta_; }
 
     virtual bdd all_acceptance_conditions() const;
     virtual bdd neg_acceptance_conditions() const;
@@ -64,9 +64,21 @@ namespace spot
   protected:
     virtual bdd compute_support_conditions(const spot::state* state) const;
 
-    ta_explicit ta_;
+    ta_explicit_ptr ta_;
   };
 
+  typedef std::shared_ptr<tgta_explicit> tgta_explicit_ptr;
+  typedef std::shared_ptr<const tgta_explicit> const_tgta_explicit_ptr;
+
+  inline tgta_explicit_ptr make_tgta_explicit(const const_tgba_ptr& tgba,
+					      bdd all_acceptance_conditions,
+					      state_ta_explicit*
+					      artificial_initial_state = 0)
+  {
+    return std::make_shared<tgta_explicit>(tgba,
+					   all_acceptance_conditions,
+					   artificial_initial_state);
+  }
 }
 
 #endif // SPOT_TA_TGTAEXPLICIT_HH

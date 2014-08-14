@@ -56,7 +56,6 @@ namespace spot
       while (!translated_.empty())
 	{
 	  trans_map::iterator i = translated_.begin();
-	  delete i->second.translation;
 	  const formula* f = i->first;
 	  translated_.erase(i);
 	  f->destroy();
@@ -70,9 +69,8 @@ namespace spot
       if (i != l->incompatible.end())
 	return i->second;
 
-      const tgba* p = new tgba_product(l->translation, g->translation);
-      emptiness_check* ec = couvreur99(p);
-      emptiness_check_result* ecr = ec->check();
+      auto ec = couvreur99(product(l->translation, g->translation));
+      auto ecr = ec->check();
       if (!ecr)
 	{
 	  l->incompatible[g] = true;
@@ -85,7 +83,6 @@ namespace spot
 	  delete ecr;
 	}
       delete ec;
-      delete p;
       return !ecr;
     }
 

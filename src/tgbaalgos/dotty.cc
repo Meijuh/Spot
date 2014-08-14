@@ -37,11 +37,11 @@ namespace spot
     class dotty_bfs : public tgba_reachable_iterator_breadth_first
     {
     public:
-      dotty_bfs(std::ostream& os, const tgba* a, bool mark_accepting_states,
+      dotty_bfs(std::ostream& os, const_tgba_ptr a, bool mark_accepting_states,
 		dotty_decorator* dd)
 	: tgba_reachable_iterator_breadth_first(a), os_(os),
 	  mark_accepting_states_(mark_accepting_states), dd_(dd),
-	  sba_(dynamic_cast<const tgba_digraph*>(a))
+	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
       {
       }
 
@@ -119,17 +119,17 @@ namespace spot
       std::ostream& os_;
       bool mark_accepting_states_;
       dotty_decorator* dd_;
-      const tgba_digraph* sba_;
+      const_tgba_digraph_ptr sba_;
     };
   }
 
   std::ostream&
-  dotty_reachable(std::ostream& os, const tgba* g,
+  dotty_reachable(std::ostream& os, const const_tgba_ptr& g,
 		  bool assume_sba, dotty_decorator* dd)
   {
     if (!dd)
       dd = dotty_decorator::instance();
-    if (const tgba_digraph* gd = dynamic_cast<const tgba_digraph*>(g))
+    if (auto gd = dynamic_cast<const tgba_digraph*>(g.get()))
       assume_sba |= gd->get_bprop(tgba_digraph::StateBasedAcc);
 
     dotty_bfs d(os, g, assume_sba, dd);

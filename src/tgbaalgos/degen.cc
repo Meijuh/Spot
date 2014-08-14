@@ -71,7 +71,7 @@ namespace spot
     // SCC -- we do not care about the other) of some state.
     class outgoing_acc
     {
-      const tgba* a_;
+      const_tgba_ptr a_;
       typedef std::pair<bdd, bdd> cache_entry;
       typedef std::unordered_map<const state*, cache_entry,
 				 state_ptr_hash, state_ptr_equal> cache_t;
@@ -79,7 +79,7 @@ namespace spot
       const scc_map* sm_;
 
     public:
-      outgoing_acc(const tgba* a, const scc_map* sm): a_(a), sm_(sm)
+      outgoing_acc(const const_tgba_ptr& a, const scc_map* sm): a_(a), sm_(sm)
       {
       }
 
@@ -128,14 +128,14 @@ namespace spot
     // Check whether a state has an accepting self-loop, with a catch.
     class has_acc_loop
     {
-      const tgba* a_;
+      const_tgba_ptr a_;
       typedef std::unordered_map<const state*, bool,
 				 state_ptr_hash, state_ptr_equal> cache_t;
       cache_t cache_;
       state_unicity_table& uniq_;
 
     public:
-      has_acc_loop(const tgba* a, state_unicity_table& uniq):
+      has_acc_loop(const const_tgba_ptr& a, state_unicity_table& uniq):
 	a_(a),
 	uniq_(uniq)
       {
@@ -250,16 +250,17 @@ namespace spot
     };
 
     template<bool want_sba>
-    tgba_digraph*
-    degeneralize_aux(const tgba* a, bool use_z_lvl, bool use_cust_acc_orders,
-		     int use_lvl_cache, bool skip_levels)
+    tgba_digraph_ptr
+    degeneralize_aux(const const_tgba_ptr& a, bool use_z_lvl,
+		     bool use_cust_acc_orders, int use_lvl_cache,
+		     bool skip_levels)
     {
       bool use_scc = use_lvl_cache || use_cust_acc_orders || use_z_lvl;
 
       bdd_dict_ptr dict = a->get_dict();
 
       // The result automaton is an SBA.
-      auto res = new tgba_digraph(dict);
+      auto res = make_tgba_digraph(dict);
       res->copy_ap_of(a);
       res->set_single_acceptance_set();
       if (want_sba)
@@ -616,16 +617,18 @@ namespace spot
     }
   }
 
-  tgba_digraph*
-  degeneralize(const tgba* a, bool use_z_lvl, bool use_cust_acc_orders,
+  tgba_digraph_ptr
+  degeneralize(const const_tgba_ptr& a,
+	       bool use_z_lvl, bool use_cust_acc_orders,
                int use_lvl_cache, bool skip_levels)
   {
     return degeneralize_aux<true>(a, use_z_lvl, use_cust_acc_orders,
 				  use_lvl_cache, skip_levels);
   }
 
-  tgba_digraph*
-  degeneralize_tba(const tgba* a, bool use_z_lvl, bool use_cust_acc_orders,
+  tgba_digraph_ptr
+  degeneralize_tba(const const_tgba_ptr& a,
+		   bool use_z_lvl, bool use_cust_acc_orders,
 		   int use_lvl_cache, bool skip_levels)
   {
     return degeneralize_aux<false>(a, use_z_lvl, use_cust_acc_orders,

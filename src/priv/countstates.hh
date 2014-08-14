@@ -20,16 +20,15 @@
 #ifndef SPOT_PRIV_COUNTSTATES_HH
 # define SPOT_PRIV_COUNTSTATES_HH
 
+#include "tgba/fwd.hh"
 #include "misc/common.hh"
 
 namespace spot
 {
-  class tgba;
-  unsigned count_states(const tgba* a);
+  unsigned count_states(const const_tgba_ptr& a);
 
-  class tgba_digraph;
   // Call a->num_states() directly!
-  unsigned count_states(const tgba_digraph* a) SPOT_DEPRECATED;
+  unsigned count_states(const_tgba_digraph_ptr a) SPOT_DEPRECATED;
 }
 
 #endif // SPOT_PRIV_COUNTSTATES_HH

@@ -70,13 +70,7 @@ int main(int argc, char* argv[])
     return 2;
 
   auto a = spot::ltl_to_tgba_fm(f1, spot::make_bdd_dict());
-
-  spot::saba_complement_tgba* complement =
-    new spot::saba_complement_tgba(a);
-
+  auto complement = spot::make_saba_complement(a);
   spot::saba_dotty_reachable(std::cout, complement);
-
-  delete complement;
-  delete a;
   f1->destroy();
 }

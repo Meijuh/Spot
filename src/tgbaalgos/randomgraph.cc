@@ -44,7 +44,7 @@ namespace spot
     }
 
     void
-    random_labels(tgba_digraph* aut,
+    random_labels(tgba_digraph_ptr aut,
 		  unsigned src,
 		  unsigned dest,
 		  int* props, int props_n, float t,
@@ -80,14 +80,14 @@ namespace spot
     }
   }
 
-  tgba*
+  tgba_digraph_ptr
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, bdd_dict_ptr dict,
 	       int n_acc, float a, float t,
 	       ltl::environment* env)
   {
     assert(n > 0);
-    auto res = new tgba_digraph(dict);
+    auto res = make_tgba_digraph(dict);
 
     int props_n = ap->size();
     int* props = new int[props_n];

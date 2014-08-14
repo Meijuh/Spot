@@ -89,8 +89,8 @@ namespace spot
       {
       }
 
-      void recycle(const tgba* l, tgba_succ_iterator* left,
-		   const tgba* r, tgba_succ_iterator* right)
+      void recycle(const const_tgba_ptr& l, tgba_succ_iterator* left,
+		   const_tgba_ptr r, tgba_succ_iterator* right)
       {
 	l->release_iter(left_);
 	left_ = left;
@@ -284,7 +284,8 @@ namespace spot
   ////////////////////////////////////////////////////////////
   // tgba_product
 
-  tgba_product::tgba_product(const tgba* left, const tgba* right)
+  tgba_product::tgba_product(const const_tgba_ptr& left,
+			     const const_tgba_ptr& right)
     : dict_(left->get_dict()), left_(left), right_(right),
       pool_(sizeof(state_product))
   {
@@ -293,11 +294,11 @@ namespace spot
     // If one of the side is a Kripke structure, it is easier to deal
     // with (we don't have to fix the acceptance conditions, and
     // computing the successors can be improved a bit).
-    if (dynamic_cast<const kripke*>(left_))
+    if (dynamic_cast<const kripke*>(left_.get()))
       {
 	left_kripke_ = true;
       }
-    else if (dynamic_cast<const kripke*>(right_))
+    else if (dynamic_cast<const kripke*>(right_.get()))
       {
 	std::swap(left_, right_);
 	left_kripke_ = true;
@@ -428,11 +429,11 @@ namespace spot
   }
 
   state*
-  tgba_product::project_state(const state* s, const tgba* t) const
+  tgba_product::project_state(const state* s, const const_tgba_ptr& t) const
   {
     const state_product* s2 = down_cast<const state_product*>(s);
     assert(s2);
-    if (t == this)
+    if (t.get() == this)
       return s2->clone();
     state* res = left_->project_state(s2->left(), t);
     if (res)
@@ -470,7 +471,8 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
   // tgba_product_init
 
-  tgba_product_init::tgba_product_init(const tgba* left, const tgba* right,
+  tgba_product_init::tgba_product_init(const const_tgba_ptr& left,
+				       const const_tgba_ptr& right,
 				       const state* left_init,
 				       const state* right_init)
     : tgba_product(left, right),

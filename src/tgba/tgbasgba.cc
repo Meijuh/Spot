@@ -165,7 +165,8 @@ namespace spot
 
   } // anonymous
 
-  tgba_sgba_proxy::tgba_sgba_proxy(const tgba* a, bool no_zero_acc)
+  tgba_sgba_proxy::tgba_sgba_proxy(const const_tgba_ptr& a,
+				   bool no_zero_acc)
     : a_(a), emulate_acc_cond_(false)
   {
     if (no_zero_acc && a_->number_of_acceptance_conditions() == 0)

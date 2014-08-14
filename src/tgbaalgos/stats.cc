@@ -34,7 +34,7 @@ namespace spot
     class stats_bfs: public tgba_reachable_iterator_breadth_first
     {
     public:
-      stats_bfs(const tgba* a, tgba_statistics& s)
+      stats_bfs(const const_tgba_ptr& a, tgba_statistics& s)
 	: tgba_reachable_iterator_breadth_first(a), s_(s)
       {
       }
@@ -59,7 +59,7 @@ namespace spot
     class sub_stats_bfs: public stats_bfs
     {
     public:
-      sub_stats_bfs(const tgba* a, tgba_sub_statistics& s)
+      sub_stats_bfs(const const_tgba_ptr& a, tgba_sub_statistics& s)
 	: stats_bfs(a, s), s_(s), seen_(bddtrue)
       {
       }
@@ -116,7 +116,7 @@ namespace spot
   }
 
   tgba_statistics
-  stats_reachable(const tgba* g)
+  stats_reachable(const const_tgba_ptr& g)
   {
     tgba_statistics s;
     stats_bfs d(g, s);
@@ -125,7 +125,7 @@ namespace spot
   }
 
   tgba_sub_statistics
-  sub_stats_reachable(const tgba* g)
+  sub_stats_reachable(const const_tgba_ptr& g)
   {
     tgba_sub_statistics s;
     sub_stats_bfs d(g, s);
@@ -157,7 +157,7 @@ namespace spot
   }
 
   std::ostream&
-  stat_printer::print(const tgba* aut,
+  stat_printer::print(const const_tgba_ptr& aut,
 		      const ltl::formula* f,
 		      double run_time)
   {

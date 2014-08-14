@@ -46,7 +46,7 @@
 
 %parse-param {spot::neverclaim_parse_error_list& error_list}
 %parse-param {spot::ltl::environment& parse_environment}
-%parse-param {spot::tgba_digraph*& result}
+%parse-param {spot::tgba_digraph_ptr& result}
 %parse-param {named_tgba_t*& namer}
 %parse-param {formula_cache& fcache}
 %union
@@ -286,7 +286,7 @@ neverclaimyy::parser::error(const location_type& location,
 
 namespace spot
 {
-  tgba_digraph*
+  tgba_digraph_ptr
   neverclaim_parse(const std::string& name,
 		   neverclaim_parse_error_list& error_list,
 		   bdd_dict_ptr dict,
@@ -300,7 +300,7 @@ namespace spot
 	return 0;
       }
     formula_cache fcache;
-    tgba_digraph* result = new tgba_digraph(dict);
+    tgba_digraph_ptr result = make_tgba_digraph(dict);
     auto namer = result->create_namer<std::string>();
     result->set_single_acceptance_set();
     result->set_bprop(tgba_digraph::SBA);

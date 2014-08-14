@@ -34,7 +34,7 @@ namespace spot
     class kripke_printer : public tgba_reachable_iterator_breadth_first
     {
     public:
-      kripke_printer(const kripke* a, std::ostream& os)
+      kripke_printer(const const_kripke_ptr& a, std::ostream& os)
 	: tgba_reachable_iterator_breadth_first(a), os_(os)
       {
       }
@@ -45,10 +45,9 @@ namespace spot
 	os_ << '"';
 	escape_str(os_, aut_->format_state(s));
 	os_ << "\", \"";
-	const kripke* automata = down_cast<const kripke*> (aut_);
-	assert(automata);
-	escape_str(os_, bdd_format_formula(d,
-					   automata->state_condition(s)));
+	auto aut = std::static_pointer_cast<const kripke> (aut_);
+	assert(aut);
+	escape_str(os_, bdd_format_formula(d, aut->state_condition(s)));
 
 	os_ << "\",";
 	for (si->first(); !si->done(); si->next())
@@ -69,7 +68,7 @@ namespace spot
       public tgba_reachable_iterator_breadth_first
     {
     public:
-      kripke_printer_renumbered(const kripke* a, std::ostream& os)
+      kripke_printer_renumbered(const const_kripke_ptr& a, std::ostream& os)
 	: tgba_reachable_iterator_breadth_first(a), os_(os),
 	  notfirst(false)
       {
@@ -90,10 +89,10 @@ namespace spot
 
 	const bdd_dict_ptr d = aut_->get_dict();
 	os_ << 'S' << in_s << ", \"";
-	const kripke* automata = down_cast<const kripke*>(aut_);
-	assert(automata);
+	auto aut = std::static_pointer_cast<const kripke>(aut_);
+	assert(aut);
 	escape_str(os_, bdd_format_formula(d,
-					   automata->state_condition(s)));
+					   aut->state_condition(s)));
 	os_ << "\",";
       }
 
@@ -119,7 +118,7 @@ namespace spot
   }
 
   std::ostream&
-  kripke_save_reachable(std::ostream& os, const kripke* k)
+  kripke_save_reachable(std::ostream& os, const const_kripke_ptr& k)
   {
     kripke_printer p(k, os);
     p.run();
@@ -127,7 +126,7 @@ namespace spot
   }
 
   std::ostream&
-  kripke_save_reachable_renumbered(std::ostream& os, const kripke* k)
+  kripke_save_reachable_renumbered(std::ostream& os, const const_kripke_ptr& k)
   {
     kripke_printer_renumbered p(k, os);
     p.run();

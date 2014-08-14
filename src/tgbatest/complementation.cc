@@ -130,16 +130,16 @@ int main(int argc, char* argv[])
   {
     spot::ltl::environment& env(spot::ltl::default_environment::instance());
     spot::tgba_parse_error_list pel;
-    spot::tgba* a = spot::tgba_parse(file, pel, dict, env);
+    spot::tgba_ptr a = spot::tgba_parse(file, pel, dict, env);
     if (spot::format_tgba_parse_errors(std::cerr, file, pel))
       return 2;
 
-    spot::tgba* complement = 0;
+    spot::tgba_ptr complement = 0;
 
     if (safra)
-      complement = new spot::tgba_safra_complement(a);
+      complement = spot::make_safra_complement(a);
     else
-      complement = new spot::tgba_kv_complement(a);
+      complement = spot::make_kv_complement(a);
 
     if (print_automaton)
       {
@@ -151,16 +151,14 @@ int main(int argc, char* argv[])
 
     if (print_safra)
     {
-      spot::tgba_safra_complement* safra_complement =
-        dynamic_cast<spot::tgba_safra_complement*>(complement);
+      auto safra_complement =
+	std::dynamic_pointer_cast<spot::tgba_safra_complement>(complement);
       spot::display_safra(safra_complement);
     }
-    delete complement;
-    delete a;
   }
   else if (print_formula)
   {
-    spot::tgba* a;
+    spot::tgba_ptr a;
 
     spot::ltl::parse_error_list p1;
     const spot::ltl::formula* f1 = spot::ltl::parse(file, p1);
@@ -169,21 +167,18 @@ int main(int argc, char* argv[])
       return 2;
 
     a = spot::ltl_to_tgba_fm(f1, dict);
-
-    spot::tgba* complement = 0;
+    spot::tgba_ptr complement = 0;
     if (safra)
-      complement = new spot::tgba_safra_complement(a);
+      complement = spot::make_safra_complement(a);
     else
-      complement = new spot::tgba_kv_complement(a);
+      complement = spot::make_kv_complement(a);
 
     spot::dotty_reachable(std::cout, complement);
     f1->destroy();
-    delete complement;
-    delete a;
   }
   else if (stats)
   {
-    spot::tgba* a;
+    spot::tgba_ptr a;
     const spot::ltl::formula* f1 = 0;
 
     if (formula)
@@ -205,8 +200,7 @@ int main(int argc, char* argv[])
         return 2;
     }
 
-    spot::tgba_safra_complement* safra_complement =
-      new spot::tgba_safra_complement(a);
+    auto safra_complement = spot::make_safra_complement(a);
 
     spot::tgba_statistics a_size =  spot::stats_reachable(a);
     std::cout << "Original: "
@@ -221,7 +215,6 @@ int main(int argc, char* argv[])
 	      << buchi->num_transitions()
               << buchi->number_of_acceptance_conditions()
               << std::endl;
-    delete buchi;
 
     spot::tgba_statistics b_size =  spot::stats_reachable(safra_complement);
     std::cout << "Safra Complement: "
@@ -230,8 +223,7 @@ int main(int argc, char* argv[])
               << safra_complement->number_of_acceptance_conditions()
               << std::endl;
 
-    spot::tgba_kv_complement* complement =
-      new spot::tgba_kv_complement(a);
+    auto complement = spot::make_kv_complement(a);
 
     b_size =  spot::stats_reachable(complement);
     std::cout << "GBA Complement: "
@@ -240,14 +232,12 @@ int main(int argc, char* argv[])
               << complement->number_of_acceptance_conditions()
               << std::endl;
 
-    delete complement;
-    delete a;
     if (formula)
     {
       const spot::ltl::formula* nf1 =
         spot::ltl::unop::instance(spot::ltl::unop::Not,
                                   f1->clone());
-      spot::tgba* a2 = spot::ltl_to_tgba_fm(nf1, dict);
+      spot::tgba_ptr a2 = spot::ltl_to_tgba_fm(nf1, dict);
       spot::tgba_statistics a_size =  spot::stats_reachable(a2);
       std::cout << "Not Formula: "
                 << a_size.states << ", "
@@ -255,7 +245,6 @@ int main(int argc, char* argv[])
                 << a2->number_of_acceptance_conditions()
                 << std::endl;
 
-      delete a2;
       f1->destroy();
       nf1->destroy();
     }
@@ -268,25 +257,24 @@ int main(int argc, char* argv[])
     if (spot::ltl::format_parse_errors(std::cerr, file, p1))
       return 2;
 
-    spot::tgba* Af = spot::ltl_to_tgba_fm(f1, dict);
+    spot::tgba_ptr Af = spot::ltl_to_tgba_fm(f1, dict);
     const spot::ltl::formula* nf1 =
       spot::ltl::unop::instance(spot::ltl::unop::Not, f1->clone());
-    spot::tgba* Anf = spot::ltl_to_tgba_fm(nf1, dict);
+    spot::tgba_ptr Anf = spot::ltl_to_tgba_fm(nf1, dict);
 
-    spot::tgba* nAf;
-    spot::tgba* nAnf;
+    spot::tgba_ptr nAf;
+    spot::tgba_ptr nAnf;
     if (safra)
     {
-      nAf = new spot::tgba_safra_complement(Af);
-      nAnf = new spot::tgba_safra_complement(Anf);
+      nAf = spot::make_safra_complement(Af);
+      nAnf = spot::make_safra_complement(Anf);
     }
     else
     {
-      nAf = new spot::tgba_kv_complement(Af);
-      nAnf = new spot::tgba_kv_complement(Anf);
+      nAf = spot::make_kv_complement(Af);
+      nAnf = spot::make_kv_complement(Anf);
     }
-    spot::tgba* prod = new spot::tgba_product(nAf, nAnf);
-    spot::emptiness_check* ec = spot::couvreur99(prod);
+    spot::emptiness_check* ec = spot::couvreur99(spot::product(nAf, nAnf));
     spot::emptiness_check_result* res = ec->check();
     spot::tgba_statistics a_size =  spot::stats_reachable(ec->automaton());
     std::cout << "States: "
@@ -307,12 +295,6 @@ int main(int argc, char* argv[])
 
     delete res;
     delete ec;
-    delete prod;
-    delete nAf;
-    delete Af;
-    delete nAnf;
-    delete Anf;
-
     nf1->destroy();
     f1->destroy();
 

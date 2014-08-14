@@ -24,7 +24,7 @@
 namespace spot
 {
   bool
-  is_guarantee_automaton(const tgba* aut, const scc_map* sm)
+  is_guarantee_automaton(const const_tgba_ptr& aut, const scc_map* sm)
   {
     // Create an scc_map of the user did not give one to us.
     bool need_sm = !sm;
@@ -69,7 +69,7 @@ namespace spot
     return result;
   }
 
-  bool is_safety_mwdba(const tgba* aut)
+  bool is_safety_mwdba(const const_tgba_ptr& aut)
   {
     state_unicity_table seen;	   // States already seen.
     std::deque<const state*> todo; // A queue of states yet to explore.

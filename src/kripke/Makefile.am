@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2011, 2013 Laboratoire de Recherche et
+## Copyright (C) 2009, 2011, 2013, 2014 Laboratoire de Recherche et
 ## Developpement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -24,6 +24,7 @@ kripkedir = $(pkgincludedir)/kripke
 
 kripke_HEADERS = \
   fairkripke.hh \
+  fwd.hh \
   kripke.hh \
   kripkeexplicit.hh \
   kripkeprint.hh

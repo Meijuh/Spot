@@ -175,6 +175,9 @@ namespace spot
 
   };
 
+  typedef std::shared_ptr<ta> ta_ptr;
+  typedef std::shared_ptr<const ta> const_ta_ptr;
+
   /// \ingroup ta_essentials
   /// \brief Iterate over the successors of a state.
   ///

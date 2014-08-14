@@ -86,7 +86,7 @@ namespace spot
   class SPOT_API tgba_kv_complement : public tgba
   {
   public:
-    tgba_kv_complement(const tgba* a);
+    tgba_kv_complement(const const_tgba_ptr& a);
     virtual ~tgba_kv_complement();
 
     // tgba interface
@@ -104,12 +104,20 @@ namespace spot
     /// They are inserted into \a acc_list_.
     void get_acc_list();
   private:
-    const tgba_sgba_proxy* automaton_;
+    const_tgba_sgba_proxy_ptr automaton_;
     bdd the_acceptance_cond_;
     unsigned nb_states_;
     acc_list_t acc_list_;
   }; // end class tgba_kv_complement.
 
+  typedef std::shared_ptr<tgba_kv_complement> tgba_kv_complement_ptr;
+  typedef std::shared_ptr<const tgba_kv_complement>
+    const_tgba_kv_complement_ptr;
+  inline tgba_kv_complement_ptr
+  make_kv_complement(const const_tgba_ptr& a)
+  {
+    return std::make_shared<tgba_kv_complement>(a);
+  }
 } // end namespace spot.
 
 

@@ -72,14 +72,14 @@ namespace spot
         return hash;
       }
 
-      std::string format(const tgba* a) const
+      std::string format(const bdd_dict_ptr& d) const
       {
         std::ostringstream ss;
         ss << "{rank: " << rank;
         if (rank & 1)
         {
           ss << ", bdd: {" << condition.order() << ", "
-             << bdd_format_accset(a->get_dict(), condition.get_bdd())
+             << bdd_format_accset(d, condition.get_bdd())
              << "} ";
         }
         ss << '}';
@@ -588,8 +588,8 @@ namespace spot
     }
   }
 
-  tgba_kv_complement::tgba_kv_complement(const tgba* a)
-    : automaton_(new tgba_sgba_proxy(a))
+  tgba_kv_complement::tgba_kv_complement(const const_tgba_ptr& a)
+    : automaton_(make_sgba(a))
   {
     get_dict()->register_all_variables_of(automaton_, this);
     int v = get_dict()
@@ -602,7 +602,6 @@ namespace spot
   tgba_kv_complement::~tgba_kv_complement()
   {
     get_dict()->unregister_all_my_variables(this);
-    delete automaton_;
   }
 
   state*
@@ -622,7 +621,7 @@ namespace spot
       down_cast<const state_kv_complement*>(state);
     assert(s);
 
-    return new tgba_kv_complement_succ_iterator(automaton_,
+    return new tgba_kv_complement_succ_iterator(automaton_.get(),
 						the_acceptance_cond_,
 						acc_list_, s);
   }
@@ -650,7 +649,7 @@ namespace spot
          ++i)
     {
       ss << "  {" << automaton_->format_state(i->first.get())
-         << ", " << i->second.format(this) << "}\n";
+         << ", " << i->second.format(get_dict()) << "}\n";
     }
     ss << "} odd-less: {";
 

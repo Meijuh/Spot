@@ -22,7 +22,7 @@
 
 namespace spot
 {
-  unsigned tgba_complete_here(tgba_digraph* aut)
+  unsigned tgba_complete_here(tgba_digraph_ptr aut)
   {
     unsigned n = aut->num_states();
     unsigned sink = -1U;
@@ -99,9 +99,9 @@ namespace spot
     return sink;
   }
 
-  tgba_digraph* tgba_complete(const tgba* aut)
+  tgba_digraph_ptr tgba_complete(const const_tgba_ptr& aut)
   {
-    tgba_digraph* res = tgba_dupexp_dfs(aut);
+    tgba_digraph_ptr res = tgba_dupexp_dfs(aut);
     tgba_complete_here(res);
     return res;
   }

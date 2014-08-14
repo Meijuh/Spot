@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -79,11 +79,12 @@ namespace spot
   ///
   /// \return A spot::ta_explicit that recognizes the same language as the
   /// TGBA \a tgba_to_convert.
-  SPOT_API ta_explicit*
-  tgba_to_ta(const tgba* tgba_to_convert, bdd atomic_propositions_set,
-      bool degeneralized = true, bool artificial_initial_state_mode = true,
-      bool single_pass_emptiness_check = false,
-      bool artificial_livelock_state_mode = false);
+  SPOT_API ta_explicit_ptr
+  tgba_to_ta(const const_tgba_ptr& tgba_to_convert, bdd atomic_propositions_set,
+	     bool degeneralized = true,
+	     bool artificial_initial_state_mode = true,
+	     bool single_pass_emptiness_check = false,
+	     bool artificial_livelock_state_mode = false);
 
   /// \ingroup tgba_ta
   /// \brief Build a spot::tgta_explicit* (TGTA) from an LTL formula.
@@ -94,8 +95,9 @@ namespace spot
   ///
   /// \return A spot::tgta_explicit (spot::tgta) that recognizes the same
   ///  language as the TGBA \a tgba_to_convert.
-  SPOT_API tgta_explicit*
-  tgba_to_tgta(const tgba* tgba_to_convert, bdd atomic_propositions_set);
+  SPOT_API tgta_explicit_ptr
+  tgba_to_tgta(const const_tgba_ptr& tgba_to_convert,
+	       bdd atomic_propositions_set);
 
 }
 

@@ -151,7 +151,7 @@ namespace spot
   class SPOT_API taa_tgba_labelled : public taa_tgba
   {
   public:
-    taa_tgba_labelled(bdd_dict_ptr dict) : taa_tgba(dict) {};
+    taa_tgba_labelled(const bdd_dict_ptr& dict) : taa_tgba(dict) {};
 
     void set_init_state(const label& s)
     {
@@ -319,10 +319,14 @@ namespace spot
   };
 
   class SPOT_API taa_tgba_string :
+#ifndef SWIG
     public taa_tgba_labelled<std::string, string_hash>
+#else
+    public taa_tgba
+#endif
   {
   public:
-    taa_tgba_string(bdd_dict_ptr dict) :
+    taa_tgba_string(const bdd_dict_ptr& dict) :
       taa_tgba_labelled<std::string, string_hash>(dict) {};
     ~taa_tgba_string();
   protected:
@@ -330,17 +334,38 @@ namespace spot
     virtual std::string clone_if(const std::string& label) const;
   };
 
+  typedef std::shared_ptr<taa_tgba_string> taa_tgba_string_ptr;
+  typedef std::shared_ptr<const taa_tgba_string> const_taa_tgba_string_ptr;
+
+  inline taa_tgba_string_ptr make_taa_tgba_string(const bdd_dict_ptr& dict)
+  {
+    return std::make_shared<taa_tgba_string>(dict);
+  }
+
   class SPOT_API taa_tgba_formula :
+#ifndef SWIG
     public taa_tgba_labelled<const ltl::formula*, ltl::formula_ptr_hash>
+#else
+    public taa_tgba
+#endif
   {
   public:
-    taa_tgba_formula(bdd_dict_ptr dict) :
+    taa_tgba_formula(const bdd_dict_ptr& dict) :
       taa_tgba_labelled<const ltl::formula*, ltl::formula_ptr_hash>(dict) {};
     ~taa_tgba_formula();
   protected:
     virtual std::string label_to_string(const label_t& label) const;
     virtual const ltl::formula* clone_if(const label_t& label) const;
   };
+
+  typedef std::shared_ptr<taa_tgba_formula> taa_tgba_formula_ptr;
+  typedef std::shared_ptr<const taa_tgba_formula> const_taa_tgba_formula_ptr;
+
+  inline taa_tgba_formula_ptr make_taa_tgba_formula(const bdd_dict_ptr& dict)
+  {
+    return std::make_shared<taa_tgba_formula>(dict);
+  }
+
 }
 
 #endif // SPOT_TGBA_TAATGBA_HH

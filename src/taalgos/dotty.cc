@@ -31,7 +31,7 @@ namespace spot
     class dotty_bfs : public ta_reachable_iterator_breadth_first
     {
     public:
-      dotty_bfs(std::ostream& os, const ta* a) :
+      dotty_bfs(std::ostream& os, const const_ta_ptr& a) :
         ta_reachable_iterator_breadth_first(a), os_(os)
       {
       }
@@ -123,7 +123,7 @@ namespace spot
   }
 
   std::ostream&
-  dotty_reachable(std::ostream& os, const ta* a)
+  dotty_reachable(std::ostream& os, const const_ta_ptr& a)
   {
     dotty_bfs d(os, a);
     d.run();

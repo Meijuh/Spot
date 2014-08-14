@@ -50,7 +50,7 @@ namespace spot
   class SPOT_API tgba_safra_complement : public tgba
   {
   public:
-    tgba_safra_complement(const tgba* a);
+    tgba_safra_complement(const const_tgba_ptr& a);
     virtual ~tgba_safra_complement();
 
     // tgba interface.
@@ -70,7 +70,7 @@ namespace spot
   protected:
     virtual bdd compute_support_conditions(const state* state) const;
   private:
-    const tgba* automaton_;
+    const_tgba_ptr automaton_;
     void* safra_;
 #if TRANSFORM_TO_TBA
     bdd the_acceptance_cond_;
@@ -83,12 +83,21 @@ namespace spot
 #endif
   };
 
+  typedef std::shared_ptr<tgba_safra_complement> tgba_safra_complement_ptr;
+  typedef std::shared_ptr<const tgba_safra_complement>
+    const_tgba_safra_complement_ptr;
+  inline tgba_safra_complement_ptr
+  make_safra_complement(const const_tgba_ptr& a)
+  {
+    return std::make_shared<tgba_safra_complement>(a);
+  }
+
   /// \brief Produce a dot output of the Safra automaton associated
   /// to \a a.
   ///
   /// \param a The \c tgba_safra_complement with an intermediate Safra
   /// automaton to display
-  void SPOT_API display_safra(const tgba_safra_complement* a);
+  void SPOT_API display_safra(const const_tgba_safra_complement_ptr& a);
 }
 
 #endif  // SPOT_TGBA_TGBASAFRACOMPLEMENT_HH

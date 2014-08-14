@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2010, 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -25,10 +25,8 @@
 
 namespace spot
 {
-  class ta;
-
   SPOT_API std::ostream&
-  dotty_reachable(std::ostream& os, const ta* a);
+  dotty_reachable(std::ostream& os, const const_ta_ptr& a);
 }
 
 #endif // SPOT_TAALGOS_DOTTY_HH

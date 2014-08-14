@@ -41,36 +41,33 @@ main(int argc, char** argv)
   if (argc < 2)
     syntax(argv[0]);
 
-  bool debug = false;
-  int filename_index = 1;
+  {
+    bool debug = false;
+    int filename_index = 1;
 
-  if (!strcmp(argv[1], "-d"))
-    {
-      debug = true;
-      if (argc < 3)
-	syntax(argv[0]);
-      filename_index = 2;
-    }
+    if (!strcmp(argv[1], "-d"))
+      {
+	debug = true;
+	if (argc < 3)
+	  syntax(argv[0]);
+	filename_index = 2;
+      }
 
-  auto dict = spot::make_bdd_dict();
+    auto dict = spot::make_bdd_dict();
 
-  spot::ltl::environment& env(spot::ltl::default_environment::instance());
-  spot::tgba_parse_error_list pel;
-  spot::tgba* a = spot::tgba_parse(argv[filename_index],
-				   pel, dict, env, env, debug);
+    spot::ltl::environment& env(spot::ltl::default_environment::instance());
+    spot::tgba_parse_error_list pel;
+    auto a = spot::tgba_parse(argv[filename_index],
+			      pel, dict, env, env, debug);
 
-  if (spot::format_tgba_parse_errors(std::cerr, argv[filename_index], pel))
-    return 2;
+    if (spot::format_tgba_parse_errors(std::cerr, argv[filename_index], pel))
+      return 2;
 
-  if (a)
-    {
+    if (a)
       spot::dotty_reachable(std::cout, a);
-      delete a;
-    }
-  else
-    {
+    else
       return 1;
-    }
+  }
 
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);

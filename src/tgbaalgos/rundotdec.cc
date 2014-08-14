@@ -44,7 +44,8 @@ namespace spot
   }
 
   std::string
-  tgba_run_dotty_decorator::state_decl(const tgba*, const state* s, int,
+  tgba_run_dotty_decorator::state_decl(const const_tgba_ptr&,
+				       const state* s, int,
 				       tgba_succ_iterator*,
 				       const std::string& label,
 				       bool accepting)
@@ -80,7 +81,7 @@ namespace spot
   }
 
   std::string
-  tgba_run_dotty_decorator::link_decl(const tgba*,
+  tgba_run_dotty_decorator::link_decl(const const_tgba_ptr&,
 				      const state* in_s, int,
 				      const state* out_s, int,
 				      const tgba_succ_iterator* si,

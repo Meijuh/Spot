@@ -22,10 +22,10 @@
 
 namespace spot
 {
-  tgba_digraph* dtgba_complement(const tgba* aut)
+  tgba_digraph_ptr dtgba_complement(const const_tgba_ptr& aut)
   {
     // Clone the original automaton.
-    tgba_digraph* res = tgba_dupexp_dfs(aut);
+    tgba_digraph_ptr res = tgba_dupexp_dfs(aut);
 
     bdd oldaccs = aut->all_acceptance_conditions();
     bdd oldnegs = aut->neg_acceptance_conditions();

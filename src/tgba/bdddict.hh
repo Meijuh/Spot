@@ -99,7 +99,16 @@ namespace spot
     ///
     /// \return The variable number.  Use bdd_ithvar() or bdd_nithvar()
     ///   to convert this to a BDD.
+    /// @{
     int register_proposition(const ltl::formula* f, const void* for_me);
+
+    template <typename T>
+    int register_proposition(const ltl::formula* f,
+			     std::shared_ptr<T> for_me)
+    {
+      return register_proposition(f, for_me.get());
+    }
+    /// @}
 
     /// \brief Register BDD variables as atomic propositions.
     ///
@@ -108,7 +117,15 @@ namespace spot
     /// are already known from the dictionary (i.e., they have already
     /// been registered by register_proposition() for another
     /// automaton).
+    /// @{
     void register_propositions(bdd f, const void* for_me);
+
+    template <typename T>
+    void register_propositions(bdd f, std::shared_ptr<T> for_me)
+    {
+      register_propositions(f, for_me.get());
+    }
+    /// @}
 
     /// \brief Register an atomic proposition.
     ///
@@ -120,14 +137,31 @@ namespace spot
     ///
     /// \return The variable number.  Use bdd_ithvar() or bdd_nithvar()
     ///   to convert this to a BDD.
+    /// @{
     int register_acceptance_variable(const ltl::formula* f, const void* for_me);
+
+    template <typename T>
+    int register_acceptance_variable(const ltl::formula* f,
+				     std::shared_ptr<T> for_me)
+    {
+      return register_acceptance_variable(f, for_me.get());
+    }
+    /// @}
 
     /// \brief Clone an acceptance variable VAR for FOR_ME.
     ///
     /// This is used in products TGBAs when both operands share the
     /// same acceptance variables but they need to be distinguished in
     /// the result.
+    /// @{
     int register_clone_acc(int var, const void* for_me);
+
+    template <typename T>
+    int register_clone_acc(int var, std::shared_ptr<T> for_me)
+    {
+      return register_clone_acc(var, for_me.get());
+    }
+    /// @}
 
     /// \brief Register BDD variables as acceptance variables.
     ///
@@ -136,7 +170,15 @@ namespace spot
     /// are already known from the dictionary (i.e., they have already
     /// been registered by register_acceptance_variable() for another
     /// automaton).
+    /// @{
     void register_acceptance_variables(bdd f, const void* for_me);
+
+    template <typename T>
+    void register_acceptance_variables(bdd f, std::shared_ptr<T> for_me)
+    {
+      register_acceptance_variables(f, for_me.get());
+    }
+    /// @}
 
     /// \brief Convert one acceptance condition into the associated
     /// formula.
@@ -166,7 +208,15 @@ namespace spot
     ///
     /// \return The variable number.  Use bdd_ithvar() or bdd_nithvar()
     ///   to convert this to a BDD.
+    /// @{
     int register_anonymous_variables(int n, const void* for_me);
+
+    template <typename T>
+    int register_anonymous_variables(int n, std::shared_ptr<T> for_me)
+    {
+      return register_anonymous_variables(n, for_me.get());
+    }
+    /// @}
 
     /// \brief Duplicate the variable usage of another object.
     ///
@@ -174,7 +224,30 @@ namespace spot
     /// using the same BDD variables as the \a from_other objects.
     /// This ensures that the variables won't be freed when \a
     /// from_other is deleted if \a from_other is still alive.
+    /// @{
     void register_all_variables_of(const void* from_other, const void* for_me);
+
+    template <typename T>
+    void register_all_variables_of(const void* from_other,
+				   std::shared_ptr<T> for_me)
+    {
+      register_all_variables_of(from_other, for_me.get());
+    }
+
+    template <typename T>
+    void register_all_variables_of(std::shared_ptr<T> from_other,
+				   const void* for_me)
+    {
+      register_all_variables_of(from_other.get(), for_me);
+    }
+
+    template <typename T, typename U>
+    void register_all_variables_of(std::shared_ptr<T> from_other,
+				   std::shared_ptr<U> for_me)
+    {
+      register_all_variables_of(from_other.get(), for_me.get());
+    }
+    /// @}
 
     /// \brief Register the same propositions as another object.
     ///
@@ -183,8 +256,31 @@ namespace spot
     /// the \a from_other object.  This ensures that the variables
     /// won't be freed when \a from_other is deleted if \a from_other
     /// is still alive.
+    /// @{
     void register_all_propositions_of(const void* from_other,
 				      const void* for_me);
+
+    template <typename T>
+    void register_all_propositions_of(const void* from_other,
+				      std::shared_ptr<T> for_me)
+    {
+      register_all_propositions_of(from_other, for_me.get());
+    }
+
+    template <typename T>
+    void register_all_propositions_of(std::shared_ptr<T> from_other,
+				      const void* for_me)
+    {
+      register_all_propositions_of(from_other.get(), for_me);
+    }
+
+    template <typename T, typename U>
+    void register_all_propositions_of(std::shared_ptr<T> from_other,
+				      std::shared_ptr<U> for_me)
+    {
+      register_all_propositions_of(from_other.get(), for_me.get());
+    }
+    /// @}
 
     /// \brief Release all variables used by an object.
     ///
@@ -193,16 +289,25 @@ namespace spot
 
     /// \brief Release all variables of a given type, used by an
     /// object.
+    /// @{
     void unregister_all_typed_variables(var_type type, const void* me);
 
+    template <typename T>
+    void unregister_all_typed_variables(var_type type, std::shared_ptr<T> me)
+    {
+      unregister_all_typed_variables(type, me.get());
+    }
+    /// @}
+
     /// \brief Release a variable used by \a me.
+    /// @{
     void unregister_variable(int var, const void* me);
 
-    /// @{
-    /// Check whether formula \a f has already been registered by \a by_me.
-    bool is_registered_proposition(const ltl::formula* f, const void* by_me);
-    bool is_registered_acceptance_variable(const ltl::formula* f,
-					   const void* by_me);
+    template <typename T>
+    void unregister_variable(int var, std::shared_ptr<T> me)
+    {
+      unregister_variable(var, me.get());
+    }
     /// @}
 
     /// \brief Dump all variables for debugging.

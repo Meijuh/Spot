@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -41,11 +41,12 @@ namespace spot
     tgba_run_dotty_decorator(const tgba_run* run);
     virtual ~tgba_run_dotty_decorator();
 
-    virtual std::string state_decl(const tgba* a, const state* s, int n,
+    virtual std::string state_decl(const const_tgba_ptr& a,
+				   const state* s, int n,
 				   tgba_succ_iterator* si,
 				   const std::string& label,
 				   bool accepting);
-    virtual std::string link_decl(const tgba* a,
+    virtual std::string link_decl(const const_tgba_ptr& a,
 				  const state* in_s, int in,
 				  const state* out_s, int out,
 				  const tgba_succ_iterator* si,

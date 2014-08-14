@@ -66,7 +66,7 @@ namespace spot
   ///
   /// \warning This function is not reentrant.
   SPOT_API
-  tgba_digraph* tgba_parse(const std::string& filename,
+  tgba_digraph_ptr tgba_parse(const std::string& filename,
 			   tgba_parse_error_list& error_list,
 			   bdd_dict_ptr dict,
 			   ltl::environment& env

@@ -349,27 +349,6 @@ namespace spot
       priv_->free_anonymous_list_of.erase(me);
   }
 
-  bool
-  bdd_dict::is_registered_proposition(const ltl::formula* f, const void* by_me)
-  {
-    fv_map::iterator fi = var_map.find(f);
-    if (fi == var_map.end())
-      return false;
-    ref_set& s = bdd_map[fi->second].refs;
-    return s.find(by_me) != s.end();
-  }
-
-  bool
-  bdd_dict::is_registered_acceptance_variable(const ltl::formula* f,
-					      const void* by_me)
-  {
-    fv_map::iterator fi = acc_map.find(f);
-    if (fi == acc_map.end())
-      return false;
-    ref_set& s = bdd_map[fi->second].refs;
-    return s.find(by_me) != s.end();
-  }
-
   std::ostream&
   bdd_dict::dump(std::ostream& os) const
   {

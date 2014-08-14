@@ -27,44 +27,13 @@ namespace spot
 {
 
   /// \ingroup tgba_on_the_fly_algorithms
-  /// \brief A masked TGBA (abstract).
-  ///
-  /// Ignores some states from a TGBA.  What state are preserved or
-  /// ignored is controlled by the wanted() method.
-  ///
-  /// This is an abstract class. You should inherit from it and
-  /// supply a wanted() method to specify which states to keep.
-  class SPOT_API tgba_mask: public tgba_proxy
-  {
-  protected:
-    /// \brief Constructor.
-    /// \param masked The automaton to mask
-    /// \param init Any state to use as initial state. This state will be
-    /// destroyed by the destructor.
-    tgba_mask(const tgba* masked, const state* init = 0);
-
-  public:
-    virtual ~tgba_mask();
-
-    virtual state* get_init_state() const;
-
-    virtual tgba_succ_iterator*
-    succ_iter(const state* local_state) const;
-
-    virtual bool wanted(const state* s, const bdd& acc) const = 0;
-
-  protected:
-    const state* init_;
-  };
-
-  /// \ingroup tgba_on_the_fly_algorithms
   /// \brief Mask a TGBA, keeping a given set of states.
   ///
   /// Mask the TGBA \a to_mask, keeping only the
   /// states from \a to_keep.  The initial state
   /// can optionally be reset to \a init.
-  SPOT_API const tgba*
-  build_tgba_mask_keep(const tgba* to_mask,
+  SPOT_API const_tgba_ptr
+  build_tgba_mask_keep(const const_tgba_ptr& to_mask,
 		       const state_set& to_keep,
 		       const state* init = 0);
 
@@ -74,8 +43,8 @@ namespace spot
   /// Mask the TGBA \a to_mask, keeping only the states that are not
   /// in \a to_ignore.  The initial state can optionally be reset to
   /// \a init.
-  SPOT_API const tgba*
-  build_tgba_mask_ignore(const tgba* to_mask,
+  SPOT_API const_tgba_ptr
+  build_tgba_mask_ignore(const const_tgba_ptr& to_mask,
 			 const state_set& to_ignore,
 			 const state* init = 0);
 
@@ -91,8 +60,8 @@ namespace spot
   /// set of all acceptance set) is not changed, because so far this
   /// function is only needed in graph algorithms that do not call
   /// all_acceptance_conditions().
-  SPOT_API const tgba*
-  build_tgba_mask_acc_ignore(const tgba* to_mask,
+  SPOT_API const_tgba_ptr
+  build_tgba_mask_acc_ignore(const const_tgba_ptr& to_mask,
 			     const bdd to_ignore,
 			     const state* init = 0);
 

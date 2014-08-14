@@ -24,7 +24,6 @@
 #include <map>
 #include <string>
 #include <ostream>
-#include <memory>
 #include "tgba/formula2bdd.hh"
 #include "reachiter.hh"
 #include "misc/bddlt.hh"
@@ -74,7 +73,7 @@ namespace spot
     class lbtt_bfs : public tgba_reachable_iterator_breadth_first
     {
     public:
-      lbtt_bfs(const tgba* a, std::ostream& os, bool sba_format)
+      lbtt_bfs(const const_tgba_ptr& a, std::ostream& os, bool sba_format)
 	: tgba_reachable_iterator_breadth_first(a),
 	  os_(os),
 	  all_acc_conds_(a->all_acceptance_conditions()),
@@ -83,7 +82,7 @@ namespace spot
 	  // Check if the automaton can be converted into a
 	  // tgba_digraph. This makes the state_is_accepting()
 	  // function more efficient.
-	  sba_(dynamic_cast<const tgba_digraph*>(a))
+	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
       {
 	if (sba_ && !sba_->get_bprop(tgba_digraph::SBA))
 	  sba_ = nullptr;
@@ -166,18 +165,18 @@ namespace spot
       bdd all_acc_conds_;
       acceptance_cond_splitter acs_;
       bool sba_format_;
-      const tgba_digraph* sba_;
+      const_tgba_digraph_ptr sba_;
     };
 
     static
-    const tgba_digraph*
+    tgba_digraph_ptr
     lbtt_read_tgba(unsigned num_states, unsigned num_acc,
 		   std::istream& is, std::string& error,
 		   bdd_dict_ptr dict,
 		   ltl::environment& env, ltl::environment& envacc)
     {
-      auto aut = std::unique_ptr<tgba_digraph>(new tgba_digraph(dict));
-      acc_mapper_int acc_b(aut.get(), num_acc, envacc);
+      auto aut = make_tgba_digraph(dict);
+      acc_mapper_int acc_b(aut, num_acc, envacc);
       aut->new_states(num_states);
 
       for (unsigned n = 0; n < num_states; ++n)
@@ -232,17 +231,17 @@ namespace spot
 	      aut->new_transition(src_state, dst_state, cond, acc);
 	    }
 	}
-      return aut.release();
+      return aut;
     }
 
-    const tgba_digraph*
+    tgba_digraph_ptr
     lbtt_read_gba(unsigned num_states, unsigned num_acc,
 		  std::istream& is, std::string& error,
 		  bdd_dict_ptr dict,
 		  ltl::environment& env, ltl::environment& envacc)
     {
-      auto aut = std::unique_ptr<tgba_digraph>(new tgba_digraph(dict));
-      acc_mapper_int acc_b(aut.get(), num_acc, envacc);
+      auto aut = make_tgba_digraph(dict);
+      acc_mapper_int acc_b(aut, num_acc, envacc);
       aut->new_states(num_states);
       aut->set_bprop(tgba_digraph::StateBasedAcc);
 
@@ -298,14 +297,14 @@ namespace spot
 	      aut->new_transition(src_state, dst_state, cond, acc);
 	    }
 	}
-      return aut.release();
+      return aut;
     }
 
   } // anonymous
 
 
   std::ostream&
-  lbtt_reachable(std::ostream& os, const tgba* g, bool sba)
+  lbtt_reachable(std::ostream& os, const const_tgba_ptr& g, bool sba)
   {
     lbtt_bfs b(g, os, sba);
     b.run();
@@ -313,7 +312,7 @@ namespace spot
   }
 
 
-  const tgba_digraph*
+  tgba_digraph_ptr
   lbtt_parse(std::istream& is, std::string& error, bdd_dict_ptr dict,
 	     ltl::environment& env, ltl::environment& envacc)
   {
@@ -332,7 +331,7 @@ namespace spot
       {
 	std::string header;
 	std::getline(is, header);
-	return new tgba_digraph(dict);
+	return make_tgba_digraph(dict);
       }
 
     unsigned num_acc = 0;

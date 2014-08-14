@@ -96,14 +96,17 @@ namespace spot
       level_ = level;
     }
 
-    /// Return the optimized automaton and delete \a input_disown.
-    const tgba_digraph* run(const tgba_digraph* input_disown,
-			    const ltl::formula* f);
+    /// \brief Optimize an automaton.
+    ///
+    /// The returned automaton might be a new automaton,
+    /// or an in-place modification of the \a input automaton.
+    tgba_digraph_ptr run(tgba_digraph_ptr input,
+			 const ltl::formula* f);
 
   protected:
-    const tgba_digraph* do_simul(const tgba_digraph* input, int opt);
-    const tgba_digraph* do_ba_simul(const tgba_digraph* input, int opt);
-    const tgba_digraph* do_degen(const tgba_digraph* input);
+    tgba_digraph_ptr do_simul(const tgba_digraph_ptr& input, int opt);
+    tgba_digraph_ptr do_ba_simul(const tgba_digraph_ptr& input, int opt);
+    tgba_digraph_ptr do_degen(const tgba_digraph_ptr& input);
 
     output_type type_;
     int pref_;

@@ -49,7 +49,9 @@ namespace spot
   namespace
   {
     static std::ostream&
-    dump_hash_set(const hash_set* hs, const ta* aut, std::ostream& out)
+    dump_hash_set(const hash_set* hs,
+		  const const_ta_ptr& aut,
+		  std::ostream& out)
     {
       out << '{';
       const char* sep = "";
@@ -63,7 +65,7 @@ namespace spot
     }
 
     static std::string
-    format_hash_set(const hash_set* hs, const ta* aut)
+    format_hash_set(const hash_set* hs, const const_ta_ptr& aut)
     {
       std::ostringstream s;
       dump_hash_set(hs, aut, s);
@@ -73,8 +75,8 @@ namespace spot
     // From the base automaton and the list of sets, build the minimal
     // automaton
     static void
-    build_result(const ta* a, std::list<hash_set*>& sets,
-		 tgba_digraph* result_tgba, ta_explicit* result)
+    build_result(const const_ta_ptr& a, std::list<hash_set*>& sets,
+		 tgba_digraph_ptr result_tgba, const ta_explicit_ptr& result)
     {
       // For each set, create a state in the tgbaulting automaton.
       // For a state s, state_num[s] is the number of the state in the minimal
@@ -181,7 +183,7 @@ namespace spot
     }
 
     static partition_t
-    build_partition(const ta* ta_)
+    build_partition(const const_ta_ptr& ta_)
     {
       partition_t cur_run;
       partition_t next_run;
@@ -482,13 +484,12 @@ namespace spot
     }
   }
 
-  ta*
-  minimize_ta(const ta* ta_)
+  ta_explicit_ptr
+  minimize_ta(const const_ta_ptr& ta_)
   {
 
-    auto tgba = new tgba_digraph(ta_->get_dict());
-    auto res = new ta_explicit(tgba, ta_->all_acceptance_conditions(),
-			       0, /* own_tgba = */ true);
+    auto tgba = make_tgba_digraph(ta_->get_dict());
+    auto res = make_ta_explicit(tgba, ta_->all_acceptance_conditions(), 0);
 
     partition_t partition = build_partition(ta_);
 
@@ -503,15 +504,14 @@ namespace spot
     return res;
   }
 
-  tgta_explicit*
-  minimize_tgta(const tgta_explicit* tgta_)
+  tgta_explicit_ptr
+  minimize_tgta(const const_tgta_explicit_ptr& tgta_)
   {
 
-    auto tgba = new tgba_digraph(tgta_->get_dict());
-    auto res = new tgta_explicit(tgba, tgta_->all_acceptance_conditions(),
-				 0, /* own_tgba = */ true);
+    auto tgba = make_tgba_digraph(tgta_->get_dict());
+    auto res = make_tgta_explicit(tgba, tgta_->all_acceptance_conditions(), 0);
 
-    const ta_explicit* ta = tgta_->get_ta();
+    auto ta = tgta_->get_ta();
 
     partition_t partition = build_partition(ta);
 

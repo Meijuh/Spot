@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2013 Laboratoire de recherche et développement
+// Copyright (C) 2009, 2013, 2014 Laboratoire de recherche et développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -45,7 +45,7 @@ namespace spot
     /// If \a show is set to true, then the format_state() method will
     /// include the set of conditions computed for the given state in
     /// its output string.
-    future_conditions_collector(const tgba* aut, bool show = false);
+    future_conditions_collector(const const_tgba_ptr& aut, bool show = false);
     virtual ~future_conditions_collector();
 
     /// Returns the set of future conditions visible after \a s
@@ -64,6 +64,17 @@ namespace spot
     fc_map future_conds_;	// The map of future conditions for each
 				// strongly connected component.
   };
+
+  typedef std::shared_ptr<future_conditions_collector>
+    future_conditions_collector_ptr;
+  typedef std::shared_ptr<const future_conditions_collector>
+    const_future_conditions_collector_ptr;
+
+  inline future_conditions_collector_ptr
+  make_future_conditions_collector(const const_tgba_ptr& aut, bool show = false)
+  {
+    return std::make_shared<future_conditions_collector>(aut, show);
+  }
 
 }
 

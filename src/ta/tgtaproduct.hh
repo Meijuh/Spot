@@ -33,7 +33,8 @@ namespace spot
   class SPOT_API tgta_product : public tgba_product
   {
   public:
-    tgta_product(const kripke* left, const tgta* right);
+    tgta_product(const const_kripke_ptr& left,
+		 const const_tgta_ptr& right);
 
     virtual state*
     get_init_state() const;
@@ -42,12 +43,20 @@ namespace spot
     succ_iter(const state* local_state) const;
   };
 
+  inline tgba_ptr product(const const_kripke_ptr& left,
+			  const const_tgta_ptr& right)
+  {
+    return std::make_shared<tgta_product>(left, right);
+  }
+
   /// \brief Iterate over the successors of a product computed on the fly.
   class SPOT_API tgta_succ_iterator_product : public tgba_succ_iterator
   {
   public:
-    tgta_succ_iterator_product(const state_product* s, const kripke* k,
-			       const tgta* tgta, fixed_size_pool* pool);
+    tgta_succ_iterator_product(const state_product* s,
+			       const const_kripke_ptr& k,
+			       const const_tgta_ptr& tgta,
+			       fixed_size_pool* pool);
 
     virtual
     ~tgta_succ_iterator_product();
@@ -80,8 +89,8 @@ namespace spot
 
   protected:
     const state_product* source_;
-    const tgta* tgta_;
-    const kripke* kripke_;
+    const_tgta_ptr tgta_;
+    const_kripke_ptr kripke_;
     fixed_size_pool* pool_;
     tgba_succ_iterator* tgta_succ_it_;
     tgba_succ_iterator* kripke_succ_it_;

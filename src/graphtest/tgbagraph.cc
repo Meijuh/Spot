@@ -29,64 +29,64 @@ void f1()
 
   auto& e = spot::ltl::default_environment::instance();
 
-  spot::tgba_digraph tg(d);
+  auto tg = make_tgba_digraph(d);
 
   auto* f1 = e.require("p1");
   auto* f2 = e.require("p2");
-  bdd p1 = bdd_ithvar(d->register_proposition(f1, &tg));
-  bdd p2 = bdd_ithvar(d->register_proposition(f2, &tg));
-  bdd a1 = bdd_ithvar(d->register_acceptance_variable(f1, &tg));
-  bdd a2 = bdd_ithvar(d->register_acceptance_variable(f2, &tg));
+  bdd p1 = bdd_ithvar(d->register_proposition(f1, tg));
+  bdd p2 = bdd_ithvar(d->register_proposition(f2, tg));
+  bdd a1 = bdd_ithvar(d->register_acceptance_variable(f1, tg));
+  bdd a2 = bdd_ithvar(d->register_acceptance_variable(f2, tg));
   f1->destroy();
   f2->destroy();
 
-  auto s1 = tg.new_state();
-  auto s2 = tg.new_state();
-  auto s3 = tg.new_state();
-  tg.new_transition(s1, s1, bddfalse, bddfalse);
-  tg.new_transition(s1, s2, p1, bddfalse);
-  tg.new_transition(s1, s3, p2, !a1 & a2);
-  tg.new_transition(s2, s3, p1 & p2, a1 & !a2);
-  tg.new_transition(s3, s1, p1 | p2, (!a1 & a2) | (a1 & !a2));
-  tg.new_transition(s3, s2, p1 >> p2, bddfalse);
-  tg.new_transition(s3, s3, bddtrue, (!a1 & a2) | (a1 & !a2));
+  auto s1 = tg->new_state();
+  auto s2 = tg->new_state();
+  auto s3 = tg->new_state();
+  tg->new_transition(s1, s1, bddfalse, bddfalse);
+  tg->new_transition(s1, s2, p1, bddfalse);
+  tg->new_transition(s1, s3, p2, !a1 & a2);
+  tg->new_transition(s2, s3, p1 & p2, a1 & !a2);
+  tg->new_transition(s3, s1, p1 | p2, (!a1 & a2) | (a1 & !a2));
+  tg->new_transition(s3, s2, p1 >> p2, bddfalse);
+  tg->new_transition(s3, s3, bddtrue, (!a1 & a2) | (a1 & !a2));
 
-  spot::dotty_reachable(std::cout, &tg);
+  spot::dotty_reachable(std::cout, tg);
 
   {
-    auto i = tg.get_graph().out_iteraser(s3);
+    auto i = tg->get_graph().out_iteraser(s3);
     ++i;
     i.erase();
     i.erase();
     assert(!i);
-    spot::dotty_reachable(std::cout, &tg);
+    spot::dotty_reachable(std::cout, tg);
   }
 
   {
-    auto i = tg.get_graph().out_iteraser(s3);
+    auto i = tg->get_graph().out_iteraser(s3);
     i.erase();
     assert(!i);
-    spot::dotty_reachable(std::cout, &tg);
+    spot::dotty_reachable(std::cout, tg);
   }
 
-  tg.new_transition(s3, s1, p1 | p2, (!a1 & a2) | (a1 & !a2));
-  tg.new_transition(s3, s2, p1 >> p2, bddfalse);
-  tg.new_transition(s3, s1, bddtrue, (!a1 & a2) | (a1 & !a2));
+  tg->new_transition(s3, s1, p1 | p2, (!a1 & a2) | (a1 & !a2));
+  tg->new_transition(s3, s2, p1 >> p2, bddfalse);
+  tg->new_transition(s3, s1, bddtrue, (!a1 & a2) | (a1 & !a2));
 
-  std::cerr << tg.num_transitions() << '\n';
-  assert(tg.num_transitions() == 7);
+  std::cerr << tg->num_transitions() << '\n';
+  assert(tg->num_transitions() == 7);
 
-  spot::dotty_reachable(std::cout, &tg);
-  tg.merge_transitions();
-  spot::dotty_reachable(std::cout, &tg);
+  spot::dotty_reachable(std::cout, tg);
+  tg->merge_transitions();
+  spot::dotty_reachable(std::cout, tg);
 
-  std::cerr << tg.num_transitions() << '\n';
-  assert(tg.num_transitions() == 5);
+  std::cerr << tg->num_transitions() << '\n';
+  assert(tg->num_transitions() == 5);
 
   // Add enough states so that the state vector is reallocated.
   for (unsigned i = 0; i < 100; ++i)
-    tg.new_state();
-  spot::dotty_reachable(std::cout, &tg);
+    tg->new_state();
+  spot::dotty_reachable(std::cout, tg);
 }
 
 int main()

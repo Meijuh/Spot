@@ -997,7 +997,7 @@ namespace spot
   }
 
 
-  kripke*
+  kripke_ptr
   load_dve2(const std::string& file_arg, bdd_dict_ptr dict,
 	    const ltl::atomic_prop_set* to_observe,
 	    const ltl::formula* dead,
@@ -1112,6 +1112,6 @@ namespace spot
 	return 0;
       }
 
-    return new dve2_kripke(d, dict, ps, dead, compress);
+    return std::make_shared<dve2_kripke>(d, dict, ps, dead, compress);
   }
 }

@@ -243,12 +243,12 @@ namespace spot
 
     struct dict
     {
-      dict(const tgba* a)
+      dict(const const_tgba_ptr& a)
 	: aut(a)
       {
       }
 
-      const tgba* aut;
+      const_tgba_ptr aut;
       typedef std::map<transition, int> trans_map;
       typedef std::map<transition_acc, int> trans_acc_map;
       trans_map transid;
@@ -296,7 +296,7 @@ namespace spot
       bool state_based_;
       scc_map& sm_;
     public:
-      filler_dfs(const tgba* aut, dict& d, bdd ap, bool state_based,
+      filler_dfs(const const_tgba_ptr& aut, dict& d, bdd ap, bool state_based,
 		 scc_map& sm)
 	: tgba_reachable_iterator_depth_first(aut), d(d), ap_(ap),
 	  state_based_(state_based), sm_(sm)
@@ -466,7 +466,7 @@ namespace spot
     typedef std::pair<int, int> sat_stats;
 
     static
-    sat_stats dtgba_to_sat(std::ostream& out, const tgba* ref,
+    sat_stats dtgba_to_sat(std::ostream& out, const_tgba_ptr ref,
 			   dict& d, bool state_based)
     {
       clause_counter nclauses;
@@ -837,12 +837,12 @@ namespace spot
       return std::make_pair(d.nvars, nclauses.nb_clauses());
     }
 
-    static tgba_digraph*
+    static tgba_digraph_ptr
     sat_build(const satsolver::solution& solution, dict& satdict,
-	      const tgba* aut, bool state_based)
+	      const_tgba_ptr aut, bool state_based)
     {
       auto autdict = aut->get_dict();
-      auto a = new tgba_digraph(autdict);
+      auto a = make_tgba_digraph(autdict);
       a->copy_ap_of(aut);
       a->set_acceptance_conditions(satdict.all_cand_acc.back());
 
@@ -935,9 +935,9 @@ namespace spot
     }
   }
 
-  tgba_digraph*
-  dtgba_sat_synthetize(const tgba* a, unsigned target_acc_number,
-		       int target_state_number, bool state_based)
+  tgba_digraph_ptr
+  dtgba_sat_synthetize (const const_tgba_ptr& a, unsigned target_acc_number,
+			int target_state_number, bool state_based)
   {
     if (target_state_number == 0)
       return nullptr;
@@ -960,7 +960,7 @@ namespace spot
     solution = solver.get_solution();
     t.stop("solve");
 
-    tgba_digraph* res = nullptr;
+    tgba_digraph_ptr res = nullptr;
     if (!solution.second.empty())
       res = sat_build(solution.second, d, a, state_based);
 
@@ -996,40 +996,41 @@ namespace spot
     return res;
   }
 
-  tgba_digraph*
-  dtgba_sat_minimize(const tgba* a, unsigned target_acc_number,
+  tgba_digraph_ptr
+  dtgba_sat_minimize(const const_tgba_ptr& a,
+		     unsigned target_acc_number,
 		     bool state_based)
   {
     int n_states = stats_reachable(a).states;
 
-    tgba_digraph* prev = nullptr;
+    tgba_digraph_ptr prev = nullptr;
     for (;;)
       {
-	tgba_digraph* next =
+	auto next =
 	  dtgba_sat_synthetize(prev ? prev : a, target_acc_number,
 			       --n_states, state_based);
 	if (!next)
-	  break;
+	  return prev;
 	else
 	  n_states = stats_reachable(next).states;
-	delete prev;
 	prev = next;
       }
-    return prev;
+    SPOT_UNREACHABLE();
   }
 
-  tgba_digraph*
-  dtgba_sat_minimize_dichotomy(const tgba* a, unsigned target_acc_number,
+  tgba_digraph_ptr
+  dtgba_sat_minimize_dichotomy(const const_tgba_ptr& a,
+			       unsigned target_acc_number,
 			       bool state_based)
   {
     int max_states = stats_reachable(a).states - 1;
     int min_states = 1;
 
-    tgba_digraph* prev = nullptr;
+    tgba_digraph_ptr prev = nullptr;
     while (min_states <= max_states)
       {
 	int target = (max_states + min_states) / 2;
-	tgba_digraph* next =
+	auto next =
 	  dtgba_sat_synthetize(prev ? prev : a, target_acc_number, target,
 			       state_based);
 	if (!next)
@@ -1038,7 +1039,6 @@ namespace spot
 	  }
 	else
 	  {
-	    delete prev;
 	    prev = next;
 	    max_states = stats_reachable(next).states - 1;
 	  }

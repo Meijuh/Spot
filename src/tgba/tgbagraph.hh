@@ -20,6 +20,7 @@
 #ifndef SPOT_TGBA_TGBAGRAPH_HH
 # define SPOT_TGBA_TGBAGRAPH_HH
 
+#include "fwd.hh"
 #include "graph/graph.hh"
 #include "graph/ngraph.hh"
 #include "tgba/bdddict.hh"
@@ -302,6 +303,17 @@ namespace spot
       return g_.trans_data(t);
     }
 
+    const tgba_graph_trans_data& trans_data(const tgba_succ_iterator* it) const
+    {
+      auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);
+      return g_.trans_data(i->pos());
+    }
+
+    const tgba_graph_trans_data& trans_data(unsigned t) const
+    {
+      return g_.trans_data(t);
+    }
+
     void set_acceptance_conditions(bdd all);
     bdd set_single_acceptance_set();
 
@@ -346,12 +358,12 @@ namespace spot
       SPOT_RETURN(g_.transitions());
 
     /// \brief Copy the acceptance conditions of another tgba.
-    void copy_acceptance_conditions_of(const tgba *a)
+    void copy_acceptance_conditions_of(const const_tgba_ptr& a)
     {
       set_acceptance_conditions(a->neg_acceptance_conditions());
     }
 
-    void copy_ap_of(const tgba* a)
+    void copy_ap_of(const const_tgba_ptr& a)
     {
       dict_->register_all_propositions_of(a, this);
     }
@@ -420,6 +432,10 @@ namespace spot
 
   };
 
+  inline tgba_digraph_ptr make_tgba_digraph(bdd_dict_ptr dict)
+  {
+    return std::make_shared<tgba_digraph>(dict);
+  }
 }
 
 #endif // SPOT_TGBA_TGBAGRAPH_HH

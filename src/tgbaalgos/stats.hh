@@ -51,9 +51,9 @@ namespace spot
   };
 
   /// \brief Compute statistics for an automaton.
-  SPOT_API tgba_statistics stats_reachable(const tgba* g);
+  SPOT_API tgba_statistics stats_reachable(const const_tgba_ptr& g);
   /// \brief Compute subended statistics for an automaton.
-  SPOT_API tgba_sub_statistics sub_stats_reachable(const tgba* g);
+  SPOT_API tgba_sub_statistics sub_stats_reachable(const const_tgba_ptr& g);
 
 
   class SPOT_API printable_formula: public printable_value<const ltl::formula*>
@@ -85,7 +85,7 @@ namespace spot
     /// The \a f argument is not needed if the Formula does not need
     /// to be output, and so is \a run_time).
     std::ostream&
-      print(const tgba* aut, const ltl::formula* f = 0,
+      print(const const_tgba_ptr& aut, const ltl::formula* f = 0,
 	    double run_time = -1.);
 
   private:

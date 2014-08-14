@@ -77,7 +77,7 @@ namespace spot
 
   std::ostream&
   print_tgba_run(std::ostream& os,
-		 const tgba* a,
+		 const_tgba_ptr a,
 		 const tgba_run* run)
   {
     bdd_dict_ptr d = a->get_dict();
@@ -180,17 +180,16 @@ namespace spot
 
   namespace
   {
-
-    spot::emptiness_check*
-    couvreur99_cons(const spot::tgba* a, spot::option_map o)
+    emptiness_check*
+    make_couvreur99(const const_tgba_ptr& a, spot::option_map o)
     {
-      return spot::couvreur99(a, o);
+      return couvreur99(a, o);
     }
 
     struct ec_algo
     {
       const char* name;
-      spot::emptiness_check* (*construct)(const spot::tgba*,
+      spot::emptiness_check* (*construct)(const const_tgba_ptr&,
 					  spot::option_map);
       unsigned int min_acc;
       unsigned int max_acc;
@@ -198,7 +197,7 @@ namespace spot
 
     ec_algo ec_algos[] =
       {
-	{ "Cou99",     couvreur99_cons,                     0, -1U },
+	{ "Cou99",     make_couvreur99,                     0, -1U },
 	{ "CVWY90",    spot::magic_search,                  0,   1 },
 	{ "GV04",      spot::explicit_gv04_check,           0,   1 },
 	{ "SE05",      spot::se05,                          0,   1 },
@@ -226,7 +225,7 @@ namespace spot
   }
 
   emptiness_check*
-  emptiness_check_instantiator::instantiate(const tgba* a) const
+  emptiness_check_instantiator::instantiate(const const_tgba_ptr& a) const
   {
     return static_cast<ec_algo*>(info_)->construct(a, o_);
   }
@@ -282,11 +281,11 @@ namespace spot
   // tgba_run_to_tgba
   //////////////////////////////////////////////////////////////////////
 
-  tgba_digraph*
-  tgba_run_to_tgba(const tgba* a, const tgba_run* run)
+  tgba_digraph_ptr
+  tgba_run_to_tgba(const const_tgba_ptr& a, const tgba_run* run)
   {
     auto d = a->get_dict();
-    auto res = new tgba_digraph(d);
+    auto res = make_tgba_digraph(d);
     res->copy_ap_of(a);
     res->copy_acceptance_conditions_of(a);
 

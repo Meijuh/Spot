@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ostream>
-#include "saba/saba.hh"
 #include "sabadotty.hh"
 #include "tgba/bddprint.hh"
 #include "sabareachiter.hh"
@@ -31,7 +30,7 @@ namespace spot
     class saba_dotty_bfs : public saba_reachable_iterator_breadth_first
     {
     public:
-      saba_dotty_bfs(std::ostream& os, const saba* a)
+      saba_dotty_bfs(std::ostream& os, const const_saba_ptr& a)
 	: saba_reachable_iterator_breadth_first(a), os_(os)
       {
       }
@@ -96,7 +95,7 @@ namespace spot
   }
 
   std::ostream&
-  saba_dotty_reachable(std::ostream& os, const saba* g)
+  saba_dotty_reachable(std::ostream& os, const const_saba_ptr& g)
   {
     saba_dotty_bfs d(os, g);
     d.run();

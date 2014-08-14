@@ -560,9 +560,7 @@ namespace
 	    {
 	      matched &= !guarantee || is_guarantee_automaton(min);
 	      matched &= !safety || is_safety_mwdba(min);
-	      delete min;
 	    }
-	  delete aut;
 	}
 
       matched ^= invert;

@@ -1,7 +1,8 @@
-// Copyright (C) 2008 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2008, 2014 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -31,7 +32,7 @@ namespace spot
     class stats_bfs : public ta_reachable_iterator_breadth_first
     {
     public:
-      stats_bfs(const ta* a, ta_statistics& s) :
+      stats_bfs(const const_ta_ptr a, ta_statistics& s) :
         ta_reachable_iterator_breadth_first(a), s_(s)
       {
       }
@@ -66,7 +67,7 @@ namespace spot
   }
 
   ta_statistics
-  stats_reachable(const ta* t)
+  stats_reachable(const const_ta_ptr& t)
   {
     ta_statistics s =
       { 0, 0, 0};

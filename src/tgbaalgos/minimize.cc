@@ -60,7 +60,9 @@ namespace spot
   namespace
   {
     static std::ostream&
-    dump_hash_set(const hash_set* hs, const tgba* aut, std::ostream& out)
+    dump_hash_set(const hash_set* hs,
+		  const const_tgba_ptr& aut,
+		  std::ostream& out)
     {
       out << '{';
       const char* sep = "";
@@ -74,7 +76,7 @@ namespace spot
     }
 
     static std::string
-    format_hash_set(const hash_set* hs, const tgba* aut)
+    format_hash_set(const hash_set* hs, const_tgba_ptr aut)
     {
       std::ostringstream s;
       dump_hash_set(hs, aut, s);
@@ -83,7 +85,7 @@ namespace spot
   }
 
   // Find all states of an automaton.
-  void build_state_set(const tgba* a, hash_set* seen)
+  void build_state_set(const const_tgba_ptr& a, hash_set* seen)
   {
     std::queue<const state*> tovisit;
     // Perform breadth-first traversal.
@@ -113,12 +115,12 @@ namespace spot
 
   // From the base automaton and the list of sets, build the minimal
   // resulting automaton
-  tgba_digraph* build_result(const tgba* a,
-			     std::list<hash_set*>& sets,
-			     hash_set* final)
+  tgba_digraph_ptr build_result(const const_tgba_ptr& a,
+				std::list<hash_set*>& sets,
+				hash_set* final)
   {
     auto dict = a->get_dict();
-    auto res = new tgba_digraph(dict);
+    auto res = make_tgba_digraph(dict);
     res->copy_ap_of(a);
     res->set_bprop(tgba_digraph::StateBasedAcc);
 
@@ -181,7 +183,7 @@ namespace spot
 
     struct wdba_search_acc_loop : public bfs_steps
     {
-      wdba_search_acc_loop(const tgba* det_a,
+      wdba_search_acc_loop(const const_tgba_ptr& det_a,
 			   unsigned scc_n, scc_map& sm,
 			   power_map& pm, const state* dest)
 	: bfs_steps(det_a), scc_n(scc_n), sm(sm), pm(pm), dest(dest)
@@ -213,8 +215,9 @@ namespace spot
 
 
     bool
-    wdba_scc_is_accepting(const tgba_digraph* det_a, unsigned scc_n,
-			  const tgba* orig_a, scc_map& sm, power_map& pm)
+    wdba_scc_is_accepting(const const_tgba_digraph_ptr& det_a, unsigned scc_n,
+			  const const_tgba_ptr& orig_a, scc_map& sm,
+			  power_map& pm)
     {
 
       // Get some state from the SCC #n.
@@ -228,23 +231,23 @@ namespace spot
       (void)reached;
 
       // Build an automaton representing this loop.
-      tgba_digraph loop_a(det_a->get_dict());
+      auto loop_a = make_tgba_digraph(det_a->get_dict());
       tgba_run::steps::const_iterator i;
       int loop_size = loop.size();
-      loop_a.new_states(loop_size);
+      loop_a->new_states(loop_size);
       int n;
       for (n = 1, i = loop.begin(); n < loop_size; ++n, ++i)
 	{
-	  loop_a.new_transition(n - 1, n, i->label);
+	  loop_a->new_transition(n - 1, n, i->label);
 	  i->s->destroy();
 	}
       assert(i != loop.end());
-      loop_a.new_transition(n - 1, 0, i->label);
+      loop_a->new_transition(n - 1, 0, i->label);
       i->s->destroy();
       assert(++i == loop.end());
 
-      loop_a.set_init_state(0U);
-      const state* loop_a_init = loop_a.get_init_state();
+      loop_a->set_init_state(0U);
+      const state* loop_a_init = loop_a->get_init_state();
 
       // Check if the loop is accepting in the original automaton.
       bool accepting = false;
@@ -257,12 +260,11 @@ namespace spot
 	  // Contrustruct a product between
 	  // LOOP_A, and ORIG_A starting in *IT.
 	  // FIXME: This could be sped up a lot!
-	  tgba* p = new tgba_product_init(&loop_a, orig_a, loop_a_init, it);
-	  emptiness_check* ec = couvreur99(p);
+	  emptiness_check* ec = couvreur99(product_at(loop_a, orig_a,
+						      loop_a_init, it));
 	  emptiness_check_result* res = ec->check();
 	  delete res;
 	  delete ec;
-	  delete p;
 
 	  if (res)
 	    {
@@ -277,8 +279,8 @@ namespace spot
 
   }
 
-  tgba_digraph* minimize_dfa(const tgba_digraph* det_a,
-			     hash_set* final, hash_set* non_final)
+  tgba_digraph_ptr minimize_dfa(const const_tgba_digraph_ptr& det_a,
+				hash_set* final, hash_set* non_final)
   {
     typedef std::list<hash_set*> partition_t;
     partition_t cur_run;
@@ -465,7 +467,7 @@ namespace spot
 #endif
 
     // Build the result.
-    auto* res = build_result(det_a, done, final_copy);
+    auto res = build_result(det_a, done, final_copy);
 
     // Free all the allocated memory.
     delete final_copy;
@@ -478,17 +480,16 @@ namespace spot
     std::list<hash_set*>::iterator it;
     for (it = done.begin(); it != done.end(); ++it)
       delete *it;
-    delete det_a;
 
     return res;
   }
 
 
-  tgba_digraph* minimize_monitor(const tgba* a)
+  tgba_digraph_ptr minimize_monitor(const const_tgba_ptr& a)
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
-    tgba_digraph* det_a;
+    tgba_digraph_ptr det_a;
 
     {
       power_map pm;
@@ -502,12 +503,12 @@ namespace spot
     return minimize_dfa(det_a, final, non_final);
   }
 
-  tgba_digraph* minimize_wdba(const tgba* a)
+  tgba_digraph_ptr minimize_wdba(const const_tgba_ptr& a)
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
 
-    tgba_digraph* det_a;
+    tgba_digraph_ptr det_a;
 
     {
       power_map pm;
@@ -601,9 +602,10 @@ namespace spot
     return minimize_dfa(det_a, final, non_final);
   }
 
-  tgba_digraph*
-  minimize_obligation(const tgba_digraph* aut_f,
-		      const ltl::formula* f, const tgba_digraph* aut_neg_f,
+  tgba_digraph_ptr
+  minimize_obligation(const const_tgba_digraph_ptr& aut_f,
+		      const ltl::formula* f,
+		      const_tgba_digraph_ptr aut_neg_f,
 		      bool reject_bigger)
   {
     auto min_aut_f = minimize_wdba(aut_f);
@@ -613,10 +615,7 @@ namespace spot
 	// Abort if min_aut_f has more states than aut_f.
 	unsigned orig_states = aut_f->num_states();
 	if (orig_states < min_aut_f->num_states())
-	  {
-	    delete min_aut_f;
-	    return const_cast<tgba_digraph*>(aut_f);
-	  }
+	  return std::const_pointer_cast<tgba_digraph>(aut_f);
       }
 
     // if f is a syntactic obligation formula, the WDBA minimization
@@ -629,8 +628,6 @@ namespace spot
     if (is_guarantee_automaton(aut_f))
       return min_aut_f;
 
-    const tgba* to_free = 0;
-
     // Build negation automaton if not supplied.
     if (!aut_neg_f)
       {
@@ -642,22 +639,18 @@ namespace spot
 	      ltl::unop::instance(ltl::unop::Not, f->clone());
 	    aut_neg_f = ltl_to_tgba_fm(neg_f, aut_f->get_dict());
 	    neg_f->destroy();
-
 	    // Remove useless SCCs.
-	    auto tmp = scc_filter(aut_neg_f, true);
-	    delete aut_neg_f;
-	    to_free = aut_neg_f = tmp;
+	    aut_neg_f = scc_filter(aut_neg_f, true);
 	  }
 	else if (is_deterministic(aut_f))
 	  {
 	    // If the automaton is deterministic, complementing is
 	    // easy.
-	    to_free = aut_neg_f = dtgba_complement(aut_f);
+	    aut_neg_f = dtgba_complement(aut_f);
 	  }
 	else
 	  {
 	    // Otherwise, we cannot check if the minimization is safe.
-	    delete min_aut_f;
 	    return nullptr;
 	  }
       }
@@ -666,50 +659,33 @@ namespace spot
     // minimization is correct.
     if (is_guarantee_automaton(aut_neg_f))
       {
-	delete to_free;
 	return min_aut_f;
       }
 
     bool ok = false;
 
-    tgba* p = new tgba_product(min_aut_f, aut_neg_f);
-    emptiness_check* ec = couvreur99(p);
+    emptiness_check* ec = couvreur99(product(min_aut_f, aut_neg_f));
     emptiness_check_result* res = ec->check();
     if (!res)
       {
 	delete ec;
-	delete p;
 
 	// Complement the minimized WDBA.
-	tgba* neg_min_aut_f = wdba_complement(min_aut_f);
-
-	tgba* p = new tgba_product(aut_f, neg_min_aut_f);
-	emptiness_check* ec = couvreur99(p);
+	auto neg_min_aut_f = wdba_complement(min_aut_f);
+	ec = couvreur99(product(aut_f, neg_min_aut_f));
 	res = ec->check();
-
 	if (!res)
 	  {
 	    // Finally, we are now sure that it was safe
 	    // to minimize the automaton.
 	    ok = true;
 	  }
-
-	delete res;
-	delete ec;
-	delete p;
-	delete neg_min_aut_f;
       }
-    else
-      {
-	delete res;
-	delete ec;
-	delete p;
-      }
-    delete to_free;
+    delete res;
+    delete ec;
 
     if (ok)
       return min_aut_f;
-    delete min_aut_f;
-    return const_cast<tgba_digraph*>(aut_f);
+    return std::const_pointer_cast<tgba_digraph>(aut_f);
   }
 }

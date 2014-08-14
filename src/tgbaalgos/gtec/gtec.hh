@@ -137,7 +137,7 @@ namespace spot
   /// choosing a successor.  Otherwise, only the successor of the
   /// topmost state on the DFS stack are considered.
   SPOT_API emptiness_check*
-  couvreur99(const tgba* a, option_map options = option_map());
+  couvreur99(const const_tgba_ptr& a, option_map options = option_map());
 
 
   /// \brief An implementation of the Couvreur99 emptiness-check algorithm.
@@ -146,7 +146,7 @@ namespace spot
   class SPOT_API couvreur99_check: public emptiness_check, public ec_statistics
   {
   public:
-    couvreur99_check(const tgba* a, option_map o = option_map());
+    couvreur99_check(const const_tgba_ptr& a, option_map o = option_map());
     virtual ~couvreur99_check();
 
     /// Check whether the automaton's language is empty.
@@ -188,7 +188,7 @@ namespace spot
   class SPOT_API couvreur99_check_shy : public couvreur99_check
   {
   public:
-    couvreur99_check_shy(const tgba* a, option_map o = option_map());
+    couvreur99_check_shy(const const_tgba_ptr& a, option_map o = option_map());
     virtual ~couvreur99_check_shy();
 
     virtual emptiness_check_result* check();

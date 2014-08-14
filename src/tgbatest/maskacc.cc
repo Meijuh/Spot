@@ -40,30 +40,30 @@ main(int argc, char** argv)
   if (argc != 2)
     syntax(argv[0]);
 
-  auto dict = spot::make_bdd_dict();
+  {
+    auto dict = spot::make_bdd_dict();
 
-  spot::ltl::environment& env(spot::ltl::default_environment::instance());
-  spot::tgba_parse_error_list pel;
-  spot::tgba* aut = spot::tgba_parse(argv[1], pel, dict, env);
-  if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel))
-    return 2;
+    spot::ltl::environment& env(spot::ltl::default_environment::instance());
+    spot::tgba_parse_error_list pel;
+    auto aut = spot::tgba_parse(argv[1], pel, dict, env);
+    if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel))
+      return 2;
 
-  bdd allneg = aut->neg_acceptance_conditions();
+    bdd allneg = aut->neg_acceptance_conditions();
 
-  for (bdd cur = allneg; cur != bddtrue; cur = bdd_low(cur))
-    {
-      int i = bdd_var(cur);
-      bdd one = bdd_compose(allneg, bdd_nithvar(i), i);
-      const spot::tgba* masked = spot::build_tgba_mask_acc_ignore(aut, one);
-      spot::tgba_save_reachable(std::cout, masked);
-      delete masked;
-    }
+    for (bdd cur = allneg; cur != bddtrue; cur = bdd_low(cur))
+      {
+	int i = bdd_var(cur);
+	bdd one = bdd_compose(allneg, bdd_nithvar(i), i);
+	auto masked = spot::build_tgba_mask_acc_ignore(aut, one);
+	spot::tgba_save_reachable(std::cout, masked);
+      }
+  }
 
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
   assert(spot::ltl::atomic_prop::instance_count() != 0);
-  delete aut;
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   return exit_code;
 }

@@ -25,6 +25,7 @@
 
 #include <iosfwd>
 #include "ltlast/formula.hh"
+#include "tgba/fwd.hh"
 
 namespace spot
 {
@@ -45,7 +46,7 @@ namespace spot
   ///          with the label of the \a g automaton.
   SPOT_API std::ostream&
   never_claim_reachable(std::ostream& os,
-			const tgba* g,
+			const const_tgba_ptr& g,
 			const ltl::formula* f = 0,
 			bool comments = false);
 }

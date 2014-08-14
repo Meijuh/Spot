@@ -1,7 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Développement
-// de l Epita (LRDE).
-//
+// Copyright (C) 2010, 2012, 2014 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,7 +28,7 @@ namespace spot
   // ta_reachable_iterator
   //////////////////////////////////////////////////////////////////////
 
-  ta_reachable_iterator::ta_reachable_iterator(const ta* a) :
+  ta_reachable_iterator::ta_reachable_iterator(const const_ta_ptr& a) :
     t_automata_(a)
   {
   }
@@ -139,7 +138,7 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
 
   ta_reachable_iterator_depth_first::ta_reachable_iterator_depth_first(
-      const ta* a) :
+      const const_ta_ptr& a) :
     ta_reachable_iterator(a)
   {
   }
@@ -164,7 +163,7 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
 
   ta_reachable_iterator_breadth_first::ta_reachable_iterator_breadth_first(
-      const ta* a) :
+      const const_ta_ptr& a) :
     ta_reachable_iterator(a)
   {
   }

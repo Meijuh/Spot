@@ -53,9 +53,10 @@ namespace spot
   }
 
   state*
-  tgba::project_state(const state* s, const tgba* t) const
+  tgba::project_state(const state* s,
+		      const const_tgba_ptr& t) const
   {
-    if (t == this)
+    if (t.get() == this)
       return s->clone();
     return 0;
   }

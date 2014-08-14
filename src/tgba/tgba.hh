@@ -26,6 +26,7 @@
 #include "state.hh"
 #include "bdddict.hh"
 #include "succiter.hh"
+#include "fwd.hh"
 
 namespace spot
 {
@@ -215,7 +216,8 @@ namespace spot
     /// \return 0 if the projection fails (\a s is unrelated to \a t),
     ///    or a new \c state* (the projected state) that must be
     ///    destroyed by the caller.
-    virtual state* project_state(const state* s, const tgba* t) const;
+    virtual state* project_state(const state* s,
+				 const const_tgba_ptr& t) const;
 
     /// \brief Return the set of all acceptance conditions used
     /// by this automaton.

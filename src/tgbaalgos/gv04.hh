@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Developpement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -23,11 +23,11 @@
 #ifndef SPOT_TGBAALGOS_GV04_HH
 # define SPOT_TGBAALGOS_GV04_HH
 
-#include "misc/optionmap.hh"
+# include "misc/optionmap.hh"
+# include "tgba/fwd.hh"
 
 namespace spot
 {
-  class tgba;
   class emptiness_check;
 
   /// \brief Emptiness check based on Geldenhuys and Valmari's
@@ -55,7 +55,7 @@ namespace spot
       }
       \endverbatim */
   SPOT_API emptiness_check*
-  explicit_gv04_check(const tgba* a, option_map o = option_map());
+  explicit_gv04_check(const const_tgba_ptr& a, option_map o = option_map());
 }
 
 #endif // SPOT_TGBAALGOS_GV04_HH

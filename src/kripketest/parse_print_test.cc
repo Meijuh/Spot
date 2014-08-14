@@ -29,17 +29,18 @@ int main(int argc, char** argv)
   int return_value = 0;
   kripke_parse_error_list pel;
 
-  kripke_explicit* k = kripke_parse(argv[1], pel, make_bdd_dict());
-  if (!pel.empty())
   {
-    format_kripke_parse_errors(std::cerr, argv[1], pel);
-    return_value = 1;
+    auto k = kripke_parse(argv[1], pel, make_bdd_dict());
+    if (!pel.empty())
+      {
+	format_kripke_parse_errors(std::cerr, argv[1], pel);
+	return_value = 1;
+      }
+
+    if (!return_value)
+      kripke_save_reachable(std::cout, k);
   }
 
-  if (!return_value)
-    kripke_save_reachable(std::cout, k);
-
-  delete k;
   assert(ltl::atomic_prop::instance_count() == 0);
   assert(ltl::unop::instance_count() == 0);
   assert(ltl::binop::instance_count() == 0);

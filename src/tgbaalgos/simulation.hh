@@ -70,8 +70,8 @@ namespace spot
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
-  SPOT_API tgba_digraph* simulation(const tgba* automaton);
-  SPOT_API tgba_digraph* simulation_sba(const tgba* automaton);
+  SPOT_API tgba_digraph_ptr simulation(const const_tgba_ptr& automaton);
+  SPOT_API tgba_digraph_ptr simulation_sba(const const_tgba_ptr& automaton);
   /// @}
 
   /// @{
@@ -121,8 +121,8 @@ namespace spot
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
-  SPOT_API tgba_digraph* cosimulation(const tgba* automaton);
-  SPOT_API tgba_digraph* cosimulation_sba(const tgba* automaton);
+  SPOT_API tgba_digraph_ptr cosimulation(const const_tgba_ptr& automaton);
+  SPOT_API tgba_digraph_ptr cosimulation_sba(const const_tgba_ptr& automaton);
   /// @}
 
   /// @{
@@ -140,16 +140,18 @@ namespace spot
   /// \param automaton the automaton to simulate.
   /// \return a new automaton which is at worst a copy of the received
   /// one
-  SPOT_API tgba_digraph* iterated_simulations(const tgba* automaton);
-  SPOT_API tgba_digraph* iterated_simulations_sba(const tgba* automaton);
+  SPOT_API tgba_digraph_ptr
+  iterated_simulations(const const_tgba_ptr& automaton);
+  SPOT_API tgba_digraph_ptr
+  iterated_simulations_sba(const const_tgba_ptr& automaton);
   /// @}
 
 
-  SPOT_API tgba_digraph*
-  dont_care_simulation(const tgba* t, int limit = -1);
+  SPOT_API tgba_digraph_ptr
+  dont_care_simulation(const const_tgba_ptr& t, int limit = -1);
 
-  SPOT_API tgba_digraph*
-  dont_care_iterated_simulations(const tgba* t, int limit = -1);
+  SPOT_API tgba_digraph_ptr
+  dont_care_iterated_simulations(const const_tgba_ptr& t, int limit = -1);
 
 
   /// @}

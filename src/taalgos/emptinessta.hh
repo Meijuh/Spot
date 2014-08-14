@@ -89,7 +89,7 @@ namespace spot
     typedef std::unordered_map<const state*, int,
 			       state_ptr_hash, state_ptr_equal> hash_type;
   public:
-    ta_check(const ta_product* a, option_map o = option_map());
+    ta_check(const const_ta_product_ptr& a, option_map o = option_map());
     virtual
     ~ta_check();
 
@@ -119,7 +119,7 @@ namespace spot
     /// Return false if the product automaton accepts no livelock-accepting run,
     /// otherwise true
     virtual bool
-    livelock_detection(const ta_product* t);
+    livelock_detection(const const_ta_product_ptr& t);
 
     /// Print statistics, if any.
     virtual std::ostream&
@@ -141,7 +141,7 @@ namespace spot
         hash_type& h, int h_livelock_root, std::set<const state*,
             state_ptr_less_than> liveset_curr);
 
-    const ta_product* a_; ///< The automaton.
+    const_ta_product_ptr a_; ///< The automaton.
     option_map o_; ///< The options
 
     // Force the second pass

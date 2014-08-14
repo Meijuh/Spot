@@ -31,12 +31,12 @@ namespace spot
   /// state added for completion, or an existing non-accepting state
   /// that has been reused as sink state because it had not outgoing
   /// transitions apart from self-loops.)
-  SPOT_API unsigned tgba_complete_here(tgba_digraph* aut);
+  SPOT_API unsigned tgba_complete_here(tgba_digraph_ptr aut);
 
   /// \brief Clone a tgba and complete it.
   ///
   /// If the tgba has no acceptance set, one will be added.
-  SPOT_API tgba_digraph* tgba_complete(const tgba* aut);
+  SPOT_API tgba_digraph_ptr tgba_complete(const const_tgba_ptr& aut);
 }
 
 #endif // SPOT_TGBAALGOS_COMPLETE_HH

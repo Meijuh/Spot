@@ -467,8 +467,8 @@ if output_type == 'f':
         if not f.is_syntactic_safety() or not f.is_syntactic_guarantee():
             dict = spot.bdd_dict()
             automaton = spot.ltl_to_tgba_fm(f, dict, False, True)
-            minimized = spot.minimize_obligation_new(automaton, f)
-            if minimized:
+            minimized = spot.minimize_obligation(automaton, f)
+            if minimized != automaton:
                 g = spot.is_guarantee_automaton(minimized)
                 s = spot.is_safety_mwdba(minimized)
                 if s and not f.is_syntactic_safety():
@@ -669,8 +669,8 @@ if prune_scc:
     issba = False
 
 if wdba_minimize:
-    minimized = spot.minimize_obligation_new(automaton, f)
-    if minimized:
+    minimized = spot.minimize_obligation(automaton, f)
+    if minimized != automaton:
         automaton = minimized
         minimized = 0
         degen = False # No need to degeneralize anymore

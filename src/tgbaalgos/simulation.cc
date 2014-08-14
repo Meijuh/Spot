@@ -156,6 +156,18 @@ namespace spot
       {
       }
 
+      automaton_size(const tgba_digraph_ptr& a)
+        : transitions(a->num_transitions()),
+          states(a->num_states())
+      {
+      }
+
+      void set_size(const tgba_digraph_ptr& a)
+      {
+	states = a->num_states();
+	transitions = a->num_transitions();
+      }
+
       inline bool operator!=(const automaton_size& r)
       {
         return transitions != r.transitions || states != r.states;
@@ -204,7 +216,8 @@ namespace spot
       // Shortcut used in update_po and go_to_next_it.
       typedef std::map<bdd, bdd, bdd_less_than> map_bdd_bdd;
     public:
-      direct_simulation(const tgba* t, const map_constraint* map_cst = 0)
+      direct_simulation(const const_tgba_ptr& t,
+			const map_constraint* map_cst = 0)
         : a_(0),
           po_size_(0),
           all_class_var_(bddtrue),
@@ -230,7 +243,7 @@ namespace spot
 	{
 	  if (Cosimulation)
 	    {
-	      a_ = new tgba_digraph(a_->get_dict());
+	      a_ = make_tgba_digraph(a_->get_dict());
 	      a_->copy_ap_of(old_a_);
 	      a_->copy_acceptance_conditions_of(old_a_);
 	    }
@@ -311,11 +324,6 @@ namespace spot
       {
 	a_->get_dict()->unregister_all_my_variables(this);
         delete scc_map_;
-
-	delete old_a_;
-        // a_ is a new automaton only if we are doing a cosimulation.
-        if (Cosimulation)
-          delete a_;
       }
 
       // Update the name of the classes.
@@ -363,7 +371,7 @@ namespace spot
       }
 
       // The core loop of the algorithm.
-      tgba_digraph* run()
+      tgba_digraph_ptr run()
       {
         main_loop();
 	return build_result();
@@ -518,13 +526,6 @@ namespace spot
           }
       }
 
-      automaton_size get_stat() const
-      {
-        assert(stat.states != 0);
-
-        return stat;
-      }
-
       bool result_is_deterministic() const
       {
         assert(stat.states != 0);
@@ -535,7 +536,7 @@ namespace spot
 
 
       // Build the minimal resulting automaton.
-      tgba_digraph* build_result()
+      tgba_digraph_ptr build_result()
       {
 	// We have all the a_'s acceptances conditions
 	// complemented.  So we need to complement it when adding a
@@ -545,7 +546,7 @@ namespace spot
 	acc_compl reverser(all_acceptance_conditions_,
 			   a_->neg_acceptance_conditions());
 
-	tgba_digraph* res = new tgba_digraph(a_->get_dict());
+	tgba_digraph_ptr res = make_tgba_digraph(a_->get_dict());
 	res->copy_ap_of(a_);
 	res->set_acceptance_conditions(all_acceptance_conditions_);
 	if (Sba)
@@ -728,8 +729,8 @@ namespace spot
 
     protected:
       // The automaton which is simulated.
-      tgba_digraph* a_;
-      tgba_digraph* old_a_;
+      tgba_digraph_ptr a_;
+      tgba_digraph_ptr old_a_;
 
       // Relation is aimed to represent the same thing than
       // rel_. The difference is in the way it does.
@@ -775,7 +776,7 @@ namespace spot
 
       const map_constraint* map_cst_;
 
-      const tgba* original_;
+      const_tgba_ptr original_;
 
       bdd all_acceptance_conditions_;
 
@@ -795,7 +796,7 @@ namespace spot
 
 
     public:
-      direct_simulation_dont_care(const tgba* t)
+      direct_simulation_dont_care(const const_tgba_ptr& t)
       : direct_simulation<false, false>(t)
       {
         // This variable is used in the new signature.
@@ -1098,12 +1099,7 @@ namespace spot
         return res;
       }
 
-      inline automaton_size get_stat() const
-      {
-        return min_size_;
-      }
-
-      tgba_digraph* run()
+      tgba_digraph_ptr run()
       {
         // Iterate the simulation until the end. We just don't return
         // an automaton. This allows us to get all the information
@@ -1188,14 +1184,14 @@ namespace spot
 	  assert(previous_class_[i.second] == i.first);
 #endif
 
-        tgba_digraph* min = 0;
+        tgba_digraph_ptr min = nullptr;
 
         map_constraint cstr;
 
         if (has_limit_)
-          rec(cc, cstr, &min, limit_);
+          rec(cc, cstr, min, limit_);
         else
-          rec(cc, cstr, &min);
+          rec(cc, cstr, min);
 
         return min;
       }
@@ -1247,7 +1243,7 @@ namespace spot
       // Compute recursively all the combinations.
       void rec(constraint_list constraints,
                map_constraint cstr,
-               tgba_digraph** min,
+               tgba_digraph_ptr& min,
                int max_depth = std::numeric_limits<int>::max())
       {
         assert(max_depth > 0);
@@ -1265,18 +1261,13 @@ namespace spot
           empty_seen_ = true;
 
         direct_simulation<false, false> dir_sim(original_, &cstr);
-        tgba_digraph* tmp = dir_sim.run();
-        automaton_size cur_size = dir_sim.get_stat();
-        if (*min == 0 || min_size_ > cur_size)
+        tgba_digraph_ptr tmp = dir_sim.run();
+        automaton_size cur_size(tmp);
+        if (!min || min_size_ > cur_size)
           {
-            delete *min;
-            *min = tmp;
+            min = tmp;
             min_size_ = cur_size;
             res_is_deterministic = dir_sim.result_is_deterministic();
-          }
-        else
-          {
-            delete tmp;
           }
       }
 
@@ -1309,29 +1300,29 @@ namespace spot
   } // End namespace anonymous.
 
 
-  tgba_digraph*
-  simulation(const tgba* t)
+  tgba_digraph_ptr
+  simulation(const const_tgba_ptr& t)
   {
     direct_simulation<false, false> simul(t);
     return simul.run();
   }
 
-  tgba_digraph*
-  simulation_sba(const tgba* t)
+  tgba_digraph_ptr
+  simulation_sba(const const_tgba_ptr& t)
   {
     direct_simulation<false, true> simul(t);
     return simul.run();
   }
 
-  tgba_digraph*
-  cosimulation(const tgba* t)
+  tgba_digraph_ptr
+  cosimulation(const const_tgba_ptr& t)
   {
     direct_simulation<true, false> simul(t);
     return simul.run();
   }
 
-  tgba_digraph*
-  cosimulation_sba(const tgba* t)
+  tgba_digraph_ptr
+  cosimulation_sba(const const_tgba_ptr& t)
   {
     direct_simulation<true, true> simul(t);
     return simul.run();
@@ -1339,10 +1330,10 @@ namespace spot
 
 
   template<bool Sba>
-  tgba_digraph*
-  iterated_simulations_(const tgba* t)
+  tgba_digraph_ptr
+  iterated_simulations_(const const_tgba_ptr& t)
   {
-    tgba_digraph* res = 0;
+    tgba_digraph_ptr res = 0;
     automaton_size prev;
     automaton_size next;
 
@@ -1350,80 +1341,59 @@ namespace spot
       {
         prev = next;
         direct_simulation<false, Sba> simul(res ? res : t);
-        tgba_digraph* after_simulation = simul.run();
-	delete res;
-
+        res = simul.run();
         if (simul.result_is_deterministic())
-          {
-            res = after_simulation;
-            break;
-          }
+	  break;
 
-        direct_simulation<true, Sba> cosimul(after_simulation);
-	tgba_digraph* after_cosimulation = cosimul.run();
-        next = cosimul.get_stat();
-	delete after_simulation;
+        direct_simulation<true, Sba> cosimul(res);
+	res = cosimul.run();
+        next.set_size(res);
 
 	if (Sba)
-	  res = scc_filter_states(after_cosimulation);
+	  res = scc_filter_states(res);
 	else
-	  res = scc_filter(after_cosimulation, false);
-	delete after_cosimulation;
+	  res = scc_filter(res, false);
       }
     while (prev != next);
     return res;
   }
 
-  tgba_digraph*
-  iterated_simulations(const tgba* t)
+  tgba_digraph_ptr
+  iterated_simulations(const const_tgba_ptr& t)
   {
     return iterated_simulations_<false>(t);
   }
 
-  tgba_digraph*
-  iterated_simulations_sba(const tgba* t)
+  tgba_digraph_ptr
+  iterated_simulations_sba(const const_tgba_ptr& t)
   {
     return iterated_simulations_<true>(t);
   }
 
-  tgba_digraph*
-  dont_care_simulation(const tgba* t, int limit)
+  tgba_digraph_ptr
+  dont_care_simulation(const const_tgba_ptr& t, int limit)
   {
     direct_simulation<false, false> sim(t);
-    tgba_digraph* tmp = sim.run();
-
-    direct_simulation_dont_care s(tmp);
+    direct_simulation_dont_care s(sim.run());
     if (limit > 0)
       s.set_limit(limit);
-
-    tgba_digraph* res = s.run();
-    delete tmp;
-
-    return res;
+    return s.run();
   }
 
 
-  tgba_digraph*
-  dont_care_iterated_simulations(const tgba* t, int limit)
+  tgba_digraph_ptr
+  dont_care_iterated_simulations(const const_tgba_ptr& t, int limit)
   {
-    tgba_digraph* res = 0;
+    tgba_digraph_ptr res = 0;
     automaton_size prev;
     automaton_size next;
 
     do
       {
         prev = next;
-	tgba_digraph* after_simulation =
-	  dont_care_simulation(res ? res : t, limit);
-	delete res;
-
-        direct_simulation<true, false> cosimul(after_simulation);
-	tgba_digraph* after_cosimulation = cosimul.run();
-	delete after_simulation;
-
-        next = cosimul.get_stat();
-        res = scc_filter(after_cosimulation, true);
-	delete after_cosimulation;
+	res = cosimulation(dont_care_simulation(res ? res : t, limit));
+        res = scc_filter(res, true);
+	next.set_size(res);
       }
     while (prev != next);
 

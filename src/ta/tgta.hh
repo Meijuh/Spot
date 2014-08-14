@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -78,9 +78,10 @@ namespace spot
     ///
     virtual tgba_succ_iterator*
     succ_iter_by_changeset(const spot::state* s, bdd change_set) const =0;
-
   };
 
+  typedef std::shared_ptr<tgta> tgta_ptr;
+  typedef std::shared_ptr<const tgta> const_tgta_ptr;
 }
 
 #endif // SPOT_TA_TGTA_HH

@@ -38,7 +38,8 @@ namespace spot
     class ltl2taa_visitor : public visitor
     {
     public:
-      ltl2taa_visitor(taa_tgba_formula* res, language_containment_checker* lcc,
+      ltl2taa_visitor(const taa_tgba_formula_ptr& res,
+		      language_containment_checker* lcc,
 		      bool refined = false, bool negated = false)
 	: res_(res), refined_(refined), negated_(negated),
 	  lcc_(lcc), init_(), succ_(), to_free_()
@@ -50,7 +51,7 @@ namespace spot
       {
       }
 
-      taa_tgba_formula*
+      taa_tgba_formula_ptr&
       result()
       {
 	for (unsigned i = 0; i < to_free_.size(); ++i)
@@ -345,14 +346,12 @@ namespace spot
       }
 
     private:
-      taa_tgba_formula* res_;
+      taa_tgba_formula_ptr res_;
       bool refined_;
       bool negated_;
       language_containment_checker* lcc_;
 
-      typedef std::insert_iterator<
-	std::vector<const formula*>
-      > ii;
+      typedef std::insert_iterator<std::vector<const formula*>> ii;
 
       struct succ_state
       {
@@ -417,21 +416,22 @@ namespace spot
     };
   } // anonymous
 
-  taa_tgba*
-  ltl_to_taa(const ltl::formula* f, bdd_dict_ptr dict, bool refined_rules)
+  taa_tgba_formula_ptr
+  ltl_to_taa(const ltl::formula* f,
+	     const bdd_dict_ptr& dict, bool refined_rules)
   {
     // TODO: s/unabbreviate_ltl/unabbreviate_logic/
     const ltl::formula* f1 = ltl::unabbreviate_ltl(f);
     const ltl::formula* f2 = ltl::negative_normal_form(f1);
     f1->destroy();
 
-    spot::taa_tgba_formula* res = new spot::taa_tgba_formula(dict);
+    auto res = make_taa_tgba_formula(dict);
     language_containment_checker* lcc =
       new language_containment_checker(make_bdd_dict(),
 				       false, false, false, false);
     ltl2taa_visitor v(res, lcc, refined_rules);
     f2->accept(v);
-    taa_tgba* taa = v.result(); // Careful: before the destroy!
+    auto taa = v.result(); // Careful: before the destroy!
     f2->destroy();
     delete lcc;
     return taa;

@@ -36,7 +36,7 @@ namespace spot
   class SPOT_API tgba_proxy: public tgba
   {
   protected:
-    tgba_proxy(const tgba* original);
+    tgba_proxy(const const_tgba_ptr& original);
 
   public:
     virtual ~tgba_proxy();
@@ -53,7 +53,7 @@ namespace spot
     virtual std::string
     transition_annotation(const tgba_succ_iterator* t) const;
 
-    virtual state* project_state(const state* s, const tgba* t) const;
+    virtual state* project_state(const state* s, const const_tgba_ptr& t) const;
 
     virtual bdd all_acceptance_conditions() const;
 
@@ -61,7 +61,7 @@ namespace spot
 
   protected:
     virtual bdd compute_support_conditions(const state* state) const;
-    const tgba* original_;
+    const_tgba_ptr original_;
   };
 }
 

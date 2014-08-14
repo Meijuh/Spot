@@ -41,11 +41,10 @@ namespace spot
   class SPOT_API ta_explicit : public ta
   {
   public:
-    ta_explicit(const tgba* tgba, bdd all_acceptance_conditions,
-		state_ta_explicit* artificial_initial_state = 0,
-		bool own_tgba = false);
+    ta_explicit(const const_tgba_ptr& tgba, bdd all_acceptance_conditions,
+		state_ta_explicit* artificial_initial_state = 0);
 
-    const tgba*
+    const_tgba_ptr
     get_tgba() const;
 
     state_ta_explicit*
@@ -135,12 +134,11 @@ namespace spot
     ta_explicit(const ta_explicit& other) SPOT_DELETED;
     ta_explicit& operator=(const ta_explicit& other) SPOT_DELETED;
 
-    const tgba* tgba_;
+    const_tgba_ptr tgba_;
     bdd all_acceptance_conditions_;
     state_ta_explicit* artificial_initial_state_;
     ta::states_set_t states_set_;
     ta::states_set_t initial_states_set_;
-    bool own_tgba_;
   };
 
   /// states used by spot::ta_explicit.
@@ -264,6 +262,19 @@ namespace spot
     state_ta_explicit::transitions* transitions_;
     state_ta_explicit::transitions::const_iterator i_;
   };
+
+  typedef std::shared_ptr<ta_explicit> ta_explicit_ptr;
+  typedef std::shared_ptr<const ta_explicit> const_ta_explicit_ptr;
+
+  inline ta_explicit_ptr make_ta_explicit(const const_tgba_ptr& tgba,
+					  bdd all_acceptance_conditions,
+					  state_ta_explicit*
+					  artificial_initial_state = 0)
+  {
+    return std::make_shared<ta_explicit>(tgba,
+					 all_acceptance_conditions,
+					 artificial_initial_state);
+  }
 
 }
 

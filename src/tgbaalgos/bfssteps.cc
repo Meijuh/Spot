@@ -25,7 +25,7 @@
 namespace spot
 {
 
-  bfs_steps::bfs_steps(const tgba* a)
+  bfs_steps::bfs_steps(const const_tgba_ptr& a)
     : a_(a)
   {
   }

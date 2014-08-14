@@ -44,28 +44,28 @@ main(int argc, char** argv)
   if (argc != 2)
     syntax(argv[0]);
 
-  auto dict = spot::make_bdd_dict();
+  {
+    auto dict = spot::make_bdd_dict();
 
-  spot::ltl::environment& env(spot::ltl::default_environment::instance());
-  spot::tgba_parse_error_list pel;
-  spot::tgba* a = spot::tgba_parse(argv[1], pel, dict, env);
-  if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel))
-    return 2;
+    spot::ltl::environment& env(spot::ltl::default_environment::instance());
+    spot::tgba_parse_error_list pel;
+    auto a = spot::tgba_parse(argv[1], pel, dict, env);
+    if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel))
+      return 2;
 
 
 #ifndef DOTTY
-  auto e = spot::tgba_powerset(a);
-  spot::tgba_save_reachable(std::cout, e);
-  delete e;
+    auto e = spot::tgba_powerset(a);
+    spot::tgba_save_reachable(std::cout, e);
 #else
-  spot::dotty_reachable(std::cout, a);
+    spot::dotty_reachable(std::cout, a);
 #endif
+  }
 
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
   assert(spot::ltl::atomic_prop::instance_count() != 0);
-  delete a;
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   return exit_code;
 }

@@ -40,7 +40,7 @@ namespace spot
   }
 
 
-  scc_map::scc_map(const tgba* aut)
+  scc_map::scc_map(const const_tgba_ptr& aut)
     : aut_(aut)
   {
   }
@@ -89,7 +89,7 @@ namespace spot
     return acc_set_of(n) == aut_->all_acceptance_conditions();
   }
 
-  const tgba*
+  const_tgba_ptr
   scc_map::get_aut() const
   {
     return aut_;
@@ -460,7 +460,7 @@ namespace spot
   }
 
   scc_stats
-  build_scc_stats(const tgba* a)
+  build_scc_stats(const const_tgba_ptr& a)
   {
     scc_map m(a);
     m.build_map();
@@ -549,7 +549,7 @@ namespace spot
   }
 
   std::ostream&
-  dump_scc_dot(const tgba* a, std::ostream& out, bool verbose)
+  dump_scc_dot(const const_tgba_ptr& a, std::ostream& out, bool verbose)
   {
     scc_map m(a);
     m.build_map();

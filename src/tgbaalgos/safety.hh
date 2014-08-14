@@ -47,7 +47,7 @@ namespace spot
   /// built otherwise.  If you supply an scc_map you should call
   /// build_map() before passing it to this function.
   SPOT_API bool
-  is_guarantee_automaton(const tgba* aut, const scc_map* sm = 0);
+  is_guarantee_automaton(const const_tgba_ptr& aut, const scc_map* sm = 0);
 
   /// \brief Whether a minimized WDBA represents a safety property.
   ///
@@ -57,7 +57,7 @@ namespace spot
   ///
   /// \param aut the automaton to check
   SPOT_API bool
-  is_safety_mwdba(const tgba* aut);
+  is_safety_mwdba(const const_tgba_ptr& aut);
 
 }
 

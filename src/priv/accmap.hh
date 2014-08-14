@@ -32,11 +32,11 @@ namespace spot
   {
   protected:
     bdd_dict_ptr dict_;
-    tgba_digraph* aut_;
+    tgba_digraph_ptr aut_;
     ltl::environment& env_;
     bdd neg_;
 
-    acc_mapper_common(tgba_digraph *aut, ltl::environment& env)
+    acc_mapper_common(const tgba_digraph_ptr& aut, ltl::environment& env)
       : dict_(aut->get_dict()), aut_(aut), env_(env), neg_(bddtrue)
     {
     }
@@ -59,7 +59,7 @@ namespace spot
     std::unordered_map<std::string, int> map_;
 
   public:
-    acc_mapper_string(tgba_digraph *aut,
+    acc_mapper_string(const tgba_digraph_ptr& aut,
 		      ltl::environment& env
 		      = ltl::default_environment::instance())
       : acc_mapper_common(aut, env)
@@ -102,7 +102,7 @@ namespace spot
     std::map<int, bdd> map_;
 
   public:
-    acc_mapper_consecutive_int(tgba_digraph *aut,
+    acc_mapper_consecutive_int(const tgba_digraph_ptr& aut,
 			       unsigned count,
 			       ltl::environment& env =
 			       ltl::default_environment::instance())
@@ -144,7 +144,7 @@ namespace spot
     std::map<int, bdd> map_;
 
   public:
-    acc_mapper_int(tgba_digraph *aut,
+    acc_mapper_int(const tgba_digraph_ptr& aut,
 		   unsigned count,
 		   ltl::environment& env =
 		   ltl::default_environment::instance())

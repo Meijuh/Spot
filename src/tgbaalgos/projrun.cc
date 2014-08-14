@@ -1,4 +1,4 @@
-// Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2004, 2014  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -25,7 +25,9 @@ namespace spot
 {
 
   tgba_run*
-  project_tgba_run(const tgba* a_run, const tgba* a_proj, const tgba_run* run)
+  project_tgba_run(const const_tgba_ptr& a_run,
+		   const const_tgba_ptr& a_proj,
+		   const tgba_run* run)
   {
     tgba_run* res = new tgba_run;
     for (tgba_run::steps::const_iterator i = run->prefix.begin();

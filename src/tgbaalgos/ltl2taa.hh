@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -48,8 +48,8 @@ namespace spot
   /// \param dict The spot::bdd_dict the constructed automata should use.
   /// \param refined_rules If this parameter is set, refined rules are used.
   /// \return A spot::taa that recognizes the language of \a f.
-  SPOT_API taa_tgba*
-  ltl_to_taa(const ltl::formula* f, bdd_dict_ptr dict,
+  SPOT_API taa_tgba_formula_ptr
+  ltl_to_taa(const ltl::formula* f, const bdd_dict_ptr& dict,
 	     bool refined_rules = false);
 }
 

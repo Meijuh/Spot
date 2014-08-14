@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Developpement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -25,11 +25,11 @@
 
 # include "misc/common.hh"
 # include <iosfwd>
+# include "tgba/fwd.hh"
 
 namespace spot
 {
   struct tgba_run;
-  class tgba;
 
   /// \ingroup tgba_run
   /// \brief Project a tgba_run on a tgba.
@@ -42,9 +42,9 @@ namespace spot
   /// \param a_proj the automata on which to project the run
   /// \return true iff the run could be completed
   SPOT_API tgba_run*
-  project_tgba_run(const tgba* a_run, const tgba* a_proj,
-
-const tgba_run* run);
+  project_tgba_run(const const_tgba_ptr& a_run,
+		   const const_tgba_ptr& a_proj,
+		   const tgba_run* run);
 }
 
 #endif // SPOT_TGBAALGOS_PROJRUN_HH

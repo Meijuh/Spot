@@ -28,26 +28,27 @@
 int
 main()
 {
-  spot::ltl::default_environment& e =
-    spot::ltl::default_environment::instance();
-  spot::taa_tgba_string* a = new spot::taa_tgba_string(spot::make_bdd_dict());
+  {
+    spot::ltl::default_environment& e =
+      spot::ltl::default_environment::instance();
+    auto a = spot::make_taa_tgba_string(spot::make_bdd_dict());
 
-  typedef spot::taa_tgba::transition trans;
+    typedef spot::taa_tgba::transition trans;
 
-  std::string ss1_values[] = { "state 2", "state 3" };
-  std::vector<std::string> ss1_vector(ss1_values, ss1_values + 2);
-  trans* t1 = a->create_transition("state 1", ss1_vector);
-  trans* t2 = a->create_transition("state 2", "state 3");
-  trans* t3 = a->create_transition("state 2", "state 4");
+    std::string ss1_values[] = { "state 2", "state 3" };
+    std::vector<std::string> ss1_vector(ss1_values, ss1_values + 2);
+    trans* t1 = a->create_transition("state 1", ss1_vector);
+    trans* t2 = a->create_transition("state 2", "state 3");
+    trans* t3 = a->create_transition("state 2", "state 4");
 
-  a->add_condition(t1, e.require("a"));
-  a->add_condition(t2, e.require("b"));
-  a->add_condition(t3, e.require("c"));
+    a->add_condition(t1, e.require("a"));
+    a->add_condition(t2, e.require("b"));
+    a->add_condition(t3, e.require("c"));
 
-  a->set_init_state("state 1");
-  spot::dotty_reachable(std::cout, a);
+    a->set_init_state("state 1");
+    spot::dotty_reachable(std::cout, a);
+  }
 
-  delete a;
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);

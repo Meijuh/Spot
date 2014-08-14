@@ -38,7 +38,7 @@
 
   struct result_
   {
-    spot::dstar_aut* d;
+    spot::dstar_aut_ptr d;
     spot::ltl::environment* env;
     std::vector<bdd> guards;
     std::vector<bdd>::const_iterator cur_guard;
@@ -143,8 +143,7 @@ header: auttype opt_eols V2 opt_eols EXPLICIT opt_eols sizes
       }
     if (err)
       {
-	delete result.d->aut;
-	result.d->aut = 0;
+	result.d->aut = nullptr;
 	YYABORT;
       }
     result.d->aut->new_states(result.state_count);;
@@ -313,10 +312,10 @@ dstaryy::parser::error(const location_type& location,
 
 namespace spot
 {
-  dstar_aut*
+  dstar_aut_ptr
   dstar_parse(const std::string& name,
 	      dstar_parse_error_list& error_list,
-	      bdd_dict_ptr dict,
+	      const bdd_dict_ptr& dict,
 	      ltl::environment& env,
 	      bool debug)
   {
@@ -327,8 +326,8 @@ namespace spot
 	return 0;
       }
     result_ r;
-    r.d = new dstar_aut;
-    r.d->aut = new tgba_digraph(dict);
+    r.d = std::make_shared<spot::dstar_aut>();
+    r.d->aut = make_tgba_digraph(dict);
     r.d->accsets = 0;
     r.env = &env;
     dstaryy::parser parser(error_list, r);
@@ -337,10 +336,7 @@ namespace spot
     dstaryyclose();
 
     if (!r.d->aut || !r.d->accsets)
-      {
-	delete r.d;
-	return 0;
-      }
+      return nullptr;
     return r.d;
   }
 }

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -39,7 +39,7 @@ namespace spot
   };
 
   /// \brief Compute statistics for an automaton.
-  SPOT_API ta_statistics stats_reachable(const ta* t);
+  SPOT_API ta_statistics stats_reachable(const const_ta_ptr& t);
 
   /// @}
 }

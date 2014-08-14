@@ -45,7 +45,7 @@ namespace spot
     };
   }
 
-  scc_info::scc_info(const tgba_digraph* aut)
+  scc_info::scc_info(const_tgba_digraph_ptr aut)
     : aut_(aut)
   {
     unsigned n = aut->num_states();
@@ -261,7 +261,7 @@ namespace spot
 
   std::ostream&
   dump_scc_info_dot(std::ostream& out,
-		    const tgba_digraph* aut, scc_info* sccinfo)
+		    const_tgba_digraph_ptr aut, scc_info* sccinfo)
   {
     scc_info* m = sccinfo ? sccinfo : new scc_info(aut);
 

@@ -44,33 +44,30 @@ main(int argc, char** argv)
   if (argc != 3)
     syntax(argv[0]);
 
-  spot::ltl::environment& env(spot::ltl::default_environment::instance());
-
-  spot::ltl::parse_error_list pel1;
-  const spot::ltl::formula* f1 = spot::ltl::parse(argv[1], pel1, env);
-
-  if (spot::ltl::format_parse_errors(std::cerr, argv[1], pel1))
-    return 2;
-
-  spot::ltl::parse_error_list pel2;
-  const spot::ltl::formula* f2 = spot::ltl::parse(argv[2], pel2, env);
-
-  if (spot::ltl::format_parse_errors(std::cerr, argv[2], pel2))
-    return 2;
-
-  auto dict = spot::make_bdd_dict();
   {
-    auto a1 = spot::ltl_to_tgba_fm(f1, dict);
-    auto a2 = spot::ltl_to_tgba_fm(f2, dict);
-    f1->destroy();
-    f2->destroy();
-    auto p = new spot::tgba_product(a1, a2);
-    spot::dotty_reachable(std::cout, p);
-    delete p;
-    delete a1;
-    delete a2;
-  }
+    spot::ltl::environment& env(spot::ltl::default_environment::instance());
 
+    spot::ltl::parse_error_list pel1;
+    const spot::ltl::formula* f1 = spot::ltl::parse(argv[1], pel1, env);
+
+    if (spot::ltl::format_parse_errors(std::cerr, argv[1], pel1))
+      return 2;
+
+    spot::ltl::parse_error_list pel2;
+    const spot::ltl::formula* f2 = spot::ltl::parse(argv[2], pel2, env);
+
+    if (spot::ltl::format_parse_errors(std::cerr, argv[2], pel2))
+      return 2;
+
+    auto dict = spot::make_bdd_dict();
+    {
+      auto a1 = spot::ltl_to_tgba_fm(f1, dict);
+      auto a2 = spot::ltl_to_tgba_fm(f2, dict);
+      f1->destroy();
+      f2->destroy();
+      spot::dotty_reachable(std::cout, product(a1, a2));
+    }
+  }
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);

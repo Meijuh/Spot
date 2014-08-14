@@ -99,11 +99,11 @@ namespace spot
   }
 
   SPOT_API
-  tgba_digraph* nsa_to_tgba(const dstar_aut* nsa)
+  tgba_digraph_ptr nsa_to_tgba(const const_dstar_aut_ptr& nsa)
   {
     assert(nsa->type == Streett);
     auto a = nsa->aut;
-    auto res = new tgba_digraph(a->get_dict());
+    auto res = make_tgba_digraph(a->get_dict());
     res->copy_ap_of(a);
 
     // Create accpair_count acceptance sets for the output.
@@ -204,4 +204,3 @@ namespace spot
   }
 
 }
-

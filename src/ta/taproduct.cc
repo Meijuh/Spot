@@ -242,15 +242,15 @@ namespace spot
   // ta_product
 
 
-  ta_product::ta_product(const ta* testing_automata,
-      const kripke* kripke_structure) :
-    dict_(testing_automata->get_dict()), ta_(testing_automata), kripke_(
-        kripke_structure)
+  ta_product::ta_product(const const_ta_ptr& testing_automata,
+			 const const_kripke_ptr& kripke_structure):
+    dict_(testing_automata->get_dict()),
+    ta_(testing_automata),
+    kripke_(kripke_structure)
   {
     assert(dict_ == kripke_structure->get_dict());
-    dict_->register_all_variables_of(&ta_, this);
-    dict_->register_all_variables_of(&kripke_, this);
-
+    dict_->register_all_variables_of(ta_, this);
+    dict_->register_all_variables_of(kripke_, this);
   }
 
   ta_product::~ta_product()
@@ -314,7 +314,7 @@ namespace spot
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
     assert(s);
 
-    return new ta_succ_iterator_product(stp, ta_, kripke_);
+    return new ta_succ_iterator_product(stp, ta_.get(), kripke_.get());
   }
 
 
@@ -323,8 +323,9 @@ namespace spot
   {
     const state_ta_product* stp = down_cast<const state_ta_product*> (s);
     assert(s);
-    return new ta_succ_iterator_product_by_changeset(stp, ta_, kripke_,
-        changeset);
+    return new ta_succ_iterator_product_by_changeset(stp,
+						     ta_.get(), kripke_.get(),
+						     changeset);
 
   }
 

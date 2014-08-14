@@ -112,7 +112,7 @@ namespace spot
     typedef hash_type::iterator tagged_state;
 
     // The automaton we are working on.
-    const tgba* aut_;
+    const_tgba_ptr aut_;
     // The SCC map built for aut_.
     const scc_map& sm_;
 

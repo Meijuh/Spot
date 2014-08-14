@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -73,7 +73,8 @@ public:
   }
 
   std::ostream&
-  print(const spot::tgba* aut, const spot::ltl::formula* f = 0,
+  print(const spot::const_tgba_ptr& aut,
+	const spot::ltl::formula* f = 0,
 	double run_time = -1.)
   {
     formula_ = f;

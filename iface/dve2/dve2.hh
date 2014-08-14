@@ -56,7 +56,7 @@ namespace spot
   // \a dead an atomic proposition or constant to use for looping on
   //         dead states
   // \a verbose whether to output verbose messages
-  SPOT_API kripke*
+  SPOT_API kripke_ptr
   load_dve2(const std::string& file, bdd_dict_ptr dict,
 	    const ltl::atomic_prop_set* to_observe,
 	    const ltl::formula* dead = ltl::constant::true_instance(),

@@ -19,13 +19,11 @@
 #ifndef SPOT_SABA_SABACOMPLEMENTTGBA_HH
 #define SPOT_SABA_SABACOMPLEMENTTGBA_HH
 
-#include <tgba/tgba.hh>
+#include "tgba/fwd.hh"
 #include "saba.hh"
 
 namespace spot
 {
-  class tgba_digraph;
-
   /// \ingroup saba
   /// \brief Complement a TGBA and produce a SABA.
   ///
@@ -55,7 +53,7 @@ namespace spot
   class SPOT_API saba_complement_tgba : public saba
   {
   public:
-    saba_complement_tgba(const tgba* a);
+    saba_complement_tgba(const const_tgba_ptr& a);
     virtual ~saba_complement_tgba();
 
     // tgba interface
@@ -67,10 +65,19 @@ namespace spot
     virtual std::string format_state(const saba_state* state) const;
     virtual bdd all_acceptance_conditions() const;
   private:
-    const tgba_digraph* automaton_;
+    const_tgba_digraph_ptr automaton_;
     bdd the_acceptance_cond_;
     unsigned nb_states_;
   }; // end class tgba_saba_complement.
+
+  typedef std::shared_ptr<saba_complement_tgba> saba_complement_tgba_ptr;
+  typedef std::shared_ptr<const saba_complement_tgba>
+    const_saba_complement_tgba_ptr;
+  inline saba_complement_tgba_ptr make_saba_complement(const const_tgba_ptr& a)
+  {
+    return std::make_shared<saba_complement_tgba>(a);
+  }
+
 
 } // end namespace spot.
 

@@ -50,7 +50,7 @@ namespace spot
 
     static void
     transform_to_single_pass_automaton
-    (ta_explicit* testing_automata,
+    (const ta_explicit_ptr& testing_automata,
      state_ta_explicit* artificial_livelock_acc_state = 0)
     {
 
@@ -148,7 +148,7 @@ namespace spot
     }
 
     static void
-    compute_livelock_acceptance_states(ta_explicit* testing_automata,
+    compute_livelock_acceptance_states(const ta_explicit_ptr& testing_automata,
 				       bool single_pass_emptiness_check,
 				       state_ta_explicit*
 				       artificial_livelock_acc_state)
@@ -408,14 +408,15 @@ namespace spot
 					   artificial_livelock_acc_state);
     }
 
-    ta_explicit*
-    build_ta(ta_explicit* ta, bdd atomic_propositions_set_, bool degeneralized,
+    ta_explicit_ptr
+    build_ta(const ta_explicit_ptr& ta, bdd atomic_propositions_set_,
+	     bool degeneralized,
 	     bool single_pass_emptiness_check,
 	     bool artificial_livelock_state_mode)
     {
 
       std::stack<state_ta_explicit*> todo;
-      const tgba* tgba_ = ta->get_tgba();
+      const_tgba_ptr tgba_ = ta->get_tgba();
 
       // build Initial states set:
       state* tgba_init_state = tgba_->get_init_state();
@@ -540,12 +541,12 @@ namespace spot
     }
   }
 
-  ta_explicit*
-  tgba_to_ta(const tgba* tgba_, bdd atomic_propositions_set_,
+  ta_explicit_ptr
+  tgba_to_ta(const const_tgba_ptr& tgba_, bdd atomic_propositions_set_,
       bool degeneralized, bool artificial_initial_state_mode,
       bool single_pass_emptiness_check, bool artificial_livelock_state_mode)
   {
-    ta_explicit* ta;
+    ta_explicit_ptr ta;
 
     state* tgba_init_state = tgba_->get_init_state();
     if (artificial_initial_state_mode)
@@ -553,18 +554,18 @@ namespace spot
         state_ta_explicit* artificial_init_state =
 	  new state_ta_explicit(tgba_init_state->clone(), bddfalse, true);
 
-        ta = new spot::ta_explicit(tgba_, tgba_->all_acceptance_conditions(),
-				   artificial_init_state);
+        ta = make_ta_explicit(tgba_, tgba_->all_acceptance_conditions(),
+			      artificial_init_state);
       }
     else
       {
-        ta = new spot::ta_explicit(tgba_, tgba_->all_acceptance_conditions());
+        ta = make_ta_explicit(tgba_, tgba_->all_acceptance_conditions());
       }
     tgba_init_state->destroy();
 
-    // build ta automata:
+    // build ta automaton
     build_ta(ta, atomic_propositions_set_, degeneralized,
-        single_pass_emptiness_check, artificial_livelock_state_mode);
+	     single_pass_emptiness_check, artificial_livelock_state_mode);
 
     // (degeneralized=true) => TA
     if (degeneralized)
@@ -597,20 +598,20 @@ namespace spot
     return ta;
   }
 
-  tgta_explicit*
-  tgba_to_tgta(const tgba* tgba_, bdd atomic_propositions_set_)
+  tgta_explicit_ptr
+  tgba_to_tgta(const const_tgba_ptr& tgba_, bdd atomic_propositions_set_)
   {
     state* tgba_init_state = tgba_->get_init_state();
-    state_ta_explicit* artificial_init_state = new state_ta_explicit(
-        tgba_init_state->clone(), bddfalse, true);
+    auto artificial_init_state = new state_ta_explicit(tgba_init_state->clone(),
+						       bddfalse, true);
     tgba_init_state->destroy();
 
-    tgta_explicit* tgta = new spot::tgta_explicit(tgba_,
-        tgba_->all_acceptance_conditions(), artificial_init_state);
+    auto tgta = make_tgta_explicit(tgba_, tgba_->all_acceptance_conditions(),
+				   artificial_init_state);
 
     // build a Generalized TA automaton involving a single_pass_emptiness_check
     // (without an artificial livelock state):
-    ta_explicit* ta = tgta->get_ta();
+    auto ta = tgta->get_ta();
     build_ta(ta, atomic_propositions_set_, false, true, false);
 
     trace << "***tgba_to_tgbta: POST build_ta***" << std::endl;

@@ -36,7 +36,7 @@ namespace spot
   class SPOT_API tgba_sgba_proxy : public tgba
   {
   public:
-    tgba_sgba_proxy(const tgba* a, bool no_zero_acc = true);
+    tgba_sgba_proxy(const const_tgba_ptr& a, bool no_zero_acc = true);
 
     virtual ~tgba_sgba_proxy();
 
@@ -57,7 +57,7 @@ namespace spot
     virtual bdd compute_support_conditions(const state* state) const;
 
   private:
-    const tgba* a_;
+    const_tgba_ptr a_;
     // If the automaton has no acceptance condition,
     // every state is accepting.
     bool emulate_acc_cond_;
@@ -67,5 +67,10 @@ namespace spot
     tgba_sgba_proxy& operator=(const tgba_sgba_proxy&) SPOT_DELETED;
   };
 
+  inline tgba_sgba_proxy_ptr make_sgba(const const_tgba_ptr& a,
+				       bool no_zero_acc = true)
+  {
+    return std::make_shared<tgba_sgba_proxy>(a, no_zero_acc);
+  }
 }
 #endif // SPOT_TGBA_TGBASGBA_HH

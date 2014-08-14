@@ -114,12 +114,12 @@ namespace spot
 					   formula_ptr_hash>::type namer;
     public:
       ratexp_to_dfa(translate_dict& dict);
-      std::tuple<const tgba_digraph*, const namer*, const state*>
+      std::tuple<const_tgba_digraph_ptr, const namer*, const state*>
       succ(const formula* f);
       ~ratexp_to_dfa();
 
     protected:
-      typedef std::pair<tgba_digraph*, const namer*> labelled_aut;
+      typedef std::pair<tgba_digraph_ptr, const namer*> labelled_aut;
       labelled_aut translate(const formula* f);
 
     private:
@@ -976,7 +976,6 @@ namespace spot
     {
       for (auto i: automata_)
 	{
-	  delete i.first;
 	  for (auto n: i.second->names())
 	    n->destroy();
 	  delete i.second;
@@ -988,7 +987,7 @@ namespace spot
     {
       assert(f->is_in_nenoform());
 
-      auto a = new tgba_digraph(dict_.dict);
+      auto a = make_tgba_digraph(dict_.dict);
       auto namer = a->create_namer<const formula*, formula_ptr_hash>();
 
       typedef std::set<const formula*, formula_ptr_less_than> set_type;
@@ -1107,7 +1106,6 @@ namespace spot
 	}
       else
 	{
-	  delete a;
 	  for (auto n: namer->names())
 	    n->destroy();
 	  delete namer;
@@ -1116,7 +1114,7 @@ namespace spot
     }
 
     // FIXME: use the new tgba::succ() interface
-    std::tuple<const tgba_digraph*,
+    std::tuple<const_tgba_digraph_ptr,
 	       const ratexp_to_dfa::namer*,
 	       const state*>
     ratexp_to_dfa::succ(const formula* f)
@@ -2028,7 +2026,7 @@ namespace spot
   }
 
 
-  tgba_digraph*
+  tgba_digraph_ptr
   ltl_to_tgba_fm(const formula* f, bdd_dict_ptr dict,
 		 bool exprop, bool symb_merge, bool branching_postponement,
 		 bool fair_loop_approx, const atomic_prop_set* unobs,
@@ -2108,7 +2106,7 @@ namespace spot
     bdd all_events = observable_events | unobservable_events;
 
 
-    tgba_digraph* a = new tgba_digraph(dict);
+    tgba_digraph_ptr a = make_tgba_digraph(dict);
     auto namer = a->create_namer<const formula*, formula_ptr_hash>();
 
     // This is in case the initial state is equivalent to true...

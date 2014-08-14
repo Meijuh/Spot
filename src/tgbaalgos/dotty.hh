@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -24,6 +24,7 @@
 # define SPOT_TGBAALGOS_DOTTY_HH
 
 # include <iosfwd>
+# include <tgba/fwd.hh>
 # include "misc/common.hh"
 
 namespace spot
@@ -44,7 +45,7 @@ namespace spot
   /// labels the transitions are encoded in UTF-8.
   SPOT_API std::ostream&
   dotty_reachable(std::ostream& os,
-		  const tgba* g,
+		  const const_tgba_ptr& g,
 		  bool assume_sba = false,
 		  dotty_decorator* dd = 0);
 }

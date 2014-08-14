@@ -22,7 +22,7 @@
 
 namespace spot
 {
-  void strip_acceptance_here(tgba_digraph* a)
+  void strip_acceptance_here(tgba_digraph_ptr a)
   {
     unsigned n = a->num_states();
     for (unsigned s = 0; s < n; ++s)

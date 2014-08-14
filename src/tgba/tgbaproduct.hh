@@ -85,7 +85,7 @@ namespace spot
     /// \param left The left automata in the product.
     /// \param right The right automata in the product.
     /// Do not be fooled by these arguments: a product is commutative.
-    tgba_product(const tgba* left, const tgba* right);
+    tgba_product(const const_tgba_ptr& left, const const_tgba_ptr& right);
 
     virtual ~tgba_product();
 
@@ -101,7 +101,7 @@ namespace spot
     virtual std::string
     transition_annotation(const tgba_succ_iterator* t) const;
 
-    virtual state* project_state(const state* s, const tgba* t) const;
+    virtual state* project_state(const state* s, const const_tgba_ptr& t) const;
 
     virtual bdd all_acceptance_conditions() const;
     virtual bdd neg_acceptance_conditions() const;
@@ -111,8 +111,8 @@ namespace spot
 
   protected:
     bdd_dict_ptr dict_;
-    const tgba* left_;
-    const tgba* right_;
+    const_tgba_ptr left_;
+    const_tgba_ptr right_;
     bool left_kripke_;
     bdd left_acc_complement_;
     bdd right_acc_complement_;
@@ -131,7 +131,7 @@ namespace spot
   class SPOT_API tgba_product_init: public tgba_product
   {
   public:
-    tgba_product_init(const tgba* left, const tgba* right,
+    tgba_product_init(const const_tgba_ptr& left, const const_tgba_ptr& right,
 		      const state* left_init, const state* right_init);
     virtual state* get_init_state() const;
   protected:
@@ -139,6 +139,20 @@ namespace spot
     const state* right_init_;
   };
 
+  inline tgba_product_ptr product(const const_tgba_ptr& left,
+				  const const_tgba_ptr& right)
+  {
+    return std::make_shared<tgba_product>(left, right);
+  }
+
+  inline tgba_product_ptr product_at(const const_tgba_ptr& left,
+				     const const_tgba_ptr& right,
+				     const state* left_init,
+				     const state* right_init)
+  {
+    return std::make_shared<tgba_product_init>(left, right,
+					       left_init, right_init);
+  }
 }
 
 #endif // SPOT_TGBA_TGBAPRODUCT_HH

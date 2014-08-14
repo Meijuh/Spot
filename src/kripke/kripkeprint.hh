@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -23,11 +23,10 @@
 
 # include "misc/common.hh"
 # include <iosfwd>
+# include "kripke.hh"
 
 namespace spot
 {
-
-  class kripke;
 
   /// \ingroup tgba_io
   /// \brief Save the reachable part of Kripke structure in text format.
@@ -39,7 +38,7 @@ namespace spot
   /// kripke_save_reachable_renumbered() for large output.
   ///
   SPOT_API std::ostream&
-  kripke_save_reachable(std::ostream& os, const kripke* k);
+  kripke_save_reachable(std::ostream& os, const const_kripke_ptr& k);
 
   /// \ingroup tgba_io
   /// \brief Save the reachable part of Kripke structure in text format.
@@ -50,7 +49,7 @@ namespace spot
   /// the state name is lost.
   ///
   SPOT_API std::ostream&
-  kripke_save_reachable_renumbered(std::ostream& os, const kripke* k);
+  kripke_save_reachable_renumbered(std::ostream& os, const const_kripke_ptr& k);
 
 } // End namespace spot
 

@@ -351,13 +351,12 @@ namespace spot
   // ta_explicit
 
 
-  ta_explicit::ta_explicit(const tgba* tgba, bdd all_acceptance_conditions,
-			   state_ta_explicit* artificial_initial_state,
-			   bool own_tgba) :
+  ta_explicit::ta_explicit(const const_tgba_ptr& tgba,
+			   bdd all_acceptance_conditions,
+			   state_ta_explicit* artificial_initial_state):
     tgba_(tgba),
     all_acceptance_conditions_(all_acceptance_conditions),
-    artificial_initial_state_(artificial_initial_state),
-    own_tgba_(own_tgba)
+    artificial_initial_state_(artificial_initial_state)
   {
     get_dict()->register_all_variables_of(&tgba_, this);
     if (artificial_initial_state != 0)
@@ -379,8 +378,6 @@ namespace spot
         delete s;
       }
     get_dict()->unregister_all_my_variables(this);
-    if (own_tgba_)
-      delete tgba_;
   }
 
   state_ta_explicit*
@@ -496,7 +493,7 @@ namespace spot
     return tgba_->get_dict();
   }
 
-  const tgba*
+  const_tgba_ptr
   ta_explicit::get_tgba() const
   {
     return tgba_;

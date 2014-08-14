@@ -41,7 +41,7 @@ typedef std::map<std::string, bdd> formula_cache;
 
 %parse-param {spot::kripke_parse_error_list& error_list}
 %parse-param {spot::ltl::environment& parse_environment}
-%parse-param {spot::kripke_explicit*& result}
+%parse-param {spot::kripke_explicit_ptr& result}
 %parse-param {formula_cache& fcache}
 
 %union
@@ -195,10 +195,10 @@ kripkeyy::parser::error(const location_type& location,
 
 namespace spot
 {
-  kripke_explicit*
+  kripke_explicit_ptr
   kripke_parse(const std::string& name,
                kripke_parse_error_list& error_list,
-               bdd_dict_ptr dict,
+               const bdd_dict_ptr& dict,
                environment& env,
                bool debug)
   {
@@ -210,7 +210,7 @@ namespace spot
       return 0;
     }
     formula_cache fcache;
-    kripke_explicit* result = new kripke_explicit(dict);
+    auto result = make_kripke_explicit(dict);
     kripkeyy::parser parser(error_list, env, result, fcache);
     parser.set_debug_level(debug);
     parser.parse();

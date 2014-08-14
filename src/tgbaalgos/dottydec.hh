@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -25,11 +25,11 @@
 
 # include "misc/common.hh"
 # include <string>
+# include <tgba/fwd.hh>
 
 namespace spot
 {
   class state;
-  class tgba;
   class tgba_succ_iterator;
 
   /// \addtogroup tgba_dotty Decorating the dot output
@@ -57,7 +57,8 @@ namespace spot
     /// \param label the computed name of this state
     /// \param accepting whether the state is accepting (it makes sense only
     ///                  for state-acceptance automata)
-    virtual std::string state_decl(const tgba* a, const state* s, int n,
+    virtual std::string state_decl(const const_tgba_ptr& a,
+				   const state* s, int n,
 				   tgba_succ_iterator* si,
 				   const std::string& label,
 				   bool accepting);
@@ -80,7 +81,7 @@ namespace spot
     ///          the current transition (owned by the caller and cannot
     ///        be iterated)
     /// \param label the computed name of this state
-    virtual std::string link_decl(const tgba* a,
+    virtual std::string link_decl(const const_tgba_ptr& a,
 				  const state* in_s, int in,
 				  const state* out_s, int out,
 				  const tgba_succ_iterator* si,

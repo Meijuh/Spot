@@ -207,7 +207,7 @@ namespace spot
 	std::vector<bdd> useful_table(scc_count);
 	std::vector<bdd> useless_table(scc_count);
 	unsigned max_num = 1;
-	const tgba_digraph* aut = this->si->get_aut();
+	const_tgba_digraph_ptr aut = this->si->get_aut();
 
 	std::vector<bdd> used_acc = this->si->used_acc();
 
@@ -431,10 +431,10 @@ namespace spot
 
 
     template<class F, typename... Args>
-    tgba_digraph* scc_filter_apply(const tgba_digraph* aut,
+    tgba_digraph_ptr scc_filter_apply(const_tgba_digraph_ptr aut,
 				   scc_info* given_si, Args&&... args)
     {
-      tgba_digraph* filtered = new tgba_digraph(aut->get_dict());
+      tgba_digraph_ptr filtered = make_tgba_digraph(aut->get_dict());
       unsigned in_n = aut->num_states(); // Number of input states.
       if (in_n == 0)			 // Nothing to filter.
 	return filtered;
@@ -495,8 +495,8 @@ namespace spot
 
   }
 
-  tgba_digraph*
-  scc_filter_states(const tgba_digraph* aut, scc_info* given_si)
+  tgba_digraph_ptr
+  scc_filter_states(const const_tgba_digraph_ptr& aut, scc_info* given_si)
   {
     bool sb = aut->get_bprop(tgba_digraph::StateBasedAcc);
     auto res = scc_filter_apply<state_filter<>>(aut, given_si);
@@ -505,11 +505,11 @@ namespace spot
     return res;
   }
 
-  tgba_digraph*
-  scc_filter(const tgba_digraph* aut, bool remove_all_useless,
+  tgba_digraph_ptr
+  scc_filter(const const_tgba_digraph_ptr& aut, bool remove_all_useless,
 	     scc_info* given_si)
   {
-    tgba_digraph* res;
+    tgba_digraph_ptr res;
     if (remove_all_useless)
       res = scc_filter_apply<state_filter
 			     <acc_filter_all
@@ -522,12 +522,12 @@ namespace spot
     return res;
   }
 
-  tgba_digraph*
-  scc_filter_susp(const tgba_digraph* aut, bool remove_all_useless,
+  tgba_digraph_ptr
+  scc_filter_susp(const const_tgba_digraph_ptr& aut, bool remove_all_useless,
 		  bdd suspvars, bdd ignoredvars, bool early_susp,
 		  scc_info* given_si)
   {
-    tgba_digraph* res;
+    tgba_digraph_ptr res;
     if (remove_all_useless)
       res = scc_filter_apply<susp_filter
 			     <state_filter

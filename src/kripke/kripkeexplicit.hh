@@ -114,8 +114,7 @@ namespace spot
   class SPOT_API kripke_explicit : public kripke
   {
   public:
-    kripke_explicit(bdd_dict_ptr);
-    kripke_explicit(bdd_dict_ptr, state_kripke*);
+    kripke_explicit(bdd_dict_ptr, state_kripke* = nullptr);
     ~kripke_explicit();
 
     bdd_dict_ptr get_dict() const;
@@ -180,5 +179,12 @@ namespace spot
     std::map<const std::string, state_kripke*> ns_nodes_;
     std::map<const state_kripke*, std::string> sn_nodes_;
   };
+
+  inline kripke_explicit_ptr
+  make_kripke_explicit(const bdd_dict_ptr& d,
+		       state_kripke* init = nullptr)
+  {
+    return std::make_shared<kripke_explicit>(d, init);
+  }
 }
 #endif // SPOT_KRIPKE_KRIPKEEXPLICIT_HH

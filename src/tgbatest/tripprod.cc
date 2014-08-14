@@ -42,36 +42,29 @@ main(int argc, char** argv)
 
   if (argc != 4)
     syntax(argv[0]);
-
-  auto dict = spot::make_bdd_dict();
-
-  spot::ltl::environment& env(spot::ltl::default_environment::instance());
-  spot::tgba_parse_error_list pel1;
-  spot::tgba* a1 = spot::tgba_parse(argv[1], pel1, dict, env);
-  if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel1))
-    return 2;
-  spot::tgba_parse_error_list pel2;
-  spot::tgba* a2 = spot::tgba_parse(argv[2], pel2, dict, env);
-  if (spot::format_tgba_parse_errors(std::cerr, argv[2], pel2))
-    return 2;
-  spot::tgba_parse_error_list pel3;
-  spot::tgba* a3 = spot::tgba_parse(argv[3], pel3, dict, env);
-  if (spot::format_tgba_parse_errors(std::cerr, argv[3], pel3))
-    return 2;
-
   {
-    spot::tgba_product p(a1, a2);
-    spot::tgba_product p2(&p, a3);
-    spot::tgba_save_reachable(std::cout, &p2);
+    auto dict = spot::make_bdd_dict();
+
+    spot::ltl::environment& env(spot::ltl::default_environment::instance());
+    spot::tgba_parse_error_list pel1;
+    auto a1 = spot::tgba_parse(argv[1], pel1, dict, env);
+    if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel1))
+      return 2;
+    spot::tgba_parse_error_list pel2;
+    auto a2 = spot::tgba_parse(argv[2], pel2, dict, env);
+    if (spot::format_tgba_parse_errors(std::cerr, argv[2], pel2))
+      return 2;
+    spot::tgba_parse_error_list pel3;
+    auto a3 = spot::tgba_parse(argv[3], pel3, dict, env);
+    if (spot::format_tgba_parse_errors(std::cerr, argv[3], pel3))
+      return 2;
+
+    spot::tgba_save_reachable(std::cout, product(product(a1, a2), a3));
   }
 
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
-  assert(spot::ltl::atomic_prop::instance_count() != 0);
-  delete a1;
-  delete a2;
-  delete a3;
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   return exit_code;
 }

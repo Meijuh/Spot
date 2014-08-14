@@ -26,11 +26,10 @@
 #include "ltlast/atomic_prop.hh"
 #include <set>
 #include "bdd.h"
+#include "tgba/fwd.hh"
 
 namespace spot
 {
-  class tgba;
-
   namespace ltl
   {
     /// \addtogroup ltl_misc
@@ -65,7 +64,7 @@ namespace spot
     /// \param a that automaton that should register the BDD variables used.
     /// \return A conjunction the atomic propositions.
     SPOT_API bdd
-    atomic_prop_collect_as_bdd(const formula* f, const tgba* a);
+    atomic_prop_collect_as_bdd(const formula* f, const_tgba_ptr a);
 
     /// @}
   }

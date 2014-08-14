@@ -22,14 +22,13 @@
 
 #include "tgba/tgba.hh"
 #include "tgba/succiter.hh"
+#include "fwd.hh"
 
 /// \addtogroup kripke Kripke Structures
 /// \ingroup tgba
 
 namespace spot
 {
-  class fair_kripke;
-
   /// \ingroup kripke
   /// \brief Iterator code for a Fair Kripke structure.
   ///

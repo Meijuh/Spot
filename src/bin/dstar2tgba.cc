@@ -224,7 +224,8 @@ namespace
     /// The \a f argument is not needed if the Formula does not need
     /// to be output.
     std::ostream&
-    print(const spot::dstar_aut* daut, const spot::tgba* aut,
+    print(const spot::const_dstar_aut_ptr& daut,
+	  const spot::const_tgba_ptr& aut,
 	  const char* filename, double run_time)
     {
       filename_ = filename;
@@ -292,17 +293,11 @@ namespace
     process_file(const char* filename)
     {
       spot::dstar_parse_error_list pel;
-      spot::dstar_aut* daut;
-      daut = spot::dstar_parse(filename, pel, spot::make_bdd_dict());
+      auto daut = spot::dstar_parse(filename, pel, spot::make_bdd_dict());
       if (spot::format_dstar_parse_errors(std::cerr, filename, pel))
-	{
-	  delete daut;
-	  return 2;
-	}
+	return 2;
       if (!daut)
-	{
-	  error(2, 0, "failed to read automaton from %s", filename);
-	}
+	error(2, 0, "failed to read automaton from %s", filename);
 
       const xtime_t before = gethrxtime();
 
@@ -336,8 +331,6 @@ namespace
 	  statistics.print(daut, aut, filename, conversion_time) << '\n';
 	  break;
 	}
-      delete aut;
-      delete daut;
       flush_cout();
       return 0;
     }

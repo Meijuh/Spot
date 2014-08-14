@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Developpement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -24,11 +24,11 @@
 # define SPOT_TGBAALGOS_MAGIC_HH
 
 #include <cstddef>
+#include "tgba/fwd.hh"
 #include "misc/optionmap.hh"
 
 namespace spot
 {
-  class tgba;
   class emptiness_check;
 
   /// \addtogroup emptiness_check_algorithms
@@ -98,7 +98,7 @@ namespace spot
   /// \bug The name is misleading.  Magic-search is the algorithm
   /// from \c godefroid.93.pstv, not \c courcoubetis.92.fmsd.
   SPOT_API emptiness_check*
-  explicit_magic_search(const tgba *a,
+  explicit_magic_search(const const_tgba_ptr& a,
 			option_map o = option_map());
 
   /// \brief Returns an emptiness checker on the spot::tgba automaton \a a.
@@ -129,7 +129,7 @@ namespace spot
   /// \sa spot::explicit_magic_search
   ///
   SPOT_API emptiness_check*
-  bit_state_hashing_magic_search(const tgba *a, size_t size,
+  bit_state_hashing_magic_search(const const_tgba_ptr& a, size_t size,
 				 option_map o = option_map());
 
   /// \brief Wrapper for the two magic_search implementations.
@@ -139,7 +139,7 @@ namespace spot
   /// in the \c option_map.  If \c "bsh" is set and non null, its value
   /// is used as the size of the hash map.
   SPOT_API emptiness_check*
-  magic_search(const tgba *a, option_map o = option_map());
+  magic_search(const const_tgba_ptr& a, option_map o = option_map());
 
   /// @}
 }

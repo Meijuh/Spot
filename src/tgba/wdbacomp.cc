@@ -95,7 +95,7 @@ namespace spot
       {
       }
 
-      void recycle(const tgba* a, tgba_succ_iterator* it)
+      void recycle(const const_tgba_ptr& a, tgba_succ_iterator* it)
       {
 	a->release_iter(it_);
 	it_ = it;
@@ -183,7 +183,7 @@ namespace spot
     class tgba_wdba_comp_proxy: public tgba
     {
     public:
-      tgba_wdba_comp_proxy(const tgba* a)
+      tgba_wdba_comp_proxy(const const_tgba_ptr& a)
 	: a_(a), the_acceptance_cond_(a->all_acceptance_conditions())
       {
 	if (the_acceptance_cond_ == bddfalse)
@@ -247,12 +247,12 @@ namespace spot
       }
 
       virtual state*
-      project_state(const state* s, const tgba* t) const
+      project_state(const state* s, const const_tgba_ptr& t) const
       {
 	const state_wdba_comp_proxy* s2 =
 	  down_cast<const state_wdba_comp_proxy*>(s);
 	assert(s2);
-	if (t == this)
+	if (t.get() == this)
 	  return s2->clone();
 	return a_->project_state(s2->real_state(), t);
       }
@@ -277,7 +277,7 @@ namespace spot
 	return bddtrue;
       }
 
-      const tgba* a_;
+      const_tgba_ptr a_;
     private:
       bdd the_acceptance_cond_;
 
@@ -288,9 +288,9 @@ namespace spot
 
   }
 
-  tgba*
-  wdba_complement(const tgba* aut)
+  const_tgba_ptr
+  wdba_complement(const const_tgba_ptr& aut)
   {
-    return new tgba_wdba_comp_proxy(aut);
+    return std::make_shared<tgba_wdba_comp_proxy>(aut);
   }
 }

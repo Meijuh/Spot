@@ -42,8 +42,8 @@
 
 namespace spot
 {
-  tgba_digraph*
-  tgba_powerset(const tgba* aut, power_map& pm, bool merge)
+  tgba_digraph_ptr
+  tgba_powerset(const const_tgba_ptr& aut, power_map& pm, bool merge)
   {
     typedef power_map::power_state power_state;
     typedef std::map<power_map::power_state, int> power_set;
@@ -51,7 +51,7 @@ namespace spot
 
     power_set seen;
     todo_list todo;
-    auto res = new tgba_digraph(aut->get_dict());
+    auto res = make_tgba_digraph(aut->get_dict());
     res->copy_ap_of(aut);
 
     {
@@ -111,8 +111,8 @@ namespace spot
     return res;
   }
 
-  tgba_digraph*
-  tgba_powerset(const tgba* aut)
+  tgba_digraph_ptr
+  tgba_powerset(const const_tgba_ptr& aut)
   {
     power_map pm;
     return tgba_powerset(aut, pm);
@@ -130,7 +130,7 @@ namespace spot
       typedef std::set<trans*> trans_set;
       typedef std::vector<trans_set> set_set;
     protected:
-      const tgba* ref_;
+      const_tgba_ptr ref_;
       power_map& refmap_;
       trans_set reject_;	// set of rejecting transitions
       set_set accept_;		// set of cycles that are accepting
@@ -139,8 +139,8 @@ namespace spot
       unsigned cycles_left_; 	// count of cycles left to explore
 
     public:
-      fix_scc_acceptance(const scc_map& sm, const tgba* ref, power_map& refmap,
-			 unsigned threshold)
+      fix_scc_acceptance(const scc_map& sm, const_tgba_ptr ref,
+			 power_map& refmap, unsigned threshold)
 	: enumerate_cycles(sm), ref_(ref), refmap_(refmap),
 	  threshold_(threshold)
       {
@@ -173,25 +173,26 @@ namespace spot
 
       bool is_cycle_accepting(cycle_iter begin, trans_set& ts) const
       {
-	auto a = down_cast<tgba_digraph*>(const_cast<tgba*>(aut_));
+	auto a = std::static_pointer_cast<tgba_digraph>
+	  (std::const_pointer_cast<tgba>(aut_));
 
 	// Build an automaton representing this loop.
-	tgba_digraph loop_a(aut_->get_dict());
+	auto loop_a = make_tgba_digraph(aut_->get_dict());
 	int loop_size = std::distance(begin, dfs_.end());
-	loop_a.new_states(loop_size);
+	loop_a->new_states(loop_size);
 	int n;
 	cycle_iter i;
 	for (n = 1, i = begin; n <= loop_size; ++n, ++i)
 	  {
 	    trans* t = &a->trans_data(i->succ);
-	    loop_a.new_transition(n - 1, n % loop_size, t->cond);
+	    loop_a->new_transition(n - 1, n % loop_size, t->cond);
 	    if (reject_.find(t) == reject_.end())
 	      ts.insert(t);
 	  }
 	assert(i == dfs_.end());
 
-	const state* loop_a_init = loop_a.get_init_state();
-	assert(loop_a.state_number(loop_a_init) == 0);
+	const state* loop_a_init = loop_a->get_init_state();
+	assert(loop_a->state_number(loop_a_init) == 0);
 
 	// Check if the loop is accepting in the original automaton.
 	bool accepting = false;
@@ -202,17 +203,12 @@ namespace spot
 	  refmap_.states_of(a->state_number(begin->ts->first));
 	for (auto s: ps)
 	  {
-	    // Construct a product between
-	    // LOOP_A, and ORIG_A starting in S.
-	    tgba* p = new tgba_product_init(&loop_a, ref_, loop_a_init, s);
-
-	    //spot::dotty_reachable(std::cout, p);
-	    couvreur99_check* ec = down_cast<couvreur99_check*>(couvreur99(p));
-	    assert(ec);
+	    // Check the product between LOOP_A, and ORIG_A starting
+	    // in S.
+	    auto ec = couvreur99(product_at(loop_a, ref_, loop_a_init, s));
 	    emptiness_check_result* res = ec->check();
 	    delete res;
 	    delete ec;
-	    delete p;
 	    if (res)
 	      {
 		accepting = true;
@@ -275,8 +271,8 @@ namespace spot
     };
 
     static bool
-    fix_dba_acceptance(tgba_digraph* det,
-		       const tgba* ref, power_map& refmap,
+    fix_dba_acceptance(tgba_digraph_ptr det,
+		       const_tgba_ptr ref, power_map& refmap,
 		       unsigned threshold)
     {
       det->copy_acceptance_conditions_of(ref);
@@ -296,8 +292,8 @@ namespace spot
     }
   }
 
-  tgba_digraph*
-  tba_determinize(const tgba* aut,
+  tgba_digraph_ptr
+  tba_determinize(const const_tgba_ptr& aut,
 		  unsigned threshold_states, unsigned threshold_cycles)
   {
     power_map pm;
@@ -308,27 +304,20 @@ namespace spot
 
     if ((threshold_states > 0)
 	&& (pm.map_.size() > pm.states_.size() * threshold_states))
-      {
-	delete det;
-	return 0;
-      }
+      return nullptr;
     if (fix_dba_acceptance(det, aut, pm, threshold_cycles))
-      {
-	delete det;
-	return 0;
-      }
+      return nullptr;
     det->merge_transitions();
     return det;
   }
 
-  tgba*
-  tba_determinize_check(const tgba* aut,
+  tgba_digraph_ptr
+  tba_determinize_check(const tgba_digraph_ptr& aut,
 			unsigned threshold_states,
 			unsigned threshold_cycles,
 			const ltl::formula* f,
-			const tgba_digraph* neg_aut)
+			const_tgba_digraph_ptr neg_aut)
   {
-    const tgba* built = 0;
     if (f == 0 && neg_aut == 0)
       return 0;
     if (aut->number_of_acceptance_conditions() > 1)
@@ -347,26 +336,19 @@ namespace spot
 	neg_f->destroy();
 
 	// Remove useless SCCs.
-	auto tmp = scc_filter(neg_aut, true);
-	delete neg_aut;
-	built = neg_aut = tmp;
+	neg_aut = scc_filter(neg_aut, true);
       }
 
     bool ok = false;
 
-    tgba* p = new tgba_product(det, neg_aut);
-    emptiness_check* ec = couvreur99(p);
-    emptiness_check_result* res = ec->check();
+    auto ec = couvreur99(product(det, neg_aut));
+    auto res = ec->check();
     if (!res)
       {
 	delete ec;
-	delete p;
 
 	// Complement the DBA.
-	tgba* neg_det = dtgba_complement(det);
-
-	tgba* p = new tgba_product(aut, neg_det);
-	emptiness_check* ec = couvreur99(p);
+	ec = couvreur99(product(aut, dtgba_complement(det)));
 	res = ec->check();
 
 	if (!res)
@@ -375,23 +357,12 @@ namespace spot
 	    // to determinize the automaton.
 	    ok = true;
 	  }
-
-	delete res;
-	delete ec;
-	delete p;
-	delete neg_det;
       }
-    else
-      {
-	delete res;
-	delete ec;
-	delete p;
-      }
-    delete built;
+    delete res;
+    delete ec;
 
     if (ok)
       return det;
-    delete det;
-    return const_cast<tgba*>(aut);
+    return aut;
   }
 }

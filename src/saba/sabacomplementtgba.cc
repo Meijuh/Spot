@@ -23,6 +23,7 @@
 #include "bdd.h"
 #include <tgba/bddprint.hh>
 #include <tgba/state.hh>
+#include "tgba/tgba.hh"
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
 #include "tgbaalgos/degen.hh"
@@ -151,7 +152,8 @@ namespace spot
       typedef std::map<bdd, state_conjunction_list_t, bdd_less_than>
       bdd_list_t;
 
-      saba_complement_tgba_succ_iterator(const tgba_digraph* automaton,
+      saba_complement_tgba_succ_iterator(const const_tgba_digraph_ptr&
+					 automaton,
                                          bdd the_acceptance_cond,
                                          const saba_state_complement_tgba*
                                          origin);
@@ -168,7 +170,7 @@ namespace spot
       void state_conjunction();
       void delete_condition_list();
 
-      const tgba_digraph* automaton_;
+      const_tgba_digraph_ptr automaton_;
       bdd the_acceptance_cond_;
       const saba_state_complement_tgba* origin_;
       bdd_list_t condition_list_;
@@ -178,7 +180,7 @@ namespace spot
     };
 
     saba_complement_tgba_succ_iterator::
-    saba_complement_tgba_succ_iterator(const tgba_digraph* automaton,
+    saba_complement_tgba_succ_iterator(const const_tgba_digraph_ptr& automaton,
                                       bdd the_acceptance_cond,
                                       const saba_state_complement_tgba* origin)
       : automaton_(automaton), the_acceptance_cond_(the_acceptance_cond),
@@ -366,7 +368,7 @@ namespace spot
 
   } // end namespace anonymous.
 
-  saba_complement_tgba::saba_complement_tgba(const tgba* a)
+  saba_complement_tgba::saba_complement_tgba(const const_tgba_ptr& a)
     : automaton_(degeneralize(a))
   {
     get_dict()->register_all_variables_of(automaton_, this);
@@ -379,7 +381,6 @@ namespace spot
   saba_complement_tgba::~saba_complement_tgba()
   {
     get_dict()->unregister_all_my_variables(this);
-    delete automaton_;
   }
 
   saba_state*

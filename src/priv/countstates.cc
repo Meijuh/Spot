@@ -23,9 +23,9 @@
 
 namespace spot
 {
-  unsigned count_states(const tgba* a)
+  unsigned count_states(const const_tgba_ptr& a)
   {
-    if (auto b = dynamic_cast<const tgba_digraph*>(a))
+    if (auto b = std::dynamic_pointer_cast<const tgba_digraph>(a))
       return b->num_states();
     return stats_reachable(a).states;
   }

@@ -78,7 +78,8 @@ namespace spot
   class SPOT_API emptiness_check_result
   {
   public:
-    emptiness_check_result(const tgba* a, option_map o = option_map())
+    emptiness_check_result(const const_tgba_ptr& a,
+			   option_map o = option_map())
       : a_(a), o_(o)
     {
     }
@@ -103,7 +104,7 @@ namespace spot
     virtual tgba_run* accepting_run();
 
     /// The automaton on which an accepting_run() was found.
-    const tgba*
+    const const_tgba_ptr&
     automaton() const
     {
       return a_;
@@ -126,7 +127,7 @@ namespace spot
     /// Notify option updates.
     virtual void options_updated(const option_map& old);
 
-    const tgba* a_;		///< The automaton.
+    const_tgba_ptr a_;		///< The automaton.
     option_map o_;		///< The options.
   };
 
@@ -134,14 +135,14 @@ namespace spot
   class SPOT_API emptiness_check
   {
   public:
-    emptiness_check(const tgba* a, option_map o = option_map())
+    emptiness_check(const const_tgba_ptr& a, option_map o = option_map())
       : a_(a), o_(o)
     {
     }
     virtual ~emptiness_check();
 
     /// The automaton that this emptiness-check inspects.
-    const tgba*
+    const const_tgba_ptr&
     automaton() const
     {
       return a_;
@@ -186,7 +187,7 @@ namespace spot
     virtual void options_updated(const option_map& old);
 
   protected:
-    const tgba* a_;		///< The automaton.
+    const_tgba_ptr a_;		///< The automaton.
     option_map o_;		///< The options
   };
 
@@ -208,7 +209,7 @@ namespace spot
 						   const char** err);
 
     /// Actually instantiate the emptiness check, for \a a.
-    emptiness_check* instantiate(const tgba* a) const;
+    emptiness_check* instantiate(const const_tgba_ptr& a) const;
 
     /// Accessor to the options.
     /// @{
@@ -288,14 +289,14 @@ namespace spot
   /// actually exists in the automaton (and will also display any
   /// transition annotation).
   SPOT_API std::ostream&
-  print_tgba_run(std::ostream& os, const tgba* a, const tgba_run* run);
+  print_tgba_run(std::ostream& os, const_tgba_ptr a, const tgba_run* run);
 
   /// \brief Return an explicit_tgba corresponding to \a run (i.e. comparable
   /// states are merged).
   ///
   /// \pre \a run must correspond to an actual run of the automaton \a a.
-  SPOT_API tgba_digraph*
-  tgba_run_to_tgba(const tgba* a, const tgba_run* run);
+  SPOT_API tgba_digraph_ptr
+  tgba_run_to_tgba(const const_tgba_ptr& a, const tgba_run* run);
 
   /// @}
 

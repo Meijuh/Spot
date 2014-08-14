@@ -23,7 +23,7 @@
 namespace spot
 {
 
-  tgba_scc::tgba_scc(const tgba* aut, bool show)
+  tgba_scc::tgba_scc(const const_tgba_ptr& aut, bool show)
     : aut_(aut), scc_map_(aut), show_(show)
   {
     scc_map_.build_map();
@@ -82,7 +82,7 @@ namespace spot
   }
 
   state*
-  tgba_scc::project_state(const state* s, const tgba* t) const
+  tgba_scc::project_state(const state* s, const const_tgba_ptr& t) const
   {
     return aut_->project_state(s, t);
   }

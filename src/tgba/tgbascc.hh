@@ -40,7 +40,7 @@ namespace spot
     /// If \a show is set to true, then the format_state() method will
     /// include the SCC number computed for the given state in its
     /// output string.
-    tgba_scc(const tgba* aut, bool show = false);
+    tgba_scc(const const_tgba_ptr& aut, bool show = false);
     virtual ~tgba_scc();
 
     /// Returns the number of the SCC \a s belongs to.
@@ -62,14 +62,14 @@ namespace spot
 
     virtual std::string
     transition_annotation(const tgba_succ_iterator* t) const;
-    virtual state* project_state(const state* s, const tgba* t) const;
+    virtual state* project_state(const state* s, const const_tgba_ptr& t) const;
     virtual bdd all_acceptance_conditions() const;
     virtual bdd neg_acceptance_conditions() const;
 
     virtual bdd compute_support_conditions(const state* state) const;
 
   protected:
-    const tgba* aut_;		// The wrapped TGBA.
+    const_tgba_ptr aut_;		// The wrapped TGBA.
     scc_map scc_map_;		// SCC informations.
     bool show_;		        // Wether to show future conditions
 				// in the output of format_state().

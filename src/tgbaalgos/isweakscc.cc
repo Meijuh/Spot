@@ -91,7 +91,7 @@ namespace spot
   bool
   is_complete_scc(scc_map& map, unsigned scc)
   {
-    const spot::tgba *a = map.get_aut();
+    auto a = map.get_aut();
     for (auto s: map.states_of(scc))
       {
 	tgba_succ_iterator* it = a->succ_iter(s);

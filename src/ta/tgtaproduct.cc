@@ -43,7 +43,8 @@ namespace spot
   ////////////////////////////////////////////////////////////
   // tgta_product
 
-  tgta_product::tgta_product(const kripke* left, const tgta* right) :
+  tgta_product::tgta_product(const const_kripke_ptr& left,
+			     const const_tgta_ptr& right):
     tgba_product(left, right)
   {
   }
@@ -64,15 +65,16 @@ namespace spot
 
     fixed_size_pool* p = const_cast<fixed_size_pool*> (&pool_);
 
-    return new tgta_succ_iterator_product(s,
-					  down_cast<const kripke*>(left_),
-					  down_cast<const tgta*>(right_), p);
+    auto l = std::static_pointer_cast<const kripke>(left_);
+    auto r = std::static_pointer_cast<const tgta>(right_);
+    return new tgta_succ_iterator_product(s, l, r, p);
   }
 
   ////////////////////////////////////////////////////////////
   // tgbtgta_succ_iterator_product
   tgta_succ_iterator_product::tgta_succ_iterator_product(
-      const state_product* s, const kripke* k, const tgta* t,
+      const state_product* s,
+      const const_kripke_ptr& k, const const_tgta_ptr& t,
       fixed_size_pool* pool)
     : source_(s), tgta_(t), kripke_(k), pool_(pool)
   {

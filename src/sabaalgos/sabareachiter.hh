@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2013 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -32,7 +32,7 @@ namespace spot
   class SPOT_API saba_reachable_iterator
   {
   public:
-    saba_reachable_iterator(const saba* a);
+    saba_reachable_iterator(const const_saba_ptr& a);
     virtual ~saba_reachable_iterator();
 
     /// \brief Iterate over all reachable states of a spot::saba.
@@ -106,7 +106,7 @@ namespace spot
                  const saba_succ_iterator* si);
 
   protected:
-    const saba* automata_;	///< The spot::saba to explore.
+    const_saba_ptr automata_;	///< The spot::saba to explore.
 
     typedef
       std::unordered_map<const saba_state*, int,
@@ -121,7 +121,7 @@ namespace spot
     public saba_reachable_iterator
   {
   public:
-    saba_reachable_iterator_depth_first(const saba* a);
+    saba_reachable_iterator_depth_first(const const_saba_ptr& a);
 
     virtual void add_state(const saba_state* s);
     virtual const saba_state* next_state();
@@ -137,7 +137,7 @@ namespace spot
     public saba_reachable_iterator
   {
   public:
-    saba_reachable_iterator_breadth_first(const saba* a);
+    saba_reachable_iterator_breadth_first(const const_saba_ptr& a);
 
     virtual void add_state(const saba_state* s);
     virtual const saba_state* next_state();

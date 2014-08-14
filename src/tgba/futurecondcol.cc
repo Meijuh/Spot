@@ -42,8 +42,8 @@ namespace spot
     future_conds_[src] = res;
   }
 
-  future_conditions_collector::future_conditions_collector(const tgba* aut,
-							   bool show)
+  future_conditions_collector::future_conditions_collector
+  (const const_tgba_ptr& aut, bool show)
     : tgba_scc(aut, show),
       // Initialize future_conds_ with as much empty
       // "cond_set"s as there are SCCs.

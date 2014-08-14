@@ -28,7 +28,7 @@ namespace spot
   // tgba_reachable_iterator
   //////////////////////////////////////////////////////////////////////
 
-  tgba_reachable_iterator::tgba_reachable_iterator(const tgba* a)
+  tgba_reachable_iterator::tgba_reachable_iterator(const const_tgba_ptr& a)
     : aut_(a)
   {
   }
@@ -122,7 +122,7 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
 
   tgba_reachable_iterator_breadth_first::
-    tgba_reachable_iterator_breadth_first(const tgba* a)
+    tgba_reachable_iterator_breadth_first(const const_tgba_ptr& a)
       : tgba_reachable_iterator(a)
   {
   }
@@ -147,7 +147,7 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
 
   tgba_reachable_iterator_depth_first::
-    tgba_reachable_iterator_depth_first(const tgba* a)
+    tgba_reachable_iterator_depth_first(const const_tgba_ptr& a)
       : aut_(a)
   {
   }
@@ -273,7 +273,7 @@ namespace spot
 
 
   tgba_reachable_iterator_depth_first_stack::
-  tgba_reachable_iterator_depth_first_stack(const tgba* a)
+  tgba_reachable_iterator_depth_first_stack(const const_tgba_ptr& a)
     : tgba_reachable_iterator_depth_first(a)
   {
   }

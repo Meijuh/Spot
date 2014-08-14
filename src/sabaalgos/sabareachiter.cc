@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2014 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -24,7 +25,7 @@ namespace spot
   // saba_reachable_iterator
   //////////////////////////////////////////////////////////////////////
 
-  saba_reachable_iterator::saba_reachable_iterator(const saba* a)
+  saba_reachable_iterator::saba_reachable_iterator(const const_saba_ptr& a)
     : automata_(a)
   {
   }
@@ -137,7 +138,7 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
 
   saba_reachable_iterator_depth_first::
-    saba_reachable_iterator_depth_first(const saba* a)
+    saba_reachable_iterator_depth_first(const const_saba_ptr& a)
       : saba_reachable_iterator(a)
   {
   }
@@ -162,7 +163,7 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
 
   saba_reachable_iterator_breadth_first::
-    saba_reachable_iterator_breadth_first(const saba* a)
+    saba_reachable_iterator_breadth_first(const const_saba_ptr& a)
       : saba_reachable_iterator(a)
   {
   }

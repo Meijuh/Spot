@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -32,7 +32,7 @@ namespace spot
   class SPOT_API ta_reachable_iterator
   {
   public:
-    ta_reachable_iterator(const ta* a);
+    ta_reachable_iterator(const const_ta_ptr& a);
     virtual
     ~ta_reachable_iterator();
 
@@ -87,7 +87,7 @@ namespace spot
 
   protected:
 
-    const ta* t_automata_; ///< The spot::ta to explore.
+    const_ta_ptr t_automata_; ///< The spot::ta to explore.
 
     typedef std::unordered_map<const state*, int,
 			       state_ptr_hash, state_ptr_equal> seen_map;
@@ -101,7 +101,7 @@ namespace spot
     : public ta_reachable_iterator
   {
   public:
-    ta_reachable_iterator_depth_first(const ta* a);
+    ta_reachable_iterator_depth_first(const const_ta_ptr& a);
 
     virtual void
     add_state(const state* s);
@@ -119,7 +119,7 @@ namespace spot
     : public ta_reachable_iterator
   {
   public:
-    ta_reachable_iterator_breadth_first(const ta* a);
+    ta_reachable_iterator_breadth_first(const const_ta_ptr& a);
 
     virtual void
     add_state(const state* s);

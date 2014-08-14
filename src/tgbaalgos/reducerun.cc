@@ -32,7 +32,7 @@ namespace spot
     class shortest_path: public bfs_steps
     {
     public:
-      shortest_path(const tgba* a)
+      shortest_path(const const_tgba_ptr& a)
         : bfs_steps(a), target(0)
       {
       }
@@ -87,7 +87,7 @@ namespace spot
   }
 
   tgba_run*
-  reduce_run(const tgba* a, const tgba_run* org)
+  reduce_run(const const_tgba_ptr& a, const tgba_run* org)
   {
     tgba_run* res = new tgba_run;
     state_set ss;

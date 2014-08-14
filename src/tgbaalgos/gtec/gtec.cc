@@ -40,7 +40,7 @@ namespace spot
     typedef std::pair<const spot::state*, tgba_succ_iterator*> pair_state_iter;
   }
 
-  couvreur99_check::couvreur99_check(const tgba* a, option_map o)
+  couvreur99_check::couvreur99_check(const const_tgba_ptr& a, option_map o)
     : emptiness_check(a, o),
       removed_components(0)
   {
@@ -319,7 +319,8 @@ namespace spot
       }
   }
 
-  couvreur99_check_shy::couvreur99_check_shy(const tgba* a, option_map o)
+  couvreur99_check_shy::couvreur99_check_shy(const const_tgba_ptr& a,
+					     option_map o)
     : couvreur99_check(a, o), num(1)
   {
     group_ = o.get("group", 1);
@@ -592,7 +593,7 @@ namespace spot
   }
 
   emptiness_check*
-  couvreur99(const tgba* a, option_map o)
+  couvreur99(const const_tgba_ptr& a, option_map o)
   {
     if (o.get("shy"))
       return new couvreur99_check_shy(a, o);

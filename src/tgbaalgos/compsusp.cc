@@ -212,18 +212,15 @@ namespace spot
     typedef std::deque<state_pair> pair_queue;
 
     static
-    tgba_digraph*
-    susp_prod(tgba* left, const ltl::formula* f, bdd v)
+    tgba_digraph_ptr
+    susp_prod(const const_tgba_ptr& left, const ltl::formula* f, bdd v)
     {
       bdd_dict_ptr dict = left->get_dict();
-      const tgba_digraph* a1 = ltl_to_tgba_fm(f, dict, true, true);
+      auto right =
+	iterated_simulations(scc_filter(ltl_to_tgba_fm(f, dict, true, true),
+					false));
 
-      const tgba_digraph* a2 = scc_filter(a1, false);
-      delete a1;
-      const tgba_digraph* right = iterated_simulations(a2);
-      delete a2;
-
-      tgba_digraph* res = new tgba_digraph(dict);
+      tgba_digraph_ptr res = make_tgba_digraph(dict);
       dict->register_all_variables_of(left, res);
       dict->register_all_variables_of(right, res);
       dict->unregister_variable(bdd_var(v), res);
@@ -342,14 +339,12 @@ namespace spot
 		right->release_iter(ri);
 	    }
 	}
-      delete left;
-      delete right;
       return res;
     }
   }
 
 
-  tgba_digraph*
+  tgba_digraph_ptr
   compsusp(const ltl::formula* f, bdd_dict_ptr dict,
 	   bool no_wdba, bool no_simulation,
 	   bool early_susp, bool no_susp_product, bool wdba_smaller,
@@ -360,32 +355,23 @@ namespace spot
     ltl_suspender_visitor v(g2s, a2o, oblig);
     const ltl::formula* g = v.recurse(f);
 
-    tgba_digraph* res;
-    {
-      // Translate the patched formula, and remove useless SCCs.
-      tgba_digraph* aut =
-	spot::ltl_to_tgba_fm(g, dict, true, true, false, false, 0, 0);
-      res = scc_filter(aut, false);
-      delete aut;
-    }
+    // Translate the patched formula, and remove useless SCCs.
+    tgba_digraph_ptr res =
+      scc_filter(ltl_to_tgba_fm(g, dict, true, true, false, false, 0, 0),
+		 false);
 
     if (!no_wdba)
       {
-	tgba_digraph* min = minimize_obligation(res, g, 0, wdba_smaller);
+	tgba_digraph_ptr min = minimize_obligation(res, g, 0, wdba_smaller);
 	if (min != res)
 	  {
-	    delete res;
 	    res = min;
 	    no_simulation = true;
 	  }
       }
 
     if (!no_simulation)
-      {
-	tgba_digraph* sim = spot::iterated_simulations(res);
-	delete res;
-	res = sim;
-      }
+      res = iterated_simulations(res);
 
     // Create a map of suspended formulae to BDD variables.
     spot::formula_bdd_map susp;
@@ -409,9 +395,8 @@ namespace spot
       suspvars &= i->second;
 
     bdd allaccap = bddtrue; // set of atomic prop used in accepting SCCs.
-    tgba_digraph* aut = res;
     {
-      scc_info si(aut);
+      scc_info si(res);
 
       // Restrict suspvars to the set of suspension labels that occur
       // in accepting SCC.
@@ -422,9 +407,8 @@ namespace spot
 
       bdd ignored = bdd_exist(suspvars, allaccap);
       suspvars = bdd_existcomp(suspvars, allaccap);
-      res = scc_filter_susp(aut, false, suspvars, ignored, early_susp, &si);
+      res = scc_filter_susp(res, false, suspvars, ignored, early_susp, &si);
     }
-    delete aut;
 
     // Do we need to synchronize any suspended formula?
     if (!susp.empty() && !no_susp_product)

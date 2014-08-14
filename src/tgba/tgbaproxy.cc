@@ -21,7 +21,7 @@
 
 namespace spot
 {
-  tgba_proxy::tgba_proxy(const tgba* original)
+  tgba_proxy::tgba_proxy(const const_tgba_ptr& original)
     : original_(original)
   {
     get_dict()->register_all_variables_of(original, this);
@@ -67,7 +67,7 @@ namespace spot
   }
 
   state*
-  tgba_proxy::project_state(const state* s, const tgba* t) const
+  tgba_proxy::project_state(const state* s, const const_tgba_ptr& t) const
   {
     return original_->project_state(s, t);
   }
@@ -90,4 +90,3 @@ namespace spot
     return original_->support_conditions(state);
   }
 }
-

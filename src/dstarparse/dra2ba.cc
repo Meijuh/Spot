@@ -48,7 +48,8 @@ namespace spot
 
   // This function is defined in nra2nba.cc, and used only here.
   SPOT_LOCAL
-  tgba_digraph* nra_to_nba(const dstar_aut* nra, const tgba* aut);
+  tgba_digraph_ptr nra_to_nba(const const_dstar_aut_ptr& nra,
+			      const const_tgba_ptr& aut);
 
   namespace
   {
@@ -63,15 +64,15 @@ namespace spot
     // retrive acceptances.
 
     static bool
-    filter_states(const tgba* aut,
-		  const dstar_aut* dra,
+    filter_states(const const_tgba_ptr& aut,
+		  const const_dstar_aut_ptr& dra,
 		  const state_list& sl,
 		  state_list& final,
 		  state_list& nonfinal);
 
     static bool
-    filter_scc(const tgba* aut,
-	       const dstar_aut* dra,
+    filter_scc(const const_tgba_ptr& aut,
+	       const const_dstar_aut_ptr& dra,
 	       state_list& final,
 	       state_list& nonfinal)
     {
@@ -97,8 +98,8 @@ namespace spot
     }
 
     static bool
-    filter_states(const tgba* aut,
-		  const dstar_aut* dra,
+    filter_states(const const_tgba_ptr& aut,
+		  const const_dstar_aut_ptr& dra,
 		  const state_list& sl,
 		  state_list& final,
 		  state_list& nonfinal)
@@ -146,15 +147,11 @@ namespace spot
 	  // could be improved.
 	  {
 	    state_set keep(sl.begin(), sl.end());
-	    const tgba* masked =
-	      build_tgba_mask_keep(dra->aut, keep, sl.front());
-	    const tgba* nba = nra_to_nba(dra, masked);
-	    emptiness_check* ec = couvreur99(nba);
+	    auto masked = build_tgba_mask_keep(dra->aut, keep, sl.front());
+	    emptiness_check* ec = couvreur99(nra_to_nba(dra, masked));
 	    emptiness_check_result* ecr = ec->check();
 	    delete ecr;
 	    delete ec;
-	    delete nba;
-	    delete masked;
 	    if (ecr)
 	      {
 		// This SCC is not DBA-realizable.
@@ -197,13 +194,11 @@ namespace spot
 	  //std::cerr << "unknown\n";
 	  // Build a sub-automaton for just the unknown states,
 	  // starting from any state in the SCC.
-	  const tgba* scc_mask =
-	    build_tgba_mask_keep(aut, unknown, *unknown.begin());
+	  auto scc_mask = build_tgba_mask_keep(aut, unknown, *unknown.begin());
 	  state_list local_final;
 	  state_list local_nonfinal;
 	  bool dbarealizable =
 	    filter_scc(scc_mask, dra, local_final, local_nonfinal);
-	  delete scc_mask;
 	  if (!dbarealizable)
 	    return false;
 	  for (state_list::const_iterator i = local_final.begin();
@@ -223,13 +218,13 @@ namespace spot
     class dra_to_ba_worker: public tgba_reachable_iterator_depth_first
     {
     public:
-      dra_to_ba_worker(const dstar_aut* a,
+      dra_to_ba_worker(const const_dstar_aut_ptr& a,
 		       const state_set& final,
 		       const scc_map& sm,
 		       const std::vector<bool>& realizable):
 	tgba_reachable_iterator_depth_first(a->aut),
 	in_(a),
-	out_(new tgba_digraph(a->aut->get_dict())),
+	out_(make_tgba_digraph(a->aut->get_dict())),
 	final_(final),
 	num_states_(a->aut->num_states()),
 	sm_(sm),
@@ -242,7 +237,7 @@ namespace spot
 	out_->set_init_state(a->aut->get_init_state_number());
       }
 
-      tgba_digraph*
+      tgba_digraph_ptr
       result()
       {
 	return out_;
@@ -301,8 +296,8 @@ namespace spot
       }
 
     protected:
-      const dstar_aut* in_;
-      tgba_digraph* out_;
+      const const_dstar_aut_ptr& in_;
+      tgba_digraph_ptr out_;
       const state_set& final_;
       size_t num_states_;
       bdd acc_;
@@ -313,7 +308,7 @@ namespace spot
   }
 
 
-  tgba_digraph* dra_to_ba(const dstar_aut* dra, bool* dba)
+  tgba_digraph_ptr dra_to_ba(const const_dstar_aut_ptr& dra, bool* dba)
   {
     assert(dra->type == Rabin);
 
@@ -358,10 +353,7 @@ namespace spot
     state_set fs(final.begin(), final.end());
     dra_to_ba_worker w(dra, fs, sm, realizable);
     w.run();
-    auto res1 = w.result();
-    auto res2 = scc_filter_states(res1);
-    delete res1;
-    return res2;
+    return scc_filter_states(w.result());
   }
 
 }

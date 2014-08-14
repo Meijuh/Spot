@@ -76,63 +76,81 @@ namespace spot
       transitions::const_iterator it_;
     };
 
-  }
-
-  tgba_mask::tgba_mask(const tgba* masked,
-		       const state* init)
-    : tgba_proxy(masked),
-      init_(init)
-  {
-    if (!init)
-      init_ = masked->get_init_state();
-  }
-
-  tgba_mask::~tgba_mask()
-  {
-    init_->destroy();
-  }
-
-  state* tgba_mask::get_init_state() const
-  {
-    return init_->clone();
-  }
-
-  tgba_succ_iterator*
-  tgba_mask::succ_iter(const state* state) const
-  {
-    succ_iter_filtered* res;
-    if (iter_cache_)
+    /// \ingroup tgba_on_the_fly_algorithms
+    /// \brief A masked TGBA (abstract).
+    ///
+    /// Ignores some states from a TGBA.  What state are preserved or
+    /// ignored is controlled by the wanted() method.
+    ///
+    /// This is an abstract class. You should inherit from it and
+    /// supply a wanted() method to specify which states to keep.
+    class tgba_mask: public tgba_proxy
+    {
+    protected:
+      /// \brief Constructor.
+      /// \param masked The automaton to mask
+      /// \param init Any state to use as initial state. This state will be
+      /// destroyed by the destructor.
+      tgba_mask(const const_tgba_ptr& masked, const state* init = 0):
+	tgba_proxy(masked),
+	init_(init)
       {
-	res = down_cast<succ_iter_filtered*>(iter_cache_);
-	res->trans_.clear();
-	iter_cache_ = nullptr;
+	if (!init)
+	  init_ = masked->get_init_state();
       }
-    else
+
+
+    public:
+      virtual ~tgba_mask()
       {
-	res = new succ_iter_filtered;
+	init_->destroy();
       }
-    for (auto it: original_->succ(state))
+
+      virtual state* get_init_state() const
       {
-	const spot::state* s = it->current_state();
-	bdd acc = it->current_acceptance_conditions();
-	if (!wanted(s, acc))
+	return init_->clone();
+      }
+
+      virtual tgba_succ_iterator*
+      succ_iter(const state* local_state) const
+      {
+	succ_iter_filtered* res;
+	if (iter_cache_)
 	  {
-	    s->destroy();
-	    continue;
+	    res = down_cast<succ_iter_filtered*>(iter_cache_);
+	    res->trans_.clear();
+	    iter_cache_ = nullptr;
 	  }
-	res->trans_.emplace_back(transition {s, it->current_condition(), acc});
+	else
+	  {
+	    res = new succ_iter_filtered;
+	  }
+	for (auto it: original_->succ(local_state))
+	  {
+	    const spot::state* s = it->current_state();
+	    bdd acc = it->current_acceptance_conditions();
+	    if (!wanted(s, acc))
+	      {
+		s->destroy();
+		continue;
+	      }
+	    res->trans_.emplace_back(transition {s, it->current_condition(),
+		                                 acc});
+	  }
+	return res;
       }
-    return res;
-  }
 
-  namespace
-  {
+      virtual bool wanted(const state* s, const bdd& acc) const = 0;
+
+    protected:
+      const state* init_;
+    };
 
     class tgba_mask_keep: public tgba_mask
     {
       const state_set& mask_;
     public:
-      tgba_mask_keep(const tgba* masked,
+      tgba_mask_keep(const const_tgba_ptr& masked,
 		     const state_set& mask,
 		     const state* init)
 	: tgba_mask(masked, init),
@@ -151,7 +169,7 @@ namespace spot
     {
       const state_set& mask_;
     public:
-      tgba_mask_ignore(const tgba* masked,
+      tgba_mask_ignore(const const_tgba_ptr& masked,
 		       const state_set& mask,
 		       const state* init)
 	: tgba_mask(masked, init),
@@ -170,7 +188,7 @@ namespace spot
     {
       const bdd& mask_;
     public:
-      tgba_mask_acc_ignore(const tgba* masked,
+      tgba_mask_acc_ignore(const const_tgba_ptr& masked,
 			   const bdd& mask,
 			   const state* init)
 	: tgba_mask(masked, init),
@@ -184,32 +202,30 @@ namespace spot
       }
     };
 
-
   }
 
-
-  const tgba*
-  build_tgba_mask_keep(const tgba* to_mask,
+  const_tgba_ptr
+  build_tgba_mask_keep(const const_tgba_ptr& to_mask,
 		       const state_set& to_keep,
 		       const state* init)
   {
-    return new tgba_mask_keep(to_mask, to_keep, init);
+    return std::make_shared<tgba_mask_keep>(to_mask, to_keep, init);
   }
 
-  const tgba*
-  build_tgba_mask_ignore(const tgba* to_mask,
+  const_tgba_ptr
+  build_tgba_mask_ignore(const const_tgba_ptr& to_mask,
 			 const state_set& to_ignore,
 			 const state* init)
   {
-    return new tgba_mask_ignore(to_mask, to_ignore, init);
+    return std::make_shared<tgba_mask_ignore>(to_mask, to_ignore, init);
   }
 
-  const tgba*
-  build_tgba_mask_acc_ignore(const tgba* to_mask,
+  const_tgba_ptr
+  build_tgba_mask_acc_ignore(const const_tgba_ptr& to_mask,
 			     const bdd to_ignore,
 			     const state* init)
   {
-    return new tgba_mask_acc_ignore(to_mask, to_ignore, init);
+    return std::make_shared<tgba_mask_acc_ignore>(to_mask, to_ignore, init);
   }
 
 }

@@ -1,4 +1,5 @@
-// Copyright (C) 2010 Laboratoire de Recherche et Développement
+// -*- coding: utf-8 -*-
+// Copyright (C) 2010, 2014 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -28,7 +29,7 @@ namespace spot
     class states_set_builder_bfs : public ta_reachable_iterator_breadth_first
     {
     public:
-      states_set_builder_bfs(const ta* a) :
+      states_set_builder_bfs(const const_ta_ptr& a) :
         ta_reachable_iterator_breadth_first(a)
       {
       }
@@ -58,7 +59,7 @@ namespace spot
 
 
   std::set<const state*>
-  get_states_set(const ta* t)
+  get_states_set(const const_ta_ptr& t)
   {
     states_set_builder_bfs d(t);
     d.run();

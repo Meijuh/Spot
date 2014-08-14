@@ -214,7 +214,7 @@ namespace
 		    const char* filename = 0, int linenum = 0)
     {
       const xtime_t before = gethrxtime();
-      const spot::tgba* aut = trans.run(&f);
+      auto aut = trans.run(&f);
       const xtime_t after = gethrxtime();
       const double prec = XTIME_PRECISION;
       const double translation_time = (after - before) / prec;
@@ -254,7 +254,6 @@ namespace
 	  statistics.print(aut, f, translation_time) << '\n';
 	  break;
 	}
-      delete aut;
       f->destroy();
       flush_cout();
       return 0;

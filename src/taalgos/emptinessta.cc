@@ -34,7 +34,7 @@
 namespace spot
 {
 
-  ta_check::ta_check(const ta_product* a, option_map o) :
+  ta_check::ta_check(const const_ta_product_ptr& a, option_map o) :
     a_(a), o_(o)
   {
     is_full_2_pass_ = o.get("is_full_2_pass", 0);
@@ -89,8 +89,8 @@ namespace spot
         && (is_full_2_pass_ == disable_second_pass);
 
     // Setup depth-first search from initial states.
-    const ta* ta_ = a_->get_ta();
-    const kripke* kripke_ = a_->get_kripke();
+    auto& ta_ = a_->get_ta();
+    auto& kripke_ = a_->get_kripke();
     state* kripke_init_state = kripke_->get_init_state();
     bdd kripke_init_state_condition = kripke_->state_condition(
         kripke_init_state);
@@ -383,7 +383,7 @@ namespace spot
   }
 
   bool
-  ta_check::livelock_detection(const ta_product* t)
+  ta_check::livelock_detection(const const_ta_product_ptr& t)
   {
     // We use five main data in this algorithm:
 

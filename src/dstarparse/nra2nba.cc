@@ -38,9 +38,9 @@ namespace spot
       // AUT is the automate we iterate on, while A is the automaton
       // we read the acceptance conditions from.  Separating the two
       // makes its possible to mask AUT, as needed in dra_to_ba().
-      nra_to_nba_worker(const dstar_aut* a, const tgba* aut):
+      nra_to_nba_worker(const const_dstar_aut_ptr& a, const_tgba_ptr aut):
 	tgba_reachable_iterator_depth_first(aut),
-	out_(new tgba_digraph(aut->get_dict())),
+	out_(make_tgba_digraph(aut->get_dict())),
 	d_(a),
 	num_states_(a->aut->num_states())
       {
@@ -54,7 +54,7 @@ namespace spot
 	i->destroy();
       }
 
-      tgba_digraph*
+      tgba_digraph_ptr
       result()
       {
 	return out_;
@@ -104,8 +104,8 @@ namespace spot
       }
 
     protected:
-      tgba_digraph* out_;
-      const dstar_aut* d_;
+      tgba_digraph_ptr out_;
+      const_dstar_aut_ptr d_;
       size_t num_states_;
     };
 
@@ -114,19 +114,17 @@ namespace spot
   // In dra_to_dba() we call this function with a second argument
   // that is a masked version of nra->aut.
   SPOT_LOCAL
-  tgba_digraph* nra_to_nba(const dstar_aut* nra, const tgba* aut)
+  tgba_digraph_ptr nra_to_nba(const const_dstar_aut_ptr& nra,
+			      const const_tgba_ptr& aut)
   {
     assert(nra->type == Rabin);
     nra_to_nba_worker w(nra, aut);
     w.run();
-    auto res1 = w.result();
-    auto res2 = scc_filter_states(res1);
-    delete res1;
-    return res2;
+    return scc_filter_states(w.result());
   }
 
   SPOT_API
-  tgba_digraph* nra_to_nba(const dstar_aut* nra)
+  tgba_digraph_ptr nra_to_nba(const const_dstar_aut_ptr& nra)
   {
     return nra_to_nba(nra, nra->aut);
   }

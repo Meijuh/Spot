@@ -29,7 +29,7 @@ namespace spot
   ///
   /// This is equivalent to marking all states/transitions as accepting.
   SPOT_API void
-  strip_acceptance_here(tgba_digraph* a);
+  strip_acceptance_here(tgba_digraph_ptr a);
 }
 
 #endif // SPOT_TGBAALGOS_STRIPACC_HH

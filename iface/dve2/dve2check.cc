@@ -62,7 +62,7 @@ Options:\n\
 }
 
 int
-main(int argc, char **argv)
+checked_main(int argc, char **argv)
 {
   spot::timer_map tm;
 
@@ -157,14 +157,14 @@ main(int argc, char **argv)
 
   spot::ltl::atomic_prop_set ap;
   auto dict = spot::make_bdd_dict();
-  spot::kripke* model = 0;
-  const spot::tgba* prop = 0;
-  spot::tgba* product = 0;
+  spot::const_kripke_ptr model = 0;
+  spot::const_tgba_ptr prop = 0;
+  spot::const_tgba_ptr product = 0;
   spot::emptiness_check_instantiator* echeck_inst = 0;
   int exit_code = 0;
-  const spot::ltl::formula* f = 0;
-  const spot::ltl::formula* deadf = 0;
   spot::postprocessor post;
+  const spot::ltl::formula* deadf = 0;
+  const spot::ltl::formula* f = 0;
 
   if (dead == 0 || !strcasecmp(dead, "true"))
     {
@@ -252,7 +252,7 @@ main(int argc, char **argv)
       goto safe_exit;
     }
 
-  product = new spot::tgba_product(model, prop);
+  product = spot::product(model, prop);
 
   if (output == DotProduct)
     {
@@ -362,9 +362,6 @@ main(int argc, char **argv)
 
  safe_exit:
   delete echeck_inst;
-  delete product;
-  delete prop;
-  delete model;
   if (f)
     f->destroy();
 
@@ -373,15 +370,24 @@ main(int argc, char **argv)
   if (use_timer)
     tm.print(std::cout);
   tm.reset_all();		// This helps valgrind.
+  return exit_code;
+}
 
+int
+main(int argc, char **argv)
+{
+  auto exit_code = checked_main(argc, argv);
+
+  // Additional checks to debug reference counts in formulas.
   spot::ltl::atomic_prop::dump_instances(std::cerr);
   spot::ltl::unop::dump_instances(std::cerr);
   spot::ltl::binop::dump_instances(std::cerr);
   spot::ltl::multop::dump_instances(std::cerr);
+  spot::ltl::bunop::dump_instances(std::cerr);
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
-
+  assert(spot::ltl::bunop::instance_count() == 0);
   exit(exit_code);
 }

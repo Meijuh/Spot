@@ -35,7 +35,7 @@ namespace spot
     class save_bfs: public tgba_reachable_iterator_breadth_first
     {
     public:
-      save_bfs(const tgba* a, std::ostream& os)
+      save_bfs(const const_tgba_ptr& a, std::ostream& os)
 	: tgba_reachable_iterator_breadth_first(a), os_(os)
       {
       }
@@ -95,7 +95,7 @@ namespace spot
   }
 
   std::ostream&
-  tgba_save_reachable(std::ostream& os, const tgba* g)
+  tgba_save_reachable(std::ostream& os, const_tgba_ptr g)
   {
     save_bfs b(g, os);
     b.run();

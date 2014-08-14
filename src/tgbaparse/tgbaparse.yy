@@ -46,7 +46,7 @@
 %parse-param {spot::tgba_parse_error_list& error_list}
 %parse-param {spot::ltl::environment& parse_environment}
 %parse-param {spot::acc_mapper_string& acc_map}
-%parse-param {spot::tgba_digraph*& result}
+%parse-param {spot::tgba_digraph_ptr& result}
 %parse-param {named_tgba_t*& namer}
 %parse-param {formula_cache& fcache}
 %union
@@ -216,7 +216,7 @@ tgbayy::parser::error(const location_type& location,
 
 namespace spot
 {
-  tgba_digraph*
+  tgba_digraph_ptr
   tgba_parse(const std::string& name,
 	     tgba_parse_error_list& error_list,
 	     bdd_dict_ptr dict,
@@ -231,7 +231,7 @@ namespace spot
 	return 0;
       }
     formula_cache fcache;
-    tgba_digraph* result = new tgba_digraph(dict);
+    auto result = make_tgba_digraph(dict);
     auto namer = result->create_namer<std::string>();
     spot::acc_mapper_string acc_map(result, envacc);
     tgbayy::parser parser(error_list, env, acc_map, result, namer, fcache);
@@ -246,7 +246,6 @@ namespace spot
       }
     else			// Fatal error
       {
-	delete result;
 	return nullptr;
       }
   }

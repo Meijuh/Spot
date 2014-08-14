@@ -1,5 +1,6 @@
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE)
+// -*- coding: utf-8 -*_
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -38,10 +39,10 @@ namespace spot
 
 
 
-  SPOT_API kripke_explicit*
+  SPOT_API kripke_explicit_ptr
   kripke_parse(const std::string& name,
                kripke_parse_error_list& error_list,
-               bdd_dict_ptr dict,
+               const bdd_dict_ptr& dict,
                ltl::environment& env
                = ltl::default_environment::instance(),
                bool debug = false);

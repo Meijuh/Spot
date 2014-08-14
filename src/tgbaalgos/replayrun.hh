@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Developpement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Developpement
 // de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -25,11 +25,11 @@
 
 # include "misc/common.hh"
 # include <iosfwd>
+# include "tgba/fwd.hh"
 
 namespace spot
 {
   struct tgba_run;
-  class tgba;
 
   /// \ingroup tgba_run
   /// \brief Replay a tgba_run on a tgba.
@@ -47,7 +47,8 @@ namespace spot
   ///              debugging informations will be output on failure
   /// \return true iff the run could be completed
   SPOT_API bool
-  replay_tgba_run(std::ostream& os, const tgba* a, const tgba_run* run,
+  replay_tgba_run(std::ostream& os,
+		  const const_tgba_ptr& a, const tgba_run* run,
 		  bool debug = false);
 }
 

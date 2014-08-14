@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2014 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -17,21 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_DTGBACOMP_HH
-# define SPOT_TGBAALGOS_DTGBACOMP_HH
+#ifndef SPOT_KRIPKE_FWD_HH
+# define SPOT_KRIPKE_FWD_HH
 
-#include "tgba/tgbagraph.hh"
+#include <memory>
 
 namespace spot
 {
-  /// \brief Complement a deterministic TGBA
-  ///
-  /// The automaton \a aut should be deterministic.  It does no need
-  /// to be complete.  Acceptance can be transition-based, or
-  /// state-based.  The resulting automaton is very unlikely to be
-  /// deterministic.
-  SPOT_API tgba_digraph_ptr
-  dtgba_complement(const const_tgba_ptr& aut);
+  class fair_kripke;
+  typedef std::shared_ptr<fair_kripke> fair_kripke_ptr;
+  typedef std::shared_ptr<const fair_kripke> const_fair_kripke_ptr;
+
+  class kripke;
+  typedef std::shared_ptr<const kripke> const_kripke_ptr;
+  typedef std::shared_ptr<kripke> tgba_kripke_ptr;
+
+  class kripke_explicit;
+  typedef std::shared_ptr<const kripke_explicit> const_kripke_explicit_ptr;
+  typedef std::shared_ptr<kripke_explicit> kripke_explicit_ptr;
 }
 
-#endif // SPOT_TGBAALGOS_DTGBACOMP_HH
+#endif // SPOT_KRIPKE_FWD_HH

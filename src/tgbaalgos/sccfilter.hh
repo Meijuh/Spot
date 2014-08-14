@@ -22,12 +22,11 @@
 
 #include "misc/common.hh"
 #include <bdd.h>
+#include "tgba/fwd.hh"
 
 namespace spot
 {
   class scc_map;
-  class tgba;
-  class tgba_digraph;
   class scc_info;
 
 
@@ -60,8 +59,8 @@ namespace spot
   /// (i.e., transitions leaving accepting states are all marked as
   /// accepting) may destroy this property.  Use scc_filter_states()
   /// instead.
-  SPOT_API tgba_digraph*
-  scc_filter(const tgba_digraph* aut, bool remove_all_useless = false,
+  SPOT_API tgba_digraph_ptr
+  scc_filter(const const_tgba_digraph_ptr& aut, bool remove_all_useless = false,
 	     scc_info* given_si = 0);
 
   /// \brief Prune unaccepting SCCs.
@@ -72,8 +71,8 @@ namespace spot
   /// Especially, if the input TGBA has the SBA property, (i.e.,
   /// transitions leaving accepting states are all marked as
   /// accepting), then the output TGBA will also have that property.
-  SPOT_API tgba_digraph*
-  scc_filter_states(const tgba_digraph* aut, scc_info* given_si = 0);
+  SPOT_API tgba_digraph_ptr
+  scc_filter_states(const const_tgba_digraph_ptr& aut, scc_info* given_si = 0);
 
   /// \brief Prune unaccepting SCCs, superfluous acceptance
   /// sets, and suspension variables.
@@ -85,8 +84,8 @@ namespace spot
   ///
   /// This is used by compsusp(), and is probably useless for any
   /// other use.
-  SPOT_API tgba_digraph*
-  scc_filter_susp(const tgba_digraph* aut, bool remove_all_useless,
+  SPOT_API tgba_digraph_ptr
+  scc_filter_susp(const const_tgba_digraph_ptr& aut, bool remove_all_useless,
 		  bdd suspvars, bdd ignoredvars, bool early_susp,
 		  scc_info* given_si = 0);
 }

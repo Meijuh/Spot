@@ -50,8 +50,9 @@ while not it.done():
     it.next()
 buddy.bdd_printset(b); spot.nl_cout()
 sys.stdout.write("%s\n" % b)
+del it
+del s0
 del b
 del c
 del f
-del a
 del simp

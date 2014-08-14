@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement de
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -38,8 +38,18 @@ namespace spot
   /// passing it right away to bdd_to_formula(), you should not forget
   /// to unregister the variables that have been registered for \a
   /// for_me.  See bdd_dict::unregister_all_my_variables().
+  /// @{
   SPOT_API bdd
   formula_to_bdd(const ltl::formula* f, bdd_dict_ptr d, void* for_me);
+
+  template<typename T>
+  SPOT_API bdd
+  formula_to_bdd(const ltl::formula* f, bdd_dict_ptr d,
+		 const std::shared_ptr<T>& for_me)
+  {
+    return formula_to_bdd(f, d, for_me.get());
+  }
+  /// @}
 
   /// \brief Convert a BDD into a formula.
   ///

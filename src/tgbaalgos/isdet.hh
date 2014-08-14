@@ -33,7 +33,7 @@ namespace spot
   /// but it is more efficient to call is_deterministic() if you do not
   /// care about the number of nondeterministic states.
   SPOT_API unsigned
-  count_nondet_states(const tgba* aut);
+  count_nondet_states(const const_tgba_ptr& aut);
 
   /// \brief Return true iff \a aut is deterministic.
   ///
@@ -41,14 +41,14 @@ namespace spot
   /// the automaton is nondeterministic, because it can return before
   /// the entire automaton has been explored.
   SPOT_API bool
-  is_deterministic(const tgba* aut);
+  is_deterministic(const const_tgba_ptr& aut);
 
   /// \brief Return true iff \a aut is complete.
   ///
   /// An automaton is complete if its translation relation is total,
   /// i.e., each state as a successor for any possible configuration.
   SPOT_API bool
-  is_complete(const tgba* aut);
+  is_complete(const const_tgba_ptr& aut);
 
   /// @}
 }

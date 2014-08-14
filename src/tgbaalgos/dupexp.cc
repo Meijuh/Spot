@@ -34,14 +34,14 @@ namespace spot
     class dupexp_iter: public T
     {
     public:
-      dupexp_iter(const tgba* a)
-	: T(a), out_(new tgba_digraph(a->get_dict()))
+      dupexp_iter(const const_tgba_ptr& a)
+	: T(a), out_(make_tgba_digraph(a->get_dict()))
       {
 	out_->copy_acceptance_conditions_of(a);
 	out_->copy_ap_of(a);
       }
 
-      tgba_digraph*
+      tgba_digraph_ptr
       result()
       {
 	return out_;
@@ -66,14 +66,15 @@ namespace spot
       }
 
     protected:
-      tgba_digraph* out_;
+      tgba_digraph_ptr out_;
     };
 
     template <typename T>
     class dupexp_iter_save: public dupexp_iter<T>
     {
     public:
-      dupexp_iter_save(const tgba* a, std::vector<const state*>& relation)
+      dupexp_iter_save(const const_tgba_ptr& a,
+		       std::vector<const state*>& relation)
         : dupexp_iter<T>(a), relation_(relation)
       {
       }
@@ -91,32 +92,32 @@ namespace spot
 
   } // anonymous
 
-  tgba_digraph*
-  tgba_dupexp_bfs(const tgba* aut)
+  tgba_digraph_ptr
+  tgba_dupexp_bfs(const const_tgba_ptr& aut)
   {
     dupexp_iter<tgba_reachable_iterator_breadth_first> di(aut);
     di.run();
     return di.result();
   }
 
-  tgba_digraph*
-  tgba_dupexp_dfs(const tgba* aut)
+  tgba_digraph_ptr
+  tgba_dupexp_dfs(const const_tgba_ptr& aut)
   {
     dupexp_iter<tgba_reachable_iterator_depth_first> di(aut);
     di.run();
     return di.result();
   }
 
-  tgba_digraph*
-  tgba_dupexp_bfs(const tgba* aut, std::vector<const state*>& rel)
+  tgba_digraph_ptr
+  tgba_dupexp_bfs(const const_tgba_ptr& aut, std::vector<const state*>& rel)
   {
     dupexp_iter_save<tgba_reachable_iterator_breadth_first> di(aut, rel);
     di.run();
     return di.result();
   }
 
-  tgba_digraph*
-  tgba_dupexp_dfs(const tgba* aut, std::vector<const state*>& rel)
+  tgba_digraph_ptr
+  tgba_dupexp_dfs(const const_tgba_ptr& aut, std::vector<const state*>& rel)
   {
     dupexp_iter_save<tgba_reachable_iterator_depth_first> di(aut, rel);
     di.run();

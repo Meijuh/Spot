@@ -230,7 +230,8 @@ namespace spot
     typedef std::unordered_set<const state*,
 			       state_ptr_hash, state_ptr_equal> state_set;
 
-    void clean(const tgba* a, stack_type& st1, state_set& seen, state_set& dead)
+    void clean(const const_tgba_ptr& a, stack_type& st1,
+	       state_set& seen, state_set& dead)
     {
       while (!st1.empty())
 	{
@@ -372,7 +373,7 @@ namespace spot
     {
     public:
       test_path(ars_statistics* ars,
-		const tgba* a, const state* t,
+		const const_tgba_ptr& a, const state* t,
 		const state_set& d, const heap& h)
         : bfs_steps(a), ars(ars), target(t), dead(d), h(h)
       {
@@ -467,7 +468,8 @@ namespace spot
     {
     public:
       min_path(ars_statistics* ars,
-	       const tgba* a, const m_source_trans& target, const heap& h)
+	       const const_tgba_ptr& a,
+	       const m_source_trans& target, const heap& h)
         : bfs_steps(a), ars(ars), target(target), h(h)
       {
       }

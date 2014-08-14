@@ -55,7 +55,7 @@ namespace spot
   /// was parsed succesfully, check \a error_list for emptiness.
   ///
   /// \warning This function is not reentrant.
-  SPOT_API tgba_digraph*
+  SPOT_API tgba_digraph_ptr
   neverclaim_parse(const std::string& filename,
 		   neverclaim_parse_error_list&
 		   error_list,

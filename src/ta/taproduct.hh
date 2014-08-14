@@ -136,7 +136,8 @@ namespace spot
     /// \brief Constructor.
     /// \param testing_automaton The TA component in the product.
     /// \param kripke_structure The Kripke component in the product.
-    ta_product(const ta* testing_automaton, const kripke* kripke_structure);
+    ta_product(const const_ta_ptr& testing_automaton,
+	       const const_kripke_ptr& kripke_structure);
 
     virtual
     ~ta_product();
@@ -179,13 +180,13 @@ namespace spot
     virtual void
     free_state(const spot::state* s) const;
 
-    const ta*
+    const const_ta_ptr&
     get_ta() const
     {
       return ta_;
     }
 
-    const kripke*
+    const const_kripke_ptr&
     get_kripke() const
     {
       return kripke_;
@@ -193,14 +194,22 @@ namespace spot
 
   private:
     bdd_dict_ptr dict_;
-    const ta* ta_;
-    const kripke* kripke_;
+    const_ta_ptr ta_;
+    const_kripke_ptr kripke_;
 
     // Disallow copy.
     ta_product(const ta_product&) SPOT_DELETED;
     ta_product& operator=(const ta_product&) SPOT_DELETED;
   };
 
+
+  typedef std::shared_ptr<ta_product> ta_product_ptr;
+  typedef std::shared_ptr<const ta_product> const_ta_product_ptr;
+  inline ta_product_ptr product(const const_ta_ptr& testing_automaton,
+				const const_kripke_ptr& kripke_structure)
+  {
+    return std::make_shared<ta_product>(testing_automaton, kripke_structure);
+  }
 
   class SPOT_API ta_succ_iterator_product_by_changeset :
     public ta_succ_iterator_product

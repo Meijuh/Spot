@@ -848,7 +848,7 @@ namespace
 	string_to_tmp(string_ltl_wring, serial, filename_ltl_wring);
     }
 
-    const spot::tgba*
+    spot::const_tgba_ptr
     translate(unsigned int translator_num, char l, statistics_formula* fstats)
     {
       output.reset(translator_num);
@@ -867,7 +867,7 @@ namespace
 
       const char* status_str = 0;
 
-      const spot::tgba* res = 0;
+      spot::const_tgba_ptr res = 0;
       if (timed_out)
 	{
 	  // This is not considered to be a global error.
@@ -911,8 +911,7 @@ namespace
 		    err << "error: failed to parse the produced neverclaim.\n";
 		    spot::format_neverclaim_parse_errors(err, filename, pel);
 		    end_error();
-		    delete res;
-		    res = 0;
+		    res = nullptr;
 		  }
 		break;
 	      }
@@ -947,8 +946,7 @@ namespace
 	      {
 		spot::dstar_parse_error_list pel;
 		std::string filename = output.val()->name();
-		spot::dstar_aut* aut;
-		aut = spot::dstar_parse(filename, pel, dict);
+		auto aut = spot::dstar_parse(filename, pel, dict);
 		if (!pel.empty())
 		  {
 		    status_str = "parse error";
@@ -958,8 +956,7 @@ namespace
 		      " output.\n";
 		    spot::format_dstar_parse_errors(err, filename, pel);
 		    end_error();
-		    delete aut;
-		    res = 0;
+		    res = nullptr;
 		  }
 		else
 		  {
@@ -992,7 +989,6 @@ namespace
 		      }
 		    // convert it into TGBA for further processing
 		    res = dstar_to_tgba(aut);
-		    delete aut;
 		  }
 		break;
 	      }
@@ -1049,10 +1045,11 @@ namespace
   };
 
   static void
-  check_empty_prod(const spot::tgba* aut_i, const spot::tgba* aut_j,
+  check_empty_prod(const spot::const_tgba_ptr& aut_i,
+		   const spot::const_tgba_ptr& aut_j,
 		   size_t i, size_t j, bool icomp, bool jcomp)
   {
-    spot::tgba_product* prod = new spot::tgba_product(aut_i, aut_j);
+    auto prod = spot::product(aut_i, aut_j);
     spot::emptiness_check* ec = spot::couvreur99(prod);
     spot::emptiness_check_result* res = ec->check();
 
@@ -1090,7 +1087,6 @@ namespace
       }
     delete res;
     delete ec;
-    delete prod;
   }
 
   static void
@@ -1154,16 +1150,18 @@ namespace
   // Collect all the states of SSPACE that appear in the accepting SCCs
   // of PROD.
   static void
-  states_in_acc(const spot::scc_map* m, const spot::tgba* sspace,
+  states_in_acc(const spot::scc_map* m,
+		const spot::const_tgba_ptr& sspace,
 		state_set& s)
   {
-    const spot::tgba* aut = m->get_aut();
+    auto aut = m->get_aut();
     unsigned c = m->scc_count();
     for (unsigned n = 0; n < c; ++n)
       if (m->accepting(n))
 	for (auto i: m->states_of(n))
 	  {
 	    spot::state* x = aut->project_state(i, sspace);
+	    assert(x);
 	    if (!s.insert(x).second)
 	      x->destroy();
 	    }
@@ -1171,7 +1169,7 @@ namespace
 
   static bool
   consistency_check(const spot::scc_map* pos, const spot::scc_map* neg,
-		    const spot::tgba* sspace)
+		    const spot::const_tgba_ptr& sspace)
   {
     // the states of SSPACE should appear in the accepting SCC of at
     // least one of POS or NEG.  Maybe both.
@@ -1266,12 +1264,12 @@ namespace
       // These store the result of the translation of the positive and
       // negative formulas.
       size_t m = translators.size();
-      std::vector<const spot::tgba*> pos(m);
-      std::vector<const spot::tgba*> neg(m);
+      std::vector<spot::const_tgba_ptr> pos(m);
+      std::vector<spot::const_tgba_ptr> neg(m);
       // These store the complement of the above results, when we can
       // compute it easily.
-      std::vector<const spot::tgba*> comp_pos(m);
-      std::vector<const spot::tgba*> comp_neg(m);
+      std::vector<spot::const_tgba_ptr> comp_pos(m);
+      std::vector<spot::const_tgba_ptr> comp_neg(m);
 
 
       unsigned n = vstats.size();
@@ -1400,20 +1398,19 @@ namespace
 	{
 	  // build a random state-space.
 	  spot::srand(seed);
-	  spot::tgba* statespace = spot::random_graph(states, density,
-						      ap, dict);
+	  auto statespace = spot::random_graph(states, density, ap, dict);
 
 	  // Products of the state space with the positive automata.
-	  std::vector<spot::tgba*> pos_prod(m);
+	  std::vector<spot::const_tgba_ptr> pos_prod(m);
 	  // Products of the state space with the negative automata.
-	  std::vector<spot::tgba*> neg_prod(m);
+	  std::vector<spot::const_tgba_ptr> neg_prod(m);
 	  // Associated SCC maps.
 	  std::vector<spot::scc_map*> pos_map(m);
 	  std::vector<spot::scc_map*> neg_map(m);
 	  for (size_t i = 0; i < m; ++i)
 	    if (pos[i])
 	      {
-		spot::tgba* p = new spot::tgba_product(pos[i], statespace);
+		auto p = spot::product(pos[i], statespace);
 		pos_prod[i] = p;
 		spot::scc_map* sm = new spot::scc_map(p);
 		sm->build_map();
@@ -1433,7 +1430,7 @@ namespace
 	    for (size_t i = 0; i < m; ++i)
 	      if (neg[i])
 		{
-		  spot::tgba* p = new spot::tgba_product(neg[i], statespace);
+		  auto p = spot::product(neg[i], statespace);
 		  neg_prod[i] = p;
 		  spot::scc_map* sm = new spot::scc_map(p);
 		  sm->build_map();
@@ -1475,30 +1472,13 @@ namespace
 	  // Cleanup.
 	  if (!no_checks)
 	    for (size_t i = 0; i < m; ++i)
-	      {
-		delete neg_map[i];
-		delete neg_prod[i];
-	      }
+	      delete neg_map[i];
 	  for (size_t i = 0; i < m; ++i)
-	    {
-	      delete pos_map[i];
-	      delete pos_prod[i];
-	    }
-	  delete statespace;
+	    delete pos_map[i];
 	  ++seed;
 	}
       std::cerr << std::endl;
       delete ap;
-
-      if (!no_checks)
-	for (size_t i = 0; i < m; ++i)
-	  {
-	    delete neg[i];
-	    delete comp_neg[i];
-	    delete comp_pos[i];
-	  }
-      for (size_t i = 0; i < m; ++i)
-	delete pos[i];
 
       // Shall we stop processing formulas now?
       abort_run = global_error_flag && stop_on_error;

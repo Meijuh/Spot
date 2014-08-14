@@ -98,6 +98,10 @@ namespace spot
     virtual bdd neg_acceptance_conditions() const;
     virtual bdd all_acceptance_conditions() const;
   };
+
+
+  typedef std::shared_ptr<kripke> kripke_ptr;
+  typedef std::shared_ptr<const kripke> const_kripke_ptr;
 }
 
 #endif // SPOT_KRIPKE_KRIPKE_HH
