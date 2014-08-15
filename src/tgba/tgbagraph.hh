@@ -167,7 +167,7 @@ namespace spot
     mutable unsigned init_number_;
 
   public:
-    tgba_digraph(bdd_dict_ptr dict)
+    tgba_digraph(const bdd_dict_ptr& dict)
       : dict_(dict),
 	all_acceptance_conditions_(bddfalse),
 	neg_acceptance_conditions_(bddtrue),
@@ -432,7 +432,7 @@ namespace spot
 
   };
 
-  inline tgba_digraph_ptr make_tgba_digraph(bdd_dict_ptr dict)
+  inline tgba_digraph_ptr make_tgba_digraph(const bdd_dict_ptr& dict)
   {
     return std::make_shared<tgba_digraph>(dict);
   }

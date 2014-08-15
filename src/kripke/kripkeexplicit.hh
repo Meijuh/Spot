@@ -114,7 +114,7 @@ namespace spot
   class SPOT_API kripke_explicit : public kripke
   {
   public:
-    kripke_explicit(bdd_dict_ptr, state_kripke* = nullptr);
+    kripke_explicit(const bdd_dict_ptr&, state_kripke* = nullptr);
     ~kripke_explicit();
 
     bdd_dict_ptr get_dict() const;

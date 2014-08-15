@@ -126,7 +126,7 @@ namespace spot
   // kripke_explicit
 
 
-  kripke_explicit::kripke_explicit(bdd_dict_ptr dict,
+  kripke_explicit::kripke_explicit(const bdd_dict_ptr& dict,
                                    state_kripke* init)
     : dict_(dict),
       init_ (init)

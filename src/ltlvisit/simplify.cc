@@ -130,12 +130,13 @@ namespace spot
 	dict->unregister_all_my_variables(this);
       }
 
-      ltl_simplifier_cache(bdd_dict_ptr d)
+      ltl_simplifier_cache(const bdd_dict_ptr& d)
 	: dict(d), lcc(d, true, true, false, false)
       {
       }
 
-      ltl_simplifier_cache(bdd_dict_ptr d, const ltl_simplifier_options& opt)
+      ltl_simplifier_cache(const bdd_dict_ptr& d,
+			   const ltl_simplifier_options& opt)
 	: dict(d), options(opt), lcc(d, true, true, false, false)
       {
 	options.containment_checks |= options.containment_checks_stronger;
@@ -4694,7 +4695,7 @@ namespace spot
     /////////////////////////////////////////////////////////////////////
     // ltl_simplifier
 
-    ltl_simplifier::ltl_simplifier(bdd_dict_ptr d)
+    ltl_simplifier::ltl_simplifier(const bdd_dict_ptr& d)
     {
       cache_ = new ltl_simplifier_cache(d);
     }

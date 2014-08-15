@@ -40,11 +40,11 @@ namespace spot
   /// for_me.  See bdd_dict::unregister_all_my_variables().
   /// @{
   SPOT_API bdd
-  formula_to_bdd(const ltl::formula* f, bdd_dict_ptr d, void* for_me);
+  formula_to_bdd(const ltl::formula* f, const bdd_dict_ptr& d, void* for_me);
 
   template<typename T>
   SPOT_API bdd
-  formula_to_bdd(const ltl::formula* f, bdd_dict_ptr d,
+  formula_to_bdd(const ltl::formula* f, const bdd_dict_ptr& d,
 		 const std::shared_ptr<T>& for_me)
   {
     return formula_to_bdd(f, d, for_me.get());

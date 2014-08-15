@@ -82,7 +82,7 @@ namespace spot
 
   tgba_digraph_ptr
   random_graph(int n, float d,
-	       const ltl::atomic_prop_set* ap, bdd_dict_ptr dict,
+	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
 	       int n_acc, float a, float t,
 	       ltl::environment* env)
   {

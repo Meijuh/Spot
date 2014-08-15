@@ -345,7 +345,7 @@ namespace spot
 
 
   tgba_digraph_ptr
-  compsusp(const ltl::formula* f, bdd_dict_ptr dict,
+  compsusp(const ltl::formula* f, const bdd_dict_ptr& dict,
 	   bool no_wdba, bool no_simulation,
 	   bool early_susp, bool no_susp_product, bool wdba_smaller,
 	   bool oblig)

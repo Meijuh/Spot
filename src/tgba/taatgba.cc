@@ -33,7 +33,7 @@ namespace spot
   | taa_tgba |
   `--------*/
 
-  taa_tgba::taa_tgba(bdd_dict_ptr dict)
+  taa_tgba::taa_tgba(const bdd_dict_ptr& dict)
     : dict_(dict),
       all_acceptance_conditions_(bddfalse),
       all_acceptance_conditions_computed_(false),

@@ -79,7 +79,7 @@ namespace spot
     class SPOT_API ltl_simplifier
     {
     public:
-      ltl_simplifier(bdd_dict_ptr dict = make_bdd_dict());
+      ltl_simplifier(const bdd_dict_ptr& dict = make_bdd_dict());
       ltl_simplifier(const ltl_simplifier_options& opt,
 		     bdd_dict_ptr dict = make_bdd_dict());
       ~ltl_simplifier();

@@ -35,7 +35,7 @@ namespace spot
     class formula_to_bdd_visitor: public ltl::visitor
     {
     public:
-      formula_to_bdd_visitor(bdd_dict_ptr d, void* owner)
+      formula_to_bdd_visitor(const bdd_dict_ptr& d, void* owner)
 	: d_(d), owner_(owner)
       {
       }
@@ -207,7 +207,7 @@ namespace spot
   } // anonymous
 
   bdd
-  formula_to_bdd(const formula* f, bdd_dict_ptr d, void* for_me)
+  formula_to_bdd(const formula* f, const bdd_dict_ptr& d, void* for_me)
   {
     formula_to_bdd_visitor v(d, for_me);
     f->accept(v);

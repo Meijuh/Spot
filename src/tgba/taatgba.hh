@@ -35,7 +35,7 @@ namespace spot
   class SPOT_API taa_tgba : public tgba
   {
   public:
-    taa_tgba(bdd_dict_ptr dict);
+    taa_tgba(const bdd_dict_ptr& dict);
 
     struct transition;
     typedef std::list<transition*> state;

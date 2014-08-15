@@ -38,7 +38,7 @@ namespace spot
   /// \param dict The dictionary to use, to lookup variables.
   /// \param b The BDD to print.
   SPOT_API std::ostream&
-  bdd_print_sat(std::ostream& os, bdd_dict_ptr dict, bdd b);
+  bdd_print_sat(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Format a BDD as a list of literals.
   ///
@@ -47,7 +47,7 @@ namespace spot
   /// \param b The BDD to print.
   /// \return The BDD formated as a string.
   SPOT_API std::string
-  bdd_format_sat(bdd_dict_ptr dict, bdd b);
+  bdd_format_sat(const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Print a BDD as a list of acceptance conditions.
   ///
@@ -57,7 +57,7 @@ namespace spot
   /// \param b The BDD to print.
   /// \return The BDD formated as a string.
   SPOT_API std::ostream&
-  bdd_print_acc(std::ostream& os, bdd_dict_ptr dict, bdd b);
+  bdd_print_acc(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Print a BDD as a set of acceptance conditions.
   ///
@@ -67,7 +67,7 @@ namespace spot
   /// \param b The BDD to print.
   /// \return The BDD formated as a string.
   SPOT_API std::ostream&
-  bdd_print_accset(std::ostream& os, bdd_dict_ptr dict, bdd b);
+  bdd_print_accset(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Format a BDD as a set of acceptance conditions.
   ///
@@ -76,49 +76,49 @@ namespace spot
   /// \param b The BDD to print.
   /// \return The BDD formated as a string.
   SPOT_API std::string
-  bdd_format_accset(bdd_dict_ptr dict, bdd b);
+  bdd_format_accset(const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Print a BDD as a set.
   /// \param os The output stream.
   /// \param dict The dictionary to use, to lookup variables.
   /// \param b The BDD to print.
   SPOT_API std::ostream&
-  bdd_print_set(std::ostream& os, bdd_dict_ptr dict, bdd b);
+  bdd_print_set(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Format a BDD as a set.
   /// \param dict The dictionary to use, to lookup variables.
   /// \param b The BDD to print.
   /// \return The BDD formated as a string.
   SPOT_API std::string
-  bdd_format_set(bdd_dict_ptr dict, bdd b);
+  bdd_format_set(const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Print a BDD as a formula.
   /// \param os The output stream.
   /// \param dict The dictionary to use, to lookup variables.
   /// \param b The BDD to print.
   SPOT_API std::ostream&
-  bdd_print_formula(std::ostream& os, bdd_dict_ptr dict, bdd b);
+  bdd_print_formula(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Format a BDD as a formula.
   /// \param dict The dictionary to use, to lookup variables.
   /// \param b The BDD to print.
   /// \return The BDD formated as a string.
   SPOT_API std::string
-  bdd_format_formula(bdd_dict_ptr dict, bdd b);
+  bdd_format_formula(const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Print a BDD as a diagram in dotty format.
   /// \param os The output stream.
   /// \param dict The dictionary to use, to lookup variables.
   /// \param b The BDD to print.
   SPOT_API std::ostream&
-  bdd_print_dot(std::ostream& os, bdd_dict_ptr dict, bdd b);
+  bdd_print_dot(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Print a BDD as a table.
   /// \param os The output stream.
   /// \param dict The dictionary to use, to lookup variables.
   /// \param b The BDD to print.
   SPOT_API std::ostream&
-  bdd_print_table(std::ostream& os, bdd_dict_ptr dict, bdd b);
+  bdd_print_table(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Enable UTF-8 output for bdd printers.
   SPOT_API void enable_utf8();
@@ -129,7 +129,7 @@ namespace spot
   /// \param b The BDD to print.
   /// \return The BDD formated as a string.
   SPOT_API std::string
-  bdd_format_isop(bdd_dict_ptr dict, bdd b);
+  bdd_format_isop(const bdd_dict_ptr& dict, bdd b);
 
 
   /// \brief Print a BDD as an irredundant sum of product.
@@ -137,7 +137,7 @@ namespace spot
   /// \param dict The dictionary to use, to lookup variables.
   /// \param b The BDD to print.
   SPOT_API std::ostream&
-  bdd_print_isop(std::ostream& os, bdd_dict_ptr dict, bdd b);
+  bdd_print_isop(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
 
 }
 

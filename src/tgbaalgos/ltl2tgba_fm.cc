@@ -141,7 +141,7 @@ namespace spot
     {
     public:
 
-      translate_dict(bdd_dict_ptr dict, ltl_simplifier* ls, bool exprop,
+      translate_dict(const bdd_dict_ptr& dict, ltl_simplifier* ls, bool exprop,
 		     bool single_acc)
 	: dict(dict),
 	  ls(ls),
@@ -2027,7 +2027,7 @@ namespace spot
 
 
   tgba_digraph_ptr
-  ltl_to_tgba_fm(const formula* f, bdd_dict_ptr dict,
+  ltl_to_tgba_fm(const formula* f, const bdd_dict_ptr& dict,
 		 bool exprop, bool symb_merge, bool branching_postponement,
 		 bool fair_loop_approx, const atomic_prop_set* unobs,
 		 ltl_simplifier* simplifier)

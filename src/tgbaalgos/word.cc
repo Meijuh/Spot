@@ -84,7 +84,7 @@ namespace spot
   }
 
   std::ostream&
-  tgba_word::print(std::ostream& os, bdd_dict_ptr d) const
+  tgba_word::print(std::ostream& os, const bdd_dict_ptr& d) const
   {
     if (!prefix.empty())
       for (seq_t::const_iterator i = prefix.begin(); i != prefix.end(); ++i)

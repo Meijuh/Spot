@@ -604,7 +604,7 @@ namespace spot
     {
     public:
 
-      dve2_kripke(const dve2_interface* d, bdd_dict_ptr dict,
+      dve2_kripke(const dve2_interface* d, const bdd_dict_ptr& dict,
 		  const prop_set* ps, const ltl::formula* dead, int compress)
 	: d_(d),
 	  state_size_(d_->get_state_variable_count()),
@@ -998,7 +998,7 @@ namespace spot
 
 
   kripke_ptr
-  load_dve2(const std::string& file_arg, bdd_dict_ptr dict,
+  load_dve2(const std::string& file_arg, const bdd_dict_ptr& dict,
 	    const ltl::atomic_prop_set* to_observe,
 	    const ltl::formula* dead,
 	    int compress,

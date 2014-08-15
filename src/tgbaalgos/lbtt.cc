@@ -172,7 +172,7 @@ namespace spot
     tgba_digraph_ptr
     lbtt_read_tgba(unsigned num_states, unsigned num_acc,
 		   std::istream& is, std::string& error,
-		   bdd_dict_ptr dict,
+		   const bdd_dict_ptr& dict,
 		   ltl::environment& env, ltl::environment& envacc)
     {
       auto aut = make_tgba_digraph(dict);
@@ -237,7 +237,7 @@ namespace spot
     tgba_digraph_ptr
     lbtt_read_gba(unsigned num_states, unsigned num_acc,
 		  std::istream& is, std::string& error,
-		  bdd_dict_ptr dict,
+		  const bdd_dict_ptr& dict,
 		  ltl::environment& env, ltl::environment& envacc)
     {
       auto aut = make_tgba_digraph(dict);
@@ -313,7 +313,7 @@ namespace spot
 
 
   tgba_digraph_ptr
-  lbtt_parse(std::istream& is, std::string& error, bdd_dict_ptr dict,
+  lbtt_parse(std::istream& is, std::string& error, const bdd_dict_ptr& dict,
 	     ltl::environment& env, ltl::environment& envacc)
   {
     is >> std::skipws;
