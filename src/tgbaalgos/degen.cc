@@ -622,6 +622,12 @@ namespace spot
 	       bool use_z_lvl, bool use_cust_acc_orders,
                int use_lvl_cache, bool skip_levels)
   {
+    // If this already a degeneralized digraph, there is nothing we
+    // can improve.
+    if (auto d = std::dynamic_pointer_cast<const tgba_digraph>(a))
+      if (d->get_bprop(tgba_digraph::SBA))
+	return std::const_pointer_cast<tgba_digraph>(d);
+
     return degeneralize_aux<true>(a, use_z_lvl, use_cust_acc_orders,
 				  use_lvl_cache, skip_levels);
   }
@@ -631,6 +637,12 @@ namespace spot
 		   bool use_z_lvl, bool use_cust_acc_orders,
 		   int use_lvl_cache, bool skip_levels)
   {
+    // If this already a degeneralized digraph, there is nothing we
+    // can improve.
+    if (auto d = std::dynamic_pointer_cast<const tgba_digraph>(a))
+      if (d->get_bprop(tgba_digraph::SingleAccSet))
+	return std::const_pointer_cast<tgba_digraph>(d);
+
     return degeneralize_aux<false>(a, use_z_lvl, use_cust_acc_orders,
 				   use_lvl_cache, skip_levels);
   }
