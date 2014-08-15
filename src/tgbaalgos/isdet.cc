@@ -25,9 +25,10 @@ namespace spot
 {
   namespace
   {
+    template<bool count>
     static
     unsigned
-    count_nondet_states_aux(const const_tgba_ptr& aut, bool count = true)
+    count_nondet_states_aux(const const_tgba_ptr& aut)
     {
       unsigned res = 0;
       typedef std::deque<const state*> todo_list;
@@ -82,13 +83,15 @@ namespace spot
   unsigned
   count_nondet_states(const const_tgba_ptr& aut)
   {
-    return count_nondet_states_aux(aut);
+    return count_nondet_states_aux<true>(aut);
   }
 
   bool
   is_deterministic(const const_tgba_ptr& aut)
   {
-    return !count_nondet_states_aux(aut, false);
+    if (aut->is_deterministic())
+      return true;
+    return !count_nondet_states_aux<false>(aut);
   }
 
   bool

@@ -79,13 +79,13 @@ namespace spot
 	  all_acc_conds_(a->all_acceptance_conditions()),
 	  acs_(all_acc_conds_),
 	  sba_format_(sba_format),
-	  // Check if the automaton can be converted into a
-	  // tgba_digraph. This makes the state_is_accepting()
-	  // function more efficient.
-	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
+	  sba_(nullptr)
       {
-	if (sba_ && !sba_->get_bprop(tgba_digraph::SBA))
-	  sba_ = nullptr;
+	// Check if the automaton can be converted into a
+	// tgba_digraph. This makes the state_is_accepting() function
+	// more efficient.
+	if (a->is_sba())
+	  sba_ = std::dynamic_pointer_cast<const tgba_digraph>(a);
       }
 
       bool
@@ -243,7 +243,7 @@ namespace spot
       auto aut = make_tgba_digraph(dict);
       acc_mapper_int acc_b(aut, num_acc, envacc);
       aut->new_states(num_states);
-      aut->set_bprop(tgba_digraph::StateBasedAcc);
+      aut->prop_state_based_acc();
 
       for (unsigned n = 0; n < num_states; ++n)
 	{

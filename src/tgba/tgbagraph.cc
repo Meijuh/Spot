@@ -39,10 +39,7 @@ namespace spot
     all_acceptance_conditions_ =
       compute_all_acceptance_conditions(neg_acceptance_conditions_);
 
-    if (number_of_acceptance_conditions() == 1)
-      set_bprop(tgba_digraph::SingleAccSet);
-    else
-      clear_bprop(tgba_digraph::SingleAccSet);
+    prop_single_acc_set(number_of_acceptance_conditions() == 1);
   }
 
   bdd tgba_digraph::set_single_acceptance_set()
@@ -50,7 +47,8 @@ namespace spot
     if (all_acceptance_conditions_ != bddfalse)
       dict_->unregister_all_typed_variables(bdd_dict::acc, this);
 
-    set_bprop(tgba_digraph::SingleAccSet);
+    prop_single_acc_set();
+
     int accvar =
       dict_->register_acceptance_variable(ltl::constant::true_instance(),
 					  this);

@@ -122,7 +122,7 @@ namespace spot
     auto dict = a->get_dict();
     auto res = make_tgba_digraph(dict);
     res->copy_ap_of(a);
-    res->set_bprop(tgba_digraph::StateBasedAcc);
+    res->prop_state_based_acc();
 
     // For each set, create a state in the resulting automaton.
     // For a state s, state_num[s] is the number of the state in the minimal
@@ -499,8 +499,10 @@ namespace spot
     // non_final contain all states.
     // final is empty: there is no acceptance condition
     build_state_set(det_a, non_final);
-
-    return minimize_dfa(det_a, final, non_final);
+    auto res = minimize_dfa(det_a, final, non_final);
+    res->prop_deterministic();
+    res->prop_inherently_weak();
+    return res;
   }
 
   tgba_digraph_ptr minimize_wdba(const const_tgba_ptr& a)
@@ -599,7 +601,10 @@ namespace spot
 	}
     }
 
-    return minimize_dfa(det_a, final, non_final);
+    auto res = minimize_dfa(det_a, final, non_final);
+    res->prop_deterministic();
+    res->prop_inherently_weak();
+    return res;
   }
 
   tgba_digraph_ptr
@@ -617,6 +622,11 @@ namespace spot
 	if (orig_states < min_aut_f->num_states())
 	  return std::const_pointer_cast<tgba_digraph>(aut_f);
       }
+
+    // If the input automaton was already weak and deterministic, the
+    // output is necessary correct.
+    if (aut_f->is_inherently_weak() && aut_f->is_deterministic())
+      return min_aut_f;
 
     // if f is a syntactic obligation formula, the WDBA minimization
     // must be correct.

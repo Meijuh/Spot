@@ -195,10 +195,11 @@ namespace spot
       {
 	bool reject_bigger = (PREF_ == Small) && (level_ == Medium);
 	dba = minimize_obligation(a, f, 0, reject_bigger);
-	if (dba == a || !dba) // Minimization failed.
-	  dba = nullptr;
-	else
+	if (dba && dba->is_inherently_weak() && dba->is_deterministic())
 	  dba_is_minimal = dba_is_wdba = true;
+	else
+	  // Minimization failed.
+	  dba = nullptr;
 	// The WDBA is a BA, so no degeneralization is required.
       }
 

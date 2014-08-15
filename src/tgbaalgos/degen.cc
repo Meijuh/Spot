@@ -264,7 +264,9 @@ namespace spot
       res->copy_ap_of(a);
       res->set_single_acceptance_set();
       if (want_sba)
-	res->set_bprop(tgba_digraph::StateBasedAcc);
+	res->prop_state_based_acc();
+      // Preserve determinism and weakness
+      res->prop_copy(a, false, false, true, true);
 
       // Create an order of acceptance conditions.  Each entry in this
       // vector correspond to an acceptance set.  Each index can
@@ -624,8 +626,8 @@ namespace spot
   {
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
-    if (auto d = std::dynamic_pointer_cast<const tgba_digraph>(a))
-      if (d->get_bprop(tgba_digraph::SBA))
+    if (a->is_sba())
+      if (auto d = std::dynamic_pointer_cast<const tgba_digraph>(a))
 	return std::const_pointer_cast<tgba_digraph>(d);
 
     return degeneralize_aux<true>(a, use_z_lvl, use_cust_acc_orders,
@@ -639,8 +641,8 @@ namespace spot
   {
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
-    if (auto d = std::dynamic_pointer_cast<const tgba_digraph>(a))
-      if (d->get_bprop(tgba_digraph::SingleAccSet))
+    if (a->has_single_acc_set())
+      if (auto d = std::dynamic_pointer_cast<const tgba_digraph>(a))
 	return std::const_pointer_cast<tgba_digraph>(d);
 
     return degeneralize_aux<false>(a, use_z_lvl, use_cust_acc_orders,

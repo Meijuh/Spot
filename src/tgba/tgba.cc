@@ -29,6 +29,7 @@ namespace spot
       last_support_conditions_input_(0),
       num_acc_(-1)
   {
+    props = 0U;
   }
 
   tgba::~tgba()

@@ -44,7 +44,7 @@ namespace spot
 	  comments_(comments), all_acc_conds_(a->all_acceptance_conditions()),
 	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
       {
-	assert(!sba_ || sba_->get_bprop(tgba_digraph::StateBasedAcc));
+	assert(!sba_ || sba_->has_state_based_acc());
       }
 
       void

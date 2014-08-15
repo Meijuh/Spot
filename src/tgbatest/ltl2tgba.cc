@@ -1072,13 +1072,11 @@ checked_main(int argc, char** argv)
 		  {
 		    if (daut->type == spot::Rabin)
 		      {
-			spot::tgba_digraph_ptr res;
 			if (dra2dba)
-			  res = spot::dstar_to_tgba(daut);
+			  a = spot::dstar_to_tgba(daut);
 			else
-			  res = spot::nra_to_nba(daut);
-			a = res;
-			assert(res->get_bprop(spot::tgba_digraph::SBA));
+			  a = spot::nra_to_nba(daut);
+			assert(a->is_sba());
 			assume_sba = true;
 		      }
 		    else

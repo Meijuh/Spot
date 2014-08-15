@@ -186,7 +186,7 @@ namespace spot
       : automaton_(automaton), the_acceptance_cond_(the_acceptance_cond),
         origin_(origin)
     {
-      assert(automaton->get_bprop(tgba_digraph::SBA));
+      assert(automaton->is_sba());
       // If state not accepting or rank is even
       if (((origin_->get_rank() & 1) == 0) ||
           !automaton_->state_is_accepting(origin_->get_state()))

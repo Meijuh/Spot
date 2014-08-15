@@ -46,7 +46,7 @@ namespace spot
       {
 	out_->copy_ap_of(aut);
 	out_->set_single_acceptance_set();
-	out_->set_bprop(tgba_digraph::StateBasedAcc);
+	out_->prop_state_based_acc();
 	out_->new_states(num_states_ * (d_->accpair_count + 1));
 
 	auto i = aut->get_init_state();

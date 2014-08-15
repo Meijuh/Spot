@@ -129,10 +129,7 @@ namespace spot
   {
     if (!dd)
       dd = dotty_decorator::instance();
-    if (auto gd = dynamic_cast<const tgba_digraph*>(g.get()))
-      assume_sba |= gd->get_bprop(tgba_digraph::StateBasedAcc);
-
-    dotty_bfs d(os, g, assume_sba, dd);
+    dotty_bfs d(os, g, assume_sba || g->has_state_based_acc(), dd);
     d.run();
     return os;
   }

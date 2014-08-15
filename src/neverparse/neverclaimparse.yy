@@ -303,7 +303,7 @@ namespace spot
     tgba_digraph_ptr result = make_tgba_digraph(dict);
     auto namer = result->create_namer<std::string>();
     result->set_single_acceptance_set();
-    result->set_bprop(tgba_digraph::SBA);
+    result->prop_state_based_acc();
 
     neverclaimyy::parser parser(error_list, env, result, namer, fcache);
     parser.set_debug_level(debug);

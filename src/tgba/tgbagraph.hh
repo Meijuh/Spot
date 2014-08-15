@@ -390,34 +390,9 @@ namespace spot
     /// extremities and acceptance.
     void merge_transitions();
 
-  protected:
-    unsigned bprops_ = 0;
-
-  public:
-    enum bprop {
-      StateBasedAcc = 1,
-      SingleAccSet = 2,
-      SBA = StateBasedAcc | SingleAccSet,
-    };
-
-    bool get_bprop(bprop p) const
-    {
-      return (bprops_ & p) == p;
-    }
-
-    void set_bprop(bprop p)
-    {
-      bprops_ |= p;
-    }
-
-    void clear_bprop(bprop p)
-    {
-      bprops_ &= ~p;
-    }
-
     bool state_is_accepting(unsigned s) const
     {
-      assert(get_bprop(StateBasedAcc));
+      assert(has_state_based_acc());
       for (auto& t: g_.out(s))
 	// Stop at the first transition, since the remaining should be
 	// labeled identically.

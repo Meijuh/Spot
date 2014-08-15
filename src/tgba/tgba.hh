@@ -251,6 +251,89 @@ namespace spot
   private:
     mutable bdd last_support_conditions_output_;
     mutable int num_acc_;
+
+  protected:
+
+    // Boolean properties.  Beware: true means that the property
+    // holds, but false means the property is unknown.
+    struct bprop
+    {
+      bool single_acc_set:1;	// A single acceptance set.
+      bool state_based_acc:1;	// State-based acceptance.
+      bool inherently_weak:1;	// Weak automaton.
+      bool deterministic:1;	// Deterministic automaton.
+    };
+    union
+    {
+      unsigned props;
+      bprop is;
+    };
+
+  public:
+
+    bool has_single_acc_set() const
+    {
+      return is.single_acc_set;
+    }
+
+    void prop_single_acc_set(bool val = true)
+    {
+      is.single_acc_set = val;
+    }
+
+    bool has_state_based_acc() const
+    {
+      return is.state_based_acc;
+    }
+
+    void prop_state_based_acc(bool val = true)
+    {
+      is.state_based_acc = val;
+    }
+
+    bool is_sba() const
+    {
+      return has_state_based_acc() && has_single_acc_set();
+    }
+
+    bool is_inherently_weak() const
+    {
+      return is.inherently_weak;
+    }
+
+    void prop_inherently_weak(bool val = true)
+    {
+      is.inherently_weak = val;
+    }
+
+    bool is_deterministic() const
+    {
+      return is.deterministic;
+    }
+
+    void prop_deterministic(bool val = true)
+    {
+      is.deterministic = val;
+    }
+
+    // This is no default value here on purpose.  This way any time we
+    // add a new property we cannot to update every call to prop_copy().
+    void prop_copy(const const_tgba_ptr& other,
+		   bool state_based,
+		   bool single_acc,
+		   bool inherently_weak,
+		   bool deterministic)
+    {
+      if (state_based)
+	prop_state_based_acc(other->has_state_based_acc());
+      if (single_acc)
+	prop_single_acc_set(other->has_single_acc_set());
+      if (inherently_weak)
+	prop_inherently_weak(other->is_inherently_weak());
+      if (deterministic)
+	prop_deterministic(other->is_deterministic());
+    }
+
   };
 
   /// \addtogroup tgba_representation TGBA representations

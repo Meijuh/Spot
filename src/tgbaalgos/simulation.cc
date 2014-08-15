@@ -526,15 +526,6 @@ namespace spot
           }
       }
 
-      bool result_is_deterministic() const
-      {
-        assert(stat.states != 0);
-
-        return res_is_deterministic;
-      }
-
-
-
       // Build the minimal resulting automaton.
       tgba_digraph_ptr build_result()
       {
@@ -550,7 +541,7 @@ namespace spot
 	res->copy_ap_of(a_);
 	res->set_acceptance_conditions(all_acceptance_conditions_);
 	if (Sba)
-	  res->set_bprop(tgba_digraph::StateBasedAcc);
+	  res->prop_state_based_acc();
 
 	bdd sup_all_acc = bdd_support(all_acceptance_conditions_);
 	// Non atomic propositions variables (= acc and class)
@@ -691,7 +682,15 @@ namespace spot
 	  }
 
 	delete gb;
-        res_is_deterministic = nb_minato == nb_satoneset;
+	res->prop_copy(original_,
+		       false, // state-based acc forced below
+		       false, // single acc is set by set_acceptance_conditions
+		       true,  // weakness preserved,
+		       false);	// determinism checked and set below
+        if (nb_minato == nb_satoneset)
+	  res->prop_deterministic();
+	if (Sba)
+	  res->prop_state_based_acc();
 
 	return res;
       }
@@ -779,8 +778,6 @@ namespace spot
       const_tgba_ptr original_;
 
       bdd all_acceptance_conditions_;
-
-      bool res_is_deterministic;
     };
 
     // For now, we don't try to handle cosimulation.
@@ -1267,7 +1264,6 @@ namespace spot
           {
             min = tmp;
             min_size_ = cur_size;
-            res_is_deterministic = dir_sim.result_is_deterministic();
           }
       }
 
@@ -1342,7 +1338,7 @@ namespace spot
         prev = next;
         direct_simulation<false, Sba> simul(res ? res : t);
         res = simul.run();
-        if (simul.result_is_deterministic())
+        if (res->is_deterministic())
 	  break;
 
         direct_simulation<true, Sba> cosimul(res);
