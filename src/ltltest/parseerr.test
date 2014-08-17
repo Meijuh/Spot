@@ -1,6 +1,6 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2011, 2013 Laboratoire de Recherche et
+# Copyright (C) 2009, 2010, 2011, 2013, 2014 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -26,6 +26,7 @@
 # resulting tree looks like.
 
 . ./defs || exit 1
+set -e
 
 check()
 {
@@ -64,33 +65,36 @@ check '' ''
 check '+' ''
 check '/2/3/4/5 a + b /6/7/8/' ''
 
+
+cat >recover.txt <<EOF
 # leading and trailing garbage are skipped
-run 0 ../equals -E 'a U b c' 'a U b'
+a U b c, a U b
 # (check multop merging while we are at it)
-run 0 ../equals -E 'a & b & c & d e' 'a & b & c & d'
-run 0 ../equals -E 'a & (b | c) & d should work' 'a & (b | c) & d'
+a & b & c & d e, a & b & c & d
+a & (b | c) & d should work, a & (b | c) & d
 # Binop recovery
-run 0 ../equals -E 'a U' a
-run 0 ../equals -E 'a U b V c R' 'a U b V c'
-run 0 ../equals -E 'a &&& b' 'a & b'
-run 0 ../equals -E 'a &&| b' 'a | b'
+a U, a
+a U b V c R, a U b V c
+a &&& b, a & b
+a &&| b, a | b
 
 # Recovery inside parentheses
-run 0 ../equals -E 'a U (b c) U e R (f g <=> h)' 'a U b U e R f'
-run 0 ../equals -E 'a U ((c) U e) R (<=> f g)' 'a U ((c) U e) R (0)'
+a U (b c) U e R (f g <=> h), a U b U e R f
+a U ((c) U e) R (<=> f g), a U ((c) U e) R (0)
 
 # Missing parentheses
-run 0 ../equals -E 'a & (a + b' 'a & (a + b)'
-run 0 ../equals -E 'a & (a + b c' 'a & (a + b)'
-run 0 ../equals -E 'a & (+' 'a & 0'
-run 0 ../equals -E 'a & ('  'a & 0'
+a & (a + b, a & (a + b)
+a & (a + b c, a & (a + b)
+a & (+, a & 0
+a & (, a & 0
 
 # Invalid ranges
-run 0 ../equals -E '{a[*8..1];b}' '{a[*1..8];b}'
-run 0 ../equals -E '{a[=8..1];b}' '{a[=1..8];b}'
-run 0 ../equals -E '{a[->8..1];b}' '{a[->1..8];b}'
-run 0 ../equals -E '{a[->..0];b}' '{a[->0..1];b}'
-
+{a[*8..1];b}, {a[*1..8];b}
+{a[=8..1];b}, {a[=1..8];b}
+{a[->8..1];b}, {a[->1..8];b}
+{a[->..0];b}, {a[->0..1];b}
+EOF
+run 0 ../equals -E recover.txt
 
 check 'a - b' 'AP(a)' '>>> a - b
       ^

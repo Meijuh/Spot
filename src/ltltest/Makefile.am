@@ -35,11 +35,11 @@ check_PROGRAMS = \
   ltl2text \
   ltlrel \
   lunabbrev \
+  nequals \
   nenoform \
   reduc \
   reduccmp \
   reduceu \
-  reductau \
   reductaustr \
   syntimpl \
   tostring \
@@ -48,31 +48,31 @@ check_PROGRAMS = \
   unabbrevwm
 
 consterm_SOURCES = consterm.cc
-equals_SOURCES = equals.cc
+equals_SOURCES = equalsf.cc
 kind_SOURCES = kind.cc
 length_SOURCES = length.cc
 ltl2dot_SOURCES = readltl.cc
 ltl2dot_CPPFLAGS = $(AM_CPPFLAGS) -DDOTTY
 ltl2text_SOURCES = readltl.cc
 ltlrel_SOURCES = ltlrel.cc
-lunabbrev_SOURCES = equals.cc
+lunabbrev_SOURCES = equalsf.cc
 lunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DLUNABBREV
-nenoform_SOURCES = equals.cc
+nenoform_SOURCES = equalsf.cc
 nenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM
+nequals_SOURCES = equalsf.cc
+nequals_CPPFLAGS = $(AM_CPPFLAGS) -DNEGATE
 reduc_SOURCES = reduc.cc
 reduccmp_SOURCES = equalsf.cc
 reduccmp_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC
-reduceu_SOURCES = equals.cc
+reduceu_SOURCES = equalsf.cc
 reduceu_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC -DEVENT_UNIV
-reductau_SOURCES = equals.cc
-reductau_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC_TAU
 reductaustr_SOURCES = equalsf.cc
 reductaustr_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC_TAUSTR
 syntimpl_SOURCES = syntimpl.cc
 tostring_SOURCES = tostring.cc
-tunabbrev_SOURCES = equals.cc
+tunabbrev_SOURCES = equalsf.cc
 tunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DTUNABBREV
-tunenoform_SOURCES = equals.cc
+tunenoform_SOURCES = equalsf.cc
 tunenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM -DTUNABBREV
 unabbrevwm_SOURCES = equals.cc
 unabbrevwm_CPPFLAGS = $(AM_CPPFLAGS) -DWM

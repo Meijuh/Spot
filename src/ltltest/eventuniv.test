@@ -19,42 +19,46 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 . ./defs || exit 1
+set -e
 
-check()
-{
-  run 0 ../reduceu "$@"
-}
+cat >reduceu.txt <<EOF
+Xa | GFb, Xa | GFb
+X(a | GXFb), Xa | GFb
+Xa & GFb, Xa & GFb
+X(a & GXFb), Xa & GFb
 
-check 'Xa | GFb'    'Xa | GFb'
-check 'X(a | GXFb)' 'Xa | GFb'
-check 'Xa & GFb'    'Xa & GFb'
-check 'X(a & GXFb)' 'Xa & GFb'
+F(a & b & GFc & FGd), F(a & b) & G(Fc & FGd)
+Fa | Fb | GFc | GFd, F(a|b) | GF(c | d)
+Fa | Fb | GFc | GFd | FGe, F(a|b) | F(G(e) | GF(c | d))
+Ga | Gb | GFd | FGe | FGf, Ga | Gb | F(GFd | Ge | Gf)
 
-check 'F(a & b & GFc & FGd)' 'F(a & b) & G(Fc & FGd)'
-check 'Fa | Fb | GFc | GFd' 'F(a|b) | GF(c | d)'
-check 'Fa | Fb | GFc | GFd | FGe' 'F(a|b) | F(G(e) | GF(c | d))'
-cehck 'Ga | Gb | GFd | FGe | FGf' 'Ga | Gb | F(GFd | Ge | Gf)'
+G(Ga & Fb & c & GFd), G(a&c) & G(Fb & Fd)
+G(Ga & GFb & c & GFd), G(a&c) & G(Fb & Fd)
+G(a & GFb & c & GFd), G(a&c) & G(Fb & Fd)
+G(Ga & Fb & c & GFd & FGe), G(a & c) & G(Fb & Fd & FGe)
+G(Ga & XFGb & c & FGd & FGe), FG(b & d & e) & G(a & c)
+G(Ga & GXFb & c & FGd & FGe & Fc), G(Fb & FG(d & e)) & G(a & c)
+Ga & Gb & GFd & FGe & FGf, G(Fd & FG(e & f)) & G(a & b)
+G(Ga & Gb & GFd & FGe) & FGf, G(Fd & FG(e & f)) & G(a & b)
 
-check 'G(Ga & Fb & c & GFd)'  'G(a&c) & G(Fb & Fd)'
-check 'G(Ga & GFb & c & GFd)' 'G(a&c) & G(Fb & Fd)'
-check 'G(a & GFb & c & GFd)'  'G(a&c) & G(Fb & Fd)'
-check 'G(Ga & Fb & c & GFd & FGe)' 'G(a & c) & G(Fb & Fd & FGe)'
-check 'G(Ga & XFGb & c & FGd & FGe)' 'FG(b & d & e) & G(a & c)'
-check 'G(Ga & GXFb & c & FGd & FGe & Fc)' 'G(Fb & FG(d & e)) & G(a & c)'
-check 'Ga & Gb & GFd & FGe & FGf'    'G(Fd & FG(e & f)) & G(a & b)'
-check 'G(Ga & Gb & GFd & FGe) & FGf' 'G(Fd & FG(e & f)) & G(a & b)'
+a U (b | Fc), (a U b) | Fc
+a W (b | Fc), (a W b) | Fc
+a U (b & GFc), (a U b) & GFc
+# Unchanged
+a W (b & GFc), a W (b & GFc)
+# Unchanged
+(a | Gc) W g, (a | Gc) W g
+# Unchanged
+(a | Gc) U g, (a | Gc) U g
+(a & GFc) M b, (a M b) & GFc
+# Unchanged
+(a | GFc) M b, (a | GFc) M b
+# Unchanged
+(a & GFc) R b, (a & GFc) R b
+# Unchanged
+(a | GFc) R b, (a | GFc) R b
+a R (b & Gc), (a R b) & Gc
+a M (b & Gc), (a M b) & Gc
+EOF
 
-check 'a U (b | Fc)'  '(a U b) | Fc'
-check 'a W (b | Fc)'  '(a W b) | Fc'
-check 'a U (b & GFc)' '(a U b) & GFc'
-check 'a W (b & GFc)' 'a W (b & GFc)'  # Unchanged
-check '(a | Gc) W g'  '(a | Gc) W g'   # Unchanged
-check '(a | Gc) U g'  '(a | Gc) U g'   # Unchanged
-
-check '(a & GFc) M b' '(a M b) & GFc'
-check '(a | GFc) M b' '(a | GFc) M b'  # Unchanged
-check '(a & GFc) R b' '(a & GFc) R b'  # Unchanged
-check '(a | GFc) R b' '(a | GFc) R b'  # Unchanged
-check 'a R (b & Gc)'  '(a R b) & Gc'
-check 'a M (b & Gc)'  '(a M b) & Gc'
-
+run 0 ../reduceu reduceu.txt

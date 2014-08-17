@@ -58,6 +58,11 @@ main(int argc, char** argv)
   if (argc != 2)
     syntax(argv[0]);
   std::ifstream input(argv[1]);
+  if (!input)
+    {
+      std::cerr << "failed to open " << argv[1] << '\n';
+      return 2;
+    }
 
   std::string s;
   unsigned line = 0;
@@ -72,7 +77,16 @@ main(int argc, char** argv)
 	std::istringstream ss(s);
 	std::string form;
 	while (std::getline(ss, form, ','))
-	  formulas.push_back(form);
+	  {
+	    std::string tmp;
+	    while (form.size() > 0 && form.back() == '\\'
+		   && std::getline(ss, tmp, ','))
+	      {
+		form.back() = ',';
+		form += tmp;
+	      }
+	    formulas.push_back(form);
+	  }
       }
 
       unsigned size = formulas.size();
@@ -226,6 +240,9 @@ main(int argc, char** argv)
 		exit_code = 1;
 	      }
 
+#if NEGATE
+	    exit_code ^= 1;
+#endif
 	    if (exit_code)
 	      {
 		spot::ltl::dump(std::cerr, f1) << std::endl;
