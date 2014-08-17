@@ -33,6 +33,7 @@ check_SCRIPTS = defs
 check_PROGRAMS = \
   bitvect \
   complement \
+  checkpsl \
   expldot \
   explprod \
   intvcomp \
@@ -47,6 +48,7 @@ check_PROGRAMS = \
 
 # Keep this sorted alphabetically.
 bitvect_SOURCES  = bitvect.cc
+checkpsl_SOURCES = checkpsl.cc
 complement_SOURCES = complementation.cc
 expldot_SOURCES  = powerset.cc
 expldot_CXXFLAGS = -DDOTTY

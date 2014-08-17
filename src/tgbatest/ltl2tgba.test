@@ -26,96 +26,81 @@
 
 set -e
 
-check_psl ()
-{
-  # We don't check the output, but just running these might be enough to
-  # trigger assertions.
-  run 0 ../ltl2tgba -f -FC "$1"
-  # Make cross products with FM
-  run 0 ../ltl2tgba -f -R3 -b "$1" > out.tgba
-  run 0 ../ltl2tgba -f -R3 -Pout.tgba -E "!($1)"
-  run 0 ../ltl2tgba -f -x -R3 -b "$1" > out.tgba
-  run 0 ../ltl2tgba -f -x -R3 -Pout.tgba -E "!($1)"
-}
+cat >check.txt <<\EOF
+a
+a U b
+X a
+a & b & c
+a | b | (c U (d & (g U (h ^ i))))
+Xa & (b U !a) & (b U !a)
+Fa & Xb & GFc & Gd
+Fa & Xa & GFc & Gc
+Fc & X(a | Xb) & GF(a | Xb) & Gc
+a R (b R c)
+(a U b) U (c U d)
 
-check_ltl ()
-{
-  check_psl "$@"
-  # Make cross products with TAA
-  run 0 ../ltl2tgba -taa -R3 -b "$1" > out.tgba
-  run 0 ../ltl2tgba -taa -R3 -Pout.tgba -E "!($1)"
-}
+((Xp2)U(X(1)))&(p1 R(p2 R p0))
 
-check_ltl a
-check_ltl 'a U b'
-check_ltl 'X a'
-check_ltl 'a & b & c'
-check_ltl 'a | b | (c U (d & (g U (h ^ i))))'
-check_ltl 'Xa & (b U !a) & (b U !a)'
-check_ltl 'Fa & Xb & GFc & Gd'
-check_ltl 'Fa & Xa & GFc & Gc'
-check_ltl 'Fc & X(a | Xb) & GF(a | Xb) & Gc'
-check_ltl 'a R (b R c)'
-check_ltl '(a U b) U (c U d)'
-
-check_ltl '((Xp2)U(X(1)))&(p1 R(p2 R p0))'
-
-check_psl '{a*;c}<>->GFb'
-check_psl '{((a*;b;c)*)&((b*;a;c)*)}<>->x'
-check_psl '{(g;y;r)*}<>->x'
-check_psl 'G({(g;y;r)*}<>->x)'
-check_psl 'G({(a;b)*}<>->x)&G({(c;d)*}<>->y)'
-check_psl 'G({{a;b}*}[]->x)&G({{c;d}*}[]->y)' # try sub-braces
-check_psl '{([*0] + a):c*:([*0] + b)}<>->d'
-check_psl '{a;e;f:(g*);h}<>->d'
-check_psl '{(a:b)* & (c*:d)}<>->e'
-check_psl '{(a:b)*}'
-check_psl 'G{(a:b)*}'
-check_psl '{a;b}'
-check_psl '{(a;b)*}'
-check_psl 'G{(a;b)*}'
-check_psl '{a*}[]->{b*}'
-check_psl '{a*}[]=>{b*}'
-check_psl '{a*&b}'
-check_psl '{a*&b*}'
-check_psl '{((!c;b*) & d);e}'
-check_psl '{(a* & (c;b*) & d);e}'
-check_psl '{[*2];a[*2..4]}|->b'
-check_psl '{a[*2..5] && b[*..3]}|->c'
-check_psl '{{[+];a;[+]} && {[+];b;[+]}}<>->c'
-check_psl '{(a[->3]) & {[+];b}}<>->c'
+{a*;c}<>->GFb
+{((a*;b;c)*)&((b*;a;c)*)}<>->x
+{(g;y;r)*}<>->x
+G({(g;y;r)*}<>->x)
+G({(a;b)*}<>->x)&G({(c;d)*}<>->y)
+# try sub-braces
+G({{a;b}*}[]->x)&G({{c;d}*}[]->y)
+{([*0] + a):c*:([*0] + b)}<>->d
+{a;e;f:(g*);h}<>->d
+{(a:b)* & (c*:d)}<>->e
+{(a:b)*}
+G{(a:b)*}
+{a;b}
+{(a;b)*}
+G{(a;b)*}
+{a*}[]->{b*}
+{a*}[]=>{b*}
+{a*&b}
+{a*&b*}
+{((!c;b*) & d);e}
+{(a* & (c;b*) & d);e}
+{[*2];a[*2..4]}|->b
+{a[*2..5] && b[*..3]}|->c
+{{[+];a;[+]} && {[+];b;[+]}}<>->c
+{(a[->3]) & {[+];b}}<>->c
 # This formula (built by a random formula generator), exhibited an
 # infinite recursion in the translation:
-check_psl '{(a|[*0])[*];1}'
+{(a|[*0])[*];1}
 # Example from "Beyond Hardware Verification" by Glazberg, Moulin, Orni,
 # Ruah, Zarpas (2007).
-check_psl '{[*];req;ack}|=>{start;busy[*];done}'
+{[*];req;ack}|=>{start;busy[*];done}
 # Examples from "Property-by-Example Guide: a Handbook of PSL Examples"
 # by Ben David and Orni (2005)/
-check_psl '{end[=3]}(false)'  # 2.27.A
-check_psl '{[*]; {read[=3]} && {write[=2]}} |=>
-           {(!read && !write)[*]; ready}'  # 3.5.A
-check_psl '{[*]; start && comp_data_en; !comp_data_en && good_comp;
-           {status_valid[->]} && {stop[=0]; true}} |-> {!data_out}' # 2.33
+# - 2.27.A
+{end[=3]}(false)
+# - 3.5.A
+{[*]; {read[=3]} && {write[=2]}} |=> {(!read && !write)[*]; ready}
+# - 2.33  (abridged to fit in 80 cols)
+{[*];st&&comp_d_en;!comp_d_en&&good_c;{st_v[->]}&&{stop[=0];true}}|->{!d_out}
 
 # Some tricky cases that require the rational automaton to be pruned
 # before it is used in the translation.
-check_psl '{{b[*];c} | {{a && !a}}[=2]}'
-check_psl '{((a&!b);((!a&!b)*))&&(!b*;(!a&b))}'
+{{b[*];c} | {{a && !a}}[=2]}
+{((a&!b);((!a&!b)*))&&(!b*;(!a&b))}
 # When translating this formula, we expect the translator to ignore
 # `a;(f&!f)[=2];c' on one side because it as already seen it on the
 # other side.
-check_psl '{c;a;(f&!f)[=2];c}|{b;a;(!f&f)[=2];c}'
-
+{c;a;(f&!f)[=2];c}|{b;a;(!f&f)[=2];c}
 
 # these were mis-translated in Spot 0.9
-check_psl 'G!{(b;1)*;a}'
-check_psl '(G!{(b;1)*;a} && ({1;1[*3]*}[]->{(b&!a)[*2];!b&!a}))'
+G!{(b;1)*;a}
+(G!{(b;1)*;a} && ({1;1[*3]*}[]->{(b&!a)[*2];!b&!a}))
+EOF
+
+run 0 ../checkpsl check.txt
+
 # In particular, Spot 0.9 would incorrectly reject the sequence:
 # (a̅b;a̅b;a̅b̅);(a̅b;a̅b;a̅b̅);(a̅b;a̅b;a̅b̅);... in 'G!{(b;1)*;a}'
 # This means the following automaton was incorrectly empty in Spot 0.9.
 run 0 ../ltl2tgba -e -R3 '(G!{(b;1)*;a} && ({1;1[*3]*}[]->{(b&!a)[*2];!b&!a}))'
-
 
 # Make sure 'a U (b U c)' has 3 states and 6 transitions,
 # before and after degeneralization.
