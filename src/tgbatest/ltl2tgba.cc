@@ -1442,11 +1442,9 @@ checked_main(int argc, char** argv)
                       opt_with_artificial_livelock);
 	      tm.stop("conversion to TA");
 
-              spot::ta_ptr testing_automaton_nm = 0;
               if (opt_bisim_ta)
                 {
 		  tm.start("TA bisimulation");
-                  testing_automaton_nm = testing_automaton;
                   testing_automaton = minimize_ta(testing_automaton);
 		  tm.stop("TA bisimulation");
                 }
