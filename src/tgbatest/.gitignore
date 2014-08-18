@@ -6,6 +6,7 @@ defs
 .deps
 *.dot
 eltl2tgba
+emptchk
 expldot
 explicit
 explicit2

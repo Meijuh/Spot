@@ -35,6 +35,7 @@ check_PROGRAMS = \
   complement \
   checkpsl \
   checkta \
+  emptchk \
   expldot \
   explprod \
   intvcomp \
@@ -52,6 +53,7 @@ bitvect_SOURCES  = bitvect.cc
 checkpsl_SOURCES = checkpsl.cc
 checkta_SOURCES = checkta.cc
 complement_SOURCES = complementation.cc
+emptchk_SOURCES  = emptchk.cc
 expldot_SOURCES  = powerset.cc
 expldot_CXXFLAGS = -DDOTTY
 explprod_SOURCES = explprod.cc

@@ -26,74 +26,19 @@
 
 set -e
 
-expect_ce_do()
-{
-  run 0 ../ltl2tgba "$@"
-  run 0 ../ltl2tgba -g "$@"
-}
+cat > emptchk.txt <<EOF
+1, a
+1, a U b
+1, X a
+1, a & b & c
+1, a | b | (c U (d & (g U (h ^ i))))
+1, Xa & (b U !a) & (b U !a)
+1, Fa & Xb & GFc & Gd
+2, Fa & Xa & GFc & Gc
+1, Fc & X(a | Xb) & GF(a | Xb) & Gc
+2, !((FF a) <=> (F x))
+0, Xa && (!a U b) && !b && X!b
+0, (a U !b) && Gb
+EOF
 
-expect_ce()
-{
-  expect_ce_do -CR -e -taa "$1"
-  expect_ce_do -CR -e -taa -DT "$1"
-  expect_ce_do -CR -e -f "$1"
-  expect_ce_do -CR -e -f -DT "$1"
-  expect_ce_do -CR -e'Cou99(shy)' -taa "$1"
-  expect_ce_do -CR -e'Cou99(shy)' -taa -DT "$1"
-  expect_ce_do -CR -e'Cou99(shy)' -f "$1"
-  expect_ce_do -CR -e'Cou99(shy)' -f -DT "$1"
-  expect_ce_do -CR -eCVWY90 -taa "$1"
-  expect_ce_do -CR -eCVWY90 -f "$1"
-  run 0 ../ltl2tgba -CR -e'CVWY90(bsh=10M)' -taa "$1"
-  run 0 ../ltl2tgba -CR -e'CVWY90(bsh=10M)' -f "$1"
-  run 0 ../ltl2tgba -CR -eSE05 -taa "$1"
-  run 0 ../ltl2tgba -CR -eSE05 -f "$1"
-  run 0 ../ltl2tgba -CR -e'SE05(bsh=10M)' -taa "$1"
-  run 0 ../ltl2tgba -CR -e'SE05(bsh=10M)' -f "$1"
-  run 0 ../ltl2tgba -CR -eTau03_opt -f "$1"
-  run 0 ../ltl2tgba -CR -eGV04 -f "$1"
-  # Expect multiple accepting runs
-  test `../ltl2tgba -C -e'CVWY90(repeated)' -taa "$1" |
-        grep Prefix: | wc -l` -ge $2
-  test `../ltl2tgba -C -e'SE05(repeated)' -taa "$1" |
-        grep Prefix: | wc -l` -ge $2
-}
-
-expect_no()
-{
-  run 0 ../ltl2tgba -CR -E -taa "$1"
-  run 0 ../ltl2tgba -CR -E -taa -DT "$1"
-  run 0 ../ltl2tgba -CR -E -f "$1"
-  run 0 ../ltl2tgba -CR -E -f -DT "$1"
-  run 0 ../ltl2tgba -CR -E'Cou99(shy)' -taa "$1"
-  run 0 ../ltl2tgba -CR -E'Cou99(shy)' -taa -DT "$1"
-  run 0 ../ltl2tgba -CR -E'Cou99(shy)' -f "$1"
-  run 0 ../ltl2tgba -CR -E'Cou99(shy)' -f -DT "$1"
-  run 0 ../ltl2tgba -CR -ECVWY90 -taa "$1"
-  run 0 ../ltl2tgba -CR -ECVWY90 -f "$1"
-  run 0 ../ltl2tgba -CR -E'CVWY90(bsh=10M)' -taa "$1"
-  run 0 ../ltl2tgba -CR -E'CVWY90(bsh=10M)' -f "$1"
-  run 0 ../ltl2tgba -CR -ESE05 -taa "$1"
-  run 0 ../ltl2tgba -CR -ESE05 -f "$1"
-  run 0 ../ltl2tgba -CR -E'SE05(bsh=10M)' -taa "$1"
-  run 0 ../ltl2tgba -CR -E'SE05(bsh=10M)' -f "$1"
-  run 0 ../ltl2tgba -CR -ETau03_opt -f "$1"
-  run 0 ../ltl2tgba -CR -EGV04 -f "$1"
-  test `../ltl2tgba -C -e'CVWY90(repeated)' -taa "!($1)" |
-        grep Prefix: | wc -l` -ge $2
-  test `../ltl2tgba -C -e'SE05(repeated)' -taa "!($1)" |
-        grep Prefix: | wc -l` -ge $2
-}
-
-expect_ce 'a' 1
-expect_ce 'a U b' 1
-expect_ce 'X a' 1
-expect_ce 'a & b & c' 1
-expect_ce 'a | b | (c U (d & (g U (h ^ i))))' 1
-expect_ce 'Xa & (b U !a) & (b U !a)' 1
-expect_ce 'Fa & Xb & GFc & Gd' 1
-expect_ce 'Fa & Xa & GFc & Gc' 2
-expect_ce 'Fc & X(a | Xb) & GF(a | Xb) & Gc' 1
-expect_ce '!((FF a) <=> (F x))' 2
-expect_no 'Xa && (!a U b) && !b && X!b' 2
-expect_no '(a U !b) && Gb' 2
+run 0 ../emptchk emptchk.txt
