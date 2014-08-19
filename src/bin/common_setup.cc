@@ -20,6 +20,7 @@
 #include "common_setup.hh"
 #include "argp.h"
 #include <cstdlib>
+#include <iostream>
 
 const char* argp_program_bug_address = "<" PACKAGE_BUGREPORT ">";
 
@@ -47,6 +48,8 @@ setup(char** argv)
   argp_program_version_hook = display_version;
 
   argp_err_exit_status = 2;
+
+  std::ios_base::sync_with_stdio(false);
 }
 
 
