@@ -456,6 +456,17 @@ namespace spot
     SPOT_LOCAL bitvect_array(const bitvect_array&) SPOT_DELETED;
     SPOT_LOCAL void operator=(const bitvect_array&) SPOT_DELETED;
 
+    // Extra storage has been allocated at the end of the struct.
+    char* storage()
+    {
+      return reinterpret_cast<char*>(this) + sizeof(*this);
+    }
+
+    const char* storage() const
+    {
+      return reinterpret_cast<const char*>(this) + sizeof(*this);
+    }
+
   public:
     ~bitvect_array()
     {
@@ -473,14 +484,14 @@ namespace spot
     bitvect& at(const size_t index)
     {
       assert(index < size_);
-      return *reinterpret_cast<bitvect*>(storage_ + index * bvsize_);
+      return *reinterpret_cast<bitvect*>(storage() + index * bvsize_);
     }
 
     /// Return the bit-vector at \a index.
     const bitvect& at(const size_t index) const
     {
       assert(index < size_);
-      return *reinterpret_cast<const bitvect*>(storage_ + index * bvsize_);
+      return *reinterpret_cast<const bitvect*>(storage() + index * bvsize_);
     }
 
     friend SPOT_API bitvect_array*
@@ -495,7 +506,6 @@ namespace spot
   private:
     size_t size_;
     size_t bvsize_;
-    char storage_[0];
   };
 
   /// @}

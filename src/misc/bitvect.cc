@@ -160,7 +160,7 @@ namespace spot
      bitvect_array* bva = new(mem) bitvect_array(vectcount, bvsize);
      // Initialize all the bitvect instances.
      for (size_t i = 0; i < vectcount; ++i)
-       new(bva->storage_ + i * bvsize) bitvect(bitcount, n);
+       new(bva->storage() + i * bvsize) bitvect(bitcount, n);
      return bva;
   }
 
