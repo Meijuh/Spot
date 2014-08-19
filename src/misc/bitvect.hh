@@ -453,11 +453,8 @@ namespace spot
     {
     }
 
-    /// Not implemented.
-    SPOT_LOCAL bitvect_array(const bitvect_array&);
-    /// Not implemented.
-    SPOT_LOCAL void operator=(const bitvect_array&);
-
+    SPOT_LOCAL bitvect_array(const bitvect_array&) SPOT_DELETED;
+    SPOT_LOCAL void operator=(const bitvect_array&) SPOT_DELETED;
 
   public:
     ~bitvect_array()
