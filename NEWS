@@ -9,6 +9,9 @@ New in spot 1.2.4a (not yet released)
 
     - Fix simplification of bounded repetition in SERE formulas.
     - Fix parsing of neverclaims produced by Modella.
+    - Fix a memory leak in the little-used conversion from
+      transition-based alternating automata to tgba.
+    - Fix a harmless uninitialized read in BuDDy.
 
 New in spot 1.2.4 (2014-05-15)
 
