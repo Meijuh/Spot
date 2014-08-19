@@ -31,8 +31,6 @@ tgba_HEADERS = \
   formula2bdd.hh \
   futurecondcol.hh \
   fwd.hh \
-  state.hh \
-  succiter.hh \
   taatgba.hh \
   tgba.hh \
   tgbagraph.hh \

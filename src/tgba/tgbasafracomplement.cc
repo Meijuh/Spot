@@ -28,7 +28,7 @@
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
 #include "tgba/bdddict.hh"
-#include "tgba/state.hh"
+#include "tgba/tgba.hh"
 #include "misc/hashfunc.hh"
 #include "ltlast/formula.hh"
 #include "ltlast/constant.hh"

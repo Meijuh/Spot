@@ -22,7 +22,6 @@
 
 #include <sstream>
 #include "rundotdec.hh"
-#include "tgba/succiter.hh"
 
 namespace spot
 {

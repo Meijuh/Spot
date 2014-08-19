@@ -21,8 +21,7 @@
 #include <cassert>
 #include <sstream>
 #include "bdd.h"
-#include <tgba/bddprint.hh>
-#include <tgba/state.hh>
+#include "tgba/bddprint.hh"
 #include "tgba/tgba.hh"
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"

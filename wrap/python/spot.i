@@ -100,8 +100,6 @@ namespace std {
 #include "ltlvisit/apcollect.hh"
 
 #include "tgba/bddprint.hh"
-#include "tgba/state.hh"
-#include "tgba/succiter.hh"
 #include "tgba/fwd.hh"
 #include "tgba/tgba.hh"
 #include "tgba/taatgba.hh"
@@ -219,8 +217,6 @@ using namespace spot;
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
 %include "tgba/bddprint.hh"
-%include "tgba/state.hh"
-%include "tgba/succiter.hh"
 %include "tgba/fwd.hh"
 %include "tgba/tgba.hh"
 %include "tgba/taatgba.hh"

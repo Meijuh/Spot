@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013  Laboratoire de Recherche et Développement de
+// Copyright (C) 2013, 2014  Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -25,7 +25,7 @@
 
 #include <bdd.h>
 #include <list>
-#include <tgba/state.hh>
+#include "tgba/tgba.hh"
 
 namespace spot
 {

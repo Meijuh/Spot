@@ -22,7 +22,7 @@
 #include <sstream>
 #include "bdd.h"
 #include "bddprint.hh"
-#include "state.hh"
+#include "tgba.hh"
 #include "tgbakvcomplement.hh"
 #include "misc/hash.hh"
 #include "tgbaalgos/bfssteps.hh"

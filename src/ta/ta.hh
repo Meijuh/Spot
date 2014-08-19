@@ -24,8 +24,7 @@
 
 #include <cassert>
 #include "misc/bddlt.hh"
-#include "tgba/state.hh"
-#include "tgba/succiter.hh"
+#include "tgba/tgba.hh"
 #include "tgba/bdddict.hh"
 
 namespace spot

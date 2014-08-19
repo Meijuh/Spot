@@ -24,7 +24,6 @@
 # define SPOT_TGBAALGOS_BFSSTEPS_HH
 
 #include <map>
-#include "tgba/state.hh"
 #include "emptiness.hh"
 
 namespace spot

@@ -20,7 +20,7 @@
 
 #include <iostream>
 #include "graph/ngraph.hh"
-#include "tgba/state.hh"
+#include "tgba/tgba.hh"
 
 template <typename SL, typename TL>
 void

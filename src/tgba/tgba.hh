@@ -23,14 +23,411 @@
 #ifndef SPOT_TGBA_TGBA_HH
 # define SPOT_TGBA_TGBA_HH
 
-#include "state.hh"
 #include "bdddict.hh"
-#include "succiter.hh"
 #include "fwd.hh"
+#include <cassert>
+#include <memory>
+#include <memory>
+#include "misc/casts.hh"
+#include "misc/hash.hh"
 
 namespace spot
 {
-  class tgba_succ_iterator;
+  /// \ingroup tgba_essentials
+  /// \brief Abstract class for states.
+  class SPOT_API state
+  {
+  public:
+    /// \brief Compares two states (that come from the same automaton).
+    ///
+    /// This method returns an integer less than, equal to, or greater
+    /// than zero if \a this is found, respectively, to be less than, equal
+    /// to, or greater than \a other according to some implicit total order.
+    ///
+    /// This method should not be called to compare states from
+    /// different automata.
+    ///
+    /// \sa spot::state_ptr_less_than
+    virtual int compare(const state* other) const = 0;
+
+    /// \brief Hash a state.
+    ///
+    /// This method returns an integer that can be used as a
+    /// hash value for this state.
+    ///
+    /// Note that the hash value is guaranteed to be unique for all
+    /// equal states (in compare()'s sense) for only has long has one
+    /// of these states exists.  So it's OK to use a spot::state as a
+    /// key in a \c hash_map because the mere use of the state as a
+    /// key in the hash will ensure the state continues to exist.
+    ///
+    /// However if you create the state, get its hash key, delete the
+    /// state, recreate the same state, and get its hash key, you may
+    /// obtain two different hash keys if the same state were not
+    /// already used elsewhere.  In practice this weird situation can
+    /// occur only when the state is BDD-encoded, because BDD numbers
+    /// (used to build the hash value) can be reused for other
+    /// formulas.  That probably doesn't matter, since the hash value
+    /// is meant to be used in a \c hash_map, but it had to be noted.
+    virtual size_t hash() const = 0;
+
+    /// Duplicate a state.
+    virtual state* clone() const = 0;
+
+    /// \brief Release a state.
+    ///
+    /// Methods from the tgba or tgba_succ_iterator always return a
+    /// new state that you should deallocate with this function.
+    /// Before Spot 0.7, you had to "delete" your state directly.
+    /// Starting with Spot 0.7, you should update your code to use
+    /// this function instead. destroy() usually call delete, except
+    /// in subclasses that destroy() to allow better memory management
+    /// (e.g., no memory allocation for explicit automata).
+    virtual void destroy() const
+    {
+      delete this;
+    }
+
+  protected:
+    /// \brief Destructor.
+    ///
+    /// Note that client code should call
+    /// <code>s->destroy();</code> instead of <code>delete s;</code>.
+    virtual ~state()
+    {
+    }
+  };
+
+  /// \ingroup tgba_essentials
+  /// \brief Strict Weak Ordering for \c state*.
+  ///
+  /// This is meant to be used as a comparison functor for
+  /// STL \c map whose key are of type \c state*.
+  ///
+  /// For instance here is how one could declare
+  /// a map of \c state*.
+  /// \code
+  ///   // Remember how many times each state has been visited.
+  ///   std::map<spot::state*, int, spot::state_ptr_less_than> seen;
+  /// \endcode
+  struct state_ptr_less_than
+  {
+    bool
+    operator()(const state* left, const state* right) const
+    {
+      assert(left);
+      return left->compare(right) < 0;
+    }
+  };
+
+  /// \ingroup tgba_essentials
+  /// \brief An Equivalence Relation for \c state*.
+  ///
+  /// This is meant to be used as a comparison functor for
+  /// an \c unordered_map whose key are of type \c state*.
+  ///
+  /// For instance here is how one could declare
+  /// a map of \c state*.
+  /// \code
+  ///   // Remember how many times each state has been visited.
+  ///   std::unordered_map<spot::state*, int, spot::state_ptr_hash,
+  ///                                    spot::state_ptr_equal> seen;
+  /// \endcode
+  struct state_ptr_equal
+  {
+    bool
+    operator()(const state* left, const state* right) const
+    {
+      assert(left);
+      return 0 == left->compare(right);
+    }
+  };
+
+  /// \ingroup tgba_essentials
+  /// \ingroup hash_funcs
+  /// \brief Hash Function for \c state*.
+  ///
+  /// This is meant to be used as a hash functor for
+  /// an \c unordered_map whose key are of type \c state*.
+  ///
+  /// For instance here is how one could declare
+  /// a map of \c state*.
+  /// \code
+  ///   // Remember how many times each state has been visited.
+  ///   std::unordered_map<spot::state*, int, spot::state_ptr_hash,
+  ///                                    spot::state_ptr_equal> seen;
+  /// \endcode
+  struct state_ptr_hash
+  {
+    size_t
+    operator()(const state* that) const
+    {
+      assert(that);
+      return that->hash();
+    }
+  };
+
+  typedef std::unordered_set<const state*,
+			     state_ptr_hash, state_ptr_equal> state_set;
+
+
+  /// \ingroup tgba_essentials
+  /// \brief Render state pointers unique via a hash table.
+  class SPOT_API state_unicity_table
+  {
+    state_set m;
+  public:
+
+    /// \brief Canonicalize state pointer.
+    ///
+    /// If this is the first time a state is seen, this return the
+    /// state pointer as-is, otherwise it frees the state and returns
+    /// a point to the previously seen copy.
+    ///
+    /// States are owned by the table and will be freed on
+    /// destruction.
+    const state* operator()(const state* s)
+    {
+      auto p = m.insert(s);
+      if (!p.second)
+	s->destroy();
+      return *p.first;
+    }
+
+    /// \brief Canonicalize state pointer.
+    ///
+    /// Same as operator(), except that a nullptr
+    /// is returned if the state is not new.
+    const state* is_new(const state* s)
+    {
+      auto p = m.insert(s);
+      if (!p.second)
+	{
+	  s->destroy();
+	  return nullptr;
+	}
+      return *p.first;
+    }
+
+    ~state_unicity_table()
+    {
+      for (state_set::iterator i = m.begin(); i != m.end();)
+	{
+	  // Advance the iterator before destroying its key.  This
+	  // avoid issues with old g++ implementations.
+	  state_set::iterator old = i++;
+	  (*old)->destroy();
+	}
+    }
+
+    size_t
+    size()
+    {
+      return m.size();
+    }
+  };
+
+
+
+  // Functions related to shared_ptr.
+  //////////////////////////////////////////////////
+
+  typedef std::shared_ptr<const state> shared_state;
+
+  inline void shared_state_deleter(state* s) { s->destroy(); }
+
+  /// \ingroup tgba_essentials
+  /// \brief Strict Weak Ordering for \c shared_state
+  /// (shared_ptr<const state*>).
+  ///
+  /// This is meant to be used as a comparison functor for
+  /// STL \c map whose key are of type \c shared_state.
+  ///
+  /// For instance here is how one could declare
+  /// a map of \c shared_state.
+  /// \code
+  ///   // Remember how many times each state has been visited.
+  ///   std::map<shared_state, int, spot::state_shared_ptr_less_than> seen;
+  /// \endcode
+  struct state_shared_ptr_less_than
+  {
+    bool
+    operator()(shared_state left,
+               shared_state right) const
+    {
+      assert(left);
+      return left->compare(right.get()) < 0;
+    }
+  };
+
+  /// \ingroup tgba_essentials
+  /// \brief An Equivalence Relation for \c shared_state
+  /// (shared_ptr<const state*>).
+  ///
+  /// This is meant to be used as a comparison functor for
+  /// un \c unordered_map whose key are of type \c shared_state.
+  ///
+  /// For instance here is how one could declare
+  /// a map of \c shared_state
+  /// \code
+  ///   // Remember how many times each state has been visited.
+  ///   std::unordered_map<shared_state, int,
+  ///                      state_shared_ptr_hash,
+  ///                      state_shared_ptr_equal> seen;
+  /// \endcode
+  struct state_shared_ptr_equal
+  {
+    bool
+    operator()(shared_state left,
+               shared_state right) const
+    {
+      assert(left);
+      return 0 == left->compare(right.get());
+    }
+  };
+
+  /// \ingroup tgba_essentials
+  /// \ingroup hash_funcs
+  /// \brief Hash Function for \c shared_state (shared_ptr<const state*>).
+  ///
+  /// This is meant to be used as a hash functor for
+  /// an \c unordered_map whose key are of type
+  /// \c shared_state.
+  ///
+  /// For instance here is how one could declare
+  /// a map of \c shared_state.
+  /// \code
+  ///   // Remember how many times each state has been visited.
+  ///   std::unordered_map<shared_state, int,
+  ///                      state_shared_ptr_hash,
+  ///                      state_shared_ptr_equal> seen;
+  /// \endcode
+  struct state_shared_ptr_hash
+  {
+    size_t
+    operator()(shared_state that) const
+    {
+      assert(that);
+      return that->hash();
+    }
+  };
+
+  typedef std::unordered_set<shared_state,
+			     state_shared_ptr_hash,
+			     state_shared_ptr_equal> shared_state_set;
+
+  /// \ingroup tgba_essentials
+  /// \brief Iterate over the successors of a state.
+  ///
+  /// This class provides the basic functionalities required to
+  /// iterate over the successors of a state, as well as querying
+  /// transition labels.  Because transitions are never explicitely
+  /// encoded, labels (conditions and acceptance conditions) can only
+  /// be queried while iterating over the successors.
+  class SPOT_API tgba_succ_iterator
+  {
+  public:
+    virtual
+    ~tgba_succ_iterator()
+    {
+    }
+
+    /// \name Iteration
+    //@{
+
+    /// \brief Position the iterator on the first successor (if any).
+    ///
+    /// This method can be called several times to make multiple
+    /// passes over successors.
+    ///
+    /// \warning One should always call \c done() (or better: check
+    /// the return value of first()) to ensure there is a successor,
+    /// even after \c first().  A common trap is to assume that there
+    /// is at least one successor: this is wrong.
+    ///
+    /// \return whether there is actually a successor
+    virtual bool first() = 0;
+
+    /// \brief Jump to the next successor (if any).
+    ///
+    /// \warning Again, one should always call \c done() (or better:
+    /// check the return value of next()) ensure there is a successor.
+    ///
+    /// \return whether there is actually a successor
+    virtual bool next() = 0;
+
+    /// \brief Check whether the iteration is finished.
+    ///
+    /// This function should be called after any call to \c first()
+    /// or \c next() and before any enquiry about the current state.
+    ///
+    /// The usual way to do this is with a \c for loop.
+    ///
+    ///     for (s->first(); !s->done(); s->next())
+    ///       ...
+    virtual bool done() const = 0;
+
+    //@}
+
+    /// \name Inspection
+    //@{
+
+    /// \brief Get the state of the current successor.
+    ///
+    /// Note that the same state may occur at different points
+    /// in the iteration.  These actually correspond to the same
+    /// destination.  It just means there were several transitions,
+    /// with different conditions, leading to the same state.
+    ///
+    /// The returned state should be destroyed (see state::destroy)
+    /// by the caller after it is no longer used.
+    virtual state* current_state() const = 0;
+    /// \brief Get the condition on the transition leading to this successor.
+    ///
+    /// This is a boolean function of atomic propositions.
+    virtual bdd current_condition() const = 0;
+    /// \brief Get the acceptance conditions on the transition leading
+    /// to this successor.
+    virtual bdd current_acceptance_conditions() const = 0;
+
+    //@}
+  };
+
+  namespace internal
+  {
+    struct SPOT_API succ_iterator
+    {
+    protected:
+      tgba_succ_iterator* it_;
+    public:
+
+      succ_iterator(tgba_succ_iterator* it):
+	it_(it)
+      {
+      }
+
+      bool operator==(succ_iterator o) const
+      {
+	return it_ == o.it_;
+      }
+
+      bool operator!=(succ_iterator o) const
+      {
+	return it_ != o.it_;
+      }
+
+      const tgba_succ_iterator* operator*() const
+      {
+	return it_;
+      }
+
+      void operator++()
+      {
+	if (!it_->next())
+	  it_ = nullptr;
+      }
+    };
+  }
 
   /// \defgroup tgba TGBA (Transition-based Generalized Büchi Automata)
   ///

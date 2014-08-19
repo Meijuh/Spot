@@ -21,7 +21,6 @@
 # define SPOT_KRIPKE_FAIRKRIPKE_HH
 
 #include "tgba/tgba.hh"
-#include "tgba/succiter.hh"
 #include "fwd.hh"
 
 /// \addtogroup kripke Kripke Structures
