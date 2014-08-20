@@ -1,6 +1,12 @@
 New in spot 1.2.4a (not yet released)
 
-  * Documentation
+  * New feature:
+
+    - The online ltl2tgba translator will automatically attempt to
+      parse a formula using LBT's syntax if it cannot parse it using
+      the normal infix syntax.
+
+  * Documentation:
 
     - The man page for ltl2tgba has some new notes and references
       about TGBA and about monitors.
