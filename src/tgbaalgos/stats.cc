@@ -1,5 +1,6 @@
-// Copyright (C) 2008, 2011, 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding utf-8 -*-
+// Copyright (C) 2008, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -25,7 +26,7 @@
 #include "reachiter.hh"
 #include "ltlvisit/tostring.hh"
 #include "tgbaalgos/isdet.hh"
-#include "tgbaalgos/scc.hh"
+#include "tgbaalgos/sccinfo.hh"
 
 namespace spot
 {
@@ -157,7 +158,7 @@ namespace spot
   }
 
   std::ostream&
-  stat_printer::print(const const_tgba_ptr& aut,
+  stat_printer::print(const const_tgba_digraph_ptr& aut,
 		      const ltl::formula* f,
 		      double run_time)
   {
@@ -182,11 +183,7 @@ namespace spot
       acc_ = aut->number_of_acceptance_conditions();
 
     if (has('c') || has('S'))
-      {
-	scc_map m(aut);
-	m.build_map();
-	scc_ = m.scc_count();
-      }
+      scc_ = scc_info(aut).scc_count();
 
     if (has('n'))
       {

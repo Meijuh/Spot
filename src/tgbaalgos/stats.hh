@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2008, 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -85,7 +85,7 @@ namespace spot
     /// The \a f argument is not needed if the Formula does not need
     /// to be output, and so is \a run_time).
     std::ostream&
-      print(const const_tgba_ptr& aut, const ltl::formula* f = 0,
+      print(const const_tgba_digraph_ptr& aut, const ltl::formula* f = 0,
 	    double run_time = -1.);
 
   private:

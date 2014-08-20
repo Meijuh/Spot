@@ -40,7 +40,7 @@
 #include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "dstarparse/public.hh"
-#include "tgbaalgos/scc.hh"
+#include "tgbaalgos/sccinfo.hh"
 
 const char argp_program_doc[] ="\
 Convert Rabin and Streett automata into Büchi automata.\n\n\
@@ -225,7 +225,7 @@ namespace
     /// to be output.
     std::ostream&
     print(const spot::const_dstar_aut_ptr& daut,
-	  const spot::const_tgba_ptr& aut,
+	  const spot::const_tgba_digraph_ptr& aut,
 	  const char* filename, double run_time)
     {
       filename_ = filename;
@@ -252,11 +252,7 @@ namespace
 	daut_acc_ = daut->accpair_count;
 
       if (has('C'))
-	{
-	  spot::scc_map m(daut->aut);
-	  m.build_map();
-	  daut_scc_ = m.scc_count();
-	}
+	daut_scc_ = spot::scc_info(daut->aut).scc_count();
 
       return this->spot::stat_printer::print(aut, 0, run_time);
     }

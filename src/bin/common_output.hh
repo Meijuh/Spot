@@ -73,7 +73,7 @@ public:
   }
 
   std::ostream&
-  print(const spot::const_tgba_ptr& aut,
+  print(const spot::const_tgba_digraph_ptr& aut,
 	const spot::ltl::formula* f = 0,
 	double run_time = -1.)
   {

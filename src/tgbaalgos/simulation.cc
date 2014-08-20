@@ -28,7 +28,7 @@
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/sccfilter.hh"
-#include "tgbaalgos/scc.hh"
+#include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/dupexp.hh"
 
 // The way we developed this algorithm is the following: We take an
@@ -224,14 +224,13 @@ namespace spot
           map_cst_(map_cst),
           original_(t)
       {
-        // We need to do a dupexp for being able to run scc_map later.
+        // We need to do a dupexp for being able to run scc_info later.
         // new_original_ is the map that contains the relation between
         // the names (addresses) of the states in the automaton
         // returned by dupexp, and in automaton given in argument to
         // the constructor.
         a_ = tgba_dupexp_dfs(t, new_original_);
-        scc_map_ = new scc_map(a_);
-        scc_map_->build_map();
+        scc_info_.reset(new scc_info(a_));
         old_a_ = a_;
 
 
@@ -323,7 +322,6 @@ namespace spot
       virtual ~direct_simulation()
       {
 	a_->get_dict()->unregister_all_my_variables(this);
-        delete scc_map_;
       }
 
       // Update the name of the classes.
@@ -770,7 +768,7 @@ namespace spot
 
       automaton_size stat;
 
-      scc_map* scc_map_;
+      std::unique_ptr<scc_info> scc_info_;
       std::vector<const state*> new_original_;
 
       const map_constraint* map_cst_;
@@ -822,15 +820,15 @@ namespace spot
       {
         bdd res = bddfalse;
 
-        unsigned scc = scc_map_->scc_of_state(old_a_->state_from_number(src));
-        bool sccacc = scc_map_->accepting(scc);
+        unsigned scc = scc_info_->scc_of(src);
+        bool sccacc = scc_info_->is_accepting_scc(scc);
 
 	for (auto& t: a_->out(src))
           {
             bdd cl = previous_class_[t.dst];
             bdd acc;
 
-            if (scc != scc_map_->scc_of_state(old_a_->state_from_number(t.dst)))
+            if (scc != scc_info_->scc_of(t.dst))
               acc = !on_cycle_;
             else if (sccacc)
               acc = on_cycle_ & t.acc;

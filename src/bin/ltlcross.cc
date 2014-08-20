@@ -48,6 +48,7 @@
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/randomgraph.hh"
+#include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/isweakscc.hh"
@@ -983,9 +984,7 @@ namespace
 			st->in_transitions = s.sub_transitions;
 			st->in_acc = aut->accpair_count;
 
-			spot::scc_map m(aut->aut);
-			m.build_map();
-			st->in_scc = m.scc_count();
+			st->in_scc = spot::scc_info(aut->aut).scc_count();
 		      }
 		    // convert it into TGBA for further processing
 		    res = dstar_to_tgba(aut);
