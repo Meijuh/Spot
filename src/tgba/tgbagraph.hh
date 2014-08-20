@@ -357,6 +357,10 @@ namespace spot
     auto transitions()
       SPOT_RETURN(g_.transitions());
 
+    template<typename T>
+    auto is_dead_transition(T t) const
+      SPOT_RETURN(g_.is_dead_transition(t));
+
     /// \brief Copy the acceptance conditions of another tgba.
     void copy_acceptance_conditions_of(const const_tgba_ptr& a)
     {

@@ -151,6 +151,7 @@ namespace spot
       State dst;		// destination
       Transition next_succ;	// next outgoing transition with same
 				// source, or 0
+
       explicit trans_storage()
 	: Trans_Data{}
       {
@@ -530,13 +531,13 @@ namespace spot
       return t;
     }
 
-    state index_of_state(state_storage_t& ss)
+    state index_of_state(const state_storage_t& ss) const
     {
       assert(!states_.empty());
       return &ss - &states_.front();
     }
 
-    transition index_of_transition(trans_storage_t& tt)
+    transition index_of_transition(const trans_storage_t& tt) const
     {
       assert(!transitions_.empty());
       return &tt - &transitions_.front();
@@ -598,6 +599,16 @@ namespace spot
       return transitions_;
     }
 
+    bool is_dead_transition(unsigned t) const
+    {
+      return transitions_[t].next_succ == t;
+    }
+
+    bool is_dead_transition(trans_storage_t& t) const
+    {
+      return t.next_succ == index_of_transition(t);
+    }
+
     void defrag()
     {
       if (killed_trans_ == 0)	// Nothing to do.
@@ -611,7 +622,7 @@ namespace spot
       unsigned dest = 1;
       for (transition t = 1; t < tend; ++t)
 	{
-	  if (transitions_[t].next_succ == t)
+	  if (is_dead_transition(t))
 	    continue;
 	  if (t != dest)
 	    transitions_[dest] = std::move(transitions_[t]);
