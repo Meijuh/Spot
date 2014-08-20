@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -187,7 +187,7 @@ ARGMATCH_VERIFY(color_args, color_types);
 
 color_type color_opt = color_if_tty;
 const char* bright_red = "\033[01;31m";
-const char* bright_white = "\033[01;37m";
+const char* bright_blue = "\033[01;34m";
 const char* bright_yellow = "\033[01;33m";
 const char* reset_color = "\033[m";
 
@@ -1244,7 +1244,7 @@ namespace
       if (filename || linenum)
 	std::cerr << " ";
       if (color_opt)
-	std::cerr << bright_white;
+	std::cerr << bright_blue;
       std::cerr << fstr << "\n";
       if (color_opt)
 	std::cerr << reset_color;

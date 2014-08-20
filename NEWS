@@ -16,6 +16,11 @@ New in spot 1.2.4a (not yet released)
     - Fix a memory leak in the little-used conversion from
       transition-based alternating automata to tgba.
     - Fix a harmless uninitialized read in BuDDy.
+    - When writing to the terminal, ltlcross used to display each
+      formula in bright white, to make them stand out.  It turns out
+      this was actually hiding the formulas for people using a
+      terminal with white background... This version displays formula
+      in bright blue instead.
 
 New in spot 1.2.4 (2014-05-15)
 
