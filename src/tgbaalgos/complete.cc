@@ -61,12 +61,6 @@ namespace spot
 	      }
 	  }
       }
-    // If we haven't found any sink, simply add one.
-    if (sink == -1U)
-      {
-	sink = aut->new_state();
-	++n;
-      }
 
     // Now complete all states (including the sink).
     for (unsigned i = 0; i < n; ++i)
@@ -91,10 +85,20 @@ namespace spot
 	    // state.
 	    acc = t.acc;
 	  }
-	// In case the automaton use state-based acceptance, propagate
-	// the acceptance of the first transition to the one we add.
+	// If the state has incomplete successors, we need to add a
+	// transition to some sink state.
 	if (missingcond != bddfalse)
-	  aut->new_transition(i, sink, missingcond, acc);
+	  {
+	    // If we haven't found any sink, simply add one.
+	    if (sink == -1U)
+	      {
+		sink = aut->new_state();
+		++n;
+	      }
+	    // In case the automaton use state-based acceptance, propagate
+	    // the acceptance of the first transition to the one we add.
+	    aut->new_transition(i, sink, missingcond, acc);
+	  }
       }
     return sink;
   }
