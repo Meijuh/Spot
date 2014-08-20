@@ -254,24 +254,59 @@ namespace spot
 	// Similarly
 	//      a M b = (a R (b&P(a)))
 	//      (a M b) M c = (a R (b & Pa)) R (c & P(a M b))
-	//                  = (a R (b & Pa)) R (c & P(a))
-	// The rules also apply to F:
-	//   P(F(a)) = P(a)
-      again:
-	while (const binop* b = is_binop(f))
+	//                  = (a R (b & Pa)) R (c & P(a & b))
+	//
+	// The code below therefore implement the following
+	// rules:
+	// P(a U b) = P(b)
+	// P(F(a))  = P(a)
+	// P(a M b) = P(a & b)
+	//
+	// The latter rule INCORRECTLY appears as P(a M b)=P(a)
+	// in section 3.5 of
+	//    "LTL translation improvements in Spot 1.0",
+	//     A. Duret-Lutz. IJCCBS 5(1/2):31-54, March 2014.
+	// and was unfortunately implemented this way until Spot
+	// 1.2.4.  A counterexample is given by the formula
+	//    G(Fa & ((a M b) U ((c U !d) M d)))
+	// that was found by Joachim Klein.  Here P((c U !d) M d)
+	// and P(c U !d) should not both be simplified to P(!d).
+	for (;;)
 	  {
-	    binop::type op = b->op();
-	    if (op == binop::U)
-	      f = b->second();
-	    else if (op == binop::M)
-	      f = b->first();
+	    if (const binop* b = is_binop(f))
+	      {
+		binop::type op = b->op();
+		if (op == binop::U)
+		  {
+		    // P(a U b) = P(b)
+		    f = b->second();
+		  }
+		else if (op == binop::M)
+		  {
+		    // P(a M b) = P(a & b)
+		    const formula* g =
+		      multop::instance(multop::And,
+				       b->first()->clone(),
+				       b->second()->clone());
+		    int num = dict->register_acceptance_variable(g, this);
+		    a_set &= bdd_ithvar(num);
+		    g->destroy();
+		    return num;
+		  }
+		else
+		  {
+		    break;
+		  }
+	      }
+	    else if (const unop* u = is_unop(f, unop::F))
+	      {
+		// P(F(a)) = P(a)
+		f = u->child();
+	      }
 	    else
-	      break;
-	  }
-	if (const unop* u = is_unop(f, unop::F))
-	  {
-	    f = u->child();
-	    goto again;
+	      {
+		break;
+	      }
 	  }
 	int num = dict->register_acceptance_variable(f, this);
 	a_set &= bdd_ithvar(num);
@@ -1521,9 +1556,23 @@ namespace spot
 	    {
 	      res_ = recurse(node->second(), recurring_);
 	      bdd f1 = recurse(node->first());
-	      // r(f1 M f2) = r(f2)(r(f1) + a(f1)X(f1 M f2)) if not recurring
-	      // r(f1 M f2) = r(f2)(r(f1) + a(f1))           if recurring
-	      bdd a = bdd_ithvar(dict_.register_a_variable(node->first()));
+	      // r(f1 M f2) = r(f2)(r(f1) + a(f1&f2)X(f1 M f2)) if not recurring
+	      // r(f1 M f2) = r(f2)(r(f1) + a(f1&f2))           if recurring
+	      //
+	      // Note that the rule above differs from the one given
+	      // in Figure 2 of
+	      //    "LTL translation improvements in Spot 1.0",
+	      //     A. Duret-Lutz. IJCCBS 5(1/2):31-54, March 2014.
+	      // Both rules should be OK, but this one is a better fit
+	      // to the promises simplifications performed in
+	      // register_a_variable() (see comments in this function).
+	      // We do not want a U (c M d) to generate two different
+	      // promises.  Generating c&d also makes the output similar
+	      // to what we would get with the equivalent a U (d U (c & d)).
+	      //
+	      // Here we just appear to emit a(f1 M f2) and the conversion
+	      // to a(f1&f2) is done  by register_a_variable().
+	      bdd a = bdd_ithvar(dict_.register_a_variable(node));
 	      if (!recurring_)
 		a &= bdd_ithvar(dict_.register_next_variable(node));
 	      res_ &= f1 | a;

@@ -7,6 +7,10 @@ New in spot 1.2.4a (not yet released)
 
   * Bug fixes:
 
+    - Fix incorrect simplification of promises in the translation
+      of the M operator (you may suffer from the bug even if you do
+      not use this operator as some LTL patterns are automatically
+      reduced to it).
     - Fix simplification of bounded repetition in SERE formulas.
     - Fix parsing of neverclaims produced by Modella.
     - Fix a memory leak in the little-used conversion from
