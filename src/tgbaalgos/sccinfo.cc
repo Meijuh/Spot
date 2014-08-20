@@ -250,6 +250,17 @@ namespace spot
     return result;
   }
 
+  std::vector<bool> scc_info::weak_sccs() const
+  {
+    unsigned n = scc_count();
+    std::vector<bool> result(scc_count());
+    auto acc = used_acc();
+    bdd all = bdd_support(aut_->neg_acceptance_conditions());
+    for (unsigned s = 0; s < n; ++s)
+      result[s] = !is_accepting_scc(s) || acc[s] == all;
+    return result;
+  }
+
   bdd scc_info::scc_ap_support(unsigned scc) const
   {
     bdd support = bddtrue;

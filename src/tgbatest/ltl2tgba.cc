@@ -1369,7 +1369,8 @@ checked_main(int argc, char** argv)
       if (opt_dtbasat >= 0)
 	{
 	  tm.start("dtbasat");
-	  auto satminimized = dtba_sat_synthetize(a, opt_dtbasat);
+	  auto satminimized =
+	    dtba_sat_synthetize(ensure_digraph(a), opt_dtbasat);
 	  tm.stop("dtbasat");
 	  if (satminimized)
 	    a = satminimized;
@@ -1377,7 +1378,8 @@ checked_main(int argc, char** argv)
       else if (opt_dtgbasat >= 0)
 	{
 	  tm.start("dtgbasat");
-	  auto satminimized = dtgba_sat_minimize(a, opt_dtgbasat);
+	  auto satminimized = dtgba_sat_minimize(ensure_digraph(a),
+						 opt_dtgbasat);
 	  tm.stop("dtgbasat");
 	  if (satminimized)
 	    a = satminimized;

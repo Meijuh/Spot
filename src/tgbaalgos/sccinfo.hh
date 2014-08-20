@@ -147,6 +147,8 @@ namespace spot
    /// at position #i.
     std::vector<bdd> used_acc() const;
 
+    std::vector<bool> weak_sccs() const;
+
     bdd scc_ap_support(unsigned scc) const;
   };
 

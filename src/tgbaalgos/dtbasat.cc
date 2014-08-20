@@ -24,7 +24,7 @@
 #include "reachiter.hh"
 #include <map>
 #include <utility>
-#include "scc.hh"
+#include "sccinfo.hh"
 #include "tgba/bddprint.hh"
 #include "stats.hh"
 #include "misc/satsolver.hh"
@@ -57,11 +57,11 @@ namespace spot
 
     struct transition
     {
-      int src;
+      unsigned src;
       bdd cond;
-      int dst;
+      unsigned dst;
 
-      transition(int src, bdd cond, int dst)
+      transition(unsigned src, bdd cond, unsigned dst)
 	: src(src), cond(cond), dst(dst)
       {
       }
@@ -89,10 +89,10 @@ namespace spot
 
     struct src_cond
     {
-      int src;
+      unsigned src;
       bdd cond;
 
-      src_cond(int src, bdd cond)
+      src_cond(unsigned src, bdd cond)
 	: src(src), cond(cond)
       {
       }
@@ -115,10 +115,10 @@ namespace spot
 
     struct state_pair
     {
-      int a;
-      int b;
+      unsigned a;
+      unsigned b;
 
-      state_pair(int a, int b)
+      state_pair(unsigned a, unsigned b)
 	: a(a), b(b)
       {
       }
@@ -210,77 +210,48 @@ namespace spot
       std::map<state_pair, int> prodid;
       std::map<path, int> pathid_ref;
       std::map<path, int> pathid_cand;
-      int nvars;
-      typedef std::unordered_map<const state*, int,
-				 state_ptr_hash, state_ptr_equal> state_map;
-      typedef std::unordered_map<int, const state*> int_map;
-      state_map state_to_int;
-      int_map int_to_state;
-      int cand_size;
-
-      ~dict()
-      {
-	state_map::const_iterator s = state_to_int.begin();
-	while (s != state_to_int.end())
-	  // Always advance the iterator before deleting the key.
-	  s++->first->destroy();
-      }
+      int nvars = 0;
+      unsigned cand_size;
     };
 
-
-    class filler_dfs: public tgba_reachable_iterator_depth_first
+    unsigned declare_vars(const const_tgba_digraph_ptr& aut,
+			  dict& d,
+			  bdd ap,
+			  bool state_based,
+			  scc_info& sm)
     {
-    protected:
-      dict& d;
-      int size_;
-      bdd ap_;
-      bool state_based_;
-      scc_map& sm_;
-    public:
-      filler_dfs(const const_tgba_ptr& aut, dict& d, bdd ap, bool state_based,
-		 scc_map& sm)
-	: tgba_reachable_iterator_depth_first(aut), d(d), ap_(ap),
-	  state_based_(state_based), sm_(sm)
-      {
-	d.nvars = 0;
-      }
+      unsigned ref_size = aut->num_states();
 
-      int size()
-      {
-	return size_;
-      }
+      if (d.cand_size == -1U)
+	for (unsigned i = 0; i < ref_size; ++i)
+	  if (sm.reachable_state(i))
+	    ++d.cand_size;	// Note that we start from -1U the
+				// cand_size is one less than the
+				// number of reachable states.
 
-      void end()
-      {
-	size_ = seen.size();
+      for (unsigned i = 0; i < ref_size; ++i)
+	{
+	  if (!sm.reachable_state(i))
+	    continue;
 
-	if (d.cand_size == -1)
-	  d.cand_size = size_ - 1;
+	  unsigned i_scc = sm.scc_of(i);
+	  bool is_trivial = sm.is_trivial(i_scc);
 
-	// Reverse the "seen" map.  States are labeled from 1 to size_.
-	for (dict::state_map::const_iterator i2 = seen.begin();
-	     i2 != seen.end(); ++i2)
-	  d.int_to_state[i2->second] = i2->first;
+	  for (unsigned j = 0; j < d.cand_size; ++j)
+	    {
+	      d.prodid[state_pair(j, i)] = ++d.nvars;
 
-	for (int i = 1; i <= size_; ++i)
-	  {
-	    unsigned i_scc = sm_.scc_of_state(d.int_to_state[i]);
+	      // skip trivial SCCs
+	      if (is_trivial)
+		continue;
 
-	    bool is_trivial = sm_.trivial(i_scc);
-
-	    for (int j = 1; j <= d.cand_size; ++j)
-	      {
-		d.prodid[state_pair(j, i)] = ++d.nvars;
-
-		// skip trivial SCCs
-		if (is_trivial)
-		  continue;
-
-		for (int k = 1; k <= size_; ++k)
-		  {
-		    if (sm_.scc_of_state(d.int_to_state[k]) != i_scc)
-		      continue;
-		    for (int l = 1; l <= d.cand_size; ++l)
+	      for (unsigned k = 0; k < ref_size; ++k)
+		{
+		  if (!sm.reachable_state(k))
+		    continue;
+		  if (sm.scc_of(k) != i_scc)
+		    continue;
+		  for (unsigned l = 0; l < d.cand_size; ++l)
 		    {
 		      if (i == k && j == l)
 			continue;
@@ -288,51 +259,52 @@ namespace spot
 		      d.pathid_ref[p] = ++d.nvars;
 		      d.pathid_cand[p] = ++d.nvars;
 		    }
-		  }
-	      }
-	  }
+		}
+	    }
+	}
 
-	std::swap(d.state_to_int, seen);
-
-	for (int i = 1; i <= d.cand_size; ++i)
+	for (unsigned i = 0; i < d.cand_size; ++i)
 	  {
 	    int transacc = -1;
-	    if (state_based_)
+	    if (state_based)
 	      // All outgoing transitions use the same acceptance variable.
 	      transacc = ++d.nvars;
 
-	    for (int j = 1; j <= d.cand_size; ++j)
+	    for (unsigned j = 0; j < d.cand_size; ++j)
 	      {
 		bdd all = bddtrue;
 		while (all != bddfalse)
 		  {
-		    bdd one = bdd_satoneset(all, ap_, bddfalse);
+		    bdd one = bdd_satoneset(all, ap, bddfalse);
 		    all -= one;
 
 		    transition t(i, one, j);
 		    d.transid[t] = ++d.nvars;
 		    d.revtransid.emplace(d.nvars, t);
 		    int ta = d.transacc[t] =
-		      state_based_ ? transacc : ++d.nvars;
+		      state_based ? transacc : ++d.nvars;
 		    d.revtransacc.emplace(ta, t);
 		  }
 	      }
 	  }
-      }
-    };
+
+	return ref_size;
+    }
 
     typedef std::pair<int, int> sat_stats;
 
     static
-    sat_stats dtba_to_sat(std::ostream& out, const_tgba_ptr ref,
+    sat_stats dtba_to_sat(std::ostream& out,
+			  const const_tgba_digraph_ptr& ref,
 			  dict& d, bool state_based)
     {
       clause_counter nclauses;
-      int ref_size = 0;
 
-      scc_map sm(ref);
-      sm.build_map();
-      bdd ap = sm.aprec_set_of(sm.initial());
+      // Compute the AP used in the hard way.
+      bdd ap = bddtrue;
+      for (auto& t: ref->transitions())
+	if (!ref->is_dead_transition(t))
+	  ap &= bdd_support(t.cond);
 
       // Count the number of atomic propositions
       int nap = 0;
@@ -346,12 +318,10 @@ namespace spot
 	nap = 1 << nap;
       }
 
-      // Number all the SAT variable we may need.
-      {
-	filler_dfs f(ref, d, ap, state_based, sm);
-	f.run();
-	ref_size = f.size();
-      }
+      scc_info sm(ref);
+
+      // Number all the SAT variables we may need.
+      unsigned ref_size = declare_vars(ref, d, ap, state_based, sm);
 
       // empty automaton is impossible
       if (d.cand_size == 0)
@@ -370,14 +340,14 @@ namespace spot
 #endif
 
       dout << "symmetry-breaking clauses\n";
-      int j = 0;
+      unsigned j = 0;
       bdd all = bddtrue;
       while (all != bddfalse)
  	{
  	  bdd s = bdd_satoneset(all, ap, bddfalse);
  	  all -= s;
- 	  for (int i = 1; i < d.cand_size; ++i)
- 	    for (int k = (i - 1) * nap + j + 3; k <= d.cand_size; ++k)
+	  for (unsigned i = 0; i < d.cand_size - 1; ++i)
+	    for (unsigned k = i * nap + j + 2; k < d.cand_size; ++k)
 	      {
 		transition t(i, s, k);
 		int ti = d.transid[t];
@@ -391,7 +361,7 @@ namespace spot
  	dout << "(none)\n";
 
       dout << "(1) the candidate automaton is complete\n";
-      for (int q1 = 1; q1 <= d.cand_size; ++q1)
+      for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
 	{
 	  bdd all = bddtrue;
 	  while (all != bddfalse)
@@ -401,7 +371,7 @@ namespace spot
 
 #if DEBUG
 	      dout;
-	      for (int q2 = 1; q2 <= d.cand_size; q2++)
+	      for (unsigned q2 = 0; q2 < d.cand_size; q2++)
 		{
 		  transition t(q1, s, q2);
 		  out << t << "δ";
@@ -411,7 +381,7 @@ namespace spot
 	      out << '\n';
 #endif
 
-	      for (int q2 = 1; q2 <= d.cand_size; q2++)
+	      for (unsigned q2 = 0; q2 < d.cand_size; q2++)
 		{
 		  transition t(q1, s, q2);
 		  int ti = d.transid[t];
@@ -425,31 +395,28 @@ namespace spot
 	}
 
       dout << "(2) the initial state is reachable\n";
-      dout << state_pair(1, 1) << '\n';
-      out << d.prodid[state_pair(1, 1)] << " 0\n";
+      dout << state_pair(0, 0) << '\n';
+      out << d.prodid[state_pair(0, 0)] << " 0\n";
       ++nclauses;
 
       for (std::map<state_pair, int>::const_iterator pit = d.prodid.begin();
 	   pit != d.prodid.end(); ++pit)
 	{
-	  int q1 = pit->first.a;
-	  int q1p = pit->first.b;
+	  unsigned q1 = pit->first.a;
+	  unsigned q1p = pit->first.b;
 
 	  dout << "(3) augmenting paths based on Cand[" << q1
 	       << "] and Ref[" << q1p << "]\n";
-	  for (auto it: ref->succ(d.int_to_state[q1p]))
+	  for (auto& tr: ref->out(q1p))
 	    {
-	      const state* dps = it->current_state();
-	      int dp = d.state_to_int[dps];
-	      dps->destroy();
-
-	      bdd all = it->current_condition();
+	      unsigned dp = tr.dst;
+	      bdd all = tr.cond;
 	      while (all != bddfalse)
 		{
 		  bdd s = bdd_satoneset(all, ap, bddfalse);
 		  all -= s;
 
-		  for (int q2 = 1; q2 <= d.cand_size; q2++)
+		  for (unsigned q2 = 0; q2 < d.cand_size; q2++)
 		    {
 		      transition t(q1, s, q2);
 		      int ti = d.transid[t];
@@ -474,19 +441,23 @@ namespace spot
       // construction of contraints (4,5) : all loops in the product
       // where no accepting run is detected in the ref. automaton,
       // must also be marked as not accepting in the cand. automaton
-      for (int q1p = 1; q1p <= ref_size; ++q1p)
+      for (unsigned q1p = 0; q1p < ref_size; ++q1p)
 	{
-	  unsigned q1p_scc = sm.scc_of_state(d.int_to_state[q1p]);
-	  if (sm.trivial(q1p_scc))
+	  if (!sm.reachable_state(q1p))
 	    continue;
-	  for (int q2p = 1; q2p <= ref_size; ++q2p)
+	  unsigned q1p_scc = sm.scc_of(q1p);
+	  if (sm.is_trivial(q1p_scc))
+	    continue;
+	  for (unsigned q2p = 0; q2p < ref_size; ++q2p)
 	    {
+	      if (!sm.reachable_state(q2p))
+		continue;
 	      // We are only interested in transition that can form a
 	      // cycle, so they must belong to the same SCC.
-	      if (sm.scc_of_state(d.int_to_state[q2p]) != q1p_scc)
+	      if (sm.scc_of(q2p) != q1p_scc)
 		continue;
-	      for (int q1 = 1; q1 <= d.cand_size; ++q1)
-		for (int q2 = 1; q2 <= d.cand_size; ++q2)
+	      for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
+		for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
 		  {
 		    path p1(q1, q1p, q2, q2p);
 
@@ -499,25 +470,20 @@ namespace spot
 		    else
 		      pid1 = d.pathid_ref[p1];
 
-		    for (auto it: ref->succ(d.int_to_state[q2p]))
+		    for (auto& tr: ref->out(q2p))
 		      {
-			const state* dps = it->current_state();
+			unsigned dp = tr.dst;
 			// Skip destinations not in the SCC.
-			if (sm.scc_of_state(dps) != q1p_scc)
-			  {
-			    dps->destroy();
-			    continue;
-			  }
-			int dp = d.state_to_int[dps];
-			dps->destroy();
-
-			if (it->current_acceptance_conditions() == all_acc)
+			if (sm.scc_of(dp) != q1p_scc)
 			  continue;
-			for (int q3 = 1; q3 <= d.cand_size; ++q3)
+
+			if (tr.acc == all_acc)
+			  continue;
+			for (unsigned q3 = 0; q3 < d.cand_size; ++q3)
 			  {
 			    if (dp == q1p && q3 == q1) // (4) looping
 			      {
-				bdd all = it->current_condition();
+				bdd all = tr.cond;
 				while (all != bddfalse)
 				  {
 				    bdd s = bdd_satoneset(all, ap, bddfalse);
@@ -544,7 +510,7 @@ namespace spot
 				if (pid1 == pid2)
 				  continue;
 
-				bdd all = it->current_condition();
+				bdd all = tr.cond;
 				while (all != bddfalse)
 				  {
 				    bdd s = bdd_satoneset(all, ap, bddfalse);
@@ -568,19 +534,23 @@ namespace spot
       // construction of contraints (6,7): all loops in the product
       // where accepting run is detected in the ref. automaton, must
       // also be marked as accepting in the candidate.
-      for (int q1p = 1; q1p <= ref_size; ++q1p)
+      for (unsigned q1p = 0; q1p < ref_size; ++q1p)
 	{
-	  unsigned q1p_scc = sm.scc_of_state(d.int_to_state[q1p]);
-	  if (sm.trivial(q1p_scc))
+	  if (!sm.reachable_state(q1p))
 	    continue;
-	  for (int q2p = 1; q2p <= ref_size; ++q2p)
+	  unsigned q1p_scc = sm.scc_of(q1p);
+	  if (sm.is_trivial(q1p_scc))
+	    continue;
+	  for (unsigned q2p = 0; q2p < ref_size; ++q2p)
 	    {
+	      if (!sm.reachable_state(q2p))
+		continue;
 	      // We are only interested in transition that can form a
 	      // cycle, so they must belong to the same SCC.
-	      if (sm.scc_of_state(d.int_to_state[q2p]) != q1p_scc)
+	      if (sm.scc_of(q2p) != q1p_scc)
 		continue;
-	      for (int q1 = 1; q1 <= d.cand_size; ++q1)
-		for (int q2 = 1; q2 <= d.cand_size; ++q2)
+	      for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
+		for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
 		  {
 		    path p1(q1, q1p, q2, q2p);
 		    dout << "(6&7) matching paths from candidate based on "
@@ -592,27 +562,21 @@ namespace spot
 		    else
 		      pid1 = d.pathid_cand[p1];
 
-		    for (auto it: ref->succ(d.int_to_state[q2p]))
+		    for (auto& tr: ref->out(q2p))
 		      {
-			const state* dps = it->current_state();
+			unsigned dp = tr.dst;
 			// Skip destinations not in the SCC.
-			if (sm.scc_of_state(dps) != q1p_scc)
-			  {
-			    dps->destroy();
-			    continue;
-			  }
-			int dp = d.state_to_int[dps];
-			dps->destroy();
-			for (int q3 = 1; q3 <= d.cand_size; q3++)
+			if (sm.scc_of(dp) != q1p_scc)
+			  continue;
+			for (unsigned q3 = 0; q3 < d.cand_size; q3++)
 			  {
 			    if (dp == q1p && q3 == q1) // (6) looping
 			      {
 				// We only care about the looping case if
 				// it is accepting in the reference.
-				if (it->current_acceptance_conditions()
-				    != all_acc)
+				if (tr.acc != all_acc)
 				  continue;
-				bdd all = it->current_condition();
+				bdd all = tr.cond;
 				while (all != bddfalse)
 				  {
 				    bdd s = bdd_satoneset(all, ap, bddfalse);
@@ -637,7 +601,7 @@ namespace spot
 				if (pid1 == pid2)
 				  continue;
 
-				bdd all = it->current_condition();
+				bdd all = tr.cond;
 				while (all != bddfalse)
 				  {
 				    bdd s = bdd_satoneset(all, ap, bddfalse);
@@ -667,7 +631,7 @@ namespace spot
 
     static tgba_digraph_ptr
     sat_build(const satsolver::solution& solution, dict& satdict,
-	      const_tgba_ptr aut, bool state_based)
+	      const_tgba_digraph_ptr aut, bool state_based)
     {
       auto autdict = aut->get_dict();
       auto a = make_tgba_digraph(autdict);
@@ -710,7 +674,7 @@ namespace spot
 		    && acc_states.find(t->second.src) != acc_states.end();
 
 		  last_aut_trans =
-		    a->new_acc_transition(t->second.src - 1, t->second.dst - 1,
+		    a->new_acc_transition(t->second.src, t->second.dst,
 					  t->second.cond, accept);
 		  last_sat_trans = &t->second;
 
@@ -770,8 +734,8 @@ namespace spot
   }
 
   tgba_digraph_ptr
-  dtba_sat_synthetize(const const_tgba_ptr& a, int target_state_number,
-		      bool state_based)
+  dtba_sat_synthetize(const const_tgba_digraph_ptr& a,
+		      int target_state_number, bool state_based)
   {
     if (target_state_number == 0)
       return nullptr;
@@ -828,7 +792,7 @@ namespace spot
   }
 
   tgba_digraph_ptr
-  dtba_sat_minimize(const const_tgba_ptr& a, bool state_based)
+  dtba_sat_minimize(const const_tgba_digraph_ptr& a, bool state_based)
   {
     int n_states = stats_reachable(a).states;
 
@@ -847,7 +811,8 @@ namespace spot
   }
 
   tgba_digraph_ptr
-  dtba_sat_minimize_dichotomy(const const_tgba_ptr& a, bool state_based)
+  dtba_sat_minimize_dichotomy(const const_tgba_digraph_ptr& a,
+			      bool state_based)
   {
     int max_states = stats_reachable(a).states - 1;
     int min_states = 1;
