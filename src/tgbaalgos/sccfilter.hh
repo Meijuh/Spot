@@ -26,7 +26,6 @@
 
 namespace spot
 {
-  class scc_map;
   class scc_info;
 
 

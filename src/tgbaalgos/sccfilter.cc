@@ -19,7 +19,6 @@
 
 #include "sccfilter.hh"
 #include "reachiter.hh"
-#include "scc.hh"
 #include "sccinfo.hh"
 
 namespace spot
