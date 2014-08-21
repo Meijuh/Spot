@@ -27,6 +27,7 @@ Type of formula output if o=f (pick one)
 
   ff=o    Spot syntax
   ff=i    Spin syntax
+  ff=l    LBT syntax
   ff=g    graphviz output of the AST
   ff=p    property dump
 

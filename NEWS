@@ -4,7 +4,8 @@ New in spot 1.2.4a (not yet released)
 
     - The online ltl2tgba translator will automatically attempt to
       parse a formula using LBT's syntax if it cannot parse it using
-      the normal infix syntax.
+      the normal infix syntax.  It also has an option to display
+      formulas using LBT's syntax.
 
     - ltl2tgba and dstar2tgba have a new experimental option --hoaf to
       output automata in the Hanoï Omega Automaton Format whose

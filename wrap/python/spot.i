@@ -70,6 +70,7 @@ namespace std {
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/tunabbrev.hh"
 #include "ltlvisit/apcollect.hh"
+#include "ltlvisit/lbt.hh"
 
 #include "tgba/bdddict.hh"
 #include "tgba/bddprint.hh"
@@ -182,6 +183,7 @@ using namespace spot;
 %include "ltlvisit/tostring.hh"
 %include "ltlvisit/tunabbrev.hh"
 %include "ltlvisit/apcollect.hh"
+%include "ltlvisit/lbt.hh"
 
 %feature("new") spot::emptiness_check::check;
 %feature("new") spot::emptiness_check_instantiator::construct;
