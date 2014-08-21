@@ -379,9 +379,10 @@ main(int argc, char** argv)
     error(2, 0, "No atomic proposition supplied?   Run '%s --help' for usage.",
 	  program_name);
 
+  spot::srand(opt_seed);
+
   typedef Sgi::hash_set<const spot::ltl::formula*,
 			const spot::ptr_hash<const spot::ltl::formula> > fset_t;
-
   fset_t unique_set;
 
   spot::ltl::ltl_simplifier simpl(simplifier_options());
@@ -392,7 +393,6 @@ main(int argc, char** argv)
       unsigned trials = MAX_TRIALS;
       bool ignore;
       const spot::ltl::formula* f = 0;
-      spot::srand(opt_seed++);
       do
 	{
 	  ignore = false;

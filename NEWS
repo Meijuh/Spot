@@ -35,6 +35,10 @@ New in spot 1.2.4a (not yet released)
       this was actually hiding the formulas for people using a
       terminal with white background... This version displays formula
       in bright blue instead.
+    - 'randltl -n -1 --seed 0' and 'randltl -n -1 --seed 1' used to
+      generate nearly the same list of formulas, shifted by one,
+      because the PRNG write reset with an incremented seed between
+      each output formula.  The PRNG is now reset only once.
 
 New in spot 1.2.4 (2014-05-15)
 
