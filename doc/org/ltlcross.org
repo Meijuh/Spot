@@ -610,9 +610,9 @@ automaton as well.
 
 ** =--stop-on-error=
 
-The =--stop-on-error= will cause =ltlcross= to abort on the first
-detected error.  This include failure to start some translator, read
-its output, or failure to passe the sanity checks.  Timeouts are
+The =--stop-on-error= option will cause =ltlcross= to abort on the
+first detected error.  This include failure to start some translator,
+read its output, or failure to passe the sanity checks.  Timeouts are
 allowed.
 
 One use for this option is when =ltlcross= is used in combination with
@@ -625,6 +625,30 @@ to remove duplicate formulas will keep growing).
 
 #+BEGIN_SRC sh :export code :eval no
 randltl -n -1 --tree-size 10..25 a b c | ltlcross --stop-on-error 'ltl2tgba --lbtt %f >%T' 'ltl3ba -f %s >%N'
+#+END_SRC
+
+** =--save-bogus=FILENAME=
+
+The =--save-bogus=FILENAME= will save any formula for which an error
+was detected (either some translation failed, or some problem was
+detected using the resulting automata) in =FILENAME=.  Again, timeouts
+are not considered to be errors, and therefore not reported in this
+file.
+
+The main use for this feature is in conjunction with =randltl='s
+generation of random formulas.  For instance the following command
+will run the translators on an infinite number of formulas, saving
+any problematic formula in =bugs.ltl=.
+
+#+BEGIN_SRC sh :export code :eval no
+randltl -n -1 --tree-size 10..25 a b c | ltlcross --save-bogus=bugs.ltl 'ltl2tgba --lbtt %f >%T' 'ltl3ba -f %s >%N'
+#+END_SRC
+
+You can periodically check the contents of =bugs.ltl=, and then run
+=ltlcross= only on those formulas to look at the problems:
+
+#+BEGIN_SRC sh :export code :eval no
+ltlcross -F bugs.ltl 'ltl2tgba --lbtt %f >%T' 'ltl3ba -f %s >%N'
 #+END_SRC
 
 ** =--no-check=
