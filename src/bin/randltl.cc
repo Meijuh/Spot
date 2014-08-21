@@ -44,12 +44,18 @@
 #include "misc/hash.hh"
 
 const char argp_program_doc[] ="\
-Generate random temporal logic formulas.\v\
+Generate random temporal logic formulas.\n\n\
+The formulas are built over the atomic propositions named by PROPS...\n\
+or, if N is a nonnegative number, using N arbitrary names.\v\
 Examples:\n\
 \n\
 The following generates 10 random LTL formulas over the propositions a, b,\n\
 and c, with the default tree-size, and all available operators.\n\
   % randltl -n10 a b c\n\
+\n\
+If you do not mind about the name of the atomic propositions, just give\n\
+a number instead:\n\
+  % ./randltl -n10 3\n\
 \n\
 You can disable or favor certain operators by changing their priority.\n\
 The following disables xor, implies, and equiv, and multiply the probability\n\
@@ -139,6 +145,7 @@ static int opt_seed = 0;
 static range opt_tree_size = { 15, 15 };
 static bool opt_unique = true;
 static bool opt_wf = false;
+static bool ap_count_given = false;
 
 void
 remove_some_props(spot::ltl::atomic_prop_set& s)
@@ -185,7 +192,7 @@ to_int(const char* s)
 }
 
 static int
-parse_opt(int key, char* arg, struct argp_state*)
+parse_opt(int key, char* arg, struct argp_state* as)
 {
   // This switch is alphabetically-ordered.
   switch (key)
@@ -236,6 +243,32 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_wf = true;
       break;
     case ARGP_KEY_ARG:
+      // If this is the unique non-option argument, it can
+      // be a number of atomic propositions to build.
+      //
+      // argp reorganizes argv[] so that options always come before
+      // non-options.  So if as->argc == as->next we know this is the
+      // last non-option argument, and if aprops.empty() we know this
+      // is the also the first one.
+      if (aprops.empty() && as->argc == as->next)
+	{
+	  char* endptr;
+	  int res = strtol(arg, &endptr, 10);
+	  if (!*endptr && res >= 0) // arg is a number
+	    {
+	      ap_count_given = true;
+	      spot::ltl::default_environment& e =
+		spot::ltl::default_environment::instance();
+	      for (int i = 0; i < res; ++i)
+		{
+		  std::ostringstream p;
+		  p << 'p' << i;
+		  aprops.insert(static_cast<const spot::ltl::atomic_prop*>
+				(e.require(p.str())));
+		}
+	      break;
+	    }
+	}
       aprops.insert(static_cast<const spot::ltl::atomic_prop*>
 		    (spot::ltl::default_environment::instance().require(arg)));
       break;
@@ -250,7 +283,7 @@ main(int argc, char** argv)
 {
   setup(argv);
 
-  const argp ap = { options, parse_opt, "PROP...", argp_program_doc,
+  const argp ap = { options, parse_opt, "N|PROP...", argp_program_doc,
 		    children, 0, 0 };
 
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
@@ -340,7 +373,9 @@ main(int argc, char** argv)
       exit(0);
     }
 
-  if (aprops.empty())
+  // running 'randltl 0' is one way to generate formulas using no
+  // atomic propositions so do not complain in that case.
+  if (aprops.empty() && !ap_count_given)
     error(2, 0, "No atomic proposition supplied?   Run '%s --help' for usage.",
 	  program_name);
 

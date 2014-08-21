@@ -19,6 +19,15 @@ randltl a b c
 
 Note that the result does not always use all atomic propositions.
 
+If you do not care about how the atomic propositions are named,
+you can give a nonnegative number instead:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randltl 3
+#+END_SRC
+#+RESULTS:
+: G(Gp1 W (Gp1 M p2))
+
 The syntax of the formula output can be changed using the
 [[file:ioltl.org][common output options]]:
 
@@ -40,16 +49,16 @@ like =p0=, =p1=, etc... (Atomic proposition named differently will be
 output by Spot in double-quotes, but this is not supported by LBT.)
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randltl -l p1 p2 p3
-randltl -8 p1 p2 p3
-randltl -s p1 p2 p3
-randltl --wring p1 p2 p3
+randltl -l 3
+randltl -8 3
+randltl -s 3
+randltl --wring 3
 #+END_SRC
 #+RESULTS:
-: G W G p2 M G p2 p3
-: □(□p2 W (□p2 M p3))
-: []((p3 U (p3 && []p2)) V ([]p2 || (p3 U (p3 && []p2))))
-: (G(((p3=1) U ((p3=1) * (G(p2=1)))) R ((G(p2=1)) + ((p3=1) U ((p3=1) * (G(p2=1)))))))
+: G W G p1 M G p1 p2
+: □(□p1 W (□p1 M p2))
+: []((p2 U (p2 && []p1)) V ([]p1 || (p2 U (p2 && []p1))))
+: (G(((p2=1) U ((p2=1) * (G(p1=1)))) R ((G(p1=1)) + ((p2=1) U ((p2=1) * (G(p1=1)))))))
 
 As you might guess from the above result, for a given set of atomic
 propositions (and on the same computer) the generated formula will

@@ -12,6 +12,8 @@ New in spot 1.2.4a (not yet released)
       The corresponding C++ function is spot::hoaf_reachable() in
       tgbaalgos/hoaf.hh.
 
+    - 'randltl 4' is now a shorthand for 'randltl p0 p1 p2 p3'.
+
   * Documentation:
 
     - The man page for ltl2tgba has some new notes and references
