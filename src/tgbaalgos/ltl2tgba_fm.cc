@@ -1438,48 +1438,51 @@ namespace spot
 	  case unop::NegClosure:
 	    rat_seen_ = true;
 	    {
-	      const formula* c = node->child();
 	      if (mark_all_)
 		{
 		  op = unop::NegClosureMarked;
 		  has_marked_ = true;
 		}
-	      bdd f1 = translate_ratexp(c, dict_);
 
-	      // trace_ltl_bdd(dict_, f1);
+	      const formula* f = node->child();
+	      tgba_succ_iterator* i = dict_.transdfa.succ(f);
+	      res_ = bddtrue;
 
-	      bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
-	      bdd all_props = bdd_existcomp(f1, dict_.var_set);
+	      if (!i)
+		break;
 
-	      res_ = !all_props &
-		// stick X(1) to preserve determinism.
-		bdd_ithvar(dict_.register_next_variable
-			   (constant::true_instance()));
-
-	      while (all_props != bddfalse)
+	      res_ = bddfalse;
+	      bdd missing = bddtrue;
+	      for (i->first(); !i->done(); i->next())
 		{
-		  bdd label = bdd_satoneset(all_props, var_set, bddtrue);
-		  all_props -= label;
+		  bdd label = i->current_condition();
+		  state* s = i->current_state();
+		  const formula* dest = dict_.transdfa.get_label(f, s);
+		  s->destroy();
 
-		  const formula* dest =
-		    dict_.bdd_to_sere(bdd_exist(f1 & label, dict_.var_set));
+		  missing -= label;
 
-		  // !{ Exp } is false if Exp accepts the empty word.
 		  if (dest->accepts_eword())
 		    {
 		      dest->destroy();
-		      continue;
 		    }
-
-		  const formula* dest2 = unop::instance(op, dest);
-
-		  if (dest2 == constant::false_instance())
-		    continue;
-
-		  int x = dict_.register_next_variable(dest2);
-		  dest2->destroy();
-		  res_ |= label & bdd_ithvar(x);
+		  else
+		    {
+		      const formula* dest2 = unop::instance(op, dest);
+		      if (dest2 == constant::false_instance())
+			continue;
+		      int x = dict_.register_next_variable(dest2);
+		      dest2->destroy();
+		      res_ |= label & bdd_ithvar(x);
+		    }
 		}
+	      delete i;
+
+	      res_ |= missing &
+		// stick X(1) to preserve determinism.
+		bdd_ithvar(dict_.register_next_variable
+			   (constant::true_instance()));
+	      //trace_ltl_bdd(dict_, res_);
 	    }
 	    break;
 

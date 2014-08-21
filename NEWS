@@ -31,6 +31,9 @@ New in spot 1.2.4a (not yet released)
       not use this operator as some LTL patterns are automatically
       reduced to it).
     - Fix simplification of bounded repetition in SERE formulas.
+    - Fix incorrect translation of PSL formulas of the form !{f} where
+      f is unsatisifable.  A similar bug was fixed for {f} in Spot
+      1.1.4, but for some reason it was not fixed for !{f}.
     - Fix parsing of neverclaims produced by Modella.
     - Fix a memory leak in the little-used conversion from
       transition-based alternating automata to tgba.
