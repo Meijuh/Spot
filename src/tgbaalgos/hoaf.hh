@@ -44,10 +44,10 @@ namespace spot
   /// \param g The automaton to output.
   /// \param f The (optional) formula associated to the automaton.  If given
   ///          it will be output as a comment.
-  /// \parama acceptance Force the type of acceptance mode used
+  /// \param a acceptance Force the type of acceptance mode used
   ///         in output.
   /// \param alias Whether aliases should be used in output.
-  /// \param newslines Whether to use newlines in output.
+  /// \param newlines Whether to use newlines in output.
   SPOT_API std::ostream&
   hoaf_reachable(std::ostream& os,
 		 const tgba* g,
