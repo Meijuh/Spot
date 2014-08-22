@@ -36,6 +36,7 @@
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
+#include "tgbaalgos/hoaf.hh"
 #include "tgba/tgbasgba.hh"
 #include "tgbaalgos/degen.hh"
 #include "tgba/tgbaproduct.hh"
@@ -385,6 +386,7 @@ checked_main(int argc, char** argv)
   bool containment = false;
   bool show_fc = false;
   bool spin_comments = false;
+  const char* hoaf_opt = 0;
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* unobservables = 0;
   spot::tgba_ptr system_aut = 0;
@@ -552,6 +554,11 @@ checked_main(int argc, char** argv)
 	{
 	  accepting_run = true;
 	  graph_run_tgba_opt = true;
+	}
+      else if (!strncmp(argv[formula_index], "-H", 2))
+	{
+	  output = 17;
+	  hoaf_opt = argv[formula_index] + 2;
 	}
       else if (!strcmp(argv[formula_index], "-k"))
 	{
@@ -1693,7 +1700,11 @@ checked_main(int argc, char** argv)
 		  }
 		break;
 	      }
-
+	    case 17:
+	      {
+		hoaf_reachable(std::cout, a, hoaf_opt, f) << '\n';
+		break;
+	      }
 	    default:
 	      SPOT_UNREACHABLE();
 	    }

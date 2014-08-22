@@ -1,4 +1,4 @@
-New in spot 1.2.4a (not yet released)
+New in spot 1.2.5a (not yet released)
 
   * Major changes (including backward incompatible changes):
 
@@ -86,6 +86,56 @@ New in spot 1.2.4a (not yet released)
       translation was a purely-based BDD encoding producing huge
       automata (when viewed explictely), using the above and non
       longuer supported tgba_bdd_concrete class.
+
+New in spot 1.2.5 (2014-08-21)
+
+  * New features:
+
+    - The online ltl2tgba translator will automatically attempt to
+      parse a formula using LBT's syntax if it cannot parse it using
+      the normal infix syntax.  It also has an option to display
+      formulas using LBT's syntax.
+
+    - ltl2tgba and dstar2tgba have a new experimental option --hoaf to
+      output automata in the Hanoï Omega Automaton Format whose
+      current draft is at http://adl.github.io/hoaf/
+      The corresponding C++ function is spot::hoaf_reachable() in
+      tgbaalgos/hoaf.hh.
+
+    - 'randltl 4' is now a shorthand for 'randltl p0 p1 p2 p3'.
+
+    - ltlcross has a new option --save-bogus=FILENAME to save any
+      formula for which a problem (other than timeout) was detected
+      during translation or using the resulting automatas.
+
+  * Documentation:
+
+    - The man page for ltl2tgba has some new notes and references
+      about TGBA and about monitors.
+
+  * Bug fixes:
+
+    - Fix incorrect simplification of promises in the translation
+      of the M operator (you may suffer from the bug even if you do
+      not use this operator as some LTL patterns are automatically
+      reduced to it).
+    - Fix simplification of bounded repetition in SERE formulas.
+    - Fix incorrect translation of PSL formulas of the form !{f} where
+      f is unsatisifable.  A similar bug was fixed for {f} in Spot
+      1.1.4, but for some reason it was not fixed for !{f}.
+    - Fix parsing of neverclaims produced by Modella.
+    - Fix a memory leak in the little-used conversion from
+      transition-based alternating automata to tgba.
+    - Fix a harmless uninitialized read in BuDDy.
+    - When writing to the terminal, ltlcross used to display each
+      formula in bright white, to make them stand out.  It turns out
+      this was actually hiding the formulas for people using a
+      terminal with white background... This version displays formula
+      in bright blue instead.
+    - 'randltl -n -1 --seed 0' and 'randltl -n -1 --seed 1' used to
+      generate nearly the same list of formulas, shifted by one,
+      because the PRNG write reset with an incremented seed between
+      each output formula.  The PRNG is now reset only once.
 
 New in spot 1.2.4 (2014-05-15)
 

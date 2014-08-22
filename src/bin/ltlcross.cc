@@ -95,6 +95,7 @@ Exit status:\n\
 #define OPT_COLOR 10
 #define OPT_NOCOMP 11
 #define OPT_OMIT 12
+#define OPT_BOGUS 13
 
 static const argp_option options[] =
   {
@@ -160,6 +161,8 @@ static const argp_option options[] =
       "colorize output; WHEN can be 'never', 'always' (the default if "
       "--color is used without argument), or "
       "'auto' (the default if --color is not used)", 0 },
+    { "save-bogus", OPT_BOGUS, "FILENAME", 0,
+      "save formulas for which problems were detected in FILENAME", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -188,7 +191,7 @@ ARGMATCH_VERIFY(color_args, color_types);
 
 color_type color_opt = color_if_tty;
 const char* bright_red = "\033[01;31m";
-const char* bright_white = "\033[01;37m";
+const char* bright_blue = "\033[01;34m";
 const char* bright_yellow = "\033[01;33m";
 const char* reset_color = "\033[m";
 
@@ -207,6 +210,8 @@ unsigned products = 1;
 bool products_avg = true;
 bool opt_omit = false;
 bool has_sr = false; // Has Streett or Rabin automata to process.
+const char* bogus_output_filename = 0;
+std::ofstream* bogus_output = 0;
 
 struct translator_spec
 {
@@ -510,6 +515,14 @@ parse_opt(int key, char* arg, struct argp_state*)
 		<< "on your platform" << std::endl;
 #endif
       break;
+    case OPT_BOGUS:
+      {
+	bogus_output = new std::ofstream(arg);
+	if (!*bogus_output)
+	  error(2, errno, "cannot open '%s'", arg);
+	bogus_output_filename = arg;
+	break;
+      }
     case OPT_COLOR:
       {
 	if (arg)
@@ -850,7 +863,8 @@ namespace
     }
 
     spot::const_tgba_ptr
-    translate(unsigned int translator_num, char l, statistics_formula* fstats)
+    translate(unsigned int translator_num, char l, statistics_formula* fstats,
+	      bool& problem)
     {
       output.reset(translator_num);
 
@@ -875,11 +889,13 @@ namespace
 	  std::cerr << "warning: timeout during execution of command\n";
 	  ++timeout_count;
 	  status_str = "timeout";
+	  problem = false;	// A timeout is not a sign of a bug
 	  es = -1;
 	}
       else if (WIFSIGNALED(es))
 	{
 	  status_str = "signal";
+	  problem = true;
 	  es = WTERMSIG(es);
 	  global_error() << "error: execution terminated by signal "
 			 << es << ".\n";
@@ -889,6 +905,7 @@ namespace
 	{
 	  es = WEXITSTATUS(es);
 	  status_str = "exit code";
+	  problem = true;
 	  global_error() << "error: execution returned exit code "
 			 << es << ".\n";
 	  end_error();
@@ -896,6 +913,7 @@ namespace
       else
 	{
 	  status_str = "ok";
+	  problem = false;
 	  es = 0;
 	  switch (output.format)
 	    {
@@ -907,6 +925,7 @@ namespace
 		if (!pel.empty())
 		  {
 		    status_str = "parse error";
+		    problem = true;
 		    es = -1;
 		    std::ostream& err = global_error();
 		    err << "error: failed to parse the produced neverclaim.\n";
@@ -923,6 +942,7 @@ namespace
 		if (!f)
 		  {
 		    status_str = "no output";
+		    problem = true;
 		    es = -1;
 		    global_error() << "Cannot open " << output.val()
 				   << std::endl;
@@ -934,6 +954,7 @@ namespace
 		    if (!res)
 		      {
 			status_str = "parse error";
+			problem = true;
 			es = -1;
 			global_error() << ("error: failed to parse output in "
 					   "LBTT format: ")
@@ -951,6 +972,7 @@ namespace
 		if (!pel.empty())
 		  {
 		    status_str = "parse error";
+		    problem = true;
 		    es = -1;
 		    std::ostream& err = global_error();
 		    err << "error: failed to parse the produced DSTAR"
@@ -1043,7 +1065,7 @@ namespace
     }
   };
 
-  static void
+  static bool
   check_empty_prod(const spot::const_tgba_ptr& aut_i,
 		   const spot::const_tgba_ptr& aut_j,
 		   size_t i, size_t j, bool icomp, bool jcomp)
@@ -1086,9 +1108,10 @@ namespace
       }
     delete res;
     delete ec;
+    return res;
   }
 
-  static void
+  static bool
   cross_check(const std::vector<spot::scc_map*>& maps, char l, unsigned p)
   {
     size_t m = maps.size();
@@ -1141,7 +1164,9 @@ namespace
 	else
 	  err << "the state-space\n";
 	end_error();
+	return true;
       }
+    return false;
   }
 
   typedef std::set<spot::state*, spot::state_ptr_less_than> state_set;
@@ -1205,11 +1230,34 @@ namespace
     }
 
     int
+    process_string(const std::string& input,
+		   const char* filename,
+		   int linenum)
+    {
+      spot::ltl::parse_error_list pel;
+      const spot::ltl::formula* f = parse_formula(input, pel);
+
+      if (!f || !pel.empty())
+	{
+	  if (filename)
+	    error_at_line(0, 0, filename, linenum, "parse error:");
+	  spot::ltl::format_parse_errors(std::cerr, input, pel);
+	  if (f)
+	    f->destroy();
+	  return 1;
+	}
+      int res = process_formula(f, filename, linenum);
+
+      if (res && bogus_output)
+	*bogus_output << input << std::endl;
+      return 0;
+    }
+
+
+    int
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
-      (void) filename;
-      (void) linenum;
       static unsigned round = 0;
 
       // If we need LBT atomic proposition in any of the input or
@@ -1236,7 +1284,7 @@ namespace
       if (filename || linenum)
 	std::cerr << ' ';
       if (color_opt)
-	std::cerr << bright_white;
+	std::cerr << bright_blue;
       std::cerr << fstr << '\n';
       if (color_opt)
 	std::cerr << reset_color;
@@ -1260,6 +1308,9 @@ namespace
 	    }
 	}
 
+
+      int problems = 0;
+
       // These store the result of the translation of the positive and
       // negative formulas.
       size_t m = translators.size();
@@ -1280,7 +1331,10 @@ namespace
 
       for (size_t n = 0; n < m; ++n)
 	{
-	  pos[n] = runner.translate(n, 'P', pstats);
+	  bool prob;
+	  pos[n] = runner.translate(n, 'P', pstats, prob);
+	  problems += prob;
+
 	  // If the automaton is deterministic, compute its complement
 	  // as well.  Note that if we have computed statistics
 	  // already, there is no need to call is_deterministic()
@@ -1318,7 +1372,10 @@ namespace
 
 	  for (size_t n = 0; n < m; ++n)
 	    {
-	      neg[n] = runner.translate(n, 'N', nstats);
+	      bool prob;
+	      neg[n] = runner.translate(n, 'N', nstats, prob);
+	      problems += prob;
+
 	      // If the automaton is deterministic, compute its
 	      // complement as well.  Note that if we have computed
 	      // statistics already, there is no need to call
@@ -1345,7 +1402,8 @@ namespace
 	      for (size_t j = 0; j < m; ++j)
 		if (neg[j])
 		  {
-		    check_empty_prod(pos[i], neg[j], i, j, false, false);
+		    problems +=
+		      check_empty_prod(pos[i], neg[j], i, j, false, false);
 
 		    // Deal with the extra complemented automata if we
 		    // have some.
@@ -1363,13 +1421,18 @@ namespace
 		    // translation was not deterministic.
 
 		    if (i != j && comp_pos[j] && !comp_neg[j])
-		      check_empty_prod(pos[i], comp_pos[j], i, j, false, true);
+		      problems +=
+			check_empty_prod(pos[i], comp_pos[j],
+					 i, j, false, true);
 		    if (i != j && comp_neg[i] && !comp_neg[i])
-		      check_empty_prod(comp_neg[i], neg[j], i, j, true, false);
+		      problems +=
+			check_empty_prod(comp_neg[i], neg[j],
+					 i, j, true, false);
 		    if (comp_pos[i] && comp_neg[j] &&
 			(i == j || (!comp_neg[i] && !comp_pos[j])))
-		      check_empty_prod(comp_pos[i], comp_neg[j],
-				       i, j, true, true);
+		      problems +=
+			check_empty_prod(comp_pos[i], comp_neg[j],
+					 i, j, true, true);
 		  }
 	}
       else
@@ -1448,14 +1511,16 @@ namespace
 	  if (!no_checks)
 	    {
 	      // cross-comparison test
-	      cross_check(pos_map, 'P', p);
-	      cross_check(neg_map, 'N', p);
+	      problems += cross_check(pos_map, 'P', p);
+	      problems += cross_check(neg_map, 'N', p);
 
 	      // consistency check
 	      for (size_t i = 0; i < m; ++i)
 		if (pos_map[i] && neg_map[i] &&
 		    !(consistency_check(pos_map[i], neg_map[i], statespace)))
 		  {
+		    ++problems;
+
 		    std::ostream& err = global_error();
 		    err << "error: inconsistency between P" << i
 			<< " and N" << i;
@@ -1481,7 +1546,7 @@ namespace
 
       // Shall we stop processing formulas now?
       abort_run = global_error_flag && stop_on_error;
-      return 0;
+      return problems;
     }
   };
 }
@@ -1499,7 +1564,7 @@ print_stats_csv(const char* filename)
   else
     {
       out = outfile = new std::ofstream(filename);
-      if (!outfile)
+      if (!*outfile)
 	error(2, errno, "cannot open '%s'", filename);
     }
 
@@ -1537,7 +1602,7 @@ print_stats_json(const char* filename)
   else
     {
       out = outfile = new std::ofstream(filename);
-      if (!outfile)
+      if (!*outfile)
 	error(2, errno, "cannot open '%s'", filename);
     }
 
@@ -1616,10 +1681,16 @@ main(int argc, char** argv)
       if (global_error_flag)
 	{
 	  std::ostream& err = global_error();
-	  err << ("error: some error was detected during the above runs,\n"
-		  "       please search for 'error:' messages in the above "
-		  "trace.")
-	      << std::endl;
+	  if (bogus_output)
+	    err << ("error: some error was detected during the above runs.\n"
+		    "       Check file ")
+		<< bogus_output_filename
+		<< " for problematic formulas.";
+	  else
+	    err << ("error: some error was detected during the above runs,\n"
+		    "       please search for 'error:' messages in the above"
+		    " trace.");
+	  err << std::endl;
 	  if (timeout_count == 1)
 	    err << "Additionally, 1 timeout occurred." << std::endl;
 	  else if (timeout_count > 1)
@@ -1635,6 +1706,8 @@ main(int argc, char** argv)
 	std::cerr << timeout_count
 		  << " timeouts, but no other problem detected." << std::endl;
     }
+
+  delete bogus_output;
 
   if (json_output)
     print_stats_json(json_output);

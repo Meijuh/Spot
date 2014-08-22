@@ -85,7 +85,7 @@ static bool accept_all_seen = false;
 %token <str> FORMULA "boolean formula"
 %token <str> IDENT "identifier"
 %type <b> formula
-%type <str> opt_dest
+%type <str> opt_dest formula_or_ident
 %type <p> transition src_dest
 %type <list> transitions transition_block
 %type <str> ident_list
@@ -193,7 +193,9 @@ transitions:
     }
 
 
-formula: FORMULA
+formula_or_ident: FORMULA | IDENT
+
+formula: formula_or_ident
      {
        formula_cache::const_iterator i = fcache.find(*$1);
        if (i == fcache.end())

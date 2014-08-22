@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -34,6 +34,7 @@
 #include "ltlast/formula.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
+#include "tgbaalgos/hoaf.hh"
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
@@ -71,6 +72,10 @@ static const argp_option options[] =
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
     { "dot", OPT_DOT, 0, 0, "GraphViz's format (default)", 0 },
+    { "hoaf", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
+      "Output the automaton in HOA format.  Add letters to select "
+      "(s) state-based acceptance, (t) transition-based acceptance, "
+      "(m) mixed acceptance, (l) single-line output", 0 },
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
       "LBTT's format (add =t to force transition-based acceptance even"
       " on Büchi automata)", 0 },
@@ -121,9 +126,10 @@ const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats } format = Dot;
+enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa } format = Dot;
 bool utf8 = false;
 const char* stats = "";
+const char* hoaf_opt = 0;
 spot::option_map extra_options;
 
 static int
@@ -140,6 +146,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'F':
       jobs.emplace_back(arg, true);
+      break;
+    case 'H':
+      format = Hoa;
+      hoaf_opt = arg;
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
@@ -316,6 +326,9 @@ namespace
 	  break;
 	case Lbtt_t:
 	  spot::lbtt_reachable(std::cout, aut, false);
+	  break;
+	case Hoa:
+	  spot::hoaf_reachable(std::cout, aut, hoaf_opt) << '\n';
 	  break;
 	case Spot:
 	  spot::tgba_save_reachable(std::cout, aut);

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2011, 2012 Laboratoire de Recherche et Développement
+# Copyright (C) 2011, 2012, 2014 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -22,23 +22,10 @@
 
 set -e
 
-check_psl()
-{
-  # Do not use "run", this is too slow.
-
-  # Make cross products with FM
-  ../ltl2tgba -f -R3 -b "$1" > out.tgba
-  ../ltl2tgba -f -R3 -Pout.tgba -E "!($1)"
-  # Also try with -x turned on.
-  ../ltl2tgba -f -x -R3 -b "$1" > out.tgba
-  ../ltl2tgba -f -x -R3 -Pout.tgba -E "!($1)"
-}
-
 # Generate 50 random unique PSL formula that do not simplify to LTL
 # formulae, and that have a size of at lease 12.
 ../../bin/randltl -n -1 --tree-size 30 --seed 0 --psl a b c |
 ../../bin/ltlfilt -r --size-min 12 --unique |
 ../../bin/ltlfilt -v --ltl | head -n 50 |
-while read formula; do
-  check_psl "$formula"
-done
+../../bin/ltlcross '../ltl2tgba -R3 -t %f >%T' '../ltl2tgba -x -R3 -t %f >%T' \
+  -F - -f '{{(p1)}[*]:{(p3) && {{!(p1)} xor {!(p3)}}}}'

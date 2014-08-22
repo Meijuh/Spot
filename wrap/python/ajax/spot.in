@@ -405,9 +405,15 @@ pel = spot.empty_parse_error_list()
 f = spot.parse(formula, pel, env)
 
 if pel:
-    unbufprint('<div class="parse-error">')
-    err = spot.format_parse_errors(spot.get_cout(), formula, pel)
-    unbufprint('</div>')
+    # Try the LBT parser in case someone is throwing LBT formulas at us.
+    pel2 = spot.empty_parse_error_list()
+    g = spot.parse_lbt(formula, pel2, env)
+    if pel2:
+        unbufprint('<div class="parse-error">')
+        err = spot.format_parse_errors(spot.get_cout(), formula, pel)
+        unbufprint('</div>')
+    else:
+        f = g
 
 # Do not continue if we could not parse anything sensible.
 if not f:
@@ -441,7 +447,7 @@ if dored:
 # Formula manipulation only.
 if output_type == 'f':
     formula_format = form.getfirst('ff', 'o')
-    # o = Spot, i = Spin, g = GraphViz, p = properties
+    # o = Spot, i = Spin, l = LBT, g = GraphViz, p = properties
     if formula_format == 'o':
         unbufprint(format_formula(f))
     elif formula_format == 'i':
@@ -452,6 +458,11 @@ if output_type == 'f':
             if simpopt.reduce_size_strictly:
                 s = '<br><b>Try enabling larger formula rewritings.</b>'
             unbufprint('<div class="error">The above formula contains PSL operators that Spin will not understand.%s</div>' % s)
+    elif formula_format == 'l':
+        if not f.is_ltl_formula():
+            unbufprint('<div class="error">PSL formulas cannot be expressed in this format.</div>')
+        else:
+            unbufprint('<div class="formula lbt-format">' + spot.to_lbt_string(f) + '</div>')
     elif formula_format == 'g':
         render_formula(f)
     elif formula_format == 'p':

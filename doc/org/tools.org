@@ -1,4 +1,4 @@
-#+TITLE: Command-line tools installed by Spot 1.2.4
+#+TITLE: Command-line tools installed by Spot 1.2.5
 #+EMAIL spot@lrde.epita.fr
 #+OPTIONS: H:2 num:nil toc:t
 

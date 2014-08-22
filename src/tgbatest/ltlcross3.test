@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012, 2013 Laboratoire de Recherche et
+# Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -55,13 +55,18 @@ test `grep '"exit code",1' out.csv | wc -l` -eq 0
 check_csv out.csv
 
 # Likewise for timeouts
+echo foo >bug
 run 0 ../../bin/ltlcross 'sleep 5; false %f >%N' \
-                         --timeout 2 -f a --csv=out.csv 2>stderr
+                         --timeout 2 -f a --csv=out.csv \
+                         --save-bogus=bug 2>stderr
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
 test `grep 'warning:.*timeout' stderr | wc -l` -eq 2
 test `grep '"timeout",-1' out.csv | wc -l` -eq 2
 check_csv out.csv
+# 'bug' should exist but be empty
+test -f bug
+test -s bug && exit 1
 
 run 0 ../../bin/ltlcross 'sleep 5; false %f >%N' \
                          --timeout 2 --omit-missing -f a --csv=out.csv 2>stderr
@@ -115,12 +120,13 @@ test $q -eq `expr $p + 12`
 
 # Check with Rabin/Streett output
 run 1 ../../bin/ltlcross "$ltl2tgba -s %f >%N" 'false %f >%D' \
-      -f a --csv=out.csv 2>stderr
+      -f 'X  a' --csv=out.csv --save-bogus=bug.txt 2>stderr
 q=`sed 's/[^,]//g;q' out.csv | wc -c`
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
 test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
 test `grep '"exit code",1' out.csv | wc -l` -eq 2
 check_csv out.csv
+grep 'X  a' bug.txt
 
 test $q -eq `expr $p + 6`

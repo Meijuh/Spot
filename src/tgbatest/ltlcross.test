@@ -23,7 +23,21 @@ set -e
 
 ltl2tgba=../ltl2tgba
 
-../../bin/randltl -n 100 p1 p2 p3 p4 p5 p6 --tree-size 5..15 |
+
+(
+# Some formulas supplied by Joachim Klein.  The first two were
+# incorrectly translated by ltl_to_tgba_fm(), while the other have
+# shown some bugs in other translators.
+cat <<EOF
+G(Fa & ((a M b) U ((c U !d) M d)))
+XF(p2 R (!Fp1 W p1))
+X p0 || ((X p0) V <>p0)
+p0 xor (p0 W X!p0)
+p0 & (!p0 W Xp0)
+EOF
+# Random formulas
+../../bin/randltl -n 100 p1 p2 p3 p4 p5 p6 --tree-size 5..15
+) |
 ../../bin/ltlcross --products=2 \
   "$ltl2tgba -t -f %f > %T" \
   "$ltl2tgba -t -f -y %f > %T" \
@@ -44,4 +58,3 @@ ltl2tgba=../ltl2tgba
   "$ltl2tgba -t -taa -r4 %f > %T" \
   "$ltl2tgba -t -taa -r4 -c %f > %T" \
   "$ltl2tgba -t -taa -r4 -R3 -RDS %f > %T"
-

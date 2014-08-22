@@ -418,17 +418,14 @@ export SPOT_SATLOG=stats.csv
 ltlfilt -f "Ga R (F!b & (c U b))" -l |
 ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-Ds - - |
 dstar2tgba -D -x sat-minimize,sat-acc=2 --stats='input(states=%S) output(states=%s, acc-sets=%a, det=%d)'
-echo
 cat stats.csv
 #+END_SRC
-
 #+RESULTS:
 : input(states=11) output(states=5, acc-sets=2, det=1)
-:
-: 9,8,35,64,44064,9043076,930,22,290,21
-: 7,7,33,56,14504,2191905,224,4,106,4
-: 6,6,28,48,10512,1358243,137,0,44,1
-: 5,,,,7200,782342,78,1,26,2
+: 9,8,35,64,44064,9043076,978,26,277,21
+: 7,7,33,56,14504,2191905,237,7,113,4
+: 6,6,28,48,10512,1358243,145,4,45,2
+: 5,,,,7200,782342,82,3,31,2
 
 The generated CSV file use the following columns:
 - the n passed to the SAT-based minimization algorithm

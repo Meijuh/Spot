@@ -389,26 +389,26 @@ in: Gq|Gr|(G(q|FGp)&G(r|FG!p))
 -x -TA -DS -in       |     33 |    152 |     25
 -x -TA -DS -in -RT   |     21 |    112 |     17
 in: FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)
--TGTA                |     35 |    543 |    XXX
--TGTA -RT            |     32 |    527 |    XXX
--TA                  |     34 |    428 |     11
--TA -RT              |     30 |    408 |      9
--TA -lv              |     35 |    498 |      5
--TA -lv -RT          |     32 |    485 |      4
--TA -sp              |     34 |    490 |      4
--TA -sp -RT          |     31 |    477 |      3
--TA -lv -sp          |     35 |    498 |      5
--TA -lv -sp -RT      |     32 |    485 |      4
--TA -DS              |     44 |    504 |     21
--TA -DS -RT          |     40 |    486 |     18
--TA -DS -lv          |     45 |    578 |     15
--TA -DS -lv -RT      |     41 |    560 |     12
--TA -DS -sp          |     44 |    568 |     14
--TA -DS -sp -RT      |     40 |    550 |     11
--TA -DS -lv -sp      |     45 |    578 |     15
--TA -DS -lv -sp -RT  |     41 |    560 |     12
--x -TA -DS -in       |     45 |    558 |     11
--x -TA -DS -in -RT   |     39 |    532 |      8
+-TGTA                |     45 |    717 |    XXX
+-TGTA -RT            |     35 |    598 |    XXX
+-TA                  |     44 |    602 |     16
+-TA -RT              |     33 |    482 |      9
+-TA -lv              |     45 |    676 |      9
+-TA -lv -RT          |     35 |    566 |      4
+-TA -sp              |     44 |    654 |      8
+-TA -sp -RT          |     34 |    545 |      3
+-TA -lv -sp          |     45 |    676 |      9
+-TA -lv -sp -RT      |     35 |    566 |      4
+-TA -DS              |     54 |    722 |     26
+-TA -DS -RT          |     42 |    608 |     18
+-TA -DS -lv          |     55 |    800 |     19
+-TA -DS -lv -RT      |     44 |    702 |     13
+-TA -DS -sp          |     54 |    776 |     18
+-TA -DS -sp -RT      |     43 |    678 |     12
+-TA -DS -lv -sp      |     55 |    800 |     19
+-TA -DS -lv -sp -RT  |     44 |    702 |     13
+-x -TA -DS -in       |     55 |    694 |     11
+-x -TA -DS -in -RT   |     41 |    597 |      8
 in: G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))
 -TGTA                |     69 |   1539 |    XXX
 -TGTA -RT            |     49 |    935 |    XXX
