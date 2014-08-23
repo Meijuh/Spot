@@ -29,8 +29,6 @@
 
 namespace spot
 {
-  class tgba;
-
   /// \ingroup tgba_io
   /// \brief Print reachable states in Spin never claim format.
   ///

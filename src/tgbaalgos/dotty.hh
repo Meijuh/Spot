@@ -29,7 +29,6 @@
 
 namespace spot
 {
-  class tgba;
   class dotty_decorator;
 
   /// \ingroup tgba_io

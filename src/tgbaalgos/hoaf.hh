@@ -26,7 +26,6 @@
 
 namespace spot
 {
-  class tgba;
   enum hoaf_alias { Hoaf_Alias_None, Hoaf_Alias_Ap, Hoaf_Alias_Cond };
   enum hoaf_acceptance
     {

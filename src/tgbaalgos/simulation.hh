@@ -25,8 +25,6 @@
 
 namespace spot
 {
-  class tgba;
-
   /// \addtogroup tgba_reduction
   /// @{
 

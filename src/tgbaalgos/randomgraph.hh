@@ -29,8 +29,6 @@
 
 namespace spot
 {
-  class tgba;
-
   /// \ingroup tgba_misc
   /// \brief Construct a tgba randomly.
   ///

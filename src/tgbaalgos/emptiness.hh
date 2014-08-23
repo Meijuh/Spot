@@ -33,7 +33,6 @@
 
 namespace spot
 {
-  class tgba;
   struct tgba_run;
 
   /// \addtogroup emptiness_check Emptiness-checks
