@@ -77,8 +77,8 @@ namespace spot
 
   std::ostream&
   print_tgba_run(std::ostream& os,
-		 const_tgba_ptr a,
-		 const tgba_run* run)
+		 const const_tgba_ptr& a,
+		 const const_tgba_run_ptr& run)
   {
     bdd_dict_ptr d = a->get_dict();
     os << "Prefix:" << std::endl;
@@ -109,10 +109,10 @@ namespace spot
   // emptiness_check_result
   //////////////////////////////////////////////////////////////////////
 
-  tgba_run*
+  tgba_run_ptr
   emptiness_check_result::accepting_run()
   {
-    return 0;
+    return nullptr;
   }
 
   const unsigned_statistics*
@@ -149,6 +149,12 @@ namespace spot
     return dynamic_cast<const unsigned_statistics*>(this);
   }
 
+  const ec_statistics*
+  emptiness_check::emptiness_check_statistics() const
+  {
+    return dynamic_cast<const ec_statistics*>(this);
+  }
+
   const char*
   emptiness_check::parse_options(char* options)
   {
@@ -180,29 +186,23 @@ namespace spot
 
   namespace
   {
-    emptiness_check*
-    make_couvreur99(const const_tgba_ptr& a, spot::option_map o)
-    {
-      return couvreur99(a, o);
-    }
-
     struct ec_algo
     {
       const char* name;
-      spot::emptiness_check* (*construct)(const const_tgba_ptr&,
-					  spot::option_map);
+      emptiness_check_ptr(*construct)(const const_tgba_ptr&,
+				      spot::option_map);
       unsigned int min_acc;
       unsigned int max_acc;
     };
 
     ec_algo ec_algos[] =
       {
-	{ "Cou99",     make_couvreur99,                     0, -1U },
-	{ "CVWY90",    spot::magic_search,                  0,   1 },
-	{ "GV04",      spot::explicit_gv04_check,           0,   1 },
-	{ "SE05",      spot::se05,                          0,   1 },
-	{ "Tau03",     spot::explicit_tau03_search,         1, -1U },
-	{ "Tau03_opt", spot::explicit_tau03_opt_search,     0, -1U },
+	{ "Cou99",     couvreur99,                    0, -1U },
+	{ "CVWY90",    magic_search,                  0,   1 },
+	{ "GV04",      explicit_gv04_check,           0,   1 },
+	{ "SE05",      se05,                          0,   1 },
+	{ "Tau03",     explicit_tau03_search,         1, -1U },
+	{ "Tau03_opt", explicit_tau03_opt_search,     0, -1U },
       };
   }
 
@@ -224,14 +224,14 @@ namespace spot
     return static_cast<ec_algo*>(info_)->max_acc;
   }
 
-  emptiness_check*
+  emptiness_check_ptr
   emptiness_check_instantiator::instantiate(const const_tgba_ptr& a) const
   {
     return static_cast<ec_algo*>(info_)->construct(a, o_);
   }
 
-  emptiness_check_instantiator*
-  emptiness_check_instantiator::construct(const char* name, const char** err)
+  emptiness_check_instantiator_ptr
+  make_emptiness_check_instantiator(const char* name, const char** err)
   {
     // Skip spaces.
     while (*name && strchr(" \t\n", *name))
@@ -272,17 +272,26 @@ namespace spot
       if (n == info->name)
 	{
 	  *err = 0;
-	  return new emptiness_check_instantiator(o, info);
+
+	  struct emptiness_check_instantiator_aux:
+            public emptiness_check_instantiator
+	  {
+	    emptiness_check_instantiator_aux(option_map o, void* i):
+	      emptiness_check_instantiator(o, i)
+	    {
+	    }
+	  };
+	  return std::make_shared<emptiness_check_instantiator_aux>(o, info);
 	}
     *err = name;
-    return 0;
+    return nullptr;
   }
 
   // tgba_run_to_tgba
   //////////////////////////////////////////////////////////////////////
 
   tgba_digraph_ptr
-  tgba_run_to_tgba(const const_tgba_ptr& a, const tgba_run* run)
+  tgba_run_to_tgba(const const_tgba_ptr& a, const const_tgba_run_ptr& run)
   {
     auto d = a->get_dict();
     auto res = make_tgba_digraph(d);

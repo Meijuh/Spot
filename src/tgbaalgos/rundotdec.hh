@@ -38,7 +38,7 @@ namespace spot
   class SPOT_API tgba_run_dotty_decorator: public dotty_decorator
   {
   public:
-    tgba_run_dotty_decorator(const tgba_run* run);
+    tgba_run_dotty_decorator(const const_tgba_run_ptr& run);
     virtual ~tgba_run_dotty_decorator();
 
     virtual std::string state_decl(const const_tgba_ptr& a,
@@ -52,7 +52,7 @@ namespace spot
 				  const tgba_succ_iterator* si,
 				  const std::string& label);
   private:
-    const tgba_run* run_;
+    const_tgba_run_ptr run_;
     typedef std::pair<tgba_run::steps::const_iterator, int> step_num;
     typedef std::list<step_num> step_set;
     typedef std::map<const state*, std::pair<step_set, step_set>,

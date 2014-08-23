@@ -26,6 +26,7 @@
 # include "misc/common.hh"
 # include <iosfwd>
 # include "tgba/fwd.hh"
+# include "tgbaalgos/emptiness.hh"
 
 namespace spot
 {
@@ -41,10 +42,10 @@ namespace spot
   /// \param a_run the automata on which the run was generated
   /// \param a_proj the automata on which to project the run
   /// \return true iff the run could be completed
-  SPOT_API tgba_run*
+  SPOT_API tgba_run_ptr
   project_tgba_run(const const_tgba_ptr& a_run,
 		   const const_tgba_ptr& a_proj,
-		   const tgba_run* run);
+		   const const_tgba_run_ptr& run);
 }
 
 #endif // SPOT_TGBAALGOS_PROJRUN_HH

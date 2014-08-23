@@ -25,18 +25,17 @@
 
 # include "misc/common.hh"
 # include "tgba/fwd.hh"
+# include "tgbaalgos/emptiness.hh"
 
 namespace spot
 {
-  struct tgba_run;
-
   /// \ingroup tgba_run
   /// \brief Reduce an accepting run.
   ///
   /// Return a run which is accepting for \a a and that is no longer
   /// than \a org.
-  SPOT_API tgba_run*
-  reduce_run(const const_tgba_ptr& a, const tgba_run* org);
+  SPOT_API tgba_run_ptr
+  reduce_run(const const_tgba_ptr& a, const const_tgba_run_ptr& org);
 }
 
 #endif // SPOT_TGBAALGOS_REDUCERUN_HH

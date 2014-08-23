@@ -274,8 +274,8 @@ int main(int argc, char* argv[])
       nAf = spot::make_kv_complement(Af);
       nAnf = spot::make_kv_complement(Anf);
     }
-    spot::emptiness_check* ec = spot::couvreur99(spot::product(nAf, nAnf));
-    spot::emptiness_check_result* res = ec->check();
+    auto ec = spot::couvreur99(spot::product(nAf, nAnf));
+    auto res = ec->check();
     spot::tgba_statistics a_size =  spot::stats_reachable(ec->automaton());
     std::cout << "States: "
               << a_size.states << std::endl
@@ -292,12 +292,8 @@ int main(int argc, char* argv[])
     else
       std::cout << "OK";
     std::cout << std::endl;
-
-    delete res;
-    delete ec;
     nf1->destroy();
     f1->destroy();
-
   }
 
   return return_value;

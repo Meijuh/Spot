@@ -91,7 +91,7 @@ namespace spot
 	  }
       }
 
-      virtual emptiness_check_result*
+      virtual emptiness_check_result_ptr
       check()
       {
 	top = dftop = -1;
@@ -162,7 +162,7 @@ namespace spot
 	    set_states(h.size());
 	  }
 	if (violation)
-	  return new result(*this);
+	  return std::make_shared<result>(*this);
 	return 0;
       }
 
@@ -287,10 +287,10 @@ namespace spot
 	  return s;
 	}
 
-	virtual tgba_run*
+	virtual tgba_run_ptr
 	accepting_run()
 	{
-	  tgba_run* res = new tgba_run;
+	  auto res = std::make_shared<tgba_run>();
 
 	  update_lowlinks();
 #ifdef TRACE
@@ -409,9 +409,9 @@ namespace spot
 
   } // anonymous
 
-  emptiness_check*
+  emptiness_check_ptr
   explicit_gv04_check(const const_tgba_ptr& a, option_map o)
   {
-    return new gv04(a, o);
+    return std::make_shared<gv04>(a, o);
   }
 }

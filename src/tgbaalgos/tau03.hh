@@ -25,11 +25,10 @@
 
 # include "misc/optionmap.hh"
 # include "tgba/fwd.hh"
+# include "emptiness.hh"
 
 namespace spot
 {
-  class emptiness_check;
-
   /// \addtogroup emptiness_check_algorithms
   /// @{
 
@@ -96,7 +95,7 @@ namespace spot
       }
       \endverbatim */
   ///
-  SPOT_API emptiness_check*
+  SPOT_API emptiness_check_ptr
   explicit_tau03_search(const const_tgba_ptr& a, option_map o = option_map());
 
   /// @}

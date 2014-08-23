@@ -148,18 +148,10 @@ namespace spot
 	  {
 	    state_set keep(sl.begin(), sl.end());
 	    auto masked = build_tgba_mask_keep(dra->aut, keep, sl.front());
-	    emptiness_check* ec = couvreur99(nra_to_nba(dra, masked));
-	    emptiness_check_result* ecr = ec->check();
-	    delete ecr;
-	    delete ec;
-	    if (ecr)
-	      {
-		// This SCC is not DBA-realizable.
-		//std::cerr << "not DBA-realizable\n";
-		return false;
-	      }
+	    if (!nra_to_nba(dra, masked)->is_empty())
+	      // This SCC is not DBA-realizable.
+	      return false;
 	  }
-	  //std::cerr << "non-accepting\n";
 	  for (state_list::const_iterator i = sl.begin();
 	       i != sl.end(); ++i)
 	    nonfinal.push_back(*i);

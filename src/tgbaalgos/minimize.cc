@@ -260,13 +260,7 @@ namespace spot
 	  // Contrustruct a product between
 	  // LOOP_A, and ORIG_A starting in *IT.
 	  // FIXME: This could be sped up a lot!
-	  emptiness_check* ec = couvreur99(product_at(loop_a, orig_a,
-						      loop_a_init, it));
-	  emptiness_check_result* res = ec->check();
-	  delete res;
-	  delete ec;
-
-	  if (res)
+	  if (!product_at(loop_a, orig_a, loop_a_init, it)->is_empty())
 	    {
 	      accepting = true;
 	      break;
@@ -674,25 +668,15 @@ namespace spot
 
     bool ok = false;
 
-    emptiness_check* ec = couvreur99(product(min_aut_f, aut_neg_f));
-    emptiness_check_result* res = ec->check();
-    if (!res)
+    if (product(min_aut_f, aut_neg_f)->is_empty())
       {
-	delete ec;
-
 	// Complement the minimized WDBA.
 	auto neg_min_aut_f = wdba_complement(min_aut_f);
-	ec = couvreur99(product(aut_f, neg_min_aut_f));
-	res = ec->check();
-	if (!res)
-	  {
-	    // Finally, we are now sure that it was safe
-	    // to minimize the automaton.
-	    ok = true;
-	  }
+	if (product(aut_f, neg_min_aut_f)->is_empty())
+	  // Finally, we are now sure that it was safe
+	  // to minimize the automaton.
+	  ok = true;
       }
-    delete res;
-    delete ec;
 
     if (ok)
       return min_aut_f;

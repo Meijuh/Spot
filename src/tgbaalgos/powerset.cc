@@ -205,11 +205,7 @@ namespace spot
 	  {
 	    // Check the product between LOOP_A, and ORIG_A starting
 	    // in S.
-	    auto ec = couvreur99(product_at(loop_a, ref_, loop_a_init, s));
-	    emptiness_check_result* res = ec->check();
-	    delete res;
-	    delete ec;
-	    if (res)
+	    if (!product_at(loop_a, ref_, loop_a_init, s)->is_empty())
 	      {
 		accepting = true;
 		break;
@@ -326,9 +322,9 @@ namespace spot
     auto det = tba_determinize(aut, threshold_states, threshold_cycles);
 
     if (!det)
-      return 0;
+      return nullptr;
 
-    if (neg_aut == 0)
+    if (neg_aut == nullptr)
       {
 	const ltl::formula* neg_f =
 	  ltl::unop::instance(ltl::unop::Not, f->clone());
@@ -339,30 +335,13 @@ namespace spot
 	neg_aut = scc_filter(neg_aut, true);
       }
 
-    bool ok = false;
+    if (product(det, neg_aut)->is_empty())
+      // Complement the DBA.
+      if (product(aut, dtgba_complement(det))->is_empty())
+	// Finally, we are now sure that it was safe
+	// to determinize the automaton.
+	return det;
 
-    auto ec = couvreur99(product(det, neg_aut));
-    auto res = ec->check();
-    if (!res)
-      {
-	delete ec;
-
-	// Complement the DBA.
-	ec = couvreur99(product(aut, dtgba_complement(det)));
-	res = ec->check();
-
-	if (!res)
-	  {
-	    // Finally, we are now sure that it was safe
-	    // to determinize the automaton.
-	    ok = true;
-	  }
-      }
-    delete res;
-    delete ec;
-
-    if (ok)
-      return det;
     return aut;
   }
 }

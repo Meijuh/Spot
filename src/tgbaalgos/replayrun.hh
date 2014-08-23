@@ -26,6 +26,7 @@
 # include "misc/common.hh"
 # include <iosfwd>
 # include "tgba/fwd.hh"
+# include "tgbaalgos/emptiness.hh"
 
 namespace spot
 {
@@ -48,7 +49,8 @@ namespace spot
   /// \return true iff the run could be completed
   SPOT_API bool
   replay_tgba_run(std::ostream& os,
-		  const const_tgba_ptr& a, const tgba_run* run,
+		  const const_tgba_ptr& a,
+		  const const_tgba_run_ptr& run,
 		  bool debug = false);
 }
 

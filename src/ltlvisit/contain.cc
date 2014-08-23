@@ -69,21 +69,10 @@ namespace spot
       if (i != l->incompatible.end())
 	return i->second;
 
-      auto ec = couvreur99(product(l->translation, g->translation));
-      auto ecr = ec->check();
-      if (!ecr)
-	{
-	  l->incompatible[g] = true;
-	  g->incompatible[l] = true;
-	}
-      else
-	{
-	  l->incompatible[g] = false;
-	  g->incompatible[l] = false;
-	  delete ecr;
-	}
-      delete ec;
-      return !ecr;
+      bool res = product(l->translation, g->translation)->is_empty();
+      l->incompatible[g] = res;
+      g->incompatible[l] = res;
+      return res;
     }
 
 

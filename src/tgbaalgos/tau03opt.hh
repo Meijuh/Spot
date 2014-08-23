@@ -25,11 +25,10 @@
 
 # include "misc/optionmap.hh"
 # include "tgba/fwd.hh"
+# include "emptiness.hh"
 
 namespace spot
 {
-  class emptiness_check;
-
   /// \addtogroup emptiness_check_algorithms
   /// @{
 
@@ -98,7 +97,7 @@ namespace spot
   /// the path stored in the blue stack. Such a vector is associated to each
   /// state of this stack.
   ///
-  SPOT_API emptiness_check*
+  SPOT_API emptiness_check_ptr
   explicit_tau03_opt_search(const const_tgba_ptr& a,
 			    option_map o = option_map());
 

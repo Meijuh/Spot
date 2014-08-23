@@ -32,7 +32,7 @@ namespace spot
     {
     public:
       shortest_path(const state_set* t,
-		    const couvreur99_check_status* ecs,
+		    const std::shared_ptr<const couvreur99_check_status>& ecs,
 		    couvreur99_check_result* r)
         : bfs_steps(ecs->aut), target(t), ecs(ecs), r(r)
       {
@@ -68,13 +68,14 @@ namespace spot
     private:
       state_set seen;
       const state_set* target;
-      const couvreur99_check_status* ecs;
+      std::shared_ptr<const couvreur99_check_status> ecs;
       couvreur99_check_result* r;
     };
   }
 
   couvreur99_check_result::couvreur99_check_result
-  (const couvreur99_check_status* ecs, option_map o)
+  (const std::shared_ptr<const couvreur99_check_status>& ecs,
+   option_map o)
     : emptiness_check_result(ecs->aut, o), ecs_(ecs)
   {
   }
@@ -90,10 +91,10 @@ namespace spot
     return count;
   }
 
-  tgba_run*
+  tgba_run_ptr
   couvreur99_check_result::accepting_run()
   {
-    run_ = new tgba_run;
+    run_ = std::make_shared<tgba_run>();
 
     assert(!ecs_->root.empty());
 
@@ -212,7 +213,7 @@ namespace spot
 	    return false;
 	  }
 
-	} b(ecs_, this, acc_to_traverse);
+	} b(ecs_.get(), this, acc_to_traverse);
 
 	substart = b.search(substart, run_->cycle);
 	assert(substart);

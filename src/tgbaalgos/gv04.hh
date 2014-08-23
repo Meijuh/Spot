@@ -25,11 +25,10 @@
 
 # include "misc/optionmap.hh"
 # include "tgba/fwd.hh"
+# include "emptiness.hh"
 
 namespace spot
 {
-  class emptiness_check;
-
   /// \brief Emptiness check based on Geldenhuys and Valmari's
   /// TACAS'04 paper.
   /// \ingroup emptiness_check_algorithms
@@ -54,7 +53,7 @@ namespace spot
         isbn    = {3-540-21299-X}
       }
       \endverbatim */
-  SPOT_API emptiness_check*
+  SPOT_API emptiness_check_ptr
   explicit_gv04_check(const const_tgba_ptr& a, option_map o = option_map());
 }
 

@@ -122,7 +122,7 @@ main(int argc, char** argv)
       for (auto& algo: algos)
 	{
 	  const char* err;
-	  auto i = spot::emptiness_check_instantiator::construct(algo, &err);
+	  auto i = spot::make_emptiness_check_instantiator(algo, &err);
 	  if (!i)
 	    {
 	      std::cerr << "Failed to parse `" << err <<  '\'' << std::endl;
@@ -157,17 +157,14 @@ main(int argc, char** argv)
 	      int ce_found = 0;
 	      do
 		{
-		  auto res = ec->check();
-		  if (res)
+		  if (auto res = ec->check())
 		    {
 		      ++ce_found;
 		      std::cout << ce_found << " counterexample found\n";
-                      auto run = res->accepting_run();
-		      if (run)
+		      if (auto run = res->accepting_run())
 			{
 			  auto ar = spot::tgba_run_to_tgba(a, run);
 			  spot::dotty_reachable(std::cout, ar, false);
-			  delete run;
 			}
 		      std::cout << '\n';
 		      if (runs == 0)
@@ -175,7 +172,6 @@ main(int argc, char** argv)
 			  std::cerr << "ERROR: Expected no counterexample.\n";
 			  exit(1);
 			}
-		      delete res;
 		    }
 		  else
 		    {
@@ -201,10 +197,7 @@ main(int argc, char** argv)
 		  std::cerr << "ERROR: expected a counterexample.\n";
 		  exit(1);
 		}
-
-	      delete ec;
 	    }
-	  delete i;
 	}
       f->destroy();
     }

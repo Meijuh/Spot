@@ -32,7 +32,8 @@ namespace spot
   namespace
   {
     void
-    print_annotation(std::ostream& os, const_tgba_ptr a,
+    print_annotation(std::ostream& os,
+		     const const_tgba_ptr& a,
 		     const tgba_succ_iterator* i)
     {
       std::string s = a->transition_annotation(i);
@@ -44,7 +45,7 @@ namespace spot
 
   bool
   replay_tgba_run(std::ostream& os, const const_tgba_ptr& a,
-		  const tgba_run* run, bool debug)
+		  const const_tgba_run_ptr& run, bool debug)
   {
     const state* s = a->get_init_state();
     int serial = 1;

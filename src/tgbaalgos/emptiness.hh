@@ -34,6 +34,8 @@
 namespace spot
 {
   struct tgba_run;
+  typedef std::shared_ptr<tgba_run> tgba_run_ptr;
+  typedef std::shared_ptr<const tgba_run> const_tgba_run_ptr;
 
   /// \addtogroup emptiness_check Emptiness-checks
   /// \ingroup tgba_algorithms
@@ -99,7 +101,7 @@ namespace spot
     /// cannot produce a counter example (that does not mean there
     /// is no counter-example; the mere existence of an instance of
     /// this class asserts the existence of a counter-example).
-    virtual tgba_run* accepting_run();
+    virtual tgba_run_ptr accepting_run();
 
     /// The automaton on which an accepting_run() was found.
     const const_tgba_ptr&
@@ -129,8 +131,11 @@ namespace spot
     option_map o_;		///< The options.
   };
 
+  typedef std::shared_ptr<emptiness_check_result> emptiness_check_result_ptr;
+
   /// Common interface to emptiness check algorithms.
-  class SPOT_API emptiness_check
+  class SPOT_API emptiness_check:
+    public std::enable_shared_from_this<emptiness_check>
   {
   public:
     emptiness_check(const const_tgba_ptr& a, option_map o = option_map())
@@ -173,10 +178,13 @@ namespace spot
     /// Some emptiness_check algorithms, especially those using bit state
     /// hashing may return 0 even if the automaton is not empty.
     /// \see safe()
-    virtual emptiness_check_result* check() = 0;
+    virtual emptiness_check_result_ptr check() = 0;
 
     /// Return statistics, if available.
     virtual const unsigned_statistics* statistics() const;
+
+    /// Return emptiness check statistics, if available.
+    virtual const ec_statistics* emptiness_check_statistics() const;
 
     /// Print statistics, if any.
     virtual std::ostream& print_stats(std::ostream& os) const;
@@ -189,25 +197,18 @@ namespace spot
     option_map o_;		///< The options
   };
 
+  typedef std::shared_ptr<emptiness_check> emptiness_check_ptr;
+
+  class emptiness_check_instantiator;
+  typedef std::shared_ptr<emptiness_check_instantiator>
+    emptiness_check_instantiator_ptr;
 
   // Dynamically create emptiness checks.  Given their name and options.
   class SPOT_API emptiness_check_instantiator
   {
   public:
-    /// \brief Create an emptiness-check instantiator, given the name
-    /// of an emptiness check.
-    ///
-    /// \a name should have the form \c "name" or \c "name(options)".
-    ///
-    /// On error, the function returns 0.  If the name of the algorithm
-    /// was unknown, \c *err will be set to \c name.  If some fragment of
-    /// the options could not be parsed, \c *err will point to that
-    /// fragment.
-    static emptiness_check_instantiator* construct(const char* name,
-						   const char** err);
-
     /// Actually instantiate the emptiness check, for \a a.
-    emptiness_check* instantiate(const const_tgba_ptr& a) const;
+    emptiness_check_ptr instantiate(const const_tgba_ptr& a) const;
 
     /// Accessor to the options.
     /// @{
@@ -233,14 +234,26 @@ namespace spot
     ///
     /// \return \c -1U if no upper bound exists.
     unsigned int max_acceptance_conditions() const;
-  private:
+  protected:
     emptiness_check_instantiator(option_map o, void* i);
+
     option_map o_;
     void *info_;
   };
-
-
   /// @}
+
+  /// \brief Create an emptiness-check instantiator, given the name
+  /// of an emptiness check.
+  ///
+  /// \a name should have the form \c "name" or \c "name(options)".
+  ///
+  /// On error, the function returns 0.  If the name of the algorithm
+  /// was unknown, \c *err will be set to \c name.  If some fragment of
+  /// the options could not be parsed, \c *err will point to that
+  /// fragment.
+  SPOT_API emptiness_check_instantiator_ptr
+  make_emptiness_check_instantiator(const char* name, const char** err);
+
 
   /// \addtogroup emptiness_check_algorithms Emptiness-check algorithms
   /// \ingroup emptiness_check
@@ -287,14 +300,16 @@ namespace spot
   /// actually exists in the automaton (and will also display any
   /// transition annotation).
   SPOT_API std::ostream&
-  print_tgba_run(std::ostream& os, const_tgba_ptr a, const tgba_run* run);
+  print_tgba_run(std::ostream& os,
+		 const const_tgba_ptr& a,
+		 const const_tgba_run_ptr& run);
 
   /// \brief Return an explicit_tgba corresponding to \a run (i.e. comparable
   /// states are merged).
   ///
   /// \pre \a run must correspond to an actual run of the automaton \a a.
   SPOT_API tgba_digraph_ptr
-  tgba_run_to_tgba(const const_tgba_ptr& a, const tgba_run* run);
+  tgba_run_to_tgba(const const_tgba_ptr& a, const const_tgba_run_ptr& run);
 
   /// @}
 

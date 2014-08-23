@@ -26,11 +26,10 @@
 # include <cstddef>
 # include "misc/optionmap.hh"
 # include "tgba/fwd.hh"
+# include "emptiness.hh"
 
 namespace spot
 {
-  class emptiness_check;
-
   /// \addtogroup emptiness_check_algorithms
   /// @{
 
@@ -102,7 +101,7 @@ namespace spot
   ///
   /// \sa spot::explicit_magic_search
   ///
-  SPOT_API emptiness_check*
+  SPOT_API emptiness_check_ptr
   explicit_se05_search(const const_tgba_ptr& a, option_map o = option_map());
 
   /// \brief Returns an emptiness checker on the spot::tgba automaton \a a.
@@ -132,7 +131,7 @@ namespace spot
   ///
   /// \sa spot::explicit_se05_search
   ///
-  SPOT_API emptiness_check*
+  SPOT_API emptiness_check_ptr
   bit_state_hashing_se05_search(const const_tgba_ptr& a, size_t size,
 				option_map o = option_map());
 
@@ -143,7 +142,7 @@ namespace spot
   /// bit_state_hashing_se05_search() according to the \c "bsh" option
   /// in the \c option_map.  If \c "bsh" is set and non null, its value
   /// is used as the size of the hash map.
-  SPOT_API emptiness_check*
+  SPOT_API emptiness_check_ptr
   se05(const const_tgba_ptr& a, option_map o);
 
   /// @}

@@ -45,7 +45,7 @@ namespace spot
       removed_components(0)
   {
     poprem_ = o.get("poprem", 1);
-    ecs_ = new couvreur99_check_status(a);
+    ecs_ = std::make_shared<couvreur99_check_status>(a);
     stats["removed components"] =
 	static_cast<spot::unsigned_statistics::unsigned_fun>
 	(&couvreur99_check::get_removed_components);
@@ -56,7 +56,6 @@ namespace spot
 
   couvreur99_check::~couvreur99_check()
   {
-    delete ecs_;
   }
 
   unsigned
@@ -129,7 +128,7 @@ namespace spot
       }
   }
 
-  emptiness_check_result*
+  emptiness_check_result_ptr
   couvreur99_check::check()
   {
     // We use five main data in this algorithm:
@@ -281,15 +280,15 @@ namespace spot
 	    // cycle.
 	    ecs_->cycle_seed = p.first->first;
             set_states(ecs_->states());
-	    return new couvreur99_check_result(ecs_, options());
+	    return std::make_shared<couvreur99_check_result>(ecs_, options());
 	  }
       }
     // This automaton recognizes no word.
     set_states(ecs_->states());
-    return 0;
+    return nullptr;
   }
 
-  const couvreur99_check_status*
+  std::shared_ptr<const couvreur99_check_status>
   couvreur99_check::result() const
   {
     return ecs_;
@@ -383,7 +382,7 @@ namespace spot
       }
   }
 
-  emptiness_check_result*
+  emptiness_check_result_ptr
   couvreur99_check_shy::check()
   {
     // Position in the loop seeking known successors.
@@ -418,7 +417,7 @@ namespace spot
 		// This automaton recognizes no word.
 		set_states(ecs_->states());
 		assert(poprem_ || depth() == 0);
-		return 0;
+		return nullptr;
 	      }
 
 	    pos = todo.back().q.begin();
@@ -554,7 +553,7 @@ namespace spot
 	    // We have found an accepting SCC.  Clean up TODO.
 	    clear_todo();
 	    set_states(ecs_->states());
-	    return new couvreur99_check_result(ecs_, options());
+	    return std::make_shared<couvreur99_check_result>(ecs_, options());
 	  }
 	// Group the pending successors of formed SCC if requested.
 	if (group_)
@@ -592,12 +591,12 @@ namespace spot
       }
   }
 
-  emptiness_check*
+  emptiness_check_ptr
   couvreur99(const const_tgba_ptr& a, option_map o)
   {
     if (o.get("shy"))
-      return new couvreur99_check_shy(a, o);
-    return  new couvreur99_check(a, o);
+      return std::make_shared<couvreur99_check_shy>(a, o);
+    return std::make_shared<couvreur99_check>(a, o);
   }
 
 }

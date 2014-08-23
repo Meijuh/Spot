@@ -1071,9 +1071,7 @@ namespace
 		   size_t i, size_t j, bool icomp, bool jcomp)
   {
     auto prod = spot::product(aut_i, aut_j);
-    spot::emptiness_check* ec = spot::couvreur99(prod);
-    spot::emptiness_check_result* res = ec->check();
-
+    auto res = spot::couvreur99(prod)->check();
     if (res)
       {
 	std::ostream& err = global_error();
@@ -1088,17 +1086,15 @@ namespace
 	  err << "*N" << j;
 	err << " is nonempty";
 
-	spot::tgba_run* run = res->accepting_run();
+	auto run = res->accepting_run();
 	if (run)
 	  {
-	    const spot::tgba_run* runmin = reduce_run(prod, run);
-	    delete run;
+	    run = reduce_run(prod, run);
 	    std::cerr << "; both automata accept the infinite word\n"
 		      << "       ";
-	    spot::tgba_word w(runmin);
+	    spot::tgba_word w(run);
 	    w.simplify();
 	    w.print(example(), prod->get_dict()) << '\n';
-	    delete runmin;
 	  }
 	else
 	  {
@@ -1106,9 +1102,7 @@ namespace
 	  }
 	end_error();
       }
-    delete res;
-    delete ec;
-    return res;
+    return !!res;
   }
 
   static bool

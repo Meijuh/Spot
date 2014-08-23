@@ -157,16 +157,16 @@ checked_main(int argc, char **argv)
 
   spot::ltl::atomic_prop_set ap;
   auto dict = spot::make_bdd_dict();
-  spot::const_kripke_ptr model = 0;
-  spot::const_tgba_ptr prop = 0;
-  spot::const_tgba_ptr product = 0;
-  spot::emptiness_check_instantiator* echeck_inst = 0;
+  spot::const_kripke_ptr model = nullptr;
+  spot::const_tgba_ptr prop = nullptr;
+  spot::const_tgba_ptr product = nullptr;
+  spot::emptiness_check_instantiator_ptr echeck_inst = nullptr;
   int exit_code = 0;
   spot::postprocessor post;
-  const spot::ltl::formula* deadf = 0;
-  const spot::ltl::formula* f = 0;
+  const spot::ltl::formula* deadf = nullptr;
+  const spot::ltl::formula* f = nullptr;
 
-  if (dead == 0 || !strcasecmp(dead, "true"))
+  if (!dead || !strcasecmp(dead, "true"))
     {
       deadf = spot::ltl::constant::true_instance();
     }
@@ -182,8 +182,7 @@ checked_main(int argc, char **argv)
   if (output == EmptinessCheck)
     {
       const char* err;
-      echeck_inst =
-	spot::emptiness_check_instantiator::construct(echeck_algo, &err);
+      echeck_inst = spot::make_emptiness_check_instantiator(echeck_algo, &err);
       if (!echeck_inst)
 	{
 	  std::cerr << "Failed to parse argument of -e/-E near `"
@@ -265,14 +264,14 @@ checked_main(int argc, char **argv)
   assert(echeck_inst);
 
   {
-    spot::emptiness_check* ec = echeck_inst->instantiate(product);
+    auto ec = echeck_inst->instantiate(product);
     bool search_many = echeck_inst->options().get("repeated");
     assert(ec);
     do
       {
 	int memused = spot::memusage();
 	tm.start("running emptiness check");
-	spot::emptiness_check_result* res;
+	spot::emptiness_check_result_ptr res;
 	try
 	  {
 	    res = ec->check();
@@ -315,7 +314,7 @@ checked_main(int argc, char **argv)
 	else if (accepting_run)
 	  {
 
-	    spot::tgba_run* run;
+	    spot::tgba_run_ptr run;
 	    tm.start("computing accepting run");
 	    try
 	      {
@@ -337,31 +336,24 @@ checked_main(int argc, char **argv)
 	    else
 	      {
 		tm.start("reducing accepting run");
-		spot::tgba_run* redrun =
-		  spot::reduce_run(res->automaton(), run);
+		run = spot::reduce_run(res->automaton(), run);
 		tm.stop("reducing accepting run");
-		delete run;
-		run = redrun;
 
 		tm.start("printing accepting run");
 		spot::print_tgba_run(std::cout, product, run);
 		tm.stop("printing accepting run");
 	      }
-	    delete run;
 	  }
 	else
 	  {
 	    std::cout << "an accepting run exists "
 		      << "(use -C to print it)" << std::endl;
 	  }
-	delete res;
       }
     while (search_many);
-    delete ec;
   }
 
  safe_exit:
-  delete echeck_inst;
   if (f)
     f->destroy();
 

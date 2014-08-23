@@ -36,7 +36,6 @@
  // sed 's/.*<\(.*\)>.*/%shared_ptr(spot::\1)/g'
 %shared_ptr(spot::bdd_dict)
 %shared_ptr(spot::dstar_aut)
-%shared_ptr(spot::dstar_aut)
 %shared_ptr(spot::future_conditions_collector)
 %shared_ptr(spot::kripke)
 %shared_ptr(spot::saba)
@@ -56,6 +55,10 @@
 %shared_ptr(spot::tgba_sgba_proxy)
 %shared_ptr(spot::tgta)
 %shared_ptr(spot::tgta_explicit)
+%shared_ptr(spot::tgba_run)
+%shared_ptr(spot::emptiness_check)
+%shared_ptr(spot::emptiness_check_result)
+%shared_ptr(spot::emptiness_check_instantiator)
 
 namespace std {
    %template(liststr) list<string>;
@@ -203,18 +206,7 @@ using namespace spot;
 %include "ltlvisit/simplify.hh"
 %include "ltlvisit/tostring.hh"
 %include "ltlvisit/tunabbrev.hh"
-%include "ltlvisit/apcollect.hh"
 %include "ltlvisit/lbt.hh"
-
-%feature("new") spot::emptiness_check::check;
-%feature("new") spot::emptiness_check_instantiator::construct;
-%feature("new") spot::emptiness_check_instantiator::instanciate;
-%feature("new") spot::emptiness_check_result::accepting_run;
-%feature("new") spot::explicit_magic_search;
-%feature("new") spot::explicit_se05_search;
-%feature("new") spot::tgba::get_init_state;
-%feature("new") spot::tgba::succ_iter;
-%feature("new") spot::tgba_succ_iterator::current_state;
 
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
@@ -231,6 +223,9 @@ namespace spot {
   {
   };
 }
+
+// Should come after the definition of tgba_digraph
+%include "ltlvisit/apcollect.hh"
 
 %include "tgbaalgos/degen.hh"
 %include "tgbaalgos/dottydec.hh"

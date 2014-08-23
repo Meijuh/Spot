@@ -24,12 +24,12 @@
 namespace spot
 {
 
-  tgba_run*
+  tgba_run_ptr
   project_tgba_run(const const_tgba_ptr& a_run,
 		   const const_tgba_ptr& a_proj,
-		   const tgba_run* run)
+		   const const_tgba_run_ptr& run)
   {
-    tgba_run* res = new tgba_run;
+    auto res = std::make_shared<tgba_run>();
     for (tgba_run::steps::const_iterator i = run->prefix.begin();
 	 i != run->prefix.end(); ++i)
       {

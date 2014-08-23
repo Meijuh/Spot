@@ -27,7 +27,6 @@
 #include "fwd.hh"
 #include <cassert>
 #include <memory>
-#include <memory>
 #include "misc/casts.hh"
 #include "misc/hash.hh"
 
@@ -465,7 +464,7 @@ namespace spot
   /// we never represent transitions!  Transition informations are
   /// obtained by querying the iterator over the successors of
   /// a state.
-  class SPOT_API tgba
+  class SPOT_API tgba: public std::enable_shared_from_this<tgba>
   {
   protected:
     tgba();
@@ -640,6 +639,8 @@ namespace spot
     /// set should be augmented with the neg_acceptance_conditions() of
     /// the other operand.
     virtual bdd neg_acceptance_conditions() const = 0;
+
+    virtual bool is_empty() const;
 
   protected:
     /// Do the actual computation of tgba::support_conditions().

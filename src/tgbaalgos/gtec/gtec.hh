@@ -136,10 +136,10 @@ namespace spot
   /// states that belong to the same SCC will be considered when
   /// choosing a successor.  Otherwise, only the successor of the
   /// topmost state on the DFS stack are considered.
-  SPOT_API emptiness_check*
+  SPOT_API emptiness_check_ptr
   couvreur99(const const_tgba_ptr& a, option_map options = option_map());
 
-
+#ifndef SWIG
   /// \brief An implementation of the Couvreur99 emptiness-check algorithm.
   ///
   /// See the documentation for spot::couvreur99.
@@ -150,7 +150,7 @@ namespace spot
     virtual ~couvreur99_check();
 
     /// Check whether the automaton's language is empty.
-    virtual emptiness_check_result* check();
+    virtual emptiness_check_result_ptr check();
 
     virtual std::ostream& print_stats(std::ostream& os) const;
 
@@ -162,10 +162,10 @@ namespace spot
     /// This status should not be deleted, it is a pointer
     /// to a member of this class that will be deleted when
     /// the couvreur99 object is deleted.
-    const couvreur99_check_status* result() const;
+    std::shared_ptr<const couvreur99_check_status> result() const;
 
   protected:
-    couvreur99_check_status* ecs_;
+    std::shared_ptr<couvreur99_check_status> ecs_;
     /// \brief Remove a strongly component from the hash.
     ///
     /// This function remove all accessible state from a given
@@ -191,7 +191,7 @@ namespace spot
     couvreur99_check_shy(const const_tgba_ptr& a, option_map o = option_map());
     virtual ~couvreur99_check_shy();
 
-    virtual emptiness_check_result* check();
+    virtual emptiness_check_result_ptr check();
 
   protected:
     struct successor {
@@ -239,7 +239,7 @@ namespace spot
     // reprocess the successor states of SCC that have been merged.
     bool group2_;
   };
-
+#endif
 
   /// @}
 }

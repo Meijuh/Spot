@@ -95,9 +95,9 @@ namespace spot
     public stats_interface<ndfs_result<ndfs_search, heap>, heap::Has_Size>
   {
   public:
-    ndfs_result(const ndfs_search& ms)
-      : emptiness_check_result(ms.automaton()), ms_(ms),
-        h_(ms_.get_heap())
+    ndfs_result(const std::shared_ptr<ndfs_search>& ms)
+      : emptiness_check_result(ms->automaton()), ms_(ms),
+        h_(ms->get_heap())
     {
     }
 
@@ -105,10 +105,10 @@ namespace spot
     {
     }
 
-    virtual tgba_run* accepting_run()
+    virtual tgba_run_ptr accepting_run()
     {
-      const stack_type& stb = ms_.get_st_blue();
-      const stack_type& str = ms_.get_st_red();
+      const stack_type& stb = ms_->get_st_blue();
+      const stack_type& str = ms_->get_st_red();
 
       assert(!stb.empty());
 
@@ -195,7 +195,7 @@ namespace spot
 
       assert(!acc_trans.empty());
 
-      tgba_run* run = new tgba_run;
+      auto run = std::make_shared<tgba_run>();
       // construct run->cycle from acc_trans.
       construct_cycle(run, acc_trans);
       // construct run->prefix (a minimal path from the initial state to any
@@ -214,7 +214,7 @@ namespace spot
     }
 
   private:
-    const ndfs_search& ms_;
+    std::shared_ptr<ndfs_search> ms_;
     const heap& h_;
     template <typename T, int n>
     friend struct stats_interface;
@@ -529,7 +529,7 @@ namespace spot
       const heap& h;
     };
 
-    void construct_cycle(tgba_run* run,
+    void construct_cycle(tgba_run_ptr run,
 			 const accepting_transitions_list& acc_trans)
     {
       assert(!acc_trans.empty());
@@ -616,7 +616,7 @@ namespace spot
 	}
     }
 
-    void construct_prefix(tgba_run* run)
+    void construct_prefix(tgba_run_ptr run)
     {
       m_source_trans target;
       transition tmp;

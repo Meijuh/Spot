@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -35,10 +35,11 @@ namespace spot
     public acss_statistics
   {
   public:
-    couvreur99_check_result(const couvreur99_check_status* ecs,
+    couvreur99_check_result(const
+			    std::shared_ptr<const couvreur99_check_status>& ecs,
 			    option_map o = option_map());
 
-    virtual tgba_run* accepting_run();
+    virtual tgba_run_ptr accepting_run();
 
     void print_stats(std::ostream& os) const;
 
@@ -50,8 +51,8 @@ namespace spot
     void accepting_cycle();
 
   private:
-    const couvreur99_check_status* ecs_;
-    tgba_run* run_;
+    std::shared_ptr<const couvreur99_check_status> ecs_;
+    tgba_run_ptr run_;
   };
 }
 

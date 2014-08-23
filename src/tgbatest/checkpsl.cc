@@ -29,7 +29,6 @@
 #include "tgbaalgos/ltl2taa.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgba/tgbaproduct.hh"
-#include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/dupexp.hh"
 
@@ -76,14 +75,11 @@ main(int argc, char** argv)
       {
 	auto apos = scc_filter(ltl_to_tgba_fm(fpos, d));
 	auto aneg = scc_filter(ltl_to_tgba_fm(fneg, d));
-	auto ec = spot::couvreur99(spot::product(apos, aneg));
-	auto res = ec->check();
-	if (res)
+	if (!spot::product(apos, aneg)->is_empty())
 	  {
-	  std::cerr << "non-empty intersection between pos and neg (FM)\n";
-	  exit(2);
+	    std::cerr << "non-empty intersection between pos and neg (FM)\n";
+	    exit(2);
 	  }
-	delete ec;
 
 	// Run make_future_conditions_collector, without testing the output.
 	auto fc = spot::make_future_conditions_collector(apos, true);
@@ -93,28 +89,22 @@ main(int argc, char** argv)
       {
 	auto apos = scc_filter(ltl_to_tgba_fm(fpos, d, true));
 	auto aneg = scc_filter(ltl_to_tgba_fm(fneg, d, true));
-	auto ec = spot::couvreur99(spot::product(apos, aneg));
-	auto res = ec->check();
-	if (res)
+	if (!spot::product(apos, aneg)->is_empty())
 	  {
 	    std::cerr << "non-empty intersection between pos and neg (FM -x)\n";
 	    exit(2);
 	  }
-	delete ec;
       }
 
       if (fpos->is_ltl_formula())
 	{
 	  auto apos = scc_filter(spot::tgba_dupexp_dfs(ltl_to_taa(fpos, d)));
 	  auto aneg = scc_filter(spot::tgba_dupexp_dfs(ltl_to_taa(fneg, d)));
-	  auto ec = spot::couvreur99(spot::product(apos, aneg));
-	  auto res = ec->check();
-	  if (res)
+	  if (!spot::product(apos, aneg)->is_empty())
 	    {
 	      std::cerr << "non-empty intersection between pos and neg (TAA)\n";
 	      exit(2);
-	  }
-	  delete ec;
+	    }
 	}
       fpos->destroy();
       fneg->destroy();

@@ -21,6 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "tgba.hh"
+#include "tgbaalgos/gtec/gtec.hh"
 
 namespace spot
 {
@@ -83,6 +84,15 @@ namespace spot
 	num_acc_ = n;
       }
     return num_acc_;
+  }
+
+  bool
+  tgba::is_empty() const
+  {
+    // FIXME: This should be improved based on properties of the
+    // automaton.  For instance we do not need couvreur99 is we know
+    // the automaton is weak.
+    return !couvreur99(shared_from_this())->check();
   }
 
 }

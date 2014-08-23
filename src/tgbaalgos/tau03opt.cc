@@ -108,18 +108,20 @@ namespace spot
       ///
       /// \return non null pointer iff the algorithm has found an
       /// accepting path.
-      virtual emptiness_check_result* check()
+      virtual emptiness_check_result_ptr check()
       {
         if (!st_blue.empty())
-            return 0;
+            return nullptr;
         assert(st_red.empty());
         const state* s0 = a_->get_init_state();
         inc_states();
         h.add_new_state(s0, CYAN, current_weight);
         push(st_blue, s0, bddfalse, bddfalse);
+	auto t = std::static_pointer_cast<tau03_opt_search>
+	  (this->emptiness_check::shared_from_this());
         if (dfs_blue())
-          return new ndfs_result<tau03_opt_search<heap>, heap>(*this);
-        return 0;
+          return std::make_shared<ndfs_result<tau03_opt_search<heap>, heap>>(t);
+        return nullptr;
       }
 
       virtual std::ostream& print_stats(std::ostream &os) const
@@ -572,10 +574,12 @@ namespace spot
 
   } // anonymous
 
-  emptiness_check* explicit_tau03_opt_search(const const_tgba_ptr& a,
-					     option_map o)
+  emptiness_check_ptr
+  explicit_tau03_opt_search(const const_tgba_ptr& a, option_map o)
   {
-    return new tau03_opt_search<explicit_tau03_opt_search_heap>(a, 0, o);
+    return
+      std::make_shared<tau03_opt_search<explicit_tau03_opt_search_heap>>(a,
+									 0, o);
   }
 
 }

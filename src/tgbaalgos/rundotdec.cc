@@ -26,7 +26,8 @@
 namespace spot
 {
 
-  tgba_run_dotty_decorator::tgba_run_dotty_decorator(const tgba_run* run)
+  tgba_run_dotty_decorator::tgba_run_dotty_decorator(const
+						     const_tgba_run_ptr& run)
     : run_(run)
   {
     int n = 1;

@@ -102,7 +102,6 @@ if not script:
     httpd.serve_forever()
 
 import cgi
-import cgitb; cgitb.enable()
 import signal
 import time
 import os.path
@@ -119,6 +118,9 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), "wb", 0)
 # Redirect stderr to stdout at a low level (so that
 # even errors from subprocesses get printed).
 os.dup2(sys.stdout.fileno(), sys.stderr.fileno())
+
+import cgitb
+sys.excepthook = cgitb.Hook(file=sys.stderr)
 
 # Create the temporary cache directory
 os.mkdir(tmpdir, 493) # See comment above about 0o755 or 0755.
@@ -533,7 +535,7 @@ elif translator == 'ta':
     refined_rules = False
     if form.getfirst('ta', '') == 'lc':
         refined_rules = True
-    automaton = spot.ltl_to_taa(f, dict, refined_rules)
+    automaton = spot.tgba_dupexp_dfs(spot.ltl_to_taa(f, dict, refined_rules))
 elif translator == 'l3':
     l3out = '-T'
     l3opt = { '-l', '-P', '-A', '-c', '-C', '-o', '-p' }
@@ -770,7 +772,7 @@ if output_type == 'r':
     err = ""
     opt = (form.getfirst('ec', 'Cou99') + "(" +
            form.getfirst('eo', '') + ")")
-    eci, err = spot.emptiness_check_instantiator.construct(opt)
+    eci, err = spot.make_emptiness_check_instantiator(opt)
 
     if not eci:
         unbufprint('<div class="parse-error">Cannot parse "' + opt
@@ -824,8 +826,4 @@ if output_type == 'r':
                 del ec_run
             del ec_res
             unbufprint('</div>')
-        del ec
-        del ec_a
-    degen = 0
-    automaton = 0
     finish()

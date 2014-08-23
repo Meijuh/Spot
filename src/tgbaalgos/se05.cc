@@ -88,8 +88,10 @@ namespace spot
       /// check() can be called several times (until it returns a null
       /// pointer) to enumerate all the visited accepting paths. The method
       /// visits only a finite set of accepting paths.
-      virtual emptiness_check_result* check()
+      virtual emptiness_check_result_ptr check()
       {
+	auto t = std::static_pointer_cast<se05_search>
+	  (this->emptiness_check::shared_from_this());
         if (st_red.empty())
           {
             assert(st_blue.empty());
@@ -98,17 +100,17 @@ namespace spot
             h.add_new_state(s0, CYAN);
             push(st_blue, s0, bddfalse, bddfalse);
             if (dfs_blue())
-              return new se05_result(*this, options());
+              return std::make_shared<se05_result>(t, options());
           }
         else
           {
             h.pop_notify(st_red.front().s);
             pop(st_red);
             if (!st_red.empty() && dfs_red())
-              return new se05_result(*this, options());
+              return std::make_shared<se05_result>(t, options());
             else
               if (dfs_blue())
-                return new se05_result(*this, options());
+                return std::make_shared<se05_result>(t, options());
           }
         return 0;
       }
@@ -330,27 +332,27 @@ namespace spot
         public acss_statistics
       {
       public:
-        result_from_stack(se05_search& ms)
-          : emptiness_check_result(ms.automaton()), ms_(ms)
+        result_from_stack(const std::shared_ptr<se05_search>& ms)
+          : emptiness_check_result(ms->automaton()), ms_(ms)
         {
         }
 
-        virtual tgba_run* accepting_run()
+        virtual tgba_run_ptr accepting_run()
         {
-          assert(!ms_.st_blue.empty());
-          assert(!ms_.st_red.empty());
+          assert(!ms_->st_blue.empty());
+          assert(!ms_->st_red.empty());
 
-          tgba_run* run = new tgba_run;
+          auto run = std::make_shared<tgba_run>();
 
           typename stack_type::const_reverse_iterator i, j, end;
           tgba_run::steps* l;
 
-          const state* target = ms_.st_red.front().s;
+          const state* target = ms_->st_red.front().s;
 
           l = &run->prefix;
 
-          i = ms_.st_blue.rbegin();
-          end = ms_.st_blue.rend(); --end;
+          i = ms_->st_blue.rbegin();
+          end = ms_->st_blue.rend(); --end;
           j = i; ++j;
           for (; i != end; ++i, ++j)
             {
@@ -364,12 +366,12 @@ namespace spot
             l = &run->cycle;
           assert(l == &run->cycle);
 
-          j = ms_.st_red.rbegin();
+          j = ms_->st_red.rbegin();
           tgba_run::step s = { i->s->clone(), j->label, j->acc };
           l->push_back(s);
 
           i = j; ++j;
-          end = ms_.st_red.rend(); --end;
+          end = ms_->st_red.rend(); --end;
           for (; i != end; ++i, ++j)
             {
               tgba_run::step s = { i->s->clone(), j->label, j->acc };
@@ -384,7 +386,7 @@ namespace spot
           return 0;
         }
       private:
-        se05_search& ms_;
+	std::shared_ptr<se05_search> ms_;
       };
 
 #     define FROM_STACK "ar:from_stack"
@@ -392,8 +394,9 @@ namespace spot
       class se05_result: public emptiness_check_result
       {
       public:
-        se05_result(se05_search& m, option_map o = option_map())
-          : emptiness_check_result(m.automaton(), o), ms(m)
+        se05_result(const std::shared_ptr<se05_search>& m,
+		    option_map o = option_map())
+          : emptiness_check_result(m->automaton(), o), ms(m)
         {
           if (options()[FROM_STACK])
             computer = new result_from_stack(ms);
@@ -420,7 +423,7 @@ namespace spot
           delete computer;
         }
 
-        virtual tgba_run* accepting_run()
+        virtual tgba_run_ptr accepting_run()
         {
           return computer->accepting_run();
         }
@@ -432,7 +435,7 @@ namespace spot
 
       private:
         emptiness_check_result* computer;
-        se05_search& ms;
+	std::shared_ptr<se05_search> ms;
       };
     };
 
@@ -675,19 +678,20 @@ namespace spot
 
   } // anonymous
 
-  emptiness_check* explicit_se05_search(const const_tgba_ptr& a, option_map o)
+  emptiness_check_ptr
+  explicit_se05_search(const const_tgba_ptr& a, option_map o)
   {
-    return new se05_search<explicit_se05_search_heap>(a, 0, o);
+    return std::make_shared<se05_search<explicit_se05_search_heap>>(a, 0, o);
   }
 
-  emptiness_check* bit_state_hashing_se05_search(const const_tgba_ptr& a,
-						 size_t size,
-						 option_map o)
+  emptiness_check_ptr
+  bit_state_hashing_se05_search(const const_tgba_ptr& a,
+				size_t size, option_map o)
   {
-    return new se05_search<bsh_se05_search_heap>(a, size, o);
+    return std::make_shared<se05_search<bsh_se05_search_heap>>(a, size, o);
   }
 
-  emptiness_check*
+  emptiness_check_ptr
   se05(const const_tgba_ptr& a, option_map o)
   {
     size_t size = o.get("bsh");

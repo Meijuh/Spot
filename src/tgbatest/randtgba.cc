@@ -59,7 +59,7 @@
 struct ec_algo
 {
   std::string name;
-  spot::emptiness_check_instantiator* inst;
+  spot::emptiness_check_instantiator_ptr inst;
 };
 
 const char* default_algos[] = {
@@ -84,12 +84,12 @@ const char* default_algos[] = {
 
 std::vector<ec_algo> ec_algos;
 
-spot::emptiness_check*
+spot::emptiness_check_ptr
 cons_emptiness_check(int num, spot::const_tgba_ptr a,
 		     const spot::const_tgba_ptr& degen,
 		     unsigned int n_acc)
 {
-  spot::emptiness_check_instantiator* inst = ec_algos[num].inst;
+  auto inst = ec_algos[num].inst;
   if (n_acc < inst->min_acceptance_conditions()
       || n_acc > inst->max_acceptance_conditions())
     a = degen;
@@ -380,7 +380,7 @@ struct ar_stat
   }
 
   void
-  count(const spot::tgba_run* run)
+  count(const spot::const_tgba_run_ptr& run)
   {
     int p = run->prefix.size();
     int c = run->cycle.size();
@@ -837,9 +837,8 @@ main(int argc, char** argv)
 	{
 	  const char* err;
 	  ec_algos[i].inst =
-	    spot::emptiness_check_instantiator::construct(ec_algos[i]
-							  .name.c_str(),
-							  &err);
+	    spot::make_emptiness_check_instantiator(ec_algos[i].name.c_str(),
+						    &err);
 	  if (ec_algos[i].inst == 0)
 	    {
 	      std::cerr << "Parse error after `" << err << '\'' << std::endl;
@@ -939,9 +938,7 @@ main(int argc, char** argv)
 
 		  for (int i = 0; i < n_alg; ++i)
 		    {
-		      spot::emptiness_check* ec;
-		      spot::emptiness_check_result* res;
-		      ec = cons_emptiness_check(i, a, degen, real_n_acc);
+		      auto ec = cons_emptiness_check(i, a, degen, real_n_acc);
 		      if (!ec)
 			continue;
 		      ++n_ec;
@@ -952,17 +949,16 @@ main(int argc, char** argv)
 			  std::cout << algo << ": ";
 			}
 		      tm_ec.start(algo);
+		      spot::emptiness_check_result_ptr res;
 		      for (int count = opt_R;;)
 			{
 			  res = ec->check();
 			  if (count-- <= 0)
 			    break;
-			  delete res;
-			  delete ec;
 			  ec = cons_emptiness_check(i, a, degen, real_n_acc);
 			}
 		      tm_ec.stop(algo);
-		      const spot::unsigned_statistics* ecs = ec->statistics();
+		      auto ecs = ec->statistics();
 		      if (opt_z && res)
 			{
 			  // Notice that ratios are computed w.r.t. the
@@ -1001,7 +997,7 @@ main(int argc, char** argv)
 			  ++n_non_empty;
 			  if (opt_replay)
 			    {
-			      spot::tgba_run* run;
+			      spot::tgba_run_ptr run;
 			      bool done = false;
 			      tm_ar.start(algo);
 			      for (int count = opt_R;;)
@@ -1030,7 +1026,6 @@ main(int argc, char** argv)
 
 				  if (count-- <= 0 || !run)
 				    break;
-				  delete run;
 				}
 			      if (!run)
 				{
@@ -1065,7 +1060,7 @@ main(int argc, char** argv)
 
 				  if (opt_reduce)
 				    {
-				      spot::tgba_run* redrun =
+				      auto redrun =
 					spot::reduce_run(res->automaton(), run);
 				      if (!spot::replay_tgba_run(s,
 								 res
@@ -1093,14 +1088,11 @@ main(int argc, char** argv)
 						    << redrun->cycle.size()
 						    << ']';
 					}
-				      delete redrun;
 				    }
-				  delete run;
 				}
 			    }
 			  if (!opt_paper)
 			    std::cout << std::endl;
-			  delete res;
 			}
 		      else
 			{
@@ -1122,7 +1114,6 @@ main(int argc, char** argv)
 
 		      if (opt_Z && !opt_paper)
 			ec->print_stats(std::cout);
-		      delete ec;
 		    }
 
 		  assert(n_empty + n_non_empty + n_maybe_empty == n_ec);
@@ -1309,10 +1300,6 @@ main(int argc, char** argv)
       dynamic_cast<std::ifstream*>(formula_file)->close();
       delete formula_file;
     }
-
-  if (opt_ec)
-    for (unsigned i = 0; i < ec_algos.size(); ++i)
-      delete ec_algos[i].inst;
 
   delete ap;
   delete apf;

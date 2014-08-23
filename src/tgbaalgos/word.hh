@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement de
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -29,7 +29,7 @@ namespace spot
   /// \brief An infinite word stored as a lasso.
   struct SPOT_API tgba_word
   {
-    tgba_word(const tgba_run* run);
+    tgba_word(const tgba_run_ptr run);
     void simplify();
     std::ostream& print(std::ostream& os, const bdd_dict_ptr& d) const;
 

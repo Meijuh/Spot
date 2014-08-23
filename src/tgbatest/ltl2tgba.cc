@@ -354,7 +354,7 @@ checked_main(int argc, char** argv)
   int output = 0;
   int formula_index = 0;
   const char* echeck_algo = 0;
-  spot::emptiness_check_instantiator* echeck_inst = 0;
+  spot::emptiness_check_instantiator_ptr echeck_inst = 0;
   enum { NoneDup, BFS, DFS } dupexp = NoneDup;
   bool expect_counter_example = false;
   bool accepting_run = false;
@@ -500,7 +500,7 @@ checked_main(int argc, char** argv)
 
 	  const char* err;
 	  echeck_inst =
-	    spot::emptiness_check_instantiator::construct(echeck_algo, &err);
+	    spot::make_emptiness_check_instantiator(echeck_algo, &err);
 	  if (!echeck_inst)
 	    {
 	      std::cerr << "Failed to parse argument of -e near `"
@@ -518,7 +518,7 @@ checked_main(int argc, char** argv)
 
 	  const char* err;
 	  echeck_inst =
-	    spot::emptiness_check_instantiator::construct(echeck_algo, &err);
+	    spot::make_emptiness_check_instantiator(echeck_algo, &err);
 	  if (!echeck_inst)
 	    {
 	      std::cerr << "Failed to parse argument of -e near `"
@@ -1713,13 +1713,13 @@ checked_main(int argc, char** argv)
 
       if (echeck_inst)
 	{
-	  spot::emptiness_check* ec = echeck_inst->instantiate(a);
+	  auto ec = echeck_inst->instantiate(a);
 	  bool search_many = echeck_inst->options().get("repeated");
 	  assert(ec);
 	  do
 	    {
 	      tm.start("running emptiness check");
-	      spot::emptiness_check_result* res = ec->check();
+	      auto res = ec->check();
 	      tm.stop("running emptiness check");
 
               if (paper_opt)
@@ -1736,8 +1736,7 @@ checked_main(int argc, char** argv)
                   std::cout <<
                             ec->automaton()->number_of_acceptance_conditions()
                             << ", ";
-                  const spot::ec_statistics* ecs =
-                        dynamic_cast<const spot::ec_statistics*>(ec);
+		  auto ecs = ec->emptiness_check_statistics();
                   if (ecs)
                     std::cout << std::right << std::setw(10)
                               << ecs->states() << ", "
@@ -1781,7 +1780,7 @@ checked_main(int argc, char** argv)
                     {
 
 		      tm.start("computing accepting run");
-                      spot::tgba_run* run = res->accepting_run();
+                      auto run = res->accepting_run();
 		      tm.stop("computing accepting run");
 
                       if (!run)
@@ -1793,11 +1792,8 @@ checked_main(int argc, char** argv)
                           if (opt_reduce)
                             {
 			      tm.start("reducing accepting run");
-                              spot::tgba_run* redrun =
-                                spot::reduce_run(res->automaton(), run);
+                              run = spot::reduce_run(res->automaton(), run);
 			      tm.stop("reducing accepting run");
-                              delete run;
-                              run = redrun;
                             }
 			  if (accepting_run_replay)
 			    {
@@ -1827,7 +1823,6 @@ checked_main(int argc, char** argv)
 				}
 			      tm.stop("printing accepting run");
 			    }
-			  delete run;
                         }
                     }
 		  else
@@ -1836,14 +1831,11 @@ checked_main(int argc, char** argv)
 				<< "(use -C to print it)" << std::endl;
 		    }
                 }
-	      delete res;
 	    }
 	  while (search_many);
-	  delete ec;
 	}
       if (f)
         f->destroy();
-      delete echeck_inst;
     }
   else
     {
