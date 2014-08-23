@@ -64,7 +64,8 @@ namespace spot
     /// \param a that automaton that should register the BDD variables used.
     /// \return A conjunction the atomic propositions.
     SPOT_API bdd
-    atomic_prop_collect_as_bdd(const formula* f, const_tgba_ptr a);
+    atomic_prop_collect_as_bdd(const formula* f,
+			       const const_tgba_ptr& a);
 
     /// @}
   }
