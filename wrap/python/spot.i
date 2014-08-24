@@ -326,6 +326,22 @@ namespace std {
   };
 }
 
+%pythoncode %{
+import subprocess
+
+def render_automaton_as_svg(a):
+    dotsrc = ostringstream()
+    dotty_reachable(dotsrc, a)
+    dotty = subprocess.Popen(['dot', '-Tsvg'],
+			     stdin=subprocess.PIPE,
+			     stdout=subprocess.PIPE)
+    dotty.stdin.write(dotsrc.str().encode('utf-8'))
+    res = dotty.communicate()
+    return res[0].decode('utf-8')
+
+tgba._repr_svg_ = render_automaton_as_svg
+%}
+
 %inline %{
 spot::ltl::parse_error_list
 empty_parse_error_list()
