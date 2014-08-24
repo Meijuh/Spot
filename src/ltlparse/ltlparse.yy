@@ -33,6 +33,7 @@
 %code requires
 {
 #include <string>
+#include <sstream>
 #include "public.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/tostring.hh"
@@ -1032,6 +1033,24 @@ namespace spot
       parser.parse();
       flex_unset_buffer();
       return result;
+    }
+
+    const formula*
+    parse_formula(const std::string& ltl_string, environment& env)
+    {
+      parse_error_list pel;
+      const formula* f = parse(ltl_string, pel, env);
+      std::ostringstream s;
+      if (format_parse_errors(s, ltl_string, pel))
+	{
+	  parse_error_list pel2;
+	  const formula* g = parse_lbt(ltl_string, pel2, env);
+	  if (pel2.empty())
+	    return g;
+	  else
+	    throw parse_error(s.str());
+	}
+      return f;
     }
 
   }

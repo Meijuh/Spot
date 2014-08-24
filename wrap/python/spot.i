@@ -31,6 +31,7 @@
 %include "std_shared_ptr.i"
 %include "std_string.i"
 %include "std_list.i"
+%include "exception.i"
 
  // git grep 'typedef.*std::shared_ptr' | grep -v const
  // sed 's/.*<\(.*\)>.*/%shared_ptr(spot::\1)/g'
@@ -172,6 +173,19 @@ using namespace spot;
  };
 %apply char** OUTPUT { char** err };
 
+
+%exception {
+  try {
+    $action
+  }
+  catch (const spot::ltl::parse_error& e)
+  {
+    std::string er("\n");
+    er += e.what();
+    SWIG_exception(SWIG_SyntaxError, er.c_str());
+  }
+}
+
 // False and True cannot be redefined in Python3, even in a class.
 // Spot uses these in an enum of the constant class.
 %rename(FalseVal) False;
@@ -286,12 +300,12 @@ namespace spot {
 
   size_t __hash__() { return self->hash(); }
 
-  std::string
-  __str__(void)
+  std::string __repr__() { return spot::ltl::to_string(self); }
+  std::string _repr_latex_()
   {
-    return spot::ltl::to_string(self);
+    return std::string("$") + spot::ltl::to_sclatex_string(self) + '$';
   }
-
+  std::string __str__() { return spot::ltl::to_string(self); }
 }
 
 %nodefaultctor std::ostream;

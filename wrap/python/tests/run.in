@@ -40,6 +40,8 @@ case $1 in
     PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec @PYTHON@ "$@";;
   *.test)
     exec sh -x "$@";;
+  ipython*)
+    PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec "$@";;
   *)
     echo "Unknown extension" >&2
     exit 2;;

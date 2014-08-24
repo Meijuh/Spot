@@ -260,6 +260,47 @@ namespace spot
 	"\\SereGoto{",
       };
 
+      const char* sclatex_kw[] = {
+	"\\ffalse",
+	"\\ttrue",
+	"\\varepsilon",
+	" \\oplus ",
+	" \\rightarrow ",
+	" \\leftrightarrow ",
+	" \\mathbin{\\mathsf{U}} ",
+	" \\mathbin{\\mathsf{R}} ",
+	" \\mathbin{\\mathsf{W}} ",
+	" \\mathbin{\\mathsf{M}} ",
+	("\\mathrel{\\Diamond\\kern-1.7pt\\raise.4pt"
+	 "\\hbox{$\\mathord{\\rightarrow}$}} "),
+	("\\mathrel{\\Diamond\\kern-1.7pt\\raise.4pt"
+	 "\\hbox{$\\mathord{\\Rightarrow}$}} "),
+	"\\seqM ",
+	"\\seqXM ",
+	("\\mathrel{\\Box\\kern-1.7pt\\raise.4pt"
+	 "\\hbox{$\\mathord{\\rightarrow}$}} "),
+	("\\mathrel{\\Box\\kern-1.7pt\\raise.4pt"
+	 "\\hbox{$\\mathord{\\Rightarrow}$}} "),
+	"\\lnot ",
+	"\\mathsf{X} ",
+	"\\mathsf{F} ",
+	"\\mathsf{G} ",
+	" \\lor ",
+	" \\cup ",
+	" \\land ",
+	" \\cap ",
+	" \\mathbin{\\mathsf{\\&}} ",
+	" \\mathbin{\\mathsf{;}} ",
+	" \\mathbin{\\mathsf{:}} ",
+	"\\{",
+	"\\}",
+	"}",
+	"^{\\star",
+	"^+",
+	"^{=",
+	"^{\\to",
+      };
+
       static bool
       is_bare_word(const char* str)
       {
@@ -370,7 +411,7 @@ namespace spot
 	    }
 	  else
 	    {
-	      if (kw_ == latex_kw)
+	      if (kw_ == latex_kw || kw_ == sclatex_kw)
 		{
 		  size_t s = str.size();
 		  while (str[s - 1] >= '0' && str[s - 1] <= '9')
@@ -942,6 +983,24 @@ namespace spot
     {
       std::ostringstream os;
       to_latex_string(f, os, full_parent, ratexp);
+      return os.str();
+    }
+
+    std::ostream&
+    to_sclatex_string(const formula* f, std::ostream& os,
+		      bool full_parent, bool ratexp)
+    {
+      to_string_visitor v(os, full_parent, ratexp, sclatex_kw);
+      f->accept(v);
+      return os;
+    }
+
+    std::string
+    to_sclatex_string(const formula* f,
+		      bool full_parent, bool ratexp)
+    {
+      std::ostringstream os;
+      to_sclatex_string(f, os, full_parent, ratexp);
       return os.str();
     }
 

@@ -110,7 +110,7 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 				  unput(')');
 				  if (!missing_parent)
                                     error_list.push_back(
-				      spot::ltl::parse_error(*yylloc,
+				      spot::ltl::one_parse_error(*yylloc,
  					"missing closing parenthese"));
 				  missing_parent = true;
 				}
@@ -164,7 +164,7 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 				  unput(')');
 				  if (!missing_parent)
                                     error_list.push_back(
-				      spot::ltl::parse_error(*yylloc,
+				      spot::ltl::one_parse_error(*yylloc,
  					"missing closing brace"));
 				  missing_parent = true;
 				}
@@ -204,7 +204,7 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 				  if (errno || yylval->num != n)
 				    {
                                       error_list.push_back(
-				        spot::ltl::parse_error(*yylloc,
+				        spot::ltl::one_parse_error(*yylloc,
 					  "value too large ignored"));
 				      // Skip this number and read next token
                                       yylloc->step();

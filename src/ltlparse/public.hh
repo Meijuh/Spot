@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -40,9 +40,9 @@ namespace spot
 
 #ifndef SWIG
     /// \brief A parse diagnostic with its location.
-    typedef std::pair<location, std::string> parse_error;
+    typedef std::pair<location, std::string> one_parse_error;
     /// \brief A list of parser diagnostics, as filled by parse.
-    typedef std::list<parse_error> parse_error_list;
+    typedef std::list<one_parse_error> parse_error_list;
 #else
     // Turn parse_error_list into an opaque type for Swig.
     struct parse_error_list {};
@@ -123,6 +123,24 @@ namespace spot
 			     parse_error_list& error_list,
 			     environment& env = default_environment::instance(),
 			     bool debug = false);
+
+
+
+    struct SPOT_API parse_error: public std::runtime_error
+    {
+      parse_error(const std::string& s): std::runtime_error(s)
+      {
+      }
+    };
+
+    /// \brief A simple wrapper to parse() and parse_lbt().
+    ///
+    /// This is mostly meant for interactive use.  It first tries parse(); if
+    /// this fails it tries parse_lbt(); and if both fails it returns the errors
+    /// of the first call to parse() as a std::runtime_error().
+    SPOT_API const formula*
+    parse_formula(const std::string& ltl_string,
+		  environment& env = default_environment::instance());
 
     /// \brief Build a formula from a string representing a SERE.
     /// \param sere_string The string to parse.

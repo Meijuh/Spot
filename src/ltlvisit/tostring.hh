@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -101,8 +101,7 @@ namespace spot
     SPOT_API std::string
     to_wring_string(const formula* f);
 
-    /// \brief Output a formula as an LaTeX string which is parsable unless
-    /// the formula contains automaton operators (used in ELTL formulae).
+    /// \brief Output a formula as an LaTeX string which is parsable.
     /// \param f The formula to translate.
     /// \param os The stream where it should be output.
     /// \param full_parent Whether or not the string should by fully
@@ -112,7 +111,7 @@ namespace spot
     to_latex_string(const formula* f, std::ostream& os,
 		    bool full_parent = false, bool ratexp = false);
 
-    /// \brief Output a formula as a LaTeX string which is parsable
+    /// \brief Output a formula as a LaTeX string which is parsable.
     /// unless the formula contains automaton operators (used in ELTL formulae).
     /// \param f The formula to translate.
     /// \param full_parent Whether or not the string should by fully
@@ -122,6 +121,29 @@ namespace spot
     to_latex_string(const formula* f,
 		    bool full_parent = false, bool ratexp = false);
 
+
+    /// \brief Output a formula as a self-contained LaTeX string.
+    ///
+    /// The result cannot be parsed back.
+    /// \param f The formula to translate.
+    /// \param os The stream where it should be output.
+    /// \param full_parent Whether or not the string should by fully
+    ///			   parenthesized.
+    /// \param ratexp Whether we are printing a SERE.
+    SPOT_API std::ostream&
+    to_sclatex_string(const formula* f, std::ostream& os,
+		    bool full_parent = false, bool ratexp = false);
+
+    /// \brief Output a formula as a self-contained LaTeX string.
+    ///
+    /// The result cannot be parsed bacl.
+    /// \param f The formula to translate.
+    /// \param full_parent Whether or not the string should by fully
+    ///			   parenthesized.
+    /// \param ratexp Whether we are printing a SERE.
+    SPOT_API std::string
+    to_sclatex_string(const formula* f,
+		      bool full_parent = false, bool ratexp = false);
     /// @}
   }
 }
