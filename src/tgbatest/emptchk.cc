@@ -24,7 +24,6 @@
 #include <cstring>
 #include "ltlparse/public.hh"
 #include "ltlast/allnodes.hh"
-#include "tgba/futurecondcol.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/ltl2taa.hh"
 #include "tgbaalgos/sccfilter.hh"

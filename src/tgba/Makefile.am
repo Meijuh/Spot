@@ -29,7 +29,6 @@ tgba_HEADERS = \
   bdddict.hh \
   bddprint.hh \
   formula2bdd.hh \
-  futurecondcol.hh \
   fwd.hh \
   taatgba.hh \
   tgba.hh \
@@ -37,7 +36,6 @@ tgba_HEADERS = \
   tgbakvcomplement.hh \
   tgbamask.hh \
   tgbaproxy.hh \
-  tgbascc.hh \
   tgbaproduct.hh \
   tgbasgba.hh \
   tgbasafracomplement.hh \
@@ -48,7 +46,6 @@ libtgba_la_SOURCES = \
   bdddict.cc \
   bddprint.cc \
   formula2bdd.cc \
-  futurecondcol.cc \
   taatgba.cc \
   tgba.cc \
   tgbagraph.cc \
@@ -57,6 +54,5 @@ libtgba_la_SOURCES = \
   tgbamask.cc \
   tgbaproxy.cc \
   tgbasafracomplement.cc \
-  tgbascc.cc \
   tgbasgba.cc \
   wdbacomp.cc

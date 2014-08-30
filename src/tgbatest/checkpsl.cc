@@ -24,7 +24,6 @@
 #include <cstring>
 #include "ltlparse/public.hh"
 #include "ltlast/allnodes.hh"
-#include "tgba/futurecondcol.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/ltl2taa.hh"
 #include "tgbaalgos/sccfilter.hh"
@@ -80,10 +79,6 @@ main(int argc, char** argv)
 	    std::cerr << "non-empty intersection between pos and neg (FM)\n";
 	    exit(2);
 	  }
-
-	// Run make_future_conditions_collector, without testing the output.
-	auto fc = spot::make_future_conditions_collector(apos, true);
-	spot::dotty_reachable(std::cout, fc);
       }
 
       {

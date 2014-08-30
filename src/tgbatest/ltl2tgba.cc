@@ -40,7 +40,6 @@
 #include "tgba/tgbasgba.hh"
 #include "tgbaalgos/degen.hh"
 #include "tgba/tgbaproduct.hh"
-#include "tgba/futurecondcol.hh"
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaparse/public.hh"
 #include "neverparse/public.hh"
@@ -274,8 +273,6 @@ syntax(char* prog)
 	    << "Output options (if no emptiness check):" << std::endl
 	    << "  -b    output the automaton in the format of spot"
             << std::endl
-            << "  -FC   dump the automaton showing future conditions on states"
-	    << std::endl
 	    << "  -k    display statistics on the automaton (size and SCCs)"
 	    << std::endl
 	    << "  -ks   display statistics on the automaton (size only)"
@@ -384,7 +381,6 @@ checked_main(int argc, char** argv)
   bool opt_bisim_ta = false;
   bool opt_monitor = false;
   bool containment = false;
-  bool show_fc = false;
   bool spin_comments = false;
   const char* hoaf_opt = 0;
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
@@ -540,10 +536,6 @@ checked_main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-F"))
 	{
 	  file_opt = true;
-	}
-      else if (!strcmp(argv[formula_index], "-FC"))
-	{
-	  show_fc = true;
 	}
       else if (!strcmp(argv[formula_index], "-g"))
 	{
@@ -1564,11 +1556,6 @@ checked_main(int argc, char** argv)
 	      std::cout << std::endl;
 	      exit(0);
 	    }
-	}
-
-      if (show_fc)
-	{
-	  a = spot::make_future_conditions_collector(a, true);
 	}
 
       if (output != -1)
