@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -28,8 +28,9 @@ namespace spot
   ///
   /// The automaton \a aut should be deterministic.  It does no need
   /// to be complete.  Acceptance can be transition-based, or
-  /// state-based.  The resulting automaton is very unlikely to be
-  /// deterministic.
+  /// state-based.  Unless the input automaton is marked as weak (in
+  /// which case the output will also be weak and deterministic) the
+  /// resulting automaton is very unlikely to be deterministic.
   SPOT_API tgba_digraph_ptr
   dtgba_complement(const const_tgba_ptr& aut);
 }

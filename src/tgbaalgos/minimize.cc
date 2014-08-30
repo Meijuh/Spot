@@ -37,7 +37,6 @@
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
 #include "tgba/tgbaproduct.hh"
-#include "tgba/wdbacomp.hh"
 #include "tgbaalgos/powerset.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/safety.hh"
@@ -671,7 +670,8 @@ namespace spot
     if (product(min_aut_f, aut_neg_f)->is_empty())
       {
 	// Complement the minimized WDBA.
-	auto neg_min_aut_f = wdba_complement(min_aut_f);
+	assert(min_aut_f->is_inherently_weak());
+	auto neg_min_aut_f = dtgba_complement(min_aut_f);
 	if (product(aut_f, neg_min_aut_f)->is_empty())
 	  // Finally, we are now sure that it was safe
 	  // to minimize the automaton.

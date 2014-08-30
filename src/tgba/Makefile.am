@@ -38,8 +38,7 @@ tgba_HEADERS = \
   tgbaproxy.hh \
   tgbaproduct.hh \
   tgbasgba.hh \
-  tgbasafracomplement.hh \
-  wdbacomp.hh
+  tgbasafracomplement.hh
 
 noinst_LTLIBRARIES = libtgba.la
 libtgba_la_SOURCES = \
@@ -54,5 +53,4 @@ libtgba_la_SOURCES = \
   tgbamask.cc \
   tgbaproxy.cc \
   tgbasafracomplement.cc \
-  tgbasgba.cc \
-  wdbacomp.cc
+  tgbasgba.cc

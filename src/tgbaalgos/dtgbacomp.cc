@@ -19,10 +19,11 @@
 
 #include "dtgbacomp.hh"
 #include "dupexp.hh"
+#include "sccinfo.hh"
 
 namespace spot
 {
-  tgba_digraph_ptr dtgba_complement(const const_tgba_ptr& aut)
+  tgba_digraph_ptr dtgba_complement_nonweak(const const_tgba_ptr& aut)
   {
     // Clone the original automaton.
     tgba_digraph_ptr res = tgba_dupexp_dfs(aut);
@@ -50,7 +51,7 @@ namespace spot
 	bdd missingcond = bddtrue;
 	for (auto& t: res->out(src))
 	  {
-	    if (t.dst >= n)	// Ignore transition we added.
+	    if (t.dst >= n)	// Ignore transitions we added.
 	      break;
 	    missingcond -= t.cond;
 	    bdd curacc = t.acc;
@@ -120,5 +121,66 @@ namespace spot
     res->merge_transitions();
     // FIXME: Remove unreachable states.
     return res;
+  }
+
+  tgba_digraph_ptr dtgba_complement_weak(const const_tgba_ptr& aut)
+  {
+    // Clone the original automaton.
+    tgba_digraph_ptr res = tgba_dupexp_dfs(aut);
+
+    res->prop_copy(aut,
+		   true, 	// state based
+		   true, 	// single acc
+		   true, 	// inherently_weak
+		   true);	// deterministic
+
+    bdd oldaccs = aut->all_acceptance_conditions();
+    bdd oldnegs = aut->neg_acceptance_conditions();
+
+    scc_info si(res);
+
+    // We will modify res in place, and the resulting
+    // automaton will only have one acceptance set.
+    bdd all_acc = res->set_single_acceptance_set();
+    res->prop_state_based_acc();
+
+    unsigned sink = res->num_states();
+
+    for (unsigned src = 0; src < sink; ++src)
+      {
+	bdd acc = bddfalse;
+	unsigned scc = si.scc_of(src);
+	if (!si.is_accepting_scc(scc) && !si.is_trivial(scc))
+	  acc = all_acc;
+
+	// Keep track of all conditions on transition leaving state
+	// SRC, so we can complete it.
+	bdd missingcond = bddtrue;
+	for (auto& t: res->out(src))
+	  {
+	    missingcond -= t.cond;
+	    t.acc = acc;
+	  }
+	// Complete the original automaton.
+	if (missingcond != bddfalse)
+	  {
+	    if (res->num_states() == sink)
+	      {
+		res->new_state();
+		res->new_acc_transition(sink, sink, bddtrue);
+	      }
+	    res->new_transition(src, sink, missingcond);
+	  }
+      }
+    //res->merge_transitions();
+    return res;
+  }
+
+  tgba_digraph_ptr dtgba_complement(const const_tgba_ptr& aut)
+  {
+    if (aut->is_inherently_weak())
+      return dtgba_complement_weak(aut);
+    else
+      return dtgba_complement_nonweak(aut);
   }
 }
