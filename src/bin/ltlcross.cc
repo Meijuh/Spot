@@ -1473,7 +1473,7 @@ namespace
 		      problems +=
 			check_empty_prod(pos[i], comp_pos[j],
 					 i, j, false, true);
-		    if (i != j && comp_neg[i] && !comp_neg[i])
+		    if (i != j && comp_neg[i] && !comp_pos[i])
 		      problems +=
 			check_empty_prod(comp_neg[i], neg[j],
 					 i, j, true, false);

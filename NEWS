@@ -4,6 +4,15 @@ New in spot 1.2.5a (not yet released)
 
     - ltlcross --verbose is a new option to see what is being done
 
+  * Bug fixes:
+
+    - When the automaton resulting from the translation of a positive
+      formula is deterministic, ltlcross will compute its complement
+      to perform additional checks against other translations of the
+      positive formula.  The same procedure should be performed with
+      automata obtained from negated formulas, but because of a typo
+      this was not the case.
+
 New in spot 1.2.5 (2014-08-21)
 
   * New features:
