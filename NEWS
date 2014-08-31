@@ -1,6 +1,8 @@
 New in spot 1.2.5a (not yet released)
 
-  Nothing yet.
+  * New features:
+
+    - ltlcross --verbose is a new option to see what is being done
 
 New in spot 1.2.5 (2014-08-21)
 
