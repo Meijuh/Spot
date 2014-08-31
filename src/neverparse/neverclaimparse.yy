@@ -59,6 +59,7 @@
 using namespace spot::ltl;
 static bool accept_all_needed = false;
 static bool accept_all_seen = false;
+static std::map<std::string, spot::location> labels;
 }
 
 %token NEVER "never"
@@ -77,7 +78,7 @@ static bool accept_all_seen = false;
 %type <str> formula opt_dest
 %type <p> transition src_dest
 %type <list> transitions transition_block
-%type <str> ident_list
+%type <str> one_ident ident_list
 
 
 %destructor { delete $$; } <str>
@@ -108,12 +109,21 @@ states:
   | states ';' state
   | states ';'
 
-ident_list:
-    IDENT ':'
+one_ident: IDENT ':'
     {
+      std::pair<std::map<std::string, spot::location>::const_iterator, bool>
+	res = labels.insert(std::make_pair(*$1, @1));
+      if (!res.second)
+	{
+	  error(@1, std::string("redefinition of ") + *$1 + "...");
+	  error(res.first->second, std::string("... ")  + *$1 + " previously defined here");
+	}
       $$ = $1;
     }
-  | ident_list IDENT ':'
+
+
+ident_list: one_ident
+  | ident_list one_ident
     {
       result->add_state_alias(*$2, *$1);
       // Keep any identifier that starts with accept.
@@ -294,6 +304,7 @@ namespace spot
       }
     accept_all_needed = false;
     accept_all_seen = false;
+    labels.clear();
 
     return result;
   }

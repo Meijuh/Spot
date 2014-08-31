@@ -169,7 +169,7 @@ run 2 ../ltl2tgba -XN input > stdout 2>stderr
 cat >expected <<\EOF
 input:9.16: syntax error, unexpected $undefined, expecting fi or ':'
 EOF
-grep input: stderr >> stderrfilt
+grep input: stderr > stderrfilt
 diff stderrfilt expected
 
 
@@ -205,6 +205,87 @@ EOF
 run 0 ../ltl2tgba -ks -XN input > output
 diff output expected
 
+
+# Test duplicated labels.  The following neverclaim was produced by
+# ltl2ba 1.1 for '[](<>[]p1 U X[]<>Xp0)', but is rejected by Spin
+# because of a duplicate label (accept_S10).  We should
+# complain as well.  This was reported by Joachim Klein.
+
+cat >input <<\EOF
+never { /* [](<>[]p1 U X[]<>Xp0) */
+T0_init:
+	if
+	:: (1) -> goto accept_S2
+	:: (1) -> goto T1_S3
+	:: (p1) -> goto T2_S4
+	fi;
+accept_S2:
+	if
+	:: (1) -> goto accept_S39
+	:: (1) -> goto T1_S24
+	:: (p1) -> goto accept_S10
+	fi;
+accept_S39:
+	if
+	:: (p0) -> goto accept_S39
+	:: (1) -> goto T0_S39
+	:: (1) -> goto T0_S24
+	:: (p1) -> goto T0_S10
+	fi;
+T0_S39:
+	if
+	:: (p0) -> goto accept_S39
+	:: (1) -> goto T0_S39
+	:: (1) -> goto T0_S24
+	:: (p1) -> goto T0_S10
+	fi;
+T0_S24:
+	if
+	:: (1) -> goto T0_S24
+	:: (p1) -> goto T0_S10
+	fi;
+T0_S10:
+	if
+	:: (p0 && p1) -> goto accept_S10
+	:: (p1) -> goto T0_S10
+	fi;
+accept_S10:
+	if
+	:: (p0 && p1) -> goto accept_S10
+	:: (p1) -> goto T0_S10
+	fi;
+T1_S24:
+	if
+	:: (1) -> goto T1_S24
+	:: (p1) -> goto accept_S10
+	fi;
+accept_S10:
+	if
+	:: (p1) -> goto accept_S10
+	fi;
+T1_S3:
+	if
+	:: (1) -> goto T1_S3
+	:: (1) -> goto T1_S24
+	:: (p1) -> goto T2_S4
+	:: (p1) -> goto accept_S10
+	fi;
+T2_S4:
+	if
+	:: (p1) -> goto T2_S4
+	:: (p1) -> goto accept_S10
+	fi;
+}
+EOF
+
+run 2 ../ltl2tgba -ks -XN input > stdout 2>stderr
+cat stderr
+cat >expected-err <<\EOF
+input:48.1-10: redefinition of accept_S10...
+input:38.1-10: ... accept_S10 previously defined here
+EOF
+grep input: stderr > stderrfilt
+diff stderrfilt expected-err
 
 cat >formulae<<EOF
 a

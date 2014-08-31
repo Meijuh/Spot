@@ -12,6 +12,8 @@ New in spot 1.2.5a (not yet released)
       positive formula.  The same procedure should be performed with
       automata obtained from negated formulas, but because of a typo
       this was not the case.
+    - the neverclaim parser will now diagnose redefinitions of
+      state labels.
 
 New in spot 1.2.5 (2014-08-21)
 
