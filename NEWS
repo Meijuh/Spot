@@ -14,6 +14,8 @@ New in spot 1.2.5a (not yet released)
       this was not the case.
     - the neverclaim parser will now diagnose redefinitions of
       state labels.
+    - the acceptance specification in the HOA format output have been
+      adjusted to match recent changes in the format specifications.
 
 New in spot 1.2.5 (2014-08-21)
 

@@ -278,9 +278,9 @@ namespace spot
     os << "Acceptance: " << num_acc;
     if (num_acc > 0)
       {
-	os << " I(0";
+	os << " Inf(0";
 	for (unsigned i = 1; i < num_acc; ++i)
-	  os << ")&I(" << i;
+	  os << ")&Inf(" << i;
 	os << ')';
       }
     else
