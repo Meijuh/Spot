@@ -98,6 +98,7 @@ TESTS = \
   kind.test \
   remove_x.test \
   ltlrel.test \
+  ltlgrind.test \
   ltlfilt.test \
   latex.test \
   lbt.test \

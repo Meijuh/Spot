@@ -43,6 +43,8 @@ corresponding commands are hidden.
 - [[file:ltlcross.org][=ltlcross=]] Cross-compare LTL/PSL-to-Büchi translators.
 - [[file:dstar2tgba.org][=dstar2tgba=]] Convert deterministic Rabin or Streett automata into
   Büchi automata.
+- [[file:ltlgrind.org][=ltlgrind=]] List formulas similar to but simpler than a given LTL/PSL
+  formula
 
 * Advanced uses
 

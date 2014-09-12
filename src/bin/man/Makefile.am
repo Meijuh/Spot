@@ -29,6 +29,7 @@ dist_man1_MANS = \
   ltl2tgta.1 \
   ltlcross.1 \
   ltlfilt.1 \
+  ltlgrind.1 \
   randltl.1
 dist_man7_MANS = \
   spot-x.7
@@ -59,3 +60,6 @@ randltl.1: $(common_dep) $(srcdir)/randltl.x $(srcdir)/../randltl.cc
 
 spot-x.7: $(common_dep) $(srcdir)/spot-x.x $(srcdir)/../spot-x.cc
 	$(convman) ../spot-x$(EXEEXT) $(srcdir)/spot-x.x $@
+
+ltlgrind.1: $(common_dep) $(srcdir)/ltlgrind.x $(srcdir)/../ltlgrind.cc
+	$(convman) ../ltlgrind$(EXEEXT) $(srcdir)/ltlgrind.x $@
