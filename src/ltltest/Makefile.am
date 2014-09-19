@@ -99,6 +99,7 @@ TESTS = \
   remove_x.test \
   ltlrel.test \
   ltlgrind.test \
+  ltlcrossgrind.test \
   ltlfilt.test \
   latex.test \
   lbt.test \

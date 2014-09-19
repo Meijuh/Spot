@@ -43,6 +43,7 @@
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/lbt.hh"
+#include "ltlvisit/mutation.hh"
 #include "ltlvisit/relabel.hh"
 #include "tgbaalgos/lbtt.hh"
 #include "tgba/tgbaproduct.hh"
@@ -97,6 +98,7 @@ Exit status:\n\
 #define OPT_OMIT 12
 #define OPT_BOGUS 13
 #define OPT_VERBOSE 14
+#define OPT_GRIND 15
 
 static const argp_option options[] =
   {
@@ -162,6 +164,9 @@ static const argp_option options[] =
       "colorize output; WHEN can be 'never', 'always' (the default if "
       "--color is used without argument), or "
       "'auto' (the default if --color is not used)", 0 },
+    { "grind", OPT_GRIND, "FILENAME", 0,
+      "for each formula for which a problem was detected, write a simpler " \
+      "formula that fails on the same test in FILENAME", 0 },
     { "save-bogus", OPT_BOGUS, "FILENAME", 0,
       "save formulas for which problems were detected in FILENAME", 0 },
     { "verbose", OPT_VERBOSE, 0, 0,
@@ -215,6 +220,7 @@ bool opt_omit = false;
 bool has_sr = false; // Has Streett or Rabin automata to process.
 const char* bogus_output_filename = 0;
 std::ofstream* bogus_output = 0;
+std::ofstream* grind_output = 0;
 bool verbose = false;
 
 struct translator_spec
@@ -544,6 +550,11 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_DUPS:
       allow_dups = true;
+      break;
+    case OPT_GRIND:
+      grind_output = new std::ofstream(arg);
+      if (!*grind_output)
+	error(2, errno, "cannot open '%s'", arg);
       break;
     case OPT_JSON:
       want_stats = true;
@@ -1282,10 +1293,65 @@ namespace
 	    f->destroy();
 	  return 1;
 	}
+
+      f->clone();
       int res = process_formula(f, filename, linenum);
 
       if (res && bogus_output)
 	*bogus_output << input << std::endl;
+      if (res && grind_output)
+	{
+	  std::string bogus = input;
+	  std::vector<const spot::ltl::formula*> mutations;
+	  unsigned mutation_count;
+	  unsigned mutation_max;
+	  while	(res)
+	    {
+	      std::cerr << "Trying to find a bogus mutation of \"" << bogus <<
+		"\"" << std::endl;
+	      std::vector<const spot::ltl::formula*>::iterator it;
+
+	      mutations = get_mutations(f);
+	      mutation_count = 1;
+	      mutation_max = mutations.size();
+	      res = 0;
+	      for (it = mutations.begin(); it != mutations.end() && !res; ++it)
+		{
+		  std::cerr << "Mutation [" << mutation_count << '/'
+			    << mutation_max << ']' << std::endl;
+		  f->destroy();
+		  f = (*it)->clone();
+		  res = process_formula(*it);
+		  ++mutation_count;
+		}
+	      for (; it != mutations.end(); ++it)
+		(*it)->destroy();
+	      if (res)
+		{
+		  if (lbt_input)
+		    bogus = spot::ltl::to_lbt_string(f);
+		  else
+		    bogus = spot::ltl::to_string(f);
+		  if (bogus_output)
+		    *bogus_output << bogus << std::endl;
+		}
+	    }
+	  std::cerr << "The smallest bogus mutation found for ";
+	  if (color_opt)
+	    std::cerr << bright_blue;
+	  std::cerr << input;
+	  if (color_opt)
+	    std::cerr << reset_color;
+	  std::cerr << " was ";
+	  if (color_opt)
+	    std::cerr << bright_blue;
+	  std::cerr << bogus << std::endl << std::endl;
+	  if (color_opt)
+	    std::cerr << reset_color;
+	  *grind_output << bogus << std::endl;
+	}
+      f->destroy();
+
       return 0;
     }
 

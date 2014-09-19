@@ -668,3 +668,41 @@ be used to gather statistics about a specific set of formulas.
 #  LocalWords:  nxqfd hS vNItGg acc scc nondetstates nondeterministic
 #  LocalWords:  cvs LaTeX datacols len ith otimes ltlcheck eval setq
 #  LocalWords:  setenv concat getenv
+** =--grind=FILENAME=
+   This argument tells =ltlcross= that, when an error is detected, it
+   should try to find a smaller formula that still exhibit the
+   bug. This is the procedure used:
+     - Internally list the mutations of the bogus formula and sort
+       them by length (as =ltlgrind --sort= would do)
+     - Process every mutation until one is found that exhibit the bug
+     - Repeat the process with this formula, and again until a formula
+       is found for which no mutation exhibit the bug
+     - Output that last formula in FILENAME
+   Every bogus formula found during the process will be saved if
+   =--save-bogus=FILENAME= is provided.
+
+  Example:
+#+BEGIN_SRC sh :exports both :results verbatim
+ltlcross -f '(G!b & (!c | F!a)) | (c & Ga & Fb)' "modella %L %T" \
+  --save-bogus=bogus \
+  --grind=bogus-grind
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC sh :exports both :results verbatim
+cat bogus
+#+END_SRC
+
+#+RESULTS:
+: (G!b & (!c | F!a)) | (c & Ga & Fb)
+: G!b | (c & Ga & Fb)
+: G!b | (c & Fb)
+: G!c | (c & Fc)
+
+#+BEGIN_SRC sh :exports both :results verbatim
+cat bogus-grind
+#+END_SRC
+
+#+RESULTS:
+: G!c | (c & Fc)
