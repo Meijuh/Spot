@@ -45,11 +45,11 @@ void f1()
   auto s3 = tg->new_state();
   tg->new_transition(s1, s1, bddfalse, bddfalse);
   tg->new_transition(s1, s2, p1, bddfalse);
-  tg->new_transition(s1, s3, p2, !a1 & a2);
+  tg->new_transition(s1, s3, p2, (!a1) & a2);
   tg->new_transition(s2, s3, p1 & p2, a1 & !a2);
-  tg->new_transition(s3, s1, p1 | p2, (!a1 & a2) | (a1 & !a2));
+  tg->new_transition(s3, s1, p1 | p2, ((!a1) & a2) | (a1 & !a2));
   tg->new_transition(s3, s2, p1 >> p2, bddfalse);
-  tg->new_transition(s3, s3, bddtrue, (!a1 & a2) | (a1 & !a2));
+  tg->new_transition(s3, s3, bddtrue, ((!a1) & a2) | (a1 & !a2));
 
   spot::dotty_reachable(std::cout, tg);
 
@@ -69,9 +69,9 @@ void f1()
     spot::dotty_reachable(std::cout, tg);
   }
 
-  tg->new_transition(s3, s1, p1 | p2, (!a1 & a2) | (a1 & !a2));
+  tg->new_transition(s3, s1, p1 | p2, ((!a1) & a2) | (a1 & !a2));
   tg->new_transition(s3, s2, p1 >> p2, bddfalse);
-  tg->new_transition(s3, s1, bddtrue, (!a1 & a2) | (a1 & !a2));
+  tg->new_transition(s3, s1, bddtrue, ((!a1) & a2) | (a1 & !a2));
 
   std::cerr << tg->num_transitions() << '\n';
   assert(tg->num_transitions() == 7);
