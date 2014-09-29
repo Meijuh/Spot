@@ -1,4 +1,4 @@
-New in spot 1.2.5a (not yet released)
+New in spot 1.99a (not yet released)
 
   * Major changes (including backward incompatible changes):
 
@@ -86,6 +86,25 @@ New in spot 1.2.5a (not yet released)
       translation was a purely-based BDD encoding producing huge
       automata (when viewed explictely), using the above and non
       longuer supported tgba_bdd_concrete class.
+
+New in spot 1.2.5a (not yet released)
+
+  * New features:
+
+    - ltlcross --verbose is a new option to see what is being done
+
+  * Bug fixes:
+
+    - When the automaton resulting from the translation of a positive
+      formula is deterministic, ltlcross will compute its complement
+      to perform additional checks against other translations of the
+      positive formula.  The same procedure should be performed with
+      automata obtained from negated formulas, but because of a typo
+      this was not the case.
+    - the neverclaim parser will now diagnose redefinitions of
+      state labels.
+    - the acceptance specification in the HOA format output have been
+      adjusted to match recent changes in the format specifications.
 
 New in spot 1.2.5 (2014-08-21)
 

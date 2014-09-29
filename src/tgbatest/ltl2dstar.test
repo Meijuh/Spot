@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013 Laboratoire de Recherche et
+# Copyright (C) 2013, 2014 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -61,3 +61,17 @@ grep '"in_type"' out.csv
 grep '"DSA"' out.csv
 grep '"DRA"' out.csv
 grep ',,,,' out.csv
+
+
+# A bug in ltlcross <=1.2.5 caused it to not use the complement of the
+# negative automaton.  So running ltlcross with GFa would check one
+# complement (the positive one), but running with FGa would ignore
+# the negative complement.
+$ltlcross -f 'GFa' --verbose \
+"ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L %D" \
+"ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L %D" 2>err
+test `grep -c 'info: check_empty.*Comp' err` = 1
+$ltlcross -f 'FGa' --verbose \
+"ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L %D" \
+"ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L %D" 2>err
+test `grep -c 'info: check_empty.*Comp' err` = 1

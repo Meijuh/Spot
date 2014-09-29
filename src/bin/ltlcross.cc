@@ -96,6 +96,7 @@ Exit status:\n\
 #define OPT_NOCOMP 11
 #define OPT_OMIT 12
 #define OPT_BOGUS 13
+#define OPT_VERBOSE 14
 
 static const argp_option options[] =
   {
@@ -163,6 +164,8 @@ static const argp_option options[] =
       "'auto' (the default if --color is not used)", 0 },
     { "save-bogus", OPT_BOGUS, "FILENAME", 0,
       "save formulas for which problems were detected in FILENAME", 0 },
+    { "verbose", OPT_VERBOSE, 0, 0,
+      "print what is being done, for debugging", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -212,6 +215,7 @@ bool opt_omit = false;
 bool has_sr = false; // Has Streett or Rabin automata to process.
 const char* bogus_output_filename = 0;
 std::ofstream* bogus_output = 0;
+bool verbose = false;
 
 struct translator_spec
 {
@@ -571,6 +575,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_STOP_ERR:
       stop_on_error = true;
+      break;
+    case OPT_VERBOSE:
+      verbose = true;
       break;
     default:
       return ARGP_ERR_UNKNOWN;
@@ -983,22 +990,24 @@ namespace
 		  }
 		else
 		  {
+		    const char* type = 0;
+		    switch (aut->type)
+		      {
+		      case spot::Rabin:
+			type = "DRA";
+			break;
+		      case spot::Streett:
+			type = "DSA";
+			break;
+		      }
+		    assert(type);
+
 		    // Gather statistics about the input automaton
 		    if (want_stats)
 		      {
 			statistics* st = &(*fstats)[translator_num];
 			st->has_in = true;
-
-			switch (aut->type)
-			  {
-			  case spot::Rabin:
-			    st->in_type = "DRA";
-			    break;
-			  case spot::Streett:
-			    st->in_type = "DSA";
-			    break;
-			  }
-
+			st->in_type = type;
 			spot::tgba_sub_statistics s =
 			  sub_stats_reachable(aut->aut);
 			st->in_states= s.states;
@@ -1009,6 +1018,8 @@ namespace
 			st->in_scc = spot::scc_info(aut->aut).scc_count();
 		      }
 		    // convert it into TGBA for further processing
+		    if (verbose)
+		      std::cerr << "info: converting " << type << " to TGBA\n";
 		    res = dstar_to_tgba(aut);
 		  }
 		break;
@@ -1029,6 +1040,8 @@ namespace
 	  // Compute statistics.
 	  if (res)
 	    {
+	      if (verbose)
+		std::cerr << "info: getting statistics\n";
 	      st->ok = true;
 	      spot::tgba_sub_statistics s = sub_stats_reachable(res);
 	      st->states = s.states;
@@ -1072,6 +1085,21 @@ namespace
   {
     auto prod = spot::product(aut_i, aut_j);
     auto res = spot::couvreur99(prod)->check();
+
+    if (verbose)
+      {
+	std::cerr << "info: check_empty ";
+	if (icomp)
+	  std::cerr << "Comp(N" << i << ')';
+	else
+	  std::cerr << 'P' << i;
+	if (jcomp)
+	  std::cerr << "*Comp(P" << j << ')';
+	else
+	  std::cerr << "*N" << j;
+	std::cerr << '\n';
+      }
+
     if (res)
       {
 	std::ostream& err = global_error();
@@ -1109,6 +1137,20 @@ namespace
   cross_check(const std::vector<spot::scc_map*>& maps, char l, unsigned p)
   {
     size_t m = maps.size();
+    if (verbose)
+      {
+	std::cerr << "info: cross_check {";
+	bool first = true;
+	for (size_t i = 0; i < m; ++i)
+	  {
+	    if (first)
+	      first = false;
+	    else
+	      std::cerr << ',';
+	    std::cerr << l << i;
+	  }
+	std::cerr << "}, state-space #" << p << '/' << products << '\n';
+      }
 
     std::vector<bool> res(m);
     unsigned verified = 0;
@@ -1418,7 +1460,7 @@ namespace
 		      problems +=
 			check_empty_prod(pos[i], comp_pos[j],
 					 i, j, false, true);
-		    if (i != j && comp_neg[i] && !comp_neg[i])
+		    if (i != j && comp_neg[i] && !comp_pos[i])
 		      problems +=
 			check_empty_prod(comp_neg[i], neg[j],
 					 i, j, true, false);
@@ -1454,6 +1496,11 @@ namespace
 	{
 	  // build a random state-space.
 	  spot::srand(seed);
+
+	  if (verbose)
+	    std::cerr << "info: building state-space #" << p << '/' << products
+		      << " with seed " << seed << '\n';
+
 	  auto statespace = spot::random_graph(states, density, ap, dict);
 
 	  // Products of the state space with the positive automata.
@@ -1510,20 +1557,27 @@ namespace
 
 	      // consistency check
 	      for (size_t i = 0; i < m; ++i)
-		if (pos_map[i] && neg_map[i] &&
-		    !(consistency_check(pos_map[i], neg_map[i], statespace)))
+		if (pos_map[i] && neg_map[i])
 		  {
-		    ++problems;
+		    if (verbose)
+		      std::cerr << "info: consistency_check (P" << i
+				<< ",N" << i << "), state-space #"
+				<< p << '/' << products << '\n';
+		    if (!(consistency_check(pos_map[i], neg_map[i],
+					    statespace)))
+		      {
+			++problems;
 
-		    std::ostream& err = global_error();
-		    err << "error: inconsistency between P" << i
-			<< " and N" << i;
-		    if (products > 1)
-		      err << " for state-space #" << p
-			  << '/' << products << '\n';
-		    else
-		      err << '\n';
-		    end_error();
+			std::ostream& err = global_error();
+			err << "error: inconsistency between P" << i
+			    << " and N" << i;
+			if (products > 1)
+			  err << " for state-space #" << p
+			      << '/' << products << '\n';
+			else
+			  err << '\n';
+			end_error();
+		      }
 		  }
 	    }
 
@@ -1549,6 +1603,9 @@ namespace
 static void
 print_stats_csv(const char* filename)
 {
+  if (verbose)
+    std::cerr << "info: writing CSV to " << filename << '\n';
+
   std::ofstream* outfile = 0;
   std::ostream* out;
   if (!strncmp(filename, "-", 2))
@@ -1587,6 +1644,9 @@ print_stats_csv(const char* filename)
 static void
 print_stats_json(const char* filename)
 {
+  if (verbose)
+    std::cerr << "info: writing JSON to " << filename << '\n';
+
   std::ofstream* outfile = 0;
   std::ostream* out;
   if (!strncmp(filename, "-", 2))

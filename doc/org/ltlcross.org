@@ -136,11 +136,11 @@ tools:
   - '=ltl2tgba --lbtt %s >%T=' (smaller output, TGBA)
   - '=ltl2tgba --lbtt -D %s >%T=' (more deterministic output, TGBA)
   - '=lbt <%L >%T='
-  - '=ltl2dstar --ltl2nba=spin:path/tp/ltl2tgba@-sD %L %D='
+  - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L %D='
     (deterministic Rabin output)
-  - '=ltl2dstar --automata=streett --ltl2nba=spin:path/tp/ltl2tgba@-sD
+  - '=ltl2dstar --automata=streett --ltl2nba=spin:path/to/ltl2tgba@-sD
     %L %D=' (deterministic Streett output)
-  - '=ltl2dstar --ltl2nba=spin:path/tp/ltl2tgba@-sD %L - | dstar2tgba
+  - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L - | dstar2tgba
     -s >%N=' (external conversion from Rabin to Büchi done by
     =dstar2tgba= for more reduction of the Büchi automaton than
     what =ltlcross= would provide)
