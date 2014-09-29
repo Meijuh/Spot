@@ -31,6 +31,7 @@ noinst_PROGRAMS = ltl2tgba randtgba
 check_SCRIPTS = defs
 # Keep this sorted alphabetically.
 check_PROGRAMS = \
+  acc \
   bitvect \
   complement \
   checkpsl \
@@ -49,6 +50,7 @@ check_PROGRAMS = \
   tripprod
 
 # Keep this sorted alphabetically.
+acc_SOURCES = acc.cc
 bitvect_SOURCES  = bitvect.cc
 checkpsl_SOURCES = checkpsl.cc
 checkta_SOURCES = checkta.cc
@@ -72,6 +74,7 @@ tripprod_SOURCES = tripprod.cc
 # Keep this sorted by STRENGTH.  Test basic things first,
 # because such failures will be easier to diagnose and fix.
 TESTS = \
+  acc.test \
   intvcomp.test \
   bitvect.test \
   ltlcross3.test \
@@ -85,13 +88,10 @@ TESTS = \
   readsave.test \
   maskacc.test \
   simdet.test \
-  sim.test \
   sim2.test \
   ltl2tgba.test \
   ltl2neverclaim.test \
   ltl2neverclaim-lbtt.test \
-  ltl2ta.test \
-  ltl2ta2.test \
   ltlprod.test \
   explprod.test \
   explpro2.test \
@@ -115,6 +115,8 @@ TESTS = \
   ltlcross4.test \
   ltl2dstar.test \
   ltl2dstar2.test \
+  ltl2ta.test \
+  ltl2ta2.test \
   randtgba.test \
   emptchk.test \
   emptchke.test \
@@ -132,6 +134,8 @@ TESTS = \
   complementation.test \
   randpsl.test \
   cycles.test
+
+XFAIL_TESTS = sim.test
 
 EXTRA_DIST = $(TESTS)
 

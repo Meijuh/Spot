@@ -165,7 +165,7 @@ namespace spot
 //	    print_set(std::cerr, *j) << '\n';
 //	  }
 
-	bdd acc = aut_->all_acceptance_conditions();
+	auto acc = aut_->acc().all_sets();
 	for (auto i: all_)
 	  i->acc = acc;
 	return threshold_ != 0 && cycles_left_ == 0;
@@ -316,7 +316,7 @@ namespace spot
   {
     if (f == 0 && neg_aut == 0)
       return 0;
-    if (aut->number_of_acceptance_conditions() > 1)
+    if (aut->acc().num_sets() > 1)
       return 0;
 
     auto det = tba_determinize(aut, threshold_states, threshold_cycles);

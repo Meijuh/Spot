@@ -80,7 +80,7 @@ namespace spot
 	      continue;
 
 	    bdd cond = i->current_condition();
-	    bdd acc = i->current_acceptance_conditions();
+	    acc_cond::mark_t acc = i->current_acceptance_conditions();
 	    tgba_run::step s = { src, cond, acc };
 
 	    if (match(s, dest))

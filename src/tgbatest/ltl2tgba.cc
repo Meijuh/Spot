@@ -37,7 +37,6 @@
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/hoaf.hh"
-#include "tgba/tgbasgba.hh"
 #include "tgbaalgos/degen.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/reducerun.hh"
@@ -187,8 +186,6 @@ syntax(char* prog)
 
 	    << "Automaton degeneralization (after translation):"
 	    << std::endl
-            << "  -lS   move generalized acceptance conditions to states "
-	    << "(SGBA)" << std::endl
 	    << "  -DT   degeneralize the automaton as a TBA" << std::endl
 	    << "  -DS   degeneralize the automaton as an SBA" << std::endl
 	    << "          (append z/Z, o/O, l/L: to turn on/off options "
@@ -339,7 +336,6 @@ checked_main(int argc, char** argv)
   bool paper_opt = false;
   bool utf8_opt = false;
   enum { NoDegen, DegenTBA, DegenSBA } degeneralize_opt = NoDegen;
-  enum { TransitionLabeled, StateLabeled } labeling_opt = TransitionLabeled;
   enum { TransFM, TransTAA, TransCompo } translation = TransFM;
   bool fm_red = false;
   bool fm_exprop_opt = false;
@@ -378,7 +374,6 @@ checked_main(int argc, char** argv)
   unsigned opt_o_threshold = 0;
   bool opt_dtgbacomp = false;
   bool reject_bigger = false;
-  bool opt_bisim_ta = false;
   bool opt_monitor = false;
   bool containment = false;
   bool spin_comments = false;
@@ -395,6 +390,7 @@ checked_main(int argc, char** argv)
   bool reduction_dont_care_sim = false;
   int limit_dont_care_sim = 0;
   bool reduction_iterated_dont_care_sim = false;
+  bool opt_bisim_ta = false;
   bool ta_opt = false;
   bool tgta_opt = false;
   bool opt_with_artificial_initial_state = true;
@@ -596,10 +592,6 @@ checked_main(int argc, char** argv)
 	{
 	  fair_loop_approx = true;
 	  translation = TransFM;
-	}
-      else if (!strcmp(argv[formula_index], "-lS"))
-	{
-	  labeling_opt = StateLabeled;
 	}
       else if (!strcmp(argv[formula_index], "-m"))
 	{
@@ -1280,7 +1272,7 @@ checked_main(int argc, char** argv)
 	  assume_sba = false;
         }
 
-      unsigned int n_acc = a->number_of_acceptance_conditions();
+      unsigned int n_acc = a->acc().num_sets();
       if (echeck_inst
 	  && degeneralize_opt == NoDegen
 	  && n_acc > 1
@@ -1305,13 +1297,9 @@ checked_main(int argc, char** argv)
 	      tm.stop("degeneralization");
 	      assume_sba = true;
 	    }
-	  else if (labeling_opt == StateLabeled)
-	    {
-	      a = spot::make_sgba(a);
-	    }
 	}
 
-      if (opt_determinize && a->number_of_acceptance_conditions() <= 1
+      if (opt_determinize && a->acc().num_sets() <= 1
 	  && (!f || f->is_syntactic_recurrence()))
 	{
 	  tm.start("determinization 2");
@@ -1512,7 +1500,7 @@ checked_main(int argc, char** argv)
 
 	  assume_sba = false;
 
-	  unsigned int n_acc = a->number_of_acceptance_conditions();
+	  unsigned int n_acc = a->acc().num_sets();
 	  if (echeck_inst
 	      && degeneralize_opt == NoDegen
 	      && n_acc > 1
@@ -1541,8 +1529,7 @@ checked_main(int argc, char** argv)
 
 
       if (echeck_inst
-	  && (a->number_of_acceptance_conditions()
-	      < echeck_inst->min_acceptance_conditions()))
+	  && (a->acc().num_sets() < echeck_inst->min_acceptance_conditions()))
 	{
 	  if (!paper_opt)
 	    {
@@ -1720,8 +1707,7 @@ checked_main(int argc, char** argv)
                             << a_size.states << ", "
                             << std::right << std::setw(10)
                             << a_size.transitions << ", ";
-                  std::cout <<
-                            ec->automaton()->number_of_acceptance_conditions()
+                  std::cout << ec->automaton()->acc().num_sets()
                             << ", ";
 		  auto ecs = ec->emptiness_check_statistics();
                   if (ecs)

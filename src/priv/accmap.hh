@@ -34,10 +34,9 @@ namespace spot
     bdd_dict_ptr dict_;
     tgba_digraph_ptr aut_;
     ltl::environment& env_;
-    bdd neg_;
 
     acc_mapper_common(const tgba_digraph_ptr& aut, ltl::environment& env)
-      : dict_(aut->get_dict()), aut_(aut), env_(env), neg_(bddtrue)
+      : dict_(aut->get_dict()), aut_(aut), env_(env)
     {
     }
 
@@ -46,17 +45,11 @@ namespace spot
     {
       return env_;
     }
-
-    // Commit all acceptance set to the automaton.
-    void commit()
-    {
-       aut_->set_acceptance_conditions(neg_);
-    }
   };
 
   class acc_mapper_string: public acc_mapper_common
   {
-    std::unordered_map<std::string, int> map_;
+    std::unordered_map<std::string, unsigned> map_;
 
   public:
     acc_mapper_string(const tgba_digraph_ptr& aut,
@@ -72,24 +65,17 @@ namespace spot
       auto i = map_.find(name);
       if (i != map_.end())
 	return true;
-      auto f = env_.require(name);
-      if (!f)
-	return false;
-      int v = dict_->register_acceptance_variable(f, aut_);
-      f->destroy();
+      auto v = aut_->acc().add_set();
       map_[name] = v;
-      neg_ &= bdd_nithvar(v);
       return true;
     }
 
-    std::pair<bool, bdd> lookup(std::string name) const
+    std::pair<bool, acc_cond::mark_t> lookup(std::string name) const
     {
        auto p = map_.find(name);
        if (p == map_.end())
-	 return std::make_pair(false, bddfalse);
-       return std::make_pair(true, bdd_compose(neg_,
-					       bdd_nithvar(p->second),
-					       p->second));
+	 return std::make_pair(false, 0U);
+       return std::make_pair(true, aut_->acc().marks({p->second}));
     }
   };
 
@@ -97,42 +83,23 @@ namespace spot
   // The acceptance sets are named using count consecutive integers.
   class acc_mapper_consecutive_int: public acc_mapper_common
   {
-  protected:
-    std::vector<bdd> vec_;
-    std::map<int, bdd> map_;
-
   public:
     acc_mapper_consecutive_int(const tgba_digraph_ptr& aut,
 			       unsigned count,
 			       ltl::environment& env =
 			       ltl::default_environment::instance())
-      : acc_mapper_common(aut, env), vec_(count)
+      : acc_mapper_common(aut, env)
     {
-      std::vector<int> vmap(count);
-      for (unsigned n = 0; n < count; ++n)
-	{
-	  std::ostringstream s;
-	  s << n;
-	  auto f = env.require(s.str());
-	  int v = dict_->register_acceptance_variable(f, aut_);
-	  f->destroy();
-	  vmap[n] = v;
-	  neg_ &= bdd_nithvar(v);
-      }
-      for (unsigned n = 0; n < count; ++n)
-	{
-	  int v = vmap[n];
-	  vec_[n] = bdd_compose(neg_, bdd_nithvar(v), v);
-	}
-      commit();
+      std::vector<unsigned> vmap(count);
+      aut->acc().add_sets(count);
     }
 
-    std::pair<bool, bdd> lookup(unsigned n)
+    std::pair<bool, acc_cond::mark_t> lookup(unsigned n)
     {
-      if (n < vec_.size())
-	return std::make_pair(true, vec_[n]);
+      if (n < aut_->acc().num_sets())
+	return std::make_pair(true, aut_->acc().marks({n}));
       else
-	return std::make_pair(false, bddfalse);
+	return std::make_pair(false, 0U);
     }
   };
 
@@ -141,7 +108,7 @@ namespace spot
   class acc_mapper_int: public acc_mapper_consecutive_int
   {
     unsigned used_;
-    std::map<int, bdd> map_;
+    std::map<unsigned, acc_cond::mark_t> map_;
 
   public:
     acc_mapper_int(const tgba_digraph_ptr& aut,
@@ -152,18 +119,18 @@ namespace spot
     {
     }
 
-    std::pair<bool, bdd> lookup(unsigned n)
+    std::pair<bool, acc_cond::mark_t> lookup(unsigned n)
     {
        auto p = map_.find(n);
        if (p != map_.end())
 	 return std::make_pair(true, p->second);
-       if (used_ < vec_.size())
+       if (used_ < aut_->acc().num_sets())
 	 {
-	   bdd res = vec_[used_++];
+	   auto res = aut_->acc().marks({used_++});
 	   map_[n] = res;
 	   return std::make_pair(true, res);
 	 }
-       return std::make_pair(false, bddfalse);
+       return std::make_pair(false, 0U);
     }
   };
 }

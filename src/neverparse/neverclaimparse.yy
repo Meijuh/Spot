@@ -169,17 +169,16 @@ state:
 
       namer->new_transition(*$1, *$1, bddtrue,
 			    !strncmp("accept", $1->c_str(), 6) ?
-			    result->all_acceptance_conditions() :
-			    static_cast<const bdd>(bddfalse));
+			    result->acc().all_sets() :
+			    spot::acc_cond::mark_t(0U));
       delete $1;
     }
   | ident_list { delete $1; }
   | ident_list "false" { delete $1; }
   | ident_list transition_block
     {
-      bdd acc = !strncmp("accept", $1->c_str(), 6) ?
-	result->all_acceptance_conditions() :
-	static_cast<const bdd>(bddfalse);
+      auto acc = !strncmp("accept", $1->c_str(), 6) ?
+	result->acc().all_sets() : spot::acc_cond::mark_t(0U);
       for (auto& p: *$2)
 	namer->new_transition(*$1, *p.second, *p.first, acc);
       // Free the list

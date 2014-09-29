@@ -23,8 +23,8 @@
 #ifndef SPOT_TGBA_TGBA_HH
 # define SPOT_TGBA_TGBA_HH
 
-#include "bdddict.hh"
 #include "fwd.hh"
+#include "acc.hh"
 #include <cassert>
 #include <memory>
 #include "misc/casts.hh"
@@ -387,7 +387,7 @@ namespace spot
     virtual bdd current_condition() const = 0;
     /// \brief Get the acceptance conditions on the transition leading
     /// to this successor.
-    virtual bdd current_acceptance_conditions() const = 0;
+    virtual acc_cond::mark_t current_acceptance_conditions() const = 0;
 
     //@}
   };
@@ -467,7 +467,7 @@ namespace spot
   class SPOT_API tgba: public std::enable_shared_from_this<tgba>
   {
   protected:
-    tgba();
+    tgba(const bdd_dict_ptr& d);
     // Any iterator returned via release_iter.
     mutable tgba_succ_iterator* iter_cache_;
 
@@ -572,7 +572,10 @@ namespace spot
     /// formulae, and vice versa.  This is useful when dealing with
     /// several automata (which may use the same BDD variable for
     /// different formula), or simply when printing.
-    virtual bdd_dict_ptr get_dict() const = 0;
+    bdd_dict_ptr get_dict() const
+    {
+      return acc_.get_dict();
+    }
 
     /// \brief Format the state as a string for printing.
     ///
@@ -615,40 +618,27 @@ namespace spot
     virtual state* project_state(const state* s,
 				 const const_tgba_ptr& t) const;
 
-    /// \brief Return the set of all acceptance conditions used
-    /// by this automaton.
-    ///
-    /// The goal of the emptiness check is to ensure that
-    /// a strongly connected component walks through each
-    /// of these acceptiong conditions.  I.e., the union
-    /// of the acceptiong conditions of all transition in
-    /// the SCC should be equal to the result of this function.
-    virtual bdd all_acceptance_conditions() const = 0;
 
-    /// The number of acceptance conditions.
-    virtual unsigned int number_of_acceptance_conditions() const;
+    const acc_cond& acc() const
+    {
+      return acc_;
+    }
 
-    /// \brief Return the conjuction of all negated acceptance
-    /// variables.
-    ///
-    /// For instance if the automaton uses variables <tt>Acc[a]</tt>,
-    /// <tt>Acc[b]</tt> and <tt>Acc[c]</tt> to describe acceptance sets,
-    /// this function should return <tt>!Acc[a]\&!Acc[b]\&!Acc[c]</tt>.
-    ///
-    /// This is useful when making products: each operand's condition
-    /// set should be augmented with the neg_acceptance_conditions() of
-    /// the other operand.
-    virtual bdd neg_acceptance_conditions() const = 0;
+    acc_cond& acc()
+    {
+      return acc_;
+    }
 
     virtual bool is_empty() const;
 
   protected:
+    acc_cond acc_;
+
     /// Do the actual computation of tgba::support_conditions().
     virtual bdd compute_support_conditions(const state* state) const = 0;
     mutable const state* last_support_conditions_input_;
   private:
     mutable bdd last_support_conditions_output_;
-    mutable int num_acc_;
 
   protected:
 

@@ -207,7 +207,7 @@ namespace spot
                 kripke_current_dest_state->clone(),
                 tgta_succ_it_->current_state(), pool_);
             current_acceptance_conditions_
-                = tgta_succ_it_->current_acceptance_conditions();
+	      = tgta_succ_it_->current_acceptance_conditions();
             return true;
           }
 
@@ -244,7 +244,7 @@ namespace spot
     return current_condition_;
   }
 
-  bdd
+  acc_cond::mark_t
   tgta_succ_iterator_product::current_acceptance_conditions() const
   {
     return current_acceptance_conditions_;

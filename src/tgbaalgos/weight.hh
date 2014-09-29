@@ -1,4 +1,4 @@
-// Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// Copyright (C) 2004, 2014  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
 //
@@ -23,6 +23,7 @@
 #include <iosfwd>
 #include <map>
 #include <bdd.h>
+#include "tgba/acc.hh"
 
 namespace spot
 {
@@ -33,29 +34,23 @@ namespace spot
   {
   public:
     /// Construct a empty vector (all counters set to zero).
-    ///
-    /// \param neg_all_cond : negation of all the acceptance conditions of
-    /// the automaton (the bdd returned by tgba::neg_acceptance_conditions()).
-    weight(const bdd& neg_all_cond);
+    weight(const acc_cond& acc);
     /// Increment by one the counters of each acceptance condition in \a acc.
-    weight& operator+=(const bdd& acc);
+    weight& add(const acc_cond& acc, acc_cond::mark_t a);
     /// Decrement by one the counters of each acceptance condition in \a acc.
-    weight& operator-=(const bdd& acc);
+    weight& sub(const acc_cond& acc, acc_cond::mark_t a);
     /// Return the set of each acceptance condition such that its counter is
     /// strictly greatest than the corresponding counter in w.
     ///
     /// \pre For each acceptance condition, its counter is greatest or equal to
     /// the corresponding counter in w.
-    bdd operator-(const weight& w) const;
-    friend std::ostream& operator<<(std::ostream& os, const weight& w);
+    acc_cond::mark_t diff(const acc_cond& acc, const weight& w) const;
+    friend std::ostream& operator<<(std::ostream& os,
+				    const weight& w);
 
   private:
-    typedef std::map<int, int> weight_vector;
+    typedef std::vector<int> weight_vector;
     weight_vector m;
-    bdd neg_all_acc;
-    static weight_vector* pm;
-    static void inc_weight_handler(char* varset, int size);
-    static void dec_weight_handler(char* varset, int size);
   };
 };
 

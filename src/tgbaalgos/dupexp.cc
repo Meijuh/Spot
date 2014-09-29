@@ -60,9 +60,9 @@ namespace spot
 		   const state*, int out,
 		   const tgba_succ_iterator* si)
       {
-	out_->new_transition(in - 1, out - 1,
-			     si->current_condition(),
-			     si->current_acceptance_conditions());
+	out_->new_transition
+	  (in - 1, out - 1, si->current_condition(),
+	   si->current_acceptance_conditions());
       }
 
     protected:

@@ -39,9 +39,9 @@ s1, s3, "a", p3;
 EOF
 
 cat >expected <<'EOF'
-acc = "p2$1" "p3" "p2" "p1";
-"0 * 0", "1 * 1", "!a & b", "p2$1" "p1";
-"0 * 0", "2 * 2", "a & !b", "p3" "p2";
+acc = "0" "1" "2" "3";
+"0 * 0", "1 * 1", "!a & b", "0" "2";
+"0 * 0", "2 * 2", "a & !b", "1" "3";
 EOF
 
 run 0 ../explprod input1 input2 | tee stdout

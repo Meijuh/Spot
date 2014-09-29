@@ -25,10 +25,10 @@
 
 namespace spot
 {
-  tgba::tgba()
+  tgba::tgba(const bdd_dict_ptr& d)
     : iter_cache_(nullptr),
-      last_support_conditions_input_(0),
-      num_acc_(-1)
+      acc_(d),
+      last_support_conditions_input_(0)
   {
     props = 0U;
   }
@@ -67,23 +67,6 @@ namespace spot
   tgba::transition_annotation(const tgba_succ_iterator*) const
   {
     return "";
-  }
-
-  unsigned int
-  tgba::number_of_acceptance_conditions() const
-  {
-    if (num_acc_ < 0)
-      {
-	bdd all = all_acceptance_conditions();
-	unsigned int n = 0;
-	while (all != bddfalse)
-	  {
-	    ++n;
-	    all -= bdd_satone(all);
-	  }
-	num_acc_ = n;
-      }
-    return num_acc_;
   }
 
   bool

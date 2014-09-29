@@ -35,20 +35,12 @@ namespace spot
 
   namespace
   {
-    std::string
-    acc(int n)
-    {
-      std::stringstream s;
-      s << n;
-      return "a" + s.str();
-    }
-
     void
     random_labels(tgba_digraph_ptr aut,
 		  unsigned src,
 		  unsigned dest,
 		  int* props, int props_n, float t,
-		  const std::list<bdd>& accs, float a)
+		  unsigned n_accs, float a)
     {
       int val = 0;
       int size = 0;
@@ -70,21 +62,18 @@ namespace spot
       if (size > 0)
 	p &= bdd_ibuildcube(val, size, props);
 
-      bdd ac = bddfalse;
-      for (std::list<bdd>::const_iterator i = accs.begin();
-	   i != accs.end(); ++i)
+      acc_cond::mark_t m = 0U;
+      for (unsigned i = 0U; i < n_accs; ++i)
 	if (drand() < a)
-	  ac |= *i;
-
-      aut->new_transition(src, dest, p, ac);
+	  m |= aut->acc().mark(i);
+      aut->new_transition(src, dest, p, m);
     }
   }
 
   tgba_digraph_ptr
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
-	       int n_acc, float a, float t,
-	       ltl::environment* env)
+	       unsigned n_accs, float a, float t)
   {
     assert(n > 0);
     auto res = make_tgba_digraph(dict);
@@ -96,20 +85,7 @@ namespace spot
     for (auto i: *ap)
       props[pi++] = dict->register_proposition(i, res);
 
-    std::list<bdd> accs;
-    bdd allneg = bddtrue;
-    for (int i = 0; i < n_acc; ++i)
-      {
-	const ltl::formula* f = env->require(acc(i));
-	int v = dict->register_acceptance_variable(f, res);
-	f->destroy();
-	bdd b = bdd_nithvar(v);
-	allneg &= b;
-	accs.push_back(b);
-      }
-    res->set_acceptance_conditions(allneg);
-    for (auto& i: accs)
-      i = bdd_compose(allneg, i, bdd_var(i));
+    res->set_acceptance_conditions(n_accs);
 
     // Using std::unordered_set instead of std::set for these sets is 3
     // times slower (tested on a 50000 nodes example).
@@ -162,7 +138,7 @@ namespace spot
 		std::advance(i, index);
 
 		// Link it from src.
-		random_labels(res, src, *i, props, props_n, t, accs, a);
+		random_labels(res, src, *i, props, props_n, t, n_accs, a);
 		nodes_to_process.insert(*i);
 		unreachable_nodes.erase(i);
 		break;
@@ -178,7 +154,7 @@ namespace spot
 		state_randomizer[index] = state_randomizer[possibilities];
 		state_randomizer[possibilities] = x;
 
-		random_labels(res, src, x, props, props_n, t, accs, a);
+		random_labels(res, src, x, props, props_n, t, n_accs, a);
 
 		auto j = unreachable_nodes.find(x);
 		if (j != unreachable_nodes.end())

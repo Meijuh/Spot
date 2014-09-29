@@ -180,7 +180,7 @@ namespace spot
       }
 
     if (has('a'))
-      acc_ = aut->number_of_acceptance_conditions();
+      acc_ = aut->acc().num_sets();
 
     if (has('c') || has('S'))
       scc_ = scc_info(aut).scc_count();

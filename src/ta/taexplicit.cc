@@ -97,7 +97,7 @@ namespace spot
     return (*i_)->condition;
   }
 
-  bdd
+  acc_cond::mark_t
   ta_explicit_succ_iterator::current_acceptance_conditions() const
   {
     assert(!done());
@@ -352,13 +352,14 @@ namespace spot
 
 
   ta_explicit::ta_explicit(const const_tgba_ptr& tgba,
-			   bdd all_acceptance_conditions,
+			   unsigned n_acc,
 			   state_ta_explicit* artificial_initial_state):
+    ta(tgba->get_dict()),
     tgba_(tgba),
-    all_acceptance_conditions_(all_acceptance_conditions),
     artificial_initial_state_(artificial_initial_state)
   {
     get_dict()->register_all_variables_of(&tgba_, this);
+    acc().add_sets(n_acc);
     if (artificial_initial_state != 0)
       {
         state_ta_explicit* is = add_state(artificial_initial_state);
@@ -403,7 +404,7 @@ namespace spot
 	{
 	  state_ta_explicit* i =
 	    down_cast<state_ta_explicit*>(get_artificial_initial_state());
-	  create_transition(i, condition, bddfalse, s);
+	  create_transition(i, condition, 0U, s);
 	}
   }
 
@@ -420,7 +421,7 @@ namespace spot
 
   void
   ta_explicit::create_transition(state_ta_explicit* source, bdd condition,
-				 bdd acceptance_conditions,
+				 acc_cond::mark_t acceptance_conditions,
 				 state_ta_explicit* dest, bool add_at_beginning)
   {
     state_ta_explicit::transition* t = new state_ta_explicit::transition;

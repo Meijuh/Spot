@@ -64,127 +64,149 @@ namespace spot
       return out;
     }
 
-    static std::string
-    format_hash_set(const hash_set* hs, const const_ta_ptr& aut)
-    {
-      std::ostringstream s;
-      dump_hash_set(hs, aut, s);
-      return s.str();
-    }
+     static std::string
+     format_hash_set(const hash_set* hs, const const_ta_ptr& aut)
+     {
+       std::ostringstream s;
+       dump_hash_set(hs, aut, s);
+       return s.str();
+     }
 
-    // From the base automaton and the list of sets, build the minimal
-    // automaton
-    static void
-    build_result(const const_ta_ptr& a, std::list<hash_set*>& sets,
-		 tgba_digraph_ptr result_tgba, const ta_explicit_ptr& result)
-    {
-      // For each set, create a state in the tgbaulting automaton.
-      // For a state s, state_num[s] is the number of the state in the minimal
-      // automaton.
-      hash_map state_num;
-      std::list<hash_set*>::iterator sit;
-      unsigned num = 0;
-      for (sit = sets.begin(); sit != sets.end(); ++sit)
-	{
-	  hash_set::iterator hit;
-	  hash_set* h = *sit;
-	  for (hit = h->begin(); hit != h->end(); ++hit)
-	    state_num[*hit] = num;
-	  result_tgba->new_state();
-	  ++num;
-	}
+     // From the base automaton and the list of sets, build the minimal
+     // automaton
+     static void
+     build_result(const const_ta_ptr& a, std::list<hash_set*>& sets,
+		  tgba_digraph_ptr result_tgba, const ta_explicit_ptr& result)
+     {
+       // For each set, create a state in the tgbaulting automaton.
+       // For a state s, state_num[s] is the number of the state in the minimal
+       // automaton.
+       hash_map state_num;
+       std::list<hash_set*>::iterator sit;
+       unsigned num = 0;
+       for (sit = sets.begin(); sit != sets.end(); ++sit)
+	 {
+	   hash_set::iterator hit;
+	   hash_set* h = *sit;
+	   for (hit = h->begin(); hit != h->end(); ++hit)
+	     state_num[*hit] = num;
+	   result_tgba->new_state();
+	   ++num;
+	 }
 
-      // For each transition in the initial automaton, add the corresponding
-      // transition in ta.
+       // For each transition in the initial automaton, add the corresponding
+       // transition in ta.
 
-      for (sit = sets.begin(); sit != sets.end(); ++sit)
-	{
-	  hash_set::iterator hit;
-	  hash_set* h = *sit;
-	  hit = h->begin();
-	  const state* src = *hit;
-	  unsigned src_num = state_num[src];
+       for (sit = sets.begin(); sit != sets.end(); ++sit)
+	 {
+	   hash_set::iterator hit;
+	   hash_set* h = *sit;
+	   hit = h->begin();
+	   const state* src = *hit;
+	   unsigned src_num = state_num[src];
 
-	  bdd tgba_condition = bddtrue;
-	  bool is_initial_state = a->is_initial_state(src);
-	  if ((a->get_artificial_initial_state() == 0) && is_initial_state)
-	    tgba_condition = a->get_state_condition(src);
-	  bool is_accepting_state = a->is_accepting_state(src);
-	  bool is_livelock_accepting_state =
-	    a->is_livelock_accepting_state(src);
+	   bdd tgba_condition = bddtrue;
+	   bool is_initial_state = a->is_initial_state(src);
+	   if ((a->get_artificial_initial_state() == 0) && is_initial_state)
+	     tgba_condition = a->get_state_condition(src);
+	   bool is_accepting_state = a->is_accepting_state(src);
+	   bool is_livelock_accepting_state =
+	     a->is_livelock_accepting_state(src);
 
-	  state_ta_explicit* new_src =
-	    new state_ta_explicit(result_tgba->state_from_number(src_num),
-				  tgba_condition, is_initial_state,
-				  is_accepting_state,
-				  is_livelock_accepting_state);
+	   state_ta_explicit* new_src =
+	     new state_ta_explicit(result_tgba->state_from_number(src_num),
+				   tgba_condition, is_initial_state,
+				   is_accepting_state,
+				   is_livelock_accepting_state);
 
-	  state_ta_explicit* ta_src = result->add_state(new_src);
+	   state_ta_explicit* ta_src = result->add_state(new_src);
 
-	  if (ta_src != new_src)
-	    {
-	      delete new_src;
-	    }
-	  else if (a->get_artificial_initial_state() != 0)
-	    {
-	      if (a->get_artificial_initial_state() == src)
-		result->set_artificial_initial_state(new_src);
-	    }
-	  else if (is_initial_state)
-	    {
-	      result->add_to_initial_states_set(new_src);
-	    }
+	   if (ta_src != new_src)
+	     {
+	       delete new_src;
+	     }
+	   else if (a->get_artificial_initial_state() != 0)
+	     {
+	       if (a->get_artificial_initial_state() == src)
+		 result->set_artificial_initial_state(new_src);
+	     }
+	   else if (is_initial_state)
+	     {
+	       result->add_to_initial_states_set(new_src);
+	     }
 
-	  ta_succ_iterator* succit = a->succ_iter(src);
+	   ta_succ_iterator* succit = a->succ_iter(src);
 
-	  for (succit->first(); !succit->done(); succit->next())
-	    {
-	      const state* dst = succit->current_state();
-	      hash_map::const_iterator i = state_num.find(dst);
+	   for (succit->first(); !succit->done(); succit->next())
+	     {
+	       const state* dst = succit->current_state();
+	       hash_map::const_iterator i = state_num.find(dst);
 
-	      if (i == state_num.end()) // Ignore useless destinations.
-		continue;
+	       if (i == state_num.end()) // Ignore useless destinations.
+		 continue;
 
-	      bdd tgba_condition = bddtrue;
-	      is_initial_state = a->is_initial_state(dst);
-	      if ((a->get_artificial_initial_state() == 0) && is_initial_state)
-		tgba_condition = a->get_state_condition(dst);
-	      bool is_accepting_state = a->is_accepting_state(dst);
-	      bool is_livelock_accepting_state =
-		a->is_livelock_accepting_state(dst);
+	       bdd tgba_condition = bddtrue;
+	       is_initial_state = a->is_initial_state(dst);
+	       if ((a->get_artificial_initial_state() == 0) && is_initial_state)
+		 tgba_condition = a->get_state_condition(dst);
+	       bool is_accepting_state = a->is_accepting_state(dst);
+	       bool is_livelock_accepting_state =
+		 a->is_livelock_accepting_state(dst);
 
-	      state_ta_explicit* new_dst =
-		new state_ta_explicit(result_tgba->state_from_number(i->second),
-				      tgba_condition, is_initial_state,
-				      is_accepting_state,
-				      is_livelock_accepting_state);
+	       state_ta_explicit* new_dst =
+		 new state_ta_explicit
+		 (result_tgba->state_from_number(i->second),
+		  tgba_condition, is_initial_state,
+		  is_accepting_state,
+		  is_livelock_accepting_state);
 
-	      state_ta_explicit* ta_dst = result->add_state(new_dst);
+	       state_ta_explicit* ta_dst = result->add_state(new_dst);
 
-	      if (ta_dst != new_dst)
-		{
-		  delete new_dst;
-		}
-	      else if (a->get_artificial_initial_state() != 0)
-		{
-		  if (a->get_artificial_initial_state() == dst)
-		    result->set_artificial_initial_state(new_dst);
-		}
+	       if (ta_dst != new_dst)
+		 {
+		   delete new_dst;
+		 }
+	       else if (a->get_artificial_initial_state() != 0)
+		 {
+		   if (a->get_artificial_initial_state() == dst)
+		     result->set_artificial_initial_state(new_dst);
+		 }
 
-	      else if (is_initial_state)
-		result->add_to_initial_states_set(new_dst);
+	       else if (is_initial_state)
+		 result->add_to_initial_states_set(new_dst);
 
-	      result->create_transition(ta_src, succit->current_condition(),
-					succit->current_acceptance_conditions(),
-					ta_dst);
-	    }
-	  delete succit;
-	}
-    }
+	       result->create_transition
+		 (ta_src, succit->current_condition(),
+		  succit->current_acceptance_conditions(),
+		  ta_dst);
+	     }
+	   delete succit;
+	 }
+     }
 
     static partition_t
     build_partition(const const_ta_ptr& ta_)
     {
+      unsigned num_sets = ta_->acc().num_sets();
+      std::map<acc_cond::mark_t, bdd> m2b;
+      int acc_vars = ta_->get_dict()->register_anonymous_variables(num_sets,
+								   &m2b);
+      auto mark_to_bdd = [&](acc_cond::mark_t m) -> bdd
+	{
+	  auto i = m2b.find(m);
+	  if (i != m2b.end())
+	    return i->second;
+
+	  bdd res = bddtrue;
+	  for (unsigned n = 0; n < num_sets; ++n)
+	    if (m.has(n))
+	      res &= bdd_ithvar(acc_vars + n);
+	    else
+	      res &= bdd_nithvar(acc_vars + n);
+	  m2b.emplace_hint(i, m, res);
+	  return res;
+	};
+
       partition_t cur_run;
       partition_t next_run;
 
@@ -237,7 +259,7 @@ namespace spot
       // Use bdd variables to number sets.  set_num is the first variable
       // available.
       unsigned set_num =
-	ta_->get_dict()->register_anonymous_variables(size, ta_);
+	ta_->get_dict()->register_anonymous_variables(size, &m2b);
 
       std::set<int> free_var;
       for (unsigned i = set_num; i < set_num + size; ++i)
@@ -335,6 +357,7 @@ namespace spot
 	  delete S;
 	}
 
+
       // A bdd_states_map is a list of formulae (in a BDD form)
       // associated with a destination set of states.
       typedef std::map<bdd, hash_set*, bdd_less_than> bdd_states_map;
@@ -372,13 +395,10 @@ namespace spot
 		      hash_map::const_iterator i = state_set_map.find(dst);
 
 		      assert(i != state_set_map.end());
-		      bdd current_acceptance_conditions =
-                        si->current_acceptance_conditions();
-		      if (current_acceptance_conditions == bddfalse)
-			current_acceptance_conditions
-                          = bdd_false_acceptance_condition;
-		      f |= (bdd_ithvar(i->second) & si->current_condition()
-			    & current_acceptance_conditions);
+		      auto curacc =
+			mark_to_bdd(si->current_acceptance_conditions());
+		      f |= (bdd_ithvar(i->second)
+			    & si->current_condition() & curacc);
 		      trace
 			<< "+f: " << bdd_format_accset(ta_->get_dict(), f)
 			<< "\n      -bdd_ithvar(i->second): "
@@ -388,9 +408,8 @@ namespace spot
 			<< bdd_format_accset(ta_->get_dict(),
 					     si->current_condition())
 			<< "\n      -current_acceptance_conditions: "
-			<< bdd_format_accset(ta_->get_dict(),
-					     current_acceptance_conditions)
-			<< std::endl;
+			<< si->current_acceptance_conditions()
+		      << std::endl;
 		    }
 		  delete si;
 
@@ -480,6 +499,7 @@ namespace spot
       trace << std::endl;
 #endif
 
+      ta_->get_dict()->unregister_all_my_variables(&m2b);
       return done;
     }
   }
@@ -489,7 +509,7 @@ namespace spot
   {
 
     auto tgba = make_tgba_digraph(ta_->get_dict());
-    auto res = make_ta_explicit(tgba, ta_->all_acceptance_conditions(), 0);
+    auto res = make_ta_explicit(tgba, ta_->acc().num_sets(), 0);
 
     partition_t partition = build_partition(ta_);
 
@@ -509,7 +529,7 @@ namespace spot
   {
 
     auto tgba = make_tgba_digraph(tgta_->get_dict());
-    auto res = make_tgta_explicit(tgba, tgta_->all_acceptance_conditions(), 0);
+    auto res = make_tgta_explicit(tgba, tgta_->acc().num_sets(), 0);
 
     auto ta = tgta_->get_ta();
 

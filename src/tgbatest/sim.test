@@ -34,9 +34,9 @@ EOF
 run 0 ../ltl2tgba -X -RDCS -b in.tgba > out.tgba
 
 cat >expected.tgba <<EOF
-acc = "1";
-"3", "2", "b",;
-"2", "2", "a", "1";
+acc = "0";
+"0", "3", "b",;
+"3", "3", "a", "0";
 EOF
 
 diff out.tgba expected.tgba

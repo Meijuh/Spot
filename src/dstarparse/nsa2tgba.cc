@@ -129,7 +129,7 @@ namespace spot
 	for (auto& t: a->out(s.s))
 	  {
 	    bitvect* pend = 0;
-	    bdd acc = bddfalse;
+	    acc_cond::mark_t acc = 0U;
 	    if (s.pend)
 	      {
 		pend = s.pend->clone();

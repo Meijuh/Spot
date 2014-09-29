@@ -28,7 +28,7 @@ namespace spot
     {
       const state* dest;
       bdd cond;
-      bdd acc;
+      acc_cond::mark_t acc;
     };
     typedef std::vector<transition> transitions;
 
@@ -67,7 +67,7 @@ namespace spot
 	return it_->cond;
       }
 
-      bdd current_acceptance_conditions() const
+      acc_cond::mark_t current_acceptance_conditions() const
       {
 	return it_->acc;
       }
@@ -128,19 +128,19 @@ namespace spot
 	for (auto it: original_->succ(local_state))
 	  {
 	    const spot::state* s = it->current_state();
-	    bdd acc = it->current_acceptance_conditions();
+	    auto acc = it->current_acceptance_conditions();
 	    if (!wanted(s, acc))
 	      {
 		s->destroy();
 		continue;
 	      }
-	    res->trans_.emplace_back(transition {s, it->current_condition(),
-		                                 acc});
+	    res->trans_.emplace_back
+	      (transition {s, it->current_condition(), acc});
 	  }
 	return res;
       }
 
-      virtual bool wanted(const state* s, const bdd& acc) const = 0;
+      virtual bool wanted(const state* s, acc_cond::mark_t acc) const = 0;
 
     protected:
       const state* init_;
@@ -158,7 +158,7 @@ namespace spot
       {
       }
 
-      bool wanted(const state* s, const bdd&) const
+      bool wanted(const state* s, const acc_cond::mark_t) const
       {
 	state_set::const_iterator i = mask_.find(s);
 	return i != mask_.end();
@@ -177,7 +177,7 @@ namespace spot
       {
       }
 
-      bool wanted(const state* s, const bdd&) const
+      bool wanted(const state* s, const acc_cond::mark_t) const
       {
 	state_set::const_iterator i = mask_.find(s);
 	return i == mask_.end();
@@ -186,19 +186,19 @@ namespace spot
 
     class tgba_mask_acc_ignore: public tgba_mask
     {
-      const bdd& mask_;
+      unsigned mask_;
     public:
       tgba_mask_acc_ignore(const const_tgba_ptr& masked,
-			   const bdd& mask,
+			   unsigned mask,
 			   const state* init)
 	: tgba_mask(masked, init),
 	  mask_(mask)
       {
       }
 
-      bool wanted(const state*, const bdd& acc) const
+      bool wanted(const state*, const acc_cond::mark_t acc) const
       {
-	return (acc & mask_) == bddfalse;
+	return !acc.has(mask_);
       }
     };
 
@@ -222,7 +222,7 @@ namespace spot
 
   const_tgba_ptr
   build_tgba_mask_acc_ignore(const const_tgba_ptr& to_mask,
-			     const bdd to_ignore,
+			     unsigned to_ignore,
 			     const state* init)
   {
     return std::make_shared<tgba_mask_acc_ignore>(to_mask, to_ignore, init);

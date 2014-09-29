@@ -82,8 +82,11 @@ namespace spot
     template<typename T, typename U>
     std::size_t operator()(const std::pair<T, U> &p) const
     {
-      return wang32_hash(static_cast<size_t>(p.first) ^
-			 static_cast<size_t>(p.second));
+      std::hash<T> th;
+      std::hash<U> uh;
+
+      return wang32_hash(static_cast<size_t>(th(p.first)) ^
+			 static_cast<size_t>(uh(p.second)));
     }
   };
 

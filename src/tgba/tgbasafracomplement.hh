@@ -57,10 +57,7 @@ namespace spot
     virtual state* get_init_state() const;
     virtual tgba_succ_iterator* succ_iter(const state* state) const;
 
-    virtual bdd_dict_ptr get_dict() const;
     virtual std::string format_state(const state* state) const;
-    virtual bdd all_acceptance_conditions() const;
-    virtual bdd neg_acceptance_conditions() const;
 
     void* get_safra() const
     {
@@ -73,13 +70,11 @@ namespace spot
     const_tgba_ptr automaton_;
     void* safra_;
 #if TRANSFORM_TO_TBA
-    bdd the_acceptance_cond_;
+    acc_cond::mark_t the_acceptance_cond_;
 #endif
 #if TRANSFORM_TO_TGBA
-    bdd all_acceptance_cond_;
-    bdd neg_acceptance_cond_;
     // Map to i the i-th acceptance condition of the final automaton.
-    std::vector<bdd> acceptance_cond_vec_;
+    std::vector<acc_cond::mark_t> acceptance_cond_vec_;
 #endif
   };
 

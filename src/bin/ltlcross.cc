@@ -1047,7 +1047,7 @@ namespace
 	      st->states = s.states;
 	      st->edges = s.transitions;
 	      st->transitions = s.sub_transitions;
-	      st->acc = res->number_of_acceptance_conditions();
+	      st->acc = res->acc().num_sets();
 	      spot::scc_map m(res);
 	      m.build_map();
 	      unsigned c = m.scc_count();

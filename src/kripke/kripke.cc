@@ -34,33 +34,21 @@ namespace spot
     return cond_;
   }
 
-  bdd
+  acc_cond::mark_t
   kripke_succ_iterator::current_acceptance_conditions() const
   {
     // Do not assert(!done()) here.  It is OK to call
     // this function on a state without successor.
-    return bddfalse;
+    return 0U;
   }
 
   kripke::~kripke()
   {
   }
 
-  bdd
+  acc_cond::mark_t
   kripke::state_acceptance_conditions(const state*) const
   {
-    return bddtrue;
+    return 0U;
   }
-
-  bdd kripke::all_acceptance_conditions() const
-  {
-    // There is no acceptance conditions.
-    return bddfalse;
-  }
-
-  bdd kripke::neg_acceptance_conditions() const
-  {
-    return bddtrue;
-  }
-
 }

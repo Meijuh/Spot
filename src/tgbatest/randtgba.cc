@@ -908,11 +908,11 @@ main(int argc, char** argv)
 
 	      spot::tgba_ptr a =
 		spot::random_graph(opt_n, opt_d, apf, dict,
-				   opt_n_acc, opt_a, opt_t, &env);
+				   opt_n_acc, opt_a, opt_t);
 	      if (formula)
 		a = spot::product(formula, a);
 
-	      int real_n_acc = a->number_of_acceptance_conditions();
+	      int real_n_acc = a->acc().num_sets();
 
 	      if (opt_dot)
 		{

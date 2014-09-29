@@ -57,6 +57,8 @@ namespace spot
   namespace
   {
     static bdd_dict_ptr debug_dict = 0;
+    static const acc_cond* debug_ref_acc = 0;
+    static const acc_cond* debug_cand_acc = 0;
 
     struct transition
     {
@@ -120,10 +122,10 @@ namespace spot
     {
       unsigned src;
       bdd cond;
-      bdd acc;
+      acc_cond::mark_t acc;
       unsigned dst;
 
-      transition_acc(int src, bdd cond, bdd acc, int dst)
+      transition_acc(int src, bdd cond, acc_cond::mark_t acc, int dst)
 	: src(src), cond(cond), acc(acc), dst(dst)
       {
       }
@@ -142,7 +144,7 @@ namespace spot
 	  return true;
 	if (this->cond.id() > other.cond.id())
 	  return false;
-	return this->acc.id() < other.acc.id();
+	return this->acc < other.acc;
       }
 
       bool operator==(const transition_acc& other) const
@@ -150,7 +152,7 @@ namespace spot
 	return (this->src == other.src
 		&& this->dst == other.dst
 		&& this->cond.id() == other.cond.id()
-		&& this->acc.id() == other.acc.id());
+		&& this->acc == other.acc);
       }
     };
 
@@ -160,19 +162,19 @@ namespace spot
       unsigned src_ref;
       unsigned dst_cand;
       unsigned dst_ref;
-      bdd acc_cand;
-      bdd acc_ref;
+      acc_cond::mark_t acc_cand;
+      acc_cond::mark_t acc_ref;
 
       path(unsigned src_cand, unsigned src_ref)
 	: src_cand(src_cand), src_ref(src_ref),
 	  dst_cand(src_cand), dst_ref(src_ref),
-	  acc_cand(bddfalse), acc_ref(bddfalse)
+	  acc_cand(0U), acc_ref(0U)
       {
       }
 
       path(unsigned src_cand, unsigned src_ref,
 	   unsigned dst_cand, unsigned dst_ref,
-	   bdd acc_cand, bdd acc_ref)
+	   acc_cond::mark_t acc_cand, acc_cond::mark_t acc_ref)
 	: src_cand(src_cand), src_ref(src_ref),
 	  dst_cand(dst_cand), dst_ref(dst_ref),
 	  acc_cand(acc_cand), acc_ref(acc_ref)
@@ -197,13 +199,13 @@ namespace spot
 	  return true;
 	if (this->dst_ref > other.dst_ref)
 	  return false;
-	if (this->acc_ref.id() < other.acc_ref.id())
+	if (this->acc_ref < other.acc_ref)
 	  return true;
-	if (this->acc_ref.id() > other.acc_ref.id())
+	if (this->acc_ref > other.acc_ref)
 	  return false;
-	if (this->acc_cand.id() < other.acc_cand.id())
+	if (this->acc_cand < other.acc_cand)
 	  return true;
-	if (this->acc_cand.id() > other.acc_cand.id())
+	if (this->acc_cand > other.acc_cand)
 	  return false;
 
 	return false;
@@ -224,7 +226,7 @@ namespace spot
     {
       os << '<' << t.src << ','
 	 << bdd_format_formula(debug_dict, t.cond) << ','
-	 << bdd_format_accset(debug_dict, t.acc)
+	 << debug_cand_acc->format(t.acc)
 	 << ',' << t.dst << '>';
       return os;
     }
@@ -236,15 +238,15 @@ namespace spot
 	 << p.src_ref << ','
 	 << p.dst_cand << ','
 	 << p.dst_ref << ", "
-	 << bdd_format_accset(debug_dict, p.acc_cand) << ", "
-	 << bdd_format_accset(debug_dict, p.acc_ref) << '>';
+	 << debug_cand_acc->format(p.acc_cand) << ", "
+	 << debug_ref_acc->format(p.acc_ref) << '>';
       return os;
     }
 
     struct dict
     {
       dict(const const_tgba_ptr& a)
-	: aut(a)
+	: aut(a), cacc(a->get_dict())
       {
       }
 
@@ -267,15 +269,14 @@ namespace spot
       //      int_map int_to_state;
       unsigned cand_size;
       unsigned int cand_nacc;
-      std::vector<bdd> cand_acc; // size cand_nacc
+      std::vector<acc_cond::mark_t> cand_acc; // size cand_nacc
 
-      std::vector<bdd> all_cand_acc;
-      std::vector<bdd> all_ref_acc;
-
-      bdd cand_all_acc;
-      bdd ref_all_acc;
+      std::vector<acc_cond::mark_t> all_cand_acc;
+      std::vector<acc_cond::mark_t> all_ref_acc;
 
       std::vector<bool> is_weak_scc;
+
+      acc_cond cacc;
 
       ~dict()
       {
@@ -288,48 +289,27 @@ namespace spot
 			  dict& d, bdd ap, bool state_based, scc_info& sm)
     {
       bdd_dict_ptr bd = aut->get_dict();
-      ltl::default_environment& env = ltl::default_environment::instance();
-
       d.cand_acc.resize(d.cand_nacc);
-      d.all_cand_acc.push_back(bddfalse);
-
-      bdd allneg = bddtrue;
+      d.cacc.add_sets(d.cand_nacc);
+      d.all_cand_acc.push_back(0U);
       for (unsigned n = 0; n < d.cand_nacc; ++n)
 	{
-	  std::ostringstream s;
-	  s << n;
-	  const ltl::formula* af = env.require(s.str());
-	  int v = bd->register_acceptance_variable(af, &d);
-	  af->destroy();
-	  d.cand_acc[n] = bdd_ithvar(v);
-	  allneg &= bdd_nithvar(v);
-	}
-      for (unsigned n = 0; n < d.cand_nacc; ++n)
-	{
-	  bdd c = bdd_exist(allneg, d.cand_acc[n]) & d.cand_acc[n];
+	  auto c = d.cacc.mark(n);
 	  d.cand_acc[n] = c;
-
 	  size_t s = d.all_cand_acc.size();
 	  for (size_t i = 0; i < s; ++i)
 	    d.all_cand_acc.push_back(d.all_cand_acc[i] | c);
 	}
-      d.cand_all_acc = bdd_support(allneg);
-      d.ref_all_acc = bdd_support(aut->all_acceptance_conditions());
 
-      bdd refall = d.ref_all_acc;
-      bdd refnegall = aut->neg_acceptance_conditions();
 
-      d.all_ref_acc.push_back(bddfalse);
-      while (refall != bddtrue)
+      d.all_ref_acc.push_back(0U);
+      unsigned ref_nacc = aut->acc().num_sets();
+      for (unsigned n = 0; n < ref_nacc; ++n)
 	{
-	  bdd v = bdd_ithvar(bdd_var(refall));
-	  bdd c = bdd_exist(refnegall, v) & v;
-
+	  auto c = aut->acc().mark(n);
 	  size_t s = d.all_ref_acc.size();
 	  for (size_t i = 0; i < s; ++i)
 	    d.all_ref_acc.push_back(d.all_ref_acc[i] | c);
-
-	  refall = bdd_high(refall);
 	}
 
       unsigned ref_size = aut->num_states();
@@ -485,9 +465,12 @@ namespace spot
 
 #if DEBUG
       debug_dict = ref->get_dict();
+      debug_ref_acc = &ref->acc();
+      debug_cand_acc = &d.cacc;
       dout << "ref_size: " << ref_size << '\n';
       dout << "cand_size: " << d.cand_size << '\n';
 #endif
+      auto& racc = ref->acc();
 
       dout << "symmetry-breaking clauses\n";
       int j = 0;
@@ -586,8 +569,6 @@ namespace spot
 	      }
 	  }
 
-      bdd all_acc = ref->all_acceptance_conditions();
-
       // construction of constraints (11,12,13)
       for (unsigned q1p = 0; q1p < ref_size; ++q1p)
 	{
@@ -630,7 +611,7 @@ namespace spot
 			      for (unsigned q3 = 0; q3 < d.cand_size; ++q3)
 				{
 				  bdd all = tr.cond;
-				  bdd curacc = tr.acc;
+				  acc_cond::mark_t curacc = tr.acc;
 				  while (all != bddfalse)
 				    {
 				      bdd l = bdd_satoneset(all, ap, bddfalse);
@@ -643,23 +624,22 @@ namespace spot
 					{
 					  if ((!is_acc) ||
 					      (!is_weak &&
-					       (curacc |
-						d.all_ref_acc[fp]) != all_acc))
+					       !racc.accepting
+					       (curacc | d.all_ref_acc[fp])))
 					    {
 #if DEBUG
 					      dout << "(11) " << p << " ∧ "
 						   << t << "δ → ¬(";
 
-					      bdd all_ = d.all_cand_acc.back();
-					      all_ -= d.all_cand_acc[f];
 					      bool notfirst = false;
-					      while (all_ != bddfalse)
+					      acc_cond::mark_t all_ =
+						d.all_cand_acc.back() -
+						d.all_cand_acc[f];
+					      for (auto m: d.cacc.sets(all_))
 						{
-						  bdd one = bdd_satone(all_);
-						  all_ -= one;
-
-						  transition_acc ta(q2, l,
-								    one, q1);
+						  transition_acc
+						    ta(q2, l,
+						       d.cacc.mark(m), q1);
 						  if (notfirst)
 						    out << " ∧ ";
 						  else
@@ -671,15 +651,14 @@ namespace spot
 					      out << -pid << ' ' << -ti;
 
 					      // 11
-					      bdd all_f = d.all_cand_acc.back();
-					      all_f -= d.all_cand_acc[f];
-					      while (all_f != bddfalse)
+					      acc_cond::mark_t all_f =
+						d.all_cand_acc.back() -
+						d.all_cand_acc[f];
+					      for (auto m: d.cacc.sets(all_f))
 						{
-						  bdd one = bdd_satone(all_f);
-						  all_f -= one;
-
-						  transition_acc ta(q2, l,
-								    one, q1);
+						  transition_acc
+						    ta(q2, l,
+						       d.cacc.mark(m), q1);
 						  int tai = d.transaccid[ta];
 						  assert(tai != 0);
 						  out << ' ' << -tai;
@@ -692,17 +671,15 @@ namespace spot
 #if DEBUG
 					      dout << "(12) " << p << " ∧ "
 						   << t << "δ → (";
-
-					      bdd all_ = d.all_cand_acc.back();
-					      all_ -= d.all_cand_acc[f];
 					      bool notfirst = false;
-					      while (all_ != bddfalse)
+					      // 11
+					      acc_cond::mark_t all_ =
+						d.cacc.comp(d.all_cand_acc[f]);
+					      for (auto m: d.cacc.sets(all_))
 						{
-						  bdd one = bdd_satone(all_);
-						  all_ -= one;
-
-						  transition_acc ta(q2, l,
-								    one, q1);
+						  transition_acc
+						    ta(q2, l,
+						       d.cacc.mark(m), q1);
 						  if (notfirst)
 						    out << " ∧ ";
 						  else
@@ -712,15 +689,13 @@ namespace spot
 					      out << ")\n";
 #endif // DEBUG
 					      // 12
-					      bdd all_f = d.all_cand_acc.back();
-					      all_f -= d.all_cand_acc[f];
-					      while (all_f != bddfalse)
+					      acc_cond::mark_t all_f =
+						d.cacc.comp(d.all_cand_acc[f]);
+					      for (auto m: d.cacc.sets(all_f))
 						{
-						  bdd one = bdd_satone(all_f);
-						  all_f -= one;
-
-						  transition_acc ta(q2, l,
-								    one, q1);
+						  transition_acc
+						    ta(q2, l,
+						       d.cacc.mark(m), q1);
 						  int tai = d.transaccid[ta];
 						  assert(tai != 0);
 
@@ -735,10 +710,9 @@ namespace spot
 					size_t sf = d.all_cand_acc.size();
 					for (size_t f = 0; f < sf; ++f)
 					  {
-
-					    bdd f2 = p.acc_cand |
-					      d.all_cand_acc[f];
-					    bdd f2p = bddfalse;
+					    acc_cond::mark_t f2 =
+					      p.acc_cand | d.all_cand_acc[f];
+					    acc_cond::mark_t f2p = 0U;
 					    if (!is_weak)
 					      f2p = p.acc_ref | curacc;
 
@@ -751,47 +725,34 @@ namespace spot
 					    dout << "(13) " << p << " ∧ "
 						 << t << "δ ";
 
-					    bdd biga_ = d.all_cand_acc[f];
-					    while (biga_ != bddfalse)
+					    auto biga_ = d.all_cand_acc[f];
+					    for (unsigned m = 0;
+						 m < d.cand_nacc; ++m)
 					      {
-						bdd a = bdd_satone(biga_);
-						biga_ -= a;
-
-						transition_acc ta(q2, l, a, q3);
-						out <<  " ∧ " << ta << "FC";
-					      }
-					    biga_ = d.all_cand_acc.back()
-					      - d.all_cand_acc[f];
-					    while (biga_ != bddfalse)
-					      {
-						bdd a = bdd_satone(biga_);
-						biga_ -= a;
-
-						transition_acc ta(q2, l, a, q3);
-						out << " ∧ ¬" << ta << "FC";
+						transition_acc
+						  ta(q2, l,
+						     d.cacc.mark(m), q3);
+						int tai = d.transaccid[ta];
+						const char* not_ = "¬";
+						if (d.cacc.has(biga_, m))
+						  not_ = "";
+						out << tai << ' ';
+						out <<  " ∧ " << not_
+						    << ta << "FC";
 					      }
 					    out << " → " << p2 << '\n';
 #endif
 					    out << -pid << ' ' << -ti << ' ';
-					    bdd biga = d.all_cand_acc[f];
-					    while (biga != bddfalse)
+					    auto biga = d.all_cand_acc[f];
+					    for (unsigned m = 0;
+						 m < d.cand_nacc; ++m)
 					      {
-						bdd a = bdd_satone(biga);
-						biga -= a;
-
-						transition_acc ta(q2, l, a, q3);
+						transition_acc
+						  ta(q2, l,
+						     d.cacc.mark(m), q3);
 						int tai = d.transaccid[ta];
-						out << -tai << ' ';
-					      }
-					    biga = d.all_cand_acc.back()
-					      - d.all_cand_acc[f];
-					    while (biga != bddfalse)
-					      {
-						bdd a = bdd_satone(biga);
-						biga -= a;
-
-						transition_acc ta(q2, l, a, q3);
-						int tai = d.transaccid[ta];
+						if (d.cacc.has(biga, m))
+						  tai = -tai;
 						out << tai << ' ';
 					      }
 
@@ -818,7 +779,7 @@ namespace spot
       auto autdict = aut->get_dict();
       auto a = make_tgba_digraph(autdict);
       a->copy_ap_of(aut);
-      a->set_acceptance_conditions(satdict.all_cand_acc.back());
+      a->set_acceptance_conditions(satdict.cand_nacc);
 
       a->new_states(satdict.cand_size);
 
@@ -835,7 +796,7 @@ namespace spot
 #endif
 
       dout << "--- transition variables ---\n";
-      std::map<int, bdd> state_acc;
+      std::map<int, acc_cond::mark_t> state_acc;
       std::set<src_cond> seen_trans;
       for (int v: solution)
 	{
@@ -854,7 +815,7 @@ namespace spot
 	      if (seen_trans.insert(src_cond(t->second.src,
 					     t->second.cond)).second)
 		{
-		  bdd acc = bddfalse;
+		  acc_cond::mark_t acc = 0U;
 		  if (state_based)
 		    {
 		      auto i = state_acc.find(t->second.src);
@@ -887,11 +848,13 @@ namespace spot
 		      ta->second.dst == last_sat_trans->dst)
 		    {
 		      assert(!state_based);
-		      a->trans_data(last_aut_trans).acc |= ta->second.acc;
+		      auto& v = a->trans_data(last_aut_trans).acc;
+		      v |= ta->second.acc;
 		    }
 		  else if (state_based)
 		    {
-		      state_acc[ta->second.src] |= ta->second.acc;
+		      auto& v = state_acc[ta->second.src];
+		      v |= ta->second.acc;
 		    }
 		}
 	    }

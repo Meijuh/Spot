@@ -54,10 +54,6 @@ namespace spot
 
     struct gv04: public emptiness_check, public ec_statistics
     {
-      // The unique acceptance condition of the automaton \a a,
-      // or bddfalse if there is no.
-      bdd accepting;
-
       // Map of visited states.
       typedef std::unordered_map<const state*, size_t,
 				 state_ptr_hash, state_ptr_equal> hash_type;
@@ -72,9 +68,9 @@ namespace spot
       bool violation;		// Whether an accepting run was found.
 
       gv04(const const_tgba_ptr& a, option_map o)
-	: emptiness_check(a, o), accepting(a->all_acceptance_conditions())
+	: emptiness_check(a, o)
       {
-	assert(a->number_of_acceptance_conditions() <= 1);
+	assert(a->acc().num_sets() <= 1);
       }
 
       ~gv04()
@@ -125,7 +121,8 @@ namespace spot
 	    else
 	      {
 		const state* s_prime = iter->current_state();
-		bool acc = iter->current_acceptance_conditions() == accepting;
+		bool acc =
+		  a_->acc().accepting(iter->current_acceptance_conditions());
 		inc_transitions();
 
 		trace << " Next successor: s_prime = "
@@ -365,7 +362,7 @@ namespace spot
 	    virtual bool
 	    match(tgba_run::step& step, const state*)
 	    {
-	      return step.acc != bddfalse;
+	      return step.acc != 0U;
 	    }
 	  };
 
@@ -386,7 +383,7 @@ namespace spot
 
 	  const state* bfs_start = data.stack[scc_root].s;
 	  const state* bfs_end = bfs_start;
-	  if (data.accepting != bddfalse)
+	  if (a_->acc().num_sets() > 0)
 	    {
 	      first_bfs b1(this, scc_root);
 	      bfs_start = b1.search(bfs_start, res->cycle);

@@ -61,7 +61,7 @@ namespace spot
     virtual ~kripke_succ_iterator();
 
     virtual bdd current_condition() const;
-    virtual bdd current_acceptance_conditions() const;
+    virtual acc_cond::mark_t current_acceptance_conditions() const;
   protected:
     bdd cond_;
   };
@@ -92,11 +92,15 @@ namespace spot
   class SPOT_API kripke: public fair_kripke
   {
   public:
+    kripke(const bdd_dict_ptr& d)
+      : fair_kripke(d)
+      {
+      }
+
+
     virtual ~kripke();
 
-    virtual bdd state_acceptance_conditions(const state*) const;
-    virtual bdd neg_acceptance_conditions() const;
-    virtual bdd all_acceptance_conditions() const;
+    virtual acc_cond::mark_t state_acceptance_conditions(const state*) const;
   };
 
 

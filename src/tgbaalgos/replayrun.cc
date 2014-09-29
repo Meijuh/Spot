@@ -51,8 +51,7 @@ namespace spot
     int serial = 1;
     const tgba_run::steps* l;
     std::string in;
-    bdd all_acc = bddfalse;
-    bdd expected_all_acc = a->all_acceptance_conditions();
+    acc_cond::mark_t all_acc = 0U;
     bool all_acc_seen = false;
     typedef std::unordered_map<const state*, std::set<int>,
 			       state_ptr_hash, state_ptr_equal> state_map;
@@ -116,7 +115,7 @@ namespace spot
 
 	// expected outgoing transition
 	bdd label = i->label;
-	bdd acc = i->acc;
+	acc_cond::mark_t acc = i->acc;
 
 	// compute the next expected state
 	const state* next;
@@ -170,7 +169,7 @@ namespace spot
 	      {
 		os << "ERROR: no transition with label="
 		   << bdd_format_formula(a->get_dict(), label)
-		   << " and acc=" << bdd_format_accset(a->get_dict(), acc)
+		   << " and acc=" << a->acc().format(acc)
 		   << " leaving state " << serial
 		   << " for state " << a->format_state(next) << '\n'
 		   << "The following transitions leave state " << serial
@@ -185,9 +184,7 @@ namespace spot
 			 << bdd_format_formula(a->get_dict(),
 					       j->current_condition())
 			 << " and acc="
-			 << (bdd_format_accset
-			     (a->get_dict(),
-			      j->current_acceptance_conditions()))
+			 << a->acc().format(j->current_acceptance_conditions())
 			 << " going to " << a->format_state(s2) << '\n';
 		      s2->destroy();
 		    }
@@ -203,7 +200,7 @@ namespace spot
 	    print_annotation(os, a, j);
 	    os << " with label="
 	       << bdd_format_formula(a->get_dict(), label)
-	       << " and acc=" << bdd_format_accset(a->get_dict(), acc)
+	       << " and acc=" << a->acc().format(acc)
 	       << std::endl;
 	  }
 	else
@@ -212,7 +209,7 @@ namespace spot
 	    print_annotation(os, a, j);
 	    bdd_print_formula(os, a->get_dict(), label);
 	    os << '\t';
-	    bdd_print_accset(os, a->get_dict(), acc);
+	    a->acc().format(acc);
 	    os << std::endl;
 	  }
 	a->release_iter(j);
@@ -226,24 +223,24 @@ namespace spot
 	if (l == &run->cycle && i != l->begin())
 	  {
 	    all_acc |= acc;
-	    if (!all_acc_seen && all_acc == expected_all_acc)
+	    if (!all_acc_seen && a->acc().accepting(all_acc))
 	      {
 		all_acc_seen = true;
 		if (debug)
 		  os << "all acceptance conditions ("
-		     << bdd_format_accset(a->get_dict(), all_acc)
+		     << a->acc().format(all_acc)
 		     << ") have been seen\n";
 	      }
 	  }
       }
     s->destroy();
-    if (all_acc != expected_all_acc)
+    if (!a->acc().accepting(all_acc))
       {
 	if (debug)
 	  os << "ERROR: The cycle's acceptance conditions ("
-	     << bdd_format_accset(a->get_dict(), all_acc)
+	     << a->acc().format(all_acc)
 	     << ") do not\nmatch those of the automaton ("
-	     << bdd_format_accset(a->get_dict(), expected_all_acc)
+	     << a->acc().format(a->acc().all_sets())
 	     << ")\n";
 	return false;
       }

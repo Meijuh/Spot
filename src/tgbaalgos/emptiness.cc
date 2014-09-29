@@ -89,7 +89,7 @@ namespace spot
 	os << "  |  ";
 	bdd_print_formula(os, d, i->label);
 	os << '\t';
-	bdd_print_accset(os, d, i->acc);
+	os << a->acc().format(i->acc);
 	os << std::endl;
       }
     os << "Cycle:" << std::endl;
@@ -100,7 +100,7 @@ namespace spot
 	os << "  |  ";
 	bdd_print_formula(os, d, i->label);
 	os << '\t';
-	bdd_print_accset(os, d, i->acc);
+	os << a->acc().format(i->acc);
 	os << '\n';
       }
     return os;
@@ -302,7 +302,7 @@ namespace spot
     unsigned src;
     unsigned dst;
     const tgba_run::steps* l;
-    bdd seen_acc = bddfalse;
+    acc_cond::mark_t seen_acc = 0U;
 
     typedef std::unordered_map<const state*, unsigned,
 			       state_ptr_hash, state_ptr_equal> state_map;
@@ -323,7 +323,7 @@ namespace spot
       {
         // expected outgoing transition
         bdd label = i->label;
-        bdd acc = i->acc;
+	acc_cond::mark_t acc = i->acc;
 
         // compute the next expected state
         const state* next;
@@ -379,7 +379,7 @@ namespace spot
 
     s->destroy();
 
-    assert(seen_acc == a->all_acceptance_conditions());
+    assert(a->acc().accepting(seen_acc));
     return res;
   }
 

@@ -148,7 +148,7 @@ namespace spot
     }
 
     static void
-    compute_livelock_acceptance_states(const ta_explicit_ptr& testing_automata,
+    compute_livelock_acceptance_states(const ta_explicit_ptr& testing_aut,
 				       bool single_pass_emptiness_check,
 				       state_ta_explicit*
 				       artificial_livelock_acc_state)
@@ -158,7 +158,7 @@ namespace spot
       scc_stack_ta sscc;
 
       // * arc, a stack of acceptance conditions between each of these SCC,
-      std::stack<bdd> arc;
+      std::stack<acc_cond::mark_t> arc;
 
       // * h: a hash of all visited nodes, with their order,
       //   (it is called "Hash" in Couvreur's paper)
@@ -180,7 +180,7 @@ namespace spot
       // * init: the set of the depth-first search initial states
       std::stack<state*> init_set;
 
-      for (state* s: testing_automata->get_initial_states_set())
+      for (state* s: testing_aut->get_initial_states_set())
 	init_set.push(s);
 
       while (!init_set.empty())
@@ -199,10 +199,10 @@ namespace spot
 	      }
 
 	    sscc.push(++num);
-	    arc.push(bddfalse);
+	    arc.push(0U);
 	    sscc.top().is_accepting
-              = testing_automata->is_accepting_state(init);
-	    tgba_succ_iterator* iter = testing_automata->succ_iter(init);
+              = testing_aut->is_accepting_state(init);
+	    tgba_succ_iterator* iter = testing_aut->succ_iter(init);
 	    iter->first();
 	    todo.emplace(init, iter);
 	  }
@@ -243,10 +243,9 @@ namespace spot
 		      // removing states
 		      std::list<state*>::iterator i;
 		      bool is_livelock_accepting_sscc = (sscc.rem().size() > 1)
-			&& ((sscc.top().is_accepting)
-			    || (sscc.top().condition ==
-				testing_automata->all_acceptance_conditions()));
-
+			&& ((sscc.top().is_accepting) ||
+			    (testing_aut->acc().
+			     accepting(sscc.top().condition)));
 		      trace << "*** sscc.size()  = ***" <<  sscc.size() << '\n';
 		      for (auto j: sscc.rem())
 			{
@@ -257,7 +256,7 @@ namespace spot
 			      // if it is an accepting sscc add the state to
 			      // G (=the livelock-accepting states set)
 			      trace << "*** sscc.size() > 1: states: ***"
-				    << testing_automata->format_state(j)
+				    << testing_aut->format_state(j)
 				    << '\n';
 			      state_ta_explicit* livelock_accepting_state =
 				down_cast<state_ta_explicit*>(j);
@@ -283,7 +282,7 @@ namespace spot
 		    }
 
 		  // automata reduction
-		  testing_automata->delete_stuttering_and_hole_successors(curr);
+		  testing_aut->delete_stuttering_and_hole_successors(curr);
 
 		  delete succ;
 		  // Do not delete CURR: it is a key in H.
@@ -293,7 +292,7 @@ namespace spot
 	      // Fetch the values destination state we are interested in...
 	      state* dest = succ->current_state();
 
-	      bdd acc_cond = succ->current_acceptance_conditions();
+	      auto acc_cond = succ->current_acceptance_conditions();
 	      // ... and point the iterator to the next successor, for
 	      // the next iteration.
 	      succ->next();
@@ -301,8 +300,8 @@ namespace spot
 
 	      // Are we going to a new state through a stuttering transition?
 	      bool is_stuttering_transition =
-		testing_automata->get_state_condition(curr)
-		== testing_automata->get_state_condition(dest);
+		testing_aut->get_state_condition(curr)
+		== testing_aut->get_state_condition(dest);
 	      auto id = h.find(dest);
 
 	      // Is this a new state?
@@ -321,9 +320,9 @@ namespace spot
 		  sscc.push(num);
 		  arc.push(acc_cond);
 		  sscc.top().is_accepting =
-		    testing_automata->is_accepting_state(dest);
+		    testing_aut->is_accepting_state(dest);
 
-		  tgba_succ_iterator* iter = testing_automata->succ_iter(dest);
+		  tgba_succ_iterator* iter = testing_aut->succ_iter(dest);
 		  iter->first();
 		  todo.emplace(dest, iter);
 		  continue;
@@ -342,9 +341,8 @@ namespace spot
 		    down_cast<state_ta_explicit*> (curr);
 		  assert(self_loop_state);
 
-		  if (testing_automata->is_accepting_state(self_loop_state)
-		      || (acc_cond
-			  == testing_automata->all_acceptance_conditions()))
+		  if (testing_aut->is_accepting_state(self_loop_state)
+		      || (testing_aut->acc().accepting(acc_cond)))
 		    {
 		      self_loop_state->set_livelock_accepting_state(true);
 		      if (single_pass_emptiness_check)
@@ -404,7 +402,7 @@ namespace spot
 
       if ((artificial_livelock_acc_state != 0)
 	  || single_pass_emptiness_check)
-	transform_to_single_pass_automaton(testing_automata,
+	transform_to_single_pass_automaton(testing_aut,
 					   artificial_livelock_acc_state);
     }
 
@@ -429,7 +427,7 @@ namespace spot
 	  tgba_succ_iterator* it = tgba_->succ_iter(tgba_init_state);
 	  it->first();
 	  if (!it->done())
-	    is_acc = it->current_acceptance_conditions() != bddfalse;
+	    is_acc = it->current_acceptance_conditions() != 0U;
 	  delete it;
 	}
 
@@ -462,7 +460,7 @@ namespace spot
 	    {
 	      const state* tgba_state = tgba_succ_it->current_state();
 	      bdd tgba_condition = tgba_succ_it->current_condition();
-	      bdd tgba_acceptance_conditions =
+	      acc_cond::mark_t tgba_acceptance_conditions =
                 tgba_succ_it->current_acceptance_conditions();
 	      bdd satone_tgba_condition;
 	      while ((satone_tgba_condition =
@@ -481,7 +479,7 @@ namespace spot
 		    tgba_succ_iterator* it = tgba_->succ_iter(tgba_state);
 		    it->first();
 		    if (!it->done())
-		      is_acc = it->current_acceptance_conditions() != bddfalse;
+		      is_acc = it->current_acceptance_conditions() != 0U;
 		    delete it;
 		  }
 
@@ -554,12 +552,12 @@ namespace spot
         state_ta_explicit* artificial_init_state =
 	  new state_ta_explicit(tgba_init_state->clone(), bddfalse, true);
 
-        ta = make_ta_explicit(tgba_, tgba_->all_acceptance_conditions(),
+        ta = make_ta_explicit(tgba_, tgba_->acc().num_sets(),
 			      artificial_init_state);
       }
     else
       {
-        ta = make_ta_explicit(tgba_, tgba_->all_acceptance_conditions());
+        ta = make_ta_explicit(tgba_, tgba_->acc().num_sets());
       }
     tgba_init_state->destroy();
 
@@ -586,10 +584,7 @@ namespace spot
 
             for (it_trans = trans->begin(); it_trans != trans->end();
 		 ++it_trans)
-              {
-                (*it_trans)->acceptance_conditions
-                    = ta->all_acceptance_conditions();
-              }
+	      (*it_trans)->acceptance_conditions = ta->acc().all_sets();
 
             state->set_accepting_state(false);
           }
@@ -606,7 +601,7 @@ namespace spot
 						       bddfalse, true);
     tgba_init_state->destroy();
 
-    auto tgta = make_tgta_explicit(tgba_, tgba_->all_acceptance_conditions(),
+    auto tgta = make_tgta_explicit(tgba_, tgba_->acc().num_sets(),
 				   artificial_init_state);
 
     // build a Generalized TA automaton involving a single_pass_emptiness_check
@@ -644,13 +639,13 @@ namespace spot
             if (trans_empty || state->is_accepting_state())
               {
                 ta->create_transition(state, bdd_stutering_transition,
-                    ta->all_acceptance_conditions(), state);
+				      ta->acc().all_sets(), state);
               }
           }
 
         if (state->compare(ta->get_artificial_initial_state()))
           ta->create_transition(state, bdd_stutering_transition,
-				bddfalse, state);
+				0U, state);
 
         state->set_livelock_accepting_state(false);
         state->set_accepting_state(false);

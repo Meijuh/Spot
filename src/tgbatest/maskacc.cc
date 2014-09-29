@@ -49,13 +49,11 @@ main(int argc, char** argv)
     if (spot::format_tgba_parse_errors(std::cerr, argv[1], pel))
       return 2;
 
-    bdd allneg = aut->neg_acceptance_conditions();
+    unsigned nsets = aut->acc().num_sets();
 
-    for (bdd cur = allneg; cur != bddtrue; cur = bdd_low(cur))
+    for (unsigned n = 0; n < nsets; ++n)
       {
-	int i = bdd_var(cur);
-	bdd one = bdd_compose(allneg, bdd_nithvar(i), i);
-	auto masked = spot::build_tgba_mask_acc_ignore(aut, one);
+	auto masked = spot::build_tgba_mask_acc_ignore(aut, n);
 	spot::tgba_save_reachable(std::cout, masked);
       }
   }
@@ -63,7 +61,7 @@ main(int argc, char** argv)
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
-  assert(spot::ltl::atomic_prop::instance_count() != 0);
+  assert(spot::ltl::bunop::instance_count() == 0);
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   return exit_code;
 }

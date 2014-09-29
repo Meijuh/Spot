@@ -23,6 +23,7 @@
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/sccfilter.hh"
+#include "tgbaalgos/dotty.hh"
 
 namespace spot
 {
@@ -55,7 +56,7 @@ namespace spot
   {
     typedef std::list<const state*> state_list;
 
-    // The function that takes aut and dra is first arguments are
+    // The functions that take aut and dra as first arguments are
     // either called on the main automaton, in which case dra->aut ==
     // aut, or it is called on a sub-automaton in which case aut is a
     // masked version of dra->aut.  So we should always explore the
@@ -293,7 +294,7 @@ namespace spot
       tgba_digraph_ptr out_;
       const state_set& final_;
       size_t num_states_;
-      bdd acc_;
+      acc_cond::mark_t acc_;
       const scc_map& sm_;
       const std::vector<bool>& realizable_;
     };

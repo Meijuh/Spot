@@ -54,7 +54,7 @@ namespace spot
     // * scc: (attribute) a stack of strongly connected components (SCC)
 
     // * arc, a stack of acceptance conditions between each of these SCC,
-    std::stack<bdd> arc;
+    std::stack<acc_cond::mark_t> arc;
 
     // * h: a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
@@ -113,7 +113,7 @@ namespace spot
 	  }
 
         scc.push(++num);
-        arc.push(bddfalse);
+        arc.push(0U);
 
         ta_succ_iterator_product* iter = a_->succ_iter(init);
         iter->first();
@@ -194,7 +194,7 @@ namespace spot
             // Fetch the values destination state we are interested in...
             state* dest = succ->current_state();
 
-            bdd acc_cond = succ->current_acceptance_conditions();
+            auto acc_cond = succ->current_acceptance_conditions();
 
             bool curr_is_livelock_hole_state_in_ta_component =
                 (a_->is_hole_state_in_ta_component(curr))
@@ -284,8 +284,8 @@ namespace spot
             scc.top().condition |= acc_cond;
 
             scc.rem().splice(scc.rem().end(), rem);
-            bool is_accepting_sscc = (scc.top().is_accepting)
-                || (scc.top().condition == a_->all_acceptance_conditions());
+            bool is_accepting_sscc = scc.top().is_accepting
+	      || a_->acc().accepting(scc.top().condition);
 
             if (is_accepting_sscc)
               {
@@ -294,25 +294,14 @@ namespace spot
 		  << a_->is_livelock_accepting_state(curr) << '\n';
                 trace
                   << "PASS 1: scc.top().condition : "
-		  << bdd_format_accset(a_->get_dict(), scc.top().condition)
-		  << '\n';
+		  << scc.top().condition << '\n';
                 trace
-                  << "PASS 1: a_->all_acceptance_conditions() : "
-		  << (a_->all_acceptance_conditions()) << '\n';
+                  << "PASS 1: a_->acc().all_sets() : "
+		  << (a_->acc().all_sets()) << '\n';
                 trace
-		  << ("PASS 1 CYCLE and (scc.top().condition == "
-		      "a_->all_acceptance_conditions()) : ")
-		  << (scc.top().condition
-		      == a_->all_acceptance_conditions()) << std::endl;
-
-                trace
-                  << "PASS 1: bddtrue: " << (a_->all_acceptance_conditions()
-					     == bddtrue) << '\n';
-
-                trace
-                  << "PASS 1: bddfalse: " << (a_->all_acceptance_conditions()
-					      == bddfalse) << '\n';
-
+		  << ("PASS 1 CYCLE and accepting? ")
+		  << a_->acc().accepting(scc.top().condition)
+		  << std::endl;
                 clear(h, todo, ta_init_it_);
                 return true;
               }

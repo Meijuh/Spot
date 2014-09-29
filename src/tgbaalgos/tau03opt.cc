@@ -67,24 +67,13 @@ namespace spot
       /// \brief Initialize the search algorithm on the automaton \a a
       tau03_opt_search(const const_tgba_ptr& a, size_t size, option_map o)
         : emptiness_check(a, o),
-          current_weight(a->neg_acceptance_conditions()),
+          current_weight(a->acc()),
           h(size),
-          all_acc(a->all_acceptance_conditions()),
 	  use_condition_stack(o.get("condstack")),
 	  use_ordering(use_condition_stack && o.get("ordering")),
 	  use_weights(o.get("weights", 1)),
 	  use_red_weights(use_weights && o.get("redweights", 1))
       {
-	if (use_ordering)
-	  {
-	    bdd all_conds = all_acc;
-	    while (all_conds != bddfalse)
-	      {
-		bdd acc = bdd_satone(all_conds);
-		cond.push_back(acc);
-		all_conds -= acc;
-	      }
-	  }
       }
 
       virtual ~tau03_opt_search()
@@ -116,7 +105,7 @@ namespace spot
         const state* s0 = a_->get_init_state();
         inc_states();
         h.add_new_state(s0, CYAN, current_weight);
-        push(st_blue, s0, bddfalse, bddfalse);
+        push(st_blue, s0, bddfalse, 0U);
 	auto t = std::static_pointer_cast<tau03_opt_search>
 	  (this->emptiness_check::shared_from_this());
         if (dfs_blue())
@@ -149,7 +138,7 @@ namespace spot
 
     private:
       void push(stack_type& st, const state* s,
-                        const bdd& label, const bdd& acc)
+		const bdd& label, acc_cond::mark_t acc)
       {
         inc_depth();
         tgba_succ_iterator* i = a_->succ_iter(s);
@@ -164,14 +153,16 @@ namespace spot
         st.pop_front();
       }
 
-      bdd project_acc(bdd acc) const
+      acc_cond::mark_t project_acc(acc_cond::mark_t acc) const
       {
-	bdd result = bddfalse;
-	for (std::vector<bdd>::const_iterator i = cond.begin();
-	     i != cond.end() && (acc & *i) != bddfalse;
-	     ++i)
-	  result |= *i;
-	return result;
+	if (!use_ordering)
+	  return acc;
+	// FIXME: This should be improved.
+	std::vector<unsigned> res;
+	unsigned max = a_->acc().num_sets();
+	for (unsigned n = 0; n < max && a_->acc().has(acc, n); ++n)
+	  res.push_back(n);
+	return a_->acc().marks(res.begin(), res.end());
       }
 
       /// \brief weight of the state on top of the blue stack.
@@ -187,9 +178,6 @@ namespace spot
       /// by the last dfs visiting it.
       heap h;
 
-      /// The unique acceptance condition of the automaton \a a.
-      bdd all_acc;
-
       /// Whether to use the "condition stack".
       bool use_condition_stack;
       /// Whether to use an ordering between the acceptance conditions.
@@ -199,9 +187,6 @@ namespace spot
       bool use_weights;
       /// Whether to use weights in the red dfs.
       bool use_red_weights;
-
-      /// Ordering of the acceptance conditions.
-      std::vector<bdd> cond;
 
       bool dfs_blue()
       {
@@ -215,7 +200,7 @@ namespace spot
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
                 bdd label = f.it->current_condition();
-                bdd acc = f.it->current_acceptance_conditions();
+                auto acc = f.it->current_acceptance_conditions();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();
@@ -224,7 +209,7 @@ namespace spot
                   {
                     trace << "  It is white, go down" << std::endl;
 		    if (use_weights)
-		      current_weight += acc;
+		      current_weight.add(a_->acc(), acc);
                     inc_states();
                     h.add_new_state(s_prime, CYAN, current_weight);
                     push(st_blue, s_prime, label, acc);
@@ -234,22 +219,21 @@ namespace spot
                     typename heap::color_ref c = h.get_color_ref(f.s);
                     assert(!c.is_white());
                     if (c_prime.get_color() == CYAN
-			&& all_acc == ((current_weight - c_prime.get_weight())
-				       | c.get_acc()
-				       | acc
-				       | c_prime.get_acc()))
+			&& a_->acc().accepting
+			(current_weight.diff(a_->acc(), c_prime. get_weight())
+			 | c.get_acc() | acc | c_prime.get_acc()))
                       {
                         trace << "  It is cyan and acceptance condition "
                               << "is reached, report cycle" << std::endl;
-                        c_prime.cumulate_acc(all_acc);
+                        c_prime.cumulate_acc(a_->acc().all_sets());
                         push(st_red, s_prime, label, acc);
                         return true;
                       }
                     else
                       {
                         trace << "  It is cyan or blue and";
-                        bdd acu = acc | c.get_acc();
-                        bdd acp = (use_ordering ? project_acc(acu) : acu);
+                        auto acu = acc | c.get_acc();
+                        auto acp = project_acc(acu);
                         if ((c_prime.get_acc() & acp) != acp)
                           {
                             trace << "  a propagation is needed, "
@@ -276,7 +260,7 @@ namespace spot
                 stack_item f_dest(f);
                 pop(st_blue);
 		if (use_weights)
-		  current_weight -= f_dest.acc;
+		  current_weight.sub(a_->acc(), f_dest.acc);
                 typename heap::color_ref c_prime = h.get_color_ref(f_dest.s);
                 assert(!c_prime.is_white());
                 c_prime.set_color(BLUE);
@@ -285,8 +269,8 @@ namespace spot
                     typename heap::color_ref c =
                                           h.get_color_ref(st_blue.front().s);
                     assert(!c.is_white());
-                    bdd acu = f_dest.acc | c.get_acc();
-                    bdd acp = (use_ordering ? project_acc(acu) : acu);
+                    auto acu = f_dest.acc | c.get_acc();
+                    auto acp = project_acc(acu);
                     if ((c_prime.get_acc() & acp) != acp)
                       {
                         trace << "  The arc from "
@@ -315,15 +299,15 @@ namespace spot
       }
 
       bool
-      dfs_red(bdd acu)
+      dfs_red(acc_cond::mark_t acu)
       {
         assert(!st_red.empty());
 
 	// These are useful only when USE_CONDITION_STACK is set.
-	typedef std::pair<bdd, unsigned> cond_level;
+	typedef std::pair<acc_cond::mark_t, unsigned> cond_level;
 	std::stack<cond_level> condition_stack;
 	unsigned depth = 1;
-	condition_stack.emplace(bddfalse, 0);
+	condition_stack.emplace(0U, 0);
 
         while (!st_red.empty())
           {
@@ -335,7 +319,7 @@ namespace spot
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
                 bdd label = f.it->current_condition();
-                bdd acc = f.it->current_acceptance_conditions();
+                auto acc = f.it->current_acceptance_conditions();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();
@@ -347,22 +331,23 @@ namespace spot
                     continue;
                   }
 		else if (c_prime.get_color() == CYAN &&
-			 (all_acc == ((use_red_weights ?
-				       (current_weight - c_prime.get_weight())
-				       : bdd_false())
-				      | c_prime.get_acc()
-				      | acc
-				      | acu)))
+			 a_->acc().accepting
+			 (acc | acu | c_prime.get_acc() |
+			  (use_red_weights ?
+			   current_weight.diff(a_->acc(),
+					       c_prime.
+					       get_weight())
+			   : acc_cond::mark_t(0U))))
 		  {
 		    trace << "  It is cyan and acceptance condition "
 			  << "is reached, report cycle" << std::endl;
-		    c_prime.cumulate_acc(all_acc);
+		    c_prime.cumulate_acc(a_->acc().all_sets());
 		    push(st_red, s_prime, label, acc);
 		    return true;
 		  }
-		bdd acp;
+		acc_cond::mark_t acp;
 		if (use_ordering)
-		  acp = project_acc(c_prime.get_acc() | acu | acc);
+		  acp = project_acc(acu | acc | c_prime.get_acc());
 		else if (use_condition_stack)
 		  acp = acu | acc;
 		else
@@ -376,7 +361,7 @@ namespace spot
 		    push(st_red, s_prime, label, acc);
 		    if (use_condition_stack)
 		      {
-			bdd old = acu;
+			auto old = acu;
 			acu |= acc;
 			condition_stack.emplace(acu - old, depth);
 		      }
@@ -412,20 +397,22 @@ namespace spot
 
     class explicit_tau03_opt_search_heap
     {
-      typedef std::unordered_map<const state*, std::pair<weight, bdd>,
+      typedef std::unordered_map<const state*, std::pair<weight,
+							 acc_cond::mark_t>,
 				 state_ptr_hash, state_ptr_equal> hcyan_type;
-      typedef std::unordered_map<const state*, std::pair<color, bdd>,
+      typedef std::unordered_map<const state*, std::pair<color,
+							 acc_cond::mark_t>,
 				 state_ptr_hash, state_ptr_equal> hash_type;
     public:
       class color_ref
       {
       public:
         color_ref(hash_type* h, hcyan_type* hc, const state* s,
-            const weight* w, bdd* a)
+		  const weight* w, acc_cond::mark_t* a)
           : is_cyan(true), w(w), ph(h), phc(hc), ps(s), acc(a)
           {
           }
-        color_ref(color* c, bdd* a)
+        color_ref(color* c, acc_cond::mark_t* a)
           : is_cyan(false), pc(c), acc(a)
           {
           }
@@ -459,12 +446,12 @@ namespace spot
                 *pc=c;
               }
           }
-        const bdd& get_acc() const
+	acc_cond::mark_t get_acc() const
           {
             assert(!is_white());
             return *acc;
           }
-        void cumulate_acc(const bdd& a)
+        void cumulate_acc(acc_cond::mark_t a)
           {
             assert(!is_white());
             *acc |= a;
@@ -480,8 +467,8 @@ namespace spot
         hcyan_type* phc; // point to the hash table hcyan
         const state* ps; // point to the state in hcyan
         color *pc; // point to the color of a state stored in main hash table
-        bdd* acc; // point to the acc set of a state stored in main hash table
-                  // or hcyan
+	acc_cond::mark_t* acc; // point to the acc set of a state stored
+				// in main hash table  or hcyan
       };
 
       explicit_tau03_opt_search_heap(size_t)
@@ -540,7 +527,7 @@ namespace spot
           (void)c;
           hc.emplace(std::piecewise_construct,
 		     std::forward_as_tuple(s),
-		     std::forward_as_tuple(w, bddfalse));
+		     std::forward_as_tuple(w, 0U));
         }
 
       void pop_notify(const state*) const

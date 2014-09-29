@@ -26,8 +26,8 @@ namespace spot
   {
     unsigned n = aut->num_states();
     unsigned sink = -1U;
-    bdd allacc = aut->all_acceptance_conditions();
-    if (allacc == bddfalse)
+    acc_cond::mark_t allacc = aut->acc().all_sets();
+    if (allacc == 0U)
       {
 	// We cannot safely complete an automaton if it has no
 	// acceptance set as the added sink would become accepting.
@@ -44,7 +44,7 @@ namespace spot
 	for (unsigned i = 0; i < n; ++i)
 	  {
 	    bool selfloop = true;
-	    bdd accsum = bddfalse;
+	    acc_cond::mark_t accsum = 0U;
 	    for (auto& t: aut->out(i))
 	      {
 		if (t.dst != i)	// Not a self-loop
@@ -66,7 +66,7 @@ namespace spot
     for (unsigned i = 0; i < n; ++i)
       {
 	bdd missingcond = bddtrue;
-	bdd acc = bddfalse;
+	acc_cond::mark_t acc = 0U;
 	for (auto& t: aut->out(i))
 	  {
 	    missingcond -= t.cond;

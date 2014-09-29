@@ -132,7 +132,7 @@ main(int argc, char** argv)
 	    {
 	      auto a = aut[j];
 	      std::cout << "** Testing aut[" << j << "] using " << algo << '\n';
-	      unsigned n_acc = a->number_of_acceptance_conditions();
+	      unsigned n_acc = a->acc().num_sets();
 	      unsigned n_max = i->max_acceptance_conditions();
 	      if (n_max < n_acc)
 		{

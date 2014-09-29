@@ -30,10 +30,10 @@ namespace spot
 {
 
   tgta_explicit::tgta_explicit(const const_tgba_ptr& tgba,
-			       bdd all_acceptance_conditions,
+			       unsigned n_acc,
 			       state_ta_explicit* artificial_initial_state) :
-    ta_(make_ta_explicit(tgba, all_acceptance_conditions,
-			 artificial_initial_state))
+    tgta(tgba->get_dict()),
+    ta_(make_ta_explicit(tgba, n_acc, artificial_initial_state))
   {
   }
 
@@ -61,18 +61,6 @@ namespace spot
   tgta_explicit::get_dict() const
   {
     return ta_->get_dict();
-  }
-
-  bdd
-  tgta_explicit::all_acceptance_conditions() const
-  {
-    return ta_->all_acceptance_conditions();
-  }
-
-  bdd
-  tgta_explicit::neg_acceptance_conditions() const
-  {
-    return ta_->get_tgba()->neg_acceptance_conditions();
   }
 
   std::string

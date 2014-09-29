@@ -86,7 +86,7 @@ namespace spot
   {
     if (scc_map_[n].trivial)
       return false;
-    return acc_set_of(n) == aut_->all_acceptance_conditions();
+    return aut_->acc().accepting(acc_set_of(n));
   }
 
   const_tgba_ptr
@@ -139,8 +139,6 @@ namespace spot
   void
   scc_map::build_map()
   {
-    acceptance_convertor conv(aut_->neg_acceptance_conditions());
-
     // Setup depth-first search from the initial state.
     {
       self_loops_ = 0;
@@ -148,7 +146,7 @@ namespace spot
       num_ = -1;
       h_.emplace(init, num_);
       root_.emplace_front(num_);
-      arc_acc_.push(bddfalse);
+      arc_acc_.push(0U);
       arc_cond_.push(bddfalse);
       tgba_succ_iterator* iter = aut_->succ_iter(init);
       iter->first();
@@ -209,7 +207,7 @@ namespace spot
 	const state* dest = succ->current_state();
 	if (!dest->compare(todo_.top().first))
 	  ++self_loops_;
-	bdd acc = succ->current_acceptance_conditions();
+	auto acc = succ->current_acceptance_conditions();
 	bdd cond = succ->current_condition();
 	root_.front().supp &= bdd_support(cond);
 	// ... and point the iterator to the next successor, for
@@ -268,17 +266,18 @@ namespace spot
 	cond_set conds;
 	conds.insert(cond);
 	bdd supp = bddtrue;
-	bdd all = aut_->all_acceptance_conditions();
-	bdd useful = conv.as_full_product(acc);
+	std::set<acc_cond::mark_t> used_acc = { acc };
 	while (threshold > root_.front().index)
 	  {
 	    assert(!root_.empty());
 	    assert(!arc_acc_.empty());
 	    assert(arc_acc_.size() == arc_cond_.size());
 	    acc |= root_.front().acc;
-	    bdd lacc = arc_acc_.top();
+	    auto lacc = arc_acc_.top();
 	    acc |= lacc;
-	    useful |= conv.as_full_product(lacc) | root_.front().useful_acc;
+	    used_acc.insert(lacc);
+	    used_acc.insert(root_.front().useful_acc.begin(),
+			    root_.front().useful_acc.end());
 	    states.splice(states.end(), root_.front().states);
 	    succs.insert(root_.front().succ.begin(),
 			 root_.front().succ.end());
@@ -305,7 +304,8 @@ namespace spot
 	root_.front().supp &= supp;
 	// This SCC is no longer trivial.
 	root_.front().trivial = false;
-	root_.front().useful_acc |= useful;
+	assert(!used_acc.empty());
+	root_.front().useful_acc.insert(used_acc.begin(), used_acc.end());
       }
 
     // recursively update supp_rec
@@ -339,7 +339,7 @@ namespace spot
   }
 
 
-  bdd scc_map::acc_set_of(unsigned n) const
+  acc_cond::mark_t scc_map::acc_set_of(unsigned n) const
   {
     assert(scc_map_.size() > n);
     return scc_map_[n].acc;
@@ -367,7 +367,7 @@ namespace spot
     return scc_map_.size();
   }
 
-  bdd
+  const std::set<acc_cond::mark_t>&
   scc_map::useful_acc_of(unsigned n) const
   {
     assert(scc_map_.size() > n);
@@ -449,12 +449,14 @@ namespace spot
     res.dead_paths = d.dead_paths[init];
 
     res.useless_scc_map.reserve(res.scc_total);
-    res.useful_acc = bddfalse;
     for (unsigned n = 0; n < res.scc_total; ++n)
       {
 	res.useless_scc_map[n] = !d.acc_paths[n];
 	if (m.accepting(n))
-	  res.useful_acc |= m.useful_acc_of(n);
+	  {
+	    auto& c = m.useful_acc_of(n);
+	    res.useful_acc.insert(c.begin(), c.end());
+	  }
       }
     return res;
   }
@@ -495,8 +497,7 @@ namespace spot
 	    if (n > 1)
 	      ostr << 's';
 	    ostr << ")\\naccs=";
-	    escape_str(ostr, bdd_format_accset(m.get_aut()->get_dict(),
-					       m.acc_set_of(state)));
+	    escape_str(ostr, m.get_aut()->acc().format(m.acc_set_of(state)));
 	    ostr << "\\nconds=[";
 	    for (scc_map::cond_set::const_iterator i = cs.begin();
 		 i != cs.end(); ++i)
@@ -514,8 +515,9 @@ namespace spot
 	    escape_str(ostr, bdd_format_sat(m.get_aut()->get_dict(),
 					    m.aprec_set_of(state)));
 	    ostr << "]\\n useful=[";
-	    escape_str(ostr, bdd_format_accset(m.get_aut()->get_dict(),
-					       m.useful_acc_of(state))) << ']';
+	    for (auto a: m.useful_acc_of(state))
+	      m.get_aut()->acc().format(a);
+	    ostr << ']';
 	  }
 
 	out << "  " << state << " [shape=box,"

@@ -76,8 +76,6 @@ namespace spot
 
     todo.push_back(seen(aut->get_init_state()));
 
-    bdd all_acc = aut->all_acceptance_conditions();
-
     bool all_accepting = true;
     while (all_accepting && !todo.empty())
       {
@@ -86,8 +84,8 @@ namespace spot
 
 	for (auto it: aut->succ(s))
 	  {
-	    bdd acc = it->current_acceptance_conditions();
-	    if (acc != all_acc)
+	    auto acc = it->current_acceptance_conditions();
+	    if (!aut->acc().accepting(acc))
 	      {
 		all_accepting = false;
 		break;

@@ -40,7 +40,7 @@ namespace spot
       cycle_found(const state* start)
       {
 	dfs_stack::const_reverse_iterator i = dfs_.rbegin();
-	bdd acc = bddfalse;
+	acc_cond::mark_t acc = 0U;
 	for (;;)
 	  {
 	    acc |= i->succ->current_acceptance_conditions();
@@ -51,7 +51,7 @@ namespace spot
 	    // At least version 4.0 needs it.
 	    assert(i != const_cast<const dfs_stack&>(dfs_).rend());
 	  }
-	if (acc != aut_->all_acceptance_conditions())
+	if (!aut_->acc().accepting(acc))
 	  {
 	    // We have found an non-accepting cycle, so the SCC is not
 	    // weak.
@@ -83,9 +83,8 @@ namespace spot
     // If no cycle is accepting, the SCC is weak.
     if (!map.accepting(scc))
       return true;
-    // If all transitions use all acceptance conditions, the SCC is weak.
-    return (map.useful_acc_of(scc)
-	    == bdd_support(map.get_aut()->neg_acceptance_conditions()));
+    // If all transitions use the same acceptance set, the SCC is weak.
+    return map.useful_acc_of(scc).size() == 1;
   }
 
   bool
@@ -128,8 +127,8 @@ namespace spot
   is_terminal_scc(scc_map& map, unsigned scc)
   {
     // If all transitions use all acceptance conditions, the SCC is weak.
-    return ((map.useful_acc_of(scc) ==
-	     bdd_support(map.get_aut()->neg_acceptance_conditions()))
+    return (map.accepting(scc)
+	    && map.useful_acc_of(scc).size() == 1
 	    && is_complete_scc(map, scc));
   }
 }

@@ -22,9 +22,10 @@
 namespace spot
 {
   tgba_proxy::tgba_proxy(const const_tgba_ptr& original)
-    : original_(original)
+    : tgba(original->get_dict()), original_(original)
   {
     get_dict()->register_all_variables_of(original, this);
+    acc_.add_sets(original->acc().num_sets());
   }
 
   tgba_proxy::~tgba_proxy()
@@ -48,12 +49,6 @@ namespace spot
     return original_->succ_iter(state);
   }
 
-  bdd_dict_ptr
-  tgba_proxy::get_dict() const
-  {
-    return original_->get_dict();
-  }
-
   std::string
   tgba_proxy::format_state(const state* state) const
   {
@@ -70,18 +65,6 @@ namespace spot
   tgba_proxy::project_state(const state* s, const const_tgba_ptr& t) const
   {
     return original_->project_state(s, t);
-  }
-
-  bdd
-  tgba_proxy::all_acceptance_conditions() const
-  {
-    return original_->all_acceptance_conditions();
-  }
-
-  bdd
-  tgba_proxy::neg_acceptance_conditions() const
-  {
-    return original_->neg_acceptance_conditions();
   }
 
   bdd

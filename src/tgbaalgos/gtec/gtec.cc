@@ -136,7 +136,7 @@ namespace spot
     // * couvreur99_check::h, a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
     // * arc, a stack of acceptance conditions between each of these SCC,
-    std::stack<bdd> arc;
+    std::stack<acc_cond::mark_t> arc;
     // * num, the number of visited nodes.  Used to set the order of each
     //   visited node,
     int num = 1;
@@ -152,7 +152,7 @@ namespace spot
       state* init = ecs_->aut->get_init_state();
       ecs_->h[init] = 1;
       ecs_->root.push(1);
-      arc.push(bddfalse);
+      arc.push(0U);
       tgba_succ_iterator* iter = ecs_->aut->succ_iter(init);
       iter->first();
       todo.emplace(init, iter);
@@ -207,7 +207,7 @@ namespace spot
 	// Fetch the values (destination state, acceptance conditions
 	// of the arc) we are interested in...
 	const state* dest = succ->current_state();
-	bdd acc = succ->current_acceptance_conditions();
+	acc_cond::mark_t acc = succ->current_acceptance_conditions();
 	// ... and point the iterator to the next successor, for
 	// the next iteration.
 	succ->next();
@@ -265,8 +265,7 @@ namespace spot
 	ecs_->root.top().condition |= acc;
 	ecs_->root.rem().splice(ecs_->root.rem().end(), rem);
 
-	if (ecs_->root.top().condition
-	    == ecs_->aut->all_acceptance_conditions())
+	if (ecs_->aut->acc().accepting(ecs_->root.top().condition))
 	  {
 	    // We have found an accepting SCC.
 	    // Release all iterators in TODO.
@@ -521,7 +520,7 @@ namespace spot
 	// (called the "threshold").
 	int threshold = i->second;
 	std::list<const state*> rem;
-	bdd acc = succ.acc;
+	acc_cond::mark_t acc = succ.acc;
 	while (threshold < ecs_->root.top().index)
 	  {
 	    assert(!ecs_->root.empty());
@@ -543,8 +542,7 @@ namespace spot
 	ecs_->root.rem().splice(ecs_->root.rem().end(), rem);
 
 	// Have we found all acceptance conditions?
-	if (ecs_->root.top().condition
-	    == ecs_->aut->all_acceptance_conditions())
+	if (ecs_->aut->acc().accepting(ecs_->root.top().condition))
 	  {
 	    // Use this state to start the computation of an accepting
 	    // cycle.

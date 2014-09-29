@@ -43,8 +43,9 @@ namespace spot
       void
       start()
       {
-	os_ << "acc =";
-	print_acc(aut_->all_acceptance_conditions()) << ";\n";
+	os_ << "acc = ";
+	aut_->acc().format_quoted(os_, aut_->acc().all_sets())
+	  << ";\n";
       }
 
       void
@@ -61,7 +62,10 @@ namespace spot
 	      os_ << "\", \"";
 	      escape_str(os_, bdd_format_formula(d, si->current_condition()));
 	      os_ << "\",";
-	      print_acc(si->current_acceptance_conditions()) << ";\n";
+	      if (si->current_acceptance_conditions())
+		aut_->acc().format_quoted(os_ << ' ',
+					  si->current_acceptance_conditions());
+	      os_ << ";\n";
 	      dest->destroy();
 	    }
 	  while (si->next());
@@ -69,28 +73,6 @@ namespace spot
 
     private:
       std::ostream& os_;
-
-      std::ostream&
-      print_acc(bdd acc)
-      {
-	const bdd_dict_ptr d = aut_->get_dict();
-	while (acc != bddfalse)
-	  {
-	    bdd cube = bdd_satone(acc);
-	    acc -= cube;
-	    const ltl::formula* f = d->oneacc_to_formula(cube);
-	    std::string s = ltl::to_string(f);
-	    if (is_atomic_prop(f) && s[0] == '"')
-	      {
-		// Unquote atomic propositions.
-		s.erase(s.begin());
-		s.resize(s.size() - 1);
-	      }
-	    os_ << " \"";
-	    escape_str(os_, s) << '"';
-	  }
-	return os_;
-      }
     };
   }
 

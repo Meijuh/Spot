@@ -35,10 +35,6 @@ namespace spot
   class tgba_product;
   typedef std::shared_ptr<const tgba_product> const_tgba_product_ptr;
   typedef std::shared_ptr<tgba_product> tgba_product_ptr;
-
-  class tgba_sgba_proxy;
-  typedef std::shared_ptr<const tgba_sgba_proxy> const_tgba_sgba_proxy_ptr;
-  typedef std::shared_ptr<tgba_sgba_proxy> tgba_sgba_proxy_ptr;
 }
 
 #endif // SPOT_TGBA_FWD_HH

@@ -57,10 +57,9 @@ namespace spot
       se05_search(const const_tgba_ptr a, size_t size,
 		  option_map o = option_map())
         : emptiness_check(a, o),
-          h(size),
-          all_cond(a->all_acceptance_conditions())
+          h(size)
       {
-        assert(a->number_of_acceptance_conditions() <= 1);
+        assert(a->acc().num_sets() <= 1);
       }
 
       virtual ~se05_search()
@@ -98,7 +97,7 @@ namespace spot
             const state* s0 = a_->get_init_state();
             inc_states();
             h.add_new_state(s0, CYAN);
-            push(st_blue, s0, bddfalse, bddfalse);
+            push(st_blue, s0, bddfalse, 0U);
             if (dfs_blue())
               return std::make_shared<se05_result>(t, options());
           }
@@ -151,7 +150,7 @@ namespace spot
     private:
 
       void push(stack_type& st, const state* s,
-		const bdd& label, const bdd& acc)
+		const bdd& label, acc_cond::mark_t acc)
       {
         inc_depth();
         tgba_succ_iterator* i = a_->succ_iter(s);
@@ -176,9 +175,6 @@ namespace spot
       /// by the last dfs visiting it.
       heap h;
 
-      /// The unique acceptance condition of the automaton \a a.
-      bdd all_cond;
-
       bool dfs_blue()
       {
         while (!st_blue.empty())
@@ -191,7 +187,7 @@ namespace spot
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
                 bdd label = f.it->current_condition();
-                bdd acc = f.it->current_acceptance_conditions();
+                auto acc = f.it->current_acceptance_conditions();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();
@@ -203,8 +199,9 @@ namespace spot
                     h.add_new_state(s_prime, CYAN);
                     push(st_blue, s_prime, label, acc);
                   }
-                else if (c.get_color() == CYAN && (acc == all_cond ||
-                             (f.s->compare(s_prime) != 0 && f.acc == all_cond)))
+                else if (c.get_color() == CYAN && (a_->acc().accepting(acc) ||
+                             (f.s->compare(s_prime) != 0
+			      && a_->acc().accepting(f.acc))))
                   {
                     trace << "  It is cyan and acceptance condition "
                           << "is reached, report cycle" << std::endl;
@@ -212,7 +209,7 @@ namespace spot
                     push(st_red, s_prime, label, acc);
                     return true;
                   }
-                else if (acc == all_cond && c.get_color() != RED)
+                else if (a_->acc().accepting(acc) && c.get_color() != RED)
                   {
                     // the test 'c.get_color() != RED' is added to limit
                     // the number of runs reported by successive
@@ -241,7 +238,7 @@ namespace spot
                 typename heap::color_ref c = h.get_color_ref(f_dest.s);
                 assert(!c.is_white());
                 if (!st_blue.empty() &&
-                          f_dest.acc == all_cond && c.get_color() != RED)
+		    a_->acc().accepting(f_dest.acc) && c.get_color() != RED)
                   {
                     // the test 'c.get_color() != RED' is added to limit
                     // the number of runs reported by successive
@@ -281,7 +278,7 @@ namespace spot
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
                 bdd label = f.it->current_condition();
-                bdd acc = f.it->current_acceptance_conditions();
+                auto acc = f.it->current_acceptance_conditions();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();

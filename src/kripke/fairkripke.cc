@@ -22,8 +22,8 @@
 namespace spot
 {
 
-  fair_kripke_succ_iterator::fair_kripke_succ_iterator(const bdd& cond,
-						       const bdd& acc_cond)
+  fair_kripke_succ_iterator::fair_kripke_succ_iterator
+  (const bdd& cond, acc_cond::mark_t acc_cond)
     : cond_(cond), acc_cond_(acc_cond)
   {
   }
@@ -40,7 +40,7 @@ namespace spot
     return cond_;
   }
 
-  bdd
+  acc_cond::mark_t
   fair_kripke_succ_iterator::current_acceptance_conditions() const
   {
     // Do not assert(!done()) here.  It is OK to call

@@ -76,8 +76,15 @@ namespace spot
 
   class SPOT_API ta
   {
+  protected:
+    acc_cond acc_;
 
   public:
+    ta(const bdd_dict_ptr& d)
+      : acc_(d)
+    {
+    }
+
     virtual
     ~ta()
     {
@@ -128,8 +135,11 @@ namespace spot
     /// This is useful when dealing with several automata (which
     /// may use the same BDD variable for different formula),
     /// or simply when printing.
-    virtual bdd_dict_ptr
-    get_dict() const = 0;
+    bdd_dict_ptr
+    get_dict() const
+    {
+      return acc_.get_dict();
+    }
 
     /// \brief Format the state as a string for printing.
     ///
@@ -160,17 +170,16 @@ namespace spot
     virtual void
     free_state(const spot::state* s) const = 0;
 
-    /// \brief Return the set of all acceptance conditions used
-    /// by this automaton
-    /// (for Generalized form: Transition-based Generalized Testing Automata).
-    ///
-    /// The goal of the emptiness check is to ensure that
-    /// a strongly connected component walks through each
-    /// of these acceptiong conditions.  I.e., the union
-    /// of the acceptiong conditions of all transition in
-    /// the SCC should be equal to the result of this function.
-    virtual bdd
-    all_acceptance_conditions() const = 0;
+
+    const acc_cond& acc() const
+    {
+      return acc_;
+    }
+
+    acc_cond& acc()
+    {
+      return acc_;
+    }
 
   };
 
@@ -206,7 +215,7 @@ namespace spot
     virtual bdd
     current_condition() const = 0;
 
-    bdd
+    acc_cond::mark_t
     current_acceptance_conditions() const = 0;
 
   };
@@ -228,7 +237,7 @@ namespace spot
 
       /// The bdd condition is the union of all acceptance conditions of
       /// transitions which connect the states of the connected component.
-      bdd condition;
+      acc_cond::mark_t condition;
 
       std::list<state*> rem;
     };

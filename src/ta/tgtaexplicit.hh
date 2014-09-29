@@ -39,7 +39,7 @@ namespace spot
   {
   public:
     tgta_explicit(const const_tgba_ptr& tgba,
-		  bdd all_acceptance_conditions,
+		  unsigned n_acc,
 		  state_ta_explicit* artificial_initial_state);
 
     // tgba interface
@@ -53,9 +53,6 @@ namespace spot
 
     const_ta_explicit_ptr get_ta() const { return ta_; }
     ta_explicit_ptr get_ta() { return ta_; }
-
-    virtual bdd all_acceptance_conditions() const;
-    virtual bdd neg_acceptance_conditions() const;
 
     virtual std::string format_state(const spot::state* s) const;
 
@@ -71,12 +68,11 @@ namespace spot
   typedef std::shared_ptr<const tgta_explicit> const_tgta_explicit_ptr;
 
   inline tgta_explicit_ptr make_tgta_explicit(const const_tgba_ptr& tgba,
-					      bdd all_acceptance_conditions,
+					      unsigned n_acc,
 					      state_ta_explicit*
 					      artificial_initial_state = 0)
   {
-    return std::make_shared<tgta_explicit>(tgba,
-					   all_acceptance_conditions,
+    return std::make_shared<tgta_explicit>(tgba, n_acc,
 					   artificial_initial_state);
   }
 }

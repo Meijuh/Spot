@@ -84,8 +84,9 @@ namespace spot
     public:
       tgba_succ_iterator_product_common(tgba_succ_iterator* left,
 					tgba_succ_iterator* right,
+					const tgba_product* prod,
 					fixed_size_pool* pool)
-	: left_(left), right_(right), pool_(pool)
+	: left_(left), right_(right), prod_(prod), pool_(pool)
       {
       }
 
@@ -139,6 +140,7 @@ namespace spot
     protected:
       tgba_succ_iterator* left_;
       tgba_succ_iterator* right_;
+      const tgba_product* prod_;
       fixed_size_pool* pool_;
       friend class spot::tgba_product;
     };
@@ -150,13 +152,9 @@ namespace spot
     public:
       tgba_succ_iterator_product(tgba_succ_iterator* left,
 				 tgba_succ_iterator* right,
-				 bdd left_neg, bdd right_neg,
-				 bddPair* right_common_acc,
+				 const tgba_product* prod,
 				 fixed_size_pool* pool)
-	: tgba_succ_iterator_product_common(left, right, pool),
-	  left_neg_(left_neg),
-	  right_neg_(right_neg),
-	  right_common_acc_(right_common_acc)
+	: tgba_succ_iterator_product_common(left, right, prod, pool)
       {
       }
 
@@ -203,18 +201,17 @@ namespace spot
 	return current_cond_;
       }
 
-      bdd current_acceptance_conditions() const
+      acc_cond::mark_t current_acceptance_conditions() const
       {
-	return ((left_->current_acceptance_conditions() & right_neg_)
-		| (bdd_replace(right_->current_acceptance_conditions(),
-			       right_common_acc_) & left_neg_));
-      }
+	return
+	  prod_->acc().join(prod_->left_acc(),
+			    left_->current_acceptance_conditions(),
+			    prod_->right_acc(),
+			    right_->current_acceptance_conditions());
+       }
 
     protected:
       bdd current_cond_;
-      bdd left_neg_;
-      bdd right_neg_;
-      bddPair* right_common_acc_;
     };
 
     /// Iterate over the successors of a product computed on the fly.
@@ -225,8 +222,9 @@ namespace spot
     public:
       tgba_succ_iterator_product_kripke(tgba_succ_iterator* left,
 					tgba_succ_iterator* right,
+					const tgba_product* prod,
 					fixed_size_pool* pool)
-	: tgba_succ_iterator_product_common(left, right, pool)
+	: tgba_succ_iterator_product_common(left, right, prod, pool)
       {
       }
 
@@ -270,7 +268,7 @@ namespace spot
 	return current_cond_;
       }
 
-      bdd current_acceptance_conditions() const
+      acc_cond::mark_t current_acceptance_conditions() const
       {
 	return right_->current_acceptance_conditions();
       }
@@ -286,10 +284,10 @@ namespace spot
 
   tgba_product::tgba_product(const const_tgba_ptr& left,
 			     const const_tgba_ptr& right)
-    : dict_(left->get_dict()), left_(left), right_(right),
+    : tgba(left->get_dict()), left_(left), right_(right),
       pool_(sizeof(state_product))
   {
-    assert(dict_ == right_->get_dict());
+    assert(get_dict() == right_->get_dict());
 
     // If one of the side is a Kripke structure, it is easier to deal
     // with (we don't have to fix the acceptance conditions, and
@@ -308,55 +306,17 @@ namespace spot
 	left_kripke_ = false;
       }
 
-    dict_->register_all_variables_of(&left_, this);
-    dict_->register_all_variables_of(&right_, this);
+    auto d = get_dict();
+    d->register_all_propositions_of(&left_, this);
+    d->register_all_propositions_of(&right_, this);
 
-    if (left_kripke_)
-      {
-	all_acceptance_conditions_ = right_->all_acceptance_conditions();
-	neg_acceptance_conditions_ = right_->neg_acceptance_conditions();
-	return;
-      }
-
-    bdd lna = left_->neg_acceptance_conditions();
-    bdd rna = right_->neg_acceptance_conditions();
-
-    right_common_acc_ = bdd_newpair();
-
-    bdd tmp = lna;
-    while (tmp != bddtrue)
-      {
-	assert(bdd_high(tmp) == bddfalse);
-	int var = bdd_var(tmp);
-	if (bdd_implies(rna, bdd_nithvar(var)))
-	  {
-	    int varclone = dict_->register_clone_acc(var, this);
-	    bdd_setpair(right_common_acc_, var, varclone);
-	  }
-	tmp = bdd_low(tmp);
-      }
-
-    bdd lac = left_->all_acceptance_conditions();
-    bdd rac = right_->all_acceptance_conditions();
-
-    rna = bdd_replace(rna, right_common_acc_);
-    rac = bdd_replace(rac, right_common_acc_);
-
-    left_acc_complement_ = lna;
-    assert(bdd_exist(lna, rna) == lna);
-    right_acc_complement_ = rna;
-    assert(bdd_exist(rna, lna) == rna);
-
-    all_acceptance_conditions_ = ((lac & right_acc_complement_)
-				  | (rac & left_acc_complement_));
-    neg_acceptance_conditions_ = lna & rna;
+    assert(acc_.num_sets() == 0);
+    acc_.add_sets(left->acc().num_sets() + right->acc().num_sets());
   }
 
   tgba_product::~tgba_product()
   {
-    if (!left_kripke_)
-      bdd_freepair(right_common_acc_);
-    dict_->unregister_all_my_variables(this);
+    get_dict()->unregister_all_my_variables(this);
     // Prevent these states from being destroyed by ~tgba(): they
     // will be destroyed before when the pool is destructed.
     if (last_support_conditions_input_)
@@ -393,13 +353,9 @@ namespace spot
 
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);
     if (left_kripke_)
-      return new tgba_succ_iterator_product_kripke(li, ri, p);
+      return new tgba_succ_iterator_product_kripke(li, ri, this, p);
     else
-      return new tgba_succ_iterator_product(li, ri,
-					    left_acc_complement_,
-					    right_acc_complement_,
-					    right_common_acc_,
-					    p);
+      return new tgba_succ_iterator_product(li, ri, this, p);
   }
 
   bdd
@@ -412,10 +368,14 @@ namespace spot
     return lsc & rsc;
   }
 
-  bdd_dict_ptr
-  tgba_product::get_dict() const
+  const acc_cond& tgba_product::left_acc() const
   {
-    return dict_;
+    return left_->acc();
+  }
+
+  const acc_cond& tgba_product::right_acc() const
+  {
+    return right_->acc();
   }
 
   std::string
@@ -439,18 +399,6 @@ namespace spot
     if (res)
       return res;
     return right_->project_state(s2->right(), t);
-  }
-
-  bdd
-  tgba_product::all_acceptance_conditions() const
-  {
-    return all_acceptance_conditions_;
-  }
-
-  bdd
-  tgba_product::neg_acceptance_conditions() const
-  {
-    return neg_acceptance_conditions_;
   }
 
   std::string

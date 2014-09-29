@@ -225,35 +225,11 @@ namespace spot
       dict->register_all_variables_of(right, res);
       dict->unregister_variable(bdd_var(v), res);
 
-      // The left and right automata might have acceptance marker in
-      // common.
-      // For the example, assume left has acceptance conditions A,B,C,D
-      // while right has acceptance condition C,D,E,F.
+      const acc_cond& la = left->acc();
+      const acc_cond& ra = right->acc();
+      res->set_acceptance_conditions(la.num_sets() + ra.num_sets());
 
-      // Negative acceptance variables...
-      // !A&!B&!C&!D
-      bdd lna = left->neg_acceptance_conditions();
-      // !C&!D&!E&!F
-      bdd rna = right->neg_acceptance_conditions();
-
-      // Missing acceptance variables...
-      // !E&!F
-      bdd lma = bdd_exist(rna, bdd_support(lna));
-      // !A&!B
-      bdd rma = bdd_exist(lna, bdd_support(rna));
-
-      // (A&!B&!C&!D + ... + !A&!B&!C&D) & !E&!F
-      bdd lac = left->all_acceptance_conditions() & lma;
-      // (C&!D&!E&!F + ... + !C&!D&!E&F) & !A&!B
-      bdd rac = right->all_acceptance_conditions() & rma;
-      bdd allacc = lac | rac;
-      res->set_acceptance_conditions(allacc);
-
-      // Acceptance condition to add to all transitions
-      // of the left automaton.
-      // !A&!B&!C&!D&E&!F | !A&!B&!C&!D&!E&F
-      bdd ladd = rac - lma;
-      bdd radd = lac - rma;
+      acc_cond::mark_t radd = ra.all_sets();
 
       pair_map seen;
       pair_queue todo;
@@ -300,7 +276,7 @@ namespace spot
 	      while (!ri || !ri->done())
 		{
 		  bdd cond = lc;
-		  bdd ra = allacc;
+		  acc_cond::mark_t racc = radd;
 		  if (ri)
 		    {
 		      cond = lc & ri->current_condition();
@@ -311,7 +287,7 @@ namespace spot
 			  continue;
 			}
 		      d.second = ri->current_state();
-		      ra = (ri->current_acceptance_conditions() & rma) | radd;
+		      racc = ri->current_acceptance_conditions();
 		    }
 
 		  int dest;
@@ -327,8 +303,10 @@ namespace spot
 		      todo.push_back(d);
 		    }
 
-		  bdd la = (li->current_acceptance_conditions() & lma) | ladd;
-		  res->new_transition(src, dest, bdd_exist(cond, v), ra & la);
+		  acc_cond::mark_t a =
+		    res->acc().join(la, li->current_acceptance_conditions(),
+				    ra, racc);
+		  res->new_transition(src, dest, bdd_exist(cond, v), a);
 
 		  if (ri)
 		    ri->next();

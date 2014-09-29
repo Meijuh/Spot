@@ -142,7 +142,7 @@ namespace spot
     if (type_ == BA)
       state_based_ = true;
 
-    int original_acc = a->number_of_acceptance_conditions();
+    int original_acc = a->acc().num_sets();
 
     // Remove useless SCCs.
     if (type_ == Monitor)
@@ -237,7 +237,7 @@ namespace spot
 	if (PREF_ == Deterministic
 	    && f
 	    && f->is_syntactic_recurrence()
-	    && sim->number_of_acceptance_conditions() > 1)
+	    && sim->acc().num_sets() > 1)
 	  tmpd = degeneralize_tba(sim);
 
 	auto in = tmpd ? tmpd : sim;
@@ -306,7 +306,7 @@ namespace spot
 	    // because the input TBA might be smaller.
 	    if (state_based_)
 	      in = degeneralize(dba);
-	    else if (dba->number_of_acceptance_conditions() != 1)
+	    else if (dba->acc().num_sets() != 1)
 	      in = degeneralize_tba(dba);
 	    else
 	      in = dba;
@@ -354,8 +354,7 @@ namespace spot
     // Degeneralize the dba resulting from tba-determinization or
     // sat-minimization (which is a TBA) if requested and needed.
     if (dba && !dba_is_wdba && type_ == BA
-	&& !(dba_is_minimal && state_based_
-	     && dba->number_of_acceptance_conditions() == 1))
+	&& !(dba_is_minimal && state_based_ && dba->acc().num_sets() == 1))
       dba = degeneralize(dba);
 
     if (dba && sim)

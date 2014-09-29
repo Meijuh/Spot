@@ -41,7 +41,8 @@ namespace spot
   class SPOT_API ta_explicit : public ta
   {
   public:
-    ta_explicit(const const_tgba_ptr& tgba, bdd all_acceptance_conditions,
+    ta_explicit(const const_tgba_ptr& tgba,
+		unsigned n_acc,
 		state_ta_explicit* artificial_initial_state = 0);
 
     const_tgba_ptr
@@ -55,8 +56,9 @@ namespace spot
 
     void
     create_transition(state_ta_explicit* source, bdd condition,
-        bdd acceptance_conditions, state_ta_explicit* dest,
-        bool add_at_beginning = false);
+		      acc_cond::mark_t acceptance_conditions,
+		      state_ta_explicit* dest,
+		      bool add_at_beginning = false);
 
     void
     delete_stuttering_transitions();
@@ -115,27 +117,12 @@ namespace spot
       return states_set_;
     }
 
-    /// \brief Return the set of all acceptance conditions used
-    /// by this automaton.
-    ///
-    /// The goal of the emptiness check is to ensure that
-    /// a strongly connected component walks through each
-    /// of these acceptiong conditions.  I.e., the union
-    /// of the acceptiong conditions of all transition in
-    /// the SCC should be equal to the result of this function.
-    bdd
-    all_acceptance_conditions() const
-    {
-      return all_acceptance_conditions_;
-    }
-
   private:
     // Disallow copy.
     ta_explicit(const ta_explicit& other) SPOT_DELETED;
     ta_explicit& operator=(const ta_explicit& other) SPOT_DELETED;
 
     const_tgba_ptr tgba_;
-    bdd all_acceptance_conditions_;
     state_ta_explicit* artificial_initial_state_;
     ta::states_set_t states_set_;
     ta::states_set_t initial_states_set_;
@@ -152,7 +139,7 @@ namespace spot
     struct transition
     {
       bdd condition;
-      bdd acceptance_conditions;
+      acc_cond::mark_t acceptance_conditions;
       state_ta_explicit* dest;
     };
 
@@ -255,7 +242,7 @@ namespace spot
     virtual bdd
     current_condition() const;
 
-    virtual bdd
+    virtual acc_cond::mark_t
     current_acceptance_conditions() const;
 
   private:
@@ -267,13 +254,11 @@ namespace spot
   typedef std::shared_ptr<const ta_explicit> const_ta_explicit_ptr;
 
   inline ta_explicit_ptr make_ta_explicit(const const_tgba_ptr& tgba,
-					  bdd all_acceptance_conditions,
+					  unsigned n_acc,
 					  state_ta_explicit*
 					  artificial_initial_state = 0)
   {
-    return std::make_shared<ta_explicit>(tgba,
-					 all_acceptance_conditions,
-					 artificial_initial_state);
+    return std::make_shared<ta_explicit>(tgba, n_acc, artificial_initial_state);
   }
 
 }

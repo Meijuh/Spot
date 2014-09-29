@@ -46,7 +46,7 @@ namespace spot
 {
   struct stack_item
   {
-    stack_item(const state* n, tgba_succ_iterator* i, bdd l, bdd a)
+    stack_item(const state* n, tgba_succ_iterator* i, bdd l, acc_cond::mark_t a)
       : s(n), it(i), label(l), acc(a) {};
     /// The visited state.
     const state* s;
@@ -57,7 +57,7 @@ namespace spot
     bdd label;
     /// The acceptance set of the transition traversed to reach \a s
     /// (false for the first one).
-    bdd acc;
+    acc_cond::mark_t acc;
   };
 
   typedef std::list<stack_item> stack_type;
@@ -112,7 +112,7 @@ namespace spot
 
       assert(!stb.empty());
 
-      bdd covered_acc = bddfalse;
+      acc_cond::mark_t covered_acc = 0U;
       accepting_transitions_list acc_trans;
 
       const state* start;
@@ -120,7 +120,7 @@ namespace spot
       start = stb.front().s->clone();
       if (!str.empty())
         {
-          if (a_->number_of_acceptance_conditions() == 0)
+          if (a_->acc().num_sets() == 0)
             {
               // take arbitrarily the last transition on the red stack
               stack_type::const_iterator i, j;
@@ -164,7 +164,7 @@ namespace spot
                   assert(h_.has_been_visited(t.source));
                   assert(h_.has_been_visited(t.dest));
                   acc_trans.push_back(t);
-                  covered_acc |= j->acc;
+		  covered_acc |= j->acc;
                 }
 
               i = j; ++j;
@@ -184,7 +184,7 @@ namespace spot
             }
         }
 
-      if (a_->all_acceptance_conditions() != covered_acc)
+      if (!a_->acc().accepting(covered_acc))
         {
           bool b = dfs(start, acc_trans, covered_acc);
           assert(b);
@@ -222,7 +222,7 @@ namespace spot
     struct transition {
       const state* source;
       bdd label;
-      bdd acc;
+      acc_cond::mark_t acc;
       const state* dest;
     };
     typedef std::list<transition> accepting_transitions_list;
@@ -253,7 +253,7 @@ namespace spot
     }
 
     bool dfs(const state* target, accepting_transitions_list& acc_trans,
-	     bdd& covered_acc)
+	     acc_cond::mark_t& covered_acc)
     {
       assert(h_.has_been_visited(target));
       stack_type st1;
@@ -264,7 +264,7 @@ namespace spot
       seen.insert(start);
       tgba_succ_iterator* i = a_->succ_iter(start);
       i->first();
-      st1.emplace_front(start, i, bddfalse, bddfalse);
+      st1.emplace_front(start, i, bddfalse, 0U);
 
       while (!st1.empty())
         {
@@ -277,7 +277,7 @@ namespace spot
               ndfsr_trace << "  Visit the successor: "
                           << a_->format_state(s_prime) << std::endl;
               bdd label = f.it->current_condition();
-              bdd acc = f.it->current_acceptance_conditions();
+	      auto acc = f.it->current_acceptance_conditions();
               f.it->next();
               if (h_.has_been_visited(s_prime))
                 {
@@ -308,7 +308,7 @@ namespace spot
                           assert(h_.has_been_visited(t.dest));
                           acc_trans.push_back(t);
                           covered_acc |= acc;
-                          if (covered_acc == a_->all_acceptance_conditions())
+                          if (a_->acc().accepting(covered_acc))
                             {
                               clean(a_, st1, seen, dead);
                               s_prime->destroy();
@@ -337,7 +337,7 @@ namespace spot
               stack_item f_dest(f);
               a_->release_iter(st1.front().it);
               st1.pop_front();
-              if (!st1.empty() && (f_dest.acc & covered_acc) != f_dest.acc)
+              if (!st1.empty() && ((f_dest.acc & covered_acc) != f_dest.acc))
                 {
                   ndfsr_trace << "  a propagation is needed, start a search"
                               << std::endl;
@@ -349,8 +349,8 @@ namespace spot
                       assert(h_.has_been_visited(t.source));
                       assert(h_.has_been_visited(t.dest));
                       acc_trans.push_back(t);
-                      covered_acc |= f_dest.acc;
-                      if (covered_acc == a_->all_acceptance_conditions())
+		      covered_acc |= f_dest.acc;
+                      if (a_->acc().accepting(covered_acc))
                         {
                           clean(a_, st1, seen, dead);
                           return true;
@@ -607,6 +607,7 @@ namespace spot
 		      << a_->format_state(begin) << std::endl;
 	  transition tmp;
 	  tmp.source = tmp.dest = 0; // Initialize to please GCC 4.0.1 (Darwin).
+	  tmp.acc = 0U;
 	  target.emplace(begin, tmp);
 	  min_path<true> s(this, a_, target, h_);
 	  const state* res = s.search(current.dest->clone(), run->cycle);
@@ -621,6 +622,7 @@ namespace spot
       m_source_trans target;
       transition tmp;
       tmp.source = tmp.dest = 0; // Initialize to please GCC 4.0.
+      tmp.acc = 0U;
 
       // Register all states from the cycle as target of the BFS.
       for (tgba_run::steps::const_iterator i = run->cycle.begin();

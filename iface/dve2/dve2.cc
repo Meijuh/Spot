@@ -606,7 +606,8 @@ namespace spot
 
       dve2_kripke(const dve2_interface* d, const bdd_dict_ptr& dict,
 		  const prop_set* ps, const ltl::formula* dead, int compress)
-	: d_(d),
+	: kripke(dict),
+	  d_(d),
 	  state_size_(d_->get_state_variable_count()),
 	  dict_(dict), ps_(ps),
 	  compress_(compress == 0 ? 0

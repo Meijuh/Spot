@@ -46,18 +46,12 @@ namespace spot
     virtual tgba_succ_iterator*
     succ_iter(const state* state) const;
 
-    virtual bdd_dict_ptr get_dict() const;
-
     virtual std::string format_state(const state* state) const;
 
     virtual std::string
     transition_annotation(const tgba_succ_iterator* t) const;
 
     virtual state* project_state(const state* s, const const_tgba_ptr& t) const;
-
-    virtual bdd all_acceptance_conditions() const;
-
-    virtual bdd neg_acceptance_conditions() const;
 
   protected:
     virtual bdd compute_support_conditions(const state* state) const;

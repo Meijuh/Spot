@@ -41,9 +41,9 @@ namespace spot
 
       /// Index of the SCC.
       int index;
-      /// The bdd condition is the union of all acceptance conditions of
-      /// transitions which connect the states of the connected component.
-      bdd condition;
+      /// The union of all acceptance marks of transitions the
+      /// connected component.
+      acc_cond::mark_t condition;
 
       std::list<const state*> rem;
     };

@@ -76,14 +76,14 @@ namespace spot
   struct SPOT_API tgba_graph_trans_data
   {
     bdd cond;
-    bdd acc;
+    acc_cond::mark_t acc;
 
     explicit tgba_graph_trans_data()
-      : cond(bddfalse), acc(bddfalse)
+      : cond(bddfalse), acc(0)
     {
     }
 
-    tgba_graph_trans_data(bdd cond, bdd acc = bddfalse)
+    tgba_graph_trans_data(bdd cond, acc_cond::mark_t acc = 0U)
       : cond(cond), acc(acc)
     {
     }
@@ -141,7 +141,7 @@ namespace spot
       return g_->trans_data(p_).cond;
     }
 
-    virtual bdd current_acceptance_conditions() const
+    virtual acc_cond::mark_t current_acceptance_conditions() const
     {
       assert(!done());
       return g_->trans_data(p_).acc;
@@ -161,23 +161,18 @@ namespace spot
 
   protected:
     graph_t g_;
-    bdd_dict_ptr dict_;
-    bdd all_acceptance_conditions_;
-    bdd neg_acceptance_conditions_;
     mutable unsigned init_number_;
 
   public:
     tgba_digraph(const bdd_dict_ptr& dict)
-      : dict_(dict),
-	all_acceptance_conditions_(bddfalse),
-	neg_acceptance_conditions_(bddtrue),
+      : tgba(dict),
 	init_number_(0)
     {
     }
 
     virtual ~tgba_digraph()
     {
-      dict_->unregister_all_my_variables(this);
+      get_dict()->unregister_all_my_variables(this);
       // Prevent this state from being destroyed by ~tgba(),
       // as the state will be destroyed when g_ is destroyed.
       last_support_conditions_input_ = 0;
@@ -210,11 +205,6 @@ namespace spot
     const graph_t& get_graph() const
     {
       return g_;
-    }
-
-    virtual bdd_dict_ptr get_dict() const
-    {
-      return this->dict_;
     }
 
     unsigned num_states() const
@@ -314,8 +304,22 @@ namespace spot
       return g_.trans_data(t);
     }
 
-    void set_acceptance_conditions(bdd all);
-    bdd set_single_acceptance_set();
+    void set_acceptance_conditions(unsigned num)
+    {
+      if (num < acc_.num_sets())
+	{
+	  acc_.~acc_cond();
+	  new (&acc_) acc_cond(get_dict());
+	}
+      acc_.add_sets(num - acc_.num_sets());
+      prop_single_acc_set(num == 1);
+    }
+
+    acc_cond::mark_t set_single_acceptance_set()
+    {
+      set_acceptance_conditions(1);
+      return acc_.mark(0);
+    }
 
     unsigned new_state()
     {
@@ -328,7 +332,7 @@ namespace spot
     }
 
     unsigned new_transition(unsigned src, unsigned dst,
-			    bdd cond, bdd acc = bddfalse)
+			    bdd cond, acc_cond::mark_t acc = 0U)
     {
       return g_.new_transition(src, dst, cond, acc);
     }
@@ -337,7 +341,7 @@ namespace spot
 				bdd cond, bool acc = true)
     {
       if (acc)
-	return g_.new_transition(src, dst, cond, all_acceptance_conditions_);
+	return g_.new_transition(src, dst, cond, acc_.all_sets());
       else
 	return g_.new_transition(src, dst, cond);
     }
@@ -364,22 +368,13 @@ namespace spot
     /// \brief Copy the acceptance conditions of another tgba.
     void copy_acceptance_conditions_of(const const_tgba_ptr& a)
     {
-      set_acceptance_conditions(a->neg_acceptance_conditions());
+      assert(acc_.num_sets() == 0);
+      acc_.add_sets(a->acc().num_sets());
     }
 
     void copy_ap_of(const const_tgba_ptr& a)
     {
-      dict_->register_all_propositions_of(a, this);
-    }
-
-    virtual bdd all_acceptance_conditions() const
-    {
-      return all_acceptance_conditions_;
-    }
-
-    virtual bdd neg_acceptance_conditions() const
-    {
-      return neg_acceptance_conditions_;
+      get_dict()->register_all_propositions_of(a, this);
     }
 
     virtual bdd compute_support_conditions(const state* s) const
@@ -400,7 +395,7 @@ namespace spot
       for (auto& t: g_.out(s))
 	// Stop at the first transition, since the remaining should be
 	// labeled identically.
-	return t.acc == all_acceptance_conditions_;
+	return acc_.accepting(t.acc);
       return false;
     }
 

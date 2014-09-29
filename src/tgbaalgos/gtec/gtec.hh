@@ -195,9 +195,9 @@ namespace spot
 
   protected:
     struct successor {
-      bdd acc;
+      acc_cond::mark_t acc;
       const spot::state* s;
-      successor(bdd acc, const spot::state* s): acc(acc), s(s) {}
+      successor(acc_cond::mark_t acc, const spot::state* s): acc(acc), s(s) {}
     };
 
     // We use five main data in this algorithm:
@@ -205,7 +205,7 @@ namespace spot
     // * couvreur99_check::h, a hash of all visited nodes, with their order,
     //   (it is called "Hash" in Couvreur's paper)
     // * arc, a stack of acceptance conditions between each of these SCC,
-    std::stack<bdd> arc;
+    std::stack<acc_cond::mark_t> arc;
     // * num, the number of visited nodes.  Used to set the order of each
     //   visited node,
     int num;

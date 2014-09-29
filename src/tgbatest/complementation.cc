@@ -34,23 +34,18 @@
 #include "tgbaalgos/degen.hh"
 
 #include "tgba/tgbasafracomplement.hh"
-#include "tgba/tgbakvcomplement.hh"
 
 void usage(const char* prog)
 {
   std::cout << "usage: " << prog << " [options]" << std::endl;
   std::cout << "with options" << std::endl
-            << "-b                      Output in spot's format" << std::endl
-            << "-S                      Use Safra's complementation "
-	    << "instead of Kupferman&Vardi's" << std::endl
-            << "-s     buchi_automaton  display the safra automaton"
-            << std::endl
-            << "-a     buchi_automaton  display the complemented automaton"
-            << std::endl
-            << "-astat buchi_automaton  statistics for !a" << std::endl
-            << "-fstat formula          statistics for !A_f" << std::endl
-            << "-f     formula          test !A_f and !A_!f" << std::endl
-            << "-p     formula          print the automaton for f" << std::endl;
+            << "-b                      Output in spot's format\n"
+            << "-s     buchi_automaton  display the safra automaton\n"
+            << "-a     buchi_automaton  display the complemented automaton\n"
+            << "-astat buchi_automaton  statistics for !a\n"
+            << "-fstat formula          statistics for !A_f\n"
+            << "-f     formula          test !A_f and !A_!f\n"
+            << "-p     formula          print the automaton for f\n";
 }
 
 int main(int argc, char* argv[])
@@ -62,7 +57,6 @@ int main(int argc, char* argv[])
   int return_value = 0;
   bool stats = false;
   bool formula = false;
-  bool safra = false;
   bool print_formula = false;
   bool save_spot = false;
 
@@ -98,10 +92,8 @@ int main(int argc, char* argv[])
 
       switch (argv[i][1])
       {
-        case 'S':
-          safra = true; break;
         case 's':
-          safra = true; print_safra = true; break;
+          print_safra = true; break;
         case 'a':
           print_automaton = true; break;
         case 'f':
@@ -136,10 +128,7 @@ int main(int argc, char* argv[])
 
     spot::tgba_ptr complement = 0;
 
-    if (safra)
-      complement = spot::make_safra_complement(a);
-    else
-      complement = spot::make_kv_complement(a);
+    complement = spot::make_safra_complement(a);
 
     if (print_automaton)
       {
@@ -168,10 +157,7 @@ int main(int argc, char* argv[])
 
     a = spot::ltl_to_tgba_fm(f1, dict);
     spot::tgba_ptr complement = 0;
-    if (safra)
-      complement = spot::make_safra_complement(a);
-    else
-      complement = spot::make_kv_complement(a);
+    complement = spot::make_safra_complement(a);
 
     spot::dotty_reachable(std::cout, complement);
     f1->destroy();
@@ -206,30 +192,21 @@ int main(int argc, char* argv[])
     std::cout << "Original: "
               << a_size.states << ", "
               << a_size.transitions << ", "
-              << a->number_of_acceptance_conditions()
+              << a->acc().num_sets()
               << std::endl;
 
     auto buchi = spot::degeneralize(a);
     std::cout << "Buchi: "
               << buchi->num_states()
 	      << buchi->num_transitions()
-              << buchi->number_of_acceptance_conditions()
+              << buchi->acc().num_sets()
               << std::endl;
 
     spot::tgba_statistics b_size =  spot::stats_reachable(safra_complement);
     std::cout << "Safra Complement: "
               << b_size.states << ", "
               << b_size.transitions << ", "
-              << safra_complement->number_of_acceptance_conditions()
-              << std::endl;
-
-    auto complement = spot::make_kv_complement(a);
-
-    b_size =  spot::stats_reachable(complement);
-    std::cout << "GBA Complement: "
-              << b_size.states << ", "
-              << b_size.transitions << ", "
-              << complement->number_of_acceptance_conditions()
+              << safra_complement->acc().num_sets()
               << std::endl;
 
     if (formula)
@@ -242,7 +219,7 @@ int main(int argc, char* argv[])
       std::cout << "Not Formula: "
                 << a_size.states << ", "
                 << a_size.transitions << ", "
-                << a2->number_of_acceptance_conditions()
+                << a2->acc().num_sets()
                 << std::endl;
 
       f1->destroy();
@@ -262,18 +239,9 @@ int main(int argc, char* argv[])
       spot::ltl::unop::instance(spot::ltl::unop::Not, f1->clone());
     spot::tgba_ptr Anf = spot::ltl_to_tgba_fm(nf1, dict);
 
-    spot::tgba_ptr nAf;
-    spot::tgba_ptr nAnf;
-    if (safra)
-    {
-      nAf = spot::make_safra_complement(Af);
-      nAnf = spot::make_safra_complement(Anf);
-    }
-    else
-    {
-      nAf = spot::make_kv_complement(Af);
-      nAnf = spot::make_kv_complement(Anf);
-    }
+    spot::tgba_ptr nAf = spot::make_safra_complement(Af);
+    spot::tgba_ptr nAnf = spot::make_safra_complement(Anf);
+
     auto ec = spot::couvreur99(spot::product(nAf, nAnf));
     auto res = ec->check();
     spot::tgba_statistics a_size =  spot::stats_reachable(ec->automaton());
@@ -282,16 +250,22 @@ int main(int argc, char* argv[])
               << "Transitions: "
               << a_size.transitions << std::endl
               << "Acc Cond: "
-              << ec->automaton()->number_of_acceptance_conditions()
+              << ec->automaton()->acc().num_sets()
               << std::endl;
     if (res)
-    {
-      std::cout << "FAIL";
-      return_value = 1;
-    }
+      {
+	std::cout << "FAIL\n";
+	return_value = 1;
+	if (auto run = res->accepting_run())
+	  {
+	    spot::dotty_reachable(std::cout, ec->automaton(), false);
+	    spot::print_tgba_run(std::cout, ec->automaton(), run);
+	  }
+      }
     else
-      std::cout << "OK";
-    std::cout << std::endl;
+      {
+	std::cout << "OK\n";
+      }
     nf1->destroy();
     f1->destroy();
   }

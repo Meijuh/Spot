@@ -94,8 +94,6 @@ namespace spot
     virtual tgba_succ_iterator*
     succ_iter(const state* state) const;
 
-    virtual bdd_dict_ptr get_dict() const;
-
     virtual std::string format_state(const state* state) const;
 
     virtual std::string
@@ -103,22 +101,16 @@ namespace spot
 
     virtual state* project_state(const state* s, const const_tgba_ptr& t) const;
 
-    virtual bdd all_acceptance_conditions() const;
-    virtual bdd neg_acceptance_conditions() const;
+    const acc_cond& left_acc() const;
+    const acc_cond& right_acc() const;
 
   protected:
     virtual bdd compute_support_conditions(const state* state) const;
 
   protected:
-    bdd_dict_ptr dict_;
     const_tgba_ptr left_;
     const_tgba_ptr right_;
     bool left_kripke_;
-    bdd left_acc_complement_;
-    bdd right_acc_complement_;
-    bdd all_acceptance_conditions_;
-    bdd neg_acceptance_conditions_;
-    bddPair* right_common_acc_;
     fixed_size_pool pool_;
 
   private:

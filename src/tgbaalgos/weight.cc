@@ -26,96 +26,41 @@
 
 namespace spot
 {
-  weight::weight_vector* weight::pm = 0;
-
-  weight::weight(const bdd& neg_all_cond) : neg_all_acc(neg_all_cond)
+  weight::weight(const acc_cond& acc):
+    m(acc.num_sets())
   {
   }
 
-  void weight::inc_weight_handler(char* varset, int size)
+  weight& weight::add(const acc_cond& acc, acc_cond::mark_t a)
   {
-    for (int v = 0; v < size; ++v)
-      if (varset[v] > 0)
-        {
-          weight::weight_vector::iterator it = pm->find(v);
-          if (it == pm->end())
-            pm->emplace(v, 1);
-          else
-            ++(it->second);
-	  break;
-        }
-  }
-
-  weight& weight::operator+=(const bdd& acc)
-  {
-    pm = &m;
-    bdd_allsat(acc, inc_weight_handler);
+    for (auto s: acc.sets(a))
+      ++m[s];
     return *this;
   }
 
-  void weight::dec_weight_handler(char* varset, int size)
+  weight& weight::sub(const acc_cond& acc, acc_cond::mark_t a)
   {
-    for (int v = 0; v < size; ++v)
-      if (varset[v] > 0)
-        {
-          weight::weight_vector::iterator it = pm->find(v);
-          assert(it != pm->end() && it->second > 0);
-          if (it->second > 1)
-            --(it->second);
-          else
-            pm->erase(it);
-	  break;
-        }
-  }
-
-  weight& weight::operator-=(const bdd& acc)
-  {
-    pm = &m;
-    bdd_allsat(acc, dec_weight_handler);
+    for (auto s: acc.sets(a))
+      if (m[s] > 0)
+	--m[s];
     return *this;
   }
 
-  bdd weight::operator-(const weight& w) const
+  acc_cond::mark_t weight::diff(const acc_cond& acc, const weight& w) const
   {
-    weight_vector::const_iterator itw1 = m.begin(), itw2 = w.m.begin();
-    bdd res = bddfalse;
-
-    while (itw1 != m.end() && itw2 != w.m.end())
-      {
-        assert(itw1->first <= itw2->first);
-        if (itw1->first < itw2->first)
-          {
-            res |= bdd_exist(neg_all_acc, bdd_ithvar(itw1->first)) &
-                                                      bdd_ithvar(itw1->first);
-            ++itw1;
-          }
-        else
-          {
-            assert(itw1->second >= itw2->second);
-            if (itw1->second > itw2->second)
-              {
-                res |= bdd_exist(neg_all_acc, bdd_ithvar(itw1->first)) &
-                                                      bdd_ithvar(itw1->first);
-              }
-            ++itw1;
-            ++itw2;
-          }
-      }
-    assert(itw2 == w.m.end());
-    while (itw1 != m.end())
-      {
-        res |= bdd_exist(neg_all_acc, bdd_ithvar(itw1->first)) &
-                                                      bdd_ithvar(itw1->first);
-        ++itw1;
-      }
-    return res;
+    unsigned max = acc.num_sets();
+    std::vector<unsigned> res;
+    for (unsigned n = 0; n < max; ++n)
+      if (m[n] > w.m[n])
+	res.push_back(n);
+    return acc.marks(res.begin(), res.end());
   }
 
   std::ostream& operator<<(std::ostream& os, const weight& w)
   {
-    weight::weight_vector::const_iterator it;
-    for (it = w.m.begin(); it != w.m.end(); ++it)
-      os << '(' << it->first << ',' << it->second << ')';
+    unsigned s = w.m.size();
+    for (unsigned n = 0; n < s; ++n)
+      os << '(' << n << ',' << w.m[n] << ')';
     return os;
   }
 

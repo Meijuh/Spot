@@ -44,10 +44,6 @@ namespace spot
       typedef std::vector<int> vap_t;
       vap_t vap;
 
-      // Assign a number to each acceptance condition.
-      typedef std::map<bdd, unsigned, bdd_less_than> acc_map;
-      acc_map acc;
-
       // Map each state to a number.
       typedef std::unordered_map<const state*, unsigned,
 				 state_ptr_hash, state_ptr_equal> state_map;
@@ -69,40 +65,27 @@ namespace spot
       metadata(const const_tgba_ptr& aut)
 	: state_acc(true), is_complete(true), is_deterministic(true)
       {
-	number_all_acc(aut);
 	number_all_states_and_fill_sup(aut);
 	number_all_ap();
       }
 
-      void number_all_acc(const const_tgba_ptr& aut)
-      {
-	bdd all_acc = aut->all_acceptance_conditions();
-	unsigned count = 0;
-	while (all_acc != bddfalse)
-	  {
-	    bdd one = bdd_satone(all_acc);
-	    all_acc -= one;
-	    acc[one] = count++;
-	  }
-      }
-
       std::ostream&
-      emit_acc(std::ostream& os, bdd b)
+      emit_acc(std::ostream& os,
+	       const const_tgba_ptr& aut,
+	       acc_cond::mark_t b)
       {
 	// FIXME: We could use a cache for this.
-	if (b == bddfalse)
+	if (b == 0U)
 	  return os;
 	os << " {";
 	bool notfirst = false;
-	while (b != bddfalse)
+	for (auto v: aut->acc().sets(b))
 	  {
-	    bdd one = bdd_satone(b);
-	    b -= one;
 	    if (notfirst)
 	      os << ' ';
 	    else
 	      notfirst = true;
-	    os << acc[one];
+	    os << v;
 	  }
 	os << '}';
 	return os;
@@ -124,7 +107,7 @@ namespace spot
 	  {
 	    auto src = todo.front();
 	    todo.pop_front();
-	    bdd prev = bddtrue;
+	    acc_cond::mark_t prev = -1U;
 	    bool st_acc = true;
 	    bdd sum = bddfalse;
 	    bdd available = bddtrue;
@@ -153,8 +136,8 @@ namespace spot
 		  }
 		if (st_acc)
 		  {
-		    bdd acc = i->current_acceptance_conditions();
-		    if (prev != bddtrue && prev != acc)
+		    acc_cond::mark_t acc = i->current_acceptance_conditions();
+		    if (prev != -1U && prev != acc)
 		      st_acc = false;
 		    else
 		      prev = acc;
@@ -265,7 +248,7 @@ namespace spot
 	 i != md.vap.end(); ++i)
       escape_str(os << " \"", to_string(d->bdd_map[*i].f)) << '"';
     os << nl;
-    unsigned num_acc = md.acc.size();
+    unsigned num_acc = aut->acc().num_sets();
     if (num_acc == 0)
       os << "acc-name: all";
     else if (num_acc == 1)
@@ -309,7 +292,7 @@ namespace spot
 
 	os << "State: " << i;
 	if (this_acc == Hoaf_Acceptance_States && !j->done())
-	  md.emit_acc(os, j->current_acceptance_conditions());
+	  md.emit_acc(os, aut, j->current_acceptance_conditions());
 	os << nl;
 
 	for (; !j->done(); j->next())
@@ -317,7 +300,7 @@ namespace spot
 	    const state* dst = j->current_state();
 	    os << '[' << md.sup[j->current_condition()] << "] " << md.sm[dst];
 	    if (this_acc == Hoaf_Acceptance_Transitions)
-	      md.emit_acc(os, j->current_acceptance_conditions());
+	      md.emit_acc(os, aut, j->current_acceptance_conditions());
 	    os << nl;
 	    dst->destroy();
 	  }

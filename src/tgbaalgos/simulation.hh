@@ -145,6 +145,10 @@ namespace spot
   /// @}
 
 
+
+  // FIXME: Remove: dont_care_*_simulation is broken since the move to
+  // bitset acceptance, has never been really used, and really useful
+  // (nor really well tested and understood), so we should remove it.
   SPOT_API tgba_digraph_ptr
   dont_care_simulation(const const_tgba_ptr& t, int limit = -1);
 

@@ -139,7 +139,7 @@ Algorithm
    Name = "Spot (Couvreur -- FM), don't care simulation"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -F -f -t -RDCS  -r4 -R3f'"
-   Enabled = yes
+   Enabled = no
 }
 
 Algorithm
@@ -147,7 +147,7 @@ Algorithm
    Name = "Spot (Couvreur -- FM), don't care iterated simulation"
    Path = "${LBTT_TRANSLATE}"
    Parameters = "--spot '../ltl2tgba -F -f -t -RDCIS -r4 -R3f'"
-   Enabled = yes
+   Enabled = no
 }
 
 

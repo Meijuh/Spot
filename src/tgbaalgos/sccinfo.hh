@@ -45,17 +45,17 @@ namespace spot
     struct scc_node
     {
       scc_node():
-	acc(bddfalse), trivial(true)
+	acc(0U), trivial(true)
       {
       }
 
-      scc_node(bdd acc, bool trivial):
+      scc_node(acc_cond::mark_t acc, bool trivial):
 	acc(acc), trivial(trivial)
       {
       }
 
       scc_succs succ;
-      bdd acc;
+      acc_cond::mark_t acc;
       std::list<unsigned> states; // States of the component
       bool trivial:1;
       bool accepting:1;
@@ -114,7 +114,7 @@ namespace spot
       return node(scc).trivial;
     }
 
-    bdd acc(unsigned scc) const
+    acc_cond::mark_t acc(unsigned scc) const
     {
       return node(scc).acc;
     }
@@ -134,18 +134,9 @@ namespace spot
       return reachable_state(st) && node(scc_of(st)).useful;
     }
 
-   /// \brief Return the set of all used acceptance combinations, for
-   /// each accepting SCC.
-   ///
-   /// If SCC #i use {a,b} and {c}, which
-   /// are normally respectively encoded as
-   ///    Acc[a]&!Acc[b]&!Acc[c] | !Acc[a]&Acc[b]&!Acc[c]
-   /// and
-   ///    !Acc[a]&!Acc[b]&Acc[c]
-   /// then the vector will contain
-   ///    Acc[a]&Acc[b] | Acc[c]
-   /// at position #i.
-    std::vector<bdd> used_acc() const;
+    /// \brief Return the set of all used acceptance combinations, for
+    /// each accepting SCC.
+    std::vector<std::set<acc_cond::mark_t>> used_acc() const;
 
     std::vector<bool> weak_sccs() const;
 

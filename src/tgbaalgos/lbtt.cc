@@ -35,49 +35,12 @@ namespace spot
 {
   namespace
   {
-    // At some point we'll need to print an acceptance set into LBTT's
-    // format.  LBTT expects numbered acceptance sets, so first we'll
-    // number each acceptance condition, and later when we have to print
-    // them we'll just have to look up each of them.
-    class acceptance_cond_splitter
-    {
-    public:
-      acceptance_cond_splitter(bdd all_acc)
-      {
-	unsigned count = 0;
-	while (all_acc != bddfalse)
-	  {
-	    bdd acc = bdd_satone(all_acc);
-	    all_acc -= acc;
-	    sm[acc] = count++;
-	  }
-      }
-
-      std::ostream&
-      split(std::ostream& os, bdd b)
-      {
-	while (b != bddfalse)
-	  {
-	    bdd acc = bdd_satone(b);
-	    b -= acc;
-	    os << sm[acc] << ' ';
-	  }
-	return os;
-      }
-
-    private:
-      typedef std::map<bdd, unsigned, bdd_less_than> split_map;
-      split_map sm;
-    };
-
     class lbtt_bfs : public tgba_reachable_iterator_breadth_first
     {
     public:
       lbtt_bfs(const const_tgba_ptr& a, std::ostream& os, bool sba_format)
 	: tgba_reachable_iterator_breadth_first(a),
 	  os_(os),
-	  all_acc_conds_(a->all_acceptance_conditions()),
-	  acs_(all_acc_conds_),
 	  sba_format_(sba_format),
 	  sba_(nullptr)
       {
@@ -104,7 +67,7 @@ namespace spot
 	// iterator.
 	tgba_succ_iterator* it = aut_->succ_iter(s);
 	bool accepting = it->first()
-	  && it->current_acceptance_conditions() == all_acc_conds_;
+	  && aut_->acc().accepting(it->current_acceptance_conditions());
 	aut_->release_iter(it);
 	return accepting;
       }
@@ -138,7 +101,8 @@ namespace spot
 	body_ << out - 1 << ' ';
 	if (!sba_format_)
 	  {
-	    acs_.split(body_, si->current_acceptance_conditions());
+	    for (auto s: aut_->acc().sets(si->current_acceptance_conditions()))
+	      body_ << s << ' ';
 	    body_ << "-1 ";
 	  }
 	const ltl::formula* f = bdd_to_formula(si->current_condition(),
@@ -155,7 +119,7 @@ namespace spot
 	if (sba_format_)
 	  os_ << '1';
 	else
-	  os_ << aut_->number_of_acceptance_conditions() << 't';
+	  os_ << aut_->acc().num_sets() << 't';
 	os_ << '\n' << body_.str() << "-1" << std::endl;
       }
 
@@ -163,7 +127,6 @@ namespace spot
       std::ostream& os_;
       std::ostringstream body_;
       bdd all_acc_conds_;
-      acceptance_cond_splitter acs_;
       bool sba_format_;
       const_tgba_digraph_ptr sba_;
     };
@@ -196,7 +159,7 @@ namespace spot
 		break;
 
 	      // Read the acceptance conditions.
-	      bdd acc = bddfalse;
+	      acc_cond::mark_t acc = 0U;
 	      for (;;)
 		{
 		  int acc_n = 0;
@@ -254,7 +217,7 @@ namespace spot
 	    aut->set_init_state(src_state);
 
 	  // Read the acceptance conditions.
-	  bdd acc = bddfalse;
+	  acc_cond::mark_t acc = 0U;
 	  for (;;)
 	    {
 	      int acc_n = 0;

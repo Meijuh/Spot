@@ -128,8 +128,8 @@ namespace spot
 
   kripke_explicit::kripke_explicit(const bdd_dict_ptr& dict,
                                    state_kripke* init)
-    : dict_(dict),
-      init_ (init)
+    : kripke(dict),
+      init_(init)
   {
   }
 
@@ -148,7 +148,7 @@ namespace spot
 
   kripke_explicit::~kripke_explicit()
   {
-    dict_->unregister_all_my_variables(this);
+    get_dict()->unregister_all_my_variables(this);
     std::map<const std::string, state_kripke*>::iterator it;
     for (it = ns_nodes_.begin(); it != ns_nodes_.end(); ++it)
     {
@@ -161,12 +161,6 @@ namespace spot
   kripke_explicit::get_init_state() const
   {
     return init_;
-  }
-
-  bdd_dict_ptr
-  kripke_explicit::get_dict() const
-  {
-    return dict_;
   }
 
   // FIXME: Change the bddtrue.
@@ -269,7 +263,7 @@ namespace spot
   void kripke_explicit::add_condition(const ltl::formula* f,
                                       std::string on_me)
   {
-    add_conditions(formula_to_bdd(f, dict_, this), on_me);
+    add_conditions(formula_to_bdd(f, get_dict(), this), on_me);
     f->destroy();
   }
 

@@ -27,6 +27,7 @@
 #include "ltlast/formula.hh"
 #include "bdddict.hh"
 #include "tgba.hh"
+#include "ltlvisit/tostring.hh"
 
 namespace spot
 {
@@ -45,7 +46,7 @@ namespace spot
     struct transition
     {
       bdd condition;
-      bdd acceptance_conditions;
+      acc_cond::mark_t acceptance_conditions;
       const state_set* dst;
     };
 
@@ -55,22 +56,18 @@ namespace spot
     virtual ~taa_tgba();
     virtual spot::state* get_init_state() const;
     virtual tgba_succ_iterator* succ_iter(const spot::state* state) const;
-    virtual bdd_dict_ptr get_dict() const;
     virtual std::string format_state(const spot::state* state) const = 0;
-    virtual bdd all_acceptance_conditions() const;
-    virtual bdd neg_acceptance_conditions() const;
 
   protected:
     virtual bdd compute_support_conditions(const spot::state* state) const;
 
     typedef std::vector<taa_tgba::state_set*> ss_vec;
 
-    bdd_dict_ptr dict_;
-    mutable bdd all_acceptance_conditions_;
-    mutable bool all_acceptance_conditions_computed_;
-    bdd neg_acceptance_conditions_;
     taa_tgba::state_set* init_;
     ss_vec state_set_vec_;
+
+    std::map<const ltl::formula*, acc_cond::mark_t,
+	     ltl::formula_ptr_less_than> acc_map_;
 
   private:
     // Disallow copy.
@@ -106,7 +103,7 @@ namespace spot
   class SPOT_API taa_succ_iterator : public tgba_succ_iterator
   {
   public:
-    taa_succ_iterator(const taa_tgba::state_set* s, bdd all_acc);
+    taa_succ_iterator(const taa_tgba::state_set* s, const acc_cond& acc);
     virtual ~taa_succ_iterator();
 
     virtual bool first();
@@ -115,7 +112,7 @@ namespace spot
 
     virtual set_state* current_state() const;
     virtual bdd current_condition() const;
-    virtual bdd current_acceptance_conditions() const;
+    virtual acc_cond::mark_t current_acceptance_conditions() const;
 
   private:
     /// Those typedefs are used to generate all possible successors in
@@ -141,8 +138,8 @@ namespace spot
 
     std::vector<taa_tgba::transition*>::const_iterator i_;
     std::vector<taa_tgba::transition*> succ_;
-    bdd all_acceptance_conditions_;
     seen_map seen_;
+    const acc_cond& acc_;
   };
 
   /// A taa_tgba instance with states labeled by a given type.
@@ -152,6 +149,13 @@ namespace spot
   {
   public:
     taa_tgba_labelled(const bdd_dict_ptr& dict) : taa_tgba(dict) {};
+
+    ~taa_tgba_labelled()
+      {
+	auto i = acc_map_.begin();
+	while (i != acc_map_.end())
+	  (i++)->first->destroy();
+      }
 
     void set_init_state(const label& s)
     {
@@ -173,10 +177,11 @@ namespace spot
       transition* t = new transition;
       t->dst = dst;
       t->condition = bddtrue;
-      t->acceptance_conditions = bddfalse;
+      t->acceptance_conditions = 0U;
       src->push_back(t);
       return t;
     }
+
     transition*
     create_transition(const label& s, const label& d)
     {
@@ -187,29 +192,12 @@ namespace spot
 
     void add_acceptance_condition(transition* t, const ltl::formula* f)
     {
-      if (dict_->acc_map.find(f) == dict_->acc_map.end())
-      {
-	int v = dict_->register_acceptance_variable(f, this);
-	bdd neg = bdd_nithvar(v);
-	neg_acceptance_conditions_ &= neg;
-
-	// Append neg to all acceptance conditions.
-	typename ns_map::iterator i;
-	for (i = name_state_map_.begin(); i != name_state_map_.end(); ++i)
-	{
-	  taa_tgba::state::iterator i2;
-	  for (i2 = i->second->begin(); i2 != i->second->end(); ++i2)
-	    (*i2)->acceptance_conditions &= neg;
-	}
-
-	all_acceptance_conditions_computed_ = false;
-      }
-
-      bdd_dict::fv_map::iterator i = dict_->acc_map.find(f);
-      assert(i != dict_->acc_map.end());
-      f->destroy();
-      bdd v = bdd_ithvar(i->second);
-      t->acceptance_conditions |= v & bdd_exist(neg_acceptance_conditions_, v);
+      auto p = acc_map_.emplace(f, 0);
+      if (p.second)
+	p.first->second = acc_.marks({acc_.add_set()});
+      else
+	f->destroy();
+      t->acceptance_conditions |= p.first->second;
     }
 
     /// \brief Format the state as a string for printing.

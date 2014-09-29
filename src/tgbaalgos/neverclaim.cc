@@ -41,7 +41,7 @@ namespace spot
 		      const ltl::formula* f, bool comments)
 	: tgba_reachable_iterator_breadth_first(a),
 	  os_(os), f_(f), accept_all_(-1), fi_needed_(false),
-	  comments_(comments), all_acc_conds_(a->all_acceptance_conditions()),
+	  comments_(comments),
 	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
       {
 	assert(!sba_ || sba_->has_state_based_acc());
@@ -87,8 +87,8 @@ namespace spot
 	// is not terribly efficient since we have to create the
 	// iterator.
 	tgba_succ_iterator* it = aut_->succ_iter(s);
-	bool accepting =
-	  it->first() && it->current_acceptance_conditions() == all_acc_conds_;
+	bool accepting = it->first()
+	  && aut_->acc().accepting(it->current_acceptance_conditions());
 	aut_->release_iter(it);
 	return accepting;
       }
@@ -193,7 +193,6 @@ namespace spot
       bool fi_needed_;
       state* init_;
       bool comments_;
-      bdd all_acc_conds_;
       const_tgba_digraph_ptr sba_;
     };
   } // anonymous
@@ -202,7 +201,7 @@ namespace spot
   never_claim_reachable(std::ostream& os, const const_tgba_ptr& g,
 			const ltl::formula* f, bool comments)
   {
-    assert(g->number_of_acceptance_conditions() <= 1);
+    assert(g->acc().num_sets() <= 1);
     never_claim_bfs n(g, os, f, comments);
     n.run();
     return os;

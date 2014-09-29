@@ -34,10 +34,7 @@ namespace spot
   `--------*/
 
   taa_tgba::taa_tgba(const bdd_dict_ptr& dict)
-    : dict_(dict),
-      all_acceptance_conditions_(bddfalse),
-      all_acceptance_conditions_computed_(false),
-      neg_acceptance_conditions_(bddtrue),
+    : tgba(dict),
       init_(0), state_set_vec_()
   {
   }
@@ -47,13 +44,13 @@ namespace spot
     ss_vec::iterator j;
     for (j = state_set_vec_.begin(); j != state_set_vec_.end(); ++j)
       delete *j;
-    dict_->unregister_all_my_variables(this);
+    get_dict()->unregister_all_my_variables(this);
   }
 
   void
   taa_tgba::add_condition(transition* t, const ltl::formula* f)
   {
-    t->condition &= formula_to_bdd(f, dict_, this);
+    t->condition &= formula_to_bdd(f, get_dict(), this);
     f->destroy();
   }
 
@@ -69,31 +66,7 @@ namespace spot
   {
     const spot::set_state* s = down_cast<const spot::set_state*>(state);
     assert(s);
-    return new taa_succ_iterator(s->get_state(), all_acceptance_conditions());
-  }
-
-  bdd_dict_ptr
-  taa_tgba::get_dict() const
-  {
-    return dict_;
-  }
-
-  bdd
-  taa_tgba::all_acceptance_conditions() const
-  {
-    if (!all_acceptance_conditions_computed_)
-    {
-      all_acceptance_conditions_ =
-	compute_all_acceptance_conditions(neg_acceptance_conditions_);
-      all_acceptance_conditions_computed_ = true;
-    }
-    return all_acceptance_conditions_;
-  }
-
-  bdd
-  taa_tgba::neg_acceptance_conditions() const
-  {
-    return neg_acceptance_conditions_;
+    return new taa_succ_iterator(s->get_state(), acc_);
   }
 
   bdd
@@ -172,14 +145,14 @@ namespace spot
   `--------------*/
 
   taa_succ_iterator::taa_succ_iterator(const taa_tgba::state_set* s,
-                                       bdd all_acc)
-    : all_acceptance_conditions_(all_acc), seen_()
+                                       const acc_cond& acc)
+    : seen_(), acc_(acc)
   {
     if (s->empty())
     {
       taa_tgba::transition* t = new taa_tgba::transition;
       t->condition = bddtrue;
-      t->acceptance_conditions = bddfalse;
+      t->acceptance_conditions = 0U;
       t->dst = new taa_tgba::state_set;
       succ_.push_back(t);
       return;
@@ -202,7 +175,7 @@ namespace spot
     {
       taa_tgba::transition* t = new taa_tgba::transition;
       t->condition = bddtrue;
-      t->acceptance_conditions = bddfalse;
+      t->acceptance_conditions = 0U;
       taa_tgba::state_set* ss = new taa_tgba::state_set;
 
       unsigned p;
@@ -330,12 +303,11 @@ namespace spot
     return (*i_)->condition;
   }
 
-  bdd
+  acc_cond::mark_t
   taa_succ_iterator::current_acceptance_conditions() const
   {
     assert(!done());
-    return all_acceptance_conditions_ -
-      ((*i_)->acceptance_conditions & all_acceptance_conditions_);
+    return acc_.comp((*i_)->acceptance_conditions);
   }
 
   /*----------------.

@@ -141,7 +141,9 @@ namespace spot
     {
     public:
 
-      translate_dict(const bdd_dict_ptr& dict, ltl_simplifier* ls, bool exprop,
+      translate_dict(const bdd_dict_ptr& dict,
+		     acc_cond& acc,
+		     ltl_simplifier* ls, bool exprop,
 		     bool single_acc)
 	: dict(dict),
 	  ls(ls),
@@ -150,7 +152,8 @@ namespace spot
 	  next_set(bddtrue),
 	  transdfa(*this),
 	  exprop(exprop),
-	  single_acc(single_acc)
+	  single_acc(single_acc),
+	  acc(acc)
       {
       }
 
@@ -184,6 +187,9 @@ namespace spot
       ratexp_to_dfa transdfa;
       bool exprop;
       bool single_acc;
+      acc_cond& acc;
+      // Map BDD variables to acceptance marks.
+      std::map<int, unsigned> bm;
 
       enum translate_flags
 	{
@@ -231,12 +237,37 @@ namespace spot
 
     public:
 
+
       int
       register_proposition(const formula* f)
       {
 	int num = dict->register_proposition(f, this);
 	var_set &= bdd_ithvar(num);
 	return num;
+      }
+
+      acc_cond::mark_t
+      bdd_to_mark(bdd a)
+      {
+	bdd o = a;
+	if (a == bddtrue)
+	  return 0U;
+	assert(a != bddfalse);
+	std::vector<unsigned> t;
+	do
+	  {
+	    int v = bdd_var(a);
+	    bdd h = bdd_high(a);
+	    a = bdd_low(a);
+	    if (h != bddfalse)
+	      {
+		t.push_back(bm[v]);
+		if (a == bddfalse)
+		  a = h;
+	      }
+	  }
+	while (a != bddtrue);
+	return acc.marks(t.begin(), t.end());
       }
 
       int
@@ -247,6 +278,10 @@ namespace spot
 	    int num = dict->register_acceptance_variable
 	      (ltl::constant::true_instance(), this);
 	    a_set &= bdd_ithvar(num);
+
+	    auto p = bm.emplace(num, 0U);
+	    if (p.second)
+	      p.first->second = acc.add_set();
 	    return num;
 	  }
 	// A promise of 'x', noted P(x) is pretty much like the F(x)
@@ -297,6 +332,11 @@ namespace spot
 		    int num = dict->register_acceptance_variable(g, this);
 		    a_set &= bdd_ithvar(num);
 		    g->destroy();
+
+		    auto p = bm.emplace(num, 0U);
+		    if (p.second)
+		      p.first->second = acc.add_set();
+
 		    return num;
 		  }
 		else
@@ -316,6 +356,11 @@ namespace spot
 	  }
 	int num = dict->register_acceptance_variable(f, this);
 	a_set &= bdd_ithvar(num);
+
+	auto p = bm.emplace(num, 0U);
+	if (p.second)
+	  p.first->second = acc.add_set();
+
 	return num;
       }
 
@@ -2105,7 +2150,10 @@ namespace spot
 
     assert(dict == s->get_dict());
 
-    translate_dict d(dict, s, exprop, f->is_syntactic_persistence());
+    tgba_digraph_ptr a = make_tgba_digraph(dict);
+    auto namer = a->create_namer<const formula*, formula_ptr_hash>();
+
+    translate_dict d(dict, a->acc(), s, exprop, f->is_syntactic_persistence());
 
     // Compute the set of all promises that can possibly occur
     // inside the formula.
@@ -2154,8 +2202,6 @@ namespace spot
     bdd all_events = observable_events | unobservable_events;
 
 
-    tgba_digraph_ptr a = make_tgba_digraph(dict);
-    auto namer = a->create_namer<const formula*, formula_ptr_hash>();
 
     // This is in case the initial state is equivalent to true...
     if (symb_merge)
@@ -2341,7 +2387,7 @@ namespace spot
 		formulae_to_translate.insert(truef);
 		namer->new_state(truef);
 	      }
-	    namer->new_transition(now, truef, cond_for_true, bddtrue);
+	    namer->new_transition(now, truef, cond_for_true, 0U);
 	  }
 	// Register other transitions.
 	for (i = dests.begin(); i != dests.end(); ++i)
@@ -2365,7 +2411,7 @@ namespace spot
 		if (!reachable && !seen)
 		  namer->new_state(dest);
 		reachable = true;
-		namer->new_transition(now, dest, cond, j.first);
+		namer->new_transition(now, dest, cond, d.bdd_to_mark(j.first));
 	      }
 
 	    if (reachable && !seen)
@@ -2380,21 +2426,15 @@ namespace spot
     delete namer;
 
     dict->register_propositions(fc.used_vars(), a);
-    a->set_acceptance_conditions(d.a_set);
-    // Turn all promises into real acceptance conditions.
-    acc_compl ac(a->all_acceptance_conditions(),
-		 a->neg_acceptance_conditions());
 
     unsigned ns = a->num_states();
     for (unsigned s = 0; s < ns; ++s)
       for (auto& t: a->out(s))
-	t.acc = ac.reverse_complement(t.acc);
-
+	t.acc = a->acc().comp(t.acc);
 
     if (!simplifier)
       // This should not be deleted before we have registered all propositions.
       delete s;
-
     return a;
   }
 

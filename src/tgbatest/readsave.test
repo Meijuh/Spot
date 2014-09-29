@@ -36,9 +36,9 @@ EOF
 ../ltl2tgba -b -X input > stdout
 
 cat >expected <<\EOF
-acc = "c" "d";
-"0", "1", "a & !b", "c" "d";
-"1", "2", "\"F\\G\"", "c";
+acc = "0" "1";
+"0", "1", "a & !b", "0" "1";
+"1", "2", "\"F\\G\"", "0";
 "2", "0", "1",;
 EOF
 
@@ -71,11 +71,11 @@ s2, s1, "b&a", c;
 EOF
 
 cat >expected <<\EOF
-acc = "c";
-"0", "1", "a", "c";
+acc = "0";
+"0", "1", "a", "0";
 "0", "1", "!b",;
 "1", "0", "!b",;
-"1", "0", "a", "c";
+"1", "0", "a", "0";
 EOF
 
 run 0 ../ltl2tgba -b -X input > stdout

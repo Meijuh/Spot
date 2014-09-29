@@ -73,9 +73,8 @@ namespace spot
 	    else
 	      {
 		si->first();
-		accepting = ((!si->done())
-			     && (si->current_acceptance_conditions() ==
-				 aut_->all_acceptance_conditions()));
+		auto a = si->current_acceptance_conditions();
+		accepting = !si->done() && aut_->acc().accepting(a);
 	      }
 	  }
 	else
@@ -96,10 +95,13 @@ namespace spot
       {
 	std::string label =
 	  bdd_format_formula(aut_->get_dict(),
-			     si->current_condition())
-	  + "\n"
-	  + bdd_format_accset(aut_->get_dict(),
-			      si->current_acceptance_conditions());
+			     si->current_condition());
+	auto a = si->current_acceptance_conditions();
+	if (a)
+	  {
+	    label += "\n";
+	    label += aut_->acc().format(a);
+	  }
 
 	std::string s = aut_->transition_annotation(si);
 	if (!s.empty())

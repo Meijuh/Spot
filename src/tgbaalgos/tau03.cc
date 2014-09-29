@@ -56,10 +56,9 @@ namespace spot
       /// \brief Initialize the search algorithm on the automaton \a a
       tau03_search(const const_tgba_ptr a, size_t size, option_map o)
         : emptiness_check(a, o),
-          h(size),
-          all_cond(a->all_acceptance_conditions())
+          h(size)
       {
-        assert(a->number_of_acceptance_conditions() > 0);
+        assert(a->acc().num_sets() > 0);
       }
 
       virtual ~tau03_search()
@@ -91,7 +90,7 @@ namespace spot
         const state* s0 = a_->get_init_state();
         inc_states();
         h.add_new_state(s0, BLUE);
-        push(st_blue, s0, bddfalse, bddfalse);
+        push(st_blue, s0, bddfalse, 0U);
 	auto t = std::static_pointer_cast<tau03_search>
 	  (this->emptiness_check::shared_from_this());
         if (dfs_blue())
@@ -124,7 +123,7 @@ namespace spot
 
     private:
       void push(stack_type& st, const state* s,
-                        const bdd& label, const bdd& acc)
+		const bdd& label, acc_cond::mark_t acc)
       {
         inc_depth();
         tgba_succ_iterator* i = a_->succ_iter(s);
@@ -149,9 +148,6 @@ namespace spot
       /// by the last dfs visiting it.
       heap h;
 
-      /// The unique acceptance condition of the automaton \a a.
-      bdd all_cond;
-
       bool dfs_blue()
       {
         while (!st_blue.empty())
@@ -164,7 +160,7 @@ namespace spot
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
                 bdd label = f.it->current_condition();
-                bdd acc = f.it->current_acceptance_conditions();
+                auto acc = f.it->current_acceptance_conditions();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();
@@ -199,10 +195,10 @@ namespace spot
                          << a_->format_state(f.s) << "  to "
                          << a_->format_state(s_prime) << std::endl;
                     bdd label = i->current_condition();
-                    bdd acc = i->current_acceptance_conditions();
+                    auto acc = i->current_acceptance_conditions();
                     typename heap::color_ref c_prime = h.get_color_ref(s_prime);
                     assert(!c_prime.is_white());
-                    bdd acu = acc | c.get_acc();
+		    auto acu = acc | c.get_acc();
                     if ((c_prime.get_acc() & acu) != acu)
                       {
                         trace << "  a propagation is needed, go down"
@@ -212,7 +208,7 @@ namespace spot
                         dfs_red(acu);
                      }
                   }
-                if (c.get_acc() == all_cond)
+                if (a_->acc().accepting(c.get_acc()))
                   {
                     trace << "DFS_BLUE propagation is successful, report a"
                           << " cycle" << std::endl;
@@ -230,7 +226,7 @@ namespace spot
         return false;
       }
 
-      void dfs_red(const bdd& acu)
+      void dfs_red(acc_cond::mark_t acu)
       {
         assert(!st_red.empty());
 
@@ -244,7 +240,7 @@ namespace spot
                 trace << "  Visit the successor: "
                       << a_->format_state(s_prime) << std::endl;
                 bdd label = f.it->current_condition();
-                bdd acc = f.it->current_acceptance_conditions();
+                auto acc = f.it->current_acceptance_conditions();
                 // Go down the edge (f.s, <label, acc>, s_prime)
                 f.it->next();
                 inc_transitions();
@@ -254,7 +250,7 @@ namespace spot
                     trace << "  It is white, pop it" << std::endl;
                     s_prime->destroy();
                   }
-                 else if ((c_prime.get_acc() & acu) != acu)
+		else if ((c_prime.get_acc() & acu) != acu)
                   {
                     trace << "  It is blue and propagation "
                           << "is needed, go down" << std::endl;
@@ -286,7 +282,7 @@ namespace spot
       class color_ref
       {
       public:
-        color_ref(color* c, bdd* a) :p(c), acc(a)
+        color_ref(color* c, acc_cond::mark_t* a) :p(c), acc(a)
           {
           }
         color get_color() const
@@ -298,15 +294,15 @@ namespace spot
             assert(!is_white());
             *p = c;
           }
-        const bdd& get_acc() const
+        acc_cond::mark_t get_acc() const
           {
             assert(!is_white());
             return *acc;
           }
-        void cumulate_acc(const bdd& a)
+        void cumulate_acc(acc_cond::mark_t a)
           {
             assert(!is_white());
-            *acc |= a;
+	    *acc |= a;
           }
         bool is_white() const
           {
@@ -314,7 +310,7 @@ namespace spot
           }
       private:
         color *p;
-        bdd* acc;
+	acc_cond::mark_t* acc;
       };
 
       explicit_tau03_search_heap(size_t)
@@ -349,7 +345,9 @@ namespace spot
       void add_new_state(const state* s, color c)
         {
           assert(h.find(s) == h.end());
-          h.emplace(s, std::make_pair(c, bddfalse));
+          h.emplace(std::piecewise_construct,
+		    std::forward_as_tuple(s),
+		    std::forward_as_tuple(c, 0U));
         }
 
       void pop_notify(const state*) const
@@ -369,7 +367,8 @@ namespace spot
         }
     private:
 
-      typedef std::unordered_map<const state*, std::pair<color, bdd>,
+      typedef std::unordered_map<const state*,
+				 std::pair<color, acc_cond::mark_t>,
 				 state_ptr_hash, state_ptr_equal> hash_type;
       hash_type h;
     };

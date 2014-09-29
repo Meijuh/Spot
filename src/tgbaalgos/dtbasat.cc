@@ -436,7 +436,7 @@ namespace spot
 	    }
 	}
 
-      bdd all_acc = ref->all_acceptance_conditions();
+      const acc_cond& ra = ref->acc();
 
       // construction of contraints (4,5) : all loops in the product
       // where no accepting run is detected in the ref. automaton,
@@ -477,7 +477,7 @@ namespace spot
 			if (sm.scc_of(dp) != q1p_scc)
 			  continue;
 
-			if (tr.acc == all_acc)
+			if (ra.accepting(tr.acc))
 			  continue;
 			for (unsigned q3 = 0; q3 < d.cand_size; ++q3)
 			  {
@@ -574,7 +574,7 @@ namespace spot
 			      {
 				// We only care about the looping case if
 				// it is accepting in the reference.
-				if (tr.acc != all_acc)
+				if (!ra.accepting(tr.acc))
 				  continue;
 				bdd all = tr.cond;
 				while (all != bddfalse)
@@ -636,7 +636,7 @@ namespace spot
       auto autdict = aut->get_dict();
       auto a = make_tgba_digraph(autdict);
       a->copy_ap_of(aut);
-      bdd acc = a->set_single_acceptance_set();
+      acc_cond::mark_t acc = a->set_single_acceptance_set();
       a->new_states(satdict.cand_size);
 
       unsigned last_aut_trans = -1U;

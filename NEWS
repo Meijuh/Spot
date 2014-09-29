@@ -56,12 +56,35 @@ New in spot 1.99a (not yet released)
 
       Where the virtual calls to done() and delete have been avoided.
 
-    - tgba::support_variables() and tgba::compute_support_variables()
+    - tgba::succ_iter() now takes only one argument.  The optional
+      global_state and global_automaton arguments have been removed.
+
+    - The following methods have been removed from the TGBA interface and
+      all their subclasses:
+        - tgba::support_variables()
+	- tgba::compute_support_variables()
+	- tgba::all_acceptance_conditions()       // use acc().accepting(...)
+	- tgba::neg_acceptance_conditions()
+	- tgba::number_of_acceptance_conditions() // use acc().num_sets()
       methods have been removed from the TGBA interface and all
       subclasses.
 
-    - tgba::succ_iter() now takes only one argument.  The optional
-      global_state and global_automaton arguments have been removed.
+    - Membership to acceptance sets are now stored using bit sets,
+      currently limited to 32 bits.  Each TGBA has a acc() method that
+      returns a reference to an acceptance object (of type
+      spot::acc_cond), able to operate on acceptance marks
+      (spot::acc_cond::mark_t).
+
+      Instead of writing
+        i->current_acceptance_conditions() == aut->all_acceptance_conditions()
+      we now write
+        aut->acc().accepting(i->current_acceptance_conditions())
+
+      Similarly,
+        aut->number_of_acceptance_conditions()
+      is now
+        aut->acc().num_sets()
+
 
   * Removed features
 
@@ -86,6 +109,15 @@ New in spot 1.99a (not yet released)
       translation was a purely-based BDD encoding producing huge
       automata (when viewed explictely), using the above and non
       longuer supported tgba_bdd_concrete class.
+
+    - Our implementation of the Kupferman-Vardi complementation has
+      been removed: it was useless in practice beause of the size of
+      the automata built, and it did not survive the conversion of
+      acceptance sets from BDDs to bitsets.
+
+    - Conversion from TGBA to state-based Generalized Büchi automata
+      has been removed too, because it was only used by the KV
+      complementation.
 
 New in spot 1.2.5a (not yet released)
 

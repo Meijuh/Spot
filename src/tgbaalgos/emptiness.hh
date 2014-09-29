@@ -269,7 +269,7 @@ namespace spot
     struct step {
       const state* s;
       bdd label;
-      bdd acc;
+      acc_cond::mark_t acc;
     };
 
     typedef std::list<step> steps;

@@ -41,7 +41,7 @@ namespace spot
   ///          A density of 1 means all states will be connected to each other.
   /// \param ap The list of atomic property that should label the transition.
   /// \param dict The bdd_dict to used for this automata.
-  /// \param n_acc The number of acceptance sets to use.
+  /// \param n_accs The number of acceptance sets to use.
   ///          If this number is non null, then there is no guarantee
   ///          that the generated graph contains an accepting cycle (raise
   ///          the value of \a a to improve the chances).
@@ -49,7 +49,6 @@ namespace spot
   ///          to an acceptance set.
   /// \param t The probability (between 0.0 and 1.0) that an atomic proposition
   ///          is true.
-  /// \param env The environment in which to declare the acceptance conditions.
   ///
   /// This algorithms is adapted from the one in Fig 6.2 page 48 of
   /** \verbatim
@@ -79,8 +78,7 @@ namespace spot
   SPOT_API tgba_digraph_ptr
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
-	       int n_acc = 0, float a = 0.1, float t = 0.5,
-	       ltl::environment* env = &ltl::default_environment::instance());
+	       unsigned n_accs = 0, float a = 0.1, float t = 0.5);
 }
 
 #endif // SPOT_TGBAALGOS_RANDOMGRAPH_HH

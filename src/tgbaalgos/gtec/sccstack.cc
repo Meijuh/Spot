@@ -27,7 +27,7 @@ namespace spot
   scc_stack::connected_component::connected_component(int i)
   {
     index = i;
-    condition = bddfalse;
+    condition = 0U;
   }
 
   scc_stack::connected_component&

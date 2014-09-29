@@ -62,9 +62,9 @@ namespace spot
   {
 
   protected:
-    tgta();
-  public:
+    tgta(const bdd_dict_ptr& d);
 
+  public:
     virtual
     ~tgta();
 

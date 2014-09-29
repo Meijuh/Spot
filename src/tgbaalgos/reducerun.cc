@@ -102,9 +102,8 @@ namespace spot
     const state* segment_next; // The state immediately after the segment.
 
     // Start from the end of the original cycle, and rewind until all
-    // acceptance conditions have been seen.
-    bdd seen_acc = bddfalse;
-    bdd all_acc = a->all_acceptance_conditions();
+    // acceptance sets have been seen.
+    acc_cond::mark_t seen_acc = 0U;
     tgba_run::steps::const_iterator seg = org->cycle.end();
     do
       {
@@ -112,12 +111,12 @@ namespace spot
 	--seg;
         seen_acc |= seg->acc;
       }
-    while (seen_acc != all_acc);
+    while (!a->acc().accepting(seen_acc));
     segment_start = seg->s;
 
     // Now go forward and ends the segment as soon as we have seen all
-    // acceptance conditions, cloning it in our result along the way.
-    seen_acc = bddfalse;
+    // acceptance sets, cloning it in our result along the way.
+    seen_acc = 0U;
     do
       {
         assert(seg != org->cycle.end());
@@ -128,7 +127,7 @@ namespace spot
 
 	++seg;
       }
-    while (seen_acc != all_acc);
+    while (!a->acc().accepting(seen_acc));
     segment_next = seg == org->cycle.end() ? org->cycle.front().s : seg->s;
 
     // Close this cycle if needed, that is, compute a cycle going

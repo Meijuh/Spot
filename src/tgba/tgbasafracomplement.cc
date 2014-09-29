@@ -962,7 +962,7 @@ namespace spot
       typedef std::multimap<bdd, state_complement*, bdd_less_than> succ_list_t;
 
       tgba_safra_complement_succ_iterator(const succ_list_t& list,
-                                          bdd the_acceptance_cond)
+                                          acc_cond::mark_t the_acceptance_cond)
         : list_(list), the_acceptance_cond_(the_acceptance_cond)
       {
       }
@@ -979,10 +979,10 @@ namespace spot
       virtual bool done() const;
       virtual state_complement* current_state() const;
       virtual bdd current_condition() const;
-      virtual bdd current_acceptance_conditions() const;
+      virtual acc_cond::mark_t current_acceptance_conditions() const;
     private:
       succ_list_t list_;
-      bdd the_acceptance_cond_;
+      acc_cond::mark_t the_acceptance_cond_;
       succ_list_t::const_iterator it_;
     };
 
@@ -1020,7 +1020,7 @@ namespace spot
       return it_->first;
     }
 
-    bdd
+    acc_cond::mark_t
     tgba_safra_complement_succ_iterator::current_acceptance_conditions() const
     {
       assert(!done());
@@ -1075,38 +1075,22 @@ namespace spot
   //////////////////////////
 
   tgba_safra_complement::tgba_safra_complement(const const_tgba_ptr& a)
-    : automaton_(a), safra_(safra_determinisation::create_safra_automaton(a))
+    : tgba(a->get_dict()), automaton_(a),
+      safra_(safra_determinisation::create_safra_automaton(a))
   {
     assert(safra_ || !"safra construction fails");
 
-    // We will use one acceptance condition for this automata.
-    // Let's call it Acc[True].
-    int v = get_dict()
-      ->register_acceptance_variable(ltl::constant::true_instance(), safra_);
-
 #if TRANSFORM_TO_TBA
-    the_acceptance_cond_ = bdd_ithvar(v);
+    the_acceptance_cond_ = acc_.mark(acc_.add_set());
 #endif
 
 #if TRANSFORM_TO_TGBA
     unsigned nb_acc =
       static_cast<safra_tree_automaton*>(safra_)->get_nb_acceptance_pairs();
-    all_acceptance_cond_ = bddfalse;
-    neg_acceptance_cond_ = bddtrue;
+
     acceptance_cond_vec_.reserve(nb_acc);
     for (unsigned i = 0; i < nb_acc; ++i)
-      {
-	int r = get_dict()->register_clone_acc(v, safra_);
-	all_acceptance_cond_ &= bdd_nithvar(r);
-	all_acceptance_cond_ |= bdd_ithvar(r) & neg_acceptance_cond_;
-	neg_acceptance_cond_ &= bdd_nithvar(r);
-	acceptance_cond_vec_.push_back(bdd_ithvar(r));
-      }
-    for (unsigned i = 0; i < nb_acc; ++i)
-      {
-	bdd c = acceptance_cond_vec_[i];
-	acceptance_cond_vec_[i] = bdd_exist(neg_acceptance_cond_, c) & c;
-      }
+      acceptance_cond_vec_.push_back(acc_.mark(acc_.add_set()));
 #endif
   }
 
@@ -1171,7 +1155,7 @@ namespace spot
 
     assert(tr != a->automaton.end());
 
-    bdd condition = bddfalse;
+    acc_cond::mark_t condition = 0U;
     tgba_safra_complement_succ_iterator::succ_list_t succ_list;
     int nb_acceptance_pairs = a->get_nb_acceptance_pairs();
     bitvect* e = make_bitvect(nb_acceptance_pairs);
@@ -1249,12 +1233,6 @@ namespace spot
     return new tgba_safra_complement_succ_iterator(succ_list, condition);
   }
 
-  bdd_dict_ptr
-  tgba_safra_complement::get_dict() const
-  {
-    return automaton_->get_dict();
-  }
-
   std::string
   tgba_safra_complement::format_state(const state* state) const
   {
@@ -1262,26 +1240,6 @@ namespace spot
       down_cast<const state_complement*>(state);
     assert(s);
     return s->to_string();
-  }
-
-  bdd
-  tgba_safra_complement::all_acceptance_conditions() const
-  {
-#if TRANSFORM_TO_TBA
-    return the_acceptance_cond_;
-#else
-    return all_acceptance_cond_;
-#endif
-  }
-
-  bdd
-  tgba_safra_complement::neg_acceptance_conditions() const
-  {
-#if TRANSFORM_TO_TBA
-    return !the_acceptance_cond_;
-#else
-    return neg_acceptance_cond_;
-#endif
   }
 
   bdd

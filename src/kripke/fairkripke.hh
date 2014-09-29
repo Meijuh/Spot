@@ -52,14 +52,14 @@ namespace spot
     /// The \a cond and \a acc_cond arguments will be those returned
     /// by fair_kripke_succ_iterator::current_condition(),
     /// and fair_kripke_succ_iterator::current_acceptance_conditions().
-    fair_kripke_succ_iterator(const bdd& cond, const bdd& acc_cond);
+    fair_kripke_succ_iterator(const bdd& cond, acc_cond::mark_t acc_cond);
     virtual ~fair_kripke_succ_iterator();
 
     virtual bdd current_condition() const;
-    virtual bdd current_acceptance_conditions() const;
+    virtual acc_cond::mark_t current_acceptance_conditions() const;
   protected:
     bdd cond_;
-    bdd acc_cond_;
+    acc_cond::mark_t acc_cond_;
   };
 
   /// \ingroup kripke
@@ -86,16 +86,22 @@ namespace spot
   /// class and need not be defined.
   ///
   /// See also spot::fair_kripke_succ_iterator.
-  class SPOT_API fair_kripke : public tgba
+  class SPOT_API fair_kripke: public tgba
   {
   public:
+    fair_kripke(const bdd_dict_ptr& d)
+      : tgba(d)
+      {
+      }
+
     /// \brief The condition that label the state \a s.
     ///
     /// This should be a conjunction of atomic propositions.
     virtual bdd state_condition(const state* s) const = 0;
 
     /// \brief The set of acceptance conditions that label the state \a s.
-    virtual bdd state_acceptance_conditions(const state* s) const = 0;
+    virtual acc_cond::mark_t
+      state_acceptance_conditions(const state* s) const = 0;
 
   protected:
     virtual bdd compute_support_conditions(const state* s) const;

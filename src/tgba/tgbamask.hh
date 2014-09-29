@@ -52,9 +52,9 @@ namespace spot
   /// \ingroup tgba_on_the_fly_algorithms
   /// \brief Mask a TGBA, rejecting some acceptance set of transitions.
   ///
-  /// This will ignore all transitions labeled by the acceptance ACC
-  /// such that ACC & TO_IGNORE != bddfalse.  The initial state can
-  /// optionally be reset to \a init.
+  /// This will ignore all transitions that have the TO_IGNORE
+  /// acceptance mark.  The initial state can optionally be reset to
+  /// \a init.
   ///
   /// Note that the acceptance condition of the automaton (i.e. the
   /// set of all acceptance set) is not changed, because so far this
@@ -62,7 +62,7 @@ namespace spot
   /// all_acceptance_conditions().
   SPOT_API const_tgba_ptr
   build_tgba_mask_acc_ignore(const const_tgba_ptr& to_mask,
-			     const bdd to_ignore,
+			     unsigned to_ignore,
 			     const state* init = 0);
 
 }

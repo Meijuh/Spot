@@ -25,6 +25,7 @@
 #include <deque>
 #include <vector>
 #include <algorithm>
+#include <iterator>
 #include "tgbaalgos/scc.hh"
 #include "tgba/bddprint.hh"
 
@@ -72,7 +73,7 @@ namespace spot
     class outgoing_acc
     {
       const_tgba_ptr a_;
-      typedef std::pair<bdd, bdd> cache_entry;
+      typedef std::pair<acc_cond::mark_t, acc_cond::mark_t> cache_entry;
       typedef std::unordered_map<const state*, cache_entry,
 				 state_ptr_hash, state_ptr_equal> cache_t;
       cache_t cache_;
@@ -86,8 +87,8 @@ namespace spot
       cache_t::const_iterator fill_cache(const state* s)
       {
 	unsigned s1 = sm_ ? sm_->scc_of_state(s) : 0;
-        bdd common = a_->all_acceptance_conditions();
-        bdd union_ = bddfalse;
+	acc_cond::mark_t common = a_->acc().all_sets();
+        acc_cond::mark_t union_ = 0U;
 	for (auto it: a_->succ(s))
           {
 	    // Ignore transitions that leave the SCC of s.
@@ -97,7 +98,7 @@ namespace spot
 	    if (s2 != s1)
 	      continue;
 
-            bdd set = it->current_acceptance_conditions();
+            acc_cond::mark_t set = it->current_acceptance_conditions();
             common &= set;
             union_ |= set;
           }
@@ -106,7 +107,7 @@ namespace spot
       }
 
       // Intersection of all outgoing acceptance sets
-      bdd common_acc(const state* s)
+      acc_cond::mark_t common_acc(const state* s)
       {
         cache_t::const_iterator i = cache_.find(s);
         if (i == cache_.end())
@@ -115,7 +116,7 @@ namespace spot
       }
 
       // Union of all outgoing acceptance sets
-      bdd union_acc(const state* s)
+      acc_cond::mark_t union_acc(const state* s)
       {
         cache_t::const_iterator i = cache_.find(s);
         if (i == cache_.end())
@@ -146,11 +147,10 @@ namespace spot
 	auto p = cache_.emplace(s, false);
 	if (p.second)
 	  {
-	    bdd all = a_->all_acceptance_conditions();
 	    for (auto it: a_->succ(s))
 	      {
 		// Look only for transitions that are accepting.
-		if (all != it->current_acceptance_conditions())
+		if (!a_->acc().accepting(it->current_acceptance_conditions()))
 		  continue;
 		// Look only for self-loops.
 		const state* dest = uniq_(it->current_state());
@@ -168,37 +168,23 @@ namespace spot
     // Order of accepting sets (for one SCC)
     class acc_order
     {
-      std::vector<bdd> order_;
-      bdd found_;
+      std::vector<unsigned> order_;
+      acc_cond::mark_t found_;
 
     public:
       unsigned
-      next_level(bdd all, int slevel, bdd acc, bool skip_levels)
+      next_level(const acc_cond& acc, int slevel,
+		 acc_cond::mark_t set, bool skip_levels)
       {
-        bdd temp = acc;
-        if (all != found_)
-          {
-            // Check for new conditions in acc
-            if ((acc & found_) != acc)
-              {
-                bdd acc_t = acc;
-                while (acc_t != bddfalse)
-                {
-                  bdd next = bdd_satone(acc_t);
-                  acc_t -= next;
-                  // Add new condition
-                  if ((next & found_) != next)
-                    {
-                      order_.push_back(next);
-                      found_ |= next;
-                    }
-                }
-              }
-          }
+	// Update the order with any new set we discover
+	if (auto newsets = set - found_)
+	  {
+	    acc.fill_from(newsets, std::back_inserter(order_));
+	    found_ |= newsets;
+	  }
 
-        acc = temp;
         unsigned next = slevel;
-        while (next < order_.size() && bdd_implies(order_[next], acc))
+        while (next < order_.size() && set.has(order_[next]))
 	  {
 	    ++next;
 	    if (!skip_levels)
@@ -208,44 +194,41 @@ namespace spot
       }
 
       void
-      print(int scc, const bdd_dict_ptr dict)
+      print(int scc)
       {
         std::vector<bdd>::iterator i;
         std::cout << "Order_" << scc << ":\t";
-        for (i = order_.begin(); i != order_.end(); i++)
-          {
-            bdd_print_acc(std::cout, dict, *i);
-            std::cout << ", ";
-          }
-        std::cout << std::endl;
+        for (auto i: order_)
+	  std::cout << i << ", ";
+        std::cout << '\n';
       }
     };
 
     // Accepting order for each SCC
     class scc_orders
     {
-      bdd all_;
+      const acc_cond& acc_;
       std::map<int, acc_order> orders_;
       bool skip_levels_;
 
     public:
-      scc_orders(bdd all, bool skip_levels):
-	all_(all), skip_levels_(skip_levels)
+      scc_orders(const acc_cond& acc, bool skip_levels):
+	acc_(acc), skip_levels_(skip_levels)
       {
       }
 
       unsigned
-      next_level(int scc, int slevel, bdd acc)
+      next_level(int scc, int slevel, acc_cond::mark_t set)
       {
-        return orders_[scc].next_level(all_, slevel, acc, skip_levels_);
+        return orders_[scc].next_level(acc_, slevel, set, skip_levels_);
       }
 
       void
-      print(const bdd_dict_ptr dict)
+      print()
       {
         std::map<int, acc_order>::iterator i;
         for (i = orders_.begin(); i != orders_.end(); i++)
-          i->second.print(i->first, dict);
+          i->second.print(i->first);
       }
     };
 
@@ -273,26 +256,23 @@ namespace spot
       // be used as a level in degen_state to indicate the next expected
       // acceptance set.  Level order.size() is a special level used to
       // denote accepting states.
-      std::vector<bdd> order;
+      std::vector<unsigned> order;
       {
+	// FIXME: revisit this comment once everything compiles again.
+	//
 	// The order is arbitrary, but it turns out that using push_back
 	// instead of push_front often gives better results because
 	// acceptance sets at the beginning if the cycle are more often
 	// used in the automaton.  (This surprising fact is probably
 	// related to the order in which we declare the BDD variables
 	// during the translation.)
-	bdd all = a->all_acceptance_conditions();
-	while (all != bddfalse)
-	  {
-	    bdd next = bdd_satone(all);
-	    all -= next;
-	    order.push_back(next);
-	  }
+	unsigned n = a->acc().num_sets();
+	for (unsigned i = n; i > 0; --i)
+	  order.push_back(i - 1);
       }
 
       // Initialize scc_orders
-      bdd allacc = a->all_acceptance_conditions();
-      scc_orders orders(a->all_acceptance_conditions(), skip_levels);
+      scc_orders orders(a->acc(), skip_levels);
 
       // Make sure we always use the same pointer for identical states
       // from the input automaton.
@@ -340,11 +320,12 @@ namespace spot
       // start on the associated level.
       if (s.second == 0)
 	{
-	  bdd acc = outgoing.common_acc(s.first);
+	  auto set = outgoing.common_acc(s.first);
 	  if (use_cust_acc_orders)
-	    s.second = orders.next_level(m.initial(), s.second, acc);
+	    s.second = orders.next_level(m.initial(), s.second, set);
 	  else
-	    while (s.second < order.size() && bdd_implies(order[s.second], acc))
+	    while (s.second < order.size()
+		   && set.has(order[s.second]))
 	      {
 		++s.second;
 		if (!skip_levels)
@@ -405,13 +386,13 @@ namespace spot
 		}
 
 	      // The old level is slevel.  What should be the new one?
-	      bdd acc = i->current_acceptance_conditions();
-	      bdd otheracc = outgoing.common_acc(d.first);
+	      auto acc = i->current_acceptance_conditions();
+	      auto otheracc = outgoing.common_acc(d.first);
 
 	      if (want_sba && is_acc)
 		{
 		  // Ignore the last expected acceptance set (the value of
-		  // *prev below) if it is common to all other outgoing
+		  // prev below) if it is common to all other outgoing
 		  // transitions (of the current state) AND if it is not
 		  // used by any outgoing transition of the destination
 		  // state.
@@ -447,12 +428,12 @@ namespace spot
 		  if (!order.empty())
 		    {
 		      unsigned prev = order.size() - 1;
-		      bdd common = outgoing.common_acc(s.first);
-		      if (bdd_implies(order[prev], common))
+		      auto common = outgoing.common_acc(s.first);
+		      if (common.has(order[prev]))
 			{
-			  bdd u = outgoing.union_acc(d.first);
-			  if (!bdd_implies(order[prev], u))
-			    acc -= order[prev];
+			  auto u = outgoing.union_acc(d.first);
+			  if (!u.has(order[prev]))
+			    acc -= a->acc().mark(order[prev]);
 			}
 		    }
 		}
@@ -523,7 +504,7 @@ namespace spot
 			      // are not skipping levels.
 			      if (skip_levels || !is_acc)
 				while (next < order.size()
-				       && bdd_implies(order[next], acc))
+				       && acc.has(order[next]))
 				  {
 				    ++next;
 				    if (!skip_levels)
@@ -545,7 +526,7 @@ namespace spot
 		    {
 		      d.second = 0; // Make it go to the first level.
 		      // Skip levels as much as possible.
-		      if (acc != allacc && !skip_levels)
+		      if (!a->acc().accepting(acc) && !skip_levels)
 			{
 			  if (use_cust_acc_orders)
 			    {
@@ -554,7 +535,7 @@ namespace spot
 			  else
 			    {
 			      while (d.second < order.size() &&
-				     bdd_implies(order[d.second], acc))
+				     acc.has(order[d.second]))
 				++d.second;
 			    }
 			}

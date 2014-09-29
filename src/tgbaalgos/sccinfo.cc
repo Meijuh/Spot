@@ -33,14 +33,14 @@ namespace spot
     struct scc
     {
     public:
-      scc(int index, bdd in_cond, bdd in_acc):
+      scc(int index, bdd in_cond, acc_cond::mark_t in_acc):
 	index(index), in_cond(in_cond), in_acc(in_acc)
       {
       }
 
       int index;	 // Index of the SCC
       bdd in_cond;	 // Condition on incoming transition
-      bdd in_acc;	 // Acceptance sets on the incoming transition
+      acc_cond::mark_t in_acc; // Acceptance sets on the incoming transition
       scc_info::scc_node node;
     };
   }
@@ -50,7 +50,6 @@ namespace spot
   {
     unsigned n = aut->num_states();
     sccof_.resize(n, -1U);
-    bdd all_acc = aut->all_acceptance_conditions();
 
     typedef std::list<scc> stack_type;
     stack_type root_;		// Stack of SCC roots.
@@ -81,7 +80,7 @@ namespace spot
 	unsigned init = aut->get_init_state_number();
 	num_ = -1;
 	h_[init] = num_;
-	root_.emplace_front(num_, bddfalse, bddfalse);
+	root_.emplace_front(num_, bddfalse, 0U);
 	todo_.emplace(init, aut->out(init).begin());
       }
 
@@ -117,12 +116,12 @@ namespace spot
 		    h_[s] = num + 1;
 		  }
 		bdd cond = root_.front().in_cond;
-		bdd acc = root_.front().node.acc;
+		auto acc = root_.front().node.acc;
 		bool triv = root_.front().node.trivial;
 		node_.emplace_back(acc, triv);
 		std::swap(node_.back().succ, root_.front().node.succ);
 		std::swap(node_.back().states, root_.front().node.states);
-		node_.back().accepting = acc == all_acc;
+		node_.back().accepting = aut->acc().accepting(acc);
 		root_.pop_front();
 		// Record the transition between the SCC being popped
 		// and the previous SCC.
@@ -135,7 +134,7 @@ namespace spot
 	// We have a successor to look at.
 	// Fetch the values we are interested in...
 	unsigned dest = succ->dst;
-	bdd acc = succ->acc;
+	auto acc = succ->acc;
 	bdd cond = succ->cond;
 	++todo_.top().second;
 
@@ -191,7 +190,8 @@ namespace spot
 	while (threshold > root_.front().index)
 	  {
 	    assert(!root_.empty());
-	    acc |= root_.front().node.acc | root_.front().in_acc;
+	    acc |= root_.front().node.acc;
+	    acc |= root_.front().in_acc;
 	    states.splice(states.end(), root_.front().node.states);
 
 	    succs.insert(succs.end(),
@@ -229,22 +229,22 @@ namespace spot
   }
 
 
-  std::vector<bdd> scc_info::used_acc() const
+  std::vector<std::set<acc_cond::mark_t>> scc_info::used_acc() const
   {
     unsigned n = aut_->num_states();
-    std::vector<bdd> result(scc_count());
-    acceptance_convertor conv(aut_->neg_acceptance_conditions());
+    std::vector<std::set<acc_cond::mark_t>> result(scc_count());
 
     for (unsigned src = 0; src < n; ++src)
       {
 	unsigned src_scc = scc_of(src);
 	if (src_scc == -1U || !is_accepting_scc(src_scc))
 	  continue;
+	auto& s = result[src_scc];
 	for (auto& t: aut_->out(src))
 	  {
 	    if (scc_of(t.dst) != src_scc)
 	      continue;
-	    result[src_scc] |= conv.as_full_product(t.acc);
+	    s.insert(t.acc);
 	  }
       }
     return result;
@@ -255,9 +255,8 @@ namespace spot
     unsigned n = scc_count();
     std::vector<bool> result(scc_count());
     auto acc = used_acc();
-    bdd all = bdd_support(aut_->neg_acceptance_conditions());
     for (unsigned s = 0; s < n; ++s)
-      result[s] = !is_accepting_scc(s) || acc[s] == all;
+      result[s] = !is_accepting_scc(s) || acc[s].size() == 1;
     return result;
   }
 
@@ -276,8 +275,6 @@ namespace spot
   {
     scc_info* m = sccinfo ? sccinfo : new scc_info(aut);
 
-    bdd all_acc = aut->all_acceptance_conditions();
-
     out << "digraph G {\n  i [label=\"\", style=invis, height=0]\n";
     int start = m->scc_of(aut->get_init_state_number());
     out << "  i -> " << start << std::endl;
@@ -293,7 +290,7 @@ namespace spot
 	q.pop();
 
 	out << "  " << state << " [shape=box,"
-            << (m->acc(state) == all_acc ? "style=bold," : "")
+            << (aut->acc().accepting(m->acc(state)) ? "style=bold," : "")
             << "label=\"" << state;
 	{
 	  size_t n = m->states_of(state).size();

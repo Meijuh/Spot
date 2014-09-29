@@ -54,7 +54,7 @@
   int token;
   std::string* str;
   const spot::ltl::formula* f;
-  bdd* acc;
+  spot::acc_cond::mark_t acc;
 }
 
 %code
@@ -80,10 +80,9 @@ typedef std::pair<bool, spot::ltl::formula*> pair;
 %token ACC_DEF
 
 %destructor { delete $$; } <str>
-%destructor { delete $$; } <acc>
 
 %printer { debug_stream() << *$$; } <str>
-%printer { debug_stream() << *$$; } <acc>
+%printer { debug_stream() << $$; } <acc>
 
 %%
 tgba: acceptance_decl lines
@@ -94,7 +93,8 @@ tgba: acceptance_decl lines
       { namer->new_state("0"); };
 
 acceptance_decl: ACC_DEF acc_decl ';'
-      { acc_map.commit(); }
+      {
+      }
 
 /* At least one line.  */
 lines: line
@@ -137,11 +137,10 @@ line: strident ',' strident ',' condition ',' acc_list ';'
 	   }
 	 unsigned s = namer->new_state(*$1);
 	 unsigned d = namer->new_state(*$3);
-	 namer->graph().new_transition(s, d, cond, *$7);
+	 namer->graph().new_transition(s, d, cond, $7);
 	 delete $1;
 	 delete $3;
 	 delete $5;
-	 delete $7;
        }
        ;
 
@@ -166,7 +165,7 @@ condition:
 
 acc_list:
        {
-	 $$ = new bdd(bddfalse);
+	 $$ = 0U;
        }
        | acc_list strident
        {
@@ -180,7 +179,7 @@ acc_list:
 		 // $2 will be destroyed on error recovery.
 		 YYERROR;
 	       }
-	     *$1 |= p.second;
+	     $1 |= p.second;
 	   }
 	 delete $2;
 	 $$ = $1;

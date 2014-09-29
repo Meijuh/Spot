@@ -61,7 +61,7 @@ namespace spot
     /// The set of useful acceptance conditions (i.e. acceptance
     /// conditions that are not always implied by other acceptance
     /// conditions).
-    bdd useful_acc;
+    std::set<acc_cond::mark_t> useful_acc;
 
     std::ostream& dump(std::ostream& out) const;
   };
@@ -144,13 +144,13 @@ namespace spot
     /// \brief Return the set of acceptance conditions occurring in an SCC.
     ///
     /// \pre This should only be called once build_map() has run.
-    bdd acc_set_of(unsigned n) const;
+    acc_cond::mark_t acc_set_of(unsigned n) const;
 
     /// \brief Return the set of useful acceptance conditions of SCC \a n.
     ///
     /// Useless acceptances conditions are always implied by other acceptances
     /// conditions.  This returns all the other acceptance conditions.
-    bdd useful_acc_of(unsigned n) const;
+    const std::set<acc_cond::mark_t>& useful_acc_of(unsigned n) const;
 
     /// \brief Return the set of states of an SCC.
     ///
@@ -183,14 +183,14 @@ namespace spot
     struct scc
     {
     public:
-      scc(int index) : index(index), acc(bddfalse),
+      scc(int index) : index(index), acc(0U),
 		       supp(bddtrue), supp_rec(bddfalse),
-		       trivial(true), useful_acc(bddfalse) {};
+		       trivial(true) {};
       /// Index of the SCC.
       int index;
       /// The union of all acceptance conditions of transitions which
       /// connect the states of the connected component.
-      bdd acc;
+      acc_cond::mark_t acc;
       /// States of the component.
       std::list<const state*> states;
       /// Set of conditions used in the SCC.
@@ -204,22 +204,13 @@ namespace spot
       /// Trivial SCC have one state and no self-loops.
       bool trivial;
       /// \brief Set of acceptance combinations used in the SCC.
-      ///
-      /// Note that the encoding used here differs from the
-      /// encoding used in automata.
-      /// If some transitions of the automaton are labeled by
-      ///      Acc[a]&!Acc[b]&!Acc[c]  |  !Acc[a]&Acc[b]&!Acc[c]
-      /// an other transitions are labeled by
-      ///      !Acc[a]&Acc[b]&!Acc[c]  |  !Acc[a]&!Acc[b]&Acc[c]
-      /// then useful_acc will contain
-      ///      Acc[a]&Acc[b]&!Acc[c] | !Acc[a]&Acc[b]&Acc[c]
-      bdd useful_acc;
+      std::set<acc_cond::mark_t> useful_acc;
     };
 
     const_tgba_ptr aut_;		// Automata to decompose.
     typedef std::list<scc> stack_type;
     stack_type root_;		// Stack of SCC roots.
-    std::stack<bdd> arc_acc_;	// A stack of acceptance conditions
+    std::stack<acc_cond::mark_t> arc_acc_; // A stack of acceptance conditions
 				// between each of these SCC.
     std::stack<bdd> arc_cond_;	// A stack of conditions
 				// between each of these SCC.

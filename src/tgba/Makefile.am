@@ -26,6 +26,7 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 tgbadir = $(pkgincludedir)/tgba
 
 tgba_HEADERS = \
+  acc.hh \
   bdddict.hh \
   bddprint.hh \
   formula2bdd.hh \
@@ -33,11 +34,9 @@ tgba_HEADERS = \
   taatgba.hh \
   tgba.hh \
   tgbagraph.hh \
-  tgbakvcomplement.hh \
   tgbamask.hh \
   tgbaproxy.hh \
   tgbaproduct.hh \
-  tgbasgba.hh \
   tgbasafracomplement.hh
 
 noinst_LTLIBRARIES = libtgba.la
@@ -48,9 +47,7 @@ libtgba_la_SOURCES = \
   taatgba.cc \
   tgba.cc \
   tgbagraph.cc \
-  tgbakvcomplement.cc \
   tgbaproduct.cc \
   tgbamask.cc \
   tgbaproxy.cc \
-  tgbasafracomplement.cc \
-  tgbasgba.cc
+  tgbasafracomplement.cc

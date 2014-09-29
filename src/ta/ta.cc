@@ -28,7 +28,7 @@ namespace spot
   {
     index = i;
     is_accepting = false;
-    condition = bddfalse;
+    condition = 0U;
   }
 
   scc_stack_ta::connected_component&

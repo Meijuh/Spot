@@ -106,9 +106,8 @@ namespace spot
 	if (label.empty())
 	  label = "{}";
 
-	label += ("\n" +
-		  bdd_format_accset(d, si->current_acceptance_conditions()));
-
+	label += "\n";
+	label += t_automata_->acc().format(si->current_acceptance_conditions());
 
         os_ << "  " << in << " -> " << out << " [label=\"";
 	escape_str(os_, label);

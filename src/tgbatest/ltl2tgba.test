@@ -160,7 +160,7 @@ grep 'states: 1$' stdout
 run 0 ../ltl2tgba -M -f "F(a & F(b))" | grep ' ->' > stdout
 cat >expected <<EOF
   0 -> 1
-  1 -> 1 [label="1\n"]
+  1 -> 1 [label="1"]
 EOF
 cmp stdout expected
 

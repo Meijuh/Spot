@@ -190,7 +190,7 @@ namespace spot
             //if stuttering transition, the TA automata stays in the same state
             current_state_ = new state_ta_product(source_->get_ta_state(),
                 kripke_current_dest_state->clone());
-            current_acceptance_conditions_ = bddfalse;
+            current_acceptance_conditions_ = 0U;
             return true;
           }
 
@@ -232,7 +232,7 @@ namespace spot
     return current_condition_;
   }
 
-  bdd
+  acc_cond::mark_t
   ta_succ_iterator_product::current_acceptance_conditions() const
   {
     return current_acceptance_conditions_;
@@ -244,6 +244,7 @@ namespace spot
 
   ta_product::ta_product(const const_ta_ptr& testing_automata,
 			 const const_kripke_ptr& kripke_structure):
+    ta(testing_automata->get_dict()),
     dict_(testing_automata->get_dict()),
     ta_(testing_automata),
     kripke_(kripke_structure)
@@ -385,12 +386,6 @@ namespace spot
     bool is_hole_state = ta_succ_iter->done();
     delete ta_succ_iter;
     return is_hole_state;
-  }
-
-  bdd
-  ta_product::all_acceptance_conditions() const
-  {
-    return get_ta()->all_acceptance_conditions();
   }
 
   bdd

@@ -215,7 +215,30 @@ namespace spot
     protected:
       // Shortcut used in update_po and go_to_next_it.
       typedef std::map<bdd, bdd, bdd_less_than> map_bdd_bdd;
+      int acc_vars;
     public:
+
+      bdd mark_to_bdd(acc_cond::mark_t m)
+      {
+	// FIXME: Use a cache.
+	bdd res = bddtrue;
+	for (auto n: a_->acc().sets(m))
+	  res &= bdd_ithvar(acc_vars + n);
+	return res;
+      }
+
+      acc_cond::mark_t bdd_to_mark(const tgba_digraph_ptr& aut, bdd b)
+      {
+	// FIXME: Use a cache.
+	std::vector<unsigned> res;
+	while (b != bddtrue)
+	  {
+	    res.push_back(bdd_var(b) - acc_vars);
+	    b = bdd_high(b);
+	  }
+	return aut->acc().marks(res.begin(), res.end());
+      }
+
       direct_simulation(const const_tgba_ptr& t,
 			const map_constraint* map_cst = 0)
         : a_(0),
@@ -234,9 +257,6 @@ namespace spot
         old_a_ = a_;
 
 
-	acc_compl ac(a_->all_acceptance_conditions(),
-		     a_->neg_acceptance_conditions());
-
 	// Replace all the acceptance conditions by their complements.
 	// (In the case of Cosimulation, we also flip the transitions.)
 	{
@@ -253,7 +273,7 @@ namespace spot
 	    {
 	      for (auto& t: old_a_->out(s))
 		{
-		  bdd acc;
+		  acc_cond::mark_t acc;
 		  if (Sba && Cosimulation)
 		    {
 		      // If the acceptance is interpreted as
@@ -262,16 +282,16 @@ namespace spot
 		      // the destination state on its incoming arcs
 		      // (which now become outgoing arcs after
 		      // transposition).
-		      acc = bddfalse;
+		      acc = 0U;
 		      for (auto& td: old_a_->out(t.dst))
 			{
-			  acc = ac.complement(td.acc);
+			  acc = old_a_->acc().comp(td.acc);
 			  break;
 			}
 		    }
 		  else
 		    {
-		      acc = ac.complement(t.acc);
+		      acc = old_a_->acc().comp(t.acc);
 		    }
 		  if (Cosimulation)
 		    a_->new_transition(t.dst, s, t.cond, acc);
@@ -288,8 +308,13 @@ namespace spot
 	unsigned set_num = a_->get_dict()
 	  ->register_anonymous_variables(size_a_ + 1, this);
 
-        all_acceptance_conditions_ = a_->all_acceptance_conditions();
-        all_proms_ = bdd_support(all_acceptance_conditions_);
+	unsigned n_acc = a_->acc().num_sets();
+	acc_vars = a_->get_dict()
+	  ->register_anonymous_variables(n_acc, this);
+
+	all_proms_ = bddtrue;
+	for (unsigned v = acc_vars; v < acc_vars + n_acc; ++v)
+	  all_proms_ &= bdd_ithvar(v);
 
         bdd_initial = bdd_ithvar(set_num++);
 	bdd init = bdd_ithvar(set_num++);
@@ -397,7 +422,7 @@ namespace spot
 	      }
 	    else
 	      {
-		acc = t.acc;
+		acc = mark_to_bdd(t.acc);
 	      }
 
 	    // to_add is a conjunction of the acceptance condition,
@@ -527,23 +552,14 @@ namespace spot
       // Build the minimal resulting automaton.
       tgba_digraph_ptr build_result()
       {
-	// We have all the a_'s acceptances conditions
-	// complemented.  So we need to complement it when adding a
-	// transition.  We *must* keep the complemented because it
-	// is easy to know if an acceptance condition is maximal or
-	// not.
-	acc_compl reverser(all_acceptance_conditions_,
-			   a_->neg_acceptance_conditions());
-
 	tgba_digraph_ptr res = make_tgba_digraph(a_->get_dict());
 	res->copy_ap_of(a_);
-	res->set_acceptance_conditions(all_acceptance_conditions_);
+	res->copy_acceptance_conditions_of(a_);
 	if (Sba)
 	  res->prop_state_based_acc();
 
-	bdd sup_all_acc = bdd_support(all_acceptance_conditions_);
 	// Non atomic propositions variables (= acc and class)
-	bdd nonapvars = sup_all_acc & bdd_support(all_class_var_);
+	bdd nonapvars = all_proms_ & bdd_support(all_class_var_);
 
 	auto* gb = res->create_namer<int>();
 
@@ -558,9 +574,9 @@ namespace spot
           }
 
 	// Acceptance of states.  Only used if Sba && Cosimulation.
-	std::vector<bdd> accst;
+	std::vector<acc_cond::mark_t> accst;
 	if (Sba && Cosimulation)
-	  accst.resize(res->num_states(), bddfalse);
+	  accst.resize(res->num_states(), 0U);
 
         stat.states = bdd_lstate_.size();
         stat.transitions = 0;
@@ -626,7 +642,8 @@ namespace spot
 					     all_class_var_);
 
 		    // Keep only ones who are acceptance condition.
-		    bdd acc = bdd_existcomp(cond_acc_dest, sup_all_acc);
+		    auto acc = bdd_to_mark(res, bdd_existcomp(cond_acc_dest,
+							      all_proms_));
 
 		    // Keep the other!
 		    bdd cond = bdd_existcomp(cond_acc_dest,
@@ -635,7 +652,7 @@ namespace spot
 		    // Because we have complemented all the acceptance
 		    // conditions on the input automaton, we must
 		    // revert them to create a new transition.
-		    acc = reverser.reverse_complement(acc);
+		    acc = res->acc().comp(acc);
 
 		    if (Cosimulation)
 		      {
@@ -647,7 +664,7 @@ namespace spot
 			    // can't do this here, store this in a table
 			    // so we can fix it later.
 			    accst[gb->get_state(src.id())] = acc;
-			    acc = bddfalse;
+			    acc = 0U;
 			  }
 			gb->new_transition(dst.id(), src.id(), cond, acc);
 		      }
@@ -671,8 +688,8 @@ namespace spot
 	    unsigned ns = res->num_states();
 	    for (unsigned s = 0; s < ns; ++s)
 	      {
-		bdd acc = accst[s];
-		if (acc == bddfalse)
+		acc_cond::mark_t acc = accst[s];
+		if (acc == 0U)
 		  continue;
 		for (auto& t: res->out(s))
 		  t.acc = acc;
@@ -774,8 +791,6 @@ namespace spot
       const map_constraint* map_cst_;
 
       const_tgba_ptr original_;
-
-      bdd all_acceptance_conditions_;
     };
 
     // For now, we don't try to handle cosimulation.
@@ -807,8 +822,7 @@ namespace spot
         // simulation to run.
         has_limit_ = false;
 
-	notap = (bdd_support(all_acceptance_conditions_)
-                 & all_class_var_ & on_cycle_);
+	notap = bdd_support(all_proms_) & all_class_var_ & on_cycle_;
       }
 
       // This function computes the don't care signature of the state
@@ -831,13 +845,14 @@ namespace spot
             if (scc != scc_info_->scc_of(t.dst))
               acc = !on_cycle_;
             else if (sccacc)
-              acc = on_cycle_ & t.acc;
+              acc = on_cycle_ & mark_to_bdd(t.acc);
             else
               acc = on_cycle_ & all_proms_;
 
             bdd to_add = acc & t.cond & relation_[cl];
             res |= to_add;
           }
+
         return res;
       }
 
@@ -864,9 +879,6 @@ namespace spot
       bool could_imply_aux(bdd f1, bdd g1, bdd left_class,
 			   bdd right, bdd right_class)
       {
-        (void) left_class;
-        (void) right_class;
-
         bdd f2g2 = bdd_exist(right, on_cycle_);
         bdd f2g2n = bdd_exist(f2g2, all_proms_);
 
@@ -973,8 +985,7 @@ namespace spot
             bdd b = bdd_exist(right, notap);
             bdd add = bdd_exist(left & b, bdd_support(b));
 
-            if (add != bddfalse
-                && bdd_exist(add, all_acceptance_conditions_) == bddtrue)
+            if (add != bddfalse && bdd_exist(add, all_proms_) == bddtrue)
               {
 		assert(src_right != dst_right);
 
@@ -988,8 +999,7 @@ namespace spot
             bdd b = bdd_exist(left, notap);
             bdd add = bdd_exist(right & b, bdd_support(b));
 
-            if (add != bddfalse
-                && bdd_exist(add, all_acceptance_conditions_) == bddtrue)
+            if (add != bddfalse && bdd_exist(add, all_proms_) == bddtrue)
               {
 		assert(src_left != dst_left);
 
@@ -1003,8 +1013,7 @@ namespace spot
             bdd b = bdd_exist(left, notap);
             bdd add = bdd_exist(right & b, bdd_support(b));
 
-            if (add != bddfalse
-                && bdd_exist(add, all_acceptance_conditions_) == bddtrue)
+            if (add != bddfalse && bdd_exist(add, all_proms_) == bddtrue)
               {
 		assert(src_left != dst_left && src_right != dst_right);
 		// FIXME: cas pas compris.
@@ -1174,6 +1183,9 @@ namespace spot
               }
 	    while (diff != bddtrue);
           }
+
+
+
 #ifndef NDEBUG
 	for (auto& i: class2state)
 	  assert(previous_class_[i.second] == i.first);

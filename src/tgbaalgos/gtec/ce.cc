@@ -149,7 +149,7 @@ namespace spot
   void
   couvreur99_check_result::accepting_cycle()
   {
-    bdd acc_to_traverse = ecs_->aut->all_acceptance_conditions();
+    acc_cond::mark_t acc_to_traverse = ecs_->aut->acc().all_sets();
     // Compute an accepting cycle using successive BFS that are
     // restarted from the point reached after we have discovered a
     // transition with a new acceptance conditions.
@@ -173,11 +173,11 @@ namespace spot
 	{
 	  const couvreur99_check_status* ecs;
 	  couvreur99_check_result* r;
-	  bdd& acc_to_traverse;
+	  acc_cond::mark_t& acc_to_traverse;
 	  int scc_root;
 
 	  scc_bfs(const couvreur99_check_status* ecs,
-		  couvreur99_check_result* r, bdd& acc_to_traverse)
+		  couvreur99_check_result* r, acc_cond::mark_t& acc_to_traverse)
 	    : bfs_steps(ecs->aut), ecs(ecs), r(r),
 	      acc_to_traverse(acc_to_traverse),
 	      scc_root(ecs->root.top().index)
@@ -202,9 +202,10 @@ namespace spot
 	  virtual bool
 	  match(tgba_run::step& st, const state* s)
 	  {
-	    bdd less_acc = acc_to_traverse - st.acc;
+	    acc_cond::mark_t less_acc =
+	      acc_to_traverse - st.acc;
 	    if (less_acc != acc_to_traverse
-		|| (acc_to_traverse == bddfalse
+		|| (acc_to_traverse == 0U
 		    && s == ecs->cycle_seed))
 	      {
 		acc_to_traverse = less_acc;
@@ -218,7 +219,7 @@ namespace spot
 	substart = b.search(substart, run_->cycle);
 	assert(substart);
       }
-    while (acc_to_traverse != bddfalse || substart != ecs_->cycle_seed);
+    while (acc_to_traverse != 0U || substart != ecs_->cycle_seed);
   }
 
   void

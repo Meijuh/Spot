@@ -72,7 +72,7 @@ namespace spot
     bdd
     current_condition() const;
 
-    bdd
+    acc_cond::mark_t
     current_acceptance_conditions() const;
 
   private:
@@ -96,7 +96,7 @@ namespace spot
     tgba_succ_iterator* kripke_succ_it_;
     state_product* current_state_;
     bdd current_condition_;
-    bdd current_acceptance_conditions_;
+    acc_cond::mark_t current_acceptance_conditions_;
     bdd kripke_source_condition;
     state* kripke_current_dest_state;
   };

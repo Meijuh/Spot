@@ -28,18 +28,20 @@ namespace spot
     // Clone the original automaton.
     tgba_digraph_ptr res = tgba_dupexp_dfs(aut);
 
-    bdd oldaccs = aut->all_acceptance_conditions();
-    bdd oldnegs = aut->neg_acceptance_conditions();
+
+    // Copy the old acceptance condition before we replace it.
+    acc_cond oldacc = aut->acc(); // Copy it!
 
     // We will modify res in place, and the resulting
     // automaton will only have one acceptance set.
+    // This changes aut->acc();
     res->set_single_acceptance_set();
 
-    unsigned num_acc =  aut->number_of_acceptance_conditions();
+    unsigned num_sets = oldacc.num_sets();
     unsigned n = res->num_states();
     // We will duplicate the automaton as many times as we have
     // acceptance sets, and we need one extra sink state.
-    res->new_states(num_acc * n + 1);
+    res->new_states(num_sets * n + 1);
     unsigned sink = res->num_states() - 1;
     // The sink state has an accepting self-loop.
     res->new_acc_transition(sink, sink, bddtrue);
@@ -54,29 +56,26 @@ namespace spot
 	    if (t.dst >= n)	// Ignore transitions we added.
 	      break;
 	    missingcond -= t.cond;
-	    bdd curacc = t.acc;
+	    acc_cond::mark_t curacc = t.acc;
 	    // The original transition must not accept anymore.
-	    t.acc = bddfalse;
+	    t.acc = 0U;
+
 	    // Transition that were fully accepting are never cloned.
-	    if (curacc == oldaccs)
+	    if (oldacc.accepting(curacc))
 	      continue;
 	    // Save t.cond and t.dst as the reference to t
 	    // is invalided by calls to new_transition().
 	    unsigned dst = t.dst;
 	    bdd cond = t.cond;
-	    // We want all acceptance bdd variable to appear in curacc.
-	    if (curacc == bddfalse)
-	      curacc = oldnegs;
 
 	    // Iterate over all the acceptance conditions in 'curacc',
-	    // an duplicate it each each clone for which it does not
+	    // an duplicate it for each clone for which it does not
 	    // belong to the acceptance set.
 	    unsigned add = 0;
-	    while (curacc != bddtrue)
+	    for (unsigned set = 0; set < num_sets; ++set)
 	      {
 		add += n;
-		bdd h = bdd_high(curacc);
-		if (h == bddfalse)
+		if (!oldacc.has(curacc, set))
 		  {
 		    // Clone the transition
 		    res->new_acc_transition(src + add, dst + add, cond);
@@ -93,26 +92,9 @@ namespace spot
 		    // arc set would be better.
 		    if (dst <= src)
 		      res->new_transition(src, dst + add, cond);
-		    curacc = bdd_low(curacc);
-		  }
-		else
-		  {
-		    // We know that only one variable can be positive
-		    // on any branch, so since we have just seen such
-		    // a variable, we want to go to explore its LOW
-		    // branch for more positive variables.  The only
-		    // case where we will not do that is if the LOW
-		    // branch is false.  In that case we take the HIGH
-		    // branch to enumerate all the remaining negated
-		    // variables.
-		    bdd tmp = bdd_low(curacc);
-		    if (tmp != bddfalse)
-		      curacc = tmp;
-		    else
-		      curacc = h;
 		  }
 	      }
-	    assert(add == num_acc * n);
+	    assert(add == num_sets * n);
 	  }
 	// Complete the original automaton.
 	if (missingcond != bddfalse)
@@ -134,21 +116,18 @@ namespace spot
 		   true, 	// inherently_weak
 		   true);	// deterministic
 
-    bdd oldaccs = aut->all_acceptance_conditions();
-    bdd oldnegs = aut->neg_acceptance_conditions();
-
     scc_info si(res);
 
     // We will modify res in place, and the resulting
     // automaton will only have one acceptance set.
-    bdd all_acc = res->set_single_acceptance_set();
+    acc_cond::mark_t all_acc = res->set_single_acceptance_set();
     res->prop_state_based_acc();
 
     unsigned sink = res->num_states();
 
     for (unsigned src = 0; src < sink; ++src)
       {
-	bdd acc = bddfalse;
+	acc_cond::mark_t acc = 0U;
 	unsigned scc = si.scc_of(src);
 	if (!si.is_accepting_scc(scc) && !si.is_trivial(scc))
 	  acc = all_acc;

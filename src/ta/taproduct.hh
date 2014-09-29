@@ -93,7 +93,7 @@ namespace spot
     bdd
     current_condition() const;
 
-    bdd
+    acc_cond::mark_t
     current_acceptance_conditions() const;
 
     /// \brief Return true if the changeset of the current transition is empty
@@ -120,7 +120,7 @@ namespace spot
     tgba_succ_iterator* kripke_succ_it_;
     state_ta_product* current_state_;
     bdd current_condition_;
-    bdd current_acceptance_conditions_;
+    acc_cond::mark_t current_acceptance_conditions_;
     bool is_stuttering_transition_;
     bdd kripke_source_condition;
     state * kripke_current_dest_state;
@@ -173,9 +173,6 @@ namespace spot
 
     virtual bdd
     get_state_condition(const spot::state* s) const;
-
-    virtual bdd
-    all_acceptance_conditions() const;
 
     virtual void
     free_state(const spot::state* s) const;

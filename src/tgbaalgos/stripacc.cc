@@ -27,7 +27,7 @@ namespace spot
     unsigned n = a->num_states();
     for (unsigned s = 0; s < n; ++s)
       for (auto& t: a->out(s))
-	t.acc = bddfalse;
-    a->set_acceptance_conditions(bddfalse);
+	t.acc = 0U;
+    a->set_acceptance_conditions(0);
   }
 }

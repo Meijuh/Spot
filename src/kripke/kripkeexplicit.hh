@@ -117,7 +117,6 @@ namespace spot
     kripke_explicit(const bdd_dict_ptr&, state_kripke* = nullptr);
     ~kripke_explicit();
 
-    bdd_dict_ptr get_dict() const;
     state_kripke* get_init_state() const;
 
     /// \brief Allow to get an iterator on the state we passed in
@@ -174,7 +173,6 @@ namespace spot
     void add_transition(state_kripke* source,
 			const state_kripke* dest);
 
-    bdd_dict_ptr dict_;
     state_kripke* init_;
     std::map<const std::string, state_kripke*> ns_nodes_;
     std::map<const state_kripke*, std::string> sn_nodes_;
