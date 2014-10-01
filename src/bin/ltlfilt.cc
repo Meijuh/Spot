@@ -45,6 +45,7 @@
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/minimize.hh"
 #include "tgbaalgos/safety.hh"
+#include "tgbaalgos/stutter_invariance.hh"
 
 const char argp_program_doc[] ="\
 Read a list of formulas and output them back after some optional processing.\v\
@@ -550,8 +551,7 @@ namespace
       matched &= !implied_by || simpl.implication(implied_by, f);
       matched &= !imply || simpl.implication(f, imply);
       matched &= !equivalent_to || simpl.are_equivalent(f, equivalent_to);
-      matched &= !stutter_insensitive || (f->is_ltl_formula()
-					  && is_stutter_insensitive(f));
+      matched &= !stutter_insensitive || spot::is_stutter_invariant(f);
 
       // Match obligations and subclasses using WDBA minimization.
       // Because this is costly, we compute it later, so that we don't
@@ -609,8 +609,6 @@ main(int argc, char** argv)
   if (jobs.empty())
     jobs.emplace_back("-", 1);
 
-  // --stutter-insensitive implies --ltl
-  ltl |= stutter_insensitive;
   if (boolean_to_isop && simplification_level == 0)
     simplification_level = 1;
   spot::ltl::ltl_simplifier_options opt = simplifier_options();

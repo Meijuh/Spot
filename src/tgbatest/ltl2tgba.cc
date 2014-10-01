@@ -69,6 +69,8 @@
 #include "tgbaalgos/complete.hh"
 #include "tgbaalgos/dtbasat.hh"
 #include "tgbaalgos/dtgbasat.hh"
+#include "tgbaalgos/closure.hh"
+#include "tgbaalgos/stutterize.hh"
 
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
@@ -376,6 +378,8 @@ checked_main(int argc, char** argv)
   bool reject_bigger = false;
   bool opt_monitor = false;
   bool containment = false;
+  bool opt_closure = false;
+  bool opt_stutterize = false;
   bool spin_comments = false;
   const char* hoaf_opt = 0;
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
@@ -789,6 +793,14 @@ checked_main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-S"))
 	{
 	  dupexp = BFS;
+	}
+      else if (!strcmp(argv[formula_index], "-CL"))
+	{
+	  opt_closure = true;
+	}
+      else if (!strcmp(argv[formula_index], "-ST"))
+	{
+	  opt_stutterize = true;
 	}
       else if (!strcmp(argv[formula_index], "-t"))
 	{
@@ -1393,6 +1405,16 @@ checked_main(int argc, char** argv)
 				   false : scc_filter_all);
 	      tm.stop("SCC-filter post-sim");
 	    }
+	}
+
+      if (opt_closure)
+	{
+	  a = closure(ensure_digraph(a));
+	}
+
+      if (opt_stutterize)
+	{
+	  a = sl(ensure_digraph(a), f);
 	}
 
       if (opt_monitor)

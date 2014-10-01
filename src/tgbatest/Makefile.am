@@ -121,6 +121,7 @@ TESTS = \
   emptchk.test \
   emptchke.test \
   dfs.test \
+  stutter_invariant.test \
   ltlcrossce.test \
   emptchkr.test \
   ltlcounter.test \

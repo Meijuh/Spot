@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2013, 2014 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -117,18 +117,5 @@ namespace spot
       remove_x_visitor v(f);
       return v.recurse(f);
     }
-
-    bool is_stutter_insensitive(const formula* f)
-    {
-      assert(f->is_ltl_formula());
-      if (f->is_X_free())
-	return true;
-      const formula* g = remove_x(f);
-      ltl_simplifier ls;
-      bool res = ls.are_equivalent(f, g);
-      g->destroy();
-      return res;
-    }
-
   }
 }

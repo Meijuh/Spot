@@ -130,6 +130,8 @@ namespace std {
 #include "tgbaalgos/isdet.hh"
 #include "tgbaalgos/simulation.hh"
 #include "tgbaalgos/postproc.hh"
+#include "tgbaalgos/closure.hh"
+#include "tgbaalgos/stutterize.hh"
 
 #include "tgbaparse/public.hh"
 
@@ -260,6 +262,8 @@ namespace spot {
 %include "tgbaalgos/isdet.hh"
 %include "tgbaalgos/simulation.hh"
 %include "tgbaalgos/postproc.hh"
+%include "tgbaalgos/closure.hh"
+%include "tgbaalgos/stutterize.hh"
 
 %include "tgbaparse/public.hh"
 

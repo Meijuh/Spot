@@ -48,27 +48,6 @@ namespace spot
         \endverbatim */
     SPOT_API
     const formula* remove_x(const formula* f);
-
-    /// \brief Whether an LTL formula \a f is stutter-insensitive.
-    ///
-    /// This is simply achieved by checking whether the output of
-    /// <code>remove_x(f)</code> is equivalent to \a f.  This only
-    /// works for LTL formulas, not PSL formulas.
-    ///
-    /** \verbatim
-        @Article{         etessami.00.ipl,
-          author        = {Kousha Etessami},
-          title         = {A note on a question of {P}eled and {W}ilke regarding
-                          stutter-invariant {LTL}},
-          journal       = {Information Processing Letters},
-          volume        = {75},
-          number        = {6},
-          year          = {2000},
-          pages         = {261--263}
-        }
-        \endverbatim */
-    SPOT_API
-    bool is_stutter_insensitive(const formula* f);
   }
 }
 

@@ -29,6 +29,7 @@ tgbaalgosdir = $(pkgincludedir)/tgbaalgos
 
 tgbaalgos_HEADERS = \
   bfssteps.hh \
+  closure.hh \
   complete.hh \
   compsusp.hh \
   cycles.hh \
@@ -69,6 +70,8 @@ tgbaalgos_HEADERS = \
   simulation.hh \
   stats.hh \
   stripacc.hh \
+  stutter_invariance.hh \
+  stutterize.hh \
   tau03.hh \
   tau03opt.hh \
   translate.hh \
@@ -77,6 +80,7 @@ tgbaalgos_HEADERS = \
 noinst_LTLIBRARIES = libtgbaalgos.la
 libtgbaalgos_la_SOURCES = \
   bfssteps.cc \
+  closure.cc \
   complete.cc \
   compsusp.cc \
   cycles.cc \
@@ -117,6 +121,8 @@ libtgbaalgos_la_SOURCES = \
   simulation.cc \
   stats.cc \
   stripacc.cc \
+  stutter_invariance.cc \
+  stutterize.cc \
   tau03.cc \
   tau03opt.cc \
   translate.cc \
