@@ -166,9 +166,6 @@ src/              Sources for libspot.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.
    tgbatest/      Tests for tgba/, tgbaalgos/, tgbaparse/, ta/ and taalgos/.
-   saba/          SABA (State-labeled Alternating Büchi Automata) objects.
-   sabaalgos/     Algorithms on SABA.
-   sabatest/      Tests for saba/, sabaalgos/.
    sanity/        Sanity tests for the whole project.
 doc/              Documentation for libspot.
    org/           Source of userdoc/ as org-mode files.
