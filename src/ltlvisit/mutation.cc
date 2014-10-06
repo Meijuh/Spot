@@ -1,4 +1,5 @@
-// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
+// -*- coding: utf-8 -*-
+// Copyright (C) 2014 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -26,17 +27,17 @@
 #include "ltlvisit/length.hh"
 #include "misc/hash.hh"
 
-#define Implies_(x, y)							\
+#define Implies_(x, y) \
   spot::ltl::binop::instance(spot::ltl::binop::Implies, (x), (y))
-#define And_(x, y)							\
+#define And_(x, y) \
   spot::ltl::multop::instance(spot::ltl::multop::And, (x), (y))
-#define AndRat_(x, y)							\
+#define AndRat_(x, y) \
   spot::ltl::multop::instance(spot::ltl::multop::AndRat, (x), (y))
-#define AndNLM_(x)						\
+#define AndNLM_(x) \
   spot::ltl::multop::instance(spot::ltl::multop::AndNLM, (x))
-#define Concat_(x, y)							\
+#define Concat_(x, y) \
   spot::ltl::multop::instance(spot::ltl::multop::Concat, (x), (y))
-#define Not_(x)							\
+#define Not_(x) \
   spot::ltl::unop::instance(spot::ltl::unop::Not, (x))
 
 namespace spot
@@ -50,15 +51,16 @@ namespace spot
       public:
 	void visit(const atomic_prop* ap)
 	{
-	  if (ap == (*ap1_))
-	    result_ = (*ap2_)->clone();
+	  if (ap == ap1_)
+	    result_ = ap2_->clone();
 	  else
 	    result_ = ap->clone();
 	}
 
 	const formula*
 	replace(const formula* f,
-		atomic_prop_set::iterator ap1, atomic_prop_set::iterator ap2)
+		const atomic_prop* ap1,
+		const atomic_prop* ap2)
 	{
 	  ap1_ = ap1;
 	  ap2_ = ap2;
@@ -66,8 +68,8 @@ namespace spot
 	}
 
       private:
-	atomic_prop_set::iterator ap1_;
-	atomic_prop_set::iterator ap2_;
+	const atomic_prop* ap1_;
+	const atomic_prop* ap2_;
       };
 
       typedef std::vector<const formula*> vec;
@@ -81,7 +83,7 @@ namespace spot
         void visit(const atomic_prop* ap)
         {
           result_ = 0;
-          if (opts_ & MUT_AP2CONST)
+          if (opts_ & Mut_Ap2Const)
             {
               if (mutation_counter_-- == 0)
                 result_ = constant::true_instance();
@@ -95,7 +97,7 @@ namespace spot
         void visit(const unop* uo)
         {
           result_ = 0;
-          if (opts_ & MUT_REMOVE_OPS)
+          if (opts_ & Mut_Remove_Ops)
             {
               if ((uo->op() == unop::G
                    || uo->op() == unop::F
@@ -121,11 +123,11 @@ namespace spot
           const formula* second = bo->second();
           result_ = 0;
 
-          if (opts_ & MUT_REMOVE_OPS && mutation_counter_-- == 0)
+          if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
             result_ = first->clone();
-          if (opts_ & MUT_REMOVE_OPS && mutation_counter_-- == 0)
+          if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
             result_ = second->clone();
-          if (opts_ & MUT_REWRITE_OPS)
+          if (opts_ & Mut_Rewrite_Ops)
             {
               switch (bo->op())
                 {
@@ -151,7 +153,7 @@ namespace spot
                   break;
                 }
             }
-          if (opts_ & MUT_SPLIT_OPS)
+          if (opts_ & Mut_Split_Ops)
             {
               switch (bo->op())
                 {
@@ -191,9 +193,9 @@ namespace spot
           const formula* c = bu->child()->clone();
           result_ = 0;
 
-          if (opts_ & MUT_REMOVE_OPS && mutation_counter_-- == 0)
+          if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
             result_ = c->clone();
-          if (opts_ & MUT_SIMPLIFY_BOUNDS)
+          if (opts_ & Mut_Simplify_Bounds)
             {
               if (bu->min() > 0 && mutation_counter_-- == 0)
                 result_ =
@@ -225,14 +227,14 @@ namespace spot
           int i;
           result_ = 0;
 
-          if (opts_ & MUT_REMOVE_MULTOP_OPERANDS)
+          if (opts_ & Mut_Remove_Multop_Operands)
             {
               for (i = 0; i < mos; ++i)
                 if (mutation_counter_-- == 0)
                   result_ = mo->all_but(i);
             }
 
-          if (opts_ & MUT_SPLIT_OPS && mo->op() == multop::AndNLM)
+          if (opts_ & Mut_Split_Ops && mo->op() == multop::AndNLM)
             {
 	      if (mutation_counter_ >= 0 && mutation_counter_ < 2 * (mos - 1))
 		{
@@ -323,7 +325,7 @@ namespace spot
 
       void
       single_mutation_rec(const formula* f, fset_t& mutations, unsigned opts,
-			  int& n, unsigned m)
+			  unsigned& n, unsigned m)
       {
 	if (m == 0)
 	  {
@@ -348,7 +350,7 @@ namespace spot
 
       void
       replace_ap_rec(const formula* f, fset_t& mutations, unsigned opts,
-		     int& n, unsigned m)
+		     unsigned& n, unsigned m)
       {
 	if (m == 0)
 	  {
@@ -360,35 +362,34 @@ namespace spot
 	  }
 	else
 	  {
-	    const formula* mut;
+	    if (!n)
+	      return;
 	    replace_visitor rv;
-	    std::unique_ptr<atomic_prop_set> aps =
-	    std::unique_ptr<atomic_prop_set>(atomic_prop_collect(f));
-	    atomic_prop_set::iterator ap1;
-	    atomic_prop_set::iterator ap2;
-	    for (ap1 = aps->begin(); ap1 != aps->end() && n > 0; ++ap1)
-	      for (ap2 = aps->begin(); ap2 != aps->end() && n > 0; ++ap2)
+	    auto aps =
+	      std::unique_ptr<atomic_prop_set>(atomic_prop_collect(f));
+	    for (auto ap1: *aps)
+	      for (auto ap2: *aps)
 		{
 		  if (ap1 == ap2)
 		    continue;
-		  mut = rv.replace(f, ap1, ap2);
+		  auto mut = rv.replace(f, ap1, ap2);
 		  replace_ap_rec(mut, mutations, opts, n, m - 1);
 		  mut->destroy();
+		  if (!n)
+		    return;
 		}
 	  }
       }
     }
 
-    vec get_mutations(const formula* f,
-		      unsigned opts,
-		      bool sort,
-		      int n,
-		      unsigned m)
+    std::vector<const formula*>
+    mutate(const formula* f, unsigned opts, unsigned max_output,
+	   unsigned mutation_count, bool sort)
     {
       fset_t mutations;
-      single_mutation_rec(f, mutations, opts, n, m);
-      if (opts & MUT_REMOVE_ONE_AP)
-	replace_ap_rec(f, mutations, opts, n, m);
+      single_mutation_rec(f, mutations, opts, max_output, mutation_count);
+      if (opts & Mut_Remove_One_Ap)
+	replace_ap_rec(f, mutations, opts, max_output, mutation_count);
 
       vec res(mutations.begin(), mutations.end());
       if (sort)

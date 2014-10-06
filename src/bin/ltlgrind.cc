@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2014 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,7 +20,6 @@
 
 #include "common_sys.hh"
 #include <argp.h>
-#include <limits>
 #include "common_setup.hh"
 #include "common_finput.hh"
 #include "common_output.hh"
@@ -41,24 +40,25 @@
 #define OPT_SORT 8
 
 static unsigned mutation_nb = 1;
-static int max_output = std::numeric_limits<int>::max();
+static unsigned max_output = -1U;
 
-static unsigned opt_all = 0xfff;
+static unsigned opt_all = spot::ltl::Mut_All;
 static unsigned mut_opts = 0;
 static bool opt_sort = false;
 
-const char * argp_program_doc = "List formulas that are similar to but " \
-  "simpler than a given formula.";
+static const char * argp_program_doc =
+  "List formulas that are similar to but simpler than a given formula.";
 
 static const argp_option options[] = {
   {"mutations", 'm', "N", 0, "number of mutations to apply to the " \
    "formulae (default: 1)", -1},
   {"sort", OPT_SORT, 0, 0, "sort the result by formula size", 0},
-  {0, 0, 0, 0, "Transformation rules:", 15},
+  {0, 0, 0, 0, "Mutation rules (all enabled unless those options are used):",
+   15},
   {"ap-to-const", OPT_AP2CONST, 0, 0,
    "atomic propositions are replaced with true/false", 15},
   {"remove-one-ap", OPT_REMOVE_ONE_AP, 0, 0,
-   "all occurrences of an atomic proposition are replaced with another" \
+   "all occurrences of an atomic proposition are replaced with another " \
    "atomic proposition used in the formula", 15},
   {"remove-multop-operands", OPT_REMOVE_MULTOP_OPERANDS, 0, 0,
    "remove one operand from multops", 15},
@@ -75,8 +75,7 @@ static const argp_option options[] = {
    "a W b, etc.", 0},
   {"simplify-bounds", OPT_SIMPLIFY_BOUNDS, 0, 0,
    "on a bounded unary operator, decrement one of the bounds, or set min to " \
-   "0 or max to " \
-   "unbounded.", 15},
+   "0 or max to unbounded", 15},
   {0, 0, 0, 0, "Output options:", 20},
   {"max-output", 'n', "N", 0, "maximum number of mutations to output", 20},
   {0, 0, 0, 0, "Miscellaneous options:", -1},
@@ -112,25 +111,21 @@ to_unsigned (const char *s)
 
 namespace
 {
-  using namespace spot::ltl;
-
   class mutate_processor:
     public job_processor
   {
   public:
     int
-    process_formula(const formula* f, const char *filename = 0,
+    process_formula(const spot::ltl::formula* f, const char *filename = 0,
 		    int linenum = 0)
     {
-      std::vector<const formula*> mutations =
-      	get_mutations(f, mut_opts, opt_sort, max_output, mutation_nb);
-
+      auto mutations =
+	spot::ltl::mutate(f, mut_opts, max_output, mutation_nb, opt_sort);
       f->destroy();
-      std::vector<const formula*>::iterator it;
-      for (it = mutations.begin(); it != mutations.end(); ++it)
+      for (auto g: mutations)
 	{
-	  output_formula_checked(*it, filename, linenum);
-	  (*it)->destroy();
+	  output_formula_checked(g, filename, linenum);
+	  g->destroy();
 	}
       return 0;
     }
@@ -150,31 +145,31 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_AP2CONST:
       opt_all = 0;
-      mut_opts |= MUT_AP2CONST;
+      mut_opts |= spot::ltl::Mut_Ap2Const;
       break;
     case OPT_REMOVE_ONE_AP:
       opt_all = 0;
-      mut_opts |= MUT_REMOVE_ONE_AP;
+      mut_opts |= spot::ltl::Mut_Remove_One_Ap;
       break;
     case OPT_REMOVE_MULTOP_OPERANDS:
       opt_all = 0;
-      mut_opts |= MUT_REMOVE_MULTOP_OPERANDS;
+      mut_opts |= spot::ltl::Mut_Remove_Multop_Operands;
       break;
     case OPT_REMOVE_OPS:
       opt_all = 0;
-      mut_opts |= MUT_REMOVE_OPS;
+      mut_opts |= spot::ltl::Mut_Remove_Ops;
       break;
     case OPT_SPLIT_OPS:
       opt_all = 0;
-      mut_opts |= MUT_SPLIT_OPS;
+      mut_opts |= spot::ltl::Mut_Split_Ops;
       break;
     case OPT_REWRITE_OPS:
       opt_all = 0;
-      mut_opts |= MUT_REWRITE_OPS;
+      mut_opts |= spot::ltl::Mut_Rewrite_Ops;
       break;
     case OPT_SIMPLIFY_BOUNDS:
       opt_all = 0;
-      mut_opts |= MUT_SIMPLIFY_BOUNDS;
+      mut_opts |= spot::ltl::Mut_Simplify_Bounds;
       break;
     case OPT_SORT:
       opt_sort = true;

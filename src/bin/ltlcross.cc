@@ -1307,25 +1307,31 @@ namespace
 	  unsigned mutation_max;
 	  while	(res)
 	    {
-	      std::cerr << "Trying to find a bogus mutation of \"" << bogus <<
-		"\"" << std::endl;
-	      std::vector<const spot::ltl::formula*>::iterator it;
+	      std::cerr << "Trying to find a bogus mutation of ";
+	      if (color_opt)
+		std::cerr << bright_blue;
+	      std::cerr << bogus;
+	      if (color_opt)
+		std::cerr << reset_color;
+	      std::cerr << "...\n";
 
-	      mutations = get_mutations(f);
+	      mutations = mutate(f);
 	      mutation_count = 1;
 	      mutation_max = mutations.size();
 	      res = 0;
-	      for (it = mutations.begin(); it != mutations.end() && !res; ++it)
+	      for (auto g: mutations)
 		{
-		  std::cerr << "Mutation [" << mutation_count << '/'
-			    << mutation_max << ']' << std::endl;
+		  std::cerr << "Mutation " << mutation_count << '/'
+			    << mutation_max << ": ";
 		  f->destroy();
-		  f = (*it)->clone();
-		  res = process_formula(*it);
+		  f = g->clone();
+		  res = process_formula(g->clone());
+		  if (res)
+		    break;
 		  ++mutation_count;
 		}
-	      for (; it != mutations.end(); ++it)
-		(*it)->destroy();
+	      for (auto g: mutations)
+		g->destroy();
 	      if (res)
 		{
 		  if (lbt_input)
@@ -1336,18 +1342,19 @@ namespace
 		    *bogus_output << bogus << std::endl;
 		}
 	    }
-	  std::cerr << "The smallest bogus mutation found for ";
+	  std::cerr << "Smallest bogus mutation found for ";
 	  if (color_opt)
 	    std::cerr << bright_blue;
 	  std::cerr << input;
 	  if (color_opt)
 	    std::cerr << reset_color;
-	  std::cerr << " was ";
+	  std::cerr << " is ";
 	  if (color_opt)
 	    std::cerr << bright_blue;
-	  std::cerr << bogus << std::endl << std::endl;
+	  std::cerr << bogus;
 	  if (color_opt)
 	    std::cerr << reset_color;
+	  std::cerr << ".\n\n";
 	  *grind_output << bogus << std::endl;
 	}
       f->destroy();

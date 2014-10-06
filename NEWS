@@ -2,6 +2,15 @@ New in spot 1.99a (not yet released)
 
   * Major changes (including backward incompatible changes):
 
+    - ltlgrind is a new tool that mutates LTL or PSL formulas.  If you
+      have a tool that is bogus on some formula that is tool large to
+      debug, you can use ltlgrind to generate smaller derived formulas
+      and see if you can reproduce the bug on those.
+
+    - ltlcross has a new option --grind, that attempts to reduce the
+      size of any bogus formula it discovers, while still exhibiting
+      the bug.
+
     - Spot is now compiling in C++11 mode.  The set of features we use
       requires GCC >= 4.6 or Clang >= 3.1.  These minimum versions
       are old enough that it should not be an issue to most people.

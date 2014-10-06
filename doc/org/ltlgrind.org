@@ -72,11 +72,16 @@ argument.
 
 * Miscellaneous options
 ** =--sort=
-  Formulas are outputted from the shortest to the longest one. The
+  Output formulas from the shortest to the longest one. The
   length of a formula is the number of atomic propositions, constants
-  and operators occuring in the formula.
+  and operators occurring in the formula.
 ** =-m N=, =--mutations=N=
-   This option is used to specify the number of mutations to be
-   applied to the formula. This is like calling ltlgrind on its own
-   output several times, except for the fact that, when called on
-   several formulas, ltlgrind doesn't handle duplicates.
+  Specify the number of mutations to be applied to the formula. By
+  default, =N=1=, so using this option is like calling ltlgrind on its
+  own output several times, except for the fact that, when called on
+  several formulas, ltlgrind doesn't handle duplicates.
+** =-n N=, =--max-output=N=
+   Limit the number of mutated formulas output to =N=.
+
+#  LocalWords:  ltlgrind num toc html ltlcross FILENAME SRC sed ap Gb
+#  LocalWords:  const multop multops unary decrement disjunction Gc

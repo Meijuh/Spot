@@ -1,5 +1,6 @@
 #! /bin/sh
-# Copyright (C) 2013 Laboratoire de Recherche et Developement to
+# -*- coding: utf-8 -*-
+# Copyright (C) 2014 Laboratoire de Recherche et Dévelopement to
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.

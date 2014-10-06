@@ -1,9 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
-// Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// Copyright (C) 2014 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -24,29 +21,31 @@
 # define SPOT_LTLVISIT_MUTATION_HH
 
 #include "ltlast/formula.hh"
-#include <limits>
 #include <set>
 #include <vector>
-
-#define MUT_AP2CONST 0x1
-#define MUT_SIMPLIFY_BOUNDS 0x2
-#define MUT_REMOVE_MULTOP_OPERANDS 0x4
-#define MUT_REMOVE_OPS 0x8
-#define MUT_SPLIT_OPS 0x10
-#define MUT_REWRITE_OPS 0x20
-#define MUT_REMOVE_ONE_AP 0x40
 
 namespace spot
 {
   namespace ltl
   {
-    typedef std::vector<const formula*> vec;
+    enum mut_opts
+      {
+	Mut_Ap2Const = 1U<<0,
+	Mut_Simplify_Bounds = 1U<<1,
+	Mut_Remove_Multop_Operands = 1U<<2,
+	Mut_Remove_Ops = 1U<<3,
+	Mut_Split_Ops = 1U<<4,
+	Mut_Rewrite_Ops = 1U<<5,
+	Mut_Remove_One_Ap = 1U<<6,
+	Mut_All = -1U
+      };
+
     SPOT_API
-    vec get_mutations(const formula*,
-		      unsigned opts = 0xfff,
-		      bool sort = true,
-		      int n = std::numeric_limits<int>::max(),
-		      unsigned m = 1);
+    std::vector<const formula*> mutate(const formula* f,
+				       unsigned opts = Mut_All,
+				       unsigned max_output = -1U,
+				       unsigned mutation_count = 1,
+				       bool sort = true);
   }
 }
 #endif
