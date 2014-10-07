@@ -53,6 +53,7 @@ tgbaalgos_HEADERS = \
   neverclaim.hh \
   postproc.hh \
   powerset.hh \
+  product.hh \
   projrun.hh \
   randomgraph.hh \
   reachiter.hh \
@@ -100,6 +101,7 @@ libtgbaalgos_la_SOURCES = \
   neverclaim.cc \
   postproc.cc \
   powerset.cc \
+  product.cc \
   projrun.cc \
   randomgraph.cc \
   reachiter.cc \

@@ -46,12 +46,10 @@
 #include "ltlvisit/mutation.hh"
 #include "ltlvisit/relabel.hh"
 #include "tgbaalgos/lbtt.hh"
-#include "tgba/tgbaproduct.hh"
+#include "tgbaalgos/product.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/randomgraph.hh"
 #include "tgbaalgos/sccinfo.hh"
-#include "tgbaalgos/scc.hh"
-#include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/isweakscc.hh"
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaalgos/word.hh"
@@ -880,7 +878,7 @@ namespace
 	string_to_tmp(string_ltl_wring, serial, filename_ltl_wring);
     }
 
-    spot::const_tgba_ptr
+    spot::const_tgba_digraph_ptr
     translate(unsigned int translator_num, char l, statistics_formula* fstats,
 	      bool& problem)
     {
@@ -900,7 +898,7 @@ namespace
 
       const char* status_str = 0;
 
-      spot::const_tgba_ptr res = 0;
+      spot::const_tgba_digraph_ptr res = 0;
       if (timed_out)
 	{
 	  // This is not considered to be a global error.
@@ -1059,15 +1057,14 @@ namespace
 	      st->edges = s.transitions;
 	      st->transitions = s.sub_transitions;
 	      st->acc = res->acc().num_sets();
-	      spot::scc_map m(res);
-	      m.build_map();
+	      spot::scc_info m(res);
 	      unsigned c = m.scc_count();
 	      st->scc = c;
 	      st->nondetstates = spot::count_nondet_states(res);
 	      st->nondeterministic = st->nondetstates != 0;
 	      for (unsigned n = 0; n < c; ++n)
 		{
-		  if (!m.accepting(n))
+		  if (!m.is_accepting_scc(n))
 		    ++st->nonacc_scc;
 		  else if (is_terminal_scc(m, n))
 		    ++st->terminal_scc;
@@ -1090,8 +1087,8 @@ namespace
   };
 
   static bool
-  check_empty_prod(const spot::const_tgba_ptr& aut_i,
-		   const spot::const_tgba_ptr& aut_j,
+  check_empty_prod(const spot::const_tgba_digraph_ptr& aut_i,
+		   const spot::const_tgba_digraph_ptr& aut_j,
 		   size_t i, size_t j, bool icomp, bool jcomp)
   {
     auto prod = spot::product(aut_i, aut_j);
@@ -1145,7 +1142,7 @@ namespace
   }
 
   static bool
-  cross_check(const std::vector<spot::scc_map*>& maps, char l, unsigned p)
+  cross_check(const std::vector<spot::scc_info*>& maps, char l, unsigned p)
   {
     size_t m = maps.size();
     if (verbose)
@@ -1167,13 +1164,17 @@ namespace
     unsigned verified = 0;
     unsigned violated = 0;
     for (size_t i = 0; i < m; ++i)
-      if (spot::scc_map* m = maps[i])
+      if (spot::scc_info* m = maps[i])
 	{
 	  // r == true iff the automaton i is accepting.
 	  bool r = false;
 	  unsigned c = m->scc_count();
-	  for (unsigned j = 0; (j < c) && !r; ++j)
-	    r |= m->accepting(j);
+	  for (unsigned j = 0; j < c; ++j)
+	    if (m->is_accepting_scc(j))
+	      {
+		r = true;
+		break;
+	      }
 	  res[i] = r;
 	  if (r)
 	    ++verified;
@@ -1216,41 +1217,34 @@ namespace
     return false;
   }
 
-  typedef std::set<spot::state*, spot::state_ptr_less_than> state_set;
+  typedef std::set<unsigned> state_set;
 
   // Collect all the states of SSPACE that appear in the accepting SCCs
-  // of PROD.
+  // of PROD.  (Trivial SCCs are considered accepting.)
   static void
-  states_in_acc(const spot::scc_map* m,
-		const spot::const_tgba_ptr& sspace,
+  states_in_acc(const spot::scc_info* m,
 		state_set& s)
   {
     auto aut = m->get_aut();
+    auto ps = static_cast<const spot::product_states*>
+      (aut->get_named_prop("product-states"));
     unsigned c = m->scc_count();
     for (unsigned n = 0; n < c; ++n)
-      if (m->accepting(n))
+      if (m->is_accepting_scc(n) || m->is_trivial(n))
 	for (auto i: m->states_of(n))
-	  {
-	    spot::state* x = aut->project_state(i, sspace);
-	    assert(x);
-	    if (!s.insert(x).second)
-	      x->destroy();
-	    }
+	  // Get the projection on sspace.
+	  s.insert((*ps)[i].second);
   }
 
   static bool
-  consistency_check(const spot::scc_map* pos, const spot::scc_map* neg,
-		    const spot::const_tgba_ptr& sspace)
+  consistency_check(const spot::scc_info* pos, const spot::scc_info* neg)
   {
     // the states of SSPACE should appear in the accepting SCC of at
     // least one of POS or NEG.  Maybe both.
     state_set s;
-    states_in_acc(pos, sspace, s);
-    states_in_acc(neg, sspace, s);
-    bool res = s.size() == states;
-    for (auto i: s)
-      i->destroy();
-    return res;
+    states_in_acc(pos, s);
+    states_in_acc(neg, s);
+    return s.size() == states;
   }
 
   typedef
@@ -1423,12 +1417,12 @@ namespace
       // These store the result of the translation of the positive and
       // negative formulas.
       size_t m = translators.size();
-      std::vector<spot::const_tgba_ptr> pos(m);
-      std::vector<spot::const_tgba_ptr> neg(m);
+      std::vector<spot::const_tgba_digraph_ptr> pos(m);
+      std::vector<spot::const_tgba_digraph_ptr> neg(m);
       // These store the complement of the above results, when we can
       // compute it easily.
-      std::vector<spot::const_tgba_ptr> comp_pos(m);
-      std::vector<spot::const_tgba_ptr> comp_neg(m);
+      std::vector<spot::const_tgba_digraph_ptr> comp_pos(m);
+      std::vector<spot::const_tgba_digraph_ptr> comp_neg(m);
 
 
       unsigned n = vstats.size();
@@ -1577,19 +1571,18 @@ namespace
 	  auto statespace = spot::random_graph(states, density, ap, dict);
 
 	  // Products of the state space with the positive automata.
-	  std::vector<spot::const_tgba_ptr> pos_prod(m);
+	  std::vector<spot::const_tgba_digraph_ptr> pos_prod(m);
 	  // Products of the state space with the negative automata.
-	  std::vector<spot::const_tgba_ptr> neg_prod(m);
+	  std::vector<spot::const_tgba_digraph_ptr> neg_prod(m);
 	  // Associated SCC maps.
-	  std::vector<spot::scc_map*> pos_map(m);
-	  std::vector<spot::scc_map*> neg_map(m);
+	  std::vector<spot::scc_info*> pos_map(m);
+	  std::vector<spot::scc_info*> neg_map(m);
 	  for (size_t i = 0; i < m; ++i)
 	    if (pos[i])
 	      {
 		auto p = spot::product(pos[i], statespace);
 		pos_prod[i] = p;
-		spot::scc_map* sm = new spot::scc_map(p);
-		sm->build_map();
+		auto sm = new spot::scc_info(p);
 		pos_map[i] = sm;
 
 		// Statistics
@@ -1608,8 +1601,7 @@ namespace
 		{
 		  auto p = spot::product(neg[i], statespace);
 		  neg_prod[i] = p;
-		  spot::scc_map* sm = new spot::scc_map(p);
-		  sm->build_map();
+		  auto sm = new spot::scc_info(p);
 		  neg_map[i] = sm;
 
 		  // Statistics
@@ -1636,8 +1628,7 @@ namespace
 		      std::cerr << "info: consistency_check (P" << i
 				<< ",N" << i << "), state-space #"
 				<< p << '/' << products << '\n';
-		    if (!(consistency_check(pos_map[i], neg_map[i],
-					    statespace)))
+		    if (!(consistency_check(pos_map[i], neg_map[i])))
 		      {
 			++problems;
 

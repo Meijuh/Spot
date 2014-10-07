@@ -26,7 +26,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
-#include "tgbaalgos/scc.hh"
+#include "tgbaalgos/sccinfo.hh"
 #include "tgba/bddprint.hh"
 
 //#define DEGEN_DEBUG
@@ -38,32 +38,19 @@ namespace spot
     // A state in the degenalized automaton corresponds to a state in
     // the TGBA associated to a level.  The level is just an index in
     // the list of acceptance sets.
-    typedef std::pair<const state*, unsigned> degen_state;
+    typedef std::pair<unsigned, unsigned> degen_state;
 
     struct degen_state_hash
     {
       size_t
       operator()(const degen_state& s) const
       {
-        return s.first->hash() & wang32_hash(s.second);
-      }
-    };
-
-    struct degen_state_equal
-    {
-      bool
-      operator()(const degen_state& left,
-                 const degen_state& right) const
-      {
-        if (left.second != right.second)
-          return false;
-        return left.first->compare(right.first) == 0;
+        return wang32_hash(s.first ^ wang32_hash(s.second));
       }
     };
 
     // Associate the degeneralized state to its number.
-    typedef std::unordered_map<degen_state, int,
-			       degen_state_hash, degen_state_equal> ds2num_map;
+    typedef std::unordered_map<degen_state, int, degen_state_hash> ds2num_map;
 
     // Queue of state to be processed.
     typedef std::deque<degen_state> queue_t;
@@ -72,96 +59,64 @@ namespace spot
     // SCC -- we do not care about the other) of some state.
     class outgoing_acc
     {
-      const_tgba_ptr a_;
-      typedef std::pair<acc_cond::mark_t, acc_cond::mark_t> cache_entry;
-      typedef std::unordered_map<const state*, cache_entry,
-				 state_ptr_hash, state_ptr_equal> cache_t;
-      cache_t cache_;
-      const scc_map* sm_;
+      const_tgba_digraph_ptr a_;
+      typedef std::tuple<acc_cond::mark_t,
+			 acc_cond::mark_t,
+			 bool> cache_entry;
+      std::vector<cache_entry> cache_;
+      const scc_info* sm_;
 
-    public:
-      outgoing_acc(const const_tgba_ptr& a, const scc_map* sm): a_(a), sm_(sm)
+      void fill_cache(unsigned s)
       {
-      }
-
-      cache_t::const_iterator fill_cache(const state* s)
-      {
-	unsigned s1 = sm_ ? sm_->scc_of_state(s) : 0;
+	unsigned s1 = sm_ ? sm_->scc_of(s) : 0;
 	acc_cond::mark_t common = a_->acc().all_sets();
         acc_cond::mark_t union_ = 0U;
-	for (auto it: a_->succ(s))
+	bool has_acc_self_loop = false;
+	for (auto& t: a_->out(s))
           {
 	    // Ignore transitions that leave the SCC of s.
-	    const state* d = it->current_state();
-	    unsigned s2 = sm_ ? sm_->scc_of_state(d) : 0;
-	    d->destroy();
+	    unsigned d = t.dst;
+	    unsigned s2 = sm_ ? sm_->scc_of(d) : 0;
 	    if (s2 != s1)
 	      continue;
 
-            acc_cond::mark_t set = it->current_acceptance_conditions();
-            common &= set;
-            union_ |= set;
+            common &= t.acc;
+            union_ |= t.acc;
+
+	    // an accepting self-loop?
+	    has_acc_self_loop |= (t.dst == s) && a_->acc().accepting(t.acc);
           }
-        cache_entry e(common, union_);
-        return cache_.emplace(s, e).first;
+        cache_[s] = std::make_tuple(common, union_, has_acc_self_loop);
+      }
+
+    public:
+      outgoing_acc(const const_tgba_digraph_ptr& a, const scc_info* sm):
+	a_(a), cache_(a->num_states()), sm_(sm)
+      {
+	unsigned n = a->num_states();
+	for (unsigned s = 0; s < n; ++s)
+	  fill_cache(s);
       }
 
       // Intersection of all outgoing acceptance sets
-      acc_cond::mark_t common_acc(const state* s)
+      acc_cond::mark_t common_acc(unsigned s)
       {
-        cache_t::const_iterator i = cache_.find(s);
-        if (i == cache_.end())
-          i = fill_cache(s);
-        return i->second.first;
+	assert(s < cache_.size());
+	return std::get<0>(cache_[s]);
       }
 
       // Union of all outgoing acceptance sets
-      acc_cond::mark_t union_acc(const state* s)
+      acc_cond::mark_t union_acc(unsigned s)
       {
-        cache_t::const_iterator i = cache_.find(s);
-        if (i == cache_.end())
-          i = fill_cache(s);
-        return i->second.second;
-      }
-    };
-
-
-    // Check whether a state has an accepting self-loop, with a catch.
-    class has_acc_loop
-    {
-      const_tgba_ptr a_;
-      typedef std::unordered_map<const state*, bool,
-				 state_ptr_hash, state_ptr_equal> cache_t;
-      cache_t cache_;
-      state_unicity_table& uniq_;
-
-    public:
-      has_acc_loop(const const_tgba_ptr& a, state_unicity_table& uniq):
-	a_(a),
-	uniq_(uniq)
-      {
+	assert(s < cache_.size());
+	return std::get<1>(cache_[s]);
       }
 
-      bool check(const state* s)
+      // Has an accepting self-loop
+      bool has_acc_selfloop(unsigned s)
       {
-	auto p = cache_.emplace(s, false);
-	if (p.second)
-	  {
-	    for (auto it: a_->succ(s))
-	      {
-		// Look only for transitions that are accepting.
-		if (!a_->acc().accepting(it->current_acceptance_conditions()))
-		  continue;
-		// Look only for self-loops.
-		const state* dest = uniq_(it->current_state());
-		if (dest == s)
-		  {
-		    p.first->second = true;
-		    break;
-		  }
-	      }
-	  }
-        return p.first->second;
+	assert(s < cache_.size());
+	return std::get<2>(cache_[s]);
       }
     };
 
@@ -196,7 +151,6 @@ namespace spot
       void
       print(int scc)
       {
-        std::vector<bdd>::iterator i;
         std::cout << "Order_" << scc << ":\t";
         for (auto i: order_)
 	  std::cout << i << ", ";
@@ -234,7 +188,7 @@ namespace spot
 
     template<bool want_sba>
     tgba_digraph_ptr
-    degeneralize_aux(const const_tgba_ptr& a, bool use_z_lvl,
+    degeneralize_aux(const const_tgba_digraph_ptr& a, bool use_z_lvl,
 		     bool use_cust_acc_orders, int use_lvl_cache,
 		     bool skip_levels)
     {
@@ -274,14 +228,6 @@ namespace spot
       // Initialize scc_orders
       scc_orders orders(a->acc(), skip_levels);
 
-      // Make sure we always use the same pointer for identical states
-      // from the input automaton.
-      state_unicity_table uniq;
-
-      // Accepting loop checker, for some heuristics.
-      has_acc_loop acc_loop(a, uniq);
-
-      // These maps make it possible to convert degen_state to number
       // and vice-versa.
       ds2num_map ds2num;
 
@@ -293,27 +239,27 @@ namespace spot
       typedef std::map<int, unsigned> tr_cache_t;
       tr_cache_t tr_cache;
 
-      // State level cache
-      typedef std::map<const state*, unsigned> lvl_cache_t;
-      lvl_cache_t lvl_cache;
+      // Read this early, because it might create a state if the
+      // automaton is empty.
+      degen_state s(a->get_init_state_number(), 0);
+
+      // State->level cache
+      std::vector<std::pair<unsigned, bool>> lvl_cache(a->num_states());
 
       // Compute SCCs in order to use any optimization.
-      scc_map m(a);
+      scc_info* m = nullptr;
       if (use_scc)
-	m.build_map();
+	m = new scc_info(a);
 
       // Cache for common outgoing acceptances.
-      outgoing_acc outgoing(a, use_scc ? &m : 0);
+      outgoing_acc outgoing(a, m);
 
       queue_t todo;
-
-      const state* s0 = uniq(a->get_init_state());
-      degen_state s(s0, 0);
 
       // As a heuristic for building SBA, if the initial state has at
       // least one accepting self-loop, start the degeneralization on
       // the accepting level.
-      if (want_sba && acc_loop.check(s0))
+      if (want_sba && outgoing.has_acc_selfloop(s.first))
 	s.second = order.size();
       // Otherwise, check for acceptance conditions common to all
       // outgoing transitions, and assume we have already seen these and
@@ -322,7 +268,7 @@ namespace spot
 	{
 	  auto set = outgoing.common_acc(s.first);
 	  if (use_cust_acc_orders)
-	    s.second = orders.next_level(m.initial(), s.second, set);
+	    s.second = orders.next_level(m->initial(), s.second, set);
 	  else
 	    while (s.second < order.size()
 		   && set.has(order[s.second]))
@@ -345,7 +291,7 @@ namespace spot
       // If such state exists level from chache is used.
       // If not, a new level (starting with 0) is computed.
       if (use_lvl_cache)
-	lvl_cache[s.first] = s.second;
+	lvl_cache[s.first] = std::make_pair(s.second, true);
 
       while (!todo.empty())
 	{
@@ -363,19 +309,19 @@ namespace spot
 	  // Check SCC for state s
 	  int s_scc = -1;
 	  if (use_scc)
-	    s_scc = m.scc_of_state(s.first);
+	    s_scc = m->scc_of(s.first);
 
-	  for (auto i: a->succ(s.first))
+	  for (auto& i: a->out(s.first))
 	    {
-	      degen_state d(uniq(i->current_state()), 0);
+	      degen_state d(i.dst, 0);
 
 	      // Check whether the target SCC is accepting
 	      bool is_scc_acc;
 	      int scc;
 	      if (use_scc)
 		{
-		  scc = m.scc_of_state(d.first);
-		  is_scc_acc = m.accepting(scc);
+		  scc = m->scc_of(d.first);
+		  is_scc_acc = m->is_accepting_scc(scc);
 		}
 	      else
 		{
@@ -386,7 +332,7 @@ namespace spot
 		}
 
 	      // The old level is slevel.  What should be the new one?
-	      auto acc = i->current_acceptance_conditions();
+	      auto acc = i.acc;
 	      auto otheracc = outgoing.common_acc(d.first);
 
 	      if (want_sba && is_acc)
@@ -459,9 +405,9 @@ namespace spot
 		  // If lvl_cache is used and switching SCCs, use level
 		  // from cache
 		  if (use_lvl_cache && s_scc != scc
-		      && lvl_cache.find(d.first) != lvl_cache.end())
+		      && lvl_cache[d.first].second)
 		    {
-		      d.second = lvl_cache[d.first];
+		      d.second = lvl_cache[d.first].first;
 		    }
 		  else
 		    {
@@ -490,7 +436,8 @@ namespace spot
 			  // state that has at least one accepting
 			  // self-loop, start the degeneralization on
 			  // the accepting level.
-			  if (s_scc != scc && acc_loop.check(d.first))
+			  if (s_scc != scc
+			      && outgoing.has_acc_selfloop(d.first))
 			    {
 			      d.second = order.size();
 			    }
@@ -558,42 +505,39 @@ namespace spot
 
 		  if (use_lvl_cache)
 		    {
-		      auto res = lvl_cache.emplace(d.first, d.second);
-
-		      if (!res.second)
+		      auto lvl = d.second;
+		      if (lvl_cache[d.first].second)
 			{
 			  if (use_lvl_cache == 3)
-			    res.first->second =
-			      std::max(res.first->second, d.second);
+			    lvl = std::max(lvl_cache[d.first].first, lvl);
 			  else if (use_lvl_cache == 2)
-			    res.first->second =
-			      std::min(res.first->second, d.second);
+			    lvl = std::min(lvl_cache[d.first].first, lvl);
 			}
+		      lvl_cache[d.first] = std::make_pair(lvl, true);
 		    }
 		}
 
 	      unsigned& t = tr_cache[dest * 2 + is_acc];
 
 	      if (t == 0)	// Create transition.
-		t = res->new_acc_transition(src, dest,
-					    i->current_condition(), is_acc);
+		t = res->new_acc_transition(src, dest, i.cond, is_acc);
 	      else		// Update existing transition.
-		res->trans_data(t).cond |= i->current_condition();
+		res->trans_data(t).cond |= i.cond;
 	    }
 	  tr_cache.clear();
 	}
 
 #ifdef DEGEN_DEBUG
-      std::vector<bdd>::iterator i;
       std::cout << "Orig. order:  \t";
-      for (i = order.begin(); i != order.end(); i++)
+      for (auto i: order)
 	{
-	  bdd_print_acc(std::cout, dict, *i);
-	  std::cout << ", ";
+	  std::cout << i << ", ";
 	}
-      std::cout << std::endl;
-      orders.print(dict);
+      std::cout << '\n';
+      orders.print();
 #endif
+
+      delete m;
 
       res->merge_transitions();
       return res;
@@ -601,7 +545,7 @@ namespace spot
   }
 
   tgba_digraph_ptr
-  degeneralize(const const_tgba_ptr& a,
+  degeneralize(const const_tgba_digraph_ptr& a,
 	       bool use_z_lvl, bool use_cust_acc_orders,
                int use_lvl_cache, bool skip_levels)
   {
@@ -616,7 +560,7 @@ namespace spot
   }
 
   tgba_digraph_ptr
-  degeneralize_tba(const const_tgba_ptr& a,
+  degeneralize_tba(const const_tgba_digraph_ptr& a,
 		   bool use_z_lvl, bool use_cust_acc_orders,
 		   int use_lvl_cache, bool skip_levels)
   {

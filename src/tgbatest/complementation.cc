@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
   {
     spot::ltl::environment& env(spot::ltl::default_environment::instance());
     spot::tgba_parse_error_list pel;
-    spot::tgba_ptr a = spot::tgba_parse(file, pel, dict, env);
+    spot::tgba_digraph_ptr a = spot::tgba_parse(file, pel, dict, env);
     if (spot::format_tgba_parse_errors(std::cerr, file, pel))
       return 2;
 
@@ -147,15 +147,13 @@ int main(int argc, char* argv[])
   }
   else if (print_formula)
   {
-    spot::tgba_ptr a;
-
     spot::ltl::parse_error_list p1;
     const spot::ltl::formula* f1 = spot::ltl::parse(file, p1);
 
     if (spot::ltl::format_parse_errors(std::cerr, file, p1))
       return 2;
 
-    a = spot::ltl_to_tgba_fm(f1, dict);
+    auto a = spot::ltl_to_tgba_fm(f1, dict);
     spot::tgba_ptr complement = 0;
     complement = spot::make_safra_complement(a);
 
@@ -164,7 +162,7 @@ int main(int argc, char* argv[])
   }
   else if (stats)
   {
-    spot::tgba_ptr a;
+    spot::tgba_digraph_ptr a;
     const spot::ltl::formula* f1 = 0;
 
     if (formula)
@@ -211,10 +209,8 @@ int main(int argc, char* argv[])
 
     if (formula)
     {
-      const spot::ltl::formula* nf1 =
-        spot::ltl::unop::instance(spot::ltl::unop::Not,
-                                  f1->clone());
-      spot::tgba_ptr a2 = spot::ltl_to_tgba_fm(nf1, dict);
+      auto nf1 = spot::ltl::unop::instance(spot::ltl::unop::Not, f1->clone());
+      auto a2 = spot::ltl_to_tgba_fm(nf1, dict);
       spot::tgba_statistics a_size =  spot::stats_reachable(a2);
       std::cout << "Not Formula: "
                 << a_size.states << ", "
@@ -234,14 +230,11 @@ int main(int argc, char* argv[])
     if (spot::ltl::format_parse_errors(std::cerr, file, p1))
       return 2;
 
-    spot::tgba_ptr Af = spot::ltl_to_tgba_fm(f1, dict);
-    const spot::ltl::formula* nf1 =
-      spot::ltl::unop::instance(spot::ltl::unop::Not, f1->clone());
-    spot::tgba_ptr Anf = spot::ltl_to_tgba_fm(nf1, dict);
-
-    spot::tgba_ptr nAf = spot::make_safra_complement(Af);
-    spot::tgba_ptr nAnf = spot::make_safra_complement(Anf);
-
+    auto Af = spot::ltl_to_tgba_fm(f1, dict);
+    auto nf1 = spot::ltl::unop::instance(spot::ltl::unop::Not, f1->clone());
+    auto Anf = spot::ltl_to_tgba_fm(nf1, dict);
+    auto nAf = spot::make_safra_complement(Af);
+    auto nAnf = spot::make_safra_complement(Anf);
     auto ec = spot::couvreur99(spot::product(nAf, nAnf));
     auto res = ec->check();
     spot::tgba_statistics a_size =  spot::stats_reachable(ec->automaton());

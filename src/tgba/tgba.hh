@@ -27,6 +27,8 @@
 #include "acc.hh"
 #include <cassert>
 #include <memory>
+#include <unordered_map>
+#include <functional>
 #include "misc/casts.hh"
 #include "misc/hash.hh"
 
@@ -657,7 +659,19 @@ namespace spot
       bprop is;
     };
 
+#ifndef SWIG
+    // Dynamic properties, are given with a name and a destructor function.
+    std::unordered_map<std::string,
+		       std::pair<void*,
+				 std::function<void(void*)>>> named_prop_;
+#endif
   public:
+
+#ifndef SWIG
+    void set_named_prop(std::string s,
+			void* val, std::function<void(void*)> destructor);
+    void* get_named_prop(std::string s) const;
+#endif
 
     bool has_single_acc_set() const
     {

@@ -41,7 +41,7 @@
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/safety.hh"
 #include "tgbaalgos/sccfilter.hh"
-#include "tgbaalgos/scc.hh"
+#include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/bfssteps.hh"
 #include "tgbaalgos/isdet.hh"
@@ -183,7 +183,7 @@ namespace spot
     struct wdba_search_acc_loop : public bfs_steps
     {
       wdba_search_acc_loop(const const_tgba_ptr& det_a,
-			   unsigned scc_n, scc_map& sm,
+			   unsigned scc_n, scc_info& sm,
 			   power_map& pm, const state* dest)
 	: bfs_steps(det_a), scc_n(scc_n), sm(sm), pm(pm), dest(dest)
       {
@@ -194,7 +194,8 @@ namespace spot
       filter(const state* s)
       {
 	s = seen(s);
-	if (sm.scc_of_state(s) != scc_n)
+	if (sm.scc_of(std::static_pointer_cast<const tgba_digraph>(a_)
+		      ->state_number(s)) != scc_n)
 	  return 0;
 	return s;
       }
@@ -206,7 +207,7 @@ namespace spot
       }
 
       unsigned scc_n;
-      scc_map& sm;
+      scc_info& sm;
       power_map& pm;
       const state* dest;
       state_unicity_table seen;
@@ -215,12 +216,12 @@ namespace spot
 
     bool
     wdba_scc_is_accepting(const const_tgba_digraph_ptr& det_a, unsigned scc_n,
-			  const const_tgba_ptr& orig_a, scc_map& sm,
+			  const const_tgba_ptr& orig_a, scc_info& sm,
 			  power_map& pm)
     {
 
       // Get some state from the SCC #n.
-      const state* start = sm.one_state_of(scc_n)->clone();
+      const state* start = det_a->state_from_number(sm.one_state_of(scc_n));
 
       // Find a loop around START in SCC #n.
       wdba_search_acc_loop wsal(det_a, scc_n, sm, pm, start);
@@ -478,7 +479,7 @@ namespace spot
   }
 
 
-  tgba_digraph_ptr minimize_monitor(const const_tgba_ptr& a)
+  tgba_digraph_ptr minimize_monitor(const const_tgba_digraph_ptr& a)
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
@@ -498,7 +499,7 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr minimize_wdba(const const_tgba_ptr& a)
+  tgba_digraph_ptr minimize_wdba(const const_tgba_digraph_ptr& a)
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
@@ -520,8 +521,7 @@ namespace spot
       // We also keep track of whether an SCC is useless
       // (i.e., it is not the start of any accepting word).
 
-      scc_map sm(det_a);
-      sm.build_map();
+      scc_info sm(det_a);
       unsigned scc_count = sm.scc_count();
       // SCC that have been marked as useless.
       std::vector<bool> useless(scc_count);
@@ -537,8 +537,8 @@ namespace spot
       for (unsigned m = 0; m < scc_count; ++m)
 	{
 	  bool is_useless = true;
-	  bool transient = sm.trivial(m);
-	  const scc_map::succ_type& succ = sm.succ(m);
+	  bool transient = sm.is_trivial(m);
+	  auto& succ = sm.succ(m);
 
 	  if (transient && succ.empty())
 	    {
@@ -552,11 +552,10 @@ namespace spot
 	  // Also SCCs are useless if all their successor are
 	  // useless.
 	  unsigned l = k;
-	  for (scc_map::succ_type::const_iterator j = succ.begin();
-	       j != succ.end(); ++j)
+	  for (auto& j: succ)
 	    {
-	      is_useless &= useless[j->first];
-	      unsigned dj = d[j->first];
+	      is_useless &= useless[j.dst];
+	      unsigned dj = d[j.dst];
 	      if (dj < l)
 		l = dj;
 	    }
@@ -586,10 +585,8 @@ namespace spot
 	  if (!is_useless)
 	    {
 	      hash_set* dest_set = (d[m] & 1) ? non_final : final;
-	      const std::list<const state*>& l = sm.states_of(m);
-	      std::list<const state*>::const_iterator il;
-	      for (il = l.begin(); il != l.end(); ++il)
-		dest_set->insert((*il)->clone());
+	      for (auto s: sm.states_of(m))
+		dest_set->insert(det_a->state_from_number(s));
 	    }
 	}
     }

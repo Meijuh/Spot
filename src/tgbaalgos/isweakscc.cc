@@ -31,7 +31,7 @@ namespace spot
     public:
       bool result;
 
-      weak_checker(const scc_map& map)
+      weak_checker(const scc_info& map)
 	: enumerate_cycles(map), result(true)
       {
       }
@@ -65,10 +65,10 @@ namespace spot
   }
 
   bool
-  is_inherently_weak_scc(scc_map& map, unsigned scc)
+  is_inherently_weak_scc(scc_info& map, unsigned scc)
   {
     // If no cycle is accepting, the SCC is weak.
-    if (!map.accepting(scc))
+    if (!map.is_accepting_scc(scc))
       return true;
     // If the SCC is accepting, but one cycle is not, the SCC is not
     // weak.
@@ -78,57 +78,43 @@ namespace spot
   }
 
   bool
-  is_weak_scc(scc_map& map, unsigned scc)
+  is_weak_scc(scc_info& map, unsigned scc)
   {
     // If no cycle is accepting, the SCC is weak.
-    if (!map.accepting(scc))
+    if (!map.is_accepting_scc(scc))
       return true;
     // If all transitions use the same acceptance set, the SCC is weak.
-    return map.useful_acc_of(scc).size() == 1;
+    return map.used_acc_of(scc).size() == 1;
   }
 
   bool
-  is_complete_scc(scc_map& map, unsigned scc)
+  is_complete_scc(scc_info& map, unsigned scc)
   {
     auto a = map.get_aut();
     for (auto s: map.states_of(scc))
       {
-	tgba_succ_iterator* it = a->succ_iter(s);
-
-	// If a state has no successors, the SCC is not complete.
-	if (!it->first())
-	  {
-	    a->release_iter(it);
-	    return false;
-	  }
-
-	// Sum guards on all outgoing transitions.
+	bool has_succ = false;
 	bdd sumall = bddfalse;
-	do
+	for (auto& t: a->out(s))
 	  {
-	    const state *next = it->current_state();
-	    // check it's the same scc
-	    if (map.scc_of_state(next) == scc)
-	      sumall |= it->current_condition();
-	    next->destroy();
+	    has_succ = true;
+	    if (map.scc_of(t.dst) == scc)
+	      sumall |= t.cond;
 	    if (sumall == bddtrue)
 	      break;
 	  }
-	while (it->next());
-	a->release_iter(it);
-
-	if (sumall != bddtrue)
+	if (!has_succ || sumall != bddtrue)
 	  return false;
       }
     return true;
   }
 
   bool
-  is_terminal_scc(scc_map& map, unsigned scc)
+  is_terminal_scc(scc_info& map, unsigned scc)
   {
     // If all transitions use all acceptance conditions, the SCC is weak.
-    return (map.accepting(scc)
-	    && map.useful_acc_of(scc).size() == 1
+    return (map.is_accepting_scc(scc)
+	    && map.used_acc_of(scc).size() == 1
 	    && is_complete_scc(map, scc));
   }
 }

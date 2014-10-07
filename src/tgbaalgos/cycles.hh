@@ -20,7 +20,7 @@
 #ifndef SPOT_TGBAALGOS_CYCLES_HH
 # define SPOT_TGBAALGOS_CYCLES_HH
 
-#include "scc.hh"
+#include "sccinfo.hh"
 #include "misc/hash.hh"
 #include <deque>
 
@@ -62,13 +62,11 @@ namespace spot
   /// dfs_ stack.  Only the last portion of this stack may form a
   /// cycle.
   ///
-  /// The class constructor takes an scc_map that should already have
-  /// been built for its automaton.  Calling <code>run(n)</code> will
-  /// enumerate all elementary cycles in SCC <code>n</code>.  Each
-  /// time an SCC is found, the method cycle_found(s) is called with
-  /// the initial state s of the cycle: the cycle is constituted from
-  /// all the states that are on the \c dfs_ stack after \c s
-  /// (including \c s).
+  /// Calling <code>run(n)</code> will enumerate all elementary cycles
+  /// in SCC <code>n</code>.  Each time an SCC is found, the method
+  /// cycle_found(s) is called with the initial state s of the cycle:
+  /// the cycle is constituted from all the states that are on the \c
+  /// dfs_ stack after \c s (including \c s).
   ///
   /// You should inherit from this class and redefine the
   /// cycle_found() method to perform any work you would like to do on
@@ -112,9 +110,9 @@ namespace spot
     typedef hash_type::iterator tagged_state;
 
     // The automaton we are working on.
-    const_tgba_ptr aut_;
+    const_tgba_digraph_ptr aut_;
     // The SCC map built for aut_.
-    const scc_map& sm_;
+    const scc_info& sm_;
 
     // The DFS stack.  Each entry contains a tagged state, an iterator
     // on the transitions leaving that state, and a Boolean f
@@ -131,7 +129,7 @@ namespace spot
     dfs_stack dfs_;
 
   public:
-    enumerate_cycles(const scc_map& map);
+    enumerate_cycles(const scc_info& map);
     virtual ~enumerate_cycles() {}
 
     /// \brief Run in SCC scc, and call \a cycle_found() for any new

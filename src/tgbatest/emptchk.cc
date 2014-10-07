@@ -103,7 +103,7 @@ main(int argc, char** argv)
       {
 	auto a = spot::ltl_to_taa(f, d);
 	aut[0] = a;
-	aut[1] = spot::degeneralize_tba(a);
+	aut[1] = spot::degeneralize_tba(spot::tgba_dupexp_bfs(a));
       }
       {
 	auto a = spot::ltl_to_tgba_fm(f, d);

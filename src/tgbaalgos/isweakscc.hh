@@ -20,7 +20,7 @@
 #ifndef SPOT_TGBAALGOS_ISWEAKSCC_HH
 # define SPOT_TGBAALGOS_ISWEAKSCC_HH
 
-#include "scc.hh"
+#include "sccinfo.hh"
 
 namespace spot
 {
@@ -36,15 +36,14 @@ namespace spot
   /// Note the terminal SCCs are also inherently weak with that
   /// definition.
   ///
-  /// The scc_map \a map should have been built already.  The absence
-  /// of accepting cycle is easy to check (the scc_map can tell
-  /// whether the SCC is non-accepting already).  Similarly, an SCC in
-  /// which all transitions belong to all acceptance sets is
-  /// necessarily weak.
-  /// For other accepting SCCs, this function enumerates all cycles in
-  /// the given SCC (it stops if it find a non-accepting cycle).
+  /// The absence of accepting cycle is easy to check (the scc_info
+  /// object can tell whether the SCC is non-accepting already).
+  /// Similarly, an SCC in which all transitions belong to all
+  /// acceptance sets is necessarily weak.  For other accepting SCCs,
+  /// this function enumerates all cycles in the given SCC (it stops
+  /// if it find a non-accepting cycle).
   SPOT_API bool
-  is_inherently_weak_scc(scc_map& map, unsigned scc);
+  is_inherently_weak_scc(scc_info& map, unsigned scc);
 
   /// \brief Whether the SCC number \a scc in \a map is weak.
   ///
@@ -52,27 +51,21 @@ namespace spot
   /// are fully accepting (i.e., the belong to all acceptance sets).
   ///
   /// Note that terminal SCCs are also weak with that definition.
-  ///
-  /// The scc_map \a map should have been built already.
   SPOT_API bool
-  is_weak_scc(scc_map& map, unsigned scc);
+  is_weak_scc(scc_info& map, unsigned scc);
 
   /// \brief Whether the SCC number \a scc in \a map is complete.
   ///
   /// An SCC is complete iff for all states and all label there exists
   /// a transition that stays into this SCC.
-  ///
-  /// The scc_map \a map should have been built already.
   SPOT_API bool
-  is_complete_scc(scc_map& map, unsigned scc);
+  is_complete_scc(scc_info& map, unsigned scc);
 
   /// \brief Whether the SCC number \a scc in \a map is terminal.
   ///
   /// An SCC is terminal if it is weak, complete, and accepting.
-  ///
-  /// The scc_map \a map should have been built already.
   SPOT_API bool
-  is_terminal_scc(scc_map& map, unsigned scc);
+  is_terminal_scc(scc_info& map, unsigned scc);
 
   /// @}
 }

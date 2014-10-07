@@ -570,7 +570,7 @@ namespace spot
     {
     public:
       static safra_tree_automaton*
-      create_safra_automaton(const const_tgba_ptr& a);
+      create_safra_automaton(const const_tgba_digraph_ptr& a);
     private:
       typedef std::set<int> atomic_list_t;
       typedef std::set<bdd, bdd_less_than> conjunction_list_t;
@@ -585,7 +585,8 @@ namespace spot
 
     /// \brief The body of Safra's construction.
     safra_tree_automaton*
-    safra_determinisation::create_safra_automaton(const const_tgba_ptr& a)
+    safra_determinisation::create_safra_automaton
+    (const const_tgba_digraph_ptr& a)
     {
       // initialization.
       auto sba_aut = degeneralize(a);
@@ -1074,7 +1075,7 @@ namespace spot
   // tgba_safra_complement
   //////////////////////////
 
-  tgba_safra_complement::tgba_safra_complement(const const_tgba_ptr& a)
+  tgba_safra_complement::tgba_safra_complement(const const_tgba_digraph_ptr& a)
     : tgba(a->get_dict()), automaton_(a),
       safra_(safra_determinisation::create_safra_automaton(a))
   {

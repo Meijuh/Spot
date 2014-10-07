@@ -65,9 +65,10 @@ namespace spot
   /// transitions.
   //@{
   SPOT_API tgba_digraph_ptr
-  tgba_powerset(const const_tgba_ptr& aut, power_map& pm, bool merge = true);
+  tgba_powerset(const const_tgba_digraph_ptr& aut,
+		power_map& pm, bool merge = true);
   SPOT_API tgba_digraph_ptr
-  tgba_powerset(const const_tgba_ptr& aut);
+  tgba_powerset(const const_tgba_digraph_ptr& aut);
   //@}
 
 
@@ -107,7 +108,7 @@ namespace spot
   /// whenever an SCC of the constructed automaton has more than \a
   /// threshold_cycles cycles.
   SPOT_API tgba_digraph_ptr
-  tba_determinize(const const_tgba_ptr& aut,
+  tba_determinize(const const_tgba_digraph_ptr& aut,
 		  unsigned threshold_states = 0,
 		  unsigned threshold_cycles = 0);
 

@@ -22,7 +22,7 @@
 
 namespace spot
 {
-  enumerate_cycles::enumerate_cycles(const scc_map& map)
+  enumerate_cycles::enumerate_cycles(const scc_info& map)
     : aut_(map.get_aut()), sm_(map)
   {
   }
@@ -84,12 +84,13 @@ namespace spot
     dfs_.push_back(e);
   }
 
+  // FIXME: Recode this algorithm using unsigned states.
   void
   enumerate_cycles::run(unsigned scc)
   {
     bool keep_going = true;
 
-    push_state(tag_state(sm_.one_state_of(scc)->clone()));
+    push_state(tag_state(aut_->state_from_number(sm_.one_state_of(scc))));
 
     while (keep_going && !dfs_.empty())
       {
@@ -109,7 +110,7 @@ namespace spot
 	    // Ignore those that are not on the SCC, or destination
 	    // that have been "virtually" deleted from A(v).
 	    state* s = cur.succ->current_state();
-	    if ((sm_.scc_of_state(s) != scc)
+	    if ((sm_.scc_of(aut_->state_number(s)) != scc)
 		|| (cur.ts->second.del.find(s) != cur.ts->second.del.end()))
 	      {
 		s->destroy();

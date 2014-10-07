@@ -400,15 +400,15 @@ in: FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)
 -TA -lv -sp          |     45 |    676 |      9
 -TA -lv -sp -RT      |     35 |    566 |      4
 -TA -DS              |     54 |    722 |     26
--TA -DS -RT          |     42 |    608 |     18
+-TA -DS -RT          |     38 |    534 |     17
 -TA -DS -lv          |     55 |    800 |     19
--TA -DS -lv -RT      |     44 |    702 |     13
+-TA -DS -lv -RT      |     39 |    608 |     11
 -TA -DS -sp          |     54 |    776 |     18
--TA -DS -sp -RT      |     43 |    678 |     12
+-TA -DS -sp -RT      |     38 |    586 |     10
 -TA -DS -lv -sp      |     55 |    800 |     19
--TA -DS -lv -sp -RT  |     44 |    702 |     13
--x -TA -DS -in       |     55 |    694 |     11
--x -TA -DS -in -RT   |     41 |    597 |      8
+-TA -DS -lv -sp -RT  |     39 |    608 |     11
+-x -TA -DS -in       |     55 |    696 |     11
+-x -TA -DS -in -RT   |     42 |    603 |      8
 in: G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))
 -TGTA                |     69 |   1539 |    XXX
 -TGTA -RT            |     49 |    935 |    XXX
@@ -429,7 +429,7 @@ in: G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))
 -TA -DS -lv -sp      |    125 |   3028 |     42
 -TA -DS -lv -sp -RT  |     97 |   2149 |     40
 -x -TA -DS -in       |    125 |   1838 |     25
--x -TA -DS -in -RT   |     87 |   1296 |     25
+-x -TA -DS -in -RT   |     90 |   1368 |     25
 EOF
 
 sed -n 's/in: \(.*\)/\1/p' checkta.txt > input.txt

@@ -22,6 +22,7 @@
 
 #include "tgba.hh"
 #include "tgbaalgos/gtec/gtec.hh"
+#include <utility>
 
 namespace spot
 {
@@ -38,6 +39,10 @@ namespace spot
     if (last_support_conditions_input_)
       last_support_conditions_input_->destroy();
     delete iter_cache_;
+
+    // Destroy all named properties.
+    for (auto& np: named_prop_)
+      np.second.second(np.second.first);
   }
 
   bdd
@@ -77,5 +82,31 @@ namespace spot
     // the automaton is weak.
     return !couvreur99(shared_from_this())->check();
   }
+
+  void
+  tgba::set_named_prop(std::string s,
+		       void* val, std::function<void(void*)> destructor)
+  {
+    auto p = named_prop_.emplace(std::piecewise_construct,
+				 std::forward_as_tuple(s),
+				 std::forward_as_tuple(val, destructor));
+    if (!p.second)
+      {
+	p.first->second.second(p.first->second.first);
+	p.first->second = std::make_pair(val, destructor);
+      }
+  }
+
+  void*
+  tgba::get_named_prop(std::string s) const
+  {
+    auto i = named_prop_.find(s);
+    if (i == named_prop_.end())
+      return nullptr;
+    return i->second.first;
+  }
+
+
+
 
 }

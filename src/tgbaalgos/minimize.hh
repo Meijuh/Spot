@@ -57,7 +57,7 @@ namespace spot
   /// \param a the automaton to convert into a minimal deterministic monitor
   /// \pre Dead SCCs should have been removed from \a a before
   ///      calling this function.
-  SPOT_API tgba_digraph_ptr minimize_monitor(const const_tgba_ptr& a);
+  SPOT_API tgba_digraph_ptr minimize_monitor(const const_tgba_digraph_ptr& a);
 
   /// \brief Minimize a Büchi automaton in the WDBA class.
   ///
@@ -93,7 +93,7 @@ namespace spot
         month     = oct
       }
       \endverbatim */
-  SPOT_API tgba_digraph_ptr minimize_wdba(const const_tgba_ptr& a);
+  SPOT_API tgba_digraph_ptr minimize_wdba(const const_tgba_digraph_ptr& a);
 
   /// \brief Minimize an automaton if it represents an obligation property.
   ///

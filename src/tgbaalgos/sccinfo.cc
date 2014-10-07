@@ -121,7 +121,7 @@ namespace spot
 		node_.emplace_back(acc, triv);
 		std::swap(node_.back().succ, root_.front().node.succ);
 		std::swap(node_.back().states, root_.front().node.states);
-		node_.back().accepting = aut->acc().accepting(acc);
+		node_.back().accepting = !triv && aut->acc().accepting(acc);
 		root_.pop_front();
 		// Record the transition between the SCC being popped
 		// and the previous SCC.
@@ -228,6 +228,16 @@ namespace spot
       }
   }
 
+
+  std::set<acc_cond::mark_t> scc_info::used_acc_of(unsigned scc) const
+  {
+    std::set<acc_cond::mark_t> res;
+    for (auto src: states_of(scc))
+      for (auto& t: aut_->out(src))
+	if (scc_of(t.dst) == scc)
+	  res.insert(t.acc);
+    return res;
+  }
 
   std::vector<std::set<acc_cond::mark_t>> scc_info::used_acc() const
   {

@@ -45,12 +45,12 @@ namespace spot
     struct scc_node
     {
       scc_node():
-	acc(0U), trivial(true)
+	acc(0U), trivial(true), accepting(false), useful(false)
       {
       }
 
       scc_node(acc_cond::mark_t acc, bool trivial):
-	acc(acc), trivial(trivial)
+	acc(acc), trivial(trivial), accepting(false), useful(false)
       {
       }
 
@@ -104,6 +104,18 @@ namespace spot
       return node(scc).states;
     }
 
+    unsigned one_state_of(unsigned scc) const
+    {
+      return states_of(scc).front();
+    }
+
+    /// \brief Get number of the SCC containing the initial state.
+    unsigned initial() const
+    {
+      assert(scc_count() - 1 == scc_of(aut_->get_init_state_number()));
+      return scc_count() - 1;
+    }
+
     const scc_succs& succ(unsigned scc) const
     {
       return node(scc).succ;
@@ -137,6 +149,9 @@ namespace spot
     /// \brief Return the set of all used acceptance combinations, for
     /// each accepting SCC.
     std::vector<std::set<acc_cond::mark_t>> used_acc() const;
+
+    std::set<acc_cond::mark_t> used_acc_of(unsigned scc) const;
+
 
     std::vector<bool> weak_sccs() const;
 

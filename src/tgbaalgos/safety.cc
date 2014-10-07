@@ -24,26 +24,23 @@
 namespace spot
 {
   bool
-  is_guarantee_automaton(const const_tgba_ptr& aut, const scc_map* sm)
+  is_guarantee_automaton(const const_tgba_digraph_ptr& aut,
+			 const scc_info* sm)
   {
-    // Create an scc_map of the user did not give one to us.
+    // Create an scc_info if the user did not give one to us.
     bool need_sm = !sm;
     if (need_sm)
-      {
-	scc_map* x = new scc_map(aut);
-	x->build_map();
-	sm = x;
-      }
+      sm = new scc_info(aut);
 
     bool result = true;
 
     unsigned scc_count = sm->scc_count();
-    for (unsigned scc = 0; (scc < scc_count) && result; ++scc)
+    for (unsigned scc = 0; scc < scc_count; ++scc)
       {
-	if (!sm->accepting(scc))
+	if (!sm->is_accepting_scc(scc))
 	  continue;
 	// Accepting SCCs should have only one state.
-	const std::list<const state*>& st = sm->states_of(scc);
+	auto& st = sm->states_of(scc);
 	if (st.size() != 1)
 	  {
 	    result = false;
@@ -51,50 +48,28 @@ namespace spot
 	  }
 	// The state should have only one transition that is a
 	// self-loop labelled by true.
-	const state* s = *st.begin();
-	tgba_succ_iterator* it = aut->succ_iter(s);
-	it->first();
-	assert(!it->done());
-	state* dest = it->current_state();
-	bdd cond = it->current_condition();
-	result = (!it->next()) && (cond == bddtrue) && (!dest->compare(s));
-	dest->destroy();
-	aut->release_iter(it);
+	auto src = st.front();
+	auto out = aut->out(src);
+	auto it = out.begin();
+	assert(it != out.end());
+	result =
+	  (it->cond == bddtrue) && (it->dst == src) && (++it == out.end());
+	if (!result)
+	  break;
       }
 
-    // Free the scc_map if we created it.
     if (need_sm)
       delete sm;
-
     return result;
   }
 
-  bool is_safety_mwdba(const const_tgba_ptr& aut)
+  bool is_safety_mwdba(const const_tgba_digraph_ptr& aut)
   {
-    state_unicity_table seen;	   // States already seen.
-    std::deque<const state*> todo; // A queue of states yet to explore.
-
-    todo.push_back(seen(aut->get_init_state()));
-
-    bool all_accepting = true;
-    while (all_accepting && !todo.empty())
-      {
-	const state* s = todo.front();
-	todo.pop_front();
-
-	for (auto it: aut->succ(s))
-	  {
-	    auto acc = it->current_acceptance_conditions();
-	    if (!aut->acc().accepting(acc))
-	      {
-		all_accepting = false;
-		break;
-	      }
-	    if (const state* d = seen.is_new(it->current_state()))
-	      todo.push_back(d);
-	  }
-      }
-    return all_accepting;
+    for (auto& t: aut->transitions())
+      if (!aut->is_dead_transition(t))
+	if (!aut->acc().accepting(t.acc))
+	  return false;
+    return true;
   }
 
 

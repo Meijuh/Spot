@@ -49,13 +49,13 @@ namespace spot
   /// with transition-based acceptance.
   /// \@{
   SPOT_API tgba_digraph_ptr
-  degeneralize(const const_tgba_ptr& a, bool use_z_lvl = true,
+  degeneralize(const const_tgba_digraph_ptr& a, bool use_z_lvl = true,
 	       bool use_cust_acc_orders = false,
 	       int use_lvl_cache = 1,
 	       bool skip_levels = true);
 
   SPOT_API tgba_digraph_ptr
-  degeneralize_tba(const const_tgba_ptr& a, bool use_z_lvl = true,
+  degeneralize_tba(const const_tgba_digraph_ptr& a, bool use_z_lvl = true,
 		   bool use_cust_acc_orders = false,
 		   int use_lvl_cache = 1,
 		   bool skip_levels = true);

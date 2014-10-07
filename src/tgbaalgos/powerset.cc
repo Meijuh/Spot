@@ -28,7 +28,7 @@
 #include "misc/hash.hh"
 #include "tgbaalgos/powerset.hh"
 #include "bdd.h"
-#include "tgbaalgos/scc.hh"
+#include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/cycles.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgba/tgbaproduct.hh"
@@ -42,8 +42,9 @@
 
 namespace spot
 {
+  // FIXME: Redo this algorithm using the tgba_digraph interface.
   tgba_digraph_ptr
-  tgba_powerset(const const_tgba_ptr& aut, power_map& pm, bool merge)
+  tgba_powerset(const const_tgba_digraph_ptr& aut, power_map& pm, bool merge)
   {
     typedef power_map::power_state power_state;
     typedef std::map<power_map::power_state, int> power_set;
@@ -112,7 +113,7 @@ namespace spot
   }
 
   tgba_digraph_ptr
-  tgba_powerset(const const_tgba_ptr& aut)
+  tgba_powerset(const const_tgba_digraph_ptr& aut)
   {
     power_map pm;
     return tgba_powerset(aut, pm);
@@ -130,7 +131,7 @@ namespace spot
       typedef std::set<trans*> trans_set;
       typedef std::vector<trans_set> set_set;
     protected:
-      const_tgba_ptr ref_;
+      const_tgba_digraph_ptr ref_;
       power_map& refmap_;
       trans_set reject_;	// set of rejecting transitions
       set_set accept_;		// set of cycles that are accepting
@@ -139,7 +140,7 @@ namespace spot
       unsigned cycles_left_; 	// count of cycles left to explore
 
     public:
-      fix_scc_acceptance(const scc_map& sm, const_tgba_ptr ref,
+      fix_scc_acceptance(const scc_info& sm, const_tgba_digraph_ptr ref,
 			 power_map& refmap, unsigned threshold)
 	: enumerate_cycles(sm), ref_(ref), refmap_(refmap),
 	  threshold_(threshold)
@@ -173,8 +174,7 @@ namespace spot
 
       bool is_cycle_accepting(cycle_iter begin, trans_set& ts) const
       {
-	auto a = std::static_pointer_cast<tgba_digraph>
-	  (std::const_pointer_cast<tgba>(aut_));
+	auto a = std::const_pointer_cast<tgba_digraph>(aut_);
 
 	// Build an automaton representing this loop.
 	auto loop_a = make_tgba_digraph(aut_->get_dict());
@@ -268,20 +268,19 @@ namespace spot
 
     static bool
     fix_dba_acceptance(tgba_digraph_ptr det,
-		       const_tgba_ptr ref, power_map& refmap,
+		       const_tgba_digraph_ptr ref, power_map& refmap,
 		       unsigned threshold)
     {
       det->copy_acceptance_conditions_of(ref);
 
-      scc_map sm(det);
-      sm.build_map();
+      scc_info sm(det);
 
       unsigned scc_count = sm.scc_count();
 
       fix_scc_acceptance fsa(sm, ref, refmap, threshold);
 
       for (unsigned m = 0; m < scc_count; ++m)
-	if (!sm.trivial(m))
+	if (!sm.is_trivial(m))
 	  if (fsa.fix_scc(m))
 	    return true;
       return false;
@@ -289,7 +288,7 @@ namespace spot
   }
 
   tgba_digraph_ptr
-  tba_determinize(const const_tgba_ptr& aut,
+  tba_determinize(const const_tgba_digraph_ptr& aut,
 		  unsigned threshold_states, unsigned threshold_cycles)
   {
     power_map pm;

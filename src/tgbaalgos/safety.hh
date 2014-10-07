@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -20,7 +20,7 @@
 #ifndef SPOT_TGBAALGOS_SAFETY_HH
 # define SPOT_TGBAALGOS_SAFETY_HH
 
-#include "scc.hh"
+#include "sccinfo.hh"
 
 namespace spot
 {
@@ -43,11 +43,11 @@ namespace spot
   ///
   /// \param aut the automaton to check
   ///
-  /// \param sm an scc_map of the automaton if available (it will be
-  /// built otherwise.  If you supply an scc_map you should call
-  /// build_map() before passing it to this function.
+  /// \param sm an scc_info object for the automaton if available (it
+  /// will be built otherwise).
   SPOT_API bool
-  is_guarantee_automaton(const const_tgba_ptr& aut, const scc_map* sm = 0);
+  is_guarantee_automaton(const const_tgba_digraph_ptr& aut,
+			 const scc_info* sm = 0);
 
   /// \brief Whether a minimized WDBA represents a safety property.
   ///
@@ -57,7 +57,7 @@ namespace spot
   ///
   /// \param aut the automaton to check
   SPOT_API bool
-  is_safety_mwdba(const const_tgba_ptr& aut);
+  is_safety_mwdba(const const_tgba_digraph_ptr& aut);
 
 }
 
