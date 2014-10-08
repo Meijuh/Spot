@@ -47,9 +47,8 @@ namespace spot
 	    auto p = trmap.emplace(k, t.trans());
 	    if (!p.second)
 	      {
-		// A previous transitions exist for k, merge the
-		// condition, and schedule the transition for
-		// removal.
+		// A previous transitions exists for k.  Merge the
+		// condition, and schedule the transition for removal.
 		g_.trans_data(p.first->second).cond |= t->cond;
 		t.erase();
 	      }
