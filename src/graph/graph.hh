@@ -415,6 +415,8 @@ namespace spot
       // Transition number 0 is not used, because we use this index
       // to mark the absence of a transition.
       transitions_.resize(1);
+      // This causes transition 0 to be considered as dead.
+      transitions_[0].next_succ = 0;
     }
 
     unsigned num_states() const
@@ -604,7 +606,7 @@ namespace spot
       return transitions_[t].next_succ == t;
     }
 
-    bool is_dead_transition(trans_storage_t& t) const
+    bool is_dead_transition(const trans_storage_t& t) const
     {
       return t.next_succ == index_of_transition(t);
     }

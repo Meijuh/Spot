@@ -361,8 +361,7 @@ namespace spot
     auto transitions()
       SPOT_RETURN(g_.transitions());
 
-    template<typename T>
-    auto is_dead_transition(T t) const
+    auto is_dead_transition(const graph_t::trans_storage_t& t) const
       SPOT_RETURN(g_.is_dead_transition(t));
 
     /// \brief Copy the acceptance conditions of another tgba.
