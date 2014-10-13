@@ -23,6 +23,7 @@
 #include "randomgraph.hh"
 #include "tgba/tgbagraph.hh"
 #include "misc/random.hh"
+#include "misc/bddlt.hh"
 #include "ltlast/atomic_prop.hh"
 #include <sstream>
 #include <list>
@@ -35,12 +36,59 @@ namespace spot
 
   namespace
   {
-    void
-    random_labels(tgba_digraph_ptr aut,
-		  unsigned src,
-		  unsigned dest,
-		  int* props, int props_n, float t,
-		  unsigned n_accs, float a)
+    unsigned
+    random_deterministic_labels_rec(std::vector<bdd>& labels, int *props,
+				    int props_n, bdd current, unsigned n)
+    {
+      if (n >  1 && props_n >= 1)
+        {
+	  bdd ap = bdd_ithvar(*props);
+          ++props;
+	  --props_n;
+
+	  // There are m labels generated from "current & ap"
+	  // and n - m labels generated from "current & !ap"
+          unsigned m = rrand(1, n - 1);
+	  if (2 * m < n)
+	    {
+	      m = n - m;
+	      ap = !ap;
+	    }
+
+	  unsigned res = random_deterministic_labels_rec(labels, props,
+							 props_n,
+							 current & ap, m);
+	  res += random_deterministic_labels_rec(labels, props, props_n,
+						 current & !ap, n - res);
+          return res;
+        }
+      else
+        {
+	  labels.push_back(current);
+          return 1;
+        }
+    }
+
+    std::vector<bdd>
+    random_deterministic_labels(int *props, int props_n, unsigned n)
+    {
+      std::vector<bdd> bddvec;
+      random_deterministic_labels_rec(bddvec, props, props_n, bddtrue, n);
+      return bddvec;
+    }
+
+    acc_cond::mark_t
+    random_acc_cond(tgba_digraph_ptr aut, unsigned n_accs, float a)
+    {
+      acc_cond::mark_t m = 0U;
+      for (unsigned i = 0U; i < n_accs; ++i)
+	if (drand() < a)
+	  m |= aut->acc().mark(i);
+      return m;
+    }
+
+    bdd
+    random_labels(int* props, int props_n, float t)
     {
       int val = 0;
       int size = 0;
@@ -62,18 +110,14 @@ namespace spot
       if (size > 0)
 	p &= bdd_ibuildcube(val, size, props);
 
-      acc_cond::mark_t m = 0U;
-      for (unsigned i = 0U; i < n_accs; ++i)
-	if (drand() < a)
-	  m |= aut->acc().mark(i);
-      aut->new_transition(src, dest, p, m);
+      return p;
     }
   }
 
   tgba_digraph_ptr
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
-	       unsigned n_accs, float a, float t)
+	       unsigned n_accs, float a, float t, bool deterministic)
   {
     assert(n > 0);
     auto res = make_tgba_digraph(dict);
@@ -117,20 +161,35 @@ namespace spot
 
 	// Choose a random number of successors (at least one), using
 	// a binomial distribution.
-	int nsucc = 1 + bin.rand();
+	unsigned nsucc = 1 + bin.rand();
 
-	// Connect to NSUCC randomly chosen successors.  We want at
-	// least one unreachable successors among these if there are
-	// some.
 	bool saw_unreachable = false;
-	int possibilities = n;
-	while (nsucc--)
+
+	// Create NSUCC random labels.
+	std::vector<bdd> labels;
+	if (deterministic)
 	  {
+	    labels = random_deterministic_labels(props, props_n, nsucc);
+
+	    // if nsucc > 2^props_n, we cannot produce nsucc deterministic
+	    // transitions so we set it to labels.size()
+	    nsucc = labels.size();
+	  }
+	else
+	  for (unsigned i = 0; i < nsucc; ++i)
+	    labels.push_back(random_labels(props, props_n, t));
+
+        int possibilities = n;
+	unsigned dst;
+	for (auto& l: labels)
+	  {
+	    acc_cond::mark_t m = random_acc_cond(res, n_accs, a);
+
 	    // No connection to unreachable successors so far.  This
 	    // is our last chance, so force it now.
-	    if (nsucc == 0
-		&& !saw_unreachable
-		&& !unreachable_nodes.empty())
+	    if (--nsucc == 0
+		&& !unreachable_nodes.empty()
+		&& !saw_unreachable)
 	      {
 		// Pick a random unreachable node.
 		int index = mrand(unreachable_nodes.size());
@@ -138,32 +197,29 @@ namespace spot
 		std::advance(i, index);
 
 		// Link it from src.
-		random_labels(res, src, *i, props, props_n, t, n_accs, a);
+		res->new_transition(src, *i, l, m);
 		nodes_to_process.insert(*i);
-		unreachable_nodes.erase(i);
+		unreachable_nodes.erase(*i);
 		break;
 	      }
-	    else
-	      {
-		// Pick the index of a random node.
-		int index = mrand(possibilities--);
 
-		// Permute it with state_randomizer[possibilities], so
-		// we cannot pick it again.
-		auto x = state_randomizer[index];
-		state_randomizer[index] = state_randomizer[possibilities];
-		state_randomizer[possibilities] = x;
+            // Pick the index of a random node.
+            int index = mrand(possibilities--);
 
-		random_labels(res, src, x, props, props_n, t, n_accs, a);
+            // Permute it with state_randomizer[possibilities], so
+            // we cannot pick it again.
+            dst = state_randomizer[index];
+            state_randomizer[index] = state_randomizer[possibilities];
+            state_randomizer[possibilities] = dst;
 
-		auto j = unreachable_nodes.find(x);
-		if (j != unreachable_nodes.end())
-		  {
-		    nodes_to_process.insert(x);
-		    unreachable_nodes.erase(j);
-		    saw_unreachable = true;
-		  }
-	      }
+            res->new_transition(src, dst, l, m);
+            auto j = unreachable_nodes.find(dst);
+            if (j != unreachable_nodes.end())
+              {
+                nodes_to_process.insert(dst);
+                unreachable_nodes.erase(j);
+                saw_unreachable = true;
+              }
 	  }
 
 	// The node must have at least one successor.

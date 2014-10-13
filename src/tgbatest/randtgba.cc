@@ -122,6 +122,7 @@ syntax(char* prog)
 	    << "  -n N    number of nodes of the graph [20]" << std::endl
 	    << "  -t F    probability of the atomic propositions to be true"
 	    << " [0.5]" << std::endl
+	    << "  -det    generate a deterministic and complete graph [false]"
 	    << std::endl
 	    << "LTL Formula Generation Options:" << std::endl
 	    << "  -dp     dump priorities, do not generate any formula"
@@ -560,6 +561,7 @@ main(int argc, char** argv)
   float opt_d = 0.2;
   int opt_n = 20;
   float opt_t = 0.5;
+  bool opt_det = false;
 
   bool opt_0 = false;
   bool opt_z = false;
@@ -667,6 +669,10 @@ main(int argc, char** argv)
 	  opt_degen = true;
 	  if (!opt_ec)
 	    opt_ec = 1;
+	}
+      else if (!strcmp(argv[argn], "-det"))
+	{
+	  opt_det = true;
 	}
       else if (!strcmp(argv[argn], "-e"))
 	{
@@ -908,7 +914,7 @@ main(int argc, char** argv)
 
 	      spot::tgba_digraph_ptr a =
 		spot::random_graph(opt_n, opt_d, apf, dict,
-				   opt_n_acc, opt_a, opt_t);
+				   opt_n_acc, opt_a, opt_t, opt_det);
 	      if (formula)
 		a = spot::product(formula, a);
 

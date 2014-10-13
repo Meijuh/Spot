@@ -78,7 +78,8 @@ namespace spot
   SPOT_API tgba_digraph_ptr
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
-	       unsigned n_accs = 0, float a = 0.1, float t = 0.5);
+	       unsigned n_accs = 0, float a = 0.1, float t = 0.5,
+	       bool deterministic = false);
 }
 
 #endif // SPOT_TGBAALGOS_RANDOMGRAPH_HH
