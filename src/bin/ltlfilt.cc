@@ -39,6 +39,7 @@
 #include "ltlvisit/relabel.hh"
 #include "ltlvisit/wmunabbrev.hh"
 #include "ltlvisit/remove_x.hh"
+#include "ltlvisit/apcollect.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/multop.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
@@ -81,6 +82,7 @@ Exit status:\n\
 #define OPT_BOOLEAN_TO_ISOP 27
 #define OPT_REMOVE_X 28
 #define OPT_STUTTER_INSENSITIVE 29
+#define OPT_AP_N 30
 
 static const argp_option options[] =
   {
@@ -152,6 +154,8 @@ static const argp_option options[] =
     { "stutter-insensitive", OPT_STUTTER_INSENSITIVE, 0, 0,
       "match stutter-insensitive LTL formulas", 0 },
     { "stutter-invariant", 0, 0, OPTION_ALIAS, 0, 0 },
+    { "ap", OPT_AP_N, "N", 0,
+      "match formulas which use exactly N atomic propositions", 0 },
     { "invert-match", 'v', 0, 0, "select non-matching formulas", 0},
     { "unique", 'u', 0, 0,
       "drop formulas that have already been output (not affected by -v)", 0 },
@@ -219,6 +223,8 @@ static spot::ltl::relabeling_style style = spot::ltl::Abc;
 static bool remove_wm = false;
 static bool remove_x = false;
 static bool stutter_insensitive = false;
+static bool ap = false;
+static unsigned ap_n = 0;
 
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
@@ -360,6 +366,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_STUTTER_INSENSITIVE:
       stutter_insensitive = true;
+      break;
+    case OPT_AP_N:
+      ap = true;
+      ap_n = to_int(arg);
       break;
     case OPT_SYNTACTIC_SAFETY:
       syntactic_safety = true;
@@ -521,6 +531,7 @@ namespace
       matched &= !syntactic_obligation || f->is_syntactic_obligation();
       matched &= !syntactic_recurrence || f->is_syntactic_recurrence();
       matched &= !syntactic_persistence || f->is_syntactic_persistence();
+      matched &= !ap || atomic_prop_collect(f)->size() == ap_n;
 
       if (matched && (size_min > 0 || size_max >= 0))
 	{
