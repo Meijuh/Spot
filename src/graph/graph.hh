@@ -273,8 +273,7 @@ namespace spot
       killer_trans_iterator operator++(int)
       {
 	killer_trans_iterator ti = *this;
-	prev_ = this->t_;
-	this->t_ = this->operator*().next_succ;
+	++*this;
 	return ti;
       }
 
@@ -302,7 +301,7 @@ namespace spot
 	// Erased transitions have themselves as next_succ.
 	this->operator*().next_succ = this->t_;
 
-	// Advance iterator to next transitions.
+	// Advance iterator to next transition.
 	this->t_ = next;
 
 	++this->g_->killed_trans_;
@@ -638,6 +637,57 @@ namespace spot
       // Adjust next_succ pointers in all transitions.
       for (transition t = 1; t < dest; ++t)
 	transitions_[t].next_succ = newidx[transitions_[t].next_succ];
+
+      // Adjust succ and succ_tails pointers in all states.
+      for (auto& s: states_)
+	{
+	  s.succ = newidx[s.succ];
+	  s.succ_tail = newidx[s.succ_tail];
+	}
+    }
+
+    void defrag_states(std::vector<unsigned>&& newst, unsigned used_states)
+    {
+      assert(newst.size() == states_.size());
+      assert(used_states > 0);
+
+      // Shift all states in states_, as indicated by newst.
+      unsigned send = states_.size();
+      for (state s = 0; s < send; ++s)
+	{
+	  state dst = newst[s];
+	  if (dst == s || dst == -1U)
+	    continue;
+	  states_[dst] = std::move(states_[s]);
+	}
+      states_.resize(used_states);
+
+      // Shift all transitions in transitions_.  The algorithm is
+      // similar to remove_if, but it also keeps the correspondence
+      // between the old and new index as newidx[old] = new.
+      unsigned tend = transitions_.size();
+      std::vector<transition> newidx(tend);
+      unsigned dest = 1;
+      for (transition t = 1; t < tend; ++t)
+	{
+	  if (is_dead_transition(t))
+	    continue;
+	  if (t != dest)
+	    transitions_[dest] = std::move(transitions_[t]);
+	  newidx[t] = dest;
+	  ++dest;
+	}
+      transitions_.resize(dest);
+      killed_trans_ = 0;
+
+      // Adjust next_succ and dst pointers in all transitions.
+      for (transition t = 1; t < dest; ++t)
+	{
+	  auto& tr = transitions_[t];
+	  tr.next_succ = newidx[tr.next_succ];
+	  tr.dst = newst[tr.dst];
+	  assert(tr.dst != -1U);
+	}
 
       // Adjust succ and succ_tails pointers in all states.
       for (auto& s: states_)

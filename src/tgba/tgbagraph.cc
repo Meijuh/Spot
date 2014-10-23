@@ -25,13 +25,14 @@ namespace spot
 
   void tgba_digraph::merge_transitions()
   {
+    // Map a pair (dest state, acc) to the first transition seen
+    // with such characteristic.
+    typedef std::pair<graph_t::state, acc_cond::mark_t> key_t;
+    std::unordered_map<key_t, graph_t::transition, pair_hash> trmap;
     for (auto& s: g_.states())
       {
-	// Map a pair (dest state, acc) to the first transition seen
-	// with such characteristic.
-
-	typedef std::pair<graph_t::state, acc_cond::mark_t> key_t;
-	std::unordered_map<key_t, graph_t::transition, pair_hash> trmap;
+	// Get a clear map for each state.
+	trmap.clear();
 
 	auto t = g_.out_iteraser(s);
 	while (t)
@@ -61,4 +62,57 @@ namespace spot
     g_.defrag();
   }
 
+  void tgba_digraph::purge_dead_states()
+  {
+    unsigned num_states = g_.num_states();
+    if (num_states == 0)
+      return;
+    std::vector<unsigned> info(num_states, 0);
+    // In this loop, info[s] means that the state is useless.
+    bool untouched;
+    do
+      {
+	untouched = true;
+	for (unsigned s = 0; s < num_states; ++s)
+	  {
+	    if (info[s])
+	      continue;
+	    bool useless = true;
+	    auto t = g_.out_iteraser(s);
+	    while (t)
+	      {
+		// Erase any transition to a unused state.
+		if (info[t->dst])
+		  {
+		    t.erase();
+		    continue;
+		  }
+		// if we have a transition, to a used state,
+		// then the state is useful.
+		useless = false;
+		++t;
+	      }
+	    if (useless)
+	      {
+		info[s] = true;
+		untouched = false;
+	      }
+	  }
+      }
+    while (!untouched);
+
+    // Assume that the initial state is useful.
+    info[init_number_] = false;
+    // Now renumber each used state.
+    unsigned current = 0;
+    for (auto& v: info)
+      if (v)
+	v = -1U;
+      else
+	v = current++;
+    if (current == info.size())
+      return;			// No useless state.
+    init_number_ = info[init_number_];
+    g_.defrag_states(std::move(info), current);
+  }
 }

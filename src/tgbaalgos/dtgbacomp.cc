@@ -101,7 +101,7 @@ namespace spot
 	  res->new_transition(src, sink, missingcond);
       }
     res->merge_transitions();
-    // FIXME: Remove unreachable states.
+    res->purge_dead_states();
     return res;
   }
 

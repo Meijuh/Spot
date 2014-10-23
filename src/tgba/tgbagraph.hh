@@ -388,6 +388,9 @@ namespace spot
     /// extremities and acceptance.
     void merge_transitions();
 
+    /// Remove all states without successors.
+    void purge_dead_states();
+
     bool state_is_accepting(unsigned s) const
     {
       assert(has_state_based_acc());
