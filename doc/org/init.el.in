@@ -1,6 +1,7 @@
 ;; htmlize is not always in the load-path.  On Debian it can be found here.
 (setq load-path (cons "/usr/share/emacs/site-lisp/emacs-goodies-el" load-path))
-(require 'org-publish)
+(or (require 'org-publish nil t)	; Org 7
+    (require 'ox-publish))		; Org 8
 (require 'org-install)
 
 (print (concat "Org " (org-version)))
@@ -29,12 +30,14 @@
 </div>")
 
 (setq org-publish-project-alist
-      '(("spot-html"
+      `(("spot-html"
 	:base-directory "@abs_top_srcdir@/doc/org/"
 	:base-extension "org"
 	:publishing-directory "@abs_top_srcdir@/doc/userdoc/"
 	:recursive t
-	:publishing-function org-publish-org-to-html
+	:publishing-function
+	,(if (require 'org-publish nil t) 'org-publish-org-to-html ; Org 7
+	   'org-html-publish-to-html)                              ; Org 8
 	:style "\n<link rel=\"stylesheet\" type=\"text/css\" href=\"syntax.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://spot.lip6.fr/css/spot-zenburn.css\" />"
 	:auto-preamble t)
        ("spot-static"

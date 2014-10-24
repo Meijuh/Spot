@@ -16,6 +16,10 @@ New in spot 1.2.5a (not yet released)
       state labels.
     - the acceptance specification in the HOA format output have been
       adjusted to match recent changes in the format specifications.
+    - the build rules for documentation have been made compatible with
+      version 8.0 of Org-mode.  (This was only a problem if you build
+      from the git repository, or if you want to edit the
+      documentation.)
 
 New in spot 1.2.5 (2014-08-21)
 
