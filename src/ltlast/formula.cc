@@ -33,7 +33,7 @@ namespace spot
 {
   namespace ltl
   {
-    size_t formula::max_count = 0;
+    size_t formula::max_serial = 0;
 
     const formula*
     formula::clone() const

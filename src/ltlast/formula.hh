@@ -81,14 +81,14 @@ namespace spot
 		    BUnOp };
 
     protected:
-      formula(opkind k) : count_(max_count++), kind_(k)
+      formula(opkind k) : serial_(max_serial++), kind_(k)
       {
 	// If the counter of formulae ever loops, we want to skip the
 	// first three values, because they are permanently associated
 	// to constants, and it is convenient to have constants smaller
 	// than all other formulae.
-	if (max_count == 0)
-	  max_count = 3;
+	if (max_serial == 0)
+	  max_serial = 3;
       }
 
     public:
@@ -290,7 +290,7 @@ namespace spot
       size_t
       hash() const
       {
-	return count_;
+	return serial_;
       }
     protected:
       virtual ~formula();
@@ -302,7 +302,7 @@ namespace spot
       virtual bool unref_() const;
 
       /// \brief The hash key of this formula.
-      size_t count_;
+      size_t serial_;
 
       struct ltl_prop
       {
@@ -349,7 +349,7 @@ namespace spot
 
     private:
       /// \brief Number of formulae created so far.
-      static size_t max_count;
+      static size_t max_serial;
       opkind kind_;
     };
 
