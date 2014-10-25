@@ -97,14 +97,27 @@ namespace spot
 
       /// \brief clone this node
       ///
-      /// This increments the reference counter of this node (if one is
-      /// used).
-      const formula* clone() const;
-      /// \brief release this node
-      ///
-      /// This decrements the reference counter of this node (if one is
-      /// used) and can free the object.
-      void destroy() const;
+      /// This increments the reference counter of the node.
+      const formula* clone() const
+      {
+	++refs_;
+	return this;
+      }
+
+      /// \brief Release this node
+      void destroy() const
+      {
+	// Delete if this is the last node, and it is not a constant.
+	if (!refs_)
+	  {
+	    if (kind() != Constant)
+	      delete this;
+	  }
+	else
+	  {
+	    --refs_;
+	  }
+      }
 
       /// Return a canonic representation of the formula
       virtual std::string dump() const = 0;
@@ -293,16 +306,18 @@ namespace spot
 	return serial_;
       }
     protected:
-      virtual ~formula();
-
-      /// \brief increment reference counter if any
-      virtual void ref_() const;
-      /// \brief decrement reference counter if any, return true when
-      /// the instance must be deleted (usually when the counter hits 0).
-      virtual bool unref_() const;
+      virtual ~formula()
+      {
+      }
 
       /// \brief The hash key of this formula.
       size_t serial_;
+
+      // The number of actual references is refs_ + 1.
+      mutable unsigned refs_ = 0;
+      /// \brief Number of formulae created so far.
+      static size_t max_serial;
+      opkind kind_;
 
       struct ltl_prop
       {
@@ -346,11 +361,6 @@ namespace spot
 	unsigned props;
 	ltl_prop is;
       };
-
-    private:
-      /// \brief Number of formulae created so far.
-      static size_t max_serial;
-      opkind kind_;
     };
 
 

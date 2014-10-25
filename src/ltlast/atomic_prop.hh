@@ -25,7 +25,7 @@
 #ifndef SPOT_LTLAST_ATOMIC_PROP_HH
 # define SPOT_LTLAST_ATOMIC_PROP_HH
 
-#include "refformula.hh"
+#include "formula.hh"
 #include <string>
 #include <iosfwd>
 #include <map>
@@ -38,7 +38,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Atomic propositions.
-    class SPOT_API atomic_prop : public ref_formula
+    class SPOT_API atomic_prop : public formula
     {
     public:
       /// Build an atomic proposition with name \a name in

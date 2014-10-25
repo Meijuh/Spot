@@ -35,38 +35,6 @@ namespace spot
   {
     size_t formula::max_serial = 0;
 
-    const formula*
-    formula::clone() const
-    {
-      this->ref_();
-      return this;
-    }
-
-    formula::~formula()
-    {
-    }
-
-    void
-    formula::destroy() const
-    {
-      if (this->unref_())
-	delete this;
-    }
-
-    void
-    formula::ref_() const
-    {
-      // Not reference counted by default.
-    }
-
-    bool
-    formula::unref_() const
-    {
-      // Not reference counted by default.
-      return false;
-    }
-
-
 #define printprops							\
       proprint(is_boolean, "B", "Boolean formula");			\
       proprint(is_sugar_free_boolean, "&", "without Boolean sugar");	\

@@ -33,7 +33,7 @@ namespace spot
   {
 
     atomic_prop::atomic_prop(const std::string& name, environment& env)
-      : ref_formula(AtomicProp), name_(name), env_(&env)
+      : formula(AtomicProp), name_(name), env_(&env)
     {
       is.boolean = true;
       is.sugar_free_boolean = true;
@@ -93,10 +93,14 @@ namespace spot
       const atomic_prop* ap;
       auto ires = instances.emplace(key(name, &env), nullptr);
       if (!ires.second)
-	ap = ires.first->second;
+	{
+	  ap = ires.first->second;
+	  ap->clone();
+	}
       else
-	ap = ires.first->second = new atomic_prop(name, env);
-      ap->clone();
+	{
+	  ap = ires.first->second = new atomic_prop(name, env);
+	}
       return ap;
     }
 
@@ -110,9 +114,9 @@ namespace spot
     atomic_prop::dump_instances(std::ostream& os)
     {
       for (const auto& i: instances)
-	os << i.second << " = " << i.second->ref_count_()
+	os << i.second << " = " << 1 + i.second->refs_
 	   << " * atomic_prop(" << i.first.first << ", "
-	   << i.first.second->name() << ')' << std::endl;
+	   << i.first.second->name() << ")\n";
       return os;
     }
 

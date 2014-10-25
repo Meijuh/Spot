@@ -79,7 +79,6 @@ namespace std {
 #include "misc/random.hh"
 
 #include "ltlast/formula.hh"
-#include "ltlast/refformula.hh"
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/binop.hh"
 #include "ltlast/constant.hh"
@@ -198,7 +197,6 @@ using namespace spot;
 %include "misc/random.hh"
 
 %include "ltlast/formula.hh"
-%include "ltlast/refformula.hh"
 %include "ltlast/atomic_prop.hh"
 %include "ltlast/binop.hh"
 %include "ltlast/constant.hh"

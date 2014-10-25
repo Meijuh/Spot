@@ -28,7 +28,7 @@
 #ifndef SPOT_LTLAST_BINOP_HH
 # define SPOT_LTLAST_BINOP_HH
 
-#include "refformula.hh"
+#include "formula.hh"
 #include <map>
 #include <iosfwd>
 #include <tuple>
@@ -40,7 +40,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Binary operator.
-    class SPOT_API binop : public ref_formula
+    class SPOT_API binop : public formula
     {
     public:
       /// Different kinds of binary opertaors

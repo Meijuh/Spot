@@ -36,7 +36,7 @@ namespace spot
   namespace ltl
   {
     multop::multop(type op, vec* v)
-      : ref_formula(MultOp), op_(op), children_(v)
+      : formula(MultOp), op_(op), children_(v)
     {
       unsigned s = v->size();
       assert(s > 1);
@@ -592,7 +592,7 @@ namespace spot
 	  v->insert(v->begin(), constant::true_instance());
 	}
 
-      const multop* res;
+      const formula* res;
       // Insert the key with the dummy nullptr just
       // to check if p already exists.
       auto ires = instances.emplace(key(op, v), nullptr);
@@ -602,14 +602,13 @@ namespace spot
 	  for (auto f: *v)
 	    f->destroy();
 	  delete v;
-	  res = ires.first->second;
+	  res = ires.first->second->clone();
 	}
       else
 	{
 	  // The instance did not already exist.
 	  res = ires.first->second = new multop(op, v);
 	}
-      res->clone();
       return res;
     }
 
@@ -633,9 +632,9 @@ namespace spot
     {
       for (const auto& i: instances)
 	os << i.second << " = "
-	   << i.second->ref_count_() << " * "
+	   << 1 + i.second->refs_ << " * "
 	   << i.second->dump()
-	   << std::endl;
+	   << '\n';
       return os;
     }
 

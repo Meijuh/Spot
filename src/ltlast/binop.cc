@@ -36,7 +36,7 @@ namespace spot
   namespace ltl
   {
     binop::binop(type op, const formula* first, const formula* second)
-      : ref_formula(BinOp), op_(op), first_(first), second_(second)
+      : formula(BinOp), op_(op), first_(first), second_(second)
     {
       // Beware: (f U g) is a pure eventuality if both operands
       // are pure eventualities, unlike in the proceedings of
@@ -503,20 +503,19 @@ namespace spot
 	  break;
 	}
 
-      const binop* res;
+      const formula* res;
       auto ires = instances.emplace(key(op, first, second), nullptr);
       if (!ires.second)
 	{
 	  // This instance already exists.
 	  first->destroy();
 	  second->destroy();
-	  res = ires.first->second;
+	  res = ires.first->second->clone();
 	}
       else
 	{
 	  res = ires.first->second = new binop(op, first, second);
 	}
-      res->clone();
       return res;
     }
 
@@ -531,9 +530,8 @@ namespace spot
     {
       for (const auto& i: instances)
 	os << i.second << " = "
-	   << i.second->ref_count_() << " * "
-	   << i.second->dump()
-	   << std::endl;
+	   << 1 + i.second->refs_ << " * "
+	   << i.second->dump() << '\n';
       return os;
     }
 

@@ -35,7 +35,6 @@ ltlast_HEADERS = \
   formula.hh \
   multop.hh \
   predecl.hh \
-  refformula.hh \
   unop.hh \
   visitor.hh
 
@@ -47,5 +46,4 @@ libltlast_la_SOURCES = \
   constant.cc \
   formula.cc \
   multop.cc \
-  refformula.cc \
   unop.cc

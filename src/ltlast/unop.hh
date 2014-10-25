@@ -27,8 +27,7 @@
 
 #include <map>
 #include <iosfwd>
-#include "refformula.hh"
-#include "bunop.hh"
+#include "formula.hh"
 
 namespace spot
 {
@@ -37,7 +36,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Unary operators.
-    class SPOT_API unop : public ref_formula
+    class SPOT_API unop : public formula
     {
     public:
       enum type {

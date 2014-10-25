@@ -25,7 +25,7 @@
 #ifndef SPOT_LTLAST_MULTOP_HH
 # define SPOT_LTLAST_MULTOP_HH
 
-#include "refformula.hh"
+#include "formula.hh"
 #include <vector>
 #include <map>
 #include <iosfwd>
@@ -37,7 +37,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Multi-operand operators.
-    class SPOT_API multop : public ref_formula
+    class SPOT_API multop : public formula
     {
     public:
       enum type { Or, OrRat, And, AndRat, AndNLM, Concat, Fusion };

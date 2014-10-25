@@ -22,7 +22,7 @@
 #ifndef SPOT_LTLAST_BUNOP_HH
 # define SPOT_LTLAST_BUNOP_HH
 
-#include "refformula.hh"
+#include "formula.hh"
 #include <map>
 #include <iosfwd>
 #include <tuple>
@@ -35,7 +35,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Bounded unary operator.
-    class SPOT_API bunop : public ref_formula
+    class SPOT_API bunop : public formula
     {
     public:
       enum type { Star };

@@ -28,13 +28,14 @@
 #include <iostream>
 #include "constant.hh"
 #include "atomic_prop.hh"
+#include "bunop.hh"
 
 namespace spot
 {
   namespace ltl
   {
     unop::unop(type op, const formula* child)
-      : ref_formula(UnOp), op_(op), child_(child)
+      : formula(UnOp), op_(op), child_(child)
     {
       props = child->get_props();
       switch (op)
@@ -299,19 +300,18 @@ namespace spot
 	  break;
 	}
 
-      const unop* res;
+      const formula* res;
       auto ires = instances.emplace(key(op, child), nullptr);
       if (!ires.second)
 	{
 	  // This instance already exists.
 	  child->destroy();
-	  res = ires.first->second;
+	  res = ires.first->second->clone();
 	}
       else
 	{
 	  res = ires.first->second = new unop(op, child);
 	}
-      res->clone();
       return res;
     }
 
@@ -326,9 +326,9 @@ namespace spot
     {
       for (const auto& i: instances)
 	os << i.second << " = "
-	   << i.second->ref_count_() << " * "
+	   << 1 + i.second->refs_ << " * "
 	   << i.second->dump()
-	   << std::endl;
+	   << '\n';
       return os;
     }
 

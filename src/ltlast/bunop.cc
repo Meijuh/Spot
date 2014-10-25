@@ -36,7 +36,7 @@ namespace spot
     const formula* bunop::one_star_ = 0;
 
     bunop::bunop(type op, const formula* child, unsigned min, unsigned max)
-      : ref_formula(BUnOp), op_(op), child_(child), min_(min), max_(max)
+      : formula(BUnOp), op_(op), child_(child), min_(min), max_(max)
     {
       props = child->get_props();
 
@@ -242,13 +242,12 @@ namespace spot
 	{
 	  // This instance already exists.
 	  child->destroy();
-	  res = ires.first->second;
+	  res = ires.first->second->clone();
 	}
       else
 	{
 	  res = ires.first->second = new bunop(op, child, min, max);
 	}
-      res->clone();
       return res;
     }
 
@@ -299,9 +298,9 @@ namespace spot
     {
       for (const auto& i: instances)
 	os << i.second << " = "
-	   << i.second->ref_count_() << " * "
+	   << 1 + i.second->refs_ << " * "
 	   << i.second->dump()
-	   << std::endl;
+	   << '\n';
       return os;
     }
 
