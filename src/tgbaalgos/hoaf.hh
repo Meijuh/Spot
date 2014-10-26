@@ -44,7 +44,7 @@ namespace spot
   /// \param g The automaton to output.
   /// \param f The (optional) formula associated to the automaton.  If given
   ///          it will be output as a comment.
-  /// \param a acceptance Force the type of acceptance mode used
+  /// \param acceptance Force the type of acceptance mode used
   ///         in output.
   /// \param alias Whether aliases should be used in output.
   /// \param newlines Whether to use newlines in output.

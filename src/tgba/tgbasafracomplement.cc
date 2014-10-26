@@ -1142,9 +1142,6 @@ namespace spot
   ///   series        = {Lecture Notes in Computer Science},
   ///   publisher     = {Springer-Verlag}
   /// }
-  ///
-  /// @param local_state the state from which we want to compute the successors.
-  ///
   tgba_succ_iterator*
   tgba_safra_complement::succ_iter(const state* state) const
   {
