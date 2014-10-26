@@ -24,7 +24,6 @@
 
 #include <argp.h>
 #include "error.h"
-#include "gethrxtime.h"
 
 #include "common_setup.hh"
 #include "common_r.hh"
@@ -44,6 +43,7 @@
 #include "tgbaalgos/translate.hh"
 #include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
+#include "misc/timer.hh"
 
 const char argp_program_doc[] ="\
 Translate linear-time formulas (LTL/PSL) into Büchi automata.\n\n\
@@ -223,11 +223,10 @@ namespace
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
-      const xtime_t before = gethrxtime();
+      spot::stopwatch sw;
+      sw.start();
       auto aut = trans.run(&f);
-      const xtime_t after = gethrxtime();
-      const double prec = XTIME_PRECISION;
-      const double translation_time = (after - before) / prec;
+      const double translation_time = sw.stop();
 
       // This should not happen, because the parser we use can only
       // read PSL/LTL formula, but since our ltl::formula* type can

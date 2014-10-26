@@ -24,7 +24,6 @@
 
 #include <argp.h>
 #include "error.h"
-#include "gethrxtime.h"
 
 #include "common_setup.hh"
 #include "common_finput.hh"
@@ -40,6 +39,7 @@
 #include "tgbaalgos/stats.hh"
 #include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
+#include "misc/timer.hh"
 #include "dstarparse/public.hh"
 #include "tgbaalgos/sccinfo.hh"
 
@@ -305,14 +305,11 @@ namespace
       if (!daut)
 	error(2, 0, "failed to read automaton from %s", filename);
 
-      const xtime_t before = gethrxtime();
-
+      spot::stopwatch sw;
+      sw.start();
       auto nba = spot::dstar_to_tgba(daut);
       auto aut = post.run(nba, 0);
-
-      const xtime_t after = gethrxtime();
-      const double prec = XTIME_PRECISION;
-      const double conversion_time = (after - before) / prec;
+      const double conversion_time = sw.stop();
 
       switch (format)
 	{

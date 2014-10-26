@@ -29,6 +29,7 @@
 # include <iosfwd>
 # include <string>
 # include <map>
+# include <chrono>
 # if SPOT_HAVE_SYS_TIMES_H
 #  include <sys/times.h>
 # endif
@@ -39,6 +40,33 @@ namespace spot
 {
   /// \addtogroup misc_tools
   /// @{
+
+
+  /// \brief A simple stopwatch
+  struct stopwatch
+  {
+  protected:
+    typedef std::chrono::high_resolution_clock clock;
+    clock::time_point start_;
+  public:
+    /// Marks the start if the measurement
+    void start()
+    {
+      start_ = clock::now();
+    }
+
+    /// \brief Returns the elapsed duration in seconds.
+    ///
+    /// May be called multiple times, and will always return the
+    /// duration since the last call to start().
+    double stop()
+    {
+      auto t = clock::now();
+      typedef std::chrono::duration<double> seconds;
+      return std::chrono::duration_cast<seconds>(t - start_).count();
+    }
+  };
+
 
   /// A structure to record elapsed time in clock ticks.
   struct time_info

@@ -31,7 +31,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include "error.h"
-#include "gethrxtime.h"
 #include "argmatch.h"
 
 #include "common_setup.hh"
@@ -61,6 +60,7 @@
 #include "misc/hash.hh"
 #include "misc/random.hh"
 #include "misc/tmpfile.hh"
+#include "misc/timer.hh"
 
 // Disable handling of timeout on systems that miss kill() or alarm().
 // For instance MinGW.
@@ -892,9 +892,10 @@ namespace
       std::string cmd = command.str();
       std::cerr << "Running [" << l << translator_num << "]: "
 		<< cmd << std::endl;
-      xtime_t before = gethrxtime();
+      spot::stopwatch sw;
+      sw.start();
       int es = exec_with_timeout(cmd.c_str());
-      xtime_t after = gethrxtime();
+      double duration = sw.stop();
 
       const char* status_str = 0;
 
@@ -1043,8 +1044,7 @@ namespace
 	  statistics* st = &(*fstats)[translator_num];
 	  st->status_str = status_str;
 	  st->status_code = es;
-	  double prec = XTIME_PRECISION;
-	  st->time = (after - before) / prec;
+	  st->time = duration;
 
 	  // Compute statistics.
 	  if (res)
