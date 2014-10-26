@@ -501,31 +501,6 @@ namespace spot
       }
     };
 
-    /// \ingroup ltl_essentials
-    /// \ingroup hash_funcs
-    /// \brief Hash Function for <code>const formula*</code>.
-    ///
-    /// This is meant to be used as a hash functor for
-    /// \c unordered_map whose key are of type <code>const formula*</code>.
-    ///
-    /// For instance here is how one could declare
-    /// a map of \c const::formula*.
-    /// \code
-    ///   // Remember how many times each formula has been seen.
-    ///   std::unordered_map<const spot::ltl::formula*, int,
-    ///                      const spot::ltl::formula_ptr_hash> seen;
-    /// \endcode
-    struct formula_ptr_hash:
-      public std::unary_function<const formula*, size_t>
-    {
-      size_t
-      operator()(const formula* that) const
-      {
-	assert(that);
-	return that->hash();
-      }
-    };
-
     /// Print the properties of formula \a f on stream \a out.
     SPOT_API
     std::ostream& print_formula_props(std::ostream& out,
@@ -537,5 +512,20 @@ namespace spot
     std::list<std::string> list_formula_props(const formula* f);
   }
 }
+
+#ifndef SWIG
+namespace std
+{
+  template <>
+  struct hash<const spot::ltl::formula*>
+  {
+    size_t operator()(const spot::ltl::formula* x) const noexcept
+    {
+      assert(x);
+      return x->hash();
+    }
+  };
+}
+#endif
 
 #endif // SPOT_LTLAST_FORMULA_HH

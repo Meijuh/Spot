@@ -110,8 +110,7 @@ namespace spot
 
     class ratexp_to_dfa
     {
-      typedef typename tgba_digraph::namer<const formula*,
-					   formula_ptr_hash>::type namer;
+      typedef typename tgba_digraph::namer<const formula*>::type namer;
     public:
       ratexp_to_dfa(translate_dict& dict);
       std::tuple<const_tgba_digraph_ptr, const namer*, const state*>
@@ -124,8 +123,7 @@ namespace spot
 
     private:
       translate_dict& dict_;
-      typedef std::unordered_map<const formula*, labelled_aut,
-				 formula_ptr_hash> f2a_t;
+      typedef std::unordered_map<const formula*, labelled_aut> f2a_t;
       std::vector<labelled_aut> automata_;
       f2a_t f2a_;
     };
@@ -1068,7 +1066,7 @@ namespace spot
       assert(f->is_in_nenoform());
 
       auto a = make_tgba_digraph(dict_.dict);
-      auto namer = a->create_namer<const formula*, formula_ptr_hash>();
+      auto namer = a->create_namer<const formula*>();
 
       typedef std::set<const formula*, formula_ptr_less_than> set_type;
       set_type formulae_to_translate;
@@ -1931,8 +1929,7 @@ namespace spot
       }
 
     private:
-      typedef std::unordered_map<const formula*, bool,
-				 formula_ptr_hash> pfl_map;
+      typedef std::unordered_map<const formula*, bool> pfl_map;
       pfl_map pfl_;
     };
 
@@ -2084,8 +2081,8 @@ namespace spot
       // Map each formula to its associated bdd.  This speed things up when
       // the same formula is translated several times, which especially
       // occurs when canonize() is called repeatedly inside exprop.
-      typedef std::unordered_map<const formula*, translate_dict::translated,
-				 ptr_hash<formula> > formula_to_bdd_map;
+      typedef std::unordered_map<const formula*,
+				 translate_dict::translated> formula_to_bdd_map;
       formula_to_bdd_map f2b_;
 
       possible_fair_loop_checker pflc_;
@@ -2097,8 +2094,7 @@ namespace spot
   }
 
   typedef std::map<bdd, bdd, bdd_less_than> prom_map;
-  typedef std::unordered_map<const formula*, prom_map,
-			     formula_ptr_hash> dest_map;
+  typedef std::unordered_map<const formula*, prom_map> dest_map;
 
   static void
   fill_dests(translate_dict& d, dest_map& dests, bdd label, const formula* dest)
@@ -2151,7 +2147,7 @@ namespace spot
     assert(dict == s->get_dict());
 
     tgba_digraph_ptr a = make_tgba_digraph(dict);
-    auto namer = a->create_namer<const formula*, formula_ptr_hash>();
+    auto namer = a->create_namer<const formula*>();
 
     translate_dict d(dict, a->acc(), s, exprop, f->is_syntactic_persistence());
 

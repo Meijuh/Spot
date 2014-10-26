@@ -23,6 +23,7 @@
 #include <set>
 #include <iosfwd>
 #include <vector>
+#include <string>
 #include "misc/hash.hh"
 #include "ltlast/formula.hh"
 #include "bdddict.hh"
@@ -144,7 +145,7 @@ namespace spot
 
   /// A taa_tgba instance with states labeled by a given type.
   /// Still an abstract class, see below.
-  template<typename label, typename label_hash>
+  template<typename label>
   class SPOT_API taa_tgba_labelled : public taa_tgba
   {
   public:
@@ -236,8 +237,7 @@ namespace spot
   protected:
     typedef label label_t;
 
-    typedef std::unordered_map<const label, taa_tgba::state*,
-			       label_hash> ns_map;
+    typedef std::unordered_map<label, taa_tgba::state*> ns_map;
     typedef std::unordered_map<const taa_tgba::state*, label,
 			       ptr_hash<taa_tgba::state> > sn_map;
 
@@ -308,14 +308,14 @@ namespace spot
 
   class SPOT_API taa_tgba_string :
 #ifndef SWIG
-    public taa_tgba_labelled<std::string, string_hash>
+    public taa_tgba_labelled<std::string>
 #else
     public taa_tgba
 #endif
   {
   public:
     taa_tgba_string(const bdd_dict_ptr& dict) :
-      taa_tgba_labelled<std::string, string_hash>(dict) {};
+      taa_tgba_labelled<std::string>(dict) {};
     ~taa_tgba_string();
   protected:
     virtual std::string label_to_string(const std::string& label) const;
@@ -332,14 +332,14 @@ namespace spot
 
   class SPOT_API taa_tgba_formula :
 #ifndef SWIG
-    public taa_tgba_labelled<const ltl::formula*, ltl::formula_ptr_hash>
+    public taa_tgba_labelled<const ltl::formula*>
 #else
     public taa_tgba
 #endif
   {
   public:
     taa_tgba_formula(const bdd_dict_ptr& dict) :
-      taa_tgba_labelled<const ltl::formula*, ltl::formula_ptr_hash>(dict) {};
+      taa_tgba_labelled<const ltl::formula*>(dict) {};
     ~taa_tgba_formula();
   protected:
     virtual std::string label_to_string(const label_t& label) const;

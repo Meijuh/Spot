@@ -92,8 +92,7 @@ namespace spot
       class relabeler: public clone_visitor
       {
       public:
-	typedef std::unordered_map<const formula*, const formula*,
-				   ptr_hash<formula> > map;
+	typedef std::unordered_map<const formula*, const formula*> map;
 	map newname;
 	ap_generator* gen;
 	relabeling_map* oldnames;
@@ -358,8 +357,7 @@ namespace spot
 	{
 	}
       };
-      typedef std::unordered_map<const formula*, data_entry,
-				 const formula_ptr_hash> fmap_t;
+      typedef std::unordered_map<const formula*, data_entry> fmap_t;
       struct stack_entry
       {
 	const formula* grand_parent;
