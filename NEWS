@@ -32,6 +32,7 @@ New in spot 1.2.5a (not yet released)
       libstd++ has also been fixed.
     - all parsers would report wrong line numbers while processing
       files with DOS style newlines.
+    - add support for SWIG 3.0.
 
 New in spot 1.2.5 (2014-08-21)
 
