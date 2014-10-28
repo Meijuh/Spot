@@ -32,11 +32,11 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief A constant (True or False)
-    class SPOT_API constant : public formula
+    class SPOT_API constant final : public formula
     {
     public:
       enum type { False, True, EmptyWord };
-      virtual void accept(visitor& v) const;
+      virtual void accept(visitor& v) const override;
 
       /// Return the value of the constant.
       type val() const
@@ -47,7 +47,7 @@ namespace spot
       /// Return the value of the constant as a string.
       const char* val_name() const;
 
-      virtual std::string dump() const;
+      virtual std::string dump() const override;
 
       /// Get the sole instance of spot::ltl::constant::constant(True).
       static constant* true_instance() { return &true_instance_; }

@@ -36,7 +36,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Unary operators.
-    class SPOT_API unop : public formula
+    class SPOT_API unop final : public formula
     {
     public:
       enum type {
@@ -87,7 +87,7 @@ namespace spot
       /// handle this one as well.
       static const formula* instance(type op, const formula* child);
 
-      virtual void accept(visitor& v) const;
+      virtual void accept(visitor& v) const override;
 
       /// Get the sole operand of this operator.
       const formula* child() const
@@ -105,7 +105,7 @@ namespace spot
       const char* op_name() const;
 
       /// Return a canonic representation of the atomic proposition
-      virtual std::string dump() const;
+      virtual std::string dump() const override;
 
       /// Number of instantiated unary operators.  For debugging.
       static unsigned instance_count();

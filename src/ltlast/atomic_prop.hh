@@ -38,7 +38,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Atomic propositions.
-    class SPOT_API atomic_prop : public formula
+    class SPOT_API atomic_prop final : public formula
     {
     public:
       /// Build an atomic proposition with name \a name in
@@ -46,7 +46,7 @@ namespace spot
       static const atomic_prop*
       instance(const std::string& name, environment& env);
 
-      virtual void accept(visitor& visitor) const;
+      virtual void accept(visitor& visitor) const override;
 
       /// Get the name of the atomic proposition.
       const std::string& name() const
@@ -61,7 +61,7 @@ namespace spot
       }
 
       /// Return a canonic representation of the atomic proposition
-      virtual std::string dump() const;
+      virtual std::string dump() const override;
 
       /// Number of instantiated atomic propositions.  For debugging.
       static unsigned instance_count();

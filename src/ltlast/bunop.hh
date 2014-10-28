@@ -35,7 +35,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Bounded unary operator.
-    class SPOT_API bunop : public formula
+    class SPOT_API bunop final : public formula
     {
     public:
       enum type { Star };
@@ -85,7 +85,7 @@ namespace spot
 					unsigned min = 0,
 					unsigned max = unbounded);
 
-      virtual void accept(visitor& v) const;
+      virtual void accept(visitor& v) const override;
 
       /// Get the sole operand of this operator.
       const formula* child() const
@@ -120,7 +120,7 @@ namespace spot
       const char* op_name() const;
 
       /// Return a canonic representation of operation.
-      virtual std::string dump() const;
+      virtual std::string dump() const override;
 
       /// Number of instantiated unary operators.  For debugging.
       static unsigned instance_count();

@@ -78,8 +78,11 @@
 
 // Swig 2.0 does not understand '= delete'.  This already
 // works with the development version of Swig 3.
+// Swig 3.0.2 still does not understand 'final' when used
+// at class definition.
 #ifdef SWIG
   #define SPOT_DELETED
+  #define final
 #else
   #define SPOT_DELETED = delete
 #endif

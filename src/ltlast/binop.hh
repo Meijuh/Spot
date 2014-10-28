@@ -40,7 +40,7 @@ namespace spot
 
     /// \ingroup ltl_ast
     /// \brief Binary operator.
-    class SPOT_API binop : public formula
+    class SPOT_API binop final: public formula
     {
     public:
       /// Different kinds of binary opertaors
@@ -110,7 +110,7 @@ namespace spot
 				     const formula* first,
 				     const formula* second);
 
-      virtual void accept(visitor& v) const;
+      virtual void accept(visitor& v) const override;
 
       /// Get the first operand.
       const formula* first() const
@@ -134,7 +134,7 @@ namespace spot
       const char* op_name() const;
 
       /// Return a canonic representation of the atomic proposition
-      virtual std::string dump() const;
+      virtual std::string dump() const override;
 
       /// Number of instantiated binary operators.  For debugging.
       static unsigned instance_count();
