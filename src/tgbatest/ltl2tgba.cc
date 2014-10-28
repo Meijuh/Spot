@@ -324,7 +324,7 @@ spot::tgba_digraph_ptr ensure_digraph(const spot::tgba_ptr& a)
   auto aa = std::dynamic_pointer_cast<spot::tgba_digraph>(a);
   if (aa)
     return aa;
-  return spot::tgba_dupexp_dfs(a);
+  return spot::make_tgba_digraph(a);
 }
 
 int

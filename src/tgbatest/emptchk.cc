@@ -31,7 +31,6 @@
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/dupexp.hh"
 #include "tgbaalgos/emptiness.hh"
 
 void
@@ -103,7 +102,7 @@ main(int argc, char** argv)
       {
 	auto a = spot::ltl_to_taa(f, d);
 	aut[0] = a;
-	aut[1] = spot::degeneralize_tba(spot::tgba_dupexp_bfs(a));
+	aut[1] = spot::degeneralize_tba(spot::make_tgba_digraph(a));
       }
       {
 	auto a = spot::ltl_to_tgba_fm(f, d);

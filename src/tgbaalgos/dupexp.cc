@@ -21,10 +21,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dupexp.hh"
+#include "tgba/tgbagraph.hh"
 #include <sstream>
 #include <string>
 #include <map>
 #include "reachiter.hh"
+#include "dotty.hh"
 
 namespace spot
 {
@@ -119,6 +121,20 @@ namespace spot
   tgba_digraph_ptr
   tgba_dupexp_dfs(const const_tgba_ptr& aut, std::vector<const state*>& rel)
   {
+    auto aa = std::dynamic_pointer_cast<const spot::tgba_digraph>(aut);
+    if (aa)
+      {
+	aa->get_init_state_number(); // Create an initial state if needed.
+	auto res = make_tgba_digraph(aa);
+	unsigned ns = aa->num_states();
+	rel.reserve(ns);
+	// The state numbers are common to both automata, but
+	// the state pointers are to the older one.
+	for (unsigned n = 0; n < ns; ++n)
+	  rel.push_back(aa->state_from_number(n));
+	return res;
+      }
+
     dupexp_iter_save<tgba_reachable_iterator_depth_first> di(aut, rel);
     di.run();
     return di.result();

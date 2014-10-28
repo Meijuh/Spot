@@ -29,7 +29,6 @@
 #include "tgbaalgos/sccfilter.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/dupexp.hh"
 
 void
 syntax(char* prog)
@@ -93,8 +92,8 @@ main(int argc, char** argv)
 
       if (fpos->is_ltl_formula())
 	{
-	  auto apos = scc_filter(spot::tgba_dupexp_dfs(ltl_to_taa(fpos, d)));
-	  auto aneg = scc_filter(spot::tgba_dupexp_dfs(ltl_to_taa(fneg, d)));
+	  auto apos = scc_filter(make_tgba_digraph(ltl_to_taa(fpos, d)));
+	  auto aneg = scc_filter(make_tgba_digraph(ltl_to_taa(fneg, d)));
 	  if (!spot::product(apos, aneg)->is_empty())
 	    {
 	      std::cerr << "non-empty intersection between pos and neg (TAA)\n";

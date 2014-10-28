@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "complete.hh"
-#include "dupexp.hh"
 
 namespace spot
 {
@@ -105,7 +104,12 @@ namespace spot
 
   tgba_digraph_ptr tgba_complete(const const_tgba_ptr& aut)
   {
-    tgba_digraph_ptr res = tgba_dupexp_dfs(aut);
+    auto res = make_tgba_digraph(aut);
+    res->prop_copy(aut,
+		   true, 	// state based
+		   true, 	// single acc
+		   true, 	// inherently_weak
+		   true);	// deterministic
     tgba_complete_here(res);
     return res;
   }

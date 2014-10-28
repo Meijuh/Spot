@@ -25,7 +25,6 @@
 #include "minimize.hh"
 #include "simulation.hh"
 #include "safety.hh"
-#include "dupexp.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/clone.hh"

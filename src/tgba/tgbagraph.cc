@@ -62,6 +62,40 @@ namespace spot
     g_.defrag();
   }
 
+  void tgba_digraph::purge_unreachable_states()
+  {
+    unsigned num_states = g_.num_states();
+    if (num_states == 0)
+      return;
+    std::vector<unsigned> seen(num_states, 0);
+    std::vector<unsigned> todo;
+    todo.reserve(num_states);
+    todo.push_back(init_number_);
+    seen[init_number_] = 1;
+    auto todo_pos = todo.begin();
+    while (todo_pos != todo.end())
+      {
+	for (auto& t: g_.out(*todo_pos))
+	  if (!seen[t.dst])
+	    {
+	      seen[t.dst] = 1;
+	      todo.push_back(t.dst);
+	    }
+	++todo_pos;
+      }
+    // Now renumber each used state.
+    unsigned current = 0;
+    for (auto& v: seen)
+      if (!v)
+	v = -1U;
+      else
+	v = current++;
+    if (current == seen.size())
+      return;			// No useless state.
+    init_number_ = seen[init_number_];
+    g_.defrag_states(std::move(seen), current);
+  }
+
   void tgba_digraph::purge_dead_states()
   {
     unsigned num_states = g_.num_states();

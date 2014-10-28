@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dtgbacomp.hh"
-#include "dupexp.hh"
 #include "sccinfo.hh"
 
 namespace spot
@@ -26,9 +25,12 @@ namespace spot
   tgba_digraph_ptr dtgba_complement_nonweak(const const_tgba_ptr& aut)
   {
     // Clone the original automaton.
-    tgba_digraph_ptr res = tgba_dupexp_dfs(aut);
-
-
+    auto res = make_tgba_digraph(aut);
+    res->prop_copy(aut,
+		   false, 	// state based
+		   false, 	// single acc
+		   false, 	// inherently_weak
+		   false);	// deterministic
     // Copy the old acceptance condition before we replace it.
     acc_cond oldacc = aut->acc(); // Copy it!
 
@@ -36,6 +38,9 @@ namespace spot
     // automaton will only have one acceptance set.
     // This changes aut->acc();
     res->set_single_acceptance_set();
+    // The resulting automaton is weak.
+    res->prop_inherently_weak();
+    res->prop_state_based_acc();
 
     unsigned num_sets = oldacc.num_sets();
     unsigned n = res->num_states();
@@ -108,8 +113,7 @@ namespace spot
   tgba_digraph_ptr dtgba_complement_weak(const const_tgba_ptr& aut)
   {
     // Clone the original automaton.
-    tgba_digraph_ptr res = tgba_dupexp_dfs(aut);
-
+    auto res = make_tgba_digraph(aut);
     res->prop_copy(aut,
 		   true, 	// state based
 		   true, 	// single acc

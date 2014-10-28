@@ -25,6 +25,7 @@
 #include "graph/ngraph.hh"
 #include "tgba/bdddict.hh"
 #include "tgba/tgba.hh"
+#include "tgbaalgos/dupexp.hh"
 #include "misc/bddop.hh"
 #include <sstream>
 
@@ -170,6 +171,14 @@ namespace spot
     {
     }
 
+    explicit tgba_digraph(const const_tgba_digraph_ptr& other)
+      : tgba(other->get_dict()),
+        g_(other->g_), init_number_(other->init_number_)
+      {
+	copy_acceptance_conditions_of(other);
+	copy_ap_of(other);
+      }
+
     virtual ~tgba_digraph()
     {
       get_dict()->unregister_all_my_variables(this);
@@ -228,7 +237,7 @@ namespace spot
       set_init_state(state_number(s));
     }
 
-    virtual graph_t::state get_init_state_number() const
+    graph_t::state get_init_state_number() const
     {
       if (num_states() == 0)
 	const_cast<graph_t&>(g_).new_state();
@@ -391,6 +400,9 @@ namespace spot
     /// Remove all states without successors.
     void purge_dead_states();
 
+    /// Remove all unreachable states.
+    void purge_unreachable_states();
+
     bool state_is_accepting(unsigned s) const
     {
       assert(has_state_based_acc());
@@ -412,6 +424,21 @@ namespace spot
   {
     return std::make_shared<tgba_digraph>(dict);
   }
+
+  inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_digraph_ptr& aut)
+  {
+    return std::make_shared<tgba_digraph>(aut);
+  }
+
+  inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_ptr& aut)
+  {
+    auto p = std::dynamic_pointer_cast<const tgba_digraph>(aut);
+    if (p)
+      return std::make_shared<tgba_digraph>(p);
+    else
+      return tgba_dupexp_dfs(aut);
+  }
+
 }
 
 #endif // SPOT_TGBA_TGBAGRAPH_HH

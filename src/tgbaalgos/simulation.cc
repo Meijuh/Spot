@@ -256,7 +256,6 @@ namespace spot
         scc_info_.reset(new scc_info(a_));
         old_a_ = a_;
 
-
 	// Replace all the acceptance conditions by their complements.
 	// (In the case of Cosimulation, we also flip the transitions.)
 	{
@@ -298,6 +297,8 @@ namespace spot
 		  else
 		    t.acc = acc;
 		}
+	      if (Cosimulation)
+		a_->set_init_state(old_a_->get_init_state_number());
 	    }
 	  size_a_ = ns;
 	}
@@ -435,7 +436,7 @@ namespace spot
 
         // When we Cosimulate, we add a special flag to differentiate
         // the initial state from the other.
-        if (Cosimulation && src == 0)
+        if (Cosimulation && src == a_->get_init_state_number())
           res |= bdd_initial;
 
         return res;
@@ -696,6 +697,8 @@ namespace spot
 	      }
 	  }
 
+	res->purge_unreachable_states();
+
 	delete gb;
 	res->prop_copy(original_,
 		       false, // state-based acc forced below
@@ -835,6 +838,8 @@ namespace spot
         bdd res = bddfalse;
 
         unsigned scc = scc_info_->scc_of(src);
+	if (scc == -1U)		// Unreachable
+	  return bddfalse;
         bool sccacc = scc_info_->is_accepting_scc(scc);
 
 	for (auto& t: a_->out(src))
@@ -1353,12 +1358,13 @@ namespace spot
 
         direct_simulation<true, Sba> cosimul(res);
 	res = cosimul.run();
-        next.set_size(res);
 
 	if (Sba)
 	  res = scc_filter_states(res);
 	else
 	  res = scc_filter(res, false);
+
+        next.set_size(res);
       }
     while (prev != next);
     return res;

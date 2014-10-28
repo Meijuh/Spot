@@ -656,8 +656,18 @@ namespace spot
       for (state s = 0; s < send; ++s)
 	{
 	  state dst = newst[s];
-	  if (dst == s || dst == -1U)
+	  if (dst == s)
 	    continue;
+	  if (dst == -1U)
+	    {
+	      // This is an erased state.  Mark all its transitions as
+	      // dead (i.e., t.next_succ should point to t for each of
+	      // them).
+	      auto t = states_[s].succ;
+	      while (t)
+		std::swap(t, transitions_[t].next_succ);
+	      continue;
+	    }
 	  states_[dst] = std::move(states_[s]);
 	}
       states_.resize(used_states);

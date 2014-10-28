@@ -23,7 +23,10 @@
 #ifndef SPOT_TGBAALGOS_DUPEXP_HH
 # define SPOT_TGBAALGOS_DUPEXP_HH
 
-# include "tgba/tgbagraph.hh"
+# include "misc/common.hh"
+# include "tgba/fwd.hh"
+# include "tgba/tgba.hh"
+# include <vector>
 
 namespace spot
 {
