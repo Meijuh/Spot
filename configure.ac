@@ -146,9 +146,9 @@ AC_CHECK_PROG([EMACS], [emacs], [emacs])
 AC_CHECK_PROG([LBTT_TRANSLATE], [lbtt-translate], [lbtt-translate])
 AX_CHECK_VALGRIND
 AC_CHECK_PROG([WRING2LBTT], [wring2lbtt], [wring2lbtt])
-# Debian has a binary for SWIG 2.0 named swig2.0 and they kept swig as
-# an alias for swig-1.3.  Let's use the former when available.
-AC_CHECK_PROGS([SWIG], [swig2.0 swig], [swig])
+# Debian has a binary for SWIG 3.0 named swig3.0 and they kept swig as
+# an alias for swig-2.0.  Let's use the former when available.
+AC_CHECK_PROGS([SWIG], [swig3.0 swig], [swig])
 
 AC_SUBST([CROSS_COMPILING], [$cross_compiling])
 
