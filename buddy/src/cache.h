@@ -38,16 +38,21 @@
 #ifndef _CACHE_H
 #define _CACHE_H
 
-typedef struct
-{
-   union
-   {
-      double dres;
-      int res;
-   } r;
-   int a,b,c;
-} BddCacheData;
 
+typedef union
+{
+  struct {
+    int a;
+    int c;
+    int b;
+    int res;
+  } i;
+  struct {
+    int a;
+    int c;
+    double res;
+  } d;
+} BddCacheData;
 
 typedef struct
 {

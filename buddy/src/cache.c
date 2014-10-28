@@ -35,6 +35,7 @@
   DATE:  (C) june 1997
 *************************************************************************/
 #include <stdlib.h>
+#include <string.h>
 #include "kernel.h"
 #include "cache.h"
 #include "prime.h"
@@ -42,19 +43,22 @@
 /*************************************************************************
 *************************************************************************/
 
+void BddCache_reset(BddCache *cache)
+{
+  int n;
+  for (n = 0; n < cache->tablesize; n++)
+    cache->table[n].i.a = -1;
+}
+
 int BddCache_init(BddCache *cache, int size)
 {
-   int n;
-
    size = bdd_prime_gte(size);
-   
+
    if ((cache->table=NEW(BddCacheData,size)) == NULL)
       return bdd_error(BDD_MEMORY);
-   
-   for (n=0 ; n<size ; n++)
-      cache->table[n].a = -1;
+
    cache->tablesize = size;
-   
+   BddCache_reset(cache);
    return 0;
 }
 
@@ -69,29 +73,10 @@ void BddCache_done(BddCache *cache)
 
 int BddCache_resize(BddCache *cache, int newsize)
 {
-   int n;
-
    free(cache->table);
-
-   newsize = bdd_prime_gte(newsize);
-   
-   if ((cache->table=NEW(BddCacheData,newsize)) == NULL)
-      return bdd_error(BDD_MEMORY);
-   
-   for (n=0 ; n<newsize ; n++)
-      cache->table[n].a = -1;
-   cache->tablesize = newsize;
-   
-   return 0;
+   return BddCache_init(cache, newsize);
 }
 
-
-void BddCache_reset(BddCache *cache)
-{
-   register int n;
-   for (n=0 ; n<cache->tablesize ; n++)
-      cache->table[n].a = -1;
-}
 
 
 /* EOF */
