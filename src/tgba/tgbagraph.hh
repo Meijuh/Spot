@@ -330,6 +330,31 @@ namespace spot
       return acc_.mark(0);
     }
 
+    graph_t::trans_storage_t& trans_storage(const tgba_succ_iterator* it)
+    {
+      auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);
+      return g_.trans_storage(i->pos());
+    }
+
+    graph_t::trans_storage_t& trans_storage(unsigned t)
+    {
+      return g_.trans_storage(t);
+    }
+
+    const graph_t::trans_storage_t
+      trans_storage(const tgba_succ_iterator* it) const
+    {
+      auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);
+      return g_.trans_storage(i->pos());
+    }
+
+    const graph_t::trans_storage_t trans_storage(unsigned t) const
+    {
+      return g_.trans_storage(t);
+    }
+
+    void set_acceptance_conditions(bdd all);
+
     unsigned new_state()
     {
       return g_.new_state();
