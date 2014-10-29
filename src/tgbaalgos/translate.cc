@@ -61,7 +61,7 @@ namespace spot
     simpl_owned_ = simpl_ = new ltl::ltl_simplifier(options, dict);
   }
 
-  const_tgba_digraph_ptr translator::run(const ltl::formula** f)
+  tgba_digraph_ptr translator::run(const ltl::formula** f)
   {
     const ltl::formula* r = simpl_->simplify(*f);
     (*f)->destroy();
@@ -91,7 +91,7 @@ namespace spot
     return aut;
   }
 
-  const_tgba_digraph_ptr translator::run(const ltl::formula* f)
+  tgba_digraph_ptr translator::run(const ltl::formula* f)
   {
     f->clone();
     auto aut = run(&f);
