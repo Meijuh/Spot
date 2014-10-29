@@ -23,19 +23,13 @@
 #include "bin/common_output.hh"
 #include "tgbaalgos/translate.hh"
 #include "tgbaalgos/stutter_invariance.hh"
+#include "tgbaalgos/dupexp.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/length.hh"
 #include "misc/timer.hh"
 #include <argp.h>
 #include "error.h"
-
-#include "tgbaalgos/closure.hh"
-#include "tgbaalgos/stutterize.hh"
-#include "tgbaalgos/dotty.hh"
-#include "tgba/tgbaproduct.hh"
-
-static unsigned n = 10;
 
 const char argp_program_doc[] ="";
 
@@ -74,8 +68,9 @@ namespace
       const spot::ltl::formula* nf =
 	spot::ltl::unop::instance(spot::ltl::unop::Not,
 				  f->clone());
-      spot::const_tgba_digraph_ptr a = trans.run(f);
-      spot::const_tgba_digraph_ptr na = trans.run(nf);
+      spot::tgba_digraph_ptr a = trans.run(f);
+      spot::tgba_digraph_ptr na = trans.run(nf);
+      unsigned num_states = a->num_states();
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
       bdd apdict = spot::ltl::atomic_prop_collect_as_bdd(f, a);
       bool res;
@@ -88,13 +83,16 @@ namespace
           setenv("SPOT_STUTTER_CHECK", algostr, true);
 
           spot::stopwatch sw;
+          auto dup_a = std::make_shared<spot::tgba_digraph>(a);
+          auto dup_na = std::make_shared<spot::tgba_digraph>(na);
+
           sw.start();
-          for (unsigned i = 0; i < n; ++i)
-            res = spot::is_stutter_invariant(a, na, apdict);
+          res = spot::is_stutter_invariant(std::move(dup_a),
+                                           std::move(dup_na), apdict);
           const double time = sw.stop();
 
           std::cout << formula << ", " << algo << ", " << ap->size() << ", "
-		    << a->num_states() << ", " << res << ", " << time << std::endl;
+		    << num_states << ", " << res << ", " << time * 1000000 << std::endl;
 
           if (algo > '1')
             assert(res == prev);

@@ -29,8 +29,8 @@ namespace spot
   is_stutter_invariant(const ltl::formula* f);
 
   SPOT_API bool
-  is_stutter_invariant(const const_tgba_digraph_ptr& aut_f,
-		       const const_tgba_digraph_ptr& aut_nf, bdd aps);
+  is_stutter_invariant(tgba_digraph_ptr&& aut_f,
+		       tgba_digraph_ptr&& aut_nf, bdd aps);
 }
 
 #endif

@@ -26,6 +26,11 @@ namespace spot
 {
   SPOT_API tgba_digraph_ptr
   closure(const const_tgba_digraph_ptr&);
+
+#ifndef SWIG
+  SPOT_API tgba_digraph_ptr
+  closure(tgba_digraph_ptr&&);
+#endif
 }
 
 #endif

@@ -75,18 +75,24 @@ main()
 
             for (char algo = '1'; algo <= '8'; ++algo)
               {
-                // set SPOT_STUTTER_CHECK environment variable
+                // Set SPOT_STUTTER_CHECK environment variable.
                 char algostr[2] = { 0 };
                 algostr[0] = algo;
                 setenv("SPOT_STUTTER_CHECK", algostr, true);
 
+                // Copy vec, because is_stutter_invariant modifies the
+                // automata.
+                std::vector<aut_pair_t> dup(vec);
                 spot::stopwatch sw;
                 sw.start();
                 bool res;
                 for (auto& a: vec)
-                  res = spot::is_stutter_invariant(a.first, a.second, apdict);
+                  res = spot::is_stutter_invariant(std::move(a.first),
+                                                   std::move(a.second),
+                                                   apdict);
                 const double time = sw.stop();
 
+                vec = dup;
                 std::cout << algo << ", " << props_n << ", " << states_n
                           << ", " << res << ", " << time << std::endl;
               }
@@ -94,7 +100,6 @@ main()
             delete(ap);
           }
       }
-
 
   return 0;
 }

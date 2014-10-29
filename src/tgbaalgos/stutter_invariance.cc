@@ -60,16 +60,16 @@ namespace spot
         }
       const ltl::formula* nf = ltl::unop::instance(ltl::unop::Not, f->clone());
       translator trans;
-      auto aut_f = trans.run(f);
-      auto aut_nf = trans.run(nf);
+      tgba_digraph_ptr aut_f = trans.run(f);
+      tgba_digraph_ptr aut_nf = trans.run(nf);
       bdd aps = atomic_prop_collect_as_bdd(f, aut_f);
       nf->destroy();
-      return is_stutter_invariant(aut_f, aut_nf, aps);
+      return is_stutter_invariant(std::move(aut_f), std::move(aut_nf), aps);
     }
 
   bool
-  is_stutter_invariant(const const_tgba_digraph_ptr& aut_f,
-                       const const_tgba_digraph_ptr& aut_nf, bdd aps)
+  is_stutter_invariant(tgba_digraph_ptr&& aut_f,
+                       tgba_digraph_ptr&& aut_nf, bdd aps)
     {
       const char* stutter_check = getenv("SPOT_STUTTER_CHECK");
       char algo = stutter_check ? stutter_check[0] : '8';
@@ -79,32 +79,38 @@ namespace spot
           // sl(aut_f) x sl(aut_nf)
         case '1':
             {
-              return product(sl(aut_f, aps), sl(aut_nf, aps))->is_empty();
+              return product(sl(std::move(aut_f), aps),
+                             sl(std::move(aut_nf), aps))->is_empty();
             }
           // sl(cl(aut_f)) x aut_nf
         case '2':
             {
-              return product(sl(closure(aut_f), aps), aut_nf)->is_empty();
+              return product(sl(closure(std::move(aut_f)), aps),
+                             std::move(aut_nf))->is_empty();
             }
           // (cl(sl(aut_f)) x aut_nf
         case '3':
             {
-              return product(closure(sl(aut_f, aps)), aut_nf)->is_empty();
+              return product(closure(sl(std::move(aut_f), aps)),
+                             std::move(aut_nf))->is_empty();
             }
           // sl2(aut_f) x sl2(aut_nf)
         case '4':
             {
-              return product(sl2(aut_f, aps), sl2(aut_nf, aps))->is_empty();
+              return product(sl2(std::move(aut_f), aps),
+                             sl2(std::move(aut_nf), aps))->is_empty();
             }
           // sl2(cl(aut_f)) x aut_nf
         case '5':
             {
-              return product(sl2(closure(aut_f), aps), aut_nf)->is_empty();
+              return product(sl2(closure(std::move(aut_f)), aps),
+                             std::move(aut_nf))->is_empty();
             }
           // (cl(sl2(aut_f)) x aut_nf
         case '6':
             {
-              return product(closure(sl2(aut_f, aps)), aut_nf)->is_empty();
+              return product(closure(sl2(std::move(aut_f), aps)),
+                             std::move(aut_nf))->is_empty();
             }
           // on-the-fly sl(aut_f) x sl(aut_nf)
         case '7':
@@ -116,7 +122,8 @@ namespace spot
           // cl(aut_f) x cl(aut_nf)
         case '8':
             {
-              return product(closure(aut_f), closure(aut_nf))->is_empty();
+              return product(closure(std::move(aut_f)),
+                             closure(std::move(aut_nf)))->is_empty();
             }
         default:
           throw std::runtime_error("invalid value for SPOT_STUTTER_CHECK.");

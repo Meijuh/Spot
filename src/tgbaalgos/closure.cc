@@ -21,101 +21,73 @@
 #include <deque>
 #include "closure.hh"
 #include "dupexp.hh"
+#include <algorithm>
 
 namespace spot
 {
-  namespace
+  tgba_digraph_ptr
+  closure(tgba_digraph_ptr&& a)
   {
-    struct transition
-    {
-      unsigned dst;
-      acc_cond::mark_t acc;
-      transition(unsigned dst, acc_cond::mark_t acc) :
-	dst(dst), acc(acc)
-      {
-      }
-    };
+    unsigned n = a->num_states();
+    std::vector<unsigned> todo;
+    std::vector<std::vector<unsigned> > dst2trans(n);
 
-    struct transition_hash
-    {
-      size_t
-      operator()(const transition& t) const
+    for (unsigned state = 0; state < n; ++state)
       {
-	return wang32_hash(t.dst) ^ wang32_hash(t.acc);
-      }
-    };
+	auto trans = a->out(state);
 
-    struct transition_equal
-    {
-      bool
-      operator()(const transition& left, const transition& right) const
-      {
-	return left.dst == right.dst
-	  && left.acc == right.acc;
-      }
-    };
+	for (auto it = trans.begin(); it != trans.end(); ++it)
+	  {
+	    todo.push_back(it.trans());
+	    dst2trans[it->dst].push_back(it.trans());
+	  }
 
-    typedef std::unordered_map<transition, unsigned, transition_hash,
-			       transition_equal> tmap_t;
-    typedef std::set<unsigned> tset_t;
+	while (!todo.empty())
+	  {
+	    auto t1 = a->trans_storage(todo.back());
+	    todo.pop_back();
+
+	    for (auto& t2 : a->out(t1.dst))
+	      {
+		bdd cond = t1.cond & t2.cond;
+		if (cond != bddfalse)
+		  {
+                    bool need_new_trans = true;
+		    acc_cond::mark_t acc = t1.acc | t2.acc;
+                    for (auto& t: dst2trans[t2.dst])
+                      {
+                        auto& ts = a->trans_storage(t);
+                        if (acc == ts.acc)
+                          {
+                            if (!bdd_implies(cond, ts.cond))
+                              {
+                                ts.cond = ts.cond | cond;
+                                if (std::find(todo.begin(), todo.end(), t)
+                                    == todo.end())
+                                  todo.push_back(t);
+                              }
+                            need_new_trans = false;
+                          }
+                      }
+                    if (need_new_trans)
+                      {
+                        unsigned i =
+                          a->new_transition(state, t2.dst, cond, acc);
+                        dst2trans[t2.dst].push_back(i);
+                        todo.push_back(i);
+                      }
+		  }
+	      }
+	  }
+        for (auto& it: dst2trans)
+          it.clear();
+      }
+    return a;
   }
 
   tgba_digraph_ptr
   closure(const const_tgba_digraph_ptr& a)
   {
-    tgba_digraph_ptr res = tgba_dupexp_dfs(a);
-    unsigned n = res->num_states();
-    tset_t todo;
-
-    for (unsigned state = 0; state < n; ++state)
-      {
-	tmap_t uniq;
-	auto trans = res->out(state);
-
-	for (auto it = trans.begin(); it != trans.end(); ++it)
-	  {
-	    todo.insert(it.trans());
-	    uniq.emplace(transition(it->dst, it->acc), it.trans());
-	  }
-
-	while (!todo.empty())
-	  {
-	    unsigned t1 = *todo.begin();
-	    todo.erase(t1);
-	    tgba_graph_trans_data td = res->trans_data(t1);
-	    unsigned dst = res->trans_storage(t1).dst;
-
-	    for (auto& t2 : res->out(dst))
-	      {
-		bdd cond = td.cond & t2.cond;
-		if (cond != bddfalse)
-		  {
-		    acc_cond::mark_t acc = td.acc | t2.acc;
-		    transition jump(t2.dst, acc);
-		    unsigned i;
-		    auto u = uniq.find(jump);
-
-		    if (u == uniq.end())
-		      {
-			i = res->new_transition(state, t2.dst, cond, acc);
-			uniq.emplace(jump, i);
-			todo.insert(i);
-		      }
-
-		    else
-		      {
-			bdd old_cond = res->trans_data(u->second).cond;
-			if (!bdd_implies(cond, old_cond))
-			  {
-			    res->trans_data(u->second).cond = cond | old_cond;
-			    todo.insert(u->second);
-			  }
-		      }
-		  }
-	      }
-	  }
-	uniq.clear();
-      }
-    return res;
+    return closure(make_tgba_digraph(a));
   }
 }

@@ -133,38 +133,45 @@ namespace spot
   }
 
   tgba_digraph_ptr
-  sl2(const const_tgba_digraph_ptr& a, bdd atomic_propositions)
+  sl2(tgba_digraph_ptr&& a, bdd atomic_propositions)
   {
-    tgba_digraph_ptr res = tgba_dupexp_dfs(a);
-    unsigned num_states = res->num_states();
+    unsigned num_states = a->num_states();
+    unsigned num_transitions = a->num_transitions();
     for (unsigned state = 0; state < num_states; ++state)
       {
-	std::vector<unsigned> out;
-	auto trans = res->out(state);
+	auto trans = a->out(state);
 
-	for (auto it = trans.begin(); it != trans.end(); ++it)
-	  out.push_back(it.trans());
-	for (auto it: out)
+	for (auto it = trans.begin(); it != trans.end()
+             && it.trans() <= num_transitions; ++it)
 	  {
-	    if (res->trans_storage(it).dst != state)
+	    if (it->dst != state)
 	      {
-		bdd all = res->trans_storage(it).cond;
+		bdd all = it->cond;
 		while (all != bddfalse)
 		  {
-		    unsigned dst = res->trans_storage(it).dst;
+		    unsigned dst = it->dst;
 		    bdd one = bdd_satoneset(all, atomic_propositions, bddtrue);
-		    unsigned tmp = res->new_state();
-		    res->new_transition(state, tmp, one,
-					res->trans_storage(it).acc);
-		    res->new_transition(tmp, tmp, one, 0U);
-		    res->new_transition(tmp, dst, one,
-					res->trans_storage(it).acc);
+		    unsigned tmp = a->new_state();
+		    unsigned i = a->new_transition(state, tmp, one,
+					it->acc);
+                    assert(i > num_transitions);
+		    i = a->new_transition(tmp, tmp, one, 0U);
+                    assert(i > num_transitions);
+		    i = a->new_transition(tmp, dst, one,
+					it->acc);
+                    assert(i > num_transitions);
 		    all -= one;
 		  }
 	      }
 	  }
       }
-    res->merge_transitions();
-    return res;
+    a->merge_transitions();
+    return a;
+  }
+
+  tgba_digraph_ptr
+  sl2(const const_tgba_digraph_ptr& a, bdd atomic_propositions)
+  {
+    return sl2(make_tgba_digraph(a), atomic_propositions);
   }
 }
