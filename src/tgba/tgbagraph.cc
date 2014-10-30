@@ -65,35 +65,44 @@ namespace spot
   void tgba_digraph::purge_unreachable_states()
   {
     unsigned num_states = g_.num_states();
-    if (num_states == 0)
+    if (SPOT_UNLIKELY(num_states == 0))
       return;
-    std::vector<unsigned> seen(num_states, 0);
-    std::vector<unsigned> todo;
-    todo.reserve(num_states);
-    todo.push_back(init_number_);
-    seen[init_number_] = 1;
-    auto todo_pos = todo.begin();
-    while (todo_pos != todo.end())
+    // The TODO vector serves two purposes:
+    // - it is a stack of state to process,
+    // - it is a set of processed states.
+    // The lower 31 bits of each entry is a state on the stack. (The
+    // next usable entry on the stack is indicated by todo_pos.)  The
+    // 32th bit (i.e., the sign bit) of todo[x] indicates whether
+    // states number x has been seen.
+    std::vector<unsigned> todo(num_states, 0);
+    const unsigned seen = 1 << (sizeof(unsigned)*8-1);
+    const unsigned mask = seen - 1;
+    todo[0] = init_number_;
+    todo[init_number_] |= seen;
+    unsigned todo_pos = 1;
+    do
       {
-	for (auto& t: g_.out(*todo_pos))
-	  if (!seen[t.dst])
+	unsigned cur = todo[--todo_pos] & mask;
+	todo[todo_pos] ^= cur;	// Zero the state
+	for (auto& t: g_.out(cur))
+	  if (!(todo[t.dst] & seen))
 	    {
-	      seen[t.dst] = 1;
-	      todo.push_back(t.dst);
+	      todo[t.dst] |= seen;
+	      todo[todo_pos++] |= t.dst;
 	    }
-	++todo_pos;
       }
+    while (todo_pos > 0);
     // Now renumber each used state.
     unsigned current = 0;
-    for (auto& v: seen)
-      if (!v)
+    for (auto& v: todo)
+      if (!(v & seen))
 	v = -1U;
       else
 	v = current++;
-    if (current == seen.size())
-      return;			// No useless state.
-    init_number_ = seen[init_number_];
-    g_.defrag_states(std::move(seen), current);
+    if (current == todo.size())
+      return;			// No unreachable state.
+    init_number_ = todo[init_number_];
+    g_.defrag_states(std::move(todo), current);
   }
 
   void tgba_digraph::purge_dead_states()
