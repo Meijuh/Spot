@@ -18,18 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "config.h"
+#include "common.hh"
 #include <cstddef>
 #include <cassert>
 #include "intvcomp.hh"
-
-#if __GNUC__ >= 3
-#  define likely(expr)   __builtin_expect(!!(expr), 1)
-#  define unlikely(expr) __builtin_expect(!!(expr), 0)
-#else
-#  define likely(expr) (expr)
-#  define unlikely(expr) (expr)
-#endif
-
 
 namespace spot
 {
@@ -99,7 +91,7 @@ namespace spot
       {
 	unsigned int last_val = 0;
 
-	while (likely(self().have_data()))
+	while (SPOT_LIKELY(self().have_data()))
 	  {
 	    unsigned int val = self().next_data();
 	    // Repeated value?  Try to find more.
@@ -144,7 +136,7 @@ namespace spot
       {
 	cur_ <<= n;
 	cur_ |= (bits & mask);
-	if (likely(bits_left_ -= n))
+	if (SPOT_LIKELY(bits_left_ -= n))
 	  return;
 
 	self().push_data(cur_);
@@ -155,7 +147,7 @@ namespace spot
       void
       push_bits(unsigned int bits, unsigned int n, unsigned int mask)
       {
-	if (likely(n <= bits_left_))
+	if (SPOT_LIKELY(n <= bits_left_))
 	  {
 	    push_bits_unchecked(bits, n, mask);
 	    return;
@@ -224,7 +216,7 @@ namespace spot
 
       bool skip_if(unsigned int val)
       {
-	if (unlikely(!have_data()))
+	if (SPOT_UNLIKELY(!have_data()))
 	  return false;
 
 	if (static_cast<unsigned int>(array_[pos_]) != val)
@@ -268,7 +260,7 @@ namespace spot
 
       bool skip_if(unsigned int val)
       {
-	if (unlikely(!have_data()))
+	if (SPOT_UNLIKELY(!have_data()))
 	  return false;
 
 	if (static_cast<unsigned int>(*pos_) != val)
@@ -316,7 +308,7 @@ namespace spot
 
       bool skip_if(unsigned int val)
       {
-	if (unlikely(!have_data()))
+	if (SPOT_UNLIKELY(!have_data()))
 	  return false;
 
 	if (static_cast<unsigned int>(array_[pos_]) != val)
@@ -373,15 +365,15 @@ namespace spot
     public:
       void refill()
       {
-	if (unlikely(look_bits_ == 0))
+	if (SPOT_UNLIKELY(look_bits_ == 0))
 	  {
 	    look_bits_ = max_bits;
 	    look_ = buffer_;
 
-	    if (likely(self().have_comp_data()))
+	    if (SPOT_LIKELY(self().have_comp_data()))
 	      buffer_ = self().next_comp_data();
 
-	    if (likely(buffer_bits_ != max_bits))
+	    if (SPOT_LIKELY(buffer_bits_ != max_bits))
 	      {
 		unsigned int fill_size = max_bits - buffer_bits_;
 		look_ <<= fill_size;
@@ -401,7 +393,7 @@ namespace spot
 
 	    if (buffer_bits_ == 0)
 	      {
-		if (likely(self().have_comp_data()))
+		if (SPOT_LIKELY(self().have_comp_data()))
 		  buffer_ = self().next_comp_data();
 
 		unsigned int left = max_bits - look_bits_;
@@ -422,7 +414,7 @@ namespace spot
 
       unsigned int look_n_bits(unsigned int n)
       {
-	if (unlikely(look_bits_ < n))
+	if (SPOT_UNLIKELY(look_bits_ < n))
 	  refill();
 	assert(n <= look_bits_);
 	return (look_ >> (look_bits_ - n)) & ((1 << n) - 1);
@@ -436,7 +428,7 @@ namespace spot
 
       unsigned int get_n_bits(unsigned int n)
       {
-	if (unlikely(look_bits_ < n))
+	if (SPOT_UNLIKELY(look_bits_ < n))
 	  refill();
 	look_bits_ -= n;
 	return (look_ >> look_bits_) & ((1 << n) - 1);
@@ -445,7 +437,7 @@ namespace spot
       unsigned int get_32_bits()
       {
 	//	std::cerr << "get_32" << std::endl;
-	if (likely(look_bits_ < 32))
+	if (SPOT_LIKELY(look_bits_ < 32))
 	  refill();
 	unsigned int val = look_;
 	look_bits_ = 0;
@@ -455,12 +447,12 @@ namespace spot
 
       void run()
       {
-	if (unlikely(!self().have_comp_data()))
+	if (SPOT_UNLIKELY(!self().have_comp_data()))
 	  return;
 
 	look_ = self().next_comp_data();
 	look_bits_ = max_bits;
-	if (likely(self().have_comp_data()))
+	if (SPOT_LIKELY(self().have_comp_data()))
 	  {
 	    buffer_ = self().next_comp_data();
 	    buffer_bits_ = max_bits;
@@ -471,7 +463,7 @@ namespace spot
 	    buffer_bits_ = 0;
 	  }
 
-	while (likely(!self().complete()))
+	while (SPOT_LIKELY(!self().complete()))
 	  {
 	    unsigned int token = look_n_bits(3);
 	    switch (token)

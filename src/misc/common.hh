@@ -24,6 +24,14 @@
 #  define SPOT_MISC_COMMON_HH
 
 #ifdef __GNUC__
+#define SPOT_LIKELY(expr)   __builtin_expect(!!(expr), 1)
+#define SPOT_UNLIKELY(expr) __builtin_expect(!!(expr), 0)
+#else
+#define SPOT_LIKELY(expr) (expr)
+#define SPOT_UNLIKELY(expr) (expr)
+#endif
+
+#ifdef __GNUC__
 #define SPOT_DEPRECATED __attribute__ ((deprecated))
 #elif defined(_MSC_VER)
 #define SPOT_DEPRECATED __declspec(deprecated)

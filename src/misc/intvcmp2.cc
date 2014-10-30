@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -18,17 +18,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "config.h"
+#include "common.hh"
 #include <cstddef>
 #include <cassert>
 #include "intvcmp2.hh"
-
-#if __GNUC__ >= 3
-#  define likely(expr)   __builtin_expect(!!(expr), 1)
-#  define unlikely(expr) __builtin_expect(!!(expr), 0)
-#else
-#  define likely(expr) (expr)
-#  define unlikely(expr) (expr)
-#endif
 
 namespace spot
 {
@@ -109,7 +102,7 @@ namespace spot
 		if (compressable >= max_count[id])
 		  goto fast_encode;
 	      }
-	    while (likely(compressable < size_));
+	    while (SPOT_LIKELY(compressable < size_));
 
 	    assert(compressable < max_count[id]);
 
@@ -393,7 +386,7 @@ namespace spot
 
       void run()
       {
-	while (likely(self().have_comp_data()))
+	while (SPOT_LIKELY(self().have_comp_data()))
 	  {
 	    unsigned val = self().next_comp_data();
 
