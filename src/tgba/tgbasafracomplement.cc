@@ -24,7 +24,7 @@
 #include <sstream>
 #include <algorithm>
 #include "misc/bitvect.hh"
-#include "bdd.h"
+#include <bddx.h>
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
 #include "tgba/bdddict.hh"

@@ -26,7 +26,7 @@
 #include <string>
 #include <iosfwd>
 #include "bdddict.hh"
-#include <bdd.h>
+#include <bddx.h>
 
 namespace spot
 {

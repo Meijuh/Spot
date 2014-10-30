@@ -9,7 +9,7 @@
 #define _PARSER_H
 
 #include <stdio.h>
-#include "bdd.h"
+#include "bddx.h"
 
 #define MAXIDLEN 32  /* Max. number of allowed characters in an identifier */
 

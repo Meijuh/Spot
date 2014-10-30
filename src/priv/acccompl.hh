@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE)
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -22,7 +22,7 @@
 # define SPOT_PRIV_ACCCOMPL_HH
 
 #include <map>
-#include <bdd.h>
+#include <bddx.h>
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
 

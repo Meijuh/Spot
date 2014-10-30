@@ -35,10 +35,10 @@
   DATE:  (C) may 1999
 *************************************************************************/
 
-#ifndef _BVEC_H
-#define _BVEC_H
+#ifndef _BVECX_H
+#define _BVECX_H
 
-#include "fdd.h"
+#include "fddx.h"
 
    /* Boolean (BDD) vector */
 /*
@@ -295,6 +295,6 @@ inline bdd  bvec_neq(const bvec &left, const bvec &right)
 
 #endif /* CPLUSPLUS */
 
-#endif /* _BVEC_H */
+#endif /* _BVECX_H */
 
 /* EOF */

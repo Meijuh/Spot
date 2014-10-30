@@ -21,7 +21,7 @@
 # define SPOT_TGBAALGOS_SCCFILTER_HH
 
 #include "misc/common.hh"
-#include <bdd.h>
+#include <bddx.h>
 #include "tgba/fwd.hh"
 
 namespace spot

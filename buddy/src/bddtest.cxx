@@ -29,8 +29,8 @@
 
 #include <string>
 #include <cstdlib>
-#include "bdd.h"
-#include "bvec.h"
+#include "bddx.h"
+#include "bvecx.h"
 
 using namespace std;
 

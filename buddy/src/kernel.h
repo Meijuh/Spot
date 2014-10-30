@@ -42,7 +42,7 @@
 
 #include <limits.h>
 #include <setjmp.h>
-#include "bdd.h"
+#include "bddx.h"
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif

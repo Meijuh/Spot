@@ -1,4 +1,4 @@
-#include "bvec.h"
+#include "bvecx.h"
 #include <iostream>
 using namespace std;
 
@@ -16,15 +16,15 @@ using namespace std;
 
 int main(void)
 {
-   using namespace std ;	
+   using namespace std ;
    // Allocate 11 domains with room for up to 3*10
    static int dom[11] = {30,30,30,30,30,30,30,30,30,30,30};
-   
+
    bdd_init(10000,10000);
    fdd_extdomain(dom,11);
 
       // Assign binary vectors (expressions) to the digits
-   
+
    bvec s = bvec_varfdd(0);  // The 's' digit
    bvec e = bvec_varfdd(1);  // The 'e' digit
    bvec n = bvec_varfdd(2);  // ...
@@ -50,7 +50,7 @@ int main(void)
 
    // The use of "m1*10" instead of "m1*c10" avoids a bitnum mismatch since
    // "m1*10" results in 5 bits but "m1*c10" results in 10 bits!
-   
+
       // And so on ...
    bdd  t2 = (n + r + m1  ==  e + m2*10) & n<c10 & r<c10 & m2<c2;
    bdd  t3 = (e + o + m2  ==  n + m3*10) & o<c10 & m3<c2;
@@ -71,6 +71,6 @@ int main(void)
 
       // Print result
    cout << fddset << t << endl;
-   
+
    return 0;
 }

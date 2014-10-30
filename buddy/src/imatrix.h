@@ -37,7 +37,7 @@
 #ifndef _IMATRIX_H
 #define _IMATRIX_H
 
-#include "bdd.h" /* for __purefn */
+#include "bddx.h" /* for __purefn */
 
 typedef struct _imatrix
 {

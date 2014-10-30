@@ -22,7 +22,7 @@
 
 #include <iosfwd>
 #include <map>
-#include <bdd.h>
+#include <bddx.h>
 #include "tgba/acc.hh"
 
 namespace spot

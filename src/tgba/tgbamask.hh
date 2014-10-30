@@ -20,8 +20,8 @@
 #ifndef SPOT_TGBA_TGBAMASK_HH
 # define SPOT_TGBA_TGBAMASK_HH
 
+#include <bddx.h>
 #include "tgbaproxy.hh"
-#include "bdd.h"
 
 namespace spot
 {

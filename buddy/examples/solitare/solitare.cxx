@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <iostream>
-#include "bdd.h"
+#include "bddx.h"
 using std::cout;
 using std::endl;
 using std::flush;
@@ -23,7 +23,7 @@ bddPair *pair;        // Renaming pair
 
 
    // All the possible moves. Note that the numbering starts from '1'
-int moves[][3] = 
+int moves[][3] =
 { {1,4,9}, {1,2,3},
   {2,5,10},
   {3,2,1}, {3,6,11},
@@ -68,7 +68,7 @@ int moves[][3] =
 void make_board(void)
 {
    bdd_setvarnum(SIZE*2);
-   
+
    for (int n=0 ; n<SIZE ; n++)
    {
       boardC[n] = bdd_ithvar(n*2);
@@ -81,7 +81,7 @@ void make_board(void)
 void make_initial_state(void)
 {
    I = bddtrue;
-   
+
    for (int n=0 ; n<SIZE ; n++)
       if (n == CENTER)
 	 I &= !boardC[n];
@@ -95,7 +95,7 @@ void make_initial_state(void)
 bdd all_other_idle(int src, int tmp, int dst)
 {
    bdd idle = bddtrue;
-   
+
    for (int n=0 ; n<SIZE ; n++)
    {
       if (n != src  &&  n != tmp  &&  n != dst)
@@ -113,7 +113,7 @@ bdd make_move(int src, int tmp, int dst)
               !boardN[src] & !boardN[tmp] & boardN[dst];
 
    move &= all_other_idle(src, tmp, dst);
-   
+
    return move;
 }
 
@@ -122,7 +122,7 @@ void make_transition_relation(void)
 {
    using namespace std ;
    T = bddfalse;
-   
+
    for (int n=0 ; moves[n][0]!=moves[n][1] ; n++)
       T |= make_move(moves[n][0]-1, moves[n][1]-1, moves[n][2]-1);
 
@@ -137,7 +137,7 @@ void make_itedata(void)
    pair = bdd_newpair();
    for (int n=0 ; n<SIZE ; n++)
       bdd_setpair(pair, n*2+1, n*2);
-   
+
    currentvar = bddtrue;
    for (int n=0 ; n<SIZE ; n++)
       currentvar &= boardC[n];
@@ -152,7 +152,7 @@ void iterate(void)
    int cou = 1;
 
    make_itedata();
-   
+
    do
    {
       tmp = reachable;
@@ -177,7 +177,7 @@ void iterate_front(void)
    int cou = 1;
 
    make_itedata();
-   
+
    do
    {
       tmp = reachable;
@@ -201,7 +201,7 @@ void setup(void)
    bdd_init(100000,1000);
    bdd_setcacheratio(64);
    bdd_setmaxincrease(500000);
-   
+
    dummyStateNum = pow(2.0, SIZE);
 
    make_board();
@@ -217,4 +217,3 @@ int main(void)
 
    system("ps aux | grep \"./solitare\" | grep -v \"grep\"");
 }
-

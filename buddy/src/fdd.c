@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "kernel.h"
-#include "fdd.h"
+#include "fddx.h"
 
 
 static void fdd_printset_rec(FILE *, int, int *);
@@ -83,7 +83,7 @@ void bdd_fdd_init(void)
 void bdd_fdd_done(void)
 {
    int n;
-   
+
    if (domain != NULL)
    {
       for (n=0 ; n<fdvarnum ; n++)
@@ -129,7 +129,7 @@ int fdd_extdomain(int *dom, int num)
 
    if (!bddrunning)
       return bdd_error(BDD_RUNNING);
-   
+
       /* Build domain table */
    if (domain == NULL)  /* First time */
    {
@@ -142,7 +142,7 @@ int fdd_extdomain(int *dom, int num)
       if (fdvarnum + num > fdvaralloc)
       {
          fdvaralloc += (num > fdvaralloc) ? num : fdvaralloc;
-	 
+
 	 domain = (Domain*)realloc(domain, sizeof(Domain)*fdvaralloc);
 	 if (domain == NULL)
 	    return bdd_error(BDD_MEMORY);
@@ -182,7 +182,7 @@ int fdd_extdomain(int *dom, int num)
 
    fdvarnum += num;
    firstbddvar += extravars;
-   
+
    return offset;
 }
 
@@ -208,17 +208,17 @@ int fdd_overlapdomain(int v1, int v2)
 {
    Domain *d;
    int n;
-   
+
    if (!bddrunning)
       return bdd_error(BDD_RUNNING);
-   
+
    if (v1 < 0  ||  v1 >= fdvarnum  ||  v2 < 0  ||  v2 >= fdvarnum)
       return bdd_error(BDD_VAR);
 
    if (fdvarnum + 1 > fdvaralloc)
    {
       fdvaralloc += fdvaralloc;
-      
+
       domain = (Domain*)realloc(domain, sizeof(Domain)*fdvaralloc);
       if (domain == NULL)
 	 return bdd_error(BDD_MEMORY);
@@ -233,10 +233,10 @@ int fdd_overlapdomain(int v1, int v2)
       d->ivar[n] = domain[v1].ivar[n];
    for (n=0 ; n<domain[v2].binsize ; n++)
       d->ivar[domain[v1].binsize+n] = domain[v2].ivar[n];
-	 
+
    d->var = bdd_makeset(d->ivar, d->binsize);
    bdd_addref(d->var);
-   
+
    return fdvarnum++;
 }
 
@@ -275,7 +275,7 @@ int fdd_domainnum(void)
 {
    if (!bddrunning)
       return bdd_error(BDD_RUNNING);
-   
+
    return fdvarnum;
 }
 
@@ -294,7 +294,7 @@ int fdd_domainsize(int v)
 {
    if (!bddrunning)
       return bdd_error(BDD_RUNNING);
-   
+
    if (v < 0  ||  v >= fdvarnum)
       return bdd_error(BDD_VAR);
    return domain[v].realsize;
@@ -315,7 +315,7 @@ int fdd_varnum(int v)
 {
    if (!bddrunning)
       return bdd_error(BDD_RUNNING);
-   
+
    if (v >= fdvarnum  ||  v < 0)
       return bdd_error(BDD_VAR);
    return domain[v].binsize;
@@ -343,7 +343,7 @@ int *fdd_vars(int v)
       bdd_error(BDD_RUNNING);
       return NULL;
    }
-   
+
    if (v >= fdvarnum  ||  v < 0)
    {
       bdd_error(BDD_VAR);
@@ -378,13 +378,13 @@ BDD fdd_ithvar(int var, int val)
 {
    int n;
    int v=1, tmp;
-   
+
    if (!bddrunning)
    {
       bdd_error(BDD_RUNNING);
       return bddfalse;
    }
-   
+
    if (var < 0  ||  var >= fdvarnum)
    {
       bdd_error(BDD_VAR);
@@ -400,7 +400,7 @@ BDD fdd_ithvar(int var, int val)
    for (n=0 ; n<domain[var].binsize ; n++)
    {
       bdd_addref(v);
-      
+
       if (val & 0x1)
 	 tmp = bdd_apply(bdd_ithvar(domain[var].ivar[n]), v, bddop_and);
       else
@@ -465,11 +465,11 @@ int* fdd_scanallvar(BDD r)
    char *store;
    int *res;
    BDD p = r;
-   
+
    CHECKa(r,NULL);
    if (r == bddfalse)
       return NULL;
-   
+
    store = NEW(char,bddvarnum);
    for (n=0 ; n<bddvarnum ; n++)
       store[n] = 0;
@@ -494,21 +494,21 @@ int* fdd_scanallvar(BDD r)
    {
       int m;
       int val=0;
-      
+
       for (m=domain[n].binsize-1 ; m>=0 ; m--)
 	 if ( store[domain[n].ivar[m]] )
 	    val = val*2 + 1;
          else
 	    val = val*2;
-      
+
       res[n] = val;
    }
-   
+
    free(store);
-   
+
    return res;
 }
-   
+
 /*
 NAME    {* fdd\_ithset *}
 SECTION {* fdd *}
@@ -526,7 +526,7 @@ BDD fdd_ithset(int var)
       bdd_error(BDD_RUNNING);
       return bddfalse;
    }
-   
+
    if (var < 0  ||  var >= fdvarnum)
    {
       bdd_error(BDD_VAR);
@@ -553,13 +553,13 @@ BDD fdd_domain(int var)
    int n,val;
    Domain *dom;
    BDD d;
-      
+
    if (!bddrunning)
    {
       bdd_error(BDD_RUNNING);
       return bddfalse;
    }
-   
+
    if (var < 0  ||  var >= fdvarnum)
    {
       bdd_error(BDD_VAR);
@@ -567,15 +567,15 @@ BDD fdd_domain(int var)
    }
 
       /* Encode V<=X-1. V is the variables in 'var' and X is the domain size */
-   
+
    dom = &domain[var];
    val = dom->realsize-1;
    d = bddtrue;
-   
+
    for (n=0 ; n<dom->binsize ; n++)
    {
       BDD tmp;
-      
+
       if (val & 0x1)
 	 tmp = bdd_apply( bdd_nithvar(dom->ivar[n]), d, bddop_or );
       else
@@ -607,13 +607,13 @@ BDD fdd_equals(int left, int right)
 {
    BDD e = bddtrue, tmp1, tmp2;
    int n;
-   
+
    if (!bddrunning)
    {
       bdd_error(BDD_RUNNING);
       return bddfalse;
    }
-   
+
    if (left < 0  ||  left >= fdvarnum  ||  right < 0  ||  right >= fdvarnum)
    {
       bdd_error(BDD_VAR);
@@ -624,13 +624,13 @@ BDD fdd_equals(int left, int right)
       bdd_error(BDD_RANGE);
       return bddfalse;
    }
-   
+
    for (n=0 ; n<domain[left].binsize ; n++)
    {
       tmp1 = bdd_addref( bdd_apply(bdd_ithvar(domain[left].ivar[n]),
 				   bdd_ithvar(domain[right].ivar[n]),
 				   bddop_biimp) );
-      
+
       tmp2 = bdd_addref( bdd_apply(e, tmp1, bddop_and) );
       bdd_delref(tmp1);
       bdd_delref(e);
@@ -704,13 +704,13 @@ void fdd_printset(BDD r)
 void fdd_fprintset(FILE *ofile, BDD r)
 {
    int *set;
-   
+
    if (!bddrunning)
    {
       bdd_error(BDD_RUNNING);
       return;
    }
-   
+
    if (r < 2)
    {
       fprintf(ofile, "%s", r == 0 ? "F" : "T");
@@ -723,7 +723,7 @@ void fdd_fprintset(FILE *ofile, BDD r)
       bdd_error(BDD_MEMORY);
       return;
    }
-   
+
    memset(set, 0, sizeof(int) * bddvarnum);
    fdd_printset_rec(ofile, r, set);
    free(set);
@@ -737,7 +737,7 @@ static void fdd_printset_rec(FILE *ofile, int r, int *set)
    int *var;
    int *binval;
    int ok, first;
-   
+
    if (r == 0)
       return;
    else
@@ -754,7 +754,7 @@ static void fdd_printset_rec(FILE *ofile, int r, int *set)
 	 for (m=0 ; m<domain[n].binsize ; m++)
 	    if (set[domain[n].ivar[m]] != 0)
 	       used = 1;
-	 
+
 	 if (used)
 	 {
 	    if (!first)
@@ -767,12 +767,12 @@ static void fdd_printset_rec(FILE *ofile, int r, int *set)
 	    printf(":");
 
 	    var = domain[n].ivar;
-	    
+
 	    for (m=0 ; m<(1<<domain[n].binsize) ; m++)
 	    {
 	       binval = fdddec2bin(n, m);
 	       ok=1;
-	       
+
 	       for (i=0 ; i<domain[n].binsize && ok ; i++)
 		  if (set[var[i]] == 1  &&  binval[i] != 0)
 		     ok = 0;
@@ -800,10 +800,10 @@ static void fdd_printset_rec(FILE *ofile, int r, int *set)
    {
       set[bddlevel2var[LEVEL(r)]] = 1;
       fdd_printset_rec(ofile, LOW(r), set);
-      
+
       set[bddlevel2var[LEVEL(r)]] = 2;
       fdd_printset_rec(ofile, HIGH(r), set);
-      
+
       set[bddlevel2var[LEVEL(r)]] = 0;
    }
 }
@@ -828,17 +828,17 @@ int fdd_scanset(BDD r, int **varset, int *varnum)
 {
    int *fv, fn;
    int num,n,m,i;
-      
+
    if (!bddrunning)
       return bdd_error(BDD_RUNNING);
-   
+
    if ((n=bdd_scanset(r, &fv, &fn)) < 0)
       return n;
 
    for (n=0,num=0 ; n<fdvarnum ; n++)
    {
       int found=0;
-      
+
       for (m=0 ; m<domain[n].binsize && !found ; m++)
       {
 	 for (i=0 ; i<fn && !found ; i++)
@@ -856,7 +856,7 @@ int fdd_scanset(BDD r, int **varset, int *varnum)
    for (n=0,num=0 ; n<fdvarnum ; n++)
    {
       int found=0;
-      
+
       for (m=0 ; m<domain[n].binsize && !found ; m++)
       {
 	 for (i=0 ; i<fn && !found ; i++)
@@ -897,14 +897,14 @@ BDD fdd_makeset(int *varset, int varnum)
       bdd_error(BDD_RUNNING);
       return bddfalse;
    }
-   
+
    for (n=0 ; n<varnum ; n++)
       if (varset[n] < 0  ||  varset[n] >= fdvarnum)
       {
 	 bdd_error(BDD_VAR);
 	 return bddfalse;
       }
-	  
+
    for (n=0 ; n<varnum ; n++)
    {
       bdd_addref(res);
@@ -932,10 +932,10 @@ int fdd_intaddvarblock(int first, int last, int fixed)
 {
    bdd res = bddtrue, tmp;
    int n, err;
-   
+
    if (!bddrunning)
       return bdd_error(BDD_RUNNING);
-   
+
    if (first > last ||  first < 0  ||  last >= fdvarnum)
       return bdd_error(BDD_VARBLK);
 
@@ -948,7 +948,7 @@ int fdd_intaddvarblock(int first, int last, int fixed)
    }
 
    err = bdd_addvarblock(res, fixed);
-   
+
    bdd_delref(res);
    return err;
 }
@@ -972,10 +972,10 @@ int fdd_setpair(bddPair *pair, int p1, int p2)
 
    if (!bddrunning)
       return bdd_error(BDD_RUNNING);
-   
+
    if (p1<0 || p1>=fdvarnum || p2<0 || p2>=fdvarnum)
       return bdd_error(BDD_VAR);
-   
+
    if (domain[p1].binsize != domain[p2].binsize)
       return bdd_error(BDD_VARNUM);
 
@@ -1006,11 +1006,11 @@ int fdd_setpairs(bddPair *pair, int *p1, int *p2, int size)
 
    if (!bddrunning)
       return bdd_error(BDD_RUNNING);
-   
+
    for (n=0 ; n<size ; n++)
       if (p1[n]<0 || p1[n]>=fdvarnum || p2[n]<0 || p2[n]>=fdvarnum)
 	 return bdd_error(BDD_VAR);
-   
+
    for (n=0 ; n<size ; n++)
       if ((e=fdd_setpair(pair, p1[n], p2[n])) < 0)
 	 return e;
@@ -1033,7 +1033,7 @@ static void Domain_done(Domain* d)
 static void Domain_allocate(Domain* d, int range)
 {
    int calcsize = 2;
-   
+
    if (range <= 0  || range > INT_MAX/2)
    {
       bdd_error(BDD_RANGE);

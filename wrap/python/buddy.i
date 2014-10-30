@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012  Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2012, 2014 Laboratoire de Recherche et
 // Développement de l'EPITA.
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -64,9 +64,9 @@
 
 %{
 #include <sstream>
-#include "bdd.h"
-#include "fdd.h"
-#include "bvec.h"
+#include "bddx.h"
+#include "fddx.h"
+#include "bvecx.h"
 %}
 
 %typemap(in) (int* input_buf, int input_buf_size) {

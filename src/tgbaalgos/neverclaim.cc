@@ -22,7 +22,6 @@
 
 #include <ostream>
 #include <sstream>
-#include "bdd.h"
 #include "neverclaim.hh"
 #include "tgba/bddprint.hh"
 #include "tgba/tgbagraph.hh"

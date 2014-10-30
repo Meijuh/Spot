@@ -38,7 +38,7 @@
 #include <stdlib.h>
 #include <iomanip>
 #include "kernel.h"
-#include "bvec.h"
+#include "bvecx.h"
 
 using namespace std;
 

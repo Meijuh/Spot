@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,7 +21,7 @@
 # define SPOT_MISC_BDDOP_HH
 
 #include "common.hh"
-#include "bdd.h"
+#include <bddx.h>
 
 namespace spot
 {

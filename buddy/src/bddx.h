@@ -35,8 +35,8 @@
   DATE:  (C) feb 1997
 *************************************************************************/
 
-#ifndef _BDD_H
-#define _BDD_H
+#ifndef _BDDX_H
+#define _BDDX_H
 
 #if __GNUC__ >= 3
 #define __purefn __attribute__((__pure__))
@@ -1046,6 +1046,6 @@ BUDDY_API bddstrmhandler bdd_strm_hook(bddstrmhandler);
 
 #endif /* CPLUSPLUS */
 
-#endif /* _BDD_H */
+#endif /* _BDDX_H */
 
 /* EOF */

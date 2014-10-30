@@ -1,6 +1,6 @@
 #include <iomanip>
 #include <stdlib.h>
-#include <bdd.h>
+#include <bddx.h>
 
 static const int varnum = 5;
 
@@ -47,9 +47,9 @@ void test1_check(bdd x)
 {
   using namespace std ;
   double anum = bdd_satcount(x);
-  
+
   cout << "Checking bdd with " << setw(4) << anum << " assignments: ";
-  
+
   allsatBDD = x;
   allsatSumBDD = bddfalse;
 
@@ -107,7 +107,7 @@ void test1()
     int v = rand() % varnum;
     int s = rand() % 2;
     int o = rand() % 2;
-    
+
     if (o == 0)
     {
       if (s == 0)
@@ -136,10 +136,10 @@ int main()
 {
   bdd_init(1000,1000);
   bdd_setvarnum(varnum);
-  
+
   test1();
-  
+
   bdd_done();
-  
+
   return 0;
 }

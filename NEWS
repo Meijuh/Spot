@@ -2,6 +2,10 @@ New in spot 1.99a (not yet released)
 
   * Major changes (including backward incompatible changes):
 
+    - The curstomized version of BuDDy (libbdd) used by Spot has be
+      renamed as (libbddx) to avoid issues with copies of BuDDy
+      already installed on the system.
+
     - ltlgrind is a new tool that mutates LTL or PSL formulas.  If you
       have a tool that is bogus on some formula that is tool large to
       debug, you can use ltlgrind to generate smaller derived formulas

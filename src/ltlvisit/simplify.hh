@@ -21,7 +21,7 @@
 # define SPOT_LTLVISIT_SIMPLIFY_HH
 
 #include "ltlast/formula.hh"
-#include "bdd.h"
+#include <bddx.h>
 #include "tgba/bdddict.hh"
 #include <iosfwd>
 

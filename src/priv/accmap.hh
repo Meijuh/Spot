@@ -20,7 +20,7 @@
 #ifndef SPOT_PRIV_ACCMAP_HH
 # define SPOT_PRIV_ACCMAP_HH
 
-#include <bdd.h>
+#include <bddx.h>
 #include "misc/hash.hh"
 #include "ltlast/formula.hh"
 #include "ltlenv/defaultenv.hh"

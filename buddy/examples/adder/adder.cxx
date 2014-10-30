@@ -8,7 +8,7 @@
 #include <string.h>
 #include <time.h>
 #include <iostream>
-#include "bdd.h"
+#include "bddx.h"
 
 using namespace std;
 

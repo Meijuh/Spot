@@ -23,11 +23,11 @@
      . . . X
      X . . .
      . . X .
-     
+
 **************************************************************************/
 #include <stdlib.h>
 #include <iostream>
-#include "bdd.h"
+#include "bddx.h"
 using namespace std;
 
 int N;                /* Size of the chess board */
@@ -41,7 +41,7 @@ void build(int i, int j)
 {
    bdd a=bddtrue, b=bddtrue, c=bddtrue, d=bddtrue;
    int k,l;
-   
+
       /* No one in the same column */
    for (l=0 ; l<N ; l++)
       if (l != j)
@@ -78,7 +78,7 @@ int main(int ac, char **av)
 {
    using namespace std ;
    int n,i,j;
-   
+
    if (ac != 2)
    {
       fprintf(stderr, "USAGE:  queen N\n");
@@ -97,7 +97,7 @@ int main(int ac, char **av)
    bdd_setvarnum(N*N);
 
    queen = bddtrue;
-   
+
       /* Build variable array */
    X = new bdd*[N];
    for (n=0 ; n<N ; n++)
@@ -115,7 +115,7 @@ int main(int ac, char **av)
 	 e |= X[i][j];
       queen &= e;
    }
-   
+
       /* Build requirements for each variable(field) */
    for (i=0 ; i<N ; i++)
       for (j=0 ; j<N ; j++)
@@ -131,6 +131,6 @@ int main(int ac, char **av)
    cout << bddset << solution << endl;
 
    bdd_done();
-   
+
    return 0;
 }

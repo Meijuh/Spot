@@ -21,7 +21,6 @@
 # define SPOT_TGBAALGOS_SCCINFO_HH
 
 #include <vector>
-#include "bdd.h"
 #include "tgba/tgbagraph.hh"
 
 namespace spot

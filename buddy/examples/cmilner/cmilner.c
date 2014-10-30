@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "bdd.h"
+#include "bddx.h"
 
 int N;          /* Number of cyclers */
 int *normvar;   /* Current state variables */
@@ -289,4 +289,3 @@ int main(int argc, char** argv)
 
    return 0;
 }
-

@@ -35,10 +35,10 @@
   DATE:  (C) february 1999
 *************************************************************************/
 
-#ifndef _FDD_H
-#define _FDD_H
+#ifndef _FDDX_H
+#define _FDDX_H
 
-#include "bdd.h"
+#include "bddx.h"
 
 
 #ifdef CPLUSPLUS
@@ -167,7 +167,7 @@ inline bdd fdd_neq(int bitnum, bdd *left, bdd *right)
 
 #endif /* CPLUSPLUS */
 
-#endif /* _FDD_H */
+#endif /* _FDDX_H */
 
 
 /* EOF */

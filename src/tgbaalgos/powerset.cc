@@ -27,7 +27,6 @@
 #include "powerset.hh"
 #include "misc/hash.hh"
 #include "tgbaalgos/powerset.hh"
-#include "bdd.h"
 #include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/cycles.hh"
 #include "tgbaalgos/gtec/gtec.hh"

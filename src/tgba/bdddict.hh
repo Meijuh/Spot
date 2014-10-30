@@ -27,7 +27,7 @@
 #include <set>
 #include <map>
 #include <iosfwd>
-#include <bdd.h>
+#include <bddx.h>
 #include <vector>
 #include <memory>
 #include "ltlast/formula.hh"

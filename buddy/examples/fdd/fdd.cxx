@@ -6,7 +6,7 @@
  *    0 -> 1 -> 2 -> 3 -> 4 -> 5 -> -> 7 -> 0
  */
 
-#include "fdd.h"
+#include "fddx.h"
 
 /* Use the transition relation "transRel" to iterate through the statespace
  */
@@ -63,7 +63,7 @@ int main() {
    {
          /* Set the current state to be state 'i' */
       bdd current = fdd_ithvar(0,i);
-      
+
          /* Set the next state to be state 'i+1' */
       bdd next = fdd_ithvar(1, (i+1) % 8);
 

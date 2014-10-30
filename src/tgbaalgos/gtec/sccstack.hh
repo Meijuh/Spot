@@ -23,7 +23,7 @@
 #ifndef SPOT_TGBAALGOS_GTEC_SCCSTACK_HH
 # define SPOT_TGBAALGOS_GTEC_SCCSTACK_HH
 
-#include <bdd.h>
+#include <bddx.h>
 #include <list>
 #include "tgba/tgba.hh"
 

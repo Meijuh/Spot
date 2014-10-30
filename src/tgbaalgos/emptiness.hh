@@ -26,7 +26,7 @@
 #include <map>
 #include <list>
 #include <iosfwd>
-#include <bdd.h>
+#include <bddx.h>
 #include "misc/optionmap.hh"
 #include "tgba/tgbagraph.hh"
 #include "emptiness_stats.hh"
