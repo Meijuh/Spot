@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -149,11 +149,9 @@ namespace spot
 
     /// \brief Copy the tree \a other, and set \c marked to false.
     safra_tree::safra_tree(const safra_tree& other)
-      : marked(false)
+      : marked(false), name(other.name), nodes(other.nodes)
     {
-      name = other.name;
       parent = 0;
-      nodes = other.nodes;
       for (child_list::const_iterator i = other.children.begin();
            i != other.children.end(); ++i)
       {
@@ -376,7 +374,7 @@ namespace spot
           }
         }
       }
-      nodes = new_subset;
+      std::swap(nodes, new_subset);
 
       for (child_list::iterator i = children.begin(); i != children.end(); ++i)
         (*i)->succ_create(condition, cache_transition);
