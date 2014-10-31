@@ -147,11 +147,9 @@ namespace spot
 
     /// \brief Copy the tree \a other, and set \c marked to false.
     safra_tree::safra_tree(const safra_tree& other)
-      : marked(false)
+      : marked(false), name(other.name), nodes(other.nodes)
     {
-      name = other.name;
       parent = 0;
-      nodes = other.nodes;
       for (auto i: other.children)
       {
         safra_tree* c = new safra_tree(*i);
@@ -365,7 +363,7 @@ namespace spot
           }
         }
       }
-      nodes = new_subset;
+      std::swap(nodes, new_subset);
 
       for (auto c: children)
         c->succ_create(condition, cache_transition);
