@@ -169,8 +169,8 @@ AC_CONFIG_FILES([
   doc/Makefile
   doc/tl/Makefile
   doc/org/init.el
-  iface/dve2/defs
-  iface/dve2/Makefile
+  iface/ltsmin/defs
+  iface/ltsmin/Makefile
   iface/Makefile
   lib/Makefile
   src/bin/Makefile

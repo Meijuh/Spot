@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_IFACE_DVE2_DVE2_HH
-# define SPOT_IFACE_DVE2_DVE2_HH
+#ifndef SPOT_IFACE_PROMELA_PROMELA_HH
+# define SPOT_IFACE_PROMELA_PROMELA_HH
 
 #include "kripke/kripke.hh"
 #include "ltlvisit/apcollect.hh"
@@ -28,11 +28,11 @@
 namespace spot
 {
 
-  // \brief Load a DVE model.
+  // \brief Load a PROMELA model.
   //
-  // The filename given can be either a *.dve source or a *.dve2C
-  // dynamic library compiled with "divine compile --ltsmin file".
-  // When the *.dve source is supplied, the *.dve2C will be updated
+  // The filename given can be either a *.prom source or a *.spins
+  // dynamic library compiled with "spins file".
+  // When the *.prom source is supplied, the *.spins will be updated
   // only if it is not newer.
   //
   // The dead parameter is used to control the behavior of the model
@@ -48,8 +48,7 @@ namespace spot
   //
   // This function returns 0 on error.
   //
-  // \a file the name of the *.dve source file or of the *.dve2C
-  //         dynamic library
+  // \a file the name of the *.prom source file or the dynamic library
   // \a to_observe the list of atomic propositions that should be observed
   //               in the model
   // \a dict the BDD dictionary to use
@@ -57,10 +56,10 @@ namespace spot
   //         dead states
   // \a verbose whether to output verbose messages
   SPOT_API kripke_ptr
-  load_dve2(const std::string& file, const bdd_dict_ptr& dict,
+  load_model(const std::string& file, const bdd_dict_ptr& dict,
 	    const ltl::atomic_prop_set* to_observe,
 	    const ltl::formula* dead = ltl::constant::true_instance(),
 	    int compress = 0, bool verbose = true);
 }
 
-#endif // SPOT_IFACE_DVE2_DVE2_HH
+#endif // SPOT_IFACE_PROMELA_PROMELA_HH

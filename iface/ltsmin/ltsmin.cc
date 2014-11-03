@@ -30,13 +30,12 @@
 # define WEXITSTATUS(x) ((x) & 0xff)
 #endif
 
-#include "dve2.hh"
+#include "ltsmin.hh"
 #include "misc/hashfunc.hh"
 #include "misc/fixpool.hh"
 #include "misc/mspool.hh"
 #include "misc/intvcomp.hh"
 #include "misc/intvcmp2.hh"
-
 
 namespace spot
 {
@@ -44,7 +43,7 @@ namespace spot
   {
 
     ////////////////////////////////////////////////////////////////////////
-    // DVE2 --ltsmin interface
+    // spins interface
 
     typedef struct transition_info {
       int* labels; // edge labels, NULL, or pointer to the edge label(s)
@@ -55,29 +54,27 @@ namespace spot
 				 transition_info_t *transition_info,
 				 int *dst);
 
-    struct dve2_interface
+    struct spins_interface
     {
       lt_dlhandle handle;	// handle to the dynamic library
       void (*get_initial_state)(void *to);
       int (*have_property)();
       int (*get_successors)(void* m, int *in, TransitionCB, void *arg);
-
-      int (*get_state_variable_count)();
+      int (*get_state_size)();
       const char* (*get_state_variable_name)(int var);
       int (*get_state_variable_type)(int var);
-      int (*get_state_variable_type_count)();
-      const char* (*get_state_variable_type_name)(int type);
-      int (*get_state_variable_type_value_count)(int type);
-      const char* (*get_state_variable_type_value)(int type, int value);
-      int (*get_transition_count)();
+      int (*get_type_count)();
+      const char* (*get_type_name)(int type);
+      int (*get_type_value_count)(int type);
+      const char* (*get_type_value_name)(int type, int value);
     };
 
     ////////////////////////////////////////////////////////////////////////
     // STATE
 
-    struct dve2_state: public state
+    struct spins_state: public state
     {
-      dve2_state(int s, fixed_size_pool* p)
+      spins_state(int s, fixed_size_pool* p)
 	: pool(p), size(s), count(1)
       {
       }
@@ -89,10 +86,10 @@ namespace spot
 	  hash_value = wang32_hash(hash_value ^ vars[i]);
       }
 
-      dve2_state* clone() const
+      spins_state* clone() const
       {
 	++count;
-	return const_cast<dve2_state*>(this);
+	return const_cast<spins_state*>(this);
       }
 
       void destroy() const
@@ -111,7 +108,7 @@ namespace spot
       {
 	if (this == other)
 	  return 0;
-	const dve2_state* o = down_cast<const dve2_state*>(other);
+	const spins_state* o = down_cast<const spins_state*>(other);
 	assert(o);
 	if (hash_value < o->hash_value)
 	  return -1;
@@ -122,7 +119,7 @@ namespace spot
 
     private:
 
-      ~dve2_state()
+      ~spins_state()
       {
       }
 
@@ -134,9 +131,9 @@ namespace spot
       int vars[0];
     };
 
-    struct dve2_compressed_state: public state
+    struct spins_compressed_state: public state
     {
-      dve2_compressed_state(int s, multiple_size_pool* p)
+      spins_compressed_state(int s, multiple_size_pool* p)
 	: pool(p), size(s), count(1)
       {
       }
@@ -148,10 +145,10 @@ namespace spot
 	  hash_value = wang32_hash(hash_value ^ vars[i]);
       }
 
-      dve2_compressed_state* clone() const
+      spins_compressed_state* clone() const
       {
 	++count;
-	return const_cast<dve2_compressed_state*>(this);
+	return const_cast<spins_compressed_state*>(this);
       }
 
       void destroy() const
@@ -170,8 +167,8 @@ namespace spot
       {
 	if (this == other)
 	  return 0;
-	const dve2_compressed_state* o =
-	  down_cast<const dve2_compressed_state*>(other);
+	const spins_compressed_state* o =
+	  down_cast<const spins_compressed_state*>(other);
 	assert(o);
 	if (hash_value < o->hash_value)
 	  return -1;
@@ -188,7 +185,7 @@ namespace spot
 
     private:
 
-      ~dve2_compressed_state()
+      ~spins_compressed_state()
       {
       }
 
@@ -223,8 +220,8 @@ namespace spot
     {
       callback_context* ctx = static_cast<callback_context*>(arg);
       fixed_size_pool* p = static_cast<fixed_size_pool*>(ctx->pool);
-      dve2_state* out =
-	new(p->allocate()) dve2_state(ctx->state_size, p);
+      spins_state* out =
+	new(p->allocate()) spins_state(ctx->state_size, p);
       memcpy(out->vars, dst, ctx->state_size * sizeof(int));
       out->compute_hash();
       ctx->transitions.push_back(out);
@@ -238,9 +235,9 @@ namespace spot
       size_t csize = ctx->state_size * 2;
       ctx->compress(dst, ctx->state_size, ctx->compressed, csize);
 
-      void* mem = p->allocate(sizeof(dve2_compressed_state)
+      void* mem = p->allocate(sizeof(spins_compressed_state)
 			      + sizeof(int) * csize);
-      dve2_compressed_state* out = new(mem) dve2_compressed_state(csize, p);
+      spins_compressed_state* out = new(mem) spins_compressed_state(csize, p);
       memcpy(out->vars, ctx->compressed, csize * sizeof(int));
       out->compute_hash();
       ctx->transitions.push_back(out);
@@ -249,11 +246,11 @@ namespace spot
     ////////////////////////////////////////////////////////////////////////
     // SUCC_ITERATOR
 
-    class dve2_succ_iterator: public kripke_succ_iterator
+    class spins_succ_iterator: public kripke_succ_iterator
     {
     public:
 
-      dve2_succ_iterator(const callback_context* cc,
+      spins_succ_iterator(const callback_context* cc,
 			 bdd cond)
 	: kripke_succ_iterator(cond), cc_(cc)
       {
@@ -266,7 +263,7 @@ namespace spot
 	kripke_succ_iterator::recycle(cond);
       }
 
-      ~dve2_succ_iterator()
+      ~spins_succ_iterator()
       {
 	delete cc_;
       }
@@ -327,14 +324,14 @@ namespace spot
 
     int
     convert_aps(const ltl::atomic_prop_set* aps,
-		const dve2_interface* d,
+		const spins_interface* d,
 		bdd_dict_ptr dict,
 		const ltl::formula* dead,
 		prop_set& out)
     {
       int errors = 0;
 
-      int state_size = d->get_state_variable_count();
+      int state_size = d->get_state_size();
       typedef std::map<std::string, var_info> val_map_t;
       val_map_t val_map;
 
@@ -346,14 +343,14 @@ namespace spot
 	  val_map[name] = v;
 	}
 
-      int type_count = d->get_state_variable_type_count();
+      int type_count = d->get_type_count();
       typedef std::map<std::string, int> enum_map_t;
       std::vector<enum_map_t> enum_map(type_count);
       for (int i = 0; i < type_count; ++i)
 	{
-	  int enum_count = d->get_state_variable_type_value_count(i);
+	  int enum_count = d->get_type_value_count(i);
 	  for (int j = 0; j < enum_count; ++j)
-	    enum_map[i].emplace(d->get_state_variable_type_value(i, j), j);
+	    enum_map[i].emplace(d->get_type_value_name(i, j), j);
 	}
 
       for (ltl::atomic_prop_set::const_iterator ap = aps->begin();
@@ -600,15 +597,15 @@ namespace spot
     ////////////////////////////////////////////////////////////////////////
     // KRIPKE
 
-    class dve2_kripke: public kripke
+    class spins_kripke: public kripke
     {
     public:
 
-      dve2_kripke(const dve2_interface* d, const bdd_dict_ptr& dict,
+      spins_kripke(const spins_interface* d, const bdd_dict_ptr& dict,
 		  const prop_set* ps, const ltl::formula* dead, int compress)
 	: kripke(dict),
 	  d_(d),
-	  state_size_(d_->get_state_variable_count()),
+	  state_size_(d_->get_state_size()),
 	  dict_(dict), ps_(ps),
 	  compress_(compress == 0 ? 0
 		    : compress == 1 ? int_array_array_compress
@@ -618,8 +615,8 @@ namespace spot
 		      : int_array_array_decompress2),
 	  uncompressed_(compress ? new int[state_size_ + 30] : 0),
 	  compressed_(compress ? new int[state_size_ * 2] : 0),
-	  statepool_(compress ? sizeof(dve2_compressed_state) :
-		     (sizeof(dve2_state) + state_size_ * sizeof(int))),
+	  statepool_(compress ? sizeof(spins_compressed_state) :
+		     (sizeof(spins_state) + state_size_ * sizeof(int))),
 	  state_condition_last_state_(0), state_condition_last_cc_(0)
       {
 	vname_ = new const char*[state_size_];
@@ -632,7 +629,7 @@ namespace spot
 	    // output.
 	    int type = d->get_state_variable_type(i);
 	    format_filter_[i] =
-	      (d->get_state_variable_type_value_count(type) != 1);
+	      (d->get_type_value_count(type) != 1);
 	  }
 
 	// Register the "dead" proposition.  There are three cases to
@@ -666,7 +663,7 @@ namespace spot
 	  }
       }
 
-      ~dve2_kripke()
+      ~spins_kripke()
       {
 	if (iter_cache_)
 	  {
@@ -704,10 +701,10 @@ namespace spot
 
 	    multiple_size_pool* p =
 	      const_cast<multiple_size_pool*>(&compstatepool_);
-	    void* mem = p->allocate(sizeof(dve2_compressed_state)
+	    void* mem = p->allocate(sizeof(spins_compressed_state)
 				    + sizeof(int) * csize);
-	    dve2_compressed_state* res = new(mem)
-	      dve2_compressed_state(csize, p);
+	    spins_compressed_state* res = new(mem)
+	      spins_compressed_state(csize, p);
 	    memcpy(res->vars, compressed_, csize * sizeof(int));
 	    res->compute_hash();
 	    return res;
@@ -715,7 +712,7 @@ namespace spot
 	else
 	  {
 	    fixed_size_pool* p = const_cast<fixed_size_pool*>(&statepool_);
-	    dve2_state* res = new(p->allocate()) dve2_state(state_size_, p);
+	    spins_state* res = new(p->allocate()) spins_state(state_size_, p);
 	    d_->get_initial_state(res->vars);
 	    res->compute_hash();
 	    return res;
@@ -828,8 +825,8 @@ namespace spot
 	const int* vars;
 	if (compress_)
 	  {
-	    const dve2_compressed_state* s =
-	      down_cast<const dve2_compressed_state*>(st);
+	    const spins_compressed_state* s =
+	      down_cast<const spins_compressed_state*>(st);
 	    assert(s);
 
 	    decompress_(s->vars, s->size, uncompressed_, state_size_);
@@ -837,7 +834,7 @@ namespace spot
 	  }
 	else
 	  {
-	    const dve2_state* s = down_cast<const dve2_state*>(st);
+	    const spins_state* s = down_cast<const spins_state*>(st);
 	    assert(s);
 	    vars = s->vars;
 	  }
@@ -846,7 +843,7 @@ namespace spot
 
 
       virtual
-      dve2_succ_iterator*
+      spins_succ_iterator*
       succ_iter(const state* st) const
       {
 	// This may also compute successors in state_condition_last_cc
@@ -870,13 +867,13 @@ namespace spot
 
 	if (iter_cache_)
 	  {
-	    dve2_succ_iterator* it =
-	      down_cast<dve2_succ_iterator*>(iter_cache_);
+	    spins_succ_iterator* it =
+	      down_cast<spins_succ_iterator*>(iter_cache_);
 	    it->recycle(cc, scond);
 	    iter_cache_ = nullptr;
 	    return it;
 	  }
-	return new dve2_succ_iterator(cc, scond);
+	return new spins_succ_iterator(cc, scond);
       }
 
       virtual
@@ -920,7 +917,7 @@ namespace spot
       }
 
     private:
-      const dve2_interface* d_;
+      const spins_interface* d_;
       int state_size_;
       bdd_dict_ptr dict_;
       const char** vname_;
@@ -952,13 +949,32 @@ namespace spot
   // LOADER
 
 
-  // Call divine to compile "foo.dve" as "foo.dve2C" if the latter
+  // Call spins to compile "foo.prom" as "foo.prom.spins" if the latter
   // does not exist already or is older.
   bool
-  compile_dve2(std::string& filename, bool verbose)
+  compile_model(std::string& filename, std::string& ext, bool verbose)
   {
+    std::string command;
+    std::string compiled_ext;
 
-    std::string command = "divine compile --ltsmin " + filename;
+    if (ext == ".prom" || ext == ".pm" || ext == ".pml")
+      {
+        command = "spins " + filename;
+        compiled_ext = ".spins";
+      }
+    else if (ext == ".dve")
+      {
+        command = "divine compile --ltsmin " + filename;
+        compiled_ext = "2C";
+      }
+    else
+      {
+	if (verbose)
+	  std::cerr << "Unknown extension `" << ext
+		    << "'.  Use `.prom', `.pm', `.pml', `.dve', `.dve2C' or"\
+                    "`.prom.spins'." << std::endl;
+	return false;
+      }
 
     struct stat s;
     if (stat(filename.c_str(), &s) != 0)
@@ -971,7 +987,7 @@ namespace spot
       }
 
     std::string old = filename;
-    filename += "2C";
+    filename += compiled_ext;
 
     // Remove any directory, because the new file will
     // be compiled in the current directory.
@@ -982,7 +998,7 @@ namespace spot
     struct stat d;
     if (stat(filename.c_str(), &d) == 0)
       if (s.st_mtime < d.st_mtime)
-	// The dve2C is up-to-date, no need to recompile it.
+	// The .prom.spins is up-to-date, no need to recompile it.
 	return false;
 
     int res = system(command.c_str());
@@ -997,9 +1013,8 @@ namespace spot
     return false;
   }
 
-
   kripke_ptr
-  load_dve2(const std::string& file_arg, const bdd_dict_ptr& dict,
+  load_model(const std::string& file_arg, const bdd_dict_ptr& dict,
 	    const ltl::atomic_prop_set* to_observe,
 	    const ltl::formula* dead,
 	    int compress,
@@ -1012,22 +1027,15 @@ namespace spot
       file = "./" + file_arg;
 
     std::string ext = file.substr(file.find_last_of("."));
-    if (ext == ".dve")
+    if (ext != ".spins" && ext != ".dve2C")
       {
-	if (compile_dve2(file, verbose))
-	  {
-	    if (verbose)
-	      std::cerr << "Failed to compile `" << file_arg
-			<< "'." << std::endl;
-	    return 0;
-	  }
-      }
-    else if (ext != ".dve2C")
-      {
-	if (verbose)
-	  std::cerr << "Unknown extension `" << ext
-		    << "'.  Use `.dve' or `.dve2C'." << std::endl;
-	return 0;
+        if (compile_model(file, ext, verbose))
+          {
+            if (verbose)
+              std::cerr << "Failed to compile `" << file_arg
+              << "'." << std::endl;
+            return 0;
+          }
       }
 
     if (lt_dlinit())
@@ -1046,43 +1054,66 @@ namespace spot
 	return 0;
       }
 
-    dve2_interface* d = new dve2_interface;
+    spins_interface* d = new spins_interface;
     d->handle = h;
 
-    d->get_initial_state = (void (*)(void*))
-      lt_dlsym(h, "get_initial_state");
-    d->have_property = (int (*)())
-      lt_dlsym(h, "have_property");
-    d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
-      lt_dlsym(h, "get_successors");
-    d->get_state_variable_count = (int (*)())
-      lt_dlsym(h, "get_state_variable_count");
-    d->get_state_variable_name = (const char* (*)(int))
-      lt_dlsym(h, "get_state_variable_name");
-    d->get_state_variable_type = (int (*)(int))
-      lt_dlsym(h, "get_state_variable_type");
-    d->get_state_variable_type_count = (int (*)())
-      lt_dlsym(h, "get_state_variable_type_count");
-    d->get_state_variable_type_name = (const char* (*)(int))
-      lt_dlsym(h, "get_state_variable_type_name");
-    d->get_state_variable_type_value_count = (int (*)(int))
-      lt_dlsym(h, "get_state_variable_type_value_count");
-    d->get_state_variable_type_value = (const char* (*)(int, int))
-      lt_dlsym(h, "get_state_variable_type_value");
-    d->get_transition_count = (int (*)())
-      lt_dlsym(h, "get_transition_count");
+    // SpinS interface.
+    if ((d->get_initial_state = (void (*)(void*))
+        lt_dlsym(h, "spins_get_initial_state")))
+      {
+        d->have_property = nullptr;
+        d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
+        lt_dlsym(h, "spins_get_successor_all");
+        d->get_state_size = (int (*)())
+        lt_dlsym(h, "spins_get_state_size");
+        d->get_state_variable_name = (const char* (*)(int))
+        lt_dlsym(h, "spins_get_state_variable_name");
+        d->get_state_variable_type = (int (*)(int))
+        lt_dlsym(h, "spins_get_state_variable_type");
+        d->get_type_count = (int (*)())
+        lt_dlsym(h, "spins_get_type_count");
+        d->get_type_name = (const char* (*)(int))
+        lt_dlsym(h, "spins_get_type_name");
+        d->get_type_value_count = (int (*)(int))
+        lt_dlsym(h, "spins_get_type_value_count");
+        d->get_type_value_name = (const char* (*)(int, int))
+        lt_dlsym(h, "spins_get_type_value_name");
+      }
+    // dve2 interface.
+    else
+      {
+        d->get_initial_state = (void (*)(void*))
+        lt_dlsym(h, "get_initial_state");
+        d->have_property = (int (*)())
+        lt_dlsym(h, "have_property");
+        d->get_successors = (int (*)(void*, int*, TransitionCB, void*))
+        lt_dlsym(h, "get_successors");
+        d->get_state_size = (int (*)())
+        lt_dlsym(h, "get_state_variable_count");
+        d->get_state_variable_name = (const char* (*)(int))
+        lt_dlsym(h, "get_state_variable_name");
+        d->get_state_variable_type = (int (*)(int))
+        lt_dlsym(h, "get_state_variable_type");
+        d->get_type_count = (int (*)())
+        lt_dlsym(h, "get_state_variable_type_count");
+        d->get_type_name = (const char* (*)(int))
+        lt_dlsym(h, "get_state_variable_type_name");
+        d->get_type_value_count = (int (*)(int))
+        lt_dlsym(h, "get_state_variable_type_value_count");
+        d->get_type_value_name = (const char* (*)(int, int))
+        lt_dlsym(h, "get_state_variable_type_value");
+      }
 
-    if (!(d->get_initial_state
-	  && d->have_property
+    if (!(
+          d->get_initial_state
 	  && d->get_successors
-	  && d->get_state_variable_count
+	  && d->get_state_size
 	  && d->get_state_variable_name
 	  && d->get_state_variable_type
-	  && d->get_state_variable_type_count
-	  && d->get_state_variable_type_name
-	  && d->get_state_variable_type_value_count
-	  && d->get_state_variable_type_value
-	  && d->get_transition_count))
+	  && d->get_type_count
+	  && d->get_type_name
+	  && d->get_type_value_count
+	  && d->get_type_value_name))
       {
 	if (verbose)
 	  std::cerr << "Failed to resolve some symbol while loading `"
@@ -1092,14 +1123,14 @@ namespace spot
 	return 0;
       }
 
-    if (d->have_property())
+    if (d->have_property && d->have_property())
       {
-	if (verbose)
-	  std::cerr << "Model with an embedded property are not supported."
-		    << std::endl;
-	delete d;
-	lt_dlexit();
-	return 0;
+        if (verbose)
+          std::cerr << "Model with an embedded property are not supported."
+        	    << std::endl;
+        delete d;
+        lt_dlexit();
+        return 0;
       }
 
     prop_set* ps = new prop_set;
@@ -1113,6 +1144,6 @@ namespace spot
 	return 0;
       }
 
-    return std::make_shared<dve2_kripke>(d, dict, ps, dead, compress);
+    return std::make_shared<spins_kripke>(d, dict, ps, dead, compress);
   }
 }

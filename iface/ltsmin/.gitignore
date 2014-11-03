@@ -1,5 +1,7 @@
 *.dve2C
 *.dve.cpp
-dve2check
 defs
 *.dir
+*.spins
+*.c
+check

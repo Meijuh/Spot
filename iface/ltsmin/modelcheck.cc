@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "dve2.hh"
+#include "ltsmin.hh"
 #include "tgbaalgos/dotty.hh"
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
@@ -217,9 +217,10 @@ checked_main(int argc, char **argv)
 
   if (output != DotFormula)
     {
-      tm.start("loading dve2");
-      model = spot::load_dve2(argv[1], dict, &ap, deadf, compress_states, true);
-      tm.stop("loading dve2");
+      tm.start("loading spins");
+      model = spot::load_model(argv[1], dict, &ap, deadf,
+                               compress_states, true);
+      tm.stop("loading spins");
 
       if (!model)
 	{

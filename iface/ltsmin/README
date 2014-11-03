@@ -1,5 +1,5 @@
-This directory contains an interface that presents DiVinE models as
-kripke* objects for Spot.
+This directory contains an interface that presents DiVinE and PROMELA
+models as kripke* objects for Spot.
 
 The DiVinE model checker [http://anna.fi.muni.cz/divine/] has a
 specification language called DVE that makes it easy to model
@@ -9,16 +9,12 @@ processes synchonizing through channels
 A lot of models can be found in the BEEM database at
 http://anna.fi.muni.cz/models/
 
-For efficient generation of the state space of the model, DiVinE
-compiles the DVE input into a dynamic library that contains anything
-needed to generate the state-space.
-
-The LTSmin people [http://fmt.cs.utwente.nl/tools/ltsmin/] have made a
-patched version of DiVinE that compiles a dynamic library with a very
-simple C interface (no C++) and extra information about state
-variables (name, type, possible values).  We are using this interface,
-therefore you need to install their version of DiVinE in order to use
-Spot's DVE interface.
+The LTSmin people [http://fmt.cs.utwente.nl/tools/ltsmin/] patched
+DiVinE and SpinJa to compile models as dynamic libraries. This dynamic
+library provides a very simple C interface (no C++) and extra
+information about state variables (name, type, possible values).  We
+use this interface so you will need to install their version of these
+tools to use Spot with DVE or PROMELA models.
 
 
 
@@ -47,14 +43,32 @@ model.dve2C (which is a dynamic library).
   divine compile --ltsmin model.dve
 
 
+Installation of SpinS
+======================
+
+The extended version of SpinJa is called SpinS and should be included
+with LTSmin.
+You can download LTSmin from their website:
+[http://fmt.cs.utwente.nl/tools/ltsmin/] and install it following the
+INSTALL instructions.
+
+To compile a promela model, simply run the following command:
+  spins model.pm
+
+It should create a dynamic library called model.pm.spins in the
+current directory.
+
+
 Usage with Spot
 ===============
 
-  The function load_dve2() defined in dve2.hh in this directory
-  will accept "model.dve" or "model.dve2C" as file argument.
-  In the former case, it will call "divine compile --ltsmin"
-  if "model.dve2C" does not exist or is older.  Then it will
-  load "model.dve2C" dynamically.
+  The function load_dve2() defined in dve2.hh in this directory will
+  accept either a model or its compiled version as file argument.  In
+  the former case, it will call "divine compile --ltsmin model.dve" or
+  "spins model.pm" depending on the file extension, only if a compiled
+  model with the corresponding file extension (.dve2C or .spins) does
+  not exist or is older.  Then it will load the compiled model
+  dynamically.
 
   load_dve2() also requires a set of atomic propositions that should
   be observed in the model.  These are usually the atomic propositions
@@ -89,15 +103,15 @@ Usage with Spot
     "P_0.j >= 2"    Process P_0's variable j is greater or equal to 2.
     P_0.j           This is equivalent to "P_0.j != 0".
 
-  Comparisons operators available are "<", ">", ">=", "<=", "==", and
-  "!=".  The left operant should always be a variable and the right
+  Comparison operators available are "<", ">", ">=", "<=", "==", and
+  "!=".  The left operand should always be a variable and the right
   operand should always be a number, so you cannot write something
   like "P_0.j <= P_0.i".
 
   Because the LTL parser knows nothing about the details of the
   languages we interface with, every atomic proposition that cannot be
-  express using only alphanumeric characters (plus `_' and `.') should
-  be enclosed in double quote.
+  expressed using only alphanumeric characters (plus `_' and `.')
+  should be enclosed in double quote.
 
   Caveat: "P_0.j >= 2" and " P_0.j>=2" (watch the spaces!) are
   considered to be two distinct atomic propositions with the same

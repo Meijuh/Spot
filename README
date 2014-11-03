@@ -180,7 +180,7 @@ wrap/             Wrappers for other languages.
       tests/      Tests for these bindings
       ajax/       LTL-to-TGBA translator with web interface, using Ajax.
 iface/            Interfaces to other libraries.
-   dve2/          Interface with DiVinE2.
+   ltsmin/        Interface with DiVinE2 and SpinS.
 
 Third party software
 --------------------

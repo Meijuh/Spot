@@ -18,26 +18,26 @@
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src \
               $(BUDDY_CPPFLAGS) -I$(top_srcdir)/ltdl
-AM_CXXFLAGS = $(WARNING_CXXFLAGS)
+AM_CXXFLAGS = $(WARNING_CXXFLAGS) -lpthread
 
-dve2dir = $(pkgincludedir)/iface/dve2
+ltsmindir = $(pkgincludedir)/iface/ltsmin
 
-dve2_HEADERS = dve2.hh
+ltsmin_HEADERS = ltsmin.hh
 
-lib_LTLIBRARIES = libspotdve2.la
-libspotdve2_la_LIBADD = \
+lib_LTLIBRARIES = libspotltsmin.la
+libspotltsmin_la_LIBADD = \
   $(top_builddir)/src/libspot.la \
   $(top_builddir)/ltdl/libltdlc.la
-libspotdve2_la_SOURCES = dve2.cc
+libspotltsmin_la_SOURCES = ltsmin.cc
 
-noinst_PROGRAMS = dve2check
+noinst_PROGRAMS = modelcheck
 
-dve2check_SOURCES = dve2check.cc
-dve2check_LDADD = libspotdve2.la
+modelcheck_SOURCES = modelcheck.cc
+modelcheck_LDADD = libspotltsmin.la
 
 check_SCRIPTS = defs
 
-TESTS = dve2check.test finite.test kripke.test
+TESTS = check.test finite.test kripke.test
 EXTRA_DIST = $(TESTS) beem-peterson.4.dve finite.dve
 
 kripke.test: $(top_builddir)/src/kripketest/parse_print$(EXEEXT)
