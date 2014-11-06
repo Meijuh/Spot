@@ -27,6 +27,9 @@
 #include "misc/random.hh"
 #include <iostream>
 #include <cstring>
+#include "misc/optionmap.hh"
+#include "ltlenv/defaultenv.hh"
+#include <sstream>
 
 namespace spot
 {
@@ -266,6 +269,8 @@ namespace spot
     const char*
     random_formula::parse_options(char* options)
     {
+      if (!options)
+        return nullptr;
       char* key = strtok(options, "=\t, :;");
       while (key)
 	{
@@ -399,5 +404,221 @@ namespace spot
       update_sums();
     }
 
-  } // ltl
-} // spot
+    void
+    randltlgenerator::construct(atomic_prop_set aprops, option_map& opts,
+                                       char* opt_pL,
+                                       char* opt_pS,
+                                       char* opt_pB)
+
+    {
+      aprops_ = aprops;
+      output_ = opts.get("output", OUTPUTLTL);
+      opt_seed_ = opts.get("seed", 0);
+      opt_tree_size_min_ = opts.get("tree_size_min", 15);
+      opt_tree_size_max_ = opts.get("tree_size_max", 15);
+      opt_unique_ = opts.get("unique", true);
+      opt_wf_ = opts.get("wf", false);
+      opt_simpl_level_ = opts.get("simplification_level", 3);
+
+      const char* tok_pL = 0;
+      const char* tok_pS = 0;
+      const char* tok_pB = 0;
+
+      switch (output_)
+        {
+        case OUTPUTLTL:
+          rf_ = new random_ltl(&aprops_);
+          if (opt_pS)
+            throw std::invalid_argument("Cannot set sere priorities with "\
+                                        "LTL output");
+          if (opt_pB)
+            throw std::invalid_argument("Cannot set boolean priorities with "\
+                                        "LTL output");
+          tok_pL = rf_->parse_options(opt_pL);
+          break;
+        case OUTPUTBOOL:
+          rf_ = new random_boolean(&aprops_);
+          tok_pB = rf_->parse_options(opt_pB);
+          if (opt_pL)
+            throw std::invalid_argument("Cannot set ltl priorities with "\
+                                        "Boolean output");
+          if (opt_pS)
+            throw std::invalid_argument("Cannot set sere priorities "\
+                                        "with Boolean output");
+          break;
+        case OUTPUTSERE:
+          rf_ = rs_ = new random_sere(&aprops_);
+          tok_pS = rs_->parse_options(opt_pS);
+          tok_pB = rs_->rb.parse_options(opt_pB);
+          if (opt_pL)
+            throw std::invalid_argument("Cannot set ltl priorities "\
+                                        "with SERE output");
+          break;
+        case OUTPUTPSL:
+          rf_ = rp_ = new random_psl(&aprops_);
+          rs_ = &rp_->rs;
+          tok_pL = rp_->parse_options(opt_pL);
+          tok_pS = rs_->parse_options(opt_pS);
+          tok_pB = rs_->rb.parse_options(opt_pB);
+          break;
+        }
+
+      if (tok_pL)
+        throw("failed to parse LTL priorities near '" + std::string(tok_pL));
+      if (tok_pS)
+        throw("failed to parse SERE priorities near " + std::string(tok_pS));
+      if (tok_pB)
+        throw("failed to parse Boolean priorities near "
+              + std::string(tok_pB));
+
+      spot::srand(opt_seed_);
+      ltl_simplifier_options simpl_opts(opt_simpl_level_);
+      ltl_simplifier simpl_(simpl_opts);
+    }
+
+    randltlgenerator::randltlgenerator(int aprops_n, option_map& opts,
+                                       char* opt_pL,
+                                       char* opt_pS,
+                                       char* opt_pB)
+      {
+        atomic_prop_set aprops_;
+        default_environment& e =
+        default_environment::instance();
+        for (int i = 0; i < aprops_n; ++i)
+          {
+            std::ostringstream p;
+            p << 'p' << i;
+            aprops_.insert(static_cast<const atomic_prop*>
+                           (e.require(p.str())));
+          }
+        construct(aprops_, opts, opt_pL, opt_pS, opt_pB);
+      }
+
+    randltlgenerator::randltlgenerator(atomic_prop_set aprops,
+                                       option_map& opts,
+                                       char* opt_pL,
+                                       char* opt_pS,
+                                       char* opt_pB)
+
+    {
+      construct(aprops, opts, opt_pL, opt_pS, opt_pB);
+    }
+
+
+    randltlgenerator::~randltlgenerator()
+    {
+      delete rf_;
+      // Cleanup the unicity table.
+      for (auto i: unique_set_)
+        i->destroy();
+    }
+    const formula* randltlgenerator::next()
+    {
+      unsigned trials = MAX_TRIALS;
+      bool ignore;
+      const formula* f = nullptr;
+      do
+        {
+	  ignore = false;
+          int size = opt_tree_size_min_;
+          if (size != opt_tree_size_max_)
+            size = spot::rrand(size, opt_tree_size_max_);
+          f = rf_->generate(size);
+
+          if (opt_wf_)
+            {
+              atomic_prop_set s = aprops_;
+              remove_some_props(s);
+              f = multop::instance(multop::And,
+                                              f, GF_n());
+            }
+
+	  if (opt_simpl_level_)
+	    {
+	      const spot::ltl::formula* tmp = simpl_.simplify(f);
+	      f->destroy();
+	      f = tmp;
+	    }
+
+          if (opt_unique_)
+            {
+              if (unique_set_.insert(f).second)
+                {
+                  f->clone();
+                }
+              else
+                {
+		  ignore = true;
+                  f->destroy();
+                }
+            }
+        } while (ignore && --trials);
+      if (trials <= 0)
+        return nullptr;
+      return f;
+    }
+
+    void
+    randltlgenerator::remove_some_props(atomic_prop_set& s)
+    {
+      // How many propositions to remove from s?
+      // (We keep at least one.)
+      size_t n = spot::mrand(aprops_.size());
+
+      while (n--)
+        {
+          auto i = s.begin();
+          std::advance(i, spot::mrand(s.size()));
+          s.erase(i);
+        }
+    }
+
+    // GF(p_1) & GF(p_2) & ... & GF(p_n)
+    const formula*
+    randltlgenerator::GF_n()
+    {
+      const formula* res = 0;
+      for (auto v: aprops_)
+        {
+          const formula* f =
+          unop::instance(unop::F, v->clone());
+          f = unop::instance(unop::G, f);
+          if (res)
+            res = multop::instance(multop::And, f, res);
+          else
+            res = f;
+        }
+      return res;
+    }
+
+    void
+    randltlgenerator::dump_ltl_priorities(std::ostream& os)
+      {
+        rf_->dump_priorities(os);
+      }
+
+    void
+    randltlgenerator::dump_bool_priorities(std::ostream& os)
+      {
+        rf_->dump_priorities(os);
+      }
+
+    void
+    randltlgenerator::dump_psl_priorities(std::ostream& os)
+      {
+        rp_->dump_priorities(os);
+      }
+
+    void
+    randltlgenerator::dump_sere_priorities(std::ostream& os)
+      {
+        rs_->dump_priorities(os);
+      }
+
+    void
+    randltlgenerator::dump_sere_bool_priorities(std::ostream& os)
+      {
+        rs_->rb.dump_priorities(os);
+      }
+  }
+}

@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et Development de
+## Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et Development de
 ## l'Epita (LRDE).
 ## Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -25,25 +25,25 @@ SUBDIRS = . ajax tests
 AM_CPPFLAGS = -I$(PYTHONINC) -I$(top_srcdir)/src -I$(top_builddir)/src \
 	      $(BUDDY_CPPFLAGS) -DSWIG_TYPE_TABLE=spot
 
-EXTRA_DIST = spot.i buddy.i
-python_PYTHON = $(srcdir)/spot.py $(srcdir)/buddy.py
-pyexec_LTLIBRARIES = _spot.la _buddy.la
+EXTRA_DIST = spot_impl.i buddy.i
+python_PYTHON = $(srcdir)/spot_impl.py $(srcdir)/buddy.py spot.py
+pyexec_LTLIBRARIES = _spot_impl.la _buddy.la
 
 MAINTAINERCLEANFILES = \
-  $(srcdir)/spot_wrap.cxx $(srcdir)/spot.py \
+  $(srcdir)/spot_impl_wrap.cxx $(srcdir)/spot_impl.py \
   $(srcdir)/buddy_wrap.cxx $(srcdir)/buddy.py
 
 ## spot
 
-_spot_la_SOURCES = $(srcdir)/spot_wrap.cxx $(srcdir)/spot_wrap.h
-_spot_la_LDFLAGS = -avoid-version -module
-_spot_la_LIBADD = $(top_builddir)/src/libspot.la
+_spot_impl_la_SOURCES = $(srcdir)/spot_impl_wrap.cxx $(srcdir)/spot_impl_wrap.h
+_spot_impl_la_LDFLAGS = -avoid-version -module
+_spot_impl_la_LIBADD = $(top_builddir)/src/libspot.la
 
-$(srcdir)/spot_wrap.cxx: $(srcdir)/spot.i
-	$(SWIG) -c++ -python -I$(srcdir) -I$(top_srcdir)/src $(srcdir)/spot.i
+$(srcdir)/spot_impl_wrap.cxx: $(srcdir)/spot_impl.i
+	$(SWIG) -c++ -python -I$(srcdir) -I$(top_srcdir)/src $(srcdir)/spot_impl.i
 
-$(srcdir)/spot.py: $(srcdir)/spot.i
-	$(MAKE) $(AM_MAKEFLAGS) spot_wrap.cxx
+$(srcdir)/spot_impl.py: $(srcdir)/spot_impl.i
+	$(MAKE) $(AM_MAKEFLAGS) spot_impl_wrap.cxx
 
 
 ## buddy

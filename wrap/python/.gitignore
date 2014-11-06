@@ -3,7 +3,7 @@
 Makefile
 Makefile.in
 *.la
-spot.py*
+spot_impl.py*
 buddy.py*
 *.lo
 *.loT

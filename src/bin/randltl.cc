@@ -42,6 +42,7 @@
 #include "ltlenv/defaultenv.hh"
 #include "misc/random.hh"
 #include "misc/hash.hh"
+#include "misc/optionmap.hh"
 
 const char argp_program_doc[] ="\
 Generate random temporal logic formulas.\n\n\
@@ -135,9 +136,8 @@ const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-static enum { OutputBool, OutputLTL, OutputSERE, OutputPSL }
-  output = OutputLTL;
 spot::ltl::atomic_prop_set aprops;
+static int output = OUTPUTLTL;
 static char* opt_pL = 0;
 static char* opt_pS = 0;
 static char* opt_pB = 0;
@@ -149,39 +149,6 @@ static bool opt_unique = true;
 static bool opt_wf = false;
 static bool ap_count_given = false;
 
-void
-remove_some_props(spot::ltl::atomic_prop_set& s)
-{
-  // How many propositions to remove from s?
-  // (We keep at least one.)
-  size_t n = spot::mrand(s.size());
-
-  while (n--)
-    {
-      auto i = s.begin();
-      std::advance(i, spot::mrand(s.size()));
-      s.erase(i);
-    }
-}
-
-// GF(p_1) & GF(p_2) & ... & GF(p_n)
-const spot::ltl::formula*
-GF_n(spot::ltl::atomic_prop_set& ap)
-{
-  const spot::ltl::formula* res = 0;
-  for (auto v: ap)
-    {
-      const spot::ltl::formula* f =
-	spot::ltl::unop::instance(spot::ltl::unop::F, v->clone());
-      f = spot::ltl::unop::instance(spot::ltl::unop::G, f);
-      if (res)
-        res = spot::ltl::multop::instance(spot::ltl::multop::And, f, res);
-      else
-        res = f;
-    }
-  return res;
-}
-
 static int
 parse_opt(int key, char* arg, struct argp_state* as)
 {
@@ -189,22 +156,22 @@ parse_opt(int key, char* arg, struct argp_state* as)
   switch (key)
     {
     case 'B':
-      output = OutputBool;
+      output = OUTPUTBOOL;
       break;
     case 'L':
-      output = OutputLTL;
+      output = OUTPUTLTL;
       break;
     case 'n':
       opt_formulas = to_int(arg);
       break;
     case 'P':
-      output = OutputPSL;
+      output = OUTPUTPSL;
       break;
     case OPT_R:
       parse_r(arg);
       break;
     case 'S':
-      output = OutputSERE;
+      output = OUTPUTSERE;
       break;
     case OPT_BOOLEAN_PRIORITIES:
       opt_pB = arg;
@@ -271,90 +238,6 @@ main(int argc, char** argv)
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
     exit(err);
 
-  spot::ltl::random_formula* rf = 0;
-  spot::ltl::random_psl* rp = 0;
-  spot::ltl::random_sere* rs = 0;
-  const char* tok_pL = 0;
-  const char* tok_pS = 0;
-  const char* tok_pB = 0;
-
-  switch (output)
-    {
-    case OutputLTL:
-      rf = new spot::ltl::random_ltl(&aprops);
-      tok_pL = rf->parse_options(opt_pL);
-      if (opt_pS)
-	error(2, 0, "option --sere-priorities unsupported for LTL output");
-      if (opt_pB)
-	error(2, 0, "option --boolean-priorities unsupported for LTL output");
-      break;
-    case OutputBool:
-      rf = new spot::ltl::random_boolean(&aprops);
-      tok_pB = rf->parse_options(opt_pB);
-      if (opt_pL)
-	error(2, 0, "option --ltl-priorities unsupported for Boolean output");
-      if (opt_pS)
-	error(2, 0, "option --sere-priorities unsupported for Boolean output");
-      break;
-    case OutputSERE:
-      rf = rs = new spot::ltl::random_sere(&aprops);
-      tok_pS = rs->parse_options(opt_pS);
-      tok_pB = rs->rb.parse_options(opt_pB);
-      if (opt_pL)
-	error(2, 0, "option --ltl-priorities unsupported for SERE output");
-      break;
-    case OutputPSL:
-      rf = rp = new spot::ltl::random_psl(&aprops);
-      rs = &rp->rs;
-      tok_pL = rp->parse_options(opt_pL);
-      tok_pS = rs->parse_options(opt_pS);
-      tok_pB = rs->rb.parse_options(opt_pB);
-      break;
-    }
-
-  if (tok_pL)
-    error(2, 0, "failed to parse LTL priorities near '%s'", tok_pL);
-  if (tok_pS)
-    error(2, 0, "failed to parse SERE priorities near '%s'", tok_pS);
-  if (tok_pB)
-    error(2, 0, "failed to parse Boolean priorities near '%s'", tok_pB);
-
-  if (opt_dump_priorities)
-    {
-      switch (output)
-	{
-	case OutputLTL:
-	  std::cout
-	    << "Use --ltl-priorities to set the following LTL priorities:\n";
-	  rf->dump_priorities(std::cout);
-	  break;
-	case OutputBool:
-	  std::cout
-	    << ("Use --boolean-priorities to set the following Boolean "
-		"formula priorities:\n");
-	  rf->dump_priorities(std::cout);
-	  break;
-	case OutputPSL:
-	  std::cout
-	    << "Use --ltl-priorities to set the following LTL priorities:\n";
-	  rp->dump_priorities(std::cout);
-	  // Fall through.
-	case OutputSERE:
-	  std::cout
-	    << "Use --sere-priorities to set the following SERE priorities:\n";
-	  rs->dump_priorities(std::cout);
-	  std::cout
-	    << ("Use --boolean-priorities to set the following Boolean "
-		"formula priorities:\n");
-	  rs->rb.dump_priorities(std::cout);
-	  break;
-	default:
-	  error(2, 0, "internal error: unknown type of output");
-	}
-      destroy_atomic_prop_set(aprops);
-      exit(0);
-    }
-
   // running 'randltl 0' is one way to generate formulas using no
   // atomic propositions so do not complain in that case.
   if (aprops.empty() && !ap_count_given)
@@ -363,69 +246,71 @@ main(int argc, char** argv)
 
   spot::srand(opt_seed);
 
-  typedef
-    std::unordered_set<const spot::ltl::formula*,
-		       const spot::ptr_hash<const spot::ltl::formula>> fset_t;
-  fset_t unique_set;
+  spot::option_map opts;
+  opts.set("output", output);
+  opts.set("tree_size_min", opt_tree_size.min);
+  opts.set("tree_size_max", opt_tree_size.max);
+  opts.set("opt_wf", opt_wf);
+  opts.set("opt_seed", opt_seed);
+  opts.set("simplification_level", simplification_level);
+  spot::ltl::randltlgenerator rg(aprops, opts, opt_pL, opt_pS, opt_pB);
 
-  spot::ltl::ltl_simplifier simpl(simplifier_options());
+  if (opt_dump_priorities)
+    {
+      switch (output)
+        {
+        case OUTPUTLTL:
+          std::cout
+          << "Use --ltl-priorities to set the following LTL priorities:\n";
+          rg.dump_ltl_priorities(std::cout);
+          break;
+        case OUTPUTBOOL:
+          std::cout
+          << ("Use --boolean-priorities to set the following Boolean "
+              "formula priorities:\n");
+          rg.dump_bool_priorities(std::cout);
+          break;
+        case OUTPUTPSL:
+          std::cout
+          << "Use --ltl-priorities to set the following LTL priorities:\n";
+          rg.dump_psl_priorities(std::cout);
+          // Fall through.
+        case OUTPUTSERE:
+          std::cout
+          << "Use --sere-priorities to set the following SERE priorities:\n";
+          rg.dump_sere_priorities(std::cout);
+          std::cout
+          << ("Use --boolean-priorities to set the following Boolean "
+              "formula priorities:\n");
+          rg.dump_sere_bool_priorities(std::cout);
+          break;
+        default:
+          error(2, 0, "internal error: unknown type of output");
+        }
+      opts.~option_map();
+      destroy_atomic_prop_set(aprops);
+      exit(0);
+    }
 
   while (opt_formulas < 0 || opt_formulas--)
     {
-#define MAX_TRIALS 100000
-      unsigned trials = MAX_TRIALS;
-      bool ignore;
-      const spot::ltl::formula* f = 0;
-      do
-	{
-	  ignore = false;
-	  int size = opt_tree_size.min;
-	  if (size != opt_tree_size.max)
-	    size = spot::rrand(size, opt_tree_size.max);
-	  f = rf->generate(size);
-
-	  if (opt_wf)
-	    {
-	      spot::ltl::atomic_prop_set s = aprops;
-	      remove_some_props(s);
-	      f = spot::ltl::multop::instance(spot::ltl::multop::And,
-					      f, GF_n(s));
-	    }
-
-	  if (simplification_level)
-	    {
-	      const spot::ltl::formula* tmp = simpl.simplify(f);
-	      f->destroy();
-	      f = tmp;
-	    }
-	  if (opt_unique)
-	    {
-	      if (unique_set.insert(f).second)
-		{
-		  f->clone();
-		}
-	      else
-		{
-		  ignore = true;
-		  f->destroy();
-		}
-	    }
-	}
-      while (ignore && --trials);
-      if (trials == 0)
-	error(2, 0, "failed to generate a new unique formula after %d trials",
-	      MAX_TRIALS);
       static int count = 0;
-      output_formula_checked(f, 0, ++count);
-      f->destroy();
+      spot::ltl::randltlgenerator rg2(aprops, opts);
+      const spot::ltl::formula* f = rg.next();
+      if (!f)
+        {
+          opts.~option_map();
+          error(2, 0, "failed to generate a new unique formula after %d "\
+                "trials", MAX_TRIALS);
+        }
+      else
+        {
+          output_formula_checked(f, 0, ++count);
+          f->destroy();
+        }
     };
 
 
-  delete rf;
-  // Cleanup the unicity table.
-  for (auto i: unique_set)
-    i->destroy();
-  // Cleanup the atomic_prop set.
   destroy_atomic_prop_set(aprops);
   return 0;
 }

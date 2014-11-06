@@ -26,11 +26,12 @@
 #include <cstddef>
 %}
 
-%module(directors="1") spot
+%module(directors="1") spot_impl
 
 %include "std_shared_ptr.i"
 %include "std_string.i"
 %include "std_list.i"
+%include "std_set.i"
 %include "exception.i"
 
  // git grep 'typedef.*std::shared_ptr' | grep -v const |
@@ -93,6 +94,7 @@ namespace std {
 
 #include "tgba/bdddict.hh"
 
+#include "ltlvisit/apcollect.hh"
 #include "ltlvisit/dotty.hh"
 #include "ltlvisit/dump.hh"
 #include "ltlvisit/lunabbrev.hh"
@@ -100,8 +102,11 @@ namespace std {
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/tunabbrev.hh"
-#include "ltlvisit/apcollect.hh"
 #include "ltlvisit/lbt.hh"
+#include "ltlvisit/randomltl.hh"
+#include "ltlvisit/length.hh"
+#include "ltlvisit/remove_x.hh"
+#include "ltlvisit/relabel.hh"
 
 #include "tgba/bddprint.hh"
 #include "tgba/fwd.hh"
@@ -129,6 +134,7 @@ namespace std {
 #include "tgbaalgos/simulation.hh"
 #include "tgbaalgos/postproc.hh"
 #include "tgbaalgos/stutter.hh"
+#include "tgbaalgos/translate.hh"
 
 #include "hoaparse/public.hh"
 
@@ -168,9 +174,9 @@ using namespace spot;
     PyList_Append($result,obj);
     Py_DECREF(obj);
   }
+
  };
 %apply char** OUTPUT { char** err };
-
 
 %exception {
   try {
@@ -181,6 +187,12 @@ using namespace spot;
     std::string er("\n");
     er += e.what();
     SWIG_exception(SWIG_SyntaxError, er.c_str());
+  }
+  catch (const std::invalid_argument& e)
+  {
+    std::string er("\n");
+    er += e.what();
+    SWIG_exception(SWIG_ValueError, er.c_str());
   }
 }
 
@@ -210,6 +222,7 @@ using namespace spot;
 
 %include "tgba/bdddict.hh"
 
+%include "ltlvisit/apcollect.hh"
 %include "ltlvisit/dotty.hh"
 %include "ltlvisit/dump.hh"
 %include "ltlvisit/lunabbrev.hh"
@@ -218,6 +231,10 @@ using namespace spot;
 %include "ltlvisit/tostring.hh"
 %include "ltlvisit/tunabbrev.hh"
 %include "ltlvisit/lbt.hh"
+%include "ltlvisit/randomltl.hh"
+%include "ltlvisit/length.hh"
+%include "ltlvisit/remove_x.hh"
+%include "ltlvisit/relabel.hh"
 
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
@@ -238,7 +255,6 @@ namespace spot {
 }
 
 // Should come after the definition of tgba_digraph
-%include "ltlvisit/apcollect.hh"
 
 %include "tgbaalgos/degen.hh"
 %include "tgbaalgos/dotty.hh"
@@ -259,6 +275,7 @@ namespace spot {
 %include "tgbaalgos/simulation.hh"
 %include "tgbaalgos/postproc.hh"
 %include "tgbaalgos/stutter.hh"
+%include "tgbaalgos/translate.hh"
 
 %include "hoaparse/public.hh"
 
@@ -272,8 +289,22 @@ namespace spot {
 %include "taalgos/minimize.hh"
 
 
-
 #undef ltl
+
+
+namespace std {
+  %template(atomic_prop_set)    set<const spot::ltl::atomic_prop*,
+spot::ltl::formula_ptr_less_than>;
+}
+
+%{
+  namespace swig {
+    template <>  struct traits<atomic_prop> {
+      typedef pointer_category category;
+      static const char* type_name() { return"atomic_prop const *"; }
+    };
+  }
+%}
 
 %extend spot::ltl::formula {
 
@@ -322,22 +353,6 @@ namespace std {
      ~ostringstream();
   };
 }
-
-%pythoncode %{
-import subprocess
-
-def render_automaton_as_svg(a):
-    dotsrc = ostringstream()
-    dotty_reachable(dotsrc, a)
-    dotty = subprocess.Popen(['dot', '-Tsvg'],
-			     stdin=subprocess.PIPE,
-			     stdout=subprocess.PIPE)
-    dotty.stdin.write(dotsrc.str().encode('utf-8'))
-    res = dotty.communicate()
-    return res[0].decode('utf-8')
-
-tgba._repr_svg_ = render_automaton_as_svg
-%}
 
 %inline %{
 spot::ltl::parse_error_list

@@ -1,4 +1,4 @@
-## Copyright (C) 2010, 2012, 2013 Labortatoire de Recherche et Développement de
+## Copyright (C) 2010, 2012, 2013, 2014 Labortatoire de Recherche et Développement de
 ## l'EPITA.
 ## Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -21,7 +21,8 @@
 
 EXTRA_DIST = \
   $(TESTS) \
-  ltl2tgba.py
+  ltl2tgba.py \
+  ipnbdoctest.py
 
 LOG_COMPILER = ./run
 LOG_DRIVER = $(TEST_LOG_DRIVER)
@@ -39,4 +40,5 @@ TESTS = \
   minato.py \
   optionmap.py \
   parsetgba.py \
+  randltl.ipynb \
   setxor.py

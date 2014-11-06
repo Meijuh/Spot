@@ -1,9 +1,9 @@
 #!/bin/sh
-
-# Copyright (C) 2010, 2011 Laboratoire de Recherche et Developpement de
-# l'EPITA (LRDE).
+# -*- coding: utf-8 -*-
+# Copyright (C) 2010, 2011, 2014, 2015 Laboratoire de Recherche et
+# Developpement de l'EPITA (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
-# (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
+# (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
 # Pierre et Marie Curie.
 #
 # This file is part of Spot, a model checking library.
@@ -36,11 +36,14 @@ test -z "$1" &&
   PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec @PYTHON@
 
 case $1 in
+  *.ipynb)
+    PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath \
+    exec @PYTHON@ @srcdir@/ipnbdoctest.py "$@";;
   *.py)
     PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec @PYTHON@ "$@";;
   *.test)
     exec sh -x "$@";;
-  ipython*)
+  *python*)
     PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec "$@";;
   *)
     echo "Unknown extension" >&2

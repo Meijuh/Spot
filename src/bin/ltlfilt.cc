@@ -638,7 +638,7 @@ main(int argc, char** argv)
 
   if (boolean_to_isop && simplification_level == 0)
     simplification_level = 1;
-  spot::ltl::ltl_simplifier_options opt = simplifier_options();
+  spot::ltl::ltl_simplifier_options opt(simplification_level);
   opt.boolean_to_isop = boolean_to_isop;
   spot::ltl::ltl_simplifier simpl(opt);
   try

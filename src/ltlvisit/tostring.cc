@@ -273,8 +273,8 @@ namespace spot
       };
 
       const char* sclatex_kw[] = {
-	"\\ffalse",
-	"\\ttrue",
+	"\\bot",
+	"\\top",
 	"\\varepsilon",
 	" \\oplus ",
 	" \\rightarrow ",

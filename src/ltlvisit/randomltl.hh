@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -25,6 +25,17 @@
 
 #include "apcollect.hh"
 #include <iosfwd>
+
+#include <unordered_set>
+#include "misc/optionmap.hh"
+#include "misc/hash.hh"
+#include "simplify.hh"
+
+#define OUTPUTBOOL 1
+#define OUTPUTLTL 2
+#define OUTPUTSERE 3
+#define OUTPUTPSL 4
+#define MAX_TRIALS 100000
 
 namespace spot
 {
@@ -292,10 +303,64 @@ namespace spot
       random_sere rs;
     };
 
+    class SPOT_API randltlgenerator
+    {
+      typedef
+      std::unordered_set<const spot::ltl::formula*,
+      const spot::ptr_hash<const spot::ltl::formula>> fset_t;
 
 
+      public:
+      randltlgenerator(int aprops_n, option_map& opts,
+                       char* opt_pL = nullptr,
+                       char* opt_pS = nullptr,
+                       char* opt_pB = nullptr);
+
+      randltlgenerator(atomic_prop_set aprops, option_map& opts,
+                       char* opt_pL = nullptr,
+                       char* opt_pS = nullptr,
+                       char* opt_pB = nullptr);
+
+      void construct(atomic_prop_set aprops, option_map& opts,
+                       char* opt_pL, char* opt_pS,
+                       char* opt_pB);
+
+      ~randltlgenerator();
+
+      const spot::ltl::formula* next();
+
+      void dump_ltl_priorities(std::ostream& os);
+
+      void dump_bool_priorities(std::ostream& os);
+
+      void dump_psl_priorities(std::ostream& os);
+
+      void dump_sere_priorities(std::ostream& os);
+
+      void dump_sere_bool_priorities(std::ostream& os);
+
+      void remove_some_props(atomic_prop_set& s);
+
+      const formula* GF_n();
+
+      private:
+      fset_t unique_set_;
+      atomic_prop_set aprops_;
+
+      int opt_seed_;
+      int opt_tree_size_min_;
+      int opt_tree_size_max_;
+      bool opt_unique_;
+      bool opt_wf_;
+      int opt_simpl_level_;
+      ltl_simplifier simpl_;
+
+      int output_;
+
+      random_formula* rf_ = 0;
+      random_psl* rp_ = 0;
+      random_sere* rs_ = 0;
+    };
   }
 }
-
-
 #endif // SPOT_LTLVIST_RANDOMLTL_HH

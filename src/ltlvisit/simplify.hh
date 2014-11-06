@@ -53,6 +53,27 @@ namespace spot
       {
       }
 
+      ltl_simplifier_options(int level) :
+        ltl_simplifier_options(false, false, false)
+      {
+        switch (level)
+          {
+          case 3:
+            containment_checks = true;
+            containment_checks_stronger = true;
+            // fall through
+          case 2:
+            synt_impl = true;
+            // fall through
+          case 1:
+            reduce_basics = true;
+            event_univ = true;
+            // fall through
+          default:
+            break;
+          }
+      }
+
       bool reduce_basics;
       bool synt_impl;
       bool event_univ;

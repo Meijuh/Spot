@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2010, 2012, 2013  Laboratoire de Recherche et Développement
-# de l'Epita
+# Copyright (C) 2010, 2012, 2013, 2014  Laboratoire de Recherche et
+# Développement de l'Epita
 # Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -20,7 +20,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import spot
 import buddy
 import sys
 
@@ -32,6 +31,8 @@ b = buddy.bdd_ithvar(1)
 c = buddy.bdd_ithvar(2)
 
 w = -a & -b | -c & b | a & -b
+
+import spot
 
 isop = spot.minato_isop(w)
 
