@@ -112,7 +112,8 @@ TESTS = \
   reducpsl.test \
   reduccmp.test \
   uwrm.test \
-  eventuniv.test
+  eventuniv.test \
+  stutter.test
 
 distclean-local:
 	rm -rf $(TESTS:.test=.dir)

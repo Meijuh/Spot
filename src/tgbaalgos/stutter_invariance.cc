@@ -32,102 +32,94 @@
 
 namespace spot
 {
+  // The stutter check algorithm to use can be overridden via an
+  // environment variable.
+  static int default_stutter_check_algorithm()
+  {
+    static const char* stutter_check = getenv("SPOT_STUTTER_CHECK");
+    if (stutter_check)
+      {
+	char* endptr;
+	long res = strtol(stutter_check, &endptr, 10);
+	if (*endptr || res < 0 || res > 8)
+	  throw
+	    std::runtime_error("invalid value for SPOT_STUTTER_CHECK.");
+	return res;
+      }
+    else
+      {
+	return 8;     // The best variant, according to our benchmarks.
+      }
+  }
+
   bool
   is_stutter_invariant(const ltl::formula* f)
-    {
-      const char* stutter_check = getenv("SPOT_STUTTER_CHECK");
-      char algo = stutter_check ? stutter_check[0] : '1';
-      if (f->is_ltl_formula() && f->is_X_free())
-        return true;
+  {
+    if (f->is_ltl_formula() && f->is_X_free())
+      return true;
 
-      if (algo == '0')
-        {
-          // Syntactic checking.
-          if (f->is_ltl_formula())
-            {
-              const ltl::formula* g = remove_x(f);
-              ltl::ltl_simplifier ls;
-              bool res = ls.are_equivalent(f, g);
-              g->destroy();
-              return res;
-            }
-          else
-            {
-              throw std::runtime_error("Cannot use the syntactic-based " \
-                                       "approach to stutter-invariance " \
-                                       "checking on non-ltl formula");
-            }
-        }
-      const ltl::formula* nf = ltl::unop::instance(ltl::unop::Not, f->clone());
-      translator trans;
-      tgba_digraph_ptr aut_f = trans.run(f);
-      tgba_digraph_ptr aut_nf = trans.run(nf);
-      bdd aps = atomic_prop_collect_as_bdd(f, aut_f);
-      nf->destroy();
-      return is_stutter_invariant(std::move(aut_f), std::move(aut_nf), aps);
-    }
+    int algo = default_stutter_check_algorithm();
+
+    if (algo == 0) // Etessami's check via syntactic transformation.
+      {
+	if (!f->is_ltl_formula())
+	  throw std::runtime_error("Cannot use the syntactic "
+				   "stutter-invariance check "
+				   "for non-LTL formulas");
+	const ltl::formula* g = remove_x(f);
+	ltl::ltl_simplifier ls;
+	bool res = ls.are_equivalent(f, g);
+	g->destroy();
+	return res;
+      }
+
+    // Prepare for an automata-based check.
+    const ltl::formula* nf = ltl::unop::instance(ltl::unop::Not, f->clone());
+    translator trans;
+    auto aut_f = trans.run(f);
+    auto aut_nf = trans.run(nf);
+    bdd aps = atomic_prop_collect_as_bdd(f, aut_f);
+    nf->destroy();
+    return is_stutter_invariant(std::move(aut_f), std::move(aut_nf), aps, algo);
+  }
 
   bool
   is_stutter_invariant(tgba_digraph_ptr&& aut_f,
-                       tgba_digraph_ptr&& aut_nf, bdd aps)
-    {
-      const char* stutter_check = getenv("SPOT_STUTTER_CHECK");
-      char algo = stutter_check ? stutter_check[0] : '8';
+                       tgba_digraph_ptr&& aut_nf, bdd aps, int algo)
+  {
+    if (algo == 0)
+      algo = default_stutter_check_algorithm();
 
-      switch (algo)
-        {
-          // sl(aut_f) x sl(aut_nf)
-        case '1':
-            {
-              return product(sl(std::move(aut_f), aps),
-                             sl(std::move(aut_nf), aps))->is_empty();
-            }
-          // sl(cl(aut_f)) x aut_nf
-        case '2':
-            {
-              return product(sl(closure(std::move(aut_f)), aps),
-                             std::move(aut_nf))->is_empty();
-            }
-          // (cl(sl(aut_f)) x aut_nf
-        case '3':
-            {
-              return product(closure(sl(std::move(aut_f), aps)),
-                             std::move(aut_nf))->is_empty();
-            }
-          // sl2(aut_f) x sl2(aut_nf)
-        case '4':
-            {
-              return product(sl2(std::move(aut_f), aps),
-                             sl2(std::move(aut_nf), aps))->is_empty();
-            }
-          // sl2(cl(aut_f)) x aut_nf
-        case '5':
-            {
-              return product(sl2(closure(std::move(aut_f)), aps),
-                             std::move(aut_nf))->is_empty();
-            }
-          // (cl(sl2(aut_f)) x aut_nf
-        case '6':
-            {
-              return product(closure(sl2(std::move(aut_f), aps)),
-                             std::move(aut_nf))->is_empty();
-            }
-          // on-the-fly sl(aut_f) x sl(aut_nf)
-        case '7':
-            {
-              auto slf = std::make_shared<tgbasl>(aut_f, aps);
-              auto slnf = std::make_shared<tgbasl>(aut_nf, aps);
-              return product(slf, slnf)->is_empty();
-            }
-          // cl(aut_f) x cl(aut_nf)
-        case '8':
-            {
-              return product(closure(std::move(aut_f)),
-                             closure(std::move(aut_nf)))->is_empty();
-            }
-        default:
-          throw std::runtime_error("invalid value for SPOT_STUTTER_CHECK.");
-          break;
-        }
-    }
+    switch (algo)
+      {
+      case 1: // sl(aut_f) x sl(aut_nf)
+	return product(sl(std::move(aut_f), aps),
+		       sl(std::move(aut_nf), aps))->is_empty();
+      case 2: // sl(cl(aut_f)) x aut_nf
+	return product(sl(closure(std::move(aut_f)), aps),
+		       std::move(aut_nf))->is_empty();
+      case 3: // (cl(sl(aut_f)) x aut_nf
+	return product(closure(sl(std::move(aut_f), aps)),
+		       std::move(aut_nf))->is_empty();
+      case 4: // sl2(aut_f) x sl2(aut_nf)
+	return product(sl2(std::move(aut_f), aps),
+		       sl2(std::move(aut_nf), aps))->is_empty();
+      case 5: // sl2(cl(aut_f)) x aut_nf
+	return product(sl2(closure(std::move(aut_f)), aps),
+		       std::move(aut_nf))->is_empty();
+      case 6: // (cl(sl2(aut_f)) x aut_nf
+	return product(closure(sl2(std::move(aut_f), aps)),
+		       std::move(aut_nf))->is_empty();
+      case 7: // on-the-fly sl(aut_f) x sl(aut_nf)
+	return product(make_tgbasl(aut_f, aps),
+		       make_tgbasl(aut_nf, aps))->is_empty();
+      case 8: // cl(aut_f) x cl(aut_nf)
+	return product(closure(std::move(aut_f)),
+		       closure(std::move(aut_nf)))->is_empty();
+      default:
+	throw std::runtime_error("invalid algorithm number for "
+				 "is_stutter_invariant()");
+	SPOT_UNREACHABLE();
+      }
+  }
 }

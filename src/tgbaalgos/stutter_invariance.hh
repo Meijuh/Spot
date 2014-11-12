@@ -30,7 +30,8 @@ namespace spot
 
   SPOT_API bool
   is_stutter_invariant(tgba_digraph_ptr&& aut_f,
-		       tgba_digraph_ptr&& aut_nf, bdd aps);
+		       tgba_digraph_ptr&& aut_nf, bdd aps,
+		       int algo = 0);
 }
 
 #endif

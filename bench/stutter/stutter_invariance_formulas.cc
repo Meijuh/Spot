@@ -29,7 +29,6 @@
 #include "ltlvisit/length.hh"
 #include "misc/timer.hh"
 #include <argp.h>
-#include "error.h"
 
 const char argp_program_doc[] ="";
 
@@ -75,21 +74,17 @@ namespace
       bdd apdict = spot::ltl::atomic_prop_collect_as_bdd(f, a);
       bool res;
       bool prev = true;
-      for (char algo = '1'; algo <= '8'; ++algo)
+      for (int algo = 1; algo <= 8; ++algo)
         {
-          // set SPOT_STUTTER_CHECK environment variable
-          char algostr[2] = { 0 };
-          algostr[0] = algo;
-          setenv("SPOT_STUTTER_CHECK", algostr, true);
+          auto dup_a = spot::make_tgba_digraph(a);
+          auto dup_na = spot::make_tgba_digraph(na);
 
           spot::stopwatch sw;
-          auto dup_a = std::make_shared<spot::tgba_digraph>(a);
-          auto dup_na = std::make_shared<spot::tgba_digraph>(na);
-
           sw.start();
           res = spot::is_stutter_invariant(std::move(dup_a),
-                                           std::move(dup_na), apdict);
-          const double time = sw.stop();
+                                           std::move(dup_na),
+					   apdict, algo);
+          auto time = sw.stop();
 
           std::cout << formula << ", " << algo << ", " << ap->size() << ", "
 		    << num_states << ", " << res << ", " << time * 1000000 << std::endl;
@@ -100,7 +95,7 @@ namespace
         }
       f->destroy();
       nf->destroy();
-      delete(ap);
+      delete ap;
       return 0;
     }
   };

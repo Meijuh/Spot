@@ -453,7 +453,15 @@ namespace
 	    check_cout();
 	    return !quiet;
 	  }
-      return process_formula(f, filename, linenum);
+      try
+	{
+	  return process_formula(f, filename, linenum);
+	}
+      catch (const std::runtime_error& e)
+	{
+	  error_at_line(2, 0, filename, linenum, "%s", e.what());
+	  SPOT_UNREACHABLE();
+	}
     }
 
     int

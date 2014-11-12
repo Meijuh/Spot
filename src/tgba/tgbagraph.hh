@@ -450,6 +450,11 @@ namespace spot
     return std::make_shared<tgba_digraph>(dict);
   }
 
+  inline tgba_digraph_ptr make_tgba_digraph(const tgba_digraph_ptr& aut)
+  {
+    return std::make_shared<tgba_digraph>(aut);
+  }
+
   inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_digraph_ptr& aut)
   {
     return std::make_shared<tgba_digraph>(aut);

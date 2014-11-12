@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (C) 2013 Laboratoire de Recherche et Developement to
+# Copyright (C) 2013, 2014 Laboratoire de Recherche et Developement to
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -41,6 +41,7 @@ F(b W GFa)
 GFa | Gb
 b W GFa
 !{a;b*;c}!
+!{a:b*:c}
 a U Fb
 G(a & Xb)
 Xa
@@ -75,6 +76,7 @@ F(GFa | Gb)
 F(b W GFa)
 GFa | Gb
 b W GFa
+!{a:b[*]:c}
 a U Fb
 F(a & !Xa & Xb)
 a & (b | c)
@@ -87,6 +89,7 @@ F(b W GFa)
 GFa | Gb
 b W GFa
 !a | X(!b R !c)
+!{a:b[*]:c}
 Fb
 G(a & Xb)
 Xa
@@ -110,6 +113,7 @@ EOF
 
 checkopt --obligation <<EOF
 !({a;b[*];c}!)
+!{a:b[*]:c}
 a U Fb
 G(a & Xb)
 Xa
@@ -118,6 +122,7 @@ a & (b | c)
 EOF
 
 checkopt --guarantee <<EOF
+!{a:b[*]:c}
 a U Fb
 Xa
 F(a & !Xa & Xb)
@@ -126,6 +131,7 @@ EOF
 
 checkopt -v --ltl <<EOF
 !({a;b[*];c}!)
+!{a:b[*]:c}
 EOF
 
 checkopt -v --stutter-invariant <<EOF
@@ -159,3 +165,16 @@ EOF
 
 run 0 ../../bin/ltlfilt -u --nnf --relabel-bool=pnn in >out
 diff exp out
+
+SPOT_STUTTER_CHECK=0 \
+../../bin/ltlfilt --stutter-invariant -f '!{a:b*:c}' 2> stderr && exit 1
+test $? = 2
+grep 'non-LTL' stderr
+
+SPOT_STUTTER_CHECK=555 \
+../../bin/ltlfilt --stutter-invariant -f '!{a:b*:c}' 2> stderr && exit 1
+test $? = 2
+grep 'invalid' stderr
+
+SPOT_STUTTER_CHECK=5 \
+../../bin/ltlfilt --stutter-invariant -f '!{a:b*:c}'

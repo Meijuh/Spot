@@ -44,6 +44,13 @@ namespace spot
     const_tgba_ptr a_;
     bdd aps_;
   };
+
+  typedef std::shared_ptr<tgbasl> tgbasl_ptr;
+
+  inline tgbasl_ptr make_tgbasl(const const_tgba_ptr& aut, bdd ap)
+  {
+    return std::make_shared<tgbasl>(aut, ap);
+  }
 }
 
 #endif
