@@ -20,6 +20,10 @@ New in spot 1.2.5a (not yet released)
       version 8.0 of Org-mode.  (This was only a problem if you build
       from the git repository, or if you want to edit the
       documentation.)
+    - recent to changes to libstd++ (as shipped by g++ 4.9.2) have
+      demonstrated that the order of transitions output by the
+      LTL->TGBA translation used to be dependent on the implementation
+      of the STL.  This is now fixed.
 
 New in spot 1.2.5 (2014-08-21)
 
