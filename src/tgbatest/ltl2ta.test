@@ -169,12 +169,12 @@ in: Fa & b & GFc & Gd
 -TA -DS -RT          |     12 |    126 |      8
 -TA -DS -lv          |     29 |    315 |     17
 -TA -DS -lv -RT      |     13 |    140 |      8
--TA -DS -sp          |     28 |    306 |     16
--TA -DS -sp -RT      |     12 |    134 |      7
+-TA -DS -sp          |     28 |    309 |     16
+-TA -DS -sp -RT      |     12 |    137 |      7
 -TA -DS -lv -sp      |     29 |    315 |     17
 -TA -DS -lv -sp -RT  |     13 |    140 |      8
--x -TA -DS -in       |     29 |    240 |     13
--x -TA -DS -in -RT   |     12 |     93 |      7
+-x -TA -DS -in       |     29 |    254 |     13
+-x -TA -DS -in -RT   |     12 |     96 |      7
 in: Fa & a & GFc & Gc
 -TGTA                |      4 |      8 |    XXX
 -TGTA -RT            |      3 |      6 |    XXX
@@ -326,13 +326,13 @@ in: # Make sure '(G (p -> F q)) && ((X (p) U q) || ! X (p U (p && q)))'
 in: # has 21 states and 96 transitions before minimization, and
 in: # has 20 states and 89 transitions, after minimization.
 in: (G (p -> F q)) && ((X (p) U q) || ! X (p U (p && q)))
--TGTA                |     21 |    129 |    XXX
+-TGTA                |     21 |    127 |    XXX
 -TGTA -RT            |     17 |     93 |    XXX
 -TA                  |     20 |     92 |     12
 -TA -RT              |     15 |     57 |      9
 -TA -lv              |     21 |    104 |      6
 -TA -lv -RT          |     17 |     75 |      4
--TA -sp              |     20 |    102 |      5
+-TA -sp              |     20 |    100 |      5
 -TA -sp -RT          |     16 |     70 |      3
 -TA -lv -sp          |     21 |    104 |      6
 -TA -lv -sp -RT      |     17 |     75 |      4
@@ -340,8 +340,8 @@ in: (G (p -> F q)) && ((X (p) U q) || ! X (p U (p && q)))
 -TA -DS -RT          |     18 |     81 |     13
 -TA -DS -lv          |     21 |    104 |     11
 -TA -DS -lv -RT      |     20 |     99 |     11
--TA -DS -sp          |     20 |    102 |     10
--TA -DS -sp -RT      |     19 |     97 |     10
+-TA -DS -sp          |     20 |    100 |     10
+-TA -DS -sp -RT      |     19 |     95 |     10
 -TA -DS -lv -sp      |     21 |    104 |     11
 -TA -DS -lv -sp -RT  |     20 |     99 |     11
 -x -TA -DS -in       |     19 |     66 |      9
@@ -389,26 +389,26 @@ in: Gq|Gr|(G(q|FGp)&G(r|FG!p))
 -x -TA -DS -in       |     33 |    152 |     25
 -x -TA -DS -in -RT   |     21 |    112 |     17
 in: FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)
--TGTA                |     45 |    717 |    XXX
+-TGTA                |     45 |    730 |    XXX
 -TGTA -RT            |     35 |    598 |    XXX
 -TA                  |     44 |    602 |     16
 -TA -RT              |     33 |    482 |      9
 -TA -lv              |     45 |    676 |      9
 -TA -lv -RT          |     35 |    566 |      4
--TA -sp              |     44 |    654 |      8
+-TA -sp              |     44 |    667 |      8
 -TA -sp -RT          |     34 |    545 |      3
 -TA -lv -sp          |     45 |    676 |      9
 -TA -lv -sp -RT      |     35 |    566 |      4
 -TA -DS              |     54 |    722 |     26
--TA -DS -RT          |     38 |    534 |     17
+-TA -DS -RT          |     42 |    600 |     19
 -TA -DS -lv          |     55 |    800 |     19
--TA -DS -lv -RT      |     39 |    608 |     11
--TA -DS -sp          |     54 |    776 |     18
--TA -DS -sp -RT      |     38 |    586 |     10
+-TA -DS -lv -RT      |     44 |    694 |     13
+-TA -DS -sp          |     54 |    797 |     18
+-TA -DS -sp -RT      |     43 |    683 |     12
 -TA -DS -lv -sp      |     55 |    800 |     19
--TA -DS -lv -sp -RT  |     39 |    608 |     11
--x -TA -DS -in       |     55 |    696 |     11
--x -TA -DS -in -RT   |     42 |    603 |      8
+-TA -DS -lv -sp -RT  |     44 |    694 |     13
+-x -TA -DS -in       |     55 |    700 |     11
+-x -TA -DS -in -RT   |     39 |    566 |      8
 in: G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))
 -TGTA                |     69 |   1539 |    XXX
 -TGTA -RT            |     49 |    935 |    XXX
@@ -421,15 +421,15 @@ in: G(F(GWaitLeft7 U Idle4) U (WaitLeft2 M IsEating2))
 -TA -lv -sp          |     68 |   1443 |     16
 -TA -lv -sp -RT      |     56 |   1179 |     15
 -TA -DS              |    124 |   2964 |     44
--TA -DS -RT          |     96 |   2099 |     42
+-TA -DS -RT          |    100 |   2285 |     42
 -TA -DS -lv          |    125 |   3028 |     42
--TA -DS -lv -RT      |     97 |   2149 |     40
--TA -DS -sp          |    124 |   3008 |     41
--TA -DS -sp -RT      |     96 |   2129 |     39
+-TA -DS -lv -RT      |    101 |   2339 |     40
+-TA -DS -sp          |    124 |   3012 |     41
+-TA -DS -sp -RT      |    100 |   2324 |     39
 -TA -DS -lv -sp      |    125 |   3028 |     42
--TA -DS -lv -sp -RT  |     97 |   2149 |     40
+-TA -DS -lv -sp -RT  |    101 |   2339 |     40
 -x -TA -DS -in       |    125 |   1838 |     25
--x -TA -DS -in -RT   |     90 |   1368 |     25
+-x -TA -DS -in -RT   |     89 |   1344 |     25
 EOF
 
 sed -n 's/in: \(.*\)/\1/p' checkta.txt > input.txt

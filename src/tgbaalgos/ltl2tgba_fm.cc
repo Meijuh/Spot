@@ -34,6 +34,7 @@
 #include <cassert>
 #include <memory>
 #include <utility>
+#include <algorithm>
 #include "ltl2tgba_fm.hh"
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/sccinfo.hh"
@@ -2093,27 +2094,55 @@ namespace spot
 
   }
 
-  typedef std::map<bdd, bdd, bdd_less_than> prom_map;
-  typedef std::unordered_map<const formula*, prom_map> dest_map;
-
-  static void
-  fill_dests(translate_dict& d, dest_map& dests, bdd label, const formula* dest)
+  namespace
   {
-    bdd conds = bdd_existcomp(label, d.var_set);
-    bdd promises = bdd_existcomp(label, d.a_set);
+    struct transition
+    {
+      const formula* dest;
+      bdd prom;
+      bdd cond;
 
-    dest_map::iterator i = dests.find(dest);
-    if (i == dests.end())
+      transition(const formula* dest, bdd cond, bdd prom)
+	: dest(dest), prom(prom), cond(cond)
       {
-	dests[dest][promises] = conds;
       }
-    else
+
+      transition(const transition& other)
+	: dest(other.dest), prom(other.prom), cond(other.cond)
       {
-	i->second[promises] |= conds;
-	dest->destroy();
       }
+
+      bool operator<(const transition& other) const
+      {
+	ltl::formula_ptr_less_than lt;
+	if (lt(dest, other.dest))
+	  return true;
+	if (lt(other.dest, dest))
+	  return false;
+	if (prom.id() < other.prom.id())
+	  return true;
+	if (prom.id() > other.prom.id())
+	  return false;
+	return cond.id() < other.cond.id();
+      }
+    };
+
+    bool postponement_cmp(const transition& lhs, const transition& rhs)
+    {
+      if (lhs.prom.id() < rhs.prom.id())
+	return true;
+      if (lhs.prom.id() > rhs.prom.id())
+	return false;
+      if (lhs.cond.id() < rhs.cond.id())
+	return true;
+      if (lhs.cond.id() > rhs.cond.id())
+	return false;
+      ltl::formula_ptr_less_than lt;
+      return lt(lhs.dest, rhs.dest);
+    }
+
+    typedef std::vector<transition> dest_map;
   }
-
 
   tgba_digraph_ptr
   ltl_to_tgba_fm(const formula* f, const bdd_dict_ptr& dict,
@@ -2206,6 +2235,7 @@ namespace spot
     formulae_to_translate.insert(f2);
     a->set_init_state(namer->new_state(f2));
 
+    dest_map dests;
     while (!formulae_to_translate.empty())
       {
 	// Pick one formula.
@@ -2215,6 +2245,9 @@ namespace spot
 	// Translate it into a BDD to simplify it.
 	const translate_dict::translated& t = fc.translate(now);
 	bdd res = t.symbolic;
+
+	if (res == bddfalse)
+	  continue;
 
 	// Handle exclusive events.
 	if (unobs)
@@ -2253,7 +2286,7 @@ namespace spot
 	//
 	// In `exprop' mode, considering all possible combinations of
 	// outgoing propositions generalizes the above trick.
-	dest_map dests;
+	dests.clear();
 
 	// Compute all outgoing arcs.
 
@@ -2273,9 +2306,6 @@ namespace spot
 	    if (exprop)
 	      one_prop_set = bdd_satoneset(all_props, var_set, bddtrue);
 	    all_props -= one_prop_set;
-
-	    typedef std::map<bdd, const formula*, bdd_less_than> succ_map;
-	    succ_map succs;
 
 	    // Compute prime implicants.
 	    // The reason we use prime implicants and not bdd_satone()
@@ -2315,39 +2345,36 @@ namespace spot
 		if (symb_merge)
 		  dest = fc.canonize(dest);
 
-		// If we are not postponing the branching, we can
-		// declare the outgoing transitions immediately.
-		// Otherwise, we merge transitions with identical
-		// label, and declare the outgoing transitions in a
-		// second loop.
-		if (!branching_postponement)
-		  {
-		    fill_dests(d, dests, label, dest);
-		  }
-		else
-		  {
-		    succ_map::iterator si = succs.find(label);
-		    if (si == succs.end())
-		      succs[label] = dest;
-		    else
-		      si->second =
-			multop::instance(multop::Or, si->second, dest);
-		  }
+		bdd conds = bdd_existcomp(label, d.var_set);
+		bdd promises = bdd_existcomp(label, d.a_set);
+		dests.push_back(transition(dest, conds, promises));
 	      }
-	    if (branching_postponement)
-	      for (succ_map::const_iterator si = succs.begin();
-		   si != succs.end(); ++si)
-		fill_dests(d, dests, si->first, si->second);
 	  }
 
-	// Check for an arc going to 1 (True).  Register it first, that
-	// way it will be explored before others during model checking.
-	auto truef = constant::true_instance();
-	dest_map::const_iterator i = dests.find(truef);
-	// COND_FOR_TRUE is the conditions of the True arc, so we
-	// can remove them from all other arcs.  It might sounds that
-	// this is not needed when exprop is used, but in fact it is
-	// complementary.
+	assert(dests.size() > 0);
+	if (branching_postponement && dests.size() > 1)
+	  {
+	    std::sort(dests.begin(), dests.end(), postponement_cmp);
+	    // Iterate over all dests, and merge the destination of
+	    // transitions with identical labels.
+	    dest_map::iterator out = dests.begin();
+	    dest_map::const_iterator in = out;
+	    do
+	      {
+		transition t = *in;
+		while (++in != dests.end()
+		       && t.cond == in->cond && t.prom == in->prom)
+		  t.dest = multop::instance(multop::Or, t.dest, in->dest);
+		*out++ = t;
+	      }
+	    while (in != dests.end());
+	    dests.erase(out, dests.end());
+	  }
+	std::sort(dests.begin(), dests.end());
+	// If we have some transitions to true, they are the first
+	// ones.  Remove the sum of their conditions from other
+	// transitions.  It might sounds that this is not needed when
+	// exprop is used, but in fact it is complementary.
 	//
 	// Consider
 	//   f = r(X(1) R p) = p.(1 + r(X(1) R p))
@@ -2360,61 +2387,60 @@ namespace spot
 	//     f ----> 1
 	//
 	// because there is no point in looping on f if we can go to 1.
-	bdd cond_for_true = bddfalse;
-	if (i != dests.end())
+	if (dests.front().dest == constant::true_instance())
 	  {
-	    // When translating LTL for an event-based logic with
-	    // unobservable events, the 1 state should accept all events,
-	    // even unobservable events.
-	    if (unobs && now == truef)
-	      cond_for_true = all_events;
-	    else
-	      {
-		// There should be only one transition going to 1 (true) ...
-		assert(i->second.size() == 1);
-		prom_map::const_iterator j = i->second.begin();
-		// ... and it is not expected to make any promises (unless
-		// fair loop approximations are used).
-		assert(fair_loop_approx || j->first == bddtrue);
-		cond_for_true = j->second;
-	      }
-	    if (!namer->has_state(truef))
-	      {
-		formulae_to_translate.insert(truef);
-		namer->new_state(truef);
-	      }
-	    namer->new_transition(now, truef, cond_for_true, 0U);
+	    dest_map::iterator i = dests.begin();
+	    bdd c = bddfalse;
+	    while (i != dests.end() && i->dest == constant::true_instance())
+	      c |= i++->cond;
+	    for (; i != dests.end(); ++i)
+	      i->cond -= c;
 	  }
-	// Register other transitions.
-	for (i = dests.begin(); i != dests.end(); ++i)
-	  {
-	    const formula* dest = i->first;
-	    if (dest == truef)
-	      continue;
 
-	    // The cond_for_true optimization can cause some
-	    // transitions to be removed.  So we have to remember
-	    // whether a formula is actually reachable.
-	    bool reachable = false;
-	    // Will this be a new state?
-	    bool seen = namer->has_state(dest);
+	// Create transitions in the automaton
+	{
+	  dest_map::const_iterator in = dests.begin();
+	  do
+	    {
+	      // Merge transitions with same destination and
+	      // acceptance.
+	      transition t = *in;
+	      while (++in != dests.end()
+		     && t.prom == in->prom && t.dest == in->dest)
+		{
+		  t.cond |= in->cond;
+		  in->dest->destroy();
+		}
+	      // Actually create the transition
+	      if (t.cond != bddfalse)
+		{
+		  // When translating LTL for an event-based logic
+		  // with unobservable events, the 1 state should
+		  // accept all events, even unobservable events.
+		  if (unobs
+		      && t.dest == constant::true_instance()
+		      && now == constant::true_instance())
+		    t.cond = all_events;
 
-	    for (auto& j: i->second)
-	      {
-		bdd cond = j.second - cond_for_true;
-		if (cond == bddfalse) // Skip false transitions.
-		  continue;
-		if (!reachable && !seen)
-		  namer->new_state(dest);
-		reachable = true;
-		namer->new_transition(now, dest, cond, d.bdd_to_mark(j.first));
-	      }
+		  // Will this be a new state?
+		  bool seen = namer->has_state(t.dest);
 
-	    if (reachable && !seen)
-	      formulae_to_translate.insert(dest);
-	    else
-	      dest->destroy();
-	  }
+		  if (!seen)
+		    {
+		      formulae_to_translate.insert(t.dest);
+		      namer->new_state(t.dest);
+		    }
+
+		  namer->new_transition(now, t.dest, t.cond,
+					d.bdd_to_mark(t.prom));
+		  if (seen)
+		    t.dest->destroy();
+		}
+	      else
+		t.dest->destroy();
+	    }
+	  while (in != dests.end());
+	}
       }
 
     for (auto n: namer->names())
