@@ -15,6 +15,10 @@ New in spot 1.99a (not yet released)
       size of any bogus formula it discovers, while still exhibiting
       the bug.
 
+    - "ltlfilt --stutter-invariant" will now work with PSL formula.
+      The implementation is actually much more efficient
+      than the previous implementation that was only for LTL.
+
     - Spot is now compiling in C++11 mode.  The set of features we use
       requires GCC >= 4.6 or Clang >= 3.1.  These minimum versions
       are old enough that it should not be an issue to most people.
