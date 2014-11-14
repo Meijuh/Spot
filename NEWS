@@ -161,6 +161,11 @@ New in spot 1.2.5a (not yet released)
       demonstrated that the order of transitions output by the
       LTL->TGBA translation used to be dependent on the implementation
       of the STL.  This is now fixed.
+    - some developpement version of libstd++ had a bug (PR 63698) in
+      the assignment of std::set, and that was triggered in two places
+      in Spot.  The workaround (not assigning sets) is actually more
+      efficient, so we can consider it as a bug fix, even though
+      libstd++ has also been fixed.
 
 New in spot 1.2.5 (2014-08-21)
 
