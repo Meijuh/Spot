@@ -24,7 +24,8 @@
 
 namespace spot
 {
-  // TODO doc
+  /// \ingroup ltl_misc
+  /// \brief Check if a formula has the stutter invariance property.
   SPOT_API bool
   is_stutter_invariant(const ltl::formula* f);
 
