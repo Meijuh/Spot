@@ -120,3 +120,11 @@ input:4.20: ignoring trailing garbage
 EOF
 
 diff stderrfilt expected
+
+# The diagnostic should be the same with DOS input
+sed 's/$/\r/' input > input.dos
+mv input.dos input
+run 2 ../ltl2tgba -b -X input > stdout 2>stderr
+cat stderr
+grep input: stderr > stderrfilt
+diff stderrfilt expected

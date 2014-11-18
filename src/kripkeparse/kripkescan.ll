@@ -1,4 +1,4 @@
-/* Copyright (C) 2011 Laboratoire de Recherche et Developpement
+/* Copyright (C) 2011, 2014 Laboratoire de Recherche et Developpement
 * de l'Epita (LRDE)
 *
 * This file is part of Spot, a model checking library.
@@ -36,7 +36,8 @@
 
 %}
 
-eol      \n|\r|\n\r|\r\n
+eol      \n+|\r+
+eol2     (\n\r)+|(\r\n)+
 
 %%
 
@@ -51,6 +52,7 @@ eol      \n|\r|\n\r|\r\n
 
 			/* discard whitespace */
 {eol}			yylloc->lines(yyleng); yylloc->step();
+{eol2}			yylloc->lines(yyleng / 2); yylloc->step();
 [ \t]+			yylloc->step();
 
 \"			{

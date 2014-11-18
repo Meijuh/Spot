@@ -1,5 +1,6 @@
-/* Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
-** Développement de l'Epita (LRDE).
+/* -*- coding: utf-8 -*-
+** Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et
+** DÃ©veloppement de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -38,7 +39,8 @@ static bool missing_parent = false;
 
 %x in_par
 
-eol      \n|\r|\n\r|\r\n
+eol      \n+|\r+
+eol2     (\n\r)+|(\r\n)+
 
 %%
 
@@ -48,6 +50,7 @@ eol      \n|\r|\n\r|\r\n
 
                         /* skip blanks */
 {eol}			yylloc->lines(yyleng); yylloc->step();
+{eol2}			yylloc->lines(yyleng / 2); yylloc->step();
 [ \t]+			yylloc->step();
 "/*".*"*/"		yylloc->step();
 

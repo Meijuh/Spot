@@ -1,6 +1,6 @@
 #! /bin/sh
-
-# Copyright (C) 2011 Laboratoire de Recherche et Developpement
+# -*- coding: utf-8 -*-
+# Copyright (C) 2011, 2014 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE)
 #
 # This file is part of Spot, a model checking library.
@@ -67,6 +67,14 @@ run 1 ../parse_print input 2> output
 cat output | grep -v + > res
 diff expected res
 
+# The diagnostic should be the same with DOS return lines
+sed 's/$/\r/' input > input.dos
+mv input.dos input
+run 1 ../parse_print input 2> output
+cat output | grep -v + > res
+diff expected res
+
+
 rm -f output res expected
 
 cat >input <<\EOF
@@ -86,4 +94,3 @@ cat output | grep -v + > res
 diff expected res
 
 rm -f output res expected
-

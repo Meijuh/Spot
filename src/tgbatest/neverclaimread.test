@@ -287,6 +287,14 @@ EOF
 grep input: stderr > stderrfilt
 diff stderrfilt expected-err
 
+# DOS-style new lines should have the same output.
+sed 's/$/\r/g' input > input.dos
+mv input.dos input
+run 2 ../ltl2tgba -ks -XN input > stdout 2>stderr
+cat stderr
+grep input: stderr > stderrfilt
+diff stderrfilt expected-err
+
 cat >formulae<<EOF
 a
 FG a
