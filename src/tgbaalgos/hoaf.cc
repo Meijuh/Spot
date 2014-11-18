@@ -107,7 +107,8 @@ namespace spot
 	  {
 	    auto src = todo.front();
 	    todo.pop_front();
-	    acc_cond::mark_t prev = -1U;
+	    bool notfirst = false;
+	    acc_cond::mark_t prev = 0U;
 	    bool st_acc = true;
 	    bdd sum = bddfalse;
 	    bdd available = bddtrue;
@@ -137,10 +138,15 @@ namespace spot
 		if (st_acc)
 		  {
 		    acc_cond::mark_t acc = i->current_acceptance_conditions();
-		    if (prev != -1U && prev != acc)
-		      st_acc = false;
+		    if (notfirst && prev != acc)
+		      {
+			st_acc = false;
+		      }
 		    else
-		      prev = acc;
+		      {
+			notfirst = true;
+			prev = acc;
+		      }
 		  }
 	      }
 	    if (is_complete)
