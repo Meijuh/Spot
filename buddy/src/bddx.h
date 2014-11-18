@@ -573,6 +573,7 @@ protected:
    friend bdd      bdd_makesetpp(int *, int);
    friend int      bdd_setbddpair(bddPair*, int, const bdd &);
    friend int      bdd_setbddpairs(bddPair*, int*, const bdd *, int);
+   friend bdd      bdd_from_int(int i);
    friend bdd      bdd_buildcube(int, int, const bdd *);
    friend bdd      bdd_ibuildcubepp(int, int, int *);
    friend bdd      bdd_not(const bdd &);
@@ -714,6 +715,9 @@ inline bdd bdd_makesetpp(int *v, int n)
 
 inline int bdd_setbddpair(bddPair *p, int ov, const bdd &nv)
 { return bdd_setbddpair(p,ov,nv.root); }
+
+inline bdd bdd_from_int(int i)
+{ return i; }
 
    /* In bddop.c */
 

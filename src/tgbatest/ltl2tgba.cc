@@ -43,6 +43,7 @@
 #include "tgbaparse/public.hh"
 #include "neverparse/public.hh"
 #include "dstarparse/public.hh"
+#include "hoaparse/public.hh"
 #include "tgbaalgos/dupexp.hh"
 #include "tgbaalgos/minimize.hh"
 #include "taalgos/minimize.hh"
@@ -128,6 +129,8 @@ syntax(char* prog)
 	    << "TGBA" << std::endl
 	    << "  -XDD  read the from an ltl2dstar file and convert it to "
 	    << "TGBA,\n       keeping it deterministic when possible\n"
+	    << "  -XH   do not compute an automaton, read it from a"
+	    << " HOA file\n"
 	    << "  -XL   do not compute an automaton, read it from an"
 	    << " LBTT file" << std::endl
 	    << "  -XN   do not compute an automaton, read it from a"
@@ -355,7 +358,8 @@ checked_main(int argc, char** argv)
   bool accepting_run = false;
   bool accepting_run_replay = false;
   bool from_file = false;
-  enum { ReadSpot, ReadLbtt, ReadNeverclaim, ReadDstar } readformat = ReadSpot;
+  enum { ReadSpot, ReadLbtt, ReadNeverclaim, ReadDstar, ReadHoa } readformat
+								    = ReadSpot;
   bool nra2nba = false;
   bool dra2dba = false;
   bool scc_filter = false;
@@ -923,6 +927,11 @@ checked_main(int argc, char** argv)
 	  nra2nba = true;
 	  dra2dba = true;
 	}
+      else if (!strcmp(argv[formula_index], "-XH"))
+	{
+	  from_file = true;
+	  readformat = ReadHoa;
+	}
       else if (!strcmp(argv[formula_index], "-XL"))
 	{
 	  from_file = true;
@@ -1095,6 +1104,18 @@ checked_main(int argc, char** argv)
 		    assume_sba = false;
 		  }
 		tm.stop("dstar2tgba");
+	      }
+	      break;
+	    case ReadHoa:
+	      {
+		spot::dstar_parse_error_list pel;
+		tm.start("parsing hoa");
+		auto daut = spot::hoa_parse(input, pel, dict, env, debug_opt);
+		tm.stop("parsing hoa");
+		if (spot::format_hoa_parse_errors(std::cerr, input, pel))
+		  return 2;
+		a = daut->aut;
+		assume_sba = false;
 	      }
 	      break;
 	    }

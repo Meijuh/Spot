@@ -27,14 +27,15 @@ AUTOMAKE_OPTIONS = subdir-objects
 # libspot.la needed by the tests)
 SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse graph tgba		\
           tgbaalgos tgbaparse ta taalgos kripke neverparse		\
-          kripkeparse dstarparse . bin ltltest graphtest tgbatest	\
-          kripketest sanity
+          kripkeparse dstarparse hoaparse . bin ltltest graphtest	\
+          tgbatest kripketest sanity
 
 lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =
 libspot_la_LDFLAGS = $(BUDDY_LDFLAGS) -no-undefined
 libspot_la_LIBADD =  \
   dstarparse/libdstarparse.la \
+  hoaparse/libhoaparse.la \
   kripke/libkripke.la \
   kripkeparse/libkripkeparse.la \
   ltlast/libltlast.la \

@@ -180,6 +180,7 @@ AC_CONFIG_FILES([
   src/graph/Makefile
   src/graphtest/Makefile
   src/graphtest/defs
+  src/hoaparse/Makefile
   src/ltlast/Makefile
   src/ltlenv/Makefile
   src/ltlparse/Makefile

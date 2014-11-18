@@ -142,6 +142,7 @@ src/              Sources for libspot.
    dstarparse/    Parser for the output of ltl2dstar.
    graph/         Graph representations.
    graphtest/     Graph representations.
+   hoaparse/      Parser for the HOA format.
    kripke/        Kripke Structure interface.
    kripkeparse/   Parser for explicit Kripke.
    kripketest/    Tests for kripke explicit.

@@ -84,6 +84,7 @@ TESTS = \
   nondet.test \
   det.test \
   neverclaimread.test \
+  hoaparse.test \
   dstar.test \
   readsave.test \
   maskacc.test \
