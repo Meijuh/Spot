@@ -1,4 +1,4 @@
-/* Copyright (C) 2013 Laboratoire de Recherche et Développement
+/* Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
 ** de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
@@ -31,7 +31,8 @@
 typedef dstaryy::parser::token token;
 %}
 
-eol      \n|\r|\n\r|\r\n
+eol      \n+|\r+
+eol2     (\n\r)+|(\r\n)+
 %x in_COMMENT in_STRING
 
 %%
@@ -42,6 +43,7 @@ eol      \n|\r|\n\r|\r\n
 %}
 
 {eol}			yylloc->lines(yyleng); return token::EOL;
+{eol2}			yylloc->lines(yyleng / 2); return token::EOL;
 
                         /* skip blanks and comments */
 [ \t]+			yylloc->step();

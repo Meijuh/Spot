@@ -29,6 +29,8 @@ New in spot 1.2.5a (not yet released)
       in Spot.  The workaround (not assigning sets) is actually more
       efficient, so we can consider it as a bug fix, even though
       libstd++ has also been fixed.
+    - all parsers would report wrong line numbers while processing
+      files with DOS style newlines.
 
 New in spot 1.2.5 (2014-08-21)
 
