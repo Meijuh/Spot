@@ -30,7 +30,6 @@
 #include "common_cout.hh"
 #include "common_post.hh"
 
-#include "ltlast/formula.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/hoaf.hh"
