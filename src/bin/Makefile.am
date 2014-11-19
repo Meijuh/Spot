@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -42,14 +42,15 @@ libcommon_a_SOURCES =				\
   common_setup.hh				\
   common_sys.hh
 
-bin_PROGRAMS = ltlfilt genltl randltl ltl2tgba ltl2tgta ltlcross \
-	dstar2tgba ltlgrind
+bin_PROGRAMS = autfilt ltlfilt genltl randltl ltl2tgba ltl2tgta	\
+	ltlcross dstar2tgba ltlgrind
 
 # Dummy program used just to generate man/spot-x.7 in a way that is
 # consistent with the other man pages (e.g., with a version number that
 # is automatically updated).
 noinst_PROGRAMS = spot-x
 
+autfilt_SOURCES = autfilt.cc
 ltlfilt_SOURCES = ltlfilt.cc
 genltl_SOURCES = genltl.cc
 randltl_SOURCES = randltl.cc

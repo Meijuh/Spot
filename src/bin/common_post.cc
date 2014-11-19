@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -49,6 +49,24 @@ static const argp_option options[] =
     { 0, 0, 0, 0, 0, 0 }
   };
 
+static const argp_option options_disabled[] =
+  {
+    /**************************************************/
+    { 0, 0, 0, 0, "Translation intent:", 20 },
+    { "small", OPT_SMALL, 0, 0, "prefer small automata", 0 },
+    { "deterministic", 'D', 0, 0, "prefer deterministic automata", 0 },
+    { "any", 'a', 0, 0, "no preference (default)", 0 },
+    { "complete", 'C', 0, 0, "output a complete automaton (combine "
+      "with other intents)", 0 },
+    /**************************************************/
+    { 0, 0, 0, 0, "Optimization level:", 21 },
+    { "low", OPT_LOW, 0, 0, "minimal optimizations (fast, default)", 0 },
+    { "medium", OPT_MEDIUM, 0, 0, "moderate optimizations", 0 },
+    { "high", OPT_HIGH, 0, 0,
+      "all available optimizations (slow)", 0 },
+    { 0, 0, 0, 0, 0, 0 }
+  };
+
 static int
 parse_opt_post(int key, char*, struct argp_state*)
 {
@@ -85,5 +103,7 @@ parse_opt_post(int key, char*, struct argp_state*)
   return 0;
 }
 
-const struct argp post_argp = { options, parse_opt_post, 0, 0, 0, 0, 0 };
-
+const struct argp post_argp =
+  { options, parse_opt_post, 0, 0, 0, 0, 0 };
+const struct argp post_argp_disabled =
+  { options_disabled, parse_opt_post, 0, 0, 0, 0, 0 };

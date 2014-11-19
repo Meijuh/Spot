@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+## Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement
 ## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -23,6 +23,7 @@ convman = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
           "$(PERL)" "$(top_srcdir)/tools/help2man -N -L 'en_US.UTF-8'"
 
 dist_man1_MANS = \
+  autfilt.1 \
   dstar2tgba.1 \
   genltl.1 \
   ltl2tgba.1 \
@@ -36,6 +37,9 @@ dist_man7_MANS = \
 
 MAINTAINERCLEANFILES = $(dist_man1_MANS) $(dist_man7_MANS)
 EXTRA_DIST = $(dist_man1_MANS:.1=.x) $(dist_man7_MANS:.7=.x)
+
+autfilt.1: $(common_dep) $(srcdir)/autfilt.x $(srcdir)/../autfilt.cc
+	$(convman) ../autfilt$(EXEEXT) $(srcdir)/autfilt.x $@
 
 dstar2tgba.1: $(common_dep) $(srcdir)/dstar2tgba.x $(srcdir)/../dstar2tgba.cc
 	$(convman) ../dstar2tgba$(EXEEXT) $(srcdir)/dstar2tgba.x $@
