@@ -38,6 +38,7 @@
 #include "common_finput.hh"
 #include "neverparse/public.hh"
 #include "dstarparse/public.hh"
+#include "hoaparse/public.hh"
 #include "ltlast/unop.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/apcollect.hh"
@@ -709,7 +710,7 @@ namespace
     public spot::printable_value<spot::temporary_file*>
   {
     unsigned translator_num;
-    enum output_format { None, Spin, Lbtt, Dstar };
+    enum output_format { None, Spin, Lbtt, Dstar, Hoa };
     mutable output_format format;
 
     printable_result_filename()
@@ -744,6 +745,8 @@ namespace
 	format = Lbtt;
       else if (*pos == 'D')
 	format = Dstar;
+      else if (*pos == 'H')
+	format = Hoa;
       else
 	SPOT_UNREACHABLE();
 
@@ -752,7 +755,8 @@ namespace
 	  // It's OK to use a specified multiple time, but it's not OK
 	  // to mix the formats.
 	  if (format != old_format)
-	    error(2, 0, "you may not mix %%D, %%N, and %%T specifiers: %s",
+	    error(2, 0,
+		  "you may not mix %%D, %%H, %%N, and %%T specifiers: %s",
 		  translators[translator_num].spec);
 	}
       else
@@ -796,6 +800,7 @@ namespace
       declare('L', &filename_ltl_lbt);
       declare('W', &filename_ltl_wring);
       declare('D', &output);
+      declare('H', &output);
       declare('N', &output);
       declare('T', &output);
 
@@ -814,9 +819,9 @@ namespace
 		  "one of %%f,%%s,%%l,%%w,%%F,%%S,%%L,%%W to indicate how "
 		  "to pass the formula.", t.spec);
 	  bool has_d = has['D'];
-	  if (!(has_d || has['N'] || has['T']))
+	  if (!(has_d || has['N'] || has['T'] || has['H']))
 	    error(2, 0, "no output %%-sequence in '%s'.\n      Use one of "
-		  "%%D,%%N,%%T to indicate where the automaton is saved.",
+		  "%%D,%%H,%%N,%%T to indicate where the automaton is saved.",
 		  t.spec);
 	  has_sr |= has_d;
 
@@ -1031,6 +1036,28 @@ namespace
 		    if (verbose)
 		      std::cerr << "info: converting " << type << " to TGBA\n";
 		    res = dstar_to_tgba(aut);
+		  }
+		break;
+	      }
+	    case printable_result_filename::Hoa:
+	      {
+		spot::hoa_parse_error_list pel;
+		std::string filename = output.val()->name();
+		auto aut = spot::hoa_parse(filename, pel, dict);
+		if (!pel.empty())
+		  {
+		    status_str = "parse error";
+		    problem = true;
+		    es = -1;
+		    std::ostream& err = global_error();
+		    err << "error: failed to parse the produced HOA file.\n";
+		    spot::format_hoa_parse_errors(err, filename, pel);
+		    end_error();
+		    res = nullptr;
+		  }
+		else
+		  {
+		    res = aut->aut;
 		  }
 		break;
 	      }
