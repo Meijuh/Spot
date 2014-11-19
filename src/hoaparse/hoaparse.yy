@@ -95,6 +95,7 @@
 %token <str> ANAME "alias name";
 %token <str> STRING "string";
 %token <num> INT "integer";
+%token ENDOFFILE 0 "end of file"
 
 %left '|'
 %left '&'
@@ -114,7 +115,8 @@
 %printer { debug_stream() << $$; } <num>
 
 %%
-hoa: header "--BODY--" body "--END--"
+hoa: header "--BODY--" body "--END--" { YYACCEPT; }
+hoa: ENDOFFILE { YYABORT; }
 
 string_opt: | STRING
 BOOLEAN: 't' | 'f'
@@ -464,19 +466,23 @@ hoayy::parser::error(const location_type& location,
 
 namespace spot
 {
-  hoa_aut_ptr
-  hoa_parse(const std::string& name,
-	      hoa_parse_error_list& error_list,
-	      const bdd_dict_ptr& dict,
-	      ltl::environment& env,
-	      bool debug)
+  hoa_stream_parser::hoa_stream_parser(const std::string& name)
   {
     if (hoayyopen(name))
-      {
-	error_list.emplace_back(spot::location(),
-				std::string("Cannot open file ") + name);
-	return 0;
-      }
+      throw std::runtime_error(std::string("Cannot open file ") + name);
+  }
+
+  hoa_stream_parser::~hoa_stream_parser()
+  {
+    hoayyclose();
+  }
+
+  hoa_aut_ptr
+  hoa_stream_parser::parse(hoa_parse_error_list& error_list,
+			   const bdd_dict_ptr& dict,
+			   ltl::environment& env,
+			   bool debug)
+  {
     result_ r;
     r.h = std::make_shared<spot::hoa_aut>();
     r.h->aut = make_tgba_digraph(dict);
@@ -485,10 +491,8 @@ namespace spot
     parser.set_debug_level(debug);
     if (parser.parse())
       r.h->aut = nullptr;
-    hoayyclose();
     if (!r.h->aut)
       return nullptr;
-
     if (r.start != -1)
       r.h->aut->set_init_state(r.start);
     else
@@ -498,7 +502,7 @@ namespace spot
 	r.h->aut->set_init_state(r.h->aut->new_state());
       }
     return r.h;
-  }
+  };
 }
 
 // Local Variables:

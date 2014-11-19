@@ -292,17 +292,10 @@ namespace
       SPOT_UNREACHABLE();
     }
 
-
     int
-    process_file(const char* filename)
+    process_automaton(const spot::const_hoa_aut_ptr& haut,
+		      const char* filename)
     {
-      spot::hoa_parse_error_list pel;
-      auto haut = spot::hoa_parse(filename, pel, spot::make_bdd_dict());
-      if (spot::format_hoa_parse_errors(std::cerr, filename, pel))
-	return 2;
-      if (!haut)
-	error(2, 0, "failed to read automaton from %s", filename);
-
       spot::stopwatch sw;
       sw.start();
       auto aut = post.run(haut->aut, nullptr);
@@ -336,6 +329,32 @@ namespace
 	}
       flush_cout();
       return 0;
+    }
+
+
+    int
+    process_file(const char* filename)
+    {
+      spot::hoa_parse_error_list pel;
+      auto b = spot::make_bdd_dict();
+      auto hp = spot::hoa_stream_parser(filename);
+
+      int err = 0;
+
+      for (;;)
+	{
+	  auto haut = hp.parse(pel, b);
+	  if (!haut && pel.empty())
+	    break;
+	  if (spot::format_hoa_parse_errors(std::cerr, filename, pel))
+	    err = 2;
+	  if (!haut)
+	    error(0, 0, "failed to read automaton from %s", filename);
+	  else
+	    process_automaton(haut, filename);
+	}
+
+      return err;
     }
   };
 }

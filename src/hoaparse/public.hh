@@ -51,7 +51,19 @@ namespace spot
   typedef std::shared_ptr<hoa_aut> hoa_aut_ptr;
   typedef std::shared_ptr<const hoa_aut> const_hoa_aut_ptr;
 
-  /// \brief Build a spot::tgba_digraph from ltl2hoa's output.
+  class SPOT_API hoa_stream_parser
+  {
+  public:
+    hoa_stream_parser(const std::string& filename);
+    ~hoa_stream_parser();
+    hoa_aut_ptr parse(hoa_parse_error_list& error_list,
+		      const bdd_dict_ptr& dict,
+		      ltl::environment& env =
+		      ltl::default_environment::instance(),
+		      bool debug = false);
+  };
+
+  /// \brief Build a spot::tgba_digraph from a HOA file.
   /// \param filename The name of the file to parse.
   /// \param error_list A list that will be filled with
   ///        parse errors that occured during parsing.
@@ -63,17 +75,29 @@ namespace spot
   ///        0 if the file could not be opened.
   ///
   /// Note that the parser usually tries to recover from errors.  It can
-  /// return an non zero value even if it encountered error during the
+  /// return a non zero value even if it encountered error during the
   /// parsing of \a filename.  If you want to make sure \a filename
   /// was parsed succesfully, check \a error_list for emptiness.
   ///
   /// \warning This function is not reentrant.
-  SPOT_API hoa_aut_ptr
+  inline hoa_aut_ptr
   hoa_parse(const std::string& filename,
 	    hoa_parse_error_list& error_list,
 	    const bdd_dict_ptr& dict,
 	    ltl::environment& env = ltl::default_environment::instance(),
-	    bool debug = false);
+	    bool debug = false)
+  {
+    try
+      {
+	hoa_stream_parser p(filename);
+	return p.parse(error_list, dict, env, debug);
+      }
+    catch (std::runtime_error& e)
+      {
+	error_list.emplace_back(spot::location(), e.what());
+	return nullptr;
+      }
+  }
 
   /// \brief Format diagnostics produced by spot::hoa_parse.
   /// \param os Where diagnostics should be output.
