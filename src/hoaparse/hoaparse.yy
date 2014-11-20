@@ -45,6 +45,8 @@
     spot::hoa_aut_ptr h;
     spot::ltl::environment* env;
     std::vector<int> ap;
+    std::vector<bdd> guards;
+    std::vector<bdd>::const_iterator cur_guard;
     spot::location states_loc;
     spot::location ap_loc;
     spot::location state_label_loc;
@@ -59,7 +61,6 @@
     bdd state_label;
     bdd cur_label;
     bool has_state_label = false;
-    bool has_trans_label = false;
     bool ignore_more_ap = false; // Set to true after the first "AP:"
 				 // line has been read.
     bool ignore_acc = false; // Set to true in case of missing
@@ -92,6 +93,8 @@
    We must ensure that YYSTYPE is declared (by the above %union)
    before parsedecl.hh uses it. */
 #include "parsedecl.hh"
+
+  static void fill_guards(result_& res);
 }
 
 %token HOA "HOA:"
@@ -446,7 +449,16 @@ state-num: INT
 	   }
 
 states: | states state
-state: state-name edges
+state: state-name labeled-edges
+     | state-name unlabeled-edges
+       {
+	 if (!res.has_state_label)
+	   {
+	     if (res.cur_guard != res.guards.end())
+	       error(@$, "not enough transitions for this state");
+	     res.cur_guard = res.guards.begin();
+	   }
+       }
 state-name: "State:" state-label_opt state-num string_opt acc-sig_opt
 	  {
 	    res.cur_state = $3;
@@ -461,19 +473,14 @@ state-label_opt:       { res.has_state_label = false; }
                | label { res.has_state_label = true;
                          res.state_label_loc = @1;
 		         res.state_label = res.cur_label; }
-trans-label_opt:       { res.has_trans_label = false; }
-               | label
+trans-label: label
 	         {
 		   if (res.has_state_label)
 		     {
 		       error(@1, "cannot label this transition because...");
 		       error(res.state_label_loc,
 			     "... the state is already labeled.");
-		       res.has_trans_label = false;
-		     }
-		   else
-		     {
-		       res.has_trans_label = true;
+		       res.cur_label = res.state_label;
 		     }
 		 }
 
@@ -503,26 +510,71 @@ acc-sets:
 	    else
 	      $$ = $1 | res.h->aut->acc().mark($2);
 	  }
-edges: | edges edge
-edge: trans-label_opt state-num acc-sig_opt
-      {
-	bdd cond = bddfalse;
-	if (res.has_state_label)
-	  cond = res.state_label;
-	else if (res.has_trans_label)
-	  cond = res.cur_label;
-	else
-	  error(@$, "unlabeled transitions are not yet supported");
-	res.h->aut->new_transition(res.cur_state, $2, cond,
-				   $3 | res.acc_state);
-      }
-    | trans-label_opt state-conj-2 acc-sig_opt
-      {
-	error(@2, "alternation is not yet supported");
-	YYABORT;
-      }
+labeled-edges: | labeled-edges labeled-edge
+labeled-edge: trans-label state-num acc-sig_opt
+	      {
+		res.h->aut->new_transition(res.cur_state, $2,
+					   res.cur_label, $3 | res.acc_state);
+	      }
+	    | trans-label state-conj-2 acc-sig_opt
+	      {
+		error(@2, "alternation is not yet supported");
+		YYABORT;
+	      }
+
+/* We never have zero unlabeled edges, these are considered as zero
+   labeled edges. */
+unlabeled-edges: unlabeled-edge | unlabeled-edges unlabeled-edge
+unlabeled-edge: state-num acc-sig_opt
+		{
+		  bdd cond;
+		  if (res.has_state_label)
+		    {
+		      cond = res.state_label;
+		    }
+		  else
+		    {
+		      if (res.guards.empty())
+			fill_guards(res);
+		      if (res.cur_guard == res.guards.end())
+			{
+			  error(@$, "too many transition for this state, "
+				"ignoring this one");
+			  cond = bddfalse;
+			}
+		      else
+			{
+			  cond = *res.cur_guard++;
+			}
+		    }
+		  res.h->aut->new_transition(res.cur_state, $1,
+					     cond, $2 | res.acc_state);
+		}
+	      | state-conj-2 acc-sig_opt
+		{
+		  error(@1, "alternation is not yet supported");
+		  YYABORT;
+		}
 
 %%
+
+static void fill_guards(result_& r)
+{
+  spot::bdd_dict_ptr d = r.h->aut->get_dict();
+  unsigned nap = r.ap.size();
+
+  int* vars = new int[nap];
+  for (unsigned i = 0; i < nap; ++i)
+    vars[i] = r.ap[nap - 1 - i];
+
+  // build the 2^nap possible guards
+  r.guards.reserve(1U << nap);
+  for (size_t i = 0; i < (1U << nap); ++i)
+    r.guards.push_back(bdd_ibuildcube(i, nap, vars));
+  r.cur_guard = r.guards.begin();
+
+  delete[] vars;
+}
 
 void
 hoayy::parser::error(const location_type& location,

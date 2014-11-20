@@ -32,6 +32,15 @@ expecterr()
    diff $1.err $1.exp
 }
 
+expectok()
+{
+   cat >$1.exp
+   ../../bin/autfilt --hoa $1 >$1.out
+   test $? = 0
+   cat $1.out
+   diff $1.out $1.exp
+}
+
 
 cat >input <<EOF
 HOA: v1
@@ -175,6 +184,7 @@ input:9.11: number is larger than the count of acceptance sets...
 input:5.1-13: ... declared here.
 EOF
 
+# Let's have two broken automata in a row...
 cat >input <<EOF
 HOA: v1
 Start: 0
@@ -197,4 +207,100 @@ input:5.19: number is larger than the count of acceptance sets...
 input:5.1-13: ... declared here.
 input:12.1-7: unsupported version of the HOA format
 input:12.1-7: missing 'Acceptance:' header
+EOF
+
+cat >input<<EOF
+    HOA: v1
+    States: 3
+    Start: 0
+    acc-name: generalized-Buchi 2
+    Acceptance: 2 (Inf(0) & Inf(1))
+    AP: 2 "a" "b"
+    --BODY--
+    State: 0 "foo" { 0 }
+      2  /* !a  & !b */
+      0  /*  a  & !b */
+      1  /* !a  &  b */
+      1  /*  a  &  b */
+    State: 1 { 1 }
+      1 1 1 1       /* four transitions on one line */
+    State: 2 "sink state" { 0 }
+      2 2 2 2
+    --END--
+EOF
+
+expectok input <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels state-acc complete deterministic
+--BODY--
+State: 0 {0}
+[!0&!1] 1
+[0&!1] 0
+[!0&1] 2
+[0&1] 2
+State: 1 {0}
+[!0&!1] 1
+[0&!1] 1
+[!0&1] 1
+[0&1] 1
+State: 2 {1}
+[!0&!1] 2
+[0&!1] 2
+[!0&1] 2
+[0&1] 2
+--END--
+EOF
+
+cat >input<<EOF
+    HOA: v1
+    States: 3
+    Start: 0
+    acc-name: generalized-Buchi 2
+    Acceptance: 2 (Inf(0) & Inf(1))
+    AP: 2 "a" "b"
+    --BODY--
+    State: 0 "foo" { 0 }
+      2  /* !a  & !b */
+      0  /*  a  & !b */
+      1  /* !a  &  b */
+      /* missing transition */
+    State: 1 { 1 }
+      1 1 1 1       /* four transitions on one line */
+    State: 2 "sink state" { 0 }
+      2 2 2 2
+    --END--
+EOF
+
+expecterr input <<EOF
+input:8.5-11.7: not enough transitions for this state
+EOF
+
+cat >input<<EOF
+    HOA: v1
+    States: 3
+    Start: 0
+    acc-name: generalized-Buchi 2
+    Acceptance: 2 (Inf(0) & Inf(1))
+    AP: 2 "a" "b"
+    --BODY--
+    State: 0 "foo" { 0 }
+      2  /* !a  & !b */
+      0  /*  a  & !b */
+      1  /* !a  &  b */
+      1  /*  a  &  b */
+      2  /*  extra transition ! */
+    State: 1 { 1 }
+      1 1 1 1       /* four transitions on one line */
+    State: 2 "sink state" { 0 }
+      2 2 2 2
+    --END--
+EOF
+
+expecterr input <<EOF
+input:13.7: too many transition for this state, ignoring this one
 EOF
