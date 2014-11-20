@@ -53,6 +53,7 @@ namespace spot
 
   class SPOT_API hoa_stream_parser
   {
+    spot::location last_loc;
   public:
     hoa_stream_parser(const std::string& filename);
     ~hoa_stream_parser();

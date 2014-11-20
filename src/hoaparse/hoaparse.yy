@@ -35,6 +35,11 @@
 #include "ltlast/constant.hh"
 #include "public.hh"
 
+  // Note: because this parser is meant to be used on a stream of
+  // automata, it tries hard to recover from errors, so that we get a
+  // chance to reach the end of the current automaton in order to
+  // process the next one.  Several variables below are used to keep
+  // track of various error conditions.
   struct result_
   {
     spot::hoa_aut_ptr h;
@@ -45,6 +50,7 @@
     spot::location state_label_loc;
     spot::location start_loc;
     spot::location accset_loc;
+    spot::location last_loc;
     unsigned cur_state;
     int start = -1;
     int states = -1;
@@ -54,12 +60,23 @@
     bdd cur_label;
     bool has_state_label = false;
     bool has_trans_label = false;
+    bool ignore_more_ap = false; // Set to true after the first "AP:"
+				 // line has been read.
+    bool ignore_acc = false; // Set to true in case of missing
+			     // Acceptance: lines.
+    bool ignore_acc_silent = false;
+    bool ignore_more_acc = false; // Set to true after the first
+				  // "Acceptance:" line has been read.
     spot::acc_cond::mark_t acc_state;
   };
 }
 
 %parse-param {spot::hoa_parse_error_list& error_list}
 %parse-param {result_& res}
+%parse-param {spot::location initial_loc}
+
+%initial-action { @$ = initial_loc; }
+
 %union
 {
   std::string* str;
@@ -115,7 +132,11 @@
 %printer { debug_stream() << $$; } <num>
 
 %%
-hoa: header "--BODY--" body "--END--" { YYACCEPT; }
+hoa: header "--BODY--" body "--END--"
+     {
+       res.last_loc = @$;
+       YYACCEPT;
+     }
 hoa: ENDOFFILE { YYABORT; }
 
 string_opt: | STRING
@@ -126,7 +147,7 @@ header: format-version header-items
 	  if (res.accset < 0)
 	    {
 	      error(@$, "missing 'Acceptance:' header");
-	      YYABORT;
+	      res.ignore_acc = true;
 	    }
 	}
 
@@ -160,9 +181,9 @@ header-item: "States:" INT
 		 error(res.start_loc,
 		       "initial state number is larger than state count...");
 		 error(@$, "... declared here.");
-		 YYABORT;
 	       }
-	     int missing = res.states - res.h->aut->num_states();
+	     int missing = std::max(res.states, res.start + 1)
+	       - res.h->aut->num_states();
 	     assert(missing >= 0);
 	     res.h->aut->new_states(missing);
 	   }
@@ -183,24 +204,31 @@ header-item: "States:" INT
 	       res.start_loc = @$;
 	     }
            | "AP:" INT {
-	                 if (res.ap_count != -1)
-		         {
-                           error(@1, "redeclaration of APs...");
-                           error(res.ap_loc, "... previously defined here.");
-			   YYABORT;
-                         }
-                         res.ap_count = $2; res.ap.reserve($2);
+	                 if (res.ignore_more_ap)
+			   {
+			     error(@1, "ignoring this redeclaration of APs...");
+			     error(res.ap_loc, "... previously declared here.");
+			   }
+			 else
+			   {
+			     res.ap_count = $2;
+			     res.ap.reserve($2);
+			   }
 	               }
                    ap-names
 	     {
-	       res.ap_loc = @1 + @2;
-	       if ((int) res.ap.size() != res.ap_count)
+	       if (!res.ignore_more_ap)
 		 {
-		   std::ostringstream out;
-		   out << "found " << res.ap.size()
-		       << " atomic propositions instead of the "
-		       << res.ap_count << " announced";
-		   error(@$, out.str());
+		   res.ap_loc = @1 + @2;
+		   if ((int) res.ap.size() != res.ap_count)
+		     {
+		       std::ostringstream out;
+		       out << "found " << res.ap.size()
+			   << " atomic propositions instead of the "
+			   << res.ap_count << " announced";
+		       error(@$, out.str());
+		     }
+		   res.ignore_more_ap = true;
 		 }
 	     }
            | "Alias:" ANAME label-expr
@@ -210,27 +238,30 @@ header-item: "States:" INT
 	     }
            | "Acceptance:" INT
 	      {
-	       if (res.accset >= 0)
-		 {
-		   error(@1 + @2, "redefinition of the acceptance condition...");
-		   error(res.accset_loc, "... previously defined here.");
-		   YYABORT;
-		 }
-	       else if ($2 > 8 * sizeof(spot::acc_cond::mark_t::value_t))
-		 {
-		   error(@1 + @2,
-			 "this implementation cannot support such a large "
-			 "number of acceptance sets");
-		   YYABORT;
-		 }
-	       else
-		 {
-		   res.h->aut->acc().add_sets($2);
-		   res.accset = $2;
-		   res.accset_loc = @1 + @2;
-		 }
+		if (res.ignore_more_acc)
+		  {
+		    error(@1 + @2, "ignoring this redefinition of the "
+			  "acceptance condition...");
+		    error(res.accset_loc, "... previously defined here.");
+		  }
+		else if ($2 > 8 * sizeof(spot::acc_cond::mark_t::value_t))
+		  {
+		    error(@1 + @2,
+			  "this implementation cannot support such a large "
+			  "number of acceptance sets");
+		    YYABORT;
+		  }
+		else
+		  {
+		    res.h->aut->acc().add_sets($2);
+		    res.accset = $2;
+		    res.accset_loc = @1 + @2;
+		  }
 	     }
              acceptance-cond
+	     {
+	       res.ignore_more_acc = true;
+	     }
            | "acc-name:" IDENTIFIER acc-spec
              {
 	       delete $2;
@@ -249,20 +280,24 @@ header-item: "States:" INT
 ap-names: | ap-names ap-name
 ap-name: STRING
 	 {
-	   auto f = res.env->require(*$1);
-	   if (f == nullptr)
+	   if (!res.ignore_more_ap)
 	     {
-	       std::ostringstream out;
-	       out << "unknown atomic proposition \"" << *$1 << "\"";
-	       delete $1;
-	       error(@1, out.str());
-	       YYABORT;
+	       auto f = res.env->require(*$1);
+	       if (f == nullptr)
+		 {
+		   std::ostringstream out;
+		   out << "unknown atomic proposition \"" << *$1 << "\"";
+		   delete $1;
+		   error(@1, out.str());
+		   f = spot::ltl::default_environment::instance()
+		     .require("$unknown$");
+		 }
+	       auto b =
+		 res.h->aut->get_dict()->register_proposition(f, res.h->aut);
+	       f->destroy();
+	       res.ap.push_back(b);
 	     }
 	   delete $1;
-	   auto b =
-	     res.h->aut->get_dict()->register_proposition(f, res.h->aut);
-	   f->destroy();
-	   res.ap.push_back(b);
 	 }
 
 acc-spec: | acc-spec BOOLEAN
@@ -343,24 +378,30 @@ acc-set: INT
             {
 	      if ((int) $1 >= res.accset)
 		{
-		  error(@1, "number is larger than the count "
-			"of acceptance sets...");
-		  error(res.accset_loc, "... declared here.");
-		  YYABORT;
+		  if (!res.ignore_acc)
+		    {
+		      error(@1, "number is larger than the count "
+			    "of acceptance sets...");
+		      error(res.accset_loc, "... declared here.");
+		    }
+		  $$ = -1U;
 		}
-	      $$ = $1;
+	      else
+		{
+		  $$ = $1;
+		}
 	    }
 
 acceptance-cond: IDENTIFIER '(' acc-set ')'
 		 {
-		   if (*$1 != "Inf")
+		   if (!res.ignore_more_acc && *$1 != "Inf")
 		     error(@1, "this implementation only supports "
 			   "'Inf' acceptance");
 		   delete $1;
 		 }
                | IDENTIFIER '(' '!' acc-set ')'
 		 {
-		   error(@1, "this implementation does not support "
+		   error(@3 + @4, "this implementation does not support "
 			 "negated sets");
 		   delete $1;
 		 }
@@ -368,10 +409,17 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
                | acceptance-cond '&' acceptance-cond
                | acceptance-cond '|' acceptance-cond
 	         {
-		   error(@1, "this implementation does not support "
-			 "disjunction in acceptance conditions");
+		   if (!res.ignore_more_acc)
+		     error(@2, "this implementation does not support "
+			   "disjunction in acceptance conditions");
 		 }
-               | BOOLEAN
+               | 't'
+	       | 'f'
+	       {
+		 if (!res.ignore_more_acc)
+		   error(@$, "this implementation does not support "
+			 "false acceptance");
+	       }
 
 
 body: states
@@ -429,12 +477,31 @@ trans-label_opt:       { res.has_trans_label = false; }
 		     }
 		 }
 
-acc-sig_opt:                   { $$ = spot::acc_cond::mark_t(0U); }
-           | '{' acc-sets '}'  { $$ = $2; }
-acc-sets:                      { $$ = spot::acc_cond::mark_t(0U); }
+acc-sig_opt:
+             {
+               $$ = spot::acc_cond::mark_t(0U);
+             }
+           | '{' acc-sets '}'
+	     {
+	       $$ = $2;
+	       if (res.ignore_acc && !res.ignore_acc_silent)
+		 {
+		   error(@$, "ignoring acceptance sets because of "
+			 "missing acceptance condition");
+		   // Emit this message only once.
+		   res.ignore_acc_silent = true;
+		 }
+	     }
+acc-sets:
+          {
+	    $$ = spot::acc_cond::mark_t(0U);
+	  }
         | acc-sets acc-set
 	  {
-	    $$ = $1 | res.h->aut->acc().mark($2);
+	    if (res.ignore_acc || $2 == -1U)
+	      $$ = spot::acc_cond::mark_t(0U);
+	    else
+	      $$ = $1 | res.h->aut->acc().mark($2);
 	  }
 edges: | edges edge
 edge: trans-label_opt state-num acc-sig_opt
@@ -487,10 +554,11 @@ namespace spot
     r.h = std::make_shared<spot::hoa_aut>();
     r.h->aut = make_tgba_digraph(dict);
     r.env = &env;
-    hoayy::parser parser(error_list, r);
+    hoayy::parser parser(error_list, r, last_loc);
     parser.set_debug_level(debug);
     if (parser.parse())
       r.h->aut = nullptr;
+    last_loc = r.last_loc;
     if (!r.h->aut)
       return nullptr;
     if (r.start != -1)

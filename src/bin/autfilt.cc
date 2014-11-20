@@ -343,13 +343,14 @@ namespace
 
       for (;;)
 	{
+	  pel.clear();
 	  auto haut = hp.parse(pel, b);
 	  if (!haut && pel.empty())
 	    break;
 	  if (spot::format_hoa_parse_errors(std::cerr, filename, pel))
 	    err = 2;
 	  if (!haut)
-	    error(0, 0, "failed to read automaton from %s", filename);
+	    error(2, 0, "failed to read automaton from %s", filename);
 	  else
 	    process_automaton(haut, filename);
 	}
