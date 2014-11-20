@@ -496,6 +496,7 @@ namespace spot
     auto res = minimize_dfa(det_a, final, non_final);
     res->prop_deterministic();
     res->prop_inherently_weak();
+    res->prop_state_based_acc();
     return res;
   }
 

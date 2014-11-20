@@ -322,6 +322,8 @@ namespace spot
 	}
       acc_.add_sets(num - acc_.num_sets());
       prop_single_acc_set(num == 1);
+      if (num == 0)
+	prop_state_based_acc();
     }
 
     acc_cond::mark_t set_single_acceptance_set()
@@ -430,7 +432,7 @@ namespace spot
 
     bool state_is_accepting(unsigned s) const
     {
-      assert(has_state_based_acc());
+      assert(has_state_based_acc() || acc_.num_sets() == 0);
       for (auto& t: g_.out(s))
 	// Stop at the first transition, since the remaining should be
 	// labeled identically.

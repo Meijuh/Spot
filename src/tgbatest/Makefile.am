@@ -112,6 +112,7 @@ TESTS = \
   wdba.test \
   wdba2.test \
   babiak.test \
+  monitor.test \
   dra2dba.test \
   ltlcross4.test \
   ltl2dstar.test \
