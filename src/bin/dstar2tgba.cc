@@ -67,7 +67,7 @@ static const argp_option options[] =
       "Transition-based Generalized Büchi Automaton (default)", 0 },
     { "ba", 'B', 0, 0, "Büchi Automaton", 0 },
     { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
-      "of the given formula)", 0 },
+      "of the given property)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
     { "dot", OPT_DOT, 0, 0, "GraphViz's format (default)", 0 },
