@@ -19,6 +19,25 @@ New in spot 1.99a (not yet released)
       The implementation is actually much more efficient
       than the previous implementation that was only for LTL.
 
+    - There is a parser for the HOA format
+      (http://adl.github.io/hoaf/) available as a
+      spot::hoa_stream_parser object or spot::hoa_parse() function.
+      The former version is able to parse a stream of automata, in
+      order to do batch processing.  This format can be output by all
+      tools (since Spot 1.2.5) using the --hoa option, and it can be
+      read by autfilt (by default) and ltlcross (using the %H
+      specifier).   The current implementation does not support:
+        - acceptance specifications involving "Fin(x)", "|", or "f".
+	- alternation
+      but the rest is expected to work.  Those restrictions cause the
+      automaton to be interpretable as a TGBA.  In particular,
+      multiple initial states are converted into an extra initial
+      state; complemented acceptance sets Inf(!x) are converted to
+      Inf(x); negated (maybe after duplication); explicit or implicit
+      labels can be used; aliases are supported; "--ABORT--" can be
+      used in a stream.  The parser currently ignore all optional
+      headers (starting with a lowercase letter).
+
     - Spot is now compiling in C++11 mode.  The set of features we use
       requires GCC >= 4.6 or Clang >= 3.1.  These minimum versions
       are old enough that it should not be an issue to most people.
