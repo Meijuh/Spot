@@ -47,6 +47,7 @@
     std::vector<int> ap;
     std::vector<bdd> guards;
     std::vector<bdd>::const_iterator cur_guard;
+    std::vector<bool> declared_states; // States that have been declared.
     spot::location states_loc;
     spot::location ap_loc;
     spot::location state_label_loc;
@@ -189,6 +190,7 @@ header-item: "States:" INT
 	       - res.h->aut->num_states();
 	     assert(missing >= 0);
 	     res.h->aut->new_states(missing);
+	     res.declared_states.resize(res.declared_states.size() + missing);
 	   }
            | "Start:" state-conj-2
 	     {
@@ -443,7 +445,11 @@ state-num: INT
 		   }
 		 int missing = ((int) $1) - res.h->aut->num_states() + 1;
 		 if (missing >= 0)
-		   res.h->aut->new_states(missing);
+		   {
+		     res.h->aut->new_states(missing);
+		     res.declared_states.resize(res.declared_states.size()
+						+ missing);
+		   }
 	       }
 	     $$ = $1;
 	   }
@@ -462,6 +468,13 @@ state: state-name labeled-edges
 state-name: "State:" state-label_opt state-num string_opt acc-sig_opt
 	  {
 	    res.cur_state = $3;
+	    if (res.declared_states[$3])
+	      {
+		std::ostringstream o;
+		o << "redeclaration of state " << $3;
+		error(@1 + @3, o.str());
+	      }
+	    res.declared_states[$3] = true;
 	    res.acc_state = $5;
 	  }
 label: '[' label-expr ']'
@@ -614,7 +627,9 @@ namespace spot
     if (!r.h->aut)
       return nullptr;
     if (r.start != -1)
-      r.h->aut->set_init_state(r.start);
+      {
+	r.h->aut->set_init_state(r.start);
+      }
     else
       {
 	// If no initial state has been declared, add one, because

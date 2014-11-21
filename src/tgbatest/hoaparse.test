@@ -87,6 +87,24 @@ EOF
 
 cat >input <<EOF
 HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[0] 0
+State: 0 {0}
+[t] 0
+--END--
+EOF
+
+expecterr input <<EOF
+input:9.1-8: redeclaration of state 0
+EOF
+
+cat >input <<EOF
+HOA: v1
 States: 0
 AP: 1 "a" "b"
 Acceptance: 0 t
