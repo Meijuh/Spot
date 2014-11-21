@@ -114,6 +114,12 @@ namespace spot
 	return *this;
       }
 
+      mark_t& operator^=(mark_t r)
+      {
+	id ^= r.id;
+	return *this;
+      }
+
       mark_t operator&(mark_t r) const
       {
 	return id & r.id;
@@ -127,6 +133,11 @@ namespace spot
       mark_t operator-(mark_t r) const
       {
 	return id & ~r.id;
+      }
+
+      mark_t operator^(mark_t r) const
+      {
+	return id ^ r.id;
       }
 
       // Number of bits sets.

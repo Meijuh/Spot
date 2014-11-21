@@ -56,6 +56,9 @@
     spot::location start_loc;
     spot::location accset_loc;
     spot::location last_loc;
+    spot::acc_cond::mark_t acc_state;
+    spot::acc_cond::mark_t neg_acc_sets = 0U;
+    spot::acc_cond::mark_t pos_acc_sets = 0U;
     unsigned cur_state;
     int start = -1;
     int states = -1;
@@ -71,7 +74,6 @@
     bool ignore_acc_silent = false;
     bool ignore_more_acc = false; // Set to true after the first
 				  // "Acceptance:" line has been read.
-    spot::acc_cond::mark_t acc_state;
   };
 }
 
@@ -418,12 +420,17 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
 		   if (!res.ignore_more_acc && *$1 != "Inf")
 		     error(@1, "this implementation only supports "
 			   "'Inf' acceptance");
+		   if ($3 != -1U)
+		     res.pos_acc_sets |= res.h->aut->acc().mark($3);
 		   delete $1;
 		 }
                | IDENTIFIER '(' '!' acc-set ')'
 		 {
-		   error(@3 + @4, "this implementation does not support "
-			 "negated sets");
+		   if (!res.ignore_more_acc && *$1 != "Inf")
+		     error(@1, "this implementation only supports "
+			   "'Inf' acceptance");
+		   if ($4 != -1U)
+		     res.neg_acc_sets |= res.h->aut->acc().mark($4);
 		   delete $1;
 		 }
                | '(' acceptance-cond ')'
@@ -612,6 +619,34 @@ hoayy::parser::error(const location_type& location,
   error_list.emplace_back(location, message);
 }
 
+static void fix_acceptance(result_& r)
+{
+  // If a set x appears only as Inf(!x), we can complement it so that
+  // we work with Inf(x) instead.
+  auto onlyneg = r.neg_acc_sets - r.pos_acc_sets;
+  for (auto& t: r.h->aut->transitions())
+    t.acc ^= onlyneg;
+
+  // However if set x is used elsewhere, for instance in
+  //   Inf(!x) & Inf(x)
+  // complementing x would be wrong.  We need to create a
+  // new set, y, that is the complement of x, and rewrite
+  // this as Inf(y) & Inf(x).
+  auto both = r.neg_acc_sets & r.pos_acc_sets;
+  if (both)
+    {
+      auto& acc = r.h->aut->acc();
+      auto v = acc.sets(both);
+      auto vs = v.size();
+      unsigned base = acc.add_sets(vs);
+      for (auto& t: r.h->aut->transitions())
+	if ((t.acc & both) != both)
+	  for (unsigned i = 0; i < vs; ++i)
+	    if (!t.acc.has(i))
+	      t.acc |= acc.mark(base + i);
+    }
+}
+
 namespace spot
 {
   hoa_stream_parser::hoa_stream_parser(const std::string& name)
@@ -624,6 +659,7 @@ namespace spot
   {
     hoayyclose();
   }
+
 
   hoa_aut_ptr
   hoa_stream_parser::parse(hoa_parse_error_list& error_list,
@@ -642,6 +678,8 @@ namespace spot
     last_loc = r.last_loc;
     if (!r.h->aut)
       return nullptr;
+    if (r.neg_acc_sets)
+      fix_acceptance(r);
     if (r.start != -1)
       {
 	r.h->aut->set_init_state(r.start);

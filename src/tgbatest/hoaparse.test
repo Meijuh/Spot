@@ -386,3 +386,38 @@ State: 0
 [0&1&2] 0 {0 1}
 --END--
 EOF
+
+
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 0
+Acceptance: 2 (Inf(0) & Inf(!0)) & Inf(!1)
+AP: 1 "a"
+--BODY--
+State: 0 {0}
+[0] 1
+[!0] 0 {1}
+State: 1
+[!0] 1
+[0] 0
+--END--
+EOF
+
+expectok input <<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: generalized-Buchi 3
+Acceptance: 3 Inf(0)&Inf(1)&Inf(2)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[0] 1 {0 1}
+[!0] 0 {0}
+State: 1
+[!0] 1 {1 2}
+[0] 0 {1 2}
+--END--
+EOF
