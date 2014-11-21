@@ -223,7 +223,7 @@ EOF
 expecterr input <<EOF
 input:5.19: number is larger than the count of acceptance sets...
 input:5.1-13: ... declared here.
-input:12.1-7: unsupported version of the HOA format
+input:12.6-7: unsupported version of the HOA format
 input:12.1-7: missing 'Acceptance:' header
 EOF
 
@@ -560,3 +560,61 @@ State: 1
 EOF
 
 diff expected input.out
+
+
+# Error recovery
+
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {a}  /* not a digit */
+[t] 1
+State: 1
+[a] 0         /* not a digit */
+--END--
+HOA: v1
+Acceptance: 1 Inf(0)
+States: 2
+Start: 0
+AP: 0
+acc-name: Buchi
+--BODY--
+State: 0 {0}
+[t] "f" 1     /* WTF? */
+State: 1
+[t] 0
+--END--
+some garbage HOA: v1
+Acceptance: 1 Inf(0)
+States: 2
+Start: 0
+AP: 0
+acc-name: Buchi
+--BODY--
+Stat: 0 {0}  /* not State: */
+[t] 1
+State: 1
+[t] 0
+--END--
+this is complete garbage!
+--END--
+and even more garbage
+EOF
+
+expecterr input <<EOF
+input:8.11: syntax error, unexpected identifier, expecting integer or '}'
+input:8.10-12: ignoring this invalid acceptance set
+input:11.2: syntax error, unexpected identifier
+input:11.1-3: ignoring this invalid label
+input:21.5-7: syntax error, unexpected string, expecting integer
+input:25.1-4: syntax error, unexpected identifier, expecting end of file or HOA:
+input:25.1-12: ignoring leading garbage
+input:32.1-5: syntax error, unexpected header name, expecting --END-- or State:
+input:37.1-4: syntax error, unexpected identifier, expecting end of file or HOA:
+input:39.1-3: syntax error, unexpected identifier, expecting end of file or HOA:
+EOF

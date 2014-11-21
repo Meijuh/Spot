@@ -144,6 +144,16 @@ hoa: header "--BODY--" body "--END--"
        res.h->loc = @$;
        YYACCEPT;
      }
+hoa: error "--END--"
+     {
+       res.h->loc = @$;
+       YYACCEPT;
+     }
+hoa: error ENDOFFILE
+     {
+       res.h->loc = @$;
+       YYACCEPT;
+     }
 hoa: ENDOFFILE { YYABORT; }
 
 string_opt: | STRING
@@ -173,12 +183,18 @@ header: format-version header-items
 	    }
 	}
 
-format-version: "HOA:" { res.h->loc = @1; } IDENTIFIER
-		{
-		  if (*$3 != "v1")
-		    error(@$, "unsupported version of the HOA format");
-		  delete $3;
-		}
+version: IDENTIFIER
+         {
+	   if (*$1 != "v1")
+	     error(@$, "unsupported version of the HOA format");
+	   delete $1;
+	 }
+
+format-version: "HOA:" { res.h->loc = @1; } version
+              | error "HOA:"
+	        { error(@1, "ignoring leading garbage");
+		  res.h->loc = @2; }
+                version
 
 header-items: | header-items header-item
 header-item: "States:" INT
@@ -295,6 +311,7 @@ header-item: "States:" INT
 		       " be ignored)");
 	       delete $1;
 	     }
+           | error
 
 ap-names: | ap-names ap-name
 ap-name: STRING
@@ -500,6 +517,8 @@ state: state-name labeled-edges
 	     res.cur_guard = res.guards.begin();
 	   }
        }
+     | error
+
 state-name: "State:" state-label_opt checked-state-num string_opt acc-sig_opt
 	  {
 	    res.cur_state = $3;
@@ -516,6 +535,11 @@ label: '[' label-expr ']'
 	   {
              res.cur_label = bdd_from_int($2);
              bdd_delref($2);
+	   }
+     | '[' error ']'
+           {
+	     error(@$, "ignoring this invalid label");
+	     res.cur_label = bddtrue;
 	   }
 state-label_opt:       { res.has_state_label = false; }
                | label { res.has_state_label = true;
@@ -546,6 +570,10 @@ acc-sig_opt:
 		   // Emit this message only once.
 		   res.ignore_acc_silent = true;
 		 }
+	     }
+           | '{' error '}'
+	     {
+	       error(@$, "ignoring this invalid acceptance set");
 	     }
 acc-sets:
           {
