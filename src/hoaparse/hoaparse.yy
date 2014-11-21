@@ -32,6 +32,7 @@
 #include <string>
 #include <cstring>
 #include <sstream>
+#include <unordered_map>
 #include "ltlast/constant.hh"
 #include "public.hh"
 
@@ -48,6 +49,7 @@
     std::vector<bdd> guards;
     std::vector<bdd>::const_iterator cur_guard;
     std::vector<bool> declared_states; // States that have been declared.
+    std::unordered_map<std::string, bdd> alias;
     spot::location states_loc;
     spot::location ap_loc;
     spot::location state_label_loc;
@@ -238,6 +240,12 @@ header-item: "States:" INT
 	     }
            | "Alias:" ANAME label-expr
              {
+	       if (!res.alias.emplace(*$2, bdd_from_int($3)).second)
+		 {
+		   std::ostringstream o;
+		   o << "ignoring redefinition of alias @" << *$2;
+		   error(@$, o.str());
+		 }
 	       delete $2;
 	       bdd_delref($3);
 	     }
@@ -352,10 +360,18 @@ label-expr: 't'
 	    }
           | ANAME
 	    {
+	      auto i = res.alias.find(*$1);
+	      if (i == res.alias.end())
+		{
+		  error(@$, "unknown alias @" + *$1);
+		  $$ = 1;
+		}
+	      else
+		{
+		  $$ = i->second.id();
+		  bdd_addref($$);
+		}
 	      delete $1;
-              error(@1, "aliases are not yet supported");
-              YYABORT;
-              $$ = 0;
 	    }
           | '!' label-expr
 	    {
