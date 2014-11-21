@@ -523,3 +523,40 @@ State: 1
 [0] 0
 --END--
 EOF
+
+
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 0
+Important: 4 very important "!"
+AP: 0
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0} 1
+State: 1 0
+--END--
+EOF
+
+expecterr input <<EOF
+input:4.1-31: ignoring unsupported header "Important:"
+	(but the capital indicates information that should not be ignored)
+EOF
+
+cat >expected <<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete deterministic
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[t] 0
+--END--
+EOF
+
+diff expected input.out

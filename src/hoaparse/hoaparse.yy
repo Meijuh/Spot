@@ -287,6 +287,14 @@ header-item: "States:" INT
 	     }
            | "properties:" properties
            | HEADERNAME header-spec
+	     {
+	       char c = (*$1)[0];
+	       if (c >= 'A' && c <= 'Z')
+		 error(@$, "ignoring unsupported header \"" + *$1 + ":\"\n\t"
+		       "(but the capital indicates information that should not"
+		       " be ignored)");
+	       delete $1;
+	     }
 
 ap-names: | ap-names ap-name
 ap-name: STRING
