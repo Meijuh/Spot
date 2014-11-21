@@ -331,6 +331,12 @@ namespace
       return 0;
     }
 
+    int
+    aborted(const spot::const_hoa_aut_ptr& h, const char* filename)
+    {
+      std::cerr << filename << ':' << h->loc << ": aborted input automaton\n";
+      return 2;
+    }
 
     int
     process_file(const char* filename)
@@ -351,6 +357,8 @@ namespace
 	    err = 2;
 	  if (!haut)
 	    error(2, 0, "failed to read automaton from %s", filename);
+	  else if (haut->aborted)
+	    err = std::max(err, aborted(haut, filename));
 	  else
 	    process_automaton(haut, filename);
 	}

@@ -65,6 +65,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 "name:"                 return token::NAME;
 "properties:"           return token::PROPERTIES;
 "--BODY--"		return token::BODY;
+"--ABORT--"		throw spot::hoa_abort{*yylloc};
 "--END--"		return token::END;
 "State:"		return token::STATE;
 [tf{}()\[\]&|!]		return *yytext;

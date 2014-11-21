@@ -26,7 +26,7 @@ set -e
 expecterr()
 {
    cat >$1.exp
-   ../../bin/autfilt $1 2>$1.err && exit 1
+   ../../bin/autfilt --hoa $1 2>$1.err >$1.out && exit 1
    test $? = 2
    cat $1.err
    diff $1.err $1.exp
@@ -390,6 +390,22 @@ EOF
 
 cat >input <<EOF
 HOA: v1
+--ABORT--
+HOA: v1
+States: 2
+Start: 0
+Acceptance: 2 (Inf(0) & Inf(!0)) &
+     --ABORT----ABORT--
+HOA: v1
+States: 2
+Start: 0
+Acceptance: 2 (Inf(0) & Inf(!0)) & Inf(!1)
+AP: 1 "a"
+     --BODY-- State: 0 {0
+}
+[0] 1
+[!0--ABORT--
+HOA: v1
 States: 2
 Start: 0
 Acceptance: 2 (Inf(0) & Inf(!0)) & Inf(!1)
@@ -404,7 +420,14 @@ State: 1
 --END--
 EOF
 
-expectok input <<EOF
+expecterr input <<EOF
+input:1.1-2.9: aborted input automaton
+input:3.1-7.14: aborted input automaton
+input:7.15-23: aborted input automaton
+input:8.1-16.12: aborted input automaton
+EOF
+
+cat >expected <<EOF
 HOA: v1
 States: 2
 Start: 0
@@ -421,3 +444,5 @@ State: 1
 [0] 0 {1 2}
 --END--
 EOF
+
+diff expected input.out

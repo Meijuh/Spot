@@ -55,7 +55,6 @@
     spot::location state_label_loc;
     spot::location start_loc;
     spot::location accset_loc;
-    spot::location last_loc;
     spot::acc_cond::mark_t acc_state;
     spot::acc_cond::mark_t neg_acc_sets = 0U;
     spot::acc_cond::mark_t pos_acc_sets = 0U;
@@ -81,7 +80,7 @@
 %parse-param {result_& res}
 %parse-param {spot::location initial_loc}
 
-%initial-action { @$ = initial_loc; }
+%initial-action { @$ = res.h->loc = initial_loc; }
 
 %union
 {
@@ -142,7 +141,7 @@
 %%
 hoa: header "--BODY--" body "--END--"
      {
-       res.last_loc = @$;
+       res.h->loc = @$;
        YYACCEPT;
      }
 hoa: ENDOFFILE { YYABORT; }
@@ -174,11 +173,11 @@ header: format-version header-items
 	    }
 	}
 
-format-version: "HOA:" IDENTIFIER
+format-version: "HOA:" { res.h->loc = @1; } IDENTIFIER
 		{
-		  if (*$2 != "v1")
+		  if (*$3 != "v1")
 		    error(@$, "unsupported version of the HOA format");
-		  delete $2;
+		  delete $3;
 		}
 
 header-items: | header-items header-item
@@ -685,9 +684,21 @@ namespace spot
     r.env = &env;
     hoayy::parser parser(error_list, r, last_loc);
     parser.set_debug_level(debug);
-    if (parser.parse())
-      r.h->aut = nullptr;
-    last_loc = r.last_loc;
+    try
+      {
+	if (parser.parse())
+	  r.h->aut = nullptr;
+      }
+    catch (const spot::hoa_abort& e)
+      {
+	r.h->aborted = true;
+	// Bison 3.0.2 lacks a += operator for locations.
+	r.h->loc = r.h->loc + e.pos;
+      }
+    last_loc = r.h->loc;
+    last_loc.step();
+    if (r.h->aborted)
+      return r.h;
     if (!r.h->aut)
       return nullptr;
     if (r.neg_acc_sets)

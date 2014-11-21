@@ -34,6 +34,12 @@ namespace spot
 {
   int hoayyopen(const std::string& name);
   void hoayyclose();
+
+  // This exception is thrown by the lexer when it reads "--ABORT--".
+  struct hoa_abort
+  {
+    spot::location pos;
+  };
 }
 
 #endif // SPOT_HOAPARSE_PARSEDECL_HH

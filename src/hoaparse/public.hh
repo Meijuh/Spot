@@ -46,6 +46,8 @@ namespace spot
     // Transition structure of the automaton.
     // This is encoded as a TGBA without acceptance condition.
     tgba_digraph_ptr aut;
+    bool aborted = false;
+    spot::location loc;
   };
 
   typedef std::shared_ptr<hoa_aut> hoa_aut_ptr;
