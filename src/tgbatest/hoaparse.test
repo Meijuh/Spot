@@ -446,3 +446,80 @@ State: 1
 EOF
 
 diff expected input.out
+
+
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 0
+Start: 1
+Start: 0 /* duplicate */
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 1
+[0] 0
+--END--
+EOF
+
+expectok input <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+--BODY--
+State: 0
+[1] 1
+[!1] 2
+[!0] 1
+[0] 2
+State: 1
+[!0] 1
+[0] 2
+State: 2 {0}
+[1] 1
+[!1] 2
+--END--
+EOF
+
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 0
+Start: 0  /* duplicate */
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 1
+[0] 0
+--END--
+EOF
+
+expectok input <<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete deterministic
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 1
+[0] 0
+--END--
+EOF

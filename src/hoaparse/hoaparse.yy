@@ -33,6 +33,7 @@
 #include <cstring>
 #include <sstream>
 #include <unordered_map>
+#include <algorithm>
 #include "ltlast/constant.hh"
 #include "public.hh"
 
@@ -49,17 +50,16 @@
     std::vector<bdd> guards;
     std::vector<bdd>::const_iterator cur_guard;
     std::vector<bool> declared_states; // States that have been declared.
+    std::vector<std::pair<spot::location, unsigned>> start; // Initial states;
     std::unordered_map<std::string, bdd> alias;
     spot::location states_loc;
     spot::location ap_loc;
     spot::location state_label_loc;
-    spot::location start_loc;
     spot::location accset_loc;
     spot::acc_cond::mark_t acc_state;
     spot::acc_cond::mark_t neg_acc_sets = 0U;
     spot::acc_cond::mark_t pos_acc_sets = 0U;
     unsigned cur_state;
-    int start = -1;
     int states = -1;
     int ap_count = -1;
     int accset = -1;
@@ -152,17 +152,17 @@ BOOLEAN: 't' | 'f'
 header: format-version header-items
         {
 	  // Preallocate the states if we know their number.
-	  if (res.states != -1)
+	  if (res.states >= 0)
 	    {
 	      unsigned states = res.states;
-	      if (res.start != -1 &&
-		  res.states <= res.start)
-		{
-		  error(res.start_loc,
-			"initial state number is larger than state count...");
-		  error(res.states_loc, "... declared here.");
-		  states = res.start + 1;
-		}
+	      for (auto& p : res.start)
+		if ((unsigned) res.states <= p.second)
+		  {
+		    error(p.first,
+			  "initial state number is larger than state count...");
+		    error(res.states_loc, "... declared here.");
+		    states = std::max(states, p.second + 1);
+		  }
 	      res.h->aut->new_states(states);
 	      res.declared_states.resize(states);
 	    }
@@ -201,19 +201,12 @@ header-item: "States:" INT
 	   }
            | "Start:" state-conj-2
 	     {
-	       res.start_loc = @$;
 	       error(@2, "alternation is not yet supported");
 	       YYABORT;
 	     }
            | "Start:" state-num
 	     {
-	       if (res.start >= 0)
-		 {
-		   error(@$, "multiple initial states are not yet supported");
-		   YYABORT;
-		 }
-	       res.start = $2;
-	       res.start_loc = @$;
+	       res.start.emplace_back(@$, $2);
 	     }
            | "AP:" INT {
 	                 if (res.ignore_more_ap)
@@ -658,6 +651,42 @@ static void fix_acceptance(result_& r)
     }
 }
 
+static void fix_initial_state(result_& r)
+{
+  if (r.start.empty())
+    {
+      // If no initial state has been declared, add one, because
+      // Spot will not work without one.
+      r.h->aut->set_init_state(r.h->aut->new_state());
+      return;
+    }
+
+  // Remove any duplicate initial state.
+  std::vector<unsigned> start;
+  start.reserve(r.start.size());
+  for (auto& p : r.start)
+    start.push_back(p.second);
+  std::sort(start.begin(), start.end());
+  auto res = std::unique(start.begin(), start.end());
+  start.resize(std::distance(start.begin(), res));
+
+  assert(start.size() >= 1);
+  if (start.size() == 1)
+    {
+      r.h->aut->set_init_state(start.front());
+    }
+  else
+    {
+      // Multiple initial states.  Add a fake one.
+      auto& aut = r.h->aut;
+      unsigned i = aut->new_state();
+      aut->set_init_state(i);
+      for (auto p : start)
+	for (auto& t: aut->out(p))
+	  aut->new_transition(i, t.dst, t.cond);
+    }
+}
+
 namespace spot
 {
   hoa_stream_parser::hoa_stream_parser(const std::string& name)
@@ -703,16 +732,7 @@ namespace spot
       return nullptr;
     if (r.neg_acc_sets)
       fix_acceptance(r);
-    if (r.start != -1)
-      {
-	r.h->aut->set_init_state(r.start);
-      }
-    else
-      {
-	// If no initial state has been declared, add one, because
-	// Spot will not work without one.
-	r.h->aut->set_init_state(r.h->aut->new_state());
-      }
+    fix_initial_state(r);
     return r.h;
   };
 }
