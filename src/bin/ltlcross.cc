@@ -1055,6 +1055,16 @@ namespace
 		    end_error();
 		    res = nullptr;
 		  }
+		else if (aut->aborted)
+		  {
+		    status_str = "aborted";
+		    problem = true;
+		    es = -1;
+		    std::ostream& err = global_error();
+		    err << "error: aborted HOA file.\n";
+		    end_error();
+		    res = nullptr;
+		  }
 		else
 		  {
 		    res = aut->aut;

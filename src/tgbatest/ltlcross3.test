@@ -130,3 +130,13 @@ check_csv out.csv
 grep 'X  a' bug.txt
 
 test $q -eq `expr $p + 6`
+
+
+# Support for --ABORT-- in HOA.
+run 1 ../../bin/ltlcross 'echo HOA: --ABORT-- %f > %H' \
+   -f a --csv=out.csv 2>stderr
+grep '"exit_status"' out.csv
+grep '"exit_code"' out.csv
+test `grep 'error:.*aborted' stderr | wc -l` -eq 2
+test `grep '"aborted",-1' out.csv | wc -l` -eq 2
+check_csv out.csv
