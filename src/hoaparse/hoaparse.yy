@@ -126,7 +126,7 @@
 %left '&'
 %nonassoc '!'
 
-%type <num> state-num acc-set
+%type <num> checked-state-num state-num acc-set
 %type <b> label-expr
 %type <mark> acc-sig_opt acc-sets
 
@@ -152,6 +152,21 @@ BOOLEAN: 't' | 'f'
 
 header: format-version header-items
         {
+	  // Preallocate the states if we know their number.
+	  if (res.states != -1)
+	    {
+	      unsigned states = res.states;
+	      if (res.start != -1 &&
+		  res.states <= res.start)
+		{
+		  error(res.start_loc,
+			"initial state number is larger than state count...");
+		  error(res.states_loc, "... declared here.");
+		  states = res.start + 1;
+		}
+	      res.h->aut->new_states(states);
+	      res.declared_states.resize(states);
+	    }
 	  if (res.accset < 0)
 	    {
 	      error(@$, "missing 'Acceptance:' header");
@@ -184,17 +199,6 @@ header-item: "States:" INT
 		 YYABORT;
 	       }
 	     res.states = std::max(res.states, (int) $2);
-	     if (res.states <= res.start)
-	       {
-		 error(res.start_loc,
-		       "initial state number is larger than state count...");
-		 error(@$, "... declared here.");
-	       }
-	     int missing = std::max(res.states, res.start + 1)
-	       - res.h->aut->num_states();
-	     assert(missing >= 0);
-	     res.h->aut->new_states(missing);
-	     res.declared_states.resize(res.declared_states.size() + missing);
 	   }
            | "Start:" state-conj-2
 	     {
@@ -336,7 +340,8 @@ header-spec: | header-spec BOOLEAN
 		 delete $2;
 	       }
 
-state-conj-2: state-num '&' state-num | state-conj-2 '&' state-num
+state-conj-2: checked-state-num '&' checked-state-num
+            | state-conj-2 '&' checked-state-num
 
 label-expr: 't'
 	    {
@@ -459,23 +464,30 @@ state-num: INT
 		 error(@1, "state number is too large for this implementation");
 		 YYABORT;
 	       }
-	     if ((int) $1 >= res.states)
-	       {
-		 if (res.states >= 0)
-		   {
-		     error(@1, "state number is larger than state count...");
-		     error(res.states_loc, "... declared here.");
-		   }
-		 int missing = ((int) $1) - res.h->aut->num_states() + 1;
-		 if (missing >= 0)
-		   {
-		     res.h->aut->new_states(missing);
-		     res.declared_states.resize(res.declared_states.size()
-						+ missing);
-		   }
-	       }
 	     $$ = $1;
 	   }
+
+checked-state-num: state-num
+		   {
+		     if ((int) $1 >= res.states)
+		       {
+			 if (res.states >= 0)
+			   {
+			     error(@1, "state number is larger than state "
+				   "count...");
+			     error(res.states_loc, "... declared here.");
+			   }
+			 int missing =
+			   ((int) $1) - res.h->aut->num_states() + 1;
+			 if (missing >= 0)
+			   {
+			     res.h->aut->new_states(missing);
+			     res.declared_states.resize
+			       (res.declared_states.size() + missing);
+			   }
+		       }
+		     $$ = $1;
+		   }
 
 states: | states state
 state: state-name labeled-edges
@@ -488,7 +500,7 @@ state: state-name labeled-edges
 	     res.cur_guard = res.guards.begin();
 	   }
        }
-state-name: "State:" state-label_opt state-num string_opt acc-sig_opt
+state-name: "State:" state-label_opt checked-state-num string_opt acc-sig_opt
 	  {
 	    res.cur_state = $3;
 	    if (res.declared_states[$3])
@@ -547,7 +559,7 @@ acc-sets:
 	      $$ = $1 | res.h->aut->acc().mark($2);
 	  }
 labeled-edges: | labeled-edges labeled-edge
-labeled-edge: trans-label state-num acc-sig_opt
+labeled-edge: trans-label checked-state-num acc-sig_opt
 	      {
 		res.h->aut->new_transition(res.cur_state, $2,
 					   res.cur_label, $3 | res.acc_state);
@@ -561,7 +573,7 @@ labeled-edge: trans-label state-num acc-sig_opt
 /* We never have zero unlabeled edges, these are considered as zero
    labeled edges. */
 unlabeled-edges: unlabeled-edge | unlabeled-edges unlabeled-edge
-unlabeled-edge: state-num acc-sig_opt
+unlabeled-edge: checked-state-num acc-sig_opt
 		{
 		  bdd cond;
 		  if (res.has_state_label)
