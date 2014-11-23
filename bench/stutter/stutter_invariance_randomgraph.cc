@@ -64,13 +64,8 @@ main()
                 vec.push_back(aut_pair_t(a, na));
               }
 
-	    char algostr[2] = { 0, 0 };
-            for (char algo = '1'; algo <= '8'; ++algo)
+            for (int algo = 1; algo <= 8; ++algo)
               {
-                // Select the algorithm for checking stutter-invariance
-		algostr[0] = algo;
-                setenv("SPOT_STUTTER_CHECK", algostr, true);
-
                 // Copy vec, because is_stutter_invariant modifies the
                 // automata.
                 std::vector<aut_pair_t> dup(vec);
@@ -80,10 +75,10 @@ main()
                 for (auto& a: dup)
                   res = spot::is_stutter_invariant(std::move(a.first),
                                                    std::move(a.second),
-                                                   apdict);
-                auto time = sw.stop();
-                std::cout << algo << ", " << props_n << ", " << states_n
-                          << ", " << res << ", " << time << std::endl;
+                                                   apdict, algo);
+                auto time = sw.stop() / n;
+                std::cout << algo << ',' << props_n << ',' << states_n
+                          << ',' << res << ',' << time << '\n';
               }
             spot::ltl::destroy_atomic_prop_set(ap);
           }

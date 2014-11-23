@@ -17,15 +17,17 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = .
-
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src $(BUDDY_CPPFLAGS) \
               -I$(top_builddir)/lib -I$(top_srcdir)/lib
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
-LDADD = $(top_builddir)/src/bin/libcommon.a ../../lib/libgnu.la ../../src/libspot.la
+
+LDADD = $(top_builddir)/src/bin/libcommon.a ../../lib/libgnu.la	\
+        ../../src/libspot.la
 
 bin_PROGRAMS = stutter_invariance_randomgraph \
 	       stutter_invariance_formulas
 
 stutter_invariance_randomgraph_SOURCES = stutter_invariance_randomgraph.cc
 stutter_invariance_formulas_SOURCES = stutter_invariance_formulas.cc
+
+EXTRA_DIST = stutter_bench.sh stutter.ipynb

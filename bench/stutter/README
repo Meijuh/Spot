@@ -1,31 +1,18 @@
-This benchmark measures the performance of different algorithms to check
-if a büchi automaton has the stutter-invariance property. If the
-benchmark is run on formulas, the translation time is not included in
-the measured time.
+This benchmark measures the performance of different algorithms to
+check if property (expressed as a formula or as a deterministic TGBA)
+is stutter-invariant.  When the benchmark is run on formulas, the
+translation time is not included in the measured time.
 
-You can specify which formulas are to be used for the benchmarks by
-running:
 
-  % ./stutter_invariance_formulas -F FILE > bench_formulas.csv
-
-Where FILE is a file containing a list of formulas (see
-./stutter_invariance_formulas --help for other input options).
-
-Or use the script which will call this executable on random formulas
-ranging from 1 to 4 atomic propositions:
+To reproduce the benchmark is to run
 
   % ./stutter_bench.sh
 
-This will create the file bench_formulas.csv.
+to create bench_formulas.csv and bench_randgraph.csv, and then
+explore these data the provided ipython notbook
 
-Alternatively, the algorithms can be measured on random complete
-deterministic automata with:
+  % ipython notebook --pylab=inline stutter.ipynb
 
-  % ./stutter_invariance_randomgraph > bench_randgraph.csv
 
-Assuming ipython is installed, the csv files can be visualized using the
-provided ipython notebook. Run:
-
-  % ipython notebook --matplotlib
-
-in this directory, and open stutter.ipynb.
+The time in bench_formulas.csv is reported in microseconds, while the
+time in bench_randgraph.csv is in seconds.

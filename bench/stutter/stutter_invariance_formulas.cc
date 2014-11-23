@@ -86,8 +86,9 @@ namespace
 					   apdict, algo);
           auto time = sw.stop();
 
-          std::cout << formula << ", " << algo << ", " << ap->size() << ", "
-		    << num_states << ", " << res << ", " << time * 1000000 << std::endl;
+          std::cout << formula << ',' << algo << ',' << ap->size() << ','
+		    << num_states << ',' << res << ',' << time * 1000000
+		    << '\n';
 
           if (algo > '1')
             assert(res == prev);
