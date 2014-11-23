@@ -71,9 +71,11 @@ namespace spot
                       }
                     if (need_new_trans)
                       {
-                        unsigned i =
-                          a->new_transition(state, t2.dst, cond, acc);
-                        dst2trans[t2.dst].push_back(i);
+			// Load t2.dst first, because t2 can be
+			// invalidated by new_transition().
+			auto dst = t2.dst;
+                        auto i = a->new_transition(state, dst, cond, acc);
+                        dst2trans[dst].push_back(i);
                         todo.push_back(i);
                       }
 		  }
