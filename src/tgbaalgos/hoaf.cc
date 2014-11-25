@@ -32,6 +32,7 @@
 #include "misc/minato.hh"
 #include "tgba/formula2bdd.hh"
 #include "ltlvisit/tostring.hh"
+#include "ltlast/atomic_prop.hh"
 
 namespace spot
 {
@@ -265,7 +266,11 @@ namespace spot
     bdd_dict* d = aut->get_dict();
     for (metadata::vap_t::const_iterator i = md.vap.begin();
 	 i != md.vap.end(); ++i)
-      escape_str(os << " \"", to_string(d->bdd_map[*i].f)) << '"';
+      {
+	const ltl::atomic_prop* f = ltl::is_atomic_prop(d->bdd_map[*i].f);
+	assert(f);
+	escape_str(os << " \"", f->name()) << '"';
+      }
     os << nl;
     unsigned num_acc = md.acc.size();
     if (num_acc == 0)
