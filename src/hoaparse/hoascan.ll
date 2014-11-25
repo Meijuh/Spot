@@ -118,7 +118,6 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			   yylval->str = new std::string(s);
 			   return token::STRING;
  			}
-  \\\"			s += '"';
   \\.			s += yytext[1];
   [^\\\"]+		s.append(yytext, yyleng);
   <<EOF>>		{

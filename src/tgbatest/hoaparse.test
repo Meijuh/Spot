@@ -456,7 +456,7 @@ States: 2
 Start: 0
 Start: 1
 Start: 0 /* duplicate */
-AP: 2 "a" "b"
+AP: 2 "a" "\"b\""
 Acceptance: 1 Inf(0)
 --BODY--
 State: 0 {0}
@@ -472,7 +472,7 @@ expectok input <<EOF
 HOA: v1
 States: 3
 Start: 0
-AP: 2 "a" "b"
+AP: 2 "a" "\"b\""
 acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
