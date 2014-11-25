@@ -391,7 +391,14 @@ main(int argc, char** argv)
   post.set_level(level);
 
   hoa_processor processor(post);
-  if (processor.run())
-    return 2;
+  try
+    {
+      if (processor.run())
+	return 2;
+    }
+  catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
   return 0;
 }

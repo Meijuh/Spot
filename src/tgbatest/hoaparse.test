@@ -717,3 +717,7 @@ input:4.7-242: unclosed string
 input:4.7-242: syntax error, unexpected end of file, expecting string
 autfilt: failed to read automaton from input
 EOF
+
+expecterr non-existant<<EOF
+autfilt: Cannot open file non-existant
+EOF
