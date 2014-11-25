@@ -32,7 +32,7 @@
 
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
-#include "tgbaalgos/hoaf.hh"
+#include "tgbaalgos/hoa.hh"
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
@@ -128,7 +128,7 @@ const struct argp_child children[] =
 enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa } format = Dot;
 bool utf8 = false;
 const char* stats = "";
-const char* hoaf_opt = 0;
+const char* hoa_opt = 0;
 spot::option_map extra_options;
 
 static int
@@ -148,7 +148,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'H':
       format = Hoa;
-      hoaf_opt = arg;
+      hoa_opt = arg;
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
@@ -324,7 +324,7 @@ namespace
 	  spot::lbtt_reachable(std::cout, aut, false);
 	  break;
 	case Hoa:
-	  spot::hoaf_reachable(std::cout, aut, hoaf_opt) << '\n';
+	  spot::hoa_reachable(std::cout, aut, hoa_opt) << '\n';
 	  break;
 	case Spot:
 	  spot::tgba_save_reachable(std::cout, aut);

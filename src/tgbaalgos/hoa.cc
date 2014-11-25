@@ -24,7 +24,7 @@
 #include <sstream>
 #include <map>
 #include "tgba/tgba.hh"
-#include "hoaf.hh"
+#include "hoa.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
 #include "misc/bddlt.hh"
@@ -226,20 +226,20 @@ namespace spot
 
 
   std::ostream&
-  hoaf_reachable(std::ostream& os,
-		 const const_tgba_ptr& aut,
-		 const ltl::formula* f,
-		 hoaf_acceptance acceptance,
-		 hoaf_alias alias,
-		 bool newline)
+  hoa_reachable(std::ostream& os,
+		const const_tgba_ptr& aut,
+		const ltl::formula* f,
+		hoa_acceptance acceptance,
+		hoa_alias alias,
+		bool newline)
   {
     (void) alias;
 
     metadata md(aut);
 
-    if (acceptance == Hoaf_Acceptance_States
+    if (acceptance == Hoa_Acceptance_States
 	&& !md.state_acc)
-      acceptance = Hoaf_Acceptance_Transitions;
+      acceptance = Hoa_Acceptance_Transitions;
 
     unsigned num_states = md.nm.size();
 
@@ -281,9 +281,9 @@ namespace spot
       }
     os << nl;
     os << "properties: trans-labels explicit-labels";
-    if (acceptance == Hoaf_Acceptance_States)
+    if (acceptance == Hoa_Acceptance_States)
       os << " state-acc";
-    else if (acceptance == Hoaf_Acceptance_Transitions)
+    else if (acceptance == Hoa_Acceptance_Transitions)
       os << " trans-acc";
     if (md.is_complete)
       os << " complete";
@@ -293,16 +293,16 @@ namespace spot
     os << "--BODY--" << nl;
     for (unsigned i = 0; i < num_states; ++i)
       {
-	hoaf_acceptance this_acc = acceptance;
-	if (this_acc == Hoaf_Acceptance_Mixed)
+	hoa_acceptance this_acc = acceptance;
+	if (this_acc == Hoa_Acceptance_Mixed)
 	  this_acc = (md.common_acc[i] ?
-		      Hoaf_Acceptance_States : Hoaf_Acceptance_Transitions);
+		      Hoa_Acceptance_States : Hoa_Acceptance_Transitions);
 
 	tgba_succ_iterator* j = aut->succ_iter(md.nm[i]);
 	j->first();
 
 	os << "State: " << i;
-	if (this_acc == Hoaf_Acceptance_States && !j->done())
+	if (this_acc == Hoa_Acceptance_States && !j->done())
 	  md.emit_acc(os, aut, j->current_acceptance_conditions());
 	os << nl;
 
@@ -310,7 +310,7 @@ namespace spot
 	  {
 	    const state* dst = j->current_state();
 	    os << '[' << md.sup[j->current_condition()] << "] " << md.sm[dst];
-	    if (this_acc == Hoaf_Acceptance_Transitions)
+	    if (this_acc == Hoa_Acceptance_Transitions)
 	      md.emit_acc(os, aut, j->current_acceptance_conditions());
 	    os << nl;
 	    dst->destroy();
@@ -324,14 +324,14 @@ namespace spot
   }
 
   std::ostream&
-  hoaf_reachable(std::ostream& os,
-		 const const_tgba_ptr& aut,
-		 const char* opt,
-		 const ltl::formula* f)
+  hoa_reachable(std::ostream& os,
+		const const_tgba_ptr& aut,
+		const char* opt,
+		const ltl::formula* f)
   {
     bool newline = true;
-    hoaf_acceptance acceptance = Hoaf_Acceptance_States;
-    hoaf_alias alias = Hoaf_Alias_None;
+    hoa_acceptance acceptance = Hoa_Acceptance_States;
+    hoa_alias alias = Hoa_Alias_None;
 
     if (opt)
       while (*opt)
@@ -342,17 +342,17 @@ namespace spot
 	      newline = false;
 	      break;
 	    case 'm':
-	      acceptance = Hoaf_Acceptance_Mixed;
+	      acceptance = Hoa_Acceptance_Mixed;
 	      break;
 	    case 's':
-	      acceptance = Hoaf_Acceptance_States;
+	      acceptance = Hoa_Acceptance_States;
 	      break;
 	    case 't':
-	      acceptance = Hoaf_Acceptance_Transitions;
+	      acceptance = Hoa_Acceptance_Transitions;
 	      break;
 	    }
 	}
-    return hoaf_reachable(os, aut, f, acceptance, alias, newline);
+    return hoa_reachable(os, aut, f, acceptance, alias, newline);
   }
 
 }

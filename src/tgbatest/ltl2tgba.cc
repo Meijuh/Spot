@@ -36,7 +36,7 @@
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
-#include "tgbaalgos/hoaf.hh"
+#include "tgbaalgos/hoa.hh"
 #include "tgbaalgos/degen.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/reducerun.hh"
@@ -385,7 +385,7 @@ checked_main(int argc, char** argv)
   bool opt_closure = false;
   bool opt_stutterize = false;
   bool spin_comments = false;
-  const char* hoaf_opt = 0;
+  const char* hoa_opt = 0;
   spot::ltl::environment& env(spot::ltl::default_environment::instance());
   spot::ltl::atomic_prop_set* unobservables = 0;
   spot::tgba_ptr system_aut = 0;
@@ -554,7 +554,7 @@ checked_main(int argc, char** argv)
       else if (!strncmp(argv[formula_index], "-H", 2))
 	{
 	  output = 17;
-	  hoaf_opt = argv[formula_index] + 2;
+	  hoa_opt = argv[formula_index] + 2;
 	}
       else if (!strcmp(argv[formula_index], "-k"))
 	{
@@ -1718,7 +1718,7 @@ checked_main(int argc, char** argv)
 	      }
 	    case 17:
 	      {
-		hoaf_reachable(std::cout, a, hoaf_opt, f) << '\n';
+		hoa_reachable(std::cout, a, hoa_opt, f) << '\n';
 		break;
 	      }
 	    default:

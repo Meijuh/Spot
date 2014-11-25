@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_HOAF_HH
-# define SPOT_TGBAALGOS_HOAF_HH
+#ifndef SPOT_TGBAALGOS_HOA_HH
+# define SPOT_TGBAALGOS_HOA_HH
 
 #include <iosfwd>
 #include "ltlast/formula.hh"
@@ -26,15 +26,15 @@
 
 namespace spot
 {
-  enum hoaf_alias { Hoaf_Alias_None, Hoaf_Alias_Ap, Hoaf_Alias_Cond };
-  enum hoaf_acceptance
+  enum hoa_alias { Hoa_Alias_None, Hoa_Alias_Ap, Hoa_Alias_Cond };
+  enum hoa_acceptance
     {
-      Hoaf_Acceptance_States,	/// state-based acceptance if
+      Hoa_Acceptance_States,	/// state-based acceptance if
 				/// (globally) possible
 				/// transition-based acceptance
 				/// otherwise.
-      Hoaf_Acceptance_Transitions, /// transition-based acceptance globally
-      Hoaf_Acceptance_Mixed  /// mix state-based and transition-based
+      Hoa_Acceptance_Transitions, /// transition-based acceptance globally
+      Hoa_Acceptance_Mixed    /// mix state-based and transition-based
     };
 
   /// \ingroup tgba_io
@@ -49,18 +49,18 @@ namespace spot
   /// \param alias Whether aliases should be used in output.
   /// \param newlines Whether to use newlines in output.
   SPOT_API std::ostream&
-  hoaf_reachable(std::ostream& os,
-		 const const_tgba_ptr& g,
-		 const ltl::formula* f = 0,
-		 hoaf_acceptance acceptance = Hoaf_Acceptance_States,
-		 hoaf_alias alias = Hoaf_Alias_None,
-		 bool newlines = true);
+  hoa_reachable(std::ostream& os,
+		const const_tgba_ptr& g,
+		const ltl::formula* f = 0,
+		hoa_acceptance acceptance = Hoa_Acceptance_States,
+		hoa_alias alias = Hoa_Alias_None,
+		bool newlines = true);
 
   SPOT_API std::ostream&
-  hoaf_reachable(std::ostream& os,
-		 const const_tgba_ptr& g,
-		 const char* opt,
-		 const ltl::formula* f = 0);
+  hoa_reachable(std::ostream& os,
+		const const_tgba_ptr& g,
+		const char* opt,
+		const ltl::formula* f = 0);
 }
 
-#endif // SPOT_TGBAALGOS_HOAF_HH
+#endif // SPOT_TGBAALGOS_HOA_HH

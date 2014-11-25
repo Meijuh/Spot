@@ -43,7 +43,7 @@ tgbaalgos_HEADERS = \
   emptiness.hh \
   emptiness_stats.hh \
   gv04.hh \
-  hoaf.hh \
+  hoa.hh \
   isdet.hh \
   isweakscc.hh \
   lbtt.hh \
@@ -93,7 +93,7 @@ libtgbaalgos_la_SOURCES = \
   dupexp.cc \
   emptiness.cc \
   gv04.cc \
-  hoaf.cc \
+  hoa.cc \
   isdet.cc \
   isweakscc.cc \
   lbtt.cc \
