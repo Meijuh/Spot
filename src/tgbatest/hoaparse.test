@@ -93,13 +93,15 @@ AP: 1 "a"
 Acceptance: 1 Inf(0)
 --BODY--
 State: 0 {0}
-[0] 0
+[2] 0
 State: 0 {0}
 [t] 0
 --END--
 EOF
 
 expecterr input <<EOF
+input:8.2: AP number is larger than the number of APs...
+input:4.1-5: ... declared here
 input:9.1-8: redeclaration of state 0
 EOF
 
@@ -369,6 +371,15 @@ cat >input <<EOF
     [!@a & @bc]  0 {1}
     [@a & @bc]   0 {0 1}
     --END--
+HOA: v1
+States: 2
+Start: 0
+Acceptance: 0 t
+AP: 1 "a"
+--BODY--
+State: [0] 0 1
+State: [0] 1 1
+--END--
 EOF
 
 expectok input <<EOF
@@ -386,8 +397,20 @@ State: 0
 [!0&1&2] 0 {1}
 [0&1&2] 0 {0 1}
 --END--
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[0] 1
+State: 1
+[0] 1
+--END--
 EOF
-
 
 cat >input <<EOF
 HOA: v1
@@ -729,7 +752,32 @@ expecterr non-existant<<EOF
 autfilt: Cannot open file non-existant
 EOF
 
+run 2 ../ltl2tgba -XH foob 2>output.err
+grep 'foob:1.1: Cannot open file foob' output.err
+
 # Make sure we can read multiple automata from stdin
 ../../bin/ltl2tgba 'a U b' 'GFa' --hoa | grep -v '^name:' > input
 ../../bin/autfilt --hoa < input | ../../bin/autfilt --hoa > output
 diff input output
+
+
+
+# Parse something in debug mode, to exercise the %printer
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[t] 0
+--END--
+EOF
+
+run 0 ../ltl2tgba -d -XH input 2> output.err
+grep -- "--BODY--" output.err
+grep "identifier.*v1" output.err
