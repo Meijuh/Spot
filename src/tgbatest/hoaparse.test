@@ -429,6 +429,13 @@ input:7.15-23: aborted input automaton
 input:8.1-16.12: aborted input automaton
 EOF
 
+# DOS-style new lines should have the same output.
+sed 's/$/\r/g' input > input.dos
+mv input.dos input
+../../bin/autfilt --hoa input 2>stderr && exit 1
+cat stderr
+diff stderr input.exp
+
 cat >expected <<EOF
 HOA: v1
 States: 2
