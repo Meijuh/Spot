@@ -728,3 +728,8 @@ EOF
 expecterr non-existant<<EOF
 autfilt: Cannot open file non-existant
 EOF
+
+# Make sure we can read multiple automata from stdin
+../../bin/ltl2tgba 'a U b' 'GFa' --hoa | grep -v '^name:' > input
+../../bin/autfilt --hoa < input | ../../bin/autfilt --hoa > output
+diff input output
