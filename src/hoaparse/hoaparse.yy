@@ -549,7 +549,7 @@ trans-label: label
 	         {
 		   if (res.has_state_label)
 		     {
-		       error(@1, "cannot label this transition because...");
+		       error(@1, "cannot label this edge because...");
 		       error(res.state_label_loc,
 			     "... the state is already labeled.");
 		       res.cur_label = res.state_label;
@@ -586,11 +586,30 @@ acc-sets:
 	    else
 	      $$ = $1 | res.h->aut->acc().mark($2);
 	  }
-labeled-edges: | labeled-edges labeled-edge
+
+/* block of labeled-edges, with occasional (incorrect) unlabeled edge */
+labeled-edges: | some-labeled-edges
+some-labeled-edges: labeled-edge
+                  | some-labeled-edges labeled-edge
+                  | some-labeled-edges incorrectly-unlabeled-edge
+incorrectly-unlabeled-edge: checked-state-num acc-sig_opt
+                            {
+			      bdd cond = bddtrue;
+			      if (!res.has_state_label)
+				error(@$, "missing label for this edge "
+				      "(previous edge is labeled)");
+			      else
+				cond = res.state_label;
+			      res.h->aut->new_transition(res.cur_state, $1,
+							 cond,
+							 $2 | res.acc_state);
+			    }
 labeled-edge: trans-label checked-state-num acc-sig_opt
 	      {
-		res.h->aut->new_transition(res.cur_state, $2,
-					   res.cur_label, $3 | res.acc_state);
+		if (res.cur_label != bddfalse)
+		  res.h->aut->new_transition(res.cur_state, $2,
+					     res.cur_label,
+					     $3 | res.acc_state);
 	      }
 	    | trans-label state-conj-2 acc-sig_opt
 	      {
@@ -598,9 +617,12 @@ labeled-edge: trans-label checked-state-num acc-sig_opt
 		YYABORT;
 	      }
 
-/* We never have zero unlabeled edges, these are considered as zero
-   labeled edges. */
-unlabeled-edges: unlabeled-edge | unlabeled-edges unlabeled-edge
+/* Block of unlabeled edge, with occasional (incorrect) labeled
+   edge. We never have zero unlabeled edges, these are considered as
+   zero labeled edges. */
+unlabeled-edges: unlabeled-edge
+               | unlabeled-edges unlabeled-edge
+               | unlabeled-edges incorrectly-labeled-edge
 unlabeled-edge: checked-state-num acc-sig_opt
 		{
 		  bdd cond;
@@ -623,14 +645,20 @@ unlabeled-edge: checked-state-num acc-sig_opt
 			  cond = *res.cur_guard++;
 			}
 		    }
-		  res.h->aut->new_transition(res.cur_state, $1,
-					     cond, $2 | res.acc_state);
+		  if (cond != bddfalse)
+		    res.h->aut->new_transition(res.cur_state, $1,
+					       cond, $2 | res.acc_state);
 		}
 	      | state-conj-2 acc-sig_opt
 		{
 		  error(@1, "alternation is not yet supported");
 		  YYABORT;
 		}
+incorrectly-labeled-edge: trans-label unlabeled-edge
+                          {
+			    error(@1, "ignoring this label, because previous"
+				  " edge has no label");
+                          }
 
 %%
 

@@ -30,6 +30,8 @@
 #define YY_NEVER_INTERACTIVE 1
 
 typedef hoayy::parser::token token;
+static unsigned comment_level = 0;
+
 %}
 
 eol         \n+|\r+
@@ -50,8 +52,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 {eol}			yylloc->lines(yyleng); yylloc->step();
 {eol2}			yylloc->lines(yyleng / 2); yylloc->step();
 [ \t\v\f]+		yylloc->step();
-"/*"			BEGIN(in_COMMENT);
-"//".*			continue;
+"/""*"+			BEGIN(in_COMMENT); comment_level = 1;
 "\""			BEGIN(in_STRING);
 
 "HOA:"                  return token::HOA;
@@ -97,10 +98,12 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			}
 
 <in_COMMENT>{
-  [^*\n]*		continue;
+  "/""*"+		++comment_level;
+  [^*/\n]*		continue;
+  "/"[^*\n]*		continue;
   "*"+[^*/\n]*		continue;
   "\n"+			yylloc->end.column = 1;	yylloc->lines(yyleng);
-  "*"+"/"		BEGIN(INITIAL);
+  "*"+"/"		if (--comment_level == 0) BEGIN(INITIAL);
   <<EOF>>		{
                            error_list.push_back(
 			     spot::hoa_parse_error(*yylloc,
@@ -155,6 +158,7 @@ namespace spot
     // ended badly.
     YY_NEW_FILE;
     BEGIN(INITIAL);
+    comment_level = 0;
     return 0;
   }
 

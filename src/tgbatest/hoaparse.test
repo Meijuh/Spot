@@ -300,6 +300,7 @@ EOF
 
 cat >input<<EOF
     HOA: v1
+    tool: "test"
     States: 3
     Start: 0
     acc-name: generalized-Buchi 2
@@ -320,7 +321,7 @@ cat >input<<EOF
 EOF
 
 expecterr input <<EOF
-input:13.7: too many transition for this state, ignoring this one
+input:14.7: too many transition for this state, ignoring this one
 EOF
 
 
@@ -356,7 +357,7 @@ cat >input <<EOF
     name: "GFa & GF(b & c)"
     States: 1
     Start: 0
-    acc-name: generalized-Buchi 2
+    acc-name: who cares
     Acceptance: 2 (Inf(0) & Inf(1))
     AP: 3 "a" "b" "c"
     Alias: @a 0
@@ -417,6 +418,7 @@ State: 0 {0}
 State: 1
 [!0] 1
 [0] 0
+[f] 0
 --END--
 EOF
 
@@ -499,7 +501,7 @@ Acceptance: 1 Inf(0)
 --BODY--
 State: 0 {0}
 [1] 1
-[!1] 0
+[!1] 0  /* nested /* comment */ */
 State: 1
 [!0] 1
 [0] 0
@@ -522,6 +524,33 @@ State: 1
 [!0] 1
 [0] 0
 --END--
+EOF
+
+cat >input <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+--BODY--
+State: [1] 0 {0}
+[!1] 0
+ 1
+State: 1
+[!0] 1
+     2
+State: 2
+     1
+[t] 2
+   1 2
+--END--
+EOF
+
+expecterr input <<EOF
+input:8.1-4: cannot label this edge because...
+input:7.8-10: ... the state is already labeled.
+input:12.6: missing label for this edge (previous edge is labeled)
+input:15.1-3: ignoring this label, because previous edge has no label
 EOF
 
 
@@ -617,4 +646,74 @@ input:25.1-12: ignoring leading garbage
 input:32.1-5: syntax error, unexpected header name, expecting --END-- or State:
 input:37.1-4: syntax error, unexpected identifier, expecting end of file or HOA:
 input:39.1-3: syntax error, unexpected identifier, expecting end of file or HOA:
+EOF
+
+# A comment can contain --BODY-- or --END--, so we do not want to be
+# smart about it.
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 0
+acc-name: Buchi /* unclosed comment
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[t] 0
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[t] 0
+--END--
+EOF
+
+expecterr input <<EOF
+input:5.17-25.1: unclosed comment
+input:5.17-25.1: syntax error, unexpected end of file
+autfilt: failed to read automaton from input
+EOF
+
+# Likewise for strings
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 0
+tool: "unterminated string
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[t] 0
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[t] 0
+--END--
+EOF
+
+expecterr input <<EOF
+input:4.7-242: unclosed string
+input:4.7-242: syntax error, unexpected end of file, expecting string
+autfilt: failed to read automaton from input
 EOF
