@@ -24,6 +24,7 @@
 %option prefix="ltlyy"
 %option outfile="lex.yy.c"
 %option stack
+%option never-interactive
 
 %{
 #include <cstdlib>
