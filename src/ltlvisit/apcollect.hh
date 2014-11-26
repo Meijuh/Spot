@@ -39,6 +39,10 @@ namespace spot
     typedef std::set<const atomic_prop*,
 		     formula_ptr_less_than> atomic_prop_set;
 
+    /// \brief construct an atomic_prop_set with n propositions
+    SPOT_API
+    atomic_prop_set create_atomic_prop_set(unsigned n);
+
     /// \brief Destroy all the atomic propositions in an
     /// atomic_prop_set.
     SPOT_API void

@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "misc/timer.hh"
-#include "ltlast/atomic_prop.hh"
+#include "ltlvisit/apcollect.hh"
 #include "tgbaalgos/dtgbacomp.hh"
 #include "tgbaalgos/stutter_invariance.hh"
 #include "tgbaalgos/randomgraph.hh"
@@ -45,20 +45,11 @@ main()
         for (unsigned props_n = 1; props_n <= 4; ++props_n)
           {
             // random ap set
-            auto ap = new spot::ltl::atomic_prop_set();
-            spot::ltl::default_environment& e =
-              spot::ltl::default_environment::instance();
-            for (unsigned i = 1; i < props_n; ++i)
-              {
-                std::ostringstream p;
-                p << 'p' << i;
-                ap->insert(static_cast<const spot::ltl::atomic_prop*>
-                           (e.require(p.str())));
-              }
+            auto ap = spot::ltl::create_atomic_prop_set(props_n);
 
             // ap set as bdd
             bdd apdict = bddtrue;
-            for (auto& i: *ap)
+            for (auto& i: ap)
               apdict &= bdd_ithvar(dict->register_proposition(i, a));
 
             // generate n random automata
@@ -67,7 +58,7 @@ main()
             std::vector<aut_pair_t> vec;
             for (unsigned i = 0; i < n; ++i)
               {
-                a = spot::random_graph(states_n, d, ap, dict, 2, 0.1, 0.5,
+                a = spot::random_graph(states_n, d, &ap, dict, 2, 0.1, 0.5,
                                        true);
                 na = spot::dtgba_complement(a);
                 vec.push_back(aut_pair_t(a, na));
@@ -94,8 +85,7 @@ main()
                 std::cout << algo << ", " << props_n << ", " << states_n
                           << ", " << res << ", " << time << std::endl;
               }
-            spot::ltl::destroy_atomic_prop_set(*ap);
-            delete ap;
+            spot::ltl::destroy_atomic_prop_set(ap);
           }
       }
 

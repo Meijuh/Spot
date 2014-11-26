@@ -256,15 +256,7 @@ parse_opt(int key, char* arg, struct argp_state* as)
 	  if (!*endptr && res >= 0) // arg is a number
 	    {
 	      ap_count_given = true;
-	      spot::ltl::default_environment& e =
-		spot::ltl::default_environment::instance();
-	      for (int i = 0; i < res; ++i)
-		{
-		  std::ostringstream p;
-		  p << 'p' << i;
-		  aprops.insert(static_cast<const spot::ltl::atomic_prop*>
-				(e.require(p.str())));
-		}
+	      aprops = spot::ltl::create_atomic_prop_set(res);
 	      break;
 	    }
 	}

@@ -53,6 +53,20 @@ namespace spot
       };
     }
 
+    atomic_prop_set create_atomic_prop_set(unsigned n)
+    {
+      atomic_prop_set res;
+      auto& e = spot::ltl::default_environment::instance();
+      for (unsigned i = 0; i < n; ++i)
+	{
+	  std::ostringstream p;
+	  p << 'p' << i;
+	  res.insert(static_cast<const spot::ltl::atomic_prop*>
+		     (e.require(p.str())));
+	}
+      return res;
+    }
+
     void destroy_atomic_prop_set(atomic_prop_set& aprops)
     {
       atomic_prop_set::const_iterator i = aprops.begin();
