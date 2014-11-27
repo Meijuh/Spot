@@ -37,13 +37,14 @@ Options:
   -t   display reachable states in LBTT's format
   -T   use ltl2taa for translation
   -v   display the BDD variables used by the automaton
+  -W   minimize obligation properties
 """ % prog)
     sys.exit(2)
 
 
 prog = sys.argv[0]
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'dDftTv')
+    opts, args = getopt.getopt(sys.argv[1:], 'dDftTvW')
 except getopt.GetoptError:
     usage(prog)
 
@@ -53,6 +54,7 @@ degeneralize_opt = None
 output = 0
 fm_opt = 0
 taa_opt = 0
+wdba = 0
 
 for o, a in opts:
     if o == '-d':
@@ -67,6 +69,8 @@ for o, a in opts:
         taa_opt = 1
     elif o == '-v':
         output = 5
+    elif o == '-W':
+        wdba = 1
     else:
         usage(prog)
 
@@ -94,6 +98,11 @@ if f:
         a = concrete = spot.ltl_to_taa(f, dict)
     else:
         assert "unspecified translator"
+
+    if wdba:
+        a = spot.ensure_digraph(a)
+        a = spot.minimize_obligation(a, f)
+
     f.destroy()
     del f
 

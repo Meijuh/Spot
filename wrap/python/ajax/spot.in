@@ -325,14 +325,14 @@ def print_stats(automaton, detinfo = False, ta = False):
                       's' if stats.transitions > 1 else '',
                       stats.sub_transitions,
                       's' if stats.sub_transitions > 1 else ''))
-    if hasattr(automaton, 'number_of_acceptance_conditions'):
-        count = automaton.number_of_acceptance_conditions()
+    if hasattr(automaton, 'acc'):
+        count = automaton.acc().num_sets()
         if count > 0:
             unbufprint(", %d acceptance condition" % count)
             if count > 1:
                 unbufprint("s")
-            acc = automaton.all_acceptance_conditions()
-            unbufprint(": " + spot.bdd_format_accset(automaton.get_dict(), acc))
+            unbufprint(": " +
+                       automaton.acc().format(automaton.acc().all_sets()))
         else:
             unbufprint(", no acceptance condition (all cycles are accepting)")
     unbufprint("</p>\n")
@@ -780,7 +780,7 @@ if output_type == 'r':
         ec = 0
     else:
         ec_a = 0
-        n_acc = degen.number_of_acceptance_conditions()
+        n_acc = degen.acc().num_sets()
         n_max = eci.max_acceptance_conditions()
         n_min = eci.min_acceptance_conditions()
         if (n_acc <= n_max):

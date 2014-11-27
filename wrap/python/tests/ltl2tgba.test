@@ -45,3 +45,6 @@ set -e
 ./run $srcdir/ltl2tgba.py -f 'Fa & Xb & GFc & Gd'
 ./run $srcdir/ltl2tgba.py -f 'Fa & Xa & GFc & Gc'
 ./run $srcdir/ltl2tgba.py -f 'Fc & X(a | Xb) & GF(a | Xb) & Gc'
+
+./run $srcdir/ltl2tgba.py -W -f 'Ga | Gb | Gc'
+./run $srcdir/ltl2tgba.py -W -T 'Ga | Gb | Gc'

@@ -105,6 +105,7 @@ namespace std {
 
 #include "tgba/bddprint.hh"
 #include "tgba/fwd.hh"
+#include "tgba/acc.hh"
 #include "tgba/tgba.hh"
 #include "tgba/taatgba.hh"
 #include "tgba/tgbaproduct.hh"
@@ -226,6 +227,8 @@ using namespace spot;
 #define ltl spot::ltl
 %include "tgba/bddprint.hh"
 %include "tgba/fwd.hh"
+%feature("flatnested") spot::acc_cond::mark_t;
+%include "tgba/acc.hh"
 %include "tgba/tgba.hh"
 %include "tgba/taatgba.hh"
 %include "tgba/tgbaproduct.hh"
@@ -357,6 +360,15 @@ empty_tgba_parse_error_list()
 {
   tgba_parse_error_list l;
   return l;
+}
+
+spot::tgba_digraph_ptr
+ensure_digraph(const spot::tgba_ptr& a)
+{
+  auto aa = std::dynamic_pointer_cast<spot::tgba_digraph>(a);
+  if (aa)
+    return aa;
+  return spot::make_tgba_digraph(a);
 }
 
 std::ostream&
