@@ -55,12 +55,12 @@ and c, with the default tree-size, and all available operators.\n\
 \n\
 If you do not mind about the name of the atomic propositions, just give\n\
 a number instead:\n\
-  % ./randltl -n10 3\n\
+  % randltl -n10 3\n\
 \n\
 You can disable or favor certain operators by changing their priority.\n\
 The following disables xor, implies, and equiv, and multiply the probability\n\
 of X to occur by 10.\n\
-  % ./randltl --ltl-priorities='xor=0, implies=0, equiv=0, X=10' -n10 a b c\n\
+  % randltl --ltl-priorities='xor=0, implies=0, equiv=0, X=10' -n10 a b c\n\
 ";
 
 #define OPT_DUMP_PRIORITIES 1
