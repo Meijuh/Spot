@@ -1,0 +1,166 @@
+#+TITLE: =autfilt=
+#+EMAIL spot@lrde.epita.fr
+#+OPTIONS: H:2 num:nil toc:t
+#+LINK_UP: tools.html
+
+The =autfilt= tool can filter, transform, and convert a stream of automata.
+
+* Conversion between formats
+
+=autfilt= reads automata in the [[http://adl.github.io/hoaf/][Hanoi Omega Automata Format]].  The
+output format can be controlled using the =--spin=, =--lbtt=, =--dot=,
+or =--hoaf= options.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+cat >example.hoa <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "p0"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0
+[0] 0 {0}
+[!0] 0
+--END--
+EOF
+autfilt example.hoa --dot
+#+END_SRC
+
+#+RESULTS:
+: digraph G {
+:   0 [label="", style=invis, height=0]
+:   0 -> 1
+:   1 [label="0"]
+:   1 -> 1 [label="p0\n{0}"]
+:   1 -> 1 [label="!p0"]
+: }
+
+The =--spin= options implicitly requires a degeneralization:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+autfilt example.hoa --spin
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+never {
+accept_init:
+  if
+  :: ((p0)) -> goto accept_init
+  :: ((!(p0))) -> goto T0_S2
+  fi;
+T0_S2:
+  if
+  :: ((p0)) -> goto accept_init
+  :: ((!(p0))) -> goto T0_S2
+  fi;
+}
+#+end_example
+
+#+BEGIN_SRC sh :results verbatim :exports both
+autfilt example.hoa --lbtt
+#+END_SRC
+
+#+RESULTS:
+: 1 1t
+: 0 1
+: 0 0 -1 p0
+: 0 -1 ! p0
+: -1
+
+
+* Displaying statistics
+
+One special output format of =autfilt= is the statistic output.  For
+instance the following command calls [[file:randaut.org][=randaut=]] to generate 10 random
+automata, and pipe the result into =autfilt= to display various
+statistics.
+
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randaut --hoa -n 10 -A0..2 -S10..20 -d0.05 2 |
+autfilt --stats='%s states, %e edges, %a acc-sets, %c SCCs, det=%d'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+16 states, 27 edges, 1 acc-sets, 2 SCCs, det=0
+12 states, 20 edges, 1 acc-sets, 2 SCCs, det=0
+11 states, 15 edges, 0 acc-sets, 4 SCCs, det=1
+16 states, 29 edges, 0 acc-sets, 2 SCCs, det=0
+15 states, 30 edges, 2 acc-sets, 1 SCCs, det=0
+11 states, 17 edges, 1 acc-sets, 2 SCCs, det=0
+11 states, 16 edges, 1 acc-sets, 1 SCCs, det=1
+17 states, 28 edges, 1 acc-sets, 1 SCCs, det=0
+19 states, 36 edges, 0 acc-sets, 3 SCCs, det=0
+11 states, 16 edges, 2 acc-sets, 6 SCCs, det=0
+#+end_example
+
+The following =%= sequences are available:
+#+BEGIN_SRC sh :results verbatim :exports results
+autfilt --help | sed -n '/^  %%/,/^$/p' | sed '$d'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+  %%                         a single %
+  %A, %a                     number of acceptance pairs or sets
+  %C, %c                     number of SCCs
+  %d                         1 if the output is deterministic, 0 otherwise
+  %E, %e                     number of edges
+  %F                         name of the input file
+  %n                         number of nondeterministic states in output
+  %p                         1 if the output is complete, 0 otherwise
+  %r                         conversion time (including post-processings, but
+                             not parsing) in seconds
+  %S, %s                     number of states
+  %T, %t                     number of transitions
+#+end_example
+
+When a letter is available both as uppercase and lowercase, the
+uppercase version refer to the input automaton, while the lowercase
+refer to the output automaton.  Of course this distinction makes sense
+only if =autfilt= was instructed to perform an operation on the input
+automaton.
+
+* Simplifying automata
+
+The standard set of automata simplification routines (these are often
+referred to as the "post-processing" routines, because these are the
+procedures performed by [[file:ltl2tgba.org][=ltl2tgba=]] after translating a formula into a
+TGBA) are available through the following options.
+
+This set of options controls the desired type of output automaton:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+autfilt --help | sed -n '/Output automaton type:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+#+RESULTS:
+:   -B, --ba                   Büchi Automaton
+:   -M, --monitor              Monitor (accepts all finite prefixes of the given
+:                              property)
+:       --tgba                 Transition-based Generalized Büchi Automaton
+:                              (default)
+
+These options specifies desired properties:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+autfilt --help | sed -n '/Translation intent:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+#+RESULTS:
+:   -a, --any                  no preference (default)
+:   -C, --complete             output a complete automaton (combine with other
+:                              intents)
+:   -D, --deterministic        prefer deterministic automata
+:       --small                prefer small automata
+
+Finally, the following switches control the amount of effort applied
+to reach the desired properties:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+autfilt --help | sed -n '/Optimization level:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+#+RESULTS:
+:       --high                 all available optimizations (slow)
+:       --low                  minimal optimizations (fast, default)
+:       --medium               moderate optimizations

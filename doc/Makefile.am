@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2013 Laboratoire de Recherche et
+## Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et
 ## Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -60,6 +60,7 @@ ORG_FILES = \
   org/.dir-locals.el \
   org/init.el.in \
   org/syntax.css \
+  org/autfilt.org \
   org/csv.org \
   org/dstar2tgba.org \
   org/genltl.org \
@@ -68,6 +69,8 @@ ORG_FILES = \
   org/ltl2tgta.org \
   org/ltlcross.org \
   org/ltlfilt.org \
+  org/ltlgrind.org \
+  org/randaut.org \
   org/randltl.org \
   org/tools.org \
   org/satmin.org \

@@ -7,13 +7,18 @@ New in spot 1.99a (not yet released)
       already installed on the system.
 
     - ltlgrind is a new tool that mutates LTL or PSL formulas.  If you
-      have a tool that is bogus on some formula that is tool large to
+      have a tool that is bogus on some formula that is too large to
       debug, you can use ltlgrind to generate smaller derived formulas
       and see if you can reproduce the bug on those.
 
     - ltlcross has a new option --grind, that attempts to reduce the
       size of any bogus formula it discovers, while still exhibiting
       the bug.
+
+    - randaut is a new tool that generates random automata.
+
+    - autfilt is a new tool that converts/filters/transforms a
+      stream of automata.
 
     - "ltlfilt --stutter-invariant" will now work with PSL formula.
       The implementation is actually much more efficient

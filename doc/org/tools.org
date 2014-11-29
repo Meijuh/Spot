@@ -36,7 +36,7 @@ corresponding commands are hidden.
 * Command-line tools
 
 - [[file:randltl.org][=randltl=]] Generate random LTL/PSL formulas.
-- [[file:ltlfilt.org][=ltlfilt=]] Filter LTL/PSL formulas.
+- [[file:ltlfilt.org][=ltlfilt=]] Filter and convert LTL/PSL formulas.
 - [[file:genltl.org][=genltl=]] Generate LTL formulas from scalable patterns.
 - [[file:ltl2tgba.org][=ltl2tgba=]] Translate LTL/PSL formulas into Büchi automata.
 - [[file:ltl2tgta.org][=ltl2tgta=]] Translate LTL/PSL formulas into Testing automata.
@@ -45,8 +45,10 @@ corresponding commands are hidden.
   Büchi automata.
 - [[file:ltlgrind.org][=ltlgrind=]] List formulas similar to but simpler than a given LTL/PSL
   formula
+- [[file:randaut.org][=randaut=]] Generate random automata.
+- [[file:autfilt.org][=autfilt=]] Filter and convert automata.
 
-* Advanced uses
+* Advanced use-cases
 
 - [[file:csv.org][Reading and writing CSV files]]
 - [[file:satmin.org][SAT-based minimization of Deterministic (Generalized) Büchi automata]]

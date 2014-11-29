@@ -1,0 +1,308 @@
+#+TITLE: =randaut=
+#+EMAIL spot@lrde.epita.fr
+#+OPTIONS: H:2 num:nil toc:t
+#+LINK_UP: tools.html
+
+The =randaut= tool generates random (connected) automata.
+
+By default, it will generate a random TGBA with 10 states, no
+acceptance sets, and using a set of atomic proposition you have to
+supply.
+
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut a b
+#+END_SRC
+
+#+NAME: randaut1
+#+BEGIN_SRC sh :results verbatim :exports none
+randaut a b | sed 's/\\/\\\\/'
+#+END_SRC
+#+RESULTS: randaut1
+#+begin_example
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="0", peripheries=2]
+  1 -> 2 [label="!a & !b"]
+  1 -> 3 [label="!a & b"]
+  2 [label="4", peripheries=2]
+  2 -> 4 [label="a & b"]
+  2 -> 5 [label="a & b"]
+  2 -> 3 [label="a & b"]
+  2 -> 6 [label="!a & b"]
+  3 [label="2", peripheries=2]
+  3 -> 3 [label="a & b"]
+  3 -> 7 [label="!a & b"]
+  3 -> 2 [label="!a & b"]
+  3 -> 6 [label="!a & b"]
+  4 [label="6", peripheries=2]
+  4 -> 8 [label="!a & !b"]
+  4 -> 6 [label="!a & !b"]
+  4 -> 7 [label="a & b"]
+  4 -> 9 [label="!a & b"]
+  5 [label="5", peripheries=2]
+  5 -> 2 [label="!a & b"]
+  5 -> 10 [label="a & !b"]
+  6 [label="3", peripheries=2]
+  6 -> 3 [label="!a & !b"]
+  6 -> 9 [label="!a & !b"]
+  7 [label="7", peripheries=2]
+  7 -> 9 [label="!a & b"]
+  8 [label="1", peripheries=2]
+  8 -> 1 [label="!a & b"]
+  8 -> 6 [label="!a & !b"]
+  9 [label="8", peripheries=2]
+  9 -> 3 [label="a & b"]
+  9 -> 10 [label="a & b"]
+  9 -> 7 [label="a & !b"]
+  9 -> 8 [label="!a & b"]
+  10 [label="9", peripheries=2]
+  10 -> 10 [label="a & !b"]
+  10 -> 5 [label="a & !b"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file randaut1.png :cmdline -Tpng :var txt=randaut1 :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:randaut1.png]]
+
+As for [[file:randltl.org][=randltl=]], you can supply a number of atomic propositions
+instead of giving a list of atomic propositions.
+
+* States and density
+
+The numbers of states can be controlled using the =-S= option.  This
+option will accept a range as argument, so for instance =-S3..6= will
+generate an automaton with 3 to 6 states.
+
+The number of edges can be controlled using the =-d= (or
+=--density=) option.  The argument should be a number between 0 and 1.
+In an automaton with $S$ states and density $d$, the degree of each
+state will follow a normal distribution with mean $1+(S-1)d$ and
+variance $(S-1)d(1-d)$.
+
+In particular =-d0= will cause all states to have 1 successors, and
+=-d1= will cause all states to be interconnected.
+
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut -S3 -d0 2
+#+END_SRC
+
+#+NAME: randaut2
+#+BEGIN_SRC sh :results verbatim :exports none
+randaut -S3 -d0 2 | sed 's/\\/\\\\/'
+#+END_SRC
+
+#+RESULTS: randaut2
+#+begin_example
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="0", peripheries=2]
+  1 -> 2 [label="!p0 & !p1"]
+  2 [label="2", peripheries=2]
+  2 -> 3 [label="!p0 & p1"]
+  3 [label="1", peripheries=2]
+  3 -> 2 [label="p0 & p1"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file randaut2.png :cmdline -Tpng :var txt=randaut2 :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:randaut2.png]]
+
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut -S3 -d1 2
+#+END_SRC
+
+#+NAME: randaut3
+#+BEGIN_SRC sh :results verbatim :exports none
+randaut -S3 -d1 2 | sed 's/\\/\\\\/'
+#+END_SRC
+
+#+RESULTS: randaut3
+#+begin_example
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="0", peripheries=2]
+  1 -> 2 [label="!p0 & !p1"]
+  1 -> 1 [label="!p0 & !p1"]
+  1 -> 3 [label="p0 & p1"]
+  2 [label="2", peripheries=2]
+  2 -> 2 [label="p0 & !p1"]
+  2 -> 3 [label="p0 & !p1"]
+  2 -> 1 [label="!p0 & !p1"]
+  3 [label="1", peripheries=2]
+  3 -> 1 [label="!p0 & !p1"]
+  3 -> 3 [label="!p0 & !p1"]
+  3 -> 2 [label="p0 & p1"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file randaut3.png :cmdline -Tpng :var txt=randaut3 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:randaut3.png]]
+
+
+* Acceptance sets
+
+The generation of acceptance sets is controlled with the following three parameters:
+
+ - =-A= (or =--acc-sets=) controls the number of acceptance sets.
+   This can be given as a range (e.g. =-A1..3=) in case you want this
+   number to be picked at random in the range.
+ - =-a= (or =--acc-probability=) controls the probability that any
+   transition belong to a given acceptance set.
+ - =--state-acc= requests that the automaton use state-based
+   acceptance.  In this case, =-a= is the probability that a /state/
+   belong to the acceptance set.  (Because Spot only deals with
+   transition-based acceptance internally, this options force all
+   transitions leaving a state to belong to the same acceptance sets.
+   But if the output format allows state-acceptance, it will be used.)
+
+In addition, =-B= (or =--ba=) is a shorthand for =-A1 --state-acc=.
+
+
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut -S3 -d0.5 -A2 -a0.2 2
+#+END_SRC
+
+#+NAME: randaut4
+#+BEGIN_SRC sh :results verbatim :exports none
+randaut -S3 -d0.5 -A2 -a0.2 2 | sed 's/\\/\\\\/'
+#+END_SRC
+
+#+RESULTS: randaut4
+#+begin_example
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="0"]
+  1 -> 2 [label="!p0 & !p1\\n{1}"]
+  1 -> 3 [label="!p0 & p1"]
+  2 [label="2"]
+  2 -> 1 [label="!p0 & !p1\\n{0}"]
+  2 -> 2 [label="!p0 & !p1"]
+  3 [label="1"]
+  3 -> 2 [label="!p0 & p1\\n{1}"]
+  3 -> 3 [label="!p0 & p1"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file randaut4.png :cmdline -Tpng :var txt=randaut4 :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:randaut4.png]]
+
+
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut -S3 -d0.4 -B -a0.5 2
+#+END_SRC
+
+#+NAME: randaut5
+#+BEGIN_SRC sh :results verbatim :exports none
+randaut -S3 -d0.4 -B -a0.5 2 | sed 's/\\/\\\\/'
+#+END_SRC
+
+#+RESULTS: randaut5
+#+begin_example
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="0", peripheries=2]
+  1 -> 2 [label="!p0 & !p1\\n{0}"]
+  1 -> 1 [label="!p0 & p1\\n{0}"]
+  2 [label="2", peripheries=2]
+  2 -> 3 [label="!p0 & p1\\n{0}"]
+  2 -> 1 [label="p0 & !p1\\n{0}"]
+  3 [label="1"]
+  3 -> 3 [label="p0 & !p1"]
+  3 -> 1 [label="p0 & !p1"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file randaut5.png :cmdline -Tpng :var txt=randaut5 :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:randaut5.png]]
+
+* Determinism
+
+The output can only contain a single edge between two given states.
+By default, the label of this edge is a random assignment of all
+atomic propositions.  Two edges leaving the same state may therefore
+have the same label.
+
+If the =-D= (or =--deterministic=) option is supplied, the labels
+are generated differently: once the degree $m$ of a state has been
+decided, the algorithm will compute a set of $m$ disjoint
+Boolean formulas over the given atomic propositions, such that the
+sum of all these formulas is $\top$.  The resulting automaton is
+therefore deterministic and complete.
+
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut -D -S3 -d0.6 -A2 -a0.5 2
+#+END_SRC
+
+#+NAME: randaut6
+#+BEGIN_SRC sh :results verbatim :exports none
+randaut -D -S3 -d0.6 -A2 -a0.5 2 | sed 's/\\/\\\\/'
+#+END_SRC
+
+#+RESULTS: randaut6
+#+begin_example
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="0"]
+  1 -> 2 [label="p0\\n{1}"]
+  1 -> 3 [label="!p0\\n{0,1}"]
+  2 [label="1"]
+  2 -> 3 [label="!p0 & p1"]
+  2 -> 1 [label="!p0 & !p1\\n{0}"]
+  2 -> 2 [label="p0\\n{0,1}"]
+  3 [label="2"]
+  3 -> 3 [label="p0 & p1\\n{1}"]
+  3 -> 1 [label="p0 & !p1\\n{0}"]
+  3 -> 2 [label="!p0"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file randaut6.png :cmdline -Tpng :var txt=randaut6 :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:randaut6.png]]
+
+
+Note that in a deterministic automaton with $a$ atomic propositions,
+it is not possible to have states with more than $2^a$ successors.  If
+the combination of =-d= and =-S= allows the situation where a state
+can have more than $2^a$ successors, the degree will be clipped to
+$2^a$.  When working with random deterministic automata over $a$
+atomic propositions, we suggest you always request more than $2^a$
+states.
+
+* Output formats
+
+The output format can be controlled using =--hoaf=, =--dot==,
+=--lbtt=, and =--spin=.  Note that =--spin= automatically implies
+=--ba=.
+
+* Generating a stream of automata
+
+Use option =-n= to specify a number of automata to build.  A negative
+value will cause an infinite number of automata to be produced.  This
+generation of multiple automata is probably useful only with =--hoaf=,
+when piped to another tool that can read this format and process
+automata in batches.
