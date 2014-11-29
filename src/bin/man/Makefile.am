@@ -31,6 +31,7 @@ dist_man1_MANS = \
   ltlcross.1 \
   ltlfilt.1 \
   ltlgrind.1 \
+  randaut.1 \
   randltl.1
 dist_man7_MANS = \
   spot-x.7
@@ -61,6 +62,9 @@ genltl.1: $(common_dep) $(srcdir)/genltl.x $(srcdir)/../genltl.cc
 
 randltl.1: $(common_dep) $(srcdir)/randltl.x $(srcdir)/../randltl.cc
 	$(convman) ../randltl$(EXEEXT) $(srcdir)/randltl.x $@
+
+randaut.1: $(common_dep) $(srcdir)/randaut.x $(srcdir)/../randaut.cc
+	$(convman) ../randaut$(EXEEXT) $(srcdir)/randaut.x $@
 
 spot-x.7: $(common_dep) $(srcdir)/spot-x.x $(srcdir)/../spot-x.cc
 	$(convman) ../spot-x$(EXEEXT) $(srcdir)/spot-x.x $@

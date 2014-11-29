@@ -1,0 +1,48 @@
+#!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2014 Laboratoire de Recherche et Développement de
+# l'Epita (LRDE).
+#
+# This file is part of Spot, a model checking library.
+#
+# Spot is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Spot is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+. ./defs
+
+set -e
+
+randaut=../../bin/randaut
+
+$randaut --spin -S4 a b | ../ltl2tgba -H -XN - >out
+grep 'States: 4' out
+grep 'AP: 2' out
+grep 'state-acc' out
+grep 'Acceptance: 1' out
+
+$randaut -n 3 --hoa -S5..9 -A1..3 3 >out
+test `grep -c 'States: [5-9]$' out` = 3
+test `grep -c 'Acceptance: [1-3] ' out` = 3
+test `grep -c 'AP: 3 ' out` = 3
+
+
+$randaut --spin -A2 3 2>stderr && exit 1
+grep 'spin.*incompatible' stderr
+
+$randaut --spin -A0 3  # should work
+
+$randaut --ba -A2 3 2>stderr && exit 1
+grep 'ba.*incompatible' stderr
+
+$randaut --ba -A0 3 2>stderr && exit 1
+grep 'ba.*incompatible' stderr

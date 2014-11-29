@@ -119,6 +119,7 @@ TESTS = \
   ltl2dstar2.test \
   ltl2ta.test \
   ltl2ta2.test \
+  randaut.test \
   randtgba.test \
   emptchk.test \
   emptchke.test \

@@ -42,8 +42,8 @@ libcommon_a_SOURCES =				\
   common_setup.hh				\
   common_sys.hh
 
-bin_PROGRAMS = autfilt ltlfilt genltl randltl ltl2tgba ltl2tgta	\
-	ltlcross dstar2tgba ltlgrind
+bin_PROGRAMS = autfilt ltlfilt genltl randaut randltl ltl2tgba	\
+	ltl2tgta ltlcross dstar2tgba ltlgrind
 
 # Dummy program used just to generate man/spot-x.7 in a way that is
 # consistent with the other man pages (e.g., with a version number that
@@ -53,6 +53,7 @@ noinst_PROGRAMS = spot-x
 autfilt_SOURCES = autfilt.cc
 ltlfilt_SOURCES = ltlfilt.cc
 genltl_SOURCES = genltl.cc
+randaut_SOURCES = randaut.cc
 randltl_SOURCES = randltl.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
 ltl2tgta_SOURCES = ltl2tgta.cc

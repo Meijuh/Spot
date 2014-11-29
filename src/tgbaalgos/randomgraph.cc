@@ -117,10 +117,15 @@ namespace spot
   tgba_digraph_ptr
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
-	       unsigned n_accs, float a, float t, bool deterministic)
+	       unsigned n_accs, float a, float t,
+	       bool deterministic, bool state_acc)
   {
     assert(n > 0);
     auto res = make_tgba_digraph(dict);
+    if (deterministic)
+      res->prop_deterministic();
+    if (state_acc)
+      res->prop_state_based_acc();
 
     int props_n = ap->size();
     int* props = new int[props_n];
@@ -181,9 +186,14 @@ namespace spot
 
         int possibilities = n;
 	unsigned dst;
+	acc_cond::mark_t m = 0U;
+	if (state_acc)
+	  m = random_acc_cond(res, n_accs, a);
+
 	for (auto& l: labels)
 	  {
-	    acc_cond::mark_t m = random_acc_cond(res, n_accs, a);
+	    if (!state_acc)
+	      m = random_acc_cond(res, n_accs, a);
 
 	    // No connection to unreachable successors so far.  This
 	    // is our last chance, so force it now.

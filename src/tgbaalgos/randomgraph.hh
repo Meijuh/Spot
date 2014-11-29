@@ -49,6 +49,8 @@ namespace spot
   ///          to an acceptance set.
   /// \param t The probability (between 0.0 and 1.0) that an atomic proposition
   ///          is true.
+  /// \param deterministic build a complete and deterministic automaton
+  /// \param state_acc build an automaton with state-based acceptance
   ///
   /// This algorithms is adapted from the one in Fig 6.2 page 48 of
   /** \verbatim
@@ -79,7 +81,7 @@ namespace spot
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
 	       unsigned n_accs = 0, float a = 0.1, float t = 0.5,
-	       bool deterministic = false);
+	       bool deterministic = false, bool state_acc = false);
 }
 
 #endif // SPOT_TGBAALGOS_RANDOMGRAPH_HH
