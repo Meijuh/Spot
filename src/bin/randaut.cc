@@ -31,7 +31,6 @@
 #include "common_range.hh"
 #include "common_cout.hh"
 
-#include "ltlast/atomic_prop.hh"
 #include "ltlenv/defaultenv.hh"
 #include "misc/random.hh"
 
@@ -242,8 +241,7 @@ parse_opt(int key, char* arg, struct argp_state* as)
 	      break;
 	    }
 	}
-      aprops.insert(static_cast<const spot::ltl::atomic_prop*>
-		    (spot::ltl::default_environment::instance().require(arg)));
+      aprops.insert(spot::ltl::default_environment::instance().require(arg));
       break;
 
     default:

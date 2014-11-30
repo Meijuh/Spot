@@ -386,7 +386,7 @@ checked_main(int argc, char** argv)
   bool opt_stutterize = false;
   bool spin_comments = false;
   const char* hoa_opt = 0;
-  spot::ltl::environment& env(spot::ltl::default_environment::instance());
+  auto& env = spot::ltl::default_environment::instance();
   spot::ltl::atomic_prop_set* unobservables = 0;
   spot::tgba_ptr system_aut = 0;
   auto dict = spot::make_bdd_dict();
@@ -846,8 +846,7 @@ checked_main(int argc, char** argv)
 	  const char* tok = strtok(argv[formula_index] + 2, ", \t;");
 	  while (tok)
 	    {
-	      unobservables->insert
-		(static_cast<const spot::ltl::atomic_prop*>(env.require(tok)));
+	      unobservables->insert(env.require(tok));
 	      tok = strtok(0, ", \t;");
 	    }
 	}

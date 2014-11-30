@@ -40,7 +40,6 @@
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
 #include "ltlenv/defaultenv.hh"
-#include "ltlast/atomic_prop.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaparse/public.hh"
 #include "misc/random.hh"
@@ -586,7 +585,7 @@ main(int argc, char** argv)
 
   spot::option_map options;
 
-  spot::ltl::environment& env(spot::ltl::default_environment::instance());
+  auto& env = spot::ltl::default_environment::instance();
   spot::ltl::atomic_prop_set* ap = new spot::ltl::atomic_prop_set;
   auto dict = spot::make_bdd_dict();
 
@@ -794,8 +793,7 @@ main(int argc, char** argv)
 	}
       else
 	{
-	  ap->insert(static_cast<const spot::ltl::atomic_prop*>
-		     (env.require(argv[argn])));
+	  ap->insert(env.require(argv[argn]));
 	}
     }
 
@@ -886,7 +884,7 @@ main(int argc, char** argv)
 		spot::ltl::atomic_prop_collect(f);
               for (spot::ltl::atomic_prop_set::iterator i = tmp->begin();
 		   i != tmp->end(); ++i)
-		apf->insert(dynamic_cast<const spot::ltl::atomic_prop*>
+		apf->insert(down_cast<const spot::ltl::atomic_prop*>
 			    ((*i)->clone()));
               f->destroy();
               delete tmp;

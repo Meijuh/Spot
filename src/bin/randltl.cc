@@ -32,7 +32,6 @@
 #include "common_r.hh"
 
 #include <sstream>
-#include "ltlast/atomic_prop.hh"
 #include "ltlast/multop.hh"
 #include "ltlast/unop.hh"
 #include "ltlvisit/randomltl.hh"
@@ -156,7 +155,7 @@ remove_some_props(spot::ltl::atomic_prop_set& s)
 
   while (n--)
     {
-      spot::ltl::atomic_prop_set::iterator i = s.begin();
+      auto i = s.begin();
       std::advance(i, spot::mrand(s.size()));
       s.erase(i);
     }
@@ -260,8 +259,7 @@ parse_opt(int key, char* arg, struct argp_state* as)
 	      break;
 	    }
 	}
-      aprops.insert(static_cast<const spot::ltl::atomic_prop*>
-		    (spot::ltl::default_environment::instance().require(arg)));
+      aprops.insert(spot::ltl::default_environment::instance().require(arg));
       break;
     default:
       return ARGP_ERR_UNKNOWN;

@@ -61,8 +61,7 @@ namespace spot
 	{
 	  std::ostringstream p;
 	  p << 'p' << i;
-	  res.insert(static_cast<const spot::ltl::atomic_prop*>
-		     (e.require(p.str())));
+	  res.insert(e.require(p.str()));
 	}
       return res;
     }

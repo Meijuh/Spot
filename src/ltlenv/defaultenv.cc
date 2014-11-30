@@ -20,7 +20,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "ltlast/atomic_prop.hh"
 #include "defaultenv.hh"
 
 namespace spot
@@ -32,7 +31,7 @@ namespace spot
     {
     }
 
-    const formula*
+    const atomic_prop*
     default_environment::require(const std::string& s)
     {
       return atomic_prop::instance(s, *this);
