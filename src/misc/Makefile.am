@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+## Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
 ## Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ## Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -32,7 +32,6 @@ DISTCLEANFILES = _config.h
 misc_HEADERS = \
   bareword.hh \
   bddlt.hh \
-  bddop.hh \
   bitvect.hh \
   casts.hh \
   common.hh \
@@ -59,7 +58,6 @@ misc_HEADERS = \
 noinst_LTLIBRARIES = libmisc.la
 libmisc_la_SOURCES = \
   bareword.cc \
-  bddop.cc \
   bitvect.cc \
   escape.cc \
   formater.cc \

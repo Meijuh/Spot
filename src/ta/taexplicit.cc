@@ -30,7 +30,6 @@
 #include "ltlast/constant.hh"
 #include "taexplicit.hh"
 #include "tgba/formula2bdd.hh"
-#include "misc/bddop.hh"
 #include <cassert>
 #include "ltlvisit/tostring.hh"
 

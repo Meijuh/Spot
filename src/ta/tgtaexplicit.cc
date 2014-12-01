@@ -21,7 +21,6 @@
 #include "ltlast/constant.hh"
 #include "tgtaexplicit.hh"
 #include "tgba/formula2bdd.hh"
-#include "misc/bddop.hh"
 #include "ltlvisit/tostring.hh"
 
 #include "tgba/bddprint.hh"

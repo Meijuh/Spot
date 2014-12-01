@@ -24,7 +24,6 @@
 #include "tgba/formula2bdd.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/clone.hh"
-#include "misc/bddop.hh"
 #include "taatgba.hh"
 
 namespace spot

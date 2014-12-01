@@ -26,7 +26,6 @@
 #include "tgba/bdddict.hh"
 #include "tgba/tgba.hh"
 #include "tgbaalgos/dupexp.hh"
-#include "misc/bddop.hh"
 #include <sstream>
 
 namespace spot
