@@ -39,7 +39,6 @@
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/sccinfo.hh"
 //#include "tgbaalgos/dotty.hh"
-#include "priv/acccompl.hh"
 
 namespace spot
 {

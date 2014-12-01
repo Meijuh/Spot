@@ -21,8 +21,6 @@ AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 noinst_HEADERS = \
-  acccompl.hh \
-  accconv.hh \
   accmap.hh \
   bddalloc.hh \
   countstates.hh \
@@ -30,10 +28,6 @@ noinst_HEADERS = \
 
 noinst_LTLIBRARIES = libpriv.la
 libpriv_la_SOURCES = \
-  acccompl.cc \
-  accconv.cc \
   bddalloc.cc \
   countstates.cc \
   freelist.cc
-
-

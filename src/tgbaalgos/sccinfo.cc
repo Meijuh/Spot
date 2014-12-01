@@ -23,7 +23,6 @@
 #include <queue>
 #include "tgba/bddprint.hh"
 #include "misc/escape.hh"
-#include "priv/accconv.hh"
 
 namespace spot
 {

@@ -23,13 +23,13 @@
 #include <cmath>
 #include <limits>
 #include "simulation.hh"
-#include "priv/acccompl.hh"
 #include "misc/minato.hh"
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/dupexp.hh"
+#include "misc/bddlt.hh"
 
 // The way we developed this algorithm is the following: We take an
 // automaton, and reverse all these acceptance conditions.  We reverse
