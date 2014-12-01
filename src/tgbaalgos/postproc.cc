@@ -25,7 +25,6 @@
 #include "stripacc.hh"
 #include <cstdlib>
 #include "misc/optionmap.hh"
-#include "priv/countstates.hh"
 #include "powerset.hh"
 #include "isdet.hh"
 #include "dtbasat.hh"

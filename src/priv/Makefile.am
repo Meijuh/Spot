@@ -23,11 +23,9 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 noinst_HEADERS = \
   accmap.hh \
   bddalloc.hh \
-  countstates.hh \
   freelist.hh
 
 noinst_LTLIBRARIES = libpriv.la
 libpriv_la_SOURCES = \
   bddalloc.cc \
-  countstates.cc \
   freelist.cc
