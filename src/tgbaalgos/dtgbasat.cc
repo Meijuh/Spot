@@ -527,9 +527,12 @@ namespace spot
 	}
 
       dout << "(9) the initial state is reachable\n";
-      dout << path(0, 0) << '\n';
-      out << d.pathid[path(0, 0)] << " 0\n";
-      ++nclauses;
+      {
+	unsigned init = ref->get_init_state_number();
+	dout << path(0, init) << '\n';
+	out << d.pathid[path(0, init)] << " 0\n";
+	++nclauses;
+      }
 
       for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
 	for (unsigned q1p = 0; q1p < ref_size; ++q1p)
@@ -732,11 +735,9 @@ namespace spot
 						transition_acc
 						  ta(q2, l,
 						     d.cacc.mark(m), q3);
-						int tai = d.transaccid[ta];
 						const char* not_ = "¬";
 						if (d.cacc.has(biga_, m))
 						  not_ = "";
-						out << tai << ' ';
 						out <<  " ∧ " << not_
 						    << ta << "FC";
 					      }

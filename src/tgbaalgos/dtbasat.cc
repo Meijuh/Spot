@@ -395,9 +395,12 @@ namespace spot
 	}
 
       dout << "(2) the initial state is reachable\n";
-      dout << state_pair(0, 0) << '\n';
-      out << d.prodid[state_pair(0, 0)] << " 0\n";
-      ++nclauses;
+      {
+	unsigned init = ref->get_init_state_number();
+	dout << state_pair(0, init) << '\n';
+	out << d.prodid[state_pair(0, init)] << " 0\n";
+	++nclauses;
+      }
 
       for (std::map<state_pair, int>::const_iterator pit = d.prodid.begin();
 	   pit != d.prodid.end(); ++pit)
