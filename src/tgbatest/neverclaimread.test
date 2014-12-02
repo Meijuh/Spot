@@ -51,9 +51,9 @@ digraph G {
   1 -> 1 [label="1"]
   1 -> 2 [label="p0 & p1"]
   2 [label="1"]
-  2 -> 3 [label="p1 & !p0"]
-  2 -> 2 [label="!p1"]
   2 -> 1 [label="!p1"]
+  2 -> 2 [label="!p1"]
+  2 -> 3 [label="p1 & !p0"]
   3 [label="2", peripheries=2]
   3 -> 3 [label="1\n{0}"]
 }
@@ -63,6 +63,7 @@ EOF
 # (The order is not guaranteed by SPOT.)
 sed -e 's/!p0 & p1/p1 \& !p0/g' -e 's/p1 & p0/p0 \& p1/g' stdout \
     > tmp_ && mv tmp_ stdout
+# FIXME: use are-isomorphic once it is available
 diff stdout expected
 
 rm input stdout expected
@@ -95,9 +96,9 @@ digraph G {
   1 -> 1 [label="1"]
   1 -> 2 [label="p0 & p1"]
   2 [label="1"]
-  2 -> 3 [label="p1 & !p0"]
-  2 -> 2 [label="!p1"]
   2 -> 1 [label="!p1"]
+  2 -> 2 [label="!p1"]
+  2 -> 3 [label="p1 & !p0"]
   3 [label="2", peripheries=2]
   3 -> 3 [label="1\n{0}"]
 }
@@ -107,6 +108,7 @@ EOF
 # (The order is not guaranteed by SPOT.)
 sed -e 's/!p0 & p1/p1 \& !p0/g' -e 's/p1 & p0/p0 \& p1/g' stdout \
     > tmp_ && mv tmp_ stdout
+# FIXME: use are-isomorphic once it is available
 diff stdout expected
 
 rm input stdout expected

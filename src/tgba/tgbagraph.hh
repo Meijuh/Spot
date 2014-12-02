@@ -87,6 +87,15 @@ namespace spot
       : cond(cond), acc(acc)
     {
     }
+
+    bool operator<(const tgba_graph_trans_data& other) const
+    {
+      if (cond.id() < other.cond.id())
+	return true;
+      if (cond.id() > other.cond.id())
+	return false;
+      return acc < other.acc;
+    }
   };
 
 

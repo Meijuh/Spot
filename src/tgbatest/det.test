@@ -72,23 +72,24 @@ EOF
 # FIXME: we should improve this output
 cat >ex.tgba <<'EOF'
 acc = "0";
-"0", "1", "a",;
 "0", "0", "!a",;
+"0", "1", "a",;
 "0", "3", "!a",;
-"1", "2", "a",;
 "1", "0", "!a",;
+"1", "2", "a",;
 "1", "3", "!a",;
 "3", "3", "!a", "0";
-"2", "2", "a",;
 "2", "0", "!a",;
-"2", "5", "a",;
+"2", "2", "a",;
 "2", "3", "!a",;
-"5", "5", "a", "0";
+"2", "5", "a",;
 "5", "3", "!a", "0";
+"5", "5", "a", "0";
 EOF
 
 
 run 0 ../ltl2tgba -b -DC -X in.tgba > out.tgba
+# FIXME: use are-isomorphic once it is available
 diff out.tgba ex.tgba
 
 

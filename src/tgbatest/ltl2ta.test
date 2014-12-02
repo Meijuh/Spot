@@ -403,7 +403,7 @@ in: FG((WaitRight4 M (HasRight1 W GWaitLeft0)) M HasLeft4)
 -TA -DS -RT          |     42 |    600 |     19
 -TA -DS -lv          |     55 |    800 |     19
 -TA -DS -lv -RT      |     44 |    694 |     13
--TA -DS -sp          |     54 |    797 |     18
+-TA -DS -sp          |     54 |    795 |     18
 -TA -DS -sp -RT      |     43 |    683 |     12
 -TA -DS -lv -sp      |     55 |    800 |     19
 -TA -DS -lv -sp -RT  |     44 |    694 |     13

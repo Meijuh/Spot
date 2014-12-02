@@ -26,6 +26,8 @@
 #include <tuple>
 #include <cassert>
 #include <iterator>
+#include <algorithm>
+#include <iostream>
 
 namespace spot
 {
@@ -67,6 +69,11 @@ namespace spot
       const Data& data() const
       {
 	return label;
+      }
+
+      bool operator<(const boxed_label& other) const
+      {
+	return label < other.label;
       }
     };
 
@@ -143,14 +150,16 @@ namespace spot
 
     // Again two implementation: one with label, and one without.
 
-    template <typename State, typename Transition, typename Trans_Data>
+    template <typename StateIn,
+	      typename StateOut, typename Transition, typename Trans_Data>
     struct SPOT_API trans_storage: public Trans_Data
     {
       typedef Transition transition;
 
-      State dst;		// destination
+      StateOut dst;		// destination
       Transition next_succ;	// next outgoing transition with same
 				// source, or 0
+      StateIn src;		// source
 
       explicit trans_storage()
 	: Trans_Data{}
@@ -158,10 +167,25 @@ namespace spot
       }
 
       template <typename... Args>
-      trans_storage(State dst, Transition next_succ, Args&&... args)
+      trans_storage(StateOut dst, Transition next_succ,
+		    StateIn src, Args&&... args)
 	: Trans_Data{std::forward<Args>(args)...},
-	  dst(dst), next_succ(next_succ)
+	dst(dst), next_succ(next_succ), src(src)
       {
+      }
+
+      bool operator<(const trans_storage& other) const
+      {
+	if (src < other.src)
+	  return true;
+	if (src > other.src)
+	  return false;
+	// This might be costly if the destination is a vector
+	if (dst < other.dst)
+	  return true;
+	if (dst < other.dst)
+	  return false;
+	return this->data() < other.data();
       }
     };
 
@@ -200,12 +224,12 @@ namespace spot
       {
       }
 
-      bool operator==(trans_iterator o)
+      bool operator==(trans_iterator o) const
       {
 	return t_ == o.t_;
       }
 
-      bool operator!=(trans_iterator o)
+      bool operator!=(trans_iterator o) const
       {
 	return t_ != o.t_;
       }
@@ -387,7 +411,7 @@ namespace spot
     typedef internal::distate_storage<transition,
 				      internal::boxed_label<State_Data>>
       state_storage_t;
-    typedef internal::trans_storage<out_state, transition,
+    typedef internal::trans_storage<state, out_state, transition,
 				    internal::boxed_label<Trans_Data>>
       trans_storage_t;
     typedef std::vector<state_storage_t> state_vector;
@@ -520,7 +544,7 @@ namespace spot
       assert(src < states_.size());
 
       transition t = transitions_.size();
-      transitions_.emplace_back(dst, 0, std::forward<Args>(args)...);
+      transitions_.emplace_back(dst, 0, src, std::forward<Args>(args)...);
 
       transition st = states_[src].succ_tail;
       assert(st < t || !st);
@@ -610,46 +634,104 @@ namespace spot
       return t.next_succ == index_of_transition(t);
     }
 
-    void defrag()
-    {
-      if (killed_trans_ == 0)	// Nothing to do.
-	return;
 
-      // Shift all transitions in transitions_.  The algorithm is
-      // similar to remove_if, but it also keeps the correspondence
-      // between the old and new index as newidx[old] = new.
+    // To help debugging
+    void dump_storage(std::ostream& o) const
+    {
       unsigned tend = transitions_.size();
-      std::vector<transition> newidx(tend);
-      unsigned dest = 1;
+      for (unsigned t = 1; t < tend; ++t)
+	{
+	  o << 't' << t << ": (s"
+	    << transitions_[t].src << ", s"
+	    << transitions_[t].dst << ") t"
+	    << transitions_[t].next_succ << '\n';
+	}
+      unsigned send = states_.size();
+      for (unsigned s = 0; s < send; ++s)
+	{
+	  o << 's' << s << ": t"
+	    << states_[s].succ << " t"
+	    << states_[s].succ_tail << '\n';
+	}
+    }
+
+    // Remove all dead transitions.  The transitions_ vector is left
+    // in a state that is incorrect and should eventually be fixed by
+    // a call to chain_transitions_() before any iteration on the
+    // successor of a state is performed.
+    void remove_dead_transitions_()
+    {
+      if (killed_trans_ == 0)
+	return;
+      auto i = std::remove_if(transitions_.begin() + 1, transitions_.end(),
+			      [this](const trans_storage_t& t) {
+				return this->is_dead_transition(t);
+			      });
+      transitions_.erase(i, transitions_.end());
+      killed_trans_ = 0;
+    }
+
+    // This will invalidate all iterators, and also destroy transition
+    // chains.  Call chain_transitions_() immediately afterwards
+    // unless you know what you are doing.
+    template<class Predicate = std::less<trans_storage_t>>
+    void sort_transitions_(Predicate p = Predicate())
+    {
+      //std::cerr << "\nbefore\n";
+      //dump_storage(std::cerr);
+      std::sort(transitions_.begin() + 1, transitions_.end(), p);
+    }
+
+    // Should be called only when it is known that all transitions
+    // with the same destination are consecutive in the vector.
+    void chain_transitions_()
+    {
+      state last_src = -1U;
+      transition tend = transitions_.size();
       for (transition t = 1; t < tend; ++t)
 	{
-	  if (is_dead_transition(t))
-	    continue;
-	  if (t != dest)
-	    transitions_[dest] = std::move(transitions_[t]);
-	  newidx[t] = dest;
-	  ++dest;
+	  state src = transitions_[t].src;
+	  if (src != last_src)
+	    {
+	      states_[src].succ = t;
+	      if (last_src != -1U)
+		{
+		  states_[last_src].succ_tail = t - 1;
+		  transitions_[t - 1].next_succ = 0;
+		}
+	      while (++last_src != src)
+		{
+		  states_[last_src].succ = 0;
+		  states_[last_src].succ_tail = 0;
+		}
+	    }
+	  else
+	    {
+	      transitions_[t - 1].next_succ = t;
+	    }
 	}
-
-      transitions_.resize(dest);
-      killed_trans_ = 0;
-
-      // Adjust next_succ pointers in all transitions.
-      for (transition t = 1; t < dest; ++t)
-	transitions_[t].next_succ = newidx[transitions_[t].next_succ];
-
-      // Adjust succ and succ_tails pointers in all states.
-      for (auto& s: states_)
+      if (last_src != -1U)
 	{
-	  s.succ = newidx[s.succ];
-	  s.succ_tail = newidx[s.succ_tail];
+	  states_[last_src].succ_tail = tend - 1;
+	  transitions_[tend - 1].next_succ = 0;
 	}
+      unsigned send = states_.size();
+      while (++last_src != send)
+	{
+	  states_[last_src].succ = 0;
+	  states_[last_src].succ_tail = 0;
+	}
+      //std::cerr << "\nafter\n";
+      //dump_storage(std::cerr);
     }
 
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states)
     {
       assert(newst.size() == states_.size());
       assert(used_states > 0);
+
+      //std::cerr << "\nbefore defrag\n";
+      //dump_storage(std::cerr);
 
       // Shift all states in states_, as indicated by newst.
       unsigned send = states_.size();
@@ -696,6 +778,7 @@ namespace spot
 	  auto& tr = transitions_[t];
 	  tr.next_succ = newidx[tr.next_succ];
 	  tr.dst = newst[tr.dst];
+	  tr.src = newst[tr.src];
 	  assert(tr.dst != -1U);
 	}
 
@@ -705,6 +788,9 @@ namespace spot
 	  s.succ = newidx[s.succ];
 	  s.succ_tail = newidx[s.succ_tail];
 	}
+
+      //std::cerr << "\nafter defrag\n";
+      //dump_storage(std::cerr);
     }
 
   };

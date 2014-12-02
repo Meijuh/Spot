@@ -25,41 +25,62 @@ namespace spot
 
   void tgba_digraph::merge_transitions()
   {
-    // Map a pair (dest state, acc) to the first transition seen
-    // with such characteristic.
-    typedef std::pair<graph_t::state, acc_cond::mark_t> key_t;
-    std::unordered_map<key_t, graph_t::transition, pair_hash> trmap;
-    for (auto& s: g_.states())
+    g_.remove_dead_transitions_();
+
+    typedef graph_t::trans_storage_t tr_t;
+    g_.sort_transitions_([](const tr_t& lhs, const tr_t& rhs)
+			 {
+			   if (lhs.src < rhs.src)
+			     return true;
+			   if (lhs.src > rhs.src)
+			     return false;
+			   if (lhs.dst < rhs.dst)
+			     return true;
+			   if (lhs.dst > rhs.dst)
+			     return false;
+			   return lhs.acc < rhs.acc;
+			   // Do not sort on conditions, we'll merge
+			   // them.
+			 });
+
+    auto& trans = this->transitions();
+    unsigned tend = trans.size();
+    unsigned out = 0;
+    unsigned in = 1;
+    // Skip any leading false transition.
+    while (in < tend && trans[in].cond == bddfalse)
+      ++in;
+    if (in < tend)
       {
-	// Get a clear map for each state.
-	trmap.clear();
-
-	auto t = g_.out_iteraser(s);
-	while (t)
+	++out;
+	if (out != in)
+	  trans[out] = trans[in];
+	for (++in; in < tend; ++in)
 	  {
-	    // Simply skip false transitions.
-	    if (t->cond == bddfalse)
+	    if (trans[in].cond == bddfalse) // Unusable transition
+	      continue;
+	    // Merge transitions with the same source, destination, and
+	    // acceptance.  (We test the source last, because this is the
+	    // most likely test to be true as transitions are ordered by
+	    // sources and then destinations.)
+	    if (trans[out].dst == trans[in].dst
+		&& trans[out].acc == trans[in].acc
+		&& trans[out].src == trans[in].src)
 	      {
-		t.erase();
-		continue;
-	      }
-
-	    key_t k(t->dst, t->acc);
-	    auto p = trmap.emplace(k, t.trans());
-	    if (!p.second)
-	      {
-		// A previous transitions exists for k.  Merge the
-		// condition, and schedule the transition for removal.
-		g_.trans_data(p.first->second).cond |= t->cond;
-		t.erase();
+		trans[out].cond |= trans[in].cond;
 	      }
 	    else
 	      {
-		++t;
+		++out;
+		if (in != out)
+		  trans[out] = trans[in];
 	      }
 	  }
       }
-    g_.defrag();
+    if (++out != tend)
+      trans.resize(out);
+
+    g_.chain_transitions_();
   }
 
   void tgba_digraph::purge_unreachable_states()

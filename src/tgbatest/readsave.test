@@ -72,13 +72,14 @@ EOF
 
 cat >expected <<\EOF
 acc = "0";
-"0", "1", "a", "0";
 "0", "1", "!b",;
+"0", "1", "a", "0";
 "1", "0", "!b",;
 "1", "0", "a", "0";
 EOF
 
 run 0 ../ltl2tgba -b -X input > stdout
+# FIXME: use are-isomorphic once it is available
 diff stdout expected
 
 # Likewise, with a randomly generated TGBA.
