@@ -44,6 +44,7 @@
 #include "hoaparse/public.hh"
 #include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/randomize.hh"
+#include "tgbaalgos/are_isomorphic.hh"
 
 
 static const char argp_program_doc[] ="\
@@ -60,6 +61,7 @@ Convert, transform, and filter Büchi automata.\n\
 #define OPT_SEED 7
 #define OPT_PRODUCT 8
 #define OPT_MERGE 9
+#define OPT_ISOMORPH 10
 
 static const argp_option options[] =
   {
@@ -127,6 +129,11 @@ static const argp_option options[] =
       "randomize states and transitions (specify 's' or 't' to"
       "randomize only states or transitions)", 0 },
     /**************************************************/
+    { 0, 0, 0, 0, "Filter:", -1 },
+    { "isomorph", 'I', "FILENAME", 0,
+      "print only the automata that are isomorph to the automaton "\
+        "described in FILENAME", 0 },
+    /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
@@ -153,6 +160,7 @@ static int opt_seed = 0;
 static auto dict = spot::make_bdd_dict();
 static spot::tgba_digraph_ptr opt_product = nullptr;
 static bool opt_merge = false;
+static spot::tgba_digraph_ptr opt_isomorph = nullptr;
 
 static int
 to_int(const char* s)
@@ -163,6 +171,24 @@ to_int(const char* s)
     error(2, 0, "failed to parse '%s' as an integer.", s);
   return res;
 }
+
+// spot::tgba_digraph_ptr
+// hoa_parse(const char* filename)
+// {
+//   spot::hoa_parse_error_list pel;
+//   auto b = spot::make_bdd_dict();
+//   auto hp = spot::hoa_stream_parser(filename);
+// 
+//   pel.clear();
+//   auto haut = hp.parse(pel, b);
+//   if (!haut && pel.empty())
+//     error(2, 0, "no automaton to parse from %s", filename);
+//   if (spot::format_hoa_parse_errors(std::cerr, filename, pel))
+//     error(2, 0, "failed to parse automaton from %s", filename);;
+//   if (!haut)
+//     error(2, 0, "failed to read automaton from %s", filename);
+//   return haut->aut;
+// }
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -183,6 +209,15 @@ parse_opt(int key, char* arg, struct argp_state*)
       format = Hoa;
       hoa_opt = arg;
       break;
+    case 'I':
+      {
+	spot::hoa_parse_error_list pel;
+	auto p = hoa_parse(arg, pel, dict);
+	if (spot::format_hoa_parse_errors(std::cerr, arg, pel)
+	    || !p || p->aborted)
+	  error(2, 0, "failed to read automaton from %s", arg);
+        opt_isomorph = std::move(p->aut);
+      }
     case 'M':
       type = spot::postprocessor::Monitor;
       break;
@@ -385,6 +420,9 @@ namespace
       if (opt_product)
 	aut = spot::product(std::move(aut), opt_product);
 
+      if (opt_isomorph && !are_isomorphic(aut, opt_isomorph))
+        return 0;
+
       aut = post.run(aut, nullptr);
 
       if (randomize_st || randomize_tr)
@@ -450,7 +488,7 @@ namespace
 	  else if (haut->aborted)
 	    err = std::max(err, aborted(haut, filename));
 	  else
-	    process_automaton(haut, filename);
+            process_automaton(haut, filename);
 	}
 
       return err;

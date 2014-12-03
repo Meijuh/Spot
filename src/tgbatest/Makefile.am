@@ -118,6 +118,7 @@ TESTS = \
   ltl2ta2.test \
   randaut.test \
   randtgba.test \
+  isomorph.test \
   emptchk.test \
   emptchke.test \
   dfs.test \

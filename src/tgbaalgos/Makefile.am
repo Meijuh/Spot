@@ -28,6 +28,7 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 tgbaalgosdir = $(pkgincludedir)/tgbaalgos
 
 tgbaalgos_HEADERS = \
+  are_isomorphic.hh \
   bfssteps.hh \
   closure.hh \
   complete.hh \
@@ -80,6 +81,7 @@ tgbaalgos_HEADERS = \
 
 noinst_LTLIBRARIES = libtgbaalgos.la
 libtgbaalgos_la_SOURCES = \
+  are_isomorphic.cc \
   bfssteps.cc \
   closure.cc \
   complete.cc \
