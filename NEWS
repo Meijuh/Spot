@@ -43,6 +43,10 @@ New in spot 1.99a (not yet released)
       used in a stream.  The parser currently ignore all optional
       headers (starting with a lowercase letter).
 
+    - randomize() is a new algorithm that reorder the states
+      and transition of an automaton at random.  It can be
+      used from the command-line using "autfilt --randomize".
+
     - Spot is now compiling in C++11 mode.  The set of features we use
       requires GCC >= 4.6 or Clang >= 3.1.  These minimum versions
       are old enough that it should not be an issue to most people.

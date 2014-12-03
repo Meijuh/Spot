@@ -39,11 +39,13 @@
 #include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
+#include "misc/random.hh"
 #include "hoaparse/public.hh"
 #include "tgbaalgos/sccinfo.hh"
+#include "tgbaalgos/randomize.hh"
 
 
-const char argp_program_doc[] ="\
+static const char argp_program_doc[] ="\
 Convert, transform, and filter Büchi automata.\n\
 ";
 
@@ -53,6 +55,8 @@ Convert, transform, and filter Büchi automata.\n\
 #define OPT_LBTT 3
 #define OPT_SPOT 4
 #define OPT_STATS 5
+#define OPT_RANDOMIZE 6
+#define OPT_SEED 7
 
 static const argp_option options[] =
   {
@@ -111,24 +115,44 @@ static const argp_option options[] =
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     /**************************************************/
+    { 0, 0, 0, 0, "Transformation:", -1 },
+    { "randomize", OPT_RANDOMIZE, "s|t", OPTION_ARG_OPTIONAL,
+      "randomize states and transitions (specify 's' or 't' to"
+      "randomize only states or transitions)", 0 },
+    /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
+    { "seed", OPT_SEED, "INT", 0,
+      "seed for the random number generator (0)", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
-const struct argp_child children[] =
+static const struct argp_child children[] =
   {
     { &post_argp_disabled, 0, 0, 20 },
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
   };
 
-enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa } format = Dot;
-bool utf8 = false;
-const char* stats = "";
-const char* hoa_opt = 0;
-spot::option_map extra_options;
+static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa }
+  format = Dot;
+static const char* stats = "";
+static const char* hoa_opt = 0;
+static spot::option_map extra_options;
+static bool randomize_st = false;
+static bool randomize_tr = false;
+static int opt_seed = 0;
+
+static int
+to_int(const char* s)
+{
+  char* endptr;
+  int res = strtol(s, &endptr, 10);
+  if (*endptr)
+    error(2, 0, "failed to parse '%s' as an integer.", s);
+  return res;
+}
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -179,6 +203,31 @@ parse_opt(int key, char* arg, struct argp_state*)
 	{
 	  format = Lbtt;
 	}
+      break;
+    case OPT_RANDOMIZE:
+      if (arg)
+	{
+	  for (auto p = arg; *p; ++p)
+	    switch (*p)
+	      {
+	      case 's':
+		randomize_st = true;
+		break;
+	      case 't':
+		randomize_tr = true;
+		break;
+	      default:
+		error(2, 0, "unknown argument for --randomize: '%c'", *p);
+	      }
+	}
+      else
+	{
+	  randomize_tr = true;
+	  randomize_st = true;
+	}
+      break;
+    case OPT_SEED:
+      opt_seed = to_int(arg);
       break;
     case OPT_SPOT:
       format = Spot;
@@ -301,6 +350,9 @@ namespace
       auto aut = post.run(haut->aut, nullptr);
       const double conversion_time = sw.stop();
 
+      if (randomize_st || randomize_tr)
+	spot::randomize(aut, randomize_st, randomize_tr);
+
       switch (format)
 	{
 	case Dot:
@@ -384,6 +436,8 @@ main(int argc, char** argv)
 
   if (jobs.empty())
     jobs.emplace_back("-", true);
+
+  spot::srand(opt_seed);
 
   spot::postprocessor post(&extra_options);
   post.set_pref(pref | comp);

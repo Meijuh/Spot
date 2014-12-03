@@ -725,6 +725,21 @@ namespace spot
       //dump_storage(std::cerr);
     }
 
+    // Rename all the states in the transition vector.  The
+    // transitions_ vector is left in a state that is incorrect and
+    // should eventually be fixed by a call to chain_transitions_()
+    // before any iteration on the successor of a state is performed.
+    void rename_states_(const std::vector<unsigned>& newst)
+    {
+      assert(newst.size() == states_.size());
+      unsigned tend = transitions_.size();
+      for (unsigned t = 1; t < tend; t++)
+	{
+	  transitions_[t].dst = newst[transitions_[t].dst];
+	  transitions_[t].src = newst[transitions_[t].src];
+	}
+    }
+
     void defrag_states(std::vector<unsigned>&& newst, unsigned used_states)
     {
       assert(newst.size() == states_.size());
