@@ -41,7 +41,6 @@
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaparse/public.hh"
-#include "neverparse/public.hh"
 #include "dstarparse/public.hh"
 #include "hoaparse/public.hh"
 #include "tgbaalgos/dupexp.hh"
@@ -358,8 +357,7 @@ checked_main(int argc, char** argv)
   bool accepting_run = false;
   bool accepting_run_replay = false;
   bool from_file = false;
-  enum { ReadSpot, ReadLbtt, ReadNeverclaim, ReadDstar, ReadHoa } readformat
-								    = ReadSpot;
+  enum { ReadSpot, ReadLbtt, ReadDstar, ReadHoa } readformat = ReadSpot;
   bool nra2nba = false;
   bool dra2dba = false;
   bool scc_filter = false;
@@ -936,10 +934,10 @@ checked_main(int argc, char** argv)
 	  from_file = true;
 	  readformat = ReadLbtt;
 	}
-      else if (!strcmp(argv[formula_index], "-XN"))
+      else if (!strcmp(argv[formula_index], "-XN")) // now synonym for -XH
 	{
 	  from_file = true;
-	  readformat = ReadNeverclaim;
+	  readformat = ReadHoa;
 	}
       else if (!strcmp(argv[formula_index], "-y"))
 	{
@@ -1031,20 +1029,6 @@ checked_main(int argc, char** argv)
 		  e->merge_transitions();
 		}
 	      break;
-	    case ReadNeverclaim:
-	      {
-		spot::tgba_digraph_ptr e;
-		spot::neverclaim_parse_error_list pel;
-		tm.start("parsing neverclaim");
-		a = e = spot::neverclaim_parse(input, pel, dict,
-							 env, debug_opt);
-		tm.stop("parsing neverclaim");
-		if (spot::format_neverclaim_parse_errors(std::cerr, input, pel))
-		  return 2;
-		assume_sba = true;
-		e->merge_transitions();
-	      }
-	      break;
 	    case ReadLbtt:
 	      {
 		std::string error;
@@ -1113,8 +1097,9 @@ checked_main(int argc, char** argv)
 		tm.stop("parsing hoa");
 		if (spot::format_hoa_parse_errors(std::cerr, input, pel))
 		  return 2;
+		daut->aut->merge_transitions();
 		a = daut->aut;
-		assume_sba = false;
+		assume_sba = a->is_sba();
 	      }
 	      break;
 	    }

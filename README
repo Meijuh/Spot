@@ -142,7 +142,7 @@ src/              Sources for libspot.
    dstarparse/    Parser for the output of ltl2dstar.
    graph/         Graph representations.
    graphtest/     Graph representations.
-   hoaparse/      Parser for the HOA format.
+   hoaparse/      Parser for HOA automata and Spin's never claims.
    kripke/        Kripke Structure interface.
    kripkeparse/   Parser for explicit Kripke.
    kripketest/    Tests for kripke explicit.
@@ -152,7 +152,6 @@ src/              Sources for libspot.
    ltlvisit/      Visitors of LTL formulae.
    ltltest/       Tests for ltlast/, ltlenv/, ltlparse/, and ltlvisit/.
    misc/          Miscellaneous support files.
-   neverparse/    Parser for SPIN never claims.
    priv/          Private algorithms, used internally but not exported.
    tgba/          TGBA objects and cousins.
    tgbaalgos/     Algorithms on TGBA.

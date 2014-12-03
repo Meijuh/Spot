@@ -43,6 +43,12 @@ New in spot 1.99a (not yet released)
       used in a stream.  The parser currently ignore all optional
       headers (starting with a lowercase letter).
 
+    - The above HOA parser can also parse neverclaims, so the
+      neverclaim parser has been removed.  This implies that
+      autfilt can input a mix of HOA and neverclaims, and that
+      ltlcross' %N and %H specifiers (used to indicate whether
+      a tool produces neverclaims or HOA) are now synonyms.
+
     - randomize() is a new algorithm that reorder the states
       and transition of an automaton at random.  It can be
       used from the command-line using "autfilt --randomize".

@@ -36,7 +36,6 @@
 #include "common_setup.hh"
 #include "common_cout.hh"
 #include "common_finput.hh"
-#include "neverparse/public.hh"
 #include "dstarparse/public.hh"
 #include "hoaparse/public.hh"
 #include "ltlast/unop.hh"
@@ -115,9 +114,9 @@ static const argp_option options[] =
       0 },
     { "%F,%S,%L,%W", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the formula as a file in Spot, Spin, LBT, or Wring's syntax", 0 },
-    { "%N,%T,%D", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the output automaton as a Never claim, in LBTT's or in LTL2DSTAR's "
-      "format", 0 },
+    { "%N,%T,%D,%H", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the automaton is output as a Never claim, or in LBTT's, in LTL2DSTAR's,"
+      "or in the HOA format", 0 },
     { 0, 0, 0, 0,
       "If either %l, %L, or %T are used, any input formula that does "
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
@@ -710,7 +709,7 @@ namespace
     public spot::printable_value<spot::temporary_file*>
   {
     unsigned translator_num;
-    enum output_format { None, Spin, Lbtt, Dstar, Hoa };
+    enum output_format { None, Lbtt, Dstar, Hoa };
     mutable output_format format;
 
     printable_result_filename()
@@ -740,7 +739,7 @@ namespace
     {
       output_format old_format = format;
       if (*pos == 'N')
-	format = Spin;
+	format = Hoa;		// The HOA parse also reads neverclaims
       else if (*pos == 'T')
 	format = Lbtt;
       else if (*pos == 'D')
@@ -939,24 +938,6 @@ namespace
 	  es = 0;
 	  switch (output.format)
 	    {
-	    case printable_result_filename::Spin:
-	      {
-		spot::neverclaim_parse_error_list pel;
-		std::string filename = output.val()->name();
-		res = spot::neverclaim_parse(filename, pel, dict);
-		if (!pel.empty())
-		  {
-		    status_str = "parse error";
-		    problem = true;
-		    es = -1;
-		    std::ostream& err = global_error();
-		    err << "error: failed to parse the produced neverclaim.\n";
-		    spot::format_neverclaim_parse_errors(err, filename, pel);
-		    end_error();
-		    res = nullptr;
-		  }
-		break;
-	      }
 	    case printable_result_filename::Lbtt:
 	      {
 		std::string error;
@@ -1039,7 +1020,7 @@ namespace
 		  }
 		break;
 	      }
-	    case printable_result_filename::Hoa:
+	    case printable_result_filename::Hoa: // Will also read neverclaims
 	      {
 		spot::hoa_parse_error_list pel;
 		std::string filename = output.val()->name();
@@ -1050,7 +1031,7 @@ namespace
 		    problem = true;
 		    es = -1;
 		    std::ostream& err = global_error();
-		    err << "error: failed to parse the produced HOA file.\n";
+		    err << "error: failed to parse the produced automaton.\n";
 		    spot::format_hoa_parse_errors(err, filename, pel);
 		    end_error();
 		    res = nullptr;

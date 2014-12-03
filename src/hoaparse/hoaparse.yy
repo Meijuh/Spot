@@ -35,7 +35,17 @@
 #include <unordered_map>
 #include <algorithm>
 #include "ltlast/constant.hh"
+#include "tgba/formula2bdd.hh"
 #include "public.hh"
+
+  /* Cache parsed formulae.  Labels on arcs are frequently identical
+   and it would be a waste of time to parse them to formula* over and
+   over, and to register all their atomic_propositions in the
+   bdd_dict.  Keep the bdd result around so we can reuse it.  */
+  typedef std::map<std::string, bdd> formula_cache;
+
+  typedef std::pair<int, std::string*> pair;
+  typedef typename spot::tgba_digraph::namer<std::string>::type named_tgba_t;
 
   // Note: because this parser is meant to be used on a stream of
   // automata, it tries hard to recover from errors, so that we get a
@@ -46,6 +56,8 @@
   {
     spot::hoa_aut_ptr h;
     spot::ltl::environment* env;
+    formula_cache fcache;
+    named_tgba_t* namer = nullptr;
     std::vector<int> ap;
     std::vector<bdd> guards;
     std::vector<bdd>::const_iterator cur_guard;
@@ -73,6 +85,15 @@
     bool ignore_acc_silent = false;
     bool ignore_more_acc = false; // Set to true after the first
 				  // "Acceptance:" line has been read.
+
+    bool accept_all_needed = false;
+    bool accept_all_seen = false;
+    std::map<std::string, spot::location> labels;
+
+    ~result_()
+    {
+      delete namer;
+    }
   };
 }
 
@@ -88,12 +109,17 @@
   unsigned int num;
   int b;
   spot::acc_cond::mark_t mark;
+  pair* p;
+  std::list<pair>* list;
 }
 
 %code
 {
 #include <sstream>
-/* hoaparse.hh and parsedecl.hh include each other recursively.
+#include "ltlast/constant.hh"
+#include "ltlparse/public.hh"
+
+  /* hoaparse.hh and parsedecl.hh include each other recursively.
    We must ensure that YYSTYPE is declared (by the above %union)
    before parsedecl.hh uses it. */
 #include "parsedecl.hh"
@@ -101,6 +127,7 @@
   static void fill_guards(result_& res);
 }
 
+/**** HOA tokens ****/
 %token HOA "HOA:"
 %token STATES "States:"
 %token START "Start:"
@@ -114,7 +141,7 @@
 %token BODY "--BODY--"
 %token END "--END--"
 %token STATE "State:";
-%token <str> IDENTIFIER "identifier";
+%token <str> IDENTIFIER "identifier";  // also used by neverclaim
 %token <str> HEADERNAME "header name";
 %token <str> ANAME "alias name";
 %token <str> STRING "string";
@@ -129,8 +156,42 @@
 %type <b> label-expr
 %type <mark> acc-sig_opt acc-sets
 
+/**** NEVERCLAIM tokens ****/
+
+%token NEVER "never"
+%token SKIP "skip"
+%token IF "if"
+%token FI "fi"
+%token DO "do"
+%token OD "od"
+%token ARROW "->"
+%token GOTO "goto"
+%token FALSE "false"
+%token ATOMIC "atomic"
+%token ASSERT "assert"
+%token <str> FORMULA "boolean formula"
+
+%type <b> nc-formula
+%type <str> nc-opt-dest nc-formula-or-ident
+%type <p> nc-transition nc-src-dest
+%type <list> nc-transitions nc-transition-block
+%type <str> nc-one-ident nc-ident-list
+
+
+
+
 %destructor { delete $$; } <str>
 %destructor { bdd_delref($$); } <b>
+%destructor { bdd_delref($$->first); delete $$->second; delete $$; } <p>
+%destructor {
+  for (std::list<pair>::iterator i = $$->begin();
+       i != $$->end(); ++i)
+  {
+    bdd_delref(i->first);
+    delete i->second;
+  }
+  delete $$;
+  } <list>
 %printer {
     if ($$)
       debug_stream() << *$$;
@@ -139,22 +200,18 @@
 %printer { debug_stream() << $$; } <num>
 
 %%
+aut: aut-1     { res.h->loc = @$; YYACCEPT; }
+   | ENDOFFILE { YYABORT; }
+
+aut-1: hoa | never
+
+/**********************************************************************/
+/*                          Rules for HOA                             */
+/**********************************************************************/
+
 hoa: header "--BODY--" body "--END--"
-     {
-       res.h->loc = @$;
-       YYACCEPT;
-     }
 hoa: error "--END--"
-     {
-       res.h->loc = @$;
-       YYACCEPT;
-     }
 hoa: error ENDOFFILE
-     {
-       res.h->loc = @$;
-       YYACCEPT;
-     }
-hoa: ENDOFFILE { YYABORT; }
 
 string_opt: | STRING
 BOOLEAN: 't' | 'f'
@@ -659,6 +716,200 @@ incorrectly-labeled-edge: trans-label unlabeled-edge
 			    error(@1, "ignoring this label, because previous"
 				  " edge has no label");
                           }
+
+/**********************************************************************/
+/*                      Rules for neverclaims                         */
+/**********************************************************************/
+
+never: "never" { res.namer = res.h->aut->create_namer<std::string>();
+	         res.h->aut->set_single_acceptance_set();
+		 res.h->aut->prop_state_based_acc(); }
+       '{' nc-states '}'
+       {
+	 // Add an accept_all state if needed.
+	 if (res.accept_all_needed && !res.accept_all_seen)
+	   {
+	     unsigned n = res.namer->new_state("accept_all");
+	     res.h->aut->new_acc_transition(n, n, bddtrue);
+	   }
+       }
+
+nc-states:
+  /* empty */
+  | nc-state
+  | nc-states ';' nc-state
+  | nc-states ';'
+
+nc-one-ident: IDENTIFIER ':'
+    {
+      unsigned n = res.namer->new_state(*$1);
+      if (res.labels.empty())
+	{
+	  // The first state is initial.
+	  res.start.emplace_back(@$, n);
+	}
+      auto r = res.labels.insert(std::make_pair(*$1, @1));
+      if (!r.second)
+	{
+	  error(@1, std::string("redefinition of ") + *$1 + "...");
+	  error(r.first->second, std::string("... ")  + *$1
+		+ " previously defined here");
+	}
+      $$ = $1;
+    }
+
+nc-ident-list: nc-one-ident
+  | nc-ident-list nc-one-ident
+    {
+      res.namer->alias_state(res.namer->get_state(*$1), *$2);
+      // Keep any identifier that starts with accept.
+      if (strncmp("accept", $1->c_str(), 6))
+        {
+          delete $1;
+          $$ = $2;
+        }
+      else
+        {
+	  delete $2;
+	  $$ = $1;
+        }
+    }
+
+nc-transition-block:
+  "if" nc-transitions "fi"
+    {
+      $$ = $2;
+    }
+  | "do" nc-transitions "od"
+    {
+      $$ = $2;
+    }
+
+nc-state:
+  nc-ident-list "skip"
+    {
+      if (*$1 == "accept_all")
+	res.accept_all_seen = true;
+
+      res.namer->new_transition(*$1, *$1, bddtrue,
+				!strncmp("accept", $1->c_str(), 6) ?
+				res.h->aut->acc().all_sets() :
+				spot::acc_cond::mark_t(0U));
+      delete $1;
+    }
+  | nc-ident-list { delete $1; }
+  | nc-ident-list "false" { delete $1; }
+  | nc-ident-list nc-transition-block
+    {
+      auto acc = !strncmp("accept", $1->c_str(), 6) ?
+	res.h->aut->acc().all_sets() : spot::acc_cond::mark_t(0U);
+      for (auto& p: *$2)
+	{
+	  bdd c = bdd_from_int(p.first);
+	  bdd_delref(p.first);
+	  res.namer->new_transition(*$1, *p.second, c, acc);
+	  delete p.second;
+	}
+      delete $1;
+      delete $2;
+    }
+
+nc-transitions:
+  /* empty */ { $$ = new std::list<pair>; }
+  | nc-transitions nc-transition
+    {
+      if ($2)
+	{
+	  $1->push_back(*$2);
+	  delete $2;
+	}
+      $$ = $1;
+    }
+
+nc-formula-or-ident: FORMULA | IDENTIFIER
+
+nc-formula: nc-formula-or-ident
+     {
+       auto i = res.fcache.find(*$1);
+       if (i == res.fcache.end())
+	 {
+	   spot::ltl::parse_error_list pel;
+	   auto f = spot::ltl::parse_boolean(*$1, pel, *res.env,
+					     debug_level(), true);
+	   for (auto& j: pel)
+	     {
+	       // Adjust the diagnostic to the current position.
+	       spot::location here = @1;
+	       here.end.line = here.begin.line + j.first.end.line - 1;
+	       here.end.column = here.begin.column + j.first.end.column;
+	       here.begin.line += j.first.begin.line - 1;
+	       here.begin.column += j.first.begin.column;
+	       error_list.emplace_back(here, j.second);
+	     }
+           bdd cond = bddfalse;
+	   if (f)
+	     {
+	       cond = spot::formula_to_bdd(f, res.h->aut->get_dict(),
+					   res.h->aut);
+	       f->destroy();
+	     }
+	   $$ = (res.fcache[*$1] = cond).id();
+	 }
+       else
+	 {
+	   $$ = i->second.id();
+	 }
+       bdd_addref($$);
+       delete $1;
+     }
+   | "false"
+     {
+       $$ = 0;
+     }
+
+nc-opt-dest:
+  /* empty */
+    {
+      $$ = 0;
+    }
+  | "->" "goto" IDENTIFIER
+    {
+      $$ = $3;
+    }
+  | "->" "assert" FORMULA
+    {
+      delete $3;
+      $$ = new std::string("accept_all");
+      res.accept_all_needed = true;
+    }
+
+nc-src-dest: nc-formula nc-opt-dest
+    {
+      // If there is no destination, do ignore the transition.
+      // This happens for instance with
+      //   if
+      //   :: false
+      //   fi
+      if (!$2)
+	{
+	  $$ = 0;
+	}
+      else
+	{
+	  $$ = new pair($1, $2);
+	  res.namer->new_state(*$2);
+	}
+    }
+
+nc-transition:
+  ':' ':' "atomic" '{' nc-src-dest '}'
+    {
+      $$ = $5;
+    }
+  | ':' ':' nc-src-dest
+    {
+      $$ = $3;
+    }
 
 %%
 

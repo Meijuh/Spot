@@ -169,7 +169,7 @@ EOF
 
 run 2 ../ltl2tgba -XN input > stdout 2>stderr
 cat >expected <<\EOF
-input:9.16: syntax error, unexpected $undefined, expecting fi or ':'
+input:9.16: syntax error, unexpected ')', expecting fi or ':'
 EOF
 grep input: stderr > stderrfilt
 diff stderrfilt expected

@@ -192,7 +192,6 @@ AC_CONFIG_FILES([
   src/ltlvisit/Makefile
   src/Makefile
   src/misc/Makefile
-  src/neverparse/Makefile
   src/priv/Makefile
   src/sanity/Makefile
   src/tgbaalgos/gtec/Makefile

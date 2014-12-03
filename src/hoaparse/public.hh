@@ -66,7 +66,7 @@ namespace spot
 		      bool debug = false);
   };
 
-  /// \brief Build a spot::tgba_digraph from a HOA file.
+  /// \brief Build a spot::tgba_digraph from a HOA file or a neverclaim.
   /// \param filename The name of the file to parse.
   /// \param error_list A list that will be filled with
   ///        parse errors that occured during parsing.
@@ -81,6 +81,16 @@ namespace spot
   /// return a non zero value even if it encountered error during the
   /// parsing of \a filename.  If you want to make sure \a filename
   /// was parsed succesfully, check \a error_list for emptiness.
+  ///
+  /// The specification of the HOA format can be found at
+  ///    http://adl.github.io/hoaf/
+  ///
+  /// The grammar of neverclaim will not accept every possible
+  /// neverclaim output.  It has been tuned to accept the output of
+  /// spin -f, ltl2ba, ltl3ba, and modella.  If you know of some other
+  /// tool that produce Büchi automata in the form of a neverclaim,
+  /// but is not understood by this parse, please report it to
+  /// spot@lrde.epita.fr.
   ///
   /// \warning This function is not reentrant.
   inline hoa_aut_ptr
