@@ -78,10 +78,36 @@ namespace spot
     }
 
     /// \brief Give an alternate name to a state.
-    /// \return true iff the newname was already used.
+    /// \return true iff the newname state was already existing
+    /// (in this case the existing newname state will be merged
+    /// with state s: the newname will be unreachable and without
+    /// successors.)
     bool alias_state(state s, name newname)
     {
-      return !name_to_state.emplace(newname, s).second;
+      auto p = name_to_state.emplace(newname, s);
+      if (!p.second)
+	{
+	  // The state already exists.  Change its number.
+	  auto old = p.first->second;
+	  p.first->second = s;
+	  // Add the successor of OLD to those of S.
+	  auto& trans = g_.transitions();
+	  auto& states = g_.states();
+	  trans[states[s].succ_tail].next_succ = states[old].succ;
+	  states[s].succ_tail = states[old].succ_tail;
+	  states[old].succ = 0;
+	  states[old].succ_tail = 0;
+	  // Remove all references to old in transitions:
+	  unsigned tend = trans.size();
+	  for (unsigned t = 1; t < tend; ++t)
+	    {
+	      if (trans[t].src == old)
+		trans[t].src = s;
+	      if (trans[t].dst == old)
+		trans[t].dst = s;
+	    }
+	}
+      return !p.second;
     }
 
     state get_state(name n) const

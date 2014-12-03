@@ -31,12 +31,15 @@ if
 :: (p1 && p0) -> goto T1
 fi;
 T1:
+T1b: /* alias */
 if
-:: (p1 && (! p0)) -> goto accept_all
-:: !(p1) -> goto T1
+:: (p1 && (! p0)) -> goto alias2
+:: !(p1) -> goto T1b
 :: ! (p1) -> goto T2_init
 fi;
+alias1:
 accept_all:
+alias2:
 skip
 }
 EOF

@@ -88,6 +88,7 @@
 
     bool accept_all_needed = false;
     bool accept_all_seen = false;
+    bool aliased_states = false;
     std::map<std::string, spot::location> labels;
 
     ~result_()
@@ -732,6 +733,10 @@ never: "never" { res.namer = res.h->aut->create_namer<std::string>();
 	     unsigned n = res.namer->new_state("accept_all");
 	     res.h->aut->new_acc_transition(n, n, bddtrue);
 	   }
+	 // If we aliased existing state, we have some unreachable
+	 // states to remove.
+	 if (res.aliased_states)
+	   res.h->aut->purge_unreachable_states();
        }
 
 nc-states:
@@ -742,12 +747,6 @@ nc-states:
 
 nc-one-ident: IDENTIFIER ':'
     {
-      unsigned n = res.namer->new_state(*$1);
-      if (res.labels.empty())
-	{
-	  // The first state is initial.
-	  res.start.emplace_back(@$, n);
-	}
       auto r = res.labels.insert(std::make_pair(*$1, @1));
       if (!r.second)
 	{
@@ -759,9 +758,19 @@ nc-one-ident: IDENTIFIER ':'
     }
 
 nc-ident-list: nc-one-ident
+    {
+      unsigned n = res.namer->new_state(*$1);
+      if (res.start.empty())
+	{
+	  // The first state is initial.
+	  res.start.emplace_back(@$, n);
+	}
+      $$ = $1;
+    }
   | nc-ident-list nc-one-ident
     {
-      res.namer->alias_state(res.namer->get_state(*$1), *$2);
+      res.aliased_states |=
+	res.namer->alias_state(res.namer->get_state(*$1), *$2);
       // Keep any identifier that starts with accept.
       if (strncmp("accept", $1->c_str(), 6))
         {
@@ -791,10 +800,9 @@ nc-state:
       if (*$1 == "accept_all")
 	res.accept_all_seen = true;
 
-      res.namer->new_transition(*$1, *$1, bddtrue,
-				!strncmp("accept", $1->c_str(), 6) ?
-				res.h->aut->acc().all_sets() :
-				spot::acc_cond::mark_t(0U));
+      auto acc = !strncmp("accept", $1->c_str(), 6) ?
+	res.h->aut->acc().all_sets() : spot::acc_cond::mark_t(0U);
+      res.namer->new_transition(*$1, *$1, bddtrue, acc);
       delete $1;
     }
   | nc-ident-list { delete $1; }
