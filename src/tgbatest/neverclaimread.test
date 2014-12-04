@@ -300,6 +300,36 @@ cat stderr
 grep input: stderr > stderrfilt
 diff stderrfilt expected-err
 
+
+# Empty guards should be diagnosed at the correct location
+cat >input <<EOF
+never { /* a U b */
+T0_init:
+  if
+  :: ((b)) -> goto accept_all
+  :: ( ) -> goto T0_init
+  fi;
+accept_all:
+  skip
+}
+EOF
+run 2 ../../bin/autfilt --dot <input >stdout 2>stderr
+grep '5.6-8: unexpected empty block' stderr
+
+cat >expected <<EOF
+digraph G {
+  0 [label="", style=invis, height=0]
+  0 -> 1
+  1 [label="0"]
+  1 -> 2 [label="b"]
+  1 -> 1 [label="0"]
+  2 [label="1", peripheries=2]
+  2 -> 2 [label="1\n{0}"]
+}
+EOF
+diff stdout expected
+
+
 cat >formulae<<EOF
 a
 FG a

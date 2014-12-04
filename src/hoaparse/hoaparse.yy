@@ -849,9 +849,9 @@ nc-formula: nc-formula-or-ident
 	       // Adjust the diagnostic to the current position.
 	       spot::location here = @1;
 	       here.end.line = here.begin.line + j.first.end.line - 1;
-	       here.end.column = here.begin.column + j.first.end.column;
+	       here.end.column = here.begin.column + j.first.end.column - 1;
 	       here.begin.line += j.first.begin.line - 1;
-	       here.begin.column += j.first.begin.column;
+	       here.begin.column += j.first.begin.column - 1;
 	       error_list.emplace_back(here, j.second);
 	     }
            bdd cond = bddfalse;
