@@ -1570,8 +1570,9 @@ Here are basic the rewritings for the weak closure and its negation:
   \nsere{r_1;r_2}&\equiv \nsere{r_1}\AND\nsere{r_2}\quad\text{if~}\varepsilon\VDash r_1\land\varepsilon\VDash r_2\\
   \sere{b;r}&\equiV b\AND\X\sere{r}&
   \nsere{b;r}&\equiV (\NOT b)\OR\X\nsere{r}\\
-  \sere{b\STAR{};r}&\equiv b\W\sere{r}&
-  \nsere{b\STAR{};r}&\equiv (\NOT b)\M\nsere{r}\\
+% These two would be correct only if $r$ is satisfiable.
+%  \sere{b\STAR{};r}&\equiv b\W\sere{r}&
+%  \nsere{b\STAR{};r}&\equiv (\NOT b)\M\nsere{r}\\
   \sere{b\STAR{\mvar{i}..\mvar{j}};r}&\equiV \underbrace{b\AND \X(b\ldots}_{\mathclap{i\text{~occurences of~}b}}\AND\X\sere{b\STAR{\mvar{0}..\mvar{j-i}}\CONCAT r})&
   \nsere{b\STAR{\mvar{i}..\mvar{j}};r}&\equiV \underbrace{(\NOT b)\OR \X((\NOT b)\ldots}_{\mathclap{i\text{~occurences of~}\NOT b}}\OR\X\nsere{b\STAR{\mvar{0}..\mvar{j-i}}\CONCAT r}) \\
   \sere{b\STAR{\mvar{i}..\mvar{j}}}&\equiV \underbrace{b\AND \X(b\AND \X(\ldots b))}_{i\text{~occurences of~}b}&
