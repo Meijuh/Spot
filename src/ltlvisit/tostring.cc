@@ -712,10 +712,6 @@ namespace spot
 	    case unop::G:
 	      emit(KG);
 	      break;
-	    case unop::Finish:
-	      os_ << "finish";
-	      need_parent = true;
-	      break;
 	    case unop::Closure:
 	      os_ << '{';
 	      in_ratexp_ = true;

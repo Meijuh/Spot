@@ -42,8 +42,6 @@ namespace spot
       enum type {
 	// LTL
 	Not, X, F, G,
-	// ELTL
-	Finish,
 	// Closure
 	Closure, NegClosure, NegClosureMarked
 	};

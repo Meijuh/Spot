@@ -70,15 +70,10 @@ namespace spot
 	  to_free_.push_back(f);
 	}
 	init_ = f;
-	std::vector<const formula*> dst;
-	std::vector<const formula*> a;
-
-	// A little hack to define a sink
-	dst.push_back(unop::instance(unop::Finish, constant::true_instance()));
-	to_free_.push_back(dst[0]);
-	taa_tgba::transition* t = res_->create_transition(init_, dst);
+	std::vector<const formula*> empty;
+	taa_tgba::transition* t = res_->create_transition(init_, empty);
 	res_->add_condition(t, f->clone());
-	succ_state ss = { dst, f, a };
+	succ_state ss = { empty, f, empty };
 	succ_.push_back(ss);
       }
 
@@ -90,15 +85,10 @@ namespace spot
 	{
 	  case constant::True:
 	  {
-	    std::vector<const formula*> dst;
-	    std::vector<const formula*> a;
-	    // A little hack to define a sink
-	    dst.push_back(unop::instance(unop::Finish,
-					 constant::true_instance()));
-	    res_->create_transition(init_, dst);
-	    succ_state ss = { dst, node, a };
+	    std::vector<const formula*> empty;
+	    res_->create_transition(init_, empty);
+	    succ_state ss = { empty, node, empty };
 	    succ_.push_back(ss);
-	    to_free_.push_back(dst[0]);
 	    return;
 	  }
 	  case constant::False:
@@ -139,7 +129,6 @@ namespace spot
 	    // Done in recurse
 	    succ_ = v.succ_;
 	    return;
-	  case unop::Finish:
 	  case unop::Closure:
 	  case unop::NegClosure:
 	  case unop::NegClosureMarked:

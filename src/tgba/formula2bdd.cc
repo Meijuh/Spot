@@ -79,7 +79,6 @@ namespace spot
       {
 	switch (node->op())
 	  {
-	  case unop::Finish:
 	  case unop::F:
 	  case unop::G:
 	  case unop::X:

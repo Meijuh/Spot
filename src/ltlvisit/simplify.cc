@@ -516,12 +516,6 @@ namespace spot
 				       unop::Closure : op,
 				       recurse_(f, false));
 	      return;
-	      /* !Finish(x), is not simplified */
-	    case unop::Finish:
-	      result_ = unop::instance(uo->op(), recurse_(f, false));
-	      if (negated_)
-		result_ = unop::instance(unop::Not, result_);
-	      return;
 	    }
 	  SPOT_UNREACHABLE();
 	}
@@ -1736,9 +1730,6 @@ namespace spot
 			return;
 		      }
 		  }
-	      break;
-	    case unop::Finish:
-	      // No simplification
 	      break;
 	    }
 	  result_ = unop::instance(op, result_);

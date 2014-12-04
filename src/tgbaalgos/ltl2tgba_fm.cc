@@ -682,7 +682,6 @@ namespace spot
 	  case unop::F:
 	  case unop::G:
 	  case unop::X:
-	  case unop::Finish:
 	  case unop::Closure:
 	  case unop::NegClosure:
 	  case unop::NegClosureMarked:
@@ -1484,9 +1483,6 @@ namespace spot
 	      //trace_ltl_bdd(dict_, res_);
 	    }
 	    break;
-
-	  case unop::Finish:
-	    SPOT_UNIMPLEMENTED();
 	  }
       }
 

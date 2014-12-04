@@ -142,7 +142,6 @@ namespace spot
 			  case unop::X:
 			  case unop::F:
 			  case unop::G:
-			  case unop::Finish:
 			  case unop::Closure:
 			    res->push_back(recurse(f));
 			    break;
@@ -236,7 +235,6 @@ namespace spot
 	    case unop::X:
 	    case unop::F:
 	    case unop::G:
-	    case unop::Finish:
 	    case unop::Closure:
 	    case unop::NegClosureMarked:
 	      result_ = uo->clone();

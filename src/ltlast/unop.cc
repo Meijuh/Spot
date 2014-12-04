@@ -98,20 +98,6 @@ namespace spot
 	  is.syntactic_persistence = is.syntactic_safety;
 	  is.accepting_eword = false;
 	  break;
-	case Finish:
-	  is.not_marked = true;
-	  is.boolean = false;
-	  is.ltl_formula = false;
-	  is.psl_formula = false;
-	  is.sere_formula = false;
-	  is.finite = false;
-	  is.syntactic_safety = false;
-	  is.syntactic_guarantee = false;
-	  is.syntactic_obligation = false;
-	  is.syntactic_recurrence = false;
-	  is.syntactic_persistence = false;
-	  is.accepting_eword = false;
-	  break;
 	case NegClosure:
 	case NegClosureMarked:
 	  is.not_marked = (op == NegClosure);
@@ -181,8 +167,6 @@ namespace spot
 	  return "F";
 	case G:
 	  return "G";
-	case Finish:
-	  return "Finish";
 	case Closure:
 	  return "Closure";
 	case NegClosure:
@@ -270,10 +254,6 @@ namespace spot
 	      || child == constant::false_instance())
 	    return child;
 	  assert(child != constant::empty_word_instance());
-	  break;
-
-	case Finish:
-	  // No simplifications for Finish.
 	  break;
 
 	case Closure:

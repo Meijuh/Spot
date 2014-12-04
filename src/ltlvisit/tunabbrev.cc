@@ -1,7 +1,8 @@
-// Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// -*- coding: utf-8 -*-
+// Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
+// DÃ©veloppement de l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -39,7 +40,6 @@ namespace spot
     {
       switch (uo->op())
 	{
-	case unop::Finish:
 	case unop::X:
 	case unop::Not:
 	case unop::Closure:

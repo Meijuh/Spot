@@ -160,7 +160,6 @@ namespace spot
 	    case unop::G:
 	      os_ << 'G';
 	      break;
-	    case unop::Finish:
 	    case unop::Closure:
 	    case unop::NegClosure:
 	    case unop::NegClosureMarked:
