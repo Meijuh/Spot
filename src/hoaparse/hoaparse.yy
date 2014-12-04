@@ -203,8 +203,11 @@
 %%
 aut: aut-1     { res.h->loc = @$; YYACCEPT; }
    | ENDOFFILE { YYABORT; }
+   | error ENDOFFILE { YYABORT; }
 
-aut-1: hoa | never
+aut-1: hoa
+     | never
+
 
 /**********************************************************************/
 /*                          Rules for HOA                             */
@@ -212,7 +215,6 @@ aut-1: hoa | never
 
 hoa: header "--BODY--" body "--END--"
 hoa: error "--END--"
-hoa: error ENDOFFILE
 
 string_opt: | STRING
 BOOLEAN: 't' | 'f'

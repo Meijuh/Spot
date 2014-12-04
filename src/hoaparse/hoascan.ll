@@ -149,9 +149,11 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
   [^*/\n]*		continue;
   "/"[^*\n]*		continue;
   "*"+[^*/\n]*		continue;
-  "\n"+			yylloc->end.column = 1;	yylloc->lines(yyleng);
+  {eol}			yylloc->lines(yyleng); yylloc->end.column = 1;
+  {eol2}		yylloc->lines(yyleng / 2); yylloc->end.column = 1;
   "*"+"/"		if (--comment_level == 0) BEGIN(orig_cond);
   <<EOF>>		{
+                           BEGIN(orig_cond);
                            error_list.push_back(
 			     spot::hoa_parse_error(*yylloc,
 			       "unclosed comment"));
@@ -165,26 +167,36 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			   yylval->str = new std::string(s);
 			   return token::STRING;
  			}
+  {eol}			{
+  			  s.append(yytext, yyleng);
+                          yylloc->lines(yyleng); yylloc->end.column = 1;
+			}
+  {eol2}		{
+  			  s.append(yytext, yyleng);
+                          yylloc->lines(yyleng / 2); yylloc->end.column = 1;
+			}
   \\.			s += yytext[1];
-  [^\\\"]+		s.append(yytext, yyleng);
+  [^\\\"\n\r]+		s.append(yytext, yyleng);
   <<EOF>>		{
                            error_list.push_back(
 			     spot::hoa_parse_error(*yylloc,
 			       "unclosed string"));
-			   return 0;
+                           BEGIN(orig_cond);
+			   yylval->str = new std::string(s);
+			   return token::STRING;
                         }
 }
 
 <in_NEVER_PAR>{
-	 "("		{
+  "("		        {
 			  ++parent_level;
 			  yylval->str->append(yytext, yyleng);
 			}
-         /* if we match ")&&(" or ")||(", stay in <in_NEVER_PAR> mode */
-         ")"[ \t]*("&&"|"||")[ \t!]*"(" {
+  /* if we match ")&&(" or ")||(", stay in <in_NEVER_PAR> mode */
+  ")"[ \t]*("&&"|"||")[ \t!]*"(" {
 	                  yylval->str->append(yytext, yyleng);
 			}
-	 ")"		{
+  ")"                   {
 	                  yylval->str->append(yytext, yyleng);
 			  if (!--parent_level)
 			    {
@@ -193,14 +205,23 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			      return token::FORMULA;
 			    }
 			}
-         [^()]+		yylval->str->append(yytext, yyleng);
-	 <<EOF>>	{
-			  unput(')');
-			  if (!missing_parent)
-                             error_list.push_back(
-			       spot::hoa_parse_error(*yylloc,
- 				"missing closing parenthese"));
-				  missing_parent = true;
+  {eol}			{
+                          yylval->str->append(yytext, yyleng);
+			  yylloc->lines(yyleng); yylloc->end.column = 1;
+			}
+  {eol2}		{
+			  yylval->str->append(yytext, yyleng);
+  			  yylloc->lines(yyleng / 2); yylloc->end.column = 1;
+			}
+  [^()\n\r]+		yylval->str->append(yytext, yyleng);
+  <<EOF>>		{
+                          error_list.push_back(
+			    spot::hoa_parse_error(*yylloc,
+ 			      "missing closing parenthese"));
+                          yylval->str->append(parent_level, ')');
+                          BEGIN(in_NEVER);
+			  spot::trim(*yylval->str);
+			  return token::FORMULA;
 			}
 }
 

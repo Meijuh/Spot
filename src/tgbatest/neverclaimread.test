@@ -312,10 +312,17 @@ T0_init:
 accept_all:
   skip
 }
+never { /* a U b */
+T0_init:
+  if
+  :: ((b)) -> goto accept_all
+  :: ((b) -> goto T0_init
+  fi;
+accept_all:
+  skip
+}
 EOF
-run 2 ../../bin/autfilt --dot <input >stdout 2>stderr
-grep '5.6-8: unexpected empty block' stderr
-
+../../bin/autfilt --dot <input >stdout 2>stderr && exit 1
 cat >expected <<EOF
 digraph G {
   0 [label="", style=invis, height=0]
@@ -328,6 +335,15 @@ digraph G {
 }
 EOF
 diff stdout expected
+# FIXME: the "ignoring trailing garbage" is unwanted
+cat >expected.err <<EOF
+5.6-8: unexpected empty block
+5.6-8: ignoring trailing garbage
+14.6-19.1: missing closing parenthese
+19.1: syntax error, unexpected end of file, expecting fi or ':'
+autfilt: failed to read automaton from -
+EOF
+diff stderr expected.err
 
 
 cat >formulae<<EOF

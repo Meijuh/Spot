@@ -603,7 +603,9 @@ cat >input <<EOF
 HOA: v1
 States: 3
 Start: 0
-AP: 2 "a" "b"
+AP: 2 "a" "b"/* multi
+line
+comment */
 Acceptance: 1 Inf(0)
 --BODY--
 State: [1] 0 {0}
@@ -620,18 +622,21 @@ State: 2
 EOF
 
 expecterr input <<EOF
-input:8.1-4: cannot label this edge because...
-input:7.8-10: ... the state is already labeled.
-input:12.6: missing label for this edge (previous edge is labeled)
-input:15.1-3: ignoring this label, because previous edge has no label
+input:10.1-4: cannot label this edge because...
+input:9.8-10: ... the state is already labeled.
+input:14.6: missing label for this edge (previous edge is labeled)
+input:17.1-3: ignoring this label, because previous edge has no label
 EOF
 
 
 cat >input <<EOF
 HOA: v1
-States: 2
+States: /* multi-line
+comment
+*/2
 Start: 0
-Important: 4 very important "!"
+Important: 4 very important "with multi-line
+string!"
 AP: 0
 Acceptance: 1 Inf(0)
 --BODY--
@@ -641,7 +646,7 @@ State: 1 0
 EOF
 
 expecterr input <<EOF
-input:4.1-31: ignoring unsupported header "Important:"
+input:6.1-7.8: ignoring unsupported header "Important:"
 	(but the capital indicates information that should not be ignored)
 EOF
 
@@ -663,6 +668,13 @@ EOF
 
 diff expected input.out
 
+# DOS-style new lines should have the same output.
+sed 's/$/\r/g' input > input.dos
+mv input.dos input
+../../bin/autfilt --hoa input 2>stderr && exit 1
+cat stderr
+diff stderr input.exp
+diff expected input.out
 
 # Error recovery
 
@@ -719,6 +731,7 @@ input:25.1: $se \$undefined, expecting end of file or HOA: or never
 input:25.1-12: ignoring leading garbage
 input:32.1-5: $se header name, expecting --END-- or State:
 input:37.1: $se 't', expecting end of file or HOA: or never
+autfilt: failed to read automaton from input
 EOF
 
 # A comment can contain --BODY-- or --END--, so we do not want to be
@@ -786,8 +799,8 @@ State: 1
 EOF
 
 expecterr input <<EOF
-input:4.7-242: unclosed string
-input:4.7-242: syntax error, unexpected end of file, expecting string
+input:4.7-26.1: unclosed string
+input:26.1: syntax error, unexpected end of file
 autfilt: failed to read automaton from input
 EOF
 
