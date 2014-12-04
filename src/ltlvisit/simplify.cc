@@ -1592,10 +1592,10 @@ namespace spot
 
 		  // Some term does not accept the empty word.
 		  unsigned end = mo->size() - 1;
-		  // {b₁;b₂;b₃*;e₁;f₁;e₂;f₂;e₂;e₃;e₄}
-		  //    = b₁&X(b₂&X(b₃ W {e₁;f₁;e₂;f₂}))
-		  // !{b₁;b₂;b₃*;e₁;f₁;e₂;f₂;e₂;e₃;e₄}
-		  //    = !b₁|X(!b₂|X(!b₃ M !{e₁;f₁;e₂;f₂}))
+		  // {b₁;b₂;e₁;f₁;e₂;f₂;e₂;e₃;e₄}
+		  //    = b₁&X(b₂&X({e₁;f₁;e₂;f₂}))
+		  // !{b₁;b₂;e₁;f₁;e₂;f₂;e₂;e₃;e₄}
+		  //    = !b₁|X(!b₂|X(!{e₁;f₁;e₂;f₂}))
 		  // if e denotes a term that accepts [*0]
 		  // and b denotes a Boolean formula.
 		  while (mo->nth(end)->accepts_eword())
@@ -1604,9 +1604,7 @@ namespace spot
 		  while (start <= end)
 		    {
 		      const formula* r = mo->nth(start);
-		      const bunop* es = is_KleenStar(r);
-		      if ((r->is_boolean() && !opt_.reduce_size_strictly)
-			  || (es && es->child()->is_boolean()))
+		      if (r->is_boolean() && !opt_.reduce_size_strictly)
 			++start;
 		      else
 			break;
@@ -1651,21 +1649,6 @@ namespace spot
 			      else
 				tail =
 				  multop::instance(multop::And, e, tail);
-			    }
-			  // {b*;f} = b W {f}
-			  // !{b*;f} = !b M !{f}
-			  else
-			    {
-			      const bunop* es = is_KleenStar(e);
-			      assert(es);
-			      const formula* c = es->child()->clone();
-			      if (doneg)
-				tail =
-				  binop::instance(binop::M,
-						  unop::instance(unop::Not, c),
-						  tail);
-			      else
-				tail = binop::instance(binop::W, c, tail);
 			    }
 			}
 		      mo->destroy();

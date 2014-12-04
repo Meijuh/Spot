@@ -181,6 +181,10 @@ New in spot 1.2.5a (not yet released)
 
   * Bug fixes:
 
+    - Remove one incorrect simplification rule for PSL discovered
+      via checks on random formulaes.  (The bug was very unlikely
+      to trigger on non-random formulas, because it requires a SERE
+      with an entire subexpression that is unsatisfiable.)
     - When the automaton resulting from the translation of a positive
       formula is deterministic, ltlcross will compute its complement
       to perform additional checks against other translations of the

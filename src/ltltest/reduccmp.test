@@ -25,6 +25,7 @@
 # Check LTL reductions
 
 . ./defs || exit 1
+
 set -e
 
 cat >common.txt <<EOF
@@ -375,14 +376,14 @@ G(GFc|GFd|FGe|FGf), F(GF(c|d)|Ge|Gf)
 {a:b*:c:d*}<>->e, a & ((c & (e M d)) M b)
 {a|b*|c|d*}<>->e, ((a | c) & e) | (e M b) | (e M d)
 {{[*0]|a};b;{[*0]|a};c;e[*]}<>->f, {{[*0]|a};b;{[*0]|a}}<>->X(c&(f|X(f M e)))
-{a;b[*];c[*];e;f*}, a & X(b W (c W e))
-{a;b*;(a* && (b;c));c*}, a & X(b W {a[*] && {b;c}})
+{a;b[*];c[*];e;f*}, a & X({b*;c*;e})
+{a;b*;(a* && (b;c));c*}, a & X({b*;(a* && (b;c))})
 {a;a;b[*2..];b}, a & X(a & X(b & X(b & Xb)))
 !{a;a;b[*2..];b}, !a | X(!a | X(!b | X(!b | X!b)))
-!{a;b[*];c[*];e;f*}, !a | X(!b M (!c M !e))
-!{a;b*;(a* && (b;c));c*}, !a | X(!b M !{a[*] && {b;c}})
-{(a;c*;d)|(b;c)}, (a & X(c W d)) | (b & Xc)
-!{(a;c*;d)|(b;c)}, (X(!c M !d) | !a) & (X!c | !b)
+!{a;c[*];e;f*}, !a | X!{c[*];e}
+!{a;b*;(a* && (b;c));c*}, !a | X(!{b*;(a* && (b;c))})
+{(a;c*;d)|(b;c)}, (a & X{c*;d}) | (b & Xc)
+!{(a;c*;d)|(b;c)}, (X(!{c*;d}) | !a) & (X!c | !b)
 (Xc R b) & (Xc W 0), b & XGc
 {{c*|1}[*0..1]}<>-> v, {{c[+]|1}[*0..1]}<>-> v
 {{b*;c*}[*3..5]}<>-> v, {{b*;c*}[*0..5]} <>-> v
