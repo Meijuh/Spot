@@ -1,6 +1,6 @@
 #!/bin/sh
-# Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -116,7 +116,7 @@ EOF
 diff stderrfilt expected
 
 # The diagnostic should be the same with DOS input
-sed 's/$/\r/' input > input.dos
+perl -pe 's/$/\r/' input > input.dos
 mv input.dos input
 run 2 ../ltl2tgba -b -X input > stdout 2>stderr
 cat stderr

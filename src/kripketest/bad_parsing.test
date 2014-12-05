@@ -68,7 +68,7 @@ cat output | grep -v + > res
 diff expected res
 
 # The diagnostic should be the same with DOS return lines
-sed 's/$/\r/' input > input.dos
+perl -pe 's/$/\r/' input > input.dos
 mv input.dos input
 run 1 ../parse_print input 2> output
 cat output | grep -v + > res
