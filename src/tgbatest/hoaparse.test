@@ -453,8 +453,7 @@ input:8.1-16.12: aborted input automaton
 EOF
 
 # DOS-style new lines should have the same output.
-sed 's/$/\r/g' input > input.dos
-mv input.dos input
+perl -pi -e 's/$/\r/' input
 ../../bin/autfilt --hoa input 2>stderr && exit 1
 cat stderr
 diff stderr input.exp
@@ -669,8 +668,7 @@ EOF
 diff expected input.out
 
 # DOS-style new lines should have the same output.
-sed 's/$/\r/g' input > input.dos
-mv input.dos input
+perl -pe -e 's/$/\r/' input
 ../../bin/autfilt --hoa input 2>stderr && exit 1
 cat stderr
 diff stderr input.exp
