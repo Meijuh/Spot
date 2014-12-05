@@ -3,6 +3,14 @@ Bootstraping from the GIT repository
 
 (If you are building from a tarball, skip this section.)
 
+Spot's gitlab page is at
+
+  https://gitlab.lrde.epita.fr/spot/spot
+
+The GIT repository can be cloned with
+
+  git clone https://gitlab.lrde.epita.fr/spot/spot.git
+
 Some files in SPOT's source tree are generated.  They are distributed
 so that users do not need to tools to rebuild them, but we don't keep
 all of them under GIT because it can generate lots of changes or
