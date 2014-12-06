@@ -173,7 +173,11 @@ New in spot 1.99a (not yet released)
     - The unused implementation of state-based alternating Büchi automata
       has been removed.
 
-New in spot 1.2.5a (not yet released)
+New in spot 1.2.6a (not yet released)
+
+  Nothing yet.
+
+New in spot 1.2.6 (2014-12-06)
 
   * New features:
 
@@ -195,6 +199,7 @@ New in spot 1.2.5a (not yet released)
       state labels.
     - the acceptance specification in the HOA format output have been
       adjusted to match recent changes in the format specifications.
+    - atomic propositions are correctly escaped in the HOA output.
     - the build rules for documentation have been made compatible with
       version 8.0 of Org-mode.  (This was only a problem if you build
       from the git repository, or if you want to edit the
@@ -210,6 +215,7 @@ New in spot 1.2.5a (not yet released)
       libstd++ has also been fixed.
     - all parsers would report wrong line numbers while processing
       files with DOS style newlines.
+    - add support for SWIG 3.0.
 
 New in spot 1.2.5 (2014-08-21)
 
