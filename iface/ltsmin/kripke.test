@@ -1,6 +1,6 @@
 #! /bin/sh
-
-# Copyright (C) 2011 Laboratoire de Recherche et Developpement
+# -*- coding: utf-8 -*-
+# Copyright (C) 2011, 2014 Laboratoire de Recherche et Developpement
 # de l'Epita (LRDE)
 #
 # This file is part of Spot, a model checking library.
@@ -24,7 +24,7 @@
 
 divine compile > output 2>&1
 
-if grep -i ltsmin output; then
+if grep -i 'ltsmin ' output; then
   :
 else
   echo "divine not installed, or no ltsmin interface"

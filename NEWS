@@ -53,6 +53,11 @@ New in spot 1.99a (not yet released)
       and transition of an automaton at random.  It can be
       used from the command-line using "autfilt --randomize".
 
+    - the interface in iface/dve2 has been renamed to iface/ltsmin
+      because it can now interface the dynamic libraries created
+      either by Divine (as patched by the LTSmin people) or by
+      Spins (the LTSmin compiler for Promela).
+
     - Spot is now compiling in C++11 mode.  The set of features we use
       requires GCC >= 4.6 or Clang >= 3.1.  These minimum versions
       are old enough that it should not be an issue to most people.

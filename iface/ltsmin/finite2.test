@@ -18,41 +18,37 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#These are the same tests as in finite.test, except with Spins' interface
 
 . ./defs
 
-divine compile > output 2>&1
-
-if grep -i 'ltsmin ' output; then
-  :
-else
-  echo "divine not installed, or no ltsmin interface"
+# Compile the model beforehand to avoid compiler's output interference.
+if ! spins $srcdir/finite.pm; then
+  echo "spins not functionnal."
   exit 77
 fi
 
-set -e
-run 0 ../modelcheck -gm $srcdir/finite.dve '"P.a < 10"' > stdout
+run 0 ../modelcheck -gm $srcdir/finite.pm '"P_0.a < 10"' > stdout
 test `grep ' -> ' stdout | wc -l` = 25
-test `grep 'P.a=' stdout | wc -l` = 15
+test `grep 'P_0.a=' stdout | wc -l` = 15
 
-run 0 ../modelcheck -dtrue -gm $srcdir/finite.dve '"P.a < 10"' > stdout2
-cmp stdout stdout2
+run 0 ../modelcheck -dtrue -gm $srcdir/finite.pm '"P_0.a < 10"' > stdout2
+diff stdout stdout2
 
-run 0 ../modelcheck -dfalse -gm $srcdir/finite.dve '"P.a < 10"' > stdout
+run 0 ../modelcheck -dfalse -gm $srcdir/finite.pm '"P_0.a < 10"' > stdout
 test `grep ' -> ' stdout | wc -l` = 19
-test `grep 'P.a=' stdout | wc -l` = 15
+test `grep 'P_0.a=' stdout | wc -l` = 15
 
 # the same with compressed states
-run 0 ../modelcheck -z -dfalse -gm $srcdir/finite.dve '"P.a < 10"' > stdout
+run 0 ../modelcheck -z -dfalse -gm $srcdir/finite.pm '"P_0.a < 10"' \
+> stdout
 test `grep ' -> ' stdout | wc -l` = 19
-test `grep 'P.a=' stdout | wc -l` = 15
+test `grep 'P_0.a=' stdout | wc -l` = 15
 
-run 0 ../modelcheck -ddead -E $srcdir/finite.dve \
-  '!(G(dead -> ("P.a==3" | "P.b==3")))'
+run 0 ../modelcheck -ddead -E $srcdir/finite.pm \
+  '!(G(dead -> ("P_0.a==3" | "P_0.b==3")))'
 
-run 0 ../modelcheck -ddead -e $srcdir/finite.dve \
-  '!(G(dead -> ("P.a==2" | "P.b==3")))'
+run 0 ../modelcheck -ddead -e $srcdir/finite.pm \
+  '!(G(dead -> ("P_0.a==2" | "P_0.b==3")))'
 
-# This used to segfault because of a bug in
-# tgba_product::transition_annotation.
-run 0 ../modelcheck -gp $srcdir/finite.dve true
+run 0 ../modelcheck -gp $srcdir/finite.pm true

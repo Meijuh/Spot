@@ -1,4 +1,4 @@
-## Copyright (C) 2011, 2013 Laboratoire de Recherche et Developpement
+## Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et Developpement
 ## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -37,8 +37,8 @@ modelcheck_LDADD = libspotltsmin.la
 
 check_SCRIPTS = defs
 
-TESTS = check.test finite.test kripke.test
-EXTRA_DIST = $(TESTS) beem-peterson.4.dve finite.dve
+TESTS = check.test finite.test finite2.test kripke.test
+EXTRA_DIST = $(TESTS) beem-peterson.4.dve finite.dve finite.pm
 
 kripke.test: $(top_builddir)/src/kripketest/parse_print$(EXEEXT)
 

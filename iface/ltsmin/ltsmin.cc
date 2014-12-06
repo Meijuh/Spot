@@ -998,7 +998,7 @@ namespace spot
     struct stat d;
     if (stat(filename.c_str(), &d) == 0)
       if (s.st_mtime < d.st_mtime)
-	// The .prom.spins is up-to-date, no need to recompile it.
+	// The .spins or .dve2C is up-to-date, no need to recompile it.
 	return false;
 
     int res = system(command.c_str());
@@ -1014,11 +1014,9 @@ namespace spot
   }
 
   kripke_ptr
-  load_model(const std::string& file_arg, const bdd_dict_ptr& dict,
-	    const ltl::atomic_prop_set* to_observe,
-	    const ltl::formula* dead,
-	    int compress,
-	    bool verbose)
+  load_ltsmin(const std::string& file_arg, const bdd_dict_ptr& dict,
+	      const ltl::atomic_prop_set* to_observe,
+	      const ltl::formula* dead, int compress, bool verbose)
   {
     std::string file;
     if (file_arg.find_first_of("/\\") != std::string::npos)
@@ -1104,8 +1102,7 @@ namespace spot
         lt_dlsym(h, "get_state_variable_type_value");
       }
 
-    if (!(
-          d->get_initial_state
+    if (!(d->get_initial_state
 	  && d->get_successors
 	  && d->get_state_size
 	  && d->get_state_variable_name

@@ -217,10 +217,10 @@ checked_main(int argc, char **argv)
 
   if (output != DotFormula)
     {
-      tm.start("loading spins");
-      model = spot::load_model(argv[1], dict, &ap, deadf,
-                               compress_states, true);
-      tm.stop("loading spins");
+      tm.start("loading ltsmin model");
+      model = spot::load_ltsmin(argv[1], dict, &ap, deadf,
+				compress_states, true);
+      tm.stop("loading ltsmin model");
 
       if (!model)
 	{
