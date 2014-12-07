@@ -38,7 +38,6 @@ check_PROGRAMS = \
   checkta \
   emptchk \
   expldot \
-  explprod \
   intvcomp \
   intvcmp2 \
   ltlprod \
@@ -46,8 +45,7 @@ check_PROGRAMS = \
   powerset \
   readsat \
   taatgba \
-  tgbaread \
-  tripprod
+  tgbaread
 
 # Keep this sorted alphabetically.
 acc_SOURCES = acc.cc
@@ -58,7 +56,6 @@ complement_SOURCES = complementation.cc
 emptchk_SOURCES  = emptchk.cc
 expldot_SOURCES  = powerset.cc
 expldot_CXXFLAGS = -DDOTTY
-explprod_SOURCES = explprod.cc
 intvcomp_SOURCES = intvcomp.cc
 intvcmp2_SOURCES = intvcmp2.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
@@ -69,7 +66,6 @@ randtgba_SOURCES = randtgba.cc
 readsat_SOURCES = readsat.cc
 taatgba_SOURCES = taatgba.cc
 tgbaread_SOURCES = tgbaread.cc
-tripprod_SOURCES = tripprod.cc
 
 # Keep this sorted by STRENGTH.  Test basic things first,
 # because such failures will be easier to diagnose and fix.

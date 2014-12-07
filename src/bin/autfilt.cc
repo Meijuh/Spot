@@ -34,6 +34,7 @@
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/hoa.hh"
 #include "tgbaalgos/neverclaim.hh"
+#include "tgbaalgos/product.hh"
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgba/bddprint.hh"
@@ -57,6 +58,7 @@ Convert, transform, and filter Büchi automata.\n\
 #define OPT_STATS 5
 #define OPT_RANDOMIZE 6
 #define OPT_SEED 7
+#define OPT_PRODUCT 8
 
 static const argp_option options[] =
   {
@@ -116,6 +118,8 @@ static const argp_option options[] =
       "a single %", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Transformation:", -1 },
+    { "product", OPT_PRODUCT, "FILENAME", 0,
+      "build the product with FILENAME", 0 },
     { "randomize", OPT_RANDOMIZE, "s|t", OPTION_ARG_OPTIONAL,
       "randomize states and transitions (specify 's' or 't' to"
       "randomize only states or transitions)", 0 },
@@ -143,6 +147,8 @@ static spot::option_map extra_options;
 static bool randomize_st = false;
 static bool randomize_tr = false;
 static int opt_seed = 0;
+static auto dict = spot::make_bdd_dict();
+static spot::tgba_digraph_ptr opt_product = nullptr;
 
 static int
 to_int(const char* s)
@@ -203,6 +209,20 @@ parse_opt(int key, char* arg, struct argp_state*)
 	{
 	  format = Lbtt;
 	}
+      break;
+    case OPT_PRODUCT:
+      {
+	spot::hoa_parse_error_list pel;
+	auto p = hoa_parse(arg, pel, dict);
+	if (spot::format_hoa_parse_errors(std::cerr, arg, pel)
+	    || !p || p->aborted)
+	  error(2, 0, "failed to read automaton from %s", arg);
+	if (!opt_product)
+	  opt_product = std::move(p->aut);
+	else
+	  opt_product = spot::product(std::move(opt_product),
+				      std::move(p->aut));
+      }
       break;
     case OPT_RANDOMIZE:
       if (arg)
@@ -347,11 +367,18 @@ namespace
     {
       spot::stopwatch sw;
       sw.start();
-      auto aut = post.run(haut->aut, nullptr);
-      const double conversion_time = sw.stop();
+
+      auto aut = haut->aut;
+
+      if (opt_product)
+	aut = spot::product(std::move(aut), opt_product);
+
+      aut = post.run(aut, nullptr);
 
       if (randomize_st || randomize_tr)
 	spot::randomize(aut, randomize_st, randomize_tr);
+
+      const double conversion_time = sw.stop();
 
       switch (format)
 	{
@@ -394,7 +421,6 @@ namespace
     process_file(const char* filename)
     {
       spot::hoa_parse_error_list pel;
-      auto b = spot::make_bdd_dict();
       auto hp = spot::hoa_stream_parser(filename);
 
       int err = 0;
@@ -402,7 +428,7 @@ namespace
       for (;;)
 	{
 	  pel.clear();
-	  auto haut = hp.parse(pel, b);
+	  auto haut = hp.parse(pel, dict);
 	  if (!haut && pel.empty())
 	    break;
 	  if (spot::format_hoa_parse_errors(std::cerr, filename, pel))

@@ -27,24 +27,52 @@
 set -e
 
 cat >input1 <<EOF
-acc = p1;
-s1, s1, "a", p1;
-s1, s1, "!a", ;
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[!0] 0
+[0] 0 {0}
+--END--
 EOF
 
 cat >input2 <<EOF
-acc= p1;
-s1, s1, "a", ;
-s1, s1, "!a", p1;
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[0] 0
+[!0] 0 {0}
+--END--
 EOF
 
 cat >expected <<'EOF'
-acc = "0" "1";
-"0 * 0", "0 * 0", "a", "0";
-"0 * 0", "0 * 0", "!a", "1";
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[!0] 0 {1}
+[0] 0 {0}
+--END--
 EOF
 
-run 0 ../explprod input1 input2 > stdout
-cat stdout
+run 0 ../../bin/autfilt input1 --product input2 --hoa | tee stdout
+# FIXME: Use are-isomorphic
 diff stdout expected
+
 rm input1 input2 stdout expected
