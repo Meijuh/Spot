@@ -59,6 +59,7 @@ Convert, transform, and filter Büchi automata.\n\
 #define OPT_RANDOMIZE 6
 #define OPT_SEED 7
 #define OPT_PRODUCT 8
+#define OPT_MERGE 9
 
 static const argp_option options[] =
   {
@@ -117,7 +118,9 @@ static const argp_option options[] =
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Transformation:", -1 },
+    { 0, 0, 0, 0, "Transformations:", 5 },
+    { "merge-transitions", OPT_MERGE, 0, 0,
+      "merge transitions with same destination and acceptance", 0 },
     { "product", OPT_PRODUCT, "FILENAME", 0,
       "build the product with FILENAME", 0 },
     { "randomize", OPT_RANDOMIZE, "s|t", OPTION_ARG_OPTIONAL,
@@ -149,6 +152,7 @@ static bool randomize_tr = false;
 static int opt_seed = 0;
 static auto dict = spot::make_bdd_dict();
 static spot::tgba_digraph_ptr opt_product = nullptr;
+static bool opt_merge = false;
 
 static int
 to_int(const char* s)
@@ -209,6 +213,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 	{
 	  format = Lbtt;
 	}
+      break;
+    case OPT_MERGE:
+      opt_merge = true;
       break;
     case OPT_PRODUCT:
       {
@@ -369,6 +376,11 @@ namespace
       sw.start();
 
       auto aut = haut->aut;
+
+      // Do this first, because it is cheap and will help most
+      // algorithms.
+      if (opt_merge)
+	aut->merge_transitions();
 
       if (opt_product)
 	aut = spot::product(std::move(aut), opt_product);

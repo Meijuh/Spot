@@ -315,4 +315,5 @@ main(int argc, char** argv)
 	}
       flush_cout();
     }
+  spot::ltl::destroy_atomic_prop_set(aprops);
 }
