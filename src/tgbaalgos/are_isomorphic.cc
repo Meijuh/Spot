@@ -187,12 +187,12 @@ namespace
 
 namespace spot
 {
-  bool
+  std::vector<unsigned>
   are_isomorphic(const const_tgba_digraph_ptr a1,
                  const const_tgba_digraph_ptr a2)
   {
     if (are_trivially_different(a1, a2))
-      return false;
+      return std::vector<unsigned>();
     unsigned n = a1->num_states();
     assert(n == a2->num_states());
     class2states_t a1_classes = map_class_states(a1);
@@ -202,14 +202,14 @@ namespace spot
     // Get the first possible mapping between a1 and a2, or return false if
     // the number of class or the size of the classes do not match.
     if (!(mapping_from_classes(mapping, a1_classes, a2_classes)))
-      return false;
+      return std::vector<unsigned>();
 
     while (!is_isomorphism(mapping, a1, a2))
       {
         if (!next_class_permutation(a2_classes))
-          return false;
+          return std::vector<unsigned>();
         mapping_from_classes(mapping, a1_classes, a2_classes);
       }
-    return true;
+    return mapping;
   }
 }

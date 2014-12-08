@@ -21,20 +21,16 @@
 # define SPOT_TGBAALGOS_ARE_ISOMORPHIC_HH
 
 #include "tgba/tgbagraph.hh"
+#include <vector>
 
 namespace spot
 {
   /// \ingroup tgba_misc
-  /// \brief Check whether two automata are isomorphic.
-  /// Two automata a1 and a2 are said to be isomorphic if there is a bijection
-  /// f between the states of a1 and a2 such that for every pair of state (s1,
-  /// s2) of a1:
-  /// - there is a transition from s1 to s2 iff there is a transition from f(s1)
-  /// to f(s2)
-  /// - if there is such a transition, then the acceptance set and acceptance
-  /// condition are the same on the transition from s1 to s2 and from f(s1) to
-  /// f(s2)
-  SPOT_API bool are_isomorphic(const const_tgba_digraph_ptr a1,
+  /// \brief Return an isomorphism between a1 and a2 if such an isomorphism
+  /// exists. Otherwise, return an empty vector.
+  /// The return value is a vector indexed by states of a1, and containing
+  /// states of a2.
+  SPOT_API std::vector<unsigned> are_isomorphic(const const_tgba_digraph_ptr a1,
                                const const_tgba_digraph_ptr a2);
 }
 

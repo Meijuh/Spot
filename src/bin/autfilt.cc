@@ -415,12 +415,16 @@ namespace
       // Do this first, because it is cheap and will help most
       // algorithms.
       if (opt_merge)
-	aut->merge_transitions();
+        {
+          aut->merge_transitions();
+          if (opt_are_isomorphic)
+            opt_are_isomorphic->merge_transitions();
+        }
 
       if (opt_product)
 	aut = spot::product(std::move(aut), opt_product);
 
-      if (opt_isomorph && !are_isomorphic(aut, opt_isomorph))
+      if (opt_isomorph && are_isomorphic(aut, opt_isomorph).empty())
         return 0;
 
       aut = post.run(aut, nullptr);
