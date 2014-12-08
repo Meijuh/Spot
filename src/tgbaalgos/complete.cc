@@ -32,7 +32,7 @@ namespace spot
 	// acceptance set as the added sink would become accepting.
 	// In this case, add an acceptance set to all transitions.
 	allacc = aut->set_single_acceptance_set();
-	for (auto& t: aut->transitions())
+	for (auto& t: aut->transition_vector())
 	  t.acc = allacc;
       }
     else

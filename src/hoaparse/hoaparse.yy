@@ -953,7 +953,7 @@ static void fix_acceptance(result_& r)
   // If a set x appears only as Inf(!x), we can complement it so that
   // we work with Inf(x) instead.
   auto onlyneg = r.neg_acc_sets - r.pos_acc_sets;
-  for (auto& t: r.h->aut->transitions())
+  for (auto& t: r.h->aut->transition_vector())
     t.acc ^= onlyneg;
 
   // However if set x is used elsewhere, for instance in
@@ -968,7 +968,7 @@ static void fix_acceptance(result_& r)
       auto v = acc.sets(both);
       auto vs = v.size();
       unsigned base = acc.add_sets(vs);
-      for (auto& t: r.h->aut->transitions())
+      for (auto& t: r.h->aut->transition_vector())
 	if ((t.acc & both) != both)
 	  for (unsigned i = 0; i < vs; ++i)
 	    if (!t.acc.has(i))

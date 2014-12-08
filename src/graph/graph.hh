@@ -373,7 +373,120 @@ namespace spot
       transition t_;
     };
 
+    //////////////////////////////////////////////////
+    // all_trans
+    //////////////////////////////////////////////////
+
+    template <typename Graph>
+    class SPOT_API all_trans_iterator:
+      std::iterator<std::forward_iterator_tag,
+		    typename
+		    std::conditional<std::is_const<Graph>::value,
+				     const typename Graph::trans_storage_t,
+				     typename Graph::trans_storage_t>::type>
+    {
+      typedef
+	std::iterator<std::forward_iterator_tag,
+		      typename
+		      std::conditional<std::is_const<Graph>::value,
+				       const typename Graph::trans_storage_t,
+				       typename Graph::trans_storage_t>::type>
+	super;
+
+      typedef typename std::conditional<std::is_const<Graph>::value,
+					const typename Graph::trans_vector,
+					typename Graph::trans_vector>::type
+	tv_t;
+
+      unsigned t_;
+      tv_t& tv_;
+
+      void skip_()
+      {
+	unsigned s = tv_.size();
+	do
+	  ++t_;
+	while (t_ < s && tv_[t_].next_succ == t_);
+      }
+
+    public:
+      all_trans_iterator(unsigned pos, tv_t& tv)
+	: t_(pos), tv_(tv)
+      {
+	skip_();
+      }
+
+      all_trans_iterator(tv_t& tv)
+	: t_(tv.size()), tv_(tv)
+      {
+      }
+
+      all_trans_iterator& operator++()
+      {
+	skip_();
+	return *this;
+      }
+
+      all_trans_iterator operator++(int)
+      {
+	all_trans_iterator old = *this;
+	++*this;
+	return old;
+      }
+
+      bool operator==(all_trans_iterator o) const
+      {
+	return t_ == o.t_;
+      }
+
+      bool operator!=(all_trans_iterator o) const
+      {
+	return t_ != o.t_;
+      }
+
+      typename super::reference
+      operator*()
+      {
+	return tv_[t_];
+      }
+
+      typename super::pointer
+      operator->()
+      {
+	return &tv_[t_];
+      }
+    };
+
+
+    template <typename Graph>
+    class SPOT_API all_trans
+    {
+      typedef typename std::conditional<std::is_const<Graph>::value,
+					const typename Graph::trans_vector,
+					typename Graph::trans_vector>::type
+	tv_t;
+      typedef all_trans_iterator<Graph> iter_t;
+      tv_t& tv_;
+    public:
+
+      all_trans(tv_t& tv)
+	: tv_(tv)
+      {
+      }
+
+      iter_t begin()
+      {
+	return {0, tv_};
+      }
+
+      iter_t end()
+      {
+	return {tv_};
+      }
+    };
+
   }
+
 
   // The actual graph implementation
 
@@ -614,12 +727,27 @@ namespace spot
       return states_;
     }
 
-    const trans_vector& transitions() const
+    internal::all_trans<const digraph> transitions() const
     {
       return transitions_;
     }
 
-    trans_vector& transitions()
+    internal::all_trans<digraph> transitions()
+    {
+      return transitions_;
+    }
+
+    // When using this method, beware that the first entry (transition
+    // #0) is not a real transition, and that any transition with
+    // next_succ pointing to itself is an erased transition.
+    //
+    // You should probably use transitions() instead.
+    const trans_vector& transition_vector() const
+    {
+      return transitions_;
+    }
+
+    trans_vector& transition_vector()
     {
       return transitions_;
     }

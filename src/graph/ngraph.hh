@@ -91,7 +91,7 @@ namespace spot
 	  auto old = p.first->second;
 	  p.first->second = s;
 	  // Add the successor of OLD to those of S.
-	  auto& trans = g_.transitions();
+	  auto& trans = g_.transition_vector();
 	  auto& states = g_.states();
 	  trans[states[s].succ_tail].next_succ = states[old].succ;
 	  states[s].succ_tail = states[old].succ_tail;

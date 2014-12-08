@@ -432,8 +432,7 @@ namespace spot
       // Compute the AP used in the hard way.
       bdd ap = bddtrue;
       for (auto& t: ref->transitions())
-	if (!ref->is_dead_transition(t))
-	  ap &= bdd_support(t.cond);
+	ap &= bdd_support(t.cond);
 
       // Count the number of atomic propositions
       int nap = 0;

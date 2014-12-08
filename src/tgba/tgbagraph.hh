@@ -405,6 +405,11 @@ namespace spot
     auto transitions()
       SPOT_RETURN(g_.transitions());
 
+    auto transition_vector() const
+      SPOT_RETURN(g_.transition_vector());
+    auto transition_vector()
+      SPOT_RETURN(g_.transition_vector());
+
     auto is_dead_transition(const graph_t::trans_storage_t& t) const
       SPOT_RETURN(g_.is_dead_transition(t));
 

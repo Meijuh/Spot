@@ -66,9 +66,8 @@ namespace spot
   bool is_safety_mwdba(const const_tgba_digraph_ptr& aut)
   {
     for (auto& t: aut->transitions())
-      if (!aut->is_dead_transition(t))
-	if (!aut->acc().accepting(t.acc))
-	  return false;
+      if (!aut->acc().accepting(t.acc))
+	return false;
     return true;
   }
 

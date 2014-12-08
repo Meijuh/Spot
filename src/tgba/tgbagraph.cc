@@ -43,7 +43,7 @@ namespace spot
 			   // them.
 			 });
 
-    auto& trans = this->transitions();
+    auto& trans = this->transition_vector();
     unsigned tend = trans.size();
     unsigned out = 0;
     unsigned in = 1;

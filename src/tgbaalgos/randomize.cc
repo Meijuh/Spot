@@ -42,9 +42,9 @@ namespace spot
       }
     if (randomize_transitions)
       {
-	auto begin = g.transitions().begin() + 1;
-	auto end = g.transitions().end();
-	std::random_shuffle(begin, end, spot::mrand);
+	g.remove_dead_transitions_();
+	auto& v = g.transition_vector();
+	std::random_shuffle(v.begin() + 1, v.end(), spot::mrand);
       }
 
     typedef tgba_digraph::graph_t::trans_storage_t tr_t;
