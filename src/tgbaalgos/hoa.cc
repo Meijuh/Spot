@@ -70,6 +70,12 @@ namespace spot
 	number_all_ap();
       }
 
+      ~metadata()
+      {
+	for (auto s: nm)
+	  s->destroy();
+      }
+
       std::ostream&
       emit_acc(std::ostream& os,
 	       const const_tgba_ptr& aut,
@@ -162,8 +168,8 @@ namespace spot
       {
 	sup_map::iterator i;
 	bdd all = bddtrue;
-	for (i = sup.begin(); i != sup.end(); ++i)
-	  all &= bdd_support(i->first);
+	for (auto& i: sup)
+	  all &= bdd_support(i.first);
 
 	while (all != bddtrue)
 	  {
@@ -173,17 +179,17 @@ namespace spot
 	    vap.push_back(v);
 	  }
 
-	for (i = sup.begin(); i != sup.end(); ++i)
+	for (auto& i: sup)
 	  {
-	    bdd cond = i->first;
+	    bdd cond = i.first;
 	    if (cond == bddtrue)
 	      {
-		i->second = "t";
+		i.second = "t";
 		continue;
 	      }
 	    if (cond == bddfalse)
 	      {
-		i->second = "f";
+		i.second = "f";
 		continue;
 	      }
 	    std::ostringstream s;
@@ -216,7 +222,7 @@ namespace spot
 		  }
 		notfirstor = true;
 	      }
-	    i->second = s.str();
+	    i.second = s.str();
 	  }
       }
 
@@ -237,8 +243,7 @@ namespace spot
 
     metadata md(aut);
 
-    if (acceptance == Hoa_Acceptance_States
-	&& !md.state_acc)
+    if (acceptance == Hoa_Acceptance_States && !md.state_acc)
       acceptance = Hoa_Acceptance_Transitions;
 
     unsigned num_states = md.nm.size();
@@ -251,10 +256,9 @@ namespace spot
        << "Start: 0" << nl
        << "AP: " << md.vap.size();
     auto d = aut->get_dict();
-    for (metadata::vap_t::const_iterator i = md.vap.begin();
-	 i != md.vap.end(); ++i)
+    for (auto& i: md.vap)
       {
-	auto f = ltl::is_atomic_prop(d->bdd_map[*i].f);
+	auto f = ltl::is_atomic_prop(d->bdd_map[i].f);
 	assert(f);
 	escape_str(os << " \"", f->name()) << '"';
       }
@@ -318,8 +322,6 @@ namespace spot
 	aut->release_iter(j);
       }
     os << "--END--";		// No newline.  Let the caller decide.
-    for (unsigned i = 0; i < num_states; ++i)
-      md.nm[i]->destroy();
     return os;
   }
 
