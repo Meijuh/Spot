@@ -67,7 +67,7 @@ State: 2 {0}
 --END--
 EOF
 
-test -n "`../../bin/autfilt -F stdout --isomorph expected`"
+run 0 ../../bin/autfilt -F stdout --isomorph expected
 
 rm input stdout expected
 
@@ -112,7 +112,7 @@ State: 2 {0}
 --END--
 EOF
 
-test -n "`../../bin/autfilt -F stdout --isomorph expected`"
+run 0 ../../bin/autfilt -F stdout --isomorph expected
 
 rm input stdout expected
 

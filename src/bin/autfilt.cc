@@ -49,7 +49,10 @@
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter Büchi automata.\n\
-";
+Exit status:\n\
+  0  if some automata were output\n\
+  1  if no automata were output (no match)\n\
+  2  if any error has been reported";
 
 
 #define OPT_TGBA 1
@@ -151,6 +154,7 @@ static const struct argp_child children[] =
 
 static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa }
   format = Dot;
+static bool one_match = false;
 static const char* stats = "";
 static const char* hoa_opt = 0;
 static spot::option_map extra_options;
@@ -412,8 +416,8 @@ namespace
 
       auto aut = haut->aut;
 
-      // Do this first, because it is cheap and will help most
-      // algorithms.
+      // Preprocessing.
+
       if (opt_merge)
         {
           aut->merge_transitions();
@@ -421,11 +425,22 @@ namespace
             opt_are_isomorphic->merge_transitions();
         }
 
+      // Filters.
+
+      bool matched = true;
+
+      if (opt_isomorph)
+        matched &= !are_isomorphic(aut, opt_isomorph).empty();
+
+      one_match |= matched;
+
+      if (!matched)
+        return 0;
+
+      // Postprocessing.
+
       if (opt_product)
 	aut = spot::product(std::move(aut), opt_product);
-
-      if (opt_isomorph && are_isomorphic(aut, opt_isomorph).empty())
-        return 0;
 
       aut = post.run(aut, nullptr);
 
@@ -534,5 +549,5 @@ main(int argc, char** argv)
     {
       error(2, 0, "%s", e.what());
     }
-  return 0;
+  return one_match ? 0 : 1;
 }

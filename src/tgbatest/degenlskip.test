@@ -78,5 +78,5 @@ State: 2
 --END--
 EOF
 
-test -n "`../../bin/autfilt -F out2 --isomorph expected2`"
-test -n "`../../bin/autfilt -F out3 --isomorph expected3`"
+run 0 ../../bin/autfilt -F out2 --isomorph expected2
+run 0 ../../bin/autfilt -F out3 --isomorph expected3

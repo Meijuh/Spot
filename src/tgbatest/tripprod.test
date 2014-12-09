@@ -107,6 +107,6 @@ EOF
 run 0 ../../bin/autfilt input1 --product input2 --product input3 --hoa |
     tee stdout
 
-test -n "`../../bin/autfilt -F stdout --isomorph expected`"
+run 0 ../../bin/autfilt -F stdout --isomorph expected
 
 rm input1 input2 input3 stdout expected

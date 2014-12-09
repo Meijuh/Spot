@@ -90,14 +90,14 @@ EOF
 
 run 0 ../../bin/autfilt --merge-transitions --hoa input > stdout
 cat stdout
-test -n "`../../bin/autfilt -F stdout --isomorph expected`"
+run 0 ../../bin/autfilt -F stdout --isomorph expected
 
 # Likewise, with a randomly generated TGBA.
 run 0 ../../bin/randaut -S 20 a b -d 0.2 -a 0.2 -A 2 --hoa | tee input
 
 # the first read-write can renumber the states
 run 0 $autfilt --hoa --merge-transitions input > stdout
-test -n "`../../bin/autfilt -F input --isomorph stdout`"
+run 0 ../../bin/autfilt -F input --isomorph stdout
 
 # But this second output should be the same as the first
 run 0 $autfilt --hoa stdout > stdout2

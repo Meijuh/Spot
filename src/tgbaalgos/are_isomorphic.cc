@@ -74,13 +74,10 @@ namespace
 
     for (auto& t: a->transitions())
       {
-        if (!a->is_dead_transition(t))
-          {
-            hashout[t.src] ^= spot::wang32_hash(t.cond.id());
-            hashout[t.src] ^= spot::wang32_hash(t.acc);
-            hashin[t.dst] ^= spot::wang32_hash(t.cond.id());
-            hashin[t.dst] ^= spot::wang32_hash(t.acc);
-          }
+        hashout[t.src] ^= spot::wang32_hash(t.cond.id());
+        hashout[t.src] ^= spot::wang32_hash(t.acc);
+        hashin[t.dst] ^= spot::wang32_hash(t.cond.id());
+        hashin[t.dst] ^= spot::wang32_hash(t.acc);
       }
 
     for (unsigned i = 0; i < a->num_states(); ++i)
@@ -147,12 +144,10 @@ namespace
     std::vector<trans_storage_t> trans2;
 
     for (auto& t: a1->transitions())
-      if (!(a1->is_dead_transition(t)))
-        trans1.push_back(t);
+      trans1.push_back(t);
 
     for (auto& t: a2->transitions())
-      if (!(a2->is_dead_transition(t)))
-        trans2.push_back(t);
+      trans2.push_back(t);
 
     // Sort the vectors of transitions so that they can be compared.
     // To use the same metric, the transitions of a1 have to be mapped to

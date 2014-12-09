@@ -78,6 +78,6 @@ State: 2
 EOF
 
 run 0 ../../bin/autfilt input1 --product input2 --hoa | tee stdout
-test -n "`../../bin/autfilt -F stdout --isomorph expected`"
+run 0 ../../bin/autfilt -F stdout --isomorph expected
 
 rm input1 input2 stdout expected
