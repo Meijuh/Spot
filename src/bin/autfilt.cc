@@ -64,7 +64,7 @@ Exit status:\n\
 #define OPT_SEED 7
 #define OPT_PRODUCT 8
 #define OPT_MERGE 9
-#define OPT_ISOMORPH 10
+#define OPT_ARE_ISOMORPHIC 10
 
 static const argp_option options[] =
   {
@@ -133,9 +133,10 @@ static const argp_option options[] =
       "randomize only states or transitions)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filter:", -1 },
-    { "isomorph", 'I', "FILENAME", 0,
+    { "are-isomorphic", 'I', "FILENAME", 0,
       "print only the automata that are isomorph to the automaton "\
         "described in FILENAME", 0 },
+    { "isomorphic", 0, 0, OPTION_ALIAS | OPTION_HIDDEN, 0, 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
@@ -164,7 +165,7 @@ static int opt_seed = 0;
 static auto dict = spot::make_bdd_dict();
 static spot::tgba_digraph_ptr opt_product = nullptr;
 static bool opt_merge = false;
-static spot::tgba_digraph_ptr opt_isomorph = nullptr;
+static spot::tgba_digraph_ptr opt_are_isomorphic = nullptr;
 
 static int
 to_int(const char* s)
@@ -220,7 +221,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 	if (spot::format_hoa_parse_errors(std::cerr, arg, pel)
 	    || !p || p->aborted)
 	  error(2, 0, "failed to read automaton from %s", arg);
-        opt_isomorph = std::move(p->aut);
+        opt_are_isomorphic = std::move(p->aut);
       }
     case 'M':
       type = spot::postprocessor::Monitor;
@@ -429,8 +430,8 @@ namespace
 
       bool matched = true;
 
-      if (opt_isomorph)
-        matched &= !are_isomorphic(aut, opt_isomorph).empty();
+      if (opt_are_isomorphic)
+        matched &= !are_isomorphic(aut, opt_are_isomorphic).empty();
 
       one_match |= matched;
 
