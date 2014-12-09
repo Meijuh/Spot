@@ -1244,8 +1244,7 @@ namespace
 		state_set& s)
   {
     auto aut = m->get_aut();
-    auto ps = static_cast<const spot::product_states*>
-      (aut->get_named_prop("product-states"));
+    auto ps = aut->get_named_prop<const spot::product_states>("product-states");
     unsigned c = m->scc_count();
     for (unsigned n = 0; n < c; ++n)
       if (m->is_accepting_scc(n) || m->is_trivial(n))

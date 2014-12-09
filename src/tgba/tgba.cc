@@ -98,7 +98,7 @@ namespace spot
   }
 
   void*
-  tgba::get_named_prop(std::string s) const
+  tgba::get_named_prop_(std::string s) const
   {
     auto i = named_prop_.find(s);
     if (i == named_prop_.end())

@@ -665,12 +665,28 @@ namespace spot
 		       std::pair<void*,
 				 std::function<void(void*)>>> named_prop_;
 #endif
+    void* get_named_prop_(std::string s) const;
+
   public:
 
 #ifndef SWIG
     void set_named_prop(std::string s,
 			void* val, std::function<void(void*)> destructor);
-    void* get_named_prop(std::string s) const;
+
+    template<typename T>
+    void set_named_prop(std::string s, T* val)
+    {
+      set_named_prop(s, val, [](void *p) { delete static_cast<T*>(p); });
+    }
+
+    template<typename T>
+    T* get_named_prop(std::string s) const
+    {
+      void* p = get_named_prop_(s);
+      if (!p)
+	return nullptr;
+      return static_cast<T*>(p);
+    }
 #endif
 
     bool has_single_acc_set() const

@@ -56,9 +56,7 @@ namespace spot
 				   + right->acc().num_sets());
 
     auto v = new product_states;
-    res->set_named_prop("product-states", v, [](void* vv) {
-	delete static_cast<product_states*>(vv);
-      });
+    res->set_named_prop("product-states", v);
 
     auto new_state =
       [&](unsigned left_state, unsigned right_state) -> unsigned

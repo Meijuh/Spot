@@ -359,9 +359,7 @@ header-item: "States:" INT
 	     }
            | "name:" STRING
              {
-	       res.h->aut->set_named_prop("automaton-name", $2, [](void* name) {
-		   delete static_cast<std::string*>(name);
-		 });
+	       res.h->aut->set_named_prop("automaton-name", $2);
 	     }
            | "properties:" properties
            | HEADERNAME header-spec
