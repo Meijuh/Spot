@@ -86,6 +86,9 @@ namespace
       // the union of in and out is the same.
       state2class[i] = spot::wang32_hash(hashin[i]) ^ hashout[i];
 
+    // XOR the initial state's hash with a pseudo random value so that it is
+    // in its own class.
+    state2class[a->get_init_state_number()] ^= 2654435761U;
     return state2class;
   }
 
@@ -100,8 +103,9 @@ namespace
     for (unsigned s = 0; s < n; ++s)
       {
         class_t c1 = state2class[s];
-        (*(class2states.emplace(c1, std::vector<unsigned>()).first)).second.
-          emplace_back(s);
+        auto& states =
+          class2states.emplace(c1, std::vector<unsigned>()).first->second;
+        states.emplace_back(s);
       }
 
     return class2states;
