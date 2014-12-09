@@ -250,7 +250,10 @@ namespace spot
 
     const char nl = newline ? '\n' : ' ';
     os << "HOA: v1" << nl;
-    if (f)
+    auto* n = aut->get_named_prop("automaton-name");
+    if (n)
+      escape_str(os << "name: \"", *static_cast<std::string*>(n)) << '"' << nl;
+    else if (f)
       escape_str(os << "name: \"", to_string(f)) << '"' << nl;
     os << "States: " << num_states << nl
        << "Start: 0" << nl

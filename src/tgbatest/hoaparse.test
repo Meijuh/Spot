@@ -384,6 +384,7 @@ EOF
 
 expectok input <<EOF
 HOA: v1
+name: "GFa & GF(b & c)"
 States: 1
 Start: 0
 AP: 3 "a" "b" "c"
@@ -431,6 +432,7 @@ AP: 1 "a"
 [!0--ABORT--
 HOA: v1
 States: 2
+name: "survivor"
 Start: 0
 Acceptance: 2 (Inf(0) & Inf(!0)) & Inf(!1)
 AP: 1 "a"
@@ -460,6 +462,7 @@ diff stderr input.exp
 
 cat >expected <<EOF
 HOA: v1
+name: "survivor"
 States: 2
 Start: 0
 AP: 1 "a"
