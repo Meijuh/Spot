@@ -72,7 +72,6 @@ State: 0
 EOF
 
 run 0 ../../bin/autfilt input1 --product input2 --hoa | tee stdout
-# FIXME: Use are-isomorphic
-diff stdout expected
+test -n "`../../bin/autfilt -F stdout --isomorph expected`"
 
 rm input1 input2 stdout expected

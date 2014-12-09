@@ -25,47 +25,58 @@ set -e
 # Make sure degen-skip=0 and degen-skip=1 produce the expected
 # automata for 'GFa & GFb'
 
-../../bin/ltl2tgba -B 'GFa & GFb' > out1
-../../bin/ltl2tgba -B -x degen-lskip=1 'GFa & GFb' > out2
-../../bin/ltl2tgba -B -x degen-lskip=0 'GFa & GFb' > out3
+../../bin/ltl2tgba -B 'GFa & GFb' --hoa > out1
+../../bin/ltl2tgba -B -x degen-lskip=1 'GFa & GFb' --hoa > out2
+../../bin/ltl2tgba -B -x degen-lskip=0 'GFa & GFb' --hoa > out3
 
 diff out1 out2
 cmp out2 out3 && exit 1
 
 cat <<EOF >expected2
-digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 1 [label="a & b\n{0}"]
-  1 -> 2 [label="!b\n{0}"]
-  1 -> 3 [label="!a & b\n{0}"]
-  2 [label="1"]
-  2 -> 1 [label="a & b"]
-  2 -> 2 [label="!b"]
-  2 -> 3 [label="!a & b"]
-  3 [label="2"]
-  3 -> 1 [label="a"]
-  3 -> 3 [label="!a"]
-}
+HOA: v1
+name: "G(Fa & Fb)"
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete deterministic
+--BODY--
+State: 0 {0}
+[0&1] 0
+[!1] 1
+[!0&1] 2
+State: 1
+[0&1] 0
+[!1] 1
+[!0&1] 2
+State: 2
+[0] 0
+[!0] 2
+--END--
 EOF
 
 
 cat <<EOF >expected3
-digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 2 [label="1\n{0}"]
-  2 [label="1"]
-  2 -> 2 [label="!b"]
-  2 -> 3 [label="b"]
-  3 [label="2"]
-  3 -> 1 [label="a"]
-  3 -> 3 [label="!a"]
-}
+HOA: v1
+name: "G(Fa & Fb)"
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete deterministic
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[!1] 1
+[1] 2
+State: 2
+[0] 0
+[!0] 2
+--END--
 EOF
 
-# FIXME: use are-isomorphic once it is available
-diff out2 expected2
-diff out3 expected3
+test -n "`../../bin/autfilt -F out2 --isomorph expected2`"
+test -n "`../../bin/autfilt -F out3 --isomorph expected3`"
