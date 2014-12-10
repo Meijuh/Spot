@@ -26,12 +26,16 @@
 namespace spot
 {
   /// \ingroup tgba_misc
-  /// \brief Return an isomorphism between a1 and a2 if such an isomorphism
-  /// exists. Otherwise, return an empty vector.
-  /// The return value is a vector indexed by states of a1, and containing
-  /// states of a2.
-  SPOT_API std::vector<unsigned> are_isomorphic(const const_tgba_digraph_ptr a1,
-                               const const_tgba_digraph_ptr a2);
+  /// \brief Check whether two automate are isormorphic.
+  ///
+  /// Return an isomorphism between a1 and a2 if such an isomorphism
+  /// exists.  Otherwise, return an empty vector.
+  ///
+  /// \return a vector indexed by states of \a a1, and containing
+  /// states of \a a2.
+  SPOT_API std::vector<unsigned>
+  are_isomorphic(const const_tgba_digraph_ptr a1,
+		 const const_tgba_digraph_ptr a2);
 }
 
 #endif

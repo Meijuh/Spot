@@ -33,10 +33,28 @@ namespace
   typedef std::vector<unsigned> states_t;
   typedef std::unordered_map<class_t, states_t> class2states_t;
   typedef std::vector<class_t> state2class_t;
-  typedef spot::tgba_digraph::graph_t::trans_storage_t trans_storage_t;
 
-  bool
-  trans_lessthan(trans_storage_t ts1, trans_storage_t ts2)
+  struct transition
+  {
+    unsigned src;
+    unsigned dst;
+    int cond;
+    spot::acc_cond::mark_t acc;
+
+
+    transition(unsigned src, unsigned dst, int cond, spot::acc_cond::mark_t acc)
+      : src(src), dst(dst), cond(cond), acc(acc)
+    {
+    }
+
+    bool operator==(const transition& o) const
+    {
+      return src == o.src && dst == o.dst && cond == o.cond && acc == o.acc;
+    }
+  };
+
+  static bool
+  trans_lessthan(const transition& ts1, const transition& ts2)
   {
     return
       ts1.src != ts2.src ?
@@ -45,27 +63,10 @@ namespace
         ts1.dst < ts2.dst :
       ts1.acc != ts2.acc ?
         ts1.acc < ts2.acc :
-      ts1.cond.id() < ts2.cond.id();
+      ts1.cond < ts2.cond;
   }
 
-  std::function<bool(trans_storage_t ts1, trans_storage_t ts2)>
-  trans_lessthan_mapped(const std::vector<unsigned>& mapping)
-  {
-    return [mapping](trans_storage_t ts1,
-                     trans_storage_t ts2)
-      {
-        return
-          mapping[ts1.src] != mapping[ts2.src] ?
-            mapping[ts1.src] < mapping[ts2.src] :
-          mapping[ts1.dst] != mapping[ts2.dst] ?
-            mapping[ts1.dst] < mapping[ts2.dst] :
-          ts1.acc != ts2.acc ?
-            ts1.acc < ts2.acc :
-          ts1.cond.id() < ts2.cond.id();
-      };
-  }
-
-  state2class_t
+  static state2class_t
   map_state_class(const spot::const_tgba_digraph_ptr a)
   {
     state2class_t hashin(a->num_states(), 0);
@@ -92,7 +93,7 @@ namespace
     return state2class;
   }
 
-  class2states_t
+  static class2states_t
   map_class_states(const spot::const_tgba_digraph_ptr a)
   {
     unsigned n = a->num_states();
@@ -111,7 +112,7 @@ namespace
     return class2states;
   }
 
-  bool
+  static bool
   mapping_from_classes(std::vector<unsigned>& mapping,
                        class2states_t classes1,
                        class2states_t classes2)
@@ -120,15 +121,17 @@ namespace
       return false;
     for (auto& p : classes1)
       {
-        if (p.second.size() != classes2[p.first].size())
+	auto& c2 = classes2[p.first];
+        if (p.second.size() != c2.size())
           return false;
-        for (unsigned j = 0; j < p.second.size(); ++j)
-          mapping[p.second[j]] = classes2[p.first][j];
+	auto ps = p.second.size();
+        for (unsigned j = 0; j < ps; ++j)
+          mapping[p.second[j]] = c2[j];
       }
     return true;
   }
 
-  bool
+  static bool
   next_class_permutation(class2states_t& classes)
   {
     for (auto& p : classes)
@@ -137,50 +140,40 @@ namespace
     return false;
   }
 
-  bool
+  static bool
   is_isomorphism(const std::vector<unsigned>& mapping,
                   const spot::const_tgba_digraph_ptr a1,
                   const spot::const_tgba_digraph_ptr a2)
   {
     unsigned n = a1->num_states();
     assert(n == a2->num_states());
-    std::vector<trans_storage_t> trans1;
-    std::vector<trans_storage_t> trans2;
+    unsigned tend = a1->num_transitions();
+    assert(tend == a2->num_transitions());
+
+    std::vector<transition> trans1;
+    trans1.reserve(tend);
+    std::vector<transition> trans2;
+    trans2.reserve(tend);
 
     for (auto& t: a1->transitions())
-      trans1.push_back(t);
+      trans1.emplace_back(mapping[t.src], mapping[t.dst], t.acc, t.cond.id());
 
     for (auto& t: a2->transitions())
-      trans2.push_back(t);
+      trans2.emplace_back(t.src, t.dst, t.acc, t.cond.id());
 
     // Sort the vectors of transitions so that they can be compared.
-    // To use the same metric, the transitions of a1 have to be mapped to
-    // a2.
-    std::sort(trans1.begin(), trans1.end(), trans_lessthan_mapped(mapping));
+    std::sort(trans1.begin(), trans1.end(), trans_lessthan);
     std::sort(trans2.begin(), trans2.end(), trans_lessthan);
-
-    for (unsigned i = 0; i < trans1.size(); ++i)
-      {
-        auto ts1 = trans1[i];
-        auto ts2 = trans2[i];
-        if (!(ts2.src == mapping[ts1.src] &&
-              ts2.dst == mapping[ts1.dst] &&
-              ts1.acc == ts2.acc &&
-              ts1.cond.id() == ts2.cond.id()))
-          {
-            return false;
-          }
-      }
-
-    return true;
+    return trans1 == trans2;
   }
 
-  bool
+  static bool
   are_trivially_different(const spot::const_tgba_digraph_ptr a1,
                           const spot::const_tgba_digraph_ptr a2)
   {
-    return (a1->num_states() != a2->num_states() ||
-            a1->num_transitions() != a2->num_transitions());
+    return (a1->num_states() != a2->num_states()
+	    || a1->num_transitions() != a2->num_transitions()
+	    || a1->acc().num_sets() != a2->acc().num_sets());
   }
 }
 
@@ -191,7 +184,7 @@ namespace spot
                  const const_tgba_digraph_ptr a2)
   {
     if (are_trivially_different(a1, a2))
-      return std::vector<unsigned>();
+      return {};
     unsigned n = a1->num_states();
     assert(n == a2->num_states());
     class2states_t a1_classes = map_class_states(a1);
@@ -201,12 +194,12 @@ namespace spot
     // Get the first possible mapping between a1 and a2, or return false if
     // the number of class or the size of the classes do not match.
     if (!(mapping_from_classes(mapping, a1_classes, a2_classes)))
-      return std::vector<unsigned>();
+      return {};
 
     while (!is_isomorphism(mapping, a1, a2))
       {
         if (!next_class_permutation(a2_classes))
-          return std::vector<unsigned>();
+          return {};
         mapping_from_classes(mapping, a1_classes, a2_classes);
       }
     return mapping;
