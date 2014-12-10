@@ -18,17 +18,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 . ./defs
 
-for i in `seq 0 4`; do
+set -e
+
+for i in 0 1 2 3 4; do
   ../../bin/randaut a --seed=$i -S4 --hoa >iso$i
-  ../../bin/autfilt -F iso$i --randomize --hoa >aut$i
+  ../../bin/autfilt iso$i --randomize --hoa >aut$i
 done
 
-for i in `seq 0 4`; do
-  for j in `seq 0 4`; do
-    exp=$(test $i -eq $j; echo $?)
-    run $exp ../../bin/autfilt -F aut$i -I iso$j
-  done
-done
+cat aut0 aut1 aut2 aut3 aut4 > all
+(for i in 0 1 2 3 4; do
+  run 0 ../../bin/autfilt all --are-isomorphic iso$i --hoa
+done) > output
+diff all output

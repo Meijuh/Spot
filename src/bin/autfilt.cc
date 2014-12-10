@@ -48,7 +48,7 @@
 
 
 static const char argp_program_doc[] ="\
-Convert, transform, and filter Büchi automata.\n\
+Convert, transform, and filter Büchi automata.\v\
 Exit status:\n\
   0  if some automata were output\n\
   1  if no automata were output (no match)\n\
@@ -118,8 +118,7 @@ static const argp_option options[] =
     { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the output is complete, 0 otherwise", 0 },
     { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "conversion time (including post-processings, but not parsing)"
-      " in seconds", 0 },
+      "processing time (excluding parsing) in seconds", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     /**************************************************/
@@ -132,10 +131,9 @@ static const argp_option options[] =
       "randomize states and transitions (specify 's' or 't' to"
       "randomize only states or transitions)", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Filter:", -1 },
-    { "are-isomorphic", 'I', "FILENAME", 0,
-      "print only the automata that are isomorph to the automaton "\
-        "described in FILENAME", 0 },
+    { 0, 0, 0, 0, "Filters:", 6 },
+    { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
+      "keep automata that are isomorphic the automaton in FILENAME", 0 },
     { "isomorphic", 0, 0, OPTION_ALIAS | OPTION_HIDDEN, 0, 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
@@ -177,24 +175,6 @@ to_int(const char* s)
   return res;
 }
 
-// spot::tgba_digraph_ptr
-// hoa_parse(const char* filename)
-// {
-//   spot::hoa_parse_error_list pel;
-//   auto b = spot::make_bdd_dict();
-//   auto hp = spot::hoa_stream_parser(filename);
-// 
-//   pel.clear();
-//   auto haut = hp.parse(pel, b);
-//   if (!haut && pel.empty())
-//     error(2, 0, "no automaton to parse from %s", filename);
-//   if (spot::format_hoa_parse_errors(std::cerr, filename, pel))
-//     error(2, 0, "failed to parse automaton from %s", filename);;
-//   if (!haut)
-//     error(2, 0, "failed to read automaton from %s", filename);
-//   return haut->aut;
-// }
-
 static int
 parse_opt(int key, char* arg, struct argp_state*)
 {
@@ -214,15 +194,6 @@ parse_opt(int key, char* arg, struct argp_state*)
       format = Hoa;
       hoa_opt = arg;
       break;
-    case 'I':
-      {
-	spot::hoa_parse_error_list pel;
-	auto p = hoa_parse(arg, pel, dict);
-	if (spot::format_hoa_parse_errors(std::cerr, arg, pel)
-	    || !p || p->aborted)
-	  error(2, 0, "failed to read automaton from %s", arg);
-        opt_are_isomorphic = std::move(p->aut);
-      }
     case 'M':
       type = spot::postprocessor::Monitor;
       break;
@@ -241,6 +212,16 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_DOT:
       format = Dot;
       break;
+    case OPT_ARE_ISOMORPHIC:
+      {
+	spot::hoa_parse_error_list pel;
+	auto p = hoa_parse(arg, pel, dict);
+	if (spot::format_hoa_parse_errors(std::cerr, arg, pel)
+	    || !p || p->aborted)
+	  error(2, 0, "failed to read automaton from %s", arg);
+        opt_are_isomorphic = std::move(p->aut);
+	break;
+      }
     case OPT_LBTT:
       if (arg)
 	{
@@ -420,11 +401,7 @@ namespace
       // Preprocessing.
 
       if (opt_merge)
-        {
-          aut->merge_transitions();
-          if (opt_are_isomorphic)
-            opt_are_isomorphic->merge_transitions();
-        }
+	aut->merge_transitions();
 
       // Filters.
 
@@ -532,6 +509,9 @@ main(int argc, char** argv)
 
   if (jobs.empty())
     jobs.emplace_back("-", true);
+
+  if (opt_are_isomorphic && opt_merge)
+    opt_are_isomorphic->merge_transitions();
 
   spot::srand(opt_seed);
 
