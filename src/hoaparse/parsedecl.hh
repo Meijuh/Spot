@@ -32,6 +32,7 @@ YY_DECL;
 
 namespace spot
 {
+  void hoayyreset();
   int hoayyopen(const std::string& name);
   void hoayyclose();
 

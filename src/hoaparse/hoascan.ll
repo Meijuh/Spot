@@ -35,6 +35,9 @@ static unsigned comment_level = 0;
 static unsigned parent_level = 0;
 static int orig_cond = 0;
 static bool missing_parent = false;
+static bool lbtt_s = false;
+static bool lbtt_t = false;
+static unsigned lbtt_states = 0;
 
 %}
 
@@ -43,13 +46,27 @@ eol2        (\n\r)+|(\r\n)+
 identifier  [[:alpha:]_][[:alnum:]_-]*
 
 %x in_COMMENT in_STRING in_NEVER_PAR
-%s in_HOA in_NEVER
-
+%s in_HOA in_NEVER in_LBTT_HEADER
+%s in_LBTT_STATE in_LBTT_INIT in_LBTT_TRANS
+%s in_LBTT_T_ACC in_LBTT_S_ACC in_LBTT_GUARD
 %%
 
 %{
   std::string s;
   yylloc->step();
+
+  auto parse_int = [&](){
+    errno = 0;
+    char* end;
+    unsigned long n = strtoul(yytext, &end, 10);
+    yylval->num = n;
+    if (errno || yylval->num != n)
+      {
+        error_list.push_back(spot::hoa_parse_error(*yylloc, "value too large"));
+        yylval->num = 0;
+      }
+    return end;
+  };
 %}
 
 
@@ -62,14 +79,30 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			  BEGIN(in_COMMENT);
 			  comment_level = 1;
 			}
-"\""                    {
-                          orig_cond = YY_START;
-			  BEGIN(in_STRING);
-			  comment_level = 1;
-			}
-"HOA:"                  BEGIN(in_HOA); return token::HOA;
+<INITIAL>"HOA:"           BEGIN(in_HOA); return token::HOA;
 <INITIAL,in_HOA>"--ABORT--" BEGIN(INITIAL); throw spot::hoa_abort{*yylloc};
-"never"			BEGIN(in_NEVER); return token::NEVER;
+<INITIAL>"never"	  BEGIN(in_NEVER); return token::NEVER;
+
+<INITIAL>[0-9]+[ \t][0-9]+[ts]?  {
+	                  BEGIN(in_LBTT_HEADER);
+			  char* end = 0;
+			  errno = 0;
+			  unsigned long n = strtoul(yytext, &end, 10);
+			  yylval->num = n;
+			  unsigned s = end - yytext;
+			  yylloc->end = yylloc->begin;
+ 			  yylloc->end.columns(s);
+			  yyless(s);
+			  if (errno || yylval->num != n)
+			    {
+                              error_list.push_back(
+			        spot::hoa_parse_error(*yylloc,
+				  "value too large"));
+			      yylval->num = 0;
+                            }
+                          lbtt_states = yylval->num;
+			  return token::LBTT;
+			}
 
 <in_HOA>{
   "States:"		return token::STATES;
@@ -98,19 +131,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			   yylval->str = new std::string(yytext + 1, yyleng - 1);
 			   return token::ANAME;
 			}
-  [0-9]+		{
-			  errno = 0;
-			  unsigned long n = strtoul(yytext, 0, 10);
-                          yylval->num = n;
-			  if (errno || yylval->num != n)
-			    {
-                              error_list.push_back(
-			        spot::hoa_parse_error(*yylloc,
-				  "value too large"));
-			      yylval->num = 0;
-                            }
-                          return token::INT;
-			}
+  [0-9]+                parse_int(); return token::INT;
 }
 
 <in_NEVER>{
@@ -140,7 +161,89 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			  yylval->str = new std::string(yytext, yyleng);
 	                  return token::IDENTIFIER;
 		        }
+}
 
+  /* Note: the LBTT format is scanf friendly, but not Bison-friendly.
+     If we only tokenize it as a stream of INTs, the parser will have
+     a very hard time recognizing what is a state from what is a
+     transitions.  As a consequence we abuse the start conditions to
+     maintain a state an return integers with different sementic types
+     depending on the purpose of those integers. */
+<in_LBTT_HEADER>{
+  [0-9]+[st]*           {
+			  BEGIN(in_LBTT_STATE);
+                          auto end = parse_int();
+			  lbtt_s = false;
+			  lbtt_t = false;
+			  if (end)
+			    while (int c = *end++)
+			      if (c == 's')
+			        lbtt_s = true;
+			      else // c == 't'
+			        lbtt_t = true;
+  		          if (!lbtt_t)
+			    lbtt_s = true;
+			  if (lbtt_states == 0)
+			    {
+                              BEGIN(INITIAL);
+                              return token::LBTT_EMPTY;
+			    }
+			  if (lbtt_s && !lbtt_t)
+			    return token::INT_S;
+			  else
+			    return token::INT;
+			}
+}
+
+<in_LBTT_STATE>[0-9]+   {
+                           parse_int();
+			   BEGIN(in_LBTT_INIT);
+			   return token::STATE_NUM;
+			}
+<in_LBTT_INIT>[01]	{
+                           yylval->num = *yytext - '0';
+			   if (lbtt_s)
+			      BEGIN(in_LBTT_S_ACC);
+			   else
+			      BEGIN(in_LBTT_TRANS);
+			   return token::INT;
+			}
+<in_LBTT_S_ACC>{
+  [0-9]+		parse_int(); return token::ACC;
+  "-1"                  BEGIN(in_LBTT_TRANS); yylloc->step();
+}
+<in_LBTT_TRANS>{
+  [0-9+]                {
+			  parse_int();
+			  if (lbtt_t)
+			    BEGIN(in_LBTT_T_ACC);
+			  else
+			    BEGIN(in_LBTT_GUARD);
+			  return token::DEST_NUM;
+			}
+  "-1"			{
+                          if (--lbtt_states)
+			    {
+			       BEGIN(in_LBTT_STATE);
+			       yylloc->step();
+			    }
+			  else
+			    {
+			       BEGIN(INITIAL);
+			       return token::ENDAUT;
+			    }
+			}
+}
+<in_LBTT_T_ACC>{
+  [0-9+]	        parse_int(); return token::ACC;
+  "-1"			BEGIN(in_LBTT_GUARD); yylloc->step();
+}
+<in_LBTT_GUARD>{
+  [^\n\r]*		{
+  			  yylval->str = new std::string(yytext, yyleng);
+			  BEGIN(in_LBTT_TRANS);
+ 			  return token::STRING;
+			}
 }
 
 
@@ -160,6 +263,13 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			   return 0;
                         }
 }
+
+  /* matched late, so that the in_LBTT_GUARD pattern has precedence */
+"\""                    {
+                          orig_cond = YY_START;
+			  BEGIN(in_STRING);
+			  comment_level = 1;
+			}
 
 <in_STRING>{
   \"	                {
@@ -236,6 +346,15 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 
 namespace spot
 {
+  void
+  hoayyreset()
+  {
+    BEGIN(INITIAL);
+    comment_level = 0;
+    parent_level = 0;
+    missing_parent = false;
+  }
+
   int
   hoayyopen(const std::string &name)
   {
@@ -253,10 +372,7 @@ namespace spot
     // Reset the lexer in case a previous parse
     // ended badly.
     YY_NEW_FILE;
-    BEGIN(INITIAL);
-    comment_level = 0;
-    parent_level = 0;
-    missing_parent = false;
+    hoayyreset();
     return 0;
   }
 

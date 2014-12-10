@@ -37,6 +37,8 @@
 #include "ltlast/constant.hh"
 #include "tgba/formula2bdd.hh"
 #include "public.hh"
+#include "priv/accmap.hh"
+#include "ltlparse/public.hh"
 
   /* Cache parsed formulae.  Labels on arcs are frequently identical
    and it would be a waste of time to parse them to formula* over and
@@ -58,6 +60,7 @@
     spot::ltl::environment* env;
     formula_cache fcache;
     named_tgba_t* namer = nullptr;
+    spot::acc_mapper_int* acc_mapper = nullptr;
     std::vector<int> ap;
     std::vector<bdd> guards;
     std::vector<bdd>::const_iterator cur_guard;
@@ -94,6 +97,7 @@
     ~result_()
     {
       delete namer;
+      delete acc_mapper;
     }
   };
 }
@@ -178,8 +182,16 @@
 %type <list> nc-transitions nc-transition-block
 %type <str> nc-one-ident nc-ident-list
 
-
-
+/**** LBTT tokens *****/
+ // Also using INT, STRING
+%token ENDAUT "-1"
+%token <num> LBTT "LBTT header"
+%token <num> INT_S "state acceptance"
+%token <num> LBTT_EMPTY "acceptance sets for empty automaton"
+%token <num> ACC "acceptance set"
+%token <num> STATE_NUM "state number"
+%token <num> DEST_NUM "destination number"
+%type <mark> lbtt-acc
 
 %destructor { delete $$; } <str>
 %destructor { bdd_delref($$); } <b>
@@ -207,6 +219,7 @@ aut: aut-1     { res.h->loc = @$; YYACCEPT; }
 
 aut-1: hoa
      | never
+     | lbtt
 
 
 /**********************************************************************/
@@ -921,6 +934,93 @@ nc-transition:
       $$ = $3;
     }
 
+/**********************************************************************/
+/*                         Rules for LBTT                             */
+/**********************************************************************/
+
+lbtt: lbtt-header lbtt-body ENDAUT
+    | lbtt-header-states LBTT_EMPTY
+      {
+        res.h->aut->acc().add_sets($2);
+      }
+
+lbtt-header-states: LBTT
+                  {
+		    res.states = $1;
+		    res.states_loc = @1;
+		    res.h->aut->new_states($1);
+		  }
+lbtt-header: lbtt-header-states INT_S
+           {
+	     res.acc_mapper = new spot::acc_mapper_int(res.h->aut, $2);
+	     res.h->aut->prop_state_based_acc();
+	   }
+           | lbtt-header-states INT
+           {
+	     res.acc_mapper = new spot::acc_mapper_int(res.h->aut, $2);
+	   }
+lbtt-body: lbtt-states
+lbtt-states:
+           | lbtt-states lbtt-state lbtt-transitions
+lbtt-state: STATE_NUM INT lbtt-acc
+          {
+	    res.cur_state = $1;
+	    if ((int) res.cur_state >= res.states)
+	      {
+		error(@1, "state number is larger than state "
+		      "count...");
+		error(res.states_loc, "... declared here.");
+		res.cur_state = 0;
+	      }
+	    else if ($2)
+	      res.start.emplace_back(@1 + @2, $1);
+	    res.acc_state = $3;
+	  }
+lbtt-acc:               { $$ = 0U; }
+        | lbtt-acc ACC
+	{
+	  $$  = $1;
+	  auto p = res.acc_mapper->lookup($2);
+	  if (p.first)
+	    $$ |= p.second;
+	  else
+	    error(@2, "more acceptance sets used than declared");
+	}
+lbtt-guard: STRING
+          {
+	    spot::ltl::parse_error_list pel;
+	    auto* f = spot::ltl::parse_lbt(*$1, pel, *res.env);
+	    if (!f || !pel.empty())
+	      {
+		// FIXME: show pel.
+		error(@$, "failed to parse guard");
+		if (f)
+		  f->destroy();
+		res.cur_label = bddtrue;
+	      }
+	    else
+	      {
+		res.cur_label =
+		  formula_to_bdd(f, res.h->aut->get_dict(), res.h->aut);
+		f->destroy();
+	      }
+	    delete $1;
+	  }
+lbtt-transitions:
+                | lbtt-transitions DEST_NUM lbtt-acc lbtt-guard
+                {
+		  if ((int) $2 >= res.states)
+		    {
+		      error(@2, "state number is larger than state "
+			    "count...");
+		      error(res.states_loc, "... declared here.");
+		    }
+		  else
+		    res.h->aut->new_transition(res.cur_state, $2,
+					       res.cur_label,
+					       res.acc_state | $3);
+		}
+
 %%
 
 static void fill_guards(result_& r)
@@ -1038,6 +1138,7 @@ namespace spot
     r.env = &env;
     hoayy::parser parser(error_list, r, last_loc);
     parser.set_debug_level(debug);
+    hoayyreset();
     try
       {
 	if (parser.parse())
