@@ -54,8 +54,7 @@ namespace spot
   SPOT_API tgba_digraph_ptr
   lbtt_parse(std::istream& is, std::string& error,
 	     const bdd_dict_ptr& dict,
-	     ltl::environment& env = ltl::default_environment::instance(),
-	     ltl::environment& envacc = ltl::default_environment::instance());
+	     ltl::environment& env = ltl::default_environment::instance());
 }
 
 #endif // SPOT_TGBAALGOS_LBTT_HH

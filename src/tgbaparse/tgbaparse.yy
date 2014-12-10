@@ -190,16 +190,7 @@ acc_list:
 acc_decl:
        | acc_decl strident
        {
-	 if (! acc_map.declare(*$2))
-	   {
-	     std::string s = "acceptance condition `";
-	     s += *$2;
-	     s += "' unknown in environment `";
-	     s += acc_map.get_env().name();
-	     s += "'";
-	     error_list.emplace_back(@2, s);
-	     YYERROR;
-	   }
+	 acc_map.declare(*$2);
 	 delete $2;
        }
        ;
@@ -220,7 +211,6 @@ namespace spot
 	     tgba_parse_error_list& error_list,
 	     bdd_dict_ptr dict,
 	     environment& env,
-	     environment& envacc,
 	     bool debug)
   {
     if (tgbayyopen(name))
@@ -232,7 +222,7 @@ namespace spot
     formula_cache fcache;
     auto result = make_tgba_digraph(dict);
     auto namer = result->create_namer<std::string>();
-    spot::acc_mapper_string acc_map(result, envacc);
+    spot::acc_mapper_string acc_map(result);
     tgbayy::parser parser(error_list, env, acc_map, result, namer, fcache);
     parser.set_debug_level(debug);
     parser.parse();

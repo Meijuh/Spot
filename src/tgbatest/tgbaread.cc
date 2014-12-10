@@ -57,8 +57,7 @@ main(int argc, char** argv)
 
     spot::ltl::environment& env(spot::ltl::default_environment::instance());
     spot::tgba_parse_error_list pel;
-    auto a = spot::tgba_parse(argv[filename_index],
-			      pel, dict, env, env, debug);
+    auto a = spot::tgba_parse(argv[filename_index], pel, dict, env, debug);
 
     if (spot::format_tgba_parse_errors(std::cerr, argv[filename_index], pel))
       return 2;

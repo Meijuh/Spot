@@ -135,11 +135,10 @@ namespace spot
     tgba_digraph_ptr
     lbtt_read_tgba(unsigned num_states, unsigned num_acc,
 		   std::istream& is, std::string& error,
-		   const bdd_dict_ptr& dict,
-		   ltl::environment& env, ltl::environment& envacc)
+		   const bdd_dict_ptr& dict, ltl::environment& env)
     {
       auto aut = make_tgba_digraph(dict);
-      acc_mapper_int acc_b(aut, num_acc, envacc);
+      acc_mapper_int acc_b(aut, num_acc);
       aut->new_states(num_states);
 
       for (unsigned n = 0; n < num_states; ++n)
@@ -200,11 +199,10 @@ namespace spot
     tgba_digraph_ptr
     lbtt_read_gba(unsigned num_states, unsigned num_acc,
 		  std::istream& is, std::string& error,
-		  const bdd_dict_ptr& dict,
-		  ltl::environment& env, ltl::environment& envacc)
+		  const bdd_dict_ptr& dict, ltl::environment& env)
     {
       auto aut = make_tgba_digraph(dict);
-      acc_mapper_int acc_b(aut, num_acc, envacc);
+      acc_mapper_int acc_b(aut, num_acc);
       aut->new_states(num_states);
       aut->prop_state_based_acc();
 
@@ -277,7 +275,7 @@ namespace spot
 
   tgba_digraph_ptr
   lbtt_parse(std::istream& is, std::string& error, const bdd_dict_ptr& dict,
-	     ltl::environment& env, ltl::environment& envacc)
+	     ltl::environment& env)
   {
     is >> std::skipws;
 
@@ -306,10 +304,8 @@ namespace spot
       type = is.get();
 
     if (type == 't' || type == 'T')
-      return lbtt_read_tgba(num_states, num_acc, is, error, dict,
-			    env, envacc);
+      return lbtt_read_tgba(num_states, num_acc, is, error, dict, env);
     else
-      return lbtt_read_gba(num_states, num_acc, is, error, dict,
-			   env, envacc);
+      return lbtt_read_gba(num_states, num_acc, is, error, dict, env);
   }
 }

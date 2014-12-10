@@ -633,7 +633,7 @@ checked_main(int argc, char** argv)
 	  spot::tgba_parse_error_list pel;
 	  spot::tgba_digraph_ptr s;
 	  s = spot::tgba_parse(argv[formula_index] + 2,
-			       pel, dict, env, env, debug_opt);
+			       pel, dict, env, debug_opt);
 	  if (spot::format_tgba_parse_errors(std::cerr,
 					     argv[formula_index] + 2, pel))
 	    return 2;
@@ -1021,8 +1021,7 @@ checked_main(int argc, char** argv)
 		  spot::tgba_digraph_ptr e;
 		  spot::tgba_parse_error_list pel;
 		  tm.start("parsing automaton");
-		  a = e = spot::tgba_parse(input, pel, dict,
-						     env, env, debug_opt);
+		  a = e = spot::tgba_parse(input, pel, dict, env, debug_opt);
 		  tm.stop("parsing automaton");
 		  if (spot::format_tgba_parse_errors(std::cerr, input, pel))
 		    return 2;
@@ -1044,7 +1043,7 @@ checked_main(int argc, char** argv)
 		      }
 		  }
 		tm.start("parsing lbtt");
-		a = spot::lbtt_parse(*in, error, dict, env, env);
+		a = spot::lbtt_parse(*in, error, dict, env);
 		tm.stop("parsing lbtt");
 		delete f;
 		if (!a)

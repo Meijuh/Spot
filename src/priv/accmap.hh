@@ -23,7 +23,6 @@
 #include <bddx.h>
 #include "misc/hash.hh"
 #include "ltlast/formula.hh"
-#include "ltlenv/defaultenv.hh"
 #include "tgba/tgbagraph.hh"
 
 namespace spot
@@ -33,17 +32,10 @@ namespace spot
   protected:
     bdd_dict_ptr dict_;
     tgba_digraph_ptr aut_;
-    ltl::environment& env_;
 
-    acc_mapper_common(const tgba_digraph_ptr& aut, ltl::environment& env)
-      : dict_(aut->get_dict()), aut_(aut), env_(env)
+    acc_mapper_common(const tgba_digraph_ptr& aut)
+      : dict_(aut->get_dict()), aut_(aut)
     {
-    }
-
-  public:
-    const ltl::environment& get_env() const
-    {
-      return env_;
     }
   };
 
@@ -52,10 +44,8 @@ namespace spot
     std::unordered_map<std::string, unsigned> map_;
 
   public:
-    acc_mapper_string(const tgba_digraph_ptr& aut,
-		      ltl::environment& env
-		      = ltl::default_environment::instance())
-      : acc_mapper_common(aut, env)
+    acc_mapper_string(const tgba_digraph_ptr& aut)
+      : acc_mapper_common(aut)
     {
     }
 
@@ -84,11 +74,8 @@ namespace spot
   class acc_mapper_consecutive_int: public acc_mapper_common
   {
   public:
-    acc_mapper_consecutive_int(const tgba_digraph_ptr& aut,
-			       unsigned count,
-			       ltl::environment& env =
-			       ltl::default_environment::instance())
-      : acc_mapper_common(aut, env)
+    acc_mapper_consecutive_int(const tgba_digraph_ptr& aut, unsigned count)
+      : acc_mapper_common(aut)
     {
       std::vector<unsigned> vmap(count);
       aut->acc().add_sets(count);
@@ -111,11 +98,8 @@ namespace spot
     std::map<unsigned, acc_cond::mark_t> map_;
 
   public:
-    acc_mapper_int(const tgba_digraph_ptr& aut,
-		   unsigned count,
-		   ltl::environment& env =
-		   ltl::default_environment::instance())
-      : acc_mapper_consecutive_int(aut, count, env), used_(0)
+    acc_mapper_int(const tgba_digraph_ptr& aut, unsigned count)
+      : acc_mapper_consecutive_int(aut, count), used_(0)
     {
     }
 
