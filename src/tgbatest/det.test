@@ -59,39 +59,61 @@ EOF
 $ltl2tgba -x tba-det --det --stats '%d,%s,%f' -F formulas/3 > out
 diff formulas out
 
-cat >in.tgba <<'EOF'
-acc = "1";
-"1", "2", "a", "1";
-"1", "1", "!a",;
-"2", "3", "a", "1";
-"2", "1", "!a",;
-"3", "3", "a",;
-"3", "1", "!a",;
+cat >in.hoa <<'EOF'
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[!0] 0
+[0] 1 {0}
+State: 1
+[!0] 0
+[0] 2 {0}
+State: 2
+[!0] 0
+[0] 2
+--END--
 EOF
 
 # FIXME: we should improve this output
-cat >ex.tgba <<'EOF'
-acc = "0";
-"0", "0", "!a",;
-"0", "1", "a",;
-"0", "3", "!a",;
-"1", "0", "!a",;
-"1", "2", "a",;
-"1", "3", "!a",;
-"3", "3", "!a", "0";
-"2", "0", "!a",;
-"2", "2", "a",;
-"2", "3", "!a",;
-"2", "5", "a",;
-"5", "3", "!a", "0";
-"5", "5", "a", "0";
+cat >ex.hoa <<'EOF'
+HOA: v1
+States: 5
+Start: 0
+AP: 1 "a"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[!0] 0
+[0] 1
+[!0] 2
+State: 1
+[!0] 0
+[0] 3
+[!0] 2
+State: 2 {0}
+[!0] 2
+State: 3
+[!0] 0
+[0] 3
+[!0] 2
+[0] 4
+State: 4 {0}
+[!0] 2
+[0] 4
+--END--
 EOF
 
-
-run 0 ../ltl2tgba -b -DC -X in.tgba > out.tgba
-# FIXME: use are-isomorphic once it is available
-diff out.tgba ex.tgba
-
+run 0 ../ltl2tgba -H -DC -XH in.hoa > out.hoa
+run 1 ../../bin/autfilt -q --are-isomorph in.hoa out.hoa
+run 0 ../../bin/autfilt -q --are-isomorph ex.hoa out.hoa
 
 run 0 ../ltl2tgba -x -DC 'GFa & XGFb' > out.tgba
 cat >ex.tgba <<EOF

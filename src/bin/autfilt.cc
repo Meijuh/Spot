@@ -89,6 +89,7 @@ static const argp_option options[] =
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
       "LBTT's format (add =t to force transition-based acceptance even"
       " on Büchi automata)", 0 },
+    { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
     { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
     { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
     { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
@@ -151,7 +152,7 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa }
+static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa, Quiet }
   format = Dot;
 static bool one_match = false;
 static const char* stats = "";
@@ -196,6 +197,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
+      break;
+    case 'q':
+      format = Quiet;
       break;
     case 's':
       format = Spin;
@@ -442,6 +446,9 @@ namespace
 	  break;
 	case Hoa:
 	  spot::hoa_reachable(std::cout, aut, hoa_opt) << '\n';
+	  break;
+	case Quiet:
+	  // Do not output anything.
 	  break;
 	case Spot:
 	  spot::tgba_save_reachable(std::cout, aut);
