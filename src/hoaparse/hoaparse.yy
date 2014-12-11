@@ -991,11 +991,20 @@ lbtt-guard: STRING
 	    spot::ltl::parse_error_list pel;
 	    auto* f = spot::ltl::parse_lbt(*$1, pel, *res.env);
 	    if (!f || !pel.empty())
+	      error(@$, "failed to parse guard");
+	    if (!pel.empty())
+	      for (auto& j: pel)
+		{
+		  // Adjust the diagnostic to the current position.
+		  spot::location here = @1;
+		  here.end.line = here.begin.line + j.first.end.line - 1;
+		  here.end.column = here.begin.column + j.first.end.column - 1;
+		  here.begin.line += j.first.begin.line - 1;
+		  here.begin.column += j.first.begin.column - 1;
+		  error_list.emplace_back(here, j.second);
+		}
+	    if (!f)
 	      {
-		// FIXME: show pel.
-		error(@$, "failed to parse guard");
-		if (f)
-		  f->destroy();
 		res.cur_label = bddtrue;
 	      }
 	    else

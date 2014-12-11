@@ -34,7 +34,6 @@ typedef hoayy::parser::token token;
 static unsigned comment_level = 0;
 static unsigned parent_level = 0;
 static int orig_cond = 0;
-static bool missing_parent = false;
 static bool lbtt_s = false;
 static bool lbtt_t = false;
 static unsigned lbtt_states = 0;
@@ -249,9 +248,9 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 
 <in_COMMENT>{
   "/""*"+		++comment_level;
-  [^*/\n]*		continue;
-  "/"[^*\n]*		continue;
-  "*"+[^*/\n]*		continue;
+  [^*/\n\r]*		continue;
+  "/"[^*\n\r]*		continue;
+  "*"+[^*/\n\r]*	continue;
   {eol}			yylloc->lines(yyleng); yylloc->end.column = 1;
   {eol2}		yylloc->lines(yyleng / 2); yylloc->end.column = 1;
   "*"+"/"		if (--comment_level == 0) BEGIN(orig_cond);
@@ -352,7 +351,6 @@ namespace spot
     BEGIN(INITIAL);
     comment_level = 0;
     parent_level = 0;
-    missing_parent = false;
   }
 
   int

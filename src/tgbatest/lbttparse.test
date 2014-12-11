@@ -111,3 +111,21 @@ cat >expected<<EOF
 EOF
 
 diff output expected
+
+cat > input <<EOF
+1 2t
+0 1
+0 -1 & ! "a" ! "b" !
+0 0 -1 & "a" ! "b" /* comments are OK */
+0 1 -1 & ! "a" /* here too */ "b"
+0 0 1 -1 & "a" "b"
+-1
+EOF
+cat >expected <<EOF
+input:3.5-20: failed to parse guard
+input:3.20: syntax error, unexpected '!', expecting end of formula
+input:3.20: ignoring trailing garbage
+EOF
+../../bin/autfilt -q input 2> stderr && exit 1
+cat stderr
+diff stderr expected
