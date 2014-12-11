@@ -104,6 +104,8 @@ stream_formula(std::ostream& out,
     case latex_output:
       spot::ltl::to_latex_string(f, out, full_parenth);
       break;
+    case quiet_output:
+      break;
     }
 }
 
@@ -259,6 +261,8 @@ output_formula_checked(const spot::ltl::formula* f,
 		       const char* filename, int linenum,
 		       const char* prefix, const char* suffix)
 {
+  if (output_format == quiet_output)
+    return;
   output_formula(std::cout, f, filename, linenum, prefix, suffix);
   std::cout << std::endl;
   // Make sure we abort if we can't write to std::cout anymore

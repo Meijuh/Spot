@@ -28,7 +28,8 @@
 #include "common_output.hh"
 
 enum output_format_t { spot_output, spin_output, utf8_output,
-		       lbt_output, wring_output, latex_output };
+		       lbt_output, wring_output, latex_output,
+                       quiet_output };
 extern output_format_t output_format;
 extern bool full_parenth;
 extern bool escape_csv;

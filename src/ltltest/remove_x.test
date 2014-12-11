@@ -19,21 +19,21 @@
 
 . ./defs
 
-run 0 ../../bin/ltlfilt --remove-x -f 'Xa' --equivalent-to 'Ga | (!a & Fa)'
+run 0 ../../bin/ltlfilt -q --remove-x -f 'Xa' --equivalent-to 'Ga | (!a & Fa)'
 
-run 1 ../../bin/ltlfilt --stutter-invariant -f 'Xa'
+run 1 ../../bin/ltlfilt -q --stutter-invariant -f 'Xa'
 
-run 0 ../../bin/ltlfilt --stutter-invariant -f 'F(!a & Xa & Xb)'
+run 0 ../../bin/ltlfilt -q --stutter-invariant -f 'F(!a & Xa & Xb)'
 
-run 1 ../../bin/ltlfilt --stutter-invariant -f 'F(Xa & Xb)'
+run 1 ../../bin/ltlfilt -q --stutter-invariant -f 'F(Xa & Xb)'
 
 run 0 ../../bin/ltlfilt --remove-x -f 'F(!a & Xa & Xb)' > out
 grep -v X out
-run 0 ../../bin/ltlfilt --stutter-invariant -F 'out'
+run 0 ../../bin/ltlfilt -q --stutter-invariant -F 'out'
 
 
-run 1 ../../bin/ltlfilt --stutter-invariant -f 'F(!a & Xb)'
+run 1 ../../bin/ltlfilt -q --stutter-invariant -f 'F(!a & Xb)'
 run 0 ../../bin/ltlfilt --remove-x -f 'F(!a & Xb)' > out
 grep -v X out
 # The output is stutter invariant, even if the input wasn't.
-run 0 ../../bin/ltlfilt --stutter-invariant -F 'out'
+run 0 ../../bin/ltlfilt -q --stutter-invariant -F 'out'

@@ -5,7 +5,7 @@ ltl2tgba=../../src/bin/ltl2tgba
 dstar2tgba=../../src/bin/dstar2tgba
 
 # Rename all formulas using a b c... suppress duplicates.
-$ltlfilt -q --relabel=abc -u formulas > nodups.ltl
+$ltlfilt --ignore-errors --relabel=abc -u formulas > nodups.ltl
 
 while read f; do
   acc=`$ltl2tgba "$f" --low -a --stats="%a"`

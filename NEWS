@@ -24,6 +24,11 @@ New in spot 1.99a (not yet released)
       The implementation is actually much more efficient
       than the previous implementation that was only for LTL.
 
+    - ltlfilt's old -q/--quiet option has been renamed to
+      --ignore-errors.  The new -q/--quiet semantic is the
+      same as in grep (and also autfilt): disable all normal
+      input, for situtations where only the exit status matters.
+
     - There is a parser for the HOA format
       (http://adl.github.io/hoaf/) available as a
       spot::hoa_stream_parser object or spot::hoa_parse() function.

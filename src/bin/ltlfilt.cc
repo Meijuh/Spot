@@ -84,6 +84,7 @@ Exit status:\n\
 #define OPT_REMOVE_X 28
 #define OPT_STUTTER_INSENSITIVE 29
 #define OPT_AP_N 30
+#define OPT_IGNORE_ERRORS 31
 
 static const argp_option options[] =
   {
@@ -93,7 +94,8 @@ static const argp_option options[] =
       "output erroneous lines as-is without processing", 0 },
     { "drop-errors", OPT_DROP_ERRORS, 0, 0,
       "discard erroneous lines (default)", 0 },
-    { "quiet", 'q', 0, 0, "do not report syntax errors", 0 },
+    { "ignore-errors", OPT_IGNORE_ERRORS, 0, 0,
+      "do not report syntax errors", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Transformation options:", 3 },
     { "negate", 'n', 0, 0, "negate each formula", 0 },
@@ -162,6 +164,7 @@ static const argp_option options[] =
       "drop formulas that have already been output (not affected by -v)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output options:", -20 },
+    { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
     { 0, 0, 0, 0, "The FORMAT string passed to --format may use "\
       "the following interpreted sequences:", -19 },
     { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
@@ -194,7 +197,7 @@ static bool one_match = false;
 
 enum error_style_t { drop_errors, skip_errors };
 static error_style_t error_style = drop_errors;
-static bool quiet = false;
+static bool ignore_errors = false;
 static bool nnf = false;
 static bool negate = false;
 static bool boolean_to_isop = false;
@@ -264,7 +267,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       negate = true;
       break;
     case 'q':
-      quiet = true;
+      output_format = quiet_output;
       break;
     case OPT_R:
       parse_r(arg);
@@ -306,6 +309,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_GUARANTEE:
       guarantee = obligation = true;
+      break;
+    case OPT_IGNORE_ERRORS:
+      ignore_errors = true;
       break;
     case OPT_IMPLIED_BY:
       {
@@ -436,7 +442,7 @@ namespace
 
       if (!f || pel.size() > 0)
 	  {
-	    if (!quiet)
+	    if (!ignore_errors)
 	      {
 		if (filename)
 		  error_at_line(0, 0, filename, linenum, "parse error:");
@@ -451,7 +457,7 @@ namespace
 	    else
 	      assert(error_style == drop_errors);
 	    check_cout();
-	    return !quiet;
+	    return !ignore_errors;
 	  }
       try
 	{
