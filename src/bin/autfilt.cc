@@ -37,6 +37,7 @@
 #include "tgbaalgos/product.hh"
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
+#include "tgbaalgos/isdet.hh"
 #include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
@@ -65,6 +66,8 @@ Exit status:\n\
 #define OPT_PRODUCT 8
 #define OPT_MERGE 9
 #define OPT_ARE_ISOMORPHIC 10
+#define OPT_IS_COMPLETE 11
+#define OPT_IS_DETERMINISTIC 12
 
 static const argp_option options[] =
   {
@@ -131,13 +134,18 @@ static const argp_option options[] =
     { "product", OPT_PRODUCT, "FILENAME", 0,
       "build the product with FILENAME", 0 },
     { "randomize", OPT_RANDOMIZE, "s|t", OPTION_ARG_OPTIONAL,
-      "randomize states and transitions (specify 's' or 't' to"
+      "randomize states and transitions (specify 's' or 't' to "
       "randomize only states or transitions)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filters:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
-      "keep automata that are isomorphic the automaton in FILENAME", 0 },
+      "keep automata that are isomorphic to the automaton in FILENAME", 0 },
     { "isomorphic", 0, 0, OPTION_ALIAS | OPTION_HIDDEN, 0, 0 },
+    { "is-complete", OPT_IS_COMPLETE, 0, 0,
+      "the automaton is complete", 0 },
+    { "is-deterministic", OPT_IS_DETERMINISTIC, 0, 0,
+      "the automaton is deterministic", 0 },
+    { "invert-match", 'v', 0, 0, "select non-matching automata", 0},
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
@@ -167,6 +175,9 @@ static auto dict = spot::make_bdd_dict();
 static spot::tgba_digraph_ptr opt_product = nullptr;
 static bool opt_merge = false;
 static spot::tgba_digraph_ptr opt_are_isomorphic = nullptr;
+static bool opt_is_complete = false;
+static bool opt_is_deterministic = false;
+static bool opt_invert = false;
 
 static int
 to_int(const char* s)
@@ -208,6 +219,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (type != spot::postprocessor::Monitor)
 	type = spot::postprocessor::BA;
       break;
+    case 'v':
+      opt_invert = true;
+      break;
     case 'x':
       {
 	const char* opt = extra_options.parse_options(arg);
@@ -228,6 +242,12 @@ parse_opt(int key, char* arg, struct argp_state*)
         opt_are_isomorphic = std::move(p->aut);
 	break;
       }
+    case OPT_IS_COMPLETE:
+      opt_is_complete = true;
+      break;
+    case OPT_IS_DETERMINISTIC:
+      opt_is_deterministic = true;
+      break;
     case OPT_LBTT:
       if (arg)
 	{
@@ -416,13 +436,18 @@ namespace
 
       bool matched = true;
 
+      if (opt_is_complete)
+	matched &= is_complete(aut);
+      if (opt_is_deterministic)
+	matched &= is_deterministic(aut);
       if (opt_are_isomorphic)
         matched &= !are_isomorphic(aut, opt_are_isomorphic).empty();
 
-      one_match |= matched;
-
-      if (!matched)
+      // Drop or keep matched automata depending on the --invert option
+      if (matched == opt_invert)
         return 0;
+
+      one_match = true;
 
       // Postprocessing.
 
