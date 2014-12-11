@@ -102,6 +102,8 @@ static const argp_option options[] =
       " minuscules for output):", 4 },
     { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "name of the input file", 0 },
+    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "location in the input file", 0 },
     { "%S, %s", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "number of states", 0 },
     { "%E, %e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
@@ -324,6 +326,7 @@ namespace
       declare('E', &haut_edges_);
       declare('F', &filename_);
       declare('f', &filename_);	// Override the formula printer.
+      declare('L', &haut_loc_);
       declare('S', &haut_states_);
       declare('T', &haut_trans_);
     }
@@ -338,6 +341,7 @@ namespace
 	  const char* filename, double run_time)
     {
       filename_ = filename;
+      haut_loc_ = haut->loc;
 
       if (has('T'))
 	{
@@ -373,6 +377,7 @@ namespace
     spot::printable_value<unsigned> haut_trans_;
     spot::printable_value<unsigned> haut_acc_;
     spot::printable_value<unsigned> haut_scc_;
+    spot::printable_value<spot::location> haut_loc_;
   };
 
 

@@ -26,7 +26,7 @@ set -e
 expecterr()
 {
    cat >$1.exp
-   ../../bin/autfilt --hoa $1 2>$1.err >$1.out && exit 1
+   ../../bin/autfilt --hoa "$@" 2>$1.err >$1.out && exit 1
    test $? = 2
    cat $1.err
    diff $1.err $1.exp
@@ -35,7 +35,7 @@ expecterr()
 expectok()
 {
    cat >$1.exp
-   ../../bin/autfilt --hoa $1 >$1.out
+   ../../bin/autfilt --hoa "$@" >$1.out
    test $? = 0
    cat $1.out
    diff $1.out $1.exp
@@ -383,6 +383,7 @@ cat >input <<EOF
     [!@a & @bc]  0 {1}
     [@a & @bc]   0 {0 1}
     --END--
+/* Some comment */
 HOA: v1
 States: 2
 Start: 0
@@ -423,6 +424,11 @@ State: 0
 State: 1
 [0] 1
 --END--
+EOF
+
+expectok input --stats='%F:%L' <<EOF
+input:1.5-16.11
+input:18.1-26.7
 EOF
 
 cat >input <<EOF
