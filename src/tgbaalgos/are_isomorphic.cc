@@ -67,7 +67,7 @@ namespace
   }
 
   static state2class_t
-  map_state_class(const spot::const_tgba_digraph_ptr a)
+  map_state_class(const spot::const_tgba_digraph_ptr& a)
   {
     state2class_t hashin(a->num_states(), 0);
     state2class_t hashout(a->num_states(), 0);
@@ -94,7 +94,7 @@ namespace
   }
 
   static class2states_t
-  map_class_states(const spot::const_tgba_digraph_ptr a)
+  map_class_states(const spot::const_tgba_digraph_ptr& a)
   {
     unsigned n = a->num_states();
     std::vector<states_t> res;
@@ -141,33 +141,6 @@ namespace
   }
 
   static bool
-  is_isomorphism(const std::vector<unsigned>& mapping,
-                  const spot::const_tgba_digraph_ptr a1,
-                  const spot::const_tgba_digraph_ptr a2)
-  {
-    unsigned n = a1->num_states();
-    assert(n == a2->num_states());
-    unsigned tend = a1->num_transitions();
-    assert(tend == a2->num_transitions());
-
-    std::vector<transition> trans1;
-    trans1.reserve(tend);
-    std::vector<transition> trans2;
-    trans2.reserve(tend);
-
-    for (auto& t: a1->transitions())
-      trans1.emplace_back(mapping[t.src], mapping[t.dst], t.acc, t.cond.id());
-
-    for (auto& t: a2->transitions())
-      trans2.emplace_back(t.src, t.dst, t.acc, t.cond.id());
-
-    // Sort the vectors of transitions so that they can be compared.
-    std::sort(trans1.begin(), trans1.end(), trans_lessthan);
-    std::sort(trans2.begin(), trans2.end(), trans_lessthan);
-    return trans1 == trans2;
-  }
-
-  static bool
   are_trivially_different(const spot::const_tgba_digraph_ptr a1,
                           const spot::const_tgba_digraph_ptr a2)
   {
@@ -196,12 +169,35 @@ namespace spot
     if (!(mapping_from_classes(mapping, a1_classes, a2_classes)))
       return {};
 
-    while (!is_isomorphism(mapping, a1, a2))
+    unsigned tend = a1->num_transitions();
+    assert(tend == a2->num_transitions());
+
+    // a2 is our reference automaton.  Keep a sorted list of its
+    // transition for easy comparison.
+    std::vector<transition> trans2;
+    trans2.reserve(tend);
+    for (auto& t: a2->transitions())
+      trans2.emplace_back(t.src, t.dst, t.acc, t.cond.id());
+    std::sort(trans2.begin(), trans2.end(), trans_lessthan);
+
+    std::vector<transition> trans1;
+    trans1.reserve(tend);
+
+    for (;;)
       {
+	// Check if current mapping matches the reference automaton
+	trans1.clear();
+	for (auto& t: a1->transitions())
+	  trans1.emplace_back(mapping[t.src], mapping[t.dst],
+			      t.acc, t.cond.id());
+	std::sort(trans1.begin(), trans1.end(), trans_lessthan);
+	if (trans1 == trans2)
+	  return mapping;
+
+	// Consider next mapping
         if (!next_class_permutation(a2_classes))
           return {};
         mapping_from_classes(mapping, a1_classes, a2_classes);
       }
-    return mapping;
   }
 }
