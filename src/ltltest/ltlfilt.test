@@ -34,14 +34,14 @@ checkopt()
 # The empty lines in the file are meant, we want to make sure that
 # they are ignored.
 cat >formulas <<EOF
-GFa | FGb
-F(GFa | Gb)
+GFa | FGb /* comment to ignore */
+F(GFa | /* tricky /* comment */)*/ Gb)
 
 F(b W GFa)
 GFa | Gb
 b W GFa
 !{a;b*;c}!
-!{a:b*:c}
+!{a:b[*/*ignore me*/]:c/*ignore this comment*/}
 a U Fb
 G(a & Xb)
 Xa

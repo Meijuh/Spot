@@ -40,6 +40,8 @@ static int start_token = 0;
 static int parent_level = 0;
 static bool missing_parent = false;
 static bool lenient_mode = false;
+static int orig_cond = 0;
+static unsigned comment_level = 0;
 
 typedef ltlyy::parser::token token;
 
@@ -50,6 +52,7 @@ typedef ltlyy::parser::token token;
 %x in_bra
 %x sqbracket
 %x lbt
+%x in_COMMENT
 
 BOX       "[]"|"□"|"⬜"|"◻"
 DIAMOND   "<>"|"◇"|"⋄"|"♢"
@@ -61,6 +64,8 @@ CIRCLE    "()"|"○"|"◯"
 NOT       "!"|"~"|"¬"
 BOXARROW  {BOX}{ARROWL}|"|"{ARROWL}|"↦"
 BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
+eol         \n+|\r+
+eol2        (\n\r)+|(\r\n)+
 
 %%
 
@@ -74,6 +79,30 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
   yylloc->step();
 %}
 
+<*>"/""*"+		{
+			  if (YY_START != in_COMMENT)
+			    {
+                              orig_cond = YY_START;
+                              BEGIN(in_COMMENT);
+			      comment_level = 0;
+			    }
+			  ++comment_level;
+			}
+<in_COMMENT>{
+  [^*/\n\r]*		continue;
+  "/"[^*\n\r]*		continue;
+  "*"+[^*/\n\r]*	continue;
+  {eol}			yylloc->lines(yyleng); yylloc->end.column = 1;
+  {eol2}		yylloc->lines(yyleng / 2); yylloc->end.column = 1;
+  "*"+"/"		if (--comment_level == 0) BEGIN(orig_cond);
+  <<EOF>>		{
+                           BEGIN(orig_cond);
+                           error_list.push_back(
+			     spot::ltl::one_parse_error(*yylloc,
+			       "unclosed comment"));
+			   return 0;
+                        }
+}
 
 "("				{
 				  if (!lenient_mode)
@@ -307,7 +336,6 @@ BOXDARROW {BOX}{DARROWL}|"|"{DARROWL}|"⤇"
 							yyleng - 2);
 			  return token::ATOMIC_PROP;
 			}
-
 
 <*>.			return *yytext;
 

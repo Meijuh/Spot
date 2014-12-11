@@ -63,6 +63,8 @@ New in spot 1.99a (not yet released)
       either by Divine (as patched by the LTSmin people) or by
       Spins (the LTSmin compiler for Promela).
 
+    - LTL formulas can include /* comments */.
+
     - Spot is now compiling in C++11 mode.  The set of features we use
       requires GCC >= 4.6 or Clang >= 3.1.  These minimum versions
       are old enough that it should not be an issue to most people.
