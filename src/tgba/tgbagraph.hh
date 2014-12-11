@@ -96,6 +96,12 @@ namespace spot
 	return false;
       return acc < other.acc;
     }
+
+    bool operator==(const tgba_graph_trans_data& other) const
+    {
+      return cond.id() == other.cond.id() &&
+        acc == other.acc;
+    }
   };
 
 
@@ -458,6 +464,17 @@ namespace spot
       return state_is_accepting(state_number(s));
     }
 
+    bool operator==(const tgba_digraph& aut) const
+    {
+      if (num_states() != aut.num_states() ||
+          num_transitions() != aut.num_transitions() ||
+          acc().num_sets() != aut.acc().num_sets())
+        return false;
+      auto& trans1 = transition_vector();
+      auto& trans2 = aut.transition_vector();
+      return std::equal(trans1.begin() + 1, trans1.end(),
+                        trans2.begin() + 1);
+    }
   };
 
   inline tgba_digraph_ptr make_tgba_digraph(const bdd_dict_ptr& dict)

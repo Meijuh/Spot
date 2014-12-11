@@ -53,6 +53,7 @@
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaalgos/word.hh"
 #include "tgbaalgos/are_isomorphic.hh"
+#include "tgbaalgos/canonicalize.hh"
 
 
 static const char argp_program_doc[] ="\
@@ -573,7 +574,10 @@ namespace
       if (opt_is_deterministic)
 	matched &= is_deterministic(aut);
       if (opt_are_isomorphic)
-        matched &= !are_isomorphic(aut, opt_are_isomorphic).empty();
+        {
+          spot::tgba_digraph_ptr tmp = make_tgba_digraph(aut);
+          matched &= (*spot::canonicalize(tmp) == *opt_are_isomorphic);
+        }
       if (opt_is_empty)
 	matched &= aut->is_empty();
 
@@ -700,8 +704,13 @@ main(int argc, char** argv)
   if (jobs.empty())
     jobs.emplace_back("-", true);
 
-  if (opt_are_isomorphic && opt_merge)
-    opt_are_isomorphic->merge_transitions();
+  if (opt_are_isomorphic)
+    {
+      if (opt_merge)
+        opt_are_isomorphic->merge_transitions();
+      spot::canonicalize(opt_are_isomorphic);
+    }
+
 
   spot::srand(opt_seed);
 

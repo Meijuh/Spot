@@ -30,6 +30,7 @@ tgbaalgosdir = $(pkgincludedir)/tgbaalgos
 tgbaalgos_HEADERS = \
   are_isomorphic.hh \
   bfssteps.hh \
+  canonicalize.hh \
   closure.hh \
   complete.hh \
   compsusp.hh \
@@ -83,6 +84,7 @@ noinst_LTLIBRARIES = libtgbaalgos.la
 libtgbaalgos_la_SOURCES = \
   are_isomorphic.cc \
   bfssteps.cc \
+  canonicalize.cc \
   closure.cc \
   complete.cc \
   compsusp.cc \

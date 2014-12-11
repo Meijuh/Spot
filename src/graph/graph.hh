@@ -183,9 +183,16 @@ namespace spot
 	// This might be costly if the destination is a vector
 	if (dst < other.dst)
 	  return true;
-	if (dst < other.dst)
+	if (dst > other.dst)
 	  return false;
 	return this->data() < other.data();
+      }
+
+      bool operator==(const trans_storage& other) const
+      {
+        return src == other.src &&
+          dst == other.dst &&
+          this->data() == other.data();
       }
     };
 
