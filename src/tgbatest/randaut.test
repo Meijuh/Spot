@@ -23,6 +23,7 @@
 set -e
 
 randaut=../../bin/randaut
+autfilt=../../bin/autfilt
 
 $randaut --spin -S4 a b | ../ltl2tgba -H -XN - >out
 grep 'States: 4' out
@@ -46,3 +47,8 @@ grep 'ba.*incompatible' stderr
 
 $randaut --ba -A0 3 2>stderr && exit 1
 grep 'ba.*incompatible' stderr
+
+$randaut --states 10..20 2 -n 100 -H > aut.hoa
+a=`$autfilt --states=..14 -c <aut.hoa`
+b=`$autfilt aut.hoa --states=15.. -c`
+test `expr $a + $b` = 100

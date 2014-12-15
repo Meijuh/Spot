@@ -88,6 +88,7 @@ static const argp_option options[] =
       "of the given property)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
+    { "count", 'c', 0, 0, "print only a count of matched automata", 0 },
     { "dot", OPT_DOT, 0, 0, "GraphViz's format (default)", 0 },
     { "hoaf", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format.  Add letters to select "
@@ -169,9 +170,9 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa, Quiet }
-  format = Dot;
-static bool one_match = false;
+static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa,
+			    Quiet, Count } format = Dot;
+static long int match_count = 0;
 static const char* stats = "";
 static const char* hoa_opt = 0;
 static spot::option_map extra_options;
@@ -208,6 +209,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'B':
       type = spot::postprocessor::BA;
+      break;
+    case 'c':
+      format = Count;
       break;
     case 'F':
       jobs.emplace_back(arg, true);
@@ -459,7 +463,7 @@ namespace
       if (matched == opt_invert)
         return 0;
 
-      one_match = true;
+      ++match_count;
 
       // Postprocessing.
 
@@ -475,6 +479,10 @@ namespace
 
       switch (format)
 	{
+	case Count:
+	case Quiet:
+	  // Do not output anything.
+	  break;
 	case Dot:
 	  spot::dotty_reachable(std::cout, aut,
 				(type == spot::postprocessor::BA)
@@ -488,9 +496,6 @@ namespace
 	  break;
 	case Hoa:
 	  spot::hoa_reachable(std::cout, aut, hoa_opt) << '\n';
-	  break;
-	case Quiet:
-	  // Do not output anything.
 	  break;
 	case Spot:
 	  spot::tgba_save_reachable(std::cout, aut);
@@ -579,5 +584,8 @@ main(int argc, char** argv)
     {
       error(2, 0, "%s", e.what());
     }
-  return one_match ? 0 : 1;
+
+  if (format == Count)
+    std::cout << match_count << std::endl;
+  return !match_count;
 }
