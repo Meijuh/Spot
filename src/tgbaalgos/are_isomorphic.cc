@@ -23,17 +23,127 @@
 #include "tgba/tgbagraph.hh"
 #include "tgbaalgos/are_isomorphic.hh"
 #include "tgbaalgos/canonicalize.hh"
+#include "tgbaalgos/isdet.hh"
+#include <vector>
+#include <queue>
+
+namespace
+{
+  typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
+  bool
+  tr_t_less_than(const tr_t& t1, const tr_t& t2)
+  {
+    return t1.cond.id() < t2.cond.id();
+  }
+
+  bool
+  operator!=(const tr_t& t1, const tr_t& t2)
+  {
+    return t1.cond.id() != t2.cond.id();
+  }
+
+  bool
+  are_isomorphic_det(const spot::const_tgba_digraph_ptr aut1,
+                     const spot::const_tgba_digraph_ptr aut2)
+  {
+    typedef std::pair<unsigned, unsigned> state_pair_t;
+    std::queue<state_pair_t> workqueue;
+    workqueue.emplace(aut1->get_init_state_number(),
+                      aut2->get_init_state_number());
+    std::vector<unsigned> map(aut1->num_states(), -1U);
+    map[aut1->get_init_state_number()] = aut2->get_init_state_number();
+    std::vector<tr_t> trans1;
+    std::vector<tr_t> trans2;
+    state_pair_t current_state;
+    while (!workqueue.empty())
+      {
+        current_state = workqueue.front();
+        workqueue.pop();
+
+        for (auto& t : aut1->out(current_state.first))
+          trans1.emplace_back(t);
+        for (auto& t : aut2->out(current_state.second))
+          trans2.emplace_back(t);
+
+        if (trans1.size() != trans2.size())
+          return false;
+
+        std::sort(trans1.begin(), trans1.end(), tr_t_less_than);
+        std::sort(trans2.begin(), trans2.end(), tr_t_less_than);
+
+        for (auto t1 = trans1.begin(), t2 = trans2.begin();
+             t1 != trans1.end() && t2 != trans2.end();
+             ++t1, ++t2)
+          {
+            if (*t1 != *t2)
+              {
+                return false;
+              }
+            if (map[t1->dst] == -1U)
+              {
+                map[t1->dst] = t2->dst;
+                workqueue.emplace(t1->dst, t2->dst);
+              }
+            else if (map[t1->dst] != t2->dst)
+              {
+                return false;
+              }
+          }
+
+        trans1.clear();
+        trans2.clear();
+      }
+    return true;
+  }
+
+  bool
+  trivially_different(const spot::const_tgba_digraph_ptr aut1,
+                      const spot::const_tgba_digraph_ptr aut2)
+  {
+    return aut1->num_states() != aut2->num_states() ||
+      aut1->num_transitions() != aut2->num_transitions() ||
+      aut1->acc().num_sets() != aut2->acc().num_sets();
+  }
+}
 
 namespace spot
 {
-  bool
-  are_isomorphic(const const_tgba_digraph_ptr aut1,
-                 const const_tgba_digraph_ptr aut2)
+  isomorphism_checker::isomorphism_checker(const const_tgba_digraph_ptr ref)
   {
-    auto tmp1 = make_tgba_digraph(aut1);
-    auto tmp2 = make_tgba_digraph(aut2);
-    spot::canonicalize(tmp1);
-    spot::canonicalize(tmp2);
-    return *tmp1 == *tmp2;
+    ref_ = make_tgba_digraph(ref);
+    ref_deterministic_ = ref_->is_deterministic();
+    if (!ref_deterministic_)
+      {
+        nondet_states_ = spot::count_nondet_states(ref_);
+        ref_deterministic_ = (nondet_states_ == 0);
+      }
+    canonicalize(ref_);
+  }
+
+  bool
+  isomorphism_checker::is_isomorphic(const const_tgba_digraph_ptr aut)
+  {
+    if (trivially_different(ref_, aut))
+      return false;
+
+    if (ref_deterministic_)
+      {
+        if (aut->is_deterministic() || spot::is_deterministic(aut))
+          {
+            return are_isomorphic_det(ref_, aut);
+          }
+      }
+    else
+      {
+        if (aut->is_deterministic() ||
+            nondet_states_ != spot::count_nondet_states(aut))
+          {
+            return false;
+          }
+      }
+
+    auto tmp = make_tgba_digraph(aut);
+    spot::canonicalize(tmp);
+    return *tmp == *ref_;
   }
 }

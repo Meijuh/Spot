@@ -210,6 +210,7 @@ static int opt_seed = 0;
 static auto dict = spot::make_bdd_dict();
 static spot::tgba_digraph_ptr opt_product = nullptr;
 static bool opt_merge = false;
+static std::unique_ptr<spot::isomorphism_checker> isomorphism_checker = nullptr;
 static spot::tgba_digraph_ptr opt_are_isomorphic = nullptr;
 static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
@@ -574,10 +575,7 @@ namespace
       if (opt_is_deterministic)
 	matched &= is_deterministic(aut);
       if (opt_are_isomorphic)
-        {
-          spot::tgba_digraph_ptr tmp = make_tgba_digraph(aut);
-          matched &= (*spot::canonicalize(tmp) == *opt_are_isomorphic);
-        }
+        matched &= isomorphism_checker->is_isomorphic(aut);
       if (opt_is_empty)
 	matched &= aut->is_empty();
 
@@ -708,7 +706,8 @@ main(int argc, char** argv)
     {
       if (opt_merge)
         opt_are_isomorphic->merge_transitions();
-      spot::canonicalize(opt_are_isomorphic);
+      isomorphism_checker = std::unique_ptr<spot::isomorphism_checker>(
+                            new spot::isomorphism_checker(opt_are_isomorphic));
     }
 
 

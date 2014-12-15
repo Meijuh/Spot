@@ -22,13 +22,17 @@
 
 set -e
 
-for i in 0 1 2 3 4; do
+for i in 0 1 2; do
   ../../bin/randaut a b --seed=$i -S10 --hoa >iso$i
   ../../bin/autfilt iso$i --randomize --hoa >aut$i
 done
+for i in 3 4 5; do
+  ../../bin/randaut a b --seed=$i -S10 -D --hoa >iso$i
+  ../../bin/autfilt iso$i --randomize --hoa >aut$i
+done
 
-cat aut0 aut1 aut2 aut3 aut4 > all
-(for i in 0 1 2 3 4; do
+cat aut0 aut1 aut2 aut3 aut4 aut5 > all
+(for i in 0 1 2 3 4 5; do
   run 0 ../../bin/autfilt all --are-isomorphic iso$i --hoa
 done) > output
 diff all output

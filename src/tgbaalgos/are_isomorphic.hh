@@ -25,19 +25,33 @@
 
 namespace spot
 {
-  /// \ingroup tgba_misc
-  /// \brief Check whether two automata are isomorphic.
-  ///
-  /// Two automata are considered isomorphic if there exists a bijection f
-  /// between the states of a1 and the states of a2 such that for any pair of
-  /// states (s1, s2) of a1, there is a transition from s1 to s2 with
-  /// condition c and acceptance set A iff there is a transition with
-  /// condition c and acceptance set A between f(s1) and f(s2) in a2.
-  /// This can be done simply by checking if
-  /// canonicalize(aut1) == canonicalize(aut2).
-  SPOT_API bool
-  are_isomorphic(const const_tgba_digraph_ptr aut1,
-		 const const_tgba_digraph_ptr aut2);
+  /// Check if two automata are isomorphic.
+  class SPOT_API isomorphism_checker
+  {
+  public:
+    isomorphism_checker(const const_tgba_digraph_ptr ref);
+
+    /// \ingroup tgba_misc
+    /// \brief Check whether an automaton is isomorphic to the one passed to
+    /// the constructor.
+    ///
+    /// Two automata are considered isomorphic if there exists a bijection f
+    /// between the states of a1 and the states of a2 such that for any pair of
+    /// states (s1, s2) of a1, there is a transition from s1 to s2 with
+    /// condition c and acceptance set A iff there is a transition with
+    /// condition c and acceptance set A between f(s1) and f(s2) in a2.
+    /// This can be done simply by checking if
+    /// canonicalize(aut1) == canonicalize(aut2), but is_isomorphic can do some
+    /// optimizations in some cases.
+    bool
+    is_isomorphic(const const_tgba_digraph_ptr aut);
+
+  private:
+    tgba_digraph_ptr ref_;
+    bool ref_deterministic_ = false;
+    unsigned nondet_states_ = 0;
+    std::vector<tgba_digraph::graph_t::trans_storage_t> reftrans_;
+  };
 }
 
 #endif
