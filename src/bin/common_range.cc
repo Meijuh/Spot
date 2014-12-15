@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -24,13 +24,17 @@
 #include <iostream>
 #include <cstdlib>
 
+// The range should have the form INT..INT or INT:INT, with
+// "42" standing for "42..42",
+// "..42" meaning "missing_left..42".
+// and "42.." meaning "42..missing_right".
+//
+// As an exception, if missing_right is 0, then missing right bounds
+// are disallowed.
 range
-parse_range(const char* str)
+parse_range(const char* str, int missing_left, int missing_right)
 {
   range res;
-
-  // The range should have the form INT..INT or INT:INT, with
-  // "42" standing for "42..42", and "..42" meaning "1..42".
   char* end;
   res.min = strtol(str, &end, 10);
   if (end == str)
@@ -39,7 +43,7 @@ parse_range(const char* str)
       // empty.
       if (!*end)
 	error(1, 0, "invalid empty range");
-      res.min = 1;
+      res.min = missing_left;
     }
   if (!*end)
     {
@@ -54,13 +58,20 @@ parse_range(const char* str)
       else if (end[0] == '.' && end[1] == '.')
 	end += 2;
 
-      // Parse the next integer.
-      char* end2;
-      res.max = strtol(end, &end2, 10);
-      if (end == end2)
-	error(1, 0, "invalid range '%s' (missing end?)", str);
-      if (*end2)
-	error(1, 0, "invalid range '%s' (trailing garbage?)", str);
+      if (!*end && missing_right != 0)
+	{
+	  res.max = missing_right;
+	}
+      else
+	{
+	  // Parse the next integer.
+	  char* end2;
+	  res.max = strtol(end, &end2, 10);
+	  if (end == end2)
+	    error(1, 0, "invalid range '%s' (missing end?)", str);
+	  if (*end2)
+	    error(1, 0, "invalid range '%s' (trailing garbage?)", str);
+	}
     }
 
   if (res.min < 0 || res.max < 0)

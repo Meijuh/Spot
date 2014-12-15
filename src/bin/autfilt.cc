@@ -21,6 +21,7 @@
 
 #include <string>
 #include <iostream>
+#include <limits>
 
 #include <argp.h>
 #include "error.h"
@@ -28,6 +29,7 @@
 #include "common_setup.hh"
 #include "common_finput.hh"
 #include "common_cout.hh"
+#include "common_range.hh"
 #include "common_post.hh"
 
 #include "tgbaalgos/dotty.hh"
@@ -68,6 +70,8 @@ Exit status:\n\
 #define OPT_ARE_ISOMORPHIC 10
 #define OPT_IS_COMPLETE 11
 #define OPT_IS_DETERMINISTIC 12
+#define OPT_STATES 17
+#define OPT_COUNT 18
 
 static const argp_option options[] =
   {
@@ -145,7 +149,10 @@ static const argp_option options[] =
       "the automaton is complete", 0 },
     { "is-deterministic", OPT_IS_DETERMINISTIC, 0, 0,
       "the automaton is deterministic", 0 },
-    { "invert-match", 'v', 0, 0, "select non-matching automata", 0},
+    { "invert-match", 'v', 0, 0, "select non-matching automata", 0 },
+    { "states", OPT_STATES, "RANGE", 0,
+      "keep automata whose number of states are in RANGE", 0 },
+    RANGE_DOC_FULL,
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
@@ -178,6 +185,7 @@ static spot::tgba_digraph_ptr opt_are_isomorphic = nullptr;
 static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
 static bool opt_invert = false;
+static range opt_states = { 0, std::numeric_limits<int>::max() };
 
 static int
 to_int(const char* s)
@@ -305,6 +313,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_SPOT:
       format = Spot;
+      break;
+    case OPT_STATES:
+      opt_states = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_STATS:
       if (!*arg)
@@ -436,6 +447,7 @@ namespace
 
       bool matched = true;
 
+      matched &= opt_states.contains(aut->num_states());
       if (opt_is_complete)
 	matched &= is_complete(aut);
       if (opt_is_deterministic)

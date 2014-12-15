@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -26,12 +26,27 @@
       "'INT..INT', or '..INT'.\nIn the latter case, the missing number " \
       "is assumed to be 1.", 0 }
 
+#define RANGE_DOC_FULL \
+    { 0, 0, 0, 0, "RANGE may have one of the following forms: 'INT', " \
+      "'INT..INT', '..INT', or 'INT..'", 0 }
+
 struct range
 {
   int min;
   int max;
+
+  bool contains(int val)
+  {
+    return val >= min && val <= max;
+  }
 };
 
-range parse_range(const char* str);
+// INT, INT..INT, ..INT, or INT..
+//
+// The missing_left and missing_right argument gives the default bound
+// values.  Additionally, if missing_right == 0, then the INT.. form
+// is disallowed.
+range parse_range(const char* str,
+		  int missing_left = 1, int missing_right = 0);
 
 #endif // SPOT_BIN_COMMON_RANGE_HH
