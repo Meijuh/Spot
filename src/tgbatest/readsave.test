@@ -106,12 +106,13 @@ run 0 $autfilt --hoa stdout > stdout2
 diff stdout stdout2
 
 # Find formula that can be translated into a 3-state automaton, and
-# exercise both %M and %m.
+# exercise both %M and %m.  The nonexistant file should never be
+# open, because the input stream is infinite and autfilt should
+# stop after 10 automata.
 $randltl -n -1 a b |
     $ltl2tgba -H -F - |
-    $autfilt --states=3 --name='%M, %S states' --stats='<%m>, %t' |
-    head -n 10 > output
-cat output
+    $autfilt -F- -F nonexistant --states=3 \
+	     --name='%M, %S states' --stats='<%m>, %t' -n 10 > output
 cat >expected <<EOF
 <F(b | GF!a), 3 states>, 13
 <XFb, 3 states>, 6

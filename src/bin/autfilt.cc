@@ -98,6 +98,8 @@ static const argp_option options[] =
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
       "LBTT's format (add =t to force transition-based acceptance even"
       " on Büchi automata)", 0 },
+    { "max-count", 'n', "NUM", 0,
+      "output at most NUM automata", 0 },
     { "name", OPT_NAME, "FORMAT", OPTION_ARG_OPTIONAL,
       "set the name of the output automaton (default: %M)", 0 },
     { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
@@ -193,6 +195,7 @@ static bool opt_is_deterministic = false;
 static bool opt_invert = false;
 static range opt_states = { 0, std::numeric_limits<int>::max() };
 static const char* opt_name = nullptr;
+static int opt_max_count = -1;
 
 static int
 to_int(const char* s)
@@ -201,6 +204,15 @@ to_int(const char* s)
   int res = strtol(s, &endptr, 10);
   if (*endptr)
     error(2, 0, "failed to parse '%s' as an integer.", s);
+  return res;
+}
+
+static int
+to_pos_int(const char* s)
+{
+  int res = to_int(s);
+  if (res < 0)
+    error(2, 0, "%d is not positive", res);
   return res;
 }
 
@@ -228,6 +240,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
+      break;
+    case 'n':
+      opt_max_count = to_pos_int(arg);
       break;
     case 'q':
       format = Quiet;
@@ -550,6 +565,10 @@ namespace
 	  break;
 	}
       flush_cout();
+
+      if (opt_max_count >= 0 && match_count >= opt_max_count)
+	abort_run = true;
+
       return 0;
     }
 
@@ -568,7 +587,7 @@ namespace
 
       int err = 0;
 
-      for (;;)
+      while (!abort_run)
 	{
 	  pel.clear();
 	  auto haut = hp.parse(pel, dict);
