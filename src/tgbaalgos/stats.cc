@@ -154,7 +154,8 @@ namespace spot
     declare('S', &scc_);	// Historical.  Deprecated.  Use %c instead.
     declare('t', &trans_);
     set_output(os);
-    prime(format);
+    if (format)
+      prime(format);
   }
 
   std::ostream&

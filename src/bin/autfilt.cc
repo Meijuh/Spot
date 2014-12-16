@@ -72,6 +72,7 @@ Exit status:\n\
 #define OPT_IS_DETERMINISTIC 12
 #define OPT_STATES 17
 #define OPT_COUNT 18
+#define OPT_NAME 19
 
 static const argp_option options[] =
   {
@@ -97,6 +98,8 @@ static const argp_option options[] =
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
       "LBTT's format (add =t to force transition-based acceptance even"
       " on Büchi automata)", 0 },
+    { "name", OPT_NAME, "FORMAT", OPTION_ARG_OPTIONAL,
+      "set the name of the output automaton (default: %M)", 0 },
     { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
     { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
     { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
@@ -112,6 +115,8 @@ static const argp_option options[] =
       "name of the input file", 0 },
     { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "location in the input file", 0 },
+    { "%M, %m", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "name of the automaton (as specified in the HOA format)", 0 },
     { "%S, %s", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "number of states", 0 },
     { "%E, %e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
@@ -187,6 +192,7 @@ static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
 static bool opt_invert = false;
 static range opt_states = { 0, std::numeric_limits<int>::max() };
+static const char* opt_name = nullptr;
 
 static int
 to_int(const char* s)
@@ -273,6 +279,11 @@ parse_opt(int key, char* arg, struct argp_state*)
 	  format = Lbtt;
 	}
       break;
+    case OPT_NAME:
+      if (arg)
+	opt_name = arg;
+      else
+	opt_name = "%M";
     case OPT_MERGE:
       opt_merge = true;
       break;
@@ -362,6 +373,8 @@ namespace
       declare('F', &filename_);
       declare('f', &filename_);	// Override the formula printer.
       declare('L', &haut_loc_);
+      declare('M', &haut_name_);
+      declare('m', &aut_name_);
       declare('S', &haut_states_);
       declare('T', &haut_trans_);
     }
@@ -391,7 +404,23 @@ namespace
 	  haut_states_ = s.states;
 	  haut_edges_ = s.transitions;
 	}
-      else if (has('S'))
+      if (has('M'))
+	{
+	  auto n = haut->aut->get_named_prop<std::string>("automaton-name");
+	  if (n)
+	    haut_name_ = *n;
+	  else
+	    haut_name_.val().clear();
+	}
+      if (has('m'))
+	{
+	  auto n = aut->get_named_prop<std::string>("automaton-name");
+	  if (n)
+	    aut_name_ = *n;
+	  else
+	    aut_name_.val().clear();
+	}
+      if (has('S'))
 	{
 	  haut_states_ = haut->aut->num_states();
 	}
@@ -407,6 +436,8 @@ namespace
 
   private:
     spot::printable_value<const char*> filename_;
+    spot::printable_value<std::string> haut_name_;
+    spot::printable_value<std::string> aut_name_;
     spot::printable_value<unsigned> haut_states_;
     spot::printable_value<unsigned> haut_edges_;
     spot::printable_value<unsigned> haut_trans_;
@@ -415,15 +446,17 @@ namespace
     spot::printable_value<spot::location> haut_loc_;
   };
 
-
   class hoa_processor: public job_processor
   {
-  public:
+  private:
     spot::postprocessor& post;
     hoa_stat_printer statistics;
+    std::ostringstream name;
+    hoa_stat_printer namer;
+  public:
 
     hoa_processor(spot::postprocessor& post)
-      : post(post), statistics(std::cout, stats)
+      : post(post), statistics(std::cout, stats), namer(name, opt_name)
     {
     }
 
@@ -477,6 +510,15 @@ namespace
 
       const double conversion_time = sw.stop();
 
+      // Name the output automaton.
+      if (opt_name)
+	{
+	  name.str("");
+	  namer.print(haut, aut, filename, conversion_time);
+	  aut->set_named_prop("automaton-name", new std::string(name.str()));
+	}
+
+      // Output it.
       switch (format)
 	{
 	case Count:

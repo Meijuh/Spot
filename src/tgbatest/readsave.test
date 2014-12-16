@@ -27,6 +27,8 @@
 set -e
 
 autfilt=../../bin/autfilt
+ltl2tgba=../../bin/ltl2tgba
+randltl=../../bin/randltl
 
 cat >input <<\EOF
 HOA: v1
@@ -102,3 +104,24 @@ run 0 ../../bin/autfilt -F input --isomorph stdout
 # But this second output should be the same as the first
 run 0 $autfilt --hoa stdout > stdout2
 diff stdout stdout2
+
+# Find formula that can be translated into a 3-state automaton, and
+# exercise both %M and %m.
+$randltl -n -1 a b |
+    $ltl2tgba -H -F - |
+    $autfilt --states=3 --name='%M, %S states' --stats='<%m>, %t' |
+    head -n 10 > output
+cat output
+cat >expected <<EOF
+<F(b | GF!a), 3 states>, 13
+<XFb, 3 states>, 6
+<XF!b, 3 states>, 6
+<G!b & XF!a, 3 states>, 6
+<F(b | GFa), 3 states>, 13
+<F(Ga | XG(!a & Fb)), 3 states>, 14
+<FG!b & F(b | GFb), 3 states>, 6
+<Ga | G!a, 3 states>, 4
+<a | G((!a & !b) | (a & b)), 3 states>, 9
+<Fb U G!a, 3 states>, 13
+EOF
+diff output expected
