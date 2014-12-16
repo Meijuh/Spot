@@ -111,18 +111,18 @@ diff stdout stdout2
 # stop after 10 automata.
 $randltl -n -1 a b |
     $ltl2tgba -H -F - |
-    $autfilt -F- -F nonexistant --states=3 \
-	     --name='%M, %S states' --stats='<%m>, %t' -n 10 > output
+    $autfilt -F- -F nonexistant --states=3 --edges=..10 --acc-sets=1.. \
+	     --name='%M, %S states' --stats='<%m>, %e, %a' -n 10 > output
 cat >expected <<EOF
-<F(b | GF!a), 3 states>, 13
-<XFb, 3 states>, 6
-<XF!b, 3 states>, 6
-<G!b & XF!a, 3 states>, 6
-<F(b | GFa), 3 states>, 13
-<F(Ga | XG(!a & Fb)), 3 states>, 14
-<FG!b & F(b | GFb), 3 states>, 6
-<Ga | G!a, 3 states>, 4
-<a | G((!a & !b) | (a & b)), 3 states>, 9
-<Fb U G!a, 3 states>, 13
+<F(b | GF!a), 3 states>, 6, 1
+<XFb, 3 states>, 4, 1
+<XF!b, 3 states>, 4, 1
+<G!b & XF!a, 3 states>, 4, 1
+<F(b | GFa), 3 states>, 6, 1
+<F(Ga | XG(!a & Fb)), 3 states>, 6, 1
+<FG!b & F(b | GFb), 3 states>, 5, 1
+<Ga | G!a, 3 states>, 4, 1
+<a | G((!a & !b) | (a & b)), 3 states>, 4, 1
+<Fb U G!a, 3 states>, 7, 1
 EOF
 diff output expected

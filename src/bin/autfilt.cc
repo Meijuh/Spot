@@ -73,6 +73,8 @@ Exit status:\n\
 #define OPT_STATES 17
 #define OPT_COUNT 18
 #define OPT_NAME 19
+#define OPT_EDGES 20
+#define OPT_ACC_SETS 21
 
 static const argp_option options[] =
   {
@@ -160,6 +162,10 @@ static const argp_option options[] =
     { "invert-match", 'v', 0, 0, "select non-matching automata", 0 },
     { "states", OPT_STATES, "RANGE", 0,
       "keep automata whose number of states are in RANGE", 0 },
+    { "edges", OPT_EDGES, "RANGE", 0,
+      "keep automata whose number of edges are in RANGE", 0 },
+    { "acc-sets", OPT_ACC_SETS, "RANGE", 0,
+      "keep automata whose number of acceptance sets are in RANGE", 0 },
     RANGE_DOC_FULL,
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
@@ -194,6 +200,8 @@ static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
 static bool opt_invert = false;
 static range opt_states = { 0, std::numeric_limits<int>::max() };
+static range opt_edges = { 0, std::numeric_limits<int>::max() };
+static range opt_accsets = { 0, std::numeric_limits<int>::max() };
 static const char* opt_name = nullptr;
 static int opt_max_count = -1;
 
@@ -265,6 +273,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_DOT:
       format = Dot;
       break;
+    case OPT_ACC_SETS:
+      opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
+      break;
     case OPT_ARE_ISOMORPHIC:
       {
 	spot::hoa_parse_error_list pel;
@@ -275,6 +286,9 @@ parse_opt(int key, char* arg, struct argp_state*)
         opt_are_isomorphic = std::move(p->aut);
 	break;
       }
+    case OPT_EDGES:
+      opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
+      break;
     case OPT_IS_COMPLETE:
       opt_is_complete = true;
       break;
@@ -500,6 +514,8 @@ namespace
       bool matched = true;
 
       matched &= opt_states.contains(aut->num_states());
+      matched &= opt_edges.contains(aut->num_transitions());
+      matched &= opt_accsets.contains(aut->acc().num_sets());
       if (opt_is_complete)
 	matched &= is_complete(aut);
       if (opt_is_deterministic)
