@@ -80,6 +80,49 @@ namespace spot
     if (++out != tend)
       trans.resize(out);
 
+    tend = out;
+    out = in = 2;
+
+    if (in < tend)
+      {
+	typedef graph_t::trans_storage_t tr_t;
+	g_.sort_transitions_([](const tr_t& lhs, const tr_t& rhs)
+			     {
+			       if (lhs.src < rhs.src)
+				 return true;
+			       if (lhs.src > rhs.src)
+				 return false;
+			       if (lhs.dst < rhs.dst)
+				 return true;
+			       if (lhs.dst > rhs.dst)
+				 return false;
+			       return lhs.cond.id() < rhs.cond.id();
+			       // Do not sort on acceptance, we'll merge
+			       // them.
+			     });
+
+	for (; in < tend; ++in)
+	  {
+	    // Merge transitions with the same source, destination,
+	    // and conditions.  (We test the source last, for the
+	    // same reason as above.)
+	    if (trans[out].dst == trans[in].dst
+		&& trans[out].cond.id() == trans[in].cond.id()
+		&& trans[out].src == trans[in].src)
+	      {
+		trans[out].acc |= trans[in].acc;
+	      }
+	    else
+	      {
+		++out;
+		if (in != out)
+		  trans[out] = trans[in];
+	      }
+	  }
+	if (++out != tend)
+	  trans.resize(out);
+      }
+
     g_.chain_transitions_();
   }
 

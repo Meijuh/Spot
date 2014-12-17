@@ -502,7 +502,11 @@ namespace
       spot::stopwatch sw;
       sw.start();
 
-      auto aut = haut->aut;
+      // If --stats or --name is used, duplicate the automaton so we
+      // never modify the original automaton (e.g. with
+      // merge_transitions()) and the statistics about it make sense.
+      auto aut = ((format == Stats) || opt_name) ?
+	spot::make_tgba_digraph(haut->aut) : haut->aut;
 
       // Preprocessing.
 
