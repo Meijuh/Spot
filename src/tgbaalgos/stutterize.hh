@@ -28,20 +28,20 @@
 namespace spot
 {
   SPOT_API tgba_digraph_ptr
-  sl(const const_tgba_digraph_ptr&, const ltl::formula*);
+  sl(const const_tgba_digraph_ptr&, const ltl::formula* = nullptr);
 
   SPOT_API tgba_digraph_ptr
   sl(const const_tgba_digraph_ptr&, bdd);
 
   SPOT_API tgba_digraph_ptr
-  sl2(const const_tgba_digraph_ptr&, const ltl::formula*);
+  sl2(const const_tgba_digraph_ptr&, const ltl::formula* = nullptr);
 
   SPOT_API tgba_digraph_ptr
   sl2(const const_tgba_digraph_ptr&, bdd);
 
 #ifndef SWIG
   SPOT_API tgba_digraph_ptr
-  sl2(tgba_digraph_ptr&&);
+  sl2(tgba_digraph_ptr&&, bdd = bddfalse);
 #endif
 }
 

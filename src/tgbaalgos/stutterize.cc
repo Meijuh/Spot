@@ -54,17 +54,30 @@ namespace spot
     typedef std::deque<stutter_state> queue_t;
   }
 
+  static bdd
+  get_all_ap(const const_tgba_digraph_ptr& a)
+  {
+    bdd res = bddtrue;
+    for (auto& i: a->transitions())
+      res &= bdd_support(i.cond);
+    return res;
+  }
+
   tgba_digraph_ptr
   sl(const const_tgba_digraph_ptr& a, const ltl::formula* f)
   {
-    bdd aps = atomic_prop_collect_as_bdd(f, a);
+    bdd aps = f
+      ? atomic_prop_collect_as_bdd(f, a)
+      : get_all_ap(a);
     return sl(a, aps);
   }
 
   tgba_digraph_ptr
   sl2(const const_tgba_digraph_ptr& a, const ltl::formula* f)
   {
-    bdd aps = atomic_prop_collect_as_bdd(f, a);
+    bdd aps = f
+      ? atomic_prop_collect_as_bdd(f, a)
+      : get_all_ap(a);
     return sl2(a, aps);
   }
 
@@ -135,6 +148,8 @@ namespace spot
   tgba_digraph_ptr
   sl2(tgba_digraph_ptr&& a, bdd atomic_propositions)
   {
+    if (atomic_propositions == bddfalse)
+      atomic_propositions = get_all_ap(a);
     unsigned num_states = a->num_states();
     unsigned num_transitions = a->num_transitions();
     for (unsigned state = 0; state < num_states; ++state)

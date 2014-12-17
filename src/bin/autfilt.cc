@@ -40,6 +40,8 @@
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
+#include "tgbaalgos/stutterize.hh"
+#include "tgbaalgos/closure.hh"
 #include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
@@ -75,6 +77,9 @@ Exit status:\n\
 #define OPT_NAME 19
 #define OPT_EDGES 20
 #define OPT_ACC_SETS 21
+#define OPT_DESTUT 22
+#define OPT_INSTUT 23
+#define OPT_IS_EMPTY 24
 
 static const argp_option options[] =
   {
@@ -150,6 +155,8 @@ static const argp_option options[] =
     { "randomize", OPT_RANDOMIZE, "s|t", OPTION_ARG_OPTIONAL,
       "randomize states and transitions (specify 's' or 't' to "
       "randomize only states or transitions)", 0 },
+    { "instut", OPT_INSTUT, 0, 0, "allow more stuttering", 0 },
+    { "destut", OPT_DESTUT, 0, 0, "allow less stuttering", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filters:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -159,6 +166,8 @@ static const argp_option options[] =
       "the automaton is complete", 0 },
     { "is-deterministic", OPT_IS_DETERMINISTIC, 0, 0,
       "the automaton is deterministic", 0 },
+    { "is-empty", OPT_IS_EMPTY, 0, 0,
+      "keep automata with an empty language", 0 },
     { "invert-match", 'v', 0, 0, "select non-matching automata", 0 },
     { "states", OPT_STATES, "RANGE", 0,
       "keep automata whose number of states are in RANGE", 0 },
@@ -204,6 +213,9 @@ static range opt_edges = { 0, std::numeric_limits<int>::max() };
 static range opt_accsets = { 0, std::numeric_limits<int>::max() };
 static const char* opt_name = nullptr;
 static int opt_max_count = -1;
+static bool opt_destut = false;
+static bool opt_instut = false;
+static bool opt_is_empty = false;
 
 static int
 to_int(const char* s)
@@ -289,11 +301,20 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
+    case OPT_INSTUT:
+      opt_instut = true;
+      break;
+    case OPT_DESTUT:
+      opt_destut = true;
+      break;
     case OPT_IS_COMPLETE:
       opt_is_complete = true;
       break;
     case OPT_IS_DETERMINISTIC:
       opt_is_deterministic = true;
+      break;
+    case OPT_IS_EMPTY:
+      opt_is_empty = true;
       break;
     case OPT_LBTT:
       if (arg)
@@ -526,6 +547,8 @@ namespace
 	matched &= is_deterministic(aut);
       if (opt_are_isomorphic)
         matched &= !are_isomorphic(aut, opt_are_isomorphic).empty();
+      if (opt_is_empty)
+	matched &= aut->is_empty();
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)
@@ -534,6 +557,11 @@ namespace
       ++match_count;
 
       // Postprocessing.
+
+      if (opt_destut)
+	aut = spot::closure(std::move(aut));
+      if (opt_instut)
+	aut = spot::sl(aut);
 
       if (opt_product)
 	aut = spot::product(std::move(aut), opt_product);
