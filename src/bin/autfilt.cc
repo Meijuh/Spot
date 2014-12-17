@@ -22,6 +22,8 @@
 #include <string>
 #include <iostream>
 #include <limits>
+#include <set>
+#include <memory>
 
 #include <argp.h>
 #include "error.h"
@@ -84,6 +86,7 @@ Exit status:\n\
 #define OPT_DESTUT 22
 #define OPT_INSTUT 23
 #define OPT_IS_EMPTY 24
+#define OPT_UNIQ 25
 
 static const argp_option options[] =
   {
@@ -167,6 +170,9 @@ static const argp_option options[] =
     { 0, 0, 0, 0, "Filters:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
+    { "uniq", OPT_UNIQ, 0, 0,
+      "do not output the same automaton twice (same in the sense that they "\
+      "are isomorphic)", 0 },
     { "isomorphic", 0, 0, OPTION_ALIAS | OPTION_HIDDEN, 0, 0 },
     { "is-complete", OPT_IS_COMPLETE, 0, 0,
       "the automaton is complete", 0 },
@@ -200,6 +206,8 @@ static const struct argp_child children[] =
 
 static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa,
 			    Quiet, Count } format = Dot;
+typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
+typedef std::set<std::vector<tr_t>> unique_aut_t;
 static long int match_count = 0;
 static const char* stats = "";
 static const char* hoa_opt = 0;
@@ -210,7 +218,8 @@ static int opt_seed = 0;
 static auto dict = spot::make_bdd_dict();
 static spot::tgba_digraph_ptr opt_product = nullptr;
 static bool opt_merge = false;
-static std::unique_ptr<spot::isomorphism_checker> isomorphism_checker = nullptr;
+static std::unique_ptr<spot::isomorphism_checker>
+  isomorphism_checker = nullptr;
 static spot::tgba_digraph_ptr opt_are_isomorphic = nullptr;
 static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
@@ -223,6 +232,7 @@ static int opt_max_count = -1;
 static bool opt_destut = false;
 static bool opt_instut = false;
 static bool opt_is_empty = false;
+static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
 
 static int
 to_int(const char* s)
@@ -289,9 +299,6 @@ parse_opt(int key, char* arg, struct argp_state*)
 	  error(2, 0, "failed to parse --options near '%s'", opt);
       }
       break;
-    case OPT_DOT:
-      format = Dot;
-      break;
     case OPT_ACC_SETS:
       opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
@@ -305,6 +312,9 @@ parse_opt(int key, char* arg, struct argp_state*)
         opt_are_isomorphic = std::move(p->aut);
 	break;
       }
+    case OPT_DOT:
+      format = Dot;
+      break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
@@ -399,6 +409,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (format == Spin)
 	error(2, 0, "--spin and --tgba are incompatible");
       type = spot::postprocessor::TGBA;
+      break;
+    case OPT_UNIQ:
+      opt_uniq =
+        std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
       break;
     case ARGP_KEY_ARG:
       jobs.emplace_back(arg, true);
@@ -578,6 +592,12 @@ namespace
         matched &= isomorphism_checker->is_isomorphic(aut);
       if (opt_is_empty)
 	matched &= aut->is_empty();
+      if (opt_uniq)
+        {
+          auto tmp = spot::canonicalize(make_tgba_digraph(aut));
+          matched = opt_uniq->emplace(tmp->transition_vector().begin() + 1,
+                                      tmp->transition_vector().end()).second;
+        }
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)

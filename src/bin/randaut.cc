@@ -40,6 +40,7 @@
 #include "tgbaalgos/hoa.hh"
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/randomgraph.hh"
+#include "tgbaalgos/canonicalize.hh"
 
 
 const char argp_program_doc[] = "\
@@ -66,6 +67,7 @@ states, 1 to 3 acceptance sets, and three atomic propositions:\n\
 #define OPT_LBTT 3
 #define OPT_SEED 4
 #define OPT_STATE_ACC 5
+#define OPT_UNIQ 6
 
 static const argp_option options[] =
   {
@@ -81,6 +83,9 @@ static const argp_option options[] =
     { "density", 'd', "FLOAT", 0, "density of the transitions (0.2)", 0 },
     { "deterministic", 'D', 0, 0, "build a complete, deterministic automaton ",
       0 },
+    { "uniq", OPT_UNIQ, 0, 0,
+      "do not output the same automaton twice (same in the sense that they "\
+      "are isomorphic)", 0 },
     { "seed", OPT_SEED, "INT", 0,
       "seed for the random number generator (0)", 0 },
     { "states", 'S', "RANGE", 0, "number of states to output (10)", 0 },
@@ -109,6 +114,8 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
+typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
+typedef std::set<std::vector<tr_t>> unique_aut_t;
 static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Hoa } format = Dot;
 static const char* hoa_opt = 0;
 static spot::ltl::atomic_prop_set aprops;
@@ -122,6 +129,7 @@ static float opt_acc_prob = 0.2;
 static bool opt_deterministic = false;
 static bool opt_state_acc = false;
 static bool ba_wanted = false;
+static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
 
 static int
 to_int(const char* s)
@@ -222,6 +230,9 @@ parse_opt(int key, char* arg, struct argp_state* as)
     case OPT_STATE_ACC:
       opt_state_acc = true;
       break;
+    case OPT_UNIQ:
+      opt_uniq =
+        std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
     case ARGP_KEY_ARG:
       // If this is the unique non-option argument, it can
       // be a number of atomic propositions to build.
@@ -292,6 +303,15 @@ main(int argc, char** argv)
 	spot::random_graph(size, opt_density, &aprops, d,
 			   accs, opt_acc_prob, 0.5,
 			   opt_deterministic, opt_state_acc);
+
+      if (opt_uniq)
+        {
+          auto tmp = make_tgba_digraph(spot::canonicalize(aut));
+          std::vector<tr_t> trans(tmp->transition_vector().begin() + 1,
+                                  tmp->transition_vector().end());
+          if (opt_uniq->emplace(trans).second)
+            return 0;
+        }
 
       bool is_ba = accs == 0 || (accs == 1 && opt_state_acc);
 
