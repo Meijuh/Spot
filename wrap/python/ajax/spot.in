@@ -292,7 +292,7 @@ def render_automaton(automaton, dont_run_dot, issba, deco = None):
     elif hasattr(automaton, 'get_ta'): # TGTA
         spot.dotty_reachable(dotsrc, automaton.get_ta())
     else:                       # TGBA
-        spot.dotty_reachable(dotsrc, automaton, issba, deco)
+        spot.dotty_reachable(dotsrc, automaton, issba, "N", deco)
     render_dot_maybe(dotsrc.str(), dont_run_dot)
 
 def render_formula(f):

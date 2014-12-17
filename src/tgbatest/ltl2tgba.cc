@@ -1808,7 +1808,8 @@ checked_main(int argc, char** argv)
 				{
 				  spot::tgba_run_dotty_decorator deco(run);
 				  spot::dotty_reachable(std::cout, a,
-							assume_sba, &deco);
+							assume_sba, nullptr,
+							&deco);
 				}
 			      else if (graph_run_tgba_opt)
 				{

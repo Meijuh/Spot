@@ -118,7 +118,8 @@ run 0 ../../bin/autfilt -q --are-isomorph ex.hoa out.hoa
 run 0 ../ltl2tgba -x -DC 'GFa & XGFb' > out.tgba
 cat >ex.tgba <<EOF
 digraph G {
-  0 [label="", style=invis, height=0]
+  rankdir=LR
+  0 [label="", style=invis, width=0]
   0 -> 1
   1 [label="0"]
   1 -> 2 [label="1"]
@@ -127,9 +128,9 @@ digraph G {
   2 -> 3 [label="!a"]
   2 -> 4 [label="!b"]
   3 [label="3", peripheries=2]
-  3 -> 3 [label="!a\n{0}"]
+  3 -> 3 [label="!a"]
   4 [label="4", peripheries=2]
-  4 -> 4 [label="!b\n{0}"]
+  4 -> 4 [label="!b"]
 }
 EOF
 diff out.tgba ex.tgba

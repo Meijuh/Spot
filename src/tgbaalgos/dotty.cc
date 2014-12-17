@@ -21,6 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ostream>
+#include <stdexcept>
 #include "tgba/tgbagraph.hh"
 #include "dotty.hh"
 #include "dottydec.hh"
@@ -38,19 +39,53 @@ namespace spot
     {
     public:
       dotty_bfs(std::ostream& os, const_tgba_ptr a, bool mark_accepting_states,
-		dotty_decorator* dd)
+		const char* options, dotty_decorator* dd)
 	: tgba_reachable_iterator_breadth_first(a), os_(os),
 	  mark_accepting_states_(mark_accepting_states), dd_(dd),
 	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
       {
+	if (options)
+	  while (char c = *options++)
+	    switch (c)
+	      {
+	      case 'c':
+		opt_circles = true;
+		break;
+	      case 'h':
+		opt_horizontal = true;
+		break;
+	      case 'n':
+		opt_name = true;
+	        break;
+	      case 'N':
+		opt_name = false;
+	        break;
+	      case 'v':
+		opt_horizontal = false;
+		break;
+	      case 't':
+		mark_accepting_states_ = false;
+		break;
+	      default:
+		throw std::runtime_error
+		  (std::string("unknown option for dotty(): ") + c);
+	      }
       }
 
       void
       start()
       {
-	os_ << ("digraph G {\n"
-		"  0 [label=\"\", style=invis, height=0]\n"
-		"  0 -> 1\n");
+	os_ << "digraph G {\n";
+	if (opt_horizontal)
+	  os_ << "  rankdir=LR\n";
+	if (opt_name)
+	  if (auto n = aut_->get_named_prop<std::string>("automaton-name"))
+	    escape_str(os_ << "  label=\"", *n) << "\"\n  labelloc=\"t\"\n";
+	if (opt_circles)
+	  os_ << "  node [shape=\"circle\"]\n";
+	os_ << "  0 [label=\"\", style=invis, ";
+	os_ << (opt_horizontal ? "width" : "height");
+	os_ << "=0]\n  0 -> 1\n";
       }
 
       void
@@ -96,12 +131,12 @@ namespace spot
 	std::string label =
 	  bdd_format_formula(aut_->get_dict(),
 			     si->current_condition());
-	auto a = si->current_acceptance_conditions();
-	if (a)
-	  {
-	    label += "\n";
-	    label += aut_->acc().format(a);
-	  }
+	if (!mark_accepting_states_)
+	  if (auto a = si->current_acceptance_conditions())
+	    {
+	      label += "\n";
+	      label += aut_->acc().format(a);
+	    }
 
 	std::string s = aut_->transition_annotation(si);
 	if (!s.empty())
@@ -122,16 +157,20 @@ namespace spot
       bool mark_accepting_states_;
       dotty_decorator* dd_;
       const_tgba_digraph_ptr sba_;
+      bool opt_horizontal = true;
+      bool opt_name = true;
+      bool opt_circles = false;
     };
   }
 
   std::ostream&
   dotty_reachable(std::ostream& os, const const_tgba_ptr& g,
-		  bool assume_sba, dotty_decorator* dd)
+		  bool assume_sba, const char* options,
+		  dotty_decorator* dd)
   {
     if (!dd)
       dd = dotty_decorator::instance();
-    dotty_bfs d(os, g, assume_sba || g->has_state_based_acc(), dd);
+    dotty_bfs d(os, g, assume_sba || g->has_state_based_acc(), options, dd);
     d.run();
     return os;
   }

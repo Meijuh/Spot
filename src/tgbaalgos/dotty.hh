@@ -41,12 +41,18 @@ namespace spot
   /// ways.  See \ref tgba_dotty "this page" for a list of available
   /// decorators.  If no decorator is specified, the dotty_decorator
   /// is used.
-  /// labels the transitions are encoded in UTF-8.
+  ///
+  /// \param options an optional string of letters, each indicating a
+  /// different option.  Presently the following options are
+  /// supported: 'v' for vertical output, 'h' for horizontal output,
+  /// 't' force transition-based acceptance, 'N' hide the name of the
+  /// automaton, 'n' shows the name, 'c' uses circle-shaped states.
   SPOT_API std::ostream&
   dotty_reachable(std::ostream& os,
 		  const const_tgba_ptr& g,
 		  bool assume_sba = false,
-		  dotty_decorator* dd = 0);
+		  const char* options = nullptr,
+		  dotty_decorator* dd = nullptr);
 }
 
 #endif // SPOT_TGBAALGOS_DOTTY_HH

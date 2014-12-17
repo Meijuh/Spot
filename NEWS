@@ -71,6 +71,11 @@ New in spot 1.99a (not yet released)
 
     - Boost is not used anymore.
 
+    - GraphViz output now uses an horizontal layout by default.
+      The --dot option of the various command-line tools takes an
+      optional parameter to fine-tune the GraphViz output (including
+      vertical layout, round states, and named automata).
+
     - The tgba_succ_iterator interface has changed.  Methods next(),
       and first() should now return a bool indicating whether the
       current iteration is valid.

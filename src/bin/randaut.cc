@@ -93,7 +93,10 @@ static const argp_option options[] =
     RANGE_DOC,
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
-    { "dot", OPT_DOT, 0, 0, "GraphViz's format (default)", 0 },
+    { "dot", OPT_DOT, "c|h|n|N|t|v", OPTION_ARG_OPTIONAL,
+      "GraphViz's format (default).  Add letters to chose (c) circular nodes, "
+      "(h) horizontal layout, (v) vertical layout, (n) with name, "
+      "(N) without name, (t) always transition-based acceptance.", 0 },
     { "hoaf", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format.  Add letters to select "
       "(s) state-based acceptance, (t) transition-based acceptance, "
@@ -117,6 +120,7 @@ static const struct argp_child children[] =
 typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Hoa } format = Dot;
+const char* opt_dot = nullptr;
 static const char* hoa_opt = 0;
 static spot::ltl::atomic_prop_set aprops;
 static bool ap_count_given = false;
@@ -210,6 +214,7 @@ parse_opt(int key, char* arg, struct argp_state* as)
       break;
     case OPT_DOT:
       format = Dot;
+      opt_dot = arg;
       break;
     case OPT_LBTT:
       if (arg)
@@ -318,7 +323,7 @@ main(int argc, char** argv)
       switch (format)
 	{
 	case Dot:
-	  spot::dotty_reachable(std::cout, aut, is_ba);
+	  spot::dotty_reachable(std::cout, aut, is_ba, opt_dot);
 	  break;
 	case Lbtt:
 	  spot::lbtt_reachable(std::cout, aut, is_ba);

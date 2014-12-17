@@ -72,7 +72,10 @@ static const argp_option options[] =
     { 0, 0, 0, 0, "Output format:", 3 },
     { "csv-escape", OPT_CSV, 0, 0, "quote formula output by %f in --format "
       "for use in CSV file", 0 },
-    { "dot", OPT_DOT, 0, 0, "GraphViz's format (default)", 0 },
+    { "dot", OPT_DOT, "c|h|n|N|t|v", OPTION_ARG_OPTIONAL,
+      "GraphViz's format (default).  Add letters to chose (c) circular nodes, "
+      "(h) horizontal layout, (v) vertical layout, (n) with name, "
+      "(N) without name, (t) always transition-based acceptance.", 0 },
     { "hoa", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format.  Add letters to select "
       "(s) state-based acceptance, (t) transition-based acceptance, "
@@ -124,7 +127,7 @@ const struct argp_child children[] =
   };
 
 enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa } format = Dot;
-bool utf8 = false;
+const char* opt_dot = nullptr;
 const char* stats = "";
 const char* hoa_opt = 0;
 spot::option_map extra_options;
@@ -166,6 +169,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_DOT:
       format = Dot;
+      opt_dot = arg;
       break;
     case OPT_LBTT:
       if (arg)
@@ -245,7 +249,8 @@ namespace
 	case Dot:
 	  spot::dotty_reachable(std::cout, aut,
 				(type == spot::postprocessor::BA)
-				|| (type == spot::postprocessor::Monitor));
+				|| (type == spot::postprocessor::Monitor),
+				opt_dot);
 	  break;
 	case Lbtt:
 	  spot::lbtt_reachable(std::cout, aut, type == spot::postprocessor::BA);

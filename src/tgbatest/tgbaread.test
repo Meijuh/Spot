@@ -36,7 +36,8 @@ run 0 ../tgbaread input > stdout
 
 cat >expected <<EOF
 digraph G {
-  0 [label="", style=invis, height=0]
+  rankdir=LR
+  0 [label="", style=invis, width=0]
   0 -> 1
   1 [label="0"]
   1 -> 2 [label="a & !b\n{0,1}"]
