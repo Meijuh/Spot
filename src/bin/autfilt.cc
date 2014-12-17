@@ -49,6 +49,9 @@
 #include "hoaparse/public.hh"
 #include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/randomize.hh"
+#include "tgbaalgos/gtec/gtec.hh"
+#include "tgbaalgos/reducerun.hh"
+#include "tgbaalgos/word.hh"
 #include "tgbaalgos/are_isomorphic.hh"
 
 
@@ -144,6 +147,8 @@ static const argp_option options[] =
       "1 if the output is complete, 0 otherwise", 0 },
     { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "processing time (excluding parsing) in seconds", 0 },
+    { "%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "one word accepted by the output automaton", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
     /**************************************************/
@@ -427,6 +432,7 @@ namespace
       declare('m', &aut_name_);
       declare('S', &haut_states_);
       declare('T', &haut_trans_);
+      declare('w', &aut_word_);
     }
 
     /// \brief print the configured statistics.
@@ -481,6 +487,26 @@ namespace
       if (has('C'))
 	haut_scc_ = spot::scc_info(haut->aut).scc_count();
 
+      if (has('w'))
+	{
+	  auto res = spot::couvreur99(aut)->check();
+	  if (res)
+	    {
+	      auto run = res->accepting_run();
+	      assert(run);
+	      run = reduce_run(aut, run);
+	      spot::tgba_word w(run);
+	      w.simplify();
+	      std::ostringstream out;
+	      w.print(out, aut->get_dict());
+	      aut_word_ = out.str();
+	    }
+	  else
+	    {
+	      aut_word_.val().clear();
+	    }
+	}
+
       return this->spot::stat_printer::print(aut, 0, run_time);
     }
 
@@ -488,6 +514,7 @@ namespace
     spot::printable_value<const char*> filename_;
     spot::printable_value<std::string> haut_name_;
     spot::printable_value<std::string> aut_name_;
+    spot::printable_value<std::string> aut_word_;
     spot::printable_value<unsigned> haut_states_;
     spot::printable_value<unsigned> haut_edges_;
     spot::printable_value<unsigned> haut_trans_;

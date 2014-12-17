@@ -270,3 +270,17 @@ EOF
 
 $autfilt --merge -Hm input --name="%E->%e edges, %T->%t transitions" > output
 diff output expected
+
+
+cat <<EOF | $ltl2tgba -x degen-skip=1 -F- --ba -H > tmp.hoa
+a U b
+false
+!b && Xb && GFa
+EOF
+$autfilt <tmp.hoa --stats='"%M","%w"' > output
+cat >expected <<EOF
+"a U b","cycle{b}"
+"0",""
+"!b & X(b & GFa)","!b; cycle{a & b}"
+EOF
+diff output expected
