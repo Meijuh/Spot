@@ -102,7 +102,8 @@ main(int argc, char** argv)
       {
 	auto a = spot::ltl_to_taa(f, d);
 	aut[0] = a;
-	aut[1] = spot::degeneralize_tba(spot::make_tgba_digraph(a));
+	auto all = spot::tgba::prop_set::all();
+	aut[1] = spot::degeneralize_tba(spot::make_tgba_digraph(a, all));
       }
       {
 	auto a = spot::ltl_to_tgba_fm(f, d);

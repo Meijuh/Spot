@@ -252,7 +252,7 @@ namespace spot
         // the names (addresses) of the states in the automaton
         // returned by dupexp, and in automaton given in argument to
         // the constructor.
-        a_ = tgba_dupexp_dfs(t, new_original_);
+        a_ = tgba_dupexp_dfs(t, { true, true, true, true }, new_original_);
         scc_info_.reset(new scc_info(a_));
         old_a_ = a_;
 
@@ -701,10 +701,11 @@ namespace spot
 
 	delete gb;
 	res->prop_copy(original_,
-		       false, // state-based acc forced below
-		       false, // single acc is set by set_acceptance_conditions
-		       true,  // weakness preserved,
-		       false);	// determinism checked and set below
+		       { false, // state-based acc forced below
+			 false, // single acc set by set_acceptance_conditions
+		         true,  // weakness preserved,
+			 false, // determinism checked and set below
+		       });
         if (nb_minato == nb_satoneset)
 	  res->prop_deterministic();
 	if (Sba)

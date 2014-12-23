@@ -104,12 +104,12 @@ namespace spot
 
   tgba_digraph_ptr tgba_complete(const const_tgba_ptr& aut)
   {
-    auto res = make_tgba_digraph(aut);
-    res->prop_copy(aut,
-		   true, 	// state based
-		   true, 	// single acc
-		   true, 	// inherently_weak
-		   true);	// deterministic
+    auto res = make_tgba_digraph(aut, {
+	                           true, // state based
+				   true, // single acc
+				   true, // inherently_weak
+				   true, // deterministic
+				 });
     tgba_complete_here(res);
     return res;
   }

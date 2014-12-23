@@ -186,13 +186,13 @@ namespace spot
     {
     }
 
-    explicit tgba_digraph(const const_tgba_digraph_ptr& other)
+    explicit tgba_digraph(const const_tgba_digraph_ptr& other, prop_set p)
       : tgba(other->get_dict()),
         g_(other->g_), init_number_(other->init_number_)
       {
 	copy_acceptance_conditions_of(other);
 	copy_ap_of(other);
-	prop_copy(other, true, true, true, true);
+	prop_copy(other, p);
       }
 
     virtual ~tgba_digraph()
@@ -489,23 +489,26 @@ namespace spot
     return std::make_shared<tgba_digraph>(dict);
   }
 
-  inline tgba_digraph_ptr make_tgba_digraph(const tgba_digraph_ptr& aut)
+  inline tgba_digraph_ptr make_tgba_digraph(const tgba_digraph_ptr& aut,
+					    tgba::prop_set p)
   {
-    return std::make_shared<tgba_digraph>(aut);
+    return std::make_shared<tgba_digraph>(aut, p);
   }
 
-  inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_digraph_ptr& aut)
+  inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_digraph_ptr& aut,
+					    tgba::prop_set p)
   {
-    return std::make_shared<tgba_digraph>(aut);
+    return std::make_shared<tgba_digraph>(aut, p);
   }
 
-  inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_ptr& aut)
+  inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_ptr& aut,
+					    tgba::prop_set p)
   {
-    auto p = std::dynamic_pointer_cast<const tgba_digraph>(aut);
-    if (p)
-      return std::make_shared<tgba_digraph>(p);
+    auto a = std::dynamic_pointer_cast<const tgba_digraph>(aut);
+    if (a)
+      return std::make_shared<tgba_digraph>(a, p);
     else
-      return tgba_dupexp_dfs(aut);
+      return tgba_dupexp_dfs(aut, p);
   }
 
 }

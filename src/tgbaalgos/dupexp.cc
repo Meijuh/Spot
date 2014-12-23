@@ -36,12 +36,12 @@ namespace spot
     class dupexp_iter: public T
     {
     public:
-      dupexp_iter(const const_tgba_ptr& a)
+      dupexp_iter(const const_tgba_ptr& a, tgba::prop_set p)
 	: T(a), out_(make_tgba_digraph(a->get_dict()))
       {
 	out_->copy_acceptance_conditions_of(a);
 	out_->copy_ap_of(a);
-	out_->prop_copy(a, true, true, true, true);
+	out_->prop_copy(a, p);
       }
 
       tgba_digraph_ptr
@@ -77,8 +77,9 @@ namespace spot
     {
     public:
       dupexp_iter_save(const const_tgba_ptr& a,
+		       tgba::prop_set p,
 		       std::vector<const state*>& relation)
-        : dupexp_iter<T>(a), relation_(relation)
+        : dupexp_iter<T>(a, p), relation_(relation)
       {
       }
 
@@ -96,37 +97,39 @@ namespace spot
   } // anonymous
 
   tgba_digraph_ptr
-  tgba_dupexp_bfs(const const_tgba_ptr& aut)
+  tgba_dupexp_bfs(const const_tgba_ptr& aut, tgba::prop_set p)
   {
-    dupexp_iter<tgba_reachable_iterator_breadth_first> di(aut);
+    dupexp_iter<tgba_reachable_iterator_breadth_first> di(aut, p);
     di.run();
     return di.result();
   }
 
   tgba_digraph_ptr
-  tgba_dupexp_dfs(const const_tgba_ptr& aut)
+  tgba_dupexp_dfs(const const_tgba_ptr& aut, tgba::prop_set p)
   {
-    dupexp_iter<tgba_reachable_iterator_depth_first> di(aut);
+    dupexp_iter<tgba_reachable_iterator_depth_first> di(aut, p);
     di.run();
     return di.result();
   }
 
   tgba_digraph_ptr
-  tgba_dupexp_bfs(const const_tgba_ptr& aut, std::vector<const state*>& rel)
+  tgba_dupexp_bfs(const const_tgba_ptr& aut, tgba::prop_set p,
+		  std::vector<const state*>& rel)
   {
-    dupexp_iter_save<tgba_reachable_iterator_breadth_first> di(aut, rel);
+    dupexp_iter_save<tgba_reachable_iterator_breadth_first> di(aut, p, rel);
     di.run();
     return di.result();
   }
 
   tgba_digraph_ptr
-  tgba_dupexp_dfs(const const_tgba_ptr& aut, std::vector<const state*>& rel)
+  tgba_dupexp_dfs(const const_tgba_ptr& aut, tgba::prop_set p,
+		  std::vector<const state*>& rel)
   {
-    auto aa = std::dynamic_pointer_cast<const spot::tgba_digraph>(aut);
+    auto aa = std::dynamic_pointer_cast<const tgba_digraph>(aut);
     if (aa)
       {
 	aa->get_init_state_number(); // Create an initial state if needed.
-	auto res = make_tgba_digraph(aa);
+	auto res = make_tgba_digraph(aa, p);
 	unsigned ns = aa->num_states();
 	rel.reserve(ns);
 	// The state numbers are common to both automata, but
@@ -136,7 +139,7 @@ namespace spot
 	return res;
       }
 
-    dupexp_iter_save<tgba_reachable_iterator_depth_first> di(aut, rel);
+    dupexp_iter_save<tgba_reachable_iterator_depth_first> di(aut, p, rel);
     di.run();
     return di.result();
   }

@@ -368,7 +368,7 @@ ensure_digraph(const spot::tgba_ptr& a)
   auto aa = std::dynamic_pointer_cast<spot::tgba_digraph>(a);
   if (aa)
     return aa;
-  return spot::make_tgba_digraph(a);
+  return spot::make_tgba_digraph(a, spot::tgba::prop_set::all());
 }
 
 std::ostream&

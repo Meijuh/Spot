@@ -602,7 +602,8 @@ namespace spot
     public:
 
       spins_kripke(const spins_interface* d, const bdd_dict_ptr& dict,
-		  const prop_set* ps, const ltl::formula* dead, int compress)
+		   const spot::prop_set* ps, const ltl::formula* dead,
+		   int compress)
 	: kripke(dict),
 	  d_(d),
 	  state_size_(d_->get_state_size()),
@@ -723,14 +724,13 @@ namespace spot
       compute_state_condition_aux(const int* vars) const
       {
 	bdd res = bddtrue;
-	for (prop_set::const_iterator i = ps_->begin();
-	     i != ps_->end(); ++i)
+	for (auto& i: *ps_)
 	  {
-	    int l = vars[i->var_num];
-	    int r = i->val;
+	    int l = vars[i.var_num];
+	    int r = i.val;
 
 	    bool cond = false;
-	    switch (i->op)
+	    switch (i.op)
 	      {
 	      case OP_EQ:
 		cond = (l == r);
@@ -753,9 +753,9 @@ namespace spot
 	      }
 
 	    if (cond)
-	      res &= bdd_ithvar(i->bddvar);
+	      res &= bdd_ithvar(i.bddvar);
 	    else
-	      res &= bdd_nithvar(i->bddvar);
+	      res &= bdd_nithvar(i.bddvar);
 	  }
 	return res;
       }
@@ -922,7 +922,7 @@ namespace spot
       bdd_dict_ptr dict_;
       const char** vname_;
       bool* format_filter_;
-      const prop_set* ps_;
+      const spot::prop_set* ps_;
       bdd alive_prop;
       bdd dead_prop;
       void (*compress_)(const int*, size_t, int*, size_t&);
@@ -1130,7 +1130,7 @@ namespace spot
         return 0;
       }
 
-    prop_set* ps = new prop_set;
+    spot::prop_set* ps = new spot::prop_set;
     int errors = convert_aps(to_observe, d, dict, dead, *ps);
     if (errors)
       {

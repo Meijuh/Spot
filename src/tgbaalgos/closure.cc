@@ -28,6 +28,12 @@ namespace spot
   tgba_digraph_ptr
   closure(tgba_digraph_ptr&& a)
   {
+    a->prop_keep({false,	// state_based
+	          true,		// single_acc
+	          false,	// inherently_weak
+	          false,	// deterministic
+	         });
+
     unsigned n = a->num_states();
     std::vector<unsigned> todo;
     std::vector<std::vector<unsigned> > dst2trans(n);
@@ -90,6 +96,6 @@ namespace spot
   tgba_digraph_ptr
   closure(const const_tgba_digraph_ptr& a)
   {
-    return closure(make_tgba_digraph(a));
+    return closure(make_tgba_digraph(a, {true, true, true, true}));
   }
 }

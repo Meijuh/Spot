@@ -25,12 +25,12 @@ namespace spot
   tgba_digraph_ptr dtgba_complement_nonweak(const const_tgba_ptr& aut)
   {
     // Clone the original automaton.
-    auto res = make_tgba_digraph(aut);
-    res->prop_copy(aut,
-		   false, 	// state based
-		   false, 	// single acc
-		   false, 	// inherently_weak
-		   false);	// deterministic
+    auto res = make_tgba_digraph(aut,
+				 { false, // state based
+				   false, // single acc
+				   false, // inherently_weak
+				   false, // deterministic
+				  });
     // Copy the old acceptance condition before we replace it.
     acc_cond oldacc = aut->acc(); // Copy it!
 
@@ -113,13 +113,12 @@ namespace spot
   tgba_digraph_ptr dtgba_complement_weak(const const_tgba_ptr& aut)
   {
     // Clone the original automaton.
-    auto res = make_tgba_digraph(aut);
-    res->prop_copy(aut,
-		   true, 	// state based
-		   true, 	// single acc
-		   true, 	// inherently_weak
-		   true);	// deterministic
-
+    auto res = make_tgba_digraph(aut,
+				 { true, // state based
+				   true, // single acc
+				   true, // inherently weak
+				   true, // determinisitic
+				 });
     scc_info si(res);
 
     // We will modify res in place, and the resulting

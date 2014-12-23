@@ -328,7 +328,7 @@ spot::tgba_digraph_ptr ensure_digraph(const spot::tgba_ptr& a)
   auto aa = std::dynamic_pointer_cast<spot::tgba_digraph>(a);
   if (aa)
     return aa;
-  return spot::make_tgba_digraph(a);
+  return spot::make_tgba_digraph(a, spot::tgba::prop_set::all());
 }
 
 int
@@ -1436,10 +1436,10 @@ checked_main(int argc, char** argv)
 	case NoneDup:
 	  break;
 	case BFS:
-	  a = tgba_dupexp_bfs(a);
+	  a = tgba_dupexp_bfs(a, spot::tgba::prop_set::all());
 	  break;
 	case DFS:
-	  a = tgba_dupexp_dfs(a);
+	  a = tgba_dupexp_dfs(a, spot::tgba::prop_set::all());
 	  break;
 	}
 

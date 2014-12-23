@@ -29,6 +29,7 @@
 #include <memory>
 #include <unordered_map>
 #include <functional>
+#include <array>
 #include "misc/casts.hh"
 #include "misc/hash.hh"
 
@@ -734,22 +735,43 @@ namespace spot
       is.deterministic = val;
     }
 
-    // This is no default value here on purpose.  This way any time we
-    // add a new property we cannot to update every call to prop_copy().
-    void prop_copy(const const_tgba_ptr& other,
-		   bool state_based,
-		   bool single_acc,
-		   bool inherently_weak,
-		   bool deterministic)
+    struct prop_set
     {
-      if (state_based)
+      bool state_based;
+      bool single_acc;
+      bool inherently_weak;
+      bool deterministic;
+
+      static prop_set all()
+      {
+	return { true, true, true, true };
+      }
+    };
+
+    // There is no default value here on purpose.  This way any time we
+    // add a new property we have to update every call to prop_copy().
+    void prop_copy(const const_tgba_ptr& other, prop_set p)
+    {
+      if (p.state_based)
 	prop_state_based_acc(other->has_state_based_acc());
-      if (single_acc)
+      if (p.single_acc)
 	prop_single_acc_set(other->has_single_acc_set());
-      if (inherently_weak)
+      if (p.inherently_weak)
 	prop_inherently_weak(other->is_inherently_weak());
-      if (deterministic)
+      if (p.deterministic)
 	prop_deterministic(other->is_deterministic());
+    }
+
+    void prop_keep(prop_set p)
+    {
+      if (!p.state_based)
+	prop_state_based_acc(false);
+      if (!p.single_acc)
+	prop_single_acc_set(false);
+      if (!p.inherently_weak)
+	prop_inherently_weak(false);
+      if (!p.deterministic)
+	prop_deterministic(false);
     }
 
   };

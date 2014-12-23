@@ -187,6 +187,7 @@ namespace spot
   tgba_digraph_ptr
   sl2(const const_tgba_digraph_ptr& a, bdd atomic_propositions)
   {
-    return sl2(make_tgba_digraph(a), atomic_propositions);
+    return sl2(make_tgba_digraph(a, tgba::prop_set::all()),
+	       atomic_propositions);
   }
 }

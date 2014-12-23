@@ -281,7 +281,7 @@ namespace spot
 	return os;
       }
     dotty_output d(os, options);
-    auto aut = make_tgba_digraph(g);
+    auto aut = make_tgba_digraph(g, tgba::prop_set::all());
     if (assume_sba)
       aut->prop_state_based_acc();
     d.print(aut);
