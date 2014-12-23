@@ -610,7 +610,7 @@ namespace
       if (opt_destut)
 	aut = spot::closure(std::move(aut));
       if (opt_instut)
-	aut = spot::sl(aut);
+	aut = spot::sl(std::move(aut));
 
       if (opt_product)
 	aut = spot::product(std::move(aut), opt_product);
