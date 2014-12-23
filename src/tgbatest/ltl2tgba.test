@@ -159,8 +159,8 @@ grep 'states: 1$' stdout
 # Make sure a monitor for F(a & F(b)) accepts everything.
 run 0 ../ltl2tgba -M -f "F(a & F(b))" | grep ' ->' > stdout
 cat >expected <<EOF
-  0 -> 1
-  1 -> 1 [label="1"]
+  I -> 0
+  0 -> 0 [label="1"]
 EOF
 cmp stdout expected
 

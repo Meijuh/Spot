@@ -41,6 +41,7 @@ namespace spot
       {
 	out_->copy_acceptance_conditions_of(a);
 	out_->copy_ap_of(a);
+	out_->prop_copy(a, true, true, true, true);
       }
 
       tgba_digraph_ptr

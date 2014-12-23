@@ -192,6 +192,7 @@ namespace spot
       {
 	copy_acceptance_conditions_of(other);
 	copy_ap_of(other);
+	prop_copy(other, true, true, true, true);
       }
 
     virtual ~tgba_digraph()

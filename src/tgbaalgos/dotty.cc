@@ -35,6 +35,112 @@ namespace spot
 {
   namespace
   {
+    class dotty_output
+    {
+      std::ostream& os_;
+      bool opt_force_acc_trans_ = false;
+      bool opt_horizontal_ = true;
+      bool opt_name_ = true;
+      bool opt_circles_ = false;
+      bool mark_states_ = false;
+      const_tgba_digraph_ptr aut_;
+
+    public:
+      dotty_output(std::ostream& os, const char* options)
+	: os_(os)
+      {
+	if (options)
+	  while (char c = *options++)
+	    switch (c)
+	      {
+	      case 'c':
+		opt_circles_ = true;
+		break;
+	      case 'h':
+		opt_horizontal_ = true;
+		break;
+	      case 'n':
+		opt_name_ = true;
+	        break;
+	      case 'N':
+		opt_name_ = false;
+	        break;
+	      case 'v':
+		opt_horizontal_ = false;
+		break;
+	      case 't':
+		opt_force_acc_trans_ = false;
+		break;
+	      default:
+		throw std::runtime_error
+		  (std::string("unknown option for dotty(): ") + c);
+	      }
+      }
+
+      void
+      start()
+      {
+	os_ << "digraph G {\n";
+	if (opt_horizontal_)
+	  os_ << "  rankdir=LR\n";
+	if (opt_name_)
+	  if (auto n = aut_->get_named_prop<std::string>("automaton-name"))
+	    escape_str(os_ << "  label=\"", *n) << "\"\n  labelloc=\"t\"\n";
+	if (opt_circles_)
+	  os_ << "  node [shape=\"circle\"]\n";
+	os_ << "  I [label=\"\", style=invis, ";
+	os_ << (opt_horizontal_ ? "width" : "height");
+	os_ << "=0]\n  I -> " << aut_->get_init_state_number() << '\n';
+      }
+
+      void
+      end()
+      {
+	os_ << '}' << std::endl;
+      }
+
+      void
+      process_state(unsigned s)
+      {
+	os_ << "  " << s << " [label=\"" << escape_str(aut_->format_state(s))
+	    << '"';
+	if (mark_states_ && aut_->state_is_accepting(s))
+	  os_ << ", peripheries=2";
+	os_ << "]\n";
+      }
+
+      void
+      process_link(const tgba_digraph::trans_storage_t& t)
+      {
+	std::string label = bdd_format_formula(aut_->get_dict(), t.cond);
+	label = escape_str(label);
+	if (!mark_states_)
+	  if (auto a = t.acc)
+	    {
+	      label += "\\n";
+	      label += aut_->acc().format(a);
+	    }
+	os_ << "  " << t.src << " -> " << t.dst
+	    << " [label=\"" + label + "\"]\n";
+      }
+
+      void print(const const_tgba_digraph_ptr& aut)
+      {
+	aut_ = aut;
+	mark_states_ = !opt_force_acc_trans_ && aut_->has_state_based_acc();
+	start();
+	unsigned ns = aut_->num_states();
+	for (unsigned n = 0; n < ns; ++n)
+	  {
+	    process_state(n);
+	    for (auto& t: aut_->out(n))
+	      process_link(t);
+	  }
+	end();
+      }
+    };
+
+
     class dotty_bfs : public tgba_reachable_iterator_breadth_first
     {
     public:
@@ -168,10 +274,17 @@ namespace spot
 		  bool assume_sba, const char* options,
 		  dotty_decorator* dd)
   {
-    if (!dd)
-      dd = dotty_decorator::instance();
-    dotty_bfs d(os, g, assume_sba || g->has_state_based_acc(), options, dd);
-    d.run();
+    if (dd)
+      {
+	dotty_bfs d(os, g, assume_sba || g->has_state_based_acc(), options, dd);
+	d.run();
+	return os;
+      }
+    dotty_output d(os, options);
+    auto aut = make_tgba_digraph(g);
+    if (assume_sba)
+      aut->prop_state_based_acc();
+    d.print(aut);
     return os;
   }
 

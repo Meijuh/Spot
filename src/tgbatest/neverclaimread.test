@@ -134,12 +134,12 @@ run 0 ../ltl2tgba -XN input > stdout
 cat >expected <<EOF
 digraph G {
   rankdir=LR
-  0 [label="", style=invis, width=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 2 [label="p1"]
-  2 [label="1", peripheries=2]
-  2 -> 2 [label="1"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 1 [label="p1"]
+  1 [label="1", peripheries=2]
+  1 -> 1 [label="1"]
 }
 EOF
 
@@ -326,13 +326,13 @@ EOF
 cat >expected <<EOF
 digraph G {
   rankdir=LR
-  0 [label="", style=invis, width=0]
-  0 -> 1
-  1 [label="0"]
-  1 -> 2 [label="b"]
-  1 -> 1 [label="0"]
-  2 [label="1", peripheries=2]
-  2 -> 2 [label="1"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 1 [label="b"]
+  0 -> 0 [label="0"]
+  1 [label="1", peripheries=2]
+  1 -> 1 [label="1"]
 }
 EOF
 diff stdout expected
