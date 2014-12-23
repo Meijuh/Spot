@@ -173,6 +173,7 @@ namespace spot
   {
   public:
     typedef digraph<tgba_graph_state, tgba_graph_trans_data> graph_t;
+    typedef graph_t::trans_storage_t trans_storage_t;
 
   protected:
     graph_t g_;
@@ -298,11 +299,16 @@ namespace spot
       return &g_.state_data(n);
     }
 
-    virtual std::string format_state(const state* st) const
+    std::string format_state(unsigned n) const
     {
       std::stringstream ss;
-      ss << state_number(st);
+      ss << n;
       return ss.str();
+    }
+
+    virtual std::string format_state(const state* st) const
+    {
+      return format_state(state_number(st));
     }
 
     tgba_graph_trans_data& trans_data(const tgba_succ_iterator* it)
@@ -346,25 +352,25 @@ namespace spot
       return acc_.mark(0);
     }
 
-    graph_t::trans_storage_t& trans_storage(const tgba_succ_iterator* it)
+    trans_storage_t& trans_storage(const tgba_succ_iterator* it)
     {
       auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);
       return g_.trans_storage(i->pos());
     }
 
-    graph_t::trans_storage_t& trans_storage(unsigned t)
+    trans_storage_t& trans_storage(unsigned t)
     {
       return g_.trans_storage(t);
     }
 
-    const graph_t::trans_storage_t
+    const trans_storage_t
       trans_storage(const tgba_succ_iterator* it) const
     {
       auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);
       return g_.trans_storage(i->pos());
     }
 
-    const graph_t::trans_storage_t trans_storage(unsigned t) const
+    const trans_storage_t trans_storage(unsigned t) const
     {
       return g_.trans_storage(t);
     }
