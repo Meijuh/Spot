@@ -18,7 +18,7 @@
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src \
               $(BUDDY_CPPFLAGS) -I$(top_srcdir)/ltdl
-AM_CXXFLAGS = $(WARNING_CXXFLAGS) -lpthread
+AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 ltsmindir = $(pkgincludedir)/iface/ltsmin
 
@@ -27,7 +27,7 @@ ltsmin_HEADERS = ltsmin.hh
 lib_LTLIBRARIES = libspotltsmin.la
 libspotltsmin_la_LIBADD = \
   $(top_builddir)/src/libspot.la \
-  $(top_builddir)/ltdl/libltdlc.la
+  $(top_builddir)/ltdl/libltdlc.la -lpthread
 libspotltsmin_la_SOURCES = ltsmin.cc
 
 noinst_PROGRAMS = modelcheck
