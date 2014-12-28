@@ -26,6 +26,8 @@ LDADD = libcommon.a $(top_builddir)/lib/libgnu.la ../libspot.la
 
 noinst_LIBRARIES = libcommon.a
 libcommon_a_SOURCES =				\
+  common_aoutput.cc				\
+  common_aoutput.hh				\
   common_cout.hh				\
   common_cout.cc				\
   common_finput.cc				\

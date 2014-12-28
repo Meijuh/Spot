@@ -31,16 +31,11 @@
 #include "common_setup.hh"
 #include "common_finput.hh"
 #include "common_cout.hh"
+#include "common_aoutput.hh"
 #include "common_range.hh"
 #include "common_post.hh"
 
-#include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/lbtt.hh"
-#include "tgbaalgos/hoa.hh"
-#include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/product.hh"
-#include "tgbaalgos/save.hh"
-#include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
 #include "tgbaalgos/stutterize.hh"
 #include "tgbaalgos/closure.hh"
@@ -49,11 +44,7 @@
 #include "misc/timer.hh"
 #include "misc/random.hh"
 #include "hoaparse/public.hh"
-#include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/randomize.hh"
-#include "tgbaalgos/gtec/gtec.hh"
-#include "tgbaalgos/reducerun.hh"
-#include "tgbaalgos/word.hh"
 #include "tgbaalgos/are_isomorphic.hh"
 #include "tgbaalgos/canonicalize.hh"
 
@@ -207,14 +198,10 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa,
-			    Quiet, Count } format = Dot;
-const char* opt_dot = nullptr;
 typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static long int match_count = 0;
 static const char* stats = "";
-static const char* hoa_opt = 0;
 static spot::option_map extra_options;
 static bool randomize_st = false;
 static bool randomize_tr = false;
@@ -231,7 +218,6 @@ static bool opt_invert = false;
 static range opt_states = { 0, std::numeric_limits<int>::max() };
 static range opt_edges = { 0, std::numeric_limits<int>::max() };
 static range opt_accsets = { 0, std::numeric_limits<int>::max() };
-static const char* opt_name = nullptr;
 static int opt_max_count = -1;
 static bool opt_destut = false;
 static bool opt_instut = false;
@@ -270,13 +256,13 @@ parse_opt(int key, char* arg, struct argp_state*)
       type = spot::postprocessor::BA;
       break;
     case 'c':
-      format = Count;
+      automaton_format = Count;
       break;
     case 'F':
       jobs.emplace_back(arg, true);
       break;
     case 'H':
-      format = Hoa;
+      automaton_format = Hoa;
       hoa_opt = arg;
       break;
     case 'M':
@@ -286,10 +272,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_max_count = to_pos_int(arg);
       break;
     case 'q':
-      format = Quiet;
+      automaton_format = Quiet;
       break;
     case 's':
-      format = Spin;
+      automaton_format = Spin;
       if (type != spot::postprocessor::Monitor)
 	type = spot::postprocessor::BA;
       break;
@@ -317,7 +303,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 	break;
       }
     case OPT_DOT:
-      format = Dot;
+      automaton_format = Dot;
       opt_dot = arg;
       break;
     case OPT_EDGES:
@@ -342,13 +328,13 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (arg)
 	{
 	  if (arg[0] == 't' && arg[1] == 0)
-	    format = Lbtt_t;
+	    automaton_format = Lbtt_t;
 	  else
 	    error(2, 0, "unknown argument for --lbtt: '%s'", arg);
 	}
       else
 	{
-	  format = Lbtt;
+	  automaton_format = Lbtt;
 	}
       break;
     case OPT_NAME:
@@ -399,7 +385,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_seed = to_int(arg);
       break;
     case OPT_SPOT:
-      format = Spot;
+      automaton_format = Spot;
       break;
     case OPT_STATES:
       opt_states = parse_range(arg, 0, std::numeric_limits<int>::max());
@@ -408,10 +394,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (!*arg)
 	error(2, 0, "empty format string for --stats");
       stats = arg;
-      format = Stats;
+      automaton_format = Stats;
       break;
     case OPT_TGBA:
-      if (format == Spin)
+      if (automaton_format == Spin)
 	error(2, 0, "--spin and --tgba are incompatible");
       type = spot::postprocessor::TGBA;
       break;
@@ -432,129 +418,15 @@ parse_opt(int key, char* arg, struct argp_state*)
 
 namespace
 {
-  /// \brief prints various statistics about a TGBA
-  ///
-  /// This object can be configured to display various statistics
-  /// about a TGBA.  Some %-sequence of characters are interpreted in
-  /// the format string, and replaced by the corresponding statistics.
-  class hoa_stat_printer: protected spot::stat_printer
-  {
-  public:
-    hoa_stat_printer(std::ostream& os, const char* format)
-      : spot::stat_printer(os, format)
-    {
-      declare('A', &haut_acc_);
-      declare('C', &haut_scc_);
-      declare('E', &haut_edges_);
-      declare('F', &filename_);
-      declare('f', &filename_);	// Override the formula printer.
-      declare('L', &haut_loc_);
-      declare('M', &haut_name_);
-      declare('m', &aut_name_);
-      declare('S', &haut_states_);
-      declare('T', &haut_trans_);
-      declare('w', &aut_word_);
-    }
-
-    /// \brief print the configured statistics.
-    ///
-    /// The \a f argument is not needed if the Formula does not need
-    /// to be output.
-    std::ostream&
-    print(const spot::const_hoa_aut_ptr& haut,
-	  const spot::const_tgba_digraph_ptr& aut,
-	  const char* filename, double run_time)
-    {
-      filename_ = filename;
-      haut_loc_ = haut->loc;
-
-      if (has('T'))
-	{
-	  spot::tgba_sub_statistics s = sub_stats_reachable(haut->aut);
-	  haut_states_ = s.states;
-	  haut_edges_ = s.transitions;
-	  haut_trans_ = s.sub_transitions;
-	}
-      else if (has('E'))
-	{
-	  spot::tgba_sub_statistics s = sub_stats_reachable(haut->aut);
-	  haut_states_ = s.states;
-	  haut_edges_ = s.transitions;
-	}
-      if (has('M'))
-	{
-	  auto n = haut->aut->get_named_prop<std::string>("automaton-name");
-	  if (n)
-	    haut_name_ = *n;
-	  else
-	    haut_name_.val().clear();
-	}
-      if (has('m'))
-	{
-	  auto n = aut->get_named_prop<std::string>("automaton-name");
-	  if (n)
-	    aut_name_ = *n;
-	  else
-	    aut_name_.val().clear();
-	}
-      if (has('S'))
-	{
-	  haut_states_ = haut->aut->num_states();
-	}
-
-      if (has('A'))
-	haut_acc_ = haut->aut->acc().num_sets();
-
-      if (has('C'))
-	haut_scc_ = spot::scc_info(haut->aut).scc_count();
-
-      if (has('w'))
-	{
-	  auto res = spot::couvreur99(aut)->check();
-	  if (res)
-	    {
-	      auto run = res->accepting_run();
-	      assert(run);
-	      run = reduce_run(aut, run);
-	      spot::tgba_word w(run);
-	      w.simplify();
-	      std::ostringstream out;
-	      w.print(out, aut->get_dict());
-	      aut_word_ = out.str();
-	    }
-	  else
-	    {
-	      aut_word_.val().clear();
-	    }
-	}
-
-      return this->spot::stat_printer::print(aut, 0, run_time);
-    }
-
-  private:
-    spot::printable_value<const char*> filename_;
-    spot::printable_value<std::string> haut_name_;
-    spot::printable_value<std::string> aut_name_;
-    spot::printable_value<std::string> aut_word_;
-    spot::printable_value<unsigned> haut_states_;
-    spot::printable_value<unsigned> haut_edges_;
-    spot::printable_value<unsigned> haut_trans_;
-    spot::printable_value<unsigned> haut_acc_;
-    spot::printable_value<unsigned> haut_scc_;
-    spot::printable_value<spot::location> haut_loc_;
-  };
-
   class hoa_processor: public job_processor
   {
   private:
     spot::postprocessor& post;
-    hoa_stat_printer statistics;
-    std::ostringstream name;
-    hoa_stat_printer namer;
+    automaton_printer printer;
   public:
 
     hoa_processor(spot::postprocessor& post)
-      : post(post), statistics(std::cout, stats), namer(name, opt_name)
+      : post(post), printer(stats)
     {
     }
 
@@ -574,7 +446,7 @@ namespace
       // If --stats or --name is used, duplicate the automaton so we
       // never modify the original automaton (e.g. with
       // merge_transitions()) and the statistics about it make sense.
-      auto aut = ((format == Stats) || opt_name)
+      auto aut = ((automaton_format == Stats) || opt_name)
 	? spot::make_tgba_digraph(haut->aut, spot::tgba::prop_set::all())
 	: haut->aut;
 
@@ -630,47 +502,7 @@ namespace
 
       const double conversion_time = sw.stop();
 
-      // Name the output automaton.
-      if (opt_name)
-	{
-	  name.str("");
-	  namer.print(haut, aut, filename, conversion_time);
-	  aut->set_named_prop("automaton-name", new std::string(name.str()));
-	}
-
-      // Output it.
-      switch (format)
-	{
-	case Count:
-	case Quiet:
-	  // Do not output anything.
-	  break;
-	case Dot:
-	  spot::dotty_reachable(std::cout, aut,
-				(type == spot::postprocessor::BA)
-				|| (type == spot::postprocessor::Monitor),
-				opt_dot);
-	  break;
-	case Lbtt:
-	  spot::lbtt_reachable(std::cout, aut, type == spot::postprocessor::BA);
-	  break;
-	case Lbtt_t:
-	  spot::lbtt_reachable(std::cout, aut, false);
-	  break;
-	case Hoa:
-	  spot::hoa_reachable(std::cout, aut, hoa_opt) << '\n';
-	  break;
-	case Spot:
-	  spot::tgba_save_reachable(std::cout, aut);
-	  break;
-	case Spin:
-	  spot::never_claim_reachable(std::cout, aut);
-	  break;
-	case Stats:
-	  statistics.print(haut, aut, filename, conversion_time) << '\n';
-	  break;
-	}
-      flush_cout();
+      printer.print(aut, filename, conversion_time, haut);
 
       if (opt_max_count >= 0 && match_count >= opt_max_count)
 	abort_run = true;
@@ -758,7 +590,7 @@ main(int argc, char** argv)
       error(2, 0, "%s", e.what());
     }
 
-  if (format == Count)
+  if (automaton_format == Count)
     std::cout << match_count << std::endl;
   return !match_count;
 }
