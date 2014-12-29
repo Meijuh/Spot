@@ -163,7 +163,7 @@ static const argp_option options[] =
     { 0, 0, 0, 0, "Filters:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
-    { "uniq", 'u', 0, 0,
+    { "unique", 'u', 0, 0,
       "do not output the same automaton twice (same in the sense that they "\
       "are isomorphic)", 0 },
     { "isomorphic", 0, 0, OPTION_ALIAS | OPTION_HIDDEN, 0, 0 },

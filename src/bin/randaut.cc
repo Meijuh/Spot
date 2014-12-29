@@ -82,7 +82,7 @@ static const argp_option options[] =
     { "density", 'd', "FLOAT", 0, "density of the transitions (0.2)", 0 },
     { "deterministic", 'D', 0, 0, "build a complete, deterministic automaton ",
       0 },
-    { "uniq", 'u', 0, 0,
+    { "unique", 'u', 0, 0,
       "do not output the same automaton twice (same in the sense that they "\
       "are isomorphic)", 0 },
     { "seed", OPT_SEED, "INT", 0,
