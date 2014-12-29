@@ -33,3 +33,21 @@ cat aut1 aut2 > aut
 cat aut1 aut2 rand11 rand12 rand13 rand21 rand22 rand23 > all
 ../../bin/autfilt all --uniq --hoa > out
 diff aut out
+
+
+run 0 ../../bin/randaut -Hl -u -n 4 -S1 a b | sort |
+      ../../bin/autfilt -H | grep '&' > out
+cat >expected <<EOF
+[!0&!1] 0
+[!0&1] 0
+[0&!1] 0
+[0&1] 0
+EOF
+diff out expected
+
+# This should fail: the random automaton generator can only generate 4
+# different one-state automaton with two atomic propositions.
+../../bin/randaut -Hl -u -n 5 -S1 a b >out 2>stderr && exit 1
+test $? = 2
+grep 'failed to generate a new unique automaton' stderr
+test 4 = `wc -l < out`

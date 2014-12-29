@@ -67,7 +67,6 @@ states, 1 to 3 acceptance sets, and three atomic propositions:\n\
 #define OPT_LBTT 3
 #define OPT_SEED 4
 #define OPT_STATE_ACC 5
-#define OPT_UNIQ 6
 
 static const argp_option options[] =
   {
@@ -83,7 +82,7 @@ static const argp_option options[] =
     { "density", 'd', "FLOAT", 0, "density of the transitions (0.2)", 0 },
     { "deterministic", 'D', 0, 0, "build a complete, deterministic automaton ",
       0 },
-    { "uniq", OPT_UNIQ, 0, 0,
+    { "uniq", 'u', 0, 0,
       "do not output the same automaton twice (same in the sense that they "\
       "are isomorphic)", 0 },
     { "seed", OPT_SEED, "INT", 0,
@@ -212,6 +211,10 @@ parse_opt(int key, char* arg, struct argp_state* as)
       if (opt_states.min > opt_states.max)
 	std::swap(opt_states.min, opt_states.max);
       break;
+    case 'u':
+      opt_uniq =
+        std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
+      break;
     case OPT_DOT:
       format = Dot;
       opt_dot = arg;
@@ -235,9 +238,6 @@ parse_opt(int key, char* arg, struct argp_state* as)
     case OPT_STATE_ACC:
       opt_state_acc = true;
       break;
-    case OPT_UNIQ:
-      opt_uniq =
-        std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
     case ARGP_KEY_ARG:
       // If this is the unique non-option argument, it can
       // be a number of atomic propositions to build.
@@ -294,7 +294,10 @@ main(int argc, char** argv)
   spot::srand(opt_seed);
   auto d = spot::make_bdd_dict();
 
-  while (opt_automata < 0 || opt_automata--)
+  constexpr unsigned max_trials = 10000;
+  unsigned trials = max_trials;
+
+  while (opt_automata)
     {
       int size = opt_states.min;
       if (size != opt_states.max)
@@ -316,9 +319,19 @@ main(int argc, char** argv)
 						 spot::tgba::prop_set::all()));
           std::vector<tr_t> trans(tmp->transition_vector().begin() + 1,
                                   tmp->transition_vector().end());
-          if (opt_uniq->emplace(trans).second)
-            return 0;
+          if (!opt_uniq->emplace(trans).second)
+	    {
+	      --trials;
+	      if (trials == 0)
+		error(2, 0, "failed to generate a new unique automaton"
+		      " after %d trials", max_trials);
+	      continue;
+	    }
+	  trials = max_trials;
         }
+
+      if (opt_automata > 0)
+	--opt_automata;
 
       bool is_ba = accs == 0 || (accs == 1 && opt_state_acc);
 

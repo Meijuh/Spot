@@ -77,7 +77,6 @@ Exit status:\n\
 #define OPT_DESTUT 22
 #define OPT_INSTUT 23
 #define OPT_IS_EMPTY 24
-#define OPT_UNIQ 25
 
 static const argp_option options[] =
   {
@@ -164,7 +163,7 @@ static const argp_option options[] =
     { 0, 0, 0, 0, "Filters:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
-    { "uniq", OPT_UNIQ, 0, 0,
+    { "uniq", 'u', 0, 0,
       "do not output the same automaton twice (same in the sense that they "\
       "are isomorphic)", 0 },
     { "isomorphic", 0, 0, OPTION_ALIAS | OPTION_HIDDEN, 0, 0 },
@@ -278,6 +277,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       automaton_format = Spin;
       if (type != spot::postprocessor::Monitor)
 	type = spot::postprocessor::BA;
+      break;
+    case 'u':
+      opt_uniq =
+        std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
       break;
     case 'v':
       opt_invert = true;
@@ -401,10 +404,6 @@ parse_opt(int key, char* arg, struct argp_state*)
 	error(2, 0, "--spin and --tgba are incompatible");
       type = spot::postprocessor::TGBA;
       break;
-    case OPT_UNIQ:
-      opt_uniq =
-        std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
-      break;
     case ARGP_KEY_ARG:
       jobs.emplace_back(arg, true);
       break;
@@ -470,14 +469,6 @@ namespace
         matched &= isomorphism_checker->is_isomorphic(aut);
       if (opt_is_empty)
 	matched &= aut->is_empty();
-      if (opt_uniq)
-        {
-          auto tmp =
-	    spot::canonicalize(make_tgba_digraph(aut,
-						 spot::tgba::prop_set::all()));
-          matched = opt_uniq->emplace(tmp->transition_vector().begin() + 1,
-                                      tmp->transition_vector().end()).second;
-        }
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)
@@ -501,6 +492,16 @@ namespace
 	spot::randomize(aut, randomize_st, randomize_tr);
 
       const double conversion_time = sw.stop();
+
+      if (opt_uniq)
+        {
+          auto tmp =
+	    spot::canonicalize(make_tgba_digraph(aut,
+						 spot::tgba::prop_set::all()));
+          if (!opt_uniq->emplace(tmp->transition_vector().begin() + 1,
+				 tmp->transition_vector().end()).second)
+	    return 0;
+        }
 
       printer.print(aut, filename, conversion_time, haut);
 
