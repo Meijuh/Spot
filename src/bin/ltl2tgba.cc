@@ -76,7 +76,7 @@ static const argp_option options[] =
       "GraphViz's format (default).  Add letters to chose (c) circular nodes, "
       "(h) horizontal layout, (v) vertical layout, (n) with name, "
       "(N) without name, (t) always transition-based acceptance.", 0 },
-    { "hoa", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
+    { "hoaf", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format.  Add letters to select "
       "(s) state-based acceptance, (t) transition-based acceptance, "
       "(m) mixed acceptance, (l) single-line output", 0 },
