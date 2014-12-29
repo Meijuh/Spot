@@ -64,3 +64,5 @@ ltlgrind_SOURCES = ltlgrind.cc
 dstar2tgba_SOURCES = dstar2tgba.cc
 spot_x_SOURCES = spot-x.cc
 ltlcross_LDADD = $(LDADD) $(LIB_GETHRXTIME)
+
+EXTRA_DIST = options.py
