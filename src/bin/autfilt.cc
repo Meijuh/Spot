@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -39,7 +39,6 @@
 #include "tgbaalgos/isdet.hh"
 #include "tgbaalgos/stutterize.hh"
 #include "tgbaalgos/closure.hh"
-#include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
 #include "misc/random.hh"
@@ -58,25 +57,20 @@ Exit status:\n\
 
 
 #define OPT_TGBA 1
-#define OPT_DOT 2
-#define OPT_LBTT 3
-#define OPT_SPOT 4
-#define OPT_STATS 5
-#define OPT_RANDOMIZE 6
-#define OPT_SEED 7
-#define OPT_PRODUCT 8
-#define OPT_MERGE 9
-#define OPT_ARE_ISOMORPHIC 10
-#define OPT_IS_COMPLETE 11
-#define OPT_IS_DETERMINISTIC 12
-#define OPT_STATES 17
-#define OPT_COUNT 18
-#define OPT_NAME 19
-#define OPT_EDGES 20
-#define OPT_ACC_SETS 21
-#define OPT_DESTUT 22
-#define OPT_INSTUT 23
-#define OPT_IS_EMPTY 24
+#define OPT_RANDOMIZE 2
+#define OPT_SEED 3
+#define OPT_PRODUCT 4
+#define OPT_MERGE 5
+#define OPT_ARE_ISOMORPHIC 6
+#define OPT_IS_COMPLETE 7
+#define OPT_IS_DETERMINISTIC 8
+#define OPT_STATES 9
+#define OPT_COUNT 10
+#define OPT_EDGES 11
+#define OPT_ACC_SETS 12
+#define OPT_DESTUT 13
+#define OPT_INSTUT 14
+#define OPT_IS_EMPTY 15
 
 static const argp_option options[] =
   {
@@ -92,62 +86,8 @@ static const argp_option options[] =
     { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
       "of the given property)", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Output format:", 3 },
-    { "count", 'c', 0, 0, "print only a count of matched automata", 0 },
-    { "dot", OPT_DOT, "c|h|n|N|t|v", OPTION_ARG_OPTIONAL,
-      "GraphViz's format (default).  Add letters to chose (c) circular nodes, "
-      "(h) horizontal layout, (v) vertical layout, (n) with name, "
-      "(N) without name, (t) always transition-based acceptance.", 0 },
-    { "hoaf", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
-      "Output the automaton in HOA format.  Add letters to select "
-      "(s) state-based acceptance, (t) transition-based acceptance, "
-      "(m) mixed acceptance, (l) single-line output", 0 },
-    { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
-      "LBTT's format (add =t to force transition-based acceptance even"
-      " on Büchi automata)", 0 },
-    { "max-count", 'n', "NUM", 0,
-      "output at most NUM automata", 0 },
-    { "name", OPT_NAME, "FORMAT", OPTION_ARG_OPTIONAL,
-      "set the name of the output automaton (default: %M)", 0 },
-    { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
-    { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
-    { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
-    { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
-      "(ignored with --lbtt or --spin)", 0 },
-    { "stats", OPT_STATS, "FORMAT", 0,
-      "output statistics about the automaton", 0 },
-    /**************************************************/
-    { 0, 0, 0, 0, "The FORMAT string passed to --stats may use "\
-      "the following interpreted sequences (capitals for input,"
-      " minuscules for output):", 4 },
-    { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "name of the input file", 0 },
-    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "location in the input file", 0 },
-    { "%M, %m", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "name of the automaton (as specified in the HOA format)", 0 },
-    { "%S, %s", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of states", 0 },
-    { "%E, %e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of edges", 0 },
-    { "%T, %t", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of transitions", 0 },
-    { "%A, %a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of acceptance pairs or sets", 0 },
-    { "%C, %c", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of SCCs", 0 },
-    { "%n", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of nondeterministic states in output", 0 },
-    { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "1 if the output is deterministic, 0 otherwise", 0 },
-    { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "1 if the output is complete, 0 otherwise", 0 },
-    { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "processing time (excluding parsing) in seconds", 0 },
-    { "%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "one word accepted by the output automaton", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "a single %", 0 },
+    { "count", 'c', 0, 0, "print only a count of matched automata", 3 },
+    { "max-count", 'n', "NUM", 0, "output at most NUM automata", 3 },
     /**************************************************/
     { 0, 0, 0, 0, "Transformations:", 5 },
     { "merge-transitions", OPT_MERGE, 0, 0,
@@ -192,6 +132,8 @@ static const argp_option options[] =
 
 static const struct argp_child children[] =
   {
+    { &aoutput_argp, 0, 0, 0 },
+    { &aoutput_io_format_argp, 0, 0, 4 },
     { &post_argp_disabled, 0, 0, 20 },
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
@@ -200,7 +142,6 @@ static const struct argp_child children[] =
 typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static long int match_count = 0;
-static const char* stats = "";
 static spot::option_map extra_options;
 static bool randomize_st = false;
 static bool randomize_tr = false;
@@ -248,9 +189,6 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case '8':
-      spot::enable_utf8();
-      break;
     case 'B':
       type = spot::postprocessor::BA;
       break;
@@ -260,23 +198,11 @@ parse_opt(int key, char* arg, struct argp_state*)
     case 'F':
       jobs.emplace_back(arg, true);
       break;
-    case 'H':
-      automaton_format = Hoa;
-      hoa_opt = arg;
-      break;
     case 'M':
       type = spot::postprocessor::Monitor;
       break;
     case 'n':
       opt_max_count = to_pos_int(arg);
-      break;
-    case 'q':
-      automaton_format = Quiet;
-      break;
-    case 's':
-      automaton_format = Spin;
-      if (type != spot::postprocessor::Monitor)
-	type = spot::postprocessor::BA;
       break;
     case 'u':
       opt_uniq =
@@ -305,10 +231,6 @@ parse_opt(int key, char* arg, struct argp_state*)
         opt_are_isomorphic = std::move(p->aut);
 	break;
       }
-    case OPT_DOT:
-      automaton_format = Dot;
-      opt_dot = arg;
-      break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
@@ -327,24 +249,6 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_IS_EMPTY:
       opt_is_empty = true;
       break;
-    case OPT_LBTT:
-      if (arg)
-	{
-	  if (arg[0] == 't' && arg[1] == 0)
-	    automaton_format = Lbtt_t;
-	  else
-	    error(2, 0, "unknown argument for --lbtt: '%s'", arg);
-	}
-      else
-	{
-	  automaton_format = Lbtt;
-	}
-      break;
-    case OPT_NAME:
-      if (arg)
-	opt_name = arg;
-      else
-	opt_name = "%M";
     case OPT_MERGE:
       opt_merge = true;
       break;
@@ -387,17 +291,8 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_SEED:
       opt_seed = to_int(arg);
       break;
-    case OPT_SPOT:
-      automaton_format = Spot;
-      break;
     case OPT_STATES:
       opt_states = parse_range(arg, 0, std::numeric_limits<int>::max());
-      break;
-    case OPT_STATS:
-      if (!*arg)
-	error(2, 0, "empty format string for --stats");
-      stats = arg;
-      automaton_format = Stats;
       break;
     case OPT_TGBA:
       if (automaton_format == Spin)
@@ -425,7 +320,7 @@ namespace
   public:
 
     hoa_processor(spot::postprocessor& post)
-      : post(post), printer(stats)
+      : post(post), printer(true)
     {
     }
 
@@ -503,7 +398,7 @@ namespace
 	    return 0;
         }
 
-      printer.print(aut, filename, conversion_time, haut);
+      printer.print(aut, filename, -1, conversion_time, haut);
 
       if (opt_max_count >= 0 && match_count >= opt_max_count)
 	abort_run = true;

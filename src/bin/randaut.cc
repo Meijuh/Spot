@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -30,15 +30,13 @@
 #include "common_setup.hh"
 #include "common_range.hh"
 #include "common_cout.hh"
+#include "common_aoutput.hh"
 
 #include "ltlenv/defaultenv.hh"
+#include "misc/timer.hh"
 #include "misc/random.hh"
 
 #include "tgba/bddprint.hh"
-#include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/lbtt.hh"
-#include "tgbaalgos/hoa.hh"
-#include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/randomgraph.hh"
 #include "tgbaalgos/canonicalize.hh"
 
@@ -62,11 +60,8 @@ states, 1 to 3 acceptance sets, and three atomic propositions:\n\
   % randaut -n 3 --hoa -S5..10 -A1..3 3\n\
 ";
 
-#define OPT_TGBA 1
-#define OPT_DOT 2
-#define OPT_LBTT 3
-#define OPT_SEED 4
-#define OPT_STATE_ACC 5
+#define OPT_SEED 1
+#define OPT_STATE_ACC 2
 
 static const argp_option options[] =
   {
@@ -91,39 +86,25 @@ static const argp_option options[] =
     { "state-acc", OPT_STATE_ACC, 0, 0, "use state-based acceptance", 0 },
     RANGE_DOC,
     /**************************************************/
-    { 0, 0, 0, 0, "Output format:", 3 },
-    { "dot", OPT_DOT, "c|h|n|N|t|v", OPTION_ARG_OPTIONAL,
-      "GraphViz's format (default).  Add letters to chose (c) circular nodes, "
-      "(h) horizontal layout, (v) vertical layout, (n) with name, "
-      "(N) without name, (t) always transition-based acceptance.", 0 },
-    { "hoaf", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
-      "Output the automaton in HOA format.  Add letters to select "
-      "(s) state-based acceptance, (t) transition-based acceptance, "
-      "(m) mixed acceptance, (l) single-line output", 0 },
-    { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
-      "LBTT's format (add =t to force transition-based acceptance even"
-      " on Büchi automata)", 0 },
-    { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
-    { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
-      "(ignored with --lbtt or --spin)", 0 },
+    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
 
 static const struct argp_child children[] =
   {
+    { &aoutput_argp, 0, 0, 3 },
+    { &aoutput_o_format_argp, 0, 0, 4 },
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
   };
 
 typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
-static enum output_format { Dot, Lbtt, Lbtt_t, Spin, Hoa } format = Dot;
-const char* opt_dot = nullptr;
-static const char* hoa_opt = 0;
 static spot::ltl::atomic_prop_set aprops;
 static bool ap_count_given = false;
 static int opt_seed = 0;
+static const char* opt_seed_str = "0";
 static int opt_automata = 1;
 static range opt_states = { 10, 10 };
 static float opt_density = 0.2;
@@ -195,16 +176,8 @@ parse_opt(int key, char* arg, struct argp_state* as)
     case 'D':
       opt_deterministic = true;
       break;
-    case 'H':
-      format = Hoa;
-      hoa_opt = arg;
-      break;
     case 'n':
       opt_automata = to_int(arg);
-      break;
-    case 's':
-      format = Spin;
-      ba_options();
       break;
     case 'S':
       opt_states = parse_range(arg);
@@ -215,25 +188,9 @@ parse_opt(int key, char* arg, struct argp_state* as)
       opt_uniq =
         std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
       break;
-    case OPT_DOT:
-      format = Dot;
-      opt_dot = arg;
-      break;
-    case OPT_LBTT:
-      if (arg)
-	{
-	  if (arg[0] == 't' && arg[1] == 0)
-	    format = Lbtt_t;
-	  else
-	    error(2, 0, "unknown argument for --lbtt: '%s'", arg);
-	}
-      else
-	{
-	  format = Lbtt;
-	}
-      break;
     case OPT_SEED:
       opt_seed = to_int(arg);
+      opt_seed_str = arg;
       break;
     case OPT_STATE_ACC:
       opt_state_acc = true;
@@ -270,6 +227,8 @@ parse_opt(int key, char* arg, struct argp_state* as)
 int
 main(int argc, char** argv)
 {
+  strcpy(F_doc, "seed number");
+  strcpy(L_doc, "automaton number");
   setup(argv);
 
   const argp ap = { options, parse_opt, "N|PROP...", argp_program_doc,
@@ -284,7 +243,7 @@ main(int argc, char** argv)
     error(2, 0, "No atomic proposition supplied?   Run '%s --help' for usage.",
 	  program_name);
 
-  if (format == Spin && opt_acc_sets.max > 1)
+  if (automaton_format == Spin && opt_acc_sets.max > 1)
     error(2, 0, "--spin is incompatible with --acc-sets=%d..%d",
 	  opt_acc_sets.min, opt_acc_sets.max);
   if (ba_wanted && opt_acc_sets.min != 1 && opt_acc_sets.max != 1)
@@ -294,11 +253,18 @@ main(int argc, char** argv)
   spot::srand(opt_seed);
   auto d = spot::make_bdd_dict();
 
+  automaton_printer printer;
+
   constexpr unsigned max_trials = 10000;
   unsigned trials = max_trials;
 
-  while (opt_automata)
+  int automaton_num = 0;
+
+  for (;;)
     {
+      spot::stopwatch sw;
+      sw.start();
+
       int size = opt_states.min;
       if (size != opt_states.max)
 	size = spot::rrand(size, opt_states.max);
@@ -330,30 +296,13 @@ main(int argc, char** argv)
 	  trials = max_trials;
         }
 
-      if (opt_automata > 0)
-	--opt_automata;
+      auto runtime = sw.stop();
 
-      bool is_ba = accs == 0 || (accs == 1 && opt_state_acc);
+      printer.print(aut, opt_seed_str, automaton_num, runtime, nullptr);
 
-      switch (format)
-	{
-	case Dot:
-	  spot::dotty_reachable(std::cout, aut, is_ba, opt_dot);
-	  break;
-	case Lbtt:
-	  spot::lbtt_reachable(std::cout, aut, is_ba);
-	  break;
-	case Lbtt_t:
-	  spot::lbtt_reachable(std::cout, aut, false);
-	  break;
-	case Hoa:
-	  spot::hoa_reachable(std::cout, aut, hoa_opt) << '\n';
-	  break;
-	case Spin:
-	  spot::never_claim_reachable(std::cout, aut);
-	  break;
-	}
-      flush_cout();
-    }
+      ++automaton_num;
+      if (opt_automata > 0 && automaton_num >= opt_automata)
+	break;
+   }
   spot::ltl::destroy_atomic_prop_set(aprops);
 }

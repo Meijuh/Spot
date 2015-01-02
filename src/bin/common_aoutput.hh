@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -49,12 +49,21 @@ enum automaton_format_t {
 
 // The format to use in output_automaton()
 extern automaton_format_t automaton_format;
-// Any option to pass to Dot
-extern const char* opt_dot;
-// Options to pass to the HOA printer
-extern const char* hoa_opt;
-// How to name the automaton
+// Set to the argument of --name, else nullptr.
 extern const char* opt_name;
+// Output options
+extern const struct argp aoutput_argp;
+
+// help text for %F and %L
+extern char F_doc[32];
+extern char L_doc[32];
+
+// FORMAT help text
+extern const struct argp aoutput_io_format_argp;
+extern const struct argp aoutput_o_format_argp;
+
+// Parse output options
+int parse_opt_aoutput(int key, char* arg, struct argp_state* state);
 
 /// \brief prints various statistics about a TGBA
 ///
@@ -64,19 +73,23 @@ extern const char* opt_name;
 class hoa_stat_printer: protected spot::stat_printer
 {
 public:
-  hoa_stat_printer(std::ostream& os, const char* format)
+  hoa_stat_printer(std::ostream& os, const char* format,
+		   bool has_input = false)
     : spot::stat_printer(os, format)
   {
-    declare('A', &haut_acc_);
-    declare('C', &haut_scc_);
-    declare('E', &haut_edges_);
+    if (has_input)
+      {
+	declare('A', &haut_acc_);
+	declare('C', &haut_scc_);
+	declare('E', &haut_edges_);
+	declare('M', &haut_name_);
+	declare('S', &haut_states_);
+	declare('T', &haut_trans_);
+      }
     declare('F', &filename_);
+    declare('L', &location_);
     declare('f', &filename_);	// Override the formula printer.
-    declare('L', &haut_loc_);
-    declare('M', &haut_name_);
     declare('m', &aut_name_);
-    declare('S', &haut_states_);
-    declare('T', &haut_trans_);
     declare('w', &aut_word_);
   }
 
@@ -87,32 +100,55 @@ public:
   std::ostream&
   print(const spot::const_hoa_aut_ptr& haut,
 	const spot::const_tgba_digraph_ptr& aut,
-	const char* filename, double run_time)
+	const char* filename, int loc, double run_time)
   {
     filename_ = filename;
-    haut_loc_ = haut->loc;
+    if (loc >= 0 && has('L'))
+      {
+	std::ostringstream os;
+	os << loc;
+	location_ = os.str();
+      }
+    if (haut)
+      {
+	if (loc < 0 && has('L'))
+	  {
+	    std::ostringstream os;
+	    os << haut->loc;
+	    location_ = os.str();
+	  }
 
-    if (has('T'))
-	{
-	  spot::tgba_sub_statistics s = sub_stats_reachable(haut->aut);
-	  haut_states_ = s.states;
-	  haut_edges_ = s.transitions;
-	  haut_trans_ = s.sub_transitions;
-	}
-    else if (has('E'))
-	{
-	  spot::tgba_sub_statistics s = sub_stats_reachable(haut->aut);
-	  haut_states_ = s.states;
-	  haut_edges_ = s.transitions;
-	}
-    if (has('M'))
-	{
-	  auto n = haut->aut->get_named_prop<std::string>("automaton-name");
-	  if (n)
-	    haut_name_ = *n;
-	  else
-	    haut_name_.val().clear();
-	}
+	if (has('T'))
+	  {
+	    spot::tgba_sub_statistics s = sub_stats_reachable(haut->aut);
+	    haut_states_ = s.states;
+	    haut_edges_ = s.transitions;
+	    haut_trans_ = s.sub_transitions;
+	  }
+	else if (has('E'))
+	  {
+	    spot::tgba_sub_statistics s = sub_stats_reachable(haut->aut);
+	    haut_states_ = s.states;
+	    haut_edges_ = s.transitions;
+	  }
+	if (has('M'))
+	  {
+	    auto n = haut->aut->get_named_prop<std::string>("automaton-name");
+	    if (n)
+	      haut_name_ = *n;
+	    else
+	      haut_name_.val().clear();
+	  }
+	if (has('S'))
+	  haut_states_ = haut->aut->num_states();
+
+	if (has('A'))
+	  haut_acc_ = haut->aut->acc().num_sets();
+
+	if (has('C'))
+	  haut_scc_ = spot::scc_info(haut->aut).scc_count();
+      }
+
     if (has('m'))
 	{
 	  auto n = aut->get_named_prop<std::string>("automaton-name");
@@ -121,17 +157,6 @@ public:
 	  else
 	    aut_name_.val().clear();
 	}
-    if (has('S'))
-	{
-	  haut_states_ = haut->aut->num_states();
-	}
-
-    if (has('A'))
-	haut_acc_ = haut->aut->acc().num_sets();
-
-    if (has('C'))
-	haut_scc_ = spot::scc_info(haut->aut).scc_count();
-
     if (has('w'))
 	{
 	  auto res = spot::couvreur99(aut)->check();
@@ -157,6 +182,7 @@ public:
 
 private:
   spot::printable_value<const char*> filename_;
+  spot::printable_value<std::string> location_;
   spot::printable_value<std::string> haut_name_;
   spot::printable_value<std::string> aut_name_;
   spot::printable_value<std::string> aut_word_;
@@ -165,7 +191,6 @@ private:
   spot::printable_value<unsigned> haut_trans_;
   spot::printable_value<unsigned> haut_acc_;
   spot::printable_value<unsigned> haut_scc_;
-  spot::printable_value<spot::location> haut_loc_;
 };
 
 
@@ -177,15 +202,13 @@ class automaton_printer
 
 public:
 
-  automaton_printer(const char* stats)
-    : statistics(std::cout, stats), namer(name, opt_name)
-  {
-  }
+  automaton_printer(bool has_input = false);
 
   void
   print(const spot::tgba_digraph_ptr& aut,
 	// Input location for errors and statistics.
 	const char* filename = nullptr,
+	int loc = -1,
 	// Time and input automaton for statistics
 	double time = 0.0,
 	const spot::const_hoa_aut_ptr& haut = nullptr);
