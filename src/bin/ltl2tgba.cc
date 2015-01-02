@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -30,22 +30,16 @@
 #include "common_cout.hh"
 #include "common_finput.hh"
 #include "common_output.hh"
+#include "common_aoutput.hh"
 #include "common_post.hh"
 
 #include "ltlast/formula.hh"
 #include "ltlvisit/tostring.hh"
-#include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/lbtt.hh"
-#include "tgbaalgos/neverclaim.hh"
-#include "tgbaalgos/save.hh"
-#include "tgbaalgos/hoa.hh"
-#include "tgbaalgos/stats.hh"
 #include "tgbaalgos/translate.hh"
-#include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
 
-const char argp_program_doc[] ="\
+static const char argp_program_doc[] ="\
 Translate linear-time formulas (LTL/PSL) into Büchi automata.\n\n\
 By default it will apply all available optimizations to output \
 the smallest Transition-based Generalized Büchi Automata, \
@@ -53,11 +47,6 @@ in GraphViz's format.\n\
 If multiple formulas are supplied, several automata will be output.";
 
 #define OPT_TGBA 1
-#define OPT_DOT 2
-#define OPT_LBTT 3
-#define OPT_SPOT 4
-#define OPT_STATS 5
-#define OPT_CSV 6
 
 static const argp_option options[] =
   {
@@ -69,48 +58,8 @@ static const argp_option options[] =
     { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
       "of the given formula)", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Output format:", 3 },
-    { "csv-escape", OPT_CSV, 0, 0, "quote formula output by %f in --format "
-      "for use in CSV file", 0 },
-    { "dot", OPT_DOT, "c|h|n|N|t|v", OPTION_ARG_OPTIONAL,
-      "GraphViz's format (default).  Add letters to chose (c) circular nodes, "
-      "(h) horizontal layout, (v) vertical layout, (n) with name, "
-      "(N) without name, (t) always transition-based acceptance.", 0 },
-    { "hoaf", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
-      "Output the automaton in HOA format.  Add letters to select "
-      "(s) state-based acceptance, (t) transition-based acceptance, "
-      "(m) mixed acceptance, (l) single-line output", 0 },
-    { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
-      "LBTT's format (add =t to force transition-based acceptance even"
-      " on Büchi automata)", 0 },
-    { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
-    { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
-    { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
-      "(ignored with --lbtt or --spin)", 0 },
-    { "stats", OPT_STATS, "FORMAT", 0,
-      "output statistics about the automaton", 0 },
-    /**************************************************/
-    { 0, 0, 0, 0, "The FORMAT string passed to --stats may use "\
-      "the following interpreted sequences:", 4 },
     { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the formula, in Spot's syntax", 0 },
-    { "%s", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of states", 0 },
-    { "%e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of edges", 0 },
-    { "%t", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of transitions", 0 },
-    { "%a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of acceptance sets", 0 },
-    { "%c", 0, 0, OPTION_DOC | OPTION_NO_USAGE,	"number of SCCs", 0 },
-    { "%n", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of nondeterministic states", 0 },
-    { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "1 if the automaton is deterministic, 0 otherwise", 0 },
-    { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "1 if the automaton is complete, 0 otherwise", 0 },
-    { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "translation time (including pre- and post-processings, but not parsing)"
-      " in seconds", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "a single %", 0 },
+      "the formula, in Spot's syntax", 4 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
@@ -121,16 +70,14 @@ static const argp_option options[] =
 const struct argp_child children[] =
   {
     { &finput_argp, 0, 0, 1 },
+    { &aoutput_argp, 0, 0, 0 },
+    { &aoutput_o_format_argp, 0, 0, 0 },
     { &post_argp, 0, 0, 20 },
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
   };
 
-enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa } format = Dot;
-const char* opt_dot = nullptr;
-const char* stats = "";
-const char* hoa_opt = 0;
-spot::option_map extra_options;
+static spot::option_map extra_options;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -138,24 +85,11 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case '8':
-      spot::enable_utf8();
-      output_format = utf8_output;
-      break;
     case 'B':
       type = spot::postprocessor::BA;
       break;
-    case 'H':
-      format = Hoa;
-      hoa_opt = arg;
-      break;
     case 'M':
       type = spot::postprocessor::Monitor;
-      break;
-    case 's':
-      format = Spin;
-      if (type != spot::postprocessor::Monitor)
-	type = spot::postprocessor::BA;
       break;
     case 'x':
       {
@@ -164,37 +98,8 @@ parse_opt(int key, char* arg, struct argp_state*)
 	  error(2, 0, "failed to parse --options near '%s'", opt);
       }
       break;
-    case OPT_CSV:
-      escape_csv = true;
-      break;
-    case OPT_DOT:
-      format = Dot;
-      opt_dot = arg;
-      break;
-    case OPT_LBTT:
-      if (arg)
-	{
-	  if (arg[0] == 't' && arg[1] == 0)
-	    format = Lbtt_t;
-	  else
-	    error(2, 0, "unknown argument for --lbtt: '%s'", arg);
-	}
-      else
-	{
-	  format = Lbtt;
-	}
-      break;
-    case OPT_SPOT:
-      format = Spot;
-      break;
-    case OPT_STATS:
-      if (!*arg)
-	error(2, 0, "empty format string for --stats");
-      stats = arg;
-      format = Stats;
-      break;
     case OPT_TGBA:
-      if (format == Spin)
+      if (automaton_format == Spin)
 	error(2, 0, "--spin and --tgba are incompatible");
       type = spot::postprocessor::TGBA;
       break;
@@ -216,10 +121,10 @@ namespace
   {
   public:
     spot::translator& trans;
-    aut_stat_printer statistics;
+    automaton_printer printer;
 
     trans_processor(spot::translator& trans)
-      : trans(trans), statistics(std::cout, stats)
+      : trans(trans), printer(ltl_input)
     {
     }
 
@@ -227,11 +132,6 @@ namespace
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
-      spot::stopwatch sw;
-      sw.start();
-      auto aut = trans.run(&f);
-      const double translation_time = sw.stop();
-
       // This should not happen, because the parser we use can only
       // read PSL/LTL formula, but since our ltl::formula* type can
       // represent more than PSL formula, let's make this
@@ -244,35 +144,13 @@ namespace
 			s.c_str());
 	}
 
-      switch (format)
-	{
-	case Dot:
-	  spot::dotty_reachable(std::cout, aut,
-				(type == spot::postprocessor::BA)
-				|| (type == spot::postprocessor::Monitor),
-				opt_dot);
-	  break;
-	case Lbtt:
-	  spot::lbtt_reachable(std::cout, aut, type == spot::postprocessor::BA);
-	  break;
-	case Lbtt_t:
-	  spot::lbtt_reachable(std::cout, aut, false);
-	  break;
-	case Hoa:
-	  spot::hoa_reachable(std::cout, aut, hoa_opt, f) << '\n';
-	  break;
-	case Spot:
-	  spot::tgba_save_reachable(std::cout, aut);
-	  break;
-	case Spin:
-	  spot::never_claim_reachable(std::cout, aut, f);
-	  break;
-	case Stats:
-	  statistics.print(aut, f, translation_time) << '\n';
-	  break;
-	}
+      spot::stopwatch sw;
+      sw.start();
+      auto aut = trans.run(&f);
+      const double translation_time = sw.stop();
+
+      printer.print(aut, f, filename, linenum, translation_time, nullptr);
       f->destroy();
-      flush_cout();
       return 0;
     }
   };
@@ -281,6 +159,9 @@ namespace
 int
 main(int argc, char** argv)
 {
+  // By default we name automata using the formula.
+  opt_name = "%f";
+
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FORMULA...]",

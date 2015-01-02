@@ -298,7 +298,8 @@ main(int argc, char** argv)
 
       auto runtime = sw.stop();
 
-      printer.print(aut, opt_seed_str, automaton_num, runtime, nullptr);
+      printer.print(aut, nullptr,
+		    opt_seed_str, automaton_num, runtime, nullptr);
 
       ++automaton_num;
       if (opt_automata > 0 && automaton_num >= opt_automata)

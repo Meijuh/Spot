@@ -320,7 +320,7 @@ namespace
   public:
 
     hoa_processor(spot::postprocessor& post)
-      : post(post), printer(true)
+      : post(post), printer(aut_input)
     {
     }
 
@@ -398,7 +398,7 @@ namespace
 	    return 0;
         }
 
-      printer.print(aut, filename, -1, conversion_time, haut);
+      printer.print(aut, nullptr, filename, -1, conversion_time, haut);
 
       if (opt_max_count >= 0 && match_count >= opt_max_count)
 	abort_run = true;

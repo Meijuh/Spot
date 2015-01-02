@@ -59,8 +59,8 @@ static const argp_option options[] =
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
       "LBTT's format (add =t to force transition-based acceptance even"
       " on Büchi automata)", 0 },
-    { "name", OPT_NAME, "FORMAT", OPTION_ARG_OPTIONAL,
-      "set the name of the output automaton (default: %M)", 0 },
+    { "name", OPT_NAME, "FORMAT", 0,
+      "set the name of the output automaton", 0 },
     { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
     { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
     { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
@@ -105,7 +105,7 @@ static const argp_option io_options[] =
     { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the output is complete, 0 otherwise", 0 },
     { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "processing time (excluding any parsing) in seconds", 0 },
+      "processing time (excluding parsing) in seconds", 0 },
     { "%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the output automaton", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
@@ -137,7 +137,7 @@ static const argp_option o_options[] =
     { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the output is complete, 0 otherwise", 0 },
     { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "processing time (excluding any parsing) in seconds", 0 },
+      "processing time (excluding parsing) in seconds", 0 },
     { "%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the output automaton", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
@@ -185,10 +185,7 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
 	}
       break;
     case OPT_NAME:
-      if (arg)
-	opt_name = arg;
-      else
-	opt_name = "%M";
+      opt_name = arg;
       break;
     case OPT_SPOT:
       automaton_format = Spot;
@@ -207,14 +204,15 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
 
 
 
-automaton_printer::automaton_printer(bool has_input)
-  : statistics(std::cout, stats, has_input),
-    namer(name, opt_name, has_input)
+automaton_printer::automaton_printer(stat_style input)
+  : statistics(std::cout, stats, input),
+    namer(name, opt_name, input)
 {
 }
 
 void
 automaton_printer::print(const spot::tgba_digraph_ptr& aut,
+			 const spot::ltl::formula* f,
 			 // Input location for errors and statistics.
 			 const char* filename,
 			 int loc,
@@ -226,7 +224,7 @@ automaton_printer::print(const spot::tgba_digraph_ptr& aut,
   if (opt_name)
     {
       name.str("");
-      namer.print(haut, aut, filename, loc, time);
+      namer.print(haut, aut, f, filename, loc, time);
       aut->set_named_prop("automaton-name", new std::string(name.str()));
     }
 
@@ -259,7 +257,7 @@ automaton_printer::print(const spot::tgba_digraph_ptr& aut,
       spot::never_claim_reachable(std::cout, aut);
       break;
     case Stats:
-      statistics.print(haut, aut, filename, loc, time) << '\n';
+      statistics.print(haut, aut, f, filename, loc, time) << '\n';
       break;
     }
   flush_cout();

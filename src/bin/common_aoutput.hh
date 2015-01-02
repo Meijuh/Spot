@@ -65,6 +65,9 @@ extern const struct argp aoutput_o_format_argp;
 // Parse output options
 int parse_opt_aoutput(int key, char* arg, struct argp_state* state);
 
+
+enum stat_style { no_input, aut_input, ltl_input };
+
 /// \brief prints various statistics about a TGBA
 ///
 /// This object can be configured to display various statistics
@@ -74,10 +77,10 @@ class hoa_stat_printer: protected spot::stat_printer
 {
 public:
   hoa_stat_printer(std::ostream& os, const char* format,
-		   bool has_input = false)
+		   stat_style input = no_input)
     : spot::stat_printer(os, format)
   {
-    if (has_input)
+    if (input == aut_input)
       {
 	declare('A', &haut_acc_);
 	declare('C', &haut_scc_);
@@ -88,7 +91,8 @@ public:
       }
     declare('F', &filename_);
     declare('L', &location_);
-    declare('f', &filename_);	// Override the formula printer.
+    if (input != ltl_input)
+      declare('f', &filename_);	// Override the formula printer.
     declare('m', &aut_name_);
     declare('w', &aut_word_);
   }
@@ -100,6 +104,7 @@ public:
   std::ostream&
   print(const spot::const_hoa_aut_ptr& haut,
 	const spot::const_tgba_digraph_ptr& aut,
+	const spot::ltl::formula* f,
 	const char* filename, int loc, double run_time)
   {
     filename_ = filename;
@@ -177,7 +182,7 @@ public:
 	    }
 	}
 
-    return this->spot::stat_printer::print(aut, 0, run_time);
+    return this->spot::stat_printer::print(aut, f, run_time);
   }
 
 private:
@@ -202,10 +207,11 @@ class automaton_printer
 
 public:
 
-  automaton_printer(bool has_input = false);
+  automaton_printer(stat_style input = no_input);
 
   void
   print(const spot::tgba_digraph_ptr& aut,
+	const spot::ltl::formula* f = nullptr,
 	// Input location for errors and statistics.
 	const char* filename = nullptr,
 	int loc = -1,
