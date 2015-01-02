@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -30,7 +30,7 @@ display_version(FILE *stream, struct argp_state*)
   fputs(program_name, stream);
   fputs(" (" PACKAGE_STRING ")\n\
 \n\
-Copyright (C) 2014  Laboratoire de Recherche et Développement de l'Epita.\n\
+Copyright (C) 2015  Laboratoire de Recherche et Développement de l'Epita.\n\
 License GPLv3+: \
 GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n\
 This is free software: you are free to change and redistribute it.\n\
@@ -84,16 +84,16 @@ parse_opt_misc(int key, char*, struct argp_state* state)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case OPT_VERSION:
-      display_version(state->out_stream, state);
-      exit(0);
-      break;
     case OPT_HELP:
       argp_state_help(state, state->out_stream, ARGP_HELP_STD_HELP);
       break;
     case OPT_USAGE:
       argp_state_help(state, state->out_stream,
 		      ARGP_HELP_USAGE | ARGP_HELP_EXIT_OK);
+      break;
+    case OPT_VERSION:
+      display_version(state->out_stream, state);
+      exit(0);
       break;
     default:
       return ARGP_ERR_UNKNOWN;
