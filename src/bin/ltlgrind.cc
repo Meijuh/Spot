@@ -50,7 +50,7 @@ static const char * argp_program_doc =
   "List formulas that are similar to but simpler than a given formula.";
 
 static const argp_option options[] = {
-  {"mutations", 'm', "N", 0, "number of mutations to apply to the " \
+  {"mutations", 'm', "NUM", 0, "number of mutations to apply to the " \
    "formulae (default: 1)", -1},
   {"sort", OPT_SORT, 0, 0, "sort the result by formula size", 0},
   {0, 0, 0, 0, "Mutation rules (all enabled unless those options are used):",
@@ -77,7 +77,7 @@ static const argp_option options[] = {
    "on a bounded unary operator, decrement one of the bounds, or set min to " \
    "0 or max to unbounded", 15},
   {0, 0, 0, 0, "Output options:", 20},
-  {"max-output", 'n', "N", 0, "maximum number of mutations to output", 20},
+  {"max-count", 'n', "NUM", 0, "maximum number of mutations to output", 20},
   {0, 0, 0, 0, "Miscellaneous options:", -1},
   {0, 0, 0, 0, 0, 0}
 };
