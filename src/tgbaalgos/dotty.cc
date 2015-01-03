@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -30,6 +30,7 @@
 #include "misc/escape.hh"
 #include "tgba/tgbagraph.hh"
 #include "tgba/formula2bdd.hh"
+#include "tgbaalgos/sccinfo.hh"
 
 namespace spot
 {
@@ -43,6 +44,7 @@ namespace spot
       bool opt_name_ = true;
       bool opt_circles_ = false;
       bool mark_states_ = false;
+      bool opt_scc_ = false;
       const_tgba_digraph_ptr aut_;
 
     public:
@@ -65,6 +67,9 @@ namespace spot
 	      case 'N':
 		opt_name_ = false;
 	        break;
+	      case 's':
+		opt_scc_ = true;
+		break;
 	      case 'v':
 		opt_horizontal_ = false;
 		break;
@@ -128,11 +133,25 @@ namespace spot
       {
 	aut_ = aut;
 	mark_states_ = !opt_force_acc_trans_ && aut_->has_state_based_acc();
+	auto si =
+	  std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);
 	start();
+	if (si)
+	  {
+	    unsigned sccs = si->scc_count();
+	    for (unsigned i = 0; i < sccs; ++i)
+	      {
+		os_ << "  subgraph cluster_" << i << " {\n";
+		for (auto s: si->states_of(i))
+		  process_state(s);
+		os_ << "  }\n";
+	      }
+	  }
 	unsigned ns = aut_->num_states();
 	for (unsigned n = 0; n < ns; ++n)
 	  {
-	    process_state(n);
+	    if (!si)
+	      process_state(n);
 	    for (auto& t: aut_->out(n))
 	      process_link(t);
 	  }
