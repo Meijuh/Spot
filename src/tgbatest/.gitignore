@@ -1,6 +1,9 @@
+acc
 bddprod
+bitvect
 blue_counter
 checkpsl
+checkta
 complement
 defs
 .deps
@@ -28,6 +31,7 @@ output2
 powerset
 *.ps
 randtgba
+readsat
 readsave
 reduccmp
 reductgba

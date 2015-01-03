@@ -1,9 +1,13 @@
-ltlfilt
+autfilt
+dstar2tgba
+genltl
 ltl2tgba
 ltl2tgta
-randltl
-genltl
 ltlcross
+ltlfilt
+ltlgrind
+randaut
+randltl
 spot-x
 *.a
 *.1

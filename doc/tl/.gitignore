@@ -6,6 +6,7 @@
 tmp.t2d
 *.ilg
 *.ind
+*.fls
 *.fdb_latexmk
 auto
 _region_.tex

@@ -5,4 +5,5 @@
 *.tex
 *.pdf
 *.mk
+*.stamp
 auto/
