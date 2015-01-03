@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -46,7 +46,7 @@ namespace spot
     /// \brief Destroy all the atomic propositions in an
     /// atomic_prop_set.
     SPOT_API void
-    destroy_atomic_prop_set(atomic_prop_set& as);
+    destroy_atomic_prop_set(atomic_prop_set& aprops);
 
     /// \brief Return the set of atomic propositions occurring in a formula.
     ///
