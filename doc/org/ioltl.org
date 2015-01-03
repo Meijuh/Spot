@@ -3,8 +3,8 @@
 #+OPTIONS: H:2 num:nil toc:t
 #+LINK_UP: tools.html
 
-Spot supports different syntaxes for LTL/PSL formulas.  This pages
-document the options, common to all tools where it makes sense, that
+Spot supports different syntaxes for LTL/PSL formulas.  This page
+documents the options, common to all tools where it makes sense, that
 are used to specify input and output of formula.
 
 * Common input options
