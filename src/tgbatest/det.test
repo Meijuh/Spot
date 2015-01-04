@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -83,7 +83,7 @@ EOF
 # FIXME: we should improve this output
 cat >ex.hoa <<'EOF'
 HOA: v1
-States: 5
+States: 7
 Start: 0
 AP: 1 "a"
 acc-name: Buchi
@@ -93,21 +93,25 @@ properties: trans-labels explicit-labels state-acc
 State: 0
 [!0] 0
 [0] 1
-[!0] 2
+[!0] 3
 State: 1
 [!0] 0
-[0] 3
-[!0] 2
-State: 2 {0}
-[!0] 2
-State: 3
+[0] 2
+[!0] 3
+State: 2
 [!0] 0
-[0] 3
-[!0] 2
-[0] 4
+[0] 2
+[!0] 3
+[0] 5
+State: 3 {0}
+[!0] 3
 State: 4 {0}
-[!0] 2
-[0] 4
+[!0] 3
+State: 5 {0}
+[!0] 3
+[0] 5
+State: 6 {0}
+[t] 6
 --END--
 EOF
 

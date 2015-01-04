@@ -24,6 +24,7 @@
 #include <sstream>
 #include <map>
 #include "tgba/tgba.hh"
+#include "tgba/tgbagraph.hh"
 #include "hoa.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
@@ -36,7 +37,7 @@ namespace spot
 {
   namespace
   {
-    struct metadata
+    struct metadata final
     {
       // Assign a number to each atomic proposition.
       typedef std::map<int, unsigned> ap_map;
@@ -44,16 +45,8 @@ namespace spot
       typedef std::vector<int> vap_t;
       vap_t vap;
 
-      // Map each state to a number.
-      typedef std::unordered_map<const state*, unsigned,
-				 state_ptr_hash, state_ptr_equal> state_map;
-      state_map sm;
-      // Map each number to its states.
-      typedef std::vector<const state*> number_map;
-      number_map nm;
-
       std::vector<bool> common_acc;
-      bool state_acc;
+      bool has_state_acc;
       bool is_complete;
       bool is_deterministic;
 
@@ -62,22 +55,15 @@ namespace spot
       typedef std::map<bdd, std::string, bdd_less_than> sup_map;
       sup_map sup;
 
-      metadata(const const_tgba_ptr& aut)
-	: state_acc(true), is_complete(true), is_deterministic(true)
+      metadata(const const_tgba_digraph_ptr& aut)
       {
-	number_all_states_and_fill_sup(aut);
+	check_det_and_comp(aut);
 	number_all_ap();
-      }
-
-      ~metadata()
-      {
-	for (auto s: nm)
-	  s->destroy();
       }
 
       std::ostream&
       emit_acc(std::ostream& os,
-	       const const_tgba_ptr& aut,
+	       const const_tgba_digraph_ptr& aut,
 	       acc_cond::mark_t b)
       {
 	// FIXME: We could use a cache for this.
@@ -97,70 +83,54 @@ namespace spot
 	return os;
       }
 
-      void number_all_states_and_fill_sup(const const_tgba_ptr& aut)
+      void check_det_and_comp(const const_tgba_digraph_ptr& aut)
       {
 	std::string empty;
 
-	// Scan the whole automaton to number states.
-	std::deque<const state*> todo;
-
-	const state* init = aut->get_init_state();
-	sm[init] = 0;
-	nm.push_back(init);
-	todo.push_back(init);
-
-	while (!todo.empty())
+	unsigned ns = aut->num_states();
+	bool deterministic = true;
+	bool complete = true;
+	bool state_acc = true;
+	for (unsigned src = 0; src < ns; ++src)
 	  {
-	    auto src = todo.front();
-	    todo.pop_front();
-	    bool notfirst = false;
-	    acc_cond::mark_t prev = 0U;
-	    bool st_acc = true;
 	    bdd sum = bddfalse;
 	    bdd available = bddtrue;
-	    for (auto i: aut->succ(src))
+	    bool st_acc = true;
+	    bool notfirst = false;
+	    acc_cond::mark_t prev = 0U;
+	    for (auto& t: aut->out(src))
 	      {
-		const state* dst = i->current_state();
-		bdd cond = i->current_condition();
-		if (is_complete)
-		  sum |= cond;
-		if (is_deterministic)
+		if (complete)
+		  sum |= t.cond;
+		if (deterministic)
 		  {
-		    if (!bdd_implies(cond, available))
-		      is_deterministic = false;
+		    if (!bdd_implies(t.cond, available))
+		      deterministic = false;
 		    else
-		      available -= cond;
+		      available -= t.cond;
 		  }
-		sup.insert(std::make_pair(cond, empty));
-		if (sm.insert(std::make_pair(dst, nm.size())).second)
-		  {
-		    nm.push_back(dst);
-		    todo.push_back(dst);
-		  }
-		else
-		  {
-		    dst->destroy();
-		  }
+		sup.insert(std::make_pair(t.cond, empty));
 		if (st_acc)
 		  {
-		    acc_cond::mark_t acc = i->current_acceptance_conditions();
-		    if (notfirst && prev != acc)
+		    if (notfirst && prev != t.acc)
 		      {
 			st_acc = false;
 		      }
 		    else
 		      {
 			notfirst = true;
-			prev = acc;
+			prev = t.acc;
 		      }
 		  }
 	      }
-	    if (is_complete)
-	      is_complete &= sum == bddtrue;
-
+	    if (complete)
+	      complete &= sum == bddtrue;
 	    common_acc.push_back(st_acc);
 	    state_acc &= st_acc;
 	  }
+	is_deterministic = deterministic;
+	is_complete = complete;
+	has_state_acc = state_acc;
       }
 
       void number_all_ap()
@@ -240,21 +210,25 @@ namespace spot
       Hoa_Acceptance_Mixed    /// mix state-based and transition-based
     };
 
-  std::ostream&
+  static std::ostream&
   hoa_reachable(std::ostream& os,
-		const const_tgba_ptr& aut,
+		const const_tgba_digraph_ptr& aut,
 		hoa_acceptance acceptance,
 		hoa_alias alias,
 		bool newline)
   {
     (void) alias;
 
+    // Calling get_init_state_number() may add a state to empty
+    // automata, so it has to be done first.
+    unsigned init = aut->get_init_state_number();
+
     metadata md(aut);
 
-    if (acceptance == Hoa_Acceptance_States && !md.state_acc)
+    if (acceptance == Hoa_Acceptance_States && !md.has_state_acc)
       acceptance = Hoa_Acceptance_Transitions;
 
-    unsigned num_states = md.nm.size();
+    unsigned num_states = aut->num_states();
 
     const char nl = newline ? '\n' : ' ';
     os << "HOA: v1" << nl;
@@ -262,7 +236,7 @@ namespace spot
     if (n)
       escape_str(os << "name: \"", *n) << '"' << nl;
     os << "States: " << num_states << nl
-       << "Start: 0" << nl
+       << "Start: " << init << nl
        << "AP: " << md.vap.size();
     auto d = aut->get_dict();
     for (auto& i: md.vap)
@@ -311,24 +285,26 @@ namespace spot
 	  this_acc = (md.common_acc[i] ?
 		      Hoa_Acceptance_States : Hoa_Acceptance_Transitions);
 
-	tgba_succ_iterator* j = aut->succ_iter(md.nm[i]);
-	j->first();
-
 	os << "State: " << i;
-	if (this_acc == Hoa_Acceptance_States && !j->done())
-	  md.emit_acc(os, aut, j->current_acceptance_conditions());
+	if (this_acc == Hoa_Acceptance_States)
+	  {
+	    acc_cond::mark_t acc = 0U;
+	    for (auto& t: aut->out(i))
+	      {
+		acc = t.acc;
+		break;
+	      }
+	    md.emit_acc(os, aut, acc);
+	  }
 	os << nl;
 
-	for (; !j->done(); j->next())
+	for (auto& t: aut->out(i))
 	  {
-	    const state* dst = j->current_state();
-	    os << '[' << md.sup[j->current_condition()] << "] " << md.sm[dst];
+	    os << '[' << md.sup[t.cond] << "] " << t.dst;
 	    if (this_acc == Hoa_Acceptance_Transitions)
-	      md.emit_acc(os, aut, j->current_acceptance_conditions());
+	      md.emit_acc(os, aut, t.acc);
 	    os << nl;
-	    dst->destroy();
 	  }
-	aut->release_iter(j);
       }
     os << "--END--";		// No newline.  Let the caller decide.
     return os;
@@ -362,7 +338,12 @@ namespace spot
 	      break;
 	    }
 	}
-    return hoa_reachable(os, aut, acceptance, alias, newline);
+
+    auto a = std::dynamic_pointer_cast<const tgba_digraph>(aut);
+    if (!a)
+      a = make_tgba_digraph(aut, tgba::prop_set::all());
+
+    return hoa_reachable(os, a, acceptance, alias, newline);
   }
 
 }
