@@ -240,7 +240,8 @@ EOF
 
 diff expected stdout
 
-test "`../../bin/dstar2tgba -D dra.dstar --stats '%s %t %p %d'`" = "3 12 1 1"
+test "`../../bin/dstar2tgba --name=%F -D dra.dstar --stats '%s %t %p %d %m'`" \
+     = "3 12 1 1 dra.dstar"
 
 # This has caused a crash at some point when dealing with 0-sized
 # bitsets to represent acceptance sets.
@@ -256,11 +257,13 @@ State: 0
 Acc-Sig:
 0
 EOF
-run 0 ../../bin/dstar2tgba --dot=t aut.dsa | tee stdout
+run 0 ../../bin/dstar2tgba --name=%F --dot=nt aut.dsa | tee stdout
 
 cat >expected<<EOF
 digraph G {
   rankdir=LR
+  label="aut.dsa"
+  labelloc="t"
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]

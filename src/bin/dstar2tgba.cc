@@ -42,7 +42,7 @@
 #include "dstarparse/public.hh"
 #include "tgbaalgos/sccinfo.hh"
 
-const char argp_program_doc[] ="\
+static const char argp_program_doc[] ="\
 Convert Rabin and Streett automata into Büchi automata.\n\n\
 This reads the output format of ltl2dstar and will output a \n\
 Transition-based Generalized Büchi Automata in GraphViz's format by default.\n\
@@ -54,6 +54,7 @@ will be output.";
 #define OPT_LBTT 3
 #define OPT_SPOT 4
 #define OPT_STATS 5
+#define OPT_NAME 6
 
 static const argp_option options[] =
   {
@@ -82,6 +83,8 @@ static const argp_option options[] =
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
       "LBTT's format (add =t to force transition-based acceptance even"
       " on Büchi automata)", 0 },
+    { "name", OPT_NAME, "FORMAT", 0,
+      "set the name of the output automaton", 0 },
     { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
     { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
     { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
@@ -122,19 +125,20 @@ static const argp_option options[] =
     { 0, 0, 0, 0, 0, 0 }
   };
 
-const struct argp_child children[] =
+static const struct argp_child children[] =
   {
     { &post_argp, 0, 0, 20 },
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
   };
 
-enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa } format = Dot;
-const char* opt_dot = nullptr;
-bool utf8 = false;
-const char* stats = "";
-const char* hoa_opt = 0;
-spot::option_map extra_options;
+enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa };
+static output_format format = Dot;
+static const char* opt_dot = nullptr;
+static const char* stats = "";
+static const char* hoa_opt = nullptr;
+static const char* opt_name = nullptr;
+static spot::option_map extra_options;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -187,6 +191,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 	  format = Lbtt;
 	}
       break;
+    case OPT_NAME:
+      opt_name = arg;
+      break;
     case OPT_SPOT:
       format = Spot;
       break;
@@ -232,6 +239,7 @@ namespace
       declare('f', &filename_);	// Override the formula printer.
       declare('S', &daut_states_);
       declare('T', &daut_trans_);
+      declare('m', &aut_name_);
     }
 
     /// \brief print the configured statistics.
@@ -269,6 +277,15 @@ namespace
       if (has('C'))
 	daut_scc_ = spot::scc_info(daut->aut).scc_count();
 
+      if (has('m'))
+	{
+	  auto n = aut->get_named_prop<std::string>("automaton-name");
+	  if (n)
+	    aut_name_ = *n;
+	  else
+	    aut_name_.val().clear();
+	}
+
       return this->spot::stat_printer::print(aut, 0, run_time);
     }
 
@@ -279,6 +296,7 @@ namespace
     spot::printable_value<unsigned> daut_trans_;
     spot::printable_value<unsigned> daut_acc_;
     spot::printable_value<unsigned> daut_scc_;
+    spot::printable_value<std::string> aut_name_;
   };
 
 
@@ -287,9 +305,12 @@ namespace
   public:
     spot::postprocessor& post;
     dstar_stat_printer statistics;
+    std::ostringstream name;
+    dstar_stat_printer namer;
 
     dstar_processor(spot::postprocessor& post)
-      : post(post), statistics(std::cout, stats)
+      : post(post), statistics(std::cout, stats),
+	namer(name, opt_name)
     {
     }
 
@@ -315,6 +336,14 @@ namespace
       auto nba = spot::dstar_to_tgba(daut);
       auto aut = post.run(nba, 0);
       const double conversion_time = sw.stop();
+
+      // Name the output automaton.
+      if (opt_name)
+	{
+	  name.str("");
+	  namer.print(daut, aut, filename, conversion_time);
+	  aut->set_named_prop("automaton-name", new std::string(name.str()));
+	}
 
       switch (format)
 	{
