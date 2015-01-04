@@ -68,3 +68,6 @@ diff out expected
 
 $randaut -n 5 --stats='name: "%F-%L-%s-%c-%e"' a >out2
 diff out2 expected
+
+$randaut -n 5 --dot=@ a 2>stderr && exit 1
+grep 'randaut: unknown option.*@' stderr

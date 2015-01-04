@@ -298,8 +298,15 @@ main(int argc, char** argv)
 
       auto runtime = sw.stop();
 
-      printer.print(aut, nullptr,
-		    opt_seed_str, automaton_num, runtime, nullptr);
+      try
+	{
+	  printer.print(aut, nullptr,
+			opt_seed_str, automaton_num, runtime, nullptr);
+	}
+      catch (const std::runtime_error& e)
+	{
+	  error(2, 0, "%s", e.what());
+	}
 
       ++automaton_num;
       if (opt_automata > 0 && automaton_num >= opt_automata)

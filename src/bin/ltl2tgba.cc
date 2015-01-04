@@ -60,7 +60,7 @@ static const argp_option options[] =
     /**************************************************/
     { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the formula, in Spot's syntax", 4 },
-    /**************************************************/
+   /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
@@ -182,7 +182,14 @@ main(int argc, char** argv)
   trans.set_level(level);
 
   trans_processor processor(trans);
-  if (processor.run())
-    return 2;
+  try
+    {
+      if (processor.run())
+	return 2;
+    }
+  catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
   return 0;
 }

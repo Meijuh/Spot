@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
+# de Recherche et Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -201,3 +201,7 @@ grep 'states: 4$' stdout
 ../../bin/ltlfilt -r -f '!{{a;b}[*]}' --equivalent-to '!a | X!b'
 ../../bin/ltlfilt    -f '{a[*];b[*]}' --equivalent-to 'a | b'
 ../../bin/ltlfilt -r -f '{a[*];b[*]}' --equivalent-to 'a | b'
+
+# test unknown dot options
+../../bin/ltl2tgba --dot=@ a 2>stderr && exit 1
+grep 'ltl2tgba: unknown option.*@' stderr
