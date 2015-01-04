@@ -322,17 +322,21 @@ accept_all:
   skip
 }
 EOF
-../../bin/autfilt --dot=sc <input >stdout 2>stderr && exit 1
+../../bin/autfilt --name=%F --dot=nsc <input >stdout 2>stderr && exit 1
 cat >expected <<EOF
 digraph G {
   rankdir=LR
+  label="-"
+  labelloc="t"
   node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 0
   subgraph cluster_0 {
+  label=""
   1 [label="1", peripheries=2]
   }
   subgraph cluster_1 {
+  label=""
   0 [label="0"]
   }
   0 -> 1 [label="b"]

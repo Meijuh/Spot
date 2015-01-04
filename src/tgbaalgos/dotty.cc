@@ -143,6 +143,10 @@ namespace spot
 	    for (unsigned i = 0; i < sccs; ++i)
 	      {
 		os_ << "  subgraph cluster_" << i << " {\n";
+		if (opt_name_)
+		  // Reset the label, otherwise the graph label would
+		  // be inherited by the cluster.
+		  os_ << "  label=\"\"\n";
 		for (auto s: si->states_of(i))
 		  process_state(s);
 		os_ << "  }\n";
