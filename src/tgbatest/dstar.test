@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013, 2014 Laboratoire de Recherche et
+# Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -63,13 +63,13 @@ digraph G {
   rankdir=LR
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label="0"]
+  0 [label="0", peripheries=2]
   0 -> 0 [label="a & !b"]
   0 -> 1 [label="!a & !b"]
   0 -> 2 [label="b"]
-  1 [label="1"]
+  1 [label="1", peripheries=2]
   1 -> 1 [label="1"]
-  2 [label="2"]
+  2 [label="2", peripheries=2]
   2 -> 2 [label="1"]
 }
 EOF
@@ -256,7 +256,7 @@ State: 0
 Acc-Sig:
 0
 EOF
-run 0 ../ltl2tgba -XDD aut.dsa | tee stdout
+run 0 ../../bin/dstar2tgba --dot=t aut.dsa | tee stdout
 
 cat >expected<<EOF
 digraph G {
@@ -265,9 +265,6 @@ digraph G {
   I -> 0
   0 [label="0"]
   0 -> 0 [label="1"]
-  0 -> 1 [label="1"]
-  1 [label="1"]
-  1 -> 1 [label="1"]
 }
 EOF
 

@@ -41,7 +41,7 @@ namespace spot
       std::ostream& os_;
       bool opt_force_acc_trans_ = false;
       bool opt_horizontal_ = true;
-      bool opt_name_ = true;
+      bool opt_name_ = false;
       bool opt_circles_ = false;
       bool mark_states_ = false;
       bool opt_scc_ = false;
@@ -74,7 +74,7 @@ namespace spot
 		opt_horizontal_ = false;
 		break;
 	      case 't':
-		opt_force_acc_trans_ = false;
+		opt_force_acc_trans_ = true;
 		break;
 	      default:
 		throw std::runtime_error
@@ -132,7 +132,8 @@ namespace spot
       void print(const const_tgba_digraph_ptr& aut)
       {
 	aut_ = aut;
-	mark_states_ = !opt_force_acc_trans_ && aut_->has_state_based_acc();
+	mark_states_ = !opt_force_acc_trans_ &&
+	  (aut_->has_state_based_acc() || aut_->acc().num_sets() == 0);
 	auto si =
 	  std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);
 	start();
@@ -300,9 +301,9 @@ namespace spot
 	return os;
       }
     dotty_output d(os, options);
-    auto aut = make_tgba_digraph(g, tgba::prop_set::all());
-    if (assume_sba)
-      aut->prop_state_based_acc();
+    auto aut = std::dynamic_pointer_cast<const tgba_digraph>(g);
+    if (!aut)
+      aut = make_tgba_digraph(g, tgba::prop_set::all());
     d.print(aut);
     return os;
   }
