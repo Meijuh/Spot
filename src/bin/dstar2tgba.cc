@@ -71,7 +71,7 @@ static const argp_option options[] =
       "of the given property)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
-    { "dot", OPT_DOT, "c|h|n|N|t|v", OPTION_ARG_OPTIONAL,
+    { "dot", OPT_DOT, "c|h|n|N|s|t|v", OPTION_ARG_OPTIONAL,
       "GraphViz's format (default).  Add letters to chose (c) circular nodes, "
       "(h) horizontal layout, (v) vertical layout, (n) with name, "
       "(N) without name, (s) with SCCs, "

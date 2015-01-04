@@ -48,7 +48,7 @@ static const argp_option options[] =
   {
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
-    { "dot", OPT_DOT, "c|h|n|N|t|v", OPTION_ARG_OPTIONAL,
+    { "dot", OPT_DOT, "c|h|n|N|s|t|v", OPTION_ARG_OPTIONAL,
       "GraphViz's format (default).  Add letters to chose (c) circular nodes, "
       "(h) horizontal layout, (v) vertical layout, (n) with name, "
       "(N) without name, (s) with SCCs, "
@@ -88,17 +88,14 @@ static const argp_option io_options[] =
     { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE, F_doc, 0 },
     { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE, L_doc, 0 },
     { "%M, %m", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "name of the automaton (as specified in the HOA format)", 0 },
-    { "%S, %s", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of states", 0 },
-    { "%E, %e", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of edges", 0 },
+      "name of the automaton", 0 },
+    { "%S, %s", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of states", 0 },
+    { "%E, %e", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of edges", 0 },
     { "%T, %t", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "number of transitions", 0 },
     { "%A, %a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of acceptance pairs or sets", 0 },
-    { "%C, %c", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of SCCs", 0 },
+      "number of acceptance sets", 0 },
+    { "%C, %c", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of SCCs", 0 },
     { "%n", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states in output", 0 },
     { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
@@ -109,8 +106,7 @@ static const argp_option io_options[] =
       "processing time (excluding parsing) in seconds", 0 },
     { "%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the output automaton", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "a single %", 0 },
+    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -128,9 +124,8 @@ static const argp_option o_options[] =
     { "%e", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of edges", 0 },
     { "%t", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of transitions", 0 },
     { "%a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of acceptance pairs or sets", 0 },
-    { "%c", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "number of SCCs", 0 },
+      "number of acceptance sets", 0 },
+    { "%c", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of SCCs", 0 },
     { "%n", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states in output", 0 },
     { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
@@ -141,8 +136,7 @@ static const argp_option o_options[] =
       "processing time (excluding parsing) in seconds", 0 },
     { "%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the output automaton", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "a single %", 0 },
+    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
