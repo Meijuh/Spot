@@ -1,0 +1,664 @@
+#+TITLE: Common output options for automata
+#+EMAIL spot@lrde.epita.fr
+#+OPTIONS: H:2 num:nil toc:t
+#+LINK_UP: tools.html
+
+Spot supports different output syntaxes for automata.  This page
+documents the options, common to all tools where it makes sense, that
+are used to specify how to output of automata.
+
+* Common output options
+
+All tools that can output automata implement the following options:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+  -8, --utf8                 enable UTF-8 characters in output (ignored with
+                             --lbtt or --spin)
+      --dot[=c|h|n|N|t|v]    GraphViz's format (default).  Add letters to chose
+                             (c) circular nodes, (h) horizontal layout, (v)
+                             vertical layout, (n) with name, (N) without name,
+                             (s) with SCCs, (t) always transition-based
+                             acceptance.
+  -H, --hoaf[=s|t|m|l]       Output the automaton in HOA format.  Add letters
+                             to select (s) state-based acceptance, (t)
+                             transition-based acceptance, (m) mixed acceptance,
+                             (l) single-line output
+      --lbtt[=t]             LBTT's format (add =t to force transition-based
+                             acceptance even on Büchi automata)
+      --name=FORMAT          set the name of the output automaton
+  -q, --quiet                suppress all normal output
+  -s, --spin                 Spin neverclaim (implies --ba)
+      --spot                 SPOT's format
+      --stats=FORMAT         output statistics about the automaton
+#+end_example
+
+The main three output formats (that can also been used as input to
+some of the tools) are [[http://adl.github.io/hoaf/][HOAF]] (activated by =-H= or =--hoaf=), [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]]
+(activated by =--lbtt=), or spin [[http://spinroot.com/spin/Man/never.html][never claims]] (activated by =-s= or
+=--spin=).  These three formats also support *streaming*, i.e., you
+can concatenate multiple automata (and even mix these three formats in
+the same stream), and the tools will be able to read and process them
+in sequence.
+
+The other possible outputs are [[http://www.graphviz.org/][GraphViz]] output (=--dot=), Spot's
+historical by deprecated format (=--spot=), various statistics
+(=--stats=), or nothing at all (=--quiet=).  Of course it may seem
+strange to ask a tool to not output anything, but it can make sense if
+only the exit status matters (for instance using [[file:autfilt.org][=autfilt=]] to check
+whether an input automaton has some property) or if we are only doing
+some timing.
+
+
+* HOAF output
+
+The [[http://adl.github.io/hoaf/][HOAF]] output should be the preferred format to use if you want to
+pass automata between different tools.  This format can be requested
+using the =-H= option.
+
+Here is an example where [[file:ltl2tgba.org][=ltl2tgba=]] is used to construct two automata:
+one for =a U b= and one for =(Ga -> Gb) W c=.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba -H 'a U b' '(Ga -> Gb) W c'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+HOA: v1
+name: "a U b"
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[1] 1
+[0&!1] 0
+State: 1 {0}
+[t] 1
+--END--
+HOA: v1
+name: "(Gb | F!a) W c"
+States: 5
+Start: 0
+AP: 3 "b" "a" "c"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[0&1&!2] 1
+[!1&!2] 0 {0}
+[1&!2] 2
+[2] 3
+State: 1
+[0] 1 {0}
+State: 2
+[!1&!2] 0 {0}
+[1&!2] 2
+[!1&2] 3
+[1&2] 4
+State: 3
+[t] 3 {0}
+State: 4
+[!1] 3
+[1] 4
+--END--
+#+end_example
+
+The above output contains to automata, named after the formulas they
+represent.  Here is a picture of these two automata:
+
+#+NAME: hoafex
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba --dot=cn '(Ga -> Gb) W c' 'a U b' | dot | gvpack |
+perl -pe 's/\\\n//g;s/\\/\\\\/g;s/graph G/graph cluster/g'
+#+END_SRC
+#+RESULTS: hoafex
+#+begin_example
+digraph root {
+	graph [labelloc=t, rankdir=LR];
+	node [label="\\N", shape=circle];
+	graph [bb="0,0,441.5,240"];
+	subgraph cluster {
+		graph [bb="",
+			label="(Gb | F!a) W c",
+			lp="210,204.3"];
+		I [label="", height="0.013889", pos="1.5,52.096", style=invis, width=0];
+		1 [label=1, height="0.5", pos="58.5,52.096", width="0.5"];
+		0 [label=0, height="0.5", pos="200.5,125.1", width="0.5"];
+		2 [label=2, height="0.5", pos="200.5,36.096", width="0.5"];
+		3 [label=3, height="0.5", pos="402.5,36.096", width="0.5"];
+		4 [label=4, height="0.5", pos="311.5,36.096", width="0.5"];
+		I -> 1 [pos="e,40.289,51.899 2.1401,51.899 5.0641,51.899 17.545,51.899 30.02,51.899"];
+		1 -> 1 [label="!a & !c\\n{0}", lp="58.5,104.9", pos="e,64.879,68.937 52.121,68.937 50.819,78.757 52.945,87.899 58.5,87.899 61.972,87.899 64.104,84.328 64.898,79.252"];
+		1 -> 0 [label="a & b & !c", lp="129.5,122.4", pos="e,182.73,120.16 70.933,64.972 77.488,71.315 85.934,78.673 94.5,83.899 119.36,99.071 150.8,110.38 172.96,117.24"];
+		1 -> 2 [label="a & !c", lp="129.5,71.399", pos="e,186.37,47.576 76.161,56.715 97.536,61.72 134.41,67.692 164.5,58.899 169.03,57.576 173.53,55.492 177.73,53.105"];
+		1 -> 3 [label=c, lp="254.5,12.399", pos="e,386.31,27.685 67.29,36.084 73.522,26.595 82.839,15.343 94.5,9.8989 110.16,2.587 284.7,0 332.5,8.8989 347.81,11.749 364.08,17.824 377.08,23.491"];
+		0 -> 0 [label="b\\n{0}", lp="200.5,177.9", pos="e,209.73,140.44 191.27,140.44 188.67,150.81 191.75,160.9 200.5,160.9 206.24,160.9 209.54,156.56 210.4,150.64"];
+		2 -> 1 [label="!a & !c\\n{0}", lp="129.5,37.899", pos="e,70.329,37.864 184.44,27.616 178.36,24.91 171.27,22.254 164.5,20.899 133.99,14.798 123.67,10.072 94.5,20.899 88.556,23.106 82.935,26.783 77.98,30.848"];
+		2 -> 2 [label="a & !c", lp="200.5,80.399", pos="e,209.73,51.441 191.27,51.441 188.67,61.808 191.75,71.899 200.5,71.899 206.24,71.899 209.54,67.553 210.4,61.635"];
+		2 -> 3 [label="!a & c", lp="311.5,110.4", pos="e,391.52,50.509 213.43,48.678 229.77,63.836 259.52,88.261 290.5,97.899 308.32,103.45 315.05,104.52 332.5,97.899 353.31,90.008 371.91,72.788 384.69,58.494"];
+		2 -> 4 [label="a & c", lp="254.5,44.399", pos="e,293.14,35.899 218.83,35.899 236.26,35.899 262.75,35.899 282.95,35.899"];
+		3 -> 3 [label="1\\n{0}", lp="402.5,88.899", pos="e,410.17,52.19 394.83,52.19 392.98,62.288 395.54,71.899 402.5,71.899 406.96,71.899 409.61,67.955 410.45,62.465"];
+		4 -> 3 [label="!a", lp="358.5,44.399", pos="e,384.42,35.899 329.92,35.899 342.58,35.899 359.64,35.899 374.05,35.899"];
+		4 -> 4 [label=a, lp="311.5,80.399", pos="e,319.52,52.19 303.48,52.19 301.55,62.288 304.22,71.899 311.5,71.899 316.16,71.899 318.93,67.955 319.82,62.465"];
+	}
+	subgraph cluster_gv1 {
+		graph [bb="",
+			label="a U b",
+			lp="83,91.5"];
+		I_gv1 [label="", height="0.013889", pos="271.5,162.1", style=invis, width=0];
+		"1_gv1" [label=1, height="0.5", pos="328.5,162.1", width="0.5"];
+		"0_gv1" [label=0, height="0.72222", peripheries=2, pos="414.5,162.1", width="0.72222"];
+		I_gv1 -> "1_gv1" [pos="e,310.29,162.1 272.14,162.1 275.06,162.1 287.55,162.1 300.02,162.1"];
+		"1_gv1" -> "1_gv1" [label="a & !b", lp="328.5,206.6", pos="e,334.88,179.13 322.12,179.13 320.82,188.95 322.94,198.1 328.5,198.1 331.97,198.1 334.1,194.52 334.9,189.45"];
+		"1_gv1" -> "0_gv1" [label=b, lp="369.5,170.6", pos="e,392.32,162.1 346.74,162.1 357.03,162.1 370.2,162.1 382.19,162.1"];
+		"0_gv1" -> "0_gv1" [label=1, lp="414.5,210.6", pos="e,422.51,182.68 406.49,182.68 405.39,192.94 408.05,202.1 414.5,202.1 418.63,202.1 421.21,198.34 422.24,192.94"];
+	}
+}
+#+end_example
+
+#+BEGIN_SRC dot :file hoafex.png :cmdline -Tpng :var txt=hoafex :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:hoafex.png]]
+
+The [[http://adl.github.io/hoaf/][HOA format]] support both state and transition-based acceptance.
+Although Spot works only with transition-based acceptance, its output
+routines default to state-based acceptance whenever possible (this is
+the case in the first of these two automata) and use transition-based
+acceptance otherwise.  You can change this behavior using =-Hs= (or
+=--hoaf=s=), =-Ht=, or =-Hm=.  Option =s= corresponds to the default
+to use state-based acceptance whenever possible.  Option =t= forces
+transition-based acceptance.  For instance compare this output to the
+previous one:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba -Ht 'a U b'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+HOA: v1
+name: "a U b"
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+--BODY--
+State: 0
+[1] 1
+[0&!1] 0
+State: 1
+[t] 1 {0}
+--END--
+#+end_example
+
+Option =m= uses mixed acceptance, i.e, some states might use
+state-based acceptance while other will not:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba -Hm '(Ga -> Gb) W c'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+HOA: v1
+name: "(Gb | F!a) W c"
+States: 5
+Start: 0
+AP: 3 "b" "a" "c"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels
+--BODY--
+State: 0
+[0&1&!2] 1
+[!1&!2] 0 {0}
+[1&!2] 2
+[2] 3
+State: 1 {0}
+[0] 1
+State: 2
+[!1&!2] 0 {0}
+[1&!2] 2
+[!1&2] 3
+[1&2] 4
+State: 3 {0}
+[t] 3
+State: 4
+[!1] 3
+[1] 4
+--END--
+#+end_example
+
+
+It is also possible to output each automaton on a single line, in case
+the result should be used with line-based tools or embedded into a CSV
+file...  Here is an example using both transition-based acceptance,
+and single-line output:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba -Htl 'a U b' '(Ga -> Gb) W c'
+#+END_SRC
+#+RESULTS:
+: HOA: v1 name: "a U b" States: 2 Start: 0 AP: 2 "a" "b" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels trans-acc deterministic --BODY-- State: 0 [1] 1 [0&!1] 0 State: 1 [t] 1 {0} --END--
+: HOA: v1 name: "(Gb | F!a) W c" States: 5 Start: 0 AP: 3 "b" "a" "c" acc-name: Buchi Acceptance: 1 Inf(0) properties: trans-labels explicit-labels trans-acc --BODY-- State: 0 [0&1&!2] 1 [!1&!2] 0 {0} [1&!2] 2 [2] 3 State: 1 [0] 1 {0} State: 2 [!1&!2] 0 {0} [1&!2] 2 [!1&2] 3 [1&2] 4 State: 3 [t] 3 {0} State: 4 [!1] 3 [1] 4 --END--
+
+* LBTT output
+
+The [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]] output has two flavors: state-based (which is used to output
+Büchi automata or monitors) or transition-based (for TGBA).
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba --ba --lbtt 'p0 U p1'
+#+END_SRC
+#+RESULTS:
+: 2 1
+: 0 1 -1
+: 1 p1
+: 0 & p0 ! p1
+: -1
+: 1 0 0 -1
+: 1 t
+: -1
+
+If you want to request transition-based output even for Büchi automata,
+use =--lbtt=t=.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba --ba --lbtt=t 'p0 U p1'
+#+END_SRC
+
+#+RESULTS:
+: 2 1t
+: 0 1
+: 1 -1 p1
+: 0 -1 & p0 ! p1
+: -1
+: 1 0
+: 1 0 -1 t
+: -1
+
+Note that the [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]] output generalizes the format output by [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][LBT]] with
+support for transition-based acceptance.  Both formats however are
+restricted to atomic propositions of the form =p0=, =p1=, etc...  In
+case other atomic propositions are used, Spot output them in double
+quotes.  This other extension of the format is also supported by
+[[http://www.ltl2dstar.de/][ltl2dstar]].
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba --ba --lbtt 'a U b'
+#+END_SRC
+
+#+RESULTS:
+: 2 1
+: 0 1 -1
+: 1 "b"
+: 0 & "a" ! "b"
+: -1
+: 1 0 0 -1
+: 1 t
+: -1
+
+* Spin output
+
+Spin [[http://spinroot.com/spin/Man/never.html][never claims]] can be requested using =-s= or =--spin=.  They can only
+represent Büchi automata, so these options imply =--ba=.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba -s 'a U b'
+#+END_SRC
+
+#+RESULTS:
+: never {
+: T0_init:
+:   if
+:   :: ((b)) -> goto accept_all
+:   :: ((a) && (!(b))) -> goto T0_init
+:   fi;
+: accept_all:
+:   skip
+: }
+
+* Dot output
+
+The =--dot= option (which usually is the default) causes automata to be
+output in GraphViz's format.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba '(Ga -> Gb) W c'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+digraph G {
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label="0"]
+  0 -> 0 [label="b\n{0}"]
+  1 [label="1"]
+  1 -> 0 [label="a & b & !c"]
+  1 -> 1 [label="!a & !c\n{0}"]
+  1 -> 2 [label="a & !c"]
+  1 -> 3 [label="c"]
+  2 [label="2"]
+  2 -> 1 [label="!a & !c\n{0}"]
+  2 -> 2 [label="a & !c"]
+  2 -> 3 [label="!a & c"]
+  2 -> 4 [label="a & c"]
+  3 [label="3"]
+  3 -> 3 [label="1\n{0}"]
+  4 [label="4"]
+  4 -> 3 [label="!a"]
+  4 -> 4 [label="a"]
+}
+#+end_example
+
+This output should be processed with =dot= to be converted into a
+picture.  For instance use =dot -Tpng= or =dot -Tpdf=.
+
+#+NAME: oaut-dot1
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba '(Ga -> Gb) W c' | sed 's/\\/\\\\/'
+#+END_SRC
+
+#+RESULTS: oaut-dot1
+#+begin_example
+digraph G {
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label="0"]
+  0 -> 0 [label="b\\n{0}"]
+  1 [label="1"]
+  1 -> 0 [label="a & b & !c"]
+  1 -> 1 [label="!a & !c\\n{0}"]
+  1 -> 2 [label="a & !c"]
+  1 -> 3 [label="c"]
+  2 [label="2"]
+  2 -> 1 [label="!a & !c\\n{0}"]
+  2 -> 2 [label="a & !c"]
+  2 -> 3 [label="!a & c"]
+  2 -> 4 [label="a & c"]
+  3 [label="3"]
+  3 -> 3 [label="1\\n{0}"]
+  4 [label="4"]
+  4 -> 3 [label="!a"]
+  4 -> 4 [label="a"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file oaut-dot1.png :cmdline -Tpng :var txt=oaut-dot1 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:oaut-dot1.png]]
+
+This output can be customized by passing optional characters to the
+=--dot= option.  For instance =v= requests a vertical layout (instead
+of the default horizontal layout), =c= requests circle states, =s=
+causes strongly-connected components to be displayed, and =n= causes
+the name (see below) of the automaton to be displayed.
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba --dot=vcsn '(Ga -> Gb) W c'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+digraph G {
+  label="(Gb | F!a) W c"
+  labelloc="t"
+  node [shape="circle"]
+  I [label="", style=invis, height=0]
+  I -> 1
+  subgraph cluster_0 {
+  0 [label="0"]
+  }
+  subgraph cluster_1 {
+  3 [label="3"]
+  }
+  subgraph cluster_2 {
+  4 [label="4"]
+  }
+  subgraph cluster_3 {
+  1 [label="1"]
+  2 [label="2"]
+  }
+  0 -> 0 [label="b\n{0}"]
+  1 -> 0 [label="a & b & !c"]
+  1 -> 1 [label="!a & !c\n{0}"]
+  1 -> 2 [label="a & !c"]
+  1 -> 3 [label="c"]
+  2 -> 1 [label="!a & !c\n{0}"]
+  2 -> 2 [label="a & !c"]
+  2 -> 3 [label="!a & c"]
+  2 -> 4 [label="a & c"]
+  3 -> 3 [label="1\n{0}"]
+  4 -> 3 [label="!a"]
+  4 -> 4 [label="a"]
+}
+#+end_example
+
+#+NAME: oaut-dot2
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba --dot=vcsn '(Ga -> Gb) W c' | sed 's/\\/\\\\/'
+#+END_SRC
+
+#+RESULTS: oaut-dot2
+#+begin_example
+digraph G {
+  label="(Gb | F!a) W c"
+  labelloc="t"
+  node [shape="circle"]
+  I [label="", style=invis, height=0]
+  I -> 1
+  subgraph cluster_0 {
+  label=""
+  0 [label="0"]
+  }
+  subgraph cluster_1 {
+  label=""
+  3 [label="3"]
+  }
+  subgraph cluster_2 {
+  label=""
+  4 [label="4"]
+  }
+  subgraph cluster_3 {
+  label=""
+  1 [label="1"]
+  2 [label="2"]
+  }
+  0 -> 0 [label="b\\n{0}"]
+  1 -> 0 [label="a & b & !c"]
+  1 -> 1 [label="!a & !c\\n{0}"]
+  1 -> 2 [label="a & !c"]
+  1 -> 3 [label="c"]
+  2 -> 1 [label="!a & !c\\n{0}"]
+  2 -> 2 [label="a & !c"]
+  2 -> 3 [label="!a & c"]
+  2 -> 4 [label="a & c"]
+  3 -> 3 [label="1\\n{0}"]
+  4 -> 3 [label="!a"]
+  4 -> 4 [label="a"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file oaut-dot2.png :cmdline -Tpng :var txt=oaut-dot2 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:oaut-dot2.png]]
+
+* Statistics
+
+The =--stats= option takes format string parameter to specify what and
+how statistics should be output.
+
+Most tool support a common set of statistics about the output
+automaton (like =%s= for the number of states, =%t= for transitions,
+=%e= for edges, etc.)  Additional statistics might be available
+depending on what the tool does (for instance [[file:autfilt.org][=autfilt=]] also has =%S=,
+=%T=, and =%E= to display the same statistics about the input
+automaton).  All the available statistics are displayed when a tool is
+run with =--help=.
+
+For instance here are the statistics available in [[file:randaut.org][=randaut=]]:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+randaut --help | sed -n '/ sequences:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+  %%                         a single %
+  %a                         number of acceptance sets
+  %c                         number of SCCs
+  %d                         1 if the output is deterministic, 0 otherwise
+  %e                         number of edges
+  %F                         seed number
+  %L                         automaton number
+  %m                         name of the automaton
+  %n                         number of nondeterministic states in output
+  %p                         1 if the output is complete, 0 otherwise
+  %r                         processing time (excluding parsing) in seconds
+  %s                         number of states
+  %t                         number of transitions
+  %w                         one word accepted by the output automaton
+#+end_example
+
+In most tools =%F= and =%L= are the input filename and line number,
+but as this makes no sense in =randaut=, these two sequences emit
+numbers related to the generation of automata.
+
+For instance let's generate 100 random automata with 10 states and
+density 0.2, and just count the number of edges in each automaton. Then
+use =R= to summarize the distribution of these values:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randaut -d 0.2 -S 10 -n 1000 a --stats %e > size.csv
+R --slave -e "summary(read.csv('size.csv', header=FALSE, col.names='edges'))"
+#+END_SRC
+
+#+RESULTS:
+:      edges
+:  Min.   :17.00
+:  1st Qu.:25.00
+:  Median :28.00
+:  Mean   :27.96
+:  3rd Qu.:30.00
+:  Max.   :42.00
+
+
+For $S=10$ states and density $D=0.2$ the expected degree of each
+state $1+(S-1)D = 1+9\times 0.2 = 2.8$ so the expected number of edges
+should be 10 times that.
+
+
+* Naming automata
+
+Automata can be given names.  This name can be output in GraphViz
+output when =--dot=n= is given, and is also part of the HOA format (as
+activated by =-H=).
+
+By default, =ltl2tgba= will use the input format as name.  Other tools
+have no default name.  This name can be changed using the =--name= option,
+that takes a format string similar to the one of =--stats=.
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba --name='TGBA for %f' --dot=n 'a U b'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+digraph G {
+  rankdir=LR
+  label="TGBA for a U b"
+  labelloc="t"
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="1"]
+  1 [label="1"]
+  1 -> 0 [label="b"]
+  1 -> 1 [label="a & !b"]
+}
+#+end_example
+
+#+NAME: oaut-name
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba --name='TGBA for %f' --dot=n 'a U b' | sed 's/\\/\\\\/'
+#+END_SRC
+
+#+RESULTS: oaut-name
+#+begin_example
+digraph G {
+  rankdir=LR
+  label="TGBA for a U b"
+  labelloc="t"
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="1"]
+  1 [label="1"]
+  1 -> 0 [label="b"]
+  1 -> 1 [label="a & !b"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file oaut-name.png :cmdline -Tpng :var txt=oaut-name :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:oaut-name.png]]
+
+If you have an automaton saved in the HOA format, you can extract its
+name using =autfilt --stats=%M input.hoa=. The =%M= escape sequence is
+replaced by the name of the input automaton.
+
+Here is a pipeline of commands that generates five LTL formulas
+$\varphi$ such that both $\varphi$ and $\lnot\varphi$ are translated
+into a 3-state TGBA by [[file:ltl2tgba.org][=ltl2tgba=]].  It starts by generating an
+infinite stream of random LTL formulas using =a= and =b= as atomic
+propositions, then it converts these formulas as TGBA (in the HOA
+format, therefore carrying the formula as name), filtering only the
+TGBA with 3 states and outputting =!(%M)= (that is the negation of the
+associated formula), translating the resulting formulas as TGBA, again
+retaining only the names (i.e. formulas) of the automata with 3
+states, and finally restricting the output to the first 5 matches
+using =autfilt -n5=.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randltl -n -1 a b |
+ltl2tgba -H -F- |
+autfilt --states=3 --stats='!(%M)' |
+ltl2tgba -H -F- |
+autfilt --states=3 --stats=%M -n5
+#+END_SRC
+
+#+RESULTS:
+: G(F!a & XF(a | G!b))
+: GFb | G(!b & FG!b)
+: !a & F((a | b) & (!a | !b))
+: !a | (b R a)
+: !b & X(!b U a)
+
+#  LocalWords:  num toc html syntaxes ltl tgba sed utf UTF lbtt SCCs
+#  LocalWords:  GraphViz's hoaf HOA LBTT's neverclaim ba SPOT's Gb cn
+#  LocalWords:  GraphViz autfilt acc Buchi hoafex gvpack perl pe bb
+#  LocalWords:  labelloc rankdir subgraph lp pos invis gv png cmdline
+#  LocalWords:  Tpng txt Hs Hm CSV Htl LBT dstar init goto fi Tpdf XF
+#  LocalWords:  oaut vcsn randaut nondeterministic filename csv hoa
+#  LocalWords:  varphi lnot GFb FG

@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et
+## Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 ## Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -70,6 +70,7 @@ ORG_FILES = \
   org/ltlcross.org \
   org/ltlfilt.org \
   org/ltlgrind.org \
+  org/oaut.org \
   org/randaut.org \
   org/randltl.org \
   org/tools.org \

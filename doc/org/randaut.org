@@ -295,9 +295,9 @@ states.
 
 * Output formats
 
-The output format can be controlled using =--hoaf=, =--dot==,
-=--lbtt=, and =--spin=.  Note that =--spin= automatically implies
-=--ba=.
+The output format can be controlled using [[file:oaut.org][the common output options]]
+like =--hoaf=, =--dot==, =--lbtt=, and =--spin=.  Note that =--spin=
+automatically implies =--ba=.
 
 * Generating a stream of automata
 

@@ -7,9 +7,13 @@ The =autfilt= tool can filter, transform, and convert a stream of automata.
 
 * Conversion between formats
 
-=autfilt= reads automata in the [[http://adl.github.io/hoaf/][Hanoi Omega Automata Format]].  The
-output format can be controlled using the =--spin=, =--lbtt=, =--dot=,
-or =--hoaf= options.
+=autfilt= can read automata written in the [[http://adl.github.io/hoaf/][Hanoi Omega Automata
+Format]], as [[http://spinroot.com/spin/Man/never.html][Spin never claims]], or using [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT's format]].  Automata in
+those formats (even a mix of those formats) can be concatenated in the
+same stream, =autfilt= will process them in batch.
+
+The output format can be controlled using [[file:oaut.org][the common output options]]
+(like =--spin=, =--lbtt=, =--dot=, =--hoaf=...).
 
 #+BEGIN_SRC sh :results verbatim :exports both
 cat >example.hoa <<EOF
