@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014
+// Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
 // Laboratoire de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006, 2007 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
@@ -1572,6 +1572,9 @@ checked_main(int argc, char** argv)
 	    }
 	}
 
+      if (f)
+	a->set_named_prop("automaton-name", new std::string(to_string(f)));
+
       if (output != -1)
 	{
 	  tm.start("producing output");
@@ -1701,7 +1704,7 @@ checked_main(int argc, char** argv)
 	      }
 	    case 17:
 	      {
-		hoa_reachable(std::cout, a, hoa_opt, f) << '\n';
+		hoa_reachable(std::cout, a, hoa_opt) << '\n';
 		break;
 	      }
 	    default:

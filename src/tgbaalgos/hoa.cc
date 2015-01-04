@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -30,7 +30,6 @@
 #include "misc/bddlt.hh"
 #include "misc/minato.hh"
 #include "tgba/formula2bdd.hh"
-#include "ltlvisit/tostring.hh"
 #include "ltlast/atomic_prop.hh"
 
 namespace spot
@@ -230,11 +229,20 @@ namespace spot
 
   }
 
+  enum hoa_alias { Hoa_Alias_None, Hoa_Alias_Ap, Hoa_Alias_Cond };
+  enum hoa_acceptance
+    {
+      Hoa_Acceptance_States,	/// state-based acceptance if
+				/// (globally) possible
+				/// transition-based acceptance
+				/// otherwise.
+      Hoa_Acceptance_Transitions, /// transition-based acceptance globally
+      Hoa_Acceptance_Mixed    /// mix state-based and transition-based
+    };
 
   std::ostream&
   hoa_reachable(std::ostream& os,
 		const const_tgba_ptr& aut,
-		const ltl::formula* f,
 		hoa_acceptance acceptance,
 		hoa_alias alias,
 		bool newline)
@@ -253,8 +261,6 @@ namespace spot
     auto n = aut->get_named_prop<std::string>("automaton-name");
     if (n)
       escape_str(os << "name: \"", *n) << '"' << nl;
-    else if (f)
-      escape_str(os << "name: \"", to_string(f)) << '"' << nl;
     os << "States: " << num_states << nl
        << "Start: 0" << nl
        << "AP: " << md.vap.size();
@@ -331,8 +337,7 @@ namespace spot
   std::ostream&
   hoa_reachable(std::ostream& os,
 		const const_tgba_ptr& aut,
-		const char* opt,
-		const ltl::formula* f)
+		const char* opt)
   {
     bool newline = true;
     hoa_acceptance acceptance = Hoa_Acceptance_States;
@@ -357,7 +362,7 @@ namespace spot
 	      break;
 	    }
 	}
-    return hoa_reachable(os, aut, f, acceptance, alias, newline);
+    return hoa_reachable(os, aut, acceptance, alias, newline);
   }
 
 }
