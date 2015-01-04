@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -24,8 +24,8 @@
 # define SPOT_TGBAALGOS_NEVERCLAIM_HH
 
 #include <iosfwd>
-#include "ltlast/formula.hh"
 #include "tgba/fwd.hh"
+#include "misc/common.hh"
 
 namespace spot
 {
@@ -45,7 +45,6 @@ namespace spot
   SPOT_API std::ostream&
   never_claim_reachable(std::ostream& os,
 			const const_tgba_ptr& g,
-			const ltl::formula* f = 0,
 			bool comments = false);
 }
 

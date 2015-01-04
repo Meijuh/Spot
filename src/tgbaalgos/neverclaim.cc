@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2014 Laboratoire de Recherche et
+// Copyright (C) 2009, 2011, 2012, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -37,9 +37,9 @@ namespace spot
     {
     public:
       never_claim_bfs(const const_tgba_ptr& a, std::ostream& os,
-		      const ltl::formula* f, bool comments)
+		      bool comments)
 	: tgba_reachable_iterator_breadth_first(a),
-	  os_(os), f_(f), accept_all_(-1), fi_needed_(false),
+	  os_(os), accept_all_(-1), fi_needed_(false),
 	  comments_(comments),
 	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
       {
@@ -50,12 +50,9 @@ namespace spot
       start()
       {
 	os_ << "never {";
-	if (f_)
-	  {
-	    os_ << " /* ";
-	    to_string(f_, os_);
-	    os_ << " */";
-	  }
+	auto n = aut_->get_named_prop<std::string>("automaton-name");
+	if (n)
+	  os_ << " /* " << *n << " */";
 	os_ << '\n';
 	init_ = aut_->get_init_state();
       }
@@ -187,7 +184,6 @@ namespace spot
 
     private:
       std::ostream& os_;
-      const ltl::formula* f_;
       int accept_all_;
       bool fi_needed_;
       state* init_;
@@ -198,10 +194,10 @@ namespace spot
 
   std::ostream&
   never_claim_reachable(std::ostream& os, const const_tgba_ptr& g,
-			const ltl::formula* f, bool comments)
+			bool comments)
   {
     assert(g->acc().num_sets() <= 1);
-    never_claim_bfs n(g, os, f, comments);
+    never_claim_bfs n(g, os, comments);
     n.run();
     return os;
   }

@@ -1596,7 +1596,7 @@ checked_main(int argc, char** argv)
 	      {
 		assert(degeneralize_opt == DegenSBA);
 		if (assume_sba)
-		  spot::never_claim_reachable(std::cout, a, f, spin_comments);
+		  spot::never_claim_reachable(std::cout, a, spin_comments);
 		else
 		  {
 		    // It is possible that we have applied other
@@ -1604,7 +1604,7 @@ checked_main(int argc, char** argv)
 		    // degeneralization.  Let's degeneralize again!
                     auto s = spot::degeneralize(ensure_digraph(a), degen_reset,
 						degen_order, degen_cache);
-		    spot::never_claim_reachable(std::cout, s, f, spin_comments);
+		    spot::never_claim_reachable(std::cout, s, spin_comments);
 		  }
 		break;
 	      }
