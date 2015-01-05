@@ -1,5 +1,5 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2014 Laboratoire de Recherche et Développement
+** Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
 ** de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
@@ -54,6 +54,8 @@
   // chance to reach the end of the current automaton in order to
   // process the next one.  Several variables below are used to keep
   // track of various error conditions.
+  enum label_style_t { Mixed_Labels, State_Labels, Trans_Labels };
+
   struct result_
   {
     spot::hoa_aut_ptr h;
@@ -67,6 +69,7 @@
     std::vector<bool> declared_states; // States that have been declared.
     std::vector<std::pair<spot::location, unsigned>> start; // Initial states;
     std::unordered_map<std::string, bdd> alias;
+    std::unordered_map<std::string, spot::location> props;
     spot::location states_loc;
     spot::location ap_loc;
     spot::location state_label_loc;
@@ -88,6 +91,8 @@
     bool ignore_acc_silent = false;
     bool ignore_more_acc = false; // Set to true after the first
 				  // "Acceptance:" line has been read.
+
+    label_style_t label_style = Mixed_Labels;
 
     bool accept_all_needed = false;
     bool accept_all_seen = false;
@@ -254,6 +259,29 @@ header: format-version header-items
 	      error(@$, "missing 'Acceptance:' header");
 	      res.ignore_acc = true;
 	    }
+	  // Process properties.
+	  {
+	    auto trans_labels = res.props.find("trans-labels");
+	    auto state_labels = res.props.find("state-labels");
+	    if (trans_labels != res.props.end())
+	      {
+		if (state_labels == res.props.end())
+		  {
+		    res.label_style = Trans_Labels;
+		  }
+		else
+		  {
+		    error(trans_labels->second,
+			  "'property: trans-labels' is incompatible with...");
+		    error(state_labels->second,
+			  "... 'property: state-labels'.");
+		  }
+	      }
+	    else if (state_labels != res.props.end())
+	      {
+		res.label_style = State_Labels;
+	      }
+	  }
 	}
 
 version: IDENTIFIER
@@ -417,6 +445,7 @@ acc-spec: | acc-spec BOOLEAN
 	    }
 properties: | properties IDENTIFIER
 	      {
+		res.props.emplace(*$2, @2);
 		delete $2;
 	      }
 header-spec: | header-spec BOOLEAN
@@ -615,9 +644,21 @@ label: '[' label-expr ']'
 	     res.cur_label = bddtrue;
 	   }
 state-label_opt:       { res.has_state_label = false; }
-               | label { res.has_state_label = true;
-                         res.state_label_loc = @1;
-		         res.state_label = res.cur_label; }
+               | label
+	       {
+		 res.has_state_label = true;
+		 res.state_label_loc = @1;
+		 res.state_label = res.cur_label;
+		 if (res.label_style == Trans_Labels)
+		   {
+		     error(@$,
+			   "state label used although the automaton was...");
+		     error(res.props["trans-labels"],
+			   "... declared with 'property: trans-labels' here");
+		     // Do not show this error anymore.
+		     res.label_style = Mixed_Labels;
+		   }
+	       }
 trans-label: label
 	         {
 		   if (res.has_state_label)
@@ -626,6 +667,15 @@ trans-label: label
 		       error(res.state_label_loc,
 			     "... the state is already labeled.");
 		       res.cur_label = res.state_label;
+		     }
+		   if (res.label_style == State_Labels)
+		     {
+		       error(@$, "transition label used although the "
+			     "automaton was...");
+		       error(res.props["state-labels"],
+			     "... declared with 'property: state-labels' here");
+		       // Do not show this error anymore.
+		       res.label_style = Mixed_Labels;
 		     }
 		 }
 

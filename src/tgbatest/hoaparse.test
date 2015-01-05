@@ -349,6 +349,7 @@ cat >input <<EOF
     AP: 3 "a" "b" "c"
     Alias: @a 0
     Alias: @a 1 & 2 /* should be @bc */
+    properties: state-labels /* this is bogus */
     --BODY--
     State: 0
     [!@a & !@bc] 0
@@ -360,10 +361,12 @@ EOF
 
 expecterr input <<EOF
 input:9.5-19: ignoring redefinition of alias @a
-input:12.13-15: unknown alias @bc
-input:13.12-14: unknown alias @bc
+input:13.13-15: unknown alias @bc
+input:13.5-16: transition label used although the automaton was...
+input:10.17-28: ... declared with 'property: state-labels' here
 input:14.12-14: unknown alias @bc
-input:15.11-13: unknown alias @bc
+input:15.12-14: unknown alias @bc
+input:16.11-13: unknown alias @bc
 EOF
 
 cat >input <<EOF
@@ -685,6 +688,33 @@ State: 2
 [t] 2
    1 2
 --END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+properties: trans-labels /* this is bogus */
+--BODY--
+State: [1] 0 {0} 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+properties: state-labels trans-labels /* this is bogus */
+--BODY--
+State: [1] 0 {0} 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+properties: state-labels /* OK */
+--BODY--
+State: [1] 0 {0} 0
+--END--
 EOF
 
 expecterr input <<EOF
@@ -692,6 +722,10 @@ input:10.1-4: cannot label this edge because...
 input:9.8-10: ... the state is already labeled.
 input:14.6: missing label for this edge (previous edge is labeled)
 input:17.1-3: ignoring this label, because previous edge has no label
+input:27.8-10: state label used although the automaton was...
+input:25.13-24: ... declared with 'property: trans-labels' here
+input:34.26-37: 'property: trans-labels' is incompatible with...
+input:34.13-24: ... 'property: state-labels'.
 EOF
 
 
