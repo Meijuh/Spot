@@ -295,6 +295,7 @@ cat >input<<EOF
     acc-name: generalized-Buchi 2
     Acceptance: 2 (Inf(0) & Inf(1))
     AP: 2 "a" "b"
+    properties: state-labels
     --BODY--
     State: 0 "foo" { 0 }
       2  /* !a  & !b */
@@ -309,7 +310,9 @@ cat >input<<EOF
 EOF
 
 expecterr input <<EOF
-input:8.5-11.7: not enough transitions for this state
+input:9.5-12.7: not enough transitions for this state
+input:10.7-12.7: these transitions have implicit labels but the automaton is...
+input:7.17-28: ... declared with 'property: state-labels'
 EOF
 
 cat >input<<EOF
@@ -319,6 +322,7 @@ cat >input<<EOF
     Start: 0
     acc-name: generalized-Buchi 2
     Acceptance: 2 (Inf(0) & Inf(1))
+    properties: implicit-labels explicit-labels /* ? */
     AP: 2 "a" "b"
     --BODY--
     State: 0 "foo" { 0 }
@@ -332,10 +336,54 @@ cat >input<<EOF
     State: 2 "sink state" { 0 }
       2 2 2 2
     --END--
+    HOA: v1
+    tool: "test"
+    States: 3
+    Start: 0
+    acc-name: generalized-Buchi 2
+    Acceptance: 2 (Inf(0) & Inf(1))
+    properties: implicit-labels state-labels /* ? */
+    AP: 2 "a" "b"
+    --BODY--
+    State: 0 "foo" { 0 }
+      2  /* !a  & !b */
+      0  /*  a  & !b */
+      1  /* !a  &  b */
+      1  /*  a  &  b */
+    State: 1 { 1 }
+      1 1 1 1       /* four transitions on one line */
+    State: 2 "sink state" { 0 }
+      2 2 2 2
+    --END--
+    HOA: v1
+    tool: "test"
+    States: 3
+    Start: 0
+    acc-name: generalized-Buchi 2
+    Acceptance: 2 (Inf(0) & Inf(1))
+    properties: implicit-labels
+    AP: 2 "a" "b"
+    --BODY--
+    State: 0 "foo" { 0 }
+      2  /* !a  & !b */
+      0  /*  a  & !b */
+      1  /* !a  &  b */
+      1  /*  a  &  b */
+    State: 1 { 1 }
+      1 1 1 1       /* four transitions on one line */
+    State: 2 "sink state" { 0 }
+      [t] 2
+    --END--
 EOF
 
 expecterr input <<EOF
-input:14.7: too many transition for this state, ignoring this one
+input:7.17-31: 'property: implicit-labels' is incompatible with...
+input:7.33-47: ... 'property: explicit-labels'.
+input:15.7: too many transition for this state, ignoring this one
+input:27.33-44: 'property: state-labels' is incompatible with...
+input:27.17-31: ... 'property: implicit-labels'.
+input:57.7-9: transition label used although the automaton was...
+input:46.17-31: ... declared with 'property: implicit-labels' here
 EOF
 
 

@@ -54,7 +54,8 @@
   // chance to reach the end of the current automaton in order to
   // process the next one.  Several variables below are used to keep
   // track of various error conditions.
-  enum label_style_t { Mixed_Labels, State_Labels, Trans_Labels };
+  enum label_style_t { Mixed_Labels, State_Labels, Trans_Labels,
+		       Implicit_Labels };
 
   struct result_
   {
@@ -261,13 +262,32 @@ header: format-version header-items
 	    }
 	  // Process properties.
 	  {
+	    auto explicit_labels = res.props.find("explicit-labels");
+	    auto implicit_labels = res.props.find("implicit-labels");
+	    if (implicit_labels != res.props.end())
+	      {
+		if (explicit_labels == res.props.end())
+		  {
+		    res.label_style = Implicit_Labels;
+		  }
+		else
+		  {
+		    error(implicit_labels->second,
+			  "'property: implicit-labels' is incompatible "
+			  "with...");
+		    error(explicit_labels->second,
+			  "... 'property: explicit-labels'.");
+		  }
+	      }
+
 	    auto trans_labels = res.props.find("trans-labels");
 	    auto state_labels = res.props.find("state-labels");
 	    if (trans_labels != res.props.end())
 	      {
 		if (state_labels == res.props.end())
 		  {
-		    res.label_style = Trans_Labels;
+		    if (res.label_style != Implicit_Labels)
+		      res.label_style = Trans_Labels;
 		  }
 		else
 		  {
@@ -279,7 +299,17 @@ header: format-version header-items
 	      }
 	    else if (state_labels != res.props.end())
 	      {
-		res.label_style = State_Labels;
+		if (res.label_style != Implicit_Labels)
+		  {
+		    res.label_style = State_Labels;
+		  }
+		else
+		  {
+		    error(state_labels->second,
+			  "'property: state-labels' is incompatible with...");
+		    error(implicit_labels->second,
+			  "... 'property: implicit-labels'.");
+		  }
 	      }
 	  }
 	}
@@ -612,10 +642,21 @@ states: | states state
 state: state-name labeled-edges
      | state-name unlabeled-edges
        {
-	 if (!res.has_state_label)
+	 if (!res.has_state_label) // Implicit labels
 	   {
 	     if (res.cur_guard != res.guards.end())
 	       error(@$, "not enough transitions for this state");
+
+	     if (res.label_style == State_Labels)
+	       {
+		 error(@2, "these transitions have implicit labels but the"
+		       " automaton is...");
+		 error(res.props["state-labels"], "... declared with "
+		       "'property: state-labels'");
+		 // Do not repeat this message.
+		 res.label_style = Mixed_Labels;
+	       }
+
 	     res.cur_guard = res.guards.begin();
 	   }
        }
@@ -649,12 +690,18 @@ state-label_opt:       { res.has_state_label = false; }
 		 res.has_state_label = true;
 		 res.state_label_loc = @1;
 		 res.state_label = res.cur_label;
-		 if (res.label_style == Trans_Labels)
+		 if (res.label_style == Trans_Labels
+		     || res.label_style == Implicit_Labels)
 		   {
 		     error(@$,
 			   "state label used although the automaton was...");
-		     error(res.props["trans-labels"],
-			   "... declared with 'property: trans-labels' here");
+		     if (res.label_style == Trans_Labels)
+		       error(res.props["trans-labels"],
+			     "... declared with 'property: trans-labels' here");
+		     else
+		       error(res.props["implicit-labels"],
+			     "... declared with 'property: implicit-labels' "
+			     "here");
 		     // Do not show this error anymore.
 		     res.label_style = Mixed_Labels;
 		   }
@@ -668,12 +715,19 @@ trans-label: label
 			     "... the state is already labeled.");
 		       res.cur_label = res.state_label;
 		     }
-		   if (res.label_style == State_Labels)
+		   if (res.label_style == State_Labels
+		       || res.label_style == Implicit_Labels)
 		     {
 		       error(@$, "transition label used although the "
 			     "automaton was...");
-		       error(res.props["state-labels"],
-			     "... declared with 'property: state-labels' here");
+		       if (res.label_style == State_Labels)
+			 error(res.props["state-labels"],
+			       "... declared with 'property: state-labels' "
+			       "here");
+		       else
+			 error(res.props["implicit-labels"],
+			       "... declared with 'property: implicit-labels' "
+			       "here");
 		       // Do not show this error anymore.
 		       res.label_style = Mixed_Labels;
 		     }
