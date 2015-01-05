@@ -6,6 +6,7 @@ config.status
 aclocal.m4
 autom4te.cache
 libtool
+auto
 *.gz
 *.patch
 *.o
