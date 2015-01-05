@@ -1,6 +1,6 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Laboratoire de Recherche et Développement
+# Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -36,3 +36,13 @@ $ltl2tgba 'FG(a | Xa | G!a)' -H | $autfilt -H --instut > neg.hoa
 $autfilt pos.hoa --product neg.hoa -H > prod.hoa
 $autfilt --is-empty prod.hoa -q && exit 1
 $autfilt --states=12 prod.hoa -q
+
+
+# Check for issue #7.
+#
+# We just run those without checking the output, it is enough to
+# trigger assertions in the HOA output routines.
+run 0 ../../bin/ltl2tgba -H 'X(a U b)' > det.hoa
+run 0 ../../bin/autfilt --destut det.hoa -H
+run 0 ../../bin/autfilt --instut=1 det.hoa -H
+run 0 ../../bin/autfilt --instut=2 det.hoa -H

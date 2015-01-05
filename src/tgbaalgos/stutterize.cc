@@ -1,9 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche
+// Copyright (C) 2014, 2015 Laboratoire de Recherche
 // et Développement de l'Epita (LRDE).
-// Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -152,34 +149,37 @@ namespace spot
       atomic_propositions = get_all_ap(a);
     unsigned num_states = a->num_states();
     unsigned num_transitions = a->num_transitions();
-    for (unsigned state = 0; state < num_states; ++state)
+    for (unsigned src = 0; src < num_states; ++src)
       {
-	auto trans = a->out(state);
+	auto trans = a->out(src);
 
 	for (auto it = trans.begin(); it != trans.end()
              && it.trans() <= num_transitions; ++it)
-	  {
-	    if (it->dst != state)
-	      {
-		bdd all = it->cond;
-		while (all != bddfalse)
-		  {
-		    unsigned dst = it->dst;
-		    bdd one = bdd_satoneset(all, atomic_propositions, bddtrue);
-		    unsigned tmp = a->new_state();
-		    unsigned i = a->new_transition(state, tmp, one,
-					it->acc);
-                    assert(i > num_transitions);
-		    i = a->new_transition(tmp, tmp, one, 0U);
-                    assert(i > num_transitions);
-		    i = a->new_transition(tmp, dst, one,
-					it->acc);
-                    assert(i > num_transitions);
-		    all -= one;
-		  }
-	      }
-	  }
+	  if (it->dst != src)
+	    {
+	      bdd all = it->cond;
+	      while (all != bddfalse)
+		{
+		  unsigned dst = it->dst;
+		  bdd one = bdd_satoneset(all, atomic_propositions, bddtrue);
+		  unsigned tmp = a->new_state();
+		  unsigned i = a->new_transition(src, tmp, one, it->acc);
+		  assert(i > num_transitions);
+		  i = a->new_transition(tmp, tmp, one, 0U);
+		  assert(i > num_transitions);
+		  // No acceptance here to preserve the state-based property.
+		  i = a->new_transition(tmp, dst, one, 0U);
+		  assert(i > num_transitions);
+		  all -= one;
+		}
+	    }
       }
+    if (num_states != a->num_states())
+      a->prop_keep({true,	// state_based
+	            true,	// single_acc
+	            false,	// inherently_weak
+	            false,	// deterministic
+	           });
     a->merge_transitions();
     return a;
   }

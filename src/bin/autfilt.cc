@@ -97,16 +97,17 @@ static const argp_option options[] =
     { "randomize", OPT_RANDOMIZE, "s|t", OPTION_ARG_OPTIONAL,
       "randomize states and transitions (specify 's' or 't' to "
       "randomize only states or transitions)", 0 },
-    { "instut", OPT_INSTUT, 0, 0, "allow more stuttering", 0 },
+    { "instut", OPT_INSTUT, "1|2", OPTION_ARG_OPTIONAL,
+      "allow more stuttering (two possible algorithms)", 0 },
     { "destut", OPT_DESTUT, 0, 0, "allow less stuttering", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filters:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
+    { "isomorphic", 0, 0, OPTION_ALIAS | OPTION_HIDDEN, 0, 0 },
     { "unique", 'u', 0, 0,
       "do not output the same automaton twice (same in the sense that they "\
       "are isomorphic)", 0 },
-    { "isomorphic", 0, 0, OPTION_ALIAS | OPTION_HIDDEN, 0, 0 },
     { "is-complete", OPT_IS_COMPLETE, 0, 0,
       "the automaton is complete", 0 },
     { "is-deterministic", OPT_IS_DETERMINISTIC, 0, 0,
@@ -160,7 +161,7 @@ static range opt_edges = { 0, std::numeric_limits<int>::max() };
 static range opt_accsets = { 0, std::numeric_limits<int>::max() };
 static int opt_max_count = -1;
 static bool opt_destut = false;
-static bool opt_instut = false;
+static char opt_instut = 0;
 static bool opt_is_empty = false;
 static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
 
@@ -235,7 +236,12 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_INSTUT:
-      opt_instut = true;
+      if (!arg || (arg[0] == '1' && arg[1] == 0))
+	opt_instut = 1;
+      else if (arg[0] == '2' && arg[1] == 0)
+	opt_instut = 2;
+      else
+	error(2, 0, "unknown argument for --instut: %s", arg);
       break;
     case OPT_DESTUT:
       opt_destut = true;
@@ -375,8 +381,10 @@ namespace
 
       if (opt_destut)
 	aut = spot::closure(std::move(aut));
-      if (opt_instut)
+      if (opt_instut == 1)
 	aut = spot::sl(std::move(aut));
+      else if (opt_instut == 2)
+	aut = spot::sl2(std::move(aut));
 
       if (opt_product)
 	aut = spot::product(std::move(aut), opt_product);
