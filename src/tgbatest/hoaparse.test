@@ -295,7 +295,7 @@ cat >input<<EOF
     acc-name: generalized-Buchi 2
     Acceptance: 2 (Inf(0) & Inf(1))
     AP: 2 "a" "b"
-    properties: state-labels
+    properties: state-labels complete
     --BODY--
     State: 0 "foo" { 0 }
       2  /* !a  & !b */
@@ -307,12 +307,34 @@ cat >input<<EOF
     State: 2 "sink state" { 0 }
       2 2 2 2
     --END--
+HOA: v1
+States: 3
+Start: 0
+acc-name: generalized-Buchi 2
+Acceptance: 2 (Inf(0) & Inf(1))
+AP: 2 "a" "b"
+properties: implicit-labels complete
+--BODY--
+State: [t] 0 "foo" { 0 }
+  2  /* !a  & !b */
+  0  /*  a  & !b */
+  1  /* !a  &  b */
+  0  /*  a  &  b */
+State: 1 { 1 }
+  1 1 1 1       /* four transitions on one line */
+State: 2 "sink state" { 0 }
+  2 2 2 2
+--END--
 EOF
 
 expecterr input <<EOF
 input:9.5-12.7: not enough transitions for this state
 input:10.7-12.7: these transitions have implicit labels but the automaton is...
 input:7.17-28: ... declared with 'property: state-labels'
+input:9.5-12.7: automaton is not complete...
+input:7.30-37: ... despite 'property: complete'
+input:27.8-10: state label used although the automaton was...
+input:25.13-27: ... declared with 'property: implicit-labels' here
 EOF
 
 cat >input<<EOF
@@ -322,7 +344,7 @@ cat >input<<EOF
     Start: 0
     acc-name: generalized-Buchi 2
     Acceptance: 2 (Inf(0) & Inf(1))
-    properties: implicit-labels explicit-labels /* ? */
+    properties: implicit-labels explicit-labels /* ? */ complete
     AP: 2 "a" "b"
     --BODY--
     State: 0 "foo" { 0 }
@@ -550,6 +572,50 @@ EOF
 
 diff expected input.out
 
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 0
+Start: 1
+AP: 2 "a" "\"b\""
+Acceptance: 1 Inf(0)
+properties: deterministic
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 1
+[0] 0
+--END--
+HOA: v1
+States: 0
+AP: 0
+Acceptance: 1 Inf(0)
+properties: complete
+--BODY--
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "\"b\""
+Acceptance: 1 Inf(0)
+properties: deterministic
+--BODY--
+State: 0 {0}
+[1] 1
+[!1] 0
+State: 1
+[!0] 1
+[!0] 0
+--END--
+EOF
+expecterr input <<EOF
+input:7.13-25: deterministic automata should have at most one initial state
+input:20.13-20: complete automata should have at least one initial state
+input:33.1-35.6: automaton is not deterministic...
+input:28.13-25: ... despite 'property: deterministic'
+EOF
 
 # Mix HOA with neverclaims and LBTT automata
 cat >input <<EOF

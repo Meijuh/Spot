@@ -98,6 +98,10 @@
     bool accept_all_needed = false;
     bool accept_all_seen = false;
     bool aliased_states = false;
+
+    bool deterministic = false;
+    bool complete = false;
+
     std::map<std::string, spot::location> labels;
 
     ~result_()
@@ -310,6 +314,43 @@ header: format-version header-items
 		    error(implicit_labels->second,
 			  "... 'property: implicit-labels'.");
 		  }
+	      }
+	  }
+	  {
+	    unsigned ss = res.start.size();
+	    if (ss > 1)
+	      {
+		auto det = res.props.find("deterministic");
+		if (det != res.props.end())
+		  {
+		    error(det->second,
+			  "deterministic automata should have at most "
+			  "one initial state");
+		  }
+		res.deterministic = false;
+	      }
+	    else
+	      {
+		// Assume the automaton is deterministic until proven
+		// wrong.
+		res.deterministic = true;
+	      }
+	    if (ss < 1)
+	      {
+		auto complete = res.props.find("complete");
+		if (complete != res.props.end())
+		  {
+		    error(complete->second,
+			  "complete automata should have at least "
+			  "one initial state");
+		  }
+		res.complete = false;
+	      }
+	    else
+	      {
+		// Assume the automaton is complete until proven
+		// wrong.
+		res.complete = true;
 	      }
 	  }
 	}
@@ -639,6 +680,39 @@ checked-state-num: state-num
 		   }
 
 states: | states state
+        {
+	  if (res.deterministic || res.complete)
+	    {
+	      bdd available = bddtrue;
+	      bool det = true;
+	      for (auto& t: res.h->aut->out(res.cur_state))
+		{
+		  if (det && !bdd_implies(t.cond, available))
+		    det = false;
+		  available -= t.cond;
+		}
+	      if (res.deterministic && !det)
+		{
+		  res.deterministic = false;
+		  auto p = res.props.find("deterministic");
+		  if (p != res.props.end())
+		    {
+		      error(@2, "automaton is not deterministic...");
+		      error(p->second, "... despite 'property: deterministic'");
+		    }
+		}
+	      if (res.complete && available != bddfalse)
+		{
+		  res.complete = false;
+		  auto p = res.props.find("complete");
+		  if (p != res.props.end())
+		    {
+		      error(@2, "automaton is not complete...");
+		      error(p->second, "... despite 'property: complete'");
+		    }
+		}
+	    }
+	}
 state: state-name labeled-edges
      | state-name unlabeled-edges
        {
@@ -661,6 +735,11 @@ state: state-name labeled-edges
 	   }
        }
      | error
+       {
+	 // Assume the worse.
+	 res.deterministic = false;
+	 res.complete = false;
+       }
 
 state-name: "State:" state-label_opt checked-state-num string_opt acc-sig_opt
 	  {
@@ -1066,6 +1145,7 @@ lbtt-header: lbtt-header-states INT_S
 lbtt-body: lbtt-states
 lbtt-states:
            | lbtt-states lbtt-state lbtt-transitions
+
 lbtt-state: STATE_NUM INT lbtt-acc
           {
 	    res.cur_state = $1;
@@ -1225,6 +1305,12 @@ static void fix_initial_state(result_& r)
     }
 }
 
+static void fix_properties(result_& r)
+{
+  r.h->aut->prop_deterministic(r.deterministic);
+  //r.h->aut->prop_complete(r.complete);
+}
+
 namespace spot
 {
   hoa_stream_parser::hoa_stream_parser(const std::string& name)
@@ -1272,6 +1358,7 @@ namespace spot
     if (r.neg_acc_sets)
       fix_acceptance(r);
     fix_initial_state(r);
+    fix_properties(r);
     return r.h;
   };
 }
