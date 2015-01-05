@@ -131,6 +131,11 @@ namespace spot
 	is_deterministic = deterministic;
 	is_complete = complete;
 	has_state_acc = state_acc;
+
+	// If the automaton declares that it is deterministic or
+	// state-based, make sure that it really is.
+	assert(!aut->is_deterministic() || deterministic);
+	assert(!aut->has_state_based_acc() || state_acc);
       }
 
       void number_all_ap()
