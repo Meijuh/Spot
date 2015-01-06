@@ -74,17 +74,18 @@ dstar2tgba -B fagfb
 #+RESULTS:
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="1"]
-  1 -> 2 [label="a\n"]
-  1 -> 1 [label="!a\n"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="b\n{Acc[1]}"]
-  2 -> 3 [label="!b\n{Acc[1]}"]
-  3 [label="3"]
-  3 -> 2 [label="b\n"]
-  3 -> 3 [label="!b\n"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label="!a"]
+  0 -> 1 [label="a"]
+  1 [label="1", peripheries=2]
+  1 -> 1 [label="b"]
+  1 -> 2 [label="!b"]
+  2 [label="2"]
+  2 -> 1 [label="b"]
+  2 -> 2 [label="!b"]
 }
 #+end_example
 
@@ -97,17 +98,18 @@ dstar2tgba -B fagfb | sed 's/\\/\\\\/'
 #+RESULTS: fagfb2ba
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="1"]
-  1 -> 2 [label="a\\n"]
-  1 -> 1 [label="!a\\n"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="b\\n{Acc[1]}"]
-  2 -> 3 [label="!b\\n{Acc[1]}"]
-  3 [label="3"]
-  3 -> 2 [label="b\\n"]
-  3 -> 3 [label="!b\\n"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label="!a"]
+  0 -> 1 [label="a"]
+  1 [label="1", peripheries=2]
+  1 -> 1 [label="b"]
+  1 -> 2 [label="!b"]
+  2 [label="2"]
+  2 -> 1 [label="b"]
+  2 -> 2 [label="!b"]
 }
 #+end_example
 
@@ -127,8 +129,8 @@ dstar2tgba -s fagfb
 never {
 T0_init:
   if
-  :: ((a)) -> goto accept_S2
   :: ((!(a))) -> goto T0_init
+  :: ((a)) -> goto accept_S2
   fi;
 accept_S2:
   if
@@ -199,15 +201,16 @@ dstar2tgba gfagfb
 #+RESULTS:
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 1 [label="1"]
   1 [label="1"]
-  1 -> 2 [label="1\n"]
-  2 [label="2"]
-  2 -> 2 [label="a & b\n{Acc[\"1\"], Acc[\"0\"]}"]
-  2 -> 2 [label="b & !a\n{Acc[\"1\"]}"]
-  2 -> 2 [label="a & !b\n{Acc[\"0\"]}"]
-  2 -> 2 [label="!a & !b\n"]
+  1 -> 1 [label="!a & !b"]
+  1 -> 1 [label="a & !b\n{0}"]
+  1 -> 1 [label="!a & b\n{1}"]
+  1 -> 1 [label="a & b\n{0,1}"]
 }
 #+end_example
 
@@ -218,15 +221,16 @@ dstar2tgba gfagfb | sed 's/\\/\\\\/g'
 #+RESULTS: gfagfb2ba
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 1 [label="1"]
   1 [label="1"]
-  1 -> 2 [label="1\\n"]
-  2 [label="2"]
-  2 -> 2 [label="a & b\\n{Acc[\\"1\\"], Acc[\\"0\\"]}"]
-  2 -> 2 [label="b & !a\\n{Acc[\\"1\\"]}"]
-  2 -> 2 [label="a & !b\\n{Acc[\\"0\\"]}"]
-  2 -> 2 [label="!a & !b\\n"]
+  1 -> 1 [label="!a & !b"]
+  1 -> 1 [label="a & !b\\n{0}"]
+  1 -> 1 [label="!a & b\\n{1}"]
+  1 -> 1 [label="a & b\\n{0,1}"]
 }
 #+end_example
 
@@ -293,24 +297,35 @@ dstar2tgba --help | sed -n '/Optimization level:/,/^$/p' | sed '1d;$d'
 For instance using =-a --low= will skip any optional post-processing,
 should you find =dstar2tgba= too slow.
 
-Finally, the output format can be changed with the following options:
+Finally, the output format can be changed with the following
+[[file:oaout.org][common ouput options]]:
 #+BEGIN_SRC sh :results verbatim :exports results
 dstar2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
-:   -8, --utf8                 enable UTF-8 characters in output (ignored with
-:                              --lbtt or --spin)
-:       --dot                  GraphViz's format (default)
-:       --lbtt[=t]             LBTT's format (add =t to force transition-based
-:                              acceptance even on Büchi automata)
-:   -s, --spin                 Spin neverclaim (implies --ba)
-:       --spot                 SPOT's format
-:       --stats=FORMAT         output statistics about the automaton
+#+begin_example
+  -8, --utf8                 enable UTF-8 characters in output (ignored with
+                             --lbtt or --spin)
+      --dot[=c|h|n|N|s|t|v]  GraphViz's format (default).  Add letters to chose
+                             (c) circular nodes, (h) horizontal layout, (v)
+                             vertical layout, (n) with name, (N) without name,
+                             (s) with SCCs, (t) always transition-based
+                             acceptance.
+  -H, --hoaf[=s|t|m|l]       Output the automaton in HOA format.  Add letters
+                             to select (s) state-based acceptance, (t)
+                             transition-based acceptance, (m) mixed acceptance,
+                             (l) single-line output
+      --lbtt[=t]             LBTT's format (add =t to force transition-based
+                             acceptance even on Büchi automata)
+      --name=FORMAT          set the name of the output automaton
+  -s, --spin                 Spin neverclaim (implies --ba)
+      --spot                 SPOT's format
+      --stats=FORMAT         output statistics about the automaton
+#+end_example
 
 The =--stats= options can output statistics about the input and the
 output automaton, so it can be useful to search for particular
 pattern.
-
 
 For instance here is a complex command that will
 
@@ -333,7 +348,7 @@ output (Büchi) automaton, =%d=, whether the output automaton is
 deterministic, and =%p= whether the automaton is complete.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randltl -n -1 --tree-size=10..15 a b c |
+randltl -n -1 --tree-size=10..14 a b c |
 ltlfilt --remove-wm -r -u --size-min=3 |
 head -n 10 |
 while read f; do
@@ -346,26 +361,26 @@ done
 
 #+RESULTS:
 #+begin_example
-F(a | !b)
-  DRA: 2st.; BA: 2st.; det.? 1; complete? 1
-Fa | (Xc U (c & Xc))
-  DRA: 5st.; BA: 5st.; det.? 1; complete? 1
-X(((!b & XGc) | (b & XF!c)) U (!a & ((!b & XGc) | (b & XF!c))))
-  DRA: 8st.; BA: 7st.; det.? 1; complete? 0
-!b | !a
+c U (c & (a | b | (Xc U (a & Xc))))
   DRA: 3st.; BA: 2st.; det.? 1; complete? 0
-F!a
-  DRA: 2st.; BA: 2st.; det.? 1; complete? 1
-F(Ga R (b | Ga))
-  DRA: 10st.; BA: 10st.; det.? 0; complete? 0
-!c U (!c & !a)
+!b | F!c
+  DRA: 3st.; BA: 3st.; det.? 1; complete? 1
+(!a R F!b) R !b
+  DRA: 6st.; BA: 5st.; det.? 1; complete? 0
+b U !c
   DRA: 3st.; BA: 2st.; det.? 1; complete? 0
-!c | FGb
-  DRA: 4st.; BA: 5st.; det.? 0; complete? 0
-G(c U a)
+GFc
+  DRA: 3st.; BA: 3st.; det.? 1; complete? 1
+(F!c U a) R !a
+  DRA: 6st.; BA: 5st.; det.? 1; complete? 0
+b | G!b
   DRA: 4st.; BA: 3st.; det.? 1; complete? 0
-c & Gb
-  DRA: 3st.; BA: 2st.; det.? 1; complete? 0
+!a R (!c & (!a | (F!b U (!a & F!b))))
+  DRA: 5st.; BA: 4st.; det.? 1; complete? 0
+F(a & !b & G!c)
+  DRA: 2st.; BA: 3st.; det.? 0; complete? 0
+GF!c
+  DRA: 3st.; BA: 3st.; det.? 1; complete? 1
 #+end_example
 
 An important point you should be aware of when comparing these numbers

@@ -20,14 +20,15 @@ ltl2tgba -f 'Fa & GFb'
 #+RESULTS:
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label="0"]
+  0 -> 0 [label="b\n{0}"]
+  0 -> 0 [label="!b"]
   1 [label="1"]
-  1 -> 1 [label="!a\n"]
-  1 -> 2 [label="a\n"]
-  2 [label="2"]
-  2 -> 2 [label="b\n{Acc[b]}"]
-  2 -> 2 [label="!b\n"]
+  1 -> 0 [label="a"]
+  1 -> 1 [label="!a"]
 }
 #+end_example
 
@@ -54,14 +55,15 @@ ltl2tgba "Fa & GFb" | sed 's/\\/\\\\/'
 #+RESULTS: dotex
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label="0"]
+  0 -> 0 [label="b\\n{0}"]
+  0 -> 0 [label="!b"]
   1 [label="1"]
-  1 -> 2 [label="a\\n"]
-  1 -> 1 [label="!a\\n"]
-  2 [label="2"]
-  2 -> 2 [label="b\\n{Acc[b]}"]
-  2 -> 2 [label="!b\\n"]
+  1 -> 0 [label="a"]
+  1 -> 1 [label="!a"]
 }
 #+end_example
 
@@ -72,17 +74,17 @@ $txt
 #+RESULTS:
 [[file:dotex.png]]
 
-The string between braces, =Acc[b]=, represents an acceptance set (its
-actual name is not really important): any transition labeled by
-=Acc[b]= belongs to the =Acc[b]= acceptance set.  You may have many
-transitions in the same acceptance set, and a transition may also
-belong to multiple acceptance sets.  An infinite path through this
-automaton is accepting iff it visit each acceptance set infinitely
-often.  Therefore, in the above example, any accepted path will
-/necessarily/ leave the initial state after a finite amount of steps,
-and then it will verify the property =b= infinitely often.  It is also
-possible that an automaton do not use any acceptance set at all, in
-which any run is accepting.
+The string between braces, ={0}=, represents the sets of acceptance
+sets a transition belongs to.  In this case, there is only one
+acceptance set, called =0=, containing a single transition.  You may
+have many transitions in the same acceptance set, and a transition may
+also belong to multiple acceptance sets.  An infinite path through
+this automaton is accepting iff it visit each acceptance set
+infinitely often.  Therefore, in the above example, any accepted path
+will /necessarily/ leave the initial state after a finite amount of
+steps, and then it will verify the property =b= infinitely often.  It
+is also possible that an automaton do not use any acceptance set at
+all, in which any run is accepting.
 
 Here is a TGBA with multiple acceptance sets (we omit the call to
 =dot= to render the output of =ltl2tgba= from now on):
@@ -91,30 +93,36 @@ Here is a TGBA with multiple acceptance sets (we omit the call to
 ltl2tgba 'GFa & GFb'
 #+END_SRC
 #+RESULTS:
-: digraph G {
-:   0 [label="", style=invis, height=0]
-:   0 -> 1
-:   1 [label="1"]
-:   1 -> 1 [label="a & b\n{Acc[b], Acc[a]}"]
-:   1 -> 1 [label="b & !a\n{Acc[b]}"]
-:   1 -> 1 [label="a & !b\n{Acc[a]}"]
-:   1 -> 1 [label="!b & !a\n"]
-: }
+#+begin_example
+digraph G {
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label="a & b\n{0,1}"]
+  0 -> 0 [label="!a & !b"]
+  0 -> 0 [label="!a & b\n{1}"]
+  0 -> 0 [label="a & !b\n{0}"]
+}
+#+end_example
 
 #+NAME: dotex2
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba "GFa & GFb" | sed 's/\\/\\\\/'
 #+END_SRC
 #+RESULTS: dotex2
-: digraph G {
-:   0 [label="", style=invis, height=0]
-:   0 -> 1
-:   1 [label="1"]
-:   1 -> 1 [label="a & b\\n{Acc[b], Acc[a]}"]
-:   1 -> 1 [label="b & !a\\n{Acc[b]}"]
-:   1 -> 1 [label="a & !b\\n{Acc[a]}"]
-:   1 -> 1 [label="!b & !a\\n"]
-: }
+#+begin_example
+digraph G {
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label="a & b\\n{0,1}"]
+  0 -> 0 [label="!a & !b"]
+  0 -> 0 [label="!a & b\\n{1}"]
+  0 -> 0 [label="a & !b\\n{0}"]
+}
+#+end_example
 
 #+BEGIN_SRC dot :file dotex2.png :cmdline -Tpng :var txt=dotex2 :exports results
 $txt
@@ -122,9 +130,9 @@ $txt
 #+RESULTS:
 [[file:dotex2.png]]
 
-The above TGBA has two acceptance sets: =Acc[a]= and =Acc[b]=.
-The position of these acceptance sets ensures that =a= and =b= atomic
-proposition must be true infinitely often.
+The above TGBA has two acceptance sets: =0= and =1=.  The position of
+these acceptance sets ensures that atomic propositions =a= and =b= must
+be true infinitely often.
 
 A Büchi automaton for the previous formula can be obtained with the
 =-B= option:
@@ -135,19 +143,20 @@ ltl2tgba -B 'GFa & GFb'
 #+RESULTS:
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 1 [label="a & b\n{Acc[1]}"]
-  1 -> 2 [label="b & !a\n{Acc[1]}"]
-  1 -> 3 [label="!b\n{Acc[1]}"]
-  2 [label="1"]
-  2 -> 1 [label="a\n"]
-  2 -> 2 [label="!a\n"]
-  3 [label="2"]
-  3 -> 1 [label="a & b\n"]
-  3 -> 2 [label="b & !a\n"]
-  3 -> 3 [label="!b\n"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="a & b"]
+  0 -> 1 [label="!b"]
+  0 -> 2 [label="!a & b"]
+  1 [label="1"]
+  1 -> 0 [label="a & b"]
+  1 -> 1 [label="!b"]
+  1 -> 2 [label="!a & b"]
+  2 [label="2"]
+  2 -> 0 [label="a"]
+  2 -> 2 [label="!a"]
 }
 #+end_example
 
@@ -158,19 +167,20 @@ ltl2tgba -B 'GFa & GFb' | sed 's/\\/\\\\/'
 #+RESULTS: dotex2ba
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 1 [label="a & b\\n{Acc[1]}"]
-  1 -> 2 [label="b & !a\\n{Acc[1]}"]
-  1 -> 3 [label="!b\\n{Acc[1]}"]
-  2 [label="1"]
-  2 -> 1 [label="a\\n"]
-  2 -> 2 [label="!a\\n"]
-  3 [label="2"]
-  3 -> 1 [label="a & b\\n"]
-  3 -> 2 [label="b & !a\\n"]
-  3 -> 3 [label="!b\\n"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="a & b"]
+  0 -> 1 [label="!b"]
+  0 -> 2 [label="!a & b"]
+  1 [label="1"]
+  1 -> 0 [label="a & b"]
+  1 -> 1 [label="!b"]
+  1 -> 2 [label="!a & b"]
+  2 [label="2"]
+  2 -> 0 [label="a"]
+  2 -> 2 [label="!a"]
 }
 #+end_example
 
@@ -182,25 +192,93 @@ $txt
 
 Although accepting states in the Büchi automaton are pictured with
 double-lines, internally this automaton is still handled as a TGBA
-with a single acceptance set =Acc[1]= such that the transitions
+with a single acceptance set such that the transitions
 leaving the state are either all accepting, or all non-accepting.
-This is the reason why the =Acc[1]= sets are still shown in the
-output: it shows that a Büchi automaton is (a special case of) a TGBA.
+You can see this underlying TGBA if you pass the =--dot=t= option
+(the =t= requests the use of transition-based acceptance at it
+is done internally):
 
-Various options controls the output format of =ltl2tgba=:
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba --dot=t -B 'GFa & GFb'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+digraph G {
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label="a & b\n{0}"]
+  0 -> 1 [label="!b\n{0}"]
+  0 -> 2 [label="!a & b\n{0}"]
+  1 [label="1"]
+  1 -> 0 [label="a & b"]
+  1 -> 1 [label="!b"]
+  1 -> 2 [label="!a & b"]
+  2 [label="2"]
+  2 -> 0 [label="a"]
+  2 -> 2 [label="!a"]
+}
+#+end_example
+
+#+NAME: dotex2ba-t
+#+BEGIN_SRC sh :results verbatim :exports none
+ltl2tgba --dot=t -B 'GFa & GFb' | sed 's/\\/\\\\/'
+#+END_SRC
+
+#+RESULTS: dotex2ba-t
+#+begin_example
+digraph G {
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label="a & b\\n{0}"]
+  0 -> 1 [label="!b\\n{0}"]
+  0 -> 2 [label="!a & b\\n{0}"]
+  1 [label="1"]
+  1 -> 0 [label="a & b"]
+  1 -> 1 [label="!b"]
+  1 -> 2 [label="!a & b"]
+  2 [label="2"]
+  2 -> 0 [label="a"]
+  2 -> 2 [label="!a"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file dotex2ba-t.png :cmdline -Tpng :var txt=dotex2ba-t :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:dotex2ba-t.png]]
+
+As already discussed on the page about [[file:oaut.org][common output options]], various
+options controls the output format of =ltl2tgba=:
 
 #+BEGIN_SRC sh :results verbatim :exports results
 ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
-:   -8, --utf8                 enable UTF-8 characters in output (ignored with
-:                              --lbtt or --spin)
-:       --dot                  GraphViz's format (default)
-:       --lbtt                 LBTT's format
-:   -s, --spin                 Spin neverclaim (implies --ba)
-:       --spot                 SPOT's format
-:       --stats=FORMAT         output statistics about the automaton
-
+#+begin_example
+  -8, --utf8                 enable UTF-8 characters in output (ignored with
+                             --lbtt or --spin)
+      --dot[=c|h|n|N|s|t|v]  GraphViz's format (default).  Add letters to chose
+                             (c) circular nodes, (h) horizontal layout, (v)
+                             vertical layout, (n) with name, (N) without name,
+                             (s) with SCCs, (t) always transition-based
+                             acceptance.
+  -H, --hoaf[=s|t|m|l]       Output the automaton in HOA format.  Add letters
+                             to select (s) state-based acceptance, (t)
+                             transition-based acceptance, (m) mixed acceptance,
+                             (l) single-line output
+      --lbtt[=t]             LBTT's format (add =t to force transition-based
+                             acceptance even on Büchi automata)
+      --name=FORMAT          set the name of the output automaton
+  -q, --quiet                suppress all normal output
+  -s, --spin                 Spin neverclaim (implies --ba)
+      --spot                 SPOT's format
+      --stats=FORMAT         output statistics about the automaton
+#+end_example
 
 Option =-8= can be used to improve the readability of the output
 if your system can display UTF-8 correctly.
@@ -211,19 +289,20 @@ ltl2tgba -B8 'GFa & GFb'
 #+RESULTS:
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 1 [label="a∧b\n{Acc[1]}"]
-  1 -> 2 [label="b∧a̅\n{Acc[1]}"]
-  1 -> 3 [label="b̅\n{Acc[1]}"]
-  2 [label="1"]
-  2 -> 1 [label="a\n"]
-  2 -> 2 [label="a̅\n"]
-  3 [label="2"]
-  3 -> 1 [label="a∧b\n"]
-  3 -> 2 [label="b∧a̅\n"]
-  3 -> 3 [label="b̅\n"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="a∧b"]
+  0 -> 1 [label="b̅"]
+  0 -> 2 [label="a̅∧b"]
+  1 [label="1"]
+  1 -> 0 [label="a∧b"]
+  1 -> 1 [label="b̅"]
+  1 -> 2 [label="a̅∧b"]
+  2 [label="2"]
+  2 -> 0 [label="a"]
+  2 -> 2 [label="a̅"]
 }
 #+end_example
 
@@ -234,19 +313,20 @@ ltl2tgba -B8 "GFa & GFb" | sed 's/\\/\\\\/'
 #+RESULTS: dotex2ba8
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 1 [label="a∧b\\n{Acc[1]}"]
-  1 -> 2 [label="b∧a̅\\n{Acc[1]}"]
-  1 -> 3 [label="b̅\\n{Acc[1]}"]
-  2 [label="1"]
-  2 -> 1 [label="a\\n"]
-  2 -> 2 [label="a̅\\n"]
-  3 [label="2"]
-  3 -> 1 [label="a∧b\\n"]
-  3 -> 2 [label="b∧a̅\\n"]
-  3 -> 3 [label="b̅\\n"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="a∧b"]
+  0 -> 1 [label="b̅"]
+  0 -> 2 [label="a̅∧b"]
+  1 [label="1"]
+  1 -> 0 [label="a∧b"]
+  1 -> 1 [label="b̅"]
+  1 -> 2 [label="a̅∧b"]
+  2 [label="2"]
+  2 -> 0 [label="a"]
+  2 -> 2 [label="a̅"]
 }
 #+end_example
 
@@ -272,19 +352,19 @@ never { /* G(Fa & Fb) */
 accept_init:
   if
   :: ((a) && (b)) -> goto accept_init
-  :: ((b) && (!((a)))) -> goto T0_S2
-  :: ((!((b)))) -> goto T0_S3
+  :: ((!(b))) -> goto T0_S2
+  :: ((!(a)) && (b)) -> goto T0_S3
   fi;
 T0_S2:
   if
-  :: ((a)) -> goto accept_init
-  :: ((!((a)))) -> goto T0_S2
+  :: ((a) && (b)) -> goto accept_init
+  :: ((!(b))) -> goto T0_S2
+  :: ((!(a)) && (b)) -> goto T0_S3
   fi;
 T0_S3:
   if
-  :: ((a) && (b)) -> goto accept_init
-  :: ((b) && (!((a)))) -> goto T0_S2
-  :: ((!((b)))) -> goto T0_S3
+  :: ((a)) -> goto accept_init
+  :: ((!(a))) -> goto T0_S3
   fi;
 }
 #+end_example
@@ -348,18 +428,19 @@ ltl2tgba 'Ga|Gb|Gc'
 #+RESULTS:
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="1"]
-  1 -> 2 [label="b\n"]
-  1 -> 3 [label="c\n"]
-  1 -> 4 [label="a\n"]
-  2 [label="2"]
-  2 -> 2 [label="b\n"]
-  3 [label="3"]
-  3 -> 3 [label="c\n"]
-  4 [label="4"]
-  4 -> 4 [label="a\n"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 1 [label="a"]
+  0 -> 2 [label="b"]
+  0 -> 3 [label="c"]
+  1 [label="1", peripheries=2]
+  1 -> 1 [label="a"]
+  2 [label="2", peripheries=2]
+  2 -> 2 [label="b"]
+  3 [label="3", peripheries=2]
+  3 -> 3 [label="c"]
 }
 #+end_example
 
@@ -370,18 +451,19 @@ ltl2tgba "Ga|Gb|Gc" | sed 's/\\/\\\\/'
 #+RESULTS: gagbgc1
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="1"]
-  1 -> 2 [label="c\\n"]
-  1 -> 3 [label="b\\n"]
-  1 -> 4 [label="a\\n"]
-  2 [label="2"]
-  2 -> 2 [label="c\\n"]
-  3 [label="3"]
-  3 -> 3 [label="b\\n"]
-  4 [label="4"]
-  4 -> 4 [label="a\\n"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 1 [label="a"]
+  0 -> 2 [label="b"]
+  0 -> 3 [label="c"]
+  1 [label="1", peripheries=2]
+  1 -> 1 [label="a"]
+  2 [label="2", peripheries=2]
+  2 -> 2 [label="b"]
+  3 [label="3", peripheries=2]
+  3 -> 3 [label="c"]
 }
 #+end_example
 
@@ -397,34 +479,35 @@ ltl2tgba -D 'Ga|Gb|Gc'
 #+RESULTS:
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="6"]
-  1 -> 1 [label="a & b & c\n{Acc[1]}"]
-  1 -> 2 [label="b & c & !a\n{Acc[1]}"]
-  1 -> 3 [label="a & c & !b\n{Acc[1]}"]
-  1 -> 4 [label="c & !a & !b\n{Acc[1]}"]
-  1 -> 5 [label="a & b & !c\n{Acc[1]}"]
-  1 -> 6 [label="b & !a & !c\n{Acc[1]}"]
-  1 -> 7 [label="a & !b & !c\n{Acc[1]}"]
-  2 [label="2"]
-  2 -> 2 [label="b & c\n{Acc[1]}"]
-  2 -> 4 [label="c & !b\n{Acc[1]}"]
-  2 -> 6 [label="b & !c\n{Acc[1]}"]
-  3 [label="4"]
-  3 -> 3 [label="a & c\n{Acc[1]}"]
-  3 -> 4 [label="c & !a\n{Acc[1]}"]
-  3 -> 7 [label="a & !c\n{Acc[1]}"]
-  4 [label="1"]
-  4 -> 4 [label="c\n{Acc[1]}"]
-  5 [label="5"]
-  5 -> 5 [label="a & b\n{Acc[1]}"]
-  5 -> 6 [label="b & !a\n{Acc[1]}"]
-  5 -> 7 [label="a & !b\n{Acc[1]}"]
-  6 [label="3"]
-  6 -> 6 [label="b\n{Acc[1]}"]
-  7 [label="0"]
-  7 -> 7 [label="a\n{Acc[1]}"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 6
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="c"]
+  1 [label="1", peripheries=2]
+  1 -> 0 [label="!b & c"]
+  1 -> 1 [label="b & c"]
+  1 -> 2 [label="b & !c"]
+  2 [label="2", peripheries=2]
+  2 -> 2 [label="b"]
+  3 [label="3", peripheries=2]
+  3 -> 2 [label="!a & b"]
+  3 -> 3 [label="a & b"]
+  3 -> 5 [label="a & !b"]
+  4 [label="4", peripheries=2]
+  4 -> 0 [label="!a & c"]
+  4 -> 4 [label="a & c"]
+  4 -> 5 [label="a & !c"]
+  5 [label="5", peripheries=2]
+  5 -> 5 [label="a"]
+  6 [label="6", peripheries=2]
+  6 -> 0 [label="!a & !b & c"]
+  6 -> 1 [label="!a & b & c"]
+  6 -> 2 [label="!a & b & !c"]
+  6 -> 3 [label="a & b & !c"]
+  6 -> 4 [label="a & !b & c"]
+  6 -> 5 [label="a & !b & !c"]
+  6 -> 6 [label="a & b & c"]
 }
 #+end_example
 
@@ -435,34 +518,35 @@ ltl2tgba -D 'Ga|Gb|Gc' | sed 's/\\/\\\\/'
 #+RESULTS: gagbgc2
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="6"]
-  1 -> 1 [label="a & b & c\\n{Acc[1]}"]
-  1 -> 2 [label="b & c & !a\\n{Acc[1]}"]
-  1 -> 3 [label="a & c & !b\\n{Acc[1]}"]
-  1 -> 4 [label="c & !a & !b\\n{Acc[1]}"]
-  1 -> 5 [label="a & b & !c\\n{Acc[1]}"]
-  1 -> 6 [label="b & !a & !c\\n{Acc[1]}"]
-  1 -> 7 [label="a & !b & !c\\n{Acc[1]}"]
-  2 [label="1"]
-  2 -> 2 [label="b & c\\n{Acc[1]}"]
-  2 -> 4 [label="c & !b\\n{Acc[1]}"]
-  2 -> 6 [label="b & !c\\n{Acc[1]}"]
-  3 [label="2"]
-  3 -> 3 [label="a & c\\n{Acc[1]}"]
-  3 -> 4 [label="c & !a\\n{Acc[1]}"]
-  3 -> 7 [label="a & !c\\n{Acc[1]}"]
-  4 [label="0"]
-  4 -> 4 [label="c\\n{Acc[1]}"]
-  5 [label="4"]
-  5 -> 5 [label="a & b\\n{Acc[1]}"]
-  5 -> 6 [label="b & !a\\n{Acc[1]}"]
-  5 -> 7 [label="a & !b\\n{Acc[1]}"]
-  6 [label="3"]
-  6 -> 6 [label="b\\n{Acc[1]}"]
-  7 [label="5"]
-  7 -> 7 [label="a\\n{Acc[1]}"]
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 6
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="c"]
+  1 [label="1", peripheries=2]
+  1 -> 0 [label="!b & c"]
+  1 -> 1 [label="b & c"]
+  1 -> 2 [label="b & !c"]
+  2 [label="2", peripheries=2]
+  2 -> 2 [label="b"]
+  3 [label="3", peripheries=2]
+  3 -> 2 [label="!a & b"]
+  3 -> 3 [label="a & b"]
+  3 -> 5 [label="a & !b"]
+  4 [label="4", peripheries=2]
+  4 -> 0 [label="!a & c"]
+  4 -> 4 [label="a & c"]
+  4 -> 5 [label="a & !c"]
+  5 [label="5", peripheries=2]
+  5 -> 5 [label="a"]
+  6 [label="6", peripheries=2]
+  6 -> 0 [label="!a & !b & c"]
+  6 -> 1 [label="!a & b & c"]
+  6 -> 2 [label="!a & b & !c"]
+  6 -> 3 [label="a & b & !c"]
+  6 -> 4 [label="a & !b & c"]
+  6 -> 5 [label="a & !b & !c"]
+  6 -> 6 [label="a & b & c"]
 }
 #+end_example
 
@@ -556,14 +640,18 @@ ltl2tgba --help | sed -n '/^ *%/p'
   %%                         a single %
   %a                         number of acceptance sets
   %c                         number of SCCs
-  %d                         1 if the automaton is deterministic, 0 otherwise
+  %d                         1 if the output is deterministic, 0 otherwise
   %e                         number of edges
   %f                         the formula, in Spot's syntax
-  %n                         number of nondeterministic states
-  %p                         1 if the automaton is complete, 0 otherwise
-  %r                         translation time (including pre- and
+  %F                         name of the input file
+  %L                         location in the input file
+  %m                         name of the automaton
+  %n                         number of nondeterministic states in output
+  %p                         1 if the output is complete, 0 otherwise
+  %r                         processing time (excluding parsing) in seconds
   %s                         number of states
   %t                         number of transitions
+  %w                         one word accepted by the output automaton
 #+end_example
 
 For instance we can study the size of the automata generated for the
@@ -618,19 +706,21 @@ ltl2tgba -M '(Xa & Fb) | Gc'
 #+RESULTS:
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 1 [label="1"]
+  0 -> 3 [label="c"]
   1 [label="1", peripheries=2]
-  1 -> 2 [label="1\n"]
-  1 -> 3 [label="c\n"]
+  1 -> 2 [label="a"]
   2 [label="2", peripheries=2]
-  2 -> 4 [label="a\n"]
+  2 -> 2 [label="1"]
   3 [label="3", peripheries=2]
-  3 -> 3 [label="c\n"]
-  4 [label="4", peripheries=2]
-  4 -> 4 [label="1\n"]
+  3 -> 3 [label="c"]
 }
 #+end_example
+
 #+NAME: monitor1
 #+BEGIN_SRC sh :results verbatim :exports none
 ltl2tgba -M '(Xa & Fb) | Gc' | sed 's/\\/\\\\/'
@@ -639,17 +729,18 @@ ltl2tgba -M '(Xa & Fb) | Gc' | sed 's/\\/\\\\/'
 #+RESULTS: monitor1
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0", peripheries=2]
+  0 -> 1 [label="1"]
+  0 -> 3 [label="c"]
   1 [label="1", peripheries=2]
-  1 -> 2 [label="1\\n"]
-  1 -> 3 [label="c\\n"]
+  1 -> 2 [label="a"]
   2 [label="2", peripheries=2]
-  2 -> 4 [label="a\\n"]
+  2 -> 2 [label="1"]
   3 [label="3", peripheries=2]
-  3 -> 3 [label="c\\n"]
-  4 [label="4", peripheries=2]
-  4 -> 4 [label="1\\n"]
+  3 -> 3 [label="c"]
 }
 #+end_example
 
@@ -666,20 +757,21 @@ ltl2tgba -MD '(Xa & Fb) | Gc'
 #+RESULTS:
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 3
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="1"]
   1 [label="1", peripheries=2]
-  1 -> 2 [label="c\n"]
-  1 -> 3 [label="!c\n"]
-  2 [label="4", peripheries=2]
-  2 -> 4 [label="a\n"]
-  2 -> 5 [label="c & !a\n"]
+  1 -> 0 [label="a"]
+  2 [label="2", peripheries=2]
+  2 -> 2 [label="c"]
   3 [label="3", peripheries=2]
-  3 -> 4 [label="a\n"]
-  4 [label="2", peripheries=2]
-  4 -> 4 [label="1\n"]
-  5 [label="0", peripheries=2]
-  5 -> 5 [label="c\n"]
+  3 -> 1 [label="!c"]
+  3 -> 4 [label="c"]
+  4 [label="4", peripheries=2]
+  4 -> 0 [label="a"]
+  4 -> 2 [label="!a & c"]
 }
 #+end_example
 
@@ -691,20 +783,21 @@ ltl2tgba -MD '(Xa & Fb) | Gc' | sed 's/\\/\\\\/'
 #+RESULTS: monitor2
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
+  rankdir=LR
+  I [label="", style=invis, width=0]
+  I -> 3
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="1"]
   1 [label="1", peripheries=2]
-  1 -> 2 [label="c\\n"]
-  1 -> 3 [label="!c\\n"]
-  2 [label="4", peripheries=2]
-  2 -> 4 [label="a\\n"]
-  2 -> 5 [label="c & !a\\n"]
+  1 -> 0 [label="a"]
+  2 [label="2", peripheries=2]
+  2 -> 2 [label="c"]
   3 [label="3", peripheries=2]
-  3 -> 4 [label="a\\n"]
-  4 [label="2", peripheries=2]
-  4 -> 4 [label="1\\n"]
-  5 [label="0", peripheries=2]
-  5 -> 5 [label="c\\n"]
+  3 -> 1 [label="!c"]
+  3 -> 4 [label="c"]
+  4 [label="4", peripheries=2]
+  4 -> 0 [label="a"]
+  4 -> 2 [label="!a & c"]
 }
 #+end_example
 
