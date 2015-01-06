@@ -1,5 +1,5 @@
 #+TITLE: Command-line tools installed by Spot 1.99
-#+EMAIL spot@lrde.epita.fr
+#+EMAIL: spot@lrde.epita.fr
 #+OPTIONS: H:2 num:nil toc:t
 
 This document introduces command-line tools that are installed with

@@ -1,5 +1,5 @@
 #+TITLE: =randltl=
-#+EMAIL spot@lrde.epita.fr
+#+EMAIL: spot@lrde.epita.fr
 #+OPTIONS: H:2 num:nil toc:t
 #+LINK_UP: tools.html
 

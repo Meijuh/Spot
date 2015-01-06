@@ -1,5 +1,5 @@
 #+TITLE: Common input and output options for LTL/PSL formulas
-#+EMAIL spot@lrde.epita.fr
+#+EMAIL: spot@lrde.epita.fr
 #+OPTIONS: H:2 num:nil toc:t
 #+LINK_UP: tools.html
 
@@ -67,7 +67,7 @@ atomic proposition, it could be written
 #+HTML: <code>"GFa"</code>
 .
 
-These double-quote string also make it possible to embed arbitrarily
+These double-quote strings also make it possible to embed arbitrarily
 complex expressions that represent an atomic proposition that Spot
 should not try to interpret.  For instance:
 : "a < b" U "process[2]@ok"
