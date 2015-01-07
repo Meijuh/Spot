@@ -1,7 +1,6 @@
 #+TITLE: =ltl2tgba=
-#+EMAIL: spot@lrde.epita.fr
-#+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: tools.html
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
 
 This tool translates LTL or PSL formulas into two kinds of Büchi
 automata, or to monitors.  The default is to output Transition-based

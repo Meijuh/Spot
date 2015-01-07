@@ -1,7 +1,6 @@
 #+TITLE: =genltl=
-#+EMAIL: spot@lrde.epita.fr
-#+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: tools.html
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
 
 This tool generates LTL formulas according to scalable patterns.
 These pattern are usually taken from the literature (see the man page

@@ -1,7 +1,6 @@
 #+TITLE: Common output options for automata
-#+EMAIL: spot@lrde.epita.fr
-#+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: tools.html
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
 
 Spot supports different output syntaxes for automata.  This page
 documents the options, common to all tools where it makes sense, that

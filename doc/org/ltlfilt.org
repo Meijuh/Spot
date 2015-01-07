@@ -1,7 +1,6 @@
 #+TITLE: =ltlfilt=
-#+EMAIL: spot@lrde.epita.fr
-#+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: tools.html
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
 
 This tool is a filter for LTL formulas.  (It will also work with PSL
 formulas.)  It can be used to perform a number of tasks.  Essentially:

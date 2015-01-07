@@ -1,7 +1,6 @@
 #+TITLE: =dstar2tgba=
-#+EMAIL: spot@lrde.epita.fr
-#+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: tools.html
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
 
 This tool converts deterministic Rabin and Streett automata, presented
 in [[http://www.ltl2dstar.de/docs/ltl2dstar.html][the format output by =ltl2dstar=]], into Büchi automata.

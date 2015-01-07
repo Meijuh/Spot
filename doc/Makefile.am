@@ -77,6 +77,7 @@ ORG_FILES = \
   org/tools.org \
   org/satmin.org \
   org/satmin.tex \
+  org/setup.org \
   $(srcdir)/org/satmin.png
 
 $(srcdir)/org/satmin.png: org/satmin.tex

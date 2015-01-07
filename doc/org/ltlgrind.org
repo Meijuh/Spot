@@ -1,7 +1,6 @@
 #+TITLE: =ltlgrind=
-#+EMAIL: spot@lrde.epita.fr
-#+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: tools.html
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
 
 This tool lists formulas that are similar to but simpler than a given
 formula by applying simple mutations to it, like removing operands or

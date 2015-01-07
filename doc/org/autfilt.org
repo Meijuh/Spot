@@ -1,7 +1,6 @@
 #+TITLE: =autfilt=
-#+EMAIL: spot@lrde.epita.fr
-#+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: tools.html
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
 
 The =autfilt= tool can filter, transform, and convert a stream of automata.
 

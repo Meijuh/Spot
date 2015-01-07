@@ -1,7 +1,6 @@
 #+TITLE: Reading and writing CSV files
-#+EMAIL: spot@lrde.epita.fr
-#+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: tools.html
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
 
 This page discusses features available in Spot's command-line
 tools to produce an consume CSV files.

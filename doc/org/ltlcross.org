@@ -1,7 +1,6 @@
 #+TITLE: =ltlcross=
-#+EMAIL: spot@lrde.epita.fr
-#+OPTIONS: H:2 num:nil toc:t
-#+LINK_UP: tools.html
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tools.html
 
 =ltlcross= is a tool for cross-comparing the output of LTL-to-Büchi
 translators.  It is actually a Spot-based clone of [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], the
