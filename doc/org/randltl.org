@@ -8,14 +8,18 @@ random LTL formula using atomic propositions supplied on the
 command-line.  It can be instructed to generate random Boolean or PSL
 formulas instead, but let us first focus on LTL generation.
 
-For instance to obtain one random LTL formula over the propositions
+For instance to obtain fave random LTL formula over the propositions
 =a=, =b=, or =c=, use:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randltl a b c
+randltl -n5 a b c
 #+END_SRC
 #+RESULTS:
-: G(Gb W (Gb M c))
+: 1
+: !(!((a U Gb) U b) U GFa)
+: GF((b R !a) U (Xc M 1))
+: (b <-> Xc) xor Fb
+: FXb R (a R (1 U b))
 
 Note that the result does not always use all atomic propositions.
 
@@ -23,10 +27,14 @@ If you do not care about how the atomic propositions are named,
 you can give a nonnegative number instead:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randltl 3
+randltl -n5 3
 #+END_SRC
 #+RESULTS:
-: G(Gp1 W (Gp1 M p2))
+: 1
+: !(!((p0 U Gp1) U p1) U GFp0)
+: GF((p1 R !p0) U (Xp2 M 1))
+: (p1 <-> Xp2) xor Fp1
+: FXp1 R (p0 R (1 U p1))
 
 The syntax of the formula output can be changed using the
 [[file:ioltl.org][common output options]]:
@@ -49,24 +57,26 @@ like =p0=, =p1=, etc... (Atomic proposition named differently will be
 output by Spot in double-quotes, but this is not supported by LBT.)
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randltl -l 3
-randltl -8 3
-randltl -s 3
-randltl --wring 3
+randltl -l 12
+randltl -8 12
+randltl -s 12
+randltl --wring 12
 #+END_SRC
+
 #+RESULTS:
-: G W G p1 M G p1 p2
-: □(□p1 W (□p1 M p2))
-: []((p2 U (p2 && []p1)) V ([]p1 || (p2 U (p2 && []p1))))
-: (G(((p2=1) U ((p2=1) * (G(p1=1)))) R ((G(p1=1)) + ((p2=1) U ((p2=1) * (G(p1=1)))))))
+: V ! X ^ G p4 M p10 F ! p11 V G p3 p5
+: ¬○(□p4⊕(p10 M ◇¬p11)) R (□p3 R p5)
+: !X(([]p4 && !(<>!p11 U (p10 && <>!p11))) || (![]p4 && (<>!p11 U (p10 && <>!p11)))) V ([]p3 V p5)
+: (!(X((G(p4=1)) ^ ((F(p11=0)) U ((p10=1) * (F(p11=0))))))) R ((G(p3=1)) R (p5=1))
 
 As you might guess from the above result, for a given set of atomic
 propositions (and on the same computer) the generated formula will
 always be the same.  This is because each time =randltl= starts, it
-initialize the seed of the random number generator to =0=.  This seed
+initializes the seed of the random number generator to =0=.  This seed
 can be changed using the =--seed= option.  For instance the following
 three commands:
 
+#+NAME: result-seed
 #+BEGIN_SRC sh :results verbatim :exports both
 randltl a b c
 randltl --seed=123 a b c
@@ -75,25 +85,15 @@ randltl --seed=0 a b c
 
 Will give three formulas in which the first and last are identical:
 
-#+RESULTS:
-: G(Gb W (Gb M c))
-: X((c <-> F(a M Xc)) -> a)
-: G(Gb W (Gb M c))
+#+RESULTS: result-seed
+: 1
+: b W 0
+: 1
 
 When generating random formulas, we usually want large quantity of
 them.  Rather than running =randltl= several times with different
 seeds, we can use the =-n= option to specify a number of formulas to
-produce.
-
-#+BEGIN_SRC sh :results verbatim :exports both
-randltl -n 5 a b c
-#+END_SRC
-#+RESULTS:
-: G(Gb W (Gb M c))
-: !(GFb -> Fa)
-: (((c xor Xc) R c) R Gc) & !c
-: X(1 U Xb) M Fb
-: !XFb U !(Xa W 0)
+produce as seen in the very first example of this page.
 
 By default =randltl= will never output the same formula twice (this
 can be changed with the =--allow-dups= option), so it may generate
@@ -122,11 +122,11 @@ will be chosen randomly in the range =22..30=.
 randltl -n 5 a b c --tree-size=22..30
 #+END_SRC
 #+RESULTS:
-: ((Fc W 0) M 1) & ((a | XXc) M (b W Fb))
-: (!(c | (a R Xb)) <-> (Xc R (a & c))) -> !a
+: (((b xor c) xor (a U (Gc M c))) | (!b xor (a M b))) W (b & Fc)
 : 0
-: X(Xc R GX(1 U Xb)) & GX(b M Xc)
-: (!b -> ((c xor Fa) W b)) W (!Fb U a)
+: !((c xor Gb) -> !Fb) xor !(Gc M 1)
+: 1
+: (a | ((c | G(!a W (!a W b))) W (b & (c M b)))) <-> (b R c)
 
 The tree size is just the number of nodes in the syntax tree of the
 formula during its construction.  However because Spot automatically
@@ -148,11 +148,11 @@ beware that using =-r= reduces the randomness of the output).
 randltl -n 5 a b c --tree-size=22..30 -r
 #+END_SRC
 #+RESULTS:
-: GFc & ((a | XXc) M Fb)
-: !a | (!c & (!a U X!b)) | (a & c & Xc)
+: 1
 : 0
-: XG(b M Xc)
-: (((!c & Fa) | (c & G!a)) W b) W (G!b U a)
+: ((G!b | (!c & F!b) | (c & Gb)) & GF!c) | (Fb & ((!c & Gb) | (c & F!b)) & FGc)
+: (b R c) | (!a & ((!c & F(a & !b)) M (!c W !b)))
+: XGa
 
 The generator build the syntax tree recursively from its root, by
 considering all operators that could be used for a given tree size (for
@@ -202,11 +202,11 @@ following example disables 6 operators, and augments the priority of
 randltl -n 5 a b c --ltl-priorities 'xor=0,implies=0,equiv=0,W=0,M=0,X=0,U=3'
 #+END_SRC
 #+RESULTS:
-: F(Fb U (c & Gb))
-: !(Fb U Fa)
-: ((Gc U c) U c) U Fc
-: 0
 : 1
+: 1 U b
+: 0
+: F!((b U !a) U Gc)
+: !b U G(b R c)
 
 When using =-r= to simplify generated formulas, beware that these
 rewritings may use operators that you disabled during the initial
@@ -224,11 +224,11 @@ weak-fairness formula appended.
 randltl -n 5 a b c --weak-fairness
 #+END_SRC
 #+RESULTS:
-: G(Gb W (Gb M c)) & GFb
-: GFb & !(GFb -> Fa) & GFa
-: GFb & (((c xor Xc) R c) R Gc) & !c
-: GFb & GFa & (X(1 U Xb) M Fb)
-: GFb & (!XFb U !(Xa W 0)) & GFc
+: GFb
+: ((b | XXa) M Ga) & GFa & GFc
+: GFb & GFc & !(!((a U Gb) U b) U GFa)
+: GFb & GFa & GFc & F(!X!b U (!c M 1))
+: GFb & GFa & GFc & Xc
 
 
 Boolean formulas may be output with the =-B= option:
@@ -236,11 +236,11 @@ Boolean formulas may be output with the =-B= option:
 randltl -B -n 5 a b c
 #+END_SRC
 #+RESULTS:
-: !a -> !b
-: !(!(a -> (b xor c)) -> !a)
-: !c | (!c xor (c xor (c xor !c)))
 : !b
-: a xor !(!b <-> (!a -> c))
+: b & !b
+: b
+: !c xor (!a xor b)
+: !a -> (!c <-> (b xor !(a xor !b)))
 
 In that case, priorities should be set with =--boolean-priorities=.
 
@@ -254,11 +254,11 @@ enabled with =-r=).
 randltl -P -n 5 a b c
 #+END_SRC
 #+RESULTS:
-: G(Gb M ((c & Xb) | (!a M 1)))
-: !(Fa xor X({{c | {a xor !b}}[*]}[]-> Fb))
-: c & Gc
-: 0
 : 1
+: a R c
+: F({[*0] | {{[*0] | a[*]}}[*]}[]-> 0)
+: (a | ((a U c) M a)) M 1
+: 0
 
 As shown with the =--dump-priorities= output below, tweaking the
 priorities used to generated PSL formulas requires three different
