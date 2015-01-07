@@ -38,7 +38,10 @@
 	:publishing-function
 	,(if (require 'org-publish nil t) 'org-publish-org-to-html ; Org 7
 	   'org-html-publish-to-html)                              ; Org 8
-	:style "\n<link rel=\"stylesheet\" type=\"text/css\" href=\"syntax.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://spot.lip6.fr/css/spot-zenburn.css\" />"
+	; Org 8
+	:html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"syntax.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
+	; Org 7
+	:style "\n<link rel=\"stylesheet\" type=\"text/css\" href=\"syntax.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
 	:auto-preamble t)
        ("spot-static"
 	:base-directory "@abs_top_srcdir@/doc/org/"

@@ -21,7 +21,10 @@
 		   :publishing-directory "../userdoc/"
 		   :recursive t
 		   :publishing-function org-publish-org-to-html
-		   :style "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://spot.lip6.fr/css/spot-zenburn.css\" />"
+		   ; Org 8
+		   :html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
+		   ; Org 7
+		   :style "<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
 		   :auto-preamble t)
 		  ("spot-static"
 		   :base-directory "."

@@ -60,6 +60,7 @@ ORG_FILES = \
   org/.dir-locals.el \
   org/init.el.in \
   org/syntax.css \
+  org/spot.css \
   org/autfilt.org \
   org/csv.org \
   org/dstar2tgba.org \
