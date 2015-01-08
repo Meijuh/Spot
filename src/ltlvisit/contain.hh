@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -37,7 +37,7 @@ namespace spot
     {
       struct record_
       {
-	const_tgba_ptr translation;
+	const_tgba_digraph_ptr translation;
 	typedef std::map<const record_*, bool> incomp_map;
 	incomp_map incompatible;
       };
