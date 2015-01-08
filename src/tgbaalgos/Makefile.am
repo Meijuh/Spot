@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
+## Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
 ## de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -31,7 +31,6 @@ tgbaalgos_HEADERS = \
   are_isomorphic.hh \
   bfssteps.hh \
   canonicalize.hh \
-  closure.hh \
   complete.hh \
   compsusp.hh \
   cycles.hh \
@@ -73,8 +72,7 @@ tgbaalgos_HEADERS = \
   simulation.hh \
   stats.hh \
   stripacc.hh \
-  stutter_invariance.hh \
-  stutterize.hh \
+  stutter.hh \
   tau03.hh \
   tau03opt.hh \
   translate.hh \
@@ -85,7 +83,6 @@ libtgbaalgos_la_SOURCES = \
   are_isomorphic.cc \
   bfssteps.cc \
   canonicalize.cc \
-  closure.cc \
   complete.cc \
   compsusp.cc \
   cycles.cc \
@@ -127,8 +124,7 @@ libtgbaalgos_la_SOURCES = \
   simulation.cc \
   stats.cc \
   stripacc.cc \
-  stutter_invariance.cc \
-  stutterize.cc \
+  stutter.cc \
   tau03.cc \
   tau03opt.cc \
   translate.cc \
