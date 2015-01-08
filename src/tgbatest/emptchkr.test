@@ -1,9 +1,10 @@
 #!/bin/sh
+# -*- coding: utf-8 -*-
+# Copyright (C) 2009, 2010, 2015 Laboratoire de Recherche de
+# DÃ©veloppement de l'Epita (LRDE).
 # Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
-# département Systèmes Répartis Coopératifs (SRC), Université Pierre
+# dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 # et Marie Curie.
-# Copyright (C) 2009, 2010  Laboratoire de Recherche de Développement de
-# l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #

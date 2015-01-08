@@ -1,5 +1,8 @@
-// Copyright (C) 2004, 2014  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// -*- coding: utf-8 -*-
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE)
+// Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.

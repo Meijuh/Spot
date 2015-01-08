@@ -82,6 +82,9 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
     $GREP -i 'Temple Place' $file &&
       diag 'license text should give a url instead of an address'
 
+    $GREP -q 'coding: utf-8' $file ||
+      diag 'missing -*- coding: utf-8 -*-'
+
     $GREP Copyright $file >/dev/null ||
       diag "missing copyright"
 
