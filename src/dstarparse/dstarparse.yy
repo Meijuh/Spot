@@ -1,6 +1,6 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-** de l'Epita (LRDE).
+** Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+** Développement de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
 **
@@ -34,34 +34,37 @@
 #include "ltlast/constant.hh"
 #include "public.hh"
 
-  typedef std::map<int, bdd> map_t;
-
-  struct result_
+  inline namespace dstaryy
   {
-    spot::dstar_aut_ptr d;
-    spot::ltl::environment* env;
-    std::vector<bdd> guards;
-    std::vector<bdd>::const_iterator cur_guard;
-    map_t dest_map;
-    int cur_state;
+    typedef std::map<int, bdd> map_t;
 
-    unsigned state_count = 0;
-    unsigned start_state = 0;
-    std::vector<std::string> aps;
-
-    bool state_count_seen:1;
-    bool accpair_count_seen:1;
-    bool start_state_seen:1;
-    bool aps_seen:1;
-
-    result_():
-      state_count_seen(false),
-      accpair_count_seen(false),
-      start_state_seen(false),
-      aps_seen(false)
+    struct result_
     {
-    }
-  };
+      spot::dstar_aut_ptr d;
+      spot::ltl::environment* env;
+      std::vector<bdd> guards;
+      std::vector<bdd>::const_iterator cur_guard;
+      map_t dest_map;
+      int cur_state;
+
+      unsigned state_count = 0;
+      unsigned start_state = 0;
+      std::vector<std::string> aps;
+
+      bool state_count_seen:1;
+      bool accpair_count_seen:1;
+      bool start_state_seen:1;
+      bool aps_seen:1;
+
+      result_():
+	state_count_seen(false),
+	accpair_count_seen(false),
+	start_state_seen(false),
+	aps_seen(false)
+      {
+      }
+    };
+  }
 }
 
 %parse-param {spot::dstar_parse_error_list& error_list}

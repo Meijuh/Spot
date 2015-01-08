@@ -40,76 +40,79 @@
 #include "priv/accmap.hh"
 #include "ltlparse/public.hh"
 
-  /* Cache parsed formulae.  Labels on arcs are frequently identical
-   and it would be a waste of time to parse them to formula* over and
-   over, and to register all their atomic_propositions in the
-   bdd_dict.  Keep the bdd result around so we can reuse it.  */
-  typedef std::map<std::string, bdd> formula_cache;
-
-  typedef std::pair<int, std::string*> pair;
-  typedef typename spot::tgba_digraph::namer<std::string>::type named_tgba_t;
-
-  // Note: because this parser is meant to be used on a stream of
-  // automata, it tries hard to recover from errors, so that we get a
-  // chance to reach the end of the current automaton in order to
-  // process the next one.  Several variables below are used to keep
-  // track of various error conditions.
-  enum label_style_t { Mixed_Labels, State_Labels, Trans_Labels,
-		       Implicit_Labels };
-
-  struct result_
+  inline namespace hoayy
   {
-    spot::hoa_aut_ptr h;
-    spot::ltl::environment* env;
-    formula_cache fcache;
-    named_tgba_t* namer = nullptr;
-    spot::acc_mapper_int* acc_mapper = nullptr;
-    std::vector<int> ap;
-    std::vector<bdd> guards;
-    std::vector<bdd>::const_iterator cur_guard;
-    std::vector<bool> declared_states; // States that have been declared.
-    std::vector<std::pair<spot::location, unsigned>> start; // Initial states;
-    std::unordered_map<std::string, bdd> alias;
-    std::unordered_map<std::string, spot::location> props;
-    spot::location states_loc;
-    spot::location ap_loc;
-    spot::location state_label_loc;
-    spot::location accset_loc;
-    spot::acc_cond::mark_t acc_state;
-    spot::acc_cond::mark_t neg_acc_sets = 0U;
-    spot::acc_cond::mark_t pos_acc_sets = 0U;
-    unsigned cur_state;
-    int states = -1;
-    int ap_count = -1;
-    int accset = -1;
-    bdd state_label;
-    bdd cur_label;
-    bool has_state_label = false;
-    bool ignore_more_ap = false; // Set to true after the first "AP:"
-				 // line has been read.
-    bool ignore_acc = false; // Set to true in case of missing
-			     // Acceptance: lines.
-    bool ignore_acc_silent = false;
-    bool ignore_more_acc = false; // Set to true after the first
-				  // "Acceptance:" line has been read.
+    /* Cache parsed formulae.  Labels on arcs are frequently identical
+       and it would be a waste of time to parse them to formula* over and
+       over, and to register all their atomic_propositions in the
+       bdd_dict.  Keep the bdd result around so we can reuse it.  */
+    typedef std::map<std::string, bdd> formula_cache;
 
-    label_style_t label_style = Mixed_Labels;
+    typedef std::pair<int, std::string*> pair;
+    typedef typename spot::tgba_digraph::namer<std::string>::type named_tgba_t;
 
-    bool accept_all_needed = false;
-    bool accept_all_seen = false;
-    bool aliased_states = false;
+    // Note: because this parser is meant to be used on a stream of
+    // automata, it tries hard to recover from errors, so that we get a
+    // chance to reach the end of the current automaton in order to
+    // process the next one.  Several variables below are used to keep
+    // track of various error conditions.
+    enum label_style_t { Mixed_Labels, State_Labels, Trans_Labels,
+			 Implicit_Labels };
 
-    bool deterministic = false;
-    bool complete = false;
-
-    std::map<std::string, spot::location> labels;
-
-    ~result_()
+    struct result_
     {
-      delete namer;
-      delete acc_mapper;
-    }
-  };
+      spot::hoa_aut_ptr h;
+      spot::ltl::environment* env;
+      formula_cache fcache;
+      named_tgba_t* namer = nullptr;
+      spot::acc_mapper_int* acc_mapper = nullptr;
+      std::vector<int> ap;
+      std::vector<bdd> guards;
+      std::vector<bdd>::const_iterator cur_guard;
+      std::vector<bool> declared_states; // States that have been declared.
+      std::vector<std::pair<spot::location, unsigned>> start; // Initial states;
+      std::unordered_map<std::string, bdd> alias;
+      std::unordered_map<std::string, spot::location> props;
+      spot::location states_loc;
+      spot::location ap_loc;
+      spot::location state_label_loc;
+      spot::location accset_loc;
+      spot::acc_cond::mark_t acc_state;
+      spot::acc_cond::mark_t neg_acc_sets = 0U;
+      spot::acc_cond::mark_t pos_acc_sets = 0U;
+      unsigned cur_state;
+      int states = -1;
+      int ap_count = -1;
+      int accset = -1;
+      bdd state_label;
+      bdd cur_label;
+      bool has_state_label = false;
+      bool ignore_more_ap = false; // Set to true after the first "AP:"
+      // line has been read.
+      bool ignore_acc = false; // Set to true in case of missing
+      // Acceptance: lines.
+      bool ignore_acc_silent = false;
+      bool ignore_more_acc = false; // Set to true after the first
+      // "Acceptance:" line has been read.
+
+      label_style_t label_style = Mixed_Labels;
+
+      bool accept_all_needed = false;
+      bool accept_all_seen = false;
+      bool aliased_states = false;
+
+      bool deterministic = false;
+      bool complete = false;
+
+      std::map<std::string, spot::location> labels;
+
+      ~result_()
+      {
+	delete namer;
+	delete acc_mapper;
+      }
+    };
+  }
 }
 
 %parse-param {spot::hoa_parse_error_list& error_list}
