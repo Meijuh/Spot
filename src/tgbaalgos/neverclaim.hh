@@ -38,8 +38,6 @@ namespace spot
   ///          all the transitions of a state should be either all accepting
   ///          or all unaccepting.  If your automaton does not satisfies
   ///          these requirements, call degeneralize() first.
-  /// \param f The (optional) formula associated to the automaton.  If given
-  ///          it will be output as a comment.
   /// \param comments Whether to comment each state of the never clause
   ///          with the label of the \a g automaton.
   SPOT_API std::ostream&

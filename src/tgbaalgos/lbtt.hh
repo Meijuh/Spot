@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -47,8 +47,6 @@ namespace spot
   /// \param dict The dictionary that should register the BDD variables
   /// used by the automaton built.
   /// \param env The environment of atomic proposition into which parsing
-  ///        should take place.
-  /// \param envacc The environment of acceptance conditions into which parsing
   ///        should take place.
   /// \return the read tgba or 0 on error.
   SPOT_API tgba_digraph_ptr
