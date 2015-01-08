@@ -1,5 +1,8 @@
-// Copyright (C) 2004, 2014  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
+// -*- coding: utf-8 -*-
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et DÃ©veloppement
+// de l'Epita (LRDE)
+// Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
+// dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 // et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
@@ -30,22 +33,12 @@ namespace spot
 		   const const_tgba_run_ptr& run)
   {
     auto res = std::make_shared<tgba_run>();
-    for (tgba_run::steps::const_iterator i = run->prefix.begin();
-	 i != run->prefix.end(); ++i)
-      {
-	tgba_run::step s = { a_run->project_state(i->s, a_proj),
-			     i->label,
-			     i->acc };
-	res->prefix.push_back(s);
-      }
-    for (tgba_run::steps::const_iterator i = run->cycle.begin();
-	 i != run->cycle.end(); ++i)
-      {
-	tgba_run::step s = { a_run->project_state(i->s, a_proj),
-			     i->label,
-			     i->acc };
-	res->cycle.push_back(s);
-      }
+    for (auto& i: run->prefix)
+      res->prefix.emplace_back(a_run->project_state(i.s, a_proj),
+			       i.label, i.acc);
+    for (auto& i: run->cycle)
+      res->prefix.emplace_back(a_run->project_state(i.s, a_proj),
+			       i.label, i.acc);
     return res;
   }
 }

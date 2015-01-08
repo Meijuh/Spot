@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -270,6 +270,14 @@ namespace spot
       const state* s;
       bdd label;
       acc_cond::mark_t acc;
+
+      step(const state* s, bdd label, acc_cond::mark_t acc)
+	: s(s), label(label), acc(acc)
+      {
+      }
+      step()
+      {
+      }
     };
 
     typedef std::list<step> steps;
