@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -36,7 +36,7 @@
 #include "ltlast/allnodes.hh"
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
-#include "tgba/tgbaproduct.hh"
+#include "tgbaalgos/product.hh"
 #include "tgbaalgos/powerset.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/safety.hh"
@@ -216,7 +216,7 @@ namespace spot
 
     bool
     wdba_scc_is_accepting(const const_tgba_digraph_ptr& det_a, unsigned scc_n,
-			  const const_tgba_ptr& orig_a, scc_info& sm,
+			  const const_tgba_digraph_ptr& orig_a, scc_info& sm,
 			  power_map& pm)
     {
 
@@ -247,7 +247,6 @@ namespace spot
       assert(++i == loop.end());
 
       loop_a->set_init_state(0U);
-      const state* loop_a_init = loop_a->get_init_state();
 
       // Check if the loop is accepting in the original automaton.
       bool accepting = false;
@@ -257,17 +256,16 @@ namespace spot
 	pm.states_of(det_a->state_number(start));
       for (auto& it: ps)
 	{
-	  // Contrustruct a product between
-	  // LOOP_A, and ORIG_A starting in *IT.
-	  // FIXME: This could be sped up a lot!
-	  if (!product_at(loop_a, orig_a, loop_a_init, it)->is_empty())
+	  // Construct a product between LOOP_A and ORIG_A starting in
+	  // *IT.  FIXME: This could be sped up a lot!
+	  if (!product(loop_a, orig_a, 0U,
+		       orig_a->state_number(it))->is_empty())
 	    {
 	      accepting = true;
 	      break;
 	    }
 	}
 
-      loop_a_init->destroy();
       return accepting;
     }
 

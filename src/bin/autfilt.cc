@@ -37,8 +37,7 @@
 
 #include "tgbaalgos/product.hh"
 #include "tgbaalgos/isdet.hh"
-#include "tgbaalgos/stutterize.hh"
-#include "tgbaalgos/closure.hh"
+#include "tgbaalgos/stutter.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
 #include "misc/random.hh"

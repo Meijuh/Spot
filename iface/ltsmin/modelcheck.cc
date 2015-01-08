@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE)
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -252,7 +252,7 @@ checked_main(int argc, char **argv)
       goto safe_exit;
     }
 
-  product = spot::product(model, prop);
+  product = spot::otf_product(model, prop);
 
   if (output == DotProduct)
     {

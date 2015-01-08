@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
     auto Anf = spot::ltl_to_tgba_fm(nf1, dict);
     auto nAf = spot::make_safra_complement(Af);
     auto nAnf = spot::make_safra_complement(Anf);
-    auto ec = spot::couvreur99(spot::product(nAf, nAnf));
+    auto ec = spot::couvreur99(spot::otf_product(nAf, nAnf));
     auto res = ec->check();
     spot::tgba_statistics a_size =  spot::stats_reachable(ec->automaton());
     std::cout << "States: "

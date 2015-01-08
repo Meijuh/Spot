@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -131,16 +131,18 @@ namespace spot
     const state* right_init_;
   };
 
-  inline tgba_product_ptr product(const const_tgba_ptr& left,
-				  const const_tgba_ptr& right)
+  /// \brief on-the-fly TGBA product
+  inline tgba_product_ptr otf_product(const const_tgba_ptr& left,
+				      const const_tgba_ptr& right)
   {
     return std::make_shared<tgba_product>(left, right);
   }
 
-  inline tgba_product_ptr product_at(const const_tgba_ptr& left,
-				     const const_tgba_ptr& right,
-				     const state* left_init,
-				     const state* right_init)
+  /// \brief on-the-fly TGBA product with forced initial states
+  inline tgba_product_ptr otf_product_at(const const_tgba_ptr& left,
+					 const const_tgba_ptr& right,
+					 const state* left_init,
+					 const state* right_init)
   {
     return std::make_shared<tgba_product_init>(left, right,
 					       left_init, right_init);

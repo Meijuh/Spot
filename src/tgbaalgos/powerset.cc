@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -30,7 +30,7 @@
 #include "tgbaalgos/sccinfo.hh"
 #include "tgbaalgos/cycles.hh"
 #include "tgbaalgos/gtec/gtec.hh"
-#include "tgba/tgbaproduct.hh"
+#include "tgbaalgos/product.hh"
 #include "tgba/bddprint.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/gtec/gtec.hh"
@@ -190,8 +190,8 @@ namespace spot
 	  }
 	assert(i == dfs_.end());
 
-	const state* loop_a_init = loop_a->get_init_state();
-	assert(loop_a->state_number(loop_a_init) == 0);
+	unsigned loop_a_init = loop_a->get_init_state_number();
+	assert(loop_a_init == 0);
 
 	// Check if the loop is accepting in the original automaton.
 	bool accepting = false;
@@ -204,14 +204,13 @@ namespace spot
 	  {
 	    // Check the product between LOOP_A, and ORIG_A starting
 	    // in S.
-	    if (!product_at(loop_a, ref_, loop_a_init, s)->is_empty())
+	    if (!product(loop_a, ref_,
+			 loop_a_init, ref_->state_number(s))->is_empty())
 	      {
 		accepting = true;
 		break;
 	      }
 	  }
-
-	loop_a_init->destroy();
 	return accepting;
       }
 

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -27,7 +27,7 @@
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/ltl2taa.hh"
 #include "tgbaalgos/sccfilter.hh"
-#include "tgba/tgbaproduct.hh"
+#include "tgbaalgos/product.hh"
 #include "tgbaalgos/dotty.hh"
 
 void

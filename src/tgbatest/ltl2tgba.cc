@@ -69,8 +69,7 @@
 #include "tgbaalgos/complete.hh"
 #include "tgbaalgos/dtbasat.hh"
 #include "tgbaalgos/dtgbasat.hh"
-#include "tgbaalgos/closure.hh"
-#include "tgbaalgos/stutterize.hh"
+#include "tgbaalgos/stutter.hh"
 
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"
@@ -1523,7 +1522,7 @@ checked_main(int argc, char** argv)
 
       if (system_aut)
         {
-	  a = spot::product(system_aut, a);
+	  a = spot::otf_product(system_aut, a);
 
 	  assume_sba = false;
 

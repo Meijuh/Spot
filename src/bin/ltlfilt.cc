@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -45,7 +45,7 @@
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/minimize.hh"
 #include "tgbaalgos/safety.hh"
-#include "tgbaalgos/stutter_invariance.hh"
+#include "tgbaalgos/stutter.hh"
 
 const char argp_program_doc[] ="\
 Read a list of formulas and output them back after some optional processing.\v\
