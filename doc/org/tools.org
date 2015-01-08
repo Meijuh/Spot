@@ -10,7 +10,7 @@ use-cases but shall not attempt to cover all features exhaustively
 
 For technical reasons related to the way we generate these pages, we
 use the following convention when rendering shell commands.  The
-commands issued to the shell are formatted like this with a green line
+commands issued to the shell are formatted like this with a cyan line
 on the left:
 
 #+NAME: helloworld
@@ -18,8 +18,8 @@ on the left:
 echo Hello World
 #+END_SRC
 
-And the output of such a command is formatted as follows, with a red
-line on the left:
+And the output of such a command is formatted as follows, with a
+magenta line on the left:
 
 #+RESULTS: helloworld
 : Hello World
