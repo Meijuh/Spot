@@ -1,6 +1,9 @@
-// Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// -*- coding: utf-8 -*-
+// Copyright (C) 2015 Laboratoire de Recherche et DÃ©veloppement de
+// l'Epita (LRDE).
+// Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
+// (LIP6), dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ©
+// Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -40,7 +43,7 @@ namespace spot
     unsigned
     get(const char* str) const
     {
-      stats_map::const_iterator i = stats.find(str);
+      auto i = stats.find(str);
       assert(i != stats.end());
       return (this->*i->second)();
     }
@@ -74,9 +77,8 @@ namespace spot
     {
       if (!set)
 	{
-	  unsigned_statistics::stats_map::const_iterator i;
-	  for (i = o.stats.begin(); i != o.stats.end(); ++i)
-	    stats[i->first] = (o.*i->second)();
+	  for (auto& i: o.stats)
+	    stats[i.first] = (o.*i.second)();
 	  set = true;
 	  return true;
 	}
@@ -92,13 +94,12 @@ namespace spot
     bool
     operator==(const unsigned_statistics_copy& o) const
     {
-      stats_map::const_iterator i;
-      for (i = stats.begin(); i != stats.end(); ++i)
+      for (auto& i: stats)
 	{
-	  stats_map::const_iterator i2 = o.stats.find(i->first);
+	  auto i2 = o.stats.find(i.first);
 	  if (i2 == o.stats.end())
 	    return false;
-	  if (i->second != i2->second)
+	  if (i.second != i2->second)
 	    return false;
 	}
       return true;
