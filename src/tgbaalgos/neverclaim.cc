@@ -38,9 +38,11 @@ namespace spot
     public:
       std::ostream& os_;
       bool opt_comments_ = false;
+      bool opt_624_ = false;
       const_tgba_digraph_ptr aut_;
       bool fi_needed_ = false;
       bool need_accept_all_ = false;
+      unsigned accept_all_ = 0;
 
     public:
       never_claim_output(std::ostream& os, const char* options)
@@ -50,6 +52,9 @@ namespace spot
 	  while (char c = *options++)
 	    switch (c)
 	      {
+	      case '6':
+		opt_624_ = true;
+		break;
 	      case 'c':
 		opt_comments_ = true;
 		break;
@@ -73,7 +78,11 @@ namespace spot
       end() const
       {
 	if (need_accept_all_)
-	  os_ << "accept_all:\n  skip\n";
+	  {
+	    os_ << "accept_all:";
+	    print_comment(accept_all_);
+	    os_ << "\n  skip\n";
+	  }
 	os_ << '}' << std::endl;
       }
 
@@ -83,6 +92,13 @@ namespace spot
 	assert(ts.begin() != ts.end());
 	auto it = ts.begin();
 	return (it->cond == bddtrue) && (it->dst == n) && (++it == ts.end());
+      }
+
+      void
+      print_comment(unsigned n) const
+      {
+	if (opt_comments_)
+	  os_ << " /* " << aut_->format_state(n) << " */";
       }
 
       void
@@ -114,33 +130,54 @@ namespace spot
 	  {
 	    // We want the accept_all state at the end of the never claim.
 	    need_accept_all_ = true;
+	    accept_all_ = n;
 	    return;
 	  }
 
 	print_state(n);
 	os_ << ':';
-	if (opt_comments_)
-	  os_ << " /* " << aut_->format_state(n) << " */";
-	os_ << "\n  if\n";
+	print_comment(n);
+	os_ << (opt_624_ ? "\n  do\n" : "\n  if\n");
 	bool did_output = false;
-	for (auto&t : aut_->out(n))
+	for (auto& t: aut_->out(n))
 	  {
 	    did_output = true;
-	    os_ << "  :: (";
+	    bool atom =
+	      opt_624_ && aut_->state_is_accepting(t.dst) && is_sink(t.dst);
+	    if (atom)
+	      os_ << "  :: atomic { (";
+	    else
+	      os_ << "  :: (";
 	    const ltl::formula* f = bdd_to_formula(t.cond, aut_->get_dict());
 	    to_spin_string(f, os_, true);
+	    if (atom)
+	      {
+		os_ << ") -> assert(!(";
+		to_spin_string(f, os_, true);
+		os_ << ")) }";
+	      }
+	    else
+	      {
+		os_ << ") -> goto ";
+		print_state(t.dst);
+	      }
 	    f->destroy();
-	    os_ << ") -> goto ";
-	    print_state(t.dst);
 	    os_ << '\n';
 	  }
 	if (!did_output)
 	  {
-	    os_ << "  :: (false) -> goto ";
-	    print_state(n);
+	    if (opt_624_)
+	      {
+		os_ << "  :: atomic { (false) -> assert(!(false)) }";
+	      }
+	    else
+	      {
+		os_ << "  :: (false) -> goto ";
+		print_state(n);
+	      }
 	    os_ << '\n';
 	  }
-	os_ << "  fi;\n";
+	os_ << (opt_624_ ? "  od;\n" : "  fi;\n");
       }
 
       void print(const const_tgba_digraph_ptr& aut)

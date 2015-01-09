@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -40,6 +40,7 @@ ltl2tgba=../../bin/ltl2tgba
 "$ltl2tgba --lbtt -x comp-susp,!skel-wdba,!skel-simul --small %f >%T" \
 "$ltl2tgba --spin --ba -x degen-skip=0 %f >%N" \
 "$ltl2tgba --lbtt --ba --high %f > %T" \
+"$ltl2tgba --spin=6 --ba --medium %f > %N" \
 "$ltl2tgba --hoa  -BDC %f > %H" \
 "$ltl2tgba --lbtt -BC %f > %T" \
 --json=output.json --csv=output.csv

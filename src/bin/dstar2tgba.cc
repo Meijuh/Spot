@@ -85,7 +85,9 @@ static const argp_option options[] =
       " on Büchi automata)", 0 },
     { "name", OPT_NAME, "FORMAT", 0,
       "set the name of the output automaton", 0 },
-    { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
+    { "spin", 's', "6|c", OPTION_ARG_OPTIONAL, "Spin neverclaim (implies --ba)."
+      "  Add letters to select (6) Spin's 6.2.4 style, (c) comments on states",
+      0 },
     { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
     { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
       "(ignored with --lbtt or --spin)", 0 },
@@ -137,6 +139,7 @@ static output_format format = Dot;
 static const char* opt_dot = nullptr;
 static const char* stats = "";
 static const char* hoa_opt = nullptr;
+static const char* opt_never = nullptr;
 static const char* opt_name = nullptr;
 static spot::option_map extra_options;
 
@@ -166,6 +169,8 @@ parse_opt(int key, char* arg, struct argp_state*)
       format = Spin;
       if (type != spot::postprocessor::Monitor)
 	type = spot::postprocessor::BA;
+      if (arg)
+	opt_never = arg;
       break;
     case 'x':
       {
@@ -366,7 +371,7 @@ namespace
 	  spot::tgba_save_reachable(std::cout, aut);
 	  break;
 	case Spin:
-	  spot::never_claim_reachable(std::cout, aut);
+	  spot::never_claim_reachable(std::cout, aut, opt_never);
 	  break;
 	case Stats:
 	  statistics.print(daut, aut, filename, conversion_time) << '\n';

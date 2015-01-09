@@ -34,6 +34,7 @@
 
 automaton_format_t automaton_format = Dot;
 static const char* opt_dot = nullptr;
+static const char* opt_never = nullptr;
 static const char* hoa_opt = nullptr;
 const char* opt_name = nullptr;
 static const char* stats = "";
@@ -63,7 +64,9 @@ static const argp_option options[] =
     { "name", OPT_NAME, "FORMAT", 0,
       "set the name of the output automaton", 0 },
     { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
-    { "spin", 's', 0, 0, "Spin neverclaim (implies --ba)", 0 },
+    { "spin", 's', "6|c", OPTION_ARG_OPTIONAL, "Spin neverclaim (implies --ba)."
+      "  Add letters to select (6) Spin's 6.2.4 style, (c) comments on states",
+      0 },
     { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
     { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
       "(ignored with --lbtt or --spin)", 0 },
@@ -161,6 +164,8 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
       automaton_format = Spin;
       if (type != spot::postprocessor::Monitor)
 	type = spot::postprocessor::BA;
+      if (arg)
+	opt_never = arg;
       break;
     case OPT_DOT:
       automaton_format = Dot;
@@ -249,7 +254,7 @@ automaton_printer::print(const spot::tgba_digraph_ptr& aut,
       spot::tgba_save_reachable(std::cout, aut);
       break;
     case Spin:
-      spot::never_claim_reachable(std::cout, aut);
+      spot::never_claim_reachable(std::cout, aut, opt_never);
       break;
     case Stats:
       statistics.print(haut, aut, f, filename, loc, time) << '\n';

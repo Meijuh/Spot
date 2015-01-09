@@ -416,7 +416,7 @@ ltl2tgba -s 'a U b'
 #+END_SRC
 
 #+RESULTS:
-: never {
+: never { /* a U b */
 : T0_init:
 :   if
 :   :: ((b)) -> goto accept_all
@@ -425,6 +425,29 @@ ltl2tgba -s 'a U b'
 : accept_all:
 :   skip
 : }
+
+Recent versions of Spin (starting with Spin 6.2.4) output never claims
+in a slightly different style that can be requested using either
+=-s6= or =--spin=6=:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba -s6 'a U b'
+#+END_SRC
+
+#+RESULTS:
+: never { /* a U b */
+: T0_init:
+:   do
+:   :: atomic { ((b)) -> assert(!((b))) }
+:   :: ((a) && (!(b))) -> goto T0_init
+:   od;
+: accept_all:
+:   skip
+: }
+
+(Note that while Spot is able to read never claims that follow any of
+these two styles, it is not capable of interpreting an arbitrary piece
+of Promela syntax.)
 
 * Dot output
 

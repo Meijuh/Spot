@@ -65,16 +65,23 @@ New in spot 1.99a (not yet released)
 
     - LTL formulas can include /* comments */.
 
+    - GraphViz output now uses an horizontal layout by default.
+      The --dot option of the various command-line tools takes an
+      optional parameter to fine-tune the GraphViz output (including
+      vertical layout, round states, and named automata).
+
+    - Never claims can now be output in the style usd by Spin since
+      version 6.2.4 (i.e., using do..od instead of if..fi, and with
+      atomic statements for terminal acceptance).  The default output
+      is still the old one for compatibility with existing tools.  The
+      new style can be requested from command-line tools using option
+      --spin=6 (or -s6 for short).
+
     - Spot is now compiling in C++11 mode.  The set of features we use
       requires GCC >= 4.6 or Clang >= 3.1.  These minimum versions
       are old enough that it should not be an issue to most people.
 
     - Boost is not used anymore.
-
-    - GraphViz output now uses an horizontal layout by default.
-      The --dot option of the various command-line tools takes an
-      optional parameter to fine-tune the GraphViz output (including
-      vertical layout, round states, and named automata).
 
     - The tgba_succ_iterator interface has changed.  Methods next(),
       and first() should now return a bool indicating whether the
