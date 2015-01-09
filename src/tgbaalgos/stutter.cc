@@ -201,7 +201,7 @@ namespace spot
     };
 
 
-    class SPOT_API tgbasl final : public tgba
+    class tgbasl final : public tgba
     {
     public:
       tgbasl(const const_tgba_ptr& a, bdd atomic_propositions)

@@ -107,6 +107,13 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
     perl -ne '/(.*\\brief.*\n.*\\ingroup.*)/ && print("$1\n") && exit(1)' \
       -0777 $file || diag "always put 'ingroup' before 'brief'"
 
+    # Check this before we remove SPOT_API from the input.
+    case $file in
+	*.cc)
+	    $GREP 'SPOT_API' $file &&
+		diag 'use SPOT_API only in header files';;
+    esac
+
     # Strip comments and strings.
     #
     # Multi-line comments of the form
@@ -119,7 +126,7 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
     # //
     # to keep the line numbers correct in the diagnostics.
     #
-    # Also get read of the SPOT_API tags.
+    # Also get rid of the SPOT_API tags.
     perl -pe 'sub f {my $a = shift; $a =~ s:[^\n]*://:g; return "$a"}
               s,/\*(.*?)\*/,f($1),sge;
               s,//.*?\n,//\n,g;

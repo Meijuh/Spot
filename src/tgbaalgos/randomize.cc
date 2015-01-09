@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -24,7 +24,7 @@
 
 namespace spot
 {
-  SPOT_API void
+  void
   randomize(tgba_digraph_ptr& aut, bool randomize_states,
 	    bool randomize_transitions)
   {

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -123,7 +123,6 @@ namespace spot
     return scc_filter_states(w.result());
   }
 
-  SPOT_API
   tgba_digraph_ptr nra_to_nba(const const_dstar_aut_ptr& nra)
   {
     return nra_to_nba(nra, nra->aut);

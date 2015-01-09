@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -98,7 +98,6 @@ namespace spot
 
   }
 
-  SPOT_API
   tgba_digraph_ptr nsa_to_tgba(const const_dstar_aut_ptr& nsa)
   {
     assert(nsa->type == Streett);
