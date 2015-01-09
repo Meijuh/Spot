@@ -149,7 +149,12 @@ namespace spot
       // ignored.
       a = scc_filter_states(a);
     else if (scc_filter_ > 0)
-      a = scc_filter(a, scc_filter_ > 1);
+      {
+	if (type_ == BA && a->is_sba())
+	  a = scc_filter_states(a);
+	else
+	  a = scc_filter(a, scc_filter_ > 1);
+      }
 
     if (type_ == Monitor)
       {
