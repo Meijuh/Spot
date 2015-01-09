@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -99,7 +99,14 @@ namespace spot
 	assert(n >= 3);
 	--n;
 	int l = rrand(1, n - 1);
-	return binop::instance(Op, rl->generate(l), rl->generate(n - l));
+	// Force the order of generation of operands to be right, then
+	// left.  This is historical, because gcc evaluates argument
+	// from right to left and we used to make the two calls to
+	// generate() inside of the call to instance() before
+	// discovering that clang would perform the nested calls from
+	// left to right.
+	auto right = rl->generate(n - l);
+	return binop::instance(Op, rl->generate(l), right);
       }
 
       template <binop::type Op>
@@ -110,7 +117,9 @@ namespace spot
 	--n;
 	const random_psl* rp = static_cast<const random_psl*>(rl);
 	int l = rrand(1, n - 1);
-	return binop::instance(Op, rp->rs.generate(l), rl->generate(n - l));
+	// See comment in binop_builder.
+	auto right = rl->generate(n - l);
+	return binop::instance(Op, rp->rs.generate(l), right);
       }
 
       template <bunop::type Op>
@@ -150,7 +159,9 @@ namespace spot
 	assert(n >= 3);
 	--n;
 	int l = rrand(1, n - 1);
-	return multop::instance(Op, rl->generate(l), rl->generate(n - l));
+	// See comment in binop_builder.
+	auto right = rl->generate(n - l);
+	return multop::instance(Op, rl->generate(l), right);
       }
 
     } // anonymous
