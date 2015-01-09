@@ -33,172 +33,141 @@ namespace spot
 {
   namespace
   {
-    class never_claim_bfs : public tgba_reachable_iterator_breadth_first
+    class never_claim_output
     {
     public:
-      never_claim_bfs(const const_tgba_ptr& a, std::ostream& os,
-		      bool comments)
-	: tgba_reachable_iterator_breadth_first(a),
-	  os_(os), accept_all_(-1), fi_needed_(false),
-	  comments_(comments),
-	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
+      std::ostream& os_;
+      bool opt_comments_ = false;
+      const_tgba_digraph_ptr aut_;
+      bool fi_needed_ = false;
+      bool need_accept_all_ = false;
+
+    public:
+      never_claim_output(std::ostream& os, const char* options)
+	: os_(os)
       {
-	assert(!sba_ || sba_->has_state_based_acc());
+	if (options)
+	  while (char c = *options++)
+	    switch (c)
+	      {
+	      case 'c':
+		opt_comments_ = true;
+		break;
+	      default:
+		throw std::runtime_error
+		  (std::string("unknown option for never_claim(): ") + c);
+	      }
       }
 
       void
-      start()
+      start() const
       {
 	os_ << "never {";
 	auto n = aut_->get_named_prop<std::string>("automaton-name");
 	if (n)
 	  os_ << " /* " << *n << " */";
 	os_ << '\n';
-	init_ = aut_->get_init_state();
       }
 
       void
-      end()
+      end() const
       {
-	if (fi_needed_)
-	  os_ << "  fi;\n";
-	if (accept_all_ != -1)
+	if (need_accept_all_)
 	  os_ << "accept_all:\n  skip\n";
 	os_ << '}' << std::endl;
-	init_->destroy();
       }
 
-      bool
-      state_is_accepting(const state *s)
+      bool is_sink(unsigned n) const
       {
-	// If the automaton is a SBA, it's easier to just query the
-	// state_is_accepting() method.
-	if (sba_)
-	  return sba_->state_is_accepting(s);
-
-	// Otherwise, since we are dealing with a degeneralized
-	// automaton nonetheless, the transitions leaving an accepting
-	// state are either all accepting, or all non-accepting.  So
-	// we just check the acceptance of the first transition.  This
-	// is not terribly efficient since we have to create the
-	// iterator.
-	tgba_succ_iterator* it = aut_->succ_iter(s);
-	bool accepting = it->first()
-	  && aut_->acc().accepting(it->current_acceptance_conditions());
-	aut_->release_iter(it);
-	return accepting;
+	auto ts = aut_->out(n);
+	assert(ts.begin() != ts.end());
+	auto it = ts.begin();
+	return (it->cond == bddtrue) && (it->dst == n) && (++it == ts.end());
       }
 
-      std::string
-      get_state_label(const state* s, int n)
+      void
+      print_state(unsigned n) const
       {
 	std::string label;
-	if (s->compare(init_) == 0)
-	  if (state_is_accepting(s))
-	    label = "accept_init";
-	  else
-	    label = "T0_init";
-	else
+	bool acc = aut_->state_is_accepting(n);
+	if (n == aut_->get_init_state_number())
 	  {
-	    std::ostringstream ost;
-	    ost << n;
-	    std::string ns(ost.str());
-
-	    if (state_is_accepting(s))
-	      {
-		tgba_succ_iterator* it = aut_->succ_iter(s);
-		if (!it->first())
-		  label = "accept_S" + ns;
-		else
-		  {
-		    state* current = it->current_state();
-		    if (it->current_condition() != bddtrue
-			|| s->compare(current) != 0)
-		      label = "accept_S" + ns;
-		    else
-		      label = "accept_all";
-		    current->destroy();
-		  }
-		aut_->release_iter(it);
-	      }
+	    if (acc)
+	      os_ << "accept_init";
 	    else
-	      label = "T0_S" + ns;
-	  }
-	  return label;
-      }
-
-      void
-      process_state(const state* s, int n, tgba_succ_iterator*)
-      {
-	tgba_succ_iterator* it = aut_->succ_iter(s);
-	if (!it->first())
-	  {
-	    if (fi_needed_ != 0)
-	      os_ << "  fi;\n";
-	    os_ << get_state_label(s, n) << ':';
-	    if (comments_)
-	      os_ << " /* " << aut_->format_state(s) << " */";
-	    os_ << "\n  if\n  :: (0) -> goto "
-		<< get_state_label(s, n) << '\n';
-	    fi_needed_ = true;
+	      os_ << "T0_init";
 	  }
 	else
 	  {
-	    state* current = it->current_state();
-	    if (state_is_accepting(s)
-		&& it->current_condition() == bddtrue
-		&& s->compare(init_) != 0
-		&& s->compare(current) == 0)
-	      accept_all_ = n;
+	    if (!acc)
+	      os_ << "T0_S" << n;
+	    else if (is_sink(n))
+	      os_ << "accept_all";
 	    else
-	      {
-		if (fi_needed_)
-		  os_ << "  fi;\n";
-		os_ << get_state_label(s, n) << ':';
-		if (comments_)
-		  os_ << " /* " << aut_->format_state(s) << " */";
-		os_ << "\n  if\n";
-		fi_needed_ = true;
-	      }
-	    current->destroy();
+	      os_ << "accept_S" << n;
 	  }
-	aut_->release_iter(it);
       }
 
-      void
-      process_link(const state*, int in, const state*, int out,
-		   const tgba_succ_iterator* si)
+      void process_state(unsigned n)
       {
-	if (in != accept_all_)
+	if (aut_->state_is_accepting(n) && is_sink(n))
 	  {
+	    // We want the accept_all state at the end of the never claim.
+	    need_accept_all_ = true;
+	    return;
+	  }
+
+	print_state(n);
+	os_ << ':';
+	if (opt_comments_)
+	  os_ << " /* " << aut_->format_state(n) << " */";
+	os_ << "\n  if\n";
+	bool did_output = false;
+	for (auto&t : aut_->out(n))
+	  {
+	    did_output = true;
 	    os_ << "  :: (";
-	    const ltl::formula* f = bdd_to_formula(si->current_condition(),
-						   aut_->get_dict());
+	    const ltl::formula* f = bdd_to_formula(t.cond, aut_->get_dict());
 	    to_spin_string(f, os_, true);
 	    f->destroy();
-	    state* current = si->current_state();
-	    os_ << ") -> goto " << get_state_label(current, out) << '\n';
-	    current->destroy();
+	    os_ << ") -> goto ";
+	    print_state(t.dst);
+	    os_ << '\n';
 	  }
+	if (!did_output)
+	  {
+	    os_ << "  :: (false) -> goto ";
+	    print_state(n);
+	    os_ << '\n';
+	  }
+	os_ << "  fi;\n";
       }
 
-    private:
-      std::ostream& os_;
-      int accept_all_;
-      bool fi_needed_;
-      state* init_;
-      bool comments_;
-      const_tgba_digraph_ptr sba_;
+      void print(const const_tgba_digraph_ptr& aut)
+      {
+	aut_ = aut;
+	start();
+	unsigned init = aut_->get_init_state_number();
+	unsigned ns = aut_->num_states();
+	process_state(init);
+	for (unsigned n = 0; n < ns; ++n)
+	  if (n != init)
+	    process_state(n);
+	end();
+      }
     };
-  } // anonymous
+  } // anonymous namespace
 
   std::ostream&
   never_claim_reachable(std::ostream& os, const const_tgba_ptr& g,
-			bool comments)
+			const char* options)
   {
     assert(g->acc().num_sets() <= 1);
-    never_claim_bfs n(g, os, comments);
-    n.run();
+    never_claim_output d(os, options);
+    auto aut = std::dynamic_pointer_cast<const tgba_digraph>(g);
+    if (!aut)
+      aut = make_tgba_digraph(g, tgba::prop_set::all());
+    d.print(aut);
     return os;
   }
 }

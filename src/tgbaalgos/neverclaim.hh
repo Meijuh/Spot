@@ -38,12 +38,11 @@ namespace spot
   ///          all the transitions of a state should be either all accepting
   ///          or all unaccepting.  If your automaton does not satisfies
   ///          these requirements, call degeneralize() first.
-  /// \param comments Whether to comment each state of the never clause
-  ///          with the label of the \a g automaton.
+  /// \param opt a string of option: 'c' to comment each state
   SPOT_API std::ostream&
   never_claim_reachable(std::ostream& os,
 			const const_tgba_ptr& g,
-			bool comments = false);
+			const char* opt = nullptr);
 }
 
 #endif // SPOT_TGBAALGOS_NEVERCLAIM_HH

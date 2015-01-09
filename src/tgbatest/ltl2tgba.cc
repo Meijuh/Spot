@@ -381,8 +381,8 @@ checked_main(int argc, char** argv)
   bool containment = false;
   bool opt_closure = false;
   bool opt_stutterize = false;
-  bool spin_comments = false;
-  const char* hoa_opt = 0;
+  const char* opt_never = nullptr;
+  const char* hoa_opt = nullptr;
   auto& env = spot::ltl::default_environment::instance();
   spot::ltl::atomic_prop_set* unobservables = 0;
   spot::tgba_ptr system_aut = 0;
@@ -606,12 +606,13 @@ checked_main(int argc, char** argv)
 	{
 	  degeneralize_opt = DegenSBA;
 	  output = 8;
+	  opt_never = nullptr;
 	}
       else if (!strcmp(argv[formula_index], "-NN"))
 	{
 	  degeneralize_opt = DegenSBA;
 	  output = 8;
-	  spin_comments = true;
+	  opt_never = "c";
 	}
       else if (!strncmp(argv[formula_index], "-O", 2))
 	{
@@ -1595,7 +1596,7 @@ checked_main(int argc, char** argv)
 	      {
 		assert(degeneralize_opt == DegenSBA);
 		if (assume_sba)
-		  spot::never_claim_reachable(std::cout, a, spin_comments);
+		  spot::never_claim_reachable(std::cout, a, opt_never);
 		else
 		  {
 		    // It is possible that we have applied other
@@ -1603,7 +1604,7 @@ checked_main(int argc, char** argv)
 		    // degeneralization.  Let's degeneralize again!
                     auto s = spot::degeneralize(ensure_digraph(a), degen_reset,
 						degen_order, degen_cache);
-		    spot::never_claim_reachable(std::cout, s, spin_comments);
+		    spot::never_claim_reachable(std::cout, s, opt_never);
 		  }
 		break;
 	      }
