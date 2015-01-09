@@ -40,7 +40,7 @@
 #include "priv/accmap.hh"
 #include "ltlparse/public.hh"
 
-  inline namespace hoayy
+  inline namespace hoayy_support
   {
     /* Cache parsed formulae.  Labels on arcs are frequently identical
        and it would be a waste of time to parse them to formula* over and

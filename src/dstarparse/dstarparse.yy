@@ -34,7 +34,7 @@
 #include "ltlast/constant.hh"
 #include "public.hh"
 
-  inline namespace dstaryy
+  inline namespace dstaryy_support
   {
     typedef std::map<int, bdd> map_t;
 
