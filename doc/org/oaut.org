@@ -752,6 +752,31 @@ autfilt --states=3 --stats=%M -n5
 : !a | (b R a)
 : !b & X(!b U a)
 
+Note that the above result can also be obtained without using
+=autfilt= and automata name.  We can use the fact that =ltl2tgba
+--stats= can output the automaton size, and that =ltl2tgba= is also
+capable of [[file:csv.org][reading from a CSV file]] (=-F-/2= instructs =ltl2tgba= to
+read the standard input as if it was a CSV file, and process its
+second column):
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randltl -n -1 a b |                 # generate a stream of random LTL formulas
+ltl2tgba -F- --stats='%s,!(%f)' |   # for each formula output "states,negated formula"
+grep '^3,' |                        # keep only formulas with 3 states
+ltl2tgba -F-/2 --stats='%s,%f' |    # for each negated formula output "states,formula"
+grep '^3,' |                        # keep only negated formulas with 3 states
+head -n5 | cut -d, -f2              # return the five first formulas
+#+END_SRC
+
+#+RESULTS:
+: G(F!a & XF(a | G!b))
+: GFb | G(!b & FG!b)
+: !a & F((!a | !b) & (a | b))
+: !a | (b R a)
+: !b & X(!b U a)
+
+
+
 #  LocalWords:  num toc html syntaxes ltl tgba sed utf UTF lbtt SCCs
 #  LocalWords:  GraphViz's hoaf HOA LBTT's neverclaim ba SPOT's Gb cn
 #  LocalWords:  GraphViz autfilt acc Buchi hoafex gvpack perl pe bb
