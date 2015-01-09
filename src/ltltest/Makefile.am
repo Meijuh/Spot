@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
-## Recherche et Développement de l'Epita (LRDE).
+## Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
+## de Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ## Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -44,8 +44,7 @@ check_PROGRAMS = \
   syntimpl \
   tostring \
   tunabbrev \
-  tunenoform \
-  unabbrevwm
+  tunenoform
 
 consterm_SOURCES = consterm.cc
 equals_SOURCES = equalsf.cc
@@ -74,8 +73,6 @@ tunabbrev_SOURCES = equalsf.cc
 tunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DTUNABBREV
 tunenoform_SOURCES = equalsf.cc
 tunenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM -DTUNABBREV
-unabbrevwm_SOURCES = equals.cc
-unabbrevwm_CPPFLAGS = $(AM_CPPFLAGS) -DWM
 
 
 EXTRA_DIST = $(TESTS)
