@@ -254,12 +254,11 @@ namespace spot
       // Iterate on each original state corresponding to start.
       const power_map::power_state& ps =
 	pm.states_of(det_a->state_number(start));
-      for (auto& it: ps)
+      for (auto& s: ps)
 	{
 	  // Construct a product between LOOP_A and ORIG_A starting in
-	  // *IT.  FIXME: This could be sped up a lot!
-	  if (!product(loop_a, orig_a, 0U,
-		       orig_a->state_number(it))->is_empty())
+	  // S.  FIXME: This could be sped up a lot!
+	  if (!product(loop_a, orig_a, 0U, s)->is_empty())
 	    {
 	      accepting = true;
 	      break;

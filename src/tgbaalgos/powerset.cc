@@ -41,7 +41,6 @@
 
 namespace spot
 {
-  // FIXME: Redo this algorithm using the tgba_digraph interface.
   tgba_digraph_ptr
   tgba_powerset(const const_tgba_digraph_ptr& aut, power_map& pm, bool merge)
   {
@@ -55,9 +54,7 @@ namespace spot
     res->copy_ap_of(aut);
 
     {
-      power_state ps;
-      const state* s = pm.canonicalize(aut->get_init_state());
-      ps.insert(s);
+      power_state ps{aut->get_init_state_number()};
       todo.push_back(ps);
       unsigned num = res->new_state();
       seen[ps] = num;
@@ -71,8 +68,8 @@ namespace spot
 	// Compute all variables occurring on outgoing arcs.
 	bdd all_vars = bddtrue;
 	for (auto s: src)
-	  for (auto i: aut->succ(s))
-	    all_vars &= bdd_support(i->current_condition());
+	  for (auto i: aut->out(s))
+	    all_vars &= bdd_support(i.cond);
 
 	bdd all_conds = bddtrue;
 	// Iterate over all possible conditions
@@ -84,13 +81,13 @@ namespace spot
 	    // Construct the set of all states reachable via COND.
 	    power_state dest;
 	    for (auto s: src)
-	      for (auto si: aut->succ(s))
-		if ((cond >> si->current_condition()) == bddtrue)
-		  dest.insert(pm.canonicalize(si->current_state()));
+	      for (auto si: aut->out(s))
+		if ((cond >> si.cond) == bddtrue)
+		  dest.insert(si.dst);
 	    if (dest.empty())
 	      continue;
 	    // Add that transition.
-	    power_set::const_iterator i = seen.find(dest);
+	    auto i = seen.find(dest);
 	    int dest_num;
 	    if (i != seen.end())
 	      {
@@ -204,8 +201,7 @@ namespace spot
 	  {
 	    // Check the product between LOOP_A, and ORIG_A starting
 	    // in S.
-	    if (!product(loop_a, ref_,
-			 loop_a_init, ref_->state_number(s))->is_empty())
+	    if (!product(loop_a, ref_, loop_a_init, s)->is_empty())
 	      {
 		accepting = true;
 		break;
@@ -296,7 +292,7 @@ namespace spot
     auto det = tgba_powerset(aut, pm, false);
 
     if ((threshold_states > 0)
-	&& (pm.map_.size() > pm.states_.size() * threshold_states))
+	&& (pm.map_.size() > aut->num_states() * threshold_states))
       return nullptr;
     if (fix_dba_acceptance(det, aut, pm, threshold_cycles))
       return nullptr;

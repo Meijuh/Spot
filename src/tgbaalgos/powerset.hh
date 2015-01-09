@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita.
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -32,7 +32,7 @@ namespace spot
 
   struct SPOT_API power_map
   {
-    typedef std::set<const state*, state_ptr_less_than> power_state;
+    typedef std::set<unsigned> power_state;
     typedef std::map<unsigned, power_state> power_map_data;
 
     const power_state&
@@ -41,14 +41,7 @@ namespace spot
       return map_.at(s);
     }
 
-    const state*
-    canonicalize(const state* s)
-    {
-      return states_(s);
-    }
-
     power_map_data map_;
-    state_unicity_table states_;
   };
 
 
