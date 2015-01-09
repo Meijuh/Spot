@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE)
+// Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -25,22 +25,21 @@ namespace spot
 {
   bool
   is_guarantee_automaton(const const_tgba_digraph_ptr& aut,
-			 const scc_info* sm)
+			 const scc_info* si)
   {
     // Create an scc_info if the user did not give one to us.
-    bool need_sm = !sm;
-    if (need_sm)
-      sm = new scc_info(aut);
+    bool need_si = !si;
+    if (need_si)
+      si = new scc_info(aut);
 
     bool result = true;
 
-    unsigned scc_count = sm->scc_count();
-    for (unsigned scc = 0; scc < scc_count; ++scc)
+    for (auto& scc: *si)
       {
-	if (!sm->is_accepting_scc(scc))
+	if (!scc.is_accepting())
 	  continue;
 	// Accepting SCCs should have only one state.
-	auto& st = sm->states_of(scc);
+	auto& st = scc.states();
 	if (st.size() != 1)
 	  {
 	    result = false;
@@ -58,8 +57,8 @@ namespace spot
 	  break;
       }
 
-    if (need_sm)
-      delete sm;
+    if (need_si)
+      delete si;
     return result;
   }
 

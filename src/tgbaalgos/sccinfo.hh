@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -25,7 +25,6 @@
 
 namespace spot
 {
-
   class SPOT_API scc_info
   {
   public:
@@ -41,24 +40,56 @@ namespace spot
 
     typedef std::vector<scc_trans> scc_succs;
 
-    struct scc_node
+    class scc_node
     {
+      friend class scc_info;
+    protected:
+      scc_succs succ_;
+      acc_cond::mark_t acc_;
+      std::list<unsigned> states_; // States of the component
+      bool trivial_:1;
+      bool accepting_:1;
+      bool useful_:1;
+    public:
       scc_node():
-	acc(0U), trivial(true), accepting(false), useful(false)
+	acc_(0U), trivial_(true), accepting_(false), useful_(false)
       {
       }
 
       scc_node(acc_cond::mark_t acc, bool trivial):
-	acc(acc), trivial(trivial), accepting(false), useful(false)
+	acc_(acc), trivial_(trivial), accepting_(false), useful_(false)
       {
       }
 
-      scc_succs succ;
-      acc_cond::mark_t acc;
-      std::list<unsigned> states; // States of the component
-      bool trivial:1;
-      bool accepting:1;
-      bool useful:1;
+      bool is_trivial() const
+      {
+	return trivial_;
+      }
+
+      bool is_accepting() const
+      {
+	return accepting_;
+      }
+
+      bool is_useful() const
+      {
+	return useful_;
+      }
+
+      acc_cond::mark_t acc_marks() const
+      {
+	return acc_;
+      }
+
+      const std::list<unsigned>& states() const
+      {
+	return states_;
+      }
+
+      const scc_succs& succ() const
+      {
+	return succ_;
+      }
     };
 
   protected:
@@ -98,9 +129,22 @@ namespace spot
       return sccof_[st];
     }
 
+    auto begin() const
+      SPOT_RETURN(node_.begin());
+    auto end() const
+      SPOT_RETURN(node_.end());
+    auto cbegin() const
+      SPOT_RETURN(node_.cbegin());
+    auto cend() const
+      SPOT_RETURN(node_.cend());
+    auto rbegin() const
+      SPOT_RETURN(node_.rbegin());
+    auto rend() const
+      SPOT_RETURN(node_.rend());
+
     const std::list<unsigned>& states_of(unsigned scc) const
     {
-      return node(scc).states;
+      return node(scc).states();
     }
 
     unsigned one_state_of(unsigned scc) const
@@ -117,32 +161,32 @@ namespace spot
 
     const scc_succs& succ(unsigned scc) const
     {
-      return node(scc).succ;
+      return node(scc).succ();
     }
 
     bool is_trivial(unsigned scc) const
     {
-      return node(scc).trivial;
+      return node(scc).is_trivial();
     }
 
     acc_cond::mark_t acc(unsigned scc) const
     {
-      return node(scc).acc;
+      return node(scc).acc_marks();
     }
 
     bool is_accepting_scc(unsigned scc) const
     {
-      return node(scc).accepting;
+      return node(scc).is_accepting();
     }
 
     bool is_useful_scc(unsigned scc) const
     {
-      return node(scc).useful;
+      return node(scc).is_useful();
     }
 
     bool is_useful_state(unsigned st) const
     {
-      return reachable_state(st) && node(scc_of(st)).useful;
+      return reachable_state(st) && node(scc_of(st)).is_useful();
     }
 
     /// \brief Return the set of all used acceptance combinations, for

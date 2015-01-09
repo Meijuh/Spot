@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -100,7 +100,7 @@ namespace spot
 	    // Fill STATES with any state removed, so that
 	    // remove_component() does not have to traverse the SCC
 	    // again.
-	    root_.front().node.states.push_front(curr);
+	    root_.front().node.states_.push_front(curr);
 
 	    // When backtracking the root of an SCC, we must also
 	    // remove that SCC from the ARC/ROOT stacks.  We must
@@ -109,23 +109,23 @@ namespace spot
 	    if (root_.front().index == h_[curr])
 	      {
 		int num = node_.size();
-		for (auto s: root_.front().node.states)
+		for (auto s: root_.front().node.states_)
 		  {
 		    sccof_[s] = num;
 		    h_[s] = num + 1;
 		  }
 		bdd cond = root_.front().in_cond;
-		auto acc = root_.front().node.acc;
-		bool triv = root_.front().node.trivial;
+		auto acc = root_.front().node.acc_marks();
+		bool triv = root_.front().node.is_trivial();
 		node_.emplace_back(acc, triv);
-		std::swap(node_.back().succ, root_.front().node.succ);
-		std::swap(node_.back().states, root_.front().node.states);
-		node_.back().accepting = !triv && aut->acc().accepting(acc);
+		std::swap(node_.back().succ_, root_.front().node.succ_);
+		std::swap(node_.back().states_, root_.front().node.states_);
+		node_.back().accepting_ = !triv && aut->acc().accepting(acc);
 		root_.pop_front();
 		// Record the transition between the SCC being popped
 		// and the previous SCC.
 		if (!root_.empty())
-		  root_.front().node.succ.emplace_back(cond, num);
+		  root_.front().node.succ_.emplace_back(cond, num);
 	      }
 	    continue;
 	  }
@@ -159,7 +159,7 @@ namespace spot
 	    --spi;
 	    // Record that there is a transition from this SCC to the
 	    // dest SCC labelled with cond.
-	    auto& succ = root_.front().node.succ;
+	    auto& succ = root_.front().node.succ_;
 	    scc_succs::iterator i = std::find_if(succ.begin(), succ.end(),
 						 [spi](const scc_trans& x) {
 						   return (x.dst ==
@@ -189,13 +189,13 @@ namespace spot
 	while (threshold > root_.front().index)
 	  {
 	    assert(!root_.empty());
-	    acc |= root_.front().node.acc;
+	    acc |= root_.front().node.acc_;
 	    acc |= root_.front().in_acc;
-	    states.splice(states.end(), root_.front().node.states);
+	    states.splice(states.end(), root_.front().node.states_);
 
 	    succs.insert(succs.end(),
-			 root_.front().node.succ.begin(),
-			 root_.front().node.succ.end());
+			 root_.front().node.succ_.begin(),
+			 root_.front().node.succ_.end());
 	    root_.pop_front();
 	  }
 
@@ -206,24 +206,31 @@ namespace spot
 
 	// Accumulate all acceptance conditions, states, SCC
 	// successors, and conditions into the merged SCC.
-	root_.front().node.acc |= acc;
-	root_.front().node.states.splice(root_.front().node.states.end(),
-					 states);
-	root_.front().node.succ.insert(root_.front().node.succ.end(),
-				       succs.begin(), succs.end());
+	root_.front().node.acc_ |= acc;
+	root_.front().node.states_.splice(root_.front().node.states_.end(),
+					  states);
+	root_.front().node.succ_.insert(root_.front().node.succ_.end(),
+					succs.begin(), succs.end());
 	// This SCC is no longer trivial.
-	root_.front().node.trivial = false;
+	root_.front().node.trivial_ = false;
       }
 
     // An SCC is useful if it is accepting or it has a successor SCC
     // that is useful.
     unsigned scccount = scc_count();
-    for (unsigned i = 0; i < scccount; i++)
+    for (unsigned i = 0; i < scccount; ++i)
       {
-	bool useful = node_[i].accepting;
-	for (auto j: node_[i].succ)
-	  useful |= node_[j.dst].useful;
-	node_[i].useful = useful;
+	if (node_[i].is_accepting())
+	  {
+	    node_[i].useful_ = true;
+	    continue;
+	  }
+	for (auto j: node_[i].succ())
+	  if (node_[j.dst].is_useful())
+	    {
+	      node_[i].useful_ = true;
+	      break;
+	    }
       }
   }
 

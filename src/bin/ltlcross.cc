@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -1186,9 +1186,8 @@ namespace
 	{
 	  // r == true iff the automaton i is accepting.
 	  bool r = false;
-	  unsigned c = m->scc_count();
-	  for (unsigned j = 0; j < c; ++j)
-	    if (m->is_accepting_scc(j))
+	  for (auto& scc: *m)
+	    if (scc.is_accepting())
 	      {
 		r = true;
 		break;
@@ -1240,15 +1239,13 @@ namespace
   // Collect all the states of SSPACE that appear in the accepting SCCs
   // of PROD.  (Trivial SCCs are considered accepting.)
   static void
-  states_in_acc(const spot::scc_info* m,
-		state_set& s)
+  states_in_acc(const spot::scc_info* m, state_set& s)
   {
     auto aut = m->get_aut();
     auto ps = aut->get_named_prop<const spot::product_states>("product-states");
-    unsigned c = m->scc_count();
-    for (unsigned n = 0; n < c; ++n)
-      if (m->is_accepting_scc(n) || m->is_trivial(n))
-	for (auto i: m->states_of(n))
+    for (auto& scc: *m)
+      if (scc.is_accepting() || scc.is_trivial())
+	for (auto i: scc.states())
 	  // Get the projection on sspace.
 	  s.insert((*ps)[i].second);
   }
