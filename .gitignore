@@ -69,3 +69,7 @@ dt*ba-sat.dbg
 *.dstar
 *.satlog
 *.png
+GPATH
+GRTAGS
+GSYMS
+GTAGS
