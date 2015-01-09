@@ -552,8 +552,7 @@ namespace spot
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
     if (a->is_sba())
-      if (auto d = std::dynamic_pointer_cast<const tgba_digraph>(a))
-	return std::const_pointer_cast<tgba_digraph>(d);
+      return std::const_pointer_cast<tgba_digraph>(a);
 
     return degeneralize_aux<true>(a, use_z_lvl, use_cust_acc_orders,
 				  use_lvl_cache, skip_levels);
@@ -567,8 +566,7 @@ namespace spot
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
     if (a->has_single_acc_set())
-      if (auto d = std::dynamic_pointer_cast<const tgba_digraph>(a))
-	return std::const_pointer_cast<tgba_digraph>(d);
+      return std::const_pointer_cast<tgba_digraph>(a);
 
     return degeneralize_aux<false>(a, use_z_lvl, use_cust_acc_orders,
 				   use_lvl_cache, skip_levels);
