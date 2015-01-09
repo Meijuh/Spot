@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -165,8 +165,13 @@ namespace spot
                   if (mutation_counter_-- == 0)
                     result_ = And_(first->clone(), second->clone());
                   if (mutation_counter_-- == 0)
-                    result_ = And_(Not_(first->clone()),
-				       Not_(second->clone()));
+		    {
+		      // Negate the two argument sequentially (in this
+		      // case right before left, otherwise different
+		      // compilers will make different choices.
+		      auto right = Not_(second->clone());
+		      result_ = And_(Not_(first->clone()), right);
+		    }
                   break;
                 case binop::Xor:
                   if (mutation_counter_-- == 0)
@@ -181,10 +186,20 @@ namespace spot
           if (!result_)
             {
               if (mutation_counter_ < 0)
-                result_ = bo->clone();
+		{
+		  result_ = bo->clone();
+		}
               else
-                result_ =
-		  binop::instance(bo->op(), recurse(first), recurse(second));
+		{
+		  // For historical reasons, we evaluate the right
+		  // side before the left one.  The other order would
+		  // be OK as well but require changing the test
+		  // suite.  Evaluating both sides during the call to
+		  // instance() is incorrect, because each compiler
+		  // could decide of a different order.
+		  auto right = recurse(second);
+		  result_ = binop::instance(bo->op(), recurse(first), right);
+		}
             }
         }
 
