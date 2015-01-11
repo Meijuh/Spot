@@ -81,8 +81,8 @@ namespace spot
 	    // Construct the set of all states reachable via COND.
 	    power_state dest;
 	    for (auto s: src)
-	      for (auto si: aut->out(s))
-		if ((cond >> si.cond) == bddtrue)
+	      for (auto& si: aut->out(s))
+		if (bdd_implies(cond, si.cond))
 		  dest.insert(si.dst);
 	    if (dest.empty())
 	      continue;
