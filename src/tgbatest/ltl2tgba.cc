@@ -1638,7 +1638,7 @@ checked_main(int argc, char** argv)
 	    case 13:
 	      sub_stats_reachable(a).dump(std::cout);
 	      std::cout << "nondeterministic states: "
-			<< count_nondet_states(a) << std::endl;
+			<< count_nondet_states(ensure_digraph(a)) << std::endl;
 	      break;
 	    case 14:
 	      if (!wdba_minimization_is_success)

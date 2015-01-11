@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -20,7 +20,7 @@
 #ifndef SPOT_TGBAALGOS_ISDET_HH
 # define SPOT_TGBAALGOS_ISDET_HH
 
-# include "tgba/tgba.hh"
+# include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -33,7 +33,7 @@ namespace spot
   /// but it is more efficient to call is_deterministic() if you do not
   /// care about the number of nondeterministic states.
   SPOT_API unsigned
-  count_nondet_states(const const_tgba_ptr& aut);
+  count_nondet_states(const const_tgba_digraph_ptr& aut);
 
   /// \brief Return true iff \a aut is deterministic.
   ///
@@ -41,14 +41,14 @@ namespace spot
   /// the automaton is nondeterministic, because it can return before
   /// the entire automaton has been explored.
   SPOT_API bool
-  is_deterministic(const const_tgba_ptr& aut);
+  is_deterministic(const const_tgba_digraph_ptr& aut);
 
   /// \brief Return true iff \a aut is complete.
   ///
   /// An automaton is complete if its translation relation is total,
   /// i.e., each state as a successor for any possible configuration.
   SPOT_API bool
-  is_complete(const const_tgba_ptr& aut);
+  is_complete(const const_tgba_digraph_ptr& aut);
 
   /// @}
 }

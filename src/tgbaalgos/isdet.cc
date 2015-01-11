@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -28,66 +28,40 @@ namespace spot
     template<bool count>
     static
     unsigned
-    count_nondet_states_aux(const const_tgba_ptr& aut)
+    count_nondet_states_aux(const const_tgba_digraph_ptr& aut)
     {
-      unsigned res = 0;
-      typedef std::deque<const state*> todo_list;
-
-      state_set seen;
-      todo_list todo;
-      {
-	const state* s = aut->get_init_state();
-	seen.insert(s);
-	todo.push_back(s);
-      }
-      while (!todo.empty())
+      unsigned nondet_states = 0;
+      unsigned ns = aut->num_states();
+      for (unsigned src = 0; src < ns; ++src)
 	{
-	  const state* src = todo.front();
-	  todo.pop_front();
-
-	  bool nondeterministic = false;
 	  bdd available = bddtrue;
-	  for (auto i: aut->succ(src))
-	    {
-	      // If we know the state is nondeterministic, just skip the
-	      // test for the remaining transitions.  But don't break
-	      // the loop, because we still have to record the
-	      // destination states.
-	      if (!nondeterministic)
-		{
-		  bdd label = i->current_condition();
-		  if (!bdd_implies(label, available))
-		    nondeterministic = true;
-		  else
-		    available -= label;
-		}
-	      const state* dst = i->current_state();
-	      if (seen.insert(dst).second)
-		todo.push_back(dst);
-	      else
-		dst->destroy();
-	    }
-	  res += nondeterministic;
-	  if (!count && nondeterministic)
+	  for (auto& t: aut->out(src))
+	    if (!bdd_implies(t.cond, available))
+	      {
+		++nondet_states;
+		break;
+	      }
+	    else
+	      {
+		available -= t.cond;
+	      }
+	  // If we are not counting non-deterministic states, abort as
+	  // soon as possible.
+	  if (!count && nondet_states)
 	    break;
 	}
-      for (state_set::const_iterator i = seen.begin(); i != seen.end();)
-	{
-	  const state* s = *i++;
-	  s->destroy();
-	}
-      return res;
+      return nondet_states;
     }
   }
 
   unsigned
-  count_nondet_states(const const_tgba_ptr& aut)
+  count_nondet_states(const const_tgba_digraph_ptr& aut)
   {
     return count_nondet_states_aux<true>(aut);
   }
 
   bool
-  is_deterministic(const const_tgba_ptr& aut)
+  is_deterministic(const const_tgba_digraph_ptr& aut)
   {
     if (aut->is_deterministic())
       return true;
@@ -95,43 +69,19 @@ namespace spot
   }
 
   bool
-  is_complete(const const_tgba_ptr& aut)
+  is_complete(const const_tgba_digraph_ptr& aut)
   {
-    state_set seen;
-    typedef std::deque<const state*> todo_list;
-    todo_list todo;
-    bool complete = true;
-    {
-      const state* s = aut->get_init_state();
-      seen.insert(s);
-      todo.push_back(s);
-    }
-    while (!todo.empty())
+    unsigned ns = aut->num_states();
+    for (unsigned src = 0; src < ns; ++src)
       {
-	const state* src = todo.front();
-	todo.pop_front();
-
 	bdd available = bddtrue;
-	for (auto i: aut->succ(src))
-	  {
-	    available -= i->current_condition();
-	    const state* dst = i->current_state();
-	    if (seen.insert(dst).second)
-	      todo.push_back(dst);
-	    else
-	      dst->destroy();
-	  }
+	for (auto& t: aut->out(src))
+	  available -= t.cond;
 	if (available != bddfalse)
-	  {
-	    complete = false;
-	    break;
-	  }
+	  return false;
       }
-    for (state_set::const_iterator i = seen.begin(); i != seen.end();)
-      {
-	const state* s = *i++;
-	s->destroy();
-      }
-    return complete;
+    // The empty automaton is not complete since it does not have an
+    // initial state.
+    return ns > 0;
   }
 }
