@@ -21,7 +21,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <set>
-#include <deque>
 #include <iterator>
 #include <vector>
 #include "powerset.hh"
@@ -46,7 +45,7 @@ namespace spot
   {
     typedef power_map::power_state power_state;
     typedef std::map<power_map::power_state, int> power_set;
-    typedef std::deque<power_map::power_state> todo_list;
+    typedef std::vector<power_map::power_state> todo_list;
 
     power_set seen;
     todo_list todo;
@@ -63,12 +62,12 @@ namespace spot
 
     while (!todo.empty())
       {
-	power_state src = todo.front();
-	todo.pop_front();
+	power_state src = todo.back();
+	todo.pop_back();
 	// Compute all variables occurring on outgoing arcs.
 	bdd all_vars = bddtrue;
 	for (auto s: src)
-	  for (auto i: aut->out(s))
+	  for (auto& i: aut->out(s))
 	    all_vars &= bdd_support(i.cond);
 
 	bdd all_conds = bddtrue;
