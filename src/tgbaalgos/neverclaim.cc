@@ -126,7 +126,8 @@ namespace spot
 
       void process_state(unsigned n)
       {
-	if (aut_->state_is_accepting(n) && is_sink(n))
+	if (aut_->state_is_accepting(n) && is_sink(n)
+	    && n != aut_->get_init_state_number())
 	  {
 	    // We want the accept_all state at the end of the never claim.
 	    need_accept_all_ = true;
