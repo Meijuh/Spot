@@ -23,8 +23,8 @@
 #ifndef SPOT_TGBAALGOS_POWERSET_HH
 # define SPOT_TGBAALGOS_POWERSET_HH
 
-# include <list>
-# include <map>
+# include <set>
+# include <vector>
 # include "tgba/tgbagraph.hh"
 
 namespace spot
@@ -33,15 +33,13 @@ namespace spot
   struct SPOT_API power_map
   {
     typedef std::set<unsigned> power_state;
-    typedef std::map<unsigned, power_state> power_map_data;
+    std::vector<power_state> map_;
 
     const power_state&
     states_of(unsigned s) const
     {
       return map_.at(s);
     }
-
-    power_map_data map_;
   };
 
 

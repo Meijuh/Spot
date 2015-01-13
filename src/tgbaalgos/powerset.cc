@@ -31,77 +31,187 @@
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/product.hh"
 #include "tgba/bddprint.hh"
-#include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/dtgbacomp.hh"
 #include "ltlast/unop.hh"
+#include "misc/bitvect.hh"
+#include "misc/bddlt.hh"
 
 namespace spot
 {
+  namespace
+  {
+
+    static unsigned
+    number_of_variables(bdd vin)
+    {
+      unsigned nap = 0;
+      int v = vin.id();
+      while (v != 1)
+	{
+	  v = bdd_high(v);
+	  ++nap;
+	}
+      return nap;
+    }
+
+    static power_map::power_state
+    bv_to_ps(const bitvect* in)
+    {
+      power_map::power_state ps;
+      unsigned ns = in->size();
+      for (unsigned pos = 0; pos < ns; ++pos)
+	if (in->get(pos))
+	  ps.insert(pos);
+      return ps;
+    }
+
+    struct bv_hash
+    {
+      size_t operator()(const bitvect* bv) const
+      {
+	return bv->hash();
+      }
+    };
+
+    struct bv_equal
+    {
+      bool operator()(const bitvect* bvl, const bitvect* bvr) const
+      {
+	return *bvl == *bvr;
+      }
+    };
+  }
+
   tgba_digraph_ptr
   tgba_powerset(const const_tgba_digraph_ptr& aut, power_map& pm, bool merge)
   {
-    typedef power_map::power_state power_state;
-    typedef std::map<power_map::power_state, int> power_set;
-    typedef std::vector<power_map::power_state> todo_list;
+    bdd allap = bddtrue;
+    {
+      typedef std::set<bdd, bdd_less_than> sup_map;
+      sup_map sup;
+      // Record occurrences of all guards
+      for (auto& t: aut->transitions())
+	sup.emplace(t.cond);
+      for (auto& i: sup)
+	allap &= bdd_support(i);
+    }
 
+    unsigned nap = number_of_variables(allap);
+
+    // Call this before aut->num_states(), since it might add a state.
+    unsigned init_num = aut->get_init_state_number();
+
+    unsigned ns = aut->num_states();
+    assert(ns > 0);
+
+    if ((-1UL / ns) >> nap == 0)
+      throw std::runtime_error("too many atomic propositions (or states)");
+
+    // Build a correspondence between conjunctions of APs and unsigned
+    // indexes.
+    std::vector<bdd> num2bdd;
+    num2bdd.reserve(1UL << nap);
+    std::map<bdd, unsigned, bdd_less_than> bdd2num;
+    bdd all = bddtrue;
+    while (all != bddfalse)
+      {
+	bdd one = bdd_satoneset(all, allap, bddfalse);
+	all -= one;
+	bdd2num.emplace(one, num2bdd.size());
+	num2bdd.push_back(one);
+      }
+
+    size_t nc = num2bdd.size();	// number of conditions
+    assert(nc == (1UL << nap));
+
+    // An array of bit vectors of size 'ns'.  Each original state is
+    // represented by 'nc' bitvectors representing the possible
+    // destinations for each condition.
+    auto bv = std::unique_ptr<bitvect_array>(make_bitvect_array(ns, ns * nc));
+
+    for (unsigned src = 0; src < ns; ++src)
+      {
+	size_t base = src * nc;
+	for (auto& t: aut->out(src))
+	  {
+	    bdd all = t.cond;
+	    while (all != bddfalse)
+	      {
+		bdd one = bdd_satoneset(all, allap, bddfalse);
+		all -= one;
+		unsigned num = bdd2num[one];
+		bv->at(base + num).set(t.dst);
+	      }
+	  }
+      }
+
+    typedef power_map::power_state power_state;
+
+    typedef std::unordered_map<bitvect*, int, bv_hash, bv_equal> power_set;
     power_set seen;
-    todo_list todo;
+
+    std::vector<const bitvect*>toclean;
+
     auto res = make_tgba_digraph(aut->get_dict());
     res->copy_ap_of(aut);
 
     {
-      power_state ps{aut->get_init_state_number()};
-      todo.push_back(ps);
+      auto bvi = make_bitvect(ns);
+      bvi->set(init_num);
+      power_state ps{init_num};
       unsigned num = res->new_state();
-      seen[ps] = num;
-      pm.map_[num] = ps;
+      res->set_init_state(num);
+      seen[bvi] = num;
+      assert(pm.map_.size() == num);
+      pm.map_.emplace_back(std::move(ps));
+      toclean.push_back(bvi);
     }
 
-    while (!todo.empty())
+    // outgoing map
+    auto om = std::unique_ptr<bitvect_array>(make_bitvect_array(ns, nc));
+
+    for (unsigned src_num = 0; src_num < res->num_states(); ++src_num)
       {
-	power_state src = todo.back();
-	todo.pop_back();
-	// Compute all variables occurring on outgoing arcs.
-	bdd all_vars = bddtrue;
+	om->clear_all();
+
+	const power_state& src = pm.states_of(src_num);
+
 	for (auto s: src)
-	  for (auto& i: aut->out(s))
-	    all_vars &= bdd_support(i.cond);
-
-	bdd all_conds = bddtrue;
-	// Iterate over all possible conditions
-	while (all_conds != bddfalse)
 	  {
-	    bdd cond = bdd_satoneset(all_conds, all_vars, bddtrue);
-	    all_conds -= cond;
-
-	    // Construct the set of all states reachable via COND.
-	    power_state dest;
-	    for (auto s: src)
-	      for (auto& si: aut->out(s))
-		if (bdd_implies(cond, si.cond))
-		  dest.insert(si.dst);
-	    if (dest.empty())
+	    size_t base = s * nc;
+	    for (unsigned c = 0; c < nc; ++c)
+	      om->at(c) |= bv->at(base + c);
+	  }
+	for (unsigned c = 0; c < nc; ++c)
+	  {
+	    auto dst = &om->at(c);
+	    if (dst->is_fully_clear())
 	      continue;
-	    // Add that transition.
-	    auto i = seen.find(dest);
-	    int dest_num;
+	    auto i = seen.find(dst);
+	    unsigned dst_num;
 	    if (i != seen.end())
 	      {
-		dest_num = i->second;
+		dst_num = i->second;
 	      }
 	    else
 	      {
-		dest_num = res->new_state();
-		seen[dest] = dest_num;
-		pm.map_[dest_num] = dest;
-		todo.push_back(dest);
+		dst_num = res->new_state();
+		auto dst2 = dst->clone();
+		seen[dst2] = dst_num;
+		toclean.push_back(dst2);
+		auto ps = bv_to_ps(dst);
+		assert(pm.map_.size() == dst_num);
+		pm.map_.emplace_back(std::move(ps));
 	      }
-	    res->new_transition(seen[src], dest_num, cond);
+	    res->new_transition(src_num, dst_num, num2bdd[c]);
 	  }
       }
+
+    for (auto v: toclean)
+      delete v;
     if (merge)
       res->merge_transitions();
     return res;

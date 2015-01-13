@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -485,6 +485,14 @@ namespace spot
     {
       assert(index < size_);
       return *reinterpret_cast<bitvect*>(storage() + index * bvsize_);
+    }
+
+    void clear_all()
+    {
+      // FIXME: This could be changed into a large memset if the
+      // individual vectors where not allowed to be reallocated.
+      for (unsigned s = 0; s < size_; s++)
+	at(s).clear_all();
     }
 
     /// Return the bit-vector at \a index.
