@@ -219,7 +219,6 @@ namespace spot
 			  const const_tgba_digraph_ptr& orig_a, scc_info& sm,
 			  power_map& pm)
     {
-
       // Get some state from the SCC #n.
       const state* start = det_a->state_from_number(sm.one_state_of(scc_n));
 
@@ -480,12 +479,7 @@ namespace spot
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
-    tgba_digraph_ptr det_a;
-
-    {
-      power_map pm;
-      det_a = tgba_powerset(a, pm);
-    }
+    tgba_digraph_ptr det_a = tgba_powerset(a);
 
     // non_final contain all states.
     // final is empty: there is no acceptance condition
