@@ -85,6 +85,7 @@ Exit status:\n\
 #define OPT_STUTTER_INSENSITIVE 29
 #define OPT_AP_N 30
 #define OPT_IGNORE_ERRORS 31
+#define OPT_NEGATE 256
 
 static const argp_option options[] =
   {
@@ -98,7 +99,7 @@ static const argp_option options[] =
       "do not report syntax errors", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Transformation options:", 3 },
-    { "negate", 'n', 0, 0, "negate each formula", 0 },
+    { "negate", OPT_NEGATE, 0, 0, "negate each formula", 0 },
     { "nnf", OPT_NNF, 0, 0, "rewrite formulas in negative normal form", 0 },
     { "relabel", OPT_RELABEL, "abc|pnn", OPTION_ARG_OPTIONAL,
       "relabel all atomic propositions, alphabetically unless " \
@@ -263,9 +264,6 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case 'n':
-      negate = true;
-      break;
     case 'q':
       output_format = quiet_output;
       break;
@@ -331,6 +329,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       }
     case OPT_LTL:
       ltl = true;
+      break;
+    case OPT_NEGATE:
+      negate = true;
       break;
     case OPT_NNF:
       nnf = true;
