@@ -234,30 +234,29 @@ formulas that respect certain constraints.  For instance let us
 generate 10 formulas that are equivalent to =a U b=:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randltl -n -1 a b | ltlfilt --equivalent-to 'a U b' | head -n 10
+randltl -n -1 a b | ltlfilt --equivalent-to 'a U b' -n 10
 #+END_SRC
 #+RESULTS:
 #+begin_example
-!(!a R !b)
-(!Gb -> a) U b
 a U b
-Fb & (a W b)
-((a <-> !(a | b)) W a) U ((!b M b) U b)
-(b <-> (Xb M a)) -> b
+(b W Fb) & ((Fb xor (a W b)) -> (a U b))
+(b U (a W b)) U b
+!(!b W (!a & !b))
+(a M (a <-> (a xor !a))) U b
+(a U b) | ((a & Xa) M Gb)
 (a | b) U b
-((!b U b) -> (a W b)) U b
-(a xor b) U b
-b R (Fb & (a U (a W b)))
+(b xor !b) -> ((b W a) U b)
+(!a -> ((a W b) W (a & b))) U b
+(a U b) | (Ga U b)
 #+end_example
 
 The =-n -1= option to =randltl= will cause it to output an infinite
 stream of random formulas.  =ltlfilt=, which reads its standard input
 by default, will select only those equivalent to =a U b=.  The output
-of =ltlfilt= would still be an infinite stream of random formulas, so
-we display only the first 10 using the standard =head= utility.  Less
-trivial formulas could be obtained by adding the =-r= option to
-=randltl= (or equivalently adding the =-r= and =-u= option to
-=ltlfilt=).
+of =ltlfilt= is limited to 10 formulas using =-n 10=. (As would using
+=| head -n 10=.)  Less trivial formulas could be obtained by adding
+the =-r= option to =randltl= (or equivalently adding the =-r= and =-u=
+option to =ltlfilt=).
 
 
 Another similar example, that requires two calls to =ltlfilt=, is the
@@ -268,20 +267,20 @@ then ignoring all syntactic safety formulas, and keeping only the
 safety formulas in the remaining list.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randltl -r -n -1 a b | ltlfilt -v --syntactic-safety | ltlfilt --safety | head -n 10
+randltl -r -n -1 a b | ltlfilt -v --syntactic-safety | ltlfilt --safety -n 10
 #+END_SRC
 #+RESULTS:
 #+begin_example
-(!a & Fa) R Xa
-!a | (a & b) | (((!a & b) | (a & !b)) M (!a M X!a))
-G(!a M Xa)
-G((G!b & !a) | (a & Fb)) R a
-G!a M !a
-G(!a M ((!b & XGb) | (b & XF!b)))
-F(b | G!b)
-F(Xa | G!a)
-G(XXa | (b & F!a))
-G((!a & (!a M !b)) | (a & (a W b)))
+G(!b | Gb | X(b & Fa))
+((!a | X(!a R (!b U !a))) & X((!a & !b) | (a & b))) | (a & X(((!a & b) | (a & !b)) & (b R a)))
+(F!a & (a | G!a)) R Xa
+(b M XGb) W XXa
+G(Xa & (!a U G!b))
+(a & F!a) R X(a | b)
+!a | (a & (a M !b))
+b U XGb
+(!a | (a R (!a | Xa))) M X!a
+Ga | (!b U !a)
 #+end_example
 
 

@@ -166,6 +166,7 @@ static const argp_option options[] =
     /**************************************************/
     { 0, 0, 0, 0, "Output options:", -20 },
     { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
+    { "max-count", 'n', "NUM", 0, "output at most NUM formulas", 0 },
     { 0, 0, 0, 0, "The FORMAT string passed to --format may use "\
       "the following interpreted sequences:", -19 },
     { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
@@ -230,6 +231,7 @@ static bool remove_x = false;
 static bool stutter_insensitive = false;
 static bool ap = false;
 static unsigned ap_n = 0;
+static int opt_max_count = -1;
 
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
@@ -245,6 +247,14 @@ to_int(const char* s)
   return res;
 }
 
+static int
+to_pos_int(const char* s)
+{
+  int res = to_int(s);
+  if (res < 0)
+    error(2, 0, "%d is not positive", res);
+  return res;
+}
 
 static const spot::ltl::formula*
 parse_formula_arg(const std::string& input)
@@ -264,6 +274,9 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
+    case 'n':
+      opt_max_count = to_pos_int(arg);
+      break;
     case 'q':
       output_format = quiet_output;
       break;
@@ -475,6 +488,13 @@ namespace
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
+      if (opt_max_count == 0)
+	{
+	  abort_run = true;
+	  f->destroy();
+	  return 0;
+	}
+
       if (negate)
 	f = spot::ltl::unop::instance(spot::ltl::unop::Not, f);
 
@@ -603,6 +623,8 @@ namespace
 	{
 	  one_match = true;
 	  output_formula_checked(f, filename, linenum, prefix, suffix);
+	  if (opt_max_count > 0)
+	    --opt_max_count;
 	}
       f->destroy();
       return 0;

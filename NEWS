@@ -29,6 +29,10 @@ New in spot 1.99a (not yet released)
       same as in grep (and also autfilt): disable all normal
       input, for situtations where only the exit status matters.
 
+    - ltlfilt's old -n/--negate option can only be used as --negate
+      now.  The short '-n NUM' option is now the same as the new
+      --max-count=N option, for consistency with other tools.
+
     - There is a parser for the HOA format
       (http://adl.github.io/hoaf/) available as a
       spot::hoa_stream_parser object or spot::hoa_parse() function.
