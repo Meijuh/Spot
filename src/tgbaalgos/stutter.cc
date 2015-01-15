@@ -517,7 +517,7 @@ namespace spot
   bool
   is_stutter_invariant(const ltl::formula* f)
   {
-    if (f->is_ltl_formula() && f->is_X_free())
+    if (f->is_ltl_formula() && f->is_syntactic_stutter_invariant())
       return true;
 
     int algo = default_stutter_check_algorithm();

@@ -50,34 +50,61 @@ namespace spot
 	case Concat:
 	case AndNLM:
 	case AndRat:
-	  // Note: AndNLM(p1,p2) and AndRat(p1,p2) are Boolean
-	  // formulae, but there are actually rewritten as And(p1,p2)
-	  // by trivial identities before this constructor is called.
-	  // So at this point, AndNLM/AndRat are always used with at
-	  // most one Boolean argument, and the result is therefore
-	  // NOT Boolean.
-	  is.boolean = false;
-	  is.ltl_formula = false;
-	  is.eltl_formula = false;
-	  is.psl_formula = false;
-	  is.eventual = false;
-	  is.universal = false;
+	  {
+	    bool syntactic_si = is.syntactic_si && !is.boolean;
+	    // Note: AndNLM(p1,p2) and AndRat(p1,p2) are Boolean
+	    // formulae, but they are actually rewritten as And(p1,p2)
+	    // by trivial identities before this constructor is called.
+	    // So at this point, AndNLM/AndRat are always used with at
+	    // most one Boolean argument, and the result is therefore
+	    // NOT Boolean.
+	    is.boolean = false;
+	    is.ltl_formula = false;
+	    is.eltl_formula = false;
+	    is.psl_formula = false;
+	    is.eventual = false;
+	    is.universal = false;
+
+	    for (unsigned i = 1; i < s; ++i)
+	      {
+		syntactic_si &= (*v)[i]->is_syntactic_stutter_invariant()
+		  && !(*v)[i]->is_boolean();
+		props &= (*v)[i]->get_props();
+	      }
+	    is.syntactic_si = syntactic_si;
+	    break;
+	  }
 	case And:
 	  for (unsigned i = 1; i < s; ++i)
 	    props &= (*v)[i]->get_props();
 	  break;
 	case OrRat:
-	  // Note: OrRat(p1,p2) is a Boolean formula, but its is
-	  // actually rewritten as Or(p1,p2) by trivial identities
-	  // before this constructor is called.  So at this point,
-	  // AndNLM is always used with at most one Boolean argument,
-	  // and the result is therefore NOT Boolean.
-	  is.boolean = false;
-	  is.ltl_formula = false;
-	  is.eltl_formula = false;
-	  is.psl_formula = false;
-	  is.eventual = false;
-	  is.universal = false;
+	  {
+	    bool syntactic_si = is.syntactic_si && !is.boolean;
+	    // Note: OrRat(p1,p2) is a Boolean formula, but its is
+	    // actually rewritten as Or(p1,p2) by trivial identities
+	    // before this constructor is called.  So at this point,
+	    // AndNLM is always used with at most one Boolean argument,
+	    // and the result is therefore NOT Boolean.
+	    is.boolean = false;
+	    is.ltl_formula = false;
+	    is.eltl_formula = false;
+	    is.psl_formula = false;
+	    is.eventual = false;
+	    is.universal = false;
+
+	    bool ew = (*v)[0]->accepts_eword();
+	    for (unsigned i = 1; i < s; ++i)
+	      {
+		ew |= (*v)[i]->accepts_eword();
+		syntactic_si &= (*v)[i]->is_syntactic_stutter_invariant()
+		  && !(*v)[i]->is_boolean();
+		props &= (*v)[i]->get_props();
+	      }
+	    is.accepting_eword = ew;
+	    is.syntactic_si = syntactic_si;
+	    break;
+	  }
 	case Or:
 	  {
 	    bool ew = (*v)[0]->accepts_eword();
@@ -89,6 +116,32 @@ namespace spot
 	    is.accepting_eword = ew;
 	    break;
 	  }
+	}
+      // A concatenation is an siSERE if it contains one stared
+      // Boolean, and the other operands are siSERE (i.e.,
+      // sub-formulas that verify is_syntactic_stutter_invariant() and
+      // !is_boolean());
+      if (op == Concat)
+	{
+	  unsigned sb = 0; // stared Boolean formulas seen
+	  for (unsigned i = 0; i < s; ++i)
+	    {
+	      if ((*v)[i]->is_syntactic_stutter_invariant()
+		  && !(*v)[i]->is_boolean())
+		continue;
+	      if (const bunop* b = is_Star((*v)[i]))
+		{
+		  sb += b->child()->is_boolean();
+		  if (sb > 1)
+		    break;
+		}
+	      else
+		{
+		  sb = 0;
+		  break;
+		}
+	    }
+	  is.syntactic_si = sb == 1;
 	}
     }
 

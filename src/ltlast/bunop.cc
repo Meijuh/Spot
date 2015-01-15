@@ -57,14 +57,28 @@ namespace spot
 	{
 	case Star:
 	  if (max_ == unbounded)
-	    is.finite = false;
+	    {
+	      is.finite = false;
+	      is.syntactic_si = min_ == 1 && child->is_boolean();
+	    }
+	  else
+	    {
+	      is.syntactic_si = false;
+	    }
 	  if (min_ == 0)
 	    is.accepting_eword = true;
 	  break;
 	case FStar:
 	  is.accepting_eword = false;
 	  if (max_ == unbounded)
-	    is.finite = false;
+	    {
+	      is.finite = false;
+	      is.syntactic_si &= !child->is_boolean();
+	    }
+	  else
+	    {
+	      is.syntactic_si = false;
+	    }
 	  break;
 	}
     }

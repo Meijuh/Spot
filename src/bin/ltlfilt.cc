@@ -58,7 +58,7 @@ Exit status:\n\
 #define OPT_DROP_ERRORS 2
 #define OPT_NNF 3
 #define OPT_LTL 4
-#define OPT_NOX 5
+#define OPT_SYNTACTIC_SI 5
 #define OPT_BOOLEAN 6
 #define OPT_EVENTUAL 7
 #define OPT_UNIVERSAL 8
@@ -121,7 +121,6 @@ static const argp_option options[] =
     { 0, 0, 0, 0,
       "Filtering options (matching is done after transformation):", 5 },
     { "ltl", OPT_LTL, 0, 0, "match only LTL formulas (no PSL operator)", 0 },
-    { "nox", OPT_NOX, 0, 0, "match X-free formulas", 0 },
     { "boolean", OPT_BOOLEAN, 0, 0, "match Boolean formulas", 0 },
     { "eventual", OPT_EVENTUAL, 0, 0, "match pure eventualities", 0 },
     { "universal", OPT_UNIVERSAL, 0, 0, "match purely universal formulas", 0 },
@@ -135,6 +134,9 @@ static const argp_option options[] =
       "match syntactic-recurrence formulas", 0 },
     { "syntactic-persistence", OPT_SYNTACTIC_PERSISTENCE, 0, 0,
       "match syntactic-persistence formulas", 0 },
+    { "syntactic-stutter-invariant", OPT_SYNTACTIC_SI, 0, 0,
+      "match stutter-invariant formulas syntactically (LTL-X or siPSL)", 0 },
+    { "nox", 0, 0, OPTION_ALIAS, 0, 0 },
     { "safety", OPT_SAFETY, 0, 0,
       "match safety formulas (even pathological)", 0 },
     { "guarantee", OPT_GUARANTEE, 0, 0,
@@ -206,7 +208,6 @@ static bool boolean_to_isop = false;
 static bool unique = false;
 static bool psl = false;
 static bool ltl = false;
-static bool nox = false;
 static bool invert = false;
 static bool boolean = false;
 static bool universal = false;
@@ -216,6 +217,7 @@ static bool syntactic_guarantee = false;
 static bool syntactic_obligation = false;
 static bool syntactic_recurrence = false;
 static bool syntactic_persistence = false;
+static bool syntactic_si = false;
 static bool safety = false;
 static bool guarantee = false;
 static bool obligation = false;
@@ -349,9 +351,6 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_NNF:
       nnf = true;
       break;
-    case OPT_NOX:
-      nox = true;
-      break;
     case OPT_OBLIGATION:
       obligation = true;
       break;
@@ -406,6 +405,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_SYNTACTIC_PERSISTENCE:
       syntactic_persistence = true;
+      break;
+    case OPT_SYNTACTIC_SI:
+      syntactic_si = true;
       break;
     case OPT_UNIVERSAL:
       universal = true;
@@ -558,7 +560,6 @@ namespace
 
       matched &= !ltl || f->is_ltl_formula();
       matched &= !psl || f->is_psl_formula();
-      matched &= !nox || f->is_X_free();
       matched &= !boolean || f->is_boolean();
       matched &= !universal || f->is_universal();
       matched &= !eventual || f->is_eventual();
@@ -567,6 +568,7 @@ namespace
       matched &= !syntactic_obligation || f->is_syntactic_obligation();
       matched &= !syntactic_recurrence || f->is_syntactic_recurrence();
       matched &= !syntactic_persistence || f->is_syntactic_persistence();
+      matched &= !syntactic_si || f->is_syntactic_stutter_invariant();
       matched &= !ap || atomic_prop_collect(f)->size() == ap_n;
 
       if (matched && (size_min > 0 || size_max >= 0))

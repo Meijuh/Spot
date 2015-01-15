@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 //
 // This file is part of Spot, a model checking library.
@@ -153,10 +153,10 @@ namespace spot
 	return is.in_nenoform;
       }
 
-      /// Whether the formula avoids the X operator.
-      bool is_X_free() const
+      /// Whether the formula is syntactically stutter_invariant
+      bool is_syntactic_stutter_invariant() const
       {
-	return is.X_free;
+	return is.syntactic_si;
       }
 
       /// Whether the formula avoids the F and G operators.
@@ -337,7 +337,7 @@ namespace spot
 	bool boolean:1;		   // No temporal operators.
 	bool sugar_free_boolean:1; // Only AND, OR, and NOT operators.
 	bool in_nenoform:1;	   // Negative Normal Form.
-	bool X_free:1;		   // No X operators.
+	bool syntactic_si:1;	   // LTL-X or siPSL
 	bool sugar_free_ltl:1;	   // No F and G operators.
 	bool ltl_formula:1;	   // Only LTL operators.
 	bool eltl_formula:1;	   // Only ELTL operators.

@@ -2805,7 +2805,7 @@ namespace spot
 		    // a & (Xa U b) = b M a
 		    // a & (b | X(b R a)) = b R a
 		    // a & (b | X(b M a)) = b M a
-		    if (!mo->is_X_free())
+		    if (!mo->is_syntactic_stutter_invariant()) // Skip if no X.
 		      {
 			typedef std::unordered_set<const formula*,
 						   ptr_hash<formula>> fset_t;
@@ -2825,7 +2825,7 @@ namespace spot
 			  {
 			    if (!(*res)[n])
 			      continue;
-			    if ((*res)[n]->is_X_free())
+			    if ((*res)[n]->is_syntactic_stutter_invariant())
 			      continue;
 
 			    const formula* xarg = is_XWU((*res)[n]);
@@ -3530,7 +3530,7 @@ namespace spot
 		    // a | (Xa M b) = b U a
 		    // a | (b & X(b W a)) = b W a
 		    // a | (b & X(b U a)) = b U a
-		    if (!mo->is_X_free())
+		    if (!mo->is_syntactic_stutter_invariant()) // Skip if no X
 		      {
 			typedef std::unordered_set<const formula*,
 						   ptr_hash<formula>> fset_t;
@@ -3551,7 +3551,7 @@ namespace spot
 			  {
 			    if (!(*res)[n])
 			      continue;
-			    if ((*res)[n]->is_X_free())
+			    if ((*res)[n]->is_syntactic_stutter_invariant())
 			      continue;
 
 			    const formula* xarg = is_XRM((*res)[n]);

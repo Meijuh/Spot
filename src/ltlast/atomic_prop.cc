@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -38,7 +38,10 @@ namespace spot
       is.boolean = true;
       is.sugar_free_boolean = true;
       is.in_nenoform = true;
-      is.X_free = true;
+      is.syntactic_si = true;	// Assuming LTL (for PSL a Boolean
+				// term is not stared will be regarded
+				// as not stuttering were this
+				// matters.)
       is.sugar_free_ltl = true;
       is.ltl_formula = true;
       is.eltl_formula = true;

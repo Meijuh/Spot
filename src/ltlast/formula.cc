@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -39,7 +39,8 @@ namespace spot
       proprint(is_boolean, "B", "Boolean formula");			\
       proprint(is_sugar_free_boolean, "&", "without Boolean sugar");	\
       proprint(is_in_nenoform, "!", "in negative normal form");		\
-      proprint(is_X_free, "x", "without X operator");			\
+      proprint(is_syntactic_stutter_invariant, "x",			\
+	       "syntactic stutter invariant");				\
       proprint(is_sugar_free_ltl, "f", "without LTL sugar");		\
       proprint(is_ltl_formula, "L", "LTL formula");			\
       proprint(is_eltl_formula, "E", "ELTL formula");			\

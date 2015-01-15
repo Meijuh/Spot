@@ -104,7 +104,7 @@ namespace spot
 
 	virtual const formula* recurse(const formula* f)
 	{
-	  if (f->is_X_free())
+	  if (f->is_syntactic_stutter_invariant())
 	    return f->clone();
 	  f->accept(*this);
 	  return this->result();
