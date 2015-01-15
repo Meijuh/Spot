@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -61,6 +61,11 @@ namespace spot
 	  if (min_ == 0)
 	    is.accepting_eword = true;
 	  break;
+	case FStar:
+	  is.accepting_eword = false;
+	  if (max_ == unbounded)
+	    is.finite = false;
+	  break;
 	}
     }
 
@@ -106,6 +111,8 @@ namespace spot
 	{
 	case Star:
 	  return "Star";
+	case FStar:
+	  return "FStar";
 	}
       SPOT_UNREACHABLE();
     }
@@ -120,20 +127,22 @@ namespace spot
 	case Star:
 	  // Syntactic sugaring
 	  if (min_ == 1 && max_ == unbounded)
-	    {
-	      out << "[+]";
-	      return out.str();
-	    }
+	    return "[+]";
 	  out << "[*";
+	  break;
+	case FStar:
+	  // Syntactic sugaring
+	  if (min_ == 1 && max_ == unbounded)
+	    return "[:+]";
+	  out << "[:*";
 	  break;
 	}
 
       if (min_ != 0 || max_ != unbounded)
 	{
-	  // Always print the min_, even when it is equal to
-	  // default_min, this way we avoid ambiguities (like
-	  // when reading a[*..3];b[->..2] which actually
-	  // means a[*0..3];b[->1..2].
+	  // Always print the min_, even when it is equal to 0, this
+	  // way we avoid ambiguities (like when reading
+	  // a[*..3];b[->..2] which actually means a[*0..3];b[->1..2].
 	  out << min_;
 	  if (min_ != max_)
 	    {
@@ -154,86 +163,110 @@ namespace spot
     {
       assert(min <= max);
 
-      // Some trivial simplifications.
-
+      const formula* neutral = nullptr;
       switch (op)
 	{
 	case Star:
+	  neutral = constant::empty_word_instance();
+	  break;
+	case FStar:
+	  neutral = constant::true_instance();
+	  break;
+	}
+
+
+      // common trivial simplifications
+
+      //   - [*0][*min..max] = [*0]
+      //   - [*0][:*0..max] = 1
+      //   - [*0][:*min..max] = 0 if min > 0
+      if (child == constant::empty_word_instance())
+	switch (op)
 	  {
-	    //   - [*0][*min..max] = [*0]
-	    if (child == constant::empty_word_instance())
-	      return child;
-
-	    //   - 0[*0..max] = [*0]
-	    //   - 0[*min..max] = 0 if min > 0
-	    if (child == constant::false_instance())
-	      {
-		if (min == 0)
-		  return constant::empty_word_instance();
-		else
-		  return child;
-	      }
-
-	    //   - Exp[*0] = [*0]
-	    if (max == 0)
-	      {
-		child->destroy();
-		return constant::empty_word_instance();
-	      }
-
-	    // - Exp[*1] = Exp
-	    if (min == 1 && max == 1)
-	      return child;
-
-	    // - Exp[*i..j][*min..max] = Exp[*i(min)..j(max)]
-	    //                                       if i*(min+1)<=j(min)+1.
-	    if (const bunop* s = is_bunop(child))
-	      {
-		unsigned i = s->min();
-		unsigned j = s->max();
-
-		// Exp has to be true between i*min and j*min
-		//               then between i*(min+1) and j*(min+1)
-		//               ...
-		//            finally between i*max and j*max
-		//
-		// We can merge these intervals into [i*min..j*max] iff the
-		// first are adjacent or overlap, i.e. iff
-		//   i*(min+1) <= j*min+1.
-		// (Because i<=j, this entails that the other intervals also
-		// overlap).
-
-		const formula* exp = s->child();
-		if (j == unbounded)
-		  {
-		    min *= i;
-		    max = unbounded;
-
-		    // Exp[*min..max]
-		    exp->clone();
-		    child->destroy();
-		    child = exp;
-		  }
-		else
-		  {
-		    if (i * (min + 1) <= (j * min) + 1)
-		      {
-			min *= i;
-			if (max != unbounded)
-			  {
-			    if (j == unbounded)
-			      max = unbounded;
-			    else
-			      max *= j;
-			  }
-			exp->clone();
-			child->destroy();
-			child = exp;
-		      }
-		  }
-	      }
-	    break;
+	  case Star:
+	    return neutral;
+	  case FStar:
+	    if (min == 0)
+	      return neutral;
+	    else
+	      return constant::false_instance();
 	  }
+
+      //   - 0[*0..max] = [*0]
+      //   - 0[*min..max] = 0 if min > 0
+      //   - b[:*0..max] = 1
+      //   - b[:*min..max] = 0 if min > 0
+      if (child == constant::false_instance()
+	  || (op == FStar && child->is_boolean()))
+	{
+	  if (min == 0)
+	    {
+	      child->destroy();
+	      return neutral;
+	    }
+	  return child;
+	}
+
+      //   - Exp[*0] = [*0]
+      //   - Exp[:*0] = 1
+      if (max == 0)
+	{
+	  child->destroy();
+	  return neutral;
+	}
+
+      //   - Exp[*1] = Exp
+      //   - Exp[:*1] = Exp if Exp does not accept [*0]
+      if (min == 1 && max == 1)
+	if (op == Star || !child->accepts_eword())
+	  return child;
+
+      //   - Exp[*i..j][*k..l] = Exp[*ik..jl] if i*(k+1)<=jk+1.
+      //   - Exp[:*i..j][:*k..l] = Exp[:*ik..jl] if i*(k+1)<=jk+1.
+      if (const bunop* s = is_bunop(child, op))
+	{
+	  unsigned i = s->min();
+	  unsigned j = s->max();
+
+	  // Exp has to be true between i*min and j*min
+	  //               then between i*(min+1) and j*(min+1)
+	  //               ...
+	  //            finally between i*max and j*max
+	  //
+	  // We can merge these intervals into [i*min..j*max] iff the
+	  // first are adjacent or overlap, i.e. iff
+	  //   i*(min+1) <= j*min+1.
+	  // (Because i<=j, this entails that the other intervals also
+	  // overlap).
+
+	  const formula* exp = s->child();
+	  if (j == unbounded)
+	    {
+	      min *= i;
+	      max = unbounded;
+
+	      // Exp[*min..max]
+	      exp->clone();
+	      child->destroy();
+	      child = exp;
+	    }
+	  else
+	    {
+	      if (i * (min + 1) <= (j * min) + 1)
+		{
+		  min *= i;
+		  if (max != unbounded)
+		    {
+		      if (j == unbounded)
+			max = unbounded;
+		      else
+			max *= j;
+		    }
+		  exp->clone();
+		  child->destroy();
+		  child = exp;
+		}
+	    }
 	}
 
       const formula* res;

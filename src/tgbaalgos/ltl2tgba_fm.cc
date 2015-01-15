@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire
-// de Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
+// Laboratoire de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire
 // d'Informatique de Paris 6 (LIP6), département Systèmes Répartis
 // Coopératifs (SRC), Université Pierre et Marie Curie.
@@ -708,20 +708,30 @@ namespace spot
 	unsigned max = bo->max();
 
 	assert(max > 0);
+	bunop::type op = bo->op();
 
+	// we will interpret
+	//         c[*i..j]
+	//     or  c[:*i..j]
+	// as
+	//         c;c[*i-1..j-1]
+	//     or  c:c[*i-1..j-1]
+	//           \........../
+	//            this is f
 	unsigned min2 = (min == 0) ? 0 : (min - 1);
 	unsigned max2 =
 	  (max == bunop::unbounded) ? bunop::unbounded : (max - 1);
+	f = bunop::instance(op, bo->child()->clone(), min2, max2);
 
-	bunop::type op = bo->op();
+	// If we have something to append, we can actually append it
+	// to f.  This is correct even in the case of FStar, as f
+	// cannot accept [*0].
+	if (to_concat_)
+	  f = multop::instance(multop::Concat, f, to_concat_->clone());
+
 	switch (op)
 	  {
 	  case bunop::Star:
-	    f = bunop::instance(op, bo->child()->clone(), min2, max2);
-
-	    if (to_concat_)
-	      f = multop::instance(multop::Concat, f, to_concat_->clone());
-
 	    if (!bo->child()->accepts_eword())
 	      {
 		//   f*;g  ->  f;f*;g | g
@@ -776,6 +786,57 @@ namespace spot
 		f->destroy();
 		res_ |= now_to_concat();
 	      }
+	    return;
+	  case bunop::FStar:
+	    {
+	      res_ = recurse(bo->child());
+	      bdd tail_bdd;
+	      bool tail_computed = false;
+
+	      minato_isop isop(res_);
+	      bdd cube;
+	      res_ = bddfalse;
+	      if (min == 0)
+		{
+		  // f[:*0..j];g  can be satisfied by X(g).
+		  res_ = next_to_concat();
+		}
+	      while ((cube = isop.next()) != bddfalse)
+		{
+		  bdd label = bdd_exist(cube, dict_.next_set);
+		  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
+		  const formula* dest = dict_.conj_bdd_to_sere(dest_bdd);
+
+		  // The destination is a final state.  Make sure we
+		  // can also exit if tail is satisfied.  We do not
+		  // even have to check the tail if min == 0.
+		  if (dest->accepts_eword() && min != 0)
+		    {
+		      if (!tail_computed)
+			{
+			  tail_bdd = recurse(f);
+			  tail_computed = true;
+			}
+		      res_ |= label & tail_bdd;
+		    }
+
+		  // If the destination is not 0 or [*0], it means it
+		  // can have successors.  Fusion the tail.
+		  if (dest != constant::false_instance()
+		      && dest != constant::empty_word_instance())
+		    {
+		      const formula* dest2 =
+			multop::instance(multop::Fusion, dest, f->clone());
+		      if (dest2 != constant::false_instance())
+			{
+			  int x = dict_.register_next_variable(dest2);
+			  dest2->destroy();
+			  res_ |= label & bdd_ithvar(x);
+			}
+		    }
+		}
+	      f->destroy();
+	    }
 	    return;
 	  }
 	SPOT_UNREACHABLE();
@@ -961,8 +1022,8 @@ namespace spot
 		  // If the destination is not 0 or [*0], it means it
 		  // can have successors.  Fusion the tail and append
 		  // anything to concatenate.
-		  if (dest->kind() != formula::Constant
-		      || dest == ltl::constant::true_instance())
+		  if (dest != constant::false_instance()
+		      && dest != constant::empty_word_instance())
 		    {
 		      const formula* dest2 =
 			multop::instance(multop::Fusion, dest, tail->clone());

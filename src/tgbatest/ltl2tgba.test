@@ -202,6 +202,17 @@ grep 'states: 4$' stdout
 ../../bin/ltlfilt    -f '{a[*];b[*]}' --equivalent-to 'a | b'
 ../../bin/ltlfilt -r -f '{a[*];b[*]}' --equivalent-to 'a | b'
 
+
+# A couple of tests for the [:*i..j] operator
+../../bin/ltlfilt -q    -f '{{a;b}[:*1..2];c}' \
+		  --equivalent-to '(a&X(b&Xc)) | a&(X(b&a&X(b&Xc)))'
+../../bin/ltlfilt -q -r -f '{{a;b}[:*1..2];c}' \
+		  --equivalent-to '(a&X(b&Xc)) | a&(X(b&a&X(b&Xc)))'
+../../bin/ltlfilt -q    -f '{{a*}[:+];c}' --equivalent-to 'Xc R a'
+../../bin/ltlfilt -q -r -f '{{a*}[:+];c}' --equivalent-to 'Xc R a'
+../../bin/ltlfilt -q    -f '{c && {b | [*0]}[:+]}' --equivalent-to 'c & b'
+../../bin/ltlfilt -q -r -f '{c && {b | [*0]}[:+]}' --equivalent-to 'c & b'
+
 # test unknown dot options
 ../../bin/ltl2tgba --dot=@ a 2>stderr && exit 1
 grep 'ltl2tgba: unknown option.*@' stderr

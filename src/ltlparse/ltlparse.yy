@@ -1,6 +1,6 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
-** Recherche et Développement de l'Epita (LRDE).
+** Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
+** de Recherche et Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 ** Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ** Université Pierre et Marie Curie.
@@ -176,8 +176,11 @@ using namespace spot::ltl;
 %token OP_F "sometimes operator" OP_G "always operator"
 %token OP_X "next operator" OP_NOT "not operator"
 %token OP_STAR "star operator" OP_BSTAR "bracket star operator"
+%token OP_BFSTAR "bracket fusion-star operator"
 %token OP_PLUS "plus operator"
+%token OP_FPLUS "fusion-plus operator"
 %token OP_STAR_OPEN "opening bracket for star operator"
+%token OP_FSTAR_OPEN "opening bracket for fusion-star operator"
 %token OP_EQUAL_OPEN "opening bracket for equal operator"
 %token OP_GOTO_OPEN "opening bracket for goto operator"
 %token OP_SQBKT_CLOSE "closing bracket"
@@ -220,7 +223,9 @@ using namespace spot::ltl;
 %nonassoc OP_X
 
 /* High priority regex operator. */
-%nonassoc OP_BSTAR OP_STAR_OPEN OP_PLUS OP_EQUAL_OPEN OP_GOTO_OPEN
+%nonassoc OP_BSTAR OP_STAR_OPEN OP_PLUS
+          OP_BFSTAR OP_FSTAR_OPEN OP_FPLUS
+          OP_EQUAL_OPEN OP_GOTO_OPEN
 
 /* Not has the most important priority (after Wring's `=0' and `=1',
    but as those can only attach to atomic proposition, they do not
@@ -229,7 +234,7 @@ using namespace spot::ltl;
 
 %type <ltl> subformula booleanatom sere lbtformula boolformula
 %type <ltl> bracedsere parenthesedsubformula
-%type <minmax> starargs equalargs sqbracketargs gotoargs
+%type <minmax> starargs fstarargs equalargs sqbracketargs gotoargs
 
 %destructor { delete $$; } <str>
 %destructor { $$->destroy(); } <ltl>
@@ -370,6 +375,21 @@ starargs: kleen_star
 	    { error_list.emplace_back(@$, "missing closing bracket for star");
 	      $$.min = $$.max = 0U; }
 
+fstarargs: OP_BFSTAR
+            { $$.min = 0U; $$.max = bunop::unbounded; }
+        | OP_FPLUS
+	    { $$.min = 1U; $$.max = bunop::unbounded; }
+	| OP_FSTAR_OPEN sqbracketargs
+	    { $$ = $2; }
+	| OP_FSTAR_OPEN error OP_SQBKT_CLOSE
+            { error_list.emplace_back
+		(@$, "treating this fusion-star block as [:*]");
+              $$.min = 0U; $$.max = bunop::unbounded; }
+        | OP_FSTAR_OPEN error_opt END_OF_INPUT
+	    { error_list.emplace_back
+		(@$, "missing closing bracket for fusion-star");
+	      $$.min = $$.max = 0U; }
+
 equalargs: OP_EQUAL_OPEN sqbracketargs
 	    { $$ = $2; }
 	| OP_EQUAL_OPEN error OP_SQBKT_CLOSE
@@ -507,15 +527,6 @@ sere: booleanatom
 	      { $$ = multop::instance(multop::Fusion, $1, $3); }
 	    | sere OP_FUSION error
               { missing_right_binop($$, $1, @2, "fusion operator"); }
-	    | sere starargs
-	      {
-		if ($2.max < $2.min)
-		  {
-		    error_list.emplace_back(@2, "reversed range");
-		    std::swap($2.max, $2.min);
-		  }
-		$$ = bunop::instance(bunop::Star, $1, $2.min, $2.max);
-	      }
 	    | starargs
 	      {
 		if ($1.max < $1.min)
@@ -525,6 +536,24 @@ sere: booleanatom
 		  }
 		$$ = bunop::instance(bunop::Star, constant::true_instance(),
 				     $1.min, $1.max);
+	      }
+	    | sere starargs
+	      {
+		if ($2.max < $2.min)
+		  {
+		    error_list.emplace_back(@2, "reversed range");
+		    std::swap($2.max, $2.min);
+		  }
+		$$ = bunop::instance(bunop::Star, $1, $2.min, $2.max);
+	      }
+	    | sere fstarargs
+	      {
+		if ($2.max < $2.min)
+		  {
+		    error_list.emplace_back(@2, "reversed range");
+		    std::swap($2.max, $2.min);
+		  }
+		$$ = bunop::instance(bunop::FStar, $1, $2.min, $2.max);
 	      }
 	    | sere equalargs
 	      {

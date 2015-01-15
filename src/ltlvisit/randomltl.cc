@@ -308,7 +308,7 @@ namespace spot
 
     // SEREs
     random_sere::random_sere(const atomic_prop_set* ap)
-      : random_formula(9, ap), rb(ap)
+      : random_formula(11, ap), rb(ap)
     {
       proba_[0].setup("eword",   1, eword_builder);
       proba_2_ = proba_ + 1;
@@ -316,11 +316,13 @@ namespace spot
       proba_[1].setup("boolform", 1, boolform_builder);
       proba_[2].setup("star",    2, bunop_unbounded_builder<bunop::Star>);
       proba_[3].setup("star_b",  2, bunop_bounded_builder<bunop::Star>);
-      proba_[4].setup("and",     3, multop_builder<multop::AndRat>);
-      proba_[5].setup("andNLM",  3, multop_builder<multop::AndNLM>);
-      proba_[6].setup("or",      3, multop_builder<multop::OrRat>);
-      proba_[7].setup("concat",  3, multop_builder<multop::Concat>);
-      proba_[8].setup("fusion",  3, multop_builder<multop::Fusion>);
+      proba_[4].setup("fstar",   2, bunop_unbounded_builder<bunop::FStar>);
+      proba_[5].setup("fstar_b", 2, bunop_bounded_builder<bunop::FStar>);
+      proba_[6].setup("and",     3, multop_builder<multop::AndRat>);
+      proba_[7].setup("andNLM",  3, multop_builder<multop::AndNLM>);
+      proba_[8].setup("or",      3, multop_builder<multop::OrRat>);
+      proba_[9].setup("concat",  3, multop_builder<multop::Concat>);
+      proba_[10].setup("fusion",  3, multop_builder<multop::Fusion>);
 
       update_sums();
     }

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -495,13 +495,19 @@ namespace spot
 		v->swap(tmp);
 	      }
 	  }
-	else if (op == Concat)
+	else if (op == Concat || op == Fusion)
 	  {
 	    // Perform an extra loop to merge starable items.
 	    //   f;f -> f[*2]
 	    //   f;f[*i..j] -> f[*i+1..j+1]
 	    //   f[*i..j];f -> f[*i+1..j+1]
 	    //   f[*i..j];f[*k..l] -> f[*i+k..j+l]
+	    // same for FStar:
+	    //   f:f -> f[:*2]
+	    //   f:f[*i..j] -> f[:*i+1..j+1]
+	    //   f[:*i..j];f -> f[:*i+1..j+1]
+	    //   f[:*i..j];f[:*k..l] -> f[:*i+k..j+l]
+	    bunop::type bop = op == Concat ? bunop::Star : bunop::FStar;
 	    i = v->begin();
 	    while (i != v->end())
 	      {
@@ -510,7 +516,7 @@ namespace spot
 		unsigned min;
 		unsigned max;
 		bool changed = false;
-		if (const bunop* is = is_Star(*i))
+		if (const bunop* is = is_bunop(*i, bop))
 		  {
 		    f = is->child();
 		    min = is->min();
@@ -528,7 +534,7 @@ namespace spot
 		    const formula* f2;
 		    unsigned min2;
 		    unsigned max2;
-		    if (const bunop* is = is_Star(*i))
+		    if (const bunop* is = is_bunop(*i, bop))
 		      {
 			f2 = is->child();
 			if (f2 != f)
@@ -558,7 +564,7 @@ namespace spot
 		if (changed)
 		  {
 		    const formula* newfs =
-		      bunop::instance(bunop::Star, f->clone(), min, max);
+		      bunop::instance(bop, f->clone(), min, max);
 		    (*fpos)->destroy();
 		    *fpos = newfs;
 		  }

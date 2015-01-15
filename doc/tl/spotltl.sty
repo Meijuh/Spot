@@ -8,11 +8,11 @@
 \newcommand{\ffalse}{\bot}
 \newcommand{\eword}{\varepsilon}  % empty word, denoted by [*0] in PSL
 
-% These three are not declared as operator 
+% These three are not declared as operators
 \newcommand{\F}{\mathsf{F}} % eventually
 \newcommand{\G}{\mathsf{G}} % always
 \newcommand{\X}{\mathsf{X}} % next
-% The \mathbin tell TeX to adjust spacing for binary operators
+% The \mathbin tells TeX to adjust spacing for binary operators
 \newcommand{\M}{\mathbin{\mathsf{M}}} % strong release
 \newcommand{\R}{\mathbin{\mathsf{R}}} % release
 \newcommand{\U}{\mathbin{\mathsf{U}}} % until
@@ -25,9 +25,11 @@
 
 % Star-like PSL operators
 \newcommand{\SereStar}[1]{^{\star#1}}
+\newcommand{\SereFStar}[1]{^{\mathsf{:}\star#1}}
 \newcommand{\SereEqual}[1]{^{=#1}}
 \newcommand{\SereGoto}[1]{^{\to#1}}
 \newcommand{\SerePlus}{^+}
+\newcommand{\SereFPlus}{^{\mathsf{:}+}}
 \newcommand{\SereFusion}{\mathbin{\mathsf{:}}}
 \newcommand{\SereConcat}{\mathbin{\mathsf{;}}}
 \newcommand{\SereOr}{\cup}
@@ -45,5 +47,3 @@
 %\newcommand{\seqXM}{\seqX}
 \newcommand{\triggers}{\boxright}
 \newcommand{\triggersX}{\boxRight}
-
-

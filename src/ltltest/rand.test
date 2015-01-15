@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Laboratoire de Recherche et Développement
+# Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -34,6 +34,8 @@ eword	1
 boolform	1
 star	1
 star_b	1
+fstar	1
+fstar_b	1
 and	0
 andNLM	0
 or	1
@@ -53,8 +55,11 @@ EOF
 diff stdout expected
 
 
+sere='eword=0,and=0,andNLM=0,fusion=0,star=0,star_b=0'
+sere="$sere,or=0,concat=0,fstar=0,fstar_b=0"
+
 run 0 $randltl -S -n 10000 a b c --tree-size=10..20 \
-   --sere-p=eword=0,and=0,andNLM=0,fusion=0,star=0,star_b=0,or=0,concat=0 \
+   --sere-p=$sere \
    --boolean-p=equiv=0,implies=0,xor=0,and=0,not=0,false=0,true=0,or=0 \
    --dump-pr > stdout
 
@@ -64,6 +69,8 @@ eword	0
 boolform	1
 star	0
 star_b	0
+fstar	0
+fstar_b	0
 and	0
 andNLM	0
 or	0
@@ -86,7 +93,7 @@ diff stdout expected
 
 # Disabling all operators will prevent more formulas to be generated.
 $randltl -S -n 10000 a b c --tree-size=10..20 \
- --sere-p=eword=0,and=0,andNLM=0,fusion=0,star=0,star_b=0,or=0,concat=0 \
+ --sere-p=$sere \
  --boolean-p=equiv=0,implies=0,xor=0,and=0,not=0,false=0,true=0,or=0 > out &&
   exit 1
 sort out > out2

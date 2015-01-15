@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE)
+// Copyright (C) 2008, 2010, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE)
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -71,6 +71,8 @@ namespace spot
 	KCloseBunop,
 	KStarBunop,
 	KPlusBunop,
+	KFStarBunop,
+	KFPlusBunop,
 	KEqualBunop,
 	KGotoBunop,
       };
@@ -108,6 +110,8 @@ namespace spot
 	"]",
 	"[*",
 	"[+]",
+	"[:*",
+	"[:+]",
 	"[=",
 	"[->",
       };
@@ -121,7 +125,7 @@ namespace spot
 	" <-> ",		// rewritten, although supported
 	" U ",
 	" V ",
-	" W ",			// rewritten, although supported
+	" W ",			// rewritten
 	" M ",			// rewritten
 	"<>-> ",		// not supported
 	"<>=> ",		// not supported
@@ -145,6 +149,8 @@ namespace spot
 	"]",			// not supported
 	"[*",			// not supported
 	"[+]",			// not supported
+	"[:*",			// not supported
+	"[:+]",			// not supported
 	"[=",			// not supported
 	"[->",			// not supported
       };
@@ -182,6 +188,8 @@ namespace spot
 	"]",			// not supported
 	"[*",			// not supported
 	"[+]",			// not supported
+	"[:*",			// not supported
+	"[:+]",			// not supported
 	"[=",			// not supported
 	"[->",			// not supported
       };
@@ -219,6 +227,8 @@ namespace spot
 	"]",
 	"[*",
 	"[+]",
+	"[:*",
+	"[:+]",
 	"[=",
 	"[->",
       };
@@ -256,6 +266,8 @@ namespace spot
 	"}",
 	"\\SereStar{",
 	"\\SerePlus{}",
+	"\\SereFStar{",
+	"\\SereFPlus{}",
 	"\\SereEqual{",
 	"\\SereGoto{",
       };
@@ -297,6 +309,8 @@ namespace spot
 	"}",
 	"^{\\star",
 	"^+",
+	"^{\\mathsf{:}\\star",
+	"^{\\mathsf{:}+}",
 	"^{=",
 	"^{\\to",
       };
@@ -577,17 +591,18 @@ namespace spot
 	visit(const bunop* bo)
 	{
 	  const formula* c = bo->child();
-	  enum { Star, Goto, Equal } sugar = Star;
+	  enum { Star, FStar, Goto } sugar = Star;
 	  unsigned default_min = 0;
 	  unsigned default_max = bunop::unbounded;
 
+	  bunop::type op = bo->op();
 	  // Abbreviate "1[*]" as "[*]".
-	  if (c != constant::true_instance())
+	  if (c != constant::true_instance() || op != bunop::Star)
 	    {
-	      bunop::type op = bo->op();
 	      switch (op)
 		{
 		case bunop::Star:
+		  // Is this a Goto?
 		  if (const multop* mo = is_Concat(c))
 		    {
 		      unsigned s = mo->size();
@@ -598,6 +613,9 @@ namespace spot
 			    sugar = Goto;
 			  }
 		    }
+		  break;
+		case bunop::FStar:
+		  sugar = FStar;
 		  break;
 		}
 
@@ -616,8 +634,13 @@ namespace spot
 		}
 	      emit(KStarBunop);
 	      break;
-	    case Equal:
-	      emit(KEqualBunop);
+	    case FStar:
+	      if (min == 1 && max == bunop::unbounded)
+		{
+		  emit(KFPlusBunop);
+		  return;
+		}
+	      emit(KFStarBunop);
 	      break;
 	    case Goto:
 	      emit(KGotoBunop);

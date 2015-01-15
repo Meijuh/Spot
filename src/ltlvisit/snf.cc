@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2014 Laboratoire de Recherche et Developpement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2014, 2015 Laboratoire de Recherche et
+// Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -70,6 +70,11 @@ namespace spot
 	      // Strip the star.
 	      result_ = recurse(bo->child());
 	      break;
+	    case bunop::FStar:
+	      // FIXME: Can we deal with FStar in a better way?
+	      result_ = bo->clone();
+	      break;
+
 	    }
 	}
 
@@ -170,6 +175,9 @@ namespace spot
 					recurse(bo->child()),
 					std::max(bo->min(), 1U),
 					bo->max());
+	      break;
+	    case bunop::FStar:
+	      result_ = bo->clone();
 	      break;
 	    }
 	}

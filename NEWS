@@ -67,7 +67,14 @@ New in spot 1.99a (not yet released)
       either by Divine (as patched by the LTSmin people) or by
       Spins (the LTSmin compiler for Promela).
 
-    - LTL formulas can include /* comments */.
+    - LTL/PSL formulas can include /* comments */.
+
+    - PSL SEREs support a new operator [:*i..j], the iterated fusion.
+      [:*i..j] is to the fusion operator ':' what [*i..j] is to the
+      concatenation operator ';'.  For instance (a*;b)[:*3] is the
+      same as (a*;b):(a*;b):(a*;b).  The operator [:+], is syntactic
+      sugar for [:*1..], and corresponds to the operator ⊕ introduced
+      by Dax et al. (ATVA'09).
 
     - GraphViz output now uses an horizontal layout by default.
       The --dot option of the various command-line tools takes an

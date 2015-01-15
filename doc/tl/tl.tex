@@ -92,6 +92,7 @@
 \newcommand{\EQUAL}[1]{\texttt{[=#1]}}
 \newcommand{\GOTO}[1]{\texttt{[->#1]}}
 \newcommand{\PLUS}{\texttt{[+]}}
+\newcommand{\FPLUS}{\texttt{[:+]}}
 \newcommand{\eword}{\texttt{[*0]}}
 
 \newcommand{\Esuffix}{\texttt{<>->}}
@@ -599,14 +600,22 @@ denote arbitrary SERE.
   NLM intersection\footnotemark & $f\AND g$ \\
   concatenation & $f\CONCAT g$ \\
   fusion & $f\FUSION g$ \\
-  bounded repetition & $f\STAR{\mvar{i}..\mvar{j}}$
+  bounded ;-iter. & $f\STAR{\mvar{i}..\mvar{j}}$
                      & $f\STAR{\mvar{i}:\mvar{j}}$
                      & $f\STAR{\mvar{i} to \mvar{j}}$
                      & $f\STAR{\mvar{i},\mvar{j}}$\\
-  \llap{un}bounded repetition & $f\STAR{\mvar{i}..}$
+  \llap{un}bounded ;-iter. & $f\STAR{\mvar{i}..}$
                      & $f\STAR{\mvar{i}:}$
                      & $f\STAR{\mvar{i} to}$
                      & $f\STAR{\mvar{i},}$\\
+  bounded :-iter.   & $f\FSTAR{\mvar{i}..\mvar{j}}$
+                     & $f\FSTAR{\mvar{i}:\mvar{j}}$
+                     & $f\FSTAR{\mvar{i} to \mvar{j}}$
+                     & $f\FSTAR{\mvar{i},\mvar{j}}$\\
+  \llap{un}bounded :-iter. & $f\FSTAR{\mvar{i}..}$
+                     & $f\FSTAR{\mvar{i}:}$
+                     & $f\FSTAR{\mvar{i} to}$
+                     & $f\FSTAR{\mvar{i},}$\\
 \end{tabular}
 \end{center}
 
@@ -657,6 +666,26 @@ $a$ is an atomic proposition.
     \text{or} & \mvar{i}>0 \land (\exists k\in\N,\,
       (\sigma^{0..k-1}\VDash f) \land (\sigma^{k..}
       \VDash f\STAR{\mvar{i-1}..}))\\
+  \end{cases}\\
+  \sigma\VDash f\FSTAR{\mvar{i}..\mvar{j}}& \iff
+  \begin{cases}
+    \text{either} & \mvar{i}=0 \land \mvar{j}=0 \land \sigma\VDash\1 \\
+    \text{or} & \mvar{i}=0 \land \mvar{j}>0 \land (\exists k\in\N,\,
+      (\sigma^{0..k}\VDash f) \land (\sigma^{k..}
+      \VDash f\FSTAR{\mvar{0}..\mvar{j-1}}))\\
+    \text{or} & \mvar{i}>0 \land \mvar{j}>0 \land (\exists k\in\N,\,
+      (\sigma^{0..k}\VDash f) \land (\sigma^{k..}
+      \VDash f\FSTAR{\mvar{i-1}..\mvar{j-1}}))\\
+  \end{cases}\\
+  \sigma\VDash f\FSTAR{\mvar{i}..} & \iff
+  \begin{cases}
+    \text{either} & \mvar{i}=0 \land \sigma\VDash\1 \\
+    \text{or} & \mvar{i}=0 \land (\exists k\in\N,\,
+      (\sigma^{0..k}\VDash f) \land (\sigma^{k..}
+      \VDash f\FSTAR{\mvar{0}..}))\\
+    \text{or} & \mvar{i}>0 \land (\exists k\in\N,\,
+      (\sigma^{0..k}\VDash f) \land (\sigma^{k..}
+      \VDash f\FSTAR{\mvar{i-1}..}))\\
   \end{cases}
 \end{align*}}
 
@@ -668,6 +697,29 @@ operands are Boolean formulas.
   regardless of the value of $f$ and $g$.  For instance
   $a\STAR{}\FUSION b\STAR{}$ is actually equivalent to
   $a\STAR{}\CONCAT\sere{a\ANDALT b}\CONCAT b\STAR{}$.
+\item The $\FSTAR{\mvar{i}..}$ and $\FSTAR{\mvar{i}..\mvar{j}}$ operators are
+  iterations of the $\FUSION$ operator just like
+  The $\STAR{\mvar{i}..}$ and $\STAR{\mvar{i}..\mvar{j}}$ are
+  iterations of the $\CONCAT$ operator.  More graphically:
+  \begin{align*}
+    f\STAR{\mvar{i}..\mvar{j}} &=
+    \underbrace{f\CONCAT f\CONCAT \ldots \CONCAT f}_{\text{between $\mvar{i}$ and $\mvar{j}$ copies of $f$}} &
+    f\FSTAR{\mvar{i}..\mvar{j}} &=
+    \underbrace{f\FUSION f\FUSION \ldots \FUSION f}_{\text{between $\mvar{i}$ and $\mvar{j}$ copies of $f$}}\\
+    \intertext{with the convention that}
+    f\STAR{0..0} &= \eword &
+    f\FSTAR{0..0} &= \1
+  \end{align*}
+\item The $\FSTAR{\mvar{i}..}$ and $\FSTAR{\mvar{i}..\mvar{j}}$
+  operators are not defined in PSL.  While the bounded iteration can
+  be seen as syntactic sugar on $\FUSION$, the unbounded version
+  really is a new operator.
+
+  $\FSTAR{1..}$, for which we define the $\FPLUS$ syntactic sugar
+  below, actually corresponds to the $^\oplus$ operator introduced
+  by~\citet{dax.09.atva}.  With this simple addition, it is possible
+  to define a subset of PSL that expresses exactly the
+  stutter-invariant $\omega$-regular languages.
 \end{itemize}
 
 \subsection{Syntactic Sugar}
@@ -687,24 +739,28 @@ it for output.  $b$ must be a Boolean formula.
 \begin{align*}
   f\STARALT &\equiv f\STAR{0..}\\
   f\STAR{}    &\equiv f\STAR{0..}  &
-  f\PLUS{}    &\equiv f\STAR{1..}  &
+  f\FSTAR{}    &\equiv f\FSTAR{0..}  &
   f\EQUAL{}   &\equiv f\EQUAL{0..} &
   f\GOTO{}   &\equiv f\GOTO{1..1} \\
   f\STAR{..}  &\equiv f\STAR{0..}  &
-  &&
+  f\FSTAR{..}  &\equiv f\FSTAR{0..}  &
   f\EQUAL{..}  &\equiv f\EQUAL{0..} &
   f\GOTO{..}  &\equiv f\GOTO{1..} \\
   f\STAR{..\mvar{j}} &\equiv f\STAR{0..\mvar{j}} &
-  &&
+  f\FSTAR{..\mvar{j}} &\equiv f\FSTAR{0..\mvar{j}} &
   f\EQUAL{..\mvar{j}} &\equiv f\EQUAL{0..\mvar{j}} &
   f\GOTO{..\mvar{j}} &\equiv f\GOTO{1..\mvar{j}} \\
   f\STAR{\mvar{k}}  &\equiv f\STAR{\mvar{k}..\mvar{k}}  &
-  &&
+  f\FSTAR{\mvar{k}}  &\equiv f\FSTAR{\mvar{k}..\mvar{k}}  &
   f\EQUAL{\mvar{k}}   &\equiv f\EQUAL{\mvar{k}..\mvar{k}} &
   f\GOTO{\mvar{k}}   &\equiv f\GOTO{\mvar{k}..\mvar{k}} \\
-  \STAR{}    &\equiv \1\STAR{0..}  &
-  \PLUS{}    &\equiv \1\STAR{1..}  \\
-  \STAR{\mvar{k}}    &\equiv \1\STAR{\mvar{k}..\mvar{k}}  &
+  f\PLUS{}    &\equiv f\STAR{1..} &
+  f\FPLUS{}    &\equiv f\FSTAR{1..}
+\end{align*}
+\begin{align*}
+\STAR{\mvar{k}}    &\equiv \1\STAR{\mvar{k}..\mvar{k}} &
+\STAR{}    &\equiv \1\STAR{0..} &
+\PLUS{}    &\equiv \1\STAR{1..}
 \end{align*}
 
 \subsection{Trivial Identities (Occur Automatically)}
@@ -720,6 +776,14 @@ $b_1$, $b_2$ are assumed to be Boolean formulas.
   f\STAR{\mvar{i}..\mvar{j}}\STAR{\mvar{k}..\mvar{l}} &\equiv f\STAR{\mvar{ik}..\mvar{jl}}\text{~if~}i(k+1)\le jk+1 \\
   f\STAR{0}&\equiv \eword &
   f\STAR{1}&\equiv f\\
+  b\FSTAR{0..\mvar{j}} &\equiv \1  &
+  b\FSTAR{\mvar{i}..\mvar{j}} &\equiv b \text{~if~}i>0 \\
+  \eword\FSTAR{0..\mvar{j}} &\equiv \1&
+  \eword\FSTAR{\mvar{i}..\mvar{j}} &\equiv \0\text{~if~}i>0 \\
+  &&
+  f\FSTAR{\mvar{i}..\mvar{j}}\FSTAR{\mvar{k}..\mvar{l}} &\equiv f\FSTAR{\mvar{ik}..\mvar{jl}}\text{~if~}i(k+1)\le jk+1 \\
+  f\FSTAR{0}&\equiv \1 &
+  f\FSTAR{1}&\equiv f\text{~if~}\varepsilon\nVDash f\\
 \end{align*}
 
 \noindent
@@ -758,20 +822,19 @@ The following rules are all valid with the two arguments swapped.
   f\AND f &\equiv f&
   f\ANDALT f &\equiv f &
   f\OR f &\equiv f&
-  &&
+  f\FUSION f&\equiv f\FSTAR{2}&
   f\CONCAT f&\equiv f\STAR{2}\\
   b_1 \AND b_2 &\equiv b_1\ANDALT b_2 &
   &&
   &&
-  b_1:b_2 &\equiv b_1\ANDALT b_2 &
-  f\STAR{\mvar{i}..\mvar{j}}\CONCAT f&\equiv f\STAR{\mvar{i+1}..\mvar{j+1}}\\
-  &&
-  &&
-  &&
-  &&
-  \mathllap{f\STAR{\mvar{i}..\mvar{j}}}\CONCAT f\STAR{\mvar{k}..\mvar{l}}&\equiv f\STAR{\mvar{i+k}..\mvar{j+l}}\\
+  b_1:b_2 &\equiv b_1\ANDALT b_2
 \end{align*}
-
+\begin{align*}
+f\STAR{\mvar{i}..\mvar{j}}\CONCAT f&\equiv f\STAR{\mvar{i+1}..\mvar{j+1}} &
+f\STAR{\mvar{i}..\mvar{j}}\CONCAT f\STAR{\mvar{k}..\mvar{l}}&\equiv f\STAR{\mvar{i+k}..\mvar{j+l}}\\
+f\FSTAR{\mvar{i}..\mvar{j}}\FUSION f&\equiv f\FSTAR{\mvar{i+1}..\mvar{j+1}} &
+f\FSTAR{\mvar{i}..\mvar{j}}\FUSION f\FSTAR{\mvar{k}..\mvar{l}}&\equiv f\FSTAR{\mvar{i+k}..\mvar{j+l}}
+\end{align*}
 \section{SERE-LTL Binding Operators}
 
 The following operators combine a SERE $r$ with a PSL

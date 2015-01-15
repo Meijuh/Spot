@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1083,6 +1083,9 @@ namespace spot
 		  h->destroy();
 		  h = s;
 		}
+	      result_ = bunop::instance(op, h, min, bo->max());
+	      break;
+	    case bunop::FStar:
 	      result_ = bunop::instance(op, h, min, bo->max());
 	      break;
 	    }
@@ -3274,6 +3277,8 @@ namespace spot
 				    r->destroy();
 				    f = 0;
 				    break;
+				  case bunop::FStar:
+				    goto common;
 				  }
 				break;
 			      }

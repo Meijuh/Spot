@@ -1,5 +1,5 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2010, 2011, 2012, 2013, 2014, Laboratoire de
+** Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015, Laboratoire de
 ** Recherche et Développement de l'Epita (LRDE).
 ** Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 ** département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -224,6 +224,9 @@ eol2        (\n\r)+|(\r\n)+
 "[*]"				BEGIN(0); return token::OP_BSTAR;
 "[+]"				BEGIN(0); return token::OP_PLUS;
 "[*"				BEGIN(sqbracket); return token::OP_STAR_OPEN;
+"[:*]"				BEGIN(0); return token::OP_BFSTAR;
+"[:+]"				BEGIN(0); return token::OP_FPLUS;
+"[:*"				BEGIN(sqbracket); return token::OP_FSTAR_OPEN;
 "[="				BEGIN(sqbracket); return token::OP_EQUAL_OPEN;
 "["{ARROWL}			BEGIN(sqbracket); return token::OP_GOTO_OPEN;
 <sqbracket>"]"			BEGIN(0); return token::OP_SQBKT_CLOSE;
