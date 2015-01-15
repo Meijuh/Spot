@@ -86,6 +86,7 @@
 \newcommand{\0}{\texttt{0}}
 \newcommand{\1}{\texttt{1}}
 \newcommand{\STAR}[1]{\texttt{[*#1]}}
+\newcommand{\FSTAR}[1]{\texttt{[:*#1]}}
 \newcommand{\STARALT}{\texttt{*}}
 \newcommand{\STARBIN}{\mathbin{\texttt{*}}}
 \newcommand{\EQUAL}[1]{\texttt{[=#1]}}
@@ -169,7 +170,7 @@
 \newcommand\msamp[1]{#1}
 
 
-\def\manualtitle{Spot's Temporal Logic Formul\ae}
+\def\manualtitle{Spot's Temporal Logic Formulas}
 
 %% ---------- %%
 %% Document.  %%
@@ -226,7 +227,7 @@ starting at letter $\sigma(i)$.
 
 \section{Usage in Model Checking}
 
-The temporal formul\ae{} described in this document, should be
+The temporal formulas described in this document, should be
 interpreted on behaviors (or executions, or scenarios) of the system
 to verify.  In model checking we want to ensure that a formula (the
 property to verify) holds on all possible behaviors of the system.
@@ -304,7 +305,7 @@ reserved keyword, or one that starts with a digit, is to use double quotes.
 
 The reason we deal with leading \samp{F}, \samp{G}, and \samp{X}
 specifically in rule~\ref{rule:ap2} is that these are unary LTL
-operators and we want to be able to write compact formul\ae{} like
+operators and we want to be able to write compact formulas like
 \samp{GFa} instead of the equivalent \samp{G(F(a))} or
 \samp{G~F~a}.  If you want to name an atomic proposition \samp{GFa},
 you will have to quote it as \samp{"GFa"}.
@@ -320,7 +321,7 @@ applied to \samp{1}).  On the other hand, having numbered versions of
 a variable is pretty common, so it makes sense to favor this
 interpretation.
 
-If you are typing in formul\ae{} by hand, we suggest you name all your
+If you are typing in formulas by hand, we suggest you name all your
 atomic propositions in lower case, to avoid clashes with the uppercase
 operators.
 
@@ -357,9 +358,9 @@ For any atomic proposition $a$, we have
 In other words $a$ holds if and only if it is true in the first
 configuration of $\sigma$.
 
-\section{Boolean Operators (for Temporal Formul\ae{})}\label{sec:boolops}
+\section{Boolean Operators (for Temporal Formulas)}\label{sec:boolops}
 
-Two temporal formul\ae{} $f$ and $g$ can be combined using the
+Two temporal formulas $f$ and $g$ can be combined using the
 following Boolean operators:
 
 \begin{center}
@@ -377,14 +378,14 @@ following Boolean operators:
 \end{center}
 \footnotetext{The $\STARALT$-form of the conjunction operator
   (allowing better compatibility with Wring and VIS) may only used in
-  temporal formul\ae.  Boolean expressions that occur inside SERE (see
+  temporal formulas.  Boolean expressions that occur inside SERE (see
   Section~\ref{sec:sere}) may not use this form because the $\STARALT$
   symbol is used as the Kleen star.}
 
 Additionally, an atomic proposition $a$ can be negated using the
 syntax \samp{$a$=0}, which is equivalent to \samp{$\NOT a$}.  Also
 \samp{$a$=1} is equivalent to just \samp{a}.  These two syntaxes help
-us read formul\ae{} written using Wring's syntax.
+us read formulas written using Wring's syntax.
 
 When using UTF-8 input, a \samp{=0} that follow a single-letter atomic
 proposition may be replaced by a combining overline \uni{0305} or a
@@ -477,7 +478,7 @@ using the following rewritings:
 
 \section{Temporal Operators}\label{sec:ltlops}
 
-Given two temporal formul\ae{} $f$, and $g$, the following
+Given two temporal formulas $f$, and $g$, the following
 temporal operators can be used to construct another temporal formula.
 
 \begin{center}
@@ -662,7 +663,7 @@ $a$ is an atomic proposition.
 Notes:
 \begin{itemize}
 \item The semantics of $\ANDALT$ and $\AND$ coincide if both
-operands are Boolean formul\ae.
+operands are Boolean formulas.
 \item The SERE $f\FUSION g$ will never hold on $\eword$,
   regardless of the value of $f$ and $g$.  For instance
   $a\STAR{}\FUSION b\STAR{}$ is actually equivalent to
@@ -710,7 +711,7 @@ it for output.  $b$ must be a Boolean formula.
 
 The following identities also hold if $j$ or $l$ are missing (assuming
 they are then equal to $\infty$).  $f$ can be any SERE, while $b$,
-$b_1$, $b_2$ are assumed to be Boolean formul\ae.
+$b_1$, $b_2$ are assumed to be Boolean formulas.
 
 \begin{align*}
   \0\STAR{0..\mvar{j}} &\equiv \eword  &
@@ -1022,22 +1023,22 @@ instance using the following methods:
 \newfootnotetext{1}{\url{http://www.tcs.hut.fi/Software/maria/tools/lbt/}}
 
 
-\section{Pure Eventualities and Purely Universal Formul\ae{}}
+\section{Pure Eventualities and Purely Universal Formulas}
 \label{sec:eventuniv}
 
-These two syntactic classes of formul\ae{} were introduced
-by~\citet{etessami.00.concur} to simplify LTL formul\ae{}.  We shall
+These two syntactic classes of formulas were introduced
+by~\citet{etessami.00.concur} to simplify LTL formulas.  We shall
 present the associated simplification rules in
 Section~\ref{sec:eventunivrew}, for now we only define these two
 classes.
 
-Pure eventual formul\ae{} describe properties that are left-append
+Pure eventual formulas describe properties that are left-append
 closed, i.e., any accepted (infinite) sequence can be prefixed by a
 finite sequence and remain accepted.  From an LTL standpoint, if
 $\varphi$ is a left-append closed formula, then $\F\varphi \equiv
 \varphi$.
 
-Purely universal formul\ae{} describe properties that are
+Purely universal formulas describe properties that are
 suffix-closed, i.e., if you remove any finite prefix of an accepted
 (infinite) sequence, it remains accepted.  From an LTL standpoint if
 $\varphi$ is a suffix-closed formula, then $\G\varphi \equiv \varphi$.
@@ -1086,10 +1087,10 @@ rules:
   \begin{captionbeside}{
     The temporal hierarchy of \citet{manna.87.podc} with their
     associated classes of automata~\citep{cerna.03.mfcs}.  The
-    formul\ae{} associated to each class are more than canonical
+    formulas associated to each class are more than canonical
     examples: they show the normal forms under which any LTL formula
     of the class can be rewritten, assuming that $p,p_i,q,q_i$ denote
-    subformul\ae{} involving only Boolean operators, $\X$, and past
+    subformulas involving only Boolean operators, $\X$, and past
     temporal operators (Spot does not support the
     latter). \label{fig:hierarchy}}[o]
   \centering
@@ -1149,7 +1150,7 @@ The symbols $\varphi_G$, $\varphi_S$, $\varphi_O$, $\varphi_P$,
 $\varphi_R$ denote any formula belonging respectively to the
 Guarantee, Safety, Obligation, Persistence, or Recurrence classes.
 $\varphi_F$ denotes a finite LTL formula (the unnamed class at the
-intersection of Safety and Guarantee formul\ae{} on
+intersection of Safety and Guarantee formulas on
 Fig.~\ref{fig:hierarchy}).  $v$ denotes any variable, $r$ any SERE,
 $r_F$ any bounded SERE (no loops), and $r_I$ any unbounded SERE.
 
@@ -1217,10 +1218,10 @@ equivalent to $\G q\OR \G r$.  Such a formula is usually said
 The LTL rewritings described in this section are all implemented in
 the `\verb|ltl_simplifier|' class defined in
 \texttt{spot/ltlvisit/simplify.hh}.  This class implements several
-caches in order to quickly rewrite formul\ae{} that have already been
+caches in order to quickly rewrite formulas that have already been
 rewritten previously.  For this reason, it is suggested that you reuse
 your instance of `\verb|ltl_simplifier|' as much as possible.  If you
-write an algorithm that will simplify LTL formul\ae{}, we suggest you
+write an algorithm that will simplify LTL formulas, we suggest you
 accept an optional `\verb|ltl_simplifier|' argument, so that you can
 benefit from an existing instance.
 
@@ -1278,7 +1279,7 @@ Section~\ref{sec:unabbbool}.  Therefore it is never necessary to apply
 `\verb|ltl_simplifier::negative_normal_form|`.
 
 If the option `\verb|nenoform_stop_on_boolean|' is set, the above
-recursive rewritings are not applied to Boolean subformul\ae{}.  For
+recursive rewritings are not applied to Boolean subformulas.  For
 instance calling `\verb|ltl_simplifier::negative_normal_form|` on
 $\NOT\F\G(a \XOR b)$ will produce $\G\F(((\NOT a)\AND(\NOT
 b))\OR(a\AND b))$ if `\verb|nenoform_stop_on_boolean|' is unset, while
@@ -1296,10 +1297,10 @@ The goals in most of these simplification are to:
 \item remove useless terms and operator.
 \item move the $\X$ operators to the front of the formula (e.g., $\X\G
   f$ is better than the equivalent $\G\X f$).  This is because LTL
-  translators will usually want to rewrite LTL formul\ae{} in
+  translators will usually want to rewrite LTL formulas in
   a kind of disjunctive form: $\displaystyle\bigvee_i
   \left(\beta_i\land\X\psi_i\right)$ where $\beta_i$s are Boolean
-  formul\ae{} and $\psi_i$s are LTL formul\ae{}.  Moving $\X$ to the
+  formulas and $\psi_i$s are LTL formulas.  Moving $\X$ to the
   front therefore simplifies the translation.
 \item move the $\F$ operators to the front of the formula (e.g., $\F(f
   \OR g)$ is better than the equivalent $(\F f)\OR (\F g)$), but not
@@ -1417,7 +1418,7 @@ The following more complicated rules are generalizations of $f\AND
   f\OR \X(\F(f)\OR h\ldots) &\equiv \F(f) \OR \X(h\ldots)
 \end{align*}
 The latter rule for $f\OR \X(\F(f)\OR h\ldots)$ is only applied if all
-$\F$-formul\ae{} can be removed from the argument of $\X$ with the
+$\F$-formulas can be removed from the argument of $\X$ with the
 rewriting.  For instance $a \OR b \OR c\OR \X(\F(a\OR b)\OR \F(c)\OR \G d)$
 will be rewritten to $\F(a \OR b \OR c) \OR \X\G d$ but
 $b \OR c\OR \X(\F(a\OR b)\OR \F(c)\OR \G d)$ will only become
@@ -1467,7 +1468,7 @@ SERE.
   \sere{b_1\FUSION r_1}\AND \sere{b_2\FUSION r_2} &\equiv \sere{b_1\ANDALT b_2}\FUSION\sere{r_1\AND r_2} \mathrlap{\quad\text{if~}\varepsilon\nVDash r_1\land\varepsilon\nVDash r_2}\\
 \end{align*}
 
-Starred subformul\ae{} are rewritten in Star Normal
+Starred subformulas are rewritten in Star Normal
 Form~\cite{bruggeman.96.tcs} with:
 \[r\STAR{} \equiv r^\circ\STAR{} \]
 where $r^\circ$ is recursively defined as follows:
@@ -1581,14 +1582,14 @@ Here are basic the rewritings for the weak closure and its negation:
   \nsere{r_1\OR r_2}&\equiV\nsere{r_1}\AND\nsere{r_2}
 \end{align*}
 
-\subsection{Simplifications for Eventual and Universal Formul\ae}
+\subsection{Simplifications for Eventual and Universal Formulas}
 \label{sec:eventunivrew}
 
 The class of \textit{pure eventuality} and \textit{purely universal}
-formul\ae{} are described in section~\ref{sec:eventuniv}.
+formulas are described in section~\ref{sec:eventuniv}.
 
 In the following rewritings, we use the following
-notation to distinguish the class of subformul\ae:
+notation to distinguish the class of subformulas:
 
 \begin{center}
 \begin{tabular}{rl}
@@ -1747,7 +1748,7 @@ only familiar with some of the operators.
 \end{align*}}
 
 These equivalences make it possible to build artificially complex
-formul\ae{}.  For instance by applying the above rules to successively
+formulas.  For instance by applying the above rules to successively
 rewrite $\U\to\M\to\R\to\U$ we get
 \begin{align*}
 f\U g &\equiv ((\X g)\M f)\OR g \\
@@ -1772,7 +1773,7 @@ Syntactic implications are used for the rewriting of
 Section~\ref{sec:syntimpl}.  The rules presented bellow extend those
 first presented by~\citet{somenzi.00.cav}.
 
-A few words about implication first.  For two PSL formul\ae{} $f$ and
+A few words about implication first.  For two PSL formulas $f$ and
 $g$, we say that $f\implies g$ if $\forall\sigma,\,(\sigma\vDash
 f)\implies(\sigma\vDash g)$.  For two SERE $f$ and
 $g$, we say that $f\implies g$ if $\forall\pi,\,(\pi\VDash
@@ -1800,7 +1801,7 @@ conclusion by chaining two rules: ``$\F f \simp \underbrace{\F
 ``$f \simp \F g$ \textit{if} $f\simp g$''.
 
 The rules from table~\ref{tab:syntimpl} should be completed by the
-following cases, where $f_b$ and $g_b$ denote Boolean formul\ae{}:
+following cases, where $f_b$ and $g_b$ denote Boolean formulas:
 \begin{center}
 \begin{tabular}{rl}
 we have                       & if                                    \\
