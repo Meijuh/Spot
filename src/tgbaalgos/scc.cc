@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2011, 2012, 2013, 2014 Laboratoire de
-// Recherche et Développement de l'Epita.
+// Copyright (C) 2008, 2009, 2011, 2012, 2013, 2014, 2015 Laboratoire
+// de Recherche et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -27,18 +27,6 @@
 
 namespace spot
 {
-  std::ostream&
-  scc_stats::dump(std::ostream& out) const
-  {
-    out << "total SCCs: " << scc_total << std::endl;
-    out << "accepting SCCs: " << acc_scc << std::endl;
-    out << "dead SCCs: " << dead_scc << std::endl;
-    out << "accepting paths: " << acc_paths << std::endl;
-    out << "dead paths: " << dead_paths << std::endl;
-    return out;
-  }
-
-
   scc_map::scc_map(const const_tgba_ptr& aut)
     : aut_(aut)
   {
@@ -371,101 +359,6 @@ namespace spot
   {
     assert(scc_map_.size() > n);
     return scc_map_[n].useful_acc;
-  }
-
-  namespace
-  {
-    struct scc_recurse_data
-    {
-      scc_recurse_data() : acc_scc(0), dead_scc(0) {};
-      typedef std::map<unsigned, unsigned> graph_counter;
-      graph_counter acc_paths;
-      graph_counter dead_paths;
-      unsigned acc_scc;
-      unsigned dead_scc;
-    };
-
-    bool scc_recurse(const scc_map& m, unsigned state, scc_recurse_data& data)
-    {
-      // Don't recurse on previously visited states.
-      scc_recurse_data::graph_counter::const_iterator i =
-	data.acc_paths.find(state);
-      if (i != data.acc_paths.end())
-	return i->second > 0;
-
-      const scc_map::succ_type& succ = m.succ(state);
-
-      bool accepting = m.accepting(state);
-      scc_map::succ_type::const_iterator it;
-      unsigned acc_paths = 0;
-      unsigned dead_paths = 0;
-
-      bool paths_accepting = false;
-      for (it = succ.begin(); it != succ.end(); ++it)
-	{
-	  unsigned dest = it->first;
-	  bool path_accepting = scc_recurse(m, dest, data);
-	  paths_accepting |= path_accepting;
-
-	  acc_paths += data.acc_paths[dest];
-	  dead_paths += data.dead_paths[dest];
-	}
-
-      if (accepting)
-	{
-	  ++data.acc_scc;
-	  if (acc_paths == 0)
-	    acc_paths = 1;
-	}
-      else if (!paths_accepting)
-	{
-	  ++data.dead_scc;
-	  if (dead_paths == 0)
-	    dead_paths = 1;
-	}
-
-      data.acc_paths[state] = acc_paths;
-      data.dead_paths[state] = dead_paths;
-
-      return accepting | paths_accepting;
-    }
-
-  }
-
-  scc_stats build_scc_stats(const scc_map& m)
-  {
-    scc_stats res;
-    res.self_loops = m.self_loops();
-    res.scc_total = m.scc_count();
-
-    scc_recurse_data d;
-    unsigned init = m.initial();
-    scc_recurse(m, init, d);
-
-    res.acc_scc = d.acc_scc;
-    res.dead_scc = d.dead_scc;
-    res.acc_paths = d.acc_paths[init];
-    res.dead_paths = d.dead_paths[init];
-
-    res.useless_scc_map.reserve(res.scc_total);
-    for (unsigned n = 0; n < res.scc_total; ++n)
-      {
-	res.useless_scc_map[n] = !d.acc_paths[n];
-	if (m.accepting(n))
-	  {
-	    auto& c = m.useful_acc_of(n);
-	    res.useful_acc.insert(c.begin(), c.end());
-	  }
-      }
-    return res;
-  }
-
-  scc_stats
-  build_scc_stats(const const_tgba_ptr& a)
-  {
-    scc_map m(a);
-    m.build_map();
-    return build_scc_stats(m);
   }
 
   std::ostream&

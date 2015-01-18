@@ -27,6 +27,7 @@ cat >formulas<<EOF
 b U a,3,2,2
 0,0,1,1
 (Gb | F!a) W GFc,22,6,5
+(!a & G(Ga | F(!a & b))) | (a & F(F!a & G(a | !b))),16,7,6
 EOF
 
 run 0 ../../bin/ltl2tgba --low --any --stats='%f,%e,%s,%c' -F formulas/1 >out

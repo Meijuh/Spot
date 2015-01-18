@@ -273,8 +273,6 @@ syntax(char* prog)
 	    << "Output options (if no emptiness check):" << std::endl
 	    << "  -b    output the automaton in the format of spot"
             << std::endl
-	    << "  -k    display statistics on the automaton (size and SCCs)"
-	    << std::endl
 	    << "  -ks   display statistics on the automaton (size only)"
 	    << std::endl
 	    << "  -kt   display statistics on the automaton (size + "
@@ -552,10 +550,6 @@ checked_main(int argc, char** argv)
 	{
 	  output = 17;
 	  hoa_opt = argv[formula_index] + 2;
-	}
-      else if (!strcmp(argv[formula_index], "-k"))
-	{
-	  output = 9;
 	}
       else if (!strcmp(argv[formula_index], "-ks"))
 	{
@@ -1608,10 +1602,6 @@ checked_main(int argc, char** argv)
 		  }
 		break;
 	      }
-	    case 9:
-	      stats_reachable(a).dump(std::cout);
-	      build_scc_stats(a).dump(std::cout);
-	      break;
 	    case 10:
 	      {
 		auto aa =

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
-// Recherche et Développement de l'Epita.
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
+// Laboratoire de Recherche et Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -30,41 +30,6 @@
 
 namespace spot
 {
-
-  struct SPOT_API scc_stats
-  {
-    /// Total number of SCCs.
-    unsigned scc_total;
-    /// Total number of accepting SCC.
-    unsigned acc_scc;
-    /// Total number of dead SCC.
-    ///
-    /// An SCC is dead if no accepting SCC is reachable from it.
-    /// Note that an SCC can be neither dead nor accepting.
-    unsigned dead_scc;
-
-    /// Number of maximal accepting paths.
-    ///
-    /// A path is maximal and accepting if it ends in an accepting
-    /// SCC that has only dead (i.e. non accepting) successors, or no
-    /// successors at all.
-    unsigned acc_paths;
-    /// Number of paths to a terminal dead SCC.
-    ///
-    /// A terminal dead SCC is a dead SCC without successors.
-    unsigned dead_paths;
-    unsigned self_loops;
-
-    /// A map of the useless SCCs.
-    std::vector<bool> useless_scc_map;
-
-    /// The set of useful acceptance conditions (i.e. acceptance
-    /// conditions that are not always implied by other acceptance
-    /// conditions).
-    std::set<acc_cond::mark_t> useful_acc;
-
-    std::ostream& dump(std::ostream& out) const;
-  };
 
   /// Build a map of Strongly Connected components in in a TGBA.
   class SPOT_API scc_map
@@ -237,11 +202,6 @@ namespace spot
                            // "n" in SCC_MAP_.
     unsigned self_loops_; // Self loops count.
  };
-
-  SPOT_API scc_stats
-  build_scc_stats(const const_tgba_ptr& a);
-  SPOT_API scc_stats
-  build_scc_stats(const scc_map& m);
 
   SPOT_API std::ostream&
   dump_scc_dot(const const_tgba_ptr& a,

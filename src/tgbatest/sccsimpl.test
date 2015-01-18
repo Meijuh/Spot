@@ -171,18 +171,3 @@ test `grep '^acc' out8.txt | wc -w` = 4
 run 0 ../ltl2tgba -R3 -s -RDS -ks \
   '(G(!((b) R (a)))) R (((c) R (!(d))) U (G((a) | (!(G(e))))))' > out9.txt
 grep 'states: 6$' out9.txt
-
-
-# From Spot 1.1 to 1.1.2, this failed with a BDD error because of
-# a bug in scc_filter().
-run 0 ../ltl2tgba -R3 -k '(a) <-> F(Ga <-> F!(b -> a))' >stdout
-cat >expected <<EOF
-transitions: 21
-states: 8
-total SCCs: 6
-accepting SCCs: 3
-dead SCCs: 0
-accepting paths: 4
-dead paths: 0
-EOF
-diff stdout expected
