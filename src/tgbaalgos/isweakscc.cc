@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -26,7 +26,7 @@ namespace spot
   namespace
   {
     // Look for a non-accepting cycle.
-    class weak_checker: public enumerate_cycles
+    class weak_checker final : public enumerate_cycles
     {
     public:
       bool result;
@@ -37,14 +37,14 @@ namespace spot
       }
 
       virtual bool
-      cycle_found(const state* start)
+      cycle_found(unsigned start) override
       {
 	dfs_stack::const_reverse_iterator i = dfs_.rbegin();
 	acc_cond::mark_t acc = 0U;
 	for (;;)
 	  {
-	    acc |= i->succ->current_acceptance_conditions();
-	    if (i->ts->first == start)
+	    acc |= aut_->trans_storage(i->succ).acc;
+	    if (i->s == start)
 	      break;
 	    ++i;
 	    // The const cast is here to please old g++ versions.

@@ -228,7 +228,7 @@ namespace spot
   namespace
   {
 
-    class fix_scc_acceptance: protected enumerate_cycles
+    class fix_scc_acceptance final: protected enumerate_cycles
     {
     public:
       typedef dfs_stack::const_iterator cycle_iter;
@@ -304,9 +304,7 @@ namespace spot
 
 	// Iterate on each original state corresponding to the
 	// start of the loop in the determinized automaton.
-	const power_map::power_state& ps =
-	  refmap_.states_of(a->state_number(begin->ts->first));
-	for (auto s: ps)
+	for (auto s: refmap_.states_of(begin->s))
 	  {
 	    // Check the product between LOOP_A, and ORIG_A starting
 	    // in S.
@@ -330,22 +328,16 @@ namespace spot
       }
 
       virtual bool
-      cycle_found(const state* start)
+      cycle_found(unsigned start) override
       {
 	cycle_iter i = dfs_.begin();
-	while (i->ts->first != start)
+	while (i->s != start)
 	  ++i;
 	trans_set ts;
 	bool is_acc = is_cycle_accepting(i, ts);
 	do
-	  {
-	    //	    std::cerr << aut_->format_state(i->ts->first) << ' ';
-	    ++i;
-	  }
+	  ++i;
 	while (i != dfs_.end());
-	//	std::cerr << "  acc=" << is_acc << "  (";
-	//	bdd_print_accset(std::cerr, aut_->get_dict(), s) << ") ";
-	//	print_set(std::cerr, ts) << '\n';
 	if (is_acc)
 	  {
 	    accept_.push_back(ts);

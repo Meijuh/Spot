@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -80,10 +80,11 @@ namespace spot
     // Extra information required for the algorithm for each state.
     struct state_info
     {
-      state_info()
-	: reach(false), mark(false)
+      state_info(unsigned num)
+	: seen(false), reach(false), mark(false), del(num)
       {
       }
+      bool seen;
       // Whether the state has already left the stack at least once.
       bool reach;
       // set to true when the state current state w is stacked, and
@@ -93,39 +94,34 @@ namespace spot
       // that a contributed to a contributed to a cycle.
       bool mark;
       // Deleted successors (in the paper, states deleted from A(x))
-      state_set del;
+      std::vector<bool> del;
       // Predecessors of the current states, that could not yet
       // contribute to a cycle.
-      state_set b;
+      std::vector<unsigned> b;
     };
-
-    // Store the state_info for all visited states.
-    typedef std::unordered_map<const state*, state_info,
-			       state_ptr_hash, state_ptr_equal> hash_type;
-    hash_type tags_;
-
-    // A tagged_state s is a state* (s->first) associated to its
-    // state_info (s->second).  We usually handle tagged_state in the
-    // algorithm to avoid repeated lookup of the state_info data.
-    typedef hash_type::iterator tagged_state;
 
     // The automaton we are working on.
     const_tgba_digraph_ptr aut_;
+    // Store the state_info for all visited states.
+    std::vector<state_info> info_;
     // The SCC map built for aut_.
     const scc_info& sm_;
 
-    // The DFS stack.  Each entry contains a tagged state, an iterator
-    // on the transitions leaving that state, and a Boolean f
-    // indicating whether this state as already contributed to a cycle
-    // (f is updated when backtracking, so it should not be used by
+    // The DFS stack.  Each entry contains a state, an iterator on the
+    // transitions leaving that state, and a Boolean f indicating
+    // whether this state as already contributed to a cycle (f is
+    // updated when backtracking, so it should not be used by
     // cycle_found()).
     struct dfs_entry
     {
-      tagged_state ts;
-      tgba_succ_iterator* succ;
-      bool f;
+      unsigned s;
+      unsigned succ = 0U;
+      bool f = false;
+      dfs_entry(unsigned s): s(s)
+      {
+      }
     };
-    typedef std::deque<dfs_entry> dfs_stack;
+    typedef std::vector<dfs_entry> dfs_stack;
     dfs_stack dfs_;
 
   public:
@@ -155,18 +151,16 @@ namespace spot
     ///
     /// This method method should return false iff no more cycles need
     /// should be enumerated by run().
-    virtual bool cycle_found(const state* start);
+    virtual bool cycle_found(unsigned start);
 
   private:
-    // introduce a new state to the tags map.
-    tagged_state tag_state(const state* s);
     // add a new state to the dfs_ stack
-    void push_state(tagged_state ts);
+    void push_state(unsigned s);
     // block the edge (x,y) because it cannot contribute to a new
     // cycle currently (sub-procedure from the paper)
-    void nocycle(tagged_state x, tagged_state y);
+    void nocycle(unsigned x, unsigned y);
     // unmark the state y (sub-procedure from the paper)
-    void unmark(tagged_state y);
+    void unmark(unsigned y);
   };
 
 }
