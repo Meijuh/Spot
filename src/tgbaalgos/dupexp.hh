@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -40,26 +40,6 @@ namespace spot
   /// numbering states in depth first order as they are processed.
   SPOT_API tgba_digraph_ptr
   tgba_dupexp_dfs(const const_tgba_ptr& aut, tgba::prop_set p);
-
-  /// \ingroup tgba_misc
-  /// \brief Build an explicit automaton from all states of \a aut,
-  /// numbering states in bread first order as they are processed.
-  /// \a aut the automaton to duplicate
-  /// \a relation a map of all the new states (represented by
-  /// their number) to the old states.
-  SPOT_API tgba_digraph_ptr
-  tgba_dupexp_bfs(const const_tgba_ptr& aut, tgba::prop_set p,
-		  std::vector<const state*>& relation);
-
-  /// \ingroup tgba_misc
-  /// \brief Build an explicit automata from all states of \a aut,
-  /// numbering states in depth first order as they are processed.
-  /// \a aut the automaton to duplicate
-  /// \a relation a map of all the new states (represented by
-  /// their number) to the old states.
-  SPOT_API tgba_digraph_ptr
-  tgba_dupexp_dfs(const const_tgba_ptr& aut, tgba::prop_set p,
-		  std::vector<const state*>& relation);
 }
 
 #endif // SPOT_TGBAALGOS_DUPEXP_HH

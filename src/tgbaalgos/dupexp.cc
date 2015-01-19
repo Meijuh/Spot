@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -72,28 +72,6 @@ namespace spot
       tgba_digraph_ptr out_;
     };
 
-    template <typename T>
-    class dupexp_iter_save: public dupexp_iter<T>
-    {
-    public:
-      dupexp_iter_save(const const_tgba_ptr& a,
-		       tgba::prop_set p,
-		       std::vector<const state*>& relation)
-        : dupexp_iter<T>(a, p), relation_(relation)
-      {
-      }
-
-      virtual void
-      end()
-      {
-	relation_.resize(this->seen.size());
-	for (auto s: this->seen)
-	  relation_[s.second - 1] = const_cast<state*>(s.first);
-      }
-
-      std::vector<const state*>& relation_;
-    };
-
   } // anonymous
 
   tgba_digraph_ptr
@@ -108,38 +86,6 @@ namespace spot
   tgba_dupexp_dfs(const const_tgba_ptr& aut, tgba::prop_set p)
   {
     dupexp_iter<tgba_reachable_iterator_depth_first> di(aut, p);
-    di.run();
-    return di.result();
-  }
-
-  tgba_digraph_ptr
-  tgba_dupexp_bfs(const const_tgba_ptr& aut, tgba::prop_set p,
-		  std::vector<const state*>& rel)
-  {
-    dupexp_iter_save<tgba_reachable_iterator_breadth_first> di(aut, p, rel);
-    di.run();
-    return di.result();
-  }
-
-  tgba_digraph_ptr
-  tgba_dupexp_dfs(const const_tgba_ptr& aut, tgba::prop_set p,
-		  std::vector<const state*>& rel)
-  {
-    auto aa = std::dynamic_pointer_cast<const tgba_digraph>(aut);
-    if (aa)
-      {
-	aa->get_init_state_number(); // Create an initial state if needed.
-	auto res = make_tgba_digraph(aa, p);
-	unsigned ns = aa->num_states();
-	rel.reserve(ns);
-	// The state numbers are common to both automata, but
-	// the state pointers are to the older one.
-	for (unsigned n = 0; n < ns; ++n)
-	  rel.push_back(aa->state_from_number(n));
-	return res;
-      }
-
-    dupexp_iter_save<tgba_reachable_iterator_depth_first> di(aut, p, rel);
     di.run();
     return di.result();
   }
