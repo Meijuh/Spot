@@ -28,7 +28,6 @@
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/sccinfo.hh"
-#include "tgbaalgos/dupexp.hh"
 #include "misc/bddlt.hh"
 
 // The way we developed this algorithm is the following: We take an
@@ -83,9 +82,6 @@ namespace spot
 
     // Used to get the signature of the state.
     typedef std::vector<bdd> vector_state_bdd;
-
-    typedef std::vector<const state*> vector_state_state;
-
 
     // Get the list of state for each class.
     typedef std::map<bdd, std::list<unsigned>,
@@ -187,67 +183,67 @@ namespace spot
 	return aut->acc().marks(res.begin(), res.end());
       }
 
-      direct_simulation(const const_tgba_ptr& t)
-        : a_(0),
-          po_size_(0),
+      direct_simulation(const const_tgba_digraph_ptr& in)
+        : po_size_(0),
           all_class_var_(bddtrue),
-          original_(t)
+          original_(in)
       {
-        // We need to do a dupexp for being able to run scc_info later.
-        // new_original_ is the map that contains the relation between
-        // the names (addresses) of the states in the automaton
-        // returned by dupexp, and in automaton given in argument to
-        // the constructor.
-        a_ = tgba_dupexp_dfs(t, { true, true, true, true }, new_original_);
-        scc_info_.reset(new scc_info(a_));
-        old_a_ = a_;
+	// Call get_init_state_number() before anything else as it
+	// might add a state.
+	unsigned init_state_number = in->get_init_state_number();
+        scc_info_.reset(new scc_info(in));
+
+	unsigned ns = in->num_states();
+	assert(ns > 0);
+	size_a_ = ns;
 
 	// Replace all the acceptance conditions by their complements.
 	// (In the case of Cosimulation, we also flip the transitions.)
-	{
-	  if (Cosimulation)
-	    {
-	      a_ = make_tgba_digraph(a_->get_dict());
-	      a_->copy_ap_of(old_a_);
-	      a_->copy_acceptance_conditions_of(old_a_);
-	    }
-	  unsigned ns = old_a_->num_states();
-	  if (Cosimulation)
+	if (Cosimulation)
+	  {
+	    a_ = make_tgba_digraph(in->get_dict());
+	    a_->copy_ap_of(in);
+	    a_->copy_acceptance_conditions_of(in);
 	    a_->new_states(ns);
-	  for (unsigned s = 0; s < ns; ++s)
-	    {
-	      for (auto& t: old_a_->out(s))
-		{
-		  acc_cond::mark_t acc;
-		  if (Sba && Cosimulation)
-		    {
-		      // If the acceptance is interpreted as
-		      // state-based, to apply the reverse simulation
-		      // on a SBA, we should pull the acceptance of
-		      // the destination state on its incoming arcs
-		      // (which now become outgoing arcs after
-		      // transposition).
-		      acc = 0U;
-		      for (auto& td: old_a_->out(t.dst))
-			{
-			  acc = old_a_->acc().comp(td.acc);
-			  break;
-			}
-		    }
-		  else
-		    {
-		      acc = old_a_->acc().comp(t.acc);
-		    }
-		  if (Cosimulation)
+	    auto& acccond = in->acc();
+
+	    for (unsigned s = 0; s < ns; ++s)
+	      {
+		for (auto& t: in->out(s))
+		  {
+		    acc_cond::mark_t acc;
+		    if (Sba)
+		      {
+			// If the acceptance is interpreted as
+			// state-based, to apply the reverse simulation
+			// on a SBA, we should pull the acceptance of
+			// the destination state on its incoming arcs
+			// (which now become outgoing arcs after
+			// transposition).
+			acc = 0U;
+			for (auto& td: in->out(t.dst))
+			  {
+			    acc = acccond.comp(td.acc);
+			    break;
+			  }
+		      }
+		    else
+		      {
+			acc = acccond.comp(t.acc);
+		      }
 		    a_->new_transition(t.dst, s, t.cond, acc);
-		  else
-		    t.acc = acc;
-		}
-	      if (Cosimulation)
-		a_->set_init_state(old_a_->get_init_state_number());
-	    }
-	  size_a_ = ns;
-	}
+		  }
+		a_->set_init_state(init_state_number);
+	      }
+	  }
+	else
+	  {
+	    a_ = make_tgba_digraph(in, tgba::prop_set::all());
+	    auto& acccond = a_->acc();
+	    for (auto& t: a_->transitions())
+	      t.acc = acccond.comp(t.acc);
+	  }
+	assert(a_->num_states() == size_a_);
 
 	// Now, we have to get the bdd which will represent the
 	// class. We register one bdd by state, because in the worst
@@ -678,7 +674,6 @@ namespace spot
     protected:
       // The automaton which is simulated.
       tgba_digraph_ptr a_;
-      tgba_digraph_ptr old_a_;
 
       // Relation is aimed to represent the same thing than
       // rel_. The difference is in the way it does.
@@ -720,37 +715,36 @@ namespace spot
       automaton_size stat;
 
       std::unique_ptr<scc_info> scc_info_;
-      std::vector<const state*> new_original_;
 
-      const_tgba_ptr original_;
+      const const_tgba_digraph_ptr& original_;
     };
 
   } // End namespace anonymous.
 
 
   tgba_digraph_ptr
-  simulation(const const_tgba_ptr& t)
+  simulation(const const_tgba_digraph_ptr& t)
   {
     direct_simulation<false, false> simul(t);
     return simul.run();
   }
 
   tgba_digraph_ptr
-  simulation_sba(const const_tgba_ptr& t)
+  simulation_sba(const const_tgba_digraph_ptr& t)
   {
     direct_simulation<false, true> simul(t);
     return simul.run();
   }
 
   tgba_digraph_ptr
-  cosimulation(const const_tgba_ptr& t)
+  cosimulation(const const_tgba_digraph_ptr& t)
   {
     direct_simulation<true, false> simul(t);
     return simul.run();
   }
 
   tgba_digraph_ptr
-  cosimulation_sba(const const_tgba_ptr& t)
+  cosimulation_sba(const const_tgba_digraph_ptr& t)
   {
     direct_simulation<true, true> simul(t);
     return simul.run();
@@ -759,7 +753,7 @@ namespace spot
 
   template<bool Sba>
   tgba_digraph_ptr
-  iterated_simulations_(const const_tgba_ptr& t)
+  iterated_simulations_(const const_tgba_digraph_ptr& t)
   {
     tgba_digraph_ptr res = 0;
     automaton_size prev;
@@ -788,13 +782,13 @@ namespace spot
   }
 
   tgba_digraph_ptr
-  iterated_simulations(const const_tgba_ptr& t)
+  iterated_simulations(const const_tgba_digraph_ptr& t)
   {
     return iterated_simulations_<false>(t);
   }
 
   tgba_digraph_ptr
-  iterated_simulations_sba(const const_tgba_ptr& t)
+  iterated_simulations_sba(const const_tgba_digraph_ptr& t)
   {
     return iterated_simulations_<true>(t);
   }

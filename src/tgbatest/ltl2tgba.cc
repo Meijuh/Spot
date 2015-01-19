@@ -1209,7 +1209,7 @@ checked_main(int argc, char** argv)
       if (reduction_dir_sim && !reduction_iterated_sim)
         {
           tm.start("direct simulation");
-          a = spot::simulation(a);
+          a = spot::simulation(ensure_digraph(a));
           tm.stop("direct simulation");
 	  assume_sba = false;
         }
@@ -1217,7 +1217,7 @@ checked_main(int argc, char** argv)
       if (reduction_rev_sim && !reduction_iterated_sim)
         {
           tm.start("reverse simulation");
-          a = spot::cosimulation(a);
+          a = spot::cosimulation(ensure_digraph(a));
           tm.stop("reverse simulation");
 	  assume_sba = false;
         }
@@ -1226,7 +1226,7 @@ checked_main(int argc, char** argv)
       if (reduction_iterated_sim)
         {
           tm.start("Reduction w/ iterated simulations");
-          a = spot::iterated_simulations(a);
+          a = spot::iterated_simulations(ensure_digraph(a));
           tm.stop("Reduction w/ iterated simulations");
 	  assume_sba = false;
         }
@@ -1291,7 +1291,7 @@ checked_main(int argc, char** argv)
 	  if (reduction_dir_sim && !reduction_iterated_sim)
 	    {
 	      tm.start("direct simulation 2");
-	      a = spot::simulation(a);
+	      a = spot::simulation(ensure_digraph(a));
 	      tm.stop("direct simulation 2");
 	      assume_sba = false;
 	    }
@@ -1299,7 +1299,7 @@ checked_main(int argc, char** argv)
 	  if (reduction_rev_sim && !reduction_iterated_sim)
 	    {
 	      tm.start("reverse simulation 2");
-	      a = spot::cosimulation(a);
+	      a = spot::cosimulation(ensure_digraph(a));
 	      tm.stop("reverse simulation 2");
 	      assume_sba = false;
 	    }
@@ -1307,7 +1307,7 @@ checked_main(int argc, char** argv)
 	  if (reduction_iterated_sim)
 	    {
 	      tm.start("Reduction w/ iterated simulations");
-	      a = spot::iterated_simulations(a);
+	      a = spot::iterated_simulations(ensure_digraph(a));
 	      tm.stop("Reduction w/ iterated simulations");
 	      assume_sba = false;
 	    }
