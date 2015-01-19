@@ -1,6 +1,6 @@
 ## -*- coding: utf-8; mode: sh -*-
-## Copyright (C) 2013 Laboratoire de Recherche et Développement de
-## l'Epita (LRDE).
+## Copyright (C) 2013, 2015 Laboratoire de Recherche et Développement
+## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -25,11 +25,9 @@ set dummy \
     "$LTL2TGBA --lbtt -x simul=1 %f >%T" \
     "$LTL2TGBA --lbtt -x simul=2 %f >%T" \
     "$LTL2TGBA --lbtt -x simul=3 %f >%T" \
-    "$LTL2TGBA --lbtt -x simul=4 %f >%T" \
     "$LTL2TGBA --lbtt --ba -x simul=0 %f >%T" \
     "$LTL2TGBA --lbtt --ba -x simul=1 %f >%T" \
     "$LTL2TGBA --lbtt --ba -x simul=2 %f >%T" \
     "$LTL2TGBA --lbtt --ba -x simul=3 %f >%T" \
-    "$LTL2TGBA --lbtt --ba -x simul=4 %f >%T" \
     --timeout=300
 shift

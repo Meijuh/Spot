@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -86,15 +86,8 @@ with more states.") },
     { DOC("simul", "Set to 0 to disable simulation-based reductions. \
 Set to 1 to use only direct simulation. Set to 2 to use only reverse \
 simulation. Set to 3 to iterate both direct and reverse simulations. \
-Set to 4 to apply only \"don't care\" direct simulation. Set to 5 to \
-iterate \"don't care\" direct simulation and reverse simulation. The \
-default is 3, except when option --low is specified, in which case the \
-default is 1.") },
-    { DOC("simul-limit", "Can be set to a positive integer to cap the \
-number of \"don't care\" transitions considered by the \
-\"don't care\"-simulation algorithm. A negative value (the default) \
-does not enforce any limit. Note that if there are N \"don't care\" \
-transitions, the algorithm may potentially test 2^N configurations.") },
+The default is 3, except when option --low is specified, in which case \
+the default is 1.") },
     { DOC("ba-simul", "Set to 0 to disable simulation-based reductions \
 on the Büchi automaton (i.e., after degeneralization has been performed). \
 Set to 1 to use only direct simulation.  Set to 2 to use only reverse \

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -79,8 +79,8 @@ namespace spot
   /// one state are included in the prefixes leading to one, the former
   /// state can be merged into the latter.
   ///
-  /// Reverse simulation is discussed in the following paper, bu
-  /// following paper, but generalized to handle TGBA directly.
+  /// Reverse simulation is discussed in the following paper,
+  /// but generalized to handle TGBA directly.
   /** \verbatim
       @InProceedings{ somenzi.00.cav,
         author	      = {Fabio Somenzi and Roderick Bloem},
@@ -144,19 +144,6 @@ namespace spot
   iterated_simulations_sba(const const_tgba_ptr& automaton);
   /// @}
 
-
-
-  // FIXME: Remove: dont_care_*_simulation is broken since the move to
-  // bitset acceptance, has never been really used, and really useful
-  // (nor really well tested and understood), so we should remove it.
-  SPOT_API tgba_digraph_ptr
-  dont_care_simulation(const const_tgba_ptr& t, int limit = -1);
-
-  SPOT_API tgba_digraph_ptr
-  dont_care_iterated_simulations(const const_tgba_ptr& t, int limit = -1);
-
-
-  /// @}
 } // End namespace spot.
 
 

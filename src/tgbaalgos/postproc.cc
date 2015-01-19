@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -48,7 +48,6 @@ namespace spot
 	degen_cache_ = opt->get("degen-lcache", 1);
 	degen_lskip_ = opt->get("degen-lskip", 1);
 	simul_ = opt->get("simul", -1);
-	simul_limit_ = opt->get("simul-limit", -1);
 	scc_filter_ = opt->get("scc-filter", -1);
 	ba_simul_ = opt->get("ba-simul", -1);
 	tba_determinisation_ = opt->get("tba-det", 0);
@@ -87,10 +86,6 @@ namespace spot
       case 3:
       default:
 	return iterated_simulations(a);
-      case 4:
-	return dont_care_simulation(a, simul_limit_);
-      case 5:
-	return dont_care_iterated_simulations(a, simul_limit_);
       }
   }
 
