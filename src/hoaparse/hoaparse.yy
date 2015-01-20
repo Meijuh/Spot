@@ -58,6 +58,7 @@
     // track of various error conditions.
     enum label_style_t { Mixed_Labels, State_Labels, Trans_Labels,
 			 Implicit_Labels };
+    enum acc_style_t { Mixed_Acc, State_Acc, Trans_Acc };
 
     struct result_
     {
@@ -89,13 +90,14 @@
       bool has_state_label = false;
       bool ignore_more_ap = false; // Set to true after the first "AP:"
       // line has been read.
-      bool ignore_acc = false; // Set to true in case of missing
-      // Acceptance: lines.
+      bool ignore_acc = false;	// Set to true in case of missing
+				// Acceptance: lines.
       bool ignore_acc_silent = false;
       bool ignore_more_acc = false; // Set to true after the first
-      // "Acceptance:" line has been read.
+				// "Acceptance:" line has been read.
 
       label_style_t label_style = Mixed_Labels;
+      acc_style_t acc_style = Mixed_Acc;
 
       bool accept_all_needed = false;
       bool accept_all_seen = false;
@@ -103,6 +105,7 @@
 
       bool deterministic = false;
       bool complete = false;
+      bool trans_acc_seen = false;
 
       std::map<std::string, spot::location> labels;
 
@@ -172,7 +175,7 @@
 
 %type <num> checked-state-num state-num acc-set
 %type <b> label-expr
-%type <mark> acc-sig_opt acc-sets
+%type <mark> acc-sig acc-sets trans-acc_opt state-acc_opt
 
 /**** NEVERCLAIM tokens ****/
 
@@ -317,6 +320,27 @@ header: format-version header-items
 		    error(implicit_labels->second,
 			  "... 'property: implicit-labels'.");
 		  }
+	      }
+
+	    auto state_acc = res.props.find("state-acc");
+	    auto trans_acc = res.props.find("trans-acc");
+	    if (trans_acc != res.props.end())
+	      {
+		if (state_acc == res.props.end())
+		  {
+		    res.acc_style = Trans_Acc;
+		  }
+		else
+		  {
+		    error(trans_acc->second,
+			  "'property: trans-acc' is incompatible with...");
+		    error(state_acc->second,
+			  "... 'property: state-acc'.");
+		  }
+	      }
+	    else if (state_acc != res.props.end())
+	      {
+		res.acc_style = State_Acc;
 	      }
 	  }
 	  {
@@ -748,7 +772,7 @@ state: state-name labeled-edges
 	 res.complete = false;
        }
 
-state-name: "State:" state-label_opt checked-state-num string_opt acc-sig_opt
+state-name: "State:" state-label_opt checked-state-num string_opt state-acc_opt
 	  {
 	    res.cur_state = $3;
 	    if (res.declared_states[$3])
@@ -819,11 +843,7 @@ trans-label: label
 		     }
 		 }
 
-acc-sig_opt:
-             {
-               $$ = spot::acc_cond::mark_t(0U);
-             }
-           | '{' acc-sets '}'
+acc-sig: '{' acc-sets '}'
 	     {
 	       $$ = $2;
 	       if (res.ignore_acc && !res.ignore_acc_silent)
@@ -850,12 +870,44 @@ acc-sets:
 	      $$ = $1 | res.h->aut->acc().mark($2);
 	  }
 
+state-acc_opt:
+               {
+                 $$ = spot::acc_cond::mark_t(0U);
+               }
+             | acc-sig
+               {
+		 $$ = $1;
+		 if (res.acc_style == Trans_Acc)
+		   {
+		     error(@$, "state-based acceptance used despite...");
+		     error(res.props["trans-acc"],
+			   "... declaration of transition-based acceptance.");
+		     res.acc_style = Mixed_Acc;
+		   }
+	       }
+trans-acc_opt:
+               {
+                 $$ = spot::acc_cond::mark_t(0U);
+               }
+             | acc-sig
+               {
+		 $$ = $1;
+		 res.trans_acc_seen = true;
+		 if (res.acc_style == State_Acc)
+		   {
+		     error(@$, "trans-based acceptance used despite...");
+		     error(res.props["state-acc"],
+			   "... declaration of state-based acceptance.");
+		     res.acc_style = Mixed_Acc;
+		   }
+	       }
+
 /* block of labeled-edges, with occasional (incorrect) unlabeled edge */
 labeled-edges: | some-labeled-edges
 some-labeled-edges: labeled-edge
                   | some-labeled-edges labeled-edge
                   | some-labeled-edges incorrectly-unlabeled-edge
-incorrectly-unlabeled-edge: checked-state-num acc-sig_opt
+incorrectly-unlabeled-edge: checked-state-num trans-acc_opt
                             {
 			      bdd cond = bddtrue;
 			      if (!res.has_state_label)
@@ -867,14 +919,14 @@ incorrectly-unlabeled-edge: checked-state-num acc-sig_opt
 							 cond,
 							 $2 | res.acc_state);
 			    }
-labeled-edge: trans-label checked-state-num acc-sig_opt
+labeled-edge: trans-label checked-state-num trans-acc_opt
 	      {
 		if (res.cur_label != bddfalse)
 		  res.h->aut->new_transition(res.cur_state, $2,
 					     res.cur_label,
 					     $3 | res.acc_state);
 	      }
-	    | trans-label state-conj-2 acc-sig_opt
+	    | trans-label state-conj-2 trans-acc_opt
 	      {
 		error(@2, "alternation is not yet supported");
 		YYABORT;
@@ -886,7 +938,7 @@ labeled-edge: trans-label checked-state-num acc-sig_opt
 unlabeled-edges: unlabeled-edge
                | unlabeled-edges unlabeled-edge
                | unlabeled-edges incorrectly-labeled-edge
-unlabeled-edge: checked-state-num acc-sig_opt
+unlabeled-edge: checked-state-num trans-acc_opt
 		{
 		  bdd cond;
 		  if (res.has_state_label)
@@ -912,7 +964,7 @@ unlabeled-edge: checked-state-num acc-sig_opt
 		    res.h->aut->new_transition(res.cur_state, $1,
 					       cond, $2 | res.acc_state);
 		}
-	      | state-conj-2 acc-sig_opt
+	      | state-conj-2 trans-acc_opt
 		{
 		  error(@1, "alternation is not yet supported");
 		  YYABORT;
@@ -929,7 +981,8 @@ incorrectly-labeled-edge: trans-label unlabeled-edge
 
 never: "never" { res.namer = res.h->aut->create_namer<std::string>();
 	         res.h->aut->set_single_acceptance_set();
-		 res.h->aut->prop_state_based_acc(); }
+		 res.h->aut->prop_state_based_acc();
+		 res.acc_state = State_Acc; }
        '{' nc-states '}'
        {
 	 // Add an accept_all state if needed.
@@ -1144,10 +1197,12 @@ lbtt-header: lbtt-header-states INT_S
            {
 	     res.acc_mapper = new spot::acc_mapper_int(res.h->aut, $2);
 	     res.h->aut->prop_state_based_acc();
+	     res.acc_state = State_Acc;
 	   }
            | lbtt-header-states INT
            {
 	     res.acc_mapper = new spot::acc_mapper_int(res.h->aut, $2);
+	     res.trans_acc_seen = true;
 	   }
 lbtt-body: lbtt-states
 lbtt-states:
@@ -1343,7 +1398,8 @@ namespace spot
     r.h->aut = make_tgba_digraph(dict);
     r.env = &env;
     hoayy::parser parser(error_list, r, last_loc);
-    parser.set_debug_level(debug);
+    static bool env_debug = !!getenv("SPOT_DEBUG_PARSER");
+    parser.set_debug_level(debug || env_debug);
     hoayyreset();
     try
       {
@@ -1364,6 +1420,9 @@ namespace spot
       return nullptr;
     if (r.neg_acc_sets)
       fix_acceptance(r);
+    if (r.acc_style == State_Acc ||
+	(r.acc_style == Mixed_Acc && !r.trans_acc_seen))
+      r.h->aut->prop_state_based_acc();
     fix_initial_state(r);
     fix_properties(r);
     return r.h;
