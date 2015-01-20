@@ -132,8 +132,7 @@ namespace spot
       void print(const const_tgba_digraph_ptr& aut)
       {
 	aut_ = aut;
-	mark_states_ = !opt_force_acc_trans_ &&
-	  (aut_->has_state_based_acc() || aut_->acc().num_sets() == 0);
+	mark_states_ = !opt_force_acc_trans_ && aut_->is_sba();
 	auto si =
 	  std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);
 	start();
