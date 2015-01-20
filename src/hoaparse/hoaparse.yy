@@ -593,6 +593,10 @@ label-expr: 't'
               bdd_delref($3);
               bdd_addref($$);
             }
+          | '(' label-expr ')'
+	  {
+	    $$ = $2;
+	  }
 
 
 acc-set: INT

@@ -1132,3 +1132,81 @@ input:24.44-30.9: 1
 input:41.23-47.9: 1
 input:47.11-53.20: 1
 EOF
+
+# An example from ltl3ba
+cat >input <<EOF
+HOA: v1
+tool: "ltl3ba" "1.1.0 - working copy"
+name: "BA for GFa && GF(b&&c) && GF(d||e) || x"
+States: 6
+Start: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+AP: 6 "a" "b" "c" "d" "e" "x"
+properties: trans-labels explicit-labels state-acc no-univ-branch
+--BODY--
+State: 0 "T0_init"
+ [(5)] 5
+ [t] 4
+ [(0)] 3
+ [(0 & 1 & 2)] 2
+ [(0 & 1 & 2 & !3 & 4) | (0 & 1 & 2 & 3)] 1
+State: 1 "accept_S1" {0}
+ [t] 4
+ [(0)] 3
+ [(0 & 1 & 2)] 2
+ [(0 & 1 & 2 & !3 & 4) | (0 & 1 & 2 & 3)] 1
+State: 2 "T2_S1"
+ [t] 2
+ [(!3 & 4) | (3)] 1
+State: 3 "T1_S1"
+ [t] 3
+ [(1 & 2)] 2
+ [(1 & 2 & !3 & 4) | (1 & 2 & 3)] 1
+State: 4 "T0_S1"
+ [t] 4
+ [(0)] 3
+ [(0 & 1 & 2)] 2
+ [(0 & 1 & 2 & !3 & 4) | (0 & 1 & 2 & 3)] 1
+State: 5 "accept_all" {0}
+ [t] 5
+--END--
+EOF
+
+expectok input <<EOF
+HOA: v1
+name: "BA for GFa && GF(b&&c) && GF(d||e) || x"
+States: 6
+Start: 0
+AP: 6 "a" "b" "c" "d" "e" "x"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+--BODY--
+State: 0
+[5] 5
+[t] 4
+[0] 3
+[0&1&2] 2
+[0&1&2&3 | 0&1&2&4] 1
+State: 1 {0}
+[t] 4
+[0] 3
+[0&1&2] 2
+[0&1&2&3 | 0&1&2&4] 1
+State: 2
+[t] 2
+[3 | 4] 1
+State: 3
+[t] 3
+[1&2] 2
+[1&2&3 | 1&2&4] 1
+State: 4
+[t] 4
+[0] 3
+[0&1&2] 2
+[0&1&2&3 | 0&1&2&4] 1
+State: 5 {0}
+[t] 5
+--END--
+EOF
