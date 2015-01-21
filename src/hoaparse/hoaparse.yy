@@ -1357,13 +1357,29 @@ static void fix_initial_state(result_& r)
     }
   else
     {
-      // Multiple initial states.  Add a fake one.
+      // Multiple initial states.  We might need to add a fake one,
+      // unless one of the actual initial state has no incoming edge.
       auto& aut = r.h->aut;
-      unsigned i = aut->new_state();
-      aut->set_init_state(i);
-      for (auto p : start)
-	for (auto& t: aut->out(p))
-	  aut->new_transition(i, t.dst, t.cond);
+      std::vector<unsigned> has_incoming(aut->num_states(), 0);
+      for (auto& t: aut->transitions())
+	has_incoming[t.dst] = true;
+
+      bool found = false;
+      unsigned init = 0;
+      for (auto p: start)
+	if (!has_incoming[p])
+	  {
+	    init = p;
+	    found = true;
+	  }
+      if (!found)
+	// We do need a fake initial state
+	init = aut->new_state();
+      aut->set_init_state(init);
+      for (auto p: start)
+	if (p != init)
+	  for (auto& t: aut->out(p))
+	    aut->new_transition(init, t.dst, t.cond);
     }
 }
 

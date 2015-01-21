@@ -1218,3 +1218,68 @@ State: 5 {0}
 [t] 5
 --END--
 EOF
+
+# Another example from ltl3ba
+# Here we make sure that we do not always need to create a fake
+# initial state when multiple initial states are used.
+cat >input <<EOF
+HOA: v1
+tool: "ltl3ba" "1.1.0 - working copy"
+name: "TGBA for GFa && GF(b&&c) && GF(d||e) || x"
+States: 3
+Start: 0
+Start: 2
+acc-name: generalized-Buchi 3
+Acceptance: 3 Inf(0) & Inf(1) & Inf(2)
+AP: 6 "a" "b" "c" "d" "e" "x"
+properties: trans-labels explicit-labels trans-acc no-univ-branch
+--BODY--
+State: 0 "(x)"
+ [(5)] 1 {0 1 2}
+State: 1 "t"
+ [t] 1 {0 1 2}
+State: 2 "G((F(a) && F((b) && (c))) && F((d) || (e)))"
+ [t] 2
+ [(0)] 2 {0}
+ [(1 & 2)] 2 {1}
+ [(0 & 1 & 2)] 2 {0 1}
+ [(!3 & 4) | (3)] 2 {2}
+ [(0 & !3 & 4) | (0 & 3)] 2 {0 2}
+ [(1 & 2 & !3 & 4) | (1 & 2 & 3)] 2 {1 2}
+ [(0 & 1 & 2 & !3 & 4) | (0 & 1 & 2 & 3)] 2 {0 1 2}
+--END--
+EOF
+
+expectok input <<EOF
+HOA: v1
+name: "TGBA for GFa && GF(b&&c) && GF(d||e) || x"
+States: 3
+Start: 0
+AP: 6 "a" "b" "c" "d" "e" "x"
+acc-name: generalized-Buchi 3
+Acceptance: 3 Inf(0)&Inf(1)&Inf(2)
+properties: trans-labels explicit-labels trans-acc complete
+--BODY--
+State: 0
+[5] 1 {0 1 2}
+[t] 2
+[0] 2
+[1&2] 2
+[0&1&2] 2
+[3 | 4] 2
+[0&3 | 0&4] 2
+[1&2&3 | 1&2&4] 2
+[0&1&2&3 | 0&1&2&4] 2
+State: 1
+[t] 1 {0 1 2}
+State: 2
+[t] 2
+[0] 2 {0}
+[1&2] 2 {1}
+[0&1&2] 2 {0 1}
+[3 | 4] 2 {2}
+[0&3 | 0&4] 2 {0 2}
+[1&2&3 | 1&2&4] 2 {1 2}
+[0&1&2&3 | 0&1&2&4] 2 {0 1 2}
+--END--
+EOF
