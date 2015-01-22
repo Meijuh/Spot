@@ -1,5 +1,5 @@
 /* -*- coding: utf-8 -*-
-** Copyright (C) 2014 Laboratoire de Recherche et Développement
+** Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
 ** de l'Epita (LRDE).
 **
 ** This file is part of Spot, a model checking library.
@@ -24,6 +24,7 @@
 
 %{
 #include <string>
+#include <sys/stat.h>
 #include "hoaparse/parsedecl.hh"
 #include "misc/escape.hh"
 
@@ -356,10 +357,21 @@ namespace spot
   int
   hoayyopen(const std::string &name)
   {
+    bool want_interactive = false;
+
     // yy_flex_debug = 1;
     if (name == "-")
       {
         yyin = stdin;
+
+        // If the input is a pipe, make the scanner
+        // interactive so that it does not wait for the input
+        // buffer to be full to process automata.
+        struct stat s;
+        if (fstat(fileno(stdin), &s) < 0)
+           throw std::runtime_error("fstat failed");
+	if (S_ISFIFO(s.st_mode))
+	  want_interactive = true;
       }
     else
       {
@@ -371,6 +383,8 @@ namespace spot
     // ended badly.
     YY_NEW_FILE;
     hoayyreset();
+    if (want_interactive)
+      yy_set_interactive(true);
     return 0;
   }
 
