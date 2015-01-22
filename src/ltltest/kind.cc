@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012 Laboratoire de Recherche et Developement de
-// l'Epita (LRDE).
+// Copyright (C) 2010, 2012, 2015 Laboratoire de Recherche et
+// Developement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cassert>
 #include <cstdlib>
 #include "ltlparse/public.hh"
@@ -36,16 +38,44 @@ main(int argc, char **argv)
   if (argc != 2)
     syntax(argv[0]);
 
-  spot::ltl::parse_error_list p1;
-  const spot::ltl::formula* f1 = spot::ltl::parse(argv[1], p1);
+  std::ifstream input(argv[1]);
+  if (!input)
+    {
+      std::cerr << "failed to open " << argv[1] << '\n';
+      return 2;
+    }
 
-  if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
-    return 2;
+  std::string s;
+  while (std::getline(input, s))
+    {
+      if (s[0] == '#')		// Skip comments
+	{
+	  std::cerr << s << '\n';
+	  continue;
+	}
+      std::istringstream ss(s);
+      std::string form;
+      std::string expected;
+      std::getline(ss, form, ',');
+      std::getline(ss, expected);
 
-  spot::ltl::print_formula_props(std::cout, f1, true) << " = ";
-  spot::ltl::print_formula_props(std::cout, f1, false) << std::endl;
+      spot::ltl::parse_error_list p1;
+      const spot::ltl::formula* f1 = spot::ltl::parse(form, p1);
+      if (spot::ltl::format_parse_errors(std::cerr, form, p1))
+	return 2;
 
-  f1->destroy();
+      std::ostringstream so;
+      spot::ltl::print_formula_props(so, f1, true);
+      auto sost = so.str();
+      std::cout << form << ',' << sost << '\n';
+      if (sost != expected)
+	{
+	  std::cerr << "computed '" << sost
+		    << "' but expected '" << expected << "'\n";
+	  return 2;
+	}
+      f1->destroy();
+    }
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
