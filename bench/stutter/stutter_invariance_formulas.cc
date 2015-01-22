@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -22,8 +22,9 @@
 #include "bin/common_finput.hh"
 #include "bin/common_output.hh"
 #include "tgbaalgos/translate.hh"
-#include "tgbaalgos/stutter_invariance.hh"
+#include "tgbaalgos/stutter.hh"
 #include "tgbaalgos/dupexp.hh"
+#include "tgbaalgos/stats.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/length.hh"
@@ -47,8 +48,10 @@ namespace
   public:
     spot::translator& trans;
     std::string formula;
+    spot::stat_printer stats;
 
-    stut_processor(spot::translator& trans) : trans(trans)
+    stut_processor(spot::translator& trans) :
+      trans(trans), stats(std::cout, "%s,%t,%e,%S,%n,")
     {
     }
 
@@ -69,31 +72,40 @@ namespace
 				  f->clone());
       spot::tgba_digraph_ptr a = trans.run(f);
       spot::tgba_digraph_ptr na = trans.run(nf);
-      unsigned num_states = a->num_states();
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
       bdd apdict = spot::ltl::atomic_prop_collect_as_bdd(f, a);
-      bool res;
+
+      std::cout << formula << ',' << ap->size() << ',';
+      stats.print(a);
+      stats.print(na);
+
       bool prev = true;
       for (int algo = 1; algo <= 8; ++algo)
         {
-          auto dup_a = spot::make_tgba_digraph(a);
-          auto dup_na = spot::make_tgba_digraph(na);
+          auto dup_a = spot::make_tgba_digraph(a,
+					       spot::tgba::prop_set::all());
+          auto dup_na = spot::make_tgba_digraph(na,
+						spot::tgba::prop_set::all());
 
           spot::stopwatch sw;
           sw.start();
-          res = spot::is_stutter_invariant(std::move(dup_a),
-                                           std::move(dup_na),
-					   apdict, algo);
+          bool res = spot::is_stutter_invariant(std::move(dup_a),
+						std::move(dup_na),
+						apdict, algo);
           auto time = sw.stop();
+	  std::cout<< time << ',';
 
-          std::cout << formula << ',' << algo << ',' << ap->size() << ','
-		    << num_states << ',' << res << ',' << time * 1000000
-		    << '\n';
-
-          if (algo > '1')
-            assert(res == prev);
+          if (algo > 1 && prev != res)
+	    {
+	      std::cerr << "\nerror: algorithms " << algo - 1
+			<< " and " << algo << " disagree on formula "
+			<< formula << "\n";
+	      exit(2);
+	    }
           prev = res;
         }
+      std::cout << prev << '\n';
+
       f->destroy();
       nf->destroy();
       delete ap;

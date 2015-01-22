@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -20,69 +20,114 @@
 #include "misc/timer.hh"
 #include "ltlvisit/apcollect.hh"
 #include "tgbaalgos/dtgbacomp.hh"
-#include "tgbaalgos/stutter_invariance.hh"
 #include "tgbaalgos/randomgraph.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/product.hh"
-#include "tgbaalgos/stutterize.hh"
-#include "tgbaalgos/closure.hh"
+#include "tgbaalgos/stutter.hh"
+#include "tgbaalgos/stats.hh"
 #include "tgba/tgbagraph.hh"
 #include "tgba/bdddict.hh"
+#include "misc/random.hh"
 #include <cstdio>
 #include <cstring>
 #include <vector>
 
+constexpr unsigned algo_max = 8;
+
 int
-main()
+main(int argc, char** argv)
 {
+  if (argc != 3)
+    {
+      std::cerr << "usage: " << argv[0] << " density n_ap\n";
+      exit(2);
+    }
+  float d = strtof(argv[1], nullptr);
+  if (d < 0.0 || d > 1.0)
+    {
+      std::cerr << "density should be between 0 and 1";
+      exit(2);
+    }
+  unsigned props_n = strtoul(argv[2], nullptr, 10);
+
+
   spot::bdd_dict_ptr dict = spot::make_bdd_dict();
-  spot::tgba_digraph_ptr a;
-  spot::tgba_digraph_ptr na;
-  unsigned n = 10;
+  constexpr unsigned n = 10;
+
+  // random ap set
+  auto ap = spot::ltl::create_atomic_prop_set(props_n);
+  // ap set as bdd
+  bdd apdict = bddtrue;
+  for (auto& i: ap)
+    apdict &= bdd_ithvar(dict->register_proposition(i, &ap));
+
+  std::vector<unsigned char> disable_algo(algo_max);
+  unsigned algo_count = algo_max;
+  unsigned seed = 0;
+
+  spot::stat_printer stats(std::cout, ",%s,%t,%e,%S,%n");
+
   for (unsigned states_n = 1; states_n <= 50; ++states_n)
-    for (float d = 0; d <= 1; d += 0.1)
-      {
-        for (unsigned props_n = 1; props_n <= 4; ++props_n)
-          {
-            // random ap set
-            auto ap = spot::ltl::create_atomic_prop_set(props_n);
+    {
+      // generate n random automata
+      for (unsigned i = 0; i < n; ++i)
+	{
+	  spot::tgba_digraph_ptr a;
+	  do
+	    {
+	      spot::srand(++seed);
+	      a = spot::random_graph(states_n, d, &ap, dict, 2, 0.1, 0.5,
+					  true);
+	    }
+	  while (a->is_empty());
+	  auto na = spot::dtgba_complement(a);
 
-            // ap set as bdd
-            bdd apdict = bddtrue;
-            for (auto& i: ap)
-              apdict &= bdd_ithvar(dict->register_proposition(i, a));
+	  std::cout << d << ',' << props_n << ',' << seed;
+	  stats.print(a);
+	  stats.print(na);
 
-            // generate n random automata
-            typedef std::pair<spot::tgba_digraph_ptr, spot::tgba_digraph_ptr>
-              aut_pair_t;
-            std::vector<aut_pair_t> vec;
-            for (unsigned i = 0; i < n; ++i)
-              {
-                a = spot::random_graph(states_n, d, &ap, dict, 2, 0.1, 0.5,
-                                       true);
-                na = spot::dtgba_complement(a);
-                vec.push_back(aut_pair_t(a, na));
-              }
+	  bool prev = true;
+	  for (int algo = 1; algo <= 8; ++algo)
+	    {
+	      std::cout << ',';
+	      if (disable_algo[algo - 1])
+		continue;
 
-            for (int algo = 1; algo <= 8; ++algo)
-              {
-                // Copy vec, because is_stutter_invariant modifies the
-                // automata.
-                std::vector<aut_pair_t> dup(vec);
-                spot::stopwatch sw;
-                sw.start();
-                bool res;
-                for (auto& a: dup)
-                  res = spot::is_stutter_invariant(std::move(a.first),
-                                                   std::move(a.second),
-                                                   apdict, algo);
-                auto time = sw.stop() / n;
-                std::cout << algo << ',' << props_n << ',' << states_n
-                          << ',' << res << ',' << time << '\n';
-              }
-            spot::ltl::destroy_atomic_prop_set(ap);
-          }
-      }
+	      auto dup_a = spot::make_tgba_digraph(a,
+						   spot::tgba::prop_set::all());
+	      auto dup_na = spot::make_tgba_digraph(na,
+						    spot::tgba::prop_set::all());
 
+	      spot::stopwatch sw;
+	      sw.start();
+	      bool res = spot::is_stutter_invariant(std::move(dup_a),
+						    std::move(dup_na),
+						    apdict, algo);
+	      auto time = sw.stop();
+	      std::cout << time;
+	      if (algo > 1 && res != prev)
+		{
+		  std::cerr << "\nerror: algorithms " << algo - 1
+			    << " (" << prev << ") and " << algo << " ("
+			    << res << ") disagree on seed "
+			    << seed << "\n";
+		  exit(2);
+		}
+	      if (time >= 30.0)
+		{
+		  disable_algo[algo - 1] = 1;
+		  --algo_count;
+		}
+	      prev = res;
+	    }
+	  std::cout << ',' << prev << '\n';;
+	  if (algo_count == 0)
+	    break;
+	}
+      if (algo_count == 0)
+	break;
+    }
+  dict->unregister_all_my_variables(&ap);
+  spot::ltl::destroy_atomic_prop_set(ap);
   return 0;
 }

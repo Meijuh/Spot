@@ -6,10 +6,12 @@ translation time is not included in the measured time.
 
 To reproduce the benchmark is to run
 
-  % ./stutter_bench.sh
+  % ./stutter_bench.sh -j8
 
-to create bench_formulas.csv and bench_randgraph.csv, and then
-explore these data the provided ipython notbook
+to create bench_formulas.csv and bench_randgraph.csv.
+(Adjust -j8 to the number of cores you have.)
+
+Then explore these data the provided ipython notebook
 
   % ipython notebook --pylab=inline stutter.ipynb
 
