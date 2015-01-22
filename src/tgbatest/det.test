@@ -144,3 +144,11 @@ digraph G {
 }
 EOF
 diff out.tgba ex.tgba
+
+
+# This formula produce a co-deterministic automaton that is not deterministic,
+# and a bug in the cosimulation caused the result to be marked as deterministic.
+run 0 ../../bin/ltl2tgba -H '(0 R Xa) R (a xor Fa)' > out.hoa
+grep deterministic out.hoa && exit 1
+
+true

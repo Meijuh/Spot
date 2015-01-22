@@ -632,11 +632,10 @@ namespace spot
 		         true,  // weakness preserved,
 			 false, // determinism checked and set below
 		       });
-        if (nb_minato == nb_satoneset)
+        if (nb_minato == nb_satoneset && !Cosimulation)
 	  res->prop_deterministic();
 	if (Sba)
 	  res->prop_state_based_acc();
-
 	return res;
       }
 
