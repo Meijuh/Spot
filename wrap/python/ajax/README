@@ -9,8 +9,8 @@ In both cases you should ensure that the command `dot', from the
 GraphViz package, is in the PATH.  configure should have picked it up.
 
 The "ltl3ba" tab will only be enabled if ltl3ba is available (as
-checked by ./configure) and supports options -v/-U/-T (checked by the
-CGI script).  These option were introduced into ltl3ba version 1.0.2.
+checked by ./configure) and supports options -v/-T/-T3 (checked by the
+CGI script).  These option were introduced into ltl3ba version 1.1.0.
 
 
 Standalone usage

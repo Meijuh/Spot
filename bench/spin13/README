@@ -6,7 +6,7 @@ This contains most of the a benchmark used for the paper
 
 To appear in the proceedings of Spin'13.
 
-By "most" we means that some lines of the table we actually be missing
+By "most" we means that some lines of the table will actually be missing
 because we cannot compute them with the current version of Spot.  The
 missing lines are those with a small "a", that use the old SCC-based
 simplification, and not the new one which is presented in section 4.1
@@ -19,6 +19,9 @@ exactly the same versions (yes, that's a plural), please head over to
 Keep in mind that as Spot is evolving, the results from this benchmark
 may evolve (hopefully for the best!) with time.
 
+The benchmark has been updated to use ltl3ba 1.1.0 released on
+2014-01-23 (because the set of optimizations that are now activated
+by default is different).
 
 Running instructions
 ====================

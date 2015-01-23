@@ -1,6 +1,6 @@
 #!@PYTHON@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
+# Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -364,7 +364,9 @@ if output_type == 'v':
 if output_type == 'v3':
     import subprocess
     try:
-        l3proc = subprocess.Popen(['@LTL3BA@', '-v'], stdout=subprocess.PIPE)
+        # -L is new in 1.1.0, and older versions will complain about it.
+        l3proc = subprocess.Popen(['@LTL3BA@', '-L', '-v'],
+                                  stdout=subprocess.PIPE)
         (ver, err) = l3proc.communicate()
         err = l3proc.returncode
     except:
@@ -538,10 +540,12 @@ elif translator == 'ta':
     automaton = spot.tgba_dupexp_dfs(spot.ltl_to_taa(f, dict, refined_rules))
 elif translator == 'l3':
     l3out = '-T'
-    l3opt = { '-l', '-P', '-A', '-c', '-C', '-o', '-p' }
+    # 1.0.1 had determinization and simulation turned off by default,
+    # we need -L and -S0 with 1.1.0 for the same effect
+    l3opt = { '-l', '-P', '-A', '-c', '-C', '-o', '-p', '-L', '-S0' }
     for lo in form.getfirst('lo', 'T'):
         if lo == 'U':
-            l3out = '-U'
+            l3out = '-T3' # was -U in ltl3ba 1.0.1, now -T3 since 1.1.0
             issba = True
     for l3 in form.getlist('l3'):
         if l3 == 'l':
@@ -554,9 +558,11 @@ elif translator == 'l3':
             l3opt.remove('-C')
             l3opt.remove('-c')
         elif l3 == 'M':
+            l3opt.remove('-L')
             l3opt.add('-M')
         elif l3 == 'S':
-            l3opt.add('-S')
+            l3opt.remove('-S0')
+            l3opt.add('-S2')  # was -S in 1.0.1
         elif l3 == 'o':
             l3opt.remove('-o')
         elif l3 == 'p':

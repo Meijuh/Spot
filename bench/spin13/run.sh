@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013 Laboratoire de Recherche et Développement de
-# l'Epita (LRDE).
+# Copyright (C) 2013, 2015 Laboratoire de Recherche et Développement
+# de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
 #
@@ -69,8 +69,8 @@ if test $# = 2; then
     # Deter
 
     $ba && set "$@" \
-	": LTL3BA NoSim NoSusp Deter; ltl3ba -A -M -f %s >%N" \
-	": LTL3BA Sim NoSusp Deter; ltl3ba -S -A -M -f %s >%N" \
+	": LTL3BA NoSim NoSusp Deter; ltl3ba -S0 -A -M -f %s >%N" \
+	": LTL3BA Sim NoSusp Deter; ltl3ba -S2 -A -M -f %s >%N" \
 	": Cou99 '(Ad)' Deter; $ltl2tgba $opt $nosim --deter -x !degen-reset,!degen-lcache %f"
     set "$@" \
 	": Cou99 '(A${D})' Deter; $ltl2tgba $opt $nosim --deter %f"
@@ -81,8 +81,8 @@ if test $# = 2; then
 	": Cou99 '(AS${DB})' Deter; $ltl2tgba $opt --deter %f"
     $ba && set "$@" \
 	": Cou99 '(ASdB)' Deter; $ltl2tgba $opt --deter -x !degen-reset,!degen-lcache %f" \
-	": LTL3BA NoSim Susp Deter; ltl3ba -M -f %s >%N" \
-	": LTL3BA Sim Susp Deter; ltl3ba -S -M -f %s >%N"
+	": LTL3BA NoSim Susp Deter; ltl3ba -S0 -M -f %s >%N" \
+	": LTL3BA Sim Susp Deter; ltl3ba -S2 -M -f %s >%N"
     set "$@" \
 	": Comp '(A${D})' Deter; $ltl2tgba -x comp-susp,!skel-simul $opt $nosim --deter %f" \
 	": Comp '(A${D})' Deter Early; $ltl2tgba -x comp-susp,!skel-simul,early-susp $opt $nosim --deter %f"
@@ -96,8 +96,8 @@ if test $# = 2; then
     # Small
 
     $ba && set "$@" \
-	": LTL3BA NoSim NoSusp; ltl3ba -A -f %s >%N" \
-	": LTL3BA Sim NoSusp; ltl3ba -S -A -f %s >%N" \
+	": LTL3BA NoSim NoSusp; ltl3ba -S0 -L -A -f %s >%N" \
+	": LTL3BA Sim NoSusp; ltl3ba -S2 -L -A -f %s >%N" \
 	": Cou99 '(Ad)' Small; $ltl2tgba $opt $nosim --small -x !degen-reset,!degen-lcache %f"
     set "$@" \
 	": Cou99 '(A${D})' Small; $ltl2tgba $opt $nosim --small %f"
@@ -108,8 +108,8 @@ if test $# = 2; then
 	": Cou99 '(AS${DB})' Small; $ltl2tgba $opt --small %f"
     $ba && set "$@" \
 	": Cou99 '(ASdB)' Small; $ltl2tgba $opt --small -x !degen-reset,!degen-lcache %f" \
-	": LTL3BA NoSim Susp; ltl3ba -f %s >%N" \
-	": LTL3BA Sim Susp; ltl3ba -S -f %s >%N"
+	": LTL3BA NoSim Susp; ltl3ba -S0 -L -f %s >%N" \
+	": LTL3BA Sim Susp; ltl3ba -S2 -L -f %s >%N"
     set "$@" \
 	": Comp '(A${D})' Small; $ltl2tgba -x comp-susp,!skel-wdba,!skel-simul $opt $nosim --small %f" \
 	": Comp '(A${D})' Small Early; $ltl2tgba -x comp-susp,!skel-wdba,!skel-simul,early-susp $opt $nosim --small %f"

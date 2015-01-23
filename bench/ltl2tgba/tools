@@ -1,5 +1,5 @@
 ## -*- coding: utf-8; mode: sh -*-
-## Copyright (C) 2013 Laboratoire de Recherche et Développement de
+## Copyright (C) 2013, 2015 Laboratoire de Recherche et Développement de
 ## l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -27,10 +27,10 @@ set dummy
 # Add third-party tools if they are available.
 test -n "$SPIN"   && set "$@" "{spin} $SPIN -f %s >%N"
 test -n "$LTL2BA" && set "$@" "{ltl2ba} $LTL2BA -f %s >%N"
-test -n "$LTL3BA" && set "$@" "{ltl3ba} $LTL3BA -f %s >%N" \
-        "{ltl3ba-M} $LTL3BA -M -f %s >%N" \
-        "{ltl3ba-S} $LTL3BA -S -f %s >%N" \
-        "{ltl3ba-SM} $LTL3BA -S -M -f %s >%N"
+test -n "$LTL3BA" && set "$@" "{ltl3ba-LS0} $LTL3BA -L -S0 -f %s >%N" \
+        "{ltl3ba-MS0} $LTL3BA -M -S0 -f %s >%N" \
+        "{ltl3ba-LS2} $LTL3BA -L -S2 -f %s >%N" \
+        "{ltl3ba-MS2} $LTL3BA -M -S2 -f %s >%N"
 
 # Use -s to output a neverclaim, like the other tools.
 set "$@" \
