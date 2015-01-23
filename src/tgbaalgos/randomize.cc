@@ -39,6 +39,16 @@ namespace spot
 	std::random_shuffle(nums.begin(), nums.end(), spot::mrand);
 	g.rename_states_(nums);
 	aut->set_init_state(nums[aut->get_init_state_number()]);
+
+	if (auto sn =
+	    aut->get_named_prop<std::vector<std::string>>("state-names"))
+	  {
+	    unsigned sns = sn->size(); // Might be != n.
+	    auto nn = new std::vector<std::string>(n);
+	    for (unsigned i = 0; i < sns && i < n; ++i)
+	      (*nn)[nums[i]] = (*sn)[i];
+	    aut->set_named_prop("state-names", nn);
+	  }
       }
     if (randomize_transitions)
       {
