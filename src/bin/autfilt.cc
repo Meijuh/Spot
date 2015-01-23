@@ -70,6 +70,7 @@ Exit status:\n\
 #define OPT_DESTUT 13
 #define OPT_INSTUT 14
 #define OPT_IS_EMPTY 15
+#define OPT_INTERSECT 16
 
 static const argp_option options[] =
   {
@@ -113,6 +114,9 @@ static const argp_option options[] =
       "the automaton is deterministic", 0 },
     { "is-empty", OPT_IS_EMPTY, 0, 0,
       "keep automata with an empty language", 0 },
+    { "intersect", OPT_INTERSECT, "FILENAME", 0,
+      "keep automata whose languages have an non-empty intersection with"
+      " the automaton from FILENAME", 0 },
     { "invert-match", 'v', 0, 0, "select non-matching automata", 0 },
     { "states", OPT_STATES, "RANGE", 0,
       "keep automata whose number of states are in RANGE", 0 },
@@ -148,6 +152,7 @@ static bool randomize_tr = false;
 static int opt_seed = 0;
 static auto dict = spot::make_bdd_dict();
 static spot::tgba_digraph_ptr opt_product = nullptr;
+static spot::tgba_digraph_ptr opt_intersect = nullptr;
 static bool opt_merge = false;
 static std::unique_ptr<spot::isomorphism_checker>
   isomorphism_checker = nullptr;
@@ -181,6 +186,17 @@ to_pos_int(const char* s)
   if (res < 0)
     error(2, 0, "%d is not positive", res);
   return res;
+}
+
+static spot::tgba_digraph_ptr
+read_automaton(const char* filename)
+{
+  spot::hoa_parse_error_list pel;
+  auto p = hoa_parse(filename, pel, dict);
+  if (spot::format_hoa_parse_errors(std::cerr, filename, pel)
+      || !p || p->aborted)
+    error(2, 0, "failed to read automaton from %s", filename);
+  return std::move(p->aut);
 }
 
 static int
@@ -222,15 +238,8 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_ARE_ISOMORPHIC:
-      {
-	spot::hoa_parse_error_list pel;
-	auto p = hoa_parse(arg, pel, dict);
-	if (spot::format_hoa_parse_errors(std::cerr, arg, pel)
-	    || !p || p->aborted)
-	  error(2, 0, "failed to read automaton from %s", arg);
-        opt_are_isomorphic = std::move(p->aut);
-	break;
-      }
+      opt_are_isomorphic = read_automaton(arg);
+      break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
@@ -241,6 +250,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 	opt_instut = 2;
       else
 	error(2, 0, "unknown argument for --instut: %s", arg);
+      break;
+    case OPT_INTERSECT:
+      opt_intersect = read_automaton(arg);
       break;
     case OPT_DESTUT:
       opt_destut = true;
@@ -259,16 +271,12 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_PRODUCT:
       {
-	spot::hoa_parse_error_list pel;
-	auto p = hoa_parse(arg, pel, dict);
-	if (spot::format_hoa_parse_errors(std::cerr, arg, pel)
-	    || !p || p->aborted)
-	  error(2, 0, "failed to read automaton from %s", arg);
+	auto a = read_automaton(arg);
 	if (!opt_product)
-	  opt_product = std::move(p->aut);
+	  opt_product = std::move(a);
 	else
 	  opt_product = spot::product(std::move(opt_product),
-				      std::move(p->aut));
+				      std::move(a));
       }
       break;
     case OPT_RANDOMIZE:
@@ -369,6 +377,8 @@ namespace
         matched &= isomorphism_checker->is_isomorphic(aut);
       if (opt_is_empty)
 	matched &= aut->is_empty();
+      if (opt_intersect)
+	matched &= !spot::product(aut, opt_intersect)->is_empty();
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)

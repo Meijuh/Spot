@@ -369,26 +369,31 @@ GF("(a + b) == 42" U "process@foo")
 EOF
 while read f
 do
-    run 0 ../ltl2tgba -b -f "!($f)" > f.tgba
+    run 0 ../../bin/ltl2tgba -H "!($f)" > f.hoa
+    run 0 ../../bin/ltl2tgba -s -f "$f" > f.spot
+    # Make sure there is no `!x' occurring in the
+    # output.  Because `x' is usually #define'd, we
+    # should use `!(x)' in guards.
+    grep '![^(].*->' f.spot && exit 1
+    # In case we cannot run spin or ltl2ba, use the spot output
+    cp f.spot f.spin
+    cp f.spot f.ltl2ba
+
     sf=`../../bin/ltlfilt -sf "$f"`
+
     if test -n "$SPIN"; then
         # Old spin versions cannot parse formulas such as ((a + b) == 42).
-	if $SPIN -f "$sf" > f.spin; then
-	  run 0 ../ltl2tgba -E -Pf.tgba -XN f.spin
-        fi
+	$SPIN -f "$sf" > f.spin.tmp && mv f.spin.tmp f.spin
     fi
     case $f in
       *\"*);;
       *)
       if test -n "$LTL2BA"; then
 	  $LTL2BA -f "$sf" > f.ltl2ba
-	  run 0 ../ltl2tgba -E -Pf.tgba -XN f.ltl2ba
       fi
     esac
-    run 0 ../ltl2tgba -DS -NN -f "$f" > f.spot
-    # Make sure there is no `!x' occurring in the
-    # output.  Because `x' is usually #define'd, we
-    # should use `!(x)' in guards.
-    grep '![^(].*->' f.spot && exit 1
-    run 0 ../ltl2tgba -E -Pf.tgba -XN f.spot
+
+    run 0 ../../bin/autfilt --count -v --intersect=f.hoa \
+	                    f.spot f.spin f.ltl2ba >out
+    test 3 = `cat out`
 done  <formulae
