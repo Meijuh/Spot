@@ -283,6 +283,7 @@ namespace spot
       os << " deterministic";
     os << nl;
     os << "--BODY--" << nl;
+    auto sn = aut->get_named_prop<std::vector<std::string>>("state-names");
     for (unsigned i = 0; i < num_states; ++i)
       {
 	hoa_acceptance this_acc = acceptance;
@@ -291,6 +292,8 @@ namespace spot
 		      Hoa_Acceptance_States : Hoa_Acceptance_Transitions);
 
 	os << "State: " << i;
+	if (sn && i < sn->size() && !(*sn)[i].empty())
+	  os << " \"" << (*sn)[i] << '"';
 	if (this_acc == Hoa_Acceptance_States)
 	  {
 	    acc_cond::mark_t acc = 0U;

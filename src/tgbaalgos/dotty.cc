@@ -46,6 +46,7 @@ namespace spot
       bool mark_states_ = false;
       bool opt_scc_ = false;
       const_tgba_digraph_ptr aut_;
+      std::vector<std::string>* sn_;
 
     public:
       dotty_output(std::ostream& os, const char* options)
@@ -107,8 +108,12 @@ namespace spot
       void
       process_state(unsigned s)
       {
-	os_ << "  " << s << " [label=\"" << escape_str(aut_->format_state(s))
-	    << '"';
+	os_ << "  " << s << " [label=\"";
+	if (sn_ && s < sn_->size() && !(*sn_)[s].empty())
+	  os_ << escape_str((*sn_)[s]);
+	else
+	  os_ << s;
+	os_ << '"';
 	if (mark_states_ && aut_->state_is_accepting(s))
 	  os_ << ", peripheries=2";
 	os_ << "]\n";
@@ -132,6 +137,7 @@ namespace spot
       void print(const const_tgba_digraph_ptr& aut)
       {
 	aut_ = aut;
+	sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
 	mark_states_ = !opt_force_acc_trans_ && aut_->is_sba();
 	auto si =
 	  std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);

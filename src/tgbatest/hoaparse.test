@@ -270,7 +270,7 @@ acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
 properties: trans-labels explicit-labels state-acc complete deterministic
 --BODY--
-State: 0 {0}
+State: 0 "foo" {0}
 [!0&!1] 2
 [0&!1] 0
 [!0&1] 1
@@ -280,7 +280,7 @@ State: 1 {1}
 [0&!1] 1
 [!0&1] 1
 [0&1] 1
-State: 2 {0}
+State: 2 "sink state" {0}
 [!0&!1] 2
 [0&!1] 2
 [!0&1] 2
@@ -1191,30 +1191,30 @@ acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc complete
 --BODY--
-State: 0
+State: 0 "T0_init"
 [5] 5
 [t] 4
 [0] 3
 [0&1&2] 2
 [0&1&2&3 | 0&1&2&4] 1
-State: 1 {0}
+State: 1 "accept_S1" {0}
 [t] 4
 [0] 3
 [0&1&2] 2
 [0&1&2&3 | 0&1&2&4] 1
-State: 2
+State: 2 "T2_S1"
 [t] 2
 [3 | 4] 1
-State: 3
+State: 3 "T1_S1"
 [t] 3
 [1&2] 2
 [1&2&3 | 1&2&4] 1
-State: 4
+State: 4 "T0_S1"
 [t] 4
 [0] 3
 [0&1&2] 2
 [0&1&2&3 | 0&1&2&4] 1
-State: 5 {0}
+State: 5 "accept_all" {0}
 [t] 5
 --END--
 EOF
@@ -1260,7 +1260,7 @@ acc-name: generalized-Buchi 3
 Acceptance: 3 Inf(0)&Inf(1)&Inf(2)
 properties: trans-labels explicit-labels trans-acc complete
 --BODY--
-State: 0
+State: 0 "(x)"
 [5] 1 {0 1 2}
 [t] 2
 [0] 2
@@ -1270,9 +1270,9 @@ State: 0
 [0&3 | 0&4] 2
 [1&2&3 | 1&2&4] 2
 [0&1&2&3 | 0&1&2&4] 2
-State: 1
+State: 1 "t"
 [t] 1 {0 1 2}
-State: 2
+State: 2 "G((F(a) && F((b) && (c))) && F((d) || (e)))"
 [t] 2
 [0] 2 {0}
 [1&2] 2 {1}

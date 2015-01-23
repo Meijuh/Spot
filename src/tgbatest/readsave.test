@@ -286,7 +286,7 @@ EOF
 diff output expected
 
 
-$autfilt --dot=vcsn >output <<EOF
+$autfilt -H <<EOF | $autfilt --dot=vcsn >output
 HOA: v1
 States: 4
 Start: 2
@@ -296,13 +296,13 @@ acc-name: Buchi
 Acceptance: 1 Inf(0)
 properties: trans-labels explicit-labels state-acc
 --BODY--
-State: 0 {0}
+State: 0 "s0" {0}
 [1] 0
-State: 1 {0}
+State: 1 "s1" {0}
 [0] 1
-State: 2
+State: 2 "s2"
 [1] 0
-State: 3
+State: 3 "s3"
 [0] 1
 --END--
 EOF
@@ -314,19 +314,19 @@ digraph G {
   I -> 3
   subgraph cluster_0 {
   label=""
-  1 [label="1"]
+  1 [label="s1"]
   }
   subgraph cluster_1 {
   label=""
-  0 [label="0"]
+  0 [label="s0"]
   }
   subgraph cluster_2 {
   label=""
-  3 [label="3"]
+  3 [label="s3"]
   }
   0 -> 0 [label="b\n{0}"]
   1 -> 1 [label="a\n{0}"]
-  2 [label="2"]
+  2 [label="s2"]
   2 -> 0 [label="b"]
   3 -> 1 [label="a"]
   3 -> 0 [label="b"]

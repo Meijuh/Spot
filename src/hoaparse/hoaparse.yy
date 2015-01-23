@@ -81,6 +81,7 @@
       spot::acc_cond::mark_t acc_state;
       spot::acc_cond::mark_t neg_acc_sets = 0U;
       spot::acc_cond::mark_t pos_acc_sets = 0U;
+      std::vector<std::string>* state_names = nullptr;
       unsigned cur_state;
       int states = -1;
       int ap_count = -1;
@@ -176,6 +177,7 @@
 %type <num> checked-state-num state-num acc-set
 %type <b> label-expr
 %type <mark> acc-sig acc-sets trans-acc_opt state-acc_opt
+%type <str> string_opt
 
 /**** NEVERCLAIM tokens ****/
 
@@ -245,7 +247,8 @@ aut-1: hoa
 hoa: header "--BODY--" body "--END--"
 hoa: error "--END--"
 
-string_opt: | STRING
+string_opt: { $$ = nullptr; }
+          | STRING { $$ = $1; }
 BOOLEAN: 't' | 'f'
 
 header: format-version header-items
@@ -495,6 +498,7 @@ header-item: "States:" INT
            | "tool:" STRING string_opt
              {
 	       delete $2;
+	       delete $3;
 	     }
            | "name:" STRING
              {
@@ -772,6 +776,7 @@ state: state-name labeled-edges
 	 res.complete = false;
        }
 
+
 state-name: "State:" state-label_opt checked-state-num string_opt state-acc_opt
 	  {
 	    res.cur_state = $3;
@@ -783,6 +788,17 @@ state-name: "State:" state-label_opt checked-state-num string_opt state-acc_opt
 	      }
 	    res.declared_states[$3] = true;
 	    res.acc_state = $5;
+	    if ($4)
+	      {
+		if (!res.state_names)
+		  res.state_names =
+		    new std::vector<std::string>(res.states > 0 ?
+						 res.states : 0);
+		if (res.state_names->size() < $3 + 1)
+		  res.state_names->resize($3 + 1);
+		(*res.state_names)[$3] = std::move(*$4);
+		delete $4;
+	      }
 	  }
 label: '[' label-expr ']'
 	   {
@@ -1434,6 +1450,8 @@ namespace spot
       return r.h;
     if (!r.h->aut)
       return nullptr;
+    if (r.state_names)
+      r.h->aut->set_named_prop("state-names", r.state_names);
     if (r.neg_acc_sets)
       fix_acceptance(r);
     if (r.acc_style == State_Acc ||
