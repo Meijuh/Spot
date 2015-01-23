@@ -125,7 +125,11 @@ namespace spot
   postprocessor::run(tgba_digraph_ptr a, const ltl::formula* f)
   {
     if (type_ == TGBA && PREF_ == Any && level_ == Low)
-      return a;
+      {
+	if (COMP_)
+	  a = tgba_complete(a);
+	return a;
+      }
 
     if (simul_ < 0)
       simul_ = (level_ == Low) ? 1 : 3;
@@ -171,7 +175,7 @@ namespace spot
 	    if (m->num_states() < a->num_states())
 	      a = m;
 	  }
-	if (COMP_ == Complete)
+	if (COMP_)
 	  a = tgba_complete(a);
 	return a;
       }
@@ -180,6 +184,8 @@ namespace spot
       {
 	if (type_ == BA)
 	  a = do_degen(a);
+	if (COMP_ == Complete)
+	  a = tgba_complete(a);
 	return a;
       }
 
@@ -381,7 +387,7 @@ namespace spot
 
     sim = dba ? dba : sim;
 
-    if (COMP_ == Complete)
+    if (COMP_)
       sim = tgba_complete(sim);
 
     return sim;

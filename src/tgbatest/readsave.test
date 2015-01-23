@@ -286,7 +286,7 @@ EOF
 diff output expected
 
 
-$autfilt -H <<EOF | $autfilt --dot=vcsn >output
+cat >input <<EOF
 HOA: v1
 States: 4
 Start: 2
@@ -306,6 +306,7 @@ State: 3 "s3"
 [0] 1
 --END--
 EOF
+$autfilt -H input | $autfilt --dot=vcsn >output
 
 cat >expected <<EOF
 digraph G {
@@ -334,3 +335,5 @@ digraph G {
 EOF
 
 diff output expected
+
+test 1 = `$autfilt -H input --complete | $autfilt --is-complete --count`
