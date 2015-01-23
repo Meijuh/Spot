@@ -154,7 +154,7 @@ namespace spot
 	unsigned ns = aut_->num_states();
 	for (unsigned n = 0; n < ns; ++n)
 	  {
-	    if (!si)
+	    if (!si || !si->reachable_state(n))
 	      process_state(n);
 	    for (auto& t: aut_->out(n))
 	      process_link(t);

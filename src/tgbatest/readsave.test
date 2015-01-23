@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2012, 2014, 2015 Laboratoire de Recherche
+# et Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -283,4 +283,54 @@ cat >expected <<EOF
 "0",""
 "!b & X(b & GFa)","!b; cycle{a & b}"
 EOF
+diff output expected
+
+
+$autfilt --dot=vcsn >output <<EOF
+HOA: v1
+States: 4
+Start: 2
+Start: 3
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0 {0}
+[1] 0
+State: 1 {0}
+[0] 1
+State: 2
+[1] 0
+State: 3
+[0] 1
+--END--
+EOF
+
+cat >expected <<EOF
+digraph G {
+  node [shape="circle"]
+  I [label="", style=invis, height=0]
+  I -> 3
+  subgraph cluster_0 {
+  label=""
+  1 [label="1"]
+  }
+  subgraph cluster_1 {
+  label=""
+  0 [label="0"]
+  }
+  subgraph cluster_2 {
+  label=""
+  3 [label="3"]
+  }
+  0 -> 0 [label="b\n{0}"]
+  1 -> 1 [label="a\n{0}"]
+  2 [label="2"]
+  2 -> 0 [label="b"]
+  3 -> 1 [label="a"]
+  3 -> 0 [label="b"]
+}
+EOF
+
 diff output expected
