@@ -537,7 +537,8 @@ elif translator == 'ta':
     refined_rules = False
     if form.getfirst('ta', '') == 'lc':
         refined_rules = True
-    automaton = spot.tgba_dupexp_dfs(spot.ltl_to_taa(f, dict, refined_rules))
+    automaton = spot.ensure_digraph(spot.ltl_to_taa(f, dict, refined_rules))
+
 elif translator == 'l3':
     l3out = '-T'
     # 1.0.1 had determinization and simulation turned off by default,
