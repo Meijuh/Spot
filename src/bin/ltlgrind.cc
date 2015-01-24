@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -20,10 +20,13 @@
 
 #include "common_sys.hh"
 #include <argp.h>
+#include "error.h"
+
 #include "common_setup.hh"
 #include "common_finput.hh"
 #include "common_output.hh"
-#include "error.h"
+#include "common_conv.hh"
+
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/clone.hh"
 #include "ltlvisit/apcollect.hh"
@@ -89,30 +92,9 @@ static const argp_child children[] = {
   {0, 0, 0, 0}
 };
 
-static int
-to_int(const char *s)
-{
-  char* endptr;
-  unsigned res = strtol(s, &endptr, 10);
-  if (*endptr)
-    error(2, 0, "failed to parse '%s' as an unsigned integer.", s);
-  return res;
-}
-
-static unsigned
-to_unsigned (const char *s)
-{
-  char* endptr;
-  unsigned res = strtoul(s, &endptr, 10);
-  if (*endptr)
-    error(2, 0, "failed to parse '%s' as an unsigned integer.", s);
-  return res;
-}
-
 namespace
 {
-  class mutate_processor:
-    public job_processor
+  class mutate_processor: public job_processor
   {
   public:
     int

@@ -31,6 +31,7 @@
 #include "common_finput.hh"
 #include "common_output.hh"
 #include "common_cout.hh"
+#include "common_conv.hh"
 #include "common_r.hh"
 
 #include "misc/hash.hh"
@@ -238,25 +239,6 @@ static int opt_max_count = -1;
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
 static const spot::ltl::formula* equivalent_to = 0;
-
-static int
-to_int(const char* s)
-{
-  char* endptr;
-  int res = strtol(s, &endptr, 10);
-  if (*endptr)
-    error(2, 0, "failed to parse '%s' as an integer.", s);
-  return res;
-}
-
-static int
-to_pos_int(const char* s)
-{
-  int res = to_int(s);
-  if (res < 0)
-    error(2, 0, "%d is not positive", res);
-  return res;
-}
 
 static const spot::ltl::formula*
 parse_formula_arg(const std::string& input)

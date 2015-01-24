@@ -35,6 +35,7 @@
 
 #include "common_setup.hh"
 #include "common_cout.hh"
+#include "common_conv.hh"
 #include "common_finput.hh"
 #include "dstarparse/public.hh"
 #include "hoaparse/public.hh"
@@ -465,46 +466,6 @@ typedef std::vector<statistics> statistics_formula;
 typedef std::vector<statistics_formula> statistics_vector;
 statistics_vector vstats;
 std::vector<std::string> formulas;
-
-static int
-to_int(const char* s)
-{
-  char* endptr;
-  int res = strtol(s, &endptr, 10);
-  if (*endptr)
-    error(2, 0, "failed to parse '%s' as an integer.", s);
-  return res;
-}
-
-static int
-to_pos_int(const char* s)
-{
-  int res = to_int(s);
-  if (res < 0)
-    error(2, 0, "%d is not positive", res);
-  return res;
-}
-
-static float
-to_float(const char* s)
-{
-  char* endptr;
-  // Do not use strtof(), it does not exist on Solaris 9.
-  float res = strtod(s, &endptr);
-  if (*endptr)
-    error(2, 0, "failed to parse '%s' as a float.", s);
-  return res;
-}
-
-static float
-to_probability(const char* s)
-{
-  float res = to_float(s);
-  if (res < 0.0 || res > 1.0)
-    error(2, 0, "%f is not between 0 and 1.", res);
-  return res;
-}
-
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)

@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+## Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 ## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -28,6 +28,8 @@ noinst_LIBRARIES = libcommon.a
 libcommon_a_SOURCES =				\
   common_aoutput.cc				\
   common_aoutput.hh				\
+  common_conv.hh				\
+  common_conv.cc				\
   common_cout.hh				\
   common_cout.cc				\
   common_finput.cc				\

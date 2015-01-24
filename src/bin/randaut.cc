@@ -31,6 +31,7 @@
 #include "common_range.hh"
 #include "common_cout.hh"
 #include "common_aoutput.hh"
+#include "common_conv.hh"
 
 #include "ltlenv/defaultenv.hh"
 #include "misc/timer.hh"
@@ -114,26 +115,6 @@ static bool opt_deterministic = false;
 static bool opt_state_acc = false;
 static bool ba_wanted = false;
 static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
-
-static int
-to_int(const char* s)
-{
-  char* endptr;
-  int res = strtol(s, &endptr, 10);
-  if (*endptr)
-    error(2, 0, "failed to parse '%s' as an integer.", s);
-  return res;
-}
-
-static float
-to_float(const char* s)
-{
-  char* endptr;
-  float res = strtof(s, &endptr);
-  if (*endptr)
-    error(2, 0, "failed to parse '%s' as a float.", s);
-  return res;
-}
 
 static void
 ba_options()

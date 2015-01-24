@@ -34,6 +34,7 @@
 #include "common_aoutput.hh"
 #include "common_range.hh"
 #include "common_post.hh"
+#include "common_conv.hh"
 
 #include "tgbaalgos/product.hh"
 #include "tgbaalgos/isdet.hh"
@@ -170,36 +171,6 @@ static bool opt_is_empty = false;
 static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
 
 static int
-to_int(const char* s)
-{
-  char* endptr;
-  int res = strtol(s, &endptr, 10);
-  if (*endptr)
-    error(2, 0, "failed to parse '%s' as an integer.", s);
-  return res;
-}
-
-static int
-to_pos_int(const char* s)
-{
-  int res = to_int(s);
-  if (res < 0)
-    error(2, 0, "%d is not positive", res);
-  return res;
-}
-
-static spot::tgba_digraph_ptr
-read_automaton(const char* filename)
-{
-  spot::hoa_parse_error_list pel;
-  auto p = hoa_parse(filename, pel, dict);
-  if (spot::format_hoa_parse_errors(std::cerr, filename, pel)
-      || !p || p->aborted)
-    error(2, 0, "failed to read automaton from %s", filename);
-  return std::move(p->aut);
-}
-
-static int
 parse_opt(int key, char* arg, struct argp_state*)
 {
   // This switch is alphabetically-ordered.
@@ -238,7 +209,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_ARE_ISOMORPHIC:
-      opt_are_isomorphic = read_automaton(arg);
+      opt_are_isomorphic = read_automaton(arg, dict);
       break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
@@ -252,7 +223,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 	error(2, 0, "unknown argument for --instut: %s", arg);
       break;
     case OPT_INTERSECT:
-      opt_intersect = read_automaton(arg);
+      opt_intersect = read_automaton(arg, dict);
       break;
     case OPT_DESTUT:
       opt_destut = true;
@@ -271,7 +242,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_PRODUCT:
       {
-	auto a = read_automaton(arg);
+	auto a = read_automaton(arg, dict);
 	if (!opt_product)
 	  opt_product = std::move(a);
 	else

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -30,6 +30,7 @@
 #include "common_output.hh"
 #include "common_range.hh"
 #include "common_r.hh"
+#include "common_conv.hh"
 
 #include <sstream>
 #include "ltlast/multop.hh"
@@ -176,16 +177,6 @@ GF_n(spot::ltl::atomic_prop_set& ap)
       else
         res = f;
     }
-  return res;
-}
-
-static int
-to_int(const char* s)
-{
-  char* endptr;
-  int res = strtol(s, &endptr, 10);
-  if (*endptr)
-    error(2, 0, "failed to parse '%s' as an integer.", s);
   return res;
 }
 
