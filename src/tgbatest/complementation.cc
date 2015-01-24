@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
 	return_value = 1;
 	if (auto run = res->accepting_run())
 	  {
-	    spot::dotty_reachable(std::cout, ec->automaton(), false);
+	    spot::dotty_reachable(std::cout, ec->automaton());
 	    spot::print_tgba_run(std::cout, ec->automaton(), run);
 	  }
       }

@@ -353,10 +353,7 @@ namespace
       switch (format)
 	{
 	case Dot:
-	  spot::dotty_reachable(std::cout, aut,
-				(type == spot::postprocessor::BA)
-				|| (type == spot::postprocessor::Monitor),
-				opt_dot);
+	  spot::dotty_reachable(std::cout, aut, opt_dot);
 	  break;
 	case Lbtt:
 	  spot::lbtt_reachable(std::cout, aut, type == spot::postprocessor::BA);

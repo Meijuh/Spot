@@ -48,7 +48,6 @@
 #include "taalgos/minimize.hh"
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/replayrun.hh"
-#include "tgbaalgos/rundotdec.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/safety.hh"
 #include "tgbaalgos/gtec/gtec.hh"
@@ -248,8 +247,6 @@ syntax(char* prog)
 	    << std::endl
 	    << "  -CR   compute and replay an accepting run (implies -C)"
 	    << std::endl
-	    << "  -g    graph the accepting run on the automaton (requires -e)"
-	    << std::endl
 	    << "  -G    graph the accepting run seen as an automaton "
 	    << " (requires -e)" << std::endl
 	    << "  -m    try to reduce accepting runs, in a second pass"
@@ -364,7 +361,6 @@ checked_main(int argc, char** argv)
   bool display_reduced_form = false;
   bool post_branching = false;
   bool fair_loop_approx = false;
-  bool graph_run_opt = false;
   bool graph_run_tgba_opt = false;
   bool opt_reduce = false;
   bool opt_minimize = false;
@@ -530,11 +526,6 @@ checked_main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-F"))
 	{
 	  file_opt = true;
-	}
-      else if (!strcmp(argv[formula_index], "-g"))
-	{
-	  accepting_run = true;
-	  graph_run_opt = true;
 	}
       else if (!strcmp(argv[formula_index], "-G"))
 	{
@@ -927,10 +918,10 @@ checked_main(int argc, char** argv)
 	}
     }
 
-  if ((graph_run_opt || graph_run_tgba_opt)
+  if ((graph_run_tgba_opt)
       && (!echeck_inst || !expect_counter_example))
     {
-      std::cerr << argv[0] << ": error: -g and -G require -e." << std::endl;
+      std::cerr << argv[0] << ": error: -G requires -e." << std::endl;
       exit(1);
     }
 
@@ -1531,7 +1522,7 @@ checked_main(int argc, char** argv)
 	  switch (output)
 	    {
 	    case 0:
-	      spot::dotty_reachable(std::cout, a, assume_sba);
+	      spot::dotty_reachable(std::cout, a);
 	      break;
 	    case 5:
 	      a->get_dict()->dump(std::cout);
@@ -1702,7 +1693,7 @@ checked_main(int argc, char** argv)
                 }
               else
                 {
-                  if (!graph_run_opt && !graph_run_tgba_opt)
+                  if (!graph_run_tgba_opt)
                     ec->print_stats(std::cout);
                   if (expect_counter_example != !!res &&
 		      (!expect_counter_example || ec->safe()))
@@ -1753,17 +1744,10 @@ checked_main(int argc, char** argv)
 			  else
 			    {
 			      tm.start("printing accepting run");
-			      if (graph_run_opt)
-				{
-				  spot::tgba_run_dotty_decorator deco(run);
-				  spot::dotty_reachable(std::cout, a,
-							assume_sba, nullptr,
-							&deco);
-				}
-			      else if (graph_run_tgba_opt)
+			      if (graph_run_tgba_opt)
 				{
                                   auto ar = spot::tgba_run_to_tgba(a, run);
-				  spot::dotty_reachable(std::cout, ar, false);
+				  spot::dotty_reachable(std::cout, ar);
 				}
 			      else
 				{

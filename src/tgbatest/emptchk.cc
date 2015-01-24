@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement de
 // l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -163,7 +163,7 @@ main(int argc, char** argv)
 		      if (auto run = res->accepting_run())
 			{
 			  auto ar = spot::tgba_run_to_tgba(a, run);
-			  spot::dotty_reachable(std::cout, ar, false);
+			  spot::dotty_reachable(std::cout, ar);
 			}
 		      std::cout << '\n';
 		      if (runs == 0)

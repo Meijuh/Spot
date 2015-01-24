@@ -24,7 +24,6 @@
 #include <stdexcept>
 #include "tgba/tgbagraph.hh"
 #include "dotty.hh"
-#include "dottydec.hh"
 #include "tgba/bddprint.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
@@ -168,147 +167,12 @@ namespace spot
 	end();
       }
     };
-
-
-    class dotty_bfs : public tgba_reachable_iterator_breadth_first
-    {
-    public:
-      dotty_bfs(std::ostream& os, const_tgba_ptr a, bool mark_accepting_states,
-		const char* options, dotty_decorator* dd)
-	: tgba_reachable_iterator_breadth_first(a), os_(os),
-	  mark_accepting_states_(mark_accepting_states), dd_(dd),
-	  sba_(std::dynamic_pointer_cast<const tgba_digraph>(a))
-      {
-	if (options)
-	  while (char c = *options++)
-	    switch (c)
-	      {
-	      case 'c':
-		opt_circles = true;
-		break;
-	      case 'h':
-		opt_horizontal = true;
-		break;
-	      case 'n':
-		opt_name = true;
-	        break;
-	      case 'N':
-		opt_name = false;
-	        break;
-	      case 'v':
-		opt_horizontal = false;
-		break;
-	      case 't':
-		mark_accepting_states_ = false;
-		break;
-	      default:
-		throw std::runtime_error
-		  (std::string("unknown option for dotty(): ") + c);
-	      }
-      }
-
-      void
-      start()
-      {
-	os_ << "digraph G {\n";
-	if (opt_horizontal)
-	  os_ << "  rankdir=LR\n";
-	if (opt_name)
-	  if (auto n = aut_->get_named_prop<std::string>("automaton-name"))
-	    escape_str(os_ << "  label=\"", *n) << "\"\n  labelloc=\"t\"\n";
-	if (opt_circles)
-	  os_ << "  node [shape=\"circle\"]\n";
-	os_ << "  0 [label=\"\", style=invis, ";
-	os_ << (opt_horizontal ? "width" : "height");
-	os_ << "=0]\n  0 -> 1\n";
-      }
-
-      void
-      end()
-      {
-	os_ << '}' << std::endl;
-      }
-
-      void
-      process_state(const state* s, int n, tgba_succ_iterator* si)
-      {
-	bool accepting;
-
-	if (mark_accepting_states_)
-	  {
-	    if (sba_)
-	      {
-		accepting = sba_->state_is_accepting(s);
-	      }
-	    else
-	      {
-		si->first();
-		auto a = si->current_acceptance_conditions();
-		accepting = !si->done() && aut_->acc().accepting(a);
-	      }
-	  }
-	else
-	  {
-	    accepting = false;
-	  }
-
-	os_ << "  " << n << ' '
-	    << dd_->state_decl(aut_, s, n, si,
-			       escape_str(aut_->format_state(s)),
-			       accepting)
-	    << '\n';
-      }
-
-      void
-      process_link(const state* in_s, int in,
-		   const state* out_s, int out, const tgba_succ_iterator* si)
-      {
-	std::string label =
-	  bdd_format_formula(aut_->get_dict(),
-			     si->current_condition());
-	if (!mark_accepting_states_)
-	  if (auto a = si->current_acceptance_conditions())
-	    {
-	      label += "\n";
-	      label += aut_->acc().format(a);
-	    }
-
-	std::string s = aut_->transition_annotation(si);
-	if (!s.empty())
-	  {
-	    if (*label.rbegin() != '\n')
-	      label += '\n';
-	    label += s;
-	  }
-
-	os_ << "  " << in << " -> " << out << ' '
-	    << dd_->link_decl(aut_, in_s, in, out_s, out, si,
-			      escape_str(label))
-	    << '\n';
-      }
-
-    private:
-      std::ostream& os_;
-      bool mark_accepting_states_;
-      dotty_decorator* dd_;
-      const_tgba_digraph_ptr sba_;
-      bool opt_horizontal = true;
-      bool opt_name = true;
-      bool opt_circles = false;
-    };
-  }
+  } // anonymous namespace
 
   std::ostream&
   dotty_reachable(std::ostream& os, const const_tgba_ptr& g,
-		  bool assume_sba, const char* options,
-		  dotty_decorator* dd)
+		  const char* options)
   {
-    if (dd)
-      {
-	dotty_bfs d(os, g, assume_sba || g->has_state_based_acc(), options, dd);
-	d.run();
-	return os;
-      }
     dotty_output d(os, options);
     auto aut = std::dynamic_pointer_cast<const tgba_digraph>(g);
     if (!aut)

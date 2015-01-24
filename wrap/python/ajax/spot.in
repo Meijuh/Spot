@@ -285,14 +285,14 @@ However you may download the <a href="''' + cgi.escape(autprefix)
     else:
         render_dot(autprefix)
 
-def render_automaton(automaton, dont_run_dot, issba, deco = None):
+def render_automaton(automaton, dont_run_dot):
     dotsrc = spot.ostringstream()
     if isinstance(automaton, spot.ta): # TA/GTA
         spot.dotty_reachable(dotsrc, automaton)
     elif hasattr(automaton, 'get_ta'): # TGTA
         spot.dotty_reachable(dotsrc, automaton.get_ta())
     else:                       # TGBA
-        spot.dotty_reachable(dotsrc, automaton, issba, "N", deco)
+        spot.dotty_reachable(dotsrc, automaton, "N")
     render_dot_maybe(dotsrc.str(), dont_run_dot)
 
 def render_formula(f):
@@ -510,7 +510,7 @@ cannot be translated using this algorithm.  Please use Couveur/FM.'''
 
 dict = spot.make_bdd_dict()
 
-if output_type == 't' and not (f.is_ltl_formula() and f.is_X_free()):
+if output_type == 't' and not f.is_syntactic_stutter_invariant():
     unbufprint('<b>Warning:</b> The following result assumes the input formula is stuttering insensitive.</br>')
 
 # Should the automaton be displayed as a SBA?
@@ -627,7 +627,7 @@ if output_type == 'm':
     unbufprint('<div class="automata-stats">')
     dont_run_dot = print_stats(automaton)
     unbufprint('</div>')
-    render_automaton(automaton, dont_run_dot, issba)
+    render_automaton(automaton, dont_run_dot)
     automaton = 0
     finish()
 
@@ -685,7 +685,6 @@ if prune_scc:
                                                 or direct_simul
                                                 or reverse_simul
                                                 or iterated_simul))
-    issba = False
 
 if wdba_minimize:
     minimized = spot.minimize_obligation(automaton, f)
@@ -693,20 +692,16 @@ if wdba_minimize:
         automaton = minimized
         minimized = 0
         degen = False # No need to degeneralize anymore
-        issba = True
         direct_simul = False # No need to simulate anymore
         reverse_simul = False
         iterated_simul = False
 
 if direct_simul and not iterated_simul:
     automaton = spot.simulation(automaton)
-    issba = False
 if reverse_simul and not iterated_simul:
     automaton = spot.cosimulation(automaton)
-    issba = False
 if iterated_simul:
     automaton = spot.iterated_simulations(automaton)
-    issba = False
 
 if prune_scc and (direct_simul or reverse_simul):
     # Make a second pass after the simulation, since these might leave
@@ -715,7 +710,6 @@ if prune_scc and (direct_simul or reverse_simul):
 
 if degen or neverclaim:
     degen = spot.degeneralize(automaton)
-    issba = True
 else:
     degen = automaton
 
@@ -728,7 +722,7 @@ if output_type == 'a':
         del s
     else: # 't' or 's'
         dont_run_dot = print_stats(degen, True)
-        render_automaton(degen, dont_run_dot, issba)
+        render_automaton(degen, dont_run_dot)
     degen = 0
     automaton = 0
     finish()
@@ -750,14 +744,13 @@ if output_type == 't':
         tautomaton = spot.tgba_to_tgta(degen, propset)
         if bisimulation:
             tautomaton = spot.minimize_tgta(tautomaton)
-        issba = False
     else:
         tautomaton = spot.tgba_to_ta(degen, propset,
-                                     issba, True, singlepass, livelock)
+                                     True, True, singlepass, livelock)
         if bisimulation:
             tautomaton = spot.minimize_ta(tautomaton)
     dont_run_dot = print_stats(tautomaton, ta = True)
-    render_automaton(tautomaton, dont_run_dot, issba)
+    render_automaton(tautomaton, dont_run_dot)
     tautomaton = 0
     degen = 0
     automaton = 0
@@ -767,13 +760,12 @@ if output_type == 't':
 if output_type == 'r':
 
     print_acc_run = False
-    draw_acc_run = False
     s = form.getfirst('rf', 'd')
+    draw_acc_run = False
     if s == 'p':
         print_acc_run = True
     elif s == 'd':
         draw_acc_run = True
-
 
     err = ""
     opt = (form.getfirst('ec', 'Cou99') + "(" +
@@ -823,12 +815,8 @@ if output_type == 'r':
                     unbufprint('<div class="accrun">%s</div>' %
                                cgi.escape(s.str()))
                     del s
-
                 if draw_acc_run:
-                    deco = spot.tgba_run_dotty_decorator(ec_run)
-                    dont_run_dot = print_stats(ec_a)
-                    render_automaton(ec_a, dont_run_dot, issba, deco)
-                    del deco
+                    render_automaton(spot.tgba_run_to_tgba(ec_a, ec_run), False)
                 del ec_run
             del ec_res
             unbufprint('</div>')

@@ -110,7 +110,6 @@ namespace std {
 #include "tgba/taatgba.hh"
 #include "tgba/tgbaproduct.hh"
 
-#include "tgbaalgos/dottydec.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/degen.hh"
 #include "tgbaalgos/dupexp.hh"
@@ -123,7 +122,6 @@ namespace std {
 #include "tgbaalgos/magic.hh"
 #include "tgbaalgos/minimize.hh"
 #include "tgbaalgos/neverclaim.hh"
-#include "tgbaalgos/rundotdec.hh"
 #include "tgbaalgos/save.hh"
 #include "tgbaalgos/safety.hh"
 #include "tgbaalgos/sccfilter.hh"
@@ -244,7 +242,6 @@ namespace spot {
 %include "ltlvisit/apcollect.hh"
 
 %include "tgbaalgos/degen.hh"
-%include "tgbaalgos/dottydec.hh"
 %include "tgbaalgos/dotty.hh"
 %include "tgbaalgos/dupexp.hh"
 %include "tgbaalgos/emptiness.hh"
@@ -256,7 +253,6 @@ namespace spot {
 %include "tgbaalgos/magic.hh"
 %include "tgbaalgos/minimize.hh"
 %include "tgbaalgos/neverclaim.hh"
-%include "tgbaalgos/rundotdec.hh"
 %include "tgbaalgos/save.hh"
 %include "tgbaalgos/safety.hh"
 %include "tgbaalgos/sccfilter.hh"

@@ -36,7 +36,6 @@ tgbaalgos_HEADERS = \
   cycles.hh \
   dtgbacomp.hh \
   degen.hh \
-  dottydec.hh \
   dotty.hh \
   dtbasat.hh \
   dtgbasat.hh \
@@ -62,7 +61,6 @@ tgbaalgos_HEADERS = \
   reachiter.hh \
   reducerun.hh \
   replayrun.hh \
-  rundotdec.hh \
   safety.hh \
   save.hh \
   sccfilter.hh \
@@ -89,7 +87,6 @@ libtgbaalgos_la_SOURCES = \
   dtgbacomp.cc \
   degen.cc \
   dotty.cc \
-  dottydec.cc \
   dtbasat.cc \
   dtgbasat.cc \
   dupexp.cc \
@@ -114,7 +111,6 @@ libtgbaalgos_la_SOURCES = \
   reachiter.cc \
   reducerun.cc \
   replayrun.cc \
-  rundotdec.cc \
   safety.cc \
   save.cc \
   scc.cc \

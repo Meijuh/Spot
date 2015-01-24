@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -29,18 +29,11 @@
 
 namespace spot
 {
-  class dotty_decorator;
-
   /// \ingroup tgba_io
   /// \brief Print reachable states in dot format.
   ///
   /// If \a assume_sba is set, this assumes that the automaton
   /// is an SBA and use double elipse to mark accepting states.
-  ///
-  /// The \a dd argument allows to customize the output in various
-  /// ways.  See \ref tgba_dotty "this page" for a list of available
-  /// decorators.  If no decorator is specified, the dotty_decorator
-  /// is used.
   ///
   /// \param options an optional string of letters, each indicating a
   /// different option.  Presently the following options are
@@ -50,9 +43,7 @@ namespace spot
   SPOT_API std::ostream&
   dotty_reachable(std::ostream& os,
 		  const const_tgba_ptr& g,
-		  bool assume_sba = false,
-		  const char* options = nullptr,
-		  dotty_decorator* dd = nullptr);
+		  const char* options = nullptr);
 }
 
 #endif // SPOT_TGBAALGOS_DOTTY_HH
