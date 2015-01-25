@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: =ltlgrind=
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html

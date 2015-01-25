@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: Common input and output options for LTL/PSL formulas
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html

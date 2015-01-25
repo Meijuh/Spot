@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: Command-line tools installed by Spot 1.99
 #+SETUPFILE: setup.org
 

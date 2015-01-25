@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: =autfilt=
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: Common output options for automata
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
@@ -110,7 +111,7 @@ State: 4
 --END--
 #+end_example
 
-The above output contains to automata, named after the formulas they
+The above output contains two automata, named after the formulas they
 represent.  Here is a picture of these two automata:
 
 #+NAME: hoafex
@@ -776,10 +777,10 @@ autfilt --states=3 --stats=%M -n5
 : !b & X(!b U a)
 
 Note that the above result can also be obtained without using
-=autfilt= and automata name.  We can use the fact that =ltl2tgba
+=autfilt= and automata names.  We can use the fact that =ltl2tgba
 --stats= can output the automaton size, and that =ltl2tgba= is also
 capable of [[file:csv.org][reading from a CSV file]] (=-F-/2= instructs =ltl2tgba= to
-read the standard input as if it was a CSV file, and process its
+read the standard input as if it was a CSV file, and to process its
 second column):
 
 #+BEGIN_SRC sh :results verbatim :exports both
