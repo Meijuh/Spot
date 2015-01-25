@@ -38,6 +38,7 @@ namespace spot
     public:
       std::ostream& os_;
       bool opt_comments_ = false;
+      std::vector<std::string>* sn_ = nullptr;
       bool opt_624_ = false;
       const_tgba_digraph_ptr aut_;
       bool fi_needed_ = false;
@@ -97,8 +98,9 @@ namespace spot
       void
       print_comment(unsigned n) const
       {
-	if (opt_comments_)
-	  os_ << " /* " << aut_->format_state(n) << " */";
+	if (sn_)
+	  if (n < sn_->size() && !(*sn_)[n].empty())
+	    os_ << " /* " << (*sn_)[n] << " */";
       }
 
       void
@@ -184,6 +186,8 @@ namespace spot
       void print(const const_tgba_digraph_ptr& aut)
       {
 	aut_ = aut;
+	if (opt_comments_)
+	  sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
 	start();
 	unsigned init = aut_->get_init_state_number();
 	unsigned ns = aut_->num_states();

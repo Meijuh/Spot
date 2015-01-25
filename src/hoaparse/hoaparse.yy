@@ -482,7 +482,7 @@ header-item: "States:" INT
 		  }
 		else
 		  {
-		    res.h->aut->acc().add_sets($2);
+		    res.h->aut->set_acceptance_conditions($2);
 		    res.accset = $2;
 		    res.accset_loc = @1 + @2;
 		  }
@@ -1200,7 +1200,7 @@ nc-transition:
 lbtt: lbtt-header lbtt-body ENDAUT
     | lbtt-header-states LBTT_EMPTY
       {
-        res.h->aut->acc().add_sets($2);
+        res.h->aut->set_acceptance_conditions($2);
       }
 
 lbtt-header-states: LBTT
@@ -1403,6 +1403,9 @@ static void fix_properties(result_& r)
 {
   r.h->aut->prop_deterministic(r.deterministic);
   //r.h->aut->prop_complete(r.complete);
+  if (r.acc_style == State_Acc ||
+      (r.acc_style == Mixed_Acc && !r.trans_acc_seen))
+    r.h->aut->prop_state_based_acc();
 }
 
 namespace spot
@@ -1454,9 +1457,6 @@ namespace spot
       r.h->aut->set_named_prop("state-names", r.state_names);
     if (r.neg_acc_sets)
       fix_acceptance(r);
-    if (r.acc_style == State_Acc ||
-	(r.acc_style == Mixed_Acc && !r.trans_acc_seen))
-      r.h->aut->prop_state_based_acc();
     fix_initial_state(r);
     fix_properties(r);
     return r.h;

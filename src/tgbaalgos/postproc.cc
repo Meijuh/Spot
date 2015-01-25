@@ -124,12 +124,15 @@ namespace spot
   tgba_digraph_ptr
   postprocessor::run(tgba_digraph_ptr a, const ltl::formula* f)
   {
-    if (type_ == TGBA && PREF_ == Any && level_ == Low)
-      {
-	if (COMP_)
-	  a = tgba_complete(a);
-	return a;
-      }
+    if (PREF_ == Any && level_ == Low)
+      if (type_ == TGBA
+	  || (type_ == BA && a->is_sba())
+	  || (type_ == Monitor && a->acc().num_sets() == 0))
+	{
+	  if (COMP_)
+	    a = tgba_complete(a);
+	  return a;
+	}
 
     if (simul_ < 0)
       simul_ = (level_ == Low) ? 1 : 3;

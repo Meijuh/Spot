@@ -1283,3 +1283,34 @@ State: 2 "G((F(a) && F((b) && (c))) && F((d) || (e)))"
 [0&1&2&3 | 0&1&2&4] 2 {0 1 2}
 --END--
 EOF
+
+
+# name states can be output as comments in never claim
+cat >input <<EOF
+HOA: v1
+name: "a U b"
+States: 2
+Start: 1
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0 "s0" {0}
+[t] 0
+State: 1 "s1"
+[1] 0
+[0&!1] 1
+--END--
+EOF
+expectok input --spin=c <<EOF
+never { /* a U b */
+T0_init: /* s1 */
+  if
+  :: ((b)) -> goto accept_all
+  :: ((a) && (!(b))) -> goto T0_init
+  fi;
+accept_all: /* s0 */
+  skip
+}
+EOF
