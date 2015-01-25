@@ -364,11 +364,15 @@ if output_type == 'v':
 if output_type == 'v3':
     import subprocess
     try:
-        # -L is new in 1.1.0, and older versions will complain about it.
-        l3proc = subprocess.Popen(['@LTL3BA@', '-L', '-v'],
-                                  stdout=subprocess.PIPE)
+        l3proc = subprocess.Popen(['@LTL3BA@', '-v'], stdout=subprocess.PIPE)
         (ver, err) = l3proc.communicate()
-        err = l3proc.returncode
+        # -M[0|1] is new in 1.1.1, and we use it.
+        l3proc = subprocess.Popen(['@LTL3BA@', '-h'], stdout=subprocess.PIPE)
+        (out, err) = l3proc.communicate()
+        if out.find('-M[') < 0:
+            err = 1
+        else:
+            err = 0
     except:
         err = 1
     if err != 0:
@@ -542,8 +546,8 @@ elif translator == 'ta':
 elif translator == 'l3':
     l3out = '-T'
     # 1.0.1 had determinization and simulation turned off by default,
-    # we need -L and -S0 with 1.1.0 for the same effect
-    l3opt = { '-l', '-P', '-A', '-c', '-C', '-o', '-p', '-L', '-S0' }
+    # we need -M0 and -S0 with 1.1.1 for the same effect
+    l3opt = { '-l', '-P', '-A', '-c', '-C', '-o', '-p', '-M0', '-S0' }
     for lo in form.getfirst('lo', 'T'):
         if lo == 'U':
             l3out = '-T3' # was -U in ltl3ba 1.0.1, now -T3 since 1.1.0
@@ -559,8 +563,8 @@ elif translator == 'l3':
             l3opt.remove('-C')
             l3opt.remove('-c')
         elif l3 == 'M':
-            l3opt.remove('-L')
-            l3opt.add('-M')
+            l3opt.remove('-M0')
+            l3opt.add('-M1')
         elif l3 == 'S':
             l3opt.remove('-S0')
             l3opt.add('-S2')  # was -S in 1.0.1

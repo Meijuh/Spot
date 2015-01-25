@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: =ltlcross=
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
@@ -125,8 +126,8 @@ tools:
 
   - '=spin -f %s >%N='
   - '=ltl2ba -f %s >%N='
-  - '=ltl3ba -S -f %s >%N='
-  - '=ltl3ba -S -M -f %s >%N=' (more deterministic output)
+  - '=ltl3ba -M0 -f %s >%N=' (less deterministic output, can be smaller)
+  - '=ltl3ba -M1 -f %s >%N=' (more deterministic output)
   - '=modella -r12 -g -e %L %T='
   - '=/path/to/script4lbtt.py %L %T=' (script supplied by [[http://www.ti.informatik.uni-kiel.de/~fritz/][ltl2nba]] for
     its interface with LBTT)

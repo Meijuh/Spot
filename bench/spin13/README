@@ -19,9 +19,9 @@ exactly the same versions (yes, that's a plural), please head over to
 Keep in mind that as Spot is evolving, the results from this benchmark
 may evolve (hopefully for the best!) with time.
 
-The benchmark has been updated to use ltl3ba 1.1.0 released on
-2014-01-23 (because the set of optimizations that are now activated
-by default is different).
+The benchmark has been updated to use ltl3ba 1.1.1 released on
+2014-01-24 (because the set of optimizations that are now activated by
+default is different).
 
 Running instructions
 ====================
