@@ -10,7 +10,7 @@ we suggest you cite the following paper:
 Alexandre Duret-Lutz: Manipulating LTL formulas using Spot 1.0.
 Proceedings of ATVA'13.  LNCS 8172.
 .PP
-The following papers describes algorithms used by ltlfilt:
+The following papers describe algorithms used by ltlfilt:
 .TP
 \(bu
 Kousha Etessami: A note on a question of Peled and Wilke regarding
@@ -44,4 +44,5 @@ Automata. Proceedings of CONCUR'00.  LNCS 1877.
 Describe the syntactic LTL classes matched by \fB\-\-eventual\fR, and
 \fB\-\-universal\fR.
 [SEE ALSO]
-.BR randltl (1)
+.BR randltl (1),
+.BR ltldo (1)

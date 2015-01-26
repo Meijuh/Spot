@@ -20,6 +20,10 @@ New in spot 1.99a (not yet released)
     - autfilt is a new tool that converts/filters/transforms a
       stream of automata.
 
+    - ltldo is a new tool that run LTL/PSL formulas through other
+      tools, but uses Spot's command-line interfaces for specifying
+      input and output.
+
     - "ltlfilt --stutter-invariant" will now work with PSL formula.
       The implementation is actually much more efficient
       than the previous implementation that was only for LTL.

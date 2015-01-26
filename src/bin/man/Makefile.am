@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -29,6 +29,7 @@ dist_man1_MANS = \
   ltl2tgba.1 \
   ltl2tgta.1 \
   ltlcross.1 \
+  ltldo.1 \
   ltlfilt.1 \
   ltlgrind.1 \
   randaut.1 \
@@ -53,6 +54,9 @@ ltl2tgta.1: $(common_dep) $(srcdir)/ltl2tgta.x $(srcdir)/../ltl2tgta.cc
 
 ltlcross.1: $(common_dep) $(srcdir)/ltlcross.x $(srcdir)/../ltlcross.cc
 	$(convman) ../ltlcross$(EXEEXT) $(srcdir)/ltlcross.x $@
+
+ltldo.1: $(common_dep) $(srcdir)/ltlcross.x $(srcdir)/../ltldo.cc
+	$(convman) ../ltldo$(EXEEXT) $(srcdir)/ltldo.x $@
 
 ltlfilt.1: $(common_dep) $(srcdir)/ltlfilt.x $(srcdir)/../ltlfilt.cc
 	$(convman) ../ltlfilt$(EXEEXT) $(srcdir)/ltlfilt.x $@

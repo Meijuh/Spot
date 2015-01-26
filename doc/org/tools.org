@@ -48,6 +48,8 @@ corresponding commands are hidden.
   Büchi automata.
 - [[file:randaut.org][=randaut=]] Generate random automata.
 - [[file:autfilt.org][=autfilt=]] Filter and convert automata.
+- [[file:ltldo.org][=ltldo=]] Run LTL/PSL formulas through other tools using common [[file:ioltl.org][input]]
+  and [[file:oaut.org][output]] interfaces.
 
 * Advanced use-cases
 

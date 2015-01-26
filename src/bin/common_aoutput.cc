@@ -23,6 +23,7 @@
 #include "common_aoutput.hh"
 #include "common_post.hh"
 #include "common_cout.hh"
+#include "common_post.hh"
 
 #include "tgba/bddprint.hh"
 
@@ -258,4 +259,10 @@ automaton_printer::print(const spot::tgba_digraph_ptr& aut,
       break;
     }
   flush_cout();
+}
+
+void automaton_printer::add_stat(char c, const spot::printable* p)
+{
+  namer.declare(c, p);
+  statistics.declare(c, p);
 }

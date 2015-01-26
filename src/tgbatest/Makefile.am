@@ -83,6 +83,8 @@ TESTS = \
   hoaparse.test \
   dstar.test \
   readsave.test \
+  ltldo.test \
+  ltldo2.test \
   maskacc.test \
   simdet.test \
   sim2.test \

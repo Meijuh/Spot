@@ -69,6 +69,7 @@ ORG_FILES = \
   org/ltl2tgba.org \
   org/ltl2tgta.org \
   org/ltlcross.org \
+  org/ltldo.org \
   org/ltlfilt.org \
   org/ltlgrind.org \
   org/oaut.org \

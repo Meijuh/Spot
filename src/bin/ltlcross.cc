@@ -27,24 +27,23 @@
 #include <cstdlib>
 #include <cstdio>
 #include <argp.h>
-#include <signal.h>
 #include <unistd.h>
-#include <sys/wait.h>
 #include "error.h"
 #include "argmatch.h"
 
 #include "common_setup.hh"
 #include "common_cout.hh"
 #include "common_conv.hh"
+#include "common_trans.hh"
 #include "common_finput.hh"
 #include "dstarparse/public.hh"
 #include "hoaparse/public.hh"
 #include "ltlast/unop.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/apcollect.hh"
-#include "ltlvisit/lbt.hh"
 #include "ltlvisit/mutation.hh"
 #include "ltlvisit/relabel.hh"
+#include "ltlvisit/lbt.hh"
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/product.hh"
 #include "tgbaalgos/gtec/gtec.hh"
@@ -62,14 +61,6 @@
 #include "misc/random.hh"
 #include "misc/tmpfile.hh"
 #include "misc/timer.hh"
-
-// Disable handling of timeout on systems that miss kill() or alarm().
-// For instance MinGW.
-#if HAVE_KILL && HAVE_ALARM
-# define ENABLE_TIMEOUT 1
-#else
-# define ENABLE_TIMEOUT 0
-#endif
 
 const char argp_program_doc[] ="\
 Call several LTL/PSL translators and cross-compare their output to detect \
@@ -102,31 +93,7 @@ Exit status:\n\
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Specifying translators to call:", 2 },
-    { "translator", 't', "COMMANDFMT", 0,
-      "register one translator to call", 0 },
-    { "timeout", 'T', "NUMBER", 0, "kill translators after NUMBER seconds", 0 },
-    /**************************************************/
-    { 0, 0, 0, 0,
-      "COMMANDFMT should specify input and output arguments using the "
-      "following character sequences:", 3 },
-    { "%f,%s,%l,%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the formula as a (quoted) string in Spot, Spin, LBT, or Wring's syntax",
-      0 },
-    { "%F,%S,%L,%W", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the formula as a file in Spot, Spin, LBT, or Wring's syntax", 0 },
-    { "%N,%T,%D,%H", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the automaton is output as a Never claim, or in LBTT's, in LTL2DSTAR's,"
-      "or in the HOA format", 0 },
-    { 0, 0, 0, 0,
-      "If either %l, %L, or %T are used, any input formula that does "
-      "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
-      "relabeled automatically.\n"
-      "Furthermore, if COMMANDFMT has the form \"{NAME}CMD\", then only CMD "
-      "will be passed to the shell, and NAME will be used to name the tool "
-      "in the CSV or JSON outputs.", 0 },
-    /**************************************************/
-    { 0, 0, 0, 0, "ltlcross behavior:", 4 },
+    { 0, 0, 0, 0, "ltlcross behavior:", 5 },
     { "allow-dups", OPT_DUPS, 0, 0,
       "translate duplicate formulas in input", 0 },
     { "no-checks", OPT_NOCHECKS, 0, 0,
@@ -138,7 +105,7 @@ static const argp_option options[] =
       "stop on first execution error or failure to pass"
       " sanity checks (timeouts are OK)", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "State-space generation:", 5 },
+    { 0, 0, 0, 0, "State-space generation:", 6 },
     { "states", OPT_STATES, "INT", 0,
       "number of the states in the state-spaces (200 by default)", 0 },
     { "density", OPT_DENSITY, "FLOAT", 0,
@@ -150,7 +117,7 @@ static const argp_option options[] =
       "number of products to perform (1 by default), statistics will be "
       "averaged unless the number is prefixed with '+'", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Statistics output:", 6 },
+    { 0, 0, 0, 0, "Statistics output:", 7 },
     { "json", OPT_JSON, "FILENAME", OPTION_ARG_OPTIONAL,
       "output statistics as JSON in FILENAME or on standard output", 0 },
     { "csv", OPT_CSV, "FILENAME", OPTION_ARG_OPTIONAL,
@@ -176,6 +143,7 @@ static const argp_option options[] =
 const struct argp_child children[] =
   {
     { &finput_argp, 0, 0, 1 },
+    { &trans_argp, 0, 0, 0 },
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
   };
@@ -204,7 +172,6 @@ const char* reset_color = "\033[m";
 
 unsigned states = 200;
 float density = 0.1;
-unsigned timeout = 0;
 const char* json_output = 0;
 const char* csv_output = 0;
 bool want_stats = false;
@@ -222,59 +189,6 @@ std::ofstream* bogus_output = 0;
 std::ofstream* grind_output = 0;
 bool verbose = false;
 
-struct translator_spec
-{
-  // The translator command, as specified on the command-line.
-  // If this has the form of
-  //    {name}cmd
-  // then it is split in two components.
-  // Otherwise, spec=cmd=name.
-  const char* spec;
-  // actual shell command (or spec)
-  const char* cmd;
-  // name of the translator (or spec)
-  const char* name;
-
-  translator_spec(const char* spec)
-    : spec(spec), cmd(spec), name(spec)
-  {
-    if (*cmd != '{')
-      return;
-
-    // Match the closing '}'
-    const char* pos = cmd;
-    unsigned count = 1;
-    while (*++pos)
-      {
-	if (*pos == '{')
-	  ++count;
-	else if (*pos == '}')
-	  if (!--count)
-	    {
-	      name = strndup(cmd + 1, pos - cmd - 1);
-	      cmd = pos + 1;
-	      while (*cmd == ' ' || *cmd == '\t')
-		++cmd;
-	      break;
-	    }
-      }
-  }
-
-  translator_spec(const translator_spec& other)
-    : spec(other.spec), cmd(other.cmd), name(other.name)
-  {
-    if (name != spec)
-      name = strdup(name);
-  }
-
-  ~translator_spec()
-  {
-    if (name != spec)
-      free(const_cast<char*>(name));
-  }
-};
-
-std::vector<translator_spec> translators;
 
 bool global_error_flag = false;
 
@@ -473,16 +387,8 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
-    case 't':
     case ARGP_KEY_ARG:
       translators.push_back(arg);
-      break;
-    case 'T':
-      timeout = to_pos_int(arg);
-#if !ENABLE_TIMEOUT
-      std::cerr << "warning: setting a timeout is not supported "
-		<< "on your platform" << std::endl;
-#endif
       break;
     case OPT_BOGUS:
       {
@@ -555,292 +461,15 @@ parse_opt(int key, char* arg, struct argp_state*)
   return 0;
 }
 
-static volatile bool timed_out = false;
-unsigned timeout_count = 0;
-
-#if ENABLE_TIMEOUT
-static volatile int alarm_on = 0;
-static int child_pid = -1;
-
-static void
-sig_handler(int sig)
-{
-  if (child_pid == 0)
-    error(2, 0, "child received signal %d before starting", sig);
-
-  if (sig == SIGALRM && alarm_on)
-    {
-      timed_out = true;
-      if (--alarm_on)
-	{
-	  // Send SIGTERM to children.
-	  kill(-child_pid, SIGTERM);
-	  // Try again later if it didn't work.  (alarm() will be reset
-	  // if it did work and the call to wait() returns)
-	  alarm(2);
-	}
-      else
-	{
-	  // After a few gentle tries, really kill that child.
-	  kill(-child_pid, SIGKILL);
-	}
-    }
-  else
-    {
-      // forward signal
-      kill(-child_pid, sig);
-      // cleanup files
-      spot::cleanup_tmpfiles();
-      // and die verbosely
-      error(2, 0, "received signal %d", sig);
-    }
-}
-
-static void
-setup_sig_handler()
-{
-  struct sigaction sa;
-  sa.sa_handler = sig_handler;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = SA_RESTART; // So that wait() doesn't get aborted by SIGALRM.
-  sigaction(SIGALRM, &sa, 0);
-  // Catch termination signals, so we can kill the subprocess.
-  sigaction(SIGHUP, &sa, 0);
-  sigaction(SIGINT, &sa, 0);
-  sigaction(SIGQUIT, &sa, 0);
-  sigaction(SIGTERM, &sa, 0);
-}
-
-static int
-exec_with_timeout(const char* cmd)
-{
-  int status;
-
-  timed_out = false;
-
-  child_pid = fork();
-  if (child_pid == -1)
-    error(2, errno, "failed to fork()");
-
-  if (child_pid == 0)
-    {
-      setpgid(0, 0);
-      execlp("sh", "sh", "-c", cmd, (char*)0);
-      error(2, errno, "failed to run 'sh'");
-      // never reached
-      return -1;
-    }
-  else
-    {
-      alarm(timeout);
-      // Upon SIGALRM, the child will receive up to 3
-      // signals: SIGTERM, SIGTERM, SIGKILL.
-      alarm_on = 3;
-      int w = waitpid(child_pid, &status, 0);
-      alarm_on = 0;
-
-      if (w == -1)
-	error(2, errno, "error during wait()");
-
-      alarm(0);
-    }
-  return status;
-}
-#else // !ENABLE_TIMEOUT
-#define exec_with_timeout(cmd) system(cmd)
-#define setup_sig_handler() while (0);
-#endif // !ENABLE_TIMEOUT
-
 namespace
 {
-  struct quoted_string: public spot::printable_value<std::string>
+  class xtranslator_runner: public translator_runner
   {
-    using spot::printable_value<std::string>::operator=;
-
-    void
-    print(std::ostream& os, const char* pos) const
-    {
-      os << '\'';
-      this->spot::printable_value<std::string>::print(os, pos);
-      os << '\'';
-    }
-  };
-
-  struct printable_result_filename:
-    public spot::printable_value<spot::temporary_file*>
-  {
-    unsigned translator_num;
-    enum output_format { None, Lbtt, Dstar, Hoa };
-    mutable output_format format;
-
-    printable_result_filename()
-    {
-      val_ = 0;
-    }
-
-    ~printable_result_filename()
-    {
-      delete val_;
-    }
-
-    void reset(unsigned n)
-    {
-      translator_num = n;
-      format = None;
-    }
-
-    void cleanup()
-    {
-      delete val_;
-      val_ = 0;
-    }
-
-    void
-    print(std::ostream& os, const char* pos) const
-    {
-      output_format old_format = format;
-      if (*pos == 'N')
-	format = Hoa;		// The HOA parse also reads neverclaims
-      else if (*pos == 'T')
-	format = Lbtt;
-      else if (*pos == 'D')
-	format = Dstar;
-      else if (*pos == 'H')
-	format = Hoa;
-      else
-	SPOT_UNREACHABLE();
-
-      if (val_)
-	{
-	  // It's OK to use a specified multiple time, but it's not OK
-	  // to mix the formats.
-	  if (format != old_format)
-	    error(2, 0,
-		  "you may not mix %%D, %%H, %%N, and %%T specifiers: %s",
-		  translators[translator_num].spec);
-	}
-      else
-	{
-	  char prefix[30];
-	  snprintf(prefix, sizeof prefix, "lcr-o%u-", translator_num);
-	  const_cast<printable_result_filename*>(this)->val_
-	    = spot::create_tmpfile(prefix);
-	}
-      os << '\'' << val_ << '\'';
-    }
-  };
-
-  class translator_runner: protected spot::formater
-  {
-  private:
-    spot::bdd_dict_ptr dict;
-    // Round-specific variables
-    quoted_string string_ltl_spot;
-    quoted_string string_ltl_spin;
-    quoted_string string_ltl_lbt;
-    quoted_string string_ltl_wring;
-    quoted_string filename_ltl_spot;
-    quoted_string filename_ltl_spin;
-    quoted_string filename_ltl_lbt;
-    quoted_string filename_ltl_wring;
-    // Run-specific variables
-    printable_result_filename output;
   public:
-    using spot::formater::has;
-
-    translator_runner(spot::bdd_dict_ptr dict)
-      : dict(dict)
+    xtranslator_runner(spot::bdd_dict_ptr dict)
+      : translator_runner(dict)
     {
-      declare('f', &string_ltl_spot);
-      declare('s', &string_ltl_spin);
-      declare('l', &string_ltl_lbt);
-      declare('w', &string_ltl_wring);
-      declare('F', &filename_ltl_spot);
-      declare('S', &filename_ltl_spin);
-      declare('L', &filename_ltl_lbt);
-      declare('W', &filename_ltl_wring);
-      declare('D', &output);
-      declare('H', &output);
-      declare('N', &output);
-      declare('T', &output);
-
-      size_t s = translators.size();
-      assert(s);
-      for (size_t n = 0; n < s; ++n)
-	{
-	  // Check that each translator uses at least one input and
-	  // one output.
-	  std::vector<bool> has(256);
-	  const translator_spec& t = translators[n];
-	  scan(t.cmd, has);
-	  if (!(has['f'] || has['s'] || has['l'] || has['w']
-		|| has['F'] || has['S'] || has['L'] || has['W']))
-	    error(2, 0, "no input %%-sequence in '%s'.\n       Use "
-		  "one of %%f,%%s,%%l,%%w,%%F,%%S,%%L,%%W to indicate how "
-		  "to pass the formula.", t.spec);
-	  bool has_d = has['D'];
-	  if (!(has_d || has['N'] || has['T'] || has['H']))
-	    error(2, 0, "no output %%-sequence in '%s'.\n      Use one of "
-		  "%%D,%%H,%%N,%%T to indicate where the automaton is saved.",
-		  t.spec);
-	  has_sr |= has_d;
-
-	  // Remember the %-sequences used by all translators.
-	  prime(t.cmd);
-	}
-
-    }
-
-    void
-    string_to_tmp(std::string& str, unsigned n, std::string& tmpname)
-    {
-      char prefix[30];
-      snprintf(prefix, sizeof prefix, "lcr-i%u-", n);
-      spot::open_temporary_file* tmpfile = spot::create_open_tmpfile(prefix);
-      tmpname = tmpfile->name();
-      int fd = tmpfile->fd();
-      ssize_t s = str.size();
-      if (write(fd, str.c_str(), s) != s
-	  || write(fd, "\n", 1) != 1)
-	error(2, errno, "failed to write into %s", tmpname.c_str());
-      tmpfile->close();
-    }
-
-    const std::string&
-    formula() const
-    {
-      // Pick the most readable format we have...
-      if (!string_ltl_spot.val().empty())
-	return string_ltl_spot;
-      if (!string_ltl_spin.val().empty())
-	return string_ltl_spin;
-      if (!string_ltl_wring.val().empty())
-	return string_ltl_wring;
-      if (!string_ltl_lbt.val().empty())
-	return string_ltl_lbt;
-      SPOT_UNREACHABLE();
-      return string_ltl_spot;
-    }
-
-    void
-    round_formula(const spot::ltl::formula* f, unsigned serial)
-    {
-      if (has('f') || has('F'))
-	string_ltl_spot = spot::ltl::to_string(f, true);
-      if (has('s') || has('S'))
-	string_ltl_spin = spot::ltl::to_spin_string(f, true);
-      if (has('l') || has('L'))
-	string_ltl_lbt = spot::ltl::to_lbt_string(f);
-      if (has('w') || has('W'))
-	string_ltl_wring = spot::ltl::to_wring_string(f);
-      if (has('F'))
-	string_to_tmp(string_ltl_spot, serial, filename_ltl_spot);
-      if (has('S'))
-	string_to_tmp(string_ltl_spin, serial, filename_ltl_spin);
-      if (has('L'))
-	string_to_tmp(string_ltl_lbt, serial, filename_ltl_lbt);
-      if (has('W'))
-	string_to_tmp(string_ltl_wring, serial, filename_ltl_wring);
+      has_sr = has('D');
     }
 
     spot::const_tgba_digraph_ptr
@@ -1230,7 +859,7 @@ namespace
   class processor: public job_processor
   {
     spot::bdd_dict_ptr dict = spot::make_bdd_dict();
-    translator_runner runner;
+    xtranslator_runner runner;
     fset_t unique_set;
   public:
     processor():

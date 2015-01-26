@@ -192,7 +192,8 @@ over the \fIN\fR products performed.
 .BR randltl (1),
 .BR genltl (1),
 .BR ltlfilt (1),
-.BR ltl2tgba (1)
+.BR ltl2tgba (1),
+.BR ltldo (1)
 
 [BIBLIOGRAPHY]
 If you would like to give a reference to this tool in an article,
@@ -230,5 +231,3 @@ checking the emptiness of Comp(P1)*P2.
 Our implementation will detect and reports problems (like
 inconsistencies between two translations) but unlike LBTT it does not
 offer an interactive mode to investigate such problems.
-
-

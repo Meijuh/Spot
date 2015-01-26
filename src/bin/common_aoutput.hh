@@ -97,6 +97,8 @@ public:
     declare('w', &aut_word_);
   }
 
+  using spot::formater::declare;
+
   /// \brief print the configured statistics.
   ///
   /// The \a f argument is not needed if the Formula does not need
@@ -218,6 +220,8 @@ public:
 	// Time and input automaton for statistics
 	double time = 0.0,
 	const spot::const_hoa_aut_ptr& haut = nullptr);
+
+  void add_stat(char c, const spot::printable* p);
 };
 
 

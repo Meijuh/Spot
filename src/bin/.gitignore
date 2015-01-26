@@ -4,6 +4,7 @@ genltl
 ltl2tgba
 ltl2tgta
 ltlcross
+ltldo
 ltlfilt
 ltlgrind
 randaut
