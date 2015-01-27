@@ -257,6 +257,101 @@ ltl3ba,4,7
 
 Much more readable!
 
+* Transparent renaming
+
+Have you ever tried to use =spin=, =ltl2ba=, or =ltl3ba=, to translate
+a formula such as =[]!Error=, you have noticed that it does not work:
+
+#+BEGIN_SRC sh :results verbatim :exports code
+spin -f '[]!Error'
+#+END_SRC
+#+RESULTS:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+spin -f '[]!Error' 2>&1 || exit 0
+#+END_SRC
+#+RESULTS:
+: tl_spin: expected predicate, saw 'E'
+: tl_spin: []!Error
+: -------------^
+
+All these tools are based on the same LTL parser, that allows
+only atomic propositions starting with a lowercase letter.
+
+Running the same command through =ltldo= will work:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo -t 'spin -f %s>%N' -f '[]!Error' -s
+#+END_SRC
+#+RESULTS:
+: never {
+: accept_init:
+:   if
+:   :: ((!(Error))) -> goto accept_init
+:   fi;
+: }
+
+What happened is that =ltldo= renamed the atomic propositions in the
+formula before calling =spin=.  So =spin= actually received the
+formula =[]!p0=, produced a never claim using =p0=, and that never
+claim was then relabeled by =ltldo= to use =Error= instead of =p0=.
+
+This renaming occurs any time some command uses =%s= or =%S= and the
+formula has atomic propositions incompatible with Spin's conventions;
+or when some command uses =%l=, =%L=, or =%T=, and the formula has
+atomic propositions incompatible with [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][LBT's conventions]].
+
+
+There are some cases where the renaming is not completely transparent.
+For instance if a translator tool outputs some HOA file named after
+the formula translated, the name will be output unmodified (since this
+can be any text string, there is not way for =ltldo= to assume it is
+an LTL formula).  In the following example, you can see that the
+automaton uses the atomic proposition =Error=, but its name contains a
+reference to =p0=.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo 'ltl3ba -H -f %s>%H' -f '[]!Error' -H
+#+END_SRC
+#+RESULTS:
+#+begin_example
+HOA: v1
+name: "BA for ([](!(p0)))"
+States: 1
+Start: 0
+AP: 1 "Error"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0 "accept_init" {0}
+[!0] 0
+--END--
+#+end_example
+
+If this is a problem, you can always force a new name with the
+=--name= option:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo 'ltl3ba -H -f %s>%H' -f '[]!Error' -H --name='BA for %f'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+HOA: v1
+name: "BA for []!Error"
+States: 1
+Start: 0
+AP: 1 "Error"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0 "accept_init" {0}
+[!0] 0
+--END--
+#+end_example
+
 * Controlling and measuring time
 
 The run time of each command can be restricted with the =-T NUM=

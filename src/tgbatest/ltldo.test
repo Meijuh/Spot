@@ -32,6 +32,14 @@ cat >expected <<EOF
 EOF
 diff output expected
 
+# Renaming
+run 0 $ltldo -f a -f 'a&_b' -t 'echo %f,%s' >output
+cat >expected <<EOF
+(a),(a)
+(p0) & (p1),(p0) && (p1)
+EOF
+diff output expected
+
 
 # Test timeouts.  This test should take 2*2 seconds.
 $genltl --or-g=1..2 |
@@ -52,3 +60,46 @@ ba,1,GFp1 & GFp2,3,12,8
 tgba,2,GFp1 & GFp2 & GFp3,1,8,8
 ba,2,GFp1 & GFp2 & GFp3,4,32,13
 EOF
+diff output expected
+
+# Renaming
+run 0 $ltldo "$ltl2tgba -H %s>%H" -f GF_foo_ -H >output
+cat output
+# The HOA output uses _foo_ as atomic proposition, but the name shows
+# that GFp0 was actually given to ltl2tgba.
+cat >expected <<EOF
+HOA: v1
+name: "GFp0"
+States: 1
+Start: 0
+AP: 1 "_foo_"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[0] 0 {0}
+[!0] 0
+--END--
+EOF
+diff output expected
+
+# But we can force the name in the output:
+run 0 $ltldo "$ltl2tgba -H %s>%H" -f GF_foo_ -H --name=%f >output
+cat output
+cat >expected <<EOF
+HOA: v1
+name: "GF_foo_"
+States: 1
+Start: 0
+AP: 1 "_foo_"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[0] 0 {0}
+[!0] 0
+--END--
+EOF
+diff output expected

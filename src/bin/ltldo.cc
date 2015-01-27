@@ -35,8 +35,11 @@
 #include "common_trans.hh"
 
 #include "ltlvisit/tostring.hh"
+#include "ltlvisit/relabel.hh"
+#include "misc/bareword.hh"
 #include "misc/timer.hh"
 #include "tgbaalgos/lbtt.hh"
+#include "tgbaalgos/relabel.hh"
 #include "hoaparse/public.hh"
 #include "dstarparse/public.hh"
 
@@ -291,7 +294,6 @@ namespace
 
       inputf = input;
       process_formula(f, filename, linenum);
-      f->destroy();
       return 0;
     }
 
@@ -300,6 +302,21 @@ namespace
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
+      std::unique_ptr<spot::ltl::relabeling_map> relmap;
+
+      // If atomic propositions are incompatible with one of the
+      // output, relabel the formula.
+      if ((!f->has_lbt_atomic_props() &&
+	   (runner.has('l') || runner.has('L') || runner.has('T')))
+	  || (!f->has_spin_atomic_props() &&
+	      (runner.has('s') || runner.has('S'))))
+	{
+	  relmap.reset(new spot::ltl::relabeling_map);
+	  auto g = spot::ltl::relabel(f, spot::ltl::Pnn, relmap.get());
+	  f->destroy();
+	  f = g;
+	}
+
       static unsigned round = 0;
       runner.round_formula(f, round);
 
@@ -313,6 +330,8 @@ namespace
 	    error_at_line(2, 0, filename, linenum, "aborting here");
 	  if (aut)
 	    {
+	      if (relmap)
+		relabel_here(aut, relmap.get());
 	      aut = post.run(aut, f);
 	      cmdname = translators[t].name;
 	      roundval = round;
@@ -320,6 +339,7 @@ namespace
 			    nullptr);
 	    };
 	}
+      f->destroy();
       ++round;
       return 0;
     }
