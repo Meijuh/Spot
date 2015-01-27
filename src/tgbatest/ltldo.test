@@ -53,12 +53,12 @@ run 0 $ltldo "{tgba}$ltl2tgba %f -H >%H" "{ba}$ltl2tgba >%N %f -s" \
 	     --stats="%T,%R,%f,%s,%t,%e" >output
 cat output
 cat >expected <<EOF
-tgba,0,GFp1,1,2,2
-ba,0,GFp1,2,4,4
-tgba,1,GFp1 & GFp2,1,4,4
-ba,1,GFp1 & GFp2,3,12,8
-tgba,2,GFp1 & GFp2 & GFp3,1,8,8
-ba,2,GFp1 & GFp2 & GFp3,4,32,13
+tgba,1,GFp1,1,2,2
+ba,1,GFp1,2,4,4
+tgba,2,GFp1 & GFp2,1,4,4
+ba,2,GFp1 & GFp2,3,12,8
+tgba,3,GFp1 & GFp2 & GFp3,1,8,8
+ba,3,GFp1 & GFp2 & GFp3,4,32,13
 EOF
 diff output expected
 

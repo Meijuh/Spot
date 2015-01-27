@@ -317,7 +317,7 @@ namespace
 	  f = g;
 	}
 
-      static unsigned round = 0;
+      static unsigned round = 1;
       runner.round_formula(f, round);
 
       unsigned ts = translators.size();
