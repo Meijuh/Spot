@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -34,10 +34,15 @@ namespace spot
   /// \addtogroup tgba_io
   /// @{
 
+#ifndef SWIG
   /// \brief A parse diagnostic with its location.
   typedef std::pair<spot::location, std::string> hoa_parse_error;
   /// \brief A list of parser diagnostics, as filled by parse.
   typedef std::list<hoa_parse_error> hoa_parse_error_list;
+#else
+    // Turn hoa_parse_error_list into an opaque type for Swig.
+  struct hoa_parse_error_list {};
+#endif
 
   /// \brief Temporary encoding of an omega automaton produced by
   /// ltl2hoa.

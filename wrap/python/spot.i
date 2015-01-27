@@ -33,33 +33,33 @@
 %include "std_list.i"
 %include "exception.i"
 
- // git grep 'typedef.*std::shared_ptr' | grep -v const
- // sed 's/.*<\(.*\)>.*/%shared_ptr(spot::\1)/g'
-%shared_ptr(spot::bdd_dict)
+ // git grep 'typedef.*std::shared_ptr' | grep -v const |
+ //   sed 's/.*<\(.*\)>.*/%shared_ptr(spot::\1)/g'
 %shared_ptr(spot::dstar_aut)
-%shared_ptr(spot::future_conditions_collector)
+%shared_ptr(spot::hoa_aut)
+%shared_ptr(spot::fair_kripke)
 %shared_ptr(spot::kripke)
-%shared_ptr(spot::saba)
-%shared_ptr(spot::saba_complement_tgba)
+%shared_ptr(spot::kripke_explicit)
+%shared_ptr(spot::kripke)
 %shared_ptr(spot::ta)
-%shared_ptr(spot::taa_tgba_formula)
-%shared_ptr(spot::taa_tgba_string)
 %shared_ptr(spot::ta_explicit)
 %shared_ptr(spot::ta_product)
-%shared_ptr(spot::taa_tgba)
-%shared_ptr(spot::tgba)
-%shared_ptr(spot::tgba_digraph)
-%shared_ptr(spot::tgba_kv_complement)
-%shared_ptr(spot::tgba_product)
-%shared_ptr(spot::tgba_product_init)
-%shared_ptr(spot::tgba_safra_complement)
-%shared_ptr(spot::tgba_sgba_proxy)
 %shared_ptr(spot::tgta)
 %shared_ptr(spot::tgta_explicit)
+%shared_ptr(spot::bdd_dict)
+%shared_ptr(spot::tgba)
+%shared_ptr(spot::tgba_digraph)
+%shared_ptr(spot::tgba_product)
+%shared_ptr(spot::tgba_product_init)
+%shared_ptr(spot::taa_tgba)
+%shared_ptr(spot::taa_tgba_string)
+%shared_ptr(spot::taa_tgba_formula)
+%shared_ptr(spot::tgba_safra_complement)
 %shared_ptr(spot::tgba_run)
-%shared_ptr(spot::emptiness_check)
 %shared_ptr(spot::emptiness_check_result)
+%shared_ptr(spot::emptiness_check)
 %shared_ptr(spot::emptiness_check_instantiator)
+%shared_ptr(spot::tgbasl)
 
 namespace std {
    %template(liststr) list<string>;
@@ -131,7 +131,7 @@ namespace std {
 #include "tgbaalgos/postproc.hh"
 #include "tgbaalgos/stutter.hh"
 
-#include "tgbaparse/public.hh"
+#include "hoaparse/public.hh"
 
 #include "ta/ta.hh"
 #include "ta/tgta.hh"
@@ -262,7 +262,7 @@ namespace spot {
 %include "tgbaalgos/postproc.hh"
 %include "tgbaalgos/stutter.hh"
 
-%include "tgbaparse/public.hh"
+%include "hoaparse/public.hh"
 
 %include "ta/ta.hh"
 %include "ta/tgta.hh"
@@ -349,10 +349,10 @@ empty_parse_error_list()
   return l;
 }
 
-spot::tgba_parse_error_list
-empty_tgba_parse_error_list()
+spot::hoa_parse_error_list
+empty_hoa_parse_error_list()
 {
-  tgba_parse_error_list l;
+  hoa_parse_error_list l;
   return l;
 }
 
@@ -422,7 +422,7 @@ __bool__()
 
 }
 
-%extend spot::tgba_parse_error_list {
+%extend spot::hoa_parse_error_list {
 
 bool
 __nonzero__()

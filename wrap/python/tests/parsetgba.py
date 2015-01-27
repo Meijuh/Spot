@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
+# Copyright (C) 2012, 2014, 2015 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -21,24 +21,23 @@ import os
 import spot
 
 contents = '''
-acc = "b";
-"a U b", "1", "b", "b";
-"a U b", "a U b", "a & !b",;
-"1", "1", "1", "b";
+HOA: v1 name: "a U b" States: 2 Start: 1 AP: 2 "a" "b" acc-name: Buchi
+Acceptance: 1 Inf(0) properties: trans-labels explicit-labels state-acc
+deterministic --BODY-- State: 0 {0} [t] 0 State: 1 [1] 0 [0&!1] 1 --END--
 '''
 
-filename = 'parsetgba.out'
+filename = 'parsetgba.hoa'
 
 out = open(filename, 'w+')
 out.write(contents)
 out.close()
 
-p = spot.empty_tgba_parse_error_list()
-a = spot.tgba_parse(filename, p, spot.make_bdd_dict())
+p = spot.empty_hoa_parse_error_list()
+a = spot.hoa_parse(filename, p, spot.make_bdd_dict())
 
 assert not p
 
-spot.dotty_reachable(spot.get_cout(), a)
+spot.dotty_reachable(spot.get_cout(), a.aut)
 
 del p
 del a

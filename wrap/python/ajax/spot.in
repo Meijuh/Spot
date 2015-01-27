@@ -544,13 +544,13 @@ elif translator == 'ta':
     automaton = spot.ensure_digraph(spot.ltl_to_taa(f, dict, refined_rules))
 
 elif translator == 'l3':
-    l3out = '-T'
+    l3out = '-H2'
     # 1.0.1 had determinization and simulation turned off by default,
     # we need -M0 and -S0 with 1.1.1 for the same effect
     l3opt = { '-l', '-P', '-A', '-c', '-C', '-o', '-p', '-M0', '-S0' }
     for lo in form.getfirst('lo', 'T'):
         if lo == 'U':
-            l3out = '-T3' # was -U in ltl3ba 1.0.1, now -T3 since 1.1.0
+            l3out = '-H3'
             issba = True
     for l3 in form.getlist('l3'):
         if l3 == 'l':
@@ -577,26 +577,26 @@ elif translator == 'l3':
     args.extend(['-f', spot.to_spin_string(f)])
     import subprocess
     l3file = tmpdir + "/aut"
-    l3aut = open(l3file, "w+")
-    try:
-        l3proc = subprocess.Popen(args, stdout=l3aut)
-        ret = l3proc.wait()
-    except:
-        unbufprint('<div class="error">Failed to run ltl3ba. Is it installed?</div>')
-        finish()
-    if ret != 0:
-        unbufprint('<div class="error">ltl3ba exited with error %s</div>' % ret)
-        finish()
-    l3aut.close()
-    tpel = spot.empty_tgba_parse_error_list()
-    automaton = spot.tgba_parse(l3file, tpel, dict, env)
+    with open(l3file, "w+") as l3aut:
+        try:
+            l3proc = subprocess.Popen(args, stdout=l3aut)
+            ret = l3proc.wait()
+        except:
+            unbufprint('<div class="error">Failed to run ltl3ba. Is it installed?</div>')
+            finish()
+        if ret != 0:
+            unbufprint('<div class="error">ltl3ba exited with error %s</div>' % ret)
+            finish()
+    tpel = spot.empty_hoa_parse_error_list()
+    automaton = spot.hoa_parse(l3file, tpel, dict, env)
     if tpel:
         unbufprint('''<div class="error">failed to read ltl3ba's output</div>''')
         unbufprint('<div class="parse-error">')
-        err = spot.format_tgba_parse_errors(spot.get_cout(), "output", tpel)
+        err = spot.format_hoa_parse_errors(spot.get_cout(), "output", tpel)
         unbufprint('</div>')
         automaton = 0
         finish()
+    automaton = automaton.aut
 elif translator == 'cs':
     donot_inject = False
     cs_nowdba = True
