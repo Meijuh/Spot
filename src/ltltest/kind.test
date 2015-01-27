@@ -26,110 +26,110 @@
 set -e
 
 cat >input<<EOF
-a,B&!xfLEPSFsgopr
-a<->b,BxfLEPSFsgopr
-!a,B&!xfLEPSFsgopr
-!(a|b),B&xfLEPSFsgopr
-F(a),&!xLPegopr
-G(a),&!xLPusopr
-a U b,&!xfLPgopr
-a U Fb,&!xLPegopr
-Ga U b,&!xLPopr
-1 U a,&!xfLPegopr
-a W b,&!xfLPsopr
-a W 0,&!xfLPusopr
-a M b,&!xfLPgopr
-a M 1,&!xfLPegopr
-a R b,&!xfLPsopr
-0 R b,&!xfLPusopr
-a R (b R (c R d)),&!xfLPsopr
-a U (b U (c U d)),&!xfLPgopr
-a W (b W (c W d)),&!xfLPsopr
-a M (b M (c M d)),&!xfLPgopr
-Fa -> Fb,xLPopr
-Ga -> Fb,xLPgopr
-Fa -> Gb,xLPsopr
-(Ga|Fc) -> Fb,xLPopr
-(Ga|Fa) -> Gb,xLPopr
-{a;c*;b}|->!Xb,&fPsopr
-{a;c*;b}|->X!b,&!fPsopr
-{a;c*;b}|->!Fb,&Psopr
-{a;c*;b}|->G!b,&!Psopr
-{a;c*;b}|->!Gb,&Pr
-{a;c*;b}|->F!b,&!Pr
-{a;c*;b}|->GFa,&!Pr
-{a;c*;b}|->FGa,&!P
-{a[+];c[+];b*}|->!Fb,&xPsopr
-{a[+];c*;b[+]}|->G!b,&!xPsopr
-{a*;c[+];b[+]}|->!Gb,&xPr
-{a[+];c*;b[+]}|->F!b,&!xPr
-{a[+];c[+];b*}|->GFa,&!xPr
-{a*;c[+];b[+]}|->FGa,&!xP
-{a;c;b|(d;e)}|->!Xb,&fPFsgopr
-{a;c;b|(d;e)}|->X!b,&!fPFsgopr
-{a;c;b|(d;e)}|->!Fb,&Psopr
-{a;c;b|(d;e)}|->G!b,&!Psopr
-{a;c;b|(d;e)}|->!Gb,&Pgopr
-{a;c;b|(d;e)}|->F!b,&!Pgopr
-{a;c;b|(d;e)}|->GFa,&!Pr
-{a;c;b|(d;e)}|->FGa,&!Pp
-{a[+] && c[+]}|->!Xb,&fPsopr
-{a[+] && c[+]}|->X!b,&!fPsopr
-{a[+] && c[+]}|->!Fb,&xPsopr
-{a[+] && c[+]}|->G!b,&!xPsopr
-{a[+] && c[+]}|->!Gb,&xPr
-{a[+] && c[+]}|->F!b,&!xPr
-{a[+] && c[+]}|->GFa,&!xPr
-{a[+] && c[+]}|->FGa,&!xP
-{a;c*;b}<>->!Gb,&Pgopr
-{a;c*;b}<>->F!b,&!Pgopr
-{a;c*;b}<>->FGb,&!Pp
-{a;c*;b}<>->!GFb,&Pp
-{a;c*;b}<>->GFb,&!P
-{a;c*;b}<>->!FGb,&P
-{a*;c[+];b[+]}<>->!FGb,&xP
-{a;c|d;b}<>->!Gb,&Pgopr
-{a;c|d;b}<>->G!b,&!Psopr
-{a;c|d;b}<>->FGb,&!Pp
-{a;c|d;b}<>->!GFb,&Pp
-{a;c|d;b}<>->GFb,&!Pr
-{a;c|d;b}<>->!FGb,&Pr
+a,B&!xfLEPSFsgopra
+a<->b,BxfLEPSFsgopra
+!a,B&!xfLEPSFsgopra
+!(a|b),B&xfLEPSFsgopra
+F(a),&!xLPegopra
+G(a),&!xLPusopra
+a U b,&!xfLPgopra
+a U Fb,&!xLPegopra
+Ga U b,&!xLPopra
+1 U a,&!xfLPegopra
+a W b,&!xfLPsopra
+a W 0,&!xfLPusopra
+a M b,&!xfLPgopra
+a M 1,&!xfLPegopra
+a R b,&!xfLPsopra
+0 R b,&!xfLPusopra
+a R (b R (c R d)),&!xfLPsopra
+a U (b U (c U d)),&!xfLPgopra
+a W (b W (c W d)),&!xfLPsopra
+a M (b M (c M d)),&!xfLPgopra
+Fa -> Fb,xLPopra
+Ga -> Fb,xLPgopra
+Fa -> Gb,xLPsopra
+(Ga|Fc) -> Fb,xLPopra
+(Ga|Fa) -> Gb,xLPopra
+{a;c*;b}|->!Xb,&fPsopra
+{a;c*;b}|->X!b,&!fPsopra
+{a;c*;b}|->!Fb,&Psopra
+{a;c*;b}|->G!b,&!Psopra
+{a;c*;b}|->!Gb,&Pra
+{a;c*;b}|->F!b,&!Pra
+{a;c*;b}|->GFa,&!Pra
+{a;c*;b}|->FGa,&!Pa
+{a[+];c[+];b*}|->!Fb,&xPsopra
+{a[+];c*;b[+]}|->G!b,&!xPsopra
+{a*;c[+];b[+]}|->!Gb,&xPra
+{a[+];c*;b[+]}|->F!b,&!xPra
+{a[+];c[+];b*}|->GFa,&!xPra
+{a*;c[+];b[+]}|->FGa,&!xPa
+{a;c;b|(d;e)}|->!Xb,&fPFsgopra
+{a;c;b|(d;e)}|->X!b,&!fPFsgopra
+{a;c;b|(d;e)}|->!Fb,&Psopra
+{a;c;b|(d;e)}|->G!b,&!Psopra
+{a;c;b|(d;e)}|->!Gb,&Pgopra
+{a;c;b|(d;e)}|->F!b,&!Pgopra
+{a;c;b|(d;e)}|->GFa,&!Pra
+{a;c;b|(d;e)}|->FGa,&!Ppa
+{a[+] && c[+]}|->!Xb,&fPsopra
+{a[+] && c[+]}|->X!b,&!fPsopra
+{a[+] && c[+]}|->!Fb,&xPsopra
+{a[+] && c[+]}|->G!b,&!xPsopra
+{a[+] && c[+]}|->!Gb,&xPra
+{a[+] && c[+]}|->F!b,&!xPra
+{a[+] && c[+]}|->GFa,&!xPra
+{a[+] && c[+]}|->FGa,&!xPa
+{a;c*;b}<>->!Gb,&Pgopra
+{a;c*;b}<>->F!b,&!Pgopra
+{a;c*;b}<>->FGb,&!Ppa
+{a;c*;b}<>->!GFb,&Ppa
+{a;c*;b}<>->GFb,&!Pa
+{a;c*;b}<>->!FGb,&Pa
+{a*;c[+];b[+]}<>->!FGb,&xPa
+{a;c|d;b}<>->!Gb,&Pgopra
+{a;c|d;b}<>->G!b,&!Psopra
+{a;c|d;b}<>->FGb,&!Ppa
+{a;c|d;b}<>->!GFb,&Ppa
+{a;c|d;b}<>->GFb,&!Pra
+{a;c|d;_b}<>->!FGb,&Pr
 # Equivalent to a&b&c&d
-{a:b:c:d}!,B&!xfLEPSFsgopr
-a&b&c&d,B&!xfLEPSFsgopr
-(Xa <-> XXXc) U (b & Fe),LPgopr
-(!X(a|X(!b))&(FX(g xor h)))U(!G(a|b)),LPegopr
-(!X(a|X(!b))&(GX(g xor h)))R(!F(a|b)),LPusopr
-(!X(a|X(!b))&(GX(g xor h)))U(!G(a|b)),LPeopr
-(!X(a|X(!b))&(FX(g xor h)))R(!F(a|b)),LPuopr
-(!X(a|X(!b))&(GX(g xor h)))U(!F(a|b)),LPp
-(!X(a|X(!b))&(FX(g xor h)))R(!G(a|b)),LPr
-(!X(a|GXF(!b))&(FGX(g xor h)))U(!F(a|b)),LPp
-(!X(a|GXF(!b))&(FGX(g xor h)))R(!F(a|b)),LPup
-(!X(a|FXG(!b))&(GFX(g xor h)))R(!G(a|b)),LPr
-(!X(a|FXG(!b))&(GFX(g xor h)))U(!G(a|b)),LPer
-(!X(a|GXF(!b))&(FGX(g xor h)))U(!G(a|Fb)),LPep
-(!X(a|GXF(!b))&(FGX(g xor h)))U(!F(a|Gb)),LP
-(!X(a|FXG(!b))&(GFX(g xor h)))R(!F(a|Gb)),LPur
-(!X(a|FXG(!b))&(GFX(g xor h)))R(!G(a|Fb)),LP
-GFa M GFb,&!xLPeu
-FGa M FGb,&!xLPeup
-Fa  M GFb,&!xLPer
-GFa W GFb,&!xLPeur
-FGa W FGb,&!xLPeu
-Ga  W FGb,&!xLPup
-Ga  W b,&!xLPsopr
-Fa  M b,&!xLPgopr
-{a;b*;c},&!fPsopr
-{a;b*;c}!,&!fPgopr
+{a:b:c:d}!,B&!xfLEPSFsgopra
+a&b&c&d,B&!xfLEPSFsgopra
+(Xa <-> XXXc) U (b & Fe),LPgopra
+(!X(a|X(!b))&(FX(g xor h)))U(!G(a|b)),LPegopra
+(!X(a|X(!b))&(GX(g xor h)))R(!F(a|b)),LPusopra
+(!X(a|X(!b))&(GX(g xor h)))U(!G(a|b)),LPeopra
+(!X(a|X(!b))&(FX(g xor h)))R(!F(a|b)),LPuopra
+(!X(a|X(!b))&(GX(g xor h)))U(!F(a|b)),LPpa
+(!X(a|X(!b))&(FX(g xor h)))R(!G(a|b)),LPra
+(!X(a|GXF(!b))&(FGX(g xor h)))U(!F(a|b)),LPpa
+(!X(a|GXF(!b))&(FGX(g xor h)))R(!F(a|b)),LPupa
+(!X(a|FXG(!b))&(GFX(g xor h)))R(!G(a|b)),LPra
+(!X(a|FXG(!b))&(GFX(g xor h)))U(!G(a|b)),LPera
+(!X(a|GXF(!b))&(FGX(g xor h)))U(!G(a|Fb)),LPepa
+(!X(a|GXF(!b))&(FGX(g xor h)))U(!F(a|Gb)),LPa
+(!X(a|FXG(!b))&(GFX(g xor h)))R(!F(a|Gb)),LPura
+(!X(a|FXG(!b))&(GFX(g xor h)))R(!G(a|Fb)),LPa
+GFa M GFb,&!xLPeua
+FGa M FGb,&!xLPeupa
+Fa  M GFb,&!xLPera
+GFa W GFb,&!xLPeura
+FGa W FGb,&!xLPeua
+Ga  W FGb,&!xLPupa
+Ga  W b,&!xLPsopra
+Fa  M b,&!xLPgopra
+{a;b*;c},&!fPsopra
+{a;b*;c}!,&!fPgopra
 # The negative normal form is {a;b*;c}[]->1
-!{a;b*;c}!,&fPsopr
-{a;b*;c}[]->0,&!fPsopr
-!{a;b*;c},&!fPgopr
-!{a[+];b*;c[+]},&!xfPgopr
-{a[+];b*;c[+]},&!xfPsopr
-{a[+] && b || c[+]},&!fPsopr
-{a[+] && b[+] || c[+]},&!xfPsopr
+!{a;b*;c}!,&fPsopra
+{a;b*;p112}[]->0,&!fPsopra
+!{a;b*;c.2},&!fPgopr
+!{a[+];b*;c[+]},&!xfPgopra
+{a[+];b*;c[+]},&!xfPsopra
+{a[+] && b || c[+]},&!fPsopra
+{a[+] && b[+] || c[+]},&!xfPsopra
 EOF
 
 run 0 ../kind input

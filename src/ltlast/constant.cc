@@ -59,6 +59,8 @@ namespace spot
 	  is.syntactic_persistence = true;
 	  is.not_marked = true;
 	  is.accepting_eword = false;
+	  is.lbt_atomic_props = true;
+	  is.spin_atomic_props = true;
 	  break;
 	case constant::EmptyWord:
 	  is.boolean = false;
@@ -80,6 +82,8 @@ namespace spot
 	  is.universal = false;
 	  is.not_marked = true;
 	  is.accepting_eword = true;
+	  is.lbt_atomic_props = true;
+	  is.spin_atomic_props = true;
 	  break;
 	}
     }

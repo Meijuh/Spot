@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -40,6 +40,13 @@ namespace spot
   /// \brief Double-quote words that are not bare.
   /// \see is_bare_word
   SPOT_API std::string quote_unless_bare_word(const std::string& str);
+
+  /// \brief Whether a word can be used as an atomic proposition for Spin 5.
+  ///
+  /// In Spin 5 (hence in ltl2ba and ltl3ba as well) atomic
+  /// propositions should start with a lowercase letter, and can then
+  /// consist solely of alphanumeric characters and underscores.
+  SPOT_API bool is_spin_ap(const char* str);
   /// @}
 }
 

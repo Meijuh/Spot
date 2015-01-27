@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2011, 2013, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -48,6 +48,18 @@ namespace spot
       return str;
     else
       return "\"" + escape_str(str) + "\"";
+  }
+
+  // This is for Spin 5.  Spin 6 has a relaxed parser that can
+  // accept any parenthesized block as an atomic propoistion.
+  bool is_spin_ap(const char* str)
+  {
+    if (!str || !islower(*str))
+      return false;
+    while (*++str)
+      if (!(isalnum(*str) || *str == '_'))
+	return false;
+    return true;
   }
 
 }

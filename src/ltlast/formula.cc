@@ -56,7 +56,10 @@ namespace spot
       proprint(is_syntactic_recurrence, "r", "syntactic recurrence");	\
       proprint(is_marked, "+", "marked");				\
       proprint(accepts_eword, "0", "accepts the empty word");		\
-      proprint(has_lbt_atomic_props, "l", "has LBT-style atomic props");
+      proprint(has_lbt_atomic_props, "l",				\
+               "has LBT-style atomic props");				\
+      proprint(has_spin_atomic_props, "a",				\
+               "has Spin-style atomic props");
 
 
     std::list<std::string>

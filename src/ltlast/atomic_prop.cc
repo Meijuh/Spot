@@ -23,6 +23,7 @@
 #include "config.h"
 #include "atomic_prop.hh"
 #include "visitor.hh"
+#include "misc/bareword.hh"
 #include <cstddef>
 #include <cassert>
 #include <ostream>
@@ -60,12 +61,14 @@ namespace spot
       // is.lbt_atomic_props should be true if the name has the form
       // pNN where NN is any number of digit.
       std::string::const_iterator pos = name.begin();
-      is.lbt_atomic_props = (pos != name.end() && *pos++ == 'p');
-      while (is.lbt_atomic_props && pos != name.end())
+      bool lbtap = (pos != name.end() && *pos++ == 'p');
+      while (lbtap && pos != name.end())
 	{
 	  char l = *pos++;
-	  is.lbt_atomic_props = (l >= '0' && l <= '9');
+	  lbtap = (l >= '0' && l <= '9');
 	}
+      is.lbt_atomic_props = lbtap;
+      is.spin_atomic_props = lbtap || is_spin_ap(name.c_str());
     }
 
     atomic_prop::~atomic_prop()

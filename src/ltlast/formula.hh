@@ -293,6 +293,11 @@ namespace spot
 	return is.lbt_atomic_props;
       }
 
+      bool has_spin_atomic_props() const
+      {
+	return is.spin_atomic_props;
+      }
+
       /// The properties as a field of bits.  For internal use.
       unsigned get_props() const
       {
@@ -354,6 +359,7 @@ namespace spot
 	bool not_marked:1;	   // No occurrence of EConcatMarked.
 	bool accepting_eword:1;	   // Accepts the empty word.
 	bool lbt_atomic_props:1;   // Use only atomic propositions like p42.
+	bool spin_atomic_props:1;  // Use only spin-compatible atomic props.
       };
       union
       {
