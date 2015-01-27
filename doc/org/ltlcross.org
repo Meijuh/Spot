@@ -149,6 +149,35 @@ tools:
     so we have to rename =%D.dst= as =%D= so that =ltlcross= can find the file)
   - '=ltl3dra -f %s >%D='
 
+To simplify the use of some of the above tools, a set of predefined
+shorthands are available.  Those can be listed with the
+=--list-shorthands= option.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlcross --list-shorthands
+#+END_SRC
+#+RESULTS:
+#+begin_example
+If a COMMANDFMT does not use any %-sequence, and starts with one of
+the following words, then the string on the right is appended.
+
+  lbt          <%L>%T
+  ltl2ba       -f %s>%N
+  ltl2dstar    %L %D
+  ltl2tgba     -H %f>%H
+  ltl3ba       -f %s>%N
+  ltl3dra      -f %f>%D
+  modella      %L %T
+  spin         -f %s>%N
+#+end_example
+
+What this implies is that running =ltlcross ltl2ba ltl3ba ...= is
+the same as running =ltlcross 'ltl2ba -f %s>%N' 'ltl3ba -f %s>%N' ...=
+
+Because only the prefix of the actual command is checked, you can
+still specify some options.  For instance =ltlcross 'ltl2tgba -D' ...=
+is short for =ltlcross 'ltl2tgba -D -H %F>%H' ...=
+
 * Getting statistics
 
 Detailed statistics about the result of each translation, and the

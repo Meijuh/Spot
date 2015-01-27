@@ -81,7 +81,7 @@ X[]!<>((a && ![]b) || (!a && []b)),4,10
 Using =ltldo= the above command can be reduced to this:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltldo -F sample.ltl 'ltl3ba -f %s>%N' --stats='%f,%s,%t'
+ltldo 'ltl3ba -f %s>%N' -F sample.ltl --stats='%f,%s,%t'
 #+END_SRC
 #+RESULTS:
 #+begin_example
@@ -100,6 +100,27 @@ XG!F(a xor Gb),4,10
 Note that the formulas look different in both cases, because in the
 =while= loop the formula printed has already been processed with
 =ltlfilt=, while =ltldo= emits the input string untouched.
+
+In fact, as we will discuss below, =ltl3ba= is a tool that =ltldo=
+already knows about, so there is a shorter way to run the above
+command:
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltldo ltl3ba -F sample.ltl --stats='%f,%s,%t'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+1,1,1
+1 U a,2,4
+!(!((a U Gb) U b) U GFa),2,4
+(b <-> Xc) xor Fb,7,21
+FXb R (a R (1 U b)),6,28
+Ga,1,1
+G(!(c | (a & (a W Gb))) M Xa),1,0
+GF((b R !a) U (Xc M 1)),2,4
+G(Xb | Gc),3,11
+XG!F(a xor Gb),4,10
+#+end_example
 
 * Example: running =spin= and producing HOA
 
@@ -142,6 +163,13 @@ State: 1 {0}
 --END--
 #+end_example
 
+Again, using the shorthands defined below, the previous command can be
+simplified to just this:
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltldo spin -f a -f GFa -H
+#+END_SRC
+
 * Syntax for specifying tools to call
 
 The syntax for specifying how a tool should be called is the same as
@@ -159,9 +187,10 @@ ltldo --help | sed -n '/character sequences:/,/^$/p' | sed '1d;$d'
 :   %N,%T,%D,%H                the automaton is output as a Never claim, or in
 :                              LBTT's, in LTL2DSTAR's, or in the HOA format
 
-Contrarily to =ltlcross=, it this not mandatory to specify an output filename
-using one of the sequence for that later lines.  For instance we could
-simply run a formula though =echo= to compare different output syntaxes:
+Contrarily to =ltlcross=, it this not mandatory to specify an output
+filename using one of the sequence for that last line.  For instance
+we could simply run a formula though =echo= to compare different
+output syntaxes:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltldo -f 'p0 U p1' -f 'GFp0' 'echo %f, %s, %l, %w'
@@ -257,6 +286,66 @@ ltl3ba,4,7
 
 Much more readable!
 
+* Shorthands for existing tools
+
+There is a list of existing tools for which =ltldo= (and =ltlcross=)
+have built-in specifications.  This list can be printed using the
+=--list-shorthands= option:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo --list-shorthands
+#+END_SRC
+#+RESULTS:
+#+begin_example
+If a COMMANDFMT does not use any %-sequence, and starts with one of
+the following words, then the string on the right is appended.
+
+  lbt          <%L>%T
+  ltl2ba       -f %s>%N
+  ltl2dstar    %L %D
+  ltl2tgba     -H %f>%H
+  ltl3ba       -f %s>%N
+  ltl3dra      -f %f>%D
+  modella      %L %T
+  spin         -f %s>%N
+#+end_example
+
+So for instance you can type just
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo ltl2ba -f a
+#+END_SRC
+
+to obtain a Dot output (this is the default output format for =ltldo=)
+for the neverclaim produced by =ltl2ba -f a=.
+
+#+RESULTS:
+: digraph G {
+:   rankdir=LR
+:   I [label="", style=invis, width=0]
+:   I -> 0
+:   0 [label="0", peripheries=2]
+:   0 -> 1 [label="a"]
+:   1 [label="1", peripheries=2]
+:   1 -> 1 [label="1"]
+: }
+
+The =ltl2ba= argument passed to =ltldo= was interpreted as if you had
+typed ={ltl2ba}ltl2ba -f %s>%N=.
+
+The shorthand is only used if it is the first word of an command
+string that does not use any =%= character.  This makes it possible to
+add options:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo ltl3ba 'ltl3ba -H2' -f GFa --stats='%T, %s states, %e edges'
+#+END_SRC
+
+#+RESULTS:
+: ltl3ba, 2 states, 4 edges
+: ltl3ba -H2, 1 states, 2 edges
+
+
 * Transparent renaming
 
 Have you ever tried to use =spin=, =ltl2ba=, or =ltl3ba=, to translate
@@ -281,7 +370,7 @@ only atomic propositions starting with a lowercase letter.
 Running the same command through =ltldo= will work:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltldo -t 'spin -f %s>%N' -f '[]!Error' -s
+ltldo spin -f '[]!Error' -s
 #+END_SRC
 #+RESULTS:
 : never {
@@ -290,6 +379,9 @@ ltldo -t 'spin -f %s>%N' -f '[]!Error' -s
 :   :: ((!(Error))) -> goto accept_init
 :   fi;
 : }
+
+(We need the =-s= option to obtain a never claim, instead of the
+default GraphViz output.)
 
 What happened is that =ltldo= renamed the atomic propositions in the
 formula before calling =spin=.  So =spin= actually received the
@@ -311,7 +403,7 @@ automaton uses the atomic proposition =Error=, but its name contains a
 reference to =p0=.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltldo 'ltl3ba -H -f %s>%H' -f '[]!Error' -H
+ltldo 'ltl3ba -H' -f '[]!Error' -H
 #+END_SRC
 #+RESULTS:
 #+begin_example
@@ -333,7 +425,7 @@ If this is a problem, you can always force a new name with the
 =--name= option:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltldo 'ltl3ba -H -f %s>%H' -f '[]!Error' -H --name='BA for %f'
+ltldo 'ltl3ba -H' -f '[]!Error' -H --name='BA for %f'
 #+END_SRC
 
 #+RESULTS:

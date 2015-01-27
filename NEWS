@@ -37,6 +37,12 @@ New in spot 1.99a (not yet released)
       now.  The short '-n NUM' option is now the same as the new
       --max-count=N option, for consistency with other tools.
 
+    - ltlcross (and ltldo) have a list of hard-coded shorthands
+      for some existing tools.  So for instance running
+      'ltlcross spin ...' is the same as running
+      'ltlcross "spin -f %s>%N" ...'.   This feature is much
+      more useful for ltldo.
+
     - There is a parser for the HOA format
       (http://adl.github.io/hoaf/) available as a
       spot::hoa_stream_parser object or spot::hoa_parse() function.

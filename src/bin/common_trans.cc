@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <iomanip>
 
 #include "error.h"
 
@@ -31,29 +32,81 @@
 #include "ltlvisit/lbt.hh"
 #include "common_conv.hh"
 
+// A set of tools for which we know the correct output
+static struct shorthands_t
+{
+  const char* prefix;
+  const char* suffix;
+}
+  shorthands[] = {
+    { "lbt", " <%L>%T" },
+    { "ltl2ba", " -f %s>%N" },
+    { "ltl2dstar", " %L %D"},
+    { "ltl2tgba", " -H %f>%H" },
+    { "ltl3ba", " -f %s>%N" },
+    { "ltl3dra", " -f %f>%D" },
+    { "modella", " %L %T" },
+    { "spin", " -f %s>%N" },
+  };
+
+void show_shorthands()
+{
+  std::cout
+    << ("If a COMMANDFMT does not use any %-sequence, and starts with one of\n"
+	"the following words, then the string on the right is appended.\n\n");
+  for (auto& s: shorthands)
+    std::cout << "  "
+	      << std::left << std::setw(12) << s.prefix
+	      << s.suffix << '\n';
+}
+
+
 translator_spec::translator_spec(const char* spec)
   : spec(spec), cmd(spec), name(spec)
 {
-  if (*cmd != '{')
-    return;
-
-  // Match the closing '}'
-  const char* pos = cmd;
-  unsigned count = 1;
-  while (*++pos)
+  if (*cmd == '{')
     {
-      if (*pos == '{')
-	++count;
-      else if (*pos == '}')
-	if (!--count)
-	  {
-	    name = strndup(cmd + 1, pos - cmd - 1);
-	    cmd = pos + 1;
-	    while (*cmd == ' ' || *cmd == '\t')
-	      ++cmd;
-	    break;
-	  }
+      // Match the closing '}'
+      const char* pos = cmd;
+      unsigned count = 1;
+      while (*++pos)
+	{
+	  if (*pos == '{')
+	    ++count;
+	  else if (*pos == '}')
+	    if (!--count)
+	      {
+		name = strndup(cmd + 1, pos - cmd - 1);
+		cmd = pos + 1;
+		while (*cmd == ' ' || *cmd == '\t')
+		  ++cmd;
+		break;
+	      }
+	}
     }
+  // If we recognize a shorthand, add the suffixes.
+  bool allocated = false;
+  if (!strchr(cmd, '%'))
+    {
+      for (auto& p: shorthands)
+	{
+	  int n = strlen(p.prefix);
+	  if (strncmp(cmd, p.prefix, n) == 0 &&
+	      (cmd[n] == 0 || cmd[n] == ' '))
+	    {
+	      int m = strlen(p.suffix);
+	      int q = strlen(cmd);
+	      char* tmp = static_cast<char*>(malloc(q + m + 1));
+	      strcpy(tmp, cmd);
+	      strcpy(tmp + q, p.suffix);
+	      cmd = tmp;
+	      allocated = true;
+	      break;
+	    }
+	}
+    }
+  if (!allocated)
+    cmd = strdup(cmd);
 }
 
 translator_spec::translator_spec(const translator_spec& other)
@@ -61,12 +114,16 @@ translator_spec::translator_spec(const translator_spec& other)
 {
   if (name != spec)
     name = strdup(name);
+  if (cmd != spec)
+    cmd = strdup(cmd);
 }
 
 translator_spec::~translator_spec()
 {
   if (name != spec)
     free(const_cast<char*>(name));
+  if (cmd != spec)
+    free(const_cast<char*>(cmd));
 }
 
 std::vector<translator_spec> translators;
@@ -326,6 +383,7 @@ exec_with_timeout(const char* cmd)
   return status;
 }
 
+#define OPT_LIST 1
 static const argp_option options[] =
 {
     /**************************************************/
@@ -333,6 +391,8 @@ static const argp_option options[] =
     { "translator", 't', "COMMANDFMT", 0,
       "register one translator to call", 0 },
     { "timeout", 'T', "NUMBER", 0, "kill translators after NUMBER seconds", 0 },
+    { "list-shorthands", OPT_LIST, 0 , 0,
+      "list availabled shorthands to use in COMMANDFMT", 0},
     /**************************************************/
     { 0, 0, 0, 0,
       "COMMANDFMT should specify input and output arguments using the "
@@ -369,6 +429,9 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
 		<< "on your platform" << std::endl;
 #endif
       break;
+    case OPT_LIST:
+      show_shorthands();
+      exit(0);
     default:
       return ARGP_ERR_UNKNOWN;
     }
