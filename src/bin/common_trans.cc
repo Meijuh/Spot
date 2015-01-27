@@ -293,7 +293,6 @@ volatile bool timed_out = false;
 unsigned timeout_count = 0;
 
 static unsigned timeout = 0;
-
 #if ENABLE_TIMEOUT
 static volatile int alarm_on = 0;
 static int child_pid = -1;
@@ -382,6 +381,7 @@ exec_with_timeout(const char* cmd)
     }
   return status;
 }
+#endif // ENABLE_TIMEOUT
 
 #define OPT_LIST 1
 static const argp_option options[] =
@@ -438,7 +438,4 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
   return 0;
 }
 
-const struct argp trans_argp { options, parse_opt_trans, 0, 0, 0, 0, 0 };
-
-
-#endif // ENABLE_TIMEOUT
+const struct argp trans_argp = { options, parse_opt_trans, 0, 0, 0, 0, 0 };

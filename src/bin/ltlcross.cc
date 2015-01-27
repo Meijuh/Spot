@@ -28,6 +28,7 @@
 #include <cstdio>
 #include <argp.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "error.h"
 #include "argmatch.h"
 

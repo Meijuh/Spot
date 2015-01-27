@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <sys/wait.h>
 
 #include "error.h"
 
