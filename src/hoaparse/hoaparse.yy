@@ -998,7 +998,9 @@ incorrectly-labeled-edge: trans-label unlabeled-edge
 never: "never" { res.namer = res.h->aut->create_namer<std::string>();
 	         res.h->aut->set_single_acceptance_set();
 		 res.h->aut->prop_state_based_acc();
-		 res.acc_state = State_Acc; }
+		 res.acc_state = State_Acc;
+		 res.pos_acc_sets = res.h->aut->acc().all_sets();
+	       }
        '{' nc-states '}'
        {
 	 // Add an accept_all state if needed.
@@ -1198,9 +1200,13 @@ nc-transition:
 /**********************************************************************/
 
 lbtt: lbtt-header lbtt-body ENDAUT
+      {
+	res.pos_acc_sets = res.h->aut->acc().all_sets();
+      }
     | lbtt-header-states LBTT_EMPTY
       {
         res.h->aut->set_acceptance_conditions($2);
+	res.pos_acc_sets = res.h->aut->acc().all_sets();
       }
 
 lbtt-header-states: LBTT
@@ -1321,29 +1327,42 @@ hoayy::parser::error(const location_type& location,
 
 static void fix_acceptance(result_& r)
 {
+  auto& acc = r.h->aut->acc();
+  // Compute the unused sets before possibly adding some below.
+  auto unused = acc.comp(r.neg_acc_sets | r.pos_acc_sets);
+
   // If a set x appears only as Inf(!x), we can complement it so that
   // we work with Inf(x) instead.
-  auto onlyneg = r.neg_acc_sets - r.pos_acc_sets;
-  for (auto& t: r.h->aut->transition_vector())
-    t.acc ^= onlyneg;
+  if (auto onlyneg = r.neg_acc_sets - r.pos_acc_sets)
+    for (auto& t: r.h->aut->transition_vector())
+      t.acc ^= onlyneg;
 
   // However if set x is used elsewhere, for instance in
   //   Inf(!x) & Inf(x)
   // complementing x would be wrong.  We need to create a
   // new set, y, that is the complement of x, and rewrite
   // this as Inf(y) & Inf(x).
-  auto both = r.neg_acc_sets & r.pos_acc_sets;
-  if (both)
+  if (auto both = r.neg_acc_sets & r.pos_acc_sets)
     {
-      auto& acc = r.h->aut->acc();
       auto v = acc.sets(both);
       auto vs = v.size();
       unsigned base = acc.add_sets(vs);
       for (auto& t: r.h->aut->transition_vector())
 	if ((t.acc & both) != both)
 	  for (unsigned i = 0; i < vs; ++i)
-	    if (!t.acc.has(i))
+	    if (!t.acc.has(v[i]))
 	      t.acc |= acc.mark(base + i);
+    }
+
+  // Remove all acceptance sets that are not used in the acceptance
+  // condition.  Because the rest of the code still assume that all
+  // acceptance sets have to be seen.  See
+  //   https://github.com/adl/hoaf/issues/36
+  if (unused)
+    {
+      for (auto& t: r.h->aut->transition_vector())
+	t.acc = acc.strip(t.acc, unused);
+      r.h->aut->set_acceptance_conditions(acc.num_sets() - unused.count());
     }
 }
 
@@ -1455,8 +1474,7 @@ namespace spot
       return nullptr;
     if (r.state_names)
       r.h->aut->set_named_prop("state-names", r.state_names);
-    if (r.neg_acc_sets)
-      fix_acceptance(r);
+    fix_acceptance(r);
     fix_initial_state(r);
     fix_properties(r);
     return r.h;

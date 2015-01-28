@@ -1285,7 +1285,7 @@ State: 2 "G((F(a) && F((b) && (c))) && F((d) || (e)))"
 EOF
 
 
-# name states can be output as comments in never claim
+# named states can be output as comments in never claim
 cat >input <<EOF
 HOA: v1
 name: "a U b"
@@ -1313,4 +1313,96 @@ T0_init: /* s1 */
 accept_all: /* s0 */
   skip
 }
+EOF
+
+
+# ltl3ba 1.1.1 has a bug where it outputs
+#   Acceptance: 1 t
+# when it meant
+#   Acceptance: 1 Inf(0)
+# and a development version of our parser would
+# incorrectly interpret the former as the latter.
+#
+# Make sure we ignore all {0} if the acceptance is "1 t".
+# See https://github.com/adl/hoaf/issues/36
+
+cat >input <<EOF
+HOA: v1
+tool: "ltl3ba" "1.1.1"
+name: "TGBA for Fa"
+States: 2
+Start: 0
+acc-name: generalized-Buchi 1
+Acceptance: 1 t
+AP: 1 "a"
+properties: trans-labels explicit-labels trans-acc no-univ-branch
+--BODY--
+State: 0 "F(a)"
+ [(0)] 1 {0}
+ [(!0)] 0
+State: 1 "t"
+ [t] 1 {0}
+--END--
+/* Also try with more acceptance sets */
+HOA: v1
+States: 1
+Start: 0
+AP: 3 "a" "b" "c"
+Acceptance: 5 Inf(0)&Inf(4)&Inf(2)&Inf(!2)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[0&1&2] 0 {0 4 2}
+[!0&1&2] 0 {4 2}
+[0&!1&2] 0 {0 2}
+[!0&!1&2] 0 {2}
+[0&1&!2] 0 {0 4}
+[!0&1&!2] 0 {4}
+[0&!1&!2] 0 {0}
+[!0&!1&!2] 0
+--END--
+EOF
+
+# The mapping of acceptance sets for the second automaton is
+#   input   ->  output
+#     0     ->    0
+#     1     ->   removed
+#     2     ->    1
+#     3     ->   removed
+#     4     ->    2
+#    !2     ->    3
+expectok input <<EOF
+HOA: v1
+name: "TGBA for Fa"
+States: 2
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc complete deterministic
+--BODY--
+State: 0 "F(a)"
+[0] 1
+[!0] 0
+State: 1 "t"
+[t] 1
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 3 "a" "b" "c"
+acc-name: generalized-Buchi 4
+Acceptance: 4 Inf(0)&Inf(1)&Inf(2)&Inf(3)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[0&1&2] 0 {0 1 2}
+[!0&1&2] 0 {1 2}
+[0&!1&2] 0 {0 1}
+[!0&!1&2] 0 {1}
+[0&1&!2] 0 {0 2 3}
+[!0&1&!2] 0 {2 3}
+[0&!1&!2] 0 {0 3}
+[!0&!1&!2] 0 {3}
+--END--
 EOF
