@@ -50,6 +50,7 @@ tgbaalgos_HEADERS = \
   ltl2taa.hh \
   ltl2tgba_fm.hh \
   magic.hh \
+  mask.hh \
   minimize.hh \
   neverclaim.hh \
   postproc.hh \
@@ -100,6 +101,7 @@ libtgbaalgos_la_SOURCES = \
   ltl2taa.cc \
   ltl2tgba_fm.cc \
   magic.cc \
+  mask.cc \
   minimize.cc \
   ndfs_result.hxx \
   neverclaim.cc \

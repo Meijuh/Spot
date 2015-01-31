@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement de
 // l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -94,6 +94,11 @@ namespace spot
       bool has(unsigned u) const
       {
 	return id & (1U << u);
+      }
+
+      void set(unsigned u)
+      {
+	id |= (1U << u);
       }
 
       mark_t& operator&=(mark_t r)

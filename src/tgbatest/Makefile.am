@@ -40,7 +40,6 @@ check_PROGRAMS = \
   intvcomp \
   intvcmp2 \
   ltlprod \
-  maskacc \
   readsat \
   taatgba
 
@@ -55,7 +54,6 @@ intvcomp_SOURCES = intvcomp.cc
 intvcmp2_SOURCES = intvcmp2.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
 ltlprod_SOURCES  = ltlprod.cc
-maskacc_SOURCES  = maskacc.cc
 randtgba_SOURCES = randtgba.cc
 readsat_SOURCES = readsat.cc
 taatgba_SOURCES = taatgba.cc

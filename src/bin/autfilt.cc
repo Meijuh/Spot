@@ -46,6 +46,7 @@
 #include "tgbaalgos/randomize.hh"
 #include "tgbaalgos/are_isomorphic.hh"
 #include "tgbaalgos/canonicalize.hh"
+#include "tgbaalgos/mask.hh"
 
 
 static const char argp_program_doc[] ="\
@@ -72,6 +73,7 @@ Exit status:\n\
 #define OPT_INSTUT 14
 #define OPT_IS_EMPTY 15
 #define OPT_INTERSECT 16
+#define OPT_MASK_ACC 17
 
 static const argp_option options[] =
   {
@@ -125,6 +127,8 @@ static const argp_option options[] =
       "keep automata whose number of edges are in RANGE", 0 },
     { "acc-sets", OPT_ACC_SETS, "RANGE", 0,
       "keep automata whose number of acceptance sets are in RANGE", 0 },
+    { "mask-acc", OPT_MASK_ACC, "NUM[,NUM...]", 0,
+      "remove all transitions in specified acceptance sets", 0 },
     RANGE_DOC_FULL,
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
@@ -169,6 +173,7 @@ static bool opt_destut = false;
 static char opt_instut = 0;
 static bool opt_is_empty = false;
 static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
+static spot::acc_cond::mark_t opt_mask_acc = 0U;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -240,6 +245,28 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_MERGE:
       opt_merge = true;
       break;
+    case OPT_MASK_ACC:
+      {
+	while (*arg)
+	  {
+	    char* endptr;
+	    long res = strtol(arg, &endptr, 10);
+	    if (res < 0)
+	      error(2, 0, "acceptance sets should be non-negative:"
+		    " --mask-acc=%ld", res);
+	    if (static_cast<unsigned long>(res)
+		> sizeof(spot::acc_cond::mark_t::value_t))
+	      error(2, 0, "this implementation does not support that much"
+		    " acceptance sets: --mask-acc=%ld", res);
+	    opt_mask_acc.set(res);
+	    if (endptr == arg)
+	      error(2, 0, "failed to parse '%s' as an integer.", arg);
+	    while (*endptr == ' ' || *endptr == ',')
+	      ++endptr;
+	    arg = endptr;
+	  }
+	break;
+      }
     case OPT_PRODUCT:
       {
 	auto a = read_automaton(arg, dict);
@@ -358,6 +385,9 @@ namespace
       ++match_count;
 
       // Postprocessing.
+
+      if (opt_mask_acc)
+	aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
 
       if (opt_destut)
 	aut = spot::closure(std::move(aut));
