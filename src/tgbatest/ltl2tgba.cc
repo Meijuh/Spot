@@ -33,14 +33,12 @@
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/ltl2taa.hh"
 #include "tgba/bddprint.hh"
-#include "tgbaalgos/save.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/hoa.hh"
 #include "tgbaalgos/degen.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/reducerun.hh"
-#include "tgbaparse/public.hh"
 #include "dstarparse/public.hh"
 #include "hoaparse/public.hh"
 #include "tgbaalgos/dupexp.hh"
@@ -104,7 +102,7 @@ syntax(char* prog)
 	    << std::endl
             << "       "<< prog << " [-f|-l|-taa] -F [OPTIONS...] file"
 	    << std::endl
-            << "       "<< prog << " -X [OPTIONS...] file" << std::endl
+            << "       "<< prog << " -XH [OPTIONS...] file" << std::endl
 	    << std::endl
 
             << "Translate an LTL formula into an automaton, or read the "
@@ -117,8 +115,6 @@ syntax(char* prog)
 
             << "Input options:" << std::endl
             << "  -F    read the formula from a file, not from the command line"
-	    << std::endl
-	    << "  -X    do not compute an automaton, read it from a file"
 	    << std::endl
 	    << "  -XD   do not compute an automaton, read it from an"
 	    << " ltl2dstar file" << std::endl
@@ -266,8 +262,6 @@ syntax(char* prog)
 	    << std::endl
 
 	    << "Output options (if no emptiness check):" << std::endl
-	    << "  -b    output the automaton in the format of spot"
-            << std::endl
 	    << "  -ks   display statistics on the automaton (size only)"
 	    << std::endl
 	    << "  -kt   display statistics on the automaton (size + "
@@ -349,7 +343,7 @@ checked_main(int argc, char** argv)
   bool accepting_run = false;
   bool accepting_run_replay = false;
   bool from_file = false;
-  enum { ReadSpot, ReadLbtt, ReadDstar, ReadHoa } readformat = ReadSpot;
+  enum { ReadLbtt, ReadDstar, ReadHoa } readformat = ReadHoa;
   bool nra2nba = false;
   bool dra2dba = false;
   bool scc_filter = false;
@@ -414,11 +408,6 @@ checked_main(int argc, char** argv)
 	{
 	  utf8_opt = true;
 	  spot::enable_utf8();
-	}
-
-      else if (!strcmp(argv[formula_index], "-b"))
-	{
-	  output = 7;
 	}
       else if (!strcmp(argv[formula_index], "-c"))
 	{
@@ -610,16 +599,15 @@ checked_main(int argc, char** argv)
 	{
 	  tm.start("reading -P's argument");
 
-	  spot::tgba_parse_error_list pel;
-	  spot::tgba_digraph_ptr s;
-	  s = spot::tgba_parse(argv[formula_index] + 2,
-			       pel, dict, env, debug_opt);
-	  if (spot::format_tgba_parse_errors(std::cerr,
-					     argv[formula_index] + 2, pel))
+	  spot::dstar_parse_error_list pel;
+	  auto daut = spot::hoa_parse(argv[formula_index] + 2, pel,
+				      dict, env, debug_opt);
+	  if (spot::format_hoa_parse_errors(std::cerr,
+					    argv[formula_index] + 2, pel))
 	    return 2;
-	  s->merge_transitions();
+	  daut->aut->merge_transitions();
+	  system_aut = daut->aut;
 	  tm.stop("reading -P's argument");
-	  system_aut = s;
 	}
       else if (!strcmp(argv[formula_index], "-r1"))
 	{
@@ -869,11 +857,6 @@ checked_main(int argc, char** argv)
 	  translation = TransFM;
 	  fm_exprop_opt = true;
 	}
-      else if (!strcmp(argv[formula_index], "-X"))
-	{
-	  from_file = true;
-	  readformat = ReadSpot;
-	}
       else if (!strcmp(argv[formula_index], "-XD"))
 	{
 	  from_file = true;
@@ -984,18 +967,6 @@ checked_main(int argc, char** argv)
 	{
 	  switch (readformat)
 	    {
-	    case ReadSpot:
-		{
-		  spot::tgba_digraph_ptr e;
-		  spot::tgba_parse_error_list pel;
-		  tm.start("parsing automaton");
-		  a = e = spot::tgba_parse(input, pel, dict, env, debug_opt);
-		  tm.stop("parsing automaton");
-		  if (spot::format_tgba_parse_errors(std::cerr, input, pel))
-		    return 2;
-		  e->merge_transitions();
-		}
-	      break;
 	    case ReadLbtt:
 	      {
 		std::string error;
@@ -1529,9 +1500,6 @@ checked_main(int argc, char** argv)
 	      break;
 	    case 6:
 	      spot::lbtt_reachable(std::cout, a);
-	      break;
-	    case 7:
-	      spot::tgba_save_reachable(std::cout, a);
 	      break;
 	    case 8:
 	      {

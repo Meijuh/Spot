@@ -20,8 +20,8 @@
 #include <iomanip>
 #include <iostream>
 #include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/save.hh"
-#include "tgbaparse/public.hh"
+#include "tgbaalgos/hoa.hh"
+#include "hoaparse/public.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
@@ -39,7 +39,7 @@ void usage(const char* prog)
 {
   std::cout << "usage: " << prog << " [options]" << std::endl;
   std::cout << "with options" << std::endl
-            << "-b                      Output in spot's format\n"
+            << "-H                      Output in HOA\n"
             << "-s     buchi_automaton  display the safra automaton\n"
             << "-a     buchi_automaton  display the complemented automaton\n"
             << "-astat buchi_automaton  statistics for !a\n"
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   bool stats = false;
   bool formula = false;
   bool print_formula = false;
-  bool save_spot = false;
+  bool save_hoa = false;
 
   if (argc < 3)
   {
@@ -70,9 +70,9 @@ int main(int argc, char* argv[])
   {
     if (argv[i][0] == '-')
     {
-      if (strcmp(argv[i] + 1, "b") == 0)
+      if (strcmp(argv[i] + 1, "H") == 0)
       {
-	save_spot = true;
+	save_hoa = true;
 	continue;
       }
 
@@ -121,10 +121,11 @@ int main(int argc, char* argv[])
   if (print_automaton || print_safra)
   {
     spot::ltl::environment& env(spot::ltl::default_environment::instance());
-    spot::tgba_parse_error_list pel;
-    spot::tgba_digraph_ptr a = spot::tgba_parse(file, pel, dict, env);
-    if (spot::format_tgba_parse_errors(std::cerr, file, pel))
+    spot::hoa_parse_error_list pel;
+    auto h = spot::hoa_parse(file, pel, dict, env);
+    if (spot::format_hoa_parse_errors(std::cerr, file, pel))
       return 2;
+    spot::tgba_digraph_ptr a = h->aut;
 
     spot::tgba_ptr complement = 0;
 
@@ -132,8 +133,8 @@ int main(int argc, char* argv[])
 
     if (print_automaton)
       {
-	if (save_spot)
-	  spot::tgba_save_reachable(std::cout, complement);
+	if (save_hoa)
+	  spot::hoa_reachable(std::cout, complement, nullptr);
 	else
 	  spot::dotty_reachable(std::cout, complement);
       }
@@ -177,11 +178,12 @@ int main(int argc, char* argv[])
     }
     else
     {
-      spot::tgba_parse_error_list pel;
+      spot::hoa_parse_error_list pel;
       spot::ltl::environment& env(spot::ltl::default_environment::instance());
-      a = spot::tgba_parse(file, pel, dict, env);
-      if (spot::format_tgba_parse_errors(std::cerr, file, pel))
+      auto h = spot::hoa_parse(file, pel, dict, env);
+      if (spot::format_hoa_parse_errors(std::cerr, file, pel))
         return 2;
+      a = h->aut;
     }
 
     auto safra_complement = spot::make_safra_complement(a);

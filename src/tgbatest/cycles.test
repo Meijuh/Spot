@@ -21,63 +21,52 @@
 . ./defs
 set -e
 
-# GNU systems have seq,
-# BSD systems have jot.
-# Neither of those are POSIX...
-if test "*`(seq 1 1 2>/dev/null)`" = "1"; then
-  have_seq=true
-else
-  have_seq=false
-  if test "`(jot 1 1 2>/dev/null)`" = "1"; then
-    have_jot=true
-  else
-    have_jot=false
-  fi
-fi
-
-# enum start end
-enum() {
-  if $have_seq; then
-    seq $1 $2
-  elif $have_jot; then
-    jot `expr $2 - $1 + 1` $1
-  else
-    i=$1
-    while test $i -le $2; do
-      echo $i
-      i=`expr $i + 1`
-    done
-  fi
-}
-
 # Fig.1 from Johnson's SIAM J. Comput. 1975 paper.
+cat >johnson-fig1.hoa <<EOF
+HOA: v1
+States: 12
+Start: 0
+AP: 0
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc complete
+--BODY--
+State: 0
+[t] 1
+[t] 3
+[t] 4
+State: 1
+[t] 2
+State: 2
+[t] 5
+[t] 6
+State: 3
+[t] 2
+State: 4
+[t] 2
+State: 5
+[t] 6
+[t] 7
+State: 6
+[t] 8
+[t] 10
+[t] 11
+State: 7
+[t] 0
+[t] 6
+State: 8
+[t] 2
+[t] 9
+State: 9
+[t] 6
+State: 10
+[t] 9
+State: 11
+[t] 9
+--END--
+EOF
 
-(
-echo 'acc = ;'
-k=3
-v=`expr $k + 2`
-w=`expr 2 \* $k + 2`
-x=`expr 3 \* $k + 3`
-for i in $(enum 2 `expr $k + 1`); do
-  echo "s1,s$i,,;"
-  echo "s$i,s$v,,;"
-done
-for i in $(enum `expr $k + 2` `expr 2 \* $k`); do
-  echo "s$i,s`expr $i + 1`,,;"
-  echo "s$i,s$w,,;"
-done
-echo "s`expr 2 \* $k + 1`,s$w,,;"
-echo "s`expr 2 \* $k + 1`,s1,,;"
-for i in $(enum `expr 2 \* $k + 3` `expr 3 \* $k + 2`); do
-  echo "s$w,s$i,,;"
-  echo "s$i,s$x,,;"
-done
-echo "s`expr 2 \* $k + 3`,s$v,,;"
-echo "s$x,s$w,,;"
-) > johnson-fig1.tgba
-
-
-run 0 ../ltl2tgba -KC -X johnson-fig1.tgba > out
+run 0 ../ltl2tgba -KC -XH johnson-fig1.hoa > out
 test `wc -l < out` -eq 10
 
 run 0 ../ltl2tgba -KW '(Ga -> Gb) W c' > out

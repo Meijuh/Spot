@@ -35,51 +35,68 @@ set -e
 # |_______|
 
 cat >blue_counter <<'EOF'
-acc = a;
-s1, s2,, a;
-s2, s3,,;
-s3, s1,,;
-s3, s4,,;
-s4, s4,,;
-s4, s5,,;
-s4, s6,,;
-s4, s7,,;
-s4, s8,,;
-s4, s9,,;
-s5, s4,,;
-s5, s5,,;
-s5, s6,,;
-s5, s7,,;
-s5, s8,,;
-s5, s9,,;
-s6, s4,,;
-s6, s5,,;
-s6, s6,,;
-s6, s7,,;
-s6, s8,,;
-s6, s9,,;
-s7, s4,,;
-s7, s5,,;
-s7, s6,,;
-s7, s7,,;
-s7, s8,,;
-s7, s9,,;
-s8, s4,,;
-s8, s5,,;
-s8, s6,,;
-s8, s7,,;
-s8, s8,,;
-s8, s9,,;
-s9, s4,,;
-s9, s5,,;
-s9, s6,,;
-s9, s7,,;
-s9, s8,,;
-s9, s9,,;
+HOA: v1
+States: 9
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+--BODY--
+State: 0 {0}
+[t] 1
+State: 1
+[t] 2
+State: 2
+[t] 0
+[t] 3
+State: 3
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 4
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 5
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 6
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 7
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 8
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+--END--
 EOF
 
-run 0 ../ltl2tgba -CR -eSE05 -X blue_counter
-run 0 ../ltl2tgba -CR -eTau03_opt -X blue_counter
+run 0 ../ltl2tgba -CR -eSE05 -XH blue_counter
+run 0 ../ltl2tgba -CR -eTau03_opt -XH blue_counter
 
 # s1->s2->s3->(large composant from s4 to s9)
 # ^       ||
@@ -87,51 +104,68 @@ run 0 ../ltl2tgba -CR -eTau03_opt -X blue_counter
 # ||______||
 
 cat >blue_last <<'EOF'
-acc = a;
-s1, s2,,;
-s2, s3,,;
-s3, s1,, a;
-s3, s4,,;
-s4, s4,,;
-s4, s5,,;
-s4, s6,,;
-s4, s7,,;
-s4, s8,,;
-s4, s9,,;
-s5, s4,,;
-s5, s5,,;
-s5, s6,,;
-s5, s7,,;
-s5, s8,,;
-s5, s9,,;
-s6, s4,,;
-s6, s5,,;
-s6, s6,,;
-s6, s7,,;
-s6, s8,,;
-s6, s9,,;
-s7, s4,,;
-s7, s5,,;
-s7, s6,,;
-s7, s7,,;
-s7, s8,,;
-s7, s9,,;
-s8, s4,,;
-s8, s5,,;
-s8, s6,,;
-s8, s7,,;
-s8, s8,,;
-s8, s9,,;
-s9, s4,,;
-s9, s5,,;
-s9, s6,,;
-s9, s7,,;
-s9, s8,,;
-s9, s9,,;
+HOA: v1
+States: 9
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+--BODY--
+State: 0
+[t] 1
+State: 1
+[t] 2
+State: 2
+[t] 0 {0}
+[t] 3
+State: 3
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 4
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 5
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 6
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 7
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 8
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+--END--
 EOF
 
-run 0 ../ltl2tgba -CR -eSE05 -X blue_last
-run 0 ../ltl2tgba -CR -eTau03_opt -X blue_last
+run 0 ../ltl2tgba -CR -eSE05 -XH blue_last
+run 0 ../ltl2tgba -CR -eTau03_opt -XH blue_last
 
 #  _______
 # |       |
@@ -142,51 +176,68 @@ run 0 ../ltl2tgba -CR -eTau03_opt -X blue_last
 # ||______||
 
 cat >red <<'EOF'
-acc = a;
-s1, s2,,;
-s1, s3,, a;
-s2, s3,,;
-s3, s1,,;
-s3, s4,,;
-s4, s4,,;
-s4, s5,,;
-s4, s6,,;
-s4, s7,,;
-s4, s8,,;
-s4, s9,,;
-s5, s4,,;
-s5, s5,,;
-s5, s6,,;
-s5, s7,,;
-s5, s8,,;
-s5, s9,,;
-s6, s4,,;
-s6, s5,,;
-s6, s6,,;
-s6, s7,,;
-s6, s8,,;
-s6, s9,,;
-s7, s4,,;
-s7, s5,,;
-s7, s6,,;
-s7, s7,,;
-s7, s8,,;
-s7, s9,,;
-s8, s4,,;
-s8, s5,,;
-s8, s6,,;
-s8, s7,,;
-s8, s8,,;
-s8, s9,,;
-s9, s4,,;
-s9, s5,,;
-s9, s6,,;
-s9, s7,,;
-s9, s8,,;
-s9, s9,,;
+HOA: v1
+States: 9
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+--BODY--
+State: 0
+[t] 1
+[t] 2 {0}
+State: 1
+[t] 2
+State: 2
+[t] 0
+[t] 3
+State: 3
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 4
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 5
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 6
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 7
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+State: 8
+[t] 3
+[t] 4
+[t] 5
+[t] 6
+[t] 7
+[t] 8
+--END--
 EOF
 
-run 0 ../ltl2tgba -CR -eSE05 -X red
-run 0 ../ltl2tgba -CR -eTau03_opt -X red
+run 0 ../ltl2tgba -CR -eSE05 -XH red
+run 0 ../ltl2tgba -CR -eTau03_opt -XH red
 
 rm -f red blue_counter blue_last

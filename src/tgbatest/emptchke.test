@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2014 Laboratoire de Recherche et
+# Copyright (C) 2009, 2010, 2014, 2015 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 # Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -28,21 +28,32 @@ set -e
 
 expect_ce()
 {
-  run 0 ../ltl2tgba -CR -e -X "$1"
-  run 0 ../ltl2tgba -CR -e -DT -X "$1"
-  run 0 ../ltl2tgba -CR -e'Cou99(shy)' -X "$1"
-  run 0 ../ltl2tgba -CR -e'Cou99(shy)' -DT -X "$1"
-  run 0 ../ltl2tgba -CR -eCVWY90 -X "$1"
-  run 0 ../ltl2tgba -CR -eGV04 -X "$1"
-  run 0 ../ltl2tgba -CR -eSE05 -X "$1"
-  run 0 ../ltl2tgba -CR -eTau03 -X "$1"
+  run 0 ../ltl2tgba -CR -e -XH "$1"
+  run 0 ../ltl2tgba -CR -e -DT -XH "$1"
+  run 0 ../ltl2tgba -CR -e'Cou99(shy)' -XH "$1"
+  run 0 ../ltl2tgba -CR -e'Cou99(shy)' -DT -XH "$1"
+  run 0 ../ltl2tgba -CR -eCVWY90 -XH "$1"
+  run 0 ../ltl2tgba -CR -eGV04 -XH "$1"
+  run 0 ../ltl2tgba -CR -eSE05 -XH "$1"
+  run 0 ../ltl2tgba -CR -eTau03 -XH "$1"
 }
 
 cat >input <<'EOF'
-acc = c d;
-s1, "s2", "a & !b", c d;
-"s2", "state 3", "a", c;
-"state 3", s1,,;
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0 {0 1}
+[0&!1] 1
+State: 1 {0}
+[0] 2
+State: 2
+[t] 0
+--END--
 EOF
 
 expect_ce input
@@ -55,19 +66,36 @@ expect_ce input
 #  b->c e->f h->i
 #
 cat >input <<'EOF'
-acc = A;
-a, b, "1",;
-b, c, "1",;
-c, a, "1",;
-a, d, "1",;
-d, e, "1",;
-e, f, "1",;
-f, d, "1",;
-d, g, "1",;
-g, h, "1",;
-h, i, "1",;
-i, g, "1", A;
-a, g, "1",;
+HOA: v1
+States: 9
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+--BODY--
+State: 0
+[t] 1
+[t] 3
+[t] 6
+State: 1
+[t] 2
+State: 2
+[t] 0
+State: 3
+[t] 4
+[t] 6
+State: 4
+[t] 5
+State: 5
+[t] 3
+State: 6
+[t] 7
+State: 7
+[t] 8
+State: 8 {0}
+[t] 6
+--END--
 EOF
 
 expect_ce input
@@ -100,15 +128,29 @@ expect_ce input
 # and finally closes the cycle with c->d->a
 #
 cat >input <<'EOF'
-acc = A B;
-a, b, "1",;
-b, c, "1",;
-c, d, "1",;
-d, a, "1",;
-b, e, "1", A;
-e, f, "1",;
-f, b, "1", B;
-e, c, "1", B;
+HOA: v1
+States: 6
+Start: 0
+AP: 0
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels trans-acc complete
+--BODY--
+State: 0
+[t] 1
+State: 1
+[t] 2
+[t] 4 {0}
+State: 2
+[t] 3
+State: 3
+[t] 0
+State: 4
+[t] 2 {1}
+[t] 5
+State: 5
+[t] 1 {1}
+--END--
 EOF
 
 expect_ce input
@@ -118,33 +160,61 @@ expect_ce input
 # It triggered a bug in our implementation of GV04 (that didn't see any
 # accepting path).
 cat >input <<EOF
-acc = "a0";
-"S0", "S12", "1",;
-"S12", "S17", "1",;
-"S12", "S8", "1",;
-"S17", "S6", "1",;
-"S17", "S9", "1", "a0";
-"S17", "S2", "1",;
-"S8", "S14", "1",;
-"S8", "S2", "1",;
-"S6", "S1", "1",;
-"S9", "S18", "1",;
-"S2", "S17", "1",;
-"S14", "S19", "1",;
-"S14", "S10", "1",;
-"S1", "S15", "1",;
-"S18", "S5", "1",;
-"S19", "S5", "1",;
-"S19", "S7", "1",;
-"S19", "S11", "1",;
-"S10", "S17", "1",;
-"S15", "S8", "1",;
-"S5", "S4", "1",;
-"S11", "S6", "1",;
-"S4", "S13", "1",;
-"S13", "S3", "1",;
-"S3", "S16", "1",;
-"S3", "S19", "1",;
+HOA: v1
+States: 20
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[t] 1
+State: 1
+[t] 2
+[t] 3
+State: 2
+[t] 4
+[t] 5 {0}
+[t] 6
+State: 3
+[t] 6
+[t] 7
+State: 4
+[t] 8
+State: 5
+[t] 9
+State: 6
+[t] 2
+State: 7
+[t] 10
+[t] 11
+State: 8
+[t] 12
+State: 9
+[t] 13
+State: 10
+[t] 13
+[t] 14
+[t] 15
+State: 11
+[t] 2
+State: 12
+[t] 3
+State: 13
+[t] 16
+State: 14
+State: 15
+[t] 4
+State: 16
+[t] 17
+State: 17
+[t] 18
+State: 18
+[t] 10
+[t] 19
+State: 19
+--END--
 EOF
 
 expect_ce input

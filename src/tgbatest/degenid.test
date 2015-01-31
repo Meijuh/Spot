@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+# Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -26,12 +26,12 @@ set -e
 
 for f in 'FGa|GFb' 'GFa & GFb & GFc' 'GF(a->FGb)&GF(c->FGd)'; do
   for opt in -DS -DT; do
-    ../ltl2tgba $opt -b "$f" > autX.spot
-    ../ltl2tgba -X -kt autX.spot > base.size
+    ../ltl2tgba $opt -H "$f" > autX.spot
+    ../ltl2tgba -XH -kt autX.spot > base.size
     cat base.size
     for x in X XX XXX; do
-      ../ltl2tgba -X $opt -b aut$x.spot > autX$x.spot
-      ../ltl2tgba -X -kt autX$x.spot > new.size
+      ../ltl2tgba -XH $opt -H aut$x.spot > autX$x.spot
+      ../ltl2tgba -XH -kt autX$x.spot > new.size
       cat new.size
       cmp base.size new.size
     done
@@ -42,61 +42,91 @@ done
 # This is another 6-state degeneralized automaton that
 # we used the "redegeneralize" to a 8-state BA...
 cat > bug <<EOF
-acc = "1";
-"1", "2", "!b | !a", "1";
-"1", "5", "a & b", "1";
-"2", "2", "b & !a", "1";
-"2", "3", "!b & !a", "1";
-"2", "4", "a", "1";
-"5", "1", "a & !b",;
-"5", "2", "!b & !a",;
-"5", "5", "a & b",;
-"5", "6", "b & !a",;
-"3", "1", "a & b",;
-"3", "2", "b & !a",;
-"3", "3", "!b & !a",;
-"3", "4", "a & !b",;
-"4", "1", "b",;
-"4", "5", "a & !b",;
-"4", "6", "!b & !a",;
-"6", "1", "!b",;
-"6", "3", "b & !a",;
-"6", "4", "a & b",;
+HOA: v1
+States: 6
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete deterministic
+--BODY--
+State: 0 {0}
+[!0 | !1] 1
+[0&1] 2
+State: 1 {0}
+[!0&1] 1
+[!0&!1] 3
+[0] 4
+State: 2
+[0&!1] 0
+[!0&!1] 1
+[0&1] 2
+[!0&1] 5
+State: 3
+[0&1] 0
+[!0&1] 1
+[!0&!1] 3
+[0&!1] 4
+State: 4
+[1] 0
+[0&!1] 2
+[!0&!1] 5
+State: 5
+[!1] 0
+[!0&1] 3
+[0&1] 4
+--END--
 EOF
 
-run 0 ../ltl2tgba -ks -X -DS bug > out
+run 0 ../ltl2tgba -ks -XH -DS bug > out
 grep 'states: 6' out
 
 
 # This 8-state degeneralized automaton used
 # to be "degeneralized" to a 9-state BA...
 cat > bug2 <<EOF
-acc = "1";
-"1", "2", "1",;
-"2", "3", "1", "1";
-"3", "3", "a & !b",;
-"3", "4", "a & b",;
-"3", "5", "!a & !b",;
-"3", "6", "b & !a",;
-"4", "3", "a", "1";
-"4", "5", "!a", "1";
-"5", "3", "a & !b",;
-"5", "4", "a & b",;
-"5", "6", "b & !a",;
-"5", "7", "!a & !b",;
-"6", "3", "a & !b", "1";
-"6", "4", "a & b", "1";
-"6", "6", "b & !a", "1";
-"6", "7", "!a & !b", "1";
-"7", "3", "a & !b",;
-"7", "4", "a & b",;
-"7", "8", "b & !a",;
-"7", "7", "!a & !b",;
-"8", "4", "a",;
-"8", "8", "!a",;
+HOA: v1
+States: 8
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete deterministic
+--BODY--
+State: 0
+[t] 1
+State: 1 {0}
+[t] 2
+State: 2
+[0&!1] 2
+[0&1] 3
+[!0&!1] 4
+[!0&1] 5
+State: 3 {0}
+[0] 2
+[!0] 4
+State: 4
+[0&!1] 2
+[0&1] 3
+[!0&1] 5
+[!0&!1] 6
+State: 5 {0}
+[0&!1] 2
+[0&1] 3
+[!0&1] 5
+[!0&!1] 6
+State: 6
+[0&!1] 2
+[0&1] 3
+[!0&!1] 6
+[!0&1] 7
+State: 7
+[0] 3
+[!0] 7
+--END--
 EOF
 
-run 0 ../ltl2tgba -ks -X -DS bug2 >out
+run 0 ../ltl2tgba -ks -XH -DS bug2 >out
 grep 'states: 8' out
 
 
