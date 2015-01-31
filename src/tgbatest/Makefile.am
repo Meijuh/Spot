@@ -44,8 +44,7 @@ check_PROGRAMS = \
   maskacc \
   powerset \
   readsat \
-  taatgba \
-  tgbaread
+  taatgba
 
 # Keep this sorted alphabetically.
 acc_SOURCES = acc.cc
@@ -65,7 +64,6 @@ powerset_SOURCES = powerset.cc
 randtgba_SOURCES = randtgba.cc
 readsat_SOURCES = readsat.cc
 taatgba_SOURCES = taatgba.cc
-tgbaread_SOURCES = tgbaread.cc
 
 # Keep this sorted by STRENGTH.  Test basic things first,
 # because such failures will be easier to diagnose and fix.
@@ -75,7 +73,6 @@ TESTS = \
   bitvect.test \
   ltlcross3.test \
   taatgba.test \
-  tgbaread.test \
   renault.test \
   nondet.test \
   det.test \
