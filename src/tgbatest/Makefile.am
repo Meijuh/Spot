@@ -37,12 +37,10 @@ check_PROGRAMS = \
   checkpsl \
   checkta \
   emptchk \
-  expldot \
   intvcomp \
   intvcmp2 \
   ltlprod \
   maskacc \
-  powerset \
   readsat \
   taatgba
 
@@ -53,14 +51,11 @@ checkpsl_SOURCES = checkpsl.cc
 checkta_SOURCES = checkta.cc
 complement_SOURCES = complementation.cc
 emptchk_SOURCES  = emptchk.cc
-expldot_SOURCES  = powerset.cc
-expldot_CXXFLAGS = -DDOTTY
 intvcomp_SOURCES = intvcomp.cc
 intvcmp2_SOURCES = intvcmp2.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
 ltlprod_SOURCES  = ltlprod.cc
 maskacc_SOURCES  = maskacc.cc
-powerset_SOURCES = powerset.cc
 randtgba_SOURCES = randtgba.cc
 readsat_SOURCES = readsat.cc
 taatgba_SOURCES = taatgba.cc
