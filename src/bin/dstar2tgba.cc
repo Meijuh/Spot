@@ -34,7 +34,6 @@
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/hoa.hh"
 #include "tgbaalgos/neverclaim.hh"
-#include "tgbaalgos/save.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgba/bddprint.hh"
 #include "misc/optionmap.hh"
@@ -52,9 +51,8 @@ will be output.";
 #define OPT_TGBA 1
 #define OPT_DOT 2
 #define OPT_LBTT 3
-#define OPT_SPOT 4
-#define OPT_STATS 5
-#define OPT_NAME 6
+#define OPT_STATS 4
+#define OPT_NAME 5
 
 static const argp_option options[] =
   {
@@ -88,7 +86,6 @@ static const argp_option options[] =
     { "spin", 's', "6|c", OPTION_ARG_OPTIONAL, "Spin neverclaim (implies --ba)."
       "  Add letters to select (6) Spin's 6.2.4 style, (c) comments on states",
       0 },
-    { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
     { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
       "(ignored with --lbtt or --spin)", 0 },
     { "stats", OPT_STATS, "FORMAT", 0,
@@ -134,7 +131,7 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-enum output_format { Dot, Lbtt, Lbtt_t, Spin, Spot, Stats, Hoa };
+enum output_format { Dot, Lbtt, Lbtt_t, Spin, Stats, Hoa };
 static output_format format = Dot;
 static const char* opt_dot = nullptr;
 static const char* stats = "";
@@ -198,9 +195,6 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_NAME:
       opt_name = arg;
-      break;
-    case OPT_SPOT:
-      format = Spot;
       break;
     case OPT_STATS:
       if (!*arg)
@@ -363,9 +357,6 @@ namespace
 	  break;
 	case Hoa:
 	  spot::hoa_reachable(std::cout, aut, hoa_opt) << '\n';
-	  break;
-	case Spot:
-	  spot::tgba_save_reachable(std::cout, aut);
 	  break;
 	case Spin:
 	  spot::never_claim_reachable(std::cout, aut, opt_never);

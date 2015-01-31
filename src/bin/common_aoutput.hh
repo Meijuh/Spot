@@ -40,7 +40,6 @@ enum automaton_format_t {
   Lbtt,
   Lbtt_t,
   Spin,
-  Spot,
   Stats,
   Hoa,
   Quiet,

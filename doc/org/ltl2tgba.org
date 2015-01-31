@@ -275,8 +275,9 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
                              acceptance even on Büchi automata)
       --name=FORMAT          set the name of the output automaton
   -q, --quiet                suppress all normal output
-  -s, --spin                 Spin neverclaim (implies --ba)
-      --spot                 SPOT's format
+  -s, --spin[=6|c]           Spin neverclaim (implies --ba).  Add letters to
+                             select (6) Spin's 6.2.4 style, (c) comments on
+                             states
       --stats=FORMAT         output statistics about the automaton
 #+end_example
 

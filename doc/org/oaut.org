@@ -31,8 +31,9 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
                              acceptance even on Büchi automata)
       --name=FORMAT          set the name of the output automaton
   -q, --quiet                suppress all normal output
-  -s, --spin                 Spin neverclaim (implies --ba)
-      --spot                 SPOT's format
+  -s, --spin[=6|c]           Spin neverclaim (implies --ba).  Add letters to
+                             select (6) Spin's 6.2.4 style, (c) comments on
+                             states
       --stats=FORMAT         output statistics about the automaton
 #+end_example
 
@@ -44,14 +45,11 @@ can concatenate multiple automata (and even mix these three formats in
 the same stream), and the tools will be able to read and process them
 in sequence.
 
-The other possible outputs are [[http://www.graphviz.org/][GraphViz]] output (=--dot=), Spot's
-historical by deprecated format (=--spot=), various statistics
-(=--stats=), or nothing at all (=--quiet=).  Of course it may seem
-strange to ask a tool to not output anything, but it can make sense if
+The other possible outputs are [[http://www.graphviz.org/][GraphViz]] output (=--dot=), various
+statistics (=--stats=), or nothing at all (=--quiet=).  It may seem
+strange to ask a tool to not output anything, but it makes sense when
 only the exit status matters (for instance using [[file:autfilt.org][=autfilt=]] to check
-whether an input automaton has some property) or if we are only doing
-some timing.
-
+whether an input automaton has some property) or for timing purposes.
 
 * HOAF output
 

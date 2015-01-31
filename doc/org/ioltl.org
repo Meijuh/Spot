@@ -150,8 +150,10 @@ ltlfilt --help | sed -n '/Output options:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 #+begin_example
+  -n, --max-count=NUM        output at most NUM formulas
+  -q, --quiet                suppress all normal output
   -8, --utf8                 output using UTF-8 characters
-      --csv                  quote the formula for use in a CSV file
+      --csv-escape           quote the formula for use in a CSV file
       --format=FORMAT        specify how each line should be output (default:
                              "%f")
   -l, --lbt                  output in LBT's syntax

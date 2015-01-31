@@ -31,7 +31,6 @@
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/hoa.hh"
 #include "tgbaalgos/neverclaim.hh"
-#include "tgbaalgos/save.hh"
 
 automaton_format_t automaton_format = Dot;
 static const char* opt_dot = nullptr;
@@ -42,9 +41,8 @@ static const char* stats = "";
 
 #define OPT_DOT 1
 #define OPT_LBTT 2
-#define OPT_SPOT 3
-#define OPT_STATS 4
-#define OPT_NAME 5
+#define OPT_STATS 3
+#define OPT_NAME 4
 
 static const argp_option options[] =
   {
@@ -68,7 +66,6 @@ static const argp_option options[] =
     { "spin", 's', "6|c", OPTION_ARG_OPTIONAL, "Spin neverclaim (implies --ba)."
       "  Add letters to select (6) Spin's 6.2.4 style, (c) comments on states",
       0 },
-    { "spot", OPT_SPOT, 0, 0, "SPOT's format", 0 },
     { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
       "(ignored with --lbtt or --spin)", 0 },
     { "stats", OPT_STATS, "FORMAT", 0,
@@ -188,9 +185,6 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
     case OPT_NAME:
       opt_name = arg;
       break;
-    case OPT_SPOT:
-      automaton_format = Spot;
-      break;
     case OPT_STATS:
       if (!*arg)
 	error(2, 0, "empty format string for --stats");
@@ -247,9 +241,6 @@ automaton_printer::print(const spot::tgba_digraph_ptr& aut,
       break;
     case Hoa:
       spot::hoa_reachable(std::cout, aut, hoa_opt) << '\n';
-      break;
-    case Spot:
-      spot::tgba_save_reachable(std::cout, aut);
       break;
     case Spin:
       spot::never_claim_reachable(std::cout, aut, opt_never);

@@ -37,7 +37,7 @@
 #include "ltlvisit/length.hh"
 #include "ltlvisit/simplify.hh"
 #include "tgbaalgos/randomgraph.hh"
-#include "tgbaalgos/save.hh"
+#include "tgbaalgos/hoa.hh"
 #include "tgbaalgos/stats.hh"
 #include "ltlenv/defaultenv.hh"
 #include "tgbaalgos/dotty.hh"
@@ -924,7 +924,7 @@ main(int argc, char** argv)
 	      if (!opt_ec)
 		{
 		  if (!opt_0 && !opt_dot)
-		    tgba_save_reachable(std::cout, a);
+		    hoa_reachable(std::cout, a, nullptr);
 		}
 	      else
 		{

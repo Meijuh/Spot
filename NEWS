@@ -218,6 +218,11 @@ New in spot 1.99a (not yet released)
     - The unused implementation of state-based alternating Büchi automata
       has been removed.
 
+    - Input and output in the old, Spot-specific, text format for
+      TGBA, has been fully removed.  We now use HOA everywhere.  (In
+      case you have a file in this format, install Spot 1.2.6 and use
+      "src/tgbatest/ltl2tgba -H -X file" to convert the file to HOA.)
+
 New in spot 1.2.6a (not yet released)
 
   Nothing yet.

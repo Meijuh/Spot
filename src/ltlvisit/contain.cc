@@ -28,8 +28,6 @@
 #include "ltlast/multop.hh"
 #include "ltlast/constant.hh"
 #include "tgbaalgos/product.hh"
-#include "tgbaalgos/gtec/gtec.hh"
-#include "tgbaalgos/save.hh"
 
 namespace spot
 {
