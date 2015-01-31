@@ -156,10 +156,9 @@ src/              Sources for libspot.
    tgba/          TGBA objects and cousins.
    tgbaalgos/     Algorithms on TGBA.
       gtec/       Couvreur's Emptiness-Check.
-   tgbaparse/     Parser for explicit TGBA.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.
-   tgbatest/      Tests for tgba/, tgbaalgos/, tgbaparse/, ta/ and taalgos/.
+   tgbatest/      Tests for tgba/, tgbaalgos/, ta/ and taalgos/.
    sanity/        Sanity tests for the whole project.
 doc/              Documentation for libspot.
    org/           Source of userdoc/ as org-mode files.
@@ -204,7 +203,7 @@ End:
  LocalWords:  Python's BuDDy LBTT LTL Büchi lbtt gspn DIR GreatSPN Soheib Yann
  LocalWords:  Baarir Thierry Mieg CVS Università di Torino devel src libspot ac
  LocalWords:  ltlast ltlenv ltlparse ltlvisit ltltest misc tgba TGBA tgbaalgos
- LocalWords:  gtec Tarjan tgbaparse tgbatest doc html PDF spotref pdf cgi ELTL
+ LocalWords:  gtec Tarjan tgbatest doc html PDF spotref pdf cgi ELTL
  LocalWords:  CGI ltl iface BDD Couvreur's emptchk kripke Kripke saba vm
  LocalWords:  eltlparse eltltest SABA sabaalgos sabatest ssp ltlcouter scc SCC
 LocalWords:  formulae optimizations kripkeparse kripketest Automata

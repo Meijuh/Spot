@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche
+## Copyright (C) 2009, 2010, 2012, 2013, 2014, 2015 Laboratoire de Recherche
 ## et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -25,10 +25,9 @@ AUTOMAKE_OPTIONS = subdir-objects
 # List directories in the order they must be built.  Keep tests at the
 # end, after building '.' (since the current directory contains
 # libspot.la needed by the tests)
-SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse graph tgba	\
-          tgbaalgos tgbaparse ta taalgos kripke kripkeparse	\
-          dstarparse hoaparse . bin ltltest graphtest tgbatest	\
-          kripketest sanity
+SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse graph tgba		\
+          tgbaalgos ta taalgos kripke kripkeparse dstarparse hoaparse	\
+          . bin ltltest graphtest tgbatest kripketest sanity
 
 lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =
@@ -48,7 +47,6 @@ libspot_la_LIBADD =  \
   ta/libta.la \
   tgbaalgos/libtgbaalgos.la \
   tgba/libtgba.la \
-  tgbaparse/libtgbaparse.la \
   ../lib/libgnu.la
 
 # Dummy C++ source to cause C++ linking.

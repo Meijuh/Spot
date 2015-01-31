@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -41,7 +41,6 @@
 #include "tgbaalgos/stats.hh"
 #include "ltlenv/defaultenv.hh"
 #include "tgbaalgos/dotty.hh"
-#include "tgbaparse/public.hh"
 #include "misc/random.hh"
 #include "misc/optionmap.hh"
 #include "tgbaalgos/degen.hh"
