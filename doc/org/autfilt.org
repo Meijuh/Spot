@@ -5,6 +5,18 @@
 
 The =autfilt= tool can filter, transform, and convert a stream of automata.
 
+The tool operates a loop over 5 phases:
+- input one automaton
+- optionally preprocess the automaton
+- optionally filter the automaton (i.e., decide whether to ignore the
+  automaton or continue with it)
+- optionally postprocess the automaton
+- output the automaton
+
+The simplest way to use the tool is simply to use it for input and
+output (i.e., format conversion) without any transformation and
+filtering.
+
 * Conversion between formats
 
 =autfilt= can read automata written in the [[http://adl.github.io/hoaf/][Hanoi Omega Automata
@@ -73,7 +85,6 @@ autfilt example.hoa --lbtt
 : 0 -1 ! p0
 : -1
 
-
 * Displaying statistics
 
 One special output format of =autfilt= is the statistic output.  For
@@ -127,6 +138,41 @@ refer to the output automaton.  Of course this distinction makes sense
 only if =autfilt= was instructed to perform an operation on the input
 automaton.
 
+
+* Filtering automata
+
+=autfilt= supports multiple ways to filter automata based on different
+characteristics of the automaton.
+
+#+BEGIN_SRC sh :results verbatim :exports results
+autfilt --help | sed -n '/Filtering options.*:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+#+RESULTS:
+#+begin_example
+      --acc-sets=RANGE       keep automata whose number of acceptance sets are
+                             in RANGE
+      --are-isomorphic=FILENAME   keep automata that are isomorphic to the
+                             automaton in FILENAME
+      --edges=RANGE          keep automata whose number of edges are in RANGE
+      --intersect=FILENAME   keep automata whose languages have an non-empty
+                             intersection with the automaton from FILENAME
+      --is-complete          keep complete automata
+      --is-deterministic     keep deterministic automata
+      --is-empty             keep automata with an empty language
+      --states=RANGE         keep automata whose number of states are in RANGE
+  -u, --unique               do not output the same automaton twice (same in
+                             the sense that they are isomorphic)
+  -v, --invert-match         select non-matching automata
+#+end_example
+
+For instance =--states=2..5 --acc-sets=3= will /keep/ only automata that
+use 3 acceptance sets, and that have between 2 and 5 states.
+
+Except for =--unique=, all these filters can be inverted.  Using
+=--states=2..5 --acc-sets=3 -v= will /drop/ all automata that use 3
+acceptance sets and that have between 2 and 5 states, and keep the
+others.
+
 * Simplifying automata
 
 The standard set of automata simplification routines (these are often
@@ -168,3 +214,29 @@ autfilt --help | sed -n '/Optimization level:/,/^$/p' | sed '1d;$d'
 :       --high                 all available optimizations (slow)
 :       --low                  minimal optimizations (fast, default)
 :       --medium               moderate optimizations
+
+
+By default, =--any --low= is used, which cause all simplifications to
+be skipped.  If you want to reduce the size of the automaton, try
+=--small --high= and if you want to try to make it deterministic
+(their is to guaranty of result, this is only a preference), try
+=--deterministic --high=.
+
+* Transformations
+
+The following transformations are available:
+
+#+BEGIN_SRC sh :results verbatim :exports results
+autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
+#+END_SRC
+
+#+RESULTS:
+:       --destut               allow less stuttering
+:       --instut[=1|2]         allow more stuttering (two possible algorithms)
+:       --mask-acc=NUM[,NUM...]   remove all transitions in specified acceptance
+:                              sets
+:       --merge-transitions    merge transitions with same destination and
+:                              acceptance
+:       --product=FILENAME     build the product with the automaton in FILENAME
+:       --randomize[=s|t]      randomize states and transitions (specify 's' or
+:                              't' to randomize only states or transitions)
