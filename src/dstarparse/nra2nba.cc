@@ -35,7 +35,7 @@ namespace spot
     class nra_to_nba_worker: public tgba_reachable_iterator_depth_first
     {
     public:
-      // AUT is the automate we iterate on, while A is the automaton
+      // AUT is the automaton we iterate on, while A is the automaton
       // we read the acceptance conditions from.  Separating the two
       // makes its possible to mask AUT, as needed in dra_to_ba().
       nra_to_nba_worker(const const_dstar_aut_ptr& a, const_tgba_ptr aut):
@@ -48,10 +48,7 @@ namespace spot
 	out_->set_single_acceptance_set();
 	out_->prop_state_based_acc();
 	out_->new_states(num_states_ * (d_->accpair_count + 1));
-
-	auto i = aut->get_init_state();
-	out_->set_init_state(a->aut->state_number(i));
-	i->destroy();
+	out_->set_init_state(a->aut->get_init_state_number());
       }
 
       tgba_digraph_ptr
