@@ -529,35 +529,6 @@ namespace
 	  es = 0;
 	  switch (output.format)
 	    {
-	    case printable_result_filename::Lbtt:
-	      {
-		std::string error;
-		std::ifstream f(output.val()->name());
-		if (!f)
-		  {
-		    status_str = "no output";
-		    problem = true;
-		    es = -1;
-		    global_error() << "Cannot open " << output.val()
-				   << std::endl;
-		    end_error();
-		  }
-		else
-		  {
-		    res = spot::lbtt_parse(f, error, dict);
-		    if (!res)
-		      {
-			status_str = "parse error";
-			problem = true;
-			es = -1;
-			global_error() << ("error: failed to parse output in "
-					   "LBTT format: ")
-				       << error << std::endl;
-			end_error();
-		      }
-		  }
-		break;
-	      }
 	    case printable_result_filename::Dstar:
 	      {
 		spot::dstar_parse_error_list pel;

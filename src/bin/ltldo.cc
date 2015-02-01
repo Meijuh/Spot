@@ -171,29 +171,6 @@ namespace
 	  problem = false;
 	  switch (output.format)
 	    {
-	    case printable_result_filename::Lbtt:
-	      {
-		std::string error;
-		std::ifstream f(output.val()->name());
-		if (!f)
-		  {
-		    problem = true;
-		    std::cerr << "error: could not open " << output.val()
-			      << " after running \"" << cmd << "\".\n";
-		  }
-		else
-		  {
-		    res = spot::lbtt_parse(f, error, dict);
-		    if (!res)
-		      {
-			problem = true;
-			std::cerr << "error: failed to parse output of \""
-				  << cmd << "\" in LBTT format:\n"
-				  << "error:   " << error << '\n';
-		      }
-		  }
-		break;
-	      }
 	    case printable_result_filename::Dstar:
 	      {
 		spot::dstar_parse_error_list pel;
@@ -213,8 +190,9 @@ namespace
 		  }
 		break;
 	      }
-	    case printable_result_filename::Hoa: // Will also read neverclaims
+	    case printable_result_filename::Hoa:
 	      {
+		// Will also read neverclaims/LBTT
 		spot::hoa_parse_error_list pel;
 		std::string filename = output.val()->name();
 		auto aut = spot::hoa_parse(filename, pel, dict);

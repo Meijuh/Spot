@@ -1259,7 +1259,11 @@ lbtt-guard: STRING
 	    spot::ltl::parse_error_list pel;
 	    auto* f = spot::ltl::parse_lbt(*$1, pel, *res.env);
 	    if (!f || !pel.empty())
-	      error(@$, "failed to parse guard");
+	      {
+		std::string s = "failed to parse guard: ";
+		s += *$1;
+		error(@$, s);
+	      }
 	    if (!pel.empty())
 	      for (auto& j: pel)
 		{

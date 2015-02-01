@@ -213,7 +213,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
   "-1"                  BEGIN(in_LBTT_TRANS); yylloc->step();
 }
 <in_LBTT_TRANS>{
-  [0-9+]                {
+  [0-9]+                {
 			  parse_int();
 			  if (lbtt_t)
 			    BEGIN(in_LBTT_T_ACC);
@@ -235,7 +235,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			}
 }
 <in_LBTT_T_ACC>{
-  [0-9+]	        parse_int(); return token::ACC;
+  [0-9]+	        parse_int(); return token::ACC;
   "-1"			BEGIN(in_LBTT_GUARD); yylloc->step();
 }
 <in_LBTT_GUARD>{

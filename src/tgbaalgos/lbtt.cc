@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -130,139 +130,7 @@ namespace spot
       bool sba_format_;
       const_tgba_digraph_ptr sba_;
     };
-
-    static
-    tgba_digraph_ptr
-    lbtt_read_tgba(unsigned num_states, unsigned num_acc,
-		   std::istream& is, std::string& error,
-		   const bdd_dict_ptr& dict, ltl::environment& env)
-    {
-      auto aut = make_tgba_digraph(dict);
-      acc_mapper_int acc_b(aut, num_acc);
-      aut->new_states(num_states);
-
-      for (unsigned n = 0; n < num_states; ++n)
-	{
-	  int src_state = 0;
-	  int initial = 0;
-	  is >> src_state >> initial;
-	  if (initial)
-	    aut->set_init_state(src_state);
-
-	  // Read the transitions.
-	  for (;;)
-	    {
-	      int dst_state = 0;
-	      is >> dst_state;
-	      if (dst_state == -1)
-		break;
-
-	      // Read the acceptance conditions.
-	      acc_cond::mark_t acc = 0U;
-	      for (;;)
-		{
-		  int acc_n = 0;
-		  is >> acc_n;
-		  if (acc_n == -1)
-		    break;
-		  auto p = acc_b.lookup(acc_n);
-		  if (p.first)
-		    {
-		      acc |= p.second;
-		    }
-		  else
-		    {
-		      error += "more acceptance sets used than declared";
-		      return nullptr;
-		    }
-		}
-
-	      std::string guard;
-	      std::getline(is, guard);
-	      ltl::parse_error_list pel;
-	      const ltl::formula* f = parse_lbt(guard, pel, env);
-	      if (!f || !pel.empty())
-		{
-		  error += "failed to parse guard: " + guard;
-		  if (f)
-		    f->destroy();
-		  return nullptr;
-		}
-	      bdd cond = formula_to_bdd(f, dict, aut.get());
-	      f->destroy();
-	      aut->new_transition(src_state, dst_state, cond, acc);
-	    }
-	}
-      return aut;
-    }
-
-    tgba_digraph_ptr
-    lbtt_read_gba(unsigned num_states, unsigned num_acc,
-		  std::istream& is, std::string& error,
-		  const bdd_dict_ptr& dict, ltl::environment& env)
-    {
-      auto aut = make_tgba_digraph(dict);
-      acc_mapper_int acc_b(aut, num_acc);
-      aut->new_states(num_states);
-      aut->prop_state_based_acc();
-
-      for (unsigned n = 0; n < num_states; ++n)
-	{
-	  int src_state = 0;
-	  int initial = 0;
-	  is >> src_state >> initial;
-	  if (initial)
-	    aut->set_init_state(src_state);
-
-	  // Read the acceptance conditions.
-	  acc_cond::mark_t acc = 0U;
-	  for (;;)
-	    {
-	      int acc_n = 0;
-	      is >> acc_n;
-	      if (acc_n == -1)
-		break;
-	      auto p = acc_b.lookup(acc_n);
-	      if (p.first)
-		{
-		  acc |= p.second;
-		}
-	      else
-		{
-		  error += "more acceptance sets used than declared";
-		  return nullptr;
-		}
-	    }
-
-	  // Read the transitions.
-	  for (;;)
-	    {
-	      int dst_state = 0;
-	      is >> dst_state;
-	      if (dst_state == -1)
-		break;
-
-	      std::string guard;
-	      std::getline(is, guard);
-	      ltl::parse_error_list pel;
-	      const ltl::formula* f = parse_lbt(guard, pel, env);
-	      if (!f || !pel.empty())
-		{
-		  error += "failed to parse guard: " + guard;
-		  if (f)
-		    f->destroy();
-		  return nullptr;
-		}
-	      bdd cond = formula_to_bdd(f, dict, aut.get());
-	      f->destroy();
-	      aut->new_transition(src_state, dst_state, cond, acc);
-	    }
-	}
-      return aut;
-    }
-
-  } // anonymous
-
+  }
 
   std::ostream&
   lbtt_reachable(std::ostream& os, const const_tgba_ptr& g, bool sba)
@@ -270,42 +138,5 @@ namespace spot
     lbtt_bfs b(g, os, sba);
     b.run();
     return os;
-  }
-
-
-  tgba_digraph_ptr
-  lbtt_parse(std::istream& is, std::string& error, const bdd_dict_ptr& dict,
-	     ltl::environment& env)
-  {
-    is >> std::skipws;
-
-    unsigned num_states = 0;
-    is >> num_states;
-    if (!is)
-      {
-	error += "failed to read the number of states";
-	return 0;
-      }
-
-    // No states?  Read the rest of the line and return an empty automaton.
-    if (num_states == 0)
-      {
-	std::string header;
-	std::getline(is, header);
-	return make_tgba_digraph(dict);
-      }
-
-    unsigned num_acc = 0;
-    is >> num_acc;
-
-    int type;
-    type = is.peek();
-    if (type == 't' || type == 'T' || type == 's' || type == 'S')
-      type = is.get();
-
-    if (type == 't' || type == 'T')
-      return lbtt_read_tgba(num_states, num_acc, is, error, dict, env);
-    else
-      return lbtt_read_gba(num_states, num_acc, is, error, dict, env);
   }
 }

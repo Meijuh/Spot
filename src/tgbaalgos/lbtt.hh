@@ -23,9 +23,8 @@
 #ifndef SPOT_TGBAALGOS_LBTT_HH
 # define SPOT_TGBAALGOS_LBTT_HH
 
-#include "tgba/tgbagraph.hh"
+#include "tgba/tgba.hh"
 #include <iosfwd>
-#include "ltlenv/defaultenv.hh"
 
 namespace spot
 {
@@ -38,21 +37,6 @@ namespace spot
   /// acceptance format (similar to LBT's format).
   SPOT_API std::ostream&
   lbtt_reachable(std::ostream& os, const const_tgba_ptr& g, bool sba = false);
-
-  /// \ingroup tgba_io
-  /// \brief Read an automaton in LBTT's format
-  ///
-  /// \param is The stream on which the automaton should be input.
-  /// \param error A string in which to write any error message.
-  /// \param dict The dictionary that should register the BDD variables
-  /// used by the automaton built.
-  /// \param env The environment of atomic proposition into which parsing
-  ///        should take place.
-  /// \return the read tgba or 0 on error.
-  SPOT_API tgba_digraph_ptr
-  lbtt_parse(std::istream& is, std::string& error,
-	     const bdd_dict_ptr& dict,
-	     ltl::environment& env = ltl::default_environment::instance());
 }
 
 #endif // SPOT_TGBAALGOS_LBTT_HH

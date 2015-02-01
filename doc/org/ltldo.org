@@ -81,7 +81,7 @@ X[]!<>((a && ![]b) || (!a && []b)),4,10
 Using =ltldo= the above command can be reduced to this:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltldo 'ltl3ba -f %s>%N' -F sample.ltl --stats='%f,%s,%t'
+ltldo 'ltl3ba -f %s>%O' -F sample.ltl --stats='%f,%s,%t'
 #+END_SRC
 #+RESULTS:
 #+begin_example
@@ -129,7 +129,7 @@ the [[http://adl.github.io/hoaf/][HOA format]].  Spin has no support for HOA, bu
 converts the never claim produced by =spin= into this format.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltldo -f a -f GFa 'spin -f %s>%N' -H
+ltldo -f a -f GFa 'spin -f %s>%O' -H
 #+END_SRC
 
 #+RESULTS:
@@ -184,8 +184,8 @@ ltldo --help | sed -n '/character sequences:/,/^$/p' | sed '1d;$d'
 :                              LBT, or Wring's syntax
 :   %F,%S,%L,%W                the formula as a file in Spot, Spin, LBT, or
 :                              Wring's syntax
-:   %N,%T,%D,%H                the automaton is output as a Never claim, or in
-:                              LBTT's, in LTL2DSTAR's, or in the HOA format
+:   %O,%D                      the automaton is output as either (%O) HOA/never
+:                              claim/LBTT, or (%D) in LTL2DSTAR's format
 
 Contrarily to =ltlcross=, it this not mandatory to specify an output
 filename using one of the sequence for that last line.  For instance
@@ -209,31 +209,31 @@ executed on each formula in the same order.
 A typical use-case is to compare statistics of different tools:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltldo -F sample.ltl 'spin -f %s>%N' 'ltl3ba -f %s>%N' --stats=%T,%f,%s,%e
+ltldo -F sample.ltl 'spin -f %s>%O' 'ltl3ba -f %s>%O' --stats=%T,%f,%s,%e
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-spin -f %s>%N,1,2,2
-ltl3ba -f %s>%N,1,1,1
-spin -f %s>%N,1 U a,2,3
-ltl3ba -f %s>%N,1 U a,2,3
-spin -f %s>%N,!(!((a U Gb) U b) U GFa),23,86
-ltl3ba -f %s>%N,!(!((a U Gb) U b) U GFa),2,3
-spin -f %s>%N,(b <-> Xc) xor Fb,12,23
-ltl3ba -f %s>%N,(b <-> Xc) xor Fb,7,11
-spin -f %s>%N,FXb R (a R (1 U b)),28,176
-ltl3ba -f %s>%N,FXb R (a R (1 U b)),6,20
-spin -f %s>%N,Ga,1,1
-ltl3ba -f %s>%N,Ga,1,1
-spin -f %s>%N,G(!(c | (a & (a W Gb))) M Xa),15,51
-ltl3ba -f %s>%N,G(!(c | (a & (a W Gb))) M Xa),1,0
-spin -f %s>%N,GF((b R !a) U (Xc M 1)),12,60
-ltl3ba -f %s>%N,GF((b R !a) U (Xc M 1)),2,4
-spin -f %s>%N,G(Xb | Gc),4,8
-ltl3ba -f %s>%N,G(Xb | Gc),3,5
-spin -f %s>%N,XG!F(a xor Gb),8,21
-ltl3ba -f %s>%N,XG!F(a xor Gb),4,7
+spin -f %s>%O,1,2,2
+ltl3ba -f %s>%O,1,1,1
+spin -f %s>%O,1 U a,2,3
+ltl3ba -f %s>%O,1 U a,2,3
+spin -f %s>%O,!(!((a U Gb) U b) U GFa),23,86
+ltl3ba -f %s>%O,!(!((a U Gb) U b) U GFa),2,3
+spin -f %s>%O,(b <-> Xc) xor Fb,12,23
+ltl3ba -f %s>%O,(b <-> Xc) xor Fb,7,11
+spin -f %s>%O,FXb R (a R (1 U b)),28,176
+ltl3ba -f %s>%O,FXb R (a R (1 U b)),6,20
+spin -f %s>%O,Ga,1,1
+ltl3ba -f %s>%O,Ga,1,1
+spin -f %s>%O,G(!(c | (a & (a W Gb))) M Xa),15,51
+ltl3ba -f %s>%O,G(!(c | (a & (a W Gb))) M Xa),1,0
+spin -f %s>%O,GF((b R !a) U (Xc M 1)),12,60
+ltl3ba -f %s>%O,GF((b R !a) U (Xc M 1)),2,4
+spin -f %s>%O,G(Xb | Gc),4,8
+ltl3ba -f %s>%O,G(Xb | Gc),3,5
+spin -f %s>%O,XG!F(a xor Gb),8,21
+ltl3ba -f %s>%O,XG!F(a xor Gb),4,7
 #+end_example
 
 Here we used =%T= to output the name of the tool used to translate the
@@ -247,7 +247,7 @@ using the trick that the command =echo %f= will not be subject to
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltldo -F sample.ltl  --stats=%T,%s,%e \
-      'echo "#" %f' '{spin}spin -f %s>%N' '{ltl3ba}ltl3ba -f %s>%N'
+      'echo "#" %f' '{spin}spin -f %s>%O' '{ltl3ba}ltl3ba -f %s>%O'
 #+END_SRC
 
 #+RESULTS:
@@ -300,14 +300,14 @@ ltldo --list-shorthands
 If a COMMANDFMT does not use any %-sequence, and starts with one of
 the following words, then the string on the right is appended.
 
-  lbt          <%L>%T
-  ltl2ba       -f %s>%N
+  lbt          <%L>%O
+  ltl2ba       -f %s>%O
   ltl2dstar    %L %D
-  ltl2tgba     -H %f>%H
-  ltl3ba       -f %s>%N
+  ltl2tgba     -H %f>%O
+  ltl3ba       -f %s>%O
   ltl3dra      -f %f>%D
-  modella      %L %T
-  spin         -f %s>%N
+  modella      %L %O
+  spin         -f %s>%O
 #+end_example
 
 So for instance you can type just
@@ -331,7 +331,7 @@ for the neverclaim produced by =ltl2ba -f a=.
 : }
 
 The =ltl2ba= argument passed to =ltldo= was interpreted as if you had
-typed ={ltl2ba}ltl2ba -f %s>%N=.
+typed ={ltl2ba}ltl2ba -f %s>%O=.
 
 The shorthand is only used if it is the first word of an command
 string that does not use any =%= character.  This makes it possible to
@@ -390,7 +390,7 @@ claim was then relabeled by =ltldo= to use =Error= instead of =p0=.
 
 This renaming occurs any time some command uses =%s= or =%S= and the
 formula has atomic propositions incompatible with Spin's conventions;
-or when some command uses =%l=, =%L=, or =%T=, and the formula has
+or when some command uses =%l= or =%L=, and the formula has
 atomic propositions incompatible with [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][LBT's conventions]].
 
 

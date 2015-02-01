@@ -343,7 +343,7 @@ checked_main(int argc, char** argv)
   bool accepting_run = false;
   bool accepting_run_replay = false;
   bool from_file = false;
-  enum { ReadLbtt, ReadDstar, ReadHoa } readformat = ReadHoa;
+  enum { ReadDstar, ReadHoa } readformat = ReadHoa;
   bool nra2nba = false;
   bool dra2dba = false;
   bool scc_filter = false;
@@ -883,7 +883,7 @@ checked_main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-XL"))
 	{
 	  from_file = true;
-	  readformat = ReadLbtt;
+	  readformat = ReadHoa;
 	}
       else if (!strcmp(argv[formula_index], "-XN")) // now synonym for -XH
 	{
@@ -967,31 +967,6 @@ checked_main(int argc, char** argv)
 	{
 	  switch (readformat)
 	    {
-	    case ReadLbtt:
-	      {
-		std::string error;
-		std::istream* in = &std::cin;
-		std::fstream* f = 0;
-		if (input != "-")
-		  {
-		    in = f = new std::fstream(input.c_str());
-		    if (!*f)
-		      {
-			std::cerr << "cannot open " << input << std::endl;
-			return 2;
-		      }
-		  }
-		tm.start("parsing lbtt");
-		a = spot::lbtt_parse(*in, error, dict, env);
-		tm.stop("parsing lbtt");
-		delete f;
-		if (!a)
-		  {
-		    std::cerr << error << std::endl;
-		    return 2;
-		  }
-	      }
-	      break;
 	    case ReadDstar:
 	      {
 		spot::dstar_parse_error_list pel;
