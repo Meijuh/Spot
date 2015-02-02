@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+# Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -140,3 +140,8 @@ grep '"exit_code"' out.csv
 test `grep 'error:.*aborted' stderr | wc -l` -eq 2
 test `grep '"aborted",-1' out.csv | wc -l` -eq 2
 check_csv out.csv
+
+
+# Diagnose empty automata
+run 1 ../../bin/ltlcross ': %f >%O' -f a 2>stderr
+test 2 = `grep -c 'error: empty output.' stderr`

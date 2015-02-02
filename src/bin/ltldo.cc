@@ -204,6 +204,13 @@ namespace
 		    spot::format_hoa_parse_errors(std::cerr, filename, pel);
 		    res = nullptr;
 		  }
+		else if (!aut)
+		  {
+		    problem = true;
+		    std::cerr << "error: command \"" << cmd
+			      << "\" produced an empty output.\n";
+		    res = nullptr;
+		  }
 		else if (aut->aborted)
 		  {
 		    problem = true;

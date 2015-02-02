@@ -598,13 +598,21 @@ namespace
 		    end_error();
 		    res = nullptr;
 		  }
+		else if (!aut)
+		  {
+		    status_str = "empty output";
+		    problem = true;
+		    es = -1;
+		    global_error() << "error: empty output.\n";
+		    end_error();
+		    res = nullptr;
+		  }
 		else if (aut->aborted)
 		  {
 		    status_str = "aborted";
 		    problem = true;
 		    es = -1;
-		    std::ostream& err = global_error();
-		    err << "error: aborted HOA file.\n";
+		    global_error()  << "error: aborted HOA file.\n";
 		    end_error();
 		    res = nullptr;
 		  }
