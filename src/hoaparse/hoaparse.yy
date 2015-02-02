@@ -82,6 +82,7 @@
       spot::acc_cond::mark_t neg_acc_sets = 0U;
       spot::acc_cond::mark_t pos_acc_sets = 0U;
       std::vector<std::string>* state_names = nullptr;
+      std::map<unsigned, unsigned> states_map;
       unsigned cur_state;
       int states = -1;
       int ap_count = -1;
@@ -1202,6 +1203,36 @@ nc-transition:
 lbtt: lbtt-header lbtt-body ENDAUT
       {
 	res.pos_acc_sets = res.h->aut->acc().all_sets();
+	assert(!res.states_map.empty());
+	auto n = res.states_map.size();
+	if (n != (unsigned) res.states)
+	  {
+	    std::ostringstream err;
+	    err << res.states << " states have been declared, but "
+		<< n << " different state numbers have been used";
+	    error(@$, err.str());
+	  }
+	if (res.states_map.rbegin()->first > (unsigned) res.states)
+	  {
+	    // We have seen number larger that the total number of
+	    // state in the automaton.  Usually this happens when the
+	    // states are numbered from 1 instead of 0, but the LBTT
+	    // documentation actually allow any number to be used.
+	    // What we have done is to map all input state numbers 0
+	    // <= .. < n to the digraph states with the same number,
+	    // and any time we saw a number larger than n, we mapped
+	    // it to a new state.  The correspondence is given by
+	    // res.states_map.  Now we just need to remove the useless
+	    // states we allocated.
+	    std::vector<unsigned> rename(res.h->aut->num_states(), -1U);
+	    unsigned s = 0;
+	    for (auto& i: res.states_map)
+	      rename[i.second] = s++;
+	    assert(s == (unsigned) res.states);
+	    for (auto& i: res.start)
+	      i.second = rename[i.second];
+	    res.h->aut->get_graph().defrag_states(std::move(rename), s);
+	  }
       }
     | lbtt-header-states LBTT_EMPTY
       {
@@ -1232,16 +1263,20 @@ lbtt-states:
 
 lbtt-state: STATE_NUM INT lbtt-acc
           {
-	    res.cur_state = $1;
-	    if ((int) res.cur_state >= res.states)
+	    if ($1 >= (unsigned) res.states)
 	      {
-		error(@1, "state number is larger than state "
-		      "count...");
-		error(res.states_loc, "... declared here.");
-		res.cur_state = 0;
+		auto p = res.states_map.emplace($1, 0);
+		if (p.second)
+		  p.first->second = res.h->aut->new_state();
+		res.cur_state = p.first->second;
 	      }
-	    else if ($2)
-	      res.start.emplace_back(@1 + @2, $1);
+	    else
+	      {
+		res.states_map.emplace($1, $1);
+		res.cur_state = $1;
+	      }
+	    if ($2)
+	      res.start.emplace_back(@1 + @2, res.cur_state);
 	    res.acc_state = $3;
 	  }
 lbtt-acc:               { $$ = 0U; }
@@ -1290,16 +1325,21 @@ lbtt-guard: STRING
 lbtt-transitions:
                 | lbtt-transitions DEST_NUM lbtt-acc lbtt-guard
                 {
-		  if ((int) $2 >= res.states)
+		  unsigned dst = $2;
+		  if (dst >= (unsigned) res.states)
 		    {
-		      error(@2, "state number is larger than state "
-			    "count...");
-		      error(res.states_loc, "... declared here.");
+		      auto p = res.states_map.emplace(dst, 0);
+		      if (p.second)
+			p.first->second = res.h->aut->new_state();
+		      dst = p.first->second;
 		    }
 		  else
-		    res.h->aut->new_transition(res.cur_state, $2,
-					       res.cur_label,
-					       res.acc_state | $3);
+		    {
+		      res.states_map.emplace(dst, dst);
+	            }
+		  res.h->aut->new_transition(res.cur_state, dst,
+		                             res.cur_label,
+					     res.acc_state | $3);
 		}
 
 %%

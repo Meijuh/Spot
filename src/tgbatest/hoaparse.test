@@ -84,6 +84,7 @@ State: 1 {0}
 -1
 EOF
 
+diff='different state numbers have been used'
 expecterr input <<EOF
 input:8.5: state number is larger than state count...
 input:2.1-9: ... declared here.
@@ -91,10 +92,7 @@ input:9.8: state number is larger than state count...
 input:2.1-9: ... declared here.
 input:10.5: state number is larger than state count...
 input:2.1-9: ... declared here.
-input:13.1: state number is larger than state count...
-input:12.1: ... declared here.
-input:18.1: state number is larger than state count...
-input:12.1: ... declared here.
+input:12.1-19.2: 2 states have been declared, but 3 $diff
 EOF
 
 cat >input <<EOF
