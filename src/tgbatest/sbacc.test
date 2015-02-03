@@ -102,7 +102,25 @@ diff out.hoa expected
 $autfilt --sba -H expected > out.hoa
 diff out.hoa expected
 
-
+$autfilt --strip-acc -H expected > out.hoa
+cat >expected <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 1 "a"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[0] 1
+State: 1
+[0] 2
+State: 2
+[0] 0
+--END--
+EOF
+diff out.hoa expected
 
 ../../bin/randltl --weak-fairness -n 20 2 |
 ../../bin/ltlcross "$ltl2tgba -DH %f >%O" "$ltl2tgba -H %f | $autfilt -H >%O"

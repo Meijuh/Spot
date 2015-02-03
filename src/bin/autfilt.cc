@@ -48,6 +48,7 @@
 #include "tgbaalgos/canonicalize.hh"
 #include "tgbaalgos/mask.hh"
 #include "tgbaalgos/sbacc.hh"
+#include "tgbaalgos/stripacc.hh"
 
 
 static const char argp_program_doc[] ="\
@@ -76,6 +77,7 @@ Exit status:\n\
 #define OPT_INTERSECT 16
 #define OPT_MASK_ACC 17
 #define OPT_SBACC 18
+#define OPT_STRIPACC 19
 
 static const argp_option options[] =
   {
@@ -110,6 +112,8 @@ static const argp_option options[] =
     { "state-based-acceptance", OPT_SBACC, 0, 0,
       "define the acceptance using states", 0 },
     { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
+    { "strip-acceptance", OPT_STRIPACC, 0, 0,
+      "remove the acceptance conditions and all acceptance sets", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -178,6 +182,7 @@ static bool opt_destut = false;
 static char opt_instut = 0;
 static bool opt_is_empty = false;
 static bool opt_sbacc = false;
+static bool opt_stripacc = false;
 static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 
@@ -314,6 +319,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_STATES:
       opt_states = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
+    case OPT_STRIPACC:
+      opt_stripacc = true;
+      break;
     case OPT_TGBA:
       if (automaton_format == Spin)
 	error(2, 0, "--spin and --tgba are incompatible");
@@ -366,6 +374,8 @@ namespace
 
       // Preprocessing.
 
+      if (opt_stripacc)
+	spot::strip_acceptance_here(aut);
       if (opt_merge)
 	aut->merge_transitions();
 
