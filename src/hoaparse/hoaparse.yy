@@ -83,6 +83,7 @@
       spot::acc_cond::mark_t pos_acc_sets = 0U;
       std::vector<std::string>* state_names = nullptr;
       std::map<unsigned, unsigned> states_map;
+      std::set<int> ap_set;
       unsigned cur_state;
       int states = -1;
       int ap_count = -1;
@@ -523,17 +524,27 @@ ap-name: STRING
 	   if (!res.ignore_more_ap)
 	     {
 	       auto f = res.env->require(*$1);
+	       auto d = res.h->aut->get_dict();
+	       int b = 0;
 	       if (f == nullptr)
 		 {
 		   std::ostringstream out;
 		   out << "unknown atomic proposition \"" << *$1 << "\"";
-		   delete $1;
 		   error(@1, out.str());
 		   f = spot::ltl::default_environment::instance()
 		     .require("$unknown$");
+		   b = d->register_proposition(f, res.h->aut);
 		 }
-	       auto b =
-		 res.h->aut->get_dict()->register_proposition(f, res.h->aut);
+	       else
+		 {
+		   b = d->register_proposition(f, res.h->aut);
+		   if (!res.ap_set.emplace(b).second)
+		     {
+		       std::ostringstream out;
+		       out << "duplicate atomic proposition \"" << *$1 << "\"";
+		       error(@1, out.str());
+		     }
+		 }
 	       f->destroy();
 	       res.ap.push_back(b);
 	     }

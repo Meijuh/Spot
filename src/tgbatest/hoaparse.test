@@ -145,7 +145,7 @@ EOF
 
 cat >input <<EOF
 HOA: v1
-AP: 1 "a"
+AP: 2 "a" "a"
 States: 0
 Start: 1
 --BODY--
@@ -155,6 +155,7 @@ State: 0 {0 1}
 EOF
 
 expecterr input <<EOF
+input:2.11-13: duplicate atomic proposition "a"
 input:4.1-8: initial state number is larger than state count...
 input:3.1-9: ... declared here.
 input:1.1-4.8: missing 'Acceptance:' header
