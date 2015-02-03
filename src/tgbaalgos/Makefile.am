@@ -64,6 +64,7 @@ tgbaalgos_HEADERS = \
   relabel.hh \
   replayrun.hh \
   safety.hh \
+  sbacc.hh \
   sccfilter.hh \
   scc.hh \
   sccinfo.hh \
@@ -115,6 +116,7 @@ libtgbaalgos_la_SOURCES = \
   replayrun.cc \
   relabel.cc \
   safety.cc \
+  sbacc.cc \
   scc.cc \
   sccinfo.cc \
   sccfilter.cc \

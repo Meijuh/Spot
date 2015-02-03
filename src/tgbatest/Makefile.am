@@ -112,6 +112,7 @@ TESTS = \
   randtgba.test \
   isomorph.test \
   uniq.test \
+  sbacc.test \
   stutter.test \
   emptchk.test \
   emptchke.test \

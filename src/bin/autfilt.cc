@@ -47,6 +47,7 @@
 #include "tgbaalgos/are_isomorphic.hh"
 #include "tgbaalgos/canonicalize.hh"
 #include "tgbaalgos/mask.hh"
+#include "tgbaalgos/sbacc.hh"
 
 
 static const char argp_program_doc[] ="\
@@ -74,6 +75,7 @@ Exit status:\n\
 #define OPT_IS_EMPTY 15
 #define OPT_INTERSECT 16
 #define OPT_MASK_ACC 17
+#define OPT_SBACC 18
 
 static const argp_option options[] =
   {
@@ -105,6 +107,9 @@ static const argp_option options[] =
     { "destut", OPT_DESTUT, 0, 0, "allow less stuttering", 0 },
     { "mask-acc", OPT_MASK_ACC, "NUM[,NUM...]", 0,
       "remove all transitions in specified acceptance sets", 0 },
+    { "state-based-acceptance", OPT_SBACC, 0, 0,
+      "define the acceptance using states", 0 },
+    { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -172,6 +177,7 @@ static int opt_max_count = -1;
 static bool opt_destut = false;
 static char opt_instut = 0;
 static bool opt_is_empty = false;
+static bool opt_sbacc = false;
 static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 
@@ -299,6 +305,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 	  randomize_st = true;
 	}
       break;
+    case OPT_SBACC:
+      opt_sbacc = true;
+      break;
     case OPT_SEED:
       opt_seed = to_int(arg);
       break;
@@ -398,6 +407,9 @@ namespace
 
       if (opt_product)
 	aut = spot::product(std::move(aut), opt_product);
+
+      if (opt_sbacc)
+	aut = spot::sbacc(aut);
 
       aut = post.run(aut, nullptr);
 

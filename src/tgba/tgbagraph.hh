@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -429,8 +429,7 @@ namespace spot
     /// \brief Copy the acceptance conditions of another tgba.
     void copy_acceptance_conditions_of(const const_tgba_ptr& a)
     {
-      assert(acc_.num_sets() == 0);
-      acc_.add_sets(a->acc().num_sets());
+      set_acceptance_conditions(a->acc().num_sets());
     }
 
     void copy_ap_of(const const_tgba_ptr& a)
