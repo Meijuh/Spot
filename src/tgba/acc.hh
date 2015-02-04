@@ -23,7 +23,7 @@
 # include <functional>
 # include <unordered_map>
 # include <sstream>
-# include "bdddict.hh"
+# include <vector>
 # include "ltlenv/defaultenv.hh"
 
 namespace spot
@@ -191,8 +191,8 @@ namespace spot
       }
     };
 
-    acc_cond(const bdd_dict_ptr& dict, unsigned n_sets = 0)
-      : d_(dict), num_(0U), all_(0U)
+    acc_cond(unsigned n_sets = 0)
+      : num_(0U), all_(0U)
     {
       add_sets(n_sets);
     }
@@ -204,11 +204,6 @@ namespace spot
 
     ~acc_cond()
     {
-    }
-
-    const bdd_dict_ptr& get_dict() const
-    {
-      return d_;
     }
 
     unsigned add_sets(unsigned num)
@@ -426,7 +421,6 @@ namespace spot
       return r;
     }
 
-    bdd_dict_ptr d_;
     unsigned num_;
     mark_t::value_t all_;
   };

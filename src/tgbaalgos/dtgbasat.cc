@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -246,7 +246,7 @@ namespace spot
     struct dict
     {
       dict(const const_tgba_ptr& a)
-	: aut(a), cacc(a->get_dict())
+	: aut(a)
       {
       }
 

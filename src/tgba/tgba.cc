@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2014 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2011, 2014, 2015 Laboratoire de Recherche et Developpement de
 // l'EPITA (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -28,7 +28,7 @@ namespace spot
 {
   tgba::tgba(const bdd_dict_ptr& d)
     : iter_cache_(nullptr),
-      acc_(d),
+      dict_(d),
       last_support_conditions_input_(0)
   {
     props = 0U;

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -36,8 +36,7 @@ void check(spot::acc_cond& ac, spot::acc_cond::mark_t m)
 
 int main()
 {
-  auto d = spot::make_bdd_dict();
-  spot::acc_cond ac(d, 4);
+  spot::acc_cond ac(4);
 
   auto m1 = ac.marks({0, 2});
   auto m2 = ac.marks({0, 3});
@@ -62,10 +61,10 @@ int main()
   check(ac, m2 & m3);
   check(ac, ac.comp(m2 & m3));
 
-  spot::acc_cond ac2(d, ac.num_sets());
+  spot::acc_cond ac2(ac.num_sets());
   check(ac2, m3);
 
-  spot::acc_cond ac3(d, ac.num_sets() + ac2.num_sets());
+  spot::acc_cond ac3(ac.num_sets() + ac2.num_sets());
   std::cout << ac.num_sets() << " + "
 	    << ac2.num_sets() << " = " << ac3.num_sets() << '\n';
   auto m5 = ac3.join(ac, m2, ac2, m3);
@@ -85,7 +84,7 @@ int main()
     };
   std::cout << '\n';
 
-  spot::acc_cond ac4(d);
+  spot::acc_cond ac4;
   check(ac4, ac4.all_sets());
   check(ac4, ac4.comp(ac4.all_sets()));
 
@@ -104,4 +103,3 @@ int main()
     }
 
 }
-

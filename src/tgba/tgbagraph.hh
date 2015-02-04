@@ -339,7 +339,7 @@ namespace spot
       if (num < acc_.num_sets())
 	{
 	  acc_.~acc_cond();
-	  new (&acc_) acc_cond(get_dict());
+	  new (&acc_) acc_cond;
 	}
       acc_.add_sets(num - acc_.num_sets());
       prop_single_acc_set(num == 1);

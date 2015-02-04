@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -25,6 +25,7 @@
 
 #include "fwd.hh"
 #include "acc.hh"
+#include "bdddict.hh"
 #include <cassert>
 #include <memory>
 #include <unordered_map>
@@ -473,7 +474,7 @@ namespace spot
     tgba(const bdd_dict_ptr& d);
     // Any iterator returned via release_iter.
     mutable tgba_succ_iterator* iter_cache_;
-
+    bdd_dict_ptr dict_;
   public:
 
 #ifndef SWIG
@@ -577,7 +578,7 @@ namespace spot
     /// different formula), or simply when printing.
     bdd_dict_ptr get_dict() const
     {
-      return acc_.get_dict();
+      return dict_;
     }
 
     /// \brief Format the state as a string for printing.

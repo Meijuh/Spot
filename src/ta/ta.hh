@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -25,7 +25,6 @@
 #include <cassert>
 #include "misc/bddlt.hh"
 #include "tgba/tgba.hh"
-#include "tgba/bdddict.hh"
 
 namespace spot
 {
@@ -78,10 +77,11 @@ namespace spot
   {
   protected:
     acc_cond acc_;
+    bdd_dict_ptr dict_;
 
   public:
     ta(const bdd_dict_ptr& d)
-      : acc_(d)
+      : dict_(d)
     {
     }
 
@@ -138,7 +138,7 @@ namespace spot
     bdd_dict_ptr
     get_dict() const
     {
-      return acc_.get_dict();
+      return dict_;
     }
 
     /// \brief Format the state as a string for printing.
