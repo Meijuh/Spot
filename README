@@ -29,6 +29,7 @@ Requirements
 ------------
 
 Spot requires a C++11-compliant compiler.
+G++ 4.8 or later, as well as Clang++3.5 or later should work.
 
 Spot expects a complete installation of Python (version 2.0 or later).
 Especially, Python's headers files should be installed.  If you don't
@@ -37,8 +38,6 @@ configure with the --disable-python option (see below).
 
 Optional third-party dependencies
 ----------------------------------
-
-
 
 If the SAT-solver glucose is found on your system, it will
 be used by our test suite to test our SAT-based minimization

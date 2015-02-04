@@ -75,6 +75,8 @@ CXXFLAGS="$CXXFLAGS -DSPOT_BUILD"
 m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody],
 [AC_LANG_SOURCE([#include <memory>
 #include <string>
+#include <chrono>  // fails with some installation of clang
+#include <map>
 
    template <typename T>
     struct check
@@ -94,6 +96,12 @@ m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody],
     check_type&& cr = static_cast<check_type&&>(c);
 
     auto d = a;
+
+    void test_emplace()
+    {
+       std::map<int, int> m;
+       m.emplace(1, 2); // fails with g++ 4.6
+    }
 ])])
 
 for f in -std=c++11 '-std=c++11 -stdlib=libc++' -std=c++0x
