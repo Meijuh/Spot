@@ -48,7 +48,11 @@ namespace spot
 	out_->set_single_acceptance_set();
 	out_->prop_state_based_acc();
 	out_->new_states(num_states_ * (d_->accpair_count + 1));
-	out_->set_init_state(a->aut->get_init_state_number());
+	// This converts the initial state of aut (not a->aut) into a
+	// state number in a->aut.
+	auto i = aut->get_init_state();
+	out_->set_init_state(a->aut->state_number(i));
+	i->destroy();
       }
 
       tgba_digraph_ptr
