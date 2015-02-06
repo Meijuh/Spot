@@ -56,6 +56,7 @@ namespace spot
 	visit(const constant* c)
 	{
 	  assert(c == constant::empty_word_instance());
+	  (void)c;
 	  result_ = constant::false_instance();
 	}
 

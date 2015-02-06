@@ -398,6 +398,7 @@ namespace spot
 		  // No acceptance here to preserve the state-based property.
 		  i = a->new_transition(tmp, dst, one, 0U);
 		  assert(i > num_transitions);
+		  (void)i;
 		  all -= one;
 		}
 	    }

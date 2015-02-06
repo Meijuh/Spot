@@ -61,6 +61,7 @@ namespace spot
 	  // unique artificial_livelock_acc_state
 	  assert(artificial_livelock_acc_state_added
 		 == artificial_livelock_acc_state);
+	  (void)artificial_livelock_acc_state_added;
 	  artificial_livelock_acc_state->set_livelock_accepting_state(true);
 	  artificial_livelock_acc_state->free_transitions();
 	}

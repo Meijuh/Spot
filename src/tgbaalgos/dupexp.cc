@@ -56,6 +56,7 @@ namespace spot
 	unsigned ns = out_->new_state();
 	assert(ns == static_cast<unsigned>(n) - 1);
 	(void)ns;
+	(void)n;
       }
 
       virtual void
