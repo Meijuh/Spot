@@ -326,6 +326,7 @@ namespace
 	    };
 	}
       f->destroy();
+      spot::cleanup_tmpfiles();
       ++round;
       return 0;
     }
