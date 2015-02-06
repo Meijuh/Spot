@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -36,20 +36,35 @@ namespace spot
 
   namespace internal
   {
+    template <typename Of, typename ...Args>
+    struct first_is_base_of
+    {
+      static const bool value = false;
+    };
+
+    template <typename Of, typename Arg1, typename ...Args>
+    struct first_is_base_of<Of, Arg1, Args...>
+    {
+      static const bool value =
+	std::is_base_of<Of, typename std::decay<Arg1>::type>::value;
+    };
+
+
     // The boxed_label class stores Data as an attribute called
     // "label" if boxed is true.  It is an empty class if Data is
     // void, and it simply inherits from Data if boxed is false.
     //
     // The data() method offers an homogeneous access to the Data
     // instance.
-
     template <typename Data, bool boxed = !std::is_class<Data>::value>
     struct SPOT_API boxed_label
     {
       typedef Data data_t;
       Data label;
 
-      template <typename... Args>
+      template <typename... Args,
+		typename = typename std::enable_if<
+		  !first_is_base_of<boxed_label, Args...>::value>::type>
       boxed_label(Args&&... args):
 	label{std::forward<Args>(args)...}
       {
@@ -98,7 +113,9 @@ namespace spot
     {
       typedef Data data_t;
 
-      template <typename... Args>
+      template <typename... Args,
+		typename = typename std::enable_if<
+		  !first_is_base_of<boxed_label, Args...>::value>::type>
       boxed_label(Args&&... args):
 	Data{std::forward<Args>(args)...}
       {
@@ -131,15 +148,15 @@ namespace spot
     template <typename Transition, typename State_Data>
     struct SPOT_API distate_storage: public State_Data
     {
-      Transition succ; // First outgoing transition (used when iterating)
-      Transition succ_tail;	// Last outgoing transition (used for
+      Transition succ = 0; // First outgoing transition (used when iterating)
+      Transition succ_tail = 0;	// Last outgoing transition (used for
 				// appending new transitions)
 
-      template <typename... Args>
+      template <typename... Args,
+		typename = typename std::enable_if<
+		  !first_is_base_of<distate_storage, Args...>::value>::type>
       distate_storage(Args&&... args):
-	State_Data{std::forward<Args>(args)...},
-	succ(0),
-	succ_tail(0)
+	State_Data{std::forward<Args>(args)...}
       {
       }
     };
