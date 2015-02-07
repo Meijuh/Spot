@@ -377,31 +377,54 @@ namespace spot
       atomic_propositions = get_all_ap(a);
     unsigned num_states = a->num_states();
     unsigned num_transitions = a->num_transitions();
-    for (unsigned src = 0; src < num_states; ++src)
+    std::vector<bdd> selfloops(num_states, bddfalse);
+    std::map<std::pair<unsigned, int>, unsigned> newstates;
+    // Record all the conditions for which we can selfloop on each
+    // state.
+    for (auto& t: a->transitions())
+      if (t.src == t.dst)
+	selfloops[t.src] |= t.cond;
+    for (unsigned t = 1; t <= num_transitions; ++t)
       {
-	auto trans = a->out(src);
+	auto& td = a->trans_storage(t);
+	if (a->is_dead_transition(td))
+	  continue;
 
-	for (auto it = trans.begin(); it != trans.end()
-             && it.trans() <= num_transitions; ++it)
-	  if (it->dst != src)
-	    {
-	      bdd all = it->cond;
-	      while (all != bddfalse)
-		{
-		  unsigned dst = it->dst;
-		  bdd one = bdd_satoneset(all, atomic_propositions, bddtrue);
-		  unsigned tmp = a->new_state();
-		  unsigned i = a->new_transition(src, tmp, one, it->acc);
-		  assert(i > num_transitions);
-		  i = a->new_transition(tmp, tmp, one, 0U);
-		  assert(i > num_transitions);
-		  // No acceptance here to preserve the state-based property.
-		  i = a->new_transition(tmp, dst, one, 0U);
-		  assert(i > num_transitions);
-		  (void)i;
-		  all -= one;
-		}
-	    }
+	unsigned src = td.src;
+	unsigned dst = td.dst;
+	if (src != dst)
+	  {
+	    bdd all = td.cond;
+	    // If there is a self-loop with the whole condition on
+	    // either end of the transition, do not bother with it.
+	    if (bdd_implies(all, selfloops[src])
+		|| bdd_implies(all, selfloops[dst]))
+	      continue;
+	    // Do not use td in the loop because the new_transition()
+	    // might invalidate it.
+	    auto acc = td.acc;
+	    while (all != bddfalse)
+	      {
+		bdd one = bdd_satoneset(all, atomic_propositions, bddtrue);
+		all -= one;
+		// Skip if there is a loop for this particular letter.
+		if (bdd_implies(one, selfloops[src])
+		    || bdd_implies(one, selfloops[dst]))
+		  continue;
+		auto p = newstates.emplace(std::make_pair(dst, one.id()), 0);
+		if (p.second)
+		  p.first->second = a->new_state();
+		unsigned tmp = p.first->second; // intermediate state
+		unsigned i = a->new_transition(src, tmp, one, acc);
+		assert(i > num_transitions);
+		i = a->new_transition(tmp, tmp, one, 0U);
+		assert(i > num_transitions);
+		// No acceptance here to preserve the state-based property.
+		i = a->new_transition(tmp, dst, one, 0U);
+		assert(i > num_transitions);
+		(void)i;
+	      }
+	  }
       }
     if (num_states != a->num_states())
       a->prop_keep({true,	// state_based
