@@ -15,6 +15,10 @@ New in spot 1.99a (not yet released)
       size of any bogus formula it discovers, while still exhibiting
       the bug.
 
+    - ltlcross has a new option --ignore-execution-failures that
+      ignore translator returning non-zero exist status instead of
+      returning an error.
+
     - randaut is a new tool that generates random automata.
 
     - autfilt is a new tool that converts/filters/transforms a

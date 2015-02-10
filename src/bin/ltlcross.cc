@@ -90,6 +90,7 @@ Exit status:\n\
 #define OPT_BOGUS 13
 #define OPT_VERBOSE 14
 #define OPT_GRIND 15
+#define OPT_IGNORE_EXEC_FAIL 16
 
 static const argp_option options[] =
   {
@@ -105,6 +106,9 @@ static const argp_option options[] =
     { "stop-on-error", OPT_STOP_ERR, 0, 0,
       "stop on first execution error or failure to pass"
       " sanity checks (timeouts are OK)", 0 },
+    { "ignore-execution-failures", OPT_IGNORE_EXEC_FAIL, 0, 0,
+      "ignore automata from translators that return with a non-zero exit code,"
+      " but do not flag this as an error", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "State-space generation:", 6 },
     { "states", OPT_STATES, "INT", 0,
@@ -165,33 +169,34 @@ static color_type const color_types[] =
 };
 ARGMATCH_VERIFY(color_args, color_types);
 
-color_type color_opt = color_if_tty;
-const char* bright_red = "\033[01;31m";
-const char* bright_blue = "\033[01;34m";
-const char* bright_yellow = "\033[01;33m";
-const char* reset_color = "\033[m";
+static color_type color_opt = color_if_tty;
+static const char* bright_red = "\033[01;31m";
+static const char* bright_blue = "\033[01;34m";
+static const char* bright_yellow = "\033[01;33m";
+static const char* reset_color = "\033[m";
 
-unsigned states = 200;
-float density = 0.1;
-const char* json_output = 0;
-const char* csv_output = 0;
-bool want_stats = false;
-bool allow_dups = false;
-bool no_checks = false;
-bool no_complement = false;
-bool stop_on_error = false;
-int seed = 0;
-unsigned products = 1;
-bool products_avg = true;
-bool opt_omit = false;
-bool has_sr = false; // Has Streett or Rabin automata to process.
-const char* bogus_output_filename = 0;
-std::ofstream* bogus_output = 0;
-std::ofstream* grind_output = 0;
-bool verbose = false;
+static unsigned states = 200;
+static float density = 0.1;
+static const char* json_output = 0;
+static const char* csv_output = 0;
+static bool want_stats = false;
+static bool allow_dups = false;
+static bool no_checks = false;
+static bool no_complement = false;
+static bool stop_on_error = false;
+static int seed = 0;
+static unsigned products = 1;
+static bool products_avg = true;
+static bool opt_omit = false;
+static bool has_sr = false; // Has Streett or Rabin automata to process.
+static const char* bogus_output_filename = 0;
+static std::ofstream* bogus_output = 0;
+static std::ofstream* grind_output = 0;
+static bool verbose = false;
+static bool ignore_exec_fail = false;
+static unsigned ignored_exec_fail = 0;
 
-
-bool global_error_flag = false;
+static bool global_error_flag = false;
 
 static std::ostream&
 global_error()
@@ -422,6 +427,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (!*grind_output)
 	error(2, errno, "cannot open '%s'", arg);
       break;
+    case OPT_IGNORE_EXEC_FAIL:
+      ignore_exec_fail = true;
+      break;
     case OPT_JSON:
       want_stats = true;
       json_output = arg ? arg : "-";
@@ -517,10 +525,20 @@ namespace
 	{
 	  es = WEXITSTATUS(es);
 	  status_str = "exit code";
-	  problem = true;
-	  global_error() << "error: execution returned exit code "
-			 << es << ".\n";
-	  end_error();
+	  if (!ignore_exec_fail)
+	    {
+	      problem = true;
+	      global_error() << "error: execution returned exit code "
+			     << es << ".\n";
+	      end_error();
+	    }
+	  else
+	    {
+	      problem = false;
+	      std::cerr << "warning: execution returned exit code "
+			<< es << ".\n";
+	      ++ignored_exec_fail;
+	    }
 	}
       else
 	{
@@ -1393,20 +1411,43 @@ main(int argc, char** argv)
 		    "       please search for 'error:' messages in the above"
 		    " trace.");
 	  err << std::endl;
-	  if (timeout_count == 1)
-	    err << "Additionally, 1 timeout occurred." << std::endl;
-	  else if (timeout_count > 1)
-	    err << "Additionally, "
-		<< timeout_count << " timeouts occurred." << std::endl;
+	  if (timeout_count > 0 || ignored_exec_fail > 0)
+	    {
+	      err << "Additionally, ";
+	      if (timeout_count == 1)
+		err << "1 timeout occurred";
+	      else if (timeout_count > 1)
+		err << timeout_count << " timeouts occurred";
+	      if (timeout_count > 0 && ignored_exec_fail > 0)
+		err << " and ";
+	      if (ignored_exec_fail == 1)
+		err << "1 non-zero exit status was ignored";
+	      if (ignored_exec_fail > 1)
+		err << ignored_exec_fail
+		    << " non-zero exit statuses were ignored";
+	      err << '.' << std::endl;
+	    }
 	  end_error();
 	}
-      else if (timeout_count == 0)
-	std::cerr << "No problem detected." << std::endl;
-      else if (timeout_count == 1)
-	std::cerr << "1 timeout, but no other problem detected." << std::endl;
+      else if (timeout_count == 0 && ignored_exec_fail == 0)
+	{
+	  std::cerr << "No problem detected." << std::endl;
+	}
       else
-	std::cerr << timeout_count
-		  << " timeouts, but no other problem detected." << std::endl;
+	{
+	  if (timeout_count == 1)
+	    std::cerr << "1 timeout";
+	  if (timeout_count > 1)
+	    std::cerr << timeout_count << " timeouts";
+	  if (timeout_count > 0 && ignored_exec_fail > 0)
+	    std::cerr << " and ";
+	  if (ignored_exec_fail == 1)
+	    std::cerr << "1 non-zero exit status";
+	  if (ignored_exec_fail > 1)
+	    std::cerr << ignored_exec_fail
+		      << " non-zero exit statuses";
+	  std::cerr << ", but no other problem detected." << std::endl;
+	}
     }
 
   delete bogus_output;

@@ -56,13 +56,17 @@ check_csv out.csv
 
 # Likewise for timeouts
 echo foo >bug
-run 0 ../../bin/ltlcross 'sleep 5; false %f >%N' \
+run 0 ../../bin/ltlcross 'sleep 5; false %f >%N' 'false %f >%N' \
                          --timeout 2 -f a --csv=out.csv \
+                         --ignore-execution-failures \
                          --save-bogus=bug 2>stderr
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
 test `grep 'warning:.*timeout' stderr | wc -l` -eq 2
+test `grep 'warning:.*exit code 1' stderr | wc -l` -eq 2
 test `grep '"timeout",-1' out.csv | wc -l` -eq 2
+test `grep '"exit code",1' out.csv | wc -l` -eq 2
+grep '2 timeouts and 2 non-zero exit statuses, but no other problem' stderr
 check_csv out.csv
 # 'bug' should exist but be empty
 test -f bug
