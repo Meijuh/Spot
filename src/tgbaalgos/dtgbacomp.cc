@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -22,7 +22,7 @@
 
 namespace spot
 {
-  tgba_digraph_ptr dtgba_complement_nonweak(const const_tgba_ptr& aut)
+  tgba_digraph_ptr dtgba_complement_nonweak(const const_tgba_digraph_ptr& aut)
   {
     // Clone the original automaton.
     auto res = make_tgba_digraph(aut,
@@ -110,7 +110,7 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr dtgba_complement_weak(const const_tgba_ptr& aut)
+  tgba_digraph_ptr dtgba_complement_weak(const const_tgba_digraph_ptr& aut)
   {
     // Clone the original automaton.
     auto res = make_tgba_digraph(aut,
@@ -158,7 +158,7 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr dtgba_complement(const const_tgba_ptr& aut)
+  tgba_digraph_ptr dtgba_complement(const const_tgba_digraph_ptr& aut)
   {
     if (aut->is_inherently_weak())
       return dtgba_complement_weak(aut);

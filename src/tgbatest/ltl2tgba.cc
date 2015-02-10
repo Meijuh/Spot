@@ -1279,7 +1279,7 @@ checked_main(int argc, char** argv)
       if (opt_dtgbacomp)
 	{
 	  tm.start("DTGBA complement");
-	  a = dtgba_complement(a);
+	  a = dtgba_complement(ensure_digraph(a));
 	  tm.stop("DTGBA complement");
 	}
 

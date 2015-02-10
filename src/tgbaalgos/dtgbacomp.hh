@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -32,7 +32,7 @@ namespace spot
   /// which case the output will also be weak and deterministic) the
   /// resulting automaton is very unlikely to be deterministic.
   SPOT_API tgba_digraph_ptr
-  dtgba_complement(const const_tgba_ptr& aut);
+  dtgba_complement(const const_tgba_digraph_ptr& aut);
 }
 
 #endif // SPOT_TGBAALGOS_DTGBACOMP_HH
