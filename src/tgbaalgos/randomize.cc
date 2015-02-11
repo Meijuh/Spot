@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <random>
 #include "randomize.hh"
 #include "misc/random.hh"
 
@@ -36,7 +37,7 @@ namespace spot
 	unsigned n = g.num_states();
 	std::vector<unsigned> nums(n);
 	std::iota(nums.begin(), nums.end(), 0);
-	std::random_shuffle(nums.begin(), nums.end(), spot::mrand);
+	mrandom_shuffle(nums.begin(), nums.end());
 	g.rename_states_(nums);
 	aut->set_init_state(nums[aut->get_init_state_number()]);
 
@@ -54,7 +55,7 @@ namespace spot
       {
 	g.remove_dead_transitions_();
 	auto& v = g.transition_vector();
-	std::random_shuffle(v.begin() + 1, v.end(), spot::mrand);
+	mrandom_shuffle(v.begin() + 1, v.end());
       }
 
     typedef tgba_digraph::graph_t::trans_storage_t tr_t;

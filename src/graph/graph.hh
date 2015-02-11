@@ -831,7 +831,7 @@ namespace spot
     {
       //std::cerr << "\nbefore\n";
       //dump_storage(std::cerr);
-      std::sort(transitions_.begin() + 1, transitions_.end(), p);
+      std::stable_sort(transitions_.begin() + 1, transitions_.end(), p);
     }
 
     // Should be called only when it is known that all transitions

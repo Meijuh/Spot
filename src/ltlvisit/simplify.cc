@@ -533,26 +533,36 @@ namespace spot
 				    const formula* f1,
 				    const formula* f2)
 	{
-	  // Rewrite a<=>b as (a&b)|(!a&!b)
 	  if (equiv)
-	    return
-	      multop::instance(multop::Or,
-			       multop::instance(multop::And,
-						recurse_(f1, false),
-						recurse_(f2, false)),
-			       multop::instance(multop::And,
-						recurse_(f1, true),
-						recurse_(f2, true)));
+	    {
+	      // Rewrite a<=>b as (a&b)|(!a&!b)
+	      auto recurse_f1_true = recurse_(f1, true);
+	      auto recurse_f1_false = recurse_(f1, false);
+	      auto recurse_f2_true =  recurse_(f2, true);
+	      auto recurse_f2_false =  recurse_(f2, false);
+	      auto left =  multop::instance(multop::And,
+					    recurse_f1_false,
+					    recurse_f2_false);
+	      auto right =  multop::instance(multop::And,
+					    recurse_f1_true,
+					    recurse_f2_true);
+	      return multop::instance(multop::Or, left, right);
+	    }
 	  else
-	    // Rewrite a^b as (a&!b)|(!a&b)
-	    return
-	      multop::instance(multop::Or,
-			       multop::instance(multop::And,
-						recurse_(f1, false),
-						recurse_(f2, true)),
-			       multop::instance(multop::And,
-						recurse_(f1, true),
-						recurse_(f2, false)));
+	    {
+	      // Rewrite a^b as (a&!b)|(!a&b)
+	      auto recurse_f1_true = recurse_(f1, true);
+	      auto recurse_f1_false = recurse_(f1, false);
+	      auto recurse_f2_true =  recurse_(f2, true);
+	      auto recurse_f2_false =  recurse_(f2, false);
+	      auto left  =  multop::instance(multop::And,
+					     recurse_f1_false,
+					     recurse_f2_true);
+	      auto right = multop::instance(multop::And,
+					    recurse_f1_true,
+					    recurse_f2_false);
+	      return multop::instance(multop::Or, left, right);
+	    }
 	}
 
 	void

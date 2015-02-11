@@ -58,11 +58,11 @@ test `expr $a + $b` = 100
 # not hesitate to adjust the expected values below.
 $randaut -n 5 --name='%F-%L-%s-%c-%e' -H a | grep '^name' >out
 cat >expected<<EOF
-name: "0-0-10-1-29"
-name: "0-1-10-1-30"
-name: "0-2-10-1-29"
-name: "0-3-10-3-24"
-name: "0-4-10-1-29"
+name: "0-0-10-1-30"
+name: "0-1-10-4-27"
+name: "0-2-10-6-20"
+name: "0-3-10-1-25"
+name: "0-4-10-2-20"
 EOF
 diff out expected
 

@@ -114,16 +114,16 @@ $randltl -n -1 a b |
     $autfilt -F- -F nonexistant --states=3 --edges=..10 --acc-sets=1.. \
 	     --name='%M, %S states' --stats='<%m>, %e, %a' -n 10 > output
 cat >expected <<EOF
-<F(b | GF!a), 3 states>, 6, 1
-<XFb, 3 states>, 4, 1
+<F(b | Ga), 3 states>, 5, 1
+<F(!b & G(!b | G!a)), 3 states>, 5, 1
 <XF!b, 3 states>, 4, 1
-<G!b & XF!a, 3 states>, 4, 1
-<F(b | GFa), 3 states>, 6, 1
-<F(Ga | XG(!a & Fb)), 3 states>, 6, 1
-<FG!b & F(b | GFb), 3 states>, 5, 1
-<Ga | G!a, 3 states>, 4, 1
-<a | G((!a & !b) | (a & b)), 3 states>, 4, 1
-<Fb U G!a, 3 states>, 7, 1
+<Gb | G!b, 3 states>, 4, 1
+<XFb, 3 states>, 4, 1
+<F(b W a), 3 states>, 6, 1
+<(a & !b & (b | (!b M F!a))) | (!a & (b | (!b & (b W Ga)))), 3 states>, 5, 1
+<(a & (a U !b)) | (!a & (!a R b)), 3 states>, 5, 1
+<a | G((a & GFa) | (!a & FG!a)), 3 states>, 4, 1
+<XXG(!a & (Fa W Gb)), 3 states>, 3, 1
 EOF
 diff output expected
 
