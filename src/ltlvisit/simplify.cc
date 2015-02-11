@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
-//#define TRACE
+// #define TRACE
 #ifdef TRACE
 #define trace std::cerr
 #else
@@ -2903,18 +2903,19 @@ namespace spot
 			// Make a second pass to check if the "a"
 			// terms can be used to simplify "Xa W b",
 			// "Xa U b", "b | X(b R a)", or "b | X(b M a)".
+			multop::vec resorig(*res);
 			for (unsigned n = 0; n < s; ++n)
 			  {
-			    if (!(*res)[n])
+			    const formula* x = resorig[n];
+			    if (!x)
 			      continue;
-			    fmap_t::const_iterator gs =
-			      wuset.find((*res)[n]);
+			    fmap_t::const_iterator gs = wuset.find(x);
 			    if (gs == wuset.end())
 			      continue;
 
 			    for (unsigned pos: gs->second)
 			      {
-				const binop* wu = is_binop((*res)[pos]);
+				const binop* wu = is_binop(resorig[pos]);
 				if (wu)
 				  {
 				    // a & (Xa W b) = b R a
@@ -2925,23 +2926,26 @@ namespace spot
 				      down_cast<const unop*>(wu->first());
 				    const formula* a = xa->child()->clone();
 				    const formula* b = wu->second()->clone();
-				    wu->destroy();
 				    (*res)[pos] = binop::instance(t, b, a);
 				  }
 				else
 				  {
 				    // a & (b | X(b R a)) = b R a
 				    // a & (b | X(b M a)) = b M a
-				    wu = is_bXbRM((*res)[pos]);
+				    wu = is_bXbRM(resorig[pos]);
 				    assert(wu);
 				    wu->clone();
-				    (*res)[pos]->destroy();
 				    (*res)[pos] = wu;
 				  }
 				// Remember to kill "a".
 				tokill[n] = true;
 			      }
 			  }
+
+			for (unsigned n = 0; n < s; ++n)
+			  if (resorig[n] != (*res)[n])
+			    resorig[n]->destroy();
+
 			// Make third pass to search for terms 'a'
 			// that also appears as 'XGa'.  Replace them
 			// by 'Ga' and delete XGa.
@@ -3629,9 +3633,10 @@ namespace spot
 			// Make a second pass to check if we can
 			// remove all instance of XF(a).
 			unsigned allofthem = xfset.size();
+			multop::vec resorig(*res);
 			for (unsigned n = 0; n < s; ++n)
-			  {
-			    const formula* x = (*res)[n];
+ 			  {
+			    const formula* x = resorig[n];
 			    if (!x)
 			      continue;
 			    fset_t::const_iterator f = xfset.find(x);
@@ -3646,7 +3651,7 @@ namespace spot
 			      continue;
 			    for (unsigned pos: gs->second)
 			      {
-				const binop* rm = is_binop((*res)[pos]);
+				const binop* rm = is_binop(resorig[pos]);
 				if (rm)
 				  {
 				    // a | (Xa R b) = b W a
@@ -3657,23 +3662,27 @@ namespace spot
 				      down_cast<const unop*>(rm->first());
 				    const formula* a = xa->child()->clone();
 				    const formula* b = rm->second()->clone();
-				    rm->destroy();
 				    (*res)[pos] = binop::instance(t, b, a);
 				  }
 				else
 				  {
 				    // a | (b & X(b W a)) = b W a
 				    // a | (b & X(b U a)) = b U a
-				    rm = is_bXbWU((*res)[pos]);
+				    rm = is_bXbWU(resorig[pos]);
 				    assert(rm);
 				    rm->clone();
-				    (*res)[pos]->destroy();
 				    (*res)[pos] = rm;
 				  }
 				// Remember to kill "a".
 				tokill[n] = true;
 			      }
 			  }
+
+			for (unsigned n = 0; n < s; ++n)
+			  if (resorig[n] != (*res)[n])
+			    resorig[n]->destroy();
+
+
 			// If we can remove all of them...
 			if (allofthem == 0)
 			  // Make third pass to search for terms 'a'

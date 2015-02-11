@@ -31,3 +31,7 @@ run 0 ../reduc 0 '(Xf W 0) | X(f W 0)' 'XGf'
 # valid if r has a non-empty language.
 run 0 ../reduc 0 '{a[*];{b && !b}}'
 run 0 ../reduc 0 '!{a[*];{b && !b}}'
+
+# Triggered an assert  before
+run 0 ../reduc 0 '(a | (Xa M a))'
+run 0 ../reduc 0 '(b xor (Xb U b)) <-> e'
