@@ -78,6 +78,7 @@ Exit status:\n\
 #define OPT_MASK_ACC 17
 #define OPT_SBACC 18
 #define OPT_STRIPACC 19
+#define OPT_KEEP_STATES 20
 
 static const argp_option options[] =
   {
@@ -114,6 +115,9 @@ static const argp_option options[] =
     { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
     { "strip-acceptance", OPT_STRIPACC, 0, 0,
       "remove the acceptance conditions and all acceptance sets", 0 },
+    { "keep-states", OPT_KEEP_STATES, "NUM[,NUM...]", 0,
+      "only keep specified states.  The first state will be the new "\
+      "initial state", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -185,6 +189,8 @@ static bool opt_sbacc = false;
 static bool opt_stripacc = false;
 static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
+static std::vector<bool> opt_keep_states = {};
+static unsigned int opt_keep_states_initial = 0;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -258,23 +264,33 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_MASK_ACC:
       {
-	while (*arg)
+	for (auto res : to_longs(arg))
 	  {
-	    char* endptr;
-	    long res = strtol(arg, &endptr, 10);
 	    if (res < 0)
 	      error(2, 0, "acceptance sets should be non-negative:"
 		    " --mask-acc=%ld", res);
 	    if (static_cast<unsigned long>(res)
 		> sizeof(spot::acc_cond::mark_t::value_t))
-	      error(2, 0, "this implementation does not support that much"
+	      error(2, 0, "this implementation does not support that many"
 		    " acceptance sets: --mask-acc=%ld", res);
 	    opt_mask_acc.set(res);
-	    if (endptr == arg)
-	      error(2, 0, "failed to parse '%s' as an integer.", arg);
-	    while (*endptr == ' ' || *endptr == ',')
-	      ++endptr;
-	    arg = endptr;
+	  }
+	break;
+      }
+    case OPT_KEEP_STATES:
+      {
+        std::vector<long> values = to_longs(arg);
+        if (!values.empty())
+          opt_keep_states_initial = values[0];
+        for (auto res : values)
+	  {
+	    if (res < 0)
+	      error(2, 0, "state ids should be non-negative:"
+		    " --mask-acc=%ld", res);
+            // We don't know yet how many states the automata contain.
+            if (opt_keep_states.size() <= static_cast<unsigned long>(res))
+              opt_keep_states.resize(res + 1, false);
+	    opt_keep_states[res] = true;
 	  }
 	break;
       }
@@ -405,6 +421,8 @@ namespace
 
       // Postprocessing.
 
+      if (!opt_keep_states.empty())
+	aut = mask_keep_states(aut, opt_keep_states, opt_keep_states_initial);
       if (opt_mask_acc)
 	aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
 

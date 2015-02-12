@@ -76,6 +76,7 @@ TESTS = \
   ltldo.test \
   ltldo2.test \
   maskacc.test \
+  maskkeep.test \
   simdet.test \
   sim2.test \
   ltl2tgba.test \

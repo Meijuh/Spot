@@ -36,11 +36,12 @@ namespace spot
   /// the transitions.  Set the condition to bddfalse to remove it
   /// (this will also remove the destination state and its descendants
   /// if they are not reachable by another transition).
+  /// \param init The optional new initial state.
 
   template<typename Trans>
   void transform_mask(const const_tgba_digraph_ptr& old,
 		      tgba_digraph_ptr& cpy,
-		      Trans trans)
+		      Trans trans, unsigned int init)
   {
     std::vector<unsigned> todo;
     std::vector<unsigned> seen(old->num_states(), -1U);
@@ -58,7 +59,7 @@ namespace spot
 	return tmp;
       };
 
-    new_state(old->get_init_state_number());
+    cpy->set_init_state(new_state(init));
     while (!todo.empty())
       {
 	unsigned old_src = todo.back();
@@ -81,10 +82,27 @@ namespace spot
       }
   }
 
+  template<typename Trans>
+  void transform_mask(const const_tgba_digraph_ptr& old,
+		      tgba_digraph_ptr& cpy,
+		      Trans trans)
+  {
+    transform_mask(old, cpy, trans, old->get_init_state_number());
+  }
+
   /// \brief Remove all transitions that are in some given acceptance sets.
   SPOT_API
   tgba_digraph_ptr mask_acc_sets(const const_tgba_digraph_ptr& in,
 				 acc_cond::mark_t to_remove);
+
+  /// \brief Keep only the states as specified by \a to_keep.
+  ///
+  /// Each index in the vector \a to_keep specifies wether or not to keep that
+  /// state.  The initial state will be set to \a init.
+  SPOT_API
+  tgba_digraph_ptr mask_keep_states(const const_tgba_digraph_ptr& in,
+                                    std::vector<bool>& to_keep,
+                                    unsigned int init);
 
 
 }

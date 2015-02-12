@@ -44,4 +44,25 @@ namespace spot
     return res;
   }
 
+  tgba_digraph_ptr mask_keep_states(const const_tgba_digraph_ptr& in,
+                                    std::vector<bool>& to_keep,
+                                    unsigned int init)
+  {
+    if (to_keep.size() < in->num_states())
+      to_keep.resize(in->num_states(), false);
+
+    auto res = make_tgba_digraph(in->get_dict());
+    res->copy_ap_of(in);
+    res->prop_copy(in, { true, true, true, true });
+    res->copy_acceptance_conditions_of(in);
+    transform_mask(in, res, [&](bdd& cond,
+				acc_cond::mark_t&,
+				unsigned dst)
+		   {
+		     if (!to_keep[dst])
+		       cond = bddfalse;
+		   }, init);
+    return res;
+  }
+
 }
