@@ -80,3 +80,21 @@ read_automaton(const char* filename, spot::bdd_dict_ptr& dict)
     error(2, 0, "failed to read automaton from %s", filename);
   return std::move(p->aut);
 }
+
+std::vector<long>
+to_longs(const char* arg)
+{
+  std::vector<long> res;
+  while (*arg)
+    {
+      char* endptr;
+      long value = strtol(arg, &endptr, 10);
+      if (endptr == arg)
+        error(2, 0, "failed to parse '%s' as an integer.", arg);
+      res.push_back(value);
+      while (*endptr == ' ' || *endptr == ',')
+        ++endptr;
+      arg = endptr;
+    }
+  return res;
+}
