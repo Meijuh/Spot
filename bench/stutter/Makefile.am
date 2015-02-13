@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2014 Laboratoire de Recherche et Développement
+## Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
 ## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -30,4 +30,4 @@ bin_PROGRAMS = stutter_invariance_randomgraph \
 stutter_invariance_randomgraph_SOURCES = stutter_invariance_randomgraph.cc
 stutter_invariance_formulas_SOURCES = stutter_invariance_formulas.cc
 
-EXTRA_DIST = stutter_bench.sh stutter.ipynb
+EXTRA_DIST = stutter_bench.sh stutter.ipynb user.sh

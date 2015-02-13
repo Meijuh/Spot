@@ -1,20 +1,22 @@
 This benchmark measures the performance of different algorithms to
-check if property (expressed as a formula or as a deterministic TGBA)
-is stutter-invariant.  When the benchmark is run on formulas, the
-translation time is not included in the measured time.
+check if a property is stutter-invariant.  When the benchmark is run
+on formulas, the translation time is not included in the measured
+time.
 
-
-To reproduce the benchmark is to run
+To reproduce the benchmark run
 
   % ./stutter_bench.sh -j8
 
-to create bench_formulas.csv and bench_randgraph.csv.
 (Adjust -j8 to the number of cores you have.)
 
-Then explore these data the provided ipython notebook
+This should create three files:
 
-  % ipython notebook --pylab=inline stutter.ipynb
-
-
-The time in bench_formulas.csv is reported in microseconds, while the
-time in bench_randgraph.csv is in seconds.
+  - bench_formulas.csv
+      running stutter checks on LTL formulas, but without including
+      LTL translation time.
+  - bench_randgraph.csv
+      unning stutter checks on deterministic TGBA, without including
+      complementation time.
+  - ltl-user-bench.csv
+      running stutter checks on LTL formulas, from the user point
+      of view, i.e., timing the whole "ltlfilt" run.

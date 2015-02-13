@@ -3,6 +3,8 @@
 RANDLTL=../../src/bin/randltl
 LTLFILT=../../src/bin/ltlfilt
 
+echo 'ltl-user-bench.csv:; ./user.sh' > run.mk
+
 pos="pos.states,pos.trans,pos.edges,pos.scc,pos.nondet"
 neg="neg.states,neg.trans,neg.edges,neg.scc,neg.nondet"
 algos="time1,time2,time3,time4,time5,time6,time7,time8"
@@ -17,7 +19,7 @@ for ap in 1 2 3 4; do
 done
 
 echo "$OUTPUTF:$all; (echo 'formula,ap,$pos,$neg,$algos,res'; cat $all) > \$@"
-) > run.mk
+) >> run.mk
 
 OUTPUTG=bench_randgraph.csv
 (
@@ -32,4 +34,9 @@ done
 echo "$OUTPUTG:$all; (echo 'd,ap,seed,$pos,$neg,$algos,res'; cat $all) > \$@"
 ) >> run.mk
 
+
 make "$@" -f run.mk $OUTPUTF $OUTPUTG
+# Do this one separately from the rest, because it will eat the memory
+# and will either die from out-of-memory, or from needing more that 32
+# acceptance sets.
+make "$@" -f run.mk ltl-user-bench.csv
