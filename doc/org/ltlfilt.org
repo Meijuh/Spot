@@ -327,10 +327,7 @@ ltlfilt -f 'F(a & X(!a & Gb))' --remove-x | ltlfilt --equivalent-to 'F(a & X(!a 
 #+RESULTS:
 : F(a & ((a & (a U (!a & Gb)) & ((!b U !a) | (b U !a))) | (!a & (!a U (a & !a & Gb)) & ((!b U a) | (b U a))) | (b & (b U (!a & Gb & !b)) & ((!a U !b) | (a U !b))) | (!b & (!b U (!a & b & Gb)) & ((!a U b) | (a U b))) | (!a & Gb & (G!a | Ga) & (Gb | G!b))))
 
-It is therefore equivalent, but that is not a surprise since the
-=--stutter-invariant= filter is actually implemented using exactly
-[[http://homepages.inf.ed.ac.uk/kousha/note_on_stut_tl_lpi.ps][this procedure]] (calling the =remove_x()= function, and building automata
-to check the equivalence of the resulting formula with the original one).
+It is therefore equivalent (otherwise the output would have been empty).
 
 * Using =--format=
 
