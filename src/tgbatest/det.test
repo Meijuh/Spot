@@ -151,4 +151,21 @@ diff out.tgba ex.tgba
 run 0 ../../bin/ltl2tgba -H '(0 R Xa) R (a xor Fa)' > out.hoa
 grep deterministic out.hoa && exit 1
 
+
+# These highlighted a bug in the bitvector routines because their
+# state count is a multiple of 64.
+cat >input <<EOF
+G(!a | Xa),2
+G(!a | XXa),4
+G(!a | XXXa),8
+G(!a | XXXXa),16
+G(!a | XXXXXa),32
+G(!a | XXXXXXa),64
+G(!a | XXXXXXXa),128
+G(!a | XXXXXXXXa),256
+EOF
+run 0 ../../bin/ltl2tgba -D -F input/1 --stats='%f,%s' > output
+cat output
+diff input output
+
 true

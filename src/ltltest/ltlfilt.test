@@ -179,3 +179,9 @@ grep 'invalid' stderr
 
 SPOT_STUTTER_CHECK=5 \
 ../../bin/ltlfilt --stutter-invariant -f '!{a:b*:c}'
+
+# This one was incorrectly diagnosed as stutter invariant because of a
+# bug in the bitvectors.
+../../bin/ltlfilt --stutter-invariant -f 'F(a & XXXXXX!a)' && exit 1
+
+true

@@ -206,26 +206,32 @@ namespace spot
     bool is_fully_clear() const
     {
       size_t i;
-      for (i = 0; i < block_count_ - 1; ++i)
+      const size_t bpb = 8 * sizeof(bitvect::block_t);
+      size_t rest = size() % bpb;
+      for (i = 0; i < block_count_ - !!rest; ++i)
 	if (storage_[i] != 0)
 	  return false;
       // The last block might not be fully used, compare only the
       // relevant portion.
-      const size_t bpb = 8 * sizeof(bitvect::block_t);
-      block_t mask = (1UL << (size() % bpb)) - 1;
+      if (!rest)
+	return true;
+      block_t mask = (1UL << rest) - 1;
       return (storage_[i] & mask) == 0;
     }
 
     bool is_fully_set() const
     {
       size_t i;
-      for (i = 0; i < block_count_ - 1; ++i)
+      const size_t bpb = 8 * sizeof(bitvect::block_t);
+      size_t rest = size() % bpb;
+      for (i = 0; i < block_count_ - !!rest; ++i)
 	if (storage_[i] != -1UL)
 	  return false;
+      if (!rest)
+	return true;
       // The last block might not be fully used, compare only the
       // relevant portion.
-      const size_t bpb = 8 * sizeof(bitvect::block_t);
-      block_t mask = (1UL << (size() % bpb)) - 1;
+      block_t mask = (1UL << rest) - 1;
       return ((~storage_[i]) & mask) == 0;
     }
 
@@ -303,14 +309,17 @@ namespace spot
       assert(other.block_count_ >= block_count_);
 
       size_t i;
-      for (i = 0; i < block_count_ - 1; ++i)
+      const size_t bpb = 8 * sizeof(bitvect::block_t);
+      size_t rest = size() % bpb;
+      for (i = 0; i < block_count_ - !!rest; ++i)
 	if ((storage_[i] & other.storage_[i]) != other.storage_[i])
 	  return false;
+      if (!rest)
+	return true;
 
       // The last block might not be fully used, compare only the
       // relevant portion.
-      const size_t bpb = 8 * sizeof(bitvect::block_t);
-      block_t mask = (1UL << (size() % bpb)) - 1;
+      block_t mask = (1UL << rest) - 1;
       return ((storage_[i] & mask & other.storage_[i])
 	      == (other.storage_[i] & mask));
     }
@@ -323,13 +332,16 @@ namespace spot
 	return true;
       size_t i;
       size_t m = other.used_blocks();
-      for (i = 0; i < m - 1; ++i)
+      const size_t bpb = 8 * sizeof(bitvect::block_t);
+      size_t rest = size() % bpb;
+      for (i = 0; i < m - !!rest; ++i)
 	if (storage_[i] != other.storage_[i])
 	  return false;
+      if (!rest)
+	return true;
       // The last block might not be fully used, compare only the
       // relevant portion.
-      const size_t bpb = 8 * sizeof(bitvect::block_t);
-      block_t mask = (1UL << (size() % bpb)) - 1;
+      block_t mask = (1UL << rest) - 1;
       return (storage_[i] & mask) == (other.storage_[i] & mask);
     }
 
@@ -346,13 +358,16 @@ namespace spot
 	return false;
       size_t i;
       size_t m = other.used_blocks();
-      for (i = 0; i < m - 1; ++i)
+      const size_t bpb = 8 * sizeof(bitvect::block_t);
+      size_t rest = size() % bpb;
+      for (i = 0; i < m - !!rest; ++i)
 	if (storage_[i] > other.storage_[i])
 	  return false;
+      if (!rest)
+	return true;
       // The last block might not be fully used, compare only the
       // relevant portion.
-      const size_t bpb = 8 * sizeof(bitvect::block_t);
-      block_t mask = (1UL << (size() % bpb)) - 1;
+      block_t mask = (1UL << rest) - 1;
       return (storage_[i] & mask) < (other.storage_[i] & mask);
     }
 
