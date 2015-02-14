@@ -23,7 +23,6 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 #include <cstdlib>
 #include <cstdio>
 #include <argp.h>
@@ -36,6 +35,7 @@
 #include "common_cout.hh"
 #include "common_conv.hh"
 #include "common_trans.hh"
+#include "common_file.hh"
 #include "common_finput.hh"
 #include "dstarparse/public.hh"
 #include "hoaparse/public.hh"
@@ -123,25 +123,29 @@ static const argp_option options[] =
       "averaged unless the number is prefixed with '+'", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Statistics output:", 7 },
-    { "json", OPT_JSON, "FILENAME", OPTION_ARG_OPTIONAL,
+    { "json", OPT_JSON, "[>>]FILENAME", OPTION_ARG_OPTIONAL,
       "output statistics as JSON in FILENAME or on standard output", 0 },
-    { "csv", OPT_CSV, "FILENAME", OPTION_ARG_OPTIONAL,
-      "output statistics as CSV in FILENAME or on standard output", 0 },
+    { "csv", OPT_CSV, "[>>]FILENAME", OPTION_ARG_OPTIONAL,
+      "output statistics as CSV in FILENAME or on standard output "
+      "(if '>>' is used to request append mode, the header line is "
+      "not output)", 0 },
     { "omit-missing", OPT_OMIT, 0, 0,
       "do not output statistics for timeouts or failed translations", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
+    { 0, 0, 0, 0, "Miscellaneous options:", -2 },
     { "color", OPT_COLOR, "WHEN", OPTION_ARG_OPTIONAL,
       "colorize output; WHEN can be 'never', 'always' (the default if "
       "--color is used without argument), or "
       "'auto' (the default if --color is not used)", 0 },
-    { "grind", OPT_GRIND, "FILENAME", 0,
+    { "grind", OPT_GRIND, "[>>]FILENAME", 0,
       "for each formula for which a problem was detected, write a simpler " \
       "formula that fails on the same test in FILENAME", 0 },
-    { "save-bogus", OPT_BOGUS, "FILENAME", 0,
+    { "save-bogus", OPT_BOGUS, "[>>]FILENAME", 0,
       "save formulas for which problems were detected in FILENAME", 0 },
     { "verbose", OPT_VERBOSE, 0, 0,
       "print what is being done, for debugging", 0 },
+    { 0, 0, 0, 0, "If an output FILENAME is prefixed with '>>', is it open "
+      "in append mode instead of being truncated.", -1 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -149,7 +153,7 @@ const struct argp_child children[] =
   {
     { &finput_argp, 0, 0, 1 },
     { &trans_argp, 0, 0, 0 },
-    { &misc_argp, 0, 0, -1 },
+    { &misc_argp, 0, 0, -2 },
     { 0, 0, 0, 0 }
   };
 
@@ -190,8 +194,8 @@ static bool products_avg = true;
 static bool opt_omit = false;
 static bool has_sr = false; // Has Streett or Rabin automata to process.
 static const char* bogus_output_filename = 0;
-static std::ofstream* bogus_output = 0;
-static std::ofstream* grind_output = 0;
+static output_file* bogus_output = 0;
+static output_file* grind_output = 0;
 static bool verbose = false;
 static bool ignore_exec_fail = false;
 static unsigned ignored_exec_fail = 0;
@@ -398,9 +402,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_BOGUS:
       {
-	bogus_output = new std::ofstream(arg);
-	if (!*bogus_output)
-	  error(2, errno, "cannot open '%s'", arg);
+	bogus_output = new output_file(arg);
 	bogus_output_filename = arg;
 	break;
       }
@@ -423,9 +425,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       allow_dups = true;
       break;
     case OPT_GRIND:
-      grind_output = new std::ofstream(arg);
-      if (!*grind_output)
-	error(2, errno, "cannot open '%s'", arg);
+      grind_output = new output_file(arg);
       break;
     case OPT_IGNORE_EXEC_FAIL:
       ignore_exec_fail = true;
@@ -894,7 +894,7 @@ namespace
       int res = process_formula(f, filename, linenum);
 
       if (res && bogus_output)
-	*bogus_output << input << std::endl;
+	bogus_output->ostream() << input << std::endl;
       if (res && grind_output)
 	{
 	  std::string bogus = input;
@@ -935,7 +935,7 @@ namespace
 		  else
 		    bogus = spot::ltl::to_string(f);
 		  if (bogus_output)
-		    *bogus_output << bogus << std::endl;
+		    bogus_output->ostream() << bogus << std::endl;
 		}
 	    }
 	  std::cerr << "Smallest bogus mutation found for ";
@@ -951,7 +951,7 @@ namespace
 	  if (color_opt)
 	    std::cerr << reset_color;
 	  std::cerr << ".\n\n";
-	  *grind_output << bogus << std::endl;
+	  grind_output->ostream() << bogus << std::endl;
 	}
       f->destroy();
 
@@ -1272,39 +1272,33 @@ print_stats_csv(const char* filename)
   if (verbose)
     std::cerr << "info: writing CSV to " << filename << '\n';
 
-  std::ofstream* outfile = 0;
-  std::ostream* out;
-  if (!strncmp(filename, "-", 2))
-    {
-      out = &std::cout;
-    }
-  else
-    {
-      out = outfile = new std::ofstream(filename);
-      if (!*outfile)
-	error(2, errno, "cannot open '%s'", filename);
-    }
+  output_file outf(filename);
+  std::ostream& out = outf.ostream();
 
   unsigned ntrans = translators.size();
   unsigned rounds = vstats.size();
   assert(rounds == formulas.size());
 
-  *out << "\"formula\",\"tool\",";
-  statistics::fields(*out, !opt_omit, has_sr);
-  *out << '\n';
+  if (!outf.append())
+    {
+      // Do not output the header line if we append to a file.
+      // (Even if that file was empty initially.)
+      out << "\"formula\",\"tool\",";
+      statistics::fields(out, !opt_omit, has_sr);
+      out << '\n';
+    }
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
       if (!opt_omit || vstats[r][t].ok)
 	{
-	  *out << '"';
-	  spot::escape_rfc4180(*out, formulas[r]);
-	  *out << "\",\"";
-	  spot::escape_rfc4180(*out, translators[t].name);
-	  *out << "\",";
-	  vstats[r][t].to_csv(*out, !opt_omit, has_sr);
-	  *out << '\n';
+	  out << '"';
+	  spot::escape_rfc4180(out, formulas[r]);
+	  out << "\",\"";
+	  spot::escape_rfc4180(out, translators[t].name);
+	  out << "\",";
+	  vstats[r][t].to_csv(out, !opt_omit, has_sr);
+	  out << '\n';
 	}
-  delete outfile;
 }
 
 static void
@@ -1313,56 +1307,44 @@ print_stats_json(const char* filename)
   if (verbose)
     std::cerr << "info: writing JSON to " << filename << '\n';
 
-  std::ofstream* outfile = 0;
-  std::ostream* out;
-  if (!strncmp(filename, "-", 2))
-    {
-      out = &std::cout;
-    }
-  else
-    {
-      out = outfile = new std::ofstream(filename);
-      if (!*outfile)
-	error(2, errno, "cannot open '%s'", filename);
-    }
+  output_file outf(filename);
+  std::ostream& out = outf.ostream();
 
   unsigned ntrans = translators.size();
   unsigned rounds = vstats.size();
   assert(rounds == formulas.size());
 
-  *out << "{\n  \"tool\": [\n    \"";
-  spot::escape_str(*out, translators[0].name);
+  out << "{\n  \"tool\": [\n    \"";
+  spot::escape_str(out, translators[0].name);
   for (unsigned t = 1; t < ntrans; ++t)
     {
-      *out << "\",\n    \"";
-      spot::escape_str(*out, translators[t].name);
+      out << "\",\n    \"";
+      spot::escape_str(out, translators[t].name);
     }
-  *out << "\"\n  ],\n  \"formula\": [\n    \"";
-  spot::escape_str(*out, formulas[0]);
+  out << "\"\n  ],\n  \"formula\": [\n    \"";
+  spot::escape_str(out, formulas[0]);
   for (unsigned r = 1; r < rounds; ++r)
     {
-      *out << "\",\n    \"";
-      spot::escape_str(*out, formulas[r]);
+      out << "\",\n    \"";
+      spot::escape_str(out, formulas[r]);
     }
-  *out << ("\"\n  ],\n  \"fields\":  [\n  \"formula\",\"tool\",");
-  statistics::fields(*out, !opt_omit, has_sr);
-  *out << "\n  ],\n  \"inputs\":  [ 0, 1 ],";
-  *out << "\n  \"results\": [";
+  out << ("\"\n  ],\n  \"fields\":  [\n  \"formula\",\"tool\",");
+  statistics::fields(out, !opt_omit, has_sr);
+  out << "\n  ],\n  \"inputs\":  [ 0, 1 ],";
+  out << "\n  \"results\": [";
   bool notfirst = false;
   for (unsigned r = 0; r < rounds; ++r)
     for (unsigned t = 0; t < ntrans; ++t)
       if (!opt_omit || vstats[r][t].ok)
 	{
 	  if (notfirst)
-	    *out << ',';
+	    out << ',';
 	  notfirst = true;
-	  *out << "\n    [ " << r << ',' << t << ',';
-	  vstats[r][t].to_csv(*out, !opt_omit, has_sr, "null");
-	  *out << " ]";
+	  out << "\n    [ " << r << ',' << t << ',';
+	  vstats[r][t].to_csv(out, !opt_omit, has_sr, "null");
+	  out << " ]";
 	}
-  *out << "\n  ]\n}\n";
-
-  delete outfile;
+  out << "\n  ]\n}\n";
 }
 
 int
@@ -1451,6 +1433,7 @@ main(int argc, char** argv)
     }
 
   delete bogus_output;
+  delete grind_output;
 
   if (json_output)
     print_stats_json(json_output);

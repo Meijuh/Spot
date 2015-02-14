@@ -123,17 +123,19 @@ test $q -eq `expr $p + 12`
 
 
 # Check with Rabin/Streett output
+first="should not be erased"
+echo "$first" > bug.txt
 run 1 ../../bin/ltlcross "$ltl2tgba -s %f >%N" 'false %f >%D' \
-      -f 'X  a' --csv=out.csv --save-bogus=bug.txt 2>stderr
+      -f 'X  a' --csv=out.csv --save-bogus='>>bug.txt' 2>stderr
 q=`sed 's/[^,]//g;q' out.csv | wc -c`
+test $q -eq `expr $p + 6`
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
 test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
 test `grep '"exit code",1' out.csv | wc -l` -eq 2
 check_csv out.csv
 grep 'X  a' bug.txt
-
-test $q -eq `expr $p + 6`
+test "`head -n 1 bug.txt`" = "$first"
 
 
 # Support for --ABORT-- in HOA.
@@ -143,6 +145,17 @@ grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
 test `grep 'error:.*aborted' stderr | wc -l` -eq 2
 test `grep '"aborted",-1' out.csv | wc -l` -eq 2
+test 3 = `wc -l < out.csv`
+check_csv out.csv
+
+# The header of CSV file is not output in append mode
+run 1 ../../bin/ltlcross 'echo HOA: --ABORT-- %f > %H' \
+   -f a --csv='>>out.csv' 2>stderr
+grep '"exit_status"' out.csv
+grep '"exit_code"' out.csv
+test `grep 'error:.*aborted' stderr | wc -l` -eq 2
+test `grep '"aborted",-1' out.csv | wc -l` -eq 4
+test 5 = `wc -l < out.csv`
 check_csv out.csv
 
 

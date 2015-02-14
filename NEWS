@@ -47,6 +47,13 @@ New in spot 1.99a (not yet released)
       'ltlcross "spin -f %s>%N" ...'.   This feature is much
       more useful for ltldo.
 
+    - For options that take an output filename (i.e., ltlcross's
+      --save-bogus, --grind, --csv, --json) you can force the file
+      to be open in append mode (instead of being truncated) by
+      by prefix the filename with ">>".  For instance:
+      	  --save-bogus=">>bugs.ltl"
+      will append to the end of the file.
+
     - There is a parser for the HOA format
       (http://adl.github.io/hoaf/) available as a
       spot::hoa_stream_parser object or spot::hoa_parse() function.

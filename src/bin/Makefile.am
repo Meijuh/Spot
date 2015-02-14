@@ -32,6 +32,8 @@ libcommon_a_SOURCES =				\
   common_conv.cc				\
   common_cout.hh				\
   common_cout.cc				\
+  common_file.cc				\
+  common_file.hh				\
   common_finput.cc				\
   common_finput.hh				\
   common_output.cc				\
