@@ -130,3 +130,9 @@ run 2 $randltl -n3 0
 run 0 $randltl -n1000 0 1 > out
 grep -q '"0"' out
 grep -q '"1"' out
+
+
+run 0 $randltl -n5 2 -o test-all.ltl
+run 0 $randltl -n5 2 -o test-%L.ltl
+cat test-1.ltl test-2.ltl test-3.ltl test-4.ltl test-5.ltl > test-cmp.ltl
+diff test-cmp.ltl test-all.ltl

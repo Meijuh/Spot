@@ -52,6 +52,10 @@ static const argp_option options[] =
       -20 },
     { "format", OPT_FORMAT, "FORMAT", 0,
       "specify how each line should be output (default: \"%f\")", -20 },
+    { "output", 'o', "FORMAT", 0,
+      "send output to a file named FORMAT instead of standard output.  The"
+      " first formula sent to a file truncates it unless FORMAT starts"
+      " with '>>'.", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -195,6 +199,9 @@ namespace
 }
 
 static formula_printer* format = 0;
+static std::ostringstream outputname;
+static formula_printer* outputnamer = 0;
+static std::map<std::string, std::unique_ptr<output_file>> outputfiles;
 
 int
 parse_opt_output(int key, char* arg, struct argp_state*)
@@ -207,6 +214,9 @@ parse_opt_output(int key, char* arg, struct argp_state*)
       break;
     case 'l':
       output_format = lbt_output;
+      break;
+    case 'o':
+      outputnamer = new formula_printer(outputname, arg);
       break;
     case 'p':
       full_parenth = true;
@@ -237,10 +247,11 @@ parse_opt_output(int key, char* arg, struct argp_state*)
 }
 
 
-void
+static void
 output_formula(std::ostream& out,
-	       const spot::ltl::formula* f, const char* filename, int linenum,
-	       const char* prefix, const char* suffix)
+	       const spot::ltl::formula* f,
+	       const char* filename = nullptr, int linenum = 0,
+	       const char* prefix = nullptr, const char* suffix = nullptr)
 {
   if (!format)
     {
@@ -258,14 +269,39 @@ output_formula(std::ostream& out,
 }
 
 void
+::printable_formula::print(std::ostream& os, const char*) const
+{
+  output_formula(os, val_);
+}
+
+void
 output_formula_checked(const spot::ltl::formula* f,
 		       const char* filename, int linenum,
 		       const char* prefix, const char* suffix)
 {
-  if (output_format == quiet_output || output_format == count_output)
+  if (output_format == count_output)
+    {
+      if (outputnamer)
+	throw std::runtime_error
+	  ("options --output and --count are incompatible");
+      return;
+    }
+  if (output_format == quiet_output)
     return;
-  output_formula(std::cout, f, filename, linenum, prefix, suffix);
-  std::cout << '\n';
+  std::ostream* out = &std::cout;
+  if (outputnamer)
+    {
+      outputname.str("");
+      formula_with_location fl = { f, filename, linenum, prefix, suffix };
+      outputnamer->print(fl);
+      std::string fname = outputname.str();
+      auto p = outputfiles.emplace(fname, nullptr);
+      if (p.second)
+	p.first->second.reset(new output_file(fname.c_str()));
+      out = &p.first->second->ostream();
+    }
+  output_formula(*out, f, filename, linenum, prefix, suffix);
+  *out << '\n';
   // Make sure we abort if we can't write to std::cout anymore
   // (like disk full or broken pipe with SIGPIPE ignored).
   check_cout();

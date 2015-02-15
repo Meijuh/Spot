@@ -44,6 +44,12 @@ New in spot 1.99a (not yet released)
     - ltlfilt has a new --count option to count the number of matching
       automata.
 
+    - all tools that produce formulas or automata now have an --output
+      (a.k.a. -o) option to redirect that output to a file instead of
+      standard output.  The name of this file can be constructed using
+      the same %-escape sequences that are available for --stats or
+      --format.
+
     - ltlcross (and ltldo) have a list of hard-coded shorthands
       for some existing tools.  So for instance running
       'ltlcross spin ...' is the same as running

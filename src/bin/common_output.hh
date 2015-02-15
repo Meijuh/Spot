@@ -23,9 +23,12 @@
 #include "common_sys.hh"
 
 #include <argp.h>
+#include <map>
+#include <memory>
 #include "ltlast/formula.hh"
 #include "tgbaalgos/stats.hh"
 #include "common_output.hh"
+#include "common_file.hh"
 
 enum output_format_t { spot_output, spin_output, utf8_output,
 		       lbt_output, wring_output, latex_output,
@@ -38,9 +41,6 @@ extern const struct argp output_argp;
 
 int parse_opt_output(int key, char* arg, struct argp_state* state);
 
-void output_formula(std::ostream& os, const spot::ltl::formula* f,
-		    const char* filename = 0, int linenum = 0,
-		    const char* prefix = 0, const char* suffix = 0);
 void output_formula_checked(const spot::ltl::formula* f,
 			    const char* filename = 0, int linenum = 0,
 			    const char* prefix = 0, const char* suffix = 0);
@@ -58,10 +58,7 @@ public:
   }
 
   virtual void
-  print(std::ostream& os, const char*) const
-  {
-    output_formula(os, val_);
-  }
+  print(std::ostream& os, const char*) const;
 };
 
 class aut_stat_printer: protected spot::stat_printer
@@ -72,6 +69,8 @@ public:
   {
     declare('f', &formula_);	// Override the formula printer.
   }
+
+  using spot::formater::set_output;
 
   std::ostream&
   print(const spot::const_tgba_digraph_ptr& aut,

@@ -188,4 +188,8 @@ SPOT_STUTTER_CHECK=5 \
 # bug in the bitvectors.
 ../../bin/ltlfilt --stutter-invariant -f 'F(a & XXXXXX!a)' && exit 1
 
+
+../../bin/ltlfilt -c -o 'foo' -f a 2>stderr && exit 1
+grep 'ltlfilt: options --output and --count are incompatible' stderr
+
 true

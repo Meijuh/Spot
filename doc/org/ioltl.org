@@ -150,6 +150,7 @@ ltlfilt --help | sed -n '/Output options:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 #+begin_example
+  -c, --count                print only a count of matched formulas
   -n, --max-count=NUM        output at most NUM formulas
   -q, --quiet                suppress all normal output
   -8, --utf8                 output using UTF-8 characters
@@ -158,13 +159,14 @@ ltlfilt --help | sed -n '/Output options:/,/^$/p' | sed '1d;$d'
                              "%f")
   -l, --lbt                  output in LBT's syntax
       --latex                output using LaTeX macros
+  -o, --output=FORMAT        send output to a file named FORMAT instead of
+                             standard output.  The first formula sent to a file
+                             truncates it unless FORMAT starts with '>>'.
   -p, --full-parentheses     output fully-parenthesized formulas
   -s, --spin                 output in Spin's syntax
       --spot                 output in Spot's syntax (default)
       --wring                output in Wring's syntax
 #+end_example
-
-#  LocalWords:  syntaxes LTL PSL num toc SRC ltl tgba sed FILENAME
 
 The =--spot=, =--utf-8=, =--spin=, =--wring= options select different
 output syntaxes as seen in [[tab:formula-syntaxes][the above table]].
@@ -203,5 +205,33 @@ from tool to tool:
 | [[file:genltl.org][=genltl=]]  | output formula | pattern name   | pattern parameter | (empty)      | (empty)       |
 | [[file:randltl.org][=randltl=]] | output formula | (empty)        | formula number    | (empty)      | (empty)       |
 
+
+By default everything is output to standard output, so that you can
+redirect the output to a file, and pipe it to another tool.  The the
+=--output= (or =-o=) allows you to construct a filename using some of
+the above =%=-sequences.
+
+For instance the following invocation of [[file:randltl.org][=randltl=]] will create 5
+random formulas, but in 5 different files:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randltl -n5 a b -o example-%L.ltl
+wc -l example-*.ltl
+#+END_SRC
+#+RESULTS:
+:  1 example-1.ltl
+:  1 example-2.ltl
+:  1 example-3.ltl
+:  1 example-4.ltl
+:  1 example-5.ltl
+:  5 total
+
+#+BEGIN_SRC sh :results verbatim :exports none
+rm -f example-*.ltl
+#+END_SRC
+#+RESULTS:
+
+
 #  LocalWords:  lbt LBT's filename UTF gfa GFa ltlfilt LBTT scheck
 #  LocalWords:  utf associativity
+#  LocalWords:  syntaxes LTL PSL num toc SRC ltl tgba sed FILENAME
