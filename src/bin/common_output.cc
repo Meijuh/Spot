@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -104,6 +104,7 @@ stream_formula(std::ostream& out,
     case latex_output:
       spot::ltl::to_latex_string(f, out, full_parenth);
       break;
+    case count_output:
     case quiet_output:
       break;
     }
@@ -261,10 +262,10 @@ output_formula_checked(const spot::ltl::formula* f,
 		       const char* filename, int linenum,
 		       const char* prefix, const char* suffix)
 {
-  if (output_format == quiet_output)
+  if (output_format == quiet_output || output_format == count_output)
     return;
   output_formula(std::cout, f, filename, linenum, prefix, suffix);
-  std::cout << std::endl;
+  std::cout << '\n';
   // Make sure we abort if we can't write to std::cout anymore
   // (like disk full or broken pipe with SIGPIPE ignored).
   check_cout();

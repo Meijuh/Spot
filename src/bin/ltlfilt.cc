@@ -168,6 +168,7 @@ static const argp_option options[] =
       "drop formulas that have already been output (not affected by -v)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output options:", -20 },
+    { "count", 'c', 0, 0, "print only a count of matched formulas", 0 },
     { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
     { "max-count", 'n', "NUM", 0, "output at most NUM formulas", 0 },
     { 0, 0, 0, 0, "The FORMAT string passed to --format may use "\
@@ -235,6 +236,7 @@ static bool stutter_insensitive = false;
 static bool ap = false;
 static unsigned ap_n = 0;
 static int opt_max_count = -1;
+static long int match_count = 0;
 
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
@@ -258,6 +260,9 @@ parse_opt(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
+    case 'c':
+      output_format = count_output;
+      break;
     case 'n':
       opt_max_count = to_pos_int(arg);
       break;
@@ -472,7 +477,7 @@ namespace
     process_formula(const spot::ltl::formula* f,
 		    const char* filename = 0, int linenum = 0)
     {
-      if (opt_max_count == 0)
+      if (opt_max_count >= 0 && match_count >= opt_max_count)
 	{
 	  abort_run = true;
 	  f->destroy();
@@ -607,8 +612,7 @@ namespace
 	{
 	  one_match = true;
 	  output_formula_checked(f, filename, linenum, prefix, suffix);
-	  if (opt_max_count > 0)
-	    --opt_max_count;
+	  ++match_count;
 	}
       f->destroy();
       return 0;
@@ -635,8 +639,19 @@ main(int argc, char** argv)
   spot::ltl::ltl_simplifier_options opt = simplifier_options();
   opt.boolean_to_isop = boolean_to_isop;
   spot::ltl::ltl_simplifier simpl(opt);
-  ltl_processor processor(simpl);
-  if (processor.run())
-    return 2;
+  try
+    {
+      ltl_processor processor(simpl);
+      if (processor.run())
+	return 2;
+    }
+  catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
+
+  if (output_format == count_output)
+    std::cout << match_count << std::endl;
+
   return one_match ? 0 : 1;
 }

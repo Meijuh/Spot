@@ -83,6 +83,10 @@ F(a & !Xa & Xb)
 a & (b | c)
 EOF
 
+checkopt -c --stutter-invariant <<EOF
+9
+EOF
+
 checkopt --simplify <<EOF
 F(GFa | Gb)
 F(GFa | Gb)

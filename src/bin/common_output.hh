@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,7 +29,7 @@
 
 enum output_format_t { spot_output, spin_output, utf8_output,
 		       lbt_output, wring_output, latex_output,
-                       quiet_output };
+                       quiet_output, count_output };
 extern output_format_t output_format;
 extern bool full_parenth;
 extern bool escape_csv;

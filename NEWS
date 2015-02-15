@@ -41,6 +41,9 @@ New in spot 1.99a (not yet released)
       now.  The short '-n NUM' option is now the same as the new
       --max-count=N option, for consistency with other tools.
 
+    - ltlfilt has a new --count option to count the number of matching
+      automata.
+
     - ltlcross (and ltldo) have a list of hard-coded shorthands
       for some existing tools.  So for instance running
       'ltlcross spin ...' is the same as running
