@@ -231,67 +231,66 @@ main(int argc, char** argv)
     error(2, 0, "--ba is incompatible with --acc-sets=%d..%d",
 	  opt_acc_sets.min, opt_acc_sets.max);
 
-  spot::srand(opt_seed);
-  auto d = spot::make_bdd_dict();
-
-  automaton_printer printer;
-
-  constexpr unsigned max_trials = 10000;
-  unsigned trials = max_trials;
-
-  int automaton_num = 0;
-
-  for (;;)
+  try
     {
-      spot::stopwatch sw;
-      sw.start();
+      spot::srand(opt_seed);
+      auto d = spot::make_bdd_dict();
 
-      int size = opt_states.min;
-      if (size != opt_states.max)
-	size = spot::rrand(size, opt_states.max);
+      automaton_printer printer;
 
-      int accs = opt_acc_sets.min;
-      if (accs != opt_acc_sets.max)
-	accs = spot::rrand(accs, opt_acc_sets.max);
+      constexpr unsigned max_trials = 10000;
+      unsigned trials = max_trials;
 
-      auto aut =
-	spot::random_graph(size, opt_density, &aprops, d,
-			   accs, opt_acc_prob, 0.5,
-			   opt_deterministic, opt_state_acc);
+      int automaton_num = 0;
 
-      if (opt_uniq)
-        {
-          auto tmp =
-	    spot::canonicalize(make_tgba_digraph(aut,
-						 spot::tgba::prop_set::all()));
-          std::vector<tr_t> trans(tmp->transition_vector().begin() + 1,
-                                  tmp->transition_vector().end());
-          if (!opt_uniq->emplace(trans).second)
-	    {
-	      --trials;
-	      if (trials == 0)
-		error(2, 0, "failed to generate a new unique automaton"
-		      " after %d trials", max_trials);
-	      continue;
-	    }
-	  trials = max_trials;
-        }
-
-      auto runtime = sw.stop();
-
-      try
+      for (;;)
 	{
+	  spot::stopwatch sw;
+	  sw.start();
+
+	  int size = opt_states.min;
+	  if (size != opt_states.max)
+	    size = spot::rrand(size, opt_states.max);
+
+	  int accs = opt_acc_sets.min;
+	  if (accs != opt_acc_sets.max)
+	    accs = spot::rrand(accs, opt_acc_sets.max);
+
+	  auto aut =
+	    spot::random_graph(size, opt_density, &aprops, d,
+			       accs, opt_acc_prob, 0.5,
+			       opt_deterministic, opt_state_acc);
+
+	  if (opt_uniq)
+	    {
+	      auto tmp = spot::canonicalize
+		(make_tgba_digraph(aut, spot::tgba::prop_set::all()));
+	      std::vector<tr_t> trans(tmp->transition_vector().begin() + 1,
+				      tmp->transition_vector().end());
+	      if (!opt_uniq->emplace(trans).second)
+		{
+		  --trials;
+		  if (trials == 0)
+		    error(2, 0, "failed to generate a new unique automaton"
+			  " after %d trials", max_trials);
+		  continue;
+		}
+	      trials = max_trials;
+	    }
+
+	  auto runtime = sw.stop();
+
 	  printer.print(aut, nullptr,
 			opt_seed_str, automaton_num, runtime, nullptr);
-	}
-      catch (const std::runtime_error& e)
-	{
-	  error(2, 0, "%s", e.what());
-	}
 
-      ++automaton_num;
-      if (opt_automata > 0 && automaton_num >= opt_automata)
-	break;
-   }
+	  ++automaton_num;
+	  if (opt_automata > 0 && automaton_num >= opt_automata)
+	    break;
+	}
+    }
+  catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
   spot::ltl::destroy_atomic_prop_set(aprops);
 }

@@ -37,6 +37,7 @@ static const char* opt_dot = nullptr;
 static const char* opt_never = nullptr;
 static const char* hoa_opt = nullptr;
 const char* opt_name = nullptr;
+static const char* opt_output = nullptr;
 static const char* stats = "";
 
 #define OPT_DOT 1
@@ -62,6 +63,10 @@ static const argp_option options[] =
       " on Büchi automata)", 0 },
     { "name", OPT_NAME, "FORMAT", 0,
       "set the name of the output automaton", 0 },
+    { "output", 'o', "FORMAT", 0,
+      "send output to a file named FORMAT instead of standard output.  The"
+      " first automaton sent to a file truncates it unless FORMAT starts"
+      " with '>>'.", 0 },
     { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
     { "spin", 's', "6|c", OPTION_ARG_OPTIONAL, "Spin neverclaim (implies --ba)."
       "  Add letters to select (6) Spin's 6.2.4 style, (c) comments on states",
@@ -83,7 +88,7 @@ char L_doc[32] = "location in the input file";
 static const argp_option io_options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "The FORMAT string passed to --stats may use "\
+    { 0, 0, 0, 0, "Any FORMAT string may use "\
       "the following interpreted sequences (capitals for input,"
       " minuscules for output):", 4 },
     { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE, F_doc, 0 },
@@ -116,7 +121,7 @@ const struct argp aoutput_io_format_argp = { io_options, 0, 0, 0, 0, 0, 0 };
 static const argp_option o_options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "The FORMAT string passed to --stats may use "\
+    { 0, 0, 0, 0, "Any FORMAT string may use "\
       "the following interpreted sequences:", 4 },
     { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE, F_doc, 0 },
     { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE, L_doc, 0 },
@@ -165,6 +170,9 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
       if (arg)
 	opt_never = arg;
       break;
+    case 'o':
+      opt_output = arg;
+      break;
     case OPT_DOT:
       automaton_format = Dot;
       opt_dot = arg;
@@ -201,8 +209,12 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
 
 automaton_printer::automaton_printer(stat_style input)
   : statistics(std::cout, stats, input),
-    namer(name, opt_name, input)
+    namer(name, opt_name, input),
+    outputnamer(outputname, opt_output, input)
 {
+  if (automaton_format == Count && opt_output)
+    throw std::runtime_error
+      ("options --output and --count are incompatible");
 }
 
 void
@@ -223,6 +235,18 @@ automaton_printer::print(const spot::tgba_digraph_ptr& aut,
       aut->set_named_prop("automaton-name", new std::string(name.str()));
     }
 
+  std::ostream* out = &std::cout;
+  if (opt_output)
+    {
+      outputname.str("");
+      outputnamer.print(haut, aut, f, filename, loc, time);
+      std::string fname = outputname.str();
+      auto p = outputfiles.emplace(fname, nullptr);
+      if (p.second)
+	p.first->second.reset(new output_file(fname.c_str()));
+      out = &p.first->second->ostream();
+    }
+
   // Output it.
   switch (automaton_format)
     {
@@ -231,21 +255,22 @@ automaton_printer::print(const spot::tgba_digraph_ptr& aut,
       // Do not output anything.
       break;
     case Dot:
-      spot::dotty_reachable(std::cout, aut, opt_dot);
+      spot::dotty_reachable(*out, aut, opt_dot);
       break;
     case Lbtt:
-      spot::lbtt_reachable(std::cout, aut, type == spot::postprocessor::BA);
+      spot::lbtt_reachable(*out, aut, type == spot::postprocessor::BA);
       break;
     case Lbtt_t:
-      spot::lbtt_reachable(std::cout, aut, false);
+      spot::lbtt_reachable(*out, aut, false);
       break;
     case Hoa:
-      spot::hoa_reachable(std::cout, aut, hoa_opt) << '\n';
+      spot::hoa_reachable(*out, aut, hoa_opt) << '\n';
       break;
     case Spin:
-      spot::never_claim_reachable(std::cout, aut, opt_never);
+      spot::never_claim_reachable(*out, aut, opt_never);
       break;
     case Stats:
+      statistics.set_output(*out);
       statistics.print(haut, aut, f, filename, loc, time) << '\n';
       break;
     }
@@ -256,4 +281,5 @@ void automaton_printer::add_stat(char c, const spot::printable* p)
 {
   namer.declare(c, p);
   statistics.declare(c, p);
+  outputnamer.declare(c, p);
 }

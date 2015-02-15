@@ -23,6 +23,7 @@
 #include "common_sys.hh"
 
 #include <argp.h>
+#include <memory>
 
 #include "hoaparse/public.hh"
 
@@ -32,6 +33,7 @@
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaalgos/word.hh"
 #include "tgbaalgos/isdet.hh"
+#include "common_file.hh"
 
 
 // Format for automaton output
@@ -97,6 +99,7 @@ public:
   }
 
   using spot::formater::declare;
+  using spot::formater::set_output;
 
   /// \brief print the configured statistics.
   ///
@@ -205,6 +208,9 @@ class automaton_printer
   hoa_stat_printer statistics;
   std::ostringstream name;
   hoa_stat_printer namer;
+  std::ostringstream outputname;
+  hoa_stat_printer outputnamer;
+  std::map<std::string, std::unique_ptr<output_file>> outputfiles;
 
 public:
 

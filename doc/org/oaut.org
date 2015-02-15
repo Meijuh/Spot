@@ -28,8 +28,11 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
                              transition-based acceptance, (m) mixed acceptance,
                              (l) single-line output
       --lbtt[=t]             LBTT's format (add =t to force transition-based
-                             acceptance even on Büchi automata)
+                             acceptance even on BÃ¼chi automata)
       --name=FORMAT          set the name of the output automaton
+  -o, --output=FORMAT        send output to a file named FORMAT instead of
+                             standard output.  The first automaton sent to a
+                             file truncates it unless FORMAT starts with '>>'.
   -q, --quiet                suppress all normal output
   -s, --spin[=6|c]           Spin neverclaim (implies --ba).  Add letters to
                              select (6) Spin's 6.2.4 style, (c) comments on
@@ -39,7 +42,7 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 
 The main three output formats (that can also been used as input to
 some of the tools) are [[http://adl.github.io/hoaf/][HOAF]] (activated by =-H= or =--hoaf=), [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]]
-(activated by =--lbtt=), or spin [[http://spinroot.com/spin/Man/never.html][never claims]] (activated by =-s= or
+(activated by =--lbtt=), or Spin [[http://spinroot.com/spin/Man/never.html][never claims]] (activated by =-s= or
 =--spin=).  These three formats also support *streaming*, i.e., you
 can concatenate multiple automata (and even mix these three formats in
 the same stream), and the tools will be able to read and process them
@@ -806,3 +809,53 @@ head -n5 | cut -d, -f2              # return the five first formulas
 #  LocalWords:  Tpng txt Hs Hm CSV Htl LBT dstar init goto fi Tpdf XF
 #  LocalWords:  oaut vcsn randaut nondeterministic filename csv hoa
 #  LocalWords:  varphi lnot GFb FG
+* Naming output
+
+By default, all output is sent to standard output, so you can either
+redirect it to a file, or pipe it to another program.
+You can also use the =--output= (a.k.a. =-o=) option to specify a
+filename where automata should be written.  The advantage over
+a shell redirection, is that you may build a name using the same
+escape sequences as used by =--stats= and =--name=.
+
+For instance =%d= is replaced by 0 or 1 depending on whether the
+automaton is deterministic.  We can generate 20 random automata, and
+output them in two files depending on their determinism:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randaut -n 20 -S2 1 -H -o out-det%d.hoa
+autfilt -c out-det0.hoa    # Count of non-deterministic automata
+autfilt -c out-det1.hoa    # Count of deterministic automata
+#+END_SRC
+
+#+RESULTS:
+: 4
+: 16
+
+If you use this feature, beware that the output filename
+is only truncated by the first file that is output to it: so
+if no automaton generate some filename, the existing file
+will be left untouched.  For instance we we run the above
+commands, again, but forcing [[file:randaut.org][=randaut=]] to output 20
+deterministic automata, it may look like we produced more
+than 20 automata:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+randaut -D -n 20 -S2 1 -H -o out-det%d.hoa
+autfilt -c out-det0.hoa    # Count of non-deterministic automata
+autfilt -c out-det1.hoa    # Count of deterministic automata
+#+END_SRC
+
+#+RESULTS:
+: 4
+: 20
+
+This is because the =out-det0.hoa= file hasn't changed from the
+previous execution, while =out-det1.hoa= has been overwritten.
+
+In the case where you want to append to a file instead of overwriting
+it, prefix the output filename with =>>= as in
+
+: randaut -D -n 20 -S2 1 -H -o '>>out-det%d.hoa'
+
+(You need the quotes so that the shell does not interpret '>>'.)

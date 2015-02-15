@@ -361,9 +361,15 @@ main(int argc, char** argv)
   post.set_type(type);
   post.set_level(level);
 
-  processor p(post);
-  if (p.run())
-    return 2;
-
+  try
+    {
+      processor p(post);
+      if (p.run())
+	return 2;
+    }
+  catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
   return 0;
 }

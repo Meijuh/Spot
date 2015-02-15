@@ -181,9 +181,9 @@ main(int argc, char** argv)
   trans.set_type(type);
   trans.set_level(level);
 
-  trans_processor processor(trans);
   try
     {
+      trans_processor processor(trans);
       if (processor.run())
 	return 2;
     }

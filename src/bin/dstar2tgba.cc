@@ -21,6 +21,7 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
 
 #include <argp.h>
 #include "error.h"
@@ -29,6 +30,7 @@
 #include "common_finput.hh"
 #include "common_cout.hh"
 #include "common_post.hh"
+#include "common_file.hh"
 
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"
@@ -83,6 +85,10 @@ static const argp_option options[] =
       " on Büchi automata)", 0 },
     { "name", OPT_NAME, "FORMAT", 0,
       "set the name of the output automaton", 0 },
+    { "output", 'o', "FORMAT", 0,
+      "send output to a file named FORMAT instead of standard output.  The"
+      " first automaton sent to a file truncates it unless FORMAT starts"
+      " with '>>'.", 0 },
     { "spin", 's', "6|c", OPTION_ARG_OPTIONAL, "Spin neverclaim (implies --ba)."
       "  Add letters to select (6) Spin's 6.2.4 style, (c) comments on states",
       0 },
@@ -138,6 +144,7 @@ static const char* stats = "";
 static const char* hoa_opt = nullptr;
 static const char* opt_never = nullptr;
 static const char* opt_name = nullptr;
+static const char* opt_output = nullptr;
 static spot::option_map extra_options;
 
 static int
@@ -161,6 +168,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
+      break;
+    case 'o':
+      opt_output = arg;
       break;
     case 's':
       format = Spin;
@@ -241,6 +251,8 @@ namespace
       declare('m', &aut_name_);
     }
 
+    using spot::formater::set_output;
+
     /// \brief print the configured statistics.
     ///
     /// The \a f argument is not needed if the Formula does not need
@@ -306,10 +318,14 @@ namespace
     dstar_stat_printer statistics;
     std::ostringstream name;
     dstar_stat_printer namer;
+    std::ostringstream outputname;
+    dstar_stat_printer outputnamer;
+    std::map<std::string, std::unique_ptr<output_file>> outputfiles;
 
     dstar_processor(spot::postprocessor& post)
       : post(post), statistics(std::cout, stats),
-	namer(name, opt_name)
+	namer(name, opt_name),
+	outputnamer(outputname, opt_output)
     {
     }
 
@@ -344,24 +360,37 @@ namespace
 	  aut->set_named_prop("automaton-name", new std::string(name.str()));
 	}
 
+      std::ostream* out = &std::cout;
+      if (opt_output)
+	{
+	  outputname.str("");
+	  outputnamer.print(daut, aut, filename, conversion_time);
+	  std::string fname = outputname.str();
+	  auto p = outputfiles.emplace(fname, nullptr);
+	  if (p.second)
+	    p.first->second.reset(new output_file(fname.c_str()));
+	  out = &p.first->second->ostream();
+	}
+
       switch (format)
 	{
 	case Dot:
-	  spot::dotty_reachable(std::cout, aut, opt_dot);
+	  spot::dotty_reachable(*out, aut, opt_dot);
 	  break;
 	case Lbtt:
-	  spot::lbtt_reachable(std::cout, aut, type == spot::postprocessor::BA);
+	  spot::lbtt_reachable(*out, aut, type == spot::postprocessor::BA);
 	  break;
 	case Lbtt_t:
-	  spot::lbtt_reachable(std::cout, aut, false);
+	  spot::lbtt_reachable(*out, aut, false);
 	  break;
 	case Hoa:
-	  spot::hoa_reachable(std::cout, aut, hoa_opt) << '\n';
+	  spot::hoa_reachable(*out, aut, hoa_opt) << '\n';
 	  break;
 	case Spin:
-	  spot::never_claim_reachable(std::cout, aut, opt_never);
+	  spot::never_claim_reachable(*out, aut, opt_never);
 	  break;
 	case Stats:
+	  statistics.set_output(*out);
 	  statistics.print(daut, aut, filename, conversion_time) << '\n';
 	  break;
 	}
@@ -390,8 +419,15 @@ main(int argc, char** argv)
   post.set_type(type);
   post.set_level(level);
 
-  dstar_processor processor(post);
-  if (processor.run())
-    return 2;
+  try
+    {
+      dstar_processor processor(post);
+      if (processor.run())
+	return 2;
+    }
+  catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
   return 0;
 }

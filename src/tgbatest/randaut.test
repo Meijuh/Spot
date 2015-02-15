@@ -71,3 +71,13 @@ diff out2 expected
 
 $randaut -n 5 --dot=@ a 2>stderr && exit 1
 grep 'randaut: unknown option.*@' stderr
+
+$randaut -n -1 -S2 2 -H | $autfilt -H --is-deterministic -n 3 -o out.hoa
+$randaut -n -1 -S2 2 -H | $autfilt -H -v --is-deterministic -n 4 -o '>>out.hoa'
+$autfilt -H out.hoa -o 'out-det%d.hoa'
+$autfilt -H out.hoa -o '>>out-det%d.hoa'
+test 8 = `$autfilt -c out-det0.hoa`
+test 6 = `$autfilt -c out-det1.hoa`
+
+$autfilt -H out.hoa -o foo -c 2>stderr && exit 1
+grep 'autfilt: options --output and --count are incompatible' stderr

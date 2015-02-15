@@ -515,9 +515,9 @@ main(int argc, char** argv)
   post.set_type(type);
   post.set_level(level);
 
-  hoa_processor processor(post);
   try
     {
+      hoa_processor processor(post);
       if (processor.run())
 	return 2;
     }
