@@ -638,6 +638,25 @@ namespace spot
   protected:
     acc_cond acc_;
 
+  public:
+    auto get_acceptance() const
+      SPOT_RETURN(acc_.get_acceptance());
+
+    void set_acceptance(unsigned num, const acc_cond::acc_code& c)
+    {
+      if (num < acc_.num_sets())
+	{
+	  acc_.~acc_cond();
+	  new (&acc_) acc_cond;
+	}
+      acc_.add_sets(num - acc_.num_sets());
+      acc_.set_acceptance(c);
+      prop_single_acc_set(!acc_.uses_fin_acceptance() && num == 1);
+      if (num == 0)
+	prop_state_based_acc();
+    }
+
+  protected:
     /// Do the actual computation of tgba::support_conditions().
     virtual bdd compute_support_conditions(const state* state) const = 0;
     mutable const state* last_support_conditions_input_;

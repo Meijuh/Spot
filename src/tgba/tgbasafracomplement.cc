@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -1091,6 +1091,7 @@ namespace spot
     for (unsigned i = 0; i < nb_acc; ++i)
       acceptance_cond_vec_.push_back(acc_.mark(acc_.add_set()));
 #endif
+    acc_.set_generalized_buchi();
   }
 
   tgba_safra_complement::~tgba_safra_complement()

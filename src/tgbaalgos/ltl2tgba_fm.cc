@@ -2505,10 +2505,14 @@ namespace spot
 
     dict->register_propositions(fc.used_vars(), a);
 
+    auto& acc = a->acc();
+
     unsigned ns = a->num_states();
     for (unsigned s = 0; s < ns; ++s)
       for (auto& t: a->out(s))
-	t.acc = a->acc().comp(t.acc);
+	t.acc = acc.comp(t.acc);
+
+    acc.set_generalized_buchi();
 
     if (!simplifier)
       // This should not be deleted before we have registered all propositions.

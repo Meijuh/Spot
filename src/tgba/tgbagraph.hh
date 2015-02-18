@@ -334,6 +334,7 @@ namespace spot
       return g_.trans_data(t);
     }
 
+    // FIXME: Should be renamed as set_generalized_buchi()
     void set_acceptance_conditions(unsigned num)
     {
       if (num < acc_.num_sets())
@@ -342,9 +343,10 @@ namespace spot
 	  new (&acc_) acc_cond;
 	}
       acc_.add_sets(num - acc_.num_sets());
-      prop_single_acc_set(num == 1);
+      prop_single_acc_set(!acc_.uses_fin_acceptance() && num == 1);
       if (num == 0)
 	prop_state_based_acc();
+      acc_.set_generalized_buchi();
     }
 
     acc_cond::mark_t set_single_acceptance_set()
@@ -429,7 +431,12 @@ namespace spot
     /// \brief Copy the acceptance conditions of another tgba.
     void copy_acceptance_conditions_of(const const_tgba_ptr& a)
     {
-      set_acceptance_conditions(a->acc().num_sets());
+      // FIXME: Should rename as copy_acceptance_condition*_of
+      acc_ = a->acc();
+      unsigned num = acc_.num_sets();
+      prop_single_acc_set(!acc_.uses_fin_acceptance() && num == 1);
+      if (num == 0)
+	prop_state_based_acc();
     }
 
     void copy_ap_of(const const_tgba_ptr& a)

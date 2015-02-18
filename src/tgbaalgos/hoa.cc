@@ -252,25 +252,18 @@ namespace spot
       }
     os << nl;
     unsigned num_acc = aut->acc().num_sets();
-    if (num_acc == 0)
-      os << "acc-name: all";
-    else if (num_acc == 1)
-      os << "acc-name: Buchi";
-    else
-      os << "acc-name: generalized-Buchi " << num_acc;
-    os << nl;
-    os << "Acceptance: " << num_acc;
-    if (num_acc > 0)
+    if (aut->acc().is_generalized_buchi())
       {
-	os << " Inf(0";
-	for (unsigned i = 1; i < num_acc; ++i)
-	  os << ")&Inf(" << i;
-	os << ')';
+	if (num_acc == 0)
+	  os << "acc-name: all";
+	else if (num_acc == 1)
+	  os << "acc-name: Buchi";
+	else
+	  os << "acc-name: generalized-Buchi " << num_acc;
+	os << nl;
       }
-    else
-      {
-	os  << " t";
-      }
+    os << "Acceptance: " << num_acc << ' ';
+    os << aut->acc().get_acceptance();
     os << nl;
     os << "properties: trans-labels explicit-labels";
     if (acceptance == Hoa_Acceptance_States)

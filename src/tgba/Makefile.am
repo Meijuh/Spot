@@ -41,6 +41,7 @@ tgba_HEADERS = \
 
 noinst_LTLIBRARIES = libtgba.la
 libtgba_la_SOURCES = \
+  acc.cc \
   bdddict.cc \
   bddprint.cc \
   formula2bdd.cc \

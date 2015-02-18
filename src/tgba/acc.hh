@@ -25,10 +25,11 @@
 # include <sstream>
 # include <vector>
 # include "ltlenv/defaultenv.hh"
+# include <iostream>
 
 namespace spot
 {
-  class acc_cond
+  class SPOT_API acc_cond
   {
   public:
     struct mark_t
@@ -89,7 +90,6 @@ namespace spot
       {
 	return id != 0;
       }
-
 
       bool has(unsigned u) const
       {
@@ -170,25 +170,142 @@ namespace spot
 	return *this;
       }
 
-      friend std::ostream& operator<<(std::ostream& os, mark_t m)
+      template<class iterator>
+      void fill(iterator here) const
       {
-	auto a = m.id;
-	os << '{';
+	auto a = id;
 	unsigned level = 0;
-	const char* comma = "";
 	while (a)
 	  {
 	    if (a & 1)
-	      {
-		os << comma << level;
-		comma = ",";
-	      }
-	    a >>= 1;
+	      *here++ = level;
 	    ++level;
+	    a >>= 1;
 	  }
-	os << '}';
-	return os;
       }
+
+      // FIXME: Return some iterable object without building a vector.
+      std::vector<unsigned> sets() const
+      {
+	std::vector<unsigned> res;
+	fill(std::back_inserter(res));
+	return res;
+      }
+
+      SPOT_API
+      friend std::ostream& operator<<(std::ostream& os, mark_t m);
+    };
+
+    // This encodes either an operator or set of acceptance sets.
+    enum class acc_op : unsigned char
+    { Inf, Fin, InfNeg, FinNeg, And, Or };
+    union acc_word
+    {
+      mark_t mark;
+      struct {
+	acc_op op;	    // Operator
+	unsigned char size; // Size of the subtree (number of acc_word),
+			    // not counting this node.
+      };
+    };
+
+    struct acc_code: public std::vector<acc_word>
+    {
+      bool is_true() const
+      {
+	unsigned s = size();
+	return s == 0
+	  || ((*this)[s - 1].op == acc_op::Inf && (*this)[s - 2].mark == 0U);
+      }
+
+      bool is_false() const
+      {
+	unsigned s = size();
+	return s > 1
+	  && (*this)[s - 1].op == acc_op::Fin && (*this)[s - 2].mark == 0U;
+      }
+
+      void append_and(acc_code&& r)
+      {
+	if (is_true() || r.is_false())
+	  {
+	    *this = std::move(r);
+	    return;
+	  }
+	if (is_false() || r.is_true())
+	  return;
+	unsigned s = size() - 1;
+	unsigned rs = r.size() - 1;
+	// Inf(a) & Inf(b) = Inf(a & b)
+	if (((*this)[s].op == acc_op::Inf && r[rs].op == acc_op::Inf)
+	    || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
+	  {
+	    (*this)[s - 1].mark |= r[rs - 1].mark;
+	    return;
+	  }
+	if ((*this)[s].op == acc_op::And)
+	  pop_back();
+	insert(this->end(), r.begin(), r.end());
+	acc_word w;
+	w.op = acc_op::And;
+	w.size = size();
+	push_back(w);
+      }
+
+      void append_or(acc_code&& r)
+      {
+	if (is_true() || r.is_false())
+	  return;
+	if (is_false() || r.is_true())
+	  {
+	    *this = std::move(r);
+	    return;
+	  }
+	unsigned s = size() - 1;
+	unsigned rs = r.size() - 1;
+	// Fin(a) | Fin(b) = Fin(a | b)
+	if (((*this)[s].op == acc_op::Fin && r[rs].op == acc_op::Fin)
+	    || ((*this)[s].op == acc_op::FinNeg && r[rs].op == acc_op::FinNeg))
+	  {
+	    (*this)[s - 1].mark |= r[rs - 1].mark;
+	    return;
+	  }
+	if ((*this)[s].op == acc_op::Or)
+	  pop_back();
+	insert(this->end(), r.begin(), r.end());
+	acc_word w;
+	w.op = acc_op::Or;
+	w.size = size();
+	push_back(w);
+      }
+
+      void shift_left(unsigned sets)
+      {
+	if (empty())
+	  return;
+	unsigned pos = size();
+	do
+	  {
+	    switch ((*this)[pos - 1].op)
+	      {
+	      case acc_cond::acc_op::And:
+	      case acc_cond::acc_op::Or:
+		--pos;
+		break;
+	      case acc_cond::acc_op::Inf:
+	      case acc_cond::acc_op::InfNeg:
+	      case acc_cond::acc_op::Fin:
+	      case acc_cond::acc_op::FinNeg:
+		pos -= 2;
+		(*this)[pos].mark.id <<= sets;
+		break;
+	      }
+	  }
+	while (pos > 0);
+      }
+
+      SPOT_API
+      friend std::ostream& operator<<(std::ostream& os, const acc_code& code);
     };
 
     acc_cond(unsigned n_sets = 0)
@@ -198,12 +315,97 @@ namespace spot
     }
 
     acc_cond(const acc_cond& o)
-      : num_(o.num_), all_(o.all_)
+      : num_(o.num_), all_(o.all_), code_(o.code_)
     {
     }
 
     ~acc_cond()
     {
+    }
+
+    void set_acceptance(const acc_code& code)
+    {
+      code_ = code;
+      uses_fin_acceptance_ = check_fin_acceptance();
+    }
+
+    acc_code get_acceptance() const
+    {
+      return code_;
+    }
+
+    bool uses_fin_acceptance() const
+    {
+      return uses_fin_acceptance_;
+    }
+
+    void set_generalized_buchi()
+    {
+      set_acceptance(inf(all_sets()));
+    }
+
+    bool is_generalized_buchi() const
+    {
+      unsigned s = code_.size();
+      return (s == 0 && num_ == 0) ||
+	(s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets());
+    }
+
+  protected:
+    bool check_fin_acceptance() const;
+
+    acc_code primitive(mark_t mark, acc_op op) const
+    {
+      acc_word w1;
+      w1.mark = mark;
+      acc_word w2;
+      w2.op = op;
+      w2.size = 1;
+      acc_code c;
+      c.push_back(w1);
+      c.push_back(w2);
+      return c;
+    }
+
+  public:
+    acc_code inf(mark_t mark) const
+    {
+      return primitive(mark, acc_op::Inf);
+    }
+
+    acc_code inf(std::initializer_list<unsigned> vals) const
+    {
+      return inf(marks(vals.begin(), vals.end()));
+    }
+
+    acc_code inf_neg(mark_t mark) const
+    {
+      return primitive(mark, acc_op::InfNeg);
+    }
+
+    acc_code inf_neg(std::initializer_list<unsigned> vals) const
+    {
+      return inf_neg(marks(vals.begin(), vals.end()));
+    }
+
+    acc_code fin(mark_t mark) const
+    {
+      return primitive(mark, acc_op::Fin);
+    }
+
+    acc_code fin(std::initializer_list<unsigned> vals) const
+    {
+      return fin(marks(vals.begin(), vals.end()));
+    }
+
+    acc_code fin_neg(mark_t mark) const
+    {
+      return primitive(mark, acc_op::FinNeg);
+    }
+
+    acc_code fin_neg(std::initializer_list<unsigned> vals) const
+    {
+      return fin_neg(marks(vals.begin(), vals.end()));
     }
 
     unsigned add_sets(unsigned num)
@@ -225,7 +427,7 @@ namespace spot
 
     mark_t mark(unsigned u) const
     {
-      return out(mark_(u));
+      return mark_(u);
     }
 
     template<class iterator>
@@ -234,7 +436,7 @@ namespace spot
       mark_t::value_t res = 0U;
       for (iterator i = begin; i != end; ++i)
 	res |= mark_(*i);
-      return out(res);
+      return res;
     }
 
     mark_t marks(std::initializer_list<unsigned> vals) const
@@ -242,27 +444,10 @@ namespace spot
       return marks(vals.begin(), vals.end());
     }
 
-    template<class iterator>
-    void fill_from(mark_t m, iterator here) const
-    {
-      auto a = in(m);
-      unsigned level = 0;
-      while (a)
-	{
-	  if (a & 1)
-	    *here++ = level;
-	  ++level;
-	  a >>= 1;
-	}
-      assert(level <= num_sets());
-    }
-
     // FIXME: Return some iterable object without building a vector.
     std::vector<unsigned> sets(mark_t m) const
     {
-      std::vector<unsigned> res;
-      fill_from(m, std::back_inserter(res));
-      return res;
+      return m.sets();
     }
 
     // whether m contains u
@@ -290,47 +475,27 @@ namespace spot
 		const acc_cond& ra, mark_t rm) const
     {
       assert(la.num_sets() + ra.num_sets() == num_sets());
-      return la.in(lm) | (ra.in(rm) << la.num_sets());
+      (void)ra;
+      return lm.id | (rm.id << la.num_sets());
     }
 
     mark_t comp(mark_t l) const
     {
-      return out(all_ ^ in(l));
+      return all_ ^ l.id;
     }
 
     mark_t all_sets() const
     {
-      return out(all_);
+      return all_;
     }
 
-    bool accepting(mark_t inf) const
-    {
-      return in(inf) == all_;
-    }
+    bool accepting(mark_t inf, mark_t fin) const;
 
-    std::ostream& format_quoted(std::ostream& os, mark_t m) const
-    {
-      auto a = in(m);
-      if (a == 0U)
-	return os;
-      unsigned level = 0;
-      const char* space = "";
-      while (a)
-	{
-	  if (a & 1)
-	    {
-	      os << space << '"' << level << '"';
-	      space = " ";
-	    }
-	  a >>= 1;
-	  ++level;
-	}
-      return os;
-    }
+    bool accepting(mark_t inf) const;
 
     std::ostream& format(std::ostream& os, mark_t m) const
     {
-      auto a = in(m);
+      auto a = m;
       if (a == 0U)
 	return os;
       return os << m;
@@ -360,7 +525,7 @@ namespace spot
 	  unsigned all = all_ ^ (u | (1 << x));
 	  for (iterator y = begin; y != end; ++y)
 	    {
-	      auto v = in(*y);
+	      auto v = y->id;
 	      if (v & (1 << x))
 		{
 		  all &= v;
@@ -370,7 +535,7 @@ namespace spot
 	    }
 	  u |= all;
 	}
-      return out(u);
+      return u;
     }
 
     mark_t strip(mark_t x, mark_t y) const
@@ -381,8 +546,8 @@ namespace spot
       //   ==  10 1  11 100
       //   ==      10111100
 
-      auto xv = in(x);		// 100101110100
-      auto yv = in(y);		// 001011001000
+      auto xv = x.id;		// 100101110100
+      auto yv = y.id;		// 001011001000
 
       while (yv && xv)
 	{
@@ -394,7 +559,7 @@ namespace spot
 	  yv = (yv & lm) >> 1;
 	}
 
-      return out(xv);
+      return xv;
     }
 
   protected:
@@ -411,18 +576,10 @@ namespace spot
       return -1U >> (8 * sizeof(mark_t::value_t) - num_);
     }
 
-    mark_t::value_t in(mark_t m) const
-    {
-      return m.id;
-    }
-
-    mark_t out(mark_t::value_t r) const
-    {
-      return r;
-    }
-
     unsigned num_;
     mark_t::value_t all_;
+    acc_code code_;
+    bool uses_fin_acceptance_ = false;
   };
 
 }

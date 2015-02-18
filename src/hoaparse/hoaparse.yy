@@ -135,6 +135,7 @@
   spot::acc_cond::mark_t mark;
   pair* p;
   std::list<pair>* list;
+  spot::acc_cond::acc_code* code;
 }
 
 %code
@@ -201,6 +202,7 @@
 %type <p> nc-transition nc-src-dest
 %type <list> nc-transitions nc-transition-block
 %type <str> nc-one-ident nc-ident-list
+%type <code> acceptance-cond
 
 /**** LBTT tokens *****/
  // Also using INT, STRING
@@ -216,6 +218,7 @@
 %destructor { delete $$; } <str>
 %destructor { bdd_delref($$); } <b>
 %destructor { bdd_delref($$->first); delete $$->second; delete $$; } <p>
+%destructor { delete $$; } <code>
 %destructor {
   for (std::list<pair>::iterator i = $$->begin();
        i != $$->end(); ++i)
@@ -484,7 +487,7 @@ header-item: "States:" INT
 		  }
 		else
 		  {
-		    res.h->aut->set_acceptance_conditions($2);
+		    res.h->aut->acc().add_sets($2);
 		    res.accset = $2;
 		    res.accset_loc = @1 + @2;
 		  }
@@ -492,6 +495,8 @@ header-item: "States:" INT
              acceptance-cond
 	     {
 	       res.ignore_more_acc = true;
+	       res.h->aut->set_acceptance($2, *$4);
+	       delete $4;
 	     }
            | "acc-name:" IDENTIFIER acc-spec
              {
@@ -659,36 +664,65 @@ acc-set: INT
 
 acceptance-cond: IDENTIFIER '(' acc-set ')'
 		 {
-		   if (!res.ignore_more_acc && *$1 != "Inf")
-		     error(@1, "this implementation only supports "
-			   "'Inf' acceptance");
 		   if ($3 != -1U)
-		     res.pos_acc_sets |= res.h->aut->acc().mark($3);
+		     {
+		       res.pos_acc_sets |= res.h->aut->acc().mark($3);
+		       if (*$1 == "Inf")
+			 $$ = new spot::acc_cond::acc_code
+			   (res.h->aut->acc().inf({$3}));
+		       else
+			 $$ = new spot::acc_cond::acc_code
+			   (res.h->aut->acc().fin({$3}));
+		     }
+		   else
+		     {
+		       $$ = new spot::acc_cond::acc_code;
+		     }
 		   delete $1;
 		 }
                | IDENTIFIER '(' '!' acc-set ')'
 		 {
-		   if (!res.ignore_more_acc && *$1 != "Inf")
-		     error(@1, "this implementation only supports "
-			   "'Inf' acceptance");
 		   if ($4 != -1U)
-		     res.neg_acc_sets |= res.h->aut->acc().mark($4);
+		     {
+		       res.neg_acc_sets |= res.h->aut->acc().mark($4);
+		       if (*$1 == "Inf")
+			 $$ = new spot::acc_cond::acc_code
+			   (res.h->aut->acc().inf_neg({$4}));
+		       else
+			 $$ = new spot::acc_cond::acc_code
+			   (res.h->aut->acc().fin_neg({$4}));
+		     }
+		   else
+		     {
+		       $$ = new spot::acc_cond::acc_code;
+		     }
 		   delete $1;
 		 }
                | '(' acceptance-cond ')'
+	         {
+		   $$ = $2;
+		 }
                | acceptance-cond '&' acceptance-cond
+	         {
+		   $3->append_and(std::move(*$1));
+		   $$ = $3;
+		   delete $1;
+		 }
                | acceptance-cond '|' acceptance-cond
 	         {
-		   if (!res.ignore_more_acc)
-		     error(@2, "this implementation does not support "
-			   "disjunction in acceptance conditions");
+		   $3->append_or(std::move(*$1));
+		   $$ = $3;
+		   delete $1;
 		 }
                | 't'
+	         {
+		   $$ = new spot::acc_cond::acc_code;
+		 }
 	       | 'f'
 	       {
-		 if (!res.ignore_more_acc)
-		   error(@$, "this implementation does not support "
-			 "false acceptance");
+	         {
+		   $$ = new spot::acc_cond::acc_code(res.h->aut->acc().fin({}));
+		 }
 	       }
 
 
@@ -1213,7 +1247,10 @@ nc-transition:
 
 lbtt: lbtt-header lbtt-body ENDAUT
       {
-	res.pos_acc_sets = res.h->aut->acc().all_sets();
+	auto& acc = res.h->aut->acc();
+	unsigned num = acc.num_sets();
+	res.h->aut->set_acceptance_conditions(num);
+	res.pos_acc_sets = acc.all_sets();
 	assert(!res.states_map.empty());
 	auto n = res.states_map.size();
 	if (n != (unsigned) res.states)
@@ -1375,33 +1412,113 @@ static void fill_guards(result_& r)
 
 void
 hoayy::parser::error(const location_type& location,
-		       const std::string& message)
+		     const std::string& message)
 {
   error_list.emplace_back(location, message);
+}
+
+static spot::acc_cond::acc_code
+fix_acceptance_aux(spot::acc_cond& acc,
+		   spot::acc_cond::acc_code in, unsigned pos,
+		   spot::acc_cond::mark_t onlyneg,
+		   spot::acc_cond::mark_t both,
+		   unsigned base)
+{
+  auto& w = in[pos];
+  switch (w.op)
+    {
+    case spot::acc_cond::acc_op::And:
+      {
+	unsigned sub = pos - w.size;
+	--pos;
+	auto c = fix_acceptance_aux(acc, in, pos, onlyneg, both, base);
+	pos -= in[pos].size;
+	while (sub < pos)
+	  {
+	    --pos;
+	    c.append_and(fix_acceptance_aux(acc, in, pos, onlyneg, both, base));
+	    pos -= in[pos].size;
+	  }
+	return c;
+      }
+    case spot::acc_cond::acc_op::Or:
+      {
+	unsigned sub = pos - w.size;
+	--pos;
+	auto c = fix_acceptance_aux(acc, in, pos, onlyneg, both, base);
+	pos -= in[pos].size;
+	while (sub < pos)
+	  {
+	    --pos;
+	    c.append_or(fix_acceptance_aux(acc, in, pos, onlyneg, both, base));
+	    pos -= in[pos].size;
+	  }
+	return c;
+      }
+    case spot::acc_cond::acc_op::Inf:
+      return acc.inf(in[pos - 1].mark);
+    case spot::acc_cond::acc_op::Fin:
+      return acc.fin(in[pos - 1].mark);
+    case spot::acc_cond::acc_op::FinNeg:
+      {
+	auto m = in[pos - 1].mark;
+	auto c = acc.fin(onlyneg & m);
+	spot::acc_cond::mark_t tmp = 0U;
+	for (auto i: both.sets())
+	  {
+	    if (m.has(i))
+	      tmp.set(base);
+	    ++base;
+	  }
+	if (tmp)
+	  c.append_or(acc.fin(tmp));
+	return c;
+      }
+    case spot::acc_cond::acc_op::InfNeg:
+      {
+	auto m = in[pos - 1].mark;
+	auto c = acc.inf(onlyneg & m);
+	spot::acc_cond::mark_t tmp = 0U;
+	for (auto i: both.sets())
+	  {
+	    if (m.has(i))
+	      tmp.set(base);
+	    ++base;
+	  }
+	if (tmp)
+	  c.append_and(acc.inf(tmp));
+	return c;
+      }
+    }
+  SPOT_UNREACHABLE();
+  return {};
 }
 
 static void fix_acceptance(result_& r)
 {
   auto& acc = r.h->aut->acc();
-  // Compute the unused sets before possibly adding some below.
-  auto unused = acc.comp(r.neg_acc_sets | r.pos_acc_sets);
 
   // If a set x appears only as Inf(!x), we can complement it so that
   // we work with Inf(x) instead.
-  if (auto onlyneg = r.neg_acc_sets - r.pos_acc_sets)
-    for (auto& t: r.h->aut->transition_vector())
-      t.acc ^= onlyneg;
+  auto onlyneg = r.neg_acc_sets - r.pos_acc_sets;
+  if (onlyneg)
+    {
+      for (auto& t: r.h->aut->transition_vector())
+	t.acc ^= onlyneg;
+    }
 
   // However if set x is used elsewhere, for instance in
   //   Inf(!x) & Inf(x)
   // complementing x would be wrong.  We need to create a
   // new set, y, that is the complement of x, and rewrite
   // this as Inf(y) & Inf(x).
-  if (auto both = r.neg_acc_sets & r.pos_acc_sets)
+  auto both = r.neg_acc_sets & r.pos_acc_sets;
+  unsigned base = 0;
+  if (both)
     {
       auto v = acc.sets(both);
       auto vs = v.size();
-      unsigned base = acc.add_sets(vs);
+      base = acc.add_sets(vs);
       for (auto& t: r.h->aut->transition_vector())
 	if ((t.acc & both) != both)
 	  for (unsigned i = 0; i < vs; ++i)
@@ -1409,15 +1526,13 @@ static void fix_acceptance(result_& r)
 	      t.acc |= acc.mark(base + i);
     }
 
-  // Remove all acceptance sets that are not used in the acceptance
-  // condition.  Because the rest of the code still assume that all
-  // acceptance sets have to be seen.  See
-  //   https://github.com/adl/hoaf/issues/36
-  if (unused)
+  if (onlyneg || both)
     {
-      for (auto& t: r.h->aut->transition_vector())
-	t.acc = acc.strip(t.acc, unused);
-      r.h->aut->set_acceptance_conditions(acc.num_sets() - unused.count());
+      auto& acc = r.h->aut->acc();
+      auto code = acc.get_acceptance();
+      r.h->aut->set_acceptance(acc.num_sets(),
+			       fix_acceptance_aux(acc, code, code.size() - 1,
+						  onlyneg, both, base));
     }
 }
 

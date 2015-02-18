@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -128,13 +128,12 @@ namespace spot
 
     public:
       unsigned
-      next_level(const acc_cond& acc, int slevel,
-		 acc_cond::mark_t set, bool skip_levels)
+      next_level(int slevel, acc_cond::mark_t set, bool skip_levels)
       {
 	// Update the order with any new set we discover
 	if (auto newsets = set - found_)
 	  {
-	    acc.fill_from(newsets, std::back_inserter(order_));
+	    newsets.fill(std::back_inserter(order_));
 	    found_ |= newsets;
 	  }
 
@@ -161,20 +160,19 @@ namespace spot
     // Accepting order for each SCC
     class scc_orders
     {
-      const acc_cond& acc_;
       std::map<int, acc_order> orders_;
       bool skip_levels_;
 
     public:
-      scc_orders(const acc_cond& acc, bool skip_levels):
-	acc_(acc), skip_levels_(skip_levels)
+      scc_orders(bool skip_levels):
+	skip_levels_(skip_levels)
       {
       }
 
       unsigned
       next_level(int scc, int slevel, acc_cond::mark_t set)
       {
-        return orders_[scc].next_level(acc_, slevel, set, skip_levels_);
+        return orders_[scc].next_level(slevel, set, skip_levels_);
       }
 
       void
@@ -226,7 +224,7 @@ namespace spot
       }
 
       // Initialize scc_orders
-      scc_orders orders(a->acc(), skip_levels);
+      scc_orders orders(skip_levels);
 
       // and vice-versa.
       ds2num_map ds2num;

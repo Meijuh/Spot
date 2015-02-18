@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -52,8 +52,11 @@ namespace spot
     auto res = make_tgba_digraph(left->get_dict());
     res->copy_ap_of(left);
     res->copy_ap_of(right);
-    res->set_acceptance_conditions(left->acc().num_sets()
-				   + right->acc().num_sets());
+    auto left_num = left->acc().num_sets();
+    auto right_acc = right->get_acceptance();
+    right_acc.shift_left(left_num);
+    right_acc.append_and(left->get_acceptance());
+    res->set_acceptance(left_num + right->acc().num_sets(), right_acc);
 
     auto v = new product_states;
     res->set_named_prop("product-states", v);

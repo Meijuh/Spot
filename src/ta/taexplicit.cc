@@ -359,6 +359,7 @@ namespace spot
   {
     get_dict()->register_all_variables_of(&tgba_, this);
     acc().add_sets(n_acc);
+    acc().set_generalized_buchi();
     if (artificial_initial_state != 0)
       {
         state_ta_explicit* is = add_state(artificial_initial_state);

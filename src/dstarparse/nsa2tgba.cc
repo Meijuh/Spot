@@ -199,6 +199,7 @@ namespace spot
     while (i != bs2num.end())
       delete (i++)->first.pend;
 
+    res->acc().set_generalized_buchi();
     return res;
   }
 

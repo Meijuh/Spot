@@ -210,6 +210,7 @@ namespace spot
 	get_dict()->register_all_propositions_of(&a_, this);
 	assert(acc_.num_sets() == 0);
 	acc_.add_sets(a_->acc().num_sets());
+	acc_.set_generalized_buchi();
       }
 
       virtual ~tgbasl()

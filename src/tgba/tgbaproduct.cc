@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2014 Laboratoire de Recherche et
+// Copyright (C) 2009, 2011, 2012, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -311,7 +311,11 @@ namespace spot
     d->register_all_propositions_of(&right_, this);
 
     assert(acc_.num_sets() == 0);
-    acc_.add_sets(left->acc().num_sets() + right->acc().num_sets());
+    auto left_num = left->acc().num_sets();
+    auto right_acc = right->get_acceptance();
+    right_acc.shift_left(left_num);
+    right_acc.append_and(left->get_acceptance());
+    set_acceptance(left_num + right->acc().num_sets(), right_acc);
   }
 
   tgba_product::~tgba_product()
