@@ -168,13 +168,23 @@ static spot::option_map extra_options;
 static bool randomize_st = false;
 static bool randomize_tr = false;
 static int opt_seed = 0;
-static auto dict = spot::make_bdd_dict();
-static spot::tgba_digraph_ptr opt_product = nullptr;
-static spot::tgba_digraph_ptr opt_intersect = nullptr;
+
+// We want all these variable to be destroyed when we exit main, to
+// make sure it happens before all other global variables (like the
+// atomic propositions maps) are destroyed.  Otherwise we risk
+// accessing deleted stuff.
+static struct opt_t
+{
+  spot::bdd_dict_ptr dict = spot::make_bdd_dict();
+  spot::tgba_digraph_ptr product = nullptr;
+  spot::tgba_digraph_ptr intersect = nullptr;
+  spot::tgba_digraph_ptr are_isomorphic = nullptr;
+  std::unique_ptr<spot::isomorphism_checker>
+                         isomorphism_checker = nullptr;
+  std::unique_ptr<unique_aut_t> uniq = nullptr;
+}* opt;
+
 static bool opt_merge = false;
-static std::unique_ptr<spot::isomorphism_checker>
-  isomorphism_checker = nullptr;
-static spot::tgba_digraph_ptr opt_are_isomorphic = nullptr;
 static bool opt_is_complete = false;
 static bool opt_is_deterministic = false;
 static bool opt_invert = false;
@@ -187,7 +197,6 @@ static char opt_instut = 0;
 static bool opt_is_empty = false;
 static bool opt_sbacc = false;
 static bool opt_stripacc = false;
-static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
@@ -214,7 +223,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_max_count = to_pos_int(arg);
       break;
     case 'u':
-      opt_uniq =
+      opt->uniq =
         std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
       break;
     case 'v':
@@ -231,7 +240,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_accsets = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
     case OPT_ARE_ISOMORPHIC:
-      opt_are_isomorphic = read_automaton(arg, dict);
+      opt->are_isomorphic = read_automaton(arg, opt->dict);
       break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
@@ -245,7 +254,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 	error(2, 0, "unknown argument for --instut: %s", arg);
       break;
     case OPT_INTERSECT:
-      opt_intersect = read_automaton(arg, dict);
+      opt->intersect = read_automaton(arg, opt->dict);
       break;
     case OPT_DESTUT:
       opt_destut = true;
@@ -296,11 +305,11 @@ parse_opt(int key, char* arg, struct argp_state*)
       }
     case OPT_PRODUCT:
       {
-	auto a = read_automaton(arg, dict);
-	if (!opt_product)
-	  opt_product = std::move(a);
+	auto a = read_automaton(arg, opt->dict);
+	if (!opt->product)
+	  opt->product = std::move(a);
 	else
-	  opt_product = spot::product(std::move(opt_product),
+	  opt->product = spot::product(std::move(opt->product),
 				      std::move(a));
       }
       break;
@@ -406,12 +415,12 @@ namespace
 	matched &= is_complete(aut);
       if (opt_is_deterministic)
 	matched &= is_deterministic(aut);
-      if (opt_are_isomorphic)
-        matched &= isomorphism_checker->is_isomorphic(aut);
+      if (opt->are_isomorphic)
+        matched &= opt->isomorphism_checker->is_isomorphic(aut);
       if (opt_is_empty)
 	matched &= aut->is_empty();
-      if (opt_intersect)
-	matched &= !spot::product(aut, opt_intersect)->is_empty();
+      if (opt->intersect)
+	matched &= !spot::product(aut, opt->intersect)->is_empty();
 
       // Drop or keep matched automata depending on the --invert option
       if (matched == opt_invert)
@@ -433,8 +442,8 @@ namespace
       else if (opt_instut == 2)
 	aut = spot::sl2(std::move(aut));
 
-      if (opt_product)
-	aut = spot::product(std::move(aut), opt_product);
+      if (opt->product)
+	aut = spot::product(std::move(aut), opt->product);
 
       if (opt_sbacc)
 	aut = spot::sbacc(aut);
@@ -446,13 +455,13 @@ namespace
 
       const double conversion_time = sw.stop();
 
-      if (opt_uniq)
+      if (opt->uniq)
         {
           auto tmp =
 	    spot::canonicalize(make_tgba_digraph(aut,
 						 spot::tgba::prop_set::all()));
-          if (!opt_uniq->emplace(tmp->transition_vector().begin() + 1,
-				 tmp->transition_vector().end()).second)
+          if (!opt->uniq->emplace(tmp->transition_vector().begin() + 1,
+				  tmp->transition_vector().end()).second)
 	    return 0;
         }
 
@@ -482,7 +491,7 @@ namespace
       while (!abort_run)
 	{
 	  pel.clear();
-	  auto haut = hp.parse(pel, dict);
+	  auto haut = hp.parse(pel, opt->dict);
 	  if (!haut && pel.empty())
 	    break;
 	  if (spot::format_hoa_parse_errors(std::cerr, filename, pel))
@@ -508,6 +517,11 @@ main(int argc, char** argv)
   const argp ap = { options, parse_opt, "[FILENAMES...]",
 		    argp_program_doc, children, 0, 0 };
 
+  // This will ensure that all objects stored in this struct are
+  // destroyed before global variables.
+  opt_t o;
+  opt = &o;
+
   // Disable post-processing as much as possible by default.
   level = spot::postprocessor::Low;
   pref = spot::postprocessor::Any;
@@ -517,12 +531,12 @@ main(int argc, char** argv)
   if (jobs.empty())
     jobs.emplace_back("-", true);
 
-  if (opt_are_isomorphic)
+  if (opt->are_isomorphic)
     {
       if (opt_merge)
-        opt_are_isomorphic->merge_transitions();
-      isomorphism_checker = std::unique_ptr<spot::isomorphism_checker>(
-                            new spot::isomorphism_checker(opt_are_isomorphic));
+        opt->are_isomorphic->merge_transitions();
+      opt->isomorphism_checker = std::unique_ptr<spot::isomorphism_checker>
+	(new spot::isomorphism_checker(opt->are_isomorphic));
     }
 
 
@@ -546,5 +560,6 @@ main(int argc, char** argv)
 
   if (automaton_format == Count)
     std::cout << match_count << std::endl;
+
   return !match_count;
 }
