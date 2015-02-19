@@ -31,7 +31,7 @@ namespace spot
     unsigned na = inacc.num_sets();
     unsigned tr = to_remove.count();
     assert(tr <= na);
-    res->set_acceptance_conditions(na - tr);
+    res->set_generalized_buchi(na - tr);
     transform_accessible(in, res, [&](unsigned,
                                       bdd& cond,
                                       acc_cond::mark_t& acc,

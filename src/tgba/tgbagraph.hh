@@ -334,8 +334,7 @@ namespace spot
       return g_.trans_data(t);
     }
 
-    // FIXME: Should be renamed as set_generalized_buchi()
-    void set_acceptance_conditions(unsigned num)
+    void set_generalized_buchi(unsigned num)
     {
       if (num < acc_.num_sets())
 	{
@@ -351,7 +350,7 @@ namespace spot
 
     acc_cond::mark_t set_single_acceptance_set()
     {
-      set_acceptance_conditions(1);
+      set_generalized_buchi(1);
       return acc_.mark(0);
     }
 
@@ -378,7 +377,7 @@ namespace spot
       return g_.trans_storage(t);
     }
 
-    void set_acceptance_conditions(bdd all);
+    void set_generalized_buchi(bdd all);
 
     unsigned new_state()
     {

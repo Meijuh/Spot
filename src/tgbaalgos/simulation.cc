@@ -628,7 +628,7 @@ namespace spot
 	delete gb;
 	res->prop_copy(original_,
 		       { false, // state-based acc forced below
-			 false, // single acc set by set_acceptance_conditions
+			 false, // single acc set by set_generalized_buchi
 		         true,  // weakness preserved,
 			 false, // determinism checked and set below
 		       });

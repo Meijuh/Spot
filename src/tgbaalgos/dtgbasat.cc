@@ -779,7 +779,7 @@ namespace spot
       auto autdict = aut->get_dict();
       auto a = make_tgba_digraph(autdict);
       a->copy_ap_of(aut);
-      a->set_acceptance_conditions(satdict.cand_nacc);
+      a->set_generalized_buchi(satdict.cand_nacc);
 
       a->new_states(satdict.cand_size);
 

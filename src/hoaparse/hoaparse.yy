@@ -1249,7 +1249,7 @@ lbtt: lbtt-header lbtt-body ENDAUT
       {
 	auto& acc = res.h->aut->acc();
 	unsigned num = acc.num_sets();
-	res.h->aut->set_acceptance_conditions(num);
+	res.h->aut->set_generalized_buchi(num);
 	res.pos_acc_sets = acc.all_sets();
 	assert(!res.states_map.empty());
 	auto n = res.states_map.size();
@@ -1284,7 +1284,7 @@ lbtt: lbtt-header lbtt-body ENDAUT
       }
     | lbtt-header-states LBTT_EMPTY
       {
-        res.h->aut->set_acceptance_conditions($2);
+        res.h->aut->set_generalized_buchi($2);
 	res.pos_acc_sets = res.h->aut->acc().all_sets();
       }
 

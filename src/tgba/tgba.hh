@@ -639,8 +639,10 @@ namespace spot
     acc_cond acc_;
 
   public:
-    auto get_acceptance() const
-      SPOT_RETURN(acc_.get_acceptance());
+    acc_cond::acc_code get_acceptance() const
+    {
+      return acc_.get_acceptance();
+    }
 
     void set_acceptance(unsigned num, const acc_cond::acc_code& c)
     {

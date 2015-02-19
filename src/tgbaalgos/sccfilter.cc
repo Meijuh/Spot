@@ -275,7 +275,7 @@ namespace spot
 	  inout.push_back(-1U);
 
       filtered->
-	set_acceptance_conditions(filter.accsets(aut->acc().num_sets()));
+	set_generalized_buchi(filter.accsets(aut->acc().num_sets()));
       filtered->new_states(out_n);
       for (unsigned isrc = 0; isrc < in_n; ++isrc)
 	{

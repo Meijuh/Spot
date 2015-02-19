@@ -134,7 +134,7 @@ namespace spot
     for (auto i: *ap)
       props[pi++] = dict->register_proposition(i, res);
 
-    res->set_acceptance_conditions(n_accs);
+    res->set_generalized_buchi(n_accs);
 
     // Using std::unordered_set instead of std::set for these sets is 3
     // times slower (tested on a 50000 nodes example).

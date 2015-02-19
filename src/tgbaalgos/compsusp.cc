@@ -226,7 +226,7 @@ namespace spot
 
       const acc_cond& la = left->acc();
       const acc_cond& ra = right->acc();
-      res->set_acceptance_conditions(la.num_sets() + ra.num_sets());
+      res->set_generalized_buchi(la.num_sets() + ra.num_sets());
 
       acc_cond::mark_t radd = ra.all_sets();
 
