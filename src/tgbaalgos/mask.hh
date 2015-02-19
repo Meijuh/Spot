@@ -28,9 +28,10 @@ namespace spot
   ///
   /// Copy the transition of the automaton \a old, into the automaton
   /// \a cpy, creating new states at the same time.  The argument \a
-  /// trans should behave as a fonction with the following prototype:
+  /// trans should behave as a function with the following prototype:
   /// <code>
-  ///   void (*trans) (bdd& cond, acc_cond::mark_t& acc, unsigned dst)
+  ///   void (*trans) (unsigned srcbdd& cond, acc_cond::mark_t& acc,
+  ///   unsigned dst)
   /// </code>
   /// It can modify either the condition or the acceptance sets of
   /// the transitions.  Set the condition to bddfalse to remove it
@@ -39,9 +40,9 @@ namespace spot
   /// \param init The optional new initial state.
 
   template<typename Trans>
-  void transform_mask(const const_tgba_digraph_ptr& old,
-		      tgba_digraph_ptr& cpy,
-		      Trans trans, unsigned int init)
+  void transform_accessible(const const_tgba_digraph_ptr& old,
+                            tgba_digraph_ptr& cpy,
+                            Trans trans, unsigned int init)
   {
     std::vector<unsigned> todo;
     std::vector<unsigned> seen(old->num_states(), -1U);
@@ -72,7 +73,7 @@ namespace spot
 	  {
 	    bdd cond = t.cond;
 	    acc_cond::mark_t acc = t.acc;
-	    trans(cond, acc, t.dst);
+	    trans(t.src, cond, acc, t.dst);
 
 	    if (cond != bddfalse)
 	      cpy->new_transition(new_src,
@@ -82,12 +83,55 @@ namespace spot
       }
   }
 
+  /// \brief Copy an automaton and update each transitions.
+  ///
+  /// Copy the states of the automaton \a old, into the automaton
+  /// \a cpy. Each state in \a cpy will have the same id as the ones in \a old.
+  /// The argument \a trans
+  /// should behave as a function with the following prototype:
+  /// <code>
+  ///   void (*trans) (unsigned srcbdd& cond, acc_cond::mark_t& acc,
+  ///   unsigned dst)
+  /// </code>
+  /// It can modify either the condition or the acceptance sets of
+  /// the transitions.  Set the condition to bddfalse to remove it.  Note that
+  /// all transtions will be processed.
+  /// \param init The optional new initial state.
   template<typename Trans>
-  void transform_mask(const const_tgba_digraph_ptr& old,
-		      tgba_digraph_ptr& cpy,
-		      Trans trans)
+  void transform_copy(const const_tgba_digraph_ptr& old,
+                      tgba_digraph_ptr& cpy,
+                      Trans trans, unsigned int init)
   {
-    transform_mask(old, cpy, trans, old->get_init_state_number());
+    // Each state in cpy corresponds to a unique state in old.
+    cpy->new_states(old->num_states());
+    cpy->set_init_state(init);
+
+    for (auto& t: old->transitions())
+      {
+        bdd cond = t.cond;
+        acc_cond::mark_t acc = t.acc;
+        trans(t.src, cond, acc, t.dst);
+        // Having the same number of states should assure that state ids are
+        // equivilent in old and cpy.
+        assert(t.src < cpy->num_states() && t.dst < cpy->num_states());
+        if (cond != bddfalse)
+          cpy->new_transition(t.src, t.dst, cond, acc);
+      }
+  }
+
+  template<typename Trans>
+  void transform_accessible(const const_tgba_digraph_ptr& old,
+                            tgba_digraph_ptr& cpy,
+                            Trans trans)
+  {
+    transform_accessible(old, cpy, trans, old->get_init_state_number());
+  }
+  template<typename Trans>
+  void transform_copy(const const_tgba_digraph_ptr& old,
+                      tgba_digraph_ptr& cpy,
+                      Trans trans)
+  {
+    transform_copy(old, cpy, trans, old->get_init_state_number());
   }
 
   /// \brief Remove all transitions that are in some given acceptance sets.

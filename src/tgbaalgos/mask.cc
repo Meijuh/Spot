@@ -32,15 +32,16 @@ namespace spot
     unsigned tr = to_remove.count();
     assert(tr <= na);
     res->set_acceptance_conditions(na - tr);
-    transform_mask(in, res, [&](bdd& cond,
-				acc_cond::mark_t& acc,
-				unsigned)
-		   {
-		     if (acc & to_remove)
-		       cond = bddfalse;
-		     else
-		       acc = inacc.strip(acc, to_remove);
-		   });
+    transform_accessible(in, res, [&](unsigned,
+                                      bdd& cond,
+                                      acc_cond::mark_t& acc,
+                                      unsigned)
+                         {
+                           if (acc & to_remove)
+                             cond = bddfalse;
+                           else
+                             acc = inacc.strip(acc, to_remove);
+                         });
     return res;
   }
 
@@ -55,11 +56,12 @@ namespace spot
     res->copy_ap_of(in);
     res->prop_copy(in, { true, true, true, true });
     res->copy_acceptance_conditions_of(in);
-    transform_mask(in, res, [&](bdd& cond,
-				acc_cond::mark_t&,
-				unsigned dst)
+    transform_copy(in, res, [&](unsigned src,
+                                bdd& cond,
+                                acc_cond::mark_t&,
+                                unsigned dst)
 		   {
-		     if (!to_keep[dst])
+		     if (!to_keep[src] || !to_keep[dst])
 		       cond = bddfalse;
 		   }, init);
     return res;
