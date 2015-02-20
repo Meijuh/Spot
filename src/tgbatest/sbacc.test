@@ -61,12 +61,12 @@ EOF
 
 diff out.hoa expected
 
-
+# This procedure should be acceptance-agnostic.
 cat >in.hoa<<EOF
 HOA: v1
 Start: 0
 AP: 1 "a"
-Acceptance: 2 Inf(0)&Inf(1)
+Acceptance: 2 Fin(0)|Inf(1)
 --BODY--
 State: 0
 [0] 1
@@ -84,8 +84,7 @@ HOA: v1
 States: 3
 Start: 0
 AP: 1 "a"
-acc-name: generalized-Buchi 2
-Acceptance: 2 Inf(0)&Inf(1)
+Acceptance: 2 Fin(0) | Inf(1)
 properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0 {1}
