@@ -60,10 +60,10 @@ stripping
 #1: {4}
 #1: {2}
 2 Inf(0)&Inf(1)&Inf(3)
-5 (Fin(2)) | (Inf(0)&Inf(1)&Inf(3))
-7 (Fin(0)) | (Fin(2)) | (Inf(0)&Inf(1)&Inf(3))
-7 (Fin(0)) | (Fin(2)) | (Inf(0)&Inf(1)&Inf(3))
-7 (Fin(0)) | (Fin(2)) | (Inf(0)&Inf(1)&Inf(3))
+5 Fin(2) | (Inf(0)&Inf(1)&Inf(3))
+7 Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3))
+7 Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3))
+7 Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3))
 2 f
 EOF
 

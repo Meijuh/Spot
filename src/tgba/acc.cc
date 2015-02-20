@@ -88,6 +88,9 @@ namespace spot
 	      }
 	    else
 	      {
+		if (!top)
+		  // Avoid extra parentheses if there is only one set
+		  top = code[pos - 1].mark.count() == 1;
 		unsigned level = 0;
 		const char* and_ = "";
 		if (!top)
@@ -118,6 +121,9 @@ namespace spot
 	      }
 	    else
 	      {
+		if (!top)
+		  // Avoid extra parentheses if there is only one set
+		  top = code[pos - 1].mark.count() == 1;
 		unsigned level = 0;
 		const char* or_ = "";
 		if (!top)
