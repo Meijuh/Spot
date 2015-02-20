@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2014 Laboratoire de Recherche et Développement
-# de l'Epita (LRDE).
+# Copyright (C) 2009, 2014, 2015 Laboratoire de Recherche et
+# Développement de l'Epita (LRDE).
 # Copyright (C) 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -47,7 +47,7 @@ States: 1
 Start: 0
 AP: 1 "a"
 acc-name: Buchi
-Acceptance: 1 Inf(0)
+Acceptance: 1 Fin(0)
 properties: trans-labels explicit-labels trans-acc complete deterministic
 --BODY--
 State: 0
@@ -61,8 +61,21 @@ HOA: v1
 States: 1
 Start: 0
 AP: 1 "a"
-acc-name: generalized-Buchi 2
-Acceptance: 2 Inf(0)&Inf(1)
+Acceptance: 2 Inf(0) & Fin(1)
+properties: trans-labels explicit-labels trans-acc complete deterministic
+--BODY--
+State: 0
+[!0] 0 {1}
+[0] 0 {0}
+--END--
+EOF
+
+cat >unexpected <<'EOF'
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+Acceptance: 2 Inf(0) & Inf(1)
 properties: trans-labels explicit-labels trans-acc complete deterministic
 --BODY--
 State: 0
@@ -72,6 +85,7 @@ State: 0
 EOF
 
 run 0 ../../bin/autfilt input1 --product input2 --hoa | tee stdout
-run 0 ../../bin/autfilt -F stdout --isomorph expected
+run 0 ../../bin/autfilt -q stdout --isomorph expected
+run 1 ../../bin/autfilt -q stdout --isomorph unexpected
 
-rm input1 input2 stdout expected
+true

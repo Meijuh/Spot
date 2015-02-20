@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -102,7 +102,9 @@ namespace
   {
     return aut1->num_states() != aut2->num_states() ||
       aut1->num_transitions() != aut2->num_transitions() ||
-      aut1->acc().num_sets() != aut2->acc().num_sets();
+      // FIXME: At some point, it would be nice to support reordering
+      // of acceptance sets (issue #58).
+      aut1->acc().get_acceptance() != aut2->acc().get_acceptance();
   }
 }
 

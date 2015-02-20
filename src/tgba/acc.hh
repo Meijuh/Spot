@@ -211,6 +211,42 @@ namespace spot
 
     struct acc_code: public std::vector<acc_word>
     {
+      bool operator==(const acc_code& other)
+      {
+	unsigned pos = size();
+	if (other.size() != pos)
+	  return false;
+	while (pos > 0)
+	  {
+	    auto op = (*this)[pos - 1].op;
+	    auto sz = (*this)[pos - 1].size;
+	    if (other[pos - 1].op != op ||
+		other[pos - 1].size != sz)
+	      return false;
+	    switch (op)
+	      {
+	      case acc_cond::acc_op::And:
+	      case acc_cond::acc_op::Or:
+		--pos;
+		break;
+	      case acc_cond::acc_op::Inf:
+	      case acc_cond::acc_op::InfNeg:
+	      case acc_cond::acc_op::Fin:
+	      case acc_cond::acc_op::FinNeg:
+		pos -= 2;
+		if (other[pos].mark != (*this)[pos].mark)
+		  return false;
+		break;
+	      }
+	  }
+	return true;
+      };
+
+      bool operator!=(const acc_code& other)
+      {
+	return !(*this == other);
+      }
+
       bool is_true() const
       {
 	unsigned s = size();
