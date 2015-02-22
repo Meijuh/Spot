@@ -209,9 +209,9 @@ namespace spot
       };
     };
 
-    struct acc_code: public std::vector<acc_word>
+    struct SPOT_API acc_code: public std::vector<acc_word>
     {
-      bool operator==(const acc_code& other)
+      bool operator==(const acc_code& other) const
       {
 	unsigned pos = size();
 	if (other.size() != pos)
@@ -242,7 +242,67 @@ namespace spot
 	return true;
       };
 
-      bool operator!=(const acc_code& other)
+      bool operator<(const acc_code& other) const
+      {
+	unsigned pos = size();
+	auto osize = other.size();
+	if (pos < osize)
+	  return true;
+	if (pos > osize)
+	  return false;
+	while (pos > 0)
+	  {
+	    auto op = (*this)[pos - 1].op;
+	    auto oop = other[pos - 1].op;
+	    if (op < oop)
+	      return true;
+	    if (op > oop)
+	      return false;
+	    auto sz = (*this)[pos - 1].size;
+	    auto osz = other[pos - 1].size;
+	    if (sz < osz)
+	      return true;
+	    if (sz > osz)
+	      return false;
+	    switch (op)
+	      {
+	      case acc_cond::acc_op::And:
+	      case acc_cond::acc_op::Or:
+		--pos;
+		break;
+	      case acc_cond::acc_op::Inf:
+	      case acc_cond::acc_op::InfNeg:
+	      case acc_cond::acc_op::Fin:
+	      case acc_cond::acc_op::FinNeg:
+		pos -= 2;
+		auto m = (*this)[pos].mark;
+		auto om = other[pos].mark;
+		if (m < om)
+		  return true;
+		if (m > om)
+		  return false;
+		break;
+	      }
+	  }
+	return false;
+      }
+
+      bool operator>(const acc_code& other) const
+      {
+	return other < *this;
+      }
+
+      bool operator<=(const acc_code& other) const
+      {
+	return !(other < *this);
+      }
+
+      bool operator>=(const acc_code& other) const
+      {
+	return !(*this < other);
+      }
+
+      bool operator!=(const acc_code& other) const
       {
 	return !(*this == other);
       }
@@ -272,6 +332,97 @@ namespace spot
 	  return;
 	unsigned s = size() - 1;
 	unsigned rs = r.size() - 1;
+	// We want to group all Inf(x) operators:
+	//   Inf(a) & Inf(b) = Inf(a & b)
+	if (((*this)[s].op == acc_op::Inf && r[rs].op == acc_op::Inf)
+	    || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
+	  {
+	    (*this)[s - 1].mark |= r[rs - 1].mark;
+	    return;
+	  }
+
+	// In the more complex scenarios, left and right may both
+	// be conjunctions, and Inf(x) might be a member of each
+	// side.  Find it if it exists.
+	// left_inf points to the left Inf mark if any.
+	// right_inf points to the right Inf mark if any.
+	acc_word* left_inf = nullptr;
+	if ((*this)[s].op == acc_op::And)
+	  {
+	    auto start = &(*this)[s] - (*this)[s].size;
+	    auto pos = &(*this)[s] - 1;
+	    pop_back();
+	    while (pos > start)
+	      {
+		if (pos->op == acc_op::Inf)
+		  {
+		    left_inf = pos - 1;
+		    break;
+		  }
+		pos -= pos->size + 1;
+	      }
+	  }
+	else if ((*this)[s].op == acc_op::Inf)
+	  {
+	    left_inf = &(*this)[s - 1];
+	  }
+
+	acc_word* right_inf = nullptr;
+	auto right_end = &r.back();
+	if (right_end->op == acc_op::And)
+	  {
+	    auto start = &r[0];
+	    auto pos = --right_end;
+	    while (pos > start)
+	    {
+	      if (pos->op == acc_op::Inf)
+		{
+		  right_inf = pos - 1;
+		  break;
+		}
+	      pos -= pos->size + 1;
+	    }
+	  }
+	else if (right_end->op == acc_op::Inf)
+	  {
+	    right_inf = right_end - 1;
+	  }
+
+	if (left_inf && right_inf)
+	  {
+	    left_inf->mark |= right_inf->mark;
+	    insert(this->end(), &r[0], right_inf);
+	    insert(this->end(), right_inf + 2, right_end + 1);
+	  }
+	else if (right_inf)
+	  {
+	    // Always insert Inf() at the very first entry.
+	    insert(this->begin(), right_inf, right_inf + 2);
+	    insert(this->end(), &r[0], right_inf);
+	    insert(this->end(), right_inf + 2, right_end + 1);
+	  }
+	else
+	  {
+	    insert(this->end(), &r[0], right_end + 1);
+	  }
+
+	acc_word w;
+	w.op = acc_op::And;
+	w.size = size();
+	push_back(w);
+      }
+
+      void append_and(const acc_code& r)
+      {
+	if (is_true() || r.is_false())
+	  {
+	    *this = r;
+	    return;
+	  }
+	if (is_false() || r.is_true())
+	  return;
+	unsigned s = size() - 1;
+	unsigned rs = r.size() - 1;
 	// Inf(a) & Inf(b) = Inf(a & b)
 	if (((*this)[s].op == acc_op::Inf && r[rs].op == acc_op::Inf)
 	    || ((*this)[s].op == acc_op::InfNeg && r[rs].op == acc_op::InfNeg))
@@ -279,9 +430,72 @@ namespace spot
 	    (*this)[s - 1].mark |= r[rs - 1].mark;
 	    return;
 	  }
+
+	// In the more complex scenarios, left and right may both
+	// be conjunctions, and Inf(x) might be a member of each
+	// side.  Find it if it exists.
+	// left_inf points to the left Inf mark if any.
+	// right_inf points to the right Inf mark if any.
+	acc_word* left_inf = nullptr;
 	if ((*this)[s].op == acc_op::And)
-	  pop_back();
-	insert(this->end(), r.begin(), r.end());
+	  {
+	    auto start = &(*this)[s] - (*this)[s].size;
+	    auto pos = &(*this)[s] - 1;
+	    pop_back();
+	    while (pos > start)
+	      {
+		if (pos->op == acc_op::Inf)
+		  {
+		    left_inf = pos - 1;
+		    break;
+		  }
+		pos -= pos->size + 1;
+	      }
+	  }
+	else if ((*this)[s].op == acc_op::Inf)
+	  {
+	    left_inf = &(*this)[s - 1];
+	  }
+
+	const acc_word* right_inf = nullptr;
+	auto right_end = &r.back();
+	if (right_end->op == acc_op::And)
+	  {
+	    auto start = &r[0];
+	    auto pos = --right_end;
+	    while (pos > start)
+	    {
+	      if (pos->op == acc_op::Inf)
+		{
+		  right_inf = pos - 1;
+		  break;
+		}
+	      pos -= pos->size + 1;
+	    }
+	  }
+	else if (right_end->op == acc_op::Inf)
+	  {
+	    right_inf = right_end - 1;
+	  }
+
+	if (left_inf && right_inf)
+	  {
+	    left_inf->mark |= right_inf->mark;
+	    insert(this->end(), &r[0], right_inf);
+	    insert(this->end(), right_inf + 2, right_end + 1);
+	  }
+	else if (right_inf)
+	  {
+	    // Always insert Inf() at the very first entry.
+	    insert(this->begin(), right_inf, right_inf + 2);
+	    insert(this->end(), &r[0], right_inf);
+	    insert(this->end(), right_inf + 2, right_end + 1);
+	  }
+	else
+	  {
+	    insert(this->end(), &r[0], right_end + 1);
+	  }
+
 	acc_word w;
 	w.op = acc_op::And;
 	w.size = size();
@@ -308,6 +522,8 @@ namespace spot
 	  }
 	if ((*this)[s].op == acc_op::Or)
 	  pop_back();
+	if (r.back().op == acc_op::Or)
+	  r.pop_back();
 	insert(this->end(), r.begin(), r.end());
 	acc_word w;
 	w.op = acc_op::Or;
@@ -339,6 +555,8 @@ namespace spot
 	  }
 	while (pos > 0);
       }
+
+      acc_code to_dnf() const;
 
       SPOT_API
       friend std::ostream& operator<<(std::ostream& os, const acc_code& code);

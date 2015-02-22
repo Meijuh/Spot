@@ -29,3 +29,42 @@ grep 'Acceptance:' in > expected
 ../../bin/autfilt -H in --stats='Acceptance: %A %G' > out2
 diff out1 expected
 diff out2 expected
+
+cat >header <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+EOF
+
+cat >body <<EOF
+--BODY--
+State: 0
+[0&1] 0 {0 1}
+[!0&!1] 0
+[!0&1] 0 {1}
+[0&!1] 0 {0}
+--END--
+EOF
+
+
+res="(Fin(2) & Fin(1) & Inf(0)) | (Fin(2) & (Inf(0)&Inf(3)))"
+res="$res | (Fin(1) & (Inf(0)&Inf(1))) | (Inf(0)&Inf(1)&Inf(3))"
+cat >acceptances<<EOF
+2 Inf(0)&Inf(1), 2 Inf(0)&Inf(1)
+2 Fin(0) & Inf(1), 2 Fin(0) & Inf(1)
+2 t, 2 t
+2 f, 2 f
+3 (Inf(1) | Fin(2)) & Inf(0), 3 (Fin(2) & Inf(0)) | (Inf(0)&Inf(1))
+4 (Inf(1) | Fin(2)) & (Fin(1) | Inf(3)) & Inf(0), 4 $res
+4 $res, 4 $res
+3 (Fin(0)|Fin(1)) & Fin(2), 3 (Fin(1) & Fin(2)) | (Fin(0) & Fin(2))
+EOF
+
+while IFS=, read a b
+do
+    (cat header; echo 'Acceptance:' $a; cat body) |
+	../../bin/autfilt -H --dnf-acc --stats '%A %G, %a %g'
+done < acceptances > output
+
+diff acceptances output

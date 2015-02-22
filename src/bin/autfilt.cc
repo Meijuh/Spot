@@ -79,6 +79,7 @@ Exit status:\n\
 #define OPT_SBACC 18
 #define OPT_STRIPACC 19
 #define OPT_KEEP_STATES 20
+#define OPT_DNF_ACC 21
 
 static const argp_option options[] =
   {
@@ -118,6 +119,8 @@ static const argp_option options[] =
     { "keep-states", OPT_KEEP_STATES, "NUM[,NUM...]", 0,
       "only keep specified states.  The first state will be the new "\
       "initial state", 0 },
+    { "dnf-acceptance", OPT_DNF_ACC, 0, 0,
+      "put the acceptance condition in Disjunctive Normal Form", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -197,6 +200,7 @@ static char opt_instut = 0;
 static bool opt_is_empty = false;
 static bool opt_sbacc = false;
 static bool opt_stripacc = false;
+static bool opt_dnf_acc = false;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
@@ -258,6 +262,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_DESTUT:
       opt_destut = true;
+      break;
+    case OPT_DNF_ACC:
+      opt_dnf_acc = true;
       break;
     case OPT_IS_COMPLETE:
       opt_is_complete = true;
@@ -403,6 +410,9 @@ namespace
 	spot::strip_acceptance_here(aut);
       if (opt_merge)
 	aut->merge_transitions();
+      if (opt_dnf_acc)
+	aut->set_acceptance(aut->acc().num_sets(),
+			    aut->get_acceptance().to_dnf());
 
       // Filters.
 

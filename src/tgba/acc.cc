@@ -19,6 +19,7 @@
 
 
 #include <iostream>
+#include <set>
 #include "acc.hh"
 
 namespace spot
@@ -230,6 +231,103 @@ namespace spot
       }
     while (pos > 0);
     return false;
+  }
+
+  namespace
+  {
+    std::set<acc_cond::acc_code> to_dnf_rec(const acc_cond::acc_word* c)
+    {
+      auto sz = c->size;
+      auto start = c - sz - 1;
+      auto op = c->op;
+      std::set<acc_cond::acc_code> res;
+      switch (op)
+	{
+	case acc_cond::acc_op::Or:
+	  {
+	    --c;
+	    do
+	      {
+		for (auto& i: to_dnf_rec(c))
+		  res.emplace(std::move(i));
+		c -= c->size + 1;
+	      }
+	    while (c > start);
+	    return res;
+	  }
+	case acc_cond::acc_op::And:
+	  {
+	    std::set<acc_cond::acc_code> old;
+	    // Add true to the set.
+	    res.emplace(acc_cond::acc_code());
+	    --c;
+	    do
+	      {
+		old.clear();
+		std::swap(res, old);
+		// AND any element in the set with the DNF of c.
+		for (auto& i: to_dnf_rec(c))
+		  for (auto& j: old)
+		    {
+		      auto ac = i;
+		      ac.append_and(j);
+		      res.insert(ac);
+		    }
+		c -= c->size + 1;
+	      }
+	    while (c > start);
+	    return res;
+	  }
+	case acc_cond::acc_op::Fin:
+	  {
+	    acc_cond::acc_code w;
+	    w.resize(2);
+	    w[1].op = acc_cond::acc_op::Fin;
+	    w[1].size = 1;
+	    for (auto i: c[-1].mark.sets())
+	      {
+		w[0].mark = 0U;
+		w[0].mark.set(i);
+		res.insert(w);
+	      }
+	    if (!res.empty())
+	      return res;
+	    /* fall through to handle false */;
+	  }
+	case acc_cond::acc_op::Inf:
+	  {
+	    acc_cond::acc_code w;
+	    w.insert(w.begin(), c - 1, c + 1);
+	    return { w };
+	  }
+	case acc_cond::acc_op::InfNeg:
+	case acc_cond::acc_op::FinNeg:
+	  SPOT_UNREACHABLE();
+	  return {};
+	}
+      SPOT_UNREACHABLE();
+      return {};
+    }
+  }
+
+  acc_cond::acc_code acc_cond::acc_code::to_dnf() const
+  {
+    if (empty())
+      return *this;
+    acc_cond::acc_code res;
+    unsigned count = 0;
+    for (auto&i : to_dnf_rec(&back()))
+      {
+	res.insert(res.end(), i.begin(), i.end());
+	++count;
+      }
+    if (count <= 1)
+      return res;
+    acc_cond::acc_word w;
+    w.op = acc_op::Or;
+    w.size = res.size();
+    res.push_back(w);
+    return res;
   }
 
   std::ostream& operator<<(std::ostream& os,
