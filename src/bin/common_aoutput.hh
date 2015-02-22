@@ -86,6 +86,7 @@ public:
 	declare('A', &haut_acc_);
 	declare('C', &haut_scc_);
 	declare('E', &haut_edges_);
+	declare('G', &haut_gen_acc_);
 	declare('M', &haut_name_);
 	declare('S', &haut_states_);
 	declare('T', &haut_trans_);
@@ -156,6 +157,13 @@ public:
 
 	if (has('C'))
 	  haut_scc_ = spot::scc_info(haut->aut).scc_count();
+
+	if (has('G'))
+	  {
+	    std::ostringstream os;
+	    os << haut->aut->get_acceptance();
+	    haut_gen_acc_ = os.str();
+	  }
       }
 
     if (has('m'))
@@ -195,6 +203,7 @@ private:
   spot::printable_value<std::string> haut_name_;
   spot::printable_value<std::string> aut_name_;
   spot::printable_value<std::string> aut_word_;
+  spot::printable_value<std::string> haut_gen_acc_;
   spot::printable_value<unsigned> haut_states_;
   spot::printable_value<unsigned> haut_edges_;
   spot::printable_value<unsigned> haut_trans_;

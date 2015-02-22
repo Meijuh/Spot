@@ -21,6 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <sstream>
 #include "tgba/tgba.hh"
 #include "stats.hh"
 #include "reachiter.hh"
@@ -147,6 +148,7 @@ namespace spot
     declare('d', &deterministic_);
     declare('e', &edges_);
     declare('f', &form_);
+    declare('g', &gen_acc_);
     declare('n', &nondetstates_);
     declare('p', &complete_);
     declare('r', &run_time_);
@@ -200,6 +202,13 @@ namespace spot
     if (has('p'))
       {
 	complete_ = is_complete(aut);
+      }
+
+    if (has('g'))
+      {
+	std::ostringstream os;
+	os << aut->get_acceptance();
+	gen_acc_ = os.str();
       }
 
     return format(format_);

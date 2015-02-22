@@ -62,6 +62,7 @@ taatgba_SOURCES = taatgba.cc
 # because such failures will be easier to diagnose and fix.
 TESTS = \
   acc.test \
+  acc2.test \
   intvcomp.test \
   bitvect.test \
   ltlcross3.test \
