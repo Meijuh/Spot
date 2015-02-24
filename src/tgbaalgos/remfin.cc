@@ -20,6 +20,7 @@
 #include "remfin.hh"
 #include "sccinfo.hh"
 #include <iostream>
+#include "cleanacc.hh"
 
 //#define TRACE
 #ifdef TRACE
@@ -303,6 +304,7 @@ namespace spot
 
 
       }
+    cleanup_acceptance(res);
     return res;
   }
 }
