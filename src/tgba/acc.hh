@@ -556,6 +556,8 @@ namespace spot
 	while (pos > 0);
       }
 
+      bool is_dnf() const;
+
       acc_code to_dnf() const;
 
       SPOT_API
@@ -742,8 +744,6 @@ namespace spot
     {
       return all_;
     }
-
-    bool accepting(mark_t inf, mark_t fin) const;
 
     bool accepting(mark_t inf) const;
 

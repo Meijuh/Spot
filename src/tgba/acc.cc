@@ -149,40 +149,38 @@ namespace spot
 
 
     static bool
-    eval(acc_cond::mark_t inf, acc_cond::mark_t fin,
-	 const acc_cond::acc_code& code, unsigned pos)
+    eval(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
     {
-      auto& w = code[pos];
-      switch (w.op)
+      switch (pos->op)
 	{
 	case acc_cond::acc_op::And:
 	  {
-	    unsigned sub = pos - w.size;
+	    auto sub = pos - pos->size;
 	    while (sub < pos)
 	      {
 		--pos;
-		if (!eval(inf, fin, code, pos))
+		if (!eval(inf, pos))
 		  return false;
-		pos -= code[pos].size;
+		pos -= pos->size;
 	      }
 	    return true;
 	  }
 	case acc_cond::acc_op::Or:
 	  {
-	    unsigned sub = pos - w.size;
+	    auto sub = pos - pos->size;
 	    while (sub < pos)
 	      {
 		--pos;
-		if (eval(inf, fin, code, pos))
+		if (eval(inf, pos))
 		  return true;
-		pos -= code[pos].size;
+		pos -= pos->size;
 	      }
 	    return false;
 	  }
 	case acc_cond::acc_op::Inf:
-	  return (code[pos - 1].mark & inf) == code[pos - 1].mark;
+	  return (pos[-1].mark & inf) == pos[-1].mark;
 	case acc_cond::acc_op::Fin:
-	  return (code[pos - 1].mark & fin) != 0U;
+	  return (pos[-1].mark & inf) == 0U;
 	case acc_cond::acc_op::FinNeg:
 	case acc_cond::acc_op::InfNeg:
 	  SPOT_UNREACHABLE();
@@ -192,19 +190,11 @@ namespace spot
     }
   }
 
-  bool acc_cond::accepting(mark_t inf, mark_t fin) const
+  bool acc_cond::accepting(mark_t inf) const
   {
     if (code_.empty())
       return true;
-    return eval(inf, fin, code_, code_.size() - 1);
-  }
-
-  bool acc_cond::accepting(mark_t inf) const
-  {
-    if (uses_fin_acceptance())
-      throw std::runtime_error
-	("Fin acceptance is not supported by this code path.");
-    return accepting(inf, 0U);
+    return eval(inf, &code_.back());
   }
 
   bool acc_cond::check_fin_acceptance() const
@@ -225,6 +215,11 @@ namespace spot
 	    pos -= 2;
 	    break;
 	  case acc_cond::acc_op::Fin:
+	    if (code_[pos - 2].mark == 0U) // f
+	      {
+		pos -= 2;
+		break;
+	      }
 	  case acc_cond::acc_op::FinNeg:
 	    return true;
 	  }
@@ -329,6 +324,35 @@ namespace spot
     res.push_back(w);
     return res;
   }
+
+  bool acc_cond::acc_code::is_dnf() const
+  {
+    if (empty())
+      return true;
+    auto pos = &back();
+    auto start = &front();
+    if (pos->op == acc_cond::acc_op::Or)
+      --pos;
+    while (pos > start)
+      {
+	switch (pos->op)
+	  {
+	  case acc_cond::acc_op::Or:
+	    return false;
+	  case acc_cond::acc_op::And:
+	    --pos;
+	    break;
+	  case acc_cond::acc_op::Inf:
+	  case acc_cond::acc_op::InfNeg:
+	  case acc_cond::acc_op::Fin:
+	  case acc_cond::acc_op::FinNeg:
+	    pos -= 2;
+	    break;
+	  }
+      }
+    return true;
+  }
+
 
   std::ostream& operator<<(std::ostream& os,
 			   const spot::acc_cond::acc_code& code)
