@@ -68,3 +68,24 @@ do
 done < acceptances > output
 
 diff acceptances output
+
+a="(Inf(1) | Fin(2)) & (Fin(1) | Inf(3)) & Inf(0)"
+b="(Fin(1) & Inf(2)) | (Fin(3) & Inf(1)) | Fin(0)"
+cat >acceptances<<EOF
+2 Inf(0)&Inf(1), 2 Fin(0)|Fin(1)
+2 Fin(0) & Inf(1), 2 Inf(0) | Fin(1)
+2 t, 2 f
+2 f, 2 t
+3 (Inf(1) | Fin(2)) & Inf(0), 3 (Fin(1) & Inf(2)) | Fin(0)
+4 $a, 4 $b
+4 $b, 4 (Inf(1) | Fin(2)) & (Inf(3) | Fin(1)) & Inf(0)
+3 (Fin(0)|Fin(1)) & Fin(2), 3 (Inf(0)&Inf(1)) | Inf(2)
+EOF
+
+while IFS=, read a b
+do
+    (cat header; echo 'Acceptance:' $a; cat body) |
+	../../bin/autfilt -H --complement-acc --stats '%A %G, %a %g'
+done < acceptances > output
+
+diff acceptances output

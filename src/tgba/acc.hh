@@ -560,6 +560,8 @@ namespace spot
 
       acc_code to_dnf() const;
 
+      acc_code complement() const;
+
       SPOT_API
       friend std::ostream& operator<<(std::ostream& os, const acc_code& code);
     };

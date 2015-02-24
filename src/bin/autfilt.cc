@@ -84,6 +84,7 @@ Exit status:\n\
 #define OPT_DNF_ACC 21
 #define OPT_REM_FIN 22
 #define OPT_CLEAN_ACC 23
+#define OPT_COMPLEMENT_ACC 24
 
 static const argp_option options[] =
   {
@@ -119,7 +120,7 @@ static const argp_option options[] =
       "define the acceptance using states", 0 },
     { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
     { "strip-acceptance", OPT_STRIPACC, 0, 0,
-      "remove the acceptance conditions and all acceptance sets", 0 },
+      "remove the acceptance condition and all acceptance sets", 0 },
     { "keep-states", OPT_KEEP_STATES, "NUM[,NUM...]", 0,
       "only keep specified states.  The first state will be the new "\
       "initial state", 0 },
@@ -129,6 +130,9 @@ static const argp_option options[] =
       "rewrite the automaton without using Fin acceptance", 0 },
     { "cleanup-acceptance", OPT_CLEAN_ACC, 0, 0,
       "remove unused acceptance sets from the automaton", 0 },
+    { "complement-acceptance", OPT_COMPLEMENT_ACC, 0, 0,
+      "complement the acceptance condition (without touching the automaton)",
+      0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -211,6 +215,7 @@ static bool opt_stripacc = false;
 static bool opt_dnf_acc = false;
 static bool opt_rem_fin = false;
 static bool opt_clean_acc = false;
+static bool opt_complement_acc = false;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
@@ -259,6 +264,15 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_CLEAN_ACC:
       opt_clean_acc = true;
       break;
+    case OPT_COMPLEMENT_ACC:
+      opt_complement_acc = true;
+      break;
+    case OPT_DESTUT:
+      opt_destut = true;
+      break;
+    case OPT_DNF_ACC:
+      opt_dnf_acc = true;
+      break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
@@ -272,12 +286,6 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_INTERSECT:
       opt->intersect = read_automaton(arg, opt->dict);
-      break;
-    case OPT_DESTUT:
-      opt_destut = true;
-      break;
-    case OPT_DNF_ACC:
-      opt_dnf_acc = true;
       break;
     case OPT_IS_COMPLETE:
       opt_is_complete = true;
@@ -426,13 +434,16 @@ namespace
 	spot::strip_acceptance_here(aut);
       if (opt_merge)
 	aut->merge_transitions();
+      if (opt_clean_acc || opt_rem_fin)
+	cleanup_acceptance(aut);
+      if (opt_complement_acc)
+	aut->set_acceptance(aut->acc().num_sets(),
+			    aut->get_acceptance().complement());
+      if (opt_rem_fin)
+	aut = remove_fin(aut);
       if (opt_dnf_acc)
 	aut->set_acceptance(aut->acc().num_sets(),
 			    aut->get_acceptance().to_dnf());
-      if (opt_clean_acc && !opt_rem_fin)
-	cleanup_acceptance(aut);
-      if (opt_rem_fin)
-	aut = remove_fin(aut);
 
       // Filters.
 
