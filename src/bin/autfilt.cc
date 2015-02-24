@@ -50,6 +50,7 @@
 #include "tgbaalgos/sbacc.hh"
 #include "tgbaalgos/stripacc.hh"
 #include "tgbaalgos/remfin.hh"
+#include "tgbaalgos/cleanacc.hh"
 
 
 static const char argp_program_doc[] ="\
@@ -82,6 +83,7 @@ Exit status:\n\
 #define OPT_KEEP_STATES 20
 #define OPT_DNF_ACC 21
 #define OPT_REM_FIN 22
+#define OPT_CLEAN_ACC 23
 
 static const argp_option options[] =
   {
@@ -125,6 +127,8 @@ static const argp_option options[] =
       "put the acceptance condition in Disjunctive Normal Form", 0 },
     { "remove-fin", OPT_REM_FIN, 0, 0,
       "rewrite the automaton without using Fin acceptance", 0 },
+    { "cleanup-acceptance", OPT_CLEAN_ACC, 0, 0,
+      "remove unused acceptance sets from the automaton", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -206,6 +210,7 @@ static bool opt_sbacc = false;
 static bool opt_stripacc = false;
 static bool opt_dnf_acc = false;
 static bool opt_rem_fin = false;
+static bool opt_clean_acc = false;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
@@ -250,6 +255,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_ARE_ISOMORPHIC:
       opt->are_isomorphic = read_automaton(arg, opt->dict);
+      break;
+    case OPT_CLEAN_ACC:
+      opt_clean_acc = true;
       break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
@@ -421,6 +429,8 @@ namespace
       if (opt_dnf_acc)
 	aut->set_acceptance(aut->acc().num_sets(),
 			    aut->get_acceptance().to_dnf());
+      if (opt_clean_acc && !opt_rem_fin)
+	cleanup_acceptance(aut);
       if (opt_rem_fin)
 	aut = remove_fin(aut);
 

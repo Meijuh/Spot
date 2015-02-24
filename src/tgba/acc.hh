@@ -585,7 +585,7 @@ namespace spot
       uses_fin_acceptance_ = check_fin_acceptance();
     }
 
-    acc_code get_acceptance() const
+    const acc_code& get_acceptance() const
     {
       return code_;
     }

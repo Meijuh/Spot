@@ -639,7 +639,7 @@ namespace spot
     acc_cond acc_;
 
   public:
-    acc_cond::acc_code get_acceptance() const
+    const acc_cond::acc_code& get_acceptance() const
     {
       return acc_.get_acceptance();
     }

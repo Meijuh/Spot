@@ -31,6 +31,7 @@ tgbaalgos_HEADERS = \
   are_isomorphic.hh \
   bfssteps.hh \
   canonicalize.hh \
+  cleanacc.hh \
   complete.hh \
   compsusp.hh \
   cycles.hh \
@@ -84,6 +85,7 @@ libtgbaalgos_la_SOURCES = \
   are_isomorphic.cc \
   bfssteps.cc \
   canonicalize.cc \
+  cleanacc.cc \
   complete.cc \
   compsusp.cc \
   cycles.cc \
