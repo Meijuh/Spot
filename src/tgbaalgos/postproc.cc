@@ -33,6 +33,20 @@
 
 namespace spot
 {
+  namespace
+  {
+    static tgba_digraph_ptr
+    ensure_ba(tgba_digraph_ptr& a)
+    {
+      if (a->acc().num_sets() == 0)
+	{
+	  auto m = a->set_single_acceptance_set();
+	  for (auto& t: a->transitions())
+	    t.acc = m;
+	}
+      return a;
+    }
+  }
 
   postprocessor::postprocessor(const option_map* opt)
     : type_(TGBA), pref_(Small), level_(High),
@@ -105,7 +119,6 @@ namespace spot
 	return iterated_simulations_sba(a);
       }
   }
-
 
   tgba_digraph_ptr
   postprocessor::do_degen(const tgba_digraph_ptr& a)
@@ -204,11 +217,18 @@ namespace spot
 	bool reject_bigger = (PREF_ == Small) && (level_ == Medium);
 	dba = minimize_obligation(a, f, 0, reject_bigger);
 	if (dba && dba->is_inherently_weak() && dba->is_deterministic())
-	  dba_is_minimal = dba_is_wdba = true;
+	  {
+	    // The WDBA is a BA, so no degeneralization is required.
+	    // We just need to add an acceptance set if there is none.
+	    dba_is_minimal = dba_is_wdba = true;
+	    if (type_ == BA)
+	      ensure_ba(dba);
+	  }
 	else
-	  // Minimization failed.
-	  dba = nullptr;
-	// The WDBA is a BA, so no degeneralization is required.
+	  {
+	    // Minimization failed.
+	    dba = nullptr;
+	  }
       }
 
     // Run a simulation when wdba failed (or was not run), or

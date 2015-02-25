@@ -97,6 +97,9 @@ EOF
 
 run 0 ../checkpsl check.txt
 
+# Make sure False has one acceptance set when generating Büchi automata
+test 1 -eq `../../bin/ltl2tgba -B false --stats %a`
+
 # In particular, Spot 0.9 would incorrectly reject the sequence:
 # (a̅b;a̅b;a̅b̅);(a̅b;a̅b;a̅b̅);(a̅b;a̅b;a̅b̅);... in 'G!{(b;1)*;a}'
 # This means the following automaton was incorrectly empty in Spot 0.9.
