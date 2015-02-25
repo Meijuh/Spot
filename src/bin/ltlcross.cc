@@ -47,6 +47,7 @@
 #include "ltlvisit/lbt.hh"
 #include "tgbaalgos/lbtt.hh"
 #include "tgbaalgos/product.hh"
+#include "tgbaalgos/remfin.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/randomgraph.hh"
 #include "tgbaalgos/sccinfo.hh"
@@ -54,6 +55,7 @@
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaalgos/word.hh"
 #include "tgbaalgos/dtgbacomp.hh"
+#include "tgbaalgos/cleanacc.hh"
 #include "misc/formater.hh"
 #include "tgbaalgos/stats.hh"
 #include "tgbaalgos/isdet.hh"
@@ -481,7 +483,7 @@ namespace
       has_sr = has('D');
     }
 
-    spot::const_tgba_digraph_ptr
+    spot::tgba_digraph_ptr
     translate(unsigned int translator_num, char l, statistics_formula* fstats,
 	      bool& problem)
     {
@@ -502,7 +504,7 @@ namespace
 
       const char* status_str = 0;
 
-      spot::const_tgba_digraph_ptr res = 0;
+      spot::tgba_digraph_ptr res = 0;
       if (timed_out)
 	{
 	  // This is not considered to be a global error.
@@ -698,7 +700,6 @@ namespace
 		   size_t i, size_t j, bool icomp, bool jcomp)
   {
     auto prod = spot::product(aut_i, aut_j);
-    auto res = spot::couvreur99(prod)->check();
 
     if (verbose)
       {
@@ -714,6 +715,7 @@ namespace
 	std::cerr << '\n';
       }
 
+    auto res = spot::couvreur99(prod)->check();
     if (res)
       {
 	std::ostream& err = global_error();
@@ -1019,12 +1021,12 @@ namespace
       // These store the result of the translation of the positive and
       // negative formulas.
       size_t m = translators.size();
-      std::vector<spot::const_tgba_digraph_ptr> pos(m);
-      std::vector<spot::const_tgba_digraph_ptr> neg(m);
+      std::vector<spot::tgba_digraph_ptr> pos(m);
+      std::vector<spot::tgba_digraph_ptr> neg(m);
       // These store the complement of the above results, when we can
       // compute it easily.
-      std::vector<spot::const_tgba_digraph_ptr> comp_pos(m);
-      std::vector<spot::const_tgba_digraph_ptr> comp_neg(m);
+      std::vector<spot::tgba_digraph_ptr> comp_pos(m);
+      std::vector<spot::tgba_digraph_ptr> comp_neg(m);
 
 
       unsigned n = vstats.size();
@@ -1101,6 +1103,37 @@ namespace
 	  std::cerr << "Performing sanity checks and gathering statistics..."
 		    << std::endl;
 
+	  if (verbose)
+	    std::cerr << "info: getting rid of any Inf acceptance...\n";
+	  for (unsigned i = 0; i < m; ++i)
+	    {
+#define DO(x, prefix, suffix) if (x[i])					\
+		{							\
+		  cleanup_acceptance(x[i]);				\
+		  if (x[i]->acc().uses_fin_acceptance())		\
+		    {							\
+	              auto st = x[i]->num_states();			\
+	              auto tr = x[i]->num_transitions();		\
+	              auto ac = x[i]->acc().num_sets();			\
+		      x[i] = remove_fin(x[i]);				\
+		      if (verbose)					\
+			std::cerr << "info:\t" prefix << i		\
+				  << suffix << "\t("			\
+				  << st << " st., "			\
+				  << tr << " ed., "			\
+				  << ac << " sets) -> ("		\
+				  << x[i]->num_states() << " st., "	\
+				  << x[i]->num_transitions() << " ed., " \
+				  << x[i]->acc().num_sets() << " sets)\n"; \
+		    }							\
+		}
+	      DO(pos, "     P", " ");
+	      DO(neg, "     N", " ");
+	      DO(comp_pos, "Comp(P", ")");
+	      DO(comp_neg, "Comp(N", ")");
+#undef DO
+	    }
+
 	  // intersection test
 	  for (size_t i = 0; i < m; ++i)
 	    if (pos[i])
@@ -1168,9 +1201,15 @@ namespace
 
 	  if (verbose)
 	    std::cerr << "info: building state-space #" << p << '/' << products
-		      << " with seed " << seed << '\n';
+		      << " of " << states  << " states with seed " << seed
+		      << '\n';
 
 	  auto statespace = spot::random_graph(states, density, ap, dict);
+
+	  if (verbose)
+	    std::cerr << "info: state-space has "
+		      << statespace->num_transitions()
+		      << " edges\n";
 
 	  // Products of the state space with the positive automata.
 	  std::vector<spot::const_tgba_digraph_ptr> pos_prod(m);
@@ -1182,6 +1221,11 @@ namespace
 	  for (size_t i = 0; i < m; ++i)
 	    if (pos[i])
 	      {
+		if (verbose)
+		  std::cerr << ("info: building product between state-space and"
+				" P") << i
+			    << " (" << pos[i]->num_states() << " st., "
+			    << pos[i]->num_transitions() << " ed.)\n";
 		auto p = spot::product(pos[i], statespace);
 		pos_prod[i] = p;
 		auto sm = new spot::scc_info(p);
@@ -1201,7 +1245,13 @@ namespace
 	    for (size_t i = 0; i < m; ++i)
 	      if (neg[i])
 		{
-		  auto p = spot::product(neg[i], statespace);
+		if (verbose)
+		  std::cerr << ("info: building product between state-space and"
+				" N") << i
+			    << " (" << neg[i]->num_states() << " st., "
+			    << neg[i]->num_transitions() << " ed.)\n";
+
+		auto p = spot::product(neg[i], statespace);
 		  neg_prod[i] = p;
 		  auto sm = new spot::scc_info(p);
 		  neg_map[i] = sm;

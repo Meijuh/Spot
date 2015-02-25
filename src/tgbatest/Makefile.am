@@ -109,6 +109,7 @@ TESTS = \
   ltlcross4.test \
   ltl2dstar.test \
   ltl2dstar2.test \
+  ltl2dstar3.test \
   ltl2ta.test \
   ltl2ta2.test \
   randaut.test \
@@ -121,6 +122,7 @@ TESTS = \
   emptchke.test \
   dfs.test \
   ltlcrossce.test \
+  ltlcrossce2.test \
   emptchkr.test \
   ltlcounter.test \
   basimul.test \

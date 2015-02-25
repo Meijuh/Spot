@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2011, 2014 Laboratoire de Recherche et
+// Copyright (C) 2008, 2011, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -131,6 +131,15 @@ namespace spot
   emptiness_check_result_ptr
   couvreur99_check::check()
   {
+    {
+      auto acc = ecs_->aut->acc();
+      if (acc.get_acceptance().is_false())
+	return nullptr;
+      if (acc.uses_fin_acceptance())
+	throw std::runtime_error
+	  ("Fin acceptance is not supported by couvreur99()");
+    }
+
     // We use five main data in this algorithm:
     // * couvreur99_check::root, a stack of strongly connected components (SCC),
     // * couvreur99_check::h, a hash of all visited nodes, with their order,
@@ -384,6 +393,14 @@ namespace spot
   emptiness_check_result_ptr
   couvreur99_check_shy::check()
   {
+    {
+      auto acc = ecs_->aut->acc();
+      if (acc.get_acceptance().is_false())
+	return nullptr;
+      if (acc.uses_fin_acceptance())
+	throw std::runtime_error
+	  ("Fin acceptance is not supported by couvreur99()");
+    }
     // Position in the loop seeking known successors.
     pos = todo.back().q.begin();
 

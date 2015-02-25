@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -149,7 +149,8 @@ namespace spot
   void
   couvreur99_check_result::accepting_cycle()
   {
-    acc_cond::mark_t acc_to_traverse = ecs_->aut->acc().all_sets();
+    acc_cond::mark_t acc_to_traverse =
+      ecs_->aut->acc().accepting_sets(ecs_->root.top().condition);
     // Compute an accepting cycle using successive BFS that are
     // restarted from the point reached after we have discovered a
     // transition with a new acceptance conditions.

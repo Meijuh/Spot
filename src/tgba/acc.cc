@@ -188,6 +188,52 @@ namespace spot
       SPOT_UNREACHABLE();
       return false;
     }
+
+    static acc_cond::mark_t
+    eval_sets(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
+    {
+      switch (pos->op)
+	{
+	case acc_cond::acc_op::And:
+	  {
+	    auto sub = pos - pos->size;
+	    acc_cond::mark_t m = 0U;
+	    while (sub < pos)
+	      {
+		--pos;
+		if (auto s = eval_sets(inf, pos))
+		  m |= s;
+		else
+		  return 0U;
+		pos -= pos->size;
+	      }
+	    return m;
+	  }
+	case acc_cond::acc_op::Or:
+	  {
+	    auto sub = pos - pos->size;
+	    while (sub < pos)
+	      {
+		--pos;
+		if (auto s = eval_sets(inf, pos))
+		  return s;
+		pos -= pos->size;
+	      }
+	    return 0U;
+	  }
+	case acc_cond::acc_op::Inf:
+	  if ((pos[-1].mark & inf) == pos[-1].mark)
+	    return pos[-1].mark;
+	  else
+	    return 0U;
+	case acc_cond::acc_op::Fin:
+	case acc_cond::acc_op::FinNeg:
+	case acc_cond::acc_op::InfNeg:
+	  SPOT_UNREACHABLE();
+	}
+      SPOT_UNREACHABLE();
+      return false;
+    }
   }
 
   bool acc_cond::accepting(mark_t inf) const
@@ -195,6 +241,16 @@ namespace spot
     if (code_.empty())
       return true;
     return eval(inf, &code_.back());
+  }
+
+  acc_cond::mark_t acc_cond::accepting_sets(mark_t inf) const
+  {
+    if (uses_fin_acceptance())
+      throw std::runtime_error
+	("Fin acceptance is not supported by this code path.");
+    if (code_.empty())
+      return 0U;
+    return eval_sets(inf, &code_.back());
   }
 
   bool acc_cond::check_fin_acceptance() const

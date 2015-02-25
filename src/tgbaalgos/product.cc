@@ -76,7 +76,11 @@ namespace spot
 	return p.first->second;
       };
 
-    new_state(left_state, right_state);
+    res->set_init_state(new_state(left_state, right_state));
+    if (right_acc.is_false())
+      // Do not bother doing any work if the resulting acceptance is
+      // false.
+      return res;
     while (!todo.empty())
       {
 	auto top = todo.front();

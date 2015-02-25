@@ -21,7 +21,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "tgba.hh"
+#include "tgbagraph.hh"
 #include "tgbaalgos/gtec/gtec.hh"
+#include "tgbaalgos/remfin.hh"
 #include <utility>
 
 namespace spot
@@ -80,7 +82,15 @@ namespace spot
     // FIXME: This should be improved based on properties of the
     // automaton.  For instance we do not need couvreur99 is we know
     // the automaton is weak.
-    return !couvreur99(shared_from_this())->check();
+    auto a = shared_from_this();
+    if (a->acc().uses_fin_acceptance())
+      {
+	auto aa = std::dynamic_pointer_cast<const tgba_digraph>(a);
+	if (!aa)
+	  aa = make_tgba_digraph(a, prop_set::all());
+	a = remove_fin(aa);
+      }
+    return !couvreur99(a)->check();
   }
 
   void

@@ -19,6 +19,8 @@
 
 #include "dtgbacomp.hh"
 #include "sccinfo.hh"
+#include "complete.hh"
+#include "cleanacc.hh"
 
 namespace spot
 {
@@ -160,9 +162,22 @@ namespace spot
 
   tgba_digraph_ptr dtgba_complement(const const_tgba_digraph_ptr& aut)
   {
-    if (aut->is_inherently_weak())
-      return dtgba_complement_weak(aut);
+    if (aut->acc().is_generalized_buchi())
+      {
+	if (aut->is_inherently_weak())
+	  return dtgba_complement_weak(aut);
+	else
+	  return dtgba_complement_nonweak(aut);
+      }
     else
-      return dtgba_complement_nonweak(aut);
+      {
+	// Simply complete the automaton, and complement its
+	// acceptance.
+	auto res = tgba_complete(aut);
+	cleanup_acceptance(res);
+	res->set_acceptance(res->acc().num_sets(),
+			    res->get_acceptance().complement());
+	return res;
+      }
   }
 }
