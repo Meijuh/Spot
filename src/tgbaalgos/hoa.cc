@@ -254,9 +254,9 @@ namespace spot
     unsigned num_acc = aut->acc().num_sets();
     if (aut->acc().is_generalized_buchi())
       {
-	if (num_acc == 0)
+	if (aut->acc().is_true())
 	  os << "acc-name: all";
-	else if (num_acc == 1)
+	else if (aut->acc().is_buchi())
 	  os << "acc-name: Buchi";
 	else
 	  os << "acc-name: generalized-Buchi " << num_acc;
