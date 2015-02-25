@@ -118,6 +118,8 @@ namespace spot
     std::vector<acc_cond::mark_t> keep;
     std::vector<acc_cond::mark_t> add;
     bool has_true_term = false;
+    acc_cond::mark_t allinf = 0U;
+    acc_cond::mark_t allfin = 0U;
     {
       auto acccode = aut->get_acceptance();
 
@@ -138,6 +140,7 @@ namespace spot
 	  // The empty Fin should always come first
 	  assert(p.first != 0U || rem.empty());
 	  rem.push_back(p.first);
+	  allfin |= p.first;
 	  acc_cond::mark_t inf = 0U;
 	  if (!p.second.empty())
 	    {
@@ -163,12 +166,13 @@ namespace spot
 		    }
 		}
 	    }
-	  else
+	  if (inf == 0U)
 	    {
 	      has_true_term = true;
 	    }
 	  code.push_back(std::move(p.second));
 	  keep.push_back(inf);
+	  allinf |= inf;
 	  add.push_back(0U);
 	}
     }
@@ -196,11 +200,29 @@ namespace spot
       if (interference)
 	{
 	  trace << "We have interferences\n";
-	  unsigned base = acc.add_sets(sz);
-	  extra_sets += sz;
+	  // We need extra set, but we will try
+	  // to reuse the Fin number if they are
+	  // not used as Inf as well.
+	  std::vector<int> exs(acc.num_sets());
+	  for (auto f: allfin.sets())
+	    {
+	      if (allinf.has(f)) // Already used as Inf
+		{
+		  exs[f] = acc.add_set();
+		  ++extra_sets;
+		}
+	      else
+		{
+		  exs[f] = f;
+		}
+	    }
 	  for (unsigned i = 0; i < sz; ++i)
 	    {
-	      auto m = acc.marks({base + i});
+	      acc_cond::mark_t m = 0U;
+	      for (auto f: rem[i].sets())
+		m.set(exs[f]);
+	      trace << "rem[" << i << "] = " << rem[i]
+		    << "  m = " << m << '\n';
 	      add[i] = m;
 	      code[i].append_and(acc.inf(m));
 	      trace << "code[" << i << "] = " << code[i] << '\n';
@@ -248,20 +270,21 @@ namespace spot
     std::vector<unsigned> state_map(nst);
     for (unsigned n = 0; n < nscc; ++n)
       {
-	// What to keep and add to the main copy
-	acc_cond::mark_t main_sets = 0U;
-	acc_cond::mark_t main_add = 0U;
-
 	auto m = si.acc(n);
 	auto states = si.states_of(n);
 	trace << "SCC #" << n << " uses " << m << '\n';
 
+	// What to keep and add into the main copy
+	acc_cond::mark_t main_sets = 0U;
+	acc_cond::mark_t main_add = 0U;
 	for (unsigned i = 0; i < cs; ++i)
 	  if (!(m & rem[i]))
 	    {
 	      main_sets |= keep[i];
 	      main_add |= add[i];
 	    }
+	trace << "main_sets " << main_sets << "\nmain_add " << main_add << '\n';
+
 	// Create the main copy
 	for (auto s: states)
 	  for (auto& t: aut->out(s))
@@ -304,7 +327,9 @@ namespace spot
 
 
       }
+    trace << "before cleanup: " << res->get_acceptance() << '\n';
     cleanup_acceptance(res);
+    trace << "after cleanup: " << res->get_acceptance() << '\n';
     return res;
   }
 }
