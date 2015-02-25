@@ -103,7 +103,7 @@ int main()
   for (auto& v: s)
     {
       check(ac, v);
-      check(ac, ac.strip(v, u));
+      check(ac, v.strip(u));
     }
 
 

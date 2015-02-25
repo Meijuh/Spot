@@ -21,61 +21,6 @@
 
 namespace spot
 {
-  namespace
-  {
-    acc_cond::acc_code strip(const acc_cond& acc,
-			     const acc_cond::acc_word* pos,
-			     acc_cond::mark_t useless)
-    {
-      auto start = pos - pos->size;
-      switch (pos->op)
-	{
-	case acc_cond::acc_op::And:
-	  {
-	    --pos;
-	    acc_cond::acc_code res;
-	    do
-	      {
-		auto tmp = strip(acc, pos, useless);
-		tmp.append_and(std::move(res));
-		std::swap(tmp, res);
-		pos -= pos->size + 1;
-	      }
-	    while (pos > start);
-	    return res;
-	  }
-	case acc_cond::acc_op::Or:
-	  {
-	    --pos;
-	    acc_cond::acc_code res = acc.fin(0); // f
-	    do
-	      {
-		auto tmp = strip(acc, pos, useless);
-		tmp.append_or(std::move(res));
-		std::swap(tmp, res);
-		pos -= pos->size + 1;
-	      }
-	    while (pos > start);
-	    return res;
-	  }
-	case acc_cond::acc_op::Fin:
-	  if (pos[-1].mark & useless)
-	    return acc.inf(0U);	// t
-	  return acc.fin(acc.strip(pos[-1].mark, useless));
-	case acc_cond::acc_op::Inf:
-	  if (pos[-1].mark & useless)
-	    return acc.fin(0U);	// f
-	  return acc.inf(acc.strip(pos[-1].mark, useless));
-	case acc_cond::acc_op::FinNeg:
-	case acc_cond::acc_op::InfNeg:
-	  SPOT_UNREACHABLE();
-	  return acc_cond::acc_code{};
-	}
-      SPOT_UNREACHABLE();
-      return acc_cond::acc_code{};
-    }
-  }
-
   void cleanup_acceptance(tgba_digraph_ptr& aut)
   {
     auto& acc = aut->acc();
@@ -83,29 +28,7 @@ namespace spot
       return;
 
     auto& c = aut->get_acceptance();
-    acc_cond::mark_t used_in_cond = 0U;
-    if (!c.is_true())
-      {
-	auto pos = &c.back();
-	auto end = &c.front();
-	while (pos > end)
-	  {
-	    switch (pos->op)
-	      {
-	      case acc_cond::acc_op::And:
-	      case acc_cond::acc_op::Or:
-		--pos;
-		break;
-	      case acc_cond::acc_op::Fin:
-	      case acc_cond::acc_op::Inf:
-	      case acc_cond::acc_op::FinNeg:
-	      case acc_cond::acc_op::InfNeg:
-		used_in_cond |= pos[-1].mark;
-		pos -= 2;
-		break;
-	      }
-	  }
-      }
+    acc_cond::mark_t used_in_cond = c.used_sets();
 
     acc_cond::mark_t used_in_aut = 0U;
     for (auto& t: aut->transitions())
@@ -120,16 +43,10 @@ namespace spot
 
     // Remove useless marks from the automaton
     for (auto& t: aut->transitions())
-      t.acc = acc.strip(t.acc, useless);
+      t.acc = t.acc.strip(useless);
 
     // Remove useless marks from the acceptance condition
-    acc_cond::acc_code newc;
-    if (c.is_true() || c.is_false())
-      newc = c;
-    else
-      newc = strip(acc, &c.back(), useless);
-
-    aut->set_acceptance(useful.count(), newc);
+    aut->set_acceptance(useful.count(), c.strip(useless, true));
   }
 
 }

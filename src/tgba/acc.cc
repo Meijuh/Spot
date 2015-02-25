@@ -414,18 +414,12 @@ namespace spot
     acc_cond::acc_code complement_rec(const acc_cond::acc_word* pos)
     {
       auto start = pos - pos->size;
-
-      acc_cond::acc_code res;
-      res.resize(2);
-      res[0].mark = 0U;
-      res[1].size = 1;
-
       switch (pos->op)
 	{
 	case acc_cond::acc_op::And:
 	  {
 	    --pos;
-	    res[1].op = acc_cond::acc_op::Fin; // f
+	    auto res = acc_cond::acc_code::f();
 	    do
 	      {
 		auto tmp = complement_rec(pos);
@@ -439,7 +433,7 @@ namespace spot
 	case acc_cond::acc_op::Or:
 	  {
 	    --pos;
-	    res[1].op = acc_cond::acc_op::Inf; // t
+	    auto res = acc_cond::acc_code::t();
 	    do
 	      {
 		auto tmp = complement_rec(pos);
@@ -451,24 +445,16 @@ namespace spot
 	    return res;
 	  }
 	case acc_cond::acc_op::Fin:
-	  res[0].mark = pos[-1].mark;
-	  res[1].op = acc_cond::acc_op::Inf;
-	  return res;
+	  return acc_cond::acc_code::inf(pos[-1].mark);
 	case acc_cond::acc_op::Inf:
-	  res[0].mark = pos[-1].mark;
-	  res[1].op = acc_cond::acc_op::Fin;
-	  return res;
+	  return acc_cond::acc_code::fin(pos[-1].mark);
 	case acc_cond::acc_op::FinNeg:
-	  res[0].mark = pos[-1].mark;
-	  res[1].op = acc_cond::acc_op::InfNeg;
-	  return res;
+	  return acc_cond::acc_code::inf_neg(pos[-1].mark);
 	case acc_cond::acc_op::InfNeg:
-	  res[0].mark = pos[-1].mark;
-	  res[1].op = acc_cond::acc_op::FinNeg;
-	  return res;
+	  return acc_cond::acc_code::fin_neg(pos[-1].mark);
 	}
       SPOT_UNREACHABLE();
-      return acc_cond::acc_code{};
+      return {};
     }
 
   }
@@ -476,16 +462,99 @@ namespace spot
 
   acc_cond::acc_code acc_cond::acc_code::complement() const
   {
-    if (empty())
-      {
-	acc_cond::acc_code res;
-	res.resize(2);
-	res[0].mark = 0U;
-	res[1].op = acc_cond::acc_op::Fin;
-	res[1].size = 1;
-	return res;
-      }
+    if (is_true())
+      return acc_cond::acc_code::f();
     return complement_rec(&back());
+  }
+
+  namespace
+  {
+    static acc_cond::acc_code
+    strip_rec(const acc_cond::acc_word* pos, acc_cond::mark_t rem, bool missing)
+    {
+      auto start = pos - pos->size;
+      switch (pos->op)
+	{
+	case acc_cond::acc_op::And:
+	  {
+	    --pos;
+	    auto res = acc_cond::acc_code::t();
+	    do
+	      {
+		auto tmp = strip_rec(pos, rem, missing);
+		tmp.append_and(std::move(res));
+		std::swap(tmp, res);
+		pos -= pos->size + 1;
+	      }
+	    while (pos > start);
+	    return res;
+	  }
+	case acc_cond::acc_op::Or:
+	  {
+	    --pos;
+	    auto res = acc_cond::acc_code::f();
+	    do
+	      {
+		auto tmp = strip_rec(pos, rem, missing);
+		tmp.append_or(std::move(res));
+		std::swap(tmp, res);
+		pos -= pos->size + 1;
+	      }
+	    while (pos > start);
+	    return res;
+	  }
+	case acc_cond::acc_op::Fin:
+	  if (missing && (pos[-1].mark & rem))
+	    return acc_cond::acc_code::t();
+	  return acc_cond::acc_code::fin(pos[-1].mark.strip(rem));
+	case acc_cond::acc_op::Inf:
+	  if (missing && (pos[-1].mark & rem))
+	    return acc_cond::acc_code::f();
+	  return acc_cond::acc_code::inf(pos[-1].mark.strip(rem));
+	case acc_cond::acc_op::FinNeg:
+	case acc_cond::acc_op::InfNeg:
+	  SPOT_UNREACHABLE();
+	  return {};
+	}
+      SPOT_UNREACHABLE();
+      return {};
+    }
+  }
+
+  acc_cond::acc_code
+  acc_cond::acc_code::strip(acc_cond::mark_t rem, bool missing) const
+  {
+    if (is_true() || is_false())
+      return *this;
+    return strip_rec(&back(), rem, missing);
+  }
+
+  acc_cond::mark_t
+  acc_cond::acc_code::used_sets() const
+  {
+    if (is_true() || is_false())
+      return 0U;
+    acc_cond::mark_t used_in_cond = 0U;
+    auto pos = &back();
+    auto end = &front();
+    while (pos > end)
+      {
+	switch (pos->op)
+	  {
+	  case acc_cond::acc_op::And:
+	  case acc_cond::acc_op::Or:
+	    --pos;
+	    break;
+	  case acc_cond::acc_op::Fin:
+	  case acc_cond::acc_op::Inf:
+	  case acc_cond::acc_op::FinNeg:
+	  case acc_cond::acc_op::InfNeg:
+	    used_in_cond |= pos[-1].mark;
+	    pos -= 2;
+	    break;
+	  }
+      }
+    return used_in_cond;
   }
 
   std::ostream& operator<<(std::ostream& os,

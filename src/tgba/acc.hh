@@ -145,6 +145,29 @@ namespace spot
 	return id ^ r.id;
       }
 
+      mark_t strip(mark_t y) const
+      {
+	// strip every bit of id that is marked in y
+	//       100101110100.strip(
+	//       001011001000)
+	//   ==  10 1  11 100
+	//   ==      10111100
+
+	auto xv = id;		// 100101110100
+	auto yv = y.id;		// 001011001000
+
+	while (yv && xv)
+	  {
+	    // Mask for everything after the last 1 in y
+	    auto rm = (~yv) & (yv - 1);	// 000000000111
+	    // Mask for everything before the last 1 in y
+	    auto lm = ~(yv ^ (yv - 1));	// 111111110000
+	    xv = ((xv & lm) >> 1) | (xv & rm);
+	    yv = (yv & lm) >> 1;
+	  }
+	return xv;
+      }
+
       // Number of bits sets.
       unsigned count() const
       {
@@ -319,6 +342,61 @@ namespace spot
 	unsigned s = size();
 	return s > 1
 	  && (*this)[s - 1].op == acc_op::Fin && (*this)[s - 2].mark == 0U;
+      }
+
+      static acc_code f()
+      {
+	acc_code res;
+	res.resize(2);
+	res[0].mark = 0U;
+	res[1].op = acc_op::Fin;
+	res[1].size = 1;
+	return res;
+      }
+
+      static acc_code t()
+      {
+	return {};
+      }
+
+      static acc_code fin(mark_t m)
+      {
+	acc_code res;
+	res.resize(2);
+	res[0].mark = m;
+	res[1].op = acc_op::Fin;
+	res[1].size = 1;
+	return res;
+      }
+
+      static acc_code fin_neg(mark_t m)
+      {
+	acc_code res;
+	res.resize(2);
+	res[0].mark = m;
+	res[1].op = acc_op::FinNeg;
+	res[1].size = 1;
+	return res;
+      }
+
+      static acc_code inf(mark_t m)
+      {
+	acc_code res;
+	res.resize(2);
+	res[0].mark = m;
+	res[1].op = acc_op::Inf;
+	res[1].size = 1;
+	return res;
+      }
+
+      static acc_code inf_neg(mark_t m)
+      {
+	acc_code res;
+	res.resize(2);
+	res[0].mark = m;
+	res[1].op = acc_op::InfNeg;
+	res[1].size = 1;
+	return res;
       }
 
       void append_and(acc_code&& r)
@@ -562,6 +640,24 @@ namespace spot
 
       acc_code complement() const;
 
+      // Remove all the acceptance sets in rem.
+      //
+      // If MISSING is set, the acceptance sets are assumed to be
+      // missing from the automaton, and the acceptance is updated to
+      // reflect this.  For instance (Inf(1)&Inf(2))|Fin(3) will
+      // become Fin(3) if we remove 2 because it is missing from this
+      // automaton, because there is no way to fulfill Inf(1)&Inf(2)
+      // in this case.  So essentially MISSING causes Inf(rem) to
+      // become f, and Fin(rem) to become t.
+      //
+      // If MISSING is unset, Inf(rem) become t while Fin(rem) become
+      // f.  Removing 2 from (Inf(1)&Inf(2))|Fin(3) would then give
+      // Inf(1)|Fin(3).
+      acc_code strip(acc_cond::mark_t rem, bool missing) const;
+
+      // Return the set of sets appearing in the condition.
+      acc_cond::mark_t used_sets() const;
+
       SPOT_API
       friend std::ostream& operator<<(std::ostream& os, const acc_code& code);
     };
@@ -609,26 +705,25 @@ namespace spot
 	(s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets());
     }
 
+    bool is_buchi() const
+    {
+      unsigned s = code_.size();
+      return num_ == 1 &&
+	s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets();
+    }
+
+    bool is_true() const
+    {
+      return code_.is_true();
+    }
+
   protected:
     bool check_fin_acceptance() const;
-
-    acc_code primitive(mark_t mark, acc_op op) const
-    {
-      acc_word w1;
-      w1.mark = mark;
-      acc_word w2;
-      w2.op = op;
-      w2.size = 1;
-      acc_code c;
-      c.push_back(w1);
-      c.push_back(w2);
-      return c;
-    }
 
   public:
     acc_code inf(mark_t mark) const
     {
-      return primitive(mark, acc_op::Inf);
+      return acc_code::inf(mark);
     }
 
     acc_code inf(std::initializer_list<unsigned> vals) const
@@ -638,7 +733,7 @@ namespace spot
 
     acc_code inf_neg(mark_t mark) const
     {
-      return primitive(mark, acc_op::InfNeg);
+      return acc_code::inf_neg(mark);
     }
 
     acc_code inf_neg(std::initializer_list<unsigned> vals) const
@@ -648,7 +743,7 @@ namespace spot
 
     acc_code fin(mark_t mark) const
     {
-      return primitive(mark, acc_op::Fin);
+      return acc_code::fin(mark);
     }
 
     acc_code fin(std::initializer_list<unsigned> vals) const
@@ -658,7 +753,7 @@ namespace spot
 
     acc_code fin_neg(mark_t mark) const
     {
-      return primitive(mark, acc_op::FinNeg);
+      return acc_code::fin_neg(mark);
     }
 
     acc_code fin_neg(std::initializer_list<unsigned> vals) const
@@ -793,30 +888,6 @@ namespace spot
 	  u |= all;
 	}
       return u;
-    }
-
-    mark_t strip(mark_t x, mark_t y) const
-    {
-      // strip every bit of x that is marked in y
-      // strip(100101110100,
-      //       001011001000)
-      //   ==  10 1  11 100
-      //   ==      10111100
-
-      auto xv = x.id;		// 100101110100
-      auto yv = y.id;		// 001011001000
-
-      while (yv && xv)
-	{
-	  // Mask for everything after the last 1 in y
-	  auto rm = (~yv) & (yv - 1);	// 000000000111
-	  // Mask for everything before the last 1 in y
-	  auto lm = ~(yv ^ (yv - 1));	// 111111110000
-	  xv = ((xv & lm) >> 1) | (xv & rm);
-	  yv = (yv & lm) >> 1;
-	}
-
-      return xv;
     }
 
   protected:

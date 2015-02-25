@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -240,7 +240,7 @@ namespace spot
 	    if (!this->si->is_accepting_scc(u))
 	      acc = 0U;
 	    else
-	      acc = this->si->get_aut()->acc().strip(acc, strip_[u]);
+	      acc = acc.strip(strip_[u]);
 	  }
 	return filtered_trans{keep, cond, acc};
       }

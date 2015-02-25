@@ -24,14 +24,14 @@ namespace spot
   tgba_digraph_ptr mask_acc_sets(const const_tgba_digraph_ptr& in,
 				 acc_cond::mark_t to_remove)
   {
-    auto& inacc = in->acc();
     auto res = make_tgba_digraph(in->get_dict());
     res->copy_ap_of(in);
     res->prop_copy(in, { true, false, true, true });
-    unsigned na = inacc.num_sets();
+    unsigned na = in->acc().num_sets();
     unsigned tr = to_remove.count();
     assert(tr <= na);
-    res->set_generalized_buchi(na - tr);
+    res->set_acceptance(na - tr,
+			in->get_acceptance().strip(to_remove, false));
     transform_accessible(in, res, [&](unsigned,
                                       bdd& cond,
                                       acc_cond::mark_t& acc,
@@ -40,7 +40,7 @@ namespace spot
                            if (acc & to_remove)
                              cond = bddfalse;
                            else
-                             acc = inacc.strip(acc, to_remove);
+                             acc = acc.strip(to_remove);
                          });
     return res;
   }
