@@ -67,6 +67,10 @@ namespace spot
   bool
   is_inherently_weak_scc(scc_info& map, unsigned scc)
   {
+    if (!map.get_aut()->acc().uses_fin_acceptance())
+      throw std::runtime_error
+	("is_inherently_weak_scc() cannot work with Fin acceptance");
+
     // If no cycle is accepting, the SCC is weak.
     if (!map.is_accepting_scc(scc))
       return true;
@@ -81,7 +85,8 @@ namespace spot
   is_weak_scc(scc_info& map, unsigned scc)
   {
     // If no cycle is accepting, the SCC is weak.
-    if (!map.is_accepting_scc(scc))
+    if (!map.is_accepting_scc(scc)
+	&& !map.get_aut()->acc().uses_fin_acceptance())
       return true;
     // If all transitions use the same acceptance set, the SCC is weak.
     return map.used_acc_of(scc).size() == 1;

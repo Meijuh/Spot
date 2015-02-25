@@ -190,6 +190,10 @@ namespace spot
 		     bool use_cust_acc_orders, int use_lvl_cache,
 		     bool skip_levels)
     {
+      if (!a->acc().is_generalized_buchi())
+	throw std::runtime_error
+	  ("degeneralize() can only work with generalized Büchi acceptance");
+
       bool use_scc = use_lvl_cache || use_cust_acc_orders || use_z_lvl;
 
       bdd_dict_ptr dict = a->get_dict();

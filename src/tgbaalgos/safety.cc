@@ -27,6 +27,10 @@ namespace spot
   is_guarantee_automaton(const const_tgba_digraph_ptr& aut,
 			 const scc_info* si)
   {
+    if (aut->acc().uses_fin_acceptance())
+      throw std::runtime_error
+	("is_guarantee_automaton() does not support Fin acceptance");
+
     // Create an scc_info if the user did not give one to us.
     bool need_si = !si;
     if (need_si)
@@ -64,6 +68,10 @@ namespace spot
 
   bool is_safety_mwdba(const const_tgba_digraph_ptr& aut)
   {
+    if (!(aut->acc().is_buchi() || aut->acc().is_true()))
+      throw std::runtime_error
+	("is_safety_mwdba() should be called on a Buchi automaton");
+
     for (auto& t: aut->transitions())
       if (!aut->acc().accepting(t.acc))
 	return false;

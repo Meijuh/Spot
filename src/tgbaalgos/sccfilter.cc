@@ -249,8 +249,12 @@ namespace spot
 
     template<class F, typename... Args>
     tgba_digraph_ptr scc_filter_apply(const_tgba_digraph_ptr aut,
-				   scc_info* given_si, Args&&... args)
+				      scc_info* given_si, Args&&... args)
     {
+      if (!aut->acc().is_generalized_buchi())
+	throw std::runtime_error
+	  ("scc_filter() works only with generalized Büchi acceptance");
+
       tgba_digraph_ptr filtered = make_tgba_digraph(aut->get_dict());
       unsigned in_n = aut->num_states(); // Number of input states.
       if (in_n == 0)			 // Nothing to filter.

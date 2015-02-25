@@ -204,7 +204,9 @@ namespace spot
   never_claim_reachable(std::ostream& os, const const_tgba_ptr& g,
 			const char* options)
   {
-    assert(g->acc().num_sets() <= 1);
+    if (!(g->acc().is_buchi() || g->acc().is_true()))
+      throw std::runtime_error
+	("Never claim output only supports Büchi acceptance");
     never_claim_output d(os, options);
     auto aut = std::dynamic_pointer_cast<const tgba_digraph>(g);
     if (!aut)

@@ -493,6 +493,10 @@ namespace spot
 
   tgba_digraph_ptr minimize_wdba(const const_tgba_digraph_ptr& a)
   {
+    if (a->acc().uses_fin_acceptance())
+      throw std::runtime_error
+	("minimize_wdba cannot work with Fin acceptance");
+
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
 

@@ -877,6 +877,9 @@ namespace spot
 		       unsigned target_acc_number,
 		       int target_state_number, bool state_based)
   {
+    if (!a->acc().is_generalized_buchi())
+      throw std::runtime_error
+	("dtgba_sat() can only work with generalized Büchi acceptance");
     if (target_state_number == 0)
       return nullptr;
     trace << "dtgba_sat_synthetize(..., acc = " << target_acc_number

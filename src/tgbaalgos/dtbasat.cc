@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -739,6 +739,9 @@ namespace spot
   dtba_sat_synthetize(const const_tgba_digraph_ptr& a,
 		      int target_state_number, bool state_based)
   {
+    if (!a->acc().is_buchi())
+      throw std::runtime_error
+	("dtba_sat() can only work with Büchi acceptance");
     if (target_state_number == 0)
       return nullptr;
     trace << "dtba_sat_synthetize(..., states = " << target_state_number

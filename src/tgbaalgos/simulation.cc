@@ -188,6 +188,10 @@ namespace spot
           all_class_var_(bddtrue),
           original_(in)
       {
+	if (in->acc().uses_fin_acceptance())
+	  throw std::runtime_error
+	    ("direct_simulation() does not yet support Fin acceptance");
+
 	// Call get_init_state_number() before anything else as it
 	// might add a state.
 	unsigned init_state_number = in->get_init_state_number();

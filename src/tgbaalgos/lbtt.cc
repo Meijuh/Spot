@@ -135,6 +135,10 @@ namespace spot
   std::ostream&
   lbtt_reachable(std::ostream& os, const const_tgba_ptr& g, bool sba)
   {
+    if (!g->acc().is_generalized_buchi())
+      throw std::runtime_error
+	("LBTT only supports generalized Büchi acceptance");
+
     lbtt_bfs b(g, os, sba);
     b.run();
     return os;

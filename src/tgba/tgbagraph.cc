@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement de
 // l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -83,7 +83,11 @@ namespace spot
     tend = out;
     out = in = 2;
 
-    if (in < tend)
+    // FIXME: We could should also merge transitions when using
+    // fin_acceptance, but the rule for Fin sets are different than
+    // those for Inf sets, (and we need to be careful if a set is used
+    // both as Inf and Fin)
+    if ((in < tend) && !acc().uses_fin_acceptance())
       {
 	typedef graph_t::trans_storage_t tr_t;
 	g_.sort_transitions_([](const tr_t& lhs, const tr_t& rhs)
