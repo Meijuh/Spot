@@ -78,8 +78,10 @@ static const argp_option options[] =
       "(t) force transition-based acceptance.", 0 },
     { "hoaf", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format.  Add letters to select "
-      "(s) state-based acceptance, (t) transition-based acceptance, "
-      "(m) mixed acceptance, (l) single-line output", 0 },
+      "(s) prefer state-based acceptance when possible [default], "
+      "(t) force transition-based acceptance, "
+      "(m) mix state and transition-based acceptance, "
+      "(l) single-line output", 0 },
     { "lbtt", OPT_LBTT, "t", OPTION_ARG_OPTIONAL,
       "LBTT's format (add =t to force transition-based acceptance even"
       " on Büchi automata)", 0 },
