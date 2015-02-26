@@ -12,3 +12,5 @@ bogus
 bogus-grind
 example.hoa
 sample.ltl
+*.ltl
+*.hoa
