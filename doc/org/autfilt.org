@@ -231,12 +231,27 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 
 #+RESULTS:
-:       --destut               allow less stuttering
-:       --instut[=1|2]         allow more stuttering (two possible algorithms)
-:       --mask-acc=NUM[,NUM...]   remove all transitions in specified acceptance
-:                              sets
-:       --merge-transitions    merge transitions with same destination and
-:                              acceptance
-:       --product=FILENAME     build the product with the automaton in FILENAME
-:       --randomize[=s|t]      randomize states and transitions (specify 's' or
-:                              't' to randomize only states or transitions)
+#+begin_example
+      --cleanup-acceptance   remove unused acceptance sets from the automaton
+      --complement-acceptance   complement the acceptance condition (without
+                             touching the automaton)
+      --destut               allow less stuttering
+      --dnf-acceptance       put the acceptance condition in Disjunctive Normal
+                             Form
+      --instut[=1|2]         allow more stuttering (two possible algorithms)
+      --keep-states=NUM[,NUM...]   only keep specified states.  The first state
+                             will be the new initial state
+      --mask-acc=NUM[,NUM...]   remove all transitions in specified acceptance
+                             sets
+      --merge-transitions    merge transitions with same destination and
+                             acceptance
+      --product=FILENAME     build the product with the automaton in FILENAME
+      --randomize[=s|t]      randomize states and transitions (specify 's' or
+                             't' to randomize only states or transitions)
+      --remove-fin           rewrite the automaton without using Fin acceptance
+
+      --state-based-acceptance, --sbacc
+                             define the acceptance using states
+      --strip-acceptance     remove the acceptance condition and all acceptance
+                             sets
+#+end_example
