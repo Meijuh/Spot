@@ -314,15 +314,12 @@ digraph G {
   I [label="", style=invis, height=0]
   I -> 3
   subgraph cluster_0 {
-  label=""
   1 [label="s1", peripheries=2]
   }
   subgraph cluster_1 {
-  label=""
   0 [label="s0", peripheries=2]
   }
   subgraph cluster_2 {
-  label=""
   3 [label="s3"]
   }
   0 -> 0 [label="b"]
@@ -337,3 +334,40 @@ EOF
 diff output expected
 
 test 1 = `$autfilt -H input --complete | $autfilt --is-complete --count`
+
+
+$ltl2tgba --dot=a 'GFa & GFb' >output
+cat output
+cat >expected <<EOF
+digraph G {
+  rankdir=LR
+  label="Inf(0)&Inf(1)"
+  labelloc="t"
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label="a & b\n{0,1}"]
+  0 -> 0 [label="!a & !b"]
+  0 -> 0 [label="!a & b\n{1}"]
+  0 -> 0 [label="a & !b\n{0}"]
+}
+EOF
+diff output expected
+
+$ltl2tgba --dot=an 'GFa & GFb' >output
+cat output
+cat >expected <<EOF
+digraph G {
+  rankdir=LR
+  label="G(Fa & Fb)\\nInf(0)&Inf(1)"
+  labelloc="t"
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label="a & b\n{0,1}"]
+  0 -> 0 [label="!a & !b"]
+  0 -> 0 [label="!a & b\n{1}"]
+  0 -> 0 [label="a & !b\n{0}"]
+}
+EOF
+diff output expected

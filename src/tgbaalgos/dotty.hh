@@ -39,7 +39,8 @@ namespace spot
   /// different option.  Presently the following options are
   /// supported: 'v' for vertical output, 'h' for horizontal output,
   /// 't' force transition-based acceptance, 'N' hide the name of the
-  /// automaton, 'n' shows the name, 'c' uses circle-shaped states.
+  /// automaton, 'n' shows the name, 'c' uses circle-shaped states,
+  /// 'a' shows the acceptance.
   SPOT_API std::ostream&
   dotty_reachable(std::ostream& os,
 		  const const_tgba_ptr& g,

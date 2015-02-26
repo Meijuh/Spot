@@ -42,10 +42,12 @@ namespace spot
       bool opt_horizontal_ = true;
       bool opt_name_ = false;
       bool opt_circles_ = false;
+      bool opt_show_acc_ = false;
       bool mark_states_ = false;
       bool opt_scc_ = false;
       const_tgba_digraph_ptr aut_;
       std::vector<std::string>* sn_;
+      std::string* name_ = nullptr;
 
     public:
       dotty_output(std::ostream& os, const char* options)
@@ -55,6 +57,9 @@ namespace spot
 	  while (char c = *options++)
 	    switch (c)
 	      {
+	      case 'a':
+		opt_show_acc_ = true;
+		break;
 	      case 'c':
 		opt_circles_ = true;
 		break;
@@ -88,9 +93,19 @@ namespace spot
 	os_ << "digraph G {\n";
 	if (opt_horizontal_)
 	  os_ << "  rankdir=LR\n";
-	if (opt_name_)
-	  if (auto n = aut_->get_named_prop<std::string>("automaton-name"))
-	    escape_str(os_ << "  label=\"", *n) << "\"\n  labelloc=\"t\"\n";
+	if (name_ || opt_show_acc_)
+	  {
+	    os_ << "  label=\"";
+	    if (name_)
+	      {
+		escape_str(os_, *name_);
+		if (opt_show_acc_)
+		  os_ << "\\n";
+	      }
+	    if (opt_show_acc_)
+	      os_ << aut_->get_acceptance();
+	    os_ << "\"\n  labelloc=\"t\"\n";
+	  }
 	if (opt_circles_)
 	  os_ << "  node [shape=\"circle\"]\n";
 	os_ << "  I [label=\"\", style=invis, ";
@@ -137,6 +152,8 @@ namespace spot
       {
 	aut_ = aut;
 	sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
+	if (opt_name_)
+	  name_ = aut_->get_named_prop<std::string>("automaton-name");
 	mark_states_ = !opt_force_acc_trans_ && aut_->is_sba();
 	auto si =
 	  std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);
@@ -147,7 +164,7 @@ namespace spot
 	    for (unsigned i = 0; i < sccs; ++i)
 	      {
 		os_ << "  subgraph cluster_" << i << " {\n";
-		if (opt_name_)
+		if (name_ || opt_show_acc_)
 		  // Reset the label, otherwise the graph label would
 		  // be inherited by the cluster.
 		  os_ << "  label=\"\"\n";
