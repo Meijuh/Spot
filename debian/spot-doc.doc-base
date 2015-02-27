@@ -1,0 +1,9 @@
+Document: spot
+Title: Spot documentation
+Author: Alexandre Duret-Lutz et al.
+Abstract: User documentation for Spot
+Section: science
+
+Format: HTML
+Index: /usr/share/doc/spot/userdoc/tools.html
+Files: /usr/share/doc/spot/userdoc/*.html

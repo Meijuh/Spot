@@ -1,0 +1,28 @@
+Source: spot
+Section: science
+Priority: optional
+Maintainer: Alexandre Duret-Lutz <adl@lrde.epita.fr>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://spot.lip6.fr/
+
+Package: spot
+Architecture: any
+Recommends: graphviz
+Suggests: libspot-dev, spot-doc
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: the Spot model checking library
+ Library and tools to manipulate omega-automata as well as
+ linear-temporal logic (LTL & PSL).
+
+Package: libspot-dev
+Architecture: all
+Suggests: spot-doc
+Depends: spot
+Description: headers for the Spot model checking library
+ C++ headers for the Spot library.
+
+Package: spot-doc
+Architecture: all
+Description: documentation for Spot
+ Developer documentation for Spot.

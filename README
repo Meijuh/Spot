@@ -193,6 +193,7 @@ Build-system stuff
 
 m4/      M4 macros used by configure.ac.
 tools/   Helper scripts used during the build.
+debian/  Configuration file to build Debian packages.
 
 -------------------------------------------------------------------------------
 Local Variables:

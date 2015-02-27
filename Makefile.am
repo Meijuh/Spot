@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et Développement
-## de l'Epita (LRDE).
+## Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+## et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -32,11 +32,15 @@ SUBDIRS = buddy lib src wrap ltdl iface doc $(NEVER_BENCH)
 
 UTF8 = utf8/doc/ReleaseNotes utf8/doc/utf8cpp.html utf8/utf8.h	\
   utf8/utf8/checked.h utf8/utf8/core.h utf8/utf8/unchecked.h
+DEBIAN = debian/changelog.in debian/compat debian/control \
+  debian/copyright debian/docs debian/rules debian/spot-doc.docs \
+  debian/spot-doc.install debian/spot-doc.doc-base \
+  debian/spot.install debian/libspot-dev.install
 
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog tools/help2man \
-	     tools/test-driver-teamcity $(UTF8) m4/gnulib-cache.m4 \
-	     .dir-locals.el
+EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog	\
+	     tools/help2man tools/test-driver-teamcity $(UTF8)	\
+	     $(DEBIAN) m4/gnulib-cache.m4 .dir-locals.el
 
 dist-hook: gen-ChangeLog
 

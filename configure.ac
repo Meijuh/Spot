@@ -173,6 +173,7 @@ AC_CONFIG_FILES([
   bench/spin13/Makefile
   bench/wdba/Makefile
   bench/stutter/Makefile
+  debian/changelog
   doc/Doxyfile
   doc/Makefile
   doc/tl/Makefile
