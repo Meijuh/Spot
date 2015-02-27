@@ -354,10 +354,10 @@ namespace spot
 	case acc_cond::acc_op::InfNeg:
 	case acc_cond::acc_op::FinNeg:
 	  SPOT_UNREACHABLE();
-	  return {};
+	  return std::set<acc_cond::acc_code>{};
 	}
       SPOT_UNREACHABLE();
-      return {};
+      return std::set<acc_cond::acc_code>{};
     }
   }
 
