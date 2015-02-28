@@ -71,13 +71,14 @@ static const argp_option options[] =
       "of the given property)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
-    { "dot", OPT_DOT, "c|h|n|N|s|t|v", OPTION_ARG_OPTIONAL,
+    { "dot", OPT_DOT, "a|c|h|n|N|s|t|v", OPTION_ARG_OPTIONAL,
       "GraphViz's format (default).  Add letters for (a) acceptance display, "
       "(c) circular nodes, (h) horizontal layout, (v) vertical layout, "
       "(n) with name, (N) without name, (s) with SCCs, "
       "(t) force transition-based acceptance.", 0 },
-    { "hoaf", 'H', "s|t|m|l", OPTION_ARG_OPTIONAL,
+    { "hoaf", 'H', "i|s|t|m|l", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format.  Add letters to select "
+      "(i) use implicit labels for complete deterministic automata, "
       "(s) prefer state-based acceptance when possible [default], "
       "(t) force transition-based acceptance, "
       "(m) mix state and transition-based acceptance, "

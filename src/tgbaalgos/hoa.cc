@@ -49,15 +49,18 @@ namespace spot
       bool has_state_acc;
       bool is_complete;
       bool is_deterministic;
+      bool use_implicit_labels;
+      bdd all_ap;
 
       // Label support: the set of all conditions occurring in the
       // automaton.
       typedef std::map<bdd, std::string, bdd_less_than> sup_map;
       sup_map sup;
 
-      metadata(const const_tgba_digraph_ptr& aut)
+      metadata(const const_tgba_digraph_ptr& aut, bool implicit)
       {
 	check_det_and_comp(aut);
+	use_implicit_labels = implicit && is_deterministic && is_complete;
 	number_all_ap();
       }
 
@@ -144,6 +147,7 @@ namespace spot
 	bdd all = bddtrue;
 	for (auto& i: sup)
 	  all &= bdd_support(i.first);
+	all_ap = all;
 
 	while (all != bddtrue)
 	  {
@@ -152,6 +156,9 @@ namespace spot
 	    ap.insert(std::make_pair(v, vap.size()));
 	    vap.push_back(v);
 	  }
+
+	if (use_implicit_labels)
+	  return;
 
 	for (auto& i: sup)
 	  {
@@ -199,12 +206,10 @@ namespace spot
 	    i.second = s.str();
 	  }
       }
-
     };
 
   }
 
-  enum hoa_alias { Hoa_Alias_None, Hoa_Alias_Ap, Hoa_Alias_Cond };
   enum hoa_acceptance
     {
       Hoa_Acceptance_States,	/// state-based acceptance if
@@ -218,17 +223,40 @@ namespace spot
   static std::ostream&
   hoa_reachable(std::ostream& os,
 		const const_tgba_digraph_ptr& aut,
-		hoa_acceptance acceptance,
-		hoa_alias alias,
-		bool newline)
+		const char* opt)
   {
-    (void) alias;
+    bool newline = true;
+    hoa_acceptance acceptance = Hoa_Acceptance_States;
+    bool implicit_labels = false;
+
+    if (opt)
+      while (*opt)
+	{
+	  switch (*opt++)
+	    {
+	    case 'i':
+	      implicit_labels = true;
+	      break;
+	    case 'l':
+	      newline = false;
+	      break;
+	    case 'm':
+	      acceptance = Hoa_Acceptance_Mixed;
+	      break;
+	    case 's':
+	      acceptance = Hoa_Acceptance_States;
+	      break;
+	    case 't':
+	      acceptance = Hoa_Acceptance_Transitions;
+	      break;
+	    }
+	}
 
     // Calling get_init_state_number() may add a state to empty
     // automata, so it has to be done first.
     unsigned init = aut->get_init_state_number();
 
-    metadata md(aut);
+    metadata md(aut, implicit_labels);
 
     if (acceptance == Hoa_Acceptance_States && !md.has_state_acc)
       acceptance = Hoa_Acceptance_Transitions;
@@ -240,9 +268,10 @@ namespace spot
     auto n = aut->get_named_prop<std::string>("automaton-name");
     if (n)
       escape_str(os << "name: \"", *n) << '"' << nl;
+    unsigned nap = md.vap.size();
     os << "States: " << num_states << nl
        << "Start: " << init << nl
-       << "AP: " << md.vap.size();
+       << "AP: " << nap;
     auto d = aut->get_dict();
     for (auto& i: md.vap)
       {
@@ -251,6 +280,7 @@ namespace spot
 	escape_str(os << " \"", f->name()) << '"';
       }
     os << nl;
+
     unsigned num_acc = aut->acc().num_sets();
     if (aut->acc().is_generalized_buchi())
       {
@@ -265,7 +295,12 @@ namespace spot
     os << "Acceptance: " << num_acc << ' ';
     os << aut->acc().get_acceptance();
     os << nl;
-    os << "properties: trans-labels explicit-labels";
+    os << "properties:";
+    implicit_labels = md.use_implicit_labels;
+    if (implicit_labels)
+      os << " implicit-labels";
+    else
+      os << " trans-labels explicit-labels";
     if (acceptance == Hoa_Acceptance_States)
       os << " state-acc";
     else if (acceptance == Hoa_Acceptance_Transitions)
@@ -275,6 +310,18 @@ namespace spot
     if (md.is_deterministic)
       os << " deterministic";
     os << nl;
+
+    // If we want to output implicit labels, we have to
+    // fill a vector with all destinations in order.
+    std::vector<unsigned> out;
+    std::vector<acc_cond::mark_t> outm;
+    if (implicit_labels)
+      {
+	out.resize(1UL << nap);
+	if (acceptance != Hoa_Acceptance_States)
+	  outm.resize(1UL << nap);
+      }
+
     os << "--BODY--" << nl;
     auto sn = aut->get_named_prop<std::vector<std::string>>("state-names");
     for (unsigned i = 0; i < num_states; ++i)
@@ -299,12 +346,61 @@ namespace spot
 	  }
 	os << nl;
 
-	for (auto& t: aut->out(i))
+	if (!implicit_labels)
 	  {
-	    os << '[' << md.sup[t.cond] << "] " << t.dst;
-	    if (this_acc == Hoa_Acceptance_Transitions)
-	      md.emit_acc(os, aut, t.acc);
-	    os << nl;
+	    for (auto& t: aut->out(i))
+	      {
+		os << '[' << md.sup[t.cond] << "] " << t.dst;
+		if (this_acc == Hoa_Acceptance_Transitions)
+		  md.emit_acc(os, aut, t.acc);
+		os << nl;
+	      }
+	  }
+	else
+	  {
+	    for (auto& t: aut->out(i))
+	      {
+		bdd cond = t.cond;
+		while (cond != bddfalse)
+		  {
+		    bdd one = bdd_satoneset(cond, md.all_ap, bddfalse);
+		    cond -= one;
+		    unsigned level = 1;
+		    unsigned pos = 0U;
+		    while (one != bddtrue)
+		      {
+			bdd h = bdd_high(one);
+			if (h == bddfalse)
+			  {
+			    one = bdd_low(one);
+			  }
+			else
+			  {
+			    pos |= level;
+			    one = h;
+			  }
+			level <<= 1;
+		      }
+		    out[pos] = t.dst;
+		    if (this_acc != Hoa_Acceptance_States)
+		      outm[pos] = t.acc;
+		  }
+	      }
+	    unsigned n = out.size();
+	    for (unsigned i = 0; i < n;)
+	      {
+		os << out[i];
+		if (this_acc != Hoa_Acceptance_States)
+		  {
+		    md.emit_acc(os, aut, outm[i]) << nl;
+		    ++i;
+		  }
+		else
+		  {
+		    ++i;
+		    os << (((i & 15) && i < n) ? ' ' : nl);
+		  }
+	      }
 	  }
       }
     os << "--END--";		// No newline.  Let the caller decide.
@@ -316,35 +412,12 @@ namespace spot
 		const const_tgba_ptr& aut,
 		const char* opt)
   {
-    bool newline = true;
-    hoa_acceptance acceptance = Hoa_Acceptance_States;
-    hoa_alias alias = Hoa_Alias_None;
-
-    if (opt)
-      while (*opt)
-	{
-	  switch (*opt++)
-	    {
-	    case 'l':
-	      newline = false;
-	      break;
-	    case 'm':
-	      acceptance = Hoa_Acceptance_Mixed;
-	      break;
-	    case 's':
-	      acceptance = Hoa_Acceptance_States;
-	      break;
-	    case 't':
-	      acceptance = Hoa_Acceptance_Transitions;
-	      break;
-	    }
-	}
 
     auto a = std::dynamic_pointer_cast<const tgba_digraph>(aut);
     if (!a)
       a = make_tgba_digraph(aut, tgba::prop_set::all());
 
-    return hoa_reachable(os, a, acceptance, alias, newline);
+    return hoa_reachable(os, a, opt);
   }
 
 }

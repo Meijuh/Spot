@@ -32,8 +32,10 @@ namespace spot
   /// \param os The output stream to print on.
   /// \param g The automaton to output.
   /// \param opt a set of characters each corresponding to a possible
-  ///        option: (s) state-based acceptance, (t) transition-based
-  ///        acceptance, (m) mixed acceptance, (l) single-line output.
+  ///        option: (i) implicit labels for complete and
+  ///        deterministic automata, (s) state-based acceptance, (t)
+  ///        transition-based acceptance, (m) mixed acceptance, (l)
+  ///        single-line output.
   SPOT_API std::ostream&
   hoa_reachable(std::ostream& os,
 		const const_tgba_ptr& g,
