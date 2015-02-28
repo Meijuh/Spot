@@ -2514,6 +2514,9 @@ namespace spot
 
     acc.set_generalized_buchi();
 
+    a->prop_inherently_weak(f->is_syntactic_persistence());
+    a->prop_stutter_invariant(f->is_syntactic_stutter_invariant());
+
     if (!simplifier)
       // This should not be deleted before we have registered all propositions.
       delete s;

@@ -267,7 +267,8 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels state-acc complete deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
 --BODY--
 State: 0 "foo" {0}
 [!0&!1] 2
@@ -483,7 +484,8 @@ Start: 0
 AP: 3 "a" "b" "c"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels trans-acc complete deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
 --BODY--
 State: 0
 [!0&!1 | !0&!2] 0
@@ -566,7 +568,8 @@ Start: 0
 AP: 1 "a"
 acc-name: generalized-Buchi 3
 Acceptance: 3 Inf(0)&Inf(1)&Inf(2)
-properties: trans-labels explicit-labels trans-acc complete deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
 --BODY--
 State: 0
 [0] 1 {0 1}
@@ -778,7 +781,8 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels state-acc complete deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
 --BODY--
 State: 0 {0}
 [1] 1
@@ -878,7 +882,8 @@ Start: 0
 AP: 0
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels state-acc complete deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
 --BODY--
 State: 0 {0}
 [t] 1
@@ -1033,7 +1038,8 @@ run 2 ../ltl2tgba -XH foob 2>output.err
 grep 'foob:1.1: Cannot open file foob' output.err
 
 # Make sure we can read multiple automata from stdin
-../../bin/ltl2tgba 'a U b' 'GFa' --hoa | grep -v '^name:' > input
+../../bin/ltl2tgba 'a U b' 'GFa' --hoa | grep -v '^name:' |
+    sed 's/ stutter-invariant//;s/ inherently-weak//;/properties:$/d' > input
 ../../bin/autfilt --hoa < input | ../../bin/autfilt --hoa > output
 diff input output
 
@@ -1366,7 +1372,8 @@ States: 2
 Start: 0
 AP: 1 "a"
 Acceptance: 1 t
-properties: trans-labels explicit-labels trans-acc complete deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
 --BODY--
 State: 0 "F(a)"
 [0] 1 {0}
@@ -1379,7 +1386,8 @@ States: 1
 Start: 0
 AP: 3 "a" "b" "c"
 Acceptance: 6 Inf(0)&Inf(2)&Inf(4)&Inf(5)
-properties: trans-labels explicit-labels trans-acc complete deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
 --BODY--
 State: 0
 [0&1&2] 0 {0 2 4}
@@ -1412,7 +1420,8 @@ Start: 0
 AP: 1 "a"
 acc-name: all
 Acceptance: 0 t
-properties: trans-labels explicit-labels state-acc complete deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
 --BODY--
 State: 0 "F(a)"
 [0] 1
@@ -1426,7 +1435,8 @@ Start: 0
 AP: 3 "a" "b" "c"
 acc-name: generalized-Buchi 4
 Acceptance: 4 Inf(0)&Inf(1)&Inf(2)&Inf(3)
-properties: trans-labels explicit-labels trans-acc complete deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
 --BODY--
 State: 0
 [0&1&2] 0 {0 1 2}
@@ -1444,7 +1454,8 @@ EOF
 # Implicit labels
 
 ../../bin/ltl2tgba -H 'GFa & GFb & (c U d)' > out.hoa
-../../bin/ltl2tgba -C -Hi 'GFa & GFb & (c U d)'  > out-i.hoa
+../../bin/ltl2tgba -C -Hi 'GFa & GFb & (c U d)' |
+    sed 's/ stutter-invariant//;/properties:$/d' > out-i.hoa
 ../../bin/autfilt -C -Hi out.hoa --name=%M > out-i2.hoa
 diff out-i.hoa out-i2.hoa
 

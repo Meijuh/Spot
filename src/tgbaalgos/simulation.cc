@@ -635,6 +635,7 @@ namespace spot
 			 false, // single acc set by set_generalized_buchi
 		         true,  // weakness preserved,
 			 false, // determinism checked and set below
+			 true, // stutter inv.
 		       });
         if (nb_minato == nb_satoneset && !Cosimulation)
 	  res->prop_deterministic();

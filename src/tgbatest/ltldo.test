@@ -75,7 +75,8 @@ Start: 0
 AP: 1 "_foo_"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels trans-acc complete deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
 --BODY--
 State: 0
 [0] 0 {0}
@@ -95,7 +96,8 @@ Start: 0
 AP: 1 "_foo_"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels trans-acc complete deterministic
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
 --BODY--
 State: 0
 [0] 0 {0}

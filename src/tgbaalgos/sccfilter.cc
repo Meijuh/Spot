@@ -317,7 +317,7 @@ namespace spot
   scc_filter_states(const const_tgba_digraph_ptr& aut, scc_info* given_si)
   {
     auto res = scc_filter_apply<state_filter<>>(aut, given_si);
-    res->prop_copy(aut, { true, true, true, true });
+    res->prop_copy(aut, { true, true, true, true, true });
     return res;
   }
 
@@ -337,6 +337,7 @@ namespace spot
     res->merge_transitions();
     res->prop_copy(aut,
 		   { false,  // state-based acceptance is not preserved
+		     true,
 		     true,
 		     true,
 		     true,
@@ -372,6 +373,7 @@ namespace spot
 		     true,
 		     true,
 		     false,	// determinism may not be preserved
+		     false,  	// stutter inv. of suspvars probably altered
 		   });
     return res;
   }

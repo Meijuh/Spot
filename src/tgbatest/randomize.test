@@ -35,7 +35,8 @@ Start: 0
 AP: 4 "a" "b" "c" "d"
 acc-name: all
 Acceptance: 0 t
-properties: trans-labels explicit-labels state-acc
+properties: trans-labels explicit-labels state-acc stutter-invariant
+properties: inherently-weak
 --BODY--
 State: 0
 [0] 1

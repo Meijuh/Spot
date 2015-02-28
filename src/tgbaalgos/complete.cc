@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -105,11 +105,12 @@ namespace spot
   tgba_digraph_ptr tgba_complete(const const_tgba_ptr& aut)
   {
     auto res = make_tgba_digraph(aut, {
-	                           true, // state based
-				   true, // single acc
-				   true, // inherently_weak
-				   true, // deterministic
-				 });
+					true, // state based
+					true, // single acc
+					true, // inherently_weak
+					true, // deterministic
+					true, // stutter inv.
+				      });
     tgba_complete_here(res);
     return res;
   }

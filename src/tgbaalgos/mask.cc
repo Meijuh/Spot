@@ -26,7 +26,7 @@ namespace spot
   {
     auto res = make_tgba_digraph(in->get_dict());
     res->copy_ap_of(in);
-    res->prop_copy(in, { true, false, true, true });
+    res->prop_copy(in, { true, false, true, true, false });
     unsigned na = in->acc().num_sets();
     unsigned tr = to_remove.count();
     assert(tr <= na);
@@ -54,7 +54,7 @@ namespace spot
 
     auto res = make_tgba_digraph(in->get_dict());
     res->copy_ap_of(in);
-    res->prop_copy(in, { true, true, true, true });
+    res->prop_copy(in, { true, true, true, true, false });
     res->copy_acceptance_conditions_of(in);
     transform_copy(in, res, [&](unsigned src,
                                 bdd& cond,

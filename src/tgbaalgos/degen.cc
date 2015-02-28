@@ -204,8 +204,8 @@ namespace spot
       res->set_single_acceptance_set();
       if (want_sba)
 	res->prop_state_based_acc();
-      // Preserve determinism and weakness
-      res->prop_copy(a, { false, false, true, true });
+      // Preserve determinism, weakness, and stutter-invariance
+      res->prop_copy(a, { false, false, true, true, true });
 
       // Create an order of acceptance conditions.  Each entry in this
       // vector correspond to an acceptance set.  Each index can

@@ -432,6 +432,7 @@ namespace spot
 	            true,	// single_acc
 	            false,	// inherently_weak
 	            false,	// deterministic
+	            false,      // stutter inv.
 	           });
     a->merge_transitions();
     return a;
@@ -452,6 +453,7 @@ namespace spot
 	          true,		// single_acc
 	          false,	// inherently_weak
 	          false,	// deterministic
+	          false,        // stutter inv.
 	         });
 
     unsigned n = a->num_states();
@@ -516,7 +518,7 @@ namespace spot
   tgba_digraph_ptr
   closure(const const_tgba_digraph_ptr& a)
   {
-    return closure(make_tgba_digraph(a, {true, true, true, true}));
+    return closure(make_tgba_digraph(a, {true, true, true, true, false}));
   }
 
   // The stutter check algorithm to use can be overridden via an

@@ -258,7 +258,8 @@ Start: 0
 AP: 0
 acc-name: all
 Acceptance: 0 t
-properties: trans-labels explicit-labels state-acc complete deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
 --BODY--
 State: 0
 [t] 0
@@ -269,7 +270,8 @@ Start: 0
 AP: 1 "p0"
 acc-name: Buchi
 Acceptance: 1 Inf(0)
-properties: trans-labels explicit-labels state-acc complete deterministic
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
 --BODY--
 State: 0
 [!0] 0

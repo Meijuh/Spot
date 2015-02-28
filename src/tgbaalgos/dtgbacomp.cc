@@ -32,6 +32,7 @@ namespace spot
 				   false, // single acc
 				   false, // inherently_weak
 				   false, // deterministic
+				   true,  // stutter inv.
 				  });
     // Copy the old acceptance condition before we replace it.
     acc_cond oldacc = aut->acc(); // Copy it!
@@ -120,6 +121,7 @@ namespace spot
 				   true, // single acc
 				   true, // inherently weak
 				   true, // determinisitic
+				   true,  // stutter inv.
 				 });
     scc_info si(res);
 

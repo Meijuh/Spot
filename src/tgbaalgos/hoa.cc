@@ -22,6 +22,7 @@
 
 #include <ostream>
 #include <sstream>
+#include <cstring>
 #include <map>
 #include "tgba/tgba.hh"
 #include "tgba/tgbagraph.hh"
@@ -296,19 +297,41 @@ namespace spot
     os << aut->acc().get_acceptance();
     os << nl;
     os << "properties:";
+
+    // Make sure the property line is not too large,
+    // otherwise our test cases do not fit in 80 columns...
+    unsigned prop_len = 60;
+    auto prop = [&](const char* str)
+      {
+	if (newline)
+	  {
+	    auto l = strlen(str);
+	    if (prop_len < l)
+	      {
+		prop_len = 60;
+		os << "\nproperties:";
+	      }
+	    prop_len -= l;
+	  }
+	os << str;
+      };
     implicit_labels = md.use_implicit_labels;
     if (implicit_labels)
-      os << " implicit-labels";
+      prop(" implicit-labels");
     else
-      os << " trans-labels explicit-labels";
+      prop(" trans-labels explicit-labels");
     if (acceptance == Hoa_Acceptance_States)
-      os << " state-acc";
+      prop(" state-acc");
     else if (acceptance == Hoa_Acceptance_Transitions)
-      os << " trans-acc";
+      prop(" trans-acc");
     if (md.is_complete)
-      os << " complete";
+      prop(" complete");
     if (md.is_deterministic)
-      os << " deterministic";
+      prop(" deterministic");
+    if (aut->is_stutter_invariant())
+      prop(" stutter-invariant");
+    if (aut->is_inherently_weak())
+      prop(" inherently-weak");
     os << nl;
 
     // If we want to output implicit labels, we have to

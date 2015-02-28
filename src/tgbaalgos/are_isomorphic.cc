@@ -112,7 +112,7 @@ namespace spot
 {
   isomorphism_checker::isomorphism_checker(const const_tgba_digraph_ptr ref)
   {
-    ref_ = make_tgba_digraph(ref, {true, true, true, true});
+    ref_ = make_tgba_digraph(ref, tgba::prop_set::all());
     ref_deterministic_ = ref_->is_deterministic();
     if (!ref_deterministic_)
       {
@@ -144,7 +144,7 @@ namespace spot
           }
       }
 
-    auto tmp = make_tgba_digraph(aut, {true, true, true, true});
+    auto tmp = make_tgba_digraph(aut, tgba::prop_set::all());
     spot::canonicalize(tmp);
     return *tmp == *ref_;
   }
