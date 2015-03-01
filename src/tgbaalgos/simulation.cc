@@ -720,7 +720,7 @@ namespace spot
 
       std::unique_ptr<scc_info> scc_info_;
 
-      const const_tgba_digraph_ptr& original_;
+      const const_tgba_digraph_ptr original_;
     };
 
   } // End namespace anonymous.
