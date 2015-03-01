@@ -28,9 +28,11 @@ randltl=../../bin/randltl
 ltlfilt=../../bin/ltlfilt
 
 # Use time only if it is available
-time=
-if (time ls) >/dev/null 2>&1; then
-    time=time
+time=time
+if ($time ls) >/dev/null 2>&1; then
+    :
+else
+    time=
 fi
 
 FILE=formulae
