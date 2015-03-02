@@ -61,8 +61,10 @@ states, 1 to 3 acceptance sets, and three atomic propositions:\n\
   % randaut -n 3 --hoa -S5..10 -A1..3 3\n\
 ";
 
-#define OPT_SEED 1
-#define OPT_STATE_ACC 2
+enum {
+  OPT_SEED = 1,
+  OPT_STATE_ACC,
+};
 
 static const argp_option options[] =
   {

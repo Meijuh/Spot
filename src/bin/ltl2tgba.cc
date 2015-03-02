@@ -46,7 +46,10 @@ the smallest Transition-based Generalized Büchi Automata, \
 in GraphViz's format.\n\
 If multiple formulas are supplied, several automata will be output.";
 
-#define OPT_TGBA 1
+
+enum {
+  OPT_TGBA = 1,
+};
 
 static const argp_option options[] =
   {

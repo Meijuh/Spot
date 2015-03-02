@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -24,8 +24,10 @@
 #include <fstream>
 #include <cstring>
 
-#define OPT_LBT 1
-#define OPT_LENIENT 2
+enum {
+  OPT_LBT = 1,
+  OPT_LENIENT,
+};
 
 jobs_t jobs;
 bool lbt_input = false;

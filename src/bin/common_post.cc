@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -26,10 +26,12 @@ spot::postprocessor::output_pref pref = spot::postprocessor::Small;
 spot::postprocessor::output_pref comp = spot::postprocessor::Any;
 spot::postprocessor::optimization_level level = spot::postprocessor::High;
 
-#define OPT_SMALL 1
-#define OPT_LOW 2
-#define OPT_MEDIUM 3
-#define OPT_HIGH 4
+enum {
+  OPT_HIGH = 1,
+  OPT_LOW,
+  OPT_MEDIUM,
+  OPT_SMALL,
+};
 
 static const argp_option options[] =
   {

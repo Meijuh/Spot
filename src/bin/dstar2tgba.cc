@@ -50,11 +50,13 @@ Transition-based Generalized Büchi Automata in GraphViz's format by default.\n\
 If multiple files are supplied (one automaton per file), several automata\n\
 will be output.";
 
-#define OPT_TGBA 1
-#define OPT_DOT 2
-#define OPT_LBTT 3
-#define OPT_STATS 4
-#define OPT_NAME 5
+enum {
+  OPT_DOT = 1,
+  OPT_LBTT,
+  OPT_NAME,
+  OPT_STATS,
+  OPT_TGBA,
+};
 
 static const argp_option options[] =
   {

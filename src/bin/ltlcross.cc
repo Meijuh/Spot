@@ -76,23 +76,24 @@ Exit status:\n\
   2  ltlcross aborted on error\n\
 ";
 
-
-#define OPT_STATES 1
-#define OPT_DENSITY 2
-#define OPT_JSON 3
-#define OPT_CSV 4
-#define OPT_DUPS 5
-#define OPT_NOCHECKS 6
-#define OPT_STOP_ERR 7
-#define OPT_SEED 8
-#define OPT_PRODUCTS 9
-#define OPT_COLOR 10
-#define OPT_NOCOMP 11
-#define OPT_OMIT 12
-#define OPT_BOGUS 13
-#define OPT_VERBOSE 14
-#define OPT_GRIND 15
-#define OPT_IGNORE_EXEC_FAIL 16
+enum {
+  OPT_BOGUS = 256,
+  OPT_COLOR,
+  OPT_CSV,
+  OPT_DENSITY,
+  OPT_DUPS,
+  OPT_GRIND,
+  OPT_IGNORE_EXEC_FAIL,
+  OPT_JSON,
+  OPT_NOCHECKS,
+  OPT_NOCOMP,
+  OPT_OMIT,
+  OPT_PRODUCTS,
+  OPT_SEED,
+  OPT_STATES,
+  OPT_STOP_ERR,
+  OPT_VERBOSE,
+};
 
 static const argp_option options[] =
   {

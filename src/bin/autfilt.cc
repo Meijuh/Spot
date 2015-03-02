@@ -60,31 +60,33 @@ Exit status:\n\
   1  if no automata were output (no match)\n\
   2  if any error has been reported";
 
-
-#define OPT_TGBA 1
-#define OPT_RANDOMIZE 2
-#define OPT_SEED 3
-#define OPT_PRODUCT 4
-#define OPT_MERGE 5
-#define OPT_ARE_ISOMORPHIC 6
-#define OPT_IS_COMPLETE 7
-#define OPT_IS_DETERMINISTIC 8
-#define OPT_STATES 9
-#define OPT_COUNT 10
-#define OPT_EDGES 11
-#define OPT_ACC_SETS 12
-#define OPT_DESTUT 13
-#define OPT_INSTUT 14
-#define OPT_IS_EMPTY 15
-#define OPT_INTERSECT 16
-#define OPT_MASK_ACC 17
-#define OPT_SBACC 18
-#define OPT_STRIPACC 19
-#define OPT_KEEP_STATES 20
-#define OPT_DNF_ACC 21
-#define OPT_REM_FIN 22
-#define OPT_CLEAN_ACC 23
-#define OPT_COMPLEMENT_ACC 24
+// Keep this list sorted
+enum {
+  OPT_ACC_SETS = 256,
+  OPT_ARE_ISOMORPHIC,
+  OPT_CLEAN_ACC,
+  OPT_COMPLEMENT_ACC,
+  OPT_COUNT,
+  OPT_DESTUT,
+  OPT_DNF_ACC,
+  OPT_EDGES,
+  OPT_INSTUT,
+  OPT_INTERSECT,
+  OPT_IS_COMPLETE,
+  OPT_IS_DETERMINISTIC,
+  OPT_IS_EMPTY,
+  OPT_KEEP_STATES,
+  OPT_MASK_ACC,
+  OPT_MERGE,
+  OPT_PRODUCT,
+  OPT_RANDOMIZE,
+  OPT_REM_FIN,
+  OPT_SBACC,
+  OPT_SEED,
+  OPT_STATES,
+  OPT_STRIPACC,
+  OPT_TGBA,
+};
 
 static const argp_option options[] =
   {

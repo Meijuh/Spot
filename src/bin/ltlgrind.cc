@@ -33,14 +33,16 @@
 #include "ltlvisit/length.hh"
 #include "ltlvisit/mutation.hh"
 
-#define OPT_AP2CONST 1
-#define OPT_SIMPLIFY_BOUNDS 2
-#define OPT_REMOVE_MULTOP_OPERANDS 3
-#define OPT_REMOVE_OPS 4
-#define OPT_SPLIT_OPS 5
-#define OPT_REWRITE_OPS 6
-#define OPT_REMOVE_ONE_AP 7
-#define OPT_SORT 8
+enum {
+  OPT_AP2CONST = 1,
+  OPT_SIMPLIFY_BOUNDS,
+  OPT_REMOVE_MULTOP_OPERANDS,
+  OPT_REMOVE_OPS,
+  OPT_SPLIT_OPS,
+  OPT_REWRITE_OPS,
+  OPT_REMOVE_ONE_AP,
+  OPT_SORT,
+};
 
 static unsigned mutation_nb = 1;
 static unsigned max_output = -1U;

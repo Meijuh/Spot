@@ -40,10 +40,12 @@ const char* opt_name = nullptr;
 static const char* opt_output = nullptr;
 static const char* stats = "";
 
-#define OPT_DOT 1
-#define OPT_LBTT 2
-#define OPT_STATS 3
-#define OPT_NAME 4
+enum {
+  OPT_DOT = 1,
+  OPT_LBTT,
+  OPT_NAME,
+  OPT_STATS,
+};
 
 static const argp_option options[] =
   {

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -52,12 +52,14 @@ the smallest Transition-based Generalized Büchi Automata, \
 in GraphViz's format.  The input formula is assumed to be \
 stuttering-insensitive.";
 
-#define OPT_TGTA 1
-#define OPT_TA 2
-#define OPT_GTA 3
-#define OPT_SPLV 4
-#define OPT_SPNO 5
-#define OPT_INIT 6
+enum {
+  OPT_GTA = 1,
+  OPT_INIT,
+  OPT_SPLV,
+  OPT_SPNO,
+  OPT_TA,
+  OPT_TGTA,
+};
 
 static const argp_option options[] =
   {

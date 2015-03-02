@@ -28,11 +28,13 @@
 #include "common_cout.hh"
 #include "error.h"
 
-#define OPT_SPOT 1
-#define OPT_WRING 2
-#define OPT_LATEX 3
-#define OPT_FORMAT 4
-#define OPT_CSV 5
+enum {
+  OPT_CSV = 1,
+  OPT_FORMAT,
+  OPT_LATEX,
+  OPT_SPOT,
+  OPT_WRING,
+};
 
 output_format_t output_format = spot_output;
 bool full_parenth = false;

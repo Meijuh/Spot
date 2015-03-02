@@ -63,15 +63,17 @@ of X to occur by 10.\n\
   % randltl --ltl-priorities='xor=0, implies=0, equiv=0, X=10' -n10 a b c\n\
 ";
 
-#define OPT_DUMP_PRIORITIES 1
-#define OPT_LTL_PRIORITIES 2
-#define OPT_SERE_PRIORITIES 3
-#define OPT_PSL_PRIORITIES 4
-#define OPT_BOOLEAN_PRIORITIES 5
-#define OPT_SEED 6
-#define OPT_TREE_SIZE 7
-#define OPT_WF 8
-#define OPT_DUPS 9
+enum {
+  OPT_BOOLEAN_PRIORITIES = 1,
+  OPT_DUMP_PRIORITIES,
+  OPT_DUPS,
+  OPT_LTL_PRIORITIES,
+  OPT_PSL_PRIORITIES,
+  OPT_SEED,
+  OPT_SERE_PRIORITIES,
+  OPT_TREE_SIZE,
+  OPT_WF,
+};
 
 static const argp_option options[] =
   {

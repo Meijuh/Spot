@@ -383,7 +383,9 @@ exec_with_timeout(const char* cmd)
 }
 #endif // ENABLE_TIMEOUT
 
-#define OPT_LIST 1
+enum {
+  OPT_LIST = 1,
+};
 static const argp_option options[] =
 {
     /**************************************************/

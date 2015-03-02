@@ -57,9 +57,12 @@ setup(char** argv)
 // I mean, come on, why not also add -* to Darwinise more shell users?
 // We disable this option as well as -V (because --version don't need
 // a short version).
-#define OPT_VERSION 1
-#define OPT_HELP 2
-#define OPT_USAGE 3
+enum {
+  OPT_HELP = 1,
+  OPT_USAGE,
+  OPT_VERSION,
+};
+
 static const argp_option options[] =
   {
     { "version", OPT_VERSION, 0, 0, "print program version", -1 },

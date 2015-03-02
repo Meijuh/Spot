@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2013, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -96,27 +96,29 @@ using namespace spot::ltl;
 const char argp_program_doc[] ="\
 Generate temporal logic formulas from predefined scalable patterns.";
 
-#define OPT_AND_F 1
-#define OPT_AND_FG 2
-#define OPT_AND_GF 3
-#define OPT_CCJ_ALPHA 4
-#define OPT_CCJ_BETA 5
-#define OPT_CCJ_BETA_PRIME 6
-#define OPT_GH_Q 7
-#define OPT_GH_R 8
-#define OPT_GO_THETA 9
-#define OPT_OR_FG 10
-#define OPT_OR_G 11
-#define OPT_OR_GF 12
-#define OPT_R_LEFT 13
-#define OPT_R_RIGHT 14
-#define OPT_RV_COUNTER 15
-#define OPT_RV_COUNTER_CARRY 16
-#define OPT_RV_COUNTER_CARRY_LINEAR 17
-#define OPT_RV_COUNTER_LINEAR 18
-#define OPT_U_LEFT 19
-#define OPT_U_RIGHT 20
-#define LAST_CLASS 20
+enum {
+  OPT_AND_F = 1,
+  OPT_AND_FG,
+  OPT_AND_GF,
+  OPT_CCJ_ALPHA,
+  OPT_CCJ_BETA,
+  OPT_CCJ_BETA_PRIME,
+  OPT_GH_Q,
+  OPT_GH_R,
+  OPT_GO_THETA,
+  OPT_OR_FG,
+  OPT_OR_G,
+  OPT_OR_GF,
+  OPT_R_LEFT,
+  OPT_R_RIGHT,
+  OPT_RV_COUNTER,
+  OPT_RV_COUNTER_CARRY,
+  OPT_RV_COUNTER_CARRY_LINEAR,
+  OPT_RV_COUNTER_LINEAR,
+  OPT_U_LEFT,
+  OPT_U_RIGHT,
+  LAST_CLASS,
+};
 
 const char* const class_name[LAST_CLASS] =
   {
