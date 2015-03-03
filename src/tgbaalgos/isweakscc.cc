@@ -80,9 +80,8 @@ namespace spot
   bool
   is_weak_scc(scc_info& map, unsigned scc)
   {
-    // If no cycle is accepting, the SCC is weak.
-    if (!map.is_accepting_scc(scc)
-	&& !map.get_aut()->acc().uses_fin_acceptance())
+    // Rejecting SCCs are weak.
+    if (map.is_rejecting_scc(scc))
       return true;
     // If all transitions use the same acceptance set, the SCC is weak.
     return map.used_acc_of(scc).size() == 1;

@@ -547,18 +547,22 @@ digraph G {
   I [label="", style=invis, height=0]
   I -> 1
   subgraph cluster_0 {
+  color=green
   label=""
   0 [label="0"]
   }
   subgraph cluster_1 {
+  color=green
   label=""
   3 [label="3"]
   }
   subgraph cluster_2 {
+  color=red
   label=""
   4 [label="4"]
   }
   subgraph cluster_3 {
+  color=green
   label=""
   1 [label="1"]
   2 [label="2"]
@@ -586,40 +590,77 @@ ltl2tgba --dot=vcsna '(Ga -> Gb) W c' | sed 's/\\/\\\\/'
 #+RESULTS: oaut-dot2
 #+begin_example
 digraph G {
-  label="(Gb | F!a) W c\\nInf(0)"
+  rankdir=LR
+  label="Fin(2) & (Inf(0)&Inf(1))"
   labelloc="t"
   node [shape="circle"]
-  I [label="", style=invis, height=0]
+  I [label="", style=invis, width=0]
   I -> 1
   subgraph cluster_0 {
+  color=grey
+  label=""
+  5 [label="5"]
+  6 [label="6"]
+  }
+  subgraph cluster_1 {
+  color=orange
   label=""
   0 [label="0"]
   }
-  subgraph cluster_1 {
-  label=""
-  3 [label="3"]
-  }
   subgraph cluster_2 {
+  color=orange
+  label=""
+  9 [label="9"]
+  10 [label="10"]
+  }
+  subgraph cluster_3 {
+  color=green
+  label=""
+  8 [label="8"]
+  }
+  subgraph cluster_4 {
+  color=green
+  label=""
+  7 [label="7"]
+  }
+  subgraph cluster_5 {
+  color=black
+  label=""
+  2 [label="2"]
+  }
+  subgraph cluster_6 {
+  color=red
   label=""
   4 [label="4"]
   }
-  subgraph cluster_3 {
+  subgraph cluster_7 {
+  color=green
   label=""
   1 [label="1"]
-  2 [label="2"]
+  3 [label="3"]
   }
-  0 -> 0 [label="b\\n{0}"]
-  1 -> 0 [label="a & b & !c"]
-  1 -> 1 [label="!a & !c\\n{0}"]
-  1 -> 2 [label="a & !c"]
-  1 -> 3 [label="c"]
-  2 -> 1 [label="!a & !c\\n{0}"]
-  2 -> 2 [label="a & !c"]
-  2 -> 3 [label="!a & c"]
-  2 -> 4 [label="a & c"]
-  3 -> 3 [label="1\\n{0}"]
-  4 -> 3 [label="!a"]
-  4 -> 4 [label="a"]
+  0 -> 0 [label="a & b\\n{0,1,2}"]
+  0 -> 0 [label="!a & !b\\n{2}"]
+  0 -> 5 [label="a\\n{2}"]
+  1 -> 4 [label="b"]
+  1 -> 3 [label="a & !b"]
+  2 -> 0 [label="a"]
+  2 -> 7 [label="b"]
+  3 -> 1 [label="a & b\\n{0,1}"]
+  4 -> 4 [label="!b\\n{1,2}"]
+  4 -> 2 [label="b"]
+  5 -> 6 [label="1"]
+  6 -> 5 [label="1"]
+  7 -> 7 [label="!a & b\\n{0,1}"]
+  7 -> 7 [label="a & b\\n{0,2}"]
+  7 -> 8 [label="1"]
+  8 -> 8 [label="!a & b\\n{0,2}"]
+  8 -> 8 [label="a & b\\n{0,1}"]
+  8 -> 9 [label="1"]
+  9 -> 9 [label="!a & b\\n{0,2}"]
+  9 -> 10 [label="a & b\\n{0,1}"]
+  10 -> 9 [label="!a & b\\n{0,1}"]
+  10 -> 10 [label="a & b\\n{0,2}"]
 }
 #+end_example
 
@@ -633,6 +674,134 @@ $txt
 The acceptance condition is displayed in the same way as in the [[http://adl.github.io/hoaf/][HOA
 format]]. Here =Inf(0)= means that runs are accepting if and only if
 they visit some the transitions in the set #0 infinitely often.
+
+The strongly connected components are displayed using the following colors:
+- *green* components contain an accepting cycle
+- *red* components contain no accepting cycle
+- *orange* components may or may not contain an accepting cycle.  Such an indecision occur only when using =Fin= acceptance primitive, deciding that would require a better algorithm than what the output routine is using.
+- *black* components are trivial (i.e., they contain no cycle)
+- *gray* components are useless (i.e., they are non-accepting, and are only followed by non-accepting components)
+
+Here is an example involving all colors:
+
+#+NAME: oaut-dot3
+#+BEGIN_SRC sh :results verbatim :exports none
+autfilt --dot=cas <<EOF | sed 's/\\/\\\\/'
+HOA: v1
+States: 10
+Start: 1
+AP: 2 "a" "b"
+acc-name: generalized-Buchi 2
+Acceptance: 3 Inf(0)&Inf(1)&Fin(2)
+--BODY--
+State: 0 {2}
+[0&1] 0 {0 1}
+[!0&!1] 0
+[0] 5
+State: 1
+[1] 4
+[0&!1] 3
+State: 4
+[!1] 4 {1 2}
+[1] 2
+State: 2
+[0] 0
+[1] 7
+State: 3
+[0&1] 1 {1 0}
+State: 5
+[t] 6 {1}
+State: 6
+[t] 5
+State: 7
+[!0&1] 7 {0 2}
+[0&1] 7 {0 1}
+[t] 8
+State: 8
+[!0&1] 8 {0 2}
+[0&1] 9 {0 1}
+State: 9
+[!0&1] 8 {0 1}
+[0&1] 9 {0 2}
+--END--
+EOF
+#+END_SRC
+
+#+RESULTS: oaut-dot3
+#+begin_example
+digraph G {
+  rankdir=LR
+  label="Fin(2) & (Inf(0)&Inf(1))"
+  labelloc="t"
+  node [shape="circle"]
+  I [label="", style=invis, width=0]
+  I -> 1
+  subgraph cluster_0 {
+  color=grey
+  label=""
+  5 [label="5"]
+  6 [label="6"]
+  }
+  subgraph cluster_1 {
+  color=orange
+  label=""
+  0 [label="0"]
+  }
+  subgraph cluster_2 {
+  color=orange
+  label=""
+  8 [label="8"]
+  9 [label="9"]
+  }
+  subgraph cluster_3 {
+  color=green
+  label=""
+  7 [label="7"]
+  }
+  subgraph cluster_4 {
+  color=black
+  label=""
+  2 [label="2"]
+  }
+  subgraph cluster_5 {
+  color=red
+  label=""
+  4 [label="4"]
+  }
+  subgraph cluster_6 {
+  color=green
+  label=""
+  1 [label="1"]
+  3 [label="3"]
+  }
+  0 -> 0 [label="a & b\\n{0,1,2}"]
+  0 -> 0 [label="!a & !b\\n{2}"]
+  0 -> 5 [label="a\\n{2}"]
+  1 -> 4 [label="b"]
+  1 -> 3 [label="a & !b"]
+  2 -> 0 [label="a"]
+  2 -> 7 [label="b"]
+  3 -> 1 [label="a & b\\n{0,1}"]
+  4 -> 4 [label="!b\\n{1,2}"]
+  4 -> 2 [label="b"]
+  5 -> 6 [label="1\\n{1}"]
+  6 -> 5 [label="1"]
+  7 -> 7 [label="!a & b\\n{0,2}"]
+  7 -> 7 [label="a & b\\n{0,1}"]
+  7 -> 8 [label="1"]
+  8 -> 8 [label="!a & b\\n{0,2}"]
+  8 -> 9 [label="a & b\\n{0,1}"]
+  9 -> 8 [label="!a & b\\n{0,1}"]
+  9 -> 9 [label="a & b\\n{0,2}"]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file oaut-dot3.png :cmdline -Tpng :var txt=oaut-dot3 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:oaut-dot3.png]]
 
 * Statistics
 

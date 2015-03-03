@@ -314,12 +314,15 @@ digraph G {
   I [label="", style=invis, height=0]
   I -> 3
   subgraph cluster_0 {
+  color=green
   1 [label="s1", peripheries=2]
   }
   subgraph cluster_1 {
+  color=green
   0 [label="s0", peripheries=2]
   }
   subgraph cluster_2 {
+  color=black
   3 [label="s3"]
   }
   0 -> 0 [label="b"]

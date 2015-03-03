@@ -115,7 +115,7 @@ namespace spot
 	    // the destination in not in an accepting SCC,
 	    // or if we are between SCC with early_susp unset.
 	    unsigned u = this->si->scc_of(dst);
-	    if (!this->si->is_accepting_scc(u)
+	    if (this->si->is_rejecting_scc(u)
 		|| (!early_susp && (u != this->si->scc_of(src))))
 	      cond = bdd_exist(cond, suspvars);
 	  }
@@ -147,7 +147,7 @@ namespace spot
 	    unsigned u = this->si->scc_of(src);
 	    // If the transition is between two SCCs, or in a
 	    // non-accepting SCC.  Remove the acceptance sets.
-	    if (!this->si->is_accepting_scc(u) || u != this->si->scc_of(dst))
+	    if (this->si->is_rejecting_scc(u) || u != this->si->scc_of(dst))
 	      acc = 0U;
 	  }
 
@@ -173,7 +173,7 @@ namespace spot
 	std::tie(keep, cond, acc) =
 	  this->next_filter::trans(src, dst, cond, acc);
 
-	if (!this->si->is_accepting_scc(this->si->scc_of(dst)))
+	if (this->si->is_rejecting_scc(this->si->scc_of(dst)))
 	  acc = 0U;
 	return filtered_trans(keep, cond, acc);
       }
@@ -206,7 +206,7 @@ namespace spot
 	unsigned max = 0;		      // Max number of useful sets
 	for (unsigned n = 0; n < scc_count; ++n)
 	  {
-	    if (!this->si->is_accepting_scc(n))
+	    if (this->si->is_rejecting_scc(n))
 	      continue;
 	    strip_[n] = acc.useless(used_acc[n].begin(), used_acc[n].end());
 	    cnt[n] = acc.num_sets() - strip_[n].count();
@@ -218,7 +218,7 @@ namespace spot
 	// that do not have enough.
 	for (unsigned n = 0; n < scc_count; ++n)
 	  {
-	    if (!this->si->is_accepting_scc(n))
+	    if (this->si->is_rejecting_scc(n))
 	      continue;
 	    if (cnt[n] < max)
 	      strip_[n].remove_some(max - cnt[n]);
@@ -237,7 +237,7 @@ namespace spot
 	  {
 	    unsigned u = this->si->scc_of(dst);
 
-	    if (!this->si->is_accepting_scc(u))
+	    if (this->si->is_rejecting_scc(u))
 	      acc = 0U;
 	    else
 	      acc = acc.strip(strip_[u]);

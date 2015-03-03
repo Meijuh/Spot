@@ -40,8 +40,12 @@ namespace spot
 
     for (auto& scc: *si)
       {
-	if (!scc.is_accepting())
+	if (scc.is_rejecting())
 	  continue;
+	// Non-rejecting SCCs should necessarily be accepting, because
+	// with only one self loop, there should be no ambiguity.
+	if (!scc.is_accepting())
+	  return false;
 	// Accepting SCCs should have only one state.
 	auto& st = scc.states();
 	if (st.size() != 1)

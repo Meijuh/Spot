@@ -843,6 +843,11 @@ namespace spot
     }
 
     bool accepting(mark_t inf) const;
+
+    // Assume all Fin(x) in the condition a true.  Would the resulting
+    // condition (involving only Inf(y)) be satisfiable?
+    bool inf_satisfiable(mark_t inf) const;
+
     mark_t accepting_sets(mark_t inf) const;
 
     std::ostream& format(std::ostream& os, mark_t m) const

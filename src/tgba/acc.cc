@@ -189,6 +189,47 @@ namespace spot
       return false;
     }
 
+    static bool
+    inf_eval(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
+    {
+      switch (pos->op)
+	{
+	case acc_cond::acc_op::And:
+	  {
+	    auto sub = pos - pos->size;
+	    while (sub < pos)
+	      {
+		--pos;
+		if (!inf_eval(inf, pos))
+		  return false;
+		pos -= pos->size;
+	      }
+	    return true;
+	  }
+	case acc_cond::acc_op::Or:
+	  {
+	    auto sub = pos - pos->size;
+	    while (sub < pos)
+	      {
+		--pos;
+		if (inf_eval(inf, pos))
+		  return true;
+		pos -= pos->size;
+	      }
+	    return false;
+	  }
+	case acc_cond::acc_op::Inf:
+	  return (pos[-1].mark & inf) == pos[-1].mark;
+	case acc_cond::acc_op::Fin:
+	  return true;
+	case acc_cond::acc_op::FinNeg:
+	case acc_cond::acc_op::InfNeg:
+	  SPOT_UNREACHABLE();
+	}
+      SPOT_UNREACHABLE();
+      return false;
+    }
+
     static acc_cond::mark_t
     eval_sets(acc_cond::mark_t inf, const acc_cond::acc_word* pos)
     {
@@ -241,6 +282,13 @@ namespace spot
     if (code_.empty())
       return true;
     return eval(inf, &code_.back());
+  }
+
+  bool acc_cond::inf_satisfiable(mark_t inf) const
+  {
+    if (code_.empty())
+      return true;
+    return inf_eval(inf, &code_.back());
   }
 
   acc_cond::mark_t acc_cond::accepting_sets(mark_t inf) const

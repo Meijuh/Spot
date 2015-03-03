@@ -98,6 +98,7 @@ TESTS = \
   randomize.test \
   lbttparse.test \
   scc.test \
+  sccdot.test \
   sccsimpl.test \
   dbacomp.test \
   obligation.test \

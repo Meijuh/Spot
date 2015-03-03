@@ -673,7 +673,7 @@ namespace
 	      st->nondeterministic = st->nondetstates != 0;
 	      for (unsigned n = 0; n < c; ++n)
 		{
-		  if (!m.is_accepting_scc(n))
+		  if (m.is_rejecting_scc(n))
 		    ++st->nonacc_scc;
 		  else if (is_terminal_scc(m, n))
 		    ++st->terminal_scc;

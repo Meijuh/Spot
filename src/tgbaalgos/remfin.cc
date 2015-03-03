@@ -292,6 +292,9 @@ namespace spot
 	    res->new_transition(s, t.dst, t.cond,
 				(t.acc & main_sets) | main_add);
 
+	if (si.is_rejecting_scc(n))
+	  continue;
+
 	// Create clones
 	for (unsigned i = 0; i < cs; ++i)
 	  if (m & rem[i])

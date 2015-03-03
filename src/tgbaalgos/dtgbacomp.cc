@@ -136,7 +136,7 @@ namespace spot
       {
 	acc_cond::mark_t acc = 0U;
 	unsigned scc = si.scc_of(src);
-	if (!si.is_accepting_scc(scc) && !si.is_trivial(scc))
+	if (si.is_rejecting_scc(scc) && !si.is_trivial(scc))
 	  acc = all_acc;
 
 	// Keep track of all conditions on transition leaving state

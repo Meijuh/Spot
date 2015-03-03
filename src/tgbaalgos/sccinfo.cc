@@ -120,7 +120,10 @@ namespace spot
 		node_.emplace_back(acc, triv);
 		std::swap(node_.back().succ_, root_.front().node.succ_);
 		std::swap(node_.back().states_, root_.front().node.states_);
-		node_.back().accepting_ = !triv && aut->acc().accepting(acc);
+		node_.back().accepting_ =
+		  !triv && root_.front().node.accepting_;
+		node_.back().rejecting_ =
+		  triv || !aut->acc().inf_satisfiable(acc);
 		root_.pop_front();
 		// Record the transition between the SCC being popped
 		// and the previous SCC.
@@ -177,7 +180,7 @@ namespace spot
 	// non-dead SCC has necessarily been crossed by our path to
 	// this state: there is a state S2 in our path which belongs
 	// to this SCC too.  We are going to merge all states between
-	// this S1 and S2 into this SCC.
+	// this S1 and S2 into this SCC..
 	//
 	// This merge is easy to do because the order of the SCC in
 	// ROOT is descending: we just have to merge all SCCs from the
@@ -186,17 +189,24 @@ namespace spot
 	int threshold = spi;
 	std::list<unsigned> states;
 	scc_succs succs;
+	bool is_accepting = false;
+	// If this is a self-loop, check its acceptance alone.
+	if (dest == succ->src)
+	  is_accepting = aut->acc().accepting(acc);
+
+	assert(!root_.empty());
 	while (threshold > root_.front().index)
 	  {
-	    assert(!root_.empty());
 	    acc |= root_.front().node.acc_;
 	    acc |= root_.front().in_acc;
+	    is_accepting |= root_.front().node.accepting_;
 	    states.splice(states.end(), root_.front().node.states_);
 
 	    succs.insert(succs.end(),
 			 root_.front().node.succ_.begin(),
 			 root_.front().node.succ_.end());
 	    root_.pop_front();
+	    assert(!root_.empty());
 	  }
 
 	// Note that we do not always have
@@ -207,6 +217,8 @@ namespace spot
 	// Accumulate all acceptance conditions, states, SCC
 	// successors, and conditions into the merged SCC.
 	root_.front().node.acc_ |= acc;
+	root_.front().node.accepting_ |= is_accepting
+	  || aut->acc().accepting(root_.front().node.acc_);
 	root_.front().node.states_.splice(root_.front().node.states_.end(),
 					  states);
 	root_.front().node.succ_.insert(root_.front().node.succ_.end(),
@@ -215,12 +227,12 @@ namespace spot
 	root_.front().node.trivial_ = false;
       }
 
-    // An SCC is useful if it is accepting or it has a successor SCC
-    // that is useful.
+    // An SCC is useful if it is not rejecting or it has a successor
+    // SCC that is useful.
     unsigned scccount = scc_count();
     for (unsigned i = 0; i < scccount; ++i)
       {
-	if (node_[i].is_accepting())
+	if (!node_[i].is_rejecting())
 	  {
 	    node_[i].useful_ = true;
 	    continue;
@@ -253,7 +265,7 @@ namespace spot
     for (unsigned src = 0; src < n; ++src)
       {
 	unsigned src_scc = scc_of(src);
-	if (src_scc == -1U || !is_accepting_scc(src_scc))
+	if (src_scc == -1U || is_rejecting_scc(src_scc))
 	  continue;
 	auto& s = result[src_scc];
 	for (auto& t: aut_->out(src))
@@ -272,7 +284,7 @@ namespace spot
     std::vector<bool> result(scc_count());
     auto acc = used_acc();
     for (unsigned s = 0; s < n; ++s)
-      result[s] = !is_accepting_scc(s) || acc[s].size() == 1;
+      result[s] = is_rejecting_scc(s) || acc[s].size() == 1;
     return result;
   }
 

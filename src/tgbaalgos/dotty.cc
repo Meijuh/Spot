@@ -164,10 +164,25 @@ namespace spot
 	    for (unsigned i = 0; i < sccs; ++i)
 	      {
 		os_ << "  subgraph cluster_" << i << " {\n";
+
+		// Color the SCC to indicate whether is it accepting.
+		if (!si->is_useful_scc(i))
+		  os_ << "  color=grey\n";
+		else if (si->is_trivial(i))
+		  os_ << "  color=black\n";
+		else if (si->is_accepting_scc(i))
+		  os_ << "  color=green\n";
+		else if (si->is_rejecting_scc(i))
+		  os_ << "  color=red\n";
+		else
+		  os_ << "  color=orange\n";
+
 		if (name_ || opt_show_acc_)
-		  // Reset the label, otherwise the graph label would
-		  // be inherited by the cluster.
-		  os_ << "  label=\"\"\n";
+		  {
+		    // Reset the label, otherwise the graph label would
+		    // be inherited by the cluster.
+		    os_ << "  label=\"\"\n";
+		  }
 		for (auto s: si->states_of(i))
 		  process_state(s);
 		os_ << "  }\n";
