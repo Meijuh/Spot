@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -31,6 +31,8 @@ namespace spot
   /// \param target_acc_number is the number of acceptance sets wanted
   /// in the result.
   ///
+  /// \param target_acc the target acceptance condition
+  ///
   /// \param target_state_number is the desired number of states in
   /// the result.  The output may have less than \a
   /// target_state_number reachable states.
@@ -46,6 +48,7 @@ namespace spot
   SPOT_API twa_graph_ptr
   dtgba_sat_synthetize(const const_twa_graph_ptr& a,
 		       unsigned target_acc_number,
+		       const acc_cond::acc_code& target_acc,
 		       int target_state_number,
 		       bool state_based = false);
 
@@ -58,6 +61,7 @@ namespace spot
   SPOT_API twa_graph_ptr
   dtgba_sat_minimize(const const_twa_graph_ptr& a,
 		     unsigned target_acc_number,
+		     const acc_cond::acc_code& target_acc,
 		     bool state_based = false);
 
   /// \brief Attempt to minimize a deterministic TGBA with a SAT solver.
@@ -69,5 +73,21 @@ namespace spot
   SPOT_API twa_graph_ptr
   dtgba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
 			       unsigned target_acc_number,
+			       const acc_cond::acc_code& target_acc,
 			       bool state_based = false);
+
+  /// \brief High-level interface to SAT-based minimization
+  ///
+  /// Minimize the automaton \a aut, using options \a opt.
+  /// These options are given a comma-separated list of
+  /// assignments of the form:
+  ///
+  ///   state-based = 1
+  ///   states = 10
+  ///   acc = generalized-Buchi 2
+  ///   acc = Rabin 3
+  ///   acc = same /* default */
+  ///
+  SPOT_API twa_graph_ptr
+  sat_minimize(twa_graph_ptr aut, const char* opt);
 }

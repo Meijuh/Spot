@@ -26,7 +26,7 @@ namespace spot
   /// \brief Attempt to synthetize an equivalent deterministic TBA
   /// with a SAT solver.
   ///
-  /// \param a the input TGBA.  It should have only one acceptance
+  /// \param a the input TGA.  It should have only one acceptance
   /// set and be deterministic.  I.e., it should be a deterministic TBA.
   ///
   /// \param target_state_number the desired number of states wanted

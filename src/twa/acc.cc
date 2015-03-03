@@ -293,18 +293,18 @@ namespace spot
     }
   }
 
-  bool acc_cond::accepting(mark_t inf) const
+  bool acc_cond::acc_code::accepting(mark_t inf) const
   {
-    if (code_.empty())
+    if (empty())
       return true;
-    return eval(inf, &code_.back());
+    return eval(inf, &back());
   }
 
-  bool acc_cond::inf_satisfiable(mark_t inf) const
+  bool acc_cond::acc_code::inf_satisfiable(mark_t inf) const
   {
-    if (code_.empty())
+    if (empty())
       return true;
-    return inf_eval(inf, &code_.back());
+    return inf_eval(inf, &back());
   }
 
   acc_cond::mark_t acc_cond::accepting_sets(mark_t inf) const
@@ -600,6 +600,81 @@ namespace spot
 	  }
       }
     return {true, i};
+  }
+
+  std::vector<std::vector<int>>
+  acc_cond::acc_code::missing(mark_t inf, bool accepting) const
+  {
+    if (empty())
+      {
+	if (accepting)
+	  return {};
+	else
+	  return {
+	    {}
+	  };
+      }
+    auto used = acc_cond::acc_code::used_sets();
+    unsigned c = used.count();
+
+    bdd_allocator ba;
+    int base = ba.allocate_variables(c);
+    assert(base == 0);
+    std::vector<bdd> r;
+    std::vector<unsigned> sets(c);
+    bdd known = bddtrue;
+    for (unsigned i = 0; r.size() < c; ++i)
+      {
+	if (used.has(i))
+	  {
+	    sets[base] = i;
+	    bdd v = bdd_ithvar(base++);
+	    r.push_back(v);
+	    if (inf.has(i))
+	      known &= v;
+	  }
+	else
+	  {
+	    r.push_back(bddfalse);
+	  }
+      }
+
+    bdd res = to_bdd_rec(&back(), &r[0]);
+
+    res = bdd_restrict(res, known);
+
+    if (accepting)
+      res = !res;
+
+    if (res == bddfalse)
+      return {};
+
+    minato_isop isop(res);
+    bdd cube;
+    std::vector<std::vector<int>> result;
+    while ((cube = isop.next()) != bddfalse)
+      {
+	std::vector<int> partial;
+	while (cube != bddtrue)
+	  {
+	    // The acceptance set associated to this BDD variable
+	    int s = sets[bdd_var(cube)];
+
+	    bdd h = bdd_high(cube);
+	    if (h == bddfalse)	// Negative variable
+	      {
+		partial.push_back(s);
+		cube = bdd_low(cube);
+	      }
+	    else		// Positive variable
+	      {
+		partial.push_back(-s - 1);
+		cube = h;
+	      }
+	  }
+	result.emplace_back(std::move(partial));
+      }
+    return result;
   }
 
   bool acc_cond::acc_code::is_dnf() const

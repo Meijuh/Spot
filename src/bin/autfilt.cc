@@ -54,7 +54,7 @@
 #include "twaalgos/stripacc.hh"
 #include "twaalgos/remfin.hh"
 #include "twaalgos/cleanacc.hh"
-
+#include "twaalgos/dtgbasat.hh"
 
 static const char argp_program_doc[] ="\
 Convert, transform, and filter Büchi automata.\v\
@@ -91,6 +91,7 @@ enum {
   OPT_REM_DEAD,
   OPT_REM_UNREACH,
   OPT_REM_FIN,
+  OPT_SAT_MINIMIZE,
   OPT_SEED,
   OPT_SEP_SETS,
   OPT_SIMPLIFY_EXCLUSIVE_AP,
@@ -167,6 +168,10 @@ static const argp_option options[] =
     { "separate-sets", OPT_SEP_SETS, 0, 0,
       "if both Inf(x) and Fin(x) appear in the acceptance condition, replace "
       "Fin(x) by a new Fin(y) and adjust the automaton", 0 },
+    { "sat-minimize", OPT_SAT_MINIMIZE, "options", OPTION_ARG_OPTIONAL,
+      "minimize the automaton using a SAT solver (only work for deterministic"
+      " automata)", 0 },
+    /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
@@ -261,6 +266,7 @@ static bool opt_simplify_exclusive_ap = false;
 static bool opt_rem_dead = false;
 static bool opt_rem_unreach = false;
 static bool opt_sep_sets = false;
+static const char* opt_sat_minimize = nullptr;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -431,6 +437,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_REM_UNREACH:
       opt_rem_unreach = true;
       break;
+    case OPT_SAT_MINIMIZE:
+      opt_sat_minimize = arg ? arg : "";
+      break;
     case OPT_SEED:
       opt_seed = to_int(arg);
       break;
@@ -573,6 +582,13 @@ namespace
 
       if (opt->product)
 	aut = spot::product(std::move(aut), opt->product);
+
+      if (opt_sat_minimize)
+	{
+	  aut = spot::sat_minimize(aut, opt_sat_minimize);
+	  if (!aut)
+	    return 0;
+	}
 
       aut = post.run(aut, nullptr);
 

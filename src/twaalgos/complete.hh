@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -28,7 +28,7 @@ namespace spot
   /// If the tgba has no acceptance set, one will be added.  The
   /// returned value is the number of the sink state (it can be a new
   /// state added for completion, or an existing non-accepting state
-  /// that has been reused as sink state because it had not outgoing
+  /// that has been reused as sink state because it had no outgoing
   /// transitions apart from self-loops.)
   SPOT_API unsigned tgba_complete_here(twa_graph_ptr aut);
 

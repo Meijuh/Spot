@@ -1278,8 +1278,9 @@ checked_main(int argc, char** argv)
       else if (opt_dtgbasat >= 0)
 	{
 	  tm.start("dtgbasat");
-	  auto satminimized = dtgba_sat_minimize(ensure_digraph(a),
-						 opt_dtgbasat);
+	  auto satminimized = dtgba_sat_minimize
+	    (ensure_digraph(a), opt_dtgbasat,
+	     spot::acc_cond::generalized_buchi(opt_dtgbasat));
 	  tm.stop("dtgbasat");
 	  if (satminimized)
 	    a = satminimized;

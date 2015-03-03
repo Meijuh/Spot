@@ -32,7 +32,13 @@
 #include "misc/satsolver.hh"
 #include "misc/timer.hh"
 #include "isweakscc.hh"
+#include "isdet.hh"
 #include "dotty.hh"
+#include "complete.hh"
+#include "misc/optionmap.hh"
+#include "dtbasat.hh"
+#include "sccfilter.hh"
+#include "sbacc.hh"
 
 // If you set the SPOT_TMPKEEP environment variable the temporary
 // file used to communicate with the sat solver will be left in
@@ -269,7 +275,7 @@ namespace spot
       //      int_map int_to_state;
       unsigned cand_size;
       unsigned int cand_nacc;
-      std::vector<acc_cond::mark_t> cand_acc; // size cand_nacc
+      acc_cond::acc_code cand_acc;
 
       std::vector<acc_cond::mark_t> all_cand_acc;
       std::vector<acc_cond::mark_t> all_ref_acc;
@@ -289,13 +295,11 @@ namespace spot
 			  dict& d, bdd ap, bool state_based, scc_info& sm)
     {
       bdd_dict_ptr bd = aut->get_dict();
-      d.cand_acc.resize(d.cand_nacc);
       d.cacc.add_sets(d.cand_nacc);
       d.all_cand_acc.push_back(0U);
       for (unsigned n = 0; n < d.cand_nacc; ++n)
 	{
 	  auto c = d.cacc.mark(n);
-	  d.cand_acc[n] = c;
 	  size_t s = d.all_cand_acc.size();
 	  for (size_t i = 0; i < s; ++i)
 	    d.all_cand_acc.push_back(d.all_cand_acc[i] | c);
@@ -376,7 +380,7 @@ namespace spot
 		    // result.
 		    for (unsigned n = 0; n < d.cand_nacc; ++n)
 		      {
-			transition_acc ta(i, one, d.cand_acc[n], j);
+			transition_acc ta(i, one, d.cacc.mark(n), j);
 			d.transaccid[ta] = ++d.nvars;
 			d.revtransaccid.emplace(d.nvars, ta);
 		      }
@@ -389,7 +393,7 @@ namespace spot
 	    for (unsigned n = 0; n < d.cand_nacc; ++n)
 	      {
 		++d.nvars;
-		for (unsigned j = 1; j < d.cand_size; ++j)
+		for (unsigned j = 0; j < d.cand_size; ++j)
 		  {
 		    bdd all = bddtrue;
 		    while (all != bddfalse)
@@ -397,7 +401,7 @@ namespace spot
 			bdd one = bdd_satoneset(all, ap, bddfalse);
 			all -= one;
 
-			transition_acc ta(i, one, d.cand_acc[n], j);
+			transition_acc ta(i, one, d.cacc.mark(n), j);
 			d.transaccid[ta] = d.nvars;
 			d.revtransaccid.emplace(d.nvars, ta);
 		      }
@@ -427,6 +431,9 @@ namespace spot
     sat_stats dtgba_to_sat(std::ostream& out, const_twa_graph_ptr ref,
 			   dict& d, bool state_based)
     {
+#if DEBUG
+      debug_dict = ref->get_dict();
+#endif
       clause_counter nclauses;
 
       // Compute the AP used in the hard way.
@@ -447,6 +454,7 @@ namespace spot
       }
 
       scc_info sm(ref);
+      sm.determine_unknown_acceptance();
       d.is_weak_scc = sm.weak_sccs();
 
       // Number all the SAT variables we may need.
@@ -463,7 +471,6 @@ namespace spot
       out << "                                                 \n";
 
 #if DEBUG
-      debug_dict = ref->get_dict();
       debug_ref_acc = &ref->acc();
       debug_cand_acc = &d.cacc;
       dout << "ref_size: " << ref_size << '\n';
@@ -586,7 +593,7 @@ namespace spot
 	      if (sm.scc_of(q2p) != q1p_scc)
 		continue;
 	      bool is_weak = d.is_weak_scc[q1p_scc];
-	      bool is_acc = sm.is_accepting_scc(q1p_scc);
+	      bool is_rej = sm.is_rejecting_scc(q1p_scc);
 
 	      for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
 		for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
@@ -624,87 +631,68 @@ namespace spot
 
 				      if (dp == q1p && q3 == q1) // (11,12) loop
 					{
-					  if ((!is_acc) ||
-					      (!is_weak &&
-					       !racc.accepting
-					       (curacc | d.all_ref_acc[fp])))
+					  bool rejloop =
+					    (is_rej ||
+					     !racc.accepting
+					     (curacc | d.all_ref_acc[fp]));
+
+					  auto missing =
+					    d.cand_acc.
+					    missing(d.all_cand_acc[f],
+						    !rejloop);
+
+					  for (auto& v: missing)
 					    {
 #if DEBUG
-					      dout << "(11) " << p << " ∧ "
-						   << t << "δ → ¬(";
-
-					      bool notfirst = false;
-					      acc_cond::mark_t all_ =
-						d.all_cand_acc.back() -
-						d.all_cand_acc[f];
-					      for (auto m: d.cacc.sets(all_))
+					      dout << (rejloop ?
+						       "(11) " : "(12) ")
+						   << p << " ∧ "
+						   << t << "δ → (";
+					      const char* orsep = "";
+					      for (int s: v)
 						{
-						  transition_acc
-						    ta(q2, l,
-						       d.cacc.mark(m), q1);
-						  if (notfirst)
-						    out << " ∧ ";
+						  if (s < 0)
+						    {
+						      transition_acc
+							ta(q2, l,
+							   d.cacc.mark(-s - 1),
+							   q1);
+						      out << orsep << "¬" << ta;
+						    }
 						  else
-						    notfirst = true;
-						  out << ta << "FC";
+						    {
+						      transition_acc
+							ta(q2, l,
+							   d.cacc.mark(s), q1);
+						      out << orsep << ta;
+						    }
+						  orsep = " ∨ ";
 						}
 					      out << ")\n";
 #endif // DEBUG
 					      out << -pid << ' ' << -ti;
-
-					      // 11
-					      acc_cond::mark_t all_f =
-						d.all_cand_acc.back() -
-						d.all_cand_acc[f];
-					      for (auto m: d.cacc.sets(all_f))
-						{
-						  transition_acc
-						    ta(q2, l,
-						       d.cacc.mark(m), q1);
-						  int tai = d.transaccid[ta];
-						  assert(tai != 0);
-						  out << ' ' << -tai;
-						}
+					      for (int s: v)
+						if (s < 0)
+						  {
+						    transition_acc
+						      ta(q2, l,
+							 d.cacc.mark(-s - 1),
+							 q1);
+						    int tai = d.transaccid[ta];
+						    assert(tai != 0);
+						    out << ' ' << -tai;
+						  }
+						else
+						  {
+						    transition_acc
+						      ta(q2, l,
+							 d.cacc.mark(s), q1);
+						    int tai = d.transaccid[ta];
+						    assert(tai != 0);
+						    out << ' ' << tai;
+						  }
 					      out << " 0\n";
 					      ++nclauses;
-					    }
-					  else
-					    {
-#if DEBUG
-					      dout << "(12) " << p << " ∧ "
-						   << t << "δ → (";
-					      bool notfirst = false;
-					      // 11
-					      acc_cond::mark_t all_ =
-						d.cacc.comp(d.all_cand_acc[f]);
-					      for (auto m: d.cacc.sets(all_))
-						{
-						  transition_acc
-						    ta(q2, l,
-						       d.cacc.mark(m), q1);
-						  if (notfirst)
-						    out << " ∧ ";
-						  else
-						    notfirst = true;
-						  out << ta << "FC";
-						}
-					      out << ")\n";
-#endif // DEBUG
-					      // 12
-					      acc_cond::mark_t all_f =
-						d.cacc.comp(d.all_cand_acc[f]);
-					      for (auto m: d.cacc.sets(all_f))
-						{
-						  transition_acc
-						    ta(q2, l,
-						       d.cacc.mark(m), q1);
-						  int tai = d.transaccid[ta];
-						  assert(tai != 0);
-
-						  out << -pid << ' ' << -ti
-						      << ' ' << tai << " 0\n";
-						  ++nclauses;
-						}
 					    }
 					}
 				      // (13) augmenting paths (always).
@@ -779,9 +767,9 @@ namespace spot
       auto autdict = aut->get_dict();
       auto a = make_twa_graph(autdict);
       a->copy_ap_of(aut);
-      a->set_generalized_buchi(satdict.cand_nacc);
       if (state_based)
 	a->prop_state_based_acc();
+      a->set_acceptance(satdict.cand_nacc, satdict.cand_acc);
       a->new_states(satdict.cand_size);
 
       // Last transition set in the automaton.
@@ -876,20 +864,20 @@ namespace spot
   twa_graph_ptr
   dtgba_sat_synthetize(const const_twa_graph_ptr& a,
 		       unsigned target_acc_number,
+		       const acc_cond::acc_code& target_acc,
 		       int target_state_number, bool state_based)
   {
-    if (!a->acc().is_generalized_buchi())
-      throw std::runtime_error
-	("dtgba_sat() can only work with generalized Büchi acceptance");
     if (target_state_number == 0)
       return nullptr;
-    trace << "dtgba_sat_synthetize(..., acc = " << target_acc_number
-	  << ", states = " << target_state_number
+    trace << "dtgba_sat_synthetize(..., nacc = " << target_acc_number
+	  << ", acc = \"" << target_acc
+	  << "\", states = " << target_state_number
 	  << ", state_based = " << state_based << ")\n";
 
     dict d(a);
     d.cand_size = target_state_number;
     d.cand_nacc = target_acc_number;
+    d.cand_acc = target_acc;
 
     satsolver solver;
     satsolver::solution_pair solution;
@@ -948,6 +936,7 @@ namespace spot
   twa_graph_ptr
   dtgba_sat_minimize(const const_twa_graph_ptr& a,
 		     unsigned target_acc_number,
+		     const acc_cond::acc_code& target_acc,
 		     bool state_based)
   {
     int n_states = stats_reachable(a).states;
@@ -957,7 +946,7 @@ namespace spot
       {
 	auto next =
 	  dtgba_sat_synthetize(prev ? prev : a, target_acc_number,
-			       --n_states, state_based);
+			       target_acc, --n_states, state_based);
 	if (!next)
 	  return prev;
 	else
@@ -970,6 +959,7 @@ namespace spot
   twa_graph_ptr
   dtgba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
 			       unsigned target_acc_number,
+			       const acc_cond::acc_code& target_acc,
 			       bool state_based)
   {
     int max_states = stats_reachable(a).states - 1;
@@ -980,8 +970,8 @@ namespace spot
       {
 	int target = (max_states + min_states) / 2;
 	auto next =
-	  dtgba_sat_synthetize(prev ? prev : a, target_acc_number, target,
-			       state_based);
+	  dtgba_sat_synthetize(prev ? prev : a, target_acc_number,
+			       target_acc, target, state_based);
 	if (!next)
 	  {
 	    min_states = target + 1;
@@ -993,6 +983,71 @@ namespace spot
 	  }
       }
     return prev;
+  }
+
+  twa_graph_ptr
+  sat_minimize(twa_graph_ptr a, const char* opt)
+  {
+    option_map om;
+    auto err = om.parse_options(opt);
+    if (err)
+      {
+	std::string e = "failed to parse option near ";
+	e += err;
+	throw std::runtime_error(e);
+      }
+
+    if (!is_deterministic(a))
+      throw std::runtime_error
+	("SAT-based minimization only work with deterministic automata");
+
+    bool sb = om.get("state-based", 0);
+    bool dicho = om.get("dichotomy", 0);
+    int states = om.get("states", -1);
+    int nacc = om.get("gba", -1);
+
+    acc_cond::acc_code target_acc = a->get_acceptance();
+    if (nacc != -1)
+      target_acc = acc_cond::generalized_buchi(nacc);
+    else
+      nacc = a->acc().num_sets();
+
+    bool target_is_buchi =
+      (nacc == 1 && target_acc.size() == 2 &&
+       target_acc[1].op == acc_cond::acc_op::Inf
+       && target_acc[0].mark.has(0));
+
+    tgba_complete_here(a);
+
+    if (sb)
+      a = sbacc(a);
+
+    if (states == -1)
+      {
+	if (!target_is_buchi || !a->acc().is_buchi())
+	  a = (dicho ? dtgba_sat_minimize_dichotomy : dtgba_sat_minimize)
+	    (a, nacc, target_acc, sb);
+	else
+	  a = (dicho ? dtba_sat_minimize_dichotomy : dtba_sat_minimize)
+	    (a, sb);
+      }
+    else
+      {
+	if (!target_is_buchi || !a->acc().is_buchi())
+	  a = dtgba_sat_synthetize(a, nacc, target_acc, states, sb);
+	else
+	  a = dtba_sat_synthetize(a, states, sb);
+      }
+
+    if (a)
+      {
+	if (a->acc().is_generalized_buchi())
+	  a = scc_filter(a);
+	else
+	  a->purge_dead_states();
+      }
+
+    return a;
   }
 
 }

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2008, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -84,29 +84,44 @@ namespace spot
 	    if (!*options)
 	      return name_start;
 
-	    char* val_end;
-	    int val = strtol(options, &val_end, 10);
-	    if (val_end == options)
-	      return name_start;
-
-	    if (*val_end == 'K')
+	    if (*options == '\'' || *options == '"')
 	      {
-		val *= 1024;
-		++val_end;
+		auto sep = *options;
+		auto start = options + 1;
+		do
+		  ++options;
+		while (*options && *options != sep);
+		if (*options != sep)
+		  return start - 1;
+		std::string val(start, options);
+		options_str_[name] = val;
+		if (*options)
+		  ++options;
 	      }
-	    else if (*val_end == 'M')
+	    else
 	      {
-		val *= 1024 * 1024;
-		++val_end;
-	      }
-	    else if (*val_end && !strchr(" \t\n,;", *val_end))
-	      {
-		return options;
-	      }
+		char* val_end;
+		int val = strtol(options, &val_end, 10);
+		if (val_end == options)
+		  return name_start;
 
-	    options = val_end;
-
-	    options_[name] = val;
+		if (*val_end == 'K')
+		  {
+		    val *= 1024;
+		    ++val_end;
+		  }
+		else if (*val_end == 'M')
+		  {
+		    val *= 1024 * 1024;
+		    ++val_end;
+		  }
+		else if (*val_end && !strchr(" \t\n,;", *val_end))
+		  {
+		    return options;
+		  }
+		options = val_end;
+		options_[name] = val;
+	      }
 	  }
       }
     return 0;
@@ -115,12 +130,15 @@ namespace spot
   int
   option_map::get(const char* option, int def) const
   {
-    std::map<std::string, int>::const_iterator it = options_.find(option);
-    if (it == options_.end())
-      // default value if not declared
-      return def;
-    else
-      return it->second;
+    auto it = options_.find(option);
+    return (it == options_.end()) ? def : it->second;
+  }
+
+  std::string
+  option_map::get_str(const char* option, std::string def) const
+  {
+    auto it = options_str_.find(option);
+    return (it == options_str_.end()) ? def : it->second;
   }
 
   int
@@ -137,12 +155,19 @@ namespace spot
     return old;
   }
 
+  std::string
+  option_map::set_str(const char* option, std::string val, std::string def)
+  {
+    std::string old = get_str(option, def);
+    options_str_[option] = val;
+    return old;
+  }
+
   void
   option_map::set(const option_map& o)
   {
-    for (std::map<std::string, int>::const_iterator it = o.options_.begin();
-	 it != o.options_.end(); ++it)
-      options_[it->first] = it->second;
+    options_ = o.options_;
+    options_str_ = o.options_str_;
   }
 
   int&
@@ -154,9 +179,10 @@ namespace spot
   std::ostream&
   operator<<(std::ostream& os, const option_map& m)
   {
-    for (std::map<std::string, int>::const_iterator it = m.options_.begin();
-	 it != m.options_.end(); ++it)
-      os << '"' << it->first << "\" = " << it->second << '\n';
+    for (auto p: m.options_)
+      os << '"' << p.first << "\" = " << p.second << '\n';
+    for (auto p: m.options_str_)
+      os << '"' << p.first << "\" = \"" << p.second << "\"\n";
     return os;
   }
 }

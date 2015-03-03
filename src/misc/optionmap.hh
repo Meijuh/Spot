@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2013, 2015 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE)
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -62,6 +62,13 @@ namespace spot
 
     /// \brief Get the value of \a option.
     ///
+    /// \return The value associated to \a option if it exists,
+    /// \a def otherwise.
+    /// \see operator[]()
+    std::string get_str(const char* option, std::string def = {}) const;
+
+    /// \brief Get the value of \a option.
+    ///
     /// \return The value associated to \a option if it exists, 0 otherwise.
     /// \see get()
     int operator[](const char* option) const;
@@ -71,6 +78,13 @@ namespace spot
     /// \return The previous value associated to \a option if declared,
     /// or \a def otherwise.
     int set(const char* option, int val, int def = 0);
+
+    /// \brief Set the value of a string \a option to \a val.
+    ///
+    /// \return The previous value associated to \a option if declared,
+    /// or \a def otherwise.
+    std::string set_str(const char* option,
+			std::string val, std::string def = {});
 
     /// Acquire all the settings of \a o.
     void set(const option_map& o);
@@ -84,5 +98,6 @@ namespace spot
 
   private:
     std::map<std::string, int> options_;
+    std::map<std::string, std::string> options_str_;
   };
 }

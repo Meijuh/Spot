@@ -355,8 +355,8 @@ namespace spot
 	else
 	  // Take the number of acceptance conditions from the input
 	  // automaton, not from dba, because dba often has been
-	  // degeneralized to beform tba_determinize_check().  MAke
-	  // sure it is at least 1.
+	  // degeneralized by tba_determinize_check().  Make sure it
+	  // is at least 1.
 	  target_acc = original_acc > 0 ? original_acc : 1;
 
 	const_twa_graph_ptr in = 0;
@@ -390,12 +390,17 @@ namespace spot
 	else
 	  {
 	    if (sat_states_ != -1)
-	      res = dtgba_sat_synthetize(res, target_acc, sat_states_,
-					 state_based_);
+	      res = dtgba_sat_synthetize
+		(res, target_acc, acc_cond::generalized_buchi(target_acc),
+		 sat_states_, state_based_);
 	    else if (sat_minimize_ == 1 || sat_minimize_ == -1)
-	      res = dtgba_sat_minimize(res, target_acc, state_based_);
+	      res = dtgba_sat_minimize
+		(res, target_acc, acc_cond::generalized_buchi(target_acc),
+		 state_based_);
 	    else  // sat_minimize_ == 2
-	      res = dtgba_sat_minimize_dichotomy(res, target_acc, state_based_);
+	      res = dtgba_sat_minimize_dichotomy
+		(res, target_acc, acc_cond::generalized_buchi(target_acc),
+		 state_based_);
 	  }
 
 	if (res)

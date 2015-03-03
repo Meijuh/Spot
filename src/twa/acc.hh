@@ -674,6 +674,18 @@ namespace spot
 
       acc_code complement() const;
 
+      // Return a list of acceptance marks needed to close a cycle
+      // that already visit INF infinitely often, so that the cycle is
+      // accepting (ACCEPTING=true) or rejecting (ACCEPTING=false).
+      // Positive values describe positive set.
+      // A negative value x means the set -x-1 must be absent.
+      std::vector<std::vector<int>>
+	missing(mark_t inf, bool accepting) const;
+
+      bool accepting(mark_t inf) const;
+
+      bool inf_satisfiable(mark_t inf) const;
+
       // Remove all the acceptance sets in rem.
       //
       // If MISSING is set, the acceptance sets are assumed to be
@@ -764,6 +776,14 @@ namespace spot
       unsigned s = code_.size();
       return (s == 0 && num_ == 0) ||
 	(s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets());
+    }
+
+    static acc_code generalized_buchi(unsigned n)
+    {
+      mark_t m((1U << n) - 1);
+      if (n == 8 * sizeof(mark_t::value_t))
+	m = mark_t(-1U);
+      return acc_code::inf(m);
     }
 
     bool is_buchi() const
@@ -900,11 +920,15 @@ namespace spot
       return all_;
     }
 
-    bool accepting(mark_t inf) const;
+    bool accepting(mark_t inf) const
+    {
+      return code_.accepting(inf);
+    }
 
-    // Assume all Fin(x) in the condition a true.  Would the resulting
-    // condition (involving only Inf(y)) be satisfiable?
-    bool inf_satisfiable(mark_t inf) const;
+    bool inf_satisfiable(mark_t inf) const
+    {
+      return code_.inf_satisfiable(inf);
+    }
 
     mark_t accepting_sets(mark_t inf) const;
 

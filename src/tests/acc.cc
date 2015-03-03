@@ -34,6 +34,25 @@ void check(spot::acc_cond& ac, spot::acc_cond::mark_t m)
   std::cout << '\n';
 }
 
+void print(const std::vector<std::vector<int>>& res)
+{
+  for (auto& v: res)
+    {
+      std::cout << '{';
+      const char* comma = "";
+      for (int s: v)
+	{
+	  std::cout << comma;
+	  if (s < 0)
+	    std::cout << '!' << (-s - 1);
+	  else
+	    std::cout << s;
+	  comma = ", ";
+	}
+      std::cout << "}\n";
+    }
+}
+
 int main()
 {
   spot::acc_cond ac(4);
@@ -128,6 +147,16 @@ int main()
   code3.append_and(ac.fin({2, 3}));
   std::cout << code3.size() << ' ' << code3 << ' ' << code3.is_dnf() << '\n';
 
+  // code3 == (Fin(2)|Fin(3)) & (Inf(0)&Inf(1))
+  // {0}
+  // {1}
+  // {2, 3}
+  std::cout << code3 << ' ' << "{0} true\n";
+  spot::acc_cond::mark_t m = 0U;
+  m.set(0);
+  print(code3.missing(m, true));
+  std::cout << code3 << ' ' << "{0} false\n";
+  print(code3.missing(m, false));
 
   std::cout << spot::parse_acc_code("t") << '\n';
   std::cout << spot::parse_acc_code("f") << '\n';

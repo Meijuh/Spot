@@ -24,7 +24,7 @@
 
 namespace spot
 {
-  twa_graph_ptr sbacc(twa_graph_ptr& old)
+  twa_graph_ptr sbacc(twa_graph_ptr old)
   {
     if (old->has_state_based_acc())
       return old;
