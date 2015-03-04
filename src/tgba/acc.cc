@@ -21,6 +21,8 @@
 #include <iostream>
 #include <set>
 #include "acc.hh"
+#include "priv/bddalloc.hh"
+#include "misc/minato.hh"
 
 namespace spot
 {
@@ -334,7 +336,7 @@ namespace spot
 
   namespace
   {
-    std::set<acc_cond::acc_code> to_dnf_rec(const acc_cond::acc_word* c)
+    bdd to_bdd_rec(const acc_cond::acc_word* c, const bdd* map)
     {
       auto sz = c->size;
       auto start = c - sz - 1;
@@ -345,10 +347,10 @@ namespace spot
 	case acc_cond::acc_op::Or:
 	  {
 	    --c;
+	    bdd res = bddfalse;
 	    do
 	      {
-		for (auto& i: to_dnf_rec(c))
-		  res.emplace(std::move(i));
+		res |= to_bdd_rec(c, map);
 		c -= c->size + 1;
 	      }
 	    while (c > start);
@@ -356,22 +358,11 @@ namespace spot
 	  }
 	case acc_cond::acc_op::And:
 	  {
-	    std::set<acc_cond::acc_code> old;
-	    // Add true to the set.
-	    res.emplace(acc_cond::acc_code());
 	    --c;
+	    bdd res = bddtrue;
 	    do
 	      {
-		old.clear();
-		std::swap(res, old);
-		// AND any element in the set with the DNF of c.
-		for (auto& i: to_dnf_rec(c))
-		  for (auto& j: old)
-		    {
-		      auto ac = i;
-		      ac.append_and(j);
-		      res.insert(ac);
-		    }
+		res &= to_bdd_rec(c, map);
 		c -= c->size + 1;
 	      }
 	    while (c > start);
@@ -379,33 +370,25 @@ namespace spot
 	  }
 	case acc_cond::acc_op::Fin:
 	  {
-	    acc_cond::acc_code w;
-	    w.resize(2);
-	    w[1].op = acc_cond::acc_op::Fin;
-	    w[1].size = 1;
+	    bdd res = bddfalse;
 	    for (auto i: c[-1].mark.sets())
-	      {
-		w[0].mark = 0U;
-		w[0].mark.set(i);
-		res.insert(w);
-	      }
-	    if (!res.empty())
-	      return res;
-	    /* fall through to handle false */;
+	      res |= !map[i];
+	    return res;
 	  }
 	case acc_cond::acc_op::Inf:
 	  {
-	    acc_cond::acc_code w;
-	    w.insert(w.begin(), c - 1, c + 1);
-	    return { w };
+	    bdd res = bddtrue;
+	    for (auto i: c[-1].mark.sets())
+	      res &= map[i];
+	    return res;
 	  }
 	case acc_cond::acc_op::InfNeg:
 	case acc_cond::acc_op::FinNeg:
 	  SPOT_UNREACHABLE();
-	  return std::set<acc_cond::acc_code>{};
+	  return bddfalse;
 	}
       SPOT_UNREACHABLE();
-      return std::set<acc_cond::acc_code>{};
+      return bddfalse;
     }
   }
 
@@ -413,20 +396,70 @@ namespace spot
   {
     if (empty())
       return *this;
-    acc_cond::acc_code res;
-    unsigned count = 0;
-    for (auto&i : to_dnf_rec(&back()))
+
+    auto used = acc_cond::acc_code::used_sets();
+    unsigned c = used.count();
+
+    bdd_allocator ba;
+    int base = ba.allocate_variables(c);
+    std::vector<bdd> r;
+    std::vector<unsigned> sets(c);
+    for (unsigned i = 0; r.size() < c; ++i)
       {
-	res.insert(res.end(), i.begin(), i.end());
-	++count;
+	if (used.has(i))
+	  {
+	    sets[base] = i;
+	    r.push_back(bdd_ithvar(base++));
+	  }
+	else
+	  {
+	    r.push_back(bddfalse);
+	  }
       }
-    if (count <= 1)
-      return res;
-    acc_cond::acc_word w;
-    w.op = acc_op::Or;
-    w.size = res.size();
-    res.push_back(w);
-    return res;
+
+    bdd res = to_bdd_rec(&back(), &r[0]);
+
+    if (res == bddtrue)
+      return t();
+    if (res == bddfalse)
+      return f();
+
+    minato_isop isop(res);
+    bdd cube;
+    acc_code rescode = f();
+    while ((cube = isop.next()) != bddfalse)
+      {
+	mark_t i = 0U;
+	acc_code c;
+	while (cube != bddtrue)
+	  {
+	    // The acceptance set associated to this BDD variable
+	    mark_t s = 0U;
+	    s.set(sets[bdd_var(cube)]);
+
+	    bdd h = bdd_high(cube);
+	    if (h == bddfalse)	// Negative variable? -> Fin
+	      {
+		cube = bdd_low(cube);
+		// The strange order here make sure we can smaller set
+		// numbers at the end of the acceptance code, i.e., at
+		// the front of the output.
+		auto a = fin(s);
+		a.append_and(std::move(c));
+		std::swap(a, c);
+	      }
+	    else		// Positive variable? -> Inf
+	      {
+		i |= s;
+		cube = h;
+	      }
+	  }
+	c.append_and(inf(i));
+	// See comment above for the order.
+	c.append_or(std::move(rescode));
+	std::swap(c, rescode);
+      }
+    return rescode;
   }
 
   bool acc_cond::acc_code::is_dnf() const
