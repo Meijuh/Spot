@@ -464,10 +464,11 @@ namespace spot
 
   bool acc_cond::acc_code::is_dnf() const
   {
-    if (empty())
+    if (empty() || size() == 2)
       return true;
     auto pos = &back();
     auto start = &front();
+    auto and_scope = pos + 1;
     if (pos->op == acc_cond::acc_op::Or)
       --pos;
     while (pos > start)
@@ -477,12 +478,16 @@ namespace spot
 	  case acc_cond::acc_op::Or:
 	    return false;
 	  case acc_cond::acc_op::And:
+	    and_scope = std::min(and_scope, pos - pos->size);
 	    --pos;
 	    break;
-	  case acc_cond::acc_op::Inf:
-	  case acc_cond::acc_op::InfNeg:
 	  case acc_cond::acc_op::Fin:
 	  case acc_cond::acc_op::FinNeg:
+	    if (pos[-1].mark.count() > 1 && pos > and_scope)
+	      return false;
+	    /* fall through */
+	  case acc_cond::acc_op::Inf:
+	  case acc_cond::acc_op::InfNeg:
 	    pos -= 2;
 	    break;
 	  }

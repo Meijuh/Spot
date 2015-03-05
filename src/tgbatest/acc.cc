@@ -108,15 +108,23 @@ int main()
 
 
   auto code1 = ac.inf({0, 1, 3});
-  std::cout << code1.size() << ' ' << code1 << '\n';
+  std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
   code1.append_or(ac.fin({2}));
-  std::cout << code1.size() << ' ' << code1 << '\n';
+  std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
   code1.append_or(ac.fin({0}));
-  std::cout << code1.size() << ' ' << code1 << '\n';
+  std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
   code1.append_or(ac.fin({}));
-  std::cout << code1.size() << ' ' << code1 << '\n';
+  std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
   code1.append_and(ac.inf({}));
-  std::cout << code1.size() << ' ' << code1 << '\n';
+  std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
+  auto code2 = code1;
+  code1.append_and(ac.fin({0, 1}));
+  std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
   code1.append_and(ac.fin({}));
-  std::cout << code1.size() << ' ' << code1 << '\n';
+  std::cout << code1.size() << ' ' << code1 << ' ' << code1.is_dnf() << '\n';
+  code2.append_or(ac.fin({0, 1}));
+  std::cout << code2.size() << ' ' << code2 << ' ' << code2.is_dnf() << '\n';
+  auto code3 = ac.inf({0, 1});
+  code3.append_and(ac.fin({2, 3}));
+  std::cout << code3.size() << ' ' << code3 << ' ' << code3.is_dnf() << '\n';
 }

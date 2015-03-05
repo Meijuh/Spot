@@ -59,12 +59,15 @@ stripping
 #1: {0}
 #1: {4}
 #1: {2}
-2 Inf(0)&Inf(1)&Inf(3)
-5 Fin(2) | (Inf(0)&Inf(1)&Inf(3))
-7 Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3))
-7 Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3))
-7 Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3))
-2 f
+2 Inf(0)&Inf(1)&Inf(3) 1
+5 Fin(2) | (Inf(0)&Inf(1)&Inf(3)) 1
+7 Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3)) 1
+7 Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3)) 1
+7 Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3)) 1
+10 (Fin(0)|Fin(1)) & (Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3))) 0
+2 f 1
+9 (Fin(0)|Fin(1)) | Fin(0) | Fin(2) | (Inf(0)&Inf(1)&Inf(3)) 1
+5 (Fin(2)|Fin(3)) & (Inf(0)&Inf(1)) 0
 EOF
 
 run 0 ../acc | tee stdout
