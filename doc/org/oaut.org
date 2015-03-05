@@ -1002,14 +1002,14 @@ automaton is deterministic.  We can generate 20 random automata, and
 output them in two files depending on their determinism:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut -n 20 -S2 1 -H -o out-det%d.hoa
+randaut -n 20 -S2 -d1 1 -H -o out-det%d.hoa
 autfilt -c out-det0.hoa    # Count of non-deterministic automata
 autfilt -c out-det1.hoa    # Count of deterministic automata
 #+END_SRC
 
 #+RESULTS:
-: 4
-: 16
+: 14
+: 6
 
 If you use this feature, beware that the output filename
 is only truncated by the first file that is output to it: so
@@ -1020,13 +1020,13 @@ deterministic automata, it may look like we produced more
 than 20 automata:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut -D -n 20 -S2 1 -H -o out-det%d.hoa
+randaut -D -n 20 -S2 -d1 1 -H -o out-det%d.hoa
 autfilt -c out-det0.hoa    # Count of non-deterministic automata
 autfilt -c out-det1.hoa    # Count of deterministic automata
 #+END_SRC
 
 #+RESULTS:
-: 4
+: 14
 : 20
 
 This is because the =out-det0.hoa= file hasn't changed from the
