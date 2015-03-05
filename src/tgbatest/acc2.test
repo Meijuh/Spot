@@ -47,6 +47,7 @@ State: 0
 --END--
 EOF
 
+#------------- DNF -------------
 
 res="(Fin(1) & Fin(2) & Inf(0)) | (Inf(0)&Inf(1)&Inf(3))"
 cat >acceptances<<EOF
@@ -67,6 +68,30 @@ do
 done < acceptances > output
 
 diff acceptances output
+
+#------------- CNF -------------
+
+res="(Fin(2) | Inf(1)) & (Fin(1) | Inf(3)) & Inf(0)"
+cat >acceptances<<EOF
+2 Inf(0)&Inf(1), 2 Inf(0)&Inf(1)
+2 Fin(0) & Inf(1), 2 Fin(0) & Inf(1)
+2 t, 2 t
+2 f, 2 f
+3 (Inf(1) | Fin(2)) & Inf(0), 3 (Fin(2) | Inf(1)) & Inf(0)
+4 (Fin(1) & Fin(2) & Inf(0)) | (Inf(0)&Inf(1)&Inf(3)), 4 $res
+4 $res, 4 $res
+3 (Fin(0) & Fin(2)) | (Fin(1) & Fin(2)), 3 (Fin(0)|Fin(1)) & Fin(2)
+EOF
+
+while IFS=, read a b
+do
+    (cat header; echo 'Acceptance:' $a; cat body) |
+	../../bin/autfilt -H --cnf-acc --stats '%A %G, %a %g'
+done < acceptances > output
+
+diff acceptances output
+
+#------------- COMP -------------
 
 a="(Inf(1) | Fin(2)) & (Fin(1) | Inf(3)) & Inf(0)"
 b="(Fin(1) & Inf(2)) | (Fin(3) & Inf(1)) | Fin(0)"

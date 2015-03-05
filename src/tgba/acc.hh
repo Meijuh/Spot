@@ -635,8 +635,10 @@ namespace spot
       }
 
       bool is_dnf() const;
+      bool is_cnf() const;
 
       acc_code to_dnf() const;
+      acc_code to_cnf() const;
 
       acc_code complement() const;
 

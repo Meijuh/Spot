@@ -394,7 +394,7 @@ namespace spot
 
   acc_cond::acc_code acc_cond::acc_code::to_dnf() const
   {
-    if (empty())
+    if (empty() || size() == 2)
       return *this;
 
     auto used = acc_cond::acc_code::used_sets();
@@ -462,6 +462,76 @@ namespace spot
     return rescode;
   }
 
+  acc_cond::acc_code acc_cond::acc_code::to_cnf() const
+  {
+    if (empty() || size() == 2)
+      return *this;
+
+    auto used = acc_cond::acc_code::used_sets();
+    unsigned c = used.count();
+
+    bdd_allocator ba;
+    int base = ba.allocate_variables(c);
+    std::vector<bdd> r;
+    std::vector<unsigned> sets(c);
+    for (unsigned i = 0; r.size() < c; ++i)
+      {
+	if (used.has(i))
+	  {
+	    sets[base] = i;
+	    r.push_back(bdd_ithvar(base++));
+	  }
+	else
+	  {
+	    r.push_back(bddfalse);
+	  }
+      }
+
+    bdd res = to_bdd_rec(&back(), &r[0]);
+
+    if (res == bddtrue)
+      return t();
+    if (res == bddfalse)
+      return f();
+
+    minato_isop isop(!res);
+    bdd cube;
+    acc_code rescode;
+    while ((cube = isop.next()) != bddfalse)
+      {
+	mark_t m = 0U;
+	acc_code c = f();
+	while (cube != bddtrue)
+	  {
+	    // The acceptance set associated to this BDD variable
+	    mark_t s = 0U;
+	    s.set(sets[bdd_var(cube)]);
+
+	    bdd h = bdd_high(cube);
+	    if (h == bddfalse)	// Negative variable? -> Inf
+	      {
+		cube = bdd_low(cube);
+		// The strange order here make sure we can smaller set
+		// numbers at the end of the acceptance code, i.e., at
+		// the front of the output.
+		auto a = inf(s);
+		a.append_or(std::move(c));
+		std::swap(a, c);
+	      }
+	    else		// Positive variable? -> Fin
+	      {
+		m |= s;
+		cube = h;
+	      }
+	  }
+	c.append_or(fin(m));
+	// See comment above for the order.
+	c.append_and(std::move(rescode));
+	std::swap(c, rescode);
+      }
+    return rescode;
+  }
+
   bool acc_cond::acc_code::is_dnf() const
   {
     if (empty() || size() == 2)
@@ -488,6 +558,39 @@ namespace spot
 	    /* fall through */
 	  case acc_cond::acc_op::Inf:
 	  case acc_cond::acc_op::InfNeg:
+	    pos -= 2;
+	    break;
+	  }
+      }
+    return true;
+  }
+
+  bool acc_cond::acc_code::is_cnf() const
+  {
+    if (empty() || size() == 2)
+      return true;
+    auto pos = &back();
+    auto start = &front();
+    auto or_scope = pos + 1;
+    if (pos->op == acc_cond::acc_op::And)
+      --pos;
+    while (pos > start)
+      {
+	switch (pos->op)
+	  {
+	  case acc_cond::acc_op::And:
+	    return false;
+	  case acc_cond::acc_op::Or:
+	    or_scope = std::min(or_scope, pos - pos->size);
+	    --pos;
+	    break;
+	  case acc_cond::acc_op::Inf:
+	  case acc_cond::acc_op::InfNeg:
+	    if (pos[-1].mark.count() > 1 && pos > or_scope)
+	      return false;
+	    /* fall through */
+	  case acc_cond::acc_op::Fin:
+	  case acc_cond::acc_op::FinNeg:
 	    pos -= 2;
 	    break;
 	  }

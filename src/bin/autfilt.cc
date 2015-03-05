@@ -65,6 +65,7 @@ enum {
   OPT_ACC_SETS = 256,
   OPT_ARE_ISOMORPHIC,
   OPT_CLEAN_ACC,
+  OPT_CNF_ACC,
   OPT_COMPLEMENT_ACC,
   OPT_COUNT,
   OPT_DESTUT,
@@ -128,6 +129,8 @@ static const argp_option options[] =
       "initial state", 0 },
     { "dnf-acceptance", OPT_DNF_ACC, 0, 0,
       "put the acceptance condition in Disjunctive Normal Form", 0 },
+    { "cnf-acceptance", OPT_CNF_ACC, 0, 0,
+      "put the acceptance condition in Conjunctive Normal Form", 0 },
     { "remove-fin", OPT_REM_FIN, 0, 0,
       "rewrite the automaton without using Fin acceptance", 0 },
     { "cleanup-acceptance", OPT_CLEAN_ACC, 0, 0,
@@ -215,6 +218,7 @@ static bool opt_is_empty = false;
 static bool opt_sbacc = false;
 static bool opt_stripacc = false;
 static bool opt_dnf_acc = false;
+static bool opt_cnf_acc = false;
 static bool opt_rem_fin = false;
 static bool opt_clean_acc = false;
 static bool opt_complement_acc = false;
@@ -266,6 +270,10 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_CLEAN_ACC:
       opt_clean_acc = true;
       break;
+    case OPT_CNF_ACC:
+      opt_dnf_acc = false;
+      opt_cnf_acc = true;
+      break;
     case OPT_COMPLEMENT_ACC:
       opt_complement_acc = true;
       break;
@@ -274,6 +282,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_DNF_ACC:
       opt_dnf_acc = true;
+      opt_cnf_acc = false;
       break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
@@ -446,6 +455,9 @@ namespace
       if (opt_dnf_acc)
 	aut->set_acceptance(aut->acc().num_sets(),
 			    aut->get_acceptance().to_dnf());
+      if (opt_cnf_acc)
+	aut->set_acceptance(aut->acc().num_sets(),
+			    aut->get_acceptance().to_cnf());
 
       // Filters.
 
