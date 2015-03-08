@@ -19,7 +19,7 @@ include /usr/share/dpkg/default.mk
 
 # main packaging script based on dh7 syntax
 %:
-	dh $@ --parallel
+	dh $@ --parallel --with=python3
 
 LTOPLUG = /usr/lib/gcc/x86_64-linux-gnu/4.9/liblto_plugin.so
 
@@ -37,16 +37,22 @@ PRO1SETUP =					\
 PRO2SETUP =					\
   CFLAGS='-flto -fprofile-use'			\
   CXXFLAGS='-flto -fprofile-use'
+PYSETUP = PYTHON=/usr/bin/python3
 
 # We want to build Spot twice: once to get profile data, and a second
 # time to use it.
 override_dh_auto_configure:
 	dh_auto_configure -- $(PRO1SETUP) $(LTOSETUP)	\
 	  --disable-devel --enable-optimizations	\
-	  --disable-static --disable-python
+	  --disable-static $(PYSETUP)
 	dh_auto_build
 	dh_auto_test
 	make clean
 	dh_auto_configure -- $(PRO2SETUP) $(LTOSETUP)	\
 	  --disable-devel --enable-optimizations	\
-	  --disable-static --disable-python
+	  --disable-static $(PYSETUP)
+override_dh_auto_install:
+	dh_auto_install --destdir=$(CURDIR)/debian/tmp
+	find debian/tmp -name '*.la' -exec rm -rv {} ';'
+override_dh_python3:
+	dh_python3 -p python3-spot
