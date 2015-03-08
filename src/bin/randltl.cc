@@ -245,71 +245,83 @@ main(int argc, char** argv)
 	  program_name);
 
   spot::srand(opt_seed);
-
-  spot::option_map opts;
-  opts.set("output", output);
-  opts.set("tree_size_min", opt_tree_size.min);
-  opts.set("tree_size_max", opt_tree_size.max);
-  opts.set("opt_wf", opt_wf);
-  opts.set("opt_seed", opt_seed);
-  opts.set("simplification_level", simplification_level);
-  spot::ltl::randltlgenerator rg(aprops, opts, opt_pL, opt_pS, opt_pB);
-
-  if (opt_dump_priorities)
+  try
     {
-      switch (output)
-        {
-        case OUTPUTLTL:
-          std::cout
-          << "Use --ltl-priorities to set the following LTL priorities:\n";
-          rg.dump_ltl_priorities(std::cout);
-          break;
-        case OUTPUTBOOL:
-          std::cout
-          << ("Use --boolean-priorities to set the following Boolean "
-              "formula priorities:\n");
-          rg.dump_bool_priorities(std::cout);
-          break;
-        case OUTPUTPSL:
-          std::cout
-          << "Use --ltl-priorities to set the following LTL priorities:\n";
-          rg.dump_psl_priorities(std::cout);
-          // Fall through.
-        case OUTPUTSERE:
-          std::cout
-          << "Use --sere-priorities to set the following SERE priorities:\n";
-          rg.dump_sere_priorities(std::cout);
-          std::cout
-          << ("Use --boolean-priorities to set the following Boolean "
-              "formula priorities:\n");
-          rg.dump_sere_bool_priorities(std::cout);
-          break;
-        default:
-          error(2, 0, "internal error: unknown type of output");
-        }
-      opts.~option_map();
-      destroy_atomic_prop_set(aprops);
-      exit(0);
+      spot::ltl::randltlgenerator rg
+	(aprops,
+	 [&] (){
+	  spot::option_map opts;
+	  opts.set("output", output);
+	  opts.set("tree_size_min", opt_tree_size.min);
+	  opts.set("tree_size_max", opt_tree_size.max);
+	  opts.set("opt_wf", opt_wf);
+	  opts.set("opt_seed", opt_seed);
+	  opts.set("simplification_level", simplification_level);
+	  return opts;
+	}(), opt_pL, opt_pS, opt_pB);
+
+      if (opt_dump_priorities)
+	{
+	  switch (output)
+	    {
+	    case OUTPUTLTL:
+	      std::cout <<
+		"Use --ltl-priorities to set the following LTL priorities:\n";
+	      rg.dump_ltl_priorities(std::cout);
+	      break;
+	    case OUTPUTBOOL:
+	      std::cout <<
+		"Use --boolean-priorities to set the following Boolean "
+		"formula priorities:\n";
+	      rg.dump_bool_priorities(std::cout);
+	      break;
+	    case OUTPUTPSL:
+	      std::cout <<
+		"Use --ltl-priorities to set the following LTL priorities:\n";
+	      rg.dump_psl_priorities(std::cout);
+	      // Fall through.
+	    case OUTPUTSERE:
+	      std::cout <<
+		"Use --sere-priorities to set the following SERE priorities:\n";
+	      rg.dump_sere_priorities(std::cout);
+	      std::cout <<
+		"Use --boolean-priorities to set the following Boolean "
+		"formula priorities:\n";
+	      rg.dump_sere_bool_priorities(std::cout);
+	      break;
+	    default:
+	      error(2, 0, "internal error: unknown type of output");
+	    }
+	  destroy_atomic_prop_set(aprops);
+	  exit(0);
+	}
+
+      while (opt_formulas < 0 || opt_formulas--)
+	{
+	  static int count = 0;
+	  const spot::ltl::formula* f = rg.next();
+	  if (!f)
+	    {
+	      error(2, 0, "failed to generate a new unique formula after %d " \
+		    "trials", MAX_TRIALS);
+	    }
+	  else
+	    {
+	      output_formula_checked(f, 0, ++count);
+	      f->destroy();
+	    }
+	};
     }
-
-  while (opt_formulas < 0 || opt_formulas--)
+  catch (const std::runtime_error& e)
     {
-      static int count = 0;
-      spot::ltl::randltlgenerator rg2(aprops, opts);
-      const spot::ltl::formula* f = rg.next();
-      if (!f)
-        {
-          opts.~option_map();
-          error(2, 0, "failed to generate a new unique formula after %d "\
-                "trials", MAX_TRIALS);
-        }
-      else
-        {
-          output_formula_checked(f, 0, ++count);
-          f->destroy();
-        }
-    };
-
+      destroy_atomic_prop_set(aprops);
+      error(2, 0, "%s", e.what());
+    }
+  catch (const std::invalid_argument& e)
+    {
+      destroy_atomic_prop_set(aprops);
+      error(2, 0, "%s", e.what());
+    }
 
   destroy_atomic_prop_set(aprops);
   return 0;

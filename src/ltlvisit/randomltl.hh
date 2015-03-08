@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -310,40 +310,31 @@ namespace spot
       const spot::ptr_hash<const spot::ltl::formula>> fset_t;
 
 
-      public:
-      randltlgenerator(int aprops_n, option_map& opts,
+    public:
+      randltlgenerator(int aprops_n, const option_map& opts,
                        char* opt_pL = nullptr,
                        char* opt_pS = nullptr,
                        char* opt_pB = nullptr);
 
-      randltlgenerator(atomic_prop_set aprops, option_map& opts,
+      randltlgenerator(atomic_prop_set aprops, const option_map& opts,
                        char* opt_pL = nullptr,
                        char* opt_pS = nullptr,
                        char* opt_pB = nullptr);
-
-      void construct(atomic_prop_set aprops, option_map& opts,
-                       char* opt_pL, char* opt_pS,
-                       char* opt_pB);
 
       ~randltlgenerator();
 
       const spot::ltl::formula* next();
 
       void dump_ltl_priorities(std::ostream& os);
-
       void dump_bool_priorities(std::ostream& os);
-
       void dump_psl_priorities(std::ostream& os);
-
       void dump_sere_priorities(std::ostream& os);
-
       void dump_sere_bool_priorities(std::ostream& os);
-
       void remove_some_props(atomic_prop_set& s);
 
       const formula* GF_n();
 
-      private:
+    private:
       fset_t unique_set_;
       atomic_prop_set aprops_;
 

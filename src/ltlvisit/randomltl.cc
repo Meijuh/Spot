@@ -404,12 +404,11 @@ namespace spot
       update_sums();
     }
 
-    void
-    randltlgenerator::construct(atomic_prop_set aprops, option_map& opts,
+    randltlgenerator::randltlgenerator(atomic_prop_set aprops,
+                                       const option_map& opts,
                                        char* opt_pL,
                                        char* opt_pS,
                                        char* opt_pB)
-
     {
       aprops_ = aprops;
       output_ = opts.get("output", OUTPUTLTL);
@@ -429,10 +428,10 @@ namespace spot
         case OUTPUTLTL:
           rf_ = new random_ltl(&aprops_);
           if (opt_pS)
-            throw std::invalid_argument("Cannot set sere priorities with "\
+            throw std::invalid_argument("Cannot set sere priorities with "
                                         "LTL output");
           if (opt_pB)
-            throw std::invalid_argument("Cannot set boolean priorities with "\
+            throw std::invalid_argument("Cannot set boolean priorities with "
                                         "LTL output");
           tok_pL = rf_->parse_options(opt_pL);
           break;
@@ -440,10 +439,10 @@ namespace spot
           rf_ = new random_boolean(&aprops_);
           tok_pB = rf_->parse_options(opt_pB);
           if (opt_pL)
-            throw std::invalid_argument("Cannot set ltl priorities with "\
+            throw std::invalid_argument("Cannot set ltl priorities with "
                                         "Boolean output");
           if (opt_pS)
-            throw std::invalid_argument("Cannot set sere priorities "\
+            throw std::invalid_argument("Cannot set sere priorities "
                                         "with Boolean output");
           break;
         case OUTPUTSERE:
@@ -451,7 +450,7 @@ namespace spot
           tok_pS = rs_->parse_options(opt_pS);
           tok_pB = rs_->rb.parse_options(opt_pB);
           if (opt_pL)
-            throw std::invalid_argument("Cannot set ltl priorities "\
+            throw std::invalid_argument("Cannot set ltl priorities "
                                         "with SERE output");
           break;
         case OUTPUTPSL:
@@ -464,46 +463,29 @@ namespace spot
         }
 
       if (tok_pL)
-        throw("failed to parse LTL priorities near '" + std::string(tok_pL));
+        throw std::invalid_argument("failed to parse LTL priorities near "
+				    + std::string(tok_pL));
       if (tok_pS)
-        throw("failed to parse SERE priorities near " + std::string(tok_pS));
+        throw std::invalid_argument("failed to parse SERE priorities near "
+				    + std::string(tok_pS));
       if (tok_pB)
-        throw("failed to parse Boolean priorities near "
-              + std::string(tok_pB));
+        throw std::invalid_argument("failed to parse Boolean priorities near "
+				    + std::string(tok_pB));
 
       spot::srand(opt_seed_);
       ltl_simplifier_options simpl_opts(opt_simpl_level_);
       ltl_simplifier simpl_(simpl_opts);
     }
 
-    randltlgenerator::randltlgenerator(int aprops_n, option_map& opts,
+    randltlgenerator::randltlgenerator(int aprops_n,
+				       const option_map& opts,
                                        char* opt_pL,
                                        char* opt_pS,
                                        char* opt_pB)
-      {
-        atomic_prop_set aprops_;
-        default_environment& e =
-        default_environment::instance();
-        for (int i = 0; i < aprops_n; ++i)
-          {
-            std::ostringstream p;
-            p << 'p' << i;
-            aprops_.insert(static_cast<const atomic_prop*>
-                           (e.require(p.str())));
-          }
-        construct(aprops_, opts, opt_pL, opt_pS, opt_pB);
-      }
-
-    randltlgenerator::randltlgenerator(atomic_prop_set aprops,
-                                       option_map& opts,
-                                       char* opt_pL,
-                                       char* opt_pS,
-                                       char* opt_pB)
-
+      : randltlgenerator(create_atomic_prop_set(aprops_n), opts,
+			 opt_pL, opt_pS, opt_pB)
     {
-      construct(aprops, opts, opt_pL, opt_pS, opt_pB);
     }
-
 
     randltlgenerator::~randltlgenerator()
     {
@@ -512,6 +494,7 @@ namespace spot
       for (auto i: unique_set_)
         i->destroy();
     }
+
     const formula* randltlgenerator::next()
     {
       unsigned trials = MAX_TRIALS;
@@ -593,32 +576,32 @@ namespace spot
 
     void
     randltlgenerator::dump_ltl_priorities(std::ostream& os)
-      {
-        rf_->dump_priorities(os);
-      }
+    {
+      rf_->dump_priorities(os);
+    }
 
     void
     randltlgenerator::dump_bool_priorities(std::ostream& os)
-      {
-        rf_->dump_priorities(os);
-      }
+    {
+      rf_->dump_priorities(os);
+    }
 
     void
     randltlgenerator::dump_psl_priorities(std::ostream& os)
-      {
-        rp_->dump_priorities(os);
-      }
+    {
+      rp_->dump_priorities(os);
+    }
 
     void
     randltlgenerator::dump_sere_priorities(std::ostream& os)
-      {
-        rs_->dump_priorities(os);
-      }
+    {
+      rs_->dump_priorities(os);
+    }
 
     void
     randltlgenerator::dump_sere_bool_priorities(std::ostream& os)
-      {
-        rs_->rb.dump_priorities(os);
-      }
+    {
+      rs_->rb.dump_priorities(os);
+    }
   }
 }
