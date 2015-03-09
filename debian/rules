@@ -21,7 +21,9 @@ include /usr/share/dpkg/default.mk
 %:
 	dh $@ --parallel --with=python3
 
-LTOPLUG = /usr/lib/gcc/x86_64-linux-gnu/4.9/liblto_plugin.so
+# Find the LTO plugin, which we need to pass to ar, nm, and ranlib.
+LTOPLUG := $(shell gcc -v 2>&1 | \
+  sed -n 's:COLLECT_LTO_WRAPPER=\(/.*/\)[^/]*:\1:p')liblto_plugin.so
 
 # ARFLAGS is for Automake
 # AR_FLAGS is for Libtool
