@@ -170,7 +170,33 @@ extern bddCacheStat bddcachestats;
 
    /* Stacking for garbage collector */
 #define INITREF    bddrefstacktop = bddrefstack
-#define PUSHREF(a) *(bddrefstacktop++) = (a)
+/*
+** The following (original) definition of PUSHREF is incorrect
+** when (a) can trigger a garbage collect:
+**
+**   #define PUSHREF(a) *(bddrefstacktop++) = (a)
+**
+** The reason is that bddrefstacktop can be incremented before computing
+** (a) and assigning its value to bddrefstacktop[-1].  So if the garbage
+** collector is triggered during the computation of (a), it will find
+** uninitialized values in the stack.
+**
+** Such a situation occur in most algorithms of the form:
+**
+**   static int restrict_rec(int r) {
+**     // ...
+**     PUSHREF( restrict_rec(LOW(r)) );
+**     PUSHREF( restrict_rec(HIGH(r)) );
+**     res = bdd_makenode(LEVEL(r), READREF(2), READREF(1));
+**     POPREF(2);
+**
+** Using a function forces the value of a to be computed before pushing
+** it to the stack.
+*/
+static inline int PUSHREF(int a)
+{
+  return *bddrefstacktop++ = a;
+}
 #define READREF(a) *(bddrefstacktop-(a))
 #define POPREF(a)  bddrefstacktop -= (a)
 
