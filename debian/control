@@ -10,7 +10,7 @@ Package: spot
 Architecture: any
 Section: science
 Recommends: graphviz
-Suggests: libspot-dev, spot-doc
+Suggests: libspot-dev, spot-doc, python3-spot
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Spot, a model checking library
  Library and tools to manipulate omega-automata as well as
@@ -20,7 +20,7 @@ Package: libspot-dev
 Architecture: all
 Section: libdevel
 Suggests: spot-doc
-Depends: spot
+Depends: spot (= ${binary:Version})
 Description: headers for the Spot model checking library
  C++ headers for the Spot library.
 
@@ -33,7 +33,7 @@ Description: documentation for Spot
 Package: python3-spot
 Architecture: any
 Section: python
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}, spot (= ${binary:Version})
 Suggests: ipython3
 Description: python3 binding for spot
  Spot allows manipulation of omega-automata as well
