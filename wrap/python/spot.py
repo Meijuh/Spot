@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014  Laboratoire de
+# Copyright (C) 2014, 2015  Laboratoire de
 # Recherche et Développement de l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -23,27 +23,59 @@ import sys
 
 _bdd_dict = make_bdd_dict()
 
-def render_automaton_as_svg(a):
-    dotsrc = ostringstream()
-    dotty_reachable(dotsrc, a)
+def _ostream_to_svg(ostr):
     dotty = subprocess.Popen(['dot', '-Tsvg'],
                              stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE)
-    dotty.stdin.write(dotsrc.str().encode('utf-8'))
+    dotty.stdin.write(ostr.str().encode('utf-8'))
     res = dotty.communicate()
     return res[0].decode('utf-8')
 
-tgba._repr_svg_ = render_automaton_as_svg
+def _render_automaton_as_svg(a):
+    ostr = ostringstream()
+    dotty_reachable(ostr, a)
+    return _ostream_to_svg(ostr)
 
-def formula_str_ctor(self, str):
+tgba._repr_svg_ = _render_automaton_as_svg
+
+def _render_formula_as_svg(a):
+    # Load the SVG function only if we need it. This way the bindings
+    # can still be used outside of IPython if IPython is not
+    # installed.
+    from IPython.display import SVG
+    ostr = ostringstream()
+    dotty(ostr, a)
+    return SVG(_ostream_to_svg(ostr))
+
+def _formula_str_ctor(self, str):
     self.this = parse_formula(str)
 
-formula.__init__ = formula_str_ctor
+def _formula_to_str(self, format = 'spot'):
+    if format == 'spot':
+        return to_string(self)
+    elif format == 'spin':
+        return to_spin_string(self)
+    elif format == 'utf8':
+        return to_utf8_string(self)
+    elif format == 'lbt':
+        return to_lbt_string(self)
+    elif format == 'wring':
+        return to_wring_string(self)
+    elif format == 'latex':
+        return to_latex_string(self)
+    elif format == 'sclatex':
+        return to_sclatex_string(self)
+    else:
+        raise ValueError("unknown string format: " + format)
 
-def tgba_str_ctor(self, str):
+formula.__init__ = _formula_str_ctor
+formula.to_str = _formula_to_str
+formula.show_ast = _render_formula_as_svg
+
+def _tgba_str_ctor(self, str):
     self.this = ltl_to_tgba_fm(parse_formula(str), _bdd_dict)
 
-tgba.__init__ = tgba_str_ctor
+tgba.__init__ = _tgba_str_ctor
 
 # Wrapper around a formula iterator to which we add some methods of formula
 # (using _addfilter and _addmap), so that we can write things like
@@ -211,17 +243,22 @@ def simplify(f, **kwargs):
     boolean_to_isop = kwargs.get('boolean_to_isop', False)
     favor_event_univ = kwargs.get('favor_event_univ', False)
 
-    simp_opts = ltl_simplifier_options(basics, synt_impl, event_univ,
-    containment_checks, containment_checks_stronger, nenoform_stop_on_boolean,
-    reduce_size_strictly, boolean_to_isop, favor_event_univ)
-
+    simp_opts = ltl_simplifier_options(basics,
+                                       synt_impl,
+                                       event_univ,
+                                       containment_checks,
+                                       containment_checks_stronger,
+                                       nenoform_stop_on_boolean,
+                                       reduce_size_strictly,
+                                       boolean_to_isop,
+                                       favor_event_univ)
     return ltl_simplifier(simp_opts).simplify(f)
 
 for fun in dir(formula):
-    if callable(getattr(formula, fun)) and fun[:3] == 'is_' \
-or fun[:4] == 'has_':
+    if (callable(getattr(formula, fun)) and
+        (fun[:3] == 'is_' or fun[:4] == 'has_')):
         _addfilter(fun)
 
 for fun in ['remove_x', 'get_literal', 'relabel', 'relabel_bse',
-'simplify', 'unabbreviate_ltl']:
+            'simplify', 'unabbreviate_ltl']:
     _addmap(fun)

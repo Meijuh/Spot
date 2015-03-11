@@ -1,7 +1,8 @@
-## Copyright (C) 2010, 2012, 2013, 2014 Labortatoire de Recherche et Développement de
-## l'EPITA.
+## -*- coding: utf-8 -*-
+## Copyright (C) 2010, 2012, 2013, 2014, 2015 Labortatoire de
+## Recherche et DÃ©veloppement de l'EPITA.
 ## Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
-## département Systèmes Répartis Coopératifs (SRC), Université Pierre
+## dÃ©partement SystÃ¨mes RÃ©partis CoopÃ©ratifs (SRC), UniversitÃ© Pierre
 ## et Marie Curie.
 ##
 ## This file is part of Spot, a model checking library.
@@ -32,6 +33,7 @@ check_SCRIPTS = run
 TESTS = \
   alarm.py \
   bddnqueen.py \
+  formulas.ipynb \
   implies.py \
   interdep.py \
   ltl2tgba.test \

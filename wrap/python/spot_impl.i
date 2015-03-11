@@ -190,9 +190,11 @@ using namespace spot;
   }
   catch (const std::invalid_argument& e)
   {
-    std::string er("\n");
-    er += e.what();
-    SWIG_exception(SWIG_ValueError, er.c_str());
+    SWIG_exception(SWIG_ValueError, e.what());
+  }
+  catch (const std::runtime_error& e)
+  {
+    SWIG_exception(SWIG_RuntimeError, e.what());
   }
 }
 

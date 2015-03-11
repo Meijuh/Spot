@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Developpement de
+// Copyright (C) 2012, 2013, 2015 Laboratoire de Recherche et Developpement de
 // l'Epita (LRDE)
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -34,14 +34,44 @@ namespace spot
   std::ostream&
   escape_rfc4180(std::ostream& os, const std::string& str)
   {
-    for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
-      switch (*i)
+    for (auto i: str)
+      switch (i)
 	{
 	case '"':
 	  os << "\"\"";
 	  break;
 	default:
-	  os << *i;
+	  os << i;
+	  break;
+	}
+    return os;
+  }
+
+  std::ostream&
+  escape_latex(std::ostream& os, const std::string& str)
+  {
+    for (auto i: str)
+      switch (i)
+	{
+	case '~':
+	  os << "\\textasciitilde";
+	  break;
+	case '^':
+	  os << "\\textasciicircum";
+	  break;
+	case '\\':
+	  os << "\\textbackslash";
+	  break;
+	case '&':
+	case '%':
+	case '$':
+	case '#':
+	case '_':
+	case '{':
+	case '}':
+	  os << '\\';
+	default:
+	  os << i;
 	  break;
 	}
     return os;
@@ -50,8 +80,8 @@ namespace spot
   std::ostream&
   escape_str(std::ostream& os, const std::string& str)
   {
-    for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
-      switch (*i)
+    for (auto i: str)
+      switch (i)
 	{
 	case '\\':
 	  os << "\\\\";
@@ -63,7 +93,7 @@ namespace spot
 	  os << "\\n";
 	  break;
 	default:
-	  os << *i;
+	  os << i;
 	  break;
 	}
     return os;

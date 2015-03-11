@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2015 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -38,6 +38,13 @@ namespace spot
   /// contain double-quotes should simply duplicate those quotes.
   SPOT_API std::ostream&
   escape_rfc4180(std::ostream& os, const std::string& str);
+
+  /// \brief Escape special LaTeX characters.
+  ///
+  /// The following characters are rewritten:
+  /// <code>& % $ # _ { } ~ ^ \\</code>
+  SPOT_API std::ostream&
+  escape_latex(std::ostream& os, const std::string& str);
 
   /// \brief Escape characters <code>"</code>, <code>\\</code>, and
   /// <code>\\n</code> in \a str.

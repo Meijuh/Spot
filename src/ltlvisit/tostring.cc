@@ -30,7 +30,7 @@
 #include "lunabbrev.hh"
 #include "wmunabbrev.hh"
 #include "tostring.hh"
-
+#include "misc/escape.hh"
 
 namespace spot
 {
@@ -416,7 +416,9 @@ namespace spot
 	    {
 	      // Spin 6 supports atomic propositions such as (a == 0)
 	      // as long as they are enclosed in parentheses.
-	      if (kw_ != spin_kw)
+	      if (kw_ == sclatex_kw  || kw_ == sclatex_kw)
+		escape_latex(os_ << "``\\mathit{", str) << "\\textrm{''}}";
+	      else if (kw_ != spin_kw)
 		os_ << '"' << str << '"';
 	      else if (!full_parent_)
 		os_ << '(' << str << ')';
@@ -431,11 +433,11 @@ namespace spot
 		  while (str[s - 1] >= '0' && str[s - 1] <= '9')
 		    {
 		      --s;
-		      assert(s != 0); // bare words cannot start with letters
+		      assert(s != 0); // bare words cannot start with digits
 		    }
 		  if (s > 1)
 		    os_ << "\\mathit{";
-		  os_ << str.substr(0, s);
+		  escape_latex(os_, str.substr(0, s));
 		  if (s > 1)
 		    os_ << '}';
 		  if (s != str.size())
