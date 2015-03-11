@@ -143,9 +143,10 @@ int fdd_extdomain(int *dom, int num)
       {
          fdvaralloc += (num > fdvaralloc) ? num : fdvaralloc;
 
-	 domain = (Domain*)realloc(domain, sizeof(Domain)*fdvaralloc);
-	 if (domain == NULL)
+	 Domain* tmp_ptr = (Domain*)realloc(domain, sizeof(Domain)*fdvaralloc);
+	 if (tmp_ptr == NULL)
 	    return bdd_error(BDD_MEMORY);
+	 domain = tmp_ptr;
       }
    }
 
@@ -219,9 +220,10 @@ int fdd_overlapdomain(int v1, int v2)
    {
       fdvaralloc += fdvaralloc;
 
-      domain = (Domain*)realloc(domain, sizeof(Domain)*fdvaralloc);
-      if (domain == NULL)
+      Domain* tmp_ptr = (Domain*)realloc(domain, sizeof(Domain)*fdvaralloc);
+      if (tmp_ptr == NULL)
 	 return bdd_error(BDD_MEMORY);
+      domain = tmp_ptr;
    }
 
    d = &domain[fdvarnum];

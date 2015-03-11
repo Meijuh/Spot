@@ -46,7 +46,7 @@ imatrix* imatrixNew(int size)
 {
    imatrix *mtx = NEW(imatrix,1);
    int n,m;
-   
+
    if (!mtx)
       return NULL;
 
@@ -62,6 +62,7 @@ imatrix* imatrixNew(int size)
       {
 	 for (m=0 ; m<n ; m++)
 	    free(mtx->rows[m]);
+	 free(mtx->rows);
 	 free(mtx);
 	 return NULL;
       }
@@ -96,7 +97,7 @@ void imatrixFPrint(imatrix *mtx, FILE *ofile)
    for (x=0 ; x<mtx->size ; x++)
       fprintf(ofile, "%c", x < 26 ? (x+'a') : (x-26)+'A');
    fprintf(ofile, "\n");
-   
+
    for (y=0 ; y<mtx->size ; y++)
    {
       fprintf(ofile, "%2d %c", y, y < 26 ? (y+'a') : (y-26)+'A');
@@ -141,7 +142,7 @@ void main(void)
    imatrixSet(m,0,2);
    imatrixSet(m,8,8);
    imatrixSet(m,15,15);
-   
+
    imatrixPrint(m);
 }
 #endif

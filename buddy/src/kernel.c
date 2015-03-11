@@ -1,5 +1,5 @@
 /*========================================================================
-	       Copyright (C) 1996-2002 by Jorn Lind-Nielsen
+	       Copyright (C) 1996-2002, 2015 by Jorn Lind-Nielsen
 			    All rights reserved
 
     Permission is hereby granted, without written agreement and without
@@ -334,22 +334,25 @@ int bdd_setvarnum(int num)
    }
    else
    {
-     if (__unlikely((bddvarset =
-		     (BDD*)realloc(bddvarset,sizeof(BDD)*num*2)) == NULL))
+     BDD* tmp_ptr = (BDD*)realloc(bddvarset,sizeof(BDD)*num*2);
+     if (__unlikely(tmp_ptr == NULL))
        return bdd_error(BDD_MEMORY);
-     if (__unlikely((bddlevel2var =
-		     (int*)realloc(bddlevel2var,sizeof(int)*(num+1))) == NULL))
+     bddvarset = tmp_ptr;
+     int* tmp_ptr2 = (int*)realloc(bddlevel2var,sizeof(int)*(num+1));
+     if (__unlikely(tmp_ptr2 == NULL))
        {
 	 free(bddvarset);
 	 return bdd_error(BDD_MEMORY);
        }
-     if (__unlikely((bddvar2level =
-		     (int*)realloc(bddvar2level,sizeof(int)*(num+1))) == NULL))
+     bddlevel2var = tmp_ptr2;
+     tmp_ptr2 = (int*)realloc(bddvar2level,sizeof(int)*(num+1));
+     if (__unlikely(tmp_ptr2 == NULL))
       {
 	 free(bddvarset);
 	 free(bddlevel2var);
 	 return bdd_error(BDD_MEMORY);
       }
+     bddvar2level = tmp_ptr2;
    }
 
    if (__likely(bddrefstack != NULL))

@@ -812,7 +812,7 @@ static void addref_rec(int r, char *dep)
    if (r < 2)
       return;
 
-   if (bddnodes[r].refcou == 0)
+   if (bddnodes[r].refcou == 0 || MARKED(r))
    {
       bddfreenum--;
 
@@ -880,7 +880,10 @@ static int mark_roots(void)
    }
 
    if ((extroots=(int*)(malloc(sizeof(int)*extrootsize))) == NULL)
-      return bdd_error(BDD_MEMORY);
+     {
+       free(dep);
+       return bdd_error(BDD_MEMORY);
+     }
 
    iactmtx = imatrixNew(bddvarnum);
 
