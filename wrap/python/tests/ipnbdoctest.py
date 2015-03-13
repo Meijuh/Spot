@@ -115,7 +115,7 @@ def compare_outputs(test, ref, skip_cmp=('png', 'traceback',
             return False
     return True
 
-def _wait_for_ready_backport(kf):
+def _wait_for_ready_backport(kc):
     """Backport BlockingKernelClient.wait_for_ready from IPython 3"""
     # Wait for kernel info reply on shell channel
     kc.kernel_info()
