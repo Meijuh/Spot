@@ -31,9 +31,9 @@ def _ostream_to_svg(ostr):
     res = dotty.communicate()
     return res[0].decode('utf-8')
 
-def _render_automaton_as_svg(a):
+def _render_automaton_as_svg(a, opt=""):
     ostr = ostringstream()
-    dotty_reachable(ostr, a)
+    dotty_reachable(ostr, a, opt)
     return _ostream_to_svg(ostr)
 
 tgba._repr_svg_ = _render_automaton_as_svg
@@ -46,6 +46,14 @@ def _render_formula_as_svg(a):
     ostr = ostringstream()
     dotty(ostr, a)
     return SVG(_ostream_to_svg(ostr))
+
+def _render_tgba_as_svg(a, opt=""):
+    # Load the SVG function only if we need it. This way the bindings
+    # can still be used outside of IPython if IPython is not
+    # installed.
+    from IPython.display import SVG
+    return SVG(_render_automaton_as_svg(a, opt))
+tgba.show = _render_tgba_as_svg
 
 def _formula_str_ctor(self, str):
     self.this = parse_formula(str)
@@ -72,10 +80,69 @@ formula.__init__ = _formula_str_ctor
 formula.to_str = _formula_to_str
 formula.show_ast = _render_formula_as_svg
 
-def _tgba_str_ctor(self, str):
-    self.this = ltl_to_tgba_fm(parse_formula(str), _bdd_dict)
+def translate(formula, output='tgba', pref='small', level='high',
+              complete=False):
+    """Translate a formula into an automaton.
 
-tgba.__init__ = _tgba_str_ctor
+    Keep in mind that pref expresses just a preference that may not be
+    satisfied.
+
+    Keyword arguments:
+    output -- the type of automaton to build ('tgba', 'ba', 'monitor')
+    pref -- prefered characteristic of the produced automaton
+            ('small', 'deterministic', 'any')
+    level -- level of optimizations ('low', 'medium', 'high')
+    complete -- whether to produce a complete automaton (True, False)
+    """
+    if type(formula) == str:
+        formula = parse_formula(formula)
+
+    a = translator()
+
+    if type(output) == str:
+        output_ = output.lower()
+        if output_ == 'tgba':
+            output = postprocessor.TGBA
+        elif output_ == 'ba':
+            output = postprocessor.BA
+        elif output_.startswith('mon'):
+            output = postprocessor.Monitor
+        else:
+            raise ValueError("unknown output type: " + output)
+    a.set_type(output)
+
+    if complete:
+        complete = postprocessor.Complete
+    else:
+        complete = 0
+
+    if type(pref) == str:
+        pref_ = pref.lower()
+        if pref_.startswith('sm'):
+            pref = postprocessor.Small
+        elif pref_.startswith('det'):
+            pref = postprocessor.Deterministic
+        elif pref_ == 'any':
+            pref = postprocessor.Any
+        else:
+            raise ValueError("unknown output preference: " + pref)
+    a.set_pref(pref | complete)
+
+    if type(level) == str:
+        level_ = level.lower()
+        if level_ == 'high':
+            level = postprocessor.High
+        elif level_.starswith('med'):
+            level = postprocessor.Medium
+        elif level_ == 'low':
+            level = postprocessor.Low
+        else:
+            raise ValueError("unknown optimization level: " + level)
+    a.set_level(level)
+
+    return a.run(formula)
+
+formula.translate = translate
 
 # Wrapper around a formula iterator to which we add some methods of formula
 # (using _addfilter and _addmap), so that we can write things like
