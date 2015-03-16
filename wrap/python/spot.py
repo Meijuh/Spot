@@ -132,7 +132,7 @@ def translate(formula, output='tgba', pref='small', level='high',
         level_ = level.lower()
         if level_ == 'high':
             level = postprocessor.High
-        elif level_.starswith('med'):
+        elif level_.startswith('med'):
             level = postprocessor.Medium
         elif level_ == 'low':
             level = postprocessor.Low
