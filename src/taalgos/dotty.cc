@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2014 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -39,7 +39,11 @@ namespace spot
       void
       start()
       {
-        os_ << "digraph G {" << std::endl;
+        os_ << "digraph G {\n";
+
+	static const char* extra = getenv("SPOT_DOTEXTRA");
+	if (extra)
+	  os_ << "  " << extra << '\n';
 
         artificial_initial_state_ = t_automata_->get_artificial_initial_state();
 

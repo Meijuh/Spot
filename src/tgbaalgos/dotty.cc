@@ -30,6 +30,7 @@
 #include "tgba/tgbagraph.hh"
 #include "tgba/formula2bdd.hh"
 #include "tgbaalgos/sccinfo.hh"
+#include <cstdlib>
 
 namespace spot
 {
@@ -108,6 +109,12 @@ namespace spot
 	  }
 	if (opt_circles_)
 	  os_ << "  node [shape=\"circle\"]\n";
+	// Any extra text passed in the SPOT_DOTEXTRA environment
+	// variable should be output at the end of the "header", so
+	// that our setup can be overridden.
+	static const char* extra = getenv("SPOT_DOTEXTRA");
+	if (extra)
+	  os_ << "  " << extra << '\n';
 	os_ << "  I [label=\"\", style=invis, ";
 	os_ << (opt_horizontal_ ? "width" : "height");
 	os_ << "=0]\n  I -> " << aut_->get_init_state_number() << '\n';

@@ -306,11 +306,14 @@ State: 3 "s3"
 [0] 1
 --END--
 EOF
-$autfilt -H input | $autfilt --dot=vcsn >output
+
+$autfilt -H input |
+    SPOT_DOTEXTRA='/* hello world */' $autfilt --dot=vcsn >output
 
 cat >expected <<EOF
 digraph G {
   node [shape="circle"]
+  /* hello world */
   I [label="", style=invis, height=0]
   I -> 3
   subgraph cluster_0 {

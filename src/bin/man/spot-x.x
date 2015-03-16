@@ -12,6 +12,12 @@ spot-x \- Common fine-tuning options.
 [ENVIRONMENT VARIABLES]
 
 .TP
+\fBSPOT_DOTEXTRA\fR
+The contents of this variable is added to any dot output, immediately
+before the first state is output.  This makes it easy to override
+global attributes of the graph.
+
+.TP
 \fBSPOT_SATLOG\fR
 If set to a filename, the SAT-based minimization routines will append
 statistics about each iteration to the named file.  Each line lists
