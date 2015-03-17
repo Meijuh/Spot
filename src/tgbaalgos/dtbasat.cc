@@ -639,6 +639,8 @@ namespace spot
       auto a = make_tgba_digraph(autdict);
       a->copy_ap_of(aut);
       acc_cond::mark_t acc = a->set_single_acceptance_set();
+      if (state_based)
+	a->prop_state_based_acc();
       a->new_states(satdict.cand_size);
 
       unsigned last_aut_trans = -1U;

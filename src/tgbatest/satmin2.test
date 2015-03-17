@@ -57,3 +57,9 @@ EOF
 
 ../ltl2tgba -RS1 -kt -XH input.hoa > output
 diff output expected
+
+# At some point, this formula was correctly minimized, but
+# the output was not marked as state-based.
+../../bin/ltl2tgba -BD -x sat-minimize "GF(a <-> XXb)" -H >out
+grep 'properties:.*state-acc' out
+grep 'properties:.*deterministic' out

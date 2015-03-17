@@ -780,7 +780,8 @@ namespace spot
       auto a = make_tgba_digraph(autdict);
       a->copy_ap_of(aut);
       a->set_generalized_buchi(satdict.cand_nacc);
-
+      if (state_based)
+	a->prop_state_based_acc();
       a->new_states(satdict.cand_size);
 
       // Last transition set in the automaton.
