@@ -27,7 +27,7 @@ same stream, =autfilt= will process them in batch.
 The output format can be controlled using [[file:oaut.org][the common output options]]
 (like =--spin=, =--lbtt=, =--dot=, =--hoaf=...).
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports code
 cat >example.hoa <<EOF
 HOA: v1
 States: 1
@@ -43,13 +43,18 @@ EOF
 autfilt example.hoa --dot
 #+END_SRC
 
+#+BEGIN_SRC sh :results verbatim :exports results
+SPOT_DOTEXTRA= autfilt example.hoa --dot=
+#+END_SRC
+
 #+RESULTS:
 : digraph G {
-:   0 [label="", style=invis, height=0]
-:   0 -> 1
-:   1 [label="0"]
-:   1 -> 1 [label="p0\n{0}"]
-:   1 -> 1 [label="!p0"]
+:   rankdir=LR
+:   I [label="", style=invis, width=0]
+:   I -> 0
+:   0 [label="0"]
+:   0 -> 0 [label="p0\n{0}"]
+:   0 -> 0 [label="!p0"]
 : }
 
 The =--spin= options implicitly requires a degeneralization:

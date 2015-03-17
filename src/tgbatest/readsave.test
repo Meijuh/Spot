@@ -308,7 +308,7 @@ State: 3 "s3"
 EOF
 
 $autfilt -H input |
-    SPOT_DOTEXTRA='/* hello world */' $autfilt --dot=vcsn >output
+    SPOT_DOTDEFAULT=vcsn SPOT_DOTEXTRA='/* hello world */' $autfilt >output
 
 cat >expected <<EOF
 digraph G {
@@ -360,20 +360,46 @@ digraph G {
 EOF
 diff output expected
 
-$ltl2tgba --dot=an 'GFa & GFb' >output
+$ltl2tgba --dot=ban 'GFa & GFb' >output
 cat output
 cat >expected <<EOF
 digraph G {
   rankdir=LR
-  label="G(Fa & Fb)\\nInf(0)&Inf(1)"
+  label="G(Fa & Fb)\nInf(⓿)&Inf(❶)"
   labelloc="t"
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 0 [label="a & b\n{0,1}"]
+  0 -> 0 [label="a & b\n⓿❶"]
   0 -> 0 [label="!a & !b"]
-  0 -> 0 [label="!a & b\n{1}"]
-  0 -> 0 [label="a & !b\n{0}"]
+  0 -> 0 [label="!a & b\n❶"]
+  0 -> 0 [label="a & !b\n⓿"]
+}
+EOF
+diff output expected
+
+
+SPOT_DOTDEFAULT=bra $ltl2tgba --dot='c.f(Lato)' 'GFa & GFb' >output
+cat output
+
+zero='<font color="#5DA5DA">⓿</font>'
+one='<font color="#F17CB0">❶</font>'
+cat >expected <<EOF
+digraph G {
+  rankdir=LR
+  label=<Inf($zero)&amp;Inf($one)>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label=<a &amp; b<br/>$zero$one>]
+  0 -> 0 [label=<!a &amp; !b>]
+  0 -> 0 [label=<!a &amp; b<br/>$one>]
+  0 -> 0 [label=<a &amp; !b<br/>$zero>]
 }
 EOF
 diff output expected

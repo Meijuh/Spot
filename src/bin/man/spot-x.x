@@ -12,6 +12,15 @@ spot-x \- Common fine-tuning options.
 [ENVIRONMENT VARIABLES]
 
 .TP
+\fBSPOT_DOTDEFAULT\fR
+Whenever the \f(CW--dot\fR option is used without argument (even
+implicitely), the contents of this variable is used as default
+argument.  If you have some default setting in \fBSPOT_DOTDEFAULT\fR
+but want to alter them temporarily for one call, use
+\f(CW--dot=.yyy\fR: the dot character will be replaced by the contents
+of the \f(CWSPOT_DOTDEFAULT\fR environment variable.
+
+.TP
 \fBSPOT_DOTEXTRA\fR
 The contents of this variable is added to any dot output, immediately
 before the first state is output.  This makes it easy to override

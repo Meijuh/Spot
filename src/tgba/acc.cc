@@ -48,9 +48,16 @@ namespace spot
 
   namespace
   {
+    void default_set_printer(std::ostream& os, int v)
+    {
+      os << v;
+    }
+
+    template<bool html>
     static void
     print_code(std::ostream& os,
-	       const acc_cond::acc_code& code, unsigned pos)
+	       const acc_cond::acc_code& code, unsigned pos,
+	       std::function<void(std::ostream&, int)> set_printer)
     {
       const char* op = " | ";
       auto& w = code[pos];
@@ -59,7 +66,7 @@ namespace spot
       switch (w.op)
 	{
 	case acc_cond::acc_op::And:
-	  op = " & ";
+	  op = html ? " &amp; " : " & ";
 	case acc_cond::acc_op::Or:
 	  {
 	    unsigned sub = pos - w.size;
@@ -73,7 +80,7 @@ namespace spot
 		  first = false;
 		else
 		  os << op;
-		print_code(os, code, pos);
+		print_code<html>(os, code, pos, set_printer);
 		pos -= code[pos].size;
 	      }
 	    if (!top)
@@ -102,8 +109,10 @@ namespace spot
 		  {
 		    if (a & 1)
 		      {
-			os << and_ << "Inf(" << negated << level << ')';
-			and_ = "&";
+			os << and_ << "Inf(" << negated;
+			set_printer(os, level);
+			os << ')';
+			and_ = html ? "&amp;" : "&";
 		      }
 		    a >>= 1;
 		    ++level;
@@ -135,7 +144,9 @@ namespace spot
 		  {
 		    if (a & 1)
 		      {
-			os << or_ << "Fin(" << negated << level << ')';
+			os << or_ << "Fin(" << negated;
+			set_printer(os, level);
+			os << ')';
 			or_ = "|";
 		      }
 		    a >>= 1;
@@ -746,13 +757,69 @@ namespace spot
     return used_in_cond;
   }
 
+  std::pair<acc_cond::mark_t, acc_cond::mark_t>
+  acc_cond::acc_code::used_inf_fin_sets() const
+  {
+    if (is_true() || is_false())
+      return {0U, 0U};
+
+    acc_cond::mark_t used_fin = 0U;
+    acc_cond::mark_t used_inf = 0U;
+    auto pos = &back();
+    auto end = &front();
+    while (pos > end)
+      {
+	switch (pos->op)
+	  {
+	  case acc_cond::acc_op::And:
+	  case acc_cond::acc_op::Or:
+	    --pos;
+	    break;
+	  case acc_cond::acc_op::Fin:
+	  case acc_cond::acc_op::FinNeg:
+	    used_fin |= pos[-1].mark;
+	    pos -= 2;
+	    break;
+	  case acc_cond::acc_op::Inf:
+	  case acc_cond::acc_op::InfNeg:
+	    used_inf |= pos[-1].mark;
+	    pos -= 2;
+	    break;
+	  }
+      }
+    return {used_inf, used_fin};
+  }
+
+  std::ostream&
+  acc_cond::acc_code::to_html(std::ostream& os,
+			      std::function<void(std::ostream&, int)>
+			      set_printer) const
+  {
+    if (empty())
+      os << 't';
+    else
+      print_code<true>(os, *this, size() - 1,
+		       set_printer ? set_printer : default_set_printer);
+    return os;
+  }
+
+  std::ostream&
+  acc_cond::acc_code::to_text(std::ostream& os,
+			      std::function<void(std::ostream&, int)>
+			      set_printer) const
+  {
+    if (empty())
+      os << 't';
+    else
+      print_code<false>(os, *this, size() - 1,
+			set_printer ? set_printer : default_set_printer);
+    return os;
+  }
+
+
   std::ostream& operator<<(std::ostream& os,
 			   const spot::acc_cond::acc_code& code)
   {
-    if (code.empty())
-      os << 't';
-    else
-      print_code(os, code, code.size() - 1);
-    return os;
+    return code.to_text(os);
   }
 }

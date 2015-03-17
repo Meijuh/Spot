@@ -9,56 +9,52 @@ By default, it will generate a random TGBA with 10 states, no
 acceptance sets, and using a set of atomic proposition you have to
 supply.
 
+#+NAME: randaut1
 #+BEGIN_SRC sh :results verbatim :exports code
 randaut a b
-#+END_SRC
-
-#+NAME: randaut1
-#+BEGIN_SRC sh :results verbatim :exports none
-randaut a b | sed 's/\\/\\\\/'
 #+END_SRC
 #+RESULTS: randaut1
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 2 [label="!a & !b"]
-  1 -> 3 [label="!a & b"]
-  2 [label="4", peripheries=2]
-  2 -> 4 [label="a & b"]
-  2 -> 5 [label="a & b"]
-  2 -> 3 [label="a & b"]
-  2 -> 6 [label="!a & b"]
-  3 [label="2", peripheries=2]
-  3 -> 3 [label="a & b"]
-  3 -> 7 [label="!a & b"]
-  3 -> 2 [label="!a & b"]
-  3 -> 6 [label="!a & b"]
-  4 [label="6", peripheries=2]
-  4 -> 8 [label="!a & !b"]
-  4 -> 6 [label="!a & !b"]
-  4 -> 7 [label="a & b"]
-  4 -> 9 [label="!a & b"]
-  5 [label="5", peripheries=2]
-  5 -> 2 [label="!a & b"]
-  5 -> 10 [label="a & !b"]
-  6 [label="3", peripheries=2]
-  6 -> 3 [label="!a & !b"]
-  6 -> 9 [label="!a & !b"]
-  7 [label="7", peripheries=2]
-  7 -> 9 [label="!a & b"]
-  8 [label="1", peripheries=2]
-  8 -> 1 [label="!a & b"]
-  8 -> 6 [label="!a & !b"]
-  9 [label="8", peripheries=2]
-  9 -> 3 [label="a & b"]
-  9 -> 10 [label="a & b"]
-  9 -> 7 [label="a & !b"]
-  9 -> 8 [label="!a & b"]
-  10 [label="9", peripheries=2]
-  10 -> 10 [label="a & !b"]
-  10 -> 5 [label="a & !b"]
+  rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 8 [label=<!a &amp; !b>]
+  0 -> 4 [label=<!a &amp; !b>]
+  1 [label="1"]
+  1 -> 2 [label=<a &amp; !b>]
+  1 -> 7 [label=<!a &amp; !b>]
+  1 -> 4 [label=<!a &amp; b>]
+  2 [label="2"]
+  2 -> 2 [label=<!a &amp; !b>]
+  2 -> 0 [label=<a &amp; !b>]
+  2 -> 5 [label=<a &amp; !b>]
+  3 [label="3"]
+  3 -> 6 [label=<!a &amp; b>]
+  4 [label="4"]
+  4 -> 8 [label=<a &amp; !b>]
+  4 -> 2 [label=<!a &amp; b>]
+  4 -> 3 [label=<a &amp; b>]
+  4 -> 7 [label=<!a &amp; b>]
+  5 [label="5"]
+  5 -> 9 [label=<!a &amp; !b>]
+  5 -> 3 [label=<a &amp; !b>]
+  5 -> 7 [label=<!a &amp; !b>]
+  6 [label="6"]
+  6 -> 7 [label=<!a &amp; !b>]
+  6 -> 1 [label=<!a &amp; b>]
+  7 [label="7"]
+  7 -> 3 [label=<!a &amp; !b>]
+  8 [label="8"]
+  8 -> 8 [label=<!a &amp; b>]
+  9 [label="9"]
+  9 -> 0 [label=<!a &amp; b>]
+  9 -> 6 [label=<!a &amp; b>]
 }
 #+end_example
 
@@ -86,26 +82,27 @@ variance $(S-1)d(1-d)$.
 In particular =-d0= will cause all states to have 1 successors, and
 =-d1= will cause all states to be interconnected.
 
+#+NAME: randaut2
 #+BEGIN_SRC sh :results verbatim :exports code
 randaut -S3 -d0 2
-#+END_SRC
-
-#+NAME: randaut2
-#+BEGIN_SRC sh :results verbatim :exports none
-randaut -S3 -d0 2 | sed 's/\\/\\\\/'
 #+END_SRC
 
 #+RESULTS: randaut2
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 2 [label="!p0 & !p1"]
-  2 [label="2", peripheries=2]
-  2 -> 3 [label="!p0 & p1"]
-  3 [label="1", peripheries=2]
-  3 -> 2 [label="p0 & p1"]
+  rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 2 [label=<!p0 &amp; !p1>]
+  1 [label="1"]
+  1 -> 1 [label=<!p0 &amp; !p1>]
+  2 [label="2"]
+  2 -> 1 [label=<!p0 &amp; !p1>]
 }
 #+end_example
 
@@ -115,32 +112,33 @@ $txt
 #+RESULTS:
 [[file:randaut2.png]]
 
+#+NAME: randaut3
 #+BEGIN_SRC sh :results verbatim :exports code
 randaut -S3 -d1 2
-#+END_SRC
-
-#+NAME: randaut3
-#+BEGIN_SRC sh :results verbatim :exports none
-randaut -S3 -d1 2 | sed 's/\\/\\\\/'
 #+END_SRC
 
 #+RESULTS: randaut3
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 2 [label="!p0 & !p1"]
-  1 -> 1 [label="!p0 & !p1"]
-  1 -> 3 [label="p0 & p1"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="p0 & !p1"]
-  2 -> 3 [label="p0 & !p1"]
-  2 -> 1 [label="!p0 & !p1"]
-  3 [label="1", peripheries=2]
-  3 -> 1 [label="!p0 & !p1"]
-  3 -> 3 [label="!p0 & !p1"]
-  3 -> 2 [label="p0 & p1"]
+  rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 2 [label=<!p0 &amp; !p1>]
+  0 -> 0 [label=<!p0 &amp; !p1>]
+  0 -> 1 [label=<!p0 &amp; !p1>]
+  1 [label="1"]
+  1 -> 1 [label=<p0 &amp; p1>]
+  1 -> 2 [label=<p0 &amp; !p1>]
+  1 -> 0 [label=<p0 &amp; !p1>]
+  2 [label="2"]
+  2 -> 1 [label=<!p0 &amp; !p1>]
+  2 -> 0 [label=<p0 &amp; !p1>]
+  2 -> 2 [label=<p0 &amp; !p1>]
 }
 #+end_example
 
@@ -171,29 +169,29 @@ The generation of acceptance sets is controlled with the following three paramet
 In addition, =-B= (or =--ba=) is a shorthand for =-A1 --state-acc=.
 
 
-#+BEGIN_SRC sh :results verbatim :exports code
-randaut -S3 -d0.5 -A2 -a0.2 2
-#+END_SRC
-
 #+NAME: randaut4
-#+BEGIN_SRC sh :results verbatim :exports none
-randaut -S3 -d0.5 -A2 -a0.2 2 | sed 's/\\/\\\\/'
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut -S3 -d0.5 -A3 -a0.5 2
 #+END_SRC
 
 #+RESULTS: randaut4
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0"]
-  1 -> 2 [label="!p0 & !p1\\n{1}"]
-  1 -> 3 [label="!p0 & p1"]
+  rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 1 [label=<!p0 &amp; !p1>]
+  0 -> 0 [label=<!p0 &amp; !p1<br/><font color="#FAA43A">❷</font>>]
+  1 [label="1"]
+  1 -> 2 [label=<!p0 &amp; p1<br/><font color="#F17CB0">❶</font><font color="#FAA43A">❷</font>>]
   2 [label="2"]
-  2 -> 1 [label="!p0 & !p1\\n{0}"]
-  2 -> 2 [label="!p0 & !p1"]
-  3 [label="1"]
-  3 -> 2 [label="!p0 & p1\\n{1}"]
-  3 -> 3 [label="!p0 & p1"]
+  2 -> 2 [label=<!p0 &amp; !p1<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 1 [label=<p0 &amp; !p1<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
 }
 #+end_example
 
@@ -204,29 +202,28 @@ $txt
 [[file:randaut4.png]]
 
 
-#+BEGIN_SRC sh :results verbatim :exports code
-randaut -S3 -d0.4 -B -a0.5 2
-#+END_SRC
-
 #+NAME: randaut5
-#+BEGIN_SRC sh :results verbatim :exports none
-randaut -S3 -d0.4 -B -a0.5 2 | sed 's/\\/\\\\/'
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut -S3 -d0.4 -B -a0.7 2
 #+END_SRC
 
 #+RESULTS: randaut5
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0", peripheries=2]
-  1 -> 2 [label="!p0 & !p1\\n{0}"]
-  1 -> 1 [label="!p0 & p1\\n{0}"]
+  rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 2 [label=<!p0 &amp; !p1>]
+  1 [label="1"]
+  1 -> 2 [label=<!p0 &amp; p1>]
   2 [label="2", peripheries=2]
-  2 -> 3 [label="!p0 & p1\\n{0}"]
-  2 -> 1 [label="p0 & !p1\\n{0}"]
-  3 [label="1"]
-  3 -> 3 [label="p0 & !p1"]
-  3 -> 1 [label="p0 & !p1"]
+  2 -> 1 [label=<!p0 &amp; !p1>]
+  2 -> 0 [label=<p0 &amp; !p1>]
 }
 #+end_example
 
@@ -250,31 +247,31 @@ Boolean formulas over the given atomic propositions, such that the
 sum of all these formulas is $\top$.  The resulting automaton is
 therefore deterministic and complete.
 
+#+NAME: randaut6
 #+BEGIN_SRC sh :results verbatim :exports code
 randaut -D -S3 -d0.6 -A2 -a0.5 2
-#+END_SRC
-
-#+NAME: randaut6
-#+BEGIN_SRC sh :results verbatim :exports none
-randaut -D -S3 -d0.6 -A2 -a0.5 2 | sed 's/\\/\\\\/'
 #+END_SRC
 
 #+RESULTS: randaut6
 #+begin_example
 digraph G {
-  0 [label="", style=invis, height=0]
-  0 -> 1
-  1 [label="0"]
-  1 -> 2 [label="p0\\n{1}"]
-  1 -> 3 [label="!p0\\n{0,1}"]
-  2 [label="1"]
-  2 -> 3 [label="!p0 & p1"]
-  2 -> 1 [label="!p0 & !p1\\n{0}"]
-  2 -> 2 [label="p0\\n{0,1}"]
-  3 [label="2"]
-  3 -> 3 [label="p0 & p1\\n{1}"]
-  3 -> 1 [label="p0 & !p1\\n{0}"]
-  3 -> 2 [label="!p0"]
+  rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 1 [label=<p0>]
+  0 -> 2 [label=<!p0>]
+  1 [label="1"]
+  1 -> 2 [label=<p0<br/><font color="#F17CB0">❶</font>>]
+  1 -> 0 [label=<!p0<br/><font color="#5DA5DA">⓿</font>>]
+  2 [label="2"]
+  2 -> 2 [label=<!p0 &amp; p1<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 0 [label=<!p0 &amp; !p1<br/><font color="#F17CB0">❶</font>>]
+  2 -> 1 [label=<p0<br/><font color="#5DA5DA">⓿</font>>]
 }
 #+end_example
 

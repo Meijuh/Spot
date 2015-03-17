@@ -110,9 +110,11 @@ New in spot 1.99b (not yet released)
     - GraphViz output now uses an horizontal layout by default.  The
       --dot option of the various command-line tools takes an optional
       parameter to fine-tune the GraphViz output (including vertical
-      layout, round states, and named automata).  The environment
-      variable SPOT_DOTEXTRA can also be used to add extra attributes
-      to the output graph.
+      layout, round states, named automata, and different ways to
+      colorize the acceptance sets).  The environment
+      variables SPOT_DOTDEFAULT and SPOT_DOTEXTRA can also be used
+      to respectively provide a default argument to --dot, and
+      add extra attributes to the output graph.
 
     - Never claims can now be output in the style usd by Spin since
       version 6.2.4 (i.e., using do..od instead of if..fi, and with

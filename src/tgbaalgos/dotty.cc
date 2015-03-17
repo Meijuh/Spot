@@ -31,11 +31,16 @@
 #include "tgba/formula2bdd.hh"
 #include "tgbaalgos/sccinfo.hh"
 #include <cstdlib>
+#include <cstring>
+#include <ctype.h>
+
 
 namespace spot
 {
   namespace
   {
+    constexpr int MAX_BULLET = 20;
+
     class dotty_output
     {
       std::ostream& os_;
@@ -46,74 +51,229 @@ namespace spot
       bool opt_show_acc_ = false;
       bool mark_states_ = false;
       bool opt_scc_ = false;
+      bool opt_html_labels_ = false;
       const_tgba_digraph_ptr aut_;
       std::vector<std::string>* sn_;
       std::string* name_ = nullptr;
+      acc_cond::mark_t inf_sets_ = 0U;
+      acc_cond::mark_t fin_sets_ = 0U;
+      bool opt_rainbow = false;
+      bool opt_bullet = false;
+      bool opt_all_bullets = false;
+      std::string opt_font_;
+
+      const char* const palette9[9] =
+	{
+	  "#5DA5DA", /* blue */
+	  "#F17CB0", /* pink */
+	  "#FAA43A", /* orange */
+	  "#B276B2", /* purple */
+	  "#60BD68", /* green */
+	  "#F15854", /* red */
+	  "#B2912F", /* brown */
+	  "#4D4D4D", /* gray */
+	  "#DECF3F", /* yellow */
+	};
+      const char*const* palette = palette9;
+      int palette_mod = 9;
 
     public:
+
+      void
+      parse_opts(const char* options)
+      {
+	const char* orig = options;
+	while (char c = *options++)
+	  switch (c)
+	    {
+	    case '.':
+	      {
+		static const char* def = getenv("SPOT_DOTDEFAULT");
+		// Prevent infinite recursions...
+		if (orig == def)
+		  throw std::runtime_error
+		    (std::string("SPOT_DOTDEFAULT should not contain '.'"));
+		if (def)
+		  parse_opts(def);
+		break;
+	      }
+	    case 'a':
+	      opt_show_acc_ = true;
+	      break;
+	    case 'b':
+	      opt_bullet = true;
+	      break;
+	    case 'c':
+	      opt_circles_ = true;
+	      break;
+	    case 'h':
+	      opt_horizontal_ = true;
+	      break;
+	    case 'f':
+	      if (*options != '(')
+		throw std::runtime_error
+		  (std::string("invalid font specification for dotty()"));
+	      {
+		auto* end = strchr(++options, ')');
+		if (!end)
+		  throw std::runtime_error
+		    (std::string("invalid font specification for dotty()"));
+		opt_font_ = std::string(options, end - options);
+		options = end + 1;
+	      }
+	      break;
+	    case 'n':
+	      opt_name_ = true;
+	      break;
+	    case 'N':
+	      opt_name_ = false;
+	      break;
+	    case 'r':
+	      opt_html_labels_ = true;
+	      opt_rainbow = true;
+	      break;
+	    case 'R':
+	      opt_html_labels_ = true;
+	      opt_rainbow = false;
+	      break;
+	    case 's':
+	      opt_scc_ = true;
+	      break;
+	    case 'v':
+	      opt_horizontal_ = false;
+	      break;
+	    case 't':
+	      opt_force_acc_trans_ = true;
+	      break;
+	    default:
+	      throw std::runtime_error
+		(std::string("unknown option for dotty(): ") + c);
+	    }
+      }
+
       dotty_output(std::ostream& os, const char* options)
 	: os_(os)
       {
-	if (options)
-	  while (char c = *options++)
-	    switch (c)
-	      {
-	      case 'a':
-		opt_show_acc_ = true;
-		break;
-	      case 'c':
-		opt_circles_ = true;
-		break;
-	      case 'h':
-		opt_horizontal_ = true;
-		break;
-	      case 'n':
-		opt_name_ = true;
-	        break;
-	      case 'N':
-		opt_name_ = false;
-	        break;
-	      case 's':
-		opt_scc_ = true;
-		break;
-	      case 'v':
-		opt_horizontal_ = false;
-		break;
-	      case 't':
-		opt_force_acc_trans_ = true;
-		break;
-	      default:
-		throw std::runtime_error
-		  (std::string("unknown option for dotty(): ") + c);
-	      }
+	parse_opts(options ? options : ".");
+      }
+
+      void
+      output_set(std::ostream& os, int v) const
+      {
+	if (opt_bullet && (v >= 0) & (v <= MAX_BULLET))
+	  {
+	    static const char* const tab[MAX_BULLET + 1] = {
+	      "⓿", "❶", "❷", "❸",
+	      "❹", "❺", "❻", "❼",
+	      "❽", "❾", "❿", "⓫",
+	      "⓬", "⓭", "⓮", "⓯",
+	      "⓰", "⓱", "⓲", "⓳",
+	      "⓴",
+	    };
+	    os << tab[v];
+	  }
+	else
+	  {
+	    os << v;
+	  }
+      }
+
+
+      const char*
+      html_set_color(int v) const
+      {
+	if (opt_rainbow)
+	  return palette[v % palette_mod];
+	// Color according to Fin/Inf
+	if (inf_sets_.has(v))
+	  {
+	    if (fin_sets_.has(v))
+	      return palette[2];
+	    else
+	      return palette[0];
+	  }
+	else
+	  {
+	    return palette[1];
+	  }
+      }
+
+      void
+      output_html_set_aux(std::ostream& os, int v) const
+      {
+	os << "<font color=\"" << html_set_color(v) << "\">";
+	output_set(os, v);
+	os << "</font>";
+      }
+
+      void
+      output_html_set(int v) const
+      {
+	output_html_set_aux(os_, v);
       }
 
       void
       start()
       {
+	if (opt_html_labels_)
+	  std::tie(inf_sets_, fin_sets_) =
+	    aut_->get_acceptance().used_inf_fin_sets();
+	if (opt_bullet && aut_->acc().num_sets() <= MAX_BULLET)
+	  opt_all_bullets = true;
+
 	os_ << "digraph G {\n";
 	if (opt_horizontal_)
 	  os_ << "  rankdir=LR\n";
 	if (name_ || opt_show_acc_)
 	  {
-	    os_ << "  label=\"";
-	    if (name_)
+	    if (!opt_html_labels_)
 	      {
-		escape_str(os_, *name_);
+		os_ << "  label=\"";
+		if (name_)
+		  {
+		    escape_str(os_, *name_);
+		    if (opt_show_acc_)
+		      os_ << "\\n";
+		  }
 		if (opt_show_acc_)
-		  os_ << "\\n";
+		  aut_->get_acceptance().to_text
+		    (os_, [this](std::ostream& os, int v)
+		     {
+		       this->output_set(os, v);
+		     });
+		os_ << "\"\n";
 	      }
-	    if (opt_show_acc_)
-	      os_ << aut_->get_acceptance();
-	    os_ << "\"\n  labelloc=\"t\"\n";
+	    else
+	      {
+		os_ << "  label=<";
+		if (name_)
+		  {
+		    escape_html(os_, *name_);
+		    if (opt_show_acc_)
+		      os_ << "<br/>";
+		  }
+		if (opt_show_acc_)
+		  aut_->get_acceptance().to_html
+		    (os_, [this](std::ostream& os, int v)
+		     {
+		       this->output_html_set_aux(os, v);
+		     });
+		os_ << ">\n";
+	      }
+	    os_ << "  labelloc=\"t\"\n";
 	  }
 	if (opt_circles_)
 	  os_ << "  node [shape=\"circle\"]\n";
+	if (!opt_font_.empty())
+	  os_ << "  fontname=\"" << opt_font_
+	      << "\"\n  node [fontname=\"" << opt_font_
+	      << "\"]\n  edge [fontname=\"" << opt_font_
+	      << "\"]\n";
 	// Any extra text passed in the SPOT_DOTEXTRA environment
 	// variable should be output at the end of the "header", so
 	// that our setup can be overridden.
 	static const char* extra = getenv("SPOT_DOTEXTRA");
-	if (extra)
+	if (extra && *extra)
 	  os_ << "  " << extra << '\n';
 	os_ << "  I [label=\"\", style=invis, ";
 	os_ << (opt_horizontal_ ? "width" : "height");
@@ -144,15 +304,53 @@ namespace spot
       process_link(const tgba_digraph::trans_storage_t& t)
       {
 	std::string label = bdd_format_formula(aut_->get_dict(), t.cond);
-	label = escape_str(label);
-	if (!mark_states_)
-	  if (auto a = t.acc)
-	    {
-	      label += "\\n";
-	      label += aut_->acc().format(a);
-	    }
-	os_ << "  " << t.src << " -> " << t.dst
-	    << " [label=\"" + label + "\"]\n";
+	os_ << "  " << t.src << " -> " << t.dst;
+	if (!opt_html_labels_)
+	  {
+	    os_ << " [label=\"";
+	    escape_str(os_, label);
+	    if (!mark_states_)
+	      if (auto a = t.acc)
+		{
+		  os_ << "\\n";
+		  if (!opt_all_bullets)
+		    os_ << '{';
+		  const char* space = "";
+		  for (auto v: a.sets())
+		    {
+		      if (!opt_all_bullets)
+			os_ << space;
+		      output_set(os_, v);
+		      space = ",";
+		    }
+		  if (!opt_all_bullets)
+		    os_ << '}';
+		}
+	    os_ << "\"]\n";
+	  }
+	else
+	  {
+	    os_ << " [label=<";
+	    escape_html(os_, label);
+	    if (!mark_states_)
+	      if (auto a = t.acc)
+		{
+		  os_ << "<br/>";
+		  if (!opt_all_bullets)
+		    os_ << '{';
+		  const char* space = "";
+		  for (auto v: a.sets())
+		    {
+		      if (!opt_all_bullets)
+			os_ << space;
+		      output_html_set(v);
+		      space = ",";
+		    }
+		  if (!opt_all_bullets)
+		    os_ << '}';
+		}
+	    os_ << ">]\n";
+	  }
       }
 
       void print(const const_tgba_digraph_ptr& aut)

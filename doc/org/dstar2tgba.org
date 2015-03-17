@@ -68,48 +68,58 @@ a Monitor, using the same options as [[file:ltl2tgba.org][=ltl2tgba=]].
 
 For instance here is the conversion to a Büchi automaton (=-B=) in [[http://http://www.graphviz.org/][GraphViz]]'s format:
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports code
 dstar2tgba -B fagfb
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim :exports results
+SPOT_DOTEXTRA= dstar2tgba -B fagfb --dot=
 #+END_SRC
 #+RESULTS:
 #+begin_example
 digraph G {
   rankdir=LR
   I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0"]
-  0 -> 0 [label="!a"]
-  0 -> 1 [label="a"]
-  1 [label="1", peripheries=2]
-  1 -> 1 [label="b"]
-  1 -> 2 [label="!b"]
+  I -> 1
+  0 [label="0", peripheries=2]
+  0 -> 0 [label="b"]
+  0 -> 2 [label="!b"]
+  1 [label="1"]
+  1 -> 0 [label="a"]
+  1 -> 1 [label="!a"]
   2 [label="2"]
-  2 -> 1 [label="b"]
+  2 -> 0 [label="b"]
   2 -> 2 [label="!b"]
 }
 #+end_example
 
-Which can be rendered as:
+Which can be rendered as (note that in this documentation
+we use some [[file:aout.org][environement variables]] to produce a more colorful
+output by default):
 
 #+NAME: fagfb2ba
-#+BEGIN_SRC sh :results verbatim :exports none
-dstar2tgba -B fagfb | sed 's/\\/\\\\/'
+#+BEGIN_SRC sh :results verbatim :exports code
+dstar2tgba -B fagfb
 #+END_SRC
 #+RESULTS: fagfb2ba
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0"]
-  0 -> 0 [label="!a"]
-  0 -> 1 [label="a"]
-  1 [label="1", peripheries=2]
-  1 -> 1 [label="b"]
-  1 -> 2 [label="!b"]
+  I -> 1
+  0 [label="0", peripheries=2]
+  0 -> 0 [label=<b>]
+  0 -> 2 [label=<!b>]
+  1 [label="1"]
+  1 -> 0 [label=<a>]
+  1 -> 1 [label=<!a>]
   2 [label="2"]
-  2 -> 1 [label="b"]
-  2 -> 2 [label="!b"]
+  2 -> 0 [label=<b>]
+  2 -> 2 [label=<!b>]
 }
 #+end_example
 
@@ -153,7 +163,7 @@ T0_S3:
 Here is the translation of =GFa & GFb= to a 4-state Streett automaton:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltlfilt -f 'GFa & GFb' -l | ltl2dstar --automata=streett --ltl2nba=spin:../../src/bin/ltl2tgba@-sD - gfagfb
+ltlfilt -f 'GFa & GFb' -l | ltl2dstar --automata=streett --ltl2nba=spin:ltl2tgba@-Ds - gfagfb
 cat gfagfb
 #+END_SRC
 #+RESULTS:
@@ -195,42 +205,27 @@ And now its conversion by =dstar2tgba= to a 2-state Büchi automaton.
 We don't pass any option to =dstar2tgba= because converting to TGBA in
 GraphViz's format is the default:
 
+#+NAME: gfagfb2ba
 #+BEGIN_SRC sh :results verbatim :exports code
 dstar2tgba gfagfb
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0"]
-  0 -> 1 [label="1"]
-  1 [label="1"]
-  1 -> 1 [label="!a & !b"]
-  1 -> 1 [label="a & !b\n{0}"]
-  1 -> 1 [label="!a & b\n{1}"]
-  1 -> 1 [label="a & b\n{0,1}"]
-}
-#+end_example
-
-#+NAME: gfagfb2ba
-#+BEGIN_SRC sh :results verbatim :exports none
-dstar2tgba gfagfb | sed 's/\\/\\\\/g'
 #+END_SRC
 #+RESULTS: gfagfb2ba
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 1 [label="1"]
+  0 -> 1 [label=<1>]
   1 [label="1"]
-  1 -> 1 [label="!a & !b"]
-  1 -> 1 [label="a & !b\\n{0}"]
-  1 -> 1 [label="!a & b\\n{1}"]
-  1 -> 1 [label="a & b\\n{0,1}"]
+  1 -> 1 [label=<!a &amp; !b>]
+  1 -> 1 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  1 -> 1 [label=<!a &amp; b<br/><font color="#F17CB0">❶</font>>]
+  1 -> 1 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
 }
 #+end_example
 
@@ -355,33 +350,33 @@ head -n 10 |
 while read f; do
   echo "$f"
   ltlfilt -l -f "$f" |
-  ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-sD - - |
+  ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-Ds - - |
   dstar2tgba -B --stats='  DRA: %Sst.; BA: %sst.; det.? %d; complete? %p'
 done
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-c U (c & (a | b | (Xc U (a & Xc))))
-  DRA: 3st.; BA: 2st.; det.? 1; complete? 0
-!b | F!c
-  DRA: 3st.; BA: 3st.; det.? 1; complete? 1
-(!a R F!b) R !b
-  DRA: 6st.; BA: 5st.; det.? 1; complete? 0
-b U !c
-  DRA: 3st.; BA: 2st.; det.? 1; complete? 0
+(b | Fa) R Fc
+  DRA: 9st.; BA: 6st.; det.? 1; complete? 1
+Ga U (Gc R (!a | Gc))
+  DRA: 7st.; BA: 7st.; det.? 0; complete? 0
 GFc
   DRA: 3st.; BA: 3st.; det.? 1; complete? 1
-(F!c U a) R !a
-  DRA: 6st.; BA: 5st.; det.? 1; complete? 0
-b | G!b
-  DRA: 4st.; BA: 3st.; det.? 1; complete? 0
-!a R (!c & (!a | (F!b U (!a & F!b))))
-  DRA: 5st.; BA: 4st.; det.? 1; complete? 0
-F(a & !b & G!c)
-  DRA: 2st.; BA: 3st.; det.? 0; complete? 0
-GF!c
-  DRA: 3st.; BA: 3st.; det.? 1; complete? 1
+!a | (a R b)
+  DRA: 3st.; BA: 2st.; det.? 1; complete? 0
+Xc R (G!c R (b | G!c))
+  DRA: 4st.; BA: 2st.; det.? 1; complete? 0
+c & G(b | F(a & c))
+  DRA: 5st.; BA: 3st.; det.? 1; complete? 0
+XXFc
+  DRA: 4st.; BA: 4st.; det.? 1; complete? 1
+XFc | Gb
+  DRA: 5st.; BA: 4st.; det.? 1; complete? 1
+G(((!a & Gc) | (a & F!c)) U (!a | Ga))
+  DRA: 6st.; BA: 5st.; det.? 1; complete? 1
+a & !b
+  DRA: 3st.; BA: 2st.; det.? 1; complete? 0
 #+end_example
 
 An important point you should be aware of when comparing these numbers
@@ -426,6 +421,6 @@ states and $n$ acceptance pairs.  Our translation to TGBA limits this
 to $|Q|\cdot(2^n+1)$ states.
 
 Sometimes, as in the [[#streett_to_tgba_example][example for =GFa & GFb=]] the output of this
-conversion will happen to be deterministic.  Let's say that this is
-luck: Spot does not implement any algorithm to preserve the
-determinism of Streett automata.
+conversion happens to be deterministic.  This is pure luck: Spot does
+not implement any algorithm to preserve the determinism of Streett
+automata.

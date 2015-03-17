@@ -14,8 +14,11 @@ option.
 Formulas to translate may be specified using [[file:ioltl.org][common input options for
 LTL/PSL formulas]].
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -f 'Fa & GFb'
+#+END_SRC
+#+BEGIN_SRC sh :results verbatim :exports results
+SPOT_DOTEXTRA= ltl2tgba -f 'Fa & GFb' --dot=
 #+END_SRC
 #+RESULTS:
 #+begin_example
@@ -47,23 +50,29 @@ ltl2tgba "Fa & GFb" | dot -Tpdf > tgba.pdf
 #+END_SRC
 #+RESULTS:
 
-The result would look like this:
+The result would look like this (note that in this documentation
+we use some [[file:aout.org][environement variables]] to produce a more colorful
+output by default)
 #+NAME: dotex
 #+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba "Fa & GFb" | sed 's/\\/\\\\/'
+ltl2tgba "Fa & GFb"
 #+END_SRC
 #+RESULTS: dotex
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 1
   0 [label="0"]
-  0 -> 0 [label="b\\n{0}"]
-  0 -> 0 [label="!b"]
+  0 -> 0 [label=<b<br/><font color="#5DA5DA">⓿</font>>]
+  0 -> 0 [label=<!b>]
   1 [label="1"]
-  1 -> 0 [label="a"]
-  1 -> 1 [label="!a"]
+  1 -> 0 [label=<a>]
+  1 -> 1 [label=<!a>]
 }
 #+end_example
 
@@ -74,53 +83,39 @@ $txt
 #+RESULTS:
 [[file:dotex.png]]
 
-The string between braces, ={0}=, represents the sets of acceptance
-sets a transition belongs to.  In this case, there is only one
-acceptance set, called =0=, containing a single transition.  You may
-have many transitions in the same acceptance set, and a transition may
-also belong to multiple acceptance sets.  An infinite path through
-this automaton is accepting iff it visit each acceptance set
-infinitely often.  Therefore, in the above example, any accepted path
-will /necessarily/ leave the initial state after a finite amount of
-steps, and then it will verify the property =b= infinitely often.  It
-is also possible that an automaton do not use any acceptance set at
-all, in which any run is accepting.
+Characters like ⓿, ❶, etc. denotes the acceptance sets a transition
+belongs to.  In this case, there is only one acceptance set, called
+=0=, containing a single transition.  You may have many transitions in
+the same acceptance set, and a transition may also belong to multiple
+acceptance sets.  An infinite path through this automaton is accepting
+iff it visit each acceptance set infinitely often.  Therefore, in the
+above example, any accepted path will /necessarily/ leave the initial
+state after a finite amount of steps, and then it will verify the
+property =b= infinitely often.  It is also possible that an automaton
+do not use any acceptance set at all, in which any run is accepting.
 
 Here is a TGBA with multiple acceptance sets (we omit the call to
 =dot= to render the output of =ltl2tgba= from now on):
 
-#+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba 'GFa & GFb'
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0"]
-  0 -> 0 [label="a & b\n{0,1}"]
-  0 -> 0 [label="!a & !b"]
-  0 -> 0 [label="!a & b\n{1}"]
-  0 -> 0 [label="a & !b\n{0}"]
-}
-#+end_example
-
 #+NAME: dotex2
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba "GFa & GFb" | sed 's/\\/\\\\/'
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "GFa & GFb"
 #+END_SRC
 #+RESULTS: dotex2
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 0 [label="a & b\\n{0,1}"]
-  0 -> 0 [label="!a & !b"]
-  0 -> 0 [label="!a & b\\n{1}"]
-  0 -> 0 [label="a & !b\\n{0}"]
+  0 -> 0 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
+  0 -> 0 [label=<!a &amp; !b>]
+  0 -> 0 [label=<!a &amp; b<br/><font color="#F17CB0">❶</font>>]
+  0 -> 0 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
 }
 #+end_example
 
@@ -130,57 +125,38 @@ $txt
 #+RESULTS:
 [[file:dotex2.png]]
 
-The above TGBA has two acceptance sets: =0= and =1=.  The position of
+The above TGBA has two acceptance sets: ⓿ and ❶.  The position of
 these acceptance sets ensures that atomic propositions =a= and =b= must
 be true infinitely often.
 
 A Büchi automaton for the previous formula can be obtained with the
 =-B= option:
 
+#+NAME: dotex2ba
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -B 'GFa & GFb'
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0", peripheries=2]
-  0 -> 0 [label="a & b"]
-  0 -> 1 [label="!b"]
-  0 -> 2 [label="!a & b"]
-  1 [label="1"]
-  1 -> 0 [label="a & b"]
-  1 -> 1 [label="!b"]
-  1 -> 2 [label="!a & b"]
-  2 [label="2"]
-  2 -> 0 [label="a"]
-  2 -> 2 [label="!a"]
-}
-#+end_example
-
-#+NAME: dotex2ba
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba -B 'GFa & GFb' | sed 's/\\/\\\\/'
 #+END_SRC
 #+RESULTS: dotex2ba
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0", peripheries=2]
-  0 -> 0 [label="a & b"]
-  0 -> 1 [label="!b"]
-  0 -> 2 [label="!a & b"]
+  0 -> 0 [label=<a &amp; b>]
+  0 -> 1 [label=<!b>]
+  0 -> 2 [label=<!a &amp; b>]
   1 [label="1"]
-  1 -> 0 [label="a & b"]
-  1 -> 1 [label="!b"]
-  1 -> 2 [label="!a & b"]
+  1 -> 0 [label=<a &amp; b>]
+  1 -> 1 [label=<!b>]
+  1 -> 2 [label=<!a &amp; b>]
   2 [label="2"]
-  2 -> 0 [label="a"]
-  2 -> 2 [label="!a"]
+  2 -> 0 [label=<a>]
+  2 -> 2 [label=<!a>]
 }
 #+end_example
 
@@ -201,48 +177,33 @@ is done internally):
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba --dot=t -B 'GFa & GFb'
 #+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0"]
-  0 -> 0 [label="a & b\n{0}"]
-  0 -> 1 [label="!b\n{0}"]
-  0 -> 2 [label="!a & b\n{0}"]
-  1 [label="1"]
-  1 -> 0 [label="a & b"]
-  1 -> 1 [label="!b"]
-  1 -> 2 [label="!a & b"]
-  2 [label="2"]
-  2 -> 0 [label="a"]
-  2 -> 2 [label="!a"]
-}
-#+end_example
 
 #+NAME: dotex2ba-t
 #+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba --dot=t -B 'GFa & GFb' | sed 's/\\/\\\\/'
+ltl2tgba --dot=.t -B 'GFa & GFb'
 #+END_SRC
 
 #+RESULTS: dotex2ba-t
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 0 [label="a & b\\n{0}"]
-  0 -> 1 [label="!b\\n{0}"]
-  0 -> 2 [label="!a & b\\n{0}"]
+  0 -> 0 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  0 -> 1 [label=<!b<br/><font color="#5DA5DA">⓿</font>>]
+  0 -> 2 [label=<!a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
   1 [label="1"]
-  1 -> 0 [label="a & b"]
-  1 -> 1 [label="!b"]
-  1 -> 2 [label="!a & b"]
+  1 -> 0 [label=<a &amp; b>]
+  1 -> 1 [label=<!b>]
+  1 -> 2 [label=<!a &amp; b>]
   2 [label="2"]
-  2 -> 0 [label="a"]
-  2 -> 2 [label="!a"]
+  2 -> 0 [label=<a>]
+  2 -> 2 [label=<!a>]
 }
 #+end_example
 
@@ -262,18 +223,28 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 #+begin_example
   -8, --utf8                 enable UTF-8 characters in output (ignored with
                              --lbtt or --spin)
-      --dot[=c|h|n|N|s|t|v]  GraphViz's format (default).  Add letters to chose
-                             (c) circular nodes, (h) horizontal layout, (v)
-                             vertical layout, (n) with name, (N) without name,
-                             (s) with SCCs, (t) always transition-based
+      --dot[=a|b|c|f(FONT)|h|n|N|r|R|s|t|v]
+                             GraphViz's format (default).  Add letters for (a)
+                             acceptance display, (b) acceptance sets as
+                             bullets,(c) circular nodes, (f(FONT)) use FONT,
+                             (h) horizontal layout, (v) vertical layout, (n)
+                             with name, (N) without name, (r) rainbow colors
+                             for acceptance set, (R) color acceptance set by
+                             Inf/Fin, (s) with SCCs, (t) force transition-based
                              acceptance.
-  -H, --hoaf[=s|t|m|l]       Output the automaton in HOA format.  Add letters
-                             to select (s) state-based acceptance, (t)
-                             transition-based acceptance, (m) mixed acceptance,
-                             (l) single-line output
+  -H, --hoaf[=i|s|t|m|l]     Output the automaton in HOA format.  Add letters
+                             to select (i) use implicit labels for complete
+                             deterministic automata, (s) prefer state-based
+                             acceptance when possible [default], (t) force
+                             transition-based acceptance, (m) mix state and
+                             transition-based acceptance, (l) single-line
+                             output
       --lbtt[=t]             LBTT's format (add =t to force transition-based
                              acceptance even on Büchi automata)
       --name=FORMAT          set the name of the output automaton
+  -o, --output=FORMAT        send output to a file named FORMAT instead of
+                             standard output.  The first automaton sent to a
+                             file truncates it unless FORMAT starts with '>>'.
   -q, --quiet                suppress all normal output
   -s, --spin[=6|c]           Spin neverclaim (implies --ba).  Add letters to
                              select (6) Spin's 6.2.4 style, (c) comments on
@@ -284,50 +255,31 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 Option =-8= can be used to improve the readability of the output
 if your system can display UTF-8 correctly.
 
-#+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba -B8 'GFa & GFb'
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0", peripheries=2]
-  0 -> 0 [label="a∧b"]
-  0 -> 1 [label="b̅"]
-  0 -> 2 [label="a̅∧b"]
-  1 [label="1"]
-  1 -> 0 [label="a∧b"]
-  1 -> 1 [label="b̅"]
-  1 -> 2 [label="a̅∧b"]
-  2 [label="2"]
-  2 -> 0 [label="a"]
-  2 -> 2 [label="a̅"]
-}
-#+end_example
-
 #+NAME: dotex2ba8
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba -B8 "GFa & GFb" | sed 's/\\/\\\\/'
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba -B8 "GFa & GFb"
 #+END_SRC
 #+RESULTS: dotex2ba8
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0", peripheries=2]
-  0 -> 0 [label="a∧b"]
-  0 -> 1 [label="b̅"]
-  0 -> 2 [label="a̅∧b"]
+  0 -> 0 [label=<a∧b>]
+  0 -> 1 [label=<b̅>]
+  0 -> 2 [label=<a̅∧b>]
   1 [label="1"]
-  1 -> 0 [label="a∧b"]
-  1 -> 1 [label="b̅"]
-  1 -> 2 [label="a̅∧b"]
+  1 -> 0 [label=<a∧b>]
+  1 -> 1 [label=<b̅>]
+  1 -> 2 [label=<a̅∧b>]
   2 [label="2"]
-  2 -> 0 [label="a"]
-  2 -> 2 [label="a̅"]
+  2 -> 0 [label=<a>]
+  2 -> 2 [label=<a̅>]
 }
 #+end_example
 
@@ -423,48 +375,30 @@ automaton.
 An example formula where the difference between =-D= and =--small= is
 flagrant is =Ga|Gb|Gc=:
 
-#+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba 'Ga|Gb|Gc'
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0", peripheries=2]
-  0 -> 1 [label="a"]
-  0 -> 2 [label="b"]
-  0 -> 3 [label="c"]
-  1 [label="1", peripheries=2]
-  1 -> 1 [label="a"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="b"]
-  3 [label="3", peripheries=2]
-  3 -> 3 [label="c"]
-}
-#+end_example
-
 #+NAME: gagbgc1
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba "Ga|Gb|Gc" | sed 's/\\/\\\\/'
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba "Ga|Gb|Gc"
 #+END_SRC
 #+RESULTS: gagbgc1
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label="0", peripheries=2]
-  0 -> 1 [label="a"]
-  0 -> 2 [label="b"]
-  0 -> 3 [label="c"]
-  1 [label="1", peripheries=2]
-  1 -> 1 [label="a"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="b"]
-  3 [label="3", peripheries=2]
-  3 -> 3 [label="c"]
+  0 [label="0"]
+  0 -> 1 [label=<a>]
+  0 -> 2 [label=<b>]
+  0 -> 3 [label=<c>]
+  1 [label="1"]
+  1 -> 1 [label=<a>]
+  2 [label="2"]
+  2 -> 2 [label=<b>]
+  3 [label="3"]
+  3 -> 3 [label=<c>]
 }
 #+end_example
 
@@ -474,80 +408,46 @@ $txt
 #+RESULTS:
 [[file:gagbgc1.png]]
 
+#+NAME: gagbgc2
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -D 'Ga|Gb|Gc'
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 6
-  0 [label="0", peripheries=2]
-  0 -> 0 [label="c"]
-  1 [label="1", peripheries=2]
-  1 -> 0 [label="!b & c"]
-  1 -> 1 [label="b & c"]
-  1 -> 2 [label="b & !c"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="b"]
-  3 [label="3", peripheries=2]
-  3 -> 2 [label="!a & b"]
-  3 -> 3 [label="a & b"]
-  3 -> 5 [label="a & !b"]
-  4 [label="4", peripheries=2]
-  4 -> 0 [label="!a & c"]
-  4 -> 4 [label="a & c"]
-  4 -> 5 [label="a & !c"]
-  5 [label="5", peripheries=2]
-  5 -> 5 [label="a"]
-  6 [label="6", peripheries=2]
-  6 -> 0 [label="!a & !b & c"]
-  6 -> 1 [label="!a & b & c"]
-  6 -> 2 [label="!a & b & !c"]
-  6 -> 3 [label="a & b & !c"]
-  6 -> 4 [label="a & !b & c"]
-  6 -> 5 [label="a & !b & !c"]
-  6 -> 6 [label="a & b & c"]
-}
-#+end_example
-
-#+NAME: gagbgc2
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba -D 'Ga|Gb|Gc' | sed 's/\\/\\\\/'
 #+END_SRC
 #+RESULTS: gagbgc2
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 6
   0 [label="0", peripheries=2]
-  0 -> 0 [label="c"]
+  0 -> 0 [label=<c>]
   1 [label="1", peripheries=2]
-  1 -> 0 [label="!b & c"]
-  1 -> 1 [label="b & c"]
-  1 -> 2 [label="b & !c"]
+  1 -> 0 [label=<!b &amp; c>]
+  1 -> 1 [label=<b &amp; c>]
+  1 -> 2 [label=<b &amp; !c>]
   2 [label="2", peripheries=2]
-  2 -> 2 [label="b"]
+  2 -> 2 [label=<b>]
   3 [label="3", peripheries=2]
-  3 -> 2 [label="!a & b"]
-  3 -> 3 [label="a & b"]
-  3 -> 5 [label="a & !b"]
+  3 -> 2 [label=<!a &amp; b>]
+  3 -> 3 [label=<a &amp; b>]
+  3 -> 5 [label=<a &amp; !b>]
   4 [label="4", peripheries=2]
-  4 -> 0 [label="!a & c"]
-  4 -> 4 [label="a & c"]
-  4 -> 5 [label="a & !c"]
+  4 -> 0 [label=<!a &amp; c>]
+  4 -> 4 [label=<a &amp; c>]
+  4 -> 5 [label=<a &amp; !c>]
   5 [label="5", peripheries=2]
-  5 -> 5 [label="a"]
+  5 -> 5 [label=<a>]
   6 [label="6", peripheries=2]
-  6 -> 0 [label="!a & !b & c"]
-  6 -> 1 [label="!a & b & c"]
-  6 -> 2 [label="!a & b & !c"]
-  6 -> 3 [label="a & b & !c"]
-  6 -> 4 [label="a & !b & c"]
-  6 -> 5 [label="a & !b & !c"]
-  6 -> 6 [label="a & b & c"]
+  6 -> 0 [label=<!a &amp; !b &amp; c>]
+  6 -> 1 [label=<!a &amp; b &amp; c>]
+  6 -> 2 [label=<!a &amp; b &amp; !c>]
+  6 -> 3 [label=<a &amp; b &amp; !c>]
+  6 -> 4 [label=<a &amp; !b &amp; c>]
+  6 -> 5 [label=<a &amp; !b &amp; !c>]
+  6 -> 6 [label=<a &amp; b &amp; c>]
 }
 #+end_example
 
@@ -701,47 +601,30 @@ compatible outgoing transition exist.
 -MD= (short for =--monitor --deterministic=) will output the minimal
 deterministic monitor for the given formula.
 
+#+NAME: monitor1
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -M '(Xa & Fb) | Gc'
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0", peripheries=2]
-  0 -> 1 [label="1"]
-  0 -> 3 [label="c"]
-  1 [label="1", peripheries=2]
-  1 -> 2 [label="a"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="1"]
-  3 [label="3", peripheries=2]
-  3 -> 3 [label="c"]
-}
-#+end_example
-
-#+NAME: monitor1
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba -M '(Xa & Fb) | Gc' | sed 's/\\/\\\\/'
 #+END_SRC
 
 #+RESULTS: monitor1
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label="0", peripheries=2]
-  0 -> 1 [label="1"]
-  0 -> 3 [label="c"]
-  1 [label="1", peripheries=2]
-  1 -> 2 [label="a"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="1"]
-  3 [label="3", peripheries=2]
-  3 -> 3 [label="c"]
+  0 [label="0"]
+  0 -> 1 [label=<1>]
+  0 -> 3 [label=<c>]
+  1 [label="1"]
+  1 -> 2 [label=<a>]
+  2 [label="2"]
+  2 -> 2 [label=<1>]
+  3 [label="3"]
+  3 -> 3 [label=<c>]
 }
 #+end_example
 
@@ -752,53 +635,33 @@ $txt
 #+RESULTS:
 [[file:monitor1.png]]
 
+#+NAME: monitor2
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -MD '(Xa & Fb) | Gc'
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 3
-  0 [label="0", peripheries=2]
-  0 -> 0 [label="1"]
-  1 [label="1", peripheries=2]
-  1 -> 0 [label="a"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="c"]
-  3 [label="3", peripheries=2]
-  3 -> 1 [label="!c"]
-  3 -> 4 [label="c"]
-  4 [label="4", peripheries=2]
-  4 -> 0 [label="a"]
-  4 -> 2 [label="!a & c"]
-}
-#+end_example
-
-#+NAME: monitor2
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba -MD '(Xa & Fb) | Gc' | sed 's/\\/\\\\/'
 #+END_SRC
 
 #+RESULTS: monitor2
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 3
-  0 [label="0", peripheries=2]
-  0 -> 0 [label="1"]
-  1 [label="1", peripheries=2]
-  1 -> 0 [label="a"]
-  2 [label="2", peripheries=2]
-  2 -> 2 [label="c"]
-  3 [label="3", peripheries=2]
-  3 -> 1 [label="!c"]
-  3 -> 4 [label="c"]
-  4 [label="4", peripheries=2]
-  4 -> 0 [label="a"]
-  4 -> 2 [label="!a & c"]
+  0 [label="0"]
+  0 -> 0 [label=<1>]
+  1 [label="1"]
+  1 -> 0 [label=<a>]
+  2 [label="2"]
+  2 -> 2 [label=<c>]
+  3 [label="3"]
+  3 -> 1 [label=<!c>]
+  3 -> 4 [label=<c>]
+  4 [label="4"]
+  4 -> 0 [label=<a>]
+  4 -> 2 [label=<!a &amp; c>]
 }
 #+end_example
 
@@ -811,7 +674,8 @@ $txt
 
 Because they accept all finite executions that could be extended to
 match the formula, monitor cannot be used to check for eventualities
-such as =F(a)=.  Any finite execution can be extended to match =F(a)=.
+such as =F(a)=: indeed, any finite execution can be extended to match
+=F(a)=.
 
 #  LocalWords:  ltl tgba num toc PSL Büchi automata SRC GFb invis Acc
 #  LocalWords:  ltlfilt filenames GraphViz vectorial pdf Tpdf dotex

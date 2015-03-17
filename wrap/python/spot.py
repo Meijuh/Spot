@@ -31,7 +31,7 @@ def _ostream_to_svg(ostr):
     res = dotty.communicate()
     return res[0].decode('utf-8')
 
-def _render_automaton_as_svg(a, opt=""):
+def _render_automaton_as_svg(a, opt=None):
     ostr = ostringstream()
     dotty_reachable(ostr, a, opt)
     return _ostream_to_svg(ostr)
@@ -47,7 +47,7 @@ def _render_formula_as_svg(a):
     dotty(ostr, a)
     return SVG(_ostream_to_svg(ostr))
 
-def _render_tgba_as_svg(a, opt=""):
+def _render_tgba_as_svg(a, opt=None):
     # Load the SVG function only if we need it. This way the bindings
     # can still be used outside of IPython if IPython is not
     # installed.

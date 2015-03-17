@@ -78,6 +78,31 @@ namespace spot
   }
 
   std::ostream&
+  escape_html(std::ostream& os, const std::string& str)
+  {
+    for (auto i: str)
+      switch (i)
+	{
+	case '&':
+	  os << "&amp;";
+	  break;
+	case '"':
+	  os << "&quot;";
+	  break;
+	case '<':
+	  os << "&lt;";
+	  break;
+	case '>':
+	  os << "&gt;";
+	  break;
+	default:
+	  os << i;
+	  break;
+	}
+    return os;
+  }
+
+  std::ostream&
   escape_str(std::ostream& os, const std::string& str)
   {
     for (auto i: str)

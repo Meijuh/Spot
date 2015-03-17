@@ -312,13 +312,16 @@ the following words, then the string on the right is appended.
 
 So for instance you can type just
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports code
 ltldo ltl2ba -f a
 #+END_SRC
 
 to obtain a Dot output (this is the default output format for =ltldo=)
 for the neverclaim produced by =ltl2ba -f a=.
 
+#+BEGIN_SRC sh :results verbatim :exports result
+SPOT_DOTEXTRA= ltldo ltl2ba -f a --dot=
+#+END_SRC
 #+RESULTS:
 : digraph G {
 :   rankdir=LR

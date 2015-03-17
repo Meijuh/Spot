@@ -660,6 +660,24 @@ namespace spot
       // Return the set of sets appearing in the condition.
       acc_cond::mark_t used_sets() const;
 
+      // Return the sets used as Inf or Fin in the acceptance condition
+      std::pair<acc_cond::mark_t, acc_cond::mark_t> used_inf_fin_sets() const;
+
+      // Print the acceptance as HTML.  The set_printer function can
+      // be used to implement customized output for set numbers.
+      std::ostream&
+      to_html(std::ostream& os,
+	      std::function<void(std::ostream&, int)>
+	      set_printer = nullptr) const;
+
+      // Print the acceptance as text.  The set_printer function can
+      // be used to implement customized output for set numbers.
+      std::ostream&
+      to_text(std::ostream& os,
+	      std::function<void(std::ostream&, int)>
+	      set_printer = nullptr) const;
+
+      // Calls to_text
       SPOT_API
       friend std::ostream& operator<<(std::ostream& os, const acc_code& code);
     };

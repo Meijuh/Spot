@@ -46,6 +46,13 @@ namespace spot
   SPOT_API std::ostream&
   escape_latex(std::ostream& os, const std::string& str);
 
+  /// \brief Escape special HTML characters.
+  ///
+  /// The following characters are rewritten:
+  /// <code>&gt; &lt; &quot; &amp;</code>
+  SPOT_API std::ostream&
+  escape_html(std::ostream& os, const std::string& str);
+
   /// \brief Escape characters <code>"</code>, <code>\\</code>, and
   /// <code>\\n</code> in \a str.
   SPOT_API std::ostream&

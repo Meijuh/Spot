@@ -96,6 +96,7 @@ ltl2tgba -D -x sat-minimize "GF(a <-> XXb)" --stats='states=%s, det=%d'
 
 We can draw it:
 
+#+NAME: gfaexxb3
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -D -x sat-minimize "GF(a <-> XXb)"
 #+END_SRC
@@ -103,57 +104,32 @@ ltl2tgba -D -x sat-minimize "GF(a <-> XXb)"
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 1 [label="!b\n{0}"]
-  0 -> 1 [label="a & b"]
-  0 -> 2 [label="!a & b"]
+  0 -> 1 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  0 -> 2 [label=<!a &amp; b>]
+  0 -> 3 [label=<a &amp; b>]
+  0 -> 3 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
   1 [label="1"]
-  1 -> 1 [label="a & b\n{0}"]
-  1 -> 1 [label="a & !b"]
-  1 -> 2 [label="!a & !b"]
-  1 -> 3 [label="!a & b\n{0}"]
+  1 -> 0 [label=<a &amp; b>]
+  1 -> 0 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  1 -> 1 [label=<!a &amp; b>]
+  1 -> 1 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
   2 [label="2"]
-  2 -> 0 [label="a & !b"]
-  2 -> 1 [label="b\n{0}"]
-  2 -> 3 [label="!a & !b"]
+  2 -> 0 [label=<a &amp; !b>]
+  2 -> 1 [label=<!a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 1 [label=<!a &amp; !b>]
+  2 -> 3 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
   3 [label="3"]
-  3 -> 0 [label="a & b"]
-  3 -> 0 [label="a & !b\n{0}"]
-  3 -> 3 [label="!a & b"]
-  3 -> 3 [label="!a & !b\n{0}"]
-}
-#+end_example
-
-#+NAME: gfaexxb3
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba -D -x sat-minimize "GF(a <-> XXb)" | sed 's/\\/\\\\/'
-#+END_SRC
-#+RESULTS: gfaexxb3
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0"]
-  0 -> 1 [label="!b\\n{0}"]
-  0 -> 1 [label="a & b"]
-  0 -> 2 [label="!a & b"]
-  1 [label="1"]
-  1 -> 1 [label="a & b\\n{0}"]
-  1 -> 1 [label="a & !b"]
-  1 -> 2 [label="!a & !b"]
-  1 -> 3 [label="!a & b\\n{0}"]
-  2 [label="2"]
-  2 -> 0 [label="a & !b"]
-  2 -> 1 [label="b\\n{0}"]
-  2 -> 3 [label="!a & !b"]
-  3 [label="3"]
-  3 -> 0 [label="a & b"]
-  3 -> 0 [label="a & !b\\n{0}"]
-  3 -> 3 [label="!a & b"]
-  3 -> 3 [label="!a & !b\\n{0}"]
+  3 -> 2 [label=<!a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  3 -> 2 [label=<!a &amp; !b>]
+  3 -> 3 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  3 -> 3 [label=<a &amp; !b>]
 }
 #+end_example
 
@@ -168,82 +144,45 @@ acceptance.  If we want a traditional Büchi automaton, with
 state-based acceptance, we only need to add the =-B= option.  The
 result will of course be slightly bigger.
 
+#+NAME: gfaexxb4
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -BD -x sat-minimize "GF(a <-> XXb)"
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 0
-  0 [label="0"]
-  0 -> 0 [label="!a & b"]
-  0 -> 1 [label="!a & !b"]
-  0 -> 2 [label="a & !b"]
-  0 -> 3 [label="a & b"]
-  1 [label="1"]
-  1 -> 0 [label="!a & b\n{0}"]
-  1 -> 2 [label="a & !b\n{0}"]
-  1 -> 3 [label="a & b\n{0}"]
-  1 -> 4 [label="!a & !b\n{0}"]
-  2 [label="2"]
-  2 -> 4 [label="!a\n{0}"]
-  2 -> 5 [label="a\n{0}"]
-  3 [label="3"]
-  3 -> 1 [label="!a & !b"]
-  3 -> 2 [label="a & !b"]
-  3 -> 4 [label="!a & b"]
-  3 -> 5 [label="a & b"]
-  4 [label="4"]
-  4 -> 0 [label="!a & !b"]
-  4 -> 1 [label="!a & b"]
-  4 -> 2 [label="a & b"]
-  4 -> 3 [label="a & !b"]
-  5 [label="5"]
-  5 -> 1 [label="b"]
-  5 -> 4 [label="!a & !b"]
-  5 -> 5 [label="a & !b"]
-}
-#+end_example
-
-#+NAME: gfaexxb4
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba -BD -x sat-minimize "GF(a <-> XXb)" | sed 's/\\/\\\\/'
 #+END_SRC
 #+RESULTS: gfaexxb4
 #+begin_example
 digraph G {
   rankdir=LR
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 0 [label="!a & b"]
-  0 -> 1 [label="!a & !b"]
-  0 -> 2 [label="a & !b"]
-  0 -> 3 [label="a & b"]
+  0 -> 0 [label=<!a &amp; b>]
+  0 -> 1 [label=<!b>]
+  0 -> 2 [label=<a &amp; b>]
   1 [label="1"]
-  1 -> 0 [label="!a & b\\n{0}"]
-  1 -> 2 [label="a & !b\\n{0}"]
-  1 -> 3 [label="a & b\\n{0}"]
-  1 -> 4 [label="!a & !b\\n{0}"]
+  1 -> 4 [label=<!a<br/><font color="#5DA5DA">⓿</font>>]
+  1 -> 5 [label=<a<br/><font color="#5DA5DA">⓿</font>>]
   2 [label="2"]
-  2 -> 4 [label="!a\\n{0}"]
-  2 -> 5 [label="a\\n{0}"]
+  2 -> 1 [label=<!b>]
+  2 -> 4 [label=<!a &amp; b>]
+  2 -> 5 [label=<a &amp; b>]
   3 [label="3"]
-  3 -> 1 [label="!a & !b"]
-  3 -> 2 [label="a & !b"]
-  3 -> 4 [label="!a & b"]
-  3 -> 5 [label="a & b"]
+  3 -> 0 [label=<!a<br/><font color="#5DA5DA">⓿</font>>]
+  3 -> 1 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  3 -> 2 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
   4 [label="4"]
-  4 -> 0 [label="!a & !b"]
-  4 -> 1 [label="!a & b"]
-  4 -> 2 [label="a & b"]
-  4 -> 3 [label="a & !b"]
+  4 -> 0 [label=<!a &amp; !b>]
+  4 -> 1 [label=<a &amp; b>]
+  4 -> 2 [label=<a &amp; !b>]
+  4 -> 3 [label=<!a &amp; b>]
   5 [label="5"]
-  5 -> 1 [label="b"]
-  5 -> 4 [label="!a & !b"]
-  5 -> 5 [label="a & !b"]
+  5 -> 1 [label=<a &amp; b>]
+  5 -> 3 [label=<!a &amp; b>]
+  5 -> 4 [label=<!a &amp; !b>]
+  5 -> 5 [label=<a &amp; !b>]
 }
 #+end_example
 

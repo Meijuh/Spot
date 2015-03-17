@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+y# -*- coding: utf-8 -*-
 #+TITLE: Common output options for automata
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
@@ -18,16 +18,22 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 #+begin_example
   -8, --utf8                 enable UTF-8 characters in output (ignored with
                              --lbtt or --spin)
-      --dot[=c|h|n|N|s|t|v]  GraphViz's format (default).  Add letters for (a)
-                             acceptance display, (c) circular nodes, (h)
-                             horizontal layout, (v) vertical layout, (n) with
-                             name, (N) without name, (s) with SCCs, (t) force
-                             transition-based acceptance.
-  -H, --hoaf[=s|t|m|l]       Output the automaton in HOA format.  Add letters
-                             to select (s) prefer state-based acceptance when
-                             possible [default], (t) force transition-based
-                             acceptance, (m) mix state and transition-based
-                             acceptance, (l) single-line output
+      --dot[=a|b|c|f(FONT)|h|n|N|r|R|s|t|v]
+                             GraphViz's format (default).  Add letters for (a)
+                             acceptance display, (b) acceptance sets as
+                             bullets,(c) circular nodes, (f(FONT)) use FONT,
+                             (h) horizontal layout, (v) vertical layout, (n)
+                             with name, (N) without name, (r) rainbow colors
+                             for acceptance set, (R) color acceptance set by
+                             Inf/Fin, (s) with SCCs, (t) force transition-based
+                             acceptance.
+  -H, --hoaf[=i|s|t|m|l]     Output the automaton in HOA format.  Add letters
+                             to select (i) use implicit labels for complete
+                             deterministic automata, (s) prefer state-based
+                             acceptance when possible [default], (t) force
+                             transition-based acceptance, (m) mix state and
+                             transition-based acceptance, (l) single-line
+                             output
       --lbtt[=t]             LBTT's format (add =t to force transition-based
                              acceptance even on Büchi automata)
       --name=FORMAT          set the name of the output automaton
@@ -118,148 +124,161 @@ represent.  Here is a picture of these two automata:
 
 #+NAME: hoafex
 #+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba --dot=cn '(Ga -> Gb) W c' 'a U b' | dot | gvpack |
+ltl2tgba --dot=.cn '(Ga -> Gb) W c' 'a U b' | dot | gvpack |
 perl -pe 's/\\\n//g;s/\\/\\\\/g;s/graph G/graph cluster/g'
 #+END_SRC
 #+RESULTS: hoafex
 #+begin_example
 digraph root {
-	graph [bb="0,0,425,231.06",
+	graph [bb="0,0,427,231.07",
+		fontname=Lato,
 		labelloc=t,
 		lheight=0.21,
 		rankdir=LR
 	];
-	node [label="\\N",
-		shape=circle
+	node [fillcolor="#ffffa0",
+		fontname=Lato,
+		label="\\N",
+		shape=circle,
+		style=filled
 	];
+	edge [fontname=Lato];
 	subgraph cluster {
 		graph [bb="",
-			label="(Gb | F!a) W c",
+			fontname=Lato,
+			label=<(Gb | F!a) W c>,
 			labelloc=t,
 			lheight=0.21,
-			lp="196.5,196.66",
-			lwidth=1.14,
+			lp="197.5,196.66",
+			lwidth=1.19,
 			rankdir=LR
 		];
-		node [height="",
+		node [fillcolor="#ffffa0",
+			fontname=Lato,
+			height="",
 			label="\\N",
 			pos="",
 			shape=circle,
-			style="",
+			style=filled,
 			width=""
 		];
-		edge [label="",
+		edge [fontname=Lato,
+			label="",
 			lp="",
 			pos=""
 		];
 		I		 [height=0.013889,
 			label="",
-			pos="1,49.162",
+			pos="1,49.168",
 			style=invis,
 			width=0.013889];
 		1		 [height=0.5,
 			label=1,
-			pos="56,49.162",
+			pos="56,49.168",
 			width=0.5];
 		I -> 1		 [pos="e,37.942,49.324 1.1549,49.324 2.6725,49.324 15.097,49.324 27.628,49.324"];
-		1 -> 1		 [label="!a & !c\\n{0}",
+		1 -> 1		 [label=<!a &amp; !c<br/><font color="#5DA5DA">⓿</font>>,
 			lp="56,100.32",
-			pos="e,62.379,66.361 49.621,66.361 48.319,76.181 50.445,85.324 56,85.324 59.472,85.324 61.604,81.752 62.398,76.677"];
+			pos="e,62.379,66.362 49.621,66.362 48.319,76.182 50.445,85.324 56,85.324 59.472,85.324 61.604,81.753 62.398,76.677"];
 		0		 [height=0.5,
 			label=0,
-			pos="189,121.16",
+			pos="190,121.17",
 			width=0.5];
-		1 -> 0		 [label="a & b & !c",
-			lp="122.5,113.82",
-			pos="e,171.82,115.02 70.135,60.558 76.501,65.71 84.4,71.688 92,76.324 114.85,90.263 142.72,102.89 162.53,111.19"];
+		1 -> 0		 [label=<a &amp; b &amp; !c>,
+			lp="123,113.83",
+			pos="e,172.99,115.19 70.127,60.572 76.491,65.727 84.391,71.704 92,76.324 115.21,90.42 143.57,103.1 163.61,111.38"];
 		2		 [height=0.5,
 			label=2,
-			pos="189,34.162",
+			pos="190,34.168",
 			width=0.5];
-		1 -> 2		 [label="a & !c",
-			lp="122.5,64.823",
-			pos="e,174.09,44.491 73.626,53.241 93.026,57.118 125.9,61.52 153,54.324 157.19,53.213 161.39,51.47 165.37,49.466"];
+		1 -> 2		 [label=<a &amp; !c>,
+			lp="123,64.824",
+			pos="e,175.09,44.492 73.8,53.268 93.402,57.17 126.62,61.596 154,54.324 158.19,53.213 162.39,51.47 166.37,49.467"];
 		3		 [height=0.5,
 			label=3,
-			pos="375,34.162",
+			pos="377,34.168",
 			width=0.5];
-		1 -> 3		 [label=c,
-			lp="240.5,9.8235",
-			pos="e,359.03,25.984 66.028,34.328 72.163,25.634 81.128,15.425 92,10.324 114,0 275.42,0.3271 310,7.3235 323.76,10.107 338.24,15.942 349.94,21.478"];
-		0 -> 0		 [label="b\\n{0}",
-			lp="189,172.32",
-			pos="e,197.63,137.24 180.37,137.24 178.11,147.47 180.99,157.32 189,157.32 194.26,157.32 197.3,153.08 198.14,147.27"];
-		2 -> 1		 [label="!a & !c\\n{0}",
-			lp="122.5,35.324",
-			pos="e,68.596,36.184 172.36,26.591 166.44,24.064 159.55,21.586 153,20.324 126.38,15.197 117.5,11.13 92,20.324 86.432,22.331 81.123,25.651 76.398,29.343"];
-		2 -> 2		 [label="a & !c",
-			lp="189,77.824",
-			pos="e,197.63,50.24 180.37,50.24 178.11,60.474 180.99,70.324 189,70.324 194.26,70.324 197.3,66.082 198.14,60.273"];
-		2 -> 3		 [label="!a & c",
-			lp="292,105.82",
-			pos="e,363.94,48.712 202.25,46.94 217.46,61.618 244.99,85.026 274,94.324 289.24,99.207 295.12,100.21 310,94.324 329.12,86.764 345.87,70.495 357.43,56.803"];
+		1 -> 3		 [label=<c>,
+			lp="242,9.8246",
+			pos="e,361.03,25.984 66.027,34.327 72.161,25.632 81.127,15.423 92,10.325 114.02,0 277.48,0.3418 312,7.3246 325.76,10.108 340.24,15.943 351.94,21.478"];
+		0 -> 0		 [label=<b<br/><font color="#5DA5DA">⓿</font>>,
+			lp="190,172.33",
+			pos="e,198.98,137.24 181.02,137.24 178.68,147.48 181.67,157.33 190,157.33 195.47,157.33 198.63,153.08 199.5,147.28"];
+		2 -> 1		 [label=<!a &amp; !c<br/><font color="#5DA5DA">⓿</font>>,
+			lp="123,35.324",
+			pos="e,68.596,36.186 173.36,26.591 167.44,24.066 160.55,21.587 154,20.324 126.94,15.113 117.92,10.98 92,20.324 86.432,22.331 81.123,25.651 76.398,29.343"];
+		2 -> 2		 [label=<a &amp; !c>,
+			lp="190,77.824",
+			pos="e,198.98,50.24 181.02,50.24 178.68,60.475 181.67,70.324 190,70.324 195.47,70.324 198.63,66.083 199.5,60.274"];
+		2 -> 3		 [label=<!a &amp; c>,
+			lp="294,105.83",
+			pos="e,365.94,48.712 203.15,46.686 218.52,61.348 246.56,84.98 276,94.324 291.25,99.165 297.12,100.21 312,94.324 331.12,86.764 347.87,70.495 359.43,56.803"];
 		4		 [height=0.5,
 			label=4,
-			pos="292,34.162",
+			pos="294,34.168",
 			width=0.5];
-		2 -> 4		 [label="a & c",
-			lp="240.5,41.824",
-			pos="e,273.78,34.324 207.13,34.324 222.59,34.324 245.58,34.324 263.59,34.324"];
-		3 -> 3		 [label="1\\n{0}",
-			lp="375,85.324",
-			pos="e,382.03,50.988 367.97,50.988 366.41,60.949 368.75,70.324 375,70.324 379,70.324 381.4,66.475 382.2,61.092"];
-		4 -> 3		 [label="!a",
-			lp="333.5,41.824",
-			pos="e,356.85,34.324 310.18,34.324 320.81,34.324 334.69,34.324 346.8,34.324"];
-		4 -> 4		 [label=a,
-			lp="292,77.824",
-			pos="e,299.03,50.988 284.97,50.988 283.41,60.949 285.75,70.324 292,70.324 296,70.324 298.4,66.475 299.2,61.092"];
+		2 -> 4		 [label=<a &amp; c>,
+			lp="242,41.824",
+			pos="e,275.95,34.324 208.3,34.324 224.08,34.324 247.64,34.324 265.91,34.324"];
+		3 -> 3		 [label=<1<br/><font color="#5DA5DA">⓿</font>>,
+			lp="377,85.324",
+			pos="e,384.03,50.989 369.97,50.989 368.41,60.949 370.75,70.324 377,70.324 381,70.324 383.4,66.477 384.2,61.093"];
+		4 -> 3		 [label=<!a>,
+			lp="335.5,41.824",
+			pos="e,358.85,34.324 312.18,34.324 322.81,34.324 336.69,34.324 348.8,34.324"];
+		4 -> 4		 [label=<a>,
+			lp="294,77.824",
+			pos="e,301.03,50.989 286.97,50.989 285.41,60.949 287.75,70.324 294,70.324 298,70.324 300.4,66.477 301.2,61.093"];
 	}
 	subgraph cluster_gv1 {
 		graph [bb="",
-			label="a U b",
+			fontname=Lato,
+			label=<a U b>,
 			labelloc=t,
 			lheight=0.21,
-			lp="80.5,88.5",
-			lwidth=0.43,
+			lp="81.5,88.5",
+			lwidth=0.47,
 			rankdir=LR
 		];
-		node [height="",
+		node [fillcolor="#ffffa0",
+			fontname=Lato,
+			height="",
 			label="\\N",
 			peripheries="",
 			pos="",
 			shape=circle,
-			style="",
+			style=filled,
 			width=""
 		];
-		edge [label="",
+		edge [fontname=Lato,
+			label="",
 			lp="",
 			pos=""
 		];
 		I_gv1		 [height=0.013889,
 			label="",
-			pos="261,156.16",
+			pos="261,156.17",
 			style=invis,
 			width=0.013889];
 		"1_gv1"		 [height=0.5,
 			label=1,
-			pos="316,156.16",
+			pos="316,156.17",
 			width=0.5];
-		I_gv1 -> "1_gv1"		 [pos="e,297.94,156.16 261.15,156.16 262.67,156.16 275.1,156.16 287.63,156.16"];
-		"1_gv1" -> "1_gv1"		 [label="a & !b",
-			lp="316,199.66",
-			pos="e,322.38,173.2 309.62,173.2 308.32,183.02 310.44,192.16 316,192.16 319.47,192.16 321.6,188.59 322.4,183.51"];
+		I_gv1 -> "1_gv1"		 [pos="e,297.94,156.17 261.15,156.17 262.67,156.17 275.1,156.17 287.63,156.17"];
+		"1_gv1" -> "1_gv1"		 [label=<a &amp; !b>,
+			lp="316,199.67",
+			pos="e,322.38,173.21 309.62,173.21 308.32,183.03 310.44,192.17 316,192.17 319.47,192.17 321.6,188.6 322.4,183.52"];
 		"0_gv1"		 [height=0.72222,
 			label=0,
 			peripheries=2,
-			pos="399,156.16",
+			pos="401,156.17",
 			width=0.72222];
-		"1_gv1" -> "0_gv1"		 [label=b,
-			lp="355.5,163.66",
-			pos="e,376.81,156.16 334.18,156.16 343.61,156.16 355.6,156.16 366.64,156.16"];
+		"1_gv1" -> "0_gv1"		 [label=<b>,
+			lp="356.5,163.67",
+			pos="e,379,156.17 334.2,156.17 344.16,156.17 357,156.17 368.7,156.17"];
 		"0_gv1" -> "0_gv1"		 [label=1,
-			lp="399,203.66",
-			pos="e,406.68,177.15 391.32,177.15 390.37,187.25 392.93,196.16 399,196.16 402.89,196.16 405.34,192.5 406.35,187.22"];
+			lp="401,203.67",
+			pos="e,409.01,176.75 392.99,176.75 391.89,187.01 394.55,196.17 401,196.17 405.13,196.17 407.71,192.41 408.74,187.01"];
 	}
 }
 #+end_example
@@ -457,8 +476,12 @@ of Promela syntax.)
 The =--dot= option (which usually is the default) causes automata to be
 output in GraphViz's format.
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba '(Ga -> Gb) W c'
+#+END_SRC
+
+#+BEGIN_SRC sh :results verbatim :exports result
+SPOT_DOTEXTRA= ltl2tgba '(Ga -> Gb) W c' --dot=
 #+END_SRC
 
 #+RESULTS:
@@ -492,7 +515,7 @@ picture.  For instance use =dot -Tpng= or =dot -Tpdf=.
 
 #+NAME: oaut-dot1
 #+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba '(Ga -> Gb) W c' | sed 's/\\/\\\\/'
+SPOT_DOTEXTRA= ltl2tgba '(Ga -> Gb) W c' --dot= | sed 's/\\/\\\\/'
 #+END_SRC
 
 #+RESULTS: oaut-dot1
@@ -533,7 +556,14 @@ This output can be customized by passing optional characters to the
 of the default horizontal layout), =c= requests circle states, =s=
 causes strongly-connected components to be displayed, =n= causes the
 name (see below) of the automaton to be displayed, and =a= causes the
-acceptance condition to be shown as well.
+acceptance condition to be shown as well.  Option =b= causes sets to
+be ouput as bullets (e.g., ⓿ instead of ={0}=); option =r= (for
+rainbow) causes sets to be displayed in different colors, while option
+=R= also uses colors, but it chooses them depending on whether a set
+is used with Fin-acceptance, Inf-acceptance, or both.  Finally option
+=f(FONT)= is used to select a fontname: is is often necessary when =b=
+is used to ensure the characters ⓿, ❶, etc. are all selected from the
+same font.
 
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba --dot=vcsna '(Ga -> Gb) W c'
@@ -544,6 +574,7 @@ digraph G {
   label="(Gb | F!a) W c\nInf(0)"
   labelloc="t"
   node [shape="circle"]
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, height=0]
   I -> 1
   subgraph cluster_0 {
@@ -584,83 +615,50 @@ digraph G {
 
 #+NAME: oaut-dot2
 #+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba --dot=vcsna '(Ga -> Gb) W c' | sed 's/\\/\\\\/'
+SPOT_DOTEXTRA= ltl2tgba --dot=vcsna '(Ga -> Gb) W c' | sed 's/\\/\\\\/'
 #+END_SRC
 
 #+RESULTS: oaut-dot2
 #+begin_example
 digraph G {
-  rankdir=LR
-  label="Fin(2) & (Inf(0)&Inf(1))"
+  label="(Gb | F!a) W c\\nInf(0)"
   labelloc="t"
   node [shape="circle"]
-  I [label="", style=invis, width=0]
+  I [label="", style=invis, height=0]
   I -> 1
   subgraph cluster_0 {
-  color=grey
-  label=""
-  5 [label="5"]
-  6 [label="6"]
-  }
-  subgraph cluster_1 {
-  color=orange
+  color=green
   label=""
   0 [label="0"]
   }
+  subgraph cluster_1 {
+  color=green
+  label=""
+  3 [label="3"]
+  }
   subgraph cluster_2 {
-  color=orange
-  label=""
-  9 [label="9"]
-  10 [label="10"]
-  }
-  subgraph cluster_3 {
-  color=green
-  label=""
-  8 [label="8"]
-  }
-  subgraph cluster_4 {
-  color=green
-  label=""
-  7 [label="7"]
-  }
-  subgraph cluster_5 {
-  color=black
-  label=""
-  2 [label="2"]
-  }
-  subgraph cluster_6 {
   color=red
   label=""
   4 [label="4"]
   }
-  subgraph cluster_7 {
+  subgraph cluster_3 {
   color=green
   label=""
   1 [label="1"]
-  3 [label="3"]
+  2 [label="2"]
   }
-  0 -> 0 [label="a & b\\n{0,1,2}"]
-  0 -> 0 [label="!a & !b\\n{2}"]
-  0 -> 5 [label="a\\n{2}"]
-  1 -> 4 [label="b"]
-  1 -> 3 [label="a & !b"]
-  2 -> 0 [label="a"]
-  2 -> 7 [label="b"]
-  3 -> 1 [label="a & b\\n{0,1}"]
-  4 -> 4 [label="!b\\n{1,2}"]
-  4 -> 2 [label="b"]
-  5 -> 6 [label="1"]
-  6 -> 5 [label="1"]
-  7 -> 7 [label="!a & b\\n{0,1}"]
-  7 -> 7 [label="a & b\\n{0,2}"]
-  7 -> 8 [label="1"]
-  8 -> 8 [label="!a & b\\n{0,2}"]
-  8 -> 8 [label="a & b\\n{0,1}"]
-  8 -> 9 [label="1"]
-  9 -> 9 [label="!a & b\\n{0,2}"]
-  9 -> 10 [label="a & b\\n{0,1}"]
-  10 -> 9 [label="!a & b\\n{0,1}"]
-  10 -> 10 [label="a & b\\n{0,2}"]
+  0 -> 0 [label="b\\n{0}"]
+  1 -> 0 [label="a & b & !c"]
+  1 -> 1 [label="!a & !c\\n{0}"]
+  1 -> 2 [label="a & !c"]
+  1 -> 3 [label="c"]
+  2 -> 1 [label="!a & !c\\n{0}"]
+  2 -> 2 [label="a & !c"]
+  2 -> 3 [label="!a & c"]
+  2 -> 4 [label="a & c"]
+  3 -> 3 [label="1\\n{0}"]
+  4 -> 3 [label="!a"]
+  4 -> 4 [label="a"]
 }
 #+end_example
 
@@ -686,7 +684,7 @@ Here is an example involving all colors:
 
 #+NAME: oaut-dot3
 #+BEGIN_SRC sh :results verbatim :exports none
-autfilt --dot=cas <<EOF | sed 's/\\/\\\\/'
+SPOT_DOTEXTRA= autfilt --dot=cas <<EOF | sed 's/\\/\\\\/'
 HOA: v1
 States: 10
 Start: 1
@@ -803,6 +801,30 @@ $txt
 #+RESULTS:
 [[file:oaut-dot3.png]]
 
+
+The dot output can also be customized via two environment variables:
+- =SPOT_DOTDEFAULT= contains default arguments for the =--dot= option
+  (for when it is used implicitly, or used as just =--dot= without
+  argument).  For instance after =export SPOT_DOTDEFAULT=vcsn=, using
+  =--dot= is equivalent to =--dot=vcsn=.  However using =--dot=xyz=
+  (for any value of =xyz=, even empty) will ignore the
+  =SPOT_DOTDEFAULT= variable.  If the argument of =--dot= contains
+  a dot character, then this dot is replaced by the contents of
+  =SPOT_DOTDEFAULT=.  So ~--dot=.a~ would be equivalent to =--dot=vcsna=
+  with our example definition of =SPOT_DOTDEFAULT=.
+- =SPOT_DOTEXTRA= may contains an arbitrary string that will be emitted
+  in the dot output before the first state.  This can be used to modify
+  any attribute.  For instance (except for this page, where we had
+  do demonstrate the various options of =--dot=, and a few pages where
+  we show the =--dot= output verbatim) all the automata displayed in
+  this documentation are generated with the following environment
+  variables set:
+
+#+BEGIN_SRC sh :results verbatim :exports code
+export SPOT_DOTDEFAULT='brf(Lato)'
+export SPOT_DOTEXTRA='node[style=filled, fillcolor="#ffffa0"]'
+#+END
+
 * Statistics
 
 The =--stats= option takes format string parameter to specify what and
@@ -877,29 +899,9 @@ By default, =ltl2tgba= will use the input format as name.  Other tools
 have no default name.  This name can be changed using the =--name= option,
 that takes a format string similar to the one of =--stats=.
 
+#+NAME: oaut-name
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba --name='TGBA for %f' --dot=n 'a U b'
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  label="TGBA for a U b"
-  labelloc="t"
-  I [label="", style=invis, width=0]
-  I -> 1
-  0 [label="0", peripheries=2]
-  0 -> 0 [label="1"]
-  1 [label="1"]
-  1 -> 0 [label="b"]
-  1 -> 1 [label="a & !b"]
-}
-#+end_example
-
-#+NAME: oaut-name
-#+BEGIN_SRC sh :results verbatim :exports none
-ltl2tgba --name='TGBA for %f' --dot=n 'a U b' | sed 's/\\/\\\\/'
 #+END_SRC
 
 #+RESULTS: oaut-name
@@ -908,6 +910,7 @@ digraph G {
   rankdir=LR
   label="TGBA for a U b"
   labelloc="t"
+  node[style=filled, fillcolor="#ffffa0"]
   I [label="", style=invis, width=0]
   I -> 1
   0 [label="0", peripheries=2]

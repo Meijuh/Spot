@@ -51,10 +51,13 @@ static const argp_option options[] =
   {
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
-    { "dot", OPT_DOT, "a|c|h|n|N|s|t|v", OPTION_ARG_OPTIONAL,
+    { "dot", OPT_DOT, "a|b|c|f(FONT)|h|n|N|r|R|s|t|v", OPTION_ARG_OPTIONAL,
       "GraphViz's format (default).  Add letters for "
-      "(a) acceptance display, (c) circular nodes, (h) horizontal layout, "
-      "(v) vertical layout, (n) with name, (N) without name, (s) with SCCs, "
+      "(a) acceptance display, (b) acceptance sets as bullets,"
+      "(c) circular nodes, (f(FONT)) use FONT, (h) horizontal layout, "
+      "(v) vertical layout, (n) with name, (N) without name, "
+      "(r) rainbow colors for acceptance set, "
+      "(R) color acceptance set by Inf/Fin, (s) with SCCs, "
       "(t) force transition-based acceptance.", 0 },
     { "hoaf", 'H', "i|s|t|m|l", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format.  Add letters to select "
