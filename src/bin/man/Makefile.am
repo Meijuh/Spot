@@ -21,6 +21,8 @@ common_dep = $(top_srcdir)/configure.ac
 x_to_1 = $(top_builddir)/tools/x-to-1
 convman = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
           "$(PERL)" "$(top_srcdir)/tools/help2man -N -L 'en_US.UTF-8'"
+convman7 = ARGP_HELP_FMT=header-col=0 $(SHELL) "$(x_to_1)" \
+          "$(PERL)" "$(top_srcdir)/tools/help2man -s7 -N -L 'en_US.UTF-8'"
 
 dist_man1_MANS = \
   autfilt.1 \
@@ -71,7 +73,7 @@ randaut.1: $(common_dep) $(srcdir)/randaut.x $(srcdir)/../randaut.cc
 	$(convman) ../randaut$(EXEEXT) $(srcdir)/randaut.x $@
 
 spot-x.7: $(common_dep) $(srcdir)/spot-x.x $(srcdir)/../spot-x.cc
-	$(convman) ../spot-x$(EXEEXT) $(srcdir)/spot-x.x $@
+	$(convman7) ../spot-x$(EXEEXT) $(srcdir)/spot-x.x $@
 
 ltlgrind.1: $(common_dep) $(srcdir)/ltlgrind.x $(srcdir)/../ltlgrind.cc
 	$(convman) ../ltlgrind$(EXEEXT) $(srcdir)/ltlgrind.x $@
