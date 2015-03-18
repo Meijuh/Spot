@@ -658,6 +658,21 @@ namespace spot
 	prop_state_based_acc();
     }
 
+    /// \brief Copy the acceptance condition of another tgba.
+    void copy_acceptance_of(const const_tgba_ptr& a)
+    {
+      acc_ = a->acc();
+      unsigned num = acc_.num_sets();
+      prop_single_acc_set(!acc_.uses_fin_acceptance() && num == 1);
+      if (num == 0)
+	prop_state_based_acc();
+    }
+
+    void copy_ap_of(const const_tgba_ptr& a)
+    {
+      get_dict()->register_all_propositions_of(a, this);
+    }
+
   protected:
     /// Do the actual computation of tgba::support_conditions().
     virtual bdd compute_support_conditions(const state* state) const = 0;

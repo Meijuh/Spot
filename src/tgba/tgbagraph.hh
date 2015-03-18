@@ -425,22 +425,6 @@ namespace spot
     auto is_dead_transition(const graph_t::trans_storage_t& t) const
       SPOT_RETURN(g_.is_dead_transition(t));
 
-    /// \brief Copy the acceptance conditions of another tgba.
-    void copy_acceptance_of(const const_tgba_ptr& a)
-    {
-      // FIXME: Should rename as copy_acceptance_condition*_of
-      acc_ = a->acc();
-      unsigned num = acc_.num_sets();
-      prop_single_acc_set(!acc_.uses_fin_acceptance() && num == 1);
-      if (num == 0)
-	prop_state_based_acc();
-    }
-
-    void copy_ap_of(const const_tgba_ptr& a)
-    {
-      get_dict()->register_all_propositions_of(a, this);
-    }
-
     virtual bdd compute_support_conditions(const state* s) const
     {
       bdd sum = bddfalse;
