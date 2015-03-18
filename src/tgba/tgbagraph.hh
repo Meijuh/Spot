@@ -334,26 +334,6 @@ namespace spot
       return g_.trans_data(t);
     }
 
-    void set_generalized_buchi(unsigned num)
-    {
-      if (num < acc_.num_sets())
-	{
-	  acc_.~acc_cond();
-	  new (&acc_) acc_cond;
-	}
-      acc_.add_sets(num - acc_.num_sets());
-      prop_single_acc_set(!acc_.uses_fin_acceptance() && num == 1);
-      if (num == 0)
-	prop_state_based_acc();
-      acc_.set_generalized_buchi();
-    }
-
-    acc_cond::mark_t set_buchi()
-    {
-      set_generalized_buchi(1);
-      return acc_.mark(0);
-    }
-
     trans_storage_t& trans_storage(const tgba_succ_iterator* it)
     {
       auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);

@@ -638,6 +638,16 @@ namespace spot
   protected:
     acc_cond acc_;
 
+    void set_num_sets_(unsigned num)
+    {
+      if (num < acc_.num_sets())
+	{
+	  acc_.~acc_cond();
+	  new (&acc_) acc_cond;
+	}
+      acc_.add_sets(num - acc_.num_sets());
+    }
+
   public:
     const acc_cond::acc_code& get_acceptance() const
     {
@@ -646,12 +656,7 @@ namespace spot
 
     void set_acceptance(unsigned num, const acc_cond::acc_code& c)
     {
-      if (num < acc_.num_sets())
-	{
-	  acc_.~acc_cond();
-	  new (&acc_) acc_cond;
-	}
-      acc_.add_sets(num - acc_.num_sets());
+      set_num_sets_(num);
       acc_.set_acceptance(c);
       prop_single_acc_set(!acc_.uses_fin_acceptance() && num == 1);
       if (num == 0)
@@ -671,6 +676,21 @@ namespace spot
     void copy_ap_of(const const_tgba_ptr& a)
     {
       get_dict()->register_all_propositions_of(a, this);
+    }
+
+    void set_generalized_buchi(unsigned num)
+    {
+      set_num_sets_(num);
+      acc_.set_generalized_buchi();
+      prop_single_acc_set(num == 1);
+      if (num == 0)
+	prop_state_based_acc();
+    }
+
+    acc_cond::mark_t set_buchi()
+    {
+      set_generalized_buchi(1);
+      return acc_.mark(0);
     }
 
   protected:
