@@ -207,7 +207,7 @@ namespace spot
 	  {
 	    a_ = make_tgba_digraph(in->get_dict());
 	    a_->copy_ap_of(in);
-	    a_->copy_acceptance_conditions_of(in);
+	    a_->copy_acceptance_of(in);
 	    a_->new_states(ns);
 	    auto& acccond = in->acc();
 
@@ -485,7 +485,7 @@ namespace spot
       {
 	tgba_digraph_ptr res = make_tgba_digraph(a_->get_dict());
 	res->copy_ap_of(a_);
-	res->copy_acceptance_conditions_of(a_);
+	res->copy_acceptance_of(a_);
 	if (Sba)
 	  res->prop_state_based_acc();
 

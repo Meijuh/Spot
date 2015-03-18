@@ -366,7 +366,7 @@ namespace spot
 		       const_tgba_digraph_ptr ref, power_map& refmap,
 		       unsigned threshold)
     {
-      det->copy_acceptance_conditions_of(ref);
+      det->copy_acceptance_of(ref);
 
       scc_info sm(det);
 

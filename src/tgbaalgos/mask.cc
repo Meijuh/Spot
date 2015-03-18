@@ -55,7 +55,7 @@ namespace spot
     auto res = make_tgba_digraph(in->get_dict());
     res->copy_ap_of(in);
     res->prop_copy(in, { true, true, true, true, false });
-    res->copy_acceptance_conditions_of(in);
+    res->copy_acceptance_of(in);
     transform_copy(in, res, [&](unsigned src,
                                 bdd& cond,
                                 acc_cond::mark_t&,

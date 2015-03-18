@@ -314,7 +314,7 @@ namespace spot
     tgba_digraph_ptr res = make_tgba_digraph(a->get_dict());
     // We use the same BDD variables as the input.
     res->copy_ap_of(a);
-    res->copy_acceptance_conditions_of(a);
+    res->copy_acceptance_of(a);
     // These maps make it possible to convert stutter_state to number
     // and vice-versa.
     ss2num_map ss2num;

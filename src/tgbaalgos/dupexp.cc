@@ -39,7 +39,7 @@ namespace spot
       dupexp_iter(const const_tgba_ptr& a, tgba::prop_set p)
 	: T(a), out_(make_tgba_digraph(a->get_dict()))
       {
-	out_->copy_acceptance_conditions_of(a);
+	out_->copy_acceptance_of(a);
 	out_->copy_ap_of(a);
 	out_->prop_copy(a, p);
       }

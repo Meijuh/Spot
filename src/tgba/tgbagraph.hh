@@ -190,7 +190,7 @@ namespace spot
       : tgba(other->get_dict()),
         g_(other->g_), init_number_(other->init_number_)
       {
-	copy_acceptance_conditions_of(other);
+	copy_acceptance_of(other);
 	copy_ap_of(other);
 	prop_copy(other, p);
       }
@@ -426,7 +426,7 @@ namespace spot
       SPOT_RETURN(g_.is_dead_transition(t));
 
     /// \brief Copy the acceptance conditions of another tgba.
-    void copy_acceptance_conditions_of(const const_tgba_ptr& a)
+    void copy_acceptance_of(const const_tgba_ptr& a)
     {
       // FIXME: Should rename as copy_acceptance_condition*_of
       acc_ = a->acc();
