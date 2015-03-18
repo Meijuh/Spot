@@ -348,7 +348,7 @@ namespace spot
       acc_.set_generalized_buchi();
     }
 
-    acc_cond::mark_t set_single_acceptance_set()
+    acc_cond::mark_t set_buchi()
     {
       set_generalized_buchi(1);
       return acc_.mark(0);

@@ -201,7 +201,7 @@ namespace spot
       // The result automaton is an SBA.
       auto res = make_tgba_digraph(dict);
       res->copy_ap_of(a);
-      res->set_single_acceptance_set();
+      res->set_buchi();
       if (want_sba)
 	res->prop_state_based_acc();
       // Preserve determinism, weakness, and stutter-invariance

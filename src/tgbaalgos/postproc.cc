@@ -40,7 +40,7 @@ namespace spot
     {
       if (a->acc().num_sets() == 0)
 	{
-	  auto m = a->set_single_acceptance_set();
+	  auto m = a->set_buchi();
 	  for (auto& t: a->transitions())
 	    t.acc = m;
 	}

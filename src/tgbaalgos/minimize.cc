@@ -141,7 +141,7 @@ namespace spot
     // transition in res.
 
     if (!final->empty())
-      res->set_single_acceptance_set();
+      res->set_buchi();
 
     for (sit = sets.begin(); sit != sets.end(); ++sit)
       {

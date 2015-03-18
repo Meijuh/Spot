@@ -31,7 +31,7 @@ namespace spot
 	// We cannot safely complete an automaton if it has no
 	// acceptance set as the added sink would become accepting.
 	// In this case, add an acceptance set to all transitions.
-	allacc = aut->set_single_acceptance_set();
+	allacc = aut->set_buchi();
 	for (auto& t: aut->transition_vector())
 	  t.acc = allacc;
       }

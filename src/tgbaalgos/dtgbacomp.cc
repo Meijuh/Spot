@@ -40,7 +40,7 @@ namespace spot
     // We will modify res in place, and the resulting
     // automaton will only have one acceptance set.
     // This changes aut->acc();
-    res->set_single_acceptance_set();
+    res->set_buchi();
     // The resulting automaton is weak.
     res->prop_inherently_weak();
     res->prop_state_based_acc();
@@ -127,7 +127,7 @@ namespace spot
 
     // We will modify res in place, and the resulting
     // automaton will only have one acceptance set.
-    acc_cond::mark_t all_acc = res->set_single_acceptance_set();
+    acc_cond::mark_t all_acc = res->set_buchi();
     res->prop_state_based_acc();
 
     unsigned sink = res->num_states();

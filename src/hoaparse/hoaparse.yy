@@ -1042,7 +1042,7 @@ incorrectly-labeled-edge: trans-label unlabeled-edge
 /**********************************************************************/
 
 never: "never" { res.namer = res.h->aut->create_namer<std::string>();
-	         res.h->aut->set_single_acceptance_set();
+	         res.h->aut->set_buchi();
 		 res.h->aut->prop_state_based_acc();
 		 res.acc_state = State_Acc;
 		 res.pos_acc_sets = res.h->aut->acc().all_sets();

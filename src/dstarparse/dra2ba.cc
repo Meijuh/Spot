@@ -225,7 +225,7 @@ namespace spot
       {
 	out_->copy_ap_of(a->aut);
 	out_->prop_state_based_acc();
-	acc_ = out_->set_single_acceptance_set();
+	acc_ = out_->set_buchi();
 	out_->new_states(num_states_ * (a->accpair_count + 1));
 	out_->set_init_state(a->aut->get_init_state_number());
 
