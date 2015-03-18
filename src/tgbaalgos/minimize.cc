@@ -485,7 +485,7 @@ namespace spot
     // final is empty: there is no acceptance condition
     build_state_set(det_a, non_final);
     auto res = minimize_dfa(det_a, final, non_final);
-    res->prop_copy(a, { false, false, false, false, true });
+    res->prop_copy(a, { false, false, false, true });
     res->prop_deterministic();
     res->prop_inherently_weak();
     res->prop_state_based_acc();
@@ -589,7 +589,7 @@ namespace spot
     }
 
     auto res = minimize_dfa(det_a, final, non_final);
-    res->prop_copy(a, { false, false, false, false, true });
+    res->prop_copy(a, { false, false, false, true });
     res->prop_deterministic();
     res->prop_inherently_weak();
     return res;

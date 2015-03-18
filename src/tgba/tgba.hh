@@ -658,7 +658,6 @@ namespace spot
     {
       set_num_sets_(num);
       acc_.set_acceptance(c);
-      prop_single_acc_set(!acc_.uses_fin_acceptance() && num == 1);
       if (num == 0)
 	prop_state_based_acc();
     }
@@ -668,7 +667,6 @@ namespace spot
     {
       acc_ = a->acc();
       unsigned num = acc_.num_sets();
-      prop_single_acc_set(!acc_.uses_fin_acceptance() && num == 1);
       if (num == 0)
 	prop_state_based_acc();
     }
@@ -682,7 +680,6 @@ namespace spot
     {
       set_num_sets_(num);
       acc_.set_generalized_buchi();
-      prop_single_acc_set(num == 1);
       if (num == 0)
 	prop_state_based_acc();
     }
@@ -706,7 +703,6 @@ namespace spot
     // holds, but false means the property is unknown.
     struct bprop
     {
-      bool single_acc_set:1;	// A single acceptance set.
       bool state_based_acc:1;	// State-based acceptance.
       bool inherently_weak:1;	// Weak automaton.
       bool deterministic:1;	// Deterministic automaton.
@@ -748,16 +744,6 @@ namespace spot
     }
 #endif
 
-    bool has_single_acc_set() const
-    {
-      return is.single_acc_set;
-    }
-
-    void prop_single_acc_set(bool val = true)
-    {
-      is.single_acc_set = val;
-    }
-
     bool has_state_based_acc() const
     {
       return is.state_based_acc;
@@ -770,7 +756,7 @@ namespace spot
 
     bool is_sba() const
     {
-      return has_state_based_acc() && has_single_acc_set();
+      return has_state_based_acc() && acc().is_buchi();
     }
 
     bool is_inherently_weak() const
@@ -806,14 +792,13 @@ namespace spot
     struct prop_set
     {
       bool state_based;
-      bool single_acc;
       bool inherently_weak;
       bool deterministic;
       bool stutter_inv;
 
       static prop_set all()
       {
-	return { true, true, true, true, true };
+	return { true, true, true, true };
       }
     };
 
@@ -823,8 +808,6 @@ namespace spot
     {
       if (p.state_based)
 	prop_state_based_acc(other->has_state_based_acc());
-      if (p.single_acc)
-	prop_single_acc_set(other->has_single_acc_set());
       if (p.inherently_weak)
 	prop_inherently_weak(other->is_inherently_weak());
       if (p.deterministic)
@@ -837,8 +820,6 @@ namespace spot
     {
       if (!p.state_based)
 	prop_state_based_acc(false);
-      if (!p.single_acc)
-	prop_single_acc_set(false);
       if (!p.inherently_weak)
 	prop_inherently_weak(false);
       if (!p.deterministic)

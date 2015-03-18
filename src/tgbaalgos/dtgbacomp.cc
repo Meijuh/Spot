@@ -29,7 +29,6 @@ namespace spot
     // Clone the original automaton.
     auto res = make_tgba_digraph(aut,
 				 { false, // state based
-				   false, // single acc
 				   false, // inherently_weak
 				   false, // deterministic
 				   true,  // stutter inv.
@@ -118,7 +117,6 @@ namespace spot
     // Clone the original automaton.
     auto res = make_tgba_digraph(aut,
 				 { true, // state based
-				   true, // single acc
 				   true, // inherently weak
 				   true, // determinisitic
 				   true,  // stutter inv.

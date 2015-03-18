@@ -106,7 +106,6 @@ namespace spot
   {
     auto res = make_tgba_digraph(aut, {
 					true, // state based
-					true, // single acc
 					true, // inherently_weak
 					true, // deterministic
 					true, // stutter inv.

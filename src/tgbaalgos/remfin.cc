@@ -262,7 +262,7 @@ namespace spot
     unsigned nst = aut->num_states();
     auto res = make_tgba_digraph(aut->get_dict());
     res->copy_ap_of(aut);
-    res->prop_copy(aut, { false, false, false, false, true });
+    res->prop_copy(aut, { false, false, false, true });
     res->new_states(nst);
     res->set_acceptance(aut->acc().num_sets() + extra_sets, new_code);
     res->set_init_state(aut->get_init_state_number());

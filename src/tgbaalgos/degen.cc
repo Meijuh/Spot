@@ -205,7 +205,7 @@ namespace spot
       if (want_sba)
 	res->prop_state_based_acc();
       // Preserve determinism, weakness, and stutter-invariance
-      res->prop_copy(a, { false, false, true, true, true });
+      res->prop_copy(a, { false, true, true, true });
 
       // Create an order of acceptance conditions.  Each entry in this
       // vector correspond to an acceptance set.  Each index can
@@ -567,7 +567,7 @@ namespace spot
   {
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
-    if (a->has_single_acc_set())
+    if (a->acc().is_buchi())
       return std::const_pointer_cast<tgba_digraph>(a);
 
     return degeneralize_aux<false>(a, use_z_lvl, use_cust_acc_orders,

@@ -429,7 +429,6 @@ namespace spot
       }
     if (num_states != a->num_states())
       a->prop_keep({true,	// state_based
-	            true,	// single_acc
 	            false,	// inherently_weak
 	            false,	// deterministic
 	            false,      // stutter inv.
@@ -450,7 +449,6 @@ namespace spot
   closure(tgba_digraph_ptr&& a)
   {
     a->prop_keep({false,	// state_based
-	          true,		// single_acc
 	          false,	// inherently_weak
 	          false,	// deterministic
 	          false,        // stutter inv.
@@ -518,7 +516,7 @@ namespace spot
   tgba_digraph_ptr
   closure(const const_tgba_digraph_ptr& a)
   {
-    return closure(make_tgba_digraph(a, {true, true, true, true, false}));
+    return closure(make_tgba_digraph(a, {true, true, true, false}));
   }
 
   // The stutter check algorithm to use can be overridden via an
