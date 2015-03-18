@@ -377,8 +377,6 @@ namespace spot
       return g_.trans_storage(t);
     }
 
-    void set_generalized_buchi(bdd all);
-
     unsigned new_state()
     {
       return g_.new_state();
