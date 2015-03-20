@@ -88,13 +88,22 @@ namespace spot
 	    {
 	    case '.':
 	      {
-		static const char* def = getenv("SPOT_DOTDEFAULT");
+	        // Copy the value in a string, so future calls to
+		// parse_opts do not fail if the environment has
+		// changed.  (This matters particularly in an ipython
+		// notebook, where it is tempting to redefine
+		// SPOT_DOTDEFAULT.)
+		static std::string def = []()
+		  {
+		    auto s = getenv("SPOT_DOTDEFAULT");
+		    return s ? s : "";
+		  }();
 		// Prevent infinite recursions...
-		if (orig == def)
+		if (orig == def.c_str())
 		  throw std::runtime_error
 		    (std::string("SPOT_DOTDEFAULT should not contain '.'"));
-		if (def)
-		  parse_opts(def);
+		if (!def.empty())
+		  parse_opts(def.c_str());
 		break;
 	      }
 	    case 'a':
@@ -269,11 +278,18 @@ namespace spot
 	      << "\"\n  node [fontname=\"" << opt_font_
 	      << "\"]\n  edge [fontname=\"" << opt_font_
 	      << "\"]\n";
+	// Always copy the environment variable into a static string,
+	// so that we (1) look it up once, but (2) won't crash if the
+	// environment is changed.
+	static std::string extra = []()
+	  {
+	    auto s = getenv("SPOT_DOTEXTRA");
+	    return s ? s : "";
+	  }();
 	// Any extra text passed in the SPOT_DOTEXTRA environment
 	// variable should be output at the end of the "header", so
 	// that our setup can be overridden.
-	static const char* extra = getenv("SPOT_DOTEXTRA");
-	if (extra && *extra)
+	if (!extra.empty())
 	  os_ << "  " << extra << '\n';
 	os_ << "  I [label=\"\", style=invis, ";
 	os_ << (opt_horizontal_ ? "width" : "height");

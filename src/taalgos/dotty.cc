@@ -41,8 +41,18 @@ namespace spot
       {
         os_ << "digraph G {\n";
 
-	static const char* extra = getenv("SPOT_DOTEXTRA");
-	if (extra)
+	// Always copy the environment variable into a static string,
+	// so that we (1) look it up once, but (2) won't crash if the
+	// environment is changed.
+	static std::string extra = []()
+	  {
+	    auto s = getenv("SPOT_DOTEXTRA");
+	    return s ? s : "";
+	  }();
+	// Any extra text passed in the SPOT_DOTEXTRA environment
+	// variable should be output at the end of the "header", so
+	// that our setup can be overridden.
+	if (!extra.empty())
 	  os_ << "  " << extra << '\n';
 
         artificial_initial_state_ = t_automata_->get_artificial_initial_state();

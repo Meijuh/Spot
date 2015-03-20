@@ -766,8 +766,15 @@ namespace spot
     if (!solution.second.empty())
       res = sat_build(solution.second, d, a, state_based);
 
-    static const char* log = getenv("SPOT_SATLOG");
-    if (log)
+    // Always copy the environment variable into a static string,
+    // so that we (1) look it up once, but (2) won't crash if the
+    // environment is changed.
+    static std::string log = []()
+      {
+	auto s = getenv("SPOT_SATLOG");
+	return s ? s : "";
+      }();
+    if (!log.empty())
       {
 	std::fstream out(log,
 			 std::ios_base::app | std::ios_base::out);
@@ -790,7 +797,7 @@ namespace spot
 	    << te.utime() << ',' << te.stime() << ','
 	    << ts.utime() << ',' << ts.stime() << '\n';
       }
-    static const char* show = getenv("SPOT_SATSHOW");
+    static bool show = getenv("SPOT_SATSHOW");
     if (show && res)
       dotty_reachable(std::cout, res);
 
