@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_HOA_HH
-# define SPOT_TGBAALGOS_HOA_HH
+#pragma once
 
 #include <iosfwd>
 #include "misc/common.hh"
@@ -41,5 +40,3 @@ namespace spot
 		const const_tgba_ptr& g,
 		const char* opt);
 }
-
-#endif // SPOT_TGBAALGOS_HOA_HH

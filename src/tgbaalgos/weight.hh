@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_WEIGHT_HH
-# define SPOT_TGBAALGOS_WEIGHT_HH
+#pragma once
 
 #include <iosfwd>
 #include <map>
@@ -55,5 +54,3 @@ namespace spot
     std::vector<int> m;
   };
 };
-
-#endif // SPOT_TGBAALGOS_WEIGHT_HH

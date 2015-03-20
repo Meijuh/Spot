@@ -17,18 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TAALGOS_STATESSETBUILDER_HH
-# define SPOT_TAALGOS_STATESSETBUILDER_HH
+#pragma once
 
 #include "ta/ta.hh"
 
 namespace spot
 {
-
   /// \brief Compute states set for an automaton.
   SPOT_API std::set<const state*> get_states_set(const const_ta_ptr& t);
 
   /// @}
 }
-
-#endif // SPOT_TAALGOS_STATESSETBUILDER_HH

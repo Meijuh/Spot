@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_STUTTER_HH
-# define SPOT_TGBAALGOS_STUTTER_HH
+#pragma once
 
 #include "tgba/tgbagraph.hh"
 
@@ -59,5 +58,3 @@ namespace spot
 		       tgba_digraph_ptr&& aut_nf, bdd aps,
 		       int algo = 0);
 }
-
-#endif // SPOT_TGBAALGOS_STUTTER_HH

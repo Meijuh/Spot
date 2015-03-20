@@ -17,10 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_STRIPACC_HH
-# define SPOT_TGBAALGOS_STRIPACC_HH
+#pragma once
 
-# include "tgba/tgbagraph.hh"
+#include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -31,5 +30,3 @@ namespace spot
   SPOT_API void
   strip_acceptance_here(tgba_digraph_ptr a);
 }
-
-#endif // SPOT_TGBAALGOS_STRIPACC_HH

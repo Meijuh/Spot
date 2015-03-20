@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_TRANS_HH
-#define SPOT_BIN_COMMON_TRANS_HH
+#pragma once
 
 #include "common_sys.hh"
 #include <vector>
@@ -118,6 +117,3 @@ int exec_with_timeout(const char* cmd);
 #define exec_with_timeout(cmd) system(cmd)
 #define setup_sig_handler() while (0);
 #endif // !ENABLE_TIMEOUT
-
-
-#endif // SPOT_BIN_COMMON_TRANS_HH

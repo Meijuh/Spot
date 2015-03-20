@@ -20,10 +20,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_VERSION_HH
-# define SPOT_MISC_VERSION_HH
+#pragma once
 
-# include "common.hh"
+#include "common.hh"
 
 namespace spot
 {
@@ -31,5 +30,3 @@ namespace spot
   /// \brief Return Spot's version.
   SPOT_API const char* version();
 }
-
-#endif // SPOT_MISC_VERSION_HH

@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_AOUTPUT_HH
-#define SPOT_BIN_COMMON_AOUTPUT_HH
+#pragma once
 
 #include "common_sys.hh"
 
@@ -237,7 +236,3 @@ public:
 
   void add_stat(char c, const spot::printable* p);
 };
-
-
-
-#endif // SPOT_BIN_COMMON_AOUTPUT_HH

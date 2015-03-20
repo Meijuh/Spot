@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_KRIPKE_FAIRKRIPKE_HH
-# define SPOT_KRIPKE_FAIRKRIPKE_HH
+#pragma once
 
 #include "tgba/tgba.hh"
 #include "fwd.hh"
@@ -106,8 +105,4 @@ namespace spot
   protected:
     virtual bdd compute_support_conditions(const state* s) const;
   };
-
 }
-
-
-#endif // SPOT_KRIPKE_FAIRKRIPKE_HH

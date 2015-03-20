@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_OUTPUT_HH
-#define SPOT_BIN_COMMON_OUTPUT_HH
+#pragma once
 
 #include "common_sys.hh"
 
@@ -83,5 +82,3 @@ public:
 
   printable_formula formula_;
 };
-
-#endif // SPOT_BIN_COMMON_OUTPUT_HH

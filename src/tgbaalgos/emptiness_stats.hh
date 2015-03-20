@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_EMPTINESS_STATS_HH
-# define SPOT_TGBAALGOS_EMPTINESS_STATS_HH
+#pragma once
 
 #include <cassert>
 #include <map>
@@ -270,9 +269,5 @@ namespace spot
     /// Number of states in the search space for the accepting cycle.
     virtual unsigned acss_states() const = 0;
   };
-
-
   /// @}
 }
-
-#endif // SPOT_TGBAALGOS_EMPTINESS_STATS_HH

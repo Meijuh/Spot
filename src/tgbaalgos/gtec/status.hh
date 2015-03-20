@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_GTEC_STATUS_HH
-# define SPOT_TGBAALGOS_GTEC_STATUS_HH
+#pragma once
 
 #include "sccstack.hh"
 #include "tgba/tgba.hh"
@@ -56,7 +55,4 @@ namespace spot
     /// Return the number of states visited by the search
     int states() const;
   };
-
 }
-
-#endif // SPOT_TGBAALGOS_GTEC_STATUS_HH

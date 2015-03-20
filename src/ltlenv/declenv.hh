@@ -20,13 +20,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLENV_DECLENV_HH
-# define SPOT_LTLENV_DECLENV_HH
+#pragma once
 
-# include "environment.hh"
-# include <string>
-# include <map>
-# include "ltlast/atomic_prop.hh"
+#include "environment.hh"
+#include <string>
+#include <map>
+#include "ltlast/atomic_prop.hh"
 
 namespace spot
 {
@@ -63,5 +62,3 @@ namespace spot
     };
   }
 }
-
-#endif // SPOT_LTLENV_DECLENV_HH

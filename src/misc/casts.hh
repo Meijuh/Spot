@@ -17,9 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_CASTS_HH
-#  define SPOT_MISC_CASTS_HH
-
+#pragma once
 
 // We usually write code like
 //   subclass* i = down_cast<subclass*>(m);
@@ -35,5 +33,3 @@
 #else
 #  define down_cast dynamic_cast
 #endif
-
-#endif // SPOT_MISC_CASTS_HH

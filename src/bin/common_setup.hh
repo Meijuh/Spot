@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_SETUP_HH
-#define SPOT_BIN_COMMON_SETUP_HH
+#pragma once
 
 #include "common_sys.hh"
 #include "progname.h"
@@ -27,5 +26,3 @@ void setup(char** progname);
 
 extern const struct argp misc_argp;
 extern const struct argp misc_argp_hidden;
-
-#endif // SPOT_BIN_COMMON_SETUP_HH

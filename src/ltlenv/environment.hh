@@ -20,11 +20,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLENV_ENVIRONMENT_HH
-# define SPOT_LTLENV_ENVIRONMENT_HH
+#pragma once
 
-# include "ltlast/formula.hh"
-# include <string>
+#include "ltlast/formula.hh"
+#include <string>
 
 namespace spot
 {
@@ -65,5 +64,3 @@ namespace spot
 
   }
 }
-
-#endif // SPOT_LTLENV_ENVIRONMENT_HH

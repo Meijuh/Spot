@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TAALGOS_DOTTY_HH
-# define SPOT_TAALGOS_DOTTY_HH
+#pragma once
 
 #include "ta/ta.hh"
 #include <iosfwd>
@@ -28,5 +27,3 @@ namespace spot
   SPOT_API std::ostream&
   dotty_reachable(std::ostream& os, const const_ta_ptr& a);
 }
-
-#endif // SPOT_TAALGOS_DOTTY_HH

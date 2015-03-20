@@ -17,10 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_REMOVE_X_HH
-# define SPOT_LTLVISIT_REMOVE_X_HH
+#pragma once
 
-# include "misc/common.hh"
+#include "misc/common.hh"
 
 namespace spot
 {
@@ -50,5 +49,3 @@ namespace spot
     const formula* remove_x(const formula* f);
   }
 }
-
-#endif // SPOT_LTLVISIT_ETESSAMI00_HH

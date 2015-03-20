@@ -17,16 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_BITVECT_HH
-#  define SPOT_MISC_BITVECT_HH
+#pragma once
 
-#  include "common.hh"
-#  include <cstddef>
-#  include <cstdlib>
-#  include <cassert>
-#  include <iosfwd>
-#  include <iostream>
-#  include <algorithm>
+#include "common.hh"
+#include <cstddef>
+#include <cstdlib>
+#include <cassert>
+#include <iosfwd>
+#include <iostream>
+#include <algorithm>
 
 namespace spot
 {
@@ -533,6 +532,3 @@ namespace spot
 
   /// @}
 }
-
-
-#endif // SPOT_MISC_BITVECT_HH

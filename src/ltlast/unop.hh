@@ -22,8 +22,7 @@
 
 /// \file ltlast/unop.hh
 /// \brief LTL unary operators
-#ifndef SPOT_LTLAST_UNOP_HH
-# define SPOT_LTLAST_UNOP_HH
+#pragma once
 
 #include <map>
 #include <iosfwd>
@@ -217,5 +216,3 @@ namespace spot
     }
   }
 }
-
-#endif // SPOT_LTLAST_UNOP_HH

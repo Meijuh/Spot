@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_CONV_HH
-#define SPOT_BIN_COMMON_CONV_HH
+#pragma once
 
 #include "common_sys.hh"
 #include "tgba/tgbagraph.hh"
@@ -34,6 +33,3 @@ std::vector<long> to_longs(const char* s);
 
 spot::tgba_digraph_ptr
 read_automaton(const char* filename, spot::bdd_dict_ptr& dict);
-
-
-#endif // SPOT_BIN_COMMON_CONV_HH

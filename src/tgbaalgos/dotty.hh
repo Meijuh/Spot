@@ -20,12 +20,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_DOTTY_HH
-# define SPOT_TGBAALGOS_DOTTY_HH
+#pragma once
 
-# include <iosfwd>
-# include <tgba/fwd.hh>
-# include "misc/common.hh"
+#include <iosfwd>
+#include <tgba/fwd.hh>
+#include "misc/common.hh"
 
 namespace spot
 {
@@ -46,5 +45,3 @@ namespace spot
 		  const const_tgba_ptr& g,
 		  const char* options = nullptr);
 }
-
-#endif // SPOT_TGBAALGOS_DOTTY_HH

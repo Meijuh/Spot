@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_BDDDICT_HH
-# define SPOT_TGBA_BDDDICT_HH
+#pragma once
 
 #include <list>
 #include <set>
@@ -340,5 +339,3 @@ namespace spot
     return std::make_shared<bdd_dict>();
   }
 }
-
-#endif // SPOT_TGBA_BDDDICT_HH

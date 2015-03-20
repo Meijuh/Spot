@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_MEMUSAGE_HH
-# define SPOT_MISC_MEMUSAGE_HH
+#pragma once
 
 #include "common.hh"
 
@@ -33,5 +32,3 @@ namespace spot
   /// -1 otherwise.
   SPOT_API int memusage();
 }
-
-#endif // SPOT_MISC_MEMUSAGE_HH

@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_TUNABBREV_HH
-# define SPOT_LTLVISIT_TUNABBREV_HH
+#pragma once
 
 #include "ltlast/formula.hh"
 #include "ltlvisit/lunabbrev.hh"
@@ -68,5 +67,3 @@ namespace spot
     SPOT_API const formula* unabbreviate_ltl(const formula* f);
   }
 }
-
-#endif // SPOT_LTLVISIT_TUNABBREV_HH

@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_FILE_HH
-#define SPOT_BIN_COMMON_FILE_HH
+#pragma once
 
 #include "common_sys.hh"
 #include <iosfwd>
@@ -50,5 +49,3 @@ public:
     return *os_;
   }
 };
-
-#endif // SPOT_BIN_COMMON_FILE_HH

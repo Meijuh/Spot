@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TA_TGTAPRODUCT_HH
-# define SPOT_TA_TGTAPRODUCT_HH
+#pragma once
 
 #include "tgba/tgba.hh"
 #include "tgba/tgbaproduct.hh"
@@ -100,7 +99,4 @@ namespace spot
     bdd kripke_source_condition;
     state* kripke_current_dest_state;
   };
-
 }
-
-#endif // SPOT_TA_TGTAPRODUCT_HH

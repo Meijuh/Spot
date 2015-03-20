@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TA_TAEXPLICIT_HH
-# define SPOT_TA_TAEXPLICIT_HH
+#pragma once
 
 #include "misc/hash.hh"
 #include <list>
@@ -260,7 +259,4 @@ namespace spot
   {
     return std::make_shared<ta_explicit>(tgba, n_acc, artificial_initial_state);
   }
-
 }
-
-#endif // SPOT_TA_TAEXPLICIT_HH

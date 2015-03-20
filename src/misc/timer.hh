@@ -20,20 +20,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_TIMER_HH
-# define SPOT_MISC_TIMER_HH
+#pragma once
 
-# include "common.hh"
-# include "misc/_config.h"
-# include <cassert>
-# include <iosfwd>
-# include <string>
-# include <map>
-# include <chrono>
-# if SPOT_HAVE_SYS_TIMES_H
-#  include <sys/times.h>
-# endif
-# include <ctime>
+#include "common.hh"
+#include "misc/_config.h"
+#include <cassert>
+#include <iosfwd>
+#include <string>
+#include <map>
+#include <chrono>
+#if SPOT_HAVE_SYS_TIMES_H
+# include <sys/times.h>
+#endif
+#include <ctime>
 
 
 namespace spot
@@ -247,5 +246,3 @@ namespace spot
 
   /// @}
 }
-
-#endif // SPOT_MISC_TIMER_HH

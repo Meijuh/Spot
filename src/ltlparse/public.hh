@@ -20,16 +20,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLPARSE_PUBLIC_HH
-# define SPOT_LTLPARSE_PUBLIC_HH
+#pragma once
 
-# include "ltlast/formula.hh"
-# include "misc/location.hh"
-# include "ltlenv/defaultenv.hh"
-# include <string>
-# include <list>
-# include <utility>
-# include <iosfwd>
+#include "ltlast/formula.hh"
+#include "misc/location.hh"
+#include "ltlenv/defaultenv.hh"
+#include <string>
+#include <list>
+#include <utility>
+#include <iosfwd>
 
 namespace spot
 {
@@ -217,5 +216,3 @@ namespace spot
     /// @}
   }
 }
-
-#endif // SPOT_LTLPARSE_PUBLIC_HH

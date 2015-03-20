@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TAALGOS_EMPTINESSTA_HH
-# define SPOT_TAALGOS_EMPTINESSTA_HH
+#pragma once
 
 #include "ta/taproduct.hh"
 #include "misc/optionmap.hh"
@@ -160,5 +159,3 @@ namespace spot
     /// \addtogroup ta_emptiness_check_algorithms Emptiness-check algorithms
     /// \ingroup ta_emptiness_check
 }
-
-#endif // SPOT_TAALGOS_EMPTINESSTA_HH

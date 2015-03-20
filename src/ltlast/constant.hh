@@ -20,8 +20,7 @@
 
 /// \file ltlast/constant.hh
 /// \brief LTL constants
-#ifndef SPOT_LTLAST_CONSTANT_HH
-# define SPOT_LTLAST_CONSTANT_HH
+#pragma once
 
 #include "formula.hh"
 
@@ -85,5 +84,3 @@ namespace spot
     }
   }
 }
-
-#endif // SPOT_LTLAST_CONSTANT_HH

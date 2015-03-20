@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TA_TA_HH
-# define SPOT_TA_TA_HH
+#pragma once
 
 #include <set>
 
@@ -296,8 +295,4 @@ namespace spot
 
 /// \addtogroup ta_misc Miscellaneous algorithms on TA
 /// \ingroup ta_algorithms
-
-
 }
-
-#endif // SPOT_TA_TA_HH

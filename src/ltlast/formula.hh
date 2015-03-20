@@ -20,8 +20,7 @@
 
 /// \file ltlast/formula.hh
 /// \brief LTL formula interface
-#ifndef SPOT_LTLAST_FORMULA_HH
-# define SPOT_LTLAST_FORMULA_HH
+#pragma once
 
 #include "misc/common.hh"
 #include <string>
@@ -533,5 +532,3 @@ namespace std
   };
 }
 #endif
-
-#endif // SPOT_LTLAST_FORMULA_HH

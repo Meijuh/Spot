@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_BFSSTEPS_HH
-# define SPOT_TGBAALGOS_BFSSTEPS_HH
+#pragma once
 
 #include <map>
 #include "emptiness.hh"
@@ -100,8 +99,4 @@ namespace spot
   protected:
     const_tgba_ptr a_;		///< The spot::tgba we are searching into.
   };
-
-
 }
-
-#endif // SPOT_TGBAALGOS_BFSSTEPS_HH

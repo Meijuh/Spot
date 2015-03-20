@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_PRODUCT_HH
-# define SPOT_TGBAALGOS_PRODUCT_HH
+#pragma once
 
 #include "misc/common.hh"
 #include "tgba/fwd.hh"
@@ -41,5 +40,3 @@ namespace spot
 			   unsigned left_state,
 			   unsigned right_state);
 }
-
-#endif // SPOT_TGBAALGOS_PRODUCT_HH

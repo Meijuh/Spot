@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_CYCLES_HH
-# define SPOT_TGBAALGOS_CYCLES_HH
+#pragma once
 
 #include "sccinfo.hh"
 #include "misc/hash.hh"
@@ -162,7 +161,4 @@ namespace spot
     // unmark the state y (sub-procedure from the paper)
     void unmark(unsigned y);
   };
-
 }
-
-#endif // SPOT_TGBAALGOS_CYCLES_HH

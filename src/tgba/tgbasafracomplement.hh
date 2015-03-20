@@ -17,11 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_TGBASAFRACOMPLEMENT_HH
-# define SPOT_TGBA_TGBASAFRACOMPLEMENT_HH
+#pragma once
 
-# include <vector>
-# include "tgba.hh"
+#include <vector>
+#include "tgba.hh"
 
 #ifndef TRANSFORM_TO_TBA
 # define TRANSFORM_TO_TBA 0
@@ -94,5 +93,3 @@ namespace spot
   /// automaton to display
   void SPOT_API display_safra(const const_tgba_safra_complement_ptr& a);
 }
-
-#endif  // SPOT_TGBA_TGBASAFRACOMPLEMENT_HH

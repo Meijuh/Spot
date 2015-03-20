@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_GRAPH_GRAPH_HH
-# define SPOT_GRAPH_GRAPH_HH
+#pragma once
 
 #include "misc/common.hh"
 #include <vector>
@@ -959,9 +958,5 @@ namespace spot
       //std::cerr << "\nafter defrag\n";
       //dump_storage(std::cerr);
     }
-
   };
-
 }
-
-#endif // SPOT_GRAPH_GRAPH_HH

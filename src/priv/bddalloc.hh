@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_PRIV_BDDALLOC_HH
-# define SPOT_PRIV_BDDALLOC_HH
+#pragma once
 
 #include "freelist.hh"
 #include <list>
@@ -52,7 +51,4 @@ namespace spot
     void extvarnum(int more);
     virtual int extend(int n);
   };
-
 }
-
-#endif // SPOT_PRIV_BDDALLOC_HH

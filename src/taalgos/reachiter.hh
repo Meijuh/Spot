@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TAALGOS_REACHITER_HH
-# define SPOT_TAALGOS_REACHITER_HH
+#pragma once
 
 #include "misc/hash.hh"
 #include "ta/ta.hh"
@@ -129,7 +128,4 @@ namespace spot
   protected:
     std::deque<const state*> todo; ///< A queue of states yet to explore.
   };
-
 }
-
-#endif // SPOT_TAALGOS_REACHITER_HH

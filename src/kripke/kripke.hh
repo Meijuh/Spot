@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_KRIPKE_KRIPKE_HH
-# define SPOT_KRIPKE_KRIPKE_HH
+#pragma once
 
 #include "fairkripke.hh"
 
@@ -97,15 +96,11 @@ namespace spot
       {
       }
 
-
     virtual ~kripke();
 
     virtual acc_cond::mark_t state_acceptance_conditions(const state*) const;
   };
 
-
   typedef std::shared_ptr<kripke> kripke_ptr;
   typedef std::shared_ptr<const kripke> const_kripke_ptr;
 }
-
-#endif // SPOT_KRIPKE_KRIPKE_HH

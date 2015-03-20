@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLPARSE_PARSEDECL_HH
-# define SPOT_LTLPARSE_PARSEDECL_HH
+#pragma once
 
 #include "ltlparse.hh"
 #include "misc/location.hh"
@@ -34,5 +33,3 @@ YY_DECL;
 
 void flex_set_buffer(const std::string& buf, int start_tok, bool lenient);
 void flex_unset_buffer();
-
-#endif // SPOT_LTLPARSE_PARSEDECL_HH

@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_MASK_HH
-# define SPOT_TGBAALGOS_MASK_HH
+#pragma once
 
 #include "tgba/tgbagraph.hh"
 
@@ -147,9 +146,4 @@ namespace spot
   tgba_digraph_ptr mask_keep_states(const const_tgba_digraph_ptr& in,
                                     std::vector<bool>& to_keep,
                                     unsigned int init);
-
-
 }
-
-
-#endif // SPOT_TGBAALGOS_MASK_HH

@@ -19,8 +19,7 @@
 
 /// \file ltlast/bunop.hh
 /// \brief Bounded Unary operators
-#ifndef SPOT_LTLAST_BUNOP_HH
-# define SPOT_LTLAST_BUNOP_HH
+#pragma once
 
 #include "formula.hh"
 #include <map>
@@ -215,4 +214,3 @@ namespace spot
 
   }
 }
-#endif // SPOT_LTLAST_BUNOP_HH

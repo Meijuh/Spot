@@ -20,10 +20,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_FORMULA2BDD_HH
-# define SPOT_TGBA_FORMULA2BDD_HH
+#pragma once
 
-# include "bdddict.hh"
+#include "bdddict.hh"
 
 namespace spot
 {
@@ -62,5 +61,3 @@ namespace spot
   SPOT_API const
   ltl::formula* bdd_to_formula(bdd f, const bdd_dict_ptr d);
 }
-
-#endif // SPOT_TGBA_FORMULA2BDD_HH

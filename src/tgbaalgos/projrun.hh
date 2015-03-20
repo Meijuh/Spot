@@ -20,13 +20,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_PROJRUN_HH
-# define SPOT_TGBAALGOS_PROJRUN_HH
+#pragma once
 
-# include "misc/common.hh"
-# include <iosfwd>
-# include "tgba/fwd.hh"
-# include "tgbaalgos/emptiness.hh"
+#include "misc/common.hh"
+#include <iosfwd>
+#include "tgba/fwd.hh"
+#include "tgbaalgos/emptiness.hh"
 
 namespace spot
 {
@@ -47,5 +46,3 @@ namespace spot
 		   const const_tgba_ptr& a_proj,
 		   const const_tgba_run_ptr& run);
 }
-
-#endif // SPOT_TGBAALGOS_PROJRUN_HH

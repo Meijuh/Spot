@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_FORMATER_HH
-#define SPOT_MISC_FORMATER_HH
+#pragma once
 
 #include "common.hh"
 #include <iostream>
@@ -198,7 +197,4 @@ namespace spot
   protected:
     std::ostream* output_;
   };
-
 }
-
-#endif // SPOT_MISC_FORMATER_HH

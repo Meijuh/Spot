@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_SATSOLVER_HH
-#define SPOT_MISC_SATSOLVER_HH
+#pragma once
 
 #include "common.hh"
 #include "tmpfile.hh"
@@ -99,5 +98,3 @@ namespace spot
   SPOT_API satsolver::solution
   satsolver_get_solution(const char* filename);
 }
-
-#endif // SPOT_MISC_SATSOLVER_HH

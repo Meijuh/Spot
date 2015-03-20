@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_SNF_HH
-#define SPOT_LTLVISIT_SNF_HH
+#pragma once
 
 #include "ltlast/formula.hh"
 #include "misc/hash.hh"
@@ -58,5 +57,3 @@ namespace spot
     star_normal_form_bounded(const formula* sere, snf_cache* cache = 0);
   }
 }
-
-#endif // SPOT_LTLVISIT_SNF_HH

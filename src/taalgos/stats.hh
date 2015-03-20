@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TAALGOS_STATS_HH
-# define SPOT_TAALGOS_STATS_HH
+#pragma once
 
 #include "ta/ta.hh"
 #include <iosfwd>
@@ -43,5 +42,3 @@ namespace spot
 
   /// @}
 }
-
-#endif // SPOT_TAALGOS_STATS_HH

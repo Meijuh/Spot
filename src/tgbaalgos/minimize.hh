@@ -17,11 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_MINIMIZE_HH
-# define SPOT_TGBAALGOS_MINIMIZE_HH
+#pragma once
 
-# include "tgba/tgbagraph.hh"
-# include "ltlast/formula.hh"
+#include "tgba/tgbagraph.hh"
+#include "ltlast/formula.hh"
 
 namespace spot
 {
@@ -155,8 +154,5 @@ namespace spot
 		      const ltl::formula* f = 0,
 		      const_tgba_digraph_ptr aut_neg_f = nullptr,
 		      bool reject_bigger = false);
-
   /// @}
 }
-
-#endif /* !SPOT_TGBAALGOS_MINIMIZE_HH */

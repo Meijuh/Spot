@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_SBACC_HH
-# define SPOT_TGBAALGOS_SBACC_HH
+#pragma once
 
 #include "tgba/tgbagraph.hh"
 
@@ -29,5 +28,3 @@ namespace spot
   /// This is independent on the acceptance condition used.
   SPOT_API tgba_digraph_ptr sbacc(tgba_digraph_ptr& aut);
 }
-
-#endif // SPOT_TGBAALGOS_COMPLETE_HH

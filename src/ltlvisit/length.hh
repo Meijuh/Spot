@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_LENGTH_HH
-# define SPOT_LTLVISIT_LENGTH_HH
+#pragma once
 
 #include "ltlast/formula.hh"
 
@@ -53,5 +52,3 @@ namespace spot
     int length_boolone(const formula* f);
   }
 }
-
-#endif // SPOT_LTLVISIT_LENGTH_HH

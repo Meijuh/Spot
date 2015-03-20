@@ -20,9 +20,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_HASHFUNC_HH
-# define SPOT_MISC_HASHFUNC_HH
-# include <cstddef>
+#pragma once
+
+#include <cstddef>
 
 namespace spot
 {
@@ -62,5 +62,3 @@ namespace spot
   }
   /// @}
 }
-
-#endif // SPOT_MISC_HASHFUNC_HH

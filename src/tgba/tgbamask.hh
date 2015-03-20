@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_TGBAMASK_HH
-# define SPOT_TGBA_TGBAMASK_HH
+#pragma once
 
 #include <bddx.h>
 #include "tgbaproxy.hh"
@@ -64,7 +63,4 @@ namespace spot
   build_tgba_mask_acc_ignore(const const_tgba_ptr& to_mask,
 			     unsigned to_ignore,
 			     const state* init = 0);
-
 }
-
-#endif // SPOT_TGBA_TGBAMASK_HH

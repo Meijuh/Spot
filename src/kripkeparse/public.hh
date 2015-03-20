@@ -17,17 +17,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#pragma once
 
-#ifndef SPOT_KRIPKEPARSE_PUBLIC_HH
-# define SPOT_KRIPKEPARSE_PUBLIC_HH
-
-# include "kripke/kripkeexplicit.hh"
-# include "misc/location.hh"
-# include "ltlenv/defaultenv.hh"
-# include <string>
-# include <list>
-# include <utility>
-# include <iosfwd>
+#include "kripke/kripkeexplicit.hh"
+#include "misc/location.hh"
+#include "ltlenv/defaultenv.hh"
+#include <string>
+#include <list>
+#include <utility>
+#include <iosfwd>
 
 namespace spot
 {
@@ -58,8 +56,4 @@ namespace spot
   bool format_kripke_parse_errors(std::ostream& os,
                                   const std::string& filename,
                                   kripke_parse_error_list& error_list);
-
 }
-
-
-#endif /* !SPOT_KRIPKEPARSE_PUBLIC_HH_ */

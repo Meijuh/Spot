@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_SAFETY_HH
-# define SPOT_TGBAALGOS_SAFETY_HH
+#pragma once
 
 #include "sccinfo.hh"
 
@@ -60,5 +59,3 @@ namespace spot
   is_safety_mwdba(const const_tgba_digraph_ptr& aut);
 
 }
-
-#endif // SPOT_TGBAALGOS_SAFETY_HH

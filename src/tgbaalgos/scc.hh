@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_SCC_HH
-# define SPOT_TGBAALGOS_SCC_HH
+#pragma once
 
 #include <map>
 #include <stack>
@@ -209,5 +208,3 @@ namespace spot
   SPOT_API std::ostream&
   dump_scc_dot(const scc_map& m, std::ostream& out, bool verbose = false);
 }
-
-#endif // SPOT_TGBAALGOS_SCC_HH

@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_LBTT_HH
-# define SPOT_TGBAALGOS_LBTT_HH
+#pragma once
 
 #include "tgba/tgba.hh"
 #include <iosfwd>
@@ -38,5 +37,3 @@ namespace spot
   SPOT_API std::ostream&
   lbtt_reachable(std::ostream& os, const const_tgba_ptr& g, bool sba = false);
 }
-
-#endif // SPOT_TGBAALGOS_LBTT_HH

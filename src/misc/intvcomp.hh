@@ -17,12 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_INTVCOMP_HH
-# define SPOT_MISC_INTVCOMP_HH
+#pragma once
 
-# include "common.hh"
-# include <vector>
-# include <stddef.h>
+#include "common.hh"
+#include <vector>
+#include <stddef.h>
 
 namespace spot
 {
@@ -74,5 +73,3 @@ namespace spot
 
   /// @}
 }
-
-#endif // SPOT_MISC_INTVCOMP_HH

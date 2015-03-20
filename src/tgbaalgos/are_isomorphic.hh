@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_ARE_ISOMORPHIC_HH
-# define SPOT_TGBAALGOS_ARE_ISOMORPHIC_HH
+#pragma once
 
 #include "tgba/tgbagraph.hh"
 #include <vector>
@@ -53,5 +52,3 @@ namespace spot
     std::vector<tgba_digraph::graph_t::trans_storage_t> reftrans_;
   };
 }
-
-#endif

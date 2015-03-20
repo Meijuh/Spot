@@ -20,12 +20,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_GV04_HH
-# define SPOT_TGBAALGOS_GV04_HH
+#pragma once
 
-# include "misc/optionmap.hh"
-# include "tgba/fwd.hh"
-# include "emptiness.hh"
+#include "misc/optionmap.hh"
+#include "tgba/fwd.hh"
+#include "emptiness.hh"
 
 namespace spot
 {
@@ -56,5 +55,3 @@ namespace spot
   SPOT_API emptiness_check_ptr
   explicit_gv04_check(const const_tgba_ptr& a, option_map o = option_map());
 }
-
-#endif // SPOT_TGBAALGOS_GV04_HH

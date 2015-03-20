@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_FWD_HH
-# define SPOT_TGBA_FWD_HH
+#pragma once
 
 #include <memory>
 
@@ -36,5 +35,3 @@ namespace spot
   typedef std::shared_ptr<const tgba_product> const_tgba_product_ptr;
   typedef std::shared_ptr<tgba_product> tgba_product_ptr;
 }
-
-#endif // SPOT_TGBA_FWD_HH

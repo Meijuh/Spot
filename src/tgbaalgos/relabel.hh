@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_RELABEL_HH
-#define SPOT_TGBAALGOS_RELABEL_HH
+#pragma once
 
 #include "ltlvisit/relabel.hh"
 #include "tgba/tgbagraph.hh"
@@ -30,5 +29,3 @@ namespace spot
   relabel_here(tgba_digraph_ptr& aut,
 	       ltl::relabeling_map* relmap);
 }
-
-#endif // SPOT_TGBAALGOS_RELABEL_HH

@@ -17,17 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_DSTARPARSE_PUBLIC_HH
-# define SPOT_DSTARPARSE_PUBLIC_HH
+#pragma once
 
-# include "tgba/tgbagraph.hh"
-# include "misc/location.hh"
-# include "ltlenv/defaultenv.hh"
-# include <string>
-# include <list>
-# include <utility>
-# include <iosfwd>
-# include <misc/bitvect.hh>
+#include "tgba/tgbagraph.hh"
+#include "misc/location.hh"
+#include "ltlenv/defaultenv.hh"
+#include <string>
+#include <list>
+#include <utility>
+#include <iosfwd>
+#include <misc/bitvect.hh>
 
 namespace spot
 {
@@ -147,8 +146,5 @@ namespace spot
   SPOT_API tgba_digraph_ptr
   dstar_to_tgba(const const_dstar_aut_ptr& dstar);
 
-
   /// @}
 }
-
-#endif // SPOT_DSTARPARSE_PUBLIC_HH

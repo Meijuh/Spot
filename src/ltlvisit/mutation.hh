@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_MUTATION_HH
-# define SPOT_LTLVISIT_MUTATION_HH
+#pragma once
 
 #include "ltlast/formula.hh"
 #include <set>
@@ -48,4 +47,3 @@ namespace spot
 				       bool sort = true);
   }
 }
-#endif

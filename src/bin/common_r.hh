@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_R_HH
-#define SPOT_BIN_COMMON_R_HH
+#pragma once
 
 #include "common_sys.hh"
 #include "ltlvisit/simplify.hh"
@@ -45,5 +44,3 @@ extern int simplification_level;
 
 void parse_r(const char* arg);
 spot::ltl::ltl_simplifier_options simplifier_options();
-
-#endif // SPOT_BIN_COMMON_RANGE_HH

@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_TAATGBA_HH
-# define SPOT_TGBA_TAATGBA_HH
+#pragma once
 
 #include <set>
 #include <iosfwd>
@@ -353,7 +352,4 @@ namespace spot
   {
     return std::make_shared<taa_tgba_formula>(dict);
   }
-
 }
-
-#endif // SPOT_TGBA_TAATGBA_HH

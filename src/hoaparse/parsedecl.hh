@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_HOAPARSE_PARSEDECL_HH
-# define SPOT_HOAPARSE_PARSEDECL_HH
+#pragma once
 
 #include <string>
 #include "hoaparse.hh"
@@ -42,5 +41,3 @@ namespace spot
     spot::location pos;
   };
 }
-
-#endif // SPOT_HOAPARSE_PARSEDECL_HH

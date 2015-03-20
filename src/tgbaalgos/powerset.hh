@@ -20,12 +20,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_POWERSET_HH
-# define SPOT_TGBAALGOS_POWERSET_HH
+#pragma once
 
-# include <set>
-# include <vector>
-# include "tgba/tgbagraph.hh"
+#include <set>
+#include <vector>
+#include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -138,5 +137,3 @@ namespace spot
 			const_tgba_digraph_ptr neg_aut = 0);
 
 }
-
-#endif // SPOT_TGBAALGOS_POWERSET_HH

@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_LTL2TAA_HH
-# define SPOT_TGBAALGOS_LTL2TAA_HH
+#pragma once
 
 #include "ltlast/formula.hh"
 #include "tgba/taatgba.hh"
@@ -52,5 +51,3 @@ namespace spot
   ltl_to_taa(const ltl::formula* f, const bdd_dict_ptr& dict,
 	     bool refined_rules = false);
 }
-
-#endif // SPOT_TGBAALGOS_LTL2TAA_HH

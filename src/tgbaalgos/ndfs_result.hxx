@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_NDFS_RESULT_HXX
-# define SPOT_TGBAALGOS_NDFS_RESULT_HXX
+#pragma once
 
 //#define NDFSR_TRACE
 
@@ -670,5 +669,3 @@ namespace spot
 }
 
 #undef ndfsr_trace
-
-#endif // SPOT_TGBAALGOS_NDFS_RESULT_HXX

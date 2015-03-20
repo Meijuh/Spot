@@ -20,12 +20,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_RANDOM_HH
-# define SPOT_MISC_RANDOM_HH
+#pragma once
 
-# include "common.hh"
-# include <cmath>
-# include <vector>
+#include "common.hh"
+#include <cmath>
+#include <vector>
 
 namespace spot
 {
@@ -137,5 +136,3 @@ namespace spot
   }
   /// @}
 }
-
-#endif // SPOT_MISC_RANDOM_HH

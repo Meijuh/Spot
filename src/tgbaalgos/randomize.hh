@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_RANDOMIZE_HH
-# define SPOT_TGBAALGOS_RANDOMIZE_HH
+#pragma once
 
 #include "tgba/tgbagraph.hh"
 
@@ -33,5 +32,3 @@ namespace spot
 	    bool randomize_states = true,
 	    bool randomize_transitions = true);
 }
-
-#endif // SPOT_TGBAALGOS_RANDOMGRAPH_HH

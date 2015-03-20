@@ -20,11 +20,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_BDDLT_HH
-# define SPOT_MISC_BDDLT_HH
+#pragma once
 
-# include <bddx.h>
-# include <functional>
+#include <bddx.h>
+#include <functional>
 
 namespace spot
 {
@@ -51,7 +50,4 @@ namespace spot
       return b.id();
     }
   };
-
 }
-
-#endif // SPOT_MISC_BDDLT_HH

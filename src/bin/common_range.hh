@@ -17,9 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_RANGE_HH
-#define SPOT_BIN_COMMON_RANGE_HH
-
+#pragma once
 
 #define RANGE_DOC \
     { 0, 0, 0, 0, "RANGE may have one of the following forms: 'INT', " \
@@ -48,5 +46,3 @@ struct range
 // is disallowed.
 range parse_range(const char* str,
 		  int missing_left = 1, int missing_right = 0);
-
-#endif // SPOT_BIN_COMMON_RANGE_HH

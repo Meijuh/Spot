@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_REACHITER_HH
-# define SPOT_TGBAALGOS_REACHITER_HH
+#pragma once
 
 #include "misc/hash.hh"
 #include "tgba/tgba.hh"
@@ -200,6 +199,3 @@ namespace spot
     std::unordered_set<int> stack_;
   };
 }
-
-
-#endif // SPOT_TGBAALGOS_REACHITER_HH

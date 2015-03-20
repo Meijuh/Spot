@@ -17,14 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#pragma once
 
-#ifndef SPOT_KRIPKE_KRIPKEEXPLICIT_HH
-# define SPOT_KRIPKE_KRIPKEEXPLICIT_HH
-
-# include <iosfwd>
-# include "kripke.hh"
-# include "ltlast/formula.hh"
-# include "kripkeprint.hh"
+#include <iosfwd>
+#include "kripke.hh"
+#include "ltlast/formula.hh"
+#include "kripkeprint.hh"
 
 namespace spot
 {
@@ -185,4 +183,3 @@ namespace spot
     return std::make_shared<kripke_explicit>(d, init);
   }
 }
-#endif // SPOT_KRIPKE_KRIPKEEXPLICIT_HH

@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_MSPOOL_HH
-#  define SPOT_MISC_MSPOOL_HH
+#pragma once
 
 #include <new>
 #include <cstddef>
@@ -124,7 +123,4 @@ namespace spot
     // chunk = several agglomerated blocks
     union chunk_ { chunk_* prev; char data_[1]; }* chunklist_;
   };
-
 }
-
-#endif // SPOT_MISC_INTVPOOL_HH

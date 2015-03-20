@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_GTEC_CE_HH
-# define SPOT_TGBAALGOS_GTEC_CE_HH
+#pragma once
 
 #include "status.hh"
 #include "tgbaalgos/emptiness.hh"
@@ -55,5 +54,3 @@ namespace spot
     tgba_run_ptr run_;
   };
 }
-
-#endif // SPOT_TGBAALGOS_GTEC_CE_HH

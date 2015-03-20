@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_GRAPH_NGRAPH_HH
-# define SPOT_GRAPH_NGRAPH_HH
+#pragma once
 
 #include <unordered_map>
 #include <vector>
@@ -162,7 +161,4 @@ namespace spot
       return g_.new_transition(get_state(src), d, std::forward<Args>(args)...);
     }
   };
-
 }
-
-#endif // SPOT_GRAPH_NGRAPH_HH

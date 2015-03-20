@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_RANDOMGRAPH_HH
-# define SPOT_TGBAALGOS_RANDOMGRAPH_HH
+#pragma once
 
 #include "ltlvisit/apcollect.hh"
 #include "ltlenv/defaultenv.hh"
@@ -83,5 +82,3 @@ namespace spot
 	       unsigned n_accs = 0, float a = 0.1, float t = 0.5,
 	       bool deterministic = false, bool state_acc = false);
 }
-
-#endif // SPOT_TGBAALGOS_RANDOMGRAPH_HH

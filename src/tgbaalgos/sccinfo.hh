@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_SCCINFO_HH
-# define SPOT_TGBAALGOS_SCCINFO_HH
+#pragma once
 
 #include <vector>
 #include "tgba/tgbagraph.hh"
@@ -230,5 +229,3 @@ namespace spot
 		    const_tgba_digraph_ptr aut, scc_info* sccinfo = nullptr);
 
 }
-
-#endif // SPOT_TGBAALGOS_SCCINFO_HH

@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_LUNABBREV_HH
-# define SPOT_LTLVISIT_LUNABBREV_HH
+#pragma once
 
 #include "clone.hh"
 
@@ -65,5 +64,3 @@ namespace spot
 
   }
 }
-
-#endif // SPOT_LTLVISIT_LUNABBREV_HH

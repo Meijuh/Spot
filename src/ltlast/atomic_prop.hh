@@ -22,8 +22,7 @@
 
 /// \file ltlast/atomic_prop.hh
 /// \brief LTL atomic propositions
-#ifndef SPOT_LTLAST_ATOMIC_PROP_HH
-# define SPOT_LTLAST_ATOMIC_PROP_HH
+#pragma once
 
 #include "formula.hh"
 #include <string>
@@ -91,5 +90,3 @@ namespace spot
     }
   }
 }
-
-#endif // SPOT_LTLAST_ATOMICPROP_HH

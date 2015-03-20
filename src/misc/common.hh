@@ -20,8 +20,7 @@
 #include <cstdlib>
 #include <stdexcept>
 
-#ifndef SPOT_MISC_COMMON_HH
-#  define SPOT_MISC_COMMON_HH
+#pragma once
 
 #ifdef __GNUC__
 #define SPOT_LIKELY(expr)   __builtin_expect(!!(expr), 1)
@@ -110,5 +109,3 @@
 // Useful when forwarding methods such as:
 //   auto func(int param) SPOT_RETURN(implem_.func(param));
 #define SPOT_RETURN(code) -> decltype(code) { return code; }
-
-#endif // SPOT_MISC_COMMON_HH

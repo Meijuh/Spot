@@ -17,13 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_IFACE_LTSMIN_LTSMIN_HH
-# define SPOT_IFACE_LTSMIN_LTSMIN_HH
+#pragma once
 
 #include "kripke/kripke.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlast/constant.hh"
-
 
 namespace spot
 {
@@ -64,5 +62,3 @@ namespace spot
 	      const ltl::formula* dead = ltl::constant::true_instance(),
 	      int compress = 0, bool verbose = true);
 }
-
-#endif // SPOT_IFACE_LTSMIN_LTSMIN_HH

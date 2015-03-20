@@ -27,8 +27,7 @@
 /// over LTL nodes.
 /// Use ltlast/allnodes.hh or an individual header when the definition of
 /// the node is actually needed.
-#ifndef SPOT_LTLAST_PREDECL_HH
-# define SPOT_LTLAST_PREDECL_HH
+#pragma once
 
 namespace spot
 {
@@ -45,5 +44,3 @@ namespace spot
     class unop;
   }
 }
-
-#endif // SPOT_LTLAST_PREDECL_HH

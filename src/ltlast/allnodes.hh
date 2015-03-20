@@ -26,14 +26,11 @@
 /// This file is usually needed when \b defining a visitor.
 /// Prefer ltlast/predecl.hh when only \b declaring methods and functions
 /// over LTL nodes.
-#ifndef SPOT_LTLAST_ALLNODES_HH
-# define SPOT_LTLAST_ALLNODES_HH
+#pragma once
 
-# include "binop.hh"
-# include "unop.hh"
-# include "multop.hh"
-# include "atomic_prop.hh"
-# include "constant.hh"
-# include "bunop.hh"
-
-#endif // SPOT_LTLAST_ALLNODES_HH
+#include "binop.hh"
+#include "unop.hh"
+#include "multop.hh"
+#include "atomic_prop.hh"
+#include "constant.hh"
+#include "bunop.hh"

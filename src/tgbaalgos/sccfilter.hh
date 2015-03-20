@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_SCCFILTER_HH
-# define SPOT_TGBAALGOS_SCCFILTER_HH
+#pragma once
 
 #include "misc/common.hh"
 #include <bddx.h>
@@ -88,5 +87,3 @@ namespace spot
 		  bdd suspvars, bdd ignoredvars, bool early_susp,
 		  scc_info* given_si = 0);
 }
-
-#endif // SPOT_TGBAALGOS_SCC_HH

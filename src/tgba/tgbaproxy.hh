@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_TGBAPROXY_HH
-# define SPOT_TGBA_TGBAPROXY_HH
+#pragma once
 
 #include "tgba.hh"
 
@@ -58,5 +57,3 @@ namespace spot
     const_tgba_ptr original_;
   };
 }
-
-#endif // SPOT_TGBA_TGBA_HH

@@ -20,11 +20,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_LTSTR_HH
-#  define SPOT_MISC_LTSTR_HH
+#pragma once
 
-#  include <cstring>
-#  include <functional>
+#include <cstring>
+#include <functional>
 
 namespace spot
 {
@@ -50,5 +49,3 @@ namespace spot
     }
   };
 }
-
-#endif // SPOT_MISC_LTSTR_HH

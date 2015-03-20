@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_FINPUT_HH
-#define SPOT_BIN_COMMON_FINPUT_HH
+#pragma once
 
 #include "common_sys.hh"
 
@@ -79,7 +78,3 @@ public:
   char* prefix;
   char* suffix;
 };
-
-
-
-#endif // SPOT_BIN_COMMON_FINPUT_HH

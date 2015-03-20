@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_DTGBACOMP_HH
-# define SPOT_TGBAALGOS_DTGBACOMP_HH
+#pragma once
 
 #include "tgba/tgbagraph.hh"
 
@@ -34,5 +33,3 @@ namespace spot
   SPOT_API tgba_digraph_ptr
   dtgba_complement(const const_tgba_digraph_ptr& aut);
 }
-
-#endif // SPOT_TGBAALGOS_DTGBACOMP_HH

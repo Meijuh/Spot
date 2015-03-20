@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_TGBAGRAPH_HH
-# define SPOT_TGBA_TGBAGRAPH_HH
+#pragma once
 
 #include "fwd.hh"
 #include "graph/graph.hh"
@@ -477,7 +476,4 @@ namespace spot
     else
       return tgba_dupexp_dfs(aut, p);
   }
-
 }
-
-#endif // SPOT_TGBA_TGBAGRAPH_HH

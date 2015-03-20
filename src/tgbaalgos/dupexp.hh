@@ -20,13 +20,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_DUPEXP_HH
-# define SPOT_TGBAALGOS_DUPEXP_HH
+#pragma once
 
-# include "misc/common.hh"
-# include "tgba/fwd.hh"
-# include "tgba/tgba.hh"
-# include <vector>
+#include "misc/common.hh"
+#include "tgba/fwd.hh"
+#include "tgba/tgba.hh"
+#include <vector>
 
 namespace spot
 {
@@ -41,5 +40,3 @@ namespace spot
   SPOT_API tgba_digraph_ptr
   tgba_dupexp_dfs(const const_tgba_ptr& aut, tgba::prop_set p);
 }
-
-#endif // SPOT_TGBAALGOS_DUPEXP_HH

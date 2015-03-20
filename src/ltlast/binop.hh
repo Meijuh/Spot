@@ -25,8 +25,7 @@
 ///
 /// This does not include \c AND and \c OR operators.  These are
 /// considered to be multi-operand operators (see spot::ltl::multop).
-#ifndef SPOT_LTLAST_BINOP_HH
-# define SPOT_LTLAST_BINOP_HH
+#pragma once
 
 #include "formula.hh"
 #include <map>
@@ -238,5 +237,3 @@ namespace spot
     }
   }
 }
-
-#endif // SPOT_LTLAST_BINOP_HH

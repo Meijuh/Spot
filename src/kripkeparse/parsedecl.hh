@@ -18,12 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#ifndef SPOT_KRIPKEPARSE_PARSEDECL_HH
-# define SPOT_KRIPKEPARSE_PARSEDECL_HH
+#pragma once
 
-# include <string>
-# include "kripkeparse.hh"
-# include "misc/location.hh"
+#include <string>
+#include "kripkeparse.hh"
+#include "misc/location.hh"
 
 # define YY_DECL \
   int kripkeyylex (kripkeyy::parser::semantic_type *yylval, \
@@ -36,5 +35,3 @@ namespace spot
   int kripkeyyopen(const std::string& name);
   void kripkeyyclose();
 }
-
-#endif /* !PARSEDECL_HH_ */

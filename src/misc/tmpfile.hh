@@ -17,15 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_TMPFILE_HH
-#  define SPOT_MISC_TMPFILE_HH
+#pragma once
 
-#  include "common.hh"
-#  include <new>
-#  include <stdexcept>
-#  include <iostream>
-#  include <list>
-#  include "formater.hh"
+#include "common.hh"
+#include <new>
+#include <stdexcept>
+#include <iostream>
+#include <list>
+#include "formater.hh"
 
 namespace spot
 {
@@ -138,6 +137,3 @@ namespace spot
 
   /// @}
 }
-
-
-#endif // SPOT_MISC_TMPFILE_HH

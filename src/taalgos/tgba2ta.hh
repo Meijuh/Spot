@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TAALGOS_TGBA2TA_HH
-# define SPOT_TAALGOS_TGBA2TA_HH
+#pragma once
 
 #include "tgba/tgba.hh"
 #include "ta/taexplicit.hh"
@@ -98,7 +97,4 @@ namespace spot
   SPOT_API tgta_explicit_ptr
   tgba_to_tgta(const const_tgba_ptr& tgba_to_convert,
 	       bdd atomic_propositions_set);
-
 }
-
-#endif // SPOT_TAALGOS_TGBA2TA_HH

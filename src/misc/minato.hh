@@ -20,12 +20,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_MINATO_HH
-# define SPOT_MISC_MINATO_HH
+#pragma once
 
-# include "common.hh"
-# include <bddx.h>
-# include <stack>
+#include "common.hh"
+#include <bddx.h>
+#include <stack>
 
 namespace spot
 {
@@ -92,5 +91,3 @@ namespace spot
     bdd ret_;
   };
 }
-
-#endif // SPOT_MISC_MINATO_HH

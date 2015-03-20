@@ -33,20 +33,19 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef SPOT_MISC_POSITION_HH
-# define SPOT_MISC_POSITION_HH
+#pragma once
 
-# include <algorithm> // std::max
-# include <iostream>
-# include <string>
+#include <algorithm> // std::max
+#include <iostream>
+#include <string>
 
-# ifndef YY_NULL
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULL nullptr
-#  else
-#   define YY_NULL 0
-#  endif
+#ifndef YY_NULL
+# if defined __cplusplus && 201103L <= __cplusplus
+#  define YY_NULL nullptr
+# else
+#  define YY_NULL 0
 # endif
+#endif
 
 
 namespace spot
@@ -162,8 +161,4 @@ namespace spot
       ostr << *pos.filename << ':';
     return ostr << pos.line << '.' << pos.column;
   }
-
-
 }
-
-#endif // SPOT_MISC_POSITION_HH

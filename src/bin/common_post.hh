@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_BIN_COMMON_POST_HH
-#define SPOT_BIN_COMMON_POST_HH
+#pragma once
 
 #include "common_sys.hh"
 #include "tgbaalgos/postproc.hh"
@@ -31,7 +30,3 @@ extern spot::postprocessor::output_type type;
 extern spot::postprocessor::output_pref pref;
 extern spot::postprocessor::output_pref comp;
 extern spot::postprocessor::optimization_level level;
-
-
-
-#endif // SPOT_BIN_COMMON_FINPUT_HH

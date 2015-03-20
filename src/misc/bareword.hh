@@ -20,11 +20,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_BAREWORD_HH
-# define SPOT_MISC_BAREWORD_HH
+#pragma once
 
-# include "common.hh"
-# include <string>
+#include "common.hh"
+#include <string>
 
 namespace spot
 {
@@ -49,5 +48,3 @@ namespace spot
   SPOT_API bool is_spin_ap(const char* str);
   /// @}
 }
-
-#endif // SPOT_MISC_BAREWORD_HH

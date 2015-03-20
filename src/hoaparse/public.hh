@@ -17,17 +17,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_HOAPARSE_PUBLIC_HH
-# define SPOT_HOAPARSE_PUBLIC_HH
+#pragma once
 
-# include "tgba/tgbagraph.hh"
-# include "misc/location.hh"
-# include "ltlenv/defaultenv.hh"
-# include <string>
-# include <list>
-# include <utility>
-# include <iosfwd>
-# include <misc/bitvect.hh>
+#include "tgba/tgbagraph.hh"
+#include "misc/location.hh"
+#include "ltlenv/defaultenv.hh"
+#include <string>
+#include <list>
+#include <utility>
+#include <iosfwd>
+#include <misc/bitvect.hh>
 
 namespace spot
 {
@@ -130,5 +129,3 @@ namespace spot
 
   /// @}
 }
-
-#endif // SPOT_HOAPARSE_PUBLIC_HH

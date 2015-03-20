@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_TGBA_HH
-# define SPOT_TGBA_TGBA_HH
+#pragma once
 
 #include "fwd.hh"
 #include "acc.hh"
@@ -860,5 +859,3 @@ namespace spot
   /// \addtogroup tgba_misc Miscellaneous algorithms on TGBA
   /// \ingroup tgba_algorithms
 }
-
-#endif // SPOT_TGBA_TGBA_HH

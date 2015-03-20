@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_LTL2TGBA_FM_HH
-# define SPOT_TGBAALGOS_LTL2TGBA_FM_HH
+#pragma once
 
 #include "ltlast/formula.hh"
 #include "tgba/tgbagraph.hh"
@@ -130,5 +129,3 @@ namespace spot
 		 const ltl::atomic_prop_set* unobs = 0,
 		 ltl::ltl_simplifier* simplifier = 0);
 }
-
-#endif // SPOT_TGBAALGOS_LTL2TGBA_FM_HH

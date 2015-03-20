@@ -33,10 +33,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef SPOT_MISC_LOCATION_HH
-# define SPOT_MISC_LOCATION_HH
+#pragma once
 
-# include "position.hh"
+#include "position.hh"
 
 namespace spot
 {
@@ -168,5 +167,3 @@ namespace spot
     return ostr;
   }
 }
-
-#endif // SPOT_MISC_LOCATION_HH

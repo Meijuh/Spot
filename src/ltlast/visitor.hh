@@ -22,11 +22,10 @@
 
 /// \file ltlast/visitor.hh
 /// \brief LTL visitor interface
-#ifndef SPOT_LTLAST_VISITOR_HH
-# define SPOT_LTLAST_VISITOR_HH
+#pragma once
 
-# include "misc/common.hh"
-# include "predecl.hh"
+#include "misc/common.hh"
+#include "predecl.hh"
 
 namespace spot
 {
@@ -50,5 +49,3 @@ namespace spot
     };
   }
 }
-
-#endif // SPOT_LTLAST_VISITOR_HH

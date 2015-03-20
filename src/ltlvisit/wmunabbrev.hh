@@ -17,10 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_WMUNABBREV_HH
-# define SPOT_LTLVISIT_WMUNABBREV_HH
+#pragma once
 
-# include "misc/common.hh"
+#include "misc/common.hh"
 
 namespace spot
 {
@@ -40,5 +39,3 @@ namespace spot
     SPOT_API const formula* unabbreviate_wm(const formula* f);
   }
 }
-
-#endif // SPOT_LTLVISIT_WMUNABBREV_HH

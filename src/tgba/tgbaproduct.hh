@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_TGBAPRODUCT_HH
-# define SPOT_TGBA_TGBAPRODUCT_HH
+#pragma once
 
 #include "tgba.hh"
 #include "misc/fixpool.hh"
@@ -148,5 +147,3 @@ namespace spot
 					       left_init, right_init);
   }
 }
-
-#endif // SPOT_TGBA_TGBAPRODUCT_HH

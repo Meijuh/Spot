@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_RANDOMLTL_HH
-# define SPOT_LTLVISIT_RANDOMLTL_HH
+#pragma once
 
 #include "apcollect.hh"
 #include <iosfwd>
@@ -354,4 +353,3 @@ namespace spot
     };
   }
 }
-#endif // SPOT_LTLVIST_RANDOMLTL_HH

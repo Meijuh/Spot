@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_NENOFORM_HH
-# define SPOT_LTLVISIT_NENOFORM_HH
+#pragma once
 
 #include "ltlast/formula.hh"
 
@@ -48,5 +47,3 @@ namespace spot
     negative_normal_form(const formula* f, bool negated = false);
   }
 }
-
-#endif //  SPOT_LTLVISIT_NENOFORM_HH

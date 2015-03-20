@@ -22,8 +22,7 @@
 
 /// \file ltlast/multop.hh
 /// \brief LTL multi-operand operators
-#ifndef SPOT_LTLAST_MULTOP_HH
-# define SPOT_LTLAST_MULTOP_HH
+#pragma once
 
 #include "formula.hh"
 #include <vector>
@@ -317,5 +316,3 @@ namespace spot
     }
   }
 }
-
-#endif // SPOT_LTLAST_MULTOP_HH

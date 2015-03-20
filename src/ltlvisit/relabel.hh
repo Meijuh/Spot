@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_RELABEL_HH
-# define SPOT_LTLVISIT_RELABEL_HH
+#pragma once
 
 #include "ltlast/formula.hh"
 #include "misc/hash.hh"
@@ -60,10 +59,5 @@ namespace spot
     SPOT_API
     const formula* relabel_bse(const formula* f, relabeling_style style,
 			       relabeling_map* m = 0);
-
   }
 }
-
-
-
-#endif // SPOT_LTLVISIT_RELABEL_HH

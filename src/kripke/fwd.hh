@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_KRIPKE_FWD_HH
-# define SPOT_KRIPKE_FWD_HH
+#pragma once
 
 #include <memory>
 
@@ -36,5 +35,3 @@ namespace spot
   typedef std::shared_ptr<const kripke_explicit> const_kripke_explicit_ptr;
   typedef std::shared_ptr<kripke_explicit> kripke_explicit_ptr;
 }
-
-#endif // SPOT_KRIPKE_FWD_HH

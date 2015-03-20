@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TA_TAPRODUCT_HH
-# define SPOT_TA_TAPRODUCT_HH
+#pragma once
 
 #include "ta.hh"
 #include "kripke/kripke.hh"
@@ -219,7 +218,4 @@ namespace spot
     /// \brief Move to the next successor in the Kripke structure
     void next_kripke_dest();
   };
-
 }
-
-#endif // SPOT_TA_TAPRODUCT_HH

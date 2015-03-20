@@ -17,15 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_ACC_HH
-# define SPOT_TGBA_ACC_HH
+#pragma once
 
-# include <functional>
-# include <unordered_map>
-# include <sstream>
-# include <vector>
-# include "ltlenv/defaultenv.hh"
-# include <iostream>
+#include <functional>
+#include <unordered_map>
+#include <sstream>
+#include <vector>
+#include "ltlenv/defaultenv.hh"
+#include <iostream>
 
 namespace spot
 {
@@ -949,5 +948,3 @@ namespace std
     }
   };
 }
-
-#endif // SPOT_TGBA_ACC_HH

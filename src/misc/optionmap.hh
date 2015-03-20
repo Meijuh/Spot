@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_OPTIONMAP_HH
-# define SPOT_MISC_OPTIONMAP_HH
+#pragma once
 
 #include "common.hh"
 #include <string>
@@ -87,5 +86,3 @@ namespace spot
     std::map<std::string, int> options_;
   };
 }
-
-#endif // SPOT_MISC_OPTIONMAP_HH

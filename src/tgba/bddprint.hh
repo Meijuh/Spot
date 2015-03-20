@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBA_BDDPRINT_HH
-# define SPOT_TGBA_BDDPRINT_HH
+#pragma once
 
 #include <string>
 #include <iosfwd>
@@ -138,7 +137,4 @@ namespace spot
   /// \param b The BDD to print.
   SPOT_API std::ostream&
   bdd_print_isop(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
-
 }
-
-#endif // SPOT_TGBA_BDDPRINT_HH

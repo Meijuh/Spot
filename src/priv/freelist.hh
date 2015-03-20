@@ -20,9 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-#ifndef SPOT_PRIV_FREELIST_HH
-# define SPOT_PRIV_FREELIST_HH
+#pragma once
 
 #include <list>
 #include <utility>
@@ -79,7 +77,4 @@ namespace spot
     /// Remove \a n consecutive entries from the list, starting at \a base.
     void remove(free_list_type::iterator i, int base, int n);
   };
-
 }
-
-#endif // SPOT_PRIV_FREELIST_HH

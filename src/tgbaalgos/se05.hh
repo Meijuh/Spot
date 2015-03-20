@@ -20,13 +20,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_SE05_HH
-# define SPOT_TGBAALGOS_SE05_HH
+#pragma once
 
-# include <cstddef>
-# include "misc/optionmap.hh"
-# include "tgba/fwd.hh"
-# include "emptiness.hh"
+#include <cstddef>
+#include "misc/optionmap.hh"
+#include "tgba/fwd.hh"
+#include "emptiness.hh"
 
 namespace spot
 {
@@ -147,5 +146,3 @@ namespace spot
 
   /// @}
 }
-
-#endif // SPOT_TGBAALGOS_SE05_HH

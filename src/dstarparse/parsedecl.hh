@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_DSTARPARSE_PARSEDECL_HH
-# define SPOT_DSTARPARSE_PARSEDECL_HH
+#pragma once
 
 #include <string>
 #include "dstarparse.hh"
@@ -35,5 +34,3 @@ namespace spot
   int dstaryyopen(const std::string& name);
   void dstaryyclose();
 }
-
-#endif // SPOT_DSTARPARSE_PARSEDECL_HH

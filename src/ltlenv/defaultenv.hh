@@ -20,11 +20,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLENV_DEFAULTENV_HH
-# define SPOT_LTLENV_DEFAULTENV_HH
+#pragma once
 
-# include "environment.hh"
-# include "ltlast/atomic_prop.hh"
+#include "environment.hh"
+#include "ltlast/atomic_prop.hh"
 
 namespace spot
 {
@@ -50,8 +49,5 @@ namespace spot
     protected:
       default_environment();
     };
-
   }
 }
-
-#endif // SPOT_LTLENV_DEFAULTENV_HH

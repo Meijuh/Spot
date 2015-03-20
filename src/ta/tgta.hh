@@ -17,8 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TA_TGTA_HH
-# define SPOT_TA_TGTA_HH
+#pragma once
 
 #include "tgba/tgba.hh"
 
@@ -57,7 +56,6 @@ namespace spot
   /// obtained by querying the iterator over the successors of
   /// a state.
 
-
   class SPOT_API tgta : public tgba
   {
 
@@ -83,5 +81,3 @@ namespace spot
   typedef std::shared_ptr<tgta> tgta_ptr;
   typedef std::shared_ptr<const tgta> const_tgta_ptr;
 }
-
-#endif // SPOT_TA_TGTA_HH

@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_GTEC_SCCSTACK_HH
-# define SPOT_TGBAALGOS_GTEC_SCCSTACK_HH
+#pragma once
 
 #include <bddx.h>
 #include <list>
@@ -78,5 +77,3 @@ namespace spot
     stack_type s;
   };
 }
-
-#endif // SPOT_TGBAALGOS_GTEC_SCCSTACK_HH

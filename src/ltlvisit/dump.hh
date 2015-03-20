@@ -20,8 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_LTLVISIT_DUMP_HH
-# define SPOT_LTLVISIT_DUMP_HH
+#pragma once
 
 #include "ltlast/formula.hh"
 #include <iosfwd>
@@ -40,5 +39,3 @@ namespace spot
     std::ostream& dump(std::ostream& os, const formula* f);
   }
 }
-
-#endif // SPOT_LTLVISIT_DUMP_HH

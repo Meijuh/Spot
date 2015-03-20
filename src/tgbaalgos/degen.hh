@@ -17,10 +17,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TGBAALGOS_DEGEN_HH
-# define SPOT_TGBAALGOS_DEGEN_HH
+#pragma once
 
-# include "tgba/tgbagraph.hh"
+#include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -61,6 +60,3 @@ namespace spot
 		   bool skip_levels = true);
   /// \@}
 }
-
-
-#endif

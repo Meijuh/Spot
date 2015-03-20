@@ -20,16 +20,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_MISC_HASH_HH
-#  define SPOT_MISC_HASH_HH
+#pragma once
 
-#  include <string>
-#  include <functional>
-#  include "misc/hashfunc.hh"
-#  include "misc/_config.h"
+#include <string>
+#include <functional>
+#include "misc/hashfunc.hh"
+#include "misc/_config.h"
 
-#  include <unordered_map>
-#  include <unordered_set>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace spot
 {
@@ -89,7 +88,4 @@ namespace spot
 			 static_cast<size_t>(uh(p.second)));
     }
   };
-
 }
-
-#endif // SPOT_MISC_HASH_HH

@@ -17,13 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#pragma once
 
-#ifndef SPOT_KRIPKE_KRIPKEPRINT_HH
-# define SPOT_KRIPKE_KRIPKEPRINT_HH
-
-# include "misc/common.hh"
-# include <iosfwd>
-# include "kripke.hh"
+#include "misc/common.hh"
+#include <iosfwd>
+#include "kripke.hh"
 
 namespace spot
 {
@@ -52,5 +50,3 @@ namespace spot
   kripke_save_reachable_renumbered(std::ostream& os, const const_kripke_ptr& k);
 
 } // End namespace spot
-
-#endif // SPOT_KRIPKE_KRIPKEPRINT_HH

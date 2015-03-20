@@ -17,12 +17,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SPOT_TAALGOS_MINIMIZE_HH
-# define SPOT_TAALGOS_MINIMIZE_HH
+#pragma once
 
-# include "ta/ta.hh"
-# include "ta/tgta.hh"
-# include "ta/tgtaexplicit.hh"
+#include "ta/ta.hh"
+#include "ta/tgta.hh"
+#include "ta/tgtaexplicit.hh"
 
 namespace spot
 {
@@ -75,5 +74,3 @@ namespace spot
 
 /// @}
 }
-
-#endif /* !SPOT_TAALGOS_MINIMIZE_HH */
