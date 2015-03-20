@@ -727,6 +727,12 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
 
 
 body: states
+      {
+	for (auto& p: res.start)
+	  if (p.second >= res.declared_states.size()
+	      || !res.declared_states[p.second])
+	    error(p.first, "no definition for this initial state");
+      }
 
 state-num: INT
 	   {
@@ -1059,6 +1065,7 @@ never: "never" { res.namer = res.h->aut->create_namer<std::string>();
 	 // states to remove.
 	 if (res.aliased_states)
 	   res.h->aut->purge_unreachable_states();
+	 res.declared_states.resize(res.h->aut->num_states(), true);
        }
 
 nc-states:
@@ -1262,8 +1269,8 @@ lbtt: lbtt-header lbtt-body ENDAUT
 	  }
 	if (res.states_map.rbegin()->first > (unsigned) res.states)
 	  {
-	    // We have seen number larger that the total number of
-	    // state in the automaton.  Usually this happens when the
+	    // We have seen numbers larger that the total number of
+	    // states in the automaton.  Usually this happens when the
 	    // states are numbered from 1 instead of 0, but the LBTT
 	    // documentation actually allow any number to be used.
 	    // What we have done is to map all input state numbers 0
@@ -1281,6 +1288,7 @@ lbtt: lbtt-header lbtt-body ENDAUT
 	      i.second = rename[i.second];
 	    res.h->aut->get_graph().defrag_states(std::move(rename), s);
 	  }
+	 res.declared_states.resize(res.h->aut->num_states(), true);
       }
     | lbtt-header-states LBTT_EMPTY
       {
@@ -1538,7 +1546,16 @@ static void fix_acceptance(result_& r)
 
 static void fix_initial_state(result_& r)
 {
-  if (r.start.empty())
+
+  std::vector<unsigned> start;
+  start.reserve(r.start.size());
+  for (auto& p : r.start)
+    // Ignore initial states without declaration
+    if (p.second < r.declared_states.size()
+	&& r.declared_states[p.second])
+      start.push_back(p.second);
+
+  if (start.empty())
     {
       // If no initial state has been declared, add one, because
       // Spot will not work without one.
@@ -1547,10 +1564,6 @@ static void fix_initial_state(result_& r)
     }
 
   // Remove any duplicate initial state.
-  std::vector<unsigned> start;
-  start.reserve(r.start.size());
-  for (auto& p : r.start)
-    start.push_back(p.second);
   std::sort(start.begin(), start.end());
   auto res = std::unique(start.begin(), start.end());
   start.resize(std::distance(start.begin(), res));

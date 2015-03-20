@@ -26,8 +26,12 @@ set -e
 expecterr()
 {
    cat >$1.exp
-   ../../bin/autfilt --hoa "$@" 2>$1.err >$1.out && exit 1
+   ../../bin/autfilt --hoa "$@" 2>$1.err-t >$1.out && exit 1
    test $? = 2
+   # If autfilt is compiled statically, the '.../lt-' parse of
+   # its name is not stripped, and the error message show the
+   # full path.
+   sed 's:^\.\./\.\./bin/::' $1.err-t >$1.err
    cat $1.err
    diff $1.err $1.exp
 }
@@ -164,6 +168,7 @@ input:3.1-9: ... declared here.
 input:6.10-14: ignoring acceptance sets because of missing acceptance condition
 input:7.5: state number is larger than state count...
 input:3.1-9: ... declared here.
+input:4.1-8: no definition for this initial state
 EOF
 
 cat >input <<EOF
@@ -179,6 +184,7 @@ expecterr input <<EOF
 input:3.1-8: initial state number is larger than state count...
 input:4.1-9: ... declared here.
 input:1.1-4.9: missing 'Acceptance:' header
+input:3.1-8: no definition for this initial state
 EOF
 
 cat >input <<EOF
@@ -194,6 +200,7 @@ EOF
 expecterr input <<EOF
 input:5.1-13: ignoring this redefinition of the acceptance condition...
 input:2.1-13: ... previously defined here.
+input:3.1-8: no definition for this initial state
 EOF
 
 cat >input <<EOF
@@ -956,6 +963,7 @@ input:21.5-7: $se string, expecting integer
 input:25.1: $se \$undefined, expecting $end
 input:25.1-12: ignoring leading garbage
 input:32.1-5: $se header name, expecting --END-- or State:
+input:28.1-8: no definition for this initial state
 input:37.1: $se 't', expecting $end
 autfilt: failed to read automaton from input
 EOF
@@ -1547,4 +1555,27 @@ State: 4 {1}
 State: 5 {0 1}
 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5
 --END--
+EOF
+
+
+# This used to trigger an assertion.
+cat >bug<<EOF
+HOA: v1
+Start: 6
+Acceptance: 0 t
+--BODY--
+--END--
+HOA: v1
+Start: 1
+Start: 0
+Acceptance: 0 t
+--BODY--
+State: 0
+[t] 0
+--END--
+EOF
+
+expecterr bug <<EOF
+bug:2.1-8: no definition for this initial state
+bug:7.1-8: no definition for this initial state
 EOF
