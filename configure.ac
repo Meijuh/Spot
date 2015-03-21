@@ -171,8 +171,8 @@ AC_CHECK_PROGS([SWIG], [swig3.0 swig], [swig])
 AC_SUBST([CROSS_COMPILING], [$cross_compiling])
 
 AC_SUBST([GITPATCH], [$(if (git rev-parse) >/dev/null 2>&1; then
-  echo -n .
-  git rev-list $(git rev-list --tags --no-walk --max-count=1)..HEAD --count
+ echo ".$(git rev-list $(git rev-list --tags --no-walk --max-count=1)..HEAD \
+ --count)"
 fi)])
 
 AC_CONFIG_FILES([
