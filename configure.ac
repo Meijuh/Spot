@@ -35,19 +35,6 @@ test -z "$CXXFLAGS" && CXXFLAGS=
 
 adl_ENABLE_DEVEL
 
-AC_ARG_ENABLE([python],
-              [AC_HELP_STRING([--disable-python],
-                              [do not compile Python bindings])],
-              [], [enable_python=yes])
-
-AM_CONDITIONAL([USE_PYTHON], [test "x${enable_python:-yes}" = xyes])
-
-if test "x${enable_python:-yes}" = xyes; then
-  AC_MSG_NOTICE([You may configure with --disable-python ]dnl
-[if you do not need Python bindings.])
-  adl_CHECK_PYTHON
-fi
-
 AC_PROG_CC
 gl_EARLY
 
@@ -128,6 +115,29 @@ LTDL_INIT([subproject convenience])
 # cancel the effect of Debian's patch here.
 link_all_deplibs=yes
 link_all_deplibs_CXX=yes
+
+
+AC_ARG_ENABLE([python],
+              [AC_HELP_STRING([--disable-python],
+                              [do not compile Python bindings])],
+              [], [enable_python=yes])
+
+case $enable_shared:$enable_python in
+ no:no);;
+ no:*)
+    enable_python=no
+    AC_MSG_NOTICE([Not building Python bindings because of --disable-shared.])
+    ;;
+esac
+
+AM_CONDITIONAL([USE_PYTHON], [test "x${enable_python:-yes}" = xyes])
+
+if test "x${enable_python:-yes}" = xyes; then
+  AC_MSG_NOTICE([You may configure with --disable-python ]dnl
+[if you do not need Python bindings.])
+  adl_CHECK_PYTHON
+fi
+
 
 adl_ENABLE_DEBUG
 ad_GCC_OPTIM
