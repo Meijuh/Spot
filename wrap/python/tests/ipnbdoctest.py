@@ -77,6 +77,7 @@ def sanitize(s):
     s = re.sub(r'width="[0-9.]+pt"', 'width=""', s)
     s = re.sub(r'height="[0-9.]+pt"', 'height=""', s)
     s = re.sub(r'viewBox="[0-9 .-]*"', 'viewbox=""', s)
+    s = re.sub(r'transform="[^"]*"', 'transform=""', s)
     return s
 
 
