@@ -41,10 +41,7 @@ namespace spot
     if (last_support_conditions_input_)
       last_support_conditions_input_->destroy();
     delete iter_cache_;
-
-    // Destroy all named properties.
-    for (auto& np: named_prop_)
-      np.second.second(np.second.first);
+    release_named_properties();
   }
 
   bdd

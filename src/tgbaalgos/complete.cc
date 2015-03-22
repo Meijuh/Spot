@@ -61,6 +61,8 @@ namespace spot
 	  }
       }
 
+    unsigned t = aut->num_transitions();
+
     // Now complete all states (including the sink).
     for (unsigned i = 0; i < n; ++i)
       {
@@ -99,6 +101,13 @@ namespace spot
 	    aut->new_transition(i, sink, missingcond, acc);
 	  }
       }
+
+    // Get rid of any named property if the automaton changed.
+    if (t < aut->num_transitions())
+      aut->release_named_properties();
+    else
+      assert(t == aut->num_transitions());
+
     return sink;
   }
 

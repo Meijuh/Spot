@@ -744,6 +744,14 @@ namespace spot
     }
 #endif
 
+    void release_named_properties()
+    {
+      // Destroy all named properties.
+      for (auto& np: named_prop_)
+	np.second.second(np.second.first);
+      named_prop_.clear();
+    }
+
     bool has_state_based_acc() const
     {
       return is.state_based_acc;
