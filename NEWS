@@ -44,6 +44,9 @@ New in spot 1.99b (not yet released)
     - ltlfilt has a new --count option to count the number of matching
       automata.
 
+    - ltlfilt has a new --exclusive-ap option to constrain formulas
+      based on a list of mutually exclusive atomic propositions.
+
     - all tools that produce formulas or automata now have an --output
       (a.k.a. -o) option to redirect that output to a file instead of
       standard output.  The name of this file can be constructed using

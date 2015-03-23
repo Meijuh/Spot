@@ -41,6 +41,7 @@
 #include "ltlvisit/wmunabbrev.hh"
 #include "ltlvisit/remove_x.hh"
 #include "ltlvisit/apcollect.hh"
+#include "ltlvisit/exclusive.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/multop.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
@@ -56,13 +57,14 @@ Exit status:\n\
   2  if any error has been reported";
 
 enum {
-  OPT_AP_N = 1,
+  OPT_AP_N = 256,
   OPT_BOOLEAN,
   OPT_BOOLEAN_TO_ISOP,
   OPT_BSIZE_MAX,
   OPT_BSIZE_MIN,
   OPT_DROP_ERRORS,
   OPT_EQUIVALENT_TO,
+  OPT_EXCLUSIVE_AP,
   OPT_EVENTUAL,
   OPT_GUARANTEE,
   OPT_IGNORE_ERRORS,
@@ -118,6 +120,11 @@ static const argp_option options[] =
     { "remove-x", OPT_REMOVE_X, 0, 0,
       "remove X operators (valid only for stutter-insensitive properties)",
       0 },
+    { "exclusive-ap", OPT_EXCLUSIVE_AP, "AP,AP,...", 0,
+      "if any of those APs occur in the formula, add a term ensuring "
+      "two of them may not be true at the same time.  Use this option "
+      "multiple times to declare independent groups of exclusive "
+      "propositions.", 0 },
     DECLARE_OPT_R,
     LEVEL_DOC(4),
     /**************************************************/
@@ -239,6 +246,7 @@ static bool ap = false;
 static unsigned ap_n = 0;
 static int opt_max_count = -1;
 static long int match_count = 0;
+static spot::exclusive_ap excl_ap;
 
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
@@ -253,8 +261,6 @@ parse_formula_arg(const std::string& input)
     error(2, 0, "parse error when parsing an argument");
   return f;
 }
-
-
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -299,6 +305,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_DROP_ERRORS:
       error_style = drop_errors;
       break;
+    case OPT_EVENTUAL:
+      eventual = true;
+      break;
     case OPT_EQUIVALENT_TO:
       {
 	if (equivalent_to)
@@ -306,8 +315,8 @@ parse_opt(int key, char* arg, struct argp_state*)
 	equivalent_to = parse_formula_arg(arg);
 	break;
       }
-    case OPT_EVENTUAL:
-      eventual = true;
+    case OPT_EXCLUSIVE_AP:
+      excl_ap.add_group(arg);
       break;
     case OPT_GUARANTEE:
       guarantee = obligation = true;
@@ -545,6 +554,13 @@ namespace
 	  f = res;
 	}
 
+      if (!excl_ap.empty())
+	{
+	  auto res = excl_ap.constrain(f);
+	  f->destroy();
+	  f = res;
+	}
+
       bool matched = true;
 
       matched &= !ltl || f->is_ltl_formula();
@@ -630,24 +646,29 @@ main(int argc, char** argv)
   const argp ap = { options, parse_opt, "[FILENAME[/COL]...]",
 		    argp_program_doc, children, 0, 0 };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
-    exit(err);
-
-  if (jobs.empty())
-    jobs.emplace_back("-", 1);
-
-  if (boolean_to_isop && simplification_level == 0)
-    simplification_level = 1;
-  spot::ltl::ltl_simplifier_options opt(simplification_level);
-  opt.boolean_to_isop = boolean_to_isop;
-  spot::ltl::ltl_simplifier simpl(opt);
   try
     {
+      if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+	exit(err);
+
+      if (jobs.empty())
+	jobs.emplace_back("-", 1);
+
+      if (boolean_to_isop && simplification_level == 0)
+	simplification_level = 1;
+      spot::ltl::ltl_simplifier_options opt(simplification_level);
+      opt.boolean_to_isop = boolean_to_isop;
+      spot::ltl::ltl_simplifier simpl(opt);
+
       ltl_processor processor(simpl);
       if (processor.run())
 	return 2;
     }
   catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
+  catch (const std::invalid_argument& e)
     {
       error(2, 0, "%s", e.what());
     }

@@ -98,6 +98,7 @@ TESTS = \
   ltlgrind.test \
   ltlcrossgrind.test \
   ltlfilt.test \
+  exclusive.test \
   latex.test \
   lbt.test \
   lenient.test \

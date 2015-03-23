@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-## et Developpement de l'Epita (LRDE).
+## Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+## Recherche et Developpement de l'Epita (LRDE).
 ## Copyright (C) 2004, 2005, 2006 Laboratoire d'Informatique de Paris
 ## 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 ## Université Pierre et Marie Curie.
@@ -31,6 +31,7 @@ ltlvisit_HEADERS = \
   clone.hh \
   dotty.hh \
   dump.hh \
+  exclusive.hh \
   lbt.hh \
   length.hh \
   lunabbrev.hh \
@@ -54,6 +55,7 @@ libltlvisit_la_SOURCES = \
   clone.cc \
   dotty.cc \
   dump.cc \
+  exclusive.cc \
   lbt.cc \
   length.cc \
   lunabbrev.cc \
