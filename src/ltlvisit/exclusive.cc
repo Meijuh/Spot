@@ -22,6 +22,7 @@
 #include "ltlast/multop.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/constant.hh"
+#include "tgbaalgos/mask.hh"
 #include "misc/casts.hh"
 #include "apcollect.hh"
 
@@ -157,5 +158,49 @@ namespace spot
     auto* c = ltl::unop::instance(ltl::unop::G,
 				  ltl::multop::instance(ltl::multop::And, v));
     return ltl::multop::instance(ltl::multop::And, f->clone(), c);
+  }
+
+  tgba_digraph_ptr exclusive_ap::constrain(const_tgba_digraph_ptr aut) const
+  {
+    // Compute the support of the automaton.
+    bdd support = bddtrue;
+    {
+      std::set<int> bdd_seen;
+      for (auto& t: aut->transitions())
+	if (bdd_seen.insert(t.cond.id()).second)
+	  support &= bdd_support(t.cond);
+    }
+
+    bdd restrict = bddtrue;
+    auto d = aut->get_dict();
+
+    std::vector<bdd> group;
+    for (auto& g: groups)
+      {
+	group.clear();
+
+	for (auto ap: g)
+	  {
+	    int v = d->has_registered_proposition(ap, aut);
+	    if (v >= 0)
+	      group.push_back(bdd_nithvar(v));
+	  }
+
+	unsigned s = group.size();
+	for (unsigned j = 0; j < s; ++j)
+	  for (unsigned k = j + 1; k < s; ++k)
+	    restrict &= group[j] | group[k];
+      }
+
+    tgba_digraph_ptr res = make_tgba_digraph(aut->get_dict());
+    res->copy_ap_of(aut);
+    res->prop_copy(aut, { true, true, true, true });
+    res->copy_acceptance_of(aut);
+    transform_accessible(aut, res, [&](unsigned, bdd& cond,
+				       acc_cond::mark_t&, unsigned)
+                         {
+			   cond &= restrict;
+                         });
+    return res;
   }
 }

@@ -43,6 +43,7 @@
 #include "misc/timer.hh"
 #include "misc/random.hh"
 #include "hoaparse/public.hh"
+#include "ltlvisit/exclusive.hh"
 #include "tgbaalgos/randomize.hh"
 #include "tgbaalgos/are_isomorphic.hh"
 #include "tgbaalgos/canonicalize.hh"
@@ -71,6 +72,7 @@ enum {
   OPT_DESTUT,
   OPT_DNF_ACC,
   OPT_EDGES,
+  OPT_EXCLUSIVE_AP,
   OPT_INSTUT,
   OPT_INTERSECT,
   OPT_IS_COMPLETE,
@@ -138,6 +140,11 @@ static const argp_option options[] =
     { "complement-acceptance", OPT_COMPLEMENT_ACC, 0, 0,
       "complement the acceptance condition (without touching the automaton)",
       0 },
+    { "exclusive-ap", OPT_EXCLUSIVE_AP, "AP,AP,...", 0,
+      "if any of those APs occur in the automaton, restrict all edges to "
+      "ensure two of them may not be true at the same time.  Use this option "
+      "multiple times to declare independent groups of exclusive "
+      "propositions.", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -225,6 +232,7 @@ static bool opt_complement_acc = false;
 static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
+static spot::exclusive_ap excl_ap;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -286,6 +294,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_EDGES:
       opt_edges = parse_range(arg, 0, std::numeric_limits<int>::max());
+      break;
+    case OPT_EXCLUSIVE_AP:
+      excl_ap.add_group(arg);
       break;
     case OPT_INSTUT:
       if (!arg || (arg[0] == '1' && arg[1] == 0))
@@ -489,6 +500,9 @@ namespace
 	aut = mask_keep_states(aut, opt_keep_states, opt_keep_states_initial);
       if (opt_mask_acc)
 	aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
+
+      if (!excl_ap.empty())
+	aut = excl_ap.constrain(aut);
 
       if (opt_destut)
 	aut = spot::closure(std::move(aut));

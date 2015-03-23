@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -115,6 +115,20 @@ namespace spot
 	bdd_map[num].f = f;
       }
     bdd_map[num].refs.insert(for_me);
+    return num;
+  }
+
+  int
+  bdd_dict::has_registered_proposition(const ltl::formula* f,
+				       const void* me)
+  {
+    auto ssi = var_map.find(f);
+    if (ssi == var_map.end())
+      return -1;
+    int num = ssi->second;
+    auto& r = bdd_map[num].refs;
+    if (r.find(me) == r.end())
+      return -1;
     return num;
   }
 

@@ -22,6 +22,7 @@
 #include <vector>
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/formula.hh"
+#include "tgba/tgbagraph.hh"
 
 namespace spot
 {
@@ -41,5 +42,6 @@ namespace spot
     }
 
     const ltl::formula* constrain(const ltl::formula* f) const;
+    tgba_digraph_ptr constrain(const_tgba_digraph_ptr aut) const;
   };
 }

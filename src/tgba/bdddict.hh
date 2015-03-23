@@ -1,9 +1,9 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
-// Copyright (C) 2003, 2004, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
+// Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris
+// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
+// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -126,7 +126,23 @@ namespace spot
     }
     /// @}
 
-    /// \brief Register an atomic proposition.
+    /// \brief whether a proposition has already been registered
+    ///
+    /// If \a f has been registered for \a me, this returns
+    /// a non-negative value that is the BDD variable number.
+    /// Otherwise this returns -1.
+    /// @{
+    int has_registered_proposition(const ltl::formula* f,
+				   const void* me);
+    template <typename T>
+    int has_registered_proposition(const ltl::formula* f,
+				   std::shared_ptr<T> for_me)
+    {
+      return has_registered_proposition(f, for_me.get());
+    }
+    /// @}
+
+    /// \brief Register an acceptance variable.
     ///
     /// Return (and maybe allocate) a BDD variable designating an
     /// acceptance set associated to formula \a f.  The \a for_me
