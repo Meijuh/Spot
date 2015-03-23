@@ -32,6 +32,8 @@ namespace spot
     auto res = make_tgba_digraph(old->get_dict());
     res->copy_ap_of(old);
     res->copy_acceptance_of(old);
+    res->prop_copy(old, {false, true, true, true});
+    res->prop_state_based_acc();
 
     typedef std::pair<unsigned, acc_cond::mark_t> pair_t;
     std::map<pair_t, unsigned> s2n;

@@ -187,6 +187,22 @@ namespace spot
 	  }
       }
 
+      void
+      output_set(acc_cond::mark_t a) const
+      {
+	if (!opt_all_bullets)
+	  os_ << '{';
+	const char* space = "";
+	for (auto v: a.sets())
+	  {
+	    if (!opt_all_bullets)
+	      os_ << space;
+	    output_set(os_, v);
+	    space = ",";
+	  }
+	if (!opt_all_bullets)
+	  os_ << '}';
+      }
 
       const char*
       html_set_color(int v) const
@@ -219,6 +235,23 @@ namespace spot
       output_html_set(int v) const
       {
 	output_html_set_aux(os_, v);
+      }
+
+      void
+      output_html_set(acc_cond::mark_t a) const
+      {
+	if (!opt_all_bullets)
+	  os_ << '{';
+	const char* space = "";
+	for (auto v: a.sets())
+	  {
+	    if (!opt_all_bullets)
+	      os_ << space;
+	    output_html_set(v);
+	    space = ",";
+	  }
+	if (!opt_all_bullets)
+	  os_ << '}';
       }
 
       void
@@ -305,15 +338,61 @@ namespace spot
       void
       process_state(unsigned s)
       {
-	os_ << "  " << s << " [label=\"";
-	if (sn_ && s < sn_->size() && !(*sn_)[s].empty())
-	  os_ << escape_str((*sn_)[s]);
+	if (mark_states_ && (opt_bullet || aut_->acc().num_sets() != 1))
+	  {
+	    acc_cond::mark_t acc = 0U;
+	    for (auto& t: aut_->out(s))
+	      {
+		acc = t.acc;
+		break;
+	      }
+
+	    bool has_name = sn_ && s < sn_->size() && !(*sn_)[s].empty();
+
+	    os_ << "  " << s << " [label=";
+	    if (!opt_html_labels_)
+	      {
+		os_ << '"';
+		if (has_name)
+		  escape_str(os_, (*sn_)[s]);
+		else
+		  os_ << s;
+		if (acc)
+		  {
+		    os_ << "\\n";
+		    output_set(acc);
+		  }
+		os_ << '"';
+	      }
+	    else
+	      {
+		os_ << '<';
+		if (has_name)
+		  escape_html(os_, (*sn_)[s]);
+		else
+		  os_ << s;
+		if (acc)
+		  {
+		    os_ << "<br/>";
+		    output_html_set(acc);
+		  }
+		os_ << '>';
+	      }
+	    os_ << "]\n";
+
+	  }
 	else
-	  os_ << s;
-	os_ << '"';
-	if (mark_states_ && aut_->state_is_accepting(s))
-	  os_ << ", peripheries=2";
-	os_ << "]\n";
+	  {
+	    os_ << "  " << s << " [label=\"";
+	    if (sn_ && s < sn_->size() && !(*sn_)[s].empty())
+	      escape_str(os_, (*sn_)[s]);
+	    else
+	      os_ << s;
+	    os_ << '"';
+	    if (mark_states_ && aut_->state_is_accepting(s))
+	      os_ << ", peripheries=2";
+	    os_ << "]\n";
+	  }
       }
 
       void
@@ -329,18 +408,7 @@ namespace spot
 	      if (auto a = t.acc)
 		{
 		  os_ << "\\n";
-		  if (!opt_all_bullets)
-		    os_ << '{';
-		  const char* space = "";
-		  for (auto v: a.sets())
-		    {
-		      if (!opt_all_bullets)
-			os_ << space;
-		      output_set(os_, v);
-		      space = ",";
-		    }
-		  if (!opt_all_bullets)
-		    os_ << '}';
+		  output_set(a);
 		}
 	    os_ << "\"]\n";
 	  }
@@ -352,18 +420,7 @@ namespace spot
 	      if (auto a = t.acc)
 		{
 		  os_ << "<br/>";
-		  if (!opt_all_bullets)
-		    os_ << '{';
-		  const char* space = "";
-		  for (auto v: a.sets())
-		    {
-		      if (!opt_all_bullets)
-			os_ << space;
-		      output_html_set(v);
-		      space = ",";
-		    }
-		  if (!opt_all_bullets)
-		    os_ << '}';
+		  output_html_set(a);
 		}
 	    os_ << ">]\n";
 	  }
@@ -375,7 +432,7 @@ namespace spot
 	sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
 	if (opt_name_)
 	  name_ = aut_->get_named_prop<std::string>("automaton-name");
-	mark_states_ = !opt_force_acc_trans_ && aut_->is_sba();
+	mark_states_ = !opt_force_acc_trans_ && aut_->has_state_based_acc();
 	auto si =
 	  std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);
 	start();
