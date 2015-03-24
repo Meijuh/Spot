@@ -1,4 +1,4 @@
-y# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #+TITLE: Common output options for automata
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
@@ -561,7 +561,7 @@ be ouput as bullets (e.g., ⓿ instead of ={0}=); option =r= (for
 rainbow) causes sets to be displayed in different colors, while option
 =R= also uses colors, but it chooses them depending on whether a set
 is used with Fin-acceptance, Inf-acceptance, or both.  Finally option
-=f(FONT)= is used to select a fontname: is is often necessary when =b=
+=f(FONT)= is used to select a fontname: it is often necessary when =b=
 is used to ensure the characters ⓿, ❶, etc. are all selected from the
 same font.
 
@@ -801,6 +801,7 @@ $txt
 #+RESULTS:
 [[file:oaut-dot3.png]]
 
+<<default-dot>>
 
 The dot output can also be customized via two environment variables:
 - =SPOT_DOTDEFAULT= contains default arguments for the =--dot= option
@@ -823,7 +824,7 @@ The dot output can also be customized via two environment variables:
 #+BEGIN_SRC sh :results verbatim :exports code
 export SPOT_DOTDEFAULT='brf(Lato)'
 export SPOT_DOTEXTRA='node[style=filled, fillcolor="#ffffa0"]'
-#+END
+#+END_SRC
 
 * Statistics
 
