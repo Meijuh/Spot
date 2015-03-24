@@ -331,7 +331,7 @@ namespace spot
 
 
       }
-    res->purge_unreachable_states();
+    res->purge_dead_states();
     trace << "before cleanup: " << res->get_acceptance() << '\n';
     cleanup_acceptance(res);
     trace << "after cleanup: " << res->get_acceptance() << '\n';

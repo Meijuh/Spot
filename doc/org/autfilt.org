@@ -335,11 +335,11 @@ $txt
 #+RESULTS:
 [[file:autfilt-ex1.png]]
 
-Using =--sba= will "push" the acceptance membership of the transitions to the states:
+Using =--sbacc= will "push" the acceptance membership of the transitions to the states:
 
 #+NAME: autfilt-ex2
 #+BEGIN_SRC sh :results verbatim :export code
-autfilt --sba aut-ex1.hoa --dot=.a
+autfilt --sbacc aut-ex1.hoa --dot=.a
 #+END_SRC
 
 #+RESULTS: autfilt-ex2
@@ -430,15 +430,9 @@ digraph G {
   2 -> 0 [label=<!b>]
   2 -> 1 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
   2 -> 2 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
-  2 -> 3 [label=<!b>]
-  2 -> 4 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
-  2 -> 5 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 3 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
   3 [label="3"]
-  4 [label="4"]
-  5 [label="5"]
-  5 -> 3 [label=<!b<br/><font color="#F17CB0">❶</font><font color="#60BD68">❹</font>>]
-  5 -> 4 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font><font color="#60BD68">❹</font>>]
-  5 -> 5 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font><font color="#60BD68">❹</font>>]
+  3 -> 3 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font><font color="#60BD68">❹</font>>]
 }
 #+end_example
 

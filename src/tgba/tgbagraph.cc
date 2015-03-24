@@ -178,52 +178,74 @@ namespace spot
     unsigned num_states = g_.num_states();
     if (num_states == 0)
       return;
-    std::vector<unsigned> info(num_states, 0);
-    // In this loop, info[s] means that the state is useless.
-    bool untouched;
+
+    std::vector<unsigned> useful(num_states, 0);
+
+    // Make a DFS to compute a topological order.
+    std::vector<unsigned> order;
+    order.reserve(num_states);
+    std::vector<std::pair<unsigned, unsigned>> todo; // state, trans
+    useful[init_number_] = 1;
+    todo.emplace_back(init_number_, g_.state_storage(init_number_).succ);
     do
       {
-	untouched = true;
-	for (unsigned s = 0; s < num_states; ++s)
+	unsigned src;
+	unsigned tid;
+	std::tie(src, tid) = todo.back();
+	if (tid == 0U)
 	  {
-	    if (info[s])
-	      continue;
-	    bool useless = true;
-	    auto t = g_.out_iteraser(s);
-	    while (t)
-	      {
-		// Erase any transition to a unused state.
-		if (info[t->dst])
-		  {
-		    t.erase();
-		    continue;
-		  }
-		// if we have a transition, to a used state,
-		// then the state is useful.
-		useless = false;
-		++t;
-	      }
-	    if (useless)
-	      {
-		info[s] = true;
-		untouched = false;
-	      }
+	    todo.pop_back();
+	    order.push_back(src);
+	    continue;
+	  }
+	auto& t = g_.trans_storage(tid);
+	todo.back().second = t.next_succ;
+	unsigned dst = t.dst;
+	if (useful[dst] != 1)
+	  {
+	    todo.emplace_back(dst, g_.state_storage(dst).succ);
+	    useful[dst] = 1;
 	  }
       }
-    while (!untouched);
+    while (!todo.empty());
 
-    // Assume that the initial state is useful.
-    info[init_number_] = false;
+    // Process states in topological order
+    for (auto s: order)
+      {
+	auto t = g_.out_iteraser(s);
+	bool useless = true;
+	while (t)
+	  {
+	    // Erase any transition to a useless state.
+	    if (!useful[t->dst])
+	      {
+		t.erase();
+		continue;
+	      }
+	    // if we have a transition to a useful state, then the
+	    // state is useful.
+	    useless = false;
+	    ++t;
+	  }
+	if (useless)
+	  useful[s] = 0;
+      }
+
+    // Make sure the initial state is useful (even if it has been
+    // marked as useless by the previous loop because it has no
+    // successor).
+    useful[init_number_] = 1;
+
     // Now renumber each used state.
     unsigned current = 0;
-    for (auto& v: info)
-      if (v)
-	v = -1U;
+    for (unsigned s = 0; s < num_states; ++s)
+      if (useful[s])
+	useful[s] = current++;
       else
-	v = current++;
-    if (current == info.size())
+	useful[s] = -1U;
+    if (current == num_states)
       return;			// No useless state.
-    init_number_ = info[init_number_];
-    g_.defrag_states(std::move(info), current);
+    init_number_ = useful[init_number_];
+    g_.defrag_states(std::move(useful), current);
   }
 }
