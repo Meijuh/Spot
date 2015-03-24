@@ -44,6 +44,7 @@
 #include "misc/random.hh"
 #include "hoaparse/public.hh"
 #include "ltlvisit/exclusive.hh"
+#include "tgbaalgos/remprop.hh"
 #include "tgbaalgos/randomize.hh"
 #include "tgbaalgos/are_isomorphic.hh"
 #include "tgbaalgos/canonicalize.hh"
@@ -83,6 +84,7 @@ enum {
   OPT_MERGE,
   OPT_PRODUCT,
   OPT_RANDOMIZE,
+  OPT_REM_AP,
   OPT_REM_FIN,
   OPT_SBACC,
   OPT_SEED,
@@ -145,6 +147,9 @@ static const argp_option options[] =
       "ensure two of them may not be true at the same time.  Use this option "
       "multiple times to declare independent groups of exclusive "
       "propositions.", 0 },
+    { "remove-ap", OPT_REM_AP, "AP[=0|=1][,AP...]", 0,
+      "remove atomic propositions either by existential quantification, or "
+      "by assigning them 0 or 1", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -233,6 +238,7 @@ static spot::acc_cond::mark_t opt_mask_acc = 0U;
 static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
 static spot::exclusive_ap excl_ap;
+static spot::remove_ap rem_ap;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -385,6 +391,9 @@ parse_opt(int key, char* arg, struct argp_state*)
 	  randomize_st = true;
 	}
       break;
+    case OPT_REM_AP:
+      rem_ap.add_ap(arg);
+      break;
     case OPT_REM_FIN:
       opt_rem_fin = true;
       break;
@@ -504,6 +513,9 @@ namespace
       if (!excl_ap.empty())
 	aut = excl_ap.constrain(aut);
 
+      if (!rem_ap.empty())
+	aut = rem_ap.strip(aut);
+
       if (opt_destut)
 	aut = spot::closure(std::move(aut));
       if (opt_instut == 1)
@@ -586,43 +598,47 @@ main(int argc, char** argv)
   const argp ap = { options, parse_opt, "[FILENAMES...]",
 		    argp_program_doc, children, 0, 0 };
 
-  // This will ensure that all objects stored in this struct are
-  // destroyed before global variables.
-  opt_t o;
-  opt = &o;
-
-  // Disable post-processing as much as possible by default.
-  level = spot::postprocessor::Low;
-  pref = spot::postprocessor::Any;
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
-    exit(err);
-
-  if (jobs.empty())
-    jobs.emplace_back("-", true);
-
-  if (opt->are_isomorphic)
-    {
-      if (opt_merge)
-        opt->are_isomorphic->merge_transitions();
-      opt->isomorphism_checker = std::unique_ptr<spot::isomorphism_checker>
-	(new spot::isomorphism_checker(opt->are_isomorphic));
-    }
-
-
-  spot::srand(opt_seed);
-
-  spot::postprocessor post(&extra_options);
-  post.set_pref(pref | comp);
-  post.set_type(type);
-  post.set_level(level);
-
   try
     {
+      // This will ensure that all objects stored in this struct are
+      // destroyed before global variables.
+      opt_t o;
+      opt = &o;
+
+      // Disable post-processing as much as possible by default.
+      level = spot::postprocessor::Low;
+      pref = spot::postprocessor::Any;
+      if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+	exit(err);
+
+      if (jobs.empty())
+	jobs.emplace_back("-", true);
+
+      if (opt->are_isomorphic)
+	{
+	  if (opt_merge)
+	    opt->are_isomorphic->merge_transitions();
+	  opt->isomorphism_checker = std::unique_ptr<spot::isomorphism_checker>
+	    (new spot::isomorphism_checker(opt->are_isomorphic));
+	}
+
+
+      spot::srand(opt_seed);
+
+      spot::postprocessor post(&extra_options);
+      post.set_pref(pref | comp);
+      post.set_type(type);
+      post.set_level(level);
+
       hoa_processor processor(post);
       if (processor.run())
 	return 2;
     }
   catch (const std::runtime_error& e)
+    {
+      error(2, 0, "%s", e.what());
+    }
+  catch (const std::invalid_argument& e)
     {
       error(2, 0, "%s", e.what());
     }

@@ -92,6 +92,7 @@ TESTS = \
   tripprod.test \
   dupexp.test \
   exclusive.test \
+  remprop.test \
   degendet.test \
   degenid.test \
   degenlskip.test \

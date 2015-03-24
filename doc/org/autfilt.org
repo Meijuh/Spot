@@ -260,8 +260,11 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
       --product=FILENAME     build the product with the automaton in FILENAME
       --randomize[=s|t]      randomize states and transitions (specify 's' or
                              't' to randomize only states or transitions)
-      --remove-fin           rewrite the automaton without using Fin acceptance
-
+      --remove-ap=AP[=0|=1][,AP...]
+                             remove atomic propositions either by existential
+                             quantification, or by assigning them 0 or 1
+      --remove-fin           rewrite the automaton without using Fin
+                             acceptance
       --state-based-acceptance, --sbacc
                              define the acceptance using states
       --strip-acceptance     remove the acceptance condition and all acceptance
@@ -531,3 +534,117 @@ $txt
 
 #+RESULTS:
 [[file:autfilt-ex5.png]]
+
+
+Atomic propositions can be removed from an automaton in three ways:
+- use ~--remove-ap=a~ to remove =a= by existential quantification, i.e., both =a= and its negation will be replaced by true.
+  This does not remove any transition.
+- use ~--remove-ap=a=0~ to keep only transitions compatible with =!a= (i.e, transitions requiring =a= will be removed).
+- use ~--remove-ap=a=1~ to keep only transitions compatible with =a= (i.e, transitions requiring =!a= will be removed).
+
+Here are the results of these three options on our example:
+
+#+NAME: autfilt-ex6a
+#+BEGIN_SRC sh :results verbatim :export code
+autfilt --remove-ap=a aut-ex1.hoa --dot=.a
+#+END_SRC
+
+#+RESULTS: autfilt-ex6a
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<(Fin(<font color="#F17CB0">❶</font>) &amp; Fin(<font color="#B276B2">❸</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>)) | Inf(<font color="#F17CB0">❶</font>)>
+  labelloc="t"
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label=<1<br/><font color="#B276B2">❸</font>>]
+  0 -> 1 [label=<1<br/><font color="#F17CB0">❶</font><font color="#B276B2">❸</font>>]
+  0 -> 2 [label=<1<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+  1 [label="1"]
+  1 -> 0 [label=<b<br/><font color="#B276B2">❸</font>>]
+  1 -> 1 [label=<b<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+  1 -> 2 [label=<b<br/><font color="#FAA43A">❷</font><font color="#B276B2">❸</font>>]
+  2 [label="2"]
+  2 -> 0 [label=<!b>]
+  2 -> 1 [label=<!b<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 2 [label=<!b<br/><font color="#5DA5DA">⓿</font>>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfilt-ex6a.png :cmdline -Tpng :var txt=autfilt-ex6a :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfilt-ex6a.png]]
+
+#+NAME: autfilt-ex6b
+#+BEGIN_SRC sh :results verbatim :export code
+autfilt --remove-ap=a=0 aut-ex1.hoa --dot=.a
+#+END_SRC
+
+#+RESULTS: autfilt-ex6b
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<(Fin(<font color="#F17CB0">❶</font>) &amp; Fin(<font color="#B276B2">❸</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>)) | Inf(<font color="#F17CB0">❶</font>)>
+  labelloc="t"
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label=<1<br/><font color="#B276B2">❸</font>>]
+  0 -> 1 [label=<1<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+  1 [label="1"]
+  1 -> 0 [label=<!b>]
+  1 -> 1 [label=<!b<br/><font color="#5DA5DA">⓿</font>>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfilt-ex6b.png :cmdline -Tpng :var txt=autfilt-ex6b :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfilt-ex6b.png]]
+
+#+NAME: autfilt-ex6c
+#+BEGIN_SRC sh :results verbatim :export code
+autfilt --remove-ap=a=1 aut-ex1.hoa --dot=.a
+#+END_SRC
+
+#+RESULTS: autfilt-ex6c
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<(Fin(<font color="#F17CB0">❶</font>) &amp; Fin(<font color="#B276B2">❸</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>)) | Inf(<font color="#F17CB0">❶</font>)>
+  labelloc="t"
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label=<1<br/><font color="#B276B2">❸</font>>]
+  0 -> 1 [label=<1<br/><font color="#F17CB0">❶</font><font color="#B276B2">❸</font>>]
+  1 [label="1"]
+  1 -> 0 [label=<b<br/><font color="#B276B2">❸</font>>]
+  1 -> 1 [label=<b<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfilt-ex6c.png :cmdline -Tpng :var txt=autfilt-ex6c :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfilt-ex6c.png]]

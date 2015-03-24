@@ -64,6 +64,7 @@ tgbaalgos_HEADERS = \
   reducerun.hh \
   relabel.hh \
   remfin.hh \
+  remprop.hh \
   replayrun.hh \
   safety.hh \
   sbacc.hh \
@@ -117,6 +118,7 @@ libtgbaalgos_la_SOURCES = \
   reachiter.cc \
   reducerun.cc \
   remfin.cc \
+  remprop.cc \
   replayrun.cc \
   relabel.cc \
   safety.cc \
