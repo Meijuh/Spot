@@ -238,11 +238,18 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
 #+RESULTS:
 #+begin_example
       --cleanup-acceptance   remove unused acceptance sets from the automaton
+      --cnf-acceptance       put the acceptance condition in Conjunctive Normal
+                             Form
       --complement-acceptance   complement the acceptance condition (without
                              touching the automaton)
       --destut               allow less stuttering
       --dnf-acceptance       put the acceptance condition in Disjunctive Normal
                              Form
+      --exclusive-ap=AP,AP,...   if any of those APs occur in the automaton,
+                             restrict all edges to ensure two of them may not
+                             be true at the same time.  Use this option
+                             multiple times to declare independent groups of
+                             exclusive propositions.
       --instut[=1|2]         allow more stuttering (two possible algorithms)
       --keep-states=NUM[,NUM...]   only keep specified states.  The first state
                              will be the new initial state
@@ -272,7 +279,7 @@ States: 3
 Start: 0
 AP: 2 "a" "b"
 acc-name: Buchi
-Acceptance: 4 Inf(0)&Fin(1)&Fin(3) | Inf(2)&Inf(3) | Inf(0)
+Acceptance: 4 Inf(0)&Fin(1)&Fin(3) | Inf(2)&Inf(3) | Inf(1)
 --BODY--
 State: 0 {3}
 [t] 0
@@ -305,7 +312,7 @@ autfilt aut-ex1.hoa --dot=.a
 #+begin_example
 digraph G {
   rankdir=LR
-  label=<(Fin(<font color="#F17CB0">❶</font>) &amp; Fin(<font color="#B276B2">❸</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>)) | Inf(<font color="#5DA5DA">⓿</font>)>
+  label=<(Fin(<font color="#F17CB0">❶</font>) &amp; Fin(<font color="#B276B2">❸</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>)) | Inf(<font color="#F17CB0">❶</font>)>
   labelloc="t"
   fontname="Lato"
   node [fontname="Lato"]
@@ -346,7 +353,7 @@ autfilt --sbacc aut-ex1.hoa --dot=.a
 #+begin_example
 digraph G {
   rankdir=LR
-  label=<(Fin(<font color="#F17CB0">❶</font>) &amp; Fin(<font color="#B276B2">❸</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>)) | Inf(<font color="#5DA5DA">⓿</font>)>
+  label=<(Fin(<font color="#F17CB0">❶</font>) &amp; Fin(<font color="#B276B2">❸</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>)) | Inf(<font color="#F17CB0">❶</font>)>
   labelloc="t"
   fontname="Lato"
   node [fontname="Lato"]
@@ -396,21 +403,18 @@ $txt
 #+RESULTS:
 [[file:autfilt-ex2.png]]
 
-
-Using =--remove-fin= will transform the automaton to remove all traces
-of Fin-acceptance: this usually requires adding non-deterministic jumps to
-altered copies of strongly-connected components.
+Using =--cnf-acceptance= simply rewrites the acceptance condition in Conjunctive Normal Form:
 
 #+NAME: autfilt-ex3
 #+BEGIN_SRC sh :results verbatim :export code
-autfilt --remove-fin aut-ex1.hoa --dot=.a
+autfilt --cnf-acceptance aut-ex1.hoa --dot=.a
 #+END_SRC
 
 #+RESULTS: autfilt-ex3
 #+begin_example
 digraph G {
   rankdir=LR
-  label=<(Inf(<font color="#5DA5DA">⓿</font>)&amp;Inf(<font color="#F17CB0">❶</font>)&amp;Inf(<font color="#60BD68">❹</font>)) | Inf(<font color="#5DA5DA">⓿</font>) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>))>
+  label=<(Inf(<font color="#5DA5DA">⓿</font>) | Inf(<font color="#F17CB0">❶</font>) | Inf(<font color="#B276B2">❸</font>)) &amp; (Fin(<font color="#B276B2">❸</font>) | Inf(<font color="#F17CB0">❶</font>) | Inf(<font color="#FAA43A">❷</font>))>
   labelloc="t"
   fontname="Lato"
   node [fontname="Lato"]
@@ -420,7 +424,7 @@ digraph G {
   I -> 0
   0 [label="0"]
   0 -> 0 [label=<1<br/><font color="#B276B2">❸</font>>]
-  0 -> 1 [label=<a<br/><font color="#B276B2">❸</font>>]
+  0 -> 1 [label=<a<br/><font color="#F17CB0">❶</font><font color="#B276B2">❸</font>>]
   0 -> 2 [label=<!a<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
   1 [label="1"]
   1 -> 0 [label=<b<br/><font color="#B276B2">❸</font>>]
@@ -430,9 +434,6 @@ digraph G {
   2 -> 0 [label=<!b>]
   2 -> 1 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
   2 -> 2 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
-  2 -> 3 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
-  3 [label="3"]
-  3 -> 3 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font><font color="#60BD68">❹</font>>]
 }
 #+end_example
 
@@ -442,3 +443,91 @@ $txt
 
 #+RESULTS:
 [[file:autfilt-ex3.png]]
+
+
+Using =--remove-fin= transforms the automaton to remove all traces
+of Fin-acceptance: this usually requires adding non-deterministic jumps to
+altered copies of strongly-connected components.
+
+#+NAME: autfilt-ex4
+#+BEGIN_SRC sh :results verbatim :export code
+autfilt --remove-fin aut-ex1.hoa --dot=.a
+#+END_SRC
+
+#+RESULTS: autfilt-ex4
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<Inf(<font color="#5DA5DA">⓿</font>) | Inf(<font color="#F17CB0">❶</font>) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>))>
+  labelloc="t"
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label=<1<br/><font color="#B276B2">❸</font>>]
+  0 -> 1 [label=<a<br/><font color="#F17CB0">❶</font><font color="#B276B2">❸</font>>]
+  0 -> 2 [label=<!a<br/><font color="#B276B2">❸</font>>]
+  1 [label="1"]
+  1 -> 0 [label=<b<br/><font color="#B276B2">❸</font>>]
+  1 -> 1 [label=<a &amp; b<br/><font color="#B276B2">❸</font>>]
+  1 -> 2 [label=<!a &amp; b<br/><font color="#FAA43A">❷</font><font color="#B276B2">❸</font>>]
+  2 [label="2"]
+  2 -> 0 [label=<!b>]
+  2 -> 1 [label=<a &amp; !b>]
+  2 -> 2 [label=<!a &amp; !b>]
+  2 -> 3 [label=<!a &amp; !b>]
+  3 [label="3"]
+  3 -> 3 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfilt-ex4.png :cmdline -Tpng :var txt=autfilt-ex4 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfilt-ex4.png]]
+
+Use =--mask-acc=NUM= to remove some acceptances sets and all
+transitions they contain.  The acceptance condition will be updated to
+reflect the fact that these sets can never be visited.
+
+#+NAME: autfilt-ex5
+#+BEGIN_SRC sh :results verbatim :export code
+autfilt --mask-acc=1,2 aut-ex1.hoa --dot=.a
+#+END_SRC
+
+#+RESULTS: autfilt-ex5
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<Fin(<font color="#F17CB0">❶</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)>
+  labelloc="t"
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label=<1<br/><font color="#F17CB0">❶</font>>]
+  0 -> 1 [label=<!a<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
+  1 [label="1"]
+  1 -> 0 [label=<!b>]
+  1 -> 2 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  1 -> 1 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  2 [label="2"]
+  2 -> 0 [label=<b<br/><font color="#F17CB0">❶</font>>]
+  2 -> 2 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfilt-ex5.png :cmdline -Tpng :var txt=autfilt-ex5 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfilt-ex5.png]]

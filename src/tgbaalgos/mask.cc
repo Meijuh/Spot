@@ -31,7 +31,7 @@ namespace spot
     unsigned tr = to_remove.count();
     assert(tr <= na);
     res->set_acceptance(na - tr,
-			in->get_acceptance().strip(to_remove, false));
+			in->get_acceptance().strip(to_remove, true));
     transform_accessible(in, res, [&](unsigned,
                                       bdd& cond,
                                       acc_cond::mark_t& acc,
