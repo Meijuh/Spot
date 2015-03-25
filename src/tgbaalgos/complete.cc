@@ -25,21 +25,26 @@ namespace spot
   {
     unsigned n = aut->num_states();
     unsigned sink = -1U;
-    acc_cond::mark_t allacc = aut->acc().all_sets();
-    if (allacc == 0U)
+
+    // UM is a pair (bool, mark).  If the Boolean is false, the
+    // acceptance is always satisfiable.  Otherwise, MARK is an
+    // example of unsatisfiable mark.
+    auto um = aut->get_acceptance().unsat_mark();
+    if (!um.first)
       {
-	// We cannot safely complete an automaton if it has no
-	// acceptance set as the added sink would become accepting.
-	// In this case, add an acceptance set to all transitions.
-	allacc = aut->set_buchi();
+	// We cannot safely complete an automaton if its
+	// acceptance is always satisfiable.
+	auto acc = aut->set_buchi();
 	for (auto& t: aut->transition_vector())
-	  t.acc = allacc;
+	  t.acc = acc;
       }
     else
       {
-	// If some acceptance sets were used, loop over the states and
-	// seek a state that has only self loops, and that is not
-	// accepting.  This will be our sink state.
+	// Loop over the states and seek a state that has only self
+	// loops, and that is not accepting.  This will be our sink
+	// state.  Note that we do not even have to ensure that the
+	// state is complete as we will complete the whole automaton
+	// in a second pass.
 	for (unsigned i = 0; i < n; ++i)
 	  {
 	    bool selfloop = true;
@@ -53,8 +58,9 @@ namespace spot
 		  }
 		accsum |= t.acc;
 	      }
-	    if (selfloop && accsum != allacc) // We have found a sink!
+	    if (selfloop && !aut->acc().accepting(accsum))
 	      {
+		// We have found a sink!
 		sink = i;
 		break;
 	      }
@@ -63,7 +69,7 @@ namespace spot
 
     unsigned t = aut->num_transitions();
 
-    // Now complete all states (including the sink).
+    // Now complete all states (excluding any newly added the sink).
     for (unsigned i = 0; i < n; ++i)
       {
 	bdd missingcond = bddtrue;
@@ -94,7 +100,7 @@ namespace spot
 	    if (sink == -1U)
 	      {
 		sink = aut->new_state();
-		++n;
+		aut->new_transition(sink, sink, bddtrue, um.second);
 	      }
 	    // In case the automaton use state-based acceptance, propagate
 	    // the acceptance of the first transition to the one we add.

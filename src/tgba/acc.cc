@@ -193,7 +193,7 @@ namespace spot
 	case acc_cond::acc_op::Inf:
 	  return (pos[-1].mark & inf) == pos[-1].mark;
 	case acc_cond::acc_op::Fin:
-	  return (pos[-1].mark & inf) == 0U;
+	  return (pos[-1].mark & inf) != pos[-1].mark;
 	case acc_cond::acc_op::FinNeg:
 	case acc_cond::acc_op::InfNeg:
 	  SPOT_UNREACHABLE();
@@ -413,6 +413,7 @@ namespace spot
 
     bdd_allocator ba;
     int base = ba.allocate_variables(c);
+    assert(base == 0);
     std::vector<bdd> r;
     std::vector<unsigned> sets(c);
     for (unsigned i = 0; r.size() < c; ++i)
@@ -483,6 +484,7 @@ namespace spot
 
     bdd_allocator ba;
     int base = ba.allocate_variables(c);
+    assert(base == 0);
     std::vector<bdd> r;
     std::vector<unsigned> sets(c);
     for (unsigned i = 0; r.size() < c; ++i)
@@ -541,6 +543,61 @@ namespace spot
 	std::swap(c, rescode);
       }
     return rescode;
+  }
+
+  std::pair<bool, acc_cond::mark_t>
+  acc_cond::acc_code::unsat_mark() const
+  {
+    if (empty())
+      return {false, 0U};
+
+    auto used = acc_cond::acc_code::used_sets();
+    unsigned c = used.count();
+
+    bdd_allocator ba;
+    int base = ba.allocate_variables(c);
+    assert(base == 0);
+    std::vector<bdd> r;
+    std::vector<unsigned> sets(c);
+    for (unsigned i = 0; r.size() < c; ++i)
+      {
+	if (used.has(i))
+	  {
+	    sets[base] = i;
+	    r.push_back(bdd_ithvar(base++));
+	  }
+	else
+	  {
+	    r.push_back(bddfalse);
+	  }
+      }
+
+    bdd res = to_bdd_rec(&back(), &r[0]);
+
+    if (res == bddtrue)
+      return {false, 0U};
+    if (res == bddfalse)
+      return {true, 0U};
+
+    bdd cube = bdd_satone(!res);
+    mark_t i = 0U;
+    while (cube != bddtrue)
+      {
+	// The acceptance set associated to this BDD variable
+	int s = sets[bdd_var(cube)];
+
+	bdd h = bdd_high(cube);
+	if (h == bddfalse)	// Negative variable? -> skip
+	  {
+	    cube = bdd_low(cube);
+	  }
+	else		// Positive variable? -> Inf
+	  {
+	    i.set(s);
+	    cube = h;
+	  }
+      }
+    return {true, i};
   }
 
   bool acc_cond::acc_code::is_dnf() const

@@ -72,6 +72,7 @@ TESTS = \
   det.test \
   neverclaimread.test \
   hoaparse.test \
+  complete.test \
   remfin.test \
   dstar.test \
   readsave.test \
