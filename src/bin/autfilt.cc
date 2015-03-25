@@ -506,7 +506,10 @@ namespace
       // Postprocessing.
 
       if (!opt_keep_states.empty())
-	aut = mask_keep_states(aut, opt_keep_states, opt_keep_states_initial);
+	{
+	  aut = mask_keep_states(aut, opt_keep_states, opt_keep_states_initial);
+	  aut->purge_dead_states();
+	}
       if (opt_mask_acc)
 	aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
 

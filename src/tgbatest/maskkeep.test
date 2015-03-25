@@ -48,7 +48,7 @@ EOF
 
 cat >expect1 <<EOF
 HOA: v1
-States: 4
+States: 1
 Start: 0
 AP: 0
 acc-name: generalized-Buchi 2
@@ -56,25 +56,6 @@ Acceptance: 2 Inf(0)&Inf(1)
 properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0
-State: 1
-State: 2
-State: 3
---END--
-EOF
-
-cat >expect2 <<EOF
-HOA: v1
-States: 4
-Start: 1
-AP: 0
-acc-name: generalized-Buchi 2
-Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels state-acc deterministic
---BODY--
-State: 0
-State: 1
-State: 2
-State: 3
 --END--
 EOF
 
@@ -82,11 +63,11 @@ run 0 ../../bin/autfilt --keep-states=0 input1 -H >output
 diff output expect1
 
 run 0 ../../bin/autfilt --keep-states=1 input1 -H >output
-diff output expect2
+diff output expect1
 
 cat >expect3 <<EOF
 HOA: v1
-States: 4
+States: 3
 Start: 0
 AP: 2 "a" "b"
 acc-name: generalized-Buchi 2
@@ -100,27 +81,22 @@ State: 1
 [0] 2
 State: 2
 [1] 1
-State: 3
 --END--
 EOF
 
 cat >expect4 <<EOF
 HOA: v1
-States: 4
-Start: 1
+States: 2
+Start: 0
 AP: 2 "a" "b"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels trans-acc
+properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
 State: 0
-[0] 1 {0}
-[1] 2 {1}
+[0] 1
 State: 1
-[0] 2
-State: 2
-[1] 1
-State: 3
+[1] 0
 --END--
 EOF
 
