@@ -47,6 +47,10 @@ namespace spot
 
     // Remove useless marks from the acceptance condition
     aut->set_acceptance(useful.count(), c.strip(useless, true));
+
+    // This may in turn cause even more set to be unused, because of
+    // some simplifications, so do it again.
+    return cleanup_acceptance(aut);
   }
 
 }

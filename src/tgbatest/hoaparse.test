@@ -1371,6 +1371,23 @@ State: 0
 [0&!1&!2] 0 {0}
 [!0&!1&!2] 0
 --END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 (Fin(0) & Inf(1)) | (Fin(2) & Inf(3))
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0 {2}
+[0&!1] 1
+[!0&1] 0
+[0&1] 1
+State: 1 {1 2}
+[!0&!1] 1
+[0&!1] 1
+[!0&1] 1
+[0&1] 1
+--END--
 EOF
 
 expectok input -v --is-empty <<EOF
@@ -1406,6 +1423,23 @@ State: 0
 [!0&1&!2] 0 {4 5}
 [0&!1&!2] 0 {0 5}
 [!0&!1&!2] 0 {5}
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 (Fin(0) & Inf(1)) | (Fin(2) & Inf(3))
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0 {2}
+[0&!1] 1
+[!0&1] 0
+[0&1] 1
+State: 1 {1 2}
+[!0&!1] 1
+[0&!1] 1
+[!0&1] 1
+[0&1] 1
 --END--
 EOF
 
@@ -1455,6 +1489,24 @@ State: 0
 [!0&1&!2] 0 {2 3}
 [0&!1&!2] 0 {0 3}
 [!0&!1&!2] 0 {3}
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[0&!1] 1
+[!0&1] 0
+[0&1] 1
+State: 1 {0}
+[!0&!1] 1
+[0&!1] 1
+[!0&1] 1
+[0&1] 1
 --END--
 EOF
 
