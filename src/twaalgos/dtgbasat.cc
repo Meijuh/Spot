@@ -281,6 +281,7 @@ namespace spot
       std::vector<acc_cond::mark_t> all_ref_acc;
 
       std::vector<bool> is_weak_scc;
+      std::vector<acc_cond::mark_t> scc_marks;
 
       acc_cond cacc;
 
@@ -294,6 +295,20 @@ namespace spot
     unsigned declare_vars(const const_twa_graph_ptr& aut,
 			  dict& d, bdd ap, bool state_based, scc_info& sm)
     {
+      d.is_weak_scc = sm.weak_sccs();
+      unsigned scccount = sm.scc_count();
+      {
+	auto tmp = sm.used_acc();
+	d.scc_marks.reserve(scccount);
+	for (auto& v: tmp)
+	  {
+	    acc_cond::mark_t m = 0U;
+	    for (auto i: v)
+	      m |= i;
+	    d.scc_marks.emplace_back(m);
+	  }
+      }
+
       bdd_dict_ptr bd = aut->get_dict();
       d.cacc.add_sets(d.cand_nacc);
       d.all_cand_acc.push_back(0U);
@@ -343,14 +358,20 @@ namespace spot
 		  for (unsigned l = 0; l < d.cand_size; ++l)
 		    {
 		      size_t sfp = is_weak ? 1 : d.all_ref_acc.size();
+		      acc_cond::mark_t sccmarks =
+			is_weak ? d.all_ref_acc.back() : d.scc_marks[i_scc];
 		      for (size_t fp = 0; fp < sfp; ++fp)
 			{
+			  auto refhist = d.all_ref_acc[fp];
+			  // refhist cannot have more sets than used in the SCC
+			  if ((sccmarks & refhist) != refhist)
+			    continue;
+
 			  size_t sf = d.all_cand_acc.size();
 			  for (size_t f = 0; f < sf; ++f)
 			    {
 			      path p(j, i, l, k,
-				     d.all_cand_acc[f],
-				     d.all_ref_acc[fp]);
+				     d.all_cand_acc[f], refhist);
 			      d.pathid[p] = ++d.nvars;
 			    }
 
@@ -455,7 +476,6 @@ namespace spot
 
       scc_info sm(ref);
       sm.determine_unknown_acceptance();
-      d.is_weak_scc = sm.weak_sccs();
 
       // Number all the SAT variables we may need.
       unsigned ref_size = declare_vars(ref, d, ap, state_based, sm);
@@ -600,11 +620,19 @@ namespace spot
 		  {
 		    size_t sf = d.all_cand_acc.size();
 		    size_t sfp = is_weak ? 1 : d.all_ref_acc.size();
+		    acc_cond::mark_t sccmarks =
+		      is_weak ? d.all_ref_acc.back() : d.scc_marks[q1p_scc];
+
 		    for (size_t f = 0; f < sf; ++f)
 		      for (size_t fp = 0; fp < sfp; ++fp)
 			{
+			  auto refhist = d.all_ref_acc[fp];
+			  // refhist cannot have more sets than used in the SCC
+			  if ((sccmarks & refhist) != refhist)
+			    continue;
+
 			  path p(q1, q1p, q2, q2p,
-				 d.all_cand_acc[f], d.all_ref_acc[fp]);
+				 d.all_cand_acc[f], refhist);
 
 			  dout << "(11&12&13) paths from " << p << '\n';
 
