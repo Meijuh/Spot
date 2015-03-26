@@ -320,7 +320,7 @@ digraph G {
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
@@ -361,7 +361,7 @@ digraph G {
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label=<0<br/><font color="#B276B2">❸</font>>]
@@ -422,7 +422,7 @@ digraph G {
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
@@ -466,7 +466,7 @@ digraph G {
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
@@ -512,7 +512,7 @@ digraph G {
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
@@ -558,7 +558,7 @@ digraph G {
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
@@ -597,7 +597,7 @@ digraph G {
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
@@ -630,7 +630,7 @@ digraph G {
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]

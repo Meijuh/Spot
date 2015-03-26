@@ -9,7 +9,7 @@
 							 path-separator
 							 "$PATH sh"))
 		      (setenv "SPOT_DOTDEFAULT" "brf(Lato)")
-		      (setenv "SPOT_DOTEXTRA" "node[style=filled, fillcolor=\"#ffffa0\"]")
+		      (setenv "SPOT_DOTEXTRA" "node[style=filled, fillcolor=\"#ffffa0\"] edge[arrowhead=vee, arrowsize=.7]")
 		      (org-babel-do-load-languages 'org-babel-load-languages
 						   '((sh . t)
 						     (python . t)

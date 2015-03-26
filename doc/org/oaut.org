@@ -823,7 +823,7 @@ The dot output can also be customized via two environment variables:
 
 #+BEGIN_SRC sh :results verbatim :exports code
 export SPOT_DOTDEFAULT='brf(Lato)'
-export SPOT_DOTEXTRA='node[style=filled, fillcolor="#ffffa0"]'
+export SPOT_DOTEXTRA='node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]'
 #+END_SRC
 
 * Statistics
@@ -911,7 +911,7 @@ digraph G {
   rankdir=LR
   label="TGBA for a U b"
   labelloc="t"
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 1
   0 [label="0", peripheries=2]

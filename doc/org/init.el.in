@@ -25,7 +25,8 @@
       (concat "PATH=@abs_top_builddir@/src/bin" path-separator "$PATH sh"))
 
 (setenv "SPOT_DOTDEFAULT" "brf(Lato)")
-(setenv "SPOT_DOTEXTRA" "node[style=filled, fillcolor=\"#ffffa0\"]")
+(setenv "SPOT_DOTEXTRA"
+ "node[style=filled, fillcolor=\"#ffffa0\"] edge[arrowhead=vee, arrowsize=.7]")
 
 (setq org-export-html-home/up-format
 "<div id=\"org-div-home-and-up\" style=\"text-align:center;white-space:nowrap;\">
