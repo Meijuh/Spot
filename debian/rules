@@ -41,18 +41,31 @@ PRO2SETUP =					\
   CXXFLAGS='-flto -fprofile-use'
 PYSETUP = PYTHON=/usr/bin/python3
 
+# There seem to be a problem with unwinding of exception handling when
+# the binaries are compiled with -flto.  For instance in autfilt,
+# argp_parse() calls the locally defined parse_opt() that calls
+# remove_ap::add_ap() (in libspot).  The latter may throw an
+# exception, which should be caught in main().  However If autfilt is
+# compiled with -flto, the exception never traverses argp.  Moving
+# the try/catch block inside parse_opt() also fixes this praticular
+# problem, but who knows about other exceptions?   So as a workaround,
+# we simply disable -flto in src/bin/.
+FLTOWORKAROUND = perl -pi -e s/-flto// src/bin/Makefile
+
 # We want to build Spot twice: once to get profile data, and a second
 # time to use it.
 override_dh_auto_configure:
 	dh_auto_configure -- $(PRO1SETUP) $(LTOSETUP)	\
 	  --disable-devel --enable-optimizations	\
 	  --disable-static $(PYSETUP)
+	$(FLTOWORKAROUND)
 	dh_auto_build
 	dh_auto_test
 	make clean
 	dh_auto_configure -- $(PRO2SETUP) $(LTOSETUP)	\
 	  --disable-devel --enable-optimizations	\
 	  --disable-static $(PYSETUP)
+	$(FLTOWORKAROUND)
 override_dh_auto_install:
 	dh_auto_install --destdir=$(CURDIR)/debian/tmp
 	find debian/tmp -name '*.la' -exec rm -rv {} ';'
