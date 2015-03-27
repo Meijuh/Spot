@@ -1612,7 +1612,9 @@ static void fix_properties(result_& r)
 
 namespace spot
 {
-  hoa_stream_parser::hoa_stream_parser(const std::string& name)
+  hoa_stream_parser::hoa_stream_parser(const std::string& name,
+				       bool ignore_abort)
+    : filename_(name), ignore_abort_(ignore_abort)
   {
     if (hoayyopen(name))
       throw std::runtime_error(std::string("Cannot open file ") + name);
@@ -1630,6 +1632,7 @@ namespace spot
 			   ltl::environment& env,
 			   bool debug)
   {
+  restart:
     result_ r;
     r.h = std::make_shared<spot::hoa_aut>();
     r.h->aut = make_tgba_digraph(dict);
@@ -1652,7 +1655,11 @@ namespace spot
     last_loc = r.h->loc;
     last_loc.step();
     if (r.h->aborted)
-      return r.h;
+      {
+	if (ignore_abort_)
+	  goto restart;
+	return r.h;
+      }
     if (!r.h->aut)
       return nullptr;
     if (r.state_names)
@@ -1662,6 +1669,29 @@ namespace spot
     fix_properties(r);
     return r.h;
   };
+
+  tgba_digraph_ptr
+  hoa_stream_parser::parse_strict(const bdd_dict_ptr& dict,
+				  ltl::environment& env,
+				  bool debug)
+  {
+    hoa_parse_error_list pel;
+    auto a = parse(pel, dict, env, debug);
+
+    if (!pel.empty())
+      {
+	std::ostringstream s;
+	if (format_hoa_parse_errors(s, filename_, pel))
+	  throw parse_error(s.str());
+      }
+    if (!a)
+      return nullptr;
+
+    if (a->aborted)
+      throw parse_error("parsing aborted");
+
+    return a->aut;
+  }
 }
 
 // Local Variables:

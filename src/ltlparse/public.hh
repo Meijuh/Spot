@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -123,20 +123,11 @@ namespace spot
 			     environment& env = default_environment::instance(),
 			     bool debug = false);
 
-
-
-    struct SPOT_API parse_error: public std::runtime_error
-    {
-      parse_error(const std::string& s): std::runtime_error(s)
-      {
-      }
-    };
-
     /// \brief A simple wrapper to parse() and parse_lbt().
     ///
     /// This is mostly meant for interactive use.  It first tries parse(); if
     /// this fails it tries parse_lbt(); and if both fails it returns the errors
-    /// of the first call to parse() as a std::runtime_error().
+    /// of the first call to parse() as a parse_error exception.
     SPOT_API const formula*
     parse_formula(const std::string& ltl_string,
 		  environment& env = default_environment::instance());

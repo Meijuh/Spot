@@ -74,6 +74,7 @@ namespace std {
 #include <sstream>
 #include <signal.h>
 
+#include "misc/common.hh"
 #include "misc/version.hh"
 #include "misc/minato.hh"
 #include "misc/optionmap.hh"
@@ -135,6 +136,7 @@ namespace std {
 #include "tgbaalgos/postproc.hh"
 #include "tgbaalgos/stutter.hh"
 #include "tgbaalgos/translate.hh"
+#include "tgbaalgos/hoa.hh"
 
 #include "hoaparse/public.hh"
 
@@ -182,7 +184,7 @@ using namespace spot;
   try {
     $action
   }
-  catch (const spot::ltl::parse_error& e)
+  catch (const spot::parse_error& e)
   {
     std::string er("\n");
     er += e.what();
@@ -278,6 +280,7 @@ namespace spot {
 %include "tgbaalgos/postproc.hh"
 %include "tgbaalgos/stutter.hh"
 %include "tgbaalgos/translate.hh"
+%include "tgbaalgos/hoa.hh"
 
 %include "hoaparse/public.hh"
 

@@ -80,6 +80,46 @@ formula.__init__ = _formula_str_ctor
 formula.to_str = _formula_to_str
 formula.show_ast = _render_formula_as_svg
 
+def _tgba_to_str(a, format='hoa', opt=None):
+    format = format.lower()
+    if format == 'hoa':
+        ostr = ostringstream()
+        hoa_reachable(ostr, a, opt)
+        return ostr.str()
+    if format == 'dot':
+        ostr = ostringstream()
+        dotty_reachable(ostr, a, opt)
+        return ostr.str()
+    if format == 'spin':
+        ostr = ostringstream()
+        never_claim_reachable(ostr, a, opt)
+        return ostr.str()
+    if format == 'lbtt':
+        ostr = ostringstream()
+        lbtt_reachable(ostr, a, bool(opt))
+        return ostr.str()
+    raise ValueError("unknown string format: " + format)
+
+def _tgba_save(a, filename, format='hoa', opt=None, append=False):
+    with open(filename, 'a' if append else 'w') as f:
+        s = a.to_str(format, opt)
+        f.write(s)
+        if s[-1] != '\n':
+            f.write('\n')
+    return a
+
+tgba.to_str = _tgba_to_str
+tgba.save = _tgba_save
+
+def automata(filename):
+    p = hoa_stream_parser(filename, True)
+    while True:
+        a = p.parse_strict(_bdd_dict)
+        if a == None:
+            return
+        yield a
+
+
 def translate(formula, output='tgba', pref='small', level='high',
               complete=False):
     """Translate a formula into an automaton.

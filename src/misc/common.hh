@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -109,3 +109,15 @@
 // Useful when forwarding methods such as:
 //   auto func(int param) SPOT_RETURN(implem_.func(param));
 #define SPOT_RETURN(code) -> decltype(code) { return code; }
+
+
+namespace spot
+{
+  struct SPOT_API parse_error: public std::runtime_error
+  {
+    parse_error(const std::string& s)
+      : std::runtime_error(s)
+      {
+      }
+  };
+}

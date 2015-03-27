@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -24,8 +24,8 @@ namespace spot
 {
   bool
   format_hoa_parse_errors(std::ostream& os,
-			    const std::string& filename,
-			    hoa_parse_error_list& error_list)
+			  const std::string& filename,
+			  hoa_parse_error_list& error_list)
   {
     bool printed = false;
     spot::hoa_parse_error_list::iterator it;

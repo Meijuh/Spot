@@ -60,14 +60,21 @@ namespace spot
   class SPOT_API hoa_stream_parser
   {
     spot::location last_loc;
+    std::string filename_;
+    bool ignore_abort_;
   public:
-    hoa_stream_parser(const std::string& filename);
+    hoa_stream_parser(const std::string& filename, bool ignore_abort = false);
     ~hoa_stream_parser();
     hoa_aut_ptr parse(hoa_parse_error_list& error_list,
 		      const bdd_dict_ptr& dict,
 		      ltl::environment& env =
 		      ltl::default_environment::instance(),
 		      bool debug = false);
+    // Raises a parse_error on any syntax error
+    tgba_digraph_ptr parse_strict(const bdd_dict_ptr& dict,
+				  ltl::environment& env =
+				  ltl::default_environment::instance(),
+				  bool debug = false);
   };
 
   /// \brief Build a spot::tgba_digraph from a HOA file or a neverclaim.

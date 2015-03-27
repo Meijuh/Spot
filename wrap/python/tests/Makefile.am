@@ -33,6 +33,7 @@ check_SCRIPTS = run
 TESTS = \
   alarm.py \
   automata.ipynb \
+  automata-io.ipynb \
   bddnqueen.py \
   formulas.ipynb \
   implies.py \
