@@ -44,7 +44,7 @@ static struct shorthands_t
     { "ltl2dstar", " %L %D"},
     { "ltl2tgba", " -H %f>%O" },
     { "ltl3ba", " -f %s>%O" },
-    { "ltl3dra", " -f %f>%D" },
+    { "ltl3dra", " -f %f>%O" },
     { "modella", " %L %O" },
     { "spin", " -f %s>%O" },
   };

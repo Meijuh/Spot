@@ -305,7 +305,7 @@ the following words, then the string on the right is appended.
   ltl2dstar    %L %D
   ltl2tgba     -H %f>%O
   ltl3ba       -f %s>%O
-  ltl3dra      -f %f>%D
+  ltl3dra      -f %f>%O
   modella      %L %O
   spin         -f %s>%O
 #+end_example
