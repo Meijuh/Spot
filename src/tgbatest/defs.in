@@ -1,6 +1,6 @@
 # -*- mode: shell-script; coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2012, 2013 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2012, 2013, 2015 Laboratoire de Recherche
+# et Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -65,6 +65,10 @@ VALGRIND='@VALGRIND@'
 SPIN='@SPIN@'
 LTL2BA='@LTL2BA@'
 PYTHON='@PYTHON@'
+
+# The test cases assume these variable are undefined
+unset SPOT_DOTEXTRA
+unset SPOT_DOTDEFAULT
 
 need_lbtt()
 {
