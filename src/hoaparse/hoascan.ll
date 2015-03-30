@@ -388,6 +388,31 @@ namespace spot
     return 0;
   }
 
+  int
+  hoayyopen(int fd)
+  {
+    bool want_interactive = false;
+
+    yyin = fdopen(fd, "r");
+
+    // If the input is a pipe, make the scanner
+    // interactive so that it does not wait for the input
+    // buffer to be full to process automata.
+    struct stat s;
+    if (fstat(fd, &s) < 0)
+      throw std::runtime_error("fstat failed");
+    if (S_ISFIFO(s.st_mode))
+      want_interactive = true;
+
+    // Reset the lexer in case a previous parse
+    // ended badly.
+    YY_NEW_FILE;
+    hoayyreset();
+    if (want_interactive)
+      yy_set_interactive(true);
+    return 0;
+  }
+
   void
   hoayyclose()
   {

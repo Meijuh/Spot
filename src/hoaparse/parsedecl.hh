@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
 // de l'EPITA.
 //
 // This file is part of Spot, a model checking library.
@@ -33,6 +33,7 @@ namespace spot
 {
   void hoayyreset();
   int hoayyopen(const std::string& name);
+  int hoayyopen(int fd);
   void hoayyclose();
 
   // This exception is thrown by the lexer when it reads "--ABORT--".

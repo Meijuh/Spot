@@ -1620,6 +1620,15 @@ namespace spot
       throw std::runtime_error(std::string("Cannot open file ") + name);
   }
 
+  hoa_stream_parser::hoa_stream_parser(int fd,
+				       const std::string& name,
+				       bool ignore_abort)
+    : filename_(name), ignore_abort_(ignore_abort)
+  {
+    if (hoayyopen(fd))
+      throw std::runtime_error(std::string("Cannot open file ") + name);
+  }
+
   hoa_stream_parser::~hoa_stream_parser()
   {
     hoayyclose();

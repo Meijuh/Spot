@@ -44,5 +44,6 @@ TESTS = \
   minato.py \
   optionmap.py \
   parsetgba.py \
+  piperead.ipynb \
   randltl.ipynb \
   setxor.py

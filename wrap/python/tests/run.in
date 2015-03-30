@@ -32,6 +32,9 @@ modpath='../.libs:@top_builddir@/src/.libs:@top_builddir@/buddy/src/.libs'
 # Python 2.6.
 pypath='..:../.libs:@srcdir@/..:@srcdir@/../.libs:$PYTHONPATH'
 
+PATH="@abs_top_builddir@/src/bin:$PATH"
+export PATH
+
 test -z "$1" &&
   PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec @PYTHON@
 

@@ -64,6 +64,10 @@ namespace spot
     bool ignore_abort_;
   public:
     hoa_stream_parser(const std::string& filename, bool ignore_abort = false);
+    // Read from an already open file descriptor.
+    // Use filename in error messages.
+    hoa_stream_parser(int fd, const std::string& filename,
+		      bool ignore_abort = false);
     ~hoa_stream_parser();
     hoa_aut_ptr parse(hoa_parse_error_list& error_list,
 		      const bdd_dict_ptr& dict,

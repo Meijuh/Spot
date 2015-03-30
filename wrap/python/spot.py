@@ -111,14 +111,54 @@ def _tgba_save(a, filename, format='hoa', opt=None, append=False):
 tgba.to_str = _tgba_to_str
 tgba.save = _tgba_save
 
-def automata(filename):
-    p = hoa_stream_parser(filename, True)
-    while True:
-        a = p.parse_strict(_bdd_dict)
-        if a == None:
-            return
-        yield a
+def automata(*filenames):
+    """Read automata from a list of filenames.
 
+    The automata can be written in the
+    [HOA format](http://adl.github.io/hoaf/), as
+    [never claims](http://spinroot.com/spin/Man/never.html),
+    or in [LBTT's format]
+    (http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html).
+
+    If a filename ends with a `|`, then the filename is interpreted as
+    a shell command, and the output of that command (without the `|`)
+    is parsed."""
+
+    for filename in filenames:
+        try:
+            if filename[-1] != '|':
+                proc = None
+                p = hoa_stream_parser(filename, True)
+            else:
+                proc = subprocess.Popen(filename[:-1], shell=True,
+                                        stdout=subprocess.PIPE)
+                p = hoa_stream_parser(proc.stdout.fileno(), filename, True)
+            a = True
+            while a:
+                a = p.parse_strict(_bdd_dict)
+                if a:
+                    yield a
+        finally:
+            # Make sure we destroy the parser and the subprocess in
+            # the correct order...
+            del p
+            if proc != None:
+                proc.poll()
+                ret = proc.returncode
+                del proc
+                if ret:
+                    raise RuntimeError("Command {} exited with exit status {}"
+                                       .format(filename[:-1], ret))
+    return
+
+def automaton(filename):
+    """Read a single automaton from a file.
+
+    See `spot.automata()` for a list of supported format."""
+    try:
+        return next(automata(filename))
+    except StopIteration:
+        raise RuntimeError("Failed to read automaton from {}".format(filename))
 
 def translate(formula, output='tgba', pref='small', level='high',
               complete=False):
