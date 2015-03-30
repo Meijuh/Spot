@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2009, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -28,8 +28,12 @@ namespace spot
 {
 
   minato_isop::minato_isop(bdd input)
-    : ret_(bddfalse)
+    : minato_isop(input, bdd_support(input))
+  {
+  }
 
+  minato_isop::minato_isop(bdd input, bdd vars)
+    : ret_(bddfalse)
   {
     // If INPUT has the form a&b&c&(binary function) we want to
     // compute the ISOP of the only binary and prepend a&b&c latter.
@@ -39,14 +43,23 @@ namespace spot
     // original algorithm, because in many cases we are trying to
     // build ISOPs out of formulae that are already cubes.
     cube_.push(bdd_satprefix(input));
-    todo_.emplace(input, input, bdd_support(input));
+    todo_.emplace(input, input, vars);
   }
 
-  minato_isop::minato_isop(bdd input, bdd vars)
+  minato_isop::minato_isop(bdd input_min, bdd input_max, bool)
     : ret_(bddfalse)
   {
-    cube_.push(bdd_satprefix(input));
-    todo_.emplace(input, input, vars);
+    if (input_min == input_max)
+      {
+	cube_.push(bdd_satprefix(input_min));
+	input_max = input_min;
+      }
+    else
+      {
+	cube_.push(bddtrue);
+      }
+    bdd common = input_min & input_max;
+    todo_.emplace(input_min, input_max, bdd_support(common));
   }
 
   bdd

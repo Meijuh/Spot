@@ -88,6 +88,7 @@ enum {
   OPT_REM_FIN,
   OPT_SBACC,
   OPT_SEED,
+  OPT_SIMPLIFY_EXCLUSIVE_AP,
   OPT_STATES,
   OPT_STRIPACC,
   OPT_TGBA,
@@ -147,6 +148,10 @@ static const argp_option options[] =
       "ensure two of them may not be true at the same time.  Use this option "
       "multiple times to declare independent groups of exclusive "
       "propositions.", 0 },
+    { "simplify-exclusive-ap", OPT_SIMPLIFY_EXCLUSIVE_AP, 0, 0,
+      "if --exclusive-ap is used, assume those AP groups are actually exclusive"
+      " in the system to simplify the expression of transition labels (implies "
+      "--merge-transitions)", 0 },
     { "remove-ap", OPT_REM_AP, "AP[=0|=1][,AP...]", 0,
       "remove atomic propositions either by existential quantification, or "
       "by assigning them 0 or 1", 0 },
@@ -239,6 +244,7 @@ static std::vector<bool> opt_keep_states = {};
 static unsigned int opt_keep_states_initial = 0;
 static spot::exclusive_ap excl_ap;
 static spot::remove_ap rem_ap;
+static bool opt_simplify_exclusive_ap = false;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -403,6 +409,10 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_SEED:
       opt_seed = to_int(arg);
       break;
+    case OPT_SIMPLIFY_EXCLUSIVE_AP:
+      opt_simplify_exclusive_ap = true;
+      opt_merge = true;
+      break;
     case OPT_STATES:
       opt_states = parse_range(arg, 0, std::numeric_limits<int>::max());
       break;
@@ -514,7 +524,7 @@ namespace
 	aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
 
       if (!excl_ap.empty())
-	aut = excl_ap.constrain(aut);
+	aut = excl_ap.constrain(aut, opt_simplify_exclusive_ap);
 
       if (!rem_ap.empty())
 	aut = rem_ap.strip(aut);

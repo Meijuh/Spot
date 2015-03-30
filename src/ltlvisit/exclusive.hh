@@ -42,6 +42,7 @@ namespace spot
     }
 
     const ltl::formula* constrain(const ltl::formula* f) const;
-    tgba_digraph_ptr constrain(const_tgba_digraph_ptr aut) const;
+    tgba_digraph_ptr constrain(const_tgba_digraph_ptr aut,
+			       bool simplify_guards = false) const;
   };
 }

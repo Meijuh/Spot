@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -58,6 +58,13 @@ namespace spot
     /// \arg input The BDD function to translate in ISOP.
     /// \arg vars  The set of BDD variables to factorize in \a input.
     minato_isop(bdd input, bdd vars);
+    /// \brief Conctructor.
+    ///
+    /// This version allow some flexibility in computing the ISOP.
+    /// the result must be within \a input_min and \a input_max.
+    /// \arg input_min The minimum BDD function to translate in ISOP.
+    /// \arg input_max The maximum BDD function to translate in ISOP.
+    minato_isop(bdd input_min, bdd input_max, bool);
     /// \brief Compute the next sum term of the ISOP form.
     /// Return \c bddfalse when all terms have been output.
     bdd next();

@@ -24,6 +24,7 @@
 #include "ltlast/constant.hh"
 #include "tgbaalgos/mask.hh"
 #include "misc/casts.hh"
+#include "misc/minato.hh"
 #include "apcollect.hh"
 
 namespace spot
@@ -160,7 +161,8 @@ namespace spot
     return ltl::multop::instance(ltl::multop::And, f->clone(), c);
   }
 
-  tgba_digraph_ptr exclusive_ap::constrain(const_tgba_digraph_ptr aut) const
+  tgba_digraph_ptr exclusive_ap::constrain(const_tgba_digraph_ptr aut,
+					   bool simplify_guards) const
   {
     // Compute the support of the automaton.
     bdd support = bddtrue;
@@ -196,11 +198,29 @@ namespace spot
     res->copy_ap_of(aut);
     res->prop_copy(aut, { true, true, true, true });
     res->copy_acceptance_of(aut);
-    transform_accessible(aut, res, [&](unsigned, bdd& cond,
-				       acc_cond::mark_t&, unsigned)
-                         {
-			   cond &= restrict;
-                         });
+    if (simplify_guards)
+      {
+	transform_accessible(aut, res, [&](unsigned, bdd& cond,
+					   acc_cond::mark_t&, unsigned)
+			     {
+			       minato_isop isop(cond & restrict,
+						cond | !restrict,
+						true);
+			       bdd res = bddfalse;
+			       bdd cube = bddfalse;
+			       while ((cube = isop.next()) != bddfalse)
+				 res |= cube;
+			       cond = res;
+			     });
+      }
+    else
+      {
+	transform_accessible(aut, res, [&](unsigned, bdd& cond,
+					   acc_cond::mark_t&, unsigned)
+			     {
+			       cond &= restrict;
+			     });
+      }
     return res;
   }
 }
