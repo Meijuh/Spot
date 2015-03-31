@@ -116,6 +116,7 @@ namespace std {
 #include "tgba/taatgba.hh"
 #include "tgba/tgbaproduct.hh"
 
+#include "tgbaalgos/cleanacc.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/degen.hh"
 #include "tgbaalgos/dupexp.hh"
@@ -260,6 +261,7 @@ namespace spot {
 
 // Should come after the definition of tgba_digraph
 
+%include "tgbaalgos/cleanacc.hh"
 %include "tgbaalgos/degen.hh"
 %include "tgbaalgos/dotty.hh"
 %include "tgbaalgos/dupexp.hh"

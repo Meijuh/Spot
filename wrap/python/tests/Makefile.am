@@ -45,5 +45,6 @@ TESTS = \
   optionmap.py \
   parsetgba.py \
   piperead.ipynb \
+  randaut.ipynb \
   randltl.ipynb \
   setxor.py
