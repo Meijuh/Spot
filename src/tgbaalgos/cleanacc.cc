@@ -21,11 +21,11 @@
 
 namespace spot
 {
-  void cleanup_acceptance(tgba_digraph_ptr& aut)
+  tgba_digraph_ptr cleanup_acceptance_here(tgba_digraph_ptr aut)
   {
     auto& acc = aut->acc();
     if (acc.num_sets() == 0)
-      return;
+      return aut;
 
     auto& c = aut->get_acceptance();
     acc_cond::mark_t used_in_cond = c.used_sets();
@@ -39,7 +39,7 @@ namespace spot
     auto useless = acc.comp(useful);
 
     if (!useless)
-      return;
+      return aut;
 
     // Remove useless marks from the automaton
     for (auto& t: aut->transitions())
@@ -50,7 +50,14 @@ namespace spot
 
     // This may in turn cause even more set to be unused, because of
     // some simplifications, so do it again.
-    return cleanup_acceptance(aut);
+    return cleanup_acceptance_here(aut);
   }
+
+  tgba_digraph_ptr cleanup_acceptance(const_tgba_digraph_ptr aut)
+  {
+    return cleanup_acceptance_here(make_tgba_digraph(aut,
+						     tgba::prop_set::all()));
+  }
+
 
 }

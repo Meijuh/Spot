@@ -476,7 +476,7 @@ namespace
       if (opt_merge)
 	aut->merge_transitions();
       if (opt_clean_acc || opt_rem_fin)
-	cleanup_acceptance(aut);
+	cleanup_acceptance_here(aut);
       if (opt_complement_acc)
 	aut->set_acceptance(aut->acc().num_sets(),
 			    aut->get_acceptance().complement());

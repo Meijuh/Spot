@@ -1110,7 +1110,7 @@ namespace
 	    {
 #define DO(x, prefix, suffix) if (x[i])					\
 		{							\
-		  cleanup_acceptance(x[i]);				\
+		  cleanup_acceptance_here(x[i]);			\
 		  if (x[i]->acc().uses_fin_acceptance())		\
 		    {							\
 	              auto st = x[i]->num_states();			\

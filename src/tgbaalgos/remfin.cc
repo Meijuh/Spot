@@ -333,7 +333,7 @@ namespace spot
       }
     res->purge_dead_states();
     trace << "before cleanup: " << res->get_acceptance() << '\n';
-    cleanup_acceptance(res);
+    cleanup_acceptance_here(res);
     trace << "after cleanup: " << res->get_acceptance() << '\n';
     return res;
   }

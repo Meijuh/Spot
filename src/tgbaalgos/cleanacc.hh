@@ -24,6 +24,11 @@
 namespace spot
 {
   /// \brief Remove useless acceptance sets
-  SPOT_API void
-  cleanup_acceptance(tgba_digraph_ptr& aut);
+  /// @{
+  SPOT_API tgba_digraph_ptr
+  cleanup_acceptance_here(tgba_digraph_ptr aut);
+
+  SPOT_API tgba_digraph_ptr
+  cleanup_acceptance(const_tgba_digraph_ptr aut);
+  /// @}
 }
