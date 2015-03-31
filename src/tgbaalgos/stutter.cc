@@ -487,13 +487,27 @@ namespace spot
                           {
                             if (!bdd_implies(cond, ts.cond))
                               {
-                                ts.cond = ts.cond | cond;
+                                ts.cond |= cond;
                                 if (std::find(todo.begin(), todo.end(), t)
                                     == todo.end())
                                   todo.push_back(t);
                               }
                             need_new_trans = false;
+			    break;
                           }
+			else if (cond == ts.cond)
+			  {
+			    acc |= ts.acc;
+			    if (ts.acc != acc)
+			      {
+				ts.acc = acc;
+				if (std::find(todo.begin(), todo.end(), t)
+				    == todo.end())
+				  todo.push_back(t);
+			      }
+                            need_new_trans = false;
+			    break;
+			  }
                       }
                     if (need_new_trans)
                       {

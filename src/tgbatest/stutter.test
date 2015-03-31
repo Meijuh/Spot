@@ -42,7 +42,32 @@ $autfilt --states=12 prod.hoa -q
 #
 # We just run those without checking the output, it is enough to
 # trigger assertions in the HOA output routines.
-run 0 ../../bin/ltl2tgba -H 'X(a U b)' > det.hoa
-run 0 ../../bin/autfilt --destut det.hoa -H
-run 0 ../../bin/autfilt --instut=1 det.hoa -H
-run 0 ../../bin/autfilt --instut=2 det.hoa -H
+run 0 $ltl2tgba -H 'X(a U b)' > det.hoa
+run 0 $autfilt --destut det.hoa -H
+run 0 $autfilt --instut=1 det.hoa -H
+run 0 $autfilt --instut=2 det.hoa -H
+
+$ltl2tgba -H 'a & Fb' | $autfilt --destut -H > output
+
+cat >expected <<EOF
+HOA: v1
+name: "a & Fb"
+States: 3
+Start: 2
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+--BODY--
+State: 0
+[t] 0 {0}
+State: 1
+[1] 0 {0}
+[!1] 1
+State: 2
+[0&1] 0 {0}
+[0&!1] 1
+--END--
+EOF
+
+diff output expected
