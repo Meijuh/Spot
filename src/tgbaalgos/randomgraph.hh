@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -25,6 +25,7 @@
 #include "ltlvisit/apcollect.hh"
 #include "ltlenv/defaultenv.hh"
 #include "tgba/bdddict.hh"
+#include "tgba/acc.hh"
 
 namespace spot
 {
@@ -81,4 +82,7 @@ namespace spot
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
 	       unsigned n_accs = 0, float a = 0.1, float t = 0.5,
 	       bool deterministic = false, bool state_acc = false);
+
+  /// Build a random acceptance where each acceptance sets is used once.
+  SPOT_API acc_cond::acc_code random_acceptance(unsigned n_accs);
 }

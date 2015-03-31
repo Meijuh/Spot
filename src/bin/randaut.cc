@@ -26,6 +26,7 @@
 #include <sstream>
 #include <iterator>
 #include "error.h"
+#include "argmatch.h"
 
 #include "common_setup.hh"
 #include "common_range.hh"
@@ -64,12 +65,16 @@ states, 1 to 3 acceptance sets, and three atomic propositions:\n\
 enum {
   OPT_SEED = 1,
   OPT_STATE_ACC,
+  OPT_ACC_TYPE,
 };
 
 static const argp_option options[] =
   {
     /**************************************************/
     { 0, 0, 0, 0, "Generation:", 2 },
+    { "acc-type", OPT_ACC_TYPE, "buchi|random", 0,
+      "use a generalized buchi acceptance condition (default), or a "
+      "random acceptance condition", 0 },
     { "acc-sets", 'A', "RANGE", 0, "number of acceptance sets (0)", 0 },
     { "acc-probability", 'a', "FLOAT", 0,
       "probability that a transition belong to one acceptance set (0.2)", 0 },
@@ -102,6 +107,23 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
+enum acc_type { acc_buchi, acc_random };
+
+static char const *const acc_args[] =
+{
+  "buchi", "ba", "gba",
+  "random",
+  0
+};
+static acc_type const acc_types[] =
+{
+  acc_buchi, acc_buchi, acc_buchi,
+  acc_random,
+};
+ARGMATCH_VERIFY(acc_args, acc_types);
+
+
+static acc_type opt_acc = acc_buchi;
 typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static spot::ltl::atomic_prop_set aprops;
@@ -171,6 +193,9 @@ parse_opt(int key, char* arg, struct argp_state* as)
       opt_uniq =
         std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
       break;
+    case OPT_ACC_TYPE:
+      opt_acc = XARGMATCH("--acc-type", arg, acc_args, acc_types);
+      break;
     case OPT_SEED:
       opt_seed = to_int(arg);
       opt_seed_str = arg;
@@ -229,9 +254,15 @@ main(int argc, char** argv)
   if (automaton_format == Spin && opt_acc_sets.max > 1)
     error(2, 0, "--spin is incompatible with --acc-sets=%d..%d",
 	  opt_acc_sets.min, opt_acc_sets.max);
+  if (automaton_format == Spin && opt_acc != acc_buchi)
+    error(2, 0,
+	  "--spin implies --acc-type=buchi but a different --acc-type is used");
   if (ba_wanted && opt_acc_sets.min != 1 && opt_acc_sets.max != 1)
     error(2, 0, "--ba is incompatible with --acc-sets=%d..%d",
 	  opt_acc_sets.min, opt_acc_sets.max);
+  if (ba_wanted && opt_acc != acc_buchi)
+    error(2, 0,
+	  "--ba implies --acc-type=buchi but a different --acc-type is used");
 
   try
     {
@@ -262,6 +293,16 @@ main(int argc, char** argv)
 	    spot::random_graph(size, opt_density, &aprops, d,
 			       accs, opt_acc_prob, 0.5,
 			       opt_deterministic, opt_state_acc);
+
+	  switch (opt_acc)
+	    {
+	    case acc_buchi:
+	      // Random_graph builds a GBA by default
+	      break;
+	    case acc_random:
+	      aut->set_acceptance(accs, spot::random_acceptance(accs));
+	      break;
+	    }
 
 	  if (opt_uniq)
 	    {
