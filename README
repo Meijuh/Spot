@@ -6,8 +6,7 @@ and LIP6. It provides algorithms and data structures to implement
 the automata-theoretic approach to LTL model checking.
 
 It is mainly meant to be used as a C++ library, but it also comes with
-a few handy command-line utilities, and some (limited) Python
-bindings.
+a few handy command-line utilities, and some Python bindings.
 
 Keeping in touch
 ================
@@ -29,9 +28,9 @@ Requirements
 ------------
 
 Spot requires a C++11-compliant compiler.
-G++ 4.8 or later, as well as Clang++3.5 or later should work.
+G++ 4.8 or later, as well as Clang++ 3.5 or later should work.
 
-Spot expects a complete installation of Python (version 2.0 or later).
+Spot expects a complete installation of Python (version 3.2 or later).
 Especially, Python's headers files should be installed.  If you don't
 have Python installed, and do NOT want to install it, you should run
 configure with the --disable-python option (see below).
@@ -39,9 +38,8 @@ configure with the --disable-python option (see below).
 Optional third-party dependencies
 ----------------------------------
 
-If the SAT-solver glucose is found on your system, it will
-be used by our test suite to test our SAT-based minimization
-algorithm.
+If the SAT-solver glucose is found on your system, it will be used by
+our test suite to test our SAT-based minimization algorithm.
 
 Spot used to distribute a modified version of LBTT (an LTL to Büchi
 test bench), mostly fixing errors reported by recent compilers.
@@ -64,11 +62,12 @@ In addition to its usual options, ./configure will accept some
 flags specific to Spot:
 
   --disable-python
-    Turn off the compilation of Python bindings.  These bindings are
-    currently used to run a couple of tests, and to build the CGI
-    script that translates LTL formulae on-line.  You may safely
-    disable these, especially if you do not have a working Python
-    installation or if you are attempting some cross-compilation.
+    Turn off the compilation of Python bindings.  These bindings offers a
+    convenient interface with used in an IPython notebook, and are
+    also used to build the CGI script that translates LTL formulae
+    on-line.  You may safely disable these, especially if you do not
+    have a working Python 3.2+ installation or if you are attempting
+    some cross-compilation.
 
   --enable-devel
     Enable debugging symbols, turn off aggressive optimizations, and

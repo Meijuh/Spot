@@ -132,6 +132,9 @@ New in spot 1.99b (not yet released)
 
     - Boost is not used anymore.
 
+    - The Python bindings now assume Python 3.2 or later.
+      (In other words, Python 2 is not supported anymore.)
+
     - The tgba_succ_iterator interface has changed.  Methods next(),
       and first() should now return a bool indicating whether the
       current iteration is valid.
