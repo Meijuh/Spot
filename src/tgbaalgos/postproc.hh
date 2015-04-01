@@ -115,6 +115,7 @@ namespace spot
     bool degen_order_;
     int degen_cache_;
     bool degen_lskip_;
+    bool degen_lowinit_;
     int simul_;
     int scc_filter_;
     int ba_simul_;

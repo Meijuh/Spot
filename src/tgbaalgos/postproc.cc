@@ -51,7 +51,8 @@ namespace spot
   postprocessor::postprocessor(const option_map* opt)
     : type_(TGBA), pref_(Small), level_(High),
       degen_reset_(true), degen_order_(false), degen_cache_(true),
-      degen_lskip_(true), simul_(-1), scc_filter_(-1), ba_simul_(-1),
+      degen_lskip_(true), degen_lowinit_(false), simul_(-1),
+      scc_filter_(-1), ba_simul_(-1),
       tba_determinisation_(false), sat_minimize_(0), sat_acc_(0),
       sat_states_(0), state_based_(false), wdba_minimize_(true)
   {
@@ -61,6 +62,7 @@ namespace spot
 	degen_reset_ = opt->get("degen-reset", 1);
 	degen_cache_ = opt->get("degen-lcache", 1);
 	degen_lskip_ = opt->get("degen-lskip", 1);
+	degen_lowinit_ = opt->get("degen-lowinit", 0);
 	simul_ = opt->get("simul", -1);
 	scc_filter_ = opt->get("scc-filter", -1);
 	ba_simul_ = opt->get("ba-simul", -1);
@@ -125,7 +127,8 @@ namespace spot
   {
     auto d = degeneralize(a,
 			  degen_reset_, degen_order_,
-			  degen_cache_, degen_lskip_);
+			  degen_cache_, degen_lskip_,
+			  degen_lowinit_);
     if (ba_simul_ <= 0)
       return d;
     return do_ba_simul(d, ba_simul_);

@@ -192,7 +192,7 @@ namespace spot
     tgba_digraph_ptr
     degeneralize_aux(const const_tgba_digraph_ptr& a, bool use_z_lvl,
 		     bool use_cust_acc_orders, int use_lvl_cache,
-		     bool skip_levels)
+		     bool skip_levels, bool ignaccsl)
     {
       if (!a->acc().is_generalized_buchi())
 	throw std::runtime_error
@@ -265,7 +265,7 @@ namespace spot
       // As a heuristic for building SBA, if the initial state has at
       // least one accepting self-loop, start the degeneralization on
       // the accepting level.
-      if (want_sba && outgoing.has_acc_selfloop(s.first))
+      if (want_sba && !ignaccsl && outgoing.has_acc_selfloop(s.first))
 	s.second = order.size();
       // Otherwise, check for acceptance conditions common to all
       // outgoing transitions, and assume we have already seen these and
@@ -443,6 +443,7 @@ namespace spot
 			  // self-loop, start the degeneralization on
 			  // the accepting level.
 			  if (s_scc != scc
+			      && !ignaccsl
 			      && outgoing.has_acc_selfloop(d.first))
 			    {
 			      d.second = order.size();
@@ -553,7 +554,7 @@ namespace spot
   tgba_digraph_ptr
   degeneralize(const const_tgba_digraph_ptr& a,
 	       bool use_z_lvl, bool use_cust_acc_orders,
-               int use_lvl_cache, bool skip_levels)
+               int use_lvl_cache, bool skip_levels, bool ignaccsl)
   {
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
@@ -561,13 +562,13 @@ namespace spot
       return std::const_pointer_cast<tgba_digraph>(a);
 
     return degeneralize_aux<true>(a, use_z_lvl, use_cust_acc_orders,
-				  use_lvl_cache, skip_levels);
+				  use_lvl_cache, skip_levels, ignaccsl);
   }
 
   tgba_digraph_ptr
   degeneralize_tba(const const_tgba_digraph_ptr& a,
 		   bool use_z_lvl, bool use_cust_acc_orders,
-		   int use_lvl_cache, bool skip_levels)
+		   int use_lvl_cache, bool skip_levels, bool ignaccsl)
   {
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
@@ -575,6 +576,6 @@ namespace spot
       return std::const_pointer_cast<tgba_digraph>(a);
 
     return degeneralize_aux<false>(a, use_z_lvl, use_cust_acc_orders,
-				   use_lvl_cache, skip_levels);
+				   use_lvl_cache, skip_levels, ignaccsl);
   }
 }

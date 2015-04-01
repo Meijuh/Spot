@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2012, 2013, 2014 2015, Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -39,7 +39,9 @@ namespace spot
   /// is entered on a state that as already been associated to some
   /// level elsewhere, reuse that level (set it to 2 to keep the
   /// smallest number, 3 to keep the largest level, and 1 to keep the
-  /// first level found).
+  /// first level found). If \a ignaccsl is set, we do not directly
+  /// jump to the accepting level if the entering state has an
+  /// accepting self-loop.
   ///
   /// Any of these three options will cause the SCCs of the automaton
   /// \a a to be computed prior to its actual degeneralization.
@@ -51,12 +53,14 @@ namespace spot
   degeneralize(const const_tgba_digraph_ptr& a, bool use_z_lvl = true,
 	       bool use_cust_acc_orders = false,
 	       int use_lvl_cache = 1,
-	       bool skip_levels = true);
+	       bool skip_levels = true,
+	       bool ignaccsl = false);
 
   SPOT_API tgba_digraph_ptr
   degeneralize_tba(const const_tgba_digraph_ptr& a, bool use_z_lvl = true,
 		   bool use_cust_acc_orders = false,
 		   int use_lvl_cache = 1,
-		   bool skip_levels = true);
+		   bool skip_levels = true,
+		   bool ignaccsl = false);
   /// \@}
 }

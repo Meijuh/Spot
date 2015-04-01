@@ -83,6 +83,12 @@ states.  A consequence of skipping levels is that the degeneralized \
 automaton tends to have smaller cycles around the accepting states.  \
 Disabling skipping will produce automata with large cycles, and often \
 with more states.") },
+    { DOC("degen-lowinit", "Whenever the degeneralization algorihm enters \
+a new SCC (or starts from the initial states), it starts on a level that \
+is compatible with all outgoing transitions.  If degen-lowinit is zero \
+(the default) and the corresponding state (in the generalized automaton) \
+has an accepting self-loop, then the level is set to the accepting \
+level, as it might favor finding accepting cycles earlier.") },
     { DOC("simul", "Set to 0 to disable simulation-based reductions. \
 Set to 1 to use only direct simulation. Set to 2 to use only reverse \
 simulation. Set to 3 to iterate both direct and reverse simulations. \
