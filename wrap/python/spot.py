@@ -20,16 +20,25 @@
 from spot_impl import *
 import subprocess
 import sys
+from functools import lru_cache
 
+# Global BDD dict so that we do not have to create one in user code.
 _bdd_dict = make_bdd_dict()
 
-def _ostream_to_svg(ostr):
+# Add a small LRU cache so that when we display automata into a
+# interactive widget, we avoid some repeated calls to dot for
+# identical inputs.
+@lru_cache(maxsize=64)
+def _str_to_svg(str):
     dotty = subprocess.Popen(['dot', '-Tsvg'],
                              stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE)
-    dotty.stdin.write(ostr.str().encode('utf-8'))
+    dotty.stdin.write(str)
     res = dotty.communicate()
     return res[0].decode('utf-8')
+
+def _ostream_to_svg(ostr):
+    return _str_to_svg(ostr.str().encode('utf-8'))
 
 def _render_automaton_as_svg(a, opt=None):
     ostr = ostringstream()
