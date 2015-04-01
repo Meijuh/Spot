@@ -222,3 +222,35 @@ EOF
 
 run 0 ../../bin/dstar2tgba in.dra -BD --stats=%s > out.stat
 test 6 = "`cat out.stat`"
+
+# Only one state should be accepting.  In spot 1.2.x an initial state
+# in a trivial SCC was marked as accepting: this is superfluous.
+../../bin/ltl2tgba -BH 'a & GFb & GFc' > out
+cat out
+cat >expected<<EOF
+HOA: v1
+name: "a & G(Fb & Fc)"
+States: 4
+Start: 0
+AP: 3 "a" "b" "c"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc deterministic
+properties: stutter-invariant
+--BODY--
+State: 0
+[0] 1
+State: 1 {0}
+[1&2] 1
+[!1&2] 2
+[!2] 3
+State: 2
+[1] 1
+[!1] 2
+State: 3
+[1&2] 1
+[!1&2] 2
+[!2] 3
+--END--
+EOF
+diff out expected

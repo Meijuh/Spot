@@ -72,6 +72,7 @@ namespace spot
 	acc_cond::mark_t common = a_->acc().all_sets();
         acc_cond::mark_t union_ = 0U;
 	bool has_acc_self_loop = false;
+	bool seen = false;
 	for (auto& t: a_->out(s))
           {
 	    // Ignore transitions that leave the SCC of s.
@@ -85,7 +86,10 @@ namespace spot
 
 	    // an accepting self-loop?
 	    has_acc_self_loop |= (t.dst == s) && a_->acc().accepting(t.acc);
+	    seen = true;
           }
+	if (!seen)
+	  common = 0U;
         cache_[s] = std::make_tuple(common, union_, has_acc_self_loop);
       }
 
