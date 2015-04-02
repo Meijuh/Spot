@@ -78,6 +78,7 @@ tgbaalgos_HEADERS = \
   stutter.hh \
   tau03.hh \
   tau03opt.hh \
+  totgba.hh \
   translate.hh \
   word.hh
 
@@ -133,6 +134,7 @@ libtgbaalgos_la_SOURCES = \
   stutter.cc \
   tau03.cc \
   tau03opt.cc \
+  totgba.cc \
   translate.cc \
   weight.cc \
   weight.hh \

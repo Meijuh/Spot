@@ -308,6 +308,161 @@ State: 9 {1}
 --END--
 EOF
 
+cat >expected-tgba <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[0&1] 0
+[!0&!1] 0
+[!0&1] 0
+[0&!1] 0
+[!0&!1] 1
+[!0&1] 1
+[!0&!1] 2
+[0&!1] 2
+State: 1 {0}
+[!0&!1] 1
+[!0&1] 1
+State: 2 {0}
+[!0&!1] 2
+[0&!1] 2
+--END--
+HOA: v1
+States: 4
+Start: 0
+AP: 2 "a" "b"
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[t] 0 {0 1}
+[0] 1 {0 1}
+[!0] 2 {0 1}
+State: 1
+[1] 0 {1}
+[0&1] 1 {1}
+[!0&1] 2 {0 1}
+State: 2
+[!1] 0
+[0&!1] 1
+[!0&!1] 2
+[!0&!1] 3
+State: 3
+[!0&!1] 3 {0 1}
+--END--
+HOA: v1
+States: 4
+Start: 0
+AP: 2 "a" "b"
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels trans-acc
+--BODY--
+State: 0
+[t] 0 {1}
+[0] 1 {1}
+[!0] 2 {0 1}
+State: 1
+[1] 0 {1}
+[0&1] 1 {0 1}
+[!0&1] 2 {0 1}
+State: 2
+[!1] 0
+[0&!1] 1 {0 1}
+[!0&!1] 2 {0 1}
+[!0&!1] 3 {0 1}
+State: 3
+[!0&!1] 3 {0 1}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 0
+Acceptance: 0 f
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 0
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[t] 0
+--END--
+HOA: v1
+States: 2
+Start: 0
+AP: 1 "p0"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0] 0
+[0] 1
+State: 1 {0}
+[!0] 1
+[0] 1
+--END--
+HOA: v1
+States: 10
+Start: 2
+AP: 1 "p1"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[!0] 6
+[0] 0
+[0] 8
+[0] 9
+State: 1 {0}
+[!0] 3
+[0] 3
+State: 2 {0}
+[!0] 5
+[0] 1
+State: 3 {0}
+[!0] 6
+[0] 0
+State: 4 {0}
+[!0] 6
+[0] 4
+State: 5 {0}
+[!0] 7
+[0] 3
+State: 6
+[!0] 6
+[0] 0
+State: 7 {0}
+[!0] 6
+[0] 4
+State: 8
+[0] 8
+State: 9 {0}
+[0] 9
+--END--
+EOF
+
 run 0 $autfilt -H --remove-fin test1 > output
 cat output
 diff -u output expected
+
+run 0 $autfilt -H --tgba test1 > output
+cat output
+diff -u output expected-tgba

@@ -64,7 +64,7 @@ namespace spot
     /// options used for debugging or benchmarking.
     postprocessor(const option_map* opt = 0);
 
-    enum output_type { TGBA, BA, Monitor };
+    enum output_type { TGBA, BA, Monitor, Generic };
     void
     set_type(output_type type)
     {

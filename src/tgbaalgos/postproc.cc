@@ -30,6 +30,7 @@
 #include "dtbasat.hh"
 #include "dtgbasat.hh"
 #include "complete.hh"
+#include "totgba.hh"
 
 namespace spot
 {
@@ -140,8 +141,12 @@ namespace spot
   tgba_digraph_ptr
   postprocessor::run(tgba_digraph_ptr a, const ltl::formula* f)
   {
+    if (type_ != Generic && !a->acc().is_generalized_buchi())
+      a = to_generalized_buchi(a);
+
     if (PREF_ == Any && level_ == Low)
-      if (type_ == TGBA
+      if (type_ == Generic
+	  || type_ == TGBA
 	  || (type_ == BA && a->is_sba())
 	  || (type_ == Monitor && a->acc().num_sets() == 0))
 	{

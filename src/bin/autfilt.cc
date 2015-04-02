@@ -74,6 +74,7 @@ enum {
   OPT_DNF_ACC,
   OPT_EDGES,
   OPT_EXCLUSIVE_AP,
+  OPT_GENERIC,
   OPT_INSTUT,
   OPT_INTERSECT,
   OPT_IS_COMPLETE,
@@ -102,8 +103,10 @@ static const argp_option options[] =
       "process the automaton in FILENAME", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Output automaton type:", 2 },
+    { "generic", OPT_GENERIC, 0, 0,
+      "Any acceptance is allowed (default)", 0 },
     { "tgba", OPT_TGBA, 0, 0,
-      "Transition-based Generalized Büchi Automaton (default)", 0 },
+      "Transition-based Generalized Büchi Automaton", 0 },
     { "ba", 'B', 0, 0, "Büchi Automaton", 0 },
     { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
       "of the given property)", 0 },
@@ -310,6 +313,8 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_EXCLUSIVE_AP:
       excl_ap.add_group(arg);
       break;
+    case OPT_GENERIC:
+      type = spot::postprocessor::Generic;
     case OPT_INSTUT:
       if (!arg || (arg[0] == '1' && arg[1] == 0))
 	opt_instut = 1;
@@ -423,6 +428,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (automaton_format == Spin)
 	error(2, 0, "--spin and --tgba are incompatible");
       type = spot::postprocessor::TGBA;
+      opt_rem_fin = true;
       break;
     case ARGP_KEY_ARG:
       jobs.emplace_back(arg, true);
@@ -621,6 +627,7 @@ main(int argc, char** argv)
       // Disable post-processing as much as possible by default.
       level = spot::postprocessor::Low;
       pref = spot::postprocessor::Any;
+      type = spot::postprocessor::Generic;
       if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
 	exit(err);
 
