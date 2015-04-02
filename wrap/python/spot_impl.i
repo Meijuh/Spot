@@ -135,6 +135,7 @@ namespace std {
 #include "tgbaalgos/isdet.hh"
 #include "tgbaalgos/simulation.hh"
 #include "tgbaalgos/postproc.hh"
+#include "tgbaalgos/product.hh"
 #include "tgbaalgos/stutter.hh"
 #include "tgbaalgos/translate.hh"
 #include "tgbaalgos/hoa.hh"
@@ -225,7 +226,14 @@ using namespace spot;
 
 %include "ltlparse/public.hh"
 
+ /* these must come before apcollect.hh */
 %include "tgba/bdddict.hh"
+%include "tgba/bddprint.hh"
+%include "tgba/fwd.hh"
+%feature("flatnested") spot::acc_cond::mark_t;
+%feature("flatnested") spot::acc_cond::acc_code;
+%include "tgba/acc.hh"
+%include "tgba/tgba.hh"
 
 %include "ltlvisit/apcollect.hh"
 %include "ltlvisit/dotty.hh"
@@ -243,21 +251,9 @@ using namespace spot;
 
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
-%include "tgba/bddprint.hh"
-%include "tgba/fwd.hh"
-%feature("flatnested") spot::acc_cond::mark_t;
-%include "tgba/acc.hh"
-%include "tgba/tgba.hh"
 %include "tgba/taatgba.hh"
 %include "tgba/tgbaproduct.hh"
-
-// We won't parse tgba_digraph, so just pretend it is a subclass of tgba.
-%nodefaultctor spot::tgba_digraph;
-namespace spot {
-  class tgba_digraph: public tgba
-  {
-  };
-}
+%include "tgba/tgbagraph.hh"
 
 // Should come after the definition of tgba_digraph
 
@@ -280,6 +276,7 @@ namespace spot {
 %include "tgbaalgos/isdet.hh"
 %include "tgbaalgos/simulation.hh"
 %include "tgbaalgos/postproc.hh"
+%include "tgbaalgos/product.hh"
 %include "tgbaalgos/stutter.hh"
 %include "tgbaalgos/translate.hh"
 %include "tgbaalgos/hoa.hh"

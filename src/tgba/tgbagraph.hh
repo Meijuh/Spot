@@ -381,6 +381,7 @@ namespace spot
 	return g_.new_transition(src, dst, cond);
     }
 
+#ifndef SWIG
     auto out(unsigned src) const
       SPOT_RETURN(g_.out(src));
     auto out(unsigned src)
@@ -403,6 +404,7 @@ namespace spot
 
     auto is_dead_transition(const graph_t::trans_storage_t& t) const
       SPOT_RETURN(g_.is_dead_transition(t));
+#endif
 
     virtual bdd compute_support_conditions(const state* s) const
     {

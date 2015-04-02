@@ -47,4 +47,5 @@ TESTS = \
   piperead.ipynb \
   randaut.ipynb \
   randltl.ipynb \
-  setxor.py
+  setxor.py \
+  testingaut.ipynb

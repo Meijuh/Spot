@@ -23,6 +23,8 @@
 #include "reachiter.hh"
 #include "misc/escape.hh"
 #include "misc/bareword.hh"
+#include <cstdlib>
+#include <cstring>
 
 namespace spot
 {
@@ -30,16 +32,99 @@ namespace spot
   {
     class dotty_bfs : public ta_reachable_iterator_breadth_first
     {
+      void
+      parse_opts(const char* options)
+      {
+	const char* orig = options;
+	while (char c = *options++)
+	  switch (c)
+	    {
+	    case '.':
+	      {
+	        // Copy the value in a string, so future calls to
+		// parse_opts do not fail if the environment has
+		// changed.  (This matters particularly in an ipython
+		// notebook, where it is tempting to redefine
+		// SPOT_DOTDEFAULT.)
+		static std::string def = []()
+		  {
+		    auto s = getenv("SPOT_DOTDEFAULT");
+		    return s ? s : "";
+		  }();
+		// Prevent infinite recursions...
+		if (orig == def.c_str())
+		  throw std::runtime_error
+		    (std::string("SPOT_DOTDEFAULT should not contain '.'"));
+		if (!def.empty())
+		  parse_opts(def.c_str());
+		break;
+	      }
+	    case 'A':
+	      opt_hide_sets_ = true;
+	      break;
+	    case 'c':
+	      opt_circles_ = true;
+	      break;
+	    case 'h':
+	      opt_horizontal_ = true;
+	      break;
+	    case 'f':
+	      if (*options != '(')
+		throw std::runtime_error
+		  (std::string("invalid font specification for dotty()"));
+	      {
+		auto* end = strchr(++options, ')');
+		if (!end)
+		  throw std::runtime_error
+		    (std::string("invalid font specification for dotty()"));
+		opt_font_ = std::string(options, end - options);
+		options = end + 1;
+	      }
+	      break;
+	    case 'v':
+	      opt_horizontal_ = false;
+	      break;
+	    case 'a':
+	    case 'b':
+	    case 'n':
+	    case 'N':
+	    case 'r':
+	    case 'R':
+	    case 's':
+	    case 't':
+	      // All these options are implemented by dotty() on TGBA,
+	      // but are not implemented here.  We simply ignore them,
+	      // because raising an exception if they are in
+	      // SPOT_DEFAULT would be annoying.
+	      break;
+	    default:
+	      throw std::runtime_error
+		(std::string("unknown option for dotty(): ") + c);
+	    }
+      }
+
     public:
-      dotty_bfs(std::ostream& os, const const_ta_ptr& a) :
+      dotty_bfs(std::ostream& os, const const_ta_ptr& a,
+		const char* opt) :
         ta_reachable_iterator_breadth_first(a), os_(os)
       {
+	parse_opts(opt ? opt : ".");
       }
 
       void
       start()
       {
         os_ << "digraph G {\n";
+
+	if (opt_horizontal_)
+	  os_ << "  rankdir=LR\n";
+	if (opt_circles_)
+	  os_ << "  node [shape=\"circle\"]\n";
+	if (!opt_font_.empty())
+	  os_ << "  fontname=\"" << opt_font_
+	      << "\"\n  node [fontname=\"" << opt_font_
+	      << "\"]\n  edge [fontname=\"" << opt_font_
+	      << "\"]\n";
 
 	// Always copy the environment variable into a static string,
 	// so that we (1) look it up once, but (2) won't crash if the
@@ -120,8 +205,12 @@ namespace spot
 	if (label.empty())
 	  label = "{}";
 
-	label += "\n";
-	label += t_automata_->acc().format(si->current_acceptance_conditions());
+	if (!opt_hide_sets_)
+	  {
+	    label += "\n";
+	    label += t_automata_->acc().
+	      format(si->current_acceptance_conditions());
+	  }
 
         os_ << "  " << in << " -> " << out << " [label=\"";
 	escape_str(os_, label);
@@ -131,14 +220,19 @@ namespace spot
     private:
       std::ostream& os_;
       spot::state* artificial_initial_state_;
+
+      bool opt_horizontal_ = true;
+      bool opt_circles_ = false;
+      bool opt_hide_sets_ = false;
+      std::string opt_font_;
     };
 
   }
 
   std::ostream&
-  dotty_reachable(std::ostream& os, const const_ta_ptr& a)
+  dotty_reachable(std::ostream& os, const const_ta_ptr& a, const char* opt)
   {
-    dotty_bfs d(os, a);
+    dotty_bfs d(os, a, opt);
     d.run();
     return os;
   }

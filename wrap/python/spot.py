@@ -46,6 +46,7 @@ def _render_automaton_as_svg(a, opt=None):
     return _ostream_to_svg(ostr)
 
 tgba._repr_svg_ = _render_automaton_as_svg
+ta._repr_svg_ = _render_automaton_as_svg
 
 def _render_formula_as_svg(a):
     # Load the SVG function only if we need it. This way the bindings
@@ -56,13 +57,14 @@ def _render_formula_as_svg(a):
     dotty(ostr, a)
     return SVG(_ostream_to_svg(ostr))
 
-def _render_tgba_as_svg(a, opt=None):
+def _return_automaton_as_svg(a, opt=None):
     # Load the SVG function only if we need it. This way the bindings
     # can still be used outside of IPython if IPython is not
     # installed.
     from IPython.display import SVG
     return SVG(_render_automaton_as_svg(a, opt))
-tgba.show = _render_tgba_as_svg
+tgba.show = _return_automaton_as_svg
+ta.show = _return_automaton_as_svg
 
 def _formula_str_ctor(self, str):
     self.this = parse_formula(str)

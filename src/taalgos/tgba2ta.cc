@@ -410,7 +410,8 @@ namespace spot
     build_ta(const ta_explicit_ptr& ta, bdd atomic_propositions_set_,
 	     bool degeneralized,
 	     bool single_pass_emptiness_check,
-	     bool artificial_livelock_state_mode)
+	     bool artificial_livelock_state_mode,
+	     bool no_livelock)
     {
 
       std::stack<state_ta_explicit*> todo;
@@ -517,6 +518,9 @@ namespace spot
 	  delete tgba_succ_it;
 	}
 
+      if (no_livelock)
+	return ta;
+
       state_ta_explicit* artificial_livelock_acc_state = 0;
 
       trace << "*** build_ta: artificial_livelock_acc_state_mode = ***"
@@ -541,8 +545,10 @@ namespace spot
 
   ta_explicit_ptr
   tgba_to_ta(const const_tgba_ptr& tgba_, bdd atomic_propositions_set_,
-      bool degeneralized, bool artificial_initial_state_mode,
-      bool single_pass_emptiness_check, bool artificial_livelock_state_mode)
+	     bool degeneralized, bool artificial_initial_state_mode,
+	     bool single_pass_emptiness_check,
+	     bool artificial_livelock_state_mode,
+	     bool no_livelock)
   {
     ta_explicit_ptr ta;
 
@@ -563,7 +569,8 @@ namespace spot
 
     // build ta automaton
     build_ta(ta, atomic_propositions_set_, degeneralized,
-	     single_pass_emptiness_check, artificial_livelock_state_mode);
+	     single_pass_emptiness_check, artificial_livelock_state_mode,
+	     no_livelock);
 
     // (degeneralized=true) => TA
     if (degeneralized)
@@ -607,7 +614,7 @@ namespace spot
     // build a Generalized TA automaton involving a single_pass_emptiness_check
     // (without an artificial livelock state):
     auto ta = tgta->get_ta();
-    build_ta(ta, atomic_propositions_set_, false, true, false);
+    build_ta(ta, atomic_propositions_set_, false, true, false, false);
 
     trace << "***tgba_to_tgbta: POST build_ta***" << std::endl;
 
