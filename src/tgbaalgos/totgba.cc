@@ -68,10 +68,25 @@ namespace spot
     auto cnf = res->get_acceptance().to_cnf();
     // If we are very lucky, building a CNF actually gave us a GBA...
     if (cnf.empty() ||
-	(cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Fin))
+	(cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Inf))
       {
 	res->set_acceptance(res->acc().num_sets(), cnf);
 	cleanup_acceptance_here(res);
+	return res;
+      }
+
+    // Handle false specifically.  We want the output
+    // an automaton with Acceptance: t, that has a single
+    // state without successor.
+    if (cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Fin)
+      {
+	assert(cnf.front().mark == 0U);
+	res = make_tgba_digraph(aut->get_dict());
+	res->set_init_state(res->new_state());
+	res->prop_state_based_acc();
+	res->prop_inherently_weak();
+	res->prop_deterministic();
+	res->prop_stutter_invariant();
 	return res;
       }
 
