@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -33,7 +33,7 @@ namespace spot
 {
   /// \brief A self-loop Transition-based Alternating Automaton (TAA)
   /// which is seen as a TGBA (abstract class, see below).
-  class SPOT_API taa_tgba : public tgba
+  class SPOT_API taa_tgba: public tgba
   {
   public:
     taa_tgba(const bdd_dict_ptr& dict);
@@ -54,12 +54,13 @@ namespace spot
 
     /// TGBA interface.
     virtual ~taa_tgba();
-    virtual spot::state* get_init_state() const;
-    virtual tgba_succ_iterator* succ_iter(const spot::state* state) const;
+    virtual spot::state* get_init_state() const final;
+    virtual tgba_succ_iterator* succ_iter(const spot::state* state) const final;
     virtual std::string format_state(const spot::state* state) const = 0;
 
   protected:
-    virtual bdd compute_support_conditions(const spot::state* state) const;
+    virtual bdd compute_support_conditions(const spot::state* state)
+      const final;
 
     typedef std::vector<taa_tgba::state_set*> ss_vec;
 
@@ -76,7 +77,7 @@ namespace spot
   };
 
   /// Set of states deriving from spot::state.
-  class SPOT_API set_state : public spot::state
+  class SPOT_API set_state final: public spot::state
   {
   public:
     set_state(const taa_tgba::state_set* s, bool delete_me = false)
@@ -100,7 +101,7 @@ namespace spot
     bool delete_me_;
   };
 
-  class SPOT_API taa_succ_iterator : public tgba_succ_iterator
+  class SPOT_API taa_succ_iterator final: public tgba_succ_iterator
   {
   public:
     taa_succ_iterator(const taa_tgba::state_set* s, const acc_cond& acc);
@@ -145,7 +146,7 @@ namespace spot
   /// A taa_tgba instance with states labeled by a given type.
   /// Still an abstract class, see below.
   template<typename label>
-  class SPOT_API taa_tgba_labelled : public taa_tgba
+  class SPOT_API taa_tgba_labelled: public taa_tgba
   {
   public:
     taa_tgba_labelled(const bdd_dict_ptr& dict) : taa_tgba(dict) {};
@@ -305,7 +306,7 @@ namespace spot
     }
   };
 
-  class SPOT_API taa_tgba_string :
+  class SPOT_API taa_tgba_string final:
 #ifndef SWIG
     public taa_tgba_labelled<std::string>
 #else
@@ -329,7 +330,7 @@ namespace spot
     return std::make_shared<taa_tgba_string>(dict);
   }
 
-  class SPOT_API taa_tgba_formula :
+  class SPOT_API taa_tgba_formula final:
 #ifndef SWIG
     public taa_tgba_labelled<const ltl::formula*>
 #else

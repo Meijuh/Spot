@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et DÃ©veloppement
+// Copyright (C) 2013, 2015 Laboratoire de Recherche et DÃ©veloppement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -52,7 +52,7 @@ namespace spot
     typedef std::list<temporary_file*>::iterator cleanpos_t;
 
     SPOT_LOCAL temporary_file(char* name, cleanpos_t cp);
-    ~temporary_file();
+    virtual ~temporary_file() override;
 
     const char* name() const
     {
@@ -66,7 +66,7 @@ namespace spot
     }
 
     virtual void
-    print(std::ostream& os, const char*) const
+    print(std::ostream& os, const char*) const final override
     {
       os << this;
     }
@@ -83,11 +83,11 @@ namespace spot
   ///
   /// Use the open_temporary_file::close() method if you want to close
   /// that descriptor; do no call the POSIX close() function directly.
-  class SPOT_API open_temporary_file: public temporary_file
+  class SPOT_API open_temporary_file final: public temporary_file
   {
   public:
     SPOT_LOCAL open_temporary_file(char* name, cleanpos_t cp, int fd);
-    ~open_temporary_file();
+    virtual ~open_temporary_file() override;
 
     void close();
 

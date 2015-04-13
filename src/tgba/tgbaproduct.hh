@@ -33,7 +33,7 @@ namespace spot
   ///
   /// This state is in fact a pair of state: the state from the left
   /// automaton and that of the right.
-  class SPOT_API state_product : public state
+  class SPOT_API state_product final: public state
   {
   public:
     /// \brief Constructor
@@ -119,7 +119,7 @@ namespace spot
   };
 
   /// \brief A lazy product with different initial states.
-  class SPOT_API tgba_product_init: public tgba_product
+  class SPOT_API tgba_product_init final: public tgba_product
   {
   public:
     tgba_product_init(const const_tgba_ptr& left, const const_tgba_ptr& right,

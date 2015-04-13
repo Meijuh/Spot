@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2008, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -184,7 +184,7 @@ namespace spot
   /// known states first.
   ///
   /// See the documentation for spot::couvreur99.
-  class SPOT_API couvreur99_check_shy : public couvreur99_check
+  class SPOT_API couvreur99_check_shy final: public couvreur99_check
   {
   public:
     couvreur99_check_shy(const const_tgba_ptr& a, option_map o = option_map());

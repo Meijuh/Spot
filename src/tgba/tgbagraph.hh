@@ -105,7 +105,8 @@ namespace spot
 
 
   template<class Graph>
-  class SPOT_API tgba_digraph_succ_iterator: public tgba_succ_iterator
+  class SPOT_API tgba_digraph_succ_iterator final:
+    public tgba_succ_iterator
   {
   private:
     typedef typename Graph::transition transition;
@@ -168,7 +169,7 @@ namespace spot
 
   };
 
-  class SPOT_API tgba_digraph: public tgba
+  class SPOT_API tgba_digraph final: public tgba
   {
   public:
     typedef digraph<tgba_graph_state, tgba_graph_trans_data> graph_t;

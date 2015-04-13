@@ -145,7 +145,7 @@ namespace spot
     // one without.
 
     template <typename Transition, typename State_Data>
-    struct SPOT_API distate_storage: public State_Data
+    struct SPOT_API distate_storage final: public State_Data
     {
       Transition succ = 0; // First outgoing transition (used when iterating)
       Transition succ_tail = 0;	// Last outgoing transition (used for
@@ -168,7 +168,7 @@ namespace spot
 
     template <typename StateIn,
 	      typename StateOut, typename Transition, typename Trans_Data>
-    struct SPOT_API trans_storage: public Trans_Data
+    struct SPOT_API trans_storage final: public Trans_Data
     {
       typedef Transition transition;
 
