@@ -41,13 +41,15 @@ test -z "$1" &&
 case $1 in
   *.ipynb)
     PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath \
-    exec @PYTHON@ @srcdir@/ipnbdoctest.py "$@";;
+    exec $PREFIXCMD @PYTHON@ @srcdir@/ipnbdoctest.py "$@";;
   *.py)
-    PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec @PYTHON@ "$@";;
+    PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath \
+    exec $PREFIXCMD @PYTHON@ "$@";;
   *.test)
     exec sh -x "$@";;
   *python*)
-    PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath exec "$@";;
+    PYTHONPATH=$pypath DYLD_LIBRARY_PATH=$modpath \
+    exec $PREFIXCMD "$@";;
   *)
     echo "Unknown extension" >&2
     exit 2;;

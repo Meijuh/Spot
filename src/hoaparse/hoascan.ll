@@ -362,8 +362,6 @@ namespace spot
     // yy_flex_debug = 1;
     if (name == "-")
       {
-        yyin = stdin;
-
         // If the input is a pipe, make the scanner
         // interactive so that it does not wait for the input
         // buffer to be full to process automata.
@@ -372,6 +370,10 @@ namespace spot
            throw std::runtime_error("fstat failed");
 	if (S_ISFIFO(s.st_mode))
 	  want_interactive = true;
+
+	// Only set yyin once we know we will use
+	// it, so that we do not close it otherwise.
+        yyin = stdin;
       }
     else
       {
@@ -395,6 +397,9 @@ namespace spot
 
     yyin = fdopen(fd, "r");
 
+    if (!yyin)
+      throw std::runtime_error("fdopen failed");
+
     // If the input is a pipe, make the scanner
     // interactive so that it does not wait for the input
     // buffer to be full to process automata.
@@ -416,6 +421,10 @@ namespace spot
   void
   hoayyclose()
   {
-    fclose(yyin);
+    if (yyin)
+      {
+	fclose(yyin);
+	yyin = NULL;
+      }
   }
 }

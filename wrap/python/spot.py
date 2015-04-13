@@ -137,6 +137,7 @@ def automata(*filenames):
 
     for filename in filenames:
         try:
+            p = None
             if filename[-1] != '|':
                 proc = None
                 p = hoa_stream_parser(filename, True)
