@@ -147,16 +147,25 @@ def automata(*filenames):
                 p = hoa_stream_parser(proc.stdout.fileno(), filename, True)
             a = True
             while a:
+                # This returns None when we reach the end of the file.
                 a = p.parse_strict(_bdd_dict)
                 if a:
                     yield a
         finally:
-            # Make sure we destroy the parser and the subprocess in
-            # the correct order...
+            # Make sure we destroy the parser (p) and the subprocess
+            # (prop) in the correct order...
             del p
             if proc != None:
-                proc.poll()
-                ret = proc.returncode
+                if not a:
+                    # We reached the end of the stream.  Wait for the
+                    # process to finish, so that we can its exit code.
+                    ret = proc.wait()
+                else:
+                    # if a != None, we probably got there through an
+                    # exception, and the subprocess my still be
+                    # running.  Check if an exit status is available
+                    # just in case.
+                    ret = proc.poll()
                 del proc
                 if ret:
                     raise RuntimeError("Command {} exited with exit status {}"
@@ -166,7 +175,7 @@ def automata(*filenames):
 def automaton(filename):
     """Read a single automaton from a file.
 
-    See `spot.automata()` for a list of supported format."""
+    See `spot.automata()` for a list of supported formats."""
     try:
         return next(automata(filename))
     except StopIteration:
