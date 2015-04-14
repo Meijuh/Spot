@@ -43,6 +43,19 @@ namespace spot
       {
       }
 
+      template<class iterator>
+      mark_t(const iterator& begin, const iterator& end)
+      {
+	id = 0U;
+	for (iterator i = begin; i != end; ++i)
+	  set(*i);
+      }
+
+      mark_t(std::initializer_list<unsigned> vals)
+	: mark_t(vals.begin(), vals.end())
+      {
+      }
+
       bool operator==(unsigned o) const
       {
 	assert(o == 0U);
@@ -368,6 +381,11 @@ namespace spot
 	return res;
       }
 
+      static acc_code fin(std::initializer_list<unsigned> vals)
+      {
+	return fin(mark_t(vals));
+      }
+
       static acc_code fin_neg(mark_t m)
       {
 	acc_code res;
@@ -376,6 +394,11 @@ namespace spot
 	res[1].op = acc_op::FinNeg;
 	res[1].size = 1;
 	return res;
+      }
+
+      static acc_code fin_neg(std::initializer_list<unsigned> vals)
+      {
+	return fin_neg(mark_t(vals));
       }
 
       static acc_code inf(mark_t m)
@@ -388,6 +411,11 @@ namespace spot
 	return res;
       }
 
+      static acc_code inf(std::initializer_list<unsigned> vals)
+      {
+	return inf(mark_t(vals));
+      }
+
       static acc_code inf_neg(mark_t m)
       {
 	acc_code res;
@@ -396,6 +424,11 @@ namespace spot
 	res[1].op = acc_op::InfNeg;
 	res[1].size = 1;
 	return res;
+      }
+
+      static acc_code inf_neg(std::initializer_list<unsigned> vals)
+      {
+	return inf_neg(mark_t(vals));
       }
 
       void append_and(acc_code&& r)
@@ -809,10 +842,7 @@ namespace spot
     template<class iterator>
     mark_t marks(const iterator& begin, const iterator& end) const
     {
-      mark_t::value_t res = 0U;
-      for (iterator i = begin; i != end; ++i)
-	res |= mark_(*i);
-      return res;
+      return mark_t(begin, end);
     }
 
     mark_t marks(std::initializer_list<unsigned> vals) const
