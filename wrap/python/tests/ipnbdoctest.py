@@ -189,10 +189,10 @@ def run_cell(kc, cell):
 
 
 def test_notebook(nb):
-    # run %pylab inline, because some notebooks assume this
-    # even though they shouldn't
     km = KernelManager()
-    km.start_kernel(extra_arguments=['--pylab=inline'],
+    # Do not save the history to disk, as it can yield spurious lock errors.
+    # See https://github.com/ipython/ipython/issues/2845
+    km.start_kernel(extra_arguments=['--HistoryManager.hist_file=:memory:'],
                     stderr=open(os.devnull, 'w'))
 
     kc = km.client()
