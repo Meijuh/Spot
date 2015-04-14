@@ -127,4 +127,18 @@ int main()
   auto code3 = ac.inf({0, 1});
   code3.append_and(ac.fin({2, 3}));
   std::cout << code3.size() << ' ' << code3 << ' ' << code3.is_dnf() << '\n';
+
+
+  std::cout << spot::parse_acc_code("t") << '\n';
+  std::cout << spot::parse_acc_code("f") << '\n';
+  std::cout << spot::parse_acc_code("Fin(2)") << '\n';
+  std::cout << spot::parse_acc_code("Inf(2)") << '\n';
+  std::cout << spot::parse_acc_code("Fin(2) | Inf(2)") << '\n';
+  std::cout << spot::parse_acc_code("Inf(2) & Fin(2)") << '\n';
+  auto c1 = spot::parse_acc_code("Fin(0)|Inf(1)&Fin(2)|Fin(3)");
+  auto c2 = spot::parse_acc_code
+    ("(  Fin  (  0 ))  | (Inf   (   1) &  Fin(2 ))| Fin (3)   ");
+  std::cout << c1 << '\n';
+  std::cout << c2 << '\n';
+  assert(c1 == c2);
 }

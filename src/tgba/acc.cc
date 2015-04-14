@@ -19,7 +19,10 @@
 
 
 #include <iostream>
+#include <sstream>
 #include <set>
+#include <cctype>
+#include <cstring>
 #include "acc.hh"
 #include "priv/bddalloc.hh"
 #include "misc/minato.hh"
@@ -878,5 +881,135 @@ namespace spot
 			   const spot::acc_cond::acc_code& code)
   {
     return code.to_text(os);
+  }
+
+
+
+  namespace
+  {
+
+    /// acc ::= term | term "|" acc
+    /// term := "t" | "f" | "Inf" "(" num ")"
+    ///       | "Fin" "(" num ") " | "(" acc ")
+    ///       | term "&" term
+
+    static void skip_space(const char*& input)
+    {
+      while (std::isspace(*input))
+	++input;
+    }
+
+    // Eat c and remove the following spaces.
+    // Complain if there is no c.
+    void expect(const char*& input, char c)
+    {
+      if (*input != c)
+	{
+	  std::ostringstream s;
+	  s << "syntax error at '" << input << "', was expecting " << c << '.';
+	  throw parse_error(s.str());
+	}
+      ++input;
+      skip_space(input);
+    }
+
+    static acc_cond::acc_code parse_term(const char*& input);
+
+    static acc_cond::acc_code parse_acc(const char*& input)
+    {
+      auto t = parse_term(input);
+      skip_space(input);
+      while (*input == '|')
+	{
+	  ++input;
+	  skip_space(input);
+	  t.append_or(parse_term(input));
+	}
+      return t;
+    }
+
+    static unsigned parse_num(const char*& input)
+    {
+      skip_space(input);
+      expect(input, '(');
+
+      errno = 0;
+      char* end;
+      unsigned long n = strtoul(input, &end, 10);
+      unsigned num = n;
+      if (errno || num != n)
+	{
+	  std::ostringstream s;
+	  s << "syntax error at '" << input << "': value too large.";
+	  throw parse_error(s.str());
+	}
+      input = end;
+
+      skip_space(input);
+      expect(input, ')');
+      return num;
+    }
+
+    static acc_cond::acc_code parse_term(const char*& input)
+    {
+      acc_cond::acc_code res;
+      if (*input == 't')
+	{
+	  ++input;
+	  res = acc_cond::acc_code::t();
+	}
+      else if (*input == 'f')
+	{
+	  ++input;
+	  res = acc_cond::acc_code::f();
+	}
+      else if (*input == '(')
+	{
+	  ++input;
+	  skip_space(input);
+	  res = parse_acc(input);
+	  skip_space(input);
+	  expect(input, ')');
+	}
+      else if (!strncmp(input, "Inf", 3))
+	{
+	  input += 3;
+	  res = acc_cond::acc_code::inf({parse_num(input)});
+	}
+      else if (!strncmp(input, "Fin", 3))
+	{
+	  input += 3;
+	  res = acc_cond::acc_code::fin({parse_num(input)});
+	}
+      else
+	{
+	  std::ostringstream s;
+	  s << "syntax error at '" << input << "', unexpected character.";
+	  throw parse_error(s.str());
+	}
+
+      skip_space(input);
+      while (*input == '&')
+	{
+	  ++input;
+	  skip_space(input);
+	  res.append_and(parse_term(input));
+	}
+      return res;
+    }
+
+  }
+
+  acc_cond::acc_code parse_acc_code(const char* input)
+  {
+    skip_space(input);
+    acc_cond::acc_code c = parse_acc(input);
+    if (*input)
+      {
+	std::ostringstream s;
+	s << "syntax error at '" << input << "', unexpected character.";
+	throw parse_error(s.str());
+      }
+    return c;
   }
 }
