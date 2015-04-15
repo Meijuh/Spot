@@ -1033,12 +1033,34 @@ namespace spot
     bool dicho = om.get("dichotomy", 0);
     int states = om.get("states", -1);
     int nacc = om.get("gba", -1);
+    auto accstr = om.get_str("acc");
+
+    if (nacc != -1 && !accstr.empty())
+      throw std::runtime_error("options 'gba' and 'acc' cannot "
+			       "be both passed to sat_minimize()");
 
     acc_cond::acc_code target_acc = a->get_acceptance();
-    if (nacc != -1)
-      target_acc = acc_cond::generalized_buchi(nacc);
+    if (!accstr.empty())
+      {
+	target_acc = parse_acc_code(accstr.c_str());
+	// Just in case we were given something like
+	//  Fin(1) | Inf(3)
+	// Rewrite it as
+	//  Fin(0) | Inf(1)
+	// without holes in the set numbers
+	acc_cond::mark_t used = target_acc.used_sets();
+	acc_cond a(used.max_set());
+	target_acc = target_acc.strip(a.comp(used), true);
+	nacc = used.count();
+      }
+    else if (nacc != -1)
+      {
+	target_acc = acc_cond::generalized_buchi(nacc);
+      }
     else
-      nacc = a->acc().num_sets();
+      {
+	nacc = a->acc().num_sets();
+      }
 
     bool target_is_buchi =
       (nacc == 1 && target_acc.size() == 2 &&

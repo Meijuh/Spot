@@ -197,6 +197,21 @@ namespace spot
 #endif
       }
 
+      // Return the number of the highest set used plus one.
+      // So if no set is used, this returns 0,
+      // but if the sets {1,3,8} are used, this returns 9.
+      unsigned max_set() const
+      {
+	auto i = id;
+	int res = 0;
+	while (i)
+	  {
+	    ++res;
+	    i >>= 1;
+	  }
+	return res;
+      }
+
       // Remove n bits that where set
       mark_t& remove_some(unsigned n)
       {
