@@ -78,10 +78,10 @@ t
 f
 Fin(2)
 Inf(2)
-Inf(2) | Fin(2)
+Fin(2) | Inf(2)
 Fin(2) & Inf(2)
-Fin(3) | (Fin(2) & Inf(1)) | Fin(0)
-Fin(3) | (Fin(2) & Inf(1)) | Fin(0)
+Fin(0) | (Fin(2) & Inf(1)) | Fin(3)
+Fin(0) | (Fin(2) & Inf(1)) | Fin(3)
 EOF
 
 run 0 ../acc | tee stdout

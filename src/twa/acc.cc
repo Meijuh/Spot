@@ -991,15 +991,18 @@ namespace spot
 
     static acc_cond::acc_code parse_acc(const char*& input)
     {
-      auto t = parse_term(input);
+      auto res = parse_term(input);
       skip_space(input);
       while (*input == '|')
 	{
 	  ++input;
 	  skip_space(input);
-	  t.append_or(parse_term(input));
+	  // Prepend instead of append, to preserve the input order.
+	  auto tmp = parse_term(input);
+	  std::swap(tmp, res);
+	  res.append_or(std::move(tmp));
 	}
-      return t;
+      return res;
     }
 
     static unsigned parse_num(const char*& input)
@@ -1067,7 +1070,10 @@ namespace spot
 	{
 	  ++input;
 	  skip_space(input);
-	  res.append_and(parse_term(input));
+	  // Prepend instead of append, to preserve the input order.
+	  auto tmp = parse_term(input);
+	  std::swap(tmp, res);
+	  res.append_and(std::move(tmp));
 	}
       return res;
     }
