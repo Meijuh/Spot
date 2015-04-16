@@ -56,8 +56,9 @@ static const argp_option options[] =
       "(a) acceptance display, (b) acceptance sets as bullets,"
       "(c) circular nodes, (f(FONT)) use FONT, (h) horizontal layout, "
       "(v) vertical layout, (n) with name, (N) without name, "
-      "(r) rainbow colors for acceptance set, "
-      "(R) color acceptance set by Inf/Fin, (s) with SCCs, "
+      "(o) ordered transitions, "
+      "(r) rainbow colors for acceptance sets, "
+      "(R) color acceptance sets by Inf/Fin, (s) with SCCs, "
       "(t) force transition-based acceptance.", 0 },
     { "hoaf", 'H', "i|s|t|m|l", OPTION_ARG_OPTIONAL,
       "Output the automaton in HOA format.  Add letters to select "

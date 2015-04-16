@@ -60,6 +60,7 @@ namespace spot
       bool opt_rainbow = false;
       bool opt_bullet = false;
       bool opt_all_bullets = false;
+      bool opt_numbered_trans = false;
       std::string opt_font_;
 
       const char* const palette9[9] =
@@ -136,6 +137,9 @@ namespace spot
 	      break;
 	    case 'N':
 	      opt_name_ = false;
+	      break;
+	    case 'o':
+	      opt_numbered_trans = true;
 	      break;
 	    case 'r':
 	      opt_html_labels_ = true;
@@ -396,7 +400,7 @@ namespace spot
       }
 
       void
-      process_link(const tgba_digraph::trans_storage_t& t)
+      process_link(const tgba_digraph::trans_storage_t& t, int number)
       {
 	std::string label = bdd_format_formula(aut_->get_dict(), t.cond);
 	os_ << "  " << t.src << " -> " << t.dst;
@@ -410,7 +414,7 @@ namespace spot
 		  os_ << "\\n";
 		  output_set(a);
 		}
-	    os_ << "\"]\n";
+	    os_ << '"';
 	  }
 	else
 	  {
@@ -422,8 +426,11 @@ namespace spot
 		  os_ << "<br/>";
 		  output_html_set(a);
 		}
-	    os_ << ">]\n";
+	    os_ << '>';
 	  }
+	if (opt_numbered_trans)
+	  os_ << ",taillabel=\"" << number << '"';
+	os_ << "]\n";
       }
 
       void print(const const_tgba_digraph_ptr& aut)
@@ -471,8 +478,9 @@ namespace spot
 	  {
 	    if (!si || !si->reachable_state(n))
 	      process_state(n);
+	    int trans_num = 0;
 	    for (auto& t: aut_->out(n))
-	      process_link(t);
+	      process_link(t, trans_num++);
 	  }
 	end();
       }
