@@ -25,8 +25,10 @@
 #include "ltlvisit/apcollect.hh"
 #include "translate.hh"
 #include "ltlast/unop.hh"
+#include "ltlast/binop.hh"
 #include "ltlvisit/remove_x.hh"
 #include "tgbaalgos/product.hh"
+#include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgba/tgbaproduct.hh"
 #include "tgba/bddprint.hh"
 #include <deque>
@@ -542,7 +544,7 @@ namespace spot
       {
 	char* endptr;
 	long res = strtol(stutter_check, &endptr, 10);
-	if (*endptr || res < 0 || res > 8)
+	if (*endptr || res < 0 || res > 9)
 	  throw
 	    std::runtime_error("invalid value for SPOT_STUTTER_CHECK.");
 	return res;
@@ -561,16 +563,28 @@ namespace spot
 
     int algo = default_stutter_check_algorithm();
 
-    if (algo == 0) // Etessami's check via syntactic transformation.
+    if (algo == 0 || algo == 9)
+      // Etessami's check via syntactic transformation.
       {
 	if (!f->is_ltl_formula())
 	  throw std::runtime_error("Cannot use the syntactic "
 				   "stutter-invariance check "
 				   "for non-LTL formulas");
 	const ltl::formula* g = remove_x(f);
-	ltl::ltl_simplifier ls;
-	bool res = ls.are_equivalent(f, g);
-	g->destroy();
+	bool res;
+	if (algo == 0)		// Equivalence check
+	  {
+	    ltl::ltl_simplifier ls;
+	    res = ls.are_equivalent(f, g);
+	    g->destroy();
+	  }
+	else
+	  {
+	    const ltl::formula* h = ltl::binop::instance(ltl::binop::Xor,
+							 f->clone(), g);
+	    res = ltl_to_tgba_fm(h, make_bdd_dict())->is_empty();
+	    h->destroy();
+	  }
 	return res;
       }
 
