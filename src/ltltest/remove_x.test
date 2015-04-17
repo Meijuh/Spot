@@ -38,3 +38,11 @@ run 0 ../../bin/ltlfilt --remove-x -f 'F(!a & Xb)' > out
 grep -v X out
 # The output is stutter invariant, even if the input wasn't.
 run 0 ../../bin/ltlfilt -q --stutter-invariant -F 'out'
+
+# Ensure remove_x does not depend on clang or gcc recursive calls
+echo 'F(a & ((a & (a U (!a & b)) & ((!b U !a) | (b U !a))) |'\
+' (!a & (!a U (a & !a & b)) & ((!b U a) | (b U a))) | (b & (b U (!a & b & !b))'\
+' & ((!a U !b) | (a U !b))) | (!b & (!b U (!a & b)) & ((!a U b) | (a U b)))'\
+' | (!a & b & (G!a | Ga) & (G!b | Gb))))' > expected
+run 0 ../../bin/ltlfilt --remove-x -f 'F(a & X(!a & b))' >  'out'
+diff expected out

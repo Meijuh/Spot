@@ -75,8 +75,12 @@ namespace spot
 	      for (atomic_prop_set::const_iterator j = aps.begin();
 		   j != aps.end(); ++j)
 		if (*j != *i)
-		  va1->push_back(OR(U((*j)->clone(), npi->clone()),
-				    U(NOT((*j)->clone()), npi->clone())));
+		  {
+		    // make sure the arguments of OR are created in a
+		    // deterministic order
+		    auto tmp = U(NOT((*j)->clone()), npi->clone());
+		    va1->push_back(OR(U((*j)->clone(), npi->clone()), tmp));
+		  }
 	      vo->push_back(multop::instance(multop::And, va1));
 	      // Second line
 	      multop::vec* va2 = new multop::vec;
@@ -85,8 +89,12 @@ namespace spot
 	      for (atomic_prop_set::const_iterator j = aps.begin();
 		   j != aps.end(); ++j)
 		if (*j != *i)
-		  va2->push_back(OR(U((*j)->clone(), (*i)->clone()),
-				    U(NOT((*j)->clone()), (*i)->clone())));
+		  {
+		    // make sure the arguments of OR are created in a
+		    // deterministic order
+		    auto tmp = U(NOT((*j)->clone()), (*i)->clone());
+		    va2->push_back(OR(U((*j)->clone(), (*i)->clone()), tmp));
+		  }
 	      vo->push_back(multop::instance(multop::And, va2));
 	    }
 	  const formula* l12 = multop::instance(multop::Or, vo);
@@ -95,8 +103,10 @@ namespace spot
 	  for (atomic_prop_set::const_iterator i = aps.begin();
 	       i != aps.end(); ++i)
 	    {
-	      va3->push_back(OR(G((*i)->clone()),
-				G(NOT((*i)->clone()))));
+	      // make sure the arguments of OR are created in a
+	      // deterministic order
+	      auto tmp = G(NOT((*i)->clone()));
+	      va3->push_back(OR(G((*i)->clone()), tmp));
 	    }
 	  result_ = OR(l12, AND(multop::instance(multop::And, va3), c));
 	  return;
