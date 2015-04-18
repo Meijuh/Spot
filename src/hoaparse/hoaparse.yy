@@ -62,6 +62,12 @@
 
     struct result_
     {
+      struct state_info
+      {
+	bool declared;
+	bool used;
+	spot::location used_loc;
+      };
       spot::hoa_aut_ptr h;
       spot::ltl::environment* env;
       formula_cache fcache;
@@ -70,7 +76,7 @@
       std::vector<int> ap;
       std::vector<bdd> guards;
       std::vector<bdd>::const_iterator cur_guard;
-      std::vector<bool> declared_states; // States that have been declared.
+      std::vector<state_info> info_states; // States declared and used.
       std::vector<std::pair<spot::location, unsigned>> start; // Initial states;
       std::unordered_map<std::string, bdd> alias;
       std::unordered_map<std::string, spot::location> props;
@@ -271,7 +277,7 @@ header: format-version header-items
 		    states = std::max(states, p.second + 1);
 		  }
 	      res.h->aut->new_states(states);
-	      res.declared_states.resize(states);
+	      res.info_states.resize(states);
 	    }
 	  if (res.accset < 0)
 	    {
@@ -729,9 +735,29 @@ acceptance-cond: IDENTIFIER '(' acc-set ')'
 body: states
       {
 	for (auto& p: res.start)
-	  if (p.second >= res.declared_states.size()
-	      || !res.declared_states[p.second])
-	    error(p.first, "no definition for this initial state");
+	  if (p.second >= res.info_states.size()
+	      || !res.info_states[p.second].declared)
+	    {
+	      error(p.first,
+		    "initial state " + std::to_string(p.second) +
+		    " has no definition");
+	      // Pretend that the state is declared so we do not
+	      // mention it in the next loop.
+	      if (p.second < res.info_states.size())
+		res.info_states[p.second].declared = true;
+	    }
+	unsigned n = res.info_states.size();
+	// States with number above res.states have already caused a
+	// diagnostic, so let not add another one.
+	if (res.states >= 0)
+	  n = res.states;
+	for (unsigned i = 0; i < n; ++i)
+	  {
+	    auto& p = res.info_states[i];
+	    if (p.used && !p.declared)
+	      error(p.used_loc,
+		    "state " + std::to_string(i) + " has no definition");
+	  }
       }
 
 state-num: INT
@@ -759,9 +785,16 @@ checked-state-num: state-num
 			 if (missing >= 0)
 			   {
 			     res.h->aut->new_states(missing);
-			     res.declared_states.resize
-			       (res.declared_states.size() + missing);
+			     res.info_states.resize
+			       (res.info_states.size() + missing);
 			   }
+		       }
+		     // Remember the first place were a state is the
+		     // destination of a transition.
+		     if (!res.info_states[$1].used)
+		       {
+			 res.info_states[$1].used = true;
+			 res.info_states[$1].used_loc = @1;
 		       }
 		     $$ = $1;
 		   }
@@ -832,13 +865,13 @@ state: state-name labeled-edges
 state-name: "State:" state-label_opt checked-state-num string_opt state-acc_opt
 	  {
 	    res.cur_state = $3;
-	    if (res.declared_states[$3])
+	    if (res.info_states[$3].declared)
 	      {
 		std::ostringstream o;
 		o << "redeclaration of state " << $3;
 		error(@1 + @3, o.str());
 	      }
-	    res.declared_states[$3] = true;
+	    res.info_states[$3].declared = true;
 	    res.acc_state = $5;
 	    if ($4)
 	      {
@@ -1065,7 +1098,10 @@ never: "never" { res.namer = res.h->aut->create_namer<std::string>();
 	 // states to remove.
 	 if (res.aliased_states)
 	   res.h->aut->purge_unreachable_states();
-	 res.declared_states.resize(res.h->aut->num_states(), true);
+	 res.info_states.resize(res.h->aut->num_states());
+	 // Pretend that we have declared all states.
+	 for (auto& p: res.info_states)
+	   p.declared = true;
        }
 
 nc-states:
@@ -1288,7 +1324,9 @@ lbtt: lbtt-header lbtt-body ENDAUT
 	      i.second = rename[i.second];
 	    res.h->aut->get_graph().defrag_states(std::move(rename), s);
 	  }
-	 res.declared_states.resize(res.h->aut->num_states(), true);
+	 res.info_states.resize(res.h->aut->num_states());
+	 for (auto& s: res.info_states)
+	   s.declared = true;
       }
     | lbtt-header-states LBTT_EMPTY
       {
@@ -1551,8 +1589,8 @@ static void fix_initial_state(result_& r)
   start.reserve(r.start.size());
   for (auto& p : r.start)
     // Ignore initial states without declaration
-    if (p.second < r.declared_states.size()
-	&& r.declared_states[p.second])
+    if (p.second < r.info_states.size()
+	&& r.info_states[p.second].declared)
       start.push_back(p.second);
 
   if (start.empty())
