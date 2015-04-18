@@ -86,6 +86,8 @@ enum {
   OPT_PRODUCT,
   OPT_RANDOMIZE,
   OPT_REM_AP,
+  OPT_REM_DEAD,
+  OPT_REM_UNREACH,
   OPT_REM_FIN,
   OPT_SBACC,
   OPT_SEED,
@@ -134,7 +136,7 @@ static const argp_option options[] =
       "remove the acceptance condition and all acceptance sets", 0 },
     { "keep-states", OPT_KEEP_STATES, "NUM[,NUM...]", 0,
       "only keep specified states.  The first state will be the new "\
-      "initial state", 0 },
+      "initial state.  Implies --remove-unreachable-states.", 0 },
     { "dnf-acceptance", OPT_DNF_ACC, 0, 0,
       "put the acceptance condition in Disjunctive Normal Form", 0 },
     { "cnf-acceptance", OPT_CNF_ACC, 0, 0,
@@ -158,6 +160,11 @@ static const argp_option options[] =
     { "remove-ap", OPT_REM_AP, "AP[=0|=1][,AP...]", 0,
       "remove atomic propositions either by existential quantification, or "
       "by assigning them 0 or 1", 0 },
+    { "remove-unreachable-states", OPT_REM_UNREACH, 0, 0,
+      "remove states that are unreachable from the initial state", 0 },
+    { "remove-dead-states", OPT_REM_DEAD, 0, 0,
+      "remove states that are unreachable, or that cannot belong to an "
+      "infinite path", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
@@ -248,6 +255,8 @@ static unsigned int opt_keep_states_initial = 0;
 static spot::exclusive_ap excl_ap;
 static spot::remove_ap rem_ap;
 static bool opt_simplify_exclusive_ap = false;
+static bool opt_rem_dead = false;
+static bool opt_rem_unreach = false;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -368,6 +377,7 @@ parse_opt(int key, char* arg, struct argp_state*)
               opt_keep_states.resize(res + 1, false);
 	    opt_keep_states[res] = true;
 	  }
+	opt_rem_unreach = true;
 	break;
       }
     case OPT_PRODUCT:
@@ -405,8 +415,14 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_REM_AP:
       rem_ap.add_ap(arg);
       break;
+    case OPT_REM_DEAD:
+      opt_rem_dead = true;
+      break;
     case OPT_REM_FIN:
       opt_rem_fin = true;
+      break;
+    case OPT_REM_UNREACH:
+      opt_rem_unreach = true;
       break;
     case OPT_SBACC:
       opt_sbacc = true;
@@ -521,11 +537,6 @@ namespace
 
       // Postprocessing.
 
-      if (!opt_keep_states.empty())
-	{
-	  aut = mask_keep_states(aut, opt_keep_states, opt_keep_states_initial);
-	  aut->purge_dead_states();
-	}
       if (opt_mask_acc)
 	aut = mask_acc_sets(aut, opt_mask_acc & aut->acc().all_sets());
 
@@ -541,6 +552,13 @@ namespace
 	aut = spot::sl(std::move(aut));
       else if (opt_instut == 2)
 	aut = spot::sl2(std::move(aut));
+
+      if (!opt_keep_states.empty())
+	aut = mask_keep_states(aut, opt_keep_states, opt_keep_states_initial);
+      if (opt_rem_dead)
+	aut->purge_dead_states();
+      else if (opt_rem_unreach)
+	aut->purge_unreachable_states();
 
       if (opt->product)
 	aut = spot::product(std::move(aut), opt->product);

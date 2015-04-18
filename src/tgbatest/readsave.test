@@ -509,3 +509,165 @@ EOF
 
 $autfilt --dot=bao in >out
 diff out expected
+
+
+# Let's pretend that this is some used supplied input, as discussed in
+# the comments of https://github.com/adl/hoaf/issues/39
+
+cat >input <<EOF
+HOA: v1
+States: 7
+Start: 1
+AP: 2 "p0" "p1"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 1
+[!0&1] 0
+[!0&!1] 4
+State: 3
+[!0&!1] 2
+State: 4
+[0&1] 6
+[0&1] 5
+[0&1] 2
+[!0&1] 3
+State: 6
+[!0&!1] 1
+[!0&!1] 3
+[0&1] 7
+--END--
+EOF
+
+# autfilt should complain about the input (we only check the exit
+# status here, because the actual error messages are tested in
+# hoaparse.test) and produce a valid output with the number of states
+# fixed, and the missing state definitions.
+$autfilt -H input >output1 && exit 1
+
+cat >expect1 <<EOF
+HOA: v1
+States: 8
+Start: 1
+AP: 2 "p0" "p1"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+State: 1
+[!0&1] 0
+[!0&!1] 4
+State: 2
+State: 3
+[!0&!1] 2
+State: 4
+[0&1] 6
+[0&1] 5
+[0&1] 2
+[!0&1] 3
+State: 5
+State: 6
+[!0&!1] 1
+[!0&!1] 3
+[0&1] 7
+State: 7
+--END--
+EOF
+
+diff output1 expect1
+# Make sure the output is valid.
+$autfilt -H output1 > output1b
+diff output1 output1b
+
+# Here is the scenario where the undefined states are actually states
+# we wanted to remove.  So we tell autfilt to fix the automaton using
+# --remove-dead-states
+$autfilt -H --remove-dead input >output2 && exit 1
+
+cat >expect2 <<EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "p0" "p1"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[!0&!1] 1
+State: 1
+[0&1] 2
+State: 2
+[!0&!1] 0
+--END--
+EOF
+
+diff output2 expect2
+
+
+
+# Check the difference between --remove-unreach and --remove-dead
+cat >input <<EOF
+HOA: v1
+States: 6
+Start: 0
+AP: 2 "p0" "p1"
+acc-name: all
+Acceptance: 0 t
+--BODY--
+State: 0
+[!0&!1] 1
+State: 1
+[0&1] 2
+State: 2
+[!0&!1] 0
+[t] 5
+State: 3
+[t] 4
+State: 4
+[t] 3
+State: 5
+--END--
+EOF
+
+$autfilt -H --remove-unreach input >output3
+$autfilt -H --remove-dead input >>output3
+
+cat >expect3 <<EOF
+HOA: v1
+States: 4
+Start: 0
+AP: 2 "p0" "p1"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc
+--BODY--
+State: 0
+[!0&!1] 1
+State: 1
+[0&1] 2
+State: 2
+[!0&!1] 0
+[t] 3
+State: 3
+--END--
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "p0" "p1"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc deterministic
+--BODY--
+State: 0
+[!0&!1] 1
+State: 1
+[0&1] 2
+State: 2
+[!0&!1] 0
+--END--
+EOF
+
+diff output3 expect3
