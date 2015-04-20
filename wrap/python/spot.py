@@ -198,7 +198,7 @@ def translate(formula, output='tgba', pref='small', level='high',
     if type(formula) == str:
         formula = parse_formula(formula)
 
-    a = translator()
+    a = translator(_bdd_dict)
 
     if type(output) == str:
         output_ = output.lower()
