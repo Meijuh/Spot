@@ -25,6 +25,15 @@ from functools import lru_cache
 # Global BDD dict so that we do not have to create one in user code.
 _bdd_dict = make_bdd_dict()
 
+# Load all preliminaries for a fancy display
+def setup(show_bullet=True):
+    import os
+    os.environ['SPOT_DOTEXTRA'] = 'size="10.2,5" node[style=filled,fillcolor="#ffffaa"] edge[arrowhead=vee, arrowsize=.7]'
+    if show_bullet:
+        os.environ['SPOT_DOTDEFAULT'] = 'rbcf(Lato)'
+    else:
+        os.environ['SPOT_DOTDEFAULT'] = 'rcf(Lato)'
+
 # Add a small LRU cache so that when we display automata into a
 # interactive widget, we avoid some repeated calls to dot for
 # identical inputs.
