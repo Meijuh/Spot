@@ -40,6 +40,6 @@ namespace spot
   /// \param opt a string of option: 'c' to comment each state
   SPOT_API std::ostream&
   never_claim_reachable(std::ostream& os,
-			const const_tgba_ptr& g,
+			const const_twa_ptr& g,
 			const char* opt = nullptr);
 }

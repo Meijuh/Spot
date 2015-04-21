@@ -27,7 +27,7 @@
 
 namespace spot
 {
-  scc_map::scc_map(const const_tgba_ptr& aut)
+  scc_map::scc_map(const const_twa_ptr& aut)
     : aut_(aut)
   {
   }
@@ -76,7 +76,7 @@ namespace spot
     return aut_->acc().accepting(acc_set_of(n));
   }
 
-  const_tgba_ptr
+  const_twa_ptr
   scc_map::get_aut() const
   {
     return aut_;
@@ -443,7 +443,7 @@ namespace spot
   }
 
   std::ostream&
-  dump_scc_dot(const const_tgba_ptr& a, std::ostream& out, bool verbose)
+  dump_scc_dot(const const_twa_ptr& a, std::ostream& out, bool verbose)
   {
     scc_map m(a);
     m.build_map();

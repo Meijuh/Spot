@@ -84,7 +84,7 @@ namespace spot
     /// \param left The left automata in the product.
     /// \param right The right automata in the product.
     /// Do not be fooled by these arguments: a product is commutative.
-    twa_product(const const_tgba_ptr& left, const const_tgba_ptr& right);
+    twa_product(const const_twa_ptr& left, const const_twa_ptr& right);
 
     virtual ~twa_product();
 
@@ -98,7 +98,7 @@ namespace spot
     virtual std::string
     transition_annotation(const twa_succ_iterator* t) const;
 
-    virtual state* project_state(const state* s, const const_tgba_ptr& t) const;
+    virtual state* project_state(const state* s, const const_twa_ptr& t) const;
 
     const acc_cond& left_acc() const;
     const acc_cond& right_acc() const;
@@ -107,8 +107,8 @@ namespace spot
     virtual bdd compute_support_conditions(const state* state) const;
 
   protected:
-    const_tgba_ptr left_;
-    const_tgba_ptr right_;
+    const_twa_ptr left_;
+    const_twa_ptr right_;
     bool left_kripke_;
     fixed_size_pool pool_;
 
@@ -122,7 +122,7 @@ namespace spot
   class SPOT_API twa_product_init final: public twa_product
   {
   public:
-    twa_product_init(const const_tgba_ptr& left, const const_tgba_ptr& right,
+    twa_product_init(const const_twa_ptr& left, const const_twa_ptr& right,
 		      const state* left_init, const state* right_init);
     virtual state* get_init_state() const;
   protected:
@@ -131,15 +131,15 @@ namespace spot
   };
 
   /// \brief on-the-fly TGBA product
-  inline twa_product_ptr otf_product(const const_tgba_ptr& left,
-				      const const_tgba_ptr& right)
+  inline twa_product_ptr otf_product(const const_twa_ptr& left,
+				      const const_twa_ptr& right)
   {
     return std::make_shared<twa_product>(left, right);
   }
 
   /// \brief on-the-fly TGBA product with forced initial states
-  inline twa_product_ptr otf_product_at(const const_tgba_ptr& left,
-					 const const_tgba_ptr& right,
+  inline twa_product_ptr otf_product_at(const const_twa_ptr& left,
+					 const const_twa_ptr& right,
 					 const state* left_init,
 					 const state* right_init)
   {

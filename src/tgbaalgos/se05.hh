@@ -101,7 +101,7 @@ namespace spot
   /// \sa spot::explicit_magic_search
   ///
   SPOT_API emptiness_check_ptr
-  explicit_se05_search(const const_tgba_ptr& a, option_map o = option_map());
+  explicit_se05_search(const const_twa_ptr& a, option_map o = option_map());
 
   /// \brief Returns an emptiness checker on the spot::tgba automaton \a a.
   ///
@@ -131,7 +131,7 @@ namespace spot
   /// \sa spot::explicit_se05_search
   ///
   SPOT_API emptiness_check_ptr
-  bit_state_hashing_se05_search(const const_tgba_ptr& a, size_t size,
+  bit_state_hashing_se05_search(const const_twa_ptr& a, size_t size,
 				option_map o = option_map());
 
 
@@ -142,7 +142,7 @@ namespace spot
   /// in the \c option_map.  If \c "bsh" is set and non null, its value
   /// is used as the size of the hash map.
   SPOT_API emptiness_check_ptr
-  se05(const const_tgba_ptr& a, option_map o);
+  se05(const const_twa_ptr& a, option_map o);
 
   /// @}
 }

@@ -350,7 +350,7 @@ namespace spot
   // ta_explicit
 
 
-  ta_explicit::ta_explicit(const const_tgba_ptr& tgba,
+  ta_explicit::ta_explicit(const const_twa_ptr& tgba,
 			   unsigned n_acc,
 			   state_ta_explicit* artificial_initial_state):
     ta(tgba->get_dict()),
@@ -495,7 +495,7 @@ namespace spot
     return tgba_->get_dict();
   }
 
-  const_tgba_ptr
+  const_twa_ptr
   ta_explicit::get_tgba() const
   {
     return tgba_;

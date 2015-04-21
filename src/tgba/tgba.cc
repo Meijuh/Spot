@@ -60,7 +60,7 @@ namespace spot
 
   state*
   twa::project_state(const state* s,
-		      const const_tgba_ptr& t) const
+		      const const_twa_ptr& t) const
   {
     if (t.get() == this)
       return s->clone();

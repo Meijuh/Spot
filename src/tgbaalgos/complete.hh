@@ -35,5 +35,5 @@ namespace spot
   /// \brief Clone a tgba and complete it.
   ///
   /// If the tgba has no acceptance set, one will be added.
-  SPOT_API twa_graph_ptr tgba_complete(const const_tgba_ptr& aut);
+  SPOT_API twa_graph_ptr tgba_complete(const const_twa_ptr& aut);
 }

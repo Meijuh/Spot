@@ -54,7 +54,7 @@ namespace spot
     {
     public:
       /// \brief Initialize the search algorithm on the automaton \a a
-      tau03_search(const const_tgba_ptr a, size_t size, option_map o)
+      tau03_search(const const_twa_ptr a, size_t size, option_map o)
         : emptiness_check(a, o),
           h(size)
       {
@@ -376,7 +376,7 @@ namespace spot
   } // anonymous
 
   emptiness_check_ptr
-  explicit_tau03_search(const const_tgba_ptr& a, option_map o)
+  explicit_tau03_search(const const_twa_ptr& a, option_map o)
   {
     return std::make_shared<tau03_search<explicit_tau03_search_heap>>(a, 0, o);
   }

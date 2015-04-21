@@ -33,7 +33,7 @@ namespace spot
     class shortest_path: public bfs_steps
     {
     public:
-      shortest_path(const const_tgba_ptr& a)
+      shortest_path(const const_twa_ptr& a)
         : bfs_steps(a), target(0)
       {
       }
@@ -88,7 +88,7 @@ namespace spot
   }
 
   tgba_run_ptr
-  reduce_run(const const_tgba_ptr& a, const const_tgba_run_ptr& org)
+  reduce_run(const const_twa_ptr& a, const const_tgba_run_ptr& org)
   {
     auto res = std::make_shared<tgba_run>();
     state_set ss;

@@ -42,6 +42,6 @@ namespace spot
   /// 'a' shows the acceptance.
   SPOT_API std::ostream&
   dotty_reachable(std::ostream& os,
-		  const const_tgba_ptr& g,
+		  const const_twa_ptr& g,
 		  const char* options = nullptr);
 }

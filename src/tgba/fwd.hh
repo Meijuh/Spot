@@ -24,8 +24,8 @@
 namespace spot
 {
   class twa;
-  typedef std::shared_ptr<twa> tgba_ptr;
-  typedef std::shared_ptr<const twa> const_tgba_ptr;
+  typedef std::shared_ptr<twa> twa_ptr;
+  typedef std::shared_ptr<const twa> const_twa_ptr;
 
   class twa_graph;
   typedef std::shared_ptr<const twa_graph> const_twa_graph_ptr;

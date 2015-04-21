@@ -212,7 +212,7 @@ namespace spot
 
     static
     twa_graph_ptr
-    susp_prod(const const_tgba_ptr& left, const ltl::formula* f, bdd v)
+    susp_prod(const const_twa_ptr& left, const ltl::formula* f, bdd v)
     {
       bdd_dict_ptr dict = left->get_dict();
       auto right =

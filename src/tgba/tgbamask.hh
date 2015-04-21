@@ -31,8 +31,8 @@ namespace spot
   /// Mask the TGBA \a to_mask, keeping only the
   /// states from \a to_keep.  The initial state
   /// can optionally be reset to \a init.
-  SPOT_API const_tgba_ptr
-  build_tgba_mask_keep(const const_tgba_ptr& to_mask,
+  SPOT_API const_twa_ptr
+  build_tgba_mask_keep(const const_twa_ptr& to_mask,
 		       const state_set& to_keep,
 		       const state* init = 0);
 
@@ -42,8 +42,8 @@ namespace spot
   /// Mask the TGBA \a to_mask, keeping only the states that are not
   /// in \a to_ignore.  The initial state can optionally be reset to
   /// \a init.
-  SPOT_API const_tgba_ptr
-  build_tgba_mask_ignore(const const_tgba_ptr& to_mask,
+  SPOT_API const_twa_ptr
+  build_tgba_mask_ignore(const const_twa_ptr& to_mask,
 			 const state_set& to_ignore,
 			 const state* init = 0);
 
@@ -59,8 +59,8 @@ namespace spot
   /// set of all acceptance set) is not changed, because so far this
   /// function is only needed in graph algorithms that do not call
   /// all_acceptance_conditions().
-  SPOT_API const_tgba_ptr
-  build_tgba_mask_acc_ignore(const const_tgba_ptr& to_mask,
+  SPOT_API const_twa_ptr
+  build_tgba_mask_acc_ignore(const const_twa_ptr& to_mask,
 			     unsigned to_ignore,
 			     const state* init = 0);
 }

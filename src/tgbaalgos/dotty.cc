@@ -488,7 +488,7 @@ namespace spot
   } // anonymous namespace
 
   std::ostream&
-  dotty_reachable(std::ostream& os, const const_tgba_ptr& g,
+  dotty_reachable(std::ostream& os, const const_twa_ptr& g,
 		  const char* options)
   {
     dotty_output d(os, options);

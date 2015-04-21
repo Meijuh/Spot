@@ -470,7 +470,7 @@ namespace spot
     return std::make_shared<twa_graph>(aut, p);
   }
 
-  inline twa_graph_ptr make_twa_graph(const const_tgba_ptr& aut,
+  inline twa_graph_ptr make_twa_graph(const const_twa_ptr& aut,
 					    twa::prop_set p)
   {
     auto a = std::dynamic_pointer_cast<const twa_graph>(aut);

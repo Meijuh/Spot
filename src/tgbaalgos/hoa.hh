@@ -37,6 +37,6 @@ namespace spot
   ///        single-line output.
   SPOT_API std::ostream&
   hoa_reachable(std::ostream& os,
-		const const_tgba_ptr& g,
+		const const_twa_ptr& g,
 		const char* opt);
 }

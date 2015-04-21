@@ -40,7 +40,7 @@ namespace spot
   class SPOT_API bfs_steps
   {
   public:
-    bfs_steps(const const_tgba_ptr& a);
+    bfs_steps(const const_twa_ptr& a);
     virtual ~bfs_steps();
 
     /// \brief Start the search from \a start, and append the
@@ -97,6 +97,6 @@ namespace spot
 			  tgba_run::steps& l);
 
   protected:
-    const_tgba_ptr a_;		///< The spot::tgba we are searching into.
+    const_twa_ptr a_;		///< The spot::tgba we are searching into.
   };
 }

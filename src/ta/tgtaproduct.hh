@@ -42,7 +42,7 @@ namespace spot
     succ_iter(const state* local_state) const;
   };
 
-  inline tgba_ptr product(const const_kripke_ptr& left,
+  inline twa_ptr product(const const_kripke_ptr& left,
 			  const const_tgta_ptr& right)
   {
     return std::make_shared<tgta_product>(left, right);

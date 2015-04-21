@@ -67,7 +67,7 @@ namespace spot
       int dftop;		// Top of DFS stack.
       bool violation;		// Whether an accepting run was found.
 
-      gv04(const const_tgba_ptr& a, option_map o)
+      gv04(const const_twa_ptr& a, option_map o)
 	: emptiness_check(a, o)
       {
 	assert(a->acc().num_sets() <= 1);
@@ -407,7 +407,7 @@ namespace spot
   } // anonymous
 
   emptiness_check_ptr
-  explicit_gv04_check(const const_tgba_ptr& a, option_map o)
+  explicit_gv04_check(const const_twa_ptr& a, option_map o)
   {
     return std::make_shared<gv04>(a, o);
   }

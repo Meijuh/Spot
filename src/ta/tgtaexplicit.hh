@@ -37,7 +37,7 @@ namespace spot
   class SPOT_API tgta_explicit : public tgta
   {
   public:
-    tgta_explicit(const const_tgba_ptr& tgba,
+    tgta_explicit(const const_twa_ptr& tgba,
 		  unsigned n_acc,
 		  state_ta_explicit* artificial_initial_state);
 
@@ -66,7 +66,7 @@ namespace spot
   typedef std::shared_ptr<tgta_explicit> tgta_explicit_ptr;
   typedef std::shared_ptr<const tgta_explicit> const_tgta_explicit_ptr;
 
-  inline tgta_explicit_ptr make_tgta_explicit(const const_tgba_ptr& tgba,
+  inline tgta_explicit_ptr make_tgta_explicit(const const_twa_ptr& tgba,
 					      unsigned n_acc,
 					      state_ta_explicit*
 					      artificial_initial_state = 0)

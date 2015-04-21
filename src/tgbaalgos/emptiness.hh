@@ -77,7 +77,7 @@ namespace spot
   class SPOT_API emptiness_check_result
   {
   public:
-    emptiness_check_result(const const_tgba_ptr& a,
+    emptiness_check_result(const const_twa_ptr& a,
 			   option_map o = option_map())
       : a_(a), o_(o)
     {
@@ -103,7 +103,7 @@ namespace spot
     virtual tgba_run_ptr accepting_run();
 
     /// The automaton on which an accepting_run() was found.
-    const const_tgba_ptr&
+    const const_twa_ptr&
     automaton() const
     {
       return a_;
@@ -126,7 +126,7 @@ namespace spot
     /// Notify option updates.
     virtual void options_updated(const option_map& old);
 
-    const_tgba_ptr a_;		///< The automaton.
+    const_twa_ptr a_;		///< The automaton.
     option_map o_;		///< The options.
   };
 
@@ -137,14 +137,14 @@ namespace spot
     public std::enable_shared_from_this<emptiness_check>
   {
   public:
-    emptiness_check(const const_tgba_ptr& a, option_map o = option_map())
+    emptiness_check(const const_twa_ptr& a, option_map o = option_map())
       : a_(a), o_(o)
     {
     }
     virtual ~emptiness_check();
 
     /// The automaton that this emptiness-check inspects.
-    const const_tgba_ptr&
+    const const_twa_ptr&
     automaton() const
     {
       return a_;
@@ -192,7 +192,7 @@ namespace spot
     virtual void options_updated(const option_map& old);
 
   protected:
-    const_tgba_ptr a_;		///< The automaton.
+    const_twa_ptr a_;		///< The automaton.
     option_map o_;		///< The options
   };
 
@@ -207,7 +207,7 @@ namespace spot
   {
   public:
     /// Actually instantiate the emptiness check, for \a a.
-    emptiness_check_ptr instantiate(const const_tgba_ptr& a) const;
+    emptiness_check_ptr instantiate(const const_twa_ptr& a) const;
 
     /// Accessor to the options.
     /// @{
@@ -308,7 +308,7 @@ namespace spot
   /// transition annotation).
   SPOT_API std::ostream&
   print_tgba_run(std::ostream& os,
-		 const const_tgba_ptr& a,
+		 const const_twa_ptr& a,
 		 const const_tgba_run_ptr& run);
 
   /// \brief Return an explicit_tgba corresponding to \a run (i.e. comparable
@@ -316,7 +316,7 @@ namespace spot
   ///
   /// \pre \a run must correspond to an actual run of the automaton \a a.
   SPOT_API twa_graph_ptr
-  tgba_run_to_tgba(const const_tgba_ptr& a, const const_tgba_run_ptr& run);
+  tgba_run_to_tgba(const const_twa_ptr& a, const const_tgba_run_ptr& run);
 
   /// @}
 

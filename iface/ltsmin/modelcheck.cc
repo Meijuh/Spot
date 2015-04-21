@@ -158,8 +158,8 @@ checked_main(int argc, char **argv)
   spot::ltl::atomic_prop_set ap;
   auto dict = spot::make_bdd_dict();
   spot::const_kripke_ptr model = nullptr;
-  spot::const_tgba_ptr prop = nullptr;
-  spot::const_tgba_ptr product = nullptr;
+  spot::const_twa_ptr prop = nullptr;
+  spot::const_twa_ptr product = nullptr;
   spot::emptiness_check_instantiator_ptr echeck_inst = nullptr;
   int exit_code = 0;
   spot::postprocessor post;

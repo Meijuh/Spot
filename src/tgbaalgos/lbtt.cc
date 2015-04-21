@@ -38,7 +38,7 @@ namespace spot
     class lbtt_bfs : public tgba_reachable_iterator_breadth_first
     {
     public:
-      lbtt_bfs(const const_tgba_ptr& a, std::ostream& os, bool sba_format)
+      lbtt_bfs(const const_twa_ptr& a, std::ostream& os, bool sba_format)
 	: tgba_reachable_iterator_breadth_first(a),
 	  os_(os),
 	  sba_format_(sba_format),
@@ -133,7 +133,7 @@ namespace spot
   }
 
   std::ostream&
-  lbtt_reachable(std::ostream& os, const const_tgba_ptr& g, bool sba)
+  lbtt_reachable(std::ostream& os, const const_twa_ptr& g, bool sba)
   {
     if (!g->acc().is_generalized_buchi())
       throw std::runtime_error

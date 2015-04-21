@@ -36,7 +36,7 @@ namespace spot
     class dupexp_iter: public T
     {
     public:
-      dupexp_iter(const const_tgba_ptr& a, twa::prop_set p)
+      dupexp_iter(const const_twa_ptr& a, twa::prop_set p)
 	: T(a), out_(make_twa_graph(a->get_dict()))
       {
 	out_->copy_acceptance_of(a);
@@ -76,7 +76,7 @@ namespace spot
   } // anonymous
 
   twa_graph_ptr
-  tgba_dupexp_bfs(const const_tgba_ptr& aut, twa::prop_set p)
+  tgba_dupexp_bfs(const const_twa_ptr& aut, twa::prop_set p)
   {
     dupexp_iter<tgba_reachable_iterator_breadth_first> di(aut, p);
     di.run();
@@ -84,7 +84,7 @@ namespace spot
   }
 
   twa_graph_ptr
-  tgba_dupexp_dfs(const const_tgba_ptr& aut, twa::prop_set p)
+  tgba_dupexp_dfs(const const_twa_ptr& aut, twa::prop_set p)
   {
     dupexp_iter<tgba_reachable_iterator_depth_first> di(aut, p);
     di.run();

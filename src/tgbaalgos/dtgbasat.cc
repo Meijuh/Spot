@@ -245,12 +245,12 @@ namespace spot
 
     struct dict
     {
-      dict(const const_tgba_ptr& a)
+      dict(const const_twa_ptr& a)
 	: aut(a)
       {
       }
 
-      const_tgba_ptr aut;
+      const_twa_ptr aut;
       typedef std::map<transition, int> trans_map;
       typedef std::map<transition_acc, int> trans_acc_map;
       trans_map transid;

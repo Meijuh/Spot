@@ -25,7 +25,7 @@
 
 namespace spot
 {
-  couvreur99_check_status::couvreur99_check_status(const const_tgba_ptr& aut)
+  couvreur99_check_status::couvreur99_check_status(const const_twa_ptr& aut)
     : aut(aut)
   {
   }

@@ -98,7 +98,7 @@ main(int argc, char** argv)
       auto d = spot::make_bdd_dict();
 
       // Build many different automata from this formula.
-      spot::const_tgba_ptr aut[4];
+      spot::const_twa_ptr aut[4];
       {
 	auto a = spot::ltl_to_taa(f, d);
 	aut[0] = a;

@@ -201,7 +201,7 @@ namespace spot
   } // anonymous namespace
 
   std::ostream&
-  never_claim_reachable(std::ostream& os, const const_tgba_ptr& g,
+  never_claim_reachable(std::ostream& os, const const_twa_ptr& g,
 			const char* options)
   {
     if (!(g->acc().is_buchi() || g->acc().is_true()))

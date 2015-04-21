@@ -54,7 +54,7 @@ namespace spot
       ///
       /// \pre The automaton \a a must have at most one acceptance
       /// condition (i.e. it is a TBA).
-      se05_search(const const_tgba_ptr a, size_t size,
+      se05_search(const const_twa_ptr a, size_t size,
 		  option_map o = option_map())
         : emptiness_check(a, o),
           h(size)
@@ -676,20 +676,20 @@ namespace spot
   } // anonymous
 
   emptiness_check_ptr
-  explicit_se05_search(const const_tgba_ptr& a, option_map o)
+  explicit_se05_search(const const_twa_ptr& a, option_map o)
   {
     return std::make_shared<se05_search<explicit_se05_search_heap>>(a, 0, o);
   }
 
   emptiness_check_ptr
-  bit_state_hashing_se05_search(const const_tgba_ptr& a,
+  bit_state_hashing_se05_search(const const_twa_ptr& a,
 				size_t size, option_map o)
   {
     return std::make_shared<se05_search<bsh_se05_search_heap>>(a, size, o);
   }
 
   emptiness_check_ptr
-  se05(const const_tgba_ptr& a, option_map o)
+  se05(const const_twa_ptr& a, option_map o)
   {
     size_t size = o.get("bsh");
     if (size)

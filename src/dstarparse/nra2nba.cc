@@ -38,7 +38,7 @@ namespace spot
       // AUT is the automaton we iterate on, while A is the automaton
       // we read the acceptance conditions from.  Separating the two
       // makes its possible to mask AUT, as needed in dra_to_ba().
-      nra_to_nba_worker(const const_dstar_aut_ptr& a, const_tgba_ptr aut):
+      nra_to_nba_worker(const const_dstar_aut_ptr& a, const_twa_ptr aut):
 	tgba_reachable_iterator_depth_first(aut),
 	out_(make_twa_graph(aut->get_dict())),
 	d_(a),
@@ -116,7 +116,7 @@ namespace spot
   // that is a masked version of nra->aut.
   SPOT_LOCAL
   twa_graph_ptr nra_to_nba(const const_dstar_aut_ptr& nra,
-			      const const_tgba_ptr& aut)
+			      const const_twa_ptr& aut)
   {
     assert(nra->type == Rabin);
     nra_to_nba_worker w(nra, aut);

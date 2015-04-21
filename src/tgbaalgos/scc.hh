@@ -41,7 +41,7 @@ namespace spot
     ///
     /// This will note compute the map initially.  You should call
     /// build_map() to do so.
-    scc_map(const const_tgba_ptr& aut);
+    scc_map(const const_twa_ptr& aut);
 
     ~scc_map();
 
@@ -49,7 +49,7 @@ namespace spot
     void build_map();
 
     /// Get the automaton for which the map has been constructed.
-    const_tgba_ptr get_aut() const;
+    const_twa_ptr get_aut() const;
 
     /// \brief Get the number of SCC in the automaton.
     ///
@@ -171,7 +171,7 @@ namespace spot
       std::set<acc_cond::mark_t> useful_acc;
     };
 
-    const_tgba_ptr aut_;		// Automata to decompose.
+    const_twa_ptr aut_;		// Automata to decompose.
     typedef std::list<scc> stack_type;
     stack_type root_;		// Stack of SCC roots.
     std::stack<acc_cond::mark_t> arc_acc_; // A stack of acceptance conditions
@@ -203,7 +203,7 @@ namespace spot
  };
 
   SPOT_API std::ostream&
-  dump_scc_dot(const const_tgba_ptr& a,
+  dump_scc_dot(const const_twa_ptr& a,
 	       std::ostream& out, bool verbose = false);
   SPOT_API std::ostream&
   dump_scc_dot(const scc_map& m, std::ostream& out, bool verbose = false);

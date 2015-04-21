@@ -90,8 +90,8 @@ namespace spot
       {
       }
 
-      void recycle(const const_tgba_ptr& l, twa_succ_iterator* left,
-		   const_tgba_ptr r, twa_succ_iterator* right)
+      void recycle(const const_twa_ptr& l, twa_succ_iterator* left,
+		   const_twa_ptr r, twa_succ_iterator* right)
       {
 	l->release_iter(left_);
 	left_ = left;
@@ -282,8 +282,8 @@ namespace spot
   ////////////////////////////////////////////////////////////
   // twa_product
 
-  twa_product::twa_product(const const_tgba_ptr& left,
-			     const const_tgba_ptr& right)
+  twa_product::twa_product(const const_twa_ptr& left,
+			     const const_twa_ptr& right)
     : twa(left->get_dict()), left_(left), right_(right),
       pool_(sizeof(state_product))
   {
@@ -393,7 +393,7 @@ namespace spot
   }
 
   state*
-  twa_product::project_state(const state* s, const const_tgba_ptr& t) const
+  twa_product::project_state(const state* s, const const_twa_ptr& t) const
   {
     const state_product* s2 = down_cast<const state_product*>(s);
     assert(s2);
@@ -423,8 +423,8 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
   // twa_product_init
 
-  twa_product_init::twa_product_init(const const_tgba_ptr& left,
-				       const const_tgba_ptr& right,
+  twa_product_init::twa_product_init(const const_twa_ptr& left,
+				       const const_twa_ptr& right,
 				       const state* left_init,
 				       const state* right_init)
     : twa_product(left, right),

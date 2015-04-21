@@ -432,7 +432,7 @@ namespace spot
 
   std::ostream&
   hoa_reachable(std::ostream& os,
-		const const_tgba_ptr& aut,
+		const const_twa_ptr& aut,
 		const char* opt)
   {
 

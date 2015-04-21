@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
       return 2;
     spot::twa_graph_ptr a = h->aut;
 
-    spot::tgba_ptr complement = 0;
+    spot::twa_ptr complement = 0;
 
     complement = spot::make_safra_complement(a);
 
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
       return 2;
 
     auto a = spot::ltl_to_tgba_fm(f1, dict);
-    spot::tgba_ptr complement = 0;
+    spot::twa_ptr complement = 0;
     complement = spot::make_safra_complement(a);
 
     spot::dotty_reachable(std::cout, complement);

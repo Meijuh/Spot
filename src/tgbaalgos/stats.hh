@@ -50,9 +50,9 @@ namespace spot
   };
 
   /// \brief Compute statistics for an automaton.
-  SPOT_API tgba_statistics stats_reachable(const const_tgba_ptr& g);
+  SPOT_API tgba_statistics stats_reachable(const const_twa_ptr& g);
   /// \brief Compute subended statistics for an automaton.
-  SPOT_API tgba_sub_statistics sub_stats_reachable(const const_tgba_ptr& g);
+  SPOT_API tgba_sub_statistics sub_stats_reachable(const const_twa_ptr& g);
 
 
   class SPOT_API printable_formula: public printable_value<const ltl::formula*>

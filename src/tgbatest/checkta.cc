@@ -51,7 +51,7 @@ void stats(std::string title, const spot::ta_ptr& ta)
 	    << std::setw(6) << s.acceptance_states << '\n';
 }
 
-void stats(std::string title, const spot::tgba_ptr& tg)
+void stats(std::string title, const spot::twa_ptr& tg)
 {
   auto s = stats_reachable(tg);
 

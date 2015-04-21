@@ -309,7 +309,7 @@ to_int(const char* s)
   return res;
 }
 
-spot::twa_graph_ptr ensure_digraph(const spot::tgba_ptr& a)
+spot::twa_graph_ptr ensure_digraph(const spot::twa_ptr& a)
 {
   auto aa = std::dynamic_pointer_cast<spot::twa_graph>(a);
   if (aa)
@@ -371,7 +371,7 @@ checked_main(int argc, char** argv)
   const char* hoa_opt = nullptr;
   auto& env = spot::ltl::default_environment::instance();
   spot::ltl::atomic_prop_set* unobservables = 0;
-  spot::tgba_ptr system_aut = 0;
+  spot::twa_ptr system_aut = 0;
   auto dict = spot::make_bdd_dict();
   spot::timer_map tm;
   bool use_timer = false;
@@ -960,7 +960,7 @@ checked_main(int argc, char** argv)
 
   if (f || from_file)
     {
-      spot::tgba_ptr a = 0;
+      spot::twa_ptr a = 0;
       bool assume_sba = false;
 
       if (from_file)

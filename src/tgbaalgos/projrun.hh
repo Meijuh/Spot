@@ -42,7 +42,7 @@ namespace spot
   /// \param a_proj the automata on which to project the run
   /// \return true iff the run could be completed
   SPOT_API tgba_run_ptr
-  project_tgba_run(const const_tgba_ptr& a_run,
-		   const const_tgba_ptr& a_proj,
+  project_tgba_run(const const_twa_ptr& a_run,
+		   const const_twa_ptr& a_proj,
 		   const const_tgba_run_ptr& run);
 }

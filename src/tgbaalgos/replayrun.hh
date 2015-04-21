@@ -48,7 +48,7 @@ namespace spot
   /// \return true iff the run could be completed
   SPOT_API bool
   replay_tgba_run(std::ostream& os,
-		  const const_tgba_ptr& a,
+		  const const_twa_ptr& a,
 		  const const_tgba_run_ptr& run,
 		  bool debug = false);
 }

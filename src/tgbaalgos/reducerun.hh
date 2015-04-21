@@ -34,5 +34,5 @@ namespace spot
   /// Return a run which is accepting for \a a and that is no longer
   /// than \a org.
   SPOT_API tgba_run_ptr
-  reduce_run(const const_tgba_ptr& a, const const_tgba_run_ptr& org);
+  reduce_run(const const_twa_ptr& a, const const_tgba_run_ptr& org);
 }

@@ -50,7 +50,7 @@ namespace spot
   // This function is defined in nra2nba.cc, and used only here.
   SPOT_LOCAL
   twa_graph_ptr nra_to_nba(const const_dstar_aut_ptr& nra,
-			      const const_tgba_ptr& aut);
+			      const const_twa_ptr& aut);
 
   namespace
   {
@@ -65,14 +65,14 @@ namespace spot
     // retrive acceptances.
 
     static bool
-    filter_states(const const_tgba_ptr& aut,
+    filter_states(const const_twa_ptr& aut,
 		  const const_dstar_aut_ptr& dra,
 		  const state_list& sl,
 		  state_list& final,
 		  state_list& nonfinal);
 
     static bool
-    filter_scc(const const_tgba_ptr& aut,
+    filter_scc(const const_twa_ptr& aut,
 	       const const_dstar_aut_ptr& dra,
 	       state_list& final,
 	       state_list& nonfinal)
@@ -99,7 +99,7 @@ namespace spot
     }
 
     static bool
-    filter_states(const const_tgba_ptr& aut,
+    filter_states(const const_twa_ptr& aut,
 		  const const_dstar_aut_ptr& dra,
 		  const state_list& sl,
 		  state_list& final,

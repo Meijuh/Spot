@@ -53,5 +53,5 @@ namespace spot
       }
       \endverbatim */
   SPOT_API emptiness_check_ptr
-  explicit_gv04_check(const const_tgba_ptr& a, option_map o = option_map());
+  explicit_gv04_check(const const_twa_ptr& a, option_map o = option_map());
 }

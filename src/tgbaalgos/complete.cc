@@ -117,7 +117,7 @@ namespace spot
     return sink;
   }
 
-  twa_graph_ptr tgba_complete(const const_tgba_ptr& aut)
+  twa_graph_ptr tgba_complete(const const_twa_ptr& aut)
   {
     auto res = make_twa_graph(aut, {
 					true, // state based

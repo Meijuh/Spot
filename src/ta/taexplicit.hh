@@ -40,11 +40,11 @@ namespace spot
   class SPOT_API ta_explicit : public ta
   {
   public:
-    ta_explicit(const const_tgba_ptr& tgba,
+    ta_explicit(const const_twa_ptr& tgba,
 		unsigned n_acc,
 		state_ta_explicit* artificial_initial_state = 0);
 
-    const_tgba_ptr
+    const_twa_ptr
     get_tgba() const;
 
     state_ta_explicit*
@@ -121,7 +121,7 @@ namespace spot
     ta_explicit(const ta_explicit& other) SPOT_DELETED;
     ta_explicit& operator=(const ta_explicit& other) SPOT_DELETED;
 
-    const_tgba_ptr tgba_;
+    const_twa_ptr tgba_;
     state_ta_explicit* artificial_initial_state_;
     ta::states_set_t states_set_;
     ta::states_set_t initial_states_set_;
@@ -252,7 +252,7 @@ namespace spot
   typedef std::shared_ptr<ta_explicit> ta_explicit_ptr;
   typedef std::shared_ptr<const ta_explicit> const_ta_explicit_ptr;
 
-  inline ta_explicit_ptr make_ta_explicit(const const_tgba_ptr& tgba,
+  inline ta_explicit_ptr make_ta_explicit(const const_twa_ptr& tgba,
 					  unsigned n_acc,
 					  state_ta_explicit*
 					  artificial_initial_state = 0)

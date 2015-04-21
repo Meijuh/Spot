@@ -28,8 +28,8 @@ namespace spot
 {
 
   tgba_run_ptr
-  project_tgba_run(const const_tgba_ptr& a_run,
-		   const const_tgba_ptr& a_proj,
+  project_tgba_run(const const_twa_ptr& a_run,
+		   const const_twa_ptr& a_proj,
 		   const const_tgba_run_ptr& run)
   {
     auto res = std::make_shared<tgba_run>();

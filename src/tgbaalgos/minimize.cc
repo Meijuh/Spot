@@ -60,7 +60,7 @@ namespace spot
   {
     static std::ostream&
     dump_hash_set(const hash_set* hs,
-		  const const_tgba_ptr& aut,
+		  const const_twa_ptr& aut,
 		  std::ostream& out)
     {
       out << '{';
@@ -75,7 +75,7 @@ namespace spot
     }
 
     static std::string
-    format_hash_set(const hash_set* hs, const_tgba_ptr aut)
+    format_hash_set(const hash_set* hs, const_twa_ptr aut)
     {
       std::ostringstream s;
       dump_hash_set(hs, aut, s);
@@ -84,7 +84,7 @@ namespace spot
   }
 
   // Find all states of an automaton.
-  void build_state_set(const const_tgba_ptr& a, hash_set* seen)
+  void build_state_set(const const_twa_ptr& a, hash_set* seen)
   {
     std::queue<const state*> tovisit;
     // Perform breadth-first traversal.
@@ -114,7 +114,7 @@ namespace spot
 
   // From the base automaton and the list of sets, build the minimal
   // resulting automaton
-  twa_graph_ptr build_result(const const_tgba_ptr& a,
+  twa_graph_ptr build_result(const const_twa_ptr& a,
 				std::list<hash_set*>& sets,
 				hash_set* final)
   {
@@ -182,7 +182,7 @@ namespace spot
 
     struct wdba_search_acc_loop : public bfs_steps
     {
-      wdba_search_acc_loop(const const_tgba_ptr& det_a,
+      wdba_search_acc_loop(const const_twa_ptr& det_a,
 			   unsigned scc_n, scc_info& sm,
 			   power_map& pm, const state* dest)
 	: bfs_steps(det_a), scc_n(scc_n), sm(sm), pm(pm), dest(dest)

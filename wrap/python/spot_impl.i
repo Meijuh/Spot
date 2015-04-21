@@ -376,7 +376,7 @@ empty_hoa_parse_error_list()
 }
 
 spot::twa_graph_ptr
-ensure_digraph(const spot::tgba_ptr& a)
+ensure_digraph(const spot::twa_ptr& a)
 {
   auto aa = std::dynamic_pointer_cast<spot::twa_graph>(a);
   if (aa)

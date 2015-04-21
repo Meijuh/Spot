@@ -415,7 +415,7 @@ namespace spot
     {
 
       std::stack<state_ta_explicit*> todo;
-      const_tgba_ptr tgba_ = ta->get_tgba();
+      const_twa_ptr tgba_ = ta->get_tgba();
 
       // build Initial states set:
       state* tgba_init_state = tgba_->get_init_state();
@@ -544,7 +544,7 @@ namespace spot
   }
 
   ta_explicit_ptr
-  tgba_to_ta(const const_tgba_ptr& tgba_, bdd atomic_propositions_set_,
+  tgba_to_ta(const const_twa_ptr& tgba_, bdd atomic_propositions_set_,
 	     bool degeneralized, bool artificial_initial_state_mode,
 	     bool single_pass_emptiness_check,
 	     bool artificial_livelock_state_mode,
@@ -601,7 +601,7 @@ namespace spot
   }
 
   tgta_explicit_ptr
-  tgba_to_tgta(const const_tgba_ptr& tgba_, bdd atomic_propositions_set_)
+  tgba_to_tgta(const const_twa_ptr& tgba_, bdd atomic_propositions_set_)
   {
     state* tgba_init_state = tgba_->get_init_state();
     auto artificial_init_state = new state_ta_explicit(tgba_init_state->clone(),

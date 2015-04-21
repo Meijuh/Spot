@@ -36,11 +36,11 @@ namespace spot
   class SPOT_API couvreur99_check_status
   {
   public:
-    couvreur99_check_status(const const_tgba_ptr& aut);
+    couvreur99_check_status(const const_twa_ptr& aut);
 
     ~couvreur99_check_status();
 
-    const_tgba_ptr aut;
+    const_twa_ptr aut;
     scc_stack root;
 
     typedef std::unordered_map<const state*, int,

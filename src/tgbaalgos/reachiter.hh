@@ -34,7 +34,7 @@ namespace spot
   class SPOT_API tgba_reachable_iterator
   {
   public:
-    tgba_reachable_iterator(const const_tgba_ptr& a);
+    tgba_reachable_iterator(const const_twa_ptr& a);
     virtual ~tgba_reachable_iterator();
 
     /// \brief Iterate over all reachable states of a spot::tgba.
@@ -88,7 +88,7 @@ namespace spot
 			      const twa_succ_iterator* si);
 
   protected:
-    const_tgba_ptr aut_;	///< The spot::tgba to explore.
+    const_twa_ptr aut_;	///< The spot::tgba to explore.
 
     typedef std::unordered_map<const state*, int,
 			       state_ptr_hash, state_ptr_equal> seen_map;
@@ -102,7 +102,7 @@ namespace spot
     public tgba_reachable_iterator
   {
   public:
-    tgba_reachable_iterator_breadth_first(const const_tgba_ptr& a);
+    tgba_reachable_iterator_breadth_first(const const_twa_ptr& a);
 
     virtual void add_state(const state* s);
     virtual const state* next_state();
@@ -116,7 +116,7 @@ namespace spot
   class SPOT_API tgba_reachable_iterator_depth_first
   {
   public:
-    tgba_reachable_iterator_depth_first(const const_tgba_ptr& a);
+    tgba_reachable_iterator_depth_first(const const_twa_ptr& a);
     virtual ~tgba_reachable_iterator_depth_first();
 
     /// \brief Iterate over all reachable states of a spot::tgba.
@@ -158,7 +158,7 @@ namespace spot
 			      const twa_succ_iterator* si);
 
   protected:
-    const_tgba_ptr aut_;		///< The spot::tgba to explore.
+    const_twa_ptr aut_;		///< The spot::tgba to explore.
 
     typedef std::unordered_map<const state*, int,
 			       state_ptr_hash, state_ptr_equal> seen_map;
@@ -186,7 +186,7 @@ namespace spot
     : public tgba_reachable_iterator_depth_first
   {
   public:
-    tgba_reachable_iterator_depth_first_stack(const const_tgba_ptr& a);
+    tgba_reachable_iterator_depth_first_stack(const const_twa_ptr& a);
     /// \brief Whether state sn is on the DFS stack.
     ///
     /// Note the destination state of a transition is only pushed to

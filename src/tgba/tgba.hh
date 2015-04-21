@@ -629,7 +629,7 @@ namespace spot
     ///    or a new \c state* (the projected state) that must be
     ///    destroyed by the caller.
     virtual state* project_state(const state* s,
-				 const const_tgba_ptr& t) const;
+				 const const_twa_ptr& t) const;
 
 
     const acc_cond& acc() const
@@ -672,7 +672,7 @@ namespace spot
     }
 
     /// \brief Copy the acceptance condition of another tgba.
-    void copy_acceptance_of(const const_tgba_ptr& a)
+    void copy_acceptance_of(const const_twa_ptr& a)
     {
       acc_ = a->acc();
       unsigned num = acc_.num_sets();
@@ -680,7 +680,7 @@ namespace spot
 	prop_state_based_acc();
     }
 
-    void copy_ap_of(const const_tgba_ptr& a)
+    void copy_ap_of(const const_twa_ptr& a)
     {
       get_dict()->register_all_propositions_of(a, this);
     }
@@ -821,7 +821,7 @@ namespace spot
 
     // There is no default value here on purpose.  This way any time we
     // add a new property we have to update every call to prop_copy().
-    void prop_copy(const const_tgba_ptr& other, prop_set p)
+    void prop_copy(const const_twa_ptr& other, prop_set p)
     {
       if (p.state_based)
 	prop_state_based_acc(other->has_state_based_acc());

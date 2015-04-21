@@ -77,7 +77,7 @@ namespace spot
 
   std::ostream&
   print_tgba_run(std::ostream& os,
-		 const const_tgba_ptr& a,
+		 const const_twa_ptr& a,
 		 const const_tgba_run_ptr& run)
   {
     bdd_dict_ptr d = a->get_dict();
@@ -189,7 +189,7 @@ namespace spot
     struct ec_algo
     {
       const char* name;
-      emptiness_check_ptr(*construct)(const const_tgba_ptr&,
+      emptiness_check_ptr(*construct)(const const_twa_ptr&,
 				      spot::option_map);
       unsigned int min_acc;
       unsigned int max_acc;
@@ -225,7 +225,7 @@ namespace spot
   }
 
   emptiness_check_ptr
-  emptiness_check_instantiator::instantiate(const const_tgba_ptr& a) const
+  emptiness_check_instantiator::instantiate(const const_twa_ptr& a) const
   {
     return static_cast<ec_algo*>(info_)->construct(a, o_);
   }
@@ -291,7 +291,7 @@ namespace spot
   //////////////////////////////////////////////////////////////////////
 
   twa_graph_ptr
-  tgba_run_to_tgba(const const_tgba_ptr& a, const const_tgba_run_ptr& run)
+  tgba_run_to_tgba(const const_twa_ptr& a, const const_tgba_run_ptr& run)
   {
     auto d = a->get_dict();
     auto res = make_twa_graph(d);

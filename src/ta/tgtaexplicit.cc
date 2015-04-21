@@ -28,7 +28,7 @@
 namespace spot
 {
 
-  tgta_explicit::tgta_explicit(const const_tgba_ptr& tgba,
+  tgta_explicit::tgta_explicit(const const_twa_ptr& tgba,
 			       unsigned n_acc,
 			       state_ta_explicit* artificial_initial_state) :
     tgta(tgba->get_dict()),
