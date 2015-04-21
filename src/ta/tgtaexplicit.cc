@@ -42,7 +42,7 @@ namespace spot
     return ta_->get_artificial_initial_state();
   }
 
-  tgba_succ_iterator*
+  twa_succ_iterator*
   tgta_explicit::succ_iter(const spot::state* state) const
   {
     return ta_->succ_iter(state);
@@ -68,7 +68,7 @@ namespace spot
     return ta_->format_state(s);
   }
 
-  spot::tgba_succ_iterator*
+  spot::twa_succ_iterator*
   tgta_explicit::succ_iter_by_changeset(const spot::state* s, bdd chngset) const
   {
     return ta_->succ_iter(s, chngset);

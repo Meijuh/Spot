@@ -55,7 +55,7 @@ namespace spot
     /// TGBA interface.
     virtual ~taa_tgba();
     virtual spot::state* get_init_state() const final;
-    virtual tgba_succ_iterator* succ_iter(const spot::state* state) const final;
+    virtual twa_succ_iterator* succ_iter(const spot::state* state) const final;
     virtual std::string format_state(const spot::state* state) const = 0;
 
   protected:
@@ -101,7 +101,7 @@ namespace spot
     bool delete_me_;
   };
 
-  class SPOT_API taa_succ_iterator final: public tgba_succ_iterator
+  class SPOT_API taa_succ_iterator final: public twa_succ_iterator
   {
   public:
     taa_succ_iterator(const taa_tgba::state_set* s, const acc_cond& acc);

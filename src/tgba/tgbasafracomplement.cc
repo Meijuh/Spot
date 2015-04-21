@@ -955,7 +955,7 @@ namespace spot
 
     /// Successor iterators used by spot::tgba_safra_complement.
     /// \ingroup tgba_representation
-    class tgba_safra_complement_succ_iterator: public tgba_succ_iterator
+    class tgba_safra_complement_succ_iterator: public twa_succ_iterator
     {
     public:
       typedef std::multimap<bdd, state_complement*, bdd_less_than> succ_list_t;
@@ -1141,7 +1141,7 @@ namespace spot
   ///   series        = {Lecture Notes in Computer Science},
   ///   publisher     = {Springer-Verlag}
   /// }
-  tgba_succ_iterator*
+  twa_succ_iterator*
   tgba_safra_complement::succ_iter(const state* state) const
   {
     const safra_tree_automaton* a = static_cast<safra_tree_automaton*>(safra_);

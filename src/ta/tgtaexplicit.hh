@@ -44,7 +44,7 @@ namespace spot
     // tgba interface
     virtual spot::state* get_init_state() const;
 
-    virtual tgba_succ_iterator*
+    virtual twa_succ_iterator*
     succ_iter(const spot::state* local_state) const;
 
     virtual bdd_dict_ptr
@@ -55,7 +55,7 @@ namespace spot
 
     virtual std::string format_state(const spot::state* s) const;
 
-    virtual tgba_succ_iterator*
+    virtual twa_succ_iterator*
     succ_iter_by_changeset(const spot::state* s, bdd change_set) const;
   protected:
     virtual bdd compute_support_conditions(const spot::state* state) const;

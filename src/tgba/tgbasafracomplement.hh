@@ -54,7 +54,7 @@ namespace spot
 
     // tgba interface.
     virtual state* get_init_state() const;
-    virtual tgba_succ_iterator* succ_iter(const state* state) const;
+    virtual twa_succ_iterator* succ_iter(const state* state) const;
 
     virtual std::string format_state(const state* state) const;
 

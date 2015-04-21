@@ -39,7 +39,7 @@ namespace spot
       {
       }
 
-      void process_state(const state* s, int, tgba_succ_iterator* si)
+      void process_state(const state* s, int, twa_succ_iterator* si)
       {
 	const bdd_dict_ptr d = aut_->get_dict();
 	os_ << '"';
@@ -80,7 +80,7 @@ namespace spot
 	lastsuccs.str("");
       }
 
-      void process_state(const state* s, int in_s, tgba_succ_iterator*)
+      void process_state(const state* s, int in_s, twa_succ_iterator*)
       {
 	if (notfirst)
 	  finish_state();
@@ -98,7 +98,7 @@ namespace spot
 
       void
       process_link(const state*, int, const state*, int d,
-		   const tgba_succ_iterator*)
+		   const twa_succ_iterator*)
       {
 	lastsuccs << " S" << d;
       }

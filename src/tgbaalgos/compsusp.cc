@@ -254,7 +254,7 @@ namespace spot
 	      state_pair d(li->current_state(), ris);
 	      bdd lc = li->current_condition();
 
-	      tgba_succ_iterator* ri = 0;
+	      twa_succ_iterator* ri = 0;
 	      // Should we reset the right automaton?
 	      if ((lc & v) == lc)
 		{

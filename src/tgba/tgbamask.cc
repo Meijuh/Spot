@@ -32,7 +32,7 @@ namespace spot
     };
     typedef std::vector<transition> transitions;
 
-    struct succ_iter_filtered: public tgba_succ_iterator
+    struct succ_iter_filtered: public twa_succ_iterator
     {
       ~succ_iter_filtered()
       {
@@ -111,7 +111,7 @@ namespace spot
 	return init_->clone();
       }
 
-      virtual tgba_succ_iterator*
+      virtual twa_succ_iterator*
       succ_iter(const state* local_state) const
       {
 	succ_iter_filtered* res;

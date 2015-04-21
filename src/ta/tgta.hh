@@ -74,7 +74,7 @@ namespace spot
     /// responsability of the caller to \c delete it when no
     /// longer needed.
     ///
-    virtual tgba_succ_iterator*
+    virtual twa_succ_iterator*
     succ_iter_by_changeset(const spot::state* s, bdd change_set) const =0;
   };
 

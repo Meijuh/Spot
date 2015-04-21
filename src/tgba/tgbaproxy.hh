@@ -42,13 +42,13 @@ namespace spot
 
     virtual state* get_init_state() const;
 
-    virtual tgba_succ_iterator*
+    virtual twa_succ_iterator*
     succ_iter(const state* state) const;
 
     virtual std::string format_state(const state* state) const;
 
     virtual std::string
-    transition_annotation(const tgba_succ_iterator* t) const;
+    transition_annotation(const twa_succ_iterator* t) const;
 
     virtual state* project_state(const state* s, const const_tgba_ptr& t) const;
 

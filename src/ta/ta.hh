@@ -193,7 +193,7 @@ namespace spot
   /// transition labels.  Because transitions are never explicitely
   /// encoded, labels (conditions and acceptance conditions) can only
   /// be queried while iterating over the successors.
-  class ta_succ_iterator : public tgba_succ_iterator
+  class ta_succ_iterator : public twa_succ_iterator
   {
   public:
     virtual

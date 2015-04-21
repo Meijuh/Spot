@@ -74,24 +74,24 @@ namespace spot
   }
 
   ////////////////////////////////////////////////////////////
-  // tgba_succ_iterator_product
+  // twa_succ_iterator_product
 
   namespace
   {
 
-    class tgba_succ_iterator_product_common: public tgba_succ_iterator
+    class twa_succ_iterator_product_common: public twa_succ_iterator
     {
     public:
-      tgba_succ_iterator_product_common(tgba_succ_iterator* left,
-					tgba_succ_iterator* right,
+      twa_succ_iterator_product_common(twa_succ_iterator* left,
+					twa_succ_iterator* right,
 					const twa_product* prod,
 					fixed_size_pool* pool)
 	: left_(left), right_(right), prod_(prod), pool_(pool)
       {
       }
 
-      void recycle(const const_tgba_ptr& l, tgba_succ_iterator* left,
-		   const_tgba_ptr r, tgba_succ_iterator* right)
+      void recycle(const const_tgba_ptr& l, twa_succ_iterator* left,
+		   const_tgba_ptr r, twa_succ_iterator* right)
       {
 	l->release_iter(left_);
 	left_ = left;
@@ -99,7 +99,7 @@ namespace spot
 	right_ = right;
       }
 
-      virtual ~tgba_succ_iterator_product_common()
+      virtual ~twa_succ_iterator_product_common()
       {
 	delete left_;
 	delete right_;
@@ -138,8 +138,8 @@ namespace spot
       }
 
     protected:
-      tgba_succ_iterator* left_;
-      tgba_succ_iterator* right_;
+      twa_succ_iterator* left_;
+      twa_succ_iterator* right_;
       const twa_product* prod_;
       fixed_size_pool* pool_;
       friend class spot::twa_product;
@@ -147,18 +147,18 @@ namespace spot
 
 
     /// \brief Iterate over the successors of a product computed on the fly.
-    class tgba_succ_iterator_product: public tgba_succ_iterator_product_common
+    class twa_succ_iterator_product: public twa_succ_iterator_product_common
     {
     public:
-      tgba_succ_iterator_product(tgba_succ_iterator* left,
-				 tgba_succ_iterator* right,
+      twa_succ_iterator_product(twa_succ_iterator* left,
+				 twa_succ_iterator* right,
 				 const twa_product* prod,
 				 fixed_size_pool* pool)
-	: tgba_succ_iterator_product_common(left, right, prod, pool)
+	: twa_succ_iterator_product_common(left, right, prod, pool)
       {
       }
 
-      virtual ~tgba_succ_iterator_product()
+      virtual ~twa_succ_iterator_product()
       {
       }
 
@@ -216,19 +216,19 @@ namespace spot
 
     /// Iterate over the successors of a product computed on the fly.
     /// This one assumes that LEFT is an iterator over a Kripke structure
-    class tgba_succ_iterator_product_kripke:
-      public tgba_succ_iterator_product_common
+    class twa_succ_iterator_product_kripke:
+      public twa_succ_iterator_product_common
     {
     public:
-      tgba_succ_iterator_product_kripke(tgba_succ_iterator* left,
-					tgba_succ_iterator* right,
+      twa_succ_iterator_product_kripke(twa_succ_iterator* left,
+					twa_succ_iterator* right,
 					const twa_product* prod,
 					fixed_size_pool* pool)
-	: tgba_succ_iterator_product_common(left, right, prod, pool)
+	: twa_succ_iterator_product_common(left, right, prod, pool)
       {
       }
 
-      virtual ~tgba_succ_iterator_product_kripke()
+      virtual ~twa_succ_iterator_product_kripke()
       {
       }
 
@@ -338,18 +338,18 @@ namespace spot
 					    right_->get_init_state(), p);
   }
 
-  tgba_succ_iterator*
+  twa_succ_iterator*
   twa_product::succ_iter(const state* state) const
   {
     const state_product* s = down_cast<const state_product*>(state);
     assert(s);
-    tgba_succ_iterator* li = left_->succ_iter(s->left());
-    tgba_succ_iterator* ri = right_->succ_iter(s->right());
+    twa_succ_iterator* li = left_->succ_iter(s->left());
+    twa_succ_iterator* ri = right_->succ_iter(s->right());
 
     if (iter_cache_)
       {
-	tgba_succ_iterator_product_common* it =
-	  down_cast<tgba_succ_iterator_product_common*>(iter_cache_);
+	twa_succ_iterator_product_common* it =
+	  down_cast<twa_succ_iterator_product_common*>(iter_cache_);
 	it->recycle(left_, li, right_, ri);
 	iter_cache_ = nullptr;
 	return it;
@@ -357,9 +357,9 @@ namespace spot
 
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);
     if (left_kripke_)
-      return new tgba_succ_iterator_product_kripke(li, ri, this, p);
+      return new twa_succ_iterator_product_kripke(li, ri, this, p);
     else
-      return new tgba_succ_iterator_product(li, ri, this, p);
+      return new twa_succ_iterator_product(li, ri, this, p);
   }
 
   bdd
@@ -406,10 +406,10 @@ namespace spot
   }
 
   std::string
-  twa_product::transition_annotation(const tgba_succ_iterator* t) const
+  twa_product::transition_annotation(const twa_succ_iterator* t) const
   {
-    const tgba_succ_iterator_product_common* i =
-      down_cast<const tgba_succ_iterator_product_common*>(t);
+    const twa_succ_iterator_product_common* i =
+      down_cast<const twa_succ_iterator_product_common*>(t);
     assert(i);
     std::string left = left_->transition_annotation(i->left_);
     std::string right = right_->transition_annotation(i->right_);

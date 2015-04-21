@@ -59,7 +59,7 @@ namespace spot
       {
 	assert(seen.find(t) != seen.end());
 	int tn = seen[t];
-	tgba_succ_iterator* si = aut_->succ_iter(t);
+	twa_succ_iterator* si = aut_->succ_iter(t);
 	process_state(t, tn, si);
 	if (si->first())
 	  do
@@ -107,14 +107,14 @@ namespace spot
 
   void
   tgba_reachable_iterator::process_state(const state*, int,
-					 tgba_succ_iterator*)
+					 twa_succ_iterator*)
   {
   }
 
   void
   tgba_reachable_iterator::process_link(const state*, int,
 					const state*, int,
-					const tgba_succ_iterator*)
+					const twa_succ_iterator*)
   {
   }
 
@@ -167,7 +167,7 @@ namespace spot
   void
   tgba_reachable_iterator_depth_first::push(const state* s, int sn)
   {
-    tgba_succ_iterator* si = aut_->succ_iter(s);
+    twa_succ_iterator* si = aut_->succ_iter(s);
     process_state(s, sn, si);
     stack_item item = { s, sn, si };
     todo.push_back(item);
@@ -195,7 +195,7 @@ namespace spot
     const state* dst;
     while (!todo.empty())
       {
-	tgba_succ_iterator* si = todo.back().it;
+	twa_succ_iterator* si = todo.back().it;
 	if (si->done())
 	  {
 	    pop();
@@ -257,14 +257,14 @@ namespace spot
 
   void
   tgba_reachable_iterator_depth_first::process_state(const state*, int,
-						     tgba_succ_iterator*)
+						     twa_succ_iterator*)
   {
   }
 
   void
   tgba_reachable_iterator_depth_first::process_link(const state*, int,
 						    const state*, int,
-						    const tgba_succ_iterator*)
+						    const twa_succ_iterator*)
   {
   }
 

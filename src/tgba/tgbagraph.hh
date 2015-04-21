@@ -106,7 +106,7 @@ namespace spot
 
   template<class Graph>
   class SPOT_API twa_graph_succ_iterator final:
-    public tgba_succ_iterator
+    public twa_succ_iterator
   {
   private:
     typedef typename Graph::transition transition;
@@ -268,7 +268,7 @@ namespace spot
       return const_cast<tgba_graph_state*>(state_from_number(init_number_));
     }
 
-    virtual tgba_succ_iterator*
+    virtual twa_succ_iterator*
     succ_iter(const state* st) const
     {
       auto s = down_cast<const typename graph_t::state_storage_t*>(st);
@@ -312,7 +312,7 @@ namespace spot
       return format_state(state_number(st));
     }
 
-    tgba_graph_trans_data& trans_data(const tgba_succ_iterator* it)
+    tgba_graph_trans_data& trans_data(const twa_succ_iterator* it)
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_data(i->pos());
@@ -323,7 +323,7 @@ namespace spot
       return g_.trans_data(t);
     }
 
-    const tgba_graph_trans_data& trans_data(const tgba_succ_iterator* it) const
+    const tgba_graph_trans_data& trans_data(const twa_succ_iterator* it) const
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_data(i->pos());
@@ -334,7 +334,7 @@ namespace spot
       return g_.trans_data(t);
     }
 
-    trans_storage_t& trans_storage(const tgba_succ_iterator* it)
+    trans_storage_t& trans_storage(const twa_succ_iterator* it)
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_storage(i->pos());
@@ -346,7 +346,7 @@ namespace spot
     }
 
     const trans_storage_t
-      trans_storage(const tgba_succ_iterator* it) const
+      trans_storage(const twa_succ_iterator* it) const
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_storage(i->pos());

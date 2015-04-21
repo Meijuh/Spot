@@ -78,7 +78,7 @@ namespace spot
 
     /// \brief Release a state.
     ///
-    /// Methods from the tgba or tgba_succ_iterator always return a
+    /// Methods from the tgba or twa_succ_iterator always return a
     /// new state that you should deallocate with this function.
     /// Before Spot 0.7, you had to "delete" your state directly.
     /// Starting with Spot 0.7, you should update your code to use
@@ -326,11 +326,11 @@ namespace spot
   /// transition labels.  Because transitions are never explicitely
   /// encoded, labels (conditions and acceptance conditions) can only
   /// be queried while iterating over the successors.
-  class SPOT_API tgba_succ_iterator
+  class SPOT_API twa_succ_iterator
   {
   public:
     virtual
-    ~tgba_succ_iterator()
+    ~twa_succ_iterator()
     {
     }
 
@@ -400,10 +400,10 @@ namespace spot
     struct SPOT_API succ_iterator
     {
     protected:
-      tgba_succ_iterator* it_;
+      twa_succ_iterator* it_;
     public:
 
-      succ_iterator(tgba_succ_iterator* it):
+      succ_iterator(twa_succ_iterator* it):
 	it_(it)
       {
       }
@@ -418,7 +418,7 @@ namespace spot
 	return it_ != o.it_;
       }
 
-      const tgba_succ_iterator* operator*() const
+      const twa_succ_iterator* operator*() const
       {
 	return it_;
       }
@@ -482,7 +482,7 @@ namespace spot
   protected:
     twa(const bdd_dict_ptr& d);
     // Any iterator returned via release_iter.
-    mutable tgba_succ_iterator* iter_cache_;
+    mutable twa_succ_iterator* iter_cache_;
     bdd_dict_ptr dict_;
   public:
 
@@ -491,9 +491,9 @@ namespace spot
     {
     protected:
       const twa* aut_;
-      tgba_succ_iterator* it_;
+      twa_succ_iterator* it_;
     public:
-      succ_iterable(const twa* aut, tgba_succ_iterator* it)
+      succ_iterable(const twa* aut, twa_succ_iterator* it)
 	: aut_(aut), it_(it)
       {
       }
@@ -536,7 +536,7 @@ namespace spot
     /// The iterator has been allocated with \c new.  It is the
     /// responsability of the caller to \c delete it when no
     /// longer needed.
-    virtual tgba_succ_iterator*
+    virtual twa_succ_iterator*
     succ_iter(const state* local_state) const = 0;
 
 #ifndef SWIG
@@ -555,7 +555,7 @@ namespace spot
     ///
     /// This iterator can then be reused by succ_iter() to avoid
     /// memory allocation.
-    void release_iter(tgba_succ_iterator* i) const
+    void release_iter(twa_succ_iterator* i) const
     {
       if (iter_cache_)
 	delete i;
@@ -611,9 +611,9 @@ namespace spot
     /// This method is used for instance in dotty_reachable(),
     /// and replay_tgba_run().
     ///
-    /// \param t a non-done tgba_succ_iterator for this automaton
+    /// \param t a non-done twa_succ_iterator for this automaton
     virtual std::string
-    transition_annotation(const tgba_succ_iterator* t) const;
+    transition_annotation(const twa_succ_iterator* t) const;
 
     /// \brief Project a state on an automaton.
     ///

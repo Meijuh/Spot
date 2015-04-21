@@ -102,14 +102,14 @@ namespace spot
   /// the depth first search is directed.
   ///
   /// spot::couvreur99_check performs a straightforward depth first search.
-  /// The DFS stacks store tgba_succ_iterators, so that only the
+  /// The DFS stacks store twa_succ_iterators, so that only the
   /// iterators which really are explored are computed.
   ///
   /// spot::couvreur99_check_shy tries to explore successors which are
   /// visited states first.  this helps to merge SCCs and generally
   /// helps to produce shorter counter-examples.  However this
   /// algorithm cannot stores unprocessed successors as
-  /// tgba_succ_iterators: it must compute all successors of a state
+  /// twa_succ_iterators: it must compute all successors of a state
   /// at once in order to decide which to explore first, and must keep
   /// a list of all unexplored successors in its DFS stack.
   ///

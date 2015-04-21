@@ -57,7 +57,7 @@ namespace spot
         right_->get_init_state(), p);
   }
 
-  tgba_succ_iterator*
+  twa_succ_iterator*
   tgta_product::succ_iter(const state* state) const
   {
     const state_product* s = down_cast<const state_product*> (state);

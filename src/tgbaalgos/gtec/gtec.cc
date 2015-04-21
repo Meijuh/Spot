@@ -37,7 +37,7 @@ namespace spot
 {
   namespace
   {
-    typedef std::pair<const spot::state*, tgba_succ_iterator*> pair_state_iter;
+    typedef std::pair<const spot::state*, twa_succ_iterator*> pair_state_iter;
   }
 
   couvreur99_check::couvreur99_check(const const_tgba_ptr& a, option_map o)
@@ -91,14 +91,14 @@ namespace spot
     // Remove from H all states which are reachable from state FROM.
 
     // Stack of iterators towards states to remove.
-    std::stack<tgba_succ_iterator*> to_remove;
+    std::stack<twa_succ_iterator*> to_remove;
 
     // Remove FROM itself, and prepare to remove its successors.
     // (FROM should be in H, otherwise it means all reachable
     // states from FROM have already been removed and there is no
     // point in calling remove_component.)
     ecs_->h[from] = -1;
-    tgba_succ_iterator* i = ecs_->aut->succ_iter(from);
+    twa_succ_iterator* i = ecs_->aut->succ_iter(from);
 
     for (;;)
       {
@@ -150,7 +150,7 @@ namespace spot
     //   visited node,
     int num = 1;
     // * todo, the depth-first search stack.  This holds pairs of the
-    //   form (STATE, ITERATOR) where ITERATOR is a tgba_succ_iterator
+    //   form (STATE, ITERATOR) where ITERATOR is a twa_succ_iterator
     //   over the successors of STATE.  In our use, ITERATOR should
     //   always be freed when TODO is popped, but STATE should not because
     //   it is also used as a key in H.
@@ -162,7 +162,7 @@ namespace spot
       ecs_->h[init] = 1;
       ecs_->root.push(1);
       arc.push(0U);
-      tgba_succ_iterator* iter = ecs_->aut->succ_iter(init);
+      twa_succ_iterator* iter = ecs_->aut->succ_iter(init);
       iter->first();
       todo.emplace(init, iter);
       inc_depth();
@@ -173,7 +173,7 @@ namespace spot
 	assert(ecs_->root.size() == arc.size());
 
 	// We are looking at the next successor in SUCC.
-	tgba_succ_iterator* succ = todo.top().second;
+	twa_succ_iterator* succ = todo.top().second;
 
 	// If there is no more successor, backtrack.
 	if (succ->done())
@@ -230,7 +230,7 @@ namespace spot
 	    // successors for later processing.
 	    ecs_->root.push(++num);
 	    arc.push(acc);
-	    tgba_succ_iterator* iter = ecs_->aut->succ_iter(dest);
+	    twa_succ_iterator* iter = ecs_->aut->succ_iter(dest);
 	    iter->first();
 	    todo.emplace(dest, iter);
 	    inc_depth();

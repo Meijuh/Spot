@@ -46,7 +46,7 @@ namespace spot
     struct stack_entry
     {
       const state* s;		  // State stored in stack entry.
-      tgba_succ_iterator* lasttr; // Last transition explored from this state.
+      twa_succ_iterator* lasttr; // Last transition explored from this state.
       int lowlink;		  // Lowlink value if this entry.
       int pre;			  // DFS predecessor.
       int acc;			  // Accepting state link.
@@ -101,7 +101,7 @@ namespace spot
 		  << ", s = " << a_->format_state(stack[dftop].s)
 		  << ')' << std::endl;
 
-	    tgba_succ_iterator* iter = stack[dftop].lasttr;
+	    twa_succ_iterator* iter = stack[dftop].lasttr;
 	    bool cont;
 	    if (!iter)
 	      {

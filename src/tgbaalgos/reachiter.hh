@@ -69,15 +69,15 @@ namespace spot
     ///
     /// \param s The current state.
     /// \param n A unique number assigned to \a s.
-    /// \param si The spot::tgba_succ_iterator for \a s.
-    virtual void process_state(const state* s, int n, tgba_succ_iterator* si);
+    /// \param si The spot::twa_succ_iterator for \a s.
+    virtual void process_state(const state* s, int n, twa_succ_iterator* si);
     /// Called by run() to process a transition.
     ///
     /// \param in_s The source state
     /// \param in The source state number.
     /// \param out_s The destination state
     /// \param out The destination state number.
-    /// \param si The spot::tgba_succ_iterator positionned on the current
+    /// \param si The spot::twa_succ_iterator positionned on the current
     ///             transition.
     ///
     /// The in_s and out_s states are owned by the
@@ -85,7 +85,7 @@ namespace spot
     /// instance is destroyed.
     virtual void process_link(const state* in_s, int in,
 			      const state* out_s, int out,
-			      const tgba_succ_iterator* si);
+			      const twa_succ_iterator* si);
 
   protected:
     const_tgba_ptr aut_;	///< The spot::tgba to explore.
@@ -139,15 +139,15 @@ namespace spot
     ///
     /// \param s The current state.
     /// \param n A unique number assigned to \a s.
-    /// \param si The spot::tgba_succ_iterator for \a s.
-    virtual void process_state(const state* s, int n, tgba_succ_iterator* si);
+    /// \param si The spot::twa_succ_iterator for \a s.
+    virtual void process_state(const state* s, int n, twa_succ_iterator* si);
     /// Called by run() to process a transition.
     ///
     /// \param in_s The source state
     /// \param in The source state number.
     /// \param out_s The destination state
     /// \param out The destination state number.
-    /// \param si The spot::tgba_succ_iterator positionned on the current
+    /// \param si The spot::twa_succ_iterator positionned on the current
     ///             transition.
     ///
     /// The in_s and out_s states are owned by the
@@ -155,7 +155,7 @@ namespace spot
     /// instance is destroyed.
     virtual void process_link(const state* in_s, int in,
 			      const state* out_s, int out,
-			      const tgba_succ_iterator* si);
+			      const twa_succ_iterator* si);
 
   protected:
     const_tgba_ptr aut_;		///< The spot::tgba to explore.
@@ -167,7 +167,7 @@ namespace spot
     {
       const state* src;
       int src_n;
-      tgba_succ_iterator* it;
+      twa_succ_iterator* it;
     };
     std::deque<stack_item> todo; ///< the DFS stack
 

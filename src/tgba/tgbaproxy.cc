@@ -38,7 +38,7 @@ namespace spot
     return original_->get_init_state();
   }
 
-  tgba_succ_iterator*
+  twa_succ_iterator*
   tgba_proxy::succ_iter(const state* state) const
   {
     if (iter_cache_)
@@ -56,7 +56,7 @@ namespace spot
   }
 
   std::string
-  tgba_proxy::transition_annotation(const tgba_succ_iterator* t) const
+  tgba_proxy::transition_annotation(const twa_succ_iterator* t) const
   {
     return original_->transition_annotation(t);
   }

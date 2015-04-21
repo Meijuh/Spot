@@ -185,7 +185,7 @@ namespace spot
                                 // number states that are part of
                                 // incomplete SCCs being completed.
     int num_;			// Number of visited nodes, negated.
-    typedef std::pair<const spot::state*, tgba_succ_iterator*> pair_state_iter;
+    typedef std::pair<const spot::state*, twa_succ_iterator*> pair_state_iter;
     std::stack<pair_state_iter> todo_; // DFS stack.  Holds (STATE,
 				       // ITERATOR) pairs where
 				       // ITERATOR is an iterator over

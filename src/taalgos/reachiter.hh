@@ -79,7 +79,7 @@ namespace spot
     ///
     /// \param in The source state number.
     /// \param out The destination state number.
-    /// \param si The spot::tgba_succ_iterator positionned on the current
+    /// \param si The spot::twa_succ_iterator positionned on the current
     ///             transition.
     virtual void
     process_link(int in, int out, const ta_succ_iterator* si);

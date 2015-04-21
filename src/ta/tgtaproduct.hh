@@ -38,7 +38,7 @@ namespace spot
     virtual state*
     get_init_state() const;
 
-    virtual tgba_succ_iterator*
+    virtual twa_succ_iterator*
     succ_iter(const state* local_state) const;
   };
 
@@ -49,7 +49,7 @@ namespace spot
   }
 
   /// \brief Iterate over the successors of a product computed on the fly.
-  class SPOT_API tgta_succ_iterator_product : public tgba_succ_iterator
+  class SPOT_API tgta_succ_iterator_product : public twa_succ_iterator
   {
   public:
     tgta_succ_iterator_product(const state_product* s,
@@ -91,8 +91,8 @@ namespace spot
     const_tgta_ptr tgta_;
     const_kripke_ptr kripke_;
     fixed_size_pool* pool_;
-    tgba_succ_iterator* tgta_succ_it_;
-    tgba_succ_iterator* kripke_succ_it_;
+    twa_succ_iterator* tgta_succ_it_;
+    twa_succ_iterator* kripke_succ_it_;
     state_product* current_state_;
     bdd current_condition_;
     acc_cond::mark_t current_acceptance_conditions_;

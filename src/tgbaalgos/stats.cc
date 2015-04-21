@@ -42,14 +42,14 @@ namespace spot
       }
 
       void
-      process_state(const state*, int, tgba_succ_iterator*)
+      process_state(const state*, int, twa_succ_iterator*)
       {
 	++s_.states;
       }
 
       void
       process_link(const state*, int, const state*, int,
-		   const tgba_succ_iterator*)
+		   const twa_succ_iterator*)
       {
 	++s_.transitions;
       }
@@ -68,7 +68,7 @@ namespace spot
 
       void
       process_link(const state*, int, const state*, int,
-		   const tgba_succ_iterator* it)
+		   const twa_succ_iterator* it)
       {
 	++s_.transitions;
 

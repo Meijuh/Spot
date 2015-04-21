@@ -68,7 +68,7 @@ namespace spot
   }
 
   std::string
-  twa::transition_annotation(const tgba_succ_iterator*) const
+  twa::transition_annotation(const twa_succ_iterator*) const
   {
     return "";
   }

@@ -240,7 +240,7 @@ namespace spot
       void
       process_link(const state* sin, int,
 		   const state* sout, int,
-		   const tgba_succ_iterator* si)
+		   const twa_succ_iterator* si)
       {
 	int in = in_->aut->state_number(sin);
 	int out = in_->aut->state_number(sout);

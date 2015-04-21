@@ -94,10 +94,10 @@ namespace spot
       bdd cond_;
     };
 
-    class tgbasl_succ_iterator : public tgba_succ_iterator
+    class tgbasl_succ_iterator : public twa_succ_iterator
     {
     public:
-      tgbasl_succ_iterator(tgba_succ_iterator* it, const state_tgbasl* state,
+      tgbasl_succ_iterator(twa_succ_iterator* it, const state_tgbasl* state,
 			   bdd_dict_ptr d, bdd atomic_propositions)
         : it_(it), state_(state), aps_(atomic_propositions), d_(d)
       {
@@ -191,7 +191,7 @@ namespace spot
           need_loop_ = false;
       }
 
-      tgba_succ_iterator* it_;
+      twa_succ_iterator* it_;
       const state_tgbasl* state_;
       bdd cond_;
       bdd one_;
@@ -225,7 +225,7 @@ namespace spot
 	return new state_tgbasl(a_->get_init_state(), bddfalse);
       }
 
-      virtual tgba_succ_iterator* succ_iter(const state* state) const override
+      virtual twa_succ_iterator* succ_iter(const state* state) const override
       {
 	const state_tgbasl* s = down_cast<const state_tgbasl*>(state);
 	assert(s);

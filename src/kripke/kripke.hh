@@ -40,7 +40,7 @@ namespace spot
   ///
   /// This class implements kripke_succ_iterator::current_condition(),
   /// and kripke_succ_iterator::current_acceptance_conditions().
-  class SPOT_API kripke_succ_iterator : public tgba_succ_iterator
+  class SPOT_API kripke_succ_iterator : public twa_succ_iterator
   {
   public:
     /// \brief Constructor

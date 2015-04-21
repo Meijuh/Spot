@@ -116,7 +116,7 @@ namespace spot
     const ta* ta_;
     const kripke* kripke_;
     ta_succ_iterator* ta_succ_it_;
-    tgba_succ_iterator* kripke_succ_it_;
+    twa_succ_iterator* kripke_succ_it_;
     state_ta_product* current_state_;
     bdd current_condition_;
     acc_cond::mark_t current_acceptance_conditions_;

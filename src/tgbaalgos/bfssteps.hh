@@ -55,7 +55,7 @@ namespace spot
     /// bfs_steps does not do handle the memory for the states it
     /// generates, this is the job of filter().  Here \a s is a new
     /// state* that search() has just allocated (using
-    /// tgba_succ_iterator::current_state()), and the return of this
+    /// twa_succ_iterator::current_state()), and the return of this
     /// function should be a state* that does not need to be freed by
     /// search().
     ///

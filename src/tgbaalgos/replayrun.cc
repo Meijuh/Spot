@@ -34,7 +34,7 @@ namespace spot
     void
     print_annotation(std::ostream& os,
 		     const const_tgba_ptr& a,
-		     const tgba_succ_iterator* i)
+		     const twa_succ_iterator* i)
     {
       std::string s = a->transition_annotation(i);
       if (s == "")
@@ -138,7 +138,7 @@ namespace spot
 	  }
 
 	// browse the actual outgoing transitions
-	tgba_succ_iterator* j = a->succ_iter(s);
+	twa_succ_iterator* j = a->succ_iter(s);
 	// When not debugging, S is not used as key in SEEN, so we can
 	// destroy it right now.
 	if (!debug)

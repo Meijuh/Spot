@@ -135,7 +135,7 @@ namespace spot
       root_.emplace_front(num_);
       arc_acc_.push(0U);
       arc_cond_.push(bddfalse);
-      tgba_succ_iterator* iter = aut_->succ_iter(init);
+      twa_succ_iterator* iter = aut_->succ_iter(init);
       iter->first();
       todo_.emplace(init, iter);
     }
@@ -146,7 +146,7 @@ namespace spot
 	assert(root_.size() == arc_cond_.size());
 
 	// We are looking at the next successor in SUCC.
-	tgba_succ_iterator* succ = todo_.top().second;
+	twa_succ_iterator* succ = todo_.top().second;
 
 	// If there is no more successor, backtrack.
 	if (succ->done())
@@ -212,7 +212,7 @@ namespace spot
 	    root_.emplace_front(num_);
 	    arc_acc_.push(acc);
 	    arc_cond_.push(cond);
-	    tgba_succ_iterator* iter = aut_->succ_iter(dest);
+	    twa_succ_iterator* iter = aut_->succ_iter(dest);
 	    iter->first();
 	    todo_.emplace(dest, iter);
 	    continue;

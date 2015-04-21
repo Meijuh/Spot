@@ -392,7 +392,7 @@ namespace spot
     int num = 0;
 
     // * todo: the depth-first search stack.  This holds pairs of the
-    //   form (STATE, ITERATOR) where ITERATOR is a tgba_succ_iterator
+    //   form (STATE, ITERATOR) where ITERATOR is a twa_succ_iterator
     //   over the successors of STATE.  In our use, ITERATOR should
     //   always be freed when TODO is popped, but STATE should not because
     //   it is also used as a key in H.

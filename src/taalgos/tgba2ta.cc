@@ -45,7 +45,7 @@ namespace spot
 
   namespace
   {
-    typedef std::pair<spot::state*, tgba_succ_iterator*> pair_state_iter;
+    typedef std::pair<spot::state*, twa_succ_iterator*> pair_state_iter;
 
     static void
     transform_to_single_pass_automaton
@@ -171,7 +171,7 @@ namespace spot
       int num = 0;
 
       // * todo: the depth-first search stack.  This holds pairs of the
-      //   form (STATE, ITERATOR) where ITERATOR is a tgba_succ_iterator
+      //   form (STATE, ITERATOR) where ITERATOR is a twa_succ_iterator
       //   over the successors of STATE.  In our use, ITERATOR should
       //   always be freed when TODO is popped, but STATE should not because
       //   it is also used as a key in H.
@@ -202,7 +202,7 @@ namespace spot
 	    arc.push(0U);
 	    sscc.top().is_accepting
               = testing_aut->is_accepting_state(init);
-	    tgba_succ_iterator* iter = testing_aut->succ_iter(init);
+	    twa_succ_iterator* iter = testing_aut->succ_iter(init);
 	    iter->first();
 	    todo.emplace(init, iter);
 	  }
@@ -220,7 +220,7 @@ namespace spot
 		}
 
 	      // We are looking at the next successor in SUCC.
-	      tgba_succ_iterator* succ = todo.top().second;
+	      twa_succ_iterator* succ = todo.top().second;
 
 	      // If there is no more successor, backtrack.
 	      if (succ->done())
@@ -322,7 +322,7 @@ namespace spot
 		  sscc.top().is_accepting =
 		    testing_aut->is_accepting_state(dest);
 
-		  tgba_succ_iterator* iter = testing_aut->succ_iter(dest);
+		  twa_succ_iterator* iter = testing_aut->succ_iter(dest);
 		  iter->first();
 		  todo.emplace(dest, iter);
 		  continue;
@@ -425,7 +425,7 @@ namespace spot
       bool is_acc = false;
       if (degeneralized)
 	{
-	  tgba_succ_iterator* it = tgba_->succ_iter(tgba_init_state);
+	  twa_succ_iterator* it = tgba_->succ_iter(tgba_init_state);
 	  it->first();
 	  if (!it->done())
 	    is_acc = it->current_acceptance_conditions() != 0U;
@@ -454,7 +454,7 @@ namespace spot
 	  state_ta_explicit* source = todo.top();
 	  todo.pop();
 
-	  tgba_succ_iterator* tgba_succ_it =
+	  twa_succ_iterator* tgba_succ_it =
 	    tgba_->succ_iter(source->get_tgba_state());
 	  for (tgba_succ_it->first(); !tgba_succ_it->done();
 	       tgba_succ_it->next())
@@ -477,7 +477,7 @@ namespace spot
 		  bool is_acc = false;
 		  if (degeneralized)
 		  {
-		    tgba_succ_iterator* it = tgba_->succ_iter(tgba_state);
+		    twa_succ_iterator* it = tgba_->succ_iter(tgba_state);
 		    it->first();
 		    if (!it->done())
 		      is_acc = it->current_acceptance_conditions() != 0U;
@@ -621,7 +621,7 @@ namespace spot
     // adapt a ta automata to build tgta automata :
     ta::states_set_t states_set = ta->get_states_set();
     ta::states_set_t::iterator it;
-    tgba_succ_iterator* initial_states_iter =
+    twa_succ_iterator* initial_states_iter =
       ta->succ_iter(ta->get_artificial_initial_state());
     initial_states_iter->first();
     if (initial_states_iter->done())

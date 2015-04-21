@@ -60,7 +60,7 @@ namespace spot
     return new spot::set_state(init_);
   }
 
-  tgba_succ_iterator*
+  twa_succ_iterator*
   taa_tgba::succ_iter(const spot::state* state) const
   {
     const spot::set_state* s = down_cast<const spot::set_state*>(state);

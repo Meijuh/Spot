@@ -45,12 +45,12 @@ namespace spot
 {
   struct stack_item
   {
-    stack_item(const state* n, tgba_succ_iterator* i, bdd l, acc_cond::mark_t a)
+    stack_item(const state* n, twa_succ_iterator* i, bdd l, acc_cond::mark_t a)
       : s(n), it(i), label(l), acc(a) {};
     /// The visited state.
     const state* s;
     /// Design the next successor of \a s which has to be visited.
-    tgba_succ_iterator* it;
+    twa_succ_iterator* it;
     /// The label of the transition traversed to reach \a s
     /// (false for the first one).
     bdd label;
@@ -261,7 +261,7 @@ namespace spot
       const state* start = target->clone();
 
       seen.insert(start);
-      tgba_succ_iterator* i = a_->succ_iter(start);
+      twa_succ_iterator* i = a_->succ_iter(start);
       i->first();
       st1.emplace_front(start, i, bddfalse, 0U);
 
@@ -290,7 +290,7 @@ namespace spot
 		      this->inc_ars_cycle_states();
                       ndfsr_trace << "  it is not seen, go down" << std::endl;
                       seen.insert(s_prime);
-                      tgba_succ_iterator* i = a_->succ_iter(s_prime);
+                      twa_succ_iterator* i = a_->succ_iter(s_prime);
                       i->first();
                       st1.emplace_front(s_prime, i, label, acc);
                     }

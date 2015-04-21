@@ -126,7 +126,7 @@ namespace spot
 		const bdd& label, acc_cond::mark_t acc)
       {
         inc_depth();
-        tgba_succ_iterator* i = a_->succ_iter(s);
+        twa_succ_iterator* i = a_->succ_iter(s);
         i->first();
         st.emplace_front(s, i, label, acc);
       }

@@ -65,7 +65,7 @@ namespace spot
 	// we just check the acceptance of the first transition.  This
 	// is not terribly efficient since we have to create the
 	// iterator.
-	tgba_succ_iterator* it = aut_->succ_iter(s);
+	twa_succ_iterator* it = aut_->succ_iter(s);
 	bool accepting = it->first()
 	  && aut_->acc().accepting(it->current_acceptance_conditions());
 	aut_->release_iter(it);
@@ -74,7 +74,7 @@ namespace spot
 
 
       void
-      process_state(const state* s, int n, tgba_succ_iterator*)
+      process_state(const state* s, int n, twa_succ_iterator*)
       {
 	--n;
 	if (n == 0)
@@ -96,7 +96,7 @@ namespace spot
 
       void
       process_link(const state*, int,
-		   const state*, int out, const tgba_succ_iterator* si)
+		   const state*, int out, const twa_succ_iterator* si)
       {
 	body_ << out - 1 << ' ';
 	if (!sba_format_)
