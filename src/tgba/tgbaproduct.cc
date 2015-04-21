@@ -84,7 +84,7 @@ namespace spot
     public:
       tgba_succ_iterator_product_common(tgba_succ_iterator* left,
 					tgba_succ_iterator* right,
-					const tgba_product* prod,
+					const twa_product* prod,
 					fixed_size_pool* pool)
 	: left_(left), right_(right), prod_(prod), pool_(pool)
       {
@@ -140,9 +140,9 @@ namespace spot
     protected:
       tgba_succ_iterator* left_;
       tgba_succ_iterator* right_;
-      const tgba_product* prod_;
+      const twa_product* prod_;
       fixed_size_pool* pool_;
-      friend class spot::tgba_product;
+      friend class spot::twa_product;
     };
 
 
@@ -152,7 +152,7 @@ namespace spot
     public:
       tgba_succ_iterator_product(tgba_succ_iterator* left,
 				 tgba_succ_iterator* right,
-				 const tgba_product* prod,
+				 const twa_product* prod,
 				 fixed_size_pool* pool)
 	: tgba_succ_iterator_product_common(left, right, prod, pool)
       {
@@ -222,7 +222,7 @@ namespace spot
     public:
       tgba_succ_iterator_product_kripke(tgba_succ_iterator* left,
 					tgba_succ_iterator* right,
-					const tgba_product* prod,
+					const twa_product* prod,
 					fixed_size_pool* pool)
 	: tgba_succ_iterator_product_common(left, right, prod, pool)
       {
@@ -280,9 +280,9 @@ namespace spot
   } // anonymous
 
   ////////////////////////////////////////////////////////////
-  // tgba_product
+  // twa_product
 
-  tgba_product::tgba_product(const const_tgba_ptr& left,
+  twa_product::twa_product(const const_tgba_ptr& left,
 			     const const_tgba_ptr& right)
     : twa(left->get_dict()), left_(left), right_(right),
       pool_(sizeof(state_product))
@@ -318,7 +318,7 @@ namespace spot
     set_acceptance(left_num + right->acc().num_sets(), right_acc);
   }
 
-  tgba_product::~tgba_product()
+  twa_product::~twa_product()
   {
     get_dict()->unregister_all_my_variables(this);
     // Prevent these states from being destroyed by ~tgba(): they
@@ -331,7 +331,7 @@ namespace spot
   }
 
   state*
-  tgba_product::get_init_state() const
+  twa_product::get_init_state() const
   {
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);
     return new(p->allocate()) state_product(left_->get_init_state(),
@@ -339,7 +339,7 @@ namespace spot
   }
 
   tgba_succ_iterator*
-  tgba_product::succ_iter(const state* state) const
+  twa_product::succ_iter(const state* state) const
   {
     const state_product* s = down_cast<const state_product*>(state);
     assert(s);
@@ -363,7 +363,7 @@ namespace spot
   }
 
   bdd
-  tgba_product::compute_support_conditions(const state* in) const
+  twa_product::compute_support_conditions(const state* in) const
   {
     const state_product* s = down_cast<const state_product*>(in);
     assert(s);
@@ -372,18 +372,18 @@ namespace spot
     return lsc & rsc;
   }
 
-  const acc_cond& tgba_product::left_acc() const
+  const acc_cond& twa_product::left_acc() const
   {
     return left_->acc();
   }
 
-  const acc_cond& tgba_product::right_acc() const
+  const acc_cond& twa_product::right_acc() const
   {
     return right_->acc();
   }
 
   std::string
-  tgba_product::format_state(const state* state) const
+  twa_product::format_state(const state* state) const
   {
     const state_product* s = down_cast<const state_product*>(state);
     assert(s);
@@ -393,7 +393,7 @@ namespace spot
   }
 
   state*
-  tgba_product::project_state(const state* s, const const_tgba_ptr& t) const
+  twa_product::project_state(const state* s, const const_tgba_ptr& t) const
   {
     const state_product* s2 = down_cast<const state_product*>(s);
     assert(s2);
@@ -406,7 +406,7 @@ namespace spot
   }
 
   std::string
-  tgba_product::transition_annotation(const tgba_succ_iterator* t) const
+  twa_product::transition_annotation(const tgba_succ_iterator* t) const
   {
     const tgba_succ_iterator_product_common* i =
       down_cast<const tgba_succ_iterator_product_common*>(t);
@@ -421,13 +421,13 @@ namespace spot
   }
 
   //////////////////////////////////////////////////////////////////////
-  // tgba_product_init
+  // twa_product_init
 
-  tgba_product_init::tgba_product_init(const const_tgba_ptr& left,
+  twa_product_init::twa_product_init(const const_tgba_ptr& left,
 				       const const_tgba_ptr& right,
 				       const state* left_init,
 				       const state* right_init)
-    : tgba_product(left, right),
+    : twa_product(left, right),
       left_init_(left_init), right_init_(right_init)
   {
     if (left_ != left)
@@ -435,7 +435,7 @@ namespace spot
   }
 
   state*
-  tgba_product_init::get_init_state() const
+  twa_product_init::get_init_state() const
   {
     fixed_size_pool* p = const_cast<fixed_size_pool*>(&pool_);
     return new(p->allocate()) state_product(left_init_->clone(),

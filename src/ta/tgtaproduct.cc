@@ -45,7 +45,7 @@ namespace spot
 
   tgta_product::tgta_product(const const_kripke_ptr& left,
 			     const const_tgta_ptr& right):
-    tgba_product(left, right)
+    twa_product(left, right)
   {
   }
 

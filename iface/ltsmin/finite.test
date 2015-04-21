@@ -54,5 +54,5 @@ run 0 ../modelcheck -ddead -e $srcdir/finite.dve \
   '!(G(dead -> ("P.a==2" | "P.b==3")))'
 
 # This used to segfault because of a bug in
-# tgba_product::transition_annotation.
+# twa_product::transition_annotation.
 run 0 ../modelcheck -gp $srcdir/finite.dve true

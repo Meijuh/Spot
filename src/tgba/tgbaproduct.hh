@@ -29,7 +29,7 @@ namespace spot
 {
 
   /// \ingroup tgba_on_the_fly_algorithms
-  /// \brief A state for spot::tgba_product.
+  /// \brief A state for spot::twa_product.
   ///
   /// This state is in fact a pair of state: the state from the left
   /// automaton and that of the right.
@@ -77,16 +77,16 @@ namespace spot
 
 
   /// \brief A lazy product.  (States are computed on the fly.)
-  class SPOT_API tgba_product: public twa
+  class SPOT_API twa_product: public twa
   {
   public:
     /// \brief Constructor.
     /// \param left The left automata in the product.
     /// \param right The right automata in the product.
     /// Do not be fooled by these arguments: a product is commutative.
-    tgba_product(const const_tgba_ptr& left, const const_tgba_ptr& right);
+    twa_product(const const_tgba_ptr& left, const const_tgba_ptr& right);
 
-    virtual ~tgba_product();
+    virtual ~twa_product();
 
     virtual state* get_init_state() const;
 
@@ -114,15 +114,15 @@ namespace spot
 
   private:
     // Disallow copy.
-    tgba_product(const tgba_product&) SPOT_DELETED;
-    tgba_product& operator=(const tgba_product&) SPOT_DELETED;
+    twa_product(const twa_product&) SPOT_DELETED;
+    twa_product& operator=(const twa_product&) SPOT_DELETED;
   };
 
   /// \brief A lazy product with different initial states.
-  class SPOT_API tgba_product_init final: public tgba_product
+  class SPOT_API twa_product_init final: public twa_product
   {
   public:
-    tgba_product_init(const const_tgba_ptr& left, const const_tgba_ptr& right,
+    twa_product_init(const const_tgba_ptr& left, const const_tgba_ptr& right,
 		      const state* left_init, const state* right_init);
     virtual state* get_init_state() const;
   protected:
@@ -131,19 +131,19 @@ namespace spot
   };
 
   /// \brief on-the-fly TGBA product
-  inline tgba_product_ptr otf_product(const const_tgba_ptr& left,
+  inline twa_product_ptr otf_product(const const_tgba_ptr& left,
 				      const const_tgba_ptr& right)
   {
-    return std::make_shared<tgba_product>(left, right);
+    return std::make_shared<twa_product>(left, right);
   }
 
   /// \brief on-the-fly TGBA product with forced initial states
-  inline tgba_product_ptr otf_product_at(const const_tgba_ptr& left,
+  inline twa_product_ptr otf_product_at(const const_tgba_ptr& left,
 					 const const_tgba_ptr& right,
 					 const state* left_init,
 					 const state* right_init)
   {
-    return std::make_shared<tgba_product_init>(left, right,
+    return std::make_shared<twa_product_init>(left, right,
 					       left_init, right_init);
   }
 }

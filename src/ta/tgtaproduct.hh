@@ -29,7 +29,7 @@ namespace spot
 {
 
   /// \brief A lazy product.  (States are computed on the fly.)
-  class SPOT_API tgta_product : public tgba_product
+  class SPOT_API tgta_product : public twa_product
   {
   public:
     tgta_product(const const_kripke_ptr& left,
