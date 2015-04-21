@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2009, 2010, 2013, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l'Epita
 //
 // This file is part of Spot, a model checking library.
@@ -85,11 +85,11 @@ namespace spot
   /// class and need not be defined.
   ///
   /// See also spot::fair_kripke_succ_iterator.
-  class SPOT_API fair_kripke: public tgba
+  class SPOT_API fair_kripke: public twa
   {
   public:
     fair_kripke(const bdd_dict_ptr& d)
-      : tgba(d)
+      : twa(d)
       {
       }
 

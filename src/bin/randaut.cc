@@ -307,7 +307,7 @@ main(int argc, char** argv)
 	  if (opt_uniq)
 	    {
 	      auto tmp = spot::canonicalize
-		(make_tgba_digraph(aut, spot::tgba::prop_set::all()));
+		(make_tgba_digraph(aut, spot::twa::prop_set::all()));
 	      std::vector<tr_t> trans(tmp->transition_vector().begin() + 1,
 				      tmp->transition_vector().end());
 	      if (!opt_uniq->emplace(trans).second)

@@ -284,7 +284,7 @@ namespace spot
 
   tgba_product::tgba_product(const const_tgba_ptr& left,
 			     const const_tgba_ptr& right)
-    : tgba(left->get_dict()), left_(left), right_(right),
+    : twa(left->get_dict()), left_(left), right_(right),
       pool_(sizeof(state_product))
   {
     assert(get_dict() == right_->get_dict());

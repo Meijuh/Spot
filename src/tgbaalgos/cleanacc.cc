@@ -56,7 +56,7 @@ namespace spot
   tgba_digraph_ptr cleanup_acceptance(const_tgba_digraph_ptr aut)
   {
     return cleanup_acceptance_here(make_tgba_digraph(aut,
-						     tgba::prop_set::all()));
+						     twa::prop_set::all()));
   }
 
 

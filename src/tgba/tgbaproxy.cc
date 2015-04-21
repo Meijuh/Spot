@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -22,7 +22,7 @@
 namespace spot
 {
   tgba_proxy::tgba_proxy(const const_tgba_ptr& original)
-    : tgba(original->get_dict()), original_(original)
+    : twa(original->get_dict()), original_(original)
   {
     get_dict()->register_all_variables_of(original, this);
     acc_.add_sets(original->acc().num_sets());

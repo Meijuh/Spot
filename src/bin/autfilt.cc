@@ -488,7 +488,7 @@ namespace
       // never modify the original automaton (e.g. with
       // merge_transitions()) and the statistics about it make sense.
       auto aut = ((automaton_format == Stats) || opt_name)
-	? spot::make_tgba_digraph(haut->aut, spot::tgba::prop_set::all())
+	? spot::make_tgba_digraph(haut->aut, spot::twa::prop_set::all())
 	: haut->aut;
 
       // Preprocessing.
@@ -577,7 +577,7 @@ namespace
         {
           auto tmp =
 	    spot::canonicalize(make_tgba_digraph(aut,
-						 spot::tgba::prop_set::all()));
+						 spot::twa::prop_set::all()));
           if (!opt->uniq->emplace(tmp->transition_vector().begin() + 1,
 				  tmp->transition_vector().end()).second)
 	    return 0;

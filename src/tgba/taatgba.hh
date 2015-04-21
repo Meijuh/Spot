@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -33,7 +33,7 @@ namespace spot
 {
   /// \brief A self-loop Transition-based Alternating Automaton (TAA)
   /// which is seen as a TGBA (abstract class, see below).
-  class SPOT_API taa_tgba: public tgba
+  class SPOT_API taa_tgba: public twa
   {
   public:
     taa_tgba(const bdd_dict_ptr& dict);

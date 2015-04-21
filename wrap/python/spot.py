@@ -54,7 +54,7 @@ def _render_automaton_as_svg(a, opt=None):
     dotty_reachable(ostr, a, opt)
     return _ostream_to_svg(ostr)
 
-tgba._repr_svg_ = _render_automaton_as_svg
+twa._repr_svg_ = _render_automaton_as_svg
 ta._repr_svg_ = _render_automaton_as_svg
 
 def _render_formula_as_svg(a):
@@ -72,7 +72,7 @@ def _return_automaton_as_svg(a, opt=None):
     # installed.
     from IPython.display import SVG
     return SVG(_render_automaton_as_svg(a, opt))
-tgba.show = _return_automaton_as_svg
+twa.show = _return_automaton_as_svg
 ta.show = _return_automaton_as_svg
 
 def _formula_str_ctor(self, str):
@@ -100,7 +100,7 @@ formula.__init__ = _formula_str_ctor
 formula.to_str = _formula_to_str
 formula.show_ast = _render_formula_as_svg
 
-def _tgba_to_str(a, format='hoa', opt=None):
+def _twa_to_str(a, format='hoa', opt=None):
     format = format.lower()
     if format == 'hoa':
         ostr = ostringstream()
@@ -120,7 +120,7 @@ def _tgba_to_str(a, format='hoa', opt=None):
         return ostr.str()
     raise ValueError("unknown string format: " + format)
 
-def _tgba_save(a, filename, format='hoa', opt=None, append=False):
+def _twa_save(a, filename, format='hoa', opt=None, append=False):
     with open(filename, 'a' if append else 'w') as f:
         s = a.to_str(format, opt)
         f.write(s)
@@ -128,8 +128,8 @@ def _tgba_save(a, filename, format='hoa', opt=None, append=False):
             f.write('\n')
     return a
 
-tgba.to_str = _tgba_to_str
-tgba.save = _tgba_save
+twa.to_str = _twa_to_str
+twa.save = _twa_save
 
 def automata(*filenames):
     """Read automata from a list of filenames.

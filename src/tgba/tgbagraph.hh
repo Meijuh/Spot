@@ -169,7 +169,7 @@ namespace spot
 
   };
 
-  class SPOT_API tgba_digraph final: public tgba
+  class SPOT_API tgba_digraph final: public twa
   {
   public:
     typedef digraph<tgba_graph_state, tgba_graph_trans_data> graph_t;
@@ -181,13 +181,13 @@ namespace spot
 
   public:
     tgba_digraph(const bdd_dict_ptr& dict)
-      : tgba(dict),
+      : twa(dict),
 	init_number_(0)
     {
     }
 
     explicit tgba_digraph(const const_tgba_digraph_ptr& other, prop_set p)
-      : tgba(other->get_dict()),
+      : twa(other->get_dict()),
         g_(other->g_), init_number_(other->init_number_)
       {
 	copy_acceptance_of(other);
@@ -198,7 +198,7 @@ namespace spot
     virtual ~tgba_digraph()
     {
       get_dict()->unregister_all_my_variables(this);
-      // Prevent this state from being destroyed by ~tgba(),
+      // Prevent this state from being destroyed by ~twa(),
       // as the state will be destroyed when g_ is destroyed.
       last_support_conditions_input_ = 0;
     }
@@ -459,19 +459,19 @@ namespace spot
   }
 
   inline tgba_digraph_ptr make_tgba_digraph(const tgba_digraph_ptr& aut,
-					    tgba::prop_set p)
+					    twa::prop_set p)
   {
     return std::make_shared<tgba_digraph>(aut, p);
   }
 
   inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_digraph_ptr& aut,
-					    tgba::prop_set p)
+					    twa::prop_set p)
   {
     return std::make_shared<tgba_digraph>(aut, p);
   }
 
   inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_ptr& aut,
-					    tgba::prop_set p)
+					    twa::prop_set p)
   {
     auto a = std::dynamic_pointer_cast<const tgba_digraph>(aut);
     if (a)

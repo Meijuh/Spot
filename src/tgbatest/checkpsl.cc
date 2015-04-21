@@ -94,10 +94,10 @@ main(int argc, char** argv)
 	{
 	  auto apos =
 	    scc_filter(make_tgba_digraph(ltl_to_taa(fpos, d),
-					 spot::tgba::prop_set::all()));
+					 spot::twa::prop_set::all()));
 	  auto aneg =
 	    scc_filter(make_tgba_digraph(ltl_to_taa(fneg, d),
-					 spot::tgba::prop_set::all()));
+					 spot::twa::prop_set::all()));
 	  if (!spot::product(apos, aneg)->is_empty())
 	    {
 	      std::cerr << "non-empty intersection between pos and neg (TAA)\n";

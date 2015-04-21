@@ -438,7 +438,7 @@ namespace spot
 
     auto a = std::dynamic_pointer_cast<const tgba_digraph>(aut);
     if (!a)
-      a = make_tgba_digraph(aut, tgba::prop_set::all());
+      a = make_tgba_digraph(aut, twa::prop_set::all());
 
     return hoa_reachable(os, a, opt);
   }

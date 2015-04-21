@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -46,7 +46,7 @@ namespace spot
   ///  is done on-the-fly when successors are called.
   ///
   /// \sa safra_determinisation, tgba_safra_complement::succ_iter.
-  class SPOT_API tgba_safra_complement : public tgba
+  class SPOT_API tgba_safra_complement : public twa
   {
   public:
     tgba_safra_complement(const const_tgba_digraph_ptr& a);

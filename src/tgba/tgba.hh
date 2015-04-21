@@ -431,46 +431,56 @@ namespace spot
     };
   }
 
-  /// \defgroup tgba TGBA (Transition-based Generalized Büchi Automata)
+  /// \defgroup twa TωA (Transition-based ω-Automata)
   ///
-  /// Spot is centered around the spot::tgba type.  This type and its
+  /// Spot is centered around the spot::twa type.  This type and its
   /// cousins are listed \ref tgba_essentials "here".  This is an
   /// abstract interface.  Its implementations are either \ref
   /// tgba_representation "concrete representations", or \ref
   /// tgba_on_the_fly_algorithms "on-the-fly algorithms".  Other
-  /// algorithms that work on spot::tgba are \ref tgba_algorithms
+  /// algorithms that work on spot::twa are \ref tgba_algorithms
   /// "listed separately".
 
-  /// \addtogroup tgba_essentials Essential TGBA types
-  /// \ingroup tgba
+  /// \addtogroup tgba_essentials Essential TωA types
+  /// \ingroup twa
 
   /// \ingroup tgba_essentials
-  /// \brief A Transition-based Generalized Büchi Automaton.
+  /// \brief A Transition-based ω-Automaton.
   ///
-  /// The acronym TGBA (Transition-based Generalized Büchi Automaton)
-  /// was coined by Dimitra Giannakopoulou and Flavio Lerda
-  /// in "From States to Transitions: Improving Translation of LTL
-  /// Formulae to Büchi Automata".  (FORTE'02)
+  /// The acronym TωA stands for Transition-based ω-automaton.
+  /// We may write it as TwA or twa, but never as TWA as the
+  /// w is just a non-utf8 replacement for ω that should not be
+  /// capitalized.
   ///
-  /// TGBAs are transition-based, meanings their labels are put
-  /// on arcs, not on nodes.  They use Generalized Büchi acceptance
-  /// conditions: there are several acceptance sets (of
-  /// transitions), and a path can be accepted only if it traverses
-  /// at least one transition of each set infinitely often.
+  /// TωAs are transition-based automata, meanings that not-only
+  /// do they have labels on arcs, they also have an acceptance
+  /// condition defined in term of sets of transitions.
+  /// The acceptance condition can be anything supported by
+  /// the HOA format (http://adl.github.io/hoaf/).  The only
+  /// restriction w.r.t. the format is that this class does
+  /// not support alternating automata
+  ///
+  /// Previous version of Spot supported a type of automata called
+  /// TGBA, which are TωA in which the acceptance condition is a set
+  /// of sets of transitions that must be intersected infinitely
+  /// often.
+  ///
+  /// In this version, TGBAs are now represented by TωAs for which
+  /// <code>aut->acc().is_generalized_buchi())</code> returns true.
   ///
   /// Browsing such automaton can be achieved using two functions:
-  /// \c get_init_state, and \c succ_iter.  The former returns
+  /// \c get_init_state, and \c succ.  The former returns
   /// the initial state while the latter lists the
   /// successor states of any state.
   ///
-  /// Note that although this is a transition-based automata,
-  /// we never represent transitions!  Transition informations are
-  /// obtained by querying the iterator over the successors of
-  /// a state.
-  class SPOT_API tgba: public std::enable_shared_from_this<tgba>
+  /// Note that although this is a transition-based automata, we never
+  /// represent transitions in the API!  Transition data are
+  /// obtained by querying the iterator over the successors of a
+  /// state.
+  class SPOT_API twa: public std::enable_shared_from_this<twa>
   {
   protected:
-    tgba(const bdd_dict_ptr& d);
+    twa(const bdd_dict_ptr& d);
     // Any iterator returned via release_iter.
     mutable tgba_succ_iterator* iter_cache_;
     bdd_dict_ptr dict_;
@@ -480,10 +490,10 @@ namespace spot
     class succ_iterable
     {
     protected:
-      const tgba* aut_;
+      const twa* aut_;
       tgba_succ_iterator* it_;
     public:
-      succ_iterable(const tgba* aut, tgba_succ_iterator* it)
+      succ_iterable(const twa* aut, tgba_succ_iterator* it)
 	: aut_(aut), it_(it)
       {
       }
@@ -512,7 +522,7 @@ namespace spot
     };
 #endif
 
-    virtual ~tgba();
+    virtual ~twa();
 
     /// \brief Get the initial state of the automaton.
     ///
@@ -533,7 +543,7 @@ namespace spot
     /// \brief Build an iterable over the successors of \a s.
     ///
     /// This is meant to be used as
-    /// <code>for (auto i: aut->out(s)) { /* i->current_state() */ }</code>.
+    /// <code>for (auto i: aut->succ(s)) { /* i->current_state() */ }</code>.
     succ_iterable
     succ(const state* s) const
     {
@@ -836,10 +846,10 @@ namespace spot
   };
 
   /// \addtogroup tgba_representation TGBA representations
-  /// \ingroup tgba
+  /// \ingroup twa
 
   /// \addtogroup tgba_algorithms TGBA algorithms
-  /// \ingroup tgba
+  /// \ingroup twa
 
   /// \addtogroup tgba_on_the_fly_algorithms TGBA on-the-fly algorithms
   /// \ingroup tgba_algorithms

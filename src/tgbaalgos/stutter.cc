@@ -203,11 +203,11 @@ namespace spot
     };
 
 
-    class tgbasl final : public tgba
+    class tgbasl final : public twa
     {
     public:
       tgbasl(const const_tgba_ptr& a, bdd atomic_propositions)
-	: tgba(a->get_dict()), a_(a), aps_(atomic_propositions)
+	: twa(a->get_dict()), a_(a), aps_(atomic_propositions)
       {
 	get_dict()->register_all_propositions_of(&a_, this);
 	assert(acc_.num_sets() == 0);
@@ -442,7 +442,7 @@ namespace spot
   tgba_digraph_ptr
   sl2(const const_tgba_digraph_ptr& a, bdd atomic_propositions)
   {
-    return sl2(make_tgba_digraph(a, tgba::prop_set::all()),
+    return sl2(make_tgba_digraph(a, twa::prop_set::all()),
 	       atomic_propositions);
   }
 

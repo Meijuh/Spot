@@ -210,7 +210,7 @@ namespace spot
     never_claim_output d(os, options);
     auto aut = std::dynamic_pointer_cast<const tgba_digraph>(g);
     if (!aut)
-      aut = make_tgba_digraph(g, tgba::prop_set::all());
+      aut = make_tgba_digraph(g, twa::prop_set::all());
     d.print(aut);
     return os;
   }

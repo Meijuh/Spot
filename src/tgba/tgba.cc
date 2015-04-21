@@ -28,7 +28,7 @@
 
 namespace spot
 {
-  tgba::tgba(const bdd_dict_ptr& d)
+  twa::twa(const bdd_dict_ptr& d)
     : iter_cache_(nullptr),
       dict_(d),
       last_support_conditions_input_(0)
@@ -36,7 +36,7 @@ namespace spot
     props = 0U;
   }
 
-  tgba::~tgba()
+  twa::~twa()
   {
     if (last_support_conditions_input_)
       last_support_conditions_input_->destroy();
@@ -45,7 +45,7 @@ namespace spot
   }
 
   bdd
-  tgba::support_conditions(const state* state) const
+  twa::support_conditions(const state* state) const
   {
     if (!last_support_conditions_input_
 	|| last_support_conditions_input_->compare(state) != 0)
@@ -59,7 +59,7 @@ namespace spot
   }
 
   state*
-  tgba::project_state(const state* s,
+  twa::project_state(const state* s,
 		      const const_tgba_ptr& t) const
   {
     if (t.get() == this)
@@ -68,13 +68,13 @@ namespace spot
   }
 
   std::string
-  tgba::transition_annotation(const tgba_succ_iterator*) const
+  twa::transition_annotation(const tgba_succ_iterator*) const
   {
     return "";
   }
 
   bool
-  tgba::is_empty() const
+  twa::is_empty() const
   {
     // FIXME: This should be improved based on properties of the
     // automaton.  For instance we do not need couvreur99 is we know
@@ -91,8 +91,8 @@ namespace spot
   }
 
   void
-  tgba::set_named_prop(std::string s,
-		       void* val, std::function<void(void*)> destructor)
+  twa::set_named_prop(std::string s,
+		      void* val, std::function<void(void*)> destructor)
   {
     auto p = named_prop_.emplace(std::piecewise_construct,
 				 std::forward_as_tuple(s),
@@ -105,7 +105,7 @@ namespace spot
   }
 
   void*
-  tgba::get_named_prop_(std::string s) const
+  twa::get_named_prop_(std::string s) const
   {
     auto i = named_prop_.find(s);
     if (i == named_prop_.end())

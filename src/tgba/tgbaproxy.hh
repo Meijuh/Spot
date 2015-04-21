@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -32,7 +32,7 @@ namespace spot
   /// original automaton right away.  However it is useful
   /// to inherit from this class and override some of its
   /// methods to implement some on-the-fly algorithm.
-  class SPOT_API tgba_proxy: public tgba
+  class SPOT_API tgba_proxy: public twa
   {
   protected:
     tgba_proxy(const const_tgba_ptr& original);

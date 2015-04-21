@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -23,9 +23,9 @@
 
 namespace spot
 {
-  class tgba;
-  typedef std::shared_ptr<tgba> tgba_ptr;
-  typedef std::shared_ptr<const tgba> const_tgba_ptr;
+  class twa;
+  typedef std::shared_ptr<twa> tgba_ptr;
+  typedef std::shared_ptr<const twa> const_tgba_ptr;
 
   class tgba_digraph;
   typedef std::shared_ptr<const tgba_digraph> const_tgba_digraph_ptr;

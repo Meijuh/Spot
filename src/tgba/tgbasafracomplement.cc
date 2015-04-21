@@ -1074,7 +1074,7 @@ namespace spot
   //////////////////////////
 
   tgba_safra_complement::tgba_safra_complement(const const_tgba_digraph_ptr& a)
-    : tgba(a->get_dict()), automaton_(a),
+    : twa(a->get_dict()), automaton_(a),
       safra_(safra_determinisation::create_safra_automaton(a))
   {
     assert(safra_ || !"safra construction fails");

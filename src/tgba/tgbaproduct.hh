@@ -77,7 +77,7 @@ namespace spot
 
 
   /// \brief A lazy product.  (States are computed on the fly.)
-  class SPOT_API tgba_product: public tgba
+  class SPOT_API tgba_product: public twa
   {
   public:
     /// \brief Constructor.

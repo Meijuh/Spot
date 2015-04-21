@@ -48,7 +48,7 @@
 %shared_ptr(spot::tgta)
 %shared_ptr(spot::tgta_explicit)
 %shared_ptr(spot::bdd_dict)
-%shared_ptr(spot::tgba)
+%shared_ptr(spot::twa)
 %shared_ptr(spot::tgba_digraph)
 %shared_ptr(spot::tgba_product)
 %shared_ptr(spot::tgba_product_init)
@@ -381,7 +381,7 @@ ensure_digraph(const spot::tgba_ptr& a)
   auto aa = std::dynamic_pointer_cast<spot::tgba_digraph>(a);
   if (aa)
     return aa;
-  return spot::make_tgba_digraph(a, spot::tgba::prop_set::all());
+  return spot::make_tgba_digraph(a, spot::twa::prop_set::all());
 }
 
 std::ostream&

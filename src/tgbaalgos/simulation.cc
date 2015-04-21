@@ -242,7 +242,7 @@ namespace spot
 	  }
 	else
 	  {
-	    a_ = make_tgba_digraph(in, tgba::prop_set::all());
+	    a_ = make_tgba_digraph(in, twa::prop_set::all());
 	    auto& acccond = a_->acc();
 	    for (auto& t: a_->transitions())
 	      t.acc = acccond.comp(t.acc);
