@@ -28,7 +28,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_io
+  /// \ingroup twa_io
   /// \brief Print reachable states in Spin never claim format.
   ///
   /// \param os The output stream to print on.

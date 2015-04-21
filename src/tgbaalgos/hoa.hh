@@ -25,7 +25,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_io
+  /// \ingroup twa_io
   /// \brief Print reachable states in Hanoi Omega Automata format.
   ///
   /// \param os The output stream to print on.

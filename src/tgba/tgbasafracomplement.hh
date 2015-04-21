@@ -29,7 +29,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_on_the_fly_algorithms
+  /// \ingroup twa_on_the_fly_algorithms
   /// \brief Build a complemented automaton.
   ///
   /// It creates an automaton that recognizes the

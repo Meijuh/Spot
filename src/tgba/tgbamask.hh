@@ -25,7 +25,7 @@
 namespace spot
 {
 
-  /// \ingroup tgba_on_the_fly_algorithms
+  /// \ingroup twa_on_the_fly_algorithms
   /// \brief Mask a TGBA, keeping a given set of states.
   ///
   /// Mask the TGBA \a to_mask, keeping only the
@@ -36,7 +36,7 @@ namespace spot
 		       const state_set& to_keep,
 		       const state* init = 0);
 
-  /// \ingroup tgba_on_the_fly_algorithms
+  /// \ingroup twa_on_the_fly_algorithms
   /// \brief Mask a TGBA, rejecting a given set of states.
   ///
   /// Mask the TGBA \a to_mask, keeping only the states that are not
@@ -48,7 +48,7 @@ namespace spot
 			 const state* init = 0);
 
 
-  /// \ingroup tgba_on_the_fly_algorithms
+  /// \ingroup twa_on_the_fly_algorithms
   /// \brief Mask a TGBA, rejecting some acceptance set of transitions.
   ///
   /// This will ignore all transitions that have the TO_IGNORE

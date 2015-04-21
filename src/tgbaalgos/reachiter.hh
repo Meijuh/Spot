@@ -29,7 +29,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_generic
+  /// \ingroup twa_generic
   /// \brief Iterate over all reachable states of a spot::tgba.
   class SPOT_API tgba_reachable_iterator
   {
@@ -95,7 +95,7 @@ namespace spot
     seen_map seen;		///< States already seen.
   };
 
-  /// \ingroup tgba_generic
+  /// \ingroup twa_generic
   /// \brief An implementation of spot::tgba_reachable_iterator that browses
   /// states breadth first.
   class SPOT_API tgba_reachable_iterator_breadth_first :
@@ -111,7 +111,7 @@ namespace spot
     std::deque<const state*> todo; ///< A queue of states yet to explore.
   };
 
-  /// \ingroup tgba_generic
+  /// \ingroup twa_generic
   /// \brief Iterate over all states of an automaton using a DFS.
   class SPOT_API tgba_reachable_iterator_depth_first
   {
@@ -177,7 +177,7 @@ namespace spot
     virtual void pop();
   };
 
-  /// \ingroup tgba_generic
+  /// \ingroup twa_generic
   /// \brief Iterate over all states of an automaton using a DFS.
   ///
   /// This variant also maintains a set of states that are on the DFS

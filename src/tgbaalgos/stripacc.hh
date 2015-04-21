@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_misc
+  /// \ingroup twa_misc
   /// \brief Remove all acceptance sets from a twa_graph.
   ///
   /// This is equivalent to marking all states/transitions as accepting.

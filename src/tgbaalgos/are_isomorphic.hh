@@ -30,7 +30,7 @@ namespace spot
   public:
     isomorphism_checker(const const_twa_graph_ptr ref);
 
-    /// \ingroup tgba_misc
+    /// \ingroup twa_misc
     /// \brief Check whether an automaton is isomorphic to the one passed to
     /// the constructor.
     ///

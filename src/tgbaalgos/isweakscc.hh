@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \addtogroup tgba_misc
+  /// \addtogroup twa_misc
   /// @{
 
   /// \brief Whether the SCC number \a scc in \a map is inherently

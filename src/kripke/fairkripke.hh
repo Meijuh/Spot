@@ -23,7 +23,7 @@
 #include "fwd.hh"
 
 /// \addtogroup kripke Kripke Structures
-/// \ingroup tgba
+/// \ingroup twa
 
 namespace spot
 {

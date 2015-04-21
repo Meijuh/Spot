@@ -26,7 +26,7 @@
 namespace spot
 {
 
-  /// \ingroup tgba_io
+  /// \ingroup twa_io
   /// \brief Save the reachable part of Kripke structure in text format.
   ///
   /// The states will be named with the value returned by the
@@ -38,7 +38,7 @@ namespace spot
   SPOT_API std::ostream&
   kripke_save_reachable(std::ostream& os, const const_kripke_ptr& k);
 
-  /// \ingroup tgba_io
+  /// \ingroup twa_io
   /// \brief Save the reachable part of Kripke structure in text format.
   ///
   /// States will be renumbered with sequential number.  This is much

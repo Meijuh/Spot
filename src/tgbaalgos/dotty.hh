@@ -28,7 +28,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_io
+  /// \ingroup twa_io
   /// \brief Print reachable states in dot format.
   ///
   /// If \a assume_sba is set, this assumes that the automaton

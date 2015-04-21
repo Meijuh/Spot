@@ -24,7 +24,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_ltl
+  /// \ingroup twa_ltl
   /// \brief Translate an LTL formula into an optimized spot::tgba.
   ///
   /// This class implements a three-step translation:

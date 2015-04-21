@@ -35,7 +35,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \brief Abstract class for states.
   class SPOT_API state
   {
@@ -100,7 +100,7 @@ namespace spot
     }
   };
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \brief Strict Weak Ordering for \c state*.
   ///
   /// This is meant to be used as a comparison functor for
@@ -122,7 +122,7 @@ namespace spot
     }
   };
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \brief An Equivalence Relation for \c state*.
   ///
   /// This is meant to be used as a comparison functor for
@@ -145,7 +145,7 @@ namespace spot
     }
   };
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \ingroup hash_funcs
   /// \brief Hash Function for \c state*.
   ///
@@ -173,7 +173,7 @@ namespace spot
 			     state_ptr_hash, state_ptr_equal> state_set;
 
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \brief Render state pointers unique via a hash table.
   class SPOT_API state_unicity_table
   {
@@ -238,7 +238,7 @@ namespace spot
 
   inline void shared_state_deleter(state* s) { s->destroy(); }
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \brief Strict Weak Ordering for \c shared_state
   /// (shared_ptr<const state*>).
   ///
@@ -262,7 +262,7 @@ namespace spot
     }
   };
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \brief An Equivalence Relation for \c shared_state
   /// (shared_ptr<const state*>).
   ///
@@ -288,7 +288,7 @@ namespace spot
     }
   };
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \ingroup hash_funcs
   /// \brief Hash Function for \c shared_state (shared_ptr<const state*>).
   ///
@@ -318,7 +318,7 @@ namespace spot
 			     state_shared_ptr_hash,
 			     state_shared_ptr_equal> shared_state_set;
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \brief Iterate over the successors of a state.
   ///
   /// This class provides the basic functionalities required to
@@ -441,10 +441,10 @@ namespace spot
   /// algorithms that work on spot::twa are \ref tgba_algorithms
   /// "listed separately".
 
-  /// \addtogroup tgba_essentials Essential TωA types
+  /// \addtogroup twa_essentials Essential TωA types
   /// \ingroup twa
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \brief A Transition-based ω-Automaton.
   ///
   /// The acronym TωA stands for Transition-based ω-automaton.
@@ -845,27 +845,27 @@ namespace spot
 
   };
 
-  /// \addtogroup tgba_representation TGBA representations
+  /// \addtogroup twa_representation TGBA representations
   /// \ingroup twa
 
-  /// \addtogroup tgba_algorithms TGBA algorithms
+  /// \addtogroup twa_algorithms TGBA algorithms
   /// \ingroup twa
 
-  /// \addtogroup tgba_on_the_fly_algorithms TGBA on-the-fly algorithms
-  /// \ingroup tgba_algorithms
+  /// \addtogroup twa_on_the_fly_algorithms TGBA on-the-fly algorithms
+  /// \ingroup twa_algorithms
 
-  /// \addtogroup tgba_io Input/Output of TGBA
-  /// \ingroup tgba_algorithms
+  /// \addtogroup twa_io Input/Output of TGBA
+  /// \ingroup twa_algorithms
 
-  /// \addtogroup tgba_ltl Translating LTL formulae into TGBA
-  /// \ingroup tgba_algorithms
+  /// \addtogroup twa_ltl Translating LTL formulae into TGBA
+  /// \ingroup twa_algorithms
 
-  /// \addtogroup tgba_generic Algorithm patterns
-  /// \ingroup tgba_algorithms
+  /// \addtogroup twa_generic Algorithm patterns
+  /// \ingroup twa_algorithms
 
-  /// \addtogroup tgba_reduction TGBA simplifications
-  /// \ingroup tgba_algorithms
+  /// \addtogroup twa_reduction TGBA simplifications
+  /// \ingroup twa_algorithms
 
-  /// \addtogroup tgba_misc Miscellaneous algorithms on TGBA
-  /// \ingroup tgba_algorithms
+  /// \addtogroup twa_misc Miscellaneous algorithms on TGBA
+  /// \ingroup twa_algorithms
 }

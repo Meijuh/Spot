@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_misc
+  /// \ingroup twa_misc
   /// \brief Degeneralize a spot::tgba into an equivalent sba with
   /// only one acceptance condition.
   ///

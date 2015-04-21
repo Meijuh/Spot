@@ -28,7 +28,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_run
+  /// \ingroup twa_run
   /// \brief Reduce an accepting run.
   ///
   /// Return a run which is accepting for \a a and that is no longer

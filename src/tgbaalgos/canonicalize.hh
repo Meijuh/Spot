@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_misc
+  /// \ingroup twa_misc
   /// \brief Reorder the states and transitions of aut in a way that will be the
   /// same for every isomorphic automata.
   SPOT_API twa_graph_ptr canonicalize(twa_graph_ptr aut);

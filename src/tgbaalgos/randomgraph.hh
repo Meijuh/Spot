@@ -29,7 +29,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_misc
+  /// \ingroup twa_misc
   /// \brief Construct a tgba randomly.
   ///
   /// \param n The number of states wanted in the automata (>0).  All states

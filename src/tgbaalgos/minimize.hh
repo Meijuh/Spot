@@ -24,7 +24,7 @@
 
 namespace spot
 {
-  /// \addtogroup tgba_reduction
+  /// \addtogroup twa_reduction
   /// @{
 
   /// \brief Construct a minimal deterministic monitor.

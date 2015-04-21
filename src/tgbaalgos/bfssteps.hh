@@ -27,7 +27,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_misc
+  /// \ingroup twa_misc
   /// \brief Make a BFS in a spot::tgba to compute a tgba_run::steps.
   ///
   /// This class should be used to compute the shortest path

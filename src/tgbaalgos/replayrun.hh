@@ -31,7 +31,7 @@ namespace spot
 {
   struct tgba_run;
 
-  /// \ingroup tgba_run
+  /// \ingroup twa_run
   /// \brief Replay a tgba_run on a tgba.
   ///
   /// This is similar to print_tgba_run(), except that the run is

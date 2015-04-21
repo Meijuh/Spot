@@ -29,7 +29,7 @@
 namespace spot
 {
 
-  /// \addtogroup tgba_misc
+  /// \addtogroup twa_misc
   /// @{
 
   struct SPOT_API tgba_statistics

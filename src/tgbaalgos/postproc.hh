@@ -25,7 +25,7 @@ namespace spot
 {
   class option_map;
 
-  /// \addtogroup tgba_reduction
+  /// \addtogroup twa_reduction
   /// @{
 
   /// \brief Wrap TGBA/BA/Monitor post-processing algorithms in an

@@ -24,7 +24,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_ltl
+  /// \ingroup twa_ltl
   /// \brief Build a spot::taa* from an LTL formula.
   ///
   /// This is based on the following.

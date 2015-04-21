@@ -76,7 +76,7 @@ namespace spot
       transitions::const_iterator it_;
     };
 
-    /// \ingroup tgba_on_the_fly_algorithms
+    /// \ingroup twa_on_the_fly_algorithms
     /// \brief A masked TGBA (abstract).
     ///
     /// Ignores some states from a TGBA.  What state are preserved or

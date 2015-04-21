@@ -36,7 +36,7 @@ namespace spot
   /// \brief Private data for bdd_dict.
   class bdd_dict_priv;
 
-  /// \ingroup tgba_essentials
+  /// \ingroup twa_essentials
   /// \brief Map BDD variables to formulae.
   ///
   /// The BDD library uses integers to designate Boolean variables in

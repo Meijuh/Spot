@@ -37,7 +37,7 @@ namespace spot
   typedef std::shared_ptr<const tgba_run> const_tgba_run_ptr;
 
   /// \addtogroup emptiness_check Emptiness-checks
-  /// \ingroup tgba_algorithms
+  /// \ingroup twa_algorithms
   ///
   /// All emptiness-check algorithms follow the same interface.
   /// Basically once you have constructed an instance of
@@ -258,7 +258,7 @@ namespace spot
   /// \ingroup emptiness_check
 
 
-  /// \addtogroup tgba_run TGBA runs and supporting functions
+  /// \addtogroup twa_run TGBA runs and supporting functions
   /// \ingroup emptiness_check
   /// @{
 

@@ -31,7 +31,7 @@ namespace spot
 {
   struct tgba_run;
 
-  /// \ingroup tgba_run
+  /// \ingroup twa_run
   /// \brief Project a tgba_run on a tgba.
   ///
   /// If a tgba_run has been generated on a product, or any other

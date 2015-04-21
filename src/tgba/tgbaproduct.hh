@@ -28,7 +28,7 @@
 namespace spot
 {
 
-  /// \ingroup tgba_on_the_fly_algorithms
+  /// \ingroup twa_on_the_fly_algorithms
   /// \brief A state for spot::twa_product.
   ///
   /// This state is in fact a pair of state: the state from the left

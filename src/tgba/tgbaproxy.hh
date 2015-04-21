@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_on_the_fly_algorithms
+  /// \ingroup twa_on_the_fly_algorithms
   /// \brief A TGBA proxy.
   ///
   /// This implements a simple proxy to an existing

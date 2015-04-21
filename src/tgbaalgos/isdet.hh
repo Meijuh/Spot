@@ -23,7 +23,7 @@
 
 namespace spot
 {
-  /// \addtogroup tgba_misc
+  /// \addtogroup twa_misc
   /// @{
 
   /// \brief Count the number of non-deterministic states in \a aut.

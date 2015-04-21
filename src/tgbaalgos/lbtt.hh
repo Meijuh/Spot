@@ -27,7 +27,7 @@
 
 namespace spot
 {
-  /// \ingroup tgba_io
+  /// \ingroup twa_io
   /// \brief Print reachable states in LBTT's format.
   ///
   /// \param g The automata to print.

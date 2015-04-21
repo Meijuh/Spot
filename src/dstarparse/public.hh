@@ -30,7 +30,7 @@
 
 namespace spot
 {
-  /// \addtogroup tgba_io
+  /// \addtogroup twa_io
   /// @{
 
   /// \brief A parse diagnostic with its location.

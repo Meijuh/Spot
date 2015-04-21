@@ -827,7 +827,7 @@ namespace spot
     // state_complement
 
     /// States used by spot::tgba_safra_complement.
-    /// \ingroup tgba_representation
+    /// \ingroup twa_representation
     class state_complement : public state
     {
     public:
@@ -954,7 +954,7 @@ namespace spot
     }
 
     /// Successor iterators used by spot::tgba_safra_complement.
-    /// \ingroup tgba_representation
+    /// \ingroup twa_representation
     class tgba_safra_complement_succ_iterator: public twa_succ_iterator
     {
     public:

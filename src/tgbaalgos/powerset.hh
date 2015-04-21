@@ -42,7 +42,7 @@ namespace spot
   };
 
 
-  /// \ingroup tgba_misc
+  /// \ingroup twa_misc
   /// \brief Build a deterministic automaton, ignoring acceptance conditions.
   ///
   /// This create a deterministic automaton that recognizes the
