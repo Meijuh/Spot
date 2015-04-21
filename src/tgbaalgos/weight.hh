@@ -25,7 +25,7 @@
 #include <iosfwd>
 #include <map>
 #include <bddx.h>
-#include "tgba/acc.hh"
+#include "twa/acc.hh"
 
 namespace spot
 {

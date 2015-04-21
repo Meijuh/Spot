@@ -35,7 +35,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include "ltlast/constant.hh"
-#include "tgba/formula2bdd.hh"
+#include "twa/formula2bdd.hh"
 #include "public.hh"
 #include "priv/accmap.hh"
 #include "ltlparse/public.hh"

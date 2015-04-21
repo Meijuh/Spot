@@ -30,7 +30,7 @@
 #include "tgbaalgos/cycles.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/product.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"

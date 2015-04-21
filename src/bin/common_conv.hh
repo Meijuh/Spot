@@ -20,7 +20,7 @@
 #pragma once
 
 #include "common_sys.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 
 int to_int(const char* s);
 int to_pos_int(const char* s);

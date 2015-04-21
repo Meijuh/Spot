@@ -22,13 +22,13 @@
 
 #include <ostream>
 #include <stdexcept>
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 #include "dotty.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
-#include "tgba/tgbagraph.hh"
-#include "tgba/formula2bdd.hh"
+#include "twa/twagraph.hh"
+#include "twa/formula2bdd.hh"
 #include "tgbaalgos/sccinfo.hh"
 #include <cstdlib>
 #include <cstring>

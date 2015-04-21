@@ -28,11 +28,11 @@
 
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/constant.hh"
-#include "tgba/formula2bdd.hh"
+#include "twa/formula2bdd.hh"
 #include <cassert>
 #include "ltlvisit/tostring.hh"
 #include <iostream>
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include <stack>
 #include "tgba2ta.hh"
 #include "taalgos/statessetbuilder.hh"
@@ -454,15 +454,15 @@ namespace spot
 	  state_ta_explicit* source = todo.top();
 	  todo.pop();
 
-	  twa_succ_iterator* tgba_succ_it =
+	  twa_succ_iterator* twa_succ_it =
 	    tgba_->succ_iter(source->get_tgba_state());
-	  for (tgba_succ_it->first(); !tgba_succ_it->done();
-	       tgba_succ_it->next())
+	  for (twa_succ_it->first(); !twa_succ_it->done();
+	       twa_succ_it->next())
 	    {
-	      const state* tgba_state = tgba_succ_it->current_state();
-	      bdd tgba_condition = tgba_succ_it->current_condition();
+	      const state* tgba_state = twa_succ_it->current_state();
+	      bdd tgba_condition = twa_succ_it->current_condition();
 	      acc_cond::mark_t tgba_acceptance_conditions =
-                tgba_succ_it->current_acceptance_conditions();
+                twa_succ_it->current_acceptance_conditions();
 	      bdd satone_tgba_condition;
 	      while ((satone_tgba_condition =
 		      bdd_satoneset(tgba_condition,
@@ -515,7 +515,7 @@ namespace spot
 		}
 	      tgba_state->destroy();
 	    }
-	  delete tgba_succ_it;
+	  delete twa_succ_it;
 	}
 
       if (no_livelock)

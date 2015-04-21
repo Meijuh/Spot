@@ -32,7 +32,7 @@
 #include <cassert>
 #include <list>
 #include "misc/hash.hh"
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "emptiness.hh"
 #include "emptiness_stats.hh"
 #include "magic.hh"

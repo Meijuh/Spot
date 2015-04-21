@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "public.hh"
-#include "tgba/tgbamask.hh"
+#include "twa/twamask.hh"
 #include "tgbaalgos/scc.hh"
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/gtec/gtec.hh"

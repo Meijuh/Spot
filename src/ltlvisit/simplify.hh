@@ -21,7 +21,7 @@
 
 #include "ltlast/formula.hh"
 #include <bddx.h>
-#include "tgba/bdddict.hh"
+#include "twa/bdddict.hh"
 #include <iosfwd>
 
 namespace spot

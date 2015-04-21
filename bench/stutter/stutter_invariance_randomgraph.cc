@@ -25,8 +25,8 @@
 #include "tgbaalgos/product.hh"
 #include "tgbaalgos/stutter.hh"
 #include "tgbaalgos/stats.hh"
-#include "tgba/tgbagraph.hh"
-#include "tgba/bdddict.hh"
+#include "twa/tgbagraph.hh"
+#include "twa/bdddict.hh"
 #include "misc/random.hh"
 #include <cstdio>
 #include <cstring>

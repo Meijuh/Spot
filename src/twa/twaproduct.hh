@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "tgba.hh"
+#include "twa.hh"
 #include "misc/fixpool.hh"
 
 namespace spot

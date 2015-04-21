@@ -29,7 +29,7 @@
 #include "emptinessta.hh"
 #include "misc/memusage.hh"
 #include <cstdlib>
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 
 namespace spot
 {

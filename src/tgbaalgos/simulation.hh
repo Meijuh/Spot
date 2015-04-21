@@ -20,7 +20,7 @@
 #pragma once
 
 #include "misc/common.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 
 namespace spot
 {

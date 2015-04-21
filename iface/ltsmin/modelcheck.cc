@@ -26,7 +26,7 @@
 #include "tgbaalgos/emptiness.hh"
 #include "tgbaalgos/reducerun.hh"
 #include "tgbaalgos/postproc.hh"
-#include "tgba/tgbaproduct.hh"
+#include "twa/twaproduct.hh"
 #include "misc/timer.hh"
 #include "misc/memusage.hh"
 #include <cstring>

@@ -35,8 +35,8 @@
 #include "misc/bddlt.hh"
 #include "ta/tgtaexplicit.hh"
 #include "taalgos/statessetbuilder.hh"
-#include "tgba/tgbagraph.hh"
-#include "tgba/bddprint.hh"
+#include "twa/twagraph.hh"
+#include "twa/bddprint.hh"
 
 namespace spot
 {

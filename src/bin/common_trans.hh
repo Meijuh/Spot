@@ -25,7 +25,7 @@
 
 #include "misc/formater.hh"
 #include "misc/tmpfile.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 
 
 extern const struct argp trans_argp;

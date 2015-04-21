@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "tgba/tgba.hh"
-#include "tgba/tgbaproduct.hh"
+#include "twa/twa.hh"
+#include "twa/twaproduct.hh"
 #include "misc/fixpool.hh"
 #include "kripke/kripke.hh"
 #include "tgta.hh"

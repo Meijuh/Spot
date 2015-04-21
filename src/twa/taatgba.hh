@@ -26,7 +26,7 @@
 #include "misc/hash.hh"
 #include "ltlast/formula.hh"
 #include "bdddict.hh"
-#include "tgba.hh"
+#include "twa.hh"
 #include "ltlvisit/tostring.hh"
 
 namespace spot

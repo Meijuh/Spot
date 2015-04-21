@@ -21,7 +21,7 @@
 #include <stack>
 #include <algorithm>
 #include <queue>
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "misc/escape.hh"
 
 namespace spot

@@ -22,7 +22,7 @@
 #include <map>
 #include <stack>
 #include <vector>
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include <iosfwd>
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"

@@ -22,9 +22,9 @@
 
 #include "misc/hash.hh"
 #include "replayrun.hh"
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "emptiness.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include <sstream>
 
 namespace spot

@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "product.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 #include <deque>
 #include <unordered_map>
 #include "misc/hash.hh"

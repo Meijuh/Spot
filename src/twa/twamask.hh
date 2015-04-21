@@ -20,7 +20,7 @@
 #pragma once
 
 #include <bddx.h>
-#include "tgbaproxy.hh"
+#include "twaproxy.hh"
 
 namespace spot
 {

@@ -36,7 +36,7 @@
 #include <utility>
 #include <algorithm>
 #include "ltl2tgba_fm.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "tgbaalgos/sccinfo.hh"
 //#include "tgbaalgos/dotty.hh"
 

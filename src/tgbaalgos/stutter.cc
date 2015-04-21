@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stutter.hh"
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "dupexp.hh"
 #include "misc/hash.hh"
 #include "misc/hashfunc.hh"
@@ -29,8 +29,8 @@
 #include "ltlvisit/remove_x.hh"
 #include "tgbaalgos/product.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgba/tgbaproduct.hh"
-#include "tgba/bddprint.hh"
+#include "twa/twaproduct.hh"
+#include "twa/bddprint.hh"
 #include <deque>
 #include <unordered_map>
 #include <unordered_set>
@@ -94,17 +94,17 @@ namespace spot
       bdd cond_;
     };
 
-    class tgbasl_succ_iterator : public twa_succ_iterator
+    class twasl_succ_iterator : public twa_succ_iterator
     {
     public:
-      tgbasl_succ_iterator(twa_succ_iterator* it, const state_tgbasl* state,
+      twasl_succ_iterator(twa_succ_iterator* it, const state_tgbasl* state,
 			   bdd_dict_ptr d, bdd atomic_propositions)
         : it_(it), state_(state), aps_(atomic_propositions), d_(d)
       {
       }
 
       virtual
-      ~tgbasl_succ_iterator()
+      ~twasl_succ_iterator()
       {
         delete it_;
       }
@@ -229,7 +229,7 @@ namespace spot
       {
 	const state_tgbasl* s = down_cast<const state_tgbasl*>(state);
 	assert(s);
-	return new tgbasl_succ_iterator(a_->succ_iter(s->real_state()), s,
+	return new twasl_succ_iterator(a_->succ_iter(s->real_state()), s,
 					a_->get_dict(), aps_);
       }
 

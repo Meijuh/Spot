@@ -20,8 +20,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "tgba.hh"
-#include "tgbagraph.hh"
+#include "twa.hh"
+#include "twagraph.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/remfin.hh"
 #include <utility>

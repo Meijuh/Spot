@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "ta/taexplicit.hh"
 #include "ta/tgtaexplicit.hh"
 

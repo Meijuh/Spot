@@ -23,32 +23,32 @@
 AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
-tgbadir = $(pkgincludedir)/tgba
+twadir = $(pkgincludedir)/twa
 
-tgba_HEADERS = \
+twa_HEADERS = \
   acc.hh \
   bdddict.hh \
   bddprint.hh \
   formula2bdd.hh \
   fwd.hh \
   taatgba.hh \
-  tgba.hh \
-  tgbagraph.hh \
-  tgbamask.hh \
-  tgbaproxy.hh \
-  tgbaproduct.hh \
-  tgbasafracomplement.hh
+  twa.hh \
+  twagraph.hh \
+  twamask.hh \
+  twaproxy.hh \
+  twaproduct.hh \
+  twasafracomplement.hh
 
-noinst_LTLIBRARIES = libtgba.la
-libtgba_la_SOURCES = \
+noinst_LTLIBRARIES = libtwa.la
+libtwa_la_SOURCES = \
   acc.cc \
   bdddict.cc \
   bddprint.cc \
   formula2bdd.cc \
   taatgba.cc \
-  tgba.cc \
-  tgbagraph.cc \
-  tgbaproduct.cc \
-  tgbamask.cc \
-  tgbaproxy.cc \
-  tgbasafracomplement.cc
+  twa.cc \
+  twagraph.cc \
+  twaproduct.cc \
+  twamask.cc \
+  twaproxy.cc \
+  twasafracomplement.cc

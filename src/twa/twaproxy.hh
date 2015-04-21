@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "tgba.hh"
+#include "twa.hh"
 
 namespace spot
 {

@@ -21,7 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "randomgraph.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 #include "misc/random.hh"
 #include "misc/bddlt.hh"
 #include "ltlast/atomic_prop.hh"

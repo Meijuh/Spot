@@ -45,7 +45,7 @@
 #include <vector>
 #include <stack>
 #include "misc/hash.hh"
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "emptiness.hh"
 #include "emptiness_stats.hh"
 #include "tau03opt.hh"

@@ -23,7 +23,7 @@
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
 #include "tgbaalgos/dotty.hh"
-#include "tgba/taatgba.hh"
+#include "twa/taatgba.hh"
 
 int
 main()

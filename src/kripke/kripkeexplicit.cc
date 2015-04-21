@@ -19,8 +19,8 @@
 
 
 #include "kripkeexplicit.hh"
-#include "tgba/bddprint.hh"
-#include "tgba/formula2bdd.hh"
+#include "twa/bddprint.hh"
+#include "twa/formula2bdd.hh"
 #include <iostream>
 
 namespace spot

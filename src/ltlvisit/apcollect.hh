@@ -25,7 +25,7 @@
 #include "ltlast/atomic_prop.hh"
 #include <set>
 #include <bddx.h>
-#include "tgba/fwd.hh"
+#include "twa/fwd.hh"
 
 namespace spot
 {

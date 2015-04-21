@@ -37,7 +37,7 @@
 #include "tgbaalgos/hoa.hh"
 #include "tgbaalgos/neverclaim.hh"
 #include "tgbaalgos/stats.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
 #include "dstarparse/public.hh"

@@ -41,7 +41,7 @@ Optional third-party dependencies
 If the SAT-solver glucose is found on your system, it will be used by
 our test suite to test our SAT-based minimization algorithm.
 
-Spot used to distribute a modified version of LBTT (an LTL to Büchi
+Spot used to distribute a modified version of LBTT (an LTL to BÃ¼chi
 test bench), mostly fixing errors reported by recent compilers.
 However Spot now distributes its own reimplementation of LBTT, called
 ltlcross, so the use of LBTT is completely optional.  The last
@@ -151,12 +151,12 @@ src/              Sources for libspot.
    ltltest/       Tests for ltlast/, ltlenv/, ltlparse/, and ltlvisit/.
    misc/          Miscellaneous support files.
    priv/          Private algorithms, used internally but not exported.
-   tgba/          TGBA objects and cousins.
-   tgbaalgos/     Algorithms on TGBA.
-      gtec/       Couvreur's Emptiness-Check.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.
-   tgbatest/      Tests for tgba/, tgbaalgos/, ta/ and taalgos/.
+   tgbaalgos/     Algorithms on TGBA.
+      gtec/       Couvreur's Emptiness-Check.
+   tgbatest/      Tests for twa/, tgbaalgos/, ta/ and taalgos/.
+   twa/           TÏ‰A objects and cousins.
    sanity/        Sanity tests for the whole project.
 doc/              Documentation for libspot.
    org/           Source of userdoc/ as org-mode files.
@@ -166,7 +166,7 @@ doc/              Documentation for libspot.
 bench/            Benchmarks for ...
    dtgbasat/      ... SAT-based minimization of DTGBA,
    emptchk/       ... emptiness-check algorithms,
-   ltl2tgba/      ... LTL-to-Büchi translation algorithms,
+   ltl2tgba/      ... LTL-to-BÃ¼chi translation algorithms,
    ltlcounter/    ... translation of a class of LTL formulae,
    ltlclasses/    ... translation of more classes of LTL formulae,
    spin13/        ... compositional suspension and other improvements,
@@ -197,10 +197,11 @@ debian/  Configuration file to build Debian packages.
 -------------------------------------------------------------------------------
 Local Variables:
 mode: text
+coding: utf-8
 End:
 
- LocalWords:  Python's BuDDy LBTT LTL Büchi lbtt gspn DIR GreatSPN Soheib Yann
- LocalWords:  Baarir Thierry Mieg CVS Università di Torino devel src libspot ac
+ LocalWords:  Python's BuDDy LBTT LTL BÃ¼chi lbtt gspn DIR GreatSPN Soheib Yann
+ LocalWords:  Baarir Thierry Mieg CVS UniversitÃ  di Torino devel src libspot ac
  LocalWords:  ltlast ltlenv ltlparse ltlvisit ltltest misc tgba TGBA tgbaalgos
  LocalWords:  gtec Tarjan tgbatest doc html PDF spotref pdf cgi ELTL
  LocalWords:  CGI ltl iface BDD Couvreur's emptchk kripke Kripke saba vm

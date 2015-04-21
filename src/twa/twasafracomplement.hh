@@ -20,7 +20,7 @@
 #pragma once
 
 #include <vector>
-#include "tgba.hh"
+#include "twa.hh"
 
 #ifndef TRANSFORM_TO_TBA
 # define TRANSFORM_TO_TBA 0

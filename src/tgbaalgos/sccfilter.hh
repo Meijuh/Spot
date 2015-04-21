@@ -21,7 +21,7 @@
 
 #include "misc/common.hh"
 #include <bddx.h>
-#include "tgba/fwd.hh"
+#include "twa/fwd.hh"
 
 namespace spot
 {

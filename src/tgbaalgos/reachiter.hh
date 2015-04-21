@@ -23,7 +23,7 @@
 #pragma once
 
 #include "misc/hash.hh"
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include <stack>
 #include <deque>
 

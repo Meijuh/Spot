@@ -24,8 +24,8 @@
 
 #include "ltlvisit/apcollect.hh"
 #include "ltlenv/defaultenv.hh"
-#include "tgba/bdddict.hh"
-#include "tgba/acc.hh"
+#include "twa/bdddict.hh"
+#include "twa/acc.hh"
 
 namespace spot
 {

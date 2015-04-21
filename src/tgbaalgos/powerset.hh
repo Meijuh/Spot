@@ -24,7 +24,7 @@
 
 #include <set>
 #include <vector>
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 
 namespace spot
 {

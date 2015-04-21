@@ -20,7 +20,7 @@
 #include "totgba.hh"
 #include "remfin.hh"
 #include "cleanacc.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 
 namespace spot
 {

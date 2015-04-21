@@ -55,7 +55,7 @@
 %shared_ptr(spot::taa_tgba)
 %shared_ptr(spot::taa_tgba_string)
 %shared_ptr(spot::taa_tgba_formula)
-%shared_ptr(spot::tgba_safra_complement)
+%shared_ptr(spot::twa_safra_complement)
 %shared_ptr(spot::tgba_run)
 %shared_ptr(spot::emptiness_check_result)
 %shared_ptr(spot::emptiness_check)
@@ -93,7 +93,7 @@ namespace std {
 
 #include "ltlparse/public.hh"
 
-#include "tgba/bdddict.hh"
+#include "twa/bdddict.hh"
 
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/dotty.hh"
@@ -109,12 +109,12 @@ namespace std {
 #include "ltlvisit/remove_x.hh"
 #include "ltlvisit/relabel.hh"
 
-#include "tgba/bddprint.hh"
-#include "tgba/fwd.hh"
-#include "tgba/acc.hh"
-#include "tgba/tgba.hh"
-#include "tgba/taatgba.hh"
-#include "tgba/tgbaproduct.hh"
+#include "twa/bddprint.hh"
+#include "twa/fwd.hh"
+#include "twa/acc.hh"
+#include "twa/twa.hh"
+#include "twa/taatgba.hh"
+#include "twa/twaproduct.hh"
 
 #include "tgbaalgos/cleanacc.hh"
 #include "tgbaalgos/dotty.hh"
@@ -228,13 +228,13 @@ using namespace spot;
 %include "ltlparse/public.hh"
 
  /* these must come before apcollect.hh */
-%include "tgba/bdddict.hh"
-%include "tgba/bddprint.hh"
-%include "tgba/fwd.hh"
+%include "twa/bdddict.hh"
+%include "twa/bddprint.hh"
+%include "twa/fwd.hh"
 %feature("flatnested") spot::acc_cond::mark_t;
 %feature("flatnested") spot::acc_cond::acc_code;
-%include "tgba/acc.hh"
-%include "tgba/tgba.hh"
+%include "twa/acc.hh"
+%include "twa/twa.hh"
 
 %include "ltlvisit/apcollect.hh"
 %include "ltlvisit/dotty.hh"
@@ -252,9 +252,9 @@ using namespace spot;
 
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl
-%include "tgba/taatgba.hh"
-%include "tgba/tgbaproduct.hh"
-%include "tgba/tgbagraph.hh"
+%include "twa/taatgba.hh"
+%include "twa/twaproduct.hh"
+%include "twa/twagraph.hh"
 
 // Should come after the definition of twa_graph
 

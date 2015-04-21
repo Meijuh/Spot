@@ -22,7 +22,7 @@
 
 #include <iostream>
 #include <sstream>
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "stats.hh"
 #include "reachiter.hh"
 #include "ltlvisit/tostring.hh"

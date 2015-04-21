@@ -20,7 +20,7 @@
 
 #include "kripkeprint.hh"
 #include "kripkeexplicit.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "misc/escape.hh"
 #include "tgbaalgos/reachiter.hh"
 #include <iostream>

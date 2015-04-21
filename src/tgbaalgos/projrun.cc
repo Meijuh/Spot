@@ -21,7 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "projrun.hh"
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "tgbaalgos/emptiness.hh"
 
 namespace spot

@@ -23,7 +23,7 @@
 #pragma once
 
 #include "ltlast/formula.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/simplify.hh"
 

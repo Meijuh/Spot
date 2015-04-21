@@ -32,7 +32,7 @@
 #include "ltlvisit/contain.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/snf.hh"
-#include "tgba/formula2bdd.hh"
+#include "twa/formula2bdd.hh"
 #include <cassert>
 
 namespace spot

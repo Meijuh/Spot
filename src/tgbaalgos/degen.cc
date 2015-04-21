@@ -19,7 +19,7 @@
 
 
 #include "degen.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 #include "misc/hash.hh"
 #include "misc/hashfunc.hh"
 #include <deque>
@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <iterator>
 #include "tgbaalgos/sccinfo.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 
 //#define DEGEN_DEBUG
 

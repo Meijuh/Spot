@@ -21,7 +21,7 @@
 
 #include <vector>
 #include "ltlast/atomic_prop.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 
 namespace spot
 {

@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
-#include "tgba/formula2bdd.hh"
+#include "twa/formula2bdd.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/clone.hh"
 #include "taatgba.hh"

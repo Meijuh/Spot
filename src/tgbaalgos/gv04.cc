@@ -32,7 +32,7 @@
 #include <cassert>
 #include <utility>
 #include <vector>
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "misc/hash.hh"
 #include "emptiness.hh"
 #include "emptiness_stats.hh"

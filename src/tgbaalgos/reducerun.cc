@@ -22,7 +22,7 @@
 
 #include "misc/hash.hh"
 #include "emptiness.hh"
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "bfssteps.hh"
 #include "reducerun.hh"
 

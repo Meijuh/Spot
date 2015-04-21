@@ -24,7 +24,7 @@
 #include <map>
 #include <string>
 #include <ostream>
-#include "tgba/formula2bdd.hh"
+#include "twa/formula2bdd.hh"
 #include "reachiter.hh"
 #include "misc/bddlt.hh"
 #include "priv/accmap.hh"

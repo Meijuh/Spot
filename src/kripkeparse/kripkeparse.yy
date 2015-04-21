@@ -58,7 +58,7 @@ typedef std::map<std::string, bdd> formula_cache;
 #include "ltlparse/public.hh"
 #include <map>
 
-/* tgbaparse.hh and parsedecl.hh include each other recursively.
+/* twaparse.hh and parsedecl.hh include each other recursively.
    We must ensure that YYSTYPE is declared (by the above %union)
    before parsedecl.hh uses it. */
 #include "parsedecl.hh"

@@ -22,7 +22,7 @@
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/hoa.hh"
 #include "hoaparse/public.hh"
-#include "tgba/tgbaproduct.hh"
+#include "twa/twaproduct.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "ltlparse/public.hh"
@@ -33,7 +33,7 @@
 #include "tgbaalgos/emptiness_stats.hh"
 #include "tgbaalgos/degen.hh"
 
-#include "tgba/tgbasafracomplement.hh"
+#include "twa/twasafracomplement.hh"
 
 void usage(const char* prog)
 {

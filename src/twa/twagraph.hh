@@ -22,8 +22,8 @@
 #include "fwd.hh"
 #include "graph/graph.hh"
 #include "graph/ngraph.hh"
-#include "tgba/bdddict.hh"
-#include "tgba/tgba.hh"
+#include "twa/bdddict.hh"
+#include "twa/twa.hh"
 #include "tgbaalgos/dupexp.hh"
 #include <sstream>
 

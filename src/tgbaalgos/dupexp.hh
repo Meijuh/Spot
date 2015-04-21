@@ -23,8 +23,8 @@
 #pragma once
 
 #include "misc/common.hh"
-#include "tgba/fwd.hh"
-#include "tgba/tgba.hh"
+#include "twa/fwd.hh"
+#include "twa/twa.hh"
 #include <vector>
 
 namespace spot

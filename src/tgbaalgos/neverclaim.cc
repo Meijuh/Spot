@@ -23,11 +23,11 @@
 #include <ostream>
 #include <sstream>
 #include "neverclaim.hh"
-#include "tgba/bddprint.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/bddprint.hh"
+#include "twa/twagraph.hh"
 #include "reachiter.hh"
 #include "ltlvisit/tostring.hh"
-#include "tgba/formula2bdd.hh"
+#include "twa/formula2bdd.hh"
 
 namespace spot
 {

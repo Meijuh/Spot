@@ -20,10 +20,10 @@
 #include "ltlast/atomic_prop.hh"
 #include "ltlast/constant.hh"
 #include "tgtaexplicit.hh"
-#include "tgba/formula2bdd.hh"
+#include "twa/formula2bdd.hh"
 #include "ltlvisit/tostring.hh"
 
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 
 namespace spot
 {

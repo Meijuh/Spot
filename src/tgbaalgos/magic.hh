@@ -23,7 +23,7 @@
 #pragma once
 
 #include <cstddef>
-#include "tgba/fwd.hh"
+#include "twa/fwd.hh"
 #include "misc/optionmap.hh"
 #include "emptiness.hh"
 

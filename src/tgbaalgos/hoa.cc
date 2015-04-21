@@ -24,14 +24,14 @@
 #include <sstream>
 #include <cstring>
 #include <map>
-#include "tgba/tgba.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twa.hh"
+#include "twa/twagraph.hh"
 #include "hoa.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
 #include "misc/bddlt.hh"
 #include "misc/minato.hh"
-#include "tgba/formula2bdd.hh"
+#include "twa/formula2bdd.hh"
 #include "ltlast/atomic_prop.hh"
 
 namespace spot

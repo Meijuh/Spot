@@ -23,7 +23,7 @@
 #pragma once
 
 #include "misc/common.hh"
-#include "tgba/fwd.hh"
+#include "twa/fwd.hh"
 #include "tgbaalgos/emptiness.hh"
 
 namespace spot

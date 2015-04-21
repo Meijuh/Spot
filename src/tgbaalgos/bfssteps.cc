@@ -22,7 +22,7 @@
 
 #include <deque>
 #include <utility>
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include "bfssteps.hh"
 
 namespace spot

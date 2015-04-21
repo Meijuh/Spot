@@ -24,7 +24,7 @@
 
 #include <bddx.h>
 #include <list>
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 
 namespace spot
 {

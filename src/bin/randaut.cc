@@ -38,7 +38,7 @@
 #include "misc/timer.hh"
 #include "misc/random.hh"
 
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "tgbaalgos/randomgraph.hh"
 #include "tgbaalgos/canonicalize.hh"
 

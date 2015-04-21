@@ -21,7 +21,7 @@
 
 #include "misc/hash.hh"
 #include <list>
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include <set>
 #include "ltlast/formula.hh"
 #include <cassert>

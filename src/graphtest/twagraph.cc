@@ -19,7 +19,7 @@
 
 
 #include <iostream>
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 #include "tgbaalgos/dotty.hh"
 #include "ltlenv/defaultenv.hh"
 

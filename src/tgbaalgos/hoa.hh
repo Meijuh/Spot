@@ -21,7 +21,7 @@
 
 #include <iosfwd>
 #include "misc/common.hh"
-#include "tgba/fwd.hh"
+#include "twa/fwd.hh"
 
 namespace spot
 {

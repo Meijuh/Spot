@@ -28,7 +28,7 @@
 #include "tgbaalgos/ltl2taa.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/degen.hh"
-#include "tgba/tgbaproduct.hh"
+#include "twa/twaproduct.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/emptiness.hh"

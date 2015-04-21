@@ -23,7 +23,7 @@
 #pragma once
 
 #include <iosfwd>
-#include "tgba/fwd.hh"
+#include "twa/fwd.hh"
 #include "misc/common.hh"
 
 namespace spot

@@ -219,7 +219,7 @@ AC_CONFIG_FILES([
   src/sanity/Makefile
   src/tgbaalgos/gtec/Makefile
   src/tgbaalgos/Makefile
-  src/tgba/Makefile
+  src/twa/Makefile
   src/taalgos/Makefile
   src/ta/Makefile
   src/tgbatest/defs

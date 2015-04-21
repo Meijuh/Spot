@@ -21,7 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dupexp.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 #include <sstream>
 #include <string>
 #include <map>

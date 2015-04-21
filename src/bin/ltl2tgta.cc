@@ -38,7 +38,7 @@
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
 #include "tgbaalgos/translate.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dotty.hh"

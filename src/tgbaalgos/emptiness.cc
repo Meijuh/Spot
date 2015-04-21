@@ -22,8 +22,8 @@
 
 #include <sstream>
 #include "emptiness.hh"
-#include "tgba/tgba.hh"
-#include "tgba/bddprint.hh"
+#include "twa/twa.hh"
+#include "twa/bddprint.hh"
 #include "tgbaalgos/gtec/gtec.hh"
 #include "tgbaalgos/gv04.hh"
 #include "tgbaalgos/magic.hh"

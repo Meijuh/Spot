@@ -27,7 +27,7 @@
 #include <iosfwd>
 #include <bddx.h>
 #include "misc/optionmap.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 #include "emptiness_stats.hh"
 
 namespace spot

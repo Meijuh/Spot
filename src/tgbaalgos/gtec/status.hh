@@ -23,7 +23,7 @@
 #pragma once
 
 #include "sccstack.hh"
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 #include <iosfwd>
 
 namespace spot

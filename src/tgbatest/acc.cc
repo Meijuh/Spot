@@ -22,7 +22,7 @@
 #include <vector>
 #include <cassert>
 #include <cstdlib>
-#include "tgba/acc.hh"
+#include "twa/acc.hh"
 
 void check(spot::acc_cond& ac, spot::acc_cond::mark_t m)
 {

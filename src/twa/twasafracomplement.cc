@@ -27,13 +27,13 @@
 #include <bddx.h>
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
-#include "tgba/bdddict.hh"
-#include "tgba/tgba.hh"
+#include "twa/bdddict.hh"
+#include "twa/twa.hh"
 #include "misc/hashfunc.hh"
 #include "ltlast/formula.hh"
 #include "ltlast/constant.hh"
 #include "tgbaalgos/dotty.hh"
-#include "tgba/tgbasafracomplement.hh"
+#include "twa/twasafracomplement.hh"
 #include "tgbaalgos/degen.hh"
 
 namespace spot
@@ -955,19 +955,19 @@ namespace spot
 
     /// Successor iterators used by spot::tgba_safra_complement.
     /// \ingroup twa_representation
-    class tgba_safra_complement_succ_iterator: public twa_succ_iterator
+    class twa_safra_complement_succ_iterator: public twa_succ_iterator
     {
     public:
       typedef std::multimap<bdd, state_complement*, bdd_less_than> succ_list_t;
 
-      tgba_safra_complement_succ_iterator(const succ_list_t& list,
+      twa_safra_complement_succ_iterator(const succ_list_t& list,
                                           acc_cond::mark_t the_acceptance_cond)
         : list_(list), the_acceptance_cond_(the_acceptance_cond)
       {
       }
 
       virtual
-      ~tgba_safra_complement_succ_iterator()
+      ~twa_safra_complement_succ_iterator()
       {
         for (auto& p: list_)
           delete p.second;
@@ -986,41 +986,41 @@ namespace spot
     };
 
     bool
-    tgba_safra_complement_succ_iterator::first()
+    twa_safra_complement_succ_iterator::first()
     {
       it_ = list_.begin();
       return it_ != list_.end();
     }
 
     bool
-    tgba_safra_complement_succ_iterator::next()
+    twa_safra_complement_succ_iterator::next()
     {
       ++it_;
       return it_ != list_.end();
     }
 
     bool
-    tgba_safra_complement_succ_iterator::done() const
+    twa_safra_complement_succ_iterator::done() const
     {
       return it_ == list_.end();
     }
 
     state_complement*
-    tgba_safra_complement_succ_iterator::current_state() const
+    twa_safra_complement_succ_iterator::current_state() const
     {
       assert(!done());
       return new state_complement(*(it_->second));
     }
 
     bdd
-    tgba_safra_complement_succ_iterator::current_condition() const
+    twa_safra_complement_succ_iterator::current_condition() const
     {
       assert(!done());
       return it_->first;
     }
 
     acc_cond::mark_t
-    tgba_safra_complement_succ_iterator::current_acceptance_conditions() const
+    twa_safra_complement_succ_iterator::current_acceptance_conditions() const
     {
       assert(!done());
       return the_acceptance_cond_;
@@ -1153,7 +1153,7 @@ namespace spot
     assert(tr != a->automaton.end());
 
     acc_cond::mark_t condition = 0U;
-    tgba_safra_complement_succ_iterator::succ_list_t succ_list;
+    twa_safra_complement_succ_iterator::succ_list_t succ_list;
     int nb_acceptance_pairs = a->get_nb_acceptance_pairs();
     bitvect* e = make_bitvect(nb_acceptance_pairs);
 
@@ -1227,7 +1227,7 @@ namespace spot
 	delete l;
       }
     delete e;
-    return new tgba_safra_complement_succ_iterator(succ_list, condition);
+    return new twa_safra_complement_succ_iterator(succ_list, condition);
   }
 
   std::string

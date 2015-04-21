@@ -22,8 +22,8 @@
 
 #include "apcollect.hh"
 #include "ltlvisit/postfix.hh"
-#include "tgba/tgba.hh"
-#include "tgba/bdddict.hh"
+#include "twa/twa.hh"
+#include "twa/bdddict.hh"
 
 namespace spot
 {

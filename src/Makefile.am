@@ -25,7 +25,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 # List directories in the order they must be built.  Keep tests at the
 # end, after building '.' (since the current directory contains
 # libspot.la needed by the tests)
-SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse graph tgba		\
+SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse graph twa		\
           tgbaalgos ta taalgos kripke kripkeparse dstarparse hoaparse	\
           . bin ltltest graphtest tgbatest kripketest sanity
 
@@ -46,7 +46,7 @@ libspot_la_LIBADD =  \
   taalgos/libtaalgos.la \
   ta/libta.la \
   tgbaalgos/libtgbaalgos.la \
-  tgba/libtgba.la \
+  twa/libtwa.la \
   ../lib/libgnu.la
 
 # Dummy C++ source to cause C++ linking.

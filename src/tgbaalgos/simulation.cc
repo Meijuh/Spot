@@ -24,7 +24,7 @@
 #include <limits>
 #include "simulation.hh"
 #include "misc/minato.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "tgbaalgos/reachiter.hh"
 #include "tgbaalgos/sccfilter.hh"
 #include "tgbaalgos/sccinfo.hh"

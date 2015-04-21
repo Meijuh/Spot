@@ -19,7 +19,7 @@
 
 #include <ostream>
 #include "dotty.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
 #include "misc/bareword.hh"

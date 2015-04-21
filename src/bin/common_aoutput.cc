@@ -25,7 +25,7 @@
 #include "common_cout.hh"
 #include "common_post.hh"
 
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 
 #include "tgbaalgos/dotty.hh"
 #include "tgbaalgos/lbtt.hh"

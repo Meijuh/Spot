@@ -23,7 +23,7 @@
 
 #include <cassert>
 #include "misc/bddlt.hh"
-#include "tgba/tgba.hh"
+#include "twa/twa.hh"
 
 namespace spot
 {

@@ -22,7 +22,7 @@
 #include <iostream>
 #include <sstream>
 #include "scc.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "misc/escape.hh"
 
 namespace spot

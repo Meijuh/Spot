@@ -25,7 +25,7 @@
 #include <map>
 #include <utility>
 #include "sccinfo.hh"
-#include "tgba/bddprint.hh"
+#include "twa/bddprint.hh"
 #include "ltlast/constant.hh"
 #include "stats.hh"
 #include "ltlenv/defaultenv.hh"

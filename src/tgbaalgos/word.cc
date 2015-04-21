@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "word.hh"
-#include "tgba/bddprint.hh"
-#include "tgba/bdddict.hh"
+#include "twa/bddprint.hh"
+#include "twa/bdddict.hh"
 
 namespace spot
 {

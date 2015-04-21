@@ -20,7 +20,7 @@
 #include "compsusp.hh"
 #include "sccfilter.hh"
 #include "sccinfo.hh"
-#include "tgba/tgbagraph.hh"
+#include "twa/twagraph.hh"
 #include "ltl2tgba_fm.hh"
 #include "minimize.hh"
 #include "simulation.hh"
