@@ -21,25 +21,25 @@
 
 namespace spot
 {
-  tgba_proxy::tgba_proxy(const const_twa_ptr& original)
+  twa_proxy::twa_proxy(const const_twa_ptr& original)
     : twa(original->get_dict()), original_(original)
   {
     get_dict()->register_all_variables_of(original, this);
     acc_.add_sets(original->acc().num_sets());
   }
 
-  tgba_proxy::~tgba_proxy()
+  twa_proxy::~twa_proxy()
   {
     get_dict()->unregister_all_my_variables(this);
   }
 
-  state* tgba_proxy::get_init_state() const
+  state* twa_proxy::get_init_state() const
   {
     return original_->get_init_state();
   }
 
   twa_succ_iterator*
-  tgba_proxy::succ_iter(const state* state) const
+  twa_proxy::succ_iter(const state* state) const
   {
     if (iter_cache_)
       {
@@ -50,25 +50,25 @@ namespace spot
   }
 
   std::string
-  tgba_proxy::format_state(const state* state) const
+  twa_proxy::format_state(const state* state) const
   {
     return original_->format_state(state);
   }
 
   std::string
-  tgba_proxy::transition_annotation(const twa_succ_iterator* t) const
+  twa_proxy::transition_annotation(const twa_succ_iterator* t) const
   {
     return original_->transition_annotation(t);
   }
 
   state*
-  tgba_proxy::project_state(const state* s, const const_twa_ptr& t) const
+  twa_proxy::project_state(const state* s, const const_twa_ptr& t) const
   {
     return original_->project_state(s, t);
   }
 
   bdd
-  tgba_proxy::compute_support_conditions(const state* state) const
+  twa_proxy::compute_support_conditions(const state* state) const
   {
     return original_->support_conditions(state);
   }

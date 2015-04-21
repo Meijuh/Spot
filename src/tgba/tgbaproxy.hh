@@ -32,13 +32,13 @@ namespace spot
   /// original automaton right away.  However it is useful
   /// to inherit from this class and override some of its
   /// methods to implement some on-the-fly algorithm.
-  class SPOT_API tgba_proxy: public twa
+  class SPOT_API twa_proxy: public twa
   {
   protected:
-    tgba_proxy(const const_twa_ptr& original);
+    twa_proxy(const const_twa_ptr& original);
 
   public:
-    virtual ~tgba_proxy();
+    virtual ~twa_proxy();
 
     virtual state* get_init_state() const;
 

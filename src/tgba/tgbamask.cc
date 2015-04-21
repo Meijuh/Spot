@@ -84,7 +84,7 @@ namespace spot
     ///
     /// This is an abstract class. You should inherit from it and
     /// supply a wanted() method to specify which states to keep.
-    class tgba_mask: public tgba_proxy
+    class tgba_mask: public twa_proxy
     {
     protected:
       /// \brief Constructor.
@@ -92,7 +92,7 @@ namespace spot
       /// \param init Any state to use as initial state. This state will be
       /// destroyed by the destructor.
       tgba_mask(const const_twa_ptr& masked, const state* init = 0):
-	tgba_proxy(masked),
+	twa_proxy(masked),
 	init_(init)
       {
 	if (!init)
