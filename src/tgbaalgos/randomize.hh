@@ -28,7 +28,7 @@ namespace spot
   /// Make a random permutation of the state, and of the transitions
   /// leaving this state.
   SPOT_API void
-  randomize(tgba_digraph_ptr& aut,
+  randomize(twa_graph_ptr& aut,
 	    bool randomize_states = true,
 	    bool randomize_transitions = true);
 }

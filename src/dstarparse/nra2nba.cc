@@ -40,7 +40,7 @@ namespace spot
       // makes its possible to mask AUT, as needed in dra_to_ba().
       nra_to_nba_worker(const const_dstar_aut_ptr& a, const_tgba_ptr aut):
 	tgba_reachable_iterator_depth_first(aut),
-	out_(make_tgba_digraph(aut->get_dict())),
+	out_(make_twa_graph(aut->get_dict())),
 	d_(a),
 	num_states_(a->aut->num_states())
       {
@@ -55,7 +55,7 @@ namespace spot
 	i->destroy();
       }
 
-      tgba_digraph_ptr
+      twa_graph_ptr
       result()
       {
 	return out_;
@@ -105,7 +105,7 @@ namespace spot
       }
 
     protected:
-      tgba_digraph_ptr out_;
+      twa_graph_ptr out_;
       const_dstar_aut_ptr d_;
       size_t num_states_;
     };
@@ -115,7 +115,7 @@ namespace spot
   // In dra_to_dba() we call this function with a second argument
   // that is a masked version of nra->aut.
   SPOT_LOCAL
-  tgba_digraph_ptr nra_to_nba(const const_dstar_aut_ptr& nra,
+  twa_graph_ptr nra_to_nba(const const_dstar_aut_ptr& nra,
 			      const const_tgba_ptr& aut)
   {
     assert(nra->type == Rabin);
@@ -124,7 +124,7 @@ namespace spot
     return scc_filter_states(w.result());
   }
 
-  tgba_digraph_ptr nra_to_nba(const const_dstar_aut_ptr& nra)
+  twa_graph_ptr nra_to_nba(const const_dstar_aut_ptr& nra)
   {
     return nra_to_nba(nra, nra->aut);
   }

@@ -110,7 +110,7 @@ namespace spot
 
     std::vector<unsigned> sccof_;
     std::vector<scc_node> node_;
-    const_tgba_digraph_ptr aut_;
+    const_twa_graph_ptr aut_;
 
 
     const scc_node& node(unsigned scc) const
@@ -120,9 +120,9 @@ namespace spot
     }
 
   public:
-    scc_info(const_tgba_digraph_ptr aut);
+    scc_info(const_twa_graph_ptr aut);
 
-    const_tgba_digraph_ptr get_aut() const
+    const_twa_graph_ptr get_aut() const
     {
       return aut_;
     }
@@ -226,6 +226,6 @@ namespace spot
   /// If \a sccinfo is not given, it will be computed.
   SPOT_API std::ostream&
   dump_scc_info_dot(std::ostream& out,
-		    const_tgba_digraph_ptr aut, scc_info* sccinfo = nullptr);
+		    const_twa_graph_ptr aut, scc_info* sccinfo = nullptr);
 
 }

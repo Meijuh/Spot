@@ -309,12 +309,12 @@ to_int(const char* s)
   return res;
 }
 
-spot::tgba_digraph_ptr ensure_digraph(const spot::tgba_ptr& a)
+spot::twa_graph_ptr ensure_digraph(const spot::tgba_ptr& a)
 {
-  auto aa = std::dynamic_pointer_cast<spot::tgba_digraph>(a);
+  auto aa = std::dynamic_pointer_cast<spot::twa_graph>(a);
   if (aa)
     return aa;
-  return spot::make_tgba_digraph(a, spot::twa::prop_set::all());
+  return spot::make_twa_graph(a, spot::twa::prop_set::all());
 }
 
 int
@@ -1289,7 +1289,7 @@ checked_main(int argc, char** argv)
 	  if (scc_filter && (reduction_dir_sim || reduction_rev_sim))
 	    {
 	      tm.start("SCC-filter post-sim");
-	      auto aa = std::dynamic_pointer_cast<const spot::tgba_digraph>(a);
+	      auto aa = std::dynamic_pointer_cast<const spot::twa_graph>(a);
 	      assert(aa);
 	      // Do not filter_all for SBA
 	      a = spot::scc_filter(aa, assume_sba ?
@@ -1495,7 +1495,7 @@ checked_main(int argc, char** argv)
 	    case 10:
 	      {
 		auto aa =
-		  std::dynamic_pointer_cast<const spot::tgba_digraph>(a);
+		  std::dynamic_pointer_cast<const spot::twa_graph>(a);
 		if (!aa)
 		  dump_scc_dot(a, std::cout, false);
 		else
@@ -1504,8 +1504,8 @@ checked_main(int argc, char** argv)
 	      break;
 	    case 11:
 	      {
-		//const spot::tgba_digraph_ptr g =
-		//  dynamic_cast<const spot::tgba_digraph_ptr>(a);
+		//const spot::twa_graph_ptr g =
+		//  dynamic_cast<const spot::twa_graph_ptr>(a);
 		//if (!g)
 		  dump_scc_dot(a, std::cout, true);
 		//else

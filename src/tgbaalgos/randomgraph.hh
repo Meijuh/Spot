@@ -77,7 +77,7 @@ namespace spot
   /// \f$1+(n-1)d\f$ and variance \f$(n-1)d(1-d)\f$.  (This is less
   /// accurate, but faster than considering all possible \a n
   /// successors one by one.)
-  SPOT_API tgba_digraph_ptr
+  SPOT_API twa_graph_ptr
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
 	       unsigned n_accs = 0, float a = 0.1, float t = 0.5,

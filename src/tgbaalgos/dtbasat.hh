@@ -39,8 +39,8 @@ namespace spot
   ///
   /// If no equivalent deterministic TBA with \a target_state_number
   /// states is found, a null pointer
-  SPOT_API tgba_digraph_ptr
-  dtba_sat_synthetize(const const_tgba_digraph_ptr& a,
+  SPOT_API twa_graph_ptr
+  dtba_sat_synthetize(const const_twa_graph_ptr& a,
 		      int target_state_number,
 		      bool state_based = false);
 
@@ -50,8 +50,8 @@ namespace spot
   /// number of states, and returns the last successfully built TBA.
   ///
   /// If no smaller TBA exist, this returns a null pointer.
-  SPOT_API tgba_digraph_ptr
-  dtba_sat_minimize(const const_tgba_digraph_ptr& a,
+  SPOT_API twa_graph_ptr
+  dtba_sat_minimize(const const_twa_graph_ptr& a,
 		    bool state_based = false);
 
   /// \brief Attempt to minimize a deterministic TBA with a SAT solver.
@@ -60,7 +60,7 @@ namespace spot
   /// find the minimum number of states using a binary search.
   //
   /// If no smaller TBA exist, this returns a null pointer.
-  SPOT_API tgba_digraph_ptr
-  dtba_sat_minimize_dichotomy(const const_tgba_digraph_ptr& a,
+  SPOT_API twa_graph_ptr
+  dtba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
 			      bool state_based = false);
 }

@@ -484,7 +484,7 @@ namespace
       has_sr = has('D');
     }
 
-    spot::tgba_digraph_ptr
+    spot::twa_graph_ptr
     translate(unsigned int translator_num, char l, statistics_formula* fstats,
 	      bool& problem)
     {
@@ -505,7 +505,7 @@ namespace
 
       const char* status_str = 0;
 
-      spot::tgba_digraph_ptr res = 0;
+      spot::twa_graph_ptr res = 0;
       if (timed_out)
 	{
 	  // This is not considered to be a global error.
@@ -696,8 +696,8 @@ namespace
   };
 
   static bool
-  check_empty_prod(const spot::const_tgba_digraph_ptr& aut_i,
-		   const spot::const_tgba_digraph_ptr& aut_j,
+  check_empty_prod(const spot::const_twa_graph_ptr& aut_i,
+		   const spot::const_twa_graph_ptr& aut_j,
 		   size_t i, size_t j, bool icomp, bool jcomp)
   {
     auto prod = spot::product(aut_i, aut_j);
@@ -1022,12 +1022,12 @@ namespace
       // These store the result of the translation of the positive and
       // negative formulas.
       size_t m = translators.size();
-      std::vector<spot::tgba_digraph_ptr> pos(m);
-      std::vector<spot::tgba_digraph_ptr> neg(m);
+      std::vector<spot::twa_graph_ptr> pos(m);
+      std::vector<spot::twa_graph_ptr> neg(m);
       // These store the complement of the above results, when we can
       // compute it easily.
-      std::vector<spot::tgba_digraph_ptr> comp_pos(m);
-      std::vector<spot::tgba_digraph_ptr> comp_neg(m);
+      std::vector<spot::twa_graph_ptr> comp_pos(m);
+      std::vector<spot::twa_graph_ptr> comp_neg(m);
 
 
       unsigned n = vstats.size();
@@ -1213,9 +1213,9 @@ namespace
 		      << " edges\n";
 
 	  // Products of the state space with the positive automata.
-	  std::vector<spot::const_tgba_digraph_ptr> pos_prod(m);
+	  std::vector<spot::const_twa_graph_ptr> pos_prod(m);
 	  // Products of the state space with the negative automata.
-	  std::vector<spot::const_tgba_digraph_ptr> neg_prod(m);
+	  std::vector<spot::const_twa_graph_ptr> neg_prod(m);
 	  // Associated SCC maps.
 	  std::vector<spot::scc_info*> pos_map(m);
 	  std::vector<spot::scc_info*> neg_map(m);

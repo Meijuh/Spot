@@ -24,12 +24,12 @@
 
 namespace spot
 {
-  tgba_digraph_ptr sbacc(tgba_digraph_ptr& old)
+  twa_graph_ptr sbacc(twa_graph_ptr& old)
   {
     if (old->has_state_based_acc())
       return old;
 
-    auto res = make_tgba_digraph(old->get_dict());
+    auto res = make_twa_graph(old->get_dict());
     res->copy_ap_of(old);
     res->copy_acceptance_of(old);
     res->prop_copy(old, {false, true, true, true});

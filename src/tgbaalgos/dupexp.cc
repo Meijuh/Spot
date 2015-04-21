@@ -37,14 +37,14 @@ namespace spot
     {
     public:
       dupexp_iter(const const_tgba_ptr& a, twa::prop_set p)
-	: T(a), out_(make_tgba_digraph(a->get_dict()))
+	: T(a), out_(make_twa_graph(a->get_dict()))
       {
 	out_->copy_acceptance_of(a);
 	out_->copy_ap_of(a);
 	out_->prop_copy(a, p);
       }
 
-      tgba_digraph_ptr
+      twa_graph_ptr
       result()
       {
 	return out_;
@@ -70,12 +70,12 @@ namespace spot
       }
 
     protected:
-      tgba_digraph_ptr out_;
+      twa_graph_ptr out_;
     };
 
   } // anonymous
 
-  tgba_digraph_ptr
+  twa_graph_ptr
   tgba_dupexp_bfs(const const_tgba_ptr& aut, twa::prop_set p)
   {
     dupexp_iter<tgba_reachable_iterator_breadth_first> di(aut, p);
@@ -83,7 +83,7 @@ namespace spot
     return di.result();
   }
 
-  tgba_digraph_ptr
+  twa_graph_ptr
   tgba_dupexp_dfs(const const_tgba_ptr& aut, twa::prop_set p)
   {
     dupexp_iter<tgba_reachable_iterator_depth_first> di(aut, p);

@@ -22,7 +22,7 @@
 namespace spot
 {
   void
-  relabel_here(tgba_digraph_ptr& aut, ltl::relabeling_map* relmap)
+  relabel_here(twa_graph_ptr& aut, ltl::relabeling_map* relmap)
   {
     bddPair* pairs = bdd_newpair();
     auto d = aut->get_dict();

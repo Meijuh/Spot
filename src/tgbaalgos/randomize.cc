@@ -26,7 +26,7 @@
 namespace spot
 {
   void
-  randomize(tgba_digraph_ptr& aut, bool randomize_states,
+  randomize(twa_graph_ptr& aut, bool randomize_states,
 	    bool randomize_transitions)
   {
     if (!randomize_states && !randomize_transitions)
@@ -58,7 +58,7 @@ namespace spot
 	mrandom_shuffle(v.begin() + 1, v.end());
       }
 
-    typedef tgba_digraph::graph_t::trans_storage_t tr_t;
+    typedef twa_graph::graph_t::trans_storage_t tr_t;
     g.sort_transitions_([](const tr_t& lhs, const tr_t& rhs)
 			{ return lhs.src < rhs.src; });
     g.chain_transitions_();

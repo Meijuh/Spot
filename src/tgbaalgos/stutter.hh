@@ -23,29 +23,29 @@
 
 namespace spot
 {
-  SPOT_API tgba_digraph_ptr
-  sl(const const_tgba_digraph_ptr&, const ltl::formula* = nullptr);
+  SPOT_API twa_graph_ptr
+  sl(const const_twa_graph_ptr&, const ltl::formula* = nullptr);
 
-  SPOT_API tgba_digraph_ptr
-  sl(const const_tgba_digraph_ptr&, bdd);
+  SPOT_API twa_graph_ptr
+  sl(const const_twa_graph_ptr&, bdd);
 
-  SPOT_API tgba_digraph_ptr
-  sl2(const const_tgba_digraph_ptr&, const ltl::formula* = nullptr);
+  SPOT_API twa_graph_ptr
+  sl2(const const_twa_graph_ptr&, const ltl::formula* = nullptr);
 
-  SPOT_API tgba_digraph_ptr
-  sl2(const const_tgba_digraph_ptr&, bdd);
+  SPOT_API twa_graph_ptr
+  sl2(const const_twa_graph_ptr&, bdd);
 
 #ifndef SWIG
-  SPOT_API tgba_digraph_ptr
-  sl2(tgba_digraph_ptr&&, bdd = bddfalse);
+  SPOT_API twa_graph_ptr
+  sl2(twa_graph_ptr&&, bdd = bddfalse);
 #endif
 
-  SPOT_API tgba_digraph_ptr
-  closure(const const_tgba_digraph_ptr&);
+  SPOT_API twa_graph_ptr
+  closure(const const_twa_graph_ptr&);
 
 #ifndef SWIG
-  SPOT_API tgba_digraph_ptr
-  closure(tgba_digraph_ptr&&);
+  SPOT_API twa_graph_ptr
+  closure(twa_graph_ptr&&);
 #endif
 
   /// \ingroup ltl_misc
@@ -54,7 +54,7 @@ namespace spot
   is_stutter_invariant(const ltl::formula* f);
 
   SPOT_API bool
-  is_stutter_invariant(tgba_digraph_ptr&& aut_f,
-		       tgba_digraph_ptr&& aut_nf, bdd aps,
+  is_stutter_invariant(twa_graph_ptr&& aut_f,
+		       twa_graph_ptr&& aut_nf, bdd aps,
 		       int algo = 0);
 }

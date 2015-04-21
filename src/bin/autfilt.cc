@@ -208,7 +208,7 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
+typedef spot::twa_graph::graph_t::trans_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static long int match_count = 0;
 static spot::option_map extra_options;
@@ -223,9 +223,9 @@ static int opt_seed = 0;
 static struct opt_t
 {
   spot::bdd_dict_ptr dict = spot::make_bdd_dict();
-  spot::tgba_digraph_ptr product = nullptr;
-  spot::tgba_digraph_ptr intersect = nullptr;
-  spot::tgba_digraph_ptr are_isomorphic = nullptr;
+  spot::twa_graph_ptr product = nullptr;
+  spot::twa_graph_ptr intersect = nullptr;
+  spot::twa_graph_ptr are_isomorphic = nullptr;
   std::unique_ptr<spot::isomorphism_checker>
                          isomorphism_checker = nullptr;
   std::unique_ptr<unique_aut_t> uniq = nullptr;
@@ -488,7 +488,7 @@ namespace
       // never modify the original automaton (e.g. with
       // merge_transitions()) and the statistics about it make sense.
       auto aut = ((automaton_format == Stats) || opt_name)
-	? spot::make_tgba_digraph(haut->aut, spot::twa::prop_set::all())
+	? spot::make_twa_graph(haut->aut, spot::twa::prop_set::all())
 	: haut->aut;
 
       // Preprocessing.
@@ -576,7 +576,7 @@ namespace
       if (opt->uniq)
         {
           auto tmp =
-	    spot::canonicalize(make_tgba_digraph(aut,
+	    spot::canonicalize(make_twa_graph(aut,
 						 spot::twa::prop_set::all()));
           if (!opt->uniq->emplace(tmp->transition_vector().begin() + 1,
 				  tmp->transition_vector().end()).second)

@@ -98,11 +98,11 @@ namespace spot
 
   }
 
-  tgba_digraph_ptr nsa_to_tgba(const const_dstar_aut_ptr& nsa)
+  twa_graph_ptr nsa_to_tgba(const const_dstar_aut_ptr& nsa)
   {
     assert(nsa->type == Streett);
     auto a = nsa->aut;
-    auto res = make_tgba_digraph(a->get_dict());
+    auto res = make_twa_graph(a->get_dict());
     res->copy_ap_of(a);
 
     // Create accpair_count acceptance sets for the output.

@@ -24,6 +24,6 @@
 namespace spot
 {
   /// \brief Rewrite an automaton without Fin acceptance.
-  SPOT_API tgba_digraph_ptr
-  remove_fin(const const_tgba_digraph_ptr& aut);
+  SPOT_API twa_graph_ptr
+  remove_fin(const const_twa_graph_ptr& aut);
 }

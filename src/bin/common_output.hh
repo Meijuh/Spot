@@ -77,7 +77,7 @@ public:
   using spot::formater::set_output;
 
   std::ostream&
-  print(const spot::const_tgba_digraph_ptr& aut,
+  print(const spot::const_twa_graph_ptr& aut,
 	const spot::ltl::formula* f = 0,
 	double run_time = -1.)
   {

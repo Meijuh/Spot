@@ -27,9 +27,9 @@ namespace spot
   typedef std::shared_ptr<twa> tgba_ptr;
   typedef std::shared_ptr<const twa> const_tgba_ptr;
 
-  class tgba_digraph;
-  typedef std::shared_ptr<const tgba_digraph> const_tgba_digraph_ptr;
-  typedef std::shared_ptr<tgba_digraph> tgba_digraph_ptr;
+  class twa_graph;
+  typedef std::shared_ptr<const twa_graph> const_twa_graph_ptr;
+  typedef std::shared_ptr<twa_graph> twa_graph_ptr;
 
   class tgba_product;
   typedef std::shared_ptr<const tgba_product> const_tgba_product_ptr;

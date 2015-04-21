@@ -58,7 +58,7 @@ namespace spot
       typedef std::map<bdd, std::string, bdd_less_than> sup_map;
       sup_map sup;
 
-      metadata(const const_tgba_digraph_ptr& aut, bool implicit)
+      metadata(const const_twa_graph_ptr& aut, bool implicit)
       {
 	check_det_and_comp(aut);
 	use_implicit_labels = implicit && is_deterministic && is_complete;
@@ -67,7 +67,7 @@ namespace spot
 
       std::ostream&
       emit_acc(std::ostream& os,
-	       const const_tgba_digraph_ptr& aut,
+	       const const_twa_graph_ptr& aut,
 	       acc_cond::mark_t b)
       {
 	// FIXME: We could use a cache for this.
@@ -87,7 +87,7 @@ namespace spot
 	return os;
       }
 
-      void check_det_and_comp(const const_tgba_digraph_ptr& aut)
+      void check_det_and_comp(const const_twa_graph_ptr& aut)
       {
 	std::string empty;
 
@@ -223,7 +223,7 @@ namespace spot
 
   static std::ostream&
   hoa_reachable(std::ostream& os,
-		const const_tgba_digraph_ptr& aut,
+		const const_twa_graph_ptr& aut,
 		const char* opt)
   {
     bool newline = true;
@@ -436,9 +436,9 @@ namespace spot
 		const char* opt)
   {
 
-    auto a = std::dynamic_pointer_cast<const tgba_digraph>(aut);
+    auto a = std::dynamic_pointer_cast<const twa_graph>(aut);
     if (!a)
-      a = make_tgba_digraph(aut, twa::prop_set::all());
+      a = make_twa_graph(aut, twa::prop_set::all());
 
     return hoa_reachable(os, a, opt);
   }

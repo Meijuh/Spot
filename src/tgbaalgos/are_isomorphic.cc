@@ -29,7 +29,7 @@
 
 namespace
 {
-  typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
+  typedef spot::twa_graph::graph_t::trans_storage_t tr_t;
   bool
   tr_t_less_than(const tr_t& t1, const tr_t& t2)
   {
@@ -43,8 +43,8 @@ namespace
   }
 
   bool
-  are_isomorphic_det(const spot::const_tgba_digraph_ptr aut1,
-                     const spot::const_tgba_digraph_ptr aut2)
+  are_isomorphic_det(const spot::const_twa_graph_ptr aut1,
+                     const spot::const_twa_graph_ptr aut2)
   {
     typedef std::pair<unsigned, unsigned> state_pair_t;
     std::queue<state_pair_t> workqueue;
@@ -97,8 +97,8 @@ namespace
   }
 
   bool
-  trivially_different(const spot::const_tgba_digraph_ptr aut1,
-                      const spot::const_tgba_digraph_ptr aut2)
+  trivially_different(const spot::const_twa_graph_ptr aut1,
+                      const spot::const_twa_graph_ptr aut2)
   {
     return aut1->num_states() != aut2->num_states() ||
       aut1->num_transitions() != aut2->num_transitions() ||
@@ -110,9 +110,9 @@ namespace
 
 namespace spot
 {
-  isomorphism_checker::isomorphism_checker(const const_tgba_digraph_ptr ref)
+  isomorphism_checker::isomorphism_checker(const const_twa_graph_ptr ref)
   {
-    ref_ = make_tgba_digraph(ref, twa::prop_set::all());
+    ref_ = make_twa_graph(ref, twa::prop_set::all());
     ref_deterministic_ = ref_->is_deterministic();
     if (!ref_deterministic_)
       {
@@ -123,7 +123,7 @@ namespace spot
   }
 
   bool
-  isomorphism_checker::is_isomorphic(const const_tgba_digraph_ptr aut)
+  isomorphism_checker::is_isomorphic(const const_twa_graph_ptr aut)
   {
     if (trivially_different(ref_, aut))
       return false;
@@ -144,7 +144,7 @@ namespace spot
           }
       }
 
-    auto tmp = make_tgba_digraph(aut, twa::prop_set::all());
+    auto tmp = make_twa_graph(aut, twa::prop_set::all());
     spot::canonicalize(tmp);
     return *tmp == *ref_;
   }

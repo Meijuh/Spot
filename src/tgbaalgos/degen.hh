@@ -49,15 +49,15 @@ namespace spot
   /// The degeneralize_tba() variant produce a degeneralized automaton
   /// with transition-based acceptance.
   /// \@{
-  SPOT_API tgba_digraph_ptr
-  degeneralize(const const_tgba_digraph_ptr& a, bool use_z_lvl = true,
+  SPOT_API twa_graph_ptr
+  degeneralize(const const_twa_graph_ptr& a, bool use_z_lvl = true,
 	       bool use_cust_acc_orders = false,
 	       int use_lvl_cache = 1,
 	       bool skip_levels = true,
 	       bool ignaccsl = false);
 
-  SPOT_API tgba_digraph_ptr
-  degeneralize_tba(const const_tgba_digraph_ptr& a, bool use_z_lvl = true,
+  SPOT_API twa_graph_ptr
+  degeneralize_tba(const const_twa_graph_ptr& a, bool use_z_lvl = true,
 		   bool use_cust_acc_orders = false,
 		   int use_lvl_cache = 1,
 		   bool skip_levels = true,

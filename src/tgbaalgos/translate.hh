@@ -102,14 +102,14 @@ namespace spot
     ///
     /// The formula \a f is simplified internally, but it is not
     /// not destroyed (this is the responsibility of the caller).
-    tgba_digraph_ptr run(const ltl::formula* f);
+    twa_graph_ptr run(const ltl::formula* f);
 
     /// \brief Convert \a f into an automaton, and update f.
     ///
     /// The formula <code>*f</code> is destroyed, and replaced
     /// by the simplified version, which should be destroyed by
     /// the caller.
-    tgba_digraph_ptr run(const ltl::formula** f);
+    twa_graph_ptr run(const ltl::formula** f);
 
   protected:
     void setup_opt(const option_map* opt);

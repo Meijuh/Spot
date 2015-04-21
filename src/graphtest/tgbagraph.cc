@@ -29,7 +29,7 @@ void f1()
 
   auto& e = spot::ltl::default_environment::instance();
 
-  auto tg = make_tgba_digraph(d);
+  auto tg = make_twa_graph(d);
 
   auto* f1 = e.require("p1");
   auto* f2 = e.require("p2");

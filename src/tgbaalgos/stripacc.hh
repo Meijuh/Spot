@@ -24,9 +24,9 @@
 namespace spot
 {
   /// \ingroup tgba_misc
-  /// \brief Remove all acceptance sets from a tgba_digraph.
+  /// \brief Remove all acceptance sets from a twa_graph.
   ///
   /// This is equivalent to marking all states/transitions as accepting.
   SPOT_API void
-  strip_acceptance_here(tgba_digraph_ptr a);
+  strip_acceptance_here(twa_graph_ptr a);
 }

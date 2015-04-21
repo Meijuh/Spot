@@ -248,14 +248,14 @@ namespace spot
 
 
     template<class F, typename... Args>
-    tgba_digraph_ptr scc_filter_apply(const_tgba_digraph_ptr aut,
+    twa_graph_ptr scc_filter_apply(const_twa_graph_ptr aut,
 				      scc_info* given_si, Args&&... args)
     {
       if (!aut->acc().is_generalized_buchi())
 	throw std::runtime_error
 	  ("scc_filter() works only with generalized Büchi acceptance");
 
-      tgba_digraph_ptr filtered = make_tgba_digraph(aut->get_dict());
+      twa_graph_ptr filtered = make_twa_graph(aut->get_dict());
       unsigned in_n = aut->num_states(); // Number of input states.
       if (in_n == 0)			 // Nothing to filter.
 	return filtered;
@@ -313,19 +313,19 @@ namespace spot
 
   }
 
-  tgba_digraph_ptr
-  scc_filter_states(const const_tgba_digraph_ptr& aut, scc_info* given_si)
+  twa_graph_ptr
+  scc_filter_states(const const_twa_graph_ptr& aut, scc_info* given_si)
   {
     auto res = scc_filter_apply<state_filter<>>(aut, given_si);
     res->prop_copy(aut, { true, true, true, true });
     return res;
   }
 
-  tgba_digraph_ptr
-  scc_filter(const const_tgba_digraph_ptr& aut, bool remove_all_useless,
+  twa_graph_ptr
+  scc_filter(const const_twa_graph_ptr& aut, bool remove_all_useless,
 	     scc_info* given_si)
   {
-    tgba_digraph_ptr res;
+    twa_graph_ptr res;
     if (remove_all_useless)
       res = scc_filter_apply<state_filter
 			     <acc_filter_all
@@ -344,12 +344,12 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr
-  scc_filter_susp(const const_tgba_digraph_ptr& aut, bool remove_all_useless,
+  twa_graph_ptr
+  scc_filter_susp(const const_twa_graph_ptr& aut, bool remove_all_useless,
 		  bdd suspvars, bdd ignoredvars, bool early_susp,
 		  scc_info* given_si)
   {
-    tgba_digraph_ptr res;
+    twa_graph_ptr res;
     if (remove_all_useless)
       res = scc_filter_apply<susp_filter
 			     <state_filter

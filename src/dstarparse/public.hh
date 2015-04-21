@@ -46,7 +46,7 @@ namespace spot
   {
     // Transition structure of the automaton.
     // This is encoded as a TGBA without acceptance condition.
-    tgba_digraph_ptr aut;
+    twa_graph_ptr aut;
     /// Type of the acceptance.
     dstar_type type;
     /// Number of acceptance pairs.
@@ -68,7 +68,7 @@ namespace spot
   typedef std::shared_ptr<dstar_aut> dstar_aut_ptr;
   typedef std::shared_ptr<const dstar_aut> const_dstar_aut_ptr;
 
-  /// \brief Build a spot::tgba_digraph from ltl2dstar's output.
+  /// \brief Build a spot::twa_graph from ltl2dstar's output.
   /// \param filename The name of the file to parse.
   /// \param error_list A list that will be filled with
   ///        parse errors that occured during parsing.
@@ -106,14 +106,14 @@ namespace spot
 
   /// \brief Convert a non-deterministic Rabin automaton into a
   /// non-deterministic Büchi automaton.
-  SPOT_API tgba_digraph_ptr
+  SPOT_API twa_graph_ptr
   nra_to_nba(const const_dstar_aut_ptr& nra);
 
   /// \brief Convert a non-deterministic Rabin automaton into a
   /// non-deterministic Büchi automaton.
   ///
   /// This version simply ignores all states in \a ignore.
-  SPOT_API tgba_digraph_ptr
+  SPOT_API twa_graph_ptr
   nra_to_nba(const const_dstar_aut_ptr& nra, const state_set* ignore);
 
   /// \brief Convert a deterministic Rabin automaton into a
@@ -132,18 +132,18 @@ namespace spot
   /// If the optional \a dba_output argument is non-null, the
   /// pointed Boolean will be updated to indicate whether the
   /// returned Büchi automaton is deterministic.
-  SPOT_API tgba_digraph_ptr
+  SPOT_API twa_graph_ptr
   dra_to_ba(const const_dstar_aut_ptr& dra, bool* dba_output = 0);
 
   /// \brief Convert a non-deterministic Streett automaton into a
   /// non-deterministic tgba.
-  SPOT_API tgba_digraph_ptr
+  SPOT_API twa_graph_ptr
   nsa_to_tgba(const const_dstar_aut_ptr& nra);
 
   /// \brief Convert a Rabin or Streett automaton into a TGBA.
   ///
   /// This function calls dra_to_ba() or nsa_to_tgba().
-  SPOT_API tgba_digraph_ptr
+  SPOT_API twa_graph_ptr
   dstar_to_tgba(const const_dstar_aut_ptr& dstar);
 
   /// @}

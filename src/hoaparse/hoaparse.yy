@@ -49,7 +49,7 @@
     typedef std::map<std::string, bdd> formula_cache;
 
     typedef std::pair<int, std::string*> pair;
-    typedef typename spot::tgba_digraph::namer<std::string>::type named_tgba_t;
+    typedef typename spot::twa_graph::namer<std::string>::type named_tgba_t;
 
     // Note: because this parser is meant to be used on a stream of
     // automata, it tries hard to recover from errors, so that we get a
@@ -1682,7 +1682,7 @@ namespace spot
   restart:
     result_ r;
     r.h = std::make_shared<spot::hoa_aut>();
-    r.h->aut = make_tgba_digraph(dict);
+    r.h->aut = make_twa_graph(dict);
     r.env = &env;
     hoayy::parser parser(error_list, r, last_loc);
     static bool env_debug = !!getenv("SPOT_DEBUG_PARSER");
@@ -1717,7 +1717,7 @@ namespace spot
     return r.h;
   };
 
-  tgba_digraph_ptr
+  twa_graph_ptr
   hoa_stream_parser::parse_strict(const bdd_dict_ptr& dict,
 				  ltl::environment& env,
 				  bool debug)

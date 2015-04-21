@@ -21,10 +21,10 @@
 
 namespace spot
 {
-  tgba_digraph_ptr mask_acc_sets(const const_tgba_digraph_ptr& in,
+  twa_graph_ptr mask_acc_sets(const const_twa_graph_ptr& in,
 				 acc_cond::mark_t to_remove)
   {
-    auto res = make_tgba_digraph(in->get_dict());
+    auto res = make_twa_graph(in->get_dict());
     res->copy_ap_of(in);
     res->prop_copy(in, { true, true, true, false });
     unsigned na = in->acc().num_sets();
@@ -45,14 +45,14 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr mask_keep_states(const const_tgba_digraph_ptr& in,
+  twa_graph_ptr mask_keep_states(const const_twa_graph_ptr& in,
                                     std::vector<bool>& to_keep,
                                     unsigned int init)
   {
     if (to_keep.size() < in->num_states())
       to_keep.resize(in->num_states(), false);
 
-    auto res = make_tgba_digraph(in->get_dict());
+    auto res = make_twa_graph(in->get_dict());
     res->copy_ap_of(in);
     res->prop_copy(in, { true, true, true, false });
     res->copy_acceptance_of(in);

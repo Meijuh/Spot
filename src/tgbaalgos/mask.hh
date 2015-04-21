@@ -39,8 +39,8 @@ namespace spot
   /// \param init The optional new initial state.
 
   template<typename Trans>
-  void transform_accessible(const const_tgba_digraph_ptr& old,
-                            tgba_digraph_ptr& cpy,
+  void transform_accessible(const const_twa_graph_ptr& old,
+                            twa_graph_ptr& cpy,
                             Trans trans, unsigned int init)
   {
     std::vector<unsigned> todo;
@@ -97,8 +97,8 @@ namespace spot
   /// all transtions will be processed.
   /// \param init The optional new initial state.
   template<typename Trans>
-  void transform_copy(const const_tgba_digraph_ptr& old,
-                      tgba_digraph_ptr& cpy,
+  void transform_copy(const const_twa_graph_ptr& old,
+                      twa_graph_ptr& cpy,
                       Trans trans, unsigned int init)
   {
     // Each state in cpy corresponds to a unique state in old.
@@ -119,15 +119,15 @@ namespace spot
   }
 
   template<typename Trans>
-  void transform_accessible(const const_tgba_digraph_ptr& old,
-                            tgba_digraph_ptr& cpy,
+  void transform_accessible(const const_twa_graph_ptr& old,
+                            twa_graph_ptr& cpy,
                             Trans trans)
   {
     transform_accessible(old, cpy, trans, old->get_init_state_number());
   }
   template<typename Trans>
-  void transform_copy(const const_tgba_digraph_ptr& old,
-                      tgba_digraph_ptr& cpy,
+  void transform_copy(const const_twa_graph_ptr& old,
+                      twa_graph_ptr& cpy,
                       Trans trans)
   {
     transform_copy(old, cpy, trans, old->get_init_state_number());
@@ -135,7 +135,7 @@ namespace spot
 
   /// \brief Remove all transitions that are in some given acceptance sets.
   SPOT_API
-  tgba_digraph_ptr mask_acc_sets(const const_tgba_digraph_ptr& in,
+  twa_graph_ptr mask_acc_sets(const const_twa_graph_ptr& in,
 				 acc_cond::mark_t to_remove);
 
   /// \brief Keep only the states as specified by \a to_keep.
@@ -143,7 +143,7 @@ namespace spot
   /// Each index in the vector \a to_keep specifies wether or not to keep that
   /// state.  The initial state will be set to \a init.
   SPOT_API
-  tgba_digraph_ptr mask_keep_states(const const_tgba_digraph_ptr& in,
+  twa_graph_ptr mask_keep_states(const const_twa_graph_ptr& in,
                                     std::vector<bool>& to_keep,
                                     unsigned int init);
 }

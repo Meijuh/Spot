@@ -24,10 +24,10 @@
 
 namespace spot
 {
-  tgba_digraph_ptr dtgba_complement_nonweak(const const_tgba_digraph_ptr& aut)
+  twa_graph_ptr dtgba_complement_nonweak(const const_twa_graph_ptr& aut)
   {
     // Clone the original automaton.
-    auto res = make_tgba_digraph(aut,
+    auto res = make_twa_graph(aut,
 				 { false, // state based
 				   false, // inherently_weak
 				   false, // deterministic
@@ -112,10 +112,10 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr dtgba_complement_weak(const const_tgba_digraph_ptr& aut)
+  twa_graph_ptr dtgba_complement_weak(const const_twa_graph_ptr& aut)
   {
     // Clone the original automaton.
-    auto res = make_tgba_digraph(aut,
+    auto res = make_twa_graph(aut,
 				 { true, // state based
 				   true, // inherently weak
 				   true, // determinisitic
@@ -160,7 +160,7 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr dtgba_complement(const const_tgba_digraph_ptr& aut)
+  twa_graph_ptr dtgba_complement(const const_twa_graph_ptr& aut)
   {
     if (aut->acc().is_generalized_buchi())
       {

@@ -290,11 +290,11 @@ namespace spot
   // tgba_run_to_tgba
   //////////////////////////////////////////////////////////////////////
 
-  tgba_digraph_ptr
+  twa_graph_ptr
   tgba_run_to_tgba(const const_tgba_ptr& a, const const_tgba_run_ptr& run)
   {
     auto d = a->get_dict();
-    auto res = make_tgba_digraph(d);
+    auto res = make_twa_graph(d);
     res->copy_ap_of(a);
     res->copy_acceptance_of(a);
 

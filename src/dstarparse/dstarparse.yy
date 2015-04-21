@@ -330,7 +330,7 @@ namespace spot
       }
     result_ r;
     r.d = std::make_shared<spot::dstar_aut>();
-    r.d->aut = make_tgba_digraph(dict);
+    r.d->aut = make_twa_graph(dict);
     r.d->accsets = 0;
     r.env = &env;
     dstaryy::parser parser(error_list, r);

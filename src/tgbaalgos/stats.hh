@@ -84,7 +84,7 @@ namespace spot
     /// The \a f argument is not needed if the Formula does not need
     /// to be output, and so is \a run_time).
     std::ostream&
-      print(const const_tgba_digraph_ptr& aut, const ltl::formula* f = 0,
+      print(const const_twa_graph_ptr& aut, const ltl::formula* f = 0,
 	    double run_time = -1.);
 
   private:

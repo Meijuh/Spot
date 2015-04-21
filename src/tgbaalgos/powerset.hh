@@ -54,11 +54,11 @@ namespace spot
   /// The \a merge argument can be set to false to prevent merging of
   /// transitions.
   //@{
-  SPOT_API tgba_digraph_ptr
-  tgba_powerset(const const_tgba_digraph_ptr& aut,
+  SPOT_API twa_graph_ptr
+  tgba_powerset(const const_twa_graph_ptr& aut,
 		power_map& pm, bool merge = true);
-  SPOT_API tgba_digraph_ptr
-  tgba_powerset(const const_tgba_digraph_ptr& aut);
+  SPOT_API twa_graph_ptr
+  tgba_powerset(const const_twa_graph_ptr& aut);
   //@}
 
 
@@ -97,8 +97,8 @@ namespace spot
   /// If \a threshold_cycles is non null, abort the construction
   /// whenever an SCC of the constructed automaton has more than \a
   /// threshold_cycles cycles.
-  SPOT_API tgba_digraph_ptr
-  tba_determinize(const const_tgba_digraph_ptr& aut,
+  SPOT_API twa_graph_ptr
+  tba_determinize(const const_twa_graph_ptr& aut,
 		  unsigned threshold_states = 0,
 		  unsigned threshold_cycles = 0);
 
@@ -129,11 +129,11 @@ namespace spot
   /// the automaton cannot be determinized, 0 if we do not know if the
   /// determinization is correct because neither \a f nor \a neg_aut
   /// were supplied.
-  SPOT_API tgba_digraph_ptr
-  tba_determinize_check(const tgba_digraph_ptr& aut,
+  SPOT_API twa_graph_ptr
+  tba_determinize_check(const twa_graph_ptr& aut,
 			unsigned threshold_states = 0,
 			unsigned threshold_cycles = 0,
 			const ltl::formula* f = 0,
-			const_tgba_digraph_ptr neg_aut = 0);
+			const_twa_graph_ptr neg_aut = 0);
 
 }

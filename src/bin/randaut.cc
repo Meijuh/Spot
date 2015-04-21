@@ -124,7 +124,7 @@ ARGMATCH_VERIFY(acc_args, acc_types);
 
 
 static acc_type opt_acc = acc_buchi;
-typedef spot::tgba_digraph::graph_t::trans_storage_t tr_t;
+typedef spot::twa_graph::graph_t::trans_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static spot::ltl::atomic_prop_set aprops;
 static bool ap_count_given = false;
@@ -307,7 +307,7 @@ main(int argc, char** argv)
 	  if (opt_uniq)
 	    {
 	      auto tmp = spot::canonicalize
-		(make_tgba_digraph(aut, spot::twa::prop_set::all()));
+		(make_twa_graph(aut, spot::twa::prop_set::all()));
 	      std::vector<tr_t> trans(tmp->transition_vector().begin() + 1,
 				      tmp->transition_vector().end());
 	      if (!opt_uniq->emplace(trans).second)

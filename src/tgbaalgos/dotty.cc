@@ -52,7 +52,7 @@ namespace spot
       bool mark_states_ = false;
       bool opt_scc_ = false;
       bool opt_html_labels_ = false;
-      const_tgba_digraph_ptr aut_;
+      const_twa_graph_ptr aut_;
       std::vector<std::string>* sn_;
       std::string* name_ = nullptr;
       acc_cond::mark_t inf_sets_ = 0U;
@@ -400,7 +400,7 @@ namespace spot
       }
 
       void
-      process_link(const tgba_digraph::trans_storage_t& t, int number)
+      process_link(const twa_graph::trans_storage_t& t, int number)
       {
 	std::string label = bdd_format_formula(aut_->get_dict(), t.cond);
 	os_ << "  " << t.src << " -> " << t.dst;
@@ -433,7 +433,7 @@ namespace spot
 	os_ << "]\n";
       }
 
-      void print(const const_tgba_digraph_ptr& aut)
+      void print(const const_twa_graph_ptr& aut)
       {
 	aut_ = aut;
 	sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
@@ -492,9 +492,9 @@ namespace spot
 		  const char* options)
   {
     dotty_output d(os, options);
-    auto aut = std::dynamic_pointer_cast<const tgba_digraph>(g);
+    auto aut = std::dynamic_pointer_cast<const twa_graph>(g);
     if (!aut)
-      aut = make_tgba_digraph(g, twa::prop_set::all());
+      aut = make_twa_graph(g, twa::prop_set::all());
     d.print(aut);
     return os;
   }

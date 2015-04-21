@@ -268,7 +268,7 @@ namespace
     /// to be output.
     std::ostream&
     print(const spot::const_dstar_aut_ptr& daut,
-	  const spot::const_tgba_digraph_ptr& aut,
+	  const spot::const_twa_graph_ptr& aut,
 	  const char* filename, double run_time)
     {
       filename_ = filename;

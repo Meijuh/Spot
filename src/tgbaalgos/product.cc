@@ -40,8 +40,8 @@ namespace spot
   }
 
 
-  tgba_digraph_ptr product(const const_tgba_digraph_ptr& left,
-			   const const_tgba_digraph_ptr& right,
+  twa_graph_ptr product(const const_twa_graph_ptr& left,
+			   const const_twa_graph_ptr& right,
 			   unsigned left_state,
 			   unsigned right_state)
   {
@@ -49,7 +49,7 @@ namespace spot
     std::deque<std::pair<product_state, unsigned>> todo;
 
     assert(left->get_dict() == right->get_dict());
-    auto res = make_tgba_digraph(left->get_dict());
+    auto res = make_twa_graph(left->get_dict());
     res->copy_ap_of(left);
     res->copy_ap_of(right);
     auto left_num = left->acc().num_sets();
@@ -102,8 +102,8 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr product(const const_tgba_digraph_ptr& left,
-			   const const_tgba_digraph_ptr& right)
+  twa_graph_ptr product(const const_twa_graph_ptr& left,
+			   const const_twa_graph_ptr& right)
   {
     return product(left, right,
 		   left->get_init_state_number(),

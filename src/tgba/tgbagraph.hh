@@ -105,7 +105,7 @@ namespace spot
 
 
   template<class Graph>
-  class SPOT_API tgba_digraph_succ_iterator final:
+  class SPOT_API twa_graph_succ_iterator final:
     public tgba_succ_iterator
   {
   private:
@@ -116,7 +116,7 @@ namespace spot
     transition p_;
 
   public:
-    tgba_digraph_succ_iterator(const Graph* g, transition t)
+    twa_graph_succ_iterator(const Graph* g, transition t)
       : g_(g), t_(t)
     {
     }
@@ -169,7 +169,7 @@ namespace spot
 
   };
 
-  class SPOT_API tgba_digraph final: public twa
+  class SPOT_API twa_graph final: public twa
   {
   public:
     typedef digraph<tgba_graph_state, tgba_graph_trans_data> graph_t;
@@ -180,13 +180,13 @@ namespace spot
     mutable unsigned init_number_;
 
   public:
-    tgba_digraph(const bdd_dict_ptr& dict)
+    twa_graph(const bdd_dict_ptr& dict)
       : twa(dict),
 	init_number_(0)
     {
     }
 
-    explicit tgba_digraph(const const_tgba_digraph_ptr& other, prop_set p)
+    explicit twa_graph(const const_twa_graph_ptr& other, prop_set p)
       : twa(other->get_dict()),
         g_(other->g_), init_number_(other->init_number_)
       {
@@ -195,7 +195,7 @@ namespace spot
 	prop_copy(other, p);
       }
 
-    virtual ~tgba_digraph()
+    virtual ~twa_graph()
     {
       get_dict()->unregister_all_my_variables(this);
       // Prevent this state from being destroyed by ~twa(),
@@ -278,12 +278,12 @@ namespace spot
       if (this->iter_cache_)
 	{
 	  auto it =
-	    down_cast<tgba_digraph_succ_iterator<graph_t>*>(this->iter_cache_);
+	    down_cast<twa_graph_succ_iterator<graph_t>*>(this->iter_cache_);
 	  it->recycle(s->succ);
 	  this->iter_cache_ = nullptr;
 	  return it;
 	}
-      return new tgba_digraph_succ_iterator<graph_t>(&g_, s->succ);
+      return new twa_graph_succ_iterator<graph_t>(&g_, s->succ);
     }
 
     graph_t::state
@@ -314,7 +314,7 @@ namespace spot
 
     tgba_graph_trans_data& trans_data(const tgba_succ_iterator* it)
     {
-      auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);
+      auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_data(i->pos());
     }
 
@@ -325,7 +325,7 @@ namespace spot
 
     const tgba_graph_trans_data& trans_data(const tgba_succ_iterator* it) const
     {
-      auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);
+      auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_data(i->pos());
     }
 
@@ -336,7 +336,7 @@ namespace spot
 
     trans_storage_t& trans_storage(const tgba_succ_iterator* it)
     {
-      auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);
+      auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_storage(i->pos());
     }
 
@@ -348,7 +348,7 @@ namespace spot
     const trans_storage_t
       trans_storage(const tgba_succ_iterator* it) const
     {
-      auto* i = down_cast<const tgba_digraph_succ_iterator<graph_t>*>(it);
+      auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_storage(i->pos());
     }
 
@@ -440,7 +440,7 @@ namespace spot
       return state_is_accepting(state_number(s));
     }
 
-    bool operator==(const tgba_digraph& aut) const
+    bool operator==(const twa_graph& aut) const
     {
       if (num_states() != aut.num_states() ||
           num_transitions() != aut.num_transitions() ||
@@ -453,29 +453,29 @@ namespace spot
     }
   };
 
-  inline tgba_digraph_ptr make_tgba_digraph(const bdd_dict_ptr& dict)
+  inline twa_graph_ptr make_twa_graph(const bdd_dict_ptr& dict)
   {
-    return std::make_shared<tgba_digraph>(dict);
+    return std::make_shared<twa_graph>(dict);
   }
 
-  inline tgba_digraph_ptr make_tgba_digraph(const tgba_digraph_ptr& aut,
+  inline twa_graph_ptr make_twa_graph(const twa_graph_ptr& aut,
 					    twa::prop_set p)
   {
-    return std::make_shared<tgba_digraph>(aut, p);
+    return std::make_shared<twa_graph>(aut, p);
   }
 
-  inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_digraph_ptr& aut,
+  inline twa_graph_ptr make_twa_graph(const const_twa_graph_ptr& aut,
 					    twa::prop_set p)
   {
-    return std::make_shared<tgba_digraph>(aut, p);
+    return std::make_shared<twa_graph>(aut, p);
   }
 
-  inline tgba_digraph_ptr make_tgba_digraph(const const_tgba_ptr& aut,
+  inline twa_graph_ptr make_twa_graph(const const_tgba_ptr& aut,
 					    twa::prop_set p)
   {
-    auto a = std::dynamic_pointer_cast<const tgba_digraph>(aut);
+    auto a = std::dynamic_pointer_cast<const twa_graph>(aut);
     if (a)
-      return std::make_shared<tgba_digraph>(a, p);
+      return std::make_shared<twa_graph>(a, p);
     else
       return tgba_dupexp_dfs(aut, p);
   }

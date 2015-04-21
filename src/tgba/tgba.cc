@@ -82,9 +82,9 @@ namespace spot
     auto a = shared_from_this();
     if (a->acc().uses_fin_acceptance())
       {
-	auto aa = std::dynamic_pointer_cast<const tgba_digraph>(a);
+	auto aa = std::dynamic_pointer_cast<const twa_graph>(a);
 	if (!aa)
-	  aa = make_tgba_digraph(a, prop_set::all());
+	  aa = make_twa_graph(a, prop_set::all());
 	a = remove_fin(aa);
       }
     return !couvreur99(a)->check();

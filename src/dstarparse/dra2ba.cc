@@ -49,7 +49,7 @@ namespace spot
 
   // This function is defined in nra2nba.cc, and used only here.
   SPOT_LOCAL
-  tgba_digraph_ptr nra_to_nba(const const_dstar_aut_ptr& nra,
+  twa_graph_ptr nra_to_nba(const const_dstar_aut_ptr& nra,
 			      const const_tgba_ptr& aut);
 
   namespace
@@ -217,7 +217,7 @@ namespace spot
 		       const std::vector<bool>& realizable):
 	tgba_reachable_iterator_depth_first(a->aut),
 	in_(a),
-	out_(make_tgba_digraph(a->aut->get_dict())),
+	out_(make_twa_graph(a->aut->get_dict())),
 	final_(final),
 	num_states_(a->aut->num_states()),
 	sm_(sm),
@@ -231,7 +231,7 @@ namespace spot
 
       }
 
-      tgba_digraph_ptr
+      twa_graph_ptr
       result()
       {
 	return out_;
@@ -291,7 +291,7 @@ namespace spot
 
     protected:
       const const_dstar_aut_ptr& in_;
-      tgba_digraph_ptr out_;
+      twa_graph_ptr out_;
       const state_set& final_;
       size_t num_states_;
       acc_cond::mark_t acc_;
@@ -302,7 +302,7 @@ namespace spot
   }
 
 
-  tgba_digraph_ptr dra_to_ba(const const_dstar_aut_ptr& dra, bool* dba)
+  twa_graph_ptr dra_to_ba(const const_dstar_aut_ptr& dra, bool* dba)
   {
     assert(dra->type == Rabin);
 

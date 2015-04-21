@@ -285,7 +285,7 @@ namespace spot
     };
 
 
-    unsigned declare_vars(const const_tgba_digraph_ptr& aut,
+    unsigned declare_vars(const const_twa_graph_ptr& aut,
 			  dict& d, bdd ap, bool state_based, scc_info& sm)
     {
       bdd_dict_ptr bd = aut->get_dict();
@@ -424,7 +424,7 @@ namespace spot
     typedef std::pair<int, int> sat_stats;
 
     static
-    sat_stats dtgba_to_sat(std::ostream& out, const_tgba_digraph_ptr ref,
+    sat_stats dtgba_to_sat(std::ostream& out, const_twa_graph_ptr ref,
 			   dict& d, bool state_based)
     {
       clause_counter nclauses;
@@ -772,12 +772,12 @@ namespace spot
       return std::make_pair(d.nvars, nclauses.nb_clauses());
     }
 
-    static tgba_digraph_ptr
+    static twa_graph_ptr
     sat_build(const satsolver::solution& solution, dict& satdict,
-	      const_tgba_digraph_ptr aut, bool state_based)
+	      const_twa_graph_ptr aut, bool state_based)
     {
       auto autdict = aut->get_dict();
-      auto a = make_tgba_digraph(autdict);
+      auto a = make_twa_graph(autdict);
       a->copy_ap_of(aut);
       a->set_generalized_buchi(satdict.cand_nacc);
       if (state_based)
@@ -873,8 +873,8 @@ namespace spot
     }
   }
 
-  tgba_digraph_ptr
-  dtgba_sat_synthetize(const const_tgba_digraph_ptr& a,
+  twa_graph_ptr
+  dtgba_sat_synthetize(const const_twa_graph_ptr& a,
 		       unsigned target_acc_number,
 		       int target_state_number, bool state_based)
   {
@@ -902,7 +902,7 @@ namespace spot
     solution = solver.get_solution();
     t.stop("solve");
 
-    tgba_digraph_ptr res = nullptr;
+    twa_graph_ptr res = nullptr;
     if (!solution.second.empty())
       res = sat_build(solution.second, d, a, state_based);
 
@@ -945,14 +945,14 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr
-  dtgba_sat_minimize(const const_tgba_digraph_ptr& a,
+  twa_graph_ptr
+  dtgba_sat_minimize(const const_twa_graph_ptr& a,
 		     unsigned target_acc_number,
 		     bool state_based)
   {
     int n_states = stats_reachable(a).states;
 
-    tgba_digraph_ptr prev = nullptr;
+    twa_graph_ptr prev = nullptr;
     for (;;)
       {
 	auto next =
@@ -967,15 +967,15 @@ namespace spot
     SPOT_UNREACHABLE();
   }
 
-  tgba_digraph_ptr
-  dtgba_sat_minimize_dichotomy(const const_tgba_digraph_ptr& a,
+  twa_graph_ptr
+  dtgba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
 			       unsigned target_acc_number,
 			       bool state_based)
   {
     int max_states = stats_reachable(a).states - 1;
     int min_states = 1;
 
-    tgba_digraph_ptr prev = nullptr;
+    twa_graph_ptr prev = nullptr;
     while (min_states <= max_states)
       {
 	int target = (max_states + min_states) / 2;

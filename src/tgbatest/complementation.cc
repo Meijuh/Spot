@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
     auto h = spot::hoa_parse(file, pel, dict, env);
     if (spot::format_hoa_parse_errors(std::cerr, file, pel))
       return 2;
-    spot::tgba_digraph_ptr a = h->aut;
+    spot::twa_graph_ptr a = h->aut;
 
     spot::tgba_ptr complement = 0;
 
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
   }
   else if (stats)
   {
-    spot::tgba_digraph_ptr a;
+    spot::twa_graph_ptr a;
     const spot::ltl::formula* f1 = 0;
 
     if (formula)

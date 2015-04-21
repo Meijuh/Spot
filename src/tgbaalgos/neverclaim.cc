@@ -40,7 +40,7 @@ namespace spot
       bool opt_comments_ = false;
       std::vector<std::string>* sn_ = nullptr;
       bool opt_624_ = false;
-      const_tgba_digraph_ptr aut_;
+      const_twa_graph_ptr aut_;
       bool fi_needed_ = false;
       bool need_accept_all_ = false;
       unsigned accept_all_ = 0;
@@ -183,7 +183,7 @@ namespace spot
 	os_ << (opt_624_ ? "  od;\n" : "  fi;\n");
       }
 
-      void print(const const_tgba_digraph_ptr& aut)
+      void print(const const_twa_graph_ptr& aut)
       {
 	aut_ = aut;
 	if (opt_comments_)
@@ -208,9 +208,9 @@ namespace spot
       throw std::runtime_error
 	("Never claim output only supports Büchi acceptance");
     never_claim_output d(os, options);
-    auto aut = std::dynamic_pointer_cast<const tgba_digraph>(g);
+    auto aut = std::dynamic_pointer_cast<const twa_graph>(g);
     if (!aut)
-      aut = make_tgba_digraph(g, twa::prop_set::all());
+      aut = make_twa_graph(g, twa::prop_set::all());
     d.print(aut);
     return os;
   }

@@ -58,8 +58,8 @@ namespace spot
 
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Büchi automaton.
-  tgba_digraph_ptr
-  to_generalized_buchi(const const_tgba_digraph_ptr& aut)
+  twa_graph_ptr
+  to_generalized_buchi(const const_twa_graph_ptr& aut)
   {
     auto res = remove_fin(cleanup_acceptance(aut));
     if (res->acc().is_generalized_buchi())
@@ -81,7 +81,7 @@ namespace spot
     if (cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Fin)
       {
 	assert(cnf.front().mark == 0U);
-	res = make_tgba_digraph(aut->get_dict());
+	res = make_twa_graph(aut->get_dict());
 	res->set_init_state(res->new_state());
 	res->prop_state_based_acc();
 	res->prop_inherently_weak();

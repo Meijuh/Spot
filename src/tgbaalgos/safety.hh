@@ -45,7 +45,7 @@ namespace spot
   /// \param sm an scc_info object for the automaton if available (it
   /// will be built otherwise).
   SPOT_API bool
-  is_guarantee_automaton(const const_tgba_digraph_ptr& aut,
+  is_guarantee_automaton(const const_twa_graph_ptr& aut,
 			 const scc_info* sm = 0);
 
   /// \brief Whether a minimized WDBA represents a safety property.
@@ -56,6 +56,6 @@ namespace spot
   ///
   /// \param aut the automaton to check
   SPOT_API bool
-  is_safety_mwdba(const const_tgba_digraph_ptr& aut);
+  is_safety_mwdba(const const_twa_graph_ptr& aut);
 
 }

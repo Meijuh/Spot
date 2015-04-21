@@ -31,12 +31,12 @@ namespace spot
   typedef std::vector<std::pair<unsigned, unsigned>> product_states;
 
   SPOT_API
-  tgba_digraph_ptr product(const const_tgba_digraph_ptr& left,
-			   const const_tgba_digraph_ptr& right);
+  twa_graph_ptr product(const const_twa_graph_ptr& left,
+			   const const_twa_graph_ptr& right);
 
   SPOT_API
-  tgba_digraph_ptr product(const const_tgba_digraph_ptr& left,
-			   const const_tgba_digraph_ptr& right,
+  twa_graph_ptr product(const const_twa_graph_ptr& left,
+			   const const_twa_graph_ptr& right,
 			   unsigned left_state,
 			   unsigned right_state);
 }

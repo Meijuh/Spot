@@ -36,7 +36,7 @@ namespace spot
     {
       struct record_
       {
-	const_tgba_digraph_ptr translation;
+	const_twa_graph_ptr translation;
 	typedef std::map<const record_*, bool> incomp_map;
 	incomp_map incompatible;
       };

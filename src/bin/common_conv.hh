@@ -31,5 +31,5 @@ float to_probability(const char* s);
 // Parse the comma or space seperate string of numbers.
 std::vector<long> to_longs(const char* s);
 
-spot::tgba_digraph_ptr
+spot::twa_graph_ptr
 read_automaton(const char* filename, spot::bdd_dict_ptr& dict);

@@ -110,15 +110,15 @@ namespace spot
 
     class ratexp_to_dfa
     {
-      typedef typename tgba_digraph::namer<const formula*>::type namer;
+      typedef typename twa_graph::namer<const formula*>::type namer;
     public:
       ratexp_to_dfa(translate_dict& dict);
-      std::tuple<const_tgba_digraph_ptr, const namer*, const state*>
+      std::tuple<const_twa_graph_ptr, const namer*, const state*>
       succ(const formula* f);
       ~ratexp_to_dfa();
 
     protected:
-      typedef std::pair<tgba_digraph_ptr, const namer*> labelled_aut;
+      typedef std::pair<twa_graph_ptr, const namer*> labelled_aut;
       labelled_aut translate(const formula* f);
 
     private:
@@ -1125,7 +1125,7 @@ namespace spot
     {
       assert(f->is_in_nenoform());
 
-      auto a = make_tgba_digraph(dict_.dict);
+      auto a = make_twa_graph(dict_.dict);
       auto namer = a->create_namer<const formula*>();
 
       typedef std::set<const formula*, formula_ptr_less_than> set_type;
@@ -1252,7 +1252,7 @@ namespace spot
     }
 
     // FIXME: use the new tgba::succ() interface
-    std::tuple<const_tgba_digraph_ptr,
+    std::tuple<const_twa_graph_ptr,
 	       const ratexp_to_dfa::namer*,
 	       const state*>
     ratexp_to_dfa::succ(const formula* f)
@@ -2200,7 +2200,7 @@ namespace spot
     typedef std::vector<transition> dest_map;
   }
 
-  tgba_digraph_ptr
+  twa_graph_ptr
   ltl_to_tgba_fm(const formula* f, const bdd_dict_ptr& dict,
 		 bool exprop, bool symb_merge, bool branching_postponement,
 		 bool fair_loop_approx, const atomic_prop_set* unobs,
@@ -2231,7 +2231,7 @@ namespace spot
 
     assert(dict == s->get_dict());
 
-    tgba_digraph_ptr a = make_tgba_digraph(dict);
+    twa_graph_ptr a = make_twa_graph(dict);
     auto namer = a->create_namer<const formula*>();
 
     translate_dict d(dict, a->acc(), s, exprop, f->is_syntactic_persistence());

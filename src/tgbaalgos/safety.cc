@@ -24,7 +24,7 @@
 namespace spot
 {
   bool
-  is_guarantee_automaton(const const_tgba_digraph_ptr& aut,
+  is_guarantee_automaton(const const_twa_graph_ptr& aut,
 			 const scc_info* si)
   {
     if (aut->acc().uses_fin_acceptance())
@@ -70,7 +70,7 @@ namespace spot
     return result;
   }
 
-  bool is_safety_mwdba(const const_tgba_digraph_ptr& aut)
+  bool is_safety_mwdba(const const_twa_graph_ptr& aut)
   {
     if (!(aut->acc().is_buchi() || aut->acc().is_true()))
       throw std::runtime_error

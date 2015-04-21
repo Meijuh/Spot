@@ -39,6 +39,6 @@ namespace spot
       return props_exist.empty() && props_pos.empty() && props_neg.empty();
     }
 
-    tgba_digraph_ptr strip(const_tgba_digraph_ptr aut) const;
+    twa_graph_ptr strip(const_twa_graph_ptr aut) const;
   };
 }

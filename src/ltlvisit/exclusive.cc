@@ -161,7 +161,7 @@ namespace spot
     return ltl::multop::instance(ltl::multop::And, f->clone(), c);
   }
 
-  tgba_digraph_ptr exclusive_ap::constrain(const_tgba_digraph_ptr aut,
+  twa_graph_ptr exclusive_ap::constrain(const_twa_graph_ptr aut,
 					   bool simplify_guards) const
   {
     // Compute the support of the automaton.
@@ -194,7 +194,7 @@ namespace spot
 	    restrict &= group[j] | group[k];
       }
 
-    tgba_digraph_ptr res = make_tgba_digraph(aut->get_dict());
+    twa_graph_ptr res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
     res->prop_copy(aut, { true, true, true, true });
     res->copy_acceptance_of(aut);

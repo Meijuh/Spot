@@ -44,7 +44,7 @@ namespace spot
     };
   }
 
-  scc_info::scc_info(const_tgba_digraph_ptr aut)
+  scc_info::scc_info(const_twa_graph_ptr aut)
     : aut_(aut)
   {
     unsigned n = aut->num_states();
@@ -61,7 +61,7 @@ namespace spot
 
     int num_;			// Number of visited nodes, negated.
 
-    typedef tgba_digraph::graph_t::const_iterator iterator;
+    typedef twa_graph::graph_t::const_iterator iterator;
     typedef std::pair<unsigned, iterator> pair_state_iter;
     std::stack<pair_state_iter> todo_; // DFS stack.  Holds (STATE,
 				       // ITERATOR) pairs where
@@ -299,7 +299,7 @@ namespace spot
 
   std::ostream&
   dump_scc_info_dot(std::ostream& out,
-		    const_tgba_digraph_ptr aut, scc_info* sccinfo)
+		    const_twa_graph_ptr aut, scc_info* sccinfo)
   {
     scc_info* m = sccinfo ? sccinfo : new scc_info(aut);
 

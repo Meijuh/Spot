@@ -108,10 +108,10 @@ namespace spot
     }
   }
 
-  tgba_digraph_ptr remove_fin(const const_tgba_digraph_ptr& aut)
+  twa_graph_ptr remove_fin(const const_twa_graph_ptr& aut)
   {
     if (!aut->acc().uses_fin_acceptance())
-      return std::const_pointer_cast<tgba_digraph>(aut);
+      return std::const_pointer_cast<twa_graph>(aut);
 
     std::vector<acc_cond::acc_code> code;
     std::vector<acc_cond::mark_t> rem;
@@ -260,7 +260,7 @@ namespace spot
     scc_info si(aut);
 
     unsigned nst = aut->num_states();
-    auto res = make_tgba_digraph(aut->get_dict());
+    auto res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
     res->prop_copy(aut, { false, false, false, true });
     res->new_states(nst);

@@ -21,7 +21,7 @@
 
 namespace spot
 {
-  tgba_digraph_ptr cleanup_acceptance_here(tgba_digraph_ptr aut)
+  twa_graph_ptr cleanup_acceptance_here(twa_graph_ptr aut)
   {
     auto& acc = aut->acc();
     if (acc.num_sets() == 0)
@@ -53,9 +53,9 @@ namespace spot
     return cleanup_acceptance_here(aut);
   }
 
-  tgba_digraph_ptr cleanup_acceptance(const_tgba_digraph_ptr aut)
+  twa_graph_ptr cleanup_acceptance(const_twa_graph_ptr aut)
   {
-    return cleanup_acceptance_here(make_tgba_digraph(aut,
+    return cleanup_acceptance_here(make_twa_graph(aut,
 						     twa::prop_set::all()));
   }
 

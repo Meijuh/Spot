@@ -315,7 +315,7 @@ namespace spot
   /// states are merged).
   ///
   /// \pre \a run must correspond to an actual run of the automaton \a a.
-  SPOT_API tgba_digraph_ptr
+  SPOT_API twa_graph_ptr
   tgba_run_to_tgba(const const_tgba_ptr& a, const const_tgba_run_ptr& run);
 
   /// @}

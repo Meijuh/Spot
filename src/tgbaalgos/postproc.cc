@@ -36,8 +36,8 @@ namespace spot
 {
   namespace
   {
-    static tgba_digraph_ptr
-    ensure_ba(tgba_digraph_ptr& a)
+    static twa_graph_ptr
+    ensure_ba(twa_graph_ptr& a)
     {
       if (a->acc().num_sets() == 0)
 	{
@@ -89,8 +89,8 @@ namespace spot
       }
   }
 
-  tgba_digraph_ptr
-  postprocessor::do_simul(const tgba_digraph_ptr& a, int opt)
+  twa_graph_ptr
+  postprocessor::do_simul(const twa_graph_ptr& a, int opt)
   {
     switch (opt)
       {
@@ -106,8 +106,8 @@ namespace spot
       }
   }
 
-  tgba_digraph_ptr
-  postprocessor::do_ba_simul(const tgba_digraph_ptr& a, int opt)
+  twa_graph_ptr
+  postprocessor::do_ba_simul(const twa_graph_ptr& a, int opt)
   {
     switch (opt)
       {
@@ -123,8 +123,8 @@ namespace spot
       }
   }
 
-  tgba_digraph_ptr
-  postprocessor::do_degen(const tgba_digraph_ptr& a)
+  twa_graph_ptr
+  postprocessor::do_degen(const twa_graph_ptr& a)
   {
     auto d = degeneralize(a,
 			  degen_reset_, degen_order_,
@@ -138,8 +138,8 @@ namespace spot
 #define PREF_ (pref_ & (Small | Deterministic))
 #define COMP_ (pref_ & Complete)
 
-  tgba_digraph_ptr
-  postprocessor::run(tgba_digraph_ptr a, const ltl::formula* f)
+  twa_graph_ptr
+  postprocessor::run(twa_graph_ptr a, const ltl::formula* f)
   {
     if (type_ != Generic && !a->acc().is_generalized_buchi())
       a = to_generalized_buchi(a);
@@ -215,8 +215,8 @@ namespace spot
 
     bool dba_is_wdba = false;
     bool dba_is_minimal = false;
-    tgba_digraph_ptr dba = 0;
-    tgba_digraph_ptr sim = 0;
+    twa_graph_ptr dba = 0;
+    twa_graph_ptr sim = 0;
 
     // (Small,Low) is the only configuration where we do not run
     // WDBA-minimization.
@@ -269,7 +269,7 @@ namespace spot
     // If we don't have a DBA, attempt tba-determinization if requested.
     if (tba_determinisation_ && !dba)
       {
-	tgba_digraph_ptr tmpd = nullptr;
+	twa_graph_ptr tmpd = nullptr;
 	if (PREF_ == Deterministic
 	    && f
 	    && f->is_syntactic_recurrence()
@@ -334,7 +334,7 @@ namespace spot
 	  // sure it is at least 1.
 	  target_acc = original_acc > 0 ? original_acc : 1;
 
-	const_tgba_digraph_ptr in = 0;
+	const_twa_graph_ptr in = 0;
 	if (target_acc == 1)
 	  {
 	    // If we are seeking a minimal DBA with unknown number of
@@ -352,7 +352,7 @@ namespace spot
 	    in = dba;
 	  }
 
-	const_tgba_digraph_ptr res = tgba_complete(in);
+	const_twa_graph_ptr res = tgba_complete(in);
 	if (target_acc == 1)
 	  {
 	    if (sat_states_ != -1)

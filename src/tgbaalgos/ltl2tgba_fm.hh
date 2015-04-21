@@ -30,7 +30,7 @@
 namespace spot
 {
   /// \ingroup tgba_ltl
-  /// \brief Build a spot::tgba_digraph_ptr from an LTL formula.
+  /// \brief Build a spot::twa_graph_ptr from an LTL formula.
   ///
   /// This is based on the following paper.
   /** \verbatim
@@ -120,8 +120,8 @@ namespace spot
       }
       \endverbatim */
   ///
-  /// \return A spot::tgba_digraph that recognizes the language of \a f.
-  SPOT_API tgba_digraph_ptr
+  /// \return A spot::twa_graph that recognizes the language of \a f.
+  SPOT_API twa_graph_ptr
   ltl_to_tgba_fm(const ltl::formula* f, const bdd_dict_ptr& dict,
 		 bool exprop = false, bool symb_merge = true,
 		 bool branching_postponement = false,

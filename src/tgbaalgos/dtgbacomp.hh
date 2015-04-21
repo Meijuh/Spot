@@ -30,6 +30,6 @@ namespace spot
   /// state-based.  Unless the input automaton is marked as weak (in
   /// which case the output will also be weak and deterministic) the
   /// resulting automaton is very unlikely to be deterministic.
-  SPOT_API tgba_digraph_ptr
-  dtgba_complement(const const_tgba_digraph_ptr& aut);
+  SPOT_API twa_graph_ptr
+  dtgba_complement(const const_twa_graph_ptr& aut);
 }

@@ -231,7 +231,7 @@ automaton_printer::automaton_printer(stat_style input)
 }
 
 void
-automaton_printer::print(const spot::tgba_digraph_ptr& aut,
+automaton_printer::print(const spot::twa_graph_ptr& aut,
 			 const spot::ltl::formula* f,
 			 // Input location for errors and statistics.
 			 const char* filename,

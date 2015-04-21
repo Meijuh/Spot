@@ -83,8 +83,8 @@ const char* default_algos[] = {
 std::vector<ec_algo> ec_algos;
 
 spot::emptiness_check_ptr
-cons_emptiness_check(int num, spot::const_tgba_digraph_ptr a,
-		     const spot::const_tgba_digraph_ptr& degen,
+cons_emptiness_check(int num, spot::const_twa_graph_ptr a,
+		     const spot::const_twa_graph_ptr& degen,
 		     unsigned int n_acc)
 {
   auto inst = ec_algos[num].inst;
@@ -579,8 +579,8 @@ main(int argc, char** argv)
 
   bool stop_on_first_difference = false;
 
-  spot::tgba_digraph_ptr formula = nullptr;
-  spot::tgba_digraph_ptr product = nullptr;
+  spot::twa_graph_ptr formula = nullptr;
+  spot::twa_graph_ptr product = nullptr;
 
   spot::option_map options;
 
@@ -909,7 +909,7 @@ main(int argc, char** argv)
 	      spot::srand(opt_ec_seed);
 
 
-	      spot::tgba_digraph_ptr a =
+	      spot::twa_graph_ptr a =
 		spot::random_graph(opt_n, opt_d, apf, dict,
 				   opt_n_acc, opt_a, opt_t, opt_det);
 	      if (formula)
@@ -928,7 +928,7 @@ main(int argc, char** argv)
 		}
 	      else
 		{
-		  spot::tgba_digraph_ptr degen = nullptr;
+		  spot::twa_graph_ptr degen = nullptr;
 		  if (opt_degen && real_n_acc > 1)
 		    degen = degeneralize_tba(a);
 

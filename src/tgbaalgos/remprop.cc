@@ -138,13 +138,13 @@ namespace spot
       }
   }
 
-  tgba_digraph_ptr remove_ap::strip(const_tgba_digraph_ptr aut) const
+  twa_graph_ptr remove_ap::strip(const_twa_graph_ptr aut) const
   {
     bdd restrict = bddtrue;
     bdd exist = bddtrue;
     auto d = aut->get_dict();
 
-    tgba_digraph_ptr res = make_tgba_digraph(d);
+    twa_graph_ptr res = make_twa_graph(d);
     res->copy_ap_of(aut);
     res->prop_copy(aut, { true, true, false, false });
     res->copy_acceptance_of(aut);

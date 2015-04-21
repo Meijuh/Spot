@@ -76,7 +76,7 @@ namespace spot
      // automaton
      static void
      build_result(const const_ta_ptr& a, std::list<hash_set*>& sets,
-		  tgba_digraph_ptr result_tgba, const ta_explicit_ptr& result)
+		  twa_graph_ptr result_tgba, const ta_explicit_ptr& result)
      {
        // For each set, create a state in the tgbaulting automaton.
        // For a state s, state_num[s] is the number of the state in the minimal
@@ -508,7 +508,7 @@ namespace spot
   minimize_ta(const const_ta_ptr& ta_)
   {
 
-    auto tgba = make_tgba_digraph(ta_->get_dict());
+    auto tgba = make_twa_graph(ta_->get_dict());
     auto res = make_ta_explicit(tgba, ta_->acc().num_sets(), 0);
 
     partition_t partition = build_partition(ta_);
@@ -528,7 +528,7 @@ namespace spot
   minimize_tgta(const const_tgta_explicit_ptr& tgta_)
   {
 
-    auto tgba = make_tgba_digraph(tgta_->get_dict());
+    auto tgba = make_twa_graph(tgta_->get_dict());
     auto res = make_tgta_explicit(tgba, tgta_->acc().num_sets(), 0);
 
     auto ta = tgta_->get_ta();

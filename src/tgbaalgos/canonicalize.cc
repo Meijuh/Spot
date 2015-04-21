@@ -24,7 +24,7 @@
 
 namespace
 {
-  typedef std::pair<spot::tgba_digraph::graph_t::trans_data_t, unsigned>
+  typedef std::pair<spot::twa_graph::graph_t::trans_data_t, unsigned>
     trans_sig_t;
 
   struct signature_t
@@ -45,7 +45,7 @@ namespace
   typedef std::map<signature_t, std::vector<unsigned>> sig2states_t;
 
   static sig2states_t
-  sig_to_states(spot::tgba_digraph_ptr aut, std::vector<unsigned>& state2class)
+  sig_to_states(spot::twa_graph_ptr aut, std::vector<unsigned>& state2class)
   {
     std::vector<signature_t> signature(aut->num_states(), signature_t());
 
@@ -70,8 +70,8 @@ namespace
 
 namespace spot
 {
-  tgba_digraph_ptr
-  canonicalize(tgba_digraph_ptr aut)
+  twa_graph_ptr
+  canonicalize(twa_graph_ptr aut)
   {
     std::vector<unsigned> state2class(aut->num_states(), 0);
     state2class[aut->get_init_state_number()] = 1;

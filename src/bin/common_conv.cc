@@ -70,7 +70,7 @@ to_probability(const char* s)
   return res;
 }
 
-spot::tgba_digraph_ptr
+spot::twa_graph_ptr
 read_automaton(const char* filename, spot::bdd_dict_ptr& dict)
 {
   spot::hoa_parse_error_list pel;

@@ -100,7 +100,7 @@ namespace spot
     };
 
     // The automaton we are working on.
-    const_tgba_digraph_ptr aut_;
+    const_twa_graph_ptr aut_;
     // Store the state_info for all visited states.
     std::vector<state_info> info_;
     // The SCC map built for aut_.

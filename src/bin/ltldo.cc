@@ -126,7 +126,7 @@ namespace
     {
     }
 
-    spot::tgba_digraph_ptr
+    spot::twa_graph_ptr
     translate(unsigned int translator_num, bool& problem, double& duration)
     {
       output.reset(translator_num);
@@ -144,7 +144,7 @@ namespace
       int es = exec_with_timeout(cmd.c_str());
       duration = sw.stop();
 
-      spot::tgba_digraph_ptr res = nullptr;
+      spot::twa_graph_ptr res = nullptr;
       if (timed_out)
 	{
 	  problem = false;	// A timeout is considered benign

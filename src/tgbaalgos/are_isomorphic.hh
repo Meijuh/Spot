@@ -28,7 +28,7 @@ namespace spot
   class SPOT_API isomorphism_checker
   {
   public:
-    isomorphism_checker(const const_tgba_digraph_ptr ref);
+    isomorphism_checker(const const_twa_graph_ptr ref);
 
     /// \ingroup tgba_misc
     /// \brief Check whether an automaton is isomorphic to the one passed to
@@ -43,12 +43,12 @@ namespace spot
     /// canonicalize(aut1) == canonicalize(aut2), but is_isomorphic can do some
     /// optimizations in some cases.
     bool
-    is_isomorphic(const const_tgba_digraph_ptr aut);
+    is_isomorphic(const const_twa_graph_ptr aut);
 
   private:
-    tgba_digraph_ptr ref_;
+    twa_graph_ptr ref_;
     bool ref_deterministic_ = false;
     unsigned nondet_states_ = 0;
-    std::vector<tgba_digraph::graph_t::trans_storage_t> reftrans_;
+    std::vector<twa_graph::graph_t::trans_storage_t> reftrans_;
   };
 }

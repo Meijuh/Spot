@@ -26,5 +26,5 @@ namespace spot
   /// \brief Transform an automaton to use state-based acceptance
   ///
   /// This is independent on the acceptance condition used.
-  SPOT_API tgba_digraph_ptr sbacc(tgba_digraph_ptr& aut);
+  SPOT_API twa_graph_ptr sbacc(twa_graph_ptr& aut);
 }

@@ -281,7 +281,7 @@ namespace spot
     typedef std::deque<stutter_state> queue_t;
 
     static bdd
-    get_all_ap(const const_tgba_digraph_ptr& a)
+    get_all_ap(const const_twa_graph_ptr& a)
     {
       bdd res = bddtrue;
       for (auto& i: a->transitions())
@@ -291,8 +291,8 @@ namespace spot
 
   }
 
-  tgba_digraph_ptr
-  sl(const const_tgba_digraph_ptr& a, const ltl::formula* f)
+  twa_graph_ptr
+  sl(const const_twa_graph_ptr& a, const ltl::formula* f)
   {
     bdd aps = f
       ? atomic_prop_collect_as_bdd(f, a)
@@ -300,8 +300,8 @@ namespace spot
     return sl(a, aps);
   }
 
-  tgba_digraph_ptr
-  sl2(const const_tgba_digraph_ptr& a, const ltl::formula* f)
+  twa_graph_ptr
+  sl2(const const_twa_graph_ptr& a, const ltl::formula* f)
   {
     bdd aps = f
       ? atomic_prop_collect_as_bdd(f, a)
@@ -309,11 +309,11 @@ namespace spot
     return sl2(a, aps);
   }
 
-  tgba_digraph_ptr
-  sl(const const_tgba_digraph_ptr& a, bdd atomic_propositions)
+  twa_graph_ptr
+  sl(const const_twa_graph_ptr& a, bdd atomic_propositions)
   {
     // The result automaton uses numbered states.
-    tgba_digraph_ptr res = make_tgba_digraph(a->get_dict());
+    twa_graph_ptr res = make_twa_graph(a->get_dict());
     // We use the same BDD variables as the input.
     res->copy_ap_of(a);
     res->copy_acceptance_of(a);
@@ -373,8 +373,8 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr
-  sl2(tgba_digraph_ptr&& a, bdd atomic_propositions)
+  twa_graph_ptr
+  sl2(twa_graph_ptr&& a, bdd atomic_propositions)
   {
     if (atomic_propositions == bddfalse)
       atomic_propositions = get_all_ap(a);
@@ -439,16 +439,16 @@ namespace spot
     return a;
   }
 
-  tgba_digraph_ptr
-  sl2(const const_tgba_digraph_ptr& a, bdd atomic_propositions)
+  twa_graph_ptr
+  sl2(const const_twa_graph_ptr& a, bdd atomic_propositions)
   {
-    return sl2(make_tgba_digraph(a, twa::prop_set::all()),
+    return sl2(make_twa_graph(a, twa::prop_set::all()),
 	       atomic_propositions);
   }
 
 
-  tgba_digraph_ptr
-  closure(tgba_digraph_ptr&& a)
+  twa_graph_ptr
+  closure(twa_graph_ptr&& a)
   {
     a->prop_keep({false,	// state_based
 	          false,	// inherently_weak
@@ -529,10 +529,10 @@ namespace spot
     return a;
   }
 
-  tgba_digraph_ptr
-  closure(const const_tgba_digraph_ptr& a)
+  twa_graph_ptr
+  closure(const const_twa_graph_ptr& a)
   {
-    return closure(make_tgba_digraph(a, {true, true, true, false}));
+    return closure(make_twa_graph(a, {true, true, true, false}));
   }
 
   // The stutter check algorithm to use can be overridden via an
@@ -599,8 +599,8 @@ namespace spot
   }
 
   bool
-  is_stutter_invariant(tgba_digraph_ptr&& aut_f,
-                       tgba_digraph_ptr&& aut_nf, bdd aps, int algo)
+  is_stutter_invariant(twa_graph_ptr&& aut_f,
+                       twa_graph_ptr&& aut_nf, bdd aps, int algo)
   {
     if (algo == 0)
       algo = default_stutter_check_algorithm();

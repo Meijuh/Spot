@@ -21,7 +21,7 @@
 
 namespace spot
 {
-  unsigned tgba_complete_here(tgba_digraph_ptr aut)
+  unsigned tgba_complete_here(twa_graph_ptr aut)
   {
     unsigned n = aut->num_states();
     unsigned sink = -1U;
@@ -117,9 +117,9 @@ namespace spot
     return sink;
   }
 
-  tgba_digraph_ptr tgba_complete(const const_tgba_ptr& aut)
+  twa_graph_ptr tgba_complete(const const_tgba_ptr& aut)
   {
-    auto res = make_tgba_digraph(aut, {
+    auto res = make_twa_graph(aut, {
 					true, // state based
 					true, // inherently_weak
 					true, // deterministic

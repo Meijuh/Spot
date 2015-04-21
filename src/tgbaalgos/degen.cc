@@ -59,7 +59,7 @@ namespace spot
     // SCC -- we do not care about the other) of some state.
     class outgoing_acc
     {
-      const_tgba_digraph_ptr a_;
+      const_twa_graph_ptr a_;
       typedef std::tuple<acc_cond::mark_t,
 			 acc_cond::mark_t,
 			 bool> cache_entry;
@@ -94,7 +94,7 @@ namespace spot
       }
 
     public:
-      outgoing_acc(const const_tgba_digraph_ptr& a, const scc_info* sm):
+      outgoing_acc(const const_twa_graph_ptr& a, const scc_info* sm):
 	a_(a), cache_(a->num_states()), sm_(sm)
       {
 	unsigned n = a->num_states();
@@ -189,8 +189,8 @@ namespace spot
     };
 
     template<bool want_sba>
-    tgba_digraph_ptr
-    degeneralize_aux(const const_tgba_digraph_ptr& a, bool use_z_lvl,
+    twa_graph_ptr
+    degeneralize_aux(const const_twa_graph_ptr& a, bool use_z_lvl,
 		     bool use_cust_acc_orders, int use_lvl_cache,
 		     bool skip_levels, bool ignaccsl)
     {
@@ -203,7 +203,7 @@ namespace spot
       bdd_dict_ptr dict = a->get_dict();
 
       // The result automaton is an SBA.
-      auto res = make_tgba_digraph(dict);
+      auto res = make_twa_graph(dict);
       res->copy_ap_of(a);
       res->set_buchi();
       if (want_sba)
@@ -551,29 +551,29 @@ namespace spot
     }
   }
 
-  tgba_digraph_ptr
-  degeneralize(const const_tgba_digraph_ptr& a,
+  twa_graph_ptr
+  degeneralize(const const_twa_graph_ptr& a,
 	       bool use_z_lvl, bool use_cust_acc_orders,
                int use_lvl_cache, bool skip_levels, bool ignaccsl)
   {
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
     if (a->is_sba())
-      return std::const_pointer_cast<tgba_digraph>(a);
+      return std::const_pointer_cast<twa_graph>(a);
 
     return degeneralize_aux<true>(a, use_z_lvl, use_cust_acc_orders,
 				  use_lvl_cache, skip_levels, ignaccsl);
   }
 
-  tgba_digraph_ptr
-  degeneralize_tba(const const_tgba_digraph_ptr& a,
+  twa_graph_ptr
+  degeneralize_tba(const const_twa_graph_ptr& a,
 		   bool use_z_lvl, bool use_cust_acc_orders,
 		   int use_lvl_cache, bool skip_levels, bool ignaccsl)
   {
     // If this already a degeneralized digraph, there is nothing we
     // can improve.
     if (a->acc().is_buchi())
-      return std::const_pointer_cast<tgba_digraph>(a);
+      return std::const_pointer_cast<twa_graph>(a);
 
     return degeneralize_aux<false>(a, use_z_lvl, use_cust_acc_orders,
 				   use_lvl_cache, skip_levels, ignaccsl);

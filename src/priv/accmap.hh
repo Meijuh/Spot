@@ -30,9 +30,9 @@ namespace spot
   {
   protected:
     bdd_dict_ptr dict_;
-    tgba_digraph_ptr aut_;
+    twa_graph_ptr aut_;
 
-    acc_mapper_common(const tgba_digraph_ptr& aut)
+    acc_mapper_common(const twa_graph_ptr& aut)
       : dict_(aut->get_dict()), aut_(aut)
     {
     }
@@ -43,7 +43,7 @@ namespace spot
     std::unordered_map<std::string, unsigned> map_;
 
   public:
-    acc_mapper_string(const tgba_digraph_ptr& aut)
+    acc_mapper_string(const twa_graph_ptr& aut)
       : acc_mapper_common(aut)
     {
     }
@@ -73,7 +73,7 @@ namespace spot
   class acc_mapper_consecutive_int: public acc_mapper_common
   {
   public:
-    acc_mapper_consecutive_int(const tgba_digraph_ptr& aut, unsigned count)
+    acc_mapper_consecutive_int(const twa_graph_ptr& aut, unsigned count)
       : acc_mapper_common(aut)
     {
       std::vector<unsigned> vmap(count);
@@ -97,7 +97,7 @@ namespace spot
     std::map<unsigned, acc_cond::mark_t> map_;
 
   public:
-    acc_mapper_int(const tgba_digraph_ptr& aut, unsigned count)
+    acc_mapper_int(const twa_graph_ptr& aut, unsigned count)
       : acc_mapper_consecutive_int(aut, count), used_(0)
     {
     }

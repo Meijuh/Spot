@@ -49,7 +49,7 @@ namespace spot
   class SPOT_API tgba_safra_complement : public twa
   {
   public:
-    tgba_safra_complement(const const_tgba_digraph_ptr& a);
+    tgba_safra_complement(const const_twa_graph_ptr& a);
     virtual ~tgba_safra_complement();
 
     // tgba interface.
@@ -66,7 +66,7 @@ namespace spot
   protected:
     virtual bdd compute_support_conditions(const state* state) const;
   private:
-    const_tgba_digraph_ptr automaton_;
+    const_twa_graph_ptr automaton_;
     void* safra_;
 #if TRANSFORM_TO_TBA
     acc_cond::mark_t the_acceptance_cond_;
@@ -81,7 +81,7 @@ namespace spot
   typedef std::shared_ptr<const tgba_safra_complement>
     const_tgba_safra_complement_ptr;
   inline tgba_safra_complement_ptr
-  make_safra_complement(const const_tgba_digraph_ptr& a)
+  make_safra_complement(const const_twa_graph_ptr& a)
   {
     return std::make_shared<tgba_safra_complement>(a);
   }

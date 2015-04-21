@@ -99,13 +99,13 @@ namespace spot
     ///
     /// The returned automaton might be a new automaton,
     /// or an in-place modification of the \a input automaton.
-    tgba_digraph_ptr run(tgba_digraph_ptr input,
+    twa_graph_ptr run(twa_graph_ptr input,
 			 const ltl::formula* f);
 
   protected:
-    tgba_digraph_ptr do_simul(const tgba_digraph_ptr& input, int opt);
-    tgba_digraph_ptr do_ba_simul(const tgba_digraph_ptr& input, int opt);
-    tgba_digraph_ptr do_degen(const tgba_digraph_ptr& input);
+    twa_graph_ptr do_simul(const twa_graph_ptr& input, int opt);
+    twa_graph_ptr do_ba_simul(const twa_graph_ptr& input, int opt);
+    twa_graph_ptr do_degen(const twa_graph_ptr& input);
 
     output_type type_;
     int pref_;

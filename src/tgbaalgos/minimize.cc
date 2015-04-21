@@ -114,12 +114,12 @@ namespace spot
 
   // From the base automaton and the list of sets, build the minimal
   // resulting automaton
-  tgba_digraph_ptr build_result(const const_tgba_ptr& a,
+  twa_graph_ptr build_result(const const_tgba_ptr& a,
 				std::list<hash_set*>& sets,
 				hash_set* final)
   {
     auto dict = a->get_dict();
-    auto res = make_tgba_digraph(dict);
+    auto res = make_twa_graph(dict);
     res->copy_ap_of(a);
     res->prop_state_based_acc();
 
@@ -194,7 +194,7 @@ namespace spot
       filter(const state* s)
       {
 	s = seen(s);
-	if (sm.scc_of(std::static_pointer_cast<const tgba_digraph>(a_)
+	if (sm.scc_of(std::static_pointer_cast<const twa_graph>(a_)
 		      ->state_number(s)) != scc_n)
 	  return 0;
 	return s;
@@ -215,8 +215,8 @@ namespace spot
 
 
     bool
-    wdba_scc_is_accepting(const const_tgba_digraph_ptr& det_a, unsigned scc_n,
-			  const const_tgba_digraph_ptr& orig_a, scc_info& sm,
+    wdba_scc_is_accepting(const const_twa_graph_ptr& det_a, unsigned scc_n,
+			  const const_twa_graph_ptr& orig_a, scc_info& sm,
 			  power_map& pm)
     {
       // Get some state from the SCC #n.
@@ -230,7 +230,7 @@ namespace spot
       (void)reached;
 
       // Build an automaton representing this loop.
-      auto loop_a = make_tgba_digraph(det_a->get_dict());
+      auto loop_a = make_twa_graph(det_a->get_dict());
       tgba_run::steps::const_iterator i;
       int loop_size = loop.size();
       loop_a->new_states(loop_size);
@@ -269,7 +269,7 @@ namespace spot
 
   }
 
-  tgba_digraph_ptr minimize_dfa(const const_tgba_digraph_ptr& det_a,
+  twa_graph_ptr minimize_dfa(const const_twa_graph_ptr& det_a,
 				hash_set* final, hash_set* non_final)
   {
     typedef std::list<hash_set*> partition_t;
@@ -475,11 +475,11 @@ namespace spot
   }
 
 
-  tgba_digraph_ptr minimize_monitor(const const_tgba_digraph_ptr& a)
+  twa_graph_ptr minimize_monitor(const const_twa_graph_ptr& a)
   {
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
-    tgba_digraph_ptr det_a = tgba_powerset(a);
+    twa_graph_ptr det_a = tgba_powerset(a);
 
     // non_final contain all states.
     // final is empty: there is no acceptance condition
@@ -492,7 +492,7 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr minimize_wdba(const const_tgba_digraph_ptr& a)
+  twa_graph_ptr minimize_wdba(const const_twa_graph_ptr& a)
   {
     if (a->acc().uses_fin_acceptance())
       throw std::runtime_error
@@ -501,7 +501,7 @@ namespace spot
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
 
-    tgba_digraph_ptr det_a;
+    twa_graph_ptr det_a;
 
     {
       power_map pm;
@@ -595,10 +595,10 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr
-  minimize_obligation(const const_tgba_digraph_ptr& aut_f,
+  twa_graph_ptr
+  minimize_obligation(const const_twa_graph_ptr& aut_f,
 		      const ltl::formula* f,
-		      const_tgba_digraph_ptr aut_neg_f,
+		      const_twa_graph_ptr aut_neg_f,
 		      bool reject_bigger)
   {
     auto min_aut_f = minimize_wdba(aut_f);
@@ -608,7 +608,7 @@ namespace spot
 	// Abort if min_aut_f has more states than aut_f.
 	unsigned orig_states = aut_f->num_states();
 	if (orig_states < min_aut_f->num_states())
-	  return std::const_pointer_cast<tgba_digraph>(aut_f);
+	  return std::const_pointer_cast<twa_graph>(aut_f);
       }
 
     // If the input automaton was already weak and deterministic, the
@@ -675,6 +675,6 @@ namespace spot
 
     if (ok)
       return min_aut_f;
-    return std::const_pointer_cast<tgba_digraph>(aut_f);
+    return std::const_pointer_cast<twa_graph>(aut_f);
   }
 }

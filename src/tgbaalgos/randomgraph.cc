@@ -78,7 +78,7 @@ namespace spot
     }
 
     acc_cond::mark_t
-    random_acc_cond(tgba_digraph_ptr aut, unsigned n_accs, float a)
+    random_acc_cond(twa_graph_ptr aut, unsigned n_accs, float a)
     {
       acc_cond::mark_t m = 0U;
       for (unsigned i = 0U; i < n_accs; ++i)
@@ -114,14 +114,14 @@ namespace spot
     }
   }
 
-  tgba_digraph_ptr
+  twa_graph_ptr
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
 	       unsigned n_accs, float a, float t,
 	       bool deterministic, bool state_acc)
   {
     assert(n > 0);
-    auto res = make_tgba_digraph(dict);
+    auto res = make_twa_graph(dict);
     if (deterministic)
       res->prop_deterministic();
     if (state_acc)

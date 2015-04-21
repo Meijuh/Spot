@@ -211,7 +211,7 @@ namespace spot
     typedef std::deque<state_pair> pair_queue;
 
     static
-    tgba_digraph_ptr
+    twa_graph_ptr
     susp_prod(const const_tgba_ptr& left, const ltl::formula* f, bdd v)
     {
       bdd_dict_ptr dict = left->get_dict();
@@ -219,7 +219,7 @@ namespace spot
 	iterated_simulations(scc_filter(ltl_to_tgba_fm(f, dict, true, true),
 					false));
 
-      tgba_digraph_ptr res = make_tgba_digraph(dict);
+      twa_graph_ptr res = make_twa_graph(dict);
       dict->register_all_variables_of(left, res);
       dict->register_all_variables_of(right, res);
       dict->unregister_variable(bdd_var(v), res);
@@ -321,7 +321,7 @@ namespace spot
   }
 
 
-  tgba_digraph_ptr
+  twa_graph_ptr
   compsusp(const ltl::formula* f, const bdd_dict_ptr& dict,
 	   bool no_wdba, bool no_simulation,
 	   bool early_susp, bool no_susp_product, bool wdba_smaller,
@@ -333,13 +333,13 @@ namespace spot
     const ltl::formula* g = v.recurse(f);
 
     // Translate the patched formula, and remove useless SCCs.
-    tgba_digraph_ptr res =
+    twa_graph_ptr res =
       scc_filter(ltl_to_tgba_fm(g, dict, true, true, false, false, 0, 0),
 		 false);
 
     if (!no_wdba)
       {
-	tgba_digraph_ptr min = minimize_obligation(res, g, 0, wdba_smaller);
+	twa_graph_ptr min = minimize_obligation(res, g, 0, wdba_smaller);
 	if (min != res)
 	  {
 	    res = min;

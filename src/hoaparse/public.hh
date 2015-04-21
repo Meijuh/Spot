@@ -49,7 +49,7 @@ namespace spot
   {
     // Transition structure of the automaton.
     // This is encoded as a TGBA without acceptance condition.
-    tgba_digraph_ptr aut;
+    twa_graph_ptr aut;
     bool aborted = false;
     spot::location loc;
   };
@@ -75,13 +75,13 @@ namespace spot
 		      ltl::default_environment::instance(),
 		      bool debug = false);
     // Raises a parse_error on any syntax error
-    tgba_digraph_ptr parse_strict(const bdd_dict_ptr& dict,
+    twa_graph_ptr parse_strict(const bdd_dict_ptr& dict,
 				  ltl::environment& env =
 				  ltl::default_environment::instance(),
 				  bool debug = false);
   };
 
-  /// \brief Build a spot::tgba_digraph from a HOA file or a neverclaim.
+  /// \brief Build a spot::twa_graph from a HOA file or a neverclaim.
   /// \param filename The name of the file to parse.
   /// \param error_list A list that will be filled with
   ///        parse errors that occured during parsing.

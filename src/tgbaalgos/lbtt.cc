@@ -45,10 +45,10 @@ namespace spot
 	  sba_(nullptr)
       {
 	// Check if the automaton can be converted into a
-	// tgba_digraph. This makes the state_is_accepting() function
+	// twa_graph. This makes the state_is_accepting() function
 	// more efficient.
 	if (a->is_sba())
-	  sba_ = std::dynamic_pointer_cast<const tgba_digraph>(a);
+	  sba_ = std::dynamic_pointer_cast<const twa_graph>(a);
       }
 
       bool
@@ -128,7 +128,7 @@ namespace spot
       std::ostringstream body_;
       bdd all_acc_conds_;
       bool sba_format_;
-      const_tgba_digraph_ptr sba_;
+      const_twa_graph_ptr sba_;
     };
   }
 

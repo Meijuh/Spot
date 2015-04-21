@@ -49,7 +49,7 @@
 %shared_ptr(spot::tgta_explicit)
 %shared_ptr(spot::bdd_dict)
 %shared_ptr(spot::twa)
-%shared_ptr(spot::tgba_digraph)
+%shared_ptr(spot::twa_graph)
 %shared_ptr(spot::tgba_product)
 %shared_ptr(spot::tgba_product_init)
 %shared_ptr(spot::taa_tgba)
@@ -256,7 +256,7 @@ using namespace spot;
 %include "tgba/tgbaproduct.hh"
 %include "tgba/tgbagraph.hh"
 
-// Should come after the definition of tgba_digraph
+// Should come after the definition of twa_graph
 
 %include "tgbaalgos/cleanacc.hh"
 %include "tgbaalgos/degen.hh"
@@ -375,13 +375,13 @@ empty_hoa_parse_error_list()
   return l;
 }
 
-spot::tgba_digraph_ptr
+spot::twa_graph_ptr
 ensure_digraph(const spot::tgba_ptr& a)
 {
-  auto aa = std::dynamic_pointer_cast<spot::tgba_digraph>(a);
+  auto aa = std::dynamic_pointer_cast<spot::twa_graph>(a);
   if (aa)
     return aa;
-  return spot::make_tgba_digraph(a, spot::twa::prop_set::all());
+  return spot::make_twa_graph(a, spot::twa::prop_set::all());
 }
 
 std::ostream&

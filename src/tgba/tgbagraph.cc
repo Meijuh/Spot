@@ -23,7 +23,7 @@
 namespace spot
 {
 
-  void tgba_digraph::merge_transitions()
+  void twa_graph::merge_transitions()
   {
     g_.remove_dead_transitions_();
 
@@ -130,7 +130,7 @@ namespace spot
     g_.chain_transitions_();
   }
 
-  void tgba_digraph::purge_unreachable_states()
+  void twa_graph::purge_unreachable_states()
   {
     unsigned num_states = g_.num_states();
     if (SPOT_UNLIKELY(num_states == 0))
@@ -173,7 +173,7 @@ namespace spot
     g_.defrag_states(std::move(todo), current);
   }
 
-  void tgba_digraph::purge_dead_states()
+  void twa_graph::purge_dead_states()
   {
     unsigned num_states = g_.num_states();
     if (num_states == 0)

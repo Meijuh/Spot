@@ -100,13 +100,13 @@ namespace spot
       {
       }
 
-      automaton_size(const tgba_digraph_ptr& a)
+      automaton_size(const twa_graph_ptr& a)
         : transitions(a->num_transitions()),
           states(a->num_states())
       {
       }
 
-      void set_size(const tgba_digraph_ptr& a)
+      void set_size(const twa_graph_ptr& a)
       {
 	states = a->num_states();
 	transitions = a->num_transitions();
@@ -171,7 +171,7 @@ namespace spot
 	return res;
       }
 
-      acc_cond::mark_t bdd_to_mark(const tgba_digraph_ptr& aut, bdd b)
+      acc_cond::mark_t bdd_to_mark(const twa_graph_ptr& aut, bdd b)
       {
 	// FIXME: Use a cache.
 	std::vector<unsigned> res;
@@ -183,7 +183,7 @@ namespace spot
 	return aut->acc().marks(res.begin(), res.end());
       }
 
-      direct_simulation(const const_tgba_digraph_ptr& in)
+      direct_simulation(const const_twa_graph_ptr& in)
         : po_size_(0),
           all_class_var_(bddtrue),
           original_(in)
@@ -205,7 +205,7 @@ namespace spot
 	// (In the case of Cosimulation, we also flip the transitions.)
 	if (Cosimulation)
 	  {
-	    a_ = make_tgba_digraph(in->get_dict());
+	    a_ = make_twa_graph(in->get_dict());
 	    a_->copy_ap_of(in);
 	    a_->copy_acceptance_of(in);
 	    a_->new_states(ns);
@@ -242,7 +242,7 @@ namespace spot
 	  }
 	else
 	  {
-	    a_ = make_tgba_digraph(in, twa::prop_set::all());
+	    a_ = make_twa_graph(in, twa::prop_set::all());
 	    auto& acccond = a_->acc();
 	    for (auto& t: a_->transitions())
 	      t.acc = acccond.comp(t.acc);
@@ -341,7 +341,7 @@ namespace spot
       }
 
       // The core loop of the algorithm.
-      tgba_digraph_ptr run()
+      twa_graph_ptr run()
       {
         main_loop();
 	return build_result();
@@ -481,9 +481,9 @@ namespace spot
       }
 
       // Build the minimal resulting automaton.
-      tgba_digraph_ptr build_result()
+      twa_graph_ptr build_result()
       {
-	tgba_digraph_ptr res = make_tgba_digraph(a_->get_dict());
+	twa_graph_ptr res = make_twa_graph(a_->get_dict());
 	res->copy_ap_of(a_);
 	res->copy_acceptance_of(a_);
 	if (Sba)
@@ -676,7 +676,7 @@ namespace spot
 
     protected:
       // The automaton which is simulated.
-      tgba_digraph_ptr a_;
+      twa_graph_ptr a_;
 
       // Relation is aimed to represent the same thing than
       // rel_. The difference is in the way it does.
@@ -719,35 +719,35 @@ namespace spot
 
       std::unique_ptr<scc_info> scc_info_;
 
-      const const_tgba_digraph_ptr original_;
+      const const_twa_graph_ptr original_;
     };
 
   } // End namespace anonymous.
 
 
-  tgba_digraph_ptr
-  simulation(const const_tgba_digraph_ptr& t)
+  twa_graph_ptr
+  simulation(const const_twa_graph_ptr& t)
   {
     direct_simulation<false, false> simul(t);
     return simul.run();
   }
 
-  tgba_digraph_ptr
-  simulation_sba(const const_tgba_digraph_ptr& t)
+  twa_graph_ptr
+  simulation_sba(const const_twa_graph_ptr& t)
   {
     direct_simulation<false, true> simul(t);
     return simul.run();
   }
 
-  tgba_digraph_ptr
-  cosimulation(const const_tgba_digraph_ptr& t)
+  twa_graph_ptr
+  cosimulation(const const_twa_graph_ptr& t)
   {
     direct_simulation<true, false> simul(t);
     return simul.run();
   }
 
-  tgba_digraph_ptr
-  cosimulation_sba(const const_tgba_digraph_ptr& t)
+  twa_graph_ptr
+  cosimulation_sba(const const_twa_graph_ptr& t)
   {
     direct_simulation<true, true> simul(t);
     return simul.run();
@@ -755,10 +755,10 @@ namespace spot
 
 
   template<bool Sba>
-  tgba_digraph_ptr
-  iterated_simulations_(const const_tgba_digraph_ptr& t)
+  twa_graph_ptr
+  iterated_simulations_(const const_twa_graph_ptr& t)
   {
-    tgba_digraph_ptr res = 0;
+    twa_graph_ptr res = 0;
     automaton_size prev;
     automaton_size next;
 
@@ -784,14 +784,14 @@ namespace spot
     return res;
   }
 
-  tgba_digraph_ptr
-  iterated_simulations(const const_tgba_digraph_ptr& t)
+  twa_graph_ptr
+  iterated_simulations(const const_twa_graph_ptr& t)
   {
     return iterated_simulations_<false>(t);
   }
 
-  tgba_digraph_ptr
-  iterated_simulations_sba(const const_tgba_digraph_ptr& t)
+  twa_graph_ptr
+  iterated_simulations_sba(const const_twa_graph_ptr& t)
   {
     return iterated_simulations_<true>(t);
   }

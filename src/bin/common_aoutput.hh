@@ -107,7 +107,7 @@ public:
   /// to be output.
   std::ostream&
   print(const spot::const_hoa_aut_ptr& haut,
-	const spot::const_tgba_digraph_ptr& aut,
+	const spot::const_twa_graph_ptr& aut,
 	const spot::ltl::formula* f,
 	const char* filename, int loc, double run_time)
   {
@@ -225,7 +225,7 @@ public:
   automaton_printer(stat_style input = no_input);
 
   void
-  print(const spot::tgba_digraph_ptr& aut,
+  print(const spot::twa_graph_ptr& aut,
 	const spot::ltl::formula* f = nullptr,
 	// Input location for errors and statistics.
 	const char* filename = nullptr,

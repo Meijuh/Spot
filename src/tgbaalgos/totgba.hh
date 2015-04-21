@@ -25,6 +25,6 @@ namespace spot
 {
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Büchi automaton.
-  SPOT_API tgba_digraph_ptr
-  to_generalized_buchi(const const_tgba_digraph_ptr& aut);
+  SPOT_API twa_graph_ptr
+  to_generalized_buchi(const const_twa_graph_ptr& aut);
 }

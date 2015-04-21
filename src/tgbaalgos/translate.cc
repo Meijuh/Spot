@@ -61,7 +61,7 @@ namespace spot
     simpl_owned_ = simpl_ = new ltl::ltl_simplifier(options, dict);
   }
 
-  tgba_digraph_ptr translator::run(const ltl::formula** f)
+  twa_graph_ptr translator::run(const ltl::formula** f)
   {
     const ltl::formula* r = simpl_->simplify(*f);
     (*f)->destroy();
@@ -71,7 +71,7 @@ namespace spot
     // natural way (improving the degeneralization).
     simpl_->clear_as_bdd_cache();
 
-    tgba_digraph_ptr aut;
+    twa_graph_ptr aut;
     if (comp_susp_ > 0)
       {
 	int skel_wdba = skel_wdba_;
@@ -91,7 +91,7 @@ namespace spot
     return aut;
   }
 
-  tgba_digraph_ptr translator::run(const ltl::formula* f)
+  twa_graph_ptr translator::run(const ltl::formula* f)
   {
     f->clone();
     auto aut = run(&f);

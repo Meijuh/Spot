@@ -161,7 +161,7 @@ namespace spot
   }
 
   std::ostream&
-  stat_printer::print(const const_tgba_digraph_ptr& aut,
+  stat_printer::print(const const_twa_graph_ptr& aut,
 		      const ltl::formula* f,
 		      double run_time)
   {

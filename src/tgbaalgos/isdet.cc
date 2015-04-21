@@ -28,7 +28,7 @@ namespace spot
     template<bool count>
     static
     unsigned
-    count_nondet_states_aux(const const_tgba_digraph_ptr& aut)
+    count_nondet_states_aux(const const_twa_graph_ptr& aut)
     {
       unsigned nondet_states = 0;
       unsigned ns = aut->num_states();
@@ -55,13 +55,13 @@ namespace spot
   }
 
   unsigned
-  count_nondet_states(const const_tgba_digraph_ptr& aut)
+  count_nondet_states(const const_twa_graph_ptr& aut)
   {
     return count_nondet_states_aux<true>(aut);
   }
 
   bool
-  is_deterministic(const const_tgba_digraph_ptr& aut)
+  is_deterministic(const const_twa_graph_ptr& aut)
   {
     if (aut->is_deterministic())
       return true;
@@ -69,7 +69,7 @@ namespace spot
   }
 
   bool
-  is_complete(const const_tgba_digraph_ptr& aut)
+  is_complete(const const_twa_graph_ptr& aut)
   {
     unsigned ns = aut->num_states();
     for (unsigned src = 0; src < ns; ++src)
