@@ -232,7 +232,7 @@ namespace spot
     {
     public:
       typedef dfs_stack::const_iterator cycle_iter;
-      typedef tgba_graph_trans_data trans;
+      typedef twa_graph_trans_data trans;
       typedef std::set<trans*> trans_set;
       typedef std::vector<trans_set> set_set;
     protected:

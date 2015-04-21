@@ -30,21 +30,21 @@
 namespace spot
 {
 
-  struct SPOT_API tgba_graph_state: public spot::state
+  struct SPOT_API twa_graph_state: public spot::state
   {
   public:
-    tgba_graph_state():
+    twa_graph_state():
       spot::state()
     {
     }
 
-    virtual ~tgba_graph_state() noexcept
+    virtual ~twa_graph_state() noexcept
     {
     }
 
     virtual int compare(const spot::state* other) const
     {
-      auto o = down_cast<const tgba_graph_state*>(other);
+      auto o = down_cast<const twa_graph_state*>(other);
       assert(o);
 
       // Do not simply return "other - this", it might not fit in an int.
@@ -61,10 +61,10 @@ namespace spot
 	reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
     }
 
-    virtual tgba_graph_state*
+    virtual twa_graph_state*
     clone() const
     {
-      return const_cast<tgba_graph_state*>(this);
+      return const_cast<twa_graph_state*>(this);
     }
 
     virtual void destroy() const
@@ -72,22 +72,22 @@ namespace spot
     }
   };
 
-  struct SPOT_API tgba_graph_trans_data
+  struct SPOT_API twa_graph_trans_data
   {
     bdd cond;
     acc_cond::mark_t acc;
 
-    explicit tgba_graph_trans_data()
+    explicit twa_graph_trans_data()
       : cond(bddfalse), acc(0)
     {
     }
 
-    tgba_graph_trans_data(bdd cond, acc_cond::mark_t acc = 0U)
+    twa_graph_trans_data(bdd cond, acc_cond::mark_t acc = 0U)
       : cond(cond), acc(acc)
     {
     }
 
-    bool operator<(const tgba_graph_trans_data& other) const
+    bool operator<(const twa_graph_trans_data& other) const
     {
       if (cond.id() < other.cond.id())
 	return true;
@@ -96,7 +96,7 @@ namespace spot
       return acc < other.acc;
     }
 
-    bool operator==(const tgba_graph_trans_data& other) const
+    bool operator==(const twa_graph_trans_data& other) const
     {
       return cond.id() == other.cond.id() &&
         acc == other.acc;
@@ -143,10 +143,10 @@ namespace spot
       return !p_;
     }
 
-    virtual tgba_graph_state* current_state() const
+    virtual twa_graph_state* current_state() const
     {
       assert(!done());
-      return const_cast<tgba_graph_state*>
+      return const_cast<twa_graph_state*>
 	(&g_->state_data(g_->trans_storage(p_).dst));
     }
 
@@ -172,7 +172,7 @@ namespace spot
   class SPOT_API twa_graph final: public twa
   {
   public:
-    typedef digraph<tgba_graph_state, tgba_graph_trans_data> graph_t;
+    typedef digraph<twa_graph_state, twa_graph_trans_data> graph_t;
     typedef graph_t::trans_storage_t trans_storage_t;
 
   protected:
@@ -261,11 +261,11 @@ namespace spot
     }
 
     // FIXME: The return type ought to be const.
-    virtual tgba_graph_state* get_init_state() const
+    virtual twa_graph_state* get_init_state() const
     {
       if (num_states() == 0)
 	const_cast<graph_t&>(g_).new_state();
-      return const_cast<tgba_graph_state*>(state_from_number(init_number_));
+      return const_cast<twa_graph_state*>(state_from_number(init_number_));
     }
 
     virtual twa_succ_iterator*
@@ -294,7 +294,7 @@ namespace spot
       return s - &g_.state_storage(0);
     }
 
-    const tgba_graph_state*
+    const twa_graph_state*
     state_from_number(graph_t::state n) const
     {
       return &g_.state_data(n);
@@ -312,24 +312,24 @@ namespace spot
       return format_state(state_number(st));
     }
 
-    tgba_graph_trans_data& trans_data(const twa_succ_iterator* it)
+    twa_graph_trans_data& trans_data(const twa_succ_iterator* it)
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_data(i->pos());
     }
 
-    tgba_graph_trans_data& trans_data(unsigned t)
+    twa_graph_trans_data& trans_data(unsigned t)
     {
       return g_.trans_data(t);
     }
 
-    const tgba_graph_trans_data& trans_data(const twa_succ_iterator* it) const
+    const twa_graph_trans_data& trans_data(const twa_succ_iterator* it) const
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
       return g_.trans_data(i->pos());
     }
 
-    const tgba_graph_trans_data& trans_data(unsigned t) const
+    const twa_graph_trans_data& trans_data(unsigned t) const
     {
       return g_.trans_data(t);
     }
