@@ -148,7 +148,7 @@ namespace spot
 	  // could be improved.
 	  {
 	    state_set keep(sl.begin(), sl.end());
-	    auto masked = build_tgba_mask_keep(dra->aut, keep, sl.front());
+	    auto masked = build_twa_mask_keep(dra->aut, keep, sl.front());
 	    if (!nra_to_nba(dra, masked)->is_empty())
 	      // This SCC is not DBA-realizable.
 	      return false;
@@ -187,7 +187,7 @@ namespace spot
 	  //std::cerr << "unknown\n";
 	  // Build a sub-automaton for just the unknown states,
 	  // starting from any state in the SCC.
-	  auto scc_mask = build_tgba_mask_keep(aut, unknown, *unknown.begin());
+	  auto scc_mask = build_twa_mask_keep(aut, unknown, *unknown.begin());
 	  state_list local_final;
 	  state_list local_nonfinal;
 	  bool dbarealizable =

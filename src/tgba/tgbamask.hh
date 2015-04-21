@@ -32,7 +32,7 @@ namespace spot
   /// states from \a to_keep.  The initial state
   /// can optionally be reset to \a init.
   SPOT_API const_twa_ptr
-  build_tgba_mask_keep(const const_twa_ptr& to_mask,
+  build_twa_mask_keep(const const_twa_ptr& to_mask,
 		       const state_set& to_keep,
 		       const state* init = 0);
 
@@ -43,7 +43,7 @@ namespace spot
   /// in \a to_ignore.  The initial state can optionally be reset to
   /// \a init.
   SPOT_API const_twa_ptr
-  build_tgba_mask_ignore(const const_twa_ptr& to_mask,
+  build_twa_mask_ignore(const const_twa_ptr& to_mask,
 			 const state_set& to_ignore,
 			 const state* init = 0);
 
@@ -60,7 +60,7 @@ namespace spot
   /// function is only needed in graph algorithms that do not call
   /// all_acceptance_conditions().
   SPOT_API const_twa_ptr
-  build_tgba_mask_acc_ignore(const const_twa_ptr& to_mask,
+  build_twa_mask_acc_ignore(const const_twa_ptr& to_mask,
 			     unsigned to_ignore,
 			     const state* init = 0);
 }

@@ -84,14 +84,14 @@ namespace spot
     ///
     /// This is an abstract class. You should inherit from it and
     /// supply a wanted() method to specify which states to keep.
-    class tgba_mask: public twa_proxy
+    class twa_mask: public twa_proxy
     {
     protected:
       /// \brief Constructor.
       /// \param masked The automaton to mask
       /// \param init Any state to use as initial state. This state will be
       /// destroyed by the destructor.
-      tgba_mask(const const_twa_ptr& masked, const state* init = 0):
+      twa_mask(const const_twa_ptr& masked, const state* init = 0):
 	twa_proxy(masked),
 	init_(init)
       {
@@ -101,7 +101,7 @@ namespace spot
 
 
     public:
-      virtual ~tgba_mask()
+      virtual ~twa_mask()
       {
 	init_->destroy();
       }
@@ -146,14 +146,14 @@ namespace spot
       const state* init_;
     };
 
-    class tgba_mask_keep: public tgba_mask
+    class twa_mask_keep: public twa_mask
     {
       const state_set& mask_;
     public:
-      tgba_mask_keep(const const_twa_ptr& masked,
+      twa_mask_keep(const const_twa_ptr& masked,
 		     const state_set& mask,
 		     const state* init)
-	: tgba_mask(masked, init),
+	: twa_mask(masked, init),
 	  mask_(mask)
       {
       }
@@ -165,14 +165,14 @@ namespace spot
       }
     };
 
-    class tgba_mask_ignore: public tgba_mask
+    class twa_mask_ignore: public twa_mask
     {
       const state_set& mask_;
     public:
-      tgba_mask_ignore(const const_twa_ptr& masked,
+      twa_mask_ignore(const const_twa_ptr& masked,
 		       const state_set& mask,
 		       const state* init)
-	: tgba_mask(masked, init),
+	: twa_mask(masked, init),
 	  mask_(mask)
       {
       }
@@ -184,14 +184,14 @@ namespace spot
       }
     };
 
-    class tgba_mask_acc_ignore: public tgba_mask
+    class twa_mask_acc_ignore: public twa_mask
     {
       unsigned mask_;
     public:
-      tgba_mask_acc_ignore(const const_twa_ptr& masked,
+      twa_mask_acc_ignore(const const_twa_ptr& masked,
 			   unsigned mask,
 			   const state* init)
-	: tgba_mask(masked, init),
+	: twa_mask(masked, init),
 	  mask_(mask)
       {
       }
@@ -205,27 +205,27 @@ namespace spot
   }
 
   const_twa_ptr
-  build_tgba_mask_keep(const const_twa_ptr& to_mask,
+  build_twa_mask_keep(const const_twa_ptr& to_mask,
 		       const state_set& to_keep,
 		       const state* init)
   {
-    return std::make_shared<tgba_mask_keep>(to_mask, to_keep, init);
+    return std::make_shared<twa_mask_keep>(to_mask, to_keep, init);
   }
 
   const_twa_ptr
-  build_tgba_mask_ignore(const const_twa_ptr& to_mask,
+  build_twa_mask_ignore(const const_twa_ptr& to_mask,
 			 const state_set& to_ignore,
 			 const state* init)
   {
-    return std::make_shared<tgba_mask_ignore>(to_mask, to_ignore, init);
+    return std::make_shared<twa_mask_ignore>(to_mask, to_ignore, init);
   }
 
   const_twa_ptr
-  build_tgba_mask_acc_ignore(const const_twa_ptr& to_mask,
+  build_twa_mask_acc_ignore(const const_twa_ptr& to_mask,
 			     unsigned to_ignore,
 			     const state* init)
   {
-    return std::make_shared<tgba_mask_acc_ignore>(to_mask, to_ignore, init);
+    return std::make_shared<twa_mask_acc_ignore>(to_mask, to_ignore, init);
   }
 
 }
