@@ -153,10 +153,10 @@ src/              Sources for libspot.
    priv/          Private algorithms, used internally but not exported.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.
-   tgbaalgos/     Algorithms on TGBA.
+   tgbatest/      Tests for twa/, twaalgos/, ta/ and taalgos/.
+   twa/           TωA objects and cousins (Transition-based ω-Automata).
+   twaalgos/      Algorithms on TωA.
       gtec/       Couvreur's Emptiness-Check.
-   tgbatest/      Tests for twa/, tgbaalgos/, ta/ and taalgos/.
-   twa/           TωA objects and cousins.
    sanity/        Sanity tests for the whole project.
 doc/              Documentation for libspot.
    org/           Source of userdoc/ as org-mode files.

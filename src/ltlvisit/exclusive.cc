@@ -22,7 +22,7 @@
 #include "ltlast/multop.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/constant.hh"
-#include "tgbaalgos/mask.hh"
+#include "twaalgos/mask.hh"
 #include "misc/casts.hh"
 #include "misc/minato.hh"
 #include "apcollect.hh"

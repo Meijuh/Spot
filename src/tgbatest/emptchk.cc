@@ -24,14 +24,14 @@
 #include <cstring>
 #include "ltlparse/public.hh"
 #include "ltlast/allnodes.hh"
-#include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgbaalgos/ltl2taa.hh"
-#include "tgbaalgos/sccfilter.hh"
-#include "tgbaalgos/degen.hh"
+#include "twaalgos/ltl2tgba_fm.hh"
+#include "twaalgos/ltl2taa.hh"
+#include "twaalgos/sccfilter.hh"
+#include "twaalgos/degen.hh"
 #include "twa/twaproduct.hh"
-#include "tgbaalgos/gtec/gtec.hh"
-#include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/emptiness.hh"
+#include "twaalgos/gtec/gtec.hh"
+#include "twaalgos/dotty.hh"
+#include "twaalgos/emptiness.hh"
 
 void
 syntax(char* prog)

@@ -25,9 +25,9 @@ SUBDIRS = gtec
 AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS)
 AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
-tgbaalgosdir = $(pkgincludedir)/tgbaalgos
+twaalgosdir = $(pkgincludedir)/twaalgos
 
-tgbaalgos_HEADERS = \
+twaalgos_HEADERS = \
   are_isomorphic.hh \
   bfssteps.hh \
   canonicalize.hh \
@@ -82,8 +82,8 @@ tgbaalgos_HEADERS = \
   translate.hh \
   word.hh
 
-noinst_LTLIBRARIES = libtgbaalgos.la
-libtgbaalgos_la_SOURCES = \
+noinst_LTLIBRARIES = libtwaalgos.la
+libtwaalgos_la_SOURCES = \
   are_isomorphic.cc \
   bfssteps.cc \
   canonicalize.cc \
@@ -140,4 +140,4 @@ libtgbaalgos_la_SOURCES = \
   weight.hh \
   word.cc
 
-libtgbaalgos_la_LIBADD = gtec/libgtec.la
+libtwaalgos_la_LIBADD = gtec/libgtec.la

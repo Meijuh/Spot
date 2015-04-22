@@ -27,8 +27,8 @@
 #include "ltlast/unop.hh"
 #include "ltlast/binop.hh"
 #include "ltlvisit/remove_x.hh"
-#include "tgbaalgos/product.hh"
-#include "tgbaalgos/ltl2tgba_fm.hh"
+#include "twaalgos/product.hh"
+#include "twaalgos/ltl2tgba_fm.hh"
 #include "twa/twaproduct.hh"
 #include "twa/bddprint.hh"
 #include <deque>

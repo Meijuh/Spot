@@ -22,8 +22,8 @@
 
 #include "twa.hh"
 #include "twagraph.hh"
-#include "tgbaalgos/gtec/gtec.hh"
-#include "tgbaalgos/remfin.hh"
+#include "twaalgos/gtec/gtec.hh"
+#include "twaalgos/remfin.hh"
 #include <utility>
 
 namespace spot

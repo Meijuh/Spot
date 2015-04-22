@@ -26,8 +26,8 @@
 #include "stats.hh"
 #include "reachiter.hh"
 #include "ltlvisit/tostring.hh"
-#include "tgbaalgos/isdet.hh"
-#include "tgbaalgos/sccinfo.hh"
+#include "twaalgos/isdet.hh"
+#include "twaalgos/sccinfo.hh"
 
 namespace spot
 {

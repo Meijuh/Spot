@@ -32,9 +32,9 @@
 #include "misc/hashfunc.hh"
 #include "ltlast/formula.hh"
 #include "ltlast/constant.hh"
-#include "tgbaalgos/dotty.hh"
+#include "twaalgos/dotty.hh"
 #include "twa/twasafracomplement.hh"
-#include "tgbaalgos/degen.hh"
+#include "twaalgos/degen.hh"
 
 namespace spot
 {

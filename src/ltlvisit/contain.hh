@@ -23,7 +23,7 @@
 #pragma once
 
 #include "ltlast/formula.hh"
-#include "tgbaalgos/ltl2tgba_fm.hh"
+#include "twaalgos/ltl2tgba_fm.hh"
 #include "misc/hash.hh"
 #include <map>
 

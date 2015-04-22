@@ -26,12 +26,12 @@
 
 #include "hoaparse/public.hh"
 
-#include "tgbaalgos/stats.hh"
-#include "tgbaalgos/sccinfo.hh"
-#include "tgbaalgos/gtec/gtec.hh"
-#include "tgbaalgos/reducerun.hh"
-#include "tgbaalgos/word.hh"
-#include "tgbaalgos/isdet.hh"
+#include "twaalgos/stats.hh"
+#include "twaalgos/sccinfo.hh"
+#include "twaalgos/gtec/gtec.hh"
+#include "twaalgos/reducerun.hh"
+#include "twaalgos/word.hh"
+#include "twaalgos/isdet.hh"
 #include "common_file.hh"
 
 

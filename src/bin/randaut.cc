@@ -39,8 +39,8 @@
 #include "misc/random.hh"
 
 #include "twa/bddprint.hh"
-#include "tgbaalgos/randomgraph.hh"
-#include "tgbaalgos/canonicalize.hh"
+#include "twaalgos/randomgraph.hh"
+#include "twaalgos/canonicalize.hh"
 
 
 const char argp_program_doc[] = "\

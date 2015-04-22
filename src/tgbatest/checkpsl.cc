@@ -24,11 +24,11 @@
 #include <cstring>
 #include "ltlparse/public.hh"
 #include "ltlast/allnodes.hh"
-#include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgbaalgos/ltl2taa.hh"
-#include "tgbaalgos/sccfilter.hh"
-#include "tgbaalgos/product.hh"
-#include "tgbaalgos/dotty.hh"
+#include "twaalgos/ltl2tgba_fm.hh"
+#include "twaalgos/ltl2taa.hh"
+#include "twaalgos/sccfilter.hh"
+#include "twaalgos/product.hh"
+#include "twaalgos/dotty.hh"
 
 void
 syntax(char* prog)

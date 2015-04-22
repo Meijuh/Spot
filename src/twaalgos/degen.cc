@@ -26,7 +26,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
-#include "tgbaalgos/sccinfo.hh"
+#include "twaalgos/sccinfo.hh"
 #include "twa/bddprint.hh"
 
 //#define DEGEN_DEBUG

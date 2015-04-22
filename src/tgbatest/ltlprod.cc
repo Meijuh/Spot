@@ -25,9 +25,9 @@
 #include <cstdlib>
 #include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
-#include "tgbaalgos/product.hh"
-#include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgbaalgos/dotty.hh"
+#include "twaalgos/product.hh"
+#include "twaalgos/ltl2tgba_fm.hh"
+#include "twaalgos/dotty.hh"
 
 void
 syntax(char* prog)

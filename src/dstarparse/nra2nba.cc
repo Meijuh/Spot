@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "public.hh"
-#include "tgbaalgos/reachiter.hh"
-#include "tgbaalgos/sccfilter.hh"
+#include "twaalgos/reachiter.hh"
+#include "twaalgos/sccfilter.hh"
 
 namespace spot
 {

@@ -45,10 +45,10 @@
 #include "ltlvisit/tostring.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/multop.hh"
-#include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgbaalgos/minimize.hh"
-#include "tgbaalgos/safety.hh"
-#include "tgbaalgos/stutter.hh"
+#include "twaalgos/ltl2tgba_fm.hh"
+#include "twaalgos/minimize.hh"
+#include "twaalgos/safety.hh"
+#include "twaalgos/stutter.hh"
 
 const char argp_program_doc[] ="\
 Read a list of formulas and output them back after some optional processing.\v\

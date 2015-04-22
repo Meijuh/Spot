@@ -39,8 +39,8 @@
 #include "ltlvisit/relabel.hh"
 #include "misc/bareword.hh"
 #include "misc/timer.hh"
-#include "tgbaalgos/lbtt.hh"
-#include "tgbaalgos/relabel.hh"
+#include "twaalgos/lbtt.hh"
+#include "twaalgos/relabel.hh"
 #include "hoaparse/public.hh"
 #include "dstarparse/public.hh"
 

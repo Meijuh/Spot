@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita.
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE)
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -20,19 +20,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include "misc/common.hh"
-#include "twa/fwd.hh"
-#include "tgbaalgos/emptiness.hh"
+#include "projrun.hh"
+#include "twa/twa.hh"
+#include "twaalgos/emptiness.hh"
 
 namespace spot
 {
-  /// \ingroup twa_run
-  /// \brief Reduce an accepting run.
-  ///
-  /// Return a run which is accepting for \a a and that is no longer
-  /// than \a org.
-  SPOT_API tgba_run_ptr
-  reduce_run(const const_twa_ptr& a, const const_tgba_run_ptr& org);
+
+  tgba_run_ptr
+  project_tgba_run(const const_twa_ptr& a_run,
+		   const const_twa_ptr& a_proj,
+		   const const_tgba_run_ptr& run)
+  {
+    auto res = std::make_shared<tgba_run>();
+    for (auto& i: run->prefix)
+      res->prefix.emplace_back(a_run->project_state(i.s, a_proj),
+			       i.label, i.acc);
+    for (auto& i: run->cycle)
+      res->prefix.emplace_back(a_run->project_state(i.s, a_proj),
+			       i.label, i.acc);
+    return res;
+  }
 }

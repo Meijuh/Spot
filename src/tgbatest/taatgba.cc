@@ -22,7 +22,7 @@
 #include "misc/hash.hh"
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
-#include "tgbaalgos/dotty.hh"
+#include "twaalgos/dotty.hh"
 #include "twa/taatgba.hh"
 
 int

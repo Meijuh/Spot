@@ -19,7 +19,7 @@
 
 #include "remprop.hh"
 #include "ltlenv/defaultenv.hh"
-#include "tgbaalgos/mask.hh"
+#include "twaalgos/mask.hh"
 #include "misc/casts.hh"
 #include "ltlvisit/tostring.hh"
 #include <ctype.h>

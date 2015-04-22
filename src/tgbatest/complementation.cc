@@ -19,19 +19,19 @@
 
 #include <iomanip>
 #include <iostream>
-#include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/hoa.hh"
+#include "twaalgos/dotty.hh"
+#include "twaalgos/hoa.hh"
 #include "hoaparse/public.hh"
 #include "twa/twaproduct.hh"
-#include "tgbaalgos/gtec/gtec.hh"
-#include "tgbaalgos/ltl2tgba_fm.hh"
+#include "twaalgos/gtec/gtec.hh"
+#include "twaalgos/ltl2tgba_fm.hh"
 #include "ltlparse/public.hh"
-#include "tgbaalgos/stats.hh"
-#include "tgbaalgos/emptiness.hh"
+#include "twaalgos/stats.hh"
+#include "twaalgos/emptiness.hh"
 #include "ltlast/unop.hh"
-#include "tgbaalgos/stats.hh"
-#include "tgbaalgos/emptiness_stats.hh"
-#include "tgbaalgos/degen.hh"
+#include "twaalgos/stats.hh"
+#include "twaalgos/emptiness_stats.hh"
+#include "twaalgos/degen.hh"
 
 #include "twa/twasafracomplement.hh"
 

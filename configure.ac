@@ -217,8 +217,8 @@ AC_CONFIG_FILES([
   src/misc/Makefile
   src/priv/Makefile
   src/sanity/Makefile
-  src/tgbaalgos/gtec/Makefile
-  src/tgbaalgos/Makefile
+  src/twaalgos/gtec/Makefile
+  src/twaalgos/Makefile
   src/twa/Makefile
   src/taalgos/Makefile
   src/ta/Makefile

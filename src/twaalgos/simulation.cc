@@ -25,9 +25,9 @@
 #include "simulation.hh"
 #include "misc/minato.hh"
 #include "twa/bddprint.hh"
-#include "tgbaalgos/reachiter.hh"
-#include "tgbaalgos/sccfilter.hh"
-#include "tgbaalgos/sccinfo.hh"
+#include "twaalgos/reachiter.hh"
+#include "twaalgos/sccfilter.hh"
+#include "twaalgos/sccinfo.hh"
 #include "misc/bddlt.hh"
 
 // The way we developed this algorithm is the following: We take an

@@ -35,7 +35,7 @@
 
 #include "ltlast/formula.hh"
 #include "ltlvisit/tostring.hh"
-#include "tgbaalgos/translate.hh"
+#include "twaalgos/translate.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
 

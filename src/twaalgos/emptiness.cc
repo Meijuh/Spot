@@ -24,12 +24,12 @@
 #include "emptiness.hh"
 #include "twa/twa.hh"
 #include "twa/bddprint.hh"
-#include "tgbaalgos/gtec/gtec.hh"
-#include "tgbaalgos/gv04.hh"
-#include "tgbaalgos/magic.hh"
-#include "tgbaalgos/se05.hh"
-#include "tgbaalgos/tau03.hh"
-#include "tgbaalgos/tau03opt.hh"
+#include "twaalgos/gtec/gtec.hh"
+#include "twaalgos/gv04.hh"
+#include "twaalgos/magic.hh"
+#include "twaalgos/se05.hh"
+#include "twaalgos/tau03.hh"
+#include "twaalgos/tau03opt.hh"
 
 namespace spot
 {

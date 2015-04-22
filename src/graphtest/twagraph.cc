@@ -20,7 +20,7 @@
 
 #include <iostream>
 #include "twa/twagraph.hh"
-#include "tgbaalgos/dotty.hh"
+#include "twaalgos/dotty.hh"
 #include "ltlenv/defaultenv.hh"
 
 void f1()

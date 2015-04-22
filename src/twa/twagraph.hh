@@ -24,7 +24,7 @@
 #include "graph/ngraph.hh"
 #include "twa/bdddict.hh"
 #include "twa/twa.hh"
-#include "tgbaalgos/dupexp.hh"
+#include "twaalgos/dupexp.hh"
 #include <sstream>
 
 namespace spot

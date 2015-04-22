@@ -26,7 +26,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 # end, after building '.' (since the current directory contains
 # libspot.la needed by the tests)
 SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse graph twa		\
-          tgbaalgos ta taalgos kripke kripkeparse dstarparse hoaparse	\
+          twaalgos ta taalgos kripke kripkeparse dstarparse hoaparse	\
           . bin ltltest graphtest tgbatest kripketest sanity
 
 lib_LTLIBRARIES = libspot.la
@@ -45,7 +45,7 @@ libspot_la_LIBADD =  \
   priv/libpriv.la \
   taalgos/libtaalgos.la \
   ta/libta.la \
-  tgbaalgos/libtgbaalgos.la \
+  twaalgos/libtwaalgos.la \
   twa/libtwa.la \
   ../lib/libgnu.la
 

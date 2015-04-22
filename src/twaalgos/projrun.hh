@@ -25,7 +25,7 @@
 #include "misc/common.hh"
 #include <iosfwd>
 #include "twa/fwd.hh"
-#include "tgbaalgos/emptiness.hh"
+#include "twaalgos/emptiness.hh"
 
 namespace spot
 {

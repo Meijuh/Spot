@@ -20,7 +20,7 @@
 #include <sstream>
 #include <deque>
 #include "public.hh"
-#include "tgbaalgos/sccfilter.hh"
+#include "twaalgos/sccfilter.hh"
 #include "ltlenv/defaultenv.hh"
 #include "priv/accmap.hh"
 

@@ -22,7 +22,7 @@
 #include "kripkeexplicit.hh"
 #include "twa/bddprint.hh"
 #include "misc/escape.hh"
-#include "tgbaalgos/reachiter.hh"
+#include "twaalgos/reachiter.hh"
 #include <iostream>
 #include <sstream>
 

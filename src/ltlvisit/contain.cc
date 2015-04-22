@@ -27,7 +27,7 @@
 #include "ltlast/binop.hh"
 #include "ltlast/multop.hh"
 #include "ltlast/constant.hh"
-#include "tgbaalgos/product.hh"
+#include "twaalgos/product.hh"
 
 namespace spot
 {

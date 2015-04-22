@@ -27,10 +27,10 @@
 
 #include "twa/bddprint.hh"
 
-#include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/lbtt.hh"
-#include "tgbaalgos/hoa.hh"
-#include "tgbaalgos/neverclaim.hh"
+#include "twaalgos/dotty.hh"
+#include "twaalgos/lbtt.hh"
+#include "twaalgos/hoa.hh"
+#include "twaalgos/neverclaim.hh"
 
 automaton_format_t automaton_format = Dot;
 static const char* opt_dot = nullptr;

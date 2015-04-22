@@ -24,7 +24,7 @@
 
 #include "ta/taproduct.hh"
 #include "misc/optionmap.hh"
-#include "tgbaalgos/emptiness_stats.hh"
+#include "twaalgos/emptiness_stats.hh"
 #include <stack>
 #include <queue>
 

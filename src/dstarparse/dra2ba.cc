@@ -19,11 +19,11 @@
 
 #include "public.hh"
 #include "twa/twamask.hh"
-#include "tgbaalgos/scc.hh"
-#include "tgbaalgos/reachiter.hh"
-#include "tgbaalgos/gtec/gtec.hh"
-#include "tgbaalgos/sccfilter.hh"
-#include "tgbaalgos/dotty.hh"
+#include "twaalgos/scc.hh"
+#include "twaalgos/reachiter.hh"
+#include "twaalgos/gtec/gtec.hh"
+#include "twaalgos/sccfilter.hh"
+#include "twaalgos/dotty.hh"
 
 namespace spot
 {

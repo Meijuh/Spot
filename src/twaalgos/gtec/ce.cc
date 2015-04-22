@@ -21,7 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ce.hh"
-#include "tgbaalgos/bfssteps.hh"
+#include "twaalgos/bfssteps.hh"
 #include "misc/hash.hh"
 
 namespace spot

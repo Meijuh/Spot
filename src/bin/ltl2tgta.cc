@@ -35,9 +35,9 @@
 #include "ltlparse/public.hh"
 #include "ltlvisit/tostring.hh"
 #include "ltlvisit/simplify.hh"
-#include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/ltl2tgba_fm.hh"
-#include "tgbaalgos/translate.hh"
+#include "twaalgos/dotty.hh"
+#include "twaalgos/ltl2tgba_fm.hh"
+#include "twaalgos/translate.hh"
 #include "twa/bddprint.hh"
 
 #include "taalgos/tgba2ta.hh"

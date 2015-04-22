@@ -29,7 +29,7 @@
 #include "misc/escape.hh"
 #include "twa/twagraph.hh"
 #include "twa/formula2bdd.hh"
-#include "tgbaalgos/sccinfo.hh"
+#include "twaalgos/sccinfo.hh"
 #include <cstdlib>
 #include <cstring>
 #include <ctype.h>

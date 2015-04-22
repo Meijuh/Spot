@@ -25,7 +25,7 @@
 #include <map>
 #include <memory>
 #include "ltlast/formula.hh"
-#include "tgbaalgos/stats.hh"
+#include "twaalgos/stats.hh"
 #include "common_output.hh"
 #include "common_file.hh"
 

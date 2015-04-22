@@ -21,9 +21,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "twa/twagraph.hh"
-#include "tgbaalgos/are_isomorphic.hh"
-#include "tgbaalgos/canonicalize.hh"
-#include "tgbaalgos/isdet.hh"
+#include "twaalgos/are_isomorphic.hh"
+#include "twaalgos/canonicalize.hh"
+#include "twaalgos/isdet.hh"
 #include <vector>
 #include <queue>
 

@@ -37,8 +37,8 @@
 #include <algorithm>
 #include "ltl2tgba_fm.hh"
 #include "twa/bddprint.hh"
-#include "tgbaalgos/sccinfo.hh"
-//#include "tgbaalgos/dotty.hh"
+#include "twaalgos/sccinfo.hh"
+//#include "twaalgos/dotty.hh"
 
 namespace spot
 {

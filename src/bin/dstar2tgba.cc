@@ -32,16 +32,16 @@
 #include "common_post.hh"
 #include "common_file.hh"
 
-#include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/lbtt.hh"
-#include "tgbaalgos/hoa.hh"
-#include "tgbaalgos/neverclaim.hh"
-#include "tgbaalgos/stats.hh"
+#include "twaalgos/dotty.hh"
+#include "twaalgos/lbtt.hh"
+#include "twaalgos/hoa.hh"
+#include "twaalgos/neverclaim.hh"
+#include "twaalgos/stats.hh"
 #include "twa/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
 #include "dstarparse/public.hh"
-#include "tgbaalgos/sccinfo.hh"
+#include "twaalgos/sccinfo.hh"
 
 static const char argp_program_doc[] ="\
 Convert Rabin and Streett automata into Büchi automata.\n\n\

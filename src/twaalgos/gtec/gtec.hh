@@ -24,8 +24,8 @@
 
 #include <stack>
 #include "status.hh"
-#include "tgbaalgos/emptiness.hh"
-#include "tgbaalgos/emptiness_stats.hh"
+#include "twaalgos/emptiness.hh"
+#include "twaalgos/emptiness_stats.hh"
 
 namespace spot
 {

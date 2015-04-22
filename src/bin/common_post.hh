@@ -20,7 +20,7 @@
 #pragma once
 
 #include "common_sys.hh"
-#include "tgbaalgos/postproc.hh"
+#include "twaalgos/postproc.hh"
 #include <argp.h>
 
 extern const struct argp post_argp;	     // postprocessing enabled
