@@ -171,6 +171,57 @@ EOF
 run 0 ../../bin/ltlfilt -u --nnf --relabel-bool=pnn in >out
 diff exp out
 
+cat >exp <<EOF
+#define p0 (a && c)
+#define p1 (b)
+p0 && Xp1
+#define p0 (a)
+#define p1 (b)
+#define p2 (c)
+p0 && p1 && []<>(p0 || p2) && <>[](p0 || p2)
+#define p0 (b)
+#define p1 (a || c)
+p0 && []<>p1 && <>[]p1
+#define p0 (h || i)
+#define p1 (d && e)
+#define p2 (!c)
+#define p3 (f)
+p0 || []p1 || <>[](p2 || Xp3)
+EOF
+
+run 0 ../../bin/ltlfilt -s -u --nnf --relabel-bool=pnn --define in >out
+diff exp out
+
+cat >exp <<EOF
+#define p0 ((a=1))
+#define p1 ((c=1))
+#define p2 ((b=1))
+(p0=1) * (p1=1) * (X(p2=1))
+#define p0 ((a=1))
+#define p1 ((b=1))
+#define p2 ((c=1))
+(p0=1) * (p1=1) * (G(F((p0=1) + (p2=1)))) * (F(G((p0=1) + (p2=1))))
+#define p0 ((b=1))
+#define p1 ((a=1))
+#define p2 ((c=1))
+(p0=1) * (G(F((p1=1) + (p2=1)))) * (F(G((p1=1) + (p2=1))))
+#define p0 ((h=1))
+#define p1 ((i=1))
+#define p2 ((d=1))
+#define p3 ((e=1))
+#define p4 ((c=1))
+#define p5 ((f=1))
+(p0=1) + (p1=1) + (G((p2=1) * (p3=1))) + (F(G((p4=0) + (X(p5=1)))))
+#define p0 ((b=1))
+#define p1 ((e=1))
+#define p2 ((f=1))
+#define p3 ((g=1))
+#define p4 ((c=1))
+(p0=1) * (p1=1) * ((p2=1) + (p3=1)) * (X(p4=0))
+EOF
+run 0 ../../bin/ltlfilt -p --wring -u --nnf --relabel=pnn --define in >out
+diff exp out
+
 SPOT_STUTTER_CHECK=0 \
 ../../bin/ltlfilt --stutter-invariant -f '!{a:b*:c}' 2> stderr && exit 1
 test $? = 2

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -33,10 +33,17 @@ namespace spot
 						     const formula*,
 						     ptr_hash<formula>>
     {
-      ~relabeling_map()
+      void clear()
       {
 	for (iterator i = begin(); i != end(); ++i)
 	  i->second->destroy();
+	this->std::unordered_map<const formula*,
+				 const formula*, ptr_hash<formula>>::clear();
+      }
+
+      ~relabeling_map()
+      {
+	clear();
       }
     };
 

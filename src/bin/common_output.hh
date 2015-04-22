@@ -40,6 +40,11 @@ extern const struct argp output_argp;
 
 int parse_opt_output(int key, char* arg, struct argp_state* state);
 
+// Low-level output
+std::ostream&
+stream_formula(std::ostream& out,
+	       const spot::ltl::formula* f, const char* filename, int linenum);
+
 void output_formula_checked(const spot::ltl::formula* f,
 			    const char* filename = 0, int linenum = 0,
 			    const char* prefix = 0, const char* suffix = 0);

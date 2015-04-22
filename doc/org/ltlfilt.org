@@ -184,6 +184,66 @@ Here 29 formulas were reduced into 9 formulas after relabeling of
 Boolean subexpression and removing of duplicate formulas.  In other
 words the original set of formulas contains 9 different patterns.
 
+
+An option that can be used in combination with =--relabel= or
+=--relabel-bool= is =--define=.  This causes the correspondence of old
+a new names to be printed as a set of =#define= statements.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt -f '(a & !b) & GF(a & !b) & FG(!c)' --relabel-bool=pnn --define --spin
+#+END_SRC
+
+#+RESULTS:
+: #define p0 (a && !b)
+: #define p1 (!c)
+: p0 && []<>p0 && <>[]p1
+
+This can be used for instance if you want to use some complex atomic
+propositions with third-party translators that do not understand them.
+For instance the following sequence show how to use =ltl3ba= to create
+a neverclaim for an LTL formula containing atomic propositions that
+=ltl3ba= cannot parse:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt -f '"proc@loc1" U "proc@loc2"' --relabel=pnn --define=ltlex.def --spin |
+  ltl3ba -F - >ltlex.never
+cat ltlex.def ltlex.never
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+#define p0 ((proc@loc1))
+#define p1 ((proc@loc2))
+never { /* p0 U p1  */
+T0_init:
+	if
+	:: (!p1 && p0) -> goto T0_init
+	:: (p1) -> goto accept_all
+	fi;
+accept_all:
+	skip
+}
+#+end_example
+
+As a side note, the tool [[file:ltldo.org][=ltldo=]] might be a simpler answer to this syntactic problem:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltldo ltl3ba -f '"proc@loc1" U "proc@loc2"' --spin
+#+END_SRC
+#+RESULTS:
+: never {
+: T0_init:
+:   if
+:   :: ((proc@loc1) && (!(proc@loc2))) -> goto T0_init
+:   :: ((proc@loc2)) -> goto accept_all
+:   fi;
+: accept_all:
+:   skip
+: }
+
+This case also relabels the formula before calling =ltl3ba=, and it
+then rename all the atomic propositions in the output.
+
 * Filtering
 
 =ltlfilt= supports many ways to filter formulas:

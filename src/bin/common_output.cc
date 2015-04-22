@@ -77,7 +77,7 @@ report_not_ltl(const spot::ltl::formula* f,
     error(2, 0, msg, s.c_str(), syn);
 }
 
-static void
+std::ostream&
 stream_formula(std::ostream& out,
 	       const spot::ltl::formula* f, const char* filename, int linenum)
 {
@@ -114,6 +114,7 @@ stream_formula(std::ostream& out,
     case quiet_output:
       break;
     }
+  return out;
 }
 
 static void

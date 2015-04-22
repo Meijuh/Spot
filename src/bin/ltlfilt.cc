@@ -42,6 +42,7 @@
 #include "ltlvisit/remove_x.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/exclusive.hh"
+#include "ltlvisit/tostring.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/multop.hh"
 #include "tgbaalgos/ltl2tgba_fm.hh"
@@ -62,6 +63,7 @@ enum {
   OPT_BOOLEAN_TO_ISOP,
   OPT_BSIZE_MAX,
   OPT_BSIZE_MIN,
+  OPT_DEFINE,
   OPT_DROP_ERRORS,
   OPT_EQUIVALENT_TO,
   OPT_EXCLUSIVE_AP,
@@ -112,6 +114,9 @@ static const argp_option options[] =
     { "relabel-bool", OPT_RELABEL_BOOL, "abc|pnn", OPTION_ARG_OPTIONAL,
       "relabel Boolean subexpressions, alphabetically unless " \
       "specified otherwise", 0 },
+    { "define", OPT_DEFINE, "[FILENAME]", OPTION_ARG_OPTIONAL,
+      "when used with --relabel or --relabel-bool, output the relabeling map "
+      "using #define statements", 0 },
     { "remove-wm", OPT_REMOVE_WM, 0, 0,
       "rewrite operators W and M using U and R", 0 },
     { "boolean-to-isop", OPT_BOOLEAN_TO_ISOP, 0, 0,
@@ -247,6 +252,8 @@ static unsigned ap_n = 0;
 static int opt_max_count = -1;
 static long int match_count = 0;
 static spot::exclusive_ap excl_ap;
+static std::unique_ptr<output_file> output_define = nullptr;
+
 
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
@@ -301,6 +308,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_BSIZE_MAX:
       bsize_max = to_int(arg);
+      break;
+    case OPT_DEFINE:
+      output_define.reset(new output_file(arg ? arg : "-"));
       break;
     case OPT_DROP_ERRORS:
       error_style = drop_errors;
@@ -427,6 +437,7 @@ namespace
   public:
     spot::ltl::ltl_simplifier& simpl;
     fset_t unique_set;
+    spot::ltl::relabeling_map relmap;
 
     ~ltl_processor()
     {
@@ -531,14 +542,16 @@ namespace
 	{
 	case ApRelabeling:
 	  {
-	    const spot::ltl::formula* res = spot::ltl::relabel(f, style);
+	    relmap.clear();
+	    auto res = spot::ltl::relabel(f, style, &relmap);
 	    f->destroy();
 	    f = res;
 	    break;
 	  }
 	case BseRelabeling:
 	  {
-	    const spot::ltl::formula* res = spot::ltl::relabel_bse(f, style);
+	    relmap.clear();
+	    auto res = spot::ltl::relabel_bse(f, style, &relmap);
 	    f->destroy();
 	    f = res;
 	    break;
@@ -628,6 +641,19 @@ namespace
 
       if (matched)
 	{
+	  if (output_define
+	      && output_format != count_output
+	      && output_format != quiet_output)
+	    {
+	      // Sort the formulas alphabetically.
+	      std::map<std::string, const spot::ltl::formula*> m;
+	      for (auto& p: relmap)
+		m.emplace(to_string(p.first), p.second);
+	      for (auto& p: m)
+		stream_formula(output_define->ostream()
+			       << "#define " << p.first << " (",
+			       p.second, filename, linenum) << ")\n";
+	    }
 	  one_match = true;
 	  output_formula_checked(f, filename, linenum, prefix, suffix);
 	  ++match_count;
