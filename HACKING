@@ -171,30 +171,29 @@ This should create the directory html/.
 Link-time optimizations
 -----------------------
 
-This is currently (April 2011) tricky to setup, because the
-toolchain is not mature enough.
+This is currently a bit tricky to setup, because the toolchain is not
+mature enough.  However this is getting better and better.  The Debian
+packages we built nightly are mostly built with link-time optimization
+(the shared library uses link-time optimization, but the command-line
+binary are built without because of some bug with exception
+propagation).
+
 
 You need:
-  1. a version of GCC (>= 4.5) with gold and pluing linker enabled.
+  1. a version of GCC (>= 4.9) with gold and pluing linker enabled.
   2. a version of Libtool that knows how to deal with
-     -flto flags (Libtool 2.4 will not work -- currently only
-     the development version does.)
-  3. to use static libraries instead of shared libraries
-     so that you get inter-libraries optimizations.
+     -flto flags (Libtool 2.4.2 will work)
 
-Here are example options to pass to configure:
+Here are example options to pass to configure to build a static
+version with link-time optimization:
 
-  ./configure CC=gcc-4.6 CXX=g++-4.6 \
+  ./configure CC=gcc-4.9 CXX=g++-4.9 \
               --disable-devel --disable-debug \
               CFLAGS='-flto' CXXFLAGS='-flto' LDFLAGS='-fuse-linker-plugin' \
               --disable-shared --enable-static
 
-Using --disable-debug prevents the -g flag to be passed to the
-compiler, which seems to help avoiding some internal compiler errors.
-
-Some binaries (like ltl2tgba) currently fail to compile (internal
-compiler error), while most others (like randtgba, dve2check, randltl,
-...) do fine.
+If you want to build a shared library, see in debian/rules how it is
+done.
 
 
 Log driver for testsuite
