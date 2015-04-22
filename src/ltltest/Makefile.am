@@ -98,7 +98,7 @@ TESTS = \
   ltlgrind.test \
   ltlcrossgrind.test \
   ltlfilt.test \
-  exclusive.test \
+  exclusive-ltl.test \
   latex.test \
   lbt.test \
   lenient.test \
@@ -111,7 +111,7 @@ TESTS = \
   reduccmp.test \
   uwrm.test \
   eventuniv.test \
-  stutter.test
+  stutter-ltl.test
 
 distclean-local:
 	rm -rf $(TESTS:.test=.dir)

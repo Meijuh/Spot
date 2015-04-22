@@ -92,7 +92,7 @@ TESTS = \
   explpro4.test \
   tripprod.test \
   dupexp.test \
-  exclusive.test \
+  exclusive-tgba.test \
   remprop.test \
   degendet.test \
   degenid.test \
@@ -121,7 +121,7 @@ TESTS = \
   isomorph.test \
   uniq.test \
   sbacc.test \
-  stutter.test \
+  stutter-tgba.test \
   emptchk.test \
   emptchke.test \
   dfs.test \
