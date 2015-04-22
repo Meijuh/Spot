@@ -1,15 +1,84 @@
 New in spot 1.99b (not yet released)
 
-  * Major changes (including backward incompatible changes):
+  * Major changes motivating the jump in version number
 
-    - The curstomized version of BuDDy (libbdd) used by Spot has be
-      renamed as (libbddx) to avoid issues with copies of BuDDy
-      already installed on the system.
+    - Spot now works with automata that can represent more than
+      generalized Büchi acceptance.  Older versions were built around
+      the concept of TGBA (Transition-based Generalized Büchi
+      Automata) while this is version now deal with what we call TωA
+      (Transition-based ω-Automata).  TωA support arbitrary acceptance
+      conditions specified as a Boolean formula of transition sets
+      that must be visited infinitely often or finitely often.  This
+      genericity allows for instance to represent Rabin or Streett
+      automata, as well as some generalized variants of those.
 
-    - ltlgrind is a new tool that mutates LTL or PSL formulas.  If you
+    - Spot has near complete support for the Hanoi Omega Automata
+      format.  http://adl.github.io/hoaf/  This formats supports
+      automata with the generic acceptance condition described above,
+      and has been implemented in a number of third-party tools (see
+      http://adl.github.io/hoaf/support.html) to ease their
+      interactions.  The only part of the format not yet implemented in
+      Spot is the support for alternating automata.
+
+    - Spot is now compiling in C++11 mode.  The set of C++11 features
+      we use requires GCC >= 4.8 or Clang >= 3.5.  Although GCC 4.8 is
+      more than 2-year old, people with older installations won't be
+      able to install this version of Spot.
+
+    - As a consequence of the switches do C++11 and to TωA, a lot of
+      the existing C++ interfaces have been renamed, and sometime
+      reworked.  This makes this version of Spot not backward
+      compatible with Spot 1.2.x.  See below for the most important
+      API changes.  Furtheremore, the reason this release is not
+      called Spot 2.0 is that we have more of those changes planned.
+
+    - Support for Python 2 was dropped.  We now support only Python
+      3.2 or later.  The Python bindings have been improved a lot, and
+      include some conveniance functions for better integration with
+      IPython's rich display system.  User familiar with IPython's
+      notebook should have a look at the notebook files in
+      wrap/python/tests/*.ipynb
+
+  * Major news for the command-line tools
+
+    - The set of tools installed by spot now consists in the following
+      11 commands.  Those marked with a '+' are new in this release.
+
+      - randltl    Generate random LTL/PSL formulas.
+      - ltlfilt    Filter and convert LTL/PSL formulas.
+      - genltl     Generate LTL formulas from scalable patterns.
+      - ltl2tgba   Translate LTL/PSL formulas into Büchi automata.
+      - ltl2tgta   Translate LTL/PSL formulas into Testing automata.
+      - ltlcross   Cross-compare LTL/PSL-to-Büchi translators.
+      + ltlgrind   Mutate LTL/PSL formula.
+      - dstar2tgba Convert deterministic Rabin or Streett automata into Büchi.
+      + randaut    Generate random automata.
+      + autfilt    Filter and convert automata.
+      + ltldo      Run LTL/PSL formulas through other tools.
+
+      randaut does not need any presentation: it does what you expect.
+
+      ltlgrind is a new tool that mutates LTL or PSL formulas.  If you
       have a tool that is bogus on some formula that is too large to
       debug, you can use ltlgrind to generate smaller derived formulas
       and see if you can reproduce the bug on those.
+
+      autfilt is a new tool that processes a stream of automata.  It
+      allows format conversion, filtering automata based on some
+      properties, and general transformations (e.g., change of
+      acceptance conditions, removal of useless states, product
+      between automata, etc.).
+
+      ltldo is a new tool that runs LTL/PSL formulas through other
+      tools, but uses Spot's command-line interfaces for specifying
+      input and output.  This makes it easier to use third-party tool
+      in a pipe, and it also takes care of some necessary format
+      conversion.
+
+    - ltlcross will work with translator producing automata with any
+      acceptance condition, provided the output is in the HOA format.
+      So it can effectively be used to validate tools producing Rabin
+      or Streett automata.
 
     - ltlcross has a new option --grind, that attempts to reduce the
       size of any bogus formula it discovers, while still exhibiting
@@ -19,18 +88,9 @@ New in spot 1.99b (not yet released)
       ignore translator returning non-zero exist status instead of
       returning an error.
 
-    - randaut is a new tool that generates random automata.
-
-    - autfilt is a new tool that converts/filters/transforms a
-      stream of automata.
-
-    - ltldo is a new tool that run LTL/PSL formulas through other
-      tools, but uses Spot's command-line interfaces for specifying
-      input and output.
-
     - "ltlfilt --stutter-invariant" will now work with PSL formula.
       The implementation is actually much more efficient
-      than the previous implementation that was only for LTL.
+      than our previous implementation that was only for LTL.
 
     - ltlfilt's old -q/--quiet option has been renamed to
       --ignore-errors.  The new -q/--quiet semantic is the
@@ -70,24 +130,24 @@ New in spot 1.99b (not yet released)
       	  --save-bogus=">>bugs.ltl"
       will append to the end of the file.
 
+  * Other noteworthy news
+
+    - The curstomized version of BuDDy (libbdd) used by Spot has be
+      renamed as (libbddx) to avoid issues with copies of BuDDy
+      already installed on the system.
+
     - There is a parser for the HOA format
       (http://adl.github.io/hoaf/) available as a
       spot::hoa_stream_parser object or spot::hoa_parse() function.
-      The former version is able to parse a stream of automata, in
+      The former version is able to parse a stream of automata in
       order to do batch processing.  This format can be output by all
       tools (since Spot 1.2.5) using the --hoa option, and it can be
       read by autfilt (by default) and ltlcross (using the %H
       specifier).  The current implementation does not support
       alternation.  Multiple initial states are converted into an
       extra initial state; complemented acceptance sets Inf(!x) are
-      converted to Inf(x); negated (maybe after duplication); explicit
-      or implicit labels can be used; aliases are supported;
-      "--ABORT--" can be used in a stream.
-
-      Note that not all algorithms in the library will work with any
-      acceptance conditions.  Automata with acceptance conditions that
-      involve Fin acceptance can be couverted to not use Fin when that
-      is a problem.
+      converted to Inf(x); explicit or implicit labels can be used;
+      aliases are supported; "--ABORT--" can be used in a stream.
 
     - The above HOA parser can also parse never claims, and LBTT
       automata, so the never claim parser and the LBTT parser have
@@ -96,13 +156,26 @@ New in spot 1.99b (not yet released)
       parser for all these output, and the old %T and %N specifiers
       have been deprecated and replaced by %O (for output).
 
+    - While not all algorithms in the library are able to work with
+      any acceptance condition supported by the HOA format, the
+      following to functions mitigates that:
+
+      - remove_fin() takes a TωA whose accepting condition uses Fin(x)
+	primitive, and produces an equivalent TωA without Fin(x):
+	i.e., the output acceptance is a disjunction of generalized
+	Büchi acceptance.  This type of acceptance is supported by
+	SCC-based emptiness-check, for instance.
+
+      - similarly, to_tgba() converts any TωA into an automaton with
+	generalized-Büchi acceptance.
+
     - randomize() is a new algorithm that reorder the states
       and transition of an automaton at random.  It can be
       used from the command-line using "autfilt --randomize".
 
     - the interface in iface/dve2 has been renamed to iface/ltsmin
       because it can now interface the dynamic libraries created
-      either by Divine (as patched by the LTSmin people) or by
+      either by Divine (as patched by the LTSmin group) or by
       Spins (the LTSmin compiler for Promela).
 
     - LTL/PSL formulas can include /* comments */.
@@ -117,11 +190,11 @@ New in spot 1.99b (not yet released)
     - GraphViz output now uses an horizontal layout by default.  The
       --dot option of the various command-line tools takes an optional
       parameter to fine-tune the GraphViz output (including vertical
-      layout, round states, named automata, and different ways to
-      colorize the acceptance sets).  The environment
-      variables SPOT_DOTDEFAULT and SPOT_DOTEXTRA can also be used
-      to respectively provide a default argument to --dot, and
-      add extra attributes to the output graph.
+      layout, round states, named automata, SCC informations, ordered
+      transitions, and different ways to colorize the acceptance
+      sets).  The environment variables SPOT_DOTDEFAULT and
+      SPOT_DOTEXTRA can also be used to respectively provide a default
+      argument to --dot, and add extra attributes to the output graph.
 
     - Never claims can now be output in the style usd by Spin since
       version 6.2.4 (i.e., using do..od instead of if..fi, and with
@@ -130,27 +203,37 @@ New in spot 1.99b (not yet released)
       new style can be requested from command-line tools using option
       --spin=6 (or -s6 for short).
 
-    - Spot is now compiling in C++11 mode.  The set of features we use
-      requires GCC >= 4.6 or Clang >= 3.1.  These minimum versions
-      are old enough that it should not be an issue to most people.
+  * Noteworthy code changes
 
     - Boost is not used anymore.
 
-    - The Python bindings now assume Python 3.2 or later.
-      (In other words, Python 2 is not supported anymore.)
+    - Automata are now manipulated exclusively via shared pointers.
 
-    - The tgba_succ_iterator interface has changed.  Methods next(),
-      and first() should now return a bool indicating whether the
-      current iteration is valid.
+    - Most of what was called tgba_something is now called
+      twa_something, unless it is really meant to work only for TGBA.
+      This includes functions, classes, file, and directory names.
+      For instance the class tgba originally defined in tgba/tgba.hh,
+      has been replaced by the class twa defined in twa/twa.hh.
 
-    - The tgba base class has a new method, release_iter(), that can
-      be called to five a used iterator back to its automaton.  This
+    - the tgba_explicit class has been completely replaced by a more
+      efficient twa_graph class.  Many of the algorithms that were
+      written against the abstract tgba (now twa) interface have been
+      rewritten using twa_graph instances as input and output, making
+      the code a lot simpler.
+
+    - The tgba_succ_iterator (now twa_succ_iterator) interface has
+      changed.  Methods next(), and first() should now return a bool
+      indicating whether the current iteration is valid.
+
+    - The twa base class has a new method, release_iter(), that can
+      be called to give a used iterator back to its automaton.  This
       iterator is then stored in a protected member, iter_cache_, and
       all implementations of succ_iter() can be updated to recycle
       iter_cache_ (if available) instead of allocating a new iterator.
 
-    - The tgba base class has a new method, succ(), to support
-      C++11' range-based for loop, and hide all the above change.
+    - The tgba (now called twa) base class has a new method, succ(),
+      to support C++11' range-based for loop, and hide all the above
+      change.
 
       Instead of the following syntax:
 
@@ -174,7 +257,7 @@ New in spot 1.99b (not yet released)
 
       And the above syntax is really just syntactic suggar for
 
-	tgba_succ_iterator* i = aut->succ_iter(s);
+	twa_succ_iterator* i = aut->succ_iter(s);
 	if (i->first())
 	  do
 	    {
@@ -187,7 +270,7 @@ New in spot 1.99b (not yet released)
 
       Where the virtual calls to done() and delete have been avoided.
 
-    - tgba::succ_iter() now takes only one argument.  The optional
+    - twa::succ_iter() now takes only one argument.  The optional
       global_state and global_automaton arguments have been removed.
 
     - The following methods have been removed from the TGBA interface and
@@ -201,27 +284,29 @@ New in spot 1.99b (not yet released)
       subclasses.
 
     - Membership to acceptance sets are now stored using bit sets,
-      currently limited to 32 bits.  Each TGBA has a acc() method that
+      currently limited to 32 bits.  Each TωA has a acc() method that
       returns a reference to an acceptance object (of type
       spot::acc_cond), able to operate on acceptance marks
       (spot::acc_cond::mark_t).
 
-      Instead of writing
+      Instead of writing code like
         i->current_acceptance_conditions() == aut->all_acceptance_conditions()
       we now write
         aut->acc().accepting(i->current_acceptance_conditions())
+      (Note that for accepting(x) to return something meaningful, x
+      should be a set of acceptance sets visitied infinitely oftem.  So let's
+      imagine that in the above example i is looking at a self-loop.)
 
       Similarly,
         aut->number_of_acceptance_conditions()
       is now
         aut->acc().num_sets()
 
-
   * Removed features
 
     - The long unused interface for GreatSPN (or rather, interface to
       a non-public, customized version of GreatSPN) has been removed.
-      As a consequence, the we could get rid of many cruft in the
+      As a consequence, we could get rid of many cruft in the
       implementation of Couvreur's FM'99 emptiness check.
 
     - Support for symbolic, BDD-encoded TGBAs has been removed.  This
@@ -235,7 +320,7 @@ New in spot 1.99b (not yet released)
       these techniques are simply too big.
 
     - All support for ELTL, i.e., LTL logic extended with operators
-      represented by automata have been removed.  It was never used in
+      represented by automata has been removed.  It was never used in
       practice because it had no practical user interface, and the
       translation was a purely-based BDD encoding producing huge
       automata (when viewed explictely), using the above and non
@@ -246,12 +331,8 @@ New in spot 1.99b (not yet released)
       the automata built, and it did not survive the conversion of
       acceptance sets from BDDs to bitsets.
 
-    - Conversion from TGBA to state-based Generalized Büchi automata
-      has been removed too, because it was only used by the KV
-      complementation.
-
-    - The unused implementation of state-based alternating Büchi automata
-      has been removed.
+    - The unused implementation of state-based alternating Büchi
+      automata has been removed.
 
     - Input and output in the old, Spot-specific, text format for
       TGBA, has been fully removed.  We now use HOA everywhere.  (In
