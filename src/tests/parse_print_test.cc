@@ -27,6 +27,8 @@ using namespace spot;
 
 int main(int argc, char** argv)
 {
+  (void) argc;
+  assert(argc == 2);
   int return_value = 0;
   kripke_parse_error_list pel;
 
