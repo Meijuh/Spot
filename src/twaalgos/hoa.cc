@@ -144,7 +144,6 @@ namespace spot
 
       void number_all_ap()
       {
-	sup_map::iterator i;
 	bdd all = bddtrue;
 	for (auto& i: sup)
 	  all &= bdd_support(i.first);

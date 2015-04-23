@@ -157,7 +157,6 @@ namespace spot
 
       ~translate_dict()
       {
-	fv_map::iterator i;
 	for (auto& i: next_map)
 	  i.first->destroy();
 	dict->unregister_all_my_variables(this);
@@ -387,7 +386,6 @@ namespace spot
       std::ostream&
       dump(std::ostream& os) const
       {
-	fv_map::const_iterator fi;
 	os << "Next Variables:" << std::endl;
 	for (auto& fi: next_map)
 	{
