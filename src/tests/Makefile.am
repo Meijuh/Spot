@@ -60,7 +60,9 @@ taatgba_SOURCES = taatgba.cc
 
 # Keep this sorted by STRENGTH.  Test basic things first,
 # because such failures will be easier to diagnose and fix.
-TESTS = \
+TESTS = $(TESTS_twa)
+
+TESTS_twa = \
   acc.test \
   acc2.test \
   intvcomp.test \

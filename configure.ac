@@ -222,8 +222,8 @@ AC_CONFIG_FILES([
   src/twa/Makefile
   src/taalgos/Makefile
   src/ta/Makefile
-  src/tgbatest/defs
-  src/tgbatest/Makefile
+  src/tests/defs
+  src/tests/Makefile
   wrap/Makefile
   wrap/python/Makefile
   wrap/python/ajax/Makefile

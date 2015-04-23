@@ -153,7 +153,7 @@ src/              Sources for libspot.
    priv/          Private algorithms, used internally but not exported.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.
-   tgbatest/      Tests for twa/, twaalgos/, ta/ and taalgos/.
+   tests/      	  Tests for twa/, twaalgos/, ta/ and taalgos/.
    twa/           TωA objects and cousins (Transition-based ω-Automata).
    twaalgos/      Algorithms on TωA.
       gtec/       Couvreur's Emptiness-Check.
@@ -203,7 +203,7 @@ End:
  LocalWords:  Python's BuDDy LBTT LTL Büchi lbtt gspn DIR GreatSPN Soheib Yann
  LocalWords:  Baarir Thierry Mieg CVS Università di Torino devel src libspot ac
  LocalWords:  ltlast ltlenv ltlparse ltlvisit ltltest misc tgba TGBA tgbaalgos
- LocalWords:  gtec Tarjan tgbatest doc html PDF spotref pdf cgi ELTL
+ LocalWords:  gtec Tarjan doc html PDF spotref pdf cgi ELTL
  LocalWords:  CGI ltl iface BDD Couvreur's emptchk kripke Kripke saba vm
  LocalWords:  eltlparse eltltest SABA sabaalgos sabatest ssp ltlcouter scc SCC
 LocalWords:  formulae optimizations kripkeparse kripketest Automata
