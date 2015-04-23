@@ -60,11 +60,15 @@ namespace spot
   {
 
   protected:
-    tgta(const bdd_dict_ptr& d);
+    tgta(const bdd_dict_ptr& d)
+      : twa(d)
+    {
+    }
 
   public:
-    virtual
-    ~tgta();
+    virtual ~tgta()
+    {
+    }
 
     /// \brief Get an iterator over the successors of \a state
     /// filtred by the value of the changeset on transitions between the
