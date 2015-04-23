@@ -139,21 +139,18 @@ src/              Sources for libspot.
       man/        Man pages for the above tools.
    dstarparse/    Parser for the output of ltl2dstar.
    graph/         Graph representations.
-   graphtest/     Graph representations.
    hoaparse/      Parser for HOA automata and Spin's never claims.
    kripke/        Kripke Structure interface.
    kripkeparse/   Parser for explicit Kripke.
-   kripketest/    Tests for kripke explicit.
    ltlast/        LTL abstract syntax tree (including nodes for ELTL).
    ltlenv/        LTL environments.
    ltlparse/      Parser for LTL formulae.
    ltlvisit/      Visitors of LTL formulae.
-   ltltest/       Tests for ltlast/, ltlenv/, ltlparse/, and ltlvisit/.
    misc/          Miscellaneous support files.
    priv/          Private algorithms, used internally but not exported.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.
-   tests/      	  Tests for twa/, twaalgos/, ta/ and taalgos/.
+   tests/      	  Tests for the whole library.
    twa/           TωA objects and cousins (Transition-based ω-Automata).
    twaalgos/      Algorithms on TωA.
       gtec/       Couvreur's Emptiness-Check.
@@ -202,10 +199,10 @@ End:
 
  LocalWords:  Python's BuDDy LBTT LTL Büchi lbtt gspn DIR GreatSPN Soheib Yann
  LocalWords:  Baarir Thierry Mieg CVS Università di Torino devel src libspot ac
- LocalWords:  ltlast ltlenv ltlparse ltlvisit ltltest misc tgba TGBA tgbaalgos
+ LocalWords:  ltlast ltlenv ltlparse ltlvisit  misc tgba TGBA tgbaalgos
  LocalWords:  gtec Tarjan doc html PDF spotref pdf cgi ELTL
  LocalWords:  CGI ltl iface BDD Couvreur's emptchk kripke Kripke saba vm
  LocalWords:  eltlparse eltltest SABA sabaalgos sabatest ssp ltlcouter scc SCC
-LocalWords:  formulae optimizations kripkeparse kripketest Automata
+LocalWords:  formulae optimizations kripkeparse  Automata
 LocalWords:  neverparse ltlcounter ltlclasses parallelizing automata
 LocalWords:  wdba WDBA ajax dve DiVinE ltdl Libtool's dlopen

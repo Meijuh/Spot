@@ -201,17 +201,11 @@ AC_CONFIG_FILES([
   src/dstarparse/Makefile
   src/kripke/Makefile
   src/graph/Makefile
-  src/graphtest/Makefile
-  src/graphtest/defs
   src/hoaparse/Makefile
   src/ltlast/Makefile
   src/ltlenv/Makefile
   src/ltlparse/Makefile
   src/kripkeparse/Makefile
-  src/kripketest/Makefile
-  src/kripketest/defs
-  src/ltltest/defs
-  src/ltltest/Makefile
   src/ltlvisit/Makefile
   src/Makefile
   src/misc/Makefile

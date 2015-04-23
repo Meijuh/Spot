@@ -65,6 +65,7 @@ VALGRIND='@VALGRIND@'
 SPIN='@SPIN@'
 LTL2BA='@LTL2BA@'
 PYTHON='@PYTHON@'
+top_srcdir='../@top_srcdir@'
 
 # The test cases assume these variable are undefined
 unset SPOT_DOTEXTRA

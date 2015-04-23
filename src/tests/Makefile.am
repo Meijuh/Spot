@@ -36,12 +36,34 @@ check_PROGRAMS = \
   complement \
   checkpsl \
   checkta \
+  consterm \
   emptchk \
+  equals \
+  graph \
+  kind \
+  length \
   intvcomp \
   intvcmp2 \
   ltlprod \
+  ltl2dot \
+  ltl2text \
+  ltlrel \
+  lunabbrev \
+  nequals \
+  nenoform \
+  ngraph \
+  parse_print \
   readsat \
-  taatgba
+  reduc \
+  reduccmp \
+  reduceu \
+  reductaustr \
+  syntimpl \
+  taatgba \
+  tgbagraph \
+  tostring \
+  tunabbrev \
+  tunenoform
 
 # Keep this sorted alphabetically.
 acc_SOURCES = acc.cc
@@ -50,17 +72,93 @@ checkpsl_SOURCES = checkpsl.cc
 checkta_SOURCES = checkta.cc
 complement_SOURCES = complementation.cc
 emptchk_SOURCES  = emptchk.cc
+graph_SOURCES = graph.cc
 intvcomp_SOURCES = intvcomp.cc
 intvcmp2_SOURCES = intvcmp2.cc
 ltl2tgba_SOURCES = ltl2tgba.cc
 ltlprod_SOURCES  = ltlprod.cc
+ngraph_SOURCES = ngraph.cc
+parse_print_SOURCES = parse_print_test.cc
 randtgba_SOURCES = randtgba.cc
 readsat_SOURCES = readsat.cc
 taatgba_SOURCES = taatgba.cc
+tgbagraph_SOURCES = twagraph.cc
+consterm_SOURCES = consterm.cc
+equals_SOURCES = equalsf.cc
+kind_SOURCES = kind.cc
+length_SOURCES = length.cc
+ltl2dot_SOURCES = readltl.cc
+ltl2dot_CPPFLAGS = $(AM_CPPFLAGS) -DDOTTY
+ltl2text_SOURCES = readltl.cc
+ltlrel_SOURCES = ltlrel.cc
+lunabbrev_SOURCES = equalsf.cc
+lunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DLUNABBREV
+nenoform_SOURCES = equalsf.cc
+nenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM
+nequals_SOURCES = equalsf.cc
+nequals_CPPFLAGS = $(AM_CPPFLAGS) -DNEGATE
+reduc_SOURCES = reduc.cc
+reduccmp_SOURCES = equalsf.cc
+reduccmp_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC
+reduceu_SOURCES = equalsf.cc
+reduceu_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC -DEVENT_UNIV
+reductaustr_SOURCES = equalsf.cc
+reductaustr_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC_TAUSTR
+syntimpl_SOURCES = syntimpl.cc
+tostring_SOURCES = tostring.cc
+tunabbrev_SOURCES = equalsf.cc
+tunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DTUNABBREV
+tunenoform_SOURCES = equalsf.cc
+tunenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM -DTUNABBREV
+
 
 # Keep this sorted by STRENGTH.  Test basic things first,
 # because such failures will be easier to diagnose and fix.
-TESTS = $(TESTS_twa)
+TESTS =  $(TESTS_ltl) $(TESTS_graph) $(TESTS_kripke) $(TESTS_twa)
+
+TESTS_ltl = \
+  bare.test \
+  parse.test \
+  parseerr.test \
+  utf8.test \
+  length.test \
+  equals.test \
+  tostring.test \
+  lunabbrev.test \
+  tunabbrev.test \
+  nenoform.test \
+  tunenoform.test \
+  unabbrevwm.test \
+  consterm.test \
+  kind.test \
+  remove_x.test \
+  ltlrel.test \
+  ltlgrind.test \
+  ltlcrossgrind.test \
+  ltlfilt.test \
+  exclusive-ltl.test \
+  latex.test \
+  lbt.test \
+  lenient.test \
+  rand.test \
+  isop.test \
+  syntimpl.test \
+  reduc.test \
+  reduc0.test \
+  reducpsl.test \
+  reduccmp.test \
+  uwrm.test \
+  eventuniv.test \
+  stutter-ltl.test
+
+TESTS_graph = \
+  graph.test \
+  ngraph.test \
+  tgbagraph.test
+
+TESTS_kripke = \
+  kripke.test \
+  bad_parsing.test
 
 TESTS_twa = \
   acc.test \
