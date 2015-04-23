@@ -2258,20 +2258,18 @@ namespace spot
     if (unobs)
       {
 	bdd neg_events = bddtrue;
-	std::auto_ptr<atomic_prop_set> aps(atomic_prop_collect(f));
-	for (atomic_prop_set::const_iterator i = aps->begin();
-	     i != aps->end(); ++i)
+	auto aps = std::unique_ptr<atomic_prop_set>(atomic_prop_collect(f));
+	for (auto pi: *aps)
 	  {
-	    int p = d.register_proposition(*i);
+	    int p = d.register_proposition(pi);
 	    bdd pos = bdd_ithvar(p);
 	    bdd neg = bdd_nithvar(p);
 	    observable_events = (observable_events & neg) | (neg_events & pos);
 	    neg_events &= neg;
 	  }
-	for (atomic_prop_set::const_iterator i = unobs->begin();
-	     i != unobs->end(); ++i)
+	for (auto pi: *unobs)
 	  {
-	    int p = d.register_proposition(*i);
+	    int p = d.register_proposition(pi);
 	    bdd pos = bdd_ithvar(p);
 	    bdd neg = bdd_nithvar(p);
 	    unobservable_events = ((unobservable_events & neg)
