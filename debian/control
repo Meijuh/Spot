@@ -14,20 +14,20 @@ Suggests: libspot-dev, spot-doc, python3-spot
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: model checking and omega-automata manipulation library
  Library and tools to manipulate omega-automata as well as
- linear-temporal logic (LTL & PSL).
+ linear-time temporal logic (LTL & PSL).
 
 Package: libspot-dev
 Architecture: all
 Section: libdevel
 Suggests: spot-doc
-Depends: spot (= ${source:Version}), ${misc:Depends}
+Depends: spot (>= ${source:Version}), spot (<< ${source:Version}.1~), ${misc:Depends}
 Description: headers for the Spot model checking library
  C++ headers for the Spot library.
 
 Package: spot-doc
 Section: doc
 Architecture: all
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, libjs-mathjax
 Description: documentation for Spot
  HTML and PDF documentation for Spot.
 
@@ -38,4 +38,4 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}, spot (= ${binar
 Suggests: ipython3
 Description: python3 binding for spot
  Spot allows manipulation of omega-automata as well
- as linear temporal logic (LTL & PSL).
+ as linear-time temporal logic (LTL & PSL).
