@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2014 Laboratoire de Recherche et
+// Copyright (C) 2009, 2012, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -108,27 +108,6 @@ namespace spot
     return os;
   }
 
-  static void
-  print_acc_handler(char* varset, int size)
-  {
-    for (int v = 0; v < size; ++v)
-      if (varset[v] > 0)
-	{
-	  *where << ' ';
-	  print_handler(*where, v);
-	}
-  }
-
-  std::ostream&
-  bdd_print_acc(std::ostream& os, const bdd_dict_ptr& d, bdd b)
-  {
-    dict = d;
-    where = &os;
-    want_acc = false;
-    bdd_allsat(b, print_acc_handler);
-    return os;
-  }
-
   static bool first_done = false;
   static void
   print_accset_handler(char* varset, int size)
@@ -205,28 +184,6 @@ namespace spot
     std::ostringstream os;
     bdd_print_formula(os, d, b);
     return os.str();
-  }
-
-  std::ostream&
-  bdd_print_dot(std::ostream& os, const bdd_dict_ptr& d, bdd b)
-  {
-    dict = d;
-    want_acc = true;
-    bdd_strm_hook(print_handler);
-    os << bdddot << b;
-    bdd_strm_hook(0);
-    return os;
-  }
-
-  std::ostream&
-  bdd_print_table(std::ostream& os, const bdd_dict_ptr& d, bdd b)
-  {
-    dict = d;
-    want_acc = true;
-    bdd_strm_hook(print_handler);
-    os << bddtable << b;
-    bdd_strm_hook(0);
-    return os;
   }
 
   void

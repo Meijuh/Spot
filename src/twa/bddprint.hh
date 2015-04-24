@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -48,16 +48,6 @@ namespace spot
   SPOT_API std::string
   bdd_format_sat(const bdd_dict_ptr& dict, bdd b);
 
-  /// \brief Print a BDD as a list of acceptance conditions.
-  ///
-  /// This is used when saving a TGBA.
-  /// \param os The output stream.
-  /// \param dict The dictionary to use, to lookup variables.
-  /// \param b The BDD to print.
-  /// \return The BDD formated as a string.
-  SPOT_API std::ostream&
-  bdd_print_acc(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
-
   /// \brief Print a BDD as a set of acceptance conditions.
   ///
   /// This is used when saving a TGBA.
@@ -104,20 +94,6 @@ namespace spot
   /// \return The BDD formated as a string.
   SPOT_API std::string
   bdd_format_formula(const bdd_dict_ptr& dict, bdd b);
-
-  /// \brief Print a BDD as a diagram in dotty format.
-  /// \param os The output stream.
-  /// \param dict The dictionary to use, to lookup variables.
-  /// \param b The BDD to print.
-  SPOT_API std::ostream&
-  bdd_print_dot(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
-
-  /// \brief Print a BDD as a table.
-  /// \param os The output stream.
-  /// \param dict The dictionary to use, to lookup variables.
-  /// \param b The BDD to print.
-  SPOT_API std::ostream&
-  bdd_print_table(std::ostream& os, const bdd_dict_ptr& dict, bdd b);
 
   /// \brief Enable UTF-8 output for bdd printers.
   SPOT_API void enable_utf8();
