@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -52,10 +52,9 @@ namespace spot
       size_t slen = 0;
       if (suffix)
 	len += slen = strlen(suffix);
-      *name = static_cast<char*>(malloc(tmpdirlen + 1 + len + 6 + 1));
-      if (!name)
+      char* x = *name = static_cast<char*>(malloc(tmpdirlen + 1 + len + 6 + 1));
+      if (!x)
 	throw std::bad_alloc();
-      char* x = *name;
       if (tmpdir)
 	{
 	  x = stpcpy(x, tmpdir);
@@ -147,4 +146,3 @@ namespace spot
       delete to_clean.front();
   }
 }
-
