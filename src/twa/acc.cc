@@ -355,7 +355,6 @@ namespace spot
       auto sz = c->size;
       auto start = c - sz - 1;
       auto op = c->op;
-      std::set<acc_cond::acc_code> res;
       switch (op)
 	{
 	case acc_cond::acc_op::Or:

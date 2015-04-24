@@ -145,7 +145,6 @@ namespace spot
 
     for (sit = sets.begin(); sit != sets.end(); ++sit)
       {
-	hash_set::iterator hit;
 	hash_set* h = *sit;
 
 	// Pick one state.

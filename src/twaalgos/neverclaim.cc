@@ -106,7 +106,6 @@ namespace spot
       void
       print_state(unsigned n) const
       {
-	std::string label;
 	bool acc = aut_->state_is_accepting(n);
 	if (n == aut_->get_init_state_number())
 	  {

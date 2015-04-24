@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -70,9 +70,6 @@ namespace spot
     //   always be freed when TODO is popped, but STATE should not because
     //   it is also used as a key in H.
     std::stack<pair_state_iter> todo;
-
-    std::unordered_map<const state*, std::string,
-		       state_ptr_hash, state_ptr_equal> colour;
 
     trace
       << "PASS 1" << std::endl;
@@ -159,7 +156,6 @@ namespace spot
                 inc_depth();
 
                 // set the h value of the Backtracked state to negative value.
-                // colour[curr] = BLUE;
                 i->second = -std::abs(i->second);
 
                 // Backtrack livelock_roots.
@@ -175,7 +171,7 @@ namespace spot
                   {
                     // removing states
                     for (auto j: scc.rem())
-		      h[j] = -1; //colour[*i] = BLACK;
+		      h[j] = -1;
                     dec_depth(scc.rem().size());
                     scc.pop();
                     assert(!arc.empty());
@@ -227,7 +223,6 @@ namespace spot
                 ta_succ_iterator_product* iter = a_->succ_iter(dest);
                 iter->first();
                 todo.emplace(dest, iter);
-                //colour[dest] = GREY;
                 inc_depth();
 
                 //push potential root of live-lock accepting cycle
@@ -329,7 +324,6 @@ namespace spot
                     return true;
                   }
 
-                std::set<const state*, state_ptr_less_than>::const_iterator it;
                 for (const state* succ: liveset_dest)
 		  if (heuristic_livelock_detection(succ, h, h_livelock_root,
 						   liveset_curr))
@@ -357,7 +351,7 @@ namespace spot
   {
     int hu = h[u];
 
-    if (hu > 0) // colour[u] == GREY
+    if (hu > 0)
       {
 
         if (hu >= h_livelock_root)

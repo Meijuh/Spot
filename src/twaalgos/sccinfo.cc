@@ -52,8 +52,6 @@ namespace spot
 
     typedef std::list<scc> stack_type;
     stack_type root_;		// Stack of SCC roots.
-    std::stack<std::pair<bdd, bdd>> arc_; // A stack of acceptance conditions
-				// between each of these SCC.
     std::vector<int> h_(n, 0);
     // Map of visited states.  Values > 0 designate maximal SCC.
     // Values < 0 number states that are part of incomplete SCCs being

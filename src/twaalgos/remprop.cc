@@ -58,7 +58,6 @@ namespace spot
   void remove_ap::add_ap(const char* arg)
   {
     auto& env = spot::ltl::default_environment::instance();
-    std::vector<const spot::ltl::atomic_prop*> group;
     auto start = arg;
     while (*start)
       {

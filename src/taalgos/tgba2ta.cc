@@ -241,7 +241,6 @@ namespace spot
 		  if (sscc.top().index == i->second)
 		    {
 		      // removing states
-		      std::list<state*>::iterator i;
 		      bool is_livelock_accepting_sscc = (sscc.rem().size() > 1)
 			&& ((sscc.top().is_accepting) ||
 			    (testing_aut->acc().
