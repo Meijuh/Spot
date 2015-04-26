@@ -140,20 +140,29 @@ def automata(*filenames):
     or in [LBTT's format]
     (http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html).
 
-    If a filename ends with a `|`, then the filename is interpreted as
+    If an argument ends with a `|`, then this argument is interpreted as
     a shell command, and the output of that command (without the `|`)
-    is parsed."""
+    is parsed.
+
+    If an argument contains a newline, then it is interpreted as
+    actual contents to be parsed.
+
+    Otherwise, the argument is assumed to be a filename.
+    """
 
     for filename in filenames:
         try:
             p = None
-            if filename[-1] != '|':
-                proc = None
-                p = hoa_stream_parser(filename, True)
-            else:
+            if filename[-1] == '|':
                 proc = subprocess.Popen(filename[:-1], shell=True,
                                         stdout=subprocess.PIPE)
                 p = hoa_stream_parser(proc.stdout.fileno(), filename, True)
+            elif '\n' in filename:
+                proc = None
+                p = hoa_stream_parser(filename, "<string>", True)
+            else:
+                proc = None
+                p = hoa_stream_parser(filename, True)
             a = True
             while a:
                 # This returns None when we reach the end of the file.

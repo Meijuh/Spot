@@ -391,6 +391,14 @@ namespace spot
   }
 
   int
+  hoayystring(const char* data)
+  {
+    yy_scan_string(data);
+    hoayyreset();
+    return 0;
+  }
+
+  int
   hoayyopen(int fd)
   {
     bool want_interactive = false;

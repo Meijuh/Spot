@@ -34,6 +34,7 @@ namespace spot
   void hoayyreset();
   int hoayyopen(const std::string& name);
   int hoayyopen(int fd);
+  int hoayystring(const char* data);
   void hoayyclose();
 
   // This exception is thrown by the lexer when it reads "--ABORT--".
