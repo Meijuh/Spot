@@ -140,6 +140,7 @@ namespace std {
 #include "twaalgos/stutter.hh"
 #include "twaalgos/translate.hh"
 #include "twaalgos/hoa.hh"
+#include "twaalgos/dtgbasat.hh"
 
 #include "hoaparse/public.hh"
 
@@ -282,6 +283,7 @@ using namespace spot;
 %include "twaalgos/stutter.hh"
 %include "twaalgos/translate.hh"
 %include "twaalgos/hoa.hh"
+%include "twaalgos/dtgbasat.hh"
 
 %include "hoaparse/public.hh"
 
