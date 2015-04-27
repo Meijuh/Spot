@@ -113,6 +113,11 @@ namespace spot
 	id |= (1U << u);
       }
 
+      void clear(unsigned u)
+      {
+	id &= ~(1U << u);
+      }
+
       mark_t& operator&=(mark_t r)
       {
 	id &= r.id;
