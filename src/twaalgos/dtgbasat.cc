@@ -249,6 +249,97 @@ namespace spot
       return os;
     }
 
+    // If the DNF is
+    //  Fin(1)&Fin(2)&Inf(3) | Fin(0)&Inf(3) | Fin(4)&Inf(5)&Inf(6)
+    // this returns the following map:
+    //  {3} => [{1,2} {0}]
+    //  {5} => [{4}]
+    //  {6} => [{4}]
+    // We use that do detect (and disallow) what we call "silly histories",
+    // i.e., transitions or histories labeled by sets such as
+    // {3,1,0}, that have no way to be satisfied.  So whenever we see
+    // such history in a path, we actually map it to {1,0} instead,
+    // which is enough to remember that this history is not satisfiable.
+    // We also forbid any transition from being labeled by {3,1,0}.
+    typedef std::map<unsigned, std::vector<acc_cond::mark_t>> trimming_map;
+    static trimming_map
+    split_dnf_acc_by_inf(const acc_cond::acc_code& input_acc)
+    {
+      trimming_map res;
+      auto acc = input_acc.to_dnf();
+      auto pos = &acc.back();
+      if (pos->op == acc_cond::acc_op::Or)
+	--pos;
+      acc_cond::mark_t all_fin = 0U;
+      auto start = &acc.front();
+      while (pos > start)
+	{
+	  if (pos->op == acc_cond::acc_op::Fin)
+	    {
+	      // We have only a Fin term, without Inf.
+	      // There is nothing to do about it.
+	      pos -= pos->size + 1;
+	    }
+	  else
+	    {
+	      // We have a conjunction of Fin and Inf sets.
+	      auto end = pos - pos->size - 1;
+	      acc_cond::mark_t fin = 0U;
+	      acc_cond::mark_t inf = 0U;
+	      while (pos > end)
+		{
+		  switch (pos->op)
+		    {
+		    case acc_cond::acc_op::And:
+		      --pos;
+		      break;
+		    case acc_cond::acc_op::Fin:
+		      fin |= pos[-1].mark;
+		      assert(pos[-1].mark.count() == 1);
+		      pos -= 2;
+		      break;
+		    case acc_cond::acc_op::Inf:
+		      inf |= pos[-1].mark;
+		      pos -= 2;
+		      break;
+		    case acc_cond::acc_op::FinNeg:
+		    case acc_cond::acc_op::InfNeg:
+		    case acc_cond::acc_op::Or:
+		      SPOT_UNREACHABLE();
+		      break;
+		    }
+		}
+	      assert(pos == end);
+
+	      all_fin |= fin;
+	      for (unsigned i: inf.sets())
+		if (fin)
+		  {
+		    res[i].emplace_back(fin);
+		  }
+		else
+		  {
+		    // Make sure the empty set is always the first one.
+		    res[i].clear();
+		    res[i].emplace_back(fin);
+		  }
+	    }
+	}
+      // Remove entries that are necessarily false because they
+      // contain an emptyset, or entries that also appear as Fin
+      // somewhere in the acceptance.
+      auto i = res.begin();
+      while (i != res.end())
+	{
+	  if (all_fin.has(i->first) || !i->second[0])
+	    i = res.erase(i);
+	  else
+	    ++i;
+	}
+
+      return res;
+    }
+
     struct dict
     {
       dict(const const_twa_ptr& a)
@@ -279,15 +370,54 @@ namespace spot
 
       std::vector<acc_cond::mark_t> all_cand_acc;
       std::vector<acc_cond::mark_t> all_ref_acc;
+      // Markings that make no sense and that we do not want to see in
+      // the candidate.  See comment above split_dnf_acc_by_inf().
+      std::vector<acc_cond::mark_t> all_silly_cand_acc;
 
       std::vector<bool> is_weak_scc;
       std::vector<acc_cond::mark_t> scc_marks;
 
       acc_cond cacc;
+      trimming_map ref_inf_trim_map;
+      trimming_map cand_inf_trim_map;
 
       ~dict()
       {
 	aut->get_dict()->unregister_all_my_variables(this);
+      }
+
+      acc_cond::mark_t
+      inf_trim(acc_cond::mark_t m, trimming_map& tm)
+      {
+	for (auto& s: tm)
+	  {
+	    unsigned inf = s.first;
+	    if (m.has(inf))
+	      {
+		bool remove = true;
+		for (auto fin: s.second)
+		  if (!(m & fin))
+		    {
+		      remove = false;
+		      break;
+		    }
+		if (remove)
+		  m.clear(inf);
+	      }
+	  }
+	return m;
+      }
+
+      acc_cond::mark_t
+      ref_inf_trim(acc_cond::mark_t m)
+      {
+	return inf_trim(m, ref_inf_trim_map);
+      }
+
+      acc_cond::mark_t
+      cand_inf_trim(acc_cond::mark_t m)
+      {
+	return inf_trim(m, cand_inf_trim_map);
       }
     };
 
@@ -309,17 +439,36 @@ namespace spot
 	  }
       }
 
-      bdd_dict_ptr bd = aut->get_dict();
       d.cacc.add_sets(d.cand_nacc);
+      d.cacc.set_acceptance(d.cand_acc);
+
+      // If the acceptance conditions use both Fin and Inf primitives,
+      // we may have some silly history configurations to ignore.
+      if (aut->acc().uses_fin_acceptance())
+	d.ref_inf_trim_map = split_dnf_acc_by_inf(aut->get_acceptance());
+      if (d.cacc.uses_fin_acceptance())
+	d.cand_inf_trim_map = split_dnf_acc_by_inf(d.cand_acc);
+
+      bdd_dict_ptr bd = aut->get_dict();
       d.all_cand_acc.push_back(0U);
       for (unsigned n = 0; n < d.cand_nacc; ++n)
 	{
 	  auto c = d.cacc.mark(n);
+
+	  size_t ss = d.all_silly_cand_acc.size();
+	  for (size_t i = 0; i < ss; ++i)
+	    d.all_silly_cand_acc.push_back(d.all_silly_cand_acc[i] | c);
+
 	  size_t s = d.all_cand_acc.size();
 	  for (size_t i = 0; i < s; ++i)
-	    d.all_cand_acc.push_back(d.all_cand_acc[i] | c);
+	    {
+	      acc_cond::mark_t m = d.all_cand_acc[i] | c;
+	      if (d.cand_inf_trim(m) == m)
+		d.all_cand_acc.push_back(m);
+	      else
+		d.all_silly_cand_acc.push_back(m);
+	    }
 	}
-
 
       d.all_ref_acc.push_back(0U);
       unsigned ref_nacc = aut->acc().num_sets();
@@ -328,7 +477,12 @@ namespace spot
 	  auto c = aut->acc().mark(n);
 	  size_t s = d.all_ref_acc.size();
 	  for (size_t i = 0; i < s; ++i)
-	    d.all_ref_acc.push_back(d.all_ref_acc[i] | c);
+	    {
+	      acc_cond::mark_t m = d.all_ref_acc[i] | c;
+	      if (d.ref_inf_trim(m) != m)
+		continue;
+	      d.all_ref_acc.push_back(m);
+	    }
 	}
 
       unsigned ref_size = aut->num_states();
@@ -358,13 +512,12 @@ namespace spot
 		  for (unsigned l = 0; l < d.cand_size; ++l)
 		    {
 		      size_t sfp = is_weak ? 1 : d.all_ref_acc.size();
-		      acc_cond::mark_t sccmarks =
-			is_weak ? d.all_ref_acc.back() : d.scc_marks[i_scc];
+		      acc_cond::mark_t sccmarks = d.scc_marks[i_scc];
 		      for (size_t fp = 0; fp < sfp; ++fp)
 			{
 			  auto refhist = d.all_ref_acc[fp];
 			  // refhist cannot have more sets than used in the SCC
-			  if ((sccmarks & refhist) != refhist)
+			  if (!is_weak && (sccmarks & refhist) != refhist)
 			    continue;
 
 			  size_t sf = d.all_cand_acc.size();
@@ -560,6 +713,41 @@ namespace spot
 	++nclauses;
       }
 
+      if (!d.all_silly_cand_acc.empty())
+	{
+	  dout << "no transition with silly acceptance\n";
+	  bdd all = bddtrue;
+	  while (all != bddfalse)
+	    {
+	      bdd l = bdd_satoneset(all, ap, bddfalse);
+	      all -= l;
+	      for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
+		for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
+		  for (auto& s: d.all_silly_cand_acc)
+		    {
+		      dout << "no (" << q1 << ','
+			   << bdd_format_formula(debug_dict, l)
+			   << ',' << s << ',' << q2 << ")\n";
+		      for (unsigned v: s.sets())
+			{
+			  transition_acc ta(q1, l, d.cacc.mark(v), q2);
+			  int tai = d.transaccid[ta];
+			  assert(tai != 0);
+			  out << ' ' << -tai;
+			}
+		      for (unsigned v: d.cacc.comp(s).sets())
+			{
+			  transition_acc ta(q1, l, d.cacc.mark(v), q2);
+			  int tai = d.transaccid[ta];
+			  assert(tai != 0);
+			  out << ' ' << tai;
+			}
+		      out << " 0\n";
+		      ++nclauses;
+		    }
+	    }
+	}
+
       for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
 	for (unsigned q1p = 0; q1p < ref_size; ++q1p)
 	  {
@@ -620,15 +808,14 @@ namespace spot
 		  {
 		    size_t sf = d.all_cand_acc.size();
 		    size_t sfp = is_weak ? 1 : d.all_ref_acc.size();
-		    acc_cond::mark_t sccmarks =
-		      is_weak ? d.all_ref_acc.back() : d.scc_marks[q1p_scc];
+		    acc_cond::mark_t sccmarks = d.scc_marks[q1p_scc];
 
 		    for (size_t f = 0; f < sf; ++f)
 		      for (size_t fp = 0; fp < sfp; ++fp)
 			{
 			  auto refhist = d.all_ref_acc[fp];
 			  // refhist cannot have more sets than used in the SCC
-			  if ((sccmarks & refhist) != refhist)
+			  if (!is_weak && (sccmarks & refhist) != refhist)
 			    continue;
 
 			  path p(q1, q1p, q2, q2p,
@@ -694,6 +881,7 @@ namespace spot
 							   d.cacc.mark(s), q1);
 						      out << orsep << ta;
 						    }
+						  out << "FC";
 						  orsep = " ∨ ";
 						}
 					      out << ")\n";
@@ -729,10 +917,13 @@ namespace spot
 					for (size_t f = 0; f < sf; ++f)
 					  {
 					    acc_cond::mark_t f2 =
-					      p.acc_cand | d.all_cand_acc[f];
+					      d.cand_inf_trim
+					      (p.acc_cand |
+					       d.all_cand_acc[f]);
 					    acc_cond::mark_t f2p = 0U;
 					    if (!is_weak)
-					      f2p = p.acc_ref | curacc;
+					      f2p = d.ref_inf_trim(p.acc_ref |
+								   curacc);
 
 					    path p2(p.src_cand, p.src_ref,
 						    q3, dp, f2, f2p);

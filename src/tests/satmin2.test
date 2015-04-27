@@ -104,10 +104,48 @@ EOF
 # easily really check the expected automaton, because different SAT
 # solver (even different versions of glucose) can return different
 # automata.
-$autfilt -H --sat-minimize='acc="Fin(0)|Inf(1)"' test.hoa --stats=%s >output
+$autfilt --sat-minimize='acc="Fin(0)|Inf(1)"' test.hoa --stats=%s >output
 test `cat output` = 1
 
 # How about a state-based DSA?
-$autfilt -H --sat-minimize='state-based,acc="Fin(0)|Inf(1)"' test.hoa \
+$autfilt --sat-minimize='state-based,acc="Fin(0)|Inf(1)"' test.hoa \
 	 --stats=%s > output
 test `cat output` = 3
+
+
+# I get headaches whenever I think about this acceptance condition, so
+# it should be a good test case.
+cat >special.hoa <<EOF
+HOA: v1
+States: 2
+Acceptance: 2 Inf(0)&Fin(1) | Fin(0)&Inf(1)
+Start: 0
+AP: 1 "a"
+--BODY--
+State: 0
+[0] 0 {0}
+[!0] 1 {1}
+State: 1
+[0] 0 {0}
+[!0] 1 {1}
+--END--
+EOF
+
+$autfilt -H --sat-minimize special.hoa > output
+
+cat >expected <<EOF
+HOA: v1
+States: 1
+Start: 0
+AP: 1 "a"
+Acceptance: 2 (Fin(1) & Inf(0)) | (Fin(0) & Inf(1))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[0] 0 {0}
+[!0] 0 {1}
+--END--
+EOF
+
+diff output expected
