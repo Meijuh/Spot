@@ -412,13 +412,14 @@ namespace spot
 
     auto used = acc_cond::acc_code::used_sets();
     unsigned c = used.count();
+    unsigned max = used.max_set();
 
     bdd_allocator ba;
     int base = ba.allocate_variables(c);
     assert(base == 0);
     std::vector<bdd> r;
     std::vector<unsigned> sets(c);
-    for (unsigned i = 0; r.size() < c; ++i)
+    for (unsigned i = 0; r.size() < max; ++i)
       {
 	if (used.has(i))
 	  {
@@ -473,6 +474,7 @@ namespace spot
 	c.append_or(std::move(rescode));
 	std::swap(c, rescode);
       }
+
     return rescode;
   }
 
@@ -483,13 +485,14 @@ namespace spot
 
     auto used = acc_cond::acc_code::used_sets();
     unsigned c = used.count();
+    unsigned max = used.max_set();
 
     bdd_allocator ba;
     int base = ba.allocate_variables(c);
     assert(base == 0);
     std::vector<bdd> r;
     std::vector<unsigned> sets(c);
-    for (unsigned i = 0; r.size() < c; ++i)
+    for (unsigned i = 0; r.size() < max; ++i)
       {
 	if (used.has(i))
 	  {
@@ -555,13 +558,14 @@ namespace spot
 
     auto used = acc_cond::acc_code::used_sets();
     unsigned c = used.count();
+    unsigned max = used.max_set();
 
     bdd_allocator ba;
     int base = ba.allocate_variables(c);
     assert(base == 0);
     std::vector<bdd> r;
     std::vector<unsigned> sets(c);
-    for (unsigned i = 0; r.size() < c; ++i)
+    for (unsigned i = 0; r.size() < max; ++i)
       {
 	if (used.has(i))
 	  {
@@ -616,6 +620,7 @@ namespace spot
       }
     auto used = acc_cond::acc_code::used_sets();
     unsigned c = used.count();
+    unsigned max = used.max_set();
 
     bdd_allocator ba;
     int base = ba.allocate_variables(c);
@@ -623,7 +628,7 @@ namespace spot
     std::vector<bdd> r;
     std::vector<unsigned> sets(c);
     bdd known = bddtrue;
-    for (unsigned i = 0; r.size() < c; ++i)
+    for (unsigned i = 0; r.size() < max; ++i)
       {
 	if (used.has(i))
 	  {
