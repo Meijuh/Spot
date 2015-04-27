@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita.
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -52,7 +52,8 @@ namespace spot
   /// If no smaller TBA exist, this returns a null pointer.
   SPOT_API twa_graph_ptr
   dtba_sat_minimize(const const_twa_graph_ptr& a,
-		    bool state_based = false);
+		    bool state_based = false,
+		    int max_states = -1);
 
   /// \brief Attempt to minimize a deterministic TBA with a SAT solver.
   ///
@@ -62,5 +63,6 @@ namespace spot
   /// If no smaller TBA exist, this returns a null pointer.
   SPOT_API twa_graph_ptr
   dtba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
-			      bool state_based = false);
+			      bool state_based = false,
+			      int max_states = -1);
 }

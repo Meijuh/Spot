@@ -1156,9 +1156,11 @@ namespace spot
   dtgba_sat_minimize(const const_twa_graph_ptr& a,
 		     unsigned target_acc_number,
 		     const acc_cond::acc_code& target_acc,
-		     bool state_based)
+		     bool state_based,
+		     int max_states)
   {
-    int n_states = stats_reachable(a).states;
+    int n_states = (max_states < 0) ?
+      stats_reachable(a).states : max_states + 1;
 
     twa_graph_ptr prev = nullptr;
     for (;;)
@@ -1179,9 +1181,11 @@ namespace spot
   dtgba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
 			       unsigned target_acc_number,
 			       const acc_cond::acc_code& target_acc,
-			       bool state_based)
+			       bool state_based,
+			       int max_states)
   {
-    int max_states = stats_reachable(a).states - 1;
+    if (max_states < 1)
+      max_states = stats_reachable(a).states - 1;
     int min_states = 1;
 
     twa_graph_ptr prev = nullptr;
@@ -1223,6 +1227,7 @@ namespace spot
     bool sb = om.get("state-based", 0);
     bool dicho = om.get("dichotomy", 0);
     int states = om.get("states", -1);
+    int max_states = om.get("max-states", -1);
     int nacc = om.get("gba", -1);
     auto accstr = om.get_str("acc");
 
@@ -1260,17 +1265,17 @@ namespace spot
 
     tgba_complete_here(a);
 
-    if (sb)
-      a = sbacc(a);
+    if (sb && states == -1 && max_states == -1)
+      max_states = sbacc(a)->num_states();
 
     if (states == -1)
       {
 	if (!target_is_buchi || !a->acc().is_buchi())
 	  a = (dicho ? dtgba_sat_minimize_dichotomy : dtgba_sat_minimize)
-	    (a, nacc, target_acc, sb);
+	    (a, nacc, target_acc, sb, max_states);
 	else
 	  a = (dicho ? dtba_sat_minimize_dichotomy : dtba_sat_minimize)
-	    (a, sb);
+	    (a, sb, max_states);
       }
     else
       {

@@ -806,9 +806,11 @@ namespace spot
   }
 
   twa_graph_ptr
-  dtba_sat_minimize(const const_twa_graph_ptr& a, bool state_based)
+  dtba_sat_minimize(const const_twa_graph_ptr& a,
+		    bool state_based, int max_states)
   {
-    int n_states = stats_reachable(a).states;
+    int n_states = (max_states < 0) ?
+      stats_reachable(a).states : max_states + 1;
 
     twa_graph_ptr prev = nullptr;
     for (;;)
@@ -826,9 +828,10 @@ namespace spot
 
   twa_graph_ptr
   dtba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
-			      bool state_based)
+			      bool state_based, int max_states)
   {
-    int max_states = stats_reachable(a).states - 1;
+    if (max_states < 0)
+      max_states = stats_reachable(a).states - 1;
     int min_states = 1;
 
     twa_graph_ptr prev = nullptr;

@@ -62,7 +62,8 @@ namespace spot
   dtgba_sat_minimize(const const_twa_graph_ptr& a,
 		     unsigned target_acc_number,
 		     const acc_cond::acc_code& target_acc,
-		     bool state_based = false);
+		     bool state_based = false,
+		     int max_states = -1);
 
   /// \brief Attempt to minimize a deterministic TGBA with a SAT solver.
   ///
@@ -74,7 +75,8 @@ namespace spot
   dtgba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
 			       unsigned target_acc_number,
 			       const acc_cond::acc_code& target_acc,
-			       bool state_based = false);
+			       bool state_based = false,
+			       int max_states = -1);
 
   /// \brief High-level interface to SAT-based minimization
   ///

@@ -149,3 +149,30 @@ State: 0
 EOF
 
 diff output expected
+
+cat >foo.hoa <<EOF
+HOA: v1
+States: 1
+Start: 0
+Acceptance: 4 (Fin(0)&Inf(1)) | (Fin(2)&Inf(3))
+AP: 2 "b" "a"
+--BODY--
+State: 0
+ 0 {3}          /*{}*/
+ 0 {1 3}        /*{b}*/
+ 0 {2}          /*{a}*/
+ 0 {2 1}        /*{b, a}*/
+--END--
+EOF
+
+$autfilt --sat-minimize='acc="Inf(0)|Fin(1)",max-states=2' foo.hoa \
+	 --stats=%s >out
+test "`cat out`" = 1
+
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)",max-states=4' foo.hoa \
+	 --stats=%s >out && exit 1
+test -z "`cat out`"
+
+$autfilt --sat-minimize='acc="Inf(0)&Fin(1)|Inf(2)",states=1' foo.hoa \
+	 --stats=%s >out
+test "`cat out`" = 1
