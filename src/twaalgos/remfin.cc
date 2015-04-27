@@ -39,7 +39,7 @@ namespace spot
     // this returns the following map:
     //  {1}   => Inf(2)&Inf(4)
     //  {2,3} => Inf(1)
-    //  {}    => Inf(3) | Inf(2)
+    //  {}    => Inf(1)&Inf(3) | Inf(1)&Inf(2)
     //  {4}   => t
     static std::map<acc_cond::mark_t, acc_cond::acc_code>
     split_dnf_acc_by_fin(const acc_cond::acc_code& acc)
