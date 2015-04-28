@@ -84,6 +84,7 @@ namespace spot
 	    case 'v':
 	      opt_horizontal_ = false;
 	      break;
+	    case '1':
 	    case 'a':
 	    case 'b':
 	    case 'n':

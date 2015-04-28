@@ -53,7 +53,7 @@ namespace spot
       bool opt_scc_ = false;
       bool opt_html_labels_ = false;
       const_twa_graph_ptr aut_;
-      std::vector<std::string>* sn_;
+      std::vector<std::string>* sn_ = nullptr;
       std::string* name_ = nullptr;
       acc_cond::mark_t inf_sets_ = 0U;
       acc_cond::mark_t fin_sets_ = 0U;
@@ -61,6 +61,7 @@ namespace spot
       bool opt_bullet = false;
       bool opt_all_bullets = false;
       bool opt_numbered_trans = false;
+      bool opt_want_state_names_ = true;
       std::string opt_font_;
 
       const char* const palette9[9] =
@@ -107,6 +108,9 @@ namespace spot
 		  parse_opts(def.c_str());
 		break;
 	      }
+	    case '1':
+	      opt_want_state_names_ = false;
+	      break;
 	    case 'a':
 	      opt_show_acc_ = true;
 	      break;
@@ -436,7 +440,8 @@ namespace spot
       void print(const const_twa_graph_ptr& aut)
       {
 	aut_ = aut;
-	sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
+	if (opt_want_state_names_)
+	  sn_ = aut->get_named_prop<std::vector<std::string>>("state-names");
 	if (opt_name_)
 	  name_ = aut_->get_named_prop<std::string>("automaton-name");
 	mark_states_ = !opt_force_acc_trans_ && aut_->has_state_based_acc();

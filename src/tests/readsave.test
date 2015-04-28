@@ -510,6 +510,28 @@ EOF
 $autfilt --dot=bao in >out
 diff out expected
 
+cat >expected2 <<EOF
+digraph G {
+  rankdir=LR
+  label="Fin(⓿) | (Fin(❶) & Inf(❷)) | Fin(❸)"
+  labelloc="t"
+  I [label="", style=invis, width=0]
+  0 [label="0"]
+  1 [label="1\n⓿❸"]
+  2 [label="2\n⓿❷❸"]
+  3 [label="3\n❸"]
+  4 [label="4\n❷❸"]
+  5 [label="5\n❶❸"]
+  6 [label="6\n⓿"]
+  7 [label="7\n⓿❷"]
+  8 [label="8\n⓿❸"]
+  9 [label="9\n⓿❷❸"]
+}
+EOF
+
+# This should remove the state names
+$autfilt --dot=bao1 in | grep -v '>' >out
+diff out expected2
 
 # Let's pretend that this is some used supplied input, as discussed in
 # the comments of https://github.com/adl/hoaf/issues/39
