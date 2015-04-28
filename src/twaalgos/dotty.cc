@@ -47,7 +47,8 @@ namespace spot
       bool opt_force_acc_trans_ = false;
       bool opt_horizontal_ = true;
       bool opt_name_ = false;
-      bool opt_circles_ = false;
+      enum { ShapeAuto = 0, ShapeCircle, ShapeEllipse }
+	opt_shape_ = ShapeAuto;
       bool opt_show_acc_ = false;
       bool mark_states_ = false;
       bool opt_scc_ = false;
@@ -123,10 +124,10 @@ namespace spot
 	      opt_bullet_but_buchi = true;
 	      break;
 	    case 'c':
-	      opt_circles_ = true;
+	      opt_shape_ = ShapeCircle;
 	      break;
-	    case 'h':
-	      opt_horizontal_ = true;
+	    case 'e':
+	      opt_shape_ = ShapeEllipse;
 	      break;
 	    case 'f':
 	      if (*options != '(')
@@ -140,6 +141,9 @@ namespace spot
 		opt_font_ = std::string(options, end - options);
 		options = end + 1;
 	      }
+	      break;
+	    case 'h':
+	      opt_horizontal_ = true;
 	      break;
 	    case 'n':
 	      opt_name_ = true;
@@ -275,7 +279,6 @@ namespace spot
 	    aut_->get_acceptance().used_inf_fin_sets();
 	if (opt_bullet && aut_->acc().num_sets() <= MAX_BULLET)
 	  opt_all_bullets = true;
-
 	os_ << "digraph G {\n";
 	if (opt_horizontal_)
 	  os_ << "  rankdir=LR\n";
@@ -317,8 +320,18 @@ namespace spot
 	      }
 	    os_ << "  labelloc=\"t\"\n";
 	  }
-	if (opt_circles_)
-	  os_ << "  node [shape=\"circle\"]\n";
+	switch (opt_shape_)
+	  {
+	  case ShapeCircle:
+	    os_ << "  node [shape=\"circle\"]\n";
+	    break;
+	  case ShapeEllipse:
+	    // Do not print anything.  Ellipse is
+	    // the default shape used by GraphViz.
+	    break;
+	  case ShapeAuto:
+	    SPOT_UNREACHABLE();
+	  }
 	if (!opt_font_.empty())
 	  os_ << "  fontname=\"" << opt_font_
 	      << "\"\n  node [fontname=\"" << opt_font_
@@ -452,8 +465,16 @@ namespace spot
 	if (opt_name_)
 	  name_ = aut_->get_named_prop<std::string>("automaton-name");
 	mark_states_ = !opt_force_acc_trans_ && aut_->has_state_based_acc();
+	if (opt_shape_ == ShapeAuto)
+	  {
+	    if (sn_ || aut->num_states() > 100)
+	      opt_shape_ = ShapeEllipse;
+	    else
+	      opt_shape_ = ShapeCircle;
+	  }
 	auto si =
 	  std::unique_ptr<scc_info>(opt_scc_ ? new scc_info(aut) : nullptr);
+
 	start();
 	if (si)
 	  {

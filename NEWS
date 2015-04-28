@@ -187,10 +187,12 @@ New in spot 1.99b (not yet released)
       sugar for [:*1..], and corresponds to the operator ⊕ introduced
       by Dax et al. (ATVA'09).
 
-    - GraphViz output now uses an horizontal layout by default.  The
-      --dot option of the various command-line tools takes an optional
-      parameter to fine-tune the GraphViz output (including vertical
-      layout, round states, named automata, SCC informations, ordered
+    - GraphViz output now uses an horizontal layout by default, and
+      also use circular states (unless the automaton has more than 100
+      states, or uses named-states).  The --dot option of the various
+      command-line tools takes an optional parameter to fine-tune the
+      GraphViz output (including vertical layout, forced circular or
+      elliptic states, named automata, SCC information, ordered
       transitions, and different ways to colorize the acceptance
       sets).  The environment variables SPOT_DOTDEFAULT and
       SPOT_DOTEXTRA can also be used to respectively provide a default

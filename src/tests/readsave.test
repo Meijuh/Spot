@@ -349,6 +349,7 @@ digraph G {
   rankdir=LR
   label="Inf(0)&Inf(1)"
   labelloc="t"
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
@@ -367,6 +368,7 @@ digraph G {
   rankdir=LR
   label="G(Fa & Fb)\nInf(⓿)&Inf(❶)"
   labelloc="t"
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
@@ -379,7 +381,7 @@ EOF
 diff output expected
 
 
-SPOT_DOTDEFAULT=bra $ltl2tgba --dot='c.f(Lato)' 'GFa & GFb' >output
+SPOT_DOTDEFAULT=bra $ltl2tgba --dot='e.f(Lato)' 'GFa & GFb' >output
 cat output
 
 zero='<font color="#5DA5DA">⓿</font>'
@@ -389,7 +391,6 @@ digraph G {
   rankdir=LR
   label=<Inf($zero)&amp;Inf($one)>
   labelloc="t"
-  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
@@ -515,6 +516,7 @@ digraph G {
   rankdir=LR
   label="Fin(⓿) | (Fin(❶) & Inf(❷)) | Fin(❸)"
   labelloc="t"
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   0 [label="0"]
   1 [label="1\n⓿❸"]
@@ -529,7 +531,8 @@ digraph G {
 }
 EOF
 
-# This should remove the state names
+# This should remove the state names, and automatically use circled
+# states.
 $autfilt --dot=bao1 in | grep -v '>' >out
 diff out expected2
 

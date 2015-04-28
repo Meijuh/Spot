@@ -134,6 +134,7 @@ run 0 ../ltl2tgba -XN input > stdout
 cat >expected <<EOF
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0", peripheries=2]

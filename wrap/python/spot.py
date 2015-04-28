@@ -48,7 +48,7 @@ def setup(**kwargs):
                                            kwargs.get('fillcolor', '#ffffaa'))
 
     bullets = 'B' if kwargs.get('bullets', True) else ''
-    d = 'rcf({})'.format(kwargs.get('font', 'Lato')) + bullets
+    d = 'rf({})'.format(kwargs.get('font', 'Lato')) + bullets
     os.environ['SPOT_DOTDEFAULT'] = d
 
 # Global BDD dict so that we do not have to create one in user code.

@@ -34,6 +34,7 @@ expect()
 expect ../../bin/ltl2tgba --monitor a <<EOF
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 1
   0 [label="0"]

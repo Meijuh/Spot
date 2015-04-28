@@ -118,6 +118,7 @@ run 0 ../ltl2tgba -x -DC 'GFa & XGFb' > out.tgba
 cat >ex.tgba <<EOF
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]

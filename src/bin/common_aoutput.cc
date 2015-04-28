@@ -51,13 +51,14 @@ static const argp_option options[] =
   {
     /**************************************************/
     { 0, 0, 0, 0, "Output format:", 3 },
-    { "dot", OPT_DOT, "1|a|b|B|c|f(FONT)|h|n|N|o|r|R|s|t|v",
+    { "dot", OPT_DOT, "1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v",
       OPTION_ARG_OPTIONAL,
       "GraphViz's format (default).  Add letters for "
       "(1) force numbered states, "
       "(a) acceptance display, (b) acceptance sets as bullets, "
       "(B) bullets except for Büchi/co-Büchi automata, "
-      "(c) circular nodes, (f(FONT)) use FONT, (h) horizontal layout, "
+      "(c) force circular nodes, (e) force elliptic nodes, "
+      "(f(FONT)) use FONT, (h) horizontal layout, "
       "(v) vertical layout, (n) with name, (N) without name, "
       "(o) ordered transitions, "
       "(r) rainbow colors for acceptance sets, "

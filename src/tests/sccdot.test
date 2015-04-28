@@ -76,6 +76,7 @@ digraph G {
   rankdir=LR
   label="Fin(2) & (Inf(0)&Inf(1))"
   labelloc="t"
+  node [shape="circle"]
   I [label="", style=invis, width=0]
   I -> 1
   subgraph cluster_0 {
