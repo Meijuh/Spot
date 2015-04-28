@@ -165,11 +165,11 @@ State: 0
 --END--
 EOF
 
-$autfilt --sat-minimize='acc="Inf(0)|Fin(1)",max-states=2' foo.hoa \
+$autfilt --sat-minimize='acc="Streett 1",max-states=2' foo.hoa \
 	 --stats=%s >out
 test "`cat out`" = 1
 
-$autfilt --sat-minimize='acc="Inf(0)&Fin(1)",max-states=4' foo.hoa \
+$autfilt --sat-minimize='acc="Rabin 1",max-states=4' foo.hoa \
 	 --stats=%s >out && exit 1
 test -z "`cat out`"
 

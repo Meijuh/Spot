@@ -451,6 +451,74 @@ namespace spot
 	return inf_neg(mark_t(vals));
       }
 
+      static acc_code buchi()
+      {
+	return inf({0});
+      }
+
+      static acc_code cobuchi()
+      {
+	return fin({0});
+      }
+
+      static acc_code generalized_buchi(unsigned n)
+      {
+	acc_cond::mark_t m = (1U << n) - 1;
+	return inf(m);
+      }
+
+      static acc_code generalized_co_buchi(unsigned n)
+      {
+	acc_cond::mark_t m = (1U << n) - 1;
+	return fin(m);
+      }
+
+      // n is a number of pairs.
+      static acc_code rabin(unsigned n)
+      {
+	acc_cond::acc_code res = f();
+	while (n > 0)
+	  {
+	    acc_cond::acc_code pair = inf({2*n - 1});
+	    pair.append_and(fin({2*n - 2}));
+	    res.append_or(std::move(pair));
+	    --n;
+	  }
+	return res;
+      }
+
+       // n is a number of pairs.
+      static acc_code streett(unsigned n)
+      {
+	acc_cond::acc_code res = t();
+	while (n > 0)
+	  {
+	    acc_cond::acc_code pair = inf({2*n - 1});
+	    pair.append_or(fin({2*n - 2}));
+	    res.append_and(std::move(pair));
+	    --n;
+	  }
+	return res;
+      }
+
+      template<class iterator>
+      static acc_code generalized_rabin(iterator begin, iterator end)
+      {
+	acc_cond::acc_code res = f();
+	unsigned n = 0;
+	for (iterator i = begin; i != end; ++i)
+	  {
+	    acc_cond::acc_code pair = fin({n++});
+	    acc_cond::mark_t m = 0U;
+	    for (unsigned ni = *i; ni > 0; --ni)
+	      m.set({n++});
+	    pair.append_and(inf(m));
+	    std::swap(pair, res);
+	    res.append_or(std::move(pair));
+	  }
+	return res;
+      }
+
       void append_and(acc_code&& r)
       {
 	if (is_true() || r.is_false())

@@ -344,6 +344,22 @@ spot::ltl::formula_ptr_less_than>;
   std::string __str__() { return spot::ltl::to_string(self); }
 }
 
+%extend spot::acc_cond::acc_code {
+  std::string __repr__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+
+  std::string __str__()
+  {
+    std::ostringstream os;
+    os << *self;
+    return os.str();
+  }
+}
+
 %nodefaultctor std::ostream;
 namespace std {
   class ostream {};

@@ -1012,8 +1012,6 @@ namespace spot
 
     static unsigned parse_num(const char*& input)
     {
-      skip_space(input);
-      expect(input, '(');
 
       errno = 0;
       char* end;
@@ -1027,6 +1025,14 @@ namespace spot
 	}
       input = end;
 
+      return num;
+    }
+
+    static unsigned parse_par_num(const char*& input)
+    {
+      skip_space(input);
+      expect(input, '(');
+      unsigned num = parse_num(input);
       skip_space(input);
       expect(input, ')');
       return num;
@@ -1056,12 +1062,12 @@ namespace spot
       else if (!strncmp(input, "Inf", 3))
 	{
 	  input += 3;
-	  res = acc_cond::acc_code::inf({parse_num(input)});
+	  res = acc_cond::acc_code::inf({parse_par_num(input)});
 	}
       else if (!strncmp(input, "Fin", 3))
 	{
 	  input += 3;
-	  res = acc_cond::acc_code::fin({parse_num(input)});
+	  res = acc_cond::acc_code::fin({parse_par_num(input)});
 	}
       else
 	{
@@ -1088,7 +1094,65 @@ namespace spot
   acc_cond::acc_code parse_acc_code(const char* input)
   {
     skip_space(input);
-    acc_cond::acc_code c = parse_acc(input);
+    acc_cond::acc_code c;
+    if (!strncmp(input, "all", 3))
+      {
+	input += 3;
+	c = acc_cond::acc_code::t();
+      }
+    else if (!strncmp(input, "none", 4))
+      {
+	input += 4;
+	c = acc_cond::acc_code::f();
+      }
+    else if (!strncmp(input, "Buchi", 5))
+      {
+	input += 5;
+	c = acc_cond::acc_code::buchi();
+      }
+    else if (!strncmp(input, "co-Buchi", 8))
+      {
+	input += 8;
+	c = acc_cond::acc_code::cobuchi();
+      }
+    else if (!strncmp(input, "generalized-Buchi", 17))
+      {
+	input += 17;
+	c = acc_cond::acc_code::generalized_buchi(parse_num(input));
+      }
+    else if (!strncmp(input, "generalized-co-Buchi", 20))
+      {
+	input += 20;
+	c = acc_cond::acc_code::generalized_buchi(parse_num(input));
+      }
+    else if (!strncmp(input, "Rabin", 5))
+      {
+	input += 5;
+	c = acc_cond::acc_code::rabin(parse_num(input));
+      }
+    else if (!strncmp(input, "Streett", 7))
+      {
+	input += 7;
+	c = acc_cond::acc_code::streett(parse_num(input));
+      }
+    else if (!strncmp(input, "generalized-Rabin", 17))
+      {
+	input += 17;
+	unsigned num = parse_num(input);
+	std::vector<unsigned> v;
+	v.reserve(num);
+	while (num > 0)
+	  {
+	    v.push_back(parse_num(input));
+	    --num;
+	  }
+	c = acc_cond::acc_code::generalized_rabin(v.begin(), v.end());
+      }
+    else
+      {
+	c = parse_acc(input);
+      }
+    skip_space(input);
     if (*input)
       {
 	std::ostringstream s;

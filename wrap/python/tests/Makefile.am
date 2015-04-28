@@ -31,6 +31,7 @@ LOG_DRIVER = $(TEST_LOG_DRIVER)
 check_SCRIPTS = run
 
 TESTS = \
+  accparse.ipynb \
   alarm.py \
   automata.ipynb \
   automata-io.ipynb \
