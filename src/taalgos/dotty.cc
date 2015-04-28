@@ -87,6 +87,7 @@ namespace spot
 	    case '1':
 	    case 'a':
 	    case 'b':
+	    case 'B':
 	    case 'n':
 	    case 'N':
 	    case 'o':

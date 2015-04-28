@@ -59,6 +59,7 @@ namespace spot
       acc_cond::mark_t fin_sets_ = 0U;
       bool opt_rainbow = false;
       bool opt_bullet = false;
+      bool opt_bullet_but_buchi = false;
       bool opt_all_bullets = false;
       bool opt_numbered_trans = false;
       bool opt_want_state_names_ = true;
@@ -116,6 +117,10 @@ namespace spot
 	      break;
 	    case 'b':
 	      opt_bullet = true;
+	      break;
+	    case 'B':
+	      opt_bullet = true;
+	      opt_bullet_but_buchi = true;
 	      break;
 	    case 'c':
 	      opt_circles_ = true;
@@ -346,7 +351,9 @@ namespace spot
       void
       process_state(unsigned s)
       {
-	if (mark_states_ && (opt_bullet || aut_->acc().num_sets() != 1))
+	if (mark_states_ &&
+	    ((opt_bullet && !opt_bullet_but_buchi)
+	     || aut_->acc().num_sets() != 1))
 	  {
 	    acc_cond::mark_t acc = 0U;
 	    for (auto& t: aut_->out(s))

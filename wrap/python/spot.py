@@ -22,17 +22,37 @@ import subprocess
 import sys
 from functools import lru_cache
 
+def setup(**kwargs):
+    """Configure Spot for fancy display.
+
+    This is manly useful in IPython.
+
+    Note that this function needs to be called before any automaton is
+    displayed.  Afterwards it will have no effect (you should restart
+    Python, or the IPython Kernel).
+
+    Keywords arguments:
+    bullets -- a Boolean indicating whether to display acceptance conditions
+               as UTF8 bullets (default: True)
+    fillcolor -- a string indicating the color to use for states
+                 (default: '#ffffaa')
+    size -- a string giving the width and height of the GraphViz output
+            in inches (default: '10.2,5')
+    font -- the name of the font to use in the GraphViz output
+            (default: 'Lato')
+    """
+    import os
+
+    s = 'size="{}" node[style=filled,fillcolor="{}"] edge[arrowhead=vee, arrowsize=.7]'
+    os.environ['SPOT_DOTEXTRA'] = s.format(kwargs.get('size', '10.2,5'),
+                                           kwargs.get('fillcolor', '#ffffaa'))
+
+    bullets = 'B' if kwargs.get('bullets', True) else ''
+    d = 'rcf({})'.format(kwargs.get('font', 'Lato')) + bullets
+    os.environ['SPOT_DOTDEFAULT'] = d
+
 # Global BDD dict so that we do not have to create one in user code.
 _bdd_dict = make_bdd_dict()
-
-# Load all preliminaries for a fancy display
-def setup(show_bullet=True):
-    import os
-    os.environ['SPOT_DOTEXTRA'] = 'size="10.2,5" node[style=filled,fillcolor="#ffffaa"] edge[arrowhead=vee, arrowsize=.7]'
-    if show_bullet:
-        os.environ['SPOT_DOTDEFAULT'] = 'rbcf(Lato)'
-    else:
-        os.environ['SPOT_DOTDEFAULT'] = 'rcf(Lato)'
 
 # Add a small LRU cache so that when we display automata into a
 # interactive widget, we avoid some repeated calls to dot for
