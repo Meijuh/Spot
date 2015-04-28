@@ -533,8 +533,6 @@ namespace
       if (matched == opt_invert)
         return 0;
 
-      ++match_count;
-
       // Postprocessing.
 
       if (opt_mask_acc)
@@ -582,6 +580,8 @@ namespace
 				  tmp->transition_vector().end()).second)
 	    return 0;
         }
+
+      ++match_count;
 
       printer.print(aut, nullptr, filename, -1, conversion_time, haut);
 

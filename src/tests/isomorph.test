@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Laboratoire de Recherche et Développement de
+# Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement de
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -106,3 +106,6 @@ EOF
 
 run 0 ../../bin/autfilt aut1 --are-isomorphic aut2
 run 0 ../../bin/autfilt aut3 --are-isomorphic aut4
+
+run 0 ../../bin/autfilt -u aut1 aut2 aut2 aut3 -c >out
+test 2 = "`cat out`"
