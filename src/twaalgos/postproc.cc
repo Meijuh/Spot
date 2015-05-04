@@ -109,6 +109,8 @@ namespace spot
   twa_graph_ptr
   postprocessor::do_ba_simul(const twa_graph_ptr& a, int opt)
   {
+    if (ba_simul_ <= 0)
+      return a;
     switch (opt)
       {
       case 0:
@@ -130,8 +132,6 @@ namespace spot
 			  degen_reset_, degen_order_,
 			  degen_cache_, degen_lskip_,
 			  degen_lowinit_);
-    if (ba_simul_ <= 0)
-      return d;
     return do_ba_simul(d, ba_simul_);
   }
 
@@ -243,11 +243,18 @@ namespace spot
     // at hard levels if we want a small output.
     if (!dba || (level_ == High && PREF_ == Small))
       {
-	sim = do_simul(a, simul_);
-	// Degeneralize the result of the simulation if needed.
-	// No need to do that if tba_determinisation_ will be used.
-	if (type_ == BA && !tba_determinisation_)
-	  sim = do_degen(sim);
+	if (type_ == BA && a->is_sba() && !tba_determinisation_)
+	  {
+	    sim = do_ba_simul(a, ba_simul_);
+	  }
+	else
+	  {
+	    sim = do_simul(a, simul_);
+	    // Degeneralize the result of the simulation if needed.
+	    // No need to do that if tba_determinisation_ will be used.
+	    if (type_ == BA && !tba_determinisation_)
+	      sim = do_degen(sim);
+	  }
       }
 
     // If WDBA failed, but the simulation returned a deterministic
@@ -400,7 +407,6 @@ namespace spot
 	else
 	  sim = nullptr;
       }
-
 
     if (type_ == TGBA && level_ == High && scc_filter_ != 0)
       {

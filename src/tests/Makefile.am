@@ -172,6 +172,7 @@ TESTS_twa = \
   det.test \
   neverclaimread.test \
   hoaparse.test \
+  optba.test \
   complete.test \
   remfin.test \
   dstar.test \
