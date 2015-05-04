@@ -428,7 +428,7 @@ header-item: "States:" INT
 	       }
 	     res.states = std::max(res.states, (int) $2);
 	   }
-           | "Start:" state-conj-2
+           | "Start:" init-state-conj-2
 	     {
 	       error(@2, "alternation is not yet supported");
 	       YYABORT;
@@ -586,6 +586,11 @@ header-spec: | header-spec BOOLEAN
 
 state-conj-2: checked-state-num '&' checked-state-num
             | state-conj-2 '&' checked-state-num
+
+	      // Currently we do not check the number of these states
+	      // since we do not support alternation.
+init-state-conj-2: state-num '&' state-num
+            | init-state-conj-2 '&' state-num
 
 label-expr: 't'
 	    {
