@@ -146,6 +146,7 @@ syntax(char* prog)
 	    << "Options for Couvreur's FM algorithm (-f):" << std::endl
 	    << "  -fr   reduce formula at each step of FM" << std::endl
 	    << "          as specified with the -r{1..7} options" << std::endl
+	    << "  -fu   build unambiguous automata" << std::endl
             << "  -L    fair-loop approximation (implies -f)" << std::endl
             << "  -p    branching postponement (implies -f)" << std::endl
             << "  -U[PROPS]  consider atomic properties of the formula as "
@@ -330,6 +331,7 @@ checked_main(int argc, char** argv)
   bool fm_red = false;
   bool fm_exprop_opt = false;
   bool fm_symb_merge_opt = true;
+  bool fm_unambiguous = false;
   bool file_opt = false;
   bool degen_reset = true;
   bool degen_order = false;
@@ -510,6 +512,12 @@ checked_main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-fr"))
 	{
 	  fm_red = true;
+	  translation = TransFM;
+	}
+      else if (!strcmp(argv[formula_index], "-fu"))
+	{
+	  fm_unambiguous = true;
+	  fm_exprop_opt = true;
 	  translation = TransFM;
 	}
       else if (!strcmp(argv[formula_index], "-F"))
@@ -1060,7 +1068,8 @@ checked_main(int argc, char** argv)
 				       post_branching,
 				       fair_loop_approx,
 				       unobservables,
-				       fm_red ? simp : 0);
+				       fm_red ? simp : 0,
+				       fm_unambiguous);
 	      break;
 	    case TransCompo:
 	      {

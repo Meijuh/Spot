@@ -83,12 +83,20 @@ namespace spot
     }
 
     typedef postprocessor::output_pref output_pref;
+    enum output_pref_extra { Unambiguous };
 
     void
     set_pref(output_pref pref)
     {
       this->postprocessor::set_pref(pref);
     }
+
+    void
+    set_pref(output_pref_extra)
+    {
+      unambiguous_ = true;
+    }
+
 
     typedef postprocessor::optimization_level optimization_level;
 
@@ -122,6 +130,7 @@ namespace spot
     int early_susp_;
     int skel_wdba_;
     int skel_simul_;
+    bool unambiguous_;
   };
   /// @}
 }

@@ -221,6 +221,12 @@ New in spot 1.99b (not yet released)
       new style can be requested from command-line tools using option
       --spin=6 (or -s6 for short).
 
+    - Support for building unambiguous automata.  ltl_to_tgba() has a
+      new options to produce unambiguous TGBA, i.e., TGBAs in which
+      every word is accepted by at most one path.  The ltl2tgba
+      command line has a new option, --unambigous (or -U) to produce
+      these automata.
+
   * Noteworthy code changes
 
     - Boost is not used anymore.

@@ -63,7 +63,8 @@ static const argp_option options[] =
     /**************************************************/
     { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the formula, in Spot's syntax", 4 },
-   /**************************************************/
+    /**************************************************/
+    { "unambiguous", 'U', 0, 0, "produce unambiguous automata", 20 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
@@ -81,6 +82,7 @@ const struct argp_child children[] =
   };
 
 static spot::option_map extra_options;
+bool unambiguous = false;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -93,6 +95,9 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case 'M':
       type = spot::postprocessor::Monitor;
+      break;
+    case 'U':
+      unambiguous = true;
       break;
     case 'x':
       {
@@ -175,6 +180,24 @@ main(int argc, char** argv)
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
     exit(err);
 
+  // Using both --unambiguous --deterministic do not really make
+  // sense.
+  if (unambiguous)
+    {
+      if (type == spot::postprocessor::Monitor)
+	{
+	  // We do not now how to make unambiguous monitors, other
+	  // than deterministic monitors.
+	  unambiguous = false;
+	  pref = spot::postprocessor::Deterministic;
+	}
+      else if (pref == spot::postprocessor::Deterministic)
+	{
+	  error(2, 0,
+		"--unambiguous and --deterministic are incompatible options");
+	}
+    }
+
   if (jobs.empty())
     error(2, 0, "No formula to translate?  Run '%s --help' for usage.",
 	  program_name);
@@ -183,6 +206,8 @@ main(int argc, char** argv)
   trans.set_pref(pref | comp);
   trans.set_type(type);
   trans.set_level(level);
+  if (unambiguous)
+    trans.set_pref(spot::translator::Unambiguous);
 
   try
     {

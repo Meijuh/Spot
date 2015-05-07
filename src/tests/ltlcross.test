@@ -41,6 +41,7 @@ EOF
 ../../bin/ltlcross --products=2 \
   "$ltl2tgba -t -f %f > %T" \
   "$ltl2tgba -t -f -y %f > %T" \
+  "$ltl2tgba -t -f -fu %f > %T" \
   "$ltl2tgba -t -f -r4 %f > %T" \
   "$ltl2tgba -t -f -R3 %f > %T" \
   "$ltl2tgba -t -f -R3 -Rm %f > %T" \

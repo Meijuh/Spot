@@ -43,4 +43,6 @@ ltl2tgba=../../bin/ltl2tgba
 "$ltl2tgba --spin=6 --ba --medium %f > %N" \
 "$ltl2tgba --hoa  -BDC %f > %H" \
 "$ltl2tgba --lbtt -BC %f > %T" \
+"$ltl2tgba --lbtt --unambiguous --low %f > %T" \
+"$ltl2tgba --lbtt --unambiguous --high %f > %T" \
 --json=output.json --csv=output.csv

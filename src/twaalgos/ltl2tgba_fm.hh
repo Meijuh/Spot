@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -120,6 +120,24 @@ namespace spot
       }
       \endverbatim */
   ///
+  /// \param unambiguous When true, unambigous TGBA will be produced using
+  /// the trick described in the following paper.
+  /** \verbatim
+      @InProceedings{	  benedikt.13.tacas,
+        author	  = {Michael Benedikt and Rastislav Lenhardt and James
+      		     Worrell},
+        title     = {{LTL} Model Checking of Interval Markov Chains},
+        booktitle = {19th International Conference on Tools and Algorithms for
+      		     the Construction and Analysis of Systems (TACAS'13)},
+        year      = {2013},
+        pages     = {32--46},
+        series	  = {Lecture Notes in Computer Science},
+        volume	  = {7795},
+        editor	  = {Nir Piterman and Scott A. Smolka},
+        publisher = {Springer}
+      }
+      \endvarbatim */
+  ///
   /// \return A spot::twa_graph that recognizes the language of \a f.
   SPOT_API twa_graph_ptr
   ltl_to_tgba_fm(const ltl::formula* f, const bdd_dict_ptr& dict,
@@ -127,5 +145,6 @@ namespace spot
 		 bool branching_postponement = false,
 		 bool fair_loop_approx = false,
 		 const ltl::atomic_prop_set* unobs = 0,
-		 ltl::ltl_simplifier* simplifier = 0);
+		 ltl::ltl_simplifier* simplifier = 0,
+		 bool unambiguous = false);
 }

@@ -142,7 +142,7 @@ namespace spot
       translate_dict(const bdd_dict_ptr& dict,
 		     acc_cond& acc,
 		     ltl_simplifier* ls, bool exprop,
-		     bool single_acc)
+		     bool single_acc, bool unambiguous)
 	: dict(dict),
 	  ls(ls),
 	  a_set(bddtrue),
@@ -151,7 +151,8 @@ namespace spot
 	  transdfa(*this),
 	  exprop(exprop),
 	  single_acc(single_acc),
-	  acc(acc)
+	  acc(acc),
+	  unambiguous(unambiguous)
       {
       }
 
@@ -187,6 +188,7 @@ namespace spot
       acc_cond& acc;
       // Map BDD variables to acceptance marks.
       std::map<int, unsigned> bm;
+      bool unambiguous;
 
       enum translate_flags
 	{
@@ -1289,6 +1291,15 @@ namespace spot
       {
       }
 
+      bdd
+      neg_of(const formula* node)
+      {
+	const formula* n = dict_.ls->negative_normal_form(node, true);
+	bdd r = recurse(n);
+	n->destroy();
+	return r;
+      }
+
       void
       reset(bool mark_all)
       {
@@ -1360,6 +1371,8 @@ namespace spot
 	      bdd a = bdd_ithvar(dict_.register_a_variable(child));
 	      if (!recurring_)
 		a &= bdd_ithvar(dict_.register_next_variable(node));
+	      if (dict_.unambiguous)
+		a &= neg_of(child);
 	      res_ = y | a;
 	      break;
 	    }
@@ -1575,6 +1588,8 @@ namespace spot
 	      f1 &= bdd_ithvar(dict_.register_a_variable(node->second()));
 	      if (!recurring_)
 		f1 &= bdd_ithvar(dict_.register_next_variable(node));
+	      if (dict_.unambiguous)
+		f1 &= neg_of(node->second());
 	      res_ = f2 | f1;
 	      break;
 	    }
@@ -1589,6 +1604,8 @@ namespace spot
 	      bdd f2 = recurse(node->second());
 	      if (!recurring_)
 		f1 &= bdd_ithvar(dict_.register_next_variable(node));
+	      if (dict_.unambiguous)
+		f1 &= neg_of(node->second());
 	      res_ = f2 | f1;
 	      break;
 	    }
@@ -1601,10 +1618,15 @@ namespace spot
 			     || node->first() == constant::false_instance());
 	      // r(f1 R f2) = r(f2)(r(f1) + X(f1 R f2))  if not recurring
 	      // r(f1 R f2) = r(f2)                      if recurring
-	      if (recurring_)
+	      if (recurring_ && !dict_.unambiguous)
 		break;
 	      bdd f1 = recurse(node->first());
-	      res_ &= f1 | bdd_ithvar(dict_.register_next_variable(node));
+	      bdd f2 = bddtrue;
+	      if (!recurring_)
+		f2 = bdd_ithvar(dict_.register_next_variable(node));
+	      if (dict_.unambiguous)
+		f2 &= neg_of(node->first());
+	      res_ &= f1 | f2;
 	      break;
 	    }
 	  case binop::M:
@@ -1630,6 +1652,8 @@ namespace spot
 	      bdd a = bdd_ithvar(dict_.register_a_variable(node));
 	      if (!recurring_)
 		a &= bdd_ithvar(dict_.register_next_variable(node));
+	      if (dict_.unambiguous)
+		a &= neg_of(node->first());
 	      res_ &= f1 | a;
 	      break;
 	    }
@@ -1805,11 +1829,28 @@ namespace spot
 	    }
 	  case multop::Or:
 	    {
-	      res_ = bddfalse;
-	      unsigned s = node->size();
-	      for (unsigned n = 0; n < s; ++n)
-		res_ |= recurse(node->nth(n));
-	      break;
+	      if (!dict_.unambiguous)
+		{
+		  res_ = bddfalse;
+		  unsigned s = node->size();
+		  for (unsigned n = 0; n < s; ++n)
+		    res_ |= recurse(node->nth(n));
+		  break;
+		}
+	      else
+		{
+		  bdd prev = bddtrue;
+		  res_ = bddfalse;
+		  unsigned s = node->size();
+		  for (unsigned n = 0; n < s; ++n)
+		    {
+		      const formula* sub = node->nth(n);
+		      res_ |= prev & recurse(sub);
+		      prev &= neg_of(sub);
+		    }
+		  break;
+
+		}
 	    }
 	  case multop::Concat:
 	  case multop::Fusion:
@@ -2202,7 +2243,7 @@ namespace spot
   ltl_to_tgba_fm(const formula* f, const bdd_dict_ptr& dict,
 		 bool exprop, bool symb_merge, bool branching_postponement,
 		 bool fair_loop_approx, const atomic_prop_set* unobs,
-		 ltl_simplifier* simplifier)
+		 ltl_simplifier* simplifier, bool unambiguous)
   {
     const formula* f2;
     ltl_simplifier* s = simplifier;
@@ -2232,7 +2273,8 @@ namespace spot
     twa_graph_ptr a = make_twa_graph(dict);
     auto namer = a->create_namer<const formula*>();
 
-    translate_dict d(dict, a->acc(), s, exprop, f->is_syntactic_persistence());
+    translate_dict d(dict, a->acc(), s, exprop, f->is_syntactic_persistence(),
+		     unambiguous);
 
     // Compute the set of all promises that can possibly occur
     // inside the formula.

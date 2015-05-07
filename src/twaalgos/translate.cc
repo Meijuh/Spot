@@ -28,6 +28,7 @@ namespace spot
   void translator::setup_opt(const option_map* opt)
   {
     comp_susp_ = early_susp_ = skel_wdba_ = skel_simul_ = 0;
+    unambiguous_ = false;
 
     if (!opt)
       return;
@@ -63,6 +64,21 @@ namespace spot
 
   twa_graph_ptr translator::run(const ltl::formula** f)
   {
+    if (unambiguous_)
+      {
+	if (type_ == postprocessor::Monitor)
+	  {
+	    // Deterministic monitor are unambiguous, so the
+	    // unambiguous option is not really relevant for monitors.
+	    unambiguous_ = false;
+	    set_pref(postprocessor::Deterministic);
+	  }
+	else if (pref_ == postprocessor::Deterministic)
+	  {
+	    unambiguous_ = false;
+	  }
+      }
+
     const ltl::formula* r = simpl_->simplify(*f);
     (*f)->destroy();
     *f = r;
@@ -74,9 +90,10 @@ namespace spot
     twa_graph_ptr aut;
     if (comp_susp_ > 0)
       {
+	// FIXME: Handle unambiguous_ automata?
 	int skel_wdba = skel_wdba_;
 	if (skel_wdba < 0)
-	  skel_wdba = (pref_ == spot::postprocessor::Deterministic) ? 1 : 2;
+	  skel_wdba = (pref_ == postprocessor::Deterministic) ? 1 : 2;
 
 	aut = compsusp(r, simpl_->get_dict(), skel_wdba == 0,
 		       skel_simul_ == 0, early_susp_ != 0,
@@ -84,8 +101,9 @@ namespace spot
       }
     else
       {
-	bool exprop = level_ == spot::postprocessor::High;
-	aut = ltl_to_tgba_fm(r, simpl_->get_dict(), exprop);
+	bool exprop = unambiguous_ || level_ == postprocessor::High;
+	aut = ltl_to_tgba_fm(r, simpl_->get_dict(), exprop,
+			     true, false, false, 0, 0, unambiguous_);
       }
     aut = this->postprocessor::run(aut, r);
     return aut;
