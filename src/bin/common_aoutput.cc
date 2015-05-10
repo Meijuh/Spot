@@ -19,6 +19,7 @@
 
 #include "common_sys.hh"
 #include "error.h"
+#include "argmatch.h"
 
 #include "common_aoutput.hh"
 #include "common_post.hh"
@@ -31,6 +32,7 @@
 #include "twaalgos/lbtt.hh"
 #include "twaalgos/hoa.hh"
 #include "twaalgos/neverclaim.hh"
+#include "twaalgos/stutter.hh"
 
 automaton_format_t automaton_format = Dot;
 static const char* opt_dot = nullptr;
@@ -39,12 +41,35 @@ static const char* hoa_opt = nullptr;
 const char* opt_name = nullptr;
 static const char* opt_output = nullptr;
 static const char* stats = "";
+enum check_type
+  {
+    check_stutter = (1 << 0),
+    check_all = -1U,
+  };
+static char const *const check_args[] =
+  {
+    "stutter-invariant", "stuttering-invariant",
+    "stutter-insensitive", "stuttering-insensitive",
+    "stutter-sensitive", "stuttering-sensitive",
+    "all",
+    0
+  };
+static check_type const check_types[] =
+  {
+    check_stutter, check_stutter,
+    check_stutter, check_stutter,
+    check_stutter, check_stutter,
+    check_all
+  };
+ARGMATCH_VERIFY(check_args, check_types);
+unsigned opt_check = 0U;
 
 enum {
   OPT_DOT = 1,
   OPT_LBTT,
   OPT_NAME,
   OPT_STATS,
+  OPT_CHECK,
 };
 
 static const argp_option options[] =
@@ -88,6 +113,10 @@ static const argp_option options[] =
       "(ignored with --lbtt or --spin)", 0 },
     { "stats", OPT_STATS, "FORMAT", 0,
       "output statistics about the automaton", 0 },
+    { "check", OPT_CHECK, "PROP", OPTION_ARG_OPTIONAL,
+      "test for the additional property PROP and output the result "
+      "in the HOA format (implies -H).  PROP may be any prefix of "
+      "'all' (default), or 'stutter-invariant'.", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -190,6 +219,13 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
     case 'o':
       opt_output = arg;
       break;
+    case OPT_CHECK:
+      automaton_format = Hoa;
+      if (arg)
+	opt_check |= XARGMATCH("--check", arg, check_args, check_types);
+      else
+	opt_check |= check_all;
+      break;
     case OPT_DOT:
       automaton_format = Dot;
       opt_dot = arg;
@@ -244,6 +280,12 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
 			 double time,
 			 const spot::const_hoa_aut_ptr& haut)
 {
+  if (opt_check)
+    {
+      if (opt_check & check_stutter)
+	check_stutter_invariance(aut, f);
+    }
+
   // Name the output automaton.
   if (opt_name)
     {

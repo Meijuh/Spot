@@ -57,4 +57,13 @@ namespace spot
   is_stutter_invariant(twa_graph_ptr&& aut_f,
 		       twa_graph_ptr&& aut_nf, bdd aps,
 		       int algo = 0);
+
+  /// \brief Check whether \a aut is stutter-invariant
+  ///
+  /// This procedure only works if \a aut is deterministic, or if the
+  /// equivalent formula \a f is given.  The stutter-invariant property
+  /// of the automaton is updated and also returned.
+  SPOT_API bool
+  check_stutter_invariance(const twa_graph_ptr& aut,
+			   const ltl::formula* f = nullptr);
 }

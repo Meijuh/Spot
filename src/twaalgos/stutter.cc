@@ -29,6 +29,8 @@
 #include "ltlvisit/remove_x.hh"
 #include "twaalgos/product.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
+#include "twaalgos/isdet.hh"
+#include "twaalgos/dtgbacomp.hh"
 #include "twa/twaproduct.hh"
 #include "twa/bddprint.hh"
 #include <deque>
@@ -636,5 +638,37 @@ namespace spot
 				 "is_stutter_invariant()");
 	SPOT_UNREACHABLE();
       }
+  }
+
+  bool
+  check_stutter_invariance(const twa_graph_ptr& aut, const ltl::formula* f)
+  {
+    bool is_stut = aut->is_stutter_invariant();
+    if (is_stut)
+      return is_stut;
+
+    twa_graph_ptr neg = nullptr;
+    if (f)
+      {
+	auto* nf = ltl::unop::instance(ltl::unop::Not, f->clone());
+	neg = translator(aut->get_dict()).run(nf);
+	nf->destroy();
+      }
+    else
+      {
+	// If the automaton is deterministic, we
+	// know how to complement it.
+	aut->prop_deterministic(is_deterministic(aut));
+	if (!aut->is_deterministic())
+	  return false;
+
+	neg = dtgba_complement(aut);
+      }
+
+    is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),
+				   std::move(neg), get_all_ap(aut));
+    if (is_stut)
+      aut->prop_stutter_invariant(is_stut);
+    return is_stut;
   }
 }
