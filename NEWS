@@ -88,7 +88,7 @@ New in spot 1.99b (not yet released)
       ignore translator returning non-zero exist status instead of
       returning an error.
 
-    - "ltlfilt --stutter-invariant" will now work with PSL formula.
+    - "ltlfilt --stutter-invariant" will now work with PSL formulas.
       The implementation is actually much more efficient
       than our previous implementation that was only for LTL.
 
@@ -117,6 +117,19 @@ New in spot 1.99b (not yet released)
       the same %-escape sequences that are available for --stats or
       --format.
 
+    - All tools that output automata have a --check option that
+      request extra checks to be performed on the output to fill
+      in properties values for the HOA format.  This options
+      implies -H for HOA output.  For instance
+      	ltl2tgba -H 'formula'
+      will declare the output automaton as 'stutter-invariant'
+      only if the formula is syntactically stutter-invariant
+      (e.g., in LTL\X).  With
+        ltl2tgba --check 'formula'
+      additional checks will be performed, and the automaton
+      will be accurately marked as either 'stutter-invariant'
+      or 'stutter-sensitive'.
+
     - ltlcross (and ltldo) have a list of hard-coded shorthands
       for some existing tools.  So for instance running
       'ltlcross spin ...' is the same as running
@@ -125,8 +138,8 @@ New in spot 1.99b (not yet released)
 
     - For options that take an output filename (i.e., ltlcross's
       --save-bogus, --grind, --csv, --json) you can force the file
-      to be open in append mode (instead of being truncated) by
-      by prefix the filename with ">>".  For instance:
+      to be opened in append mode (instead of being truncated) by
+      by prefixing the filename with ">>".  For instance
       	  --save-bogus=">>bugs.ltl"
       will append to the end of the file.
 
@@ -169,8 +182,8 @@ New in spot 1.99b (not yet released)
       - similarly, to_tgba() converts any TωA into an automaton with
 	generalized-Büchi acceptance.
 
-    - randomize() is a new algorithm that reorder the states
-      and transition of an automaton at random.  It can be
+    - randomize() is a new algorithm that reorders the states
+      and transitions of an automaton at random.  It can be
       used from the command-line using "autfilt --randomize".
 
     - the interface in iface/dve2 has been renamed to iface/ltsmin
@@ -198,7 +211,7 @@ New in spot 1.99b (not yet released)
       SPOT_DOTEXTRA can also be used to respectively provide a default
       argument to --dot, and add extra attributes to the output graph.
 
-    - Never claims can now be output in the style usd by Spin since
+    - Never claims can now be output in the style used by Spin since
       version 6.2.4 (i.e., using do..od instead of if..fi, and with
       atomic statements for terminal acceptance).  The default output
       is still the old one for compatibility with existing tools.  The
@@ -282,8 +295,6 @@ New in spot 1.99b (not yet released)
 	- tgba::all_acceptance_conditions()       // use acc().accepting(...)
 	- tgba::neg_acceptance_conditions()
 	- tgba::number_of_acceptance_conditions() // use acc().num_sets()
-      methods have been removed from the TGBA interface and all
-      subclasses.
 
     - Membership to acceptance sets are now stored using bit sets,
       currently limited to 32 bits.  Each TωA has a acc() method that
@@ -296,7 +307,7 @@ New in spot 1.99b (not yet released)
       we now write
         aut->acc().accepting(i->current_acceptance_conditions())
       (Note that for accepting(x) to return something meaningful, x
-      should be a set of acceptance sets visitied infinitely oftem.  So let's
+      should be a set of acceptance sets visitied infinitely often.  So let's
       imagine that in the above example i is looking at a self-loop.)
 
       Similarly,
