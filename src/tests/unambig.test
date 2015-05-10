@@ -35,6 +35,8 @@ for f in 'Ga' \
 do
   $ltl2tgba -UH "$f" | $autfilt -q --is-unambiguous
   $ltl2tgba -UH "!($f)" | $autfilt -q --is-unambiguous
+  $ltl2tgba -UH "$f" | $autfilt --check | grep unambiguous
+  $ltl2tgba -UH "!($f)" | $autfilt --check | grep unambiguous
 done
 
 for f in FGa
@@ -82,3 +84,5 @@ State: 1
 EOF
 
 run 1 $autfilt -q --is-unambiguous input
+run 0 $autfilt --check input > output
+test `grep -c unambiguous output` = 0

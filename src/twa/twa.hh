@@ -715,6 +715,7 @@ namespace spot
       bool state_based_acc:1;	// State-based acceptance.
       bool inherently_weak:1;	// Weak automaton.
       bool deterministic:1;	// Deterministic automaton.
+      bool unambiguous:1;	// Unambiguous automaton.
       bool stutter_invariant:1;	// Stutter invariant language.
       bool stutter_sensitive:1;	// Stutter sensitive language.
     };
@@ -797,6 +798,16 @@ namespace spot
       is.deterministic = val;
     }
 
+    bool is_unambiguous() const
+    {
+      return is.unambiguous;
+    }
+
+    void prop_unambiguous(bool val = true)
+    {
+      is.unambiguous = val;
+    }
+
     bool is_stutter_invariant() const
     {
       return is.stutter_invariant;
@@ -839,7 +850,10 @@ namespace spot
       if (p.inherently_weak)
 	prop_inherently_weak(other->is_inherently_weak());
       if (p.deterministic)
-	prop_deterministic(other->is_deterministic());
+	{
+	  prop_deterministic(other->is_deterministic());
+	  prop_unambiguous(other->is_unambiguous());
+	}
       if (p.stutter_inv)
 	{
 	  prop_stutter_invariant(other->is_stutter_invariant());
@@ -854,7 +868,10 @@ namespace spot
       if (!p.inherently_weak)
 	prop_inherently_weak(false);
       if (!p.deterministic)
-	prop_deterministic(false);
+	{
+	  prop_deterministic(false);
+	  prop_unambiguous(false);
+	}
       if (!p.stutter_inv)
 	{
 	  prop_stutter_invariant(false);

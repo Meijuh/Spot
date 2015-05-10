@@ -25,7 +25,7 @@ namespace spot
 {
   class tgba;
 
-  /// \addtogroup tgba_misc
+  /// \addtogroup twa_misc
   /// @{
 
   /// \brief Whether the automaton \a aut is unambiguous.
@@ -40,5 +40,8 @@ namespace spot
   SPOT_API bool
   is_unambiguous(const const_twa_graph_ptr& aut);
 
+  /// Like is_unambiguous(), but also sets the property in the twa.
+  SPOT_API bool
+  check_unambiguous(const twa_graph_ptr& aut);
   /// @}
 }

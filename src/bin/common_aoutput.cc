@@ -32,6 +32,7 @@
 #include "twaalgos/hoa.hh"
 #include "twaalgos/neverclaim.hh"
 #include "twaalgos/stutter.hh"
+#include "twaalgos/isunamb.hh"
 
 automaton_format_t automaton_format = Dot;
 static const char* opt_dot = nullptr;
@@ -42,11 +43,13 @@ static const char* opt_output = nullptr;
 static const char* stats = "";
 enum check_type
   {
-    check_stutter = (1 << 0),
+    check_unambiguous = (1 << 0),
+    check_stutter = (1 << 1),
     check_all = -1U,
   };
 static char const *const check_args[] =
   {
+    "unambiguous",
     "stutter-invariant", "stuttering-invariant",
     "stutter-insensitive", "stuttering-insensitive",
     "stutter-sensitive", "stuttering-sensitive",
@@ -55,6 +58,7 @@ static char const *const check_args[] =
   };
 static check_type const check_types[] =
   {
+    check_unambiguous,
     check_stutter, check_stutter,
     check_stutter, check_stutter,
     check_stutter, check_stutter,
@@ -115,7 +119,7 @@ static const argp_option options[] =
     { "check", OPT_CHECK, "PROP", OPTION_ARG_OPTIONAL,
       "test for the additional property PROP and output the result "
       "in the HOA format (implies -H).  PROP may be any prefix of "
-      "'all' (default), or 'stutter-invariant'.", 0 },
+      "'all' (default), 'unambiguous', or 'stutter-invariant'.", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -283,6 +287,8 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
     {
       if (opt_check & check_stutter)
 	check_stutter_invariance(aut, f);
+      if (opt_check & check_unambiguous)
+	spot::check_unambiguous(aut);
     }
 
   // Name the output automaton.

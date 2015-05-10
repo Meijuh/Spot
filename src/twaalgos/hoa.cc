@@ -296,7 +296,6 @@ namespace spot
     os << aut->acc().get_acceptance();
     os << nl;
     os << "properties:";
-
     // Make sure the property line is not too large,
     // otherwise our test cases do not fit in 80 columns...
     unsigned prop_len = 60;
@@ -327,6 +326,8 @@ namespace spot
       prop(" complete");
     if (md.is_deterministic)
       prop(" deterministic");
+    if (aut->is_unambiguous())
+      prop(" unambiguous");
     assert(!(aut->is_stutter_invariant() && aut->is_stutter_sensitive()));
     if (aut->is_stutter_invariant())
       prop(" stutter-invariant");

@@ -28,7 +28,7 @@ namespace spot
 {
   bool is_unambiguous(const const_twa_graph_ptr& aut)
   {
-    if (aut->is_deterministic())
+    if (aut->is_deterministic() || aut->is_unambiguous())
       return true;
     auto clean_a = scc_filter_states(aut);
     auto prod = product(clean_a, clean_a);
@@ -36,5 +36,11 @@ namespace spot
     tgba_statistics sa = stats_reachable(clean_a);
     tgba_statistics sp = stats_reachable(clean_p);
     return sa.states == sp.states && sa.transitions == sp.transitions;
+  }
+
+  bool check_unambiguous(const twa_graph_ptr& aut)
+  {
+    aut->prop_unambiguous(is_unambiguous(aut));
+    return aut->is_unambiguous();
   }
 }

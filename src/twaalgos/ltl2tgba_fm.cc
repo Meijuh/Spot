@@ -2555,6 +2555,9 @@ namespace spot
     a->prop_inherently_weak(f->is_syntactic_persistence());
     a->prop_stutter_invariant(f->is_syntactic_stutter_invariant());
 
+    // Currently the unambiguous option work only with LTL.
+    a->prop_unambiguous(f->is_ltl_formula() && unambiguous);
+
     if (!simplifier)
       // This should not be deleted before we have registered all propositions.
       delete s;
