@@ -70,6 +70,8 @@ State: 2
 --END--
 EOF
 
+diff output expected
+
 run 0 $ltl2tgba -H 'F(a & X(!a & b))' > input
 grep stutter-invariant input && exit 1
 run 0 $ltl2tgba --check=stutter 'F(a & X(!a & b))' > input.2
@@ -77,4 +79,9 @@ grep stutter-invariant input.2
 run 0 $autfilt --check=stutter input > input.2
 grep stutter-invariant input.2
 
-diff output expected
+run 0 $ltl2tgba -H 'F(a & X(a & b))' > input
+grep stutter-invariant input && exit 1
+run 0 $ltl2tgba --check=stutter 'F(a & X(a & b))' > input.2
+grep stutter-sensitive input.2
+run 0 $autfilt --check=stutter input > input.2
+grep stutter-sensitive input.2

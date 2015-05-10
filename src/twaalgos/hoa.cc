@@ -327,8 +327,11 @@ namespace spot
       prop(" complete");
     if (md.is_deterministic)
       prop(" deterministic");
+    assert(!(aut->is_stutter_invariant() && aut->is_stutter_sensitive()));
     if (aut->is_stutter_invariant())
       prop(" stutter-invariant");
+    if (aut->is_stutter_sensitive())
+      prop(" stutter-sensitive");
     if (aut->is_inherently_weak())
       prop(" inherently-weak");
     os << nl;

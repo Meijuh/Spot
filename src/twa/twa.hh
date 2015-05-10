@@ -715,7 +715,8 @@ namespace spot
       bool state_based_acc:1;	// State-based acceptance.
       bool inherently_weak:1;	// Weak automaton.
       bool deterministic:1;	// Deterministic automaton.
-      bool stutter_inv:1; 	// Stutter invariant
+      bool stutter_invariant:1;	// Stutter invariant language.
+      bool stutter_sensitive:1;	// Stutter sensitive language.
     };
     union
     {
@@ -798,12 +799,22 @@ namespace spot
 
     bool is_stutter_invariant() const
     {
-      return is.stutter_inv;
+      return is.stutter_invariant;
+    }
+
+    bool is_stutter_sensitive() const
+    {
+      return is.stutter_sensitive;
     }
 
     void prop_stutter_invariant(bool val = true)
     {
-      is.stutter_inv = val;
+      is.stutter_invariant = val;
+    }
+
+    void prop_stutter_sensitive(bool val = true)
+    {
+      is.stutter_sensitive = val;
     }
 
     struct prop_set
@@ -830,7 +841,10 @@ namespace spot
       if (p.deterministic)
 	prop_deterministic(other->is_deterministic());
       if (p.stutter_inv)
-	prop_stutter_invariant(other->is_stutter_invariant());
+	{
+	  prop_stutter_invariant(other->is_stutter_invariant());
+	  prop_stutter_sensitive(other->is_stutter_sensitive());
+	}
     }
 
     void prop_keep(prop_set p)
@@ -841,6 +855,11 @@ namespace spot
 	prop_inherently_weak(false);
       if (!p.deterministic)
 	prop_deterministic(false);
+      if (!p.stutter_inv)
+	{
+	  prop_stutter_invariant(false);
+	  prop_stutter_sensitive(false);
+	}
     }
 
   };

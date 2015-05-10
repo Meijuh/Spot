@@ -667,8 +667,8 @@ namespace spot
 
     is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),
 				   std::move(neg), get_all_ap(aut));
-    if (is_stut)
-      aut->prop_stutter_invariant(is_stut);
+    aut->prop_stutter_invariant(is_stut);
+    aut->prop_stutter_sensitive(!is_stut);
     return is_stut;
   }
 }
