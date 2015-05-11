@@ -39,6 +39,7 @@ enum {
 output_format_t output_format = spot_output;
 bool full_parenth = false;
 bool escape_csv = false;
+char output_terminator = '\n';
 
 static const argp_option options[] =
   {
@@ -58,6 +59,9 @@ static const argp_option options[] =
       "send output to a file named FORMAT instead of standard output.  The"
       " first formula sent to a file truncates it unless FORMAT starts"
       " with '>>'.", 0 },
+    { "zero-terminated-output", '0', 0, 0,
+      "separate output formulas with \\0 instead of \\n "
+      "(for use with xargs -0)", 0 },
     { 0, 0, 0, 0, 0, 0 }
   };
 
@@ -212,6 +216,9 @@ parse_opt_output(int key, char* arg, struct argp_state*)
   // This switch is alphabetically-ordered.
   switch (key)
     {
+    case '0':
+      output_terminator = 0;
+      break;
     case '8':
       output_format = utf8_output;
       break;
@@ -304,7 +311,7 @@ output_formula_checked(const spot::ltl::formula* f,
       out = &p.first->second->ostream();
     }
   output_formula(*out, f, filename, linenum, prefix, suffix);
-  *out << '\n';
+  *out << output_terminator;
   // Make sure we abort if we can't write to std::cout anymore
   // (like disk full or broken pipe with SIGPIPE ignored).
   check_cout();

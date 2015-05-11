@@ -117,7 +117,10 @@ New in spot 1.99b (not yet released)
       the same %-escape sequences that are available for --stats or
       --format.
 
-    - All tools that output automata have a --check option that
+    - all tools that output formulas have a -0 option to separate
+      formulas with \0.  This helps in conjunction with xargs -0.
+
+    - all tools that output automata have a --check option that
       request extra checks to be performed on the output to fill
       in properties values for the HOA format.  This options
       implies -H for HOA output.  For instance
