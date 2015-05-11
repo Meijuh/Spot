@@ -24,7 +24,6 @@
 #include "common_aoutput.hh"
 #include "common_post.hh"
 #include "common_cout.hh"
-#include "common_post.hh"
 
 #include "twa/bddprint.hh"
 
