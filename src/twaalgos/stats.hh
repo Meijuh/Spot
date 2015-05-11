@@ -51,7 +51,7 @@ namespace spot
 
   /// \brief Compute statistics for an automaton.
   SPOT_API tgba_statistics stats_reachable(const const_twa_ptr& g);
-  /// \brief Compute subended statistics for an automaton.
+  /// \brief Compute sub statistics for an automaton.
   SPOT_API tgba_sub_statistics sub_stats_reachable(const const_twa_ptr& g);
 
 
