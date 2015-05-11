@@ -122,14 +122,25 @@ namespace spot
           const formula* first = bo->first();
           const formula* second = bo->second();
           result_ = 0;
+	  auto op = bo->op();
+	  bool left_is_sere = op == binop::EConcat
+	    || op == binop::EConcatMarked
+	    || op == binop::UConcat;
 
           if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
-            result_ = first->clone();
+	    {
+	      if (!left_is_sere)
+		result_ = first->clone();
+	      else if (op == binop::UConcat)
+		result_ = unop::instance(unop::NegClosure, first->clone());
+	      else // EConcat or EConcatMarked
+		result_ = unop::instance(unop::Closure, first->clone());
+	    }
           if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
             result_ = second->clone();
           if (opts_ & Mut_Rewrite_Ops)
             {
-              switch (bo->op())
+              switch (op)
                 {
                 case binop::U:
                   if (mutation_counter_-- == 0)
@@ -155,7 +166,7 @@ namespace spot
             }
           if (opts_ & Mut_Split_Ops)
             {
-              switch (bo->op())
+              switch (op)
                 {
                 case binop::Equiv:
                   if (mutation_counter_-- == 0)
@@ -198,7 +209,7 @@ namespace spot
 		  // instance() is incorrect, because each compiler
 		  // could decide of a different order.
 		  auto right = recurse(second);
-		  result_ = binop::instance(bo->op(), recurse(first), right);
+		  result_ = binop::instance(op, recurse(first), right);
 		}
             }
         }
@@ -206,24 +217,29 @@ namespace spot
         void visit(const bunop* bu)
         {
           const formula* c = bu->child()->clone();
-          result_ = 0;
+          result_ = nullptr;
+	  auto op = bu->op();
 
           if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
-            result_ = c->clone();
+            result_ = c;
           if (opts_ & Mut_Simplify_Bounds)
             {
-              if (bu->min() > 0 && mutation_counter_-- == 0)
-                result_ =
-		  bunop::instance(bu->op(), c, bu->min() - 1, bu->max());
-              if (bu->min() > 0 && mutation_counter_-- == 0)
-                result_ = bunop::instance(bu->op(), c, 0, bu->max());
-              if (bu->max() != bunop::unbounded && bu->max() > bu->min()
-                  && mutation_counter_-- == 0)
-                result_ =
-		  bunop::instance(bu->op(), c, bu->min(), bu->max() - 1);
-              if (bu->max() != bunop::unbounded && mutation_counter_-- == 0)
-                result_ = bunop::instance(bu->op(), c, bu->min(),
-					  bunop::unbounded);
+	      auto min = bu->min();
+	      auto max = bu->max();
+	      if (min > 0)
+		{
+		  if (mutation_counter_-- == 0)
+		    result_ = bunop::instance(op, c, min - 1, max);
+		  if (mutation_counter_-- == 0)
+		    result_ = bunop::instance(op, c, 0, max);
+		}
+	      if (max != bunop::unbounded)
+		{
+		  if (max > min && mutation_counter_-- == 0)
+		    result_ = bunop::instance(op, c, min, max - 1);
+		  if (mutation_counter_-- == 0)
+		    result_ = bunop::instance(op, c, min, bunop::unbounded);
+		}
             }
           if (!result_)
             {
@@ -231,8 +247,7 @@ namespace spot
               if (mutation_counter_ < 0)
                 result_ = bu->clone();
               else
-                result_ = bunop::instance(bu->op(), recurse(c), bu->min(),
-					  bu->max());
+                result_ = bunop::instance(op, recurse(c), bu->min(), bu->max());
 	    }
         }
 

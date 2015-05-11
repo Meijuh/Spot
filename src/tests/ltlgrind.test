@@ -1,6 +1,6 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Laboratoire de Recherche et Dévelopement to
+# Copyright (C) 2014, 2015 Laboratoire de Recherche et Dévelopement to
 # l'Epita (LRDE).
 #
 # This file is part of Spot, a model checking library.
@@ -26,6 +26,8 @@ checkopt()
 {
     cat >exp
     run 0 ../../bin/ltlgrind "$@" > out
+    # The result must be parsable
+    ../../bin/ltlfilt out
     diff exp out
 }
 
@@ -164,4 +166,18 @@ p3 & p4
 1 U !p4
 1 U (p3 & !p4)
 1 U (!p3 & p4)
+EOF
+
+checkopt -f 'F({{p2;p0}[:*]}[]-> Xp0)' <<EOF
+1
+{{p2;p0}[:*]}[]-> Xp0
+F!{{p2;p0}[:*]}
+FXp0
+F({{p2;p0}[:*]}[]-> p0)
+F({{p2;p0}[:*]}[]-> 0)
+F({p2;p0}[]-> Xp0)
+F({{1;p0}[:*]}[]-> Xp0)
+F({{p2;1}[:*]}[]-> Xp0)
+F({p0[*2][:*]}[]-> Xp0)
+F({p2[*2][:*]}[]-> Xp2)
 EOF
