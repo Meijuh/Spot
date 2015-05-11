@@ -146,13 +146,12 @@ used by [[http://www.ltl2dstar.de][ltl2dstar]].
 All tools that output LTL/PSL formulas implement the following options:
 
 #+BEGIN_SRC sh :results verbatim :exports results
-ltlfilt --help | sed -n '/Output options:/,/^$/p' | sed '1d;$d'
+genltl --help | sed -n '/Output options:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 #+begin_example
-  -c, --count                print only a count of matched formulas
-  -n, --max-count=NUM        output at most NUM formulas
-  -q, --quiet                suppress all normal output
+  -0, --zero-terminated-output   separate output formulas with \0 instead of \n
+                             (for use with xargs -0)
   -8, --utf8                 output using UTF-8 characters
       --csv-escape           quote the formula for use in a CSV file
       --format=FORMAT        specify how each line should be output (default:
@@ -230,6 +229,33 @@ wc -l example-*.ltl
 rm -f example-*.ltl
 #+END_SRC
 #+RESULTS:
+
+Option =-0= is useful if the list of formulas is passed to =xargs=.
+=xargs= normally splits its input on white space (which are frequent
+in LTL formulas), but you can use =xargs -0= to split the input on
+null characters.   So for instance the following two invocations have
+nearly the same output:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+genltl -0 --gh-q=1..4 | xargs -0 ltl2tgba --stats='%F,%f,%s'
+genltl --gh-q=1..4 | ltl2tgba -F- --stats='%F,%f,%s'
+#+END_SRC
+
+#+RESULTS:
+: ,Fp1 | Gp2,3
+: ,(Fp1 | Gp2) & (Fp2 | Gp3),8
+: ,(Fp1 | Gp2) & (Fp2 | Gp3) & (Fp3 | Gp4),18
+: ,(Fp1 | Gp2) & (Fp2 | Gp3) & (Fp3 | Gp4) & (Fp4 | Gp5),42
+: -,Fp1 | Gp2,3
+: -,(Fp1 | Gp2) & (Fp2 | Gp3),8
+: -,(Fp1 | Gp2) & (Fp2 | Gp3) & (Fp3 | Gp4),18
+: -,(Fp1 | Gp2) & (Fp2 | Gp3) & (Fp3 | Gp4) & (Fp4 | Gp5),42
+
+The only difference is that for the first command, =ltl2tgba= received
+its formulas from the command-line arguments supplied by =xargs= (so
+=%F= is empty as there is no input file), while in the second case the
+formula where read from standard input (denoted by =-=).
+
 
 
 #  LocalWords:  lbt LBT's filename UTF gfa GFa ltlfilt LBTT scheck

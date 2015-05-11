@@ -111,7 +111,7 @@ public:
 	const spot::ltl::formula* f,
 	const char* filename, int loc, double run_time)
   {
-    filename_ = filename;
+    filename_ = filename ? filename : "";
     if (loc >= 0 && has('L'))
       {
 	std::ostringstream os;
