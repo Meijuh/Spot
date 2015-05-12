@@ -2537,9 +2537,8 @@ namespace spot
 	}
       }
 
-    for (auto n: namer->names())
-      n->destroy();
-    delete namer;
+    // Set the following to true to preserve state names.
+    a->release_formula_namer(namer, false);
 
     dict->register_propositions(fc.used_vars(), a);
 

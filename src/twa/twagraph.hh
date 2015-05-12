@@ -25,6 +25,7 @@
 #include "twa/bdddict.hh"
 #include "twa/twa.hh"
 #include "twaalgos/dupexp.hh"
+#include "ltlast/formula.hh"
 #include <sstream>
 
 namespace spot
@@ -221,6 +222,16 @@ namespace spot
     {
       return new named_graph<graph_t, State_Name, Name_Hash, Name_Equal>(g_);
     }
+
+    typename namer<const ltl::formula*>::type*
+    create_formula_namer()
+    {
+      return create_namer<const ltl::formula*>();
+    }
+
+    void
+    release_formula_namer(typename namer<const ltl::formula*>::type* namer,
+			  bool keep_names);
 
     graph_t& get_graph()
     {

@@ -19,9 +19,39 @@
 
 #include "twagraph.hh"
 #include "ltlast/constant.hh"
+#include "ltlvisit/tostring.hh"
 
 namespace spot
 {
+  void
+  twa_graph::release_formula_namer(typename namer<const ltl::formula*>::type*
+				   namer, bool keep_names)
+  {
+    if (keep_names)
+      {
+	auto v = new std::vector<std::string>(num_states());
+	auto& n = namer->names();
+	unsigned ns = n.size();
+	assert(n.size() <= v->size());
+	for (unsigned i = 0; i < ns; ++i)
+	  {
+	    auto f = n[i];
+	    if (f)
+	      {
+		(*v)[i] = to_string(f);
+		f->destroy();
+	      }
+	  }
+	set_named_prop("state-names", v);
+      }
+    else
+      {
+	for (auto n: namer->names())
+	  if (n)
+	    n->destroy();
+      }
+    delete namer;
+  }
 
   void twa_graph::merge_transitions()
   {
