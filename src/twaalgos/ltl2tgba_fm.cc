@@ -1690,15 +1690,33 @@ namespace spot
 
 		      const formula* dest2 =
 			binop::instance(op, dest, node->second()->clone());
-
+		      bool unamb = dict_.unambiguous;
 		      if (dest2 != constant::false_instance())
 			{
+			  // If the rhs is Boolean, the
+			  // unambiguous code will produce a more
+			  // deterministic automaton at no additional
+			  // cost.  You can test this on
+			  //   G({{1;1}*}<>->a)
+			  if (node->second()->is_boolean())
+			    unamb = true;
+
 			  int x = dict_.register_next_variable(dest2);
 			  dest2->destroy();
-			  res_ |= label & bdd_ithvar(x);
+			  bdd toadd = label & bdd_ithvar(x);
+			  if (dest->accepts_eword() && unamb)
+			    toadd &= neg_of(node->second());
+			  res_ |= toadd;
 			}
 		      if (dest->accepts_eword())
-			res_ |= label & f2;
+			{
+			  bdd toadd = label & f2;
+			  if (unamb)
+			    // Preserve determinism
+			    toadd &= bdd_ithvar(dict_.register_next_variable
+						(constant::true_instance()));
+			  res_ |= toadd;
+			}
 		    }
 		}
 	      else
@@ -1739,24 +1757,49 @@ namespace spot
 	      // word should recognize f2, and the automaton for f1
 	      // should be understood as universal.
 	      //
-	      // The crux of this translation (the use of implication,
-	      // and the interpretation as a universal automaton) was
-	      // explained to me (adl) by Felix Klaedtke.
+	      // The crux of this translation (i.e., the
+	      // interpretation of first() as a universal automaton,
+	      // and using implication to encode it)  was explained
+	      // to me (adl) by Felix Klaedtke.
 	      bdd f2 = recurse(node->second());
 	      bdd f1 = translate_ratexp(node->first(), dict_);
-	      res_ = bddtrue;
 
-	      bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
-	      bdd all_props = bdd_existcomp(f1, dict_.var_set);
-	      while (all_props != bddfalse)
+	      if (exprop_)
 		{
+		  res_ = bddfalse;
+		  bdd var_set = bdd_existcomp(bdd_support(f1), dict_.var_set);
+		  bdd all_props = bdd_existcomp(f1, dict_.var_set);
+		  bdd missing = !all_props;
+		  while (all_props != bddfalse)
+		    {
+		      bdd label = bdd_satoneset(all_props, var_set, bddtrue);
+		      all_props -= label;
 
-		  bdd one_prop_set = bddtrue;
-		  if (exprop_)
-		    one_prop_set = bdd_satoneset(all_props, var_set, bddtrue);
-		  all_props -= one_prop_set;
+		      const formula* dest =
+			dict_.bdd_to_sere(bdd_exist(f1 & label, dict_.var_set));
 
-		  minato_isop isop(f1 & one_prop_set);
+		      const formula* dest2 =
+			binop::instance(op, dest, node->second()->clone());
+
+		      bdd udest =
+			bdd_ithvar(dict_.register_next_variable(dest2));
+
+		      if (dest->accepts_eword())
+			udest &= f2;
+
+		      dest2->destroy();
+		      res_ |= label & udest;
+		    }
+		  // Make the automaton complete.
+		  res_ |= missing &
+		    // stick X(1) to preserve determinism.
+		    bdd_ithvar(dict_.register_next_variable
+			       (constant::true_instance()));
+		}
+	      else
+		{
+		  res_ = bddtrue;
+		  minato_isop isop(f1);
 		  bdd cube;
 		  while ((cube = isop.next()) != bddfalse)
 		    {
@@ -1773,7 +1816,6 @@ namespace spot
 			udest &= f2;
 
 		      dest2->destroy();
-
 		      res_ &= bdd_apply(label, udest, bddop_imp);
 		    }
 		}
@@ -2081,42 +2123,52 @@ namespace spot
 	  {
 	    bdd res = bddfalse;
 
-	    minato_isop isop(t.symbolic);
-	    bdd cube;
-	    while ((cube = isop.next()) != bddfalse)
+	    bdd var_set = bdd_existcomp(bdd_support(t.symbolic), d_.var_set);
+	    bdd all_props = bdd_existcomp(t.symbolic, d_.var_set);
+	    while (all_props != bddfalse)
 	      {
-		bdd label = bdd_exist(cube, d_.next_set);
-		bdd dest_bdd = bdd_existcomp(cube, d_.next_set);
-		const formula* dest =
-		  d_.conj_bdd_to_formula(dest_bdd);
+		bdd one_prop_set = bddtrue;
+		if (d_.exprop)
+		  one_prop_set = bdd_satoneset(all_props, var_set, bddtrue);
+		all_props -= one_prop_set;
 
-		// Handle a Miyano-Hayashi style unrolling for
-		// rational operators.  Marked nodes correspond to
-		// subformulae in the Miyano-Hayashi set.
-		const formula* tmp =  d_.mt.simplify_mark(dest);
-		dest->destroy();
-		dest = tmp;
+		minato_isop isop(t.symbolic & one_prop_set);
+		bdd cube;
+		while ((cube = isop.next()) != bddfalse)
+		  {
+		    bdd label = bdd_exist(cube, d_.next_set);
+		    bdd dest_bdd = bdd_existcomp(cube, d_.next_set);
+		    const formula* dest =
+		      d_.conj_bdd_to_formula(dest_bdd);
 
-		if (dest->is_marked())
-		  {
-		    // Make the promise that we will exit marked sets.
-		    int a =
-		      d_.register_a_variable(constant::true_instance());
-		    label &= bdd_ithvar(a);
-		  }
-		else
-		  {
-		    // We have no marked operators, but still
-		    // have other rational operator to check.
-		    // Start a new marked cycle.
-		    const formula* dest2 = d_.mt.mark_concat_ops(dest);
+		    // Handle a Miyano-Hayashi style unrolling for
+		    // rational operators.  Marked nodes correspond to
+		    // subformulae in the Miyano-Hayashi set.
+		    const formula* tmp =  d_.mt.simplify_mark(dest);
 		    dest->destroy();
-		    dest = dest2;
+		    dest = tmp;
+
+		    if (dest->is_marked())
+		      {
+			// Make the promise that we will exit marked sets.
+			int a =
+			  d_.register_a_variable(constant::true_instance());
+			label &= bdd_ithvar(a);
+		      }
+		    else
+		      {
+			// We have no marked operators, but still
+			// have other rational operator to check.
+			// Start a new marked cycle.
+			const formula* dest2 = d_.mt.mark_concat_ops(dest);
+			dest->destroy();
+			dest = dest2;
+		      }
+		    // Note that simplify_mark may have changed dest.
+		    dest_bdd = bdd_ithvar(d_.register_next_variable(dest));
+		    dest->destroy();
+		    res |= label & dest_bdd;
 		  }
-		// Note that simplify_mark may have changed dest.
-		dest_bdd = bdd_ithvar(d_.register_next_variable(dest));
-		dest->destroy();
-		res |= label & dest_bdd;
 	      }
 	    t.symbolic = res;
 //	    std::cerr << "Marking rewriting:" << std::endl;

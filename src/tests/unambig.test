@@ -31,7 +31,8 @@ for f in 'Ga' \
          'Ga | FGb' \
          'XFGa | GFb | Gc' \
          '(Ga -> Gb) W c' \
-	 'F(a & !b & (!c W b))'
+	 'F(a & !b & (!c W b))' \
+         'G({{1;1}*}<>->a)'
 do
   $ltl2tgba -UH "$f" | $autfilt -q --is-unambiguous
   $ltl2tgba -UH "!($f)" | $autfilt -q --is-unambiguous
@@ -39,7 +40,7 @@ do
   $ltl2tgba -UH "!($f)" | $autfilt --check | grep unambiguous
 done
 
-for f in FGa
+for f in FGa '(({p1[*0..1]}[]-> 0) R XFp0)'
 do
   $ltl2tgba -H "$f" | $autfilt -qv --is-unambiguous
   $ltl2tgba -UH "$f" | $autfilt -q --is-unambiguous
@@ -86,3 +87,9 @@ EOF
 run 1 $autfilt -q --is-unambiguous input
 run 0 $autfilt --check input > output
 test `grep -c unambiguous output` = 0
+
+# Check 1000 random PSL formulas
+../../bin/randltl --psl -n 1000 3 | $ltl2tgba -U -F- -H |
+  $autfilt -v --is-unamb --stats=%M && exit 1
+
+:
