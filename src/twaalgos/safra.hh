@@ -36,6 +36,9 @@ namespace spot
       bool operator==(const node& other) const;
       bool operator<(const node& other) const;
       void disable_construction() { in_construction_ = false; }
+      void truncate_braces(const std::vector<unsigned>& rem_succ_of,
+                           std::vector<size_t>& nb_braces);
+      void renumber(const std::vector<unsigned>& decr_by);
       node(unsigned id)
         : id_(id), in_construction_(true) {}
       node(unsigned id, brace_t b_id, bool in_construction = true)
@@ -57,12 +60,16 @@ namespace spot
   public:
     typedef std::vector<std::pair<safra_state, bdd>> succs_t;
     bool operator<(const safra_state& other) const;
+    // Print each sub-state with their associated braces of a safra state
+    void print_debug(unsigned state_id);
     safra_state(unsigned state_number, bool init_state = false);
     // Given a certain transition_label, compute all the successors of that
     // label, and return that new node.
     succs_t compute_succs(const const_twa_graph_ptr& aut) const;
     // Used when creating the list of successors
-    void update_succ(const node& src, unsigned dst, const acc_cond::mark_t);
+    // A new intermediate node is created with  src's braces and with dst as id
+    // A merge is done if dst already existed in *this
+    void update_succ(const node& src, unsigned dst, const acc_cond::mark_t acc);
     void finalize_construction();
     // A list of nodes similar to the ones of a
     // safra tree.  These are constructed in the same way as the powerset
