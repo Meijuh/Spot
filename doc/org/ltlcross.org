@@ -189,12 +189,12 @@ be obtained using the =--csv=FILE= or =--json=FILE= option.
 
 ** CSV or JSON output (or both!)
 
-The following compare =ltl2tgba=, =spin=, and =lbt= on two random
+The following compare =ltl2tgba=, =spin=, and =lbt= on three random
 formulas (where =W= and =M= operators have been rewritten away because
 they are not supported by =spin= and =lbt=).
 
 #+BEGIN_SRC sh :results verbatim :exports code
-randltl -n 2 a b |
+randltl -n 3 a b |
 ltlfilt --remove-wm |
 ltlcross --csv=results.csv \
          'ltl2tgba -s %f >%O' \
@@ -204,7 +204,7 @@ ltlcross --csv=results.csv \
 #+RESULTS:
 
 #+BEGIN_SRC sh :results verbatim :exports results
-randltl -n 2 a b c | ltlfilt --remove-wm |
+randltl -n 3 a b | ltlfilt --remove-wm |
 ltlcross --csv=results.csv --json=results.json \
          'ltl2tgba -s %f >%O' \
          'spin -f %s >%O' \
@@ -212,22 +212,31 @@ ltlcross --csv=results.csv --json=results.json \
 #+END_SRC
 #+RESULTS:
 #+begin_example
--:1: (1)
-Running [P0]: ltl2tgba -s '(1)' >'lcr-o0-zO7jLB'
-Running [P1]: spin -f '(true)' >'lcr-o1-r7P86U'
-Running [P2]: lbt < 'lcr-i0-idYSPi' >'lcr-o2-l220te'
-Running [N0]: ltl2tgba -s '(0)' >'lcr-o0-ylbgfR'
-Running [N1]: spin -f '(false)' >'lcr-o1-HwVbKa'
-Running [N2]: lbt < 'lcr-i0-uVICRx' >'lcr-o2-MSsIfu'
+-:1: (0)
+Running [P0]: ltl2tgba -s '(0)' >'lcr-o0-HUCuLR'
+Running [P1]: spin -f '(false)' >'lcr-o1-OEpUm3'
+Running [P2]: lbt < 'lcr-i0-KCU1eG' >'lcr-o2-jzzGYe'
+Running [N0]: ltl2tgba -s '(1)' >'lcr-o0-ppQ4cC'
+Running [N1]: spin -f '(true)' >'lcr-o1-0OiIVN'
+Running [N2]: lbt < 'lcr-i0-KZxSAq' >'lcr-o2-EcBREZ'
 Performing sanity checks and gathering statistics...
 
--:2: (!((!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))))
-Running [P0]: ltl2tgba -s '(!((!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))))' >'lcr-o0-sPvik7'
-Running [P1]: spin -f '(!((!(((p0) U ([](p1))) U (p1))) U ([](<>(p0)))))' >'lcr-o1-yQ8BZq'
-Running [P2]: lbt < 'lcr-i1-uob0MN' >'lcr-o2-0IrdjL'
-Running [N0]: ltl2tgba -s '(!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))' >'lcr-o0-tSN3Xp'
-Running [N1]: spin -f '(!(((p0) U ([](p1))) U (p1))) U ([](<>(p0)))' >'lcr-o1-DsLkqK'
-Running [N2]: lbt < 'lcr-i1-WmkDD5' >'lcr-o2-D77Ai7'
+-:2: (!((1) U (F(!(p0)))))
+Running [P0]: ltl2tgba -s '(!((1) U (F(!(p0)))))' >'lcr-o0-3dS2an'
+Running [P1]: spin -f '(!((true) U (<>(!(p0)))))' >'lcr-o1-SJop2y'
+Running [P2]: lbt < 'lcr-i1-jbIWpb' >'lcr-o2-hBEeUK'
+Running [N0]: ltl2tgba -s '(1) U (F(!(p0)))' >'lcr-o0-Hku1E8'
+Running [N1]: spin -f '(true) U (<>(!(p0)))' >'lcr-o1-8sslEk'
+Running [N2]: lbt < 'lcr-i1-M3MCMW' >'lcr-o2-f6kaEw'
+Performing sanity checks and gathering statistics...
+
+-:3: (1) U ((G(p0)) | (F(p1)))
+Running [P0]: ltl2tgba -s '(1) U ((G(p0)) | (F(p1)))' >'lcr-o0-0Mu0SU'
+Running [P1]: spin -f '(true) U (([](p0)) || (<>(p1)))' >'lcr-o1-Vhkn66'
+Running [P2]: lbt < 'lcr-i2-tc2zLI' >'lcr-o2-iOQjkj'
+Running [N0]: ltl2tgba -s '(!((1) U ((G(p0)) | (F(p1)))))' >'lcr-o0-eveiNH'
+Running [N1]: spin -f '(!((true) U (([](p0)) || (<>(p1)))))' >'lcr-o1-7hg46T'
+Running [N2]: lbt < 'lcr-i2-XwPNyv' >'lcr-o2-GuXns6'
 Performing sanity checks and gathering statistics...
 
 No problem detected.
@@ -240,19 +249,25 @@ cat results.csv
 #+END_SRC
 #+RESULTS:
 #+begin_example
-"formula","tool","exit_status","exit_code","time","states","edges","transitions","acc","scc","nonacc_scc","terminal_scc","weak_scc","strong_scc","nondet_states","nondet_aut","terminal_aut","weak_aut","strong_aut","product_states","product_transitions","product_scc"
-"(1)","ltl2tgba -s %f >%O","ok",0,0.137237,1,1,1,1,1,0,1,0,0,0,0,1,0,0,200,4142,1
-"(1)","spin -f %s >%O","ok",0,0.00531029,2,2,2,1,2,1,1,0,0,0,0,1,0,0,201,4161,2
-"(1)","lbt < %L >%O","ok",0,0.00358417,3,3,3,0,3,2,1,0,0,0,0,1,0,0,220,4550,21
-"(0)","ltl2tgba -s %f >%O","ok",0,0.0377477,1,1,0,1,1,1,0,0,0,0,0,1,0,0,1,0,1
-"(0)","spin -f %s >%O","ok",0,0.00286865,2,2,1,1,2,1,1,0,0,0,0,1,0,0,1,0,1
-"(0)","lbt < %L >%O","ok",0,0.00280551,1,0,0,0,1,1,0,0,0,0,0,1,0,0,1,0,1
-"(!((!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))))","ltl2tgba -s %f >%O","ok",0,0.0415092,2,3,4,1,2,1,0,1,0,1,1,0,1,0,400,8567,2
-"(!((!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))))","spin -f %s >%O","ok",0,0.209455,23,86,127,1,17,10,0,2,5,21,1,0,0,1,4392,116876,24
-"(!((!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))))","lbt < %L >%O","ok",0,0.00363823,37,109,164,3,35,28,0,7,0,28,1,0,1,0,7182,155216,4006
-"(!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))","ltl2tgba -s %f >%O","ok",0,0.0406385,2,4,4,1,1,0,0,0,1,0,0,0,0,1,400,8522,1
-"(!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))","spin -f %s >%O","ok",0,0.781573,22,152,257,1,9,4,0,0,5,21,1,0,0,1,4400,282361,208
-"(!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))","lbt < %L >%O","ok",0,0.00471071,72,551,914,3,52,47,0,0,5,72,1,0,0,1,14201,983174,8808
+"formula","tool","exit_status","exit_code","time","states","edges","transitions","acc","scc","nonacc_scc","terminal_scc","weak_scc","strong_scc","nondet_states","nondet_aut","terminal_aut","weak_aut","strong_aut","ambiguous_aut","product_states","product_transitions","product_scc"
+"(0)","ltl2tgba -s %f >%O","ok",0,0.0329577,1,1,0,1,1,1,0,0,0,0,0,1,0,0,1,1,0,1
+"(0)","spin -f %s >%O","ok",0,0.00219235,2,2,1,1,2,1,1,0,0,0,0,1,0,0,1,1,0,1
+"(0)","lbt < %L >%O","ok",0,0.0026317,1,0,0,0,1,1,0,0,0,0,0,1,0,0,1,1,0,1
+"(1)","ltl2tgba -s %f >%O","ok",0,0.0429693,1,1,1,1,1,0,1,0,0,0,0,1,0,0,0,200,4062,1
+"(1)","spin -f %s >%O","ok",0,0.00305038,2,2,2,1,2,1,1,0,0,0,0,1,0,0,0,201,4083,2
+"(1)","lbt < %L >%O","ok",0,0.00404441,3,3,3,0,3,2,1,0,0,0,0,1,0,0,0,222,4510,23
+"(!((1) U (F(!(p0)))))","ltl2tgba -s %f >%O","ok",0,0.041792,1,1,1,1,1,0,0,1,0,0,0,0,1,0,0,200,2098,1
+"(!((1) U (F(!(p0)))))","spin -f %s >%O","ok",0,0.00278539,1,1,1,1,1,0,0,1,0,0,0,0,1,0,0,200,2098,1
+"(!((1) U (F(!(p0)))))","lbt < %L >%O","ok",0,0.00347608,2,2,2,0,2,1,0,1,0,0,0,0,1,0,0,201,2110,2
+"(1) U (F(!(p0)))","ltl2tgba -s %f >%O","ok",0,0.046218,2,3,4,1,2,1,1,0,0,0,0,1,0,0,0,400,8356,2
+"(1) U (F(!(p0)))","spin -f %s >%O","ok",0,0.00292604,2,3,5,1,2,1,1,0,0,1,1,1,0,0,1,400,10436,2
+"(1) U (F(!(p0)))","lbt < %L >%O","ok",0,0.00420574,7,13,22,2,7,6,1,0,0,4,1,1,0,0,1,1201,35534,604
+"(1) U ((G(p0)) | (F(p1)))","ltl2tgba -s %f >%O","ok",0,0.0395735,3,5,11,1,3,1,1,1,0,1,1,0,1,0,1,600,11104,4
+"(1) U ((G(p0)) | (F(p1)))","spin -f %s >%O","ok",0,0.00349485,4,8,24,1,4,2,1,1,0,2,1,0,1,0,1,800,24284,4
+"(1) U ((G(p0)) | (F(p1)))","lbt < %L >%O","ok",0,0.00316141,9,17,52,2,9,7,1,1,0,4,1,0,1,0,1,1601,40505,805
+"(!((1) U ((G(p0)) | (F(p1)))))","ltl2tgba -s %f >%O","ok",0,0.0352196,2,4,4,1,1,0,0,0,1,0,0,0,0,1,0,398,3919,3
+"(!((1) U ((G(p0)) | (F(p1)))))","spin -f %s >%O","ok",0,0.00995492,6,18,17,1,4,2,0,1,1,5,1,0,0,1,1,596,8720,4
+"(!((1) U ((G(p0)) | (F(p1)))))","lbt < %L >%O","ok",0,0.0035013,3,6,9,1,2,1,0,0,1,3,1,0,0,1,1,399,5837,4
 #+end_example
 
 This file can be loaded in any spreadsheet or statistical application.
@@ -277,28 +292,36 @@ cat results.json
     "lbt < %L >%O"
   ],
   "formula": [
-    "(1)",
     "(0)",
-    "(!((!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))))",
-    "(!(((p0) U (G(p1))) U (p1))) U (G(F(p0)))"
+    "(1)",
+    "(!((1) U (F(!(p0)))))",
+    "(1) U (F(!(p0)))",
+    "(1) U ((G(p0)) | (F(p1)))",
+    "(!((1) U ((G(p0)) | (F(p1)))))"
   ],
   "fields":  [
-  "formula","tool","exit_status","exit_code","time","states","edges","transitions","acc","scc","nonacc_scc","terminal_scc","weak_scc","strong_scc","nondet_states","nondet_aut","terminal_aut","weak_aut","strong_aut","product_states","product_transitions","product_scc"
+  "formula","tool","exit_status","exit_code","time","states","edges","transitions","acc","scc","nonacc_scc","terminal_scc","weak_scc","strong_scc","nondet_states","nondet_aut","terminal_aut","weak_aut","strong_aut","ambiguous_aut","product_states","product_transitions","product_scc"
   ],
   "inputs":  [ 0, 1 ],
   "results": [
-    [ 0,0,"ok",0,0.137237,1,1,1,1,1,0,1,0,0,0,0,1,0,0,200,4142,1 ],
-    [ 0,1,"ok",0,0.00531029,2,2,2,1,2,1,1,0,0,0,0,1,0,0,201,4161,2 ],
-    [ 0,2,"ok",0,0.00358417,3,3,3,0,3,2,1,0,0,0,0,1,0,0,220,4550,21 ],
-    [ 1,0,"ok",0,0.0377477,1,1,0,1,1,1,0,0,0,0,0,1,0,0,1,0,1 ],
-    [ 1,1,"ok",0,0.00286865,2,2,1,1,2,1,1,0,0,0,0,1,0,0,1,0,1 ],
-    [ 1,2,"ok",0,0.00280551,1,0,0,0,1,1,0,0,0,0,0,1,0,0,1,0,1 ],
-    [ 2,0,"ok",0,0.0415092,2,3,4,1,2,1,0,1,0,1,1,0,1,0,400,8567,2 ],
-    [ 2,1,"ok",0,0.209455,23,86,127,1,17,10,0,2,5,21,1,0,0,1,4392,116876,24 ],
-    [ 2,2,"ok",0,0.00363823,37,109,164,3,35,28,0,7,0,28,1,0,1,0,7182,155216,4006 ],
-    [ 3,0,"ok",0,0.0406385,2,4,4,1,1,0,0,0,1,0,0,0,0,1,400,8522,1 ],
-    [ 3,1,"ok",0,0.781573,22,152,257,1,9,4,0,0,5,21,1,0,0,1,4400,282361,208 ],
-    [ 3,2,"ok",0,0.00471071,72,551,914,3,52,47,0,0,5,72,1,0,0,1,14201,983174,8808 ]
+    [ 0,0,"ok",0,0.0329577,1,1,0,1,1,1,0,0,0,0,0,1,0,0,1,1,0,1 ],
+    [ 0,1,"ok",0,0.00219235,2,2,1,1,2,1,1,0,0,0,0,1,0,0,1,1,0,1 ],
+    [ 0,2,"ok",0,0.0026317,1,0,0,0,1,1,0,0,0,0,0,1,0,0,1,1,0,1 ],
+    [ 1,0,"ok",0,0.0429693,1,1,1,1,1,0,1,0,0,0,0,1,0,0,0,200,4062,1 ],
+    [ 1,1,"ok",0,0.00305038,2,2,2,1,2,1,1,0,0,0,0,1,0,0,0,201,4083,2 ],
+    [ 1,2,"ok",0,0.00404441,3,3,3,0,3,2,1,0,0,0,0,1,0,0,0,222,4510,23 ],
+    [ 2,0,"ok",0,0.041792,1,1,1,1,1,0,0,1,0,0,0,0,1,0,0,200,2098,1 ],
+    [ 2,1,"ok",0,0.00278539,1,1,1,1,1,0,0,1,0,0,0,0,1,0,0,200,2098,1 ],
+    [ 2,2,"ok",0,0.00347608,2,2,2,0,2,1,0,1,0,0,0,0,1,0,0,201,2110,2 ],
+    [ 3,0,"ok",0,0.046218,2,3,4,1,2,1,1,0,0,0,0,1,0,0,0,400,8356,2 ],
+    [ 3,1,"ok",0,0.00292604,2,3,5,1,2,1,1,0,0,1,1,1,0,0,1,400,10436,2 ],
+    [ 3,2,"ok",0,0.00420574,7,13,22,2,7,6,1,0,0,4,1,1,0,0,1,1201,35534,604 ],
+    [ 4,0,"ok",0,0.0395735,3,5,11,1,3,1,1,1,0,1,1,0,1,0,1,600,11104,4 ],
+    [ 4,1,"ok",0,0.00349485,4,8,24,1,4,2,1,1,0,2,1,0,1,0,1,800,24284,4 ],
+    [ 4,2,"ok",0,0.00316141,9,17,52,2,9,7,1,1,0,4,1,0,1,0,1,1601,40505,805 ],
+    [ 5,0,"ok",0,0.0352196,2,4,4,1,1,0,0,0,1,0,0,0,0,1,0,398,3919,3 ],
+    [ 5,1,"ok",0,0.00995492,6,18,17,1,4,2,0,1,1,5,1,0,0,1,1,596,8720,4 ],
+    [ 5,2,"ok",0,0.0035013,3,6,9,1,2,1,0,0,1,3,1,0,0,1,1,399,5837,4 ]
   ]
 }
 #+end_example
@@ -337,10 +360,10 @@ for i in range(0, len(data["tool"])):
         " & ".join(sums)))
 #+END_SRC
 #+RESULTS:
-: tool               & count & time & states & edges & transitions & acc & scc & nonacc_scc & terminal_scc & weak_scc & strong_scc & nondet_states & nondet_aut & terminal_aut & weak_aut & strong_aut & product_states & product_transitions & product_scc \\
-: ltl2tgba -s %f >%O &   4 &    0.1 &    1.5 &    2.2 &    2.2 &    1.0 &    1.2 &    0.5 &    0.2 &    0.2 &    0.2 &    0.2 &    0.2 &    0.5 &    0.2 &    0.2 &  250.2 & 5307.8 &    1.2 \\
-: spin -f %s >%O     &   4 &    0.2 &   12.2 &   60.5 &   96.8 &    1.0 &    7.5 &    4.0 &    0.5 &    0.5 &    2.5 &   10.5 &    0.5 &    0.5 &    0.0 &    0.5 & 2248.5 & 100849.5 &   58.8 \\
-: lbt < %L >%O       &   4 &    0.0 &   28.2 &  165.8 &  270.2 &    1.5 &   22.8 &   19.5 &    0.2 &    1.8 &    1.2 &   25.0 &    0.5 &    0.5 &    0.2 &    0.2 & 5401.0 & 285735.0 & 3209.0 \\
+: tool               & count & time & states & edges & transitions & acc & scc & nonacc_scc & terminal_scc & weak_scc & strong_scc & nondet_states & nondet_aut & terminal_aut & weak_aut & strong_aut & ambiguous_aut & product_states & product_transitions & product_scc \\
+: ltl2tgba -s %f >%O &   6 &    0.0 &    1.7 &    2.5 &    3.5 &    1.0 &    1.5 &    0.5 &    0.5 &    0.3 &    0.2 &    0.2 &    0.2 &    0.5 &    0.3 &    0.2 &    0.3 &  299.8 & 4923.2 &    2.0 \\
+: spin -f %s >%O     &   6 &    0.0 &    2.8 &    5.7 &    8.3 &    1.0 &    2.5 &    1.2 &    0.7 &    0.5 &    0.2 &    1.3 &    0.5 &    0.5 &    0.3 &    0.2 &    0.7 &  366.3 & 8270.2 &    2.3 \\
+: lbt < %L >%O       &   6 &    0.0 &    4.2 &    6.8 &   14.7 &    0.8 &    4.0 &    3.0 &    0.5 &    0.3 &    0.2 &    1.8 &    0.5 &    0.5 &    0.3 &    0.2 &    0.7 &  604.2 & 14749.3 &  239.8 \\
 
 The script =bench/ltl2tgba/sum.py= is a more evolved version of the
 above script that generates two kinds of LaTeX tables.
@@ -468,6 +491,10 @@ showing two automata for =a U b=, the first automaton is deterministic
 (these two fields will contain 0), while the second automaton contain
 a nondeterministic state (state A2 has two possible successors for the
 assignment $ab$) and is therefore not deterministic.
+
+=ambiguous_aut= counts the number of ambiguous automaton.  An
+automaton is ambiguous is there exist a word that can be accepted by
+at least two different runs.
 
 Finally, =product_states=, =product_transitions=, and =product_scc=
 count the number of state, transitions and strongly-connect components
