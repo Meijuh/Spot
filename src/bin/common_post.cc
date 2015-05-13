@@ -37,11 +37,12 @@ static const argp_option options[] =
   {
     /**************************************************/
     { 0, 0, 0, 0, "Translation intent:", 20 },
-    { "small", OPT_SMALL, 0, 0, "prefer small automata (default)", 20 },
-    { "deterministic", 'D', 0, 0, "prefer deterministic automata", 20 },
-    { "any", 'a', 0, 0, "no preference", 20 },
+    { "small", OPT_SMALL, 0, 0, "prefer small automata (default)", 0 },
+    { "deterministic", 'D', 0, 0, "prefer deterministic automata", 0 },
+    { "any", 'a', 0, 0, "no preference, do not bother making it small "
+      "or deterministic", 0 },
     { "complete", 'C', 0, 0, "output a complete automaton (combine "
-      "with other intents)", 20 },
+      "with other intents)", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Optimization level:", 21 },
     { "low", OPT_LOW, 0, 0, "minimal optimizations (fast)", 0 },
@@ -57,7 +58,8 @@ static const argp_option options_disabled[] =
     { 0, 0, 0, 0, "Translation intent:", 20 },
     { "small", OPT_SMALL, 0, 0, "prefer small automata", 0 },
     { "deterministic", 'D', 0, 0, "prefer deterministic automata", 0 },
-    { "any", 'a', 0, 0, "no preference (default)", 0 },
+    { "any", 'a', 0, 0, "no preference, do not bother making it small "
+      "or deterministic (default)", 0 },
     { "complete", 'C', 0, 0, "output a complete automaton (combine "
       "with other intents)", 0 },
     /**************************************************/

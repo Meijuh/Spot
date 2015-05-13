@@ -75,6 +75,11 @@ New in spot 1.99b (not yet released)
       in a pipe, and it also takes care of some necessary format
       conversion.
 
+    - ltl2tgba has a new option, -U, to produce unambiguous automata.
+      In unambiguous automata any word this recognized by at most one
+      accepting run (but there might be several ways to reject a
+      word).  This works for LTL and PSL formulas.
+
     - ltlcross will work with translator producing automata with any
       acceptance condition, provided the output is in the HOA format.
       So it can effectively be used to validate tools producing Rabin
@@ -131,7 +136,8 @@ New in spot 1.99b (not yet released)
         ltl2tgba --check 'formula'
       additional checks will be performed, and the automaton
       will be accurately marked as either 'stutter-invariant'
-      or 'stutter-sensitive'.
+      or 'stutter-sensitive'.  Another check performed by
+      --check is testing whether the automaton is unambiguous.
 
     - ltlcross (and ltldo) have a list of hard-coded shorthands
       for some existing tools.  So for instance running
@@ -222,10 +228,10 @@ New in spot 1.99b (not yet released)
       --spin=6 (or -s6 for short).
 
     - Support for building unambiguous automata.  ltl_to_tgba() has a
-      new options to produce unambiguous TGBA, i.e., TGBAs in which
-      every word is accepted by at most one path.  The ltl2tgba
-      command line has a new option, --unambigous (or -U) to produce
-      these automata, and autfilt has a --is-unambiguous filter.
+      new options to produce unambiguous TGBA (used by ltl2tgba -U as
+      discussed above).   The function is_unambiguous() will check
+      whether an automaton is unambigous, and this is used by
+      autfilt --is-unmabiguous.
 
   * Noteworthy code changes
 

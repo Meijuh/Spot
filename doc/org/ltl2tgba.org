@@ -51,7 +51,7 @@ ltl2tgba "Fa & GFb" | dot -Tpdf > tgba.pdf
 #+RESULTS:
 
 The result would look like this (note that in this documentation
-we use some [[file:aout.org][environement variables]] to produce a more colorful
+we use some [[file:aout.org][environment variables]] to produce a more colorful
 output by default)
 #+NAME: dotex
 #+BEGIN_SRC sh :results verbatim :exports none
@@ -140,21 +140,22 @@ ltl2tgba -B 'GFa & GFb'
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
   node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label=<0<br/><font color="#5DA5DA">⓿</font>>]
+  0 [label="0", peripheries=2]
   0 -> 0 [label=<a &amp; b>]
   0 -> 1 [label=<!b>]
   0 -> 2 [label=<!a &amp; b>]
-  1 [label=<1>]
+  1 [label="1"]
   1 -> 0 [label=<a &amp; b>]
   1 -> 1 [label=<!b>]
   1 -> 2 [label=<!a &amp; b>]
-  2 [label=<2>]
+  2 [label="2"]
   2 -> 0 [label=<a>]
   2 -> 2 [label=<!a>]
 }
@@ -166,13 +167,13 @@ $txt
 #+RESULTS:
 [[file:dotex2ba.png]]
 
-Although accepting states in the Büchi automaton are pictured with
-double-lines, internally this automaton is still handled as a TGBA
-with a single acceptance set such that the transitions
-leaving the state are either all accepting, or all non-accepting.
-You can see this underlying TGBA if you pass the =--dot=t= option
-(the =t= requests the use of transition-based acceptance at it
-is done internally):
+Although accepting states in the Büchi automaton are (traditionally)
+pictured with double-lines, internally this automaton is still handled
+as a TGBA with a single acceptance set such that the transitions
+leaving the state are either all accepting, or all non-accepting.  You
+can see this underlying TGBA if you pass the =--dot=t= option (the =t=
+requests the use of transition-based acceptance as it is done
+internally):
 
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba --dot=t -B 'GFa & GFb'
@@ -223,15 +224,21 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 #+begin_example
   -8, --utf8                 enable UTF-8 characters in output (ignored with
                              --lbtt or --spin)
-      --dot[=a|b|c|f(FONT)|h|n|N|r|R|s|t|v]
-                             GraphViz's format (default).  Add letters for (a)
-                             acceptance display, (b) acceptance sets as
-                             bullets,(c) circular nodes, (f(FONT)) use FONT,
-                             (h) horizontal layout, (v) vertical layout, (n)
-                             with name, (N) without name, (r) rainbow colors
-                             for acceptance set, (R) color acceptance set by
-                             Inf/Fin, (s) with SCCs, (t) force transition-based
-                             acceptance.
+      --check[=PROP]         test for the additional property PROP and output
+                             the result in the HOA format (implies -H).  PROP
+                             may be any prefix of 'all' (default),
+                             'unambiguous', or 'stutter-invariant'.
+      --dot[=1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v]
+                             GraphViz's format (default).  Add letters for (1)
+                             force numbered states, (a) acceptance display, (b)
+                             acceptance sets as bullets, (B) bullets except for
+                             BÃ¼chi/co-BÃ¼chi automata, (c) force circular
+                             nodes, (e) force elliptic nodes, (f(FONT)) use
+                             FONT, (h) horizontal layout, (v) vertical layout,
+                             (n) with name, (N) without name, (o) ordered
+                             transitions, (r) rainbow colors for acceptance
+                             sets, (R) color acceptance sets by Inf/Fin, (s)
+                             with SCCs, (t) force transition-based acceptance.
   -H, --hoaf[=i|s|t|m|l]     Output the automaton in HOA format.  Add letters
                              to select (i) use implicit labels for complete
                              deterministic automata, (s) prefer state-based
@@ -240,7 +247,7 @@ ltl2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
                              transition-based acceptance, (l) single-line
                              output
       --lbtt[=t]             LBTT's format (add =t to force transition-based
-                             acceptance even on Büchi automata)
+                             acceptance even on BÃ¼chi automata)
       --name=FORMAT          set the name of the output automaton
   -o, --output=FORMAT        send output to a file named FORMAT instead of
                              standard output.  The first automaton sent to a
@@ -340,49 +347,57 @@ ltl2tgba -s --lenient '(a < b) U (process[2]@ok)'
 :   skip
 : }
 
-
 * Do you favor deterministic or small automata?
 
 The translation procedure can be controled by a few switches.  A first
 set of options specifies the intent of the translation: whenever
-possible, would you prefer a small automaton or a deterministic
-automaton?
+possible, would you prefer a small automaton (=--small=) or a
+deterministic (=--deterministic=) automaton?
 
 #+BEGIN_SRC sh :results verbatim :exports results
 ltl2tgba --help | sed -n '/Translation intent:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
-:   -a, --any                  no preference
+:   -a, --any                  no preference, do not bother making it small or
+:                              deterministic
 :   -C, --complete             output a complete automaton (combine with other
 :                              intents)
 :   -D, --deterministic        prefer deterministic automata
 :       --small                prefer small automata (default)
+:   -U, --unambiguous          output unambiguous automata (combine with other
+:                              intents)
 
-The =--any= option tells the translator that it should not target any
-particular form of result: any automaton denoting the given formula is
-OK.  This effectively disables post-processings and speeds up the
-translation.
+The =--any= option tells the translator that it should attempt to
+reduce or produce a deterministic result result: any automaton
+denoting the given formula is OK.  This effectively disables
+post-processings and speeds up the translation.
 
-With the =-D= option, the translator will /attempt/ to produce a
-deterministic automaton, even if this requires a lot of states.  =ltl2tgba=
-knows how to produce the minimal deterministic Büchi automaton for
-any obligation property (this includes safety properties).
+With the =-D= or =--deterministic= option, the translator will
+/attempt/ to produce a deterministic automaton, even if this requires
+a lot of states.  =ltl2tgba= knows how to produce the minimal
+deterministic Büchi automaton for any obligation property (this
+includes safety properties).
 
 With the =--small= option (the default), the translator will not
 produce a deterministic automaton when it knows how to build smaller
 automaton.
+
+Note that options =--deterministic= and =--small= express
+/preferences/.  They certainly do /not/ guarantee that the output will
+be deterministic, or will be the smallest automaton possible.
 
 An example formula where the difference between =-D= and =--small= is
 flagrant is =Ga|Gb|Gc=:
 
 #+NAME: gagbgc1
 #+BEGIN_SRC sh :results verbatim :exports code
-ltl2tgba "Ga|Gb|Gc"
+ltl2tgba 'Ga|Gb|Gc'
 #+END_SRC
 #+RESULTS: gagbgc1
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
@@ -416,31 +431,32 @@ ltl2tgba -D 'Ga|Gb|Gc'
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
   node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 6
-  0 [label=<0<br/><font color="#5DA5DA">⓿</font>>]
+  0 [label="0", peripheries=2]
   0 -> 0 [label=<c>]
-  1 [label=<1<br/><font color="#5DA5DA">⓿</font>>]
+  1 [label="1", peripheries=2]
   1 -> 0 [label=<!b &amp; c>]
   1 -> 1 [label=<b &amp; c>]
   1 -> 2 [label=<b &amp; !c>]
-  2 [label=<2<br/><font color="#5DA5DA">⓿</font>>]
+  2 [label="2", peripheries=2]
   2 -> 2 [label=<b>]
-  3 [label=<3<br/><font color="#5DA5DA">⓿</font>>]
+  3 [label="3", peripheries=2]
   3 -> 2 [label=<!a &amp; b>]
   3 -> 3 [label=<a &amp; b>]
   3 -> 5 [label=<a &amp; !b>]
-  4 [label=<4<br/><font color="#5DA5DA">⓿</font>>]
+  4 [label="4", peripheries=2]
   4 -> 0 [label=<!a &amp; c>]
   4 -> 4 [label=<a &amp; c>]
   4 -> 5 [label=<a &amp; !c>]
-  5 [label=<5<br/><font color="#5DA5DA">⓿</font>>]
+  5 [label="5", peripheries=2]
   5 -> 5 [label=<a>]
-  6 [label=<6<br/><font color="#5DA5DA">⓿</font>>]
+  6 [label="6", peripheries=2]
   6 -> 0 [label=<!a &amp; !b &amp; c>]
   6 -> 1 [label=<!a &amp; b &amp; c>]
   6 -> 2 [label=<!a &amp; b &amp; !c>]
@@ -461,9 +477,109 @@ You can augment the number of terms in the disjunction to magnify the
 difference.  For N terms, the =--small= automaton has N+1 states,
 while the =--deterministic= automaton needs 2^N-1 states.
 
-Add the =--complete= option if you want to obtain a complete
+Add the =-C= or =--complete= option if you want to obtain a complete
 automaton, with a sink state capturing that rejected words that would
 not otherwise have a run in the output automaton.
+
+Add the =-U= or =--unambiguous= option if you want unambiguous
+automata to be produced.  An automaton is unambiguous if any word is
+recognized by at most one accepting run of the automaton (however a
+word can be rejected by multiple runs, so unambiguous automata can be
+non-deterministic).
+
+The following example is an ambiguous Büchi automaton, because the are
+two ways to accept a run that repeats continuously the configuration
+$\bar ab$.
+
+#+NAME: ambig1
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba -B 'GFa -> GFb'
+#+END_SRC
+#+RESULTS: ambig1
+#+begin_example
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 1
+  0 [label="0", peripheries=2]
+  0 -> 0 [label=<!a>]
+  1 [label="1"]
+  1 -> 0 [label=<!a>]
+  1 -> 1 [label=<1>]
+  1 -> 2 [label=<b>]
+  2 [label="2", peripheries=2]
+  2 -> 2 [label=<b>]
+  2 -> 3 [label=<!b>]
+  3 [label="3"]
+  3 -> 2 [label=<b>]
+  3 -> 3 [label=<!b>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file ambig1.png :cmdline -Tpng :var txt=ambig1 :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:ambig1.png]]
+
+Here is an unambiguous automaton for the same formula, in which there
+is only one run that recognizes this example word:
+
+#+NAME: ambig2
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba -B -U 'GFa -> GFb'
+#+END_SRC
+
+#+RESULTS: ambig2
+#+begin_example
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 1 [label=<!a &amp; !b>]
+  0 -> 2 [label=<1>]
+  0 -> 3 [label=<a | b>]
+  0 -> 4 [label=<!a &amp; !b>]
+  1 [label="1", peripheries=2]
+  1 -> 1 [label=<!a &amp; !b>]
+  2 [label="2", peripheries=2]
+  2 -> 2 [label=<b>]
+  2 -> 5 [label=<!b>]
+  3 [label="3"]
+  3 -> 1 [label=<!a &amp; !b>]
+  3 -> 3 [label=<a | b>]
+  3 -> 4 [label=<!a &amp; !b>]
+  4 [label="4"]
+  4 -> 3 [label=<a | b>]
+  4 -> 4 [label=<!a &amp; !b>]
+  5 [label="5"]
+  5 -> 2 [label=<b>]
+  5 -> 5 [label=<!b>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file ambig2.png :cmdline -Tpng :var txt=ambig2 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:ambig2.png]]
+
+
+Unlike =--small= and =--deterministic= that express preferences,
+options =--complete= and =--unambiguous= do guarantee that the output
+will be complete and unambiguous.
 
 
 A last parameter that can be used to tune the translation is the amount
@@ -486,8 +602,8 @@ syntactic implications are performed.  At =--high= level, language
 containment is used instead of syntactic implications.
 
 Post-processings are cleanups and simplifications of the automaton
-produced by the core translator.  The algorithms used during post-processing
-are
+produced by the core translator.  The algorithms used during
+post-processing are
 - SCC filtering: removing useless strongly connected components,
   and useless acceptance sets.
 - direct simulation: merge states based on suffix inclusion.
@@ -496,6 +612,7 @@ are
 - WDBA minimization: determinize and minimize automata representing
   obligation properties.
 - degeneralization: convert a TGBA into a BA
+- BA simulation (again direct or iterated)
 
 The chaining of these various algorithms depends on the selected
 combination of optimization level (=--low=, =--medium=, =--high=),

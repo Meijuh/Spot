@@ -64,7 +64,8 @@ static const argp_option options[] =
     { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the formula, in Spot's syntax", 4 },
     /**************************************************/
-    { "unambiguous", 'U', 0, 0, "produce unambiguous automata", 20 },
+    { "unambiguous", 'U', 0, 0, "output unambiguous automata "
+      "(combine with other intents)", 20 },
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
@@ -76,7 +77,7 @@ const struct argp_child children[] =
     { &finput_argp, 0, 0, 1 },
     { &aoutput_argp, 0, 0, 0 },
     { &aoutput_o_format_argp, 0, 0, 0 },
-    { &post_argp, 0, 0, 20 },
+    { &post_argp, 0, 0, 0 },
     { &misc_argp, 0, 0, -1 },
     { 0, 0, 0, 0 }
   };

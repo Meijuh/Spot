@@ -822,7 +822,7 @@ The dot output can also be customized via two environment variables:
   variables set:
 
 #+BEGIN_SRC sh :results verbatim :exports code
-export SPOT_DOTDEFAULT='brf(Lato)'
+export SPOT_DOTDEFAULT='Brf(Lato)'
 export SPOT_DOTEXTRA='node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]'
 #+END_SRC
 
