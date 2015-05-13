@@ -52,9 +52,9 @@ namespace spot
 	return true;
       }
 
-      unsigned accsets(unsigned n)
+      void fix_acceptance(const twa_graph_ptr& out)
       {
-	return n;
+	out->copy_acceptance_of(this->si->get_aut());
       }
 
       // Accept all transitions, unmodified
@@ -112,7 +112,7 @@ namespace spot
 	    cond = bdd_exist(cond, ignoredvars);
 
 	    // Remove the suspension variables only if
-	    // the destination in not in an accepting SCC,
+	    // the destination in a rejecting SCC,
 	    // or if we are between SCC with early_susp unset.
 	    unsigned u = this->si->scc_of(dst);
 	    if (this->si->is_rejecting_scc(u)
@@ -192,13 +192,15 @@ namespace spot
       {
       }
 
-      unsigned accsets(unsigned n)
+      void fix_acceptance(const twa_graph_ptr& out)
       {
-	unsigned scc_count = this->si->scc_count();
 	auto& acc = this->si->get_aut()->acc();
-	assert(n == acc.num_sets());
-	(void) n;
+	if (!acc.is_generalized_buchi())
+	  throw std::runtime_error
+	    ("simplification of SCC acceptance work only with "
+	     "generalized Büchi acceptance");
 
+	unsigned scc_count = this->si->scc_count();
 	auto used_acc = this->si->used_acc();
 	assert(used_acc.size() == scc_count);
 	strip_.resize(scc_count);
@@ -223,7 +225,8 @@ namespace spot
 	    if (cnt[n] < max)
 	      strip_[n].remove_some(max - cnt[n]);
 	  }
-	return max;
+
+	out->set_generalized_buchi(max);
       }
 
       filtered_trans trans(unsigned src, unsigned dst, bdd cond,
@@ -249,12 +252,8 @@ namespace spot
 
     template<class F, typename... Args>
     twa_graph_ptr scc_filter_apply(const_twa_graph_ptr aut,
-				      scc_info* given_si, Args&&... args)
+				   scc_info* given_si, Args&&... args)
     {
-      if (!aut->acc().is_generalized_buchi())
-	throw std::runtime_error
-	  ("scc_filter() works only with generalized Büchi acceptance");
-
       twa_graph_ptr filtered = make_twa_graph(aut->get_dict());
       unsigned in_n = aut->num_states(); // Number of input states.
       if (in_n == 0)			 // Nothing to filter.
@@ -278,8 +277,7 @@ namespace spot
 	else
 	  inout.push_back(-1U);
 
-      filtered->
-	set_generalized_buchi(filter.accsets(aut->acc().num_sets()));
+      filter.fix_acceptance(filtered);
       filtered->new_states(out_n);
       for (unsigned isrc = 0; isrc < in_n; ++isrc)
 	{
@@ -326,14 +324,27 @@ namespace spot
 	     scc_info* given_si)
   {
     twa_graph_ptr res;
-    if (remove_all_useless)
-      res = scc_filter_apply<state_filter
-			     <acc_filter_all
-			      <acc_filter_simplify<>>>>(aut, given_si);
+    // acc_filter_simplify only work for generalized Büchi
+    if (aut->acc().is_generalized_buchi())
+      {
+	if (remove_all_useless)
+	  res = scc_filter_apply<state_filter
+				 <acc_filter_all
+				  <acc_filter_simplify<>>>>(aut, given_si);
+	else
+	  res = scc_filter_apply<state_filter
+				 <acc_filter_some
+				  <acc_filter_simplify<>>>>(aut, given_si);
+      }
     else
-      res = scc_filter_apply<state_filter
-			     <acc_filter_some
-			      <acc_filter_simplify<>>>>(aut, given_si);
+      {
+	if (remove_all_useless)
+	  res = scc_filter_apply<state_filter
+				 <acc_filter_all<>>>(aut, given_si);
+	else
+	  res = scc_filter_apply<state_filter
+				 <acc_filter_some<>>>(aut, given_si);
+      }
     res->merge_transitions();
     res->prop_copy(aut,
 		   { false,  // state-based acceptance is not preserved

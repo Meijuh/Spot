@@ -82,6 +82,19 @@ State: 0
 State: 1
 [0] 1 {0}
 --END--
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 1 Fin(0)
+--BODY--
+State: 0
+[0] 1 {0}
+[1] 1
+State: 1
+[0] 1 {0}
+[!0] 1
+--END--
 EOF
 
 run 1 $autfilt -q --is-unambiguous input
