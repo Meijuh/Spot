@@ -264,6 +264,7 @@ namespace spot
       scc_info* si = given_si;
       if (!si)
 	si = new scc_info(aut);
+      si->determine_unknown_acceptance();
 
       F filter(si, std::forward<Args>(args)...);
 

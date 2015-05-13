@@ -58,7 +58,8 @@ namespace spot
       }
 
       scc_node(acc_cond::mark_t acc, bool trivial):
-	acc_(acc), trivial_(trivial), accepting_(false), useful_(false)
+	acc_(acc), trivial_(trivial), accepting_(false),
+	rejecting_(false), useful_(false)
       {
       }
 
@@ -112,6 +113,8 @@ namespace spot
     std::vector<scc_node> node_;
     const_twa_graph_ptr aut_;
 
+    // Update the useful_ bits.  Called automatically.
+    void determine_usefulness();
 
     const scc_node& node(unsigned scc) const
     {
@@ -197,6 +200,10 @@ namespace spot
     {
       return node(scc).is_rejecting();
     }
+
+    // Study the SCC that are currently reported neither as accepting
+    // nor rejecting because of the presence of Fin sets
+    void determine_unknown_acceptance();
 
     bool is_useful_scc(unsigned scc) const
     {

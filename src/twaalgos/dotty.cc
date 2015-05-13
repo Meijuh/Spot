@@ -478,6 +478,8 @@ namespace spot
 	start();
 	if (si)
 	  {
+	    si->determine_unknown_acceptance();
+
 	    unsigned sccs = si->scc_count();
 	    for (unsigned i = 0; i < sccs; ++i)
 	      {
@@ -493,6 +495,8 @@ namespace spot
 		else if (si->is_rejecting_scc(i))
 		  os_ << "  color=red\n";
 		else
+		  // May only occur if the call to
+		  // determine_unknown_acceptance() above is removed.
 		  os_ << "  color=orange\n";
 
 		if (name_ || opt_show_acc_)

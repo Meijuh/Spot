@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <queue>
 #include "twa/bddprint.hh"
+#include "twaalgos/mask.hh"
 #include "misc/escape.hh"
 
 namespace spot
@@ -225,16 +226,23 @@ namespace spot
 	root_.front().node.trivial_ = false;
       }
 
+    determine_usefulness();
+  }
+
+  void scc_info::determine_usefulness()
+  {
     // An SCC is useful if it is not rejecting or it has a successor
     // SCC that is useful.
     unsigned scccount = scc_count();
     for (unsigned i = 0; i < scccount; ++i)
       {
+
 	if (!node_[i].is_rejecting())
 	  {
 	    node_[i].useful_ = true;
 	    continue;
 	  }
+	node_[i].useful_ = false;
 	for (auto j: node_[i].succ())
 	  if (node_[j.dst].is_useful())
 	    {
@@ -293,6 +301,29 @@ namespace spot
       for (auto& t: aut_->out(s))
 	support &= bdd_support(t.cond);
     return support;
+  }
+
+  void scc_info::determine_unknown_acceptance()
+  {
+    std::vector<bool> k;
+    unsigned n = scc_count();
+    bool changed = false;
+    for (unsigned s = 0; s < n; ++s)
+      if (!is_rejecting_scc(s) && !is_accepting_scc(s))
+	{
+	  auto& node = node_[s];
+	  if (k.empty())
+	    k.resize(aut_->num_states());
+	  for (auto i: node.states_)
+	    k[i] = true;
+	  if (mask_keep_states(aut_, k, node.states_.front())->is_empty())
+	    node.rejecting_ = true;
+	  else
+	    node.accepting_ = true;
+	  changed = true;
+	}
+    if (changed)
+      determine_usefulness();
   }
 
   std::ostream&

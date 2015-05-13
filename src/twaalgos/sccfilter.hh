@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2013, 2014 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -35,16 +35,16 @@ namespace spot
   /// dead SCCs (i.e. SCC that are not accepting, and those with no
   /// exit path leading to an accepting SCC).
   ///
-  /// Additionally, this will try to remove useless acceptance
-  /// conditions.  This operation may diminish the number of
-  /// acceptance condition of the automaton (for instance when two
-  /// acceptance conditions are always used together we only keep one)
-  /// but it will never remove all acceptance conditions, even if it
-  /// would be OK to have zero.
+  /// Additionally, for Generalized Büchi acceptance, this will try to
+  /// remove useless acceptance conditions.  This operation may
+  /// diminish the number of acceptance condition of the automaton
+  /// (for instance when two acceptance conditions are always used
+  /// together we only keep one) but it will never remove all
+  /// acceptance conditions, even if it would be OK to have zero.
   ///
-  /// Acceptance conditions on transitions going to non-accepting SCC
-  /// are all removed.  Acceptance conditions going to an accepting
-  /// SCC and coming from another SCC are only removed if \a
+  /// Acceptance conditions on transitions going to rejecting SCCs are
+  /// all removed.  Acceptance conditions going to an accepting SCC
+  /// and coming from another SCC are only removed if \a
   /// remove_all_useless is set.  The default value of \a
   /// remove_all_useless is \c false because some algorithms (like the
   /// degeneralization) will work better if transitions going to an
@@ -53,7 +53,7 @@ namespace spot
   /// If \a given_sm is supplied, the function will use its result
   /// without computing a map of its own.
   ///
-  /// \warning Calling scc_filter on a TGBA that has the SBA property
+  /// \warning Calling scc_filter on a TωA that has the SBA property
   /// (i.e., transitions leaving accepting states are all marked as
   /// accepting) may destroy this property.  Use scc_filter_states()
   /// instead.
@@ -63,10 +63,10 @@ namespace spot
 
   /// \brief Prune unaccepting SCCs.
   ///
-  /// This is an abridged version of scc_filter(), that only remove
+  /// This is an abridged version of scc_filter(), that only removes
   /// useless states, without touching at the acceptance conditions.
   ///
-  /// Especially, if the input TGBA has the SBA property, (i.e.,
+  /// Especially, if the input TωA has the SBA property, (i.e.,
   /// transitions leaving accepting states are all marked as
   /// accepting), then the output TGBA will also have that property.
   SPOT_API twa_graph_ptr

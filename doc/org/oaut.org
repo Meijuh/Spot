@@ -676,7 +676,6 @@ they visit some the transitions in the set #0 infinitely often.
 The strongly connected components are displayed using the following colors:
 - *green* components contain an accepting cycle
 - *red* components contain no accepting cycle
-- *orange* components may or may not contain an accepting cycle.  Such an indecision occur only when using =Fin= acceptance primitive, deciding that would require a better algorithm than what the output routine is using.
 - *black* components are trivial (i.e., they contain no cycle)
 - *gray* components are useless (i.e., they are non-accepting, and are only followed by non-accepting components)
 
@@ -741,12 +740,12 @@ digraph G {
   6 [label="6"]
   }
   subgraph cluster_1 {
-  color=orange
+  color=grey
   label=""
   0 [label="0"]
   }
   subgraph cluster_2 {
-  color=orange
+  color=green
   label=""
   8 [label="8"]
   9 [label="9"]
