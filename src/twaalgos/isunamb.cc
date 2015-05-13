@@ -20,7 +20,6 @@
 #include "isunamb.hh"
 #include "twaalgos/product.hh"
 #include "sccfilter.hh"
-#include "stats.hh"
 #include <set>
 #include <list>
 
@@ -33,9 +32,8 @@ namespace spot
     auto clean_a = scc_filter_states(aut);
     auto prod = product(clean_a, clean_a);
     auto clean_p = scc_filter_states(prod);
-    tgba_statistics sa = stats_reachable(clean_a);
-    tgba_statistics sp = stats_reachable(clean_p);
-    return sa.states == sp.states && sa.transitions == sp.transitions;
+    return clean_a->num_states() == clean_p->num_states()
+      && clean_a->num_transitions() == clean_p->num_transitions();
   }
 
   bool check_unambiguous(const twa_graph_ptr& aut)
