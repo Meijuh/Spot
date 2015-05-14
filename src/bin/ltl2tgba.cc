@@ -181,24 +181,6 @@ main(int argc, char** argv)
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
     exit(err);
 
-  // Using both --unambiguous --deterministic do not really make
-  // sense.
-  if (unambiguous)
-    {
-      if (type == spot::postprocessor::Monitor)
-	{
-	  // We do not now how to make unambiguous monitors, other
-	  // than deterministic monitors.
-	  unambiguous = false;
-	  pref = spot::postprocessor::Deterministic;
-	}
-      else if (pref == spot::postprocessor::Deterministic)
-	{
-	  error(2, 0,
-		"--unambiguous and --deterministic are incompatible options");
-	}
-    }
-
   if (jobs.empty())
     error(2, 0, "No formula to translate?  Run '%s --help' for usage.",
 	  program_name);

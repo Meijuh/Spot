@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -64,19 +64,12 @@ namespace spot
 
   twa_graph_ptr translator::run(const ltl::formula** f)
   {
-    if (unambiguous_)
+    if (unambiguous_ && type_ == postprocessor::Monitor)
       {
-	if (type_ == postprocessor::Monitor)
-	  {
-	    // Deterministic monitor are unambiguous, so the
-	    // unambiguous option is not really relevant for monitors.
-	    unambiguous_ = false;
-	    set_pref(postprocessor::Deterministic);
-	  }
-	else if (pref_ == postprocessor::Deterministic)
-	  {
-	    unambiguous_ = false;
-	  }
+	// Deterministic monitor are unambiguous, so the unambiguous
+	// option is not really relevant for monitors.
+	unambiguous_ = false;
+	set_pref(postprocessor::Deterministic);
       }
 
     const ltl::formula* r = simpl_->simplify(*f);
