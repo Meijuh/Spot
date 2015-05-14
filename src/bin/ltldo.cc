@@ -358,7 +358,7 @@ main(int argc, char** argv)
   setup_sig_handler();
 
   spot::postprocessor post;
-  post.set_pref(pref | comp);
+  post.set_pref(pref | comp | sbacc);
   post.set_type(type);
   post.set_level(level);
 

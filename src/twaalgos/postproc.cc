@@ -31,6 +31,7 @@
 #include "dtgbasat.hh"
 #include "complete.hh"
 #include "totgba.hh"
+#include "sbacc.hh"
 
 namespace spot
 {
@@ -107,7 +108,7 @@ namespace spot
   }
 
   twa_graph_ptr
-  postprocessor::do_ba_simul(const twa_graph_ptr& a, int opt)
+  postprocessor::do_sba_simul(const twa_graph_ptr& a, int opt)
   {
     if (ba_simul_ <= 0)
       return a;
@@ -132,11 +133,12 @@ namespace spot
 			  degen_reset_, degen_order_,
 			  degen_cache_, degen_lskip_,
 			  degen_lowinit_);
-    return do_ba_simul(d, ba_simul_);
+    return do_sba_simul(d, ba_simul_);
   }
 
 #define PREF_ (pref_ & (Small | Deterministic))
 #define COMP_ (pref_ & Complete)
+#define SBACC_ (pref_ & SBAcc)
 
   twa_graph_ptr
   postprocessor::run(twa_graph_ptr a, const ltl::formula* f)
@@ -152,6 +154,8 @@ namespace spot
 	{
 	  if (COMP_)
 	    a = tgba_complete(a);
+	  if (SBACC_)
+	    a = sbacc(a);
 	  return a;
 	}
 
@@ -161,7 +165,7 @@ namespace spot
       ba_simul_ = (level_ == High) ? 3 : 0;
     if (scc_filter_ < 0)
       scc_filter_ = 1;
-    if (type_ == BA)
+    if (type_ == BA || SBACC_)
       state_based_ = true;
 
     int original_acc = a->acc().num_sets();
@@ -173,7 +177,7 @@ namespace spot
       a = scc_filter_states(a);
     else if (scc_filter_ > 0)
       {
-	if (type_ == BA && a->is_sba())
+	if (state_based_ && a->has_state_based_acc())
 	  a = scc_filter_states(a);
 	else
 	  a = scc_filter(a, scc_filter_ > 1);
@@ -208,8 +212,10 @@ namespace spot
       {
 	if (type_ == BA)
 	  a = do_degen(a);
-	if (COMP_ == Complete)
+	if (COMP_)
 	  a = tgba_complete(a);
+	if (SBACC_)
+	  a = sbacc(a);
 	return a;
       }
 
@@ -243,9 +249,11 @@ namespace spot
     // at hard levels if we want a small output.
     if (!dba || (level_ == High && PREF_ == Small))
       {
-	if (type_ == BA && a->is_sba() && !tba_determinisation_)
+	if (((SBACC_ && a->has_state_based_acc())
+	     || (type_ == BA && a->is_sba()))
+	    && !tba_determinisation_)
 	  {
-	    sim = do_ba_simul(a, ba_simul_);
+	    sim = do_sba_simul(a, ba_simul_);
 	  }
 	else
 	  {
@@ -254,6 +262,8 @@ namespace spot
 	    // No need to do that if tba_determinisation_ will be used.
 	    if (type_ == BA && !tba_determinisation_)
 	      sim = do_degen(sim);
+	    else if (SBACC_ && !tba_determinisation_)
+	      sim = sbacc(sim);
 	  }
       }
 
@@ -266,10 +276,18 @@ namespace spot
 	// We postponed degeneralization above i case we would need
 	// to perform TBA-determinisation, but now it is clear
 	// that we won't perform it.  So do degeneralize.
-	if (tba_determinisation_ && type_ == BA)
+	if (tba_determinisation_)
 	  {
-	    dba = do_degen(dba);
-	    assert(is_deterministic(dba));
+	    if (type_ == BA)
+	      {
+		dba = do_degen(dba);
+		assert(is_deterministic(dba));
+	      }
+	    else if (SBACC_)
+	      {
+		dba = sbacc(dba);
+		assert(is_deterministic(dba));
+	      }
 	  }
       }
 
@@ -412,12 +430,18 @@ namespace spot
       {
 	if (dba && !dba_is_minimal) // WDBA is already clean.
 	  {
-	    dba = scc_filter(dba, true);
+	    if (state_based_ && dba->has_state_based_acc())
+	      dba = scc_filter_states(dba);
+	    else
+	      dba = scc_filter(dba, true);
 	    assert(!sim);
 	  }
 	else if (sim)
 	  {
-	    sim = scc_filter(sim, true);
+	    if (state_based_ && sim->has_state_based_acc())
+	      sim = scc_filter_states(sim);
+	    else
+	      sim = scc_filter(sim, true);
 	    assert(!dba);
 	  }
       }
@@ -426,6 +450,8 @@ namespace spot
 
     if (COMP_)
       sim = tgba_complete(sim);
+    if (SBACC_)
+      sim = sbacc(sim);
 
     return sim;
   }

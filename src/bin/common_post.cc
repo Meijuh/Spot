@@ -24,6 +24,7 @@
 spot::postprocessor::output_type type = spot::postprocessor::TGBA;
 spot::postprocessor::output_pref pref = spot::postprocessor::Small;
 spot::postprocessor::output_pref comp = spot::postprocessor::Any;
+spot::postprocessor::output_pref sbacc = spot::postprocessor::Any;
 spot::postprocessor::optimization_level level = spot::postprocessor::High;
 
 enum {
@@ -43,6 +44,9 @@ static const argp_option options[] =
       "or deterministic", 0 },
     { "complete", 'C', 0, 0, "output a complete automaton (combine "
       "with other intents)", 0 },
+    { "state-based-acceptance", 'S', 0, 0,
+      "define the acceptance using states", 0 },
+    { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Optimization level:", 21 },
     { "low", OPT_LOW, 0, 0, "minimal optimizations (fast)", 0 },
@@ -62,6 +66,9 @@ static const argp_option options_disabled[] =
       "or deterministic (default)", 0 },
     { "complete", 'C', 0, 0, "output a complete automaton (combine "
       "with other intents)", 0 },
+    { "state-based-acceptance", 'S', 0, 0,
+      "define the acceptance using states", 0 },
+    { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Optimization level:", 21 },
     { "low", OPT_LOW, 0, 0, "minimal optimizations (fast, default)", 0 },
@@ -85,6 +92,9 @@ parse_opt_post(int key, char*, struct argp_state*)
       break;
     case 'D':
       pref = spot::postprocessor::Deterministic;
+      break;
+    case 'S':
+      sbacc = spot::postprocessor::SBAcc;
       break;
     case OPT_HIGH:
       level = spot::postprocessor::High;

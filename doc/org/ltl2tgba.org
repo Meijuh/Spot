@@ -214,6 +214,61 @@ $txt
 #+RESULTS:
 [[file:dotex2ba-t.png]]
 
+Using option =-S= instead of option =-B= you can obtain generalized
+Büchi automata with state-based acceptance.  Here is the same formula
+as above, for comparison.
+
+#+NAME: dotex2gba
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba -S 'GFa & GFb'
+#+END_SRC
+
+#+RESULTS: dotex2gba
+#+begin_example
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label=<0<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
+  0 -> 0 [label=<a &amp; b>]
+  0 -> 1 [label=<!a &amp; !b>]
+  0 -> 2 [label=<!a &amp; b>]
+  0 -> 3 [label=<a &amp; !b>]
+  1 [label=<1>]
+  1 -> 0 [label=<a &amp; b>]
+  1 -> 1 [label=<!a &amp; !b>]
+  1 -> 2 [label=<!a &amp; b>]
+  1 -> 3 [label=<a &amp; !b>]
+  2 [label=<2<br/><font color="#F17CB0">❶</font>>]
+  2 -> 0 [label=<a &amp; b>]
+  2 -> 1 [label=<!a &amp; !b>]
+  2 -> 2 [label=<!a &amp; b>]
+  2 -> 3 [label=<a &amp; !b>]
+  3 [label=<3<br/><font color="#5DA5DA">⓿</font>>]
+  3 -> 0 [label=<a &amp; b>]
+  3 -> 1 [label=<!a &amp; !b>]
+  3 -> 2 [label=<!a &amp; b>]
+  3 -> 3 [label=<a &amp; !b>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file dotex2gba.png :cmdline -Tpng :var txt=dotex2gba :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:dotex2gba.png]]
+
+Note that =ltl2tgba= is not very good at generating state-based
+generalized Büchi automata (GBA): all it does is generating a
+transition-based one internally, and then pushing acceptance sets onto
+states.  On this example, the resulting GBA produced by =-S= is larger
+than the BA produced by =-B=.
+
 As already discussed on the page about [[file:oaut.org][common output options]], various
 options controls the output format of =ltl2tgba=:
 

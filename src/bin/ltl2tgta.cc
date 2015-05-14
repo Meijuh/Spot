@@ -232,7 +232,7 @@ main(int argc, char** argv)
 	  program_name);
 
   spot::translator trans(&extra_options);
-  trans.set_pref(pref | comp);
+  trans.set_pref(pref | comp | sbacc);
   trans.set_type(type);
   trans.set_level(level);
 

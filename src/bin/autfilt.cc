@@ -50,7 +50,6 @@
 #include "twaalgos/are_isomorphic.hh"
 #include "twaalgos/canonicalize.hh"
 #include "twaalgos/mask.hh"
-#include "twaalgos/sbacc.hh"
 #include "twaalgos/sepsets.hh"
 #include "twaalgos/stripacc.hh"
 #include "twaalgos/remfin.hh"
@@ -92,7 +91,6 @@ enum {
   OPT_REM_DEAD,
   OPT_REM_UNREACH,
   OPT_REM_FIN,
-  OPT_SBACC,
   OPT_SEED,
   OPT_SEP_SETS,
   OPT_SIMPLIFY_EXCLUSIVE_AP,
@@ -133,9 +131,6 @@ static const argp_option options[] =
     { "destut", OPT_DESTUT, 0, 0, "allow less stuttering", 0 },
     { "mask-acc", OPT_MASK_ACC, "NUM[,NUM...]", 0,
       "remove all transitions in specified acceptance sets", 0 },
-    { "state-based-acceptance", OPT_SBACC, 0, 0,
-      "define the acceptance using states", 0 },
-    { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
     { "strip-acceptance", OPT_STRIPACC, 0, 0,
       "remove the acceptance condition and all acceptance sets", 0 },
     { "keep-states", OPT_KEEP_STATES, "NUM[,NUM...]", 0,
@@ -251,7 +246,6 @@ static int opt_max_count = -1;
 static bool opt_destut = false;
 static char opt_instut = 0;
 static bool opt_is_empty = false;
-static bool opt_sbacc = false;
 static bool opt_stripacc = false;
 static bool opt_dnf_acc = false;
 static bool opt_cnf_acc = false;
@@ -437,9 +431,6 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_REM_UNREACH:
       opt_rem_unreach = true;
       break;
-    case OPT_SBACC:
-      opt_sbacc = true;
-      break;
     case OPT_SEED:
       opt_seed = to_int(arg);
       break;
@@ -583,9 +574,6 @@ namespace
       if (opt->product)
 	aut = spot::product(std::move(aut), opt->product);
 
-      if (opt_sbacc)
-	aut = spot::sbacc(aut);
-
       aut = post.run(aut, nullptr);
 
       if (randomize_st || randomize_tr)
@@ -686,7 +674,7 @@ main(int argc, char** argv)
       spot::srand(opt_seed);
 
       spot::postprocessor post(&extra_options);
-      post.set_pref(pref | comp);
+      post.set_pref(pref | comp | sbacc);
       post.set_type(type);
       post.set_level(level);
 

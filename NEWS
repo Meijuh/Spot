@@ -80,6 +80,12 @@ New in spot 1.99b (not yet released)
       accepting run (but there might be several ways to reject a
       word).  This works for LTL and PSL formulas.
 
+    - ltl2tgba has a new option, -S to produce generalized-Büchi
+      automata with state-based acceptance.  Those are obtained by
+      converting some transition-based GBA into a state-based GBA, so
+      they are usually not as small as one would wish.  The same
+      option -S is also supported by autfilt.
+
     - ltlcross will work with translator producing automata with any
       acceptance condition, provided the output is in the HOA format.
       So it can effectively be used to validate tools producing Rabin

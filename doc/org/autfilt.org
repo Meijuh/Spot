@@ -143,7 +143,6 @@ refer to the output automaton.  Of course this distinction makes sense
 only if =autfilt= was instructed to perform an operation on the input
 automaton.
 
-
 * Filtering automata
 
 =autfilt= supports multiple ways to filter automata based on different
@@ -192,10 +191,10 @@ autfilt --help | sed -n '/Output automaton type:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
 :   -B, --ba                   Büchi Automaton
+:       --generic              Any acceptance is allowed (default)
 :   -M, --monitor              Monitor (accepts all finite prefixes of the given
 :                              property)
 :       --tgba                 Transition-based Generalized Büchi Automaton
-:                              (default)
 
 These options specifies desired properties:
 
@@ -203,11 +202,14 @@ These options specifies desired properties:
 autfilt --help | sed -n '/Translation intent:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
-:   -a, --any                  no preference (default)
+:   -a, --any                  no preference, do not bother making it small or
+:                              deterministic (default)
 :   -C, --complete             output a complete automaton (combine with other
 :                              intents)
 :   -D, --deterministic        prefer deterministic automata
 :       --small                prefer small automata
+:   -S, --state-based-acceptance, --sbacc
+:                              define the acceptance using states
 
 Finally, the following switches control the amount of effort applied
 to reach the desired properties:
@@ -252,7 +254,8 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
                              exclusive propositions.
       --instut[=1|2]         allow more stuttering (two possible algorithms)
       --keep-states=NUM[,NUM...]   only keep specified states.  The first state
-                             will be the new initial state
+                             will be the new initial state.  Implies
+                             --remove-unreachable-states.
       --mask-acc=NUM[,NUM...]   remove all transitions in specified acceptance
                              sets
       --merge-transitions    merge transitions with same destination and
@@ -263,10 +266,20 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
       --remove-ap=AP[=0|=1][,AP...]
                              remove atomic propositions either by existential
                              quantification, or by assigning them 0 or 1
-      --remove-fin           rewrite the automaton without using Fin
-                             acceptance
-      --state-based-acceptance, --sbacc
-                             define the acceptance using states
+      --remove-dead-states   remove states that are unreachable, or that cannot
+                             belong to an infinite path
+      --remove-fin           rewrite the automaton without using Fin acceptance
+
+      --remove-unreachable-states
+                             remove states that are unreachable from the
+                             initial state
+      --separate-sets        if both Inf(x) and Fin(x) appear in the acceptance
+                             condition, replace Fin(x) by a new Fin(y) and
+                             adjust the automaton
+      --simplify-exclusive-ap   if --exclusive-ap is used, assume those AP
+                             groups are actually exclusive in the system to
+                             simplify the expression of transition labels
+                             (implies --merge-transitions)
       --strip-acceptance     remove the acceptance condition and all acceptance
                              sets
 #+end_example
@@ -345,11 +358,11 @@ $txt
 #+RESULTS:
 [[file:autfilt-ex1.png]]
 
-Using =--sbacc= will "push" the acceptance membership of the transitions to the states:
+Using =-S= will "push" the acceptance membership of the transitions to the states:
 
 #+NAME: autfilt-ex2
 #+BEGIN_SRC sh :results verbatim :export code
-autfilt --sbacc aut-ex1.hoa --dot=.a
+autfilt -S aut-ex1.hoa --dot=.a
 #+END_SRC
 
 #+RESULTS: autfilt-ex2
@@ -358,6 +371,7 @@ digraph G {
   rankdir=LR
   label=<(Fin(<font color="#F17CB0">❶</font>) &amp; Fin(<font color="#B276B2">❸</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>)) | (Inf(<font color="#FAA43A">❷</font>)&amp;Inf(<font color="#B276B2">❸</font>)) | Inf(<font color="#F17CB0">❶</font>)>
   labelloc="t"
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]

@@ -78,7 +78,9 @@ namespace spot
       Deterministic = 2,
       // 3 reserved for unambiguous
       // Combine Complete as 'Small | Complete' or 'Deterministic | Complete'
-      Complete = 4
+      Complete = 4,
+      // Likewise.  State-based acceptance.
+      SBAcc = 8,
     };
     typedef int output_pref;
 
@@ -104,7 +106,7 @@ namespace spot
 
   protected:
     twa_graph_ptr do_simul(const twa_graph_ptr& input, int opt);
-    twa_graph_ptr do_ba_simul(const twa_graph_ptr& input, int opt);
+    twa_graph_ptr do_sba_simul(const twa_graph_ptr& input, int opt);
     twa_graph_ptr do_degen(const twa_graph_ptr& input);
 
     output_type type_;

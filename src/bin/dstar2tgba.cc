@@ -428,7 +428,7 @@ main(int argc, char** argv)
     jobs.emplace_back("-", true);
 
   spot::postprocessor post(&extra_options);
-  post.set_pref(pref | comp);
+  post.set_pref(pref | comp | sbacc);
   post.set_type(type);
   post.set_level(level);
 
