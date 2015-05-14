@@ -344,6 +344,7 @@ main(int argc, char** argv)
   // Disable post-processing as much as possible by default.
   level = spot::postprocessor::Low;
   pref = spot::postprocessor::Any;
+  type = spot::postprocessor::Generic;
   if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
     exit(err);
 
