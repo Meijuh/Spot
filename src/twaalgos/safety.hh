@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE)
+// Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -46,7 +46,7 @@ namespace spot
   /// will be built otherwise).
   SPOT_API bool
   is_guarantee_automaton(const const_twa_graph_ptr& aut,
-			 const scc_info* sm = 0);
+			 scc_info* sm = 0);
 
   /// \brief Whether a minimized WDBA represents a safety property.
   ///

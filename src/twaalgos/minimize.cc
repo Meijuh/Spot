@@ -493,10 +493,6 @@ namespace spot
 
   twa_graph_ptr minimize_wdba(const const_twa_graph_ptr& a)
   {
-    if (a->acc().uses_fin_acceptance())
-      throw std::runtime_error
-	("minimize_wdba cannot work with Fin acceptance");
-
     hash_set* final = new hash_set;
     hash_set* non_final = new hash_set;
 
@@ -518,6 +514,7 @@ namespace spot
       // (i.e., it is not the start of any accepting word).
 
       scc_info sm(det_a);
+      sm.determine_unknown_acceptance();
       unsigned scc_count = sm.scc_count();
       // SCC that have been marked as useless.
       std::vector<bool> useless(scc_count);

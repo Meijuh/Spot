@@ -25,16 +25,13 @@ namespace spot
 {
   bool
   is_guarantee_automaton(const const_twa_graph_ptr& aut,
-			 const scc_info* si)
+			 scc_info* si)
   {
-    if (aut->acc().uses_fin_acceptance())
-      throw std::runtime_error
-	("is_guarantee_automaton() does not support Fin acceptance");
-
     // Create an scc_info if the user did not give one to us.
     bool need_si = !si;
     if (need_si)
       si = new scc_info(aut);
+    si->determine_unknown_acceptance();
 
     bool result = true;
 
@@ -42,10 +39,6 @@ namespace spot
       {
 	if (scc.is_rejecting())
 	  continue;
-	// Non-rejecting SCCs should necessarily be accepting, because
-	// with only one self loop, there should be no ambiguity.
-	if (!scc.is_accepting())
-	  return false;
 	// Accepting SCCs should have only one state.
 	auto& st = scc.states();
 	if (st.size() != 1)
