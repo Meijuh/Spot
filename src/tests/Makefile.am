@@ -204,6 +204,7 @@ TESTS_twa = \
   scc.test \
   sccdot.test \
   sccsimpl.test \
+  sepsets.test \
   dbacomp.test \
   obligation.test \
   wdba.test \

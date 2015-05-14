@@ -51,6 +51,7 @@
 #include "twaalgos/canonicalize.hh"
 #include "twaalgos/mask.hh"
 #include "twaalgos/sbacc.hh"
+#include "twaalgos/sepsets.hh"
 #include "twaalgos/stripacc.hh"
 #include "twaalgos/remfin.hh"
 #include "twaalgos/cleanacc.hh"
@@ -93,6 +94,7 @@ enum {
   OPT_REM_FIN,
   OPT_SBACC,
   OPT_SEED,
+  OPT_SEP_SETS,
   OPT_SIMPLIFY_EXCLUSIVE_AP,
   OPT_STATES,
   OPT_STRIPACC,
@@ -167,7 +169,9 @@ static const argp_option options[] =
     { "remove-dead-states", OPT_REM_DEAD, 0, 0,
       "remove states that are unreachable, or that cannot belong to an "
       "infinite path", 0 },
-    /**************************************************/
+    { "separate-sets", OPT_SEP_SETS, 0, 0,
+      "if both Inf(x) and Fin(x) appear in the acceptance condition, replace "
+      "Fin(x) by a new Fin(y) and adjust the automaton", 0 },
     { 0, 0, 0, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
@@ -262,6 +266,7 @@ static spot::remove_ap rem_ap;
 static bool opt_simplify_exclusive_ap = false;
 static bool opt_rem_dead = false;
 static bool opt_rem_unreach = false;
+static bool opt_sep_sets = false;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -438,6 +443,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     case OPT_SEED:
       opt_seed = to_int(arg);
       break;
+    case OPT_SEP_SETS:
+      opt_sep_sets = true;
+      break;
     case OPT_SIMPLIFY_EXCLUSIVE_AP:
       opt_simplify_exclusive_ap = true;
       opt_merge = true;
@@ -507,6 +515,8 @@ namespace
 	aut->merge_transitions();
       if (opt_clean_acc || opt_rem_fin)
 	cleanup_acceptance_here(aut);
+      if (opt_sep_sets)
+	separate_sets_here(aut);
       if (opt_complement_acc)
 	aut->set_acceptance(aut->acc().num_sets(),
 			    aut->get_acceptance().complement());

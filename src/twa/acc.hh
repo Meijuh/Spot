@@ -744,6 +744,11 @@ namespace spot
       return code_;
     }
 
+    acc_code& get_acceptance()
+    {
+      return code_;
+    }
+
     bool uses_fin_acceptance() const
     {
       return uses_fin_acceptance_;

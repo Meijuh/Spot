@@ -73,6 +73,7 @@ twaalgos_HEADERS = \
   scc.hh \
   sccinfo.hh \
   se05.hh \
+  sepsets.hh \
   simulation.hh \
   stats.hh \
   stripacc.hh \
@@ -130,6 +131,7 @@ libtwaalgos_la_SOURCES = \
   sccinfo.cc \
   sccfilter.cc \
   se05.cc \
+  sepsets.cc \
   simulation.cc \
   stats.cc \
   stripacc.cc \
