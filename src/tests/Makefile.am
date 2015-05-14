@@ -183,6 +183,7 @@ TESTS_twa = \
   maskkeep.test \
   simdet.test \
   sim2.test \
+  sim3.test \
   ltl2tgba.test \
   ltl2neverclaim.test \
   ltl2neverclaim-lbtt.test \

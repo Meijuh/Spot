@@ -28,6 +28,7 @@
 #include "twaalgos/reachiter.hh"
 #include "twaalgos/sccfilter.hh"
 #include "twaalgos/sccinfo.hh"
+#include "twaalgos/sepsets.hh"
 #include "misc/bddlt.hh"
 
 // The way we developed this algorithm is the following: We take an
@@ -160,6 +161,7 @@ namespace spot
       // Shortcut used in update_po and go_to_next_it.
       typedef std::map<bdd, bdd, bdd_less_than> map_bdd_bdd;
       int acc_vars;
+      acc_cond::mark_t all_inf_;
     public:
 
       bdd mark_to_bdd(acc_cond::mark_t m)
@@ -188,9 +190,9 @@ namespace spot
           all_class_var_(bddtrue),
           original_(in)
       {
-	if (in->acc().uses_fin_acceptance())
+	if (!has_separate_sets(in))
 	  throw std::runtime_error
-	    ("direct_simulation() does not yet support Fin acceptance");
+	    ("direct_simulation() requires separate Inf and Fin sets");
 
 	// Call get_init_state_number() before anything else as it
 	// might add a state.
@@ -201,6 +203,9 @@ namespace spot
 	assert(ns > 0);
 	size_a_ = ns;
 
+	auto all_inf = in->get_acceptance().used_inf_fin_sets().first;
+	all_inf_ = all_inf;
+
 	// Replace all the acceptance conditions by their complements.
 	// (In the case of Cosimulation, we also flip the transitions.)
 	if (Cosimulation)
@@ -209,7 +214,6 @@ namespace spot
 	    a_->copy_ap_of(in);
 	    a_->copy_acceptance_of(in);
 	    a_->new_states(ns);
-	    auto& acccond = in->acc();
 
 	    for (unsigned s = 0; s < ns; ++s)
 	      {
@@ -227,13 +231,13 @@ namespace spot
 			acc = 0U;
 			for (auto& td: in->out(t.dst))
 			  {
-			    acc = acccond.comp(td.acc);
+			    acc = td.acc ^ all_inf;
 			    break;
 			  }
 		      }
 		    else
 		      {
-			acc = acccond.comp(t.acc);
+			acc = t.acc ^ all_inf;
 		      }
 		    a_->new_transition(t.dst, s, t.cond, acc);
 		  }
@@ -243,9 +247,8 @@ namespace spot
 	else
 	  {
 	    a_ = make_twa_graph(in, twa::prop_set::all());
-	    auto& acccond = a_->acc();
 	    for (auto& t: a_->transitions())
-	      t.acc = acccond.comp(t.acc);
+	      t.acc ^= all_inf;
 	  }
 	assert(a_->num_states() == size_a_);
 
@@ -515,6 +518,7 @@ namespace spot
         unsigned nb_satoneset = 0;
         unsigned nb_minato = 0;
 
+	auto all_inf = all_inf_;
 	// For each class, we will create
 	// all the transitions between the states.
 	for (auto& p: bdd_lstate_)
@@ -580,10 +584,10 @@ namespace spot
 		    bdd cond = bdd_existcomp(cond_acc_dest,
 					     sup_all_atomic_prop);
 
-		    // Because we have complemented all the acceptance
-		    // conditions on the input automaton, we must
-		    // revert them to create a new transition.
-		    acc = res->acc().comp(acc);
+		    // Because we have complemented all the Inf
+		    // acceptance conditions on the input automaton,
+		    // we must revert them to create a new transition.
+		    acc ^= all_inf;
 
 		    if (Cosimulation)
 		      {

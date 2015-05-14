@@ -33,7 +33,7 @@ namespace spot
   /// When the suffixes (letter and acceptance conditions) reachable
   /// from one state are included in the suffixes seen by another one,
   /// the former state can be merged into the latter.  The algorithm is
-  /// based on the following paper, but generalized to handle TGBA
+  /// based on the following paper, but generalized to handle TωA
   /// directly.
   ///
   /** \verbatim
@@ -81,7 +81,7 @@ namespace spot
   /// state can be merged into the latter.
   ///
   /// Reverse simulation is discussed in the following paper,
-  /// but generalized to handle TGBA directly.
+  /// but generalized to handle TωA directly.
   /** \verbatim
       @InProceedings{ somenzi.00.cav,
         author	      = {Fabio Somenzi and Roderick Bloem},
