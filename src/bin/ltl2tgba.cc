@@ -83,7 +83,7 @@ const struct argp_child children[] =
   };
 
 static spot::option_map extra_options;
-bool unambiguous = false;
+static spot::postprocessor::output_pref unambig = 0;
 
 static int
 parse_opt(int key, char* arg, struct argp_state*)
@@ -98,7 +98,7 @@ parse_opt(int key, char* arg, struct argp_state*)
       type = spot::postprocessor::Monitor;
       break;
     case 'U':
-      unambiguous = true;
+      unambig = spot::postprocessor::Unambiguous;
       break;
     case 'x':
       {
@@ -186,11 +186,9 @@ main(int argc, char** argv)
 	  program_name);
 
   spot::translator trans(&extra_options);
-  trans.set_pref(pref | comp | sbacc);
+  trans.set_pref(pref | comp | sbacc | unambig);
   trans.set_type(type);
   trans.set_level(level);
-  if (unambiguous)
-    trans.set_pref(spot::translator::Unambiguous);
 
   try
     {

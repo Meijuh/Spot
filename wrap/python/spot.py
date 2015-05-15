@@ -219,65 +219,135 @@ def automaton(filename):
     except StopIteration:
         raise RuntimeError("Failed to read automaton from {}".format(filename))
 
-def translate(formula, output='tgba', pref='small', level='high',
-              complete=False):
+def translate(formula, *args):
     """Translate a formula into an automaton.
 
     Keep in mind that pref expresses just a preference that may not be
     satisfied.
 
-    Keyword arguments:
-    output -- the type of automaton to build ('tgba', 'ba', 'monitor')
-    pref -- prefered characteristic of the produced automaton
-            ('small', 'deterministic', 'any')
-    level -- level of optimizations ('low', 'medium', 'high')
-    complete -- whether to produce a complete automaton (True, False)
+    The optional arguments should be strings among the following:
+    - at most one in 'TGBA', 'BA', or 'Monitor'
+      (type of automaton to build)
+    - at most one in 'Small', 'Deterministic', 'Any'
+      (perefered characteristics of the produced automaton)
+    - at most one in 'Low', 'Medium', 'High'
+      (optimization level)
+    - any combination of 'Complete', 'Unambiguous', and
+      'StateBasedAcceptance' (or 'SBAcc' for short)
+
+    The default correspond to 'tgba', 'small' and 'high'.
     """
+
+    type_ = None
+    pref_ = None
+    optm_ = None
+    comp_ = 0
+    unam_ = 0
+    sbac_ = 0
+
+    def type_set(val):
+        nonlocal type_
+        if type_ != None and type_ != val:
+            raise ValueError("type cannot be both {} and {}"
+                             .format(type_, val))
+        elif val == 'tgba':
+            type_ = postprocessor.TGBA
+        elif val == 'ba':
+            type_ = postprocessor.BA
+        else:
+            assert(val == 'monitor')
+            type_ = postprocessor.Monitor
+
+    def pref_set(val):
+        nonlocal pref_
+        if pref_ != None and pref_ != val:
+            raise ValueError("preference cannot be both {} and {}"
+                             .format(pref_, val))
+        elif val == 'small':
+            pref_ = postprocessor.Small
+        elif val == 'deterministic':
+            pref_ = postprocessor.Deterministic
+        else:
+            assert(val == 'any')
+            pref_ = postprocessor.Any
+
+    def optm_set(val):
+        nonlocal optm_
+        if optm_ != None and optm_ != val:
+            raise ValueError("optimization level cannot be both {} and {}"
+                             .format(optm_, val))
+        if optm_ == 'high':
+            optm_ = postprocessor.High
+        elif optm_.startswith('med'):
+            optm_ = postprocessor.Medium
+        else:
+            assert(level_ == 'low')
+            optm_ = postprocessor.Low
+
+    def misc_set(val):
+        nonlocal comp_, unam_, sbac_
+        if val == 'complete':
+            comp_ = postprocessor.Complete
+        elif val == 'sbacc' or val == 'state-based-acceptance':
+            sbac_ = postprocessor.SBAcc
+        else:
+            assert(val == 'unambiguous')
+            unam_ = postprocessor.Unambiguous
+
+    options = {
+        'tgba': type_set,
+        'ba': type_set,
+        'monitor': type_set,
+        'small': pref_set,
+        'deterministic': pref_set,
+        'any': pref_set,
+        'high': optm_set,
+        'medium': optm_set,
+        'low': optm_set,
+        'complete': misc_set,
+        'unambiguous': misc_set,
+        'statebasedacceptance': misc_set,
+        'sbacc': misc_set,
+    }
+
+    for arg in args:
+        arg = arg.lower()
+        fn = options.get(arg)
+        if fn:
+            fn(arg)
+        else:
+            # arg is not an know option, but maybe it is a prefix of
+            # one of them
+            compat = []
+            f = None
+            for key, fn in options.items():
+                if key.startswith(arg):
+                    compat.append(key)
+                    f = fn
+            lc = len(compat)
+            if lc == 1:
+                f(compat[0])
+            elif lc < 1:
+                raise ValueError("unknown option '{}'".format(arg))
+            else:
+                raise ValueError("ambiguous option '{}' is prefix of {}"
+                                 .format(arg, str(compat)))
+
+    if type_ == None:
+        type_ = postprocessor.TGBA
+    if pref_ == None:
+        pref_ = postprocessor.Small
+    if optm_ == None:
+        optm_ = postprocessor.High
+
     if type(formula) == str:
         formula = parse_formula(formula)
 
+
     a = translator(_bdd_dict)
-
-    if type(output) == str:
-        output_ = output.lower()
-        if output_ == 'tgba':
-            output = postprocessor.TGBA
-        elif output_ == 'ba':
-            output = postprocessor.BA
-        elif output_.startswith('mon'):
-            output = postprocessor.Monitor
-        else:
-            raise ValueError("unknown output type: " + output)
-    a.set_type(output)
-
-    if complete:
-        complete = postprocessor.Complete
-    else:
-        complete = 0
-
-    if type(pref) == str:
-        pref_ = pref.lower()
-        if pref_.startswith('sm'):
-            pref = postprocessor.Small
-        elif pref_.startswith('det'):
-            pref = postprocessor.Deterministic
-        elif pref_ == 'any':
-            pref = postprocessor.Any
-        else:
-            raise ValueError("unknown output preference: " + pref)
-    a.set_pref(pref | complete)
-
-    if type(level) == str:
-        level_ = level.lower()
-        if level_ == 'high':
-            level = postprocessor.High
-        elif level_.startswith('med'):
-            level = postprocessor.Medium
-        elif level_ == 'low':
-            level = postprocessor.Low
-        else:
-            raise ValueError("unknown optimization level: " + level)
-    a.set_level(level)
+    a.set_type(type_)
+    a.set_pref(pref_ | comp_ | unam_ | sbac_)
+    a.set_level(optm_)
 
     return a.run(formula)
 

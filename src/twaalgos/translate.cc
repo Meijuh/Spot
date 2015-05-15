@@ -28,7 +28,6 @@ namespace spot
   void translator::setup_opt(const option_map* opt)
   {
     comp_susp_ = early_susp_ = skel_wdba_ = skel_simul_ = 0;
-    unambiguous_ = false;
 
     if (!opt)
       return;
@@ -64,12 +63,13 @@ namespace spot
 
   twa_graph_ptr translator::run(const ltl::formula** f)
   {
-    if (unambiguous_ && type_ == postprocessor::Monitor)
+    bool unambiguous = (pref_ & postprocessor::Unambiguous);
+    if (unambiguous && type_ == postprocessor::Monitor)
       {
 	// Deterministic monitor are unambiguous, so the unambiguous
 	// option is not really relevant for monitors.
-	unambiguous_ = false;
-	set_pref(postprocessor::Deterministic);
+	unambiguous = false;
+	set_pref(pref_ | postprocessor::Deterministic);
       }
 
     const ltl::formula* r = simpl_->simplify(*f);
@@ -94,9 +94,9 @@ namespace spot
       }
     else
       {
-	bool exprop = unambiguous_ || level_ == postprocessor::High;
+	bool exprop = unambiguous || level_ == postprocessor::High;
 	aut = ltl_to_tgba_fm(r, simpl_->get_dict(), exprop,
-			     true, false, false, 0, 0, unambiguous_);
+			     true, false, false, 0, 0, unambiguous);
       }
     aut = this->postprocessor::run(aut, r);
     return aut;

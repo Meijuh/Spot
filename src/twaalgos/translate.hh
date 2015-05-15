@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -82,21 +82,11 @@ namespace spot
       this->postprocessor::set_type(type);
     }
 
-    typedef postprocessor::output_pref output_pref;
-    enum output_pref_extra { Unambiguous };
-
     void
     set_pref(output_pref pref)
     {
       this->postprocessor::set_pref(pref);
     }
-
-    void
-    set_pref(output_pref_extra)
-    {
-      unambiguous_ = true;
-    }
-
 
     typedef postprocessor::optimization_level optimization_level;
 
@@ -130,7 +120,6 @@ namespace spot
     int early_susp_;
     int skel_wdba_;
     int skel_simul_;
-    bool unambiguous_;
   };
   /// @}
 }
