@@ -445,6 +445,32 @@ namespace spot
     return true;
   }
 
+  acc_cond::acc_code
+  acc_cond::acc_code::parity(bool max, bool odd, unsigned sets)
+  {
+    if (sets == 0)
+      return f();
+    // When you look at something like
+    //    acc-name: parity min even 5
+    //    Acceptance: 5 Inf(0) | (Fin(1) & (Inf(2) | (Fin(3) & Inf(4))))
+    // remember that we build it from right to left.
+    int start = max ? 0 : sets - 1;
+    int inc = max ? 1 : -1;
+    int end = max ? sets : -1;
+    // Do not start with a Fin term, the right-most term is always Inf.
+    if ((start & 1) != odd)
+      start += inc;
+    acc_cond::acc_code res = f();
+    for (int i = start; i != end; i += inc)
+      {
+	if ((i & 1) == odd)
+	  res.append_or(inf({(unsigned)i}));
+	else
+	  res.append_and(fin({(unsigned)i}));
+      }
+    return res;
+  }
+
   namespace
   {
     bdd to_bdd_rec(const acc_cond::acc_word* c, const bdd* map)
@@ -1186,6 +1212,44 @@ namespace spot
       return res;
     }
 
+    static bool max_or_min(const char*& input)
+    {
+      skip_space(input);
+      if (!strncmp(input, "max", 3))
+	{
+	  input += 3;
+	  return true;
+	}
+      if (!strncmp(input, "min", 3))
+	{
+	  input += 3;
+	  return false;
+	}
+      std::ostringstream s;
+      s << "syntax error at '" << input
+	<< "': expecting 'min' or 'max'";
+      throw parse_error(s.str());
+    }
+
+    static bool odd_or_even(const char*& input)
+    {
+      skip_space(input);
+      if (!strncmp(input, "odd", 3))
+	{
+	  input += 3;
+	  return true;
+	}
+      if (!strncmp(input, "even", 4))
+	{
+	  input += 4;
+	  return false;
+	}
+      std::ostringstream s;
+      s << "syntax error at '" << input
+	<< "': expecting 'odd' or 'even'";
+      throw parse_error(s.str());
+    }
+
   }
 
   acc_cond::acc_code parse_acc_code(const char* input)
@@ -1244,6 +1308,14 @@ namespace spot
 	    --num;
 	  }
 	c = acc_cond::acc_code::generalized_rabin(v.begin(), v.end());
+      }
+    else if (!strncmp(input, "parity", 6))
+      {
+	input += 6;
+	bool max = max_or_min(input);
+	bool odd = odd_or_even(input);
+	unsigned num = parse_num(input);
+	c = acc_cond::acc_code::parity(max, odd, num);
       }
     else
       {

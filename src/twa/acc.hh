@@ -519,6 +519,8 @@ namespace spot
 	return res;
       }
 
+      static acc_code parity(bool max, bool odd, unsigned sets);
+
       void append_and(acc_code&& r)
       {
 	if (is_true() || r.is_false())
