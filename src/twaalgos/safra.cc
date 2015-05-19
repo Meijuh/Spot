@@ -53,25 +53,29 @@ namespace spot
     for (auto& s: res)
       {
         safra_state& tmp = s.first;
-        tmp.finalize_construction();
+        s.first.color_ = tmp.finalize_construction();
       }
     return res;
   }
 
-  void safra_state::finalize_construction()
+  unsigned safra_state::finalize_construction()
   {
+    unsigned red = -1U;
+    unsigned green = -1U;
     std::vector<unsigned> rem_succ_of;
     assert(is_green_.size() == nb_braces_.size());
     for (unsigned i = 0; i < is_green_.size(); ++i)
       {
         if (nb_braces_[i] == 0)
           {
+            red = std::min(red, 2 * i + 1);
             // TODO We also emit Red = min(red, i)
             // Step A3: Brackets that do not contain any nodes emit red
             is_green_[i] = false;
           }
         else if (is_green_[i])
           {
+            green = std::min(green, 2 * i);
             // Step A4 Emit green
             rem_succ_of.emplace_back(i);
           }
@@ -109,6 +113,7 @@ namespace spot
         // it
         nn.disable_construction();
       }
+    return std::min(red, green);
   }
 
   void safra_state::node::renumber(const std::vector<unsigned>& decr_by)
@@ -317,11 +322,14 @@ namespace spot
 	    else
 	      {
                 dst_num = res->new_state();
-                s.first.print_debug(dst_num);
+                // s.first.print_debug(dst_num);
                 todo.push_back(s.first);
                 seen.insert(std::make_pair(s.first, dst_num));
               }
-	    res->new_transition(src_num, dst_num, s.second);
+            if (s.first.color_ != -1U)
+              res->new_transition(src_num, dst_num, s.second, {s.first.color_});
+            else
+              res->new_transition(src_num, dst_num, s.second);
           }
       }
     return res;

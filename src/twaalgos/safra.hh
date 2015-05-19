@@ -70,7 +70,8 @@ namespace spot
     // A new intermediate node is created with  src's braces and with dst as id
     // A merge is done if dst already existed in *this
     void update_succ(const node& src, unsigned dst, const acc_cond::mark_t acc);
-    void finalize_construction();
+    // Return the emitted color, red or green
+    unsigned finalize_construction();
     // A list of nodes similar to the ones of a
     // safra tree.  These are constructed in the same way as the powerset
     // algorithm.
@@ -80,6 +81,7 @@ namespace spot
     std::vector<size_t> nb_braces_;
     // A bitfield to know if a brace can emit green.
     std::vector<bool> is_green_;
+    unsigned color_;
   };
 
   SPOT_API twa_graph_ptr
