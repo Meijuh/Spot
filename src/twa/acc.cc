@@ -526,6 +526,76 @@ namespace spot
       SPOT_UNREACHABLE();
       return bddfalse;
     }
+
+    static bool
+    equiv_codes(const acc_cond::acc_code& lhs,
+		const acc_cond::acc_code& rhs)
+    {
+      auto used = lhs.used_sets() | rhs.used_sets();
+
+      unsigned c = used.count();
+      unsigned umax = used.max_set();
+
+      bdd_allocator ba;
+      int base = ba.allocate_variables(c);
+      assert(base == 0);
+      std::vector<bdd> r;
+      for (unsigned i = 0; r.size() < umax; ++i)
+	if (used.has(i))
+	  r.push_back(bdd_ithvar(base++));
+	else
+	  r.push_back(bddfalse);
+      return to_bdd_rec(&lhs.back(), &r[0]) == to_bdd_rec(&rhs.back(), &r[0]);
+    }
+  }
+
+  bool acc_cond::is_parity(bool& max, bool& odd, bool equiv) const
+  {
+    unsigned sets = num_;
+    if (sets == 0)
+      {
+	max = false;
+	odd = false;
+	return is_false();
+      }
+    if (is_true())
+      return false;
+    acc_cond::mark_t u_inf;
+    acc_cond::mark_t u_fin;
+    std::tie(u_inf, u_fin) = code_.used_inf_fin_sets();
+
+    odd = !u_inf.has(0);
+    for (auto s: u_inf.sets())
+      if ((s & 1) != odd)
+	return false;
+
+    auto max_code = acc_code::parity(true, odd, sets);
+    if (max_code == code_)
+      {
+	max = true;
+	return true;
+      }
+    auto min_code = acc_code::parity(false, odd, sets);
+    if (min_code == code_)
+      {
+	max = false;
+	return true;
+      }
+
+    if (!equiv)
+      return false;
+
+    if (equiv_codes(code_, max_code))
+      {
+	max = true;
+	return true;
+      }
+    if (equiv_codes(code_, min_code))
+      {
+	max = false;
+	return true;
+      }
+    return false;
   }
 
   acc_cond::acc_code acc_cond::acc_code::to_dnf() const

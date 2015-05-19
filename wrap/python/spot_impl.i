@@ -33,6 +33,7 @@
 %include "std_list.i"
 %include "std_set.i"
 %include "exception.i"
+%include "typemaps.i"
 
  // git grep 'typedef.*std::shared_ptr' | grep -v const |
  //   sed 's/.*<\(.*\)>.*/%shared_ptr(spot::\1)/g'
@@ -234,6 +235,7 @@ using namespace spot;
 %include "twa/fwd.hh"
 %feature("flatnested") spot::acc_cond::mark_t;
 %feature("flatnested") spot::acc_cond::acc_code;
+%apply bool* OUTPUT {bool& max, bool& odd};
 %include "twa/acc.hh"
 %include "twa/twa.hh"
 

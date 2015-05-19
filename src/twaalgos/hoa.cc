@@ -328,6 +328,16 @@ namespace spot
 		      os << ' ' << p;
 		    os << nl;
 		  }
+		else
+		  {
+		    bool max = false;
+		    bool odd = false;
+		    if (aut->acc().is_parity(max, odd))
+		      os << "acc-name: parity "
+			 << (max ? "max " : "min ")
+			 << (odd ? "odd " : "even ")
+			 << num_acc << nl;
+		  }
 	      }
 	  }
       }

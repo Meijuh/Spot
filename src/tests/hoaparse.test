@@ -1789,6 +1789,54 @@ State: 0
 [!0&1] 0 {2}
 [0&1] 0 {}
 --END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Inf(0)|Fin(1)&Inf(2) /* min even 4 */
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0 {}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Inf(3)|Fin(2)&Inf(1) /* max odd 4 */
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0 {}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Fin(3) & (Inf(2) | (Fin(1) & Inf(0))) /* max even 4 */
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0 {}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Inf(0) | (Fin(1) & Inf(2)) /* min even 4 (reorderd) */
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0 {}
+--END--
 EOF
 
 expectok input <<EOF
@@ -1853,6 +1901,66 @@ State: 0
 [!0&1] 0 {2}
 [0&1] 0
 --END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+acc-name: parity min even 4
+Acceptance: 4 Inf(0) | (Fin(1) & Inf(2))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+acc-name: parity max odd 4
+Acceptance: 4 Inf(3) | (Fin(2) & Inf(1))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+acc-name: parity max even 4
+Acceptance: 4 Fin(3) & (Inf(2) | (Fin(1) & Inf(0)))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+acc-name: parity min even 4
+Acceptance: 4 Inf(0) | (Fin(1) & Inf(2))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0
+--END--
 EOF
 
 # The complements are Streett and Rabin, but the acceptance set are
@@ -1908,6 +2016,62 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: generalized-Buchi 3
 Acceptance: 3 Inf(0)&Inf(1)&Inf(2)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Fin(0) & (Inf(1) | Fin(2))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Fin(3) & (Inf(2) | Fin(1))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Inf(3) | (Fin(2) & (Inf(1) | Fin(0)))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1}
+[0&!1] 0 {1}
+[!0&1] 0 {2}
+[0&1] 0
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 4 Fin(0) & (Inf(1) | Fin(2))
 properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic
 --BODY--

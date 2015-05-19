@@ -905,6 +905,13 @@ namespace spot
     // Return the number of Inf in each pair.
     bool is_generalized_rabin(std::vector<unsigned>& pairs) const;
 
+    // If EQUIV is false, this return true iff the acceptance
+    // condition is a parity condition written in the canonical way
+    // given in the HOA specifications.  If EQUIV is true, then we
+    // check whether the condition is logically equivalent to some
+    // parity acceptance condition.
+    bool is_parity(bool& max, bool& odd, bool equiv = false) const;
+
     static acc_code generalized_buchi(unsigned n)
     {
       mark_t m((1U << n) - 1);

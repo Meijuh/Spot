@@ -32,6 +32,7 @@ check_SCRIPTS = run
 
 TESTS = \
   accparse.ipynb \
+  accparse2.py \
   alarm.py \
   automata.ipynb \
   automata-io.ipynb \
