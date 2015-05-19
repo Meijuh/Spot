@@ -64,6 +64,7 @@ HOA: v1
 States: 3
 Start: 0
 AP: 1 "a"
+acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: trans-labels explicit-labels state-acc complete
 properties: deterministic
@@ -99,6 +100,7 @@ HOA: v1
 States: 2
 Start: 0
 AP: 1 "a"
+acc-name: none
 Acceptance: 0 f
 properties: trans-labels explicit-labels state-acc complete
 properties: deterministic

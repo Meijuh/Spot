@@ -501,12 +501,12 @@ namespace spot
 	return res;
       }
 
-      template<class iterator>
-      static acc_code generalized_rabin(iterator begin, iterator end)
+      template<class Iterator>
+      static acc_code generalized_rabin(Iterator begin, Iterator end)
       {
 	acc_cond::acc_code res = f();
 	unsigned n = 0;
-	for (iterator i = begin; i != end; ++i)
+	for (Iterator i = begin; i != end; ++i)
 	  {
 	    acc_cond::acc_code pair = fin({n++});
 	    acc_cond::mark_t m = 0U;
@@ -854,6 +854,28 @@ namespace spot
       return uses_fin_acceptance_;
     }
 
+    bool is_true() const
+    {
+      return code_.is_true();
+    }
+
+    bool is_false() const
+    {
+      return code_.is_false();
+    }
+
+    bool is_buchi() const
+    {
+      unsigned s = code_.size();
+      return num_ == 1 &&
+	s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets();
+    }
+
+    bool is_co_buchi() const
+    {
+      return num_ == 1 && is_generalized_co_buchi();
+    }
+
     void set_generalized_buchi()
     {
       set_acceptance(inf(all_sets()));
@@ -866,24 +888,27 @@ namespace spot
 	(s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets());
     }
 
+    bool is_generalized_co_buchi() const
+    {
+      unsigned s = code_.size();
+      return (s == 2 &&
+	      code_[1].op == acc_op::Fin && code_[0].mark == all_sets());
+    }
+
+    // Returns a number of pairs (>=0) if Rabin, or -1 else.
+    int is_rabin() const;
+    // Returns a number of pairs (>=0) if Streett, or -1 else.
+    int is_streett() const;
+
+    // Return the number of Inf in each pair.
+    bool is_generalized_rabin(std::vector<unsigned>& pairs) const;
+
     static acc_code generalized_buchi(unsigned n)
     {
       mark_t m((1U << n) - 1);
       if (n == 8 * sizeof(mark_t::value_t))
 	m = mark_t(-1U);
       return acc_code::inf(m);
-    }
-
-    bool is_buchi() const
-    {
-      unsigned s = code_.size();
-      return num_ == 1 &&
-	s == 2 && code_[1].op == acc_op::Inf && code_[0].mark == all_sets();
-    }
-
-    bool is_true() const
-    {
-      return code_.is_true();
     }
 
   protected:

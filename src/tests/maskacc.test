@@ -50,6 +50,7 @@ HOA: v1
 States: 4
 Start: 0
 AP: 2 "a" "b"
+acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: trans-labels explicit-labels trans-acc
 --BODY--
@@ -72,6 +73,7 @@ HOA: v1
 States: 4
 Start: 0
 AP: 2 "a" "b"
+acc-name: co-Buchi
 Acceptance: 1 Fin(0)
 properties: trans-labels explicit-labels trans-acc
 --BODY--

@@ -348,6 +348,103 @@ namespace spot
     return false;
   }
 
+  int acc_cond::is_rabin() const
+  {
+    if (code_.is_false())
+      return num_ == 0 ? 0 : -1;
+    if ((num_ & 1)
+	|| code_.is_true()
+	|| code_.back().op != acc_op::Or)
+      return -1;
+    // The size must be a multiple of 5.
+    auto s = code_.back().size;
+    if ((s != code_.size() - 1) || (s % 5))
+      return -1;
+    auto p = s / 5;		// number of pairs
+    unsigned n = 0;
+    while (s)
+      if (code_[--s].op != acc_op::And
+	  || code_[--s].op != acc_op::Fin
+	  || code_[--s].mark != acc_cond::mark_t({n++})
+	  || code_[--s].op != acc_op::Inf
+	  || code_[--s].mark != acc_cond::mark_t({n++}))
+	return -1;
+    return p;
+  }
+
+  int acc_cond::is_streett() const
+  {
+    if (code_.is_true())
+      return num_ == 0 ? 0 : -1;
+    if ((num_ & 1)
+	|| code_.is_false()
+	|| code_.back().op != acc_op::And)
+      return -1;
+    // The size must be a multiple of 5.
+    auto s = code_.back().size;
+    if ((s != code_.size() - 1) || (s % 5))
+      return -1;
+    auto p = s / 5;		// number of pairs
+    unsigned n = 0;
+    while (s)
+      if (code_[--s].op != acc_op::Or
+	  || code_[--s].op != acc_op::Fin
+	  || code_[--s].mark != acc_cond::mark_t({n++})
+	  || code_[--s].op != acc_op::Inf
+	  || code_[--s].mark != acc_cond::mark_t({n++}))
+	return -1;
+    return p;
+  }
+
+  // Return the number of Inf in each pair.
+  bool acc_cond::is_generalized_rabin(std::vector<unsigned>& pairs) const
+  {
+    pairs.clear();
+    if (is_generalized_co_buchi())
+      {
+	pairs.resize(num_);
+	return true;
+      }
+    if (code_.is_true()
+	|| code_.back().op != acc_op::Or)
+      return false;
+    auto s = code_.back().size;
+    unsigned n = 0;
+    while (s)
+      {
+	--s;
+	if (code_[s].op == acc_op::And)
+	  {
+	    if (code_[--s].op != acc_op::Fin
+		|| code_[--s].mark != acc_cond::mark_t({n++})
+		|| code_[--s].op != acc_op::Inf)
+	      return false;
+	    unsigned p = 0;
+	    auto m = code_[--s].mark;
+	    while (m.has(n))
+	      {
+		m.clear(n);
+		++p;
+		++n;
+	      }
+	    if (m)
+	      return false;
+	    pairs.push_back(p);
+	  }
+	else if (code_[s].op == acc_op::Fin)
+	  {
+	    if (code_[--s].mark != acc_cond::mark_t({n++}))
+	      return false;
+	    pairs.push_back(0);
+	  }
+	else
+	  {
+	    return false;
+	  }
+      }
+    return true;
+  }
+
   namespace
   {
     bdd to_bdd_rec(const acc_cond::acc_word* c, const bdd* map)

@@ -235,6 +235,7 @@ HOA: v1
 States: 1
 Start: 0
 AP: 0
+acc-name: none
 Acceptance: 0 f
 properties: trans-labels explicit-labels state-acc deterministic
 --BODY--

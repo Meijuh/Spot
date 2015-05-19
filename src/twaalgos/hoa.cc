@@ -292,6 +292,45 @@ namespace spot
 	  os << "acc-name: generalized-Buchi " << num_acc;
 	os << nl;
       }
+    else if (aut->acc().is_generalized_co_buchi())
+      {
+	if (aut->acc().is_false())
+	  os << "acc-name: none";
+	else if (aut->acc().is_co_buchi())
+	  os << "acc-name: co-Buchi";
+	else
+	  os << "acc-name: generalized-co-Buchi " << num_acc;
+	os << nl;
+      }
+    else
+      {
+	int r = aut->acc().is_rabin();
+	assert(r != 0);
+	if (r > 0)
+	  {
+	    os << "acc-name: Rabin " << r << nl;
+	  }
+	else
+	  {
+	    r = aut->acc().is_streett();
+	    assert(r != 0);
+	    if (r > 0)
+	      {
+		os << "acc-name: Streett " << r << nl;
+	      }
+	    else
+	      {
+		std::vector<unsigned> pairs;
+		if (aut->acc().is_generalized_rabin(pairs))
+		  {
+		    os << "acc-name: generalized-Rabin " << pairs.size();
+		    for (auto p: pairs)
+		      os << ' ' << p;
+		    os << nl;
+		  }
+	      }
+	  }
+      }
     os << "Acceptance: " << num_acc << ' ';
     os << aut->acc().get_acceptance();
     os << nl;

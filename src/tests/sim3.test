@@ -26,6 +26,7 @@ HOA: v1
 States: 7
 Start: 0
 AP: 2 "b" "a"
+acc-name: Rabin 2
 Acceptance: 4 (Fin(0) & Inf(1)) | (Fin(2) & Inf(3))
 properties: implicit-labels state-acc complete deterministic
 --BODY--
@@ -54,6 +55,7 @@ HOA: v1
 States: 5
 Start: 0
 AP: 2 "b" "a"
+acc-name: Rabin 2
 Acceptance: 4 (Fin(0) & Inf(1)) | (Fin(2) & Inf(3))
 properties: trans-labels explicit-labels state-acc complete
 properties: deterministic
