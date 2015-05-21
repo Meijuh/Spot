@@ -1769,7 +1769,35 @@ HOA: v1
 States: 1
 Start: 0
 AP: 2 "a" "b"
+/* This is Streett, but badly ordered */
+Acceptance: 4 (Inf(3) | Fin(2)) & (Fin(0) | Inf(1))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {2}
+[0&!1] 0 {1 2}
+[!0&1] 0 {3}
+[0&1] 0 {1 3}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
 Acceptance: 6 Fin(0) | (Fin(1) & Inf(2) & Inf(3)) | (Fin(4) & Inf(5))
+--BODY--
+State: 0
+[!0&!1] 0 {0 1 4}
+[0&!1] 0 {2 4}
+[!0&1] 0 {3 5}
+[0&1] 0 {1 3}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+/* generalized-Rabin, but badely ordered */
+Acceptance: 6 (Inf(5) & Fin(4)) | Fin(0) | (Inf(2) & Fin(1) & Inf(3))
 --BODY--
 State: 0
 [!0&!1] 0 {0 1 4}
@@ -1869,6 +1897,36 @@ State: 0
 [!0&!1] 0 {2}
 [0&!1] 0 {1 2}
 [!0&1] 0 {3}
+[0&1] 0 {1 3}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+acc-name: Streett 2
+Acceptance: 4 (Fin(0) | Inf(1)) & (Fin(2) | Inf(3))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {2}
+[0&!1] 0 {1 2}
+[!0&1] 0 {3}
+[0&1] 0 {1 3}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+acc-name: generalized-Rabin 3 0 2 1
+Acceptance: 6 Fin(0) | (Fin(1) & (Inf(2)&Inf(3))) | (Fin(4) & Inf(5))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1 4}
+[0&!1] 0 {2 4}
+[!0&1] 0 {3 5}
 [0&1] 0 {1 3}
 --END--
 HOA: v1
@@ -2000,7 +2058,35 @@ HOA: v1
 States: 1
 Start: 0
 AP: 2 "a" "b"
+Acceptance: 4 (Fin(3) & Inf(2)) | (Fin(1) & Inf(0))
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {2}
+[0&!1] 0 {1 2}
+[!0&1] 0 {3}
+[0&1] 0 {1 3}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
 Acceptance: 6 (Inf(1) | (Fin(2)|Fin(3))) & (Inf(4) | Fin(5)) & Inf(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[!0&!1] 0 {0 1 4}
+[0&!1] 0 {2 4}
+[!0&1] 0 {3 5}
+[0&1] 0 {1 3}
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 6 (Inf(4) | Fin(5)) & (Inf(1) | (Fin(2)|Fin(3))) & Inf(0)
 properties: trans-labels explicit-labels trans-acc complete
 properties: deterministic
 --BODY--

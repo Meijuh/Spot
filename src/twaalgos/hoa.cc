@@ -282,6 +282,7 @@ namespace spot
     os << nl;
 
     unsigned num_acc = aut->acc().num_sets();
+    acc_cond::acc_code acc_c = aut->acc().get_acceptance();
     if (aut->acc().is_generalized_buchi())
       {
 	if (aut->acc().is_true())
@@ -309,6 +310,9 @@ namespace spot
 	if (r > 0)
 	  {
 	    os << "acc-name: Rabin " << r << nl;
+	    // Force the acceptance to remove any duplicate sets, and
+	    // make sure it is correctly ordered.
+	    acc_c = acc_cond::acc_code::rabin(r);
 	  }
 	else
 	  {
@@ -317,6 +321,9 @@ namespace spot
 	    if (r > 0)
 	      {
 		os << "acc-name: Streett " << r << nl;
+		// Force the acceptance to remove any duplicate sets, and
+		// make sure it is correctly ordered.
+		acc_c = acc_cond::acc_code::streett(r);
 	      }
 	    else
 	      {
@@ -327,6 +334,10 @@ namespace spot
 		    for (auto p: pairs)
 		      os << ' ' << p;
 		    os << nl;
+		    // Force the acceptance to remove any duplicate
+		    // sets, and make sure it is correctly ordered.
+		    acc_c = acc_cond::acc_code::generalized_rabin(pairs.begin(),
+								  pairs.end());
 		  }
 		else
 		  {
@@ -342,7 +353,7 @@ namespace spot
 	  }
       }
     os << "Acceptance: " << num_acc << ' ';
-    os << aut->acc().get_acceptance();
+    os << acc_c;
     os << nl;
     os << "properties:";
     // Make sure the property line is not too large,

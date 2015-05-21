@@ -348,55 +348,92 @@ namespace spot
     return false;
   }
 
+
+  namespace
+  {
+    // Is Rabin or Streett, depending on highop and lowop.
+    static bool
+    is_rs(const acc_cond::acc_code& code,
+	  acc_cond::acc_op highop,
+	  acc_cond::acc_op lowop,
+	  acc_cond::mark_t all_sets)
+    {
+      unsigned s = code.back().size;
+      auto mainop = code.back().op;
+      if (mainop == highop)
+	{
+	  // The size must be a multiple of 5.
+	  if ((s != code.size() - 1) || (s % 5))
+	    return false;
+	}
+      else			// Single pair?
+	{
+	  if (s != 4 || mainop != lowop)
+	    return false;
+	  // Pretend we where in a unary highop.
+	  s = 5;
+	}
+      acc_cond::mark_t seen_fin = 0U;
+      acc_cond::mark_t seen_inf = 0U;
+      while (s)
+	{
+	  if (code[--s].op != lowop)
+	    return false;
+	  auto o1 = code[--s].op;
+	  auto m1 = code[--s].mark;
+	  auto o2 = code[--s].op;
+	  auto m2 = code[--s].mark;
+
+	  // We assume
+	  //   Fin(n) lowop Inf(n+1)
+	  //   o1 (m1)       o2 (m2)
+	  // swap if it is the converse
+	  if (o2 == acc_cond::acc_op::Fin)
+	    {
+	      std::swap(o1, o2);
+	      std::swap(m1, m2);
+	    }
+	  if (o1 != acc_cond::acc_op::Fin
+	      || o2 != acc_cond::acc_op::Inf
+	      || m1.count() != 1
+	      || m2.id != (m1.id << 1))
+	    return false;
+	  seen_fin |= m1;
+	  seen_inf |= m2;
+	}
+
+      return (!(seen_fin & seen_inf)
+	      && (seen_fin | seen_inf) == all_sets);
+    }
+  }
+
   int acc_cond::is_rabin() const
   {
     if (code_.is_false())
       return num_ == 0 ? 0 : -1;
-    if ((num_ & 1)
-	|| code_.is_true()
-	|| code_.back().op != acc_op::Or)
+    if ((num_ & 1) || code_.is_true())
       return -1;
-    // The size must be a multiple of 5.
-    auto s = code_.back().size;
-    if ((s != code_.size() - 1) || (s % 5))
+
+    if (is_rs(code_, acc_op::Or, acc_op::And, all_sets()))
+      return num_ / 2;
+    else
       return -1;
-    auto p = s / 5;		// number of pairs
-    unsigned n = 0;
-    while (s)
-      if (code_[--s].op != acc_op::And
-	  || code_[--s].op != acc_op::Fin
-	  || code_[--s].mark != acc_cond::mark_t({n++})
-	  || code_[--s].op != acc_op::Inf
-	  || code_[--s].mark != acc_cond::mark_t({n++}))
-	return -1;
-    return p;
   }
 
   int acc_cond::is_streett() const
   {
     if (code_.is_true())
       return num_ == 0 ? 0 : -1;
-    if ((num_ & 1)
-	|| code_.is_false()
-	|| code_.back().op != acc_op::And)
+    if ((num_ & 1) || code_.is_false())
       return -1;
-    // The size must be a multiple of 5.
-    auto s = code_.back().size;
-    if ((s != code_.size() - 1) || (s % 5))
+
+    if (is_rs(code_, acc_op::And, acc_op::Or, all_sets()))
+      return num_ / 2;
+    else
       return -1;
-    auto p = s / 5;		// number of pairs
-    unsigned n = 0;
-    while (s)
-      if (code_[--s].op != acc_op::Or
-	  || code_[--s].op != acc_op::Fin
-	  || code_[--s].mark != acc_cond::mark_t({n++})
-	  || code_[--s].op != acc_op::Inf
-	  || code_[--s].mark != acc_cond::mark_t({n++}))
-	return -1;
-    return p;
   }
 
-  // Return the number of Inf in each pair.
+  // PAIRS contains the number of Inf in each pair.
   bool acc_cond::is_generalized_rabin(std::vector<unsigned>& pairs) const
   {
     pairs.clear();
@@ -408,41 +445,73 @@ namespace spot
     if (code_.is_true()
 	|| code_.back().op != acc_op::Or)
       return false;
+
     auto s = code_.back().size;
-    unsigned n = 0;
+    acc_cond::mark_t seen_fin = 0U;
+    acc_cond::mark_t seen_inf = 0U;
+    // Each pairs is the position of a Fin followed
+    // by the number of Inf.
+    std::map<unsigned, unsigned> p;
     while (s)
       {
 	--s;
 	if (code_[s].op == acc_op::And)
 	  {
-	    if (code_[--s].op != acc_op::Fin
-		|| code_[--s].mark != acc_cond::mark_t({n++})
-		|| code_[--s].op != acc_op::Inf)
-	      return false;
-	    unsigned p = 0;
-	    auto m = code_[--s].mark;
-	    while (m.has(n))
+	    auto o1 = code_[--s].op;
+	    auto m1 = code_[--s].mark;
+	    auto o2 = code_[--s].op;
+	    auto m2 = code_[--s].mark;
+
+	    // We assume
+	    //   Fin(n) & Inf({n+1,n+2,...,n+i})
+	    //   o1 (m1)       o2 (m2)
+	    // swap if it is the converse
+	    if (o2 == acc_cond::acc_op::Fin)
 	      {
-		m.clear(n);
-		++p;
-		++n;
+		std::swap(o1, o2);
+		std::swap(m1, m2);
 	      }
-	    if (m)
+
+	    if (o1 != acc_cond::acc_op::Fin
+		|| o2 != acc_cond::acc_op::Inf
+		|| m1.count() != 1)
 	      return false;
-	    pairs.push_back(p);
+
+	    unsigned i = m2.count();
+	    // If we have seen this pair already, it must have the
+	    // same size.
+	    if (p.emplace(m1.max_set(), i).first->second != i)
+	      return false;
+	    assert(i > 0);
+	    unsigned j = m1.max_set(); // == n+1
+	    do
+	      if (!m2.has(j++))
+		return false;
+	    while (--i);
+
+	    seen_fin |= m1;
+	    seen_inf |= m2;
 	  }
 	else if (code_[s].op == acc_op::Fin)
 	  {
-	    if (code_[--s].mark != acc_cond::mark_t({n++}))
+	    auto m1 = code_[--s].mark;
+	    if (m1.count() != 1)
 	      return false;
-	    pairs.push_back(0);
+	    // If we have seen this pair already, it must have the
+	    // same size.
+	    if (p.emplace(m1.max_set(), 0U).first->second != 0U)
+	      return false;
+	    seen_fin |= m1;
 	  }
 	else
 	  {
 	    return false;
 	  }
       }
-    return true;
+    for (auto i: p)
+      pairs.push_back(i.second);
+    return (!(seen_fin & seen_inf)
+	    && (seen_fin | seen_inf) == all_sets());
   }
 
   acc_cond::acc_code

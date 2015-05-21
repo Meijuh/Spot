@@ -85,6 +85,7 @@ HOA: v1
 States: 3
 Start: 0
 AP: 1 "a"
+acc-name: Streett 1
 Acceptance: 2 Fin(0) | Inf(1)
 properties: trans-labels explicit-labels state-acc deterministic
 --BODY--
