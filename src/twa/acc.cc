@@ -1423,7 +1423,7 @@ namespace spot
     else if (!strncmp(input, "generalized-co-Buchi", 20))
       {
 	input += 20;
-	c = acc_cond::acc_code::generalized_buchi(parse_num(input));
+	c = acc_cond::acc_code::generalized_co_buchi(parse_num(input));
       }
     else if (!strncmp(input, "Rabin", 5))
       {
