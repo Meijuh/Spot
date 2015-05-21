@@ -20,43 +20,25 @@
 #pragma once
 
 #include <set>
+#include <map>
 
 #include "misc/bddlt.hh"
 #include "twa/twagraph.hh"
 
 namespace spot
 {
+  namespace node_helper
+  {
+    using brace_t = unsigned;
+    void renumber(std::vector<brace_t>& braces,
+                  const std::vector<unsigned>& decr_by);
+    void truncate_braces(std::vector<brace_t>& braces,
+                         const std::vector<unsigned>& rem_succ_of,
+                         std::vector<size_t>& nb_braces);
+  };
+
   class safra_state
   {
-    class node
-    {
-    public:
-      using brace_t = size_t;
-
-      bool operator==(const node& other) const;
-      bool operator<(const node& other) const;
-      void disable_construction() { in_construction_ = false; }
-      void truncate_braces(const std::vector<unsigned>& rem_succ_of,
-                           std::vector<size_t>& nb_braces);
-      void renumber(const std::vector<unsigned>& decr_by);
-      node(unsigned id)
-        : id_(id), in_construction_(true) {}
-      node(unsigned id, brace_t b_id, bool in_construction = true)
-        : id_(id), braces_(1, b_id), in_construction_(in_construction) {}
-      node(unsigned id, std::vector<brace_t> b, bool in_construction = true)
-        : id_(id), braces_(b), in_construction_(in_construction) {}
-      // The name used to identify a state
-      unsigned id_;
-      // The list of braces the state is nested in.
-      std::vector<brace_t> braces_;
-      // Hack to have two comparision functions during construction and after
-      // construction
-      // During construction only the nodes id matterns as the braces are under
-      // construction. After construction (id, braces) is what distinguishes a
-      // node.
-      bool in_construction_;
-    };
-
   public:
     typedef std::vector<std::pair<safra_state, bdd>> succs_t;
     bool operator<(const safra_state& other) const;
@@ -69,13 +51,14 @@ namespace spot
     // Used when creating the list of successors
     // A new intermediate node is created with  src's braces and with dst as id
     // A merge is done if dst already existed in *this
-    void update_succ(const node& src, unsigned dst, const acc_cond::mark_t acc);
+    void update_succ(const std::vector<node_helper::brace_t>& braces,
+                     unsigned dst, const acc_cond::mark_t acc);
     // Return the emitted color, red or green
     unsigned finalize_construction();
     // A list of nodes similar to the ones of a
     // safra tree.  These are constructed in the same way as the powerset
     // algorithm.
-    std::set<node> nodes_;
+    std::map<unsigned, std::vector<node_helper::brace_t>> nodes_;
     // A counter that indicates the nomber of states within a brace.
     // This enables us to compute the red value
     std::vector<size_t> nb_braces_;

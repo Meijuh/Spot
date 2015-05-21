@@ -31,7 +31,7 @@ namespace spot
     std::map<bdd, unsigned, bdd_less_than> bdd2num;
     for (auto& node: nodes_)
       {
-        for (auto& t: aut->out(node.id_))
+        for (auto& t: aut->out(node.first))
           {
             auto i = bdd2num.insert(std::make_pair(t.cond, res.size()));
             unsigned idx;
@@ -40,13 +40,12 @@ namespace spot
 	    else
 	      {
                 // Each new node starts out with same number of nodes as src
-                safra_state empty_state = safra_state(nb_braces_.size());
                 idx = res.size();
-                res.push_back(std::make_pair(empty_state, t.cond));
+                res.emplace_back(safra_state(nb_braces_.size()), t.cond);
               }
             safra_state& ss = res[idx].first;
             assert(ss.nb_braces_.size() == ss.is_green_.size());
-            ss.update_succ(node, t.dst, t.acc);
+            ss.update_succ(node.second, t.dst, t.acc);
             assert(ss.nb_braces_.size() == ss.is_green_.size());
           }
       }
@@ -69,7 +68,6 @@ namespace spot
         if (nb_braces_[i] == 0)
           {
             red = std::min(red, 2 * i + 1);
-            // TODO We also emit Red = min(red, i)
             // Step A3: Brackets that do not contain any nodes emit red
             is_green_[i] = false;
           }
@@ -82,9 +80,8 @@ namespace spot
       }
     for (auto& n: nodes_)
       {
-        node& nn = const_cast<node&>(n);
         // Step A4 Remove all brackets inside each green pair
-        nn.truncate_braces(rem_succ_of, nb_braces_);
+        node_helper::truncate_braces(n.second, rem_succ_of, nb_braces_);
       }
 
     // Step A5 define the rem variable
@@ -104,126 +101,85 @@ namespace spot
     nb_braces_.resize(nb_braces_.size() - decr);
     for (auto& n: nodes_)
       {
-        node& nn = const_cast<node&>(n);
-        nn.renumber(decr_by);
-
-        // TODO this is a dirty hack to have two comparision functions depending
-        // on  wether or not we are still construction the safra_stata
-        // Ideally I'd like to have this done statically but not sure how to do
-        // it
-        nn.disable_construction();
+        node_helper::renumber(n.second, decr_by);
       }
     return std::min(red, green);
   }
 
-  void safra_state::node::renumber(const std::vector<unsigned>& decr_by)
+  void node_helper::renumber(std::vector<brace_t>& braces,
+                             const std::vector<unsigned>& decr_by)
   {
-    for (unsigned idx = 0; idx < braces_.size(); ++idx)
+    for (unsigned idx = 0; idx < braces.size(); ++idx)
       {
-        braces_[idx] -= decr_by[braces_[idx]];
+        braces[idx] -= decr_by[braces[idx]];
       }
   }
 
-  // TODO FINISH TRUNCATE
   void
-  safra_state::node::truncate_braces(const std::vector<unsigned>& rem_succ_of,
-                                     std::vector<size_t>& nb_braces)
+  node_helper::truncate_braces(std::vector<brace_t>& braces,
+                                const std::vector<unsigned>& rem_succ_of,
+                                std::vector<size_t>& nb_braces)
   {
-    assert(in_construction_ && "Only allowed to do this during construction");
-    for (unsigned idx = 0; idx < braces_.size(); ++idx)
+    for (unsigned idx = 0; idx < braces.size(); ++idx)
       {
         bool found = false;
         // find first brace that matches rem_succ_of
         for (auto s: rem_succ_of)
           {
-            found |= braces_[idx] == s;
+            found |= braces[idx] == s;
           }
         if (found)
           {
-            assert(idx < braces_.size() - 1);
+            assert(idx < braces.size() - 1);
             // For each deleted brace, decrement elements of nb_braces
             // This corresponds to A4 step
-            for (unsigned i = idx + 1; i < braces_.size(); ++i)
+            for (unsigned i = idx + 1; i < braces.size(); ++i)
               {
-                --nb_braces[braces_[i]];
+                --nb_braces[braces[i]];
               }
-            braces_.resize(idx + 1);
+            braces.resize(idx + 1);
             break;
           }
       }
   }
 
-  void safra_state::update_succ(const node& src, unsigned dst,
-                                const acc_cond::mark_t acc)
+  void safra_state::update_succ(const std::vector<node_helper::brace_t>& braces,
+                                unsigned dst, const acc_cond::mark_t acc)
   {
-    unsigned last_brace = src.braces_.back();
-    // Check if there already is a node named dst in current macro_state
-    auto i = nodes_.find(node(dst));
-    if (i != nodes_.end())
+    std::vector<node_helper::brace_t> copy = braces;
+    // TODO handle multiple accepting sets
+    if (acc.count())
+      {
+        // Accepting transition generate new braces: step A1
+        copy.emplace_back(nb_braces_.size());
+        // nb_braces_ gets updated later so put 0 for now
+        nb_braces_.emplace_back(0);
+        // Newly created braces cannot emit green as they won't have
+        // any braces inside them (by construction)
+        is_green_.push_back(false);
+      }
+    auto i = nodes_.emplace(dst, copy);
+    if (!i.second)
       {
         // Step A2: Remove all occurrences whos nesting pattern (i-e  braces_)
         // is smaller
-        if (src.braces_ > i->braces_ ||
-           (acc.count() && src.braces_ == i->braces_))
+        if (copy > i.first->second)
           {
-            auto copy = src.braces_;
-            // TODO handle multiple accepting transition
-            if (acc.count())
-              {
-                // Accepting transition generate new braces: step A1
-                last_brace = nb_braces_.size();
-                copy.emplace_back(nb_braces_.size());
-                nb_braces_.emplace_back(1);
-                // Newly created braces cannot emit green as they won't have
-                // any braces inside them (by construction)
-                is_green_.emplace_back(false);
-              }
-            {
-              // Remove brace count of removed node
-              node& dst = const_cast<node&>(*i);
-              for (auto b: dst.braces_)
-                --nb_braces_[b];
-            }
-            {
-              // Affect new value of braces
-              node& dst = const_cast<node&>(*i);
-              for (auto b: copy)
-                ++nb_braces_[b];
-              dst.braces_ = std::move(copy);
-            }
+            // Remove brace count of replaced node
+            for (auto b: i.first->second)
+              --nb_braces_[b];
+            i.first->second = std::move(copy);
           }
         else
           // Node already exists and has bigger nesting pattern value
           return;
       }
-    else
-      {
-        // TODO need to handle multiple acc sets
-        auto copy = src.braces_;
-        if (acc.count())
-          {
-            last_brace = nb_braces_.size();
-            copy.emplace_back(nb_braces_.size());
-            // Step A4 Newly created braces cannot emit green as they won't have
-            // any braces inside them (by construction)
-            is_green_.emplace_back(false);
-            nb_braces_.emplace_back(0);
-          }
-        for (auto b: copy)
-          ++nb_braces_[b];
-        nodes_.emplace(dst, std::move(copy));
-      }
+    // After inserting new node, update the brace count per node
+    for (auto b: i.first->second)
+      ++nb_braces_[b];
     // Step A4: For a brace to emit green it must surround other braces.
-    // Therefore, the last brace cannot emit green as it is the most inside
-    // brace.
-    is_green_[last_brace] = false;
-  }
-
-  // Comparison is needed when for a set of safra_state
-  bool
-  safra_state::operator<(const safra_state& other) const
-  {
-    return nodes_ < other.nodes_;
+    // Hence, the last brace cannot emit green as it is the most inside brace.
+    is_green_[i.first->second.back()] = false;
   }
 
   // Called only to initialize first state
@@ -236,7 +192,8 @@ namespace spot
         is_green_.push_back(true);
         // First brace has init_state hence one state inside the first braces.
         nb_braces_.push_back(1);
-        nodes_.emplace(state_num, 0);
+        std::vector<node_helper::brace_t> braces = { 0 };
+        nodes_.emplace(state_num, std::move(braces));
       }
     else
       {
@@ -248,23 +205,10 @@ namespace spot
       }
   }
 
-
   bool
-  safra_state::node::operator<(const node& other) const
+  safra_state::operator<(const safra_state& other) const
   {
-    if (id_ == other.id_)
-      return in_construction_ ? false : braces_ < other.braces_;
-    else
-      return id_ < other.id_;
-  }
-
-  bool
-  safra_state::node::operator==(const node& other) const
-  {
-    if (id_ == other.id_)
-      return in_construction_ ? true : braces_ == other.braces_;
-    else
-      return false;
+    return nodes_ < other.nodes_;
   }
 
   void safra_state::print_debug(unsigned state_id)
@@ -272,8 +216,8 @@ namespace spot
     std::cerr << "State: " << state_id << "{ ";
     for (auto& n: nodes_)
       {
-        std::cerr << n.id_ << " [";
-        for (auto& b: n.braces_)
+        std::cerr << n.first << " [";
+        for (auto& b: n.second)
           {
             std::cerr << b << ' ';
           }
