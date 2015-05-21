@@ -54,7 +54,7 @@ corresponding commands are hidden.
 * Advanced use-cases
 
 - [[file:csv.org][Reading and writing CSV files]]
-- [[file:satmin.org][SAT-based minimization of Deterministic (Generalized) Büchi automata]]
+- [[file:satmin.org][SAT-based minimization of Deterministic ω-Automata]]
 
 * Citing
 

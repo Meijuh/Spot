@@ -585,7 +585,7 @@ namespace
 
       if (opt_sat_minimize)
 	{
-	  aut = spot::sat_minimize(aut, opt_sat_minimize);
+	  aut = spot::sat_minimize(aut, opt_sat_minimize, sbacc);
 	  if (!aut)
 	    return 0;
 	}

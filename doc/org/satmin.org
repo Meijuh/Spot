@@ -1,26 +1,29 @@
-#+TITLE: SAT-based Minimization of Deterministic (Generalized) Büchi Automata
+#+TITLE: SAT-based Minimization of Deterministic ω-Automata
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 
-This page explains how to use [[file:ltl2tgba.org][=ltl2tgba=]] or [[file:dstar2tgba.org][=dstar2tgba=]] to minimize
-deterministic automata using a SAT solver.
+This page explains how to use [[file:ltl2tgba.org][=ltl2tgba=]], [[file:dstar2tgba.org][=dstar2tgba=]], or [[file:autfilt.org][=autfilt=]]
+to minimize deterministic automata using a SAT solver.
 
 Let us first state a few facts about this minimization procedure.
 
 1) The procedure works only on *deterministic* Büchi automata: any
    recurrence property can be converted into a deterministic Büchi
    automaton, and sometimes there are several ways of doing so.
-2) Spot actually implement two SAT-based minimization procedures: one
+2) Spot actually implements two SAT-based minimization procedures: one
    that builds a deterministic transition-based Büchi automaton
-   (DTBA), and one the builds a deterministic transition-based
-   generalized Büchi automaton (DTGBA).  For the latter, we can supply
-   the number $m$ of acceptance sets to use.
+   (DTBA), and one that builds a deterministic transition-based
+   ω-automaton with arbitrary acceptance condition (DTωA).  In
+   [[file:ltl2tgba.org][=ltl2tgba=]] and [[file:dstar2tgba.org][=dstar2tgba=]], the latter procedure is restricted to
+   TGBA.  In [[file:autfilt.org][=autfilt=]] it can use different and acceptance conditions
+   for input and output, so you could for instance input a Rabin
+   automaton, and produce a Streett automaton.
 3) These two procedures can optionally constrain their output to
    use state-based acceptance. (They simply restrict all the outgoing
    transitions of a state to belong to the same acceptance sets.)
 4) A SAT solver should be installed for this to work. (Spot does not
    distribute any SAT solver.)
-5) [[file:ltl2tgba.org][=ltl2tgba=]] and [[file:dstar2tgba.org][=dstar2tgba=]] will always try to output an automaton
+5) [[file:ltl2tgba.org][=ltl2tgba=]] and [[file:dstar2tgba.org][=dstar2tgba=]] will always try to output an automaton.
    If they fail to determinize the property, they will simply output a
    nondeterministic automaton, if they managed to obtain a
    deterministic automaton but failed to minimize it (e.g., the
@@ -29,9 +32,12 @@ Let us first state a few facts about this minimization procedure.
    only two cases where these tool will abort without returning an
    automaton: when the number of clauses output by Spot (and to be fed
    to the SAT solver) exceeds $2^{31}$, or when the SAT-solver was
-   killed by a signal.
-6) Details about the SAT encoding used in the two procedures can be
-   found in our [[http://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf][FORTE'14 paper]].
+   killed by a signal. [[file:autfilt.org][=autfilt --sat-minimize=]] will only output an
+   automaton if the SAT-based minimization was successful.
+6) Our [[http://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf][FORTE'14 paper]] describes the SAT encoding for the minimization
+   of deterministic BA and TGBA.  Since then, the technique used in
+   the SAT encoding for deterministic TGBA has been generalized to
+   deal with any deterministic TωA.
 
 * How to change the SAT solver used
 
@@ -46,7 +52,7 @@ the input for the SAT solver and receiving its output.  We assume that
 the SAT solver should follow the conventions of the [[http://www.satcompetition.org/][SAT competition]]
 for input and output.
 
-* Enabling SAT-based minimization for deterministic automata
+* Enabling SAT-based minimization in =ltl2tgba= or =dstar2tgba=
 
 Both tools follow the same interface, because they use the same
 post-processing steps internally (i.e., the =spot::postprocessor=
@@ -205,8 +211,8 @@ ltl2tgba -D -x sat-minimize "Ga R (F!b & (c U b))" --stats='states=%s, det=%d'
 
 The question, of course, is whether there exist a deterministic
 automaton for this formula, in other words: is this a recurrence
-property?  There are two ways to answer this question using Spot (and
-some help from [[http://www.ltl2dstar.de/][=ltl2dstar=]]).
+property?  There are two ways to answer this question using Spot and
+some help from [[http://www.ltl2dstar.de/][=ltl2dstar=]].
 
 The first is purely syntactic.  If a formula belongs to the class of
 "syntactic recurrence formulas", it expresses a syntactic property.
@@ -274,7 +280,9 @@ dstar2tgba -D -x sat-minimize,sat-acc=2 --stats='input(states=%S) output(states=
 #+RESULTS:
 : input(states=11) output(states=5, acc-sets=2, det=1)
 
-Beware that the size of the SAT problem is exponential in the number of acceptance sets.
+Beware that the size of the SAT problem is exponential in the number
+of acceptance sets (adding one acceptance set, in the input automaton
+or in the output automaton, will double the size of the problem).
 
 The case of =ltl2tgba= is slightly different because it can remember
 the number of acceptance sets used by the translation algorithm, and
@@ -283,11 +291,11 @@ degeneralized in the meantime for the purpose of determinization.
 
 * Low-level details
 
-The following figure gives an overview of the processing chains that
-can be used to turn an LTL formula into a minimal DBA/DTBA/DTGBA.  The
-blue area at the top describes =ltl2tgba -D -x sat-minimize=, while
-the purple area at the bottom corresponds to =dstar2tgba -D -x
-stat-minimize=.
+The following figure (from our [[http://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf][FORTE'14 paper]]) gives an overview of
+the processing chains that can be used to turn an LTL formula into a
+minimal DBA/DTBA/DTGBA.  The blue area at the top describes =ltl2tgba
+-D -x sat-minimize=, while the purple area at the bottom corresponds
+to =dstar2tgba -D -x stat-minimize=.
 
 [[file:satmin.png]]
 
@@ -343,8 +351,327 @@ The following options can be used to fine-tune this procedure:
 - =-x !wdba-minimize= :: disable WDBA minimization.
 
 When options =-B= and =-x sat-minimize= are both used, =-x
-state-based= and =-x sat-acc=1= are implied.
+state-based= and =-x sat-acc=1= are implied.  Similarly, when option
+=-S= and =-x sat-minimize= are both used, then option =-x state-based=
+is implied.
 
+* Using =autfilt --sat-minimize= to minimize any deterministic ω-automaton
+
+This interface is new in Spot 1.99 and allows to minimize any
+deterministic ω-automaton, regardless of the acceptance condition
+used.  By default, the procedure will try to use the same acceptance
+condition (or any inferior one) and produce transition-based
+acceptance.
+
+For our example, let us first generate an deterministic Rabin
+automaton with [[http://www.ltl2dstar.de/][=ltl2dstar=]].
+
+#+BEGIN_SRC sh :results verbatim :exports code
+ltlfilt -f "FGa | FGb" -l |
+ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-Ds --output-format=hoa - - > output.hoa
+#+END_SRC
+#+RESULTS:
+
+Let's draw it:
+#+NAME: autfiltsm1
+#+BEGIN_SRC sh :results verbatim :exports code
+autfilt output.hoa --dot=.a
+#+END_SRC
+#+RESULTS: autfiltsm1
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<(Fin(<font color="#5DA5DA">⓿</font>) &amp; Inf(<font color="#F17CB0">❶</font>)) | (Fin(<font color="#FAA43A">❷</font>) &amp; Inf(<font color="#B276B2">❸</font>))>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label=<0<br/><font color="#5DA5DA">⓿</font><font color="#FAA43A">❷</font>>]
+  0 -> 0 [label=<!a &amp; !b>]
+  0 -> 1 [label=<a &amp; !b>]
+  0 -> 2 [label=<!a &amp; b>]
+  0 -> 3 [label=<a &amp; b>]
+  1 [label=<1<br/><font color="#F17CB0">❶</font><font color="#FAA43A">❷</font>>]
+  1 -> 0 [label=<!a &amp; !b>]
+  1 -> 1 [label=<a &amp; !b>]
+  1 -> 2 [label=<!a &amp; b>]
+  1 -> 3 [label=<a &amp; b>]
+  2 [label=<2<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+  2 -> 0 [label=<!a &amp; !b>]
+  2 -> 1 [label=<a &amp; !b>]
+  2 -> 2 [label=<!a &amp; b>]
+  2 -> 3 [label=<a &amp; b>]
+  3 [label=<3<br/><font color="#F17CB0">❶</font><font color="#B276B2">❸</font>>]
+  3 -> 0 [label=<!a &amp; !b>]
+  3 -> 1 [label=<a &amp; !b>]
+  3 -> 2 [label=<!a &amp; b>]
+  3 -> 3 [label=<a &amp; b>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfiltsm1.png :cmdline -Tpng :var txt=autfiltsm1 :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:autfiltsm1.png]]
+
+So this is a state-based Rabin automaton with two pairs.  If we call
+=autfilt= with the =--sat-minimize= option, we can get the following
+transition-based version (the output may change depending on the SAT
+solver used):
+
+#+NAME: autfiltsm2
+#+BEGIN_SRC sh :results verbatim :exports code
+autfilt --sat-minimize output.hoa --dot=.a
+#+END_SRC
+#+RESULTS: autfiltsm2
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<(Fin(<font color="#5DA5DA">⓿</font>) &amp; Inf(<font color="#F17CB0">❶</font>)) | (Fin(<font color="#FAA43A">❷</font>) &amp; Inf(<font color="#B276B2">❸</font>))>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label=<a &amp; b<br/><font color="#F17CB0">❶</font>>]
+  0 -> 0 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font><font color="#FAA43A">❷</font>>]
+  0 -> 0 [label=<a &amp; !b<br/><font color="#F17CB0">❶</font><font color="#FAA43A">❷</font>>]
+  0 -> 0 [label=<!a &amp; b<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfiltsm2.png :cmdline -Tpng :var txt=autfiltsm2 :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:autfiltsm2.png]]
+
+We can also attempt to build a state-based version with
+
+#+NAME: autfiltsm3
+#+BEGIN_SRC sh :results verbatim :exports code
+autfilt -S --sat-minimize output.hoa --dot=.a
+#+END_SRC
+
+#+RESULTS: autfiltsm3
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<(Fin(<font color="#5DA5DA">⓿</font>) &amp; Inf(<font color="#F17CB0">❶</font>)) | (Fin(<font color="#FAA43A">❷</font>) &amp; Inf(<font color="#B276B2">❸</font>))>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label=<0<br/><font color="#F17CB0">❶</font><font color="#FAA43A">❷</font>>]
+  0 -> 0 [label=<b>]
+  0 -> 1 [label=<!b>]
+  1 [label=<1<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+  1 -> 0 [label=<!a>]
+  1 -> 1 [label=<a>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfiltsm3.png :cmdline -Tpng :var txt=autfiltsm3 :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:autfiltsm3.png]]
+
+This is clearly smaller than the input automaton.  In this example the
+acceptance condition did not change.  The SAT-based minimization only
+tries to minimize the number of states, but sometime the
+simplifications algorithms that are run before we attempt SAT-solving
+will simplify the acceptance, because even removing a single
+acceptance set can halve the run time.
+
+You can however force a specific acceptance to be used as output.
+Let's try with generalized co-Büchi for instance:
+
+#+NAME: autfiltsm4
+#+BEGIN_SRC sh :results verbatim :exports code
+autfilt -S --sat-minimize='acc="generalized-co-Buchi 2"' output.hoa --dot=.a
+#+END_SRC
+
+#+RESULTS: autfiltsm4
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<Fin(<font color="#5DA5DA">⓿</font>)|Fin(<font color="#F17CB0">❶</font>)>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label=<0<br/><font color="#5DA5DA">⓿</font>>]
+  0 -> 0 [label=<a>]
+  0 -> 1 [label=<!a>]
+  1 [label=<1<br/><font color="#F17CB0">❶</font>>]
+  1 -> 0 [label=<!b>]
+  1 -> 1 [label=<b>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfiltsm4.png :cmdline -Tpng :var txt=autfiltsm4 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfiltsm4.png]]
+
+
+Note that instead of naming the acceptance condition, you can actually
+give an acceptance formula in the [[http://adl.github.io/hoaf/#acceptance][HOA syntax]].  For example we can
+attempt to create a co-Büchi automaton with
+
+#+NAME: autfiltsm5
+#+BEGIN_SRC sh :results verbatim :exports code
+autfilt -S --sat-minimize='acc="Fin(0)"' output.hoa --dot=.a
+#+END_SRC
+#+RESULTS: autfiltsm5
+
+#+BEGIN_SRC dot :file autfiltsm5.png :cmdline -Tpng :var txt=autfiltsm5 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfiltsm5.png]]
+
+
+When forcing an acceptance condition, you should keep in mind that the
+SAT-based minimization algorithm will look for automata that have
+fewer states than the original automaton (after preliminary
+simplifications).  This is not always reasonable.  For instance
+constructing a Streett automaton from a Rabin automaton might require
+more states.  An upper bound on the number of state be passed
+using a =max-states=123= argument to =--sat-minimize=.
+
+If the input automaton is transition-based, but option =-S= is used to
+produce a state-based automaton, then the original automaton is
+temporarily converted into an automaton with state-based acceptance to
+obtain an upper bound on the number of states if you haven't specified
+=max-state=.  This upper bound might be larger than the one you would
+specify by hand.
+
+Here is an example demonstrating the case where the input automaton is
+smaller than the output.   Let's take this small TGBA as input:
+
+#+NAME: autfiltsm6
+#+BEGIN_SRC sh :results verbatim :exports code
+ltl2tgba 'GFa & GFb' -H > output2.hoa
+autfilt output2.hoa --dot=.a
+#+END_SRC
+
+#+RESULTS: autfiltsm6
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<Inf(<font color="#5DA5DA">⓿</font>)&amp;Inf(<font color="#F17CB0">❶</font>)>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
+  0 -> 0 [label=<!a &amp; !b>]
+  0 -> 0 [label=<!a &amp; b<br/><font color="#F17CB0">❶</font>>]
+  0 -> 0 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfiltsm6.png :cmdline -Tpng :var txt=autfiltsm6 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfiltsm6.png]]
+
+
+If we attempt to minimize it into a transition-based Büchi automaton,
+with fewer states, it will fail, output no result, and return with a
+non-zero exit code (because no automata where output).
+
+#+NAME: autfiltsm7
+#+BEGIN_SRC sh :results verbatim :exports both
+autfilt --sat-minimize='acc="Buchi"' output2.hoa
+echo $?
+#+END_SRC
+#+RESULTS: autfiltsm7
+: 1
+
+However if we allow more states, it will work:
+
+#+NAME: autfiltsm8
+#+BEGIN_SRC sh :results verbatim :exports code
+autfilt --sat-minimize='acc="Buchi",max-states=3' output2.hoa --dot=.a
+#+END_SRC
+
+#+RESULTS: autfiltsm8
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<Inf(<font color="#5DA5DA">⓿</font>)>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 0 [label=<!b>]
+  0 -> 0 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  0 -> 1 [label=<!a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  1 [label="1"]
+  1 -> 0 [label=<a>]
+  1 -> 1 [label=<!a>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfiltsm8.png :cmdline -Tpng :var txt=autfiltsm8 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfiltsm8.png]]
+
+
+The =--sat-minimize= option takes a comma separated list of arguments
+that can be any of the following:
+
+- =acc=DOUBLEQUOTEDSTRING= :: where the =DOUBLEQUOTEDSTRING= is an
+     acceptance formula in the [[http://adl.github.io/hoaf/#acceptance][HOA syntax]], or a parametrized acceptance
+     name (the different [[http://adl.github.io/hoaf/#acceptance-specifications][=acc-name:= options from HOA]]).
+- =max-states=N= :: where =N= is an upper-bound on the maximum
+     number of states of the constructed automaton.
+- =states=M= :: where =M= is a fixed number of states to use in the
+     result (all the states needs not be accessible in the result,
+     so the output might be smaller nonetheless).  If this option is
+     used the SAT-based procedure is just used once to synthesize
+     one automaton, and no further minimization is attempted.
+- =dichotomy= :: instead of looking for a smaller automaton starting
+     from =N=, and then checking =N-1=, =N-2=, etc., do a binary
+     search starting from =N/2=.
 
 * Logging statistics
 
@@ -397,3 +724,8 @@ failed.  The final output is reported with 5 states, because by
 default we output trim automata. If the =--complete= option had been
 given, the useless sink state would have been kept and the output
 automaton would have 6 states.
+
+
+#+BEGIN_SRC sh :results verbatim :exports none
+rm -f output.hoa output2.hoa
+#+END_SRC

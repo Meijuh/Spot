@@ -39,6 +39,7 @@
 #include "dtbasat.hh"
 #include "sccfilter.hh"
 #include "sbacc.hh"
+#include "postproc.hh"
 
 // If you set the SPOT_TMPKEEP environment variable the temporary
 // file used to communicate with the sat solver will be left in
@@ -988,6 +989,7 @@ namespace spot
       a->copy_ap_of(aut);
       if (state_based)
 	a->prop_state_based_acc();
+      a->prop_deterministic();
       a->set_acceptance(satdict.cand_nacc, satdict.cand_acc);
       a->new_states(satdict.cand_size);
 
@@ -1075,7 +1077,6 @@ namespace spot
 #endif
 
       a->merge_transitions();
-
       return a;
     }
   }
@@ -1209,7 +1210,7 @@ namespace spot
   }
 
   twa_graph_ptr
-  sat_minimize(twa_graph_ptr a, const char* opt)
+  sat_minimize(twa_graph_ptr a, const char* opt, bool state_based)
   {
     option_map om;
     auto err = om.parse_options(opt);
@@ -1224,20 +1225,22 @@ namespace spot
       throw std::runtime_error
 	("SAT-based minimization only work with deterministic automata");
 
-    bool sb = om.get("state-based", 0);
     bool dicho = om.get("dichotomy", 0);
     int states = om.get("states", -1);
     int max_states = om.get("max-states", -1);
-    int nacc = om.get("gba", -1);
     auto accstr = om.get_str("acc");
 
-    if (nacc != -1 && !accstr.empty())
-      throw std::runtime_error("options 'gba' and 'acc' cannot "
-			       "be both passed to sat_minimize()");
-
+    // Assume we are going to use the input automaton acceptance...
+    bool user_supplied_acc = false;
     acc_cond::acc_code target_acc = a->get_acceptance();
+    int nacc = a->acc().num_sets();
+
+    if (accstr == "same")
+      accstr.clear();
+    // ... unless the user specified otherwise
     if (!accstr.empty())
       {
+	user_supplied_acc = true;
 	target_acc = parse_acc_code(accstr.c_str());
 	// Just in case we were given something like
 	//  Fin(1) | Inf(3)
@@ -1249,50 +1252,96 @@ namespace spot
 	target_acc = target_acc.strip(a.comp(used), true);
 	nacc = used.count();
       }
-    else if (nacc != -1)
+
+    bool target_is_buchi = false;
+    {
+      acc_cond acccond(nacc);
+      acccond.set_acceptance(target_acc);
+      target_is_buchi = acccond.is_buchi();
+    }
+
+    if (int preproc = om.get("preproc", 3))
       {
-	target_acc = acc_cond::generalized_buchi(nacc);
+	postprocessor post;
+	auto sba = (state_based && a->has_state_based_acc()) ?
+	  postprocessor::SBAcc : postprocessor::Any;
+	post.set_pref(postprocessor::Deterministic
+		      | postprocessor::Complete
+		      | sba);
+	post.set_type(postprocessor::Generic);
+	postprocessor::optimization_level level;
+	switch (preproc)
+	  {
+	  case 1:
+	    level = postprocessor::Low;
+	    break;
+	  case 2:
+	    level = postprocessor::Medium;
+	    break;
+	  case 3:
+	    level = postprocessor::High;
+	    break;
+	  default:
+	    throw
+	      std::runtime_error("preproc should be a value between 0 and 3.");
+	  }
+	post.set_level(level);
+	a = post.run(a, nullptr);
+	// If we have WDBA, it is necessarily minimal because
+	// postprocessor always run WDBA minimization in Deterministic
+	// mode.  If the desired output is a Büchi automaton, or not
+	// desired acceptance was specified, stop here.  There is not
+	// point in minimizing a minimal automaton.
+	if (a->is_inherently_weak() && a->is_deterministic()
+	    && (target_is_buchi || !user_supplied_acc))
+	  return a;
       }
     else
       {
-	nacc = a->acc().num_sets();
+	tgba_complete_here(a);
       }
 
-    bool target_is_buchi =
-      (nacc == 1 && target_acc.size() == 2 &&
-       target_acc[1].op == acc_cond::acc_op::Inf
-       && target_acc[0].mark.has(0));
+    if (states == -1 && max_states == -1)
+      {
+	if (state_based)
+	  max_states = sbacc(a)->num_states();
+	else
+	  max_states = a->num_states();
+	// If we have not user-supplied acceptance, the input
+	// automaton is a valid one, so we start the search with one
+	// less state.
+	max_states -= !user_supplied_acc;
+      }
 
-    tgba_complete_here(a);
-
-    if (sb && states == -1 && max_states == -1)
-      max_states = sbacc(a)->num_states();
 
     if (states == -1)
       {
+	auto orig = a;
 	if (!target_is_buchi || !a->acc().is_buchi())
 	  a = (dicho ? dtgba_sat_minimize_dichotomy : dtgba_sat_minimize)
-	    (a, nacc, target_acc, sb, max_states);
+	    (a, nacc, target_acc, state_based, max_states);
 	else
 	  a = (dicho ? dtba_sat_minimize_dichotomy : dtba_sat_minimize)
-	    (a, sb, max_states);
+	    (a, state_based, max_states);
+
+	if (!a && !user_supplied_acc)
+	  a = orig;
       }
     else
       {
 	if (!target_is_buchi || !a->acc().is_buchi())
-	  a = dtgba_sat_synthetize(a, nacc, target_acc, states, sb);
+	  a = dtgba_sat_synthetize(a, nacc, target_acc, states, state_based);
 	else
-	  a = dtba_sat_synthetize(a, states, sb);
+	  a = dtba_sat_synthetize(a, states, state_based);
       }
 
     if (a)
       {
-	if (a->acc().is_generalized_buchi())
-	  a = scc_filter(a);
+	if (state_based)
+	  a = scc_filter_states(a);
 	else
-	  a->purge_dead_states();
+	  a = scc_filter(a);
       }
-
     return a;
   }
 

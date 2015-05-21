@@ -436,6 +436,16 @@ namespace spot
     /// Remove all unreachable states.
     void purge_unreachable_states();
 
+    acc_cond::mark_t state_acc_sets(unsigned s) const
+    {
+      assert(has_state_based_acc() || acc_.num_sets() == 0);
+      for (auto& t: g_.out(s))
+	// Stop at the first transition, since the remaining should be
+	// labeled identically.
+	return t.acc;
+      return 0U;
+    }
+
     bool state_is_accepting(unsigned s) const
     {
       assert(has_state_based_acc() || acc_.num_sets() == 0);

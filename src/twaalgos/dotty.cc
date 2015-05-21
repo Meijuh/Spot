@@ -417,7 +417,10 @@ namespace spot
 	    else
 	      os_ << s;
 	    os_ << '"';
-	    if (mark_states_ && aut_->state_is_accepting(s))
+	    // Use state_acc_sets(), not state_is_accepting() because
+	    // on co-Büchi automata we want to mark the rejecting
+	    // states.
+	    if (mark_states_ && aut_->state_acc_sets(s))
 	      os_ << ", peripheries=2";
 	    os_ << "]\n";
 	  }

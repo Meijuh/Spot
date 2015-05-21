@@ -5,7 +5,7 @@ New in spot 1.99b (not yet released)
     - Spot now works with automata that can represent more than
       generalized Büchi acceptance.  Older versions were built around
       the concept of TGBA (Transition-based Generalized Büchi
-      Automata) while this is version now deal with what we call TωA
+      Automata) while this version now deals with what we call TωA
       (Transition-based ω-Automata).  TωA support arbitrary acceptance
       conditions specified as a Boolean formula of transition sets
       that must be visited infinitely often or finitely often.  This
@@ -238,6 +238,14 @@ New in spot 1.99b (not yet released)
       discussed above).   The function is_unambiguous() will check
       whether an automaton is unambigous, and this is used by
       autfilt --is-unmabiguous.
+
+    - The SAT-based minimization algorithm for deterministic automata
+      has been updated to work with ω-Automaton with any acceptance.
+      The input and the output acceptance can be different, so for
+      instance it is possible to create a minimal deterministic
+      Streett automaton starting from a deterministic Rabin automaton.
+      This functionnality is available via autfilt's --sat-minimize
+      option.  See doc/userdoc/satmin.html for details.
 
   * Noteworthy code changes
 

@@ -32,6 +32,7 @@
 #include "complete.hh"
 #include "totgba.hh"
 #include "sbacc.hh"
+#include "sepsets.hh"
 
 namespace spot
 {
@@ -93,6 +94,8 @@ namespace spot
   twa_graph_ptr
   postprocessor::do_simul(const twa_graph_ptr& a, int opt)
   {
+    if (!has_separate_sets(a))
+      return a;
     switch (opt)
       {
       case 0:

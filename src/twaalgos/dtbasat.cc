@@ -641,6 +641,7 @@ namespace spot
       acc_cond::mark_t acc = a->set_buchi();
       if (state_based)
 	a->prop_state_based_acc();
+      a->prop_deterministic();
       a->new_states(satdict.cand_size);
 
       unsigned last_aut_trans = -1U;

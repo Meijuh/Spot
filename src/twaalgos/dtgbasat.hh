@@ -81,15 +81,16 @@ namespace spot
   /// \brief High-level interface to SAT-based minimization
   ///
   /// Minimize the automaton \a aut, using options \a opt.
-  /// These options are given a comma-separated list of
+  /// These options are given as a comma-separated list of
   /// assignments of the form:
   ///
-  ///   state-based = 1
-  ///   states = 10
-  ///   acc = generalized-Buchi 2
-  ///   acc = Rabin 3
-  ///   acc = same /* default */
+  ///   states = 10      // synthetize automaton with fixed number of states
+  ///   max-states = 20  // minimize starting from this upper bound
+  ///   acc = "generalized-Buchi 2"
+  ///   acc = "Rabin 3"
+  ///   acc = "same" /* default */
+  ///   dichotomy = 1    // use dichotomy instead of decreasing loop
   ///
   SPOT_API twa_graph_ptr
-  sat_minimize(twa_graph_ptr aut, const char* opt);
+  sat_minimize(twa_graph_ptr aut, const char* opt, bool state_based = false);
 }

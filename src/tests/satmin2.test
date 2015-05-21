@@ -108,7 +108,7 @@ $autfilt --sat-minimize='acc="Fin(0)|Inf(1)"' test.hoa --stats=%s >output
 test `cat output` = 1
 
 # How about a state-based DSA?
-$autfilt --sat-minimize='state-based,acc="Fin(0)|Inf(1)"' test.hoa \
+$autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)"' test.hoa \
 	 --stats=%s > output
 test `cat output` = 3
 
