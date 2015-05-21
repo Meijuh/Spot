@@ -100,14 +100,15 @@ We can draw it:
 #+BEGIN_SRC sh :results verbatim :exports code
 ltl2tgba -D -x sat-minimize "GF(a <-> XXb)"
 #+END_SRC
-#+RESULTS:
+#+RESULTS: gfaexxb3
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
-  node[style=filled, fillcolor="#ffffa0"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
