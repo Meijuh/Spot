@@ -489,8 +489,6 @@ namespace spot
 	twa_graph_ptr res = make_twa_graph(a_->get_dict());
 	res->copy_ap_of(a_);
 	res->copy_acceptance_of(a_);
-	if (Sba)
-	  res->prop_state_based_acc();
 
 	// Non atomic propositions variables (= acc and class)
 	bdd nonapvars = all_proms_ & bdd_support(all_class_var_);
@@ -637,7 +635,8 @@ namespace spot
 	res->prop_copy(original_,
 		       { false, // state-based acc forced below
 		         true,  // weakness preserved,
-			 false, // determinism checked and set below
+			 true, // determinism checked and overridden below
+			       // and "unambiguous" property preserved
 			 true, // stutter inv.
 		       });
         if (nb_minato == nb_satoneset && !Cosimulation)
