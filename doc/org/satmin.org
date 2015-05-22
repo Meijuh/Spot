@@ -558,7 +558,7 @@ SAT-based minimization algorithm will look for automata that have
 fewer states than the original automaton (after preliminary
 simplifications).  This is not always reasonable.  For instance
 constructing a Streett automaton from a Rabin automaton might require
-more states.  An upper bound on the number of state be passed
+more states.  An upper bound on the number of state can be passed
 using a =max-states=123= argument to =--sat-minimize=.
 
 If the input automaton is transition-based, but option =-S= is used to
