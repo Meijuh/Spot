@@ -517,8 +517,16 @@ namespace spot
   acc_cond::acc_code
   acc_cond::acc_code::parity(bool max, bool odd, unsigned sets)
   {
+    acc_cond::acc_code res;
+
+    if (max)
+      res = odd ? t() : f();
+    else
+      res = (sets & 1) == odd ? t() : f();
+
     if (sets == 0)
-      return f();
+      return res;
+
     // When you look at something like
     //    acc-name: parity min even 5
     //    Acceptance: 5 Inf(0) | (Fin(1) & (Inf(2) | (Fin(3) & Inf(4))))
@@ -526,10 +534,6 @@ namespace spot
     int start = max ? 0 : sets - 1;
     int inc = max ? 1 : -1;
     int end = max ? sets : -1;
-    // Do not start with a Fin term, the right-most term is always Inf.
-    if ((start & 1) != odd)
-      start += inc;
-    acc_cond::acc_code res = f();
     for (int i = start; i != end; i += inc)
       {
 	if ((i & 1) == odd)
@@ -623,12 +627,10 @@ namespace spot
     unsigned sets = num_;
     if (sets == 0)
       {
-	max = false;
-	odd = false;
-	return is_false();
+	max = true;
+	odd = is_true();
+	return true;
       }
-    if (is_true())
-      return false;
     acc_cond::mark_t u_inf;
     acc_cond::mark_t u_fin;
     std::tie(u_inf, u_fin) = code_.used_inf_fin_sets();
