@@ -18,8 +18,7 @@ The main differences are:
   - statistics output in a format that can be more easily be post-processed,
   - more precise time measurement (LBTT was only precise to
     1/100 of a second, reporting most times as "0.00s"),
-  - support for deterministic Rabin or Streett automata written in
-    [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dstar='s format]],
+  - support for any type of acceptance condition,
   - additional intersection checks with the complement of any
     deterministic automaton produced by a translator.
 
@@ -150,6 +149,8 @@ tools:
   - '=java -jar Rabinizer.jar -ltl2dstar %F %D; mv %D.dst %D=' (Rabinizer
     uses the last =%D= argument as a prefix to which it always append =.dst=,
     so we have to rename =%D.dst= as =%D= so that =ltlcross= can find the file)
+  - '=java -jar Rabinizer3.jar -hoa -formula %f; mv output.hoa %O=' (Rabinizer *3*
+    always output in =output.hoa= when the formula comes from the command line.)
   - '=ltl3dra -f %s >%O='
 
 To simplify the use of some of the above tools, a set of predefined
@@ -408,15 +409,17 @@ such missing data with the option =--omit-missing=.)
 
 The columns =in_type=, =in_states=, =in_edges=, =in_transitions=,
 =in_acc=, and =in_scc= are only output if one of the translator
-produces Rabin or Streett automata (i.e., if =%D= is used to specify
-one output filename for any translator).  In that case these columns
-give the type (DRA or DSA) of the produced automaton, as well as its
-size (states, edges, transitions, number of acceptance pairs, and
-number of SCCs).  This input automaton is then converted by =ltlcross=
-into a TGBA before being checked the result of other translators, and
-all the following columns are measures of that converted automaton.
-(Aside from parsing them and converting them to TGBA, Spot has no support
-for Rabin automata and Streett automata.)
+produces Rabin or Streett automata in =ltl2dstar='s format (i.e., if
+=%D= is used to specify one output filename for any translator).  In
+that case these columns give the type (DRA or DSA) of the produced
+automaton, as well as its size (states, edges, transitions, number of
+acceptance pairs, and number of SCCs).  This input automaton is then
+converted by =ltlcross= into a TGBA before being checked the result of
+other translators, and all the following columns are measures of that
+converted automaton.  This conversion to TGBA is historical.  When the
+automata are produced in the HOA format (i.e., not in =ltl2dstar='s
+format) then no conversion occur, and =ltlcross= works directly with
+the given acceptance condition.
 
 =states=, =edges=, =transitions=, =acc= are size measures for the
 automaton that was translated.  =acc= counts the number of acceptance
@@ -492,11 +495,14 @@ showing two automata for =a U b=, the first automaton is deterministic
 a nondeterministic state (state A2 has two possible successors for the
 assignment $ab$) and is therefore not deterministic.
 
-=ambiguous_aut= counts the number of ambiguous automaton.  An
-automaton is ambiguous is there exist a word that can be accepted by
-at least two different runs.
+=ambiguous_aut= is a Boolean indicating whether the automaton is
+ambiguous, i.e., if there exists a word that can be accepted by at
+least two different runs.
 
-Finally, =product_states=, =product_transitions=, and =product_scc=
+=complete_aut= is a Boolean indicating whether the automaton is
+complete.
+
+Columns =product_states=, =product_transitions=, and =product_scc=
 count the number of state, transitions and strongly-connect components
 in the product that has been built between the translated automaton
 and a random model.  For a given formula, the same random model is of
@@ -522,6 +528,10 @@ for each individual product (i.e., $3\times N$ columns are output).
 This might be useful if you want to compute different kind of
 statistic (e.g., a median instead of a mean) or if you want to build
 scatter plots of all these products.
+
+Finally, if the =--automata= option was passed to =ltlcross=, the CSV
+or JSON output will contain a column named =automaton= encoding each
+produced automaton in the HOA format.
 
 ** Changing the name of the translators
 
