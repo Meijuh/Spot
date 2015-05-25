@@ -26,6 +26,7 @@
 #include "acc.hh"
 #include "priv/bddalloc.hh"
 #include "misc/minato.hh"
+#include "misc/random.hh"
 
 namespace spot
 {
@@ -542,6 +543,47 @@ namespace spot
 	  res.append_and(fin({(unsigned)i}));
       }
     return res;
+  }
+
+  acc_cond::acc_code
+  acc_cond::acc_code::random(unsigned n_accs, double reuse)
+  {
+    // With 0 acceptance sets, we always generate the true acceptance.
+    // (Working with false is somehow pointless, and the formulas we
+    // generate for n_accs>0 are always satisfiable, so it makes sense
+    // that it should be satisfiable for n_accs=0 as well.)
+    if (n_accs == 0)
+      return {};
+
+    std::vector<acc_cond::acc_code> codes;
+    codes.reserve(n_accs);
+    for (unsigned i = 0; i < n_accs; ++i)
+      {
+	if (drand() < 0.5)
+	  codes.push_back(inf({i}));
+	else
+	  codes.push_back(fin({i}));
+	if (reuse > 0.0 && drand() < reuse)
+	  --i;
+      }
+
+    int s = codes.size();
+    while (s > 1)
+      {
+	// Pick a random code and put it at the end
+	int p1 = mrand(s--);
+	std::swap(codes[p1], codes[s]);
+	// and another one
+	int p2 = mrand(s);
+
+	if (drand() < 0.5)
+	  codes[p2].append_or(std::move(codes.back()));
+	else
+	  codes[p2].append_and(std::move(codes.back()));
+
+	codes.pop_back();
+      }
+    return codes[0];
   }
 
   namespace
@@ -1284,12 +1326,75 @@ namespace spot
       if (errno || num != n)
 	{
 	  std::ostringstream s;
-	  s << "syntax error at '" << input << "': value too large.";
+	  s << "syntax error at '" << input << "': invalid number.";
 	  throw parse_error(s.str());
 	}
       input = end;
+      return n;
+    }
 
-      return num;
+    static unsigned parse_range(const char*& str)
+    {
+      skip_space(str);
+      int min;
+      int max;
+      char* end;
+      errno = 0;
+      min = strtol(str, &end, 10);
+      if (end == str || errno)
+	{
+	  // No leading number.  It's OK as long as the string is not
+	  // empty.
+	  if (!*end || errno)
+	    {
+	      std::ostringstream s;
+	      s << "syntax error at '" << str << "': invalid range.";
+	      throw parse_error(s.str());
+	    }
+	  min = 1;
+	}
+      if (!*end || (*end != ':' && *end != '.'))
+	{
+	  // Only one number.
+	  max = min;
+	}
+      else
+	{
+	  // Skip : or ..
+	  if (end[0] == ':')
+	    ++end;
+	  else if (end[0] == '.' && end[1] == '.')
+	    end += 2;
+
+	  // Parse the next integer.
+	  char* end2;
+	  max = strtol(end, &end2, 10);
+	  if (end == end2 || errno)
+	    {
+	      std::ostringstream s;
+	      s << "syntax error at '" << str
+		<< "': invalid range (missing end?)";
+	      throw parse_error(s.str());
+	    }
+	  end = end2;
+	}
+
+      if (min < 0 || max < 0)
+	{
+	  std::ostringstream s;
+	  s << "invalid range '" << str
+	    << "': values must be positive";
+	  throw parse_error(s.str());
+	}
+
+      str = end;
+
+      if (min == max)
+	return min;
+
+      if (min > max)
+	std::swap(min, max);
+      return spot::rrand(min, max);
     }
 
     static unsigned parse_par_num(const char*& input)
@@ -1300,6 +1405,28 @@ namespace spot
       skip_space(input);
       expect(input, ')');
       return num;
+    }
+
+    static double parse_proba(const char*& input)
+    {
+      errno = 0;
+      char* end;
+      double n = strtod(input, &end);
+      if (errno)
+	{
+	  std::ostringstream s;
+	  s << "syntax error at '" << input << "': can't convert to double";
+	  throw parse_error(s.str());
+	}
+      if (!(n >= 0.0 && n <= 1.0))
+	{
+	  std::ostringstream s;
+	  s << "syntax error at '" << input
+	    << "': value should be between 0 and 1.";
+	  throw parse_error(s.str());
+	}
+      input = end;
+      return n;
     }
 
     static acc_cond::acc_code parse_term(const char*& input)
@@ -1366,6 +1493,16 @@ namespace spot
 	  input += 3;
 	  return false;
 	}
+      if (!strncmp(input, "rand", 4))
+	{
+	  input += 4;
+	  return drand() < 0.5;
+	}
+      if (!strncmp(input, "random", 6))
+	{
+	  input += 6;
+	  return drand() < 0.5;
+	}
       std::ostringstream s;
       s << "syntax error at '" << input
 	<< "': expecting 'min' or 'max'";
@@ -1384,6 +1521,16 @@ namespace spot
 	{
 	  input += 4;
 	  return false;
+	}
+      if (!strncmp(input, "rand", 4))
+	{
+	  input += 4;
+	  return drand() < 0.5;
+	}
+      if (!strncmp(input, "random", 6))
+	{
+	  input += 6;
+	  return drand() < 0.5;
 	}
       std::ostringstream s;
       s << "syntax error at '" << input
@@ -1420,22 +1567,22 @@ namespace spot
     else if (!strncmp(input, "generalized-Buchi", 17))
       {
 	input += 17;
-	c = acc_cond::acc_code::generalized_buchi(parse_num(input));
+	c = acc_cond::acc_code::generalized_buchi(parse_range(input));
       }
     else if (!strncmp(input, "generalized-co-Buchi", 20))
       {
 	input += 20;
-	c = acc_cond::acc_code::generalized_co_buchi(parse_num(input));
+	c = acc_cond::acc_code::generalized_co_buchi(parse_range(input));
       }
     else if (!strncmp(input, "Rabin", 5))
       {
 	input += 5;
-	c = acc_cond::acc_code::rabin(parse_num(input));
+	c = acc_cond::acc_code::rabin(parse_range(input));
       }
     else if (!strncmp(input, "Streett", 7))
       {
 	input += 7;
-	c = acc_cond::acc_code::streett(parse_num(input));
+	c = acc_cond::acc_code::streett(parse_range(input));
       }
     else if (!strncmp(input, "generalized-Rabin", 17))
       {
@@ -1445,7 +1592,7 @@ namespace spot
 	v.reserve(num);
 	while (num > 0)
 	  {
-	    v.push_back(parse_num(input));
+	    v.push_back(parse_range(input));
 	    --num;
 	  }
 	c = acc_cond::acc_code::generalized_rabin(v.begin(), v.end());
@@ -1455,8 +1602,18 @@ namespace spot
 	input += 6;
 	bool max = max_or_min(input);
 	bool odd = odd_or_even(input);
-	unsigned num = parse_num(input);
+	unsigned num = parse_range(input);
 	c = acc_cond::acc_code::parity(max, odd, num);
+      }
+    else if (!strncmp(input, "random", 6))
+      {
+	input += 6;
+	unsigned n = parse_range(input);
+	skip_space(input);
+	double reuse = (*input) ? parse_proba(input) : 0.0;
+	if (reuse >= 1.0)
+	  throw parse_error("probability for set reuse should be <1.");
+	c = acc_cond::acc_code::random(n, reuse);
       }
     else
       {

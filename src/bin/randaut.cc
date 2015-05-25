@@ -59,29 +59,31 @@ atomic propositions \"a\" and \"b\":\n\
 \n\
 This builds three random, complete, and deterministic TGBA with 5 to 10\n\
 states, 1 to 3 acceptance sets, and three atomic propositions:\n\
-  % randaut -n 3 --hoa -S5..10 -A1..3 3\n\
+  % randaut -n3 -D -H -S5..10 -A1..3 3\n\
+\n\
+Build 3 random, complete, and deterministic Rabin automata\n\
+with 2 to 3 acceptance pairs, state-based acceptance, 8 states, \n\
+a high density of transitions, and 3 to 4 atomic propositions:\n\
+  % randaut -n3 -D -H -S8 -d.8 --state-based -A 'Rabin 2..3' 3..4\n\
 ";
 
 enum {
   OPT_SEED = 1,
   OPT_STATE_ACC,
-  OPT_ACC_TYPE,
 };
 
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Generation:", 2 },
-    { "acc-type", OPT_ACC_TYPE, "buchi|random", 0,
-      "use a generalized buchi acceptance condition (default), or a "
-      "random acceptance condition", 0 },
-    { "acc-sets", 'A', "RANGE", 0, "number of acceptance sets (0)", 0 },
+    { 0, 0, 0, 0, "Generation:", 1 },
+    { "acceptance", 'A', "ACCEPTANCE", 0,
+      "specify the acceptance type of the automaton", 0 },
     { "acc-probability", 'a', "FLOAT", 0,
       "probability that a transition belong to one acceptance set (0.2)", 0 },
     { "automata", 'n', "INT", 0, "number of automata to output (1)\n"\
       "use a negative value for unbounded generation", 0 },
     { "ba", 'B', 0, 0,
-      "build a Buchi automaton (implies --acc-sets=1 --state-acc)", 0 },
+      "build a Buchi automaton (implies --acceptance=Buchi --state-acc)", 0 },
     { "density", 'd', "FLOAT", 0, "density of the transitions (0.2)", 0 },
     { "deterministic", 'D', 0, 0, "build a complete, deterministic automaton ",
       0 },
@@ -93,6 +95,25 @@ static const argp_option options[] =
     { "states", 'S', "RANGE", 0, "number of states to output (10)", 0 },
     { "state-acc", OPT_STATE_ACC, 0, 0, "use state-based acceptance", 0 },
     RANGE_DOC,
+    { 0, 0, 0, 0, "ACCEPTANCE may be either a RANGE (in which case "
+      "generalized Büchi is assumed), or an arbitrary acceptance formula "
+      "such as 'Fin(0)|Inf(1)&Fin(2)' in the same syntax as in the HOA "
+      "format, or one of the following patterns:\n"
+      "  none\n"
+      "  all\n"
+      "  Buchi\n"
+      "  co-Buchi\n"
+      "  generalized-Buchi RANGE\n"
+      "  generalized-co-Buchi RANGE\n"
+      "  Rabin RANGE\n"
+      "  Streett RANGE\n"
+      "  generalized-Rabin INT RANGE RANGE ... RANGE\n"
+      "  parity (min|max|rand) (odd|even|rand) RANGE\n"
+      "  random RANGE\n"
+      "  random RANGE PROBABILITY\n"
+      "The random acceptance condition uses each set only once, "
+      "unless a probability (to reuse the set again every time it is used) "
+      "is given.", 2 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -1 },
     { 0, 0, 0, 0, 0, 0 }
@@ -107,27 +128,11 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-enum acc_type { acc_buchi, acc_random };
-
-static char const *const acc_args[] =
-{
-  "buchi", "ba", "gba",
-  "random",
-  0
-};
-static acc_type const acc_types[] =
-{
-  acc_buchi, acc_buchi, acc_buchi,
-  acc_random,
-};
-ARGMATCH_VERIFY(acc_args, acc_types);
-
-
-static acc_type opt_acc = acc_buchi;
+static const char* opt_acceptance = nullptr;
 typedef spot::twa_graph::graph_t::trans_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static spot::ltl::atomic_prop_set aprops;
-static bool ap_count_given = false;
+static range ap_count_given = {-1, -2}; // Must be two different negative val
 static int opt_seed = 0;
 static const char* opt_seed_str = "0";
 static int opt_automata = 1;
@@ -138,6 +143,8 @@ static float opt_acc_prob = 0.2;
 static bool opt_deterministic = false;
 static bool opt_state_acc = false;
 static bool ba_wanted = false;
+static bool generic_wanted = false;
+static bool gba_wanted = false;
 static std::unique_ptr<unique_aut_t> opt_uniq = nullptr;
 
 static void
@@ -145,6 +152,18 @@ ba_options()
 {
   opt_acc_sets = { 1, 1 };
   opt_state_acc = true;
+}
+
+// Range should have the form 12..34 or 12:34, maybe with spaces.  The
+// characters between '.' and ':' include all digits plus '/', but the
+// parser will later choke on '/' if it is used, so let's not worry
+// here.
+static bool
+looks_like_a_range(const char* str)
+{
+  while (*str == ' ' || (*str >= '.' && *str <= ':'))
+    ++str;
+  return !*str;
 }
 
 static int
@@ -163,11 +182,20 @@ parse_opt(int key, char* arg, struct argp_state* as)
 	      "should be between 0.0 and 1.0");
       break;
     case 'A':
-      opt_acc_sets = parse_range(arg);
-      if (opt_acc_sets.min > opt_acc_sets.max)
-	std::swap(opt_acc_sets.min, opt_acc_sets.max);
-      if (opt_acc_sets.min < 0)
-	error(2, 0, "number of acceptance sets should be positive");
+      if (looks_like_a_range(arg))
+	{
+	  opt_acc_sets = parse_range(arg);
+	  if (opt_acc_sets.min > opt_acc_sets.max)
+	    std::swap(opt_acc_sets.min, opt_acc_sets.max);
+	  if (opt_acc_sets.min < 0)
+	    error(2, 0, "number of acceptance sets should be positive");
+	  gba_wanted = true;
+	}
+      else
+	{
+	  opt_acceptance = arg;
+	  generic_wanted = true;
+	}
       break;
     case 'B':
       ba_options();
@@ -193,9 +221,6 @@ parse_opt(int key, char* arg, struct argp_state* as)
       opt_uniq =
         std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
       break;
-    case OPT_ACC_TYPE:
-      opt_acc = XARGMATCH("--acc-type", arg, acc_args, acc_types);
-      break;
     case OPT_SEED:
       opt_seed = to_int(arg);
       opt_seed_str = arg;
@@ -211,16 +236,13 @@ parse_opt(int key, char* arg, struct argp_state* as)
       // non-options.  So if as->argc == as->next we know this is the
       // last non-option argument, and if aprops.empty() we know this
       // is the also the first one.
-      if (aprops.empty() && as->argc == as->next)
+      if (aprops.empty() && as->argc == as->next && looks_like_a_range(arg))
 	{
-	  char* endptr;
-	  int res = strtol(arg, &endptr, 10);
-	  if (!*endptr && res >= 0) // arg is a number
-	    {
-	      ap_count_given = true;
-	      aprops = spot::ltl::create_atomic_prop_set(res);
-	      break;
-	    }
+	  ap_count_given = parse_range(arg);
+	  // Create the set once if the count is fixed.
+	  if (ap_count_given.min == ap_count_given.max)
+	    aprops = spot::ltl::create_atomic_prop_set(ap_count_given.min);
+	  break;
 	}
       aprops.insert(spot::ltl::default_environment::instance().require(arg));
       break;
@@ -247,22 +269,26 @@ main(int argc, char** argv)
 
   // running 'randaut 0' is one way to generate automata using no
   // atomic propositions so do not complain in that case.
-  if (aprops.empty() && !ap_count_given)
+  if (aprops.empty() && ap_count_given.max < 0)
     error(2, 0, "No atomic proposition supplied?   Run '%s --help' for usage.",
 	  program_name);
 
+  if (generic_wanted && automaton_format == Spin)
+    error(2, 0, "--spin implies --ba so should not be used with --acceptance");
+  if (generic_wanted && ba_wanted)
+    error(2, 0, "--acceptance and --ba may not be used together");
+
   if (automaton_format == Spin && opt_acc_sets.max > 1)
-    error(2, 0, "--spin is incompatible with --acc-sets=%d..%d",
+    error(2, 0, "--spin is incompatible with --acceptance=%d..%d",
 	  opt_acc_sets.min, opt_acc_sets.max);
-  if (automaton_format == Spin && opt_acc != acc_buchi)
-    error(2, 0,
-	  "--spin implies --acc-type=buchi but a different --acc-type is used");
   if (ba_wanted && opt_acc_sets.min != 1 && opt_acc_sets.max != 1)
-    error(2, 0, "--ba is incompatible with --acc-sets=%d..%d",
+    error(2, 0, "--ba is incompatible with --acceptance=%d..%d",
 	  opt_acc_sets.min, opt_acc_sets.max);
-  if (ba_wanted && opt_acc != acc_buchi)
-    error(2, 0,
-	  "--ba implies --acc-type=buchi but a different --acc-type is used");
+  if (ba_wanted && generic_wanted)
+    error(2, 0, "--ba is incompatible with --acceptance=%s", opt_acceptance);
+
+  if (automaton_format == Spin)
+    ba_options();
 
   try
     {
@@ -281,6 +307,14 @@ main(int argc, char** argv)
 	  spot::stopwatch sw;
 	  sw.start();
 
+	  if (ap_count_given.max > 0
+	      && ap_count_given.min != ap_count_given.max)
+	    {
+	      spot::ltl::destroy_atomic_prop_set(aprops);
+	      int c = spot::rrand(ap_count_given.min, ap_count_given.max);
+	      aprops = spot::ltl::create_atomic_prop_set(c);
+	    }
+
 	  int size = opt_states.min;
 	  if (size != opt_states.max)
 	    size = spot::rrand(size, opt_states.max);
@@ -289,20 +323,20 @@ main(int argc, char** argv)
 	  if (accs != opt_acc_sets.max)
 	    accs = spot::rrand(accs, opt_acc_sets.max);
 
+	  spot::acc_cond::acc_code code;
+	  if (opt_acceptance)
+	    {
+	      code = spot::parse_acc_code(opt_acceptance);
+	      accs = code.used_sets().max_set();
+	    }
+
 	  auto aut =
 	    spot::random_graph(size, opt_density, &aprops, d,
 			       accs, opt_acc_prob, 0.5,
 			       opt_deterministic, opt_state_acc);
 
-	  switch (opt_acc)
-	    {
-	    case acc_buchi:
-	      // Random_graph builds a GBA by default
-	      break;
-	    case acc_random:
-	      aut->set_acceptance(accs, spot::random_acceptance(accs));
-	      break;
-	    }
+	  if (opt_acceptance)
+	    aut->set_acceptance(accs, code);
 
 	  if (opt_uniq)
 	    {

@@ -240,42 +240,4 @@ namespace spot
     delete[] props;
     return res;
   }
-
-  acc_cond::acc_code random_acceptance(unsigned n_accs)
-  {
-    // With 0 acceptance sets, we always generate the true acceptance.
-    // (Working with false is somehow pointless, and the formulas we
-    // generate for n_accs>0 are always satisfiable, so it makes sense
-    // that it should be satisfiable for n_accs=0 as well.)
-    if (n_accs == 0)
-      return {};
-
-    acc_cond acc(n_accs);
-    std::vector<acc_cond::acc_code> codes;
-    codes.reserve(n_accs);
-    for (unsigned i = 0; i < n_accs; ++i)
-      if (drand() < 0.5)
-	codes.push_back(acc.inf(acc.mark(i)));
-      else
-	codes.push_back(acc.fin(acc.mark(i)));
-
-    int s = codes.size();
-    while (s > 1)
-      {
-	// Pick a random code and put it at the end
-	int p1 = mrand(s--);
-	std::swap(codes[p1], codes[s]);
-	// and another one
-	int p2 = mrand(s);
-
-	if (drand() < 0.5)
-	  codes[p2].append_or(std::move(codes.back()));
-	else
-	  codes[p2].append_and(std::move(codes.back()));
-
-	codes.pop_back();
-      }
-    return codes[0];
-  }
-
 }

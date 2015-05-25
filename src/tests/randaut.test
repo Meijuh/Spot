@@ -82,19 +82,54 @@ test 6 = `$autfilt -c out-det1.hoa`
 $autfilt -H out.hoa -o foo -c 2>stderr && exit 1
 grep 'autfilt: options --output and --count are incompatible' stderr
 
-$randaut -n 2 -S5 -A4 -H 2 | grep Acceptance: > output
-$randaut --acc-type=random -n 2 -S5 -A4 -H 2 | grep Acceptance: >> output
+(
+    $randaut -n 2 -S5 -A4 -H 2
+    $randaut -A 'random 4' -n 2 -S5 -H 2
+    $randaut -A 'parity rand rand 2..4' -n3 -S5 -H 2
+    $randaut -A 'generalized-Rabin 3 1..2 2..3 0' -n3 -S5 -H 2
+) | grep -E '(acc-name:|Acceptance:)' > output
 cat output
 
+a=Acceptance
 cat >expected <<EOF
-Acceptance: 4 Inf(0)&Inf(1)&Inf(2)&Inf(3)
-Acceptance: 4 Inf(0)&Inf(1)&Inf(2)&Inf(3)
-Acceptance: 4 (Fin(2) & Inf(3)) | Inf(0) | Fin(1)
-Acceptance: 4 ((Inf(0) | Inf(1)) & Fin(3)) | Inf(2)
+acc-name: generalized-Buchi 4
+$a: 4 Inf(0)&Inf(1)&Inf(2)&Inf(3)
+acc-name: generalized-Buchi 4
+$a: 4 Inf(0)&Inf(1)&Inf(2)&Inf(3)
+$a: 4 Fin(1) | (Fin(2) & Fin(3) & Fin(0))
+$a: 4 Inf(2) | ((Inf(0) | Inf(1)) & Fin(3))
+acc-name: parity min even 4
+$a: 4 Inf(0) | (Fin(1) & (Inf(2) | Fin(3)))
+acc-name: parity max odd 3
+$a: 3 Fin(2) & (Inf(1) | Fin(0))
+acc-name: parity max even 3
+$a: 3 Inf(2) | (Fin(1) & Inf(0))
+acc-name: generalized-Rabin 3 2 3 0
+$a: 8 (Fin(0) & (Inf(1)&Inf(2))) | (Fin(3) & (Inf(4)&Inf(5)&Inf(6))) | Fin(7)
+acc-name: generalized-Rabin 3 1 2 0
+$a: 6 (Fin(0) & Inf(1)) | (Fin(2) & (Inf(3)&Inf(4))) | Fin(5)
+acc-name: generalized-Rabin 3 1 3 0
+$a: 7 (Fin(0) & Inf(1)) | (Fin(2) & (Inf(3)&Inf(4)&Inf(5))) | Fin(6)
 EOF
 diff output expected
 
-$randaut --spin --acc-type=random 2 2>stderr && exit 1
-grep 'randaut: --spin.*--acc-type' stderr
-$randaut --ba --acc-type=random 2 2>stderr && exit 1
-grep 'randaut: --ba.*--acc-type' stderr
+$randaut --spin -A 'random 2' 2 2>stderr && exit 1
+grep 'randaut: --spin.*--acceptance' stderr
+$randaut --ba --acceptance='random 2' 2 2>stderr && exit 1
+grep 'randaut: --acceptance.*--ba' stderr
+
+$randaut -n 10 2..4 -H | grep AP: > output
+cat output
+cat >expected <<EOF
+AP: 3 "p0" "p1" "p2"
+AP: 3 "p0" "p1" "p2"
+AP: 3 "p0" "p1" "p2"
+AP: 3 "p0" "p1" "p2"
+AP: 3 "p0" "p1" "p2"
+AP: 4 "p0" "p1" "p2" "p3"
+AP: 2 "p0" "p1"
+AP: 3 "p0" "p1" "p2"
+AP: 2 "p0" "p1"
+AP: 4 "p0" "p1" "p2" "p3"
+EOF
+diff output expected

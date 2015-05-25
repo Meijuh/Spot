@@ -521,6 +521,11 @@ namespace spot
 
       static acc_code parity(bool max, bool odd, unsigned sets);
 
+      // Number of acceptance sets to use, and probability to reuse
+      // each set another time after it has been used in the
+      // acceptance formula.
+      static acc_code random(unsigned n, double reuse = 0.0);
+
       void append_and(acc_code&& r)
       {
 	if (is_true() || r.is_false())
