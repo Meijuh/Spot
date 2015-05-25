@@ -18,23 +18,43 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <cstring>
 
+#include "twa/twagraph.hh"
 #include "twaalgos/safra.hh"
+#include "twaalgos/translate.hh"
 #include "hoaparse/public.hh"
+#include "ltlparse/public.hh"
 #include "twaalgos/dotty.hh"
 
 
 int main(int argc, char* argv[])
 {
-  if (argc <= 1)
+  if (argc <= 2)
     return 1;
-  char* input = argv[1];
-  spot::hoa_parse_error_list pel;
+  char* input = argv[2];
   auto dict = spot::make_bdd_dict();
-  auto aut = spot::hoa_parse(input, pel, dict);
-  if (spot::format_hoa_parse_errors(std::cerr, input, pel))
-    return 2;
-  auto res = tgba_determinisation(aut->aut);
+  spot::twa_graph_ptr res;
+  if (!strncmp(argv[1], "-f", 2))
+    {
+      spot::ltl::parse_error_list pel;
+      const spot::ltl::formula* f =
+      spot::ltl::parse(input, pel, spot::ltl::default_environment::instance(),
+                       false);
+      spot::translator trans(dict);
+      trans.set_pref(spot::postprocessor::Deterministic);
+      auto tmp = trans.run(f);
+      res = spot::tgba_determinisation(tmp);
+      f->destroy();
+    }
+  else if (!strncmp(argv[1], "--hoa", 5))
+    {
+      spot::hoa_parse_error_list pel;
+      auto aut = spot::hoa_parse(input, pel, dict);
+      if (spot::format_hoa_parse_errors(std::cerr, input, pel))
+        return 2;
+      res = tgba_determinisation(aut->aut);
+    }
 
   spot::dotty_reachable(std::cout, res);
 }

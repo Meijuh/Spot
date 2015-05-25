@@ -20,6 +20,7 @@
 #include <deque>
 
 #include "safra.hh"
+#include "twaalgos/degen.hh"
 
 namespace spot
 {
@@ -44,7 +45,6 @@ namespace spot
                 res.emplace_back(safra_state(nb_braces_.size()), t.cond);
               }
             safra_state& ss = res[idx].first;
-            assert(ss.nb_braces_.size() == ss.is_green_.size());
             ss.update_succ(node.second, t.dst, t.acc);
             assert(ss.nb_braces_.size() == ss.is_green_.size());
           }
@@ -150,6 +150,8 @@ namespace spot
     // TODO handle multiple accepting sets
     if (acc.count())
       {
+        assert(acc.has(0) && acc.count() == 1 &&
+               "Only one TBA are accepted at the moment");
         // Accepting transition generate new braces: step A1
         copy.emplace_back(nb_braces_.size());
         // nb_braces_ gets updated later so put 0 for now
@@ -227,8 +229,13 @@ namespace spot
   }
 
   twa_graph_ptr
-  tgba_determinisation(const const_twa_graph_ptr& aut)
+  tgba_determinisation(const const_twa_graph_ptr& a)
   {
+    const_twa_graph_ptr aut;
+    if (a->acc().is_generalized_buchi())
+      aut = spot::degeneralize_tba(a);
+    else
+      aut = a;
     auto res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
     res->prop_copy(aut,

@@ -60,7 +60,7 @@ digraph G {
 }
 EOF
 
-run 0 ../safra input.hoa > out.dot
+run 0 ../safra --hoa input.hoa > out.dot
 diff out.dot out.exp
 
 cat >input.hoa << EOF
@@ -98,5 +98,5 @@ digraph G {
 }
 EOF
 
-run 0 ../safra input.hoa > out.dot
+run 0 ../safra --hoa input.hoa > out.dot
 diff out.dot out.exp
