@@ -91,17 +91,21 @@ New in spot 1.99b (not yet released)
       So it can effectively be used to validate tools producing Rabin
       or Streett automata.
 
-    - ltlcross has a new option --grind, that attempts to reduce the
-      size of any bogus formula it discovers, while still exhibiting
-      the bug.
+    - ltlcross has several new options:
 
-    - ltlcross has a new option --ignore-execution-failures that
-      ignore translator returning non-zero exist status instead of
-      returning an error.
+        --grind attempts to reduce the size of any bogus formula it
+        discovers, while still exhibiting the bug.
 
-    - ltlcross has a new option --automata to save the produced
-      automata into the CSV or JSON file.  Those automata are saved
-      into the HOA format.
+        --ignore-execution-failures that ignores translators returning
+        non-zero exist status instead of returning an error.
+
+	--automata save the produced automata into the CSV or JSON
+        file.  Those automata are saved into the HOA format.
+
+      ltlcross will also output two extra columns in its CSV/JSON
+      output: "ambiguous_aut" and "complete_aut" are Boolean
+      that respectively tells whether the automaton is
+      ambiguous and complete.
 
     - "ltlfilt --stutter-invariant" will now work with PSL formulas.
       The implementation is actually much more efficient

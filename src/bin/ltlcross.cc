@@ -300,6 +300,7 @@ struct statistics
   std::vector<double> product_transitions;
   std::vector<double> product_scc;
   bool ambiguous;
+  bool complete;
   std::string hoa_str;
 
   static void
@@ -325,7 +326,8 @@ struct statistics
 	   "\"terminal_aut\","
 	   "\"weak_aut\","
 	   "\"strong_aut\","
-	   "\"ambiguous_aut\"");
+	   "\"ambiguous_aut\","
+	   "\"complete_aut\"");
     size_t m = products_avg ? 1U : products;
     for (size_t i = 0; i < m; ++i)
       os << ",\"product_states\",\"product_transitions\",\"product_scc\"";
@@ -366,7 +368,8 @@ struct statistics
 	   << terminal_aut << ','
 	   << weak_aut << ','
 	   << strong_aut << ','
-	   << ambiguous;
+	   << ambiguous << ','
+	   << complete;
 	if (!products_avg)
 	  {
 	    for (size_t i = 0; i < products; ++i)
@@ -394,7 +397,7 @@ struct statistics
       {
 	size_t m = products_avg ? 1U : products;
 	m *= 3;
-	m += 14 + show_sr * 6;
+	m += 15 + show_sr * 6;
 	os << na;
 	for (size_t i = 0; i < m; ++i)
 	  os << ',' << na;
@@ -715,6 +718,7 @@ namespace
 	      else
 		st->terminal_aut = true;
 	      st->ambiguous = !spot::is_unambiguous(res);
+	      st->complete = spot::is_complete(res);
 
 	      if (opt_automata)
 		{
