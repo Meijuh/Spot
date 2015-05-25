@@ -55,6 +55,7 @@ int main(int argc, char* argv[])
         return 2;
       res = tgba_determinisation(aut->aut);
     }
+  res->merge_transitions();
 
   spot::dotty_reachable(std::cout, res);
 }

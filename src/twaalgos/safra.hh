@@ -40,14 +40,18 @@ namespace spot
   class safra_state
   {
   public:
-    typedef std::vector<std::pair<safra_state, bdd>> succs_t;
+    typedef std::vector<std::pair<safra_state, unsigned>> succs_t;
     bool operator<(const safra_state& other) const;
     // Print each sub-state with their associated braces of a safra state
     void print_debug(unsigned state_id);
     safra_state(unsigned state_number, bool init_state = false);
     // Given a certain transition_label, compute all the successors of that
     // label, and return that new node.
-    succs_t compute_succs(const const_twa_graph_ptr& aut) const;
+    succs_t compute_succs(const const_twa_graph_ptr& aut,
+                          const std::vector<unsigned>& bddnums,
+                          std::unordered_map<bdd,
+                                             std::pair<unsigned, unsigned>,
+                                             bdd_hash>& deltas) const;
     // Used when creating the list of successors
     // A new intermediate node is created with  src's braces and with dst as id
     // A merge is done if dst already existed in *this

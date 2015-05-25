@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <deque>
+#include <utility>
+#include <unordered_map>
 
 #include "safra.hh"
 #include "twaalgos/degen.hh"
@@ -25,28 +27,37 @@
 namespace spot
 {
   auto
-  safra_state::compute_succs(const const_twa_graph_ptr& aut) const -> succs_t
+  safra_state::compute_succs(const const_twa_graph_ptr& aut,
+                             const std::vector<unsigned>& bddnums,
+                             std::unordered_map<bdd,
+                                             std::pair<unsigned, unsigned>,
+                                             bdd_hash>& deltas) const -> succs_t
   {
     succs_t res;
     // Given a bdd returns index of associated safra_state in res
-    std::map<bdd, unsigned, bdd_less_than> bdd2num;
+    std::map<unsigned, unsigned> bdd2num;
     for (auto& node: nodes_)
       {
         for (auto& t: aut->out(node.first))
           {
-            auto i = bdd2num.insert(std::make_pair(t.cond, res.size()));
-            unsigned idx;
-	    if (!i.second)
-              idx = i.first->second;
-	    else
-	      {
-                // Each new node starts out with same number of nodes as src
-                idx = res.size();
-                res.emplace_back(safra_state(nb_braces_.size()), t.cond);
+            auto p = deltas[t.cond];
+            for (unsigned j = p.first; j < p.second; ++j)
+              {
+                auto i = bdd2num.insert(std::make_pair(bddnums[j], res.size()));
+                unsigned idx;
+                if (!i.second)
+                  idx = i.first->second;
+                else
+                  {
+                    // Each new node starts out with same number of nodes as src
+                    idx = res.size();
+                    res.emplace_back(safra_state(nb_braces_.size()),
+                                     bddnums[j]);
+                  }
+                safra_state& ss = res[idx].first;
+                ss.update_succ(node.second, t.dst, t.acc);
+                assert(ss.nb_braces_.size() == ss.is_green_.size());
               }
-            safra_state& ss = res[idx].first;
-            ss.update_succ(node.second, t.dst, t.acc);
-            assert(ss.nb_braces_.size() == ss.is_green_.size());
           }
       }
     for (auto& s: res)
@@ -231,11 +242,54 @@ namespace spot
   twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& a)
   {
+    // Degeneralize
     const_twa_graph_ptr aut;
     if (a->acc().is_generalized_buchi())
       aut = spot::degeneralize_tba(a);
     else
       aut = a;
+
+
+    bdd allap = bddtrue;
+    {
+      typedef std::set<bdd, bdd_less_than> sup_map;
+      sup_map sup;
+      // Record occurrences of all guards
+      for (auto& t: aut->transitions())
+        sup.emplace(t.cond);
+      for (auto& i: sup)
+        allap &= bdd_support(i);
+    }
+
+    // Preprocessing
+    // Used to convert atomic bdd to id
+    std::unordered_map<bdd, unsigned, bdd_hash> bdd2num;
+    std::vector<bdd> num2bdd;
+    // Nedded for compute succs
+    // Used to convert large bdd to indexes
+    std::unordered_map<bdd, std::pair<unsigned, unsigned>, bdd_hash> deltas;
+    std::vector<unsigned> bddnums;
+    for (auto& t: aut->transitions())
+      {
+        auto it = deltas.find(t.cond);
+        if (it == deltas.end())
+          {
+            bdd all = t.cond;
+            unsigned prev = bddnums.size();
+            while (all != bddfalse)
+              {
+                bdd one = bdd_satoneset(all, allap, bddfalse);
+                all -= one;
+                auto p = bdd2num.emplace(one, num2bdd.size());
+                if (p.second)
+                  num2bdd.push_back(one);
+                bddnums.emplace_back(p.first->second);
+              }
+            deltas[t.cond] = std::make_pair(prev, bddnums.size());
+          }
+      }
+    unsigned nc = bdd2num.size();
+
     auto res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
     res->prop_copy(aut,
@@ -261,7 +315,7 @@ namespace spot
         safra_state curr = todo.front();
         unsigned src_num = seen.find(curr)->second;
         todo.pop_front();
-        succs_t succs = curr.compute_succs(aut);
+        succs_t succs = curr.compute_succs(aut, bddnums, deltas);
         for (auto s: succs)
           {
             auto i = seen.find(s.first);
@@ -278,9 +332,10 @@ namespace spot
                 seen.insert(std::make_pair(s.first, dst_num));
               }
             if (s.first.color_ != -1U)
-              res->new_transition(src_num, dst_num, s.second, {s.first.color_});
+              res->new_transition(src_num, dst_num, num2bdd[s.second],
+                                  {s.first.color_});
             else
-              res->new_transition(src_num, dst_num, s.second);
+              res->new_transition(src_num, dst_num, num2bdd[s.second]);
           }
       }
     return res;
