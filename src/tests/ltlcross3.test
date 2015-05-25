@@ -80,14 +80,15 @@ test `grep 'warning:.*timeout' stderr | wc -l` -eq 2
 test `wc -l < out.csv` -eq 1
 check_csv out.csv
 
-# Check with --products=5
+# Check with --products=5 --automata
 run 1 ../../bin/ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
-      -f a --csv=out.csv --products=5 2>stderr
+      -f a --csv=out.csv --products=5 --automata 2>stderr
 p=`sed 's/[^,]//g;q' out.csv | wc -c`
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
 test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
 test `grep '"exit code",1' out.csv | wc -l` -eq 2
+test `grep '"HOA:.*--BODY--.*--END--"' out.csv | wc -l` -eq 2
 check_csv out.csv
 
 # ... unless --omit-missing is supplied.
@@ -102,12 +103,13 @@ check_csv out.csv
 
 # Check with --products=+5
 run 1 ../../bin/ltlcross "$ltl2tgba -s %f >%N" 'false %f >%N' \
-      -f a --csv=out.csv --products=+5 2>stderr
+      -f a --csv=out.csv --products=+5 --automata 2>stderr
 q=`sed 's/[^,]//g;q' out.csv | wc -c`
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
 test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2
 test `grep '"exit code",1' out.csv | wc -l` -eq 2
+test `grep '"HOA:.*--BODY--.*--END--"' out.csv | wc -l` -eq 2
 check_csv out.csv
 
 # ... unless --omit-missing is supplied.
@@ -128,7 +130,7 @@ echo "$first" > bug.txt
 run 1 ../../bin/ltlcross "$ltl2tgba -s %f >%N" 'false %f >%D' \
       -f 'X  a' --csv=out.csv --save-bogus='>>bug.txt' 2>stderr
 q=`sed 's/[^,]//g;q' out.csv | wc -c`
-test $q -eq `expr $p + 6`
+test $q -eq `expr $p + 5`
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
 test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2

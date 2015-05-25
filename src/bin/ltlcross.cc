@@ -46,6 +46,7 @@
 #include "ltlvisit/relabel.hh"
 #include "ltlvisit/lbt.hh"
 #include "twaalgos/lbtt.hh"
+#include "twaalgos/hoa.hh"
 #include "twaalgos/product.hh"
 #include "twaalgos/remfin.hh"
 #include "twaalgos/gtec/gtec.hh"
@@ -78,7 +79,8 @@ Exit status:\n\
 ";
 
 enum {
-  OPT_BOGUS = 256,
+  OPT_AUTOMATA = 256,
+  OPT_BOGUS,
   OPT_COLOR,
   OPT_CSV,
   OPT_DENSITY,
@@ -135,6 +137,8 @@ static const argp_option options[] =
       "not output)", 0 },
     { "omit-missing", OPT_OMIT, 0, 0,
       "do not output statistics for timeouts or failed translations", 0 },
+    { "automata", OPT_AUTOMATA, 0, 0,
+      "store automata (in the HOA format) into the CSV or JSON output", 0 },
     /**************************************************/
     { 0, 0, 0, 0, "Miscellaneous options:", -2 },
     { "color", OPT_COLOR, "WHEN", OPTION_ARG_OPTIONAL,
@@ -203,6 +207,7 @@ static output_file* grind_output = 0;
 static bool verbose = false;
 static bool ignore_exec_fail = false;
 static unsigned ignored_exec_fail = 0;
+static bool opt_automata = false;
 
 static bool global_error_flag = false;
 
@@ -295,6 +300,7 @@ struct statistics
   std::vector<double> product_transitions;
   std::vector<double> product_scc;
   bool ambiguous;
+  std::string hoa_str;
 
   static void
   fields(std::ostream& os, bool show_exit, bool show_sr)
@@ -323,10 +329,13 @@ struct statistics
     size_t m = products_avg ? 1U : products;
     for (size_t i = 0; i < m; ++i)
       os << ",\"product_states\",\"product_transitions\",\"product_scc\"";
+    if (opt_automata)
+      os << ",\"automaton\"";
   }
 
   void
-  to_csv(std::ostream& os, bool show_exit, bool show_sr, const char* na = "")
+  to_csv(std::ostream& os, bool show_exit, bool show_sr, const char* na = "",
+	 bool csv_escape = true)
   {
     if (show_exit)
       os << '"' << status_str << "\"," << status_code << ',';
@@ -390,6 +399,16 @@ struct statistics
 	for (size_t i = 0; i < m; ++i)
 	  os << ',' << na;
       }
+    if (opt_automata)
+      {
+	os << ',';
+	if (hoa_str.empty())
+	  os << na;
+	else if (csv_escape)
+	  spot::escape_rfc4180(os << '"', hoa_str) << '"';
+	else
+	  spot::escape_str(os << '"', hoa_str) << '"';
+      }
   }
 };
 
@@ -406,6 +425,9 @@ parse_opt(int key, char* arg, struct argp_state*)
     {
     case ARGP_KEY_ARG:
       translators.push_back(arg);
+      break;
+    case OPT_AUTOMATA:
+      opt_automata = true;
       break;
     case OPT_BOGUS:
       {
@@ -693,6 +715,13 @@ namespace
 	      else
 		st->terminal_aut = true;
 	      st->ambiguous = !spot::is_unambiguous(res);
+
+	      if (opt_automata)
+		{
+		  std::ostringstream os;
+		  spot::hoa_reachable(os, res, "l");
+		  st->hoa_str = os.str();
+		}
 	    }
 	}
       output.cleanup();
@@ -1397,7 +1426,7 @@ print_stats_json(const char* filename)
 	    out << ',';
 	  notfirst = true;
 	  out << "\n    [ " << r << ',' << t << ',';
-	  vstats[r][t].to_csv(out, !opt_omit, has_sr, "null");
+	  vstats[r][t].to_csv(out, !opt_omit, has_sr, "null", false);
 	  out << " ]";
 	}
   out << "\n  ]\n}\n";

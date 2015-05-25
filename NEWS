@@ -99,6 +99,10 @@ New in spot 1.99b (not yet released)
       ignore translator returning non-zero exist status instead of
       returning an error.
 
+    - ltlcross has a new option --automata to save the produced
+      automata into the CSV or JSON file.  Those automata are saved
+      into the HOA format.
+
     - "ltlfilt --stutter-invariant" will now work with PSL formulas.
       The implementation is actually much more efficient
       than our previous implementation that was only for LTL.
