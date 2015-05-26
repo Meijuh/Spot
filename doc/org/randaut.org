@@ -5,8 +5,8 @@
 
 The =randaut= tool generates random (connected) automata.
 
-By default, it will generate a random TGBA with 10 states, no
-acceptance sets, and using a set of atomic proposition you have to
+By default, it will generate a random automaton with 10 states, no
+acceptance sets, and using a set of atomic propositions you have to
 supply.
 
 #+NAME: randaut1
@@ -150,13 +150,45 @@ $txt
 [[file:randaut3.png]]
 
 
-* Acceptance sets
+* Acceptance condition
 
-The generation of acceptance sets is controlled with the following three parameters:
+The generation of the acceptance sets abn is controlled with the following three parameters:
 
- - =-A= (or =--acc-sets=) controls the number of acceptance sets.
-   This can be given as a range (e.g. =-A1..3=) in case you want this
-   number to be picked at random in the range.
+ - =-A ACCEPTANCE= (or =--acceptance=ACCEPTANCE=) controls both the acceptance condition,
+   and the number of associated acceptance sets.  The =ACCEPTANCE= argument is documented
+   in =--help= as follows:
+#+BEGIN_SRC sh :results verbatim :exports results
+randaut --help | sed -n '/^ \(ACCEPTANCE\|RANGE\)/,/^$/p'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ RANGE may have one of the following forms: 'INT', 'INT..INT', or '..INT'.
+ In the latter case, the missing number is assumed to be 1.
+
+ ACCEPTANCE may be either a RANGE (in which case generalized BÃ¼chi is
+ assumed), or an arbitrary acceptance formula such as 'Fin(0)|Inf(1)&Fin(2)' in
+ the same syntax as in the HOA format, or one of the following patterns:
+   none
+   all
+   Buchi
+   co-Buchi
+   generalized-Buchi RANGE
+   generalized-co-Buchi RANGE
+   Rabin RANGE
+   Streett RANGE
+   generalized-Rabin INT RANGE RANGE ... RANGE
+   parity (min|max|rand) (odd|even|rand) RANGE
+   random RANGE
+   random RANGE PROBABILITY
+ The random acceptance condition uses each set only once, unless a probability
+ (to reuse the set again every time it is used) is given.
+
+#+end_example
+
+ When a range of the form $i..j$ is used, the actual value is taken as randomly
+ between $i$ and $j$ (included).
+
  - =-a= (or =--acc-probability=) controls the probability that any
    transition belong to a given acceptance set.
  - =--state-acc= requests that the automaton use state-based
@@ -166,7 +198,8 @@ The generation of acceptance sets is controlled with the following three paramet
    transitions leaving a state to belong to the same acceptance sets.
    But if the output format allows state-acceptance, it will be used.)
 
-In addition, =-B= (or =--ba=) is a shorthand for =-A1 --state-acc=.
+In addition, =-B= (or =--ba=) is a shorthand for =-A1 --state-acc=,
+ans =-s= (or =--spin=) implies =-B=.
 
 
 #+NAME: randaut4
@@ -232,6 +265,55 @@ $txt
 #+END_SRC
 #+RESULTS:
 [[file:randaut5.png]]
+
+#+NAME: randaut5b
+#+BEGIN_SRC sh :results verbatim :exports code
+randaut -S6 -d0.4 --state-acc -a.2 -A 'Streett 1..3' 2 --dot=.a
+#+END_SRC
+
+#+RESULTS: randaut5b
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<(Fin(<font color="#5DA5DA">â¿</font>) | Inf(<font color="#F17CB0">â¶</font>)) &amp; (Fin(<font color="#FAA43A">â·</font>) | Inf(<font color="#B276B2">â¸</font>))>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 2 [label=<!p0 &amp; !p1>]
+  0 -> 1 [label=<!p0 &amp; !p1<br/><font color="#FAA43A">â·</font>>]
+  0 -> 5 [label=<!p0 &amp; !p1>]
+  1 [label="1"]
+  1 -> 0 [label=<!p0 &amp; p1<br/><font color="#5DA5DA">â¿</font><font color="#FAA43A">â·</font>>]
+  1 -> 3 [label=<!p0 &amp; !p1>]
+  2 [label="2"]
+  2 -> 5 [label=<!p0 &amp; !p1<br/><font color="#F17CB0">â¶</font>>]
+  2 -> 3 [label=<p0 &amp; !p1<br/><font color="#5DA5DA">â¿</font>>]
+  2 -> 2 [label=<!p0 &amp; p1<br/><font color="#5DA5DA">â¿</font>>]
+  2 -> 4 [label=<!p0 &amp; !p1>]
+  3 [label="3"]
+  3 -> 2 [label=<p0 &amp; p1<br/><font color="#F17CB0">â¶</font>>]
+  4 [label="4"]
+  4 -> 3 [label=<!p0 &amp; !p1>]
+  4 -> 5 [label=<!p0 &amp; p1<br/><font color="#5DA5DA">â¿</font><font color="#F17CB0">â¶</font>>]
+  5 [label="5"]
+  5 -> 0 [label=<p0 &amp; p1>]
+  5 -> 3 [label=<p0 &amp; p1>]
+  5 -> 2 [label=<!p0 &amp; p1<br/><font color="#B276B2">â¸</font>>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file randaut5b.png :cmdline -Tpng :var txt=randaut5b :exports results
+$txt
+#+END_SRC
+#+RESULTS:
+[[file:randaut5b.png]]
+
 
 * Determinism
 
