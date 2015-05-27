@@ -64,8 +64,8 @@
     {
       struct state_info
       {
-	bool declared;
-	bool used;
+	bool declared = false;
+	bool used = false;
 	spot::location used_loc;
       };
       spot::hoa_aut_ptr h;
