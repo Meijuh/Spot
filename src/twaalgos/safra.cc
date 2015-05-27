@@ -26,6 +26,19 @@
 
 namespace spot
 {
+  namespace
+  {
+    // Used to remove all acceptance whos value is above max_acc
+    void remove_dead_acc(twa_graph_ptr& aut, unsigned max_acc)
+    {
+      assert(max_acc < 32);
+      unsigned mask = (1 << max_acc) - 1;
+      for (auto& t: aut->transitions())
+        {
+          t.acc &= mask;
+        }
+    }
+  }
   auto
   safra_state::compute_succs(const const_twa_graph_ptr& aut,
                              const std::vector<unsigned>& bddnums,
@@ -293,10 +306,10 @@ namespace spot
     auto res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
     res->prop_copy(aut,
-                   { true, // state based
+                   { false, // state based
                    true, // inherently_weak
-                   true, // deterministic
-                   false // stutter inv
+                   false, // deterministic
+                   true // stutter inv
                    });
 
     // Given a safra_state get its associated state in output automata.
@@ -309,6 +322,7 @@ namespace spot
     seen.insert(std::make_pair(init, num));
     std::deque<safra_state> todo;
     todo.push_back(init);
+    unsigned sets = 0;
     while (!todo.empty())
       {
         using succs_t = safra_state::succs_t;
@@ -332,12 +346,22 @@ namespace spot
                 seen.insert(std::make_pair(s.first, dst_num));
               }
             if (s.first.color_ != -1U)
-              res->new_transition(src_num, dst_num, num2bdd[s.second],
-                                  {s.first.color_});
+              {
+                res->new_transition(src_num, dst_num, num2bdd[s.second],
+                                    {s.first.color_});
+                // We only care about green acc
+                if (s.first.color_ % 2 == 0)
+                  sets = std::max(s.first.color_ + 1, sets);
+              }
             else
               res->new_transition(src_num, dst_num, num2bdd[s.second]);
           }
       }
+    //
+    remove_dead_acc(res, sets);
+    res->set_acceptance(sets, acc_cond::acc_code::parity(false, false, sets));
+    res->prop_deterministic(true);
+    res->prop_state_based_acc(false);
     return res;
   }
 }

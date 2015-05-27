@@ -26,6 +26,7 @@
 #include "hoaparse/public.hh"
 #include "ltlparse/public.hh"
 #include "twaalgos/dotty.hh"
+#include "twaalgos/hoa.hh"
 
 
 int main(int argc, char* argv[])
@@ -57,5 +58,11 @@ int main(int argc, char* argv[])
     }
   res->merge_transitions();
 
-  spot::dotty_reachable(std::cout, res);
+  if (argc >= 4 && !strncmp(argv[3], "-H", 2))
+    {
+      spot::hoa_reachable(std::cout, res, "t");
+      std::cout << std::endl;
+    }
+  else
+    spot::dotty_reachable(std::cout, res);
 }
