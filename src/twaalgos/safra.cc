@@ -37,8 +37,8 @@ namespace spot
       size_t i = 0;
       for (; i < m; ++i)
         {
-          if (lhs[i] < rhs[i])
-            return true;
+          if (lhs[i] != rhs[i])
+            return lhs[i] < rhs[i];
         }
       return lhs.size() > rhs.size();
     }
@@ -255,7 +255,7 @@ namespace spot
     return nodes_ < other.nodes_;
   }
 
-  void safra_state::print_debug(unsigned state_id)
+  void safra_state::print_debug(unsigned state_id) const
   {
     std::cerr << "State: " << state_id << "{ ";
     for (auto& n: nodes_)

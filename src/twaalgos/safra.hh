@@ -43,7 +43,8 @@ namespace spot
     typedef std::vector<std::pair<safra_state, unsigned>> succs_t;
     bool operator<(const safra_state& other) const;
     // Print each sub-state with their associated braces of a safra state
-    void print_debug(unsigned state_id);
+    void print_debug(unsigned state_id) const;
+    // Printh the number of states in each brace
     safra_state(unsigned state_number, bool init_state = false);
     // Given a certain transition_label, compute all the successors of that
     // label, and return that new node.
