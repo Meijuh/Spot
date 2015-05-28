@@ -27,6 +27,7 @@
 #include "ltlparse/public.hh"
 #include "twaalgos/dotty.hh"
 #include "twaalgos/hoa.hh"
+#include "twaalgos/degen.hh"
 
 
 int main(int argc, char* argv[])
@@ -42,6 +43,8 @@ int main(int argc, char* argv[])
       const spot::ltl::formula* f =
       spot::ltl::parse(input, pel, spot::ltl::default_environment::instance(),
                        false);
+      if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+        return 2;
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);

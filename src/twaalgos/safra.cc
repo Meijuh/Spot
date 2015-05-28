@@ -28,6 +28,21 @@ namespace spot
 {
   namespace
   {
+    // Returns true if lhs has a smaller nesting pattern than rhs
+    // If lhs and rhs are the same, return false.
+    bool nesting_cmp(const std::vector<node_helper::brace_t>& lhs,
+                     const std::vector<node_helper::brace_t>& rhs)
+    {
+      size_t m = std::min(lhs.size(), rhs.size());
+      size_t i = 0;
+      for (; i < m; ++i)
+        {
+          if (lhs[i] < rhs[i])
+            return true;
+        }
+      return lhs.size() > rhs.size();
+    }
+
     // Used to remove all acceptance whos value is above max_acc
     void remove_dead_acc(twa_graph_ptr& aut, unsigned max_acc)
     {
@@ -91,7 +106,10 @@ namespace spot
       {
         if (nb_braces_[i] == 0)
           {
-            red = std::min(red, 2 * i + 1);
+            // It is impossible to emit red == -1 as those transitions would
+            // lead us in a sink states which are not created here.
+            assert(i >= 1);
+            red = std::min(red, 2 * i - 1);
             // Step A3: Brackets that do not contain any nodes emit red
             is_green_[i] = false;
           }
@@ -187,9 +205,9 @@ namespace spot
     auto i = nodes_.emplace(dst, copy);
     if (!i.second)
       {
-        // Step A2: Remove all occurrences whos nesting pattern (i-e  braces_)
-        // is smaller
-        if (copy > i.first->second)
+        // Step A2: Only keep the smallest nesting pattern (i-e  braces_) for
+        // identical nodes.  Nesting_cmp returnes true if copy is smaller
+        if (nesting_cmp(copy, i.first->second))
           {
             // Remove brace count of replaced node
             for (auto b: i.first->second)
@@ -301,7 +319,6 @@ namespace spot
             deltas[t.cond] = std::make_pair(prev, bddnums.size());
           }
       }
-    unsigned nc = bdd2num.size();
 
     auto res = make_twa_graph(aut->get_dict());
     res->copy_ap_of(aut);
