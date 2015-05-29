@@ -29,10 +29,11 @@ Parts of these documents (e.g., lists of options) are actually the
 results of shell commands and will be presented as above, even if the
 corresponding commands are hidden.
 
-* Common options
+* Documentation common to multiple tools
 
 - [[file:ioltl.org][common input and output options for LTL/PSL formulas]]
 - [[file:oaut.org][common output options for automata]]
+- [[file:hoa.org][input and output support for the HOA format]]
 
 * Command-line tools
 

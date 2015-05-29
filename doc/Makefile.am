@@ -65,6 +65,7 @@ ORG_FILES = \
   org/csv.org \
   org/dstar2tgba.org \
   org/genltl.org \
+  org/hoa.org \
   org/ioltl.org \
   org/ltl2tgba.org \
   org/ltl2tgta.org \
