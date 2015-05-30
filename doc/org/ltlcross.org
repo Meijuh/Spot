@@ -107,7 +107,7 @@ No problem detected.
     either state-based acceptance or transition-based acceptance.
     This output is used for instance by [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][=lbt=]], [[http://web.archive.org/web/20080607170403/http://www.science.unitn.it/~stonetta/modella.html][=modella=]], or =ltl2tgba
     --lbtt=.  These should also be indicated using =%O=.
-  - Non-alaternating automata in [[file:http://adl.github.io/hoaf/][the HOA format]] with an acceptance
+  - Non-alternating automata in [[file:http://adl.github.io/hoaf/][the HOA format]] with an acceptance
     condition that is is generalized-Büchi or inferior.  These
     should also be indicated using =%O=.
   - [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dsar='s format]], which support deterministic Rabin or Streett
