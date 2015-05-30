@@ -30,14 +30,58 @@
 #include "twaalgos/degen.hh"
 
 
+int help()
+{
+  std::cerr << "safra [OPTIONS]\n";
+  std::cerr << "\t-f ltl_formula\tinput string is an ltl formulae\n";
+  std::cerr << "\t--hoa file.hoa\tinput file has hoa format\n";
+  std::cerr << "\t-p\tpretty print states\n";
+  std::cerr << "\t-H\toutput hoa format\n";
+  return 1;
+}
+
 int main(int argc, char* argv[])
 {
+  bool in_hoa = false;
+  bool in_ltl = false;
+  bool out_dot = true;
+  bool out_hoa = false;
+  bool pretty_print = false;
+
+  char* input = nullptr;
   if (argc <= 2)
-    return 1;
-  char* input = argv[2];
+    return help();
+  for (int i = 1; i < argc; ++i)
+    {
+      if (!strncmp(argv[i], "--hoa", 5))
+        {
+          in_hoa = true;
+          if (i + 1 >= argc)
+            return help();
+          input = argv[++i];
+        }
+      else if (!strncmp(argv[i], "-f", 2))
+        {
+          in_ltl = true;
+          if (i + 1 >= argc)
+            return help();
+          input = argv[++i];
+        }
+      else if (!strncmp(argv[i], "-H", 2))
+        {
+          out_dot = false;
+          out_hoa = true;
+        }
+      else if (!strncmp(argv[i], "-p", 2))
+        pretty_print = true;
+    }
+
+  if (!input)
+    help();
+
   auto dict = spot::make_bdd_dict();
   spot::twa_graph_ptr res;
-  if (!strncmp(argv[1], "-f", 2))
+  if (in_ltl)
     {
       spot::ltl::parse_error_list pel;
       const spot::ltl::formula* f =
@@ -48,24 +92,26 @@ int main(int argc, char* argv[])
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
-      res = spot::tgba_determinisation(tmp);
+      res = spot::tgba_determinisation(tmp, pretty_print);
       f->destroy();
     }
-  else if (!strncmp(argv[1], "--hoa", 5))
+  else if (in_hoa)
     {
       spot::hoa_parse_error_list pel;
       auto aut = spot::hoa_parse(input, pel, dict);
       if (spot::format_hoa_parse_errors(std::cerr, input, pel))
         return 2;
-      res = tgba_determinisation(aut->aut);
+      res = tgba_determinisation(aut->aut, pretty_print);
     }
   res->merge_transitions();
 
-  if (argc >= 4 && !strncmp(argv[3], "-H", 2))
+  if (out_hoa)
     {
       spot::hoa_reachable(std::cout, res, "t");
       std::cout << std::endl;
     }
-  else
+  else if (out_dot)
     spot::dotty_reachable(std::cout, res);
+  else
+    assert(false);
 }

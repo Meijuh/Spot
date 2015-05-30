@@ -40,10 +40,9 @@ namespace spot
   class safra_state
   {
   public:
-    typedef std::vector<std::pair<safra_state, unsigned>> succs_t;
+    using nodes_t = std::map<unsigned, std::vector<node_helper::brace_t>>;
+    using succs_t =  std::vector<std::pair<safra_state, unsigned>>;
     bool operator<(const safra_state& other) const;
-    // Print each sub-state with their associated braces of a safra state
-    void print_debug(unsigned state_id) const;
     // Printh the number of states in each brace
     safra_state(unsigned state_number, bool init_state = false);
     // Given a certain transition_label, compute all the successors of that
@@ -63,7 +62,7 @@ namespace spot
     // A list of nodes similar to the ones of a
     // safra tree.  These are constructed in the same way as the powerset
     // algorithm.
-    std::map<unsigned, std::vector<node_helper::brace_t>> nodes_;
+    nodes_t nodes_;
     // A counter that indicates the nomber of states within a brace.
     // This enables us to compute the red value
     std::vector<size_t> nb_braces_;
@@ -73,5 +72,6 @@ namespace spot
   };
 
   SPOT_API twa_graph_ptr
-  tgba_determinisation(const const_twa_graph_ptr& aut);
+  tgba_determinisation(const const_twa_graph_ptr& aut,
+                       bool pretty_print = false);
 }

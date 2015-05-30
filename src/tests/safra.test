@@ -119,3 +119,24 @@ EOF
 
 run 0 ../safra --hoa double_b.hoa -H > out.hoa
 diff out.hoa out.exp
+
+# Formulas from bench/dtgbasat/formulas
+cat >formulae <<EOF
+X((a M F((!c & !b) | (c & b))) W (G!c U b))
+X(((a & b) R (!a U !c)) R b)
+XXG(Fa U Xb)
+(!a M !b) W F!c
+(b & Fa & GFc) R a
+(a R (b W a)) W G(!a M (c | b))
+(Fa W b) R (Fc | !a)
+X(G(!a M !b) | G(a | G!a))
+Fa W Gb
+Ga | GFb
+a M G(F!b | X!a)
+G!a R XFb
+EOF
+run 0 ../safra --hoa double_b.hoa -H > out.hoa
+ltl2tgba=../../bin/ltl2tgba
+../../bin/ltlcross -F formulae \
+    "../safra -f %f -H > %O" \
+    "$ltl2tgba -f %f -H > %O"

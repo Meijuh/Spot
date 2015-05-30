@@ -17,6 +17,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <algorithm>
 #include <deque>
 #include <utility>
 #include <unordered_map>
@@ -28,6 +29,97 @@ namespace spot
 {
   namespace
   {
+    using power_set = std::map<safra_state, int>;
+    const char* const sub[10] =
+    {
+      "\u2080",
+      "\u2081",
+      "\u2082",
+      "\u2083",
+      "\u2084",
+      "\u2085",
+      "\u2086",
+      "\u2087",
+      "\u2088",
+      "\u2089",
+    };
+
+    std::string subscript(unsigned start)
+    {
+      std::string res;
+      do
+        {
+          res = sub[start % 10] + res;
+          start /= 10;
+        }
+      while (start);
+      return res;
+    }
+
+    void print(unsigned start, const safra_state::nodes_t& nodes,
+               std::ostringstream& os, std::vector<unsigned>& idx)
+    {
+      std::string s = subscript(start);
+      os << '[' << s;
+      std::vector<unsigned> new_idx;
+      std::vector<unsigned> todo;
+      unsigned next = -1U;
+      bool first = true;
+      for (auto& i: idx)
+        {
+          auto it = std::lower_bound(nodes.at(i).cbegin(), nodes.at(i).cend(),
+                                     start + 1);
+          if (it == nodes.at(i).cend())
+            {
+              if (first)
+                {
+                  os << i;
+                  first = false;
+                }
+              else
+                os << ' ' << i;
+            }
+          else if (*it == (start + 1))
+            new_idx.push_back(i);
+          else
+            {
+              todo.push_back(i);
+              next = std::min(next, *it);
+            }
+        }
+      if (!new_idx.empty())
+        print(start + 1, nodes, os, new_idx);
+      if (next != -1U)
+        {
+          std::vector<unsigned> todo2;
+          std::vector<unsigned> todo_next;
+          unsigned new_next = -1U;
+          while (!todo.empty())
+            {
+              for (auto& i: todo)
+                {
+                  auto it = std::lower_bound(nodes.at(i).cbegin(),
+                                             nodes.at(i).cend(), next);
+                  if (*it == next)
+                    todo_next.push_back(i);
+                  else
+                    {
+                      todo2.push_back(i);
+                      next = std::min(new_next, *it);
+                    }
+                }
+              print(next, nodes, os, todo_next);
+
+              next = new_next;
+              new_next = -1;
+              todo = todo2;
+              todo2.clear();
+              todo_next.clear();
+            }
+        }
+      os << s << ']';
+    }
+
     // Returns true if lhs has a smaller nesting pattern than rhs
     // If lhs and rhs are the same, return false.
     bool nesting_cmp(const std::vector<node_helper::brace_t>& lhs,
@@ -53,6 +145,25 @@ namespace spot
           t.acc &= mask;
         }
     }
+
+    std::vector<std::string>*
+    print_debug(std::map<safra_state, int>& states)
+    {
+      std::vector<std::string>* res = nullptr;
+      res = new std::vector<std::string>(states.size());
+      std::vector<unsigned> idx;
+      for (auto& p: states)
+        {
+          std::ostringstream os;
+          for (auto& n: p.first.nodes_)
+            idx.push_back(n.first);
+          print(0, p.first.nodes_, os, idx);
+          (*res)[p.second] = os.str();
+          idx.clear();
+        }
+      return res;
+    }
+
   }
   auto
   safra_state::compute_succs(const const_twa_graph_ptr& aut,
@@ -255,23 +366,8 @@ namespace spot
     return nodes_ < other.nodes_;
   }
 
-  void safra_state::print_debug(unsigned state_id) const
-  {
-    std::cerr << "State: " << state_id << "{ ";
-    for (auto& n: nodes_)
-      {
-        std::cerr << n.first << " [";
-        for (auto& b: n.second)
-          {
-            std::cerr << b << ' ';
-          }
-        std::cerr << "], ";
-      }
-    std::cerr << "}\n";
-  }
-
   twa_graph_ptr
-  tgba_determinisation(const const_twa_graph_ptr& a)
+  tgba_determinisation(const const_twa_graph_ptr& a, bool pretty_print)
   {
     // Degeneralize
     const_twa_graph_ptr aut;
@@ -331,7 +427,6 @@ namespace spot
 
     // Given a safra_state get its associated state in output automata.
     // Required to create new transitions from 2 safra-state
-    typedef std::map<safra_state, int> power_set;
     power_set seen;
     safra_state init(aut->get_init_state_number(), true);
     unsigned num = res->new_state();
@@ -374,11 +469,12 @@ namespace spot
               res->new_transition(src_num, dst_num, num2bdd[s.second]);
           }
       }
-    //
     remove_dead_acc(res, sets);
     res->set_acceptance(sets, acc_cond::acc_code::parity(false, false, sets));
     res->prop_deterministic(true);
     res->prop_state_based_acc(false);
+    if (pretty_print)
+      res->set_named_prop("state-names", print_debug(seen));
     return res;
   }
 }
