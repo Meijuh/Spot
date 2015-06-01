@@ -21,6 +21,9 @@
 #include "argp.h"
 #include <cstdlib>
 #include <iostream>
+#include <signal.h>
+#include <sys/wait.h>
+#include "misc/tmpfile.hh"
 
 const char* argp_program_bug_address = "<" PACKAGE_BUGREPORT ">";
 
@@ -37,6 +40,33 @@ This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n", stream);
 }
 
+#ifdef HAVE_SIGACTION
+static void sig_handler(int sig)
+{
+  spot::cleanup_tmpfiles();
+  // Send the signal again, this time to the default handler, so that
+  // we return a meaningful error code.
+  raise(sig);
+}
+
+static void setup_sig_handler()
+{
+  struct sigaction sa;
+  sa.sa_handler = sig_handler;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = SA_RESETHAND;
+  // Catch termination signals, so we can cleanup temporary files.
+  sigaction(SIGALRM, &sa, 0);
+  sigaction(SIGHUP, &sa, 0);
+  sigaction(SIGINT, &sa, 0);
+  sigaction(SIGPIPE, &sa, 0);
+  sigaction(SIGQUIT, &sa, 0);
+  sigaction(SIGTERM, &sa, 0);
+}
+#else
+# define setup_sig_handler() while (0);
+#endif
+
 void
 setup(char** argv)
 {
@@ -50,6 +80,8 @@ setup(char** argv)
   argp_err_exit_status = 2;
 
   std::ios_base::sync_with_stdio(false);
+
+  setup_sig_handler();
 }
 
 

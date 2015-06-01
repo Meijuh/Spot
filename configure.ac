@@ -104,7 +104,7 @@ fi
 AX_CHECK_BUDDY
 
 AC_CHECK_HEADERS([sys/times.h])
-AC_CHECK_FUNCS([times kill alarm])
+AC_CHECK_FUNCS([times kill alarm sigaction])
 
 LT_CONFIG_LTDL_DIR([ltdl])
 LT_INIT([win32-dll])
