@@ -23,6 +23,7 @@
 #pragma once
 
 #include "common.hh"
+#include <cassert>
 #include <cmath>
 #include <vector>
 
@@ -72,7 +73,7 @@ namespace spot
 
   /// \brief Compute pseudo-random integer value between 0
   /// and \a n included, following a binomial distribution
-  /// for probability \a p.
+  /// with probability \a p.
   ///
   /// \a gen must be a random function computing a pseudo-random
   /// double value following a standard normal distribution.
@@ -93,18 +94,16 @@ namespace spot
     int
     rand() const
     {
-      int res;
-
       for (;;)
 	{
-	  double x = gen() * s_ + m_;
-	  if (x < 0.0)
+	  int x = round(gen() * s_ + m_);
+	  if (x < 0)
 	    continue;
-	  res = static_cast<int> (x);
-          if (res <= n_)
-	    break;
+          if (x <= n_)
+	    return x;
         }
-      return res;
+      SPOT_UNREACHABLE();
+      return 0;
     }
   protected:
     const int n_;

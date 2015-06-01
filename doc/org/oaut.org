@@ -866,29 +866,27 @@ In most tools =%F= and =%L= are the input filename and line number,
 but as this makes no sense in =randaut=, these two sequences emit
 numbers related to the generation of automata.
 
-For instance let's generate 100 random automata with 10 states and
+For instance let's generate 1000 random automata with 100 states and
 density 0.2, and just count the number of edges in each automaton. Then
 use =R= to summarize the distribution of these values:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut -d0.2 -Q10 -n1000 a --stats %e > size.csv
+randaut -d0.2 -Q100 -n1000 a --stats %e > size.csv
 R --slave -e "summary(read.csv('size.csv', header=FALSE, col.names='edges'))"
 #+END_SRC
 
 #+RESULTS:
 :      edges
-:  Min.   :14.00
-:  1st Qu.:22.00
-:  Median :25.00
-:  Mean   :24.72
-:  3rd Qu.:27.00
-:  Max.   :36.00
+:  Min.   :1939
+:  1st Qu.:2056
+:  Median :2083
+:  Mean   :2082
+:  3rd Qu.:2107
+:  Max.   :2233
 
-
-For $Q=10$ states and density $D=0.2$ the expected degree of each
-state is $1+(Q-1)D = 1+9\times 0.2 = 2.8$, so the expected number of
-edges should be 10 times that.
-
+For $Q=100$ states and density $D=0.2$ the expected degree of each
+state is $1+(Q-1)D = 1+99\times 0.2 = 20.8$, so the expected number of
+edges should be $20.8\times100=2080$.
 
 * Naming automata
 
