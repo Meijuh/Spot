@@ -301,7 +301,7 @@ static void
 sig_handler(int sig)
 {
   if (child_pid == 0)
-    error(2, 0, "child received signal %d before starting", sig);
+    error(2, 0, "received signal %d before starting child", sig);
 
   if (sig == SIGALRM && alarm_on)
     {
