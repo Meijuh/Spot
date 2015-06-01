@@ -95,7 +95,7 @@ cat stdout
 run 0 ../../bin/autfilt -F stdout --isomorph expected
 
 # Likewise, with a randomly generated TGBA.
-run 0 ../../bin/randaut -S 20 a b -d 0.2 -a 0.2 -A 2 --hoa | tee input
+run 0 ../../bin/randaut -Q 20 a b -d 0.2 -a 0.2 -A 2 --hoa | tee input
 
 # the first read-write can renumber the states
 run 0 $autfilt --hoa --merge-transitions input > stdout

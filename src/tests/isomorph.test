@@ -23,11 +23,11 @@
 set -e
 
 for i in 0 1 2; do
-  ../../bin/randaut a b --seed=$i -S10 --hoa >iso$i
+  ../../bin/randaut a b --seed=$i -Q10 --hoa >iso$i
   ../../bin/autfilt iso$i --randomize --hoa >aut$i
 done
 for i in 3 4 5; do
-  ../../bin/randaut a b --seed=$i -S10 -D --hoa >iso$i
+  ../../bin/randaut a b --seed=$i -Q10 -D --hoa >iso$i
   ../../bin/autfilt iso$i --randomize --hoa >aut$i
 done
 

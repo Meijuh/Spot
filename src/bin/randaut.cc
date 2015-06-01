@@ -47,29 +47,28 @@ const char argp_program_doc[] = "\
 Generate random connected automata.\n\n\
 The automata are built over the atomic propositions named by PROPS...\n\
 or, if N is a nonnegative number, using N arbitrary names.\n\
-If the density is set to D, and the number of states to S, the degree\n\
-of each state follows a normal distribution with mean 1+(S-1)D and\n\
-variance (S-1)D(1-D).  In particular, for D=0 all states have a single\n\
+If the density is set to D, and the number of states to Q, the degree\n\
+of each state follows a normal distribution with mean 1+(Q-1)D and\n\
+variance (Q-1)D(1-D).  In particular, for D=0 all states have a single\n\
 successor, while for D=1 all states are interconnected.\v\
 Examples:\n\
 \n\
 This builds a random neverclaim with 4 states and labeled using the two\n\
 atomic propositions \"a\" and \"b\":\n\
-  % randaut --spin -S4 a b\n\
+  % randaut --spin -Q4 a b\n\
 \n\
 This builds three random, complete, and deterministic TGBA with 5 to 10\n\
 states, 1 to 3 acceptance sets, and three atomic propositions:\n\
-  % randaut -n3 -D -H -S5..10 -A1..3 3\n\
+  % randaut -n3 -D -H -Q5..10 -A1..3 3\n\
 \n\
 Build 3 random, complete, and deterministic Rabin automata\n\
 with 2 to 3 acceptance pairs, state-based acceptance, 8 states, \n\
 a high density of transitions, and 3 to 4 atomic propositions:\n\
-  % randaut -n3 -D -H -S8 -d.8 --state-based -A 'Rabin 2..3' 3..4\n\
+  % randaut -n3 -D -H -Q8 -d.8 -S -A 'Rabin 2..3' 3..4\n\
 ";
 
 enum {
   OPT_SEED = 1,
-  OPT_STATE_ACC,
 };
 
 static const argp_option options[] =
@@ -92,8 +91,9 @@ static const argp_option options[] =
       "are isomorphic)", 0 },
     { "seed", OPT_SEED, "INT", 0,
       "seed for the random number generator (0)", 0 },
-    { "states", 'S', "RANGE", 0, "number of states to output (10)", 0 },
-    { "state-acc", OPT_STATE_ACC, 0, 0, "use state-based acceptance", 0 },
+    { "states", 'Q', "RANGE", 0, "number of states to output (10)", 0 },
+    { "state-based-acceptance", 'S', 0, 0, "used state-based acceptance", 0 },
+    { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
     RANGE_DOC,
     { 0, 0, 0, 0, "ACCEPTANCE may be either a RANGE (in which case "
       "generalized Büchi is assumed), or an arbitrary acceptance formula "
@@ -212,10 +212,13 @@ parse_opt(int key, char* arg, struct argp_state* as)
     case 'n':
       opt_automata = to_int(arg);
       break;
-    case 'S':
+    case 'Q':
       opt_states = parse_range(arg);
       if (opt_states.min > opt_states.max)
 	std::swap(opt_states.min, opt_states.max);
+      break;
+    case 'S':
+      opt_state_acc = true;
       break;
     case 'u':
       opt_uniq =
@@ -224,9 +227,6 @@ parse_opt(int key, char* arg, struct argp_state* as)
     case OPT_SEED:
       opt_seed = to_int(arg);
       opt_seed_str = arg;
-      break;
-    case OPT_STATE_ACC:
-      opt_state_acc = true;
       break;
     case ARGP_KEY_ARG:
       // If this is the unique non-option argument, it can

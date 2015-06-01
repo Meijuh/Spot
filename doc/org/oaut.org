@@ -871,23 +871,23 @@ density 0.2, and just count the number of edges in each automaton. Then
 use =R= to summarize the distribution of these values:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut -d 0.2 -S 10 -n 1000 a --stats %e > size.csv
+randaut -d0.2 -Q10 -n1000 a --stats %e > size.csv
 R --slave -e "summary(read.csv('size.csv', header=FALSE, col.names='edges'))"
 #+END_SRC
 
 #+RESULTS:
 :      edges
-:  Min.   :17.00
-:  1st Qu.:25.00
-:  Median :28.00
-:  Mean   :27.96
-:  3rd Qu.:30.00
-:  Max.   :42.00
+:  Min.   :14.00
+:  1st Qu.:22.00
+:  Median :25.00
+:  Mean   :24.72
+:  3rd Qu.:27.00
+:  Max.   :36.00
 
 
-For $S=10$ states and density $D=0.2$ the expected degree of each
-state $1+(S-1)D = 1+9\times 0.2 = 2.8$ so the expected number of edges
-should be 10 times that.
+For $Q=10$ states and density $D=0.2$ the expected degree of each
+state is $1+(Q-1)D = 1+9\times 0.2 = 2.8$, so the expected number of
+edges should be 10 times that.
 
 
 * Naming automata
@@ -1006,7 +1006,7 @@ automaton is deterministic.  We can generate 20 random automata, and
 output them in two files depending on their determinism:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut -n 20 -S2 -d1 1 -H -o out-det%d.hoa
+randaut -n 20 -Q2 -d1 1 -H -o out-det%d.hoa
 autfilt -c out-det0.hoa    # Count of non-deterministic automata
 autfilt -c out-det1.hoa    # Count of deterministic automata
 #+END_SRC
@@ -1024,7 +1024,7 @@ deterministic automata, it may look like we produced more
 than 20 automata:
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut -D -n 20 -S2 -d1 1 -H -o out-det%d.hoa
+randaut -D -n 20 -Q2 -d1 1 -H -o out-det%d.hoa
 autfilt -c out-det0.hoa    # Count of non-deterministic automata
 autfilt -c out-det1.hoa    # Count of deterministic automata
 #+END_SRC
@@ -1039,6 +1039,6 @@ previous execution, while =out-det1.hoa= has been overwritten.
 In the case where you want to append to a file instead of overwriting
 it, prefix the output filename with =>>= as in
 
-: randaut -D -n 20 -S2 1 -H -o '>>out-det%d.hoa'
+: randaut -D -n 20 -Q2 1 -H -o '>>out-det%d.hoa'
 
 (You need the quotes so that the shell does not interpret '>>'.)

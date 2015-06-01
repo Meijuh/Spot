@@ -69,22 +69,22 @@ instead of giving a list of atomic propositions.
 
 * States and density
 
-The numbers of states can be controlled using the =-S= option.  This
-option will accept a range as argument, so for instance =-S3..6= will
+The numbers of states can be controlled using the =-Q= option.  This
+option will accept a range as argument, so for instance =-Q3..6= will
 generate an automaton with 3 to 6 states.
 
 The number of edges can be controlled using the =-d= (or
 =--density=) option.  The argument should be a number between 0 and 1.
-In an automaton with $S$ states and density $d$, the degree of each
-state will follow a normal distribution with mean $1+(S-1)d$ and
-variance $(S-1)d(1-d)$.
+In an automaton with $Q$ states and density $d$, the degree of each
+state will follow a normal distribution with mean $1+(Q-1)d$ and
+variance $(Q-1)d(1-d)$.
 
 In particular =-d0= will cause all states to have 1 successors, and
 =-d1= will cause all states to be interconnected.
 
 #+NAME: randaut2
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -S3 -d0 2
+randaut -Q3 -d0 2
 #+END_SRC
 
 #+RESULTS: randaut2
@@ -114,7 +114,7 @@ $txt
 
 #+NAME: randaut3
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -S3 -d1 2
+randaut -Q3 -d1 2
 #+END_SRC
 
 #+RESULTS: randaut3
@@ -191,20 +191,20 @@ randaut --help | sed -n '/^ \(ACCEPTANCE\|RANGE\)/,/^$/p'
 
  - =-a= (or =--acc-probability=) controls the probability that any
    transition belong to a given acceptance set.
- - =--state-acc= requests that the automaton use state-based
+ - =-S= (or =--state-acc=) requests that the automaton use state-based
    acceptance.  In this case, =-a= is the probability that a /state/
    belong to the acceptance set.  (Because Spot only deals with
    transition-based acceptance internally, this options force all
    transitions leaving a state to belong to the same acceptance sets.
    But if the output format allows state-acceptance, it will be used.)
 
-In addition, =-B= (or =--ba=) is a shorthand for =-A1 --state-acc=,
+In addition, =-B= (or =--ba=) is a shorthand for =-A1 -S=,
 ans =-s= (or =--spin=) implies =-B=.
 
 
 #+NAME: randaut4
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -S3 -d0.5 -A3 -a0.5 2
+randaut -Q3 -d0.5 -A3 -a0.5 2
 #+END_SRC
 
 #+RESULTS: randaut4
@@ -237,7 +237,7 @@ $txt
 
 #+NAME: randaut5
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -S3 -d0.4 -B -a0.7 2
+randaut -Q3 -d0.4 -B -a0.7 2
 #+END_SRC
 
 #+RESULTS: randaut5
@@ -268,7 +268,7 @@ $txt
 
 #+NAME: randaut5b
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -S6 -d0.4 --state-acc -a.2 -A 'Streett 1..3' 2 --dot=.a
+randaut -Q6 -d0.4 --state-acc -a.2 -A 'Streett 1..3' 2 --dot=.a
 #+END_SRC
 
 #+RESULTS: randaut5b
@@ -284,27 +284,27 @@ digraph G {
   node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label="0"]
+  0 [label=<0>]
   0 -> 2 [label=<!p0 &amp; !p1>]
-  0 -> 1 [label=<!p0 &amp; !p1<br/><font color="#FAA43A">â·</font>>]
-  0 -> 5 [label=<!p0 &amp; !p1>]
-  1 [label="1"]
-  1 -> 0 [label=<!p0 &amp; p1<br/><font color="#5DA5DA">â¿</font><font color="#FAA43A">â·</font>>]
-  1 -> 3 [label=<!p0 &amp; !p1>]
-  2 [label="2"]
-  2 -> 5 [label=<!p0 &amp; !p1<br/><font color="#F17CB0">â¶</font>>]
-  2 -> 3 [label=<p0 &amp; !p1<br/><font color="#5DA5DA">â¿</font>>]
-  2 -> 2 [label=<!p0 &amp; p1<br/><font color="#5DA5DA">â¿</font>>]
+  0 -> 1 [label=<!p0 &amp; !p1>]
+  0 -> 3 [label=<!p0 &amp; !p1>]
+  1 [label=<1>]
+  1 -> 5 [label=<!p0 &amp; p1>]
+  2 [label=<2<br/><font color="#5DA5DA">â¿</font><font color="#FAA43A">â·</font>>]
+  2 -> 0 [label=<!p0 &amp; p1>]
   2 -> 4 [label=<!p0 &amp; !p1>]
-  3 [label="3"]
-  3 -> 2 [label=<p0 &amp; p1<br/><font color="#F17CB0">â¶</font>>]
-  4 [label="4"]
-  4 -> 3 [label=<!p0 &amp; !p1>]
-  4 -> 5 [label=<!p0 &amp; p1<br/><font color="#5DA5DA">â¿</font><font color="#F17CB0">â¶</font>>]
-  5 [label="5"]
-  5 -> 0 [label=<p0 &amp; p1>]
-  5 -> 3 [label=<p0 &amp; p1>]
-  5 -> 2 [label=<!p0 &amp; p1<br/><font color="#B276B2">â¸</font>>]
+  3 [label=<3>]
+  3 -> 1 [label=<!p0 &amp; !p1>]
+  3 -> 2 [label=<p0 &amp; !p1>]
+  3 -> 5 [label=<!p0 &amp; !p1>]
+  3 -> 4 [label=<p0 &amp; !p1>]
+  4 [label=<4<br/><font color="#B276B2">â¸</font>>]
+  4 -> 2 [label=<p0 &amp; !p1>]
+  4 -> 5 [label=<!p0 &amp; !p1>]
+  4 -> 3 [label=<!p0 &amp; p1>]
+  5 [label=<5<br/><font color="#F17CB0">â¶</font>>]
+  5 -> 3 [label=<!p0 &amp; p1>]
+  5 -> 1 [label=<p0 &amp; p1>]
 }
 #+end_example
 
@@ -331,7 +331,7 @@ therefore deterministic and complete.
 
 #+NAME: randaut6
 #+BEGIN_SRC sh :results verbatim :exports code
-randaut -D -S3 -d0.6 -A2 -a0.5 2
+randaut -D -Q3 -d0.6 -A2 -a0.5 2
 #+END_SRC
 
 #+RESULTS: randaut6
@@ -366,7 +366,7 @@ $txt
 
 Note that in a deterministic automaton with $a$ atomic propositions,
 it is not possible to have states with more than $2^a$ successors.  If
-the combination of =-d= and =-S= allows the situation where a state
+the combination of =-d= and =-Q= allows the situation where a state
 can have more than $2^a$ successors, the degree will be clipped to
 $2^a$.  When working with random deterministic automata over $a$
 atomic propositions, we suggest you always request more than $2^a$

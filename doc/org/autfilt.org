@@ -99,22 +99,22 @@ statistics.
 
 
 #+BEGIN_SRC sh :results verbatim :exports both
-randaut --hoa -n 10 -A0..2 -S10..20 -d0.05 2 |
+randaut --hoa -n 10 -A0..2 -Q10..20 -d0.05 2 |
 autfilt --stats='%s states, %e edges, %a acc-sets, %c SCCs, det=%d'
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-16 states, 27 edges, 1 acc-sets, 2 SCCs, det=0
-12 states, 20 edges, 1 acc-sets, 2 SCCs, det=0
-11 states, 15 edges, 0 acc-sets, 4 SCCs, det=1
-16 states, 29 edges, 0 acc-sets, 2 SCCs, det=0
-15 states, 30 edges, 2 acc-sets, 1 SCCs, det=0
-11 states, 17 edges, 1 acc-sets, 2 SCCs, det=0
-11 states, 16 edges, 1 acc-sets, 1 SCCs, det=1
-17 states, 28 edges, 1 acc-sets, 1 SCCs, det=0
-19 states, 36 edges, 0 acc-sets, 3 SCCs, det=0
-11 states, 16 edges, 2 acc-sets, 6 SCCs, det=0
+16 states, 28 edges, 1 acc-sets, 1 SCCs, det=0
+19 states, 37 edges, 0 acc-sets, 1 SCCs, det=0
+16 states, 24 edges, 1 acc-sets, 1 SCCs, det=0
+12 states, 16 edges, 0 acc-sets, 5 SCCs, det=0
+12 states, 17 edges, 2 acc-sets, 3 SCCs, det=0
+15 states, 21 edges, 2 acc-sets, 5 SCCs, det=0
+10 states, 12 edges, 0 acc-sets, 4 SCCs, det=1
+10 states, 14 edges, 1 acc-sets, 1 SCCs, det=0
+19 states, 27 edges, 1 acc-sets, 1 SCCs, det=0
+11 states, 12 edges, 1 acc-sets, 9 SCCs, det=1
 #+end_example
 
 The following =%= sequences are available:
