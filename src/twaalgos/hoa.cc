@@ -50,6 +50,7 @@ namespace spot
       bool has_state_acc;
       bool is_complete;
       bool is_deterministic;
+      bool is_colored;
       bool use_implicit_labels;
       bdd all_ap;
 
@@ -95,6 +96,8 @@ namespace spot
 	bool deterministic = true;
 	bool complete = true;
 	bool state_acc = true;
+	bool nodeadend = true;
+	bool colored = aut->acc().num_sets() >= 1;
 	for (unsigned src = 0; src < ns; ++src)
 	  {
 	    bdd sum = bddfalse;
@@ -102,6 +105,7 @@ namespace spot
 	    bool st_acc = true;
 	    bool notfirst = false;
 	    acc_cond::mark_t prev = 0U;
+	    bool has_succ = false;
 	    for (auto& t: aut->out(src))
 	      {
 		if (complete)
@@ -126,7 +130,15 @@ namespace spot
 			prev = t.acc;
 		      }
 		  }
+		if (colored)
+		  {
+		    auto a = t.acc;
+		    if (!a || a.remove_some(1))
+		      colored = false;
+		  }
+		has_succ = true;
 	      }
+	    nodeadend &= has_succ;
 	    if (complete)
 	      complete &= sum == bddtrue;
 	    common_acc.push_back(st_acc);
@@ -135,7 +147,10 @@ namespace spot
 	is_deterministic = deterministic;
 	is_complete = complete;
 	has_state_acc = state_acc;
-
+	// If the automaton has state-based acceptance and contain
+	// some states without successors do not declare it as
+	// colored.
+	is_colored = colored && (!has_state_acc || nodeadend);
 	// If the automaton declares that it is deterministic or
 	// state-based, make sure that it really is.
 	assert(!aut->is_deterministic() || deterministic);
@@ -382,6 +397,8 @@ namespace spot
       prop(" state-acc");
     else if (acceptance == Hoa_Acceptance_Transitions)
       prop(" trans-acc");
+    if (md.is_colored)
+      prop(" colored");
     if (md.is_complete)
       prop(" complete");
     if (md.is_deterministic)

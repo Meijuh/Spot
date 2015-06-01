@@ -274,7 +274,7 @@ Start: 0
 AP: 2 "a" "b"
 acc-name: generalized-Buchi 2
 Acceptance: 2 Inf(0)&Inf(1)
-properties: trans-labels explicit-labels state-acc complete
+properties: trans-labels explicit-labels state-acc colored complete
 properties: deterministic
 --BODY--
 State: 0 "foo" {0}
