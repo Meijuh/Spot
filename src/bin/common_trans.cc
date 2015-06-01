@@ -138,7 +138,7 @@ quoted_string::print(std::ostream& os, const char* pos) const
 
 printable_result_filename::printable_result_filename()
 {
-  val_ = 0;
+  val_ = nullptr;
 }
 
 printable_result_filename::~printable_result_filename()
@@ -155,7 +155,7 @@ void printable_result_filename::reset(unsigned n)
 void printable_result_filename::cleanup()
 {
   delete val_;
-  val_ = 0;
+  val_ = nullptr;
 }
 
 void
