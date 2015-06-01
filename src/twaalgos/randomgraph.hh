@@ -51,6 +51,8 @@ namespace spot
   ///          is true.
   /// \param deterministic build a complete and deterministic automaton
   /// \param state_acc build an automaton with state-based acceptance
+  /// \param colored build an automaton in which each transition (or state)
+  ///          belongs to a single acceptance set.
   ///
   /// This algorithms is adapted from the one in Fig 6.2 page 48 of
   /** \verbatim
@@ -81,7 +83,8 @@ namespace spot
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
 	       unsigned n_accs = 0, float a = 0.1, float t = 0.5,
-	       bool deterministic = false, bool state_acc = false);
+	       bool deterministic = false, bool state_acc = false,
+	       bool colored = false);
 
   /// Build a random acceptance where each acceptance sets is used once.
   SPOT_API acc_cond::acc_code random_acceptance(unsigned n_accs);

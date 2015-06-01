@@ -133,3 +133,15 @@ AP: 2 "p0" "p1"
 AP: 3 "p0" "p1" "p2"
 EOF
 diff output expected
+
+$randaut -A3 --colored 2 -H | grep 'properties:.*colored'
+$randaut -S -A'parity min even 3' --colored 2 -H | grep 'properties:.*colored'
+
+$randaut --colored 2 2>stderr && exit 1
+grep 'randaut: --colored requires' stderr
+$randaut -A0..2 --colored 2 2>stderr && exit 1
+grep 'randaut: --colored requires' stderr
+$randaut -S -A'parity min even 0..3' -q -n10 --colored 2 2>stderr && exit 1
+grep 'randaut: --colored requires' stderr
+
+:

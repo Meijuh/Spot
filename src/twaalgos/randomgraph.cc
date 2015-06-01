@@ -36,7 +36,7 @@ namespace spot
 
   namespace
   {
-    unsigned
+    static unsigned
     random_deterministic_labels_rec(std::vector<bdd>& labels, int *props,
 				    int props_n, bdd current, unsigned n)
     {
@@ -69,7 +69,7 @@ namespace spot
         }
     }
 
-    std::vector<bdd>
+    static std::vector<bdd>
     random_deterministic_labels(int *props, int props_n, unsigned n)
     {
       std::vector<bdd> bddvec;
@@ -77,14 +77,21 @@ namespace spot
       return bddvec;
     }
 
-    acc_cond::mark_t
-    random_acc_cond(twa_graph_ptr aut, unsigned n_accs, float a)
+    static acc_cond::mark_t
+    random_acc(unsigned n_accs, float a)
     {
       acc_cond::mark_t m = 0U;
       for (unsigned i = 0U; i < n_accs; ++i)
 	if (drand() < a)
-	  m |= aut->acc().mark(i);
+	  m.set(i);
       return m;
+    }
+
+    static acc_cond::mark_t
+    random_acc1(unsigned n_accs)
+    {
+      auto u = static_cast<unsigned>(mrand(static_cast<int>(n_accs)));
+      return acc_cond::mark_t({u});
     }
 
     bdd
@@ -118,7 +125,7 @@ namespace spot
   random_graph(int n, float d,
 	       const ltl::atomic_prop_set* ap, const bdd_dict_ptr& dict,
 	       unsigned n_accs, float a, float t,
-	       bool deterministic, bool state_acc)
+	       bool deterministic, bool state_acc, bool colored)
   {
     assert(n > 0);
     auto res = make_twa_graph(dict);
@@ -188,12 +195,12 @@ namespace spot
 	unsigned dst;
 	acc_cond::mark_t m = 0U;
 	if (state_acc)
-	  m = random_acc_cond(res, n_accs, a);
+	  m = colored ? random_acc1(n_accs) : random_acc(n_accs, a);
 
 	for (auto& l: labels)
 	  {
 	    if (!state_acc)
-	      m = random_acc_cond(res, n_accs, a);
+	      m = colored ? random_acc1(n_accs) : random_acc(n_accs, a);
 
 	    // No connection to unreachable successors so far.  This
 	    // is our last chance, so force it now.

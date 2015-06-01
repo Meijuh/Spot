@@ -69,6 +69,7 @@ a high density of transitions, and 3 to 4 atomic propositions:\n\
 
 enum {
   OPT_SEED = 1,
+  OPT_COLORED,
 };
 
 static const argp_option options[] =
@@ -83,6 +84,9 @@ static const argp_option options[] =
       "use a negative value for unbounded generation", 0 },
     { "ba", 'B', 0, 0,
       "build a Buchi automaton (implies --acceptance=Buchi --state-acc)", 0 },
+    { "colored", OPT_COLORED, 0, 0,
+      "build an automaton in which each transition (or state if combined with "
+      "-S) belong to a single acceptance set", 0 },
     { "density", 'd', "FLOAT", 0, "density of the transitions (0.2)", 0 },
     { "deterministic", 'D', 0, 0, "build a complete, deterministic automaton ",
       0 },
@@ -138,10 +142,11 @@ static const char* opt_seed_str = "0";
 static int opt_automata = 1;
 static range opt_states = { 10, 10 };
 static float opt_density = 0.2;
-static range opt_acc_sets = { 0, 0 };
+static range opt_acc_sets = { -1, 0 };
 static float opt_acc_prob = 0.2;
 static bool opt_deterministic = false;
 static bool opt_state_acc = false;
+static bool opt_colored = false;
 static bool ba_wanted = false;
 static bool generic_wanted = false;
 static bool gba_wanted = false;
@@ -224,6 +229,9 @@ parse_opt(int key, char* arg, struct argp_state* as)
       opt_uniq =
         std::unique_ptr<unique_aut_t>(new std::set<std::vector<tr_t>>());
       break;
+    case OPT_COLORED:
+      opt_colored = true;
+      break;
     case OPT_SEED:
       opt_seed = to_int(arg);
       opt_seed_str = arg;
@@ -290,6 +298,16 @@ main(int argc, char** argv)
   if (automaton_format == Spin)
     ba_options();
 
+  if (opt_colored && opt_acc_sets.min == -1 && !generic_wanted)
+    error(2, 0, "--colored requires at least one acceptance set; "
+	  "use --acceptance");
+  if (opt_colored && opt_acc_sets.min == 0)
+    error(2, 0, "--colored requires at least one acceptance set; "
+	  "fix the range of --acceptance");
+
+  if (opt_acc_sets.min == -1)
+    opt_acc_sets.min = 0;
+
   try
     {
       spot::srand(opt_seed);
@@ -328,12 +346,16 @@ main(int argc, char** argv)
 	    {
 	      code = spot::parse_acc_code(opt_acceptance);
 	      accs = code.used_sets().max_set();
+	      if (opt_colored && accs == 0)
+		error(2, 0, "--colored requires at least one acceptance set; "
+		      "fix the range of --acceptance");
 	    }
 
 	  auto aut =
 	    spot::random_graph(size, opt_density, &aprops, d,
 			       accs, opt_acc_prob, 0.5,
-			       opt_deterministic, opt_state_acc);
+			       opt_deterministic, opt_state_acc,
+			       opt_colored);
 
 	  if (opt_acceptance)
 	    aut->set_acceptance(accs, code);
