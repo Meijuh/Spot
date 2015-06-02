@@ -1,0 +1,6 @@
+#!/bin/sh
+# This is a wrapper around the compiler, to ensure that the code
+# example run from the org-mode file are all linked with Spot.
+exec @top_builddir@/libtool link \
+     @CXX@ -std=c++11 -Wall -I@abs_top_srcdir@/src -I@abs_top_builddir@/src \
+     "$@" @abs_top_builddir@/src/libspot.la

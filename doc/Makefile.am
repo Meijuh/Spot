@@ -57,7 +57,8 @@ org:
 	rm -rf tmp
 
 ORG_FILES = \
-  org/.dir-locals.el \
+  org/.dir-locals.el.in \
+  org/g++wrap.in \
   org/init.el.in \
   org/syntax.css \
   org/spot.css \
@@ -77,6 +78,7 @@ ORG_FILES = \
   org/randaut.org \
   org/randltl.org \
   org/tools.org \
+  org/tut01.org \
   org/satmin.org \
   org/satmin.tex \
   org/setup.org \

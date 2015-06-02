@@ -8,14 +8,22 @@
 		      (setq org-babel-sh-command (concat "PATH=../../src/bin"
 							 path-separator
 							 "$PATH sh"))
+		      (setenv "PYTHONPATH"
+			      (concat "@abs_top_builddir@/wrap/python/.libs:@abs_top_builddir@/wrap/python:@abs_top_srcdir@/wrap/python:"
+				      (getenv "PYTHONPATH")))
+		      (setenv "DYLD_LIBRARY_PATH"
+			      (concat "@abs_top_builddir@/wrap/python/.libs:@abs_top_builddir@/src/.libs:@abs_top_builddir@/buddy/src/.libs:"
+				      (getenv "DYLD_LIBRARY_PATH")))
 		      (setenv "SPOT_DOTDEFAULT" "Brf(Lato)")
 		      (setenv "SPOT_DOTEXTRA" "node[style=filled, fillcolor=\"#ffffa0\"] edge[arrowhead=vee, arrowsize=.7]")
 		      (org-babel-do-load-languages 'org-babel-load-languages
 						   '((sh . t)
 						     (python . t)
-						     (dot . t)))))
+						     (dot . t)
+						     (C . t)))))
 	      (org-confirm-babel-evaluate . nil)
 	      (org-babel-python-command . "/usr/bin/python3")
+	      (org-babel-C++-compiler . "./g++wrap")
 	      (org-publish-project-alist
 	       . (("spot-html"
 		   :base-directory "."

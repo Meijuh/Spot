@@ -98,21 +98,21 @@ ta.show = _return_automaton_as_svg
 def _formula_str_ctor(self, str):
     self.this = parse_formula(str)
 
-def _formula_to_str(self, format = 'spot'):
+def _formula_to_str(self, format = 'spot', parenth = False):
     if format == 'spot':
-        return to_string(self)
+        return to_string(self, parenth)
     elif format == 'spin':
-        return to_spin_string(self)
+        return to_spin_string(self, parenth)
     elif format == 'utf8':
-        return to_utf8_string(self)
+        return to_utf8_string(self, parenth)
     elif format == 'lbt':
         return to_lbt_string(self)
     elif format == 'wring':
         return to_wring_string(self)
     elif format == 'latex':
-        return to_latex_string(self)
+        return to_latex_string(self, parenth)
     elif format == 'sclatex':
-        return to_sclatex_string(self)
+        return to_sclatex_string(self, parenth)
     else:
         raise ValueError("unknown string format: " + format)
 

@@ -13,17 +13,26 @@
 ;; conditions when doing concurrent builds.
 (setq org-publish-timestamp-directory "@abs_top_builddir@/.org-timestamps/")
 
-(setq org-babel-python-command "/usr/bin/python3")
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((sh . t)
    (dot . t)
-   (python . t)))
+   (python . t)
+   (C . t)))
 (setq org-confirm-babel-evaluate nil)
 
 (setq org-babel-sh-command
       (concat "PATH=@abs_top_builddir@/src/bin" path-separator "$PATH sh"))
 
+(setq org-babel-python-command "/usr/bin/python3")
+(setq org-babel-C++-compiler "./g++wrap")
+
+(setenv "PYTHONPATH"
+	(concat "@abs_top_builddir@/wrap/python/.libs:@abs_top_builddir@/wrap/python:@abs_top_srcdir@/wrap/python:"
+		(getenv "PYTHONPATH")))
+(setenv "DYLD_LIBRARY_PATH"
+	(concat "@abs_top_builddir@/wrap/python/.libs:@abs_top_builddir@/src/.libs:@abs_top_builddir@/buddy/src/.libs:"
+		(getenv "DYLD_LIBRARY_PATH")))
 (setenv "SPOT_DOTDEFAULT" "Brf(Lato)")
 (setenv "SPOT_DOTEXTRA"
  "node[style=filled, fillcolor=\"#ffffa0\"] edge[arrowhead=vee, arrowsize=.7]")

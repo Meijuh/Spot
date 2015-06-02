@@ -191,6 +191,7 @@ AC_CONFIG_FILES([
   doc/Doxyfile
   doc/Makefile
   doc/tl/Makefile
+  doc/org/.dir-locals.el
   doc/org/init.el
   iface/ltsmin/defs
   iface/ltsmin/Makefile
@@ -224,6 +225,7 @@ AC_CONFIG_FILES([
   wrap/python/tests/Makefile
   tools/x-to-1
 ])
+AC_CONFIG_FILES([doc/org/g++wrap], [chmod +x doc/org/g++wrap])
 AC_CONFIG_FILES([doc/dot], [chmod +x doc/dot])
 AC_CONFIG_FILES([wrap/python/tests/run], [chmod +x wrap/python/tests/run])
 AC_OUTPUT

@@ -1,0 +1,218 @@
+#+TITLE: Parsing and Printing LTL Formulas
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tut.html
+
+Our first task is to read formulas and print them in another syntax.
+
+* Shell command
+
+Using =ltlfilt=, you can easily read an LTL formula in one syntax, and
+output it in another syntax.  By default the parser will accept a
+formula in [[file:ioltl.org][any infix syntax]], but if the input is in the prefix syntax
+of LBT, you should use [[file:ioltl.org][=--lbt-input=]].  The output syntax is controlled
+using different options such as (=--spin=, =--lbt=, =--latex=, etc.).
+Full parentheses can also be requested using =-p=.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+formula='[]<>p0 || <>[]p1'
+ltlfilt -f "$formula" --lbt
+ltlfilt -f "$formula" --spin -p
+ltlfilt --lbt-input -f '& & G p0 p1 p2' --latex
+#+END_SRC
+
+#+RESULTS:
+: | G F p0 F G p1
+: ([](<>(p0))) || (<>([](p1)))
+: p_{1} \land p_{2} \land \G p_{0}
+
+The reason the LBT parser has to be explicitly enabled is because of
+some corner cases that have different meanings in the two syntaxes.
+(For instance =t= and =f= are the true constant in LBT's syntax, but they
+are considered as atomic propositions in all the other syntaxes.)
+
+* Python bindings
+
+Here are the same operation in Python
+
+#+BEGIN_SRC python :results output :exports both
+import spot
+f = spot.formula('[]<>p0 || <>[]p1')
+print(f.to_str('lbt'))
+print(f.to_str('spin', parenth=True))
+print(spot.formula('& & G p0 p1 p2').to_str('latex'))
+#+END_SRC
+
+#+RESULTS:
+: | G F p0 F G p1
+: ([](<>(p0))) || (<>([](p1)))
+: p_{1} \land p_{2} \land \G p_{0}
+
+The =spot.formula= function wraps the calls to the two formula parsers
+of Spot.  It first tries to parse the formula using infix syntaxes,
+and if it fails, it tries to parse it with the prefix parser.  (So
+this this might fail to correctly interpret =t= or =f= if you are
+processing a list of LBT formulas.)  Using =spot.formula=, parse
+errors are returned as an exception.
+
+* C++
+
+** Simple wrapper for the two parsers
+
+We first start with the easy parser interface, similar to the one used
+above in the python bindings.  Here parse errors would be returned as
+exceptions.
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <iostream>
+  #include "ltlparse/public.hh"
+  #include "ltlvisit/tostring.hh"
+  #include "ltlvisit/lbt.hh"
+
+  int main()
+  {
+    const spot::ltl::formula* f = spot::ltl::parse_formula("[]<>p0 || <>[]p1");
+    to_lbt_string(f, std::cout) << '\n';
+    to_spin_string(f, std::cout, true) << '\n';
+    to_latex_string(spot::ltl::parse_formula("& & G p0 p1 p2"), std::cout);
+  }
+#+END_SRC
+
+#+RESULTS:
+: | G F p0 F G p1
+: ([](<>(p0))) || (<>([](p1)))
+: p_{1} \land p_{2} \land \G p_{0}
+
+
+We do not recommend using this =parse_formula()= interface because of
+the potential formulas (like =f= or =t=) that have different meanings
+in the two parsers that are tried.
+
+Instead, depending on whether you want to parse formulas with infix
+syntax, or formulas with prefix syntax, you should call the specific
+parser.  Additionally, this give you control over how to print errors.
+
+** Calling the infix parser explicitly
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <string>
+  #include <iostream>
+  #include "ltlparse/public.hh"
+  #include "ltlvisit/tostring.hh"
+  #include "ltlvisit/lbt.hh"
+
+  int main()
+  {
+    std::string input = "[]<>p0 || <>[]p1";
+    spot::ltl::parse_error_list pel;
+    const spot::ltl::formula* f = spot::ltl::parse(input, pel);
+    if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+      {
+        if (f)
+          f->destroy();
+        return 1;
+      }
+    to_lbt_string(f, std::cout) << '\n';
+    to_spin_string(f, std::cout, true) << '\n';
+    f->destroy();
+  }
+#+END_SRC
+
+#+RESULTS:
+: | G F p0 F G p1
+: ([](<>(p0))) || (<>([](p1)))
+
+So =parse()= process the =input=, and stores any diagnostic in =pel=,
+which is a list of pairs associating each error to a location.  You could
+iterate over that list to print it by yourself as you wish, or you can
+call =format_parse_errors()= to do that for you.
+
+If =pel= is empty, =format_parse_errors()= will do nothing and return
+false.
+
+If =pel= is non empty, =format_parse_errors()= will display the errors
+messages and return true.  In the above code, we have decided to
+aborts the execution in this case.
+
+However the parser usually tries to do some error recovery.  For
+instance if you have input =(a U b))= the parser will complain about
+the extra parenthesis (=pel= not empty), but it will still return an
+=f= that is equivalent to =a U b=.  So you could decide to continue
+with the "fixed" formula if you wish.  Here is an example:
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <string>
+  #include <iostream>
+  #include "ltlparse/public.hh"
+  #include "ltlvisit/tostring.hh"
+  #include "ltlvisit/lbt.hh"
+
+  int main()
+  {
+    std::string input = "(a U b))";
+    spot::ltl::parse_error_list pel;
+    const spot::ltl::formula* f = spot::ltl::parse(input, pel);
+    // Use std::cout instead of std::cerr because we can only
+    // show the output of std::cout in this documentation.
+    (void) spot::ltl::format_parse_errors(std::cout, input, pel);
+    if (f == nullptr)
+      return 1;
+    to_lbt_string(f, std::cout) << '\n';
+    to_spin_string(f, std::cout, true) << '\n';
+    f->destroy();
+  }
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+>>> (a U b))
+           ^
+syntax error, unexpected closing parenthesis
+
+>>> (a U b))
+           ^
+ignoring trailing garbage
+
+U "a" "b"
+(a) U (b)
+#+end_example
+
+
+The formula =f= is only returned as null when the parser really cannot
+recover anything.
+
+Did you notice the calls to =f->destroy()= in these two examples?  The
+LTL formula objects are implemented as DAG with sharing of
+subformulas.  Each (sub)formula is therefore reference counted, and
+currently this is done manually by calling =f->clone()= and
+=f->destroy()= (do not ever =delete= a formula, always call
+=f->destroy()=).
+
+** Calling the prefix parser explicitly
+
+The only difference here is the call to =parse_lbt()= instead of
+=parse()=.
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <string>
+  #include <iostream>
+  #include "ltlparse/public.hh"
+  #include "ltlvisit/tostring.hh"
+
+  int main()
+  {
+    std::string input = "& & G p0 p1 p2";
+    spot::ltl::parse_error_list pel;
+    const spot::ltl::formula* f = spot::ltl::parse_lbt(input, pel);
+    if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+      {
+        if (f)
+          f->destroy();
+        return 1;
+      }
+    to_latex_string(f, std::cout) << '\n';
+    f->destroy();
+  }
+#+END_SRC
+
+#+RESULTS:
+: p_{1} \land p_{2} \land \G p_{0}
