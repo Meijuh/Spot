@@ -135,23 +135,30 @@ tools:
     its interface with LBTT)
   - '=ltl2tgba -s %s >%O=' (smaller output, Büchi automaton)
   - '=ltl2tgba -s -D %s >%O=' (more deterministic output, Büchi automaton)
-  - '=ltl2tgba --lbtt %s >%O=' (smaller output, TGBA)
-  - '=ltl2tgba --lbtt -D %s >%O=' (more deterministic output, TGBA)
+  - '=ltl2tgba -H %s >%O=' (smaller output, TGBA)
+  - '=ltl2tgba -H -D %s >%O=' (more deterministic output, TGBA)
   - '=lbt <%L >%O='
-  - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L %D='
-    (deterministic Rabin output)
-  - '=ltl2dstar --automata=streett --ltl2nba=spin:path/to/ltl2tgba@-sD
-    %L %D=' (deterministic Streett output)
+  - '~ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD
+    --output-format=hoa %L %O~' deterministic Rabin output in HOA, as
+    supported since version 0.5.2 of =ltl2dstar=.
+  - '~ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD --automata=streett
+    --output-format=hoa %L %O~' deterministic Streett output in HOA,
+    as supported since version 0.5.2 of =ltl2dstar=.
+  - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L %D=' (Rabin
+    output in DSTAR format, as supported in older version of
+    =ltl2dstar=.  Note that when reading this format, =ltl2dstar=
+    automatically converts the Rabin automaton into a Büchi automaton
+    for historical reason.)
   - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L - | dstar2tgba
     -s >%O=' (external conversion from Rabin to Büchi done by
-    =dstar2tgba= for more reduction of the Büchi automaton than
-    what =ltlcross= would provide)
+    =dstar2tgba= for more reduction of the Büchi automaton than what
+    =ltlcross= would provide)
   - '=java -jar Rabinizer.jar -ltl2dstar %F %D; mv %D.dst %D=' (Rabinizer
     uses the last =%D= argument as a prefix to which it always append =.dst=,
     so we have to rename =%D.dst= as =%D= so that =ltlcross= can find the file)
   - '=java -jar Rabinizer3.jar -hoa -formula %f; mv output.hoa %O=' (Rabinizer *3*
     always output in =output.hoa= when the formula comes from the command line.)
-  - '=ltl3dra -f %s >%O='
+  - '=ltl3dra -f %s >%O=' (The HOA format is the default for =ltl2dra=.)
 
 To simplify the use of some of the above tools, a set of predefined
 shorthands are available.  Those can be listed with the
@@ -167,7 +174,7 @@ the following words, then the string on the right is appended.
 
   lbt          <%L>%O
   ltl2ba       -f %s>%O
-  ltl2dstar    %L %D
+  ltl2dstar    --output-format=hoa %L %O
   ltl2tgba     -H %f>%O
   ltl3ba       -f %s>%O
   ltl3dra      -f %f>%O

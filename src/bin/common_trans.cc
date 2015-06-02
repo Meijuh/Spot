@@ -41,7 +41,7 @@ static struct shorthands_t
   shorthands[] = {
     { "lbt", " <%L>%O" },
     { "ltl2ba", " -f %s>%O" },
-    { "ltl2dstar", " %L %D"},
+    { "ltl2dstar", " --output-format=hoa %L %O"},
     { "ltl2tgba", " -H %f>%O" },
     { "ltl3ba", " -f %s>%O" },
     { "ltl3dra", " -f %f>%O" },
