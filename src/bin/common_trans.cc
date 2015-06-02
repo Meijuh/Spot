@@ -58,6 +58,12 @@ void show_shorthands()
     std::cout << "  "
 	      << std::left << std::setw(12) << s.prefix
 	      << s.suffix << '\n';
+  std::cout
+    << ("\nAny {name} and directory component is skipped for the purpose of\n"
+	"matching those prefixes.  So for instance\n"
+	"  '{DRA} ~/mytools/ltl2dstar-0.5.2'\n"
+	"will changed into\n"
+	"  '{DRA} ~/mytools/ltl2dstar-0.5.2 --output-format=hoa %L %O'\n");
 }
 
 
@@ -84,15 +90,28 @@ translator_spec::translator_spec(const char* spec)
 	      }
 	}
     }
-  // If we recognize a shorthand, add the suffixes.
+  // If there is no % in the string, look for a known
+  // command from our shorthand list.  If we find it,
+  // add the suffix.
   bool allocated = false;
   if (!strchr(cmd, '%'))
     {
+      // Skip any leading directory name.
+      auto basename = cmd;
+      auto pos = cmd;
+      while (*pos)
+	{
+	  if (*pos == '/')
+	    basename = pos + 1;
+	  else if (*pos == ' ')
+	    break;
+	  ++pos;
+	}
+      // Match a shorthand.
       for (auto& p: shorthands)
 	{
 	  int n = strlen(p.prefix);
-	  if (strncmp(cmd, p.prefix, n) == 0 &&
-	      (cmd[n] == 0 || cmd[n] == ' '))
+	  if (strncmp(basename, p.prefix, n) == 0)
 	    {
 	      int m = strlen(p.suffix);
 	      int q = strlen(cmd);
