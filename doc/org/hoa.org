@@ -57,14 +57,19 @@ the HOA format, the output may not be exactly the same as the input.
   limitation has forced us to improve some of our algorithms to be
   less wasteful and not introduce useless acceptance sets.
 
-- Multiple initial states emulated.
+- Multiple (or missing) initial states are emulated.
 
   The internal TωA representation used by Spot supports only a single
-  initial state.  When an HOA with multiple initial state is read, it
+  initial state.  When an HOA with multiple initial states is read, it
   is transformed into an equivalent TωA by merging the initial states
   into a single one.  The merged state can either be one of the
   original initial states (if one of those has no incoming edge) or a
   new state introduced for that purpose.
+
+  Similarly, when an automaton with no initial state is loaded (this
+  includes the case where the automaton has no state), a disconnected
+  initial state is added.  As a consequence, Spot's HOA output always
+  contains at least one state, even when the input had no state.
 
 - =Fin(!x)= and =Inf(!x)= are rewritten away.
 
