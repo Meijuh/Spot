@@ -252,15 +252,15 @@ namespace spot
     };
 
     // This encodes either an operator or set of acceptance sets.
-    enum class acc_op : unsigned char
+    enum class acc_op : unsigned short
     { Inf, Fin, InfNeg, FinNeg, And, Or };
     union acc_word
     {
       mark_t mark;
       struct {
-	acc_op op;	    // Operator
-	unsigned char size; // Size of the subtree (number of acc_word),
-			    // not counting this node.
+	acc_op op;	     // Operator
+	unsigned short size; // Size of the subtree (number of acc_word),
+			     // not counting this node.
       };
     };
 
