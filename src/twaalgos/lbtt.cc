@@ -28,7 +28,7 @@
 #include "reachiter.hh"
 #include "misc/bddlt.hh"
 #include "priv/accmap.hh"
-#include "ltlvisit/lbt.hh"
+#include "ltlvisit/tostring.hh"
 #include "ltlparse/public.hh"
 
 namespace spot

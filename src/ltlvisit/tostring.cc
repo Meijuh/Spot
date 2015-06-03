@@ -1025,6 +1025,195 @@ namespace spot
       return os.str();
     }
 
+    namespace
+    {
+      // Does str match p[0-9]+ ?
+      static bool
+      is_pnum(const char* str)
+      {
+	if (str[0] != 'p' || str[1] == 0)
+	  return false;
+	while (*++str)
+	  if (*str < '0' || *str > '9')
+	    return false;
+	return true;
+      }
+
+      class lbt_visitor: public visitor
+      {
+      protected:
+	std::ostream& os_;
+	bool first_;
+      public:
+
+	lbt_visitor(std::ostream& os)
+	  : os_(os), first_(true)
+	{
+	}
+
+	void blank()
+	{
+	  if (first_)
+	    first_ = false;
+	  else
+	    os_ << ' ';
+	}
+
+	virtual
+	~lbt_visitor()
+	{
+	}
+
+	void
+	visit(const atomic_prop* ap)
+	{
+	  blank();
+	  std::string str = ap->name();
+	  if (!is_pnum(str.c_str()))
+	    os_ << '"' << str << '"';
+	  else
+	    os_ << str;
+	}
+
+	void
+	visit(const constant* c)
+	{
+	  blank();
+	  switch (c->val())
+	    {
+	    case constant::False:
+	      os_ << 'f';
+	      break;
+	    case constant::True:
+	      os_ << 't';
+	      break;
+	    case constant::EmptyWord:
+	      SPOT_UNIMPLEMENTED();
+	      break;
+	    }
+	}
+
+	void
+	visit(const binop* bo)
+	{
+	  blank();
+	  switch (bo->op())
+	    {
+	    case binop::Xor:
+	      os_ << '^';
+	      break;
+	    case binop::Implies:
+	      os_ << 'i';
+	      break;
+	    case binop::Equiv:
+	      os_ << 'e';
+	      break;
+	    case binop::U:
+	      os_ << 'U';
+	      break;
+	    case binop::R:
+	      os_ << 'V';
+	      break;
+	    case binop::W:
+	      os_ << 'W';
+	      break;
+	    case binop::M:
+	      os_ << 'M';
+	      break;
+	    case binop::UConcat:
+	    case binop::EConcat:
+	    case binop::EConcatMarked:
+	      SPOT_UNIMPLEMENTED();
+	      break;
+	    }
+	  bo->first()->accept(*this);
+	  bo->second()->accept(*this);
+	}
+
+	void
+	visit(const bunop*)
+	{
+	  SPOT_UNIMPLEMENTED();
+	}
+
+	void
+	visit(const unop* uo)
+	{
+	  blank();
+	  switch (uo->op())
+	    {
+	    case unop::Not:
+	      os_ << '!';
+	      break;
+	    case unop::X:
+	      os_ << 'X';
+	      break;
+	    case unop::F:
+	      os_ << 'F';
+	      break;
+	    case unop::G:
+	      os_ << 'G';
+	      break;
+	    case unop::Closure:
+	    case unop::NegClosure:
+	    case unop::NegClosureMarked:
+	      SPOT_UNIMPLEMENTED();
+	      break;
+	    }
+	  uo->child()->accept(*this);
+	}
+
+	void
+	visit(const multop* mo)
+	{
+	  char o = 0;
+	  switch (mo->op())
+	    {
+	    case multop::Or:
+	      o = '|';
+	      break;
+	    case multop::And:
+	      o = '&';
+	      break;
+	    case multop::OrRat:
+	    case multop::AndRat:
+	    case multop::AndNLM:
+	    case multop::Concat:
+	    case multop::Fusion:
+	      SPOT_UNIMPLEMENTED();
+	      break;
+	    }
+
+	  unsigned n = mo->size();
+	  for (unsigned i = n - 1; i != 0; --i)
+	    {
+	      blank();
+	      os_ << o;
+	    }
+
+	  for (unsigned i = 0; i < n; ++i)
+	    mo->nth(i)->accept(*this);
+	}
+      };
+
+    } // anonymous
+
+    std::ostream&
+    to_lbt_string(const formula* f, std::ostream& os)
+    {
+      assert(f->is_ltl_formula());
+      lbt_visitor v(os);
+      f->accept(v);
+      return os;
+    }
+
+    std::string
+    to_lbt_string(const formula* f)
+    {
+      std::ostringstream os;
+      to_lbt_string(f, os);
+      return os.str();
+    }
 
   }
 }

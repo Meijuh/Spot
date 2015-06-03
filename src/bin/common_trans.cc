@@ -29,7 +29,6 @@
 #include "error.h"
 
 #include "ltlvisit/tostring.hh"
-#include "ltlvisit/lbt.hh"
 #include "common_conv.hh"
 
 // A set of tools for which we know the correct output

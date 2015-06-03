@@ -22,7 +22,6 @@
 #include <iostream>
 #include <sstream>
 #include "ltlvisit/tostring.hh"
-#include "ltlvisit/lbt.hh"
 #include "misc/formater.hh"
 #include "misc/escape.hh"
 #include "common_cout.hh"

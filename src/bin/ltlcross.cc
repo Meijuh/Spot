@@ -44,7 +44,6 @@
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/mutation.hh"
 #include "ltlvisit/relabel.hh"
-#include "ltlvisit/lbt.hh"
 #include "twaalgos/lbtt.hh"
 #include "twaalgos/hoa.hh"
 #include "twaalgos/product.hh"

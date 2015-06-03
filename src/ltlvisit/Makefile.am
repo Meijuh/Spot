@@ -32,7 +32,6 @@ ltlvisit_HEADERS = \
   dotty.hh \
   dump.hh \
   exclusive.hh \
-  lbt.hh \
   length.hh \
   lunabbrev.hh \
   mutation.hh \
@@ -56,7 +55,6 @@ libltlvisit_la_SOURCES = \
   dotty.cc \
   dump.cc \
   exclusive.cc \
-  lbt.cc \
   length.cc \
   lunabbrev.cc \
   mark.cc \

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -143,6 +143,31 @@ namespace spot
     SPOT_API std::string
     to_sclatex_string(const formula* f,
 		      bool full_parent = false, bool ratexp = false);
+
+    /// \brief Output an LTL formula as a string in LBT's format.
+    ///
+    /// The formula must be an LTL formula (ELTL and PSL operators
+    /// are not supported).  The M and W operator will be output
+    /// as-is, because this is accepted by LBTT, however if you
+    /// plan to use the output with other tools, you should probably
+    /// rewrite these two operators using unabbreviate_wm().
+    ///
+    /// \param f The formula to translate.
+    /// \param os The stream where it should be output.
+    SPOT_API std::ostream&
+    to_lbt_string(const formula* f, std::ostream& os);
+
+    /// \brief Output an LTL formula as a string in LBT's format.
+    ///
+    /// The formula must be an LTL formula (ELTL and PSL operators
+    /// are not supported).  The M and W operator will be output
+    /// as-is, because this is accepted by LBTT, however if you
+    /// plan to use the output with other tools, you should probably
+    /// rewrite these two operators using unabbreviate_wm().
+    ///
+    /// \param f The formula to translate.
+    SPOT_API std::string
+    to_lbt_string(const formula* f);
     /// @}
   }
 }
