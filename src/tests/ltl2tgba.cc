@@ -958,7 +958,7 @@ checked_main(int argc, char** argv)
 	  {
 	    spot::ltl::parse_error_list pel;
 	    tm.start("parsing formula");
-	    f = spot::ltl::parse(input, pel, env, debug_opt);
+	    f = spot::ltl::parse_infix_psl(input, pel, env, debug_opt);
 	    tm.stop("parsing formula");
 	    exit_code = spot::ltl::format_parse_errors(std::cerr, input, pel);
 	  }

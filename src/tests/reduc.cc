@@ -180,14 +180,14 @@ main(int argc, char** argv)
       while (input == "");
 
       spot::ltl::parse_error_list p1;
-      f1 = spot::ltl::parse(input, p1);
+      f1 = spot::ltl::parse_infix_psl(input, p1);
       if (spot::ltl::format_parse_errors(std::cerr, input, p1))
 	return 2;
     }
   else
     {
       spot::ltl::parse_error_list p1;
-      f1 = spot::ltl::parse(argv[2], p1);
+      f1 = spot::ltl::parse_infix_psl(argv[2], p1);
       if (spot::ltl::format_parse_errors(std::cerr, argv[2], p1))
 	return 2;
     }
@@ -201,7 +201,7 @@ main(int argc, char** argv)
 	}
 
       spot::ltl::parse_error_list p2;
-      f2 = spot::ltl::parse(argv[3], p2);
+      f2 = spot::ltl::parse_infix_psl(argv[3], p2);
       if (spot::ltl::format_parse_errors(std::cerr, argv[3], p2))
 	return 2;
     }

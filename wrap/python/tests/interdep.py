@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2010, 2012, 2014 Laboratoire de Recherche et
+# Copyright (C) 2010, 2012, 2014, 2015 Laboratoire de Recherche et
 # Développement de l'EPITA.
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
 # (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -30,10 +30,10 @@ simp = spot.ltl_simplifier()
 
 e = spot.default_environment.instance()
 p = spot.empty_parse_error_list()
-f = spot.parse('GFa', p, e)
+f = spot.parse_infix_psl('GFa', p, e)
 d = simp.get_dict()
 a = spot.ltl_to_tgba_fm(f, d)
-g = spot.parse('b&c', p, e)
+g = spot.parse_infix_boolean('b&c', p, e)
 b = simp.as_bdd(g)
 buddy.bdd_printset(b); spot.nl_cout()
 del g

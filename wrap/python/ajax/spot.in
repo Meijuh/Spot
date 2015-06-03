@@ -410,12 +410,12 @@ formula = form.getfirst('f', '')
 
 env = spot.default_environment.instance()
 pel = spot.empty_parse_error_list()
-f = spot.parse(formula, pel, env)
+f = spot.parse_infix_psl(formula, pel, env)
 
 if pel:
     # Try the LBT parser in case someone is throwing LBT formulas at us.
     pel2 = spot.empty_parse_error_list()
-    g = spot.parse_lbt(formula, pel2, env)
+    g = spot.parse_prefix_ltl(formula, pel2, env)
     if pel2:
         unbufprint('<div class="parse-error">')
         err = spot.format_parse_errors(spot.get_cout(), formula, pel)

@@ -79,11 +79,10 @@ const spot::ltl::formula*
 parse_formula(const std::string& s, spot::ltl::parse_error_list& pel)
 {
   if (lbt_input)
-    return spot::ltl::parse_lbt(s, pel);
+    return spot::ltl::parse_prefix_ltl(s, pel);
   else
-    return spot::ltl::parse(s, pel,
-			    spot::ltl::default_environment::instance(),
-			    false, lenient);
+    return spot::ltl::parse_infix_psl
+      (s, pel, spot::ltl::default_environment::instance(), false, lenient);
 }
 
 job_processor::job_processor()

@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2012, 2014  Laboratoire de Recherche et Développement
+# Copyright (C) 2012, 2014, 2015  Laboratoire de Recherche et Développement
 # de l'Epita
 #
 # This file is part of Spot, a model checking library.
@@ -44,7 +44,7 @@ P_Rbt2.moins || P_Rbt2.stop))-> G((F "map[0]==1") && (F "map[1]==1")
 
 e = spot.default_environment.instance()
 p = spot.empty_parse_error_list()
-f = spot.parse(f, p, e)
+f = spot.parse_infix_psl(f, p, e)
 d = spot.make_bdd_dict()
 
 spot.unblock_signal(signal.SIGALRM)

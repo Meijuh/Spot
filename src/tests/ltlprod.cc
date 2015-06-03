@@ -48,13 +48,13 @@ main(int argc, char** argv)
     spot::ltl::environment& env(spot::ltl::default_environment::instance());
 
     spot::ltl::parse_error_list pel1;
-    const spot::ltl::formula* f1 = spot::ltl::parse(argv[1], pel1, env);
+    auto* f1 = spot::ltl::parse_infix_psl(argv[1], pel1, env);
 
     if (spot::ltl::format_parse_errors(std::cerr, argv[1], pel1))
       return 2;
 
     spot::ltl::parse_error_list pel2;
-    const spot::ltl::formula* f2 = spot::ltl::parse(argv[2], pel2, env);
+    auto* f2 = spot::ltl::parse_infix_psl(argv[2], pel2, env);
 
     if (spot::ltl::format_parse_errors(std::cerr, argv[2], pel2))
       return 2;

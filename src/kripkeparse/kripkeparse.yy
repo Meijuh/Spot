@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -110,7 +110,8 @@ strident "," condition "," follow_list ";"
     if (i == fcache.end())
     {
       parse_error_list pel;
-      const formula* f = spot::ltl::parse(*$3, pel, parse_environment);
+      const formula* f = spot::ltl::parse_infix_boolean(*$3, pel,
+							parse_environment);
       for (parse_error_list::iterator i = pel.begin();
            i != pel.end(); ++i)
       {

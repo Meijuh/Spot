@@ -91,7 +91,7 @@ using namespace spot::ltl;
 
   enum parser_type { parser_ltl, parser_bool, parser_sere };
 
-  const formula*
+  static const formula*
   try_recursive_parse(const std::string& str,
 		      const spot::location& location,
 		      spot::ltl::environment& env,
@@ -125,13 +125,13 @@ using namespace spot::ltl;
       switch (type)
 	{
 	case parser_sere:
-	  f = spot::ltl::parse_sere(str, suberror, env, debug, true);
+	  f = spot::ltl::parse_infix_sere(str, suberror, env, debug, true);
 	  break;
 	case parser_bool:
-	  f = spot::ltl::parse_boolean(str, suberror, env, debug, true);
+	  f = spot::ltl::parse_infix_boolean(str, suberror, env, debug, true);
 	  break;
 	case parser_ltl:
-	  f = spot::ltl::parse(str, suberror, env, debug, true);
+	  f = spot::ltl::parse_infix_psl(str, suberror, env, debug, true);
 	  break;
 	}
 
@@ -996,10 +996,10 @@ namespace spot
   namespace ltl
   {
     const formula*
-    parse(const std::string& ltl_string,
-	  parse_error_list& error_list,
-	  environment& env,
-	  bool debug, bool lenient)
+    parse_infix_psl(const std::string& ltl_string,
+		    parse_error_list& error_list,
+		    environment& env,
+		    bool debug, bool lenient)
     {
       const formula* result = 0;
       flex_set_buffer(ltl_string,
@@ -1013,10 +1013,10 @@ namespace spot
     }
 
     const formula*
-    parse_boolean(const std::string& ltl_string,
-		  parse_error_list& error_list,
-		  environment& env,
-		  bool debug, bool lenient)
+    parse_infix_boolean(const std::string& ltl_string,
+			parse_error_list& error_list,
+			environment& env,
+			bool debug, bool lenient)
     {
       const formula* result = 0;
       flex_set_buffer(ltl_string,
@@ -1030,7 +1030,7 @@ namespace spot
     }
 
     const formula*
-    parse_lbt(const std::string& ltl_string,
+    parse_prefix_ltl(const std::string& ltl_string,
 	  parse_error_list& error_list,
 	  environment& env,
 	  bool debug)
@@ -1047,11 +1047,11 @@ namespace spot
     }
 
     const formula*
-    parse_sere(const std::string& sere_string,
-	       parse_error_list& error_list,
-	       environment& env,
-	       bool debug,
-	       bool lenient)
+    parse_infix_sere(const std::string& sere_string,
+		     parse_error_list& error_list,
+		     environment& env,
+		     bool debug,
+		     bool lenient)
     {
       const formula* result = 0;
       flex_set_buffer(sere_string,
@@ -1068,12 +1068,12 @@ namespace spot
     parse_formula(const std::string& ltl_string, environment& env)
     {
       parse_error_list pel;
-      const formula* f = parse(ltl_string, pel, env);
+      const formula* f = parse_infix_psl(ltl_string, pel, env);
       std::ostringstream s;
       if (format_parse_errors(s, ltl_string, pel))
 	{
 	  parse_error_list pel2;
-	  const formula* g = parse_lbt(ltl_string, pel2, env);
+	  const formula* g = parse_prefix_ltl(ltl_string, pel2, env);
 	  if (pel2.empty())
 	    return g;
 	  else

@@ -62,7 +62,7 @@ main(int argc, char** argv)
 	continue;
 
       spot::ltl::parse_error_list pe;
-      auto fpos = spot::ltl::parse(s, pe);
+      auto fpos = spot::ltl::parse_infix_psl(s, pe);
 
       if (spot::ltl::format_parse_errors(std::cerr, s, pe))
 	return 2;

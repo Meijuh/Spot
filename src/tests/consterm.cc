@@ -60,7 +60,7 @@ main(int argc, char **argv)
       ss >> expected;
 
       spot::ltl::parse_error_list p1;
-      const spot::ltl::formula* f1 = spot::ltl::parse_sere(form, p1);
+      auto* f1 = spot::ltl::parse_infix_sere(form, p1);
       if (spot::ltl::format_parse_errors(std::cerr, form, p1))
 	return 2;
 

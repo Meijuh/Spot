@@ -102,7 +102,7 @@ parser.  Additionally, this give you control over how to print errors.
   {
     std::string input = "[]<>p0 || <>[]p1";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse(input, pel);
+    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
     if (spot::ltl::format_parse_errors(std::cerr, input, pel))
       {
         if (f)
@@ -119,10 +119,13 @@ parser.  Additionally, this give you control over how to print errors.
 : | G F p0 F G p1
 : ([](<>(p0))) || (<>([](p1)))
 
-So =parse()= process the =input=, and stores any diagnostic in =pel=,
-which is a list of pairs associating each error to a location.  You could
-iterate over that list to print it by yourself as you wish, or you can
-call =format_parse_errors()= to do that for you.
+So =parse_infix_psl()= processes =input=, and stores any diagnostic in
+=pel=, which is a list of pairs associating each error to a location.
+You could iterate over that list to print it by yourself as you wish,
+or you can call =format_parse_errors()= to do that for you.  Note that
+as its name implies, this parser can read more than LTL formulas (the
+fragment of PSL we support is basically LTL extended with regular
+expressions).
 
 If =pel= is empty, =format_parse_errors()= will do nothing and return
 false.
@@ -147,7 +150,7 @@ with the "fixed" formula if you wish.  Here is an example:
   {
     std::string input = "(a U b))";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse(input, pel);
+    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
     // Use std::cout instead of std::cerr because we can only
     // show the output of std::cout in this documentation.
     (void) spot::ltl::format_parse_errors(std::cout, input, pel);
@@ -186,8 +189,8 @@ currently this is done manually by calling =f->clone()= and
 
 ** Calling the prefix parser explicitly
 
-The only difference here is the call to =parse_lbt()= instead of
-=parse()=.
+The only difference here is the call to =parse_prefix_ltl()= instead of
+=parse_infix_psl()=.
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>
@@ -199,7 +202,7 @@ The only difference here is the call to =parse_lbt()= instead of
   {
     std::string input = "& & G p0 p1 p2";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse_lbt(input, pel);
+    const spot::ltl::formula* f = spot::ltl::parse_prefix_ltl(input, pel);
     if (spot::ltl::format_parse_errors(std::cerr, input, pel))
       {
         if (f)

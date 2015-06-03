@@ -872,7 +872,7 @@ main(int argc, char** argv)
 	      else if (input == "")
 		break;
               spot::ltl::parse_error_list pel;
-              const spot::ltl::formula* f = spot::ltl::parse(input, pel, env);
+              auto* f = spot::ltl::parse_infix_psl(input, pel, env);
               if (spot::ltl::format_parse_errors(std::cerr, input, pel))
 		{
 		  exit_code = 1;

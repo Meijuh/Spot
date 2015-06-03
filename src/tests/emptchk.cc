@@ -91,7 +91,7 @@ main(int argc, char** argv)
       int runs = atoi(tokens[0].c_str());
 
       spot::ltl::parse_error_list pe;
-      auto f = spot::ltl::parse(tokens[1], pe);
+      auto f = spot::ltl::parse_infix_psl(tokens[1], pe);
       if (spot::ltl::format_parse_errors(std::cerr, tokens[1], pe))
 	return 2;
 

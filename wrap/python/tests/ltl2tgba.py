@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
+# Copyright (C) 2009, 2010, 2012, 2014, 2015 Laboratoire de Recherche et
 # Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -84,7 +84,7 @@ cerr = spot.get_cerr()
 e = spot.default_environment.instance()
 p = spot.empty_parse_error_list()
 
-f = spot.parse(args[0], p, e, debug_opt)
+f = spot.parse_infix_psl(args[0], p, e, debug_opt)
 if spot.format_parse_errors(cerr, args[0], p):
     exit_code = 1
 

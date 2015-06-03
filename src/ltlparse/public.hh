@@ -66,11 +66,12 @@ namespace spot
     ///
     /// \warning This function is not reentrant.
     SPOT_API
-    const formula* parse(const std::string& ltl_string,
-			 parse_error_list& error_list,
-			 environment& env = default_environment::instance(),
-			 bool debug = false,
-			 bool lenient = false);
+    const formula* parse_infix_psl(const std::string& ltl_string,
+				   parse_error_list& error_list,
+				   environment& env =
+				   default_environment::instance(),
+				   bool debug = false,
+				   bool lenient = false);
 
     /// \brief Build a Boolean formula from a string.
     /// \param ltl_string The string to parse.
@@ -91,12 +92,12 @@ namespace spot
     ///
     /// \warning This function is not reentrant.
     SPOT_API
-    const formula* parse_boolean(const std::string& ltl_string,
-				 parse_error_list& error_list,
-				 environment& env =
-				 default_environment::instance(),
-				 bool debug = false,
-				 bool lenient = false);
+    const formula* parse_infix_boolean(const std::string& ltl_string,
+				       parse_error_list& error_list,
+				       environment& env =
+				       default_environment::instance(),
+				       bool debug = false,
+				       bool lenient = false);
 
     /// \brief Build a formula from an LTL string in LBT's format.
     /// \param ltl_string The string to parse.
@@ -118,16 +119,18 @@ namespace spot
     ///
     /// \warning This function is not reentrant.
     SPOT_API
-    const formula* parse_lbt(const std::string& ltl_string,
-			     parse_error_list& error_list,
-			     environment& env = default_environment::instance(),
-			     bool debug = false);
+    const formula* parse_prefix_ltl(const std::string& ltl_string,
+				    parse_error_list& error_list,
+				    environment& env =
+				    default_environment::instance(),
+				    bool debug = false);
 
-    /// \brief A simple wrapper to parse() and parse_lbt().
+    /// \brief A simple wrapper to parse_infix_psl() and parse_prefix_ltl().
     ///
-    /// This is mostly meant for interactive use.  It first tries parse(); if
-    /// this fails it tries parse_lbt(); and if both fails it returns the errors
-    /// of the first call to parse() as a parse_error exception.
+    /// This is mostly meant for interactive use.  It first tries
+    /// parse_infix_psl(); if this fails it tries parse_prefix_ltl();
+    /// and if both fails it returns the errors of the first call to
+    /// parse_infix_psl() as a parse_error exception.
     SPOT_API const formula*
     parse_formula(const std::string& ltl_string,
 		  environment& env = default_environment::instance());
@@ -151,12 +154,12 @@ namespace spot
     ///
     /// \warning This function is not reentrant.
     SPOT_API
-    const formula* parse_sere(const std::string& sere_string,
-			      parse_error_list& error_list,
-			      environment& env =
-			      default_environment::instance(),
-			      bool debug = false,
-			      bool lenient = false);
+    const formula* parse_infix_sere(const std::string& sere_string,
+				    parse_error_list& error_list,
+				    environment& env =
+				    default_environment::instance(),
+				    bool debug = false,
+				    bool lenient = false);
 
     /// \brief Format diagnostics produced by spot::ltl::parse
     ///        or spot::ltl::ratexp

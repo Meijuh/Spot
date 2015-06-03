@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
@@ -48,13 +48,13 @@ main(int argc, char** argv)
   int opt = atoi(argv[1]);
 
   spot::ltl::parse_error_list p1;
-  const spot::ltl::formula* ftmp1 = spot::ltl::parse(argv[2], p1);
+  auto* ftmp1 = spot::ltl::parse_infix_psl(argv[2], p1);
 
   if (spot::ltl::format_parse_errors(std::cerr, argv[2], p1))
     return 2;
 
   spot::ltl::parse_error_list p2;
-  const spot::ltl::formula* ftmp2 = spot::ltl::parse(argv[3], p2);
+  auto* ftmp2 = spot::ltl::parse_infix_psl(argv[3], p2);
 
   if (spot::ltl::format_parse_errors(std::cerr, argv[3], p2))
     return 2;

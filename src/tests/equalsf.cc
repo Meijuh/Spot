@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014 Laboratoire de
+// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -100,7 +100,7 @@ main(int argc, char** argv)
 	}
 
       spot::ltl::parse_error_list p2;
-      const spot::ltl::formula* f2 = spot::ltl::parse(formulas[size - 1], p2);
+      auto* f2 = spot::ltl::parse_infix_psl(formulas[size - 1], p2);
 
       if (spot::ltl::format_parse_errors(std::cerr, formulas[size - 1], p2))
 	return 2;
@@ -109,7 +109,7 @@ main(int argc, char** argv)
 	{
 
 	  spot::ltl::parse_error_list p1;
-	  const spot::ltl::formula* f1 = spot::ltl::parse(formulas[n], p1);
+	  auto* f1 = spot::ltl::parse_infix_psl(formulas[n], p1);
 
 	  if (check_first &&
 	      spot::ltl::format_parse_errors(std::cerr, formulas[n], p1))

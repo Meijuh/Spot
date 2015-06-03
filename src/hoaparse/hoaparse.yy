@@ -1212,8 +1212,8 @@ nc-formula: nc-formula-or-ident
        if (i == res.fcache.end())
 	 {
 	   spot::ltl::parse_error_list pel;
-	   auto f = spot::ltl::parse_boolean(*$1, pel, *res.env,
-					     debug_level(), true);
+	   auto f = spot::ltl::parse_infix_boolean(*$1, pel, *res.env,
+						   debug_level(), true);
 	   for (auto& j: pel)
 	     {
 	       // Adjust the diagnostic to the current position.
@@ -1391,7 +1391,7 @@ lbtt-acc:               { $$ = 0U; }
 lbtt-guard: STRING
           {
 	    spot::ltl::parse_error_list pel;
-	    auto* f = spot::ltl::parse_lbt(*$1, pel, *res.env);
+	    auto* f = spot::ltl::parse_prefix_ltl(*$1, pel, *res.env);
 	    if (!f || !pel.empty())
 	      {
 		std::string s = "failed to parse guard: ";
