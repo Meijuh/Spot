@@ -19,13 +19,13 @@
 
 #include "misc/timer.hh"
 #include "ltlvisit/apcollect.hh"
-#include "tgbaalgos/dtgbacomp.hh"
-#include "tgbaalgos/randomgraph.hh"
-#include "tgbaalgos/dotty.hh"
-#include "tgbaalgos/product.hh"
-#include "tgbaalgos/stutter.hh"
-#include "tgbaalgos/stats.hh"
-#include "twa/tgbagraph.hh"
+#include "twaalgos/dtgbacomp.hh"
+#include "twaalgos/randomgraph.hh"
+#include "twaalgos/dotty.hh"
+#include "twaalgos/product.hh"
+#include "twaalgos/stutter.hh"
+#include "twaalgos/stats.hh"
+#include "twa/twagraph.hh"
 #include "twa/bdddict.hh"
 #include "misc/random.hh"
 #include <cstdio>
@@ -72,7 +72,7 @@ main(int argc, char** argv)
       // generate n random automata
       for (unsigned i = 0; i < n; ++i)
 	{
-	  spot::tgba_digraph_ptr a;
+	  spot::twa_graph_ptr a;
 	  do
 	    {
 	      spot::srand(++seed);
@@ -93,10 +93,9 @@ main(int argc, char** argv)
 	      if (disable_algo[algo - 1])
 		continue;
 
-	      auto dup_a = spot::make_tgba_digraph(a,
-						   spot::tgba::prop_set::all());
-	      auto dup_na = spot::make_tgba_digraph(na,
-						    spot::tgba::prop_set::all());
+	      auto dup_a = spot::make_twa_graph(a, spot::twa::prop_set::all());
+	      auto dup_na = spot::make_twa_graph(na,
+						 spot::twa::prop_set::all());
 
 	      spot::stopwatch sw;
 	      sw.start();

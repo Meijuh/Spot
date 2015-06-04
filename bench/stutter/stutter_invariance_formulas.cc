@@ -21,10 +21,10 @@
 #include "bin/common_setup.hh"
 #include "bin/common_finput.hh"
 #include "bin/common_output.hh"
-#include "tgbaalgos/translate.hh"
-#include "tgbaalgos/stutter.hh"
-#include "tgbaalgos/dupexp.hh"
-#include "tgbaalgos/stats.hh"
+#include "twaalgos/translate.hh"
+#include "twaalgos/stutter.hh"
+#include "twaalgos/dupexp.hh"
+#include "twaalgos/stats.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/length.hh"
@@ -70,8 +70,8 @@ namespace
       const spot::ltl::formula* nf =
 	spot::ltl::unop::instance(spot::ltl::unop::Not,
 				  f->clone());
-      spot::tgba_digraph_ptr a = trans.run(f);
-      spot::tgba_digraph_ptr na = trans.run(nf);
+      spot::twa_graph_ptr a = trans.run(f);
+      spot::twa_graph_ptr na = trans.run(nf);
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
       bdd apdict = spot::ltl::atomic_prop_collect_as_bdd(f, a);
 
@@ -82,10 +82,8 @@ namespace
       bool prev = true;
       for (int algo = 1; algo <= 8; ++algo)
         {
-          auto dup_a = spot::make_tgba_digraph(a,
-					       spot::tgba::prop_set::all());
-          auto dup_na = spot::make_tgba_digraph(na,
-						spot::tgba::prop_set::all());
+          auto dup_a = spot::make_twa_graph(a, spot::twa::prop_set::all());
+          auto dup_na = spot::make_twa_graph(na, spot::twa::prop_set::all());
 
           spot::stopwatch sw;
           sw.start();
