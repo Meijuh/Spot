@@ -25,7 +25,7 @@
 #include "twa/twa.hh"
 #include "stats.hh"
 #include "reachiter.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "twaalgos/isdet.hh"
 #include "twaalgos/sccinfo.hh"
 
@@ -137,7 +137,7 @@ namespace spot
 
   void printable_formula::print(std::ostream& os, const char*) const
   {
-    ltl::to_string(val_, os);
+    ltl::print_psl(os, val_);
   };
 
   stat_printer::stat_printer(std::ostream& os, const char* format)

@@ -27,7 +27,7 @@
 #include "ltlvisit/lunabbrev.hh"
 #include "ltlvisit/tunabbrev.hh"
 #include "ltlvisit/dump.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/nenoform.hh"
@@ -62,8 +62,8 @@ main(int argc, char** argv)
   const spot::ltl::formula* f1 = spot::ltl::negative_normal_form(ftmp1);
   const spot::ltl::formula* f2 = spot::ltl::negative_normal_form(ftmp2);
 
-  std::string f1s = spot::ltl::to_string(f1);
-  std::string f2s = spot::ltl::to_string(f2);
+  std::string f1s = spot::ltl::str_psl(f1);
+  std::string f2s = spot::ltl::str_psl(f2);
 
   int exit_return = 0;
   spot::ltl::ltl_simplifier* c = new spot::ltl::ltl_simplifier;

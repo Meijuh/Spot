@@ -460,7 +460,7 @@ if output_type == 'f':
         unbufprint(format_formula(f))
     elif formula_format == 'i':
         unbufprint('<div class="formula spin-format">'
-                   + spot.to_spin_string(f) + '</div>')
+                   + spot.str_spin_ltl(f) + '</div>')
         if f.is_psl_formula() and not f.is_ltl_formula():
             s = ''
             if simpopt.reduce_size_strictly:
@@ -470,12 +470,12 @@ if output_type == 'f':
         if not f.is_ltl_formula():
             unbufprint('<div class="error">PSL formulas cannot be expressed in this format.</div>')
         else:
-            unbufprint('<div class="formula lbt-format">' + spot.to_lbt_string(f) + '</div>')
+            unbufprint('<div class="formula lbt-format">' + spot.str_lbt_ltl(f) + '</div>')
     elif formula_format == 'g':
         render_formula(f)
     elif formula_format == 'p':
         if utf8:
-            s = spot.to_utf8_string(f)
+            s = spot.str_utf8_psl(f)
         else:
             s = str(f)
         unbufprint('Properties for ' + format_formula(f, 'span') + '<ul>\n')
@@ -574,7 +574,7 @@ elif translator == 'l3':
             l3opt.remove('-p')
     args = ["@LTL3BA@", l3out]
     args.extend(l3opt)
-    args.extend(['-f', spot.to_spin_string(f)])
+    args.extend(['-f', spot.str_spin_ltl(f)])
     import subprocess
     l3file = tmpdir + "/aut"
     with open(l3file, "w+") as l3aut:

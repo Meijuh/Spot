@@ -23,8 +23,7 @@
 #include <ostream>
 #include <sstream>
 #include <cassert>
-#include <ltlvisit/tostring.hh>
-#include <ltlvisit/tostring.hh>
+#include <ltlvisit/print.hh>
 #include <ltlast/atomic_prop.hh>
 #include <ltlenv/defaultenv.hh>
 #include "priv/bddalloc.hh"
@@ -199,7 +198,7 @@ namespace spot
 
     std::ostringstream s;
     // FIXME: We could be smarter and reuse unused "$n" numbers.
-    s << ltl::to_string(i.f) << '$' << ++i.clone_counts;
+    ltl::print_psl(s, i.f) << '$' << ++i.clone_counts;
     const ltl::formula* f =
       ltl::atomic_prop::instance(s.str(),
 				 ltl::default_environment::instance());
@@ -378,10 +377,12 @@ namespace spot
 	    os << (r.refs.empty() ? "Free" : "Anon");
 	    break;
 	  case acc:
-	    os << "Acc[" << to_string(r.f) << ']';
+	    os << "Acc[";
+	    print_psl(os, r.f) << ']';
 	    break;
 	  case var:
-	    os << "Var[" << to_string(r.f) << ']';
+	    os << "Var[";
+	    print_psl(os, r.f) << ']';
 	    break;
 	  }
 	if (!r.refs.empty())

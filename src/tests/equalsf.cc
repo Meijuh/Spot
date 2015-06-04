@@ -34,7 +34,7 @@
 #include "ltlvisit/nenoform.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/simplify.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 
 void
 syntax(char* prog)
@@ -165,8 +165,7 @@ main(int argc, char** argv)
 		{
 		  std::cerr
 		    << "Source and simplified formulae are not equivalent!\n";
-		  std::cerr
-		    << "Simplified: " << spot::ltl::to_string(f1) << '\n';
+		  spot::ltl::print_psl(std::cerr << "Simplified: ", f1) << '\n';
 		  exit_code = 1;
 		}
 
@@ -188,8 +187,7 @@ main(int argc, char** argv)
 		{
 		  std::cerr
 		    << "Source and simplified formulae are not equivalent!\n";
-		  std::cerr
-		    << "Simplified: " << spot::ltl::to_string(f1) << '\n';
+		  spot::ltl::print_psl(std::cerr << "Simplified: ", f1) << '\n';
 		  exit_code = 1;
 		}
 
@@ -211,8 +209,7 @@ main(int argc, char** argv)
 		{
 		  std::cerr
 		    << "Source and simplified formulae are not equivalent!\n";
-		  std::cerr
-		    << "Simplified: " << spot::ltl::to_string(f1) << '\n';
+		  spot::ltl::print_psl(std::cerr << "Simplified: ", f1) << '\n';
 		  exit_code = 1;
 		}
 

@@ -28,7 +28,7 @@
 
 #include "error.h"
 
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "common_conv.hh"
 
 // A set of tools for which we know the correct output
@@ -288,13 +288,13 @@ void
 translator_runner::round_formula(const spot::ltl::formula* f, unsigned serial)
 {
   if (has('f') || has('F'))
-    string_ltl_spot = spot::ltl::to_string(f, true);
+    string_ltl_spot = spot::ltl::str_psl(f, true);
   if (has('s') || has('S'))
-    string_ltl_spin = spot::ltl::to_spin_string(f, true);
+    string_ltl_spin = spot::ltl::str_spin_ltl(f, true);
   if (has('l') || has('L'))
-    string_ltl_lbt = spot::ltl::to_lbt_string(f);
+    string_ltl_lbt = spot::ltl::str_lbt_ltl(f);
   if (has('w') || has('W'))
-    string_ltl_wring = spot::ltl::to_wring_string(f);
+    string_ltl_wring = spot::ltl::str_wring_ltl(f);
   if (has('F'))
     string_to_tmp(string_ltl_spot, serial, filename_ltl_spot);
   if (has('S'))

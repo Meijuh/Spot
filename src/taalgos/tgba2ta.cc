@@ -30,7 +30,6 @@
 #include "ltlast/constant.hh"
 #include "twa/formula2bdd.hh"
 #include <cassert>
-#include "ltlvisit/tostring.hh"
 #include <iostream>
 #include "twa/bddprint.hh"
 #include <stack>

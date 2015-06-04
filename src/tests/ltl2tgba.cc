@@ -26,7 +26,7 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
@@ -1041,9 +1041,9 @@ checked_main(int argc, char** argv)
 	      if (display_reduced_form)
 		{
 		  if (utf8_opt)
-		    std::cout << spot::ltl::to_utf8_string(f) << std::endl;
+		    print_utf8_psl(std::cout, f) << '\n';
 		  else
-		    std::cout << spot::ltl::to_string(f) << std::endl;
+		    print_psl(std::cout, f) << '\n';
 		}
 	      // This helps ltl_to_tgba_fm() to order BDD variables in
 	      // a more natural way.
@@ -1470,7 +1470,7 @@ checked_main(int argc, char** argv)
 	}
 
       if (f)
-	a->set_named_prop("automaton-name", new std::string(to_string(f)));
+	a->set_named_prop("automaton-name", new std::string(str_psl(f)));
 
       if (output != -1)
 	{

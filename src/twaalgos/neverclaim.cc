@@ -26,7 +26,7 @@
 #include "twa/bddprint.hh"
 #include "twa/twagraph.hh"
 #include "reachiter.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "twa/formula2bdd.hh"
 
 namespace spot
@@ -151,11 +151,13 @@ namespace spot
 	    else
 	      os_ << "  :: (";
 	    const ltl::formula* f = bdd_to_formula(t.cond, aut_->get_dict());
-	    to_spin_string(f, os_, true);
+	    // This is actually a Boolean formula, but the LTL printer
+	    // is all we have.
+	    print_spin_ltl(os_, f, true);
 	    if (atom)
 	      {
 		os_ << ") -> assert(!(";
-		to_spin_string(f, os_, true);
+		print_spin_ltl(os_, f, true);
 		os_ << ")) }";
 	      }
 	    else

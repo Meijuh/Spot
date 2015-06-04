@@ -24,7 +24,7 @@
 #include <cassert>
 #include <ostream>
 #include "bddprint.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "formula2bdd.hh"
 #include "misc/minato.hh"
 
@@ -40,12 +40,12 @@ namespace spot
   static bool utf8;
 
   static
-  std::ostream& print_ltl(const ltl::formula* f, std::ostream& o)
+  std::ostream& print_(std::ostream& o, const ltl::formula* f)
   {
     if (utf8)
-      ltl::to_utf8_string(f, o);
+      ltl::print_utf8_psl(o, f);
     else
-      ltl::to_string(f, o);
+      ltl::print_psl(o, f);
     return o;
   }
 
@@ -58,18 +58,18 @@ namespace spot
     switch (ref.type)
       {
       case bdd_dict::var:
-	to_string(ref.f, o);
+	print_(o, ref.f);
 	break;
       case bdd_dict::acc:
 	if (want_acc)
 	  {
 	    o << "Acc[";
-	    print_ltl(ref.f, o) << ']';
+	    print_(o, ref.f) << ']';
 	  }
 	else
 	  {
 	    o << '"';
-	    print_ltl(ref.f, o) << '"';
+	    print_(o, ref.f) << '"';
 	  }
 	break;
       case bdd_dict::anon:
@@ -173,7 +173,7 @@ namespace spot
   bdd_print_formula(std::ostream& os, const bdd_dict_ptr& d, bdd b)
   {
     const ltl::formula* f = bdd_to_formula(b, d);
-    print_ltl(f, os);
+    print_(os, f);
     f->destroy();
     return os;
   }

@@ -21,7 +21,7 @@
 #include "common_output.hh"
 #include <iostream>
 #include <sstream>
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "misc/formater.hh"
 #include "misc/escape.hh"
 #include "common_cout.hh"
@@ -71,7 +71,7 @@ void
 report_not_ltl(const spot::ltl::formula* f,
 	       const char* filename, int linenum, const char* syn)
 {
-  std::string s = spot::ltl::to_string(f);
+  std::string s = spot::ltl::str_psl(f);
   static const char msg[] =
     "formula '%s' cannot be written %s's syntax because it is not LTL";
   if (filename)
@@ -88,30 +88,30 @@ stream_formula(std::ostream& out,
     {
     case lbt_output:
       if (f->is_ltl_formula())
-	spot::ltl::to_lbt_string(f, out);
+	spot::ltl::print_lbt_ltl(out, f);
       else
 	report_not_ltl(f, filename, linenum, "LBT");
       break;
     case spot_output:
-      spot::ltl::to_string(f, out, full_parenth);
+      spot::ltl::print_psl(out, f, full_parenth);
       break;
     case spin_output:
       if (f->is_ltl_formula())
-	spot::ltl::to_spin_string(f, out, full_parenth);
+	spot::ltl::print_spin_ltl(out, f, full_parenth);
       else
 	report_not_ltl(f, filename, linenum, "Spin");
       break;
     case wring_output:
       if (f->is_ltl_formula())
-	spot::ltl::to_wring_string(f, out);
+	spot::ltl::print_wring_ltl(out, f);
       else
 	report_not_ltl(f, filename, linenum, "Wring");
       break;
     case utf8_output:
-      spot::ltl::to_utf8_string(f, out, full_parenth);
+      spot::ltl::print_utf8_psl(out, f, full_parenth);
       break;
     case latex_output:
-      spot::ltl::to_latex_string(f, out, full_parenth);
+      spot::ltl::print_latex_psl(out, f, full_parenth);
       break;
     case count_output:
     case quiet_output:

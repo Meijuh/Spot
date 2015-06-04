@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2014 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <set>
 #include <vector>
-#include "ltlvisit/tostring.hh"
 #include "misc/casts.hh"
 
 namespace spot

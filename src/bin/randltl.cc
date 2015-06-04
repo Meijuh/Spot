@@ -36,7 +36,6 @@
 #include "ltlast/multop.hh"
 #include "ltlast/unop.hh"
 #include "ltlvisit/randomltl.hh"
-#include "ltlvisit/tostring.hh"
 #include "ltlvisit/length.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlenv/defaultenv.hh"

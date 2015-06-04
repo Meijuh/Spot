@@ -19,7 +19,7 @@
 
 #include "twagraph.hh"
 #include "ltlast/constant.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 
 namespace spot
 {
@@ -38,7 +38,7 @@ namespace spot
 	    auto f = n[i];
 	    if (f)
 	      {
-		(*v)[i] = to_string(f);
+		(*v)[i] = str_psl(f);
 		f->destroy();
 	      }
 	  }

@@ -28,7 +28,7 @@
 #include "reachiter.hh"
 #include "misc/bddlt.hh"
 #include "priv/accmap.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlparse/public.hh"
 
 namespace spot
@@ -107,7 +107,7 @@ namespace spot
 	  }
 	const ltl::formula* f = bdd_to_formula(si->current_condition(),
 					       aut_->get_dict());
-	to_lbt_string(f, body_);
+	print_lbt_ltl(body_, f);
 	f->destroy();
 	body_ << '\n';
       }

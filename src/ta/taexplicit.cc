@@ -31,8 +31,6 @@
 #include "taexplicit.hh"
 #include "twa/formula2bdd.hh"
 #include <cassert>
-#include "ltlvisit/tostring.hh"
-
 #include "twa/bddprint.hh"
 
 namespace spot

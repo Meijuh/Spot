@@ -36,7 +36,7 @@
 #include <sstream>
 #include "public.hh"
 #include "ltlast/allnodes.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 
   struct minmax_t { unsigned min, max; };
 }
@@ -240,8 +240,8 @@ using namespace spot::ltl;
 %destructor { $$->destroy(); } <ltl>
 
 %printer { debug_stream() << *$$; } <str>
-%printer { spot::ltl::to_string($$, debug_stream()); } <ltl>
-%printer { spot::ltl::to_string($$, debug_stream(), false, true); } sere bracedsere
+%printer { spot::ltl::print_psl(debug_stream(), $$); } <ltl>
+%printer { spot::ltl::print_sere(debug_stream(), $$); } sere bracedsere
 %printer { debug_stream() << $$; } <num>
 %printer { debug_stream() << $$.min << ".." << $$.max; } <minmax>
 

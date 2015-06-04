@@ -27,7 +27,6 @@
 #include "ltlast/formula.hh"
 #include "bdddict.hh"
 #include "twa.hh"
-#include "ltlvisit/tostring.hh"
 
 namespace spot
 {

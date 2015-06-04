@@ -36,6 +36,7 @@ ltlvisit_HEADERS = \
   lunabbrev.hh \
   mutation.hh \
   nenoform.hh \
+  print.hh \
   postfix.hh \
   randomltl.hh \
   relabel.hh \
@@ -43,7 +44,6 @@ ltlvisit_HEADERS = \
   simpfg.hh \
   simplify.hh \
   snf.hh \
-  tostring.hh \
   tunabbrev.hh \
   wmunabbrev.hh
 
@@ -61,6 +61,7 @@ libltlvisit_la_SOURCES = \
   mark.hh \
   mutation.cc \
   nenoform.cc \
+  print.cc \
   postfix.cc \
   randomltl.cc \
   relabel.cc \
@@ -68,6 +69,5 @@ libltlvisit_la_SOURCES = \
   simpfg.cc \
   simplify.cc \
   snf.cc \
-  tostring.cc \
   tunabbrev.cc \
   wmunabbrev.cc

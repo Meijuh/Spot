@@ -26,11 +26,11 @@
 #include "ltlast/visitor.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/nenoform.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/postfix.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/mark.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include <cassert>
 #include <memory>
 #include <utility>
@@ -392,7 +392,7 @@ namespace spot
 	for (auto& fi: next_map)
 	{
 	  os << "  " << fi.second << ": Next[";
-	  to_string(fi.first, os) << ']' << std::endl;
+	  print_psl(os, fi.first) << ']' << std::endl;
 	}
 	os << "Shared Dict:" << std::endl;
 	dict->dump(os);
@@ -513,9 +513,8 @@ namespace spot
 	  bdd dest_bdd = bdd_existcomp(cube, d.next_set);
 	  const formula* dest = d.conj_bdd_to_formula(dest_bdd);
 	  bdd_print_set(std::cerr, d.dict, label) << " => ";
-	  bdd_print_set(std::cerr, d.dict, dest_bdd) << " = "
-						     << to_string(dest)
-						     << '\n';
+	  bdd_print_set(std::cerr, d.dict, dest_bdd) << " = ";
+	  print_psl(std::cerr, dest) << '\n';
 	  dest->destroy();
 	}
       return std::cerr;
@@ -1071,14 +1070,6 @@ namespace spot
     translate_ratexp(const formula* f, translate_dict& dict,
 		     const formula* to_concat)
     {
-      // static unsigned indent = 0;
-      // for (unsigned i = indent; i > 0; --i)
-      // 	std::cerr << "| ";
-      // std::cerr << "translate_ratexp[" << to_string(f);
-      // if (to_concat)
-      // 	std::cerr << ", " << to_string(to_concat);
-      // std::cerr << ']' << std::endl;
-      // ++indent;
       bdd res;
       if (!f->is_boolean())
 	{
@@ -1096,11 +1087,6 @@ namespace spot
 	  res &= bdd_ithvar(x);
 	  to_concat->destroy();
 	}
-      // --indent;
-      // for (unsigned i = indent; i > 0; --i)
-      // 	std::cerr << "| ";
-      // std::cerr << "\\ ";
-      // bdd_print_set(std::cerr, dict.dict, res) << std::endl;
       return res;
     }
 
@@ -1834,11 +1820,6 @@ namespace spot
 	      formula_set implied;
 	      implied_subformulae(node, implied);
 
-	      // std::cerr << "---" << std::endl;
-	      // for (formula_set::const_iterator i = implied.begin();
-	      // 	   i != implied.end(); ++i)
-	      // 	std::cerr << to_string(*i) << std::endl;
-
 	      res_ = bddtrue;
 	      unsigned s = node->size();
 	      for (unsigned n = 0; n < s; ++n)
@@ -1860,13 +1841,8 @@ namespace spot
 		  // G(Fa & Fb) get optimized.  See the comment in
 		  // the case handling G.
 		  bdd res = recurse(sub, recurring_);
-		  //std::cerr << "== in And (" << to_string(sub)
-		  // << ')' << std::endl;
-		  // trace_ltl_bdd(dict_, res);
 		  res_ &= res;
 		}
-	      //std::cerr << "=== And final" << std::endl;
-	      // trace_ltl_bdd(dict_, res_);
 	      break;
 	    }
 	  case multop::Or:
@@ -2111,7 +2087,7 @@ namespace spot
 	translate_dict::translated t = d_.ltl_to_bdd(f, !f->is_marked());
 
 	// std::cerr << "-----" << std::endl;
-	// std::cerr << "Formula: " << to_string(f) << std::endl;
+	// std::cerr << "Formula: " << str_psl(f) << std::endl;
 	// std::cerr << "Rational: " << t.has_rational << std::endl;
 	// std::cerr << "Marked: " << t.has_marked << std::endl;
 	// std::cerr << "Mark all: " << !f->is_marked() << std::endl;

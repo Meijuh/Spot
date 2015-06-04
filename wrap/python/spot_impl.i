@@ -101,8 +101,8 @@ namespace std {
 #include "ltlvisit/dump.hh"
 #include "ltlvisit/lunabbrev.hh"
 #include "ltlvisit/nenoform.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/simplify.hh"
-#include "ltlvisit/tostring.hh"
 #include "ltlvisit/tunabbrev.hh"
 #include "ltlvisit/randomltl.hh"
 #include "ltlvisit/length.hh"
@@ -243,8 +243,8 @@ using namespace spot;
 %include "ltlvisit/dump.hh"
 %include "ltlvisit/lunabbrev.hh"
 %include "ltlvisit/nenoform.hh"
+%include "ltlvisit/print.hh"
 %include "ltlvisit/simplify.hh"
-%include "ltlvisit/tostring.hh"
 %include "ltlvisit/tunabbrev.hh"
 %include "ltlvisit/randomltl.hh"
 %include "ltlvisit/length.hh"
@@ -336,12 +336,12 @@ spot::ltl::formula_ptr_less_than>;
 
   size_t __hash__() { return self->hash(); }
 
-  std::string __repr__() { return spot::ltl::to_string(self); }
+  std::string __repr__() { return spot::ltl::str_psl(self); }
   std::string _repr_latex_()
   {
-    return std::string("$") + spot::ltl::to_sclatex_string(self) + '$';
+    return std::string("$") + spot::ltl::str_sclatex_psl(self) + '$';
   }
-  std::string __str__() { return spot::ltl::to_string(self); }
+  std::string __str__() { return spot::ltl::str_psl(self); }
 }
 
 %extend spot::acc_cond::acc_code {

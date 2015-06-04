@@ -33,7 +33,7 @@
 #include "ltlparse/public.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/randomltl.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/length.hh"
 #include "ltlvisit/simplify.hh"
 #include "twaalgos/randomgraph.hh"
@@ -527,7 +527,7 @@ generate_formula(const spot::ltl::random_ltl& rl,
                     << "of size " << opt_l << " or more." << std::endl;
           return 0;
         }
-      std::string txt = spot::ltl::to_string(f);
+      std::string txt = spot::ltl::str_psl(f);
       if (!opt_u || unique.insert(txt).second)
         {
           return f;

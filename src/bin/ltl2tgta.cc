@@ -33,7 +33,7 @@
 #include "common_post.hh"
 
 #include "ltlparse/public.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/simplify.hh"
 #include "twaalgos/dotty.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
@@ -181,7 +181,7 @@ namespace
       // future-proof.
       if (!f->is_psl_formula())
 	{
-	  std::string s = spot::ltl::to_string(f);
+	  std::string s = spot::ltl::str_psl(f);
 	  error_at_line(2, 0, filename, linenum,
 			"formula '%s' is not an LTL or PSL formula",
 			s.c_str());

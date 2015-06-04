@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -26,7 +26,7 @@
 #include "simulation.hh"
 #include "safety.hh"
 #include "ltlast/allnodes.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/clone.hh"
 #include <queue>
 #include <sstream>
@@ -167,8 +167,7 @@ namespace spot
 
 	    std::ostringstream s;
 	    s << "〈";
-	    to_string(f, s);
-	    s << "〉";
+	    print_psl(s, f) << "〉";
 	    res = suspenv.require(s.str());
 	    // We have to clone f, because it is not always a sub-tree
 	    // of the original formula.  (Think n-ary operators.)
@@ -184,8 +183,7 @@ namespace spot
 
 	    std::ostringstream s;
 	    s << '[';
-	    to_string(f, s);
-	    s << ']';
+	    print_psl(s, f) << ']';
 	    res = suspenv.require(s.str());
 	    // We have to clone f, because it is not always a sub-tree
 	    // of the original formula.  (Think n-ary operators.)

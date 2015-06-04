@@ -21,7 +21,6 @@
 #include "ltlenv/defaultenv.hh"
 #include "twaalgos/mask.hh"
 #include "misc/casts.hh"
-#include "ltlvisit/tostring.hh"
 #include <ctype.h>
 #include <sstream>
 

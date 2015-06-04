@@ -29,7 +29,7 @@
 #include "ltlast/visitor.hh"
 #include "lunabbrev.hh"
 #include "wmunabbrev.hh"
-#include "tostring.hh"
+#include "print.hh"
 #include "misc/escape.hh"
 
 namespace spot
@@ -912,44 +912,78 @@ namespace spot
 	const char** kw_;
       };
 
+
+      std::ostream&
+      printer_(std::ostream& os, const formula* f, bool full_parent,
+	       bool ratexp, const char** kw)
+      {
+	to_string_visitor v(os, full_parent, ratexp, kw);
+	f->accept(v);
+	return os;
+      }
+
+      std::string
+      str_(const formula* f, bool full_parent, bool ratexp, const char** kw)
+      {
+	std::ostringstream os;
+	printer_(os, f, full_parent, ratexp, kw);
+	return os.str();
+      }
+
     } // anonymous
 
     std::ostream&
-    to_string(const formula* f, std::ostream& os, bool full_parent,
-	      bool ratexp)
+    print_psl(std::ostream& os, const formula* f, bool full_parent)
     {
-      to_string_visitor v(os, full_parent, ratexp, spot_kw);
-      f->accept(v);
-      return os;
+      return printer_(os, f, full_parent, false, spot_kw);
     }
 
     std::string
-    to_string(const formula* f, bool full_parent, bool ratexp)
+    str_psl(const formula* f, bool full_parent)
     {
-      std::ostringstream os;
-      to_string(f, os, full_parent, ratexp);
-      return os.str();
+      return str_(f, full_parent, false, spot_kw);
     }
 
     std::ostream&
-    to_utf8_string(const formula* f, std::ostream& os, bool full_parent,
-	      bool ratexp)
+    print_sere(std::ostream& os, const formula* f, bool full_parent)
     {
-      to_string_visitor v(os, full_parent, ratexp, utf8_kw);
-      f->accept(v);
-      return os;
+      return printer_(os, f, full_parent, true, spot_kw);
     }
 
     std::string
-    to_utf8_string(const formula* f, bool full_parent, bool ratexp)
+    str_sere(const formula* f, bool full_parent)
     {
-      std::ostringstream os;
-      to_utf8_string(f, os, full_parent, ratexp);
-      return os.str();
+      return str_(f, full_parent, false, spot_kw);
+    }
+
+
+    std::ostream&
+    print_utf8_psl(std::ostream& os, const formula* f, bool full_parent)
+    {
+      return printer_(os, f, full_parent, false, utf8_kw);
+    }
+
+    std::string
+    str_utf8_psl(const formula* f, bool full_parent)
+    {
+      return str_(f, full_parent, false, utf8_kw);
     }
 
     std::ostream&
-    to_spin_string(const formula* f, std::ostream& os, bool full_parent)
+    print_utf8_sere(std::ostream& os, const formula* f, bool full_parent)
+    {
+      return printer_(os, f, full_parent, true, utf8_kw);
+    }
+
+    std::string
+    str_utf8_sere(const formula* f, bool full_parent)
+    {
+      return str_(f, full_parent, false, utf8_kw);
+    }
+
+
+    std::ostream&
+    print_spin_ltl(std::ostream& os, const formula* f, bool full_parent)
     {
       // Remove xor, ->, and <-> first.
       const formula* fu = unabbreviate_logic(f);
@@ -963,15 +997,15 @@ namespace spot
     }
 
     std::string
-    to_spin_string(const formula* f, bool full_parent)
+    str_spin_ltl(const formula* f, bool full_parent)
     {
       std::ostringstream os;
-      to_spin_string(f, os, full_parent);
+      print_spin_ltl(os, f, full_parent);
       return os.str();
     }
 
     std::ostream&
-    to_wring_string(const formula* f, std::ostream& os)
+    print_wring_ltl(std::ostream& os, const formula* f)
     {
       // Remove W and M.
       f = unabbreviate_wm(f);
@@ -982,47 +1016,60 @@ namespace spot
     }
 
     std::string
-    to_wring_string(const formula* f)
+    str_wring_ltl(const formula* f)
     {
       std::ostringstream os;
-      to_wring_string(f, os);
+      print_wring_ltl(os, f);
       return os.str();
     }
 
     std::ostream&
-    to_latex_string(const formula* f, std::ostream& os,
-		    bool full_parent, bool ratexp)
+    print_latex_psl(std::ostream& os, const formula* f, bool full_parent)
     {
-      to_string_visitor v(os, full_parent, ratexp, latex_kw);
-      f->accept(v);
-      return os;
+      return printer_(os, f, full_parent, false, latex_kw);
     }
 
     std::string
-    to_latex_string(const formula* f,
-		    bool full_parent, bool ratexp)
+    str_latex_psl(const formula* f, bool full_parent)
     {
-      std::ostringstream os;
-      to_latex_string(f, os, full_parent, ratexp);
-      return os.str();
+      return str_(f, full_parent, false, latex_kw);
     }
 
     std::ostream&
-    to_sclatex_string(const formula* f, std::ostream& os,
-		      bool full_parent, bool ratexp)
+    print_latex_sere(std::ostream& os, const formula* f, bool full_parent)
     {
-      to_string_visitor v(os, full_parent, ratexp, sclatex_kw);
-      f->accept(v);
-      return os;
+      return printer_(os, f, full_parent, true, latex_kw);
     }
 
     std::string
-    to_sclatex_string(const formula* f,
-		      bool full_parent, bool ratexp)
+    str_latex_sere(const formula* f, bool full_parent)
     {
-      std::ostringstream os;
-      to_sclatex_string(f, os, full_parent, ratexp);
-      return os.str();
+      return str_(f, full_parent, true, latex_kw);
+    }
+
+
+    std::ostream&
+    print_sclatex_psl(std::ostream& os, const formula* f, bool full_parent)
+    {
+      return printer_(os, f, full_parent, false, sclatex_kw);
+    }
+
+    std::string
+    str_sclatex_psl(const formula* f, bool full_parent)
+    {
+      return str_(f, full_parent, false, sclatex_kw);
+    }
+
+    std::ostream&
+    print_sclatex_sere(std::ostream& os, const formula* f, bool full_parent)
+    {
+      return printer_(os, f, full_parent, true, sclatex_kw);
+    }
+
+    std::string
+    str_sclatex_sere(const formula* f, bool full_parent)
+    {
+      return str_(f, full_parent, true, sclatex_kw);
     }
 
     namespace
@@ -1199,7 +1246,7 @@ namespace spot
     } // anonymous
 
     std::ostream&
-    to_lbt_string(const formula* f, std::ostream& os)
+    print_lbt_ltl(std::ostream& os, const formula* f)
     {
       assert(f->is_ltl_formula());
       lbt_visitor v(os);
@@ -1208,10 +1255,10 @@ namespace spot
     }
 
     std::string
-    to_lbt_string(const formula* f)
+    str_lbt_ltl(const formula* f)
     {
       std::ostringstream os;
-      to_lbt_string(f, os);
+      print_lbt_ltl(os, f);
       return os.str();
     }
 

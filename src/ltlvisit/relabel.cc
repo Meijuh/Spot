@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -26,9 +26,7 @@
 #include <map>
 #include <set>
 #include <stack>
-
 #include <iostream>
-#include "tostring.hh"
 
 namespace spot
 {
@@ -394,7 +392,6 @@ namespace spot
 
 	while (!s.empty())
 	  {
-	    // std::cerr << "-- visiting " << to_string(s.top().parent) << '\n';
 	    stack_entry& e  = s.top();
 	    if (e.current_child != e.last_child)
 	      {
@@ -406,9 +403,6 @@ namespace spot
 		    ++e.current_child;
 		    continue;
 		  }
-		// std::cerr << "  grand parent is "
-		// 	  << to_string(e.grand_parent)
-		// 	  << "\n  child is " << to_string(child) << '\n';
 		auto i = data.emplace(std::piecewise_construct,
 				      std::forward_as_tuple(child),
 				      std::forward_as_tuple(num, num));
@@ -448,15 +442,6 @@ namespace spot
 		      dgrand_parent.low = dparent.low;
 		  }
 	      }
-	    //std::cerr << "  state of data:\n";
-	    //for (fmap_t::const_iterator i = data.begin();
-	    //     i != data.end(); ++i)
-	    //  {
-	    //	std::cerr << "    " << to_string(i->first)
-	    //		  << " = { num=" << i->second.num
-	    //		  << ", low=" << i->second.low
-	    //		  << " }\n";
-	    //  }
 	  }
       }
 

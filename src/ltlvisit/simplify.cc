@@ -30,7 +30,7 @@
 #include "ltlast/allnodes.hh"
 #include "ltlast/visitor.hh"
 #include "ltlvisit/contain.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/snf.hh"
 #include "twa/formula2bdd.hh"
 #include <cassert>
@@ -280,8 +280,8 @@ namespace spot
       bool
       implication(const formula* f1, const formula* f2)
       {
-	trace << "[->] does " << to_string(f1) << " implies "
-	      << to_string(f2) << " ?" << std::endl;
+	trace << "[->] does " << str_psl(f1) << " implies "
+	      << str_psl(f2) << " ?" << std::endl;
 	if ((options.synt_impl && syntactic_implication(f1, f2))
 	    || (options.containment_checks && contained(f1, f2)))
 	  {
@@ -318,8 +318,8 @@ namespace spot
       {
 	if (!f1->is_psl_formula() || !f2->is_psl_formula())
 	  return false;
-	trace << "[CN] Does (" << to_string(f1) << ") implies !("
-	      << to_string(f2) << ") ?" << std::endl;
+	trace << "[CN] Does (" << str_psl(f1) << ") implies !("
+	      << str_psl(f2) << ") ?" << std::endl;
 	if (lcc.contained_neg(f1, f2))
 	  {
 	    trace << "[CN] Yes" << std::endl;
@@ -337,8 +337,8 @@ namespace spot
       {
 	if (!f1->is_psl_formula() || !f2->is_psl_formula())
 	  return false;
-	trace << "[NC] Does (" << to_string(f1) << ") implies !("
-	      << to_string(f2) << ") ?" << std::endl;
+	trace << "[NC] Does (" << str_psl(f1) << ") implies !("
+	      << str_psl(f2) << ") ?" << std::endl;
 	if (lcc.neg_contained(f1, f2))
 	  {
 	    trace << "[NC] Yes" << std::endl;
@@ -359,8 +359,8 @@ namespace spot
       implication_neg(const formula* f1, const formula* f2, bool right)
       {
 	trace << "[IN] Does " << (right ? "(" : "!(")
-	      << to_string(f1) << ") implies "
-	      << (right ? "!(" : "(") << to_string(f2) << ") ?"
+	      << str_psl(f1) << ") implies "
+	      << (right ? "!(" : "(") << str_psl(f2) << ") ?"
 	      << std::endl;
 	if ((options.synt_impl && syntactic_implication_neg(f1, f2, right))
 	    || (options.containment_checks && right && contained_neg(f1, f2))
@@ -4211,13 +4211,13 @@ namespace spot
 	static int srec = 0;
 	for (int i = srec; i; --i)
 	  trace << ' ';
-	trace << "** simplify_recursively(" << to_string(f) << ')';
+	trace << "** simplify_recursively(" << str_psl(f) << ')';
 #endif
 
 	const formula* result = c->lookup_simplified(f);
 	if (result)
 	  {
-	    trace << " cached: " << to_string(result) << std::endl;
+	    trace << " cached: " << str_psl(result) << std::endl;
 	    return result;
 	  }
 	else
@@ -4244,8 +4244,8 @@ namespace spot
 	--srec;
 	for (int i = srec; i; --i)
 	  trace << ' ';
-        trace << "** simplify_recursively(" << to_string(f) << ") result: "
-	      << to_string(result) << std::endl;
+        trace << "** simplify_recursively(" << str_psl(f) << ") result: "
+	      << str_psl(result) << std::endl;
 #endif
 
 	c->cache_simplified(f, result);
@@ -4656,8 +4656,8 @@ namespace spot
       {
 	pairf p(f->clone(), g->clone());
 	syntimpl_[p] = result;
-	// std::cerr << to_string(f) << (result ? " ==> " : " =/=> ")
-	//           << to_string(g) << std::endl;
+	// std::cerr << str_psl(f) << (result ? " ==> " : " =/=> ")
+	//           << str_psl(g) << std::endl;
       }
 
       return result;

@@ -100,19 +100,19 @@ def _formula_str_ctor(self, str):
 
 def _formula_to_str(self, format = 'spot', parenth = False):
     if format == 'spot':
-        return to_string(self, parenth)
+        return str_psl(self, parenth)
     elif format == 'spin':
-        return to_spin_string(self, parenth)
+        return str_spin_ltl(self, parenth)
     elif format == 'utf8':
-        return to_utf8_string(self, parenth)
+        return str_utf8_psl(self, parenth)
     elif format == 'lbt':
-        return to_lbt_string(self)
+        return str_lbt_ltl(self)
     elif format == 'wring':
-        return to_wring_string(self)
+        return str_wring_ltl(self)
     elif format == 'latex':
-        return to_latex_string(self, parenth)
+        return str_latex_psl(self, parenth)
     elif format == 'sclatex':
-        return to_sclatex_string(self, parenth)
+        return str_sclatex_psl(self, parenth)
     else:
         raise ValueError("unknown string format: " + format)
 

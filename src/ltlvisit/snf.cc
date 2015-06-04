@@ -20,7 +20,6 @@
 #include "snf.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlast/visitor.hh"
-#include "ltlvisit/tostring.hh"
 
 namespace spot
 {

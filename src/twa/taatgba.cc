@@ -22,7 +22,7 @@
 #include <iterator>
 #include <iostream>
 #include "twa/formula2bdd.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/clone.hh"
 #include "taatgba.hh"
 
@@ -360,7 +360,7 @@ namespace spot
   std::string
   taa_tgba_formula::label_to_string(const label_t& label) const
   {
-    return ltl::to_string(label);
+    return ltl::str_psl(label);
   }
 
   const ltl::formula*

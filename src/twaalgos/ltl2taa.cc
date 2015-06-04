@@ -24,7 +24,6 @@
 #include "ltlvisit/lunabbrev.hh"
 #include "ltlvisit/tunabbrev.hh"
 #include "ltlvisit/nenoform.hh"
-#include "ltlvisit/tostring.hh"
 #include "ltlvisit/contain.hh"
 #include "ltl2taa.hh"
 

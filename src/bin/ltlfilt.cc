@@ -42,7 +42,7 @@
 #include "ltlvisit/remove_x.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/exclusive.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/multop.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
@@ -648,7 +648,7 @@ namespace
 	      // Sort the formulas alphabetically.
 	      std::map<std::string, const spot::ltl::formula*> m;
 	      for (auto& p: relmap)
-		m.emplace(to_string(p.first), p.second);
+		m.emplace(str_psl(p.first), p.second);
 	      for (auto& p: m)
 		stream_formula(output_define->ostream()
 			       << "#define " << p.first << " (",

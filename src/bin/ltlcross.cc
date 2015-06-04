@@ -40,7 +40,7 @@
 #include "dstarparse/public.hh"
 #include "hoaparse/public.hh"
 #include "ltlast/unop.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/mutation.hh"
 #include "ltlvisit/relabel.hh"
@@ -971,9 +971,9 @@ namespace
 	      if (res)
 		{
 		  if (lbt_input)
-		    bogus = spot::ltl::to_lbt_string(f);
+		    bogus = spot::ltl::str_lbt_ltl(f);
 		  else
-		    bogus = spot::ltl::to_string(f);
+		    bogus = spot::ltl::str_psl(f);
 		  if (bogus_output)
 		    bogus_output->ostream() << bogus << std::endl;
 		}

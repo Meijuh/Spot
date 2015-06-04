@@ -28,7 +28,7 @@
 #include <cstring>
 #include "ltlparse/public.hh"
 #include "ltlvisit/dump.hh"
-#include "ltlvisit/tostring.hh"
+#include "ltlvisit/print.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
 #include "ltlast/allnodes.hh"
@@ -214,7 +214,7 @@ main(int argc, char** argv)
     ftmp1->destroy();
 
     int length_f1_before = spot::ltl::length(f1);
-    std::string f1s_before = spot::ltl::to_string(f1);
+    std::string f1s_before = spot::ltl::str_psl(f1);
     std::string f1l;
 
     const spot::ltl::formula* input_f = f1;
@@ -222,14 +222,14 @@ main(int argc, char** argv)
     if (!simp_size->are_equivalent(input_f, f1))
       {
 	std::cerr << "Incorrect reduction from `" << f1s_before
-		  << "' to `" << spot::ltl::to_string(f1) << "'."
-		  << std::endl;
+		  << "' to `";
+	print_psl(std::cerr, f1) << "'.\n";
 	exit_code = 3;
       }
     else
       {
 	const spot::ltl::formula* maybe_larger = simp->simplify(input_f);
-	f1l = spot::ltl::to_string(maybe_larger);
+	f1l = spot::ltl::str_psl(maybe_larger);
 	if (!simp->are_equivalent(input_f, maybe_larger))
 	  {
 	    std::cerr << "Incorrect reduction (reduce_size_strictly=0) from `"
@@ -242,7 +242,7 @@ main(int argc, char** argv)
     input_f->destroy();
 
     int length_f1_after = spot::ltl::length(f1);
-    std::string f1s_after = spot::ltl::to_string(f1);
+    std::string f1s_after = spot::ltl::str_psl(f1);
 
     std::string f2s = "";
     if (f2)
@@ -250,7 +250,7 @@ main(int argc, char** argv)
 	ftmp1 = f2;
 	f2 = simp_size->negative_normal_form(f2, false);
 	ftmp1->destroy();
-	f2s = spot::ltl::to_string(f2);
+	f2s = spot::ltl::str_psl(f2);
       }
 
     sum_before += length_f1_before;

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2014 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2014, 2015 Laboratoire de Recherche
+// et Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -21,8 +21,6 @@
 #include "ltlast/constant.hh"
 #include "tgtaexplicit.hh"
 #include "twa/formula2bdd.hh"
-#include "ltlvisit/tostring.hh"
-
 #include "twa/bddprint.hh"
 
 namespace spot
