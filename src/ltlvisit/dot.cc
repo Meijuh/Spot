@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
-// Recherche et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire
+// de Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -21,7 +21,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "misc/hash.hh"
-#include "dotty.hh"
+#include "dot.hh"
 #include "ltlast/visitor.hh"
 #include "ltlast/allnodes.hh"
 #include <ostream>
@@ -114,9 +114,9 @@ namespace spot
 
 	void finish()
 	{
-	  os_ << "  subgraph atoms {" << std::endl
-	      << "    rank=sink;" << std::endl
-	      << sinks_->str() << "  }" << std::endl;
+	  os_ << ("  subgraph atoms {\n"
+		  "    rank=sink;\n")
+	      << sinks_->str() << "  }\n";
 	  delete sinks_;
 	}
 
@@ -154,7 +154,7 @@ namespace spot
 		os_ << " [taillabel=\"L\"]";
 	      else if (childnum == -2)
 		os_ << " [taillabel=\"R\"]";
-	      os_ << ';' << std::endl;
+	      os_ << ";\n";
 	    }
 	  father_ = node;
 
@@ -177,11 +177,11 @@ namespace spot
     }
 
     std::ostream&
-    dotty(std::ostream& os, const formula* f)
+    print_dot_psl(std::ostream& os, const formula* f)
     {
       dotty_visitor::map m;
       dotty_visitor v(os, m);
-      os << "digraph G {" << std::endl;
+      os << "digraph G {\n";
       f->accept(v);
       v.finish();
       os << '}' << std::endl;

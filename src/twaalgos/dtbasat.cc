@@ -29,7 +29,7 @@
 #include "stats.hh"
 #include "misc/satsolver.hh"
 #include "misc/timer.hh"
-#include "dotty.hh"
+#include "dot.hh"
 
 // If you set the SPOT_TMPKEEP environment variable the temporary
 // file used to communicate with the sat solver will be left in
@@ -800,7 +800,7 @@ namespace spot
       }
     static bool show = getenv("SPOT_SATSHOW");
     if (show && res)
-      dotty_reachable(std::cout, res);
+      print_dot(std::cout, res);
 
     trace << "dtba_sat_synthetize(...) = " << res << '\n';
     return res;

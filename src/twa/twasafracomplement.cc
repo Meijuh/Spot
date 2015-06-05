@@ -32,7 +32,7 @@
 #include "misc/hashfunc.hh"
 #include "ltlast/formula.hh"
 #include "ltlast/constant.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "twa/twasafracomplement.hh"
 #include "twaalgos/degen.hh"
 

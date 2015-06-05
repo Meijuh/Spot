@@ -608,7 +608,7 @@ namespace spot
     /// Implementing this method is optional; the default annotation
     /// is the empty string.
     ///
-    /// This method is used for instance in dotty_reachable(),
+    /// This method is used for instance in print_dot(),
     /// and replay_tgba_run().
     ///
     /// \param t a non-done twa_succ_iterator for this automaton

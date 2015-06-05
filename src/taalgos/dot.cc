@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ostream>
-#include "dotty.hh"
+#include "dot.hh"
 #include "twa/bddprint.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
@@ -234,7 +234,7 @@ namespace spot
   }
 
   std::ostream&
-  dotty_reachable(std::ostream& os, const const_ta_ptr& a, const char* opt)
+  print_dot(std::ostream& os, const const_ta_ptr& a, const char* opt)
   {
     dotty_bfs d(os, a, opt);
     d.run();

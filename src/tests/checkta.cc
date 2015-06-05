@@ -31,7 +31,7 @@
 #include "twaalgos/stats.hh"
 #include "taalgos/minimize.hh"
 #include "taalgos/tgba2ta.hh"
-#include "taalgos/dotty.hh"
+#include "taalgos/dot.hh"
 #include "taalgos/stats.hh"
 
 void

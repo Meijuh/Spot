@@ -71,7 +71,7 @@ def _ostream_to_svg(ostr):
 
 def _render_automaton_as_svg(a, opt=None):
     ostr = ostringstream()
-    dotty_reachable(ostr, a, opt)
+    print_dot(ostr, a, opt)
     return _ostream_to_svg(ostr)
 
 twa._repr_svg_ = _render_automaton_as_svg
@@ -83,7 +83,7 @@ def _render_formula_as_svg(a):
     # installed.
     from IPython.display import SVG
     ostr = ostringstream()
-    dotty(ostr, a)
+    print_dot_psl(ostr, a)
     return SVG(_ostream_to_svg(ostr))
 
 def _return_automaton_as_svg(a, opt=None):
@@ -128,15 +128,15 @@ def _twa_to_str(a, format='hoa', opt=None):
         return ostr.str()
     if format == 'dot':
         ostr = ostringstream()
-        dotty_reachable(ostr, a, opt)
+        print_dot(ostr, a, opt)
         return ostr.str()
     if format == 'spin':
         ostr = ostringstream()
-        never_claim_reachable(ostr, a, opt)
+        print_never_claim(ostr, a, opt)
         return ostr.str()
     if format == 'lbtt':
         ostr = ostringstream()
-        lbtt_reachable(ostr, a, bool(opt))
+        print_lbtt(ostr, a, bool(opt))
         return ostr.str()
     raise ValueError("unknown string format: " + format)
 

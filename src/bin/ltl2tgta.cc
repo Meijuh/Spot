@@ -35,13 +35,13 @@
 #include "ltlparse/public.hh"
 #include "ltlvisit/print.hh"
 #include "ltlvisit/simplify.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/translate.hh"
 #include "twa/bddprint.hh"
 
 #include "taalgos/tgba2ta.hh"
-#include "taalgos/dotty.hh"
+#include "taalgos/dot.hh"
 #include "taalgos/minimize.hh"
 #include "misc/optionmap.hh"
 
@@ -198,14 +198,14 @@ namespace
 		       opt_with_artificial_livelock);
 	  if (level != spot::postprocessor::Low)
 	    testing_automaton = spot::minimize_ta(testing_automaton);
-	  spot::dotty_reachable(std::cout, testing_automaton);
+	  spot::print_dot(std::cout, testing_automaton);
 	}
       else
 	{
 	  auto tgta = tgba_to_tgta(aut, ap_set);
 	  if (level != spot::postprocessor::Low)
 	    tgta = spot::minimize_tgta(tgta);
-	  spot::dotty_reachable(std::cout, tgta->get_ta());
+	  spot::print_dot(std::cout, tgta->get_ta());
 	}
       f->destroy();
       flush_cout();

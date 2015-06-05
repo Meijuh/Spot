@@ -26,7 +26,7 @@
 #include <string>
 #include <map>
 #include "reachiter.hh"
-#include "dotty.hh"
+#include "dot.hh"
 
 namespace spot
 {

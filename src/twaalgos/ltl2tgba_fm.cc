@@ -38,7 +38,7 @@
 #include "ltl2tgba_fm.hh"
 #include "twa/bddprint.hh"
 #include "twaalgos/sccinfo.hh"
-//#include "twaalgos/dotty.hh"
+//#include "twaalgos/dot.hh"
 
 namespace spot
 {
@@ -1170,7 +1170,7 @@ namespace spot
       // short-lived.  (Maybe it would even work without this line.)
       dict_.dict->register_propositions(dict_.var_set, a);
 
-      //dotty_reachable(std::cerr, a);
+      //print_dot(std::cerr, a);
 
       // The following code trims the automaton in a crude way by
       // eliminating SCCs that are not coaccessible.  It does not

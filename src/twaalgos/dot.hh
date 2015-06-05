@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Developpement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -22,18 +22,26 @@
 
 #pragma once
 
-#include "twa/twa.hh"
 #include <iosfwd>
+#include <twa/fwd.hh>
+#include "misc/common.hh"
 
 namespace spot
 {
   /// \ingroup twa_io
-  /// \brief Print reachable states in LBTT's format.
+  /// \brief Print reachable states in dot format.
   ///
-  /// \param g The automata to print.
-  /// \param os Where to print.
-  /// \param sba Assume \a g is an SBA and use LBTT's state-based
-  /// acceptance format (similar to LBT's format).
+  /// If \a assume_sba is set, this assumes that the automaton
+  /// is an SBA and use double elipse to mark accepting states.
+  ///
+  /// \param options an optional string of letters, each indicating a
+  /// different option.  Presently the following options are
+  /// supported: 'v' for vertical output, 'h' for horizontal output,
+  /// 't' force transition-based acceptance, 'N' hide the name of the
+  /// automaton, 'n' shows the name, 'c' uses circle-shaped states,
+  /// 'a' shows the acceptance.
   SPOT_API std::ostream&
-  print_lbtt(std::ostream& os, const const_twa_ptr& g, bool sba = false);
+  print_dot(std::ostream& os,
+		  const const_twa_ptr& g,
+		  const char* options = nullptr);
 }

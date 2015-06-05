@@ -111,11 +111,11 @@ if f:
         a = degeneralized = spot.degeneralize(a)
 
     if output == 0:
-        spot.dotty_reachable(cout, a)
+        spot.print_dot(cout, a)
     elif output == 5:
         a.get_dict().dump(cout)
     elif output == 6:
-        spot.lbtt_reachable(cout, a)
+        spot.print_lbtt(cout, a)
     else:
         assert "unknown output option"
 

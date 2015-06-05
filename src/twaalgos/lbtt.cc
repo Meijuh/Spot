@@ -133,7 +133,7 @@ namespace spot
   }
 
   std::ostream&
-  lbtt_reachable(std::ostream& os, const const_twa_ptr& g, bool sba)
+  print_lbtt(std::ostream& os, const const_twa_ptr& g, bool sba)
   {
     if (!g->acc().is_generalized_buchi())
       throw std::runtime_error

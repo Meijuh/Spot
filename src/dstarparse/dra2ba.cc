@@ -23,7 +23,7 @@
 #include "twaalgos/reachiter.hh"
 #include "twaalgos/gtec/gtec.hh"
 #include "twaalgos/sccfilter.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 
 namespace spot
 {

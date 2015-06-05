@@ -23,7 +23,7 @@
 #include <ostream>
 #include <stdexcept>
 #include "twa/twagraph.hh"
-#include "dotty.hh"
+#include "dot.hh"
 #include "twa/bddprint.hh"
 #include "reachiter.hh"
 #include "misc/escape.hh"
@@ -528,7 +528,7 @@ namespace spot
   } // anonymous namespace
 
   std::ostream&
-  dotty_reachable(std::ostream& os, const const_twa_ptr& g,
+  print_dot(std::ostream& os, const const_twa_ptr& g,
 		  const char* options)
   {
     dotty_output d(os, options);

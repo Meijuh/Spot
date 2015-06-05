@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+## Copyright (C) 2010, 2012, 2013, 2015 Laboratoire de Recherche et
 ## Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
@@ -25,7 +25,7 @@ taalgosdir = $(pkgincludedir)/taalgos
 
 taalgos_HEADERS = \
   tgba2ta.hh \
-  dotty.hh \
+  dot.hh \
   reachiter.hh \
   stats.hh \
   statessetbuilder.hh \
@@ -35,7 +35,7 @@ taalgos_HEADERS = \
 noinst_LTLIBRARIES = libtaalgos.la
 libtaalgos_la_SOURCES = \
   tgba2ta.cc \
-  dotty.cc \
+  dot.cc \
   reachiter.cc \
   stats.cc \
   statessetbuilder.cc \

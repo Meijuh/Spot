@@ -39,7 +39,7 @@ namespace spot
   ///          these requirements, call degeneralize() first.
   /// \param opt a string of option: 'c' to comment each state
   SPOT_API std::ostream&
-  never_claim_reachable(std::ostream& os,
+  print_never_claim(std::ostream& os,
 			const const_twa_ptr& g,
 			const char* opt = nullptr);
 }

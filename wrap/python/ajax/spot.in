@@ -288,16 +288,16 @@ However you may download the <a href="''' + cgi.escape(autprefix)
 def render_automaton(automaton, dont_run_dot):
     dotsrc = spot.ostringstream()
     if isinstance(automaton, spot.ta): # TA/GTA
-        spot.dotty_reachable(dotsrc, automaton)
+        spot.print_dot(dotsrc, automaton)
     elif hasattr(automaton, 'get_ta'): # TGTA
-        spot.dotty_reachable(dotsrc, automaton.get_ta())
+        spot.print_dot(dotsrc, automaton.get_ta())
     else:                       # TGBA
-        spot.dotty_reachable(dotsrc, automaton, "N")
+        spot.print_dot(dotsrc, automaton, "N")
     render_dot_maybe(dotsrc.str(), dont_run_dot)
 
 def render_formula(f):
     dotsrc = spot.ostringstream()
-    spot.dotty(dotsrc, f)
+    spot.print_dot_psl(dotsrc, f)
     render_dot_maybe(dotsrc.str(), False)
 
 def print_stats(automaton, detinfo = False, ta = False):
@@ -722,7 +722,7 @@ else:
 if output_type == 'a':
     if buchi_type == 'i':
         s = spot.ostringstream()
-        spot.never_claim_reachable(s, degen, f)
+        spot.print_never_claim(s, degen, f)
         unbufprint('<div class="neverclaim">%s</div>' % cgi.escape(s.str()))
         del s
     else: # 't' or 's'

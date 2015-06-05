@@ -37,7 +37,7 @@ twaalgos_HEADERS = \
   cycles.hh \
   dtgbacomp.hh \
   degen.hh \
-  dotty.hh \
+  dot.hh \
   dtbasat.hh \
   dtgbasat.hh \
   dupexp.hh \
@@ -95,7 +95,7 @@ libtwaalgos_la_SOURCES = \
   cycles.cc \
   dtgbacomp.cc \
   degen.cc \
-  dotty.cc \
+  dot.cc \
   dtbasat.cc \
   dtgbasat.cc \
   dupexp.cc \

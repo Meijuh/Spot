@@ -27,7 +27,7 @@
 #include "ltlparse/public.hh"
 #include "twaalgos/product.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 
 void
 syntax(char* prog)
@@ -65,7 +65,7 @@ main(int argc, char** argv)
       auto a2 = spot::ltl_to_tgba_fm(f2, dict);
       f1->destroy();
       f2->destroy();
-      spot::dotty_reachable(std::cout, product(a1, a2));
+      spot::print_dot(std::cout, product(a1, a2));
     }
   }
   assert(spot::ltl::atomic_prop::instance_count() == 0);

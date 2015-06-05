@@ -29,7 +29,7 @@ ltlvisit_HEADERS = \
   apcollect.hh \
   contain.hh \
   clone.hh \
-  dotty.hh \
+  dot.hh \
   dump.hh \
   exclusive.hh \
   length.hh \
@@ -52,7 +52,7 @@ libltlvisit_la_SOURCES = \
   apcollect.cc \
   contain.cc \
   clone.cc \
-  dotty.cc \
+  dot.cc \
   dump.cc \
   exclusive.cc \
   length.cc \

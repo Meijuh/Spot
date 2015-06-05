@@ -30,7 +30,7 @@
 #include "twaalgos/degen.hh"
 #include "twa/twaproduct.hh"
 #include "twaalgos/gtec/gtec.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "twaalgos/emptiness.hh"
 
 void
@@ -163,7 +163,7 @@ main(int argc, char** argv)
 		      if (auto run = res->accepting_run())
 			{
 			  auto ar = spot::tgba_run_to_tgba(a, run);
-			  spot::dotty_reachable(std::cout, ar);
+			  spot::print_dot(std::cout, ar);
 			}
 		      std::cout << '\n';
 		      if (runs == 0)

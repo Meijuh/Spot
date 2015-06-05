@@ -20,7 +20,7 @@
 
 #include <iostream>
 #include "twa/twagraph.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "ltlenv/defaultenv.hh"
 
 void f1()
@@ -50,7 +50,7 @@ void f1()
   tg->new_transition(s3, s2, p1 >> p2, 0U);
   tg->new_transition(s3, s3, bddtrue, tg->acc().marks({0, 1}));
 
-  spot::dotty_reachable(std::cout, tg);
+  spot::print_dot(std::cout, tg);
 
   {
     auto i = tg->get_graph().out_iteraser(s3);
@@ -58,14 +58,14 @@ void f1()
     i.erase();
     i.erase();
     assert(!i);
-    spot::dotty_reachable(std::cout, tg);
+    spot::print_dot(std::cout, tg);
   }
 
   {
     auto i = tg->get_graph().out_iteraser(s3);
     i.erase();
     assert(!i);
-    spot::dotty_reachable(std::cout, tg);
+    spot::print_dot(std::cout, tg);
   }
 
   auto all = tg->acc().marks({0, 1});
@@ -76,9 +76,9 @@ void f1()
   std::cerr << tg->num_transitions() << '\n';
   assert(tg->num_transitions() == 7);
 
-  spot::dotty_reachable(std::cout, tg);
+  spot::print_dot(std::cout, tg);
   tg->merge_transitions();
-  spot::dotty_reachable(std::cout, tg);
+  spot::print_dot(std::cout, tg);
 
   std::cerr << tg->num_transitions() << '\n';
   assert(tg->num_transitions() == 5);
@@ -86,7 +86,7 @@ void f1()
   // Add enough states so that the state vector is reallocated.
   for (unsigned i = 0; i < 100; ++i)
     tg->new_state();
-  spot::dotty_reachable(std::cout, tg);
+  spot::print_dot(std::cout, tg);
 }
 
 int main()

@@ -22,7 +22,7 @@
 #include "misc/hash.hh"
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "twa/taatgba.hh"
 
 int
@@ -46,7 +46,7 @@ main()
     a->add_condition(t3, e.require("c"));
 
     a->set_init_state("state 1");
-    spot::dotty_reachable(std::cout, a);
+    spot::print_dot(std::cout, a);
   }
 
   assert(spot::ltl::atomic_prop::instance_count() == 0);

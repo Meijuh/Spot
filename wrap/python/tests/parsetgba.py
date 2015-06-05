@@ -37,7 +37,7 @@ a = spot.hoa_parse(filename, p, spot.make_bdd_dict())
 
 assert not p
 
-spot.dotty_reachable(spot.get_cout(), a.aut)
+spot.print_dot(spot.get_cout(), a.aut)
 
 del p
 del a

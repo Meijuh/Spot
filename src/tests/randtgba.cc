@@ -40,7 +40,7 @@
 #include "twaalgos/hoa.hh"
 #include "twaalgos/stats.hh"
 #include "ltlenv/defaultenv.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "misc/random.hh"
 #include "misc/optionmap.hh"
 #include "twaalgos/degen.hh"
@@ -919,7 +919,7 @@ main(int argc, char** argv)
 
 	      if (opt_dot)
 		{
-		  dotty_reachable(std::cout, a);
+		  print_dot(std::cout, a);
 		}
 	      if (!opt_ec)
 		{

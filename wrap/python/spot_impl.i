@@ -97,7 +97,7 @@ namespace std {
 #include "twa/bdddict.hh"
 
 #include "ltlvisit/apcollect.hh"
-#include "ltlvisit/dotty.hh"
+#include "ltlvisit/dot.hh"
 #include "ltlvisit/dump.hh"
 #include "ltlvisit/lunabbrev.hh"
 #include "ltlvisit/nenoform.hh"
@@ -117,7 +117,7 @@ namespace std {
 #include "twa/twaproduct.hh"
 
 #include "twaalgos/cleanacc.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "twaalgos/degen.hh"
 #include "twaalgos/dupexp.hh"
 #include "twaalgos/emptiness.hh"
@@ -149,7 +149,7 @@ namespace std {
 #include "ta/taexplicit.hh"
 #include "ta/tgtaexplicit.hh"
 #include "taalgos/tgba2ta.hh"
-#include "taalgos/dotty.hh"
+#include "taalgos/dot.hh"
 #include "taalgos/stats.hh"
 #include "taalgos/minimize.hh"
 
@@ -239,7 +239,7 @@ using namespace spot;
 %include "twa/twa.hh"
 
 %include "ltlvisit/apcollect.hh"
-%include "ltlvisit/dotty.hh"
+%include "ltlvisit/dot.hh"
 %include "ltlvisit/dump.hh"
 %include "ltlvisit/lunabbrev.hh"
 %include "ltlvisit/nenoform.hh"
@@ -261,7 +261,7 @@ using namespace spot;
 
 %include "twaalgos/cleanacc.hh"
 %include "twaalgos/degen.hh"
-%include "twaalgos/dotty.hh"
+%include "twaalgos/dot.hh"
 %include "twaalgos/dupexp.hh"
 %include "twaalgos/emptiness.hh"
 %include "twaalgos/gtec/gtec.hh"
@@ -292,7 +292,7 @@ using namespace spot;
 %include "ta/taexplicit.hh"
 %include "ta/tgtaexplicit.hh"
 %include "taalgos/tgba2ta.hh"
-%include "taalgos/dotty.hh"
+%include "taalgos/dot.hh"
 %include "taalgos/stats.hh"
 %include "taalgos/minimize.hh"
 

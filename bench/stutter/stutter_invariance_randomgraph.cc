@@ -21,7 +21,7 @@
 #include "ltlvisit/apcollect.hh"
 #include "twaalgos/dtgbacomp.hh"
 #include "twaalgos/randomgraph.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "twaalgos/product.hh"
 #include "twaalgos/stutter.hh"
 #include "twaalgos/stats.hh"

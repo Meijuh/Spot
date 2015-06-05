@@ -33,7 +33,7 @@
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/ltl2taa.hh"
 #include "twa/bddprint.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "twaalgos/lbtt.hh"
 #include "twaalgos/hoa.hh"
 #include "twaalgos/degen.hh"
@@ -69,7 +69,7 @@
 #include "twaalgos/stutter.hh"
 
 #include "taalgos/tgba2ta.hh"
-#include "taalgos/dotty.hh"
+#include "taalgos/dot.hh"
 #include "taalgos/stats.hh"
 
 std::string
@@ -1368,7 +1368,7 @@ checked_main(int argc, char** argv)
                   switch (output)
                     {
 		    case 0:
-		      spot::dotty_reachable(std::cout, testing_automaton);
+		      spot::print_dot(std::cout, testing_automaton);
 		      break;
 		    case 12:
 		      stats_reachable(testing_automaton).dump(std::cout);
@@ -1402,7 +1402,7 @@ checked_main(int argc, char** argv)
                   switch (output)
                     {
 		    case 0:
-		      spot::dotty_reachable(std::cout, std::dynamic_pointer_cast
+		      spot::print_dot(std::cout, std::dynamic_pointer_cast
 					    <spot::tgta_explicit>(a)->get_ta());
 		      break;
 		    case 12:
@@ -1478,19 +1478,19 @@ checked_main(int argc, char** argv)
 	  switch (output)
 	    {
 	    case 0:
-	      spot::dotty_reachable(std::cout, a);
+	      spot::print_dot(std::cout, a);
 	      break;
 	    case 5:
 	      a->get_dict()->dump(std::cout);
 	      break;
 	    case 6:
-	      spot::lbtt_reachable(std::cout, a);
+	      spot::print_lbtt(std::cout, a);
 	      break;
 	    case 8:
 	      {
 		assert(degeneralize_opt == DegenSBA);
 		if (assume_sba)
-		  spot::never_claim_reachable(std::cout, a, opt_never);
+		  spot::print_never_claim(std::cout, a, opt_never);
 		else
 		  {
 		    // It is possible that we have applied other
@@ -1498,7 +1498,7 @@ checked_main(int argc, char** argv)
 		    // degeneralization.  Let's degeneralize again!
                     auto s = spot::degeneralize(ensure_digraph(a), degen_reset,
 						degen_order, degen_cache);
-		    spot::never_claim_reachable(std::cout, s, opt_never);
+		    spot::print_never_claim(std::cout, s, opt_never);
 		  }
 		break;
 	      }
@@ -1700,7 +1700,7 @@ checked_main(int argc, char** argv)
 			      if (graph_run_tgba_opt)
 				{
                                   auto ar = spot::tgba_run_to_tgba(a, run);
-				  spot::dotty_reachable(std::cout, ar);
+				  spot::print_dot(std::cout, ar);
 				}
 			      else
 				{

@@ -27,7 +27,7 @@
 
 #include "twa/bddprint.hh"
 
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "twaalgos/lbtt.hh"
 #include "twaalgos/hoa.hh"
 #include "twaalgos/neverclaim.hh"
@@ -319,19 +319,19 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
       // Do not output anything.
       break;
     case Dot:
-      spot::dotty_reachable(*out, aut, opt_dot);
+      spot::print_dot(*out, aut, opt_dot);
       break;
     case Lbtt:
-      spot::lbtt_reachable(*out, aut, type == spot::postprocessor::BA);
+      spot::print_lbtt(*out, aut, type == spot::postprocessor::BA);
       break;
     case Lbtt_t:
-      spot::lbtt_reachable(*out, aut, false);
+      spot::print_lbtt(*out, aut, false);
       break;
     case Hoa:
       spot::hoa_reachable(*out, aut, hoa_opt) << '\n';
       break;
     case Spin:
-      spot::never_claim_reachable(*out, aut, opt_never);
+      spot::print_never_claim(*out, aut, opt_never);
       break;
     case Stats:
       statistics.set_output(*out);

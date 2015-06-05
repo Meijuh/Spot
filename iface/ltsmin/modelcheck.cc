@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ltsmin.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "ltlenv/defaultenv.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
@@ -230,9 +230,9 @@ checked_main(int argc, char **argv)
 
       if (output == DotModel)
 	{
-	  tm.start("dotty output");
-	  spot::dotty_reachable(std::cout, model);
-	  tm.stop("dotty output");
+	  tm.start("dot output");
+	  spot::print_dot(std::cout, model);
+	  tm.stop("dot output");
 	  goto safe_exit;
 	}
       if (output == Kripke)
@@ -246,9 +246,9 @@ checked_main(int argc, char **argv)
 
   if (output == DotFormula)
     {
-      tm.start("dotty output");
-      spot::dotty_reachable(std::cout, prop);
-      tm.stop("dotty output");
+      tm.start("dot output");
+      spot::print_dot(std::cout, prop);
+      tm.stop("dot output");
       goto safe_exit;
     }
 
@@ -256,9 +256,9 @@ checked_main(int argc, char **argv)
 
   if (output == DotProduct)
     {
-      tm.start("dotty output");
-      spot::dotty_reachable(std::cout, product);
-      tm.stop("dotty output");
+      tm.start("dot output");
+      spot::print_dot(std::cout, product);
+      tm.stop("dot output");
       goto safe_exit;
     }
 

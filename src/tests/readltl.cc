@@ -26,7 +26,7 @@
 #include <cstring>
 #include "ltlparse/public.hh"
 #include "ltlvisit/dump.hh"
-#include "ltlvisit/dotty.hh"
+#include "ltlvisit/dot.hh"
 #include "ltlast/allnodes.hh"
 
 void
@@ -87,7 +87,7 @@ main(int argc, char** argv)
 	dump_instances("before");
 
 #ifdef DOTTY
-      spot::ltl::dotty(std::cout, f);
+      spot::ltl::print_dot_psl(std::cout, f);
 #else
       spot::ltl::dump(std::cout, f);
       std::cout << std::endl;
@@ -105,6 +105,7 @@ main(int argc, char** argv)
   assert(spot::ltl::atomic_prop::instance_count() == 0);
   assert(spot::ltl::unop::instance_count() == 0);
   assert(spot::ltl::binop::instance_count() == 0);
+  assert(spot::ltl::bunop::instance_count() == 0);
   assert(spot::ltl::multop::instance_count() == 0);
   return exit_code;
 }

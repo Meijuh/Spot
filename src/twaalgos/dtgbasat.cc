@@ -33,7 +33,7 @@
 #include "misc/timer.hh"
 #include "isweakscc.hh"
 #include "isdet.hh"
-#include "dotty.hh"
+#include "dot.hh"
 #include "complete.hh"
 #include "misc/optionmap.hh"
 #include "dtbasat.hh"
@@ -1147,7 +1147,7 @@ namespace spot
       }
     static bool show = getenv("SPOT_SATSHOW");
     if (show && res)
-      dotty_reachable(std::cout, res);
+      print_dot(std::cout, res);
 
     trace << "dtgba_sat_synthetize(...) = " << res << '\n';
     return res;

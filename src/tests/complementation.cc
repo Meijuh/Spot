@@ -19,7 +19,7 @@
 
 #include <iomanip>
 #include <iostream>
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 #include "twaalgos/hoa.hh"
 #include "hoaparse/public.hh"
 #include "twa/twaproduct.hh"
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 	if (save_hoa)
 	  spot::hoa_reachable(std::cout, complement, nullptr);
 	else
-	  spot::dotty_reachable(std::cout, complement);
+	  spot::print_dot(std::cout, complement);
       }
 
     if (print_safra)
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
     spot::twa_ptr complement = 0;
     complement = spot::make_safra_complement(a);
 
-    spot::dotty_reachable(std::cout, complement);
+    spot::print_dot(std::cout, complement);
     f1->destroy();
   }
   else if (stats)
@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
 	return_value = 1;
 	if (auto run = res->accepting_run())
 	  {
-	    spot::dotty_reachable(std::cout, ec->automaton());
+	    spot::print_dot(std::cout, ec->automaton());
 	    spot::print_tgba_run(std::cout, ec->automaton(), run);
 	  }
       }

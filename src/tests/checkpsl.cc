@@ -28,7 +28,7 @@
 #include "twaalgos/ltl2taa.hh"
 #include "twaalgos/sccfilter.hh"
 #include "twaalgos/product.hh"
-#include "twaalgos/dotty.hh"
+#include "twaalgos/dot.hh"
 
 void
 syntax(char* prog)
