@@ -14,21 +14,21 @@ using different options such as (=--spin=, =--lbt=, =--latex=, etc.).
 Full parentheses can also be requested using =-p=.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-formula='[]<>p0 || <>[]p1'
-ltlfilt -f "$formula" --lbt
-ltlfilt -f "$formula" --spin -p
-ltlfilt --lbt-input -f '& & G p0 p1 p2' --latex
+ltlfilt -f '[]<>p0 || <>[]p1' --latex
+formula='& & G p0 p1 p2'
+ltlfilt --lbt-input -f "$formula" --lbt
+ltlfilt --lbt-input -f "$formula" --spin -p
 #+END_SRC
 
 #+RESULTS:
-: | G F p0 F G p1
-: ([](<>(p0))) || (<>([](p1)))
-: p_{1} \land p_{2} \land \G p_{0}
+: \G \F p_{0} \lor \F \G p_{1}
+: & & p1 p2 G p0
+: (p1) && (p2) && ([](p0))
 
 The reason the LBT parser has to be explicitly enabled is because of
 some corner cases that have different meanings in the two syntaxes.
-(For instance =t= and =f= are the true constant in LBT's syntax, but they
-are considered as atomic propositions in all the other syntaxes.)
+(For instance =t= and =f= are the true constant in LBT's syntax, but
+they are considered as atomic propositions in all the other syntaxes.)
 
 * Python bindings
 
@@ -37,20 +37,21 @@ Here are the same operation in Python
 #+BEGIN_SRC python :results output :exports both
 import spot
 f = spot.formula('[]<>p0 || <>[]p1')
+print(f.to_str('latex'))
+f = spot.formula('& & G p0 p1 p2')
 print(f.to_str('lbt'))
 print(f.to_str('spin', parenth=True))
-print(spot.formula('& & G p0 p1 p2').to_str('latex'))
 #+END_SRC
 
 #+RESULTS:
-: | G F p0 F G p1
-: ([](<>(p0))) || (<>([](p1)))
-: p_{1} \land p_{2} \land \G p_{0}
+: \G \F p_{0} \lor \F \G p_{1}
+: & & p1 p2 G p0
+: (p1) && (p2) && ([](p0))
 
 The =spot.formula= function wraps the calls to the two formula parsers
 of Spot.  It first tries to parse the formula using infix syntaxes,
 and if it fails, it tries to parse it with the prefix parser.  (So
-this this might fail to correctly interpret =t= or =f= if you are
+this might fail to correctly interpret =t= or =f= if you are
 processing a list of LBT formulas.)  Using =spot.formula=, parse
 errors are returned as an exception.
 
@@ -69,26 +70,24 @@ exceptions.
 
   int main()
   {
-    const spot::ltl::formula* f = spot::ltl::parse_formula("[]<>p0 || <>[]p1");
+    print_latex_psl(std::cout, spot::ltl::parse_formula("[]<>p0 || <>[]p1")) << '\n';
+    const spot::ltl::formula* f = spot::ltl::parse_formula("& & G p0 p1 p2");
     print_lbt_ltl(std::cout, f) << '\n';
     print_spin_ltl(std::cout, f, true) << '\n';
-    print_latex_psl(std::cout, spot::ltl::parse_formula("& & G p0 p1 p2"));
     f->destroy();
+    return 0;
   }
 #+END_SRC
 
 #+RESULTS:
-: | G F p0 F G p1
-: ([](<>(p0))) || (<>([](p1)))
-: p_{1} \land p_{2} \land \G p_{0}
+: \G \F p_{0} \lor \F \G p_{1}
+: & & p1 p2 G p0
+: (p1) && (p2) && ([](p0))
 
 Notice that the different output routines specify in their name the
-syntax the output, and the type of formula they expect.  Here we are
-only using LTL formulas for demonstration, so those three functions
-are OK with that (LTL is a subset of PSL as far as Spot is concerned).
-However if we input PSL formula, it's clear that the above code will
-be a problem.  If you want to add additional checks, you can easily
-tests whether =f->is_ltl_formula()= returns true.
+syntax the output, and the type of formula they can output.  Here we
+are only using LTL formulas for demonstration, so those three
+functions are OK with that.
 
 Did you notice the calls to =f->destroy()= at the end?  The LTL
 formula objects are implemented as DAG with sharing of subformulas.
@@ -105,6 +104,8 @@ syntax, or formulas with prefix syntax, you should call the specific
 parser.  Additionally, this give you control over how to print errors.
 
 ** Calling the infix parser explicitly
+
+Here is how to call the infix parser explicitly,:
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>
@@ -123,15 +124,14 @@ parser.  Additionally, this give you control over how to print errors.
           f->destroy();
         return 1;
       }
-    print_lbt_ltl(std::cout, f) << '\n';
-    print_spin_ltl(std::cout, f, true) << '\n';
+    print_latex_psl(std::cout, f) << '\n';
     f->destroy();
+    return 0;
   }
 #+END_SRC
 
 #+RESULTS:
-: | G F p0 F G p1
-: ([](<>(p0))) || (<>([](p1)))
+: \G \F p_{0} \lor \F \G p_{1}
 
 So =parse_infix_psl()= processes =input=, and stores any diagnostic in
 =pel=, which is a list of pairs associating each error to a location.
@@ -170,25 +170,22 @@ with the "fixed" formula if you wish.  Here is an example:
     (void) spot::ltl::format_parse_errors(std::cout, input, pel);
     if (f == nullptr)
       return 1;
-    print_lbt_ltl(std::cout, f) << '\n';
-    print_spin_ltl(std::cout, f, true) << '\n';
+    print_latex_psl(std::cout, f) << '\n';
     f->destroy();
+    return 0;
   }
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
->>> (a U b))
-           ^
-syntax error, unexpected closing parenthesis
-
->>> (a U b))
-           ^
-ignoring trailing garbage
-
-U "a" "b"
-(a) U (b)
-#+end_example
+: >>> (a U b))
+:            ^
+: syntax error, unexpected closing parenthesis
+:
+: >>> (a U b))
+:            ^
+: ignoring trailing garbage
+:
+: a \U b
 
 
 The formula =f= is only returned as null when the parser really cannot
@@ -196,8 +193,8 @@ recover anything.
 
 ** Calling the prefix parser explicitly
 
-The only difference here is the call to =parse_prefix_ltl()= instead of
-=parse_infix_psl()=.
+The only difference here is the call to =parse_prefix_ltl()= instead
+of =parse_infix_psl()=.
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>
@@ -216,10 +213,194 @@ The only difference here is the call to =parse_prefix_ltl()= instead of
           f->destroy();
         return 1;
       }
-    print_latex_psl(std::cout, f) << '\n';
+    print_lbt_ltl(std::cout, f) << '\n';
+    print_spin_ltl(std::cout, f, true) << '\n';
     f->destroy();
+    return 0;
   }
 #+END_SRC
 
 #+RESULTS:
-: p_{1} \land p_{2} \land \G p_{0}
+: & & p1 p2 G p0
+: (p1) && (p2) && ([](p0))
+
+
+* Additional Comments
+
+** PSL vs LTL
+
+LTL is a subset of PSL as far as Spot is concerned, so you can parse
+an LTL formula with =parse_infix_psl()=, and later print it with for
+instance =print_spin_ltl()= (which, as its name implies, can only
+print LTL formulas).  There is no =parse_infix_ltl()= function because
+you can simply use =parse_infix_psl()= to parse LTL formulas.
+
+There is a potential problem if you design a tool that only works with
+LTL formulas, but call =parse_infix_psl()= to parse user input.  In
+that case, the user might well input a PSL formula and cause problem
+down the line.
+
+For instance, let's see what happens if a PSL formulas is passed to
+=print_spin_ltl=:
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <string>
+  #include <iostream>
+  #include "ltlparse/public.hh"
+  #include "ltlvisit/print.hh"
+
+  int main()
+  {
+    std::string input = "{a*;b}<>->(a U (b & GF c))";
+    spot::ltl::parse_error_list pel;
+    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+      {
+        if (f)
+          f->destroy();
+        return 1;
+      }
+    print_spin_ltl(std::cout, f) << '\n';
+    f->destroy();
+    return 0;
+  }
+#+END_SRC
+
+#+RESULTS:
+: {a[*];b}<>-> (a U (b && []<>c))
+
+The output is a 'best effort' output.  The LTL subformulas have been
+rewritten, but the PSL-specific part (the SERE and =<>->= operator)
+are output in the only syntax Spot knows, definitively not
+Spin-compatible.
+
+If that is unwanted, here are two possible solutions.
+
+The first is to simply diagnose non-LTL formulas.
+
+#+BEGIN_SRC C++ :results verbatim :exports code
+  #include <string>
+  #include <iostream>
+  #include "ltlparse/public.hh"
+  #include "ltlvisit/print.hh"
+
+  int main()
+  {
+    std::string input = "{a*;b}<>->(a U (b & GF c))";
+    spot::ltl::parse_error_list pel;
+    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+      {
+        if (f)
+          f->destroy();
+        return 1;
+      }
+    if (!f->is_ltl_formula())
+      {
+        f->destroy();
+        std::cerr << "Only LTL formulas are supported.\n";
+        return 1;
+      }
+    print_spin_ltl(std::cout, f) << '\n';
+    f->destroy();
+    return 0;
+  }
+#+END_SRC
+
+A second (but slightly weird) idea would be to try to simplify the PSL
+formula, and hope that the PSL simplify is able to come up with an
+equivalent LTL formula.  This does not always work, so you need to be
+prepared to reject the formula any way.  In our example, we are lucky
+(maybe because it was carefully chosen...):
+
+#+BEGIN_SRC C++ :results verbatim :exports code
+  #include <string>
+  #include <iostream>
+  #include "ltlparse/public.hh"
+  #include "ltlvisit/print.hh"
+  #include "ltlvisit/simplify.hh"
+
+  int main()
+  {
+    std::string input = "{a*;b}<>->(a U (b & GF c))";
+    spot::ltl::parse_error_list pel;
+    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+      {
+        if (f)
+          f->destroy();
+        return 1;
+      }
+    if (!f->is_ltl_formula())
+      {
+        spot::ltl::ltl_simplifier simp;
+        const formula* g = simp.simplify(f);
+        f->destroy();
+        f = g;
+      }
+    if (!f->is_ltl_formula())
+      {
+        f->destroy();
+        std::cerr << "Only LTL formulas are supported.\n";
+        return 1;
+      }
+    print_spin_ltl(std::cout, f) << '\n';
+    f->destroy();
+    return 0;
+  }
+#+END_SRC
+
+#+RESULTS:
+: a U (b && (a U (b && []<>c)))
+
+** Lenient parsing
+
+In version 6, Spin extended its command-line LTL parser to accept
+arbitrary atomic propositions to be specified.  For instance =(a > 4)
+U (b < 5)= would be correct input, with =a > 4= and =b < 5= considered
+as two atomic propositions.  Of course the atomic proposition could be
+arbitrarily complex, and there is no way we can teach Spot about the
+syntax for atomic propositions supported by any tool.  The usual
+workaround in Spot is to double-quote any arbitrary atomic
+proposition:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+echo compare
+ltlfilt -f '"a > 4" U "b < 5"'
+echo and
+ltlfilt -f '"a > 4" U "b < 5"' --spin
+#+END_SRC
+
+#+RESULTS:
+: compare
+: "a > 4" U "b < 5"
+: and
+: (a > 4) U (b < 5)
+
+When the Spin output is requested, these atomic propositions are
+atomically output in a way that Spin can parse.
+
+This Spin syntax is not accepted by default by the infix parser, but
+it has an option for that.  This is called /lenient parsing/: when the
+parser finds a parenthetical block it does not understand, it simply
+assume that this block represents an atomic proposition.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt --lenient -f '(a > 4) U (b < 5)'
+#+END_SRC
+
+#+RESULTS:
+: "a > 4" U "b < 5"
+
+Lenient parsing is risky, because any parenthesized sub-formula that
+is a syntax-error will be treated as an atomic proposition:
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltlfilt --lenient -f '(a U ) U c'
+#+END_SRC
+
+#+RESULTS:
+: "a U" U c
+
+In C++ you can enable lenient using one of the Boolean arguments of
+=parse_infix_psl()=.
