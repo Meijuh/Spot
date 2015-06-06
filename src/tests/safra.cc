@@ -42,6 +42,7 @@ int help()
 
 int main(int argc, char* argv[])
 {
+  bool sim = false;
   bool in_hoa = false;
   bool in_ltl = false;
   bool out_dot = true;
@@ -74,6 +75,8 @@ int main(int argc, char* argv[])
         }
       else if (!strncmp(argv[i], "-p", 2))
         pretty_print = true;
+      else if (!strncmp(argv[i], "-b", 2))
+        sim = true;
     }
 
   if (!input)
@@ -92,7 +95,7 @@ int main(int argc, char* argv[])
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
-      res = spot::tgba_determinisation(tmp, pretty_print);
+      res = spot::tgba_determinisation(tmp, sim, pretty_print);
       f->destroy();
     }
   else if (in_hoa)
@@ -101,7 +104,7 @@ int main(int argc, char* argv[])
       auto aut = spot::hoa_parse(input, pel, dict);
       if (spot::format_hoa_parse_errors(std::cerr, input, pel))
         return 2;
-      res = tgba_determinisation(aut->aut, pretty_print);
+      res = tgba_determinisation(aut->aut, sim, pretty_print);
     }
   res->merge_transitions();
 

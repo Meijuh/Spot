@@ -24,6 +24,7 @@
 
 #include "safra.hh"
 #include "twaalgos/degen.hh"
+#include "twaalgos/simulation.hh"
 
 namespace spot
 {
@@ -60,7 +61,7 @@ namespace spot
                std::ostringstream& os, std::vector<unsigned>& idx)
     {
       std::string s = subscript(start);
-      os << '[' << s;
+      os << '{' << s;
       std::vector<unsigned> new_idx;
       std::vector<unsigned> todo;
       unsigned next = -1U;
@@ -117,7 +118,7 @@ namespace spot
               todo_next.clear();
             }
         }
-      os << s << ']';
+      os << s << '}';
     }
 
     // Returns true if lhs has a smaller nesting pattern than rhs
@@ -367,7 +368,8 @@ namespace spot
   }
 
   twa_graph_ptr
-  tgba_determinisation(const const_twa_graph_ptr& a, bool pretty_print)
+  tgba_determinisation(const const_twa_graph_ptr& a, bool bisimulation,
+                       bool pretty_print)
   {
     // Degeneralize
     const_twa_graph_ptr aut;
@@ -473,6 +475,8 @@ namespace spot
     res->set_acceptance(sets, acc_cond::acc_code::parity(false, false, sets));
     res->prop_deterministic(true);
     res->prop_state_based_acc(false);
+    if (bisimulation)
+      res = simulation(res);
     if (pretty_print)
       res->set_named_prop("state-names", print_debug(seen));
     return res;

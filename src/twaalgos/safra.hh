@@ -73,5 +73,6 @@ namespace spot
 
   SPOT_API twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& aut,
+                       bool bisimulation = false,
                        bool pretty_print = false);
 }
