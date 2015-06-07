@@ -32,6 +32,7 @@
 %include "std_string.i"
 %include "std_list.i"
 %include "std_set.i"
+%include "std_map.i"
 %include "exception.i"
 %include "typemaps.i"
 
@@ -223,6 +224,28 @@ using namespace spot;
 %include "ltlast/unop.hh"
 %include "ltlast/visitor.hh"
 
+namespace std {
+  %template(atomic_prop_set)    set<const spot::ltl::atomic_prop*,
+                                    spot::ltl::formula_ptr_less_than>;
+
+  %template(mapff) map<const spot::ltl::formula*, const spot::ltl::formula*,
+                       spot::ltl::formula_ptr_less_than>;
+}
+
+%{
+  namespace swig {
+    template <>  struct traits<atomic_prop> {
+      typedef pointer_category category;
+      static const char* type_name() { return "spot::ltl::atomic_prop"; }
+    };
+    template <>  struct traits<formula> {
+      typedef pointer_category category;
+      static const char* type_name() { return "spot::ltl::formula"; }
+    };
+  }
+%}
+
+
 %include "ltlenv/environment.hh"
 %include "ltlenv/defaultenv.hh"
 
@@ -298,21 +321,6 @@ using namespace spot;
 
 
 #undef ltl
-
-
-namespace std {
-  %template(atomic_prop_set)    set<const spot::ltl::atomic_prop*,
-spot::ltl::formula_ptr_less_than>;
-}
-
-%{
-  namespace swig {
-    template <>  struct traits<atomic_prop> {
-      typedef pointer_category category;
-      static const char* type_name() { return"atomic_prop const *"; }
-    };
-  }
-%}
 
 %extend spot::ltl::formula {
 

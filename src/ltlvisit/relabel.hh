@@ -21,6 +21,7 @@
 
 #include "ltlast/formula.hh"
 #include "misc/hash.hh"
+#include <map>
 
 namespace spot
 {
@@ -29,16 +30,17 @@ namespace spot
     enum relabeling_style { Abc, Pnn };
 
 
-    struct relabeling_map: public std::unordered_map<const formula*,
-						     const formula*,
-						     ptr_hash<formula>>
+    struct relabeling_map: public std::map<const formula*,
+					   const formula*,
+					   formula_ptr_less_than>
     {
       void clear()
       {
-	for (iterator i = begin(); i != end(); ++i)
-	  i->second->destroy();
-	this->std::unordered_map<const formula*,
-				 const formula*, ptr_hash<formula>>::clear();
+	iterator i = begin();
+	while (i != end())
+	  i++->second->destroy();
+	this->std::map<const formula*, const formula*,
+		       formula_ptr_less_than>::clear();
       }
 
       ~relabeling_map()
