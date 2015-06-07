@@ -74,7 +74,7 @@ namespace spot
       delete simpl_owned_;
     }
 
-    typedef postprocessor::output_type output_type;
+    using postprocessor::output_type;
 
     void
     set_type(output_type type)
@@ -82,13 +82,15 @@ namespace spot
       this->postprocessor::set_type(type);
     }
 
+    using postprocessor::output_pref;
+
     void
     set_pref(output_pref pref)
     {
       this->postprocessor::set_pref(pref);
     }
 
-    typedef postprocessor::optimization_level optimization_level;
+    using postprocessor::optimization_level;
 
     void
     set_level(optimization_level level)

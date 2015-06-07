@@ -80,6 +80,7 @@ ORG_FILES = \
   org/tools.org \
   org/tut01.org \
   org/tut02.org \
+  org/tut10.org \
   org/satmin.org \
   org/satmin.tex \
   org/setup.org \

@@ -1,0 +1,213 @@
+#+TITLE: Translating an LTL formula into a never claim
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tut.html
+
+Here is how to translate an LTL (or PSL) formula into a never claim.
+
+* Shell
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba --spin 'GFa -> GFb'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+never { /* F(GFb | G!a) */
+T0_init:
+  if
+  :: ((!(a))) -> goto accept_S0
+  :: ((true)) -> goto T0_init
+  :: ((b)) -> goto accept_S2
+  fi;
+accept_S0:
+  if
+  :: ((!(a))) -> goto accept_S0
+  fi;
+accept_S2:
+  if
+  :: ((b)) -> goto accept_S2
+  :: ((!(b))) -> goto T0_S3
+  fi;
+T0_S3:
+  if
+  :: ((b)) -> goto accept_S2
+  :: ((!(b))) -> goto T0_S3
+  fi;
+}
+#+end_example
+
+* Python
+
+The =formula= function returns a formula object (or raises a
+parse-error exception).  Formula objects have a =translate()= method
+that returns an automaton, and the automata objects have a =to_str=
+method that can output in one of the supported syntaxes.
+
+So the translation is actually a one-liner in Python:
+
+#+BEGIN_SRC python :results output :exports both
+import spot
+print(spot.formula('GFa -> GFb').translate('BA').to_str('spin'))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+never {
+T0_init:
+  if
+  :: ((!(a))) -> goto accept_S0
+  :: ((true)) -> goto T0_init
+  :: ((b)) -> goto accept_S2
+  fi;
+accept_S0:
+  if
+  :: ((!(a))) -> goto accept_S0
+  fi;
+accept_S2:
+  if
+  :: ((b)) -> goto accept_S2
+  :: ((!(b))) -> goto T0_S3
+  fi;
+T0_S3:
+  if
+  :: ((b)) -> goto accept_S2
+  :: ((!(b))) -> goto T0_S3
+  fi;
+}
+
+#+end_example
+
+The above line can actually be made a bit shorter, because
+=translate()= can also be used as a function (as opposed to a method)
+that take a formula (possibly as a string) as first argument:
+
+#+BEGIN_SRC python :results output :exports both
+import spot
+print(spot.translate('GFa -> GFb', 'BA').to_str('spin'))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+never {
+T0_init:
+  if
+  :: ((!(a))) -> goto accept_S0
+  :: ((true)) -> goto T0_init
+  :: ((b)) -> goto accept_S2
+  fi;
+accept_S0:
+  if
+  :: ((!(a))) -> goto accept_S0
+  fi;
+accept_S2:
+  if
+  :: ((b)) -> goto accept_S2
+  :: ((!(b))) -> goto T0_S3
+  fi;
+T0_S3:
+  if
+  :: ((b)) -> goto accept_S2
+  :: ((!(b))) -> goto T0_S3
+  fi;
+}
+
+#+end_example
+
+* C++
+
+All the translation pipeline (this include simplifying the formula,
+translating the simplified formula into an automaton, and simplifying
+the resulting automaton) is handled by the =spot::translator= object.
+This object can configured by calling =set_type()= to chose the type
+of automaton to output, =set_level()= to set the level of optimization
+(it's high by default), and =set_pref()= to set various preferences
+(like small or deterministic) or characteristic (complete,
+unambiguous) for the resulting automaton. Finally, the output as a
+never claim is done via the =print_never_claim= function.
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <string>
+  #include <iostream>
+  #include "ltlparse/public.hh"
+  #include "ltlvisit/print.hh"
+  #include "twaalgos/translate.hh"
+  #include "twaalgos/neverclaim.hh"
+
+  int main()
+  {
+    std::string input = "[]<>p0 || <>[]p1";
+    spot::ltl::parse_error_list pel;
+    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+      {
+        if (f)
+          f->destroy();
+        return 1;
+      }
+    spot::translator trans;
+    trans.set_type(spot::postprocessor::BA);
+    spot::twa_graph_ptr aut = trans.run(f);
+    print_never_claim(std::cout, aut) << '\n';
+    f->destroy();
+    return 0;
+  }
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+never {
+T0_init:
+  if
+  :: ((p1)) -> goto accept_S0
+  :: ((true)) -> goto T0_init
+  :: ((p0)) -> goto accept_S2
+  fi;
+accept_S0:
+  if
+  :: ((p1)) -> goto accept_S0
+  fi;
+accept_S2:
+  if
+  :: ((p0)) -> goto accept_S2
+  :: ((!(p0))) -> goto T0_S3
+  fi;
+T0_S3:
+  if
+  :: ((p0)) -> goto accept_S2
+  :: ((!(p0))) -> goto T0_S3
+  fi;
+}
+#+end_example
+
+* Additional comments
+
+The Python version of =translate()= is documented as follows:
+
+#+BEGIN_SRC python :results output :exports both
+import spot
+help(spot.translate)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Help on function translate in module spot:
+
+translate(formula, *args)
+    Translate a formula into an automaton.
+
+    Keep in mind that pref expresses just a preference that may not be
+    satisfied.
+
+    The optional arguments should be strings among the following:
+    - at most one in 'TGBA', 'BA', or 'Monitor'
+      (type of automaton to build)
+    - at most one in 'Small', 'Deterministic', 'Any'
+      (preferred characteristics of the produced automaton)
+    - at most one in 'Low', 'Medium', 'High'
+      (optimization level)
+    - any combination of 'Complete', 'Unambiguous', and
+      'StateBasedAcceptance' (or 'SBAcc' for short)
+
+    The default correspond to 'tgba', 'small' and 'high'.
+
+#+end_example

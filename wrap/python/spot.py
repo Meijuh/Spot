@@ -229,7 +229,7 @@ def translate(formula, *args):
     - at most one in 'TGBA', 'BA', or 'Monitor'
       (type of automaton to build)
     - at most one in 'Small', 'Deterministic', 'Any'
-      (perefered characteristics of the produced automaton)
+      (preferred characteristics of the produced automaton)
     - at most one in 'Low', 'Medium', 'High'
       (optimization level)
     - any combination of 'Complete', 'Unambiguous', and
