@@ -79,7 +79,7 @@ T0_S3:
 
 The above line can actually be made a bit shorter, because
 =translate()= can also be used as a function (as opposed to a method)
-that take a formula (possibly as a string) as first argument:
+that takes a formula (possibly as a string) as first argument:
 
 #+BEGIN_SRC python :results output :exports both
 import spot
