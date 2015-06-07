@@ -5,5 +5,5 @@ Abstract: User documentation for Spot
 Section: Science/Mathematics
 
 Format: HTML
-Index: /usr/share/doc/spot/userdoc/tools.html
+Index: /usr/share/doc/spot/userdoc/index.html
 Files: /usr/share/doc/spot/userdoc/*.html

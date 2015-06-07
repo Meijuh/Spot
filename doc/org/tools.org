@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #+TITLE: Command-line tools installed by Spot 1.99
 #+SETUPFILE: setup.org
+#+HTML_LINK_UP: index.html
 
 This document introduces command-line tools that are installed with
 the Spot library.  We give some examples to highlight possible

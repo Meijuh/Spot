@@ -1,0 +1,47 @@
+#+TITLE: Spot
+#+SETUPFILE: setup.org
+
+Spot is a C++11 library for ω-automata manipulation and model
+checking.  It has the following notable features:
+
+- Support for LTL (several syntaxes supported) and the linear fragment of PSL.
+- Support for ω-automata with arbitrary acceptance condition.
+- Support for transition-based acceptance (state-based acceptance
+  is supported by a reduction to transition-based acceptance).
+- The automaton parser can read a stream of automata written in any of
+  three syntaxes ([[http://spinroot.com/spin/Man/never.html][never claims]], [[file:hoa.org][HOA]], or [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT]]).
+- Several algorithms for formula manipulation including: simplifying
+  formulas, testing implication or equivalence, testing
+  stutter-invariance, removing some operators by rewriting, ...
+- Several algorithms for automata manipulation including: product,
+  emptiness checks, simulation-based reductions,
+  minimization of weak-DBA, removal of useless SCCs,
+  acceptance-condition transformations, etc.
+- In addition to the C++ interface, most of its algorithms
+  are usable via [[file:tools.org][command-line tools]], and via Python bindings.
+- One of the command-line tool, called [[file:ltlcross.org][=ltlcross=]] is a rewrite
+  of [[http://www.tcs.hut.fi/Software/lbtt/][LBTT]], but with support for PSL and arbitrary acceptance conditions.
+  It could for instance be used to test tools that translate
+  LTL into Rabin automata.
+
+* Documentation
+
+- [[file:tools.org][Command-line tools]]
+- [[file:tut.org][Code examples]]
+
+* License
+
+Spot is distributed under a [[http://www.gnu.org/licenses/gpl-3.0.html][GNU GPL v3 license]].
+
+A consequence is that if you distribute a tool built using Spot, you
+*must* make the source code of that tool available as well.
+
+* Staying in touch
+
+=spot-announce@lrde.epita.fr= is an extremely low-traffic and
+read-only mailing list for release announcements.  If you want to stay
+informed about future releases of Spot, we invite you to [[https://lists.lrde.epita.fr/listinfo/spot-announce][subscribe]].
+
+[[mailto:spot@lrde.epita.fr][=spot@lrde.epita.fr=]] is a list for general discussions and questions
+about Spot. [[https://lists.lrde.epita.fr/listinfo/spot][Subscribe here]] if you want to join, but feel free to send
+in any question (in English) or bug report without subscribing.

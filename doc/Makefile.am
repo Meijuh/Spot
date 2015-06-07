@@ -67,6 +67,7 @@ ORG_FILES = \
   org/dstar2tgba.org \
   org/genltl.org \
   org/hoa.org \
+  org/index.org \
   org/ioltl.org \
   org/ltl2tgba.org \
   org/ltl2tgta.org \
@@ -78,6 +79,7 @@ ORG_FILES = \
   org/randaut.org \
   org/randltl.org \
   org/tools.org \
+  org/tut.org \
   org/tut01.org \
   org/tut02.org \
   org/tut10.org \
