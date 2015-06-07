@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#+TITLE: Command-line tools installed by Spot 1.99
+#+TITLE: Command-line tools installed by Spot {{{SPOTVERSION}}}
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: index.html
 

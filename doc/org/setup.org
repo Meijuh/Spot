@@ -1,3 +1,8 @@
 #+OPTIONS: H:2 num:nil toc:t
 #+EMAIL: spot@lrde.epita.fr
 #+HTML_LINK_HOME: index.html
+#+MACRO: SPOTVERSION 1.99b
+#+MACRO: LASTRELEASE 1.2.6
+#+MACRO: LASTTARBALL [[file:http:/www.lrde.epita.fr/dload/spot/spot-1.2.6.tar.gz][=spot-1.2.6.tar.gz=]]
+#+MACRO: LASTNEWS [[https://gitlab.lrde.epita.fr/spot/spot/blob/spot-1-2-6/NEWS][summary of the changes]]
+#+MACRO: LASTDATE 2014-12-06

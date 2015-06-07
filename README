@@ -46,7 +46,7 @@ test bench), mostly fixing errors reported by recent compilers.
 However Spot now distributes its own reimplementation of LBTT, called
 ltlcross, so the use of LBTT is completely optional.  The last
 modified version of LBTT we used to distribute can now be found at
-  http://spot.lip6.fr/dl/lbtt-1.2.1a.tar.gz
+  http://www.lrde.epita.fr/dload/spot/lbtt-1.2.1a.tar.gz
 If some lbtt binary is found on your system, it will be used in the
 test suite in addition to ltlcross.
 
@@ -62,12 +62,12 @@ In addition to its usual options, ./configure will accept some
 flags specific to Spot:
 
   --disable-python
-    Turn off the compilation of Python bindings.  These bindings offers a
-    convenient interface with used in an IPython notebook, and are
-    also used to build the CGI script that translates LTL formulae
-    on-line.  You may safely disable these, especially if you do not
-    have a working Python 3.2+ installation or if you are attempting
-    some cross-compilation.
+    Turn off the compilation of Python bindings.  These bindings
+    offers a convenient interface when used in an IPython notebook,
+    and are also used to build the CGI script that translates LTL
+    formulas on-line.  You may safely disable these, especially if you
+    do not have a working Python 3.2+ installation or if you are
+    attempting some cross-compilation.
 
   --enable-devel
     Enable debugging symbols, turn off aggressive optimizations, and
@@ -123,8 +123,8 @@ Some documentation can be found in the doc/ directory.
 
 "make install" will install man pages for command-line tools.  (These
 man pages can also be found in the src/bin/man/ subdirectory of the
-source tree.)  Additional documentation about these tools can be
-found on-line at http://spot.lip6.fr/userdoc/tools.html
+source tree.)  Additional documentation about these tools can be found
+in doc/userdoc/, or on-line at http://spot.lrde.lip6.fr/tools.html
 
 
 

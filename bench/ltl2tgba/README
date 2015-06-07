@@ -130,7 +130,7 @@ For all these values (except count), smaller numbers are better.
 
 
 More details about ltlcross (used to produce these outputs) can be
-found in its man page, and at http://spot.lip6.fr/userdoc/tools.html
+found in its man page, and at http://spot.lrde.epita.fr/tools.html
 
 
 ==============================================
@@ -145,7 +145,3 @@ For instance try
   TOOLS=./tools.sim make -j3 run
 
 to benchmark several simulation-related options.
-
-
-
-

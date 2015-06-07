@@ -514,7 +514,7 @@ New in spot 1.2.3 (2014-02-11)
     - The SPOT_SATLOG environment variable can be set to a filename to
       obtain statistics about the different iterations of the
       SAT-based minimization.  For an example, see
-      http://spot.lip6.fr/userdoc/satmin.html
+      http://spot.lrde.epita.fr/satmin.html
     - The bench/dtgbasat/ benchmark has been updated to use SPOT_SATLOG
       and record more statistics.
     - The default value for the SPOT_SATSOLVER environment
@@ -605,7 +605,7 @@ New in spot 1.2.1 (2013-12-11)
       to help escape formulas in CSV files.
 
     - Please check
-            http://spot.lip6.fr/userdoc/csv.html
+            http://spot.lrde.epita.fr/csv.html
       for some discussion and examples of the last few features.
 
   * Bug fixes:
@@ -667,7 +667,7 @@ New in spot 1.2 (2013-10-01)
       non-deterministic Büchi automata with Generalized acceptance.
       These are then degeneralized if requested.
 
-      See http://spot.lip6.fr/userdoc/dstar2tgba.html for some
+      See http://spot.lrde.epita.fr/dstar2tgba.html for some
       examples, and the man page for more reference.
 
     - The %S escape sequence used by ltl2tgba --stats to display the
@@ -690,7 +690,7 @@ New in spot 1.2 (2013-10-01)
       deterministic automaton more efficiently) and is disabled by
       default.  See the spot-x(7) man page for documentation about the
       related options: sat-minimize, sat-states, sat-acc, state-based.
-      See also http://spot.lip6.fr/userdoc/satmin.html for some
+      See also http://spot.lrde.epita.fr/satmin.html for some
       examples.
 
     - ltlfilt, genltl, and randltl now have a --latex option to output
@@ -1032,7 +1032,7 @@ New in spot 1.1 (2013-04-28):
   * Documentation:
 
     - org-mode files used to generate the documentation about
-      command-line tools (shown at http://spot.lip6.fr/userdoc/tools.html)
+      command-line tools (shown at http://spot.lrde.epita.fr/tools.html)
       is distributed in doc/org/.  The resulting html files are also
       in doc/userdoc/.
 
@@ -1183,7 +1183,7 @@ New in spot 1.0 (2012-10-27):
                 output more statistics.
 
     An introduction to these tools can be found on-line at
-      http://spot.lip6.fr/userdoc/tools.html
+      http://spot.lrde.lip6.fr/tools.html
 
     The former test versions of genltl and randltl have been removed
     from the source tree.  The old version of ltl2tgba with its

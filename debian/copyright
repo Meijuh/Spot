@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: spot
-Source: http://spot.lip6.fr/dl/
+Source: http://spot.lrde.epita.fr/dload/spot/
 
 Files: *
 Copyright: 2003-2007 Laboratoire d'Informatique de Paris 6 (LIP6)

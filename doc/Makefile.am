@@ -68,6 +68,7 @@ ORG_FILES = \
   org/genltl.org \
   org/hoa.org \
   org/index.org \
+  org/install.org \
   org/ioltl.org \
   org/ltl2tgba.org \
   org/ltl2tgta.org \

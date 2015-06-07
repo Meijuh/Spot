@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Alexandre Duret-Lutz <adl@lrde.epita.fr>
 Build-Depends: debhelper (>= 9), python3-all-dev
 Standards-Version: 3.9.6
-Homepage: http://spot.lip6.fr/
+Homepage: http://spot.lrde.lip6.fr/
 
 Package: spot
 Architecture: any

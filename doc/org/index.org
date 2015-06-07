@@ -24,6 +24,11 @@ checking.  It has the following notable features:
   It could for instance be used to test tools that translate
   LTL into Rabin automata.
 
+* Latest version
+
+The latest version is *{{{LASTRELEASE}}}* and was released on
+*{{{LASTDATE}}}*.  You can [[file:install.org][download it here]].
+
 * Documentation
 
 - [[file:tools.org][Command-line tools]]
