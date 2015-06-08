@@ -979,6 +979,8 @@ operator, even if the operator has multiple synonyms (like \samp{|},
   \mid{}&\mathit{sere}\msamp{\FUSION}\mathit{sere}              &   \mid{}&\tsamp{\{}\mathit{sere}\tsamp{\}} \\
   \mid{}&\mathit{sere}\msamp{\STAR{\mvar{i}..\mvar{j}}}         &   \mid{}&\tsamp{\{}\mathit{sere}\tsamp{\}}\msamp{\NOT} \\
   \mid{}&\mathit{sere}\msamp{\PLUS}                      \\
+  \mid{}&\mathit{sere}\msamp{\FSTAR{\mvar{i}..\mvar{j}}} \\
+  \mid{}&\mathit{sere}\msamp{\FPLUS}                     \\
   \mid{}&\mathit{sere}\msamp{\EQUAL{\mvar{i}..\mvar{j}}} \\
   \mid{}&\mathit{sere}\msamp{\GOTO{\mvar{i}..\mvar{j}}}  \\
 \end{align*}
@@ -1005,7 +1007,7 @@ left    & $\AND,\,\ANDALT$                                                      
 right   & $\U,\,\W,\,\M,\,\R$                                                                          &                                                           \\
         & $\F,\,\G$                                                                                    &                                                           \\
         & $\X$                                                                                         &                                                           \\
-        & $\STAR{\mvar{i}..\mvar{j}},\,\PLUS,\,\EQUAL{\mvar{i}..\mvar{j}},\,\GOTO{\mvar{i}..\mvar{j}}$ &                                                           \\
+        & $\STAR{\mvar{i}..\mvar{j}},\,\PLUS,\,\FSTAR{\mvar{i}..\mvar{j}},\,\FPLUS,\,\EQUAL{\mvar{i}..\mvar{j}},\,\GOTO{\mvar{i}..\mvar{j}}$ &                     \\
         & $\NOT$                                                                                       &                                                           \\
         & $\code{=0},\,\code{=1}$                                                                      & \tikz[remember picture,baseline]\node (highest){highest}; \\
 \end{tabular}
