@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
     if (print_automaton)
       {
 	if (save_hoa)
-	  spot::hoa_reachable(std::cout, complement, nullptr);
+	  spot::print_hoa(std::cout, complement, nullptr);
 	else
 	  spot::print_dot(std::cout, complement);
       }

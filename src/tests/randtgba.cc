@@ -924,7 +924,7 @@ main(int argc, char** argv)
 	      if (!opt_ec)
 		{
 		  if (!opt_0 && !opt_dot)
-		    hoa_reachable(std::cout, a, nullptr);
+		    print_hoa(std::cout, a, nullptr);
 		}
 	      else
 		{

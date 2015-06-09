@@ -36,7 +36,7 @@ namespace spot
   ///        transition-based acceptance, (m) mixed acceptance, (l)
   ///        single-line output.
   SPOT_API std::ostream&
-  hoa_reachable(std::ostream& os,
+  print_hoa(std::ostream& os,
 		const const_twa_ptr& g,
 		const char* opt);
 }

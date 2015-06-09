@@ -1594,7 +1594,7 @@ checked_main(int argc, char** argv)
 	      }
 	    case 17:
 	      {
-		hoa_reachable(std::cout, a, hoa_opt) << '\n';
+		print_hoa(std::cout, a, hoa_opt) << '\n';
 		break;
 	      }
 	    default:

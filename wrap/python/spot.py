@@ -124,7 +124,7 @@ def _twa_to_str(a, format='hoa', opt=None):
     format = format.lower()
     if format == 'hoa':
         ostr = ostringstream()
-        hoa_reachable(ostr, a, opt)
+        print_hoa(ostr, a, opt)
         return ostr.str()
     if format == 'dot':
         ostr = ostringstream()

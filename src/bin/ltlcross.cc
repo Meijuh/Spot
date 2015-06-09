@@ -722,7 +722,7 @@ namespace
 	      if (opt_automata)
 		{
 		  std::ostringstream os;
-		  spot::hoa_reachable(os, res, "l");
+		  spot::print_hoa(os, res, "l");
 		  st->hoa_str = os.str();
 		}
 	    }

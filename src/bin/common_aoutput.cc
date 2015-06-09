@@ -328,7 +328,7 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
       spot::print_lbtt(*out, aut, false);
       break;
     case Hoa:
-      spot::hoa_reachable(*out, aut, hoa_opt) << '\n';
+      spot::print_hoa(*out, aut, hoa_opt) << '\n';
       break;
     case Spin:
       spot::print_never_claim(*out, aut, opt_never);

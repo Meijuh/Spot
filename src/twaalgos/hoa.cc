@@ -236,7 +236,7 @@ namespace spot
     };
 
   static std::ostream&
-  hoa_reachable(std::ostream& os,
+  print_hoa(std::ostream& os,
 		const const_twa_graph_ptr& aut,
 		const char* opt)
   {
@@ -511,7 +511,7 @@ namespace spot
   }
 
   std::ostream&
-  hoa_reachable(std::ostream& os,
+  print_hoa(std::ostream& os,
 		const const_twa_ptr& aut,
 		const char* opt)
   {
@@ -520,7 +520,7 @@ namespace spot
     if (!a)
       a = make_twa_graph(aut, twa::prop_set::all());
 
-    return hoa_reachable(os, a, opt);
+    return print_hoa(os, a, opt);
   }
 
 }
