@@ -108,7 +108,7 @@ namespace spot
   /// neverclaim output.  It has been tuned to accept the output of
   /// spin -f, ltl2ba, ltl3ba, and modella.  If you know of some other
   /// tool that produce Büchi automata in the form of a neverclaim,
-  /// but is not understood by this parse, please report it to
+  /// but is not understood by this parser, please report it to
   /// spot@lrde.epita.fr.
   ///
   /// \warning This function is not reentrant.
