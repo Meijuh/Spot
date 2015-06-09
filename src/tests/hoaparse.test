@@ -86,6 +86,17 @@ State: 1 {0}
 1 0
 2 0 -1 t
 -1
+/* Another automaton.  Here we make sure that guard must
+   be Boolean, even though we the LBT parser we use
+   would accept LTL. */
+2 1t
+0 1
+1 -1 G "b"
+0 -1 & "a" ! "b"
+-1
+1 0
+0 0 -1 t
+-1
 EOF
 
 diff='different state numbers have been used'
@@ -97,6 +108,7 @@ input:2.1-9: ... declared here.
 input:10.5: state number is larger than state count...
 input:2.1-9: ... declared here.
 input:12.1-19.2: 2 states have been declared, but 3 $diff
+input:25.5-10: non-Boolean transition label (replaced by true)
 EOF
 
 cat >input <<EOF

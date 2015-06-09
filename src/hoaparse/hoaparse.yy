@@ -1415,8 +1415,17 @@ lbtt-guard: STRING
 	      }
 	    else
 	      {
-		res.cur_label =
-		  formula_to_bdd(f, res.h->aut->get_dict(), res.h->aut);
+		if (!f->is_boolean())
+		  {
+		    error(@$,
+			  "non-Boolean transition label (replaced by true)");
+		    res.cur_label = bddtrue;
+		  }
+		else
+		  {
+		    res.cur_label =
+		      formula_to_bdd(f, res.h->aut->get_dict(), res.h->aut);
+		  }
 		f->destroy();
 	      }
 	    delete $1;
