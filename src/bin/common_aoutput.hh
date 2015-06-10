@@ -39,7 +39,6 @@
 enum automaton_format_t {
   Dot,
   Lbtt,
-  Lbtt_t,
   Spin,
   Stats,
   Hoa,

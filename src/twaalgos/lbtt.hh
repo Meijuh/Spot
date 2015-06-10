@@ -32,8 +32,9 @@ namespace spot
   ///
   /// \param g The automata to print.
   /// \param os Where to print.
-  /// \param sba Assume \a g is an SBA and use LBTT's state-based
-  /// acceptance format (similar to LBT's format).
+  /// \param opt if "t", force transition-based acceptance, otherwise,
+  //  default to state-based acceptance when the automaton is marked so.
   SPOT_API std::ostream&
-  print_lbtt(std::ostream& os, const const_twa_ptr& g, bool sba = false);
+  print_lbtt(std::ostream& os, const const_twa_ptr& g,
+	     const char* opt = nullptr);
 }

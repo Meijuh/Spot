@@ -51,13 +51,13 @@ namespace spot
 	  sba_ = std::dynamic_pointer_cast<const twa_graph>(a);
       }
 
-      bool
-      state_is_accepting(const state *s) const
+      acc_cond::mark_t
+      state_acc_sets(const state *s) const
       {
 	// If the automaton has a SBA type, it's easier to just query the
 	// state_is_accepting() method.
 	if (sba_)
-	  return sba_->state_is_accepting(s);
+	  return sba_->state_acc_sets(sba_->state_number(s));
 
 	// Otherwise, since we are dealing with a degeneralized
 	// automaton nonetheless, the transitions leaving an accepting
@@ -66,10 +66,11 @@ namespace spot
 	// is not terribly efficient since we have to create the
 	// iterator.
 	twa_succ_iterator* it = aut_->succ_iter(s);
-	bool accepting = it->first()
-	  && aut_->acc().accepting(it->current_acceptance_conditions());
+	if (!it->first())
+	  return {};
+	auto res = it->current_acceptance_conditions();
 	aut_->release_iter(it);
-	return accepting;
+	return res;
       }
 
 
@@ -84,12 +85,9 @@ namespace spot
 	// Do we have state-based acceptance?
 	if (sba_format_)
 	  {
-	    // We support only one acceptance condition in the
-	    // state-based format.
-	    if (state_is_accepting(s))
-	      body_ << " 0 -1";
-	    else
-	      body_ << " -1";
+	    for (auto i: state_acc_sets(s).sets())
+	      body_ << ' ' << i;
+	    body_ << " -1";
 	  }
 	body_ << '\n';
       }
@@ -117,7 +115,7 @@ namespace spot
       {
 	os_ << seen.size() << ' ';
 	if (sba_format_)
-	  os_ << '1';
+	  os_ << aut_->acc().num_sets();
 	else
 	  os_ << aut_->acc().num_sets() << 't';
 	os_ << '\n' << body_.str() << "-1" << std::endl;
@@ -133,11 +131,23 @@ namespace spot
   }
 
   std::ostream&
-  print_lbtt(std::ostream& os, const const_twa_ptr& g, bool sba)
+  print_lbtt(std::ostream& os, const const_twa_ptr& g, const char* opt)
   {
     if (!g->acc().is_generalized_buchi())
       throw std::runtime_error
 	("LBTT only supports generalized Büchi acceptance");
+
+    bool sba = g->has_state_based_acc();
+    if (opt)
+      switch (char c = *opt++)
+	{
+	case 't':
+	  sba = false;
+	  break;
+	default:
+	  throw std::runtime_error
+	    (std::string("unknown option for print_lbtt(): ") + c);
+	}
 
     lbtt_bfs b(g, os, sba);
     b.run();

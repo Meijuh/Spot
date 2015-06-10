@@ -150,12 +150,13 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-enum output_format { Dot, Lbtt, Lbtt_t, Spin, Stats, Hoa };
+enum output_format { Dot, Lbtt, Spin, Stats, Hoa };
 static output_format format = Dot;
 static const char* opt_dot = nullptr;
 static const char* stats = "";
 static const char* hoa_opt = nullptr;
 static const char* opt_never = nullptr;
+static const char* opt_lbtt = nullptr;
 static const char* opt_name = nullptr;
 static const char* opt_output = nullptr;
 static spot::option_map extra_options;
@@ -204,17 +205,10 @@ parse_opt(int key, char* arg, struct argp_state*)
       opt_dot = arg;
       break;
     case OPT_LBTT:
-      if (arg)
-	{
-	  if (arg[0] == 't' && arg[1] == 0)
-	    format = Lbtt_t;
-	  else
-	    error(2, 0, "unknown argument for --lbtt: '%s'", arg);
-	}
-      else
-	{
-	  format = Lbtt;
-	}
+      format = Lbtt;
+      opt_lbtt = arg;
+      if (arg && (arg[0] != 't' || arg[1] != 0))
+	error(2, 0, "unknown argument for --lbtt: '%s'", arg);
       break;
     case OPT_NAME:
       opt_name = arg;
@@ -391,10 +385,7 @@ namespace
 	  spot::print_dot(*out, aut, opt_dot);
 	  break;
 	case Lbtt:
-	  spot::print_lbtt(*out, aut, type == spot::postprocessor::BA);
-	  break;
-	case Lbtt_t:
-	  spot::print_lbtt(*out, aut, false);
+	  spot::print_lbtt(*out, aut, opt_lbtt);
 	  break;
 	case Hoa:
 	  spot::print_hoa(*out, aut, hoa_opt) << '\n';

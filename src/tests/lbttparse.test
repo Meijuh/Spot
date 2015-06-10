@@ -27,7 +27,11 @@ do
   # Make sure Spot can read the LBTT it produces
   run 0 ../../bin/ltl2tgba --lbtt "$f" > out
   s=`wc -l < out`
-  head -n 1 out | grep t
+  if ../../bin/ltl2tgba -H "$f" | grep 'properties:.*state-acc'; then
+      head -n 1 out | grep t && exit 1
+  else
+      head -n 1 out | grep t
+  fi
   run 0 ../../bin/autfilt --lbtt out > out2
   s2=`wc -l < out2`
   test "$s" -eq "$s2"

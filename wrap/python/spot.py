@@ -136,7 +136,7 @@ def _twa_to_str(a, format='hoa', opt=None):
         return ostr.str()
     if format == 'lbtt':
         ostr = ostringstream()
-        print_lbtt(ostr, a, bool(opt))
+        print_lbtt(ostr, a, opt)
         return ostr.str()
     raise ValueError("unknown string format: " + format)
 

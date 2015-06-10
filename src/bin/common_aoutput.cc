@@ -38,6 +38,7 @@ automaton_format_t automaton_format = Dot;
 static const char* opt_dot = nullptr;
 static const char* opt_never = nullptr;
 static const char* hoa_opt = nullptr;
+static const char* opt_lbtt = nullptr;
 const char* opt_name = nullptr;
 static const char* opt_output = nullptr;
 static const char* stats = "";
@@ -234,17 +235,13 @@ int parse_opt_aoutput(int key, char* arg, struct argp_state*)
       opt_dot = arg;
       break;
     case OPT_LBTT:
-      if (arg)
-	{
-	  if (arg[0] == 't' && arg[1] == 0)
-	    automaton_format = Lbtt_t;
-	  else
-	    error(2, 0, "unknown argument for --lbtt: '%s'", arg);
-	}
-      else
-	{
-	  automaton_format = Lbtt;
-	}
+      automaton_format = Lbtt;
+      opt_lbtt = arg;
+      // This test could be removed when more options are added,
+      // because print_lbtt will raise an exception anyway.  The
+      // error message is slightly better in the current way.
+      if (arg && (arg[0] != 't' || arg[1] != 0))
+	error(2, 0, "unknown argument for --lbtt: '%s'", arg);
       break;
     case OPT_NAME:
       opt_name = arg;
@@ -322,10 +319,7 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
       spot::print_dot(*out, aut, opt_dot);
       break;
     case Lbtt:
-      spot::print_lbtt(*out, aut, type == spot::postprocessor::BA);
-      break;
-    case Lbtt_t:
-      spot::print_lbtt(*out, aut, false);
+      spot::print_lbtt(*out, aut, opt_lbtt);
       break;
     case Hoa:
       spot::print_hoa(*out, aut, hoa_opt) << '\n';
