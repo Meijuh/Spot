@@ -37,6 +37,6 @@ namespace spot
   ///        single-line output.
   SPOT_API std::ostream&
   print_hoa(std::ostream& os,
-		const const_twa_ptr& g,
-		const char* opt);
+	    const const_twa_ptr& g,
+	    const char* opt = nullptr);
 }
