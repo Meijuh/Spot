@@ -5,9 +5,10 @@
  (org-mode . ((whitespace-style face empty trailing)
 	      (eval .
 		    (progn
-		      (setq org-babel-sh-command (concat "PATH=../../src/bin"
-							 path-separator
-							 "$PATH sh"))
+		      (setenv "PATH"
+			      (concat "@abs_top_builddir@/src/bin"
+				      path-separator
+				      (getenv "PATH")))
 		      (setenv "PYTHONPATH"
 			      (concat "@abs_top_builddir@/wrap/python/.libs:@abs_top_builddir@/wrap/python:@abs_top_srcdir@/wrap/python:"
 				      (getenv "PYTHONPATH")))
@@ -22,8 +23,9 @@
 						     (dot . t)
 						     (C . t)))))
 	      (org-confirm-babel-evaluate . nil)
-	      (org-babel-python-command . "/usr/bin/python3")
+	      (org-babel-python-command . "@PYTHON@")
 	      (org-babel-C++-compiler . "./g++wrap")
+	      (shell-file-name . "@SHELL@")
 	      (org-publish-project-alist
 	       . (("spot-html"
 		   :base-directory "."
