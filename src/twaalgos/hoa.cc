@@ -97,7 +97,7 @@ namespace spot
 	bool complete = true;
 	bool state_acc = true;
 	bool nodeadend = true;
-	bool colored = aut->acc().num_sets() >= 1;
+	bool colored = aut->num_sets() >= 1;
 	for (unsigned src = 0; src < ns; ++src)
 	  {
 	    bdd sum = bddfalse;
@@ -296,7 +296,7 @@ namespace spot
       }
     os << nl;
 
-    unsigned num_acc = aut->acc().num_sets();
+    unsigned num_acc = aut->num_sets();
     acc_cond::acc_code acc_c = aut->acc().get_acceptance();
     if (aut->acc().is_generalized_buchi())
       {

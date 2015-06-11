@@ -226,7 +226,7 @@ namespace spot
 	// used in the automaton.  (This surprising fact is probably
 	// related to the order in which we declare the BDD variables
 	// during the translation.)
-	unsigned n = a->acc().num_sets();
+	unsigned n = a->num_sets();
 	for (unsigned i = n; i > 0; --i)
 	  order.push_back(i - 1);
       }

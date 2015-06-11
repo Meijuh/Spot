@@ -277,7 +277,7 @@ namespace spot
 	if (opt_html_labels_)
 	  std::tie(inf_sets_, fin_sets_) =
 	    aut_->get_acceptance().used_inf_fin_sets();
-	if (opt_bullet && aut_->acc().num_sets() <= MAX_BULLET)
+	if (opt_bullet && aut_->num_sets() <= MAX_BULLET)
 	  opt_all_bullets = true;
 	os_ << "digraph G {\n";
 	if (opt_horizontal_)
@@ -366,7 +366,7 @@ namespace spot
       {
 	if (mark_states_ &&
 	    ((opt_bullet && !opt_bullet_but_buchi)
-	     || aut_->acc().num_sets() != 1))
+	     || aut_->num_sets() != 1))
 	  {
 	    acc_cond::mark_t acc = 0U;
 	    for (auto& t: aut_->out(s))

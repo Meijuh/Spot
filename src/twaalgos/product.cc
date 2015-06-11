@@ -52,11 +52,11 @@ namespace spot
     auto res = make_twa_graph(left->get_dict());
     res->copy_ap_of(left);
     res->copy_ap_of(right);
-    auto left_num = left->acc().num_sets();
+    auto left_num = left->num_sets();
     auto right_acc = right->get_acceptance();
     right_acc.shift_left(left_num);
     right_acc.append_and(left->get_acceptance());
-    res->set_acceptance(left_num + right->acc().num_sets(), right_acc);
+    res->set_acceptance(left_num + right->num_sets(), right_acc);
 
     auto v = new product_states;
     res->set_named_prop("product-states", v);

@@ -119,7 +119,7 @@ namespace spot
       start = stb.front().s->clone();
       if (!str.empty())
         {
-          if (a_->acc().num_sets() == 0)
+          if (a_->num_sets() == 0)
             {
               // take arbitrarily the last transition on the red stack
               stack_type::const_iterator i, j;

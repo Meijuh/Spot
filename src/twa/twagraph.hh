@@ -438,7 +438,7 @@ namespace spot
 
     acc_cond::mark_t state_acc_sets(unsigned s) const
     {
-      assert(has_state_based_acc() || acc_.num_sets() == 0);
+      assert(has_state_based_acc() || num_sets() == 0);
       for (auto& t: g_.out(s))
 	// Stop at the first transition, since the remaining should be
 	// labeled identically.
@@ -448,7 +448,7 @@ namespace spot
 
     bool state_is_accepting(unsigned s) const
     {
-      assert(has_state_based_acc() || acc_.num_sets() == 0);
+      assert(has_state_based_acc() || num_sets() == 0);
       for (auto& t: g_.out(s))
 	// Stop at the first transition, since the remaining should be
 	// labeled identically.
@@ -465,7 +465,7 @@ namespace spot
     {
       if (num_states() != aut.num_states() ||
           num_transitions() != aut.num_transitions() ||
-          acc().num_sets() != aut.acc().num_sets())
+          num_sets() != aut.num_sets())
         return false;
       auto& trans1 = transition_vector();
       auto& trans2 = aut.transition_vector();

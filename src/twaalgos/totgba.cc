@@ -70,7 +70,7 @@ namespace spot
     if (cnf.empty() ||
 	(cnf.size() == 2 && cnf.back().op == acc_cond::acc_op::Inf))
       {
-	res->set_acceptance(res->acc().num_sets(), cnf);
+	res->set_acceptance(res->num_sets(), cnf);
 	cleanup_acceptance_here(res);
 	return res;
       }

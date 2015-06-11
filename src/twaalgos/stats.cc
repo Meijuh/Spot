@@ -183,7 +183,7 @@ namespace spot
       }
 
     if (has('a'))
-      acc_ = aut->acc().num_sets();
+      acc_ = aut->num_sets();
 
     if (has('c') || has('S'))
       scc_ = scc_info(aut).scc_count();

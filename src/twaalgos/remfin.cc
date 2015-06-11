@@ -264,7 +264,7 @@ namespace spot
     res->copy_ap_of(aut);
     res->prop_copy(aut, { false, false, false, true });
     res->new_states(nst);
-    res->set_acceptance(aut->acc().num_sets() + extra_sets, new_code);
+    res->set_acceptance(aut->num_sets() + extra_sets, new_code);
     res->set_init_state(aut->get_init_state_number());
 
     unsigned nscc = si.scc_count();

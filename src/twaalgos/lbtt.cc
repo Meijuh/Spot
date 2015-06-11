@@ -115,9 +115,9 @@ namespace spot
       {
 	os_ << seen.size() << ' ';
 	if (sba_format_)
-	  os_ << aut_->acc().num_sets();
+	  os_ << aut_->num_sets();
 	else
-	  os_ << aut_->acc().num_sets() << 't';
+	  os_ << aut_->num_sets() << 't';
 	os_ << '\n' << body_.str() << "-1" << std::endl;
       }
 

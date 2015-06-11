@@ -258,7 +258,7 @@ namespace spot
 	unsigned set_num = a_->get_dict()
 	  ->register_anonymous_variables(size_a_ + 1, this);
 
-	unsigned n_acc = a_->acc().num_sets();
+	unsigned n_acc = a_->num_sets();
 	acc_vars = a_->get_dict()
 	  ->register_anonymous_variables(n_acc, this);
 

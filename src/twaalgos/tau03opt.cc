@@ -159,7 +159,7 @@ namespace spot
 	  return acc;
 	// FIXME: This should be improved.
 	std::vector<unsigned> res;
-	unsigned max = a_->acc().num_sets();
+	unsigned max = a_->num_sets();
 	for (unsigned n = 0; n < max && a_->acc().has(acc, n); ++n)
 	  res.push_back(n);
 	return a_->acc().marks(res.begin(), res.end());

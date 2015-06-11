@@ -27,7 +27,7 @@ namespace spot
     auto res = make_twa_graph(in->get_dict());
     res->copy_ap_of(in);
     res->prop_copy(in, { true, true, true, false });
-    unsigned na = in->acc().num_sets();
+    unsigned na = in->num_sets();
     unsigned tr = to_remove.count();
     assert(tr <= na);
     res->set_acceptance(na - tr,

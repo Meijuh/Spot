@@ -58,7 +58,7 @@ namespace spot
         : emptiness_check(a, o),
           h(size)
       {
-        assert(a->acc().num_sets() > 0);
+        assert(a->num_sets() > 0);
       }
 
       virtual ~tau03_search()

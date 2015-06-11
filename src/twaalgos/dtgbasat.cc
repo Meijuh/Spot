@@ -472,7 +472,7 @@ namespace spot
 	}
 
       d.all_ref_acc.push_back(0U);
-      unsigned ref_nacc = aut->acc().num_sets();
+      unsigned ref_nacc = aut->num_sets();
       for (unsigned n = 0; n < ref_nacc; ++n)
 	{
 	  auto c = aut->acc().mark(n);
@@ -1233,7 +1233,7 @@ namespace spot
     // Assume we are going to use the input automaton acceptance...
     bool user_supplied_acc = false;
     acc_cond::acc_code target_acc = a->get_acceptance();
-    int nacc = a->acc().num_sets();
+    int nacc = a->num_sets();
 
     if (accstr == "same")
       accstr.clear();

@@ -41,7 +41,7 @@ namespace spot
     static twa_graph_ptr
     ensure_ba(twa_graph_ptr& a)
     {
-      if (a->acc().num_sets() == 0)
+      if (a->num_sets() == 0)
 	{
 	  auto m = a->set_buchi();
 	  for (auto& t: a->transitions())
@@ -153,7 +153,7 @@ namespace spot
       if (type_ == Generic
 	  || type_ == TGBA
 	  || (type_ == BA && a->is_sba())
-	  || (type_ == Monitor && a->acc().num_sets() == 0))
+	  || (type_ == Monitor && a->num_sets() == 0))
 	{
 	  if (COMP_)
 	    a = tgba_complete(a);
@@ -171,7 +171,7 @@ namespace spot
     if (type_ == BA || SBACC_)
       state_based_ = true;
 
-    int original_acc = a->acc().num_sets();
+    int original_acc = a->num_sets();
 
     // Remove useless SCCs.
     if (type_ == Monitor)
@@ -301,7 +301,7 @@ namespace spot
 	if (PREF_ == Deterministic
 	    && f
 	    && f->is_syntactic_recurrence()
-	    && sim->acc().num_sets() > 1)
+	    && sim->num_sets() > 1)
 	  tmpd = degeneralize_tba(sim);
 
 	auto in = tmpd ? tmpd : sim;
@@ -370,7 +370,7 @@ namespace spot
 	    // because the input TBA might be smaller.
 	    if (state_based_)
 	      in = degeneralize(dba);
-	    else if (dba->acc().num_sets() != 1)
+	    else if (dba->num_sets() != 1)
 	      in = degeneralize_tba(dba);
 	    else
 	      in = dba;
@@ -423,7 +423,7 @@ namespace spot
     // Degeneralize the dba resulting from tba-determinization or
     // sat-minimization (which is a TBA) if requested and needed.
     if (dba && !dba_is_wdba && type_ == BA
-	&& !(dba_is_minimal && state_based_ && dba->acc().num_sets() == 1))
+	&& !(dba_is_minimal && state_based_ && dba->num_sets() == 1))
       dba = degeneralize(dba);
 
     if (dba && sim)

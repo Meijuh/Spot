@@ -59,7 +59,7 @@ namespace spot
         : emptiness_check(a, o),
           h(size)
       {
-        assert(a->acc().num_sets() <= 1);
+        assert(a->num_sets() <= 1);
       }
 
       virtual ~magic_search_()

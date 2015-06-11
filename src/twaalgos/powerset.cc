@@ -410,7 +410,7 @@ namespace spot
   {
     if (f == 0 && neg_aut == 0)
       return 0;
-    if (aut->acc().num_sets() > 1)
+    if (aut->num_sets() > 1)
       return 0;
 
     auto det = tba_determinize(aut, threshold_states, threshold_cycles);

@@ -25,7 +25,7 @@ namespace spot
     : twa(original->get_dict()), original_(original)
   {
     get_dict()->register_all_variables_of(original, this);
-    acc_.add_sets(original->acc().num_sets());
+    acc_.add_sets(original->num_sets());
   }
 
   twa_proxy::~twa_proxy()

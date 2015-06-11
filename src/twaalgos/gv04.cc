@@ -70,7 +70,7 @@ namespace spot
       gv04(const const_twa_ptr& a, option_map o)
 	: emptiness_check(a, o)
       {
-	assert(a->acc().num_sets() <= 1);
+	assert(a->num_sets() <= 1);
       }
 
       ~gv04()
@@ -383,7 +383,7 @@ namespace spot
 
 	  const state* bfs_start = data.stack[scc_root].s;
 	  const state* bfs_end = bfs_start;
-	  if (a_->acc().num_sets() > 0)
+	  if (a_->num_sets() > 0)
 	    {
 	      first_bfs b1(this, scc_root);
 	      bfs_start = b1.search(bfs_start, res->cycle);

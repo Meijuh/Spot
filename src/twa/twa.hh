@@ -658,6 +658,11 @@ namespace spot
     }
 
   public:
+    unsigned num_sets() const
+    {
+      return acc_.num_sets();
+    }
+
     const acc_cond::acc_code& get_acceptance() const
     {
       return acc_.get_acceptance();

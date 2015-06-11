@@ -310,12 +310,12 @@ namespace spot
     d->register_all_propositions_of(&left_, this);
     d->register_all_propositions_of(&right_, this);
 
-    assert(acc_.num_sets() == 0);
-    auto left_num = left->acc().num_sets();
+    assert(num_sets() == 0);
+    auto left_num = left->num_sets();
     auto right_acc = right->get_acceptance();
     right_acc.shift_left(left_num);
     right_acc.append_and(left->get_acceptance());
-    set_acceptance(left_num + right->acc().num_sets(), right_acc);
+    set_acceptance(left_num + right->num_sets(), right_acc);
   }
 
   twa_product::~twa_product()
