@@ -152,7 +152,7 @@ automaton is returned even in the presence of parse errors.
     // it could while reading a HOA file.
     if (pa->aborted)
       {
-        std::cerr << "--ABORT-- read" << '\n';
+        std::cerr << "--ABORT-- read\n";
         return 1;
       }
     spot::print_hoa(std::cout, pa->aut) << '\n';
@@ -313,3 +313,7 @@ State: 1 {0}
 :   skip
 : }
 :
+
+#+BEGIN_SRC sh :results verbatim :exports none
+rm -f tut20.never
+#+END_SRC
