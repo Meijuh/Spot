@@ -38,12 +38,12 @@
 // the format of the acceptance condition, it doesn't allow easy
 // simplification. Instead of encoding them as: "a!b!c + !ab!c", we
 // use them as: "ab". We complement them because we want a
-// simplification if the condition of the transition A implies the
-// transition of B, and if the acceptance condition of A is included
+// simplification if the condition of the edge A implies the
+// edge of B, and if the acceptance condition of A is included
 // in the acceptance condition of B. To let the bdd makes the job, we
 // revert them.
 
-// Then, to check if a transition i-dominates another, we'll use the bdd:
+// Then, to check if a edge i-dominates another, we'll use the bdd:
 // "sig(transA) = cond(trans) & acc(trans) & implied(class(trans->state))"
 // Idem for sig(transB). The 'implied'
 // (represented by a hash table 'relation_' in the implementation) is
@@ -65,8 +65,8 @@
 // 3. Rename the class (to actualize the name in the previous_class and
 //    in relation_).
 // 4. Building an automaton with the result, with the condition:
-// "a transition in the original automaton appears in the simulated one
-// iff this transition is included in the set of i-maximal neighbour."
+// "a edge in the original automaton appears in the simulated one
+// iff this edge is included in the set of i-maximal neighbour."
 // This function is `build_output'.
 // The automaton simulated is recomplemented to come back to its initial
 // state when the object Simulation is destroyed.
@@ -96,13 +96,13 @@ namespace spot
     struct automaton_size
     {
       automaton_size()
-        : transitions(0),
+        : edges(0),
           states(0)
       {
       }
 
       automaton_size(const twa_graph_ptr& a)
-        : transitions(a->num_transitions()),
+        : edges(a->num_edges()),
           states(a->num_states())
       {
       }
@@ -110,12 +110,12 @@ namespace spot
       void set_size(const twa_graph_ptr& a)
       {
 	states = a->num_states();
-	transitions = a->num_transitions();
+	edges = a->num_edges();
       }
 
       inline bool operator!=(const automaton_size& r)
       {
-        return transitions != r.transitions || states != r.states;
+        return edges != r.edges || states != r.states;
       }
 
       inline bool operator<(const automaton_size& r)
@@ -125,9 +125,9 @@ namespace spot
         if (states > r.states)
           return false;
 
-        if (transitions < r.transitions)
+        if (edges < r.edges)
           return true;
-        if (transitions > r.transitions)
+        if (edges > r.edges)
           return false;
 
         return false;
@@ -140,15 +140,15 @@ namespace spot
         if (states > r.states)
           return true;
 
-        if (transitions < r.transitions)
+        if (edges < r.edges)
           return false;
-        if (transitions > r.transitions)
+        if (edges > r.edges)
           return true;
 
         return false;
       }
 
-      int transitions;
+      int edges;
       int states;
     };
 
@@ -207,7 +207,7 @@ namespace spot
 	all_inf_ = all_inf;
 
 	// Replace all the acceptance conditions by their complements.
-	// (In the case of Cosimulation, we also flip the transitions.)
+	// (In the case of Cosimulation, we also flip the edges.)
 	if (Cosimulation)
 	  {
 	    a_ = make_twa_graph(in->get_dict());
@@ -239,7 +239,7 @@ namespace spot
 		      {
 			acc = t.acc ^ all_inf;
 		      }
-		    a_->new_transition(t.dst, s, t.cond, acc);
+		    a_->new_edge(t.dst, s, t.cond, acc);
 		  }
 		a_->set_init_state(init_state_number);
 	      }
@@ -247,7 +247,7 @@ namespace spot
 	else
 	  {
 	    a_ = make_twa_graph(in, twa::prop_set::all());
-	    for (auto& t: a_->transitions())
+	    for (auto& t: a_->edges())
 	      t.acc ^= all_inf;
 	  }
 	assert(a_->num_states() == size_a_);
@@ -309,11 +309,11 @@ namespace spot
 	for (auto& p: bdd_lstate_)
           {
 	    // If the signature of a state is bddfalse (no
-	    // transitions) the class of this state is bddfalse
+	    // edges) the class of this state is bddfalse
 	    // instead of an anonymous variable. It allows
 	    // simplifications in the signature by removing a
-	    // transition which has as a destination a state with
-	    // no outgoing transition.
+	    // edge which has as a destination a state with
+	    // no outgoing edge.
 	    if (p.first == bddfalse)
 	      for (auto s: p.second)
 		previous_class_[s] = bddfalse;
@@ -360,7 +360,7 @@ namespace spot
             bdd acc = mark_to_bdd(t.acc);
 
 	    // to_add is a conjunction of the acceptance condition,
-	    // the label of the transition and the class of the
+	    // the label of the edge and the class of the
 	    // destination and all the class it implies.
 	    bdd to_add = acc & t.cond & relation_[previous_class_[t.dst]];
 
@@ -426,11 +426,11 @@ namespace spot
 	for (auto& p: bdd_lstate_)
           {
 	    // If the signature of a state is bddfalse (no
-	    // transitions) the class of this state is bddfalse
+	    // edges) the class of this state is bddfalse
 	    // instead of an anonymous variable. It allows
 	    // simplifications in the signature by removing a
-	    // transition which has as a destination a state with
-	    // no outgoing transition.
+	    // edge which has as a destination a state with
+	    // no outgoing edge.
 	    bdd acc = bddfalse;
 	    if (p.first != bddfalse)
 	      acc = *it_bdd;
@@ -511,14 +511,14 @@ namespace spot
 	  accst.resize(res->num_states(), 0U);
 
         stat.states = bdd_lstate_.size();
-        stat.transitions = 0;
+        stat.edges = 0;
 
         unsigned nb_satoneset = 0;
         unsigned nb_minato = 0;
 
 	auto all_inf = all_inf_;
 	// For each class, we will create
-	// all the transitions between the states.
+	// all the edges between the states.
 	for (auto& p: bdd_lstate_)
           {
 	    // All states in p.second have the same class, so just
@@ -565,11 +565,11 @@ namespace spot
 		bdd cond_acc_dest;
 		while ((cond_acc_dest = isop.next()) != bddfalse)
 		  {
-                    ++stat.transitions;
+                    ++stat.edges;
 
                     ++nb_minato;
 
-		    // Take the transition, and keep only the variable which
+		    // Take the edge, and keep only the variable which
 		    // are used to represent the class.
 		    bdd dst = bdd_existcomp(cond_acc_dest,
 					     all_class_var_);
@@ -584,7 +584,7 @@ namespace spot
 
 		    // Because we have complemented all the Inf
 		    // acceptance conditions on the input automaton,
-		    // we must revert them to create a new transition.
+		    // we must revert them to create a new edge.
 		    acc ^= all_inf;
 
 		    if (Cosimulation)
@@ -592,18 +592,18 @@ namespace spot
 			if (Sba)
 			  {
 			    // acc should be attached to src, or rather,
-			    // in our transition-based representation)
-			    // to all transitions leaving src.  As we
+			    // in our edge-based representation)
+			    // to all edges leaving src.  As we
 			    // can't do this here, store this in a table
 			    // so we can fix it later.
 			    accst[gb->get_state(src.id())] = acc;
 			    acc = 0U;
 			  }
-			gb->new_transition(dst.id(), src.id(), cond, acc);
+			gb->new_edge(dst.id(), src.id(), cond, acc);
 		      }
 		    else
 		      {
-			gb->new_transition(src.id(), dst.id(), cond, acc);
+			gb->new_edge(src.id(), dst.id(), cond, acc);
 		      }
 		  }
 	      }
@@ -612,7 +612,7 @@ namespace spot
 	res->set_init_state(gb->get_state(previous_class_
 					  [a_->get_init_state_number()].id()));
 
-	res->merge_transitions(); // FIXME: is this really needed?
+	res->merge_edges(); // FIXME: is this really needed?
 
 	// Mark all accepting state in a second pass, when
 	// dealing with SBA in cosimulation.

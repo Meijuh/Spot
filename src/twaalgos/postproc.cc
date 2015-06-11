@@ -44,7 +44,7 @@ namespace spot
       if (a->num_sets() == 0)
 	{
 	  auto m = a->set_buchi();
-	  for (auto& t: a->transitions())
+	  for (auto& t: a->edges())
 	    t.acc = m;
 	}
       return a;

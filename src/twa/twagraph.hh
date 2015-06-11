@@ -73,22 +73,22 @@ namespace spot
     }
   };
 
-  struct SPOT_API twa_graph_trans_data
+  struct SPOT_API twa_graph_edge_data
   {
     bdd cond;
     acc_cond::mark_t acc;
 
-    explicit twa_graph_trans_data()
+    explicit twa_graph_edge_data()
       : cond(bddfalse), acc(0)
     {
     }
 
-    twa_graph_trans_data(bdd cond, acc_cond::mark_t acc = 0U)
+    twa_graph_edge_data(bdd cond, acc_cond::mark_t acc = 0U)
       : cond(cond), acc(acc)
     {
     }
 
-    bool operator<(const twa_graph_trans_data& other) const
+    bool operator<(const twa_graph_edge_data& other) const
     {
       if (cond.id() < other.cond.id())
 	return true;
@@ -97,7 +97,7 @@ namespace spot
       return acc < other.acc;
     }
 
-    bool operator==(const twa_graph_trans_data& other) const
+    bool operator==(const twa_graph_edge_data& other) const
     {
       return cond.id() == other.cond.id() &&
         acc == other.acc;
@@ -110,19 +110,19 @@ namespace spot
     public twa_succ_iterator
   {
   private:
-    typedef typename Graph::transition transition;
+    typedef typename Graph::edge edge;
     typedef typename Graph::state_data_t state;
     const Graph* g_;
-    transition t_;
-    transition p_;
+    edge t_;
+    edge p_;
 
   public:
-    twa_graph_succ_iterator(const Graph* g, transition t)
+    twa_graph_succ_iterator(const Graph* g, edge t)
       : g_(g), t_(t)
     {
     }
 
-    virtual void recycle(transition t)
+    virtual void recycle(edge t)
     {
       t_ = t;
     }
@@ -135,7 +135,7 @@ namespace spot
 
     virtual bool next()
     {
-      p_ = g_->trans_storage(p_).next_succ;
+      p_ = g_->edge_storage(p_).next_succ;
       return p_;
     }
 
@@ -148,22 +148,22 @@ namespace spot
     {
       assert(!done());
       return const_cast<twa_graph_state*>
-	(&g_->state_data(g_->trans_storage(p_).dst));
+	(&g_->state_data(g_->edge_storage(p_).dst));
     }
 
     virtual bdd current_condition() const
     {
       assert(!done());
-      return g_->trans_data(p_).cond;
+      return g_->edge_data(p_).cond;
     }
 
     virtual acc_cond::mark_t current_acceptance_conditions() const
     {
       assert(!done());
-      return g_->trans_data(p_).acc;
+      return g_->edge_data(p_).acc;
     }
 
-    transition pos() const
+    edge pos() const
     {
       return p_;
     }
@@ -173,8 +173,8 @@ namespace spot
   class SPOT_API twa_graph final: public twa
   {
   public:
-    typedef digraph<twa_graph_state, twa_graph_trans_data> graph_t;
-    typedef graph_t::trans_storage_t trans_storage_t;
+    typedef digraph<twa_graph_state, twa_graph_edge_data> graph_t;
+    typedef graph_t::edge_storage_t edge_storage_t;
 
   protected:
     graph_t g_;
@@ -248,9 +248,9 @@ namespace spot
       return g_.num_states();
     }
 
-    unsigned num_transitions() const
+    unsigned num_edges() const
     {
-      return g_.num_transitions();
+      return g_.num_edges();
     }
 
     void set_init_state(graph_t::state s)
@@ -323,49 +323,49 @@ namespace spot
       return format_state(state_number(st));
     }
 
-    twa_graph_trans_data& trans_data(const twa_succ_iterator* it)
+    twa_graph_edge_data& edge_data(const twa_succ_iterator* it)
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
-      return g_.trans_data(i->pos());
+      return g_.edge_data(i->pos());
     }
 
-    twa_graph_trans_data& trans_data(unsigned t)
+    twa_graph_edge_data& edge_data(unsigned t)
     {
-      return g_.trans_data(t);
+      return g_.edge_data(t);
     }
 
-    const twa_graph_trans_data& trans_data(const twa_succ_iterator* it) const
-    {
-      auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
-      return g_.trans_data(i->pos());
-    }
-
-    const twa_graph_trans_data& trans_data(unsigned t) const
-    {
-      return g_.trans_data(t);
-    }
-
-    trans_storage_t& trans_storage(const twa_succ_iterator* it)
+    const twa_graph_edge_data& edge_data(const twa_succ_iterator* it) const
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
-      return g_.trans_storage(i->pos());
+      return g_.edge_data(i->pos());
     }
 
-    trans_storage_t& trans_storage(unsigned t)
+    const twa_graph_edge_data& edge_data(unsigned t) const
     {
-      return g_.trans_storage(t);
+      return g_.edge_data(t);
     }
 
-    const trans_storage_t
-      trans_storage(const twa_succ_iterator* it) const
+    edge_storage_t& edge_storage(const twa_succ_iterator* it)
     {
       auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
-      return g_.trans_storage(i->pos());
+      return g_.edge_storage(i->pos());
     }
 
-    const trans_storage_t trans_storage(unsigned t) const
+    edge_storage_t& edge_storage(unsigned t)
     {
-      return g_.trans_storage(t);
+      return g_.edge_storage(t);
+    }
+
+    const edge_storage_t
+      edge_storage(const twa_succ_iterator* it) const
+    {
+      auto* i = down_cast<const twa_graph_succ_iterator<graph_t>*>(it);
+      return g_.edge_storage(i->pos());
+    }
+
+    const edge_storage_t edge_storage(unsigned t) const
+    {
+      return g_.edge_storage(t);
     }
 
     unsigned new_state()
@@ -378,19 +378,19 @@ namespace spot
       return g_.new_states(n);
     }
 
-    unsigned new_transition(unsigned src, unsigned dst,
+    unsigned new_edge(unsigned src, unsigned dst,
 			    bdd cond, acc_cond::mark_t acc = 0U)
     {
-      return g_.new_transition(src, dst, cond, acc);
+      return g_.new_edge(src, dst, cond, acc);
     }
 
-    unsigned new_acc_transition(unsigned src, unsigned dst,
+    unsigned new_acc_edge(unsigned src, unsigned dst,
 				bdd cond, bool acc = true)
     {
       if (acc)
-	return g_.new_transition(src, dst, cond, acc_.all_sets());
+	return g_.new_edge(src, dst, cond, acc_.all_sets());
       else
-	return g_.new_transition(src, dst, cond);
+	return g_.new_edge(src, dst, cond);
     }
 
 #ifndef SWIG
@@ -404,18 +404,18 @@ namespace spot
     auto states()
       SPOT_RETURN(g_.states());
 
-    auto transitions() const
-      SPOT_RETURN(g_.transitions());
-    auto transitions()
-      SPOT_RETURN(g_.transitions());
+    auto edges() const
+      SPOT_RETURN(g_.edges());
+    auto edges()
+      SPOT_RETURN(g_.edges());
 
-    auto transition_vector() const
-      SPOT_RETURN(g_.transition_vector());
-    auto transition_vector()
-      SPOT_RETURN(g_.transition_vector());
+    auto edge_vector() const
+      SPOT_RETURN(g_.edge_vector());
+    auto edge_vector()
+      SPOT_RETURN(g_.edge_vector());
 
-    auto is_dead_transition(const graph_t::trans_storage_t& t) const
-      SPOT_RETURN(g_.is_dead_transition(t));
+    auto is_dead_edge(const graph_t::edge_storage_t& t) const
+      SPOT_RETURN(g_.is_dead_edge(t));
 #endif
 
     virtual bdd compute_support_conditions(const state* s) const
@@ -426,9 +426,9 @@ namespace spot
       return sum;
     }
 
-    /// Iterate over all transitions, and merge those with compatible
+    /// Iterate over all edges, and merge those with compatible
     /// extremities and acceptance.
-    void merge_transitions();
+    void merge_edges();
 
     /// Remove all states without successors.
     void purge_dead_states();
@@ -440,7 +440,7 @@ namespace spot
     {
       assert(has_state_based_acc() || num_sets() == 0);
       for (auto& t: g_.out(s))
-	// Stop at the first transition, since the remaining should be
+	// Stop at the first edge, since the remaining should be
 	// labeled identically.
 	return t.acc;
       return 0U;
@@ -450,7 +450,7 @@ namespace spot
     {
       assert(has_state_based_acc() || num_sets() == 0);
       for (auto& t: g_.out(s))
-	// Stop at the first transition, since the remaining should be
+	// Stop at the first edge, since the remaining should be
 	// labeled identically.
 	return acc_.accepting(t.acc);
       return false;
@@ -464,11 +464,11 @@ namespace spot
     bool operator==(const twa_graph& aut) const
     {
       if (num_states() != aut.num_states() ||
-          num_transitions() != aut.num_transitions() ||
+          num_edges() != aut.num_edges() ||
           num_sets() != aut.num_sets())
         return false;
-      auto& trans1 = transition_vector();
-      auto& trans2 = aut.transition_vector();
+      auto& trans1 = edge_vector();
+      auto& trans2 = aut.edge_vector();
       return std::equal(trans1.begin() + 1, trans1.end(),
                         trans2.begin() + 1);
     }

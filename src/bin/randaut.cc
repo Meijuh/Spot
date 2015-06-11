@@ -63,7 +63,7 @@ states, 1 to 3 acceptance sets, and three atomic propositions:\n\
 \n\
 Build 3 random, complete, and deterministic Rabin automata\n\
 with 2 to 3 acceptance pairs, state-based acceptance, 8 states, \n\
-a high density of transitions, and 3 to 4 atomic propositions:\n\
+a high density of edges, and 3 to 4 atomic propositions:\n\
   % randaut -n3 -D -H -Q8 -d.8 -S -A 'Rabin 2..3' 3..4\n\
 ";
 
@@ -79,15 +79,15 @@ static const argp_option options[] =
     { "acceptance", 'A', "ACCEPTANCE", 0,
       "specify the acceptance type of the automaton", 0 },
     { "acc-probability", 'a', "FLOAT", 0,
-      "probability that a transition belong to one acceptance set (0.2)", 0 },
+      "probability that an edge belongs to one acceptance set (0.2)", 0 },
     { "automata", 'n', "INT", 0, "number of automata to output (1)\n"\
       "use a negative value for unbounded generation", 0 },
     { "ba", 'B', 0, 0,
       "build a Buchi automaton (implies --acceptance=Buchi --state-acc)", 0 },
     { "colored", OPT_COLORED, 0, 0,
-      "build an automaton in which each transition (or state if combined with "
+      "build an automaton in which each edge (or state if combined with "
       "-S) belong to a single acceptance set", 0 },
-    { "density", 'd', "FLOAT", 0, "density of the transitions (0.2)", 0 },
+    { "density", 'd', "FLOAT", 0, "density of the edges (0.2)", 0 },
     { "deterministic", 'D', 0, 0, "build a complete, deterministic automaton ",
       0 },
     { "unique", 'u', 0, 0,
@@ -133,7 +133,7 @@ static const struct argp_child children[] =
   };
 
 static const char* opt_acceptance = nullptr;
-typedef spot::twa_graph::graph_t::trans_storage_t tr_t;
+typedef spot::twa_graph::graph_t::edge_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static spot::ltl::atomic_prop_set aprops;
 static range ap_count_given = {-1, -2}; // Must be two different negative val
@@ -364,8 +364,8 @@ main(int argc, char** argv)
 	    {
 	      auto tmp = spot::canonicalize
 		(make_twa_graph(aut, spot::twa::prop_set::all()));
-	      std::vector<tr_t> trans(tmp->transition_vector().begin() + 1,
-				      tmp->transition_vector().end());
+	      std::vector<tr_t> trans(tmp->edge_vector().begin() + 1,
+				      tmp->edge_vector().end());
 	      if (!opt_uniq->emplace(trans).second)
 		{
 		  --trials;

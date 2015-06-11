@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -25,10 +25,10 @@ namespace spot
 {
   /// \brief Randomize a TGBA
   ///
-  /// Make a random permutation of the state, and of the transitions
+  /// Make a random permutation of the state, and of the edges
   /// leaving this state.
   SPOT_API void
   randomize(twa_graph_ptr& aut,
 	    bool randomize_states = true,
-	    bool randomize_transitions = true);
+	    bool randomize_edges = true);
 }

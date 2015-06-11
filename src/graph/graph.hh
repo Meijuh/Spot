@@ -30,7 +30,7 @@
 
 namespace spot
 {
-  template <typename State_Data, typename Trans_Data, bool Alternating = false>
+  template <typename State_Data, typename Edge_Data, bool Alternating = false>
   class SPOT_API digraph;
 
   namespace internal
@@ -144,12 +144,12 @@ namespace spot
     // We have two implementations, one with attached State_Data, and
     // one without.
 
-    template <typename Transition, typename State_Data>
+    template <typename Edge, typename State_Data>
     struct SPOT_API distate_storage final: public State_Data
     {
-      Transition succ = 0; // First outgoing transition (used when iterating)
-      Transition succ_tail = 0;	// Last outgoing transition (used for
-				// appending new transitions)
+      Edge succ = 0; // First outgoing edge (used when iterating)
+      Edge succ_tail = 0;	// Last outgoing edge (used for
+				// appending new edges)
 
       template <typename... Args,
 		typename = typename std::enable_if<
@@ -161,36 +161,36 @@ namespace spot
     };
 
     //////////////////////////////////////////////////
-    // Transition storage
+    // Edge storage
     //////////////////////////////////////////////////
 
     // Again two implementation: one with label, and one without.
 
     template <typename StateIn,
-	      typename StateOut, typename Transition, typename Trans_Data>
-    struct SPOT_API trans_storage final: public Trans_Data
+	      typename StateOut, typename Edge, typename Edge_Data>
+    struct SPOT_API edge_storage final: public Edge_Data
     {
-      typedef Transition transition;
+      typedef Edge edge;
 
       StateOut dst;		// destination
-      Transition next_succ;	// next outgoing transition with same
+      Edge next_succ;	// next outgoing edge with same
 				// source, or 0
       StateIn src;		// source
 
-      explicit trans_storage()
-	: Trans_Data{}
+      explicit edge_storage()
+	: Edge_Data{}
       {
       }
 
       template <typename... Args>
-      trans_storage(StateOut dst, Transition next_succ,
+      edge_storage(StateOut dst, Edge next_succ,
 		    StateIn src, Args&&... args)
-	: Trans_Data{std::forward<Args>(args)...},
+	: Edge_Data{std::forward<Args>(args)...},
 	dst(dst), next_succ(next_succ), src(src)
       {
       }
 
-      bool operator<(const trans_storage& other) const
+      bool operator<(const edge_storage& other) const
       {
 	if (src < other.src)
 	  return true;
@@ -204,7 +204,7 @@ namespace spot
 	return this->data() < other.data();
       }
 
-      bool operator==(const trans_storage& other) const
+      bool operator==(const edge_storage& other) const
       {
         return src == other.src &&
           dst == other.dst &&
@@ -213,46 +213,46 @@ namespace spot
     };
 
     //////////////////////////////////////////////////
-    // Transition iterator
+    // Edge iterator
     //////////////////////////////////////////////////
 
-    // This holds a graph and a transition number that is the start of
-    // a list, and it iterates over all the trans_storage_t elements
+    // This holds a graph and a edge number that is the start of
+    // a list, and it iterates over all the edge_storage_t elements
     // of that list.
 
     template <typename Graph>
-    class SPOT_API trans_iterator:
+    class SPOT_API edge_iterator:
       std::iterator<std::forward_iterator_tag,
 		    typename
 		    std::conditional<std::is_const<Graph>::value,
-				     const typename Graph::trans_storage_t,
-				     typename Graph::trans_storage_t>::type>
+				     const typename Graph::edge_storage_t,
+				     typename Graph::edge_storage_t>::type>
     {
       typedef
 	std::iterator<std::forward_iterator_tag,
 		      typename
 		      std::conditional<std::is_const<Graph>::value,
-				       const typename Graph::trans_storage_t,
-				       typename Graph::trans_storage_t>::type>
+				       const typename Graph::edge_storage_t,
+				       typename Graph::edge_storage_t>::type>
 	super;
     public:
-      typedef typename Graph::transition transition;
+      typedef typename Graph::edge edge;
 
-      trans_iterator()
+      edge_iterator()
 	: g_(nullptr), t_(0)
       {
       }
 
-      trans_iterator(Graph* g, transition t): g_(g), t_(t)
+      edge_iterator(Graph* g, edge t): g_(g), t_(t)
       {
       }
 
-      bool operator==(trans_iterator o) const
+      bool operator==(edge_iterator o) const
       {
 	return t_ == o.t_;
       }
 
-      bool operator!=(trans_iterator o) const
+      bool operator!=(edge_iterator o) const
       {
 	return t_ != o.t_;
       }
@@ -260,24 +260,24 @@ namespace spot
       typename super::reference
       operator*()
       {
-	return g_->trans_storage(t_);
+	return g_->edge_storage(t_);
       }
 
       typename super::pointer
       operator->()
       {
-	return &g_->trans_storage(t_);
+	return &g_->edge_storage(t_);
       }
 
-      trans_iterator operator++()
+      edge_iterator operator++()
       {
 	t_ = operator*().next_succ;
 	return *this;
       }
 
-      trans_iterator operator++(int)
+      edge_iterator operator++(int)
       {
-	trans_iterator ti = *this;
+	edge_iterator ti = *this;
 	t_ = operator*().next_succ;
 	return ti;
       }
@@ -287,52 +287,52 @@ namespace spot
 	return t_;
       }
 
-      transition trans() const
+      edge trans() const
       {
 	return t_;
       }
 
     protected:
       Graph* g_;
-      transition t_;
+      edge t_;
     };
 
     template <typename Graph>
-    class SPOT_API killer_trans_iterator: public trans_iterator<Graph>
+    class SPOT_API killer_edge_iterator: public edge_iterator<Graph>
     {
-      typedef trans_iterator<Graph> super;
+      typedef edge_iterator<Graph> super;
     public:
       typedef typename Graph::state_storage_t state_storage_t;
-      typedef typename Graph::transition transition;
+      typedef typename Graph::edge edge;
 
-      killer_trans_iterator(Graph* g, transition t, state_storage_t& src):
+      killer_edge_iterator(Graph* g, edge t, state_storage_t& src):
 	super(g, t), src_(src), prev_(0)
       {
       }
 
-      killer_trans_iterator operator++()
+      killer_edge_iterator operator++()
       {
 	prev_ = this->t_;
 	this->t_ = this->operator*().next_succ;
 	return *this;
       }
 
-      killer_trans_iterator operator++(int)
+      killer_edge_iterator operator++(int)
       {
-	killer_trans_iterator ti = *this;
+	killer_edge_iterator ti = *this;
 	++*this;
 	return ti;
       }
 
-      // Erase the current transition and advance the iterator.
+      // Erase the current edge and advance the iterator.
       void erase()
       {
-	transition next = this->operator*().next_succ;
+	edge next = this->operator*().next_succ;
 
-	// Update source state and previous transitions
+	// Update source state and previous edges
 	if (prev_)
 	  {
-	    this->g_->trans_storage(prev_).next_succ = next;
+	    this->g_->edge_storage(prev_).next_succ = next;
 	  }
 	else
 	  {
@@ -345,18 +345,18 @@ namespace spot
 	    assert(next == 0);
 	  }
 
-	// Erased transitions have themselves as next_succ.
+	// Erased edges have themselves as next_succ.
 	this->operator*().next_succ = this->t_;
 
-	// Advance iterator to next transition.
+	// Advance iterator to next edge.
 	this->t_ = next;
 
-	++this->g_->killed_trans_;
+	++this->g_->killed_edge_;
       }
 
     protected:
       state_storage_t& src_;
-      transition prev_;
+      edge prev_;
     };
 
 
@@ -364,36 +364,36 @@ namespace spot
     // State OUT
     //////////////////////////////////////////////////
 
-    // Fake container listing the outgoing transitions of a state.
+    // Fake container listing the outgoing edges of a state.
 
     template <typename Graph>
     class SPOT_API state_out
     {
     public:
-      typedef typename Graph::transition transition;
-      state_out(Graph* g, transition t):
+      typedef typename Graph::edge edge;
+      state_out(Graph* g, edge t):
 	g_(g), t_(t)
       {
       }
 
-      trans_iterator<Graph> begin()
+      edge_iterator<Graph> begin()
       {
 	return {g_, t_};
       }
 
-      trans_iterator<Graph> end()
+      edge_iterator<Graph> end()
       {
 	return {};
       }
 
-      void recycle(transition t)
+      void recycle(edge t)
       {
 	t_ = t;
       }
 
     protected:
       Graph* g_;
-      transition t_;
+      edge t_;
     };
 
     //////////////////////////////////////////////////
@@ -401,24 +401,24 @@ namespace spot
     //////////////////////////////////////////////////
 
     template <typename Graph>
-    class SPOT_API all_trans_iterator:
+    class SPOT_API all_edge_iterator:
       std::iterator<std::forward_iterator_tag,
 		    typename
 		    std::conditional<std::is_const<Graph>::value,
-				     const typename Graph::trans_storage_t,
-				     typename Graph::trans_storage_t>::type>
+				     const typename Graph::edge_storage_t,
+				     typename Graph::edge_storage_t>::type>
     {
       typedef
 	std::iterator<std::forward_iterator_tag,
 		      typename
 		      std::conditional<std::is_const<Graph>::value,
-				       const typename Graph::trans_storage_t,
-				       typename Graph::trans_storage_t>::type>
+				       const typename Graph::edge_storage_t,
+				       typename Graph::edge_storage_t>::type>
 	super;
 
       typedef typename std::conditional<std::is_const<Graph>::value,
-					const typename Graph::trans_vector,
-					typename Graph::trans_vector>::type
+					const typename Graph::edge_vector_t,
+					typename Graph::edge_vector_t>::type
 	tv_t;
 
       unsigned t_;
@@ -433,36 +433,36 @@ namespace spot
       }
 
     public:
-      all_trans_iterator(unsigned pos, tv_t& tv)
+      all_edge_iterator(unsigned pos, tv_t& tv)
 	: t_(pos), tv_(tv)
       {
 	skip_();
       }
 
-      all_trans_iterator(tv_t& tv)
+      all_edge_iterator(tv_t& tv)
 	: t_(tv.size()), tv_(tv)
       {
       }
 
-      all_trans_iterator& operator++()
+      all_edge_iterator& operator++()
       {
 	skip_();
 	return *this;
       }
 
-      all_trans_iterator operator++(int)
+      all_edge_iterator operator++(int)
       {
-	all_trans_iterator old = *this;
+	all_edge_iterator old = *this;
 	++*this;
 	return old;
       }
 
-      bool operator==(all_trans_iterator o) const
+      bool operator==(all_edge_iterator o) const
       {
 	return t_ == o.t_;
       }
 
-      bool operator!=(all_trans_iterator o) const
+      bool operator!=(all_edge_iterator o) const
       {
 	return t_ != o.t_;
       }
@@ -485,10 +485,10 @@ namespace spot
     class SPOT_API all_trans
     {
       typedef typename std::conditional<std::is_const<Graph>::value,
-					const typename Graph::trans_vector,
-					typename Graph::trans_vector>::type
+					const typename Graph::edge_vector_t,
+					typename Graph::edge_vector_t>::type
 	tv_t;
-      typedef all_trans_iterator<Graph> iter_t;
+      typedef all_edge_iterator<Graph> iter_t;
       tv_t& tv_;
     public:
 
@@ -513,69 +513,69 @@ namespace spot
 
   // The actual graph implementation
 
-  template <typename State_Data, typename Trans_Data, bool Alternating>
+  template <typename State_Data, typename Edge_Data, bool Alternating>
   class digraph
   {
-    friend class internal::trans_iterator<digraph>;
-    friend class internal::trans_iterator<const digraph>;
-    friend class internal::killer_trans_iterator<digraph>;
+    friend class internal::edge_iterator<digraph>;
+    friend class internal::edge_iterator<const digraph>;
+    friend class internal::killer_edge_iterator<digraph>;
 
   public:
-    typedef internal::trans_iterator<digraph> iterator;
-    typedef internal::trans_iterator<const digraph> const_iterator;
+    typedef internal::edge_iterator<digraph> iterator;
+    typedef internal::edge_iterator<const digraph> const_iterator;
 
     static constexpr bool alternating()
     {
       return Alternating;
     }
 
-    // Extra data to store on each state or transition.
+    // Extra data to store on each state or edge.
     typedef State_Data state_data_t;
-    typedef Trans_Data trans_data_t;
+    typedef Edge_Data edge_data_t;
 
-    // State and transitions are identified by their indices in some
+    // State and edges are identified by their indices in some
     // vector.
     typedef unsigned state;
-    typedef unsigned transition;
+    typedef unsigned edge;
 
-    // The type of an output state (when seen from a transition)
+    // The type of an output state (when seen from a edge)
     // depends on the kind of graph we build
     typedef typename std::conditional<Alternating,
 				      std::vector<state>,
 				      state>::type out_state;
 
-    typedef internal::distate_storage<transition,
+    typedef internal::distate_storage<edge,
 				      internal::boxed_label<State_Data>>
       state_storage_t;
-    typedef internal::trans_storage<state, out_state, transition,
-				    internal::boxed_label<Trans_Data>>
-      trans_storage_t;
+    typedef internal::edge_storage<state, out_state, edge,
+				    internal::boxed_label<Edge_Data>>
+      edge_storage_t;
     typedef std::vector<state_storage_t> state_vector;
-    typedef std::vector<trans_storage_t> trans_vector;
+    typedef std::vector<edge_storage_t> edge_vector_t;
   protected:
     state_vector states_;
-    trans_vector transitions_;
-    // Number of erased transitions.
-    unsigned killed_trans_;
+    edge_vector_t edges_;
+    // Number of erased edges.
+    unsigned killed_edge_;
   public:
     /// \brief construct an empty graph
     ///
     /// Construct an empty graph, and reserve space for \a max_states
-    /// states and \a max_trans transitions.  These are not hard
+    /// states and \a max_trans edges.  These are not hard
     /// limits, but just hints to pre-allocate a data structure that
     /// may hold that much items.
     digraph(unsigned max_states = 10, unsigned max_trans = 0)
-      : killed_trans_(0)
+      : killed_edge_(0)
     {
       states_.reserve(max_states);
       if (max_trans == 0)
 	max_trans = max_states * 2;
-      transitions_.reserve(max_trans + 1);
-      // Transition number 0 is not used, because we use this index
-      // to mark the absence of a transition.
-      transitions_.resize(1);
-      // This causes transition 0 to be considered as dead.
-      transitions_[0].next_succ = 0;
+      edges_.reserve(max_trans + 1);
+      // Edge number 0 is not used, because we use this index
+      // to mark the absence of a edge.
+      edges_.resize(1);
+      // This causes edge 0 to be considered as dead.
+      edges_[0].next_succ = 0;
     }
 
     unsigned num_states() const
@@ -583,17 +583,17 @@ namespace spot
       return states_.size();
     }
 
-    unsigned num_transitions() const
+    unsigned num_edges() const
     {
-      return transitions_.size() - killed_trans_ - 1;
+      return edges_.size() - killed_edge_ - 1;
     }
 
-    bool valid_trans(transition t) const
+    bool valid_trans(edge t) const
     {
-      // Erased transitions have their next_succ pointing to
+      // Erased edges have their next_succ pointing to
       // themselves.
-      return (t < transitions_.size() &&
-	      transitions_[t].next_succ != t);
+      return (t < edges_.size() &&
+	      edges_[t].next_succ != t);
     }
 
     template <typename... Args>
@@ -645,49 +645,49 @@ namespace spot
       return states_[s].data();
     }
 
-    trans_storage_t&
-    trans_storage(transition s)
+    edge_storage_t&
+    edge_storage(edge s)
     {
-      assert(s < transitions_.size());
-      return transitions_[s];
+      assert(s < edges_.size());
+      return edges_[s];
     }
 
-    const trans_storage_t&
-    trans_storage(transition s) const
+    const edge_storage_t&
+    edge_storage(edge s) const
     {
-      assert(s < transitions_.size());
-      return transitions_[s];
+      assert(s < edges_.size());
+      return edges_[s];
     }
 
-    typename trans_storage_t::data_t&
-    trans_data(transition s)
+    typename edge_storage_t::data_t&
+    edge_data(edge s)
     {
-      assert(s < transitions_.size());
-      return transitions_[s].data();
+      assert(s < edges_.size());
+      return edges_[s].data();
     }
 
-    const typename trans_storage_t::data_t&
-    trans_data(transition s) const
+    const typename edge_storage_t::data_t&
+    edge_data(edge s) const
     {
-      assert(s < transitions_.size());
-      return transitions_[s].data();
+      assert(s < edges_.size());
+      return edges_[s].data();
     }
 
     template <typename... Args>
-    transition
-    new_transition(state src, out_state dst, Args&&... args)
+    edge
+    new_edge(state src, out_state dst, Args&&... args)
     {
       assert(src < states_.size());
 
-      transition t = transitions_.size();
-      transitions_.emplace_back(dst, 0, src, std::forward<Args>(args)...);
+      edge t = edges_.size();
+      edges_.emplace_back(dst, 0, src, std::forward<Args>(args)...);
 
-      transition st = states_[src].succ_tail;
+      edge st = states_[src].succ_tail;
       assert(st < t || !st);
       if (!st)
 	states_[src].succ = t;
       else
-	transitions_[st].next_succ = t;
+	edges_[st].next_succ = t;
       states_[src].succ_tail = t;
       return t;
     }
@@ -698,10 +698,10 @@ namespace spot
       return &ss - &states_.front();
     }
 
-    transition index_of_transition(const trans_storage_t& tt) const
+    edge index_of_edge(const edge_storage_t& tt) const
     {
-      assert(!transitions_.empty());
-      return &tt - &transitions_.front();
+      assert(!edges_.empty());
+      return &tt - &edges_.front();
     }
 
     internal::state_out<digraph>
@@ -728,13 +728,13 @@ namespace spot
       return out(index_of_state(src));
     }
 
-    internal::killer_trans_iterator<digraph>
+    internal::killer_edge_iterator<digraph>
     out_iteraser(state_storage_t& src)
     {
       return {this, src.succ, src};
     }
 
-    internal::killer_trans_iterator<digraph>
+    internal::killer_edge_iterator<digraph>
     out_iteraser(state src)
     {
       return out_iteraser(state_storage(src));
@@ -750,52 +750,52 @@ namespace spot
       return states_;
     }
 
-    internal::all_trans<const digraph> transitions() const
+    internal::all_trans<const digraph> edges() const
     {
-      return transitions_;
+      return edges_;
     }
 
-    internal::all_trans<digraph> transitions()
+    internal::all_trans<digraph> edges()
     {
-      return transitions_;
+      return edges_;
     }
 
-    // When using this method, beware that the first entry (transition
-    // #0) is not a real transition, and that any transition with
-    // next_succ pointing to itself is an erased transition.
+    // When using this method, beware that the first entry (edge
+    // #0) is not a real edge, and that any edge with
+    // next_succ pointing to itself is an erased edge.
     //
-    // You should probably use transitions() instead.
-    const trans_vector& transition_vector() const
+    // You should probably use edges() instead.
+    const edge_vector_t& edge_vector() const
     {
-      return transitions_;
+      return edges_;
     }
 
-    trans_vector& transition_vector()
+    edge_vector_t& edge_vector()
     {
-      return transitions_;
+      return edges_;
     }
 
-    bool is_dead_transition(unsigned t) const
+    bool is_dead_edge(unsigned t) const
     {
-      return transitions_[t].next_succ == t;
+      return edges_[t].next_succ == t;
     }
 
-    bool is_dead_transition(const trans_storage_t& t) const
+    bool is_dead_edge(const edge_storage_t& t) const
     {
-      return t.next_succ == index_of_transition(t);
+      return t.next_succ == index_of_edge(t);
     }
 
 
     // To help debugging
     void dump_storage(std::ostream& o) const
     {
-      unsigned tend = transitions_.size();
+      unsigned tend = edges_.size();
       for (unsigned t = 1; t < tend; ++t)
 	{
 	  o << 't' << t << ": (s"
-	    << transitions_[t].src << ", s"
-	    << transitions_[t].dst << ") t"
-	    << transitions_[t].next_succ << '\n';
+	    << edges_[t].src << ", s"
+	    << edges_[t].dst << ") t"
+	    << edges_[t].next_succ << '\n';
 	}
       unsigned send = states_.size();
       for (unsigned s = 0; s < send; ++s)
@@ -806,49 +806,49 @@ namespace spot
 	}
     }
 
-    // Remove all dead transitions.  The transitions_ vector is left
+    // Remove all dead edges.  The edges_ vector is left
     // in a state that is incorrect and should eventually be fixed by
-    // a call to chain_transitions_() before any iteration on the
+    // a call to chain_edges_() before any iteration on the
     // successor of a state is performed.
-    void remove_dead_transitions_()
+    void remove_dead_edges_()
     {
-      if (killed_trans_ == 0)
+      if (killed_edge_ == 0)
 	return;
-      auto i = std::remove_if(transitions_.begin() + 1, transitions_.end(),
-			      [this](const trans_storage_t& t) {
-				return this->is_dead_transition(t);
+      auto i = std::remove_if(edges_.begin() + 1, edges_.end(),
+			      [this](const edge_storage_t& t) {
+				return this->is_dead_edge(t);
 			      });
-      transitions_.erase(i, transitions_.end());
-      killed_trans_ = 0;
+      edges_.erase(i, edges_.end());
+      killed_edge_ = 0;
     }
 
-    // This will invalidate all iterators, and also destroy transition
-    // chains.  Call chain_transitions_() immediately afterwards
+    // This will invalidate all iterators, and also destroy edge
+    // chains.  Call chain_edges_() immediately afterwards
     // unless you know what you are doing.
-    template<class Predicate = std::less<trans_storage_t>>
-    void sort_transitions_(Predicate p = Predicate())
+    template<class Predicate = std::less<edge_storage_t>>
+    void sort_edges_(Predicate p = Predicate())
     {
       //std::cerr << "\nbefore\n";
       //dump_storage(std::cerr);
-      std::stable_sort(transitions_.begin() + 1, transitions_.end(), p);
+      std::stable_sort(edges_.begin() + 1, edges_.end(), p);
     }
 
-    // Should be called only when it is known that all transitions
+    // Should be called only when it is known that all edges
     // with the same destination are consecutive in the vector.
-    void chain_transitions_()
+    void chain_edges_()
     {
       state last_src = -1U;
-      transition tend = transitions_.size();
-      for (transition t = 1; t < tend; ++t)
+      edge tend = edges_.size();
+      for (edge t = 1; t < tend; ++t)
 	{
-	  state src = transitions_[t].src;
+	  state src = edges_[t].src;
 	  if (src != last_src)
 	    {
 	      states_[src].succ = t;
 	      if (last_src != -1U)
 		{
 		  states_[last_src].succ_tail = t - 1;
-		  transitions_[t - 1].next_succ = 0;
+		  edges_[t - 1].next_succ = 0;
 		}
 	      while (++last_src != src)
 		{
@@ -858,13 +858,13 @@ namespace spot
 	    }
 	  else
 	    {
-	      transitions_[t - 1].next_succ = t;
+	      edges_[t - 1].next_succ = t;
 	    }
 	}
       if (last_src != -1U)
 	{
 	  states_[last_src].succ_tail = tend - 1;
-	  transitions_[tend - 1].next_succ = 0;
+	  edges_[tend - 1].next_succ = 0;
 	}
       unsigned send = states_.size();
       while (++last_src != send)
@@ -876,18 +876,18 @@ namespace spot
       //dump_storage(std::cerr);
     }
 
-    // Rename all the states in the transition vector.  The
-    // transitions_ vector is left in a state that is incorrect and
-    // should eventually be fixed by a call to chain_transitions_()
+    // Rename all the states in the edge vector.  The
+    // edges_ vector is left in a state that is incorrect and
+    // should eventually be fixed by a call to chain_edges_()
     // before any iteration on the successor of a state is performed.
     void rename_states_(const std::vector<unsigned>& newst)
     {
       assert(newst.size() == states_.size());
-      unsigned tend = transitions_.size();
+      unsigned tend = edges_.size();
       for (unsigned t = 1; t < tend; t++)
 	{
-	  transitions_[t].dst = newst[transitions_[t].dst];
-	  transitions_[t].src = newst[transitions_[t].src];
+	  edges_[t].dst = newst[edges_[t].dst];
+	  edges_[t].src = newst[edges_[t].src];
 	}
     }
 
@@ -908,40 +908,40 @@ namespace spot
 	    continue;
 	  if (dst == -1U)
 	    {
-	      // This is an erased state.  Mark all its transitions as
+	      // This is an erased state.  Mark all its edges as
 	      // dead (i.e., t.next_succ should point to t for each of
 	      // them).
 	      auto t = states_[s].succ;
 	      while (t)
-		std::swap(t, transitions_[t].next_succ);
+		std::swap(t, edges_[t].next_succ);
 	      continue;
 	    }
 	  states_[dst] = std::move(states_[s]);
 	}
       states_.resize(used_states);
 
-      // Shift all transitions in transitions_.  The algorithm is
+      // Shift all edges in edges_.  The algorithm is
       // similar to remove_if, but it also keeps the correspondence
       // between the old and new index as newidx[old] = new.
-      unsigned tend = transitions_.size();
-      std::vector<transition> newidx(tend);
+      unsigned tend = edges_.size();
+      std::vector<edge> newidx(tend);
       unsigned dest = 1;
-      for (transition t = 1; t < tend; ++t)
+      for (edge t = 1; t < tend; ++t)
 	{
-	  if (is_dead_transition(t))
+	  if (is_dead_edge(t))
 	    continue;
 	  if (t != dest)
-	    transitions_[dest] = std::move(transitions_[t]);
+	    edges_[dest] = std::move(edges_[t]);
 	  newidx[t] = dest;
 	  ++dest;
 	}
-      transitions_.resize(dest);
-      killed_trans_ = 0;
+      edges_.resize(dest);
+      killed_edge_ = 0;
 
-      // Adjust next_succ and dst pointers in all transitions.
-      for (transition t = 1; t < dest; ++t)
+      // Adjust next_succ and dst pointers in all edges.
+      for (edge t = 1; t < dest; ++t)
 	{
-	  auto& tr = transitions_[t];
+	  auto& tr = edges_[t];
 	  tr.next_succ = newidx[tr.next_succ];
 	  tr.dst = newst[tr.dst];
 	  tr.src = newst[tr.src];

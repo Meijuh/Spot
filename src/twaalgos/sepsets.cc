@@ -84,8 +84,8 @@ namespace spot
 	  }
       }
 
-    // Fix the transitions
-    for (auto& t: aut->transitions())
+    // Fix the edges
+    for (auto& t: aut->edges())
       {
 	if ((t.acc & common) == 0U)
 	  continue;

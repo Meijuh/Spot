@@ -36,7 +36,7 @@ namespace spot
     //  state(src) return true iff s should be kept
     //  trans(src, dst, cond, acc) returns a triplet
     //     (keep, cond2, acc2) where keep is a Boolean stating if the
-    //                      transition should be kept, and cond2/acc2
+    //                      edge should be kept, and cond2/acc2
     //                      give replacement values for cond/acc
     struct id_filter
     {
@@ -57,7 +57,7 @@ namespace spot
 	out->copy_acceptance_of(this->si->get_aut());
       }
 
-      // Accept all transitions, unmodified
+      // Accept all edges, unmodified
       filtered_trans trans(unsigned, unsigned, bdd cond, acc_cond::mark_t acc)
       {
 	return filtered_trans{true, cond, acc};
@@ -124,7 +124,7 @@ namespace spot
       }
     };
 
-    // Remove acceptance conditions from all transitions outside of
+    // Remove acceptance conditions from all edges outside of
     // non-accepting SCCs.
     template <class next_filter = id_filter>
     struct acc_filter_all: next_filter
@@ -145,7 +145,7 @@ namespace spot
 	if (keep)
 	  {
 	    unsigned u = this->si->scc_of(src);
-	    // If the transition is between two SCCs, or in a
+	    // If the edge is between two SCCs, or in a
 	    // non-accepting SCC.  Remove the acceptance sets.
 	    if (this->si->is_rejecting_scc(u) || u != this->si->scc_of(dst))
 	      acc = 0U;
@@ -155,7 +155,7 @@ namespace spot
       }
     };
 
-    // Remove acceptance conditions from all transitions whose
+    // Remove acceptance conditions from all edges whose
     // destination is not an accepting SCCs.
     template <class next_filter = id_filter>
     struct acc_filter_some: next_filter
@@ -296,7 +296,7 @@ namespace spot
 	      std::tie(want, cond, acc) =
 		filter.trans(isrc, t.dst, t.cond, t.acc);
 	      if (want)
-		filtered->new_transition(osrc, odst, cond, acc);
+		filtered->new_edge(osrc, odst, cond, acc);
 	    }
 	}
       if (!given_si)
@@ -346,7 +346,7 @@ namespace spot
 	  res = scc_filter_apply<state_filter
 				 <acc_filter_some<>>>(aut, given_si);
       }
-    res->merge_transitions();
+    res->merge_edges();
     res->prop_copy(aut,
 		   { false,  // state-based acceptance is not preserved
 		     true,
@@ -378,7 +378,7 @@ namespace spot
 							  suspvars,
 							  ignoredvars,
 							  early_susp);
-    res->merge_transitions();
+    res->merge_edges();
     res->prop_copy(aut,
 		   { false,  // state-based acceptance is not preserved
 		     true,

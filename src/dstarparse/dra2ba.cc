@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -247,12 +247,12 @@ namespace spot
 	unsigned in_scc = sm_.scc_of_state(sin);
 
 	bdd cond = si->current_condition();
-	unsigned t = out_->new_transition(in, out, cond);
+	unsigned t = out_->new_edge(in, out, cond);
 
 	if (realizable_[in_scc])
 	  {
 	    if (final_.find(sin) != final_.end())
-	      out_->trans_data(t).acc = acc_;
+	      out_->edge_data(t).acc = acc_;
 	  }
 	else if (sm_.scc_of_state(sout) == in_scc)
 	  {
@@ -278,12 +278,11 @@ namespace spot
 		    // implementation create more transitions than needed:
 		    // we do not need more than one transition per
 		    // accepting cycle.
-		    out_->new_transition(in, out + shift, cond);
+		    out_->new_edge(in, out + shift, cond);
 
 		    // Acceptance transitions are those in the Li
 		    // set. (Löding's Fi set.)
-		    out_->new_acc_transition(in + shift, out + shift, cond,
-					     l.get(i));
+		    out_->new_acc_edge(in + shift, out + shift, cond, l.get(i));
 		  }
 	      }
 	  }

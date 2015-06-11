@@ -160,11 +160,11 @@ namespace spot
 	    dst->destroy();
 	    if (i == state_num.end()) // Ignore useless destinations.
 	      continue;
-	    res->new_acc_transition(src_num, i->second,
-				    succit->current_condition(), accepting);
+	    res->new_acc_edge(src_num, i->second,
+			      succit->current_condition(), accepting);
 	  }
       }
-    res->merge_transitions();
+    res->merge_edges();
     if (res->num_states() > 0)
       {
 	const state* init_state = a->get_init_state();
@@ -236,11 +236,11 @@ namespace spot
       int n;
       for (n = 1, i = loop.begin(); n < loop_size; ++n, ++i)
 	{
-	  loop_a->new_transition(n - 1, n, i->label);
+	  loop_a->new_edge(n - 1, n, i->label);
 	  i->s->destroy();
 	}
       assert(i != loop.end());
-      loop_a->new_transition(n - 1, 0, i->label);
+      loop_a->new_edge(n - 1, 0, i->label);
       i->s->destroy();
       assert(++i == loop.end());
 

@@ -29,7 +29,7 @@
 
 namespace
 {
-  typedef spot::twa_graph::graph_t::trans_storage_t tr_t;
+  typedef spot::twa_graph::graph_t::edge_storage_t tr_t;
   bool
   tr_t_less_than(const tr_t& t1, const tr_t& t2)
   {
@@ -101,7 +101,7 @@ namespace
                       const spot::const_twa_graph_ptr aut2)
   {
     return aut1->num_states() != aut2->num_states() ||
-      aut1->num_transitions() != aut2->num_transitions() ||
+      aut1->num_edges() != aut2->num_edges() ||
       // FIXME: At some point, it would be nice to support reordering
       // of acceptance sets (issue #58).
       aut1->acc().get_acceptance() != aut2->acc().get_acceptance();

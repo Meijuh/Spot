@@ -427,7 +427,7 @@ namespace spot
       }
 
       void
-      process_link(const twa_graph::trans_storage_t& t, int number)
+      process_link(const twa_graph::edge_storage_t& t, int number)
       {
 	std::string label = bdd_format_formula(aut_->get_dict(), t.cond);
 	os_ << "  " << t.src << " -> " << t.dst;

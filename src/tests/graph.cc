@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -89,12 +89,12 @@ bool f1()
   auto s1 = g.new_state();
   auto s2 = g.new_state();
   auto s3 = g.new_state();
-  g.new_transition(s1, s2);
-  g.new_transition(s1, s3);
-  g.new_transition(s2, s3);
-  g.new_transition(s3, s1);
-  g.new_transition(s3, s2);
-  g.new_transition(s3, s3);
+  g.new_edge(s1, s2);
+  g.new_edge(s1, s3);
+  g.new_edge(s2, s3);
+  g.new_edge(s3, s1);
+  g.new_edge(s3, s2);
+  g.new_edge(s3, s3);
 
   dot(std::cout, g);
 
@@ -118,10 +118,10 @@ bool f2()
   auto s1 = g.new_state(1);
   auto s2 = g.new_state(2);
   auto s3 = g.new_state(3);
-  g.new_transition(s1, s2);
-  g.new_transition(s1, s3);
-  g.new_transition(s2, s3);
-  g.new_transition(s3, s2);
+  g.new_edge(s1, s2);
+  g.new_edge(s1, s3);
+  g.new_edge(s2, s3);
+  g.new_edge(s3, s2);
 
   dot(std::cout, g);
 
@@ -140,10 +140,10 @@ bool f3()
   auto s1 = g.new_state();
   auto s2 = g.new_state();
   auto s3 = g.new_state();
-  g.new_transition(s1, s2, 1);
-  g.new_transition(s1, s3, 2);
-  g.new_transition(s2, s3, 3);
-  g.new_transition(s3, s2, 4);
+  g.new_edge(s1, s2, 1);
+  g.new_edge(s1, s3, 2);
+  g.new_edge(s2, s3, 3);
+  g.new_edge(s3, s2, 4);
 
   dot(std::cout, g);
 
@@ -162,10 +162,10 @@ bool f4()
   auto s1 = g.new_state(2);
   auto s2 = g.new_state(3);
   auto s3 = g.new_state(4);
-  g.new_transition(s1, s2, 1);
-  g.new_transition(s1, s3, 2);
-  g.new_transition(s2, s3, 3);
-  g.new_transition(s3, s2, 4);
+  g.new_edge(s1, s2, 1);
+  g.new_edge(s1, s3, 2);
+  g.new_edge(s2, s3, 3);
+  g.new_edge(s3, s2, 4);
 
   dot(std::cout, g);
 
@@ -184,10 +184,10 @@ bool f5()
   auto s1 = g.new_state();
   auto s2 = g.new_state();
   auto s3 = g.new_state();
-  g.new_transition(s1, s2, std::make_pair(1, 1.2f));
-  g.new_transition(s1, s3, std::make_pair(2, 1.3f));
-  g.new_transition(s2, s3, std::make_pair(3, 1.4f));
-  g.new_transition(s3, s2, std::make_pair(4, 1.5f));
+  g.new_edge(s1, s2, std::make_pair(1, 1.2f));
+  g.new_edge(s1, s3, std::make_pair(2, 1.3f));
+  g.new_edge(s2, s3, std::make_pair(3, 1.4f));
+  g.new_edge(s3, s2, std::make_pair(4, 1.5f));
 
   int f = 0;
   float h = 0;
@@ -206,10 +206,10 @@ bool f6()
   auto s1 = g.new_state();
   auto s2 = g.new_state();
   auto s3 = g.new_state();
-  g.new_transition(s1, s2, 1, 1.2f);
-  g.new_transition(s1, s3, 2, 1.3f);
-  g.new_transition(s2, s3, 3, 1.4f);
-  g.new_transition(s3, s2, 4, 1.5f);
+  g.new_edge(s1, s2, 1, 1.2f);
+  g.new_edge(s1, s3, 2, 1.3f);
+  g.new_edge(s2, s3, 3, 1.4f);
+  g.new_edge(s3, s2, 4, 1.5f);
 
   int f = 0;
   float h = 0;
@@ -227,10 +227,10 @@ bool f7()
   auto s1 = g.new_state(2);
   auto s2 = g.new_state(3);
   auto s3 = g.new_state(4);
-  g.new_transition(s1, {s2, s3}, 1);
-  g.new_transition(s1, {s3}, 2);
-  g.new_transition(s2, {s3}, 3);
-  g.new_transition(s3, {s2}, 4);
+  g.new_edge(s1, {s2, s3}, 1);
+  g.new_edge(s1, {s3}, 2);
+  g.new_edge(s2, {s3}, 3);
+  g.new_edge(s3, {s2}, 4);
 
   int f = 0;
   for (auto& t: g.out(s1))
@@ -273,10 +273,10 @@ bool f8()
   auto s1 = g.new_state(2, 4);
   auto s2 = g.new_state(3, 6);
   auto s3 = g.new_state(4, 8);
-  g.new_transition(s1, s2, 1, 3);
-  g.new_transition(s1, s3, 2, 5);
-  g.new_transition(s2, s3, 3, 7);
-  g.new_transition(s3, s2, 4, 9);
+  g.new_edge(s1, s2, 1, 3);
+  g.new_edge(s1, s3, 2, 5);
+  g.new_edge(s2, s3, 3, 7);
+  g.new_edge(s3, s2, 4, 9);
 
   dot(std::cout, g);
 

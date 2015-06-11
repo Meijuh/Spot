@@ -93,7 +93,7 @@ namespace spot
       typedef std::set<bdd, bdd_less_than> sup_map;
       sup_map sup;
       // Record occurrences of all guards
-      for (auto& t: aut->transitions())
+      for (auto& t: aut->edges())
 	sup.emplace(t.cond);
       for (auto& i: sup)
 	allap &= bdd_support(i);
@@ -206,14 +206,14 @@ namespace spot
 		assert(pm.map_.size() == dst_num);
 		pm.map_.emplace_back(std::move(ps));
 	      }
-	    res->new_transition(src_num, dst_num, num2bdd[c]);
+	    res->new_edge(src_num, dst_num, num2bdd[c]);
 	  }
       }
 
     for (auto v: toclean)
       delete v;
     if (merge)
-      res->merge_transitions();
+      res->merge_edges();
     return res;
   }
 
@@ -232,15 +232,15 @@ namespace spot
     {
     public:
       typedef dfs_stack::const_iterator cycle_iter;
-      typedef twa_graph_trans_data trans;
-      typedef std::set<trans*> trans_set;
-      typedef std::vector<trans_set> set_set;
+      typedef twa_graph_edge_data trans;
+      typedef std::set<trans*> edge_set;
+      typedef std::vector<edge_set> set_set;
     protected:
       const_twa_graph_ptr ref_;
       power_map& refmap_;
-      trans_set reject_;	// set of rejecting transitions
+      edge_set reject_;	// set of rejecting edges
       set_set accept_;		// set of cycles that are accepting
-      trans_set all_;		// all non rejecting transitions
+      edge_set all_;		// all non rejecting edges
       unsigned threshold_;	// maximum count of enumerated cycles
       unsigned cycles_left_; 	// count of cycles left to explore
 
@@ -277,7 +277,7 @@ namespace spot
 	return threshold_ != 0 && cycles_left_ == 0;
       }
 
-      bool is_cycle_accepting(cycle_iter begin, trans_set& ts) const
+      bool is_cycle_accepting(cycle_iter begin, edge_set& ts) const
       {
 	auto a = std::const_pointer_cast<twa_graph>(aut_);
 
@@ -289,8 +289,8 @@ namespace spot
 	cycle_iter i;
 	for (n = 1, i = begin; n <= loop_size; ++n, ++i)
 	  {
-	    trans* t = &a->trans_data(i->succ);
-	    loop_a->new_transition(n - 1, n % loop_size, t->cond);
+	    trans* t = &a->edge_data(i->succ);
+	    loop_a->new_edge(n - 1, n % loop_size, t->cond);
 	    if (reject_.find(t) == reject_.end())
 	      ts.insert(t);
 	  }
@@ -318,7 +318,7 @@ namespace spot
       }
 
       std::ostream&
-      print_set(std::ostream& o, const trans_set& s) const
+      print_set(std::ostream& o, const edge_set& s) const
       {
 	o << "{ ";
 	for (auto i: s)
@@ -333,7 +333,7 @@ namespace spot
 	cycle_iter i = dfs_.begin();
 	while (i->s != start)
 	  ++i;
-	trans_set ts;
+	edge_set ts;
 	bool is_acc = is_cycle_accepting(i, ts);
 	do
 	  ++i;
@@ -387,7 +387,7 @@ namespace spot
 		  unsigned threshold_states, unsigned threshold_cycles)
   {
     power_map pm;
-    // Do not merge transitions in the deterministic automaton.  If we
+    // Do not merge edges in the deterministic automaton.  If we
     // add two self-loops labeled by "a" and "!a", we do not want
     // these to be merged as "1" before the acceptance has been fixed.
     auto det = tgba_powerset(aut, pm, false);
@@ -397,7 +397,7 @@ namespace spot
       return nullptr;
     if (fix_dba_acceptance(det, aut, pm, threshold_cycles))
       return nullptr;
-    det->merge_transitions();
+    det->merge_edges();
     return det;
   }
 

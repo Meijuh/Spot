@@ -275,7 +275,7 @@ states:
   {
     for (map_t::const_iterator i = result.dest_map.begin();
 	 i != result.dest_map.end(); ++i)
-      result.d->aut->new_transition(result.cur_state, i->first, i->second);
+      result.d->aut->new_edge(result.cur_state, i->first, i->second);
   }
 %%
 

@@ -302,7 +302,7 @@ namespace spot
 
       // Compute the AP used in the hard way.
       bdd ap = bddtrue;
-      for (auto& t: ref->transitions())
+      for (auto& t: ref->edges())
 	ap &= bdd_support(t.cond);
 
       // Count the number of atomic propositions
@@ -679,8 +679,8 @@ namespace spot
 		    && acc_states.find(t->second.src) != acc_states.end();
 
 		  last_aut_trans =
-		    a->new_acc_transition(t->second.src, t->second.dst,
-					  t->second.cond, accept);
+		    a->new_acc_edge(t->second.src, t->second.dst,
+				    t->second.cond, accept);
 		  last_sat_trans = &t->second;
 
 		  dout << v << '\t' << t->second << "δ\n";
@@ -697,7 +697,7 @@ namespace spot
 		      assert(!state_based);
 		      // This assumes that the SAT solvers output
 		      // variables in increasing order.
-		      a->trans_data(last_aut_trans).acc = acc;
+		      a->edge_data(last_aut_trans).acc = acc;
 		    }
 		  else if (state_based)
 		    {
@@ -733,7 +733,7 @@ namespace spot
 	else
 	  dout << -pit.second << "\t¬" << pit.first << "C\n";
 #endif
-      a->merge_transitions();
+      a->merge_edges();
       return a;
     }
   }

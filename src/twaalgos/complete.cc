@@ -35,7 +35,7 @@ namespace spot
 	// We cannot safely complete an automaton if its
 	// acceptance is always satisfiable.
 	auto acc = aut->set_buchi();
-	for (auto& t: aut->transition_vector())
+	for (auto& t: aut->edge_vector())
 	  t.acc = acc;
       }
     else
@@ -67,7 +67,7 @@ namespace spot
 	  }
       }
 
-    unsigned t = aut->num_transitions();
+    unsigned t = aut->num_edges();
 
     // Now complete all states (excluding any newly added the sink).
     for (unsigned i = 0; i < n; ++i)
@@ -80,39 +80,39 @@ namespace spot
 	    // FIXME: This is ugly.
 	    //
 	    // In case the automaton uses state-based acceptance, we
-	    // need to put the new transition in the same set as all
+	    // need to put the new edge in the same set as all
 	    // the other.
 	    //
-	    // In case the automaton uses transition-based acceptance,
+	    // In case the automaton uses edge-based acceptance,
 	    // it does not matter what acceptance set we put the new
-	    // transition into.
+	    // edge into.
 	    //
-	    // So in both cases, we put the transition in the same
-	    // acceptance sets as the last outgoing transition of the
+	    // So in both cases, we put the edge in the same
+	    // acceptance sets as the last outgoing edge of the
 	    // state.
 	    acc = t.acc;
 	  }
 	// If the state has incomplete successors, we need to add a
-	// transition to some sink state.
+	// edge to some sink state.
 	if (missingcond != bddfalse)
 	  {
 	    // If we haven't found any sink, simply add one.
 	    if (sink == -1U)
 	      {
 		sink = aut->new_state();
-		aut->new_transition(sink, sink, bddtrue, um.second);
+		aut->new_edge(sink, sink, bddtrue, um.second);
 	      }
 	    // In case the automaton use state-based acceptance, propagate
-	    // the acceptance of the first transition to the one we add.
-	    aut->new_transition(i, sink, missingcond, acc);
+	    // the acceptance of the first edge to the one we add.
+	    aut->new_edge(i, sink, missingcond, acc);
 	  }
       }
 
     // Get rid of any named property if the automaton changed.
-    if (t < aut->num_transitions())
+    if (t < aut->num_edges())
       aut->release_named_properties();
     else
-      assert(t == aut->num_transitions());
+      assert(t == aut->num_edges());
 
     return sink;
   }

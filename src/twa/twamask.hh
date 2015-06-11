@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -33,8 +33,8 @@ namespace spot
   /// can optionally be reset to \a init.
   SPOT_API const_twa_ptr
   build_twa_mask_keep(const const_twa_ptr& to_mask,
-		       const state_set& to_keep,
-		       const state* init = 0);
+		      const state_set& to_keep,
+		      const state* init = 0);
 
   /// \ingroup twa_on_the_fly_algorithms
   /// \brief Mask a TGBA, rejecting a given set of states.
@@ -44,8 +44,8 @@ namespace spot
   /// \a init.
   SPOT_API const_twa_ptr
   build_twa_mask_ignore(const const_twa_ptr& to_mask,
-			 const state_set& to_ignore,
-			 const state* init = 0);
+			const state_set& to_ignore,
+			const state* init = 0);
 
 
   /// \ingroup twa_on_the_fly_algorithms
@@ -61,6 +61,6 @@ namespace spot
   /// all_acceptance_conditions().
   SPOT_API const_twa_ptr
   build_twa_mask_acc_ignore(const const_twa_ptr& to_mask,
-			     unsigned to_ignore,
-			     const state* init = 0);
+			    unsigned to_ignore,
+			    const state* init = 0);
 }

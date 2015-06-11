@@ -43,7 +43,7 @@ namespace spot
 	acc_cond::mark_t acc = 0U;
 	for (;;)
 	  {
-	    acc |= aut_->trans_storage(i->succ).acc;
+	    acc |= aut_->edge_storage(i->succ).acc;
 	    if (i->s == start)
 	      break;
 	    ++i;

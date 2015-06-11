@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -42,13 +42,13 @@ void f1()
   auto s1 = tg->new_state();
   auto s2 = tg->new_state();
   auto s3 = tg->new_state();
-  tg->new_transition(s1, s1, bddfalse, 0U);
-  tg->new_transition(s1, s2, p1, 0U);
-  tg->new_transition(s1, s3, p2, tg->acc().mark(1));
-  tg->new_transition(s2, s3, p1 & p2, tg->acc().mark(0));
-  tg->new_transition(s3, s1, p1 | p2, tg->acc().marks({0, 1}));
-  tg->new_transition(s3, s2, p1 >> p2, 0U);
-  tg->new_transition(s3, s3, bddtrue, tg->acc().marks({0, 1}));
+  tg->new_edge(s1, s1, bddfalse, 0U);
+  tg->new_edge(s1, s2, p1, 0U);
+  tg->new_edge(s1, s3, p2, tg->acc().mark(1));
+  tg->new_edge(s2, s3, p1 & p2, tg->acc().mark(0));
+  tg->new_edge(s3, s1, p1 | p2, tg->acc().marks({0, 1}));
+  tg->new_edge(s3, s2, p1 >> p2, 0U);
+  tg->new_edge(s3, s3, bddtrue, tg->acc().marks({0, 1}));
 
   spot::print_dot(std::cout, tg);
 
@@ -69,19 +69,19 @@ void f1()
   }
 
   auto all = tg->acc().marks({0, 1});
-  tg->new_transition(s3, s1, p1 | p2, all);
-  tg->new_transition(s3, s2, p1 >> p2, 0U);
-  tg->new_transition(s3, s1, bddtrue, all);
+  tg->new_edge(s3, s1, p1 | p2, all);
+  tg->new_edge(s3, s2, p1 >> p2, 0U);
+  tg->new_edge(s3, s1, bddtrue, all);
 
-  std::cerr << tg->num_transitions() << '\n';
-  assert(tg->num_transitions() == 7);
+  std::cerr << tg->num_edges() << '\n';
+  assert(tg->num_edges() == 7);
 
   spot::print_dot(std::cout, tg);
-  tg->merge_transitions();
+  tg->merge_edges();
   spot::print_dot(std::cout, tg);
 
-  std::cerr << tg->num_transitions() << '\n';
-  assert(tg->num_transitions() == 5);
+  std::cerr << tg->num_edges() << '\n';
+  assert(tg->num_edges() == 5);
 
   // Add enough states so that the state vector is reallocated.
   for (unsigned i = 0; i < 100; ++i)

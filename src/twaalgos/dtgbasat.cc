@@ -613,7 +613,7 @@ namespace spot
 
       // Compute the AP used in the hard way.
       bdd ap = bddtrue;
-      for (auto& t: ref->transitions())
+      for (auto& t: ref->edges())
 	ap &= bdd_support(t.cond);
 
       // Count the number of atomic propositions
@@ -1033,10 +1033,9 @@ namespace spot
 			acc = i->second;
 		    }
 
-		  last_aut_trans = a->new_transition(t->second.src,
-						     t->second.dst,
-						     t->second.cond,
-						     acc);
+		  last_aut_trans = a->new_edge(t->second.src,
+					       t->second.dst,
+					       t->second.cond, acc);
 		  last_sat_trans = &t->second;
 
 		  dout << v << '\t' << t->second << "δ\n";
@@ -1058,7 +1057,7 @@ namespace spot
 		      ta->second.dst == last_sat_trans->dst)
 		    {
 		      assert(!state_based);
-		      auto& v = a->trans_data(last_aut_trans).acc;
+		      auto& v = a->edge_data(last_aut_trans).acc;
 		      v |= ta->second.acc;
 		    }
 		  else if (state_based)
@@ -1076,7 +1075,7 @@ namespace spot
 	  dout << pit.second << '\t' << pit.first << "C\n";
 #endif
 
-      a->merge_transitions();
+      a->merge_edges();
       return a;
     }
   }

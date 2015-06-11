@@ -53,31 +53,31 @@ namespace spot
     delete namer;
   }
 
-  void twa_graph::merge_transitions()
+  void twa_graph::merge_edges()
   {
-    g_.remove_dead_transitions_();
+    g_.remove_dead_edges_();
 
-    typedef graph_t::trans_storage_t tr_t;
-    g_.sort_transitions_([](const tr_t& lhs, const tr_t& rhs)
-			 {
-			   if (lhs.src < rhs.src)
-			     return true;
-			   if (lhs.src > rhs.src)
-			     return false;
-			   if (lhs.dst < rhs.dst)
-			     return true;
-			   if (lhs.dst > rhs.dst)
-			     return false;
-			   return lhs.acc < rhs.acc;
-			   // Do not sort on conditions, we'll merge
-			   // them.
-			 });
+    typedef graph_t::edge_storage_t tr_t;
+    g_.sort_edges_([](const tr_t& lhs, const tr_t& rhs)
+		   {
+		     if (lhs.src < rhs.src)
+		       return true;
+		     if (lhs.src > rhs.src)
+		       return false;
+		     if (lhs.dst < rhs.dst)
+		       return true;
+		     if (lhs.dst > rhs.dst)
+		       return false;
+		     return lhs.acc < rhs.acc;
+		     // Do not sort on conditions, we'll merge
+		     // them.
+		   });
 
-    auto& trans = this->transition_vector();
+    auto& trans = this->edge_vector();
     unsigned tend = trans.size();
     unsigned out = 0;
     unsigned in = 1;
-    // Skip any leading false transition.
+    // Skip any leading false edge.
     while (in < tend && trans[in].cond == bddfalse)
       ++in;
     if (in < tend)
@@ -87,11 +87,11 @@ namespace spot
 	  trans[out] = trans[in];
 	for (++in; in < tend; ++in)
 	  {
-	    if (trans[in].cond == bddfalse) // Unusable transition
+	    if (trans[in].cond == bddfalse) // Unusable edge
 	      continue;
-	    // Merge transitions with the same source, destination, and
+	    // Merge edges with the same source, destination, and
 	    // acceptance.  (We test the source last, because this is the
-	    // most likely test to be true as transitions are ordered by
+	    // most likely test to be true as edges are ordered by
 	    // sources and then destinations.)
 	    if (trans[out].dst == trans[in].dst
 		&& trans[out].acc == trans[in].acc
@@ -113,31 +113,31 @@ namespace spot
     tend = out;
     out = in = 2;
 
-    // FIXME: We could should also merge transitions when using
+    // FIXME: We could should also merge edges when using
     // fin_acceptance, but the rule for Fin sets are different than
     // those for Inf sets, (and we need to be careful if a set is used
     // both as Inf and Fin)
     if ((in < tend) && !acc().uses_fin_acceptance())
       {
-	typedef graph_t::trans_storage_t tr_t;
-	g_.sort_transitions_([](const tr_t& lhs, const tr_t& rhs)
-			     {
-			       if (lhs.src < rhs.src)
-				 return true;
-			       if (lhs.src > rhs.src)
-				 return false;
-			       if (lhs.dst < rhs.dst)
-				 return true;
-			       if (lhs.dst > rhs.dst)
-				 return false;
-			       return lhs.cond.id() < rhs.cond.id();
-			       // Do not sort on acceptance, we'll merge
-			       // them.
-			     });
+	typedef graph_t::edge_storage_t tr_t;
+	g_.sort_edges_([](const tr_t& lhs, const tr_t& rhs)
+		       {
+			 if (lhs.src < rhs.src)
+			   return true;
+			 if (lhs.src > rhs.src)
+			   return false;
+			 if (lhs.dst < rhs.dst)
+			   return true;
+			 if (lhs.dst > rhs.dst)
+			   return false;
+			 return lhs.cond.id() < rhs.cond.id();
+			 // Do not sort on acceptance, we'll merge
+			 // them.
+		       });
 
 	for (; in < tend; ++in)
 	  {
-	    // Merge transitions with the same source, destination,
+	    // Merge edges with the same source, destination,
 	    // and conditions.  (We test the source last, for the
 	    // same reason as above.)
 	    if (trans[out].dst == trans[in].dst
@@ -157,7 +157,7 @@ namespace spot
 	  trans.resize(out);
       }
 
-    g_.chain_transitions_();
+    g_.chain_edges_();
   }
 
   void twa_graph::purge_unreachable_states()
@@ -228,7 +228,7 @@ namespace spot
 	    order.push_back(src);
 	    continue;
 	  }
-	auto& t = g_.trans_storage(tid);
+	auto& t = g_.edge_storage(tid);
 	todo.back().second = t.next_succ;
 	unsigned dst = t.dst;
 	if (useful[dst] != 1)
@@ -246,13 +246,13 @@ namespace spot
 	bool useless = true;
 	while (t)
 	  {
-	    // Erase any transition to a useless state.
+	    // Erase any edge to a useless state.
 	    if (!useful[t->dst])
 	      {
 		t.erase();
 		continue;
 	      }
-	    // if we have a transition to a useful state, then the
+	    // if we have a edge to a useful state, then the
 	    // state is useful.
 	    useless = false;
 	    ++t;

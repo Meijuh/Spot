@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et
 // Developpement de l Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -24,13 +24,13 @@
 
 namespace
 {
-  typedef std::pair<spot::twa_graph::graph_t::trans_data_t, unsigned>
-    trans_sig_t;
+  typedef std::pair<spot::twa_graph::graph_t::edge_data_t, unsigned>
+    edge_sig_t;
 
   struct signature_t
   {
-    std::vector<trans_sig_t> ingoing;
-    std::vector<trans_sig_t> outgoing;
+    std::vector<edge_sig_t> ingoing;
+    std::vector<edge_sig_t> outgoing;
     unsigned classnum;
 
     bool
@@ -49,7 +49,7 @@ namespace
   {
     std::vector<signature_t> signature(aut->num_states(), signature_t());
 
-    for (auto& t : aut->transitions())
+    for (auto& t : aut->edges())
       {
         signature[t.dst].ingoing.emplace_back(t.data(), state2class[t.src]);
         signature[t.src].outgoing.emplace_back(t.data(), state2class[t.dst]);
@@ -102,8 +102,8 @@ namespace spot
     auto& g = aut->get_graph();
     g.rename_states_(state2class);
     aut->set_init_state(state2class[aut->get_init_state_number()]);
-    g.sort_transitions_();
-    g.chain_transitions_();
+    g.sort_edges_();
+    g.chain_edges_();
     return aut;
   }
 }

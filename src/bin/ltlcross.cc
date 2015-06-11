@@ -1151,7 +1151,7 @@ namespace
 		  if (x[i]->acc().uses_fin_acceptance())		\
 		    {							\
 	              auto st = x[i]->num_states();			\
-	              auto tr = x[i]->num_transitions();		\
+	              auto tr = x[i]->num_edges();		\
 	              auto ac = x[i]->acc().num_sets();			\
 		      x[i] = remove_fin(x[i]);				\
 		      if (verbose)					\
@@ -1161,7 +1161,7 @@ namespace
 				  << tr << " ed., "			\
 				  << ac << " sets) -> ("		\
 				  << x[i]->num_states() << " st., "	\
-				  << x[i]->num_transitions() << " ed., " \
+				  << x[i]->num_edges() << " ed., " \
 				  << x[i]->acc().num_sets() << " sets)\n"; \
 		    }							\
 		}
@@ -1246,7 +1246,7 @@ namespace
 
 	  if (verbose)
 	    std::cerr << "info: state-space has "
-		      << statespace->num_transitions()
+		      << statespace->num_edges()
 		      << " edges\n";
 
 	  // Products of the state space with the positive automata.
@@ -1263,7 +1263,7 @@ namespace
 		  std::cerr << ("info: building product between state-space and"
 				" P") << i
 			    << " (" << pos[i]->num_states() << " st., "
-			    << pos[i]->num_transitions() << " ed.)\n";
+			    << pos[i]->num_edges() << " ed.)\n";
 		auto p = spot::product(pos[i], statespace);
 		pos_prod[i] = p;
 		auto sm = new spot::scc_info(p);
@@ -1287,7 +1287,7 @@ namespace
 		  std::cerr << ("info: building product between state-space and"
 				" N") << i
 			    << " (" << neg[i]->num_states() << " st., "
-			    << neg[i]->num_transitions() << " ed.)\n";
+			    << neg[i]->num_edges() << " ed.)\n";
 
 		auto p = spot::product(neg[i], statespace);
 		  neg_prod[i] = p;

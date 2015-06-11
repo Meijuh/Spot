@@ -266,7 +266,7 @@ namespace spot
 		  p.second = ris;
 		}
 
-	      // This loops over all the right transitions
+	      // This loops over all the right edges
 	      // if RI is defined.  Otherwise this just makes
 	      // one iteration as if the right automaton was
 	      // looping in state 0 with "true".
@@ -277,7 +277,7 @@ namespace spot
 		  if (ri)
 		    {
 		      cond = lc & ri->current_condition();
-		      // Skip incompatible transitions.
+		      // Skip incompatible edges.
 		      if (cond == bddfalse)
 			{
 			  ri->next();
@@ -303,7 +303,7 @@ namespace spot
 		  acc_cond::mark_t a =
 		    res->acc().join(la, li->current_acceptance_conditions(),
 				    ra, racc);
-		  res->new_transition(src, dest, bdd_exist(cond, v), a);
+		  res->new_edge(src, dest, bdd_exist(cond, v), a);
 
 		  if (ri)
 		    ri->next();

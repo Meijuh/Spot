@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -36,7 +36,7 @@ namespace spot
   public:
 
     typedef typename Graph::state state;
-    typedef typename Graph::transition transition;
+    typedef typename Graph::edge edge;
     typedef State_Name name;
 
     typedef std::unordered_map<name, state,
@@ -90,13 +90,13 @@ namespace spot
 	  auto old = p.first->second;
 	  p.first->second = s;
 	  // Add the successor of OLD to those of S.
-	  auto& trans = g_.transition_vector();
+	  auto& trans = g_.edge_vector();
 	  auto& states = g_.states();
 	  trans[states[s].succ_tail].next_succ = states[old].succ;
 	  states[s].succ_tail = states[old].succ_tail;
 	  states[old].succ = 0;
 	  states[old].succ_tail = 0;
-	  // Remove all references to old in transitions:
+	  // Remove all references to old in edges:
 	  unsigned tend = trans.size();
 	  for (unsigned t = 1; t < tend; ++t)
 	    {
@@ -130,35 +130,34 @@ namespace spot
     }
 
     template <typename... Args>
-    transition
-    new_transition(name src, name dst, Args&&... args)
+    edge
+    new_edge(name src, name dst, Args&&... args)
     {
-      return g_.new_transition(get_state(src), get_state(dst),
-			       std::forward<Args>(args)...);
+      return g_.new_edge(get_state(src), get_state(dst),
+			 std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    transition
-    new_transition(name src,
-		   const std::vector<State_Name>& dst, Args&&... args)
+    edge
+    new_edge(name src, const std::vector<State_Name>& dst, Args&&... args)
     {
       std::vector<State_Name> d;
       d.reserve(dst.size());
       for (auto n: dst)
 	d.push_back(get_state(n));
-      return g_.new_transition(get_state(src), d, std::forward<Args>(args)...);
+      return g_.new_edge(get_state(src), d, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    transition
-    new_transition(name src,
+    edge
+    new_edge(name src,
 		   const std::initializer_list<State_Name>& dst, Args&&... args)
     {
       std::vector<state> d;
       d.reserve(dst.size());
       for (auto n: dst)
 	d.push_back(get_state(n));
-      return g_.new_transition(get_state(src), d, std::forward<Args>(args)...);
+      return g_.new_edge(get_state(src), d, std::forward<Args>(args)...);
     }
   };
 }

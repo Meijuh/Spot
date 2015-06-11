@@ -92,9 +92,9 @@ namespace spot
 	      if (cond == bddfalse)
 		continue;
 	      auto dst = new_state(l.dst, r.dst);
-	      res->new_transition(top.second, dst, cond,
-				  res->acc().join(left->acc(), l.acc,
-						  right->acc(), r.acc));
+	      res->new_edge(top.second, dst, cond,
+			    res->acc().join(left->acc(), l.acc,
+					    right->acc(), r.acc));
 	      // If right is deterministic, we can abort immediately!
 	    }
       }

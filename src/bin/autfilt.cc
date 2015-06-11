@@ -216,7 +216,7 @@ static const struct argp_child children[] =
     { 0, 0, 0, 0 }
   };
 
-typedef spot::twa_graph::graph_t::trans_storage_t tr_t;
+typedef spot::twa_graph::graph_t::edge_storage_t tr_t;
 typedef std::set<std::vector<tr_t>> unique_aut_t;
 static long int match_count = 0;
 static spot::option_map extra_options;
@@ -502,7 +502,7 @@ namespace
 
       // If --stats or --name is used, duplicate the automaton so we
       // never modify the original automaton (e.g. with
-      // merge_transitions()) and the statistics about it make sense.
+      // merge_edges()) and the statistics about it make sense.
       auto aut = ((automaton_format == Stats) || opt_name)
 	? spot::make_twa_graph(haut->aut, spot::twa::prop_set::all())
 	: haut->aut;
@@ -512,7 +512,7 @@ namespace
       if (opt_stripacc)
 	spot::strip_acceptance_here(aut);
       if (opt_merge)
-	aut->merge_transitions();
+	aut->merge_edges();
       if (opt_clean_acc || opt_rem_fin)
 	cleanup_acceptance_here(aut);
       if (opt_sep_sets)
@@ -534,7 +534,7 @@ namespace
       bool matched = true;
 
       matched &= opt_states.contains(aut->num_states());
-      matched &= opt_edges.contains(aut->num_transitions());
+      matched &= opt_edges.contains(aut->num_edges());
       matched &= opt_accsets.contains(aut->acc().num_sets());
       if (opt_is_complete)
 	matched &= is_complete(aut);
@@ -602,8 +602,8 @@ namespace
           auto tmp =
 	    spot::canonicalize(make_twa_graph(aut,
 						 spot::twa::prop_set::all()));
-          if (!opt->uniq->emplace(tmp->transition_vector().begin() + 1,
-				  tmp->transition_vector().end()).second)
+          if (!opt->uniq->emplace(tmp->edge_vector().begin() + 1,
+				  tmp->edge_vector().end()).second)
 	    return 0;
         }
 
@@ -681,7 +681,7 @@ main(int argc, char** argv)
       if (opt->are_isomorphic)
 	{
 	  if (opt_merge)
-	    opt->are_isomorphic->merge_transitions();
+	    opt->are_isomorphic->merge_edges();
 	  opt->isomorphism_checker = std::unique_ptr<spot::isomorphism_checker>
 	    (new spot::isomorphism_checker(opt->are_isomorphic));
 	}

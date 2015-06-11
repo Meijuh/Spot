@@ -35,7 +35,7 @@ namespace spot
 	bdd_setpair(pairs, oldv, newv);
 	vars.push_back(oldv);
       }
-    for (auto& t: aut->transitions())
+    for (auto& t: aut->edges())
       t.cond = bdd_replace(t.cond, pairs);
     for (auto v: vars)
       d->unregister_variable(v, aut);

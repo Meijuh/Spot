@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita.
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -128,12 +128,12 @@ bool f1()
   auto s1 = gg.new_state("s1");
   auto s2 = gg.new_state("s2");
   auto s3 = gg.new_state("s3");
-  gg.new_transition("s1", "s2");
-  gg.new_transition("s1", "s3");
-  gg.new_transition("s2", "s3");
-  gg.new_transition("s3", "s1");
-  gg.new_transition("s3", "s2");
-  gg.new_transition("s3", "s3");
+  gg.new_edge("s1", "s2");
+  gg.new_edge("s1", "s3");
+  gg.new_edge("s2", "s3");
+  gg.new_edge("s3", "s1");
+  gg.new_edge("s3", "s2");
+  gg.new_edge("s3", "s3");
 
   dot(std::cout, gg);
 
@@ -158,10 +158,10 @@ bool f2()
   auto s1 = gg.new_state("s1", 1);
   gg.new_state("s2", 2);
   gg.new_state("s3", 3);
-  gg.new_transition("s1", "s2");
-  gg.new_transition("s1", "s3");
-  gg.new_transition("s2", "s3");
-  gg.new_transition("s3", "s2");
+  gg.new_edge("s1", "s2");
+  gg.new_edge("s1", "s3");
+  gg.new_edge("s2", "s3");
+  gg.new_edge("s3", "s2");
 
   dot(std::cout, gg);
 
@@ -181,10 +181,10 @@ bool f3()
   auto s1 = gg.new_state("s1");
   gg.new_state("s2");
   gg.new_state("s3");
-  gg.new_transition("s1", "s2", 1);
-  gg.new_transition("s1", "s3", 2);
-  gg.new_transition("s2", "s3", 3);
-  gg.new_transition("s3", "s2", 4);
+  gg.new_edge("s1", "s2", 1);
+  gg.new_edge("s1", "s3", 2);
+  gg.new_edge("s2", "s3", 3);
+  gg.new_edge("s3", "s2", 4);
 
   dot(std::cout, gg);
 
@@ -204,10 +204,10 @@ bool f4()
   auto s1 = gg.new_state("s1", 2);
   gg.new_state("s2", 3);
   gg.new_state("s3", 4);
-  gg.new_transition("s1", "s2", 1);
-  gg.new_transition("s1", "s3", 2);
-  gg.new_transition("s2", "s3", 3);
-  gg.new_transition("s3", "s2", 4);
+  gg.new_edge("s1", "s2", 1);
+  gg.new_edge("s1", "s3", 2);
+  gg.new_edge("s2", "s3", 3);
+  gg.new_edge("s3", "s2", 4);
 
   dot(std::cout, gg);
 
@@ -228,10 +228,10 @@ bool f5()
   auto s1 = gg.new_state("s1");
   gg.new_state("s2");
   gg.new_state("s3");
-  gg.new_transition("s1", "s2", std::make_pair(1, 1.2f));
-  gg.new_transition("s1", "s3", std::make_pair(2, 1.3f));
-  gg.new_transition("s2", "s3", std::make_pair(3, 1.4f));
-  gg.new_transition("s3", "s2", std::make_pair(4, 1.5f));
+  gg.new_edge("s1", "s2", std::make_pair(1, 1.2f));
+  gg.new_edge("s1", "s3", std::make_pair(2, 1.3f));
+  gg.new_edge("s2", "s3", std::make_pair(3, 1.4f));
+  gg.new_edge("s3", "s2", std::make_pair(4, 1.5f));
 
   int f = 0;
   float h = 0;
@@ -252,10 +252,10 @@ bool f6()
   auto s1 = gg.new_state("s1");
   gg.new_state("s2");
   gg.new_state("s3");
-  gg.new_transition("s1", "s2", 1, 1.2f);
-  gg.new_transition("s1", "s3", 2, 1.3f);
-  gg.new_transition("s2", "s3", 3, 1.4f);
-  gg.new_transition("s3", "s2", 4, 1.5f);
+  gg.new_edge("s1", "s2", 1, 1.2f);
+  gg.new_edge("s1", "s3", 2, 1.3f);
+  gg.new_edge("s2", "s3", 3, 1.4f);
+  gg.new_edge("s3", "s2", 4, 1.5f);
 
   int f = 0;
   float h = 0;
@@ -276,10 +276,10 @@ bool f7()
   auto s1 = gg.new_state("s1", 2);
   gg.new_state("s2", 3);
   gg.new_state("s3", 4);
-  gg.new_transition("s1", {"s2", "s3"}, 1);
-  gg.new_transition("s1", {"s3"}, 2);
-  gg.new_transition("s2", {"s3"}, 3);
-  gg.new_transition("s3", {"s2"}, 4);
+  gg.new_edge("s1", {"s2", "s3"}, 1);
+  gg.new_edge("s1", {"s3"}, 2);
+  gg.new_edge("s2", {"s3"}, 3);
+  gg.new_edge("s3", {"s2"}, 4);
 
   int f = 0;
   for (auto& t: g.out(s1))
@@ -324,10 +324,10 @@ bool f8()
   auto s1 = gg.new_state("s1", 2, 4);
   gg.new_state("s2", 3, 6);
   gg.new_state("s3", 4, 8);
-  gg.new_transition("s1", "s2", 1, 3);
-  gg.new_transition("s1", "s3", 2, 5);
-  gg.new_transition("s2", "s3", 3, 7);
-  gg.new_transition("s3", "s2", 4, 9);
+  gg.new_edge("s1", "s2", 1, 3);
+  gg.new_edge("s1", "s3", 2, 5);
+  gg.new_edge("s2", "s3", 3, 7);
+  gg.new_edge("s3", "s2", 4, 9);
 
   dot(std::cout, gg);
 
@@ -392,10 +392,10 @@ bool f9()
   auto s3 = gg.new_state("s3");
   gg.alias_state(s3, "s3b");
 
-  gg.new_transition("s1", "s2", 1, 3);
-  gg.new_transition("s1", "s3", 2, 5);
-  gg.new_transition("s2", "s3b", 3, 7);
-  gg.new_transition("s3", "s2", 4, 9);
+  gg.new_edge("s1", "s2", 1, 3);
+  gg.new_edge("s1", "s3", 2, 5);
+  gg.new_edge("s2", "s3b", 3, 7);
+  gg.new_edge("s3", "s2", 4, 9);
 
   dot(std::cout, gg);
 

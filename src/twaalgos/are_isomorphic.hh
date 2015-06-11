@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -49,6 +49,5 @@ namespace spot
     twa_graph_ptr ref_;
     bool ref_deterministic_ = false;
     unsigned nondet_states_ = 0;
-    std::vector<twa_graph::graph_t::trans_storage_t> reftrans_;
   };
 }

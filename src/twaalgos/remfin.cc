@@ -289,8 +289,7 @@ namespace spot
 	// Create the main copy
 	for (auto s: states)
 	  for (auto& t: aut->out(s))
-	    res->new_transition(s, t.dst, t.cond,
-				(t.acc & main_sets) | main_add);
+	    res->new_edge(s, t.dst, t.cond, (t.acc & main_sets) | main_add);
 
 	if (si.is_rejecting_scc(n))
 	  continue;
@@ -314,17 +313,17 @@ namespace spot
 		      if ((t.acc & r) || si.scc_of(t.dst) != n)
 			continue;
 		      auto nd = state_map[t.dst];
-		      res->new_transition(ns, nd, t.cond, (t.acc & k) | a);
+		      res->new_edge(ns, nd, t.cond, (t.acc & k) | a);
 		      // We need only one non-deterministic jump per
 		      // cycle.  As an approximation, we only do
 		      // them on back-links.
 		      //
-		      // The acceptance marks on these transition
+		      // The acceptance marks on these edge
 		      // are useless, but we keep them to preserve
 		      // state-based acceptance if any.
 		      if (t.dst <= s)
-			res->new_transition(s, nd, t.cond,
-					    (t.acc & main_sets) | main_add);
+			res->new_edge(s, nd, t.cond,
+				      (t.acc & main_sets) | main_add);
 		    }
 		}
 	    }

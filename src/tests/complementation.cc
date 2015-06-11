@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
     auto buchi = spot::degeneralize(a);
     std::cout << "Buchi: "
               << buchi->num_states()
-	      << buchi->num_transitions()
+	      << buchi->num_edges()
               << buchi->acc().num_sets()
               << std::endl;
 

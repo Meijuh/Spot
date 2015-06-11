@@ -88,14 +88,14 @@ namespace spot
 	if (cur.succ == 0)
 	  cur.succ = aut_->get_graph().state_storage(cur.s).succ;
 	else
-	  cur.succ = aut_->trans_storage(cur.succ).next_succ;
+	  cur.succ = aut_->edge_storage(cur.succ).next_succ;
 	if (cur.succ)
 	  {
 	    // Explore one successor.
 
 	    // Ignore those that are not on the SCC, or destination
 	    // that have been "virtually" deleted from A(v).
-	    unsigned s = aut_->trans_storage(cur.succ).dst;
+	    unsigned s = aut_->edge_storage(cur.succ).dst;
 
 	    if ((sm_.scc_of(s) != scc) || (info_[cur.s].del[s]))
 	      continue;

@@ -40,7 +40,7 @@ namespace spot
     random_deterministic_labels_rec(std::vector<bdd>& labels, int *props,
 				    int props_n, bdd current, unsigned n)
     {
-      if (n >  1 && props_n >= 1)
+      if (n > 1 && props_n >= 1)
         {
 	  bdd ap = bdd_ithvar(*props);
           ++props;
@@ -184,7 +184,7 @@ namespace spot
 	    labels = random_deterministic_labels(props, props_n, nsucc);
 
 	    // if nsucc > 2^props_n, we cannot produce nsucc deterministic
-	    // transitions so we set it to labels.size()
+	    // edges so we set it to labels.size()
 	    nsucc = labels.size();
 	  }
 	else
@@ -214,7 +214,7 @@ namespace spot
 		std::advance(i, index);
 
 		// Link it from src.
-		res->new_transition(src, *i, l, m);
+		res->new_edge(src, *i, l, m);
 		nodes_to_process.insert(*i);
 		unreachable_nodes.erase(*i);
 		break;
@@ -229,7 +229,7 @@ namespace spot
             state_randomizer[index] = state_randomizer[possibilities];
             state_randomizer[possibilities] = dst;
 
-            res->new_transition(src, dst, l, m);
+            res->new_edge(src, dst, l, m);
             auto j = unreachable_nodes.find(dst);
             if (j != unreachable_nodes.end())
               {

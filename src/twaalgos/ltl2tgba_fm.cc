@@ -1160,7 +1160,7 @@ namespace spot
 		  dest->destroy();
 		}
 
-	      namer->new_transition(now, dest, label);
+	      namer->new_edge(now, dest, label);
 	    }
 	}
 
@@ -2553,8 +2553,8 @@ namespace spot
 		      namer->new_state(t.dest);
 		    }
 
-		  namer->new_transition(now, t.dest, t.cond,
-					d.bdd_to_mark(t.prom));
+		  namer->new_edge(now, t.dest, t.cond,
+				  d.bdd_to_mark(t.prom));
 		  if (seen)
 		    t.dest->destroy();
 		}

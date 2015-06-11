@@ -46,7 +46,7 @@ namespace spot
 	    result = false;
 	    break;
 	  }
-	// The state should have only one transition that is a
+	// The state should have only one edge that is a
 	// self-loop labelled by true.
 	auto src = st.front();
 	auto out = aut->out(src);
@@ -69,7 +69,7 @@ namespace spot
       throw std::runtime_error
 	("is_safety_mwdba() should be called on a Buchi automaton");
 
-    for (auto& t: aut->transitions())
+    for (auto& t: aut->edges())
       if (!aut->acc().accepting(t.acc))
 	return false;
     return true;

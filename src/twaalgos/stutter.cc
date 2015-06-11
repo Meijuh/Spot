@@ -286,7 +286,7 @@ namespace spot
     get_all_ap(const const_twa_graph_ptr& a)
     {
       bdd res = bddtrue;
-      for (auto& i: a->transitions())
+      for (auto& i: a->edges())
 	res &= bdd_support(i.cond);
       return res;
     }
@@ -360,8 +360,8 @@ namespace spot
 		    (void)u;
 		  }
 
-		// Create the transition.
-		res->new_transition(src, dest, one, t.acc);
+		// Create the edge.
+		res->new_edge(src, dest, one, t.acc);
 
 		if (src == dest)
 		  self_loop_needed = false;
@@ -369,9 +369,9 @@ namespace spot
 	  }
 
 	if (self_loop_needed && s.second != bddfalse)
-	  res->new_transition(src, src, s.second, 0U);
+	  res->new_edge(src, src, s.second, 0U);
       }
-    res->merge_transitions();
+    res->merge_edges();
     return res;
   }
 
@@ -381,18 +381,18 @@ namespace spot
     if (atomic_propositions == bddfalse)
       atomic_propositions = get_all_ap(a);
     unsigned num_states = a->num_states();
-    unsigned num_transitions = a->num_transitions();
+    unsigned num_edges = a->num_edges();
     std::vector<bdd> selfloops(num_states, bddfalse);
     std::map<std::pair<unsigned, int>, unsigned> newstates;
     // Record all the conditions for which we can selfloop on each
     // state.
-    for (auto& t: a->transitions())
+    for (auto& t: a->edges())
       if (t.src == t.dst)
 	selfloops[t.src] |= t.cond;
-    for (unsigned t = 1; t <= num_transitions; ++t)
+    for (unsigned t = 1; t <= num_edges; ++t)
       {
-	auto& td = a->trans_storage(t);
-	if (a->is_dead_transition(td))
+	auto& td = a->edge_storage(t);
+	if (a->is_dead_edge(td))
 	  continue;
 
 	unsigned src = td.src;
@@ -401,11 +401,11 @@ namespace spot
 	  {
 	    bdd all = td.cond;
 	    // If there is a self-loop with the whole condition on
-	    // either end of the transition, do not bother with it.
+	    // either end of the edge, do not bother with it.
 	    if (bdd_implies(all, selfloops[src])
 		|| bdd_implies(all, selfloops[dst]))
 	      continue;
-	    // Do not use td in the loop because the new_transition()
+	    // Do not use td in the loop because the new_edge()
 	    // might invalidate it.
 	    auto acc = td.acc;
 	    while (all != bddfalse)
@@ -420,13 +420,13 @@ namespace spot
 		if (p.second)
 		  p.first->second = a->new_state();
 		unsigned tmp = p.first->second; // intermediate state
-		unsigned i = a->new_transition(src, tmp, one, acc);
-		assert(i > num_transitions);
-		i = a->new_transition(tmp, tmp, one, 0U);
-		assert(i > num_transitions);
+		unsigned i = a->new_edge(src, tmp, one, acc);
+		assert(i > num_edges);
+		i = a->new_edge(tmp, tmp, one, 0U);
+		assert(i > num_edges);
 		// No acceptance here to preserve the state-based property.
-		i = a->new_transition(tmp, dst, one, 0U);
-		assert(i > num_transitions);
+		i = a->new_edge(tmp, dst, one, 0U);
+		assert(i > num_edges);
 		(void)i;
 	      }
 	  }
@@ -437,7 +437,7 @@ namespace spot
 	            false,	// deterministic
 	            false,      // stutter inv.
 	           });
-    a->merge_transitions();
+    a->merge_edges();
     return a;
   }
 
@@ -474,7 +474,7 @@ namespace spot
 
 	while (!todo.empty())
 	  {
-	    auto t1 = a->trans_storage(todo.back());
+	    auto t1 = a->edge_storage(todo.back());
 	    todo.pop_back();
 
 	    for (auto& t2 : a->out(t1.dst))
@@ -486,7 +486,7 @@ namespace spot
 		    acc_cond::mark_t acc = t1.acc | t2.acc;
                     for (auto& t: dst2trans[t2.dst])
                       {
-                        auto& ts = a->trans_storage(t);
+                        auto& ts = a->edge_storage(t);
                         if (acc == ts.acc)
                           {
                             if (!bdd_implies(cond, ts.cond))
@@ -516,9 +516,9 @@ namespace spot
                     if (need_new_trans)
                       {
 			// Load t2.dst first, because t2 can be
-			// invalidated by new_transition().
+			// invalidated by new_edge().
 			auto dst = t2.dst;
-                        auto i = a->new_transition(state, dst, cond, acc);
+                        auto i = a->new_edge(state, dst, cond, acc);
                         dst2trans[dst].push_back(i);
                         todo.push_back(i);
                       }

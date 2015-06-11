@@ -95,7 +95,7 @@ namespace spot
     assert(nterms > 0);
     res->set_generalized_buchi(nterms);
 
-    for (auto& t: res->transitions())
+    for (auto& t: res->edges())
       {
 	acc_cond::mark_t cur_m = t.acc;
 	acc_cond::mark_t new_m = 0U;

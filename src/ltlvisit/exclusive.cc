@@ -168,7 +168,7 @@ namespace spot
     bdd support = bddtrue;
     {
       std::set<int> bdd_seen;
-      for (auto& t: aut->transitions())
+      for (auto& t: aut->edges())
 	if (bdd_seen.insert(t.cond.id()).second)
 	  support &= bdd_support(t.cond);
     }

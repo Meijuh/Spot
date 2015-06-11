@@ -613,7 +613,7 @@ checked_main(int argc, char** argv)
 	  if (spot::format_parse_aut_errors(std::cerr,
 					    argv[formula_index] + 2, pel))
 	    return 2;
-	  daut->aut->merge_transitions();
+	  daut->aut->merge_edges();
 	  system_aut = daut->aut;
 	  tm.stop("reading -P's argument");
 	}
@@ -1018,7 +1018,7 @@ checked_main(int argc, char** argv)
 		tm.stop("parsing hoa");
 		if (spot::format_parse_aut_errors(std::cerr, input, pel))
 		  return 2;
-		daut->aut->merge_transitions();
+		daut->aut->merge_edges();
 		a = daut->aut;
 		assume_sba = a->is_sba();
 	      }

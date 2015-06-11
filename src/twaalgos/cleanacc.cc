@@ -31,7 +31,7 @@ namespace spot
     acc_cond::mark_t used_in_cond = c.used_sets();
 
     acc_cond::mark_t used_in_aut = 0U;
-    for (auto& t: aut->transitions())
+    for (auto& t: aut->edges())
       used_in_aut |= t.acc;
 
     auto useful = used_in_aut & used_in_cond;
@@ -42,7 +42,7 @@ namespace spot
       return aut;
 
     // Remove useless marks from the automaton
-    for (auto& t: aut->transitions())
+    for (auto& t: aut->edges())
       t.acc = t.acc.strip(useless);
 
     // Remove useless marks from the acceptance condition

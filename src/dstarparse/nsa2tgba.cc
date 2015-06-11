@@ -155,7 +155,7 @@ namespace spot
 		dest = dres.first->second = res->new_state();
                 todo.push_back(d);
 	      }
-	    res->new_transition(src, dest, t.cond, acc);
+	    res->new_edge(src, dest, t.cond, acc);
 
 	    // Jump to level ∅
 	    if (s.pend == 0)
@@ -175,7 +175,7 @@ namespace spot
 		    dest = dres.first->second = res->new_state();
 		    todo.push_back(d);
 		  }
-		res->new_transition(src, dest, t.cond);
+		res->new_edge(src, dest, t.cond);
 	      }
 	  }
       }

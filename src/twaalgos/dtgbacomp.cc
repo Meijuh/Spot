@@ -51,27 +51,27 @@ namespace spot
     res->new_states(num_sets * n + 1);
     unsigned sink = res->num_states() - 1;
     // The sink state has an accepting self-loop.
-    res->new_acc_transition(sink, sink, bddtrue);
+    res->new_acc_edge(sink, sink, bddtrue);
 
     for (unsigned src = 0; src < n; ++src)
       {
-	// Keep track of all conditions on transition leaving state
+	// Keep track of all conditions on edge leaving state
 	// SRC, so we can complete it.
 	bdd missingcond = bddtrue;
 	for (auto& t: res->out(src))
 	  {
-	    if (t.dst >= n)	// Ignore transitions we added.
+	    if (t.dst >= n)	// Ignore edges we added.
 	      break;
 	    missingcond -= t.cond;
 	    acc_cond::mark_t curacc = t.acc;
-	    // The original transition must not accept anymore.
+	    // The original edge must not accept anymore.
 	    t.acc = 0U;
 
-	    // Transition that were fully accepting are never cloned.
+	    // Edge that were fully accepting are never cloned.
 	    if (oldacc.accepting(curacc))
 	      continue;
 	    // Save t.cond and t.dst as the reference to t
-	    // is invalided by calls to new_transition().
+	    // is invalided by calls to new_edge().
 	    unsigned dst = t.dst;
 	    bdd cond = t.cond;
 
@@ -84,30 +84,30 @@ namespace spot
 		add += n;
 		if (!oldacc.has(curacc, set))
 		  {
-		    // Clone the transition
-		    res->new_acc_transition(src + add, dst + add, cond);
+		    // Clone the edge
+		    res->new_acc_edge(src + add, dst + add, cond);
 		    assert(dst + add < sink);
 		    // Using `t' is disallowed from now on as it is a
-		    // reference to a transition that may have been
+		    // reference to a edge that may have been
 		    // reallocated.
 
-		    // At least one transition per cycle should have a
+		    // At least one edge per cycle should have a
 		    // nondeterministic copy from the original clone.
 		    // We use state numbers to select it, as any cycle
-		    // is guaranteed to have at least one transition
+		    // is guaranteed to have at least one edge
 		    // with dst <= src.  FIXME: Computing a feedback
 		    // arc set would be better.
 		    if (dst <= src)
-		      res->new_transition(src, dst + add, cond);
+		      res->new_edge(src, dst + add, cond);
 		  }
 	      }
 	    assert(add == num_sets * n);
 	  }
 	// Complete the original automaton.
 	if (missingcond != bddfalse)
-	  res->new_transition(src, sink, missingcond);
+	  res->new_edge(src, sink, missingcond);
       }
-    res->merge_transitions();
+    res->merge_edges();
     res->purge_dead_states();
     return res;
   }
@@ -137,7 +137,7 @@ namespace spot
 	if (si.is_rejecting_scc(scc) && !si.is_trivial(scc))
 	  acc = all_acc;
 
-	// Keep track of all conditions on transition leaving state
+	// Keep track of all conditions on edge leaving state
 	// SRC, so we can complete it.
 	bdd missingcond = bddtrue;
 	for (auto& t: res->out(src))
@@ -151,12 +151,12 @@ namespace spot
 	    if (res->num_states() == sink)
 	      {
 		res->new_state();
-		res->new_acc_transition(sink, sink, bddtrue);
+		res->new_acc_edge(sink, sink, bddtrue);
 	      }
-	    res->new_transition(src, sink, missingcond);
+	    res->new_edge(src, sink, missingcond);
 	  }
       }
-    //res->merge_transitions();
+    //res->merge_edges();
     return res;
   }
 

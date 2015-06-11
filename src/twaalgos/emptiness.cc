@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -369,7 +369,7 @@ namespace spot
 	  p.first->second = res->new_state();
 	dst = p.first->second;
 
-	res->new_transition(src, dst, label, acc);
+	res->new_edge(src, dst, label, acc);
 	src = dst;
 
         // Sum acceptance conditions.

@@ -27,9 +27,9 @@ namespace spot
 {
   void
   randomize(twa_graph_ptr& aut, bool randomize_states,
-	    bool randomize_transitions)
+	    bool randomize_edges)
   {
-    if (!randomize_states && !randomize_transitions)
+    if (!randomize_states && !randomize_edges)
       return;
     auto& g = aut->get_graph();
     if (randomize_states)
@@ -51,16 +51,16 @@ namespace spot
 	    aut->set_named_prop("state-names", nn);
 	  }
       }
-    if (randomize_transitions)
+    if (randomize_edges)
       {
-	g.remove_dead_transitions_();
-	auto& v = g.transition_vector();
+	g.remove_dead_edges_();
+	auto& v = g.edge_vector();
 	mrandom_shuffle(v.begin() + 1, v.end());
       }
 
-    typedef twa_graph::graph_t::trans_storage_t tr_t;
-    g.sort_transitions_([](const tr_t& lhs, const tr_t& rhs)
+    typedef twa_graph::graph_t::edge_storage_t tr_t;
+    g.sort_edges_([](const tr_t& lhs, const tr_t& rhs)
 			{ return lhs.src < rhs.src; });
-    g.chain_transitions_();
+    g.chain_edges_();
   }
 }

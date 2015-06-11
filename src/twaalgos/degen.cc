@@ -55,7 +55,7 @@ namespace spot
     // Queue of state to be processed.
     typedef std::deque<degen_state> queue_t;
 
-    // Acceptance set common to all outgoing transitions (of the same
+    // Acceptance set common to all outgoing edges (of the same
     // SCC -- we do not care about the other) of some state.
     class outgoing_acc
     {
@@ -75,7 +75,7 @@ namespace spot
 	bool seen = false;
 	for (auto& t: a_->out(s))
           {
-	    // Ignore transitions that leave the SCC of s.
+	    // Ignore edges that leave the SCC of s.
 	    unsigned d = t.dst;
 	    unsigned s2 = sm_ ? sm_->scc_of(d) : 0;
 	    if (s2 != s1)
@@ -237,10 +237,10 @@ namespace spot
       // and vice-versa.
       ds2num_map ds2num;
 
-      // This map is used to find transitions that go to the same
+      // This map is used to find edges that go to the same
       // destination with the same acceptance.  The integer key is
       // (dest*2+acc) where dest is the destination state number, and
-      // acc is 1 iff the transition is accepting.  The source
+      // acc is 1 iff the edge is accepting.  The source
       // is always that of the current iteration.
       typedef std::map<int, unsigned> tr_cache_t;
       tr_cache_t tr_cache;
@@ -268,7 +268,7 @@ namespace spot
       if (want_sba && !ignaccsl && outgoing.has_acc_selfloop(s.first))
 	s.second = order.size();
       // Otherwise, check for acceptance conditions common to all
-      // outgoing transitions, and assume we have already seen these and
+      // outgoing edges, and assume we have already seen these and
       // start on the associated level.
       if (s.second == 0)
 	{
@@ -345,12 +345,12 @@ namespace spot
 		{
 		  // Ignore the last expected acceptance set (the value of
 		  // prev below) if it is common to all other outgoing
-		  // transitions (of the current state) AND if it is not
-		  // used by any outgoing transition of the destination
+		  // edges (of the current state) AND if it is not
+		  // used by any outgoing edge of the destination
 		  // state.
 		  //
 		  // 1) It's correct to do that, because this acceptance
-		  //    set is common to other outgoing transitions.
+		  //    set is common to other outgoing edges.
 		  //    Therefore if we make a cycle to this state we
 		  //    will eventually see that acceptance set thanks
 		  //    to the "pulling" of the common acceptance sets
@@ -360,7 +360,7 @@ namespace spot
 		  //    degeneralization idempotent (up to a renaming
 		  //    of states).  Consider the following automaton
 		  //    where 1 is initial and => marks accepting
-		  //    transitions: 1=>1, 1=>2, 2->2, 2->1. This is
+		  //    edges: 1=>1, 1=>2, 2->2, 2->1. This is
 		  //    already an SBA, with 1 as accepting state.
 		  //    However if you try degeralize it without
 		  //    ignoring *prev, you'll get two copies of state
@@ -389,9 +389,9 @@ namespace spot
 			}
 		    }
 		}
-	      // A transition in the SLEVEL acceptance set should
+	      // A edge in the SLEVEL acceptance set should
 	      // be directed to the next acceptance set.  If the
-	      // current transition is also in the next acceptance
+	      // current edge is also in the next acceptance
 	      // set, then go to the one after, etc.
 	      //
 	      // See Denis Oddoux's PhD thesis for a nice
@@ -419,7 +419,7 @@ namespace spot
 		    {
 		      // Complete (or replace) the acceptance sets of
 		      // this link with the acceptance sets common to
-		      // all transitions leaving the destination state.
+		      // all edges leaving the destination state.
 		      if (s_scc == scc)
 			acc |= otheracc;
 		      else
@@ -452,7 +452,7 @@ namespace spot
 			    {
 			      // Consider both the current acceptance
 			      // sets, and the acceptance sets common to
-			      // the outgoing transitions of the
+			      // the outgoing edges of the
 			      // destination state.  But don't do
 			      // that if the state is accepting and we
 			      // are not skipping levels.
@@ -471,12 +471,12 @@ namespace spot
 		}
 
 	      // In case we are building a TBA is_acc has to be
-	      // set differently for each transition, and
+	      // set differently for each edge, and
 	      // we do not need to stay use final level.
 	      if (!want_sba)
 		{
 		  is_acc = d.second == order.size();
-		  if (is_acc)	// The transition is accepting
+		  if (is_acc)	// The edge is accepting
 		    {
 		      d.second = 0; // Make it go to the first level.
 		      // Skip levels as much as possible.
@@ -526,10 +526,10 @@ namespace spot
 
 	      unsigned& t = tr_cache[dest * 2 + is_acc];
 
-	      if (t == 0)	// Create transition.
-		t = res->new_acc_transition(src, dest, i.cond, is_acc);
-	      else		// Update existing transition.
-		res->trans_data(t).cond |= i.cond;
+	      if (t == 0)	// Create edge.
+		t = res->new_acc_edge(src, dest, i.cond, is_acc);
+	      else		// Update existing edge.
+		res->edge_data(t).cond |= i.cond;
 	    }
 	  tr_cache.clear();
 	}
@@ -546,7 +546,7 @@ namespace spot
 
       delete m;
 
-      res->merge_transitions();
+      res->merge_edges();
       return res;
     }
   }

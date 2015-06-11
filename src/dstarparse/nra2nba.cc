@@ -70,7 +70,7 @@ namespace spot
 	int out = d_->aut->state_number(sout);
 
 	bdd cond = si->current_condition();
-	out_->new_transition(in, out, cond);
+	out_->new_edge(in, out, cond);
 
 	// Create one clone of the automaton per accepting pair,
 	// removing states from the Ui part of the (Li, Ui) pairs.
@@ -94,12 +94,11 @@ namespace spot
 		// implementation create more transitions than needed:
 		// we do not need more than one transition per
 		// accepting cycle.
-		out_->new_transition(in, out + shift, cond);
+		out_->new_edge(in, out + shift, cond);
 
 		// A transition is accepting if it is in the Li
 		// set. (Löding's Fi set.)
-		out_->new_acc_transition(in + shift, out + shift, cond,
-					 l.get(i));
+		out_->new_acc_edge(in + shift, out + shift, cond, l.get(i));
 	      }
 	  }
       }

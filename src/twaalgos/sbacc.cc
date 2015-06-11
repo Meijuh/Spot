@@ -54,11 +54,11 @@ namespace spot
 	return p.first->second;
       };
 
-    // Find any transition going into the initial state, and use its
+    // Find any edge going into the initial state, and use its
     // acceptance as mark.
     acc_cond::mark_t init_acc = 0U;
     unsigned old_init = old->get_init_state_number();
-    for (auto& t: old->transitions())
+    for (auto& t: old->edges())
       if (t.dst == old_init)
 	{
 	  init_acc = t.acc;
@@ -71,10 +71,10 @@ namespace spot
 	auto one = todo.back();
 	todo.pop_back();
 	for (auto& t: old->out(one.first.first))
-	  res->new_transition(one.second,
-			      new_state(t.dst, t.acc),
-			      t.cond,
-			      one.first.second);
+	  res->new_edge(one.second,
+			new_state(t.dst, t.acc),
+			t.cond,
+			one.first.second);
       }
     return res;
   }

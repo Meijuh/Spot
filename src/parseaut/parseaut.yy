@@ -1021,16 +1021,14 @@ incorrectly-unlabeled-edge: checked-state-num trans-acc_opt
 				      "(previous edge is labeled)");
 			      else
 				cond = res.state_label;
-			      res.h->aut->new_transition(res.cur_state, $1,
-							 cond,
-							 $2 | res.acc_state);
+			      res.h->aut->new_edge(res.cur_state, $1,
+						   cond, $2 | res.acc_state);
 			    }
 labeled-edge: trans-label checked-state-num trans-acc_opt
 	      {
 		if (res.cur_label != bddfalse)
-		  res.h->aut->new_transition(res.cur_state, $2,
-					     res.cur_label,
-					     $3 | res.acc_state);
+		  res.h->aut->new_edge(res.cur_state, $2,
+				       res.cur_label, $3 | res.acc_state);
 	      }
 	    | trans-label state-conj-2 trans-acc_opt
 	      {
@@ -1067,8 +1065,8 @@ unlabeled-edge: checked-state-num trans-acc_opt
 			}
 		    }
 		  if (cond != bddfalse)
-		    res.h->aut->new_transition(res.cur_state, $1,
-					       cond, $2 | res.acc_state);
+		    res.h->aut->new_edge(res.cur_state, $1,
+					 cond, $2 | res.acc_state);
 		}
 	      | state-conj-2 trans-acc_opt
 		{
@@ -1097,7 +1095,7 @@ never: "never" { res.namer = res.h->aut->create_namer<std::string>();
 	 if (res.accept_all_needed && !res.accept_all_seen)
 	   {
 	     unsigned n = res.namer->new_state("accept_all");
-	     res.h->aut->new_acc_transition(n, n, bddtrue);
+	     res.h->aut->new_acc_edge(n, n, bddtrue);
 	   }
 	 // If we aliased existing state, we have some unreachable
 	 // states to remove.
@@ -1172,7 +1170,7 @@ nc-state:
 
       auto acc = !strncmp("accept", $1->c_str(), 6) ?
 	res.h->aut->acc().all_sets() : spot::acc_cond::mark_t(0U);
-      res.namer->new_transition(*$1, *$1, bddtrue, acc);
+      res.namer->new_edge(*$1, *$1, bddtrue, acc);
       delete $1;
     }
   | nc-ident-list { delete $1; }
@@ -1185,7 +1183,7 @@ nc-state:
 	{
 	  bdd c = bdd_from_int(p.first);
 	  bdd_delref(p.first);
-	  res.namer->new_transition(*$1, *p.second, c, acc);
+	  res.namer->new_edge(*$1, *p.second, c, acc);
 	  delete p.second;
 	}
       delete $1;
@@ -1445,9 +1443,9 @@ lbtt-transitions:
 		    {
 		      res.states_map.emplace(dst, dst);
 	            }
-		  res.h->aut->new_transition(res.cur_state, dst,
-		                             res.cur_label,
-					     res.acc_state | $3);
+		  res.h->aut->new_edge(res.cur_state, dst,
+				       res.cur_label,
+				       res.acc_state | $3);
 		}
 
 %%
@@ -1563,7 +1561,7 @@ static void fix_acceptance(result_& r)
   auto onlyneg = r.neg_acc_sets - r.pos_acc_sets;
   if (onlyneg)
     {
-      for (auto& t: r.h->aut->transition_vector())
+      for (auto& t: r.h->aut->edge_vector())
 	t.acc ^= onlyneg;
     }
 
@@ -1579,7 +1577,7 @@ static void fix_acceptance(result_& r)
       auto v = acc.sets(both);
       auto vs = v.size();
       base = acc.add_sets(vs);
-      for (auto& t: r.h->aut->transition_vector())
+      for (auto& t: r.h->aut->edge_vector())
 	if ((t.acc & both) != both)
 	  for (unsigned i = 0; i < vs; ++i)
 	    if (!t.acc.has(v[i]))
@@ -1631,7 +1629,7 @@ static void fix_initial_state(result_& r)
       // unless one of the actual initial state has no incoming edge.
       auto& aut = r.h->aut;
       std::vector<unsigned> has_incoming(aut->num_states(), 0);
-      for (auto& t: aut->transitions())
+      for (auto& t: aut->edges())
 	has_incoming[t.dst] = true;
 
       bool found = false;
@@ -1649,7 +1647,7 @@ static void fix_initial_state(result_& r)
       for (auto p: start)
 	if (p != init)
 	  for (auto& t: aut->out(p))
-	    aut->new_transition(init, t.dst, t.cond);
+	    aut->new_edge(init, t.dst, t.cond);
     }
 }
 
