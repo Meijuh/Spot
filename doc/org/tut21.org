@@ -1,0 +1,160 @@
+#+TITLE: Custom print of an automaton
+#+SETUPFILE: setup.org
+#+HTML_LINK_UP: tut.html
+
+This example demonstrates how to iterate over an automaton.  We will
+only show how to do this in C++: the Python bindings for the automata
+are not yet supporting these low-level iterations, and the shell
+commands aren't up to the task either.
+
+First let's create an example automaton in HOA format.
+
+#+BEGIN_SRC sh :results verbatim :exports both
+ltl2tgba 'Fa | G(Fb&Fc)' -H | tee tut21.hoa
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+HOA: v1
+name: "Fa | G(Fb & Fc)"
+States: 4
+Start: 0
+AP: 3 "a" "b" "c"
+acc-name: generalized-Buchi 2
+Acceptance: 2 Inf(0)&Inf(1)
+properties: trans-labels explicit-labels trans-acc complete
+properties: stutter-invariant
+--BODY--
+State: 0
+[0] 1
+[!0] 2
+[!0] 3
+State: 1
+[t] 1 {0 1}
+State: 2
+[0] 1
+[!0] 2
+State: 3
+[1&2] 3 {0 1}
+[1&!2] 3 {0}
+[!1&2] 3 {1}
+[!1&!2] 3
+--END--
+#+end_example
+
+We now write some C++ to load this automaton [[file:tut20.org][as we did before]], and in
+=custom_print()= we print it out in a custom way by explicitly
+iterating over it states and edges.
+
+The only tricky part is to print the edge labels.  Since they are
+BDDs, printing them directly would just show the number of BDD
+variables involved.  Using =bdd_print_formula= and passing it the BDD
+dictionary associated to the automaton is the way to print the edge
+labels.
+
+#+BEGIN_SRC C++ :results verbatim :exports both
+  #include <string>
+  #include <iostream>
+  #include "parseaut/public.hh"
+  #include "twaalgos/hoa.hh"
+  #include "twa/bddprint.hh"
+
+  void custom_print(std::ostream& out, spot::twa_graph_ptr& aut);
+
+  int main()
+  {
+    std::string input = "tut21.hoa";
+    spot::parse_aut_error_list pel;
+    spot::bdd_dict_ptr dict = spot::make_bdd_dict();
+    spot::parsed_aut_ptr pa = parse_aut(input, pel, dict);
+    if (spot::format_parse_aut_errors(std::cerr, input, pel))
+      return 1;
+    // This cannot occur when reading a never claim, but
+    // it could while reading a HOA file.
+    if (pa->aborted)
+      {
+        std::cerr << "--ABORT-- read\n";
+        return 1;
+      }
+    custom_print(std::cout, pa->aut);
+    return 0;
+  }
+
+  void custom_print(std::ostream& out, spot::twa_graph_ptr& aut)
+  {
+    // Print some meta-data
+    out << "Acceptance: " << aut->get_acceptance() << '\n';
+    out << "Number of sets: " << aut->num_sets() << '\n';
+    out << "Number of states: " << aut->num_states() << '\n';
+    out << "Number of edges: " << aut->num_edges() << '\n';
+
+    // We need the dictionary to print the BDD that labels the edge
+    const auto& dict = aut->get_dict();
+
+    // States are numbered from 0 to n-1
+    unsigned n = aut->num_states();
+    for (unsigned s = 0; s < n; ++s)
+      {
+        out << "State " << s << ":\n";
+
+        // The out(s) method returns a fake container that can be
+        // iterated over as if the contents was the edges going
+        // out of s.  Each of these edge is a quadruplet
+        // (src,dst,cond,acc).  Note that because this returns
+        // a reference, the edge can also be modified.
+        for (auto& t: aut->out(s))
+          {
+            out << "  edge(" << t.src << " -> " << t.dst << ")\n    label = ";
+            spot::bdd_print_formula(out, dict, t.cond);
+            out << "\n    acc sets = " << t.acc << '\n';
+          }
+      }
+  }
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Acceptance: Inf(0)&Inf(1)
+Number of sets: 2
+Number of states: 4
+Number of edges: 10
+State 0:
+  edge(0 -> 1)
+    label = a
+    acc sets = {}
+  edge(0 -> 2)
+    label = !a
+    acc sets = {}
+  edge(0 -> 3)
+    label = !a
+    acc sets = {}
+State 1:
+  edge(1 -> 1)
+    label = 1
+    acc sets = {0,1}
+State 2:
+  edge(2 -> 1)
+    label = a
+    acc sets = {}
+  edge(2 -> 2)
+    label = !a
+    acc sets = {}
+State 3:
+  edge(3 -> 3)
+    label = b & c
+    acc sets = {0,1}
+  edge(3 -> 3)
+    label = b & !c
+    acc sets = {0}
+  edge(3 -> 3)
+    label = !b & c
+    acc sets = {1}
+  edge(3 -> 3)
+    label = !b & !c
+    acc sets = {}
+#+end_example
+
+
+#+BEGIN_SRC sh :results verbatim :exports none
+rm -f tut21.hoa
+#+END_SRC
