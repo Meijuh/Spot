@@ -174,7 +174,7 @@ New in spot 1.99b (not yet released)
 
     - There is a parser for the HOA format
       (http://adl.github.io/hoaf/) available as a
-      spot::hoa_stream_parser object or spot::hoa_parse() function.
+      spot::automaton_stream_parser object or spot::parse_aut() function.
       The former version is able to parse a stream of automata in
       order to do batch processing.  This format can be output by all
       tools (since Spot 1.2.5) using the --hoa option, and it can be

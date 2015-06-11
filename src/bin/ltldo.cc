@@ -40,7 +40,7 @@
 #include "misc/timer.hh"
 #include "twaalgos/lbtt.hh"
 #include "twaalgos/relabel.hh"
-#include "hoaparse/public.hh"
+#include "parseaut/public.hh"
 #include "dstarparse/public.hh"
 
 const char argp_program_doc[] ="\
@@ -192,15 +192,15 @@ namespace
 	    case printable_result_filename::Hoa:
 	      {
 		// Will also read neverclaims/LBTT
-		spot::hoa_parse_error_list pel;
+		spot::parse_aut_error_list pel;
 		std::string filename = output.val()->name();
-		auto aut = spot::hoa_parse(filename, pel, dict);
+		auto aut = spot::parse_aut(filename, pel, dict);
 		if (!pel.empty())
 		  {
 		    problem = true;
 		    std::cerr << "error: failed to parse the automaton "
 		      "produced by \"" << cmd << "\".\n";
-		    spot::format_hoa_parse_errors(std::cerr, filename, pel);
+		    spot::format_parse_aut_errors(std::cerr, filename, pel);
 		    res = nullptr;
 		  }
 		else if (!aut)

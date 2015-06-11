@@ -20,13 +20,13 @@
 #pragma once
 
 #include <string>
-#include "hoaparse.hh"
+#include "parseaut.hh"
 #include "misc/location.hh"
 
 # define YY_DECL \
   int hoayylex(hoayy::parser::semantic_type *yylval, \
 	       spot::location *yylloc, \
-	       spot::hoa_parse_error_list& error_list)
+	       spot::parse_aut_error_list& error_list)
 YY_DECL;
 
 namespace spot

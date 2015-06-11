@@ -23,12 +23,12 @@
 namespace spot
 {
   bool
-  format_hoa_parse_errors(std::ostream& os,
+  format_parse_aut_errors(std::ostream& os,
 			  const std::string& filename,
-			  hoa_parse_error_list& error_list)
+			  parse_aut_error_list& error_list)
   {
     bool printed = false;
-    spot::hoa_parse_error_list::iterator it;
+    spot::parse_aut_error_list::iterator it;
     for (it = error_list.begin(); it != error_list.end(); ++it)
       {
 	if (filename != "-")

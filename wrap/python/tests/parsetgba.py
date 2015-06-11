@@ -32,8 +32,8 @@ out = open(filename, 'w+')
 out.write(contents)
 out.close()
 
-p = spot.empty_hoa_parse_error_list()
-a = spot.hoa_parse(filename, p, spot.make_bdd_dict())
+p = spot.empty_parse_aut_error_list()
+a = spot.parse_aut(filename, p, spot.make_bdd_dict())
 
 assert not p
 

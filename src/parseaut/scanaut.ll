@@ -25,7 +25,7 @@
 %{
 #include <string>
 #include <sys/stat.h>
-#include "hoaparse/parsedecl.hh"
+#include "parseaut/parsedecl.hh"
 #include "misc/escape.hh"
 
 #define YY_USER_ACTION yylloc->columns(yyleng);
@@ -62,7 +62,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
     yylval->num = n;
     if (errno || yylval->num != n)
       {
-        error_list.push_back(spot::hoa_parse_error(*yylloc, "value too large"));
+        error_list.push_back(spot::parse_aut_error(*yylloc, "value too large"));
         yylval->num = 0;
       }
     return end;
@@ -96,7 +96,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			  if (errno || yylval->num != n)
 			    {
                               error_list.push_back(
-			        spot::hoa_parse_error(*yylloc,
+			        spot::parse_aut_error(*yylloc,
 				  "value too large"));
 			      yylval->num = 0;
                             }
@@ -258,7 +258,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
   <<EOF>>		{
                            BEGIN(orig_cond);
                            error_list.push_back(
-			     spot::hoa_parse_error(*yylloc,
+			     spot::parse_aut_error(*yylloc,
 			       "unclosed comment"));
 			   return 0;
                         }
@@ -289,7 +289,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
   [^\\\"\n\r]+		s.append(yytext, yyleng);
   <<EOF>>		{
                            error_list.push_back(
-			     spot::hoa_parse_error(*yylloc,
+			     spot::parse_aut_error(*yylloc,
 			       "unclosed string"));
                            BEGIN(orig_cond);
 			   yylval->str = new std::string(s);
@@ -326,7 +326,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
   [^()\n\r]+		yylval->str->append(yytext, yyleng);
   <<EOF>>		{
                           error_list.push_back(
-			    spot::hoa_parse_error(*yylloc,
+			    spot::parse_aut_error(*yylloc,
  			      "missing closing parenthese"));
                           yylval->str->append(parent_level, ')');
                           BEGIN(in_NEVER);

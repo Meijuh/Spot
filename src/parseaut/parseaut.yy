@@ -24,7 +24,7 @@
 %name-prefix "hoayy"
 %debug
 %error-verbose
-%lex-param { spot::hoa_parse_error_list& error_list }
+%lex-param { spot::parse_aut_error_list& error_list }
 %define api.location.type "spot::location"
 
 %code requires
@@ -68,7 +68,7 @@
 	bool used = false;
 	spot::location used_loc;
       };
-      spot::hoa_aut_ptr h;
+      spot::parsed_aut_ptr h;
       spot::ltl::environment* env;
       formula_cache fcache;
       named_tgba_t* namer = nullptr;
@@ -127,7 +127,7 @@
   }
 }
 
-%parse-param {spot::hoa_parse_error_list& error_list}
+%parse-param {spot::parse_aut_error_list& error_list}
 %parse-param {result_& res}
 %parse-param {spot::location initial_loc}
 
@@ -150,7 +150,7 @@
 #include "ltlast/constant.hh"
 #include "ltlparse/public.hh"
 
-  /* hoaparse.hh and parsedecl.hh include each other recursively.
+  /* parseaut.hh and parsedecl.hh include each other recursively.
    We must ensure that YYSTYPE is declared (by the above %union)
    before parsedecl.hh uses it. */
 #include "parsedecl.hh"
@@ -1664,46 +1664,46 @@ static void fix_properties(result_& r)
 
 namespace spot
 {
-  hoa_stream_parser::hoa_stream_parser(const std::string& name,
-				       bool ignore_abort)
+  automaton_stream_parser::automaton_stream_parser(const std::string& name,
+						   bool ignore_abort)
     : filename_(name), ignore_abort_(ignore_abort)
   {
     if (hoayyopen(name))
       throw std::runtime_error(std::string("Cannot open file ") + name);
   }
 
-  hoa_stream_parser::hoa_stream_parser(int fd,
-				       const std::string& name,
-				       bool ignore_abort)
+  automaton_stream_parser::automaton_stream_parser(int fd,
+						   const std::string& name,
+						   bool ignore_abort)
     : filename_(name), ignore_abort_(ignore_abort)
   {
     if (hoayyopen(fd))
       throw std::runtime_error(std::string("Cannot open file ") + name);
   }
 
-  hoa_stream_parser::hoa_stream_parser(const char* data,
-				       const std::string& filename,
-				       bool ignore_abort)
+  automaton_stream_parser::automaton_stream_parser(const char* data,
+						   const std::string& filename,
+						   bool ignore_abort)
     : filename_(filename), ignore_abort_(ignore_abort)
   {
     hoayystring(data);
   }
 
-  hoa_stream_parser::~hoa_stream_parser()
+  automaton_stream_parser::~automaton_stream_parser()
   {
     hoayyclose();
   }
 
 
-  hoa_aut_ptr
-  hoa_stream_parser::parse(hoa_parse_error_list& error_list,
-			   const bdd_dict_ptr& dict,
-			   ltl::environment& env,
-			   bool debug)
+  parsed_aut_ptr
+  automaton_stream_parser::parse(parse_aut_error_list& error_list,
+				 const bdd_dict_ptr& dict,
+				 ltl::environment& env,
+				 bool debug)
   {
   restart:
     result_ r;
-    r.h = std::make_shared<spot::hoa_aut>();
+    r.h = std::make_shared<spot::parsed_aut>();
     r.h->aut = make_twa_graph(dict);
     r.env = &env;
     hoayy::parser parser(error_list, r, last_loc);
@@ -1740,17 +1740,17 @@ namespace spot
   };
 
   twa_graph_ptr
-  hoa_stream_parser::parse_strict(const bdd_dict_ptr& dict,
-				  ltl::environment& env,
-				  bool debug)
+  automaton_stream_parser::parse_strict(const bdd_dict_ptr& dict,
+					ltl::environment& env,
+					bool debug)
   {
-    hoa_parse_error_list pel;
+    parse_aut_error_list pel;
     auto a = parse(pel, dict, env, debug);
 
     if (!pel.empty())
       {
 	std::ostringstream s;
-	if (format_hoa_parse_errors(s, filename_, pel))
+	if (format_parse_aut_errors(s, filename_, pel))
 	  throw parse_error(s.str());
       }
     if (!a)

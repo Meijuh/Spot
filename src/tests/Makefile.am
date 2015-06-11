@@ -171,7 +171,7 @@ TESTS_twa = \
   nondet.test \
   det.test \
   neverclaimread.test \
-  hoaparse.test \
+  parseaut.test \
   optba.test \
   complete.test \
   remfin.test \

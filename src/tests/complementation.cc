@@ -21,7 +21,7 @@
 #include <iostream>
 #include "twaalgos/dot.hh"
 #include "twaalgos/hoa.hh"
-#include "hoaparse/public.hh"
+#include "parseaut/public.hh"
 #include "twa/twaproduct.hh"
 #include "twaalgos/gtec/gtec.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
@@ -121,9 +121,9 @@ int main(int argc, char* argv[])
   if (print_automaton || print_safra)
   {
     spot::ltl::environment& env(spot::ltl::default_environment::instance());
-    spot::hoa_parse_error_list pel;
-    auto h = spot::hoa_parse(file, pel, dict, env);
-    if (spot::format_hoa_parse_errors(std::cerr, file, pel))
+    spot::parse_aut_error_list pel;
+    auto h = spot::parse_aut(file, pel, dict, env);
+    if (spot::format_parse_aut_errors(std::cerr, file, pel))
       return 2;
     spot::twa_graph_ptr a = h->aut;
 
@@ -178,10 +178,10 @@ int main(int argc, char* argv[])
     }
     else
     {
-      spot::hoa_parse_error_list pel;
+      spot::parse_aut_error_list pel;
       spot::ltl::environment& env(spot::ltl::default_environment::instance());
-      auto h = spot::hoa_parse(file, pel, dict, env);
-      if (spot::format_hoa_parse_errors(std::cerr, file, pel))
+      auto h = spot::parse_aut(file, pel, dict, env);
+      if (spot::format_parse_aut_errors(std::cerr, file, pel))
         return 2;
       a = h->aut;
     }

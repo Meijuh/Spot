@@ -202,7 +202,7 @@ AC_CONFIG_FILES([
   src/dstarparse/Makefile
   src/kripke/Makefile
   src/graph/Makefile
-  src/hoaparse/Makefile
+  src/parseaut/Makefile
   src/ltlast/Makefile
   src/ltlenv/Makefile
   src/ltlparse/Makefile

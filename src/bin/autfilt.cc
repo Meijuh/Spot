@@ -43,7 +43,7 @@
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
 #include "misc/random.hh"
-#include "hoaparse/public.hh"
+#include "parseaut/public.hh"
 #include "ltlvisit/exclusive.hh"
 #include "twaalgos/remprop.hh"
 #include "twaalgos/randomize.hh"
@@ -494,7 +494,7 @@ namespace
     }
 
     int
-    process_automaton(const spot::const_hoa_aut_ptr& haut,
+    process_automaton(const spot::const_parsed_aut_ptr& haut,
 		      const char* filename)
     {
       spot::stopwatch sw;
@@ -618,7 +618,7 @@ namespace
     }
 
     int
-    aborted(const spot::const_hoa_aut_ptr& h, const char* filename)
+    aborted(const spot::const_parsed_aut_ptr& h, const char* filename)
     {
       std::cerr << filename << ':' << h->loc << ": aborted input automaton\n";
       return 2;
@@ -627,8 +627,8 @@ namespace
     int
     process_file(const char* filename)
     {
-      spot::hoa_parse_error_list pel;
-      auto hp = spot::hoa_stream_parser(filename);
+      spot::parse_aut_error_list pel;
+      auto hp = spot::automaton_stream_parser(filename);
 
       int err = 0;
 
@@ -638,7 +638,7 @@ namespace
 	  auto haut = hp.parse(pel, opt->dict);
 	  if (!haut && pel.empty())
 	    break;
-	  if (spot::format_hoa_parse_errors(std::cerr, filename, pel))
+	  if (spot::format_parse_aut_errors(std::cerr, filename, pel))
 	    err = 2;
 	  if (!haut)
 	    error(2, 0, "failed to read automaton from %s", filename);

@@ -40,7 +40,7 @@
 #include "twa/twaproduct.hh"
 #include "twaalgos/reducerun.hh"
 #include "dstarparse/public.hh"
-#include "hoaparse/public.hh"
+#include "parseaut/public.hh"
 #include "twaalgos/dupexp.hh"
 #include "twaalgos/minimize.hh"
 #include "taalgos/minimize.hh"
@@ -608,9 +608,9 @@ checked_main(int argc, char** argv)
 	  tm.start("reading -P's argument");
 
 	  spot::dstar_parse_error_list pel;
-	  auto daut = spot::hoa_parse(argv[formula_index] + 2, pel,
+	  auto daut = spot::parse_aut(argv[formula_index] + 2, pel,
 				      dict, env, debug_opt);
-	  if (spot::format_hoa_parse_errors(std::cerr,
+	  if (spot::format_parse_aut_errors(std::cerr,
 					    argv[formula_index] + 2, pel))
 	    return 2;
 	  daut->aut->merge_transitions();
@@ -1014,9 +1014,9 @@ checked_main(int argc, char** argv)
 	      {
 		spot::dstar_parse_error_list pel;
 		tm.start("parsing hoa");
-		auto daut = spot::hoa_parse(input, pel, dict, env, debug_opt);
+		auto daut = spot::parse_aut(input, pel, dict, env, debug_opt);
 		tm.stop("parsing hoa");
-		if (spot::format_hoa_parse_errors(std::cerr, input, pel))
+		if (spot::format_parse_aut_errors(std::cerr, input, pel))
 		  return 2;
 		daut->aut->merge_transitions();
 		a = daut->aut;

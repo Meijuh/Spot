@@ -176,13 +176,14 @@ def automata(*filenames):
             if filename[-1] == '|':
                 proc = subprocess.Popen(filename[:-1], shell=True,
                                         stdout=subprocess.PIPE)
-                p = hoa_stream_parser(proc.stdout.fileno(), filename, True)
+                p = automaton_stream_parser(proc.stdout.fileno(),
+                                            filename, True)
             elif '\n' in filename:
                 proc = None
-                p = hoa_stream_parser(filename, "<string>", True)
+                p = automaton_stream_parser(filename, "<string>", True)
             else:
                 proc = None
-                p = hoa_stream_parser(filename, True)
+                p = automaton_stream_parser(filename, True)
             a = True
             while a:
                 # This returns None when we reach the end of the file.

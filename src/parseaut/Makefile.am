@@ -21,17 +21,17 @@ AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(BUDDY_CPPFLAGS) -DYY_NO_INPUT
 # Disable -Werror because too many versions of flex yield warnings.
 AM_CXXFLAGS = $(WARNING_CXXFLAGS:-Werror=)
 
-hoaparsedir = $(pkgincludedir)/hoaparse
+parseautdir = $(pkgincludedir)/parseaut
 
-hoaparse_HEADERS = public.hh
+parseaut_HEADERS = public.hh
 
-noinst_LTLIBRARIES = libhoaparse.la
+noinst_LTLIBRARIES = libparseaut.la
 
-HOAPARSE_YY = hoaparse.yy
-FROM_HOAPARSE_YY_MAIN = hoaparse.cc
+HOAPARSE_YY = parseaut.yy
+FROM_HOAPARSE_YY_MAIN = parseaut.cc
 FROM_HOAPARSE_YY_OTHERS = \
   stack.hh \
-  hoaparse.hh
+  parseaut.hh
 
 FROM_HOAPARSE_YY = $(FROM_HOAPARSE_YY_MAIN) $(FROM_HOAPARSE_YY_OTHERS)
 
@@ -50,8 +50,8 @@ $(FROM_HOAPARSE_YY_OTHERS): $(HOAPARSE_YY)
 
 EXTRA_DIST = $(HOAPARSE_YY)
 
-libhoaparse_la_SOURCES = \
+libparseaut_la_SOURCES = \
   fmterror.cc \
   $(FROM_HOAPARSE_YY) \
-  hoascan.ll \
+  scanaut.ll \
   parsedecl.hh

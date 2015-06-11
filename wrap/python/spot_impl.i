@@ -39,7 +39,7 @@
  // git grep 'typedef.*std::shared_ptr' | grep -v const |
  //   sed 's/.*<\(.*\)>.*/%shared_ptr(spot::\1)/g'
 %shared_ptr(spot::dstar_aut)
-%shared_ptr(spot::hoa_aut)
+%shared_ptr(spot::parsed_aut)
 %shared_ptr(spot::fair_kripke)
 %shared_ptr(spot::kripke)
 %shared_ptr(spot::kripke_explicit)
@@ -143,7 +143,7 @@ namespace std {
 #include "twaalgos/hoa.hh"
 #include "twaalgos/dtgbasat.hh"
 
-#include "hoaparse/public.hh"
+#include "parseaut/public.hh"
 
 #include "ta/ta.hh"
 #include "ta/tgta.hh"
@@ -308,7 +308,7 @@ namespace std {
 %include "twaalgos/hoa.hh"
 %include "twaalgos/dtgbasat.hh"
 
-%include "hoaparse/public.hh"
+%include "parseaut/public.hh"
 
 %include "ta/ta.hh"
 %include "ta/tgta.hh"
@@ -394,10 +394,10 @@ empty_parse_error_list()
   return l;
 }
 
-spot::hoa_parse_error_list
-empty_hoa_parse_error_list()
+spot::parse_aut_error_list
+empty_parse_aut_error_list()
 {
-  hoa_parse_error_list l;
+  parse_aut_error_list l;
   return l;
 }
 
@@ -467,7 +467,7 @@ __bool__()
 
 }
 
-%extend spot::hoa_parse_error_list {
+%extend spot::parse_aut_error_list {
 
 bool
 __nonzero__()

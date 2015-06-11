@@ -20,7 +20,7 @@
 #include "common_conv.hh"
 #include <cstdlib>
 #include "error.h"
-#include "hoaparse/public.hh"
+#include "parseaut/public.hh"
 
 int
 to_int(const char* s)
@@ -73,9 +73,9 @@ to_probability(const char* s)
 spot::twa_graph_ptr
 read_automaton(const char* filename, spot::bdd_dict_ptr& dict)
 {
-  spot::hoa_parse_error_list pel;
-  auto p = spot::hoa_parse(filename, pel, dict);
-  if (spot::format_hoa_parse_errors(std::cerr, filename, pel)
+  spot::parse_aut_error_list pel;
+  auto p = spot::parse_aut(filename, pel, dict);
+  if (spot::format_parse_aut_errors(std::cerr, filename, pel)
       || !p || p->aborted)
     error(2, 0, "failed to read automaton from %s", filename);
   return std::move(p->aut);

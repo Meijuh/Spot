@@ -24,7 +24,7 @@
 #include <argp.h>
 #include <memory>
 
-#include "hoaparse/public.hh"
+#include "parseaut/public.hh"
 
 #include "twaalgos/stats.hh"
 #include "twaalgos/sccinfo.hh"
@@ -105,7 +105,7 @@ public:
   /// The \a f argument is not needed if the Formula does not need
   /// to be output.
   std::ostream&
-  print(const spot::const_hoa_aut_ptr& haut,
+  print(const spot::const_parsed_aut_ptr& haut,
 	const spot::const_twa_graph_ptr& aut,
 	const spot::ltl::formula* f,
 	const char* filename, int loc, double run_time)
@@ -231,7 +231,7 @@ public:
 	int loc = -1,
 	// Time and input automaton for statistics
 	double time = 0.0,
-	const spot::const_hoa_aut_ptr& haut = nullptr);
+	const spot::const_parsed_aut_ptr& haut = nullptr);
 
   void add_stat(char c, const spot::printable* p);
 };

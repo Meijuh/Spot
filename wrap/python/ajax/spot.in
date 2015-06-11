@@ -587,12 +587,12 @@ elif translator == 'l3':
         if ret != 0:
             unbufprint('<div class="error">ltl3ba exited with error %s</div>' % ret)
             finish()
-    tpel = spot.empty_hoa_parse_error_list()
-    automaton = spot.hoa_parse(l3file, tpel, dict, env)
+    tpel = spot.empty_parse_aut_error_list()
+    automaton = spot.parse_aut(l3file, tpel, dict, env)
     if tpel:
         unbufprint('''<div class="error">failed to read ltl3ba's output</div>''')
         unbufprint('<div class="parse-error">')
-        err = spot.format_hoa_parse_errors(spot.get_cout(), "output", tpel)
+        err = spot.format_parse_aut_errors(spot.get_cout(), "output", tpel)
         unbufprint('</div>')
         automaton = 0
         finish()

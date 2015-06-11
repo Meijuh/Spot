@@ -38,7 +38,7 @@
 #include "common_file.hh"
 #include "common_finput.hh"
 #include "dstarparse/public.hh"
-#include "hoaparse/public.hh"
+#include "parseaut/public.hh"
 #include "ltlast/unop.hh"
 #include "ltlvisit/print.hh"
 #include "ltlvisit/apcollect.hh"
@@ -633,9 +633,9 @@ namespace
 	      }
 	    case printable_result_filename::Hoa: // Will also read neverclaims
 	      {
-		spot::hoa_parse_error_list pel;
+		spot::parse_aut_error_list pel;
 		std::string filename = output.val()->name();
-		auto aut = spot::hoa_parse(filename, pel, dict);
+		auto aut = spot::parse_aut(filename, pel, dict);
 		if (!pel.empty())
 		  {
 		    status_str = "parse error";
@@ -643,7 +643,7 @@ namespace
 		    es = -1;
 		    std::ostream& err = global_error();
 		    err << "error: failed to parse the produced automaton.\n";
-		    spot::format_hoa_parse_errors(err, filename, pel);
+		    spot::format_parse_aut_errors(err, filename, pel);
 		    end_error();
 		    res = nullptr;
 		  }

@@ -35,17 +35,17 @@ namespace spot
 
 #ifndef SWIG
   /// \brief A parse diagnostic with its location.
-  typedef std::pair<spot::location, std::string> hoa_parse_error;
+  typedef std::pair<spot::location, std::string> parse_aut_error;
   /// \brief A list of parser diagnostics, as filled by parse.
-  typedef std::list<hoa_parse_error> hoa_parse_error_list;
+  typedef std::list<parse_aut_error> parse_aut_error_list;
 #else
-    // Turn hoa_parse_error_list into an opaque type for Swig.
-  struct hoa_parse_error_list {};
+    // Turn parse_aut_error_list into an opaque type for Swig.
+  struct parse_aut_error_list {};
 #endif
 
   /// \brief Temporary encoding of an omega automaton produced by
-  /// ltl2hoa.
-  struct SPOT_API hoa_aut
+  /// the parser.
+  struct SPOT_API parsed_aut
   {
     // Transition structure of the automaton.
     // This is encoded as a TGBA without acceptance condition.
@@ -54,35 +54,36 @@ namespace spot
     spot::location loc;
   };
 
-  typedef std::shared_ptr<hoa_aut> hoa_aut_ptr;
-  typedef std::shared_ptr<const hoa_aut> const_hoa_aut_ptr;
+  typedef std::shared_ptr<parsed_aut> parsed_aut_ptr;
+  typedef std::shared_ptr<const parsed_aut> const_parsed_aut_ptr;
 
-  class SPOT_API hoa_stream_parser
+  class SPOT_API automaton_stream_parser
   {
     spot::location last_loc;
     std::string filename_;
     bool ignore_abort_;
   public:
-    hoa_stream_parser(const std::string& filename, bool ignore_abort = false);
+    automaton_stream_parser(const std::string& filename,
+			    bool ignore_abort = false);
     // Read from an already open file descriptor.
     // Use filename in error messages.
-    hoa_stream_parser(int fd, const std::string& filename,
-		      bool ignore_abort = false);
+    automaton_stream_parser(int fd, const std::string& filename,
+			    bool ignore_abort = false);
     // Read from a buffer
-    hoa_stream_parser(const char* data,
-		      const std::string& filename,
-		      bool ignore_abort = false);
-    ~hoa_stream_parser();
-    hoa_aut_ptr parse(hoa_parse_error_list& error_list,
-		      const bdd_dict_ptr& dict,
-		      ltl::environment& env =
-		      ltl::default_environment::instance(),
-		      bool debug = false);
+    automaton_stream_parser(const char* data,
+			    const std::string& filename,
+			    bool ignore_abort = false);
+    ~automaton_stream_parser();
+    parsed_aut_ptr parse(parse_aut_error_list& error_list,
+			 const bdd_dict_ptr& dict,
+			 ltl::environment& env =
+			 ltl::default_environment::instance(),
+			 bool debug = false);
     // Raises a parse_error on any syntax error
     twa_graph_ptr parse_strict(const bdd_dict_ptr& dict,
-				  ltl::environment& env =
-				  ltl::default_environment::instance(),
-				  bool debug = false);
+			       ltl::environment& env =
+			       ltl::default_environment::instance(),
+			       bool debug = false);
   };
 
   /// \brief Build a spot::twa_graph from a HOA file or a neverclaim.
@@ -112,16 +113,16 @@ namespace spot
   /// spot@lrde.epita.fr.
   ///
   /// \warning This function is not reentrant.
-  inline hoa_aut_ptr
-  hoa_parse(const std::string& filename,
-	    hoa_parse_error_list& error_list,
+  inline parsed_aut_ptr
+  parse_aut(const std::string& filename,
+	    parse_aut_error_list& error_list,
 	    const bdd_dict_ptr& dict,
 	    ltl::environment& env = ltl::default_environment::instance(),
 	    bool debug = false)
   {
     try
       {
-	hoa_stream_parser p(filename);
+	automaton_stream_parser p(filename);
 	return p.parse(error_list, dict, env, debug);
       }
     catch (std::runtime_error& e)
@@ -131,16 +132,16 @@ namespace spot
       }
   }
 
-  /// \brief Format diagnostics produced by spot::hoa_parse.
+  /// \brief Format diagnostics produced by spot::parse_aut.
   /// \param os Where diagnostics should be output.
   /// \param filename The filename that should appear in the diagnostics.
   /// \param error_list The error list filled by spot::ltl::parse while
   ///        parsing \a ltl_string.
   /// \return \c true iff any diagnostic was output.
   SPOT_API bool
-  format_hoa_parse_errors(std::ostream& os,
+  format_parse_aut_errors(std::ostream& os,
 			  const std::string& filename,
-			  hoa_parse_error_list& error_list);
+			  parse_aut_error_list& error_list);
 
   /// @}
 }

@@ -567,7 +567,7 @@ EOF
 
 # autfilt should complain about the input (we only check the exit
 # status here, because the actual error messages are tested in
-# hoaparse.test) and produce a valid output with the number of states
+# parseaut.test) and produce a valid output with the number of states
 # fixed, and the missing state definitions.
 $autfilt -H input >output1 && exit 1
 

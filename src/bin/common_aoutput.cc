@@ -278,7 +278,7 @@ automaton_printer::print(const spot::twa_graph_ptr& aut,
 			 int loc,
 			 // Time and input automaton for statistics
 			 double time,
-			 const spot::const_hoa_aut_ptr& haut)
+			 const spot::const_parsed_aut_ptr& haut)
 {
   if (opt_check)
     {
