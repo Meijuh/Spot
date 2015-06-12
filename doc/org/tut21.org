@@ -87,6 +87,7 @@ labels.
     out << "Number of sets: " << aut->num_sets() << '\n';
     out << "Number of states: " << aut->num_states() << '\n';
     out << "Number of edges: " << aut->num_edges() << '\n';
+    out << "Initial state: " << aut->get_init_state_number() << '\n';
 
     // We need the dictionary to print the BDD that labels the edge
     const auto& dict = aut->get_dict();
@@ -118,6 +119,7 @@ Acceptance: Inf(0)&Inf(1)
 Number of sets: 2
 Number of states: 4
 Number of edges: 10
+Initial state: 0
 State 0:
   edge(0 -> 1)
     label = a
