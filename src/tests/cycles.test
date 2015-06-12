@@ -66,9 +66,9 @@ State: 11
 --END--
 EOF
 
-run 0 ../ltl2tgba -KC -XH johnson-fig1.hoa > out
+run 0 ../ikwiad -KC -XH johnson-fig1.hoa > out
 test `wc -l < out` -eq 10
 
-run 0 ../ltl2tgba -KW '(Ga -> Gb) W c' > out
+run 0 ../ikwiad -KW '(Ga -> Gb) W c' > out
 test `grep 'is weak' out | wc -l` -eq 4
 test `grep 'is not weak' out | wc -l` -eq 1

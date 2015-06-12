@@ -91,13 +91,13 @@ while read f; do
   # detect any crash.  Do that only for the first few formula, because
   # it takes a long time.
   if test $i -lt 5; then
-    run 0 ../ltl2tgba -f -R3 -DS -Rm "!($f)" >/dev/null
+    run 0 ../ikwiad -f -R3 -DS -Rm "!($f)" >/dev/null
     i=`expr $i + 1`
   fi
 
   # If the labels of the state have only digits, assume the minimization
   # worked.
-  x=`../ltl2tgba -f -Rm "!($f)" |
+  x=`../ikwiad -f -Rm "!($f)" |
      grep -v -- '->' |
      sed -n 's/.*label="\(..*\)".*/\1/p' |
      tr -d '0-9\n'`
@@ -115,14 +115,14 @@ while read f; do
   # to detect any crash.  Do that only for the first few formula, because
   # it takes a long time.
   if test $i -lt 5; then
-    run 0 ../ltl2tgba -taa -DS -Rm "!($f)" >/dev/null
+    run 0 ../ikwiad -taa -DS -Rm "!($f)" >/dev/null
     i=`expr $i + 1`
   fi
 
   # If the labels of the state have only digits, assume the minimization
   # worked.
-  ../ltl2tgba -kt -Rm "!($f)" > out1
-  ../ltl2tgba -kt -R3 "!($f)" > out2
+  ../ikwiad -kt -Rm "!($f)" > out1
+  ../ikwiad -kt -R3 "!($f)" > out2
   if cmp out1 out2; then
      echo "OK !($f)";
   else

@@ -25,7 +25,7 @@
 . ./defs
 set -e
 
-ltl2tgba=../ltl2tgba
+ltl2tgba=../ikwiad
 
 ../../bin/randltl -n 100 p1 p2 p3 p4 p5 p6 --tree-size 5..15 |
 ../../bin/ltlcross \

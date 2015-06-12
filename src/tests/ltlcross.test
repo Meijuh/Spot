@@ -21,7 +21,7 @@
 . ./defs
 set -e
 
-ltl2tgba=../ltl2tgba
+ltl2tgba=../ikwiad
 
 
 (

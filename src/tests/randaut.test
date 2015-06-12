@@ -25,7 +25,7 @@ set -e
 randaut=../../bin/randaut
 autfilt=../../bin/autfilt
 
-$randaut --spin -Q4 a b | ../ltl2tgba -H -XN - >out
+$randaut --spin -Q4 a b | ../ikwiad -H -XN - >out
 grep 'States: 4' out
 grep 'AP: 2' out
 grep 'state-acc' out

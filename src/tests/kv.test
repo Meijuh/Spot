@@ -25,7 +25,7 @@ set -e
 
 check ()
 {
-  run 0 ../ltl2tgba -f -KV "$1" > out.dot
+  run 0 ../ikwiad -f -KV "$1" > out.dot
   test -z "$DOT" || "$DOT" out.dot > /dev/null
   rm -f out.dot
 }
@@ -46,7 +46,7 @@ check '"G1"U"GG" && "FF"'
 # even after iterated simulation
 # Report from Etienne Renault.
 
-../ltl2tgba -KV -R3 -RIS >out \
+../ikwiad -KV -R3 -RIS >out \
 'G("P_1.p2" <-> (F"P_1.p3" & ("P_0.p3" | (X"P_1.CS" U "P_1.p2")))) U G"P_1.p2"'
 x=`sed -n '/APrec/{
   s/.*APrec=\[\([^]]*\)\].*/\1/p

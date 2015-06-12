@@ -61,7 +61,7 @@ Fr->(p->(!r U (s&!r&!z&X((!r&!z) U t)))) U r
 G((q&Fr)->(p->(!r U (s&!r&!z&X((!r&!z) U t)))) U r)
 EOF
 
-LTL2TGBA=../../src/tgbatest/ltl2tgba
+LTL2TGBA=../../src/tests/ikwiad
 
 (
 line=0

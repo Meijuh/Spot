@@ -30,9 +30,9 @@ set -e
 # Make sure all these runs output the same automaton.
 
 # With valgrind
-run 0 ../ltl2tgba -r7 -x -R3 -N "XF(Gp2 | F(p0 U (p1 & (! p4 | p3))))" > out1
+run 0 ../ikwiad -r7 -x -R3 -N "XF(Gp2 | F(p0 U (p1 & (! p4 | p3))))" > out1
 # Without valgrind
 for i in 2 3 4 5; do
-  ../ltl2tgba -r7 -x -R3 -N "XF(Gp2 | F(p0 U (p1 & (! p4 | p3))))" > out
+  ../ikwiad -r7 -x -R3 -N "XF(Gp2 | F(p0 U (p1 & (! p4 | p3))))" > out
   cmp out out1 || exit 1
 done

@@ -28,8 +28,8 @@ set -e
 
 dorun()
 {
-  run 0 ../ltl2tgba -f -s "$1" >output1
-  run 0 ../ltl2tgba -f -S "$1" >output2
+  run 0 ../ikwiad -f -s "$1" >output1
+  run 0 ../ikwiad -f -S "$1" >output2
   test `wc -l <output1` = `wc -l <output2`
 }
 

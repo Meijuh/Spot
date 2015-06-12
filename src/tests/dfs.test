@@ -95,8 +95,8 @@ State: 8
 --END--
 EOF
 
-run 0 ../ltl2tgba -CR -eSE05 -XH blue_counter
-run 0 ../ltl2tgba -CR -eTau03_opt -XH blue_counter
+run 0 ../ikwiad -CR -eSE05 -XH blue_counter
+run 0 ../ikwiad -CR -eTau03_opt -XH blue_counter
 
 # s1->s2->s3->(large composant from s4 to s9)
 # ^       ||
@@ -164,8 +164,8 @@ State: 8
 --END--
 EOF
 
-run 0 ../ltl2tgba -CR -eSE05 -XH blue_last
-run 0 ../ltl2tgba -CR -eTau03_opt -XH blue_last
+run 0 ../ikwiad -CR -eSE05 -XH blue_last
+run 0 ../ikwiad -CR -eTau03_opt -XH blue_last
 
 #  _______
 # |       |
@@ -237,7 +237,7 @@ State: 8
 --END--
 EOF
 
-run 0 ../ltl2tgba -CR -eSE05 -XH red
-run 0 ../ltl2tgba -CR -eTau03_opt -XH red
+run 0 ../ikwiad -CR -eSE05 -XH red
+run 0 ../ikwiad -CR -eTau03_opt -XH red
 
 rm -f red blue_counter blue_last

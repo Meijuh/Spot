@@ -57,7 +57,7 @@ states: 1
 nondeterministic states: 0
 EOF
 
-../ltl2tgba -RS1 -kt -XH input.hoa > output
+../ikwiad -RS1 -kt -XH input.hoa > output
 diff output expected
 
 # At some point, this formula was correctly minimized, but

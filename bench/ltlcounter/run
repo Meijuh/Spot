@@ -19,7 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 gen=../../src/bin/genltl
-LTL2TGBA=../../src/tgbatest/ltl2tgba
+LTL2TGBA=../../src/tests/ikwiad
 
 echo "# Benching ltl2tgba_fm..."
 echo "# the following values are also saved to file 'results.fm'"

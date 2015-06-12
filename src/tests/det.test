@@ -110,11 +110,11 @@ State: 4 {0}
 --END--
 EOF
 
-run 0 ../ltl2tgba -H -DC -XH in.hoa > out.hoa
+run 0 ../ikwiad -H -DC -XH in.hoa > out.hoa
 run 1 ../../bin/autfilt -q --are-isomorph in.hoa out.hoa
 run 0 ../../bin/autfilt -q --are-isomorph ex.hoa out.hoa
 
-run 0 ../ltl2tgba -x -DC 'GFa & XGFb' > out.tgba
+run 0 ../ikwiad -x -DC 'GFa & XGFb' > out.tgba
 cat >ex.tgba <<EOF
 digraph G {
   rankdir=LR

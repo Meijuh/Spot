@@ -60,10 +60,10 @@ State: 2
 --END--
 EOF
 # x.tgba accepts some run
-run 0 ../ltl2tgba -XH -e x.hoa
+run 0 ../ikwiad -XH -e x.hoa
 # so does its complement
 run 0 ../complement -H -a x.hoa > nx.hoa
-run 0 ../ltl2tgba -XH -e nx.hoa
+run 0 ../ikwiad -XH -e nx.hoa
 # however the intersection of both should not
 # accept any run.
 run 1 ../../bin/autfilt -q nx.hoa --intersect x.hoa

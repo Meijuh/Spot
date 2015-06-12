@@ -21,16 +21,16 @@
 . ./defs
 set -e
 
-run 0 ../ltl2tgba -R3 -RIS \
+run 0 ../ikwiad -R3 -RIS \
 'G("P_1.p2" <-> (F"P_1.p3" & ("P_0.p3" | (X"P_1.CS" U "P_1.p2")))) U G"P_1.p2"'\
  > exp
-run 0 ../ltl2tgba -R3 -RIS \
+run 0 ../ikwiad -R3 -RIS \
 'G("P_1.p2" <-> (F"P_1.p3" & ("P_0.p3" | (X"P_1.CS" U "P_1.p2")))) U G"P_1.p2"'\
  > out
 
 diff exp out
 
-run 0 ../ltl2tgba -R3 -RIS \
+run 0 ../ikwiad -R3 -RIS \
 'G("P_1.p2" <-> (F"P_1.p3" & ("P_0.p3" | (X"P_1.CS" U "P_1.p2")))) U G"P_1.p2"'\
  > out
 

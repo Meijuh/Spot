@@ -98,8 +98,8 @@ grok()
 
 success=:
 while read exp f; do
-  x=`../ltl2tgba -O "$f"`
-  y=`../ltl2tgba -O "!($f)"`
+  x=`../ikwiad -O "$f"`
+  y=`../ikwiad -O "!($f)"`
   resx=`grok "$x"`
   resy=`grok "$y"`
   echo "$resx   $f"

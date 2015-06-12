@@ -28,7 +28,7 @@ set -e
 ../../bin/randltl -n -1 --tree-size 30 --seed 12 --psl a b c |
 ../../bin/ltlfilt -r --size-min 12 --unique |
 ../../bin/ltlfilt -v --ltl -n 50 | tee formulas |
-../../bin/ltlcross '../ltl2tgba -R3 -t %f >%T' '../ltl2tgba -x -R3 -t %f >%T' \
+../../bin/ltlcross '../ikwiad -R3 -t %f >%T' '../ikwiad -x -R3 -t %f >%T' \
   -F - -f '{{(p1)}[*]:{(p3) && {{!(p1)} xor {!(p3)}}}}'
 
 test `wc -l < formulas` = 50

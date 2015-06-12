@@ -55,5 +55,5 @@ State: 2
 EOF
 
 # Check emptiness of product with complement.
-run 0 ../ltl2tgba -H -DC -C -XH input.hoa > output.hoa
+run 0 ../ikwiad -H -DC -C -XH input.hoa > output.hoa
 run 1 ../../bin/autfilt -q input.hoa --intersect output.hoa

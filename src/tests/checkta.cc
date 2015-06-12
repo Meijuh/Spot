@@ -95,8 +95,8 @@ main(int argc, char** argv)
 	auto a = ltl_to_tgba_fm(f, d);
 	bdd ap_set = atomic_prop_collect_as_bdd(f, a);
 
-	// run 0 ../ltl2tgba -TGTA -ks "$1"
-	// run 0 ../ltl2tgba -TGTA -RT -ks "$1"
+	// run 0 ../ikwiad -TGTA -ks "$1"
+	// run 0 ../ikwiad -TGTA -RT -ks "$1"
 	{
 	  auto t = spot::tgba_to_tgta(a, ap_set);
 	  stats("-TGTA", t);
@@ -104,8 +104,8 @@ main(int argc, char** argv)
 	}
 
 	{
-	  // run 0 ../ltl2tgba -TA -ks "$1"
-	  // run 0 ../ltl2tgba -TA -RT -ks "$1"
+	  // run 0 ../ikwiad -TA -ks "$1"
+	  // run 0 ../ikwiad -TA -RT -ks "$1"
 	  auto t = spot::tgba_to_ta(a, ap_set,
 				    false, // degen (-DS)
 				    false, // artificial_initial_state (-in)
@@ -116,8 +116,8 @@ main(int argc, char** argv)
 	}
 
 	{
-	  // run 0 ../ltl2tgba -TA -lv -ks "$1"
-	  // run 0 ../ltl2tgba -TA -lv -RT -ks "$1"
+	  // run 0 ../ikwiad -TA -lv -ks "$1"
+	  // run 0 ../ikwiad -TA -lv -RT -ks "$1"
 	  auto t = spot::tgba_to_ta(a, ap_set,
 				    false, // degen (-DS)
 				    false, // artificial_initial_state (-in)
@@ -128,8 +128,8 @@ main(int argc, char** argv)
 	}
 
 	{
-	  // run 0 ../ltl2tgba -TA -sp -ks "$1"
-	  // run 0 ../ltl2tgba -TA -sp -RT -ks "$1"
+	  // run 0 ../ikwiad -TA -sp -ks "$1"
+	  // run 0 ../ikwiad -TA -sp -RT -ks "$1"
 	  auto t = spot::tgba_to_ta(a, ap_set,
 				    false, // degen (-DS)
 				    false, // artificial_initial_state (-in)
@@ -140,8 +140,8 @@ main(int argc, char** argv)
 	}
 
 	{
-	  // run 0 ../ltl2tgba -TA -lv -sp -ks "$1"
-	  // run 0 ../ltl2tgba -TA -lv -sp -RT -ks "$1"
+	  // run 0 ../ikwiad -TA -lv -sp -ks "$1"
+	  // run 0 ../ikwiad -TA -lv -sp -RT -ks "$1"
 	  auto t = spot::tgba_to_ta(a, ap_set,
 				    false, // degen (-DS)
 				    false, // artificial_initial_state (-in)
@@ -154,8 +154,8 @@ main(int argc, char** argv)
 	a = spot::degeneralize(a);
 
 	{
-	  // run 0 ../ltl2tgba -TA -DS -ks "$1"
-	  // run 0 ../ltl2tgba -TA -DS -RT -ks "$1"
+	  // run 0 ../ikwiad -TA -DS -ks "$1"
+	  // run 0 ../ikwiad -TA -DS -RT -ks "$1"
 	  auto t = spot::tgba_to_ta(a, ap_set,
 				    true, // degen (-DS)
 				    false, // artificial_initial_state (-in)
@@ -166,8 +166,8 @@ main(int argc, char** argv)
 	}
 
 	{
-	  // run 0 ../ltl2tgba -TA -DS -lv -ks "$1"
-	  // run 0 ../ltl2tgba -TA -DS -lv -RT -ks "$1"
+	  // run 0 ../ikwiad -TA -DS -lv -ks "$1"
+	  // run 0 ../ikwiad -TA -DS -lv -RT -ks "$1"
 	  auto t = spot::tgba_to_ta(a, ap_set,
 				    true, // degen (-DS)
 				    false, // artificial_initial_state (-in)
@@ -178,8 +178,8 @@ main(int argc, char** argv)
 	}
 
 	{
-	  // run 0 ../ltl2tgba -TA -DS -sp -ks "$1"
-	  // run 0 ../ltl2tgba -TA -DS -sp -RT -ks "$1"
+	  // run 0 ../ikwiad -TA -DS -sp -ks "$1"
+	  // run 0 ../ikwiad -TA -DS -sp -RT -ks "$1"
 	  auto t = spot::tgba_to_ta(a, ap_set,
 				    true, // degen (-DS)
 				    false, // artificial_initial_state (-in)
@@ -190,8 +190,8 @@ main(int argc, char** argv)
 	}
 
 	{
-	  // run 0 ../ltl2tgba -TA -DS -lv -sp -ks "$1"
-	  // run 0 ../ltl2tgba -TA -DS -lv -sp -RT -ks "$1"
+	  // run 0 ../ikwiad -TA -DS -lv -sp -ks "$1"
+	  // run 0 ../ikwiad -TA -DS -lv -sp -RT -ks "$1"
 	  auto t = spot::tgba_to_ta(a, ap_set,
 				    true, // degen (-DS)
 				    false, // artificial_initial_state (-in)
@@ -207,8 +207,8 @@ main(int argc, char** argv)
 	bdd ap_set = atomic_prop_collect_as_bdd(f, a);
 
 	{
-	  // run 0 ../ltl2tgba -x -R3 -DS -TA -in -ks "$1"
-	  // run 0 ../ltl2tgba -x -R3 -DS -TA -in -RT -ks "$1"
+	  // run 0 ../ikwiad -x -R3 -DS -TA -in -ks "$1"
+	  // run 0 ../ikwiad -x -R3 -DS -TA -in -RT -ks "$1"
 	  auto t = spot::tgba_to_ta(a, ap_set,
 				    true, // degen (-DS)
 				    false, // artificial_initial_state (-in)

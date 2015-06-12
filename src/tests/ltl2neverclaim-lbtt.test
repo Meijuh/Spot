@@ -35,7 +35,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t'"
+   Parameters = "--spot '../ikwiad -F -f -t'"
    Enabled = yes
 }
 
@@ -43,7 +43,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), with reductions"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r4 -R3f -F -f -t'"
+   Parameters = "--spot '../ikwiad -r4 -R3f -F -f -t'"
    Enabled = no
 }
 
@@ -51,7 +51,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), degeneralized via never claim"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spin '../ltl2tgba -F -f -N'"
+   Parameters = "--spin '../ikwiad -F -f -N'"
    Enabled = yes
 }
 
@@ -59,7 +59,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), reductions, degeneralized via never claim"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spin '../ltl2tgba -F -f -r4 -R3 -N'"
+   Parameters = "--spin '../ikwiad -F -f -r4 -R3 -N'"
    Enabled = yes
 }
 

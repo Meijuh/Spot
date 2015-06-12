@@ -31,8 +31,8 @@ EOF
 
 # These two equivalent formulae used to produce
 # minimized automata of different sizes...
-run 0 ../ltl2tgba -Rm -kt 'a | X(Gd|Fa)' > out
-run 0 ../ltl2tgba -Rm -kt 'Fa | XGd' > out2
+run 0 ../ikwiad -Rm -kt 'a | X(Gd|Fa)' > out
+run 0 ../ikwiad -Rm -kt 'Fa | XGd' > out2
 
 cmp out expected
 cmp out2 expected

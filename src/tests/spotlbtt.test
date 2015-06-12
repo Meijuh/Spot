@@ -34,7 +34,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- LaCIM), fake"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -T'"
+   Parameters = "--spot '../ikwiad -F -T'"
    Enabled = no
 }
 
@@ -42,7 +42,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t'"
+   Parameters = "--spot '../ikwiad -F -f -t'"
    Enabled = yes
 }
 
@@ -50,7 +50,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), reduction of formula (pre reduction)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r4 -F -f -t'"
+   Parameters = "--spot '../ikwiad -r4 -F -f -t'"
    Enabled = yes
 }
 
@@ -58,7 +58,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), reduction7 of formula (pre reduction)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r7 -F -f -t'"
+   Parameters = "--spot '../ikwiad -r7 -F -f -t'"
    Enabled = yes
 }
 
@@ -66,7 +66,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM) reduction7+ru of formula (pre reduction)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r7 -ru -F -f -t'"
+   Parameters = "--spot '../ikwiad -r7 -ru -F -f -t'"
    Enabled = yes
 }
 
@@ -74,7 +74,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), reduction of formula in FM"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -fr -r4 -F -f -t'"
+   Parameters = "--spot '../ikwiad -fr -r4 -F -f -t'"
    Enabled = no
 }
 
@@ -82,7 +82,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM) reduction7 of formula in FM"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -fr -r7 -F -f -t'"
+   Parameters = "--spot '../ikwiad -fr -r7 -F -f -t'"
    Enabled = no
 }
 
@@ -90,7 +90,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), post reduction with scc"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -R3 -F -f -t'"
+   Parameters = "--spot '../ikwiad -R3 -F -f -t'"
    Enabled = yes
 }
 
@@ -98,7 +98,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), +pre +WDBA"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r4 -R3 -Rm -F -f -t'"
+   Parameters = "--spot '../ikwiad -r4 -R3 -Rm -F -f -t'"
    Enabled = yes
 }
 
@@ -106,7 +106,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), +pre +WDBA(rejbig)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -r4 -R3 -RM -F -f -t'"
+   Parameters = "--spot '../ikwiad -r4 -R3 -RM -F -f -t'"
    Enabled = yes
 }
 
@@ -114,7 +114,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), without symb_merge"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -y -t'"
+   Parameters = "--spot '../ikwiad -F -f -y -t'"
    Enabled = yes
 }
 
@@ -122,7 +122,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), degeneralized"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t -DT'"
+   Parameters = "--spot '../ikwiad -F -f -t -DT'"
    Enabled = yes
 }
 
@@ -130,7 +130,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), simulated"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t -RDS  -r4 -R3'"
+   Parameters = "--spot '../ikwiad -F -f -t -RDS  -r4 -R3'"
    Enabled = yes
 }
 
@@ -138,7 +138,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), cosimulated"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t -RRS  -r4 -R3'"
+   Parameters = "--spot '../ikwiad -F -f -t -RRS  -r4 -R3'"
    Enabled = yes
 }
 
@@ -146,7 +146,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), iterated simulation"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t -RIS  -r4 -R3'"
+   Parameters = "--spot '../ikwiad -F -f -t -RIS  -r4 -R3'"
    Enabled = yes
 }
 
@@ -154,7 +154,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- TAA), simulated"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -taa -t -RDS  -r4 -R3'"
+   Parameters = "--spot '../ikwiad -F -taa -t -RDS  -r4 -R3'"
    Enabled = yes
 }
 
@@ -162,7 +162,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), simulated and degeneralized on states."
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t -RDS -DS'"
+   Parameters = "--spot '../ikwiad -F -f -t -RDS -DS'"
    Enabled = yes
 }
 
@@ -170,7 +170,7 @@ Algorithm
 {
    Name = "Compositional Suspension"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -u -F -f -t'"
+   Parameters = "--spot '../ikwiad -u -F -f -t'"
    Enabled = yes
 }
 
@@ -178,7 +178,7 @@ Algorithm
 {
    Name = "Compositional Suspension (-r4)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -u -r4 -F -f -t'"
+   Parameters = "--spot '../ikwiad -u -r4 -F -f -t'"
    Enabled = yes
 }
 
@@ -186,7 +186,7 @@ Algorithm
 {
    Name = "Compositional Suspension (-r4 -ru)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -u -r4 -ru -F -f -t'"
+   Parameters = "--spot '../ikwiad -u -r4 -ru -F -f -t'"
    Enabled = yes
 }
 
@@ -194,7 +194,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM), degeneralized on states"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -t -DS'"
+   Parameters = "--spot '../ikwiad -F -f -t -DS'"
    Enabled = yes
 }
 
@@ -202,7 +202,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM post_branch + exprop)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -x -p -t'"
+   Parameters = "--spot '../ikwiad -F -f -x -p -t'"
    Enabled = yes
 }
 
@@ -210,7 +210,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM post_branch + exprop + flapprox)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -x -p -L -t'"
+   Parameters = "--spot '../ikwiad -F -f -x -p -L -t'"
    Enabled = yes
 }
 
@@ -218,7 +218,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM post_branch + exprop), degeneralized"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -p -x -t -DT'"
+   Parameters = "--spot '../ikwiad -F -f -p -x -t -DT'"
    Enabled = yes
 }
 
@@ -226,7 +226,7 @@ Algorithm
 {
    Name = "Spot (Couvreur -- FM post_branch + exprop + flapprox), degeneralized"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -f -p -x -t -L -DT'"
+   Parameters = "--spot '../ikwiad -F -f -p -x -t -L -DT'"
    ENABLED = yes
 }
 
@@ -234,7 +234,7 @@ Algorithm
 {
    Name = "Spot (Tauriainen -- TAA)"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -taa -t'"
+   Parameters = "--spot '../ikwiad -F -taa -t'"
    Enabled = yes
 }
 
@@ -242,7 +242,7 @@ Algorithm
 {
    Name = "Spot (Tauriainen -- TAA) refined rules"
    Path = "${LBTT_TRANSLATE}"
-   Parameters = "--spot '../ltl2tgba -F -taa -t -c'"
+   Parameters = "--spot '../ikwiad -F -taa -t -c'"
    Enabled = yes
 }
 

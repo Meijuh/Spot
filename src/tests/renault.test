@@ -69,6 +69,6 @@ transitions: 12
 states: 6
 EOF
 
-run 0 ../ltl2tgba -XH -ks -RDS file > out
+run 0 ../ikwiad -XH -ks -RDS file > out
 
 cmp out outexp

@@ -1054,7 +1054,7 @@ expecterr non-existant<<EOF
 autfilt: Cannot open file non-existant
 EOF
 
-run 2 ../ltl2tgba -XH foob 2>output.err
+run 2 ../ikwiad -XH foob 2>output.err
 grep 'foob:1.1: Cannot open file foob' output.err
 
 # Make sure we can read multiple automata from stdin
@@ -1081,7 +1081,7 @@ State: 1
 --END--
 EOF
 
-run 0 ../ltl2tgba -d -XH input 2> output.err
+run 0 ../ikwiad -d -XH input 2> output.err
 grep -- "--BODY--" output.err
 grep "identifier.*v1" output.err
 

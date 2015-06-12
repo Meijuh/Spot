@@ -39,7 +39,7 @@ X((X(!p1 V F!p6)V F!p4)U p2)&(F(G((0 U(F p6))U((p1 U(G(p4 U F p0)))U X p7))))
 (G(G(((F p5)U((((F!p1)V(p2 &!p4))|!p2)|((X!p7 U!p4)V(F(F((G p2)&p5))))))U p6)))
 EOF
 
-ltl2tgba=../ltl2tgba
+ltl2tgba=../ikwiad
 
 ../../bin/ltlcross <formulae \
   "$ltl2tgba -t %f >%T" \

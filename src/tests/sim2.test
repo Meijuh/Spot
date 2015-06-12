@@ -21,8 +21,8 @@
 . ./defs
 set -e
 
-../ltl2tgba -H -x -R3f -RDS '{(a&b)[*3]}<>=>G(a&!b)' > ref
+../ikwiad -H -x -R3f -RDS '{(a&b)[*3]}<>=>G(a&!b)' > ref
 
 for i in -R3 -R3f '-R3 -RDS' '-R3f -RDS'; do
-  ../ltl2tgba -Pref -E -x $i '(X!b R F!a) U (!a | G!b)'
+  ../ikwiad -Pref -E -x $i '(X!b R F!a) U (!a | G!b)'
 done

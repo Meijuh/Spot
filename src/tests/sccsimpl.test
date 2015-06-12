@@ -66,7 +66,7 @@ State: 3
 --END--
 EOF
 
-run 0 ../ltl2tgba -XH -R3 -H aut.txt > out.txt
+run 0 ../ikwiad -XH -R3 -H aut.txt > out.txt
 grep '^Acceptance: 1 Inf(0)' out.txt
 
 
@@ -87,7 +87,7 @@ State: 0
 [3] 0 {2 3}
 --END--
 EOF
-run 0 ../ltl2tgba -XH -R3 -H aut2.txt > out2.txt
+run 0 ../ikwiad -XH -R3 -H aut2.txt > out2.txt
 grep '^Acceptance: 2 ' out2.txt
 # only 3 transitions output, because [1] and [2] have been merged
 test `grep -c '\[.*\]' out2.txt` = 3
@@ -110,7 +110,7 @@ State: 0
 [3] 0 {1 3}
 --END--
 EOF
-run 0 ../ltl2tgba -XH -R3 -H aut3.txt > out3.txt
+run 0 ../ikwiad -XH -R3 -H aut3.txt > out3.txt
 grep '^Acceptance: 2 ' out3.txt
 # only 3 transitions output, because [0] and [1] have been merged
 test `grep -c '\[.*\]' out3.txt` = 3
@@ -134,7 +134,7 @@ State: 0
 [4] 0 {2 3}
 --END--
 EOF
-run 0 ../ltl2tgba -XH -R3 -H aut4.txt > out4.txt
+run 0 ../ikwiad -XH -R3 -H aut4.txt > out4.txt
 grep '^Acceptance: 4 ' out4.txt
 test `grep -c '\[.*\]' out4.txt` = 5
 
@@ -154,7 +154,7 @@ State: 0
 [1 | 2] 0
 --END--
 EOF
-run 0 ../ltl2tgba -XH -R3 -H aut5.txt > out5.txt
+run 0 ../ikwiad -XH -R3 -H aut5.txt > out5.txt
 grep '^Acceptance: 0 t' out5.txt
 test `grep -c '\[.*\]' out5.txt` = 1
 
@@ -176,7 +176,7 @@ State: 0
 [3] 0 {2 3}
 --END--
 EOF
-run 0 ../ltl2tgba -XH -R3 -H aut6.txt > out6.txt
+run 0 ../ikwiad -XH -R3 -H aut6.txt > out6.txt
 grep '^Acceptance: 2 ' out6.txt
 test `grep -c '\[.*\]' out6.txt` = 2
 
@@ -227,16 +227,16 @@ State: 5
 [1&!2 | !2&3] 5 {0 2}
 --END--
 EOF
-run 0 ../ltl2tgba -XH -R3 -H aut7.txt > out7.txt
+run 0 ../ikwiad -XH -R3 -H aut7.txt > out7.txt
 grep '^Acceptance: 2 ' out7.txt
 
 
-run 0 ../ltl2tgba -R3 -H '(GFa&GFb) | (GFc&GFd)' > out8.txt
+run 0 ../ikwiad -R3 -H '(GFa&GFb) | (GFc&GFd)' > out8.txt
 grep 'Acceptance: 2 ' out8.txt
 
 # This formula gives a 12-state automaton in which one acceptance
 # condition can be removed, and after what direct simulation should
 # simplify the automaton to 6 states.
-run 0 ../ltl2tgba -R3 -s -RDS -ks \
+run 0 ../ikwiad -R3 -s -RDS -ks \
   '(G(!((b) R (a)))) R (((c) R (!(d))) U (G((a) | (!(G(e))))))' > out9.txt
 grep 'states: 6$' out9.txt

@@ -44,7 +44,7 @@ skip
 }
 EOF
 
-run 0 ../ltl2tgba -XN -H input > stdout
+run 0 ../ikwiad -XN -H input > stdout
 
 cat >expected <<EOF
 HOA: v1
@@ -89,7 +89,7 @@ od;
 }
 EOF
 
-run 0 ../ltl2tgba -XN -H input > stdout
+run 0 ../ikwiad -XN -H input > stdout
 
 cat >expected <<EOF
 HOA: v1
@@ -129,7 +129,7 @@ accept_all:
         skip
 }
 EOF
-run 0 ../ltl2tgba -XN input > stdout
+run 0 ../ikwiad -XN input > stdout
 
 cat >expected <<EOF
 digraph G {
@@ -172,7 +172,7 @@ EOF
 # but since the guard parser is more lenient, we just assume
 # that "p1 && " is an atomic property.
 
-run 2 ../ltl2tgba -XN input > stdout 2>stderr
+run 2 ../ikwiad -XN input > stdout 2>stderr
 cat >expected <<\EOF
 input:9.16: syntax error, unexpected ')', expecting fi or ':'
 EOF
@@ -209,7 +209,7 @@ transitions: 6
 states: 4
 EOF
 
-run 0 ../ltl2tgba -ks -XN input > output
+run 0 ../ikwiad -ks -XN input > output
 diff output expected
 
 
@@ -285,7 +285,7 @@ T2_S4:
 }
 EOF
 
-run 2 ../ltl2tgba -ks -XN input > stdout 2>stderr
+run 2 ../ikwiad -ks -XN input > stdout 2>stderr
 cat stderr
 cat >expected-err <<\EOF
 input:48.1-10: redefinition of accept_S10...
@@ -296,7 +296,7 @@ diff stderrfilt expected-err
 
 # DOS-style new lines should have the same output.
 perl -pi -e 's/$/\r/' input
-run 2 ../ltl2tgba -ks -XN input > stdout 2>stderr
+run 2 ../ikwiad -ks -XN input > stdout 2>stderr
 cat stderr
 grep input: stderr > stderrfilt
 diff stderrfilt expected-err

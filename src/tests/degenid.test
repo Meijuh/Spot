@@ -26,12 +26,12 @@ set -e
 
 for f in 'FGa|GFb' 'GFa & GFb & GFc' 'GF(a->FGb)&GF(c->FGd)'; do
   for opt in -DS -DT; do
-    ../ltl2tgba $opt -H "$f" > autX.spot
-    ../ltl2tgba -XH -kt autX.spot > base.size
+    ../ikwiad $opt -H "$f" > autX.spot
+    ../ikwiad -XH -kt autX.spot > base.size
     cat base.size
     for x in X XX XXX; do
-      ../ltl2tgba -XH $opt -H aut$x.spot > autX$x.spot
-      ../ltl2tgba -XH -kt autX$x.spot > new.size
+      ../ikwiad -XH $opt -H aut$x.spot > autX$x.spot
+      ../ikwiad -XH -kt autX$x.spot > new.size
       cat new.size
       cmp base.size new.size
     done
@@ -78,7 +78,7 @@ State: 5
 --END--
 EOF
 
-run 0 ../ltl2tgba -ks -XH -DS bug > out
+run 0 ../ikwiad -ks -XH -DS bug > out
 grep 'states: 6' out
 
 
@@ -126,7 +126,7 @@ State: 7
 --END--
 EOF
 
-run 0 ../ltl2tgba -ks -XH -DS bug2 >out
+run 0 ../ikwiad -ks -XH -DS bug2 >out
 grep 'states: 8' out
 
 

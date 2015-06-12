@@ -276,4 +276,4 @@ This directory contains:
   http://spot.lip6.fr/wiki/EmptinessCheckOptions)
 
   Besides randtgba, two other tools that you might find handy we
-  experimenting are src/bin/randltl and src/tgbatest/ltl2tgba.
+  experimenting are src/bin/randltl and src/tests/ikwiad.
