@@ -24,3 +24,4 @@ The following examples are too low-level to be implemented in shell or
 Python (at least at the moment), so they are purely C++ so far.
 
 - [[file:tut21.org][Custom print of an automaton]]
+- [[file:tut22.org][Creating an automaton in C++]]
