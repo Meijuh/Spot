@@ -288,11 +288,11 @@ However you may download the <a href="''' + cgi.escape(autprefix)
 def render_automaton(automaton, dont_run_dot):
     dotsrc = spot.ostringstream()
     if isinstance(automaton, spot.ta): # TA/GTA
-        spot.print_dot(dotsrc, automaton)
+        spot.print_dot(dotsrc, automaton, "Brf(Lato)")
     elif hasattr(automaton, 'get_ta'): # TGTA
-        spot.print_dot(dotsrc, automaton.get_ta())
+        spot.print_dot(dotsrc, automaton.get_ta(), "Brf(Lato)")
     else:                       # TGBA
-        spot.print_dot(dotsrc, automaton, "N")
+        spot.print_dot(dotsrc, automaton, "Brf(Lato)")
     render_dot_maybe(dotsrc.str(), dont_run_dot)
 
 def render_formula(f):
@@ -302,6 +302,8 @@ def render_formula(f):
 
 def print_stats(automaton, detinfo = False, ta = False):
     if ta: # TA/GTA
+        if hasattr(automaton, 'get_ta'): # TGTA
+            automaton = automaton.get_ta()
         stats = spot.stats_reachable(automaton)
         detinfo = False
     else:
@@ -325,16 +327,11 @@ def print_stats(automaton, detinfo = False, ta = False):
                       's' if stats.transitions > 1 else '',
                       stats.sub_transitions,
                       's' if stats.sub_transitions > 1 else ''))
-    if hasattr(automaton, 'acc'):
-        count = automaton.acc().num_sets()
-        if count > 0:
-            unbufprint(", %d acceptance condition" % count)
-            if count > 1:
-                unbufprint("s")
-            unbufprint(": " +
-                       automaton.acc().format(automaton.acc().all_sets()))
-        else:
-            unbufprint(", no acceptance condition (all cycles are accepting)")
+    if hasattr(automaton, 'get_acceptance'):
+        acc = automaton.get_acceptance()
+        unbufprint(", acceptance condition: " + str(acc))
+        if acc.is_true():
+            unbufprint(" (all cycles are accepting)")
     unbufprint("</p>\n")
     # Decide whether we will render the automaton or not.
     # (A webserver is not a computation center...)
@@ -722,7 +719,7 @@ else:
 if output_type == 'a':
     if buchi_type == 'i':
         s = spot.ostringstream()
-        spot.print_never_claim(s, degen, f)
+        spot.print_never_claim(s, degen)
         unbufprint('<div class="neverclaim">%s</div>' % cgi.escape(s.str()))
         del s
     else: # 't' or 's'
