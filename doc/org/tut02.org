@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: Relabeling Formulas
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html
@@ -20,7 +21,7 @@ ltlfilt -ps --relabel=pnn --define -f '"Proc@Here" U ("var > 10" | "var < 4")'
 : (p0) U ((p1) || (p2))
 
 When is this output interesting, you may ask?  It is useful for
-instance if you want to call =ltl2ba= (or any other LTL-to-Büchi
+instance if you want to call =ltl2ba= (or any other LTL-to-BÃ¼chi
 translator) using a formula with complex atomic propositions it cannot
 parse.  Then you can pass the rewritten formula to =ltl2ba=, and
 prepend all those =#define= to its output.  For instance:

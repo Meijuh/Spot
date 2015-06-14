@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: =ltl2tgta=
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html

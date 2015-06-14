@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: Parsing and Printing LTL Formulas
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html

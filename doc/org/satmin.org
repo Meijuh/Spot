@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: SAT-based Minimization of Deterministic ω-Automata
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html

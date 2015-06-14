@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: Custom print of an automaton
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tut.html

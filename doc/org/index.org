@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #+TITLE: Spot
 #+SETUPFILE: setup.org
 
