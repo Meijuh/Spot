@@ -737,6 +737,26 @@ namespace
 		   const spot::const_twa_graph_ptr& aut_j,
 		   size_t i, size_t j, bool icomp, bool jcomp)
   {
+    if (aut_i->num_sets() + aut_j->num_sets()
+	> 8 * sizeof(spot::acc_cond::mark_t::value_t))
+      {
+	// Report the skipped test if both automata are not
+	// complemented, or the --verbose option is used,
+	if (!verbose && (icomp || jcomp))
+	  return false;
+	std::cerr << "info: building ";
+	if (icomp)
+	  std::cerr << "Comp(N" << i << ')';
+	else
+	  std::cerr << 'P' << i;
+	if (jcomp)
+	  std::cerr << "*Comp(P" << j << ')';
+	else
+	  std::cerr << "*N" << j;
+	std::cerr << " requires more acceptance sets than supported\n";
+	return false;
+      }
+
     auto prod = spot::product(aut_i, aut_j);
 
     if (verbose)

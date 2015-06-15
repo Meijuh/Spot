@@ -215,6 +215,7 @@ TESTS_twa = \
   dra2dba.test \
   unambig.test \
   ltlcross4.test \
+  ltl3dra.test \
   ltl2dstar.test \
   ltl2dstar2.test \
   ltl2dstar3.test \
