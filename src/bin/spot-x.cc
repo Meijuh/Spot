@@ -65,17 +65,17 @@ accepting sets. Set to 0 to disable this SCC-pruning and acceptance \
 simpification pass.") },
     { DOC("degen-reset", "If non-zero (the default), the \
 degeneralization algorithm will reset its level any time it exits \
-a non-accepting SCC.") },
-    { DOC("degen-lcache", "If non-zero (the default), whenever the \
+an SCC.") },
+    { DOC("degen-lcache", "If non-zero (the default is 1), whenever the \
 degeneralization algorithm enters an SCC on a state that has already \
 been associated to a level elsewhere, it should reuse that level. \
 Different values can be used to select which level to reuse: 1 always \
-uses the first level seen, 2 uses the minimum level seen so far, and \
+uses the first level created, 2 uses the minimum level seen so far, and \
 3 uses the maximum level seen so far. The \"lcache\" stands for \
 \"level cache\".") },
     { DOC("degen-order", "If non-zero, the degeneralization algorithm \
-will compute one degeneralization order for each SCC it processes. \
-This is currently disabled by default.") },
+will compute an independent degeneralization order for each SCC it \
+processes.  This is currently disabled by default.") },
     { DOC("degen-lskip", "If non-zero (the default), the degeneralization \
 algorithm will skip as much levels as possible for each transition.  This \
 is enabled by default as it very often reduce the number of resulting \
@@ -84,11 +84,13 @@ automaton tends to have smaller cycles around the accepting states.  \
 Disabling skipping will produce automata with large cycles, and often \
 with more states.") },
     { DOC("degen-lowinit", "Whenever the degeneralization algorihm enters \
-a new SCC (or starts from the initial states), it starts on a level that \
+a new SCC (or starts from the initial state), it starts on some level L that \
 is compatible with all outgoing transitions.  If degen-lowinit is zero \
 (the default) and the corresponding state (in the generalized automaton) \
-has an accepting self-loop, then the level is set to the accepting \
-level, as it might favor finding accepting cycles earlier.") },
+has an accepting self-loop, then level L is replaced by the accepting \
+level, as it might favor finding accepting cycles earlier.  If \
+degen-lowinit is non-zero, then level L is always used without looking \
+for the presence of an accepting self-loop.") },
     { DOC("simul", "Set to 0 to disable simulation-based reductions. \
 Set to 1 to use only direct simulation. Set to 2 to use only reverse \
 simulation. Set to 3 to iterate both direct and reverse simulations. \

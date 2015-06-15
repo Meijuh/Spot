@@ -426,7 +426,7 @@ namespace spot
 			acc = otheracc;
 
 		      // If use_z_lvl is on, start with level zero 0 when
-		      // swhitching SCCs
+		      // switching SCCs
 		      unsigned next = (!use_z_lvl || s_scc == scc) ? slevel : 0;
 
 		      // If using custom acc orders, get next level

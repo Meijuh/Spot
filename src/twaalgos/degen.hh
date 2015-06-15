@@ -31,7 +31,7 @@ namespace spot
   /// at most (N+1) times the number of states of the original automaton.
   ///
   /// When \a use_z_lvl is set, the level of the degeneralized
-  /// automaton is reset everytime an accepting SCC is exited.  If \a
+  /// automaton is reset everytime an SCC is exited.  If \a
   /// use_cust_acc_orders is set, the degeneralization will compute a
   /// custom acceptance order for each SCC (this option is disabled by
   /// default because our benchmarks show that it usually does more
