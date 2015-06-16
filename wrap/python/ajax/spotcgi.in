@@ -500,6 +500,11 @@ if output_type == 'f':
                 unbufprint('<li>not an obligation</li>')
             minimized = 0
             automaton = 0
+        if not f.is_syntactic_stutter_invariant():
+            if spot.is_stutter_invariant(f):
+                unbufprint('<li>stutter invariant</li>')
+            else:
+                unbufprint('<li>stutter sensitive</li>')
         unbufprint('</ul>\n')
     finish()
 
@@ -514,8 +519,9 @@ cannot be translated using this algorithm.  Please use Couveur/FM.'''
 
 dict = spot.make_bdd_dict()
 
-if output_type == 't' and not f.is_syntactic_stutter_invariant():
-    unbufprint('<b>Warning:</b> The following result assumes the input formula is stuttering insensitive.</br>')
+if output_type == 't' and not spot.is_stutter_invariant(f):
+    unbufprint('<b>Warning:</b> Testing automata are only valid '
+               + 'for stutter-insensitive formulas, but the input is not.</br>')
 
 # Should the automaton be displayed as a SBA?
 issba = False
