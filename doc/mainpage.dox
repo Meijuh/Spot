@@ -3,11 +3,11 @@
 /// \section overview The Spot Library
 ///
 /// Spot is a model-checking library.  It provides algorithms and data
-/// structures to implement the automata-theoretic approach to
-/// model-checking.
+/// structures to manipulate omega-automata, and implement the
+/// automata-theoretic approach to model-checking.
 ///
-/// See <a href="http://spot.lip6.fr/">spot.lip6.fr</a> for more
-/// information about this project.
+/// See <a href="http://spot.lrde.epita.fr/">spot.lrde.epita.fr</a>
+/// for more information about this project.
 ///
 /// \section thisdoc This Document
 ///
