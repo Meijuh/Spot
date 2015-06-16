@@ -25,7 +25,7 @@ New in spot 1.99b (not yet released)
       more than 2-year old, people with older installations won't be
       able to install this version of Spot.
 
-    - As a consequence of the switches do C++11 and to TωA, a lot of
+    - As a consequence of the switches to C++11 and to TωA, a lot of
       the existing C++ interfaces have been renamed, and sometime
       reworked.  This makes this version of Spot not backward
       compatible with Spot 1.2.x.  See below for the most important
@@ -76,11 +76,11 @@ New in spot 1.99b (not yet released)
       conversion.
 
     - ltl2tgba has a new option, -U, to produce unambiguous automata.
-      In unambiguous automata any word this recognized by at most one
-      accepting run (but there might be several ways to reject a
-      word).  This works for LTL and PSL formulas.
+      In unambiguous automata any word is recognized by at most one
+      accepting run, but there might be several ways to reject a word.
+      This works for LTL and PSL formulas.
 
-    - ltl2tgba has a new option, -S to produce generalized-Büchi
+    - ltl2tgba has a new option, -S, to produce generalized-Büchi
       automata with state-based acceptance.  Those are obtained by
       converting some transition-based GBA into a state-based GBA, so
       they are usually not as small as one would wish.  The same
@@ -96,11 +96,11 @@ New in spot 1.99b (not yet released)
         --grind attempts to reduce the size of any bogus formula it
         discovers, while still exhibiting the bug.
 
-        --ignore-execution-failures that ignores translators returning
-        non-zero exist status instead of returning an error.
+        --ignore-execution-failures ignores cases where a translator
+        exits with a non-zero status.
 
 	--automata save the produced automata into the CSV or JSON
-        file.  Those automata are saved into the HOA format.
+        file.  Those automata are saved using the HOA format.
 
       ltlcross will also output two extra columns in its CSV/JSON
       output: "ambiguous_aut" and "complete_aut" are Boolean
@@ -168,18 +168,26 @@ New in spot 1.99b (not yet released)
 
   * Other noteworthy news
 
+    - The web site moved to http://spot.lrde.epita.fr/.
+
+    - We now have Debian packages.
+      See http://spot.lrde.epita.fr/install.html
+
+    - The documentation now includes some simple code examples
+      for both Python and C++.  (This is still a work in progress.)
+
     - The curstomized version of BuDDy (libbdd) used by Spot has be
       renamed as (libbddx) to avoid issues with copies of BuDDy
       already installed on the system.
 
     - There is a parser for the HOA format
       (http://adl.github.io/hoaf/) available as a
-      spot::automaton_stream_parser object or spot::parse_aut() function.
-      The former version is able to parse a stream of automata in
-      order to do batch processing.  This format can be output by all
-      tools (since Spot 1.2.5) using the --hoa option, and it can be
-      read by autfilt (by default) and ltlcross (using the %H
-      specifier).  The current implementation does not support
+      spot::automaton_stream_parser object or spot::parse_aut()
+      function.  The former version is able to parse a stream of
+      automata in order to do batch processing.  This format can be
+      output by all tools (since Spot 1.2.5) using the --hoa option,
+      and it can be read by autfilt (by default) and ltlcross (using
+      the %H specifier).  The current implementation does not support
       alternation.  Multiple initial states are converted into an
       extra initial state; complemented acceptance sets Inf(!x) are
       converted to Inf(x); explicit or implicit labels can be used;
@@ -194,7 +202,7 @@ New in spot 1.99b (not yet released)
 
     - While not all algorithms in the library are able to work with
       any acceptance condition supported by the HOA format, the
-      following to functions mitigates that:
+      following two new functions mitigate that:
 
       - remove_fin() takes a TωA whose accepting condition uses Fin(x)
 	primitive, and produces an equivalent TωA without Fin(x):
@@ -205,9 +213,9 @@ New in spot 1.99b (not yet released)
       - similarly, to_tgba() converts any TωA into an automaton with
 	generalized-Büchi acceptance.
 
-    - randomize() is a new algorithm that reorders the states
-      and transitions of an automaton at random.  It can be
-      used from the command-line using "autfilt --randomize".
+    - randomize() is a new algorithm that randomly reorders the states
+      and transitions of an automaton.  It can be used from the
+      command-line using "autfilt --randomize".
 
     - the interface in iface/dve2 has been renamed to iface/ltsmin
       because it can now interface the dynamic libraries created
@@ -254,6 +262,9 @@ New in spot 1.99b (not yet released)
       Streett automaton starting from a deterministic Rabin automaton.
       This functionnality is available via autfilt's --sat-minimize
       option.  See doc/userdoc/satmin.html for details.
+
+    - The on-line interface at http://spot.lrde.epita.fr/trans.html
+      can be used to check stutter-invariance of any LTL/PSL formula.
 
   * Noteworthy code changes
 
@@ -352,9 +363,20 @@ New in spot 1.99b (not yet released)
       is now
         aut->acc().num_sets()
 
+    - All functions used for printing LTL/PSL formulas or automata
+      have been renamed to print_something().  Likewise the various
+      parsers should be called parse_something() (they haven't yet
+      all been renamed).
+
+    - All test suites under src/ have been merged into a single one in
+      src/tests/.  The testing tool that was called
+      src/tgbatest/ltl2tgba has been renamed as src/tests/ikwiad
+      (short for "I Know What I Am Doing") so that users should be
+      less tempted to use it instead of src/bin/ltl2tgba.
+
   * Removed features
 
-    - The long unused interface for GreatSPN (or rather, interface to
+    - The long unused interface to GreatSPN (or rather, interface to
       a non-public, customized version of GreatSPN) has been removed.
       As a consequence, we could get rid of many cruft in the
       implementation of Couvreur's FM'99 emptiness check.
@@ -377,7 +399,7 @@ New in spot 1.99b (not yet released)
       longuer supported tgba_bdd_concrete class.
 
     - Our implementation of the Kupferman-Vardi complementation has
-      been removed: it was useless in practice beause of the size of
+      been removed: it was unused in practice beause of the size of
       the automata built, and it did not survive the conversion of
       acceptance sets from BDDs to bitsets.
 
