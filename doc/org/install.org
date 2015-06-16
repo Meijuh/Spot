@@ -28,9 +28,9 @@ have Python installed, and do NOT want to install it, you should run
 The installation follows the usual =./configure=, =make=, =make install= steps.
 
 Please *do* install Spot somewhere: while skipping =make install= and
-running the command-line tools directly from the
-=spot-{{{LASTRELEASE}}}/src/bin/= directory should work, it will be
-slower than if you run =make install= and run the installed binaries.
+running the command-line tools directly from the build directory
+should work, it will be slower than if you run =make install= and run
+the installed binaries.
 
 By default, =make install= will install everything under
 =/usr/local/=, so unless you have write access to this directory you
