@@ -45,6 +45,7 @@ if qs:
         cache = open(cachename, "rb", 0)
         if hasattr(sys.stdout, 'buffer'):
             # Python 3+
+            sys.stdout.flush()
             sys.stdout.buffer.write(cache.read())
         else:
             # Python 2.x
