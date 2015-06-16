@@ -86,7 +86,7 @@ if not script:
 
     class MyHandler(CGIHTTPRequestHandler):
         def is_cgi(self):
-            if self.path.startswith('/cgi-bin/spot.py'):
+            if self.path.startswith('/cgi-bin/spotcgi.py'):
                 self.cgi_info = '', self.path[9:]
                 return True
             return False
@@ -98,7 +98,7 @@ if not script:
         os.mkdir(imgdir, 493)
         sys.stdout.write("Directory spotimg/ created.\n")
     httpd = HTTPServer(server_address, MyHandler)
-    sys.stdout.write("Point your browser to http://localhost:8000/ltl2tgba.html\n")
+    sys.stdout.write("Point your browser to http://localhost:8000/trans.html\n")
     httpd.serve_forever()
 
 import cgi

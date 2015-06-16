@@ -1,7 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2011, 2012 Laboratoire d'Informatique de Paris 6
-## (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
-## Pierre et Marie Curie.
+## Copyright (C) 2011, 2012, 2015 Laboratoire de Recherche
+## et Développement de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -18,8 +17,8 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-nodist_noinst_SCRIPTS = spot.py
-EXTRA_DIST = $(srcdir)/spot.in README ltl2tgba.html css/ltl2tgba.css	\
+nodist_noinst_SCRIPTS = spotcgi.py
+EXTRA_DIST = $(srcdir)/spotcgi.in README trans.html css/trans.css	\
   css/tipTip.css js/jquery.tipTip.minified.js js/jquery.ba-bbq.min.js	\
   js/jquery.ba-dotimeout.min.js logos/lip6sys64.png logos/lrde64.png	\
   logos/spot64s.png logos/mail.png					\
@@ -43,7 +42,7 @@ EXTRA_DIST = $(srcdir)/spot.in README ltl2tgba.html css/ltl2tgba.css	\
 
 CLEANFILES = $(nodist_noinst_SCRIPTS)
 
-spot.py: $(srcdir)/spot.in Makefile
+spotcgi.py: $(srcdir)/spotcgi.in Makefile
 	sed -e 's|[@]PYTHON[@]|@PYTHON@|g' \
 	    -e 's|[@]pythondir[@]|@pythondir@|g' \
 	    -e 's|[@]srcdir[@]|@srcdir@|g' \
@@ -51,9 +50,9 @@ spot.py: $(srcdir)/spot.in Makefile
 	    -e 's|[@]PACKAGE_VERSION[@]|@PACKAGE_VERSION@|g' \
 	    -e 's|[@]DOT[@]|@DOT@|g' \
 	    -e 's|[@]LTL3BA[@]|@LTL3BA@|g' \
-	    <$(srcdir)/spot.in >spot.tmp
-	chmod +x spot.tmp
-	mv -f spot.tmp $@
+	    <$(srcdir)/spotcgi.in >spotcgi.tmp
+	chmod +x spotcgi.tmp
+	mv -f spotcgi.tmp $@
 
 clean-local:
 	rm -rf spotimg

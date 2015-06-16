@@ -8,9 +8,9 @@
     <link rev=Made href="mailto:spot@lrde.epita.fr" title="Spot's discussion list">
     <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.13.custom.css">
     <link rel="stylesheet" href="css/tipTip.css">
-    <link rel="stylesheet" href="css/ltl2tgba.css">
-    <link rel="icon" href="http://spot.lip6.fr/img/favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="http://spot.lip6.fr/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/trans.css">
+    <link rel="icon" href="http://spot.lrde.epita.fr/img/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="http://spot.lrde.epita.fr/img/favicon.ico" type="image/x-icon">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
@@ -173,14 +173,14 @@
 
 	$(window).bind('hashchange', function(e) { updateFormFromHash('fast') });
 
-	$.get("/cgi-bin/spot.py", "o=v", function(data) {
+	$.get("/cgi-bin/spotcgi.py", "o=v", function(data) {
 	    $("#spottip").attr("title", "This page uses <b>" + data + "<\/b> to process LTL formulas and automata.  Please download the <b>Spot<\/b> library and install it on your computer if you want to do the same from the command line, or from another program.")
 		.tipTip({maxWidth: "400px", delay: 1000,
                          edgeOffset: 10,
                          defaultPosition: "right"});
         });
 
-	$.get("/cgi-bin/spot.py", "o=v3", function(data) {
+	$.get("/cgi-bin/spotcgi.py", "o=v3", function(data) {
             if (data != 'not available') {
 	      $("#ltl3ba-link").attr("title", data)
 		  .tipTip({maxWidth: "400px", delay: 1000,
@@ -242,7 +242,7 @@
 	    // cause problems when formulae include '&'.
 	    var fragment = location.href.replace(/^[^#]*#?(.*)$/, '$1');
             $("#results-body")
-		.load("/cgi-bin/spot.py",
+		.load("/cgi-bin/spotcgi.py",
                       fragment,
                       function(response, status, xhr) {
 			  $.doTimeout('res-update');
@@ -309,7 +309,7 @@
   </head>
   <body>
     <div id="spotlogo">
-      <a href="http://spot.lip6.fr/"><img border=0 src="logos/spot64s.png" alt="Spot Logo" class="rtip" id="spottip" title="This page uses the <b>Spot</b> library to process LTL formulas and automata.  Please download <b>Spot</b> and install it on your computer if you want to do the same from the command line, or from another program."></a></div>
+      <a href="http://spot.lrde.epita.fr/"><img border=0 src="logos/spot64s.png" alt="Spot Logo" class="rtip" id="spottip" title="This page uses the <b>Spot</b> library to process LTL formulas and automata.  Please download <b>Spot</b> and install it on your computer if you want to do the same from the command line, or from another program."></a></div>
     <div id="mailicon">
       <a href="mailto:spot@lrde.epita.fr"><img border=0 src="logos/mail.png" alt="Spot Logo" class="rtip" title="A bug? A question? Please e-mail us at <b>spot@lrde.epita.fr</b>."></a></div>
     <div id="lrdelogo">
