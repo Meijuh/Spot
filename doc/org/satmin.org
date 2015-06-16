@@ -236,7 +236,7 @@ expresses a recurrence property.
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltlfilt -f "Ga R (F!b & (c U b))" -l |
-ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-Ds - - |
+ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - - |
 dstar2tgba -D --stats='input(states=%S) output(states=%s, acc-sets=%a, det=%d)'
 #+END_SRC
 #+RESULTS:
@@ -255,7 +255,7 @@ has 6 states:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltlfilt -f "Ga R (F!b & (c U b))" -l |
-ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-Ds - - |
+ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - - |
 dstar2tgba -D -x sat-minimize --stats='input(states=%S) output(states=%s, acc-sets=%a, det=%d)'
 #+END_SRC
 #+RESULTS:
@@ -275,7 +275,7 @@ with option =-x sat-acc=M=.  For instance:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 ltlfilt -f "Ga R (F!b & (c U b))" -l |
-ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-Ds - - |
+ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - - |
 dstar2tgba -D -x sat-minimize,sat-acc=2 --stats='input(states=%S) output(states=%s, acc-sets=%a, det=%d)'
 #+END_SRC
 #+RESULTS:
@@ -364,12 +364,12 @@ used.  By default, the procedure will try to use the same acceptance
 condition (or any inferior one) and produce transition-based
 acceptance.
 
-For our example, let us first generate an deterministic Rabin
+For our example, let us first generate a deterministic Rabin
 automaton with [[http://www.ltl2dstar.de/][=ltl2dstar=]].
 
 #+BEGIN_SRC sh :results verbatim :exports code
 ltlfilt -f "FGa | FGb" -l |
-ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-Ds --output-format=hoa - - > output.hoa
+ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds --output-format=hoa - - > output.hoa
 #+END_SRC
 #+RESULTS:
 
@@ -382,7 +382,7 @@ autfilt output.hoa --dot=.a
 #+begin_example
 digraph G {
   rankdir=LR
-  label=<(Fin(<font color="#5DA5DA">⓿</font>) &amp; Inf(<font color="#F17CB0">❶</font>)) | (Fin(<font color="#FAA43A">❷</font>) &amp; Inf(<font color="#B276B2">❸</font>))>
+  label=<(Fin(<font color="#5DA5DA">â¿</font>) &amp; Inf(<font color="#F17CB0">â¶</font>)) | (Fin(<font color="#FAA43A">â·</font>) &amp; Inf(<font color="#B276B2">â¸</font>))>
   labelloc="t"
   node [shape="circle"]
   fontname="Lato"
@@ -391,22 +391,22 @@ digraph G {
   node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label=<0<br/><font color="#5DA5DA">⓿</font><font color="#FAA43A">❷</font>>]
+  0 [label=<0<br/><font color="#5DA5DA">â¿</font><font color="#FAA43A">â·</font>>]
   0 -> 0 [label=<!a &amp; !b>]
   0 -> 1 [label=<a &amp; !b>]
   0 -> 2 [label=<!a &amp; b>]
   0 -> 3 [label=<a &amp; b>]
-  1 [label=<1<br/><font color="#F17CB0">❶</font><font color="#FAA43A">❷</font>>]
+  1 [label=<1<br/><font color="#F17CB0">â¶</font><font color="#FAA43A">â·</font>>]
   1 -> 0 [label=<!a &amp; !b>]
   1 -> 1 [label=<a &amp; !b>]
   1 -> 2 [label=<!a &amp; b>]
   1 -> 3 [label=<a &amp; b>]
-  2 [label=<2<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+  2 [label=<2<br/><font color="#5DA5DA">â¿</font><font color="#B276B2">â¸</font>>]
   2 -> 0 [label=<!a &amp; !b>]
   2 -> 1 [label=<a &amp; !b>]
   2 -> 2 [label=<!a &amp; b>]
   2 -> 3 [label=<a &amp; b>]
-  3 [label=<3<br/><font color="#F17CB0">❶</font><font color="#B276B2">❸</font>>]
+  3 [label=<3<br/><font color="#F17CB0">â¶</font><font color="#B276B2">â¸</font>>]
   3 -> 0 [label=<!a &amp; !b>]
   3 -> 1 [label=<a &amp; !b>]
   3 -> 2 [label=<!a &amp; b>]
@@ -433,7 +433,7 @@ autfilt --sat-minimize output.hoa --dot=.a
 #+begin_example
 digraph G {
   rankdir=LR
-  label=<(Fin(<font color="#5DA5DA">⓿</font>) &amp; Inf(<font color="#F17CB0">❶</font>)) | (Fin(<font color="#FAA43A">❷</font>) &amp; Inf(<font color="#B276B2">❸</font>))>
+  label=<(Fin(<font color="#5DA5DA">â¿</font>) &amp; Inf(<font color="#F17CB0">â¶</font>)) | (Fin(<font color="#FAA43A">â·</font>) &amp; Inf(<font color="#B276B2">â¸</font>))>
   labelloc="t"
   node [shape="circle"]
   fontname="Lato"
@@ -443,10 +443,10 @@ digraph G {
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 0 [label=<a &amp; b<br/><font color="#F17CB0">❶</font>>]
-  0 -> 0 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font><font color="#FAA43A">❷</font>>]
-  0 -> 0 [label=<a &amp; !b<br/><font color="#F17CB0">❶</font><font color="#FAA43A">❷</font>>]
-  0 -> 0 [label=<!a &amp; b<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+  0 -> 0 [label=<a &amp; b<br/><font color="#F17CB0">â¶</font>>]
+  0 -> 0 [label=<!a &amp; !b<br/><font color="#5DA5DA">â¿</font><font color="#FAA43A">â·</font>>]
+  0 -> 0 [label=<a &amp; !b<br/><font color="#F17CB0">â¶</font><font color="#FAA43A">â·</font>>]
+  0 -> 0 [label=<!a &amp; b<br/><font color="#5DA5DA">â¿</font><font color="#B276B2">â¸</font>>]
 }
 #+end_example
 
@@ -467,7 +467,7 @@ autfilt -S --sat-minimize output.hoa --dot=.a
 #+begin_example
 digraph G {
   rankdir=LR
-  label=<(Fin(<font color="#5DA5DA">⓿</font>) &amp; Inf(<font color="#F17CB0">❶</font>)) | (Fin(<font color="#FAA43A">❷</font>) &amp; Inf(<font color="#B276B2">❸</font>))>
+  label=<(Fin(<font color="#5DA5DA">â¿</font>) &amp; Inf(<font color="#F17CB0">â¶</font>)) | (Fin(<font color="#FAA43A">â·</font>) &amp; Inf(<font color="#B276B2">â¸</font>))>
   labelloc="t"
   node [shape="circle"]
   fontname="Lato"
@@ -476,10 +476,10 @@ digraph G {
   node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 0
-  0 [label=<0<br/><font color="#F17CB0">❶</font><font color="#FAA43A">❷</font>>]
+  0 [label=<0<br/><font color="#F17CB0">â¶</font><font color="#FAA43A">â·</font>>]
   0 -> 0 [label=<b>]
   0 -> 1 [label=<!b>]
-  1 [label=<1<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+  1 [label=<1<br/><font color="#5DA5DA">â¿</font><font color="#B276B2">â¸</font>>]
   1 -> 0 [label=<!a>]
   1 -> 1 [label=<a>]
 }
