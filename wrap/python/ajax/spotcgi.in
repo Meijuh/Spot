@@ -212,6 +212,8 @@ except IOError:
 import spot
 import buddy
 
+spot.setup(size='8.2,8.2',fillcolor='#FDEDD3')
+
 def alarm_handler(signum, frame):
     unbufprint("""<p><font color="red">The script was aborted because
 it has been running for too long.</font>  Please try a shorter formula,
@@ -225,7 +227,7 @@ def run_dot(basename, ext):
     # Do not call "dot" to generate a file that already exists.
     if not os.access(outname, os.F_OK):
         os.spawnlp(os.P_WAIT, dot, dot, dot_bgcolor, '-T' + ext,
-                   '-Gsize=8.2,8.2', '-o', outname, basename + '.txt')
+                   '-o', outname, basename + '.txt')
     # Create a unused hardlink that points to the output picture
     # just to remember how many cache entries are sharing it.
     os.link(outname, tmpdir + "/" + ext)
@@ -288,11 +290,11 @@ However you may download the <a href="''' + cgi.escape(autprefix)
 def render_automaton(automaton, dont_run_dot):
     dotsrc = spot.ostringstream()
     if isinstance(automaton, spot.ta): # TA/GTA
-        spot.print_dot(dotsrc, automaton, "Brf(Lato)")
+        spot.print_dot(dotsrc, automaton)
     elif hasattr(automaton, 'get_ta'): # TGTA
-        spot.print_dot(dotsrc, automaton.get_ta(), "Brf(Lato)")
+        spot.print_dot(dotsrc, automaton.get_ta())
     else:                       # TGBA
-        spot.print_dot(dotsrc, automaton, "Brf(Lato)")
+        spot.print_dot(dotsrc, automaton)
     render_dot_maybe(dotsrc.str(), dont_run_dot)
 
 def render_formula(f):
