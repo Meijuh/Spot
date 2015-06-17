@@ -12,7 +12,7 @@
     <link rel="icon" href="http://spot.lrde.epita.fr/img/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="http://spot.lrde.epita.fr/img/favicon.ico" type="image/x-icon">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
     <script type="text/javascript" src="js/jquery.ba-bbq.min.js"></script>
     <script type="text/javascript" src="js/jquery.ba-dotimeout.min.js"></script>
@@ -165,9 +165,9 @@
             $.spotvars.internalchange = false;
 	    var o = $('input[name="o"]').val();
 	    hideOrShowPanels(o, duration);
-	    $("#output-tabs").tabs("select", "#tabs-o" + o);
+	    $("#output-tabs").tabs('option', 'active', $("#tabs-o" + o).index());
             var t = $('input[name="t"]').val();
-	    $("#translator-tabs").tabs('select', '#tabs-t' + t);
+	    $("#translator-tabs").tabs('option', 'active', $('#tabs-t' + t).index());
 	    updateResults();
 	}
 
@@ -241,10 +241,14 @@
 	    // it has been %-decoded by firefox, which
 	    // cause problems when formulae include '&'.
 	    var fragment = location.href.replace(/^[^#]*#?(.*)$/, '$1');
+            console.log("fragment: " + fragment);
             $("#results-body")
 		.load("/cgi-bin/spotcgi.py",
                       fragment,
                       function(response, status, xhr) {
+                          console.log(response);
+                          console.log(status);
+                          console.log(xhr);
 			  $.doTimeout('res-update');
 			  if (status == "error") {
 			      var msg = "Sorry but there was an error: ";
@@ -280,6 +284,10 @@
 		}
             });
 	$('.collapsible .head').click(function(e) {
+            var target = $(e.target);
+            if (!e.target.classList.contains('head')) {
+                return true;
+            }
             if (e.ctrlKey) {
                 if ($(this).attr('id') != 'ltl-head')
                     $(this).parent().hide('fast').addClass("killed");
@@ -288,16 +296,16 @@
             }
 	    return false;
 	});
-	$("#output-tabs").bind("tabsselect", function(event, ui) {
-	    var v = ui.panel.id[6]; // 'tabs-om' => 'm'.
+	$("#output-tabs").on("tabsactivate", function(event, ui) {
+	    var v = ui.newPanel[0].id[6]; // 'tabs-om' => 'm'.
             $('input[name="o"]').val(v)
             if (!autoUpdate())
 		hideOrShowPanels(v, 'fast')
             return true;
         });
-	$('#output-tabs').tabs('select', '#tabs-oa');
-	$('#translator-tabs').bind("tabsselect", function(event, ui) {
-            $('input[name="t"]').val(ui.panel.id.substring(6));
+	$('#output-tabs').tabs('option', 'active', $('#tabs-oa').index());
+	$('#translator-tabs').on("tabsactivate", function(event, ui) {
+            $('input[name="t"]').val(ui.newPanel[0].id.substring(6));
             autoUpdate();
             return true;
         });
