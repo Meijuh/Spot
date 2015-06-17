@@ -34,6 +34,12 @@ The latest version is *{{{LASTRELEASE}}}* and was released on
 
 - [[file:tools.org][Command-line tools]]
 - [[file:tut.org][Code examples]]
+- [[http://spot.lrde.epita.fr/doxygen/][Doxygen documentation]], generated automatically from the source code.
+
+* On-line LTL/PSL translator
+
+- [[http://spot.lrde.epita.fr/trans.html][This page]] provides a convenient way to translate LTL or PSL formulas into automata,
+  without installing Spot.
 
 * License
 
