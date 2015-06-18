@@ -369,7 +369,7 @@ if output_type == 'v3':
         # -M[0|1] is new in 1.1.1, and we use it.
         l3proc = subprocess.Popen(['@LTL3BA@', '-h'], stdout=subprocess.PIPE)
         (out, err) = l3proc.communicate()
-        if out.find('-M[') < 0:
+        if out.find(b'-M[') < 0:
             err = 1
         else:
             err = 0
