@@ -51,10 +51,11 @@ dist_pkgdata_DATA = $(srcdir)/spot.tag
 
 .PHONY: org
 org:
-	cd $(top_builddir) && make doc/org/init.el
-	rm -rf $(srcdir)/userdoc; mkdir -p tmp; cd tmp; \
-	$(EMACS) --batch -Q -l ../org/init.el
-	rm -rf tmp
+	cd $(top_builddir) && $(MAKE) doc/org/init.el
+	rm -rf $(srcdir)/userdoc
+	mkdir -p tmp-$$$$ && cd tmp-$$$$ && \
+	$(EMACS) --batch -Q -l ../org/init.el && \
+	cd .. && rm -rf tmp-$$$$
 
 ORG_FILES = \
   org/.dir-locals.el.in \
@@ -98,7 +99,7 @@ $(srcdir)/org/satmin.png: org/satmin.tex
 	rm -f satmin.pdf satmin.aux satmin.log
 
 $(srcdir)/org-stamp: $(ORG_FILES) $(configure_ac)
-	make org && touch $@
+	$(MAKE) org && touch $@
 
 $(srcdir)/userdoc: $(srcdir)/org-stamp
 
@@ -110,8 +111,3 @@ EXTRA_DIST = \
   $(ORG_FILES) \
   $(srcdir)/org-stamp \
   $(srcdir)/userdoc
-
-.PHONY: org-deploy
-org-deploy: $(srcdir)/org-stamp
-	cd $(srcdir); \
-	rsync -P -z -u -v -r -l -C --delete userdoc/ spot:www_spot/userdoc
