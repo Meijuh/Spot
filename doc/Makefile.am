@@ -53,9 +53,7 @@ dist_pkgdata_DATA = $(srcdir)/spot.tag
 org:
 	cd $(top_builddir) && $(MAKE) doc/org/init.el
 	rm -rf $(srcdir)/userdoc
-	mkdir -p tmp-$$$$ && cd tmp-$$$$ && \
-	$(EMACS) --batch -Q -l ../org/init.el && \
-	cd .. && rm -rf tmp-$$$$
+	$(EMACS) --batch -Q -l org/init.el
 
 ORG_FILES = \
   org/.dir-locals.el.in \
