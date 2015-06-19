@@ -367,7 +367,7 @@ acceptance.
 For our example, let us first generate a deterministic Rabin
 automaton with [[http://www.ltl2dstar.de/][=ltl2dstar=]].
 
-#+BEGIN_SRC sh :results silent
+#+BEGIN_SRC sh :results silent :exports both
 ltlfilt -f "FGa | FGb" -l |
 ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds --output-format=hoa - - > output.hoa
 #+END_SRC
