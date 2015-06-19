@@ -367,11 +367,10 @@ acceptance.
 For our example, let us first generate a deterministic Rabin
 automaton with [[http://www.ltl2dstar.de/][=ltl2dstar=]].
 
-#+BEGIN_SRC sh :results verbatim :exports code
+#+BEGIN_SRC sh :results silent
 ltlfilt -f "FGa | FGb" -l |
 ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds --output-format=hoa - - > output.hoa
 #+END_SRC
-#+RESULTS:
 
 Let's draw it:
 #+NAME: autfiltsm1
@@ -727,6 +726,6 @@ given, the useless sink state would have been kept and the output
 automaton would have 6 states.
 
 
-#+BEGIN_SRC sh :results verbatim :exports none
+#+BEGIN_SRC sh :results silent :exports results
 rm -f output.hoa output2.hoa
 #+END_SRC
