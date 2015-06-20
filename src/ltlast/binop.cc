@@ -111,7 +111,6 @@ namespace spot
 	  is.not_marked = (op != EConcatMarked);
 	  is.ltl_formula = false;
 	  is.boolean = false;
-	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.accepting_eword = false;
 	  is.psl_formula = true;
@@ -139,7 +138,6 @@ namespace spot
 	  is.not_marked = true;
 	  is.ltl_formula = false;
 	  is.boolean = false;
-	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.accepting_eword = false;
 	  is.psl_formula = true;
@@ -169,7 +167,6 @@ namespace spot
 	  is.eventual = second->is_eventual();
 	  is.eventual |= (first == constant::true_instance());
 	  is.boolean = false;
-	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.finite = false;
 	  is.accepting_eword = false;
@@ -189,7 +186,6 @@ namespace spot
 	  // f W g is universal if f and g are, or if g == 0.
 	  is.universal |= (second == constant::false_instance());
 	  is.boolean = false;
-	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.finite = false;
 	  is.accepting_eword = false;
@@ -210,7 +206,6 @@ namespace spot
 	  is.universal = second->is_universal();
 	  is.universal |= (first == constant::false_instance());
 	  is.boolean = false;
-	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.finite = false;
 	  is.accepting_eword = false;
@@ -230,7 +225,6 @@ namespace spot
 	  // g M f is eventual if both g and f are eventual, or if f == 1.
 	  is.eventual |= (second == constant::true_instance());
 	  is.boolean = false;
-	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.finite = false;
 	  is.accepting_eword = false;

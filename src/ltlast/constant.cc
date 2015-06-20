@@ -46,7 +46,6 @@ namespace spot
 	  is.syntactic_si = true; // for LTL (not PSL)
 	  is.sugar_free_ltl = true;
 	  is.ltl_formula = true;
-	  is.eltl_formula = true;
 	  is.psl_formula = true;
 	  is.sere_formula = true;
 	  is.finite = true;
@@ -69,7 +68,6 @@ namespace spot
 	  is.syntactic_si = true;
 	  is.sugar_free_ltl = true;
 	  is.ltl_formula = false;
-	  is.eltl_formula = false;
 	  is.psl_formula = false;
 	  is.sere_formula = true;
 	  is.finite = true;

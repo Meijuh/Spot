@@ -59,7 +59,6 @@ namespace spot
 	  is.not_marked = true;
 	  is.boolean = false;
 	  is.syntactic_si = false;
-	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  // is.syntactic_safety inherited
 	  // is.syntactic_guarantee inherited
@@ -71,7 +70,6 @@ namespace spot
 	case F:
 	  is.not_marked = true;
 	  is.boolean = false;
-	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.finite = false;
 	  is.sugar_free_ltl = false;
@@ -86,7 +84,6 @@ namespace spot
 	case G:
 	  is.not_marked = true;
 	  is.boolean = false;
-	  is.eltl_formula = false;
 	  is.sere_formula = false;
 	  is.finite = false;
 	  is.sugar_free_ltl = false;
@@ -103,7 +100,6 @@ namespace spot
 	  is.not_marked = (op == NegClosure);
 	  is.boolean = false;
 	  is.ltl_formula = false;
-	  is.eltl_formula = false;
 	  is.psl_formula = true;
 	  is.sere_formula = false;
 	  is.syntactic_safety = is.finite;
@@ -119,7 +115,6 @@ namespace spot
 	  is.not_marked = true;
 	  is.boolean = false;
 	  is.ltl_formula = false;
-	  is.eltl_formula = false;
 	  is.psl_formula = true;
 	  is.sere_formula = false;
 	  is.syntactic_safety = true;

@@ -26,10 +26,10 @@
 set -e
 
 cat >input<<EOF
-a,B&!xfLEPSFsgopra
-a<->b,BxfLEPSFsgopra
-!a,B&!xfLEPSFsgopra
-!(a|b),B&xfLEPSFsgopra
+a,B&!xfLPSFsgopra
+a<->b,BxfLPSFsgopra
+!a,B&!xfLPSFsgopra
+!(a|b),B&xfLPSFsgopra
 F(a),&!xLPegopra
 G(a),&!xLPusopra
 a U b,&!xfLPgopra
@@ -95,8 +95,8 @@ Fa -> Gb,xLPsopra
 {a;c|d;b}<>->GFb,&!Pra
 {a;c|d;_b}<>->!FGb,&Pr
 # Equivalent to a&b&c&d
-{a:b:c:d}!,B&!xfLEPSFsgopra
-a&b&c&d,B&!xfLEPSFsgopra
+{a:b:c:d}!,B&!xfLPSFsgopra
+a&b&c&d,B&!xfLPSFsgopra
 (Xa <-> XXXc) U (b & Fe),LPgopra
 (!X(a|X(!b))&(FX(g xor h)))U(!G(a|b)),LPegopra
 (!X(a|X(!b))&(GX(g xor h)))R(!F(a|b)),LPusopra

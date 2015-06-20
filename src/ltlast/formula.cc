@@ -43,7 +43,6 @@ namespace spot
 	       "syntactic stutter invariant");				\
       proprint(is_sugar_free_ltl, "f", "without LTL sugar");		\
       proprint(is_ltl_formula, "L", "LTL formula");			\
-      proprint(is_eltl_formula, "E", "ELTL formula");			\
       proprint(is_psl_formula, "P", "PSL formula");			\
       proprint(is_sere_formula, "S", "SERE formula");			\
       proprint(is_finite, "F", "finite");				\

@@ -60,7 +60,6 @@ namespace spot
 	    // NOT Boolean.
 	    is.boolean = false;
 	    is.ltl_formula = false;
-	    is.eltl_formula = false;
 	    is.psl_formula = false;
 	    is.eventual = false;
 	    is.universal = false;
@@ -88,7 +87,6 @@ namespace spot
 	    // and the result is therefore NOT Boolean.
 	    is.boolean = false;
 	    is.ltl_formula = false;
-	    is.eltl_formula = false;
 	    is.psl_formula = false;
 	    is.eventual = false;
 	    is.universal = false;

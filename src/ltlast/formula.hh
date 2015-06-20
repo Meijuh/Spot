@@ -170,12 +170,6 @@ namespace spot
 	return is.ltl_formula;
       }
 
-      /// Whether the formula uses only ELTL operators.
-      bool is_eltl_formula() const
-      {
-	return is.eltl_formula;
-      }
-
       /// Whether the formula uses only PSL operators.
       bool is_psl_formula() const
       {
@@ -344,7 +338,6 @@ namespace spot
 	bool syntactic_si:1;	   // LTL-X or siPSL
 	bool sugar_free_ltl:1;	   // No F and G operators.
 	bool ltl_formula:1;	   // Only LTL operators.
-	bool eltl_formula:1;	   // Only ELTL operators.
 	bool psl_formula:1;	   // Only PSL operators.
 	bool sere_formula:1;	   // Only SERE operators.
 	bool finite:1;		   // Finite SERE formulae, or Bool+X forms.

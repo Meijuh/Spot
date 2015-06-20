@@ -45,7 +45,6 @@ namespace spot
 				// matters.)
       is.sugar_free_ltl = true;
       is.ltl_formula = true;
-      is.eltl_formula = true;
       is.psl_formula = true;
       is.sere_formula = true;
       is.finite = true;
