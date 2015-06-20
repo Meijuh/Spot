@@ -315,6 +315,6 @@ State: 1 {0}
 : }
 :
 
-#+BEGIN_SRC sh :results verbatim :exports none
+#+BEGIN_SRC sh :results silent :exports results
 rm -f tut20.never
 #+END_SRC
