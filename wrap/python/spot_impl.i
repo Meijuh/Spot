@@ -142,6 +142,7 @@ namespace std {
 #include "twaalgos/translate.hh"
 #include "twaalgos/hoa.hh"
 #include "twaalgos/dtgbasat.hh"
+#include "twaalgos/relabel.hh"
 
 #include "parseaut/public.hh"
 
@@ -307,6 +308,7 @@ namespace std {
 %include "twaalgos/translate.hh"
 %include "twaalgos/hoa.hh"
 %include "twaalgos/dtgbasat.hh"
+%include "twaalgos/relabel.hh"
 
 %include "parseaut/public.hh"
 

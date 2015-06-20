@@ -136,7 +136,7 @@ os.dup2(fd, sys.stdout.fileno())
 # allowed to send strings to sys.stdout.  Always use the following
 # method instead.
 def unbufprint(s):
-    if sys.getdefaultencoding() != 'ascii':
+    if sys.getdefaultencoding() != 'ascii' and type(s) != bytes:
         sys.stdout.write(s.encode("utf-8"))
     else:
         sys.stdout.write(s)
@@ -378,7 +378,7 @@ if output_type == 'v3':
     if err != 0:
         unbufprint('not available')
     else:
-        unbufprint(ver.replace("\n", "<br>"))
+        unbufprint(ver.replace(b"\n", b"<br>"))
     finish()
 
 spot.unblock_signal(signal.SIGALRM)
@@ -580,29 +580,17 @@ elif translator == 'l3':
             l3opt.remove('-p')
     args = ["@LTL3BA@", l3out]
     args.extend(l3opt)
-    args.extend(['-f', spot.str_spin_ltl(f)])
-    import subprocess
-    l3file = tmpdir + "/aut"
-    with open(l3file, "w+") as l3aut:
-        try:
-            l3proc = subprocess.Popen(args, stdout=l3aut)
-            ret = l3proc.wait()
-        except:
-            unbufprint('<div class="error">Failed to run ltl3ba. Is it installed?</div>')
-            finish()
-        if ret != 0:
-            unbufprint('<div class="error">ltl3ba exited with error %s</div>' % ret)
-            finish()
-    tpel = spot.empty_parse_aut_error_list()
-    automaton = spot.parse_aut(l3file, tpel, dict, env)
-    if tpel:
-        unbufprint('''<div class="error">failed to read ltl3ba's output</div>''')
-        unbufprint('<div class="parse-error">')
-        err = spot.format_parse_aut_errors(spot.get_cout(), "output", tpel)
-        unbufprint('</div>')
-        automaton = 0
+    # Relabel the formula in case it contains unsupported atomic
+    # propositions (e.g., starting with _ or double-quoted).
+    m = spot.relabeling_map()
+    g = spot.relabel(f, spot.Pnn, m)
+    args.extend(['-f', "'" + spot.str_spin_ltl(g) + "' |"])
+    try:
+        automaton = spot.automaton(" ".join(args))
+    except RuntimeError as e:
+        unbufprint('<div class="error">{}</div>'.format(e))
         finish()
-    automaton = automaton.aut
+    spot.relabel_here(automaton, m)
 elif translator == 'cs':
     donot_inject = False
     cs_nowdba = True

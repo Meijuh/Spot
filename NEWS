@@ -266,6 +266,10 @@ New in spot 1.99b (not yet released)
     - The on-line interface at http://spot.lrde.epita.fr/trans.html
       can be used to check stutter-invariance of any LTL/PSL formula.
 
+    - The on-line interface will work around atomic propositions not
+      supported by ltl3ba.  (E.g. you can now translate F(A) or
+      G("foo < bar").)
+
   * Noteworthy code changes
 
     - Boost is not used anymore.

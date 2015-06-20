@@ -165,9 +165,11 @@
             $.spotvars.internalchange = false;
 	    var o = $('input[name="o"]').val();
 	    hideOrShowPanels(o, duration);
-	    $("#output-tabs").tabs('option', 'active', $("#tabs-o" + o).index());
+            $("#output-tabs").tabs('option', 'active',
+			           $('#output-tabs a[href="#tabs-o' + o + '"]').parent().index() - 1);
             var t = $('input[name="t"]').val();
-	    $("#translator-tabs").tabs('option', 'active', $('#tabs-t' + t).index());
+            $("#translator-tabs").tabs('option', 'active',
+				       $('#translator-tabs a[href="#tabs-t' + t + '"]').parent().index() - 1);
 	    updateResults();
 	}
 
