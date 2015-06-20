@@ -346,9 +346,9 @@ def print_stats(automaton, detinfo = False, ta = False):
 
 def format_formula(f, kind='div'):
     if utf8:
-        s = spot.to_utf8_string(f)
+        s = f.to_str('utf8')
     else:
-        s = str(f)
+        s = f.to_str()
     return '<%s class="formula spot-format">%s</%s>' % (kind, s, kind)
 
 form = cgi.FieldStorage()
