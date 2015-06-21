@@ -286,8 +286,10 @@
 		}
             });
 	$('.collapsible .head').click(function(e) {
-            var target = $(e.target);
-            if (!e.target.classList.contains('head')) {
+	    var cl = e.target.classList;
+	    if (!cl.contains('head')
+	        && !cl.contains('ui-icon-circle-arrow-n')
+	        && !cl.contains('ui-icon-circle-arrow-s')) {
                 return true;
             }
             if (e.ctrlKey) {
