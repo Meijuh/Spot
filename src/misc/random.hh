@@ -29,8 +29,10 @@
 
 namespace spot
 {
-  /// \addtogroup random Random functions
+  /// \defgroup random Random functions
   /// \ingroup misc_tools
+
+  /// \ingroup random
   /// @{
 
   /// \brief Reset the seed of the pseudo-random number generator.

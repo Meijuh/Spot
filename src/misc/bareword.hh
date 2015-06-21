@@ -27,7 +27,10 @@
 
 namespace spot
 {
-  /// \addtogroup misc_tools Miscellaneous helper algorithms
+  /// \defgroup misc_tools Miscellaneous helper functions
+
+
+  /// \ingroup misc_tools
   /// @{
   /// \brief Whether a word is bare.
   ///

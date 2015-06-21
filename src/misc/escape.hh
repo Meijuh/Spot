@@ -28,7 +28,7 @@
 
 namespace spot
 {
-  /// \addtogroup misc_tools
+  /// \ingroup misc_tools
   /// @{
 
   /// \brief Double characters <code>"</code> in strings.

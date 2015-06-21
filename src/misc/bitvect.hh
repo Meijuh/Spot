@@ -29,7 +29,7 @@
 
 namespace spot
 {
-  /// \addtogroup misc_tools
+  /// \ingroup misc_tools
   /// @{
 
   class bitvect;
