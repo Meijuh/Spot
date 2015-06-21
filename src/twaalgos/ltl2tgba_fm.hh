@@ -136,7 +136,7 @@ namespace spot
         editor	  = {Nir Piterman and Scott A. Smolka},
         publisher = {Springer}
       }
-      \endvarbatim */
+      \endverbatim */
   ///
   /// \return A spot::twa_graph that recognizes the language of \a f.
   SPOT_API twa_graph_ptr
