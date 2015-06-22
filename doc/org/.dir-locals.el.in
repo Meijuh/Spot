@@ -34,9 +34,9 @@
 		   :recursive t
 		   :publishing-function org-publish-org-to-html
 		   ; Org 8
-		   :html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
+		   :html-head "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link rel=\"stylesheet\" type=\"text/css\" href=\"syntax.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
 		   ; Org 7
-		   :style "<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
+		   :style "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link rel=\"stylesheet\" type=\"text/css\" href=\"syntax.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
 		   :auto-preamble t)
 		  ("spot-static"
 		   :base-directory "."
