@@ -1,4 +1,4 @@
-New in spot 1.99b (not yet released)
+New in spot 1.99.1 (2015-06-23)
 
   * Major changes motivating the jump in version number
 
@@ -414,10 +414,6 @@ New in spot 1.99b (not yet released)
       TGBA, has been fully removed.  We now use HOA everywhere.  (In
       case you have a file in this format, install Spot 1.2.6 and use
       "src/tgbatest/ltl2tgba -H -X file" to convert the file to HOA.)
-
-New in spot 1.2.6a (not yet released)
-
-  Nothing yet.
 
 New in spot 1.2.6 (2014-12-06)
 
