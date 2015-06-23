@@ -1,6 +1,7 @@
 New in spot 1.99.1a (not yet released)
 
-  Nothing yet.
+  * Bugs fixed:
+    - p[+][:*2] was not detected as belonging to siPSL
 
 New in spot 1.99.1 (2015-06-23)
 

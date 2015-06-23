@@ -69,15 +69,11 @@ namespace spot
 	  break;
 	case FStar:
 	  is.accepting_eword = false;
+	  is.syntactic_si &= !child->is_boolean();
 	  if (max_ == unbounded)
-	    {
-	      is.finite = false;
-	      is.syntactic_si &= !child->is_boolean();
-	    }
-	  else
-	    {
-	      is.syntactic_si = false;
-	    }
+	    is.finite = false;
+	  if (min_ == 0)
+	    is.syntactic_si = false;
 	  break;
 	}
     }

@@ -130,6 +130,9 @@ Fa  M b,&!xLPgopra
 {a[+];b*;c[+]},&!xfPsopra
 {a[+] && b || c[+]},&!fPsopra
 {a[+] && b[+] || c[+]},&!xfPsopra
+{p[+]:p[+]},&!xfPsoprla
+(!p W Gp) | ({(!p[*];(p[+]:(p[*];!p[+])))[:*4][:+]}<>-> (!p W Gp)),&!xPpla
+{b[+][:*0..3]},&!fPsopra
 EOF
 
 run 0 ../kind input
