@@ -1,5 +1,9 @@
 New in spot 1.99.1a (not yet released)
 
+  * A missing Python.h is now diagnosied at ./configure time,
+    with the suggestion to either install python3-devel, or
+    run ./configure --disable-python.
+
   * Bugs fixed:
     - p[+][:*2] was not detected as belonging to siPSL
     - scc_filter() would incorrectly remove Fin marks from
