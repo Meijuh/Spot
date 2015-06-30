@@ -1286,8 +1286,16 @@ namespace
 			    << pos[i]->num_edges() << " ed.)\n";
 		auto p = spot::product(pos[i], statespace);
 		pos_prod[i] = p;
+		if (verbose)
+		  std::cerr << "info:   product has " << p->num_states()
+			    << " st., " << p->num_edges()
+			    << " ed.\n";
+
 		auto sm = new spot::scc_info(p);
 		pos_map[i] = sm;
+		if (verbose)
+		  std::cerr << "info:               " << sm->scc_count()
+			    << " SCCs\n";
 
 		// Statistics
 		if (want_stats)
@@ -1303,17 +1311,24 @@ namespace
 	    for (size_t i = 0; i < m; ++i)
 	      if (neg[i])
 		{
-		if (verbose)
-		  std::cerr << ("info: building product between state-space and"
-				" N") << i
-			    << " (" << neg[i]->num_states() << " st., "
-			    << neg[i]->num_edges() << " ed.)\n";
+		  if (verbose)
+		    std::cerr << ("info: building product between state-space and"
+				  " N") << i
+			      << " (" << neg[i]->num_states() << " st., "
+			      << neg[i]->num_edges() << " ed.)\n";
 
-		auto p = spot::product(neg[i], statespace);
+		  auto p = spot::product(neg[i], statespace);
 		  neg_prod[i] = p;
+		  if (verbose)
+		    std::cerr << "info:   product has " << p->num_states()
+			      << " st., " << p->num_edges()
+			      << " ed.\n";
+
 		  auto sm = new spot::scc_info(p);
 		  neg_map[i] = sm;
-
+		  if (verbose)
+		    std::cerr << "info:               " << sm->scc_count()
+			      << " SCCs\n";
 		  // Statistics
 		  if (want_stats)
 		    {
