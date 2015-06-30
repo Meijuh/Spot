@@ -157,6 +157,11 @@ namespace spot
 	return id & ~r.id;
       }
 
+      mark_t operator~() const
+      {
+	return ~id;
+      }
+
       mark_t operator^(mark_t r) const
       {
 	return id ^ r.id;

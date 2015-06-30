@@ -125,14 +125,24 @@ namespace spot
     };
 
     // Remove acceptance conditions from all edges outside of
-    // non-accepting SCCs.
-    template <class next_filter = id_filter>
-    struct acc_filter_all: next_filter
+    // non-accepting SCCs.  If "RemoveAll" is false, keep those on
+    // transitions entering accepting SCCs.
+    template <bool RemoveAll, class next_filter = id_filter>
+    struct acc_filter_mask: next_filter
     {
+      acc_cond::mark_t accmask;
+
       template<typename... Args>
-      acc_filter_all(scc_info* si, Args&&... args)
+      acc_filter_mask(scc_info* si, Args&&... args)
 	: next_filter(si, std::forward<Args>(args)...)
       {
+	acc_cond::mark_t fin;
+	acc_cond::mark_t inf;
+	std::tie(inf, fin) =
+	  si->get_aut()->acc().get_acceptance().used_inf_fin_sets();
+	// If an SCC is rejecting, we can mask all the sets that are
+	// used only as Inf in the acceptance.
+	accmask = ~(inf - fin);
       }
 
       filtered_trans trans(unsigned src, unsigned dst,
@@ -144,37 +154,14 @@ namespace spot
 
 	if (keep)
 	  {
-	    unsigned u = this->si->scc_of(src);
+	    unsigned u = this->si->scc_of(dst);
 	    // If the edge is between two SCCs, or in a
 	    // non-accepting SCC.  Remove the acceptance sets.
-	    if (this->si->is_rejecting_scc(u) || u != this->si->scc_of(dst))
-	      acc = 0U;
+	    if ((this->si->is_rejecting_scc(u))
+		|| (RemoveAll && u != this->si->scc_of(src)))
+	      acc &= accmask;
 	  }
 
-	return filtered_trans(keep, cond, acc);
-      }
-    };
-
-    // Remove acceptance conditions from all edges whose
-    // destination is not an accepting SCCs.
-    template <class next_filter = id_filter>
-    struct acc_filter_some: next_filter
-    {
-      template<typename... Args>
-      acc_filter_some(scc_info* si, Args&&... args)
-	: next_filter(si, std::forward<Args>(args)...)
-      {
-      }
-
-      filtered_trans trans(unsigned src, unsigned dst,
-			   bdd cond, acc_cond::mark_t acc)
-      {
-	bool keep;
-	std::tie(keep, cond, acc) =
-	  this->next_filter::trans(src, dst, cond, acc);
-
-	if (this->si->is_rejecting_scc(this->si->scc_of(dst)))
-	  acc = 0U;
 	return filtered_trans(keep, cond, acc);
       }
     };
@@ -329,22 +316,24 @@ namespace spot
     if (aut->acc().is_generalized_buchi())
       {
 	if (remove_all_useless)
-	  res = scc_filter_apply<state_filter
-				 <acc_filter_all
-				  <acc_filter_simplify<>>>>(aut, given_si);
+	  res =
+	    scc_filter_apply<state_filter
+			     <acc_filter_mask
+			      <true, acc_filter_simplify<>>>>(aut, given_si);
 	else
-	  res = scc_filter_apply<state_filter
-				 <acc_filter_some
-				  <acc_filter_simplify<>>>>(aut, given_si);
+	  res =
+	    scc_filter_apply<state_filter
+			     <acc_filter_mask
+			      <false, acc_filter_simplify<>>>>(aut, given_si);
       }
     else
       {
 	if (remove_all_useless)
 	  res = scc_filter_apply<state_filter
-				 <acc_filter_all<>>>(aut, given_si);
+				 <acc_filter_mask<true>>>(aut, given_si);
 	else
 	  res = scc_filter_apply<state_filter
-				 <acc_filter_some<>>>(aut, given_si);
+				 <acc_filter_mask<false>>>(aut, given_si);
       }
     res->merge_edges();
     res->prop_copy(aut,
@@ -365,19 +354,19 @@ namespace spot
     if (remove_all_useless)
       res = scc_filter_apply<susp_filter
 			     <state_filter
-			      <acc_filter_all
-			       <acc_filter_simplify<>>>>>(aut, given_si,
-							  suspvars,
-							  ignoredvars,
-							  early_susp);
+			      <acc_filter_mask
+			       <true, acc_filter_simplify<>>>>>(aut, given_si,
+								suspvars,
+								ignoredvars,
+								early_susp);
     else
       res = scc_filter_apply<susp_filter
 			     <state_filter
-			      <acc_filter_some
-			       <acc_filter_simplify<>>>>>(aut, given_si,
-							  suspvars,
-							  ignoredvars,
-							  early_susp);
+			      <acc_filter_mask
+			       <false, acc_filter_simplify<>>>>>(aut, given_si,
+								 suspvars,
+								 ignoredvars,
+								 early_susp);
     res->merge_edges();
     res->prop_copy(aut,
 		   { false,  // state-based acceptance is not preserved

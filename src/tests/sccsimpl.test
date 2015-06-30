@@ -240,3 +240,105 @@ grep 'Acceptance: 2 ' out8.txt
 run 0 ../ikwiad -R3 -s -RDS -ks \
   '(G(!((b) R (a)))) R (((c) R (!(d))) U (G((a) | (!(G(e))))))' > out9.txt
 grep 'states: 6$' out9.txt
+
+
+# Spot 1.99.1 used to incorrectly remove Fin sets from rejecting SCCs
+# in scc_filter().
+cat >input <<EOF
+HOA: v1
+States: 2
+Start: 1
+Acceptance: 1 Fin(0)
+AP: 1 "p0"
+--BODY--
+State: 0
+[t] 0
+State: 1
+[!0] 1 {0}
+[0] 0
+--END--
+HOA: v1
+States: 2
+Start: 1
+Acceptance: 2 Fin(0)&Inf(1)
+AP: 1 "p0"
+--BODY--
+State: 0 {1}
+[t] 0
+State: 1
+[!0] 1 {0 1}
+[0] 0
+--END--
+EOF
+
+# run 0 ../../bin/autfilt -C -H --any --high input >output
+# cat >expected <<EOF
+# HOA: v1
+# States: 2
+# Start: 1
+# AP: 1 "p0"
+# acc-name: Buchi
+# Acceptance: 1 Inf(0)
+# properties: trans-labels explicit-labels state-acc complete
+# properties: deterministic inherently-weak
+# --BODY--
+# State: 0 {0}
+# [t] 0
+# State: 1
+# [0] 0
+# [!0] 1
+# --END--
+# HOA: v1
+# States: 2
+# Start: 1
+# AP: 1 "p0"
+# acc-name: Buchi
+# Acceptance: 1 Inf(0)
+# properties: trans-labels explicit-labels state-acc complete
+# properties: deterministic inherently-weak
+# --BODY--
+# State: 0 {0}
+# [t] 0
+# State: 1
+# [0] 0
+# [!0] 1
+# --END--
+# EOF
+# cat output
+# diff output expected
+
+run 0 ../../bin/autfilt -C -H --det --high input >output
+cat >expected <<EOF
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "p0"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic inherently-weak
+--BODY--
+State: 0 {0}
+[t] 0
+State: 1
+[0] 0
+[!0] 1
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "p0"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic inherently-weak
+--BODY--
+State: 0 {0}
+[t] 0
+State: 1
+[0] 0
+[!0] 1
+--END--
+EOF
+cat output
+diff output expected
