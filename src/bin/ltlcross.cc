@@ -1312,8 +1312,8 @@ namespace
 	      if (neg[i])
 		{
 		  if (verbose)
-		    std::cerr << ("info: building product between state-space and"
-				  " N") << i
+		    std::cerr << ("info: building product between state-space"
+				  " and N") << i
 			      << " (" << neg[i]->num_states() << " st., "
 			      << neg[i]->num_edges() << " ed.)\n";
 
