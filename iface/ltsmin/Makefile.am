@@ -25,7 +25,7 @@ ltsmindir = $(pkgincludedir)/iface/ltsmin
 
 ltsmin_HEADERS = ltsmin.hh
 
-noinst_LTLIBRARIES = libspotltsmin.la
+lib_LTLIBRARIES = libspotltsmin.la
 libspotltsmin_la_LIBADD = \
   $(top_builddir)/src/libspot.la \
   $(top_builddir)/ltdl/libltdlc.la -lpthread

@@ -30,7 +30,7 @@ Package: libspot-dev
 Architecture: any
 Section: libdevel
 Suggests: spot-doc
-Depends: libspot0 (>= ${source:Version}), libspot0 (<< ${source:Version}.1~), ${misc:Depends}
+Depends: libspot0 (>= ${source:Version}), libspot0 (<< ${source:Version}.1~), libspotltsmin0 (>= ${source:Version}) , libspotltsmin0 (<< ${source:Version}), ${misc:Depends}
 Description: headers for the Spot model checking library
  C++ headers for the Spot library.
 
@@ -50,6 +50,15 @@ Section: libdevel
 Depends: spot (>= ${source:Version}), spot (<< ${source:Version}.1~), ${misc:Depends}
 Description: headers for the Spot model checking library
  C++ headers for the Spot library.
+
+Package: libspotltsmin0
+Architecture: any
+Section: science
+Recommends: graphviz
+Suggests: libspot-dev
+Depends: ${shlibs:Depends}, ${misc:Depends}, libspot0 (>= ${source:Version}), libspot0 (<< ${source:Version}.1~)
+Description: interface between Spot and LTSmin models
+ Library load LTSmin models as Spot automata.
 
 Package: spot-doc
 Section: doc
