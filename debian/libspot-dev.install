@@ -1,1 +1,2 @@
-usr/include
+usr/include/spot
+usr/lib/*-*/libspot.so

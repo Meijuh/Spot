@@ -1,0 +1,4 @@
+usr/include/fddx.h
+usr/include/bvecx.h
+usr/include/bddx.h
+usr/lib/*-*/libbddx.so
