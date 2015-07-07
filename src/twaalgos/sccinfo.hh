@@ -27,17 +27,7 @@ namespace spot
   class SPOT_API scc_info
   {
   public:
-    struct scc_trans
-    {
-      scc_trans(bdd cond, unsigned dst)
-	: cond(cond), dst(dst)
-      {
-      }
-      bdd cond;
-      unsigned dst;
-    };
-
-    typedef std::vector<scc_trans> scc_succs;
+    typedef std::vector<unsigned> scc_succs;
 
     class scc_node
     {

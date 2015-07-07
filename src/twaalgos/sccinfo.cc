@@ -127,7 +127,7 @@ namespace spot
 		// Record the transition between the SCC being popped
 		// and the previous SCC.
 		if (!root_.empty())
-		  root_.front().node.succ_.emplace_back(cond, num);
+		  root_.front().node.succ_.emplace_back(num);
 	      }
 	    continue;
 	  }
@@ -162,15 +162,10 @@ namespace spot
 	    // Record that there is a transition from this SCC to the
 	    // dest SCC labelled with cond.
 	    auto& succ = root_.front().node.succ_;
-	    scc_succs::iterator i = std::find_if(succ.begin(), succ.end(),
-						 [spi](const scc_trans& x) {
-						   return (x.dst ==
-							   (unsigned) spi);
-						 });
+	    scc_succs::iterator i =
+	      std::find(succ.begin(), succ.end(), (unsigned) spi);
 	    if (i == succ.end())
-	      succ.emplace_back(cond, spi);
-	    else
-	      i->cond |= cond;
+	      succ.emplace_back(spi);
 	    continue;
 	  }
 
@@ -243,8 +238,8 @@ namespace spot
 	    continue;
 	  }
 	node_[i].useful_ = false;
-	for (auto j: node_[i].succ())
-	  if (node_[j.dst].is_useful())
+	for (unsigned j: node_[i].succ())
+	  if (node_[j].is_useful())
 	    {
 	      node_[i].useful_ = true;
 	      break;
@@ -358,19 +353,11 @@ namespace spot
 	}
 	out << "\"]\n";
 
-	for (auto& i: m->succ(state))
+	for (unsigned dest: m->succ(state))
 	  {
-	    int dest = i.dst;
-	    bdd label = i.cond;
-
-	    out << "  " << state << " -> " << dest
-		<< " [label=\"";
-	    escape_str(out, bdd_format_formula(aut->get_dict(), label));
-	    out << "\"]\n";
-
+	    out << "  " << state << " -> " << dest << '\n';
 	    if (seen[dest])
 	      continue;
-
 	    seen[dest] = true;
 	    q.push(dest);
 	  }

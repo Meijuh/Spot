@@ -545,10 +545,10 @@ namespace spot
 	  // Also SCCs are useless if all their successor are
 	  // useless.
 	  unsigned l = k;
-	  for (auto& j: succ)
+	  for (unsigned j: succ)
 	    {
-	      is_useless &= useless[j.dst];
-	      unsigned dj = d[j.dst];
+	      is_useless &= useless[j];
+	      unsigned dj = d[j];
 	      if (dj < l)
 		l = dj;
 	    }

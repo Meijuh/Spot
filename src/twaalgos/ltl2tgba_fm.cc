@@ -1198,8 +1198,8 @@ namespace spot
 	  if (!coacc)
 	    {
 	      // ... or if any of its successors is coaccessible.
-	      for (auto& i: sm->succ(n))
-		if (coaccessible[i.dst])
+	      for (unsigned i: sm->succ(n))
+		if (coaccessible[i])
 		  {
 		    coacc = true;
 		    break;
