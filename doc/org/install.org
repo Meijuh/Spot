@@ -73,12 +73,14 @@ apt-get update
 apt-get install spot libspot-dev spot-doc python3-spot # Or a subset of those
 #+END_SRC
 
-The package =spot= contains the libraries and [[file:tools.org][command-line
-tools]]. =libspot-dev= contains the header files if you plan to use Spot
-in a C++11 program. =spot-doc= contains some html (including these
-pages) and pdf documentation. Finally =python3-spot= contains some
-Python bindings (this package also installs some ipython notebooks
-that you can use as examples).
+The package =spot= contains the [[file:tools.org][command-line tools]]. =libspot-dev=
+contains the header files if you plan to use Spot in a C++11
+program. =spot-doc= contains some html (including these pages) and pdf
+documentation. Finally =python3-spot= contains some Python bindings
+(this package also installs some ipython notebooks that you can use as
+examples).  The packages containing the libraries (=libspot0=,
+=libbddx0=, =libspotltsmin0=) are automatically installed as
+dependencies of the previous packages.
 
 These packages should work in a recent *Ubuntu* as well, provided you
 also add a path to a repository that distributes the GCC 4.9 runtime.
@@ -87,7 +89,6 @@ You can do that for instance with:
 #+BEGIN_SRC sh
 add-apt-repository -y ppa:ubuntu-toolchain-r/test
 #+END_SRC
-
 
 * Installing from git
 

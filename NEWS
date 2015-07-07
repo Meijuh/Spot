@@ -1,13 +1,18 @@
 New in spot 1.99.1a (not yet released)
 
-  * A missing Python.h is now diagnosied at ./configure time,
+  * A missing Python.h is now diagnosed at ./configure time,
     with the suggestion to either install python3-devel, or
     run ./configure --disable-python.
+
+  * Debian packages for libraries have been split from
+    the main Spot package, as per Debian guidelines.
 
   * Bugs fixed:
     - p[+][:*2] was not detected as belonging to siPSL
     - scc_filter() would incorrectly remove Fin marks from
       rejecting SCCs.
+    - the libspotltsmin library is installed
+
 
 New in spot 1.99.1 (2015-06-23)
 
