@@ -35,7 +35,7 @@ namespace spot
     protected:
       scc_succs succ_;
       acc_cond::mark_t acc_;
-      std::list<unsigned> states_; // States of the component
+      std::vector<unsigned> states_; // States of the component
       bool trivial_:1;
       bool accepting_:1;	// Necessarily accepting
       bool rejecting_:1;	// Necessarily rejecting
@@ -86,7 +86,7 @@ namespace spot
 	return acc_;
       }
 
-      const std::list<unsigned>& states() const
+      const std::vector<unsigned>& states() const
       {
 	return states_;
       }
@@ -149,7 +149,7 @@ namespace spot
     auto rend() const
       SPOT_RETURN(node_.rend());
 
-    const std::list<unsigned>& states_of(unsigned scc) const
+    const std::vector<unsigned>& states_of(unsigned scc) const
     {
       return node(scc).states();
     }

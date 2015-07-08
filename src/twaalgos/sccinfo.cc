@@ -52,6 +52,7 @@ namespace spot
     sccof_.resize(n, -1U);
 
     typedef std::list<scc> stack_type;
+    std::deque<unsigned> live;
     stack_type root_;		// Stack of SCC roots.
     std::vector<int> h_(n, 0);
     // Map of visited states.  Values > 0 designate maximal SCC.
@@ -80,6 +81,7 @@ namespace spot
 	h_[init] = num_;
 	root_.emplace_front(num_, bddfalse, 0U);
 	todo_.emplace(init, aut->out(init).begin());
+	live.emplace_back(init);
       }
 
     while (!todo_.empty())
@@ -96,11 +98,6 @@ namespace spot
 	    // Backtrack TODO_.
 	    todo_.pop();
 
-	    // Fill STATES with any state removed, so that
-	    // remove_component() does not have to traverse the SCC
-	    // again.
-	    root_.front().node.states_.push_front(curr);
-
 	    // When backtracking the root of an SCC, we must also
 	    // remove that SCC from the ARC/ROOT stacks.  We must
 	    // discard from H all reachable states from this SCC.
@@ -108,17 +105,27 @@ namespace spot
 	    if (root_.front().index == h_[curr])
 	      {
 		int num = node_.size();
-		for (auto s: root_.front().node.states_)
-		  {
-		    sccof_[s] = num;
-		    h_[s] = num + 1;
-		  }
 		bdd cond = root_.front().in_cond;
 		auto acc = root_.front().node.acc_marks();
 		bool triv = root_.front().node.is_trivial();
 		node_.emplace_back(acc, triv);
+
+		// Move all elements of this SCC from the live stack
+		// to the the node.
+		auto i = std::find(live.rbegin(), live.rend(), curr);
+		assert(i != live.rend());
+		++i;		// Because base() does -1
+		auto& nbs = node_.back().states_;
+		nbs.insert(nbs.end(), i.base(), live.end());
+		live.erase(i.base(), live.end());
+
+		for (unsigned s: nbs)
+		  {
+		    sccof_[s] = num;
+		    h_[s] = num + 1;
+		  }
+
 		std::swap(node_.back().succ_, root_.front().node.succ_);
-		std::swap(node_.back().states_, root_.front().node.states_);
 		node_.back().accepting_ =
 		  !triv && root_.front().node.accepting_;
 		node_.back().rejecting_ =
@@ -150,6 +157,7 @@ namespace spot
 	    h_[dest] = --num_;
 	    root_.emplace_front(num_, cond, acc);
 	    todo_.emplace(dest, aut->out(dest).begin());
+	    live.emplace_back(dest);
 	    continue;
 	  }
 
@@ -181,7 +189,6 @@ namespace spot
 	// top of ROOT that have an index lesser than the one of
 	// the SCC of S2 (called the "threshold").
 	int threshold = spi;
-	std::list<unsigned> states;
 	scc_succs succs;
 	bool is_accepting = false;
 	// If this is a self-loop, check its acceptance alone.
@@ -194,8 +201,6 @@ namespace spot
 	    acc |= root_.front().node.acc_;
 	    acc |= root_.front().in_acc;
 	    is_accepting |= root_.front().node.accepting_;
-	    states.splice(states.end(), root_.front().node.states_);
-
 	    succs.insert(succs.end(),
 			 root_.front().node.succ_.begin(),
 			 root_.front().node.succ_.end());
@@ -213,8 +218,6 @@ namespace spot
 	root_.front().node.acc_ |= acc;
 	root_.front().node.accepting_ |= is_accepting
 	  || aut->acc().accepting(root_.front().node.acc_);
-	root_.front().node.states_.splice(root_.front().node.states_.end(),
-					  states);
 	root_.front().node.succ_.insert(root_.front().node.succ_.end(),
 					succs.begin(), succs.end());
 	// This SCC is no longer trivial.
