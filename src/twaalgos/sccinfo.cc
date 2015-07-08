@@ -25,6 +25,7 @@
 #include "twaalgos/mask.hh"
 #include "misc/escape.hh"
 
+
 namespace spot
 {
 
@@ -51,9 +52,8 @@ namespace spot
     unsigned n = aut->num_states();
     sccof_.resize(n, -1U);
 
-    typedef std::list<scc> stack_type;
     std::deque<unsigned> live;
-    stack_type root_;		// Stack of SCC roots.
+    std::deque<scc> root_;	// Stack of SCC roots.
     std::vector<int> h_(n, 0);
     // Map of visited states.  Values > 0 designate maximal SCC.
     // Values < 0 number states that are part of incomplete SCCs being
@@ -79,7 +79,7 @@ namespace spot
 	unsigned init = aut->get_init_state_number();
 	num_ = -1;
 	h_[init] = num_;
-	root_.emplace_front(num_, bddfalse, 0U);
+	root_.emplace_back(num_, bddfalse, 0U);
 	todo_.emplace(init, aut->out(init).begin());
 	live.emplace_back(init);
       }
@@ -102,12 +102,12 @@ namespace spot
 	    // remove that SCC from the ARC/ROOT stacks.  We must
 	    // discard from H all reachable states from this SCC.
 	    assert(!root_.empty());
-	    if (root_.front().index == h_[curr])
+	    if (root_.back().index == h_[curr])
 	      {
-		int num = node_.size();
-		bdd cond = root_.front().in_cond;
-		auto acc = root_.front().node.acc_marks();
-		bool triv = root_.front().node.is_trivial();
+		unsigned num = node_.size();
+		bdd cond = root_.back().in_cond;
+		auto acc = root_.back().node.acc_marks();
+		bool triv = root_.back().node.is_trivial();
 		node_.emplace_back(acc, triv);
 
 		// Move all elements of this SCC from the live stack
@@ -119,22 +119,30 @@ namespace spot
 		nbs.insert(nbs.end(), i.base(), live.end());
 		live.erase(i.base(), live.end());
 
+		std::set<unsigned> dests;
+		unsigned np1 = num + 1;
 		for (unsigned s: nbs)
 		  {
 		    sccof_[s] = num;
-		    h_[s] = num + 1;
+		    h_[s] = np1;
 		  }
-
-		std::swap(node_.back().succ_, root_.front().node.succ_);
+		// Gather all successor SCCs
+		for (unsigned s: nbs)
+		  for (auto& t: aut->out(s))
+		    {
+		      unsigned n = sccof_[t.dst];
+		      assert(n != -1U);
+		      if (n == num)
+			continue;
+		      dests.insert(n);
+		    }
+		auto& succ = node_.back().succ_;
+		succ.insert(succ.end(), dests.begin(), dests.end());
 		node_.back().accepting_ =
-		  !triv && root_.front().node.accepting_;
+		  !triv && root_.back().node.accepting_;
 		node_.back().rejecting_ =
 		  triv || !aut->acc().inf_satisfiable(acc);
-		root_.pop_front();
-		// Record the transition between the SCC being popped
-		// and the previous SCC.
-		if (!root_.empty())
-		  root_.front().node.succ_.emplace_back(num);
+		root_.pop_back();
 	      }
 	    continue;
 	  }
@@ -155,7 +163,7 @@ namespace spot
 	    // Yes.  Number it, stack it, and register its successors
 	    // for later processing.
 	    h_[dest] = --num_;
-	    root_.emplace_front(num_, cond, acc);
+	    root_.emplace_back(num_, cond, acc);
 	    todo_.emplace(dest, aut->out(dest).begin());
 	    live.emplace_back(dest);
 	    continue;
@@ -165,17 +173,7 @@ namespace spot
 
 	// Have we reached a maximal SCC?
 	if (spi > 0)
-	  {
-	    --spi;
-	    // Record that there is a transition from this SCC to the
-	    // dest SCC labelled with cond.
-	    auto& succ = root_.front().node.succ_;
-	    scc_succs::iterator i =
-	      std::find(succ.begin(), succ.end(), (unsigned) spi);
-	    if (i == succ.end())
-	      succ.emplace_back(spi);
-	    continue;
-	  }
+	  continue;
 
 	// Now this is the most interesting case.  We have reached a
 	// state S1 which is already part of a non-dead SCC.  Any such
@@ -196,32 +194,27 @@ namespace spot
 	  is_accepting = aut->acc().accepting(acc);
 
 	assert(!root_.empty());
-	while (threshold > root_.front().index)
+	while (threshold > root_.back().index)
 	  {
-	    acc |= root_.front().node.acc_;
-	    acc |= root_.front().in_acc;
-	    is_accepting |= root_.front().node.accepting_;
-	    succs.insert(succs.end(),
-			 root_.front().node.succ_.begin(),
-			 root_.front().node.succ_.end());
-	    root_.pop_front();
+	    acc |= root_.back().node.acc_;
+	    acc |= root_.back().in_acc;
+	    is_accepting |= root_.back().node.accepting_;
+	    root_.pop_back();
 	    assert(!root_.empty());
 	  }
 
 	// Note that we do not always have
-	//  threshold == root_.front().index
+	//  threshold == root_.back().index
 	// after this loop, the SCC whose index is threshold might have
 	// been merged with a higher SCC.
 
 	// Accumulate all acceptance conditions, states, SCC
 	// successors, and conditions into the merged SCC.
-	root_.front().node.acc_ |= acc;
-	root_.front().node.accepting_ |= is_accepting
-	  || aut->acc().accepting(root_.front().node.acc_);
-	root_.front().node.succ_.insert(root_.front().node.succ_.end(),
-					succs.begin(), succs.end());
+	root_.back().node.acc_ |= acc;
+	root_.back().node.accepting_ |= is_accepting
+	  || aut->acc().accepting(root_.back().node.acc_);
 	// This SCC is no longer trivial.
-	root_.front().node.trivial_ = false;
+	root_.back().node.trivial_ = false;
       }
 
     determine_usefulness();
