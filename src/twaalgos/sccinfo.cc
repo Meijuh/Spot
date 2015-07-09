@@ -34,15 +34,16 @@ namespace spot
     struct scc
     {
     public:
-      scc(int index, bdd in_cond, acc_cond::mark_t in_acc):
-	index(index), in_cond(in_cond), in_acc(in_acc)
+      scc(int index, acc_cond::mark_t in_acc):
+	in_acc(in_acc), index(index)
       {
       }
 
-      int index;	 // Index of the SCC
-      bdd in_cond;	 // Condition on incoming transition
-      acc_cond::mark_t in_acc; // Acceptance sets on the incoming transition
-      scc_info::scc_node node;
+      acc_cond::mark_t in_acc;  // Acceptance sets on the incoming transition
+      acc_cond::mark_t acc = 0U; // union of all acceptance sets in the SCC
+      int index;		// Index of the SCC
+      bool trivial = true;	// Whether the SCC has no cycle
+      bool accepting = false;	// Necessarily accepting
     };
   }
 
@@ -79,7 +80,7 @@ namespace spot
 	unsigned init = aut->get_init_state_number();
 	num_ = -1;
 	h_[init] = num_;
-	root_.emplace_back(num_, bddfalse, 0U);
+	root_.emplace_back(num_, 0U);
 	todo_.emplace(init, aut->out(init).begin());
 	live.emplace_back(init);
       }
@@ -105,9 +106,8 @@ namespace spot
 	    if (root_.back().index == h_[curr])
 	      {
 		unsigned num = node_.size();
-		bdd cond = root_.back().in_cond;
-		auto acc = root_.back().node.acc_marks();
-		bool triv = root_.back().node.is_trivial();
+		auto acc = root_.back().acc;
+		bool triv = root_.back().trivial;
 		node_.emplace_back(acc, triv);
 
 		// Move all elements of this SCC from the live stack
@@ -139,7 +139,7 @@ namespace spot
 		auto& succ = node_.back().succ_;
 		succ.insert(succ.end(), dests.begin(), dests.end());
 		node_.back().accepting_ =
-		  !triv && root_.back().node.accepting_;
+		  !triv && root_.back().accepting;
 		node_.back().rejecting_ =
 		  triv || !aut->acc().inf_satisfiable(acc);
 		root_.pop_back();
@@ -151,7 +151,6 @@ namespace spot
 	// Fetch the values we are interested in...
 	unsigned dest = succ->dst;
 	auto acc = succ->acc;
-	bdd cond = succ->cond;
 	++todo_.top().second;
 
 	// We do not need SUCC from now on.
@@ -163,7 +162,7 @@ namespace spot
 	    // Yes.  Number it, stack it, and register its successors
 	    // for later processing.
 	    h_[dest] = --num_;
-	    root_.emplace_back(num_, cond, acc);
+	    root_.emplace_back(num_, acc);
 	    todo_.emplace(dest, aut->out(dest).begin());
 	    live.emplace_back(dest);
 	    continue;
@@ -187,7 +186,6 @@ namespace spot
 	// top of ROOT that have an index lesser than the one of
 	// the SCC of S2 (called the "threshold").
 	int threshold = spi;
-	scc_succs succs;
 	bool is_accepting = false;
 	// If this is a self-loop, check its acceptance alone.
 	if (dest == succ->src)
@@ -196,9 +194,9 @@ namespace spot
 	assert(!root_.empty());
 	while (threshold > root_.back().index)
 	  {
-	    acc |= root_.back().node.acc_;
+	    acc |= root_.back().acc;
 	    acc |= root_.back().in_acc;
-	    is_accepting |= root_.back().node.accepting_;
+	    is_accepting |= root_.back().accepting;
 	    root_.pop_back();
 	    assert(!root_.empty());
 	  }
@@ -210,11 +208,11 @@ namespace spot
 
 	// Accumulate all acceptance conditions, states, SCC
 	// successors, and conditions into the merged SCC.
-	root_.back().node.acc_ |= acc;
-	root_.back().node.accepting_ |= is_accepting
-	  || aut->acc().accepting(root_.back().node.acc_);
+	root_.back().acc |= acc;
+	root_.back().accepting |= is_accepting
+	  || aut->acc().accepting(root_.back().acc);
 	// This SCC is no longer trivial.
-	root_.back().node.trivial_ = false;
+	root_.back().trivial = false;
       }
 
     determine_usefulness();
@@ -227,7 +225,6 @@ namespace spot
     unsigned scccount = scc_count();
     for (unsigned i = 0; i < scccount; ++i)
       {
-
 	if (!node_[i].is_rejecting())
 	  {
 	    node_[i].useful_ = true;
