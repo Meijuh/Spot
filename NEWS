@@ -7,6 +7,12 @@ New in spot 1.99.1a (not yet released)
   * Debian packages for libraries have been split from
     the main Spot package, as per Debian guidelines.
 
+  * The scc_info object, used to build a map of SCCs while gathering
+    additionnal information, has been simplified and speed up.  One
+    test case where ltlcross would take more than 13min (to check the
+    translation of one PSL formula and its now takes) now takes only
+    75s.
+
   * Bugs fixed:
     - p[+][:*2] was not detected as belonging to siPSL
     - scc_filter() would incorrectly remove Fin marks from
