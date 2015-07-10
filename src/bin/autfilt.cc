@@ -460,7 +460,6 @@ parse_opt(int key, char* arg, struct argp_state*)
       if (automaton_format == Spin)
 	error(2, 0, "--spin and --tgba are incompatible");
       type = spot::postprocessor::TGBA;
-      opt_rem_fin = true;
       break;
     case ARGP_KEY_ARG:
       jobs.emplace_back(arg, true);

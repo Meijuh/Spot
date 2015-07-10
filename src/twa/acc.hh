@@ -167,6 +167,28 @@ namespace spot
 	return id ^ r.id;
       }
 
+      mark_t operator<<(int i) const
+      {
+	return id << i;
+      }
+
+      mark_t& operator<<=(int i)
+      {
+	id <<= i;
+	return *this;
+      }
+
+      mark_t operator>>(int i) const
+      {
+	return id >> i;
+      }
+
+      mark_t& operator>>=(int i)
+      {
+	id >>= i;
+	return *this;
+      }
+
       mark_t strip(mark_t y) const
       {
 	// strip every bit of id that is marked in y

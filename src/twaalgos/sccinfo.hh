@@ -211,6 +211,7 @@ namespace spot
 
     std::set<acc_cond::mark_t> used_acc_of(unsigned scc) const;
 
+    acc_cond::mark_t acc_sets_of(unsigned scc) const;
 
     std::vector<bool> weak_sccs() const;
 

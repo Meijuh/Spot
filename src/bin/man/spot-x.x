@@ -39,16 +39,40 @@ user time for solving the SAT problem, system time for solving the SAT
 problem.
 
 .TP
-\fBSPOT_SATSOLVER\fR If set, this variable should indicate how to call
-a SAT\-solver.  This is used by the sat\-minimize option described
-above.  The default value is \f(CW"glucose -verb=0 -model %I >%O"\fR,
-it is correct for glucose version 3.0 (for older versions, remove the
-\fCW(-model\fR option).  The escape sequences \f(CW%I\fR and
-\f(CW%O\fR respectively denote the names of the input and output
-files.  These temporary files are created in the directory specified
-by \fBSPOT_TMPDIR\fR or \fBTMPDIR\fR (see below).  The SAT-solver
-should follow the convention of the SAT Competition for its input and
-output format.
+\fBSPOT_SATSOLVER\fR
+If set, this variable should indicate how to call a SAT\-solver.  This
+is used by the sat\-minimize option described above.  The default
+value is \f(CW"glucose -verb=0 -model %I >%O"\fR, it is correct for
+glucose version 3.0 (for older versions, remove the \fCW(-model\fR
+option).  The escape sequences \f(CW%I\fR and \f(CW%O\fR respectively
+denote the names of the input and output files.  These temporary files
+are created in the directory specified by \fBSPOT_TMPDIR\fR or
+\fBTMPDIR\fR (see below).  The SAT-solver should follow the convention
+of the SAT Competition for its input and output format.
+
+.TP
+\fBSPOT_STREETT_CONV_MIN\fR
+The number of Streett pairs above which conversion from Streett
+acceptance to generalized-Büchi acceptance should be made with a
+dedicated algorithm.  By default this is 3, i.e., if a Streett
+automaton with 3 acceptance pairs or more has to be converted into
+generalized-Büchi, the dedicated algorithm is used.  This algorithm is
+close to the classical conversion from Streett to Büchi, but with
+several tweaks.  When this algorithm is not used, the standard
+"Fin-removal" approach is used instead: first the acceptance condition
+is converted into disjunctive normal form (DNF), then Fin acceptance
+is removed like for Rabin automata, yielding a disjuction of
+generalized Büchi acceptance, and the result is finally converted into
+conjunctive normal form (CNF) to obtain a generalized Büchi
+acceptance.  Both algorithms have a worst-case size that is
+exponential in the number of Streett pairs, but in practice the
+dedicated algorithm works better for most Streett automata with 3 or
+more pairs (and many 2-pair Streett automata as well, but the
+difference here is less clear).  Setting this variable to 0 will
+disable the dedicated algorithm.  Setting it to 1 will enable it for
+all Streett automata, however we do not recommand setting it to less
+than 2, because the "Fin-removal" approach is better for single-pair
+Streett automata.
 
 .TP
 \fBSPOT_TMPDIR\fR, \fBTMPDIR\fR

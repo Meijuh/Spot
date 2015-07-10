@@ -21,6 +21,7 @@
 #include "sccinfo.hh"
 #include <iostream>
 #include "cleanacc.hh"
+#include "totgba.hh"
 
 //#define TRACE
 #ifdef TRACE
@@ -110,6 +111,10 @@ namespace spot
 
   twa_graph_ptr remove_fin(const const_twa_graph_ptr& aut)
   {
+    auto maybe = streett_to_generalized_buchi_maybe(aut);
+    if (maybe)
+      return maybe;
+
     if (!aut->acc().uses_fin_acceptance())
       return std::const_pointer_cast<twa_graph>(aut);
 

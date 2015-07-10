@@ -27,4 +27,15 @@ namespace spot
   /// an equivalent Generalized Büchi automaton.
   SPOT_API twa_graph_ptr
   to_generalized_buchi(const const_twa_graph_ptr& aut);
+
+  /// \brief Convert Streett acceptance into generalized Büchi
+  /// acceptance.
+  SPOT_API twa_graph_ptr
+  streett_to_generalized_buchi(const const_twa_graph_ptr& in);
+
+  /// \brief Convert Streett acceptance into generalized Büchi
+  /// only if SPOT_STREET_CONF_MIN is set to a number of pairs
+  /// less than the number of pairs used by IN.
+  SPOT_API twa_graph_ptr
+  streett_to_generalized_buchi_maybe(const const_twa_graph_ptr& in);
 }

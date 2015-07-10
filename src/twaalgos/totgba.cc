@@ -20,12 +20,48 @@
 #include "totgba.hh"
 #include "remfin.hh"
 #include "cleanacc.hh"
+#include "sccinfo.hh"
 #include "twa/twagraph.hh"
+#include <deque>
+#include <tuple>
 
 namespace spot
 {
   namespace
   {
+    struct st2gba_state
+    {
+      acc_cond::mark_t pend;
+      unsigned s;
+
+      st2gba_state(unsigned st, acc_cond::mark_t bv = -1U):
+	pend(bv), s(st)
+      {
+      }
+    };
+
+    struct st2gba_state_hash
+    {
+      size_t
+      operator()(const st2gba_state& s) const
+      {
+	std::hash<acc_cond::mark_t> h;
+	return s.s ^ h(s.pend);
+      }
+    };
+
+    struct st2gba_state_equal
+    {
+      bool
+      operator()(const st2gba_state& left,
+                 const st2gba_state& right) const
+      {
+	if (left.s != right.s)
+	  return false;
+	return left.pend == right.pend;
+      }
+    };
+
     typedef std::vector<acc_cond::mark_t> terms_t;
 
     terms_t cnf_terms(const acc_cond::acc_code& code)
@@ -55,12 +91,224 @@ namespace spot
   }
 
 
+  //  Specialized conversion for Streett -> TGBA
+  // ============================================
+  //
+  // Christof Löding's Diploma Thesis: Methods for the
+  // Transformation of ω-Automata: Complexity and Connection to
+  // Second Order Logic.  Section 3.4.3, gives a transition
+  // from Streett with |Q| states to BA with |Q|*(4^n-3^n+2)
+  // states, if n is the number of acceptance pairs.
+  //
+  // Duret-Lutz et al. (ATVA'2009): On-the-fly Emptiness Check of
+  // Transition-based Streett Automata.  Section 3.3 contains a
+  // conversion from transition-based Streett Automata to TGBA using
+  // the generalized Büchi acceptance to limit the explosion.  It goes
+  // from Streett with |Q| states to (T)GBA with |Q|*(2^n+1) states.
+  // However the definition of the number of acceptance sets in that
+  // paper is suboptimal: only n are needed, not 2^n.
+  //
+  // This implements this second version.
+  twa_graph_ptr
+  streett_to_generalized_buchi(const const_twa_graph_ptr& in)
+  {
+    // While "t" is Streett, it is also generalized Büchi, so
+    // do not do anything.
+    if (in->acc().is_generalized_buchi())
+      return std::const_pointer_cast<twa_graph>(in);
+    int p = in->acc().is_streett();
+    if (p <= 0)
+      throw std::runtime_error("streett_to_generalized_buchi() should only be"
+			       " called on automata with Streett acceptance");
+
+    // In Streett acceptance, inf sets are odd, while fin sets are
+    // even.
+    acc_cond::mark_t inf;
+    acc_cond::mark_t fin;
+    std::tie(inf, fin) = in->get_acceptance().used_inf_fin_sets();
+    assert((inf >> 1) == fin);
+
+    scc_info si(in);
+
+    // Compute the acceptance sets present in each SCC
+    unsigned nscc = si.scc_count();
+    std::vector<std::tuple<acc_cond::mark_t, acc_cond::mark_t, bool>> sccfi;
+    sccfi.reserve(nscc);
+    for (unsigned s = 0; s < nscc; ++s)
+      {
+	auto acc = si.acc_sets_of(s); // {0,1,2,3,4,6,7,9}
+	auto acc_fin = acc & fin;     // {0,  2,  4,6}
+	auto acc_inf = acc & inf;     // {  1,  3,    7,9}
+	auto fin_wo_inf = acc_fin - (acc_inf >> 1); // {4}
+	auto inf_wo_fin = acc_inf - (acc_fin << 1); // {9}
+	sccfi.emplace_back(fin_wo_inf, inf_wo_fin, acc_fin == 0U);
+      }
+
+    auto out = make_twa_graph(in->get_dict());
+    out->copy_ap_of(in);
+    out->prop_copy(in, {false, false, false, true});
+    out->set_generalized_buchi(p);
+    acc_cond::mark_t outall = out->acc().all_sets();
+
+    // Map st2gba pairs to the state numbers used in out.
+    typedef std::unordered_map<st2gba_state, unsigned,
+			       st2gba_state_hash,
+			       st2gba_state_equal> bs2num_map;
+    bs2num_map bs2num;
+
+    // Queue of states to be processed.
+    typedef std::deque<st2gba_state> queue_t;
+    queue_t todo;
+
+    st2gba_state s(in->get_init_state_number());
+    bs2num[s] = out->new_state();
+    todo.push_back(s);
+
+    bool sbacc = in->has_state_based_acc();
+
+    while (!todo.empty())
+      {
+	s = todo.front();
+	todo.pop_front();
+	unsigned src = bs2num[s];
+
+	unsigned scc_src = si.scc_of(s.s);
+	bool maybe_acc_scc = !si.is_rejecting_scc(scc_src);
+
+	acc_cond::mark_t scc_fin_wo_inf;
+	acc_cond::mark_t scc_inf_wo_fin;
+	bool no_fin;
+	std::tie(scc_fin_wo_inf, scc_inf_wo_fin, no_fin) = sccfi[scc_src];
+
+	for (auto& t: in->out(s.s))
+	  {
+	    acc_cond::mark_t pend = s.pend;
+	    acc_cond::mark_t acc = 0U;
+
+	    bool maybe_acc = maybe_acc_scc && (scc_src == si.scc_of(t.dst));
+
+	    if (pend != -1U)
+	      {
+		if (!maybe_acc)
+		  continue;
+		// No point going to some place we will never leave
+		if (t.acc & scc_fin_wo_inf)
+		  continue;
+		// For any Fin set we see, we want to see the
+		// corresponding Inf set.
+		pend |= (t.acc & fin) << 1;
+		pend -= t.acc & inf;
+		// Label this transition with all non-pending
+		// inf sets.  The strip will shift everything
+		// to the correct numbers in the targets.
+		acc = (inf - pend).strip(fin) & outall;
+		// Adjust the pending sets to what will be necessary
+		// required on the destination state.
+		if (sbacc)
+		  {
+		    auto a = in->state_acc_sets(t.dst);
+		    if (a & scc_fin_wo_inf)
+		      continue;
+		    pend |= (a & fin) << 1;
+		    pend -= a & inf;
+		  }
+		pend |= scc_inf_wo_fin;
+	      }
+	    else if (no_fin && maybe_acc)
+	      {
+		assert(maybe_acc);
+		acc = outall;
+	      }
+
+	    st2gba_state d(t.dst, pend);
+	    // Have we already seen this destination?
+	    unsigned dest;
+	    auto dres = bs2num.emplace(d, 0);
+	    if (!dres.second)
+	      {
+		dest = dres.first->second;
+	      }
+	    else		// No, this is a new state
+	      {
+		dest = dres.first->second = out->new_state();
+		todo.push_back(d);
+	      }
+	    out->new_edge(src, dest, t.cond, acc);
+
+	    // Nondeterministically jump to level ∅.  We need to do
+	    // that only once per cycle.  As an approximation, we
+	    // only to that for transition where t.src >= t.dst as
+	    // this has to occur at least once per cycle.
+	    if (pend == -1U && (t.src >= t.dst) && maybe_acc && !no_fin)
+	      {
+		acc_cond::mark_t pend = 0U;
+		if (sbacc)
+		  {
+		    auto a = in->state_acc_sets(t.dst);
+		    if (a & scc_fin_wo_inf)
+		      continue;
+		    pend = (a & fin) << 1;
+		    pend -= a & inf;
+		  }
+		st2gba_state d(t.dst, pend | scc_inf_wo_fin);
+		// Have we already seen this destination?
+		unsigned dest;
+		auto dres = bs2num.emplace(d, 0);
+		if (!dres.second)
+		  {
+		    dest = dres.first->second;
+		  }
+		else		// No, this is a new state
+		  {
+		    dest = dres.first->second = out->new_state();
+		    todo.push_back(d);
+		  }
+		out->new_edge(src, dest, t.cond);
+	      }
+	  }
+      }
+
+
+    // for (auto s: bs2num)
+    // {
+    // 	std::cerr << s.second << " ("
+    // 		  << s.first.s << ", ";
+    // 	if (s.first.pend == -1U)
+    // 	  std::cerr << "-)\n";
+    // 	else
+    // 	  std::cerr << s.first.pend << ")\n";
+    // }
+    return out;
+  }
+
+  twa_graph_ptr
+  streett_to_generalized_buchi_maybe(const const_twa_graph_ptr& in)
+  {
+    static int min = [&]() {
+      const char* c = getenv("SPOT_STREETT_CONV_MIN");
+      if (!c)
+	return 3;
+      errno = 0;
+      int val = strtol(c, nullptr, 10);
+      if (val < 0 || errno != 0)
+	throw std::runtime_error("unexpected value for SPOT_STREETT_CONV_MIN");
+      return val;
+    }();
+    if (min == 0 || min > in->acc().is_streett())
+      return nullptr;
+    else
+      return streett_to_generalized_buchi(in);
+  }
 
   /// \brief Take an automaton with any acceptance condition and return
   /// an equivalent Generalized Büchi automaton.
   twa_graph_ptr
   to_generalized_buchi(const const_twa_graph_ptr& aut)
   {
+    auto maybe = streett_to_generalized_buchi_maybe(aut);
+    if (maybe)
+      return maybe;
+
     auto res = remove_fin(cleanup_acceptance(aut));
     if (res->acc().is_generalized_buchi())
       return res;

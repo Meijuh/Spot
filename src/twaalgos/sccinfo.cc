@@ -251,6 +251,16 @@ namespace spot
     return res;
   }
 
+  acc_cond::mark_t scc_info::acc_sets_of(unsigned scc) const
+  {
+    acc_cond::mark_t res = 0U;
+    for (auto src: states_of(scc))
+      for (auto& t: aut_->out(src))
+	if (scc_of(t.dst) == scc)
+	  res |= t.acc;
+    return res;
+  }
+
   std::vector<std::set<acc_cond::mark_t>> scc_info::used_acc() const
   {
     unsigned n = aut_->num_states();
