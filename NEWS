@@ -36,6 +36,8 @@ New in spot 1.99.1a (not yet released)
     - scc_filter() would incorrectly remove Fin marks from
       rejecting SCCs.
     - the libspotltsmin library is installed
+    - ltlcross and ltldo did not properly quote atomic propositions
+      and temporary file names containing a single-quote
 
 
 New in spot 1.99.1 (2015-06-23)

@@ -33,6 +33,14 @@ check_csv()
 
 ltl2tgba=../../bin/ltl2tgba
 
+# Make sure ltlcross quotes formulas correctly
+cat >formula <<\EOF
+G"a'-'>'b"
+EOF
+run 0 ../../bin/ltlcross -F formula --csv=out.csv \
+                         "$ltl2tgba -s %f >%N" \
+                         "$ltl2tgba --lenient -s %s >%N"
+
 run 2 ../../bin/ltlcross "$ltl2tgba -s %f >%N" 'foo bar' 2>stderr -f a
 grep 'ltlcross.*no input.*in.*foo bar' stderr
 

@@ -146,12 +146,39 @@ translator_spec::~translator_spec()
 
 std::vector<translator_spec> translators;
 
-void
-quoted_string::print(std::ostream& os, const char* pos) const
+static void
+quote_shell_string(std::ostream& os, const char* str)
 {
-  os << '\'';
-  this->spot::printable_value<std::string>::print(os, pos);
-  os << '\'';
+  // Single quotes are best, unless the string to quote contains one.
+  if (!strchr(str, '\''))
+    {
+      os << '\'' << str << '\'';
+    }
+  else
+    {
+      // In double quotes we have to escape $ ` " or \.
+      os << '"';
+      while (*str)
+	switch (*str)
+	  {
+	  case '$':
+	  case '`':
+	  case '"':
+	  case '\\':
+	    os << '\\';
+	    // fall through
+	  default:
+	    os << *str++;
+	    break;
+	  }
+      os << '"';
+    }
+}
+
+void
+quoted_string::print(std::ostream& os, const char*) const
+{
+  quote_shell_string(os, val().c_str());
 }
 
 printable_result_filename::printable_result_filename()
@@ -204,7 +231,7 @@ printable_result_filename::print(std::ostream& os, const char* pos) const
       const_cast<printable_result_filename*>(this)->val_
 	= spot::create_tmpfile(prefix);
     }
-  os << '\'' << val_ << '\'';
+  quote_shell_string(os, val()->name());
 }
 
 
