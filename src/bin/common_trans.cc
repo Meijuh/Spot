@@ -425,6 +425,7 @@ static const argp_option options[] =
     { "%O,%D", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the automaton is output as either (%O) HOA/never claim/LBTT, or (%D) "
       "in LTL2DSTAR's format", 0 },
+    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
     { 0, 0, 0, 0,
       "If either %l, %L, or %T are used, any input formula that does "
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
