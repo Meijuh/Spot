@@ -283,11 +283,16 @@ namespace spot
 	// What to keep and add into the main copy
 	acc_cond::mark_t main_sets = 0U;
 	acc_cond::mark_t main_add = 0U;
+	bool intersects_fin = false;
 	for (unsigned i = 0; i < cs; ++i)
 	  if (!(m & rem[i]))
 	    {
 	      main_sets |= keep[i];
 	      main_add |= add[i];
+	    }
+	  else
+	    {
+	      intersects_fin = true;
 	    }
 	trace << "main_sets " << main_sets << "\nmain_add " << main_add << '\n';
 
@@ -296,7 +301,9 @@ namespace spot
 	  for (auto& t: aut->out(s))
 	    res->new_edge(s, t.dst, t.cond, (t.acc & main_sets) | main_add);
 
-	if (si.is_rejecting_scc(n))
+	// We do not need any other copy if the SCC is non-accepting,
+	// of if it does not intersect any Fin.
+	if (!intersects_fin || si.is_rejecting_scc(n))
 	  continue;
 
 	// Create clones
