@@ -66,7 +66,7 @@ Acc-Sig:
 =dstar2tgba= can now be used to convert this DRA into a TGBA, a BA, or
 a Monitor, using the same options as [[file:ltl2tgba.org][=ltl2tgba=]].
 
-For instance here is the conversion to a Büchi automaton (=-B=) in [[http://http://www.graphviz.org/][GraphViz]]'s format:
+For instance here is the conversion to a Büchi automaton (=-B=) in [[http://www.graphviz.org/][GraphViz]]'s format:
 
 #+BEGIN_SRC sh :results verbatim :exports code
 dstar2tgba -B fagfb

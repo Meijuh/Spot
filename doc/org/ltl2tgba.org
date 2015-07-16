@@ -42,7 +42,7 @@ assumed to be a formula to translate (this differs from [[file:ltlfilt.org][=ltl
 where such parameters are assumed to be filenames).
 
 =ltl2tgba= honors the [[file:oaut.org][common options for selecting the output format]].
-The default output format, as shown above, is [[http://http://www.graphviz.org/][GraphViz]]'s format.  This
+The default output format, as shown above, is [[http://www.graphviz.org/][GraphViz]]'s format.  This
 can converted into a picture, or into vectorial format using =dot= or
 =dotty=.  Typically, you could get a =pdf= of this TGBA using
 #+BEGIN_SRC sh :results verbatim :exports code

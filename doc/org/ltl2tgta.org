@@ -7,7 +7,7 @@ This tool generates various form of Testing Automata, i.e., automata
 that observe the /changes/ of atomic propositions, not their values.
 
 Three types of automata can be output.  The only output format
-supported currently is [[http://http://www.graphviz.org/][GraphViz]]'s format, with option =-8= to enable
+supported currently is [[http://www.graphviz.org/][GraphViz]]'s format, with option =-8= to enable
 UTF-8 characters as in other tools.
 
 The =--ta= option will translate a formula into Testing Automaton, as
