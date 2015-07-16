@@ -110,7 +110,7 @@ No problem detected.
   - Non-alternating automata in [[file:http://adl.github.io/hoaf/][the HOA format]] with an acceptance
     condition that is is generalized-Büchi or inferior.  These
     should also be indicated using =%O=.
-  - [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dsar='s format]], which support deterministic Rabin or Streett
+  - [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dstar='s format]], which supports deterministic Rabin or Streett
     automata.  After =ltlcross= reads such input, it immediately
     convert it into a Büchi automaton.  Rabin automata are converted
     to (degeneralized) Büchi automata and the conversion will preserve
