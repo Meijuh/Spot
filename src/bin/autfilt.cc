@@ -112,7 +112,7 @@ static const argp_option options[] =
       "Any acceptance is allowed (default)", 0 },
     { "tgba", OPT_TGBA, 0, 0,
       "Transition-based Generalized Büchi Automaton", 0 },
-    { "ba", 'B', 0, 0, "Büchi Automaton", 0 },
+    { "ba", 'B', 0, 0, "Büchi Automaton (with state-based acceptance)", 0 },
     { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
       "of the given property)", 0 },
     /**************************************************/

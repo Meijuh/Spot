@@ -57,7 +57,7 @@ static const argp_option options[] =
     { 0, 0, 0, 0, "Output automaton type:", 2 },
     { "tgba", OPT_TGBA, 0, 0,
       "Transition-based Generalized Büchi Automaton (default)", 0 },
-    { "ba", 'B', 0, 0, "Büchi Automaton", 0 },
+    { "ba", 'B', 0, 0, "Büchi Automaton (with state-based acceptance)", 0 },
     { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
       "of the given formula)", 0 },
     /**************************************************/
