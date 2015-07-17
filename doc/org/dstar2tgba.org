@@ -25,7 +25,7 @@ Additionally we use =ltlfilt= to convert our formula to the
 prefix format used by =ltl2dstar=.
 
 #+BEGIN_SRC sh :results verbatim :exports node
-ltlfilt -f 'Fa & GFb' -l | ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-sD - fagfb
+ltlfilt -f 'Fa & GFb' -l | ltl2dstar --ltl2nba=spin:ltl2tgba@-sD - fagfb
 #+END_SRC
 
 By looking at the file =fagfb= you can see the =ltl2dsar= actually
@@ -350,7 +350,7 @@ head -n 10 |
 while read f; do
   echo "$f"
   ltlfilt -l -f "$f" |
-  ltl2dstar --ltl2nba=spin:../../src/bin/ltl2tgba@-Ds - - |
+  ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - - |
   dstar2tgba -B --stats='  DRA: %Sst.; BA: %sst.; det.? %d; complete? %p'
 done
 #+END_SRC
