@@ -6,7 +6,7 @@
 /// structures to manipulate omega-automata, and implement the
 /// automata-theoretic approach to model-checking.
 ///
-/// See <a href="http://spot.lrde.epita.fr/">spot.lrde.epita.fr</a>
+/// See <a href="https://spot.lrde.epita.fr/">spot.lrde.epita.fr</a>
 /// for more information about this project.
 ///
 /// \section thisdoc This Document

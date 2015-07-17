@@ -51,7 +51,7 @@ ltl2tgba "Fa & GFb" | dot -Tpdf > tgba.pdf
 #+RESULTS:
 
 The result would look like this (note that in this documentation
-we use some [[file:aout.org][environment variables]] to produce a more colorful
+we use some [[file:oaut.org][environment variables]] to produce a more colorful
 output by default)
 #+NAME: dotex
 #+BEGIN_SRC sh :results verbatim :exports none

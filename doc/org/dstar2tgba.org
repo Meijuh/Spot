@@ -94,7 +94,7 @@ digraph G {
 #+end_example
 
 Which can be rendered as (note that in this documentation
-we use some [[file:aout.org][environement variables]] to produce a more colorful
+we use some [[file:oaut.org][environment variables]] to produce a more colorful
 output by default):
 
 #+NAME: fagfb2ba
@@ -293,7 +293,7 @@ For instance using =-a --low= will skip any optional post-processing,
 should you find =dstar2tgba= too slow.
 
 Finally, the output format can be changed with the following
-[[file:oaout.org][common ouput options]]:
+[[file:oaut.org][common ouput options]]:
 #+BEGIN_SRC sh :results verbatim :exports results
 dstar2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 #+END_SRC

@@ -35,7 +35,7 @@ namespace spot
   /// \brief Thomas Wang's 32 bit hash function.
   ///
   /// Hash an integer amongst the integers.
-  /// http://www.concentric.net/~Ttwang/tech/inthash.htm
+  /// http://web.archive.org/web/2011/concentric.net/~Ttwang/tech/inthash.htm
   inline size_t
   wang32_hash(size_t key)
   {
@@ -54,7 +54,7 @@ namespace spot
   /// This function is suitable for hashing values whose
   /// high order bits do not vary much (ex. addresses of
   /// memory objects).  Prefer spot::wang32_hash() otherwise.
-  /// http://www.concentric.net/~Ttwang/tech/addrhash.htm
+  /// http://web.archive.org/web/2011/concentric.net/~Ttwang/tech/addrhash.htm
   inline size_t
   knuth32_hash(size_t key)
   {

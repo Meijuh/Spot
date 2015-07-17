@@ -65,7 +65,7 @@ the following articles:
 
 - *Manipulating LTL formulas using Spot 1.0*, /Alexandre Duret-Lutz/.
   In Proc. of ATVA'13, LNCS 8172, pp. 442--445.  Hanoi, Vietnam,
-  Oct. 2013.  ([[http://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.13.atva][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.13.atva.pdf][pdf]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.13.atva.slides.pdf][slides]])
+  Oct. 2013.  ([[https://www.lrde.epita.fr/~adl/dl/adl_bib.html#duret.13.atva][bib]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.13.atva.pdf][pdf]] | [[https://www.lrde.epita.fr/~adl/dl/adl/duret.13.atva.slides.pdf][slides]])
 
   This focuses on =ltlfilt=, =randltl=, and =ltlcross=.
 

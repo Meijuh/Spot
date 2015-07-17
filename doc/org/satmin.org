@@ -35,7 +35,7 @@ Let us first state a few facts about this minimization procedure.
    to the SAT solver) exceeds $2^{31}$, or when the SAT-solver was
    killed by a signal. [[file:autfilt.org][=autfilt --sat-minimize=]] will only output an
    automaton if the SAT-based minimization was successful.
-6) Our [[http://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf][FORTE'14 paper]] describes the SAT encoding for the minimization
+6) Our [[https://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf%0A][FORTE'14 paper]] describes the SAT encoding for the minimization
    of deterministic BA and TGBA.  Since then, the technique used in
    the SAT encoding for deterministic TGBA has been generalized to
    deal with any deterministic TωA.
@@ -292,7 +292,7 @@ degeneralized in the meantime for the purpose of determinization.
 
 * Low-level details
 
-The following figure (from our [[http://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf][FORTE'14 paper]]) gives an overview of
+The following figure (from our [[https://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf][FORTE'14 paper]]) gives an overview of
 the processing chains that can be used to turn an LTL formula into a
 minimal DBA/DTBA/DTGBA.  The blue area at the top describes =ltl2tgba
 -D -x sat-minimize=, while the purple area at the bottom corresponds

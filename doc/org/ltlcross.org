@@ -131,7 +131,7 @@ tools:
   - '=ltl3ba -M0 -f %s >%O=' (less deterministic output, can be smaller)
   - '=ltl3ba -M1 -f %s >%O=' (more deterministic output)
   - '=modella -r12 -g -e %L %O='
-  - '=/path/to/script4lbtt.py %L %O=' (script supplied by [[http://www.ti.informatik.uni-kiel.de/~fritz/][ltl2nba]] for
+  - '=/path/to/script4lbtt.py %L %O=' (script supplied by [[http://web.archive.org/web/20070214050826/http://estragon.ti.informatik.uni-kiel.de/~fritz/][ltl2nba]] for
     its interface with LBTT)
   - '=ltl2tgba -s %s >%O=' (smaller output, Büchi automaton)
   - '=ltl2tgba -s -D %s >%O=' (more deterministic output, Büchi automaton)
