@@ -112,7 +112,7 @@ No problem detected.
     should also be indicated using =%O=.
   - [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dstar='s format]], which supports deterministic Rabin or Streett
     automata.  After =ltlcross= reads such input, it immediately
-    convert it into a Büchi automaton.  Rabin automata are converted
+    converts it into a Büchi automaton.  Rabin automata are converted
     to (degeneralized) Büchi automata and the conversion will preserve
     the determinism anytime a deterministic Büchi automaton exists for
     that property (this determinism is good for the complemented

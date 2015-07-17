@@ -3,6 +3,6 @@
 #+HTML_LINK_HOME: index.html
 #+MACRO: SPOTVERSION 1.99.1
 #+MACRO: LASTRELEASE 1.99.1
-#+MACRO: LASTTARBALL [[file:http:/www.lrde.epita.fr/dload/spot/spot-1.99.1.tar.gz][=spot-1.99.1.tar.gz=]]
+#+MACRO: LASTTARBALL [[http://www.lrde.epita.fr/dload/spot/spot-1.99.1.tar.gz][=spot-1.99.1.tar.gz=]]
 #+MACRO: LASTNEWS [[https://gitlab.lrde.epita.fr/spot/spot/blob/spot-1-99-1/NEWS][summary of the changes]]
 #+MACRO: LASTDATE 2015-06-23
