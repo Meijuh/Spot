@@ -27,7 +27,7 @@ same stream, =autfilt= will process them in batch.
 The output format can be controlled using [[file:oaut.org][the common output options]]
 (like =--spin=, =--lbtt=, =--dot=, =--hoaf=...).
 
-#+BEGIN_SRC sh :results verbatim :exports code
+#+BEGIN_SRC sh :results silent :exports code
 cat >example.hoa <<EOF
 HOA: v1
 States: 1
@@ -288,7 +288,7 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
 
 Here is an automaton with transition-based acceptance:
 
-#+BEGIN_SRC sh :result verbatim :export code
+#+BEGIN_SRC sh :result silent :export code
 cat >aut-ex1.hoa<<EOF
 HOA: v1
 States: 3

@@ -24,7 +24,7 @@ The following command instructs =ltl2dstar= to:
 Additionally we use =ltlfilt= to convert our formula to the
 prefix format used by =ltl2dstar=.
 
-#+BEGIN_SRC sh :results verbatim :exports node
+#+BEGIN_SRC sh :results silent :exports code
 ltlfilt -f 'Fa & GFb' -l | ltl2dstar --ltl2nba=spin:ltl2tgba@-sD - fagfb
 #+END_SRC
 
