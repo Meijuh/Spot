@@ -1,22 +1,14 @@
 New in spot 1.99.1a (not yet released)
 
-  * A missing Python.h is now diagnosed at ./configure time,
-    with the suggestion to either install python3-devel, or
-    run ./configure --disable-python.
-
-  * Debian packages for libraries have been split from
-    the main Spot package, as per Debian guidelines.
-
   * The scc_info object, used to build a map of SCCs while gathering
     additionnal information, has been simplified and speed up.  One
     test case where ltlcross would take more than 13min (to check the
-    translation of one PSL formula and its now takes) now takes only
-    75s.
+    translation of one PSL formula) now takes only 75s.
 
   * streett_to_generalized_buchi() is a new function that implements
     what its name suggests, with some SCC-based optimizations over the
     naive definition.  It is used by the to_generalized_buchi() and
-    remove_fin() function when the input automaton is a Streett
+    remove_fin() functions when the input automaton is a Streett
     automaton with more than 3 pairs (this threeshold can be changed
     via the SPOT_STREETT_CONV_MIN environment variable -- see the
     spot-x(7) man page for details).
@@ -38,7 +30,11 @@ New in spot 1.99.1a (not yet released)
     - the libspotltsmin library is installed
     - ltlcross and ltldo did not properly quote atomic propositions
       and temporary file names containing a single-quote
-
+    - A missing Python.h is now diagnosed at ./configure time, with
+      the suggestion to either install python3-devel, or run
+      ./configure --disable-python.
+    - Debian packages for libraries have been split from
+      the main Spot package, as per Debian guidelines.
 
 New in spot 1.99.1 (2015-06-23)
 
