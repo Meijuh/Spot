@@ -27,7 +27,7 @@ same stream, =autfilt= will process them in batch.
 The output format can be controlled using [[file:oaut.org][the common output options]]
 (like =--spin=, =--lbtt=, =--dot=, =--hoaf=...).
 
-#+BEGIN_SRC sh :results silent :exports code
+#+BEGIN_SRC sh :results silent :exports both
 cat >example.hoa <<EOF
 HOA: v1
 States: 1
@@ -288,7 +288,7 @@ autfilt --help | sed -n '/Transformations:/,/^$/p' | sed '1d;$d'
 
 Here is an automaton with transition-based acceptance:
 
-#+BEGIN_SRC sh :result silent :export code
+#+BEGIN_SRC sh :results silent :exports both
 cat >aut-ex1.hoa<<EOF
 HOA: v1
 States: 3
@@ -313,14 +313,12 @@ State: 2
 EOF
 #+END_SRC
 
-#+RESULTS:
-
 (Note: the '=.=' argument passed to =--dot= below hides default
 options discussed [[file:oaut.org::#default-dot][on another page]], while the '=a=' causes the
 acceptance condition to be displayed.)
 
 #+NAME: autfilt-ex1
-#+BEGIN_SRC sh :results verbatim :export code
+#+BEGIN_SRC sh :results verbatim :exports code
 autfilt aut-ex1.hoa --dot=.a
 #+END_SRC
 
@@ -361,7 +359,7 @@ $txt
 Using =-S= will "push" the acceptance membership of the transitions to the states:
 
 #+NAME: autfilt-ex2
-#+BEGIN_SRC sh :results verbatim :export code
+#+BEGIN_SRC sh :results verbatim :exports code
 autfilt -S aut-ex1.hoa --dot=.a
 #+END_SRC
 
@@ -423,7 +421,7 @@ $txt
 Using =--cnf-acceptance= simply rewrites the acceptance condition in Conjunctive Normal Form:
 
 #+NAME: autfilt-ex3
-#+BEGIN_SRC sh :results verbatim :export code
+#+BEGIN_SRC sh :results verbatim :exports code
 autfilt --cnf-acceptance aut-ex1.hoa --dot=.a
 #+END_SRC
 
@@ -467,7 +465,7 @@ of Fin-acceptance: this usually requires adding non-deterministic jumps to
 altered copies of strongly-connected components.
 
 #+NAME: autfilt-ex4
-#+BEGIN_SRC sh :results verbatim :export code
+#+BEGIN_SRC sh :results verbatim :exports code
 autfilt --remove-fin aut-ex1.hoa --dot=.a
 #+END_SRC
 
@@ -513,7 +511,7 @@ transitions they contain.  The acceptance condition will be updated to
 reflect the fact that these sets can never be visited.
 
 #+NAME: autfilt-ex5
-#+BEGIN_SRC sh :results verbatim :export code
+#+BEGIN_SRC sh :results verbatim :exports code
 autfilt --mask-acc=1,2 aut-ex1.hoa --dot=.a
 #+END_SRC
 
@@ -559,7 +557,7 @@ Atomic propositions can be removed from an automaton in three ways:
 Here are the results of these three options on our example:
 
 #+NAME: autfilt-ex6a
-#+BEGIN_SRC sh :results verbatim :export code
+#+BEGIN_SRC sh :results verbatim :exports code
 autfilt --remove-ap=a aut-ex1.hoa --dot=.a
 #+END_SRC
 
@@ -598,7 +596,7 @@ $txt
 [[file:autfilt-ex6a.png]]
 
 #+NAME: autfilt-ex6b
-#+BEGIN_SRC sh :results verbatim :export code
+#+BEGIN_SRC sh :results verbatim :exports code
 autfilt --remove-ap=a=0 aut-ex1.hoa --dot=.a
 #+END_SRC
 
@@ -631,7 +629,7 @@ $txt
 [[file:autfilt-ex6b.png]]
 
 #+NAME: autfilt-ex6c
-#+BEGIN_SRC sh :results verbatim :export code
+#+BEGIN_SRC sh :results verbatim :exports code
 autfilt --remove-ap=a=1 aut-ex1.hoa --dot=.a
 #+END_SRC
 
@@ -662,3 +660,7 @@ $txt
 
 #+RESULTS:
 [[file:autfilt-ex6c.png]]
+
+#+BEGIN_SRC sh :results silent :exports results
+rm -f example.hoa aut-ex1.hoa
+#+END_SRC

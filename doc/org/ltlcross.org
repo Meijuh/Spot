@@ -705,7 +705,7 @@ For instance the following will cross-compare =ltl2tgba= against
 runs out of memory (the hash tables used by =randltl= and =ltlcross=
 to remove duplicate formulas will keep growing).
 
-#+BEGIN_SRC sh :export code :eval no
+#+BEGIN_SRC sh :exports code :eval no
 randltl -n -1 --tree-size 10..25 a b c | ltlcross --stop-on-error 'ltl2tgba --lbtt %f >%O' 'ltl3ba -f %s >%O'
 #+END_SRC
 
@@ -722,14 +722,14 @@ generation of random formulas.  For instance the following command
 will run the translators on an infinite number of formulas, saving
 any problematic formula in =bugs.ltl=.
 
-#+BEGIN_SRC sh :export code :eval no
+#+BEGIN_SRC sh :exports code :eval no
 randltl -n -1 --tree-size 10..25 a b c | ltlcross --save-bogus=bugs.ltl 'ltl2tgba --lbtt %f >%O' 'ltl3ba -f %s >%O'
 #+END_SRC
 
 You can periodically check the contents of =bugs.ltl=, and then run
 =ltlcross= only on those formulas to look at the problems:
 
-#+BEGIN_SRC sh :export code :eval no
+#+BEGIN_SRC sh :exports code :eval no
 ltlcross -F bugs.ltl 'ltl2tgba --lbtt %f >%O' 'ltl3ba -f %s >%O'
 #+END_SRC
 

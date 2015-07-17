@@ -159,7 +159,7 @@ State: 2
 
 will always be stored as a TωA with this transition structure:
 
-#+BEGIN_SRC sh :results verbatim :export results
+#+BEGIN_SRC sh :results verbatim :exports results
 autfilt -Ht stvstracc.hoa | sed -n '/--BODY/,/--END/p' | grep -v -- --
 #+END_SRC
 
