@@ -1255,7 +1255,7 @@ checked_main(int argc, char** argv)
 
       if (opt_stutterize)
 	{
-	  a = sl(ensure_digraph(a), f);
+	  a = sl(ensure_digraph(a));
 	}
 
       if (opt_monitor)

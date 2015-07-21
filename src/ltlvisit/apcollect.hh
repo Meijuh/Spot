@@ -68,7 +68,7 @@ namespace spot
     /// \return A conjunction the atomic propositions.
     SPOT_API bdd
     atomic_prop_collect_as_bdd(const formula* f,
-			       const const_twa_ptr& a);
+			       const twa_ptr& a);
 
     /// @}
   }

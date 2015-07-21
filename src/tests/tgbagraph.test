@@ -33,6 +33,8 @@ set -e
 run 0 ../tgbagraph | tee stdout
 
 cat >expected <<EOF
+p1
+p2
 digraph G {
   rankdir=LR
   node [shape="circle"]

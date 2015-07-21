@@ -26,18 +26,13 @@
 void f1()
 {
   auto d = spot::make_bdd_dict();
-
-  auto& e = spot::ltl::default_environment::instance();
-
   auto tg = make_twa_graph(d);
-
-  auto* f1 = e.require("p1");
-  auto* f2 = e.require("p2");
-  bdd p1 = bdd_ithvar(d->register_proposition(f1, tg));
-  bdd p2 = bdd_ithvar(d->register_proposition(f2, tg));
+  bdd p1 = bdd_ithvar(tg->register_ap("p1"));
+  bdd p2 = bdd_ithvar(tg->register_ap("p2"));
   tg->acc().add_sets(2);
-  f1->destroy();
-  f2->destroy();
+
+  for (auto *f: tg->ap())
+    std::cout << f->name() << '\n';
 
   auto s1 = tg->new_state();
   auto s2 = tg->new_state();

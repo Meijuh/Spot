@@ -30,8 +30,8 @@ namespace spot
     vars.reserve(relmap->size());
     for (auto& p: *relmap)
       {
-	int oldv = d->register_proposition(p.first, aut);
-	int newv = d->register_proposition(p.second, aut);
+	int oldv = aut->register_ap(p.first);
+	int newv = aut->register_ap(p.second);
 	bdd_setpair(pairs, oldv, newv);
 	vars.push_back(oldv);
       }

@@ -85,18 +85,15 @@ namespace spot
     }
 
     bdd
-    atomic_prop_collect_as_bdd(const formula* f, const const_twa_ptr& a)
+    atomic_prop_collect_as_bdd(const formula* f, const twa_ptr& a)
     {
       spot::ltl::atomic_prop_set aps;
       atomic_prop_collect(f, &aps);
-      auto d = a->get_dict();
       bdd res = bddtrue;
       for (atomic_prop_set::const_iterator i = aps.begin();
 	   i != aps.end(); ++i)
-	res &= bdd_ithvar(d->register_proposition(*i, a));
+	res &= bdd_ithvar(a->register_ap(*i));
       return res;
     }
-
   }
-
 }

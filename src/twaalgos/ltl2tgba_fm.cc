@@ -139,11 +139,13 @@ namespace spot
     {
     public:
 
-      translate_dict(const bdd_dict_ptr& dict,
+      translate_dict(twa_graph_ptr& a,
+		     const bdd_dict_ptr& dict,
 		     acc_cond& acc,
 		     ltl_simplifier* ls, bool exprop,
 		     bool single_acc, bool unambiguous)
-	: dict(dict),
+	: a_(a),
+	  dict(dict),
 	  ls(ls),
 	  a_set(bddtrue),
 	  var_set(bddtrue),
@@ -168,6 +170,7 @@ namespace spot
 	  j++->first.f->destroy();
       }
 
+      twa_graph_ptr& a_;
       bdd_dict_ptr dict;
       ltl_simplifier* ls;
       mark_tools mt;
@@ -418,6 +421,26 @@ namespace spot
       {
 	bdd res = ls->as_bdd(f);
 	var_set &= bdd_support(res);
+
+	bdd all = var_set;
+	while (all != bddfalse)
+	  {
+	    bdd one = bdd_satone(all);
+	    all -= one;
+	    while (one != bddtrue)
+	      {
+		int v = bdd_var(one);
+		auto *f = var_to_formula(v);
+		a_->register_ap(f);
+		f->destroy();
+		if (bdd_high(one) == bddfalse)
+		  one = bdd_low(one);
+		else
+		  one = bdd_high(one);
+	      }
+	  }
+
+
 	return res;
       }
 
@@ -2301,7 +2324,8 @@ namespace spot
     twa_graph_ptr a = make_twa_graph(dict);
     auto namer = a->create_namer<const formula*>();
 
-    translate_dict d(dict, a->acc(), s, exprop, f->is_syntactic_persistence(),
+    translate_dict d(a, dict, a->acc(), s, exprop,
+		     f->is_syntactic_persistence(),
 		     unambiguous);
 
     // Compute the set of all promises that can possibly occur
@@ -2568,10 +2592,7 @@ namespace spot
     // Set the following to true to preserve state names.
     a->release_formula_namer(namer, false);
 
-    dict->register_propositions(fc.used_vars(), a);
-
     auto& acc = a->acc();
-
     unsigned ns = a->num_states();
     for (unsigned s = 0; s < ns; ++s)
       for (auto& t: a->out(s))

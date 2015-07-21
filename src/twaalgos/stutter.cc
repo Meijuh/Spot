@@ -281,34 +281,18 @@ namespace spot
 
     // Queue of state to be processed.
     typedef std::deque<stutter_state> queue_t;
-
-    static bdd
-    get_all_ap(const const_twa_graph_ptr& a)
-    {
-      bdd res = bddtrue;
-      for (auto& i: a->edges())
-	res &= bdd_support(i.cond);
-      return res;
-    }
-
   }
 
   twa_graph_ptr
-  sl(const const_twa_graph_ptr& a, const ltl::formula* f)
+  sl(const twa_graph_ptr& a)
   {
-    bdd aps = f
-      ? atomic_prop_collect_as_bdd(f, a)
-      : get_all_ap(a);
-    return sl(a, aps);
+    return sl(a, a->ap_var());
   }
 
   twa_graph_ptr
-  sl2(const const_twa_graph_ptr& a, const ltl::formula* f)
+  sl2(const twa_graph_ptr& a)
   {
-    bdd aps = f
-      ? atomic_prop_collect_as_bdd(f, a)
-      : get_all_ap(a);
-    return sl2(a, aps);
+    return sl2(a, a->ap_var());
   }
 
   twa_graph_ptr
@@ -379,7 +363,7 @@ namespace spot
   sl2(twa_graph_ptr&& a, bdd atomic_propositions)
   {
     if (atomic_propositions == bddfalse)
-      atomic_propositions = get_all_ap(a);
+      atomic_propositions = a->ap_var();
     unsigned num_states = a->num_states();
     unsigned num_edges = a->num_edges();
     std::vector<bdd> selfloops(num_states, bddfalse);
@@ -666,7 +650,7 @@ namespace spot
       }
 
     is_stut = is_stutter_invariant(make_twa_graph(aut, twa::prop_set::all()),
-				   std::move(neg), get_all_ap(aut));
+				   std::move(neg), aut->ap_var());
     aut->prop_stutter_invariant(is_stut);
     aut->prop_stutter_sensitive(!is_stut);
     return is_stut;

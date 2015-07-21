@@ -24,13 +24,13 @@
 namespace spot
 {
   SPOT_API twa_graph_ptr
-  sl(const const_twa_graph_ptr&, const ltl::formula* = nullptr);
+  sl(const twa_graph_ptr&);
 
   SPOT_API twa_graph_ptr
   sl(const const_twa_graph_ptr&, bdd);
 
   SPOT_API twa_graph_ptr
-  sl2(const const_twa_graph_ptr&, const ltl::formula* = nullptr);
+  sl2(const twa_graph_ptr&);
 
   SPOT_API twa_graph_ptr
   sl2(const const_twa_graph_ptr&, bdd);

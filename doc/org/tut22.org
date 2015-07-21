@@ -20,19 +20,11 @@ The interface
     // This creates an empty automaton that we have yet to fill.
     spot::twa_graph_ptr aut = make_twa_graph(dict);
 
-    // The current way to associate a BDD to an atomic proposition is
-    // not really nice, and should be improved in the future.  Currently
-    // the string first have to be converted into (LTL) formulas...
-    spot::ltl::environment& e = spot::ltl::default_environment::instance();
-    const spot::ltl::formula* f1 = e.require("p1");
-    const spot::ltl::formula* f2 = e.require("p2");
-    // ...and then those formula can be registered to the BDD dict.  The
-    // BDD dict wants to keep track of which automaton uses which BDD
-    // variable, so we supply that pointer to aut.  The
-    // register_proposition() function returns a BDD variable number
+    // Since a BDD is associated to every atomic proposition, the
+    // register_ap() function returns a BDD variable number
     // that can be converted into a BDD using bdd_ithvar().
-    bdd p1 = bdd_ithvar(dict->register_proposition(f1, aut));
-    bdd p2 = bdd_ithvar(dict->register_proposition(f2, aut));
+    bdd p1 = bdd_ithvar(aut->register_ap("p1"));
+    bdd p2 = bdd_ithvar(aut->register_ap("p2"));
 
     // Set the acceptance condition of the automaton to Inf(0)&Inf(1)
     aut->set_generalized_buchi(2);

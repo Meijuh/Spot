@@ -30,8 +30,10 @@
 #include <unordered_map>
 #include <functional>
 #include <array>
+#include <vector>
 #include "misc/casts.hh"
 #include "misc/hash.hh"
+#include "ltlast/atomic_prop.hh"
 
 namespace spot
 {
@@ -590,6 +592,46 @@ namespace spot
       return dict_;
     }
 
+    /// \brief Register an atomic proposition designated by formula \a ap.
+    ///
+    /// \return The variable number inside of the BDD.
+    int register_ap(const ltl::formula* ap)
+    {
+      aps_.push_back(dynamic_cast<const ltl::atomic_prop*>(ap));
+      ap->clone();
+      int res = dict_->register_proposition(ap, this);
+      bddaps_ &= bdd_ithvar(res);
+      return res;
+    }
+
+    /// \brief Register an atomic proposition designated by string \a ap.
+    ///
+    /// This string is converted into a formula and registered
+    /// inside of the BDD manager.
+    ///
+    /// \return The variable number inside of the BDD.
+    int register_ap(std::string name,
+		    ltl::environment& e = ltl::default_environment::instance())
+    {
+      auto* ap = e.require(name);
+      aps_.push_back(dynamic_cast<const ltl::atomic_prop*>(ap));
+      int res = dict_->register_proposition(ap, this);
+      bddaps_ &= bdd_ithvar(res);
+      return res;
+    }
+
+    /// \brief Get the vector of atomic propositions used by this
+    /// automaton.
+    const std::vector<const ltl::atomic_prop*>&  ap() const
+    {
+      return aps_;
+    }
+
+    bdd ap_var() const
+    {
+      return bddaps_;
+    }
+
     /// \brief Format the state as a string for printing.
     ///
     /// This formating is the responsability of the automata
@@ -688,6 +730,8 @@ namespace spot
     void copy_ap_of(const const_twa_ptr& a)
     {
       get_dict()->register_all_propositions_of(a, this);
+      for (auto *f: a->ap())
+	this->register_ap(f);
     }
 
     void set_generalized_buchi(unsigned num)
@@ -710,6 +754,8 @@ namespace spot
     mutable const state* last_support_conditions_input_;
   private:
     mutable bdd last_support_conditions_output_;
+    std::vector<const ltl::atomic_prop*> aps_;
+    bdd bddaps_;
 
   protected:
 

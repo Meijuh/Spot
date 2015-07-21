@@ -139,7 +139,7 @@ namespace spot
 
     int pi = 0;
     for (auto i: *ap)
-      props[pi++] = dict->register_proposition(i, res);
+      props[pi++] = res->register_ap(i);
 
     res->set_generalized_buchi(n_accs);
 

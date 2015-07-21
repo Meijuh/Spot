@@ -555,7 +555,6 @@ ap-name: STRING
 	   if (!res.ignore_more_ap)
 	     {
 	       auto f = res.env->require(*$1);
-	       auto d = res.h->aut->get_dict();
 	       int b = 0;
 	       if (f == nullptr)
 		 {
@@ -564,11 +563,11 @@ ap-name: STRING
 		   error(@1, out.str());
 		   f = spot::ltl::default_environment::instance()
 		     .require("$unknown$");
-		   b = d->register_proposition(f, res.h->aut);
+		   b = res.h->aut->register_ap(f);
 		 }
 	       else
 		 {
-		   b = d->register_proposition(f, res.h->aut);
+		   b = res.h->aut->register_ap(f);
 		   if (!res.ap_set.emplace(b).second)
 		     {
 		       std::ostringstream out;
