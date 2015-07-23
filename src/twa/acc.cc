@@ -496,12 +496,11 @@ namespace spot
 	else if (code_[s].op == acc_op::Fin)
 	  {
 	    auto m1 = code_[--s].mark;
-	    if (m1.count() != 1)
-	      return false;
-	    // If we have seen this pair already, it must have the
-	    // same size.
-	    if (p.emplace(m1.max_set(), 0U).first->second != 0U)
-	      return false;
+	    for (auto s: m1.sets())
+	      // If we have seen this pair already, it must have the
+	      // same size.
+	      if (p.emplace(s, 0U).first->second != 0U)
+		return false;
 	    seen_fin |= m1;
 	  }
 	else
