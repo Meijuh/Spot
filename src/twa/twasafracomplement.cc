@@ -172,17 +172,6 @@ namespace spot
         n->destroy();
     }
 
-    safra_tree&
-    safra_tree::operator=(const safra_tree& other)
-    {
-      if (this != &other)
-      {
-        this->~safra_tree();
-        new (this) safra_tree(other);
-      }
-      return *this;
-    }
-
     /// \brief Compare two safra trees.
     ///
     /// \param other the tree to compare too.
@@ -930,12 +919,6 @@ namespace spot
     state_complement::clone() const
     {
       return new state_complement(*this);
-    }
-
-    const state*
-    state_complement::get_state() const
-    {
-      return this;
     }
 
     std::string
