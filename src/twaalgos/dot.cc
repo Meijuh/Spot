@@ -173,7 +173,7 @@ namespace spot
 	      break;
 	    default:
 	      throw std::runtime_error
-		(std::string("unknown option for dotty(): ") + c);
+		(std::string("unknown option for print_dot(): ") + c);
 	    }
       }
 

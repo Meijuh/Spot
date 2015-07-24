@@ -247,7 +247,7 @@ namespace spot
     if (opt)
       while (*opt)
 	{
-	  switch (*opt++)
+	  switch (char c = *opt++)
 	    {
 	    case 'i':
 	      implicit_labels = true;
@@ -264,6 +264,9 @@ namespace spot
 	    case 't':
 	      acceptance = Hoa_Acceptance_Transitions;
 	      break;
+	    default:
+	      throw std::runtime_error
+		(std::string("unknown option for print_hoa(): ") + c);
 	    }
 	}
 

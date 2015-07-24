@@ -61,7 +61,8 @@ namespace spot
 		break;
 	      default:
 		throw std::runtime_error
-		  (std::string("unknown option for never_claim(): ") + c);
+		  (std::string("unknown option for print_never_claim(): ")
+		   + c);
 	      }
       }
 

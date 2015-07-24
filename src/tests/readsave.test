@@ -696,3 +696,7 @@ State: 2
 EOF
 
 diff output3 expect3
+
+
+$autfilt -Hk input 2>stderr && exit 1
+grep 'print_hoa.*k' stderr
