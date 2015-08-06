@@ -332,9 +332,12 @@ def print_stats(automaton, detinfo = False, ta = False):
                       's' if stats.sub_transitions > 1 else ''))
     if hasattr(automaton, 'get_acceptance'):
         acc = automaton.get_acceptance()
-        unbufprint(", acceptance condition: " + str(acc))
-        if acc.is_true():
-            unbufprint(" (all cycles are accepting)")
+        if automaton.is_sba() and automaton.acc().is_buchi():
+            unbufprint(", acceptance condition: Büchi")
+        else:
+            unbufprint(", acceptance condition: " + str(acc))
+            if acc.is_true():
+                unbufprint(" (all cycles are accepting)")
     unbufprint("</p>\n")
     # Decide whether we will render the automaton or not.
     # (A webserver is not a computation center...)
