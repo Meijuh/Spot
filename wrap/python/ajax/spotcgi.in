@@ -295,7 +295,7 @@ def render_automaton(automaton, dont_run_dot):
     elif hasattr(automaton, 'get_ta'): # TGTA
         spot.print_dot(dotsrc, automaton.get_ta())
     else:                       # TGBA
-        spot.print_dot(dotsrc, automaton)
+        spot.print_dot(dotsrc, automaton, '.t' if buchi_type == 't' else '.')
     render_dot_maybe(dotsrc.str(), dont_run_dot)
 
 def render_formula(f):
@@ -332,7 +332,8 @@ def print_stats(automaton, detinfo = False, ta = False):
                       's' if stats.sub_transitions > 1 else ''))
     if hasattr(automaton, 'get_acceptance'):
         acc = automaton.get_acceptance()
-        if automaton.is_sba() and automaton.acc().is_buchi():
+        if (automaton.is_sba() and automaton.acc().is_buchi() and
+            buchi_type != 't'):
             unbufprint(", acceptance condition: Büchi")
         else:
             unbufprint(", acceptance condition: " + str(acc))
@@ -615,6 +616,8 @@ else:
     unbufprint('''<div class="error">unsupported translator</div>''')
     finish()
 
+buchi_type = None
+
 # Monitor output
 if output_type == 'm':
     issba = True
@@ -652,7 +655,6 @@ for s in form.getlist('as'):
         iterated_simul = True
 
 ta_type = None
-buchi_type = None
 
 if output_type == 'a':
     buchi_type = form.getfirst('af', 't')
