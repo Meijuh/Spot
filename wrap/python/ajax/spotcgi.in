@@ -233,7 +233,7 @@ def run_dot(basename, ext):
     # just to remember how many cache entries are sharing it.
     os.link(outname, tmpdir + "/" + ext)
 
-def render_dot(basename):
+def render_dot(basename, hoaname = None):
     unbufprint('<div class="dot">')
     b = cgi.escape(basename)
 
@@ -256,9 +256,29 @@ def render_dot(basename):
                    + '.txt">dot</a>)')
         if output_both:
             unbufprint(' (<a href="' + b + '.svg">svg</a>)')
+    if hoaname:
+        unbufprint(' (<a href="' + hoaname + '">hoa</a>)')
     unbufprint('</div>\n')
 
-def render_dot_maybe(dotsrc, dont_run_dot):
+def save_hoa(automaton):
+    hoasrc = spot.ostringstream()
+    spot.print_hoa(hoasrc, automaton, 't' if buchi_type == 't' else '')
+    hoasrc = hoasrc.str()
+    hoasrc += '\n'
+    if sys.getdefaultencoding() != 'ascii':
+        hoasrc = hoasrc.encode('utf-8')
+    autprefix = (imgdir + '/' + hashlib.sha1(hoasrc).hexdigest())
+    hoaname = autprefix + '.hoa'
+    if not os.access(hoaname, os.F_OK):
+        hoaout = open(hoaname, "wb", 0)
+        hoaout.write(hoasrc)
+        hoaout.close()
+    # Create a unused hardlink that points to the output HOA
+    # just to remember how many cache entries are sharing it.
+    os.link(hoaname, tmpdir + "/hoa")
+    return hoaname
+
+def render_dot_maybe(dotsrc, dont_run_dot, hoaname = None):
     # The dot output is named after the SHA1 of the dot source.
     # This way we can cache two different requests that generate
     # the same automaton (e.g., when changing a simplification
@@ -286,17 +306,20 @@ def render_dot_maybe(dotsrc, dont_run_dot):
 However you may download the <a href="''' + cgi.escape(autprefix)
         + '.txt">source in dot format</a> and render it yourself.</p>\n')
     else:
-        render_dot(autprefix)
+        render_dot(autprefix, hoaname)
 
 def render_automaton(automaton, dont_run_dot):
+    hoaname = None
     dotsrc = spot.ostringstream()
     if isinstance(automaton, spot.ta): # TA/GTA
         spot.print_dot(dotsrc, automaton)
     elif hasattr(automaton, 'get_ta'): # TGTA
         spot.print_dot(dotsrc, automaton.get_ta())
     else:                       # TGBA
+        if not dont_run_dot:
+            hoaname = save_hoa(automaton)
         spot.print_dot(dotsrc, automaton, '.t' if buchi_type == 't' else '.')
-    render_dot_maybe(dotsrc.str(), dont_run_dot)
+    render_dot_maybe(dotsrc.str(), dont_run_dot, hoaname)
 
 def render_formula(f):
     dotsrc = spot.ostringstream()
