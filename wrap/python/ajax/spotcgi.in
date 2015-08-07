@@ -91,6 +91,7 @@ if not script:
                 self.cgi_info = '', self.path[9:]
                 return True
             return False
+    MyHandler.extensions_map[".hoa"] = 'text/x-hoa'
 
     server_address=('', 8000)
     if not os.access(imgdir, os.F_OK):
