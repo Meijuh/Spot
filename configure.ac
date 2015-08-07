@@ -161,6 +161,7 @@ AC_CHECK_PROG([PERL], [perl], [perl])
 AC_CHECK_PROG([SPIN], [spin], [spin])
 AC_CHECK_PROG([LBTT], [lbtt], [lbtt])
 AC_CHECK_PROG([EMACS], [emacs], [emacs])
+AC_CHECK_PROG([IPYTHON], [ipython3], [ipython])
 AC_CHECK_PROG([LBTT_TRANSLATE], [lbtt-translate], [lbtt-translate])
 AX_CHECK_VALGRIND
 AC_CHECK_PROG([WRING2LBTT], [wring2lbtt], [wring2lbtt])

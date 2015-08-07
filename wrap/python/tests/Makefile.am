@@ -52,3 +52,10 @@ TESTS = \
   relabel.py \
   setxor.py \
   testingaut.ipynb
+
+SUFFIXES = .ipynb .html
+.ipynb.html:
+	$(IPYTHON) nbconvert $< --to html
+
+.PHONY: nb-html
+nb-html: $(TESTS:.ipynb=.html)
