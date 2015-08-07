@@ -52,9 +52,9 @@
 	,(if (require 'org-publish nil t) 'org-publish-org-to-html ; Org 7
 	   'org-html-publish-to-html)                              ; Org 8
 	; Org 8
-	:html-head "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link rel=\"stylesheet\" type=\"text/css\" href=\"syntax.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
+	:html-head "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
 	; Org 7
-	:style "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link rel=\"stylesheet\" type=\"text/css\" href=\"syntax.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
+	:style "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<link rel=\"stylesheet\" type=\"text/css\" href=\"spot.css\" />"
 	:auto-preamble t)
        ("spot-static"
 	:base-directory "@abs_top_srcdir@/doc/org/"

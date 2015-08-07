@@ -59,7 +59,6 @@ ORG_FILES = \
   org/.dir-locals.el.in \
   org/g++wrap.in \
   org/init.el.in \
-  org/syntax.css \
   org/spot.css \
   org/autfilt.org \
   org/csv.org \
