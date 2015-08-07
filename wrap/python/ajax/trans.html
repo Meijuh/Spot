@@ -248,9 +248,6 @@
 		.load("/cgi-bin/spotcgi.py",
                       fragment,
                       function(response, status, xhr) {
-                          console.log(response);
-                          console.log(status);
-                          console.log(xhr);
 			  $.doTimeout('res-update');
 			  if (status == "error") {
 			      var msg = "Sorry but there was an error: ";
