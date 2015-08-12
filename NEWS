@@ -3,6 +3,9 @@ New in spot 1.99.2a (not yet released)
   * The CGI script for LTL translation offers a HOA download link
     for each generated automaton.
 
+  * The html documentation now includes a HTML copies of the man
+    pages.
+
   * Bugs fixed
     - Some acceptance conditions like Fin(0)|Fin(1)|Fin(2)&Inf(3)
       were not detected as generalized-Rabin.

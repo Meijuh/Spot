@@ -29,17 +29,20 @@ sub error($)
     exit 1;
 }
 
-error "Specify a directory with man pages\n" if @ARGV != 1;
+error "Specify a directory with man pages and a directory for html pages\n"
+    if @ARGV != 2;
 
 my $dir = @ARGV[0];
+my $out = @ARGV[1];
 
 opendir(DIR, $dir) or die $!;
 while (my $file = readdir(DIR))
 {
     next unless $file =~ m/\.\d$/;
+    my $ofile = "$out/$file.html";
     $file = "$dir/$file";
-    print "converting $file to $file.html with groff\n";
-    my $html = `(echo '.HEAD <LINK REL="stylesheet" TYPE="text/css" HREF="https://spot.lrde.epita.fr/spot.css">'
+    print "converting $file to $ofile with groff\n";
+    my $html = `(echo '.HEAD <LINK REL="stylesheet" TYPE="text/css" HREF="../spot.css">'
                  echo '.HEAD <meta name="viewport" content="width=device-width, initial-scale=1">'
                  cat $file) | groff -Kutf8 -mandoc -Thtml - -P -r`;
     $html =~ s|GNU GPL version 3 or later.*http://gnu.org/licenses/gpl.html&gt;|<a href="http://gnu.org/licenses/gpl.html">GNU GPL version 3 or later</a>|s;
@@ -52,11 +55,11 @@ while (my $file = readdir(DIR))
     $html =~ s|<p style="margin-left:11%; margin-top: 1em"><b>([^<>]*?:)\s*<br>|<h3 style="margin-left:11%">$1</h3><p style="margin-left:11%"><b>|smg;
     $html =~ s|<p style="margin-left:11%; margin-top: 1em"><b>([^<>]*?:)\s*</b>\s*<br>|<h3 style="margin-left:11%">$1</h3><p style="margin-left:11%">|smg;
     $html =~ s|<p style="margin-left:11%; margin-top: 1em"><b>([^<>]*?:)\s*</b></p>|<h3 style="margin-left:11%">$1</h3>|smg;
-    $html =~ s@<body>@<body class="man"><div id="org-div-home-and-up"><a accesskey="h" href="https://spot.lrde.epita.fr/tools.html"> UP </a>| <a accesskey="H" href="https://spot.lrde.epita.fr/index.html"> HOME </a></div>@;
+    $html =~ s@<body>@<body class="man"><div id="org-div-home-and-up"><a accesskey="h" href="../tools.html"> UP </a>| <a accesskey="H" href="../index.html"> HOME </a></div>@;
     $html =~ s{<b>([\w-]+)</b>\((\d+)\)}{
       (-f "$1.$2") ? "<a href=\"$1.$2.html\"><b>$1</b></a>($2)" : $&;
     }xge;
-    open(FILE, ">$file.html");
+    open(FILE, ">$ofile") or die $!;
     print FILE $html;
     close(FILE);
 }

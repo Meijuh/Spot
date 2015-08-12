@@ -49,11 +49,16 @@ $(srcdir)/spot.html $(srcdir)/spot.tag: $(srcdir)/stamp
 # Spot documentation.
 dist_pkgdata_DATA = $(srcdir)/spot.tag
 
-.PHONY: org
+.PHONY: org org-man
 org:
 	cd $(top_builddir) && $(MAKE) doc/org/init.el
 	rm -rf $(srcdir)/userdoc
+	$(MAKE) org-man
 	$(EMACS) --batch -Q -l org/init.el
+
+org-man:
+	mkdir -p $(srcdir)/userdoc/man
+	$(top_srcdir)/tools/man2html.pl $(top_srcdir)/src/bin/man $(srcdir)/userdoc/man
 
 ORG_FILES = \
   org/.dir-locals.el.in \
