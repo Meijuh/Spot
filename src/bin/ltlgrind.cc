@@ -55,9 +55,6 @@ static const char * argp_program_doc =
   "List formulas that are similar to but simpler than a given formula.";
 
 static const argp_option options[] = {
-  {"mutations", 'm', "NUM", 0, "number of mutations to apply to the " \
-   "formulae (default: 1)", -1},
-  {"sort", OPT_SORT, 0, 0, "sort the result by formula size", 0},
   {0, 0, 0, 0, "Mutation rules (all enabled unless those options are used):",
    15},
   {"ap-to-const", OPT_AP2CONST, 0, 0,
@@ -83,6 +80,9 @@ static const argp_option options[] = {
    "0 or max to unbounded", 15},
   {0, 0, 0, 0, "Output options:", 20},
   {"max-count", 'n', "NUM", 0, "maximum number of mutations to output", 20},
+  {"mutations", 'm', "NUM", 0, "number of mutations to apply to the " \
+   "formulae (default: 1)", 0},
+  {"sort", OPT_SORT, 0, 0, "sort the result by formula size", 0},
   {0, 0, 0, 0, "Miscellaneous options:", -1},
   {0, 0, 0, 0, 0, 0}
 };
@@ -171,7 +171,7 @@ main(int argc, char* argv[])
 
   const argp ap = { options, parse_opt, 0, argp_program_doc, children, 0, 0 };
 
-  if (int err = argp_parse(&ap, argc, argv, 0, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
     exit(err);
 
   mut_opts |= opt_all;

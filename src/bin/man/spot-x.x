@@ -120,3 +120,4 @@ paper to deal with TBA or TGBA.
 .BR ltl2tgba (1)
 .BR ltl2tgta (1)
 .BR dstar2tgba (1)
+.BR autfilt (1)

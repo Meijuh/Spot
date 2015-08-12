@@ -3,4 +3,4 @@ ltlgrind \- list mutations of a formula.
 [DESCRIPTION]
 .\" Add any additional description here
 [SEE ALSO]
-.BR ltlcross (1),
+.BR ltlcross (1)

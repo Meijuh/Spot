@@ -37,6 +37,6 @@ LNCS 8461.
 Explains the SAT-based minimization techniques that can be used (on
 request only) by dstar2tgba to minimize deterministic Büchi automata.
 
-
 [SEE ALSO]
-.BR spot-x (7)
+.BR spot-x (7),
+.BR autfilt (1)

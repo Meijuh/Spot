@@ -11,4 +11,5 @@ Alexandre Duret-Lutz: Manipulating LTL formulas using Spot 1.0.
 Proceedings of ATVA'13.  LNCS 8172.
 [SEE ALSO]
 .BR genltl (1),
-.BR ltlfilt (1)
+.BR ltlfilt (1),
+.BR randaut (1)

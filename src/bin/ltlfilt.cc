@@ -114,7 +114,7 @@ static const argp_option options[] =
     { "relabel-bool", OPT_RELABEL_BOOL, "abc|pnn", OPTION_ARG_OPTIONAL,
       "relabel Boolean subexpressions, alphabetically unless " \
       "specified otherwise", 0 },
-    { "define", OPT_DEFINE, "[FILENAME]", OPTION_ARG_OPTIONAL,
+    { "define", OPT_DEFINE, "FILENAME", OPTION_ARG_OPTIONAL,
       "when used with --relabel or --relabel-bool, output the relabeling map "
       "using #define statements", 0 },
     { "remove-wm", OPT_REMOVE_WM, 0, 0,

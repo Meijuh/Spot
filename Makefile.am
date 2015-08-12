@@ -58,8 +58,9 @@ debian/changelog: configure.ac
 
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = HACKING ChangeLog.1 tools/gitlog-to-changelog	\
-	     tools/help2man tools/test-driver-teamcity $(UTF8)	\
-	     $(DEBIAN) m4/gnulib-cache.m4 .dir-locals.el
+	     tools/help2man tools/man2html.pl			\
+	     tools/test-driver-teamcity $(UTF8) $(DEBIAN)	\
+	     m4/gnulib-cache.m4 .dir-locals.el
 
 dist-hook: gen-ChangeLog
 
