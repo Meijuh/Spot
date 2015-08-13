@@ -57,7 +57,7 @@ while (my $file = readdir(DIR))
     $html =~ s|<p style="margin-left:11%; margin-top: 1em"><b>([^<>]*?:)\s*</b></p>|<h3 style="margin-left:11%">$1</h3>|smg;
     $html =~ s@<body>@<body class="man"><div id="org-div-home-and-up"><a accesskey="h" href="../tools.html"> UP </a>| <a accesskey="H" href="../index.html"> HOME </a></div>@;
     $html =~ s{<b>([\w-]+)</b>\((\d+)\)}{
-      (-f "$1.$2") ? "<a href=\"$1.$2.html\"><b>$1</b></a>($2)" : $&;
+      (-f "$dir/$1.$2") ? "<a href=\"$1.$2.html\"><b>$1</b></a>($2)" : $&;
     }xge;
     open(FILE, ">$ofile") or die $!;
     print FILE $html;
