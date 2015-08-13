@@ -27,6 +27,7 @@ since the generated files they produce are distributed.)
   GNU Flex (the version seems to matters, we used 2.5.35)
   GNU Bison >= 2.7
   GNU Emacs (preferably >= 24 but it may work with older versions)
+  Groff (a.k.a. GNU troff) >= 1.20
   SWIG >= 3.0 (for its better C++11 support)
   Doxygen >= 1.4.0
   Perl, with its Gettext module (it might be called something like
