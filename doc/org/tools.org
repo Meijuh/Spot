@@ -53,6 +53,26 @@ corresponding commands are hidden.
 - [[file:ltldo.org][=ltldo=]] Run LTL/PSL formulas through other tools using common [[file:ioltl.org][input]]
   and [[file:oaut.org][output]] interfaces.
 
+* Man pages
+
+In addition to the above illustrated documentation, Spot also installs
+man pages for all these tools.  These man pages are mostly generated
+automatically from the =--help= output of each tool, and often
+completed with additional text (like examples or bibliography).  For
+convenience, you can browse their HTML versions:
+
+[[./man/autfilt.1.html][=autfilt=]](1),
+[[./man/dstar2tgba.1.html][=dstar2tgba=]](1),
+[[./man/genltl.1.html][=genltl=]](1),
+[[./man/ltl2tgba.1.html][=ltl2tgba=]](1),
+[[./man/ltl2tgta.1.html][=ltl2tgta=]](1),
+[[./man/ltlcross.1.html][=ltlcross=]](1),
+[[./man/ltldo.1.html][=ltldo=]](1),
+[[./man/ltlfilt.1.html][=ltlfilt=]](1),
+[[./man/randaut.1.html][=randaut=]](1),
+[[./man/randltl.1.html][=randltl=]](1),
+[[./man/spot-x.7.html][=spot-x=]](7).
+
 * Advanced use-cases
 
 - [[file:csv.org][Reading and writing CSV files]]
