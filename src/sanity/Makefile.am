@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-## et Développement de l'Epita (LRDE).
+## Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+## Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -37,6 +37,10 @@ check-readme:
 	top_srcdir='$(top_srcdir)' \
 	$(PERL) $(srcdir)/readme.test
 
+check-ipynb:
+	top_srcdir='$(top_srcdir)' \
+	$(PERL) $(srcdir)/ipynb.test
+
 check-includes:
 	CXX='$(CXX)' \
 	CPPFLAGS='$(AM_CPPFLAGS) $(CPPFLAGS) $(DEFS)' \
@@ -45,10 +49,8 @@ check-includes:
 	TOPBUILD='$(top_builddir)' \
 	$(SHELL) $(srcdir)/includes.test $(TESTHEADER)
 
-.PHONY: check-80columns check-style check-readme check-includes
-check-local: check-80columns check-style check-readme check-includes
-
-
+.PHONY: check-80columns check-style check-readme check-includes check-ipynb
+check-local: check-80columns check-style check-readme check-includes check-ipynb
 
 # Ensure we have not forgotten to include an header.
 check-installed-includes:
@@ -68,4 +70,10 @@ check-installed-private:
 installcheck-local: check-installed-includes check-installed-private
 
 CLEANFILES = failures incltest.*
-EXTRA_DIST = includes.test 80columns.test style.test readme.test private.test
+EXTRA_DIST =					\
+  80columns.test				\
+  includes.test					\
+  ipynb.test					\
+  private.test					\
+  readme.test					\
+  style.test

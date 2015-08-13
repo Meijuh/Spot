@@ -8,7 +8,6 @@ This section contains code examples for using Spot.  This is a work in
 progress.  Feel free to [[mailto:spot@lrde.epita.fr][send]] suggestion of small tasks you would like
 to see illustrated here.
 
-
 * Examples with Shell, Python, and C++
 
 All the following pages show how to perform the same task using the
@@ -26,3 +25,29 @@ Python (at least at the moment), so they are purely C++ so far.
 
 - [[file:tut21.org][Custom print of an automaton]]
 - [[file:tut22.org][Creating an automaton in C++]]
+
+* Examples in Python only
+
+In directory =wrap/python/tests=, the [[file:install.org][Spot tarball]] contains a small
+collection of IPython notebooks.  As the name of the directory implies,
+these are part of the test suite for the Python bindings, however they
+can be interesting to look at if you want to see more code examples.
+
+For convenience, the following links offer static HTML renderings of
+these notebooks, but we strongly suggest interactively evaluating the
+real notebooks instead.
+
+- [[https://spot.lrde.epita.fr/ipynb/formulas.html][formulas.ipynb]] covers the basics of LTL/PSL formula parsing and
+  printing, with some light operations
+- [[https://spot.lrde.epita.fr/ipynb/automata.html][automata.ipynb]] covers translation from formulas to automata,
+  automata printing, and some lights transformations
+- [[https://spot.lrde.epita.fr/ipynb/automata-io.html][automata-io.ipynb]] shows how to save and read automata from files
+- [[https://spot.lrde.epita.fr/ipynb/piperead.html][piperead.ipynb]] shows how to save and read automata output from other
+  commands, using pipes
+- [[https://spot.lrde.epita.fr/ipynb/randaut.html][randaut.ipynb]] shows a simple case where the [[file:randaut.org][=randaut=]] commands
+  generated random automata, which are displayed in a table before and
+  after acceptance simplification
+- [[https://spot.lrde.epita.fr/ipynb/accparse.html][accparse.ipynb]] exercises the acceptance condition parser
+- [[https://spot.lrde.epita.fr/ipynb/randltl.html][randltl.ipynb]] demonstrates a Python-version of [[file:randltl.org][=randltl=]]
+- [[https://spot.lrde.epita.fr/ipynb/testingaut.html][testingaut.ipynb]] shows the step necessary to build a testing
+  automaton
