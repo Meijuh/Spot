@@ -416,8 +416,8 @@ namespace spot
 	    {
 	      // Spin 6 supports atomic propositions such as (a == 0)
 	      // as long as they are enclosed in parentheses.
-	      if (kw_ == sclatex_kw  || kw_ == sclatex_kw)
-		escape_latex(os_ << "``\\mathit{", str) << "\\textrm{''}}";
+	      if (kw_ == sclatex_kw  || kw_ == latex_kw)
+		escape_latex(os_ << "``\\mathit{", str) << "}\\textrm{''}";
 	      else if (kw_ != spin_kw)
 		os_ << '"' << str << '"';
 	      else if (!full_parent_)

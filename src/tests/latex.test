@@ -29,7 +29,7 @@ set -e
 (kpsewhich txfonts.sty) || exit 77
 (kpsewhich amsmath.sty) || exit 77
 
-cat >input <<EOF
+cat >input <<\EOF
 XGFa <-> FGX(!b & !c) | (b ^ a)
 a U b W c R (d & e) M f
 {a;b[=2];((c:d*) && f*);e[*2..]}<>-> {((a | [*0])*;b[+]) & (c1[->2])}[]-> h
@@ -37,6 +37,7 @@ a U b W c R (d & e) M f
 !{a;b*;c}! -> d
 {a*;(b;c)[:*3..4];(c;d)[:+];d}!
 G(uglyname->Fuglierlongname42)
+"#foo/$bar$" U "baz~yes^no"
 EOF
 
 (

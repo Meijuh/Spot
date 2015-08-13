@@ -54,13 +54,13 @@ namespace spot
       switch (i)
 	{
 	case '~':
-	  os << "\\textasciitilde";
+	  os << "\\text{\\textasciitilde}";
 	  break;
 	case '^':
-	  os << "\\textasciicircum";
+	  os << "\\text{\\textasciicircum}";
 	  break;
 	case '\\':
-	  os << "\\textbackslash";
+	  os << "\\text{\\textbackslash}";
 	  break;
 	case '&':
 	case '%':

@@ -16,6 +16,10 @@ New in spot 1.99.2a (not yet released)
     - ltlgrind --help output had some options documented twice, or
       in the wrong place.
     - The man page for ltlcross had obsolete examples.
+    - When outputting atomic propositions in double quotes, the
+      escaping routine used by the two styles of LaTeX output was
+      slightly off.  For instance ^ was incorrectly escaped, and the
+      double quotes where not always properly rendered.
 
 New in spot 1.99.2 (2015-07-18)
 
