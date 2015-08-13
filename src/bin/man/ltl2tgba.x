@@ -135,7 +135,7 @@ strings.  Spot will always output atomic-proposition that do not match
 .in +4n
 .ft C
 .nf
-% bin/ltl2tgba --lbtt 'GFa & GFb'
+% ltl2tgba --lbtt 'GFa & GFb'
 1 2t
 0 1
 0 0 1 -1 & "a" "b"
