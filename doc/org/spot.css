@@ -3,6 +3,7 @@ a:hover{text-decoration:underline}
 /* http://paletton.com/#uid=33i0X0kz3BrkeHdpSD1C7r1FAlb */
 @media all{
 body{font-family:Arial, sans-serif;font-weight:normal;max-width:62em;margin:auto;padding:0 .5em;background-image:url(/img/spot64.png);background-repeat:no-repeat;background-position:25px 25px}
+body.man{padding:0 .5em 3em .5em}
 body #content{padding-top:45px}
 body pre{background:#fafafa;border:none;font-family:monospace, courier}
 body code{font-weight:bold}
