@@ -121,8 +121,8 @@ namespace spot
 	"true",  // 1 doesn't work from the command line
 	"[*0]",			// not supported
 	" xor ",		// rewritten
-	" -> ",			// rewritten, although supported
-	" <-> ",		// rewritten, although supported
+	" -> ",
+	" <-> ",
 	" U ",
 	" V ",
 	" W ",			// rewritten
@@ -985,8 +985,8 @@ namespace spot
     std::ostream&
     print_spin_ltl(std::ostream& os, const formula* f, bool full_parent)
     {
-      // Remove xor, ->, and <-> first.
-      const formula* fu = unabbreviate_logic(f);
+      // Rewrite xor.
+      const formula* fu = unabbreviate_logic(f, "^");
       // Also remove W and M.
       f = unabbreviate_wm(fu);
       fu->destroy();

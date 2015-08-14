@@ -50,7 +50,6 @@ G(a & Xb)
 Xa
 F(a & !Xa & Xb)
 {a & {b|c} }
-
 EOF
 
 checkopt --eventual <<EOF
@@ -161,6 +160,7 @@ b & GF(a | c) & FG(a | c)
 G(d & e) | FG(Xf| !c) | h | i
 b & !Xc & e & (f | g)
 b & GF(a | c) & !GF!(a | c)
+F(a <-> b) -> (c xor d)
 EOF
 
 cat >exp <<EOF
@@ -168,6 +168,7 @@ p0 & Xp1
 p0 & p1 & GF(p0 | p2) & FG(p0 | p2)
 p0 & GFp1 & FGp1
 p0 | Gp1 | FG(p2 | Xp3)
+p0 | Gp1
 EOF
 
 run 0 $ltlfilt -u --nnf --relabel-bool=pnn in >out
@@ -189,11 +190,55 @@ p0 && []<>p1 && <>[]p1
 #define p2 (!c)
 #define p3 (f)
 p0 || []p1 || <>[](p2 || Xp3)
+#define p0 ((c && !d) || (!c && d))
+#define p1 ((a && !b) || (!a && b))
+p0 || []p1
 EOF
 
 run 0 $ltlfilt -s -u --nnf --relabel-bool=pnn --define in >out
 diff exp out
 
+cat >exp <<EOF
+#define p0 (a)
+#define p1 (c)
+#define p2 (b)
+p0 && p1 && Xp2
+#define p0 (a)
+#define p1 (b)
+#define p2 (c)
+p0 && p1 && []<>(p0 || p2) && <>[](p0 || p2)
+#define p0 (b)
+#define p1 (a)
+#define p2 (c)
+p0 && []<>(p1 || p2) && <>[](p1 || p2)
+#define p0 (h)
+#define p1 (i)
+#define p2 (d)
+#define p3 (e)
+#define p4 (c)
+#define p5 (f)
+p0 || p1 || [](p2 && p3) || <>[](!p4 || Xp5)
+#define p0 (b)
+#define p1 (e)
+#define p2 (f)
+#define p3 (g)
+#define p4 (c)
+p0 && p1 && (p2 || p3) && !Xp4
+#define p0 (b)
+#define p1 (a)
+#define p2 (c)
+p0 && []<>(p1 || p2) && ![]<>!(p1 || p2)
+#define p0 (a)
+#define p1 (b)
+#define p2 (c)
+#define p3 (d)
+<>(p0 <-> p1) -> !(p2 <-> p3)
+EOF
+
+run 0 $ltlfilt -s -u --relabel=pnn --define in >out
+diff exp out
+
+toolong='((p2=0) * (p3=1))' # work around the 80-col check
 cat >exp <<EOF
 #define p0 ((a=1))
 #define p1 ((c=1))
@@ -220,6 +265,11 @@ cat >exp <<EOF
 #define p3 ((g=1))
 #define p4 ((c=1))
 (p0=1) * (p1=1) * ((p2=1) + (p3=1)) * (X(p4=0))
+#define p0 ((c=1))
+#define p1 ((d=1))
+#define p2 ((a=1))
+#define p3 ((b=1))
+((p0=1) * (p1=0)) + ((p0=0) * (p1=1)) + (G(((p2=1) * (p3=0)) + $toolong))
 EOF
 run 0 $ltlfilt -p --wring -u --nnf --relabel=pnn --define in >out
 diff exp out
@@ -233,6 +283,7 @@ b & GF(a | c) & FG(a | c)@
 h | i | G(d & e) | FG(!c | Xf)@
 b & e & (f | g) & !Xc@
 b & GF(a | c) & !GF!(a | c)@
+F(a <-> b) -> (c xor d)@
 EOF
 diff exp out
 

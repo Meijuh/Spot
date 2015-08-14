@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -29,8 +29,25 @@ namespace spot
   namespace ltl
   {
 
-    unabbreviate_logic_visitor::unabbreviate_logic_visitor()
+    unabbreviate_logic_visitor::unabbreviate_logic_visitor(const char* opt)
     {
+      while (*opt)
+	switch (char c = *opt++)
+	  {
+	  case '^':
+	    rewrite_xor = true;
+	    break;
+	  case 'i':
+	    rewrite_i = true;
+	    break;
+	  case 'e':
+	    rewrite_e = true;
+	    break;
+	  default:
+	    throw std::runtime_error
+	      (std::string("unknown option for unabbreviate_logic_visitor(): ")
+	       + c);
+	  }
     }
 
     unabbreviate_logic_visitor::~unabbreviate_logic_visitor()
@@ -42,29 +59,44 @@ namespace spot
     {
       const formula* f1 = recurse(bo->first());
       const formula* f2 = recurse(bo->second());
-
       binop::type op = bo->op();
       switch (op)
 	{
+	  /* f1 ^ f2  ==  !(f1 <-> f2) */
 	  /* f1 ^ f2  ==  (f1 & !f2) | (f2 & !f1) */
 	case binop::Xor:
 	  {
-	    const formula* a =
-	      multop::instance(multop::And, f1->clone(),
-			       unop::instance(unop::Not, f2->clone()));
-	    const formula* b =
-	      multop::instance(multop::And, f2,
-			       unop::instance(unop::Not, f1));
-	    result_ = multop::instance(multop::Or, a, b);
-	    return;
+	    if (!rewrite_xor)
+	      goto no_rewrite;
+	    if (!rewrite_e)
+	      {
+		result_ = unop::instance(unop::Not,
+					 binop::instance(binop::Equiv, f1, f2));
+		return;
+	      }
+	    else
+	      {
+		const formula* a =
+		  multop::instance(multop::And, f1->clone(),
+				   unop::instance(unop::Not, f2->clone()));
+		const formula* b =
+		  multop::instance(multop::And, f2,
+				   unop::instance(unop::Not, f1));
+		result_ = multop::instance(multop::Or, a, b);
+		return;
+	      }
 	  }
 	  /* f1 => f2  ==  !f1 | f2 */
 	case binop::Implies:
+	  if (!rewrite_i)
+	    goto no_rewrite;
 	  result_ = multop::instance(multop::Or,
 				     unop::instance(unop::Not, f1), f2);
 	  return;
 	  /* f1 <=> f2  ==  (f1 & f2) | (!f1 & !f2) */
 	case binop::Equiv:
+	  if (!rewrite_e)
+	    goto no_rewrite;
 	  {
 	    const formula* f1c = f1->clone();
 	    const formula* f2c = f2->clone();
@@ -90,6 +122,7 @@ namespace spot
 	case binop::UConcat:
 	case binop::EConcat:
 	case binop::EConcatMarked:
+	  no_rewrite:
 	  result_ = binop::instance(op, f1, f2);
 	  return;
 	}
@@ -99,15 +132,16 @@ namespace spot
     const formula*
     unabbreviate_logic_visitor::recurse(const formula* f)
     {
-      return unabbreviate_logic(f);
+      f->accept(*this);
+      return result_;
     }
 
     const formula*
-    unabbreviate_logic(const formula* f)
+    unabbreviate_logic(const formula* f, const char* xie)
     {
       if (f->is_sugar_free_boolean())
 	return f->clone();
-      unabbreviate_logic_visitor v;
+      unabbreviate_logic_visitor v(xie);
       f->accept(v);
       return v.result();
     }

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2013, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -44,13 +44,17 @@ namespace spot
     {
       typedef clone_visitor super;
     public:
-      unabbreviate_logic_visitor();
+      unabbreviate_logic_visitor(const char* opt = "^ie");
       virtual ~unabbreviate_logic_visitor();
 
       using super::visit;
       void visit(const binop* bo);
 
       virtual const formula* recurse(const formula* f);
+    private:
+      bool rewrite_xor = false;
+      bool rewrite_i = false;
+      bool rewrite_e = false;
     };
 
     /// \ingroup ltl_rewriting
@@ -60,7 +64,12 @@ namespace spot
     /// This will rewrite binary operators such as binop::Implies,
     /// binop::Equals, and binop::Xor, using only unop::Not, multop::Or,
     /// and multop::And.
-    SPOT_API const formula* unabbreviate_logic(const formula* f);
+    ///
+    /// The optional \a opt argument can be a string containing any
+    /// subset of the string "^ie" to denote the operators (xor,
+    /// implication, equivalence) to actually remove.
+    SPOT_API const formula* unabbreviate_logic(const formula* f,
+					       const char* opt = "^ie");
 
   }
 }

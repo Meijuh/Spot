@@ -26,6 +26,8 @@ New in spot 1.99.2a (not yet released)
       double quotes where not always properly rendered.
     - A spurious assertion was triggered by streett_to_generalized_buchi(),
       but only when compiled in DEBUG mode.
+    - LTL formula rewritten in Spin's syntax no longer have their ->
+      and <-> rewritten aways.
 
 New in spot 1.99.2 (2015-07-18)
 
