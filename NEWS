@@ -24,6 +24,8 @@ New in spot 1.99.2a (not yet released)
       escaping routine used by the two styles of LaTeX output was
       slightly off.  For instance ^ was incorrectly escaped, and the
       double quotes where not always properly rendered.
+    - A spurious assertion was triggered by streett_to_generalized_buchi(),
+      but only when compiled in DEBUG mode.
 
 New in spot 1.99.2 (2015-07-18)
 

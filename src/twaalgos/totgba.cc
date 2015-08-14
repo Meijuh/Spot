@@ -166,6 +166,9 @@ namespace spot
 
     bool sbacc = in->has_state_based_acc();
 
+    // States of the original automaton are marked with s.pend == -1U.
+    const acc_cond::mark_t orig_copy(-1U);
+
     while (!todo.empty())
       {
 	s = todo.front();
@@ -187,7 +190,7 @@ namespace spot
 
 	    bool maybe_acc = maybe_acc_scc && (scc_src == si.scc_of(t.dst));
 
-	    if (pend != -1U)
+	    if (pend != orig_copy)
 	      {
 		if (!maybe_acc)
 		  continue;
@@ -239,7 +242,7 @@ namespace spot
 	    // that only once per cycle.  As an approximation, we
 	    // only to that for transition where t.src >= t.dst as
 	    // this has to occur at least once per cycle.
-	    if (pend == -1U && (t.src >= t.dst) && maybe_acc && !no_fin)
+	    if (pend == orig_copy && (t.src >= t.dst) && maybe_acc && !no_fin)
 	      {
 		acc_cond::mark_t pend = 0U;
 		if (sbacc)
@@ -273,7 +276,7 @@ namespace spot
     // {
     // 	std::cerr << s.second << " ("
     // 		  << s.first.s << ", ";
-    // 	if (s.first.pend == -1U)
+    // 	if (s.first.pend == orig_copy)
     // 	  std::cerr << "-)\n";
     // 	else
     // 	  std::cerr << s.first.pend << ")\n";
