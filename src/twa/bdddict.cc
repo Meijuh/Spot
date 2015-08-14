@@ -189,24 +189,6 @@ namespace spot
     register_acceptance_variables(bdd_low(f), for_me);
   }
 
-  int
-  bdd_dict::register_clone_acc(int v, const void* for_me)
-  {
-    assert(unsigned(v) < bdd_map.size());
-    bdd_info& i = bdd_map[v];
-    assert(i.type == acc);
-
-    std::ostringstream s;
-    // FIXME: We could be smarter and reuse unused "$n" numbers.
-    ltl::print_psl(s, i.f) << '$' << ++i.clone_counts;
-    const ltl::formula* f =
-      ltl::atomic_prop::instance(s.str(),
-				 ltl::default_environment::instance());
-    int res = register_acceptance_variable(f, for_me);
-    f->destroy();
-    return res;
-  }
-
   const ltl::formula*
   bdd_dict::oneacc_to_formula(int var) const
   {

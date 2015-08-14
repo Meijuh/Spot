@@ -163,21 +163,6 @@ namespace spot
     }
     /// @}
 
-    /// \brief Clone an acceptance variable VAR for FOR_ME.
-    ///
-    /// This is used in products TGBAs when both operands share the
-    /// same acceptance variables but they need to be distinguished in
-    /// the result.
-    /// @{
-    int register_clone_acc(int var, const void* for_me);
-
-    template <typename T>
-    int register_clone_acc(int var, std::shared_ptr<T> for_me)
-    {
-      return register_clone_acc(var, for_me.get());
-    }
-    /// @}
-
     /// \brief Register BDD variables as acceptance variables.
     ///
     /// Register all variables occurring in \a f as acceptance variables
