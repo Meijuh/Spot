@@ -110,7 +110,7 @@ namespace spot
 
     class ratexp_to_dfa
     {
-      typedef typename twa_graph::namer<const formula*>::type namer;
+      typedef twa_graph::namer<const formula*> namer;
     public:
       ratexp_to_dfa(translate_dict& dict);
       std::tuple<const_twa_graph_ptr, const namer*, const state*>

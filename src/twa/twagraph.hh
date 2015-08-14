@@ -204,34 +204,30 @@ namespace spot
       last_support_conditions_input_ = 0;
     }
 
-    // FIXME: Once we ditch GCC 4.6, we can using a template aliases
-    // (supported from GCC 4.7 onward) instead of this.
+#ifndef SWIG
     template <typename State_Name,
 	      typename Name_Hash = std::hash<State_Name>,
 	      typename Name_Equal = std::equal_to<State_Name>>
-    struct namer
-    {
-      typedef named_graph<graph_t, State_Name, Name_Hash, Name_Equal> type;
-    };
+    using namer = named_graph<graph_t, State_Name, Name_Hash, Name_Equal>;
 
     template <typename State_Name,
 	      typename Name_Hash = std::hash<State_Name>,
 	      typename Name_Equal = std::equal_to<State_Name>>
-    typename namer<State_Name, Name_Hash, Name_Equal>::type*
+    namer<State_Name, Name_Hash, Name_Equal>*
     create_namer()
     {
       return new named_graph<graph_t, State_Name, Name_Hash, Name_Equal>(g_);
     }
 
-    typename namer<const ltl::formula*>::type*
+    namer<const ltl::formula*>*
     create_formula_namer()
     {
       return create_namer<const ltl::formula*>();
     }
 
     void
-    release_formula_namer(typename namer<const ltl::formula*>::type* namer,
-			  bool keep_names);
+    release_formula_namer(namer<const ltl::formula*>* namer, bool keep_names);
+#endif
 
     graph_t& get_graph()
     {

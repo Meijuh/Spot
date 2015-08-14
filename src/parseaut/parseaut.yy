@@ -49,7 +49,7 @@
     typedef std::map<std::string, bdd> formula_cache;
 
     typedef std::pair<int, std::string*> pair;
-    typedef typename spot::twa_graph::namer<std::string>::type named_tgba_t;
+    typedef spot::twa_graph::namer<std::string> named_tgba_t;
 
     // Note: because this parser is meant to be used on a stream of
     // automata, it tries hard to recover from errors, so that we get a
