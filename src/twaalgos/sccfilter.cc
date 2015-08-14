@@ -155,10 +155,12 @@ namespace spot
 	if (keep)
 	  {
 	    unsigned u = this->si->scc_of(dst);
-	    // If the edge is between two SCCs, or in a
-	    // non-accepting SCC.  Remove the acceptance sets.
-	    if ((this->si->is_rejecting_scc(u))
-		|| (RemoveAll && u != this->si->scc_of(src)))
+	    // If the edge is between two SCCs, we can simplify
+	    // remove the acceptance sets.  If the SCC is non-accepting,
+	    // we can only remove the Inf sets.
+	    if (RemoveAll && u != this->si->scc_of(src))
+	      acc = 0U;
+	    else if (this->si->is_rejecting_scc(u))
 	      acc &= accmask;
 	  }
 

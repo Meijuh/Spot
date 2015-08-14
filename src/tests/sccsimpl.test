@@ -255,7 +255,7 @@ State: 0
 [t] 0
 State: 1
 [!0] 1 {0}
-[0] 0
+[0] 0 {0}
 --END--
 HOA: v1
 States: 2
@@ -271,41 +271,41 @@ State: 1
 --END--
 EOF
 
-# run 0 ../../bin/autfilt -C -H --any --high input >output
-# cat >expected <<EOF
-# HOA: v1
-# States: 2
-# Start: 1
-# AP: 1 "p0"
-# acc-name: Buchi
-# Acceptance: 1 Inf(0)
-# properties: trans-labels explicit-labels state-acc complete
-# properties: deterministic inherently-weak
-# --BODY--
-# State: 0 {0}
-# [t] 0
-# State: 1
-# [0] 0
-# [!0] 1
-# --END--
-# HOA: v1
-# States: 2
-# Start: 1
-# AP: 1 "p0"
-# acc-name: Buchi
-# Acceptance: 1 Inf(0)
-# properties: trans-labels explicit-labels state-acc complete
-# properties: deterministic inherently-weak
-# --BODY--
-# State: 0 {0}
-# [t] 0
-# State: 1
-# [0] 0
-# [!0] 1
-# --END--
-# EOF
-# cat output
-# diff output expected
+run 0 ../../bin/autfilt -H --any --medium -x scc-filter=2 input >output
+cat >expected <<EOF
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "p0"
+acc-name: co-Buchi
+Acceptance: 1 Fin(0)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[t] 0
+State: 1
+[0] 0
+[!0] 1 {0}
+--END--
+HOA: v1
+States: 2
+Start: 1
+AP: 1 "p0"
+acc-name: Rabin 1
+Acceptance: 2 Fin(0) & Inf(1)
+properties: trans-labels explicit-labels trans-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[t] 0 {1}
+State: 1
+[0] 0
+[!0] 1 {0}
+--END--
+EOF
+cat output
+diff output expected
 
 run 0 ../../bin/autfilt -C -H --det --high input >output
 cat >expected <<EOF
