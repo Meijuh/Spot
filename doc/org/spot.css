@@ -1,28 +1,32 @@
 a{color:inherit;background-color:inherit;font:inherit;text-decoration:inherit}
 a:hover{text-decoration:underline}
 /* http://paletton.com/#uid=33i0X0kz3BrkeHdpSD1C7r1FAlb */
-@media all{
 body{font-family:Arial, sans-serif;font-weight:normal;max-width:62em;margin:auto;padding:0 .5em;background-image:url(/img/spot64.png);background-repeat:no-repeat;background-position:25px 25px}
 body.man{padding:0 .5em 3em .5em}
 body #content{padding-top:45px}
 body pre{background:#fafafa;border:none;font-family:monospace, courier}
 body code{font-weight:bold}
 body a{color:#008181}
-#table-of-contents{font-size:80%;max-width:30em;position:fixed;right:0em;top:0em;padding-left:0.5em;padding-right:0.5em;-webkit-box-shadow:0 0 1em #777777;-moz-box-shadow:0 0 1em #777777;-webkit-border-bottom-left-radius:5px;-moz-border-radius-bottomleft:5px;text-align:right;max-height:80%;overflow:auto}
+#table-of-contents{font-size:80%;padding-left:0.5em;padding-right:0.5em;text-align:right;float:right;border-left:1px solid #ffd300;border-bottom:1px solid #ffd300;background:#ffe35e}
 #table-of-contents ul{padding-left:1em}
 #table-of-contents h2{font-size:100%;font-weight:normal;padding-left:0.5em;padding-right:0.5em;padding-top:0.05em;padding-bottom:0.05em}
-#table-of-contents #text-table-of-contents{display:none;text-align:left}
-#table-of-contents:hover #text-table-of-contents{display:block;padding:0.5em;margin-top:-1.5em}
+#table-of-contents #text-table-of-contents{text-align:left}
 #org-div-home-and-up{text-align:center;font-size:100%}
 .done{color:SpringGreen}
 .WAIT{color:Orange}
 .timestamp-kwd{color:DeepPink}
 div#postamble{visibility:hidden}
 .outline-2 h2{border-bottom-style:solid;border-color:#ffe35e}
-pre.src{padding-top:8px;border-left-style:solid;border-color:#00adad}
+pre.src{padding-top:8px;border-left-style:solid;border-color:#00adad;overflow:auto}
 pre.example{border-left-style:solid;border-color:#d80076}
 pre.src:before{border:none;border-bottom-style:solid;border-color:#00adad}
-}
+img{max-width:100%}
 @media screen{
-#table-of-contents{float:right;border-left:1px solid #ffd300;border-bottom:1px solid #ffd300;background:#ffe35e;max-width:50%;overflow:auto;z-index:10}
+#table-of-contents{position:fixed;right:0em;top:0em;max-width:50%;max-height:80%;overflow:auto;z-index:10}
+#table-of-contents #text-table-of-contents{display:none}
+#table-of-contents:hover #text-table-of-contents{display:block;padding:0.5em;margin-top:-1.5em}
+}
+@media print{
+#table-of-contents{border:1px solid #ffd300}
+#org-div-home-and-up{visibility:hidden}
 }
