@@ -308,4 +308,8 @@ $ltlfilt --stutter-invariant -f 'F(a & XXXXXX!a)' && exit 1
 $ltlfilt -c -o 'foo' -f a 2>stderr && exit 1
 grep 'ltlfilt: options --output and --count are incompatible' stderr
 
+out=`$ltlfilt -f 'G(a xor b) -> F(c <-> Xd)' --unabbreviate='^iF'`
+exp='(1 U (c <-> Xd)) | !G!(a <-> b)'
+test "$out" = "$exp"
+
 true

@@ -91,6 +91,7 @@ enum {
   OPT_SYNTACTIC_RECURRENCE,
   OPT_SYNTACTIC_SAFETY,
   OPT_SYNTACTIC_SI,
+  OPT_UNABBREVIATE,
   OPT_UNIVERSAL,
 };
 
@@ -118,13 +119,19 @@ static const argp_option options[] =
       "when used with --relabel or --relabel-bool, output the relabeling map "
       "using #define statements", 0 },
     { "remove-wm", OPT_REMOVE_WM, 0, 0,
-      "rewrite operators W and M using U and R", 0 },
+      "rewrite operators W and M using U and R (this is an alias for "
+      "--unabbreviate=WM)", 0 },
     { "boolean-to-isop", OPT_BOOLEAN_TO_ISOP, 0, 0,
       "rewrite Boolean subformulas as irredundant sum of products "
       "(implies at least -r1)", 0 },
     { "remove-x", OPT_REMOVE_X, 0, 0,
       "remove X operators (valid only for stutter-insensitive properties)",
       0 },
+    { "unabbreviate", OPT_UNABBREVIATE, "STR", OPTION_ARG_OPTIONAL,
+      "remove all occurrences of the operators specified by STR, which "
+      "must be a substring of \"eFGiMW^\", where 'e', 'i', and '^' stand "
+      "respectively for <->, ->, and xor.  If no argument is passed, all "
+      "rewriting rules are applied.", 0 },
     { "exclusive-ap", OPT_EXCLUSIVE_AP, "AP,AP,...", 0,
       "if any of those APs occur in the formula, add a term ensuring "
       "two of them may not be true at the same time.  Use this option "
@@ -244,7 +251,6 @@ static int bsize_max = -1;
 enum relabeling_mode { NoRelabeling = 0, ApRelabeling, BseRelabeling };
 static relabeling_mode relabeling = NoRelabeling;
 static spot::ltl::relabeling_style style = spot::ltl::Abc;
-static bool remove_wm = false;
 static bool remove_x = false;
 static bool stutter_insensitive = false;
 static bool ap = false;
@@ -253,7 +259,7 @@ static int opt_max_count = -1;
 static long int match_count = 0;
 static spot::exclusive_ap excl_ap;
 static std::unique_ptr<output_file> output_define = nullptr;
-
+static std::string unabbreviate;
 
 static const spot::ltl::formula* implied_by = 0;
 static const spot::ltl::formula* imply = 0;
@@ -375,7 +381,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 	      arg);
       break;
     case OPT_REMOVE_WM:
-      remove_wm = true;
+      unabbreviate += "MW";
       break;
     case OPT_REMOVE_X:
       remove_x = true;
@@ -394,6 +400,12 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_STUTTER_INSENSITIVE:
       stutter_insensitive = true;
+      break;
+    case OPT_UNABBREVIATE:
+      if (arg)
+	unabbreviate += arg;
+      else
+	unabbreviate += spot::ltl::default_unabbrev_string;
       break;
     case OPT_AP_N:
       ap = true;
@@ -560,9 +572,9 @@ namespace
 	  break;
 	}
 
-      if (remove_wm)
+      if (!unabbreviate.empty())
 	{
-	  const spot::ltl::formula* res = spot::ltl::unabbreviate(f, "WM");
+	  auto res = spot::ltl::unabbreviate(f, unabbreviate.c_str());
 	  f->destroy();
 	  f = res;
 	}
