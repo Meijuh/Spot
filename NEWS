@@ -34,6 +34,7 @@ New in spot 1.99.2a (not yet released)
       but only when compiled in DEBUG mode.
     - LTL formula rewritten in Spin's syntax no longer have their ->
       and <-> rewritten aways.
+    - Fix some warnings reported by the development version of GCC 6.
 
 New in spot 1.99.2 (2015-07-18)
 

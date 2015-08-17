@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -259,7 +259,7 @@ namespace spot
 		break;
 	      case 2: // 6 5-bit values
 		{
-		  unsigned int output = 0x02 << 30; // 10
+		  unsigned int output = 0x02U << 30; // 10
 		  output += self().data_at(0) << 25;
 		  output += self().data_at(1) << 20;
 		  output += self().data_at(2) << 15;
@@ -271,7 +271,7 @@ namespace spot
 		break;
 	      case 3: // 4 7-bit values
 		{
-		  unsigned int output = 0x0C << 28; // 1100
+		  unsigned int output = 0x0CU << 28; // 1100
 		  output += self().data_at(0) << 21;
 		  output += self().data_at(1) << 14;
 		  output += self().data_at(2) << 7;
@@ -281,7 +281,7 @@ namespace spot
 		break;
 	      case 4: // 3 9-bit values
 		{
-		  unsigned int output = 0x0D << 28; // 1101x (1 bit lost)
+		  unsigned int output = 0x0DU << 28; // 1101x (1 bit lost)
 		  output += self().data_at(0) << 18;
 		  output += self().data_at(1) << 9;
 		  output += self().data_at(2);
@@ -290,7 +290,7 @@ namespace spot
 		break;
 	      case 5: // 2 14-bit values
 		{
-		  unsigned int output = 0x0E << 28; // 1110
+		  unsigned int output = 0x0EU << 28; // 1110
 		  output += self().data_at(0) << 14;
 		  output += self().data_at(1);
 		  self().push_data(output);
@@ -298,7 +298,7 @@ namespace spot
 		break;
 	      case 6: // one 28-bit value
 		{
-		  unsigned int output = 0x0F << 28; // 1111
+		  unsigned int output = 0x0FU << 28; // 1111
 		  output += self().data_at(0);
 		  self().push_data(output);
 		}
