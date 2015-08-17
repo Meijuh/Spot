@@ -92,7 +92,7 @@ ltl2dot_CPPFLAGS = $(AM_CPPFLAGS) -DDOTTY
 ltl2text_SOURCES = readltl.cc
 ltlrel_SOURCES = ltlrel.cc
 lunabbrev_SOURCES = equalsf.cc
-lunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DLUNABBREV
+lunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DUNABBREV='"^ie"'
 nenoform_SOURCES = equalsf.cc
 nenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM
 nequals_SOURCES = equalsf.cc
@@ -107,9 +107,9 @@ reductaustr_CPPFLAGS = $(AM_CPPFLAGS) -DREDUC_TAUSTR
 syntimpl_SOURCES = syntimpl.cc
 tostring_SOURCES = tostring.cc
 tunabbrev_SOURCES = equalsf.cc
-tunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DTUNABBREV
+tunabbrev_CPPFLAGS = $(AM_CPPFLAGS) -DUNABBREV='"^ieFG"'
 tunenoform_SOURCES = equalsf.cc
-tunenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM -DTUNABBREV
+tunenoform_CPPFLAGS = $(AM_CPPFLAGS) -DNENOFORM -DUNABBREV='"^ieFG"'
 
 
 # Keep this sorted by STRENGTH.  Test basic things first,

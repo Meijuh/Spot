@@ -21,8 +21,7 @@
 #include <algorithm>
 #include "ltlast/visitor.hh"
 #include "ltlast/allnodes.hh"
-#include "ltlvisit/lunabbrev.hh"
-#include "ltlvisit/tunabbrev.hh"
+#include "ltlvisit/unabbrev.hh"
 #include "ltlvisit/nenoform.hh"
 #include "ltlvisit/contain.hh"
 #include "ltl2taa.hh"
@@ -408,9 +407,9 @@ namespace spot
   ltl_to_taa(const ltl::formula* f,
 	     const bdd_dict_ptr& dict, bool refined_rules)
   {
-    // TODO: s/unabbreviate_ltl/unabbreviate_logic/
-    const ltl::formula* f1 = ltl::unabbreviate_ltl(f);
-    const ltl::formula* f2 = ltl::negative_normal_form(f1);
+    // TODO: implement translation of F and G
+    auto f1 = ltl::unabbreviate(f, "^ieFG");
+    auto f2 = ltl::negative_normal_form(f1);
     f1->destroy();
 
     auto res = make_taa_tgba_formula(dict);

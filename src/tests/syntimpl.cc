@@ -24,8 +24,6 @@
 #include <cassert>
 #include <cstdlib>
 #include "ltlparse/public.hh"
-#include "ltlvisit/lunabbrev.hh"
-#include "ltlvisit/tunabbrev.hh"
 #include "ltlvisit/dump.hh"
 #include "ltlvisit/print.hh"
 #include "ltlvisit/simplify.hh"

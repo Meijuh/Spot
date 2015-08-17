@@ -33,7 +33,6 @@ ltlvisit_HEADERS = \
   dump.hh \
   exclusive.hh \
   length.hh \
-  lunabbrev.hh \
   mutation.hh \
   nenoform.hh \
   print.hh \
@@ -44,8 +43,7 @@ ltlvisit_HEADERS = \
   simpfg.hh \
   simplify.hh \
   snf.hh \
-  tunabbrev.hh \
-  wmunabbrev.hh
+  unabbrev.hh
 
 noinst_LTLIBRARIES = libltlvisit.la
 libltlvisit_la_SOURCES = \
@@ -56,7 +54,6 @@ libltlvisit_la_SOURCES = \
   dump.cc \
   exclusive.cc \
   length.cc \
-  lunabbrev.cc \
   mark.cc \
   mark.hh \
   mutation.cc \
@@ -69,5 +66,4 @@ libltlvisit_la_SOURCES = \
   simpfg.cc \
   simplify.cc \
   snf.cc \
-  tunabbrev.cc \
-  wmunabbrev.cc
+  unabbrev.cc

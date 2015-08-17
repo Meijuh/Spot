@@ -22,7 +22,6 @@
 
 #include "contain.hh"
 #include "simplify.hh"
-#include "tunabbrev.hh"
 #include "ltlast/unop.hh"
 #include "ltlast/binop.hh"
 #include "ltlast/multop.hh"

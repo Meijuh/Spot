@@ -27,10 +27,8 @@
 #include <cstdlib>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlvisit/lunabbrev.hh"
-#include "ltlvisit/tunabbrev.hh"
+#include "ltlvisit/unabbrev.hh"
 #include "ltlvisit/dump.hh"
-#include "ltlvisit/wmunabbrev.hh"
 #include "ltlvisit/nenoform.hh"
 #include "ltlast/allnodes.hh"
 #include "ltlvisit/simplify.hh"
@@ -118,26 +116,12 @@ main(int argc, char** argv)
 	  int exit_code = 0;
 
 	  {
-#if defined LUNABBREV || defined TUNABBREV || defined NENOFORM || defined WM
+#if defined UNABBREV || defined NENOFORM
 	    const spot::ltl::formula* tmp;
 #endif
-#ifdef LUNABBREV
+#ifdef UNABBREV
 	    tmp = f1;
-	    f1 = spot::ltl::unabbreviate_logic(f1);
-	    tmp->destroy();
-	    spot::ltl::dump(std::cout, f1);
-	    std::cout << std::endl;
-#endif
-#ifdef TUNABBREV
-	    tmp = f1;
-	    f1 = spot::ltl::unabbreviate_ltl(f1);
-	    tmp->destroy();
-	    spot::ltl::dump(std::cout, f1);
-	    std::cout << std::endl;
-#endif
-#ifdef WM
-	    tmp = f1;
-	    f1 = spot::ltl::unabbreviate_wm(f1);
+	    f1 = spot::ltl::unabbreviate(f1, UNABBREV);
 	    tmp->destroy();
 	    spot::ltl::dump(std::cout, f1);
 	    std::cout << std::endl;

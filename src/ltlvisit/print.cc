@@ -27,8 +27,7 @@
 #include <cstring>
 #include "ltlast/allnodes.hh"
 #include "ltlast/visitor.hh"
-#include "lunabbrev.hh"
-#include "wmunabbrev.hh"
+#include "unabbrev.hh"
 #include "print.hh"
 #include "misc/escape.hh"
 
@@ -985,11 +984,7 @@ namespace spot
     std::ostream&
     print_spin_ltl(std::ostream& os, const formula* f, bool full_parent)
     {
-      // Rewrite xor.
-      const formula* fu = unabbreviate_logic(f, "^");
-      // Also remove W and M.
-      f = unabbreviate_wm(fu);
-      fu->destroy();
+      f = unabbreviate(f, "^MW");
       to_string_visitor v(os, full_parent, false, spin_kw);
       f->accept(v);
       f->destroy();
@@ -1007,8 +1002,7 @@ namespace spot
     std::ostream&
     print_wring_ltl(std::ostream& os, const formula* f)
     {
-      // Remove W and M.
-      f = unabbreviate_wm(f);
+      f = unabbreviate(f, "MW");
       to_string_visitor v(os, true, false, wring_kw);
       f->accept(v);
       f->destroy();

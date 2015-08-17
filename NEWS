@@ -10,6 +10,11 @@ New in spot 1.99.2a (not yet released)
     SCCs, but it now does remove Fin marks from transitions between
     SCCs.
 
+  * All the unabbreviation functions (unabbreviate_ltl(),
+    unabbreviate_logic(), unabbreviate_wm()) have been merged into a
+    single unabbreviate() function that takes a string representing
+    the list of rewritting rules to enable.
+
   * Bugs fixed
     - Some acceptance conditions like Fin(0)|Fin(1)|Fin(2)&Inf(3)
       were not detected as generalized-Rabin.

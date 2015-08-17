@@ -466,17 +466,6 @@ considered equal for the purpose of the above identities.  For
 instance \samp{(a\&c\&b\&!d)->(c\&!d\&b\&a)} will be rewritten to
 \samp{1} automatically.
 
-\subsection{Unabbreviations}\label{sec:unabbbool}
-
-The `\verb=unabbreviate_logic()=' function rewrites all Boolean
-operators using only the \samp{!}, \samp{\&}, and \samp{|} operators
-using the following rewritings:
-\begin{align*}
-  f\IMPLIES g &\equiv  (\NOT f)\OR g\\
-  f\EQUIV g &\equiv  (f\AND g)\OR ((\NOT g)\AND(\NOT f))\\
-  f\XOR g &\equiv  (f\AND\NOT g)\OR (g\AND\NOT f)\\
-\end{align*}
-
 \section{Temporal Operators}\label{sec:ltlops}
 
 Given two temporal formulas $f$, and $g$, the following
@@ -553,25 +542,6 @@ $\M$, and $\W$ if you are only familiar with $\X$ and $\U$.
     f\M f&\equiv f &
     f\R f&\equiv f
   \end{align*}
-
-\subsection{Unabbreviations}
-
-The `\verb=unabbreviate_ltl()=' function applies all the rewritings from
-section~\ref{sec:unabbbool} as well as the following two rewritings:
-\begin{align*}
-  \F f&\equiv \1\U f\\
-  \G f&\equiv \0\R f
-\end{align*}
-
-The `\verb=unabbreviate_wm()=` function removes only the $\W$ and $\M$
-operators using the following two rewritings:
-\begin{align*}
-  f \W g&\equiv g \R (g \OR f)\\
-  f \M g&\equiv g \U (g \AND f)
-\end{align*}
-Among all the possible rewritings (see Appendix~\ref{sec:ltl-equiv})
-those two were chosen because they are easier to translate in a
-tableau construction~\cite[Fig.~11]{duret.11.vecos}.
 
 \section{SERE Operators}\label{sec:sere}
 
@@ -1348,6 +1318,30 @@ $\NOT\F\G(a \XOR b)$ will produce $\G\F(((\NOT a)\AND(\NOT
 b))\OR(a\AND b))$ if `\verb|nenoform_stop_on_boolean|' is unset, while
 it will produce $\G\F(\NOT(a \XOR b))$ if
 `\verb|nenoform_stop_on_boolean|' is set.
+
+\section{Unabbreviations}
+
+The `\verb=unabbreviate()=' function can apply the following rewriting
+rules when passed a string denoting the list of rules to apply.  For
+instance passing the string \texttt{"\^{}ei"} will rewrite all
+occurrences of $\XOR$, $\EQUIV$ and $\IMPLIES$.
+
+\[
+\begin{array}{lrcl}
+``\texttt{i}" & f\IMPLIES g &\equiv&  (\NOT f)\OR g\\
+``\texttt{e}" & f\EQUIV g &\equiv&  (f\AND g)\OR ((\NOT g)\AND(\NOT f))\\
+``\texttt{\^{}e}" & f\XOR g &\equiv&  (f\AND\NOT g)\OR (g\AND\NOT f)\\
+``\texttt{\^{}}"\text{~without~}``\texttt{e}" & f\XOR g &\equiv&  \NOT(f\EQUIV g)\\
+``\texttt{F}" & \F f&\equiv& \1\U f\\
+``\texttt{G}" & \G f&\equiv& \0\R f \\
+``\texttt{W}" & f \W g&\equiv& g \R (g \OR f)\\
+``\texttt{M}" & f \M g&\equiv& g \U (g \AND f)
+\end{array}
+\]
+
+Among all the possible rewritings (see Appendix~\ref{sec:ltl-equiv})
+for $\W$ and $\M$, those two were chosen because they are easier to
+translate in a tableau construction~\cite[Fig.~11]{duret.11.vecos}.
 
 \section{Simplifications}
 

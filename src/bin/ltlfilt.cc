@@ -38,7 +38,7 @@
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
 #include "ltlvisit/relabel.hh"
-#include "ltlvisit/wmunabbrev.hh"
+#include "ltlvisit/unabbrev.hh"
 #include "ltlvisit/remove_x.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/exclusive.hh"
@@ -562,7 +562,7 @@ namespace
 
       if (remove_wm)
 	{
-	  const spot::ltl::formula* res = spot::ltl::unabbreviate_wm(f);
+	  const spot::ltl::formula* res = spot::ltl::unabbreviate(f, "WM");
 	  f->destroy();
 	  f = res;
 	}
