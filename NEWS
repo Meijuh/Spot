@@ -16,6 +16,10 @@ New in spot 1.99.2a (not yet released)
     the list of rewritting rules to enable.  This function is also
     available via ltlfilt --unabbreviate.
 
+  * In LTL formulas, atomic propositions specified using double-quotes
+    can now include \" and \\.  (This is more consistent with the HOA
+    format, which already allows that.)
+
   * Bugs fixed
     - Some acceptance conditions like Fin(0)|Fin(1)|Fin(2)&Inf(3)
       were not detected as generalized-Rabin.

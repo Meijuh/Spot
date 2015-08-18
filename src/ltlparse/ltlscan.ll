@@ -52,7 +52,7 @@ typedef ltlyy::parser::token token;
 %x in_bra
 %x sqbracket
 %x lbt
-%x in_COMMENT
+%x in_COMMENT in_STRING
 
 BOX       "[]"|"□"|"⬜"|"◻"
 DIAMOND   "<>"|"◇"|"⋄"|"♢"
@@ -77,6 +77,7 @@ eol2        (\n\r)+|(\r\n)+
       return t;
     }
   yylloc->step();
+  std::string s;
 %}
 
 <*>"/""*"+		{
@@ -315,13 +316,44 @@ eol2        (\n\r)+|(\r\n)+
 			  return token::ATOMIC_PROP;
 			}
 
-  /* Atomic propositions can also be enclosed in double quotes.  */
-\"[^\"]*\"		{
-			  yylval->str = new std::string(yytext + 1,
-							yyleng - 2);
-			  BEGIN(not_prop);
-			  return token::ATOMIC_PROP;
+  /* Atomic propositions can also be enclosed in double quotes.
+
+     orig_cond stores the parsing condition to use after the
+     string has been parsed. */
+"\""                    {
+                          orig_cond = not_prop;
+			  BEGIN(in_STRING);
 			}
+<lbt>"\""		{
+			  orig_cond = lbt;
+			  BEGIN(in_STRING);
+			}
+
+<in_STRING>{
+  \"	                {
+                           BEGIN(orig_cond);
+			   yylval->str = new std::string(s);
+			   return token::ATOMIC_PROP;
+ 			}
+  {eol}			{
+  			  s.append(yytext, yyleng);
+                          yylloc->lines(yyleng); yylloc->end.column = 1;
+			}
+  {eol2}		{
+  			  s.append(yytext, yyleng);
+                          yylloc->lines(yyleng / 2); yylloc->end.column = 1;
+			}
+  \\.			s += yytext[1];
+  [^\\\"\n\r]+		s.append(yytext, yyleng);
+  <<EOF>>		{
+                           error_list.push_back(
+			     spot::ltl::one_parse_error(*yylloc,
+			       "unclosed string"));
+                           BEGIN(orig_cond);
+			   yylval->str = new std::string(s);
+			   return token::ATOMIC_PROP;
+                        }
+}
 
   /* these are operators */
 <lbt>[eitfXFGUVRWM]	return *yytext;
@@ -333,12 +365,6 @@ eol2        (\n\r)+|(\r\n)+
 			  return token::ATOMIC_PROP;
 			}
 
-  /* Atomic propositions can also be enclosed in double quotes.  */
-<lbt>\"[^\"]*\"		{
-			  yylval->str = new std::string(yytext + 1,
-							yyleng - 2);
-			  return token::ATOMIC_PROP;
-			}
 
 <*>.			return *yytext;
 

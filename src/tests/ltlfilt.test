@@ -312,4 +312,10 @@ out=`$ltlfilt -f 'G(a xor b) -> F(c <-> Xd)' --unabbreviate='^iF'`
 exp='(1 U (c <-> Xd)) | !G!(a <-> b)'
 test "$out" = "$exp"
 
+$ltlfilt -f 'GF"a\"\\b"' > out
+test "`cat out`" = 'GF"a\"\\b"'
+
+$ltlfilt --lbt-input -f 'G F "a\"\\b"' -l > out
+test "`cat out`" = 'G F "a\"\\b"'
+
 true

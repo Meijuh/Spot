@@ -418,7 +418,7 @@ namespace spot
 	      if (kw_ == sclatex_kw  || kw_ == latex_kw)
 		escape_latex(os_ << "``\\mathit{", str) << "}\\textrm{''}";
 	      else if (kw_ != spin_kw)
-		os_ << '"' << str << '"';
+		escape_str(os_ << '"', str) << '"';
 	      else if (!full_parent_)
 		os_ << '(' << str << ')';
 	      else
@@ -1111,7 +1111,7 @@ namespace spot
 	  blank();
 	  std::string str = ap->name();
 	  if (!is_pnum(str.c_str()))
-	    os_ << '"' << str << '"';
+	    escape_str(os_ << '"', str) << '"';
 	  else
 	    os_ << str;
 	}
