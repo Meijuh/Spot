@@ -1248,8 +1248,39 @@ equivalent to $\G q\OR \G r$.  Such a formula is usually said
 
 \chapter{Rewritings}
 
-The LTL rewritings described in this section are all implemented in
-the `\verb|ltl_simplifier|' class defined in
+\section{Unabbreviations}\label{sec:unabbrev}
+
+The `\verb=unabbreviate()=' function can apply the following rewriting
+rules when passed a string denoting the list of rules to apply.  For
+instance passing the string \texttt{"\^{}ei"} will rewrite all
+occurrences of $\XOR$, $\EQUIV$ and $\IMPLIES$.
+
+\[
+\begin{array}{l@{\qquad}r@{\;}c@{\;}l}
+``\texttt{i}" & f\IMPLIES g &\equiv&  (\NOT f)\OR g\\
+``\texttt{e}" & f\EQUIV g &\equiv&  (f\AND g)\OR ((\NOT g)\AND(\NOT f))\\
+``\texttt{\^{}e}" & f\XOR g &\equiv&  (f\AND\NOT g)\OR (g\AND\NOT f)\\
+``\texttt{\^{}}"\text{~without~}``\texttt{e}" & f\XOR g &\equiv&  \NOT(f\EQUIV g)\\
+``\texttt{F}" & \F f&\equiv& \1\U f\\
+``\texttt{G}" & \G f&\equiv& \0\R f \\
+``\texttt{W}" & f \W g&\equiv& g \R (g \OR f)\\
+``\texttt{M}" & f \M g&\equiv& g \U (g \AND f)
+\end{array}
+\]
+
+Among all the possible rewritings (see Appendix~\ref{sec:ltl-equiv})
+for $\W$ and $\M$, those two were chosen because they are easier to
+translate in a tableau construction~\cite[Fig.~11]{duret.11.vecos}.
+
+Besides the `\verb=unabbreviate()=' function, there is also a class
+`\verb=unabbreviator()= that implement the same functionality, but
+maintain a cache of abbreviated subformulas.  This is preferable if
+you plan to abbreviate many formulas sharing identical subformulas.
+
+\section{LTL simplifier}
+
+The LTL rewritings described in the next three sections are all
+implemented in the `\verb|ltl_simplifier|' class defined in
 \texttt{spot/ltlvisit/simplify.hh}.  This class implements several
 caches in order to quickly rewrite formulas that have already been
 rewritten previously.  For this reason, it is suggested that you reuse
@@ -1305,10 +1336,11 @@ $\NOT$ operator.
   \NOT(f \IMPLIES g) & \equiv f \AND \NOT g
 \end{align*}
 
-Note that the above rules include those from
-`\verb=unabbreviate_logic_visitor=` described in
-Section~\ref{sec:unabbbool}.  Therefore it is never necessary to apply
-`\verb=unabbreviate_logic_visitor=` before or after
+Note that the above rules include the ``unabbreviation'' of operators
+``$\EQUIV$'', ``$\IMPLIES$'', and ``$\XOR$'', correspondings to the
+rules \texttt{"ei\^"} of function `\verb=unabbreviate()= as described
+in Section~\ref{sec:unabbrev}.  Therefore it is never necessary to
+apply these abbreviations before or after
 `\verb|ltl_simplifier::negative_normal_form|`.
 
 If the option `\verb|nenoform_stop_on_boolean|' is set, the above
@@ -1318,30 +1350,6 @@ $\NOT\F\G(a \XOR b)$ will produce $\G\F(((\NOT a)\AND(\NOT
 b))\OR(a\AND b))$ if `\verb|nenoform_stop_on_boolean|' is unset, while
 it will produce $\G\F(\NOT(a \XOR b))$ if
 `\verb|nenoform_stop_on_boolean|' is set.
-
-\section{Unabbreviations}
-
-The `\verb=unabbreviate()=' function can apply the following rewriting
-rules when passed a string denoting the list of rules to apply.  For
-instance passing the string \texttt{"\^{}ei"} will rewrite all
-occurrences of $\XOR$, $\EQUIV$ and $\IMPLIES$.
-
-\[
-\begin{array}{lrcl}
-``\texttt{i}" & f\IMPLIES g &\equiv&  (\NOT f)\OR g\\
-``\texttt{e}" & f\EQUIV g &\equiv&  (f\AND g)\OR ((\NOT g)\AND(\NOT f))\\
-``\texttt{\^{}e}" & f\XOR g &\equiv&  (f\AND\NOT g)\OR (g\AND\NOT f)\\
-``\texttt{\^{}}"\text{~without~}``\texttt{e}" & f\XOR g &\equiv&  \NOT(f\EQUIV g)\\
-``\texttt{F}" & \F f&\equiv& \1\U f\\
-``\texttt{G}" & \G f&\equiv& \0\R f \\
-``\texttt{W}" & f \W g&\equiv& g \R (g \OR f)\\
-``\texttt{M}" & f \M g&\equiv& g \U (g \AND f)
-\end{array}
-\]
-
-Among all the possible rewritings (see Appendix~\ref{sec:ltl-equiv})
-for $\W$ and $\M$, those two were chosen because they are easier to
-translate in a tableau construction~\cite[Fig.~11]{duret.11.vecos}.
 
 \section{Simplifications}
 
