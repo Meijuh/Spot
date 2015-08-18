@@ -36,7 +36,7 @@ namespace spot
 #define G(x)      unop::instance(unop::G, (x))
 #define U(x, y)   binop::instance(binop::U, (x), (y))
 
-      class remove_x_visitor : public clone_visitor
+      class remove_x_visitor final : public clone_visitor
       {
 	typedef clone_visitor super;
 	atomic_prop_set aps;

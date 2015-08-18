@@ -45,7 +45,7 @@ namespace spot
 	virtual ~ap_generator() {}
       };
 
-      struct pnn_generator: ap_generator
+      struct pnn_generator final: ap_generator
       {
 	unsigned nn;
 	pnn_generator()
@@ -61,7 +61,7 @@ namespace spot
 	}
       };
 
-      struct abc_generator: ap_generator
+      struct abc_generator final: ap_generator
       {
       public:
 	abc_generator()
@@ -446,7 +446,7 @@ namespace spot
       }
 
 
-      class bse_relabeler: public relabeler
+      class bse_relabeler final: public relabeler
       {
       public:
 	fset& c;

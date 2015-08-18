@@ -46,7 +46,7 @@ namespace spot
   {
     namespace
     {
-      class replace_visitor : public clone_visitor
+      class replace_visitor final : public clone_visitor
       {
       public:
 	void visit(const atomic_prop* ap)
@@ -73,7 +73,7 @@ namespace spot
       };
 
       typedef std::vector<const formula*> vec;
-      class mutation_visitor : public clone_visitor
+      class mutation_visitor final : public clone_visitor
       {
       public:
         mutation_visitor(const formula* f, unsigned opts) : f_(f), opts_(opts)
