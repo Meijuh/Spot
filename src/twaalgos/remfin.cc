@@ -22,6 +22,7 @@
 #include <iostream>
 #include "cleanacc.hh"
 #include "totgba.hh"
+#include "mask.hh"
 
 //#define TRACE
 #ifdef TRACE
@@ -34,6 +35,98 @@ namespace spot
 {
   namespace
   {
+    // Check whether the SCC composed of all states STATES, and
+    // visiting all acceptance marks in SETS contains non-accepting
+    // cycles.
+    //
+    // A cycle is accepting (in a Rabin automaton) if there exists an
+    // acceptance pair (Fᵢ, Iᵢ) such that some states from Iᵢ are
+    // visited while no states from Fᵢ are visited.
+    //
+    // Consequently, a cycle is non-accepting if for all acceptance
+    // pairs (Fᵢ, Iᵢ), either no states from Iᵢ are visited or some
+    // states from Fᵢ are visited.  (This corresponds to an accepting
+    // cycle with Streett acceptance.)
+    bool is_scc_ba_type(const const_twa_graph_ptr& aut,
+			       const std::vector<unsigned>& states,
+			       std::vector<bool>& final,
+			       acc_cond::mark_t inf,
+			       acc_cond::mark_t sets)
+    {
+      // Consider the SCC as one large cycle and check its
+      // intersection with all Fᵢs and Iᵢs: This is the SETS
+      // variable.
+      //
+      // Let f=[F₁,F₂,...] and i=[I₁,I₂,...] be bitvectors where bit
+      // Fᵢ (resp. Iᵢ) indicates that Fᵢ (resp. Iᵢ) has been visited
+      // in the SCC.
+      acc_cond::mark_t f = (sets << 1) & inf;
+      acc_cond::mark_t i = sets & inf;
+      // If we have i&!f = [0,0,...] that means that the cycle formed
+      // by the entire SCC is not accepting.  However that does not
+      // necessarily imply that all cycles in the SCC are also
+      // non-accepting.  We may have a smaller cycle that is
+      // accepting, but which becomes non-accepting when extended with
+      // more states.
+      i -= f;
+      if (!i)
+	{
+	  // Check whether the SCC is accepting.  We do that by simply
+	  // converting that SCC into a TGBA and running our emptiness
+	  // check.  This is not a really smart implementation and
+	  // could be improved.
+	  std::vector<bool> keep(aut->num_states(), false);
+	  for (auto s: states)
+	    keep[s] = true;
+	  auto sccaut = mask_keep_states(aut, keep, states.front());
+	  // Force SBA to false.  It does not affect the emptiness
+	  // check result, however it prevent recurring into this
+	  // procedure, because empty() will call to_tgba() wich will
+	  // call remove_fin()...
+	  sccaut->prop_state_based_acc(false);
+	  // If SCCAUT is empty, the SCC is DBA realizable (and none
+	  // of its states are final).  If SCCAUT is nonempty, the SCC
+	  // is not DBA realizable.
+	  return sccaut->is_empty();
+	}
+      // The bits remaining sets in i corresponds to I₁s that have
+      // been seen with seeing the mathing F₁.  In this SCC any state
+      // in these I₁ is therefore final.  Otherwise we do not know: it
+      // is possible that there is a non-accepting cycle in the SCC
+      // that do not visit Fᵢ.
+      std::set<unsigned> unknown;
+      for (auto s: states)
+	{
+	  if (aut->state_acc_sets(s) & i)
+	    final[s] = true;
+	  else
+	    unknown.insert(s);
+	}
+      // Check whether it is possible to build non-accepting cycles
+      // using only the "unknown" states.
+      while (!unknown.empty())
+	{
+	  std::vector<bool> keep(aut->num_states(), false);
+	  for (auto s: unknown)
+	    keep[s] = true;
+
+	  scc_info si(mask_keep_states(aut, keep, *unknown.begin()));
+	  unsigned scc_max = si.scc_count();
+	  for (unsigned scc = 0; scc < scc_max; ++scc)
+	    {
+	      for (auto s: si.states_of(scc))
+		unknown.erase(s);
+	      if (si.is_trivial(scc))
+		continue;
+	      if (!is_scc_ba_type(aut, si.states_of(scc),
+				  final, inf, si.acc(scc)))
+		return false;
+	    }
+	}
+      return true;
+   }
+
+
     // If the DNF is
     //  Fin(1)&Inf(2)&Inf(4) | Fin(2)&Fin(3)&Inf(1) |
     //  Inf(1)&Inf(3) | Inf(1)&Inf(2) | Fin(4)
@@ -117,6 +210,50 @@ namespace spot
 
     if (!aut->acc().uses_fin_acceptance())
       return std::const_pointer_cast<twa_graph>(aut);
+
+    scc_info si(aut);
+
+    // For state-based Rabin automata, we check each SCC for
+    // BA-typeness.  If an SCC is BA-type, its final states are stored
+    // in BA_FINAL_STATES.
+    std::vector<bool> scc_is_ba_type(si.scc_count(), false);
+    bool ba_type = false;
+    std::vector<bool> ba_final_states;
+    if (aut->has_state_based_acc()
+	&& aut->is_deterministic()
+	&& aut->acc().is_rabin() > 0)
+      {
+	acc_cond::mark_t fin;
+	acc_cond::mark_t inf;
+	std::tie(inf, fin) = aut->get_acceptance().used_inf_fin_sets();
+	assert((fin << 1) == inf);
+	ba_final_states.resize(aut->num_states(), false);
+	ba_type = true;		// until proven otherwise
+	unsigned scc_max = si.scc_count();
+	for (unsigned scc = 0; scc < scc_max; ++scc)
+	  {
+	    if (si.is_trivial(scc))
+	      {
+		scc_is_ba_type[scc] = true;
+		continue;
+	      }
+	    bool scc_ba_type =
+	      is_scc_ba_type(aut, si.states_of(scc),
+			     ba_final_states, inf, si.acc(scc));
+	    ba_type &= scc_ba_type;
+	    scc_is_ba_type[scc] = scc_ba_type;
+	  }
+#if TRACE
+	trace << "SCC DBA-realizibility\n";
+	for (unsigned scc = 0; scc < scc_max; ++scc)
+	  {
+	    trace << scc << ": " << scc_is_ba_type[scc] << " {";
+	    for (auto s: si.states_of(scc))
+	      trace << ' ' << s;
+	    trace << " }\n";
+	  }
+#endif
+      }
 
     std::vector<acc_cond::acc_code> code;
     std::vector<acc_cond::mark_t> rem;
@@ -257,12 +394,13 @@ namespace spot
     for (auto c: code)
       new_code.append_or(std::move(c));
 
+    // The condition to use for SCCs that are BA-type.
+    acc_cond::mark_t final_acc = allinf.lowest();
+
     unsigned cs = code.size();
     for (unsigned i = 0; i < cs; ++i)
       trace << i << " Rem " << rem[i] << "  Code " << code[i]
 	    << " Keep " << keep[i] << '\n';
-
-    scc_info si(aut);
 
     unsigned nst = aut->num_states();
     auto res = make_twa_graph(aut->get_dict());
@@ -281,6 +419,22 @@ namespace spot
 	trace << "SCC #" << n << " uses " << m << '\n';
 
 	// What to keep and add into the main copy
+
+	if (scc_is_ba_type[n])
+	  {
+	    // If the SCC is BA-type, we know exactly what state need to
+	    // be marked as accepting.
+	    for (auto s: states)
+	      {
+		acc_cond::mark_t acc = 0U;
+		if (ba_final_states[s])
+		  acc = final_acc;
+		for (auto& t: aut->out(s))
+		  res->new_edge(s, t.dst, t.cond, acc);
+	      }
+	    continue;
+	  }
+
 	acc_cond::mark_t main_sets = 0U;
 	acc_cond::mark_t main_add = 0U;
 	bool intersects_fin = false;
@@ -339,9 +493,11 @@ namespace spot
 		    }
 		}
 	    }
-
-
       }
+
+    if (ba_type)
+      res->prop_state_based_acc();
+
     res->purge_dead_states();
     trace << "before cleanup: " << res->get_acceptance() << '\n';
     cleanup_acceptance_here(res);

@@ -244,6 +244,12 @@ namespace spot
 	return res;
       }
 
+      // Return the lowest acceptance mark
+      mark_t lowest() const
+      {
+	return id & -id;
+      }
+
       // Remove n bits that where set
       mark_t& remove_some(unsigned n)
       {
