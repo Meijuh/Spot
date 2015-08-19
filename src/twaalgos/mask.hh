@@ -25,7 +25,7 @@ namespace spot
 {
   /// \brief Clone and mask an automaton.
   ///
-  /// Copy the edge of the automaton \a old, into the automaton
+  /// Copy the edges of automaton \a old, into automaton
   /// \a cpy, creating new states at the same time.  The argument \a
   /// trans should behave as a function with the following prototype:
   /// <code>
@@ -33,7 +33,7 @@ namespace spot
   ///   unsigned dst)
   /// </code>
   /// It can modify either the condition or the acceptance sets of
-  /// the edges.  Set the condition to bddfalse to remove it
+  /// the edges.  Set the condition to bddfalse to remove the edge
   /// (this will also remove the destination state and its descendants
   /// if they are not reachable by another edge).
   /// \param init The optional new initial state.
@@ -84,7 +84,7 @@ namespace spot
 
   /// \brief Copy an automaton and update each edge.
   ///
-  /// Copy the states of the automaton \a old, into the automaton
+  /// Copy the states of automaton \a old, into automaton
   /// \a cpy. Each state in \a cpy will have the same id as the ones in \a old.
   /// The argument \a trans
   /// should behave as a function with the following prototype:
@@ -133,7 +133,7 @@ namespace spot
     transform_copy(old, cpy, trans, old->get_init_state_number());
   }
 
-  /// \brief Remove all edges that are in some given acceptance sets.
+  /// \brief Remove all edges that belong to some given acceptance sets.
   SPOT_API
   twa_graph_ptr mask_acc_sets(const const_twa_graph_ptr& in,
 			      acc_cond::mark_t to_remove);
