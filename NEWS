@@ -20,6 +20,37 @@ New in spot 1.99.2a (not yet released)
     can now include \" and \\.  (This is more consistent with the HOA
     format, which already allows that.)
 
+  * All the conversion routines that were written specifically for
+    ltl2dstar's output format (DRA->BA & DRA->TGBA) have been ported
+    to the new TωA structure supporting the HOA format.  The DRA->TGBA
+    conversion was reimplemented in the previous release, and the
+    DRA->BA conversion has been reimplemented in this release (but it
+    is still restricted to state-based acceptance).  All these
+    conversions are called automatically by to_generalized_buchi()
+    or remove_fin() so there should be no need to call them directly.
+
+    As a consequence:
+    - "autfilt --remove-fin" or "autfilt -B" is better at converting
+      state-based Rabin automata: it will produce a DBA if the input is
+      deterministic and DBA-realizable, but will preserve as much
+      determinism as possible otherwise.
+    - a lot of obsolete code that was here only to support the old
+      conversion routines has been removed.  (The number of lines
+      removed by this release is twice the number of lines added.)
+    - ltlcross now uses automata in ltl2dstar's format directly,
+      without converting them to Büchi (this makes the statistics
+      reported in CSV files more relevant).
+    - ltlcross no longer outputs additional columns about the size
+      of the input automaton in the case ltl2dstar's format is used.
+    - ltldo uses results in ltl2dstar's format directly, without
+      converting them to Büchi
+    - dstar2tgba has been greatly simplified and now uses the
+      same output routines as all the other tools that output
+      automata.  This implies a few minor semantic changes for
+      instance --stats=%A used to output the number of acceptance
+      *pairs* in the input automaton, while it nows output the
+      number of acceptance sets like in all the other tools.
+
   * Bugs fixed
     - Some acceptance conditions like Fin(0)|Fin(1)|Fin(2)&Inf(3)
       were not detected as generalized-Rabin.
