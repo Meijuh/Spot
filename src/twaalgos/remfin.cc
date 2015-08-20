@@ -47,11 +47,12 @@ namespace spot
     // pairs (Fᵢ, Iᵢ), either no states from Iᵢ are visited or some
     // states from Fᵢ are visited.  (This corresponds to an accepting
     // cycle with Streett acceptance.)
-    bool is_scc_ba_type(const const_twa_graph_ptr& aut,
-			       const std::vector<unsigned>& states,
-			       std::vector<bool>& final,
-			       acc_cond::mark_t inf,
-			       acc_cond::mark_t sets)
+    static bool
+    is_scc_ba_type(const const_twa_graph_ptr& aut,
+		   const std::vector<unsigned>& states,
+		   std::vector<bool>& final,
+		   acc_cond::mark_t inf,
+		   acc_cond::mark_t sets)
     {
       // Consider the SCC as one large cycle and check its
       // intersection with all Fᵢs and Iᵢs: This is the SETS
@@ -116,7 +117,7 @@ namespace spot
 	    {
 	      for (auto s: si.states_of(scc))
 		unknown.erase(s);
-	      if (si.is_trivial(scc))
+	      if (si.is_rejecting_scc(scc)) // this includes trivial SCCs
 		continue;
 	      if (!is_scc_ba_type(aut, si.states_of(scc),
 				  final, inf, si.acc(scc)))
@@ -124,8 +125,145 @@ namespace spot
 	    }
 	}
       return true;
-   }
+    }
 
+    // Specialized conversion from Rabin acceptance to Büchi acceptance.
+    // Is able to detect SCCs that are Büchi-type (i.e., they can be
+    // converted to Büchi acceptance without chaning their structure).
+    // Currently only work with state-based acceptance.
+    //
+    // See "Deterministic ω-automata vis-a-vis Deterministic Büchi
+    // Automata", S. Krishnan, A. Puri, and R. Brayton (ISAAC'94) for
+    // some details about detecting Büchi-typeness.
+    //
+    // We essentially apply this method SCC-wise.  The paper is
+    // concerned about *deterministic* automata, but we apply the
+    // algorithm on non-deterministic automata as well: in the worst
+    // case it is possible that a Büchi-type SCC with some
+    // non-deterministic has one accepting and one rejecting run for
+    // the same word.  In this case we may fail to detect the
+    // Büchi-typeness of the SCC, but the resulting automaton should
+    // be correct nonetheless.
+    static twa_graph_ptr
+    ra_to_ba(const const_twa_graph_ptr& aut)
+    {
+      assert(aut->has_state_based_acc());
+      assert(aut->acc().is_rabin() > 0);
+
+      scc_info si(aut);
+
+      // For state-based Rabin automata, we check each SCC for
+      // BA-typeness.  If an SCC is BA-type, its final states are stored
+      // in BA_FINAL_STATES.
+      std::vector<bool> scc_is_ba_type(si.scc_count(), false);
+      bool ba_type = false;
+      std::vector<bool> ba_final_states;
+
+
+      acc_cond::mark_t fin;
+      acc_cond::mark_t inf;
+      std::tie(inf, fin) = aut->get_acceptance().used_inf_fin_sets();
+      assert((fin << 1) == inf);
+      ba_final_states.resize(aut->num_states(), false);
+      ba_type = true;		// until proven otherwise
+      unsigned scc_max = si.scc_count();
+      for (unsigned scc = 0; scc < scc_max; ++scc)
+	{
+	  if (si.is_rejecting_scc(scc)) // this includes trivial SCCs
+	    {
+	      scc_is_ba_type[scc] = true;
+	      continue;
+	    }
+	  bool scc_ba_type =
+	    is_scc_ba_type(aut, si.states_of(scc),
+			   ba_final_states, inf, si.acc(scc));
+	  ba_type &= scc_ba_type;
+	  scc_is_ba_type[scc] = scc_ba_type;
+	}
+
+#if TRACE
+      trace << "SCC DBA-realizibility\n";
+      for (unsigned scc = 0; scc < scc_max; ++scc)
+	{
+	    trace << scc << ": " << scc_is_ba_type[scc] << " {";
+	    for (auto s: si.states_of(scc))
+	      trace << ' ' << s;
+	    trace << " }\n";
+	}
+#endif
+
+      unsigned nst = aut->num_states();
+      auto res = make_twa_graph(aut->get_dict());
+      res->copy_ap_of(aut);
+      res->prop_copy(aut, { true, false, false, true });
+      res->new_states(nst);
+      auto final_acc = res->set_buchi();
+      res->set_init_state(aut->get_init_state_number());
+
+      std::vector<unsigned> state_map(aut->num_states());
+      for (unsigned n = 0; n < scc_max; ++n)
+	{
+	  auto states = si.states_of(n);
+
+	  if (scc_is_ba_type[n])
+	    {
+	      // If the SCC is BA-type, we know exactly what state need to
+	      // be marked as accepting.
+	      for (auto s: states)
+		{
+		  acc_cond::mark_t acc = 0U;
+		  if (ba_final_states[s])
+		    acc = final_acc;
+		  for (auto& t: aut->out(s))
+		    res->new_edge(s, t.dst, t.cond, acc);
+		}
+	      continue;
+	    }
+	  else
+	    {
+	      // The main copy is unaccepting
+	      for (auto s: states)
+		for (auto& t: aut->out(s))
+		  res->new_edge(s, t.dst, t.cond);
+
+	      auto rem = si.acc(n) & fin;
+	      if (!rem)
+		// No Fin sets used in this SCC.
+		continue;
+	      auto sets = rem.sets();
+
+	      unsigned ss = states.size();
+
+	      for (auto r: sets)
+		{
+		  unsigned base = res->new_states(ss);
+		  for (auto s: states)
+		    state_map[s] = base++;
+		  for (auto s: states)
+		    {
+		      auto ns = state_map[s];
+		      acc_cond::mark_t acc = aut->state_acc_sets(s);
+		      if (acc.has(r))
+			continue;
+		      for (auto& t: aut->out(s))
+			{
+			  if (si.scc_of(t.dst) != n)
+			    continue;
+			  auto nd = state_map[t.dst];
+			  res->new_acc_edge(ns, nd, t.cond, t.acc.has(r + 1));
+			  // We need only one non-deterministic jump per
+			  // cycle.  As an approximation, we only do
+			  // them on back-links.
+			  if (t.dst <= s)
+			    res->new_edge(s, nd, t.cond);
+			}
+		    }
+		}
+	    }
+	}
+      res->purge_dead_states();
+      return res;
+    }
 
     // If the DNF is
     //  Fin(1)&Inf(2)&Inf(4) | Fin(2)&Fin(3)&Inf(1) |
@@ -211,49 +349,8 @@ namespace spot
     if (!aut->acc().uses_fin_acceptance())
       return std::const_pointer_cast<twa_graph>(aut);
 
-    scc_info si(aut);
-
-    // For state-based Rabin automata, we check each SCC for
-    // BA-typeness.  If an SCC is BA-type, its final states are stored
-    // in BA_FINAL_STATES.
-    std::vector<bool> scc_is_ba_type(si.scc_count(), false);
-    bool ba_type = false;
-    std::vector<bool> ba_final_states;
-    if (aut->has_state_based_acc()
-	&& aut->is_deterministic()
-	&& aut->acc().is_rabin() > 0)
-      {
-	acc_cond::mark_t fin;
-	acc_cond::mark_t inf;
-	std::tie(inf, fin) = aut->get_acceptance().used_inf_fin_sets();
-	assert((fin << 1) == inf);
-	ba_final_states.resize(aut->num_states(), false);
-	ba_type = true;		// until proven otherwise
-	unsigned scc_max = si.scc_count();
-	for (unsigned scc = 0; scc < scc_max; ++scc)
-	  {
-	    if (si.is_trivial(scc))
-	      {
-		scc_is_ba_type[scc] = true;
-		continue;
-	      }
-	    bool scc_ba_type =
-	      is_scc_ba_type(aut, si.states_of(scc),
-			     ba_final_states, inf, si.acc(scc));
-	    ba_type &= scc_ba_type;
-	    scc_is_ba_type[scc] = scc_ba_type;
-	  }
-#if TRACE
-	trace << "SCC DBA-realizibility\n";
-	for (unsigned scc = 0; scc < scc_max; ++scc)
-	  {
-	    trace << scc << ": " << scc_is_ba_type[scc] << " {";
-	    for (auto s: si.states_of(scc))
-	      trace << ' ' << s;
-	    trace << " }\n";
-	  }
-#endif
-      }
+    if (aut->has_state_based_acc() && aut->acc().is_rabin() > 0)
+      return ra_to_ba(aut);
 
     std::vector<acc_cond::acc_code> code;
     std::vector<acc_cond::mark_t> rem;
@@ -264,7 +361,6 @@ namespace spot
     acc_cond::mark_t allfin = 0U;
     {
       auto acccode = aut->get_acceptance();
-
       if (!acccode.is_dnf())
 	acccode = acccode.to_dnf();
 
@@ -394,9 +490,6 @@ namespace spot
     for (auto c: code)
       new_code.append_or(std::move(c));
 
-    // The condition to use for SCCs that are BA-type.
-    acc_cond::mark_t final_acc = allinf.lowest();
-
     unsigned cs = code.size();
     for (unsigned i = 0; i < cs; ++i)
       trace << i << " Rem " << rem[i] << "  Code " << code[i]
@@ -410,6 +503,8 @@ namespace spot
     res->set_acceptance(aut->num_sets() + extra_sets, new_code);
     res->set_init_state(aut->get_init_state_number());
 
+    scc_info si(aut);
+
     unsigned nscc = si.scc_count();
     std::vector<unsigned> state_map(nst);
     for (unsigned n = 0; n < nscc; ++n)
@@ -419,22 +514,6 @@ namespace spot
 	trace << "SCC #" << n << " uses " << m << '\n';
 
 	// What to keep and add into the main copy
-
-	if (scc_is_ba_type[n])
-	  {
-	    // If the SCC is BA-type, we know exactly what state need to
-	    // be marked as accepting.
-	    for (auto s: states)
-	      {
-		acc_cond::mark_t acc = 0U;
-		if (ba_final_states[s])
-		  acc = final_acc;
-		for (auto& t: aut->out(s))
-		  res->new_edge(s, t.dst, t.cond, acc);
-	      }
-	    continue;
-	  }
-
 	acc_cond::mark_t main_sets = 0U;
 	acc_cond::mark_t main_add = 0U;
 	bool intersects_fin = false;
@@ -494,9 +573,6 @@ namespace spot
 		}
 	    }
       }
-
-    if (ba_type)
-      res->prop_state_based_acc();
 
     res->purge_dead_states();
     trace << "before cleanup: " << res->get_acceptance() << '\n';
