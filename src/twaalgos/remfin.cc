@@ -51,7 +51,8 @@ namespace spot
     is_scc_ba_type(const const_twa_graph_ptr& aut,
 		   const std::vector<unsigned>& states,
 		   std::vector<bool>& final,
-		   acc_cond::mark_t inf,
+		   acc_cond::mark_t inf_pairs,
+		   acc_cond::mark_t inf_alone,
 		   acc_cond::mark_t sets)
     {
       // Consider the SCC as one large cycle and check its
@@ -61,8 +62,8 @@ namespace spot
       // Let f=[F₁,F₂,...] and i=[I₁,I₂,...] be bitvectors where bit
       // Fᵢ (resp. Iᵢ) indicates that Fᵢ (resp. Iᵢ) has been visited
       // in the SCC.
-      acc_cond::mark_t f = (sets << 1) & inf;
-      acc_cond::mark_t i = sets & inf;
+      acc_cond::mark_t f = (sets << 1) & inf_pairs;
+      acc_cond::mark_t i = sets & inf_pairs;
       // If we have i&!f = [0,0,...] that means that the cycle formed
       // by the entire SCC is not accepting.  However that does not
       // necessarily imply that all cycles in the SCC are also
@@ -70,6 +71,7 @@ namespace spot
       // accepting, but which becomes non-accepting when extended with
       // more states.
       i -= f;
+      i |= (inf_alone & sets);
       if (!i)
 	{
 	  // Check whether the SCC is accepting.  We do that by simply
@@ -85,9 +87,9 @@ namespace spot
 	  // procedure, because empty() will call to_tgba() wich will
 	  // call remove_fin()...
 	  sccaut->prop_state_based_acc(false);
-	  // If SCCAUT is empty, the SCC is DBA realizable (and none
+	  // If SCCAUT is empty, the SCC is BA-type (and none
 	  // of its states are final).  If SCCAUT is nonempty, the SCC
-	  // is not DBA realizable.
+	  // is not BA type.
 	  return sccaut->is_empty();
 	}
       // The bits remaining sets in i corresponds to I₁s that have
@@ -120,7 +122,7 @@ namespace spot
 	      if (si.is_rejecting_scc(scc)) // this includes trivial SCCs
 		continue;
 	      if (!is_scc_ba_type(aut, si.states_of(scc),
-				  final, inf, si.acc(scc)))
+				  final, inf_pairs, 0U, si.acc(scc)))
 		return false;
 	    }
 	}
@@ -145,13 +147,14 @@ namespace spot
     // Büchi-typeness of the SCC, but the resulting automaton should
     // be correct nonetheless.
     static twa_graph_ptr
-    ra_to_ba(const const_twa_graph_ptr& aut)
+    ra_to_ba(const const_twa_graph_ptr& aut,
+	     acc_cond::mark_t inf_pairs,
+	     acc_cond::mark_t inf_alone,
+	     acc_cond::mark_t fin_alone)
     {
       assert(aut->has_state_based_acc());
-      assert(aut->acc().is_rabin() > 0);
 
       scc_info si(aut);
-
       // For state-based Rabin automata, we check each SCC for
       // BA-typeness.  If an SCC is BA-type, its final states are stored
       // in BA_FINAL_STATES.
@@ -159,11 +162,13 @@ namespace spot
       bool ba_type = false;
       std::vector<bool> ba_final_states;
 
-
+#ifdef DEBUG
       acc_cond::mark_t fin;
       acc_cond::mark_t inf;
       std::tie(inf, fin) = aut->get_acceptance().used_inf_fin_sets();
-      assert((fin << 1) == inf);
+      assert(inf == (inf_pairs | inf_alone));
+      assert(fin == ((inf_pairs >> 1) | fin_alone));
+#endif
       ba_final_states.resize(aut->num_states(), false);
       ba_type = true;		// until proven otherwise
       unsigned scc_max = si.scc_count();
@@ -174,14 +179,36 @@ namespace spot
 	      scc_is_ba_type[scc] = true;
 	      continue;
 	    }
-	  bool scc_ba_type =
-	    is_scc_ba_type(aut, si.states_of(scc),
-			   ba_final_states, inf, si.acc(scc));
+	  bool scc_ba_type = false;
+	  auto sets = si.acc(scc);
+	  // If there is one fin_alone that is not in the SCC,
+	  // any cycle in the SCC is accepting.  Mark all states
+	  // as final.
+	  if ((sets & fin_alone) != fin_alone)
+	    {
+	      for (auto s: si.states_of(scc))
+		ba_final_states[s] = true;
+	      scc_ba_type = true;
+	    }
+	  // Conversely, if all fin_alone appear in the SCC, then it
+	  // cannot be accepting.
+	  else if (sets & fin_alone)
+	    {
+	      scc_ba_type = false;
+	    }
+	  // In the generale case (no fin_alone involved), we need
+	  // a dedicated check.
+	  else
+	    {
+	      scc_ba_type = is_scc_ba_type(aut, si.states_of(scc),
+					   ba_final_states,
+					   inf_pairs, inf_alone, si.acc(scc));
+	    }
 	  ba_type &= scc_ba_type;
 	  scc_is_ba_type[scc] = scc_ba_type;
 	}
 
-#if TRACE
+#ifdef TRACE
       trace << "SCC DBA-realizibility\n";
       for (unsigned scc = 0; scc < scc_max; ++scc)
 	{
@@ -197,8 +224,9 @@ namespace spot
       res->copy_ap_of(aut);
       res->prop_copy(aut, { true, false, false, true });
       res->new_states(nst);
-      auto final_acc = res->set_buchi();
+      res->set_buchi();
       res->set_init_state(aut->get_init_state_number());
+      bool deterministic = aut->is_deterministic();
 
       std::vector<unsigned> state_map(aut->num_states());
       for (unsigned n = 0; n < scc_max; ++n)
@@ -211,25 +239,32 @@ namespace spot
 	      // be marked as accepting.
 	      for (auto s: states)
 		{
-		  acc_cond::mark_t acc = 0U;
-		  if (ba_final_states[s])
-		    acc = final_acc;
+		  bool acc = ba_final_states[s];
 		  for (auto& t: aut->out(s))
-		    res->new_edge(s, t.dst, t.cond, acc);
+		    res->new_acc_edge(s, t.dst, t.cond, acc);
 		}
 	      continue;
 	    }
 	  else
 	    {
-	      // The main copy is unaccepting
-	      for (auto s: states)
-		for (auto& t: aut->out(s))
-		  res->new_edge(s, t.dst, t.cond);
+	      deterministic = false;
 
-	      auto rem = si.acc(n) & fin;
-	      if (!rem)
-		// No Fin sets used in this SCC.
-		continue;
+	      // The main copy is only accepting for inf_alone
+	      // and for all Inf sets that have no matching Fin
+	      // sets in this SCC.
+	      acc_cond::mark_t sccsets = si.acc(n);
+	      acc_cond::mark_t f = (sccsets << 1) & inf_pairs;
+	      acc_cond::mark_t i = sccsets & (inf_pairs | inf_alone);
+	      i -= f;
+	      for (auto s: states)
+		{
+		  bool acc = aut->state_acc_sets(s) & i;
+		  for (auto& t: aut->out(s))
+		    res->new_acc_edge(s, t.dst, t.cond, acc);
+		}
+
+	      auto rem = sccsets & ((inf_pairs >> 1) | fin_alone);
+	      assert(rem != 0U);
 	      auto sets = rem.sets();
 
 	      unsigned ss = states.size();
@@ -245,25 +280,101 @@ namespace spot
 		      acc_cond::mark_t acc = aut->state_acc_sets(s);
 		      if (acc.has(r))
 			continue;
+		      bool jacc = acc & inf_alone;
+		      bool cacc = fin_alone.has(r) || acc.has(r + 1);
 		      for (auto& t: aut->out(s))
 			{
 			  if (si.scc_of(t.dst) != n)
 			    continue;
 			  auto nd = state_map[t.dst];
-			  res->new_acc_edge(ns, nd, t.cond, t.acc.has(r + 1));
+			  res->new_acc_edge(ns, nd, t.cond, cacc);
 			  // We need only one non-deterministic jump per
 			  // cycle.  As an approximation, we only do
 			  // them on back-links.
 			  if (t.dst <= s)
-			    res->new_edge(s, nd, t.cond);
+			    res->new_acc_edge(s, nd, t.cond, jacc);
 			}
 		    }
 		}
 	    }
 	}
       res->purge_dead_states();
+      res->prop_deterministic(deterministic);
       return res;
     }
+
+    static twa_graph_ptr
+    rabin_to_buchi_maybe(const const_twa_graph_ptr& aut)
+    {
+      if (!aut->has_state_based_acc())
+	return nullptr;
+
+      auto code = aut->get_acceptance();
+
+      if (code.is_true())
+	return nullptr;
+
+      acc_cond::mark_t inf_pairs = 0U;
+      acc_cond::mark_t inf_alone = 0U;
+      acc_cond::mark_t fin_alone = 0U;
+
+      auto s = code.back().size;
+
+      // Rabin 1
+      if (code.back().op == acc_cond::acc_op::And && s == 4)
+	goto start_and;
+      // Co-Büchi
+      else if (code.back().op == acc_cond::acc_op::Fin && s == 1)
+	goto start_fin;
+      // Rabin >1
+      else if (code.back().op != acc_cond::acc_op::Or)
+	return nullptr;
+
+      while (s)
+	{
+	  --s;
+	  if (code[s].op == acc_cond::acc_op::And)
+	    {
+	    start_and:
+	      auto o1 = code[--s].op;
+	      auto m1 = code[--s].mark;
+	      auto o2 = code[--s].op;
+	      auto m2 = code[--s].mark;
+	      // We expect
+	      //   Fin({n}) & Inf({n+1})
+	      if (o1 != acc_cond::acc_op::Fin ||
+		  o2 != acc_cond::acc_op::Inf ||
+		  m1.count() != 1 ||
+		  m2.count() != 1 ||
+		  m2 != (m1 << 1))
+		return nullptr;
+	      inf_pairs |= m2;
+	    }
+	  else if (code[s].op == acc_cond::acc_op::Fin)
+	    {
+	    start_fin:
+	      fin_alone |= code[--s].mark;
+	    }
+	  else if (code[s].op == acc_cond::acc_op::Inf)
+	    {
+	      auto m1 = code[--s].mark;
+	      if (m1.count() != 1)
+		return nullptr;
+	      inf_alone |= m1;
+	    }
+	  else
+	    {
+	      return nullptr;
+	    }
+	}
+
+      trace << "inf_pairs: " << inf_pairs << '\n';
+      trace << "inf_alone: " << inf_alone << '\n';
+      trace << "fin_alone: " << fin_alone << '\n';
+      return ra_to_ba(aut, inf_pairs, inf_alone, fin_alone);
+    }
+
+
 
     // If the DNF is
     //  Fin(1)&Inf(2)&Inf(4) | Fin(2)&Fin(3)&Inf(1) |
@@ -338,19 +449,19 @@ namespace spot
 	}
       return res;
     }
+
   }
 
   twa_graph_ptr remove_fin(const const_twa_graph_ptr& aut)
   {
-    auto maybe = streett_to_generalized_buchi_maybe(aut);
-    if (maybe)
-      return maybe;
-
     if (!aut->acc().uses_fin_acceptance())
       return std::const_pointer_cast<twa_graph>(aut);
 
-    if (aut->has_state_based_acc() && aut->acc().is_rabin() > 0)
-      return ra_to_ba(aut);
+    if (auto maybe = streett_to_generalized_buchi_maybe(aut))
+      return maybe;
+
+    if (auto maybe = rabin_to_buchi_maybe(aut))
+      return maybe;
 
     std::vector<acc_cond::acc_code> code;
     std::vector<acc_cond::mark_t> rem;
