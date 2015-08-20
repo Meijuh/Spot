@@ -24,7 +24,7 @@
 %name-prefix "dstaryy"
 %debug
 %error-verbose
-%lex-param { spot::dstar_parse_error_list& error_list }
+%lex-param { spot::parse_aut_error_list& error_list }
 %define api.location.type "spot::location"
 
 %code requires
@@ -38,9 +38,12 @@
   {
     typedef std::map<int, bdd> map_t;
 
+    enum dstar_type { Rabin, Streett };
+
     struct result_
     {
-      spot::dstar_aut_ptr d;
+      spot::parsed_aut_ptr d;
+      dstar_type type;
       spot::ltl::environment* env;
       std::vector<bdd> guards;
       std::vector<bdd>::const_iterator cur_guard;
@@ -70,7 +73,7 @@
   }
 }
 
-%parse-param {spot::dstar_parse_error_list& error_list}
+%parse-param {spot::parse_aut_error_list& error_list}
 %parse-param {result_& result}
 %union
 {
@@ -118,19 +121,20 @@
 
 %%
 dstar: header ENDOFHEADER eols states
+       { result.d->loc = @$; }
 
 eols : EOL | eols EOL
 opt_eols: | opt_eols EOL
 
 auttype: DRA
        {
-         result.d->type = spot::Rabin;
+         result.type = Rabin;
          result.plus = 1;
          result.minus = 0;
        }
        | DSA
        {
-	 result.d->type = spot::Streett;
+	 result.type = Streett;
          result.plus = 0;
          result.minus = 1;
        }
@@ -185,7 +189,7 @@ sizes:
     result.accpair_count = $4;
     result.accpair_count_seen = true;
     result.d->aut->set_acceptance(2 * $4,
-				  result.d->type == spot::Rabin ?
+				  result.type == Rabin ?
 				  spot::acc_cond::acc_code::rabin($4) :
 				  spot::acc_cond::acc_code::streett($4));
   }
@@ -332,9 +336,9 @@ dstaryy::parser::error(const location_type& location,
 
 namespace spot
 {
-  dstar_aut_ptr
+  parsed_aut_ptr
   dstar_parse(const std::string& name,
-	      dstar_parse_error_list& error_list,
+	      parse_aut_error_list& error_list,
 	      const bdd_dict_ptr& dict,
 	      ltl::environment& env,
 	      bool debug)
@@ -343,10 +347,10 @@ namespace spot
       {
 	error_list.emplace_back(spot::location(),
 				std::string("Cannot open file ") + name);
-	return 0;
+	return nullptr;
       }
     result_ r;
-    r.d = std::make_shared<spot::dstar_aut>();
+    r.d = std::make_shared<spot::parsed_aut>();
     r.d->aut = make_twa_graph(dict);
     r.d->aut->prop_deterministic(true);
     r.d->aut->prop_state_based_acc(true);
@@ -355,9 +359,6 @@ namespace spot
     parser.set_debug_level(debug);
     parser.parse();
     dstaryyclose();
-
-    if (!r.d->aut)
-      return nullptr;
     return r.d;
   }
 }

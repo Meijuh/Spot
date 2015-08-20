@@ -51,7 +51,6 @@ $(FROM_DSTARPARSE_YY_OTHERS): $(DSTARPARSE_YY)
 EXTRA_DIST = $(DSTARPARSE_YY)
 
 libdstarparse_la_SOURCES = \
-  fmterror.cc \
   $(FROM_DSTARPARSE_YY) \
   dstarscan.ll \
   parsedecl.hh

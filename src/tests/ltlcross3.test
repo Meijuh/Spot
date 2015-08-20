@@ -138,7 +138,7 @@ echo "$first" > bug.txt
 run 1 ../../bin/ltlcross "$ltl2tgba -s %f >%N" 'false %f >%D' \
       -f 'X  a' --csv=out.csv --save-bogus='>>bug.txt' 2>stderr
 q=`sed 's/[^,]//g;q' out.csv | wc -c`
-test $q -eq `expr $p + 5`
+test $q -eq `expr $p - 1`
 grep '"exit_status"' out.csv
 grep '"exit_code"' out.csv
 test `grep 'error:.*returned exit code 1' stderr | wc -l` -eq 2

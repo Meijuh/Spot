@@ -266,7 +266,7 @@ namespace
     /// The \a f argument is not needed if the Formula does not need
     /// to be output.
     std::ostream&
-    print(const spot::const_dstar_aut_ptr& daut,
+    print(const spot::const_parsed_aut_ptr& daut,
 	  const spot::const_twa_graph_ptr& aut,
 	  const char* filename, double run_time)
     {
@@ -347,9 +347,9 @@ namespace
     int
     process_file(const char* filename)
     {
-      spot::dstar_parse_error_list pel;
+      spot::parse_aut_error_list pel;
       auto daut = spot::dstar_parse(filename, pel, spot::make_bdd_dict());
-      if (spot::format_dstar_parse_errors(std::cerr, filename, pel))
+      if (spot::format_parse_aut_errors(std::cerr, filename, pel))
 	return 2;
       if (!daut)
 	error(2, 0, "failed to read automaton from %s", filename);

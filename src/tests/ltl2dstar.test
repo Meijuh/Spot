@@ -57,12 +57,6 @@ $ltlcross -F - -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
 "ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L - | $dstar2tgba --low -s >%N" \
 --csv=out.csv
 
-grep '"in_type"' out.csv
-grep '"DSA"' out.csv
-grep '"DRA"' out.csv
-grep ',,,,' out.csv
-
-
 # A bug in ltlcross <=1.2.5 caused it to not use the complement of the
 # negative automaton.  So running ltlcross with GFa would check one
 # complement (the positive one), but running with FGa would ignore

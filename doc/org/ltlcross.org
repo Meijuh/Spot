@@ -145,10 +145,8 @@ tools:
     --output-format=hoa %L %O~' deterministic Streett output in HOA,
     as supported since version 0.5.2 of =ltl2dstar=.
   - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L %D=' (Rabin
-    output in DSTAR format, as supported in older version of
-    =ltl2dstar=.  Note that when reading this format, =ltl2dstar=
-    automatically converts the Rabin automaton into a Büchi automaton
-    for historical reason.)
+    output in DSTAR format, as supported in older versions of
+    =ltl2dstar=.
   - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L - | dstar2tgba
     -s >%O=' (external conversion from Rabin to Büchi done by
     =dstar2tgba= for more reduction of the Büchi automaton than what
@@ -420,20 +418,6 @@ All the values that follow will be missing if =exit_status= is not
 equal to "=ok=".  (You may instruct =ltlcross= not to output lines with
 such missing data with the option =--omit-missing=.)
 
-The columns =in_type=, =in_states=, =in_edges=, =in_transitions=,
-=in_acc=, and =in_scc= are only output if one of the translator
-produces Rabin or Streett automata in =ltl2dstar='s format (i.e., if
-=%D= is used to specify one output filename for any translator).  In
-that case these columns give the type (DRA or DSA) of the produced
-automaton, as well as its size (states, edges, transitions, number of
-acceptance pairs, and number of SCCs).  This input automaton is then
-converted by =ltlcross= into a TGBA before being checked the result of
-other translators, and all the following columns are measures of that
-converted automaton.  This conversion to TGBA is historical.  When the
-automata are produced in the HOA format (i.e., not in =ltl2dstar='s
-format) then no conversion occur, and =ltlcross= works directly with
-the given acceptance condition.
-
 =states=, =edges=, =transitions=, =acc= are size measures for the
 automaton that was translated.  =acc= counts the number of acceptance
 sets.  When building (degeneralized) Büchi automata, it will always be
@@ -647,9 +631,9 @@ positive and negative formulas by the ith translator).
     coverage.  Using '=ltl2tgba -lD %f >%O=' will produce
     deterministic automata for all obligation properties and many
     recurrence properties.  Using '=ltl2dstar
-    --ltl2nba=spin:pathto/ltl2tgba@-sD %L %D=' is more expansive, but
-    it will produce a deterministic Büchi automaton whenever one
-    exists.
+    --ltl2nba=spin:pathto/ltl2tgba@-Ds %L %D=' will systematically
+    produce a deterministic Rabin automaton (that =ltlcross= can
+    complement easily).
 
   - Cross-comparison checks: for some state-space $S$,
     all $P_i\otimes S$ are either all empty, or all non-empty.

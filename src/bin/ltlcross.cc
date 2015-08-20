@@ -199,7 +199,6 @@ static int seed = 0;
 static unsigned products = 1;
 static bool products_avg = true;
 static bool opt_omit = false;
-static bool has_sr = false; // Has Streett or Rabin automata to process.
 static const char* bogus_output_filename = 0;
 static output_file* bogus_output = 0;
 static output_file* grind_output = 0;
@@ -240,16 +239,9 @@ struct statistics
 {
   statistics()
     : ok(false),
-      has_in(false),
       status_str(0),
       status_code(0),
       time(0),
-      in_type(0),
-      in_states(0),
-      in_edges(0),
-      in_transitions(0),
-      in_acc(0),
-      in_scc(0),
       states(0),
       edges(0),
       transitions(0),
@@ -270,17 +262,9 @@ struct statistics
   // If OK is false, only the status_str, status_code, and time fields
   // should be valid.
   bool ok;
-  // has in_* data to display.
-  bool has_in;
   const char* status_str;
   int status_code;
   double time;
-  const char* in_type;
-  unsigned in_states;
-  unsigned in_edges;
-  unsigned in_transitions;
-  unsigned in_acc;
-  unsigned in_scc;
   unsigned states;
   unsigned edges;
   unsigned transitions;
@@ -303,15 +287,12 @@ struct statistics
   std::string hoa_str;
 
   static void
-  fields(std::ostream& os, bool show_exit, bool show_sr)
+  fields(std::ostream& os, bool show_exit)
   {
     if (show_exit)
       os << "\"exit_status\",\"exit_code\",";
-    os << "\"time\",";
-    if (show_sr)
-      os << ("\"in_type\",\"in_states\",\"in_edges\",\"in_transitions\","
-	     "\"in_acc\",\"in_scc\",");
-    os << ("\"states\","
+    os << ("\"time\","
+	   "\"states\","
 	   "\"edges\","
 	   "\"transitions\","
 	   "\"acc\","
@@ -335,7 +316,7 @@ struct statistics
   }
 
   void
-  to_csv(std::ostream& os, bool show_exit, bool show_sr, const char* na = "",
+  to_csv(std::ostream& os, bool show_exit, const char* na = "",
 	 bool csv_escape = true)
   {
     if (show_exit)
@@ -343,16 +324,6 @@ struct statistics
     os << time << ',';
     if (ok)
       {
-	if (has_in)
-	  os << '"' << in_type << "\","
-	     << in_states << ','
-	     << in_edges << ','
-	     << in_transitions << ','
-	     << in_acc << ','
-	     << in_scc << ',';
-	else if (show_sr)
-	  os << na << ',' << na << ',' << na << ','
-	     << na << ',' << na << ',' << na << ',';
 	os << states << ','
 	   << edges << ','
 	   << transitions << ','
@@ -396,7 +367,7 @@ struct statistics
       {
 	size_t m = products_avg ? 1U : products;
 	m *= 3;
-	m += 15 + show_sr * 6;
+	m += 15;
 	os << na;
 	for (size_t i = 0; i < m; ++i)
 	  os << ',' << na;
@@ -509,7 +480,6 @@ namespace
     xtranslator_runner(spot::bdd_dict_ptr dict)
       : translator_runner(dict)
     {
-      has_sr = has('D');
     }
 
     spot::twa_graph_ptr
@@ -580,7 +550,7 @@ namespace
 	    {
 	    case printable_result_filename::Dstar:
 	      {
-		spot::dstar_parse_error_list pel;
+		spot::parse_aut_error_list pel;
 		std::string filename = output.val()->name();
 		auto aut = spot::dstar_parse(filename, pel, dict);
 		if (!pel.empty())
@@ -591,43 +561,13 @@ namespace
 		    std::ostream& err = global_error();
 		    err << "error: failed to parse the produced DSTAR"
 		      " output.\n";
-		    spot::format_dstar_parse_errors(err, filename, pel);
+		    spot::format_parse_aut_errors(err, filename, pel);
 		    end_error();
 		    res = nullptr;
 		  }
 		else
 		  {
-		    const char* type = 0;
-		    switch (aut->type)
-		      {
-		      case spot::Rabin:
-			type = "DRA";
-			break;
-		      case spot::Streett:
-			type = "DSA";
-			break;
-		      }
-		    assert(type);
-
-		    // Gather statistics about the input automaton
-		    if (want_stats)
-		      {
-			statistics* st = &(*fstats)[translator_num];
-			st->has_in = true;
-			st->in_type = type;
-			spot::tgba_sub_statistics s =
-			  sub_stats_reachable(aut->aut);
-			st->in_states= s.states;
-			st->in_edges = s.transitions;
-			st->in_transitions = s.sub_transitions;
-			st->in_acc = aut->aut->num_sets() / 2;
-
-			st->in_scc = spot::scc_info(aut->aut).scc_count();
-		      }
-		    // convert it into TGBA for further processing
-		    if (verbose)
-		      std::cerr << "info: converting " << type << " to TGBA\n";
-		    res = remove_fin(aut->aut);
+		    res = aut->aut;
 		  }
 		break;
 	      }
@@ -1407,7 +1347,7 @@ print_stats_csv(const char* filename)
       // Do not output the header line if we append to a file.
       // (Even if that file was empty initially.)
       out << "\"formula\",\"tool\",";
-      statistics::fields(out, !opt_omit, has_sr);
+      statistics::fields(out, !opt_omit);
       out << '\n';
     }
   for (unsigned r = 0; r < rounds; ++r)
@@ -1419,7 +1359,7 @@ print_stats_csv(const char* filename)
 	  out << "\",\"";
 	  spot::escape_rfc4180(out, translators[t].name);
 	  out << "\",";
-	  vstats[r][t].to_csv(out, !opt_omit, has_sr);
+	  vstats[r][t].to_csv(out, !opt_omit);
 	  out << '\n';
 	}
 }
@@ -1452,7 +1392,7 @@ print_stats_json(const char* filename)
       spot::escape_str(out, formulas[r]);
     }
   out << ("\"\n  ],\n  \"fields\":  [\n  \"formula\",\"tool\",");
-  statistics::fields(out, !opt_omit, has_sr);
+  statistics::fields(out, !opt_omit);
   out << "\n  ],\n  \"inputs\":  [ 0, 1 ],";
   out << "\n  \"results\": [";
   bool notfirst = false;
@@ -1464,7 +1404,7 @@ print_stats_json(const char* filename)
 	    out << ',';
 	  notfirst = true;
 	  out << "\n    [ " << r << ',' << t << ',';
-	  vstats[r][t].to_csv(out, !opt_omit, has_sr, "null", false);
+	  vstats[r][t].to_csv(out, !opt_omit, "null", false);
 	  out << " ]";
 	}
   out << "\n  ]\n}\n";

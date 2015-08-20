@@ -72,7 +72,7 @@ eol2     (\n\r)+|(\r\n)+
 			  if (errno || yylval->num != n)
 			    {
                               error_list.push_back(
-			        spot::dstar_parse_error(*yylloc,
+			        spot::parse_aut_error(*yylloc,
 				  "value too large"));
 			      yylval->num = 0;
                             }
@@ -88,7 +88,7 @@ eol2     (\n\r)+|(\r\n)+
   "*"+"/"		BEGIN(INITIAL);
   <<EOF>>		{
                            error_list.push_back(
-			     spot::dstar_parse_error(*yylloc,
+			     spot::parse_aut_error(*yylloc,
 			       "unclosed comment"));
 			   return 0;
                         }
@@ -105,7 +105,7 @@ eol2     (\n\r)+|(\r\n)+
   [^\\\"]+		s.append(yytext, yyleng);
   <<EOF>>		{
                            error_list.push_back(
-			     spot::dstar_parse_error(*yylloc,
+			     spot::parse_aut_error(*yylloc,
 			       "unclosed string"));
 			   return 0;
                         }

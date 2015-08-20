@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2015 Laboratoire de Recherche et Développement
 // de l'EPITA.
 //
 // This file is part of Spot, a model checking library.
@@ -22,11 +22,12 @@
 #include <string>
 #include "dstarparse.hh"
 #include "misc/location.hh"
+#include "parseaut/public.hh"
 
 # define YY_DECL \
   int dstaryylex(dstaryy::parser::semantic_type *yylval, \
 		 spot::location *yylloc, \
-		 spot::dstar_parse_error_list& error_list)
+		 spot::parse_aut_error_list& error_list)
 YY_DECL;
 
 namespace spot

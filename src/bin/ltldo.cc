@@ -173,7 +173,7 @@ namespace
 	    {
 	    case printable_result_filename::Dstar:
 	      {
-		spot::dstar_parse_error_list pel;
+		spot::parse_aut_error_list pel;
 		std::string filename = output.val()->name();
 		auto aut = spot::dstar_parse(filename, pel, dict);
 		if (!pel.empty())
@@ -181,7 +181,7 @@ namespace
 		    problem = true;
 		    std::cerr << "error: failed to parse the output of \""
 			      << cmd << "\" as a DSTAR automaton.\n";
-		    spot::format_dstar_parse_errors(std::cerr, filename, pel);
+		    spot::format_parse_aut_errors(std::cerr, filename, pel);
 		    res = nullptr;
 		  }
 		else

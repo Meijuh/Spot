@@ -22,6 +22,7 @@
 #include "twa/twagraph.hh"
 #include "misc/location.hh"
 #include "ltlenv/defaultenv.hh"
+#include "parseaut/public.hh"
 #include <string>
 #include <list>
 #include <utility>
@@ -32,28 +33,7 @@ namespace spot
   /// \addtogroup twa_io
   /// @{
 
-  /// \brief A parse diagnostic with its location.
-  typedef std::pair<spot::location, std::string> dstar_parse_error;
-  /// \brief A list of parser diagnostics, as filled by parse.
-  typedef std::list<dstar_parse_error> dstar_parse_error_list;
-
-  enum dstar_type { Rabin, Streett };
-
-  /// \brief Temporary encoding of an omega automaton produced by
-  /// ltl2dstar.
-  struct SPOT_API dstar_aut
-  {
-    // Transition structure of the automaton.
-    // This is encoded as a TGBA without acceptance condition.
-    twa_graph_ptr aut;
-    /// Type of the acceptance.
-    dstar_type type;
-  };
-
-  typedef std::shared_ptr<dstar_aut> dstar_aut_ptr;
-  typedef std::shared_ptr<const dstar_aut> const_dstar_aut_ptr;
-
-  /// \brief Build a spot::twa_graph from ltl2dstar's output.
+  /// \brief Build a spot::twa_graph_ptr from ltl2dstar's output.
   /// \param filename The name of the file to parse.
   /// \param error_list A list that will be filled with
   ///        parse errors that occured during parsing.
@@ -70,22 +50,12 @@ namespace spot
   /// was parsed succesfully, check \a error_list for emptiness.
   ///
   /// \warning This function is not reentrant.
-  SPOT_API dstar_aut_ptr
+  SPOT_API parsed_aut_ptr
   dstar_parse(const std::string& filename,
-	      dstar_parse_error_list& error_list,
+	      parse_aut_error_list& error_list,
 	      const bdd_dict_ptr& dict,
 	      ltl::environment& env = ltl::default_environment::instance(),
 	      bool debug = false);
 
-  /// \brief Format diagnostics produced by spot::dstar_parse.
-  /// \param os Where diagnostics should be output.
-  /// \param filename The filename that should appear in the diagnostics.
-  /// \param error_list The error list filled by spot::ltl::parse while
-  ///        parsing \a ltl_string.
-  /// \return \c true iff any diagnostic was output.
-  SPOT_API bool
-  format_dstar_parse_errors(std::ostream& os,
-			    const std::string& filename,
-			    dstar_parse_error_list& error_list);
   /// @}
 }

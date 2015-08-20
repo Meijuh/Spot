@@ -50,38 +50,31 @@ distinguish and understand these three formats.
 .PP
 Rabin or Streett automata output by
 .B ltl2dstar
-can be read from a
+in its historical format can be read from a
 file specified with \f(CW%D\fR instead of \f(CW%O\fR.  For instance:
 .PP
 .in +4n
 .nf
 .ft C
 % ltlcross \-F input.ltl \e
-  'ltl2dstar \-\-ltl2nba=spin:ltl2tgba@\-s %L %D' \e
-  'ltl2dstar \-\-automata=streett \-\-ltl2nba=spin:ltl2tgba@\-s %L %D' \e
+  'ltl2dstar \-\-ltl2nba=spin:ltl2tgba@\-Ds %L %D' \e
+  'ltl2dstar \-\-automata=streett \-\-ltl2nba=spin:ltl2tgba@\-Ds %L %D' \e
 .fi
 .PP
-However, for historical reasons these Rabin and
-Streett automata are immediately converted to TGBA before further
-processing by
-.BR ltlcross .
-This is still interesting to search for bugs
-in translators to Rabin or Streett automata, but the statistics might
-not be very relevant.  If statistics matters to you and you do not want
-this conversion to occur, use the HOA format to interface with ltl2dstar:
+However, we now recommand to use the HOA output of
+.BR ltl2dstar ,
+as supported since version 0.5.2:
 .PP
 .in +4n
 .nf
 .ft C
 % ltlcross \-F input.ltl \e
-  'ltl2dstar \-\-output\-format=hoa \-\-ltl2nba=spin:ltl2tgba@\-s %L %O' \e
-  'ltl2dstar \-\-output\-format=hoa \-\-automata=streett \-\-ltl2nba=spin:ltl2tgba@\-s %L %O' \e
+  'ltl2dstar \-\-output\-format=hoa \-\-ltl2nba=spin:ltl2tgba@\-Ds %L %O' \e
+  'ltl2dstar \-\-output\-format=hoa \-\-automata=streett \-\-ltl2nba=spin:ltl2tgba@\-Ds %L %O' \e
 .fi
 .PP
-If you use ltlcross in an automated testsuite just to check for
-potential problems, avoid the \fB\-\-csv\fR and \fB\-\-json\fR
-options: ltlcross is faster when it does not have to compute these
-statistics.
+In more recent versions of ltl2dstar, \fB\-\-output\-format=hoa\fR can
+be abbreviated \fB-H\fR.
 
 [ENVIRONMENT VARIABLES]
 .TP
@@ -150,16 +143,6 @@ This is reported for all executions, even failling ones.
 .PP
 Unless the \fB\-\-omit\-missing\fR option is used, data for all the
 following columns might be missing.
-.TP
-\fBin_type\fR, \fBin_states\fR, \fBin_edges\fR, \fBin_transitions\fR,
-\fBin_acc\fR , \fBin_scc\fR These columns are only output if
-\f(CW%D\fR appears in any command specification, i.e., if any of the
-tools output some Streett or Rabin automata.  In this case
-\fBin_type\fR contains a string that is either \f(CWDRA\fR
-(Deterministic Rabin Automaton) or \f(CWDSA\fR (Deterministic Streett
-Automaton).  The other columns respectively give the number of states,
-edges, transitions, acceptance pairs, and strongly connected
-components in that automaton.
 .TP
 \fBstates\fR, \fBedges\fR, \fBtransitions\fR, \fBacc\fR
 The number of states, edges, transitions, and acceptance sets in the
