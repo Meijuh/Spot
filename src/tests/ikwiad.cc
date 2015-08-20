@@ -67,6 +67,7 @@
 #include "twaalgos/dtbasat.hh"
 #include "twaalgos/dtgbasat.hh"
 #include "twaalgos/stutter.hh"
+#include "twaalgos/totgba.hh"
 
 #include "taalgos/tgba2ta.hh"
 #include "taalgos/dot.hh"
@@ -120,8 +121,6 @@ syntax(char* prog)
 	    << " ltl2dstar file" << std::endl
 	    << "  -XDB  read the from an ltl2dstar file and convert it to "
 	    << "TGBA" << std::endl
-	    << "  -XDD  read the from an ltl2dstar file and convert it to "
-	    << "TGBA,\n       keeping it deterministic when possible\n"
 	    << "  -XH   do not compute an automaton, read it from a"
 	    << " HOA file\n"
 	    << "  -XL   do not compute an automaton, read it from an"
@@ -347,7 +346,6 @@ checked_main(int argc, char** argv)
   bool from_file = false;
   enum { ReadDstar, ReadHoa } readformat = ReadHoa;
   bool nra2nba = false;
-  bool dra2dba = false;
   bool scc_filter = false;
   bool simpltl = false;
   spot::ltl::ltl_simplifier_options redopt(false, false, false, false,
@@ -876,13 +874,6 @@ checked_main(int argc, char** argv)
 	  readformat = ReadDstar;
 	  nra2nba = true;
 	}
-      else if (!strcmp(argv[formula_index], "-XDD"))
-	{
-	  from_file = true;
-	  readformat = ReadDstar;
-	  nra2nba = true;
-	  dra2dba = true;
-	}
       else if (!strcmp(argv[formula_index], "-XH"))
 	{
 	  from_file = true;
@@ -986,20 +977,8 @@ checked_main(int argc, char** argv)
 		tm.start("dstar2tgba");
 		if (nra2nba)
 		  {
-		    if (daut->type == spot::Rabin)
-		      {
-			if (dra2dba)
-			  a = spot::dstar_to_tgba(daut);
-			else
-			  a = spot::nra_to_nba(daut);
-			assert(a->is_sba());
-			assume_sba = true;
-		      }
-		    else
-		      {
-			a = spot::nsa_to_tgba(daut);
-			assume_sba = false;
-		      }
+		    a = spot::to_generalized_buchi(daut->aut);
+		    assume_sba = a->is_sba();
 		  }
 		else
 		  {
@@ -1112,7 +1091,10 @@ checked_main(int argc, char** argv)
       if (scc_filter)
 	{
 	  tm.start("SCC-filter");
-	  a = spot::scc_filter(ensure_digraph(a), scc_filter_all);
+	  if (a->has_state_based_acc() & !scc_filter_all)
+	    a = spot::scc_filter_states(ensure_digraph(a));
+	  else
+	    a = spot::scc_filter(ensure_digraph(a), scc_filter_all);
 	  tm.stop("SCC-filter");
 	  assume_sba = false;
 	}

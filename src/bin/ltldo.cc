@@ -40,6 +40,7 @@
 #include "misc/timer.hh"
 #include "twaalgos/lbtt.hh"
 #include "twaalgos/relabel.hh"
+#include "twaalgos/totgba.hh"
 #include "parseaut/public.hh"
 #include "dstarparse/public.hh"
 
@@ -185,7 +186,7 @@ namespace
 		  }
 		else
 		  {
-		    res = dstar_to_tgba(aut);
+		    res = aut->aut;
 		  }
 		break;
 	      }

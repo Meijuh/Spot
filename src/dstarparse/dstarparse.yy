@@ -46,9 +46,12 @@
       std::vector<bdd>::const_iterator cur_guard;
       map_t dest_map;
       int cur_state;
+      int plus;
+      int minus;
 
-      unsigned state_count = 0;
-      unsigned start_state = 0;
+      unsigned state_count = 0U;
+      unsigned start_state = 0U;
+      unsigned accpair_count = 0U;
       std::vector<std::string> aps;
 
       bool state_count_seen:1;
@@ -73,6 +76,7 @@
 {
   std::string* str;
   unsigned int num;
+  spot::acc_cond::mark_t acc;
 }
 
 %code
@@ -102,6 +106,7 @@
 %token <num> NUMBER "number";
 
 %type <num> sign
+%type <acc> accsigs state_accsig
 
 %destructor { delete $$; } <str>
 %printer {
@@ -117,9 +122,18 @@ dstar: header ENDOFHEADER eols states
 eols : EOL | eols EOL
 opt_eols: | opt_eols EOL
 
-auttype: DRA   { result.d->type = spot::Rabin; }
-       | DSA   { result.d->type = spot::Streett; }
-
+auttype: DRA
+       {
+         result.d->type = spot::Rabin;
+         result.plus = 1;
+         result.minus = 0;
+       }
+       | DSA
+       {
+	 result.d->type = spot::Streett;
+         result.plus = 0;
+         result.minus = 1;
+       }
 
 header: auttype opt_eols V2 opt_eols EXPLICIT opt_eols sizes
   {
@@ -168,8 +182,12 @@ sizes:
   }
   | sizes ACCPAIRS opt_eols NUMBER opt_eols
   {
-    result.d->accpair_count = $4;
+    result.accpair_count = $4;
     result.accpair_count_seen = true;
+    result.d->aut->set_acceptance(2 * $4,
+				  result.d->type == spot::Rabin ?
+				  spot::acc_cond::acc_code::rabin($4) :
+				  spot::acc_cond::acc_code::streett($4));
   }
   | sizes STATES opt_eols NUMBER opt_eols
   {
@@ -228,27 +246,30 @@ state_id: STATE opt_eols NUMBER opt_eols opt_name
     result.cur_state = $3;
   }
 
-sign: '+' { $$ = 0; }
-  |   '-' { $$ = 1; }
+sign: '+' { $$ = result.plus; }
+  |   '-' { $$ = result.minus; }
 
 // Membership to a pair is represented as (+NUM,-NUM)
 accsigs: opt_eols
+  {
+    $$ = 0U;
+  }
   | accsigs sign NUMBER opt_eols
   {
     if ((unsigned) result.cur_state >= result.state_count)
       break;
-    assert(result.d->accsets);
-    if ($3 < result.d->accpair_count)
+    if ($3 < result.accpair_count)
       {
-	result.d->accsets->at(result.cur_state * 2 + $2).set($3);
+	$$ = $1;
+	$$.set($3 * 2 + $2);
       }
     else
       {
 	std::ostringstream o;
-	if (result.d->accpair_count > 0)
+	if (result.accpair_count > 0)
 	  {
 	    o << "acceptance pairs should be in the range [0.."
-	      << result.d->accpair_count - 1<< "]";
+	      << result.accpair_count - 1 << "]";
 	  }
 	else
 	  {
@@ -258,7 +279,7 @@ accsigs: opt_eols
       }
   }
 
-state_accsig: ACCSIG accsigs
+state_accsig: ACCSIG accsigs { $$ = $2; }
 
 transitions:
   | transitions NUMBER opt_eols
@@ -273,9 +294,8 @@ transitions:
 states:
   | states state_id state_accsig transitions
   {
-    for (map_t::const_iterator i = result.dest_map.begin();
-	 i != result.dest_map.end(); ++i)
-      result.d->aut->new_edge(result.cur_state, i->first, i->second);
+    for (auto i: result.dest_map)
+      result.d->aut->new_edge(result.cur_state, i.first, i.second, $3);
   }
 %%
 
@@ -301,9 +321,6 @@ static void fill_guards(result_& r)
 
   delete[] vars;
   r.cur_guard = r.guards.end();
-
-  r.d->accsets = spot::make_bitvect_array(r.d->accpair_count,
-					  2 * r.state_count);
 }
 
 void
@@ -331,14 +348,15 @@ namespace spot
     result_ r;
     r.d = std::make_shared<spot::dstar_aut>();
     r.d->aut = make_twa_graph(dict);
-    r.d->accsets = 0;
+    r.d->aut->prop_deterministic(true);
+    r.d->aut->prop_state_based_acc(true);
     r.env = &env;
     dstaryy::parser parser(error_list, r);
     parser.set_debug_level(debug);
     parser.parse();
     dstaryyclose();
 
-    if (!r.d->aut || !r.d->accsets)
+    if (!r.d->aut)
       return nullptr;
     return r.d;
   }

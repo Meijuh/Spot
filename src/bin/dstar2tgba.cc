@@ -37,6 +37,7 @@
 #include "twaalgos/hoa.hh"
 #include "twaalgos/neverclaim.hh"
 #include "twaalgos/stats.hh"
+#include "twaalgos/totgba.hh"
 #include "twa/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
@@ -290,7 +291,7 @@ namespace
 	}
 
       if (has('A'))
-	daut_acc_ = daut->accpair_count;
+	daut_acc_ = daut->aut->num_sets() / 2;
 
       if (has('C'))
 	daut_scc_ = spot::scc_info(daut->aut).scc_count();
@@ -355,7 +356,7 @@ namespace
 
       spot::stopwatch sw;
       sw.start();
-      auto nba = spot::dstar_to_tgba(daut);
+      auto nba = spot::to_generalized_buchi(daut->aut);
       auto aut = post.run(nba, 0);
       const double conversion_time = sw.stop();
 

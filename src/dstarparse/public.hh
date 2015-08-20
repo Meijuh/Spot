@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -26,7 +26,6 @@
 #include <list>
 #include <utility>
 #include <iosfwd>
-#include <misc/bitvect.hh>
 
 namespace spot
 {
@@ -49,20 +48,6 @@ namespace spot
     twa_graph_ptr aut;
     /// Type of the acceptance.
     dstar_type type;
-    /// Number of acceptance pairs.
-    size_t accpair_count;
-    /// \brief acceptance sets encoded as 2*num_state bit-vectors of
-    /// num_pairs bits
-    ///
-    /// Assuming F={(L₀,U₀),…,(Lᵢ,Uᵢ),…},
-    /// s∈Lᵢ iff <code>accsets->at(s * 2).get(i)</code>,
-    /// s∈Uᵢ iff <code>accsets->at(s * 2 + 1).get(i)</code>.
-    bitvect_array* accsets;
-
-    ~dstar_aut()
-    {
-      delete accsets;
-    }
   };
 
   typedef std::shared_ptr<dstar_aut> dstar_aut_ptr;
@@ -102,49 +87,5 @@ namespace spot
   format_dstar_parse_errors(std::ostream& os,
 			    const std::string& filename,
 			    dstar_parse_error_list& error_list);
-
-
-  /// \brief Convert a non-deterministic Rabin automaton into a
-  /// non-deterministic Büchi automaton.
-  SPOT_API twa_graph_ptr
-  nra_to_nba(const const_dstar_aut_ptr& nra);
-
-  /// \brief Convert a non-deterministic Rabin automaton into a
-  /// non-deterministic Büchi automaton.
-  ///
-  /// This version simply ignores all states in \a ignore.
-  SPOT_API twa_graph_ptr
-  nra_to_nba(const const_dstar_aut_ptr& nra, const state_set* ignore);
-
-  /// \brief Convert a deterministic Rabin automaton into a
-  /// Büchi automaton, deterministic when possible.
-  ///
-  /// See "Deterministic ω-automata vis-a-vis Deterministic Büchi
-  /// Automata", S. Krishnan, A. Puri, and R. Brayton (ISAAC'94) for
-  /// more details about a DRA->DBA construction.
-  ///
-  /// We essentially apply this method SCC-wise.  If an SCC is
-  /// DBA-realizable, we duplicate it in the output, fixing just
-  /// the acceptance states.   If an SCC is not DBA-realizable,
-  /// then we apply the more usual conversion from Rabin to NBA
-  /// for this part.
-  ///
-  /// If the optional \a dba_output argument is non-null, the
-  /// pointed Boolean will be updated to indicate whether the
-  /// returned Büchi automaton is deterministic.
-  SPOT_API twa_graph_ptr
-  dra_to_ba(const const_dstar_aut_ptr& dra, bool* dba_output = 0);
-
-  /// \brief Convert a non-deterministic Streett automaton into a
-  /// non-deterministic tgba.
-  SPOT_API twa_graph_ptr
-  nsa_to_tgba(const const_dstar_aut_ptr& nra);
-
-  /// \brief Convert a Rabin or Streett automaton into a TGBA.
-  ///
-  /// This function calls dra_to_ba() or nsa_to_tgba().
-  SPOT_API twa_graph_ptr
-  dstar_to_tgba(const const_dstar_aut_ptr& dstar);
-
   /// @}
 }

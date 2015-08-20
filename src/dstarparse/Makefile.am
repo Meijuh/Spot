@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2013 Laboratoire de Recherche et Développement de
-## l'Epita (LRDE).
+## Copyright (C) 2013, 2015 Laboratoire de Recherche et Développement
+## de l'Epita (LRDE).
 ##
 ## This file is part of Spot, a model checking library.
 ##
@@ -52,10 +52,6 @@ EXTRA_DIST = $(DSTARPARSE_YY)
 
 libdstarparse_la_SOURCES = \
   fmterror.cc \
-  dra2ba.cc \
-  dstar2tgba.cc \
-  nra2nba.cc \
-  nsa2tgba.cc \
   $(FROM_DSTARPARSE_YY) \
   dstarscan.ll \
   parsedecl.hh

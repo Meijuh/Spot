@@ -620,14 +620,14 @@ namespace
 			st->in_states= s.states;
 			st->in_edges = s.transitions;
 			st->in_transitions = s.sub_transitions;
-			st->in_acc = aut->accpair_count;
+			st->in_acc = aut->aut->num_sets() / 2;
 
 			st->in_scc = spot::scc_info(aut->aut).scc_count();
 		      }
 		    // convert it into TGBA for further processing
 		    if (verbose)
 		      std::cerr << "info: converting " << type << " to TGBA\n";
-		    res = dstar_to_tgba(aut);
+		    res = remove_fin(aut->aut);
 		  }
 		break;
 	      }
