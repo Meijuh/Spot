@@ -199,7 +199,6 @@ TESTS_twa = \
   degendet.test \
   degenid.test \
   degenlskip.test \
-  kv.test \
   randomize.test \
   lbttparse.test \
   scc.test \

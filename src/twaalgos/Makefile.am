@@ -70,7 +70,6 @@ twaalgos_HEADERS = \
   safety.hh \
   sbacc.hh \
   sccfilter.hh \
-  scc.hh \
   sccinfo.hh \
   se05.hh \
   sepsets.hh \
@@ -127,7 +126,6 @@ libtwaalgos_la_SOURCES = \
   relabel.cc \
   safety.cc \
   sbacc.cc \
-  scc.cc \
   sccinfo.cc \
   sccfilter.cc \
   se05.cc \

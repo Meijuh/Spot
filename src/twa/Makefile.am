@@ -34,8 +34,6 @@ twa_HEADERS = \
   taatgba.hh \
   twa.hh \
   twagraph.hh \
-  twamask.hh \
-  twaproxy.hh \
   twaproduct.hh \
   twasafracomplement.hh
 
@@ -49,6 +47,4 @@ libtwa_la_SOURCES = \
   twa.cc \
   twagraph.cc \
   twaproduct.cc \
-  twamask.cc \
-  twaproxy.cc \
   twasafracomplement.cc

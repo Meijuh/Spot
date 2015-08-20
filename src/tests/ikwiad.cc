@@ -53,7 +53,6 @@
 #include "twaalgos/stats.hh"
 #include "twaalgos/sccinfo.hh"
 #include "twaalgos/emptiness_stats.hh"
-#include "twaalgos/scc.hh"
 #include "twaalgos/sccinfo.hh"
 #include "twaalgos/isdet.hh"
 #include "twaalgos/cycles.hh"
@@ -268,8 +267,6 @@ syntax(char* prog)
 	    << "subtransitions)"
 	    << std::endl
 	    << "  -K    dump the graph of SCCs in dot format" << std::endl
-	    << "  -KV   verbosely dump the graph of SCCs in dot format"
-	    << std::endl
 	    << "  -KC   list cycles in automaton" << std::endl
 	    << "  -KW   list weak SCCs" << std::endl
 	    << "  -N    output the never clain for Spin (implies -DS)"
@@ -555,10 +552,6 @@ checked_main(int argc, char** argv)
 					       argv[formula_index] + 2, pel))
 	    return 2;
 	  tm.stop("reading -KP's argument");
-	}
-      else if (!strcmp(argv[formula_index], "-KV"))
-	{
-	  output = 11;
 	}
       else if (!strcmp(argv[formula_index], "-KC"))
 	{
@@ -1485,24 +1478,7 @@ checked_main(int argc, char** argv)
 		break;
 	      }
 	    case 10:
-	      {
-		auto aa =
-		  std::dynamic_pointer_cast<const spot::twa_graph>(a);
-		if (!aa)
-		  dump_scc_dot(a, std::cout, false);
-		else
-		  dump_scc_info_dot(std::cout, aa);
-	      }
-	      break;
-	    case 11:
-	      {
-		//const spot::twa_graph_ptr g =
-		//  dynamic_cast<const spot::twa_graph_ptr>(a);
-		//if (!g)
-		  dump_scc_dot(a, std::cout, true);
-		//else
-		//  dump_scc_info_dot(std::cout, g);
-	      }
+	      dump_scc_info_dot(std::cout, ensure_digraph(a));
 	      break;
 	    case 12:
 	      stats_reachable(a).dump(std::cout);
