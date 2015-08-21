@@ -54,6 +54,7 @@ namespace spot
 	  case 'R':
 	    re_r_ = true;
 	    re_some_other_ = true;
+	    break;
 	  case 'W':
 	    re_w_ = true;
 	    re_some_other_ = true;
