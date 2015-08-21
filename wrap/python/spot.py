@@ -277,12 +277,12 @@ def translate(formula, *args):
         if optm_ != None and optm_ != val:
             raise ValueError("optimization level cannot be both {} and {}"
                              .format(optm_, val))
-        if optm_ == 'high':
+        if val == 'high':
             optm_ = postprocessor.High
-        elif optm_.startswith('med'):
+        elif val.startswith('med'):
             optm_ = postprocessor.Medium
         else:
-            assert(level_ == 'low')
+            assert(val == 'low')
             optm_ = postprocessor.Low
 
     def misc_set(val):
