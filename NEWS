@@ -71,6 +71,8 @@ New in spot 1.99.2a (not yet released)
     - LTL formula rewritten in Spin's syntax no longer have their ->
       and <-> rewritten aways.
     - Fix some warnings reported by the development version of GCC 6.
+    - the spot.translate() function of the Python binding had a typo
+      preventing the use of 'low'/'medium'/'high' as argument.
 
 New in spot 1.99.2 (2015-07-18)
 
