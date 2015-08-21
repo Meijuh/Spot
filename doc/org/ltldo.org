@@ -351,7 +351,7 @@ ltldo ltl3ba 'ltl3ba -H2' -f GFa --stats='%T, %s states, %e edges'
 
 * Transparent renaming
 
-Have you ever tried to use =spin=, =ltl2ba=, or =ltl3ba=, to translate
+If you have ever tried to use =spin=, =ltl2ba=, or =ltl3ba=, to translate
 a formula such as =[]!Error=, you have noticed that it does not work:
 
 #+BEGIN_SRC sh :results verbatim :exports code
@@ -388,7 +388,7 @@ default GraphViz output.)
 
 What happened is that =ltldo= renamed the atomic propositions in the
 formula before calling =spin=.  So =spin= actually received the
-formula =[]!p0=, produced a never claim using =p0=, and that never
+formula =[]!p0= and produced a never claim using =p0=.  That never
 claim was then relabeled by =ltldo= to use =Error= instead of =p0=.
 
 This renaming occurs any time some command uses =%s= or =%S= and the
