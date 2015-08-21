@@ -129,9 +129,9 @@ static const argp_option options[] =
       0 },
     { "unabbreviate", OPT_UNABBREVIATE, "STR", OPTION_ARG_OPTIONAL,
       "remove all occurrences of the operators specified by STR, which "
-      "must be a substring of \"eFGiMW^\", where 'e', 'i', and '^' stand "
-      "respectively for <->, ->, and xor.  If no argument is passed, all "
-      "rewriting rules are applied.", 0 },
+      "must be a substring of \"eFGiMRW^\", where 'e', 'i', and '^' stand "
+      "respectively for <->, ->, and xor.  If no argument is passed, "
+      "the subset \"eFGiMW^\" is used.", 0 },
     { "exclusive-ap", OPT_EXCLUSIVE_AP, "AP,AP,...", 0,
       "if any of those APs occur in the formula, add a term ensuring "
       "two of them may not be true at the same time.  Use this option "

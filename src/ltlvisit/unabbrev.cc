@@ -51,6 +51,9 @@ namespace spot
 	    re_m_ = true;
 	    re_some_other_ = true;
 	    break;
+	  case 'R':
+	    re_r_ = true;
+	    re_some_other_ = true;
 	  case 'W':
 	    re_w_ = true;
 	    re_some_other_ = true;
@@ -109,18 +112,44 @@ namespace spot
 	    auto c = run(uo->child());
 	    switch (auto op = uo->op())
 	      {
-		//  F f1 = true U f1
+		//  F f = true U f
 	      case unop::F:
 		if (!re_f_)
 		  goto unop_clone;
 		out = binop::instance(binop::U, constant::true_instance(), c);
 		break;
-		//  G f1 = false R f1
+		//  G f = false R f
+		//  G f = f W false
+		//  G f = !F!f
+		//  G f = !(true U !f)
 	      case unop::G:
 		if (!re_g_)
 		  goto unop_clone;
-		out = binop::instance(binop::R, constant::false_instance(), c);
-		break;
+		if (!re_r_)
+		  {
+		    out = binop::instance(binop::R,
+					  constant::false_instance(), c);
+		    break;
+		  }
+		if (!re_w_)
+		  {
+		    out = binop::instance(binop::W,
+					  c, constant::false_instance());
+		    break;
+		  }
+		{
+		  auto nc = unop::instance(unop::Not, c);
+		  if (!re_f_)
+		    {
+		      out = unop::instance(unop::Not,
+					   unop::instance(unop::F, nc));
+		      break;
+		    }
+		  auto u = binop::instance(binop::U,
+					   constant::true_instance(), nc);
+		  out = unop::instance(unop::Not, u);
+		  break;
+		}
 	      case unop::Not:
 	      case unop::X:
 	      case unop::Closure:
@@ -182,12 +211,29 @@ namespace spot
 		  break;
 		}
 		// f1 W f2 = f2 R (f2 | f1)
+		// f1 W f2 = f1 U (f2 | G f1)
+		// f1 W f2 = f1 U (f2 | !F !f1)
+		// f1 W f2 = f1 U (f2 | !(1 U !f1))
 	      case binop::W:
 		if (!re_w_)
 		  goto binop_clone;
-		out = binop::instance(binop::R, f2,
-				      multop::instance(multop::Or,
-						       f2->clone(), f1));
+		if (!re_r_)
+		  {
+		    out = binop::instance(binop::R, f2,
+					  multop::instance(multop::Or,
+							   f2->clone(), f1));
+		    break;
+		  }
+		f1->clone();
+		out = unop::instance(unop::G, f1);
+		if (re_g_)
+		  {
+		    auto tmp = out;
+		    out = run(out);
+		    tmp->destroy();
+		  }
+		out = binop::instance(binop::U, f1,
+				      multop::instance(multop::Or, f2, out));
 		break;
 		// f1 M f2 = f2 U (g2 & f1)
 	      case binop::M:
@@ -197,8 +243,32 @@ namespace spot
 				      multop::instance(multop::And,
 						       f2->clone(), f1));
 		break;
-	      case binop::U:
+		// f1 R f2 = f2 W (f1 & f2)
+		// f1 R f2 = f2 U ((f1 & f2) | Gf2)
+		// f1 R f2 = f2 U ((f1 & f2) | !F!f2)
+		// f1 R f2 = f2 U ((f1 & f2) | !(1 U !f2))
 	      case binop::R:
+		if (!re_r_)
+		  goto binop_clone;
+		{
+		  auto f12 = multop::instance(multop::And, f1, f2->clone());
+		  if (!re_w_)
+		    {
+		      out = binop::instance(binop::W, f2, f12);
+		      break;
+		    }
+		  out = unop::instance(unop::G, f2->clone());
+		  if (re_g_)
+		    {
+		      auto tmp = out;
+		      out = run(tmp);
+		      tmp->destroy();
+		    }
+		  out = binop::instance(binop::U, f2,
+					multop::instance(multop::Or, f12, out));
+		}
+		break;
+	      case binop::U:
 	      case binop::UConcat:
 	      case binop::EConcat:
 	      case binop::EConcatMarked:

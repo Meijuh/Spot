@@ -1262,19 +1262,25 @@ occurrences of $\XOR$, $\EQUIV$ and $\IMPLIES$.
 ``\texttt{\^{}e}" & f\XOR g &\equiv&  (f\AND\NOT g)\OR (g\AND\NOT f)\\
 ``\texttt{\^{}}"\text{~without~}``\texttt{e}" & f\XOR g &\equiv&  \NOT(f\EQUIV g)\\
 ``\texttt{F}" & \F f&\equiv& \1\U f\\
-``\texttt{G}" & \G f&\equiv& \0\R f \\
-``\texttt{W}" & f \W g&\equiv& g \R (g \OR f)\\
-``\texttt{M}" & f \M g&\equiv& g \U (g \AND f)
+``\texttt{G}"\text{~without~}``\texttt{R}" & \G f&\equiv& \0\R f \\
+``\texttt{GR}"\text{~without~}``\texttt{W}" & \G f&\equiv& f \W \0 \\
+``\texttt{GRW}" & \G f&\equiv& \NOT\F\NOT f \\
+``\texttt{M}" & f \M g&\equiv& g \U (g \AND f) \\
+``\texttt{R}"\text{~without~}``\texttt{W}" & f \R g&\equiv&  g\W (f \AND g)\\
+``\texttt{RW}" & f \R g&\equiv&  g\U ((f \AND g) \OR \G g) \\
+``\texttt{W}"\text{~without~}``\texttt{R}" & f \W g&\equiv& g \R (g \OR f)\\
+``\texttt{WR}" & f \W g&\equiv& f \U (g \OR \G f)\\
 \end{array}
 \]
 
 Among all the possible rewritings (see Appendix~\ref{sec:ltl-equiv})
-for $\W$ and $\M$, those two were chosen because they are easier to
-translate in a tableau construction~\cite[Fig.~11]{duret.11.vecos}.
+the default rules for $\R$, $\W$ and $\M$, those were chosen because
+they are easier to translate in a tableau
+construction~\cite[Fig.~11]{duret.11.vecos}.
 
 Besides the `\verb=unabbreviate()=' function, there is also a class
-`\verb=unabbreviator()= that implement the same functionality, but
-maintain a cache of abbreviated subformulas.  This is preferable if
+`\verb=unabbreviator()= that implements the same functionality, but
+maintains a cache of abbreviated subformulas.  This is preferable if
 you plan to abbreviate many formulas sharing identical subformulas.
 
 \section{LTL simplifier}

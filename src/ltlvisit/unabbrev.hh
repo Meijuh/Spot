@@ -40,11 +40,12 @@ namespace spot
       bool re_g_ = false;
       bool re_i_ = false;
       bool re_m_ = false;
+      bool re_r_ = false;
       bool re_w_ = false;
       bool re_xor_ = false;
       bool re_some_bool_ = false;	// rewrite xor, i, or e
       bool re_some_f_g_ = false;	// rewrite F or G
-      bool re_some_other_ = false;	// rewrite W or M
+      bool re_some_other_ = false;	// rewrite W, M, or R
       // Cache of rewritten subformulas
       std::unordered_map<const formula*, const formula*> cache_;
     public:

@@ -13,8 +13,9 @@ New in spot 1.99.2a (not yet released)
   * All the unabbreviation functions (unabbreviate_ltl(),
     unabbreviate_logic(), unabbreviate_wm()) have been merged into a
     single unabbreviate() function that takes a string representing
-    the list of rewritting rules to enable.  This function is also
-    available via ltlfilt --unabbreviate.
+    the list of operators to remove among "eFGiMRW^" where 'e', 'i',
+    and '^' stand respectively for <->, ->, and xor.
+    This feature is also available via ltlfilt --unabbreviate.
 
   * In LTL formulas, atomic propositions specified using double-quotes
     can now include \" and \\.  (This is more consistent with the HOA
