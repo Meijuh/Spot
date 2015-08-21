@@ -319,7 +319,7 @@ ltldo ltl2ba -f a
 to obtain a Dot output (this is the default output format for =ltldo=)
 for the neverclaim produced by =ltl2ba -f a=.
 
-#+BEGIN_SRC sh :results verbatim :exports result
+#+BEGIN_SRC sh :results verbatim :exports results
 SPOT_DOTEXTRA= ltldo ltl2ba -f a --dot=
 #+END_SRC
 #+RESULTS:
