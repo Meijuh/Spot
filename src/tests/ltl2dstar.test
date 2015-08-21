@@ -58,17 +58,15 @@ $ltlcross -F - -f 'GFa & GFb & GFc' -f '(GFa -> GFb) & (GFc -> GFd)' \
 --csv=out.csv
 
 # A bug in ltlcross <=1.2.5 caused it to not use the complement of the
-# negative automaton.  So running ltlcross with GFa would check one
-# complement (the positive one), but running with FGa would ignore
-# the negative complement.
+# negative automaton.
 $ltlcross -f 'GFa' --verbose \
 "ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L %D" \
 "ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L %D" 2>err
-test `grep -c 'info: check_empty.*Comp' err` = 1
+test `grep -c 'info: check_empty.*Comp' err` = 2
 $ltlcross -f 'FGa' --verbose \
 "ltl2dstar $RAB --ltl2nba=spin:$ltl2tgba@-s %L %D" \
 "ltl2dstar $STR --ltl2nba=spin:$ltl2tgba@-s %L %D" 2>err
-test `grep -c 'info: check_empty.*Comp' err` = 1
+test `grep -c 'info: check_empty.*Comp' err` = 2
 
 
 # Make sure ltldo preserve the Rabin acceptance by default
