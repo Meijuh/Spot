@@ -73,6 +73,7 @@ New in spot 1.99.2a (not yet released)
     - Fix some warnings reported by the development version of GCC 6.
     - the spot.translate() function of the Python binding had a typo
       preventing the use of 'low'/'medium'/'high' as argument.
+    - Fix spurious failure of uniq.test under different locales.
 
 New in spot 1.99.2 (2015-07-18)
 

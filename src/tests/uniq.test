@@ -36,7 +36,7 @@ cat aut1 aut2 rand11 rand12 rand13 rand21 rand22 rand23 > all
 diff aut out
 
 
-run 0 ../../bin/randaut -Hl -u -n 4 -Q1 a b | sort |
+run 0 ../../bin/randaut -Hl -u -n 4 -Q1 a b | LC_ALL=C sort |
       ../../bin/autfilt -H | grep '&' > out
 cat >expected <<EOF
 [!0&!1] 0
