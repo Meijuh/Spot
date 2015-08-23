@@ -74,7 +74,10 @@ test `grep 'warning:.*timeout' stderr | wc -l` -eq 2
 test `grep 'warning:.*exit code 1' stderr | wc -l` -eq 2
 test `grep '"timeout",-1' out.csv | wc -l` -eq 2
 test `grep '"exit code",1' out.csv | wc -l` -eq 2
-grep '2 timeouts and 2 non-zero exit statuses, but no other problem' stderr
+
+grep 'No major problem detected' stderr
+grep '2 timeouts occurred' stderr
+grep '2 non-zero exit statuses were ignored' stderr
 check_csv out.csv
 # 'bug' should exist but be empty
 test -f bug

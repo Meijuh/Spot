@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <argp.h>
 #include <unistd.h>
+#include <cmath>
 #include <sys/wait.h>
 #include "error.h"
 #include "argmatch.h"
@@ -208,6 +209,7 @@ static unsigned ignored_exec_fail = 0;
 static bool opt_automata = false;
 
 static bool global_error_flag = false;
+static unsigned oom_count = 0U;
 
 static std::ostream&
 global_error()
@@ -756,13 +758,14 @@ namespace
 	std::cerr << "info: cross_check {";
 	bool first = true;
 	for (size_t i = 0; i < m; ++i)
-	  {
-	    if (first)
-	      first = false;
-	    else
-	      std::cerr << ',';
-	    std::cerr << l << i;
-	  }
+	  if (maps[i])
+	    {
+	      if (first)
+		first = false;
+	      else
+		std::cerr << ',';
+	      std::cerr << l << i;
+	    }
 	std::cerr << "}, state-space #" << p << '/' << products << '\n';
       }
 
@@ -958,6 +961,31 @@ namespace
       return 0;
     }
 
+    void product_stats(statistics_formula* stats, unsigned i,
+			spot::scc_info* sm)
+    {
+      if (verbose && sm)
+	std::cerr << "info:               " << sm->scc_count()
+		  << " SCCs\n";
+      // Statistics
+      if (want_stats)
+	{
+	  if (sm)
+	    {
+	      (*stats)[i].product_scc.push_back(sm->scc_count());
+	      spot::tgba_statistics s = spot::stats_reachable(sm->get_aut());
+	      (*stats)[i].product_states.push_back(s.states);
+	      (*stats)[i].product_transitions.push_back(s.transitions);
+	    }
+	  else
+	    {
+	      double n = nan("");
+	      (*stats)[i].product_scc.push_back(n);
+	      (*stats)[i].product_states.push_back(n);
+	      (*stats)[i].product_transitions.push_back(n);
+	    }
+	}
+    }
 
     int
     process_formula(const spot::ltl::formula* f,
@@ -1209,10 +1237,6 @@ namespace
 		      << statespace->num_edges()
 		      << " edges\n";
 
-	  // Products of the state space with the positive automata.
-	  std::vector<spot::const_twa_graph_ptr> pos_prod(m);
-	  // Products of the state space with the negative automata.
-	  std::vector<spot::const_twa_graph_ptr> neg_prod(m);
 	  // Associated SCC maps.
 	  std::vector<spot::scc_info*> pos_map(m);
 	  std::vector<spot::scc_info*> neg_map(m);
@@ -1224,27 +1248,28 @@ namespace
 				" P") << i
 			    << " (" << pos[i]->num_states() << " st., "
 			    << pos[i]->num_edges() << " ed.)\n";
-		auto p = spot::product(pos[i], statespace);
-		pos_prod[i] = p;
-		if (verbose)
-		  std::cerr << "info:   product has " << p->num_states()
-			    << " st., " << p->num_edges()
-			    << " ed.\n";
 
-		auto sm = new spot::scc_info(p);
-		pos_map[i] = sm;
-		if (verbose)
-		  std::cerr << "info:               " << sm->scc_count()
-			    << " SCCs\n";
-
-		// Statistics
-		if (want_stats)
+		spot::scc_info* sm = nullptr;
+		try
 		  {
-		    (*pstats)[i].product_scc.push_back(sm->scc_count());
-		    spot::tgba_statistics s = spot::stats_reachable(p);
-		    (*pstats)[i].product_states.push_back(s.states);
-		    (*pstats)[i].product_transitions.push_back(s.transitions);
+		    auto p = spot::product(pos[i], statespace);
+		    if (verbose)
+		      std::cerr << "info:   product has " << p->num_states()
+				<< " st., " << p->num_edges()
+				<< " ed.\n";
+		    sm = new spot::scc_info(p);
 		  }
+		catch (std::bad_alloc&)
+		  {
+		    std::cerr << ("warning: not enough memory to build "
+				  "product of P") << i << " with state-space";
+		    if (products > 1)
+		      std::cerr << " #" << p << '/' << products << '\n';
+		    std::cerr << '\n';
+		    ++oom_count;
+		  }
+		pos_map[i] = sm;
+		product_stats(pstats, i, sm);
 	      }
 
 	  if (!no_checks)
@@ -1257,26 +1282,28 @@ namespace
 			      << " (" << neg[i]->num_states() << " st., "
 			      << neg[i]->num_edges() << " ed.)\n";
 
-		  auto p = spot::product(neg[i], statespace);
-		  neg_prod[i] = p;
-		  if (verbose)
-		    std::cerr << "info:   product has " << p->num_states()
-			      << " st., " << p->num_edges()
-			      << " ed.\n";
-
-		  auto sm = new spot::scc_info(p);
-		  neg_map[i] = sm;
-		  if (verbose)
-		    std::cerr << "info:               " << sm->scc_count()
-			      << " SCCs\n";
-		  // Statistics
-		  if (want_stats)
+		  spot::scc_info* sm = nullptr;
+		  try
 		    {
-		      (*nstats)[i].product_scc.push_back(sm->scc_count());
-		      spot::tgba_statistics s = spot::stats_reachable(p);
-		      (*nstats)[i].product_states.push_back(s.states);
-		      (*nstats)[i].product_transitions.push_back(s.transitions);
+		      auto p = spot::product(neg[i], statespace);
+		      if (verbose)
+			std::cerr << "info:   product has " << p->num_states()
+				  << " st., " << p->num_edges()
+				  << " ed.\n";
+		      sm = new spot::scc_info(p);
 		    }
+		  catch (std::bad_alloc&)
+		    {
+		      std::cerr << ("warning: not enough memory to build "
+				    "product of N") << i << " with state-space";
+		      if (products > 1)
+			std::cerr << " #" << p << '/' << products << '\n';
+		      std::cerr << '\n';
+		      ++oom_count;
+		    }
+
+		  neg_map[i] = sm;
+		  product_stats(nstats, i, sm);
 		}
 
 	  if (!no_checks)
@@ -1456,42 +1483,58 @@ main(int argc, char** argv)
 		    "       please search for 'error:' messages in the above"
 		    " trace.");
 	  err << std::endl;
-	  if (timeout_count > 0 || ignored_exec_fail > 0)
-	    {
-	      err << "Additionally, ";
-	      if (timeout_count == 1)
-		err << "1 timeout occurred";
-	      else if (timeout_count > 1)
-		err << timeout_count << " timeouts occurred";
-	      if (timeout_count > 0 && ignored_exec_fail > 0)
-		err << " and ";
-	      if (ignored_exec_fail == 1)
-		err << "1 non-zero exit status was ignored";
-	      if (ignored_exec_fail > 1)
-		err << ignored_exec_fail
-		    << " non-zero exit statuses were ignored";
-	      err << '.' << std::endl;
-	    }
 	  end_error();
 	}
-      else if (timeout_count == 0 && ignored_exec_fail == 0)
+      else if (timeout_count == 0 && ignored_exec_fail == 0 && oom_count == 0)
 	{
 	  std::cerr << "No problem detected." << std::endl;
 	}
       else
 	{
-	  if (timeout_count == 1)
-	    std::cerr << "1 timeout";
-	  if (timeout_count > 1)
-	    std::cerr << timeout_count << " timeouts";
-	  if (timeout_count > 0 && ignored_exec_fail > 0)
-	    std::cerr << " and ";
-	  if (ignored_exec_fail == 1)
-	    std::cerr << "1 non-zero exit status";
-	  if (ignored_exec_fail > 1)
-	    std::cerr << ignored_exec_fail
-		      << " non-zero exit statuses";
-	  std::cerr << ", but no other problem detected." << std::endl;
+	  std::cerr << "No major problem detected." << std::endl;
+	}
+
+      unsigned additional_errors = 0U;
+      additional_errors += timeout_count > 0;
+      additional_errors += ignored_exec_fail > 0;
+      additional_errors += oom_count > 0;
+      if (additional_errors)
+	{
+	  std::cerr << (global_error_flag ? "Additionally, " : "However, ");
+	  if (timeout_count)
+	    {
+	      if (additional_errors > 1)
+		std::cerr << "\n  - ";
+	      if (timeout_count == 1)
+		std::cerr << "1 timeout occurred";
+	      else
+		std::cerr << timeout_count << " timeouts occurred";
+	    }
+
+	  if (oom_count)
+	    {
+	      if (additional_errors > 1)
+		std::cerr << "\n  - ";
+	      if (oom_count == 1)
+		std::cerr << "1 state-space product was";
+	      else
+		std::cerr << oom_count << "state-space products were";
+	      std::cerr << " skipped by lack of memory";
+	    }
+
+	  if (ignored_exec_fail)
+	    {
+	      if (additional_errors > 1)
+		std::cerr << "\n  - ";
+	      if (ignored_exec_fail == 1)
+		std::cerr << "1 non-zero exit status was ignored";
+	      else
+		std::cerr << ignored_exec_fail
+			  << " non-zero exit statuses were ignored";
+	    }
+	  if (additional_errors == 1)
+	    std::cerr << '.';
+	  std::cerr << std::endl;
 	}
     }
 
