@@ -57,27 +57,27 @@ New in spot 1.99.2a (not yet released)
       were not detected as generalized-Rabin.
     - Unknown arguments for print_hoa() (i.e., option -H in command-line
       tools) are now diagnosed.
-    - The CGI script for LTL translation now force transition-based
+    - The CGI script for LTL translation now forces transition-based
       acceptance on WDBA-minimized automata when TGBA is requested.
     - ltlgrind --help output had some options documented twice, or
       in the wrong place.
     - The man page for ltlcross had obsolete examples.
     - When outputting atomic propositions in double quotes, the
       escaping routine used by the two styles of LaTeX output was
-      slightly off.  For instance ^ was incorrectly escaped, and the
-      double quotes where not always properly rendered.
+      slightly wrong.  For instance ^ was incorrectly escaped, and
+      the double quotes where not always properly rendered.
     - A spurious assertion was triggered by streett_to_generalized_buchi(),
       but only when compiled in DEBUG mode.
     - LTL formula rewritten in Spin's syntax no longer have their ->
-      and <-> rewritten aways.
+      and <-> rewritten away.
     - Fix some warnings reported by the development version of GCC 6.
-    - the spot.translate() function of the Python binding had a typo
+    - The spot.translate() function of the Python binding had a typo
       preventing the use of 'low'/'medium'/'high' as argument.
     - Fix spurious failure of uniq.test under different locales.
     - ltlcross now recovers from out-of-memory errors during
       state-space products.
-    - bitvect.test was failing on 32bit with assertions enabled
-      because of a bug in the test case.
+    - bitvect.test was failing on 32bit architectures with
+      assertions enabled because of a bug in the test case.
 
 New in spot 1.99.2 (2015-07-18)
 
