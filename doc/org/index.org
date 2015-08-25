@@ -34,9 +34,10 @@ The latest version is *{{{LASTRELEASE}}}* and was released on
 
 * Documentation
 
-- [[file:tools.org][Command-line tools]]
-- [[file:tut.org][Code examples]]
+- [[file:tools.org][Command-line tools]].
+- [[file:tut.org][Code examples]].
 - [[http://spot.lrde.epita.fr/doxygen/][Doxygen documentation]], generated automatically from the source code.
+- [[https://spot.lrde.epita.fr/tl.pdf][Definition of the temporal operators supported by Spot]].
 
 * On-line LTL/PSL translator
 

@@ -55,8 +55,8 @@ to express the same formula for different tools.
 Spot's default LTL parser will understand all of them.
 
 For a complete definition of the supported operators, including PSL
-operators, please refer to the =doc/tl/tl.pdf= document inside the
-Spot distribution.
+operators, please refer to the
+[[https://spot.lrde.epita.fr/tl.pdf][=doc/tl/tl.pdf= document inside the Spot distribution]].
 
 For Spot, an atomic proposition is any alphanumeric string that does
 not start with the (upper case) characters =F=, =G=, or =X=.  For
