@@ -82,7 +82,7 @@ examples).  The packages containing the libraries (=libspot0=,
 =libbddx0=, =libspotltsmin0=) are automatically installed as
 dependencies of the previous packages.
 
-These packages should work in a recent *Ubuntu* as well, provided you
+The stable packages should work in a recent *Ubuntu* as well, provided you
 also add a path to a repository that distributes the GCC 4.9 runtime.
 You can do that for instance with:
 
