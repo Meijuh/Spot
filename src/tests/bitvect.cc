@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et DÃ©veloppement
-// de l'Epita (LRDE).
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -65,7 +65,7 @@ int main()
   ECHO(x);
 
   std::cout << "subset? " << w->is_subset_of(*x)
-	    << ' ' << w->is_subset_of(*v) << '\n';
+	    << ' ' << v->is_subset_of(*w) << '\n';
 
   for (size_t i = 0; i < 30; ++i)
     w->push_back((i & 3) == 0);

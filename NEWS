@@ -76,6 +76,8 @@ New in spot 1.99.2a (not yet released)
     - Fix spurious failure of uniq.test under different locales.
     - ltlcross now recovers from out-of-memory errors during
       state-space products.
+    - bitvect.test was failing on 32bit with assertions enabled
+      because of a bug in the test case.
 
 New in spot 1.99.2 (2015-07-18)
 
