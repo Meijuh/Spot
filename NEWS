@@ -1,4 +1,4 @@
-New in spot 1.99.2a (not yet released)
+New in spot 1.99.3 (2015-08-26)
 
   * The CGI script for LTL translation offers a HOA download link
     for each generated automaton.
@@ -44,12 +44,12 @@ New in spot 1.99.2a (not yet released)
     - ltlcross no longer outputs additional columns about the size
       of the input automaton in the case ltl2dstar's format is used.
     - ltldo uses results in ltl2dstar's format directly, without
-      converting them to Büchi
+      converting them to Büchi.
     - dstar2tgba has been greatly simplified and now uses the
       same output routines as all the other tools that output
-      automata.  This implies a few minor semantic changes for
+      automata.  This implies a few minor semantic changes, for
       instance --stats=%A used to output the number of acceptance
-      *pairs* in the input automaton, while it nows output the
+      *pairs* in the input automaton, while it now outputs the
       number of acceptance sets like in all the other tools.
 
   * Bugs fixed
