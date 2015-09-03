@@ -112,6 +112,15 @@ $autfilt -S --sat-minimize='acc="Fin(0)|Inf(1)"' test.hoa \
 	 --stats=%s > output
 test `cat output` = 3
 
+# How about a state-based DPA?
+$autfilt -S --sat-minimize='acc="parity max even 3",colored' -H test.hoa \
+	 > output
+cat output
+grep 'properties:.*colored' output
+grep 'States: 3' output
+grep 'acc-name: parity max even 3' output
+grep 'Acceptance: 3 Inf(2) | (Fin(1) & Inf(0))' output
+test 3 = `grep -c 'State: [012] {[012]}' output`
 
 # I get headaches whenever I think about this acceptance condition, so
 # it should be a good test case.

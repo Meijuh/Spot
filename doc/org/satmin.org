@@ -35,10 +35,10 @@ Let us first state a few facts about this minimization procedure.
    to the SAT solver) exceeds $2^{31}$, or when the SAT-solver was
    killed by a signal. [[file:autfilt.org][=autfilt --sat-minimize=]] will only output an
    automaton if the SAT-based minimization was successful.
-6) Our [[https://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf%0A][FORTE'14 paper]] describes the SAT encoding for the minimization
-   of deterministic BA and TGBA.  Since then, the technique used in
-   the SAT encoding for deterministic TGBA has been generalized to
-   deal with any deterministic TωA.
+6) Our [[https://www.lrde.epita.fr/~adl/dl/adl/baarir.14.forte.pdf][FORTE'14 paper]] describes the SAT encoding for the minimization
+   of deterministic BA and TGBA.  Our [[https://www.lrde.epita.fr/~adl/dl/adl/baarir.15.lpar.pdf][LPAR'15 paper]] describes the
+   generalization of the SAT encoding to deal with deterministic TωA
+   with any acceptance condition.
 
 * How to change the SAT solver used
 
@@ -672,6 +672,91 @@ that can be any of the following:
 - =dichotomy= :: instead of looking for a smaller automaton starting
      from =N=, and then checking =N-1=, =N-2=, etc., do a binary
      search starting from =N/2=.
+- =colored= :: force all transitions (or all states if =-S= is used)
+     to belong to exactly one acceptance condition.
+
+
+The =colored= option is useful when used in conjunction with a parity
+acceptance condition.  Indeed, the parity acceptance condition by
+itself does not require that the acceptance sets form a partition of
+the automaton (which is expected from parity automata).
+
+Compare the following, where parity acceptance is used, but the
+automaton is not colored:
+
+#+NAME: autfiltsm9
+#+BEGIN_SRC sh :results verbatim :exports code
+autfilt -S --sat-minimize='acc="parity max even 3"' output2.hoa --dot=.a
+#+END_SRC
+#+RESULTS: autfiltsm9
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<Inf(<font color="#FAA43A">❷</font>) | (Fin(<font color="#F17CB0">❶</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>))>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label=<0>]
+  0 -> 0 [label=<!a>]
+  0 -> 1 [label=<a &amp; !b>]
+  0 -> 2 [label=<a &amp; b>]
+  1 [label=<1>]
+  1 -> 1 [label=<!b>]
+  1 -> 2 [label=<b>]
+  2 [label=<2<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 0 [label=<1>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfiltsm9.png :cmdline -Tpng :var txt=autfiltsm9 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfiltsm9.png]]
+
+... to the following, where the automaton is colored, i.e., each state
+belong to exactly one acceptance set:
+
+#+NAME: autfiltsm10
+#+BEGIN_SRC sh :results verbatim :exports code
+autfilt -S --sat-minimize='acc="parity max even 3",colored' output2.hoa --dot=.a
+#+END_SRC
+#+RESULTS: autfiltsm10
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<Inf(<font color="#FAA43A">❷</font>) | (Fin(<font color="#F17CB0">❶</font>) &amp; Inf(<font color="#5DA5DA">⓿</font>))>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label=<0<br/><font color="#F17CB0">❶</font>>]
+  0 -> 0 [label=<!b>]
+  0 -> 1 [label=<b>]
+  1 [label=<1<br/><font color="#F17CB0">❶</font>>]
+  1 -> 1 [label=<!a>]
+  1 -> 2 [label=<a>]
+  2 [label=<2<br/><font color="#FAA43A">❷</font>>]
+  2 -> 0 [label=<1>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file autfiltsm10.png :cmdline -Tpng :var txt=autfiltsm10 :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:autfiltsm10.png]]
 
 * Logging statistics
 

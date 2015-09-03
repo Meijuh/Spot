@@ -604,7 +604,7 @@ namespace spot
 
     static
     sat_stats dtgba_to_sat(std::ostream& out, const_twa_graph_ptr ref,
-			   dict& d, bool state_based)
+			   dict& d, bool state_based, bool colored)
     {
 #if DEBUG
       debug_dict = ref->get_dict();
@@ -713,6 +713,45 @@ namespace spot
 	out << d.pathid[path(0, init)] << " 0\n";
 	++nclauses;
       }
+
+      if (colored)
+	{
+	  unsigned nacc = d.cand_nacc;
+	  dout << "transitions belong to exactly one of the "
+	       << nacc << " acceptance set\n";
+	  bdd all = bddtrue;
+	  while (all != bddfalse)
+	    {
+	      bdd l = bdd_satoneset(all, ap, bddfalse);
+	      all -= l;
+	      for (unsigned q1 = 0; q1 < d.cand_size; ++q1)
+		for (unsigned q2 = 0; q2 < d.cand_size; ++q2)
+		  {
+		    for (unsigned i = 0; i < nacc; ++i)
+		      {
+			transition_acc ti(q1, l, {i}, q2);
+			int tai = d.transaccid[ti];
+
+			for (unsigned j = 0; j < nacc; ++j)
+			  if (i != j)
+			    {
+			      transition_acc tj(q1, l, {j}, q2);
+			      int taj = d.transaccid[tj];
+			      out << -tai << ' ' << -taj << " 0\n";
+			      ++nclauses;
+			    }
+		      }
+		    for (unsigned i = 0; i < nacc; ++i)
+		      {
+			transition_acc ti(q1, l, {i}, q2);
+			int tai = d.transaccid[ti];
+			out << tai << ' ';
+		      }
+		    out << "0\n";
+		    ++nclauses;
+		  }
+	    }
+	}
 
       if (!d.all_silly_cand_acc.empty())
 	{
@@ -1084,7 +1123,8 @@ namespace spot
   dtgba_sat_synthetize(const const_twa_graph_ptr& a,
 		       unsigned target_acc_number,
 		       const acc_cond::acc_code& target_acc,
-		       int target_state_number, bool state_based)
+		       int target_state_number,
+		       bool state_based, bool colored)
   {
     if (target_state_number == 0)
       return nullptr;
@@ -1103,7 +1143,7 @@ namespace spot
 
     timer_map t;
     t.start("encode");
-    sat_stats s = dtgba_to_sat(solver(), a, d, state_based);
+    sat_stats s = dtgba_to_sat(solver(), a, d, state_based, colored);
     t.stop("encode");
     t.start("solve");
     solution = solver.get_solution();
@@ -1156,8 +1196,8 @@ namespace spot
   dtgba_sat_minimize(const const_twa_graph_ptr& a,
 		     unsigned target_acc_number,
 		     const acc_cond::acc_code& target_acc,
-		     bool state_based,
-		     int max_states)
+		     bool state_based, int max_states,
+		     bool colored)
   {
     int n_states = (max_states < 0) ?
       stats_reachable(a).states : max_states + 1;
@@ -1167,7 +1207,8 @@ namespace spot
       {
 	auto next =
 	  dtgba_sat_synthetize(prev ? prev : a, target_acc_number,
-			       target_acc, --n_states, state_based);
+			       target_acc, --n_states,
+			       state_based, colored);
 	if (!next)
 	  return prev;
 	else
@@ -1181,8 +1222,8 @@ namespace spot
   dtgba_sat_minimize_dichotomy(const const_twa_graph_ptr& a,
 			       unsigned target_acc_number,
 			       const acc_cond::acc_code& target_acc,
-			       bool state_based,
-			       int max_states)
+			       bool state_based, int max_states,
+			       bool colored)
   {
     if (max_states < 1)
       max_states = stats_reachable(a).states - 1;
@@ -1194,7 +1235,8 @@ namespace spot
 	int target = (max_states + min_states) / 2;
 	auto next =
 	  dtgba_sat_synthetize(prev ? prev : a, target_acc_number,
-			       target_acc, target, state_based);
+			       target_acc, target, state_based,
+			       colored);
 	if (!next)
 	  {
 	    min_states = target + 1;
@@ -1228,6 +1270,7 @@ namespace spot
     int states = om.get("states", -1);
     int max_states = om.get("max-states", -1);
     auto accstr = om.get_str("acc");
+    bool colored = om.get("colored", 0);
 
     // Assume we are going to use the input automaton acceptance...
     bool user_supplied_acc = false;
@@ -1316,9 +1359,9 @@ namespace spot
     if (states == -1)
       {
 	auto orig = a;
-	if (!target_is_buchi || !a->acc().is_buchi())
+	if (!target_is_buchi || !a->acc().is_buchi() || colored)
 	  a = (dicho ? dtgba_sat_minimize_dichotomy : dtgba_sat_minimize)
-	    (a, nacc, target_acc, state_based, max_states);
+	    (a, nacc, target_acc, state_based, max_states, colored);
 	else
 	  a = (dicho ? dtba_sat_minimize_dichotomy : dtba_sat_minimize)
 	    (a, state_based, max_states);
@@ -1328,8 +1371,9 @@ namespace spot
       }
     else
       {
-	if (!target_is_buchi || !a->acc().is_buchi())
-	  a = dtgba_sat_synthetize(a, nacc, target_acc, states, state_based);
+	if (!target_is_buchi || !a->acc().is_buchi() || colored)
+	  a = dtgba_sat_synthetize(a, nacc, target_acc, states,
+				   state_based, colored);
 	else
 	  a = dtba_sat_synthetize(a, states, state_based);
       }

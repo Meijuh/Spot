@@ -41,6 +41,9 @@ namespace spot
   /// of a state to share the same acceptance conditions, effectively
   /// turning the TGBA into a TBA.
   ///
+  /// \param colored if true, force all transitions to belong to
+  /// exactly one acceptance set.
+  ///
   /// This functions attempts to find a TGBA with \a target_acc_number
   /// acceptance sets and target_state_number states that is
   /// equivalent to \a a.  If no such TGBA is found, a null pointer is
@@ -50,7 +53,8 @@ namespace spot
 		       unsigned target_acc_number,
 		       const acc_cond::acc_code& target_acc,
 		       int target_state_number,
-		       bool state_based = false);
+		       bool state_based = false,
+		       bool colored = false);
 
   /// \brief Attempt to minimize a deterministic TGBA with a SAT solver.
   ///
@@ -63,7 +67,8 @@ namespace spot
 		     unsigned target_acc_number,
 		     const acc_cond::acc_code& target_acc,
 		     bool state_based = false,
-		     int max_states = -1);
+		     int max_states = -1,
+		     bool colored = false);
 
   /// \brief Attempt to minimize a deterministic TGBA with a SAT solver.
   ///
@@ -76,7 +81,8 @@ namespace spot
 			       unsigned target_acc_number,
 			       const acc_cond::acc_code& target_acc,
 			       bool state_based = false,
-			       int max_states = -1);
+			       int max_states = -1,
+			       bool colored = false);
 
   /// \brief High-level interface to SAT-based minimization
   ///
@@ -90,6 +96,7 @@ namespace spot
   ///   acc = "Rabin 3"
   ///   acc = "same" /* default */
   ///   dichotomy = 1    // use dichotomy instead of decreasing loop
+  ///   colored = 1      // build a colored TωA
   ///
   SPOT_API twa_graph_ptr
   sat_minimize(twa_graph_ptr aut, const char* opt, bool state_based = false);
