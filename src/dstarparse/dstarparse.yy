@@ -40,30 +40,29 @@
 
     struct result_
     {
-      spot::parsed_aut_ptr d;
+      spot::parsed_aut_ptr h;
       spot::ltl::environment* env;
       std::vector<bdd> guards;
       std::vector<bdd>::const_iterator cur_guard;
       map_t dest_map;
-      int cur_state;
+      unsigned int cur_state;
       int plus;
       int minus;
 
-      unsigned state_count = 0U;
+      int states = -1;
       unsigned start_state = 0U;
       unsigned accpair_count = 0U;
-      std::vector<std::string> aps;
+      std::vector<int> ap;
+      std::set<int> ap_set;
 
-      bool state_count_seen:1;
       bool accpair_count_seen:1;
       bool start_state_seen:1;
-      bool aps_seen:1;
+      bool ignore_more_ap:1;
 
       result_():
-	state_count_seen(false),
 	accpair_count_seen(false),
 	start_state_seen(false),
-	aps_seen(false)
+	ignore_more_ap(false)
       {
       }
     };
@@ -71,12 +70,12 @@
 }
 
 %parse-param {spot::parse_aut_error_list& error_list}
-%parse-param {result_& result}
+%parse-param {result_& res}
 %union
 {
   std::string* str;
   unsigned int num;
-  spot::acc_cond::mark_t acc;
+  spot::acc_cond::mark_t mark;
 }
 
 %code
@@ -106,7 +105,7 @@
 %token <num> NUMBER "number";
 
 %type <num> sign
-%type <acc> accsigs state_accsig
+%type <mark> dstar_accsigs dstar_state_accsig
 
 %destructor { delete $$; } <str>
 %printer {
@@ -117,106 +116,140 @@
 %printer { debug_stream() << $$; } <num>
 
 %%
-dstar: header ENDOFHEADER eols states
-       { result.d->loc = @$; }
+dstar: dstar_header ENDOFHEADER eols dstar_states
+       { res.h->loc = @$; }
 
 eols : EOL | eols EOL
 opt_eols: | opt_eols EOL
 
-auttype: DRA
+dstar_type: DRA
        {
-         result.d->type = spot::parsed_aut_type::DRA;
-         result.plus = 1;
-         result.minus = 0;
+         res.h->type = spot::parsed_aut_type::DRA;
+         res.plus = 1;
+         res.minus = 0;
        }
        | DSA
        {
-	 result.d->type = spot::parsed_aut_type::DSA;
-         result.plus = 0;
-         result.minus = 1;
+	 res.h->type = spot::parsed_aut_type::DSA;
+         res.plus = 0;
+         res.minus = 1;
        }
 
-header: auttype opt_eols V2 opt_eols EXPLICIT opt_eols sizes
+dstar_header: dstar_type opt_eols V2 opt_eols EXPLICIT opt_eols dstar_sizes
   {
     bool err = false;
-    if (!result.state_count_seen)
+    if (res.states < 0)
       {
 	error(@5, "missing state count");
 	err = true;
       }
-    if (!result.accpair_count_seen)
+    if (!res.accpair_count_seen)
       {
 	error(@5, "missing acceptance-pair count");
 	err = true;
       }
-    if (!result.start_state_seen)
+    if (!res.start_state_seen)
       {
 	error(@5, "missing start-state number");
 	err = true;
       }
-    if (!result.aps_seen)
+    if (!res.ignore_more_ap)
       {
 	error(@5, "missing atomic proposition definition");
 	err = true;
       }
     if (err)
       {
-	result.d->aut = nullptr;
+	res.h->aut = nullptr;
 	YYABORT;
       }
-    result.d->aut->new_states(result.state_count);;
-    result.d->aut->set_init_state(result.start_state);
-    fill_guards(result);
+    res.h->aut->new_states(res.states);;
+    res.h->aut->set_init_state(res.start_state);
+    fill_guards(res);
+    res.cur_guard = res.guards.end();
   }
 
 aps:
   | aps STRING opt_eols
   {
-    result.aps.push_back(*$2);
+    if (!res.ignore_more_ap)
+      {
+	auto f = res.env->require(*$2);
+	auto d = res.h->aut->get_dict();
+	int b = 0;
+	if (f == nullptr)
+	  {
+	    std::ostringstream out;
+	    out << "unknown atomic proposition \"" << *$2 << "\"";
+	    error(@1, out.str());
+	    f = spot::ltl::default_environment::instance()
+	      .require("$unknown$");
+	    b = d->register_proposition(f, res.h->aut);
+	  }
+	else
+	  {
+	    b = d->register_proposition(f, res.h->aut);
+	    if (!res.ap_set.emplace(b).second)
+	      {
+		std::ostringstream out;
+		out << "duplicate atomic proposition \"" << *$2 << "\"";
+		error(@1, out.str());
+	      }
+	  }
+	f->destroy();
+	res.ap.push_back(b);
+      }
     delete $2;
   }
 
-sizes:
-  | sizes error eols
+dstar_sizes:
+  | dstar_sizes error eols
   {
     error(@2, "unknown header ignored");
   }
-  | sizes ACCPAIRS opt_eols NUMBER opt_eols
+  | dstar_sizes ACCPAIRS opt_eols NUMBER opt_eols
   {
-    result.accpair_count = $4;
-    result.accpair_count_seen = true;
-    result.d->aut->set_acceptance(2 * $4,
-				  result.d->type == spot::parsed_aut_type::DRA
+    res.accpair_count = $4;
+    res.accpair_count_seen = true;
+    res.h->aut->set_acceptance(2 * $4,
+				  res.h->type == spot::parsed_aut_type::DRA
 				  ? spot::acc_cond::acc_code::rabin($4)
 				  : spot::acc_cond::acc_code::streett($4));
   }
-  | sizes STATES opt_eols NUMBER opt_eols
+  | dstar_sizes STATES opt_eols NUMBER opt_eols
   {
-    result.state_count = $4;
-    result.state_count_seen = true;
+    res.states = $4;
   }
-  | sizes START opt_eols NUMBER opt_eols
+  | dstar_sizes START opt_eols NUMBER opt_eols
   {
-    result.start_state = $4;
-    result.start_state_seen = true;
+    res.start_state = $4;
+    res.start_state_seen = true;
   }
-  | sizes AP opt_eols NUMBER opt_eols aps
+  | dstar_sizes AP opt_eols NUMBER { res.ap.reserve($4); } opt_eols aps
   {
-    int announced = $4;
-    int given = result.aps.size();
-    if (given != announced)
+    if (!res.ignore_more_ap)
       {
-	std::ostringstream str;
-	str << announced << " atomic propositions announced but "
-	    << given << " given";
-	error(@4 + @6, str.str());
+	int announced = $4;
+	int given = res.ap.size();
+	if (given != announced)
+	  {
+	    std::ostringstream str;
+	    str << announced << " atomic propositions announced but "
+		<< given << " given";
+	    error(@$, str.str());
+	  }
+	if (given > 31)
+	  {
+	    error(@$,
+		  "ltl2star does not support more than 31 "
+		  "atomic propositions");
+	  }
+	res.ignore_more_ap = true;
       }
-    if (given > 31)
+    else
       {
-	error(@4 + @6,
-	      "ltl2star does not support more than 31 atomic propositions");
+	error(@$, "additional declaration of APs");
       }
-    result.aps_seen = true;
   }
 
 opt_name: | STRING opt_eols
@@ -224,17 +257,17 @@ opt_name: | STRING opt_eols
     delete $1;
   }
 
-state_id: STATE opt_eols NUMBER opt_eols opt_name
+dstar_state_id: STATE opt_eols NUMBER opt_eols opt_name
   {
-    if (result.cur_guard != result.guards.end())
+    if (res.cur_guard != res.guards.end())
       error(@1, "not enough transitions for previous state");
-    if ($3 >= result.state_count)
+    if (res.states < 0 || $3 >= (unsigned) res.states)
       {
 	std::ostringstream o;
-	if (result.state_count > 0)
+	if (res.states > 0)
 	  {
 	    o << "state numbers should be in the range [0.."
-	      << result.state_count - 1<< "]";
+	      << res.states - 1 << "]";
 	  }
 	else
 	  {
@@ -242,24 +275,24 @@ state_id: STATE opt_eols NUMBER opt_eols opt_name
 	  }
 	error(@3, o.str());
       }
-    result.cur_guard = result.guards.begin();
-    result.dest_map.clear();
-    result.cur_state = $3;
+    res.cur_guard = res.guards.begin();
+    res.dest_map.clear();
+    res.cur_state = $3;
   }
 
-sign: '+' { $$ = result.plus; }
-  |   '-' { $$ = result.minus; }
+sign: '+' { $$ = res.plus; }
+  |   '-' { $$ = res.minus; }
 
 // Membership to a pair is represented as (+NUM,-NUM)
-accsigs: opt_eols
+dstar_accsigs: opt_eols
   {
     $$ = 0U;
   }
-  | accsigs sign NUMBER opt_eols
+  | dstar_accsigs sign NUMBER opt_eols
   {
-    if ((unsigned) result.cur_state >= result.state_count)
+    if (res.states < 0 || res.cur_state >= (unsigned) res.states)
       break;
-    if ($3 < result.accpair_count)
+    if ($3 < res.accpair_count)
       {
 	$$ = $1;
 	$$.set($3 * 2 + $2);
@@ -267,10 +300,10 @@ accsigs: opt_eols
     else
       {
 	std::ostringstream o;
-	if (result.accpair_count > 0)
+	if (res.accpair_count > 0)
 	  {
 	    o << "acceptance pairs should be in the range [0.."
-	      << result.accpair_count - 1 << "]";
+	      << res.accpair_count - 1 << "]";
 	  }
 	else
 	  {
@@ -280,48 +313,42 @@ accsigs: opt_eols
       }
   }
 
-state_accsig: ACCSIG accsigs { $$ = $2; }
+dstar_state_accsig: ACCSIG dstar_accsigs { $$ = $2; }
 
-transitions:
-  | transitions NUMBER opt_eols
+dstar_transitions:
+  | dstar_transitions NUMBER opt_eols
   {
     std::pair<map_t::iterator, bool> i =
-      result.dest_map.emplace($2, *result.cur_guard);
+      res.dest_map.emplace($2, *res.cur_guard);
     if (!i.second)
-      i.first->second |= *result.cur_guard;
-    ++result.cur_guard;
+      i.first->second |= *res.cur_guard;
+    ++res.cur_guard;
   }
 
-states:
-  | states state_id state_accsig transitions
+dstar_states:
+  | dstar_states dstar_state_id dstar_state_accsig dstar_transitions
   {
-    for (auto i: result.dest_map)
-      result.d->aut->new_edge(result.cur_state, i.first, i.second, $3);
+    for (auto i: res.dest_map)
+      res.h->aut->new_edge(res.cur_state, i.first, i.second, $3);
   }
 %%
 
 static void fill_guards(result_& r)
 {
-  spot::bdd_dict_ptr d = r.d->aut->get_dict();
+  spot::bdd_dict_ptr d = r.h->aut->get_dict();
+  size_t nap = r.ap.size();
 
-  size_t nap = r.aps.size();
   int* vars = new int[nap];
-
-  // Get a BDD variable for each atomic proposition
-  for (size_t i = 0; i < nap; ++i)
-    {
-      const spot::ltl::formula* f = r.env->require(r.aps[i]);
-      vars[nap - 1 - i] = d->register_proposition(f, r.d->aut);
-      f->destroy();
-    }
+  for (unsigned i = 0; i < nap; ++i)
+    vars[i] = r.ap[nap - 1 - i];
 
   // build the 2^nap possible guards
   r.guards.reserve(1U << nap);
   for (size_t i = 0; i < (1U << nap); ++i)
     r.guards.push_back(bdd_ibuildcube(i, nap, vars));
+  r.cur_guard = r.guards.begin();
 
   delete[] vars;
-  r.cur_guard = r.guards.end();
 }
 
 void
@@ -347,16 +374,16 @@ namespace spot
 	return nullptr;
       }
     result_ r;
-    r.d = std::make_shared<spot::parsed_aut>();
-    r.d->aut = make_twa_graph(dict);
-    r.d->aut->prop_deterministic(true);
-    r.d->aut->prop_state_based_acc(true);
+    r.h = std::make_shared<spot::parsed_aut>();
+    r.h->aut = make_twa_graph(dict);
+    r.h->aut->prop_deterministic(true);
+    r.h->aut->prop_state_based_acc(true);
     r.env = &env;
     dstaryy::parser parser(error_list, r);
     parser.set_debug_level(debug);
     parser.parse();
     dstaryyclose();
-    return r.d;
+    return r.h;
   }
 }
 
