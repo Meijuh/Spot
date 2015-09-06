@@ -246,10 +246,9 @@ aut: aut-1     { res.h->loc = @$; YYACCEPT; }
    | ENDOFFILE { YYABORT; }
    | error ENDOFFILE { YYABORT; }
 
-aut-1: hoa
-     | never
-     | lbtt
-
+aut-1: hoa    { res.h->type = spot::parsed_aut_type::HOA; }
+     | never  { res.h->type = spot::parsed_aut_type::NeverClaim; }
+     | lbtt   { res.h->type = spot::parsed_aut_type::LBTT; }
 
 /**********************************************************************/
 /*                          Rules for HOA                             */

@@ -38,12 +38,9 @@
   {
     typedef std::map<int, bdd> map_t;
 
-    enum dstar_type { Rabin, Streett };
-
     struct result_
     {
       spot::parsed_aut_ptr d;
-      dstar_type type;
       spot::ltl::environment* env;
       std::vector<bdd> guards;
       std::vector<bdd>::const_iterator cur_guard;
@@ -128,13 +125,13 @@ opt_eols: | opt_eols EOL
 
 auttype: DRA
        {
-         result.type = Rabin;
+         result.d->type = spot::parsed_aut_type::DRA;
          result.plus = 1;
          result.minus = 0;
        }
        | DSA
        {
-	 result.type = Streett;
+	 result.d->type = spot::parsed_aut_type::DSA;
          result.plus = 0;
          result.minus = 1;
        }
@@ -189,9 +186,9 @@ sizes:
     result.accpair_count = $4;
     result.accpair_count_seen = true;
     result.d->aut->set_acceptance(2 * $4,
-				  result.type == Rabin ?
-				  spot::acc_cond::acc_code::rabin($4) :
-				  spot::acc_cond::acc_code::streett($4));
+				  result.d->type == spot::parsed_aut_type::DRA
+				  ? spot::acc_cond::acc_code::rabin($4)
+				  : spot::acc_cond::acc_code::streett($4));
   }
   | sizes STATES opt_eols NUMBER opt_eols
   {

@@ -43,6 +43,8 @@ namespace spot
   struct parse_aut_error_list {};
 #endif
 
+  enum class parsed_aut_type { HOA, NeverClaim, LBTT, DRA, DSA, Unknown };
+
   /// \brief Temporary encoding of an omega automaton produced by
   /// the parser.
   struct SPOT_API parsed_aut
@@ -52,6 +54,7 @@ namespace spot
     twa_graph_ptr aut;
     bool aborted = false;
     spot::location loc;
+    parsed_aut_type type = parsed_aut_type::Unknown;
   };
 
   typedef std::shared_ptr<parsed_aut> parsed_aut_ptr;
