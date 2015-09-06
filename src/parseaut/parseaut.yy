@@ -1054,7 +1054,7 @@ unlabeled-edge: checked-state-num trans-acc_opt
 			fill_guards(res);
 		      if (res.cur_guard == res.guards.end())
 			{
-			  error(@$, "too many transition for this state, "
+			  error(@$, "too many transitions for this state, "
 				"ignoring this one");
 			  cond = bddfalse;
 			}
