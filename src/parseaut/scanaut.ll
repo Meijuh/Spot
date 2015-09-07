@@ -49,6 +49,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 %s in_HOA in_NEVER in_LBTT_HEADER
 %s in_LBTT_STATE in_LBTT_INIT in_LBTT_TRANS
 %s in_LBTT_T_ACC in_LBTT_S_ACC in_LBTT_GUARD
+%s in_DSTAR
 %%
 
 %{
@@ -82,6 +83,8 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 <INITIAL>"HOA:"           BEGIN(in_HOA); return token::HOA;
 <INITIAL,in_HOA>"--ABORT--" BEGIN(INITIAL); throw spot::hoa_abort{*yylloc};
 <INITIAL>"never"	  BEGIN(in_NEVER); return token::NEVER;
+<INITIAL>"DSA"		  BEGIN(in_DSTAR); return token::DSA;
+<INITIAL>"DRA"		  BEGIN(in_DSTAR); return token::DRA;
 
 <INITIAL>[0-9]+[ \t][0-9]+[ts]?  {
 	                  BEGIN(in_LBTT_HEADER);
@@ -131,6 +134,21 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
 			   yylval->str = new std::string(yytext + 1, yyleng - 1);
 			   return token::ANAME;
 			}
+  [0-9]+                parse_int(); return token::INT;
+}
+
+<in_DSTAR>{
+  "States:"		return token::STATES;
+  "State:"		return token::STATE;
+  "Start:"		return token::START;
+  "AP:"			return token::AP;
+  "v2"			return token::V2;
+  "explicit"		return token::EXPLICIT;
+  "Comment:".*		continue;
+  "//".*		continue;
+  "Acceptance-Pairs:"	return token::ACCPAIRS;
+  "Acc-Sig:"		return token::ACCSIG;
+  "---"			return token::ENDOFHEADER;
   [0-9]+                parse_int(); return token::INT;
 }
 

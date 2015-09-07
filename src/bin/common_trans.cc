@@ -194,7 +194,6 @@ printable_result_filename::~printable_result_filename()
 void printable_result_filename::reset(unsigned n)
 {
   translator_num = n;
-  format = None;
 }
 
 void printable_result_filename::cleanup()
@@ -204,33 +203,12 @@ void printable_result_filename::cleanup()
 }
 
 void
-printable_result_filename::print(std::ostream& os, const char* pos) const
+printable_result_filename::print(std::ostream& os, const char*) const
 {
-  output_format old_format = format;
-  // The HOA parser can read LBTT, neverclaims, and HOA.
-  if (*pos == 'N' || *pos == 'T' || *pos == 'H' || *pos == 'O')
-    format = Hoa;
-  else if (*pos == 'D')
-    format = Dstar;
-  else
-    SPOT_UNREACHABLE();
-
-  if (val_)
-    {
-      // It's OK to use a specifier multiple time, but it's not OK
-      // to mix the formats.
-      if (format != old_format)
-	error(2, 0,
-	      "you may not mix different output specifiers: %s",
-	      translators[translator_num].spec);
-    }
-  else
-    {
-      char prefix[30];
-      snprintf(prefix, sizeof prefix, "lcr-o%u-", translator_num);
-      const_cast<printable_result_filename*>(this)->val_
-	= spot::create_tmpfile(prefix);
-    }
+  char prefix[30];
+  snprintf(prefix, sizeof prefix, "lcr-o%u-", translator_num);
+  const_cast<printable_result_filename*>(this)->val_ =
+    spot::create_tmpfile(prefix);
   quote_shell_string(os, val()->name());
 }
 
@@ -268,11 +246,11 @@ translator_runner::translator_runner(spot::bdd_dict_ptr dict,
 	      "one of %%f,%%s,%%l,%%w,%%F,%%S,%%L,%%W to indicate how "
 	      "to pass the formula.", t.spec);
       if (!no_output_allowed
-	  && !(has['O'] || has['D'] ||
+	  && !(has['O'] ||
 	       // backward-compatibility
-	       has['N'] || has['T'] || has['H']))
-	error(2, 0, "no output %%-sequence in '%s'.\n      Use one of "
-	      "%%O or %%D to indicate where and how the automaton is saved.",
+	       has['D'] || has['N'] || has['T'] || has['H']))
+	error(2, 0, "no output %%-sequence in '%s'.\n      Use  "
+	      "%%O to indicate where the automaton is output.",
 	      t.spec);
       // Remember the %-sequences used by all translators.
       prime(t.cmd);

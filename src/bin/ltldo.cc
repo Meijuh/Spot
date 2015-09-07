@@ -42,7 +42,6 @@
 #include "twaalgos/relabel.hh"
 #include "twaalgos/totgba.hh"
 #include "parseaut/public.hh"
-#include "dstarparse/public.hh"
 
 const char argp_program_doc[] ="\
 Run LTL/PSL formulas through another program, performing conversion\n\
@@ -134,8 +133,6 @@ namespace
       std::ostringstream command;
       format(command, translators[translator_num].cmd);
 
-      //assert(output.format != printable_result_filename::None);
-
       std::string cmd = command.str();
       //std::cerr << "Running [" << l << translator_num << "]: "
       // << cmd << std::endl;
@@ -166,69 +163,44 @@ namespace
 	  std::cerr << "error: execution of command \"" << cmd
 		    << "\" returned exit code " << es << ".\n";
 	}
-      else
+      else if (output.val())
 	{
 	  problem = false;
-	  switch (output.format)
+
+	  spot::parse_aut_error_list pel;
+	  std::string filename = output.val()->name();
+	  auto aut = spot::parse_aut(filename, pel, dict);
+	  if (!pel.empty())
 	    {
-	    case printable_result_filename::Dstar:
-	      {
-		spot::parse_aut_error_list pel;
-		std::string filename = output.val()->name();
-		auto aut = spot::dstar_parse(filename, pel, dict);
-		if (!pel.empty())
-		  {
-		    problem = true;
-		    std::cerr << "error: failed to parse the output of \""
-			      << cmd << "\" as a DSTAR automaton.\n";
-		    spot::format_parse_aut_errors(std::cerr, filename, pel);
-		    res = nullptr;
-		  }
-		else
-		  {
-		    res = aut->aut;
-		  }
-		break;
-	      }
-	    case printable_result_filename::Hoa:
-	      {
-		// Will also read neverclaims/LBTT
-		spot::parse_aut_error_list pel;
-		std::string filename = output.val()->name();
-		auto aut = spot::parse_aut(filename, pel, dict);
-		if (!pel.empty())
-		  {
-		    problem = true;
-		    std::cerr << "error: failed to parse the automaton "
-		      "produced by \"" << cmd << "\".\n";
-		    spot::format_parse_aut_errors(std::cerr, filename, pel);
-		    res = nullptr;
-		  }
-		else if (!aut)
-		  {
-		    problem = true;
-		    std::cerr << "error: command \"" << cmd
-			      << "\" produced an empty output.\n";
-		    res = nullptr;
-		  }
-		else if (aut->aborted)
-		  {
-		    problem = true;
-		    std::cerr << "error: command \"" << cmd
-			      << "\" aborted its output.\n";
-		    res = nullptr;
-		  }
-		else
-		  {
-		    res = aut->aut;
-		  }
-	      }
-	      break;
-	    case printable_result_filename::None:
-	      problem = false;
+	      problem = true;
+	      std::cerr << "error: failed to parse the automaton "
+		"produced by \"" << cmd << "\".\n";
+	      spot::format_parse_aut_errors(std::cerr, filename, pel);
 	      res = nullptr;
-	      break;
 	    }
+	  else if (!aut)
+	    {
+	      problem = true;
+	      std::cerr << "error: command \"" << cmd
+			<< "\" produced an empty output.\n";
+	      res = nullptr;
+	    }
+	  else if (aut->aborted)
+	    {
+	      problem = true;
+	      std::cerr << "error: command \"" << cmd
+			<< "\" aborted its output.\n";
+	      res = nullptr;
+	    }
+	  else
+	    {
+	      res = aut->aut;
+	    }
+	}
+      else			// No automaton output
+	{
+	  problem = false;
+	  res = nullptr;
 	}
 
       output.cleanup();

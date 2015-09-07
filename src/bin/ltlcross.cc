@@ -38,7 +38,6 @@
 #include "common_trans.hh"
 #include "common_file.hh"
 #include "common_finput.hh"
-#include "dstarparse/public.hh"
 #include "parseaut/public.hh"
 #include "ltlast/unop.hh"
 #include "ltlvisit/print.hh"
@@ -493,8 +492,6 @@ namespace
       std::ostringstream command;
       format(command, translators[translator_num].cmd);
 
-      assert(output.format != printable_result_filename::None);
-
       std::string cmd = command.str();
       std::cerr << "Running [" << l << translator_num << "]: "
 		<< cmd << std::endl;
@@ -548,73 +545,42 @@ namespace
 	  status_str = "ok";
 	  problem = false;
 	  es = 0;
-	  switch (output.format)
+
+	  spot::parse_aut_error_list pel;
+	  std::string filename = output.val()->name();
+	  auto aut = spot::parse_aut(filename, pel, dict);
+	  if (!pel.empty())
 	    {
-	    case printable_result_filename::Dstar:
-	      {
-		spot::parse_aut_error_list pel;
-		std::string filename = output.val()->name();
-		auto aut = spot::dstar_parse(filename, pel, dict);
-		if (!pel.empty())
-		  {
-		    status_str = "parse error";
-		    problem = true;
-		    es = -1;
-		    std::ostream& err = global_error();
-		    err << "error: failed to parse the produced DSTAR"
-		      " output.\n";
-		    spot::format_parse_aut_errors(err, filename, pel);
-		    end_error();
-		    res = nullptr;
-		  }
-		else
-		  {
-		    res = aut->aut;
-		  }
-		break;
-	      }
-	    case printable_result_filename::Hoa: // Will also read neverclaims
-	      {
-		spot::parse_aut_error_list pel;
-		std::string filename = output.val()->name();
-		auto aut = spot::parse_aut(filename, pel, dict);
-		if (!pel.empty())
-		  {
-		    status_str = "parse error";
-		    problem = true;
-		    es = -1;
-		    std::ostream& err = global_error();
-		    err << "error: failed to parse the produced automaton.\n";
-		    spot::format_parse_aut_errors(err, filename, pel);
-		    end_error();
-		    res = nullptr;
-		  }
-		else if (!aut)
-		  {
-		    status_str = "empty output";
-		    problem = true;
-		    es = -1;
-		    global_error() << "error: empty output.\n";
-		    end_error();
-		    res = nullptr;
-		  }
-		else if (aut->aborted)
-		  {
-		    status_str = "aborted";
-		    problem = true;
-		    es = -1;
-		    global_error()  << "error: aborted HOA file.\n";
-		    end_error();
-		    res = nullptr;
-		  }
-		else
-		  {
-		    res = aut->aut;
-		  }
-		break;
-	      }
-	    case printable_result_filename::None:
-	      SPOT_UNREACHABLE();
+	      status_str = "parse error";
+	      problem = true;
+	      es = -1;
+	      std::ostream& err = global_error();
+	      err << "error: failed to parse the produced automaton.\n";
+	      spot::format_parse_aut_errors(err, filename, pel);
+	      end_error();
+	      res = nullptr;
+	    }
+	  else if (!aut)
+	    {
+	      status_str = "empty output";
+	      problem = true;
+	      es = -1;
+	      global_error() << "error: empty output.\n";
+	      end_error();
+	      res = nullptr;
+	    }
+	  else if (aut->aborted)
+	    {
+	      status_str = "aborted";
+	      problem = true;
+	      es = -1;
+	      global_error()  << "error: aborted HOA file.\n";
+	      end_error();
+	      res = nullptr;
+	    }
+	  else
+	    {
+	      res = aut->aut;
 	    }
 	}
 

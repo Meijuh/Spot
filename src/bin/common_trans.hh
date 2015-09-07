@@ -60,8 +60,6 @@ struct printable_result_filename final:
   public spot::printable_value<spot::temporary_file*>
 {
   unsigned translator_num;
-  enum output_format { None, Dstar, Hoa };
-  mutable output_format format;
 
   printable_result_filename();
   ~printable_result_filename();

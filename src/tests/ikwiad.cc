@@ -39,7 +39,6 @@
 #include "twaalgos/degen.hh"
 #include "twa/twaproduct.hh"
 #include "twaalgos/reducerun.hh"
-#include "dstarparse/public.hh"
 #include "parseaut/public.hh"
 #include "twaalgos/dupexp.hh"
 #include "twaalgos/minimize.hh"
@@ -118,8 +117,7 @@ syntax(char* prog)
 	    << std::endl
 	    << "  -XD   do not compute an automaton, read it from an"
 	    << " ltl2dstar file" << std::endl
-	    << "  -XDB  read the from an ltl2dstar file and convert it to "
-	    << "TGBA" << std::endl
+	    << "  -XDB  like -XD, and convert it to TGBA\n"
 	    << "  -XH   do not compute an automaton, read it from a"
 	    << " HOA file\n"
 	    << "  -XL   do not compute an automaton, read it from an"
@@ -341,7 +339,6 @@ checked_main(int argc, char** argv)
   bool accepting_run = false;
   bool accepting_run_replay = false;
   bool from_file = false;
-  enum { ReadDstar, ReadHoa } readformat = ReadHoa;
   bool nra2nba = false;
   bool scc_filter = false;
   bool simpltl = false;
@@ -859,28 +856,23 @@ checked_main(int argc, char** argv)
       else if (!strcmp(argv[formula_index], "-XD"))
 	{
 	  from_file = true;
-	  readformat = ReadDstar;
 	}
       else if (!strcmp(argv[formula_index], "-XDB"))
 	{
 	  from_file = true;
-	  readformat = ReadDstar;
 	  nra2nba = true;
 	}
       else if (!strcmp(argv[formula_index], "-XH"))
 	{
 	  from_file = true;
-	  readformat = ReadHoa;
 	}
       else if (!strcmp(argv[formula_index], "-XL"))
 	{
 	  from_file = true;
-	  readformat = ReadHoa;
 	}
       else if (!strcmp(argv[formula_index], "-XN")) // now synonym for -XH
 	{
 	  from_file = true;
-	  readformat = ReadHoa;
 	}
       else if (!strcmp(argv[formula_index], "-y"))
 	{
@@ -957,45 +949,18 @@ checked_main(int argc, char** argv)
 
       if (from_file)
 	{
-	  switch (readformat)
-	    {
-	    case ReadDstar:
-	      {
-		spot::parse_aut_error_list pel;
-		tm.start("parsing dstar");
-		auto daut = spot::dstar_parse(input, pel, dict, env, debug_opt);
-		tm.stop("parsing dstar");
-		if (spot::format_parse_aut_errors(std::cerr, input, pel))
-		  return 2;
-		tm.start("dstar2tgba");
-		if (nra2nba)
-		  {
-		    a = spot::to_generalized_buchi(daut->aut);
-		    assume_sba = a->is_sba();
-		  }
-		else
-		  {
-		    a = daut->aut;
-		    daut->aut = 0;
-		    assume_sba = false;
-		  }
-		tm.stop("dstar2tgba");
-	      }
-	      break;
-	    case ReadHoa:
-	      {
-		spot::parse_aut_error_list pel;
-		tm.start("parsing hoa");
-		auto daut = spot::parse_aut(input, pel, dict, env, debug_opt);
-		tm.stop("parsing hoa");
-		if (spot::format_parse_aut_errors(std::cerr, input, pel))
-		  return 2;
-		daut->aut->merge_edges();
-		a = daut->aut;
-		assume_sba = a->is_sba();
-	      }
-	      break;
-	    }
+	  spot::parse_aut_error_list pel;
+	  tm.start("parsing hoa");
+	  auto daut = spot::parse_aut(input, pel, dict, env, debug_opt);
+	  tm.stop("parsing hoa");
+	  if (spot::format_parse_aut_errors(std::cerr, input, pel))
+	    return 2;
+	  daut->aut->merge_edges();
+	  a = daut->aut;
+
+	  if (nra2nba)
+	    a = spot::to_generalized_buchi(daut->aut);
+	  assume_sba = a->is_sba();
 	}
       else
 	{

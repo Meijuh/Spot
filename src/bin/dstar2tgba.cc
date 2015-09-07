@@ -42,7 +42,7 @@
 #include "twa/bddprint.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"
-#include "dstarparse/public.hh"
+#include "parseaut/public.hh"
 #include "twaalgos/sccinfo.hh"
 
 static const char argp_program_doc[] ="\
@@ -148,7 +148,7 @@ namespace
     process_file(const char* filename)
     {
       spot::parse_aut_error_list pel;
-      auto daut = spot::dstar_parse(filename, pel, spot::make_bdd_dict());
+      auto daut = spot::parse_aut(filename, pel, spot::make_bdd_dict());
       if (spot::format_parse_aut_errors(std::cerr, filename, pel))
 	return 2;
       if (!daut)

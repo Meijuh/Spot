@@ -200,7 +200,6 @@ AC_CONFIG_FILES([
   lib/Makefile
   src/bin/Makefile
   src/bin/man/Makefile
-  src/dstarparse/Makefile
   src/kripke/Makefile
   src/graph/Makefile
   src/parseaut/Makefile

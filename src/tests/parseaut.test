@@ -965,18 +965,17 @@ and even more garbage
 EOF
 
 se='syntax error, unexpected'  # this is just to keep lines short
-end='end of file or HOA: or never or LBTT header'
 expecterr input <<EOF
 input:8.11: $se identifier, expecting integer or '}'
 input:8.10-12: ignoring this invalid acceptance set
 input:11.2: $se identifier
 input:11.1-3: ignoring this invalid label
 input:21.5-7: $se string, expecting integer
-input:25.1: $se \$undefined, expecting $end
+input:25.1: $se \$undefined
 input:25.1-12: ignoring leading garbage
 input:32.1-5: $se header name, expecting --END-- or State:
 input:28.1-8: initial state 0 has no definition
-input:37.1: $se 't', expecting $end
+input:37.1: $se 't'
 autfilt: failed to read automaton from input
 EOF
 

@@ -137,7 +137,6 @@ Core directories
 src/              Sources for libspot.
    bin/           User tools built using the Spot library.
       man/        Man pages for the above tools.
-   dstarparse/    Parser for the output of ltl2dstar.
    graph/         Graph representations.
    kripke/        Kripke Structure interface.
    kripkeparse/   Parser for explicit Kripke.
@@ -146,7 +145,7 @@ src/              Sources for libspot.
    ltlparse/      Parser for LTL formulae.
    ltlvisit/      Visitors of LTL formulae.
    misc/          Miscellaneous support files.
-   parseaut/      Parser for HOA automata and Spin's never claims.
+   parseaut/      Parser for automata in multiple formats.
    priv/          Private algorithms, used internally but not exported.
    ta/            TA objects and cousins (TGTA).
    taalgos/       Algorithms on TA/TGTA.

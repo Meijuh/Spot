@@ -42,6 +42,8 @@
 
   inline namespace hoayy_support
   {
+    typedef std::map<int, bdd> map_t;
+
     /* Cache parsed formulae.  Labels on arcs are frequently identical
        and it would be a waste of time to parse them to formula* over and
        over, and to register all their atomic_propositions in the
@@ -76,6 +78,7 @@
       std::vector<int> ap;
       std::vector<bdd> guards;
       std::vector<bdd>::const_iterator cur_guard;
+      map_t dest_map;
       std::vector<state_info> info_states; // States declared and used.
       std::vector<std::pair<spot::location, unsigned>> start; // Initial states;
       std::unordered_map<std::string, bdd> alias;
@@ -87,6 +90,8 @@
       spot::acc_cond::mark_t acc_state;
       spot::acc_cond::mark_t neg_acc_sets = 0U;
       spot::acc_cond::mark_t pos_acc_sets = 0U;
+      int plus;
+      int minus;
       std::vector<std::string>* state_names = nullptr;
       std::map<unsigned, unsigned> states_map;
       std::set<int> ap_set;
@@ -179,13 +184,23 @@
 %token <num> INT "integer";
 %token ENDOFFILE 0 "end of file"
 
+%token DRA "DRA"
+%token DSA "DSA"
+%token V2 "v2"
+%token EXPLICIT "explicit"
+%token ACCPAIRS "Acceptance-Pairs:"
+%token ACCSIG "Acc-Sig:";
+%token ENDOFHEADER "---";
+
+
 %left '|'
 %left '&'
 %nonassoc '!'
 
-%type <num> checked-state-num state-num acc-set
+%type <num> checked-state-num state-num acc-set sign
 %type <b> label-expr
 %type <mark> acc-sig acc-sets trans-acc_opt state-acc_opt
+             dstar_accsigs dstar_state_accsig
 %type <str> string_opt
 
 /**** NEVERCLAIM tokens ****/
@@ -249,6 +264,7 @@ aut: aut-1     { res.h->loc = @$; YYACCEPT; }
 aut-1: hoa    { res.h->type = spot::parsed_aut_type::HOA; }
      | never  { res.h->type = spot::parsed_aut_type::NeverClaim; }
      | lbtt   { res.h->type = spot::parsed_aut_type::LBTT; }
+     | dstar  /* we will set type as DSA or DRA while parsing first line */
 
 /**********************************************************************/
 /*                          Rules for HOA                             */
@@ -408,6 +424,35 @@ format-version: "HOA:" { res.h->loc = @1; } version
 		  res.h->loc = @2; }
                 version
 
+aps: "AP:" INT {
+	                 if (res.ignore_more_ap)
+			   {
+			     error(@1, "ignoring this redeclaration of APs...");
+			     error(res.ap_loc, "... previously declared here.");
+			   }
+			 else
+			   {
+			     res.ap_count = $2;
+			     res.ap.reserve($2);
+			   }
+	               }
+                   ap-names
+	     {
+	       if (!res.ignore_more_ap)
+		 {
+		   res.ap_loc = @1 + @2;
+		   if ((int) res.ap.size() != res.ap_count)
+		     {
+		       std::ostringstream out;
+		       out << "found " << res.ap.size()
+			   << " atomic propositions instead of the "
+			   << res.ap_count << " announced";
+		       error(@$, out.str());
+		     }
+		   res.ignore_more_ap = true;
+		 }
+	     }
+
 header-items: | header-items header-item
 header-item: "States:" INT
            {
@@ -436,34 +481,7 @@ header-item: "States:" INT
 	     {
 	       res.start.emplace_back(@$, $2);
 	     }
-           | "AP:" INT {
-	                 if (res.ignore_more_ap)
-			   {
-			     error(@1, "ignoring this redeclaration of APs...");
-			     error(res.ap_loc, "... previously declared here.");
-			   }
-			 else
-			   {
-			     res.ap_count = $2;
-			     res.ap.reserve($2);
-			   }
-	               }
-                   ap-names
-	     {
-	       if (!res.ignore_more_ap)
-		 {
-		   res.ap_loc = @1 + @2;
-		   if ((int) res.ap.size() != res.ap_count)
-		     {
-		       std::ostringstream out;
-		       out << "found " << res.ap.size()
-			   << " atomic propositions instead of the "
-			   << res.ap_count << " announced";
-		       error(@$, out.str());
-		     }
-		   res.ignore_more_ap = true;
-		 }
-	     }
+           | aps
            | "Alias:" ANAME label-expr
              {
 	       if (!res.alias.emplace(*$2, bdd_from_int($3)).second)
@@ -1077,6 +1095,175 @@ incorrectly-labeled-edge: trans-label unlabeled-edge
 			    error(@1, "ignoring this label, because previous"
 				  " edge has no label");
                           }
+
+
+/**********************************************************************/
+/*                   Rules for LTL2DSTAR's format                     */
+/**********************************************************************/
+
+dstar: dstar_header "---" dstar_states
+
+dstar_type: "DRA"
+       {
+         res.h->type = spot::parsed_aut_type::DRA;
+         res.plus = 1;
+         res.minus = 0;
+       }
+       | "DSA"
+       {
+	 res.h->type = spot::parsed_aut_type::DSA;
+         res.plus = 0;
+         res.minus = 1;
+       }
+
+dstar_header: dstar_type "v2" "explicit" dstar_sizes
+  {
+    bool err = false;
+    if (res.states < 0)
+      {
+	error(@4, "missing state count");
+	err = true;
+      }
+    if (!res.ignore_more_acc)
+      {
+	error(@4, "missing acceptance-pair count");
+	err = true;
+      }
+    if (res.start.empty())
+      {
+	error(@4, "missing start-state number");
+	err = true;
+      }
+    if (!res.ignore_more_ap)
+      {
+	error(@4, "missing atomic proposition definition");
+	err = true;
+      }
+    if (err)
+      {
+	res.h->aut = nullptr;
+	YYABORT;
+      }
+    res.h->aut->new_states(res.states);;
+    res.info_states.resize(res.states);
+    fill_guards(res);
+    res.cur_guard = res.guards.end();
+    res.h->aut->prop_state_based_acc();
+    res.h->aut->prop_deterministic();
+    // res.h->aut->prop_complete();
+  }
+
+dstar_sizes:
+/*  | dstar_sizes error eols
+  {
+    error(@2, "unknown header ignored");
+  }
+*/
+  | dstar_sizes "Acceptance-Pairs:" INT
+  {
+    if (res.ignore_more_acc)
+      {
+	error(@1 + @2, "ignoring this redefinition of the "
+	      "acceptance pairs...");
+	error(res.accset_loc, "... previously defined here.");
+      }
+    else{
+      res.accset = $3;
+      res.h->aut->set_acceptance(2 * $3,
+				 res.h->type == spot::parsed_aut_type::DRA
+				 ? spot::acc_cond::acc_code::rabin($3)
+				 : spot::acc_cond::acc_code::streett($3));
+      res.accset_loc = @3;
+      res.ignore_more_acc = true;
+    }
+  }
+  | dstar_sizes "States:" INT
+  {
+    res.states = $3;
+  }
+  | dstar_sizes "Start:" INT
+  {
+    res.start.emplace_back(@3, $3);
+  }
+  | dstar_sizes aps
+
+opt_name: | STRING { delete $1; }
+
+dstar_state_id: "State:" INT opt_name
+  {
+    if (res.cur_guard != res.guards.end())
+      error(@1, "not enough transitions for previous state");
+    if (res.states < 0 || $2 >= (unsigned) res.states)
+      {
+	std::ostringstream o;
+	if (res.states > 0)
+	  {
+	    o << "state numbers should be in the range [0.."
+	      << res.states - 1 << "]";
+	  }
+	else
+	  {
+	    o << "no states have been declared";
+	  }
+	error(@2, o.str());
+      }
+    res.cur_guard = res.guards.begin();
+    res.dest_map.clear();
+    res.cur_state = $2;
+    res.info_states[$2].declared = true;
+  }
+
+sign: '+' { $$ = res.plus; }
+  |   '-' { $$ = res.minus; }
+
+// Membership to a pair is represented as (+NUM,-NUM)
+dstar_accsigs:
+  {
+    $$ = 0U;
+  }
+  | dstar_accsigs sign INT
+  {
+    if (res.states < 0 || res.cur_state >= (unsigned) res.states)
+      break;
+    if (res.accset > 0 && $3 < (unsigned) res.accset)
+      {
+	$$ = $1;
+	$$.set($3 * 2 + $2);
+      }
+    else
+      {
+	std::ostringstream o;
+	if (res.accset > 0)
+	  {
+	    o << "acceptance pairs should be in the range [0.."
+	      << res.accset - 1 << "]";
+	  }
+	else
+	  {
+	    o << "no acceptance pairs have been declared";
+	  }
+	error(@3, o.str());
+      }
+  }
+
+dstar_state_accsig: "Acc-Sig:" dstar_accsigs { $$ = $2; }
+
+dstar_transitions:
+  | dstar_transitions INT
+  {
+    std::pair<map_t::iterator, bool> i =
+      res.dest_map.emplace($2, *res.cur_guard);
+    if (!i.second)
+      i.first->second |= *res.cur_guard;
+    ++res.cur_guard;
+  }
+
+dstar_states:
+  | dstar_states dstar_state_id dstar_state_accsig dstar_transitions
+  {
+    for (auto i: res.dest_map)
+      res.h->aut->new_edge(res.cur_state, i.first, i.second, $3);
+  }
 
 /**********************************************************************/
 /*                      Rules for neverclaims                         */
