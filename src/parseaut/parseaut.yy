@@ -261,6 +261,12 @@
 aut: aut-1     { res.h->loc = @$; YYACCEPT; }
    | ENDOFFILE { YYABORT; }
    | error ENDOFFILE { YYABORT; }
+   | error aut-1
+     {
+       error(@1, "leading garbage was ignored");
+       res.h->loc = @2;
+       YYACCEPT;
+     }
 
 aut-1: hoa   { res.h->type = spot::parsed_aut_type::HOA; }
      | never { res.h->type = spot::parsed_aut_type::NeverClaim; }
@@ -272,7 +278,7 @@ aut-1: hoa   { res.h->type = spot::parsed_aut_type::HOA; }
 /**********************************************************************/
 
 hoa: header "--BODY--" body "--END--"
-hoa: error "--END--"
+   | "HOA:" error "--END--"
 
 string_opt: { $$ = nullptr; }
           | STRING { $$ = $1; }
@@ -420,10 +426,6 @@ version: IDENTIFIER
 	 }
 
 format-version: "HOA:" { res.h->loc = @1; } version
-              | error "HOA:"
-	        { error(@1, "ignoring leading garbage");
-		  res.h->loc = @2; }
-                version
 
 aps: "AP:" INT {
 	                 if (res.ignore_more_ap)
@@ -1102,7 +1104,11 @@ incorrectly-labeled-edge: trans-label unlabeled-edge
 /*                   Rules for LTL2DSTAR's format                     */
 /**********************************************************************/
 
-dstar: dstar_header "---" dstar_states ENDDSTAR
+dstar: dstar_type "v2" "explicit" dstar_header "---" dstar_states ENDDSTAR
+     | dstar_type error ENDDSTAR
+       {
+	 error(@$, "failed to parse this as an ltl2dstar automaton");
+       }
 
 dstar_type: "DRA"
        {
@@ -1117,27 +1123,27 @@ dstar_type: "DRA"
          res.minus = 1;
        }
 
-dstar_header: dstar_type "v2" "explicit" dstar_sizes
+dstar_header: dstar_sizes
   {
     bool err = false;
     if (res.states < 0)
       {
-	error(@4, "missing state count");
+	error(@1, "missing state count");
 	err = true;
       }
     if (!res.ignore_more_acc)
       {
-	error(@4, "missing acceptance-pair count");
+	error(@1, "missing acceptance-pair count");
 	err = true;
       }
     if (res.start.empty())
       {
-	error(@4, "missing start-state number");
+	error(@1, "missing start-state number");
 	err = true;
       }
     if (!res.ignore_more_ap)
       {
-	error(@4, "missing atomic proposition definition");
+	error(@1, "missing atomic proposition definition");
 	err = true;
       }
     if (err)
@@ -1155,11 +1161,7 @@ dstar_header: dstar_type "v2" "explicit" dstar_sizes
   }
 
 dstar_sizes:
-/*  | dstar_sizes error eols
-  {
-    error(@2, "unknown header ignored");
-  }
-*/
+  | dstar_sizes error
   | dstar_sizes "Acceptance-Pairs:" INT
   {
     if (res.ignore_more_acc)
@@ -1260,6 +1262,7 @@ dstar_transitions:
   }
 
 dstar_states:
+  | dstar_states error
   | dstar_states dstar_state_id dstar_state_accsig dstar_transitions
   {
     for (auto i: res.dest_map)
