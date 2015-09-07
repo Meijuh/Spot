@@ -43,6 +43,7 @@ static unsigned lbtt_states = 0;
 
 eol         \n+|\r+
 eol2        (\n\r)+|(\r\n)+
+eols        ({eol}|{eol2})*
 identifier  [[:alpha:]_][[:alnum:]_-]*
 
 %x in_COMMENT in_STRING in_NEVER_PAR
@@ -150,6 +151,14 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
   "Acc-Sig:"		return token::ACCSIG;
   "---"			return token::ENDOFHEADER;
   [0-9]+                parse_int(); return token::INT;
+  /* The start of any automaton is the end of this one.
+     We do not try to detect LBTT automata, as that would
+     be too hard to distinguish from state numbers. */
+  ""/{eols}("HOA:"|"never"|"DSA"|"DRA")  {
+			  BEGIN(INITIAL);
+			  return token::ENDDSTAR;
+			}
+  <<EOF>>	return token::ENDDSTAR;
 }
 
 <in_NEVER>{
@@ -185,7 +194,7 @@ identifier  [[:alpha:]_][[:alnum:]_-]*
      If we only tokenize it as a stream of INTs, the parser will have
      a very hard time recognizing what is a state from what is a
      transitions.  As a consequence we abuse the start conditions to
-     maintain a state an return integers with different sementic types
+     maintain a state an return integers with different semantic types
      depending on the purpose of those integers. */
 <in_LBTT_HEADER>{
   [0-9]+[st]*           {

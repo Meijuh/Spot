@@ -154,7 +154,7 @@ test "`../../bin/dstar2tgba -DC dsa.dstar --stats '%s %t %p %d'`" = "5 11 1 0"
 
 
 # DRA generated with
-#  ltlfilt -f 'Ga | Fb' -l | ltl2dstar --ltl2nba=spin:path/ltl2tgba@-sD - -
+#  ltlfilt -f 'Ga | Fb' -l | ltl2dstar --ltl2nba=spin:path/ltl2tgba@-Ds - -
 # (State name and comments added by hand to test the parser.)
 cat >dra.dstar <<EOF
 DRA v2 explicit
@@ -198,9 +198,21 @@ Acc-Sig: +0 +1
 4
 3
 4
+/* Same automaton with DSA instead of DRA, no comments, and less \n */
+DSA v2 explicit
+States: 5
+Acceptance-Pairs: 2
+Start: 0
+AP: 2 "a" "b"
+---
+State: 0 "bla" Acc-Sig: 1 2 3 4
+State: 1 "foo" Acc-Sig: -0 1 1 3 3
+State: 2 "baz" Acc-Sig: +0 1 2 3 4
+State: 3 "str\n\"ing" Acc-Sig: -0 +1 3 3 3 3
+State: 4 "more\"string\"" Acc-Sig: +0 +1 3 4 3 4
 EOF
 
-run 0 ../ikwiad -XDB dra.dstar | tee stdout
+run 0 ../../bin/autfilt -B dra.dstar | tee stdout
 
 cat >expected <<EOF
 digraph G {
@@ -227,12 +239,33 @@ digraph G {
   4 -> 3 [label="!a"]
   4 -> 4 [label="a"]
 }
+digraph G {
+  rankdir=LR
+  node [shape="circle"]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label="0"]
+  0 -> 1 [label="!a & !b"]
+  0 -> 2 [label="a & !b"]
+  1 [label="1", peripheries=2]
+  1 -> 1 [label="!b"]
+  2 [label="2"]
+  2 -> 1 [label="!a & !b"]
+  2 -> 2 [label="a & !b"]
+}
 EOF
 
 diff expected stdout
 
-test "`../../bin/dstar2tgba --name=%F -D dra.dstar --stats '%s %t %p %d %m'`" \
-     = "3 12 1 1 dra.dstar"
+cat >expected <<EOF
+3 12 1 1 dra.dstar:1.1-42.70
+2 4 0 1 dra.dstar:43.1-54.1
+EOF
+
+../../bin/dstar2tgba --name=%F:%L -D dra.dstar --stats '%s %t %p %d %m' > out
+cat out
+diff expected out
+
 
 # This has caused a crash at some point when dealing with 0-sized
 # bitsets to represent acceptance sets.

@@ -46,11 +46,11 @@
 #include "twaalgos/sccinfo.hh"
 
 static const char argp_program_doc[] ="\
-Convert Rabin and Streett automata into Büchi automata.\n\n\
-This reads the output format of ltl2dstar and will output a\n\
-Transition-based Generalized Büchi Automata in GraphViz's format by default.\n\
-If multiple files are supplied (one automaton per file), several automata\n\
-will be output.";
+Convert automata with any acceptance condition into variants of \
+Büchi automata.\n\nThis reads automata into any supported format \
+(HOA, LBTT, ltl2dstar, never claim) and outputs a \
+Transition-based Generalized Büchi Automata in GraphViz's format by default.  \
+Each supplied file may contain multiple automata.";
 
 enum {
   OPT_TGBA = 1,
@@ -143,26 +143,53 @@ namespace
       SPOT_UNREACHABLE();
     }
 
+    int
+    process_automaton(const spot::const_parsed_aut_ptr& haut,
+		      const char* filename)
+    {
+      spot::stopwatch sw;
+      sw.start();
+      auto nba = spot::to_generalized_buchi(haut->aut);
+      auto aut = post.run(nba, 0);
+      const double conversion_time = sw.stop();
+
+      printer.print(aut, nullptr, filename, -1, conversion_time, haut);
+      flush_cout();
+      return 0;
+    }
+
+    int
+    aborted(const spot::const_parsed_aut_ptr& h, const char* filename)
+    {
+      std::cerr << filename << ':' << h->loc << ": aborted input automaton\n";
+      return 2;
+    }
 
     int
     process_file(const char* filename)
     {
       spot::parse_aut_error_list pel;
-      auto daut = spot::parse_aut(filename, pel, spot::make_bdd_dict());
-      if (spot::format_parse_aut_errors(std::cerr, filename, pel))
-	return 2;
-      if (!daut)
-	error(2, 0, "failed to read automaton from %s", filename);
+      auto hp = spot::automaton_stream_parser(filename);
 
-      spot::stopwatch sw;
-      sw.start();
-      auto nba = spot::to_generalized_buchi(daut->aut);
-      auto aut = post.run(nba, 0);
-      const double conversion_time = sw.stop();
+      int err = 0;
 
-      printer.print(aut, nullptr, filename, -1, conversion_time, daut);
-      flush_cout();
-      return 0;
+      while (!abort_run)
+	{
+	  pel.clear();
+	  auto haut = hp.parse(pel, spot::make_bdd_dict());
+	  if (!haut && pel.empty())
+	    break;
+	  if (spot::format_parse_aut_errors(std::cerr, filename, pel))
+	    err = 2;
+	  if (!haut)
+	    error(2, 0, "failed to read automaton from %s", filename);
+	  else if (haut->aborted)
+	    err = std::max(err, aborted(haut, filename));
+	  else
+            process_automaton(haut, filename);
+	}
+
+      return err;
     }
   };
 }

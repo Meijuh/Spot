@@ -228,6 +228,7 @@
 /**** LBTT tokens *****/
  // Also using INT, STRING
 %token ENDAUT "-1"
+%token ENDDSTAR "end of DSTAR automaton"
 %token <num> LBTT "LBTT header"
 %token <num> INT_S "state acceptance"
 %token <num> LBTT_EMPTY "acceptance sets for empty automaton"
@@ -261,10 +262,10 @@ aut: aut-1     { res.h->loc = @$; YYACCEPT; }
    | ENDOFFILE { YYABORT; }
    | error ENDOFFILE { YYABORT; }
 
-aut-1: hoa    { res.h->type = spot::parsed_aut_type::HOA; }
-     | never  { res.h->type = spot::parsed_aut_type::NeverClaim; }
-     | lbtt   { res.h->type = spot::parsed_aut_type::LBTT; }
-     | dstar  /* we will set type as DSA or DRA while parsing first line */
+aut-1: hoa   { res.h->type = spot::parsed_aut_type::HOA; }
+     | never { res.h->type = spot::parsed_aut_type::NeverClaim; }
+     | lbtt  { res.h->type = spot::parsed_aut_type::LBTT; }
+     | dstar /* will set type as DSA or DRA while parsing first line */
 
 /**********************************************************************/
 /*                          Rules for HOA                             */
@@ -1101,7 +1102,7 @@ incorrectly-labeled-edge: trans-label unlabeled-edge
 /*                   Rules for LTL2DSTAR's format                     */
 /**********************************************************************/
 
-dstar: dstar_header "---" dstar_states
+dstar: dstar_header "---" dstar_states ENDDSTAR
 
 dstar_type: "DRA"
        {
