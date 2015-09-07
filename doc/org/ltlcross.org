@@ -55,12 +55,13 @@ following character sequences:
 ltlcross --help | sed -n '/character sequences:/,/^$/p' | sed '1d;$d'
 #+END_SRC
 #+RESULTS:
+:   %%                         a single %
 :   %f,%s,%l,%w                the formula as a (quoted) string in Spot, Spin,
 :                              LBT, or Wring's syntax
 :   %F,%S,%L,%W                the formula as a file in Spot, Spin, LBT, or
 :                              Wring's syntax
-:   %O,%D                      the automaton is output as either (%O) HOA/never
-:                              claim/LBTT, or (%D) in LTL2DSTAR's format
+:   %O                         the automaton is output in HOA, never claim, LBTT,
+:                              or ltl2dstar's format
 
 For instance here is how we could cross-compare the never claims
 output by =spin= and =ltl2tgba= for the formulas =GFa= and =X(a U b)=.
@@ -100,27 +101,21 @@ No problem detected.
 =ltlcross= can only read four kinds of output:
   - Never claims (only if they are restricted to representing an
     automaton using =if=, =goto=, and =skip= statements) such as those
-    output by [[http://spinroot.com/][=spin=]], [[http://www.lsv.ens-cachan.fr/~gastin/ltl2ba/][=ltl2ba=]], [[http://sourceforge.net/projects/ltl3ba/][=ltl3ba=]], or =ltl2tgba --spin=.  These
-    should be indicated using =%O=.  The newer syntax introduced by
-    Spin 6.24, using =do= instead of =if=, is also supported.
+    output by [[http://spinroot.com/][=spin=]], [[http://www.lsv.ens-cachan.fr/~gastin/ltl2ba/][=ltl2ba=]], [[http://sourceforge.net/projects/ltl3ba/][=ltl3ba=]], or =ltl2tgba --spin=.  The
+    newer syntax introduced by Spin 6.24, using =do= instead of =if=,
+    is also supported.
   - [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT's format]], which supports generalized Büchi automata with
     either state-based acceptance or transition-based acceptance.
     This output is used for instance by [[http://www.tcs.hut.fi/Software/maria/tools/lbt/][=lbt=]], [[http://web.archive.org/web/20080607170403/http://www.science.unitn.it/~stonetta/modella.html][=modella=]], or =ltl2tgba
-    --lbtt=.  These should also be indicated using =%O=.
+    --lbtt=.
   - Non-alternating automata in [[file:http://adl.github.io/hoaf/][the HOA format]] with an acceptance
-    condition that is is generalized-Büchi or inferior.  These
-    should also be indicated using =%O=.
+    condition that is is generalized-Büchi or inferior.
   - [[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dstar='s format]], which supports deterministic Rabin or Streett
-    automata.  After =ltlcross= reads such input, it immediately
-    converts it into a Büchi automaton.  Rabin automata are converted
-    to (degeneralized) Büchi automata and the conversion will preserve
-    the determinism anytime a deterministic Büchi automaton exists for
-    that property (this determinism is good for the complemented
-    intersection check discussed below).  Streett automata are
-    converted to non-deterministic TGBA, where generalized acceptance
-    conditions are used to reduce the size of the automaton you would
-    get by the classical conversion from Streett to Büchi.
-    This kind of output (Rabin or Streett) should be indicated with =%D=.
+    automata.
+
+Files in any of these format should be indicated with =%O=.  (Past
+versions of =ltlcross= used different letters for each format, but the
+four parsers have been merged into a single one.)
 
 Of course all configured tools need not use the same =%= sequences.
 The following list shows some typical configurations for some existing
@@ -144,18 +139,18 @@ tools:
   - '~ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD --automata=streett
     --output-format=hoa %L %O~' deterministic Streett output in HOA,
     as supported since version 0.5.2 of =ltl2dstar=.
-  - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L %D=' (Rabin
+  - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L %O=' (Rabin
     output in DSTAR format, as supported in older versions of
     =ltl2dstar=.
   - '=ltl2dstar --ltl2nba=spin:path/to/ltl2tgba@-sD %L - | dstar2tgba
     -s >%O=' (external conversion from Rabin to Büchi done by
     =dstar2tgba= for more reduction of the Büchi automaton than what
     =ltlcross= would provide)
-  - '=java -jar Rabinizer.jar -ltl2dstar %F %D; mv %D.dst %D=' (Rabinizer
-    uses the last =%D= argument as a prefix to which it always append =.dst=,
-    so we have to rename =%D.dst= as =%D= so that =ltlcross= can find the file)
-  - '=java -jar Rabinizer3.jar -hoa -formula %f; mv output.hoa %O=' (Rabinizer *3*
-    always output in =output.hoa= when the formula comes from the command line.)
+  - '=java -jar Rabinizer.jar -ltl2dstar %F %O; mv %O.dst %O=' (Rabinizer
+    uses the last =%O= argument as a prefix to which it always append =.dst=,
+    so we have to rename =%O.dst= as =%O= so that =ltlcross= can find the file)
+  - '~java -jar rabinizer3.1.jar -in=formula -silent -out=std -format=hoa -auto=tr %f >%O~'
+    (rabinizer 3.1 can output automata in the HOA format)
   - '=ltl3dra -f %s >%O=' (The HOA format is the default for =ltl2dra=.)
 
 To simplify the use of some of the above tools, a set of predefined
@@ -631,7 +626,7 @@ positive and negative formulas by the ith translator).
     coverage.  Using '=ltl2tgba -lD %f >%O=' will produce
     deterministic automata for all obligation properties and many
     recurrence properties.  Using '=ltl2dstar
-    --ltl2nba=spin:pathto/ltl2tgba@-Ds %L %D=' will systematically
+    --ltl2nba=spin:pathto/ltl2tgba@-Ds %L %O=' will systematically
     produce a deterministic Rabin automaton (that =ltlcross= can
     complement easily).
 

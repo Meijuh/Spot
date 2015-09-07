@@ -427,9 +427,9 @@ static const argp_option options[] =
       0 },
     { "%F,%S,%L,%W", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
       "the formula as a file in Spot, Spin, LBT, or Wring's syntax", 0 },
-    { "%O,%D", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
-      "the automaton is output as either (%O) HOA/never claim/LBTT, or (%D) "
-      "in LTL2DSTAR's format", 0 },
+    { "%O", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+      "the automaton is output in HOA, never claim, LBTT, or ltl2dstar's "
+      "format", 0 },
     { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
     { 0, 0, 0, 0,
       "If either %l, %L, or %T are used, any input formula that does "

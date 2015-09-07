@@ -46,10 +46,10 @@ corresponding commands are hidden.
 - [[file:ltlcross.org][=ltlcross=]] Cross-compare LTL/PSL-to-Büchi translators.
 - [[file:ltlgrind.org][=ltlgrind=]] List formulas similar to but simpler than a given LTL/PSL
   formula
-- [[file:dstar2tgba.org][=dstar2tgba=]] Convert deterministic Rabin or Streett automata into
+- [[file:dstar2tgba.org][=dstar2tgba=]] Convert automata with any acceptance into variants of
   Büchi automata.
 - [[file:randaut.org][=randaut=]] Generate random automata.
-- [[file:autfilt.org][=autfilt=]] Filter and convert automata.
+- [[file:autfilt.org][=autfilt=]] Filter and transform automata.
 - [[file:ltldo.org][=ltldo=]] Run LTL/PSL formulas through other tools using common [[file:ioltl.org][input]]
   and [[file:oaut.org][output]] interfaces.
 

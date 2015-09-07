@@ -41,10 +41,10 @@ accept_all:
 and convert this into an automaton in [[file:hoa.org][the HOA format]].
 
 Note that the automaton parser of Spot can read automata written
-either as never claims, in LBTT's format or in the HOA format, and
-there is no need to specify which format you expect.  Even if our
-example use a never claim as input, the code we write will work with
-any of those formats.
+either as never claims, in LBTT's format, in ltl2dstar's format or in
+the HOA format, and there is no need to specify which format you
+expect.  Even if our example uses a never claim as input, the code we
+write will work with any of those formats.
 
 * Shell
 

@@ -3,12 +3,17 @@
 #+SETUPFILE: setup.org
 #+HTML_LINK_UP: tools.html
 
-This tool converts deterministic Rabin and Streett automata, presented
-in [[http://www.ltl2dstar.de/docs/ltl2dstar.html][the format output by =ltl2dstar=]], into Büchi automata.
+This tool converts automata into transition-based generalized Büchi
+automata, a.k.a., TGBA.
+
+In earlier version (before Spot 1.99.4) =dstar2tgba= was only able to
+read automata written in [[http://www.ltl2dstar.de/docs/ltl2dstar.html][the format output by =ltl2dstar=]], hence its
+name.   However nowadays it can read automata in any of the supported
+formats ([[file:hoa.org][HOA]], LBTT's format, ltl2dstar's format, and never claims).
 
 It's usage is almost similar to [[file:ltl2tgba.org][=ltl2tgba=]] except that instead of
 supplying a formula to translate, you should specify a filename
-containing the deterministic Rabin or Streett automaton to convert.
+containing the automaton to convert.
 
 * Two quick examples
 
@@ -18,18 +23,18 @@ Here are some brief examples before we discuss the behavior of
 ** From Rabin to Büchi
 
 The following command instructs =ltl2dstar= to:
-1. run =ltl2tgba -sD= to build a Büchi automaton for =Fa & GFb=, and then
+1. run =ltl2tgba -Ds= to build a Büchi automaton for =(a U b) & GFb=, and then
 2. convert that Büchi automaton into a deterministic Rabin automaton
    (DRA) stored in =fagfb=.
 Additionally we use =ltlfilt= to convert our formula to the
 prefix format used by =ltl2dstar=.
 
 #+BEGIN_SRC sh :results silent :exports both
-ltlfilt -f 'Fa & GFb' -l | ltl2dstar --ltl2nba=spin:ltl2tgba@-sD - fagfb
+ltlfilt -f '(a U b) & GFb' -l | ltl2dstar --ltl2nba=spin:ltl2tgba@-Ds - fagfb
 #+END_SRC
 
 By looking at the file =fagfb= you can see the =ltl2dsar= actually
-produced a 3-state DRA:
+produced a 4-state DRA:
 
 #+BEGIN_SRC sh :results verbatim :exports both
 cat fagfb
@@ -38,64 +43,87 @@ cat fagfb
 #+begin_example
 DRA v2 explicit
 Comment: "Safra[NBA=3]"
-States: 3
+States: 4
 Acceptance-Pairs: 1
-Start: 1
+Start: 2
 AP: 2 "a" "b"
 ---
 State: 0
 Acc-Sig: +0
-2
-2
+3
+3
 0
 0
 State: 1
-Acc-Sig:
+Acc-Sig: -0
 1
-0
 1
-0
+1
+1
 State: 2
 Acc-Sig:
+1
 2
-2
+0
+0
+State: 3
+Acc-Sig:
+3
+3
 0
 0
 #+end_example
+
+Let's display this automaton with =autfilt=:
+#+NAME: fagfb
+#+BEGIN_SRC sh :results verbatim :exports code
+autfilt fagfb --dot=.a
+#+END_SRC
+
+#+RESULTS: fagfb
+#+begin_example
+digraph G {
+  rankdir=LR
+  label=<Fin(<font color="#5DA5DA">⓿</font>) &amp; Inf(<font color="#F17CB0">❶</font>)>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 2
+  0 [label=<0<br/><font color="#F17CB0">❶</font>>]
+  0 -> 0 [label=<b>]
+  0 -> 3 [label=<!b>]
+  1 [label=<1<br/><font color="#5DA5DA">⓿</font>>]
+  1 -> 1 [label=<1>]
+  2 [label=<2>]
+  2 -> 0 [label=<b>]
+  2 -> 1 [label=<!a &amp; !b>]
+  2 -> 2 [label=<a &amp; !b>]
+  3 [label=<3>]
+  3 -> 0 [label=<b>]
+  3 -> 3 [label=<!b>]
+}
+#+end_example
+
+#+BEGIN_SRC dot :file fagfb.png :cmdline -Tpng :var txt=fagfb :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:fagfb.png]]
+
+We used =--dot=a= to display Spot's representation of the acceptance
+condition (which uses the same convention as in the [[file:hoa.org][HOA format]]).  The
+extra dot is because we use some [[file:oaut.org][environment variables]] to produce a
+more colorful output by default in these pages.
 
 =dstar2tgba= can now be used to convert this DRA into a TGBA, a BA, or
 a Monitor, using the same options as [[file:ltl2tgba.org][=ltl2tgba=]].
 
-For instance here is the conversion to a Büchi automaton (=-B=) in [[http://www.graphviz.org/][GraphViz]]'s format:
-
-#+BEGIN_SRC sh :results verbatim :exports code
-dstar2tgba -B fagfb
-#+END_SRC
-
-#+BEGIN_SRC sh :results verbatim :exports results
-SPOT_DOTEXTRA= dstar2tgba -B fagfb --dot=
-#+END_SRC
-#+RESULTS:
-#+begin_example
-digraph G {
-  rankdir=LR
-  I [label="", style=invis, width=0]
-  I -> 1
-  0 [label="0", peripheries=2]
-  0 -> 0 [label="b"]
-  0 -> 2 [label="!b"]
-  1 [label="1"]
-  1 -> 0 [label="a"]
-  1 -> 1 [label="!a"]
-  2 [label="2"]
-  2 -> 0 [label="b"]
-  2 -> 2 [label="!b"]
-}
-#+end_example
-
-Which can be rendered as (note that in this documentation
-we use some [[file:oaut.org][environment variables]] to produce a more colorful
-output by default):
+For instance here is the conversion to a Büchi automaton (=-B=):
 
 #+NAME: fagfb2ba
 #+BEGIN_SRC sh :results verbatim :exports code
@@ -105,19 +133,20 @@ dstar2tgba -B fagfb
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
   node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
   I [label="", style=invis, width=0]
   I -> 1
-  0 [label=<0<br/><font color="#5DA5DA">⓿</font>>]
+  0 [label="0", peripheries=2]
   0 -> 0 [label=<b>]
   0 -> 2 [label=<!b>]
-  1 [label=<1>]
-  1 -> 0 [label=<a>]
-  1 -> 1 [label=<!a>]
-  2 [label=<2>]
+  1 [label="1"]
+  1 -> 0 [label=<b>]
+  1 -> 1 [label=<a &amp; !b>]
+  2 [label="2"]
   2 -> 0 [label=<b>]
   2 -> 2 [label=<!b>]
 }
@@ -129,7 +158,11 @@ $txt
 #+RESULTS:
 [[file:fagfb2ba.png]]
 
-But we could as well require the output to be output as a never claim for Spin (option =-s=):
+
+Note that by default the output is not complete.  Use =-C= if you want
+a complete automaton.
+
+But we could as well require the output as a never claim for Spin (option =-s=):
 
 #+BEGIN_SRC sh :results verbatim :exports both
 dstar2tgba -s fagfb
@@ -139,18 +172,18 @@ dstar2tgba -s fagfb
 never {
 T0_init:
   if
-  :: ((!(a))) -> goto T0_init
-  :: ((a)) -> goto accept_S2
+  :: ((b)) -> goto accept_S0
+  :: ((a) && (!(b))) -> goto T0_init
   fi;
-accept_S2:
+accept_S0:
   if
-  :: ((b)) -> goto accept_S2
-  :: ((!(b))) -> goto T0_S3
+  :: ((b)) -> goto accept_S0
+  :: ((!(b))) -> goto T0_S2
   fi;
-T0_S3:
+T0_S2:
   if
-  :: ((b)) -> goto accept_S2
-  :: ((!(b))) -> goto T0_S3
+  :: ((b)) -> goto accept_S0
+  :: ((!(b))) -> goto T0_S2
   fi;
 }
 #+end_example
@@ -160,50 +193,62 @@ T0_S3:
   :CUSTOM_ID: streett_to_tgba_example
 :END:
 
-Here is the translation of =GFa & GFb= to a 4-state Streett automaton:
+Here is the translation of =GFa | GFb= to a 4-state Streett automaton:
 
-#+BEGIN_SRC sh :results verbatim :exports both
+#+NAME: gfafgb
+#+BEGIN_SRC sh :results verbatim :exports code
 ltlfilt -f 'GFa & GFb' -l | ltl2dstar --automata=streett --ltl2nba=spin:ltl2tgba@-Ds - gfagfb
-cat gfagfb
+autfilt --dot=.a gfagfb
 #+END_SRC
-#+RESULTS:
+
+#+RESULTS: gfafgb
 #+begin_example
-DSA v2 explicit
-Comment: "Streett{Union{Safra[NBA=2],Safra[NBA=2]}}"
-States: 4
-Acceptance-Pairs: 2
-Start: 0
-AP: 2 "a" "b"
----
-State: 0
-Acc-Sig: -0 -1
-3
-2
-1
-0
-State: 1
-Acc-Sig: +0 -1
-3
-2
-1
-0
-State: 2
-Acc-Sig: -0 +1
-3
-2
-1
-0
-State: 3
-Acc-Sig: +0 +1
-3
-2
-1
-0
+digraph G {
+  rankdir=LR
+  label=<(Fin(<font color="#5DA5DA">⓿</font>) | Inf(<font color="#F17CB0">❶</font>)) &amp; (Fin(<font color="#FAA43A">❷</font>) | Inf(<font color="#B276B2">❸</font>))>
+  labelloc="t"
+  node [shape="circle"]
+  fontname="Lato"
+  node [fontname="Lato"]
+  edge [fontname="Lato"]
+  node[style=filled, fillcolor="#ffffa0"] edge[arrowhead=vee, arrowsize=.7]
+  I [label="", style=invis, width=0]
+  I -> 0
+  0 [label=<0<br/><font color="#F17CB0">❶</font><font color="#B276B2">❸</font>>]
+  0 -> 0 [label=<a &amp; b>]
+  0 -> 1 [label=<!a &amp; b>]
+  0 -> 2 [label=<a &amp; !b>]
+  0 -> 3 [label=<!a &amp; !b>]
+  1 [label=<1<br/><font color="#5DA5DA">⓿</font><font color="#B276B2">❸</font>>]
+  1 -> 0 [label=<a &amp; b>]
+  1 -> 1 [label=<!a &amp; b>]
+  1 -> 2 [label=<a &amp; !b>]
+  1 -> 3 [label=<!a &amp; !b>]
+  2 [label=<2<br/><font color="#F17CB0">❶</font><font color="#FAA43A">❷</font>>]
+  2 -> 0 [label=<a &amp; b>]
+  2 -> 1 [label=<!a &amp; b>]
+  2 -> 2 [label=<a &amp; !b>]
+  2 -> 3 [label=<!a &amp; !b>]
+  3 [label=<3<br/><font color="#5DA5DA">⓿</font><font color="#FAA43A">❷</font>>]
+  3 -> 0 [label=<a &amp; b>]
+  3 -> 1 [label=<!a &amp; b>]
+  3 -> 2 [label=<a &amp; !b>]
+  3 -> 3 [label=<!a &amp; !b>]
+}
 #+end_example
 
-And now its conversion by =dstar2tgba= to a 2-state Büchi automaton.
-We don't pass any option to =dstar2tgba= because converting to TGBA in
-GraphViz's format is the default:
+#+BEGIN_SRC dot :file gfafgb.png :cmdline -Tpng :var txt=gfafgb :exports results
+$txt
+#+END_SRC
+
+#+RESULTS:
+[[file:gfafgb.png]]
+
+
+
+And now its conversion by =dstar2tgba= to a 4-state TGBA.
+We don't pass any option to =dstar2tgba= because converting to TGBA is
+the default:
 
 #+NAME: gfagfb2ba
 #+BEGIN_SRC sh :results verbatim :exports code
@@ -213,6 +258,7 @@ dstar2tgba gfagfb
 #+begin_example
 digraph G {
   rankdir=LR
+  node [shape="circle"]
   fontname="Lato"
   node [fontname="Lato"]
   edge [fontname="Lato"]
@@ -220,12 +266,25 @@ digraph G {
   I [label="", style=invis, width=0]
   I -> 0
   0 [label="0"]
-  0 -> 1 [label=<1>]
+  0 -> 0 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
+  0 -> 1 [label=<!a &amp; b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
+  0 -> 2 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
+  0 -> 3 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
   1 [label="1"]
-  1 -> 1 [label=<!a &amp; !b>]
-  1 -> 1 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  1 -> 0 [label=<a &amp; b<br/><font color="#F17CB0">❶</font>>]
   1 -> 1 [label=<!a &amp; b<br/><font color="#F17CB0">❶</font>>]
-  1 -> 1 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font><font color="#F17CB0">❶</font>>]
+  1 -> 2 [label=<a &amp; !b<br/><font color="#F17CB0">❶</font>>]
+  1 -> 3 [label=<!a &amp; !b<br/><font color="#F17CB0">❶</font>>]
+  2 [label="2"]
+  2 -> 0 [label=<a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 1 [label=<!a &amp; b<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 2 [label=<a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  2 -> 3 [label=<!a &amp; !b<br/><font color="#5DA5DA">⓿</font>>]
+  3 [label="3"]
+  3 -> 0 [label=<a &amp; b>]
+  3 -> 1 [label=<!a &amp; b>]
+  3 -> 2 [label=<a &amp; !b>]
+  3 -> 3 [label=<!a &amp; !b>]
 }
 #+end_example
 
@@ -235,19 +294,24 @@ $txt
 #+RESULTS:
 [[file:gfagfb2ba.png]]
 
-(Obviously the resulting automaton could be simplified further, by
-starting with the second state right away.)
+Obviously the resulting automaton could be simplified further, as the
+minimal TGBA for this formula has a single state.  (Patches
+welcome...)
 
 * Details
 
 ** General behavior
 
-The =dstar2tgba= tool implement a 4-step process:
+The =dstar2tgba= tool implements a 4-step process:
 
-  1. read the DRA/DSA
+  1. read the automaton
   2. convert it into TGBA
   3. postprocess the resulting TGBA (simplifying the automaton, a degeneralizing it into a BA or Monitor if requested)
   4. output the resulting automaton
+
+BTW, the above scenario is also exactly what you can with [[file:autfilt.org][=autfilt=]] if
+you run it as =autfilt --tgba --high --small=.  (This is true only since version
+1.99.4, since both tools can now read the same file formats.)
 
 ** Controlling output
 
@@ -301,18 +365,35 @@ dstar2tgba --help | sed -n '/Output format:/,/^$/p' | sed '1d;$d'
 #+begin_example
   -8, --utf8                 enable UTF-8 characters in output (ignored with
                              --lbtt or --spin)
-      --dot[=c|h|n|N|s|t|v]  GraphViz's format (default).  Add letters to chose
-                             (c) circular nodes, (h) horizontal layout, (v)
-                             vertical layout, (n) with name, (N) without name,
-                             (s) with SCCs, (t) always transition-based
-                             acceptance.
-  -H, --hoaf[=s|t|m|l]       Output the automaton in HOA format.  Add letters
-                             to select (s) state-based acceptance, (t)
-                             transition-based acceptance, (m) mixed acceptance,
-                             (l) single-line output
+      --check[=PROP]         test for the additional property PROP and output
+                             the result in the HOA format (implies -H).  PROP
+                             may be any prefix of 'all' (default),
+                             'unambiguous', or 'stutter-invariant'.
+      --dot[=1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v]
+                             GraphViz's format (default).  Add letters for (1)
+                             force numbered states, (a) acceptance display, (b)
+                             acceptance sets as bullets, (B) bullets except for
+                             Büchi/co-Büchi automata, (c) force circular
+                             nodes, (e) force elliptic nodes, (f(FONT)) use
+                             FONT, (h) horizontal layout, (v) vertical layout,
+                             (n) with name, (N) without name, (o) ordered
+                             transitions, (r) rainbow colors for acceptance
+                             sets, (R) color acceptance sets by Inf/Fin, (s)
+                             with SCCs, (t) force transition-based acceptance.
+  -H, --hoaf[=i|s|t|m|l]     Output the automaton in HOA format.  Add letters
+                             to select (i) use implicit labels for complete
+                             deterministic automata, (s) prefer state-based
+                             acceptance when possible [default], (t) force
+                             transition-based acceptance, (m) mix state and
+                             transition-based acceptance, (l) single-line
+                             output
       --lbtt[=t]             LBTT's format (add =t to force transition-based
                              acceptance even on Büchi automata)
       --name=FORMAT          set the name of the output automaton
+  -o, --output=FORMAT        send output to a file named FORMAT instead of
+                             standard output.  The first automaton sent to a
+                             file truncates it unless FORMAT starts with '>>'.
+  -q, --quiet                suppress all normal output
   -s, --spin[=6|c]           Spin neverclaim (implies --ba).  Add letters to
                              select (6) Spin's 6.2.4 style, (c) comments on
                              states
@@ -358,7 +439,7 @@ done
 #+RESULTS:
 #+begin_example
 (b | Fa) R Fc
-  DRA: 9st.; BA: 6st.; det.? 1; complete? 1
+  DRA: 9st.; BA: 9st.; det.? 1; complete? 1
 Ga U (Gc R (!a | Gc))
   DRA: 7st.; BA: 7st.; det.? 0; complete? 0
 GFc
@@ -368,7 +449,7 @@ GFc
 Xc R (G!c R (b | G!c))
   DRA: 4st.; BA: 2st.; det.? 1; complete? 0
 c & G(b | F(a & c))
-  DRA: 5st.; BA: 3st.; det.? 1; complete? 0
+  DRA: 4st.; BA: 3st.; det.? 1; complete? 0
 XXFc
   DRA: 4st.; BA: 4st.; det.? 1; complete? 1
 XFc | Gb
@@ -388,11 +469,46 @@ a difference of one state (the so called "sink" state).
 You can instruct =dstar2tgba= to output a complete automaton using the
 =--complete= option (or =-C= for short).
 
-** Conversion from Rabin and Streett to TGBA
+** Conversion of various acceptance conditions to TGBA and BA
 
-The algorithms used to convert Rabin and Streett into TGBA/BA are different.
+Spot implements several acceptance conversion algorithms.
+There is one generic cases, with some specialized variants.
 
-*** Rabin to BA
+*** Generic case
+
+The most generic one, called =remove_fin()= in Spot, takes an
+automaton with any acceptance condition, and as its name suggests, it
+removes all the =Fin(x)= from the acceptance condition: the output is
+an automaton whose acceptance conditions is a Boolean combination of
+=Inf(x)= acceptance primitive.  (Such automata with Fin-less
+acceptance can be easily tested for emptiness using SCC-based
+emptiness checks.)  This algorithm works by fist converting the
+acceptance conditions into disjunctive normal form, and then removing
+any =Fin(x)= acceptance by adding non-deterministic jumps into clones
+of the SCCs that intersect set =x=.  This is done with a few tricks
+that limits the numbers of clones, and that ensure that the resulting
+automaton uses /at most/ one extra acceptance sets.  This algorithm is
+not readily available from =dstar2tgba=, but [[file:autfilt.org][=autfilt=]] has an option
+=--remove-fin= if you need it.
+
+From an automaton with Fin-less acceptance, one can obtain a TGBA
+without changing the transitions structure: take the Fin-less
+acceptance, transform it into conjunctive normal form (CNF), and
+create one new Fin-accepting set for each conjunct of the CNF.  The
+combination of these two algorithms is implemented by the
+=to_generalized_buchi()= function in Spot.
+
+Finally a TGBA can easily be converted into a BA with classical
+degeneralization algorithms (our version of that includes several
+SCC-based optimizations described in our [[https://www.lrde.epita.fr/~adl/dl/adl/babiak.13.spin.pdf][SPIN'13 paper]]).
+
+This generalized case is specialized for two types of acceptances that
+are common (Rabin and Streett).
+
+*** State-based Rabin to BA
+
+For state-based Rabin automata, and dedicated conversion to BA is
+used.
 
 The conversion implemented is a variation of Krishnan et al.'s
 "Deterministic ω-Automata vis-a-vis Deterministic Büchi Automata"
@@ -402,14 +518,21 @@ an automaton exist.  The surprising result is that when a DRA is
 DBA-realizable, a DBA can be obtained from the DRA without changing
 its transition structure.
 
-Spot implements a slight refinement to the above technique: any DRA
-will be converted into a BA, and the determinism will be conserved
-only in strongly connected components where determinism can be
-conserved.
+Spot implements a slight refinement to the above technique by doing it
+SCC-wise: any DRA will be converted into a BA, and the determinism
+will be conserved only for strongly connected components where
+determinism can be conserved.  (If some SCC is not DBA-realizable, it
+will be cloned into several deterministic SCC, but the jumps between
+these SCCs will be nondeterministic.)
+
+This specialized conversion is built in the =remove_fin()= procedure
+described above.
 
 *** Streett to TGBA
 
-Streett automata are converted into non-deterministic TGBA.
+Streett acceptance have a specialized conversion into non-deterministic TGBA.
+This improved conversion is automatically used by =to_generalized_buchi()=.
+
 When a Streett automaton uses multiple acceptance pairs, we use
 generalized acceptance conditions in the TGBA to limit the combinatorial
 explosion.

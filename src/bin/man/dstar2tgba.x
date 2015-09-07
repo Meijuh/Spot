@@ -1,5 +1,62 @@
 [NAME]
-dstar2tgba \- convert Rabin or Streett automata into Büchi automata
+dstar2tgba \- convert automata into Büchi automata
+[HISTORY]
+.B dstar2tgba
+was introduced in Spot 1.2 as a command that reads automata
+in
+.BR ltl2dstar 's
+format, and converts them into TGBA.  At this time it was
+the only command-line tool being able to read automata.
+.PP
+In Spot 1.99.1 the
+.B autfilt
+command was introduced, but could only read automata
+in the HOA format, or in
+.BR lbtt 's
+format, or as never claims.  So
+.B dstar2tgba
+was still the only way to process automata
+in
+.BR ltl2dstar 's
+format.
+.PP
+In Spot 1.99.4 the parser for
+.BR ltl2dstar 's
+format was finally merged with the parser
+used by
+.B autfilt
+for reading the other format.  This implies not only
+that
+.B autfilt
+can now read
+.BR ltl2dstar's
+format, but also that
+.B dstar2tgba
+can read the other formats as well.
+
+Nowadays, the command
+.PP
+.in +4n
+.nf
+.ft C
+% dstar2tgba some files
+.fi
+.PP
+can be used as a shorthand for
+.PP
+.in +4n
+.nf
+.ft C
+% autfilt \-\-tgba \-\-high \-\-small some files
+.fi
+.PP
+The name
+.B dstar2tgba
+is kept for backward compatibility and because it is used
+in at least one published paper, but naming this tool
+.B aut2tgba
+would make more sense.
+
 [BIBLIOGRAPHY]
 .TP
 1.

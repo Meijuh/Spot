@@ -204,22 +204,18 @@ Some development versions leading to 1.99.1 also featured
 An output file in the HOA format.
 .PP
 Different specifiers were needed because Spot implemented
-different parsers for these formats.  Nowadays, the parsers
-for never claims, lbtt's format, and HOA format have been merged into
-a single parser that is able to distinguish these three formats
-automatically.
+different parsers for these formats.  Nowadays, these parsers
+have been merged into a single parser that is able to
+distinguish these four formats automatically.
 .B ltlcross
-officially supports only two output specifiers
+officially supports only one output specifier:
 .TP
 %O
-An output file in either \fBlbtt\fR's format, as a never claim,
-or in the HOA format
-.TP
-%D
-An output file in \fBltl2dstar\fR's format.
+An output file in either \fBlbtt\fR's format, \fBltl2dstar\fR's format,
+as a never claim, or in the HOA format
 .P
-For backward compatibility, the sequences %N, %T, and %H are still
-supported (as aliases for %O), but are deprecated.
+For backward compatibility, the sequences %D, %H, %N, and %T, are
+still supported (as aliases for %O), but are deprecated.
 
 [SEE ALSO]
 .BR randltl (1),

@@ -20,9 +20,12 @@ filtering.
 * Conversion between formats
 
 =autfilt= can read automata written in the [[http://adl.github.io/hoaf/][Hanoi Omega Automata
-Format]], as [[http://spinroot.com/spin/Man/never.html][Spin never claims]], or using [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT's format]].  Automata in
-those formats (even a mix of those formats) can be concatenated in the
-same stream, =autfilt= will process them in batch.
+Format]], as [[http://spinroot.com/spin/Man/never.html][Spin never claims]], using [[http://www.tcs.hut.fi/Software/lbtt/doc/html/Format-for-automata.html][LBTT's format]], or using
+[[http://www.ltl2dstar.de/docs/ltl2dstar.html][=ltl2dstar='s format]].  Automata in those formats (even a mix of those
+formats) can be concatenated in the same stream, =autfilt= will
+process them in batch.  (The only restriction is that inside a file an
+automaton in LBTT's format may not follow an automaton in
+=ltl2dstar='s format.)
 
 The output format can be controlled using [[file:oaut.org][the common output options]]
 (like =--spin=, =--lbtt=, =--dot=, =--hoaf=...).
