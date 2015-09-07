@@ -181,7 +181,7 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
       $GREP 'namespace .*{' $tmp &&
 	diag 'Opening { should be on its own line.'
 
-      $GREP 'class .*{' $tmp &&
+      $GREP 'class .*{' $tmp | $GREP -v enum &&
 	diag 'Opening { should be on its own line.'
 
       $GREP '( ' $tmp &&
@@ -244,7 +244,7 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
 	diag 'No useless parentheses after return.'
 
       $GREP 'NULL' $tmp &&
-	diag 'Use 0 instead of NULL.  NULL is not portable.'
+	diag 'Use nullptr instead of NULL.'
 
       # std::list::size() can be O(n).  Better use empty() whenever
       # possible, even for other containers.
