@@ -14,3 +14,5 @@ example.hoa
 sample.ltl
 *.ltl
 *.hoa
+g++wrap
+*.fls

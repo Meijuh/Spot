@@ -73,3 +73,9 @@ GPATH
 GRTAGS
 GSYMS
 GTAGS
+*.xz
+*.build
+*.deb
+*.changes
+*.dsc
+

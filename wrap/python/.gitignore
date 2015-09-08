@@ -10,3 +10,4 @@ buddy.py*
 *_wrap.*
 *.pyc
 */spotimg
+ajax/*.py
