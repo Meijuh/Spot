@@ -1025,6 +1025,81 @@ input:81.1: $se \$undefined
 autfilt: failed to read automaton from input
 EOF
 
+# More error recovery in DSTAR automata
+cat >input <<EOF
+DRA v2 explicit
+Comment: "Safra[NBA=2]"
+States: 3
+States: 3
+Start: 0
+AP: 2 "a" "b"
+---
+State: 0
+Acc-Sig:
+1
+0
+2
+2
+State: 1
+Acc-Sig: -0
+1
+1
+1
+1
+State: 2
+Acc-Sig: +0
+2
+2
+2
+2
+never { /* true */
+accept_init:
+	if
+	:: (1) -> goto accept_init
+	fi;
+}
+EOF
+
+../../bin/autfilt input -H >output 2>&1 && exit 1
+cat output
+cat >expected <<EOF
+input:1.16-4.9: redeclaration of state count
+input:1.16-6.13: missing acceptance-pair count
+input:15.11: no acceptance pairs have been declared
+input:21.11: no acceptance pairs have been declared
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: all
+Acceptance: 0 t
+properties: trans-labels explicit-labels state-acc complete
+properties: deterministic
+--BODY--
+State: 0
+[0&!1] 0
+[!0&!1] 1
+[1] 2
+State: 1
+[t] 1
+State: 2
+[t] 2
+--END--
+HOA: v1
+States: 1
+Start: 0
+AP: 0
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels state-acc colored complete
+properties: deterministic
+--BODY--
+State: 0 {0}
+[t] 0
+--END--
+EOF
+diff output expected
+
 # A comment can contain --BODY-- or --END--, so we do not want to be
 # smart about it.
 cat >input <<EOF

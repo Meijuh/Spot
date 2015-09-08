@@ -1125,39 +1125,25 @@ dstar_type: "DRA"
 
 dstar_header: dstar_sizes
   {
-    bool err = false;
     if (res.states < 0)
-      {
-	error(@1, "missing state count");
-	err = true;
-      }
+      error(@1, "missing state count");
     if (!res.ignore_more_acc)
-      {
-	error(@1, "missing acceptance-pair count");
-	err = true;
-      }
+      error(@1, "missing acceptance-pair count");
     if (res.start.empty())
-      {
-	error(@1, "missing start-state number");
-	err = true;
-      }
+      error(@1, "missing start-state number");
     if (!res.ignore_more_ap)
+      error(@1, "missing atomic propositions definition");
+
+    if (res.states > 0)
       {
-	error(@1, "missing atomic proposition definition");
-	err = true;
+	res.h->aut->new_states(res.states);;
+	res.info_states.resize(res.states);
       }
-    if (err)
-      {
-	res.h->aut = nullptr;
-	YYABORT;
-      }
-    res.h->aut->new_states(res.states);;
-    res.info_states.resize(res.states);
-    fill_guards(res);
-    res.cur_guard = res.guards.end();
     res.h->aut->prop_state_based_acc();
     res.h->aut->prop_deterministic();
     // res.h->aut->prop_complete();
+    fill_guards(res);
+    res.cur_guard = res.guards.end();
   }
 
 dstar_sizes:
@@ -1182,7 +1168,16 @@ dstar_sizes:
   }
   | dstar_sizes "States:" INT
   {
-    res.states = $3;
+    if (res.states < 0)
+      {
+	res.states = $3;
+      }
+    else
+      {
+	error(@$, "redeclaration of state count");
+	if ((unsigned) res.states < $3)
+	  res.states = $3;
+      }
   }
   | dstar_sizes "Start:" INT
   {
@@ -1642,7 +1637,6 @@ lbtt-transitions:
 
 static void fill_guards(result_& r)
 {
-  spot::bdd_dict_ptr d = r.h->aut->get_dict();
   unsigned nap = r.ap.size();
 
   int* vars = new int[nap];
