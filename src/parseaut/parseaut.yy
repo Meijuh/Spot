@@ -1185,9 +1185,7 @@ dstar_sizes:
   }
   | dstar_sizes aps
 
-opt_name: | STRING { delete $1; }
-
-dstar_state_id: "State:" INT opt_name
+dstar_state_id: "State:" INT string_opt
   {
     if (res.cur_guard != res.guards.end())
       error(@1, "not enough transitions for previous state");
@@ -1205,10 +1203,26 @@ dstar_state_id: "State:" INT opt_name
 	  }
 	error(@2, o.str());
       }
+    else
+      {
+	res.info_states[$2].declared = true;
+
+	if ($3)
+	  {
+	    if (!res.state_names)
+	      res.state_names =
+		new std::vector<std::string>(res.states > 0 ?
+					     res.states : 0);
+	    if (res.state_names->size() < $2 + 1)
+	      res.state_names->resize($2 + 1);
+	    (*res.state_names)[$2] = std::move(*$3);
+	    delete $3;
+	  }
+      }
+
     res.cur_guard = res.guards.begin();
     res.dest_map.clear();
     res.cur_state = $2;
-    res.info_states[$2].declared = true;
   }
 
 sign: '+' { $$ = res.plus; }
