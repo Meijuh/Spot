@@ -45,6 +45,7 @@ int help()
 int main(int argc, char* argv[])
 {
   bool emit_scc = false;
+  bool track_scc = false;
   bool sim = false;
   bool in_hoa = false;
   bool in_ltl = false;
@@ -80,8 +81,12 @@ int main(int argc, char* argv[])
         pretty_print = true;
       else if (!strncmp(argv[i], "-b", 2))
         sim = true;
-      else if (!strncmp(argv[i], "--emit_scc", 2))
+      else if (!strncmp(argv[i], "--emit_scc", 10))
         emit_scc = true;
+      else if (!strncmp(argv[i], "--track_scc", 11))
+        track_scc = true;
+      else
+        std::cerr << "Warning: " << argv[i] << " not used\n";
     }
 
   if (!input)
@@ -99,7 +104,8 @@ int main(int argc, char* argv[])
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
-      res = spot::tgba_determinisation(tmp, sim, pretty_print, emit_scc);
+      res = spot::tgba_determinisation(tmp, sim, pretty_print, emit_scc,
+                                       track_scc);
       f->destroy();
     }
   else if (in_hoa)
@@ -108,7 +114,8 @@ int main(int argc, char* argv[])
       auto aut = spot::parse_aut(input, pel, dict);
       if (spot::format_parse_aut_errors(std::cerr, input, pel))
         return 2;
-      res = tgba_determinisation(aut->aut, sim, pretty_print, emit_scc);
+      res = tgba_determinisation(aut->aut, sim, pretty_print, emit_scc,
+                                 track_scc);
     }
   res->merge_edges();
 

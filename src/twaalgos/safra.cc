@@ -24,7 +24,6 @@
 
 #include "safra.hh"
 #include "twaalgos/degen.hh"
-#include "twaalgos/sccinfo.hh"
 #include "twaalgos/simulation.hh"
 
 namespace spot
@@ -174,7 +173,9 @@ namespace spot
                              std::unordered_map<bdd,
                                              std::pair<unsigned, unsigned>,
                                              bdd_hash>& deltas,
-                              succs_t& res) const
+                              succs_t& res,
+                              const scc_info& scc,
+                              bool track_scc) const
   {
     // Given a bdd returns index of associated safra_state in res
     std::map<unsigned, unsigned> bdd2num;
@@ -200,7 +201,14 @@ namespace spot
                                      bddnums[j]);
                   }
                 safra_state& ss = res[idx].first;
-                ss.update_succ(node.second, t.dst, t.acc);
+                (void) scc;
+                ss.update_succ(std::vector<node_helper::brace_t>(1, 0), t.dst, t.acc);
+                // Check if we are leaving the SCC, if so we delete all the
+                // braces as no cycles can be found with that node
+                if (track_scc && scc.scc_of(node.first) != scc.scc_of(t.dst))
+                  ss.update_succ({ 0 }, t.dst, t.acc);
+                else
+                  ss.update_succ(node.second, t.dst, t.acc);
                 assert(ss.nb_braces_.size() == ss.is_green_.size());
               }
           }
@@ -364,7 +372,7 @@ namespace spot
         unsigned nb_braces = val;
         // One brace set
         is_green_.assign(nb_braces, true);
-        // First brace has init_state hence one state inside the first braces.
+        // Newly created states are the empty mocrstate
         nb_braces_.assign(nb_braces, 0);
       }
   }
@@ -394,7 +402,7 @@ namespace spot
 
   twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& a, bool bisimulation,
-                       bool pretty_print, bool emit_scc)
+                       bool pretty_print, bool emit_scc, bool track_scc)
   {
     // Degeneralize
     twa_graph_ptr aut = spot::degeneralize_tba(a);
@@ -468,7 +476,7 @@ namespace spot
         safra_state curr = todo.front();
         unsigned src_num = seen.find(curr)->second;
         todo.pop_front();
-        curr.compute_succs(aut, bddnums, deltas, succs);
+        curr.compute_succs(aut, bddnums, deltas, succs, scc, track_scc);
         for (auto s: succs)
           {
             auto i = seen.find(s.first);

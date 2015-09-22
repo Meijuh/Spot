@@ -24,6 +24,7 @@
 
 #include "misc/bddlt.hh"
 #include "twa/twagraph.hh"
+#include "twaalgos/sccinfo.hh"
 
 namespace spot
 {
@@ -52,7 +53,9 @@ namespace spot
                           std::unordered_map<bdd,
                                              std::pair<unsigned, unsigned>,
                                              bdd_hash>& deltas,
-                           succs_t& res) const;
+                           succs_t& res,
+                           const scc_info& scc,
+                           bool track_scc = false) const;
     // The outermost brace of each node cannot be green
     void ungreenify_last_brace();
     // Used when creating the list of successors
@@ -78,5 +81,6 @@ namespace spot
   tgba_determinisation(const const_twa_graph_ptr& aut,
                        bool bisimulation = false,
                        bool pretty_print = false,
-                       bool emit_scc = false);
+                       bool emit_scc = false,
+                       bool track_scc = false);
 }
