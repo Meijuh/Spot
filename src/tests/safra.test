@@ -87,7 +87,7 @@ EOF
 
 cat >out.exp << EOF
 HOA: v1
-States: 6
+States: 5
 Start: 0
 AP: 2 "a" "b"
 acc-name: Buchi
@@ -101,9 +101,9 @@ State: 1
 [0&1] 2
 [!0&1] 3 {0}
 State: 2
+[0&1] 1 {0}
 [!0&1] 3 {0}
 [0&!1] 4
-[0&1] 5
 State: 3
 [0&!1] 0
 [0&1] 2
@@ -111,13 +111,50 @@ State: 3
 State: 4
 [0] 1 {0}
 [!0&1] 3 {0}
-State: 5
-[0] 1 {0}
-[!0&1] 3 {0}
 --END--
 EOF
 
 run 0 ../safra --hoa double_b.hoa -H > out.hoa
+diff out.hoa out.exp
+
+# Test emit_scc optim
+cat > out.exp << EOF
+HOA: v1
+States: 3
+Start: 0
+AP: 2 "a" "b"
+acc-name: Buchi
+Acceptance: 1 Inf(0)
+properties: trans-labels explicit-labels trans-acc deterministic
+--BODY--
+State: 0 "{₀0₀}"
+[0] 1 {0}
+State: 1 "{₀0 1₀}"
+[0] 1 {0}
+[!0&1] 2 {0}
+State: 2 "{₀1₀}"
+[1] 2 {0}
+[0&!1] 2
+--END--
+EOF
+
+cat > in.hoa << EOF
+HOA: v1
+States: 2
+Start: 0
+AP: 2 "a" "b"
+Acceptance: 1 Inf(0)
+--BODY--
+State: 0
+[0] 0 {0}
+[0] 1
+State: 1
+[1] 1 {0}
+[0] 1
+--END--
+EOF
+
+run 0 ../safra --hoa in.hoa --emit_scc -p -H > out.hoa
 diff out.hoa out.exp
 
 # Formulas from bench/dtgbasat/formulas

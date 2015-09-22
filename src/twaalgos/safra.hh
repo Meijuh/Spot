@@ -47,11 +47,14 @@ namespace spot
     safra_state(unsigned state_number, bool init_state = false);
     // Given a certain transition_label, compute all the successors of that
     // label, and return that new node.
-    succs_t compute_succs(const const_twa_graph_ptr& aut,
+    void compute_succs(const const_twa_graph_ptr& aut,
                           const std::vector<unsigned>& bddnums,
                           std::unordered_map<bdd,
                                              std::pair<unsigned, unsigned>,
-                                             bdd_hash>& deltas) const;
+                                             bdd_hash>& deltas,
+                           succs_t& res) const;
+    // The outermost brace of each node cannot be green
+    void ungreenify_last_brace();
     // Used when creating the list of successors
     // A new intermediate node is created with  src's braces and with dst as id
     // A merge is done if dst already existed in *this
@@ -74,5 +77,6 @@ namespace spot
   SPOT_API twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& aut,
                        bool bisimulation = false,
-                       bool pretty_print = false);
+                       bool pretty_print = false,
+                       bool emit_scc = false);
 }

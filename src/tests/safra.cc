@@ -20,14 +20,14 @@
 #include <iostream>
 #include <cstring>
 
+#include "ltlparse/public.hh" // ltl::parse
+#include "parseaut/public.hh"
 #include "twa/twagraph.hh"
+#include "twaalgos/degen.hh"
+#include "twaalgos/dot.hh" // print_dot
+#include "twaalgos/hoa.hh" // print_hoa
 #include "twaalgos/safra.hh"
 #include "twaalgos/translate.hh"
-#include "hoaparse/public.hh"
-#include "ltlparse/public.hh"
-#include "twaalgos/dotty.hh"
-#include "twaalgos/hoa.hh"
-#include "twaalgos/degen.hh"
 
 
 int help()
@@ -37,11 +37,14 @@ int help()
   std::cerr << "\t--hoa file.hoa\tinput file has hoa format\n";
   std::cerr << "\t-p\tpretty print states\n";
   std::cerr << "\t-H\toutput hoa format\n";
+  std::cerr << "\t-b\treduce result using bisimulation\n";
+  std::cerr << "\t--emit_scc\ttransitions to accpting scc are accepting\n";
   return 1;
 }
 
 int main(int argc, char* argv[])
 {
+  bool emit_scc = false;
   bool sim = false;
   bool in_hoa = false;
   bool in_ltl = false;
@@ -77,6 +80,8 @@ int main(int argc, char* argv[])
         pretty_print = true;
       else if (!strncmp(argv[i], "-b", 2))
         sim = true;
+      else if (!strncmp(argv[i], "--emit_scc", 2))
+        emit_scc = true;
     }
 
   if (!input)
@@ -88,33 +93,32 @@ int main(int argc, char* argv[])
     {
       spot::ltl::parse_error_list pel;
       const spot::ltl::formula* f =
-      spot::ltl::parse(input, pel, spot::ltl::default_environment::instance(),
-                       false);
+      spot::ltl::parse_infix_psl(input, pel);
       if (spot::ltl::format_parse_errors(std::cerr, input, pel))
         return 2;
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
-      res = spot::tgba_determinisation(tmp, sim, pretty_print);
+      res = spot::tgba_determinisation(tmp, sim, pretty_print, emit_scc);
       f->destroy();
     }
   else if (in_hoa)
     {
-      spot::hoa_parse_error_list pel;
-      auto aut = spot::hoa_parse(input, pel, dict);
-      if (spot::format_hoa_parse_errors(std::cerr, input, pel))
+      spot::parse_aut_error_list pel;
+      auto aut = spot::parse_aut(input, pel, dict);
+      if (spot::format_parse_aut_errors(std::cerr, input, pel))
         return 2;
-      res = tgba_determinisation(aut->aut, sim, pretty_print);
+      res = tgba_determinisation(aut->aut, sim, pretty_print, emit_scc);
     }
-  res->merge_transitions();
+  res->merge_edges();
 
   if (out_hoa)
     {
-      spot::hoa_reachable(std::cout, res, "t");
+      spot::print_hoa(std::cout, res, "t");
       std::cout << std::endl;
     }
   else if (out_dot)
-    spot::dotty_reachable(std::cout, res);
+    spot::print_dot(std::cout, res);
   else
     assert(false);
 }

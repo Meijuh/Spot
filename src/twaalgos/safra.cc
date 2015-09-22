@@ -24,6 +24,7 @@
 
 #include "safra.hh"
 #include "twaalgos/degen.hh"
+#include "twaalgos/sccinfo.hh"
 #include "twaalgos/simulation.hh"
 
 namespace spot
@@ -141,7 +142,7 @@ namespace spot
     {
       assert(max_acc < 32);
       unsigned mask = (1 << max_acc) - 1;
-      for (auto& t: aut->transitions())
+      for (auto& t: aut->edges())
         {
           t.acc &= mask;
         }
@@ -166,26 +167,30 @@ namespace spot
     }
 
   }
-  auto
+
+  void
   safra_state::compute_succs(const const_twa_graph_ptr& aut,
                              const std::vector<unsigned>& bddnums,
                              std::unordered_map<bdd,
                                              std::pair<unsigned, unsigned>,
-                                             bdd_hash>& deltas) const -> succs_t
+                                             bdd_hash>& deltas,
+                              succs_t& res) const
   {
-    succs_t res;
     // Given a bdd returns index of associated safra_state in res
     std::map<unsigned, unsigned> bdd2num;
     for (auto& node: nodes_)
       {
         for (auto& t: aut->out(node.first))
           {
+            // deltas precalculate all transitions in edge t
             auto p = deltas[t.cond];
             for (unsigned j = p.first; j < p.second; ++j)
               {
                 auto i = bdd2num.insert(std::make_pair(bddnums[j], res.size()));
                 unsigned idx;
                 if (!i.second)
+                  // No new state added, so get pre-existing state whichi is an
+                  // index in the vector of safra states (res)
                   idx = i.first->second;
                 else
                   {
@@ -203,9 +208,17 @@ namespace spot
     for (auto& s: res)
       {
         safra_state& tmp = s.first;
+        tmp.ungreenify_last_brace();
         s.first.color_ = tmp.finalize_construction();
       }
-    return res;
+  }
+
+  void safra_state::ungreenify_last_brace()
+  {
+    // Step A4: For a brace to emit green it must surround other braces.
+    // Hence, the last brace cannot emit green as it is the most inside brace.
+    for (auto& n: nodes_)
+        is_green_[n.second.back()] = false;
   }
 
   unsigned safra_state::finalize_construction()
@@ -218,7 +231,7 @@ namespace spot
       {
         if (nb_braces_[i] == 0)
           {
-            // It is impossible to emit red == -1 as those transitions would
+            // It is impossible to emit red == -1 as those edges would
             // lead us in a sink states which are not created here.
             assert(i >= 1);
             red = std::min(red, 2 * i - 1);
@@ -301,12 +314,10 @@ namespace spot
                                 unsigned dst, const acc_cond::mark_t acc)
   {
     std::vector<node_helper::brace_t> copy = braces;
-    // TODO handle multiple accepting sets
     if (acc.count())
       {
-        assert(acc.has(0) && acc.count() == 1 &&
-               "Only one TBA are accepted at the moment");
-        // Accepting transition generate new braces: step A1
+        assert(acc.has(0) && acc.count() == 1 && "Only one TBA are accepted");
+        // Accepting edge generate new braces: step A1
         copy.emplace_back(nb_braces_.size());
         // nb_braces_ gets updated later so put 0 for now
         nb_braces_.emplace_back(0);
@@ -333,9 +344,6 @@ namespace spot
     // After inserting new node, update the brace count per node
     for (auto b: i.first->second)
       ++nb_braces_[b];
-    // Step A4: For a brace to emit green it must surround other braces.
-    // Hence, the last brace cannot emit green as it is the most inside brace.
-    is_green_[i.first->second.back()] = false;
   }
 
   // Called only to initialize first state
@@ -367,16 +375,32 @@ namespace spot
     return nodes_ < other.nodes_;
   }
 
+  // All edge going into an accepting SCC are marked as accepting
+  // This helps safra make fewer trees as we immediately see the accepting
+  // edge and don't create useless states
+  void
+  emit_accepting_scc(twa_graph_ptr& aut, scc_info& scc)
+  {
+    for (auto& e: aut->edges())
+      {
+        unsigned src_scc = scc.scc_of(e.src);
+        unsigned dst_scc = scc.scc_of(e.dst);
+        if (src_scc == dst_scc)
+          continue;
+        if (scc.is_accepting_scc(dst_scc))
+          e.acc |= 1;
+      }
+  }
+
   twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& a, bool bisimulation,
-                       bool pretty_print)
+                       bool pretty_print, bool emit_scc)
   {
     // Degeneralize
-    const_twa_graph_ptr aut;
-    if (a->acc().is_generalized_buchi())
-      aut = spot::degeneralize_tba(a);
-    else
-      aut = a;
+    twa_graph_ptr aut = spot::degeneralize_tba(a);
+    scc_info scc = scc_info(aut);
+    if (emit_scc)
+      emit_accepting_scc(aut, scc);
 
 
     bdd allap = bddtrue;
@@ -384,7 +408,7 @@ namespace spot
       typedef std::set<bdd, bdd_less_than> sup_map;
       sup_map sup;
       // Record occurrences of all guards
-      for (auto& t: aut->transitions())
+      for (auto& t: aut->edges())
         sup.emplace(t.cond);
       for (auto& i: sup)
         allap &= bdd_support(i);
@@ -398,7 +422,7 @@ namespace spot
     // Used to convert large bdd to indexes
     std::unordered_map<bdd, std::pair<unsigned, unsigned>, bdd_hash> deltas;
     std::vector<unsigned> bddnums;
-    for (auto& t: aut->transitions())
+    for (auto& t: aut->edges())
       {
         auto it = deltas.find(t.cond);
         if (it == deltas.end())
@@ -428,7 +452,7 @@ namespace spot
                    });
 
     // Given a safra_state get its associated state in output automata.
-    // Required to create new transitions from 2 safra-state
+    // Required to create new edges from 2 safra-state
     power_set seen;
     safra_state init(aut->get_init_state_number(), true);
     unsigned num = res->new_state();
@@ -437,13 +461,14 @@ namespace spot
     std::deque<safra_state> todo;
     todo.push_back(init);
     unsigned sets = 0;
+    using succs_t = safra_state::succs_t;
+    succs_t succs;
     while (!todo.empty())
       {
-        using succs_t = safra_state::succs_t;
         safra_state curr = todo.front();
         unsigned src_num = seen.find(curr)->second;
         todo.pop_front();
-        succs_t succs = curr.compute_succs(aut, bddnums, deltas);
+        curr.compute_succs(aut, bddnums, deltas, succs);
         for (auto s: succs)
           {
             auto i = seen.find(s.first);
@@ -461,15 +486,16 @@ namespace spot
               }
             if (s.first.color_ != -1U)
               {
-                res->new_transition(src_num, dst_num, num2bdd[s.second],
+                res->new_edge(src_num, dst_num, num2bdd[s.second],
                                     {s.first.color_});
                 // We only care about green acc
                 if (s.first.color_ % 2 == 0)
                   sets = std::max(s.first.color_ + 1, sets);
               }
             else
-              res->new_transition(src_num, dst_num, num2bdd[s.second]);
+              res->new_edge(src_num, dst_num, num2bdd[s.second]);
           }
+        succs.clear();
       }
     remove_dead_acc(res, sets);
     res->set_acceptance(sets, acc_cond::acc_code::parity(false, false, sets));
