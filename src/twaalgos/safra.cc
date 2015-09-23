@@ -73,7 +73,7 @@ namespace spot
       return lhs.size() > rhs.size();
     }
 
-    // Used to remove all acceptance whos value is above max_acc
+    // Used to remove all acceptance whos value is above and equal max_acc
     void remove_dead_acc(twa_graph_ptr& aut, unsigned max_acc)
     {
       assert(max_acc < 32);
@@ -204,7 +204,7 @@ namespace spot
                 // Check if we are leaving the SCC, if so we delete all the
                 // braces as no cycles can be found with that node
                 if (track_scc && scc.scc_of(node.first) != scc.scc_of(t.dst))
-                  ss.update_succ({ 0 }, t.dst, t.acc);
+                  ss.update_succ({ /* no braces */ }, t.dst, t.acc);
                 else
                   ss.update_succ(node.second, t.dst, t.acc);
                 assert(ss.nb_braces_.size() == ss.is_green_.size());
@@ -224,7 +224,10 @@ namespace spot
     // Step A4: For a brace to emit green it must surround other braces.
     // Hence, the last brace cannot emit green as it is the most inside brace.
     for (auto& n: nodes_)
-        is_green_[n.second.back()] = false;
+      {
+        if (!n.second.empty())
+          is_green_[n.second.back()] = false;
+      }
   }
 
   unsigned safra_state::finalize_construction()
@@ -237,16 +240,16 @@ namespace spot
       {
         if (nb_braces_[i] == 0)
           {
-            // It is impossible to emit red == -1 as those edges would
-            // lead us in a sink states which are not created here.
-            assert(i >= 1);
-            red = std::min(red, 2 * i - 1);
             // Step A3: Brackets that do not contain any nodes emit red
             is_green_[i] = false;
+
+            // First brace can now be zero with new optim making it possible to
+            // emit red 0
+            red = std::min(red, 2 * i);
           }
         else if (is_green_[i])
           {
-            green = std::min(green, 2 * i);
+            green = std::min(green, 2 * i + 1);
             // Step A4 Emit green
             rem_succ_of.emplace_back(i);
           }
@@ -353,17 +356,26 @@ namespace spot
   }
 
   // Called only to initialize first state
-  safra_state::safra_state(unsigned val, bool init_state)
+  safra_state::safra_state(unsigned val, bool init_state, bool accepting_scc)
   {
     if (init_state)
       {
         unsigned state_num = val;
-        // One brace set
-        is_green_.push_back(true);
-        // First brace has init_state hence one state inside the first braces.
-        nb_braces_.push_back(1);
-        std::vector<node_helper::brace_t> braces = { 0 };
-        nodes_.emplace(state_num, std::move(braces));
+        if (!accepting_scc)
+          {
+            std::vector<node_helper::brace_t> braces = { /* no braces */ };
+            nodes_.emplace(state_num, std::move(braces));
+          }
+        else
+          {
+            std::vector<node_helper::brace_t> braces = { 0 };
+            nodes_.emplace(state_num, std::move(braces));
+            // First brace has init_state hence one state inside the first
+            // braces.
+            nb_braces_.push_back(1);
+            // One brace set
+            is_green_.push_back(true);
+          }
       }
     else
       {
@@ -460,7 +472,10 @@ namespace spot
     // Given a safra_state get its associated state in output automata.
     // Required to create new edges from 2 safra-state
     power_set seen;
-    safra_state init(aut->get_init_state_number(), true);
+    auto init_state = aut->get_init_state_number();
+    bool start_accepting = scc.is_accepting_scc(scc.scc_of(init_state)) ||
+                           (!track_scc && !emit_scc);
+    safra_state init(init_state, true, start_accepting);
     unsigned num = res->new_state();
     res->set_init_state(num);
     seen.insert(std::make_pair(init, num));
@@ -493,8 +508,8 @@ namespace spot
               {
                 res->new_edge(src_num, dst_num, num2bdd[s.second],
                                     {s.first.color_});
-                // We only care about green acc
-                if (s.first.color_ % 2 == 0)
+                // We only care about green acc which are odd
+                if (s.first.color_ % 2 == 1)
                   sets = std::max(s.first.color_ + 1, sets);
               }
             else
@@ -503,7 +518,8 @@ namespace spot
         succs.clear();
       }
     remove_dead_acc(res, sets);
-    res->set_acceptance(sets, acc_cond::acc_code::parity(false, false, sets));
+    // Acceptance is now min(odd) since we con emit Red on paths 0 with new opti
+    res->set_acceptance(sets, acc_cond::acc_code::parity(false, true, sets));
     res->prop_deterministic(true);
     res->prop_state_based_acc(false);
     if (bisimulation)

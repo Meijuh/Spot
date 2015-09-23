@@ -45,7 +45,8 @@ namespace spot
     using succs_t =  std::vector<std::pair<safra_state, unsigned>>;
     bool operator<(const safra_state& other) const;
     // Printh the number of states in each brace
-    safra_state(unsigned state_number, bool init_state = false);
+    safra_state(unsigned state_number, bool init_state = false,
+                bool acceptance_scc = false);
     // Given a certain transition_label, compute all the successors of that
     // label, and return that new node.
     void compute_succs(const const_twa_graph_ptr& aut,
