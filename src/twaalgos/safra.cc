@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <deque>
+#include <stack>
 #include <utility>
 #include <unordered_map>
 
@@ -57,70 +58,6 @@ namespace spot
       return res;
     }
 
-    void print(unsigned start, const safra_state::nodes_t& nodes,
-               std::ostringstream& os, std::vector<unsigned>& idx)
-    {
-      std::string s = subscript(start);
-      os << '{' << s;
-      std::vector<unsigned> new_idx;
-      std::vector<unsigned> todo;
-      unsigned next = -1U;
-      bool first = true;
-      for (auto& i: idx)
-        {
-          auto it = std::lower_bound(nodes.at(i).cbegin(), nodes.at(i).cend(),
-                                     start + 1);
-          if (it == nodes.at(i).cend())
-            {
-              if (first)
-                {
-                  os << i;
-                  first = false;
-                }
-              else
-                os << ' ' << i;
-            }
-          else if (*it == (start + 1))
-            new_idx.push_back(i);
-          else
-            {
-              todo.push_back(i);
-              next = std::min(next, *it);
-            }
-        }
-      if (!new_idx.empty())
-        print(start + 1, nodes, os, new_idx);
-      if (next != -1U)
-        {
-          std::vector<unsigned> todo2;
-          std::vector<unsigned> todo_next;
-          unsigned new_next = -1U;
-          while (!todo.empty())
-            {
-              for (auto& i: todo)
-                {
-                  auto it = std::lower_bound(nodes.at(i).cbegin(),
-                                             nodes.at(i).cend(), next);
-                  if (*it == next)
-                    todo_next.push_back(i);
-                  else
-                    {
-                      todo2.push_back(i);
-                      next = std::min(new_next, *it);
-                    }
-                }
-              print(next, nodes, os, todo_next);
-
-              next = new_next;
-              new_next = -1;
-              todo = todo2;
-              todo2.clear();
-              todo_next.clear();
-            }
-        }
-      os << s << '}';
-    }
-
     // Returns true if lhs has a smaller nesting pattern than rhs
     // If lhs and rhs are the same, return false.
     bool nesting_cmp(const std::vector<node_helper::brace_t>& lhs,
@@ -147,21 +84,84 @@ namespace spot
         }
     }
 
+    struct compare
+    {
+      bool
+      operator() (std::pair<std::vector<node_helper::brace_t>, unsigned>& lhs,
+                  std::pair<std::vector<node_helper::brace_t>, unsigned>& rhs)
+      {
+        return lhs.first < rhs.first;
+      }
+    };
+
+    // Return the sorteds nodes in ascending order
+    std::vector<std::pair<std::vector<node_helper::brace_t>, unsigned>>
+    sorted_nodes(const safra_state::nodes_t& nodes)
+    {
+      std::vector<std::pair<std::vector<node_helper::brace_t>, unsigned>> res;
+      for (auto& n: nodes)
+        res.emplace_back(n.second, n.first);
+      std::sort(res.begin(), res.end(), compare());
+      return res;
+    }
+
+    std::string
+    nodes_to_string(const safra_state::nodes_t& states)
+    {
+      auto copy = sorted_nodes(states);
+      std::ostringstream os;
+      std::stack<unsigned> s;
+      bool first = true;
+      for (auto& n: copy)
+        {
+          auto it = n.first.begin();
+          // Find brace on top of stack in vector
+          // If brace is not present, then we close it as no other ones of that
+          // type will be found since we ordered our vector
+          while (!s.empty())
+            {
+              it = std::lower_bound(n.first.begin(), n.first.end(),
+                                         s.top());
+              if (it == n.first.end() || *it != s.top())
+                {
+                  os << subscript(s.top()) << '}';
+                  s.pop();
+                }
+              else
+                {
+                  if (*it == s.top())
+                    ++it;
+                  break;
+                }
+            }
+          // Add new braces
+          while (it != n.first.end())
+            {
+              os << '{' << subscript(*it);
+              s.push(*it);
+              ++it;
+              first = true;
+            }
+          if (!first)
+            os << ' ';
+          os << n.second;
+          first = false;
+        }
+      // Finish unwinding stack to print last braces
+      while (!s.empty())
+        {
+          os << subscript(s.top()) << '}';
+          s.pop();
+        }
+      return os.str();
+    }
+
     std::vector<std::string>*
     print_debug(std::map<safra_state, int>& states)
     {
-      std::vector<std::string>* res = nullptr;
-      res = new std::vector<std::string>(states.size());
-      std::vector<unsigned> idx;
+      auto res = new std::vector<std::string>(states.size());
       for (auto& p: states)
-        {
-          std::ostringstream os;
-          for (auto& n: p.first.nodes_)
-            idx.push_back(n.first);
-          print(0, p.first.nodes_, os, idx);
-          (*res)[p.second] = os.str();
-          idx.clear();
-        }
+        (*res)[p.second] = nodes_to_string(p.first.nodes_);
       return res;
     }
 
@@ -201,8 +201,6 @@ namespace spot
                                      bddnums[j]);
                   }
                 safra_state& ss = res[idx].first;
-                (void) scc;
-                ss.update_succ(std::vector<node_helper::brace_t>(1, 0), t.dst, t.acc);
                 // Check if we are leaving the SCC, if so we delete all the
                 // braces as no cycles can be found with that node
                 if (track_scc && scc.scc_of(node.first) != scc.scc_of(t.dst))
@@ -488,7 +486,6 @@ namespace spot
 	    else
 	      {
                 dst_num = res->new_state();
-                // s.first.print_debug(dst_num);
                 todo.push_back(s.first);
                 seen.insert(std::make_pair(s.first, dst_num));
               }
