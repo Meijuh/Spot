@@ -87,20 +87,20 @@ namespace spot
     struct compare
     {
       bool
-      operator() (std::pair<std::vector<node_helper::brace_t>, unsigned>& lhs,
-                  std::pair<std::vector<node_helper::brace_t>, unsigned>& rhs)
+      operator() (const safra_state::safra_node_t& lhs,
+                  const safra_state::safra_node_t& rhs)
       {
-        return lhs.first < rhs.first;
+        return lhs.second < rhs.second;
       }
     };
 
     // Return the sorteds nodes in ascending order
-    std::vector<std::pair<std::vector<node_helper::brace_t>, unsigned>>
+    std::vector<safra_state::safra_node_t>
     sorted_nodes(const safra_state::nodes_t& nodes)
     {
-      std::vector<std::pair<std::vector<node_helper::brace_t>, unsigned>> res;
+      std::vector<safra_state::safra_node_t> res;
       for (auto& n: nodes)
-        res.emplace_back(n.second, n.first);
+        res.emplace_back(n.first, n.second);
       std::sort(res.begin(), res.end(), compare());
       return res;
     }
@@ -114,15 +114,15 @@ namespace spot
       bool first = true;
       for (auto& n: copy)
         {
-          auto it = n.first.begin();
+          auto it = n.second.begin();
           // Find brace on top of stack in vector
           // If brace is not present, then we close it as no other ones of that
           // type will be found since we ordered our vector
           while (!s.empty())
             {
-              it = std::lower_bound(n.first.begin(), n.first.end(),
+              it = std::lower_bound(n.second.begin(), n.second.end(),
                                          s.top());
-              if (it == n.first.end() || *it != s.top())
+              if (it == n.second.end() || *it != s.top())
                 {
                   os << subscript(s.top()) << '}';
                   s.pop();
@@ -135,7 +135,7 @@ namespace spot
                 }
             }
           // Add new braces
-          while (it != n.first.end())
+          while (it != n.second.end())
             {
               os << '{' << subscript(*it);
               s.push(*it);
@@ -144,7 +144,7 @@ namespace spot
             }
           if (!first)
             os << ' ';
-          os << n.second;
+          os << n.first;
           first = false;
         }
       // Finish unwinding stack to print last braces
@@ -169,7 +169,7 @@ namespace spot
 
   void
   safra_state::compute_succs(const const_twa_graph_ptr& aut,
-                             const std::vector<unsigned>& bddnums,
+                             const std::vector<bdd_id_t>& bddnums,
                              std::unordered_map<bdd,
                                              std::pair<unsigned, unsigned>,
                                              bdd_hash>& deltas,
@@ -230,7 +230,7 @@ namespace spot
       }
   }
 
-  unsigned safra_state::finalize_construction()
+  safra_state::color_t safra_state::finalize_construction()
   {
     unsigned red = -1U;
     unsigned green = -1U;
@@ -320,7 +320,7 @@ namespace spot
   }
 
   void safra_state::update_succ(const std::vector<node_helper::brace_t>& braces,
-                                unsigned dst, const acc_cond::mark_t acc)
+                                state_t dst, const acc_cond::mark_t acc)
   {
     std::vector<node_helper::brace_t> copy = braces;
     if (acc.count())
@@ -356,7 +356,7 @@ namespace spot
   }
 
   // Called only to initialize first state
-  safra_state::safra_state(unsigned val, bool init_state, bool accepting_scc)
+  safra_state::safra_state(state_t val, bool init_state, bool accepting_scc)
   {
     if (init_state)
       {
@@ -439,7 +439,7 @@ namespace spot
     // Nedded for compute succs
     // Used to convert large bdd to indexes
     std::unordered_map<bdd, std::pair<unsigned, unsigned>, bdd_hash> deltas;
-    std::vector<unsigned> bddnums;
+    std::vector<safra_state::bdd_id_t> bddnums;
     for (auto& t: aut->edges())
       {
         auto it = deltas.find(t.cond);

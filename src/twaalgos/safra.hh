@@ -41,16 +41,21 @@ namespace spot
   class safra_state
   {
   public:
-    using nodes_t = std::map<unsigned, std::vector<node_helper::brace_t>>;
-    using succs_t =  std::vector<std::pair<safra_state, unsigned>>;
+    using state_t = unsigned;
+    using color_t = unsigned;
+    using bdd_id_t = unsigned;
+    using nodes_t = std::map<state_t, std::vector<node_helper::brace_t>>;
+    using succs_t =  std::vector<std::pair<safra_state, bdd_id_t>>;
+    using safra_node_t = std::pair<state_t, std::vector<node_helper::brace_t>>;
+
     bool operator<(const safra_state& other) const;
     // Printh the number of states in each brace
-    safra_state(unsigned state_number, bool init_state = false,
+    safra_state(state_t state_number, bool init_state = false,
                 bool acceptance_scc = false);
     // Given a certain transition_label, compute all the successors of that
     // label, and return that new node.
     void compute_succs(const const_twa_graph_ptr& aut,
-                          const std::vector<unsigned>& bddnums,
+                          const std::vector<bdd_id_t>& bddnums,
                           std::unordered_map<bdd,
                                              std::pair<unsigned, unsigned>,
                                              bdd_hash>& deltas,
@@ -63,9 +68,9 @@ namespace spot
     // A new intermediate node is created with  src's braces and with dst as id
     // A merge is done if dst already existed in *this
     void update_succ(const std::vector<node_helper::brace_t>& braces,
-                     unsigned dst, const acc_cond::mark_t acc);
+                     state_t dst, const acc_cond::mark_t acc);
     // Return the emitted color, red or green
-    unsigned finalize_construction();
+    color_t finalize_construction();
     // A list of nodes similar to the ones of a
     // safra tree.  These are constructed in the same way as the powerset
     // algorithm.
@@ -75,7 +80,7 @@ namespace spot
     std::vector<size_t> nb_braces_;
     // A bitfield to know if a brace can emit green.
     std::vector<bool> is_green_;
-    unsigned color_;
+    color_t color_;
   };
 
   SPOT_API twa_graph_ptr
