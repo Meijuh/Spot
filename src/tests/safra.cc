@@ -38,14 +38,13 @@ int help()
   std::cerr << "\t-p\tpretty print states\n";
   std::cerr << "\t-H\toutput hoa format\n";
   std::cerr << "\t-b\treduce result using bisimulation\n";
-  std::cerr << "\t--emit_scc\ttransitions to accpting scc are accepting\n";
+  std::cerr << "\t--scc_opt\tUse an SCC-based Safra\n";
   return 1;
 }
 
 int main(int argc, char* argv[])
 {
-  bool emit_scc = false;
-  bool track_scc = false;
+  bool scc_opt = false;
   bool sim = false;
   bool in_hoa = false;
   bool in_ltl = false;
@@ -81,12 +80,13 @@ int main(int argc, char* argv[])
         pretty_print = true;
       else if (!strncmp(argv[i], "-b", 2))
         sim = true;
-      else if (!strncmp(argv[i], "--emit_scc", 10))
-        emit_scc = true;
-      else if (!strncmp(argv[i], "--track_scc", 11))
-        track_scc = true;
+      else if (!strncmp(argv[i], "--scc_opt", 9))
+        scc_opt = true;
       else
-        std::cerr << "Warning: " << argv[i] << " not used\n";
+        {
+          std::cerr << "Warning: " << argv[i] << " not used\n";
+          return 1;
+        }
     }
 
   if (!input)
@@ -104,8 +104,7 @@ int main(int argc, char* argv[])
       spot::translator trans(dict);
       trans.set_pref(spot::postprocessor::Deterministic);
       auto tmp = trans.run(f);
-      res = spot::tgba_determinisation(tmp, sim, pretty_print, emit_scc,
-                                       track_scc);
+      res = spot::tgba_determinisation(tmp, sim, pretty_print, scc_opt);
       f->destroy();
     }
   else if (in_hoa)
@@ -114,8 +113,7 @@ int main(int argc, char* argv[])
       auto aut = spot::parse_aut(input, pel, dict);
       if (spot::format_parse_aut_errors(std::cerr, input, pel))
         return 2;
-      res = tgba_determinisation(aut->aut, sim, pretty_print, emit_scc,
-                                 track_scc);
+      res = tgba_determinisation(aut->aut, sim, pretty_print, scc_opt);
     }
   res->merge_edges();
 

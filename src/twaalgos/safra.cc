@@ -73,138 +73,166 @@ namespace spot
       return lhs.size() > rhs.size();
     }
 
-    // Used to remove all acceptance whos value is above and equal max_acc
-    void remove_dead_acc(twa_graph_ptr& aut, unsigned max_acc)
-    {
-      assert(max_acc < 32);
-      unsigned mask = (1 << max_acc) - 1;
-      for (auto& t: aut->edges())
-        {
-          t.acc &= mask;
-        }
-    }
-
-    struct compare
-    {
-      bool
-      operator() (const safra_state::safra_node_t& lhs,
-                  const safra_state::safra_node_t& rhs)
+  // Used to remove all acceptance whos value is above and equal max_acc
+  void remove_dead_acc(twa_graph_ptr& aut, unsigned max_acc)
+  {
+    assert(max_acc < 32);
+    unsigned mask = (1 << max_acc) - 1;
+    for (auto& t: aut->edges())
       {
-        return lhs.second < rhs.second;
+        t.acc &= mask;
       }
-    };
-
-    // Return the sorteds nodes in ascending order
-    std::vector<safra_state::safra_node_t>
-    sorted_nodes(const safra_state::nodes_t& nodes)
-    {
-      std::vector<safra_state::safra_node_t> res;
-      for (auto& n: nodes)
-        res.emplace_back(n.first, n.second);
-      std::sort(res.begin(), res.end(), compare());
-      return res;
-    }
-
-    std::string
-    nodes_to_string(const safra_state::nodes_t& states)
-    {
-      auto copy = sorted_nodes(states);
-      std::ostringstream os;
-      std::stack<unsigned> s;
-      bool first = true;
-      for (auto& n: copy)
-        {
-          auto it = n.second.begin();
-          // Find brace on top of stack in vector
-          // If brace is not present, then we close it as no other ones of that
-          // type will be found since we ordered our vector
-          while (!s.empty())
-            {
-              it = std::lower_bound(n.second.begin(), n.second.end(),
-                                         s.top());
-              if (it == n.second.end() || *it != s.top())
-                {
-                  os << subscript(s.top()) << '}';
-                  s.pop();
-                }
-              else
-                {
-                  if (*it == s.top())
-                    ++it;
-                  break;
-                }
-            }
-          // Add new braces
-          while (it != n.second.end())
-            {
-              os << '{' << subscript(*it);
-              s.push(*it);
-              ++it;
-              first = true;
-            }
-          if (!first)
-            os << ' ';
-          os << n.first;
-          first = false;
-        }
-      // Finish unwinding stack to print last braces
-      while (!s.empty())
-        {
-          os << subscript(s.top()) << '}';
-          s.pop();
-        }
-      return os.str();
-    }
-
-    std::vector<std::string>*
-    print_debug(std::map<safra_state, int>& states)
-    {
-      auto res = new std::vector<std::string>(states.size());
-      for (auto& p: states)
-        (*res)[p.second] = nodes_to_string(p.first.nodes_);
-      return res;
-    }
-
   }
 
-  void
-  safra_state::compute_succs(const const_twa_graph_ptr& aut,
-                             const std::vector<bdd_id_t>& bddnums,
-                             std::unordered_map<bdd,
-                                             std::pair<unsigned, unsigned>,
-                                             bdd_hash>& deltas,
-                              succs_t& res,
-                              const scc_info& scc,
-                              bool track_scc) const
+  struct compare
   {
-    // Given a bdd returns index of associated safra_state in res
-    std::map<unsigned, unsigned> bdd2num;
-    for (auto& node: nodes_)
+    bool
+    operator() (const safra_state::safra_node_t& lhs,
+                const safra_state::safra_node_t& rhs)
+    {
+      return lhs.second < rhs.second;
+    }
+  };
+
+  // Return the sorteds nodes in ascending order
+  std::vector<safra_state::safra_node_t>
+  sorted_nodes(const safra_state::nodes_t& nodes)
+  {
+    std::vector<safra_state::safra_node_t> res;
+    for (auto& n: nodes)
+      res.emplace_back(n.first, n.second);
+    std::sort(res.begin(), res.end(), compare());
+    return res;
+  }
+
+  std::string
+  nodes_to_string(const safra_state::nodes_t& states)
+  {
+    auto copy = sorted_nodes(states);
+    std::ostringstream os;
+    std::stack<unsigned> s;
+    bool first = true;
+    for (auto& n: copy)
       {
-        for (auto& t: aut->out(node.first))
+        auto it = n.second.begin();
+        // Find brace on top of stack in vector
+        // If brace is not present, then we close it as no other ones of that
+        // type will be found since we ordered our vector
+        while (!s.empty())
           {
-            // deltas precalculate all transitions in edge t
-            auto p = deltas[t.cond];
-            for (unsigned j = p.first; j < p.second; ++j)
+            it = std::lower_bound(n.second.begin(), n.second.end(),
+                                       s.top());
+            if (it == n.second.end() || *it != s.top())
               {
-                auto i = bdd2num.insert(std::make_pair(bddnums[j], res.size()));
-                unsigned idx;
-                if (!i.second)
-                  // No new state added, so get pre-existing state whichi is an
-                  // index in the vector of safra states (res)
-                  idx = i.first->second;
-                else
+                os << subscript(s.top()) << '}';
+                s.pop();
+              }
+            else
+              {
+                if (*it == s.top())
+                  ++it;
+                break;
+              }
+          }
+        // Add new braces
+        while (it != n.second.end())
+          {
+            os << '{' << subscript(*it);
+            s.push(*it);
+            ++it;
+            first = true;
+          }
+        if (!first)
+          os << ' ';
+        os << n.first;
+        first = false;
+      }
+    // Finish unwinding stack to print last braces
+    while (!s.empty())
+      {
+        os << subscript(s.top()) << '}';
+        s.pop();
+      }
+    return os.str();
+  }
+
+  std::vector<std::string>*
+  print_debug(std::map<safra_state, int>& states)
+  {
+    auto res = new std::vector<std::string>(states.size());
+    for (auto& p: states)
+      (*res)[p.second] = nodes_to_string(p.first.nodes_);
+    return res;
+  }
+
+}
+
+unsigned
+safra_state::find_scc_brace_id(unsigned scc_id, const scc_info& scc)
+{
+  for (auto& n: nodes_)
+    {
+      if (scc_id == scc.scc_of(n.first))
+        return n.second.front();
+    }
+  return -1U;
+}
+
+void
+safra_state::compute_succs(const const_twa_graph_ptr& aut,
+                           const std::vector<bdd_id_t>& bddnums,
+                           std::unordered_map<bdd,
+                                           std::pair<unsigned, unsigned>,
+                                           bdd_hash>& deltas,
+                            succs_t& res,
+                            const scc_info& scc,
+                            bool scc_opt) const
+{
+  // Given a bdd returns index of associated safra_state in res
+  std::map<unsigned, unsigned> bdd2num;
+  for (auto& node: nodes_)
+    {
+      for (auto& t: aut->out(node.first))
+        {
+          // deltas precalculate all transitions in edge t
+          auto p = deltas[t.cond];
+          for (unsigned j = p.first; j < p.second; ++j)
+            {
+              auto i = bdd2num.insert(std::make_pair(bddnums[j], res.size()));
+              unsigned idx;
+              if (!i.second)
+                // No new state added, so get pre-existing state whichi is an
+                // index in the vector of safra states (res)
+                idx = i.first->second;
+              else
+                {
+                  // Each new node starts out with same number of nodes as src
+                  idx = res.size();
+                  res.emplace_back(safra_state(nb_braces_.size()),
+                                   bddnums[j]);
+                }
+              safra_state& ss = res[idx].first;
+              // Check if we are leaving the SCC, if so we delete all the
+              // braces as no cycles can be found with that node
+              if (scc_opt && scc.scc_of(node.first) != scc.scc_of(t.dst))
+                if (scc.is_accepting_scc(scc.scc_of(t.dst)))
                   {
-                    // Each new node starts out with same number of nodes as src
-                    idx = res.size();
-                    res.emplace_back(safra_state(nb_braces_.size()),
-                                     bddnums[j]);
-                  }
-                safra_state& ss = res[idx].first;
-                // Check if we are leaving the SCC, if so we delete all the
-                // braces as no cycles can be found with that node
-                if (track_scc && scc.scc_of(node.first) != scc.scc_of(t.dst))
-                  ss.update_succ({ /* no braces */ }, t.dst, t.acc);
+                    // Find scc_id in the safra state currently being
+                    // constructed
+                    unsigned scc_id = ss.find_scc_brace_id(scc.scc_of(t.dst),
+                                                           scc);
+                      // If SCC is present in node use the same id
+                      if (scc_id != -1U)
+                        ss.update_succ({ scc_id }, t.dst,
+                                       { /* empty */ });
+                      // Create a new SCC
+                      else
+                        ss.update_succ({ /* no braces */ }, t.dst,
+                                       { 0 });
+                    }
+                  else
+                    // When entering non accepting SCC don't create any braces
+                    ss.update_succ({ /* no braces */ }, t.dst, { /* empty */ });
                 else
                   ss.update_succ(node.second, t.dst, t.acc);
                 assert(ss.nb_braces_.size() == ss.is_green_.size());
@@ -325,7 +353,7 @@ namespace spot
     std::vector<node_helper::brace_t> copy = braces;
     if (acc.count())
       {
-        assert(acc.has(0) && acc.count() == 1 && "Only one TBA are accepted");
+        assert(acc.has(0) && acc.count() == 1 && "Only TBA are accepted");
         // Accepting edge generate new braces: step A1
         copy.emplace_back(nb_braces_.size());
         // nb_braces_ gets updated later so put 0 for now
@@ -412,13 +440,14 @@ namespace spot
 
   twa_graph_ptr
   tgba_determinisation(const const_twa_graph_ptr& a, bool bisimulation,
-                       bool pretty_print, bool emit_scc, bool track_scc)
+                       bool pretty_print, bool scc_opt)
   {
     // Degeneralize
     twa_graph_ptr aut = spot::degeneralize_tba(a);
     scc_info scc = scc_info(aut);
-    if (emit_scc)
-      emit_accepting_scc(aut, scc);
+    // TODO
+    // if (emit_scc)
+    //   emit_accepting_scc(aut, scc);
 
 
     bdd allap = bddtrue;
@@ -474,7 +503,7 @@ namespace spot
     power_set seen;
     auto init_state = aut->get_init_state_number();
     bool start_accepting = scc.is_accepting_scc(scc.scc_of(init_state)) ||
-                           (!track_scc && !emit_scc);
+                           !scc_opt;
     safra_state init(init_state, true, start_accepting);
     unsigned num = res->new_state();
     res->set_init_state(num);
@@ -489,7 +518,7 @@ namespace spot
         safra_state curr = todo.front();
         unsigned src_num = seen.find(curr)->second;
         todo.pop_front();
-        curr.compute_succs(aut, bddnums, deltas, succs, scc, track_scc);
+        curr.compute_succs(aut, bddnums, deltas, succs, scc, scc_opt);
         for (auto s: succs)
           {
             auto i = seen.find(s.first);

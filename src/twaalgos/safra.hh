@@ -61,7 +61,10 @@ namespace spot
                                              bdd_hash>& deltas,
                            succs_t& res,
                            const scc_info& scc,
-                           bool track_scc = false) const;
+                           bool scc_opt = false) const;
+    // scc_id has to be an accepting SCC.  This function tries to find a node
+    // who lives in that SCC and if it does, we return the brace_id of that SCC.
+    unsigned find_scc_brace_id(unsigned scc_id, const scc_info& scc);
     // The outermost brace of each node cannot be green
     void ungreenify_last_brace();
     // Used when creating the list of successors
@@ -87,6 +90,5 @@ namespace spot
   tgba_determinisation(const const_twa_graph_ptr& aut,
                        bool bisimulation = false,
                        bool pretty_print = false,
-                       bool emit_scc = false,
-                       bool track_scc = false);
+                       bool scc_opt = false);
 }

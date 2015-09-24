@@ -117,7 +117,7 @@ EOF
 run 0 ../safra --hoa double_b.hoa -H > out.hoa
 diff out.hoa out.exp
 
-# Test emit_scc optim
+# Test scc-based optim
 cat > out.exp << EOF
 HOA: v1
 States: 3
@@ -129,9 +129,9 @@ properties: trans-labels explicit-labels trans-acc deterministic
 --BODY--
 State: 0 "{₀0₀}"
 [0] 1 {1}
-State: 1 "{₀0 1₀}"
+State: 1 "{₀0₀}{₁1₁}"
 [0] 1 {1}
-[!0&1] 2 {1}
+[!0&1] 2 {0}
 State: 2 "{₀1₀}"
 [0&!1] 2
 [1] 2 {1}
@@ -154,7 +154,7 @@ State: 1
 --END--
 EOF
 
-run 0 ../safra --hoa in.hoa --emit_scc -p -H > out.hoa
+run 0 ../safra --hoa in.hoa --scc_opt -p -H > out.hoa
 diff out.hoa out.exp
 
 # Formulas from bench/dtgbasat/formulas
