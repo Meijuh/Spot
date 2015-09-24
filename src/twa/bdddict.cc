@@ -131,22 +131,6 @@ namespace spot
     return num;
   }
 
-  void
-  bdd_dict::register_propositions(bdd f, const void* for_me)
-  {
-    if (f == bddtrue || f == bddfalse)
-      return;
-
-    int v = bdd_var(f);
-    assert(unsigned(v) < bdd_map.size());
-    bdd_info& i = bdd_map[v];
-    assert(i.type == var);
-    i.refs.insert(for_me);
-
-    register_propositions(bdd_high(f), for_me);
-    register_propositions(bdd_low(f), for_me);
-  }
-
   int
   bdd_dict::register_acceptance_variable(const ltl::formula* f,
 					const void* for_me)

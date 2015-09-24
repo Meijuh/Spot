@@ -109,23 +109,6 @@ namespace spot
     }
     /// @}
 
-    /// \brief Register BDD variables as atomic propositions.
-    ///
-    /// Register all variables occurring in \a f as atomic propositions
-    /// used by \a for_me.  This assumes that these atomic propositions
-    /// are already known from the dictionary (i.e., they have already
-    /// been registered by register_proposition() for another
-    /// automaton).
-    /// @{
-    void register_propositions(bdd f, const void* for_me);
-
-    template <typename T>
-    void register_propositions(bdd f, std::shared_ptr<T> for_me)
-    {
-      register_propositions(f, for_me.get());
-    }
-    /// @}
-
     /// \brief whether a proposition has already been registered
     ///
     /// If \a f has been registered for \a me, this returns

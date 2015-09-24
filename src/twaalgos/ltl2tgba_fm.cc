@@ -1187,14 +1187,6 @@ namespace spot
 	    }
 	}
 
-      // Register all known propositions for a. This may contain
-      // proposition from other parts of the formula being translated,
-      // but this is not really important as this automaton will be
-      // short-lived.  (Maybe it would even work without this line.)
-      dict_.dict->register_propositions(dict_.var_set, a);
-
-      //print_dot(std::cerr, a);
-
       // The following code trims the automaton in a crude way by
       // eliminating SCCs that are not coaccessible.  It does not
       // actually remove the states, it simply marks the corresponding
