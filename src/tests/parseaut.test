@@ -690,8 +690,8 @@ State: 1
 never  {    /* a U b */
 T0_init:
         if
-        :: ((b)) -> goto accept_all
-        :: ((a)) -> goto T0_init
+        :: (b) -> goto accept_all
+        :: (a) -> goto T0_init
         fi;
 accept_all:
         skip
@@ -1452,7 +1452,7 @@ expectok input --spin=c <<EOF
 never { /* a U b */
 T0_init: /* s1 */
   if
-  :: ((b)) -> goto accept_all
+  :: (b) -> goto accept_all
   :: ((a) && (!(b))) -> goto T0_init
   fi;
 accept_all: /* s0 */

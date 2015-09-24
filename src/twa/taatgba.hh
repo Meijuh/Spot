@@ -49,7 +49,7 @@ namespace spot
       const state_set* dst;
     };
 
-    void add_condition(transition* t, const ltl::formula* f);
+    void add_condition(transition* t, ltl::formula f);
 
     /// TGBA interface.
     virtual ~taa_tgba();
@@ -66,8 +66,7 @@ namespace spot
     taa_tgba::state_set* init_;
     ss_vec state_set_vec_;
 
-    std::map<const ltl::formula*, acc_cond::mark_t,
-	     ltl::formula_ptr_less_than> acc_map_;
+    std::map<ltl::formula, acc_cond::mark_t> acc_map_;
 
   private:
     // Disallow copy.
@@ -151,11 +150,14 @@ namespace spot
     taa_tgba_labelled(const bdd_dict_ptr& dict) : taa_tgba(dict) {};
 
     ~taa_tgba_labelled()
-      {
-	auto i = acc_map_.begin();
-	while (i != acc_map_.end())
-	  (i++)->first->destroy();
-      }
+    {
+      for (auto i: name_state_map_)
+	{
+	  for (auto i2: *i.second)
+	    delete i2;
+	  delete i.second;
+	}
+    }
 
     void set_init_state(const label& s)
     {
@@ -190,13 +192,11 @@ namespace spot
       return create_transition(s, vec);
     }
 
-    void add_acceptance_condition(transition* t, const ltl::formula* f)
+    void add_acceptance_condition(transition* t, ltl::formula f)
     {
       auto p = acc_map_.emplace(f, 0);
       if (p.second)
 	p.first->second = acc_.marks({acc_.add_set()});
-      else
-	f->destroy();
       t->acceptance_conditions |= p.first->second;
     }
 
@@ -246,10 +246,6 @@ namespace spot
     /// \brief Return a label as a string.
     virtual std::string label_to_string(const label_t& lbl) const = 0;
 
-    /// \brief Clone the label if necessary to assure it is owned by
-    /// this, avoiding memory issues when label is a pointer.
-    virtual label_t clone_if(const label_t& lbl) const = 0;
-
   private:
     /// \brief Return the taa_tgba::state for \a name, creating it
     /// when it does not exist already.
@@ -258,10 +254,9 @@ namespace spot
       typename ns_map::iterator i = name_state_map_.find(name);
       if (i == name_state_map_.end())
       {
-	const label& name_ = clone_if(name);
 	taa_tgba::state* s = new taa_tgba::state;
-	name_state_map_[name_] = s;
-	state_name_map_[s] = name_;
+	name_state_map_[name] = s;
+	state_name_map_[s] = name;
 	return s;
       }
       return i->second;
@@ -314,11 +309,11 @@ namespace spot
   {
   public:
     taa_tgba_string(const bdd_dict_ptr& dict) :
-      taa_tgba_labelled<std::string>(dict) {};
-    ~taa_tgba_string();
+      taa_tgba_labelled<std::string>(dict) {}
+    ~taa_tgba_string()
+      {}
   protected:
     virtual std::string label_to_string(const std::string& label) const;
-    virtual std::string clone_if(const std::string& label) const;
   };
 
   typedef std::shared_ptr<taa_tgba_string> taa_tgba_string_ptr;
@@ -331,18 +326,18 @@ namespace spot
 
   class SPOT_API taa_tgba_formula final:
 #ifndef SWIG
-    public taa_tgba_labelled<const ltl::formula*>
+    public taa_tgba_labelled<ltl::formula>
 #else
     public taa_tgba
 #endif
   {
   public:
     taa_tgba_formula(const bdd_dict_ptr& dict) :
-      taa_tgba_labelled<const ltl::formula*>(dict) {};
-    ~taa_tgba_formula();
+      taa_tgba_labelled<ltl::formula>(dict) {}
+    ~taa_tgba_formula()
+      {}
   protected:
     virtual std::string label_to_string(const label_t& label) const;
-    virtual const ltl::formula* clone_if(const label_t& label) const;
   };
 
   typedef std::shared_ptr<taa_tgba_formula> taa_tgba_formula_ptr;

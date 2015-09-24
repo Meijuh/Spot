@@ -47,7 +47,7 @@ namespace spot
       bool re_some_f_g_ = false;	// rewrite F or G
       bool re_some_other_ = false;	// rewrite W, M, or R
       // Cache of rewritten subformulas
-      std::unordered_map<const formula*, const formula*> cache_;
+      std::unordered_map<formula, formula> cache_;
     public:
       /// \brief Constructor
       ///
@@ -55,8 +55,7 @@ namespace spot
       /// which in which each letter denote an operator (using LBT's
       /// convention).
       unabbreviator(const char* opt = default_unabbrev_string);
-      const formula* run(const formula* in);
-      ~unabbreviator();
+      formula run(formula in);
     };
 
     /// \ingroup ltl_rewriting
@@ -66,8 +65,8 @@ namespace spot
     /// The set of operators to remove should be passed as a string
     /// which in which each letter denote an operator (using LBT's
     /// convention).
-    SPOT_API const formula*
-    unabbreviate(const formula* in, const char* opt= default_unabbrev_string);
+    SPOT_API formula
+    unabbreviate(formula in, const char* opt= default_unabbrev_string);
   }
 
 }

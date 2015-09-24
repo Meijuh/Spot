@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE)
+// Copyright (C) 2011, 2012, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -326,7 +326,7 @@ namespace spot
     convert_aps(const ltl::atomic_prop_set* aps,
 		const spins_interface* d,
 		bdd_dict_ptr dict,
-		const ltl::formula* dead,
+		ltl::formula dead,
 		prop_set& out)
     {
       int errors = 0;
@@ -359,7 +359,7 @@ namespace spot
 	  if (*ap == dead)
 	    continue;
 
-	  std::string str = (*ap)->name();
+	  const std::string& str = ap->ap_name();
 	  const char* s = str.c_str();
 
 	  // Skip any leading blank.
@@ -602,7 +602,7 @@ namespace spot
     public:
 
       spins_kripke(const spins_interface* d, const bdd_dict_ptr& dict,
-		   const spot::prop_set* ps, const ltl::formula* dead,
+		   const spot::prop_set* ps, ltl::formula dead,
 		   int compress)
 	: kripke(dict),
 	  d_(d),
@@ -646,12 +646,12 @@ namespace spot
 	// appropriately.  ALIVE_PROP is the bdd that should be ANDed
 	// to all transitions leaving a live state, while DEAD_PROP should
 	// be ANDed to all transitions leaving a dead state.
-	if (dead == ltl::constant::false_instance())
+	if (dead.is_false())
 	  {
 	    alive_prop = bddtrue;
 	    dead_prop = bddfalse;
 	  }
-	else if (dead == ltl::constant::true_instance())
+	else if (dead.is_true())
 	  {
 	    alive_prop = bddtrue;
 	    dead_prop = bddtrue;
@@ -1016,7 +1016,7 @@ namespace spot
   kripke_ptr
   load_ltsmin(const std::string& file_arg, const bdd_dict_ptr& dict,
 	      const ltl::atomic_prop_set* to_observe,
-	      const ltl::formula* dead, int compress, bool verbose)
+	      const ltl::formula dead, int compress, bool verbose)
   {
     std::string file;
     if (file_arg.find_first_of("/\\") != std::string::npos)

@@ -19,8 +19,6 @@
 
 
 #include "unabbrev.hh"
-#include "ltlast/allnodes.hh"
-#include <cassert>
 
 namespace spot
 {
@@ -70,242 +68,183 @@ namespace spot
 	  }
     }
 
-    unabbreviator::~unabbreviator()
-    {
-      auto i = cache_.begin();
-      auto end = cache_.end();
-      while (i != end)
-	{
-	  auto old = i++;
-	  old->second->destroy();
-	  old->first->destroy();
-	}
-    }
-
-
-    const formula* unabbreviator::run(const formula* in)
+    formula unabbreviator::run(formula in)
     {
       auto entry = cache_.emplace(in, nullptr);
       if (!entry.second)
-	return entry.first->second->clone();
-      in->clone();
+	return entry.first->second;
 
       // Skip recursion whenever possible
-      bool no_boolean_rewrite = !re_some_bool_ || in->is_sugar_free_boolean();
-      bool no_f_g_rewrite = !re_some_f_g_ || in->is_sugar_free_ltl();
+      bool no_boolean_rewrite = !re_some_bool_ || in.is_sugar_free_boolean();
+      bool no_f_g_rewrite = !re_some_f_g_ || in.is_sugar_free_ltl();
       if (no_boolean_rewrite
-	  && (in->is_boolean() || (no_f_g_rewrite && !re_some_other_)))
+	  && (in.is_boolean() || (no_f_g_rewrite && !re_some_other_)))
+	return entry.first->second = in;
+
+      auto rec = [this](formula f)
 	{
-	  entry.first->second = in->clone();
-	  return in->clone();
+	  return this->run(f);
+	};
+
+      formula out = in;
+      if (in.size() > 0)
+	out = in.map(rec);
+
+      switch (out.kind())
+	{
+	  case op::False:
+	  case op::True:
+	  case op::EmptyWord:
+	  case op::AP:
+	  case op::Not:
+	  case op::X:
+	  case op::Closure:
+	  case op::NegClosure:
+	  case op::NegClosureMarked:
+	  case op::EConcat:
+	  case op::EConcatMarked:
+	  case op::UConcat:
+	  case op::U:
+	  case op::Or:
+	  case op::OrRat:
+	  case op::And:
+	  case op::AndRat:
+	  case op::AndNLM:
+	  case op::Concat:
+	  case op::Fusion:
+	  case op::Star:
+	  case op::FStar:
+	    break;
+	  case op::F:
+	    //  F f = true U f
+	    if (!re_f_)
+	      break;
+	    out = formula::U(formula::tt(), out.nth(0));
+	    break;
+	  case op::G:
+	    //  G f = false R f
+	    //  G f = f W false
+	    //  G f = !F!f
+	    //  G f = !(true U !f)
+	    if (!re_g_)
+	      break;
+	    if (!re_r_)
+	      {
+		out = formula::R(formula::ff(), out.nth(0));
+		break;
+	      }
+	    if (!re_w_)
+	      {
+		out = formula::W(out.nth(0), formula::ff());
+		break;
+	      }
+	    {
+	      auto nc = formula::Not(out.nth(0));
+	      if (!re_f_)
+		{
+		  out = formula::Not(formula::F(nc));
+		  break;
+		}
+	      out = formula::Not(formula::U(formula::tt(), nc));
+	      break;
+	    }
+	  case op::Xor:
+	    // f1 ^ f2  ==  !(f1 <-> f2)
+	    // f1 ^ f2  ==  (f1 & !f2) | (f2 & !f1)
+	    if (!re_xor_)
+	      break;
+	    {
+	      auto f1 = out.nth(0);
+	      auto f2 = out.nth(1);
+	      if (!re_e_)
+		{
+		  out = formula::Not(formula::Equiv(f1, f2));
+		}
+	      else
+		{
+		  auto a = formula::And({f1, formula::Not(f2)});
+		  auto b = formula::And({f2, formula::Not(f1)});
+		  out = formula::Or({a, b});
+		}
+	    }
+	    break;
+	  case op::Implies:
+	    // f1 => f2  ==  !f1 | f2
+	    if (!re_i_)
+	      break;
+	    out = formula::Or({formula::Not(out.nth(0)), out.nth(1)});
+	    break;
+	  case op::Equiv:
+	    // f1 <=> f2  ==  (f1 & f2) | (!f1 & !f2)
+	    if (!re_e_)
+	      break;
+	    {
+	      auto f1 = out.nth(0);
+	      auto f2 = out.nth(1);
+	      auto nf1 = formula::Not(f1);
+	      auto nf2 = formula::Not(f2);
+	      auto term1 = formula::And({f1, f2});
+	      auto term2 = formula::And({nf1, nf2});
+	      out = formula::Or({term1, term2});
+	      break;
+	    }
+	  case op::R:
+	    // f1 R f2 = f2 W (f1 & f2)
+	    // f1 R f2 = f2 U ((f1 & f2) | Gf2)
+	    // f1 R f2 = f2 U ((f1 & f2) | !F!f2)
+	    // f1 R f2 = f2 U ((f1 & f2) | !(1 U !f2))
+	    if (!re_r_)
+	      break;
+	    {
+	      auto f1 = out.nth(0);
+	      auto f2 = out.nth(1);
+	      auto f12 = formula::And({f1, f2});
+	      if (!re_w_)
+		{
+		  out = formula::W(f2, f12);
+		  break;
+		}
+	      auto gf2 = formula::G(f2);
+	      if (re_g_)
+		gf2 = run(gf2);
+	      out = formula::U(f2, formula::Or({f12, out}));
+	      break;
+	    }
+	  case op::W:
+	    // f1 W f2 = f2 R (f2 | f1)
+	    // f1 W f2 = f1 U (f2 | G f1)
+	    // f1 W f2 = f1 U (f2 | !F !f1)
+	    // f1 W f2 = f1 U (f2 | !(1 U !f1))
+	    if (!re_w_)
+	      break;
+	    {
+	      auto f1 = out.nth(0);
+	      auto f2 = out.nth(1);
+	      if (!re_r_)
+		{
+		  out = formula::R(f2, formula::Or({f2, f1}));
+		  break;
+		}
+	      auto gf1 = formula::G(f1);
+	      if (re_g_)
+		gf1 = rec(gf1);
+	      out = formula::U(f1, formula::Or({f2, out}));
+	      break;
+	    }
+	  case op::M:
+	    // f1 M f2 = f2 U (g2 & f1)
+	    if (!re_m_)
+	      break;
+	    {
+	      auto f2 = out.nth(1);
+	      out = formula::U(f2, formula::And({f2, out.nth(0)}));
+	      break;
+	    }
 	}
-
-      const formula* out = nullptr;
-      switch (in->kind())
-	{
-	case formula::AtomicProp:
-	case formula::Constant:
-	  out = in->clone();
-	  break;
-	case formula::UnOp:
-	  {
-	    const unop* uo = static_cast<const unop*>(in);
-	    auto c = run(uo->child());
-	    switch (auto op = uo->op())
-	      {
-		//  F f = true U f
-	      case unop::F:
-		if (!re_f_)
-		  goto unop_clone;
-		out = binop::instance(binop::U, constant::true_instance(), c);
-		break;
-		//  G f = false R f
-		//  G f = f W false
-		//  G f = !F!f
-		//  G f = !(true U !f)
-	      case unop::G:
-		if (!re_g_)
-		  goto unop_clone;
-		if (!re_r_)
-		  {
-		    out = binop::instance(binop::R,
-					  constant::false_instance(), c);
-		    break;
-		  }
-		if (!re_w_)
-		  {
-		    out = binop::instance(binop::W,
-					  c, constant::false_instance());
-		    break;
-		  }
-		{
-		  auto nc = unop::instance(unop::Not, c);
-		  if (!re_f_)
-		    {
-		      out = unop::instance(unop::Not,
-					   unop::instance(unop::F, nc));
-		      break;
-		    }
-		  auto u = binop::instance(binop::U,
-					   constant::true_instance(), nc);
-		  out = unop::instance(unop::Not, u);
-		  break;
-		}
-	      case unop::Not:
-	      case unop::X:
-	      case unop::Closure:
-	      case unop::NegClosure:
-	      case unop::NegClosureMarked:
-		unop_clone:
-		out = unop::instance(op, c);
-		break;
-	      }
-	    break;
-	  }
-	case formula::BinOp:
-	  {
-	    const binop* bo = static_cast<const binop*>(in);
-	    auto f1 = run(bo->first());
-	    auto f2 = run(bo->second());
-	    switch (auto op = bo->op())
-	      {
-		// f1 ^ f2  ==  !(f1 <-> f2)
-		// f1 ^ f2  ==  (f1 & !f2) | (f2 & !f1)
-	      case binop::Xor:
-		{
-		  if (!re_xor_)
-		    goto binop_clone;
-		  if (!re_e_)
-		    {
-		      out = unop::instance(unop::Not,
-					   binop::instance(binop::Equiv,
-							   f1, f2));
-		    }
-		  else
-		    {
-		      auto a = multop::instance(multop::And, f1->clone(),
-						unop::instance(unop::Not,
-							       f2->clone()));
-		      auto b = multop::instance(multop::And, f2,
-						unop::instance(unop::Not, f1));
-		      out = multop::instance(multop::Or, a, b);
-		    }
-		  break;
-		}
-		// f1 => f2  ==  !f1 | f2
-	      case binop::Implies:
-		if (!re_i_)
-		  goto binop_clone;
-		out = multop::instance(multop::Or,
-				       unop::instance(unop::Not, f1), f2);
-		break;
-		// f1 <=> f2  ==  (f1 & f2) | (!f1 & !f2)
-	      case binop::Equiv:
-		if (!re_e_)
-		  goto binop_clone;
-		{
-		  auto nf1 = unop::instance(unop::Not, f1->clone());
-		  auto nf2 = unop::instance(unop::Not, f2->clone());
-		  auto term1 = multop::instance(multop::And, f1, f2);
-		  auto term2 = multop::instance(multop::And, nf1, nf2);
-		  out = multop::instance(multop::Or, term1, term2);
-		  break;
-		}
-		// f1 W f2 = f2 R (f2 | f1)
-		// f1 W f2 = f1 U (f2 | G f1)
-		// f1 W f2 = f1 U (f2 | !F !f1)
-		// f1 W f2 = f1 U (f2 | !(1 U !f1))
-	      case binop::W:
-		if (!re_w_)
-		  goto binop_clone;
-		if (!re_r_)
-		  {
-		    out = binop::instance(binop::R, f2,
-					  multop::instance(multop::Or,
-							   f2->clone(), f1));
-		    break;
-		  }
-		f1->clone();
-		out = unop::instance(unop::G, f1);
-		if (re_g_)
-		  {
-		    auto tmp = out;
-		    out = run(out);
-		    tmp->destroy();
-		  }
-		out = binop::instance(binop::U, f1,
-				      multop::instance(multop::Or, f2, out));
-		break;
-		// f1 M f2 = f2 U (g2 & f1)
-	      case binop::M:
-		if (!re_m_)
-		  goto binop_clone;
-		out = binop::instance(binop::U, f2,
-				      multop::instance(multop::And,
-						       f2->clone(), f1));
-		break;
-		// f1 R f2 = f2 W (f1 & f2)
-		// f1 R f2 = f2 U ((f1 & f2) | Gf2)
-		// f1 R f2 = f2 U ((f1 & f2) | !F!f2)
-		// f1 R f2 = f2 U ((f1 & f2) | !(1 U !f2))
-	      case binop::R:
-		if (!re_r_)
-		  goto binop_clone;
-		{
-		  auto f12 = multop::instance(multop::And, f1, f2->clone());
-		  if (!re_w_)
-		    {
-		      out = binop::instance(binop::W, f2, f12);
-		      break;
-		    }
-		  out = unop::instance(unop::G, f2->clone());
-		  if (re_g_)
-		    {
-		      auto tmp = out;
-		      out = run(tmp);
-		      tmp->destroy();
-		    }
-		  out = binop::instance(binop::U, f2,
-					multop::instance(multop::Or, f12, out));
-		}
-		break;
-	      case binop::U:
-	      case binop::UConcat:
-	      case binop::EConcat:
-	      case binop::EConcatMarked:
-		binop_clone:
-		out = binop::instance(op, f1, f2);
-		break;
-	      }
-	    break;
-	  }
-	case formula::MultOp:
-	  {
-	    const multop* mo = static_cast<const multop*>(in);
-	    multop::vec* res = new multop::vec;
-	    unsigned mos = mo->size();
-	    res->reserve(mos);
-	    for (unsigned i = 0; i < mos; ++i)
-	      res->push_back(run(mo->nth(i)));
-	    out = multop::instance(mo->op(), res);
-	    break;
-	  }
-	case formula::BUnOp:
-	  {
-	    const bunop* bo = static_cast<const bunop*>(in);
-	    out = bunop::instance(bo->op(), run(bo->child()),
-				  bo->min(), bo->max());
-	    break;
-	  }
-      }
-
-      assert(out != nullptr);
-
-      entry.first->second = out;
-      return out->clone();
+      return entry.first->second = out;
     }
 
-    const formula* unabbreviate(const formula* in, const char* opt)
+    formula unabbreviate(formula in, const char* opt)
     {
       unabbreviator un(opt);
       return un.run(in);

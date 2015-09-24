@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -30,7 +30,6 @@
 #include <list>
 #include <sstream>
 #include "minimize.hh"
-#include "ltlast/allnodes.hh"
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
 #include "ta/tgtaexplicit.hh"

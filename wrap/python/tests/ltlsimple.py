@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2012 Laboratoire de Recherche et Développement
+# Copyright (C) 2009, 2010, 2012, 2015 Laboratoire de Recherche et Développement
 # de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systemes Répartis Coopératifs (SRC), Université Pierre
@@ -23,19 +23,19 @@
 import spot
 import sys
 
-e = spot.default_environment.instance()
-
 #----------------------------------------------------------------------
-a = e.require('a')
-b = e.require('b')
-c = e.require('c')
-c2 = e.require('c')
+a = spot.formula.ap('a')
+b = spot.formula.ap('b')
+c = spot.formula.ap('c')
+c2 = spot.formula.ap('c')
 
 assert c == c2
-assert spot.atomic_prop.instance_count() == 3
 
-op  = spot.multop.instance(spot.multop.And, a.clone(), b.clone())
-op2 = spot.multop.instance(spot.multop.And, op, c)
+op  = spot.formula.And([a, b])
+op2 = spot.formula.And([op, c])
+op3 = spot.formula.And([a, c, b])
+
+assert op2 == op3
 
 # The symbol for a subformula which hasn't been cloned is better
 # suppressed, so we don't attempt to reuse it elsewhere.
@@ -43,87 +43,31 @@ del op, c
 
 sys.stdout.write('op2 = %s\n' % str(op2))
 
-op3 = spot.multop.instance(spot.multop.And, b,
-                           spot.multop.instance(spot.multop.And, c2, a))
 del a, b, c2
 
 sys.stdout.write('op3 = %s\n' % str(op3))
 assert op2 == op3
 
-op4 = spot.multop.instance(spot.multop.Or, op2, op3)
+op4 = spot.formula.Or([op2, op3])
 
 sys.stdout.write('op4 = %s\n' % str(op4))
 assert op4 == op2
 
-del op2, op3
-
-assert spot.atomic_prop.instance_count() == 3
-assert spot.multop.instance_count() == 1
-
-op4.destroy()
-del op4
-
-assert spot.atomic_prop.instance_count() == 0
-assert spot.multop.instance_count() == 0
+del op2, op3, op4
 
 #----------------------------------------------------------------------
-a = e.require('a')
-b = e.require('b')
-c = e.require('c')
-T = spot.constant.true_instance()
-F = spot.constant.false_instance()
+a = spot.formula.ap('a')
+b = spot.formula.ap('b')
+c = spot.formula.ap('c')
+T = spot.formula.tt()
+F = spot.formula.ff()
 
-f1 = spot.binop.instance(spot.binop.Equiv, c.clone(), a.clone())
-f2 = spot.binop.instance(spot.binop.Implies, a.clone(), b.clone())
-f3 = spot.binop.instance(spot.binop.Xor, b.clone(), c.clone())
-f4 = spot.unop.instance(spot.unop.Not, f3); del f3
-f5 = spot.binop.instance(spot.binop.Xor, F, c.clone())
+f1 = spot.formula.Equiv(c, a)
+f2 = spot.formula.Implies(a, b)
+f3 = spot.formula.Xor(b, c)
+f4 = spot.formula.Not(f3); del f3
+f5 = spot.formula.Xor(F, c)
 
-assert spot.atomic_prop.instance_count() == 3
-assert spot.binop.instance_count() == 3
-assert spot.unop.instance_count() == 1
-assert spot.multop.instance_count() == 0
+del a, b, c, T, F, f1, f2, f4, f5
 
-a.destroy()
-del a
-b.destroy()
-del b
-c.destroy()
-del c
-
-assert spot.atomic_prop.instance_count() == 3
-assert spot.binop.instance_count() == 3
-assert spot.unop.instance_count() == 1
-assert spot.multop.instance_count() == 0
-
-f1.destroy()
-del f1
-
-assert spot.atomic_prop.instance_count() == 3
-assert spot.binop.instance_count() == 2
-assert spot.unop.instance_count() == 1
-assert spot.multop.instance_count() == 0
-
-f5.destroy()
-del f5
-
-assert spot.atomic_prop.instance_count() == 3
-assert spot.binop.instance_count() == 2
-assert spot.unop.instance_count() == 1
-assert spot.multop.instance_count() == 0
-
-f4.destroy()
-del f4
-
-assert spot.atomic_prop.instance_count() == 2
-assert spot.binop.instance_count() == 1
-assert spot.unop.instance_count() == 0
-assert spot.multop.instance_count() == 0
-
-f2.destroy()
-del f2
-
-assert spot.atomic_prop.instance_count() == 0
-assert spot.binop.instance_count() == 0
-assert spot.unop.instance_count() == 0
-assert spot.multop.instance_count() == 0
+assert spot.fnode_instances_check()

@@ -138,18 +138,13 @@ never claim is done via the =print_never_claim= function.
   {
     std::string input = "[]<>p0 || <>[]p1";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    spot::ltl::formula f = spot::ltl::parse_infix_psl(input, pel);
     if (spot::ltl::format_parse_errors(std::cerr, input, pel))
-      {
-        if (f)
-          f->destroy();
-        return 1;
-      }
+      return 1;
     spot::translator trans;
     trans.set_type(spot::postprocessor::BA);
     spot::twa_graph_ptr aut = trans.run(f);
     print_never_claim(std::cout, aut) << '\n';
-    f->destroy();
     return 0;
   }
 #+END_SRC

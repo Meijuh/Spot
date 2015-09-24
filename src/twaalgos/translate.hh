@@ -100,16 +100,14 @@ namespace spot
 
     /// \brief Convert \a f into an automaton.
     ///
-    /// The formula \a f is simplified internally, but it is not
-    /// not destroyed (this is the responsibility of the caller).
-    twa_graph_ptr run(const ltl::formula* f);
+    /// The formula \a f is simplified internally.
+    twa_graph_ptr run(ltl::formula f);
 
     /// \brief Convert \a f into an automaton, and update f.
     ///
-    /// The formula <code>*f</code> is destroyed, and replaced
-    /// by the simplified version, which should be destroyed by
-    /// the caller.
-    twa_graph_ptr run(const ltl::formula** f);
+    /// The formula <code>*f</code> is replaced
+    /// by the simplified version.
+    twa_graph_ptr run(ltl::formula* f);
 
   protected:
     void setup_opt(const option_map* opt);

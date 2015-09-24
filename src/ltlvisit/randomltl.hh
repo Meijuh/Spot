@@ -70,7 +70,7 @@ namespace spot
       /// n, because some simple simplifications are performed by the
       /// AST.  (For instance the formula <code>a | a</code> is
       /// automatically reduced to <code>a</code> by spot::ltl::multop.)
-      const formula* generate(int n) const;
+      formula generate(int n) const;
 
       /// \brief Print the priorities of each operator, constants,
       /// and atomic propositions.
@@ -93,7 +93,7 @@ namespace spot
 	const char* name;
 	int min_n;
 	double proba;
-	typedef const formula* (*builder)(const random_formula* rl, int n);
+	typedef formula (*builder)(const random_formula* rl, int n);
 	builder build;
 	void setup(const char* name, int min_n, builder build);
       };
@@ -304,9 +304,7 @@ namespace spot
 
     class SPOT_API randltlgenerator
     {
-      typedef
-      std::unordered_set<const spot::ltl::formula*,
-      const spot::ptr_hash<const spot::ltl::formula>> fset_t;
+      typedef std::unordered_set<formula> fset_t;
 
 
     public:
@@ -322,7 +320,7 @@ namespace spot
 
       ~randltlgenerator();
 
-      const spot::ltl::formula* next();
+      formula next();
 
       void dump_ltl_priorities(std::ostream& os);
       void dump_bool_priorities(std::ostream& os);
@@ -331,7 +329,7 @@ namespace spot
       void dump_sere_bool_priorities(std::ostream& os);
       void remove_some_props(atomic_prop_set& s);
 
-      const formula* GF_n();
+      formula GF_n();
 
     private:
       fset_t unique_set_;

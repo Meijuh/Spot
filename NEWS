@@ -15,6 +15,24 @@ New in spot 1.99.3a (not yet released)
       (But dstar2tgba does not offer all the filtering and
       transformations options of autfilt.)
 
+  * The class hierarchy for temporal formulas has been entirely
+    rewritten.  This change is actually quite massive (~13200 lines
+    removed, ~8200 lines added), and brings some nice benefits:
+    - LTL/PSL formulas are now represented by lightweight
+      ltl::formula objects (instead of ltl::formula* pointers)
+      that perform reference counting automatically.
+    - There is no hierachy anymore: all operators are represented
+      by a single type of node in the syntax tree, and an
+      enumerator is used to distinguish between operators.
+    - Visitors have been replaced by member functions such
+      as map() or traverse(), that take a function (usually
+      written as a lambda function) and apply it to the
+      nodes of the tree.
+    - As a consequence, writing algorithms that manipulate
+      formula is more friendly, and several functions
+      algorithms that spanned a few pages have been
+      reduced to a few lines.
+
 New in spot 1.99.3 (2015-08-26)
 
   * The CGI script for LTL translation offers a HOA download link

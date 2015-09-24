@@ -35,7 +35,6 @@
 #include "twaalgos/sccfilter.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/dtgbacomp.hh"
-#include "ltlast/unop.hh"
 #include "misc/bitvect.hh"
 #include "misc/bddlt.hh"
 
@@ -405,13 +404,13 @@ namespace spot
   tba_determinize_check(const twa_graph_ptr& aut,
 			unsigned threshold_states,
 			unsigned threshold_cycles,
-			const ltl::formula* f,
+			ltl::formula f,
 			const_twa_graph_ptr neg_aut)
   {
-    if (f == 0 && neg_aut == 0)
-      return 0;
+    if (f == nullptr && neg_aut == nullptr)
+      return nullptr;
     if (aut->num_sets() > 1)
-      return 0;
+      return nullptr;
 
     auto det = tba_determinize(aut, threshold_states, threshold_cycles);
 
@@ -420,11 +419,7 @@ namespace spot
 
     if (neg_aut == nullptr)
       {
-	const ltl::formula* neg_f =
-	  ltl::unop::instance(ltl::unop::Not, f->clone());
-	neg_aut = ltl_to_tgba_fm(neg_f, aut->get_dict());
-	neg_f->destroy();
-
+	neg_aut = ltl_to_tgba_fm(ltl::formula::Not(f), aut->get_dict());
 	// Remove useless SCCs.
 	neg_aut = scc_filter(neg_aut, true);
       }

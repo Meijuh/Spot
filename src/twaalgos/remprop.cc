@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "remprop.hh"
-#include "ltlenv/defaultenv.hh"
 #include "twaalgos/mask.hh"
 #include "misc/casts.hh"
 #include <ctype.h>
@@ -26,16 +25,6 @@
 
 namespace spot
 {
-  remove_ap::~remove_ap()
-  {
-    for (auto& ap: props_exist)
-      ap->destroy();
-    for (auto& ap: props_pos)
-      ap->destroy();
-    for (auto& ap: props_neg)
-      ap->destroy();
-  }
-
   namespace
   {
     static
@@ -56,7 +45,6 @@ namespace spot
 
   void remove_ap::add_ap(const char* arg)
   {
-    auto& env = spot::ltl::default_environment::instance();
     auto start = arg;
     while (*start)
       {
@@ -66,7 +54,7 @@ namespace spot
 	  break;
 	if (*start == ',' || *start == '=')
 	  unexpected_char(arg, start);
-	const spot::ltl::atomic_prop* the_ap = nullptr;
+	ltl::formula the_ap = nullptr;
 
 	if (*start == '"')
 	  {
@@ -84,8 +72,7 @@ namespace spot
 		throw std::invalid_argument(s);
 	      }
 	    std::string ap(start, end - start);
-	    auto* t = env.require(ap);
-	    the_ap = down_cast<const spot::ltl::atomic_prop*>(t);
+	    the_ap = ltl::formula::ap(ap);
 	    do
 	      ++end;
 	    while (*end == ' ' || *end == '\t');
@@ -100,8 +87,7 @@ namespace spot
 	    while (rend > start && (rend[-1] == ' ' || rend[-1] == '\t'))
 	      --rend;
 	    std::string ap(start, rend - start);
-	    auto* t = env.require(ap);
-	    the_ap = down_cast<const spot::ltl::atomic_prop*>(t);
+	    the_ap = ltl::formula::ap(ap);
 	    start = end;
 	  }
 	if (*start)

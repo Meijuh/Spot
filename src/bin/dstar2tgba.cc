@@ -138,7 +138,7 @@ namespace
     }
 
     int
-    process_formula(const spot::ltl::formula*, const char*, int)
+    process_formula(spot::ltl::formula, const char*, int)
     {
       SPOT_UNREACHABLE();
     }

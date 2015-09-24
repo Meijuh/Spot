@@ -34,7 +34,6 @@
 #include "common_aoutput.hh"
 #include "common_conv.hh"
 
-#include "ltlenv/defaultenv.hh"
 #include "misc/timer.hh"
 #include "misc/random.hh"
 
@@ -252,7 +251,7 @@ parse_opt(int key, char* arg, struct argp_state* as)
 	    aprops = spot::ltl::create_atomic_prop_set(ap_count_given.min);
 	  break;
 	}
-      aprops.insert(spot::ltl::default_environment::instance().require(arg));
+      aprops.insert(spot::ltl::formula::ap(arg));
       break;
 
     default:
@@ -328,7 +327,6 @@ main(int argc, char** argv)
 	  if (ap_count_given.max > 0
 	      && ap_count_given.min != ap_count_given.max)
 	    {
-	      spot::ltl::destroy_atomic_prop_set(aprops);
 	      int c = spot::rrand(ap_count_given.min, ap_count_given.max);
 	      aprops = spot::ltl::create_atomic_prop_set(c);
 	    }
@@ -391,5 +389,4 @@ main(int argc, char** argv)
     {
       error(2, 0, "%s", e.what());
     }
-  spot::ltl::destroy_atomic_prop_set(aprops);
 }

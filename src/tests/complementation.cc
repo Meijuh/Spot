@@ -28,7 +28,6 @@
 #include "ltlparse/public.hh"
 #include "twaalgos/stats.hh"
 #include "twaalgos/emptiness.hh"
-#include "ltlast/unop.hh"
 #include "twaalgos/stats.hh"
 #include "twaalgos/emptiness_stats.hh"
 #include "twaalgos/degen.hh"
@@ -149,7 +148,7 @@ int main(int argc, char* argv[])
   else if (print_formula)
   {
     spot::ltl::parse_error_list p1;
-    auto* f1 = spot::ltl::parse_infix_psl(file, p1);
+    auto f1 = spot::ltl::parse_infix_psl(file, p1);
 
     if (spot::ltl::format_parse_errors(std::cerr, file, p1))
       return 2;
@@ -159,12 +158,11 @@ int main(int argc, char* argv[])
     complement = spot::make_safra_complement(a);
 
     spot::print_dot(std::cout, complement);
-    f1->destroy();
   }
   else if (stats)
   {
     spot::twa_graph_ptr a;
-    const spot::ltl::formula* f1 = 0;
+    spot::ltl::formula f1 = nullptr;
 
     if (formula)
     {
@@ -211,29 +209,25 @@ int main(int argc, char* argv[])
 
     if (formula)
     {
-      auto nf1 = spot::ltl::unop::instance(spot::ltl::unop::Not, f1->clone());
-      auto a2 = spot::ltl_to_tgba_fm(nf1, dict);
-      spot::tgba_statistics a_size =  spot::stats_reachable(a2);
+      auto a2 = spot::ltl_to_tgba_fm(spot::ltl::formula::Not(f1), dict);
+      spot::tgba_statistics a_size = spot::stats_reachable(a2);
       std::cout << "Not Formula: "
                 << a_size.states << ", "
                 << a_size.transitions << ", "
                 << a2->acc().num_sets()
                 << std::endl;
-
-      f1->destroy();
-      nf1->destroy();
     }
   }
   else
   {
     spot::ltl::parse_error_list p1;
-    auto* f1 = spot::ltl::parse_infix_psl(file, p1);
+    auto f1 = spot::ltl::parse_infix_psl(file, p1);
 
     if (spot::ltl::format_parse_errors(std::cerr, file, p1))
       return 2;
 
     auto Af = spot::ltl_to_tgba_fm(f1, dict);
-    auto nf1 = spot::ltl::unop::instance(spot::ltl::unop::Not, f1->clone());
+    auto nf1 = spot::ltl::formula::Not(f1);
     auto Anf = spot::ltl_to_tgba_fm(nf1, dict);
     auto nAf = spot::make_safra_complement(Af);
     auto nAnf = spot::make_safra_complement(Anf);
@@ -261,8 +255,6 @@ int main(int argc, char* argv[])
       {
 	std::cout << "OK\n";
       }
-    nf1->destroy();
-    f1->destroy();
   }
 
   return return_value;

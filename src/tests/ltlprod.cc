@@ -23,7 +23,6 @@
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
-#include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
 #include "twaalgos/product.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
@@ -48,13 +47,13 @@ main(int argc, char** argv)
     spot::ltl::environment& env(spot::ltl::default_environment::instance());
 
     spot::ltl::parse_error_list pel1;
-    auto* f1 = spot::ltl::parse_infix_psl(argv[1], pel1, env);
+    auto f1 = spot::ltl::parse_infix_psl(argv[1], pel1, env);
 
     if (spot::ltl::format_parse_errors(std::cerr, argv[1], pel1))
       return 2;
 
     spot::ltl::parse_error_list pel2;
-    auto* f2 = spot::ltl::parse_infix_psl(argv[2], pel2, env);
+    auto f2 = spot::ltl::parse_infix_psl(argv[2], pel2, env);
 
     if (spot::ltl::format_parse_errors(std::cerr, argv[2], pel2))
       return 2;
@@ -63,14 +62,9 @@ main(int argc, char** argv)
     {
       auto a1 = spot::ltl_to_tgba_fm(f1, dict);
       auto a2 = spot::ltl_to_tgba_fm(f2, dict);
-      f1->destroy();
-      f2->destroy();
       spot::print_dot(std::cout, product(a1, a2));
     }
   }
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   return exit_code;
 }

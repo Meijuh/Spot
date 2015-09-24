@@ -24,8 +24,6 @@
 #include "misc/hashfunc.hh"
 #include "ltlvisit/apcollect.hh"
 #include "translate.hh"
-#include "ltlast/unop.hh"
-#include "ltlast/binop.hh"
 #include "ltlvisit/remove_x.hh"
 #include "twaalgos/product.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
@@ -542,9 +540,9 @@ namespace spot
   }
 
   bool
-  is_stutter_invariant(const ltl::formula* f)
+  is_stutter_invariant(ltl::formula f)
   {
-    if (f->is_ltl_formula() && f->is_syntactic_stutter_invariant())
+    if (f.is_ltl_formula() && f.is_syntactic_stutter_invariant())
       return true;
 
     int algo = default_stutter_check_algorithm();
@@ -552,35 +550,30 @@ namespace spot
     if (algo == 0 || algo == 9)
       // Etessami's check via syntactic transformation.
       {
-	if (!f->is_ltl_formula())
+	if (!f.is_ltl_formula())
 	  throw std::runtime_error("Cannot use the syntactic "
 				   "stutter-invariance check "
 				   "for non-LTL formulas");
-	const ltl::formula* g = remove_x(f);
+	ltl::formula g = remove_x(f);
 	bool res;
 	if (algo == 0)		// Equivalence check
 	  {
 	    ltl::ltl_simplifier ls;
 	    res = ls.are_equivalent(f, g);
-	    g->destroy();
 	  }
 	else
 	  {
-	    const ltl::formula* h = ltl::binop::instance(ltl::binop::Xor,
-							 f->clone(), g);
+	    ltl::formula h = ltl::formula::Xor(f, g);
 	    res = ltl_to_tgba_fm(h, make_bdd_dict())->is_empty();
-	    h->destroy();
 	  }
 	return res;
       }
 
     // Prepare for an automata-based check.
-    const ltl::formula* nf = ltl::unop::instance(ltl::unop::Not, f->clone());
     translator trans;
     auto aut_f = trans.run(f);
-    auto aut_nf = trans.run(nf);
+    auto aut_nf = trans.run(ltl::formula::Not(f));
     bdd aps = atomic_prop_collect_as_bdd(f, aut_f);
-    nf->destroy();
     return is_stutter_invariant(std::move(aut_f), std::move(aut_nf), aps, algo);
   }
 
@@ -625,7 +618,7 @@ namespace spot
   }
 
   bool
-  check_stutter_invariance(const twa_graph_ptr& aut, const ltl::formula* f)
+  check_stutter_invariance(const twa_graph_ptr& aut, ltl::formula f)
   {
     bool is_stut = aut->is_stutter_invariant();
     if (is_stut)
@@ -634,9 +627,7 @@ namespace spot
     twa_graph_ptr neg = nullptr;
     if (f)
       {
-	auto* nf = ltl::unop::instance(ltl::unop::Not, f->clone());
-	neg = translator(aut->get_dict()).run(nf);
-	nf->destroy();
+	neg = translator(aut->get_dict()).run(ltl::formula::Not(f));
       }
     else
       {

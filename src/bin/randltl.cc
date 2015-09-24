@@ -33,14 +33,9 @@
 #include "common_conv.hh"
 
 #include <sstream>
-#include "ltlast/multop.hh"
-#include "ltlast/unop.hh"
 #include "ltlvisit/randomltl.hh"
-#include "ltlvisit/length.hh"
 #include "ltlvisit/simplify.hh"
-#include "ltlenv/defaultenv.hh"
 #include "misc/random.hh"
-#include "misc/hash.hh"
 #include "misc/optionmap.hh"
 
 const char argp_program_doc[] ="\
@@ -253,8 +248,8 @@ main(int argc, char** argv)
 	  opts.set("output", output);
 	  opts.set("tree_size_min", opt_tree_size.min);
 	  opts.set("tree_size_max", opt_tree_size.max);
-	  opts.set("opt_wf", opt_wf);
-	  opts.set("opt_seed", opt_seed);
+	  opts.set("wf", opt_wf);
+	  opts.set("seed", opt_seed);
 	  opts.set("simplification_level", simplification_level);
 	  return opts;
 	}(), opt_pL, opt_pS, opt_pB);
@@ -291,14 +286,13 @@ main(int argc, char** argv)
 	    default:
 	      error(2, 0, "internal error: unknown type of output");
 	    }
-	  destroy_atomic_prop_set(aprops);
 	  exit(0);
 	}
 
       while (opt_formulas < 0 || opt_formulas--)
 	{
 	  static int count = 0;
-	  const spot::ltl::formula* f = rg.next();
+	  spot::ltl::formula f = rg.next();
 	  if (!f)
 	    {
 	      error(2, 0, "failed to generate a new unique formula after %d " \
@@ -307,21 +301,17 @@ main(int argc, char** argv)
 	  else
 	    {
 	      output_formula_checked(f, 0, ++count);
-	      f->destroy();
 	    }
 	};
     }
   catch (const std::runtime_error& e)
     {
-      destroy_atomic_prop_set(aprops);
       error(2, 0, "%s", e.what());
     }
   catch (const std::invalid_argument& e)
     {
-      destroy_atomic_prop_set(aprops);
       error(2, 0, "%s", e.what());
     }
 
-  destroy_atomic_prop_set(aprops);
   return 0;
 }

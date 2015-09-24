@@ -290,7 +290,7 @@ translator_runner::formula() const
 }
 
 void
-translator_runner::round_formula(const spot::ltl::formula* f, unsigned serial)
+translator_runner::round_formula(spot::ltl::formula f, unsigned serial)
 {
   if (has('f') || has('F'))
     string_ltl_spot = spot::ltl::str_psl(f, true);

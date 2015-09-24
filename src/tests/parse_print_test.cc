@@ -20,8 +20,6 @@
 
 #include "kripkeparse/public.hh"
 #include "kripke/kripkeprint.hh"
-#include "ltlast/allnodes.hh"
-
 
 using namespace spot;
 
@@ -44,9 +42,6 @@ int main(int argc, char** argv)
       kripke_save_reachable(std::cout, k);
   }
 
-  assert(ltl::atomic_prop::instance_count() == 0);
-  assert(ltl::unop::instance_count() == 0);
-  assert(ltl::binop::instance_count() == 0);
-  assert(ltl::multop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   return return_value;
 }

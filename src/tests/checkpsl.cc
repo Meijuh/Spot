@@ -23,7 +23,6 @@
 #include <cstdlib>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlast/allnodes.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/ltl2taa.hh"
 #include "twaalgos/sccfilter.hh"
@@ -67,8 +66,7 @@ main(int argc, char** argv)
       if (spot::ltl::format_parse_errors(std::cerr, s, pe))
 	return 2;
 
-      auto fneg =
-	spot::ltl::unop::instance(spot::ltl::unop::Not, fpos->clone());
+      auto fneg = spot::ltl::formula::Not(fpos);
 
       {
 	auto apos = scc_filter(ltl_to_tgba_fm(fpos, d));
@@ -90,7 +88,7 @@ main(int argc, char** argv)
 	  }
       }
 
-      if (fpos->is_ltl_formula())
+      if (fpos.is_ltl_formula())
 	{
 	  auto apos =
 	    scc_filter(make_twa_graph(ltl_to_taa(fpos, d),
@@ -104,17 +102,8 @@ main(int argc, char** argv)
 	      exit(2);
 	    }
 	}
-      fpos->destroy();
-      fneg->destroy();
     }
 
-  spot::ltl::atomic_prop::dump_instances(std::cerr);
-  spot::ltl::unop::dump_instances(std::cerr);
-  spot::ltl::binop::dump_instances(std::cerr);
-  spot::ltl::multop::dump_instances(std::cerr);
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   return 0;
 }

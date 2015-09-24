@@ -1,7 +1,7 @@
 #! /bin/sh
 # -*- coding: utf-8 -*-
-# Copyright (C) 2009, 2010, 2011, 2013, 2014 Laboratoire de Recherche et
-# Développement de l'Epita (LRDE).
+# Copyright (C) 2009, 2010, 2011, 2013, 2014, 2015 Laboratoire de
+# Recherche et Développement de l'Epita (LRDE).
 # Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 # département Systèmes Répartis Coopératifs (SRC), Université Pierre
 # et Marie Curie.
@@ -96,7 +96,7 @@ a & (, a & 0
 EOF
 run 0 ../equals -E recover.txt
 
-check 'a - b' 'AP(a)' '>>> a - b
+check 'a - b' 'AP(@3 #0 "a")' '>>> a - b
       ^
 syntax error, unexpected $undefined
 
@@ -105,7 +105,7 @@ syntax error, unexpected $undefined
 ignoring trailing garbage
 '
 
-check '{a[*9999999999]}' 'unop(Closure, bunop(Star, AP(a), 0, unbounded))' \
+check '{a[*9999999999]}' 'Closure(@5 #0 [Star(@4 #0 0.. [AP(@3 #0 "a")])])' \
 '>>> {a[*9999999999]}
         ^^^^^^^^^^
 value too large ignored

@@ -23,7 +23,6 @@
 #include <cstring>
 #include "ltlparse/public.hh"
 #include "ltlvisit/length.hh"
-#include "ltlast/allnodes.hh"
 
 void
 syntax(char *prog)
@@ -45,21 +44,19 @@ main(int argc, char **argv)
       ++argv;
     }
 
-  spot::ltl::parse_error_list p1;
-  auto* f1 = spot::ltl::parse_infix_psl(argv[1], p1);
+  {
+    spot::ltl::parse_error_list p1;
+    auto f1 = spot::ltl::parse_infix_psl(argv[1], p1);
 
-  if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
-    return 2;
+    if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
+      return 2;
 
-  if (boolone)
-    std::cout << spot::ltl::length_boolone(f1) << std::endl;
-  else
-    std::cout << spot::ltl::length(f1) << std::endl;
+    if (boolone)
+      std::cout << spot::ltl::length_boolone(f1) << std::endl;
+    else
+      std::cout << spot::ltl::length(f1) << std::endl;
+  }
 
-  f1->destroy();
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   return 0;
 }

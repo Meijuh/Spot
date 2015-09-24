@@ -23,7 +23,6 @@
 #include <cassert>
 #include <cstdlib>
 #include "ltlparse/public.hh"
-#include "ltlast/allnodes.hh"
 
 void
 syntax(char *prog)
@@ -60,11 +59,11 @@ main(int argc, char **argv)
       ss >> expected;
 
       spot::ltl::parse_error_list p1;
-      auto* f1 = spot::ltl::parse_infix_sere(form, p1);
+      auto f1 = spot::ltl::parse_infix_sere(form, p1);
       if (spot::ltl::format_parse_errors(std::cerr, form, p1))
 	return 2;
 
-      bool b = f1->accepts_eword();
+      bool b = f1.accepts_eword();
       std::cout << form << ',' << b << '\n';
       if (b != expected)
 	{
@@ -72,13 +71,8 @@ main(int argc, char **argv)
 		    << "' but expected '" << expected << "'\n";
 	  return 2;
 	}
-      f1->destroy();
     }
 
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::bunop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   return 0;
 }

@@ -28,15 +28,12 @@ ltlvisitdir = $(pkgincludedir)/ltlvisit
 ltlvisit_HEADERS = \
   apcollect.hh \
   contain.hh \
-  clone.hh \
   dot.hh \
-  dump.hh \
   exclusive.hh \
   length.hh \
   mutation.hh \
   nenoform.hh \
   print.hh \
-  postfix.hh \
   randomltl.hh \
   relabel.hh \
   remove_x.hh \
@@ -49,9 +46,7 @@ noinst_LTLIBRARIES = libltlvisit.la
 libltlvisit_la_SOURCES = \
   apcollect.cc \
   contain.cc \
-  clone.cc \
   dot.cc \
-  dump.cc \
   exclusive.cc \
   length.cc \
   mark.cc \
@@ -59,7 +54,6 @@ libltlvisit_la_SOURCES = \
   mutation.cc \
   nenoform.cc \
   print.cc \
-  postfix.cc \
   randomltl.cc \
   relabel.cc \
   remove_x.cc \

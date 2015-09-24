@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2009, 2012, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -31,28 +31,22 @@ namespace spot
     {
     }
 
-    declarative_environment::~declarative_environment()
-    {
-      for (prop_map::iterator i = props_.begin(); i != props_.end(); ++i)
-	i->second->destroy();
-    }
-
     bool
     declarative_environment::declare(const std::string& prop_str)
     {
       if (props_.find(prop_str) != props_.end())
 	return false;
-      props_[prop_str] = ltl::atomic_prop::instance(prop_str, *this);
+      props_[prop_str] = formula::ap(prop_str);
       return true;
     }
 
-    const formula*
+    formula
     declarative_environment::require(const std::string& prop_str)
     {
       prop_map::iterator i = props_.find(prop_str);
       if (i == props_.end())
-	return 0;
-      return i->second->clone();
+	return nullptr;
+      return i->second;
     }
 
     const std::string&

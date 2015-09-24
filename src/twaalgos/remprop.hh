@@ -20,18 +20,17 @@
 #pragma once
 
 #include <vector>
-#include "ltlast/atomic_prop.hh"
+#include "ltlast/formula.hh"
 #include "twa/twagraph.hh"
 
 namespace spot
 {
   class SPOT_API remove_ap
   {
-    std::set<const ltl::atomic_prop*> props_exist;
-    std::set<const ltl::atomic_prop*> props_pos;
-    std::set<const ltl::atomic_prop*> props_neg;
+    std::set<ltl::formula> props_exist;
+    std::set<ltl::formula> props_pos;
+    std::set<ltl::formula> props_neg;
   public:
-    ~remove_ap();
     void add_ap(const char* ap_csv);
 
     bool empty() const

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013 Laboratoire de Recherche et Developpement de
-// l'Epita (LRDE).
+// Copyright (C) 2013, 2015 Laboratoire de Recherche et Developpement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -19,14 +19,12 @@
 
 #pragma once
 
-#include "misc/common.hh"
+#include "ltlast/formula.hh"
 
 namespace spot
 {
   namespace ltl
   {
-    class formula;
-
     /// \brief Rewrite a stutter-insensitive formula \a f without
     /// using the X operator.
     ///
@@ -46,6 +44,6 @@ namespace spot
         }
         \endverbatim */
     SPOT_API
-    const formula* remove_x(const formula* f);
+    formula remove_x(formula f);
   }
 }

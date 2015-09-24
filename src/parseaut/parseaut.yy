@@ -34,7 +34,6 @@
 #include <sstream>
 #include <unordered_map>
 #include <algorithm>
-#include "ltlast/constant.hh"
 #include "twa/formula2bdd.hh"
 #include "public.hh"
 #include "priv/accmap.hh"
@@ -45,9 +44,10 @@
     typedef std::map<int, bdd> map_t;
 
     /* Cache parsed formulae.  Labels on arcs are frequently identical
-       and it would be a waste of time to parse them to formula* over and
-       over, and to register all their atomic_propositions in the
-       bdd_dict.  Keep the bdd result around so we can reuse it.  */
+       and it would be a waste of time to parse them to ltl::formula
+       over and over, and to register all their atomic_propositions in
+       the bdd_dict.  Keep the bdd result around so we can reuse
+       it.  */
     typedef std::map<std::string, bdd> formula_cache;
 
     typedef std::pair<int, std::string*> pair;
@@ -152,7 +152,6 @@
 %code
 {
 #include <sstream>
-#include "ltlast/constant.hh"
 #include "ltlparse/public.hh"
 
   /* parseaut.hh and parsedecl.hh include each other recursively.
@@ -561,9 +560,7 @@ ap-name: STRING
 		   std::ostringstream out;
 		   out << "unknown atomic proposition \"" << *$1 << "\"";
 		   error(@1, out.str());
-		   f = spot::ltl::default_environment::instance()
-		     .require("$unknown$");
-		   b = res.h->aut->register_ap(f);
+		   b = res.h->aut->register_ap("$unknown$");
 		 }
 	       else
 		 {
@@ -575,7 +572,6 @@ ap-name: STRING
 		       error(@1, out.str());
 		     }
 		 }
-	       f->destroy();
 	       res.ap.push_back(b);
 	     }
 	   delete $1;
@@ -1422,11 +1418,7 @@ nc-formula: nc-formula-or-ident
 	     }
            bdd cond = bddfalse;
 	   if (f)
-	     {
-	       cond = spot::formula_to_bdd(f, res.h->aut->get_dict(),
-					   res.h->aut);
-	       f->destroy();
-	     }
+	     cond = spot::formula_to_bdd(f, res.h->aut->get_dict(), res.h->aut);
 	   $$ = (res.fcache[*$1] = cond).id();
 	 }
        else
@@ -1587,7 +1579,7 @@ lbtt-acc:               { $$ = 0U; }
 lbtt-guard: STRING
           {
 	    spot::ltl::parse_error_list pel;
-	    auto* f = spot::ltl::parse_prefix_ltl(*$1, pel, *res.env);
+	    auto f = spot::ltl::parse_prefix_ltl(*$1, pel, *res.env);
 	    if (!f || !pel.empty())
 	      {
 		std::string s = "failed to parse guard: ";
@@ -1611,7 +1603,7 @@ lbtt-guard: STRING
 	      }
 	    else
 	      {
-		if (!f->is_boolean())
+		if (!f.is_boolean())
 		  {
 		    error(@$,
 			  "non-Boolean transition label (replaced by true)");
@@ -1622,7 +1614,6 @@ lbtt-guard: STRING
 		    res.cur_label =
 		      formula_to_bdd(f, res.h->aut->get_dict(), res.h->aut);
 		  }
-		f->destroy();
 	      }
 	    delete $1;
 	  }

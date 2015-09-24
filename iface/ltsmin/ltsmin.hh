@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -21,7 +21,6 @@
 
 #include "kripke/kripke.hh"
 #include "ltlvisit/apcollect.hh"
-#include "ltlast/constant.hh"
 
 namespace spot
 {
@@ -59,6 +58,6 @@ namespace spot
   SPOT_API kripke_ptr
   load_ltsmin(const std::string& file, const bdd_dict_ptr& dict,
 	      const ltl::atomic_prop_set* to_observe,
-	      const ltl::formula* dead = ltl::constant::true_instance(),
+	      ltl::formula dead = ltl::formula::tt(),
 	      int compress = 0, bool verbose = true);
 }

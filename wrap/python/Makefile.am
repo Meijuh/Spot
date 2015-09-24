@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2010, 2011, 2013, 2014 Laboratoire de Recherche et Development de
+## Copyright (C) 2010, 2011, 2013, 2014, 2015 Laboratoire de Recherche et Development de
 ## l'Epita (LRDE).
 ## Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -35,7 +35,7 @@ MAINTAINERCLEANFILES = \
 
 ## spot
 
-_spot_impl_la_SOURCES = $(srcdir)/spot_impl_wrap.cxx $(srcdir)/spot_impl_wrap.h
+_spot_impl_la_SOURCES = $(srcdir)/spot_impl_wrap.cxx
 _spot_impl_la_LDFLAGS = -avoid-version -module
 _spot_impl_la_LIBADD = $(top_builddir)/src/libspot.la
 

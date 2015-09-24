@@ -25,25 +25,13 @@
 #include <cstdlib>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlvisit/dump.hh"
 #include "ltlvisit/dot.hh"
-#include "ltlast/allnodes.hh"
 
 void
 syntax(char* prog)
 {
   std::cerr << prog << " [-d] formula" << std::endl;
   exit(2);
-}
-
-void
-dump_instances(const std::string& label)
-{
-  std::cerr << "=== " << label << " ===" << std::endl;
-  spot::ltl::atomic_prop::dump_instances(std::cerr);
-  spot::ltl::unop::dump_instances(std::cerr);
-  spot::ltl::binop::dump_instances(std::cerr);
-  spot::ltl::multop::dump_instances(std::cerr);
 }
 
 int
@@ -55,7 +43,6 @@ main(int argc, char** argv)
     syntax(argv[0]);
 
   bool debug = false;
-  bool debug_ref = false;
   int formula_index = 1;
 
   if (!strcmp(argv[1], "-d"))
@@ -65,47 +52,30 @@ main(int argc, char** argv)
 	syntax(argv[0]);
       formula_index = 2;
     }
-  else if (!strcmp(argv[1], "-r"))
-    {
-      debug_ref = true;
-      if (argc < 3)
-	syntax(argv[0]);
-      formula_index = 2;
-    }
 
-  spot::ltl::environment& env(spot::ltl::default_environment::instance());
-  spot::ltl::parse_error_list pel;
-  auto* f = spot::ltl::parse_infix_psl(argv[formula_index], pel, env, debug);
+  {
+    spot::ltl::environment& env(spot::ltl::default_environment::instance());
+    spot::ltl::parse_error_list pel;
+    auto f = spot::ltl::parse_infix_psl(argv[formula_index], pel, env, debug);
 
-  exit_code =
-    spot::ltl::format_parse_errors(std::cerr, argv[formula_index], pel);
+    exit_code =
+      spot::ltl::format_parse_errors(std::cerr, argv[formula_index], pel);
 
 
-  if (f)
-    {
-      if (debug_ref)
-	dump_instances("before");
-
+    if (f)
+      {
 #ifdef DOTTY
-      spot::ltl::print_dot_psl(std::cout, f);
+	spot::ltl::print_dot_psl(std::cout, f);
 #else
-      spot::ltl::dump(std::cout, f);
-      std::cout << std::endl;
+	f.dump(std::cout) << std::endl;
 #endif
-      f->destroy();
+      }
+    else
+      {
+	exit_code = 1;
+      }
 
-      if (debug_ref)
-	dump_instances("after");
-    }
-  else
-    {
-      exit_code = 1;
-    }
-
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::bunop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+  }
+  assert(spot::ltl::fnode::instances_check());
   return exit_code;
 }

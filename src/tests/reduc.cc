@@ -27,11 +27,9 @@
 #include <string>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlvisit/dump.hh"
 #include "ltlvisit/print.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/length.hh"
-#include "ltlast/allnodes.hh"
 
 void
 syntax(char* prog)
@@ -146,183 +144,170 @@ main(int argc, char** argv)
       return 2;
   }
 
-  spot::ltl::ltl_simplifier* simp = new spot::ltl::ltl_simplifier(o);
-  o.reduce_size_strictly = true;
-  spot::ltl::ltl_simplifier* simp_size = new spot::ltl::ltl_simplifier(o);
-
-  const spot::ltl::formula* f1 = 0;
-  const spot::ltl::formula* f2 = 0;
-
-  std::ifstream* fin = 0;
-
-  if (readfile)
-    {
-      fin = new std::ifstream(argv[2]);
-      if (!*fin)
-	{
-	  std::cerr << "Cannot open " << argv[2] << std::endl;
-	  exit(2);
-	}
-    }
-
   int exit_code = 0;
 
- next_line:
-
-  if (fin)
-    {
-      std::string input;
-      do
-	{
-	  if (!std::getline(*fin, input))
-	    goto end;
-	}
-      while (input == "");
-
-      spot::ltl::parse_error_list p1;
-      f1 = spot::ltl::parse_infix_psl(input, p1);
-      if (spot::ltl::format_parse_errors(std::cerr, input, p1))
-	return 2;
-    }
-  else
-    {
-      spot::ltl::parse_error_list p1;
-      f1 = spot::ltl::parse_infix_psl(argv[2], p1);
-      if (spot::ltl::format_parse_errors(std::cerr, argv[2], p1))
-	return 2;
-    }
-
-  if (argc == 4)
-    {
-      if (readfile)
-	{
-	  std::cerr << "Cannot read from file and check result." << std::endl;
-	  exit(2);
-	}
-
-      spot::ltl::parse_error_list p2;
-      f2 = spot::ltl::parse_infix_psl(argv[3], p2);
-      if (spot::ltl::format_parse_errors(std::cerr, argv[3], p2))
-	return 2;
-    }
-
   {
-    const spot::ltl::formula* ftmp1;
+    spot::ltl::ltl_simplifier* simp = new spot::ltl::ltl_simplifier(o);
+    o.reduce_size_strictly = true;
+    spot::ltl::ltl_simplifier* simp_size = new spot::ltl::ltl_simplifier(o);
 
-    ftmp1 = f1;
-    f1 = simp_size->negative_normal_form(f1, false);
-    ftmp1->destroy();
+    spot::ltl::formula f1 = nullptr;
+    spot::ltl::formula f2 = nullptr;
 
-    int length_f1_before = spot::ltl::length(f1);
-    std::string f1s_before = spot::ltl::str_psl(f1);
-    std::string f1l;
+    std::ifstream* fin = 0;
 
-    const spot::ltl::formula* input_f = f1;
-    f1 = simp_size->simplify(input_f);
-    if (!simp_size->are_equivalent(input_f, f1))
+    if (readfile)
       {
-	std::cerr << "Incorrect reduction from `" << f1s_before
-		  << "' to `";
-	print_psl(std::cerr, f1) << "'.\n";
-	exit_code = 3;
-      }
-    else
-      {
-	const spot::ltl::formula* maybe_larger = simp->simplify(input_f);
-	f1l = spot::ltl::str_psl(maybe_larger);
-	if (!simp->are_equivalent(input_f, maybe_larger))
+	fin = new std::ifstream(argv[2]);
+	if (!*fin)
 	  {
-	    std::cerr << "Incorrect reduction (reduce_size_strictly=0) from `"
-		      << f1s_before << "' to `" << f1l << "'." << std::endl;
-	    exit_code = 3;
-	  }
-	maybe_larger->destroy();
-      }
-
-    input_f->destroy();
-
-    int length_f1_after = spot::ltl::length(f1);
-    std::string f1s_after = spot::ltl::str_psl(f1);
-
-    std::string f2s = "";
-    if (f2)
-      {
-	ftmp1 = f2;
-	f2 = simp_size->negative_normal_form(f2, false);
-	ftmp1->destroy();
-	f2s = spot::ltl::str_psl(f2);
-      }
-
-    sum_before += length_f1_before;
-    sum_after += length_f1_after;
-
-    // If -h is set, we want to print only formulae that have become larger.
-    if (!f2 && (!hidereduc || (length_f1_after > length_f1_before)))
-      {
-	std::cout << length_f1_before << ' ' << length_f1_after
-		  << " '" << f1s_before << "' reduce to '" << f1s_after << '\'';
-	if (f1l != "" && f1l != f1s_after)
-	  std::cout << " or (w/o rss) to '" << f1l << '\'';
-	std::cout << '\n';
-      }
-
-    if (f2)
-      {
-	if (f1 != f2)
-	  {
-	    if (length_f1_after < length_f1_before)
-	      std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
-			<< " KOREDUC " << std::endl;
-	    else
-	      std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
-			<< " KOIDEM " << std::endl;
-	    exit_code = 1;
-	  }
-	else
-	  {
-	    if (f1s_before != f1s_after)
-	      std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
-			<< " OKREDUC " << std::endl;
-	    else
-	      std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
-			<< " OKIDEM" << std::endl;
-	    exit_code = 0;
+	    std::cerr << "Cannot open " << argv[2] << std::endl;
+	    exit(2);
 	  }
       }
-    else
-      {
-	if (length_f1_after > length_f1_before)
-	  exit_code = 1;
-      }
 
-    f1->destroy();
-    if (f2)
-      f2->destroy();
+  next_line:
 
     if (fin)
-      goto next_line;
-  }
- end:
+      {
+	std::string input;
+	do
+	  {
+	    if (!std::getline(*fin, input))
+	      goto end;
+	  }
+	while (input == "");
 
-  delete simp_size;
-  delete simp;
+	spot::ltl::parse_error_list p1;
+	f1 = spot::ltl::parse_infix_psl(input, p1);
+	if (spot::ltl::format_parse_errors(std::cerr, input, p1))
+	  return 2;
+      }
+    else
+      {
+	spot::ltl::parse_error_list p1;
+	f1 = spot::ltl::parse_infix_psl(argv[2], p1);
+	if (spot::ltl::format_parse_errors(std::cerr, argv[2], p1))
+	  return 2;
+      }
 
-  if (fin)
+    if (argc == 4)
+      {
+	if (readfile)
+	  {
+	    std::cerr << "Cannot read from file and check result." << std::endl;
+	    exit(2);
+	  }
+
+	spot::ltl::parse_error_list p2;
+	f2 = spot::ltl::parse_infix_psl(argv[3], p2);
+	if (spot::ltl::format_parse_errors(std::cerr, argv[3], p2))
+	  return 2;
+      }
+
     {
-      float before = sum_before;
-      float after = sum_after;
-      std::cout << "gain: "
-		<< (1 - (after / before)) * 100 << '%' << std::endl;
-      delete fin;
-    }
+      spot::ltl::formula ftmp1;
 
-  spot::ltl::atomic_prop::dump_instances(std::cerr);
-  spot::ltl::unop::dump_instances(std::cerr);
-  spot::ltl::binop::dump_instances(std::cerr);
-  spot::ltl::multop::dump_instances(std::cerr);
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+      ftmp1 = f1;
+      f1 = simp_size->negative_normal_form(f1, false);
+
+      int length_f1_before = spot::ltl::length(f1);
+      std::string f1s_before = spot::ltl::str_psl(f1);
+      std::string f1l;
+
+      spot::ltl::formula input_f = f1;
+      f1 = simp_size->simplify(input_f);
+      if (!simp_size->are_equivalent(input_f, f1))
+	{
+	  std::cerr << "Incorrect reduction from `" << f1s_before
+		    << "' to `";
+	  print_psl(std::cerr, f1) << "'.\n";
+	  exit_code = 3;
+	}
+      else
+	{
+	  spot::ltl::formula maybe_larger = simp->simplify(input_f);
+	  f1l = spot::ltl::str_psl(maybe_larger);
+	  if (!simp->are_equivalent(input_f, maybe_larger))
+	    {
+	      std::cerr << "Incorrect reduction (reduce_size_strictly=0) from `"
+			<< f1s_before << "' to `" << f1l << "'." << std::endl;
+	      exit_code = 3;
+	    }
+	}
+
+      int length_f1_after = spot::ltl::length(f1);
+      std::string f1s_after = spot::ltl::str_psl(f1);
+
+      std::string f2s = "";
+      if (f2)
+	{
+	  ftmp1 = f2;
+	  f2 = simp_size->negative_normal_form(f2, false);
+	  f2s = spot::ltl::str_psl(f2);
+	}
+
+      sum_before += length_f1_before;
+      sum_after += length_f1_after;
+
+      // If -h is set, we want to print only formulae that have become larger.
+      if (!f2 && (!hidereduc || (length_f1_after > length_f1_before)))
+	{
+	  std::cout << length_f1_before << ' ' << length_f1_after
+		    << " '" << f1s_before << "' reduce to '"
+		    << f1s_after << '\'';
+	  if (f1l != "" && f1l != f1s_after)
+	    std::cout << " or (w/o rss) to '" << f1l << '\'';
+	  std::cout << '\n';
+	}
+
+      if (f2)
+	{
+	  if (f1 != f2)
+	    {
+	      if (length_f1_after < length_f1_before)
+		std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
+			  << " KOREDUC " << std::endl;
+	      else
+		std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
+			  << " KOIDEM " << std::endl;
+	      exit_code = 1;
+	    }
+	  else
+	    {
+	      if (f1s_before != f1s_after)
+		std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
+			  << " OKREDUC " << std::endl;
+	      else
+		std::cout << f1s_before << " ** " << f2s << " ** " << f1s_after
+			  << " OKIDEM" << std::endl;
+	      exit_code = 0;
+	    }
+	}
+      else
+	{
+	  if (length_f1_after > length_f1_before)
+	    exit_code = 1;
+	}
+
+      if (fin)
+	goto next_line;
+    }
+  end:
+
+    delete simp_size;
+    delete simp;
+
+    if (fin)
+      {
+	float before = sum_before;
+	float after = sum_after;
+	std::cout << "gain: "
+		  << (1 - (after / before)) * 100 << '%' << std::endl;
+	delete fin;
+      }
+  }
+
+  assert(spot::ltl::fnode::instances_check());
   return exit_code;
 }

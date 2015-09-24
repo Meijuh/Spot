@@ -61,7 +61,7 @@ namespace spot
     simpl_owned_ = simpl_ = new ltl::ltl_simplifier(options, dict);
   }
 
-  twa_graph_ptr translator::run(const ltl::formula** f)
+  twa_graph_ptr translator::run(ltl::formula* f)
   {
     bool unambiguous = (pref_ & postprocessor::Unambiguous);
     if (unambiguous && type_ == postprocessor::Monitor)
@@ -72,8 +72,7 @@ namespace spot
 	set_pref(pref_ | postprocessor::Deterministic);
       }
 
-    const ltl::formula* r = simpl_->simplify(*f);
-    (*f)->destroy();
+    ltl::formula r = simpl_->simplify(*f);
     *f = r;
 
     // This helps ltl_to_tgba_fm() to order BDD variables in a more
@@ -102,12 +101,9 @@ namespace spot
     return aut;
   }
 
-  twa_graph_ptr translator::run(const ltl::formula* f)
+  twa_graph_ptr translator::run(ltl::formula f)
   {
-    f->clone();
-    auto aut = run(&f);
-    f->destroy();
-    return aut;
+    return run(&f);
   }
 
 }

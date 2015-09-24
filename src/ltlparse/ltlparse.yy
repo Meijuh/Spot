@@ -35,7 +35,7 @@
 #include <string>
 #include <sstream>
 #include "public.hh"
-#include "ltlast/allnodes.hh"
+#include "ltlast/formula.hh"
 #include "ltlvisit/print.hh"
 
   struct minmax_t { unsigned min, max; };
@@ -43,11 +43,11 @@
 
 %parse-param {spot::ltl::parse_error_list &error_list}
 %parse-param {spot::ltl::environment &parse_environment}
-%parse-param {const spot::ltl::formula* &result}
+%parse-param {spot::ltl::formula &result}
 %union
 {
   std::string* str;
-  const spot::ltl::formula* ltl;
+  const spot::ltl::fnode* ltl;
   unsigned num;
   minmax_t minmax;
 }
@@ -67,7 +67,7 @@ using namespace spot::ltl;
   do						\
     {						\
       missing_right_op_msg(op, str);		\
-      res = constant::false_instance();		\
+      res = fnode::ff();		\
     }						\
   while (0);
 
@@ -91,7 +91,7 @@ using namespace spot::ltl;
 
   enum parser_type { parser_ltl, parser_bool, parser_sere };
 
-  static const formula*
+  static formula
   try_recursive_parse(const std::string& str,
 		      const spot::location& location,
 		      spot::ltl::environment& env,
@@ -117,11 +117,11 @@ using namespace spot::ltl;
       if (str.empty())
 	{
 	  error_list.emplace_back(location, "unexpected empty block");
-	  return 0;
+	  return nullptr;
 	}
 
       spot::ltl::parse_error_list suberror;
-      const spot::ltl::formula* f = 0;
+      formula f;
       switch (type)
 	{
 	case parser_sere:
@@ -137,9 +137,6 @@ using namespace spot::ltl;
 
       if (suberror.empty())
 	return f;
-
-      if (f)
-	f->destroy();
 
       f = env.require(str);
       if (!f)
@@ -240,72 +237,76 @@ using namespace spot::ltl;
 %destructor { $$->destroy(); } <ltl>
 
 %printer { debug_stream() << *$$; } <str>
-%printer { spot::ltl::print_psl(debug_stream(), $$); } <ltl>
-%printer { spot::ltl::print_sere(debug_stream(), $$); } sere bracedsere
+%printer { spot::ltl::print_psl(debug_stream(), formula($$)); } <ltl>
+%printer { spot::ltl::print_sere(debug_stream(), formula($$)); } sere bracedsere
 %printer { debug_stream() << $$; } <num>
 %printer { debug_stream() << $$.min << ".." << $$.max; } <minmax>
 
 %%
 result:       START_LTL subformula END_OF_INPUT
-	      { result = $2;
+              {
+		result = formula($2);
 		YYACCEPT;
 	      }
 	    | START_LTL enderror
 	      {
-		result = 0;
+		result = nullptr;
 		YYABORT;
 	      }
 	    | START_LTL subformula enderror
 	      {
-		result = $2;
+		result = formula($2);
 		YYACCEPT;
 	      }
 	    | START_LTL emptyinput
               { YYABORT; }
             | START_BOOL boolformula END_OF_INPUT
-	      { result = $2;
+	      {
+		result = formula($2);
 		YYACCEPT;
 	      }
 	    | START_BOOL enderror
 	      {
-		result = 0;
+		result = nullptr;
 		YYABORT;
 	      }
 	    | START_BOOL boolformula enderror
 	      {
-		result = $2;
+		result = formula($2);
 		YYACCEPT;
 	      }
 	    | START_BOOL emptyinput
               { YYABORT; }
             | START_SERE sere END_OF_INPUT
-	      { result = $2;
+	      {
+		result = formula($2);
 		YYACCEPT;
 	      }
 	    | START_SERE enderror
 	      {
-		result = 0;
+		result = nullptr;
 		YYABORT;
 	      }
 	    | START_SERE sere enderror
 	      {
-		result = $2;
+		result = formula($2);
 		YYACCEPT;
 	      }
 	    | START_SERE emptyinput
               { YYABORT; }
             | START_LBT lbtformula END_OF_INPUT
-	      { result = $2;
+	      {
+		result = formula($2);
 		YYACCEPT;
 	      }
 	    | START_LBT enderror
 	      {
-		result = 0;
+		result = nullptr;
 		YYABORT;
 	      }
 	    | START_LBT lbtformula enderror
 	      {
-		result = $2;
+		result = formula($2);
 		YYACCEPT;
 	      }
 	    | START_LBT emptyinput
@@ -314,7 +315,7 @@ result:       START_LTL subformula END_OF_INPUT
 emptyinput: END_OF_INPUT
               {
 		error_list.emplace_back(@$, "empty input");
-		result = 0;
+		result = nullptr;
 	      }
 
 enderror: error END_OF_INPUT
@@ -331,11 +332,11 @@ error_opt: | error
 sqbracketargs: OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
               { $$.min = $1; $$.max = $3; }
 	     | OP_SQBKT_NUM OP_SQBKT_SEP_unbounded OP_SQBKT_CLOSE
-              { $$.min = $1; $$.max = bunop::unbounded; }
+              { $$.min = $1; $$.max = fnode::unbounded(); }
 	     | OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
               { $$.min = 0U; $$.max = $2; }
 	     | OP_SQBKT_SEP_opt OP_SQBKT_CLOSE
-              { $$.min = 0U; $$.max = bunop::unbounded; }
+              { $$.min = 0U; $$.max = fnode::unbounded(); }
 	     | OP_SQBKT_NUM OP_SQBKT_CLOSE
               { $$.min = $$.max = $1; }
 
@@ -343,11 +344,11 @@ sqbracketargs: OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
 gotoargs: OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
            { $$.min = $2; $$.max = $4; }
 	  | OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP_unbounded OP_SQBKT_CLOSE
-           { $$.min = $2; $$.max = bunop::unbounded; }
+           { $$.min = $2; $$.max = fnode::unbounded(); }
 	  | OP_GOTO_OPEN OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
            { $$.min = 1U; $$.max = $3; }
 	  | OP_GOTO_OPEN OP_SQBKT_SEP_unbounded OP_SQBKT_CLOSE
-           { $$.min = 1U; $$.max = bunop::unbounded; }
+           { $$.min = 1U; $$.max = fnode::unbounded(); }
 	  | OP_GOTO_OPEN OP_SQBKT_CLOSE
            { $$.min = $$.max = 1U; }
 	  | OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_CLOSE
@@ -363,28 +364,28 @@ gotoargs: OP_GOTO_OPEN OP_SQBKT_NUM OP_SQBKT_SEP OP_SQBKT_NUM OP_SQBKT_CLOSE
 kleen_star: OP_STAR | OP_BSTAR
 
 starargs: kleen_star
-            { $$.min = 0U; $$.max = bunop::unbounded; }
+            { $$.min = 0U; $$.max = fnode::unbounded(); }
         | OP_PLUS
-	    { $$.min = 1U; $$.max = bunop::unbounded; }
+	    { $$.min = 1U; $$.max = fnode::unbounded(); }
 	| OP_STAR_OPEN sqbracketargs
 	    { $$ = $2; }
 	| OP_STAR_OPEN error OP_SQBKT_CLOSE
             { error_list.emplace_back(@$, "treating this star block as [*]");
-              $$.min = 0U; $$.max = bunop::unbounded; }
+              $$.min = 0U; $$.max = fnode::unbounded(); }
         | OP_STAR_OPEN error_opt END_OF_INPUT
 	    { error_list.emplace_back(@$, "missing closing bracket for star");
 	      $$.min = $$.max = 0U; }
 
 fstarargs: OP_BFSTAR
-            { $$.min = 0U; $$.max = bunop::unbounded; }
+            { $$.min = 0U; $$.max = fnode::unbounded(); }
         | OP_FPLUS
-	    { $$.min = 1U; $$.max = bunop::unbounded; }
+	    { $$.min = 1U; $$.max = fnode::unbounded(); }
 	| OP_FSTAR_OPEN sqbracketargs
 	    { $$ = $2; }
 	| OP_FSTAR_OPEN error OP_SQBKT_CLOSE
             { error_list.emplace_back
 		(@$, "treating this fusion-star block as [:*]");
-              $$.min = 0U; $$.max = bunop::unbounded; }
+              $$.min = 0U; $$.max = fnode::unbounded(); }
         | OP_FSTAR_OPEN error_opt END_OF_INPUT
 	    { error_list.emplace_back
 		(@$, "missing closing bracket for fusion-star");
@@ -394,19 +395,16 @@ equalargs: OP_EQUAL_OPEN sqbracketargs
 	    { $$ = $2; }
 	| OP_EQUAL_OPEN error OP_SQBKT_CLOSE
             { error_list.emplace_back(@$, "treating this equal block as [*]");
-              $$.min = 0U; $$.max = bunop::unbounded; }
+              $$.min = 0U; $$.max = fnode::unbounded(); }
         | OP_EQUAL_OPEN error_opt END_OF_INPUT
 	    { error_list.
 		emplace_back(@$, "missing closing bracket for equal operator");
 	      $$.min = $$.max = 0U; }
 
 
-/* The reason we use `constant::false_instance()' for error recovery
-   is that it isn't reference counted.  (Hence it can't leak references.)  */
-
 booleanatom: ATOMIC_PROP
 	      {
-		$$ = parse_environment.require(*$1);
+		$$ = parse_environment.require(*$1).to_node_();
 		if (! $$)
 		  {
 		    std::string s = "unknown atomic proposition `";
@@ -423,7 +421,7 @@ booleanatom: ATOMIC_PROP
 	      }
 	    | ATOMIC_PROP OP_POST_POS
 	      {
-		$$ = parse_environment.require(*$1);
+		$$ = parse_environment.require(*$1).to_node_();
 		if (! $$)
 		  {
 		    std::string s = "unknown atomic proposition `";
@@ -440,7 +438,7 @@ booleanatom: ATOMIC_PROP
 	      }
 	    | ATOMIC_PROP OP_POST_NEG
 	      {
-		$$ = parse_environment.require(*$1);
+		$$ = parse_environment.require(*$1).to_node_();
 		if (! $$)
 		  {
 		    std::string s = "unknown atomic proposition `";
@@ -454,19 +452,19 @@ booleanatom: ATOMIC_PROP
 		  }
 		else
 		  delete $1;
-		$$ = unop::instance(unop::Not, $$);
+		$$ = fnode::unop(op::Not, $$);
 	      }
 	    | CONST_TRUE
-	      { $$ = constant::true_instance(); }
+	      { $$ = fnode::tt(); }
 	    | CONST_FALSE
-	      { $$ = constant::false_instance(); }
+	      { $$ = fnode::ff(); }
 
 sere: booleanatom
             | OP_NOT sere
 	      {
 		if ($2->is_boolean())
 		  {
-		    $$ = unop::instance(unop::Not, $2);
+		    $$ = fnode::unop(op::Not, $2);
 		  }
 		else
 		  {
@@ -475,14 +473,16 @@ sere: booleanatom
                        "be applied to a Boolean expression");
 		    error_list.emplace_back(@$, "treating this block as false");
 		    $2->destroy();
-		    $$ = constant::false_instance();
+		    $$ = fnode::ff();
 		  }
 	      }
             | bracedsere
 	    | PAR_BLOCK
               {
-		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), parser_sere, error_list);
+		$$ =
+		  try_recursive_parse(*$1, @1, parse_environment,
+				      debug_level(), parser_sere, error_list)
+		  .to_node_();
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -493,7 +493,7 @@ sere: booleanatom
 	      { error_list.
 		  emplace_back(@$,
 			       "treating this parenthetical block as false");
-		$$ = constant::false_instance();
+		$$ = fnode::ff();
 	      }
 	    | PAR_OPEN sere END_OF_INPUT
 	      { error_list.emplace_back(@1 + @2, "missing closing parenthesis");
@@ -503,28 +503,28 @@ sere: booleanatom
 	      { error_list.emplace_back(@$,
                     "missing closing parenthesis, "
 		    "treating this parenthetical block as false");
-		$$ = constant::false_instance();
+		$$ = fnode::ff();
 	      }
 	    | sere OP_AND sere
-	      { $$ = multop::instance(multop::AndRat, $1, $3); }
+	      { $$ = fnode::multop(op::AndRat, {$1, $3}); }
 	    | sere OP_AND error
 	      { missing_right_binop($$, $1, @2,
 				    "length-matching and operator"); }
 	    | sere OP_SHORT_AND sere
-	      { $$ = multop::instance(multop::AndNLM, $1, $3); }
+	      { $$ = fnode::multop(op::AndNLM, {$1, $3}); }
 	    | sere OP_SHORT_AND error
               { missing_right_binop($$, $1, @2,
                                     "non-length-matching and operator"); }
 	    | sere OP_OR sere
-	      { $$ = multop::instance(multop::OrRat, $1, $3); }
+	      { $$ = fnode::multop(op::OrRat, {$1, $3}); }
 	    | sere OP_OR error
               { missing_right_binop($$, $1, @2, "or operator"); }
 	    | sere OP_CONCAT sere
-	      { $$ = multop::instance(multop::Concat, $1, $3); }
+	      { $$ = fnode::multop(op::Concat, {$1, $3}); }
 	    | sere OP_CONCAT error
               { missing_right_binop($$, $1, @2, "concat operator"); }
 	    | sere OP_FUSION sere
-	      { $$ = multop::instance(multop::Fusion, $1, $3); }
+	      { $$ = fnode::multop(op::Fusion, {$1, $3}); }
 	    | sere OP_FUSION error
               { missing_right_binop($$, $1, @2, "fusion operator"); }
 	    | starargs
@@ -534,8 +534,7 @@ sere: booleanatom
 		    error_list.emplace_back(@1, "reversed range");
 		    std::swap($1.max, $1.min);
 		  }
-		$$ = bunop::instance(bunop::Star, constant::true_instance(),
-				     $1.min, $1.max);
+		$$ = fnode::bunop(op::Star, fnode::tt(), $1.min, $1.max);
 	      }
 	    | sere starargs
 	      {
@@ -544,7 +543,7 @@ sere: booleanatom
 		    error_list.emplace_back(@2, "reversed range");
 		    std::swap($2.max, $2.min);
 		  }
-		$$ = bunop::instance(bunop::Star, $1, $2.min, $2.max);
+		$$ = fnode::bunop(op::Star, $1, $2.min, $2.max);
 	      }
 	    | sere fstarargs
 	      {
@@ -553,7 +552,7 @@ sere: booleanatom
 		    error_list.emplace_back(@2, "reversed range");
 		    std::swap($2.max, $2.min);
 		  }
-		$$ = bunop::instance(bunop::FStar, $1, $2.min, $2.max);
+		$$ = fnode::bunop(op::FStar, $1, $2.min, $2.max);
 	      }
 	    | sere equalargs
 	      {
@@ -564,7 +563,8 @@ sere: booleanatom
 		  }
 		if ($1->is_boolean())
 		  {
-		    $$ = bunop::sugar_equal($1, $2.min, $2.max);
+		    $$ = formula::sugar_equal(formula($1),
+					      $2.min, $2.max).to_node_();
 		  }
 		else
 		  {
@@ -574,7 +574,7 @@ sere: booleanatom
 		    error_list.emplace_back(@$,
 				"treating this block as false");
 		    $1->destroy();
-		    $$ = constant::false_instance();
+		    $$ = fnode::ff();
 		  }
 	      }
 	    | sere gotoargs
@@ -586,7 +586,8 @@ sere: booleanatom
 		  }
 		if ($1->is_boolean())
 		  {
-		    $$ = bunop::sugar_goto($1, $2.min, $2.max);
+		    $$ = formula::sugar_goto(formula($1),
+					     $2.min, $2.max).to_node_();
 		  }
 		else
 		  {
@@ -596,14 +597,14 @@ sere: booleanatom
 		    error_list.emplace_back(@$,
 				"treating this block as false");
 		    $1->destroy();
-		    $$ = constant::false_instance();
+		    $$ = fnode::ff();
 		  }
 	      }
 	    | sere OP_XOR sere
 	      {
 		if ($1->is_boolean() && $3->is_boolean())
 		  {
-		    $$ = binop::instance(binop::Xor, $1, $3);
+		    $$ = fnode::binop(op::Xor, $1, $3);
 		  }
 		else
 		  {
@@ -622,7 +623,7 @@ sere: booleanatom
 		    error_list.emplace_back(@$, "treating this block as false");
 		    $1->destroy();
 		    $3->destroy();
-		    $$ = constant::false_instance();
+		    $$ = fnode::ff();
 		  }
 	      }
 	    | sere OP_XOR error
@@ -631,7 +632,7 @@ sere: booleanatom
 	      {
 		if ($1->is_boolean())
 		  {
-		    $$ = binop::instance(binop::Implies, $1, $3);
+		    $$ = fnode::binop(op::Implies, $1, $3);
 		  }
 		else
 		  {
@@ -644,7 +645,7 @@ sere: booleanatom
 		    error_list.emplace_back(@$, "treating this block as false");
 		    $1->destroy();
 		    $3->destroy();
-		    $$ = constant::false_instance();
+		    $$ = fnode::ff();
 		  }
 	      }
 	    | sere OP_IMPLIES error
@@ -653,7 +654,7 @@ sere: booleanatom
 	      {
 		if ($1->is_boolean() && $3->is_boolean())
 		  {
-		    $$ = binop::instance(binop::Equiv, $1, $3);
+		    $$ = fnode::binop(op::Equiv, $1, $3);
 		  }
 		else
 		  {
@@ -672,7 +673,7 @@ sere: booleanatom
 		    error_list.emplace_back(@$, "treating this block as false");
 		    $1->destroy();
 		    $3->destroy();
-		    $$ = constant::false_instance();
+		    $$ = fnode::ff();
 		  }
 	      }
 	    | sere OP_EQUIV error
@@ -687,7 +688,7 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
             | BRACE_OPEN error BRACE_CLOSE
 	      { error_list.emplace_back(@$,
 					"treating this brace block as false");
-		$$ = constant::false_instance();
+		$$ = fnode::ff();
 	      }
             | BRACE_OPEN sere END_OF_INPUT
 	      { error_list.emplace_back(@1 + @2,
@@ -703,13 +704,13 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
 	      { error_list.emplace_back(@$,
                     "missing closing brace, "
 		    "treating this brace block as false");
-		$$ = constant::false_instance();
+		$$ = fnode::ff();
 	      }
             | BRA_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
 					 debug_level(),
-					 parser_sere, error_list);
+					 parser_sere, error_list).to_node_();
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -718,7 +719,8 @@ bracedsere: BRACE_OPEN sere BRACE_CLOSE
 parenthesedsubformula: PAR_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), parser_ltl, error_list);
+					 debug_level(), parser_ltl, error_list)
+		  .to_node_();
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -732,7 +734,7 @@ parenthesedsubformula: PAR_BLOCK
 	    | PAR_OPEN error PAR_CLOSE
 	      { error_list.emplace_back(@$,
 		 "treating this parenthetical block as false");
-		$$ = constant::false_instance();
+		$$ = fnode::ff();
 	      }
 	    | PAR_OPEN subformula END_OF_INPUT
 	      { error_list.emplace_back(@1 + @2, "missing closing parenthesis");
@@ -747,7 +749,7 @@ parenthesedsubformula: PAR_BLOCK
 	      { error_list.emplace_back(@$,
                     "missing closing parenthesis, "
 		    "treating this parenthetical block as false");
-		$$ = constant::false_instance();
+		$$ = fnode::ff();
 	      }
 
 
@@ -755,7 +757,8 @@ boolformula: booleanatom
             | PAR_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), parser_bool, error_list);
+					 debug_level(), parser_bool, error_list)
+		  .to_node_();
 		delete $1;
 		if (!$$)
 		  YYERROR;
@@ -769,7 +772,7 @@ boolformula: booleanatom
 	    | PAR_OPEN error PAR_CLOSE
 	      { error_list.emplace_back(@$,
 		 "treating this parenthetical block as false");
-		$$ = constant::false_instance();
+		$$ = fnode::ff();
 	      }
 	    | PAR_OPEN boolformula END_OF_INPUT
 	      { error_list.emplace_back(@1 + @2,
@@ -785,156 +788,153 @@ boolformula: booleanatom
 	      { error_list.emplace_back(@$,
                     "missing closing parenthesis, "
 		    "treating this parenthetical block as false");
-		$$ = constant::false_instance();
+		$$ = fnode::ff();
 	      }
 	    | boolformula OP_AND boolformula
-	      { $$ = multop::instance(multop::And, $1, $3); }
+	      { $$ = fnode::multop(op::And, {$1, $3}); }
 	    | boolformula OP_AND error
               { missing_right_binop($$, $1, @2, "and operator"); }
 	    | boolformula OP_SHORT_AND boolformula
-	      { $$ = multop::instance(multop::And, $1, $3); }
+	      { $$ = fnode::multop(op::And, {$1, $3}); }
 	    | boolformula OP_SHORT_AND error
               { missing_right_binop($$, $1, @2, "and operator"); }
 	    | boolformula OP_STAR boolformula
-	      { $$ = multop::instance(multop::And, $1, $3); }
+	      { $$ = fnode::multop(op::And, {$1, $3}); }
 	    | boolformula OP_STAR error
               { missing_right_binop($$, $1, @2, "and operator"); }
 	    | boolformula OP_OR boolformula
-	      { $$ = multop::instance(multop::Or, $1, $3); }
+	      { $$ = fnode::multop(op::Or, {$1, $3}); }
 	    | boolformula OP_OR error
               { missing_right_binop($$, $1, @2, "or operator"); }
 	    | boolformula OP_XOR boolformula
-	      { $$ = binop::instance(binop::Xor, $1, $3); }
+	      { $$ = fnode::binop(op::Xor, $1, $3); }
 	    | boolformula OP_XOR error
 	      { missing_right_binop($$, $1, @2, "xor operator"); }
 	    | boolformula OP_IMPLIES boolformula
-	      { $$ = binop::instance(binop::Implies, $1, $3); }
+	      { $$ = fnode::binop(op::Implies, $1, $3); }
 	    | boolformula OP_IMPLIES error
 	      { missing_right_binop($$, $1, @2, "implication operator"); }
 	    | boolformula OP_EQUIV boolformula
-	      { $$ = binop::instance(binop::Equiv, $1, $3); }
+	      { $$ = fnode::binop(op::Equiv, $1, $3); }
 	    | boolformula OP_EQUIV error
 	      { missing_right_binop($$, $1, @2, "equivalent operator"); }
 	    | OP_NOT boolformula
-	      { $$ = unop::instance(unop::Not, $2); }
+	      { $$ = fnode::unop(op::Not, $2); }
 	    | OP_NOT error
 	      { missing_right_op($$, @1, "not operator"); }
 
 subformula: booleanatom
             | parenthesedsubformula
 	    | subformula OP_AND subformula
-	      { $$ = multop::instance(multop::And, $1, $3); }
+              { $$ = fnode::multop(op::And, {$1, $3}); }
 	    | subformula OP_AND error
               { missing_right_binop($$, $1, @2, "and operator"); }
 	    | subformula OP_SHORT_AND subformula
-	      { $$ = multop::instance(multop::And, $1, $3); }
+	      { $$ = fnode::multop(op::And, {$1, $3}); }
 	    | subformula OP_SHORT_AND error
               { missing_right_binop($$, $1, @2, "and operator"); }
 	    | subformula OP_STAR subformula
-	      { $$ = multop::instance(multop::And, $1, $3); }
+	      { $$ = fnode::multop(op::And, {$1, $3}); }
 	    | subformula OP_STAR error
               { missing_right_binop($$, $1, @2, "and operator"); }
 	    | subformula OP_OR subformula
-	      { $$ = multop::instance(multop::Or, $1, $3); }
+	      { $$ = fnode::multop(op::Or, {$1, $3}); }
 	    | subformula OP_OR error
               { missing_right_binop($$, $1, @2, "or operator"); }
 	    | subformula OP_XOR subformula
-	      { $$ = binop::instance(binop::Xor, $1, $3); }
+ 	      { $$ = fnode::binop(op::Xor, $1, $3); }
 	    | subformula OP_XOR error
 	      { missing_right_binop($$, $1, @2, "xor operator"); }
 	    | subformula OP_IMPLIES subformula
-	      { $$ = binop::instance(binop::Implies, $1, $3); }
+	      { $$ = fnode::binop(op::Implies, $1, $3); }
 	    | subformula OP_IMPLIES error
 	      { missing_right_binop($$, $1, @2, "implication operator"); }
 	    | subformula OP_EQUIV subformula
-	      { $$ = binop::instance(binop::Equiv, $1, $3); }
+	      { $$ = fnode::binop(op::Equiv, $1, $3); }
 	    | subformula OP_EQUIV error
 	      { missing_right_binop($$, $1, @2, "equivalent operator"); }
 	    | subformula OP_U subformula
-	      { $$ = binop::instance(binop::U, $1, $3); }
+	      { $$ = fnode::binop(op::U, $1, $3); }
 	    | subformula OP_U error
 	      { missing_right_binop($$, $1, @2, "until operator"); }
 	    | subformula OP_R subformula
-	      { $$ = binop::instance(binop::R, $1, $3); }
+	      { $$ = fnode::binop(op::R, $1, $3); }
 	    | subformula OP_R error
 	      { missing_right_binop($$, $1, @2, "release operator"); }
 	    | subformula OP_W subformula
-	      { $$ = binop::instance(binop::W, $1, $3); }
+	      { $$ = fnode::binop(op::W, $1, $3); }
 	    | subformula OP_W error
 	      { missing_right_binop($$, $1, @2, "weak until operator"); }
 	    | subformula OP_M subformula
-	      { $$ = binop::instance(binop::M, $1, $3); }
+	      { $$ = fnode::binop(op::M, $1, $3); }
 	    | subformula OP_M error
 	      { missing_right_binop($$, $1, @2, "strong release operator"); }
 	    | OP_F subformula
-	      { $$ = unop::instance(unop::F, $2); }
+	      { $$ = fnode::unop(op::F, $2); }
 	    | OP_F error
 	      { missing_right_op($$, @1, "sometimes operator"); }
 	    | OP_G subformula
-	      { $$ = unop::instance(unop::G, $2); }
+	      { $$ = fnode::unop(op::G, $2); }
 	    | OP_G error
 	      { missing_right_op($$, @1, "always operator"); }
 	    | OP_X subformula
-	      { $$ = unop::instance(unop::X, $2); }
+	      { $$ = fnode::unop(op::X, $2); }
 	    | OP_X error
 	      { missing_right_op($$, @1, "next operator"); }
 	    | OP_NOT subformula
-	      { $$ = unop::instance(unop::Not, $2); }
+	      { $$ = fnode::unop(op::Not, $2); }
 	    | OP_NOT error
 	      { missing_right_op($$, @1, "not operator"); }
             | bracedsere
-	      { $$ = unop::instance(unop::Closure, $1); }
+	      { $$ = fnode::unop(op::Closure, $1); }
             | bracedsere OP_UCONCAT subformula
-	      { $$ = binop::instance(binop::UConcat, $1, $3); }
+	      { $$ = fnode::binop(op::UConcat, $1, $3); }
             | bracedsere parenthesedsubformula
-	      { $$ = binop::instance(binop::UConcat, $1, $2); }
+	      { $$ = fnode::binop(op::UConcat, $1, $2); }
             | bracedsere OP_UCONCAT error
 	      { missing_right_binop_hard($$, $1, @2,
 				    "universal overlapping concat operator"); }
             | bracedsere OP_ECONCAT subformula
-	      { $$ = binop::instance(binop::EConcat, $1, $3); }
+	      { $$ = fnode::binop(op::EConcat, $1, $3); }
             | bracedsere OP_ECONCAT error
 	      { missing_right_binop_hard($$, $1, @2,
 				    "existential overlapping concat operator");
 	      }
             | bracedsere OP_UCONCAT_NONO subformula
 	      /* {SERE}[]=>EXP = {SERE;1}[]->EXP */
-	      { $$ = binop::instance(binop::UConcat,
-		       multop::instance(multop::Concat, $1,
-					constant::true_instance()), $3);
-	      }
+	      { $$ = fnode::binop(op::UConcat,
+				  fnode::multop(op::Concat, {$1, fnode::tt()}),
+				  $3); }
             | bracedsere OP_UCONCAT_NONO error
 	      { missing_right_binop_hard($$, $1, @2,
 				  "universal non-overlapping concat operator");
 	      }
             | bracedsere OP_ECONCAT_NONO subformula
 	      /* {SERE}<>=>EXP = {SERE;1}<>->EXP */
-	      { $$ = binop::instance(binop::EConcat,
-		       multop::instance(multop::Concat, $1,
-					constant::true_instance()), $3);
-	      }
+	      { $$ = fnode::binop(op::EConcat,
+				  fnode::multop(op::Concat, {$1, fnode::tt()}),
+				  $3); }
             | bracedsere OP_ECONCAT_NONO error
 	      { missing_right_binop_hard($$, $1, @2,
 				"existential non-overlapping concat operator");
 	      }
             | BRACE_OPEN sere BRACE_BANG_CLOSE
 	      /* {SERE}! = {SERE} <>-> 1 */
-	      { $$ = binop::instance(binop::EConcat, $2,
-				     constant::true_instance()); }
+	      { $$ = fnode::binop(op::EConcat, $2, fnode::tt()); }
             | BRA_BANG_BLOCK
               {
 		$$ = try_recursive_parse(*$1, @1, parse_environment,
-					 debug_level(), parser_sere, error_list);
+					 debug_level(), parser_sere, error_list)
+		  .to_node_();
 		delete $1;
 		if (!$$)
 		  YYERROR;
-		$$ = binop::instance(binop::EConcat, $$,
-				     constant::true_instance());
+		$$ = fnode::binop(op::EConcat, $$, fnode::tt());
 	      }
 
 lbtformula: ATOMIC_PROP
 	      {
-		$$ = parse_environment.require(*$1);
+		$$ = parse_environment.require(*$1).to_node_();
 		if (! $$)
 		  {
 		    std::string s = "atomic proposition `";
@@ -950,37 +950,37 @@ lbtformula: ATOMIC_PROP
 		  delete $1;
 	      }
             | '!' lbtformula
-	      { $$ = unop::instance(unop::Not, $2); }
+	      { $$ = fnode::unop(op::Not, $2); }
             | '&' lbtformula lbtformula
-	      { $$ = multop::instance(multop::And, $2, $3); }
+	      { $$ = fnode::multop(op::And, {$2, $3}); }
             | '|' lbtformula lbtformula
-	      { $$ = multop::instance(multop::Or, $2, $3); }
+	      { $$ = fnode::multop(op::Or, {$2, $3}); }
             | '^' lbtformula lbtformula
-	      { $$ = binop::instance(binop::Xor, $2, $3); }
+	      { $$ = fnode::binop(op::Xor, $2, $3); }
             | 'i' lbtformula lbtformula
-	      { $$ = binop::instance(binop::Implies, $2, $3); }
+	      { $$ = fnode::binop(op::Implies, $2, $3); }
             | 'e' lbtformula lbtformula
-	      { $$ = binop::instance(binop::Equiv, $2, $3); }
+	      { $$ = fnode::binop(op::Equiv, $2, $3); }
             | 'X' lbtformula
-	      { $$ = unop::instance(unop::X, $2); }
+	      { $$ = fnode::unop(op::X, $2); }
             | 'F' lbtformula
-	      { $$ = unop::instance(unop::F, $2); }
+	      { $$ = fnode::unop(op::F, $2); }
             | 'G' lbtformula
-	      { $$ = unop::instance(unop::G, $2); }
+	      { $$ = fnode::unop(op::G, $2); }
             | 'U' lbtformula lbtformula
-	      { $$ = binop::instance(binop::U, $2, $3); }
+	      { $$ = fnode::binop(op::U, $2, $3); }
             | 'V' lbtformula lbtformula
-	      { $$ = binop::instance(binop::R, $2, $3); }
+	      { $$ = fnode::binop(op::R, $2, $3); }
             | 'R' lbtformula lbtformula
-	      { $$ = binop::instance(binop::R, $2, $3); }
+	      { $$ = fnode::binop(op::R, $2, $3); }
             | 'W' lbtformula lbtformula
-	      { $$ = binop::instance(binop::W, $2, $3); }
+	      { $$ = fnode::binop(op::W, $2, $3); }
             | 'M' lbtformula lbtformula
-	      { $$ = binop::instance(binop::M, $2, $3); }
+	      { $$ = fnode::binop(op::M, $2, $3); }
             | 't'
-	      { $$ = constant::true_instance(); }
+	      { $$ = fnode::tt(); }
             | 'f'
-	      { $$ = constant::false_instance(); }
+	      { $$ = fnode::ff(); }
             ;
 
 %%
@@ -995,13 +995,13 @@ namespace spot
 {
   namespace ltl
   {
-    const formula*
+    formula
     parse_infix_psl(const std::string& ltl_string,
 		    parse_error_list& error_list,
 		    environment& env,
 		    bool debug, bool lenient)
     {
-      const formula* result = 0;
+      formula result = nullptr;
       flex_set_buffer(ltl_string,
 		      ltlyy::parser::token::START_LTL,
 		      lenient);
@@ -1012,13 +1012,13 @@ namespace spot
       return result;
     }
 
-    const formula*
+    formula
     parse_infix_boolean(const std::string& ltl_string,
 			parse_error_list& error_list,
 			environment& env,
 			bool debug, bool lenient)
     {
-      const formula* result = 0;
+      formula result = nullptr;
       flex_set_buffer(ltl_string,
 		      ltlyy::parser::token::START_BOOL,
 		      lenient);
@@ -1029,13 +1029,13 @@ namespace spot
       return result;
     }
 
-    const formula*
+    formula
     parse_prefix_ltl(const std::string& ltl_string,
 	  parse_error_list& error_list,
 	  environment& env,
 	  bool debug)
     {
-      const formula* result = 0;
+      formula result = nullptr;
       flex_set_buffer(ltl_string,
 		      ltlyy::parser::token::START_LBT,
 		      false);
@@ -1046,14 +1046,14 @@ namespace spot
       return result;
     }
 
-    const formula*
+    formula
     parse_infix_sere(const std::string& sere_string,
 		     parse_error_list& error_list,
 		     environment& env,
 		     bool debug,
 		     bool lenient)
     {
-      const formula* result = 0;
+      formula result = nullptr;
       flex_set_buffer(sere_string,
 		      ltlyy::parser::token::START_SERE,
 		      lenient);
@@ -1064,16 +1064,16 @@ namespace spot
       return result;
     }
 
-    const formula*
+    formula
     parse_formula(const std::string& ltl_string, environment& env)
     {
       parse_error_list pel;
-      const formula* f = parse_infix_psl(ltl_string, pel, env);
+      formula f = parse_infix_psl(ltl_string, pel, env);
       std::ostringstream s;
       if (format_parse_errors(s, ltl_string, pel))
 	{
 	  parse_error_list pel2;
-	  const formula* g = parse_prefix_ltl(ltl_string, pel2, env);
+	  formula g = parse_prefix_ltl(ltl_string, pel2, env);
 	  if (pel2.empty())
 	    return g;
 	  else

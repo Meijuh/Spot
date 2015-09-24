@@ -23,7 +23,6 @@
 #include <cassert>
 #include <algorithm>
 #include "randomltl.hh"
-#include "ltlast/allnodes.hh"
 #include "misc/random.hh"
 #include <iostream>
 #include <cstring>
@@ -37,25 +36,41 @@ namespace spot
   {
     namespace
     {
-      static const formula*
+      static formula
       ap_builder(const random_formula* rl, int n)
       {
 	assert(n == 1);
 	(void) n;
 	atomic_prop_set::const_iterator i = rl->ap()->begin();
 	std::advance(i, mrand(rl->ap()->size()));
-	return (*i)->clone();
+	return *i;
       }
 
-      static const formula*
+      static formula
       true_builder(const random_formula*, int n)
       {
 	assert(n == 1);
 	(void) n;
-	return constant::true_instance();
+	return formula::tt();
       }
 
-      static const formula*
+      static formula
+      false_builder(const random_formula*, int n)
+      {
+	assert(n == 1);
+	(void) n;
+	return formula::ff();
+      }
+
+      static formula
+      eword_builder(const random_formula*, int n)
+      {
+	assert(n == 1);
+	(void) n;
+	return formula::eword();
+      }
+
+      static formula
       boolform_builder(const random_formula* rl, int n)
       {
 	assert(n >= 1);
@@ -63,40 +78,24 @@ namespace spot
 	return rs->rb.generate(n);
       }
 
-      static const formula*
-      false_builder(const random_formula*, int n)
-      {
-	assert(n == 1);
-	(void) n;
-	return constant::false_instance();
-      }
-
-      static const formula*
-      eword_builder(const random_formula*, int n)
-      {
-	assert(n == 1);
-	(void) n;
-	return constant::empty_word_instance();
-      }
-
-      template <unop::type Op>
-      static const formula*
+      template <op Op>
+      static formula
       unop_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
-	return unop::instance(Op, rl->generate(n - 1));
+	return formula::unop(Op, rl->generate(n - 1));
       }
 
-      static const formula*
+      static formula
       closure_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
 	const random_psl* rp = static_cast<const random_psl*>(rl);
-	return unop::instance(unop::Closure, rp->rs.generate(n - 1));
+	return formula::Closure(rp->rs.generate(n - 1));
       }
 
-      template <binop::type Op>
-      static const formula*
+      template <op Op>
+      static formula
       binop_builder(const random_formula* rl, int n)
       {
 	assert(n >= 3);
@@ -109,11 +108,11 @@ namespace spot
 	// discovering that clang would perform the nested calls from
 	// left to right.
 	auto right = rl->generate(n - l);
-	return binop::instance(Op, rl->generate(l), right);
+	return formula::binop(Op, rl->generate(l), right);
       }
 
-      template <binop::type Op>
-      static const formula*
+      template <op Op>
+      static formula
       binop_SERELTL_builder(const random_formula* rl, int n)
       {
 	assert(n >= 3);
@@ -122,41 +121,41 @@ namespace spot
 	int l = rrand(1, n - 1);
 	// See comment in binop_builder.
 	auto right = rl->generate(n - l);
-	return binop::instance(Op, rp->rs.generate(l), right);
+	return formula::binop(Op, rp->rs.generate(l), right);
       }
 
-      template <bunop::type Op>
-      static const formula*
+      template <op Op>
+      static formula
       bunop_unbounded_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
-	return bunop::instance(Op, rl->generate(n - 1));
+	return formula::bunop(Op, rl->generate(n - 1));
       }
 
-      template <bunop::type Op>
-      static const formula*
+      template <op Op>
+      static formula
       bunop_bounded_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
 	int min = rrand(0, 2);
 	int max = rrand(min, 3);
-	return bunop::instance(Op, rl->generate(n - 1), min, max);
+	return formula::bunop(Op, rl->generate(n - 1), min, max);
       }
 
-      template <bunop::type Op>
-      static const formula*
+      template <op Op>
+      static formula
       bunop_bool_bounded_builder(const random_formula* rl, int n)
       {
 	assert(n >= 2);
 	int min = rrand(0, 2);
 	int max = rrand(min, 3);
 	const random_sere* rp = static_cast<const random_sere*>(rl);
-	return bunop::instance(Op, rp->rb.generate(n - 1), min, max);
+	return formula::bunop(Op, rp->rb.generate(n - 1), min, max);
       }
 
 
-      template <multop::type Op>
-      static const formula*
+      template <op Op>
+      static formula
       multop_builder(const random_formula* rl, int n)
       {
 	assert(n >= 3);
@@ -164,7 +163,7 @@ namespace spot
 	int l = rrand(1, n - 1);
 	// See comment in binop_builder.
 	auto right = rl->generate(n - l);
-	return multop::instance(Op, rl->generate(l), right);
+	return formula::multop(Op, {rl->generate(l), right});
       }
 
     } // anonymous
@@ -208,7 +207,7 @@ namespace spot
       assert(total_2_and_more_ >= total_2_);
     }
 
-    const formula*
+    formula
     random_formula::generate(int n) const
     {
       assert(n > 0);
@@ -319,15 +318,15 @@ namespace spot
       proba_2_ = proba_ + 1;
       proba_2_or_more_ = proba_ + 1;
       proba_[1].setup("boolform", 1, boolform_builder);
-      proba_[2].setup("star",    2, bunop_unbounded_builder<bunop::Star>);
-      proba_[3].setup("star_b",  2, bunop_bounded_builder<bunop::Star>);
-      proba_[4].setup("fstar",   2, bunop_unbounded_builder<bunop::FStar>);
-      proba_[5].setup("fstar_b", 2, bunop_bounded_builder<bunop::FStar>);
-      proba_[6].setup("and",     3, multop_builder<multop::AndRat>);
-      proba_[7].setup("andNLM",  3, multop_builder<multop::AndNLM>);
-      proba_[8].setup("or",      3, multop_builder<multop::OrRat>);
-      proba_[9].setup("concat",  3, multop_builder<multop::Concat>);
-      proba_[10].setup("fusion",  3, multop_builder<multop::Fusion>);
+      proba_[2].setup("star",    2, bunop_unbounded_builder<op::Star>);
+      proba_[3].setup("star_b",  2, bunop_bounded_builder<op::Star>);
+      proba_[4].setup("fstar",   2, bunop_unbounded_builder<op::FStar>);
+      proba_[5].setup("fstar_b", 2, bunop_bounded_builder<op::FStar>);
+      proba_[6].setup("and",     3, multop_builder<op::AndRat>);
+      proba_[7].setup("andNLM",  3, multop_builder<op::AndNLM>);
+      proba_[8].setup("or",      3, multop_builder<op::OrRat>);
+      proba_[9].setup("concat",  3, multop_builder<op::Concat>);
+      proba_[10].setup("fusion",  3, multop_builder<op::Fusion>);
 
       update_sums();
     }
@@ -341,12 +340,12 @@ namespace spot
       proba_[1].setup("false",   1, false_builder);
       proba_[2].setup("true",    1, true_builder);
       proba_2_or_more_ = proba_2_ = proba_ + 3;
-      proba_[3].setup("not",     2, unop_builder<unop::Not>);
-      proba_[4].setup("equiv",   3, binop_builder<binop::Equiv>);
-      proba_[5].setup("implies", 3, binop_builder<binop::Implies>);
-      proba_[6].setup("xor",     3, binop_builder<binop::Xor>);
-      proba_[7].setup("and",     3, multop_builder<multop::And>);
-      proba_[8].setup("or",      3, multop_builder<multop::Or>);
+      proba_[3].setup("not",     2, unop_builder<op::Not>);
+      proba_[4].setup("equiv",   3, binop_builder<op::Equiv>);
+      proba_[5].setup("implies", 3, binop_builder<op::Implies>);
+      proba_[6].setup("xor",     3, binop_builder<op::Xor>);
+      proba_[7].setup("and",     3, multop_builder<op::And>);
+      proba_[8].setup("or",      3, multop_builder<op::Or>);
 
       update_sums();
     }
@@ -360,19 +359,19 @@ namespace spot
       proba_[1].setup("false",   1, false_builder);
       proba_[2].setup("true",    1, true_builder);
       proba_2_or_more_ = proba_2_ = proba_ + 3;
-      proba_[3].setup("not",     2, unop_builder<unop::Not>);
-      proba_[4].setup("F",       2, unop_builder<unop::F>);
-      proba_[5].setup("G",       2, unop_builder<unop::G>);
-      proba_[6].setup("X",       2, unop_builder<unop::X>);
-      proba_[7].setup("equiv",   3, binop_builder<binop::Equiv>);
-      proba_[8].setup("implies", 3, binop_builder<binop::Implies>);
-      proba_[9].setup("xor",     3, binop_builder<binop::Xor>);
-      proba_[10].setup("R",      3, binop_builder<binop::R>);
-      proba_[11].setup("U",      3, binop_builder<binop::U>);
-      proba_[12].setup("W",      3, binop_builder<binop::W>);
-      proba_[13].setup("M",      3, binop_builder<binop::M>);
-      proba_[14].setup("and",    3, multop_builder<multop::And>);
-      proba_[15].setup("or",     3, multop_builder<multop::Or>);
+      proba_[3].setup("not",     2, unop_builder<op::Not>);
+      proba_[4].setup("F",       2, unop_builder<op::F>);
+      proba_[5].setup("G",       2, unop_builder<op::G>);
+      proba_[6].setup("X",       2, unop_builder<op::X>);
+      proba_[7].setup("equiv",   3, binop_builder<op::Equiv>);
+      proba_[8].setup("implies", 3, binop_builder<op::Implies>);
+      proba_[9].setup("xor",     3, binop_builder<op::Xor>);
+      proba_[10].setup("R",      3, binop_builder<op::R>);
+      proba_[11].setup("U",      3, binop_builder<op::U>);
+      proba_[12].setup("W",      3, binop_builder<op::W>);
+      proba_[13].setup("M",      3, binop_builder<op::M>);
+      proba_[14].setup("and",    3, multop_builder<op::And>);
+      proba_[15].setup("or",     3, multop_builder<op::Or>);
     }
 
     random_ltl::random_ltl(const atomic_prop_set* ap)
@@ -399,8 +398,8 @@ namespace spot
 	      ((proba_ + 16) - (proba_ + 7)) * sizeof(*proba_));
 
       proba_[7].setup("Closure", 2, closure_builder);
-      proba_[17].setup("EConcat", 3, binop_SERELTL_builder<binop::EConcat>);
-      proba_[18].setup("UConcat", 3, binop_SERELTL_builder<binop::UConcat>);
+      proba_[17].setup("EConcat", 3, binop_SERELTL_builder<op::EConcat>);
+      proba_[18].setup("UConcat", 3, binop_SERELTL_builder<op::UConcat>);
       update_sums();
     }
 
@@ -490,16 +489,13 @@ namespace spot
     randltlgenerator::~randltlgenerator()
     {
       delete rf_;
-      // Cleanup the unicity table.
-      for (auto i: unique_set_)
-        i->destroy();
     }
 
-    const formula* randltlgenerator::next()
+    formula randltlgenerator::next()
     {
       unsigned trials = MAX_TRIALS;
       bool ignore;
-      const formula* f = nullptr;
+      formula f = nullptr;
       do
         {
 	  ignore = false;
@@ -512,29 +508,14 @@ namespace spot
             {
               atomic_prop_set s = aprops_;
               remove_some_props(s);
-              f = multop::instance(multop::And,
-                                              f, GF_n());
+              f = formula::And({f, GF_n()});
             }
 
 	  if (opt_simpl_level_)
-	    {
-	      const spot::ltl::formula* tmp = simpl_.simplify(f);
-	      f->destroy();
-	      f = tmp;
-	    }
+	    f = simpl_.simplify(f);
 
-          if (opt_unique_)
-            {
-              if (unique_set_.insert(f).second)
-                {
-                  f->clone();
-                }
-              else
-                {
-		  ignore = true;
-                  f->destroy();
-                }
-            }
+	  if (opt_unique_ && !unique_set_.insert(f).second)
+	    ignore = true;
         } while (ignore && --trials);
       if (trials <= 0)
         return nullptr;
@@ -557,17 +538,15 @@ namespace spot
     }
 
     // GF(p_1) & GF(p_2) & ... & GF(p_n)
-    const formula*
+    formula
     randltlgenerator::GF_n()
     {
-      const formula* res = 0;
+      formula res = nullptr;
       for (auto v: aprops_)
         {
-          const formula* f =
-          unop::instance(unop::F, v->clone());
-          f = unop::instance(unop::G, f);
+          formula f = formula::G(formula::F(v));
           if (res)
-            res = multop::instance(multop::And, f, res);
+            res = formula::And({f, res});
           else
             res = f;
         }

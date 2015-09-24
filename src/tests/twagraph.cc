@@ -31,8 +31,8 @@ void f1()
   bdd p2 = bdd_ithvar(tg->register_ap("p2"));
   tg->acc().add_sets(2);
 
-  for (auto *f: tg->ap())
-    std::cout << f->name() << '\n';
+  for (auto f: tg->ap())
+    std::cout << f.ap_name() << '\n';
 
   auto s1 = tg->new_state();
   auto s2 = tg->new_state();

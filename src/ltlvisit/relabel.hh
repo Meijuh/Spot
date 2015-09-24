@@ -29,25 +29,7 @@ namespace spot
   {
     enum relabeling_style { Abc, Pnn };
 
-
-    struct relabeling_map: public std::map<const formula*,
-					   const formula*,
-					   formula_ptr_less_than>
-    {
-      void clear()
-      {
-	iterator i = begin();
-	while (i != end())
-	  i++->second->destroy();
-	this->std::map<const formula*, const formula*,
-		       formula_ptr_less_than>::clear();
-      }
-
-      ~relabeling_map()
-      {
-	clear();
-      }
-    };
+    typedef std::map<formula, formula> relabeling_map;
 
     /// \ingroup ltl_rewriting
     /// \brief Relabel the atomic propositions in a formula.
@@ -55,8 +37,8 @@ namespace spot
     /// If \a m is non-null, it is filled with correspondence
     /// between the new names (keys) and the old names (values).
     SPOT_API
-    const formula* relabel(const formula* f, relabeling_style style,
-			   relabeling_map* m = 0);
+    formula relabel(formula f, relabeling_style style,
+		    relabeling_map* m = 0);
 
 
     /// \ingroup ltl_rewriting
@@ -66,7 +48,7 @@ namespace spot
     /// If \a m is non-null, it is filled with correspondence
     /// between the new names (keys) and the old names (values).
     SPOT_API
-    const formula* relabel_bse(const formula* f, relabeling_style style,
-			       relabeling_map* m = 0);
+    formula relabel_bse(formula f, relabeling_style style,
+			relabeling_map* m = 0);
   }
 }

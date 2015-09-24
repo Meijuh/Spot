@@ -18,10 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "exclusive.hh"
-#include "ltlenv/defaultenv.hh"
-#include "ltlast/multop.hh"
-#include "ltlast/unop.hh"
-#include "ltlast/constant.hh"
 #include "twaalgos/mask.hh"
 #include "misc/casts.hh"
 #include "misc/minato.hh"
@@ -29,20 +25,12 @@
 
 namespace spot
 {
-  exclusive_ap::~exclusive_ap()
-  {
-    for (auto& g: groups)
-      for (auto ap: g)
-	ap->destroy();
-  }
-
   namespace
   {
-    static const std::vector<const spot::ltl::atomic_prop*>
+    static const std::vector<ltl::formula>
     split_aps(const char* arg)
     {
-      auto& env = spot::ltl::default_environment::instance();
-      std::vector<const spot::ltl::atomic_prop*> group;
+      std::vector<ltl::formula> group;
       auto start = arg;
       while (*start)
 	{
@@ -73,8 +61,7 @@ namespace spot
 		  throw std::invalid_argument(s);
 		}
 	      std::string ap(start, end - start);
-	      auto* t = env.require(ap);
-	      group.push_back(down_cast<const spot::ltl::atomic_prop*>(t));
+	      group.emplace_back(ltl::formula::ap(ap));
 	      do
 		++end;
 	      while (*end == ' ' || *end == '\t');
@@ -99,8 +86,7 @@ namespace spot
 	      while (rend > start && (rend[-1] == ' ' || rend[-1] == '\t'))
 		--rend;
 	      std::string ap(start, rend - start);
-	      auto* t = env.require(ap);
-	      group.push_back(down_cast<const spot::ltl::atomic_prop*>(t));
+	      group.emplace_back(ltl::formula::ap(ap));
 	      if (*end == ',')
 		start = end + 1;
 	      else
@@ -116,29 +102,27 @@ namespace spot
     add_group(split_aps(ap_csv));
   }
 
-  void exclusive_ap::add_group(std::vector<const ltl::atomic_prop*> ap)
+  void exclusive_ap::add_group(std::vector<ltl::formula> ap)
   {
     groups.push_back(ap);
   }
 
   namespace
   {
-    const ltl::formula*
-    nand(const ltl::formula* lhs, const ltl::formula* rhs)
+    ltl::formula
+    nand(ltl::formula lhs, ltl::formula rhs)
     {
-      auto f = ltl::multop::instance(ltl::multop::And,
-				     lhs->clone(), rhs->clone());
-      return ltl::unop::instance(ltl::unop::Not, f);
+      return ltl::formula::Not(ltl::formula::And({lhs, rhs}));
     }
   }
 
-  const ltl::formula*
-  exclusive_ap::constrain(const ltl::formula* f) const
+  ltl::formula
+  exclusive_ap::constrain(ltl::formula f) const
   {
-    spot::ltl::atomic_prop_set* s = atomic_prop_collect(f);
+    auto* s = atomic_prop_collect(f);
 
-    std::vector<const ltl::atomic_prop*> group;
-    ltl::multop::vec* v = new ltl::multop::vec;
+    std::vector<ltl::formula> group;
+    std::vector<ltl::formula> v;
 
     for (auto& g: groups)
       {
@@ -151,14 +135,11 @@ namespace spot
 	unsigned s = group.size();
 	for (unsigned j = 0; j < s; ++j)
 	  for (unsigned k = j + 1; k < s; ++k)
-	    v->push_back(nand(group[j], group[k]));
+	    v.push_back(nand(group[j], group[k]));
       };
 
     delete s;
-
-    auto* c = ltl::unop::instance(ltl::unop::G,
-				  ltl::multop::instance(ltl::multop::And, v));
-    return ltl::multop::instance(ltl::multop::And, f->clone(), c);
+    return ltl::formula::And({f, ltl::formula::G(ltl::formula::And(v))});
   }
 
   twa_graph_ptr exclusive_ap::constrain(const_twa_graph_ptr aut,

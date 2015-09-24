@@ -39,7 +39,6 @@
 #include "common_file.hh"
 #include "common_finput.hh"
 #include "parseaut/public.hh"
-#include "ltlast/unop.hh"
 #include "ltlvisit/print.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/mutation.hh"
@@ -819,8 +818,7 @@ namespace
   }
 
   typedef
-  std::unordered_set<const spot::ltl::formula*,
-		     const spot::ptr_hash<const spot::ltl::formula> > fset_t;
+  std::unordered_set<spot::ltl::formula> fset_t;
 
 
   class processor: public job_processor
@@ -834,32 +832,22 @@ namespace
     {
     }
 
-    ~processor()
-    {
-      fset_t::iterator i = unique_set.begin();
-      while (i != unique_set.end())
-	(*i++)->destroy();
-    }
-
     int
     process_string(const std::string& input,
 		   const char* filename,
 		   int linenum)
     {
       spot::ltl::parse_error_list pel;
-      const spot::ltl::formula* f = parse_formula(input, pel);
+      spot::ltl::formula f = parse_formula(input, pel);
 
       if (!f || !pel.empty())
 	{
 	  if (filename)
 	    error_at_line(0, 0, filename, linenum, "parse error:");
 	  spot::ltl::format_parse_errors(std::cerr, input, pel);
-	  if (f)
-	    f->destroy();
 	  return 1;
 	}
 
-      f->clone();
       int res = process_formula(f, filename, linenum);
 
       if (res && bogus_output)
@@ -867,7 +855,7 @@ namespace
       if (res && grind_output)
 	{
 	  std::string bogus = input;
-	  std::vector<const spot::ltl::formula*> mutations;
+	  std::vector<spot::ltl::formula> mutations;
 	  unsigned mutation_count;
 	  unsigned mutation_max;
 	  while	(res)
@@ -888,15 +876,12 @@ namespace
 		{
 		  std::cerr << "Mutation " << mutation_count << '/'
 			    << mutation_max << ": ";
-		  f->destroy();
-		  f = g->clone();
-		  res = process_formula(g->clone());
+		  f = g;
+		  res = process_formula(g);
 		  if (res)
 		    break;
 		  ++mutation_count;
 		}
-	      for (auto g: mutations)
-		g->destroy();
 	      if (res)
 		{
 		  if (lbt_input)
@@ -922,8 +907,6 @@ namespace
 	  std::cerr << ".\n\n";
 	  grind_output->ostream() << bogus << std::endl;
 	}
-      f->destroy();
-
       return 0;
     }
 
@@ -954,20 +937,16 @@ namespace
     }
 
     int
-    process_formula(const spot::ltl::formula* f,
+    process_formula(spot::ltl::formula f,
 		    const char* filename = 0, int linenum = 0)
     {
       static unsigned round = 0;
 
       // If we need LBT atomic proposition in any of the input or
       // output, relabel the formula.
-      if (!f->has_lbt_atomic_props() &&
+      if (!f.has_lbt_atomic_props() &&
 	  (runner.has('l') || runner.has('L') || runner.has('T')))
-	{
-	  const spot::ltl::formula* g = spot::ltl::relabel(f, spot::ltl::Pnn);
-	  f->destroy();
-	  f = g;
-	}
+	f = spot::ltl::relabel(f, spot::ltl::Pnn);
 
       // ---------- Positive Formula ----------
 
@@ -991,18 +970,13 @@ namespace
       // Make sure we do not translate the same formula twice.
       if (!allow_dups)
 	{
-	  if (unique_set.insert(f).second)
-	    {
-	      f->clone();
-	    }
-	  else
+	  if (!unique_set.insert(f).second)
 	    {
 	      std::cerr
 		<< ("warning: This formula or its negation has already"
 		    " been checked.\n         Use --allow-dups if it "
 		    "should not be ignored.\n")
 		<< std::endl;
-	      f->destroy();
 	      return 0;
 	    }
 	}
@@ -1053,12 +1027,11 @@ namespace
 	  nstats = &vstats[n + 1];
 	  nstats->resize(m);
 
-	  const spot::ltl::formula* nf =
-	    spot::ltl::unop::instance(spot::ltl::unop::Not, f->clone());
+	  spot::ltl::formula nf = spot::ltl::formula::Not(f);
 
 	  if (!allow_dups)
 	    {
-	      bool res = unique_set.insert(nf->clone()).second;
+	      bool res = unique_set.insert(nf).second;
 	      // It is not possible to discover that nf has already been
 	      // translated, otherwise that would mean that f had been
 	      // translated too and we would have caught it before.
@@ -1084,7 +1057,6 @@ namespace
 		      || (!want_stats && is_deterministic(neg[n]))))
 		comp_neg[n] = dtgba_complement(neg[n]);
 	    }
-	  nf->destroy();
 	}
 
       spot::cleanup_tmpfiles();
@@ -1171,7 +1143,6 @@ namespace
 	}
 
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
-      f->destroy();
 
       if (want_stats)
 	for (size_t i = 0; i < m; ++i)

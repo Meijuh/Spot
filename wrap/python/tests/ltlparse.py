@@ -33,16 +33,13 @@ for str1 in l:
     if spot.format_parse_errors(spot.get_cout(), str1, p):
         sys.exit(1)
     str2 = str(f)
-    f.destroy()
+    del f
     sys.stdout.write(str2 + "\n")
     # Try to reparse the stringified formula
     f = spot.parse_infix_psl(str2, p, e)
     if spot.format_parse_errors(spot.get_cout(), str2, p):
         sys.exit(1)
     sys.stdout.write(str(f) + "\n")
-    f.destroy()
+    del f
 
-assert spot.atomic_prop.instance_count() == 0
-assert spot.binop.instance_count() == 0
-assert spot.unop.instance_count() == 0
-assert spot.multop.instance_count() == 0
+assert spot.fnode_instances_check()

@@ -162,8 +162,7 @@ namespace spot
 
   std::ostream&
   stat_printer::print(const const_twa_graph_ptr& aut,
-		      const ltl::formula* f,
-		      double run_time)
+		      ltl::formula f, double run_time)
   {
     form_ = f;
     run_time_ = run_time;

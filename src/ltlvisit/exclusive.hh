@@ -20,19 +20,17 @@
 #pragma once
 
 #include <vector>
-#include "ltlast/atomic_prop.hh"
 #include "ltlast/formula.hh"
 #include "twa/twagraph.hh"
 
 namespace spot
 {
-  class SPOT_API exclusive_ap
+  class SPOT_API exclusive_ap final
   {
-    std::vector<std::vector<const ltl::atomic_prop*>> groups;
+    std::vector<std::vector<ltl::formula>> groups;
   public:
-    ~exclusive_ap();
 #ifndef SWIG
-    void add_group(std::vector<const ltl::atomic_prop*> ap);
+    void add_group(std::vector<ltl::formula> ap);
 #endif
     void add_group(const char* ap_csv);
 
@@ -41,7 +39,7 @@ namespace spot
       return groups.empty();
     }
 
-    const ltl::formula* constrain(const ltl::formula* f) const;
+    ltl::formula constrain(ltl::formula f) const;
     twa_graph_ptr constrain(const_twa_graph_ptr aut,
 			       bool simplify_guards = false) const;
   };

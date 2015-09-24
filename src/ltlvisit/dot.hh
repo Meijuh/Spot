@@ -23,7 +23,6 @@
 #pragma once
 
 #include <ltlast/formula.hh>
-#include <iosfwd>
 
 namespace spot
 {
@@ -37,6 +36,6 @@ namespace spot
     /// \c dot is part of the GraphViz package
     /// http://www.graphviz.org/
     SPOT_API
-    std::ostream& print_dot_psl(std::ostream& os, const formula* f);
+    std::ostream& print_dot_psl(std::ostream& os, formula f);
   }
 }

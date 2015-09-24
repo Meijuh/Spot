@@ -18,8 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "snf.hh"
-#include "ltlast/allnodes.hh"
-#include "ltlast/visitor.hh"
 
 namespace spot
 {
@@ -27,82 +25,51 @@ namespace spot
   {
     namespace
     {
-      // E°
-      class snf_visitor: public visitor
+      // E°  if bounded=false
+      // E^□ if nounded=true
+      template<bool bounded>
+      class snf_visitor
       {
       protected:
-	const formula* result_;
+	formula result_;
 	snf_cache* cache_;
       public:
-
-	snf_visitor(snf_cache* c): cache_(c)
+	snf_visitor(snf_cache* c)
+	  : cache_(c)
 	{
 	}
 
-	const formula*
-	result() const
+	formula visit(formula f)
 	{
-	  return result_;
-	}
+	  if (!f.accepts_eword())
+	    return f;
 
-	void
-	visit(const atomic_prop*)
-	{
-	  SPOT_UNIMPLEMENTED();
-	}
+	  snf_cache::const_iterator i = cache_->find(f);
+	  if (i != cache_->end())
+	    return i->second;
 
-	void
-	visit(const constant* c)
-	{
-	  assert(c == constant::empty_word_instance());
-	  (void)c;
-	  result_ = constant::false_instance();
-	}
-
-	void
-	visit(const bunop* bo)
-	{
-	  bunop::type op = bo->op();
-	  switch (op)
+	  formula out;
+	  switch (f.kind())
 	    {
-	    case bunop::Star:
-	      assert(bo->accepts_eword());
-	      // Strip the star.
-	      result_ = recurse(bo->child());
+	    case op::EmptyWord:
+	      out = formula::ff();
 	      break;
-	    case bunop::FStar:
-	      // FIXME: Can we deal with FStar in a better way?
-	      result_ = bo->clone();
+	    case op::Star:
+	      if (!bounded)
+		out = visit(f.nth(0)); // Strip the star.
+	      else
+		out = formula::Star(visit(f.nth(0)),
+				    std::max(unsigned(f.min()), 1U), f.max());
 	      break;
-
-	    }
-	}
-
-	void
-	visit(const unop*)
-	{
-	  SPOT_UNIMPLEMENTED();
-	}
-
-	void
-	visit(const binop*)
-	{
-	  SPOT_UNIMPLEMENTED();
-	}
-
-	void
-	visit(const multop* mo)
-	{
-	  multop::type op = mo->op();
-	  switch (op)
-	    {
-	    case multop::And:
-	    case multop::Or:
-	    case multop::Fusion:
-	      SPOT_UNIMPLEMENTED();
-	      break;
-	    case multop::Concat:
-	    case multop::AndNLM:
+	    case op::Concat:
+	      if (bounded)
+		{
+		  out = f;
+		  break;
+		}
+	      // Fall through
+	    case op::OrRat:
+	    case op::AndNLM:
 	      // Let F designate expressions that accept [*0],
 	      // and G designate expressions that do not.
 
@@ -112,100 +79,70 @@ namespace spot
 	      //
 	      // AndNLM can be dealt with similarly.
 	      //
-	      // This case is already handled in recurse().
-	      // if we reach this switch, we only have to
-	      // deal with...
+	      // The above cases are already handled by the
+	      // accepts_eword() tests at the top of this method.  So
+	      // we reach this switch, we only have to deal with...
 	      //
 	      // (F₁;F₂;F₃)° = (F₁°)|(F₂°)|(F₃°)
 	      // (F₁&F₂&F₃)° = (F₁°)|(F₂°)|(F₃°)
-	      // so we fall through to the OrRat case...
-	    case multop::OrRat:
-	      assert(mo->accepts_eword());
+	      // (F₁|G₂|F₃)° = (F₁°)|(G₂°)|(F₃°)
 	      {
-		unsigned s = mo->size();
-		multop::vec* v = new multop::vec;
-		v->reserve(s);
+		unsigned s = f.size();
+		std::vector<formula> v;
+		v.reserve(s);
 		for (unsigned pos = 0; pos < s; ++pos)
-		  v->push_back(recurse(mo->nth(pos)));
-		result_ = multop::instance(multop::OrRat, v);
+		  v.emplace_back(visit(f.nth(pos)));
+		out = formula::OrRat(v);
+		break;
 	      }
-	      break;
-	    case multop::AndRat:
-	      // FIXME: Can we deal with AndRat in a better way
-	      // when it accepts [*0]?
-	      result_ = mo->clone();
-	      break;
-	    }
-	}
-
-	const formula*
-	recurse(const formula* f)
-	{
-	  if (!f->accepts_eword())
-	    return f->clone();
-
-	  snf_cache::const_iterator i = cache_->find(f);
-	  if (i != cache_->end())
-	    return i->second->clone();
-
-	  f->accept(*this);
-
-	  (*cache_)[f->clone()] = result_->clone();
-	  return result_;
-	}
-      };
-
-      // E^□
-      class snf_visitor_bounded: public snf_visitor
-      {
-      public:
-	snf_visitor_bounded(snf_cache* c): snf_visitor(c)
-	{
-	}
-
-	void
-	visit(const bunop* bo)
-	{
-	  bunop::type op = bo->op();
-	  switch (op)
-	    {
-	    case bunop::Star:
-	      assert(bo->accepts_eword());
-	      result_ = bunop::instance(bunop::Star,
-					recurse(bo->child()),
-					std::max(bo->min(), 1U),
-					bo->max());
-	      break;
-	    case bunop::FStar:
-	      result_ = bo->clone();
+	    case op::False:
+	    case op::True:
+	    case op::AP:
+	    case op::Not:
+	    case op::X:
+	    case op::F:
+	    case op::G:
+	    case op::Closure:
+	    case op::NegClosure:
+	    case op::NegClosureMarked:
+	    case op::Xor:
+	    case op::Implies:
+	    case op::Equiv:
+	    case op::U:
+	    case op::R:
+	    case op::W:
+	    case op::M:
+	    case op::EConcat:
+	    case op::EConcatMarked:
+	    case op::UConcat:
+	    case op::Fusion:
+	    case op::Or:
+	    case op::And:
+	      SPOT_UNREACHABLE();
+	    case op::AndRat:	// Can AndRat be handled better?
+	    case op::FStar:	// Can FStar be handled better?
+	      out = f;
 	      break;
 	    }
-	}
 
-	void
-	visit(const multop* mo)
-	{
-	  if (mo->op() == multop::Concat)
-	    result_ = mo->clone();
-	  else
-	    this->snf_visitor::visit(mo);
+	  return (*cache_)[f] = out;
 	}
       };
     }
 
 
-    const formula*
-    star_normal_form(const formula* sere, snf_cache* cache)
+    formula
+    star_normal_form(formula sere, snf_cache* cache)
     {
-      snf_visitor v(cache);
-      return v.recurse(sere);
+      snf_visitor<false> v(cache);
+      return v.visit(sere);
     }
 
-    const formula*
-    star_normal_form_bounded(const formula* sere, snf_cache* cache)
+    formula
+    star_normal_form_bounded(formula sere, snf_cache* cache)
     {
-      snf_visitor_bounded v(cache);
-      return v.recurse(sere);
+      snf_visitor<true> v(cache);
+      return v.visit(sere);
     }
 
   }

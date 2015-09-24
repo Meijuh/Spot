@@ -40,7 +40,7 @@ namespace spot
   static bool utf8;
 
   static
-  std::ostream& print_(std::ostream& o, const ltl::formula* f)
+  std::ostream& print_(std::ostream& o, ltl::formula f)
   {
     if (utf8)
       ltl::print_utf8_psl(o, f);
@@ -172,10 +172,7 @@ namespace spot
   std::ostream&
   bdd_print_formula(std::ostream& os, const bdd_dict_ptr& d, bdd b)
   {
-    const ltl::formula* f = bdd_to_formula(b, d);
-    print_(os, f);
-    f->destroy();
-    return os;
+    return print_(os, bdd_to_formula(b, d));
   }
 
   std::string

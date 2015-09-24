@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2010, 2012, 2013, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -22,36 +22,12 @@
 
 #pragma once
 
-#include "clone.hh"
+#include "ltlast/formula.hh"
 
 namespace spot
 {
   namespace ltl
   {
-    /// \ingroup ltl_visitor
-    /// \brief Replace <code>true U f</code> and <code>false R g</code> by
-    /// <code>F f</code> and <code>G g</code>.
-    ///
-    /// Perform the following rewriting (from left to right):
-    ///
-    /// - true U a = F a
-    /// - a M true = F a
-    /// - false R a = G a
-    /// - a W false = G a
-    ///
-    class SPOT_API simplify_f_g_visitor : public clone_visitor
-    {
-      typedef clone_visitor super;
-    public:
-      simplify_f_g_visitor();
-      virtual ~simplify_f_g_visitor();
-
-      using super::visit;
-      void visit(const binop* bo);
-
-      virtual const formula* recurse(const formula* f);
-    };
-
     /// \ingroup ltl_rewriting
     /// \brief Replace <code>true U f</code> and <code>false R g</code> by
     /// <code>F f</code> and <code>G g</code>.
@@ -63,6 +39,6 @@ namespace spot
     /// - false R a = G a
     /// - a W false = G a
     ///
-    SPOT_API const formula* simplify_f_g(const formula* f);
+    SPOT_API formula simplify_f_g(formula f);
   }
 }

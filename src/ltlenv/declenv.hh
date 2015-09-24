@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -25,7 +25,7 @@
 #include "environment.hh"
 #include <string>
 #include <map>
-#include "ltlast/atomic_prop.hh"
+#include "ltlast/formula.hh"
 
 namespace spot
 {
@@ -41,18 +41,18 @@ namespace spot
     {
     public:
       declarative_environment();
-      ~declarative_environment();
+      ~declarative_environment() = default;
 
       /// Declare an atomic proposition.  Return false iff the
       /// proposition was already declared.
       bool declare(const std::string& prop_str);
 
-      virtual const formula* require(const std::string& prop_str);
+      virtual formula require(const std::string& prop_str);
 
       /// Get the name of the environment.
       virtual const std::string& name() const;
 
-      typedef std::map<const std::string, const atomic_prop*> prop_map;
+      typedef std::map<const std::string, formula> prop_map;
 
       /// Get the map of atomic proposition known to this environment.
       const prop_map& get_prop_map() const;

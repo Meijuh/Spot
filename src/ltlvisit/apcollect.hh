@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "ltlast/atomic_prop.hh"
+#include "ltlast/formula.hh"
 #include <set>
 #include <bddx.h>
 #include "twa/fwd.hh"
@@ -35,17 +35,11 @@ namespace spot
     /// @{
 
     /// Set of atomic propositions.
-    typedef std::set<const atomic_prop*,
-		     formula_ptr_less_than> atomic_prop_set;
+    typedef std::set<formula> atomic_prop_set;
 
     /// \brief construct an atomic_prop_set with n propositions
     SPOT_API
     atomic_prop_set create_atomic_prop_set(unsigned n);
-
-    /// \brief Destroy all the atomic propositions in an
-    /// atomic_prop_set.
-    SPOT_API void
-    destroy_atomic_prop_set(atomic_prop_set& aprops);
 
     /// \brief Return the set of atomic propositions occurring in a formula.
     ///
@@ -55,10 +49,8 @@ namespace spot
     /// \return A pointer to the supplied set, \c s, augmented with
     ///        atomic propositions occurring in \c f; or a newly allocated
     ///        set containing all these atomic propositions if \c s is 0.
-    ///        The atomic propositions inserted into \a s are not cloned, so
-    ///        they are only valid as long as \a f is.
     SPOT_API atomic_prop_set*
-    atomic_prop_collect(const formula* f, atomic_prop_set* s = 0);
+    atomic_prop_collect(formula f, atomic_prop_set* s = nullptr);
 
     /// \brief Return the set of atomic propositions occurring in a
     /// formula, as a BDD.
@@ -67,8 +59,7 @@ namespace spot
     /// \param a that automaton that should register the BDD variables used.
     /// \return A conjunction the atomic propositions.
     SPOT_API bdd
-    atomic_prop_collect_as_bdd(const formula* f,
-			       const twa_ptr& a);
+    atomic_prop_collect_as_bdd(formula f, const twa_ptr& a);
 
     /// @}
   }

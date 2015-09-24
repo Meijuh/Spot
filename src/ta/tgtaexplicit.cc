@@ -17,8 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "ltlast/atomic_prop.hh"
-#include "ltlast/constant.hh"
 #include "tgtaexplicit.hh"
 #include "twa/formula2bdd.hh"
 #include "twa/bddprint.hh"

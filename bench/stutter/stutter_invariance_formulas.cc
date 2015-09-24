@@ -25,7 +25,6 @@
 #include "twaalgos/stutter.hh"
 #include "twaalgos/dupexp.hh"
 #include "twaalgos/stats.hh"
-#include "ltlast/allnodes.hh"
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/length.hh"
 #include "misc/timer.hh"
@@ -64,14 +63,10 @@ namespace
     }
 
     int
-    process_formula(const spot::ltl::formula* f,
-                    const char*, int)
+    process_formula(spot::ltl::formula f, const char*, int)
     {
-      const spot::ltl::formula* nf =
-	spot::ltl::unop::instance(spot::ltl::unop::Not,
-				  f->clone());
       spot::twa_graph_ptr a = trans.run(f);
-      spot::twa_graph_ptr na = trans.run(nf);
+      spot::twa_graph_ptr na = trans.run(spot::ltl::formula::Not(f));
       spot::ltl::atomic_prop_set* ap = spot::ltl::atomic_prop_collect(f);
       bdd apdict = spot::ltl::atomic_prop_collect_as_bdd(f, a);
 
@@ -103,9 +98,6 @@ namespace
           prev = res;
         }
       std::cout << prev << '\n';
-
-      f->destroy();
-      nf->destroy();
       delete ap;
       return 0;
     }

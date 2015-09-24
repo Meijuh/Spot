@@ -26,7 +26,6 @@
 #include <utility>
 #include "sccinfo.hh"
 #include "twa/bddprint.hh"
-#include "ltlast/constant.hh"
 #include "stats.hh"
 #include "ltlenv/defaultenv.hh"
 #include "misc/satsolver.hh"

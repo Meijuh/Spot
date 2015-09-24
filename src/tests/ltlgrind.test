@@ -25,7 +25,7 @@ set -e
 checkopt()
 {
     cat >exp
-    run 0 ../../bin/ltlgrind "$@" > out
+    run 0 ../../bin/ltlgrind --sort "$@" > out
     # The result must be parsable
     ../../bin/ltlfilt out
     diff exp out
@@ -34,44 +34,44 @@ checkopt()
 checkopt -f 'Xp1 U (p4 | (p3 xor (p4 W p0)))' <<EOF
 1
 Xp1
-p4 | (p3 xor (p4 W p0))
-Xp1 W (p4 | (p3 xor (p4 W p0)))
-Xp1 U (p3 xor (p4 W p0))
 Xp1 U p4
 Xp1 U (p3 | p4)
+p4 | (p3 xor (p4 W p0))
+Xp1 U (!p3 | p4)
+Xp1 U (p3 xor (p4 W p0))
 Xp1 U (p4 | (p4 W p0))
-Xp1 U (p4 | (p3 & !(p4 W p0)))
-Xp1 U (p4 | (!p3 & (p4 W p0)))
 Xp1 U (p4 | (p3 xor p4))
 Xp1 U (p4 | (p0 xor p3))
-Xp1 U (!p3 | p4)
-Xp1 U (p4 | (p3 xor (p4 W 0)))
-Xp1 U (p4 | !(p4 W p0))
+Xp1 U (p0 | (p0 xor p3))
 p1 U (p4 | (p3 xor (p4 W p0)))
 1 U (p4 | (p3 xor (p4 W p0)))
+Xp1 U (p4 | !(p4 W p0))
+Xp1 W (p4 | (p3 xor (p4 W p0)))
+Xp1 U (p4 | (p3 xor (p4 W 0)))
 Xp4 U (p4 | (p3 xor (p4 W p0)))
 Xp3 U (p4 | (p3 xor (p4 W p0)))
 Xp0 U (p4 | (p3 xor (p4 W p0)))
 Xp1 U (p1 | (p3 xor (p1 W p0)))
 Xp1 U (p3 | (p3 xor (p3 W p0)))
-Xp1 U (p0 | (p0 xor p3))
 Xp1 U (p4 | (p1 xor (p4 W p0)))
 Xp1 U (p4 | (p4 xor (p4 W p0)))
 Xp1 U (p4 | (p0 xor (p4 W p0)))
 Xp1 U (p4 | (p3 xor (p4 W p1)))
 Xp1 U (p4 | (p3 xor (p4 W p3)))
+Xp1 U (p4 | (p3 & !(p4 W p0)))
+Xp1 U (p4 | (!p3 & (p4 W p0)))
 EOF
 
-checkopt -f '(Xp4 R p3) W !p0' --sort <<EOF
+checkopt -f '(Xp4 R p3) W !p0' <<EOF
 1
 !p0
 Xp4 R p3
 p3 W !p0
 Xp4 W !p0
-(Xp4 R p3) W p0
-(Xp4 R p3) W 0
 (p4 R p3) W !p0
 (0 R p3) W !p0
+(Xp4 R p3) W p0
+(Xp4 R p3) W 0
 (p3 W Xp4) W !p0
 (Xp3 R p3) W !p0
 (Xp0 R p3) W !p0
@@ -82,22 +82,22 @@ Xp4 W !p0
 EOF
 
 checkopt -f 'F(!p2 & p3) | Fp0' -n 4 <<EOF
-F(!p2 & p3)
 Fp0
-(!p2 & p3) | Fp0
+F(!p2 & p3)
 Fp0 | Fp3
+(!p2 & p3) | Fp0
 EOF
 
 checkopt -f '{(a | b)[*4] & ((a | b)*; c)} <>-> G(d <-> e) xor f' --split-ops \
 <<EOF
-{{{a | b}}[*4] & {{{a | b}}[*];c}}<>-> (f & !G(d <-> e))
-{{{a | b}}[*4] & {{{a | b}}[*];c}}<>-> (!f & G(d <-> e))
-{{{a | b}}[*4] & {{{a | b}}[*];c}}<>-> (f xor G(d -> e))
-{{{a | b}}[*4] & {{{a | b}}[*];c}}<>-> (f xor G(e -> d))
-{{{a | b}}[*4] & {{{a | b}}[*];c}}<>-> (f xor G(d & e))
-{{{a | b}}[*4] & {{{a | b}}[*];c}}<>-> (f xor G(!d & !e))
-{{{{a | b}}[*];c} && {{{a | b}}[*4];[*]}}<>-> (f xor G(d <-> e))
-{{{a | b}}[*4] && {{{a | b}}[*];c;[*]}}<>-> (f xor G(d <-> e))
+{{a | b}[*4] & {{a | b}[*];c}}<>-> (f xor G(d -> e))
+{{a | b}[*4] & {{a | b}[*];c}}<>-> (f xor G(e -> d))
+{{a | b}[*4] & {{a | b}[*];c}}<>-> (f xor G(d & e))
+{{a | b}[*4] & {{a | b}[*];c}}<>-> (f & !G(d <-> e))
+{{a | b}[*4] & {{a | b}[*];c}}<>-> (!f & G(d <-> e))
+{{a | b}[*4] & {{a | b}[*];c}}<>-> (f xor G(!d & !e))
+{{{a | b}[*];c} && {{a | b}[*4];[*]}}<>-> (f xor G(d <-> e))
+{{a | b}[*4] && {{a | b}[*];c;[*]}}<>-> (f xor G(d <-> e))
 EOF
 
 
@@ -108,9 +108,9 @@ checkopt -f '!(!XXp1 M X(p4 U p2))' --rewrite-ops <<EOF
 EOF
 
 checkopt -f '!(p0 & !p2 & (p1 W 0))' --remove-multop-operands <<EOF
-!(!p2 & (p1 W 0))
-!(p0 & (p1 W 0))
 !(p0 & !p2)
+!(p0 & (p1 W 0))
+!(!p2 & (p1 W 0))
 EOF
 
 checkopt -f '{p1[*..2] | p2[*3..5] | p3[*6..]}[]-> 0' --simplify-bounds <<EOF
@@ -136,9 +136,9 @@ EOF
 checkopt -f '!p4 & (p2 | {{!p1}[*]})' --ap-to-const <<EOF
 0
 !p4
+p2 & !p4
 p2 | {{!p1}[*]}
 !p4 & {{!p1}[*]}
-p2 & !p4
 !p4 & (p2 | {[*]})
 EOF
 
@@ -150,34 +150,34 @@ F((p0 & p4) | XXp0)
 EOF
 
 checkopt -f '1 U (p3 <-> p4)' -m 2 <<EOF
-1
 0
+1
 p3
 p4
+!p4
+!p3
 p3 -> p4
 p4 -> p3
 p3 & p4
-!p4
-!p3
-!p3 & !p4
 1 U p3
 1 U p4
 1 U !p3
 1 U !p4
+!p3 & !p4
 1 U (p3 & !p4)
 1 U (!p3 & p4)
 EOF
 
 checkopt -f 'F({{p2;p0}[:*]}[]-> Xp0)' <<EOF
 1
-{{p2;p0}[:*]}[]-> Xp0
-F!{{p2;p0}[:*]}
 FXp0
+F!{{p2;p0}[:*]}
+{{p2;p0}[:*]}[]-> Xp0
+F({p2;p0}[]-> Xp0)
 F({{p2;p0}[:*]}[]-> p0)
 F({{p2;p0}[:*]}[]-> 0)
-F({p2;p0}[]-> Xp0)
-F({{1;p0}[:*]}[]-> Xp0)
-F({{p2;1}[:*]}[]-> Xp0)
 F({p0[*2][:*]}[]-> Xp0)
 F({p2[*2][:*]}[]-> Xp2)
+F({{1;p0}[:*]}[]-> Xp0)
+F({{p2;1}[:*]}[]-> Xp0)
 EOF

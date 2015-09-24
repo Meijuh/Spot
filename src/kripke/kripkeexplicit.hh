@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE)
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
 //
@@ -151,8 +151,7 @@ namespace spot
     ///
     /// \param f the formula to add.
     /// \param on_me the state where to add.
-    void add_condition(const ltl::formula* f,
-		       std::string on_me);
+    void add_condition(ltl::formula f, std::string on_me);
 
     /// \brief Return map between states and their names.
     const std::map<const state_kripke*, std::string>&

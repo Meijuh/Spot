@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2012, 2014 Laboratoire de Recherche et
+// Copyright (C) 2008, 2012, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -38,20 +38,14 @@ namespace spot
       ///
       /// Usually \a prop_str, is the name of an atomic proposition,
       /// and spot::ltl::require simply returns the associated
-      /// spot::ltl::atomic_prop.
+      /// spot::ltl::formula.
       ///
       /// Note this is not a \c const method.  Some environments will
       /// "create" the atomic proposition when requested.
       ///
-      /// We return a spot::ltl::formula instead of an
-      /// spot::ltl::atomic_prop, because this
-      /// will allow nifty tricks (e.g., we could name formulae in an
-      /// environment, and let the parser build a larger tree from
-      /// these).
-      ///
       /// \return 0 iff \a prop_str is not part of the environment,
       ///   or the associated spot::ltl::formula otherwise.
-      virtual const formula* require(const std::string& prop_str) = 0;
+      virtual formula require(const std::string& prop_str) = 0;
 
       /// Get the name of the environment.
       virtual const std::string& name() const = 0;

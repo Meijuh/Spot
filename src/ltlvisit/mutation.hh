@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,7 +20,6 @@
 #pragma once
 
 #include "ltlast/formula.hh"
-#include <set>
 #include <vector>
 
 namespace spot
@@ -40,10 +39,10 @@ namespace spot
       };
 
     SPOT_API
-    std::vector<const formula*> mutate(const formula* f,
-				       unsigned opts = Mut_All,
-				       unsigned max_output = -1U,
-				       unsigned mutation_count = 1,
-				       bool sort = true);
+    std::vector<formula> mutate(formula f,
+				unsigned opts = Mut_All,
+				unsigned max_output = -1U,
+				unsigned mutation_count = 1,
+				bool sort = true);
   }
 }

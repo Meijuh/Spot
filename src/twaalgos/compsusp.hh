@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -49,7 +49,7 @@ namespace spot
   /// long-term stability should better use the services of the
   /// spot::translator class instead.
   SPOT_API twa_graph_ptr
-  compsusp(const ltl::formula* f, const bdd_dict_ptr& dict,
+  compsusp(ltl::formula f, const bdd_dict_ptr& dict,
 	   bool no_wdba = false, bool no_simulation = false,
 	   bool early_susp = false, bool no_susp_product = false,
 	   bool wdba_smaller = false, bool oblig = false);

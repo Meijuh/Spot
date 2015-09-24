@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2012, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2012, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris
 // 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
 // Université Pierre et Marie Curie.
@@ -22,8 +22,6 @@
 
 #include <cassert>
 #include "formula2bdd.hh"
-#include "ltlast/allnodes.hh"
-#include "ltlast/visitor.hh"
 #include "misc/minato.hh"
 
 namespace spot
@@ -32,163 +30,24 @@ namespace spot
 
   namespace
   {
-    class formula_to_bdd_visitor: public ltl::visitor
-    {
-    public:
-      formula_to_bdd_visitor(const bdd_dict_ptr& d, void* owner)
-	: d_(d), owner_(owner)
-      {
-      }
-
-      virtual
-      ~formula_to_bdd_visitor()
-      {
-      }
-
-      virtual void
-      visit(const atomic_prop* node)
-      {
-	res_ = bdd_ithvar(d_->register_proposition(node, owner_));
-      }
-
-      virtual void
-      visit(const constant* node)
-      {
-	switch (node->val())
-	  {
-	  case constant::True:
-	    res_ = bddtrue;
-	    return;
-	  case constant::False:
-	    res_ = bddfalse;
-	    return;
-	  case constant::EmptyWord:
-	    SPOT_UNIMPLEMENTED();
-	  }
-	SPOT_UNREACHABLE();
-      }
-
-      virtual void
-      visit(const bunop*)
-      {
-	SPOT_UNIMPLEMENTED();
-      }
-
-      virtual void
-      visit(const unop* node)
-      {
-	switch (node->op())
-	  {
-	  case unop::F:
-	  case unop::G:
-	  case unop::X:
-	  case unop::Closure:
-	  case unop::NegClosure:
-	  case unop::NegClosureMarked:
-	    SPOT_UNIMPLEMENTED();
-	  case unop::Not:
-	    {
-	      res_ = bdd_not(recurse(node->child()));
-	      return;
-	    }
-	  }
-	SPOT_UNREACHABLE();
-      }
-
-      virtual void
-      visit(const binop* node)
-      {
-	bdd f1 = recurse(node->first());
-	bdd f2 = recurse(node->second());
-
-	switch (node->op())
-	  {
-	  case binop::Xor:
-	    res_ = bdd_apply(f1, f2, bddop_xor);
-	    return;
-	  case binop::Implies:
-	    res_ = bdd_apply(f1, f2, bddop_imp);
-	    return;
-	  case binop::Equiv:
-	    res_ = bdd_apply(f1, f2, bddop_biimp);
-	    return;
-	  case binop::U:
-	  case binop::R:
-	  case binop::W:
-	  case binop::M:
-	  case binop::UConcat:
-	  case binop::EConcat:
-	  case binop::EConcatMarked:
-	    SPOT_UNIMPLEMENTED();
-	  }
-	SPOT_UNREACHABLE();
-      }
-
-      virtual void
-      visit(const multop* node)
-      {
-	int op = -1;
-	switch (node->op())
-	  {
-	  case multop::And:
-	    op = bddop_and;
-	    res_ = bddtrue;
-	    break;
-	  case multop::Or:
-	    op = bddop_or;
-	    res_ = bddfalse;
-	    break;
-	  case multop::Concat:
-	  case multop::Fusion:
-	  case multop::AndNLM:
-	  case multop::OrRat:
-	  case multop::AndRat:
-	    SPOT_UNIMPLEMENTED();
-	  }
-	assert(op != -1);
-	unsigned s = node->size();
-	for (unsigned n = 0; n < s; ++n)
-	  {
-	    res_ = bdd_apply(res_, recurse(node->nth(n)), op);
-	  }
-      }
-
-      bdd
-      result() const
-      {
-	return res_;
-      }
-
-      bdd
-      recurse(const formula* f) const
-      {
-	return formula_to_bdd(f, d_, owner_);
-      }
-
-    private:
-      bdd_dict_ptr d_;
-      void* owner_;
-      bdd res_;
-    };
-
     // Convert a BDD which is known to be a conjonction into a formula.
-    static const ltl::formula*
+    static formula
     conj_to_formula(bdd b, const bdd_dict_ptr d)
     {
       if (b == bddfalse)
-	return constant::false_instance();
-      multop::vec* v = new multop::vec;
+	return formula::ff();
+      std::vector<formula> v;
       while (b != bddtrue)
 	{
 	  int var = bdd_var(b);
 	  const bdd_dict::bdd_info& i = d->bdd_map[var];
 	  assert(i.type == bdd_dict::var);
-	  const formula* res = i.f->clone();
+	  formula res = i.f;
 
 	  bdd high = bdd_high(b);
 	  if (high == bddfalse)
 	    {
-	      res = unop::instance(unop::Not, res);
+	      res = formula::Not(res);
 	      b = bdd_low(b);
 	    }
 	  else
@@ -198,34 +57,89 @@ namespace spot
 	      b = high;
 	    }
 	  assert(b != bddfalse);
-	  v->push_back(res);
+	  v.push_back(res);
 	}
-      return multop::instance(multop::And, v);
+      return formula::And(v);
     }
-
   } // anonymous
 
   bdd
-  formula_to_bdd(const formula* f, const bdd_dict_ptr& d, void* for_me)
+  formula_to_bdd(formula f, const bdd_dict_ptr& d, void* owner)
   {
-    formula_to_bdd_visitor v(d, for_me);
-    f->accept(v);
-    return v.result();
+    auto recurse = [&d, owner](formula f)
+      {
+	return formula_to_bdd(f, d, owner);
+      };
+    switch (f.kind())
+      {
+      case op::False:
+	return bddfalse;
+      case op::True:
+	return bddtrue;
+      case op::EmptyWord:
+      case op::Star:
+      case op::FStar:
+      case op::F:
+      case op::G:
+      case op::X:
+      case op::Closure:
+      case op::NegClosure:
+      case op::NegClosureMarked:
+      case op::U:
+      case op::R:
+      case op::W:
+      case op::M:
+      case op::UConcat:
+      case op::EConcat:
+      case op::EConcatMarked:
+      case op::Concat:
+      case op::Fusion:
+      case op::AndNLM:
+      case op::OrRat:
+      case op::AndRat:
+	SPOT_UNIMPLEMENTED();
+      case op::AP:
+	return bdd_ithvar(d->register_proposition(f, owner));
+      case op::Not:
+	return bdd_not(recurse(f.nth(0)));
+      case op::Xor:
+	return bdd_apply(recurse(f.nth(0)), recurse(f.nth(1)), bddop_xor);
+      case op::Implies:
+	return bdd_apply(recurse(f.nth(0)), recurse(f.nth(1)), bddop_imp);
+      case op::Equiv:
+	return bdd_apply(recurse(f.nth(0)), recurse(f.nth(1)), bddop_biimp);
+      case op::And:
+      case op::Or:
+	{
+	  int op = bddop_and;
+	  bdd res = bddtrue;
+	  if (f.is(ltl::op::Or))
+	    {
+	      op = bddop_or;
+	      res = bddfalse;
+	    }
+	  unsigned s = f.size();
+	  for (unsigned n = 0; n < s; ++n)
+	    res = bdd_apply(res, recurse(f.nth(n)), op);
+	  return res;
+	}
+      }
+    SPOT_UNREACHABLE();
+    return bddfalse;
   }
 
-  const formula*
+  formula
   bdd_to_formula(bdd f, const bdd_dict_ptr d)
   {
     if (f == bddfalse)
-      return constant::false_instance();
+      return formula::ff();
 
-    multop::vec* v = new multop::vec;
+    std::vector<formula> v;
 
     minato_isop isop(f);
     bdd cube;
     while ((cube = isop.next()) != bddfalse)
-      v->push_back(conj_to_formula(cube, d));
-
-    return multop::instance(multop::Or, v);
+      v.emplace_back(conj_to_formula(cube, d));
+    return formula::Or(std::move(v));
   }
 }

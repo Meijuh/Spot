@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -39,11 +39,11 @@ namespace spot
     ///        \c !f
     ///
     /// Note that this will not remove abbreviated operators.  If you
-    /// want to remove abbreviations, call spot::ltl::unabbreviate_logic
-    /// or spot::ltl::unabbreviate_ltl first.  (Calling these functions
-    /// after spot::ltl::negative_normal_form would likely produce a
-    /// formula which is not in negative normal form.)
-    SPOT_API const formula*
-    negative_normal_form(const formula* f, bool negated = false);
+    /// want to remove abbreviations, call spot::ltl::unabbreviate
+    /// first.  (Calling this function after
+    /// spot::ltl::negative_normal_form would likely produce a formula
+    /// which is not in negative normal form.)
+    SPOT_API formula
+    negative_normal_form(formula f, bool negated = false);
   }
 }

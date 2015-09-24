@@ -39,8 +39,6 @@ namespace spot
 
   twa::~twa()
   {
-    for (auto* ap: aps_)
-      ap->destroy();
     if (last_support_conditions_input_)
       last_support_conditions_input_->destroy();
     delete iter_cache_;

@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -27,11 +27,11 @@ namespace spot
 {
   namespace ltl
   {
-    const formula*
-    negative_normal_form(const formula* f, bool negated)
+    formula
+    negative_normal_form(formula f, bool negated)
     {
-      if (!negated && f->is_in_nenoform())
-	return f->clone();
+      if (!negated && f.is_in_nenoform())
+	return f;
 
       ltl_simplifier s;
       return s.negative_normal_form(f, negated);

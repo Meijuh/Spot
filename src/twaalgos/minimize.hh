@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Laboratoire de
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
 // Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -151,7 +151,7 @@ namespace spot
   /// that the minimized WDBA is correct.
   SPOT_API twa_graph_ptr
   minimize_obligation(const const_twa_graph_ptr& aut_f,
-		      const ltl::formula* f = 0,
+		      ltl::formula f = nullptr,
 		      const_twa_graph_ptr aut_neg_f = nullptr,
 		      bool reject_bigger = false);
   /// @}

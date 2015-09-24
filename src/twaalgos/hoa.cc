@@ -32,7 +32,7 @@
 #include "misc/bddlt.hh"
 #include "misc/minato.hh"
 #include "twa/formula2bdd.hh"
-#include "ltlast/atomic_prop.hh"
+#include "ltlast/formula.hh"
 
 namespace spot
 {
@@ -292,11 +292,7 @@ namespace spot
        << "AP: " << nap;
     auto d = aut->get_dict();
     for (auto& i: md.vap)
-      {
-	auto f = ltl::is_atomic_prop(d->bdd_map[i].f);
-	assert(f);
-	escape_str(os << " \"", f->name()) << '"';
-      }
+      escape_str(os << " \"", d->bdd_map[i].f.ap_name()) << '"';
     os << nl;
 
     unsigned num_acc = aut->num_sets();

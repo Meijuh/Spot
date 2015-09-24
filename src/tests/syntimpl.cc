@@ -24,10 +24,8 @@
 #include <cassert>
 #include <cstdlib>
 #include "ltlparse/public.hh"
-#include "ltlvisit/dump.hh"
 #include "ltlvisit/print.hh"
 #include "ltlvisit/simplify.hh"
-#include "ltlast/allnodes.hh"
 #include "ltlvisit/nenoform.hh"
 
 void
@@ -44,74 +42,66 @@ main(int argc, char** argv)
     syntax(argv[0]);
 
   int opt = atoi(argv[1]);
-
-  spot::ltl::parse_error_list p1;
-  auto* ftmp1 = spot::ltl::parse_infix_psl(argv[2], p1);
-
-  if (spot::ltl::format_parse_errors(std::cerr, argv[2], p1))
-    return 2;
-
-  spot::ltl::parse_error_list p2;
-  auto* ftmp2 = spot::ltl::parse_infix_psl(argv[3], p2);
-
-  if (spot::ltl::format_parse_errors(std::cerr, argv[3], p2))
-    return 2;
-
-  const spot::ltl::formula* f1 = spot::ltl::negative_normal_form(ftmp1);
-  const spot::ltl::formula* f2 = spot::ltl::negative_normal_form(ftmp2);
-
-  std::string f1s = spot::ltl::str_psl(f1);
-  std::string f2s = spot::ltl::str_psl(f2);
-
   int exit_return = 0;
-  spot::ltl::ltl_simplifier* c = new spot::ltl::ltl_simplifier;
 
-  switch (opt)
-    {
-    case 0:
-      std::cout << "Test f1 < f2" << std::endl;
-      if (c->syntactic_implication(f1, f2))
-	{
-	  std::cout << f1s << " < " << f2s << '\n';
-	  exit_return = 1;
-	}
-      break;
+  {
+    spot::ltl::parse_error_list p1;
+    auto ftmp1 = spot::ltl::parse_infix_psl(argv[2], p1);
 
-    case 1:
-      std::cout << "Test !f1 < f2" << std::endl;
-      if (c->syntactic_implication_neg(f1, f2, false))
-	{
-	  std::cout << "!(" << f1s << ") < " << f2s << '\n';
-	  exit_return = 1;
-	}
-      break;
+    if (spot::ltl::format_parse_errors(std::cerr, argv[2], p1))
+      return 2;
 
-    case 2:
-      std::cout << "Test f1 < !f2" << std::endl;
-      if (c->syntactic_implication_neg(f1, f2, true))
-	{
-	  std::cout << f1s << " < !(" << f2s << ")\n";
-	  exit_return = 1;
-	}
-      break;
-    default:
-      break;
-    }
+    spot::ltl::parse_error_list p2;
+    auto ftmp2 = spot::ltl::parse_infix_psl(argv[3], p2);
 
-  spot::ltl::dump(std::cout, f1) << '\n';
-  spot::ltl::dump(std::cout, f2) << '\n';
+    if (spot::ltl::format_parse_errors(std::cerr, argv[3], p2))
+      return 2;
 
-  f1->destroy();
-  f2->destroy();
-  ftmp1->destroy();
-  ftmp2->destroy();
+    spot::ltl::formula f1 = spot::ltl::negative_normal_form(ftmp1);
+    spot::ltl::formula f2 = spot::ltl::negative_normal_form(ftmp2);
 
-  delete c;
+    std::string f1s = spot::ltl::str_psl(f1);
+    std::string f2s = spot::ltl::str_psl(f2);
 
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+    spot::ltl::ltl_simplifier* c = new spot::ltl::ltl_simplifier;
 
+    switch (opt)
+      {
+      case 0:
+	std::cout << "Test f1 < f2" << std::endl;
+	if (c->syntactic_implication(f1, f2))
+	  {
+	    std::cout << f1s << " < " << f2s << '\n';
+	    exit_return = 1;
+	  }
+	break;
+
+      case 1:
+	std::cout << "Test !f1 < f2" << std::endl;
+	if (c->syntactic_implication_neg(f1, f2, false))
+	  {
+	    std::cout << "!(" << f1s << ") < " << f2s << '\n';
+	    exit_return = 1;
+	  }
+	break;
+
+      case 2:
+	std::cout << "Test f1 < !f2" << std::endl;
+	if (c->syntactic_implication_neg(f1, f2, true))
+	  {
+	    std::cout << f1s << " < !(" << f2s << ")\n";
+	    exit_return = 1;
+	  }
+	break;
+      default:
+	break;
+      }
+
+    f1.dump(std::cout) << '\n';
+    f2.dump(std::cout) << '\n';
+
+    delete c;
+  }
+  assert(spot::ltl::fnode::instances_check());
   return exit_return;
 }

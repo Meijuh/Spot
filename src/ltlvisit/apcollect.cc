@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2012, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -21,7 +21,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "apcollect.hh"
-#include "ltlvisit/postfix.hh"
 #include "twa/twa.hh"
 #include "twa/bdddict.hh"
 
@@ -29,70 +28,40 @@ namespace spot
 {
   namespace ltl
   {
-    namespace
-    {
-      class atomic_prop_collector : public spot::ltl::postfix_visitor
-      {
-      public:
-	atomic_prop_collector(atomic_prop_set* s)
-	  : postfix_visitor(), sap(s)
-	{
-	}
-
-	virtual ~atomic_prop_collector()
-	{
-	}
-
-	virtual void doit(const spot::ltl::atomic_prop* ap)
-	{
-	  sap->insert(ap);
-	}
-
-      private:
-	atomic_prop_set* sap;
-      };
-    }
-
     atomic_prop_set create_atomic_prop_set(unsigned n)
     {
       atomic_prop_set res;
-      auto& e = spot::ltl::default_environment::instance();
       for (unsigned i = 0; i < n; ++i)
 	{
 	  std::ostringstream p;
 	  p << 'p' << i;
-	  res.insert(e.require(p.str()));
+	  res.insert(formula::ap(p.str()));
 	}
       return res;
     }
 
-    void destroy_atomic_prop_set(atomic_prop_set& aprops)
-    {
-      atomic_prop_set::const_iterator i = aprops.begin();
-      while (i != aprops.end())
-	(*(i++))->destroy();
-    }
-
-
     atomic_prop_set*
-    atomic_prop_collect(const formula* f, atomic_prop_set* s)
+    atomic_prop_collect(formula f, atomic_prop_set* s)
     {
       if (!s)
 	s = new atomic_prop_set;
-      atomic_prop_collector v(s);
-      f->accept(v);
+      f.traverse([&](const formula& f)
+		 {
+		   if (f.is(op::AP))
+		     s->insert(f);
+		   return false;
+		 });
       return s;
     }
 
     bdd
-    atomic_prop_collect_as_bdd(const formula* f, const twa_ptr& a)
+    atomic_prop_collect_as_bdd(formula f, const twa_ptr& a)
     {
       spot::ltl::atomic_prop_set aps;
       atomic_prop_collect(f, &aps);
       bdd res = bddtrue;
-      for (atomic_prop_set::const_iterator i = aps.begin();
-	   i != aps.end(); ++i)
-	res &= bdd_ithvar(a->register_ap(*i));
+      for (auto f: aps)
+	res &= bdd_ithvar(a->register_ap(f));
       return res;
     }
   }

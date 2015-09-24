@@ -238,15 +238,13 @@ namespace
 		   int linenum)
     {
       spot::ltl::parse_error_list pel;
-      const spot::ltl::formula* f = parse_formula(input, pel);
+      spot::ltl::formula f = parse_formula(input, pel);
 
       if (!f || !pel.empty())
 	{
 	  if (filename)
 	    error_at_line(0, 0, filename, linenum, "parse error:");
 	  spot::ltl::format_parse_errors(std::cerr, input, pel);
-	  if (f)
-	    f->destroy();
 	  return 1;
 	}
 
@@ -257,22 +255,20 @@ namespace
 
 
     int
-    process_formula(const spot::ltl::formula* f,
+    process_formula(spot::ltl::formula f,
 		    const char* filename = 0, int linenum = 0)
     {
       std::unique_ptr<spot::ltl::relabeling_map> relmap;
 
       // If atomic propositions are incompatible with one of the
       // output, relabel the formula.
-      if ((!f->has_lbt_atomic_props() &&
+      if ((!f.has_lbt_atomic_props() &&
 	   (runner.has('l') || runner.has('L') || runner.has('T')))
-	  || (!f->has_spin_atomic_props() &&
+	  || (!f.has_spin_atomic_props() &&
 	      (runner.has('s') || runner.has('S'))))
 	{
 	  relmap.reset(new spot::ltl::relabeling_map);
-	  auto g = spot::ltl::relabel(f, spot::ltl::Pnn, relmap.get());
-	  f->destroy();
-	  f = g;
+	  f = spot::ltl::relabel(f, spot::ltl::Pnn, relmap.get());
 	}
 
       static unsigned round = 1;
@@ -297,7 +293,6 @@ namespace
 			    nullptr);
 	    };
 	}
-      f->destroy();
       spot::cleanup_tmpfiles();
       ++round;
       return 0;

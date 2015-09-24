@@ -103,7 +103,6 @@ if f:
         a = spot.ensure_digraph(a)
         a = spot.minimize_obligation(a, f)
 
-    f.destroy()
     del f
 
     degeneralized = None
@@ -128,7 +127,5 @@ if f:
 else:
     exit_code = 1
 
-assert spot.atomic_prop.instance_count() == 0
-assert spot.unop.instance_count() == 0
-assert spot.binop.instance_count() == 0
-assert spot.multop.instance_count() == 0
+del dict
+assert spot.fnode_instances_check()

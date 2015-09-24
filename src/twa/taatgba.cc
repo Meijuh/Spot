@@ -23,7 +23,6 @@
 #include <iostream>
 #include "twa/formula2bdd.hh"
 #include "ltlvisit/print.hh"
-#include "ltlvisit/clone.hh"
 #include "taatgba.hh"
 
 namespace spot
@@ -47,10 +46,9 @@ namespace spot
   }
 
   void
-  taa_tgba::add_condition(transition* t, const ltl::formula* f)
+  taa_tgba::add_condition(transition* t, ltl::formula f)
   {
     t->condition &= formula_to_bdd(f, get_dict(), this);
-    f->destroy();
   }
 
   state*
@@ -313,26 +311,8 @@ namespace spot
   | taa_tgba_string |
   `----------------*/
 
-  taa_tgba_string::~taa_tgba_string()
-  {
-    ns_map::iterator i;
-    for (i = name_state_map_.begin(); i != name_state_map_.end(); ++i)
-    {
-      taa_tgba::state::iterator i2;
-      for (i2 = i->second->begin(); i2 != i->second->end(); ++i2)
-	delete *i2;
-      delete i->second;
-    }
-  }
-
   std::string
   taa_tgba_string::label_to_string(const label_t& label) const
-  {
-    return label;
-  }
-
-  std::string
-  taa_tgba_string::clone_if(const label_t& label) const
   {
     return label;
   }
@@ -341,31 +321,9 @@ namespace spot
   | taa_tgba_formula |
   `-----------------*/
 
-  taa_tgba_formula::~taa_tgba_formula()
-  {
-    ns_map::iterator i;
-    for (i = name_state_map_.begin(); i != name_state_map_.end();)
-    {
-      taa_tgba::state::iterator i2;
-      for (i2 = i->second->begin(); i2 != i->second->end(); ++i2)
-	delete *i2;
-      // Advance the iterator before destroying the formula.
-      const ltl::formula* s = i->first;
-      delete i->second;
-      ++i;
-      s->destroy();
-    }
-  }
-
   std::string
   taa_tgba_formula::label_to_string(const label_t& label) const
   {
     return ltl::str_psl(label);
-  }
-
-  const ltl::formula*
-  taa_tgba_formula::clone_if(const label_t& label) const
-  {
-    return label->clone();
   }
 }

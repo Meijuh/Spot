@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -31,10 +31,10 @@ namespace spot
     {
     }
 
-    const atomic_prop*
+    formula
     default_environment::require(const std::string& s)
     {
-      return atomic_prop::instance(s, *this);
+      return formula::ap(s);
     }
 
     const std::string&

@@ -43,8 +43,6 @@
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/exclusive.hh"
 #include "ltlvisit/print.hh"
-#include "ltlast/unop.hh"
-#include "ltlast/multop.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/minimize.hh"
 #include "twaalgos/safety.hh"
@@ -261,15 +259,15 @@ static spot::exclusive_ap excl_ap;
 static std::unique_ptr<output_file> output_define = nullptr;
 static std::string unabbreviate;
 
-static const spot::ltl::formula* implied_by = 0;
-static const spot::ltl::formula* imply = 0;
-static const spot::ltl::formula* equivalent_to = 0;
+static spot::ltl::formula implied_by = nullptr;
+static spot::ltl::formula imply = nullptr;
+static spot::ltl::formula equivalent_to = nullptr;
 
-static const spot::ltl::formula*
+static spot::ltl::formula
 parse_formula_arg(const std::string& input)
 {
   spot::ltl::parse_error_list pel;
-  const spot::ltl::formula* f = parse_formula(input, pel);
+  spot::ltl::formula f = parse_formula(input, pel);
   if (spot::ltl::format_parse_errors(std::cerr, input, pel))
     error(2, 0, "parse error when parsing an argument");
   return f;
@@ -342,18 +340,16 @@ parse_opt(int key, char* arg, struct argp_state*)
       break;
     case OPT_IMPLIED_BY:
       {
-	const spot::ltl::formula* i = parse_formula_arg(arg);
+	spot::ltl::formula i = parse_formula_arg(arg);
 	// a→c∧b→c ≡ (a∨b)→c
-	implied_by =
-	  spot::ltl::multop::instance(spot::ltl::multop::Or, implied_by, i);
+	implied_by = spot::ltl::formula::Or({implied_by, i});
 	break;
       }
     case OPT_IMPLY:
       {
 	// a→b∧a→c ≡ a→(b∧c)
-	const spot::ltl::formula* i = parse_formula_arg(arg);
-	imply =
-	  spot::ltl::multop::instance(spot::ltl::multop::And, imply, i);
+	spot::ltl::formula i = parse_formula_arg(arg);
+	imply = spot::ltl::formula::And({imply, i});
 	break;
       }
     case OPT_LTL:
@@ -439,8 +435,7 @@ parse_opt(int key, char* arg, struct argp_state*)
 }
 
 typedef
-std::unordered_set<const spot::ltl::formula*,
-		   const spot::ptr_hash<const spot::ltl::formula>> fset_t;
+std::unordered_set<spot::ltl::formula> fset_t;
 
 namespace
 {
@@ -451,22 +446,8 @@ namespace
     fset_t unique_set;
     spot::ltl::relabeling_map relmap;
 
-    ~ltl_processor()
-    {
-      fset_t::iterator i = unique_set.begin();
-      while (i != unique_set.end())
-	(*i++)->destroy();
-
-      if (equivalent_to)
-	equivalent_to->destroy();
-      if (implied_by)
-	implied_by->destroy();
-      if (imply)
-	imply->destroy();
-    }
-
     ltl_processor(spot::ltl::ltl_simplifier& simpl)
-    : simpl(simpl)
+      : simpl(simpl)
     {
     }
 
@@ -475,7 +456,7 @@ namespace
 		    const char* filename = 0, int linenum = 0)
     {
       spot::ltl::parse_error_list pel;
-      const spot::ltl::formula* f = parse_formula(input, pel);
+      spot::ltl::formula f = parse_formula(input, pel);
 
       if (!f || pel.size() > 0)
 	  {
@@ -485,9 +466,6 @@ namespace
 		  error_at_line(0, 0, filename, linenum, "parse error:");
 		spot::ltl::format_parse_errors(std::cerr, input, pel);
 	      }
-
-	    if (f)
-	      f->destroy();
 
 	    if (error_style == skip_errors)
 	      std::cout << input << std::endl;
@@ -508,64 +486,44 @@ namespace
     }
 
     int
-    process_formula(const spot::ltl::formula* f,
+    process_formula(spot::ltl::formula f,
 		    const char* filename = 0, int linenum = 0)
     {
       if (opt_max_count >= 0 && match_count >= opt_max_count)
 	{
 	  abort_run = true;
-	  f->destroy();
 	  return 0;
 	}
 
       if (negate)
-	f = spot::ltl::unop::instance(spot::ltl::unop::Not, f);
+	f = spot::ltl::formula::Not(f);
 
       if (remove_x)
 	{
 	  // If simplification are enabled, we do them before and after.
 	  if (simplification_level)
-	    {
-	      const spot::ltl::formula* res = simpl.simplify(f);
-	      f->destroy();
-	      f = res;
-	    }
-
-	  const spot::ltl::formula* res = spot::ltl::remove_x(f);
-	  f->destroy();
-	  f = res;
+	    f = simpl.simplify(f);
+	  f = spot::ltl::remove_x(f);
 	}
 
       if (simplification_level || boolean_to_isop)
-	{
-	  const spot::ltl::formula* res = simpl.simplify(f);
-	  f->destroy();
-	  f = res;
-	}
+	f = simpl.simplify(f);
 
       if (nnf)
-	{
-	  const spot::ltl::formula* res = simpl.negative_normal_form(f);
-	  f->destroy();
-	  f = res;
-	}
+	f = simpl.negative_normal_form(f);
 
       switch (relabeling)
 	{
 	case ApRelabeling:
 	  {
 	    relmap.clear();
-	    auto res = spot::ltl::relabel(f, style, &relmap);
-	    f->destroy();
-	    f = res;
+	    f = spot::ltl::relabel(f, style, &relmap);
 	    break;
 	  }
 	case BseRelabeling:
 	  {
 	    relmap.clear();
-	    auto res = spot::ltl::relabel_bse(f, style, &relmap);
-	    f->destroy();
-	    f = res;
+	    f = spot::ltl::relabel_bse(f, style, &relmap);
 	    break;
 	  }
 	case NoRelabeling:
@@ -573,32 +531,24 @@ namespace
 	}
 
       if (!unabbreviate.empty())
-	{
-	  auto res = spot::ltl::unabbreviate(f, unabbreviate.c_str());
-	  f->destroy();
-	  f = res;
-	}
+	f = spot::ltl::unabbreviate(f, unabbreviate.c_str());
 
       if (!excl_ap.empty())
-	{
-	  auto res = excl_ap.constrain(f);
-	  f->destroy();
-	  f = res;
-	}
+	f = excl_ap.constrain(f);
 
       bool matched = true;
 
-      matched &= !ltl || f->is_ltl_formula();
-      matched &= !psl || f->is_psl_formula();
-      matched &= !boolean || f->is_boolean();
-      matched &= !universal || f->is_universal();
-      matched &= !eventual || f->is_eventual();
-      matched &= !syntactic_safety || f->is_syntactic_safety();
-      matched &= !syntactic_guarantee || f->is_syntactic_guarantee();
-      matched &= !syntactic_obligation || f->is_syntactic_obligation();
-      matched &= !syntactic_recurrence || f->is_syntactic_recurrence();
-      matched &= !syntactic_persistence || f->is_syntactic_persistence();
-      matched &= !syntactic_si || f->is_syntactic_stutter_invariant();
+      matched &= !ltl || f.is_ltl_formula();
+      matched &= !psl || f.is_psl_formula();
+      matched &= !boolean || f.is_boolean();
+      matched &= !universal || f.is_universal();
+      matched &= !eventual || f.is_eventual();
+      matched &= !syntactic_safety || f.is_syntactic_safety();
+      matched &= !syntactic_guarantee || f.is_syntactic_guarantee();
+      matched &= !syntactic_obligation || f.is_syntactic_obligation();
+      matched &= !syntactic_recurrence || f.is_syntactic_recurrence();
+      matched &= !syntactic_persistence || f.is_syntactic_persistence();
+      matched &= !syntactic_si || f.is_syntactic_stutter_invariant();
       matched &= !ap || atomic_prop_collect(f)->size() == ap_n;
 
       if (matched && (size_min > 0 || size_max >= 0))
@@ -643,13 +593,8 @@ namespace
 
       matched ^= invert;
 
-      if (unique)
-	{
-	  if (unique_set.insert(f).second)
-	    f->clone();
-	  else
-	    matched = false;
-	}
+      if (unique && !unique_set.insert(f).second)
+	matched = false;
 
       if (matched)
 	{
@@ -658,7 +603,7 @@ namespace
 	      && output_format != quiet_output)
 	    {
 	      // Sort the formulas alphabetically.
-	      std::map<std::string, const spot::ltl::formula*> m;
+	      std::map<std::string, spot::ltl::formula> m;
 	      for (auto& p: relmap)
 		m.emplace(str_psl(p.first), p.second);
 	      for (auto& p: m)
@@ -670,7 +615,6 @@ namespace
 	  output_formula_checked(f, filename, linenum, prefix, suffix);
 	  ++match_count;
 	}
-      f->destroy();
       return 0;
     }
   };

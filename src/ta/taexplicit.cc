@@ -26,8 +26,6 @@
 #define trace while (0) std::clog
 #endif
 
-#include "ltlast/atomic_prop.hh"
-#include "ltlast/constant.hh"
 #include "taexplicit.hh"
 #include "twa/formula2bdd.hh"
 #include <cassert>

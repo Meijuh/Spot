@@ -433,9 +433,8 @@ def randltl(ap, n = -1, **kwargs):
 
     if isinstance(ap, list):
         aprops = atomic_prop_set()
-        e = default_environment.instance()
         for elt in ap:
-            aprops.insert(is_atomic_prop(e.require(elt)))
+            aprops.insert(formula.ap(elt))
         ap = aprops
     ltl_priorities = kwargs.get("ltl_priorities", None)
     sere_priorities = kwargs.get("sere_priorities", None)

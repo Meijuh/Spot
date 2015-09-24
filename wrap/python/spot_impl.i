@@ -26,13 +26,15 @@
 #include <cstddef>
 %}
 
-%module(directors="1") spot_impl
+%module(director="1") spot_impl
 
 %include "std_shared_ptr.i"
+%include "std_vector.i"
 %include "std_string.i"
 %include "std_list.i"
 %include "std_set.i"
 %include "std_map.i"
+%include "stdint.i"
 %include "exception.i"
 %include "typemaps.i"
 
@@ -64,10 +66,6 @@
 %shared_ptr(spot::emptiness_check_instantiator)
 %shared_ptr(spot::tgbasl)
 
-namespace std {
-   %template(liststr) list<string>;
-};
-
 %import "buddy.i"
 
 %{
@@ -83,12 +81,6 @@ namespace std {
 #include "misc/random.hh"
 
 #include "ltlast/formula.hh"
-#include "ltlast/atomic_prop.hh"
-#include "ltlast/binop.hh"
-#include "ltlast/constant.hh"
-#include "ltlast/multop.hh"
-#include "ltlast/unop.hh"
-#include "ltlast/visitor.hh"
 
 #include "ltlenv/environment.hh"
 #include "ltlenv/defaultenv.hh"
@@ -99,7 +91,6 @@ namespace std {
 
 #include "ltlvisit/apcollect.hh"
 #include "ltlvisit/dot.hh"
-#include "ltlvisit/dump.hh"
 #include "ltlvisit/nenoform.hh"
 #include "ltlvisit/print.hh"
 #include "ltlvisit/simplify.hh"
@@ -157,6 +148,8 @@ namespace std {
 using namespace spot::ltl;
 using namespace spot;
 %}
+
+
 
 // For spot::emptiness_check_instantiator::construct and any other
 // function that return errors via a "char **err" argument.
@@ -216,35 +209,16 @@ using namespace spot;
 %include "misc/optionmap.hh"
 %include "misc/random.hh"
 
+%implicitconv std::vector<spot::ltl::formula>;
+
 %include "ltlast/formula.hh"
-%include "ltlast/atomic_prop.hh"
-%include "ltlast/binop.hh"
-%include "ltlast/constant.hh"
-%include "ltlast/multop.hh"
-%include "ltlast/unop.hh"
-%include "ltlast/visitor.hh"
 
 namespace std {
-  %template(atomic_prop_set)    set<const spot::ltl::atomic_prop*,
-                                    spot::ltl::formula_ptr_less_than>;
-
-  %template(mapff) map<const spot::ltl::formula*, const spot::ltl::formula*,
-                       spot::ltl::formula_ptr_less_than>;
+  %template(liststr) list<std::string>;
+  %template(vectorformula) vector<spot::ltl::formula>;
+  %template(atomic_prop_set) set<spot::ltl::formula>;
+  %template(relabeling_map) map<spot::ltl::formula, spot::ltl::formula>;
 }
-
-%{
-  namespace swig {
-    template <>  struct traits<atomic_prop> {
-      typedef pointer_category category;
-      static const char* type_name() { return "spot::ltl::atomic_prop"; }
-    };
-    template <>  struct traits<formula> {
-      typedef pointer_category category;
-      static const char* type_name() { return "spot::ltl::formula"; }
-    };
-  }
-%}
-
 
 %include "ltlenv/environment.hh"
 %include "ltlenv/defaultenv.hh"
@@ -263,7 +237,6 @@ namespace std {
 
 %include "ltlvisit/apcollect.hh"
 %include "ltlvisit/dot.hh"
-%include "ltlvisit/dump.hh"
 %include "ltlvisit/nenoform.hh"
 %include "ltlvisit/print.hh"
 %include "ltlvisit/simplify.hh"
@@ -323,33 +296,16 @@ namespace std {
 #undef ltl
 
 %extend spot::ltl::formula {
-
-  // When comparing formula, make sure Python compare our
-  // pointers, not the pointers to its wrappers.
-
   // __cmp__ is for Python 2.0
-  int __cmp__(const spot::ltl::formula* b) { return self - b; }
-  // These are for Python 2.1+ or 3.x.  They more closely match
-  // the logic in Spot.
-  bool __lt__(const spot::ltl::formula* b)
-  { spot::ltl::formula_ptr_less_than lt; return lt(self, b); }
-  bool __le__(const spot::ltl::formula* b)
-  { spot::ltl::formula_ptr_less_than lt; return !lt(b, self); }
-  bool __eq__(const spot::ltl::formula* b) { return self == b; }
-  bool __ne__(const spot::ltl::formula* b) { return self != b; }
-  bool __gt__(const spot::ltl::formula* b)
-  { spot::ltl::formula_ptr_less_than lt; return lt(b, self); }
-  bool __ge__(const spot::ltl::formula* b)
-  { spot::ltl::formula_ptr_less_than lt; return !lt(self, b); }
+  int __cmp__(spot::ltl::formula b) { return self->id() - b.id(); }
+  size_t __hash__() { return self->id(); }
 
-  size_t __hash__() { return self->hash(); }
-
-  std::string __repr__() { return spot::ltl::str_psl(self); }
+  std::string __repr__() { return spot::ltl::str_psl(*self); }
   std::string _repr_latex_()
   {
-    return std::string("$") + spot::ltl::str_sclatex_psl(self) + '$';
+    return std::string("$") + spot::ltl::str_sclatex_psl(*self) + '$';
   }
-  std::string __str__() { return spot::ltl::str_psl(self); }
+  std::string __str__() { return spot::ltl::str_psl(*self); }
 }
 
 %extend spot::acc_cond::acc_code {
@@ -387,6 +343,11 @@ namespace std {
 }
 
 %inline %{
+bool fnode_instances_check()
+{
+  return spot::ltl::fnode::instances_check();
+}
+
 spot::ltl::parse_error_list
 empty_parse_error_list()
 {

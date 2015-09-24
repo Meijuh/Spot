@@ -72,10 +72,9 @@ exceptions.
   int main()
   {
     print_latex_psl(std::cout, spot::ltl::parse_formula("[]<>p0 || <>[]p1")) << '\n';
-    const spot::ltl::formula* f = spot::ltl::parse_formula("& & G p0 p1 p2");
+    spot::ltl::formula f = spot::ltl::parse_formula("& & G p0 p1 p2");
     print_lbt_ltl(std::cout, f) << '\n';
     print_spin_ltl(std::cout, f, true) << '\n';
-    f->destroy();
     return 0;
   }
 #+END_SRC
@@ -89,12 +88,6 @@ Notice that the different output routines specify in their name the
 syntax the output, and the type of formula they can output.  Here we
 are only using LTL formulas for demonstration, so those three
 functions are OK with that.
-
-Did you notice the calls to =f->destroy()= at the end?  The LTL
-formula objects are implemented as DAG with sharing of subformulas.
-Each (sub)formula is therefore reference counted, and currently this
-is done manually by calling =f->clone()= and =f->destroy()= (do not
-ever =delete= a formula, always call =f->destroy()=).
 
 We do not recommend using this =parse_formula()= interface because of
 the potential formulas (like =f= or =t=) that have different meanings
@@ -118,15 +111,10 @@ Here is how to call the infix parser explicitly,:
   {
     std::string input = "[]<>p0 || <>[]p1";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    spot::ltl::formula f = spot::ltl::parse_infix_psl(input, pel);
     if (spot::ltl::format_parse_errors(std::cerr, input, pel))
-      {
-        if (f)
-          f->destroy();
-        return 1;
-      }
+      return 1;
     print_latex_psl(std::cout, f) << '\n';
-    f->destroy();
     return 0;
   }
 #+END_SRC
@@ -165,14 +153,14 @@ with the "fixed" formula if you wish.  Here is an example:
   {
     std::string input = "(a U b))";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    spot::ltl::formula f = spot::ltl::parse_infix_psl(input, pel);
     // Use std::cout instead of std::cerr because we can only
     // show the output of std::cout in this documentation.
     (void) spot::ltl::format_parse_errors(std::cout, input, pel);
     if (f == nullptr)
       return 1;
-    print_latex_psl(std::cout, f) << '\n';
-    f->destroy();
+    std::cout << "Parsed formula: ";
+    print_psl(std::cout, f) << '\n';
     return 0;
   }
 #+END_SRC
@@ -186,7 +174,7 @@ with the "fixed" formula if you wish.  Here is an example:
 :            ^
 : ignoring trailing garbage
 :
-: a \U b
+: Parsed formula: a U b
 
 
 The formula =f= is only returned as null when the parser really cannot
@@ -207,16 +195,11 @@ of =parse_infix_psl()=.
   {
     std::string input = "& & G p0 p1 p2";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse_prefix_ltl(input, pel);
+    spot::ltl::formula f = spot::ltl::parse_prefix_ltl(input, pel);
     if (spot::ltl::format_parse_errors(std::cerr, input, pel))
-      {
-        if (f)
-          f->destroy();
-        return 1;
-      }
+      return 1;
     print_lbt_ltl(std::cout, f) << '\n';
     print_spin_ltl(std::cout, f, true) << '\n';
-    f->destroy();
     return 0;
   }
 #+END_SRC
@@ -254,15 +237,10 @@ For instance, let's see what happens if a PSL formulas is passed to
   {
     std::string input = "{a*;b}<>->(a U (b & GF c))";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    spot::ltl::formula f = spot::ltl::parse_infix_psl(input, pel);
     if (spot::ltl::format_parse_errors(std::cerr, input, pel))
-      {
-        if (f)
-          f->destroy();
-        return 1;
-      }
+      return 1;
     print_spin_ltl(std::cout, f) << '\n';
-    f->destroy();
     return 0;
   }
 #+END_SRC
@@ -289,21 +267,15 @@ The first is to simply diagnose non-LTL formulas.
   {
     std::string input = "{a*;b}<>->(a U (b & GF c))";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    spot::ltl::formula f = spot::ltl::parse_infix_psl(input, pel);
     if (spot::ltl::format_parse_errors(std::cerr, input, pel))
+      return 1;
+    if (!f.is_ltl_formula())
       {
-        if (f)
-          f->destroy();
-        return 1;
-      }
-    if (!f->is_ltl_formula())
-      {
-        f->destroy();
         std::cerr << "Only LTL formulas are supported.\n";
         return 1;
       }
     print_spin_ltl(std::cout, f) << '\n';
-    f->destroy();
     return 0;
   }
 #+END_SRC
@@ -314,7 +286,7 @@ equivalent LTL formula.  This does not always work, so you need to be
 prepared to reject the formula any way.  In our example, we are lucky
 (maybe because it was carefully chosen...):
 
-#+BEGIN_SRC C++ :results verbatim :exports code
+#+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>
   #include <iostream>
   #include "ltlparse/public.hh"
@@ -325,28 +297,20 @@ prepared to reject the formula any way.  In our example, we are lucky
   {
     std::string input = "{a*;b}<>->(a U (b & GF c))";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    spot::ltl::formula f = spot::ltl::parse_infix_psl(input, pel);
     if (spot::ltl::format_parse_errors(std::cerr, input, pel))
-      {
-        if (f)
-          f->destroy();
-        return 1;
-      }
-    if (!f->is_ltl_formula())
+      return 1;
+    if (!f.is_ltl_formula())
       {
         spot::ltl::ltl_simplifier simp;
-        const formula* g = simp.simplify(f);
-        f->destroy();
-        f = g;
+        f = simp.simplify(f);
       }
-    if (!f->is_ltl_formula())
+    if (!f.is_ltl_formula())
       {
-        f->destroy();
         std::cerr << "Only LTL formulas are supported.\n";
         return 1;
       }
     print_spin_ltl(std::cout, f) << '\n';
-    f->destroy();
     return 0;
   }
 #+END_SRC

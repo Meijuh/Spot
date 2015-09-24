@@ -27,10 +27,6 @@
 #include "common_output.hh"
 #include "common_conv.hh"
 
-#include "ltlast/allnodes.hh"
-#include "ltlvisit/clone.hh"
-#include "ltlvisit/apcollect.hh"
-#include "ltlvisit/length.hh"
 #include "ltlvisit/mutation.hh"
 
 enum {
@@ -100,17 +96,13 @@ namespace
   {
   public:
     int
-    process_formula(const spot::ltl::formula* f, const char *filename = 0,
+    process_formula(spot::ltl::formula f, const char *filename = 0,
 		    int linenum = 0)
     {
       auto mutations =
 	spot::ltl::mutate(f, mut_opts, max_output, mutation_nb, opt_sort);
-      f->destroy();
       for (auto g: mutations)
-	{
-	  output_formula_checked(g, filename, linenum);
-	  g->destroy();
-	}
+	output_formula_checked(g, filename, linenum);
       return 0;
     }
   };

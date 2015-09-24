@@ -1,7 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
-// Laboratoire de Recherche et Développement de l'Epita (LRDE).
-// Copyright (C) 2003, 2004, 2005 Laboratoire d'Informatique de
+// Copyright (C) 2015 Laboratoire de Recherche et Développement de
+// l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -19,113 +18,262 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /// \file ltlast/formula.hh
-/// \brief LTL formula interface
+/// \brief LTL/PSL formula interface
 #pragma once
 
 #include "misc/common.hh"
-#include <string>
+#include <memory>
+#include <cstdint>
+#include <initializer_list>
 #include <cassert>
-#include "predecl.hh"
+#include <vector>
+#include <string>
+#include <iterator>
+#include <iosfwd>
+#include <sstream>
 #include <list>
+#include <cstddef>
+#include <initializer_list>
 
 namespace spot
 {
   namespace ltl
   {
-    /// \defgroup ltl LTL formulae
-    ///
-    /// This module gathers types and definitions related to LTL formulae.
+    enum class op: uint8_t
+    {
+      False,
+	True,
+	EmptyWord,
+	AP,
+      // unary operators
+	Not,
+	X,
+	F,
+	G,
+	Closure,
+	NegClosure,
+	NegClosureMarked,
+	// binary operators
+	Xor,
+	Implies,
+	Equiv,
+	U,		      ///< until
+	R,		      ///< release (dual of until)
+	W,		      ///< weak until
+	M,		      ///< strong release (dual of weak until)
+	EConcat,	      ///< Seq
+	EConcatMarked,	      ///< Seq, Marked
+	UConcat,	      ///< Triggers
+	// n-ary operators
+	Or,		      ///< (omega-Rational) Or
+	OrRat,		      ///< Rational Or
+	And,		      ///< (omega-Rational) And
+	AndRat,		      ///< Rational And
+	AndNLM,		      ///< Non-Length-Matching Rational-And
+	Concat,
+	Fusion,
+	// star-like operators
+	Star,		      ///< Star
+	FStar,		      ///< Fustion Star
+	};
 
-    /// \addtogroup ltl_essential Essential LTL types
-    /// \ingroup ltl
-
-    /// \addtogroup ltl_ast LTL Abstract Syntax Tree
-    /// \ingroup ltl
-
-    /// \addtogroup ltl_environment LTL environments
-    /// \ingroup ltl
-    /// LTL environment implementations.
-
-    /// \addtogroup ltl_algorithm Algorithms for LTL formulae
-    /// \ingroup ltl
-
-    /// \addtogroup ltl_io Input/Output of LTL formulae
-    /// \ingroup ltl_algorithm
-
-    /// \addtogroup ltl_visitor Derivable visitors
-    /// \ingroup ltl_algorithm
-
-    /// \addtogroup ltl_rewriting Rewriting LTL formulae
-    /// \ingroup ltl_algorithm
-
-    /// \addtogroup ltl_misc Miscellaneous algorithms for LTL formulae
-    /// \ingroup ltl_algorithm
-
-
-    /// \ingroup ltl_essential
-    /// \ingroup ltl_ast
-    /// \brief An LTL formula.
-    ///
-    /// The only way you can work with a formula is to
-    /// build a spot::ltl::visitor or spot::ltl::const_visitor.
-    class SPOT_API formula
+#ifndef SWIG
+    class SPOT_API fnode final
     {
     public:
-      /// Kind of a sub-formula
-      enum opkind { Constant,
-		    AtomicProp,
-		    UnOp,
-		    BinOp,
-		    MultOp,
-		    BUnOp };
-
-    protected:
-      formula(opkind k) : serial_(max_serial++), kind_(k)
-      {
-	// If the counter of formulae ever loops, we want to skip the
-	// first three values, because they are permanently associated
-	// to constants, and it is convenient to have constants smaller
-	// than all other formulae.
-	if (max_serial == 0)
-	  max_serial = 3;
-      }
-
-    public:
-      /// Entry point for spot::ltl::visitor instances.
-      virtual void accept(visitor& v) const = 0;
-
-      /// \brief clone this node
-      ///
-      /// This increments the reference counter of the node.
-      const formula* clone() const
+      const fnode* clone() const
       {
 	++refs_;
 	return this;
       }
 
-      /// \brief Release this node
       void destroy() const
       {
-	// Delete if this is the last node, and it is not a constant.
-	if (!refs_)
-	  {
-	    if (kind() != Constant)
-	      delete this;
-	  }
+	// last reference to a node that is not a constant?
+	if (SPOT_UNLIKELY(!refs_ && id_ > 2))
+	  destroy_aux();
 	else
-	  {
-	    --refs_;
-	  }
+	  --refs_;
       }
 
-      /// Return a canonic representation of the formula
-      virtual std::string dump() const = 0;
-
-      /// Return the kind of the top-level operator.
-      opkind kind() const
+      static constexpr uint8_t unbounded()
       {
-	return kind_;
+	return UINT8_MAX;
       }
+
+      static const fnode* ap(const std::string& name);
+      static const fnode* unop(op o, const fnode* f);
+      static const fnode* binop(op o, const fnode* f, const fnode* g);
+      static const fnode* multop(op o, std::vector<const fnode*> l);
+      static const fnode* bunop(op o, const fnode* f,
+				  uint8_t min, uint8_t max = unbounded());
+
+      op kind() const
+      {
+	return op_;
+      }
+
+      std::string kindstr() const;
+
+      bool is(op o) const
+      {
+	return op_ == o;
+      }
+
+      bool is(op o1, op o2) const
+      {
+	return op_ == o1 || op_ == o2;
+      }
+
+      bool is(std::initializer_list<op> l) const
+      {
+	const fnode* n = this;
+	for (auto o: l)
+	  {
+	    if (!n->is(o))
+	      return false;
+	    n = n->nth(0);
+	  }
+	return true;
+      }
+
+      /// \brief Remove operator \a o and return the child.
+      ///
+      /// This works only for unary operators.
+      const fnode* get_child_of(op o) const
+      {
+	if (op_ != o)
+	  return nullptr;
+	assert(size_ == 1);
+	return nth(0);
+      }
+
+      /// \brief Remove all operators in \a l and return the child.
+      ///
+      /// This works only for a list of unary operators.
+      /// For instance if \c f  is a formula for XG(a U b),
+      /// then <code>f.get_child_of({op::X, op::G})</code>
+      /// will return the subformula a U b.
+      const fnode* get_child_of(std::initializer_list<op> l) const
+      {
+	auto c = this;
+	for (auto o: l)
+	  {
+	    c = c->get_child_of(o);
+	    if (c == nullptr)
+	      return c;
+	  }
+	return c;
+      }
+
+      uint8_t min() const
+      {
+	assert(op_ == op::FStar || op_ == op::Star);
+	return min_;
+      }
+
+      uint8_t max() const
+      {
+	assert(op_ == op::FStar || op_ == op::Star);
+	return max_;
+      }
+
+      uint8_t size() const
+      {
+	return size_;
+      }
+
+      size_t id() const
+      {
+	return id_;
+      }
+
+      const fnode*const* begin() const
+      {
+	return children;
+      }
+
+      const fnode*const* end() const
+      {
+	return children + size();
+      }
+
+      const fnode* nth(unsigned i) const
+      {
+	assert(i < size());
+	if (i >= size())
+	  throw std::runtime_error("access to non-existing child");
+	return children[i];
+      }
+
+      static const fnode* ff()
+      {
+	return ff_;
+      }
+
+      bool is_false() const
+      {
+	return op_ == op::False;
+      }
+
+      static const fnode* tt()
+      {
+	return tt_;
+      }
+
+      bool is_true() const
+      {
+	return op_ == op::True;
+      }
+
+      static const fnode* eword()
+      {
+	return ew_;
+      }
+
+      bool is_eword() const
+      {
+	return op_ == op::EmptyWord;
+      }
+
+      bool is_constant() const
+      {
+	return op_ == op::False || op_ == op::True || op_ == op::EmptyWord;
+      }
+
+      bool is_Kleene_star() const
+      {
+	if (op_ != op::Star)
+	  return false;
+	return min_ == 0 && max_ == unbounded();
+      }
+
+      static const fnode* one_star()
+      {
+	if (!one_star_)
+	  one_star_ = bunop(op::Star, tt(), 0);
+	return one_star_;
+      }
+
+      const std::string& ap_name() const;
+      std::ostream& dump(std::ostream& os) const;
+
+      const fnode* all_but(unsigned i) const;
+
+      unsigned boolean_count() const
+      {
+	unsigned pos = 0;
+	unsigned s = size();
+	while (pos < s && children[pos]->is_boolean())
+	  ++pos;
+	return pos;
+      }
+
+      const fnode* boolean_operands(unsigned* width = nullptr) const;
+
+      /// return true if the unicity map contains only the globally
+      /// pre-allocated formulas.
+      static bool instances_check();
 
       ////////////////
       // Properties //
@@ -134,13 +282,13 @@ namespace spot
       /// Whether the formula use only boolean operators.
       bool is_boolean() const
       {
-	return is.boolean;
+	return is_.boolean;
       }
 
       /// Whether the formula use only AND, OR, and NOT operators.
       bool is_sugar_free_boolean() const
       {
-	return is.sugar_free_boolean;
+	return is_.sugar_free_boolean;
       }
 
       /// \brief Whether the formula is in negative normal form.
@@ -149,44 +297,44 @@ namespace spot
       /// occur only in front of atomic propositions.
       bool is_in_nenoform() const
       {
-	return is.in_nenoform;
+	return is_.in_nenoform;
       }
 
       /// Whether the formula is syntactically stutter_invariant
       bool is_syntactic_stutter_invariant() const
       {
-	return is.syntactic_si;
+	return is_.syntactic_si;
       }
 
       /// Whether the formula avoids the F and G operators.
       bool is_sugar_free_ltl() const
       {
-	return is.sugar_free_ltl;
+	return is_.sugar_free_ltl;
       }
 
       /// Whether the formula uses only LTL operators.
       bool is_ltl_formula() const
       {
-	return is.ltl_formula;
+	return is_.ltl_formula;
       }
 
       /// Whether the formula uses only PSL operators.
       bool is_psl_formula() const
       {
-	return is.psl_formula;
+	return is_.psl_formula;
       }
 
       /// Whether the formula uses only SERE operators.
       bool is_sere_formula() const
       {
-	return is.sere_formula;
+	return is_.sere_formula;
       }
 
       /// Whether a SERE describes a finite language, or an LTL
       /// formula uses no temporal operator but X.
       bool is_finite() const
       {
-	return is.finite;
+	return is_.finite;
       }
 
       /// \brief Whether the formula is purely eventual.
@@ -211,7 +359,7 @@ namespace spot
       /// anything and still satisfies the formula.
       bool is_eventual() const
       {
-	return is.eventual;
+	return is_.eventual;
       }
 
       /// \brief Whether a formula is purely universal.
@@ -236,86 +384,115 @@ namespace spot
       /// universal formula also satisfies the formula.
       bool is_universal() const
       {
-	return is.universal;
+	return is_.universal;
       }
 
       /// Whether a PSL/LTL formula is syntactic safety property.
       bool is_syntactic_safety() const
       {
-	return is.syntactic_safety;
+	return is_.syntactic_safety;
       }
 
       /// Whether a PSL/LTL formula is syntactic guarantee property.
       bool is_syntactic_guarantee() const
       {
-	return is.syntactic_guarantee;
+	return is_.syntactic_guarantee;
       }
 
       /// Whether a PSL/LTL formula is syntactic obligation property.
       bool is_syntactic_obligation() const
       {
-	return is.syntactic_obligation;
+	return is_.syntactic_obligation;
       }
 
       /// Whether a PSL/LTL formula is syntactic recurrence property.
       bool is_syntactic_recurrence() const
       {
-	return is.syntactic_recurrence;
+	return is_.syntactic_recurrence;
       }
 
       /// Whether a PSL/LTL formula is syntactic persistence property.
       bool is_syntactic_persistence() const
       {
-	return is.syntactic_persistence;
+	return is_.syntactic_persistence;
       }
 
       /// Whether the formula has an occurrence of EConcatMarked.
       bool is_marked() const
       {
-	return !is.not_marked;
+	return !is_.not_marked;
       }
 
       /// Whether the formula accepts [*0].
       bool accepts_eword() const
       {
-	return is.accepting_eword;
+	return is_.accepting_eword;
       }
 
       bool has_lbt_atomic_props() const
       {
-	return is.lbt_atomic_props;
+	return is_.lbt_atomic_props;
       }
 
       bool has_spin_atomic_props() const
       {
-	return is.spin_atomic_props;
+	return is_.spin_atomic_props;
       }
 
-      /// The properties as a field of bits.  For internal use.
-      unsigned get_props() const
+    private:
+      void setup_props(op o);
+      void destroy_aux() const;
+
+      static const fnode* unique(const fnode*);
+
+      // Destruction may only happen via destroy().
+      ~fnode() = default;
+      // Disallow copies.
+      fnode(const fnode&) = delete;
+      fnode& operator=(const fnode&) = delete;
+
+
+
+      template<class iter>
+      fnode(op o, iter begin, iter end)
       {
-	return props;
+	size_t s = std::distance(begin, end);
+	if (s > (size_t) UINT16_MAX)
+	  throw std::runtime_error("too many children for formula");
+	size_ = s;
+	auto pos = children;
+	for (auto i = begin; i != end; ++i)
+	  *pos++ = *i;
+	setup_props(o);
       }
 
-      /// Return a hash key for the formula.
-      size_t
-      hash() const
+      fnode(op o, std::initializer_list<const fnode*> l)
+	: fnode(o, l.begin(), l.end())
       {
-	return serial_;
       }
-    protected:
-      virtual ~formula()
+
+      fnode(op o, const fnode* f, uint8_t min, uint8_t max)
       {
+	size_ = 1;
+	children[0] = f;
+	min_ = min;
+	max_ = max;
+	setup_props(o);
       }
 
-      /// \brief The hash key of this formula.
-      size_t serial_;
+      static const fnode* ff_;
+      static const fnode* tt_;
+      static const fnode* ew_;
+      static const fnode* one_star_;
 
-      // The number of actual references is refs_ + 1.
-      mutable unsigned refs_ = 0;
-      /// \brief Number of formulae created so far.
-      static size_t max_serial;
-      opkind kind_;
+      op op_;			// operator
+      uint8_t min_;		// range minimum (for star-like operators)
+      uint8_t max_;		// range maximum;
+      //uint8_t unused_;
+      uint16_t size_;		// number of children
+      mutable uint16_t refs_ = 0; // reference count - 1;
+      size_t id_;		// Also used as hash.
+      static size_t next_id_;
 
       struct ltl_prop
       {
@@ -357,95 +534,29 @@ namespace spot
       {
 	// Use an unsigned for fast computation of all properties.
 	unsigned props;
-	ltl_prop is;
+	ltl_prop is_;
       };
+
+      const fnode* children[1];
     };
 
-
-    /// \brief Change \a f into <code>a</code> if it is equal to
-    /// <code>!a</code> or <code>a</code>.
-    ///
-    /// Return 0 otherwise.
+    /// Order two atomic propositions.
     SPOT_API
-    const formula* get_literal(const formula* f);
+    int atomic_prop_cmp(const fnode* f, const fnode* g);
 
-    /// Return true iff f is a literal.
-    inline
-    bool
-    is_literal(const formula* f)
-    {
-      return (f->kind() == formula::AtomicProp
-	      // The only unary operator that is Boolean is Not,
-	      // and if f is in nenoform, Not can only occur in
-	      // front of an atomic proposition.  So with this
-	      // check we do not have to cast f to check what
-	      // operator it is and the type of its child.
-	      || (f->is_boolean() && f->is_in_nenoform()
-		  && f->kind() == formula::UnOp));
-    }
-
-
-    /// Compare two atomic propositions.
-    SPOT_API
-    int atomic_prop_cmp(const formula* f, const formula* g);
-
-
-    /// \ingroup ltl_essentials
-    /// \brief Strict Weak Ordering for <code>const formula*</code>.
-    ///
-    /// This is meant to be used as a comparison functor for
-    /// STL \c map whose key are of type <code>const formula*</code>.
-    ///
-    /// For instance here is how one could declare
-    /// a map of \c const::formula*.
-    /// \code
-    ///   // Remember how many times each formula has been seen.
-    ///   std::map<const spot::ltl::formula*, int,
-    ///            spot::formula_ptr_less_than> seen;
-    /// \endcode
-    struct formula_ptr_less_than:
-      public std::binary_function<const formula*, const formula*, bool>
-    {
-      bool
-      operator()(const formula* left, const formula* right) const
-      {
-	assert(left);
-	assert(right);
-	if (left == right)
-	  return false;
-
-	size_t l = left->hash();
-	size_t r = right->hash();
-	if (l != r)
-	  return l < r;
-	// Because the hash code assigned to each formula is the
-	// number of formulae constructed so far, it is very unlikely
-	// that we will ever reach a case were two different formulae
-	// have the same hash.  This will happen only ever with have
-	// produced 256**sizeof(size_t) formulae (i.e. max_count has
-	// looped back to 0 and started over).  In that case we can
-	// order two formulae by looking at their text representation.
-	// We could be more efficient and look at their AST, but it's
-	// not worth the burden.  (Also ordering pointers is ruled out
-	// because it breaks the determinism of the implementation.)
-	return left->dump() < right->dump();
-      }
-    };
-
-    /// \brief Strict Weak Ordering for <code>const formula*</code>
-    ///        inside ltl::multop.
+    /// \brief Strict Weak Ordering for <code>const fnode*</code>
+    ///        inside n-ary operators
     /// \ingroup ltl_essentials
     ///
     /// This is the comparison functor used by to order the
-    /// ltl::multop operands.  It keeps Boolean formulae first in
+    /// n-ary operands.  It keeps Boolean formulae first in
     /// order to speed up implication checks.
     ///
     /// Also keep literal alphabetically ordered.
-    struct formula_ptr_less_than_bool_first:
-      public std::binary_function<const formula*, const formula*, bool>
+    struct formula_ptr_less_than_bool_first
     {
       bool
-      operator()(const formula* left, const formula* right) const
+      operator()(const fnode* left, const fnode* right) const
       {
 	assert(left);
 	assert(right);
@@ -460,15 +571,22 @@ namespace spot
 	// We have two Boolean formulae
 	if (lib)
 	  {
-	    bool lconst = left->kind() == formula::Constant;
-	    bool rconst = right->kind() == formula::Constant;
-	    if (lconst != rconst)
+	    bool lconst = left->is_constant();
+	    if (lconst != right->is_constant())
 	      return lconst;
 	    if (!lconst)
 	      {
+		auto get_literal = [](const fnode* f) -> const fnode*
+		  {
+		    if (f->is(op::Not))
+		      f = f->nth(0);
+		    if (f->is(op::AP))
+		      return f;
+		    return nullptr;
+		  };
 		// Literals should come first
-		const formula* litl = get_literal(left);
-		const formula* litr = get_literal(right);
+		const fnode* litl = get_literal(left);
+		const fnode* litr = get_literal(right);
 		if (!litl != !litr)
 		  return litl;
 		if (litl)
@@ -481,8 +599,8 @@ namespace spot
 	      }
 	  }
 
-	size_t l = left->hash();
-	size_t r = right->hash();
+	size_t l = left->id();
+	size_t r = right->id();
 	if (l != r)
 	  return l < r;
 	// Because the hash code assigned to each formula is the
@@ -491,23 +609,636 @@ namespace spot
 	// have the same hash.  This will happen only ever with have
 	// produced 256**sizeof(size_t) formulae (i.e. max_count has
 	// looped back to 0 and started over).  In that case we can
-	// order two formulae by looking at their text representation.
+	// order two formulas by looking at their text representation.
 	// We could be more efficient and look at their AST, but it's
 	// not worth the burden.  (Also ordering pointers is ruled out
 	// because it breaks the determinism of the implementation.)
-	return left->dump() < right->dump();
+	std::ostringstream old;
+	left->dump(old);
+	std::ostringstream ord;
+	right->dump(ord);
+	return old.str() < ord.str();
+      }
+    };
+
+#endif // SWIG
+
+    class SPOT_API formula final
+    {
+      const fnode* ptr_;
+    public:
+      explicit formula(const fnode* f) noexcept
+	: ptr_(f)
+      {
+      }
+
+      formula(std::nullptr_t) noexcept
+	: ptr_(nullptr)
+      {
+      }
+
+      formula() noexcept
+	: ptr_(nullptr)
+      {
+      }
+
+      formula(const formula& f) noexcept
+	: ptr_(f.ptr_)
+      {
+	if (ptr_)
+	  ptr_->clone();
+      }
+
+      formula(formula&& f) noexcept
+	: ptr_(f.ptr_)
+      {
+	f.ptr_ = nullptr;
+      }
+
+      ~formula()
+      {
+	if (ptr_)
+	  ptr_->destroy();
+      }
+
+      const formula& operator=(std::nullptr_t)
+      {
+	this->~formula();
+	ptr_ = nullptr;
+	return *this;
+      }
+
+      const formula& operator=(const formula& f)
+      {
+	this->~formula();
+	if ((ptr_ = f.ptr_))
+	  ptr_->clone();
+	return *this;
+      }
+
+      const formula& operator=(formula&& f) noexcept
+      {
+	std::swap(f.ptr_, ptr_);
+	return *this;
+      }
+
+      bool operator<(const formula& other) const noexcept
+      {
+	return id() < other.id();
+      }
+
+      bool operator<=(const formula& other) const noexcept
+      {
+	return id() <= other.id();
+      }
+
+      bool operator>(const formula& other) const noexcept
+      {
+	return id() > other.id();
+      }
+
+      bool operator>=(const formula& other) const noexcept
+      {
+	return id() >= other.id();
+      }
+
+      bool operator==(const formula& other) const noexcept
+      {
+	return id() == other.id();
+      }
+
+      bool operator==(std::nullptr_t) const noexcept
+      {
+	return ptr_ == nullptr;
+      }
+
+      bool operator!=(const formula& other) const noexcept
+      {
+	return id() != other.id();
+      }
+
+      bool operator!=(std::nullptr_t) const noexcept
+      {
+	return ptr_ != nullptr;
+      }
+
+      /////////////////////////
+      // Forwarded functions //
+      /////////////////////////
+
+      static constexpr uint8_t unbounded()
+      {
+	return fnode::unbounded();
+      }
+
+      static formula ap(const std::string& name)
+      {
+	return formula(fnode::ap(name));
+      }
+
+      static formula unop(op o, const formula& f)
+      {
+	return formula(fnode::unop(o, f.ptr_->clone()));
+      }
+
+#ifndef SWIG
+      static formula unop(op o, formula&& f)
+      {
+	return formula(fnode::unop(o, f.to_node_()));
+      }
+#endif // !SWIG
+
+#ifdef SWIG
+#define SPOT_DEF_UNOP(Name)			\
+      static formula Name(const formula& f)	\
+      {						\
+	return unop(op::Name, f);		\
+      }
+#else // !SWIG
+#define SPOT_DEF_UNOP(Name)			\
+      static formula Name(const formula& f)	\
+      {						\
+	return unop(op::Name, f);		\
+      }						\
+      static formula Name(formula&& f)		\
+      {						\
+	return unop(op::Name, std::move(f));	\
+      }
+#endif // !SWIG
+      SPOT_DEF_UNOP(Not);
+      SPOT_DEF_UNOP(X);
+      SPOT_DEF_UNOP(F);
+      SPOT_DEF_UNOP(G);
+      SPOT_DEF_UNOP(Closure);
+      SPOT_DEF_UNOP(NegClosure);
+      SPOT_DEF_UNOP(NegClosureMarked);
+#undef SPOT_DEF_UNOP
+
+      static formula binop(op o, const formula& f, const formula& g)
+      {
+	return formula(fnode::binop(o, f.ptr_->clone(), g.ptr_->clone()));
+      }
+
+#ifndef SWIG
+      static formula binop(op o, const formula& f, formula&& g)
+      {
+	return formula(fnode::binop(o, f.ptr_->clone(), g.to_node_()));
+      }
+
+      static formula binop(op o, formula&& f, const formula& g)
+      {
+	return formula(fnode::binop(o, f.to_node_(), g.ptr_->clone()));
+      }
+
+      static formula binop(op o, formula&& f, formula&& g)
+      {
+	return formula(fnode::binop(o, f.to_node_(), g.to_node_()));
+      }
+#endif //SWIG
+
+#ifdef SWIG
+#define SPOT_DEF_BINOP(Name)					\
+      static formula Name(const formula& f, const formula& g)	\
+      {								\
+	return binop(op::Name, f, g);				\
+      }
+#else // !SWIG
+#define SPOT_DEF_BINOP(Name)					\
+      static formula Name(const formula& f, const formula& g)	\
+      {								\
+	return binop(op::Name, f, g);				\
+      }								\
+      static formula Name(const formula& f, formula&& g)	\
+      {								\
+	return binop(op::Name, f, std::move(g));		\
+      }								\
+      static formula Name(formula&& f, const formula& g)	\
+      {								\
+	return binop(op::Name, std::move(f), g);		\
+      }								\
+      static formula Name(formula&& f, formula&& g)		\
+      {								\
+	return binop(op::Name, std::move(f), std::move(g));	\
+      }
+#endif // !SWIG
+      SPOT_DEF_BINOP(Xor);
+      SPOT_DEF_BINOP(Implies);
+      SPOT_DEF_BINOP(Equiv);
+      SPOT_DEF_BINOP(U);
+      SPOT_DEF_BINOP(R);
+      SPOT_DEF_BINOP(W);
+      SPOT_DEF_BINOP(M);
+      SPOT_DEF_BINOP(EConcat);
+      SPOT_DEF_BINOP(EConcatMarked);
+      SPOT_DEF_BINOP(UConcat);
+#undef SPOT_DEF_BINOP
+
+      static formula multop(op o, const std::vector<formula>& l)
+      {
+	std::vector<const fnode*> tmp;
+	tmp.reserve(l.size());
+	for (auto f: l)
+	  if (f.ptr_)
+	    tmp.push_back(f.ptr_->clone());
+	return formula(fnode::multop(o, std::move(tmp)));
+      }
+
+#ifndef SWIG
+      static formula multop(op o, std::vector<formula>&& l)
+      {
+	std::vector<const fnode*> tmp;
+	tmp.reserve(l.size());
+	for (auto f: l)
+	  if (f.ptr_)
+	    tmp.push_back(f.to_node_());
+	return formula(fnode::multop(o, std::move(tmp)));
+      }
+#endif // !SWIG
+
+#ifdef SWIG
+#define SPOT_DEF_MULTOP(Name)					\
+      static formula Name(const std::vector<formula>& l)	\
+      {								\
+	return multop(op::Name, l);				\
+      }
+#else // !SWIG
+#define SPOT_DEF_MULTOP(Name)					\
+      static formula Name(const std::vector<formula>& l)	\
+      {								\
+	return multop(op::Name, l);				\
+      }								\
+								\
+      static formula Name(std::vector<formula>&& l)		\
+      {								\
+	return multop(op::Name, std::move(l));			\
+      }
+#endif // !SWIG
+      SPOT_DEF_MULTOP(Or);
+      SPOT_DEF_MULTOP(OrRat);
+      SPOT_DEF_MULTOP(And);
+      SPOT_DEF_MULTOP(AndRat);
+      SPOT_DEF_MULTOP(AndNLM);
+      SPOT_DEF_MULTOP(Concat);
+      SPOT_DEF_MULTOP(Fusion);
+#undef SPOT_DEF_MULTOP
+
+      static formula bunop(op o, const formula& f,
+			   uint8_t min = 0U,
+			   uint8_t max = unbounded())
+      {
+	return formula(fnode::bunop(o, f.ptr_->clone(), min, max));
+      }
+
+#ifndef SWIG
+      static formula bunop(op o, formula&& f,
+			   uint8_t min = 0U,
+			   uint8_t max = unbounded())
+      {
+	return formula(fnode::bunop(o, f.to_node_(), min, max));
+      }
+#endif // !SWIG
+
+#if SWIG
+#define SPOT_DEF_BUNOP(Name)				\
+      static formula Name(const formula& f,		\
+			  uint8_t min = 0U,		\
+			  uint8_t max = unbounded())	\
+      {							\
+	return bunop(op::Name, f, min, max);		\
+      }
+#else // !SWIG
+#define SPOT_DEF_BUNOP(Name)				\
+      static formula Name(const formula& f,		\
+			  uint8_t min = 0U,		\
+			  uint8_t max = unbounded())	\
+      {							\
+	return bunop(op::Name, f, min, max);		\
+      }							\
+      static formula Name(formula&& f,			\
+			  uint8_t min = 0U,		\
+			  uint8_t max = unbounded())	\
+      {							\
+	return bunop(op::Name, std::move(f), min, max);	\
+      }
+#endif
+      SPOT_DEF_BUNOP(Star);
+      SPOT_DEF_BUNOP(FStar);
+#undef SPOT_DEF_BUNOP
+
+      static formula sugar_goto(const formula& b, uint8_t min, uint8_t max);
+
+      static formula sugar_equal(const formula& b, uint8_t min, uint8_t max);
+
+      operator bool() const
+      {
+	return ptr_ != nullptr;
+      }
+
+#ifndef SWIG
+      const fnode* to_node_()
+      {
+	auto tmp = ptr_;
+	ptr_ = nullptr;
+	return tmp;
+      }
+#endif
+
+      op kind() const
+      {
+	return ptr_->kind();
+      }
+
+      std::string kindstr() const
+      {
+	return ptr_->kindstr();
+      }
+
+      bool is(op o) const
+      {
+	return ptr_->is(o);
+      }
+
+      bool is(op o1, op o2) const
+      {
+	return ptr_->is(o1, o2);
+      }
+
+      bool is(std::initializer_list<op> l) const
+      {
+	return ptr_->is(l);
+      }
+
+      formula get_child_of(op o) const
+      {
+	auto f = ptr_->get_child_of(o);
+	if (f)
+	  f->clone();
+	return formula(f);
+      }
+
+      formula get_child_of(std::initializer_list<op> l) const
+      {
+	auto f = ptr_->get_child_of(l);
+	if (f)
+	  f->clone();
+	return formula(f);
+      }
+
+      uint8_t min() const
+      {
+	return ptr_->min();
+      }
+
+      uint8_t max() const
+      {
+	return ptr_->max();
+      }
+
+      uint8_t size() const
+      {
+	return ptr_->size();
+      }
+
+      size_t id() const
+      {
+	return ptr_->id();
+      }
+
+      class SPOT_API formula_child_iterator final
+      {
+	const fnode*const* ptr_;
+      public:
+	formula_child_iterator()
+	  : ptr_(nullptr)
+	{
+	}
+
+	formula_child_iterator(const fnode*const* f)
+	  : ptr_(f)
+	{
+	}
+
+	bool operator==(formula_child_iterator o)
+	{
+	  return ptr_ == o.ptr_;
+	}
+
+	bool operator!=(formula_child_iterator o)
+	{
+	  return ptr_ != o.ptr_;
+	}
+
+	formula operator*()
+	{
+	  return formula((*ptr_)->clone());
+	}
+
+	formula_child_iterator operator++()
+	{
+	  ++ptr_;
+	  return *this;
+	}
+
+	formula_child_iterator operator++(int)
+	{
+	  auto tmp = *this;
+	  ++ptr_;
+	  return tmp;
+	}
+      };
+
+      formula_child_iterator begin() const
+      {
+	return ptr_->begin();
+      }
+
+      formula_child_iterator end() const
+      {
+	return ptr_->end();
+      }
+
+      formula nth(unsigned i) const
+      {
+	return formula(ptr_->nth(i)->clone());
+      }
+
+      static formula ff()
+      {
+	return formula(fnode::ff());
+      }
+
+      bool is_false() const
+      {
+	return ptr_->is_false();
+      }
+
+      static formula tt()
+      {
+	return formula(fnode::tt());
+      }
+
+      bool is_true() const
+      {
+	return ptr_->is_true();
+      }
+
+      static formula eword()
+      {
+	return formula(fnode::eword());
+      }
+
+      bool is_eword() const
+      {
+	return ptr_->is_eword();
+      }
+
+      bool is_constant() const
+      {
+	return ptr_->is_constant();
+      }
+
+      bool is_Kleene_star() const
+      {
+	return ptr_->is_Kleene_star();
+      }
+
+      static formula one_star()
+      {
+	return formula(fnode::one_star()->clone());
+      }
+
+      bool is_literal()
+      {
+	return (is(op::AP) ||
+		// If f is in nenoform, Not can only occur in front of
+		// an atomic proposition.  So this way we do not have
+		// to check the type of the child.
+		(is(op::Not) && is_boolean() && is_in_nenoform()));
+      }
+
+      const std::string& ap_name() const
+      {
+	return ptr_->ap_name();
+      }
+
+      std::ostream& dump(std::ostream& os) const
+      {
+	return ptr_->dump(os);
+      }
+
+      formula all_but(unsigned i) const
+      {
+	return formula(ptr_->all_but(i));
+      }
+
+      unsigned boolean_count() const
+      {
+	return ptr_->boolean_count();
+      }
+
+      formula boolean_operands(unsigned* width = nullptr) const
+      {
+	return formula(ptr_->boolean_operands(width));
+      }
+
+#define SPOT_DEF_PROP(Name)			\
+      bool Name() const				\
+      {						\
+	return ptr_->Name();			\
+      }
+      SPOT_DEF_PROP(is_boolean);
+      SPOT_DEF_PROP(is_sugar_free_boolean);
+      SPOT_DEF_PROP(is_in_nenoform);
+      SPOT_DEF_PROP(is_syntactic_stutter_invariant);
+      SPOT_DEF_PROP(is_sugar_free_ltl);
+      SPOT_DEF_PROP(is_ltl_formula);
+      SPOT_DEF_PROP(is_psl_formula);
+      SPOT_DEF_PROP(is_sere_formula);
+      SPOT_DEF_PROP(is_finite);
+      SPOT_DEF_PROP(is_eventual);
+      SPOT_DEF_PROP(is_universal);
+      SPOT_DEF_PROP(is_syntactic_safety);
+      SPOT_DEF_PROP(is_syntactic_guarantee);
+      SPOT_DEF_PROP(is_syntactic_obligation);
+      SPOT_DEF_PROP(is_syntactic_recurrence);
+      SPOT_DEF_PROP(is_syntactic_persistence);
+      SPOT_DEF_PROP(is_marked);
+      SPOT_DEF_PROP(accepts_eword);
+      SPOT_DEF_PROP(has_lbt_atomic_props);
+      SPOT_DEF_PROP(has_spin_atomic_props);
+#undef SPOT_DEF_PROP
+
+      template<typename Trans>
+      formula map(Trans trans)
+      {
+	switch (op o = kind())
+	  {
+	  case op::False:
+	  case op::True:
+	  case op::EmptyWord:
+	  case op::AP:
+	    return *this;
+	  case op::Not:
+	  case op::X:
+	  case op::F:
+	  case op::G:
+	  case op::Closure:
+	  case op::NegClosure:
+	  case op::NegClosureMarked:
+	    return unop(o, trans(nth(0)));
+	  case op::Xor:
+	  case op::Implies:
+	  case op::Equiv:
+	  case op::U:
+	  case op::R:
+	  case op::W:
+	  case op::M:
+	  case op::EConcat:
+	  case op::EConcatMarked:
+	  case op::UConcat:
+	    {
+	      formula tmp = trans(nth(0));
+	      return binop(o, tmp, trans(nth(1)));
+	    }
+	  case op::Or:
+	  case op::OrRat:
+	  case op::And:
+	  case op::AndRat:
+	  case op::AndNLM:
+	  case op::Concat:
+	  case op::Fusion:
+	    {
+	      std::vector<formula> tmp;
+	      tmp.reserve(size());
+	      for (auto f: *this)
+		tmp.push_back(trans(f));
+	      return multop(o, std::move(tmp));
+	    }
+	  case op::Star:
+	  case op::FStar:
+	    return bunop(o, trans(nth(0)), min(), max());
+	  }
+	SPOT_UNREACHABLE();
+      }
+
+      template<typename Func>
+      void traverse(Func func)
+      {
+	if (func(*this))
+	  return;
+	for (auto f: *this)
+	  f.traverse(func);
       }
     };
 
     /// Print the properties of formula \a f on stream \a out.
     SPOT_API
-    std::ostream& print_formula_props(std::ostream& out,
-				      const formula* f,
+    std::ostream& print_formula_props(std::ostream& out, const formula& f,
 				      bool abbreviated = false);
 
     /// List the properties of formula \a f.
     SPOT_API
-    std::list<std::string> list_formula_props(const formula* f);
+    std::list<std::string> list_formula_props(const formula& f);
   }
 }
 
@@ -515,12 +1246,11 @@ namespace spot
 namespace std
 {
   template <>
-  struct hash<const spot::ltl::formula*>
+  struct hash<spot::ltl::formula>
   {
-    size_t operator()(const spot::ltl::formula* x) const noexcept
+    size_t operator()(const spot::ltl::formula& x) const noexcept
     {
-      assert(x);
-      return x->hash();
+      return x.id();
     }
   };
 }

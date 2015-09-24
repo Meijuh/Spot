@@ -33,7 +33,6 @@
 #include <vector>
 #include <sstream>
 #include "minimize.hh"
-#include "ltlast/allnodes.hh"
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
 #include "twaalgos/product.hh"
@@ -593,7 +592,7 @@ namespace spot
 
   twa_graph_ptr
   minimize_obligation(const const_twa_graph_ptr& aut_f,
-		      const ltl::formula* f,
+		      ltl::formula f,
 		      const_twa_graph_ptr aut_neg_f,
 		      bool reject_bigger)
   {
@@ -614,7 +613,7 @@ namespace spot
 
     // if f is a syntactic obligation formula, the WDBA minimization
     // must be correct.
-    if (f && f->is_syntactic_obligation())
+    if (f && f.is_syntactic_obligation())
       return min_aut_f;
 
     // If aut_f is a guarantee automaton, the WDBA minimization must be
@@ -629,10 +628,7 @@ namespace spot
 	  {
 	    // If we know the formula, simply build the automaton for
 	    // its negation.
-	    const ltl::formula* neg_f =
-	      ltl::unop::instance(ltl::unop::Not, f->clone());
-	    aut_neg_f = ltl_to_tgba_fm(neg_f, aut_f->get_dict());
-	    neg_f->destroy();
+	    aut_neg_f = ltl_to_tgba_fm(ltl::formula::Not(f), aut_f->get_dict());
 	    // Remove useless SCCs.
 	    aut_neg_f = scc_filter(aut_neg_f, true);
 	  }

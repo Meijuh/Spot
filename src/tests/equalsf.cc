@@ -28,9 +28,7 @@
 #include <cstring>
 #include "ltlparse/public.hh"
 #include "ltlvisit/unabbrev.hh"
-#include "ltlvisit/dump.hh"
 #include "ltlvisit/nenoform.hh"
-#include "ltlast/allnodes.hh"
 #include "ltlvisit/simplify.hh"
 #include "ltlvisit/print.hh"
 
@@ -98,7 +96,7 @@ main(int argc, char** argv)
 	}
 
       spot::ltl::parse_error_list p2;
-      auto* f2 = spot::ltl::parse_infix_psl(formulas[size - 1], p2);
+      auto f2 = spot::ltl::parse_infix_psl(formulas[size - 1], p2);
 
       if (spot::ltl::format_parse_errors(std::cerr, formulas[size - 1], p2))
 	return 2;
@@ -107,7 +105,7 @@ main(int argc, char** argv)
 	{
 
 	  spot::ltl::parse_error_list p1;
-	  auto* f1 = spot::ltl::parse_infix_psl(formulas[n], p1);
+	  auto f1 = spot::ltl::parse_infix_psl(formulas[n], p1);
 
 	  if (check_first &&
 	      spot::ltl::format_parse_errors(std::cerr, formulas[n], p1))
@@ -117,21 +115,17 @@ main(int argc, char** argv)
 
 	  {
 #if defined UNABBREV || defined NENOFORM
-	    const spot::ltl::formula* tmp;
+	    spot::ltl::formula tmp;
 #endif
 #ifdef UNABBREV
 	    tmp = f1;
 	    f1 = spot::ltl::unabbreviate(f1, UNABBREV);
-	    tmp->destroy();
-	    spot::ltl::dump(std::cout, f1);
-	    std::cout << std::endl;
+	    f1.dump(std::cout) << std::endl;
 #endif
 #ifdef NENOFORM
 	    tmp = f1;
 	    f1 = spot::ltl::negative_normal_form(f1);
-	    tmp->destroy();
-	    spot::ltl::dump(std::cout, f1);
-	    std::cout << std::endl;
+	    f1.dump(std::cout) << std::endl;
 #endif
 #ifdef REDUC
 	    spot::ltl::ltl_simplifier_options opt(true, true, true,
@@ -141,7 +135,7 @@ main(int argc, char** argv)
 #  endif
 	    spot::ltl::ltl_simplifier simp(opt);
 	    {
-	      const spot::ltl::formula* tmp;
+	      spot::ltl::formula tmp;
 	      tmp = f1;
 	      f1 = simp.simplify(f1);
 
@@ -152,18 +146,15 @@ main(int argc, char** argv)
 		  spot::ltl::print_psl(std::cerr << "Simplified: ", f1) << '\n';
 		  exit_code = 1;
 		}
-
-	      tmp->destroy();
 	    }
-	    spot::ltl::dump(std::cout, f1);
-	    std::cout << std::endl;
+	    f1.dump(std::cout) << std::endl;
 #endif
 #ifdef REDUC_TAU
 	    spot::ltl::ltl_simplifier_options opt(false, false, false,
 						  true, false);
 	    spot::ltl::ltl_simplifier simp(opt);
 	    {
-	      const spot::ltl::formula* tmp;
+	      spot::ltl::formula tmp;
 	      tmp = f1;
 	      f1 = simp.simplify(f1);
 
@@ -174,18 +165,15 @@ main(int argc, char** argv)
 		  spot::ltl::print_psl(std::cerr << "Simplified: ", f1) << '\n';
 		  exit_code = 1;
 		}
-
-	      tmp->destroy();
 	    }
-	    spot::ltl::dump(std::cout, f1);
-	    std::cout << std::endl;
+	    f1.dump(std::cout) << std::endl;
 #endif
 #ifdef REDUC_TAUSTR
 	    spot::ltl::ltl_simplifier_options opt(false, false, false,
 						  true, true);
 	    spot::ltl::ltl_simplifier simp(opt);
 	    {
-	      const spot::ltl::formula* tmp;
+	      spot::ltl::formula tmp;
 	      tmp = f1;
 	      f1 = simp.simplify(f1);
 
@@ -196,11 +184,8 @@ main(int argc, char** argv)
 		  spot::ltl::print_psl(std::cerr << "Simplified: ", f1) << '\n';
 		  exit_code = 1;
 		}
-
-	      tmp->destroy();
 	    }
-	    spot::ltl::dump(std::cout, f1);
-	    std::cout << std::endl;
+	    f1.dump(std::cout) << std::endl;
 #endif
 
 	    exit_code |= f1 != f2;
@@ -225,25 +210,11 @@ main(int argc, char** argv)
 	    exit_code ^= 1;
 #endif
 	    if (exit_code)
-	      {
-		spot::ltl::dump(std::cerr, f1) << std::endl;
-		spot::ltl::dump(std::cerr, f2) << std::endl;
-		return exit_code;
-	      }
-
+	      return exit_code;
 	  }
-	  f1->destroy();
 	}
-      f2->destroy();
     }
 
-  spot::ltl::atomic_prop::dump_instances(std::cerr);
-  spot::ltl::unop::dump_instances(std::cerr);
-  spot::ltl::binop::dump_instances(std::cerr);
-  spot::ltl::multop::dump_instances(std::cerr);
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   return 0;
 }

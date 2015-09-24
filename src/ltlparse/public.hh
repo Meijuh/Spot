@@ -56,8 +56,8 @@ namespace spot
     /// \param lenient When true, parenthesized blocks that cannot be
     ///                parsed as subformulas will be considered as
     ///                atomic propositions.
-    /// \return A pointer to the formula built from \a ltl_string, or
-    ///        0 if the input was unparsable.
+    /// \return A formula built from \a ltl_string, or
+    ///         formula(nullptr) if the input was unparsable.
     ///
     /// Note that the parser usually tries to recover from errors.  It can
     /// return a non zero value even if it encountered error during the
@@ -66,12 +66,12 @@ namespace spot
     ///
     /// \warning This function is not reentrant.
     SPOT_API
-    const formula* parse_infix_psl(const std::string& ltl_string,
-				   parse_error_list& error_list,
-				   environment& env =
-				   default_environment::instance(),
-				   bool debug = false,
-				   bool lenient = false);
+    formula parse_infix_psl(const std::string& ltl_string,
+			    parse_error_list& error_list,
+			    environment& env =
+			    default_environment::instance(),
+			    bool debug = false,
+			    bool lenient = false);
 
     /// \brief Build a Boolean formula from a string.
     /// \param ltl_string The string to parse.
@@ -82,8 +82,8 @@ namespace spot
     /// \param lenient When true, parenthesized blocks that cannot be
     ///                parsed as subformulas will be considered as
     ///                atomic propositions.
-    /// \return A pointer to the formula built from \a ltl_string, or
-    ///        0 if the input was unparsable.
+    /// \return A formula built from \a ltl_string, or
+    ///         formula(nullptr) if the input was unparsable.
     ///
     /// Note that the parser usually tries to recover from errors.  It can
     /// return a non zero value even if it encountered error during the
@@ -92,12 +92,12 @@ namespace spot
     ///
     /// \warning This function is not reentrant.
     SPOT_API
-    const formula* parse_infix_boolean(const std::string& ltl_string,
-				       parse_error_list& error_list,
-				       environment& env =
-				       default_environment::instance(),
-				       bool debug = false,
-				       bool lenient = false);
+    formula parse_infix_boolean(const std::string& ltl_string,
+				parse_error_list& error_list,
+				environment& env =
+				default_environment::instance(),
+				bool debug = false,
+				bool lenient = false);
 
     /// \brief Build a formula from an LTL string in LBT's format.
     /// \param ltl_string The string to parse.
@@ -105,8 +105,8 @@ namespace spot
     ///        parse errors that occured during parsing.
     /// \param env The environment into which parsing should take place.
     /// \param debug When true, causes the parser to trace its execution.
-    /// \return A pointer to the formula built from \a ltl_string, or
-    ///        0 if the input was unparsable.
+    /// \return A formula built from \a ltl_string, or
+    ///         formula(nullptr) if the input was unparsable.
     ///
     /// Note that the parser usually tries to recover from errors.  It can
     /// return an non zero value even if it encountered error during the
@@ -119,11 +119,11 @@ namespace spot
     ///
     /// \warning This function is not reentrant.
     SPOT_API
-    const formula* parse_prefix_ltl(const std::string& ltl_string,
-				    parse_error_list& error_list,
-				    environment& env =
-				    default_environment::instance(),
-				    bool debug = false);
+    formula parse_prefix_ltl(const std::string& ltl_string,
+			     parse_error_list& error_list,
+			     environment& env =
+			     default_environment::instance(),
+			     bool debug = false);
 
     /// \brief A simple wrapper to parse_infix_psl() and parse_prefix_ltl().
     ///
@@ -131,7 +131,7 @@ namespace spot
     /// parse_infix_psl(); if this fails it tries parse_prefix_ltl();
     /// and if both fails it returns the errors of the first call to
     /// parse_infix_psl() as a parse_error exception.
-    SPOT_API const formula*
+    SPOT_API formula
     parse_formula(const std::string& ltl_string,
 		  environment& env = default_environment::instance());
 
@@ -144,8 +144,8 @@ namespace spot
     /// \param lenient When true, parenthesized blocks that cannot be
     ///                parsed as subformulas will be considered as
     ///                atomic propositions.
-    /// \return A pointer to the formula built from \a sere_string, or
-    ///        0 if the input was unparsable.
+    /// \return A formula built from \a sere_string, or
+    ///         formula(0) if the input was unparsable.
     ///
     /// Note that the parser usually tries to recover from errors.  It can
     /// return an non zero value even if it encountered error during the
@@ -154,12 +154,12 @@ namespace spot
     ///
     /// \warning This function is not reentrant.
     SPOT_API
-    const formula* parse_infix_sere(const std::string& sere_string,
-				    parse_error_list& error_list,
-				    environment& env =
-				    default_environment::instance(),
-				    bool debug = false,
-				    bool lenient = false);
+    formula parse_infix_sere(const std::string& sere_string,
+			     parse_error_list& error_list,
+			     environment& env =
+			     default_environment::instance(),
+			     bool debug = false,
+			     bool lenient = false);
 
     /// \brief Format diagnostics produced by spot::ltl::parse
     ///        or spot::ltl::ratexp
@@ -181,11 +181,10 @@ namespace spot
 
     /// \brief Fix location of diagnostics assuming the input is utf8.
     ///
-    /// The spot::ltl::parse() and spot::ltl::parse_sere() function
-    /// return a parse_error_list that contain locations specified at
-    /// the byte level.  Although these parser recognize some
-    /// utf8 characters they only work byte by byte and will report
-    /// positions by counting byte.
+    /// The different parser functions return a parse_error_list that
+    /// contain locations specified at the byte level.  Although these
+    /// parser recognize some utf8 characters they only work byte by
+    /// byte and will report positions by counting byte.
     ///
     /// This function fixes the positions returned by the parser to
     /// look correct when the string is interpreted as a utf8-encoded

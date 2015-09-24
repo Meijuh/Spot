@@ -22,7 +22,6 @@
 #include <cstdlib>
 #include "ltlparse/public.hh"
 #include "ltlvisit/relabel.hh"
-#include "ltlast/allnodes.hh"
 #include "ltlvisit/print.hh"
 
 void
@@ -38,38 +37,30 @@ main(int argc, char **argv)
   if (argc != 2)
     syntax(argv[0]);
 
-  spot::ltl::parse_error_list p1;
-  auto* f1 = spot::ltl::parse_infix_psl(argv[1], p1);
+  {
+    spot::ltl::parse_error_list p1;
+    auto f1 = spot::ltl::parse_infix_psl(argv[1], p1);
 
-  if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
-    return 2;
+    if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
+      return 2;
 
-  spot::ltl::relabeling_map* m = new spot::ltl::relabeling_map;
-  const spot::ltl::formula* f2 = spot::ltl::relabel_bse(f1, spot::ltl::Pnn, m);
-  f1->destroy();
-  spot::ltl::print_psl(std::cout, f2) << '\n';
+    spot::ltl::relabeling_map* m = new spot::ltl::relabeling_map;
+    auto f2 = spot::ltl::relabel_bse(f1, spot::ltl::Pnn, m);
+    spot::ltl::print_psl(std::cout, f2) << '\n';
 
 
-  typedef std::map<std::string, std::string> map_t;
-  map_t sorted_map;
-  for (spot::ltl::relabeling_map::const_iterator i = m->begin();
-       i != m->end(); ++i)
-    sorted_map[spot::ltl::str_psl(i->first)] =
-      spot::ltl::str_psl(i->second);
-  for (map_t::const_iterator i = sorted_map.begin();
-       i != sorted_map.end(); ++i)
-    std::cout << "  " << i->first << "   ->   "
-	      << i->second << '\n';
-  f2->destroy();
-  delete m;
-
-  spot::ltl::atomic_prop::dump_instances(std::cerr);
-  spot::ltl::unop::dump_instances(std::cerr);
-  spot::ltl::binop::dump_instances(std::cerr);
-  spot::ltl::multop::dump_instances(std::cerr);
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+    typedef std::map<std::string, std::string> map_t;
+    map_t sorted_map;
+    for (spot::ltl::relabeling_map::const_iterator i = m->begin();
+	 i != m->end(); ++i)
+      sorted_map[spot::ltl::str_psl(i->first)] =
+	spot::ltl::str_psl(i->second);
+    for (map_t::const_iterator i = sorted_map.begin();
+	 i != sorted_map.end(); ++i)
+      std::cout << "  " << i->first << "   ->   "
+		<< i->second << '\n';
+    delete m;
+  }
+  assert(spot::ltl::fnode::instances_check());
   return 0;
 }

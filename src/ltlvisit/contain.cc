@@ -22,10 +22,7 @@
 
 #include "contain.hh"
 #include "simplify.hh"
-#include "ltlast/unop.hh"
-#include "ltlast/binop.hh"
-#include "ltlast/multop.hh"
-#include "ltlast/constant.hh"
+#include "ltlast/formula.hh"
 #include "twaalgos/product.hh"
 
 namespace spot
@@ -50,13 +47,7 @@ namespace spot
     void
     language_containment_checker::clear()
     {
-      while (!translated_.empty())
-	{
-	  trans_map::iterator i = translated_.begin();
-	  const formula* f = i->first;
-	  translated_.erase(i);
-	  f->destroy();
-	}
+      translated_.clear();
     }
 
     bool
@@ -75,31 +66,26 @@ namespace spot
 
     // Check whether L(l) is a subset of L(g).
     bool
-    language_containment_checker::contained(const formula* l,
-					    const formula* g)
+    language_containment_checker::contained(formula l,
+					    formula g)
     {
       if (l == g)
 	return true;
       record_* rl = register_formula_(l);
-      const formula* ng = unop::instance(unop::Not, g->clone());
-      record_* rng = register_formula_(ng);
-      ng->destroy();
+      record_* rng = register_formula_(formula::Not(g));
       return incompatible_(rl, rng);
     }
 
     // Check whether L(!l) is a subset of L(g).
     bool
-    language_containment_checker::neg_contained(const formula* l,
-						const formula* g)
+    language_containment_checker::neg_contained(formula l,
+						formula g)
     {
       if (l == g)
 	return false;
-      const formula* nl = unop::instance(unop::Not, l->clone());
+      formula nl = formula::Not(l);
       record_* rnl = register_formula_(nl);
-      const formula* ng = unop::instance(unop::Not, g->clone());
-      record_* rng = register_formula_(ng);
-      nl->destroy();
-      ng->destroy();
+      record_* rng = register_formula_(formula::Not(g));
       if (nl == g)
 	return true;
       return incompatible_(rnl, rng);
@@ -107,8 +93,8 @@ namespace spot
 
     // Check whether L(l) is a subset of L(!g).
     bool
-    language_containment_checker::contained_neg(const formula* l,
-						const formula* g)
+    language_containment_checker::contained_neg(formula l,
+						formula g)
     {
       if (l == g)
 	return false;
@@ -119,13 +105,13 @@ namespace spot
 
     // Check whether L(l) = L(g).
     bool
-    language_containment_checker::equal(const formula* l, const formula* g)
+    language_containment_checker::equal(formula l, formula g)
     {
       return contained(l, g) && contained(g, l);
     }
 
     language_containment_checker::record_*
-    language_containment_checker::register_formula_(const formula* f)
+    language_containment_checker::register_formula_(formula f)
     {
       trans_map::iterator i = translated_.find(f);
       if (i != translated_.end())
@@ -133,17 +119,17 @@ namespace spot
 
       auto e = ltl_to_tgba_fm(f, dict_, exprop_, symb_merge_,
 			      branching_postponement_, fair_loop_approx_);
-      record_& r = translated_[f->clone()];
+      record_& r = translated_[f];
       r.translation = e;
       return &r;
     }
 
 
-    const formula*
-    reduce_tau03(const formula* f, bool stronger)
+    formula
+    reduce_tau03(formula f, bool stronger)
     {
-      if (!f->is_psl_formula())
-	return f->clone();
+      if (!f.is_psl_formula())
+	return f;
 
       ltl_simplifier_options opt(false, false, false,
 				 true, stronger);

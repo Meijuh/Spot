@@ -18,344 +18,176 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "mark.hh"
-#include "ltlast/allnodes.hh"
 #include <cassert>
 #include <algorithm>
 #include <set>
 #include <vector>
-#include "misc/casts.hh"
 
 namespace spot
 {
   namespace ltl
   {
-    namespace
-    {
-      class simplify_mark_visitor : public visitor
-      {
-	const formula* result_;
-	mark_tools* tools_;
-
-      public:
-	simplify_mark_visitor(mark_tools* t)
-	  : tools_(t)
-	{
-	}
-
-	~simplify_mark_visitor()
-	{
-	}
-
-	const formula*
-	result()
-	{
-	  return result_;
-	}
-
-	void
-	visit(const atomic_prop* ao)
-	{
-	  result_ = ao->clone();
-	}
-
-	void
-	visit(const constant* c)
-	{
-	  result_ = c->clone();
-	}
-
-	void
-	visit(const bunop* bo)
-	{
-	  result_ = bo->clone();
-	}
-
-	void
-	visit(const unop* uo)
-	{
-	  result_ = uo->clone();
-	}
-
-	void
-	visit(const multop* mo)
-	{
-	  unsigned mos = mo->size();
-	  multop::vec* res = new multop::vec;
-	  switch (mo->op())
-	    {
-	    case multop::OrRat:
-	    case multop::AndNLM:
-	    case multop::AndRat:
-	    case multop::Concat:
-	    case multop::Fusion:
-	      SPOT_UNIMPLEMENTED();
-	    case multop::Or:
-	      for (unsigned i = 0; i < mos; ++i)
-		res->push_back(recurse(mo->nth(i)));
-	      break;
-	    case multop::And:
-	      {
-		typedef std::set<std::pair<const formula*,
-					   const formula*> > pset;
-		pset empairs;
-		typedef std::set<const formula*> sset;
-		sset nmset;
-		typedef std::vector<const binop*> unbinop;
-		unbinop elist;
-		typedef std::vector<const unop*> ununop;
-		ununop nlist;
-
-		for (unsigned i = 0; i < mos; ++i)
-		  {
-		    const formula* f = mo->nth(i);
-		    if (const binop* bo = is_binop(f))
-		      {
-			switch (bo->op())
-			  {
-			  case binop::EConcatMarked:
-			    empairs.emplace(bo->first(), bo->second());
-			    // fall through
-			  case binop::Xor:
-			  case binop::Implies:
-			  case binop::Equiv:
-			  case binop::U:
-			  case binop::W:
-			  case binop::M:
-			  case binop::R:
-			  case binop::UConcat:
-			    res->push_back(recurse(f));
-			    break;
-			  case binop::EConcat:
-			    elist.push_back(bo);
-			    break;
-			  }
-		      }
-		    if (const unop* uo = is_unop(f))
-		      {
-			switch (uo->op())
-			  {
-			  case unop::NegClosureMarked:
-			    nmset.insert(uo->child());
-			    // fall through
-			  case unop::Not:
-			  case unop::X:
-			  case unop::F:
-			  case unop::G:
-			  case unop::Closure:
-			    res->push_back(recurse(f));
-			    break;
-			  case unop::NegClosure:
-			    nlist.push_back(uo);
-			    break;
-			  }
-		      }
-		    else
-		      {
-			res->push_back(recurse(f));
-		      }
-		  }
-		// Keep only the non-marked EConcat for which we
-		// have not seen a similar EConcatMarked.
-		for (unbinop::const_iterator i = elist.begin();
-		     i != elist.end(); ++i)
-		  if (empairs.find(std::make_pair((*i)->first(),
-						  (*i)->second()))
-		      == empairs.end())
-		    res->push_back((*i)->clone());
-		// Keep only the non-marked NegClosure for which we
-		// have not seen a similar NegClosureMarked.
-		for (ununop::const_iterator i = nlist.begin();
-		     i != nlist.end(); ++i)
-		  if (nmset.find((*i)->child()) == nmset.end())
-		    res->push_back((*i)->clone());
-	      }
-	    }
-	  result_ = multop::instance(mo->op(), res);
-	}
-
-	void
-	visit(const binop* bo)
-	{
-	  result_ = bo->clone();
-	}
-
-	const formula*
-	recurse(const formula* f)
-	{
-	  return tools_->simplify_mark(f);
-	}
-      };
-
-
-      class mark_visitor : public visitor
-      {
-	const formula* result_;
-	mark_tools* tools_;
-
-      public:
-	mark_visitor(mark_tools* t)
-	  : tools_(t)
-	{
-	}
-	~mark_visitor()
-	{
-	}
-
-	const formula*
-	result()
-	{
-	  return result_;
-	}
-
-	void
-	visit(const atomic_prop* ap)
-	{
-	  result_ = ap->clone();
-	}
-
-	void
-	visit(const constant* c)
-	{
-	  result_ = c->clone();
-	}
-
-	void
-	visit(const bunop* bo)
-	{
-	  result_ = bo->clone();
-	}
-
-	void
-	visit(const unop* uo)
-	{
-	  switch (uo->op())
-	    {
-	    case unop::Not:
-	    case unop::X:
-	    case unop::F:
-	    case unop::G:
-	    case unop::Closure:
-	    case unop::NegClosureMarked:
-	      result_ = uo->clone();
-	      return;
-	    case unop::NegClosure:
-	      result_ = unop::instance(unop::NegClosureMarked,
-				       uo->child()->clone());
-	      return;
-	    }
-	  SPOT_UNREACHABLE();
-	}
-
-	void
-	visit(const multop* mo)
-	{
-	  multop::vec* res = new multop::vec;
-	  unsigned mos = mo->size();
-	  for (unsigned i = 0; i < mos; ++i)
-	    res->push_back(recurse(mo->nth(i)));
-	  result_ = multop::instance(mo->op(), res);
-	}
-
-	void
-	visit(const binop* bo)
-	{
-	  switch (bo->op())
-	    {
-	    case binop::Xor:
-	    case binop::Implies:
-	    case binop::Equiv:
-	      SPOT_UNIMPLEMENTED();
-	    case binop::U:
-	    case binop::W:
-	    case binop::M:
-	    case binop::R:
-	    case binop::UConcat:
-	    case binop::EConcatMarked:
-	      result_ = bo->clone();
-	      return;
-	    case binop::EConcat:
-	      {
-		const formula* f1 = bo->first()->clone();
-		const formula* f2 = bo->second()->clone();
-		result_ = binop::instance(binop::EConcatMarked, f1, f2);
-		return;
-	      }
-	    }
-	  SPOT_UNREACHABLE();
-	}
-
-	const formula*
-	recurse(const formula* f)
-	{
-	  return tools_->mark_concat_ops(f);
-	}
-      };
-
-    }
-
-    mark_tools::mark_tools()
-      : simpvisitor_(new simplify_mark_visitor(this)),
-	markvisitor_(new mark_visitor(this))
-    {
-    }
-
-
-    mark_tools::~mark_tools()
-    {
-      delete simpvisitor_;
-      delete markvisitor_;
-      {
-	f2f_map::iterator i = simpmark_.begin();
-	f2f_map::iterator end = simpmark_.end();
-	while (i != end)
-	  {
-	    f2f_map::iterator old = i++;
-	    old->second->destroy();
-	    old->first->destroy();
-	  }
-      }
-      {
-	f2f_map::iterator i = markops_.begin();
-	f2f_map::iterator end = markops_.end();
-	while (i != end)
-	  {
-	    f2f_map::iterator old = i++;
-	    old->second->destroy();
-	    old->first->destroy();
-	  }
-      }
-    }
-
-    const formula*
-    mark_tools::mark_concat_ops(const formula* f)
+    formula
+    mark_tools::mark_concat_ops(formula f)
     {
       f2f_map::iterator i = markops_.find(f);
       if (i != markops_.end())
-	return i->second->clone();
+	return i->second;
 
-      f->accept(*markvisitor_);
+      ltl::formula res;
+      switch (f.kind())
+	{
+	case op::False:
+	case op::True:
+	case op::EmptyWord:
+	case op::AP:
+	case op::Not:
+	case op::X:
+	case op::F:
+	case op::G:
+	case op::Closure:
+	case op::NegClosureMarked:
+	case op::OrRat:
+	case op::AndRat:
+	case op::AndNLM:
+	case op::Star:
+	case op::FStar:
+	case op::U:
+	case op::R:
+	case op::W:
+	case op::M:
+	case op::EConcatMarked:
+	case op::UConcat:
+	case op::Concat:
+	case op::Fusion:
+	  res = f;
+	  break;
+	case op::NegClosure:
+	  res = ltl::formula::NegClosureMarked(f.nth(0));
+	  break;
+	case op::EConcat:
+	  res = ltl::formula::EConcatMarked(f.nth(0), f.nth(1));
+	  break;
+	case op::Or:
+	case op::And:
+	  res = f.map([this](formula f)
+		      {
+			return this->mark_concat_ops(f);
+		      });
+	  break;
+	case op::Xor:
+	case op::Implies:
+	case op::Equiv:
+	  SPOT_UNIMPLEMENTED();
+	}
 
-      const formula* r = down_cast<mark_visitor*>(markvisitor_)->result();
-      markops_[f->clone()] = r->clone();
-      return r;
+      markops_[f] = res;
+      return res;
     }
 
-    const formula*
-    mark_tools::simplify_mark(const formula* f)
+    formula
+    mark_tools::simplify_mark(formula f)
     {
-      if (!f->is_marked())
-	return f->clone();
+      if (!f.is_marked())
+	return f;
 
       f2f_map::iterator i = simpmark_.find(f);
       if (i != simpmark_.end())
-	return i->second->clone();
+	return i->second;
 
-      f->accept(*simpvisitor_);
+      auto recurse = [this](formula f)
+	{
+	  return this->simplify_mark(f);
+	};
 
-      const formula* r =
-	down_cast<simplify_mark_visitor*>(simpvisitor_)->result();
-      simpmark_[f->clone()] = r->clone();
-      return r;
+      ltl::formula res;
+      switch (f.kind())
+	{
+	case op::False:
+	case op::True:
+	case op::EmptyWord:
+	case op::AP:
+	case op::Not:
+	case op::X:
+	case op::F:
+	case op::G:
+	case op::Closure:
+	case op::NegClosure:
+	case op::NegClosureMarked:
+	case op::U:
+	case op::R:
+	case op::W:
+	case op::M:
+	case op::EConcat:
+	case op::EConcatMarked:
+	case op::UConcat:
+	  res = f;
+	  break;
+	case op::Or:
+	  res = f.map(recurse);
+	  break;
+	case op::And:
+	  {
+	    std::set<std::pair<formula, formula>> empairs;
+	    std::set<formula> nmset;
+	    std::vector<formula> elist;
+	    std::vector<formula> nlist;
+	    std::vector<formula> v;
+
+	    for (auto c: f)
+	      {
+		if (c.is(op::EConcatMarked))
+		  {
+		    empairs.emplace(c.nth(0), c.nth(1));
+		    v.push_back(c.map(recurse));
+		  }
+		else if (c.is(op::EConcat))
+		  {
+		    elist.push_back(c);
+		  }
+		else if (c.is(op::NegClosureMarked))
+		  {
+		    nmset.insert(c.nth(0));
+		    v.push_back(c.map(recurse));
+		  }
+		else if (c.is(op::NegClosure))
+		  {
+		    nlist.push_back(c);
+		  }
+		else
+		  {
+		    v.push_back(c);
+		  }
+	      }
+	    // Keep only the non-marked EConcat for which we
+	    // have not seen a similar EConcatMarked.
+	    for (auto e:  elist)
+	      if (empairs.find(std::make_pair(e.nth(0), e.nth(1)))
+		  == empairs.end())
+		v.push_back(e);
+	    // Keep only the non-marked NegClosure for which we
+	    // have not seen a similar NegClosureMarked.
+	    for (auto n: nlist)
+	      if (nmset.find(n.nth(0)) == nmset.end())
+		v.push_back(n);
+	    res = ltl::formula::And(v);
+	  }
+	  break;
+	case op::Xor:
+	case op::Implies:
+	case op::Equiv:
+	case op::OrRat:
+	case op::AndRat:
+	case op::AndNLM:
+	case op::Star:
+	case op::FStar:
+	case op::Concat:
+	case op::Fusion:
+	  SPOT_UNIMPLEMENTED();
+	}
+
+      simpmark_[f] = res;
+      return res;
     }
 
   }

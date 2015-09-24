@@ -103,11 +103,8 @@ namespace spot
 	      body_ << s << ' ';
 	    body_ << "-1 ";
 	  }
-	const ltl::formula* f = bdd_to_formula(si->current_condition(),
-					       aut_->get_dict());
-	print_lbt_ltl(body_, f);
-	f->destroy();
-	body_ << '\n';
+	print_lbt_ltl(body_, bdd_to_formula(si->current_condition(),
+					    aut_->get_dict())) << '\n';
       }
 
       void

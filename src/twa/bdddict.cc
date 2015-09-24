@@ -24,7 +24,7 @@
 #include <sstream>
 #include <cassert>
 #include <ltlvisit/print.hh>
-#include <ltlast/atomic_prop.hh>
+#include <ltlast/formula.hh>
 #include <ltlenv/defaultenv.hh>
 #include "priv/bddalloc.hh"
 #include "bdddict.hh"
@@ -95,7 +95,7 @@ namespace spot
   }
 
   int
-  bdd_dict::register_proposition(const ltl::formula* f, const void* for_me)
+  bdd_dict::register_proposition(ltl::formula f, const void* for_me)
   {
     int num;
     // Do not build a variable that already exists.
@@ -106,7 +106,6 @@ namespace spot
       }
     else
       {
-	f = f->clone();
 	num = priv_->allocate_variables(1);
 	var_map[f] = num;
 	bdd_map.resize(bdd_varnum());
@@ -118,7 +117,7 @@ namespace spot
   }
 
   int
-  bdd_dict::has_registered_proposition(const ltl::formula* f,
+  bdd_dict::has_registered_proposition(ltl::formula f,
 				       const void* me)
   {
     auto ssi = var_map.find(f);
@@ -132,8 +131,8 @@ namespace spot
   }
 
   int
-  bdd_dict::register_acceptance_variable(const ltl::formula* f,
-					const void* for_me)
+  bdd_dict::register_acceptance_variable(ltl::formula f,
+					 const void* for_me)
   {
     int num;
     // Do not build an acceptance variable that already exists.
@@ -144,7 +143,6 @@ namespace spot
       }
     else
       {
-	f = f->clone();
 	num = priv_->allocate_variables(1);
 	acc_map[f] = num;
 	bdd_map.resize(bdd_varnum());
@@ -173,7 +171,7 @@ namespace spot
     register_acceptance_variables(bdd_low(f), for_me);
   }
 
-  const ltl::formula*
+  ltl::formula
   bdd_dict::oneacc_to_formula(int var) const
   {
     assert(unsigned(var) < bdd_map.size());
@@ -182,7 +180,7 @@ namespace spot
     return i.f;
   }
 
-  const ltl::formula*
+  ltl::formula
   bdd_dict::oneacc_to_formula(bdd oneacc) const
   {
     assert(oneacc != bddfalse);
@@ -276,7 +274,7 @@ namespace spot
     // Let's free it.  First, we need to find
     // if this is a Var or an Acc variable.
     int n = 1;
-    const ltl::formula* f = 0;
+    ltl::formula f = nullptr;
     switch (bdd_map[v].type)
       {
       case var:
@@ -302,8 +300,6 @@ namespace spot
     // Actually release the associated BDD variables, and the
     // formula itself.
     priv_->release_variables(v, n);
-    if (f)
-      f->destroy();
     while (n--)
       bdd_map[v + n].type = anon;
   }

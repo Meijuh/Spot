@@ -151,7 +151,7 @@ namespace spot
 	      os_ << "  :: atomic { (";
 	    else
 	      os_ << "  :: (";
-	    const ltl::formula* f = bdd_to_formula(t.cond, aut_->get_dict());
+	    ltl::formula f = bdd_to_formula(t.cond, aut_->get_dict());
 	    // This is actually a Boolean formula, but the LTL printer
 	    // is all we have.
 	    print_spin_ltl(os_, f, true);
@@ -166,7 +166,6 @@ namespace spot
 		os_ << ") -> goto ";
 		print_state(t.dst);
 	      }
-	    f->destroy();
 	    os_ << '\n';
 	  }
 	if (!did_output)

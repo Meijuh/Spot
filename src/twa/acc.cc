@@ -23,6 +23,7 @@
 #include <set>
 #include <cctype>
 #include <cstring>
+#include <map>
 #include "acc.hh"
 #include "priv/bddalloc.hh"
 #include "misc/minato.hh"

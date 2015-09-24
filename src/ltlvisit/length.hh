@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013 Laboratoire de Recherche et Developement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -33,15 +33,14 @@ namespace spot
     ///
     /// The length of a formula is the number of atomic propositions,
     /// constants, and operators (logical and temporal) occurring in
-    /// the formula.  spot::ltl::multop instances with n arguments
-    /// count for n-1; for instance <code>a | b | c</code> has length
-    /// 5, even if there is only as single <code>|</code> node
-    /// internally.
+    /// the formula.  n-ary operators count for n-1; for instance
+    /// <code>a | b | c</code> has length 5, even if there is only as
+    /// single <code>|</code> node internally.
     ///
     /// If squash_boolean is set, all Boolean formulae are assumed
     /// to have length one.
     SPOT_API
-    int length(const formula* f);
+    int length(formula f);
 
     /// \ingroup ltl_misc
     /// \brief Compute the length of a formula, squashing Boolean formulae
@@ -49,6 +48,6 @@ namespace spot
     /// This is similar to spot::ltl::length(), except all Boolean
     /// formulae are assumed to have length one.
     SPOT_API
-    int length_boolone(const formula* f);
+    int length_boolone(formula f);
   }
 }

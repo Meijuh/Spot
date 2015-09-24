@@ -17,28 +17,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <unordered_set>
+#include <set>
 #include <algorithm>
 
-#include "ltlast/allnodes.hh"
 #include "ltlvisit/apcollect.hh"
-#include "ltlvisit/clone.hh"
 #include "ltlvisit/mutation.hh"
 #include "ltlvisit/length.hh"
-#include "misc/hash.hh"
 
-#define Implies_(x, y) \
-  spot::ltl::binop::instance(spot::ltl::binop::Implies, (x), (y))
-#define And_(x, y) \
-  spot::ltl::multop::instance(spot::ltl::multop::And, (x), (y))
-#define AndRat_(x, y) \
-  spot::ltl::multop::instance(spot::ltl::multop::AndRat, (x), (y))
-#define AndNLM_(x) \
-  spot::ltl::multop::instance(spot::ltl::multop::AndNLM, (x))
-#define Concat_(x, y) \
-  spot::ltl::multop::instance(spot::ltl::multop::Concat, (x), (y))
-#define Not_(x) \
-  spot::ltl::unop::instance(spot::ltl::unop::Not, (x))
+#define And_(x, y) formula::And({(x), (y)})
+#define AndRat_(x, y) formula::AndRat({(x), (y)})
+#define AndNLM_(x) formula::AndNLM(x)
+#define Concat_(x, y) formula::Concat({(x), (y)})
+#define Not_(x) formula::Not(x)
 
 namespace spot
 {
@@ -46,355 +36,307 @@ namespace spot
   {
     namespace
     {
-      class replace_visitor final : public clone_visitor
+      formula substitute_ap(formula f, formula ap_src, formula ap_dst)
       {
-      public:
-	void visit(const atomic_prop* ap)
-	{
-	  if (ap == ap1_)
-	    result_ = ap2_->clone();
-	  else
-	    result_ = ap->clone();
-	}
+	return f.map([&](formula f)
+		     {
+		       if (f == ap_src)
+			 return ap_dst;
+		       else
+			 return substitute_ap(f, ap_src, ap_dst);
+		     });
+      }
 
-	const formula*
-	replace(const formula* f,
-		const atomic_prop* ap1,
-		const atomic_prop* ap2)
-	{
-	  ap1_ = ap1;
-	  ap2_ = ap2;
-	  return recurse(f);
-	}
-
-      private:
-	const atomic_prop* ap1_;
-	const atomic_prop* ap2_;
-      };
-
-      typedef std::vector<const formula*> vec;
-      class mutation_visitor final : public clone_visitor
+      typedef std::vector<formula> vec;
+      class mutator final
       {
+	int mutation_counter_ = 0;
+	formula f_;
+	unsigned opts_;
       public:
-        mutation_visitor(const formula* f, unsigned opts) : f_(f), opts_(opts)
+        mutator(formula f, unsigned opts) : f_(f), opts_(opts)
         {
         }
 
-        void visit(const atomic_prop* ap)
+        formula mutate(formula f)
         {
-          result_ = 0;
-          if (opts_ & Mut_Ap2Const)
-            {
-              if (mutation_counter_-- == 0)
-                result_ = constant::true_instance();
-              if (mutation_counter_-- == 0)
-                result_ = constant::false_instance();
-            }
-          if (!result_)
-            result_ = ap->clone();
-        }
-
-        void visit(const unop* uo)
-        {
-          result_ = 0;
-          if (opts_ & Mut_Remove_Ops)
-            {
-              if ((uo->op() == unop::G
-                   || uo->op() == unop::F
-                   || uo->op() == unop::X
-                   || uo->op() == unop::Not)
-                  && mutation_counter_-- == 0)
-                result_ = uo->child()->clone();
-            }
-          if (!result_)
-            {
-              if (mutation_counter_ < 0)
-                result_ = uo->clone();
-              else
-                {
-                  result_ = unop::instance(uo->op(), recurse(uo->child()));
-                }
-            }
-        }
-
-        void visit(const binop* bo)
-        {
-          const formula* first = bo->first();
-          const formula* second = bo->second();
-          result_ = 0;
-	  auto op = bo->op();
-	  bool left_is_sere = op == binop::EConcat
-	    || op == binop::EConcatMarked
-	    || op == binop::UConcat;
-
-          if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
+	  auto recurse = [this](formula f)
 	    {
-	      if (!left_is_sere)
-		result_ = first->clone();
-	      else if (op == binop::UConcat)
-		result_ = unop::instance(unop::NegClosure, first->clone());
-	      else // EConcat or EConcatMarked
-		result_ = unop::instance(unop::Closure, first->clone());
-	    }
-          if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
-            result_ = second->clone();
-          if (opts_ & Mut_Rewrite_Ops)
-            {
-              switch (op)
-                {
-                case binop::U:
-                  if (mutation_counter_-- == 0)
-                    result_ = binop::instance(binop::W, first->clone(),
-					      second->clone());
-                  break;
-                case binop::M:
-                  if (mutation_counter_-- == 0)
-                    result_ = binop::instance(binop::R, first->clone(),
-					      second->clone());
-                  if (mutation_counter_-- == 0)
-                    result_ = binop::instance(binop::U, second->clone(),
-					      first->clone());
-                  break;
-                case binop::R:
-                  if (mutation_counter_-- == 0)
-                    result_ = binop::instance(binop::W, second->clone(),
-					      first->clone());
-                  break;
-                default:
-                  break;
-                }
-            }
-          if (opts_ & Mut_Split_Ops)
-            {
-              switch (op)
-                {
-                case binop::Equiv:
-                  if (mutation_counter_-- == 0)
-                    result_ = Implies_(first->clone(), second->clone());
-                  if (mutation_counter_-- == 0)
-                    result_ = Implies_(second->clone(), first->clone());
-                  if (mutation_counter_-- == 0)
-                    result_ = And_(first->clone(), second->clone());
-                  if (mutation_counter_-- == 0)
-		    {
-		      // Negate the two argument sequentially (in this
-		      // case right before left, otherwise different
-		      // compilers will make different choices.
-		      auto right = Not_(second->clone());
-		      result_ = And_(Not_(first->clone()), right);
-		    }
-                  break;
-                case binop::Xor:
-                  if (mutation_counter_-- == 0)
-                    result_ = And_(first->clone(), Not_(second->clone()));
-                  if (mutation_counter_-- == 0)
-                    result_ = And_(Not_(first->clone()), second->clone());
-                  break;
-                default:
-                  break;
-                }
-            }
-          if (!result_)
-            {
-              if (mutation_counter_ < 0)
-		{
-		  result_ = bo->clone();
-		}
-              else
-		{
-		  // For historical reasons, we evaluate the right
-		  // side before the left one.  The other order would
-		  // be OK as well but require changing the test
-		  // suite.  Evaluating both sides during the call to
-		  // instance() is incorrect, because each compiler
-		  // could decide of a different order.
-		  auto right = recurse(second);
-		  result_ = binop::instance(op, recurse(first), right);
-		}
-            }
-        }
+	      return this->mutate(f);
+	    };
 
-        void visit(const bunop* bu)
-        {
-          const formula* c = bu->child()->clone();
-          result_ = nullptr;
-	  auto op = bu->op();
-
-          if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
-            result_ = c;
-          if (opts_ & Mut_Simplify_Bounds)
-            {
-	      auto min = bu->min();
-	      auto max = bu->max();
-	      if (min > 0)
+	  switch (f.kind())
+	    {
+	    case op::False:
+	    case op::True:
+	    case op::EmptyWord:
+	      return f;
+	    case op::AP:
+	      if (opts_ & Mut_Ap2Const)
 		{
 		  if (mutation_counter_-- == 0)
-		    result_ = bunop::instance(op, c, min - 1, max);
+		    return formula::tt();
 		  if (mutation_counter_-- == 0)
-		    result_ = bunop::instance(op, c, 0, max);
+		    return formula::ff();
 		}
-	      if (max != bunop::unbounded)
-		{
-		  if (max > min && mutation_counter_-- == 0)
-		    result_ = bunop::instance(op, c, min, max - 1);
-		  if (mutation_counter_-- == 0)
-		    result_ = bunop::instance(op, c, min, bunop::unbounded);
-		}
-            }
-          if (!result_)
-            {
-              c->destroy();
-              if (mutation_counter_ < 0)
-                result_ = bu->clone();
-              else
-                result_ = bunop::instance(op, recurse(c), bu->min(), bu->max());
-	    }
-        }
-
-        void visit(const multop* mo)
-        {
-          int mos = mo->size();
-          int i;
-          result_ = 0;
-
-          if (opts_ & Mut_Remove_Multop_Operands)
-            {
-              for (i = 0; i < mos; ++i)
-                if (mutation_counter_-- == 0)
-                  result_ = mo->all_but(i);
-            }
-
-          if (opts_ & Mut_Split_Ops && mo->op() == multop::AndNLM)
-            {
-	      if (mutation_counter_ >= 0 && mutation_counter_ < 2 * (mos - 1))
-		{
-		  vec* v1 = new vec();
-		  vec* v2 = new vec();
-		  v1->push_back(mo->nth(0)->clone());
-		  bool reverse = false;
-		  i = 1;
-		  while (i < mos)
-		    {
-		      if (mutation_counter_-- == 0)
-			break;
-		      if (mutation_counter_-- == 0)
-			{
-			  reverse = true;
-			  break;
-			}
-		      v1->push_back(mo->nth(i++)->clone());
-		    }
-		  for (; i < mos; ++i)
-		    v2->push_back(mo->nth(i)->clone());
-		  const formula* tstar =
-		    bunop::instance(bunop::Star, constant::true_instance(),
-				    0,
-				    bunop::unbounded);
-		  const formula* first = AndNLM_(v1);
-		  const formula* second = AndNLM_(v2);
-		  if (!reverse)
-		    result_ = AndRat_(Concat_(first, tstar), second);
-		  else
-		    result_ = AndRat_(Concat_(second, tstar), first);
-		}
+	      return f;
+	    case op::Not:
+	    case op::X:
+	    case op::F:
+	    case op::G:
+	      if ((opts_ & Mut_Remove_Ops)
+		  && mutation_counter_-- == 0)
+		return f.nth(0);
+	      // fall through
+	    case op::Closure:
+	    case op::NegClosure:
+	    case op::NegClosureMarked:
+	      if (mutation_counter_ < 0)
+		return f;
 	      else
-		mutation_counter_ -= 2 * (mos - 1);
-            }
+		return f.map(recurse);
+	    case op::Or:
+	    case op::OrRat:
+	    case op::And:
+	    case op::AndRat:
+	    case op::AndNLM:
+	    case op::Concat:
+	    case op::Fusion:
+	      {
+		int mos = f.size();
+		if (opts_ & Mut_Remove_Multop_Operands)
+		  {
+		    for (int i = 0; i < mos; ++i)
+		      if (mutation_counter_-- == 0)
+			return f.all_but(i);
+		  }
 
-          if (!result_)
-            {
-              if (mutation_counter_ < 0)
-                result_ = mo->clone();
-              else
-                {
-		  vec* v = new vec();
-                  for (i = 0; i < mos; ++i)
-                    v->push_back(recurse(mo->nth(i)));
-                  result_ = multop::instance(mo->op(), v);
-                }
-            }
+		if (opts_ & Mut_Split_Ops && f.is(op::AndNLM))
+		  {
+		    if (mutation_counter_ >= 0
+			&& mutation_counter_ < 2 * (mos - 1))
+		      {
+			vec v1;
+			vec v2;
+			v1.push_back(f.nth(0));
+			bool reverse = false;
+			int i = 1;
+			while (i < mos)
+			  {
+			    if (mutation_counter_-- == 0)
+			      break;
+			    if (mutation_counter_-- == 0)
+			      {
+				reverse = true;
+				break;
+			      }
+			    v1.push_back(f.nth(i++));
+			  }
+			for (; i < mos; ++i)
+			  v2.push_back(f.nth(i));
+			formula first = AndNLM_(v1);
+			formula second = AndNLM_(v2);
+			formula ost = formula::one_star();
+			if (!reverse)
+			  return AndRat_(Concat_(first, ost), second);
+			else
+			  return AndRat_(Concat_(second, ost), first);
+		      }
+		    else
+		      {
+			mutation_counter_ -= 2 * (mos - 1);
+		      }
+		  }
+
+		if (mutation_counter_ < 0)
+		  return f;
+		else
+		  return f.map(recurse);
+	      }
+	    case op::Xor:
+	    case op::Implies:
+	    case op::Equiv:
+	    case op::U:
+	    case op::R:
+	    case op::W:
+	    case op::M:
+	    case op::EConcat:
+	    case op::EConcatMarked:
+	    case op::UConcat:
+	      {
+		formula first = f.nth(0);
+		formula second = f.nth(1);
+		op o = f.kind();
+		bool left_is_sere = o == op::EConcat
+		  || o == op::EConcatMarked
+		  || o == op::UConcat;
+
+		if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
+		  {
+		    if (!left_is_sere)
+		      return first;
+		    else if (o == op::UConcat)
+		      return formula::NegClosure(first);
+		    else // EConcat or EConcatMarked
+		      return formula::Closure(first);
+		  }
+		if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
+		  return second;
+		if (opts_ & Mut_Rewrite_Ops)
+		  {
+		    switch (o)
+		      {
+		      case op::U:
+			if (mutation_counter_-- == 0)
+			  return formula::W(first, second);
+			break;
+		      case op::M:
+			if (mutation_counter_-- == 0)
+			  return formula::R(first, second);
+			if (mutation_counter_-- == 0)
+			  return formula::U(second, first);
+			break;
+		      case op::R:
+			if (mutation_counter_-- == 0)
+			  return formula::W(second, first);
+			break;
+		      default:
+			break;
+		      }
+		  }
+		if (opts_ & Mut_Split_Ops)
+		  {
+		    switch (o)
+		      {
+		      case op::Equiv:
+			if (mutation_counter_-- == 0)
+			  return formula::Implies(first, second);
+			if (mutation_counter_-- == 0)
+			  return formula::Implies(second, first);
+			if (mutation_counter_-- == 0)
+			  return formula::And({first, second});
+			if (mutation_counter_-- == 0)
+			  {
+			    // Negate the two argument sequentially (in this
+			    // case right before left, otherwise different
+			    // compilers will make different choices.
+			    auto right = formula::Not(second);
+			    return formula::And({formula::Not(first), right});
+			  }
+			break;
+		      case op::Xor:
+			if (mutation_counter_-- == 0)
+			  return formula::And({first, formula::Not(second)});
+			if (mutation_counter_-- == 0)
+			  return formula::And({formula::Not(first), second});
+			break;
+		      default:
+			break;
+		      }
+		  }
+		if (mutation_counter_ < 0)
+		  return f;
+		else
+		  return f.map(recurse);
+	      }
+	    case op::Star:
+	    case op::FStar:
+	      {
+		formula c = f.nth(0);
+		op o = f.kind();
+		if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
+		  return c;
+		if (opts_ & Mut_Simplify_Bounds)
+		  {
+		    auto min = f.min();
+		    auto max = f.max();
+		    if (min > 0)
+		      {
+			if (mutation_counter_-- == 0)
+			  return formula::bunop(o, c, min - 1, max);
+			if (mutation_counter_-- == 0)
+			  return formula::bunop(o, c, 0, max);
+		      }
+		    if (max != formula::unbounded())
+		      {
+			if (max > min && mutation_counter_-- == 0)
+			  return formula::bunop(o, c, min, max - 1);
+			if (mutation_counter_-- == 0)
+			  return formula::bunop(o, c, min,
+						formula::unbounded());
+		      }
+		  }
+		if (mutation_counter_ < 0)
+		  return f;
+		else
+		  return f.map(recurse);
+	      }
+	    }
+	  SPOT_UNREACHABLE();
         }
 
-        const formula*
-        recurse(const formula* f)
-        {
-          f->accept(*this);
-          return result_;
-        }
-
-        const formula*
+        formula
         get_mutation(int n)
         {
           mutation_counter_ = n;
-          const formula* mut = recurse(f_);
+          formula mut = mutate(f_);
           if (mut == f_)
-	    {
-	      mut->destroy();
-	      return 0;
-	    }
+	    return nullptr;
 	  return mut;
         }
 
-      private:
-        const formula* f_;
-        int mutation_counter_ = 0;
-	unsigned opts_;
       };
 
       bool
-      formula_length_less_than(const formula* left, const formula* right)
+      formula_length_less_than(formula left, formula right)
       {
-	assert(left);
-	assert(right);
+	assert(left != nullptr);
+	assert(right != nullptr);
 	if (left == right)
 	  return false;
-	return length(left) < length(right);
+	auto ll = length(left);
+	auto lr = length(right);
+	if (ll < lr)
+	  return true;
+	if (ll > lr)
+	  return false;
+	return left < right;
       }
 
-      typedef std::set<const formula*, formula_ptr_less_than> fset_t;
+      typedef std::set<formula> fset_t;
 
       void
-      single_mutation_rec(const formula* f, fset_t& mutations, unsigned opts,
+      single_mutation_rec(formula f, fset_t& mutations, unsigned opts,
 			  unsigned& n, unsigned m)
       {
 	if (m == 0)
 	  {
 	    if (mutations.insert(f).second)
-	      {
-		f->clone();
-		--n;
-	      }
+	      --n;
 	  }
 	else
 	  {
-	    const formula* mut(nullptr);
+	    formula mut;
 	    int i = 0;
-	    mutation_visitor mv(f, opts);
-	    while (n > 0 && (mut = mv.get_mutation(i++)))
-	      {
-		single_mutation_rec(mut, mutations, opts, n, m - 1);
-		mut->destroy();
-	      }
+	    mutator mv(f, opts);
+	    while (n > 0 && ((mut = mv.get_mutation(i++)) != nullptr))
+	      single_mutation_rec(mut, mutations, opts, n, m - 1);
 	  }
       }
 
       void
-      replace_ap_rec(const formula* f, fset_t& mutations, unsigned opts,
+      replace_ap_rec(formula f, fset_t& mutations, unsigned opts,
 		     unsigned& n, unsigned m)
       {
 	if (m == 0)
 	  {
 	    if (mutations.insert(f).second)
-	      {
-		f->clone();
-		--n;
-	      }
+	      --n;
 	  }
 	else
 	  {
 	    if (!n)
 	      return;
-	    replace_visitor rv;
 	    auto aps =
 	      std::unique_ptr<atomic_prop_set>(atomic_prop_collect(f));
 	    for (auto ap1: *aps)
@@ -402,9 +344,8 @@ namespace spot
 		{
 		  if (ap1 == ap2)
 		    continue;
-		  auto mut = rv.replace(f, ap1, ap2);
+		  auto mut = substitute_ap(f, ap1, ap2);
 		  replace_ap_rec(mut, mutations, opts, n, m - 1);
-		  mut->destroy();
 		  if (!n)
 		    return;
 		}
@@ -412,8 +353,8 @@ namespace spot
       }
     }
 
-    std::vector<const formula*>
-    mutate(const formula* f, unsigned opts, unsigned max_output,
+    std::vector<formula>
+    mutate(formula f, unsigned opts, unsigned max_output,
 	   unsigned mutation_count, bool sort)
     {
       fset_t mutations;

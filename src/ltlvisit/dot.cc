@@ -20,10 +20,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "misc/hash.hh"
 #include "dot.hh"
-#include "ltlast/visitor.hh"
-#include "ltlast/allnodes.hh"
+#include "ltlast/formula.hh"
+#include <unordered_map>
 #include <ostream>
 #include <sstream>
 
@@ -33,160 +32,106 @@ namespace spot
   {
     namespace
     {
-      class dotty_visitor: public visitor
+      struct dot_printer final
       {
-      public:
-	typedef std::unordered_map<const formula*, int, ptr_hash<formula>> map;
-	dotty_visitor(std::ostream& os, map& m)
-	  : os_(os), father_(-1), node_(m), sinks_(new std::ostringstream)
-	{
-	}
+	std::ostream& os_;
+	std::unordered_map<formula, int> node_;
+	std::ostringstream* sinks_;
 
-	virtual
-	~dotty_visitor()
-	{
-	}
+	dot_printer(std::ostream& os, formula f)
+	  : os_(os), sinks_(new std::ostringstream)
+	  {
+	    os_ << "digraph G {\n";
+	    rec(f);
+	    os_ << "  subgraph atoms {\n     rank=sink;\n"
+		<< sinks_->str() << "  }\n}\n";
+	  }
 
-	void
-	visit(const atomic_prop* ap)
+	~dot_printer()
 	{
-	  draw_node_(ap, ap->name(), true);
-	}
-
-	void
-	visit(const constant* c)
-	{
-	  draw_node_(c, c->val_name(), true);
-	}
-
-	void
-	visit(const bunop* so)
-	{
-	  if (draw_node_(so, so->format()))
-	    {
-	      childnum = 0;
-	      so->child()->accept(*this);
-	    }
-	}
-
-	void
-	visit(const binop* bo)
-	{
-	  if (draw_node_(bo, bo->op_name()))
-	    {
-	      childnum = -1;
-	      dotty_visitor v(*this);
-	      bo->first()->accept(v);
-	      childnum = -2;
-	      bo->second()->accept(*this);
-	    }
-	}
-
-	void
-	visit(const unop* uo)
-	{
-	  if (draw_node_(uo, uo->op_name()))
-	    {
-	      childnum = 0;
-	      uo->child()->accept(*this);
-	    }
-	}
-
-	void
-	visit(const multop* mo)
-	{
-	  if (!draw_node_(mo, mo->op_name()))
-	    return;
-	  childnum = 0;
-	  unsigned max = mo->size();
-	  multop::type op = mo->op();
-	  bool update_childnum = (op == multop::Fusion ||
-				  op == multop::Concat);
-
-	  for (unsigned n = 0; n < max; ++n)
-	    {
-	      if (update_childnum)
-		++childnum;
-	      dotty_visitor v(*this);
-	      mo->nth(n)->accept(v);
-	    }
-	}
-
-	void finish()
-	{
-	  os_ << ("  subgraph atoms {\n"
-		  "    rank=sink;\n")
-	      << sinks_->str() << "  }\n";
 	  delete sinks_;
 	}
 
-	int childnum;
-
-      private:
-	std::ostream& os_;
-	int father_;
-	map& node_;
-	std::ostringstream* sinks_;
-
-	bool
-	draw_node_(const formula* f, const std::string& str, bool sink = false)
+	int rec(formula f)
 	{
-	  map::iterator i = node_.find(f);
-	  int node;
-	  bool node_exists = false;
-	  if (i != node_.end())
-	    {
-	      node = i->second;
-	      node_exists = true;
-	    }
+	  auto i = node_.emplace(f, node_.size());
+	  int src = i.first->second;
+	  if (!i.second)
+	    return src;
+
+	  op o = f.kind();
+	  std::string str = (o == op::AP) ? f.ap_name() : f.kindstr();
+
+	  if (o == op::AP || f.is_constant())
+	    *sinks_ << "    " << src << " [label=\""
+		    << str << "\", shape=box];\n";
 	  else
+	    os_ << "  " << src << " [label=\"" << str << "\"];\n";
+
+	  int childnum = 0;
+	  switch (o)
 	    {
-	      node = node_.size();
-	      node_[f] = node;
+	    case op::False:
+	    case op::True:
+	    case op::EmptyWord:
+	    case op::AP:
+	    case op::Not:
+	    case op::X:
+	    case op::F:
+	    case op::G:
+	    case op::Closure:
+	    case op::NegClosure:
+	    case op::NegClosureMarked:
+	    case op::Or:
+	    case op::OrRat:
+	    case op::And:
+	    case op::AndRat:
+	    case op::AndNLM:
+	    case op::Star:
+	    case op::FStar:
+	      childnum = 0;		// No number for children
+	      break;
+	    case op::Xor:
+	    case op::Implies:
+	    case op::Equiv:
+	    case op::U:
+	    case op::R:
+	    case op::W:
+	    case op::M:
+	    case op::EConcat:
+	    case op::EConcatMarked:
+	    case op::UConcat:
+	      childnum = -2;		// L and R markers
+	      break;
+	    case op::Concat:
+	    case op::Fusion:
+	      childnum = 1;		// Numbered children
+	      break;
 	    }
-	  // the link
-	  if (father_ >= 0)
+
+	  for (auto c: f)
 	    {
-	      os_ << "  " << father_ << " -> " << node;
+	      os_ << "  " << src << " -> " << rec(c);
 	      if (childnum > 0)
 		os_ << " [taillabel=\"" << childnum << "\"]";
-	      if (childnum == -1)
+	      if (childnum == -2)
 		os_ << " [taillabel=\"L\"]";
-	      else if (childnum == -2)
+	      else if (childnum == -1)
 		os_ << " [taillabel=\"R\"]";
 	      os_ << ";\n";
+	      ++childnum;
 	    }
-	  father_ = node;
 
-	  // the node
-	  if (node_exists)
-	    return false;
-
-	  if (!sink)
-	    {
-	      os_ << "  " << node << " [label=\"" << str << "\"];";
-	    }
-	  else
-	    {
-	      *sinks_ << "    " << node
-		      << " [label=\"" << str << "\", shape=box];\n";
-	    }
-	  return true;
+	  return src;
 	}
       };
     }
 
     std::ostream&
-    print_dot_psl(std::ostream& os, const formula* f)
+    print_dot_psl(std::ostream& os, formula f)
     {
-      dotty_visitor::map m;
-      dotty_visitor v(os, m);
-      os << "digraph G {\n";
-      f->accept(v);
-      v.finish();
-      os << '}' << std::endl;
+      dot_printer p(os, f);
       return os;
     }
-
   }
 }

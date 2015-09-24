@@ -20,7 +20,6 @@
 #include "ltsmin.hh"
 #include "twaalgos/dot.hh"
 #include "ltlenv/defaultenv.hh"
-#include "ltlast/allnodes.hh"
 #include "ltlparse/public.hh"
 #include "twaalgos/translate.hh"
 #include "twaalgos/emptiness.hh"
@@ -163,16 +162,16 @@ checked_main(int argc, char **argv)
   spot::emptiness_check_instantiator_ptr echeck_inst = nullptr;
   int exit_code = 0;
   spot::postprocessor post;
-  const spot::ltl::formula* deadf = nullptr;
-  const spot::ltl::formula* f = nullptr;
+  spot::ltl::formula deadf = nullptr;
+  spot::ltl::formula f = nullptr;
 
   if (!dead || !strcasecmp(dead, "true"))
     {
-      deadf = spot::ltl::constant::true_instance();
+      deadf = spot::ltl::formula::tt();
     }
   else if (!strcasecmp(dead, "false"))
     {
-      deadf = spot::ltl::constant::false_instance();
+      deadf = spot::ltl::formula::ff();
     }
   else
     {
@@ -355,11 +354,6 @@ checked_main(int argc, char **argv)
   }
 
  safe_exit:
-  if (f)
-    f->destroy();
-
-  deadf->destroy();
-
   if (use_timer)
     tm.print(std::cout);
   tm.reset_all();		// This helps valgrind.
@@ -372,15 +366,6 @@ main(int argc, char **argv)
   auto exit_code = checked_main(argc, argv);
 
   // Additional checks to debug reference counts in formulas.
-  spot::ltl::atomic_prop::dump_instances(std::cerr);
-  spot::ltl::unop::dump_instances(std::cerr);
-  spot::ltl::binop::dump_instances(std::cerr);
-  spot::ltl::multop::dump_instances(std::cerr);
-  spot::ltl::bunop::dump_instances(std::cerr);
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
-  assert(spot::ltl::bunop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   exit(exit_code);
 }

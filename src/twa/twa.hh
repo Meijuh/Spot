@@ -33,7 +33,7 @@
 #include <vector>
 #include "misc/casts.hh"
 #include "misc/hash.hh"
-#include "ltlast/atomic_prop.hh"
+#include "ltlast/formula.hh"
 
 namespace spot
 {
@@ -594,11 +594,10 @@ namespace spot
 
     /// \brief Register an atomic proposition designated by formula \a ap.
     ///
-    /// \return The variable number inside of the BDD.
-    int register_ap(const ltl::formula* ap)
+    /// \return The BDD variable number.
+    int register_ap(ltl::formula ap)
     {
-      aps_.push_back(dynamic_cast<const ltl::atomic_prop*>(ap));
-      ap->clone();
+      aps_.push_back(ap);
       int res = dict_->register_proposition(ap, this);
       bddaps_ &= bdd_ithvar(res);
       return res;
@@ -606,23 +605,15 @@ namespace spot
 
     /// \brief Register an atomic proposition designated by string \a ap.
     ///
-    /// This string is converted into a formula and registered
-    /// inside of the BDD manager.
-    ///
-    /// \return The variable number inside of the BDD.
-    int register_ap(std::string name,
-		    ltl::environment& e = ltl::default_environment::instance())
+    /// \return The BDD variable number.
+    int register_ap(std::string name)
     {
-      auto* ap = e.require(name);
-      aps_.push_back(dynamic_cast<const ltl::atomic_prop*>(ap));
-      int res = dict_->register_proposition(ap, this);
-      bddaps_ &= bdd_ithvar(res);
-      return res;
+      return register_ap(ltl::formula::ap(name));
     }
 
     /// \brief Get the vector of atomic propositions used by this
     /// automaton.
-    const std::vector<const ltl::atomic_prop*>&  ap() const
+    const std::vector<ltl::formula>&  ap() const
     {
       return aps_;
     }
@@ -730,7 +721,7 @@ namespace spot
     void copy_ap_of(const const_twa_ptr& a)
     {
       get_dict()->register_all_propositions_of(a, this);
-      for (auto *f: a->ap())
+      for (auto f: a->ap())
 	this->register_ap(f);
     }
 
@@ -754,7 +745,7 @@ namespace spot
     mutable const state* last_support_conditions_input_;
   private:
     mutable bdd last_support_conditions_output_;
-    std::vector<const ltl::atomic_prop*> aps_;
+    std::vector<ltl::formula> aps_;
     bdd bddaps_;
 
   protected:

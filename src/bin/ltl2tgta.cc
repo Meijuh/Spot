@@ -170,16 +170,16 @@ namespace
     }
 
     int
-    process_formula(const spot::ltl::formula* f,
+    process_formula(spot::ltl::formula f,
 		    const char* filename = 0, int linenum = 0)
     {
       auto aut = trans.run(&f);
 
       // This should not happen, because the parser we use can only
-      // read PSL/LTL formula, but since our ltl::formula* type can
+      // read PSL/LTL formula, but since our ltl::formula type can
       // represent more than PSL formula, let's make this
       // future-proof.
-      if (!f->is_psl_formula())
+      if (!f.is_psl_formula())
 	{
 	  std::string s = spot::ltl::str_psl(f);
 	  error_at_line(2, 0, filename, linenum,
@@ -207,7 +207,6 @@ namespace
 	    tgta = spot::minimize_tgta(tgta);
 	  spot::print_dot(std::cout, tgta->get_ta());
 	}
-      f->destroy();
       flush_cout();
       return 0;
     }

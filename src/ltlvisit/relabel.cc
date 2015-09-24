@@ -19,10 +19,7 @@
 
 #include "relabel.hh"
 #include <sstream>
-#include "clone.hh"
 #include "misc/hash.hh"
-#include "ltlenv/defaultenv.hh"
-#include "ltlast/allnodes.hh"
 #include <map>
 #include <set>
 #include <stack>
@@ -41,7 +38,7 @@ namespace spot
     {
       struct ap_generator
       {
-	virtual const formula* next() = 0;
+	virtual formula next() = 0;
 	virtual ~ap_generator() {}
       };
 
@@ -53,11 +50,11 @@ namespace spot
 	{
 	}
 
-	const formula* next()
+	formula next()
 	{
 	  std::ostringstream s;
 	  s << 'p' << nn++;
-	  return default_environment::instance().require(s.str());
+	  return formula::ap(s.str());
 	}
       };
 
@@ -71,7 +68,7 @@ namespace spot
 
 	unsigned nn;
 
-	const formula* next()
+	formula next()
 	{
 	  std::string s;
 	  unsigned n = nn++;
@@ -81,16 +78,15 @@ namespace spot
 	      n /= 26;
 	    }
 	  while (n);
-
-	  return default_environment::instance().require(s);
+	  return formula::ap(s);
 	}
       };
 
 
-      class relabeler: public clone_visitor
+      class relabeler
       {
       public:
-	typedef std::unordered_map<const formula*, const formula*> map;
+	typedef std::unordered_map<formula, formula> map;
 	map newname;
 	ap_generator* gen;
 	relabeling_map* oldnames;
@@ -105,29 +101,33 @@ namespace spot
 	  delete gen;
 	}
 
-	const formula* rename(const formula* old)
+	formula rename(formula old)
 	{
 	  auto r = newname.emplace(old, nullptr);
 	  if (!r.second)
 	    {
-	      return r.first->second->clone();
+	      return r.first->second;
 	    }
 	  else
 	    {
-	      const formula* res;
-	      r.first->second = res = gen->next();
+	      formula res = gen->next();
+	      r.first->second = res;
 	      if (oldnames)
-		(*oldnames)[res] = old->clone();
+		(*oldnames)[res] = old;
 	      return res;
 	    }
 	}
 
-	using clone_visitor::visit;
-
-	void
-	visit(const atomic_prop* ap)
+	formula
+	visit(formula f)
 	{
-	  result_ = rename(ap);
+	  if (f.is(op::AP))
+	    return rename(f);
+	  else
+	    return f.map([this](formula f)
+			 {
+			   return this->visit(f);
+			 });
 	}
 
       };
@@ -135,9 +135,8 @@ namespace spot
     }
 
 
-    const formula*
-    relabel(const formula* f, relabeling_style style,
-	    relabeling_map* m)
+    formula
+    relabel(formula f, relabeling_style style, relabeling_map* m)
     {
       ap_generator* gen = 0;
       switch (style)
@@ -149,8 +148,9 @@ namespace spot
 	  gen = new abc_generator;
 	  break;
 	}
-      relabeler rel(gen, m);
-      return rel.recurse(f);
+
+      relabeler r(gen, m);
+      return r.visit(f);
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -227,16 +227,16 @@ namespace spot
     // stop a, b, and !c, producing (p0&p1)U(p1&p2).
     namespace
     {
-      typedef std::vector<const formula*> succ_vec;
-      typedef std::map<const formula*, succ_vec> fgraph;
+      typedef std::vector<formula> succ_vec;
+      typedef std::map<formula, succ_vec> fgraph;
 
       // Convert the formula's syntax tree into an undirected graph
       // labeled by subformulas.
-      class formula_to_fgraph: public visitor
+      class formula_to_fgraph final
       {
       public:
 	fgraph& g;
-	std::stack<const formula*> s;
+	std::stack<formula> s;
 
 	formula_to_fgraph(fgraph& g):
 	  g(g)
@@ -248,104 +248,63 @@ namespace spot
 	}
 
 	void
-	visit(const atomic_prop*)
+	visit(formula f)
 	{
-	}
+	  {
+	    // Connect to parent
+	    auto in = g.emplace(f, succ_vec());
+	    if (!s.empty())
+	      {
+		formula top = s.top();
+		in.first->second.push_back(top);
+		g[top].push_back(f);
+		if (!in.second)
+		  return;
+	      }
+	    else
+	      {
+		assert(in.second);
+	      }
+	  }
+	  s.push(f);
 
-	void
-	visit(const constant*)
-	{
-	}
-
-	void
-	visit(const bunop* bo)
-	{
-	  recurse(bo->child());
-	}
-
-	void
-	visit(const unop* uo)
-	{
-	  recurse(uo->child());
-	}
-
-	void
-	visit(const binop* bo)
-	{
-	  const formula* l = bo->first();
-	  recurse(l);
-	  const formula* r = bo->second();
-	  recurse(r);
-	  // Link operands of Boolean operators.
-	  if (bo->is_boolean())
-	    {
-	      g[l].push_back(r);
-	      g[r].push_back(l);
-	    }
-	}
-
-	void
-	visit(const multop* mo)
-	{
-	  unsigned mos = mo->size();
-
-	  /// If we have a formula like (a & b & Xc), consider
-	  /// it as ((a & b) & Xc) in the graph to isolate the
-	  /// Boolean operands as a single node.
+	  unsigned sz = f.size();
 	  unsigned i = 0;
-	  const formula* b = mo->is_boolean() ? 0 : mo->boolean_operands(&i);
-	  if (b)
+	  if (sz > 2 && !f.is_boolean())
 	    {
-	      recurse(b);
-	      b->destroy();
+	      /// If we have a formula like (a & b & Xc), consider
+	      /// it as ((a & b) & Xc) in the graph to isolate the
+	      /// Boolean operands as a single node.
+	      formula b = f.boolean_operands(&i);
+	      if (b)
+		visit(b);
 	    }
-	  for (; i < mos; ++i)
-	    recurse(mo->nth(i));
-	  // For Boolean nodes, connect all children in a loop.  This
-	  // way the node can only be a cut-point if it separates all
-	  // children from the reset of the graph (not only one).
-	  if (mo->is_boolean())
+	  for (; i < sz; ++i)
+	    visit(f.nth(i));
+	  if (sz > 1 && f.is_boolean())
 	    {
-	      const formula* pred = mo->nth(0);
-	      for (i = 1; i < mos; ++i)
+	      // For Boolean nodes, connect all children in a
+	      // loop.  This way the node can only be a cut-point
+	      // if it separates all children from the reset of
+	      // the graph (not only one).
+	      formula pred = f.nth(0);
+	      for (i = 1; i < sz; ++i)
 		{
-		  const formula* next = mo->nth(i);
-		  // Note that we only add an edge in one direction,
-		  // because we are building a cycle between all
-		  // children anyway.
+		  formula next = f.nth(i);
+		  // Note that we only add an edge in one
+		  // direction, because we are building a cycle
+		  // between all children anyway.
 		  g[pred].push_back(next);
 		  pred = next;
 		}
-	      g[pred].push_back(mo->nth(0));
+	      g[pred].push_back(f.nth(0));
 	    }
-	}
-
-	void
-	recurse(const formula* f)
-	{
-	  auto i = g.emplace(f, succ_vec());
-	  if (!s.empty())
-	    {
-	      const formula* top = s.top();
-	      i.first->second.push_back(top);
-	      g[top].push_back(f);
-	      if (!i.second)
-		return;
-	    }
-	  else
-	    {
-	      assert(i.second);
-	    }
-	  f->clone();
-	  s.push(f);
-	  f->accept(*this);
 	  s.pop();
 	}
-
       };
 
 
-      typedef std::set<const formula*> fset;
+      typedef std::set<formula> fset;
       struct data_entry // for each node of the graph
       {
 	unsigned num; // serial number, in pre-order
@@ -355,11 +314,11 @@ namespace spot
 	{
 	}
       };
-      typedef std::unordered_map<const formula*, data_entry> fmap_t;
+      typedef std::unordered_map<formula, data_entry> fmap_t;
       struct stack_entry
       {
-	const formula* grand_parent;
-	const formula* parent;	// current node
+	formula grand_parent;
+	formula parent;	// current node
 	succ_vec::const_iterator current_child;
 	succ_vec::const_iterator last_child;
       };
@@ -377,7 +336,7 @@ namespace spot
       // cut-point, but since we only return Boolean cut-points it's
       // OK: if the top-most formula is Boolean we want to replace it
       // as a whole).
-      void cut_points(const fgraph& g, fset& c, const formula* start)
+      void cut_points(const fgraph& g, fset& c, formula start)
       {
 	stack_t s;
 
@@ -397,7 +356,7 @@ namespace spot
 	      {
 		// Skip the edge if it is just the reverse of the one
 		// we took.
-		const formula* child = *e.current_child;
+		formula child = *e.current_child;
 		if (child == e.grand_parent)
 		  {
 		    ++e.current_child;
@@ -428,15 +387,15 @@ namespace spot
 	      }
 	    else
 	      {
-		const formula* grand_parent = e.grand_parent;
-		const formula* parent = e.parent;
+		formula grand_parent = e.grand_parent;
+		formula parent = e.parent;
 		s.pop();
 		if (!s.empty())
 		  {
 		    data_entry& dparent = data[parent];
 		    data_entry& dgrand_parent = data[grand_parent];
 		    if (dparent.low >= dgrand_parent.num // cut-point
-			&& grand_parent->is_boolean())
+			&& grand_parent.is_boolean())
 		      c.insert(grand_parent);
 		    if (dparent.low < dgrand_parent.low)
 		      dgrand_parent.low = dparent.low;
@@ -450,7 +409,6 @@ namespace spot
       {
       public:
 	fset& c;
-
 	bse_relabeler(ap_generator* gen, fset& c,
 		      relabeling_map* m)
 	  : relabeler(gen, m), c(c)
@@ -459,57 +417,51 @@ namespace spot
 
 	using relabeler::visit;
 
-	void
-	visit(const multop* mo)
+	formula
+	visit(formula f)
 	{
-	  unsigned mos = mo->size();
+	  if (f.is(op::AP) || (c.find(f) != c.end()))
+	    return rename(f);
 
+	  unsigned sz = f.size();
+	  if (sz <= 2)
+	    return f.map([this](formula f)
+			 {
+			   return visit(f);
+			 });
+
+	  unsigned i = 0;
+	  std::vector<formula> res;
 	  /// If we have a formula like (a & b & Xc), consider
 	  /// it as ((a & b) & Xc) in the graph to isolate the
 	  /// Boolean operands as a single node.
-	  unsigned i = 0;
-	  const formula* b = mo->is_boolean() ? 0 : mo->boolean_operands(&i);
-	  multop::vec* res = new multop::vec;
+	  formula b = f.boolean_operands(&i);
 	  if (b)
 	    {
-	      res->reserve(mos - i + 1);
-	      res->push_back(recurse(b));
-	      b->destroy();
+	      res.reserve(sz - i + 1);
+	      res.push_back(visit(b));
 	    }
 	  else
 	    {
-	      res->reserve(mos);
+	      res.reserve(sz);
 	    }
-	  for (; i < mos; ++i)
-	    res->push_back(recurse(mo->nth(i)));
-	  result_ = multop::instance(mo->op(), res);
-	}
-
-	const formula*
-	recurse(const formula* f)
-	{
-	  fset::const_iterator it = c.find(f);
-	  if (it != c.end())
-	    result_ = rename(f);
-	  else
-	    f->accept(*this);
-	  return result_;
+	  for (; i < sz; ++i)
+	    res.push_back(visit(f.nth(i)));
+	  return formula::multop(f.kind(), res);
 	}
       };
-
     }
 
 
-    const formula*
-    relabel_bse(const formula* f, relabeling_style style,
-		relabeling_map* m)
+    formula
+    relabel_bse(formula f, relabeling_style style, relabeling_map* m)
     {
       fgraph g;
 
       // Build the graph g from the formula f.
       {
 	formula_to_fgraph conv(g);
-	conv.recurse(f);
+	conv.visit(f);
       }
 
       // Compute its cut-points
@@ -529,18 +481,7 @@ namespace spot
 	  break;
 	}
       bse_relabeler rel(gen, c, m);
-      f = rel.recurse(f);
-
-      // Cleanup.
-      fgraph::const_iterator i = g.begin();
-      while (i != g.end())
-	{
-	  const formula* f = i->first;
-	  ++i;
-	  f->destroy();
-	}
-
-      return f;
+      return rel.visit(f);
     }
   }
 }

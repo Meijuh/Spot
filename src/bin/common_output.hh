@@ -43,19 +43,19 @@ int parse_opt_output(int key, char* arg, struct argp_state* state);
 // Low-level output
 std::ostream&
 stream_formula(std::ostream& out,
-	       const spot::ltl::formula* f, const char* filename, int linenum);
+	       spot::ltl::formula f, const char* filename, int linenum);
 
-void output_formula_checked(const spot::ltl::formula* f,
+void output_formula_checked(spot::ltl::formula f,
 			    const char* filename = 0, int linenum = 0,
 			    const char* prefix = 0, const char* suffix = 0);
 
 
 class printable_formula:
-  public spot::printable_value<const spot::ltl::formula*>
+  public spot::printable_value<spot::ltl::formula>
 {
 public:
   printable_formula&
-  operator=(const spot::ltl::formula* new_val)
+  operator=(spot::ltl::formula new_val)
   {
     val_ = new_val;
     return *this;
@@ -78,7 +78,7 @@ public:
 
   std::ostream&
   print(const spot::const_twa_graph_ptr& aut,
-	const spot::ltl::formula* f = 0,
+	spot::ltl::formula f = 0,
 	double run_time = -1.)
   {
     formula_ = f;

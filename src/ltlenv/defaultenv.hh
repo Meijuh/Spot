@@ -1,7 +1,6 @@
 // -*- coding: utf-8 -*-
 // Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
-// Développement
-// de l'Epita (LRDE).
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -24,7 +23,7 @@
 #pragma once
 
 #include "environment.hh"
-#include "ltlast/atomic_prop.hh"
+#include "ltlast/formula.hh"
 
 namespace spot
 {
@@ -42,7 +41,7 @@ namespace spot
     {
     public:
       virtual ~default_environment();
-      virtual const atomic_prop* require(const std::string& prop_str);
+      virtual formula require(const std::string& prop_str);
       virtual const std::string& name() const;
 
       /// Get the sole instance of spot::ltl::default_environment.

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE)
 //
 // This file is part of Spot, a model checking library.
@@ -260,11 +260,9 @@ namespace spot
   }
 
 
-  void kripke_explicit::add_condition(const ltl::formula* f,
-                                      std::string on_me)
+  void kripke_explicit::add_condition(ltl::formula f, std::string on_me)
   {
     add_conditions(formula_to_bdd(f, get_dict(), this), on_me);
-    f->destroy();
   }
 
 

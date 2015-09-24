@@ -1,6 +1,6 @@
 ## -*- coding: utf-8 -*-
-## Copyright (C) 2009, 2010, 2011, 2013, 2014 Laboratoire de Recherche
-## et Développement de l'Epita (LRDE).
+## Copyright (C) 2009, 2010, 2011, 2013, 2014, 2015 Laboratoire de
+## Recherche et Développement de l'Epita (LRDE).
 ## Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 ## département Systèmes Répartis Coopératifs (SRC), Université Pierre
 ## et Marie Curie.
@@ -26,24 +26,7 @@ AM_CXXFLAGS = $(WARNING_CXXFLAGS)
 
 ltlastdir = $(pkgincludedir)/ltlast
 
-ltlast_HEADERS = \
-  allnodes.hh \
-  atomic_prop.hh \
-  binop.hh \
-  bunop.hh \
-  constant.hh \
-  formula.hh \
-  multop.hh \
-  predecl.hh \
-  unop.hh \
-  visitor.hh
+ltlast_HEADERS = formula.hh
 
 noinst_LTLIBRARIES = libltlast.la
-libltlast_la_SOURCES = \
-  atomic_prop.cc \
-  binop.cc \
-  bunop.cc \
-  constant.cc \
-  formula.cc \
-  multop.cc \
-  unop.cc
+libltlast_la_SOURCES = formula.cc

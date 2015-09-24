@@ -24,7 +24,6 @@
 #include "twa/twagraph.hh"
 #include "misc/random.hh"
 #include "misc/bddlt.hh"
-#include "ltlast/atomic_prop.hh"
 #include <sstream>
 #include <list>
 #include <set>

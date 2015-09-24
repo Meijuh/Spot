@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2013, 2014 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2013, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 // Copyright (C) 2003  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -39,11 +39,11 @@ namespace spot
   /// for_me.  See bdd_dict::unregister_all_my_variables().
   /// @{
   SPOT_API bdd
-  formula_to_bdd(const ltl::formula* f, const bdd_dict_ptr& d, void* for_me);
+  formula_to_bdd(ltl::formula f, const bdd_dict_ptr& d, void* for_me);
 
   template<typename T>
   SPOT_API bdd
-  formula_to_bdd(const ltl::formula* f, const bdd_dict_ptr& d,
+  formula_to_bdd(ltl::formula f, const bdd_dict_ptr& d,
 		 const std::shared_ptr<T>& for_me)
   {
     return formula_to_bdd(f, d, for_me.get());
@@ -57,7 +57,7 @@ namespace spot
   /// into their atomic propositions.  This works only for Boolean
   /// formulas, and all the BDD variables used in \a f should have
   /// been registered in \a d.  Although the result has type
-  /// ltl::formula*, it obviously does not use any temporal operator.
-  SPOT_API const
-  ltl::formula* bdd_to_formula(bdd f, const bdd_dict_ptr d);
+  /// ltl::formula, it obviously does not use any temporal operator.
+  SPOT_API
+  ltl::formula bdd_to_formula(bdd f, const bdd_dict_ptr d);
 }

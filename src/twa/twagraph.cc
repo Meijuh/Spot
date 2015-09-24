@@ -18,13 +18,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "twagraph.hh"
-#include "ltlast/constant.hh"
 #include "ltlvisit/print.hh"
 
 namespace spot
 {
   void
-  twa_graph::release_formula_namer(namer<const ltl::formula*>* namer,
+  twa_graph::release_formula_namer(namer<ltl::formula>* namer,
 				   bool keep_names)
   {
     if (keep_names)
@@ -37,18 +36,9 @@ namespace spot
 	  {
 	    auto f = n[i];
 	    if (f)
-	      {
-		(*v)[i] = str_psl(f);
-		f->destroy();
-	      }
+	      (*v)[i] = str_psl(f);
 	  }
 	set_named_prop("state-names", v);
-      }
-    else
-      {
-	for (auto n: namer->names())
-	  if (n)
-	    n->destroy();
       }
     delete namer;
   }

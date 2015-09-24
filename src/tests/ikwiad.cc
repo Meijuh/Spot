@@ -28,7 +28,7 @@
 #include <cstdlib>
 #include "ltlvisit/print.hh"
 #include "ltlvisit/apcollect.hh"
-#include "ltlast/allnodes.hh"
+#include "ltlast/formula.hh"
 #include "ltlparse/public.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/ltl2taa.hh"
@@ -923,7 +923,7 @@ checked_main(int argc, char** argv)
       input = argv[formula_index];
     }
 
-  const spot::ltl::formula* f = 0;
+  spot::ltl::formula f = nullptr;
   if (!from_file) // Reading a formula, not reading an automaton from a file.
     {
       switch (translation)
@@ -971,8 +971,7 @@ checked_main(int argc, char** argv)
 	  if (simp)
 	    {
 	      tm.start("reducing formula");
-	      const spot::ltl::formula* t = simp->simplify(f);
-	      f->destroy();
+	      spot::ltl::formula t = simp->simplify(f);
 	      tm.stop("reducing formula");
 	      f = t;
 	      if (display_reduced_form)
@@ -987,8 +986,8 @@ checked_main(int argc, char** argv)
 	      simp->clear_as_bdd_cache();
 	    }
 
-	  if (f->is_psl_formula()
-	      && !f->is_ltl_formula()
+	  if (f.is_psl_formula()
+	      && !f.is_ltl_formula()
 	      && (translation != TransFM && translation != TransCompo))
 	    {
 	      std::cerr << "Only the FM algorithm can translate PSL formulae;"
@@ -1152,7 +1151,7 @@ checked_main(int argc, char** argv)
 	}
 
       if (opt_determinize && a->acc().num_sets() <= 1
-	  && (!f || f->is_syntactic_recurrence()))
+	  && (!f || f.is_syntactic_recurrence()))
 	{
 	  tm.start("determinization 2");
 	  auto determinized = tba_determinize(ensure_digraph(a), 0,
@@ -1642,8 +1641,6 @@ checked_main(int argc, char** argv)
 	    }
 	  while (search_many);
 	}
-      if (f)
-        f->destroy();
     }
   else
     {
@@ -1653,14 +1650,7 @@ checked_main(int argc, char** argv)
   if (use_timer)
     tm.print(std::cout);
 
-  if (unobservables)
-    {
-      for (spot::ltl::atomic_prop_set::iterator i =
-	     unobservables->begin(); i != unobservables->end(); ++i)
-	(*i)->destroy();
-      delete unobservables;
-    }
-
+  delete unobservables;
   return exit_code;
 }
 
@@ -1669,13 +1659,6 @@ int
 main(int argc, char** argv)
 {
   int exit_code = checked_main(argc, argv);
-  spot::ltl::atomic_prop::dump_instances(std::cerr);
-  spot::ltl::unop::dump_instances(std::cerr);
-  spot::ltl::binop::dump_instances(std::cerr);
-  spot::ltl::multop::dump_instances(std::cerr);
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   return exit_code;
 }

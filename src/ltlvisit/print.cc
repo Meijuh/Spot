@@ -25,8 +25,6 @@
 #include <ctype.h>
 #include <ostream>
 #include <cstring>
-#include "ltlast/allnodes.hh"
-#include "ltlast/visitor.hh"
 #include "unabbrev.hh"
 #include "print.hh"
 #include "misc/escape.hh"
@@ -338,32 +336,27 @@ namespace spot
       }
 
       // If the formula has the form (!b)[*], return b.
-      static
-      const formula*
-      strip_star_not(const formula* f)
+      static formula
+      strip_star_not(formula f)
       {
-	if (const bunop* s = is_Star(f))
-	  if (const unop* n = is_Not(s->child()))
-	    return n->child();
-	return 0;
+	return f.get_child_of({op::Star, op::Not});
       }
 
-      // If the formula as position i in multop mo has the form
+      // If the formula at position i in mo has the form
       // (!b)[*];b with b being a Boolean formula, return b.
-      static
-      const formula*
-      match_goto(const multop *mo, unsigned i)
+      static formula
+      match_goto(formula mo, unsigned i)
       {
-	assert(i + 1 < mo->size());
-	const formula* b = strip_star_not(mo->nth(i));
-	if (!b || !b->is_boolean())
-	  return 0;
-	if (mo->nth(i + 1) == b)
+	assert(i + 1 < mo.size());
+	formula b = strip_star_not(mo.nth(i));
+	if (b == nullptr || !b.is_boolean())
+	  return nullptr;
+	if (mo.nth(i + 1) == b)
 	  return b;
-	return 0;
+	return nullptr;
       }
 
-      class to_string_visitor: public visitor
+      class to_string_visitor final
       {
       public:
 	to_string_visitor(std::ostream& os,
@@ -373,11 +366,6 @@ namespace spot
 	  : os_(os), top_level_(true),
 	    full_parent_(full_parent), in_ratexp_(ratexp),
 	    kw_(kw)
-	{
-	}
-
-	virtual
-	~to_string_visitor()
 	{
 	}
 
@@ -406,503 +394,458 @@ namespace spot
 	}
 
 	void
-	visit(const atomic_prop* ap)
+	visit(formula f)
 	{
-	  std::string str = ap->name();
-	  if (full_parent_)
-	    os_ << '(';
-	  if (!is_bare_word(str.c_str()))
-	    {
-	      // Spin 6 supports atomic propositions such as (a == 0)
-	      // as long as they are enclosed in parentheses.
-	      if (kw_ == sclatex_kw  || kw_ == latex_kw)
-		escape_latex(os_ << "``\\mathit{", str) << "}\\textrm{''}";
-	      else if (kw_ != spin_kw)
-		escape_str(os_ << '"', str) << '"';
-	      else if (!full_parent_)
-		os_ << '(' << str << ')';
-	      else
-		os_ << str;
-	    }
-	  else
-	    {
-	      if (kw_ == latex_kw || kw_ == sclatex_kw)
-		{
-		  size_t s = str.size();
-		  while (str[s - 1] >= '0' && str[s - 1] <= '9')
-		    {
-		      --s;
-		      assert(s != 0); // bare words cannot start with digits
-		    }
-		  if (s > 1)
-		    os_ << "\\mathit{";
-		  escape_latex(os_, str.substr(0, s));
-		  if (s > 1)
-		    os_ << '}';
-		  if (s != str.size())
-		    os_ << "_{"
-			<< str.substr(s)
-			<< '}';
-		}
-	      else
-		{
-		  os_ << str;
-		}
-	    }
-	  if (kw_ == wring_kw)
-	    os_ << "=1";
-	  if (full_parent_)
-	    os_ << ')';
-	}
+	  bool top_level = top_level_;
+	  top_level_ = false;
 
-	void
-	visit(const constant* c)
-	{
-	  if (full_parent_)
+	  auto s = f.size();
+	  bool want_par = (full_parent_ || s > 1) && !top_level;
+	  if (want_par)
 	    openp();
-	  switch (c->val())
+
+	  auto emit_bunop_child = [this](formula b)
 	    {
-	    case constant::False:
+	      // b[*] is OK, no need to print {b}[*].  However we want
+	      // braces for {!b}[*], the only unary operator that can
+	      // be nested with Star/FStar.
+	      // If full_parent_ is set, we do NOT emit those extra
+	      // braces, because they are already output for the node
+	      // below.
+	      bool need_parent = (!full_parent_ && b.is(op::Not));
+	      if (need_parent)
+		openp();
+	      this->visit(b);
+	      if (need_parent)
+		closep();
+	    };
+
+	  op o = f.kind();
+	  switch (o)
+	    {
+	    case op::False:
 	      emit(KFalse);
 	      break;
-	    case constant::True:
+	    case op::True:
 	      emit(KTrue);
 	      break;
-	    case constant::EmptyWord:
+	    case op::EmptyWord:
 	      emit(KEmptyWord);
 	      break;
-	    }
-	  if (full_parent_)
-	    closep();
-	}
-
-	void
-	visit(const binop* bo)
-	{
-	  bool top_level = top_level_;
-	  top_level_ = false;
-	  if (!top_level)
-	    openp();
-
-	  bool onelast = false;
-
-	  switch (bo->op())
-	    {
-	    case binop::UConcat:
-	    case binop::EConcat:
-	    case binop::EConcatMarked:
-	      in_ratexp_ = true;
-	      openp();
-	      top_level_ = true;
+	    case op::AP:
 	      {
-		const multop* m = is_multop(bo->first(), multop::Concat);
-		if (m)
+		const std::string& str = f.ap_name();
+		if (!is_bare_word(str.c_str()))
 		  {
-		    unsigned s = m->size();
-		    if (m->nth(s - 1) == constant::true_instance())
+		    // Spin 6 supports atomic propositions such as (a == 0)
+		    // as long as they are enclosed in parentheses.
+		    if (kw_ == sclatex_kw  || kw_ == latex_kw)
+		      escape_latex(os_ << "``\\mathit{", str)
+			<< "}\\textrm{''}";
+		    else if (kw_ != spin_kw)
+		      escape_str(os_ << '"', str) << '"';
+		    else if (!full_parent_)
+		      os_ << '(' << str << ')';
+		    else
+		      os_ << str;
+		  }
+		else
+		  {
+		    if (kw_ == latex_kw || kw_ == sclatex_kw)
 		      {
-			const formula* tmp = m->all_but(s - 1);
-			tmp->accept(*this);
-			tmp->destroy();
-			onelast = true;
-			break;
+			size_t s = str.size();
+			while (str[s - 1] >= '0' && str[s - 1] <= '9')
+			  {
+			    --s;
+			    // bare words cannot start with digits
+			    assert(s != 0);
+			  }
+			if (s > 1)
+			  os_ << "\\mathit{";
+			escape_latex(os_, str.substr(0, s));
+			if (s > 1)
+			  os_ << '}';
+			if (s != str.size())
+			  os_ << "_{"
+			      << str.substr(s)
+			      << '}';
+		      }
+		    else
+		      {
+			os_ << str;
 		      }
 		  }
+		if (kw_ == wring_kw)
+		  os_ << "=1";
+
 	      }
-	      // fall through
-	    default:
-	      bo->first()->accept(*this);
 	      break;
-	    }
-
-	  switch (bo->op())
-	    {
-	    case binop::Xor:
-	      emit(KXor);
-	      break;
-	    case binop::Implies:
-	      emit(KImplies);
-	      break;
-	    case binop::Equiv:
-	      emit(KEquiv);
-	      break;
-	    case binop::U:
-	      emit(KU);
-	      break;
-	    case binop::R:
-	      emit(KR);
-	      break;
-	    case binop::W:
-	      emit(KW);
-	      break;
-	    case binop::M:
-	      emit(KM);
-	      break;
-	    case binop::UConcat:
-	      closep();
-	      emit(onelast ? KTriggersNext : KTriggers);
-	      in_ratexp_ = false;
-	      top_level_ = false;
-	      break;
-	    case binop::EConcat:
-	      emit(KCloseSERE);
-	      if (bo->second() == constant::true_instance())
-		{
-		  os_ << '!';
-		  in_ratexp_ = false;
-		  goto second_done;
-		}
-	      emit(onelast ? KSeqNext : KSeq);
-	      in_ratexp_ = false;
-	      top_level_ = false;
-	      break;
-	    case binop::EConcatMarked:
-	      os_ << '}';
-	      emit(onelast ? KSeqMarkedNext : KSeqMarked);
-	      in_ratexp_ = false;
-	      top_level_ = false;
-	      break;
-	    }
-
-	  bo->second()->accept(*this);
-	second_done:
-	  if (!top_level)
-	    closep();
-	}
-
-	void
-	emit_bunop_child(const formula* b)
-	{
-	  // b[*] is OK, no need to print {b}[*].  However want braces
-	  // for {!b}[*], the only unary operator that can be nested
-	  // with [*] or any other BUnOp like [->i..j] or [=i..j].
-	  formula::opkind ck = b->kind();
-	  bool need_parent = (full_parent_
-			      || ck == formula::UnOp
-			      || ck == formula::BinOp
-			      || ck == formula::MultOp);
-	  if (need_parent)
-	    openp();
-	  b->accept(*this);
-	  if (need_parent)
-	    closep();
-	}
-
-	void
-	visit(const bunop* bo)
-	{
-	  const formula* c = bo->child();
-	  enum { Star, FStar, Goto } sugar = Star;
-	  unsigned default_min = 0;
-	  unsigned default_max = bunop::unbounded;
-
-	  bunop::type op = bo->op();
-	  // Abbreviate "1[*]" as "[*]".
-	  if (c != constant::true_instance() || op != bunop::Star)
-	    {
-	      switch (op)
-		{
-		case bunop::Star:
-		  // Is this a Goto?
-		  if (const multop* mo = is_Concat(c))
-		    {
-		      unsigned s = mo->size();
-		      if (s == 2)
-			if (const formula* b = match_goto(mo, 0))
+	    case op::Not:
+	      {
+		formula c = f.nth(0);
+		if (c.is(op::AP))
+		  {
+		    // If we negate a single letter in UTF-8, use a
+		    // combining overline.
+		    if (!full_parent_ && kw_ == utf8_kw)
+		      {
+			auto& name = c.ap_name();
+			if (name.size() == 1 && is_bare_word(name.c_str()))
 			  {
-			    c = b;
-			    sugar = Goto;
+			    os_ << name << "̅";
+			    break;
 			  }
-		    }
-		  break;
-		case bunop::FStar:
-		  sugar = FStar;
-		  break;
-		}
-
-	      emit_bunop_child(c);
-	    }
-
-	  unsigned min = bo->min();
-	  unsigned max = bo->max();
-	  switch (sugar)
-	    {
-	    case Star:
-	      if (min == 1 && max == bunop::unbounded)
-		{
-		  emit(KPlusBunop);
-		  return;
-		}
-	      emit(KStarBunop);
-	      break;
-	    case FStar:
-	      if (min == 1 && max == bunop::unbounded)
-		{
-		  emit(KFPlusBunop);
-		  return;
-		}
-	      emit(KFStarBunop);
-	      break;
-	    case Goto:
-	      emit(KGotoBunop);
-	      default_min = 1;
-	      default_max = 1;
-	      break;
-	    }
-
-	  // Beware that the default parameters of the Goto operator are
-	  // not the same as Star or Equal:
-	  //
-	  //   [->]   = [->1..1]
-	  //   [->..] = [->1..unbounded]
-	  //   [*]    = [*0..unbounded]
-	  //   [*..]  = [*0..unbounded]
-	  //   [=]    = [=0..unbounded]
-	  //   [=..]  = [=0..unbounded]
-	  //
-	  // Strictly speaking [=] is not specified by PSL, and anyway we
-	  // automatically rewrite Exp[=0..unbounded] as
-	  // Exp[*0..unbounded], so we should never have to print [=]
-	  // here.
-	  //
-	  // Also
-	  //   [*..]  = [*0..unbounded]
-
-	  if (min != default_min || max != default_max)
-	    {
-	      // Always print the min_, even when it is equal to
-	      // default_min, this way we avoid ambiguities (like
-	      // when reading [*..3] near [->..2])
-	      os_ << min;
-	      if (min != max)
-		{
-		  os_ << "..";
-		  if (max != bunop::unbounded)
-		    os_ << max;
-		}
-	    }
-	  emit(KCloseBunop);
-	}
-
-	void
-	visit(const unop* uo)
-	{
-	  top_level_ = false;
-	  // The parser treats F0, F1, G0, G1, X0, and X1 as atomic
-	  // propositions.  So make sure we output F(0), G(1), etc.
-	  bool need_parent = (uo->child()->kind() == formula::Constant);
-	  bool top_level = top_level_;
-	  bool overline = false;
-
-	  if (full_parent_)
-	    {
-	      need_parent = false; // These will be printed by each subformula
-
-	      if (!top_level)
-		openp();
-	    }
-
-	  switch (uo->op())
-	    {
-	    case unop::Not:
-	      need_parent = false;
-	      // If we negate a single letter in UTF-8, use a
-	      // combining overline.
-	      if (!full_parent_ && kw_ == utf8_kw)
-		if (const ltl::atomic_prop* ap = is_atomic_prop(uo->child()))
-		  if (ap->name().size() == 1
-		      && is_bare_word(ap->name().c_str()))
-		    {
-		      overline = true;
-		      break;
-		    }
-	      // If we negate an atomic proposition for Wring,
-	      // output prop=0.
-	      if (kw_ == wring_kw)
-		if (const ltl::atomic_prop* ap = is_atomic_prop(uo->child()))
-		  if (is_bare_word(ap->name().c_str()))
-		    {
-		      os_ << ap->name() << "=0";
-		      goto skiprec;
-		    }
-	      emit(KNot);
-	      break;
-	    case unop::X:
+		      }
+		    // If we negate an atomic proposition for Wring,
+		    // output prop=0.
+		    if (kw_ == wring_kw)
+		      {
+			auto& name = c.ap_name();
+			if (is_bare_word(name.c_str()))
+			  {
+			    os_ << name << "=0";
+			    break;
+			  }
+		      }
+		  }
+		emit(KNot);
+		visit(c);
+		break;
+	      }
+	    case op::X:
 	      emit(KX);
+	      visit(f.nth(0));
 	      break;
-	    case unop::F:
+	    case op::F:
 	      emit(KF);
+	      visit(f.nth(0));
 	      break;
-	    case unop::G:
+	    case op::G:
 	      emit(KG);
+	      visit(f.nth(0));
 	      break;
-	    case unop::Closure:
+	    case op::NegClosure:
+	    case op::NegClosureMarked:
+	      emit(KNot);
+	      if (o == op::NegClosureMarked)
+		os_ << (kw_ == utf8_kw ? "̃": "+");
+	      // Fall through
+	    case op::Closure:
 	      os_ << '{';
 	      in_ratexp_ = true;
 	      top_level_ = true;
-	      break;
-	    case unop::NegClosure:
-	      emit(KNot);
-	      os_ << '{';
-	      in_ratexp_ = true;
-	      top_level_ = true;
-	      break;
-	    case unop::NegClosureMarked:
-	      emit(KNot);
-	      os_ << (kw_ == utf8_kw ? "̃{": "+{");
-	      in_ratexp_ = true;
-	      top_level_ = true;
-	      break;
-	    }
-
-	  if (need_parent)
-	    openp();
-	  uo->child()->accept(*this);
-	  if (need_parent)
-	    closep();
-
-	  switch (uo->op())
-	    {
-	    case unop::Closure:
-	    case unop::NegClosure:
+	      visit(f.nth(0));
 	      os_ << '}';
 	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
-	    default:
+	    case op::Xor:
+	      visit(f.nth(0));
+	      emit(KXor);
+	      visit(f.nth(1));
 	      break;
-	    }
-
-	skiprec:
-
-	  if (full_parent_ && !top_level)
-	    closep();
-	  else if (overline)
-	    // The following string contains only the character U+0305
-	    // (a combining overline).  It looks better than U+0304 (a
-	    // combining overbar).
-	    os_ << "̅";
-	}
-
-	void
-	resugar_concat(const multop* mo)
-	{
-	  unsigned max = mo->size();
-
-	  for (unsigned i = 0; i < max; ++i)
-	    {
-	      if (i > 0)
-		emit(KConcat);
-	      if (i + 1 < max)
-		{
-		  // Try to match (!b)[*];b
-		  const formula* b = match_goto(mo, i);
-		  if (b)
-		    {
-		      emit_bunop_child(b);
-
-		      // Wait... maybe we are looking at (!b)[*];b;(!b)[*]
-		      // in which case it's b[=1].
-		      if (i + 2 < max && mo->nth(i) == mo->nth(i + 2))
-			{
-			  emit(KEqualBunop);
-			  os_ << '1';
-			  emit(KCloseBunop);
-			  i += 2;
-			}
-		      else
-			{
-			  emit(KGotoBunop);
-			  emit(KCloseBunop);
-			  ++i;
-			}
-		      continue;
-		    }
-		  // Try to match ((!b)[*];b)[*i..j];(!b)[*]
-		  if (const bunop* s = is_Star(mo->nth(i)))
-		    if (const formula* b2 = strip_star_not(mo->nth(i + 1)))
-		      if (const multop* sc = is_Concat(s->child()))
-			if (const formula* b1 = match_goto(sc, 0))
-			  if (b1 == b2)
-			    {
-			      emit_bunop_child(b1);
-			      emit(KEqualBunop);
-			      unsigned min = s->min();
-			      os_ << min;
-			      unsigned max = s->max();
-			      if (max != min)
-				{
-				  os_ << "..";
-				  if (max != bunop::unbounded)
-				    os_ << max;
-				}
-			      emit(KCloseBunop);
-			      ++i;
-			      continue;
-			    }
-		}
-	      mo->nth(i)->accept(*this);
-	    }
-	}
-
-
-	void
-	visit(const multop* mo)
-	{
-	  bool top_level = top_level_;
-	  top_level_ = false;
-	  if (!top_level)
-	    openp();
-	  multop::type op = mo->op();
-
-	  // Handle the concatenation separately, because we want to
-	  // "resugar" some patterns.
-	  if (op == multop::Concat)
-	    {
-	      resugar_concat(mo);
-	      if (!top_level)
+	    case op::Implies:
+	      visit(f.nth(0));
+	      emit(KImplies);
+	      visit(f.nth(1));
+	      break;
+	    case op::Equiv:
+	      visit(f.nth(0));
+	      emit(KEquiv);
+	      visit(f.nth(1));
+	      break;
+	    case op::U:
+	      visit(f.nth(0));
+	      emit(KU);
+	      visit(f.nth(1));
+	      break;
+	    case op::R:
+	      visit(f.nth(0));
+	      emit(KR);
+	      visit(f.nth(1));
+	      break;
+	    case op::W:
+	      visit(f.nth(0));
+	      emit(KW);
+	      visit(f.nth(1));
+	      break;
+	    case op::M:
+	      visit(f.nth(0));
+	      emit(KM);
+	      visit(f.nth(1));
+	      break;
+	    case op::EConcat:
+	    case op::EConcatMarked:
+	    case op::UConcat:
+	      {
+		in_ratexp_ = true;
+		openp();
+		top_level_ = true;
+		formula left = f.nth(0);
+		formula right = f.nth(1);
+		unsigned last = left.size() - 1;
+		bool onelast = false;
+		if (left.is(op::Concat) && left.nth(last).is(op::True))
+		  {
+		    visit(left.all_but(last));
+		    onelast = true;
+		  }
+		else
+		  {
+		    visit(left);
+		  }
+		top_level_ = false;
 		closep();
-	      return;
-	    }
+		in_ratexp_ = false;
+		if (o == op::UConcat)
+		  {
+		    emit(onelast ? KTriggersNext : KTriggers);
+		    visit(right);
+		  }
+		else if (o == op::EConcatMarked)
+		  {
+		    emit(onelast ? KSeqMarkedNext : KSeqMarked);
+		    visit(right);
+		  }
+		else if (o == op::EConcat)
+		  {
+		    if (f.nth(1).is(op::True))
+		      {
+			os_ << '!';
+			// No recursion on right.
+		      }
+		    else
+		      {
+			emit(onelast ? KSeqNext : KSeq);
+			visit(right);
+		      }
+		  }
+		else
+		  {
+		    SPOT_UNREACHABLE();
+		  }
+	      }
+	      break;
+	    case op::Or:
+	    case op::OrRat:
+	    case op::And:
+	    case op::AndRat:
+	    case op::AndNLM:
+	    case op::Fusion:
+	      {
+		visit(f.nth(0));
+		keyword k = KFalse; // Initialize to something to please GCC.
+		switch (o)
+		  {
+		  case op::Or:
+		    k = KOr;
+		    break;
+		  case op::OrRat:
+		    k = KOrRat;
+		    break;
+		  case op::And:
+		    k = in_ratexp_ ? KAndRat : KAnd;
+		    break;
+		  case op::AndRat:
+		    k = KAndRat;
+		    break;
+		  case op::AndNLM:
+		    k = KAndNLM;
+		    break;
+		  case op::Fusion:
+		    k = KFusion;
+		    break;
+		  default:
+		    SPOT_UNREACHABLE();
+		  }
+		assert(k != KFalse);
 
-	  mo->nth(0)->accept(*this);
-	  keyword k = KFalse;	// Initialize to something to please GCC.
-	  switch (op)
-	    {
-	    case multop::Or:
-	      k = KOr;
-	      break;
-	    case multop::OrRat:
-	      k = KOrRat;
-	      break;
-	    case multop::And:
-	      k = in_ratexp_ ? KAndRat : KAnd;
-	      break;
-	    case multop::AndRat:
-	      k = KAndRat;
-	      break;
-	    case multop::AndNLM:
-	      k = KAndNLM;
-	      break;
-	    case multop::Concat:
-	      // Handled by resugar_concat.
-	      SPOT_UNREACHABLE();
-	      break;
-	    case multop::Fusion:
-	      k = KFusion;
-	      break;
-	    }
-	  assert(k != KFalse);
+		unsigned max = f.size();
+		for (unsigned n = 1; n < max; ++n)
+		  {
+		    emit(k);
+		    visit(f.nth(n));
+		  }
+		break;
+	      }
+	    case op::Concat:
+	      {
+		unsigned max = f.size();
 
-	  unsigned max = mo->size();
-	  for (unsigned n = 1; n < max; ++n)
-	    {
-	      emit(k);
-	      mo->nth(n)->accept(*this);
+		for (unsigned i = 0; i < max; ++i)
+		  {
+		    if (i > 0)
+		      emit(KConcat);
+		    if (i + 1 < max)
+		      {
+			// Try to match (!b)[*];b
+			formula b = match_goto(f, i);
+			if (b != nullptr)
+			  {
+			    emit_bunop_child(b);
+
+			    // Wait... maybe we are looking at (!b)[*];b;(!b)[*]
+			    // in which case it's b[=1].
+			    if (i + 2 < max && f.nth(i) == f.nth(i + 2))
+			      {
+				emit(KEqualBunop);
+				os_ << '1';
+				emit(KCloseBunop);
+				i += 2;
+			      }
+			    else
+			      {
+				emit(KGotoBunop);
+				emit(KCloseBunop);
+				++i;
+			      }
+			    continue;
+			  }
+			// Try to match ((!b)[*];b)[*i..j];(!b)[*]
+			formula fi = f.nth(i);
+			if (fi.is(op::Star))
+			  {
+			    if (formula b2 = strip_star_not(f.nth(i + 1)))
+			      {
+				formula fic = fi.nth(0);
+				if (fic.is(op::Concat))
+				  if (formula b1 = match_goto(fic, 0))
+				    if (b1 == b2)
+				      {
+					emit_bunop_child(b1);
+					emit(KEqualBunop);
+					unsigned min = fi.min();
+					os_ << min;
+					unsigned max = fi.max();
+					if (max != min)
+					  {
+					    os_ << "..";
+					    if (max != formula::unbounded())
+					      os_ << max;
+					  }
+					emit(KCloseBunop);
+					++i;
+					continue;
+				      }
+			      }
+			  }
+		      }
+		    visit(f.nth(i));
+		  }
+		break;
+	      }
+	    case op::Star:
+	    case op::FStar:
+	      {
+		formula c = f.nth(0);
+		enum { Star, FStar, Goto } sugar = Star;
+		unsigned default_min = 0;
+		unsigned default_max = formula::unbounded();
+
+		// Abbreviate "1[*]" as "[*]".
+		if (!c.is(op::True) || o != op::Star)
+		  {
+		    if (o == op::Star)
+		      {
+			// Is this a Goto?
+			if (c.is(op::Concat))
+			  {
+			    unsigned s = c.size();
+			    if (s == 2)
+			      if (formula b = match_goto(c, 0))
+				{
+				  c = b;
+				  sugar = Goto;
+				}
+			  }
+		      }
+		    else if (o == op::FStar)
+		      {
+			sugar = FStar;
+		      }
+		    else
+		      {
+			SPOT_UNREACHABLE();
+		      }
+		    emit_bunop_child(c);
+		  }
+
+		unsigned min = f.min();
+		unsigned max = f.max();
+		bool range = true;
+		switch (sugar)
+		  {
+		  case Star:
+		    if (min == 1 && max == formula::unbounded())
+		      {
+			range = false;
+			emit(KPlusBunop);
+		      }
+		    else
+		      {
+			emit(KStarBunop);
+		      }
+		    break;
+		  case FStar:
+		    if (min == 1 && max == formula::unbounded())
+		      {
+			range = false;
+			emit(KFPlusBunop);
+		      }
+		    else
+		      {
+			emit(KFStarBunop);
+		      }
+		    break;
+		  case Goto:
+		    emit(KGotoBunop);
+		    default_min = 1;
+		    default_max = 1;
+		    break;
+		  }
+
+		// Beware that the default parameters of the Goto operator are
+		// not the same as Star or Equal:
+		//
+		//   [->]   = [->1..1]
+		//   [->..] = [->1..unbounded]
+		//   [*]    = [*0..unbounded]
+		//   [*..]  = [*0..unbounded]
+		//   [=]    = [=0..unbounded]
+		//   [=..]  = [=0..unbounded]
+		//
+		// Strictly speaking [=] is not specified by PSL, and anyway we
+		// automatically rewrite Exp[=0..unbounded] as
+		// Exp[*0..unbounded], so we should never have to print [=]
+		// here.
+		//
+		// Also
+		//   [*..]  = [*0..unbounded]
+
+		if (range)
+		  {
+		    if (min != default_min || max != default_max)
+		      {
+			// Always print the min_, even when it is equal to
+			// default_min, this way we avoid ambiguities (like
+			// when reading [*..3] near [->..2])
+			os_ << min;
+			if (min != max)
+			  {
+			    os_ << "..";
+			    if (max != formula::unbounded())
+			      os_ << max;
+			  }
+		      }
+		    emit(KCloseBunop);
+		  }
+	      }
+	      break;
 	    }
-	  if (!top_level)
+	  if (want_par)
 	    closep();
 	}
+
       protected:
 	std::ostream& os_;
 	bool top_level_;
@@ -913,16 +856,16 @@ namespace spot
 
 
       std::ostream&
-      printer_(std::ostream& os, const formula* f, bool full_parent,
+      printer_(std::ostream& os, formula f, bool full_parent,
 	       bool ratexp, const char** kw)
       {
 	to_string_visitor v(os, full_parent, ratexp, kw);
-	f->accept(v);
+	v.visit(f);
 	return os;
       }
 
       std::string
-      str_(const formula* f, bool full_parent, bool ratexp, const char** kw)
+      str_(formula f, bool full_parent, bool ratexp, const char** kw)
       {
 	std::ostringstream os;
 	printer_(os, f, full_parent, ratexp, kw);
@@ -932,67 +875,65 @@ namespace spot
     } // anonymous
 
     std::ostream&
-    print_psl(std::ostream& os, const formula* f, bool full_parent)
+    print_psl(std::ostream& os, formula f, bool full_parent)
     {
       return printer_(os, f, full_parent, false, spot_kw);
     }
 
     std::string
-    str_psl(const formula* f, bool full_parent)
+    str_psl(formula f, bool full_parent)
     {
       return str_(f, full_parent, false, spot_kw);
     }
 
     std::ostream&
-    print_sere(std::ostream& os, const formula* f, bool full_parent)
+    print_sere(std::ostream& os, formula f, bool full_parent)
     {
       return printer_(os, f, full_parent, true, spot_kw);
     }
 
     std::string
-    str_sere(const formula* f, bool full_parent)
+    str_sere(formula f, bool full_parent)
     {
       return str_(f, full_parent, false, spot_kw);
     }
 
 
     std::ostream&
-    print_utf8_psl(std::ostream& os, const formula* f, bool full_parent)
+    print_utf8_psl(std::ostream& os, formula f, bool full_parent)
     {
       return printer_(os, f, full_parent, false, utf8_kw);
     }
 
     std::string
-    str_utf8_psl(const formula* f, bool full_parent)
+    str_utf8_psl(formula f, bool full_parent)
     {
       return str_(f, full_parent, false, utf8_kw);
     }
 
     std::ostream&
-    print_utf8_sere(std::ostream& os, const formula* f, bool full_parent)
+    print_utf8_sere(std::ostream& os, formula f, bool full_parent)
     {
       return printer_(os, f, full_parent, true, utf8_kw);
     }
 
     std::string
-    str_utf8_sere(const formula* f, bool full_parent)
+    str_utf8_sere(formula f, bool full_parent)
     {
       return str_(f, full_parent, false, utf8_kw);
     }
 
 
     std::ostream&
-    print_spin_ltl(std::ostream& os, const formula* f, bool full_parent)
+    print_spin_ltl(std::ostream& os, formula f, bool full_parent)
     {
-      f = unabbreviate(f, "^MW");
       to_string_visitor v(os, full_parent, false, spin_kw);
-      f->accept(v);
-      f->destroy();
+      v.visit(unabbreviate(f, "^MW"));
       return os;
     }
 
     std::string
-    str_spin_ltl(const formula* f, bool full_parent)
+    str_spin_ltl(formula f, bool full_parent)
     {
       std::ostringstream os;
       print_spin_ltl(os, f, full_parent);
@@ -1000,17 +941,15 @@ namespace spot
     }
 
     std::ostream&
-    print_wring_ltl(std::ostream& os, const formula* f)
+    print_wring_ltl(std::ostream& os, formula f)
     {
-      f = unabbreviate(f, "MW");
       to_string_visitor v(os, true, false, wring_kw);
-      f->accept(v);
-      f->destroy();
+      v.visit(unabbreviate(f, "MW"));
       return os;
     }
 
     std::string
-    str_wring_ltl(const formula* f)
+    str_wring_ltl(formula f)
     {
       std::ostringstream os;
       print_wring_ltl(os, f);
@@ -1018,50 +957,50 @@ namespace spot
     }
 
     std::ostream&
-    print_latex_psl(std::ostream& os, const formula* f, bool full_parent)
+    print_latex_psl(std::ostream& os, formula f, bool full_parent)
     {
       return printer_(os, f, full_parent, false, latex_kw);
     }
 
     std::string
-    str_latex_psl(const formula* f, bool full_parent)
+    str_latex_psl(formula f, bool full_parent)
     {
       return str_(f, full_parent, false, latex_kw);
     }
 
     std::ostream&
-    print_latex_sere(std::ostream& os, const formula* f, bool full_parent)
+    print_latex_sere(std::ostream& os, formula f, bool full_parent)
     {
       return printer_(os, f, full_parent, true, latex_kw);
     }
 
     std::string
-    str_latex_sere(const formula* f, bool full_parent)
+    str_latex_sere(formula f, bool full_parent)
     {
       return str_(f, full_parent, true, latex_kw);
     }
 
 
     std::ostream&
-    print_sclatex_psl(std::ostream& os, const formula* f, bool full_parent)
+    print_sclatex_psl(std::ostream& os, formula f, bool full_parent)
     {
       return printer_(os, f, full_parent, false, sclatex_kw);
     }
 
     std::string
-    str_sclatex_psl(const formula* f, bool full_parent)
+    str_sclatex_psl(formula f, bool full_parent)
     {
       return str_(f, full_parent, false, sclatex_kw);
     }
 
     std::ostream&
-    print_sclatex_sere(std::ostream& os, const formula* f, bool full_parent)
+    print_sclatex_sere(std::ostream& os, formula f, bool full_parent)
     {
       return printer_(os, f, full_parent, true, sclatex_kw);
     }
 
     std::string
-    str_sclatex_sere(const formula* f, bool full_parent)
+    str_sclatex_sere(formula f, bool full_parent)
     {
       return str_(f, full_parent, true, sclatex_kw);
     }
@@ -1080,7 +1019,7 @@ namespace spot
 	return true;
       }
 
-      class lbt_visitor: public visitor
+      class lbt_visitor final
       {
       protected:
 	std::ostream& os_;
@@ -1092,164 +1031,109 @@ namespace spot
 	{
 	}
 
-	void blank()
+	void
+	visit(formula f)
 	{
 	  if (first_)
 	    first_ = false;
 	  else
 	    os_ << ' ';
-	}
 
-	virtual
-	~lbt_visitor()
-	{
-	}
-
-	void
-	visit(const atomic_prop* ap)
-	{
-	  blank();
-	  std::string str = ap->name();
-	  if (!is_pnum(str.c_str()))
-	    escape_str(os_ << '"', str) << '"';
-	  else
-	    os_ << str;
-	}
-
-	void
-	visit(const constant* c)
-	{
-	  blank();
-	  switch (c->val())
+	  op o = f.kind();
+	  switch (o)
 	    {
-	    case constant::False:
+	    case op::False:
 	      os_ << 'f';
 	      break;
-	    case constant::True:
+	    case op::True:
 	      os_ << 't';
 	      break;
-	    case constant::EmptyWord:
-	      SPOT_UNIMPLEMENTED();
-	      break;
-	    }
-	}
-
-	void
-	visit(const binop* bo)
-	{
-	  blank();
-	  switch (bo->op())
-	    {
-	    case binop::Xor:
-	      os_ << '^';
-	      break;
-	    case binop::Implies:
-	      os_ << 'i';
-	      break;
-	    case binop::Equiv:
-	      os_ << 'e';
-	      break;
-	    case binop::U:
-	      os_ << 'U';
-	      break;
-	    case binop::R:
-	      os_ << 'V';
-	      break;
-	    case binop::W:
-	      os_ << 'W';
-	      break;
-	    case binop::M:
-	      os_ << 'M';
-	      break;
-	    case binop::UConcat:
-	    case binop::EConcat:
-	    case binop::EConcatMarked:
-	      SPOT_UNIMPLEMENTED();
-	      break;
-	    }
-	  bo->first()->accept(*this);
-	  bo->second()->accept(*this);
-	}
-
-	void
-	visit(const bunop*)
-	{
-	  SPOT_UNIMPLEMENTED();
-	}
-
-	void
-	visit(const unop* uo)
-	{
-	  blank();
-	  switch (uo->op())
-	    {
-	    case unop::Not:
+	    case op::AP:
+	      {
+		const std::string& str = f.ap_name();
+		if (!is_pnum(str.c_str()))
+		  escape_str(os_ << '"', str) << '"';
+		else
+		  os_ << str;
+		break;
+	      }
+	    case op::Not:
 	      os_ << '!';
 	      break;
-	    case unop::X:
+	    case op::X:
 	      os_ << 'X';
 	      break;
-	    case unop::F:
+	    case op::F:
 	      os_ << 'F';
 	      break;
-	    case unop::G:
+	    case op::G:
 	      os_ << 'G';
 	      break;
-	    case unop::Closure:
-	    case unop::NegClosure:
-	    case unop::NegClosureMarked:
+	    case op::Xor:
+	      os_ << '^';
+	      break;
+	    case op::Implies:
+	      os_ << 'i';
+	      break;
+	    case op::Equiv:
+	      os_ << 'e';
+	      break;
+	    case op::U:
+	      os_ << 'U';
+	      break;
+	    case op::R:
+	      os_ << 'V';
+	      break;
+	    case op::W:
+	      os_ << 'W';
+	      break;
+	    case op::M:
+	      os_ << 'M';
+	      break;
+	    case op::Or:
+	      for (unsigned i = f.size() - 1; i != 0; --i)
+		os_ << "| ";
+	      first_ = true;
+	      break;
+	    case op::And:
+	      for (unsigned i = f.size() - 1; i != 0; --i)
+		os_ << "& ";
+	      first_ = true;
+	      break;
+	    case op::EmptyWord:
+	    case op::Closure:
+	    case op::NegClosure:
+	    case op::NegClosureMarked:
+	    case op::EConcat:
+	    case op::EConcatMarked:
+	    case op::UConcat:
+	    case op::OrRat:
+	    case op::AndRat:
+	    case op::AndNLM:
+	    case op::Concat:
+	    case op::Fusion:
+	    case op::Star:
+	    case op::FStar:
 	      SPOT_UNIMPLEMENTED();
-	      break;
 	    }
-	  uo->child()->accept(*this);
-	}
-
-	void
-	visit(const multop* mo)
-	{
-	  char o = 0;
-	  switch (mo->op())
-	    {
-	    case multop::Or:
-	      o = '|';
-	      break;
-	    case multop::And:
-	      o = '&';
-	      break;
-	    case multop::OrRat:
-	    case multop::AndRat:
-	    case multop::AndNLM:
-	    case multop::Concat:
-	    case multop::Fusion:
-	      SPOT_UNIMPLEMENTED();
-	      break;
-	    }
-
-	  unsigned n = mo->size();
-	  for (unsigned i = n - 1; i != 0; --i)
-	    {
-	      blank();
-	      os_ << o;
-	    }
-
-	  for (unsigned i = 0; i < n; ++i)
-	    mo->nth(i)->accept(*this);
+	  for (auto c: f)
+	    visit(c);
 	}
       };
 
     } // anonymous
 
     std::ostream&
-    print_lbt_ltl(std::ostream& os, const formula* f)
+    print_lbt_ltl(std::ostream& os, formula f)
     {
-      assert(f->is_ltl_formula());
+      assert(f.is_ltl_formula());
       lbt_visitor v(os);
-      f->accept(v);
+      v.visit(f);
       return os;
     }
 
     std::string
-    str_lbt_ltl(const formula* f)
+    str_lbt_ltl(formula f)
     {
       std::ostringstream os;
       print_lbt_ltl(os, f);

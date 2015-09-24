@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -20,34 +20,27 @@
 #pragma once
 
 #include "ltlast/formula.hh"
-#include "ltlast/visitor.hh"
 #include "misc/hash.hh"
 
 namespace spot
 {
   namespace ltl
   {
-    class mark_tools
+    class mark_tools final
     {
     public:
       /// \ingroup ltl_rewriting
       /// \brief Mark operators NegClosure and EConcat.
       ///
       /// \param f The formula to rewrite.
-      const formula* mark_concat_ops(const formula* f);
+      formula mark_concat_ops(formula f);
 
-      const formula* simplify_mark(const formula* f);
-
-      mark_tools();
-      ~mark_tools();
+      formula simplify_mark(formula f);
 
     private:
-      typedef std::unordered_map<const formula*, const formula*,
-				 ptr_hash<formula>> f2f_map;
+      typedef std::unordered_map<formula, formula> f2f_map;
       f2f_map simpmark_;
       f2f_map markops_;
-      visitor* simpvisitor_;
-      visitor* markvisitor_;
     };
 
   }

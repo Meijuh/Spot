@@ -48,7 +48,6 @@ typedef std::map<std::string, bdd> formula_cache;
 {
   int token;
   std::string* str;
-  const spot::ltl::formula* f;
   std::list<std::string*>* list;
 }
 
@@ -110,8 +109,8 @@ strident "," condition "," follow_list ";"
     if (i == fcache.end())
     {
       parse_error_list pel;
-      const formula* f = spot::ltl::parse_infix_boolean(*$3, pel,
-							parse_environment);
+      formula f = spot::ltl::parse_infix_boolean(*$3, pel,
+						 parse_environment);
       for (parse_error_list::iterator i = pel.begin();
            i != pel.end(); ++i)
       {

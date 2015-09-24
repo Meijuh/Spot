@@ -4,7 +4,6 @@
 #+HTML_LINK_UP: tut.html
 
 This example demonstrates how to create an automaton in C++, and then print it.
-The interface
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>

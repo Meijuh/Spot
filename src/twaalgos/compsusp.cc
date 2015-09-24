@@ -25,9 +25,7 @@
 #include "minimize.hh"
 #include "simulation.hh"
 #include "safety.hh"
-#include "ltlast/allnodes.hh"
 #include "ltlvisit/print.hh"
-#include "ltlvisit/clone.hh"
 #include <queue>
 #include <sstream>
 #include "ltlenv/environment.hh"
@@ -36,163 +34,111 @@ namespace spot
 {
   namespace
   {
-    typedef std::map<const ltl::formula*, bdd> formula_bdd_map;
-
-    // An environment to store atomic proposition associated to
-    // suspended variable.  (We don't use the default environment to
-    // avoid conflicts with user-defined atomic propositions that
-    // would share the same name.)
-    class suspended_environment: public ltl::environment
-    {
-    public:
-      const ltl::formula*
-      require(const std::string& s)
-      {
-	return ltl::atomic_prop::instance(s, *this);
-      }
-
-      const std::string&
-      name() const
-      {
-	static std::string name("suspended environment");
-	return name;
-      }
-    };
-    static suspended_environment suspenv;
+    typedef std::map<ltl::formula, bdd> formula_bdd_map;
+    typedef std::vector<ltl::formula> vec;
 
     // Rewrite the suspendable subformulae "s" of an LTL formula in
     // the form Gg where "g" is an atomic proposition representing
     // "s".  At the same time, populate maps that associate "s" to "g"
     // and vice-versa.
-    class ltl_suspender_visitor: public ltl::clone_visitor
+    class ltl_suspender_visitor final
     {
     public:
-      typedef std::map<const ltl::formula*, const ltl::formula*> fmap_t;
+      typedef std::map<ltl::formula, ltl::formula> fmap_t;
       ltl_suspender_visitor(fmap_t& g2s, fmap_t& a2o, bool oblig)
 	: g2s_(g2s), a2o_(a2o), oblig_(oblig)
       {
       }
 
-      void
-      visit(const ltl::multop* mo)
+      ltl::formula
+      visit(ltl::formula f)
       {
-	ltl::multop::type op = mo->op();
-	switch (op)
+	switch (ltl::op op = f.kind())
 	  {
-	  case ltl::multop::Or:
-	  case ltl::multop::And:
+	  case ltl::op::Or:
+	  case ltl::op::And:
 	    {
-	      ltl::multop::vec* res = new ltl::multop::vec;
-	      ltl::multop::vec* oblig = oblig_ ? new ltl::multop::vec : 0;
-	      ltl::multop::vec* susp = new ltl::multop::vec;
-	      unsigned mos = mo->size();
+	      vec res;
+	      vec oblig;
+	      vec susp;
+	      unsigned mos = f.size();
 	      for (unsigned i = 0; i < mos; ++i)
 		{
-		  const ltl::formula* c = mo->nth(i);
-		  if (c->is_boolean())
-		    res->push_back(c->clone());
-		  else if (oblig_ && c->is_syntactic_obligation())
-		    oblig->push_back(c->clone());
-		  else if (c->is_eventual() && c->is_universal())
-		    susp->push_back(c->clone());
+		  ltl::formula c = f.nth(i);
+		  if (c.is_boolean())
+		    res.push_back(c);
+		  else if (oblig_ && c.is_syntactic_obligation())
+		    oblig.push_back(c);
+		  else if (c.is_eventual() && c.is_universal())
+		    susp.push_back(c);
 		  else
-		    res->push_back(recurse(c));
+		    res.push_back(recurse(c));
 		}
-	      if (!oblig_ || oblig->empty())
+	      if (!oblig.empty())
 		{
-		  delete oblig;
+		  res.push_back(recurse(ltl::formula::multop(op, oblig)));
 		}
-	      else
+	      if (!susp.empty())
 		{
-		  const ltl::formula* o = ltl::multop::instance(op, oblig);
-		  res->push_back(recurse(o));
-		  o->destroy();
-		}
-	      if (susp->empty())
-		{
-		  delete susp;
-		}
-	      else
-		{
-		  const ltl::formula* o = ltl::multop::instance(op, susp);
+		  ltl::formula o = ltl::formula::multop(op, susp);
 		  // Rewrite 'o' as 'G"o"'
-		  const ltl::formula* g = recurse(o);
-		  o->destroy();
-		  if (op == ltl::multop::And)
+		  ltl::formula g = recurse(o);
+		  if (op == ltl::op::And)
 		    {
-		      res->push_back(g);
+		      res.push_back(g);
 		    }
 		  else
 		    {
 		      // res || susp -> (res && G![susp]) || G[susp])
-		      const ltl::formula* r = ltl::multop::instance(op, res);
-		      const ltl::unop* u =
-			down_cast<const ltl::unop*>(g);
-		      const ltl::formula* gn =
-			ltl::unop::instance
-			(ltl::unop::G, ltl::unop::instance
-			 (ltl::unop::Not, u->child()->clone()));
-		      result_ = ltl::multop::instance
-			(ltl::multop::Or, ltl::multop::instance
-			 (ltl::multop::And, r, gn),
-			 g);
-		      return;
+		      auto r = ltl::formula::multop(op, res);
+		      auto gn = ltl::formula::G(ltl::formula::Not(g.nth(0)));
+		      return ltl::formula::Or({ltl::formula::And({r, gn}), g});
 		    }
 		}
-	      result_ = ltl::multop::instance(op, res);
+	      return ltl::formula::multop(op, res);
 	    }
 	    break;
-	  case ltl::multop::OrRat:
-	  case ltl::multop::AndRat:
-	  case ltl::multop::AndNLM:
-	  case ltl::multop::Concat:
-	  case ltl::multop::Fusion:
-	    this->ltl::clone_visitor::visit(mo);
-	    break;
+	  default:
+	    return f.map([this](ltl::formula f)
+			 {
+			   return this->recurse(f);
+			 });
 	  }
       }
 
-
-      const ltl::formula*
-      recurse(const ltl::formula* f)
+      ltl::formula
+      recurse(ltl::formula f)
       {
-	const ltl::formula* res;
-	if (f->is_boolean())
-	  return f->clone();
-	if (oblig_ && f->is_syntactic_obligation())
+	ltl::formula res;
+	if (f.is_boolean())
+	  return f;
+	if (oblig_ && f.is_syntactic_obligation())
 	  {
 	    fmap_t::const_iterator i = assoc_.find(f);
 	    if (i != assoc_.end())
-	      return i->second->clone();
+	      return i->second;
 
 	    std::ostringstream s;
-	    s << "〈";
-	    print_psl(s, f) << "〉";
-	    res = suspenv.require(s.str());
-	    // We have to clone f, because it is not always a sub-tree
-	    // of the original formula.  (Think n-ary operators.)
-	    a2o_[res] = f->clone();
+	    print_psl(s << "〈", f) << "〉";
+	    res = ltl::formula::ap(s.str());
+	    a2o_[res] = f;
 	    assoc_[f] = res;
 	    return res;
 	  }
-	if (f->is_eventual() && f->is_universal())
+	if (f.is_eventual() && f.is_universal())
 	  {
 	    fmap_t::const_iterator i = assoc_.find(f);
 	    if (i != assoc_.end())
-	      return ltl::unop::instance(ltl::unop::G, i->second->clone());
+	      return ltl::formula::G(i->second);
 
 	    std::ostringstream s;
-	    s << '[';
-	    print_psl(s, f) << ']';
-	    res = suspenv.require(s.str());
-	    // We have to clone f, because it is not always a sub-tree
-	    // of the original formula.  (Think n-ary operators.)
-	    g2s_[res] = f->clone();
+	    print_psl(s << '[', f) << "]$";
+	    res = ltl::formula::ap(s.str());
+	    g2s_[res] = f;
 	    assoc_[f] = res;
-	    return ltl::unop::instance(ltl::unop::G, res);
+	    return ltl::formula::G(res);
 	  }
-	f->accept(*this);
-	return result_;
+	return visit(f);
       }
 
     private:
@@ -210,7 +156,7 @@ namespace spot
 
     static
     twa_graph_ptr
-    susp_prod(const const_twa_ptr& left, const ltl::formula* f, bdd v)
+    susp_prod(const const_twa_ptr& left, ltl::formula f, bdd v)
     {
       bdd_dict_ptr dict = left->get_dict();
       auto right =
@@ -320,7 +266,7 @@ namespace spot
 
 
   twa_graph_ptr
-  compsusp(const ltl::formula* f, const bdd_dict_ptr& dict,
+  compsusp(ltl::formula f, const bdd_dict_ptr& dict,
 	   bool no_wdba, bool no_simulation,
 	   bool early_susp, bool no_susp_product, bool wdba_smaller,
 	   bool oblig)
@@ -328,7 +274,7 @@ namespace spot
     ltl_suspender_visitor::fmap_t g2s;
     ltl_suspender_visitor::fmap_t a2o;
     ltl_suspender_visitor v(g2s, a2o, oblig);
-    const ltl::formula* g = v.recurse(f);
+    ltl::formula g = v.recurse(f);
 
     // Translate the patched formula, and remove useless SCCs.
     twa_graph_ptr res =
@@ -392,14 +338,6 @@ namespace spot
 	if ((allaccap & i->second) == allaccap)
 	  res = susp_prod(res, i->first, i->second);
 
-    g->destroy();
-
-    for (ltl_suspender_visitor::fmap_t::iterator i = g2s.begin();
-	 i != g2s.end(); ++i)
-      i->second->destroy();
-    for (ltl_suspender_visitor::fmap_t::iterator i = a2o.begin();
-	 i != a2o.end(); ++i)
-      i->second->destroy();
     return res;
   }
 }

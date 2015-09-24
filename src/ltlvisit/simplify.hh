@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2013, 2014 Laboratoire de Recherche et
-// Developpement de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2013, 2014, 2015 Laboratoire de Recherche
+// et Developpement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -106,7 +106,7 @@ namespace spot
 
       /// Simplify the formula \a f (using options supplied to the
       /// constructor).
-      const formula* simplify(const formula* f);
+      formula simplify(formula f);
 
       /// Build the negative normal form of formula \a f.
       /// All negations of the formula are pushed in front of the
@@ -116,8 +116,8 @@ namespace spot
       /// \param f The formula to normalize.
       /// \param negated If \c true, return the negative normal form of
       ///        \c !f
-      const formula*
-      negative_normal_form(const formula* f, bool negated = false);
+      formula
+      negative_normal_form(formula f, bool negated = false);
 
       /// \brief Syntactic implication.
       ///
@@ -138,20 +138,20 @@ namespace spot
           }
           \endverbatim */
       ///
-      bool syntactic_implication(const formula* f, const formula* g);
+      bool syntactic_implication(formula f, formula g);
       /// \brief Syntactic implication with one negated argument.
       ///
       /// If \a right is true, this method returns whether
       /// \a f implies !\a g.  If \a right is false, this returns
       /// whether !\a f implies \a g.
-      bool syntactic_implication_neg(const formula* f, const formula* g,
+      bool syntactic_implication_neg(formula f, formula g,
 				     bool right);
 
       /// \brief check whether two formulae are equivalent.
       ///
       /// This costly check performs up to four translations,
       /// two products, and two emptiness checks.
-      bool are_equivalent(const formula* f, const formula* g);
+      bool are_equivalent(formula f, formula g);
 
 
       /// \brief Check whether \a f implies \a g.
@@ -159,13 +159,13 @@ namespace spot
       /// This operation is costlier than syntactic_implication()
       /// because it requires two translation, one product and one
       /// emptiness check.
-      bool implication(const formula* f, const formula* g);
+      bool implication(formula f, formula g);
 
       /// \brief Convert a Boolean formula as a BDD.
       ///
       /// If you plan to use this method, be sure to pass a bdd_dict
       /// to the constructor.
-      bdd as_bdd(const formula* f);
+      bdd as_bdd(formula f);
 
       /// \brief Clear the as_bdd() cache.
       ///
@@ -182,14 +182,14 @@ namespace spot
       bdd_dict_ptr get_dict() const;
 
       /// Cached version of spot::ltl::star_normal_form().
-      const formula* star_normal_form(const formula* f);
+      formula star_normal_form(formula f);
 
       /// \brief Rewrite a Boolean formula \a f into as an irredundant
       /// sum of product.
       ///
       /// This uses a cache, so it is OK to call this with identical
       /// arguments.
-      const formula* boolean_to_isop(const formula* f);
+      formula boolean_to_isop(formula f);
 
       /// Dump statistics about the caches.
       void print_stats(std::ostream& os) const;

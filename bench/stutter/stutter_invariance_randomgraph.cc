@@ -127,6 +127,5 @@ main(int argc, char** argv)
 	break;
     }
   dict->unregister_all_my_variables(&ap);
-  spot::ltl::destroy_atomic_prop_set(ap);
   return 0;
 }

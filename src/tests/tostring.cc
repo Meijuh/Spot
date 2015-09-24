@@ -25,7 +25,6 @@
 #include <cstdlib>
 #include "ltlparse/public.hh"
 #include "ltlvisit/print.hh"
-#include "ltlast/allnodes.hh"
 
 void
 syntax(char *prog)
@@ -40,42 +39,38 @@ main(int argc, char **argv)
   if (argc != 2)
     syntax(argv[0]);
 
-  spot::ltl::parse_error_list p1;
-  auto* f1 = spot::ltl::parse_infix_psl(argv[1], p1);
+  {
+    spot::ltl::parse_error_list p1;
+    auto f1 = spot::ltl::parse_infix_psl(argv[1], p1);
 
-  if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
-    return 2;
+    if (spot::ltl::format_parse_errors(std::cerr, argv[1], p1))
+      return 2;
 
-  // The string generated from an abstract tree should be parsable
-  // again.
+    // The string generated from an abstract tree should be parsable
+    // again.
 
-  std::string f1s = spot::ltl::str_psl(f1);
-  std::cout << f1s << '\n';
+    std::string f1s = spot::ltl::str_psl(f1);
+    std::cout << f1s << '\n';
 
-  auto* f2 = spot::ltl::parse_infix_psl(f1s, p1);
+    auto f2 = spot::ltl::parse_infix_psl(f1s, p1);
 
-  if (spot::ltl::format_parse_errors(std::cerr, f1s, p1))
-    return 2;
+    if (spot::ltl::format_parse_errors(std::cerr, f1s, p1))
+      return 2;
 
-  // This second abstract tree should be equal to the first.
+    // This second abstract tree should be equal to the first.
 
-  if (f1 != f2)
-    return 1;
+    if (f1 != f2)
+      return 1;
 
-  // It should also map to the same string.
+    // It should also map to the same string.
 
-  std::string f2s = spot::ltl::str_psl(f2);
-  std::cout << f2s << '\n';
+    std::string f2s = spot::ltl::str_psl(f2);
+    std::cout << f2s << '\n';
 
-  if (f2s != f1s)
-    return 1;
+    if (f2s != f1s)
+      return 1;
+  }
 
-  f1->destroy();
-  f2->destroy();
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
-  assert(spot::ltl::bunop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   return 0;
 }

@@ -27,7 +27,7 @@ genltl=../../bin/genltl
 
 run 0 $ltldo -f a -f 'a&b' -t 'echo %f,%s' >output
 cat >expected <<EOF
-(a),(a)
+a,a
 (a) & (b),(a) && (b)
 EOF
 diff output expected
@@ -35,7 +35,7 @@ diff output expected
 # Renaming
 run 0 $ltldo -f a -f 'a&_b' -t 'echo %f,%s' >output
 cat >expected <<EOF
-(a),(a)
+a,a
 (p0) & (p1),(p0) && (p1)
 EOF
 diff output expected

@@ -219,14 +219,14 @@ namespace spot
       return new named_graph<graph_t, State_Name, Name_Hash, Name_Equal>(g_);
     }
 
-    namer<const ltl::formula*>*
+    namer<ltl::formula>*
     create_formula_namer()
     {
-      return create_namer<const ltl::formula*>();
+      return create_namer<ltl::formula>();
     }
 
     void
-    release_formula_namer(namer<const ltl::formula*>* namer, bool keep_names);
+    release_formula_namer(namer<ltl::formula>* namer, bool keep_names);
 #endif
 
     graph_t& get_graph()

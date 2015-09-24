@@ -55,11 +55,11 @@ namespace spot
   SPOT_API tgba_sub_statistics sub_stats_reachable(const const_twa_ptr& g);
 
 
-  class SPOT_API printable_formula: public printable_value<const ltl::formula*>
+  class SPOT_API printable_formula: public printable_value<ltl::formula>
   {
   public:
     printable_formula&
-    operator=(const ltl::formula* new_val)
+    operator=(ltl::formula new_val)
     {
       val_ = new_val;
       return *this;
@@ -84,7 +84,7 @@ namespace spot
     /// The \a f argument is not needed if the Formula does not need
     /// to be output, and so is \a run_time).
     std::ostream&
-      print(const const_twa_graph_ptr& aut, const ltl::formula* f = 0,
+      print(const const_twa_graph_ptr& aut, ltl::formula f = nullptr,
 	    double run_time = -1.);
 
   private:

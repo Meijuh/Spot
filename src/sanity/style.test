@@ -130,7 +130,7 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
     perl -pe 'sub f {my $a = shift; $a =~ s:[^\n]*://:g; return "$a"}
               s,/\*(.*?)\*/,f($1),sge;
               s,//.*?\n,//\n,g;
-              s,"[^"\n]*","",g;
+              s,"(\\.|[^"\\\n])*","",g;
               s,SPOT_API ,,g' -0777 <$file >$tmp
 
     $GREP '[	 ]$' $tmp &&
@@ -231,10 +231,14 @@ for dir in "${INCDIR-..}" "${INCDIR-..}"/../iface; do
       $GREP -v 'for (.*;;)' $tmp | $GREP ';[^	 ")'"']" &&
 	diag 'Must have space or newline after semicolon.'
 
-      $GREP '}.*}' $tmp &&
+      # Allow several { or } on the same line only if they are mixed
+      # with parentheses, as this often occur with lambdas or
+      # initializer lists.  What we want to forbid is cases where
+      # multiple scopes are opened/closed on the same line.
+      $GREP '^[^()]*}[^()]*}[^()]*$' $tmp &&
 	diag 'No two } on the same line.'
 
-      $GREP '{.*{' $tmp &&
+      $GREP '^[^()]{[^()]*{[^()]$' $tmp &&
 	diag 'No two { on the same line.'
 
       $GREP 'delete[	 ]*[(][^(]*[)];' $tmp &&

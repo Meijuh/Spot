@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2009, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -21,7 +21,6 @@
 #include <cassert>
 #include "misc/hash.hh"
 #include "ltlenv/defaultenv.hh"
-#include "ltlast/allnodes.hh"
 #include "twaalgos/dot.hh"
 #include "twa/taatgba.hh"
 
@@ -49,8 +48,6 @@ main()
     spot::print_dot(std::cout, a);
   }
 
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
+  return 0;
 }

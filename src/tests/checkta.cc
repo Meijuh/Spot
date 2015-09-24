@@ -24,7 +24,6 @@
 #include <cstdlib>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlast/allnodes.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/sccfilter.hh"
 #include "twaalgos/degen.hh"
@@ -219,17 +218,8 @@ main(int argc, char** argv)
 	}
 
       }
-
-      f->destroy();
     }
 
-  spot::ltl::atomic_prop::dump_instances(std::cerr);
-  spot::ltl::unop::dump_instances(std::cerr);
-  spot::ltl::binop::dump_instances(std::cerr);
-  spot::ltl::multop::dump_instances(std::cerr);
-  assert(spot::ltl::atomic_prop::instance_count() == 0);
-  assert(spot::ltl::unop::instance_count() == 0);
-  assert(spot::ltl::binop::instance_count() == 0);
-  assert(spot::ltl::multop::instance_count() == 0);
+  assert(spot::ltl::fnode::instances_check());
   return 0;
 }

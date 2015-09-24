@@ -15,9 +15,9 @@ ltlfilt -ps --relabel=pnn --define -f '"Proc@Here" U ("var > 10" | "var < 4")'
 #+END_SRC
 
 #+RESULTS:
-: #define p0 ((Proc@Here))
-: #define p1 ((var < 4))
-: #define p2 ((var > 10))
+: #define p0 (Proc@Here)
+: #define p1 (var < 4)
+: #define p2 (var > 10)
 : (p0) U ((p1) || (p2))
 
 When is this output interesting, you may ask?  It is useful for
@@ -34,9 +34,9 @@ rm tmp.defs tmp.ltl
 
 #+RESULTS:
 #+begin_example
-#define p0 ((Proc@Here))
-#define p1 ((var < 4))
-#define p2 ((var > 10))
+#define p0 (Proc@Here)
+#define p1 (var < 4)
+#define p2 (var > 10)
 never { /* (p0) U ((p1) || (p2))
  */
 T0_init:
@@ -88,32 +88,26 @@ destructor.
   {
     std::string input = "\"Proc@Here\" U (\"var > 10\" | \"var < 4\")";
     spot::ltl::parse_error_list pel;
-    const spot::ltl::formula* f = spot::ltl::parse_infix_psl(input, pel);
+    spot::ltl::formula f = spot::ltl::parse_infix_psl(input, pel);
     if (spot::ltl::format_parse_errors(std::cerr, input, pel))
-      {
-        if (f)
-          f->destroy();
-        return 1;
-      }
+      return 1;
     spot::ltl::relabeling_map m;
-    const spot::ltl::formula* g = spot::ltl::relabel(f, spot::ltl::Pnn, &m);
+    f = spot::ltl::relabel(f, spot::ltl::Pnn, &m);
     for (auto& i: m)
       {
         std::cout << "#define ";
         print_psl(std::cout, i.first) << " (";
         print_spin_ltl(std::cout, i.second, true) << ")\n";
       }
-    print_spin_ltl(std::cout, g, true) << '\n';
-    g->destroy();
-    f->destroy();
+    print_spin_ltl(std::cout, f, true) << '\n';
     return 0;
   }
 #+END_SRC
 
 #+RESULTS:
-: #define p0 ((Proc@Here))
-: #define p1 ((var < 4))
-: #define p2 ((var > 10))
+: #define p0 (Proc@Here)
+: #define p1 (var < 4)
+: #define p2 (var > 10)
 : (p0) U ((p1) || (p2))
 
 
@@ -135,7 +129,7 @@ ltlfilt -ps --relabel-bool=pnn --define -f '"Proc@Here" U ("var > 10" | "var < 4
 #+END_SRC
 
 #+RESULTS:
-: #define p0 ((Proc@Here))
+: #define p0 (Proc@Here)
 : #define p1 ((var < 4) || (var > 10))
 : (p0) U (p1)
 
@@ -151,8 +145,8 @@ ltlfilt -ps --relabel-bool=pnn --define -f 'a U (a & b)'
 #+END_SRC
 
 #+RESULTS:
-: #define p0 ((a))
-: #define p1 ((b))
+: #define p0 (a)
+: #define p1 (b)
 : (p0) U ((p0) && (p1))
 
    This "Boolean sub-expression" relabeling is available in Python and
