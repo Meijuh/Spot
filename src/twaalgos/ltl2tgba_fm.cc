@@ -1700,7 +1700,7 @@ namespace spot
       // In case the formula contains SERE operators, we need to decide
       // if we have to mark unmarked operators, and more
       const translate_dict::translated&
-      translate(formula f, bool* new_flag = 0)
+      translate(formula f, bool* new_flag = nullptr)
       {
 	// Use the cached result if available.
 	formula_to_bdd_map::const_iterator i = f2b_.find(f);

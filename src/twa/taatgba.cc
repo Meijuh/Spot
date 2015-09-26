@@ -33,7 +33,7 @@ namespace spot
 
   taa_tgba::taa_tgba(const bdd_dict_ptr& dict)
     : twa(dict),
-      init_(0), state_set_vec_()
+      init_(nullptr), state_set_vec_()
   {
   }
 
@@ -122,7 +122,7 @@ namespace spot
     taa_tgba::state_set::const_iterator it = s_->begin();
     while (it != s_->end())
     {
-      res ^= reinterpret_cast<const char*>(*it++) - static_cast<char*>(0);
+      res ^= reinterpret_cast<const char*>(*it++) - static_cast<char*>(nullptr);
       res = wang32_hash(res);
     }
     return res;

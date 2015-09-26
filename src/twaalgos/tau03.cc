@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Developpement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -306,7 +306,7 @@ namespace spot
           }
         bool is_white() const
           {
-            return p == 0;
+            return !p;
           }
       private:
         color *p;
@@ -333,7 +333,7 @@ namespace spot
         {
           hash_type::iterator it = h.find(s);
           if (it == h.end())
-            return color_ref(0, 0);
+            return color_ref(nullptr, nullptr);
           if (s != it->first)
             {
               s->destroy();

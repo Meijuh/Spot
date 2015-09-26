@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2012, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2010, 2012, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -57,7 +57,7 @@ namespace spot
 
     ta::states_set_t::const_iterator it;
 
-    if (artificial_initial_state != 0)
+    if (artificial_initial_state)
       {
         init_states_set.insert(artificial_initial_state);
       }
@@ -153,7 +153,7 @@ namespace spot
   ta_reachable_iterator_depth_first::next_state()
   {
     if (todo.empty())
-      return 0;
+      return nullptr;
     const state* s = todo.top();
     todo.pop();
     return s;
@@ -178,7 +178,7 @@ namespace spot
   ta_reachable_iterator_breadth_first::next_state()
   {
     if (todo.empty())
-      return 0;
+      return nullptr;
     const state* s = todo.front();
     todo.pop_front();
     return s;

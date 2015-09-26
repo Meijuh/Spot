@@ -33,11 +33,11 @@ be passed to other algorithms in the future). These options are \
 mostly used for benchmarking and debugging purpose. KEYR (without any \
 value) is a shorthand for KEY=1, while !KEY is a shorthand for KEY=0.";
 
-#define DOC(NAME, TXT) NAME, 0, 0, OPTION_DOC | OPTION_NO_USAGE, TXT, 0
+#define DOC(NAME, TXT) NAME, 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, TXT, 0
 
 static const argp_option options[] =
   {
-    { 0, 0, 0, 0, "Translation options:", 0 },
+    { nullptr, 0, nullptr, 0, "Translation options:", 0 },
     { DOC("comp-susp", "Set to 1 to enable compositional suspension, \
 as described in our SPIN'13 paper (see Bibliography below).  Set to 2, \
 to build only the skeleton TGBA without composing it.  Set to 0 (the \
@@ -55,7 +55,7 @@ Set to 1 always WDBA-minimize the skeleton .  Set to 2 to keep the WDBA \
 only if it is smaller than the original skeleton.  This option is only \
 used when comp-susp=1 and default to 1 or 2 depending on whether --small \
 or --deterministic is specified.") },
-    { 0, 0, 0, 0, "Postprocessing options:", 0 },
+    { nullptr, 0, nullptr, 0, "Postprocessing options:", 0 },
     { DOC("scc-filter", "Set to 1 (the default) to enable \
 SCC-pruning and acceptance simplification at the beginning of \
 post-processing. Transitions that are outside of accepting SCC are \
@@ -134,13 +134,13 @@ sets sat-minimize to 1 if not set differently.") },
 	  "Set to 1 to instruct the SAT-minimization procedure to produce \
 a TGBA where all outgoing transition of a state have the same acceptance \
 sets.  By default this is only enabled when option -B is used.") },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 const struct argp_child children[] =
   {
-    { &misc_argp_hidden, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &misc_argp_hidden, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 int
@@ -148,9 +148,10 @@ main(int argc, char** argv)
 {
   setup(argv);
 
-  const argp ap = { options, 0, 0, argp_program_doc, children, 0, 0 };
+  const argp ap = { options, nullptr, nullptr, argp_program_doc, children,
+		    nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   std::cerr << "This binary serves no purpose other than generating"

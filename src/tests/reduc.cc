@@ -154,7 +154,7 @@ main(int argc, char** argv)
     spot::ltl::formula f1 = nullptr;
     spot::ltl::formula f2 = nullptr;
 
-    std::ifstream* fin = 0;
+    std::ifstream* fin = nullptr;
 
     if (readfile)
       {

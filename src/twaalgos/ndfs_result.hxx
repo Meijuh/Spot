@@ -1,9 +1,9 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de recherche et
 // développement de l'Epita (LRDE).
-// Copyright (C) 2004, 2005, 2006  Laboratoire d'Informatique de Paris 6 (LIP6),
-// département Systèmes Répartis Coopératifs (SRC), Université Pierre
-// et Marie Curie.
+// Copyright (C) 2004, 2005, 2006 Laboratoire d'Informatique de Paris
+// 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
+// Université Pierre et Marie Curie.
 //
 // This file is part of Spot, a model checking library.
 //
@@ -395,7 +395,7 @@ namespace spot
         if (s)
           return this->bfs_steps::search(s, l);
         else
-          return 0;
+          return nullptr;
       }
 
       const state* filter(const state* s)
@@ -405,7 +405,7 @@ namespace spot
 	    || dead.find(s) != dead.end())
           {
             s->destroy();
-            return 0;
+            return nullptr;
           }
 	ars->inc_ars_cycle_states();
         seen.insert(s);
@@ -490,7 +490,7 @@ namespace spot
         if (s)
           return this->bfs_steps::search(s, l);
         else
-          return 0;
+          return nullptr;
       }
 
       const state* filter(const state* s)
@@ -503,7 +503,7 @@ namespace spot
             else
               ndfsr_trace << " already seen" << std::endl;
             s->destroy();
-            return 0;
+            return nullptr;
           }
         ndfsr_trace << " OK" << std::endl;
 	if (cycle)
@@ -605,7 +605,8 @@ namespace spot
 		      << a_->format_state(current.dest) << " to "
 		      << a_->format_state(begin) << std::endl;
 	  transition tmp;
-	  tmp.source = tmp.dest = 0; // Initialize to please GCC 4.0.1 (Darwin).
+	  // Initialize to please GCC 4.0.1 (Darwin).
+	  tmp.source = tmp.dest = nullptr;
 	  tmp.acc = 0U;
 	  target.emplace(begin, tmp);
 	  min_path<true> s(this, a_, target, h_);
@@ -620,7 +621,7 @@ namespace spot
     {
       m_source_trans target;
       transition tmp;
-      tmp.source = tmp.dest = 0; // Initialize to please GCC 4.0.
+      tmp.source = tmp.dest = nullptr; // Initialize to please GCC 4.0.
       tmp.acc = 0U;
 
       // Register all states from the cycle as target of the BFS.

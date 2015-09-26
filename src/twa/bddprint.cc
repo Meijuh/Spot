@@ -157,7 +157,7 @@ namespace spot
     want_acc = true;
     bdd_strm_hook(print_handler);
     os << bddset << b;
-    bdd_strm_hook(0);
+    bdd_strm_hook(nullptr);
     return os;
   }
 

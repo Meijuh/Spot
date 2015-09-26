@@ -138,7 +138,7 @@ namespace spot
     formula
     relabel(formula f, relabeling_style style, relabeling_map* m)
     {
-      ap_generator* gen = 0;
+      ap_generator* gen = nullptr;
       switch (style)
 	{
 	case Pnn:
@@ -470,7 +470,7 @@ namespace spot
 
       // Relabel the formula recursively, stopping
       // at cut-points or atomic propositions.
-      ap_generator* gen = 0;
+      ap_generator* gen = nullptr;
       switch (style)
 	{
 	case Pnn:

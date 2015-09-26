@@ -144,13 +144,13 @@ const char* const class_name[LAST_CLASS] =
   };
 
 
-#define OPT_ALIAS(o) { #o, 0, 0, OPTION_ALIAS, 0, 0 }
+#define OPT_ALIAS(o) { #o, 0, nullptr, OPTION_ALIAS, nullptr, 0 }
 
 static const argp_option options[] =
   {
     /**************************************************/
     // Keep this alphabetically sorted (expect for aliases).
-    { 0, 0, 0, 0, "Pattern selection:", 1},
+    { nullptr, 0, nullptr, 0, "Pattern selection:", 1},
     // J. Geldenhuys and H. Hansen (Spin'06): Larger automata and less
     // work for LTL model checking.
     { "and-f", OPT_AND_F, "RANGE", 0, "F(p1)&F(p2)&...&F(pn)", 0 },
@@ -194,19 +194,19 @@ static const argp_option options[] =
     OPT_ALIAS(go-phi),
     RANGE_DOC,
   /**************************************************/
-    { 0, 0, 0, 0, "Output options:", -20 },
-    { 0, 0, 0, 0, "The FORMAT string passed to --format may use "\
+    { nullptr, 0, nullptr, 0, "Output options:", -20 },
+    { nullptr, 0, nullptr, 0, "The FORMAT string passed to --format may use "
       "the following interpreted sequences:", -19 },
-    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the formula (in the selected syntax)", 0 },
-    { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%F", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the name of the pattern", 0 },
-    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%L", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the argument of the pattern", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 struct job
@@ -221,9 +221,9 @@ static jobs_t jobs;
 
 const struct argp_child children[] =
   {
-    { &output_argp, 0, 0, -20 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &output_argp, 0, nullptr, -20 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 static void
@@ -819,10 +819,10 @@ main(int argc, char** argv)
 {
   setup(argv);
 
-  const argp ap = { options, parse_opt, 0, argp_program_doc,
-		    children, 0, 0 };
+  const argp ap = { options, parse_opt, nullptr, argp_program_doc,
+		    children, nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   if (jobs.empty())

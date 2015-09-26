@@ -105,7 +105,7 @@ namespace spot
     virtual spot::state*
     get_artificial_initial_state() const
     {
-      return 0;
+      return nullptr;
     }
 
     /// \brief Get an iterator over the successors of \a state.

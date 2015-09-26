@@ -38,7 +38,7 @@ namespace spot
 	  ++options;
 
 	// `!foo' is a shorthand for `foo=0'.
-	const char* negated = 0;
+	const char* negated = nullptr;
 	if (*options == '!')
 	  {
 	    // Skip spaces.
@@ -124,7 +124,7 @@ namespace spot
 	      }
 	  }
       }
-    return 0;
+    return nullptr;
   }
 
   int

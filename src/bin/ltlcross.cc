@@ -99,22 +99,22 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "ltlcross behavior:", 5 },
-    { "allow-dups", OPT_DUPS, 0, 0,
+    { nullptr, 0, nullptr, 0, "ltlcross behavior:", 5 },
+    { "allow-dups", OPT_DUPS, nullptr, 0,
       "translate duplicate formulas in input", 0 },
-    { "no-checks", OPT_NOCHECKS, 0, 0,
+    { "no-checks", OPT_NOCHECKS, nullptr, 0,
       "do not perform any sanity checks (negated formulas "
       "will not be translated)", 0 },
-    { "no-complement", OPT_NOCOMP, 0, 0,
+    { "no-complement", OPT_NOCOMP, nullptr, 0,
       "do not complement deterministic automata to perform extra checks", 0 },
-    { "stop-on-error", OPT_STOP_ERR, 0, 0,
+    { "stop-on-error", OPT_STOP_ERR, nullptr, 0,
       "stop on first execution error or failure to pass"
       " sanity checks (timeouts are OK)", 0 },
-    { "ignore-execution-failures", OPT_IGNORE_EXEC_FAIL, 0, 0,
+    { "ignore-execution-failures", OPT_IGNORE_EXEC_FAIL, nullptr, 0,
       "ignore automata from translators that return with a non-zero exit code,"
       " but do not flag this as an error", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "State-space generation:", 6 },
+    { nullptr, 0, nullptr, 0, "State-space generation:", 6 },
     { "states", OPT_STATES, "INT", 0,
       "number of the states in the state-spaces (200 by default)", 0 },
     { "density", OPT_DENSITY, "FLOAT", 0,
@@ -126,19 +126,19 @@ static const argp_option options[] =
       "number of products to perform (1 by default), statistics will be "
       "averaged unless the number is prefixed with '+'", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Statistics output:", 7 },
+    { nullptr, 0, nullptr, 0, "Statistics output:", 7 },
     { "json", OPT_JSON, "[>>]FILENAME", OPTION_ARG_OPTIONAL,
       "output statistics as JSON in FILENAME or on standard output", 0 },
     { "csv", OPT_CSV, "[>>]FILENAME", OPTION_ARG_OPTIONAL,
       "output statistics as CSV in FILENAME or on standard output "
       "(if '>>' is used to request append mode, the header line is "
       "not output)", 0 },
-    { "omit-missing", OPT_OMIT, 0, 0,
+    { "omit-missing", OPT_OMIT, nullptr, 0,
       "do not output statistics for timeouts or failed translations", 0 },
-    { "automata", OPT_AUTOMATA, 0, 0,
+    { "automata", OPT_AUTOMATA, nullptr, 0,
       "store automata (in the HOA format) into the CSV or JSON output", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Miscellaneous options:", -2 },
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -2 },
     { "color", OPT_COLOR, "WHEN", OPTION_ARG_OPTIONAL,
       "colorize output; WHEN can be 'never', 'always' (the default if "
       "--color is used without argument), or "
@@ -148,19 +148,20 @@ static const argp_option options[] =
       "formula that fails on the same test in FILENAME", 0 },
     { "save-bogus", OPT_BOGUS, "[>>]FILENAME", 0,
       "save formulas for which problems were detected in FILENAME", 0 },
-    { "verbose", OPT_VERBOSE, 0, 0,
+    { "verbose", OPT_VERBOSE, nullptr, 0,
       "print what is being done, for debugging", 0 },
-    { 0, 0, 0, 0, "If an output FILENAME is prefixed with '>>', is it open "
+    { nullptr, 0, nullptr, 0,
+      "If an output FILENAME is prefixed with '>>', is it open "
       "in append mode instead of being truncated.", -1 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 const struct argp_child children[] =
   {
-    { &finput_argp, 0, 0, 1 },
-    { &trans_argp, 0, 0, 0 },
-    { &misc_argp, 0, 0, -2 },
-    { 0, 0, 0, 0 }
+    { &finput_argp, 0, nullptr, 1 },
+    { &trans_argp, 0, nullptr, 0 },
+    { &misc_argp, 0, nullptr, -2 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 enum color_type { color_never, color_always, color_if_tty };
@@ -169,7 +170,7 @@ static char const *const color_args[] =
 {
   "always", "yes", "force",
   "never", "no", "none",
-  "auto", "tty", "if-tty", 0
+  "auto", "tty", "if-tty", nullptr
 };
 static color_type const color_types[] =
 {
@@ -187,8 +188,8 @@ static const char* reset_color = "\033[m";
 
 static unsigned states = 200;
 static float density = 0.1;
-static const char* json_output = 0;
-static const char* csv_output = 0;
+static const char* json_output = nullptr;
+static const char* csv_output = nullptr;
 static bool want_stats = false;
 static bool allow_dups = false;
 static bool no_checks = false;
@@ -198,9 +199,9 @@ static int seed = 0;
 static unsigned products = 1;
 static bool products_avg = true;
 static bool opt_omit = false;
-static const char* bogus_output_filename = 0;
-static output_file* bogus_output = 0;
-static output_file* grind_output = 0;
+static const char* bogus_output_filename = nullptr;
+static output_file* bogus_output = nullptr;
+static output_file* grind_output = nullptr;
 static bool verbose = false;
 static bool ignore_exec_fail = false;
 static unsigned ignored_exec_fail = 0;
@@ -239,7 +240,7 @@ struct statistics
 {
   statistics()
     : ok(false),
-      status_str(0),
+      status_str(nullptr),
       status_code(0),
       time(0),
       states(0),
@@ -499,9 +500,9 @@ namespace
       int es = exec_with_timeout(cmd.c_str());
       double duration = sw.stop();
 
-      const char* status_str = 0;
+      const char* status_str = nullptr;
 
-      spot::twa_graph_ptr res = 0;
+      spot::twa_graph_ptr res = nullptr;
       if (timed_out)
 	{
 	  // This is not considered to be a global error.
@@ -938,7 +939,7 @@ namespace
 
     int
     process_formula(spot::ltl::formula f,
-		    const char* filename = 0, int linenum = 0)
+		    const char* filename = nullptr, int linenum = 0)
     {
       static unsigned round = 0;
 
@@ -998,7 +999,7 @@ namespace
       unsigned n = vstats.size();
       vstats.resize(n + (no_checks ? 1 : 2));
       statistics_formula* pstats = &vstats[n];
-      statistics_formula* nstats = 0;
+      statistics_formula* nstats = nullptr;
       pstats->resize(m);
       formulas.push_back(fstr);
 
@@ -1380,9 +1381,9 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[COMMANDFMT...]",
-		    argp_program_doc, children, 0, 0 };
+		    argp_program_doc, children, nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   if (jobs.empty())

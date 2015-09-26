@@ -332,8 +332,8 @@ checked_main(int argc, char** argv)
   bool degen_cache = true;
   int output = 0;
   int formula_index = 0;
-  const char* echeck_algo = 0;
-  spot::emptiness_check_instantiator_ptr echeck_inst = 0;
+  const char* echeck_algo = nullptr;
+  spot::emptiness_check_instantiator_ptr echeck_inst = nullptr;
   enum { NoneDup, BFS, DFS } dupexp = NoneDup;
   bool expect_counter_example = false;
   bool accepting_run = false;
@@ -364,8 +364,8 @@ checked_main(int argc, char** argv)
   const char* opt_never = nullptr;
   const char* hoa_opt = nullptr;
   auto& env = spot::ltl::default_environment::instance();
-  spot::ltl::atomic_prop_set* unobservables = 0;
-  spot::twa_ptr system_aut = 0;
+  spot::ltl::atomic_prop_set* unobservables = nullptr;
+  spot::twa_ptr system_aut = nullptr;
   auto dict = spot::make_bdd_dict();
   spot::timer_map tm;
   bool use_timer = false;
@@ -797,7 +797,7 @@ checked_main(int argc, char** argv)
 	  while (tok)
 	    {
 	      unobservables->insert(env.require(tok));
-	      tok = strtok(0, ", \t;");
+	      tok = strtok(nullptr, ", \t;");
 	    }
 	}
       else if (!strncmp(argv[formula_index], "-u", 2))
@@ -944,7 +944,7 @@ checked_main(int argc, char** argv)
 
   if (f || from_file)
     {
-      spot::twa_ptr a = 0;
+      spot::twa_ptr a = nullptr;
       bool assume_sba = false;
 
       if (from_file)
@@ -964,7 +964,7 @@ checked_main(int argc, char** argv)
 	}
       else
 	{
-	  spot::ltl::ltl_simplifier* simp = 0;
+	  spot::ltl::ltl_simplifier* simp = nullptr;
 	  if (simpltl)
 	    simp = new spot::ltl::ltl_simplifier(redopt, dict);
 
@@ -1004,7 +1004,7 @@ checked_main(int argc, char** argv)
 				       post_branching,
 				       fair_loop_approx,
 				       unobservables,
-				       fm_red ? simp : 0,
+				       fm_red ? simp : nullptr,
 				       fm_unambiguous);
 	      break;
 	    case TransCompo:
@@ -1061,8 +1061,7 @@ checked_main(int argc, char** argv)
 	{
 	  auto aa = ensure_digraph(a);
 	  tm.start("obligation minimization");
-	  auto minimized = minimize_obligation(aa,
-					       f, 0, reject_bigger);
+	  auto minimized = minimize_obligation(aa, f, nullptr, reject_bigger);
 	  tm.stop("obligation minimization");
 
 	  if (!minimized)
@@ -1318,7 +1317,7 @@ checked_main(int argc, char** argv)
                     }
                   tm.stop("producing output");
                 }
-              a = 0;
+              a = nullptr;
               output = -1;
             }
           if (tgta_opt)
@@ -1457,8 +1456,9 @@ checked_main(int argc, char** argv)
 		{
 		  std::cout << "this is not an obligation property";
 		  auto tmp = tba_determinize_check(ensure_digraph(a),
-						   0, opt_o_threshold, f, 0);
-		  if (tmp != 0 && tmp != a)
+						   0, opt_o_threshold,
+						   f, nullptr);
+		  if (tmp && tmp != a)
 		    std::cout << ", but it is a recurrence property";
 		}
 	      else

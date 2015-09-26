@@ -106,7 +106,7 @@ namespace spot
 
 	   bdd tgba_condition = bddtrue;
 	   bool is_initial_state = a->is_initial_state(src);
-	   if ((a->get_artificial_initial_state() == 0) && is_initial_state)
+	   if (!a->get_artificial_initial_state() && is_initial_state)
 	     tgba_condition = a->get_state_condition(src);
 	   bool is_accepting_state = a->is_accepting_state(src);
 	   bool is_livelock_accepting_state =
@@ -124,7 +124,7 @@ namespace spot
 	     {
 	       delete new_src;
 	     }
-	   else if (a->get_artificial_initial_state() != 0)
+	   else if (a->get_artificial_initial_state())
 	     {
 	       if (a->get_artificial_initial_state() == src)
 		 result->set_artificial_initial_state(new_src);
@@ -146,7 +146,7 @@ namespace spot
 
 	       bdd tgba_condition = bddtrue;
 	       is_initial_state = a->is_initial_state(dst);
-	       if ((a->get_artificial_initial_state() == 0) && is_initial_state)
+	       if (!a->get_artificial_initial_state() && is_initial_state)
 		 tgba_condition = a->get_state_condition(dst);
 	       bool is_accepting_state = a->is_accepting_state(dst);
 	       bool is_livelock_accepting_state =
@@ -165,7 +165,7 @@ namespace spot
 		 {
 		   delete new_dst;
 		 }
-	       else if (a->get_artificial_initial_state() != 0)
+	       else if (a->get_artificial_initial_state())
 		 {
 		   if (a->get_artificial_initial_state() == dst)
 		     result->set_artificial_initial_state(new_dst);
@@ -238,7 +238,7 @@ namespace spot
 	  const state* s = *it;
 	  if (s == artificial_initial_state)
 	    I->insert(s);
-	  else if (artificial_initial_state == 0 && ta_->is_initial_state(s))
+	  else if (!artificial_initial_state && ta_->is_initial_state(s))
 	    I->insert(s);
 	  else if (ta_->is_livelock_accepting_state(s)
 		   && ta_->is_accepting_state(s))
@@ -508,7 +508,7 @@ namespace spot
   {
 
     auto tgba = make_twa_graph(ta_->get_dict());
-    auto res = make_ta_explicit(tgba, ta_->acc().num_sets(), 0);
+    auto res = make_ta_explicit(tgba, ta_->acc().num_sets(), nullptr);
 
     partition_t partition = build_partition(ta_);
 
@@ -528,7 +528,7 @@ namespace spot
   {
 
     auto tgba = make_twa_graph(tgta_->get_dict());
-    auto res = make_tgta_explicit(tgba, tgta_->acc().num_sets(), 0);
+    auto res = make_tgta_explicit(tgba, tgta_->acc().num_sets(), nullptr);
 
     auto ta = tgta_->get_ta();
 

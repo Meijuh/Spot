@@ -58,7 +58,7 @@ namespace spot
   state_kripke::hash() const
   {
     return
-    reinterpret_cast<const char*>(this) - static_cast<const char*>(0);
+      reinterpret_cast<const char*>(this) - static_cast<const char*>(nullptr);
   }
 
   state_kripke*

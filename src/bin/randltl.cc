@@ -74,14 +74,14 @@ static const argp_option options[] =
   {
     // Keep this alphabetically sorted (expect for aliases).
     /**************************************************/
-    { 0, 0, 0, 0, "Type of formula to generate:", 1 },
-    { "boolean", 'B', 0, 0, "generate Boolean formulas", 0 },
-    { "ltl", 'L', 0, 0, "generate LTL formulas (default)", 0 },
-    { "sere", 'S', 0, 0, "generate SERE", 0 },
-    { "psl", 'P', 0, 0, "generate PSL formulas", 0 },
+    { nullptr, 0, nullptr, 0, "Type of formula to generate:", 1 },
+    { "boolean", 'B', nullptr, 0, "generate Boolean formulas", 0 },
+    { "ltl", 'L', nullptr, 0, "generate LTL formulas (default)", 0 },
+    { "sere", 'S', nullptr, 0, "generate SERE", 0 },
+    { "psl", 'P', nullptr, 0, "generate PSL formulas", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Generation:", 2 },
-    { "weak-fairness", OPT_WF, 0, 0,
+    { nullptr, 0, nullptr, 0, "Generation:", 2 },
+    { "weak-fairness", OPT_WF, nullptr, 0,
       "append some weak-fairness conditions", 0 },
     { "formulas", 'n', "INT", 0, "number of formulas to output (1)\n"\
       "use a negative value for unbounded generation", 0 },
@@ -90,14 +90,14 @@ static const argp_option options[] =
     { "tree-size", OPT_TREE_SIZE, "RANGE", 0,
       "tree size of the formulas generated, before mandatory "\
       "trivial simplifications (15)", 0 },
-    { "allow-dups", OPT_DUPS, 0, 0,
+    { "allow-dups", OPT_DUPS, nullptr, 0,
       "allow duplicate formulas to be output", 0 },
     DECLARE_OPT_R,
     RANGE_DOC,
     LEVEL_DOC(3),
     /**************************************************/
-    { 0, 0, 0, 0, "Adjusting probabilities:", 4 },
-    { "dump-priorities", OPT_DUMP_PRIORITIES, 0, 0,
+    { nullptr, 0, nullptr, 0, "Adjusting probabilities:", 4 },
+    { "dump-priorities", OPT_DUMP_PRIORITIES, nullptr, 0,
       "show current priorities, do not generate any formula", 0 },
     { "ltl-priorities", OPT_LTL_PRIORITIES, "STRING", 0,
       "set priorities for LTL formulas", 0 },
@@ -105,36 +105,36 @@ static const argp_option options[] =
       "set priorities for SERE formulas", 0 },
     { "boolean-priorities", OPT_BOOLEAN_PRIORITIES, "STRING", 0,
       "set priorities for Boolean formulas", 0 },
-    { 0, 0, 0, 0, "STRING should be a comma-separated list of "
+    { nullptr, 0, nullptr, 0, "STRING should be a comma-separated list of "
       "assignments, assigning integer priorities to the tokens "
       "listed by --dump-priorities.", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Output options:", -20 },
-    { 0, 0, 0, 0, "The FORMAT string passed to --format may use "\
+    { nullptr, 0, nullptr, 0, "Output options:", -20 },
+    { nullptr, 0, nullptr, 0, "The FORMAT string passed to --format may use "
       "the following interpreted sequences:", -19 },
-    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the formula (in the selected syntax)", 0 },
-    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%L", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the (serial) number of the formula", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 
 const struct argp_child children[] =
   {
-    { &output_argp, 0, 0, -20 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &output_argp, 0, nullptr, -20 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 spot::ltl::atomic_prop_set aprops;
 static int output = OUTPUTLTL;
-static char* opt_pL = 0;
-static char* opt_pS = 0;
-static char* opt_pB = 0;
+static char* opt_pL = nullptr;
+static char* opt_pS = nullptr;
+static char* opt_pB = nullptr;
 static bool opt_dump_priorities = false;
 static int opt_formulas = 1;
 static int opt_seed = 0;
@@ -227,9 +227,9 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "N|PROP...", argp_program_doc,
-		    children, 0, 0 };
+		    children, nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   // running 'randltl 0' is one way to generate formulas using no
@@ -300,7 +300,7 @@ main(int argc, char** argv)
 	    }
 	  else
 	    {
-	      output_formula_checked(f, 0, ++count);
+	      output_formula_checked(f, nullptr, ++count);
 	    }
 	};
     }

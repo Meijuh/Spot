@@ -20,11 +20,12 @@ AC_DEFUN([CF_GXX_WARNINGS],
   [
   cat > conftest.$ac_ext <<EOF
 #line __oline__ "configure"
-int main(int argc, char *argv[[]]) { return argv[[argc-1]] == 0; }
+int main(int argc, char *argv[[]]) { return argv[[argc-1]] == nullptr; }
 EOF
   cf_save_CXXFLAGS="$CXXFLAGS"
   ac_cv_prog_gxx_warn_flags="-W -Wall"
   for cf_opt in \
+   Wzero-as-null-pointer-constant \
    Wcast-align \
    Wpointer-arith \
    Wwrite-strings \

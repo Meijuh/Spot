@@ -51,43 +51,43 @@ static const char * argp_program_doc =
   "List formulas that are similar to but simpler than a given formula.";
 
 static const argp_option options[] = {
-  {0, 0, 0, 0, "Mutation rules (all enabled unless those options are used):",
-   15},
-  {"ap-to-const", OPT_AP2CONST, 0, 0,
+  {nullptr, 0, nullptr, 0,
+   "Mutation rules (all enabled unless those options are used):", 15},
+  {"ap-to-const", OPT_AP2CONST, nullptr, 0,
    "atomic propositions are replaced with true/false", 15},
-  {"remove-one-ap", OPT_REMOVE_ONE_AP, 0, 0,
+  {"remove-one-ap", OPT_REMOVE_ONE_AP, nullptr, 0,
    "all occurrences of an atomic proposition are replaced with another " \
    "atomic proposition used in the formula", 15},
-  {"remove-multop-operands", OPT_REMOVE_MULTOP_OPERANDS, 0, 0,
+  {"remove-multop-operands", OPT_REMOVE_MULTOP_OPERANDS, nullptr, 0,
    "remove one operand from multops", 15},
-  {"remove-ops", OPT_REMOVE_OPS, 0, 0,
+  {"remove-ops", OPT_REMOVE_OPS, nullptr, 0,
    "replace unary/binary operators with one of their operands",
    15},
-  {"split-ops", OPT_SPLIT_OPS, 0, 0,
+  {"split-ops", OPT_SPLIT_OPS, nullptr, 0,
    "when an operator can be expressed as a conjunction/disjunction using " \
    "simpler operators, each term of the conjunction/disjunction is a " \
    "mutation. e.g. a <-> b can be written as ((a & b) | (!a & !b)) or as " \
    "((a -> b) & (b -> a)) so those four terms can be a mutation of a <-> b", 0},
-  {"rewrite-ops", OPT_REWRITE_OPS, 0, 0,
+  {"rewrite-ops", OPT_REWRITE_OPS, nullptr, 0,
    "rewrite operators that have a semantically simpler form: a U b becomes " \
    "a W b, etc.", 0},
-  {"simplify-bounds", OPT_SIMPLIFY_BOUNDS, 0, 0,
+  {"simplify-bounds", OPT_SIMPLIFY_BOUNDS, nullptr, 0,
    "on a bounded unary operator, decrement one of the bounds, or set min to " \
    "0 or max to unbounded", 15},
-  {0, 0, 0, 0, "Output options:", 20},
+  {nullptr, 0, nullptr, 0, "Output options:", 20},
   {"max-count", 'n', "NUM", 0, "maximum number of mutations to output", 20},
   {"mutations", 'm', "NUM", 0, "number of mutations to apply to the " \
    "formulae (default: 1)", 0},
-  {"sort", OPT_SORT, 0, 0, "sort the result by formula size", 0},
-  {0, 0, 0, 0, "Miscellaneous options:", -1},
-  {0, 0, 0, 0, 0, 0}
+  {"sort", OPT_SORT, nullptr, 0, "sort the result by formula size", 0},
+  {nullptr, 0, nullptr, 0, "Miscellaneous options:", -1},
+  {nullptr, 0, nullptr, 0, nullptr, 0}
 };
 
 static const argp_child children[] = {
-  {&finput_argp, 0, 0, 10},
-  {&output_argp, 0, 0, 20},
-  {&misc_argp, 0, 0, -1},
-  {0, 0, 0, 0}
+  {&finput_argp, 0, nullptr, 10},
+  {&output_argp, 0, nullptr, 20},
+  {&misc_argp, 0, nullptr, -1},
+  {nullptr, 0, nullptr, 0}
 };
 
 namespace
@@ -96,7 +96,7 @@ namespace
   {
   public:
     int
-    process_formula(spot::ltl::formula f, const char *filename = 0,
+    process_formula(spot::ltl::formula f, const char* filename = nullptr,
 		    int linenum = 0)
     {
       auto mutations =
@@ -161,9 +161,10 @@ main(int argc, char* argv[])
 {
   setup(argv);
 
-  const argp ap = { options, parse_opt, 0, argp_program_doc, children, 0, 0 };
+  const argp ap = { options, parse_opt, nullptr, argp_program_doc, children,
+		    nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   mut_opts |= opt_all;

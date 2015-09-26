@@ -35,21 +35,23 @@ static bool lenient = false;
 
 static const argp_option options[] =
   {
-    { 0, 0, 0, 0, "Input options:", 1 },
+    { nullptr, 0, nullptr, 0, "Input options:", 1 },
     { "formula", 'f', "STRING", 0, "process the formula STRING", 0 },
     { "file", 'F', "FILENAME[/COL]", 0,
       "process each line of FILENAME as a formula; if COL is a "
       "positive integer, assume a CSV file and read column COL; use "
       "a negative COL to drop the first line of the CSV file", 0 },
-    { "lbt-input", OPT_LBT, 0, 0,
+    { "lbt-input", OPT_LBT, nullptr, 0,
       "read all formulas using LBT's prefix syntax", 0 },
-    { "lenient", OPT_LENIENT, 0, 0,
+    { "lenient", OPT_LENIENT, nullptr, 0,
       "parenthesized blocks that cannot be parsed as subformulas "
       "are considered as atomic properties", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
-const struct argp finput_argp = { options, parse_opt_finput, 0, 0, 0, 0, 0 };
+const struct argp finput_argp = { options, parse_opt_finput,
+				  nullptr, nullptr, nullptr,
+				  nullptr, nullptr };
 
 int
 parse_opt_finput(int key, char* arg, struct argp_state*)
@@ -86,8 +88,8 @@ parse_formula(const std::string& s, spot::ltl::parse_error_list& pel)
 }
 
 job_processor::job_processor()
-  : abort_run(false), real_filename(0),
-    col_to_read(0), prefix(0), suffix(0)
+  : abort_run(false), real_filename(nullptr),
+    col_to_read(0), prefix(nullptr), suffix(nullptr)
 {
 }
 
@@ -179,7 +181,7 @@ job_processor::process_stream(std::istream& is,
 	    const char* col1_start = str;
 	    // Delimiters for the extracted column.
 	    const char* coln_start = str;
-	    const char* coln_end = 0;
+	    const char* coln_end = nullptr;
 	    // The current column.  (1-based)
 	    int colnum = 1;
 	    // Whether we are parsing a double-quoted string.
@@ -250,8 +252,8 @@ job_processor::process_stream(std::istream& is,
 	    // %< and %> escapes (ignoring the trailing and leading
 	    // commas).
 	    prefix = (col_to_read != 1) ?
-	      strndup(col1_start, coln_start - col1_start - 1) : 0;
-	    suffix = (*coln_end != 0) ? strdup(coln_end + 1) : 0;
+	      strndup(col1_start, coln_start - col1_start - 1) : nullptr;
+	    suffix = (*coln_end != 0) ? strdup(coln_end + 1) : nullptr;
 	    std::string field(coln_start, coln_end);
 	    // Remove double-quotes if any.
 	    if (field.find('"') != std::string::npos)
@@ -275,12 +277,12 @@ job_processor::process_stream(std::istream& is,
 	    if (prefix)
 	      {
 		free(prefix);
-		prefix = 0;
+		prefix = nullptr;
 	      }
 	    if (suffix)
 	      {
 		free(suffix);
-		suffix = 0;
+		suffix = nullptr;
 	      }
 	  }
       }

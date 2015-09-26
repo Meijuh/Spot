@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -42,7 +42,7 @@ namespace spot
   public:
     ta_explicit(const const_twa_ptr& tgba,
 		unsigned n_acc,
-		state_ta_explicit* artificial_initial_state = 0);
+		state_ta_explicit* artificial_initial_state = nullptr);
 
     const_twa_ptr
     get_tgba() const;
@@ -145,8 +145,10 @@ namespace spot
     typedef std::list<transition*> transitions;
 
     state_ta_explicit(const state* tgba_state, const bdd tgba_condition,
-        bool is_initial_state = false, bool is_accepting_state = false,
-        bool is_livelock_accepting_state = false, transitions* trans = 0) :
+		      bool is_initial_state = false,
+		      bool is_accepting_state = false,
+		      bool is_livelock_accepting_state = false,
+		      transitions* trans = nullptr) :
       tgba_state_(tgba_state), tgba_condition_(tgba_condition),
           is_initial_state_(is_initial_state), is_accepting_state_(
               is_accepting_state), is_livelock_accepting_state_(
@@ -252,10 +254,10 @@ namespace spot
   typedef std::shared_ptr<ta_explicit> ta_explicit_ptr;
   typedef std::shared_ptr<const ta_explicit> const_ta_explicit_ptr;
 
-  inline ta_explicit_ptr make_ta_explicit(const const_twa_ptr& tgba,
-					  unsigned n_acc,
-					  state_ta_explicit*
-					  artificial_initial_state = 0)
+  inline ta_explicit_ptr
+  make_ta_explicit(const const_twa_ptr& tgba,
+		   unsigned n_acc,
+		   state_ta_explicit* artificial_initial_state = nullptr)
   {
     return std::make_shared<ta_explicit>(tgba, n_acc, artificial_initial_state);
   }

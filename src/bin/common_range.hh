@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2012, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -19,13 +19,15 @@
 
 #pragma once
 
-#define RANGE_DOC \
-    { 0, 0, 0, 0, "RANGE may have one of the following forms: 'INT', " \
+#define RANGE_DOC							\
+    { nullptr, 0, nullptr, 0,						\
+      "RANGE may have one of the following forms: 'INT', "		\
       "'INT..INT', or '..INT'.\nIn the latter case, the missing number " \
       "is assumed to be 1.", 0 }
 
-#define RANGE_DOC_FULL \
-    { 0, 0, 0, 0, "RANGE may have one of the following forms: 'INT', " \
+#define RANGE_DOC_FULL						\
+    { nullptr, 0, nullptr, 0,					\
+      "RANGE may have one of the following forms: 'INT', "	\
       "'INT..INT', '..INT', or 'INT..'", 0 }
 
 struct range

@@ -62,9 +62,9 @@ namespace spot
 {
   namespace
   {
-    static bdd_dict_ptr debug_dict = 0;
-    static const acc_cond* debug_ref_acc = 0;
-    static const acc_cond* debug_cand_acc = 0;
+    static bdd_dict_ptr debug_dict = nullptr;
+    static const acc_cond* debug_ref_acc = nullptr;
+    static const acc_cond* debug_cand_acc = nullptr;
 
     struct transition
     {

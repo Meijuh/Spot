@@ -39,10 +39,10 @@ namespace spot
 
   tgba_run::~tgba_run()
   {
-    for (steps::const_iterator i = prefix.begin(); i != prefix.end(); ++i)
-      i->s->destroy();
-    for (steps::const_iterator i = cycle.begin(); i != cycle.end(); ++i)
-      i->s->destroy();
+    for (auto i : prefix)
+      i.s->destroy();
+    for (auto i : cycle)
+      i.s->destroy();
   }
 
   tgba_run::tgba_run(const tgba_run& run)
@@ -246,7 +246,7 @@ namespace spot
 	if (!opt_end)
 	  {
 	    *err = opt_start;
-	    return 0;
+	    return nullptr;
 	  }
 	std::string opt(opt_start, opt_end);
 
@@ -254,7 +254,7 @@ namespace spot
 	if (res)
 	  {
 	    *err  = opt.c_str() - res + opt_start;
-	    return 0;
+	    return nullptr;
 	  }
       }
 
@@ -271,7 +271,7 @@ namespace spot
     for (unsigned i = 0; i < sizeof(ec_algos)/sizeof(*ec_algos); ++i, ++info)
       if (n == info->name)
 	{
-	  *err = 0;
+	  *err = nullptr;
 
 	  struct emptiness_check_instantiator_aux:
             public emptiness_check_instantiator

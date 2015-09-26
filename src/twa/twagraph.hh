@@ -201,7 +201,7 @@ namespace spot
       get_dict()->unregister_all_my_variables(this);
       // Prevent this state from being destroyed by ~twa(),
       // as the state will be destroyed when g_ is destroyed.
-      last_support_conditions_input_ = 0;
+      last_support_conditions_input_ = nullptr;
     }
 
 #ifndef SWIG

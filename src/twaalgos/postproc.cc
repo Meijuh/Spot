@@ -224,15 +224,15 @@ namespace spot
 
     bool dba_is_wdba = false;
     bool dba_is_minimal = false;
-    twa_graph_ptr dba = 0;
-    twa_graph_ptr sim = 0;
+    twa_graph_ptr dba = nullptr;
+    twa_graph_ptr sim = nullptr;
 
     // (Small,Low) is the only configuration where we do not run
     // WDBA-minimization.
     if ((PREF_ != Small || level_ != Low) && wdba_minimize_)
       {
 	bool reject_bigger = (PREF_ == Small) && (level_ == Medium);
-	dba = minimize_obligation(a, f, 0, reject_bigger);
+	dba = minimize_obligation(a, f, nullptr, reject_bigger);
 	if (dba && dba->is_inherently_weak() && dba->is_deterministic())
 	  {
 	    // The WDBA is a BA, so no degeneralization is required.
@@ -362,7 +362,7 @@ namespace spot
 	  // is at least 1.
 	  target_acc = original_acc > 0 ? original_acc : 1;
 
-	const_twa_graph_ptr in = 0;
+	const_twa_graph_ptr in = nullptr;
 	if (target_acc == 1)
 	  {
 	    // If we are seeking a minimal DBA with unknown number of

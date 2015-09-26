@@ -273,8 +273,8 @@ namespace spot
       char* key = strtok(options, "=\t, :;");
       while (key)
 	{
-	  char* value = strtok(0, "=\t, :;");
-	  if (value == 0)
+	  char* value = strtok(nullptr, "=\t, :;");
+	  if (!value)
 	    return key;
 
 	  char* endptr;
@@ -296,10 +296,10 @@ namespace spot
 	  if (i == proba_size_)
 	    return key;
 
-	  key = strtok(0, "=\t, :;");
+	  key = strtok(nullptr, "=\t, :;");
 	}
       update_sums();
-      return 0;
+      return nullptr;
     }
 
     std::ostream&
@@ -418,9 +418,9 @@ namespace spot
       opt_wf_ = opts.get("wf", false);
       opt_simpl_level_ = opts.get("simplification_level", 3);
 
-      const char* tok_pL = 0;
-      const char* tok_pS = 0;
-      const char* tok_pB = 0;
+      const char* tok_pL = nullptr;
+      const char* tok_pS = nullptr;
+      const char* tok_pB = nullptr;
 
       switch (output_)
         {

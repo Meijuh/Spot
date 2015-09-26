@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2010, 2011, 2012, 2013, 2014 Laboratoire de Recherche
-// et Développement de l'Epita (LRDE).
+// Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Laboratoire de
+// Recherche et Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -66,10 +66,9 @@ namespace spot
   typedef std::shared_ptr<tgta_explicit> tgta_explicit_ptr;
   typedef std::shared_ptr<const tgta_explicit> const_tgta_explicit_ptr;
 
-  inline tgta_explicit_ptr make_tgta_explicit(const const_twa_ptr& tgba,
-					      unsigned n_acc,
-					      state_ta_explicit*
-					      artificial_initial_state = 0)
+  inline tgta_explicit_ptr
+  make_tgta_explicit(const const_twa_ptr& tgba, unsigned n_acc,
+		     state_ta_explicit* artificial_initial_state = nullptr)
   {
     return std::make_shared<tgta_explicit>(tgba, n_acc,
 					   artificial_initial_state);

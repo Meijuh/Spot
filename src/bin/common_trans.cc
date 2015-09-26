@@ -361,12 +361,12 @@ setup_sig_handler()
   sa.sa_handler = sig_handler;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = SA_RESTART; // So that wait() doesn't get aborted by SIGALRM.
-  sigaction(SIGALRM, &sa, 0);
+  sigaction(SIGALRM, &sa, nullptr);
   // Catch termination signals, so we can kill the subprocess.
-  sigaction(SIGHUP, &sa, 0);
-  sigaction(SIGINT, &sa, 0);
-  sigaction(SIGQUIT, &sa, 0);
-  sigaction(SIGTERM, &sa, 0);
+  sigaction(SIGHUP, &sa, nullptr);
+  sigaction(SIGINT, &sa, nullptr);
+  sigaction(SIGQUIT, &sa, nullptr);
+  sigaction(SIGTERM, &sa, nullptr);
 }
 
 int
@@ -383,7 +383,7 @@ exec_with_timeout(const char* cmd)
   if (child_pid == 0)
     {
       setpgid(0, 0);
-      execlp("sh", "sh", "-c", cmd, (char*)0);
+      execlp("sh", "sh", "-c", cmd, nullptr);
       error(2, errno, "failed to run 'sh'");
       // never reached
       return -1;
@@ -412,33 +412,33 @@ enum {
 static const argp_option options[] =
 {
     /**************************************************/
-    { 0, 0, 0, 0, "Specifying translators to call:", 2 },
+    { nullptr, 0, nullptr, 0, "Specifying translators to call:", 2 },
     { "translator", 't', "COMMANDFMT", 0,
       "register one translator to call", 0 },
     { "timeout", 'T', "NUMBER", 0, "kill translators after NUMBER seconds", 0 },
-    { "list-shorthands", OPT_LIST, 0 , 0,
+    { "list-shorthands", OPT_LIST, nullptr, 0,
       "list availabled shorthands to use in COMMANDFMT", 0},
     /**************************************************/
-    { 0, 0, 0, 0,
+    { nullptr, 0, nullptr, 0,
       "COMMANDFMT should specify input and output arguments using the "
       "following character sequences:", 3 },
-    { "%f,%s,%l,%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%f,%s,%l,%w", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the formula as a (quoted) string in Spot, Spin, LBT, or Wring's syntax",
       0 },
-    { "%F,%S,%L,%W", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%F,%S,%L,%W", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the formula as a file in Spot, Spin, LBT, or Wring's syntax", 0 },
-    { "%O", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%O", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the automaton is output in HOA, never claim, LBTT, or ltl2dstar's "
       "format", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
-    { 0, 0, 0, 0,
+    { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
+    { nullptr, 0, nullptr, 0,
       "If either %l, %L, or %T are used, any input formula that does "
       "not use LBT-style atomic propositions (i.e. p0, p1, ...) will be "
       "relabeled automatically.\n"
       "Furthermore, if COMMANDFMT has the form \"{NAME}CMD\", then only CMD "
       "will be passed to the shell, and NAME will be used to name the tool "
       "in the output.", 4 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
 };
 
 static int parse_opt_trans(int key, char* arg, struct argp_state*)
@@ -464,4 +464,5 @@ static int parse_opt_trans(int key, char* arg, struct argp_state*)
   return 0;
 }
 
-const struct argp trans_argp = { options, parse_opt_trans, 0, 0, 0, 0, 0 };
+const struct argp trans_argp = { options, parse_opt_trans, nullptr, nullptr,
+				 nullptr, nullptr, nullptr };

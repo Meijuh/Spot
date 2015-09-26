@@ -49,20 +49,20 @@ of input and output as required.";
 
 static const argp_option options[] =
   {
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 
 static const argp_option more_o_format[] =
   {
-    { "%R", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%R", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "serial number of the formula translated", 0 },
-    { "%T", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%T", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "tool used for translation", 0 },
-    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "formula translated", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 // This is not very elegant, but we need to add the above %-escape
@@ -87,18 +87,18 @@ build_percent_list()
   memcpy(d + count, more_o_format, sizeof(more_o_format));
 
   static const struct argp more_o_format_argp =
-    { d, 0, 0, 0, 0, 0, 0 };
+    { d, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
   return &more_o_format_argp;
 }
 
 const struct argp_child children[] =
   {
-    { &finput_argp, 0, 0, 1 },
-    { &trans_argp, 0, 0, 3 },
-    { &aoutput_argp, 0, 0, 4 },
-    { build_percent_list(), 0, 0, 5 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &finput_argp, 0, nullptr, 1 },
+    { &trans_argp, 0, nullptr, 3 },
+    { &aoutput_argp, 0, nullptr, 4 },
+    { build_percent_list(), 0, nullptr, 5 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 static int
@@ -256,7 +256,7 @@ namespace
 
     int
     process_formula(spot::ltl::formula f,
-		    const char* filename = 0, int linenum = 0)
+		    const char* filename = nullptr, int linenum = 0)
     {
       std::unique_ptr<spot::ltl::relabeling_map> relmap;
 
@@ -306,13 +306,13 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[COMMANDFMT...]",
-		    argp_program_doc, children, 0, 0 };
+		    argp_program_doc, children, nullptr, nullptr };
 
   // Disable post-processing as much as possible by default.
   level = spot::postprocessor::Low;
   pref = spot::postprocessor::Any;
   type = spot::postprocessor::Generic;
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   if (jobs.empty())

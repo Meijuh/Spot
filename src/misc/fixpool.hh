@@ -33,7 +33,8 @@ namespace spot
   public:
     /// Create a pool allocating objects of \a size bytes.
     fixed_size_pool(size_t size)
-      : freelist_(0), free_start_(0), free_end_(0), chunklist_(0)
+      : freelist_(nullptr), free_start_(nullptr),
+	free_end_(nullptr), chunklist_(nullptr)
     {
       const size_t alignement = 2 * sizeof(size_t);
       size_ = ((size >= sizeof(block_) ? size : sizeof(block_))

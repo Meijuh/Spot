@@ -31,7 +31,7 @@ namespace spot
   twa::twa(const bdd_dict_ptr& d)
     : iter_cache_(nullptr),
       dict_(d),
-      last_support_conditions_input_(0)
+      last_support_conditions_input_(nullptr)
   {
     props = 0U;
     bddaps_ = bddtrue;
@@ -65,7 +65,7 @@ namespace spot
   {
     if (t.get() == this)
       return s->clone();
-    return 0;
+    return nullptr;
   }
 
   std::string

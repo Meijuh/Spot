@@ -119,7 +119,7 @@ namespace spot
 	if (!(left_->first() && right_->first()))
 	  {
 	    delete right_;
-	    right_ = 0;
+	    right_ = nullptr;
 	    return false;
 	  }
 	return next_non_false_();
@@ -326,7 +326,7 @@ namespace spot
     if (last_support_conditions_input_)
       {
 	last_support_conditions_input_->destroy();
-	last_support_conditions_input_ = 0;
+	last_support_conditions_input_ = nullptr;
       }
   }
 

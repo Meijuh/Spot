@@ -761,7 +761,7 @@ namespace spot
   twa_graph_ptr
   iterated_simulations_(const const_twa_graph_ptr& t)
   {
-    twa_graph_ptr res = 0;
+    twa_graph_ptr res = nullptr;
     automaton_size prev;
     automaton_size next;
 

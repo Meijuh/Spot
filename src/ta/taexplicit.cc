@@ -117,26 +117,21 @@ namespace spot
         transitions_by_condition.find(condition.id());
 
     if (i == transitions_by_condition.end())
-      {
-        return 0;
-      }
+      return nullptr;
     else
-      {
-        return i->second;
-      }
-
+      return i->second;
   }
 
   void
   state_ta_explicit::add_transition(state_ta_explicit::transition* t,
       bool add_at_beginning)
   {
-    if (transitions_ == 0)
+    if (!transitions_)
       transitions_ = new transitions;
 
     transitions* trans_by_condition = get_transitions(t->condition);
 
-    if (trans_by_condition == 0)
+    if (!trans_by_condition)
       {
         trans_by_condition = new transitions;
         transitions_by_condition[(t->condition).id()] = trans_by_condition;
@@ -229,7 +224,7 @@ namespace spot
   state_ta_explicit::is_hole_state() const
   {
     state_ta_explicit::transitions* trans = get_transitions();
-    return trans == 0 || trans->empty();
+    return !trans || trans->empty();
   }
 
   int
@@ -240,7 +235,7 @@ namespace spot
 
     int compare_value = tgba_state_->compare(o->tgba_state_);
 
-    if (compare_value != 0)
+    if (compare_value)
       return compare_value;
 
     compare_value = tgba_condition_.id() - o->tgba_condition_.id();
@@ -275,7 +270,7 @@ namespace spot
     state_ta_explicit::transitions* trans = get_transitions();
     state_ta_explicit::transitions::iterator it_trans;
 
-    if (trans != 0)
+    if (trans)
       for (it_trans = trans->begin(); it_trans != trans->end();)
         {
           state_ta_explicit* dest = (*it_trans)->dest;
@@ -301,7 +296,7 @@ namespace spot
           //remove hole successors states
           state_ta_explicit::transitions* dest_trans =
               (dest)->get_transitions();
-          bool dest_trans_empty = dest_trans == 0 || dest_trans->empty();
+          bool dest_trans_empty = !dest_trans || dest_trans->empty();
           if (is_stuttering_transition || (dest_trans_empty
               && (!dest_is_livelock_accepting)))
             {
@@ -324,7 +319,7 @@ namespace spot
     state_ta_explicit::transitions::iterator it_trans;
     // We don't destroy the transitions in the state's destructor because
     // they are not cloned.
-    if (trans != 0)
+    if (trans)
       for (it_trans = trans->begin(); it_trans != trans->end(); ++it_trans)
         {
           delete *it_trans;
@@ -339,7 +334,7 @@ namespace spot
         ++i;
       }
 
-    transitions_ = 0;
+    transitions_ = nullptr;
   }
 
   ////////////////////////////////////////
@@ -356,7 +351,7 @@ namespace spot
     get_dict()->register_all_variables_of(&tgba_, this);
     acc().add_sets(n_acc);
     acc().set_generalized_buchi();
-    if (artificial_initial_state != 0)
+    if (artificial_initial_state)
       {
         state_ta_explicit* is = add_state(artificial_initial_state);
         assert(is == artificial_initial_state);
@@ -396,7 +391,7 @@ namespace spot
       condition = get_state_condition(s);
     std::pair<ta::states_set_t::iterator, bool> add_state =
         initial_states_set_.insert(s);
-    if (get_artificial_initial_state() != 0)
+    if (get_artificial_initial_state())
       if (add_state.second)
 	{
 	  state_ta_explicit* i =
@@ -524,7 +519,7 @@ namespace spot
         state_ta_explicit::transitions* trans = source->get_transitions();
         state_ta_explicit::transitions::iterator it_trans;
 
-        if (trans != 0)
+        if (trans)
           for (it_trans = trans->begin(); it_trans != trans->end();)
             {
               if (source->get_tgba_condition()

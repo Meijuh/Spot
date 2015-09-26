@@ -122,7 +122,7 @@ namespace spot
     int fd = create_temporary_file(prefix, suffix, &name);
     if (close(fd))
       throw std::runtime_error(std::string("failed to close ") + name);
-    temporary_file::cleanpos_t cp = to_clean.insert(to_clean.end(), 0);
+    auto cp = to_clean.insert(to_clean.end(), nullptr);
     *cp = new temporary_file(name, cp);
     return *cp;
   }
@@ -133,7 +133,7 @@ namespace spot
   {
     char* name;
     int fd = create_temporary_file(prefix, suffix, &name);
-    open_temporary_file::cleanpos_t cp = to_clean.insert(to_clean.end(), 0);
+    auto cp = to_clean.insert(to_clean.end(), nullptr);
     open_temporary_file* otf = new open_temporary_file(name, cp, fd);
     *cp = otf;
     return otf;

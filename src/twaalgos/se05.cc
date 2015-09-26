@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2013, 2014 Laboratoire de Recherche et
+// Copyright (C) 2011, 2013, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005  Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
@@ -111,7 +111,7 @@ namespace spot
               if (dfs_blue())
                 return std::make_shared<se05_result>(t, options());
           }
-        return 0;
+        return nullptr;
       }
 
       virtual std::ostream& print_stats(std::ostream &os) const
@@ -449,11 +449,11 @@ namespace spot
       {
       public:
         color_ref(hash_type* h, hcyan_type* hc, const state* s)
-          : is_cyan(true), ph(h), phc(hc), ps(s), pc(0)
+          : is_cyan(true), ph(h), phc(hc), ps(s), pc(nullptr)
           {
           }
         color_ref(color* c)
-          : is_cyan(false), ph(0), phc(0), ps(0), pc(c)
+          : is_cyan(false), ph(nullptr), phc(nullptr), ps(nullptr), pc(c)
           {
           }
         color get_color() const
@@ -480,7 +480,7 @@ namespace spot
           }
         bool is_white() const
           {
-            return !is_cyan && pc == 0;
+            return !is_cyan && !pc;
           }
       private:
         bool is_cyan;
@@ -519,7 +519,7 @@ namespace spot
             {
               hash_type::iterator it = h.find(s);
               if (it == h.end())
-                return color_ref(0); // white state
+                return color_ref(nullptr); // white state
               if (s != it->first)
                 {
                   s->destroy();
@@ -588,7 +588,7 @@ namespace spot
           {
           }
         color_ref(unsigned char *base, unsigned char offset)
-          : is_cyan(false), phc(0), ps(0), b(base), o(offset*2)
+          : is_cyan(false), phc(nullptr), ps(nullptr), b(base), o(offset*2)
           {
           }
         color get_color() const

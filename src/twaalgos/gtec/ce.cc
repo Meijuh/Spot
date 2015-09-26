@@ -192,10 +192,10 @@ namespace spot
 	    s->destroy();
 	    // Ignore unknown states.
 	    if (i == ecs->h.end())
-	      return 0;
+	      return nullptr;
 	    // Stay in the final SCC.
 	    if (i->second < scc_root)
-	      return 0;
+	      return nullptr;
 	    r->inc_ars_cycle_states();
 	    return i->first;
 	  }

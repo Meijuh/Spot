@@ -49,7 +49,7 @@ namespace spot
       // WARNING: We need a default constructor so this can be used in
       // a hash; but we should ensure that no object in the hash is
       // constructed with p==0.
-      anon_free_list(bdd_dict_priv* p = 0)
+      anon_free_list(bdd_dict_priv* p = nullptr)
 	: priv_(p)
       {
       }
@@ -73,7 +73,7 @@ namespace spot
 
     bdd_dict_priv()
     {
-      free_anonymous_list_of[0] = anon_free_list(this);
+      free_anonymous_list_of[nullptr] = anon_free_list(this);
     }
 
     /// List of unused anonymous variable number for each automaton.
@@ -202,7 +202,7 @@ namespace spot
       {
 	i = (priv_->free_anonymous_list_of.insert
 	     (fal::value_type(for_me,
-			      priv_->free_anonymous_list_of[0]))).first;
+			      priv_->free_anonymous_list_of[nullptr]))).first;
       }
     int res = i->second.register_n(n);
 

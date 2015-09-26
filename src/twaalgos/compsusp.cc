@@ -177,7 +177,7 @@ namespace spot
       pair_map seen;
       pair_queue todo;
 
-      state_pair p(left->get_init_state(), 0);
+      state_pair p(left->get_init_state(), nullptr);
       state* ris = right->get_init_state();
       p.second = ris;
       unsigned i = res->new_state();
@@ -198,7 +198,7 @@ namespace spot
 	      state_pair d(li->current_state(), ris);
 	      bdd lc = li->current_condition();
 
-	      twa_succ_iterator* ri = 0;
+	      twa_succ_iterator* ri = nullptr;
 	      // Should we reset the right automaton?
 	      if ((lc & v) == lc)
 		{
@@ -278,12 +278,14 @@ namespace spot
 
     // Translate the patched formula, and remove useless SCCs.
     twa_graph_ptr res =
-      scc_filter(ltl_to_tgba_fm(g, dict, true, true, false, false, 0, 0),
+      scc_filter(ltl_to_tgba_fm(g, dict, true, true, false, false,
+				nullptr, nullptr),
 		 false);
 
     if (!no_wdba)
       {
-	twa_graph_ptr min = minimize_obligation(res, g, 0, wdba_smaller);
+	twa_graph_ptr min = minimize_obligation(res, g,
+						nullptr, wdba_smaller);
 	if (min != res)
 	  {
 	    res = min;

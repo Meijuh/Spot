@@ -38,7 +38,7 @@ namespace spot
     /// between the new names (keys) and the old names (values).
     SPOT_API
     formula relabel(formula f, relabeling_style style,
-		    relabeling_map* m = 0);
+		    relabeling_map* m = nullptr);
 
 
     /// \ingroup ltl_rewriting
@@ -49,6 +49,6 @@ namespace spot
     /// between the new names (keys) and the old names (values).
     SPOT_API
     formula relabel_bse(formula f, relabeling_style style,
-			relabeling_map* m = 0);
+			relabeling_map* m = nullptr);
   }
 }

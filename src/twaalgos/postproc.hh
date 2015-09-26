@@ -62,7 +62,7 @@ namespace spot
     ///
     /// The \a opt argument can be used to pass extra fine-tuning
     /// options used for debugging or benchmarking.
-    postprocessor(const option_map* opt = 0);
+    postprocessor(const option_map* opt = nullptr);
 
     enum output_type { TGBA, BA, Monitor, Generic };
     void

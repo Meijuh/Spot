@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2012 Laboratoire de Recherche et Développement de
-// l'Epita (LRDE).
+// Copyright (C) 2012, 2015 Laboratoire de Recherche et Développement
+// de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
 //
@@ -29,15 +29,16 @@
       "simplify formulas according to LEVEL (see below); LEVEL is "	\
       "set to 3 if omitted", 0 }
 
-#define LEVEL_DOC(g)							\
-    { 0, 0, 0, 0, "The simplification LEVEL may be set as follows.", g }, \
-    { "  0", 0, 0, OPTION_DOC | OPTION_NO_USAGE,			\
-      "No rewriting", 0 },						\
-    { "  1", 0, 0, OPTION_DOC | OPTION_NO_USAGE,			\
-      "basic rewritings and eventual/universal rules", 0 },		\
-    { "  2", 0, 0, OPTION_DOC | OPTION_NO_USAGE,			\
-      "additional syntactic implication rules", 0 },			\
-    { "  3", 0, 0, OPTION_DOC | OPTION_NO_USAGE,			\
+#define LEVEL_DOC(g)						\
+    { nullptr, 0, nullptr, 0,					\
+      "The simplification LEVEL may be set as follows.", g },	\
+    { "  0", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,		\
+      "No rewriting", 0 },					\
+    { "  1", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,		\
+      "basic rewritings and eventual/universal rules", 0 },	\
+    { "  2", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,		\
+      "additional syntactic implication rules", 0 },		\
+    { "  3", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,		\
       "better implications using containment", 0 }
 
 extern int simplification_level;

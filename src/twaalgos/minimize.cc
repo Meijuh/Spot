@@ -194,7 +194,7 @@ namespace spot
 	s = seen(s);
 	if (sm.scc_of(std::static_pointer_cast<const twa_graph>(a_)
 		      ->state_number(s)) != scc_n)
-	  return 0;
+	  return nullptr;
 	return s;
       }
 

@@ -104,29 +104,30 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Input:", 1 },
+    { nullptr, 0, nullptr, 0, "Input:", 1 },
     { "file", 'F', "FILENAME", 0,
       "process the automaton in FILENAME", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Output automaton type:", 2 },
-    { "generic", OPT_GENERIC, 0, 0,
+    { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
+    { "generic", OPT_GENERIC, nullptr, 0,
       "Any acceptance is allowed (default)", 0 },
-    { "tgba", OPT_TGBA, 0, 0,
+    { "tgba", OPT_TGBA, nullptr, 0,
       "Transition-based Generalized Büchi Automaton", 0 },
-    { "ba", 'B', 0, 0, "Büchi Automaton (with state-based acceptance)", 0 },
-    { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
+    { "ba", 'B', nullptr, 0,
+      "Büchi Automaton (with state-based acceptance)", 0 },
+    { "monitor", 'M', nullptr, 0, "Monitor (accepts all finite prefixes "
       "of the given property)", 0 },
     /**************************************************/
-    { "count", 'c', 0, 0, "print only a count of matched automata", 3 },
+    { "count", 'c', nullptr, 0, "print only a count of matched automata", 3 },
     { "max-count", 'n', "NUM", 0, "output at most NUM automata", 3 },
     /**************************************************/
-    { 0, 0, 0, 0, "Transformations:", 5 },
-    { "merge-transitions", OPT_MERGE, 0, 0,
+    { nullptr, 0, nullptr, 0, "Transformations:", 5 },
+    { "merge-transitions", OPT_MERGE, nullptr, 0,
       "merge transitions with same destination and acceptance", 0 },
     { "product", OPT_PRODUCT_AND, "FILENAME", 0,
       "build the product with the automaton in FILENAME "
       "to intersect languages", 0 },
-    { "product-and", 0, 0, OPTION_ALIAS, 0, 0 },
+    { "product-and", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     { "product-or", OPT_PRODUCT_OR, "FILENAME", 0,
       "build the product with the automaton in FILENAME "
       "to sum languages", 0 },
@@ -135,23 +136,23 @@ static const argp_option options[] =
       "randomize only states or transitions)", 0 },
     { "instut", OPT_INSTUT, "1|2", OPTION_ARG_OPTIONAL,
       "allow more stuttering (two possible algorithms)", 0 },
-    { "destut", OPT_DESTUT, 0, 0, "allow less stuttering", 0 },
+    { "destut", OPT_DESTUT, nullptr, 0, "allow less stuttering", 0 },
     { "mask-acc", OPT_MASK_ACC, "NUM[,NUM...]", 0,
       "remove all transitions in specified acceptance sets", 0 },
-    { "strip-acceptance", OPT_STRIPACC, 0, 0,
+    { "strip-acceptance", OPT_STRIPACC, nullptr, 0,
       "remove the acceptance condition and all acceptance sets", 0 },
     { "keep-states", OPT_KEEP_STATES, "NUM[,NUM...]", 0,
       "only keep specified states.  The first state will be the new "\
       "initial state.  Implies --remove-unreachable-states.", 0 },
-    { "dnf-acceptance", OPT_DNF_ACC, 0, 0,
+    { "dnf-acceptance", OPT_DNF_ACC, nullptr, 0,
       "put the acceptance condition in Disjunctive Normal Form", 0 },
-    { "cnf-acceptance", OPT_CNF_ACC, 0, 0,
+    { "cnf-acceptance", OPT_CNF_ACC, nullptr, 0,
       "put the acceptance condition in Conjunctive Normal Form", 0 },
-    { "remove-fin", OPT_REM_FIN, 0, 0,
+    { "remove-fin", OPT_REM_FIN, nullptr, 0,
       "rewrite the automaton without using Fin acceptance", 0 },
-    { "cleanup-acceptance", OPT_CLEAN_ACC, 0, 0,
+    { "cleanup-acceptance", OPT_CLEAN_ACC, nullptr, 0,
       "remove unused acceptance sets from the automaton", 0 },
-    { "complement-acceptance", OPT_COMPLEMENT_ACC, 0, 0,
+    { "complement-acceptance", OPT_COMPLEMENT_ACC, nullptr, 0,
       "complement the acceptance condition (without touching the automaton)",
       0 },
     { "exclusive-ap", OPT_EXCLUSIVE_AP, "AP,AP,...", 0,
@@ -159,44 +160,44 @@ static const argp_option options[] =
       "ensure two of them may not be true at the same time.  Use this option "
       "multiple times to declare independent groups of exclusive "
       "propositions.", 0 },
-    { "simplify-exclusive-ap", OPT_SIMPLIFY_EXCLUSIVE_AP, 0, 0,
+    { "simplify-exclusive-ap", OPT_SIMPLIFY_EXCLUSIVE_AP, nullptr, 0,
       "if --exclusive-ap is used, assume those AP groups are actually exclusive"
       " in the system to simplify the expression of transition labels (implies "
       "--merge-transitions)", 0 },
     { "remove-ap", OPT_REM_AP, "AP[=0|=1][,AP...]", 0,
       "remove atomic propositions either by existential quantification, or "
       "by assigning them 0 or 1", 0 },
-    { "remove-unreachable-states", OPT_REM_UNREACH, 0, 0,
+    { "remove-unreachable-states", OPT_REM_UNREACH, nullptr, 0,
       "remove states that are unreachable from the initial state", 0 },
-    { "remove-dead-states", OPT_REM_DEAD, 0, 0,
+    { "remove-dead-states", OPT_REM_DEAD, nullptr, 0,
       "remove states that are unreachable, or that cannot belong to an "
       "infinite path", 0 },
-    { "separate-sets", OPT_SEP_SETS, 0, 0,
+    { "separate-sets", OPT_SEP_SETS, nullptr, 0,
       "if both Inf(x) and Fin(x) appear in the acceptance condition, replace "
       "Fin(x) by a new Fin(y) and adjust the automaton", 0 },
     { "sat-minimize", OPT_SAT_MINIMIZE, "options", OPTION_ARG_OPTIONAL,
       "minimize the automaton using a SAT solver (only work for deterministic"
       " automata)", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Filtering options:", 6 },
+    { nullptr, 0, nullptr, 0, "Filtering options:", 6 },
     { "are-isomorphic", OPT_ARE_ISOMORPHIC, "FILENAME", 0,
       "keep automata that are isomorphic to the automaton in FILENAME", 0 },
-    { "isomorphic", 0, 0, OPTION_ALIAS | OPTION_HIDDEN, 0, 0 },
-    { "unique", 'u', 0, 0,
+    { "isomorphic", 0, nullptr, OPTION_ALIAS | OPTION_HIDDEN, nullptr, 0 },
+    { "unique", 'u', nullptr, 0,
       "do not output the same automaton twice (same in the sense that they "\
       "are isomorphic)", 0 },
-    { "is-complete", OPT_IS_COMPLETE, 0, 0,
+    { "is-complete", OPT_IS_COMPLETE, nullptr, 0,
       "keep complete automata", 0 },
-    { "is-deterministic", OPT_IS_DETERMINISTIC, 0, 0,
+    { "is-deterministic", OPT_IS_DETERMINISTIC, nullptr, 0,
       "keep deterministic automata", 0 },
-    { "is-empty", OPT_IS_EMPTY, 0, 0,
+    { "is-empty", OPT_IS_EMPTY, nullptr, 0,
       "keep automata with an empty language", 0 },
-    { "is-unambiguous", OPT_IS_UNAMBIGUOUS, 0, 0,
+    { "is-unambiguous", OPT_IS_UNAMBIGUOUS, nullptr, 0,
       "keep only unambiguous automata", 0 },
     { "intersect", OPT_INTERSECT, "FILENAME", 0,
       "keep automata whose languages have an non-empty intersection with"
       " the automaton from FILENAME", 0 },
-    { "invert-match", 'v', 0, 0, "select non-matching automata", 0 },
+    { "invert-match", 'v', nullptr, 0, "select non-matching automata", 0 },
     { "states", OPT_STATES, "RANGE", 0,
       "keep automata whose number of states are in RANGE", 0 },
     { "edges", OPT_EDGES, "RANGE", 0,
@@ -205,21 +206,21 @@ static const argp_option options[] =
       "keep automata whose number of acceptance sets are in RANGE", 0 },
     RANGE_DOC_FULL,
     /**************************************************/
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
     { "seed", OPT_SEED, "INT", 0,
       "seed for the random number generator (0)", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 static const struct argp_child children[] =
   {
-    { &aoutput_argp, 0, 0, 0 },
-    { &aoutput_io_format_argp, 0, 0, 4 },
-    { &post_argp_disabled, 0, 0, 20 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &aoutput_argp, 0, nullptr, 0 },
+    { &aoutput_io_format_argp, 0, nullptr, 4 },
+    { &post_argp_disabled, 0, nullptr, 20 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 typedef spot::twa_graph::graph_t::edge_storage_t tr_t;
@@ -677,7 +678,7 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FILENAMES...]",
-		    argp_program_doc, children, 0, 0 };
+		    argp_program_doc, children, nullptr, nullptr };
 
   try
     {
@@ -690,7 +691,7 @@ main(int argc, char** argv)
       level = spot::postprocessor::Low;
       pref = spot::postprocessor::Any;
       type = spot::postprocessor::Generic;
-      if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+      if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
 	exit(err);
 
       if (jobs.empty())

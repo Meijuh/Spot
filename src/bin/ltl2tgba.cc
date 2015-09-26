@@ -54,32 +54,33 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Output automaton type:", 2 },
-    { "tgba", OPT_TGBA, 0, 0,
+    { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
+    { "tgba", OPT_TGBA, nullptr, 0,
       "Transition-based Generalized Büchi Automaton (default)", 0 },
-    { "ba", 'B', 0, 0, "Büchi Automaton (with state-based acceptance)", 0 },
-    { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
+    { "ba", 'B', nullptr, 0,
+      "Büchi Automaton (with state-based acceptance)", 0 },
+    { "monitor", 'M', nullptr, 0, "Monitor (accepts all finite prefixes "
       "of the given formula)", 0 },
     /**************************************************/
-    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the formula, in Spot's syntax", 4 },
     /**************************************************/
-    { "unambiguous", 'U', 0, 0, "output unambiguous automata "
+    { "unambiguous", 'U', nullptr, 0, "output unambiguous automata "
       "(combine with other intents)", 20 },
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 const struct argp_child children[] =
   {
-    { &finput_argp, 0, 0, 1 },
-    { &aoutput_argp, 0, 0, 0 },
-    { &aoutput_o_format_argp, 0, 0, 0 },
-    { &post_argp, 0, 0, 0 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &finput_argp, 0, nullptr, 1 },
+    { &aoutput_argp, 0, nullptr, 0 },
+    { &aoutput_o_format_argp, 0, nullptr, 0 },
+    { &post_argp, 0, nullptr, 0 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 static spot::option_map extra_options;
@@ -139,7 +140,7 @@ namespace
 
     int
     process_formula(spot::ltl::formula f,
-		    const char* filename = 0, int linenum = 0)
+		    const char* filename = nullptr, int linenum = 0)
     {
       // This should not happen, because the parser we use can only
       // read PSL/LTL formula, but since our ltl::formula type can
@@ -173,11 +174,11 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FORMULA...]",
-		    argp_program_doc, children, 0, 0 };
+		    argp_program_doc, children, nullptr, nullptr };
 
   simplification_level = 3;
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   if (jobs.empty())

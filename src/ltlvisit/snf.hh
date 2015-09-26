@@ -49,10 +49,10 @@ namespace spot
     /// \param sere the SERE to rewrite
     /// \param cache an optional cache
     SPOT_API formula
-    star_normal_form(formula sere, snf_cache* cache = 0);
+    star_normal_form(formula sere, snf_cache* cache = nullptr);
 
     /// A variant of star_normal_form() for r[*0..j] where j < ω.
     SPOT_API formula
-    star_normal_form_bounded(formula sere, snf_cache* cache = 0);
+    star_normal_form_bounded(formula sere, snf_cache* cache = nullptr);
   }
 }

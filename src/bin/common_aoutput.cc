@@ -55,7 +55,7 @@ static char const *const check_args[] =
     "stutter-insensitive", "stuttering-insensitive",
     "stutter-sensitive", "stuttering-sensitive",
     "all",
-    0
+    nullptr
   };
 static check_type const check_types[] =
   {
@@ -79,7 +79,7 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Output format:", 3 },
+    { nullptr, 0, nullptr, 0, "Output format:", 3 },
     { "dot", OPT_DOT, "1|a|b|B|c|e|f(FONT)|h|n|N|o|r|R|s|t|v",
       OPTION_ARG_OPTIONAL,
       "GraphViz's format (default).  Add letters for "
@@ -109,11 +109,11 @@ static const argp_option options[] =
       "send output to a file named FORMAT instead of standard output.  The"
       " first automaton sent to a file truncates it unless FORMAT starts"
       " with '>>'.", 0 },
-    { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
+    { "quiet", 'q', nullptr, 0, "suppress all normal output", 0 },
     { "spin", 's', "6|c", OPTION_ARG_OPTIONAL, "Spin neverclaim (implies --ba)."
       "  Add letters to select (6) Spin's 6.2.4 style, (c) comments on states",
       0 },
-    { "utf8", '8', 0, 0, "enable UTF-8 characters in output "
+    { "utf8", '8', nullptr, 0, "enable UTF-8 characters in output "
       "(ignored with --lbtt or --spin)", 0 },
     { "stats", OPT_STATS, "FORMAT", 0,
       "output statistics about the automaton", 0 },
@@ -121,10 +121,11 @@ static const argp_option options[] =
       "test for the additional property PROP and output the result "
       "in the HOA format (implies -H).  PROP may be any prefix of "
       "'all' (default), 'unambiguous', or 'stutter-invariant'.", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
-const struct argp aoutput_argp = { options, parse_opt_aoutput, 0, 0, 0, 0, 0 };
+const struct argp aoutput_argp = { options, parse_opt_aoutput, nullptr, nullptr,
+				   nullptr, nullptr, nullptr };
 
 // Those can be overridden by individual tools. E.g. randaut has no
 // notion of input file, so %F and %L represent something else.
@@ -134,69 +135,83 @@ char L_doc[32] = "location in the input file";
 static const argp_option io_options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Any FORMAT string may use "\
+    { nullptr, 0, nullptr, 0, "Any FORMAT string may use "\
       "the following interpreted sequences (capitals for input,"
       " minuscules for output):", 4 },
-    { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE, F_doc, 0 },
-    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE, L_doc, 0 },
-    { "%M, %m", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%F", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, F_doc, 0 },
+    { "%L", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, L_doc, 0 },
+    { "%M, %m", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "name of the automaton", 0 },
-    { "%S, %s", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of states", 0 },
-    { "%E, %e", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of edges", 0 },
-    { "%T, %t", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%S, %s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of states", 0 },
+    { "%E, %e", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of edges", 0 },
+    { "%T, %t", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of transitions", 0 },
-    { "%A, %a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%A, %a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of acceptance sets", 0 },
-    { "%G, %g", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%G, %g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "acceptance condition (in HOA syntax)", 0 },
-    { "%C, %c", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of SCCs", 0 },
-    { "%n", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%C, %c", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of SCCs", 0 },
+    { "%n", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states in output", 0 },
-    { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%d", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the output is deterministic, 0 otherwise", 0 },
-    { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%p", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the output is complete, 0 otherwise", 0 },
-    { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%r", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "processing time (excluding parsing) in seconds", 0 },
-    { "%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%w", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the output automaton", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "a single %", 0 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
-const struct argp aoutput_io_format_argp = { io_options, 0, 0, 0, 0, 0, 0 };
+const struct argp aoutput_io_format_argp = { io_options, nullptr, nullptr,
+					     nullptr, nullptr,
+					     nullptr, nullptr };
 
 static const argp_option o_options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Any FORMAT string may use "\
+    { nullptr, 0, nullptr, 0, "Any FORMAT string may use "\
       "the following interpreted sequences:", 4 },
-    { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE, F_doc, 0 },
-    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE, L_doc, 0 },
-    { "%m", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "name of the automaton", 0 },
-    { "%s", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of states", 0 },
-    { "%e", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of edges", 0 },
-    { "%t", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of transitions", 0 },
-    { "%a", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%F", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, F_doc, 0 },
+    { "%L", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE, L_doc, 0 },
+    { "%m", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "name of the automaton", 0 },
+    { "%s", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of states", 0 },
+    { "%e", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of edges", 0 },
+    { "%t", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of transitions", 0 },
+    { "%a", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of acceptance sets", 0 },
-    { "%g", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%g", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "acceptance condition (in HOA syntax)", 0 },
-    { "%c", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "number of SCCs", 0 },
-    { "%n", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%c", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "number of SCCs", 0 },
+    { "%n", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "number of nondeterministic states in output", 0 },
-    { "%d", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%d", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the output is deterministic, 0 otherwise", 0 },
-    { "%p", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%p", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "1 if the output is complete, 0 otherwise", 0 },
-    { "%r", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%r", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "processing time (excluding parsing) in seconds", 0 },
-    { "%w", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%w", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "one word accepted by the output automaton", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE, "a single %", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
+      "a single %", 0 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
-const struct argp aoutput_o_format_argp = { o_options, 0, 0, 0, 0, 0, 0 };
+const struct argp aoutput_o_format_argp = { o_options,
+					    nullptr, nullptr, nullptr,
+					    nullptr, nullptr, nullptr };
 
 int parse_opt_aoutput(int key, char* arg, struct argp_state*)
 {

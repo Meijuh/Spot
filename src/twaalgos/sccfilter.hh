@@ -59,7 +59,7 @@ namespace spot
   /// instead.
   SPOT_API twa_graph_ptr
   scc_filter(const const_twa_graph_ptr& aut, bool remove_all_useless = false,
-	     scc_info* given_si = 0);
+	     scc_info* given_si = nullptr);
 
   /// \brief Prune unaccepting SCCs.
   ///
@@ -70,7 +70,8 @@ namespace spot
   /// transitions leaving accepting states are all marked as
   /// accepting), then the output TGBA will also have that property.
   SPOT_API twa_graph_ptr
-  scc_filter_states(const const_twa_graph_ptr& aut, scc_info* given_si = 0);
+  scc_filter_states(const const_twa_graph_ptr& aut,
+		    scc_info* given_si = nullptr);
 
   /// \brief Prune unaccepting SCCs, superfluous acceptance
   /// sets, and suspension variables.
@@ -85,5 +86,5 @@ namespace spot
   SPOT_API twa_graph_ptr
   scc_filter_susp(const const_twa_graph_ptr& aut, bool remove_all_useless,
 		  bdd suspvars, bdd ignoredvars, bool early_susp,
-		  scc_info* given_si = 0);
+		  scc_info* given_si = nullptr);
 }

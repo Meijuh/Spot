@@ -47,10 +47,10 @@ namespace spot
     static void
     transform_to_single_pass_automaton
     (const ta_explicit_ptr& testing_automata,
-     state_ta_explicit* artificial_livelock_acc_state = 0)
+     state_ta_explicit* artificial_livelock_acc_state = nullptr)
     {
 
-      if (artificial_livelock_acc_state != 0)
+      if (artificial_livelock_acc_state)
 	{
 	  state_ta_explicit* artificial_livelock_acc_state_added =
             testing_automata->add_state(artificial_livelock_acc_state);
@@ -78,14 +78,14 @@ namespace spot
 	  state_ta_explicit::transitions* trans = source->get_transitions();
 	  state_ta_explicit::transitions::iterator it_trans;
 
-	  if (trans != 0)
+	  if (trans)
 	    for (it_trans = trans->begin(); it_trans != trans->end();)
 	      {
 		state_ta_explicit* dest = (*it_trans)->dest;
 
 		state_ta_explicit::transitions* dest_trans =
                   (dest)->get_transitions();
-		bool dest_trans_empty = dest_trans == 0 || dest_trans->empty();
+		bool dest_trans_empty = !dest_trans || dest_trans->empty();
 
 		//select transitions where a destination is a livelock state
 		// which isn't a Buchi accepting state and has successors
@@ -101,7 +101,7 @@ namespace spot
 		++it_trans;
 	      }
 
-	  if (transitions_to_livelock_states != 0)
+	  if (transitions_to_livelock_states)
 	    {
 	      state_ta_explicit::transitions::iterator it_trans;
 
@@ -109,7 +109,7 @@ namespace spot
 		   it_trans != transitions_to_livelock_states->end();
 		   ++it_trans)
 		{
-		  if (artificial_livelock_acc_state != 0)
+		  if (artificial_livelock_acc_state)
 		    {
 		      testing_automata->create_transition
 			(source,
@@ -136,7 +136,7 @@ namespace spot
 	  state_ta_explicit* state = static_cast<state_ta_explicit*> (*it);
 	  state_ta_explicit::transitions* state_trans =
             (state)->get_transitions();
-	  bool state_trans_empty = state_trans == 0 || state_trans->empty();
+	  bool state_trans_empty = !state_trans || state_trans->empty();
 
 	  if (state->is_livelock_accepting_state()
 	      && (!state->is_accepting_state()) && (!state_trans_empty))
@@ -274,7 +274,6 @@ namespace spot
 		      assert(!arc.empty());
 		      sscc.pop();
 		      arc.pop();
-
 		    }
 
 		  // automata reduction
@@ -396,8 +395,7 @@ namespace spot
 
 	}
 
-      if ((artificial_livelock_acc_state != 0)
-	  || single_pass_emptiness_check)
+      if (artificial_livelock_acc_state || single_pass_emptiness_check)
 	transform_to_single_pass_automaton(testing_aut,
 					   artificial_livelock_acc_state);
     }
@@ -517,7 +515,7 @@ namespace spot
       if (no_livelock)
 	return ta;
 
-      state_ta_explicit* artificial_livelock_acc_state = 0;
+      state_ta_explicit* artificial_livelock_acc_state = nullptr;
 
       trace << "*** build_ta: artificial_livelock_acc_state_mode = ***"
 	    << artificial_livelock_state_mode << std::endl;
@@ -527,7 +525,7 @@ namespace spot
 	  single_pass_emptiness_check = true;
 	  artificial_livelock_acc_state =
 	    new state_ta_explicit(ta->get_tgba()->get_init_state(), bddtrue,
-				  false, false, true, 0);
+				  false, false, true, nullptr);
 	  trace
 	    << "*** build_ta: artificial_livelock_acc_state = ***"
 	    << artificial_livelock_acc_state << std::endl;
@@ -638,7 +636,7 @@ namespace spot
         state_ta_explicit::transitions* trans = state->get_transitions();
         if (state->is_livelock_accepting_state())
           {
-            bool trans_empty = (trans == 0 || trans->empty());
+            bool trans_empty = !trans || trans->empty();
             if (trans_empty || state->is_accepting_state())
               {
                 ta->create_transition(state, bdd_stutering_transition,

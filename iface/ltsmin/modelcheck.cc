@@ -72,7 +72,7 @@ checked_main(int argc, char **argv)
   bool accepting_run = false;
   bool expect_counter_example = false;
   bool deterministic = false;
-  char *dead = 0;
+  char *dead = nullptr;
   int compress_states = 0;
 
   const char* echeck_algo = "Cou99";

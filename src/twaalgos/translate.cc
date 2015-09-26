@@ -95,7 +95,8 @@ namespace spot
       {
 	bool exprop = unambiguous || level_ == postprocessor::High;
 	aut = ltl_to_tgba_fm(r, simpl_->get_dict(), exprop,
-			     true, false, false, 0, 0, unambiguous);
+			     true, false, false, nullptr, nullptr,
+			     unambiguous);
       }
     aut = this->postprocessor::run(aut, r);
     return aut;

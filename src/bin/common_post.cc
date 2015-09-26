@@ -37,45 +37,45 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Translation intent:", 20 },
-    { "small", OPT_SMALL, 0, 0, "prefer small automata (default)", 0 },
-    { "deterministic", 'D', 0, 0, "prefer deterministic automata", 0 },
-    { "any", 'a', 0, 0, "no preference, do not bother making it small "
+    { nullptr, 0, nullptr, 0, "Translation intent:", 20 },
+    { "small", OPT_SMALL, nullptr, 0, "prefer small automata (default)", 0 },
+    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
+    { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
       "or deterministic", 0 },
-    { "complete", 'C', 0, 0, "output a complete automaton (combine "
+    { "complete", 'C', nullptr, 0, "output a complete automaton (combine "
       "with other intents)", 0 },
-    { "state-based-acceptance", 'S', 0, 0,
+    { "state-based-acceptance", 'S', nullptr, 0,
       "define the acceptance using states", 0 },
-    { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
+    { "sbacc", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Optimization level:", 21 },
-    { "low", OPT_LOW, 0, 0, "minimal optimizations (fast)", 0 },
-    { "medium", OPT_MEDIUM, 0, 0, "moderate optimizations", 0 },
-    { "high", OPT_HIGH, 0, 0,
+    { nullptr, 0, nullptr, 0, "Optimization level:", 21 },
+    { "low", OPT_LOW, nullptr, 0, "minimal optimizations (fast)", 0 },
+    { "medium", OPT_MEDIUM, nullptr, 0, "moderate optimizations", 0 },
+    { "high", OPT_HIGH, nullptr, 0,
       "all available optimizations (slow, default)", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 static const argp_option options_disabled[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Translation intent:", 20 },
-    { "small", OPT_SMALL, 0, 0, "prefer small automata", 0 },
-    { "deterministic", 'D', 0, 0, "prefer deterministic automata", 0 },
-    { "any", 'a', 0, 0, "no preference, do not bother making it small "
+    { nullptr, 0, nullptr, 0, "Translation intent:", 20 },
+    { "small", OPT_SMALL, nullptr, 0, "prefer small automata", 0 },
+    { "deterministic", 'D', nullptr, 0, "prefer deterministic automata", 0 },
+    { "any", 'a', nullptr, 0, "no preference, do not bother making it small "
       "or deterministic (default)", 0 },
-    { "complete", 'C', 0, 0, "output a complete automaton (combine "
+    { "complete", 'C', nullptr, 0, "output a complete automaton (combine "
       "with other intents)", 0 },
-    { "state-based-acceptance", 'S', 0, 0,
+    { "state-based-acceptance", 'S', nullptr, 0,
       "define the acceptance using states", 0 },
-    { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
+    { "sbacc", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Optimization level:", 21 },
-    { "low", OPT_LOW, 0, 0, "minimal optimizations (fast, default)", 0 },
-    { "medium", OPT_MEDIUM, 0, 0, "moderate optimizations", 0 },
-    { "high", OPT_HIGH, 0, 0,
+    { nullptr, 0, nullptr, 0, "Optimization level:", 21 },
+    { "low", OPT_LOW, nullptr, 0, "minimal optimizations (fast, default)", 0 },
+    { "medium", OPT_MEDIUM, nullptr, 0, "moderate optimizations", 0 },
+    { "high", OPT_HIGH, nullptr, 0,
       "all available optimizations (slow)", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 static int
@@ -117,7 +117,8 @@ parse_opt_post(int key, char*, struct argp_state*)
   return 0;
 }
 
-const struct argp post_argp =
-  { options, parse_opt_post, 0, 0, 0, 0, 0 };
-const struct argp post_argp_disabled =
-  { options_disabled, parse_opt_post, 0, 0, 0, 0, 0 };
+const struct argp post_argp = { options, parse_opt_post,
+				nullptr, nullptr, nullptr, nullptr, nullptr };
+const struct argp post_argp_disabled = { options_disabled, parse_opt_post,
+					 nullptr, nullptr, nullptr,
+					 nullptr, nullptr };

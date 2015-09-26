@@ -56,12 +56,12 @@ static void setup_sig_handler()
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = SA_RESETHAND;
   // Catch termination signals, so we can cleanup temporary files.
-  sigaction(SIGALRM, &sa, 0);
-  sigaction(SIGHUP, &sa, 0);
-  sigaction(SIGINT, &sa, 0);
-  sigaction(SIGPIPE, &sa, 0);
-  sigaction(SIGQUIT, &sa, 0);
-  sigaction(SIGTERM, &sa, 0);
+  sigaction(SIGALRM, &sa, nullptr);
+  sigaction(SIGHUP, &sa, nullptr);
+  sigaction(SIGINT, &sa, nullptr);
+  sigaction(SIGPIPE, &sa, nullptr);
+  sigaction(SIGQUIT, &sa, nullptr);
+  sigaction(SIGTERM, &sa, nullptr);
 }
 #else
 # define setup_sig_handler() while (0);
@@ -97,20 +97,21 @@ enum {
 
 static const argp_option options[] =
   {
-    { "version", OPT_VERSION, 0, 0, "print program version", -1 },
-    { "help", OPT_HELP, 0, 0, "print this help", -1 },
+    { "version", OPT_VERSION, nullptr, 0, "print program version", -1 },
+    { "help", OPT_HELP, nullptr, 0, "print this help", -1 },
     // We support this option just in case, but we don't advertise it.
-    { "usage", OPT_USAGE, 0, OPTION_HIDDEN, "show short usage", -1 },
-    { 0, 0, 0, 0, 0, 0 }
+    { "usage", OPT_USAGE, nullptr, OPTION_HIDDEN, "show short usage", -1 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 static const argp_option options_hidden[] =
   {
-    { "version", OPT_VERSION, 0, OPTION_HIDDEN, "print program version", -1 },
-    { "help", OPT_HELP, 0, OPTION_HIDDEN, "print this help", -1 },
+    { "version", OPT_VERSION, nullptr, OPTION_HIDDEN,
+      "print program version", -1 },
+    { "help", OPT_HELP, nullptr, OPTION_HIDDEN, "print this help", -1 },
     // We support this option just in case, but we don't advertise it.
-    { "usage", OPT_USAGE, 0, OPTION_HIDDEN, "show short usage", -1 },
-    { 0, 0, 0, 0, 0, 0 }
+    { "usage", OPT_USAGE, nullptr, OPTION_HIDDEN, "show short usage", -1 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 static int
@@ -137,7 +138,9 @@ parse_opt_misc(int key, char*, struct argp_state* state)
 }
 
 
-const struct argp misc_argp = { options, parse_opt_misc, 0, 0, 0, 0, 0 };
+const struct argp misc_argp = { options, parse_opt_misc,
+				nullptr, nullptr, nullptr, nullptr, nullptr };
 
 const struct argp misc_argp_hidden = { options_hidden, parse_opt_misc,
-				       0, 0, 0, 0, 0 };
+				       nullptr, nullptr, nullptr,
+				       nullptr, nullptr };

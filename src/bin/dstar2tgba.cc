@@ -59,30 +59,31 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Input:", 1 },
+    { nullptr, 0, nullptr, 0, "Input:", 1 },
     { "file", 'F', "FILENAME", 0,
       "process the automaton in FILENAME", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Output automaton type:", 2 },
-    { "tgba", OPT_TGBA, 0, 0,
+    { nullptr, 0, nullptr, 0, "Output automaton type:", 2 },
+    { "tgba", OPT_TGBA, nullptr, 0,
       "Transition-based Generalized Büchi Automaton (default)", 0 },
-    { "ba", 'B', 0, 0, "Büchi Automaton (with state-based acceptance)", 0 },
-    { "monitor", 'M', 0, 0, "Monitor (accepts all finite prefixes "
+    { "ba", 'B', nullptr, 0,
+      "Büchi Automaton (with state-based acceptance)", 0 },
+    { "monitor", 'M', nullptr, 0, "Monitor (accepts all finite prefixes "
       "of the given property)", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 static const struct argp_child children[] =
   {
-    { &aoutput_argp, 0, 0, 0 },
-    { &aoutput_io_format_argp, 0, 0, 4 },
-    { &post_argp, 0, 0, 20 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &aoutput_argp, 0, nullptr, 0 },
+    { &aoutput_io_format_argp, 0, nullptr, 4 },
+    { &post_argp, 0, nullptr, 20 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 static spot::option_map extra_options;
@@ -150,7 +151,7 @@ namespace
       spot::stopwatch sw;
       sw.start();
       auto nba = spot::to_generalized_buchi(haut->aut);
-      auto aut = post.run(nba, 0);
+      auto aut = post.run(nba, nullptr);
       const double conversion_time = sw.stop();
 
       printer.print(aut, nullptr, filename, -1, conversion_time, haut);
@@ -200,9 +201,9 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FILENAMES...]",
-		    argp_program_doc, children, 0, 0 };
+		    argp_program_doc, children, nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   if (jobs.empty())

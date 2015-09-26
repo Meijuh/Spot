@@ -345,9 +345,9 @@ namespace spot
 
       int output_;
 
-      random_formula* rf_ = 0;
-      random_psl* rp_ = 0;
-      random_sere* rs_ = 0;
+      random_formula* rf_ = nullptr;
+      random_psl* rp_ = nullptr;
+      random_sere* rs_ = nullptr;
     };
   }
 }

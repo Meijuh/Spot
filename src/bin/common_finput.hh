@@ -59,11 +59,11 @@ public:
 
   virtual int
   process_formula(spot::ltl::formula f,
-		  const char* filename = 0, int linenum = 0) = 0;
+		  const char* filename = nullptr, int linenum = 0) = 0;
 
   virtual int
   process_string(const std::string& str,
-		 const char* filename = 0, int linenum = 0);
+		 const char* filename = nullptr, int linenum = 0);
   virtual int
   process_stream(std::istream& is, const char* filename);
 

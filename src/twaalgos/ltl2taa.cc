@@ -148,7 +148,7 @@ namespace spot
 
 	std::vector<succ_state>::iterator i1;
 	std::vector<succ_state>::iterator i2;
-	taa_tgba::transition* t = 0;
+	taa_tgba::transition* t = nullptr;
 	bool contained = false;
 	bool strong = false;
 
@@ -250,7 +250,7 @@ namespace spot
 	}
 
 	std::vector<succ_state>::iterator i;
-	taa_tgba::transition* t = 0;
+	taa_tgba::transition* t = nullptr;
 	switch (f.kind())
 	  {
 	  case op::And:

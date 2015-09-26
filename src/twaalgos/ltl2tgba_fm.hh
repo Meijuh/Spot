@@ -144,7 +144,7 @@ namespace spot
 		 bool exprop = false, bool symb_merge = true,
 		 bool branching_postponement = false,
 		 bool fair_loop_approx = false,
-		 const ltl::atomic_prop_set* unobs = 0,
-		 ltl::ltl_simplifier* simplifier = 0,
+		 const ltl::atomic_prop_set* unobs = nullptr,
+		 ltl::ltl_simplifier* simplifier = nullptr,
 		 bool unambiguous = false);
 }

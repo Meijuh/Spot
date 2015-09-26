@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2013, 2014 Laboratoire de Recherche et Développement
+// Copyright (C) 2013, 2014, 2015 Laboratoire de Recherche et Développement
 // de l'Epita.
 //
 // This file is part of Spot, a model checking library.
@@ -123,7 +123,7 @@ namespace spot
   }
 
   satsolver::satsolver()
-    : cnf_tmp_(0), cnf_stream_(0)
+    : cnf_tmp_(nullptr), cnf_stream_(nullptr)
   {
     start();
   }
@@ -151,7 +151,7 @@ namespace spot
   satsolver::get_solution()
   {
     delete cnf_stream_;		// Close the file.
-    cnf_stream_ = 0;
+    cnf_stream_ = nullptr;
 
     temporary_file* output = create_tmpfile("sat-", ".out");
     solution_pair p;

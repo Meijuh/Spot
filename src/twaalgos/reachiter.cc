@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2009, 2011, 2013, 2014 Laboratoire de Recherche et
-// Développement de l'Epita (LRDE).
+// Copyright (C) 2009, 2011, 2013, 2014, 2015 Laboratoire de Recherche
+// et Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004 Laboratoire d'Informatique de Paris 6 (LIP6),
 // département Systèmes Répartis Coopératifs (SRC), Université Pierre
 // et Marie Curie.
@@ -137,7 +137,7 @@ namespace spot
   tgba_reachable_iterator_breadth_first::next_state()
   {
     if (todo.empty())
-      return 0;
+      return nullptr;
     const state* s = todo.front();
     todo.pop_front();
     return s;

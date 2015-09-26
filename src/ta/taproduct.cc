@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2011, 2012, 2014 Laboratoire de Recherche et Développement
-// de l'Epita (LRDE).
+// Copyright (C) 2011, 2012, 2014, 2015 Laboratoire de Recherche et
+// Développement de l'Epita (LRDE).
 //
 //
 // This file is part of Spot, a model checking library.
@@ -74,18 +74,18 @@ namespace spot
     kripke_source_condition = kripke_->state_condition(s->get_kripke_state());
 
     kripke_succ_it_ = kripke_->succ_iter(s->get_kripke_state());
-    kripke_current_dest_state = 0;
-    ta_succ_it_ = 0;
-    current_state_ = 0;
+    kripke_current_dest_state = nullptr;
+    ta_succ_it_ = nullptr;
+    current_state_ = nullptr;
   }
 
   ta_succ_iterator_product::~ta_succ_iterator_product()
   {
     delete current_state_;
-    current_state_ = 0;
+    current_state_ = nullptr;
     delete ta_succ_it_;
     delete kripke_succ_it_;
-    if (kripke_current_dest_state != 0)
+    if (kripke_current_dest_state)
       kripke_current_dest_state->destroy();
   }
 
@@ -97,7 +97,7 @@ namespace spot
     if (ta_succ_it_->done())
       {
         delete ta_succ_it_;
-        ta_succ_it_ = 0;
+        ta_succ_it_ = nullptr;
         next_kripke_dest();
       }
   }
@@ -108,14 +108,14 @@ namespace spot
     if (!kripke_succ_it_)
       return;
 
-    if (kripke_current_dest_state == 0)
+    if (!kripke_current_dest_state)
       {
         kripke_succ_it_->first();
       }
     else
       {
         kripke_current_dest_state->destroy();
-        kripke_current_dest_state = 0;
+        kripke_current_dest_state = nullptr;
         kripke_succ_it_->next();
       }
 
@@ -126,7 +126,7 @@ namespace spot
     if (kripke_succ_it_->done())
       {
         delete kripke_succ_it_;
-        kripke_succ_it_ = 0;
+        kripke_succ_it_ = nullptr;
         return;
       }
 
@@ -165,7 +165,7 @@ namespace spot
   ta_succ_iterator_product::next()
   {
     delete current_state_;
-    current_state_ = 0;
+    current_state_ = nullptr;
     if (is_stuttering_transition())
       {
         next_kripke_dest();
@@ -275,7 +275,7 @@ namespace spot
     spot::state* artificial_initial_state =
       ta_->get_artificial_initial_state();
 
-    if (artificial_initial_state != 0)
+    if (artificial_initial_state)
       {
         ta_succ_iterator* ta_init_it_ = ta_->succ_iter(
             artificial_initial_state, kripke_init_state_condition);
@@ -294,8 +294,8 @@ namespace spot
     for (it = ta_init_states_set.begin(); it != ta_init_states_set.end(); ++it)
       {
 
-        if ((artificial_initial_state != 0) || (kripke_init_state_condition
-            == ta_->get_state_condition(*it)))
+        if (artificial_initial_state ||
+	    (kripke_init_state_condition == ta_->get_state_condition(*it)))
           {
             state_ta_product* stp = new state_ta_product((*it),
                 kripke_init_state->clone());
@@ -422,14 +422,14 @@ namespace spot
     if (!kripke_succ_it_)
       return;
 
-    if (kripke_current_dest_state == 0)
+    if (!kripke_current_dest_state)
       {
         kripke_succ_it_->first();
       }
     else
       {
         kripke_current_dest_state->destroy();
-        kripke_current_dest_state = 0;
+        kripke_current_dest_state = nullptr;
         kripke_succ_it_->next();
       }
 
@@ -440,7 +440,7 @@ namespace spot
     if (kripke_succ_it_->done())
       {
         delete kripke_succ_it_;
-        kripke_succ_it_ = 0;
+        kripke_succ_it_ = nullptr;
         return;
       }
 

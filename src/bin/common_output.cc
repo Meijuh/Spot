@@ -42,29 +42,31 @@ char output_terminator = '\n';
 
 static const argp_option options[] =
   {
-    { "full-parentheses", 'p', 0, 0,
+    { "full-parentheses", 'p', nullptr, 0,
       "output fully-parenthesized formulas", -20 },
-    { "spin", 's', 0, 0, "output in Spin's syntax", -20 },
-    { "spot", OPT_SPOT, 0, 0, "output in Spot's syntax (default)", -20 },
-    { "lbt", 'l', 0, 0, "output in LBT's syntax", -20 },
-    { "wring", OPT_WRING, 0, 0, "output in Wring's syntax", -20 },
-    { "utf8", '8', 0, 0, "output using UTF-8 characters", -20 },
-    { "latex", OPT_LATEX, 0, 0, "output using LaTeX macros", -20 },
-    { "csv-escape", OPT_CSV, 0, 0, "quote the formula for use in a CSV file",
-      -20 },
+    { "spin", 's', nullptr, 0, "output in Spin's syntax", -20 },
+    { "spot", OPT_SPOT, nullptr, 0, "output in Spot's syntax (default)", -20 },
+    { "lbt", 'l', nullptr, 0, "output in LBT's syntax", -20 },
+    { "wring", OPT_WRING, nullptr, 0, "output in Wring's syntax", -20 },
+    { "utf8", '8', nullptr, 0, "output using UTF-8 characters", -20 },
+    { "latex", OPT_LATEX, nullptr, 0, "output using LaTeX macros", -20 },
+    { "csv-escape", OPT_CSV, nullptr, 0,
+      "quote the formula for use in a CSV file", -20 },
     { "format", OPT_FORMAT, "FORMAT", 0,
       "specify how each line should be output (default: \"%f\")", -20 },
     { "output", 'o', "FORMAT", 0,
       "send output to a file named FORMAT instead of standard output.  The"
       " first formula sent to a file truncates it unless FORMAT starts"
       " with '>>'.", 0 },
-    { "zero-terminated-output", '0', 0, 0,
+    { "zero-terminated-output", '0', nullptr, 0,
       "separate output formulas with \\0 instead of \\n "
       "(for use with xargs -0)", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
-const struct argp output_argp = { options, parse_opt_output, 0, 0, 0, 0, 0 };
+const struct argp output_argp = { options, parse_opt_output,
+				  nullptr, nullptr, nullptr,
+				  nullptr, nullptr };
 
 static
 void
@@ -204,9 +206,9 @@ namespace
   };
 }
 
-static formula_printer* format = 0;
+static formula_printer* format = nullptr;
 static std::ostringstream outputname;
-static formula_printer* outputnamer = 0;
+static formula_printer* outputnamer = nullptr;
 static std::map<std::string, std::unique_ptr<output_file>> outputfiles;
 
 int

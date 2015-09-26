@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2007, 2011, 2014 Laboratoire de Recherche et
+// Copyright (C) 2007, 2011, 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 // Copyright (C) 2003, 2004, 2006, 2007 Laboratoire d'Informatique de
 // Paris 6 (LIP6), département Systèmes Répartis Coopératifs (SRC),
@@ -54,7 +54,7 @@ namespace spot
     // Disable the default GC handler.  (Note that this will only be
     // done if Buddy is initialized by Spot.  Otherwise we prefer not
     // to overwrite a handler that might have been set by the user.)
-    bdd_gbc_hook(0);
+    bdd_gbc_hook(nullptr);
     // When the node time is full, add 500000 nodes, i.e., 10MB.
     bdd_setmaxincrease(500000);
   }

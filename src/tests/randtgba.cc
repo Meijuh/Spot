@@ -77,7 +77,7 @@ const char* default_algos[] = {
   "Tau03_opt(condstack)",
   "Tau03_opt(condstack ordering)",
   "Tau03_opt(condstack ordering !weights)",
-  0
+  nullptr
 };
 
 std::vector<ec_algo> ec_algos;
@@ -520,7 +520,7 @@ generate_formula(const spot::ltl::random_ltl& rl,
           assert(opt_l);
           std::cerr << "Failed to generate non-reducible formula "
                     << "of size " << opt_l << " or more." << std::endl;
-          return 0;
+          return nullptr;
         }
       std::string txt = spot::ltl::str_psl(f);
       if (!opt_u || unique.insert(txt).second)
@@ -529,7 +529,7 @@ generate_formula(const spot::ltl::random_ltl& rl,
   assert(opt_u);
   std::cerr << "Failed to generate another unique formula."
             << std::endl;
-  return 0;
+  return nullptr;
 }
 
 int
@@ -539,9 +539,9 @@ main(int argc, char** argv)
   bool opt_dp = false;
   int opt_f = 15;
   int opt_F = 0;
-  char* opt_p = 0;
-  char* opt_i = 0;
-  std::istream *formula_file = 0;
+  char* opt_p = nullptr;
+  char* opt_i = nullptr;
+  std::istream *formula_file = nullptr;
   int opt_l = 0;
   bool opt_u = false;
   int opt_S = 0;
@@ -633,7 +633,7 @@ main(int argc, char** argv)
 		break;
 	      else if (input == "")
 		break;
-	      ec_algo a = { input, 0 };
+	      ec_algo a = { input, nullptr };
 	      ec_algos.push_back(a);
 	    }
 
@@ -815,7 +815,7 @@ main(int argc, char** argv)
       const char** i = default_algos;
       while (*i)
 	{
-	  ec_algo a = { *(i++), 0 };
+	  ec_algo a = { *(i++), nullptr };
 	  ec_algos.push_back(a);
 	}
     }
@@ -834,7 +834,7 @@ main(int argc, char** argv)
 	  ec_algos[i].inst =
 	    spot::make_emptiness_check_instantiator(ec_algos[i].name.c_str(),
 						    &err);
-	  if (ec_algos[i].inst == 0)
+	  if (!ec_algos[i].inst)
 	    {
 	      std::cerr << "Parse error after `" << err << '\'' << std::endl;
 	      exit(1);

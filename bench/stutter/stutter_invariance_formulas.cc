@@ -34,10 +34,10 @@ const char argp_program_doc[] ="";
 
 const struct argp_child children[] =
   {
-    { &finput_argp, 0, 0, 1 },
-    { &output_argp, 0, 0, -20 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &finput_argp, 0, nullptr, 1 },
+    { &output_argp, 0, nullptr, -20 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 namespace
@@ -109,10 +109,10 @@ main(int argc, char** argv)
 {
   setup(argv);
 
-  const argp ap = { 0, 0, "[FILENAME[/COL]...]",
-                    argp_program_doc, children, 0, 0 };
+  const argp ap = { nullptr, nullptr, "[FILENAME[/COL]...]",
+                    argp_program_doc, children, nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   spot::translator trans;

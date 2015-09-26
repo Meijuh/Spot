@@ -47,21 +47,21 @@ namespace spot
   class SPOT_API translator: protected postprocessor
   {
   public:
-    translator(ltl::ltl_simplifier* simpl, const option_map* opt = 0)
-      : postprocessor(opt), simpl_(simpl), simpl_owned_(0)
+    translator(ltl::ltl_simplifier* simpl, const option_map* opt = nullptr)
+      : postprocessor(opt), simpl_(simpl), simpl_owned_(nullptr)
     {
       assert(simpl);
       setup_opt(opt);
     }
 
-    translator(const bdd_dict_ptr& dict, const option_map* opt = 0)
+    translator(const bdd_dict_ptr& dict, const option_map* opt = nullptr)
       : postprocessor(opt)
     {
       build_simplifier(dict);
       setup_opt(opt);
     }
 
-    translator(const option_map* opt = 0)
+    translator(const option_map* opt = nullptr)
       : postprocessor(opt)
     {
       build_simplifier(make_bdd_dict());

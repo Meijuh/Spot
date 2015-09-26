@@ -376,7 +376,7 @@ namespace spot
 
 	  char* name = (char*) malloc(str.size() + 1);
 	  char* name_p = name;
-	  char* lastdot = 0;
+	  char* lastdot = nullptr;
 	  while (*s && (*s != '=') && *s != '<' && *s != '!'  && *s != '>')
 	    {
 
@@ -608,17 +608,18 @@ namespace spot
 	  d_(d),
 	  state_size_(d_->get_state_size()),
 	  dict_(dict), ps_(ps),
-	  compress_(compress == 0 ? 0
+	  compress_(compress == 0 ? nullptr
 		    : compress == 1 ? int_array_array_compress
 		    : int_array_array_compress2),
-	  decompress_(compress == 0 ? 0
+	  decompress_(compress == 0 ? nullptr
 		      : compress == 1 ? int_array_array_decompress
 		      : int_array_array_decompress2),
-	  uncompressed_(compress ? new int[state_size_ + 30] : 0),
-	  compressed_(compress ? new int[state_size_ * 2] : 0),
+	  uncompressed_(compress ? new int[state_size_ + 30] : nullptr),
+	  compressed_(compress ? new int[state_size_ * 2] : nullptr),
 	  statepool_(compress ? sizeof(spins_compressed_state) :
 		     (sizeof(spins_state) + state_size_ * sizeof(int))),
-	  state_condition_last_state_(0), state_condition_last_cc_(0)
+	  state_condition_last_state_(nullptr),
+	  state_condition_last_cc_(nullptr)
       {
 	vname_ = new const char*[state_size_];
 	format_filter_ = new bool[state_size_];
@@ -770,7 +771,7 @@ namespace spot
 			    : static_cast<const void*>(&statepool_));
 	cc->compress = compress_;
 	cc->compressed = compressed_;
-	t = d_->get_successors(0, const_cast<int*>(vars),
+	t = d_->get_successors(nullptr, const_cast<int*>(vars),
 			       compress_
 			       ? transition_callback_compress
 			       : transition_callback,
@@ -790,7 +791,7 @@ namespace spot
 	  {
 	    state_condition_last_state_->destroy();
 	    delete state_condition_last_cc_; // Might be 0 already.
-	    state_condition_last_cc_ = 0;
+	    state_condition_last_cc_ = nullptr;
 	  }
 
 	const int* vars = get_vars(st);
@@ -853,7 +854,7 @@ namespace spot
 	if (state_condition_last_cc_)
 	  {
 	    cc = state_condition_last_cc_;
-	    state_condition_last_cc_ = 0; // Now owned by the iterator.
+	    state_condition_last_cc_ = nullptr; // Now owned by the iterator.
 	  }
 	else
 	  {
@@ -1032,7 +1033,7 @@ namespace spot
             if (verbose)
               std::cerr << "Failed to compile `" << file_arg
               << "'." << std::endl;
-            return 0;
+            return nullptr;
           }
       }
 
@@ -1040,7 +1041,7 @@ namespace spot
       {
 	if (verbose)
 	  std::cerr << "Failed to initialize libltdl." << std::endl;
-	return 0;
+	return nullptr;
       }
 
     lt_dlhandle h = lt_dlopen(file.c_str());
@@ -1049,7 +1050,7 @@ namespace spot
 	if (verbose)
 	  std::cerr << "Failed to load `" << file << "'." << std::endl;
 	lt_dlexit();
-	return 0;
+	return nullptr;
       }
 
     spins_interface* d = new spins_interface;
@@ -1117,7 +1118,7 @@ namespace spot
 		    << file << "'\n";
 	delete d;
 	lt_dlexit();
-	return 0;
+	return nullptr;
       }
 
     if (d->have_property && d->have_property())
@@ -1127,7 +1128,7 @@ namespace spot
         	    << std::endl;
         delete d;
         lt_dlexit();
-        return 0;
+        return nullptr;
       }
 
     spot::prop_set* ps = new spot::prop_set;
@@ -1138,7 +1139,7 @@ namespace spot
 	dict->unregister_all_my_variables(d);
 	delete d;
 	lt_dlexit();
-	return 0;
+	return nullptr;
       }
 
     return std::make_shared<spins_kripke>(d, dict, ps, dead, compress);

@@ -49,7 +49,7 @@ void usage(const char* prog)
 
 int main(int argc, char* argv[])
 {
-  char *file = 0;
+  char *file = nullptr;
   bool print_safra = false;
   bool print_automaton = false;
   //bool check = false;
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
       file = argv[i];
   }
 
-  if (file == 0)
+  if (!file)
   {
     usage(argv[0]);
     return 1;
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
       return 2;
     spot::twa_graph_ptr a = h->aut;
 
-    spot::twa_ptr complement = 0;
+    spot::twa_ptr complement = nullptr;
 
     complement = spot::make_safra_complement(a);
 
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
       return 2;
 
     auto a = spot::ltl_to_tgba_fm(f1, dict);
-    spot::twa_ptr complement = 0;
+    spot::twa_ptr complement = nullptr;
     complement = spot::make_safra_complement(a);
 
     spot::print_dot(std::cout, complement);

@@ -74,31 +74,32 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Generation:", 1 },
+    { nullptr, 0, nullptr, 0, "Generation:", 1 },
     { "acceptance", 'A', "ACCEPTANCE", 0,
       "specify the acceptance type of the automaton", 0 },
     { "acc-probability", 'a', "FLOAT", 0,
       "probability that an edge belongs to one acceptance set (0.2)", 0 },
     { "automata", 'n', "INT", 0, "number of automata to output (1)\n"\
       "use a negative value for unbounded generation", 0 },
-    { "ba", 'B', 0, 0,
+    { "ba", 'B', nullptr, 0,
       "build a Buchi automaton (implies --acceptance=Buchi --state-acc)", 0 },
-    { "colored", OPT_COLORED, 0, 0,
+    { "colored", OPT_COLORED, nullptr, 0,
       "build an automaton in which each edge (or state if combined with "
       "-S) belong to a single acceptance set", 0 },
     { "density", 'd', "FLOAT", 0, "density of the edges (0.2)", 0 },
-    { "deterministic", 'D', 0, 0, "build a complete, deterministic automaton ",
-      0 },
-    { "unique", 'u', 0, 0,
+    { "deterministic", 'D', nullptr, 0,
+      "build a complete, deterministic automaton ", 0 },
+    { "unique", 'u', nullptr, 0,
       "do not output the same automaton twice (same in the sense that they "\
       "are isomorphic)", 0 },
     { "seed", OPT_SEED, "INT", 0,
       "seed for the random number generator (0)", 0 },
     { "states", 'Q', "RANGE", 0, "number of states to output (10)", 0 },
-    { "state-based-acceptance", 'S', 0, 0, "used state-based acceptance", 0 },
-    { "sbacc", 0, 0, OPTION_ALIAS, 0, 0 },
+    { "state-based-acceptance", 'S', nullptr, 0,
+      "used state-based acceptance", 0 },
+    { "sbacc", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     RANGE_DOC,
-    { 0, 0, 0, 0, "ACCEPTANCE may be either a RANGE (in which case "
+    { nullptr, 0, nullptr, 0, "ACCEPTANCE may be either a RANGE (in which case "
       "generalized Büchi is assumed), or an arbitrary acceptance formula "
       "such as 'Fin(0)|Inf(1)&Fin(2)' in the same syntax as in the HOA "
       "format, or one of the following patterns:\n"
@@ -118,17 +119,17 @@ static const argp_option options[] =
       "unless a probability (to reuse the set again every time it is used) "
       "is given.", 2 },
     /**************************************************/
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 
 static const struct argp_child children[] =
   {
-    { &aoutput_argp, 0, 0, 3 },
-    { &aoutput_o_format_argp, 0, 0, 4 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &aoutput_argp, 0, nullptr, 3 },
+    { &aoutput_o_format_argp, 0, nullptr, 4 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 static const char* opt_acceptance = nullptr;
@@ -269,9 +270,9 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "N|PROP...", argp_program_doc,
-		    children, 0, 0 };
+		    children, nullptr, nullptr };
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   // running 'randaut 0' is one way to generate automata using no

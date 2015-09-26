@@ -46,7 +46,7 @@ namespace spot
   /// will be built otherwise).
   SPOT_API bool
   is_guarantee_automaton(const const_twa_graph_ptr& aut,
-			 scc_info* sm = 0);
+			 scc_info* sm = nullptr);
 
   /// \brief Whether a minimized WDBA represents a safety property.
   ///

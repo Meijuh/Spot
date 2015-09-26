@@ -265,7 +265,7 @@ namespace spot
       {
 	f2f_map::const_iterator i = simplified_.find(f);
 	if (i == simplified_.end())
-	  return 0;
+	  return nullptr;
 	return i->second;
       }
 
@@ -1985,7 +1985,7 @@ namespace spot
 			      {
 				xset.insert(c);
 			      }
-			    res[n] = 0;
+			    res[n] = nullptr;
 			  }
 			// Make a second pass to check if the "a"
 			// terms can be used to simplify "Xa W b",
@@ -2044,7 +2044,7 @@ namespace spot
 			      }
 			    else if (tokill[n])
 			      {
-				res[n] = 0;
+				res[n] = nullptr;
 			      }
 			  }
 

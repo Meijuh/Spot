@@ -1,6 +1,6 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2008, 2010, 2011, 2013, 2014 Laboratoire de recherche
-// et développement de l'Epita (LRDE).
+// Copyright (C) 2008, 2010, 2011, 2013, 2014, 2015 Laboratoire de
+// recherche et développement de l'Epita (LRDE).
 // Copyright (C) 2004, 2005 Laboratoire d'Informatique de Paris 6
 // (LIP6), département Systèmes Répartis Coopératifs (SRC), Université
 // Pierre et Marie Curie.
@@ -160,7 +160,7 @@ namespace spot
 	  }
 	if (violation)
 	  return std::make_shared<result>(*this);
-	return 0;
+	return nullptr;
       }
 
       void
@@ -171,7 +171,7 @@ namespace spot
 
 	h[s] = ++top;
 
-	stack_entry ss = { s, 0, top, dftop, 0 };
+	stack_entry ss = { s, nullptr, top, dftop, 0 };
 
 	if (accepting)
 	  ss.acc = top - 1;	// This differs from GV04 to support TBA.
@@ -352,7 +352,7 @@ namespace spot
 		  || data.stack[j->second].lowlink < scc_root)
 		{
 		  s->destroy();
-		  return 0;
+		  return nullptr;
 		}
 	      r->inc_ars_cycle_states();
 	      s->destroy();

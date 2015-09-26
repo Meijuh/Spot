@@ -405,7 +405,7 @@ namespace spot
       // std::unique(), because we must destroy() any formula we drop.
       // Also ignore neutral elements and handle absorbent elements.
       {
-	const fnode* last = 0;
+	const fnode* last = nullptr;
 	vec::iterator i = v.begin();
 	bool weak_abs_seen = false;
 	while (i != v.end())

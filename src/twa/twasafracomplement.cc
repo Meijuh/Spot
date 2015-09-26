@@ -124,7 +124,7 @@ namespace spot
       /// \brief Is this node the root of the tree?
       bool is_root() const
       {
-        return parent == 0;
+        return parent == nullptr;
       }
 
       bool marked;
@@ -141,14 +141,14 @@ namespace spot
     safra_tree::safra_tree()
       : marked(false), name(0)
     {
-      parent = 0;
+      parent = nullptr;
     }
 
     /// \brief Copy the tree \a other, and set \c marked to false.
     safra_tree::safra_tree(const safra_tree& other)
       : marked(false), name(other.name), nodes(other.nodes)
     {
-      parent = 0;
+      parent = nullptr;
       for (auto i: other.children)
       {
         safra_tree* c = new safra_tree(*i);
@@ -254,7 +254,7 @@ namespace spot
     int
     safra_tree::get_new_name() const
     {
-      if (parent == 0)
+      if (parent == nullptr)
       {
         if (free_names_.empty())
         {
@@ -1014,7 +1014,7 @@ namespace spot
   ////////////////////////
 
   safra_tree_automaton::safra_tree_automaton(const const_twa_graph_ptr& a)
-    : max_nb_pairs_(-1), initial_state(0), a_(a)
+    : max_nb_pairs_(-1), initial_state(nullptr), a_(a)
   {
     a->get_dict()->register_all_variables_of(a, this);
   }

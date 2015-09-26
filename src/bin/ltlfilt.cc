@@ -96,17 +96,18 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Error handling:", 2 },
-    { "skip-errors", OPT_SKIP_ERRORS, 0, 0,
+    { nullptr, 0, nullptr, 0, "Error handling:", 2 },
+    { "skip-errors", OPT_SKIP_ERRORS, nullptr, 0,
       "output erroneous lines as-is without processing", 0 },
-    { "drop-errors", OPT_DROP_ERRORS, 0, 0,
+    { "drop-errors", OPT_DROP_ERRORS, nullptr, 0,
       "discard erroneous lines (default)", 0 },
-    { "ignore-errors", OPT_IGNORE_ERRORS, 0, 0,
+    { "ignore-errors", OPT_IGNORE_ERRORS, nullptr, 0,
       "do not report syntax errors", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Transformation options:", 3 },
-    { "negate", OPT_NEGATE, 0, 0, "negate each formula", 0 },
-    { "nnf", OPT_NNF, 0, 0, "rewrite formulas in negative normal form", 0 },
+    { nullptr, 0, nullptr, 0, "Transformation options:", 3 },
+    { "negate", OPT_NEGATE, nullptr, 0, "negate each formula", 0 },
+    { "nnf", OPT_NNF, nullptr, 0,
+      "rewrite formulas in negative normal form", 0 },
     { "relabel", OPT_RELABEL, "abc|pnn", OPTION_ARG_OPTIONAL,
       "relabel all atomic propositions, alphabetically unless " \
       "specified otherwise", 0 },
@@ -116,13 +117,13 @@ static const argp_option options[] =
     { "define", OPT_DEFINE, "FILENAME", OPTION_ARG_OPTIONAL,
       "when used with --relabel or --relabel-bool, output the relabeling map "
       "using #define statements", 0 },
-    { "remove-wm", OPT_REMOVE_WM, 0, 0,
+    { "remove-wm", OPT_REMOVE_WM, nullptr, 0,
       "rewrite operators W and M using U and R (this is an alias for "
       "--unabbreviate=WM)", 0 },
-    { "boolean-to-isop", OPT_BOOLEAN_TO_ISOP, 0, 0,
+    { "boolean-to-isop", OPT_BOOLEAN_TO_ISOP, nullptr, 0,
       "rewrite Boolean subformulas as irredundant sum of products "
       "(implies at least -r1)", 0 },
-    { "remove-x", OPT_REMOVE_X, 0, 0,
+    { "remove-x", OPT_REMOVE_X, nullptr, 0,
       "remove X operators (valid only for stutter-insensitive properties)",
       0 },
     { "unabbreviate", OPT_UNABBREVIATE, "STR", OPTION_ARG_OPTIONAL,
@@ -138,30 +139,32 @@ static const argp_option options[] =
     DECLARE_OPT_R,
     LEVEL_DOC(4),
     /**************************************************/
-    { 0, 0, 0, 0,
+    { nullptr, 0, nullptr, 0,
       "Filtering options (matching is done after transformation):", 5 },
-    { "ltl", OPT_LTL, 0, 0, "match only LTL formulas (no PSL operator)", 0 },
-    { "boolean", OPT_BOOLEAN, 0, 0, "match Boolean formulas", 0 },
-    { "eventual", OPT_EVENTUAL, 0, 0, "match pure eventualities", 0 },
-    { "universal", OPT_UNIVERSAL, 0, 0, "match purely universal formulas", 0 },
-    { "syntactic-safety", OPT_SYNTACTIC_SAFETY, 0, 0,
+    { "ltl", OPT_LTL, nullptr, 0,
+      "match only LTL formulas (no PSL operator)", 0 },
+    { "boolean", OPT_BOOLEAN, nullptr, 0, "match Boolean formulas", 0 },
+    { "eventual", OPT_EVENTUAL, nullptr, 0, "match pure eventualities", 0 },
+    { "universal", OPT_UNIVERSAL, nullptr, 0,
+      "match purely universal formulas", 0 },
+    { "syntactic-safety", OPT_SYNTACTIC_SAFETY, nullptr, 0,
       "match syntactic-safety formulas", 0 },
-    { "syntactic-guarantee", OPT_SYNTACTIC_GUARANTEE, 0, 0,
+    { "syntactic-guarantee", OPT_SYNTACTIC_GUARANTEE, nullptr, 0,
       "match syntactic-guarantee formulas", 0 },
-    { "syntactic-obligation", OPT_SYNTACTIC_OBLIGATION, 0, 0,
+    { "syntactic-obligation", OPT_SYNTACTIC_OBLIGATION, nullptr, 0,
       "match syntactic-obligation formulas", 0 },
-    { "syntactic-recurrence", OPT_SYNTACTIC_RECURRENCE, 0, 0,
+    { "syntactic-recurrence", OPT_SYNTACTIC_RECURRENCE, nullptr, 0,
       "match syntactic-recurrence formulas", 0 },
-    { "syntactic-persistence", OPT_SYNTACTIC_PERSISTENCE, 0, 0,
+    { "syntactic-persistence", OPT_SYNTACTIC_PERSISTENCE, nullptr, 0,
       "match syntactic-persistence formulas", 0 },
-    { "syntactic-stutter-invariant", OPT_SYNTACTIC_SI, 0, 0,
+    { "syntactic-stutter-invariant", OPT_SYNTACTIC_SI, nullptr, 0,
       "match stutter-invariant formulas syntactically (LTL-X or siPSL)", 0 },
-    { "nox", 0, 0, OPTION_ALIAS, 0, 0 },
-    { "safety", OPT_SAFETY, 0, 0,
+    { "nox", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
+    { "safety", OPT_SAFETY, nullptr, 0,
       "match safety formulas (even pathological)", 0 },
-    { "guarantee", OPT_GUARANTEE, 0, 0,
+    { "guarantee", OPT_GUARANTEE, nullptr, 0,
       "match guarantee formulas (even pathological)", 0 },
-    { "obligation", OPT_OBLIGATION, 0, 0,
+    { "obligation", OPT_OBLIGATION, nullptr, 0,
       "match obligation formulas (even pathological)", 0 },
     { "size-max", OPT_SIZE_MAX, "INT", 0,
       "match formulas with size <= INT", 0 },
@@ -177,45 +180,45 @@ static const argp_option options[] =
       "match formulas implying FORMULA", 0 },
     { "equivalent-to", OPT_EQUIVALENT_TO, "FORMULA", 0,
       "match formulas equivalent to FORMULA", 0 },
-    { "stutter-insensitive", OPT_STUTTER_INSENSITIVE, 0, 0,
+    { "stutter-insensitive", OPT_STUTTER_INSENSITIVE, nullptr, 0,
       "match stutter-insensitive LTL formulas", 0 },
-    { "stutter-invariant", 0, 0, OPTION_ALIAS, 0, 0 },
+    { "stutter-invariant", 0, nullptr, OPTION_ALIAS, nullptr, 0 },
     { "ap", OPT_AP_N, "N", 0,
       "match formulas which use exactly N atomic propositions", 0 },
-    { "invert-match", 'v', 0, 0, "select non-matching formulas", 0},
-    { "unique", 'u', 0, 0,
+    { "invert-match", 'v', nullptr, 0, "select non-matching formulas", 0},
+    { "unique", 'u', nullptr, 0,
       "drop formulas that have already been output (not affected by -v)", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Output options:", -20 },
-    { "count", 'c', 0, 0, "print only a count of matched formulas", 0 },
-    { "quiet", 'q', 0, 0, "suppress all normal output", 0 },
+    { nullptr, 0, nullptr, 0, "Output options:", -20 },
+    { "count", 'c', nullptr, 0, "print only a count of matched formulas", 0 },
+    { "quiet", 'q', nullptr, 0, "suppress all normal output", 0 },
     { "max-count", 'n', "NUM", 0, "output at most NUM formulas", 0 },
-    { 0, 0, 0, 0, "The FORMAT string passed to --format may use "\
+    { nullptr, 0, nullptr, 0, "The FORMAT string passed to --format may use "\
       "the following interpreted sequences:", -19 },
-    { "%f", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%f", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the formula (in the selected syntax)", 0 },
-    { "%F", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%F", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the name of the input file", 0 },
-    { "%L", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%L", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the original line number in the input file", 0 },
-    { "%<", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%<", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the part of the line before the formula if it "
       "comes from a column extracted from a CSV file", 0 },
-    { "%>", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%>", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "the part of the line after the formula if it "
       "comes from a column extracted from a CSV file", 0 },
-    { "%%", 0, 0, OPTION_DOC | OPTION_NO_USAGE,
+    { "%%", 0, nullptr, OPTION_DOC | OPTION_NO_USAGE,
       "a single %", 0 },
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 const struct argp_child children[] =
   {
-    { &finput_argp, 0, 0, 1 },
-    { &output_argp, 0, 0, -20 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &finput_argp, 0, nullptr, 1 },
+    { &output_argp, 0, nullptr, -20 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 static bool one_match = false;
@@ -453,7 +456,7 @@ namespace
 
     int
     process_string(const std::string& input,
-		    const char* filename = 0, int linenum = 0)
+		    const char* filename = nullptr, int linenum = 0)
     {
       spot::ltl::parse_error_list pel;
       spot::ltl::formula f = parse_formula(input, pel);
@@ -487,7 +490,7 @@ namespace
 
     int
     process_formula(spot::ltl::formula f,
-		    const char* filename = 0, int linenum = 0)
+		    const char* filename = nullptr, int linenum = 0)
     {
       if (opt_max_count >= 0 && match_count >= opt_max_count)
 	{
@@ -626,11 +629,11 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FILENAME[/COL]...]",
-		    argp_program_doc, children, 0, 0 };
+		    argp_program_doc, children, nullptr, nullptr };
 
   try
     {
-      if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+      if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
 	exit(err);
 
       if (jobs.empty())

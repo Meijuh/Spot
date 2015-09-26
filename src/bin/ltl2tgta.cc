@@ -64,35 +64,35 @@ enum {
 static const argp_option options[] =
   {
     /**************************************************/
-    { 0, 0, 0, 0, "Automaton type:", 1 },
-    { "tgta", OPT_TGTA, 0, 0,
+    { nullptr, 0, nullptr, 0, "Automaton type:", 1 },
+    { "tgta", OPT_TGTA, nullptr, 0,
       "Transition-based Generalized Testing Automaton (default)", 0 },
-    { "ta", OPT_TA, 0, 0, "Testing Automaton", 0 },
-    { "gta", OPT_GTA, 0, 0, "Generalized Testing Automaton", 0 },
+    { "ta", OPT_TA, nullptr, 0, "Testing Automaton", 0 },
+    { "gta", OPT_GTA, nullptr, 0, "Generalized Testing Automaton", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Options for TA and GTA creation:", 3 },
-    { "single-pass-lv", OPT_SPLV, 0, 0,
+    { nullptr, 0, nullptr, 0, "Options for TA and GTA creation:", 3 },
+    { "single-pass-lv", OPT_SPLV, nullptr, 0,
       "add an artificial livelock state to obtain a single-pass (G)TA", 0 },
-    { "single-pass", OPT_SPNO, 0, 0,
+    { "single-pass", OPT_SPNO, nullptr, 0,
       "create a single-pass (G)TA without artificial livelock state", 0 },
-    { "multiple-init", OPT_INIT, 0, 0,
+    { "multiple-init", OPT_INIT, nullptr, 0,
       "do not create the fake initial state", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Output options:", 4 },
-    { "utf8", '8', 0, 0, "enable UTF-8 characters in output", 0 },
+    { nullptr, 0, nullptr, 0, "Output options:", 4 },
+    { "utf8", '8', nullptr, 0, "enable UTF-8 characters in output", 0 },
     /**************************************************/
-    { 0, 0, 0, 0, "Miscellaneous options:", -1 },
+    { nullptr, 0, nullptr, 0, "Miscellaneous options:", -1 },
     { "extra-options", 'x', "OPTS", 0,
       "fine-tuning options (see spot-x (7))", 0 },
-    { 0, 0, 0, 0, 0, 0 }
+    { nullptr, 0, nullptr, 0, nullptr, 0 }
   };
 
 const struct argp_child children[] =
   {
-    { &finput_argp, 0, 0, 1 },
-    { &post_argp, 0, 0, 20 },
-    { &misc_argp, 0, 0, -1 },
-    { 0, 0, 0, 0 }
+    { &finput_argp, 0, nullptr, 1 },
+    { &post_argp, 0, nullptr, 20 },
+    { &misc_argp, 0, nullptr, -1 },
+    { nullptr, 0, nullptr, 0 }
   };
 
 enum ta_types { TGTA, GTA, TA };
@@ -171,7 +171,7 @@ namespace
 
     int
     process_formula(spot::ltl::formula f,
-		    const char* filename = 0, int linenum = 0)
+		    const char* filename = nullptr, int linenum = 0)
     {
       auto aut = trans.run(&f);
 
@@ -219,11 +219,11 @@ main(int argc, char** argv)
   setup(argv);
 
   const argp ap = { options, parse_opt, "[FORMULA...]",
-		    argp_program_doc, children, 0, 0 };
+		    argp_program_doc, children, nullptr, nullptr };
 
   simplification_level = 3;
 
-  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, 0, 0))
+  if (int err = argp_parse(&ap, argc, argv, ARGP_NO_HELP, nullptr, nullptr))
     exit(err);
 
   if (jobs.empty())

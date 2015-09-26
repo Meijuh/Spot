@@ -46,8 +46,9 @@ stream_formula(std::ostream& out,
 	       spot::ltl::formula f, const char* filename, int linenum);
 
 void output_formula_checked(spot::ltl::formula f,
-			    const char* filename = 0, int linenum = 0,
-			    const char* prefix = 0, const char* suffix = 0);
+			    const char* filename = nullptr, int linenum = 0,
+			    const char* prefix = nullptr,
+			    const char* suffix = nullptr);
 
 
 class printable_formula:
@@ -78,7 +79,7 @@ public:
 
   std::ostream&
   print(const spot::const_twa_graph_ptr& aut,
-	spot::ltl::formula f = 0,
+	spot::ltl::formula f = nullptr,
 	double run_time = -1.)
   {
     formula_ = f;

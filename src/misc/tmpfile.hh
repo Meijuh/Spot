@@ -109,7 +109,7 @@ namespace spot
   /// The temporary file is created and left empty.  If you need
   /// to fill it, consider using create_open_tmpfile() instead.
   SPOT_API temporary_file*
-  create_tmpfile(const char* prefix, const char* suffix = 0)
+  create_tmpfile(const char* prefix, const char* suffix = nullptr)
     throw(std::bad_alloc, std::runtime_error);
 
   /// \brief Create a temporary file and leave it open for writing.
@@ -117,7 +117,7 @@ namespace spot
   /// Same as create_tmpfile, be leave the file open for writing.  The
   /// open_temporary_file::fd() method returns the file descriptor.
   SPOT_API open_temporary_file*
-  create_open_tmpfile(const char* prefix, const char* suffix = 0)
+  create_open_tmpfile(const char* prefix, const char* suffix = nullptr)
     throw(std::bad_alloc, std::runtime_error);
 
   /// \brief Delete all temporary files.
