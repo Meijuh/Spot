@@ -5,6 +5,16 @@ New in spot 1.99.3a (not yet released)
     exactly one acceptance sets.  This is useful when targeting parity
     acceptance.
 
+  * autfilt has a new --product-or option.  This builds a synchronized
+    product of two (completed of needed) automata in order to
+    recognize the *sum* of their languages.  This works by just using
+    the disjunction of their acceptance conditions (with appropriate
+    renumbering of the acceptance sets).
+
+    For consistency, the --product option (that builds a synchronized
+    product that recognizes the *intersection* of the languages) now
+    also has a --product-and alias.
+
   * the parser for ltl2dstar's format has been merged with the parser
     for the other automata formats.  This implies two things:
     - autfilt and dstar2tgba (despite its name) can now both read
@@ -18,20 +28,18 @@ New in spot 1.99.3a (not yet released)
   * The class hierarchy for temporal formulas has been entirely
     rewritten.  This change is actually quite massive (~13200 lines
     removed, ~8200 lines added), and brings some nice benefits:
-    - LTL/PSL formulas are now represented by lightweight
-      ltl::formula objects (instead of ltl::formula* pointers)
-      that perform reference counting automatically.
-    - There is no hierachy anymore: all operators are represented
-      by a single type of node in the syntax tree, and an
-      enumerator is used to distinguish between operators.
-    - Visitors have been replaced by member functions such
-      as map() or traverse(), that take a function (usually
-      written as a lambda function) and apply it to the
-      nodes of the tree.
-    - As a consequence, writing algorithms that manipulate
-      formula is more friendly, and several functions
-      algorithms that spanned a few pages have been
-      reduced to a few lines.
+    - LTL/PSL formulas are now represented by lightweight ltl::formula
+      objects (instead of ltl::formula* pointers) that perform
+      reference counting automatically.
+    - There is no hierachy anymore: all operators are represented by a
+      single type of node in the syntax tree, and an enumerator is
+      used to distinguish between operators.
+    - Visitors have been replaced by member functions such as map() or
+      traverse(), that take a function (usually written as a lambda
+      function) and apply it to the nodes of the tree.
+    - As a consequence, writing algorithms that manipulate formula is
+      more friendly, and several algorithms that spanned a few pages
+      have been reduced to a few lines.
 
 New in spot 1.99.3 (2015-08-26)
 

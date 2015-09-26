@@ -85,7 +85,8 @@ enum {
   OPT_KEEP_STATES,
   OPT_MASK_ACC,
   OPT_MERGE,
-  OPT_PRODUCT,
+  OPT_PRODUCT_AND,
+  OPT_PRODUCT_OR,
   OPT_RANDOMIZE,
   OPT_REM_AP,
   OPT_REM_DEAD,
@@ -122,8 +123,13 @@ static const argp_option options[] =
     { 0, 0, 0, 0, "Transformations:", 5 },
     { "merge-transitions", OPT_MERGE, 0, 0,
       "merge transitions with same destination and acceptance", 0 },
-    { "product", OPT_PRODUCT, "FILENAME", 0,
-      "build the product with the automaton in FILENAME", 0 },
+    { "product", OPT_PRODUCT_AND, "FILENAME", 0,
+      "build the product with the automaton in FILENAME "
+      "to intersect languages", 0 },
+    { "product-and", 0, 0, OPTION_ALIAS, 0, 0 },
+    { "product-or", OPT_PRODUCT_OR, "FILENAME", 0,
+      "build the product with the automaton in FILENAME "
+      "to sum languages", 0 },
     { "randomize", OPT_RANDOMIZE, "s|t", OPTION_ARG_OPTIONAL,
       "randomize states and transitions (specify 's' or 't' to "
       "randomize only states or transitions)", 0 },
@@ -231,7 +237,8 @@ static int opt_seed = 0;
 static struct opt_t
 {
   spot::bdd_dict_ptr dict = spot::make_bdd_dict();
-  spot::twa_graph_ptr product = nullptr;
+  spot::twa_graph_ptr product_and = nullptr;
+  spot::twa_graph_ptr product_or = nullptr;
   spot::twa_graph_ptr intersect = nullptr;
   spot::twa_graph_ptr are_isomorphic = nullptr;
   std::unique_ptr<spot::isomorphism_checker>
@@ -393,14 +400,24 @@ parse_opt(int key, char* arg, struct argp_state*)
 	opt_rem_unreach = true;
 	break;
       }
-    case OPT_PRODUCT:
+    case OPT_PRODUCT_AND:
       {
 	auto a = read_automaton(arg, opt->dict);
-	if (!opt->product)
-	  opt->product = std::move(a);
+	if (!opt->product_and)
+	  opt->product_and = std::move(a);
 	else
-	  opt->product = spot::product(std::move(opt->product),
-				      std::move(a));
+	  opt->product_and = spot::product(std::move(opt->product_and),
+					   std::move(a));
+      }
+      break;
+    case OPT_PRODUCT_OR:
+      {
+	auto a = read_automaton(arg, opt->dict);
+	if (!opt->product_or)
+	  opt->product_or = std::move(a);
+	else
+	  opt->product_or = spot::product_or(std::move(opt->product_or),
+					     std::move(a));
       }
       break;
     case OPT_RANDOMIZE:
@@ -579,8 +596,10 @@ namespace
       else if (opt_rem_unreach)
 	aut->purge_unreachable_states();
 
-      if (opt->product)
-	aut = spot::product(std::move(aut), opt->product);
+      if (opt->product_and)
+	aut = spot::product(std::move(aut), opt->product_and);
+      if (opt->product_or)
+	aut = spot::product_or(std::move(aut), opt->product_or);
 
       if (opt_sat_minimize)
 	{

@@ -1,5 +1,5 @@
 // -*- coding: utf-8 -*-
-// Copyright (C) 2014 Laboratoire de Recherche et
+// Copyright (C) 2014, 2015 Laboratoire de Recherche et
 // Développement de l'Epita (LRDE).
 //
 // This file is part of Spot, a model checking library.
@@ -32,11 +32,22 @@ namespace spot
 
   SPOT_API
   twa_graph_ptr product(const const_twa_graph_ptr& left,
-			   const const_twa_graph_ptr& right);
+			const const_twa_graph_ptr& right);
 
   SPOT_API
   twa_graph_ptr product(const const_twa_graph_ptr& left,
+			const const_twa_graph_ptr& right,
+			unsigned left_state,
+			unsigned right_state);
+
+  SPOT_API
+  twa_graph_ptr product_or(const const_twa_graph_ptr& left,
+			   const const_twa_graph_ptr& right);
+
+  SPOT_API
+  twa_graph_ptr product_or(const const_twa_graph_ptr& left,
 			   const const_twa_graph_ptr& right,
 			   unsigned left_state,
 			   unsigned right_state);
+
 }

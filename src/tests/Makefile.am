@@ -181,6 +181,7 @@ TESTS_twa = \
   ltldo2.test \
   maskacc.test \
   maskkeep.test \
+  prodor.test \
   simdet.test \
   sim2.test \
   sim3.test \
