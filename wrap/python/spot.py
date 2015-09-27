@@ -116,9 +116,32 @@ def _formula_to_str(self, format = 'spot', parenth = False):
     else:
         raise ValueError("unknown string format: " + format)
 
+def _formula_traverse(self, func):
+    if func(self):
+        return
+    for f in self:
+        f.traverse(func)
+
+def _formula_map(self, func):
+    k = self.kind()
+    if k in (FalseVal, TrueVal, EmptyWord, AP):
+        return self;
+    if k in (Not, X, F, G, Closure, NegClosure, NegClosureMarked):
+        return formula.unop(k, func(self[0]))
+    if k in (Xor, Implies, Equiv, U, R, W, M, EConcat,
+             EConcatMarked, UConcat):
+        return formula.binop(k, func(self[0]), func(self[1]))
+    if k in (Or, OrRat, And, AndRat, AndNLM, Concat, Fusion):
+        return formula.multop(k, [func(x) for x in self])
+    if k in (Star, FStar):
+        return formula.bunop(k, func(self[0]), self.min(), self.max())
+    raise ValueError("unknown type of formula")
+
 formula.__init__ = _formula_str_ctor
 formula.to_str = _formula_to_str
 formula.show_ast = _render_formula_as_svg
+formula.traverse = _formula_traverse
+formula.map = _formula_map
 
 def _twa_to_str(a, format='hoa', opt=None):
     format = format.lower()

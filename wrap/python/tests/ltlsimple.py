@@ -74,3 +74,22 @@ assert spot.fnode_instances_check()
 
 #----------------------------------------------------------------------
 assert str([x for x in spot.formula('a &b & c')]) == '[a, b, c]'
+
+
+def switch_g_f(x):
+    if x._is(spot.G):
+        return spot.formula.F(switch_g_f(x[0]))
+    if x._is(spot.F):
+        return spot.formula.G(switch_g_f(x[0]))
+    return x.map(switch_g_f)
+
+f = spot.formula('GFa & XFGb & Fc & G(a | b | Fd)')
+assert str(switch_g_f(f)) == 'FGa & XGFb & Gc & F(a | b | Gd)'
+
+x = 0
+def count_g(f):
+    global x
+    if f._is(spot.G):
+        x += 1
+f.traverse(count_g)
+assert x == 3
