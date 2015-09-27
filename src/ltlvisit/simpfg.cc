@@ -29,17 +29,17 @@ namespace spot
     formula simplify_f_g(formula p)
     {
       // 1 U p = Fp
-      if (p.is(op::U) && p.nth(0).is_true())
-	return formula::F(p.nth(1));
+      if (p.is(op::U) && p[0].is_true())
+	return formula::F(p[1]);
       // 0 R p = Gp
-      if (p.is(op::R) && p.nth(0).is_false())
-	return formula::G(p.nth(1));
+      if (p.is(op::R) && p[0].is_false())
+	return formula::G(p[1]);
       // p W 0 = Gp
-      if (p.is(op::W) && p.nth(1).is_false())
-	return formula::G(p.nth(0));
+      if (p.is(op::W) && p[1].is_false())
+	return formula::G(p[0]);
       // p M 1 = Fp
-      if (p.is(op::M) && p.nth(1).is_true())
-	return formula::F(p.nth(0));
+      if (p.is(op::M) && p[1].is_true())
+	return formula::F(p[0]);
       return p.map(simplify_f_g);
     }
 

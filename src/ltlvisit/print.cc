@@ -348,10 +348,10 @@ namespace spot
       match_goto(formula mo, unsigned i)
       {
 	assert(i + 1 < mo.size());
-	formula b = strip_star_not(mo.nth(i));
+	formula b = strip_star_not(mo[i]);
 	if (b == nullptr || !b.is_boolean())
 	  return nullptr;
-	if (mo.nth(i + 1) == b)
+	if (mo[i + 1] == b)
 	  return b;
 	return nullptr;
       }
@@ -482,7 +482,7 @@ namespace spot
 	      break;
 	    case op::Not:
 	      {
-		formula c = f.nth(0);
+		formula c = f[0];
 		if (c.is(op::AP))
 		  {
 		    // If we negate a single letter in UTF-8, use a
@@ -514,15 +514,15 @@ namespace spot
 	      }
 	    case op::X:
 	      emit(KX);
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      break;
 	    case op::F:
 	      emit(KF);
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      break;
 	    case op::G:
 	      emit(KG);
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      break;
 	    case op::NegClosure:
 	    case op::NegClosureMarked:
@@ -534,45 +534,45 @@ namespace spot
 	      os_ << '{';
 	      in_ratexp_ = true;
 	      top_level_ = true;
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      os_ << '}';
 	      in_ratexp_ = false;
 	      top_level_ = false;
 	      break;
 	    case op::Xor:
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      emit(KXor);
-	      visit(f.nth(1));
+	      visit(f[1]);
 	      break;
 	    case op::Implies:
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      emit(KImplies);
-	      visit(f.nth(1));
+	      visit(f[1]);
 	      break;
 	    case op::Equiv:
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      emit(KEquiv);
-	      visit(f.nth(1));
+	      visit(f[1]);
 	      break;
 	    case op::U:
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      emit(KU);
-	      visit(f.nth(1));
+	      visit(f[1]);
 	      break;
 	    case op::R:
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      emit(KR);
-	      visit(f.nth(1));
+	      visit(f[1]);
 	      break;
 	    case op::W:
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      emit(KW);
-	      visit(f.nth(1));
+	      visit(f[1]);
 	      break;
 	    case op::M:
-	      visit(f.nth(0));
+	      visit(f[0]);
 	      emit(KM);
-	      visit(f.nth(1));
+	      visit(f[1]);
 	      break;
 	    case op::EConcat:
 	    case op::EConcatMarked:
@@ -581,11 +581,11 @@ namespace spot
 		in_ratexp_ = true;
 		openp();
 		top_level_ = true;
-		formula left = f.nth(0);
-		formula right = f.nth(1);
+		formula left = f[0];
+		formula right = f[1];
 		unsigned last = left.size() - 1;
 		bool onelast = false;
-		if (left.is(op::Concat) && left.nth(last).is(op::True))
+		if (left.is(op::Concat) && left[last].is_true())
 		  {
 		    visit(left.all_but(last));
 		    onelast = true;
@@ -609,7 +609,7 @@ namespace spot
 		  }
 		else if (o == op::EConcat)
 		  {
-		    if (f.nth(1).is(op::True))
+		    if (f[1].is(op::True))
 		      {
 			os_ << '!';
 			// No recursion on right.
@@ -633,7 +633,7 @@ namespace spot
 	    case op::AndNLM:
 	    case op::Fusion:
 	      {
-		visit(f.nth(0));
+		visit(f[0]);
 		keyword k = KFalse; // Initialize to something to please GCC.
 		switch (o)
 		  {
@@ -664,7 +664,7 @@ namespace spot
 		for (unsigned n = 1; n < max; ++n)
 		  {
 		    emit(k);
-		    visit(f.nth(n));
+		    visit(f[n]);
 		  }
 		break;
 	      }
@@ -686,7 +686,7 @@ namespace spot
 
 			    // Wait... maybe we are looking at (!b)[*];b;(!b)[*]
 			    // in which case it's b[=1].
-			    if (i + 2 < max && f.nth(i) == f.nth(i + 2))
+			    if (i + 2 < max && f[i] == f[i + 2])
 			      {
 				emit(KEqualBunop);
 				os_ << '1';
@@ -702,12 +702,12 @@ namespace spot
 			    continue;
 			  }
 			// Try to match ((!b)[*];b)[*i..j];(!b)[*]
-			formula fi = f.nth(i);
+			formula fi = f[i];
 			if (fi.is(op::Star))
 			  {
-			    if (formula b2 = strip_star_not(f.nth(i + 1)))
+			    if (formula b2 = strip_star_not(f[i + 1]))
 			      {
-				formula fic = fi.nth(0);
+				formula fic = fi[0];
 				if (fic.is(op::Concat))
 				  if (formula b1 = match_goto(fic, 0))
 				    if (b1 == b2)
@@ -730,14 +730,14 @@ namespace spot
 			      }
 			  }
 		      }
-		    visit(f.nth(i));
+		    visit(f[i]);
 		  }
 		break;
 	      }
 	    case op::Star:
 	    case op::FStar:
 	      {
-		formula c = f.nth(0);
+		formula c = f[0];
 		enum { Star, FStar, Goto } sugar = Star;
 		unsigned default_min = 0;
 		unsigned default_max = formula::unbounded();

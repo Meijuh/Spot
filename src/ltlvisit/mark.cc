@@ -63,10 +63,10 @@ namespace spot
 	  res = f;
 	  break;
 	case op::NegClosure:
-	  res = ltl::formula::NegClosureMarked(f.nth(0));
+	  res = ltl::formula::NegClosureMarked(f[0]);
 	  break;
 	case op::EConcat:
-	  res = ltl::formula::EConcatMarked(f.nth(0), f.nth(1));
+	  res = ltl::formula::EConcatMarked(f[0], f[1]);
 	  break;
 	case op::Or:
 	case op::And:
@@ -138,7 +138,7 @@ namespace spot
 	      {
 		if (c.is(op::EConcatMarked))
 		  {
-		    empairs.emplace(c.nth(0), c.nth(1));
+		    empairs.emplace(c[0], c[1]);
 		    v.push_back(c.map(recurse));
 		  }
 		else if (c.is(op::EConcat))
@@ -147,7 +147,7 @@ namespace spot
 		  }
 		else if (c.is(op::NegClosureMarked))
 		  {
-		    nmset.insert(c.nth(0));
+		    nmset.insert(c[0]);
 		    v.push_back(c.map(recurse));
 		  }
 		else if (c.is(op::NegClosure))
@@ -162,13 +162,13 @@ namespace spot
 	    // Keep only the non-marked EConcat for which we
 	    // have not seen a similar EConcatMarked.
 	    for (auto e:  elist)
-	      if (empairs.find(std::make_pair(e.nth(0), e.nth(1)))
+	      if (empairs.find(std::make_pair(e[0], e[1]))
 		  == empairs.end())
 		v.push_back(e);
 	    // Keep only the non-marked NegClosure for which we
 	    // have not seen a similar NegClosureMarked.
 	    for (auto n: nlist)
-	      if (nmset.find(n.nth(0)) == nmset.end())
+	      if (nmset.find(n[0]) == nmset.end())
 		v.push_back(n);
 	    res = ltl::formula::And(v);
 	  }

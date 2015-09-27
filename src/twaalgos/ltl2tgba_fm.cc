@@ -69,28 +69,28 @@ namespace spot
       unsigned s = f.size();
       for (unsigned n = 0; n < s; ++n)
 	{
-	  formula sub = f.nth(n);
+	  formula sub = f[n];
 	  // Recurring is set if we are under "G(...)" or "0 R (...)"
 	  // or (...) W 0".
 	  if (recurring)
 	    rec.insert(sub);
 	  if (sub.is(op::G))
 	    {
-	      implied_subformulae(sub.nth(0), rec, true);
+	      implied_subformulae(sub[0], rec, true);
 	    }
 	  else if (sub.is(op::W))
 	    {
 	      // f W 0 = Gf
-	      if (sub.nth(1).is_false())
-		implied_subformulae(sub.nth(0), rec, true);
+	      if (sub[1].is_false())
+		implied_subformulae(sub[0], rec, true);
 	    }
 	  else
 	    while (sub.is(op::R, op::M))
 	      {
 		// in 'f R g' and 'f M g' always evaluate 'g'.
 		formula b = sub;
-		sub = b.nth(1);
-		if (b.nth(0).is_false())
+		sub = b[1];
+		if (b[0].is_false())
 		  {
 		    assert(b.is(op::R)); // because 0 M g = 0
 		    // 0 R f = Gf
@@ -305,12 +305,12 @@ namespace spot
 	    if (f.is(op::U))
 	      {
 		// P(a U b) = P(b)
-		f = f.nth(1);
+		f = f[1];
 	      }
 	    else if (f.is(op::M))
 	      {
 		// P(a M b) = P(a & b)
-		formula g = formula::And({f.nth(0), f.nth(1)});
+		formula g = formula::And({f[0], f[1]});
 		int num = dict->register_acceptance_variable(g, this);
 		a_set &= bdd_ithvar(num);
 
@@ -322,7 +322,7 @@ namespace spot
 	    else if (f.is(op::F))
 	      {
 		// P(F(a)) = P(a)
-		f = f.nth(0);
+		f = f[0];
 	      }
 	    else
 	      {
@@ -596,7 +596,7 @@ namespace spot
 	    {
 	      // Not can only appear in front of Boolean
 	      // expressions.
-	      formula g = f.nth(0);
+	      formula g = f[0];
 	      assert(g.is_boolean());
 	      return (!recurse(g)) & next_to_concat();
 	    }
@@ -619,7 +619,7 @@ namespace spot
 	      unsigned min2 = (min == 0) ? 0 : (min - 1);
 	      unsigned max2 =
 		max == formula::unbounded() ? formula::unbounded() : (max - 1);
-	      f = formula::bunop(o, f.nth(0), min2, max2);
+	      f = formula::bunop(o, f[0], min2, max2);
 
 	      // If we have something to append, we can actually append it
 	      // to f.  This is correct even in the case of FStar, as f
@@ -629,13 +629,13 @@ namespace spot
 
 	      if (o == op::Star)
 		{
-		  if (!bo.nth(0).accepts_eword())
+		  if (!bo[0].accepts_eword())
 		    {
 		      //   f*;g  ->  f;f*;g | g
 		      //
 		      // If f does not accept the empty word, we can easily
 		      // add "f*;g" as to_concat_ when translating f.
-		      bdd res = recurse(bo.nth(0), f);
+		      bdd res = recurse(bo[0], f);
 		      if (min == 0)
 			res |= now_to_concat();
 		      return res;
@@ -651,7 +651,7 @@ namespace spot
 		      //  1. translate f,
 		      //  2. append f*;g to all destinations
 		      //  3. add |g
-		      bdd res = recurse(bo.nth(0));
+		      bdd res = recurse(bo[0]);
 		      //   f*;g  ->  f;f*;g
 		      minato_isop isop(res);
 		      bdd cube;
@@ -682,7 +682,7 @@ namespace spot
 		  bdd tail_bdd;
 		  bool tail_computed = false;
 
-		  minato_isop isop(recurse(bo.nth(0)));
+		  minato_isop isop(recurse(bo[0]));
 		  bdd cube;
 		  bdd res = bddfalse;
 		  if (min == 0)
@@ -779,7 +779,7 @@ namespace spot
 		  vec conj;
 		  for (unsigned m = 0; m < s; ++m)
 		    {
-		      formula g = f.nth(m);
+		      formula g = f[m];
 		      if (n != m)
 			g = formula::Concat({g, star});
 		      conj.push_back(g);
@@ -815,17 +815,17 @@ namespace spot
 	      unsigned s = f.size();
 	      v.reserve(s);
 	      for (unsigned n = 1; n < s; ++n)
-		v.push_back(f.nth(n));
+		v.push_back(f[n]);
 	      if (to_concat_)
 		v.push_back(to_concat_);
-	      return recurse(f.nth(0), formula::Concat(std::move(v)));
+	      return recurse(f[0], formula::Concat(std::move(v)));
 	    }
 	  case op::Fusion:
 	    {
 	      assert(f.size() >= 2);
 
 	      // the head
-	      bdd res = recurse(f.nth(0));
+	      bdd res = recurse(f[0]);
 
 	      // the tail
 	      formula tail = f.all_but(0);
@@ -1129,7 +1129,7 @@ namespace spot
 	    {
 	      // r(Fy) = r(y) + a(y)X(Fy)   if not recurring
 	      // r(Fy) = r(y) + a(y)        if recurring (see comment in G)
-	      formula child = node.nth(0);
+	      formula child = node[0];
 	      bdd y = recurse(child);
 	      bdd a = bdd_ithvar(dict_.register_a_variable(child));
 	      if (!recurring_)
@@ -1172,13 +1172,13 @@ namespace spot
 
 	      // r(Gy) = r(y)X(Gy)
 	      int x = dict_.register_next_variable(node);
-	      bdd y = recurse(node.nth(0), /* recurring = */ true);
+	      bdd y = recurse(node[0], /* recurring = */ true);
 	      return y & bdd_ithvar(x);
 	    }
 	  case op::Not:
 	    {
 	      // r(!y) = !r(y)
-	      return bdd_not(recurse(node.nth(0)));
+	      return bdd_not(recurse(node[0]));
 	    }
 	  case op::X:
 	    {
@@ -1201,7 +1201,7 @@ namespace spot
 	      // effect is less clear.  Benchmarks show that it
 	      // reduces the number of states and transitions, but it
 	      // increases the number of non-deterministic states...
-	      formula y = node.nth(0);
+	      formula y = node[0];
 	      bdd res;
 	      if (y.is(op::And))
 		{
@@ -1226,7 +1226,7 @@ namespace spot
 	  case op::Closure:
 	    {
 	      // rat_seen_ = true;
-	      formula f = node.nth(0);
+	      formula f = node[0];
 	      auto p = dict_.transdfa.succ(f);
 	      bdd res = bddfalse;
 	      auto aut = std::get<0>(p);
@@ -1267,7 +1267,7 @@ namespace spot
 		  has_marked_ = true;
 		}
 
-	      formula f = node.nth(0);
+	      formula f = node[0];
 	      auto p = dict_.transdfa.succ(f);
 	      auto aut = std::get<0>(p);
 
@@ -1316,15 +1316,15 @@ namespace spot
 	    SPOT_UNREACHABLE();
 	  case op::U:
 	    {
-	      bdd f1 = recurse(node.nth(0));
-	      bdd f2 = recurse(node.nth(1));
+	      bdd f1 = recurse(node[0]);
+	      bdd f2 = recurse(node[1]);
 	      // r(f1 U f2) = r(f2) + a(f2)r(f1)X(f1 U f2) if not recurring
 	      // r(f1 U f2) = r(f2) + a(f2)r(f1)           if recurring
-	      f1 &= bdd_ithvar(dict_.register_a_variable(node.nth(1)));
+	      f1 &= bdd_ithvar(dict_.register_a_variable(node[1]));
 	      if (!recurring_)
 		f1 &= bdd_ithvar(dict_.register_next_variable(node));
 	      if (dict_.unambiguous)
-		f1 &= neg_of(node.nth(1));
+		f1 &= neg_of(node[1]);
 	      return f2 | f1;
 	    }
 	  case op::W:
@@ -1333,36 +1333,36 @@ namespace spot
 	      // r(f1 W f2) = r(f2) + r(f1)           if recurring
 	      //
 	      // also f1 W 0 = G(f1), so we can enable recurring on f1
-	      bdd f1 = recurse(node.nth(0), node.nth(1).is_false());
-	      bdd f2 = recurse(node.nth(1));
+	      bdd f1 = recurse(node[0], node[1].is_false());
+	      bdd f2 = recurse(node[1]);
 	      if (!recurring_)
 		f1 &= bdd_ithvar(dict_.register_next_variable(node));
 	      if (dict_.unambiguous)
-		f1 &= neg_of(node.nth(1));
+		f1 &= neg_of(node[1]);
 	      return f2 | f1;
 	    }
 	  case op::R:
 	    {
 	      // r(f2) is in factor, so we can propagate the recurring_ flag.
 	      // if f1=false, we can also turn it on (0 R f = Gf).
-	      bdd res = recurse(node.nth(1),
-				recurring_ || node.nth(0).is_false());
+	      bdd res = recurse(node[1],
+				recurring_ || node[0].is_false());
 	      // r(f1 R f2) = r(f2)(r(f1) + X(f1 R f2))  if not recurring
 	      // r(f1 R f2) = r(f2)                      if recurring
 	      if (recurring_ && !dict_.unambiguous)
 		return res;
-	      bdd f1 = recurse(node.nth(0));
+	      bdd f1 = recurse(node[0]);
 	      bdd f2 = bddtrue;
 	      if (!recurring_)
 		f2 = bdd_ithvar(dict_.register_next_variable(node));
 	      if (dict_.unambiguous)
-		f2 &= neg_of(node.nth(0));
+		f2 &= neg_of(node[0]);
 	      return res & (f1 | f2);
 	    }
 	  case op::M:
 	    {
-	      bdd res = recurse(node.nth(1), recurring_);
-	      bdd f1 = recurse(node.nth(0));
+	      bdd res = recurse(node[1], recurring_);
+	      bdd f1 = recurse(node[0]);
 	      // r(f1 M f2) = r(f2)(r(f1) + a(f1&f2)X(f1 M f2)) if not recurring
 	      // r(f1 M f2) = r(f2)(r(f1) + a(f1&f2))           if recurring
 	      //
@@ -1383,7 +1383,7 @@ namespace spot
 	      if (!recurring_)
 		a &= bdd_ithvar(dict_.register_next_variable(node));
 	      if (dict_.unambiguous)
-		a &= neg_of(node.nth(0));
+		a &= neg_of(node[0]);
 	      return res & (f1 | a);
 	    }
 	  case op::EConcatMarked:
@@ -1394,8 +1394,8 @@ namespace spot
 	    {
 	      // Recognize f2 on transitions going to destinations
 	      // that accept the empty word.
-	      bdd f2 = recurse(node.nth(1));
-	      bdd f1 = translate_ratexp(node.nth(0), dict_);
+	      bdd f2 = recurse(node[1]);
+	      bdd f1 = translate_ratexp(node[0], dict_);
 	      bdd res = bddfalse;
 
 	      if (mark_all_)
@@ -1417,7 +1417,7 @@ namespace spot
 			dict_.bdd_to_sere(bdd_exist(f1 & label,
 						    dict_.var_set));
 
-		      formula dest2 = formula::binop(o, dest, node.nth(1));
+		      formula dest2 = formula::binop(o, dest, node[1]);
 		      bool unamb = dict_.unambiguous;
 		      if (!dest2.is(op::False))
 			{
@@ -1426,13 +1426,13 @@ namespace spot
 			  // deterministic automaton at no additional
 			  // cost.  You can test this on
 			  //   G({{1;1}*}<>->a)
-			  if (node.nth(1).is_boolean())
+			  if (node[1].is_boolean())
 			    unamb = true;
 
 			  bdd toadd = label &
 			    bdd_ithvar(dict_.register_next_variable(dest2));
 			  if (dest.accepts_eword() && unamb)
-			    toadd &= neg_of(node.nth(1));
+			    toadd &= neg_of(node[1]);
 			  res |= toadd;
 			}
 		      if (dest.accepts_eword())
@@ -1462,7 +1462,7 @@ namespace spot
 			}
 		      else
 			{
-			  formula dest2 = formula::binop(o, dest, node.nth(1));
+			  formula dest2 = formula::binop(o, dest, node[1]);
 			  if (!dest2.is(op::False))
 			    res |= label &
 			      bdd_ithvar(dict_.register_next_variable(dest2));
@@ -1483,8 +1483,8 @@ namespace spot
 	      // interpretation of first() as a universal automaton,
 	      // and using implication to encode it)  was explained
 	      // to me (adl) by Felix Klaedtke.
-	      bdd f2 = recurse(node.nth(1));
-	      bdd f1 = translate_ratexp(node.nth(0), dict_);
+	      bdd f2 = recurse(node[1]);
+	      bdd f1 = translate_ratexp(node[0], dict_);
 
 	      if (exprop_)
 		{
@@ -1500,7 +1500,7 @@ namespace spot
 		      formula dest =
 			dict_.bdd_to_sere(bdd_exist(f1 & label, dict_.var_set));
 
-		      formula dest2 = formula::binop(o, dest, node.nth(1));
+		      formula dest2 = formula::binop(o, dest, node[1]);
 
 		      bdd udest =
 			bdd_ithvar(dict_.register_next_variable(dest2));
@@ -1526,7 +1526,7 @@ namespace spot
 		      bdd label = bdd_exist(cube, dict_.next_set);
 		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
 		      formula dest = dict_.conj_bdd_to_sere(dest_bdd);
-		      formula dest2 = formula::binop(o, dest, node.nth(1));
+		      formula dest2 = formula::binop(o, dest, node[1]);
 
 		      bdd udest =
 			bdd_ithvar(dict_.register_next_variable(dest2));
@@ -1930,10 +1930,10 @@ namespace spot
 		  {
 		    if (f.is(op::F))
 		      all_promises &=
-			bdd_ithvar(d.register_a_variable(f.nth(0)));
+			bdd_ithvar(d.register_a_variable(f[0]));
 		    else if (f.is(op::U))
 		      all_promises &=
-			bdd_ithvar(d.register_a_variable(f.nth(1)));
+			bdd_ithvar(d.register_a_variable(f[1]));
 		    else if (f.is(op::M))
 		      all_promises &=
 			bdd_ithvar(d.register_a_variable(f));

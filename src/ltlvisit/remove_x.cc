@@ -41,7 +41,7 @@ namespace spot
 	if (!f.is(op::X))
 	  return f.map(rec);
 
-	formula c = rec(f.nth(0));
+	formula c = rec(f[0]);
 
 	std::vector<formula> vo;
 	for (auto i: aps)

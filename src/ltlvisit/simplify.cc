@@ -110,16 +110,16 @@ namespace spot
 	    result = bdd_ithvar(dict->register_proposition(f, this));
 	    break;
 	  case op::Not:
-	    result = !as_bdd(f.nth(0));
+	    result = !as_bdd(f[0]);
 	    break;
 	  case op::Xor:
-	    result = bdd_apply(as_bdd(f.nth(0)), as_bdd(f.nth(1)), bddop_xor);
+	    result = bdd_apply(as_bdd(f[0]), as_bdd(f[1]), bddop_xor);
 	    break;
 	  case op::Implies:
-	    result = bdd_apply(as_bdd(f.nth(0)), as_bdd(f.nth(1)), bddop_imp);
+	    result = bdd_apply(as_bdd(f[0]), as_bdd(f[1]), bddop_imp);
 	    break;
 	  case op::Equiv:
-	    result = bdd_apply(as_bdd(f.nth(0)), as_bdd(f.nth(1)), bddop_biimp);
+	    result = bdd_apply(as_bdd(f[0]), as_bdd(f[1]), bddop_biimp);
 	    break;
 	  case op::And:
 	    {
@@ -361,7 +361,7 @@ namespace spot
 	if (f.is(op::Not))
 	  {
 	    negated = !negated;
-	    f = f.nth(0);
+	    f = f[0];
 	  }
 
 	formula key = f;
@@ -398,83 +398,83 @@ namespace spot
 		break;
 	      case op::X:
 		// !Xa == X!a
-		result = formula::X(rec(f.nth(0), negated));
+		result = formula::X(rec(f[0], negated));
 		break;
 	      case op::F:
 		// !Fa == G!a
 		result = formula::unop(negated ? op::G : op::F,
-				       rec(f.nth(0), negated));
+				       rec(f[0], negated));
 		break;
 	      case op::G:
 		// !Ga == F!a
 		result = formula::unop(negated ? op::F : op::G,
-				       rec(f.nth(0), negated));
+				       rec(f[0], negated));
 		break;
 	      case op::Closure:
 		result = formula::unop(negated ?
 				       op::NegClosure : op::Closure,
-				       rec(f.nth(0), false));
+				       rec(f[0], false));
 		break;
 	      case op::NegClosure:
 	      case op::NegClosureMarked:
 		result = formula::unop(negated ? op::Closure : o,
-				       rec(f.nth(0), false));
+				       rec(f[0], false));
 		break;
 
 	      case op::Implies:
 		if (negated)
 		  // !(a => b) == a & !b
 		  {
-		    auto f2 = rec(f.nth(1), true);
-		    result = formula::And({rec(f.nth(0), false), f2});
+		    auto f2 = rec(f[1], true);
+		    result = formula::And({rec(f[0], false), f2});
 		  }
 		else // a => b == !a | b
 		  {
-		    auto f2 = rec(f.nth(1), false);
-		    result = formula::Or({rec(f.nth(0), true), f2});
+		    auto f2 = rec(f[1], false);
+		    result = formula::Or({rec(f[0], true), f2});
 		  }
 		break;
 	      case op::Xor:
 		{
 		  // !(a ^ b) == a <=> b
-		  result = equiv_or_xor(negated, f.nth(0), f.nth(1), c);
+		  result = equiv_or_xor(negated, f[0], f[1], c);
 		  break;
 		}
 	      case op::Equiv:
 		{
 		  // !(a <=> b) == a ^ b
-		  result = equiv_or_xor(!negated, f.nth(0), f.nth(1), c);
+		  result = equiv_or_xor(!negated, f[0], f[1], c);
 		  break;
 		}
 	      case op::U:
 		{
 		  // !(a U b) == !a R !b
-		  auto f1 = rec(f.nth(0), negated);
-		  auto f2 = rec(f.nth(1), negated);
+		  auto f1 = rec(f[0], negated);
+		  auto f2 = rec(f[1], negated);
 		  result = formula::binop(negated ? op::R : op::U, f1, f2);
 		  break;
 		}
 	      case op::R:
 		{
 		  // !(a R b) == !a U !b
-		  auto f1 = rec(f.nth(0), negated);
-		  auto f2 = rec(f.nth(1), negated);
+		  auto f1 = rec(f[0], negated);
+		  auto f2 = rec(f[1], negated);
 		  result = formula::binop(negated ? op::U : op::R, f1, f2);
 		  break;
 		}
 	      case op::W:
 		{
 		  // !(a W b) == !a M !b
-		  auto f1 = rec(f.nth(0), negated);
-		  auto f2 = rec(f.nth(1), negated);
+		  auto f1 = rec(f[0], negated);
+		  auto f2 = rec(f[1], negated);
 		  result = formula::binop(negated ? op::M : op::W, f1, f2);
 		  break;
 		}
 	      case op::M:
 		{
 		  // !(a M b) == !a W !b
-		  auto f1 = rec(f.nth(0), negated);
-		  auto f2 = rec(f.nth(1), negated);
+		  auto f1 = rec(f[0], negated);
+		  auto f2 = rec(f[1], negated);
 		  result = formula::binop(negated ? op::W : op::M, f1, f2);
 		  break;
 		}
@@ -484,7 +484,7 @@ namespace spot
 		  unsigned mos = f.size();
 		  vec v;
 		  for (unsigned i = 0; i < mos; ++i)
-		    v.push_back(rec(f.nth(i), negated));
+		    v.push_back(rec(f[i], negated));
 		  op on = o;
 		  if (negated)
 		    on = o == op::Or ? op::And : op::Or;
@@ -511,8 +511,8 @@ namespace spot
 	      case op::EConcatMarked:
 		{
 		  // !(a <>-> b) == a[]-> !b
-		  auto f1 = f.nth(0);
-		  auto f2 = f.nth(1);
+		  auto f1 = f[0];
+		  auto f2 = f[1];
 		  result = formula::binop(negated ? op::UConcat : o,
 					  rec(f1, false), rec(f2, negated));
 		  break;
@@ -520,8 +520,8 @@ namespace spot
 	      case op::UConcat:
 		{
 		  // !(a []-> b) == a<>-> !b
-		  auto f1 = f.nth(0);
-		  auto f2 = f.nth(1);
+		  auto f1 = f[0];
+		  auto f2 = f[1];
 		  result = formula::binop(negated ? op::EConcat : op::UConcat,
 					  rec(f1, false), rec(f2, negated));
 		  break;
@@ -553,10 +553,10 @@ namespace spot
       {
 	if (!f.is(op::R, op::M))
 	  return nullptr;
-	auto left = f.nth(0);
+	auto left = f[0];
 	if (!left.is(op::X))
 	  return nullptr;
-	return left.nth(0);
+	return left[0];
       }
 
       // X(a) W b   or   X(a) U b
@@ -566,10 +566,10 @@ namespace spot
       {
 	if (!f.is(op::W, op::U))
 	  return nullptr;
-	auto left = f.nth(0);
+	auto left = f[0];
 	if (!left.is(op::X))
 	  return nullptr;
-	return left.nth(0);
+	return left[0];
       }
 
       // b & X(b W a)  or   b & X(b U a)
@@ -582,14 +582,14 @@ namespace spot
 	unsigned s = f.size();
 	for (unsigned pos = 0; pos < s; ++pos)
 	  {
-	    auto p = f.nth(pos);
+	    auto p = f[pos];
 	    if (!(p.is(op::X)))
 	      continue;
-	    auto c = p.nth(0);
+	    auto c = p[0];
 	    if (!c.is(op::U, op::W))
 	      continue;
 	    formula b = f.all_but(pos);
-	    if (b == c.nth(0))
+	    if (b == c[0])
 	      return c;
 	  }
 	return nullptr;
@@ -605,14 +605,14 @@ namespace spot
 	unsigned s = f.size();
 	for (unsigned pos = 0; pos < s; ++pos)
 	  {
-	    auto p = f.nth(pos);
+	    auto p = f[pos];
 	    if (!(p.is(op::X)))
 	      continue;
-	    auto c = p.nth(0);
+	    auto c = p[0];
 	    if (!c.is(op::R, op::M))
 	      continue;
 	    formula b = f.all_but(pos);
-	    if (b == c.nth(0))
+	    if (b == c[0])
 	      return c;
 	  }
 	return nullptr;
@@ -691,7 +691,7 @@ namespace spot
 	  unsigned mos = mo.size();
 	  for (unsigned i = 0; i < mos; ++i)
 	    {
-	      formula f = simplify_recursively(mo.nth(i), cache);
+	      formula f = simplify_recursively(mo[i], cache);
 	      process(f);
 	    }
 	}
@@ -706,17 +706,17 @@ namespace spot
 	    case op::X:
 	      if (res_X && !eu)
 		{
-		  res_X->push_back(f.nth(0));
+		  res_X->push_back(f[0]);
 		  return;
 		}
 	      break;
 	    case op::F:
 	      {
-		formula c = f.nth(0);
+		formula c = f[0];
 		if (res_FG && u && c.is(op::G))
 		  {
 		    res_FG->push_back(((split_ & Strip_FG) == Strip_FG
-				       ? c.nth(0) : f));
+				       ? c[0] : f));
 		    return;
 		  }
 		if (res_F && !eu)
@@ -729,11 +729,11 @@ namespace spot
 	      }
 	    case op::G:
 	      {
-		formula c = f.nth(0);
+		formula c = f[0];
 		if (res_GF && e && c.is(op::F))
 		  {
 		    res_GF->push_back(((split_ & Strip_GF) == Strip_GF
-				       ? c.nth(0) : f));
+				       ? c[0] : f));
 		    return;
 		  }
 		if (res_G && !eu)
@@ -858,7 +858,7 @@ namespace spot
 		return f;
 	      case op::X:
 		{
-		  formula c = f.nth(0);
+		  formula c = f[0];
 		  // Xf = f if f is both eventual and universal.
 		  if (c.is_universal() && c.is_eventual())
 		    {
@@ -907,7 +907,7 @@ namespace spot
 		}
 	      case op::F:
 		{
-		  formula c = f.nth(0);
+		  formula c = f[0];
 		  // If f is a pure eventuality formula then F(f)=f.
 		  if (opt_.event_univ && c.is_eventual())
 		    return c;
@@ -916,30 +916,30 @@ namespace spot
 		    {
 		      // F(a U b) = F(b)
 		      if (c.is(op::U))
-			return recurse(formula::F(c.nth(1)));
+			return recurse(formula::F(c[1]));
 
 		      // F(a M b) = F(a & b)
 		      if (c.is(op::M))
 			return recurse(unop_multop(op::F, op::And,
-						   {c.nth(0), c.nth(1)}));
+						   {c[0], c[1]}));
 
 		      // FX(a) = XF(a)
 		      // FXX(a) = XXF(a) ...
 		      // FXG(a) = XFG(a) = FG(a) ...
 		      if (c.is(op::X))
-			return recurse(unop_unop(op::X, op::F, c.nth(0)));
+			return recurse(unop_unop(op::X, op::F, c[0]));
 
 		      // FG(a & Xb) = FG(a & b)
 		      // FG(a & Gb) = FG(a & b)
 		      if (c.is({op::G, op::And}))
 			{
-			  formula m = c.nth(0);
+			  formula m = c[0];
 			  if (!m.is_boolean())
 			    {
 			      formula out = m.map([](formula f)
 						  {
 						    if (f.is(op::X, op::G))
-						      return f.nth(0);
+						      return f[0];
 						    return f;
 						  });
 			      if (out != m)
@@ -1012,7 +1012,7 @@ namespace spot
 			  // Strip any F.
 			  for (auto& g: *s.res_Univ)
 			    if (g.is(op::F))
-			      g = g.nth(0);
+			      g = g[0];
 			  formula fu = unop_multop(op::F, op::Or,
 						   std::move(*s.res_Univ));
 			  res = formula::Or({res, fu});
@@ -1024,7 +1024,7 @@ namespace spot
 		return f;
 	      case op::G:
 		{
-		  formula c = f.nth(0);
+		  formula c = f[0];
 		  // If f is a pure universality formula then G(f)=f.
 		  if (opt_.event_univ && c.is_universal())
 		    return c;
@@ -1033,18 +1033,18 @@ namespace spot
 		    {
 		      // G(a R b) = G(b)
 		      if (c.is(op::R))
-			return recurse(formula::G(c.nth(1)));
+			return recurse(formula::G(c[1]));
 
 		      // G(a W b) = G(a | b)
 		      if (c.is(op::W))
 			return recurse(unop_multop(op::G, op::Or,
-						   {c.nth(0), c.nth(1)}));
+						   {c[0], c[1]}));
 
 		      // GX(a) = XG(a)
 		      // GXX(a) = XXG(a) ...
 		      // GXF(a) = XGF(a) = GF(a) ...
 		      if (c.is(op::X))
-			return recurse(unop_unop(op::X, op::G, c.nth(0)));
+			return recurse(unop_unop(op::X, op::G, c[0]));
 
 		      // G(f1|f2|GF(f3)|GF(f4)|f5|f6) =
 		      //                        G(f1|f2) | GF(f3|f4) | f5 | f6
@@ -1089,7 +1089,7 @@ namespace spot
 			      // Strip any G.
 			      for (auto& g: *s.res_Event)
 				if (g.is(op::G))
-				  g = g.nth(0);
+				  g = g[0];
 			      formula ge =
 				unop_multop(op::G, op::And,
 					    std::move(*s.res_Event));
@@ -1103,13 +1103,13 @@ namespace spot
 		      // GF(a | Fb) = GF(a | b)
 		      if (c.is({op::F, op::Or}))
 			{
-			  formula m = c.nth(0);
+			  formula m = c[0];
 			  if (!m.is_boolean())
 			    {
 			      formula out = m.map([](formula f)
 						  {
 						    if (f.is(op::X, op::F))
-						      return f.nth(0);
+						      return f[0];
 						    return f;
 						  });
 			      if (out != m)
@@ -1127,11 +1127,11 @@ namespace spot
 	      case op::NegClosure:
 	      case op::NegClosureMarked:
 		{
-		  formula c = f.nth(0);
+		  formula c = f[0];
 		  // {e[*]} = {e}
 		  // !{e[*]} = !{e}
 		  if (c.accepts_eword() && c.is(op::Star))
-		    return recurse(formula::unop(o, c.nth(0)));
+		    return recurse(formula::unop(o, c[0]));
 
 		  if (!opt_.reduce_size_strictly)
 		    if (c.is(op::OrRat))
@@ -1141,7 +1141,7 @@ namespace spot
 			unsigned s = c.size();
 			vec v;
 			for (unsigned n = 0; n < s; ++n)
-			  v.push_back(formula::unop(o, c.nth(n)));
+			  v.push_back(formula::unop(o, c[n]));
 			return recurse(formula::multop(o == op::Closure
 						       ? op::Or : op::And, v));
 		      }
@@ -1158,7 +1158,7 @@ namespace spot
 			  unsigned end = c.size();
 			  v.reserve(end);
 			  for (unsigned i = 0; i < end; ++i)
-			    v.push_back(formula::unop(o, c.nth(i)));
+			    v.push_back(formula::unop(o, c[i]));
 			  return recurse(formula::multop(o == op::Closure ?
 							 op::Or : op::And, v));
 			}
@@ -1171,12 +1171,12 @@ namespace spot
 		      //    = !b₁|X(!b₂|X(!{e₁;f₁;e₂;f₂}))
 		      // if e denotes a term that accepts [*0]
 		      // and b denotes a Boolean formula.
-		      while (c.nth(end).accepts_eword())
+		      while (c[end].accepts_eword())
 			--end;
 		      unsigned start = 0;
 		      while (start <= end)
 			{
-			  formula r = c.nth(start);
+			  formula r = c[start];
 			  if (r.is_boolean() && !opt_.reduce_size_strictly)
 			    ++start;
 			  else
@@ -1192,7 +1192,7 @@ namespace spot
 			      vec v;
 			      v.reserve(s);
 			      for (unsigned n = start; n <= end; ++n)
-				v.push_back(c.nth(n));
+				v.push_back(c[n]);
 			      tail = formula::Concat(v);
 			      tail = formula::unop(o, tail);
 			    }
@@ -1204,7 +1204,7 @@ namespace spot
 			  for (unsigned n = start; n > 0;)
 			    {
 			      --n;
-			      formula e = c.nth(n);
+			      formula e = c[n];
 			      // {b;f} = b & X{f}
 			      // !{b;f} = !b | X!{f}
 			      if (e.is_boolean())
@@ -1222,10 +1222,10 @@ namespace spot
 		      // {b[*i..j];c} = b&X(b&X(... b&X{b[*0..j-i];c}))
 		      // !{b[*i..j];c} = !b&X(!b&X(... !b&X!{b[*0..j-i];c}))
 		      if (!opt_.reduce_size_strictly)
-			if (c.nth(0).is(op::Star))
+			if (c[0].is(op::Star))
 			  {
-			    formula s = c.nth(0);
-			    formula sc = s.nth(0);
+			    formula s = c[0];
+			    formula sc = s[0];
 			    unsigned min = s.min();
 			    if (sc.is_boolean() && min > 0)
 			      {
@@ -1237,7 +1237,7 @@ namespace spot
 				v.reserve(ss);
 				v.push_back(formula::Star(sc, 0, max));
 				for (unsigned n = 1; n < ss; ++n)
-				  v.push_back(c.nth(n));
+				  v.push_back(c[n]);
 				formula tail = formula::Concat(v);
 				tail = // {b[*0..j-i]} or !{b[*0..j-i]}
 				  formula::unop(o, tail);
@@ -1253,7 +1253,7 @@ namespace spot
 		  if (!opt_.reduce_size_strictly)
 		    if (c.is(op::Star))
 		      {
-			formula cs = c.nth(0);
+			formula cs = c[0];
 			if (cs.is_boolean())
 			  {
 			    unsigned min = c.min();
@@ -1292,7 +1292,7 @@ namespace spot
 		return f;
 	      case op::Star:
 		{
-		  formula h = f.nth(0);
+		  formula h = f[0];
 		  auto min = f.min();
 		  if (h.accepts_eword())
 		    min = 0;
@@ -1309,8 +1309,8 @@ namespace spot
 	formula reduce_sere_ltl(formula orig)
 	{
 	  op bindop = orig.kind();
-	  formula a = orig.nth(0);
-	  formula b = orig.nth(1);
+	  formula a = orig[0];
+	  formula b = orig[1];
 
 	  auto recurse = [this](formula f)
 	    {
@@ -1350,7 +1350,7 @@ namespace spot
 	      if (a == formula::one_star())
 		return recurse(formula::unop(op_g, b));
 
-	      formula s = a.nth(0);
+	      formula s = a[0];
 	      unsigned min = a.min();
 	      unsigned max = a.max();
 	      // {s[*]}[]->b = b W !s   if s is Boolean.
@@ -1384,13 +1384,13 @@ namespace spot
 	  else if (a.is(op::Concat))
 	    {
 	      unsigned s = a.size() - 1;
-	      formula last = a.nth(s);
+	      formula last = a[s];
 	      // {r;[*]}[]->b = {r}[]->Gb
 	      if (last == formula::one_star())
 		  return recurse(formula::binop(bindop, a.all_but(s),
 						formula::unop(op_g, b)));
 
-	      formula first = a.nth(0);
+	      formula first = a[0];
 	      // {[*];r}[]->b = G({r}[]->b)
 	      if (first == formula::one_star())
 		return recurse(formula::unop(op_g,
@@ -1403,13 +1403,13 @@ namespace spot
 	      // {r;s[*]}[]->b = {r}[]->(b & X(b W !s))
 	      // if s is Boolean and r does not accept [*0];
 	      if (last.is_Kleene_star()) // l = s[*]
-		if (last.nth(0).is_boolean())
+		if (last[0].is_boolean())
 		  {
 		    formula r = a.all_but(s);
 		    if (!r.accepts_eword())
 		      {
 			formula ns = // !s
-			  doneg ? formula::Not(last.nth(0)) : last.nth(0);
+			  doneg ? formula::Not(last[0]) : last[0];
 			formula w = // b W !s
 			  formula::binop(op_w, b, ns);
 			formula x = // X(b W !s)
@@ -1423,15 +1423,15 @@ namespace spot
 	      // {s[*];r}[]->b = !s R ({r}[]->b)
 	      // if s is Boolean and r does not accept [*0];
 	      if (first.is_Kleene_star())
-		if (first.nth(0).is_boolean())
+		if (first[0].is_boolean())
 		  {
 		    formula r = a.all_but(0);
 		    if (!r.accepts_eword())
 		      {
 			formula ns = // !s
 			  doneg
-			  ? formula::Not(first.nth(0))
-			  : first.nth(0);
+			  ? formula::Not(first[0])
+			  : first[0];
 			formula u = // {r}[]->b
 			  formula::binop(bindop, r, b);
 			// !s R ({r}[]->b)
@@ -1445,7 +1445,7 @@ namespace spot
 		{
 		  unsigned count = 0;
 		  for (unsigned n = 0; n <= s; ++n)
-		    count += !a.nth(n).accepts_eword();
+		    count += !a[n].accepts_eword();
 		  assert(count > 0);
 		  if (count == 1)
 		    return orig;
@@ -1464,7 +1464,7 @@ namespace spot
 		  // (i.e., r₂ before r₁.)
 		  vec r;
 		  do
-		    r.insert(r.begin(), a.nth(--pos));
+		    r.insert(r.begin(), a[--pos]);
 		  while (r.front().accepts_eword());
 		  formula tail = // {r₂}[]->b
 		    formula::binop(bindop, formula::Concat(r), b);
@@ -1472,14 +1472,14 @@ namespace spot
 		    {
 		      vec r;
 		      do
-			r.insert(r.begin(), a.nth(--pos));
+			r.insert(r.begin(), a[--pos]);
 		      while (r.front().accepts_eword());
 		      // If it's the last block, take all leading
 		      // formulae as well.
 		      if (count == 1)
 			while (pos > 0)
 			  {
-			    r.insert(r.begin(), a.nth(--pos));
+			    r.insert(r.begin(), a[--pos]);
 			    assert(r.front().accepts_eword());
 			  }
 
@@ -1503,7 +1503,7 @@ namespace spot
 	      do
 		{
 		  --s;
-		  tail = formula::binop(bindop, a.nth(s), tail);
+		  tail = formula::binop(bindop, a[s], tail);
 		}
 	      while (s != 0);
 	      return recurse(tail);
@@ -1515,7 +1515,7 @@ namespace spot
 	      vec v;
 	      for (unsigned n = 0; n < s; ++n)
 		// {r₁}[]->b
-		v.push_back(formula::binop(bindop, a.nth(n), b));
+		v.push_back(formula::binop(bindop, a[n], b));
 	      return recurse(formula::multop(op_and, v));
 	    }
 	  return orig;
@@ -1529,7 +1529,7 @@ namespace spot
 	      return simplify_recursively(f, c_);
 	    };
 	  op o = bo.kind();
-	  formula b = bo.nth(1);
+	  formula b = bo[1];
 	  if (opt_.event_univ)
 	    {
 	      trace << "bo: trying eventuniv rules" << std::endl;
@@ -1540,7 +1540,7 @@ namespace spot
 		return b;
 	    }
 
-	  formula a = bo.nth(0);
+	  formula a = bo[0];
 	  if (opt_.event_univ)
 	    {
 	      /* If a is a pure eventuality formula then a M b = a & b.
@@ -1650,27 +1650,27 @@ namespace spot
 		    return formula::F(b);
 		  // if a => b, then a U (b U c) = (b U c)
 		  // if a => b, then a U (b W c) = (b W c)
-		  if (b.is(op::U, op::W) && c_->implication(a, b.nth(0)))
+		  if (b.is(op::U, op::W) && c_->implication(a, b[0]))
 		    return b;
 		  // if b => a, then a U (b U c) = (a U c)
-		  if (b.is(op::U) && c_->implication(b.nth(0), a))
-		    return recurse(formula::U(a, b.nth(1)));
+		  if (b.is(op::U) && c_->implication(b[0], a))
+		    return recurse(formula::U(a, b[1]));
 		  // if a => c, then a U (b R (c U d)) = (b R (c U d))
 		  // if a => c, then a U (b R (c W d)) = (b R (c W d))
 		  // if a => c, then a U (b M (c U d)) = (b M (c U d))
 		  // if a => c, then a U (b M (c W d)) = (b M (c W d))
 		  if (b.is(op::R, op::M))
 		    {
-		      auto c1 = b.nth(1);
-		      if (c1.is(op::U, op::W) && c_->implication(a, c1.nth(0)))
+		      auto c1 = b[1];
+		      if (c1.is(op::U, op::W) && c_->implication(a, c1[0]))
 			return b;
 		    }
 		  // if a => b, then (a U c) U b = c U b
 		  // if a => b, then (a W c) U b = c U b
-		  if (a.is(op::U, op::W) && c_->implication(a.nth(0), b))
-		    return recurse(formula::U(a.nth(1), b));
+		  if (a.is(op::U, op::W) && c_->implication(a[0], b))
+		    return recurse(formula::U(a[1], b));
 		  // if c => b, then (a U c) U b = (a U c) | b
-		  if (a.is(op::U) && c_->implication(a.nth(1), b))
+		  if (a.is(op::U) && c_->implication(a[1], b))
 		    return recurse(formula::Or({a, b}));
 		  break;
 
@@ -1683,22 +1683,22 @@ namespace spot
 		    return recurse(formula::G(b));
 		  // if b => a, then a R (b R c) = b R c
 		  // if b => a, then a R (b M c) = b M c
-		  if (b.is(op::R, op::M) && c_->implication(b.nth(0), a))
+		  if (b.is(op::R, op::M) && c_->implication(b[0], a))
 		    return b;
 		  // if a => b, then a R (b R c) = a R c
-		  if (b.is(op::R) && c_->implication(a, b.nth(0)))
-		    return recurse(formula::R(a, b.nth(1)));
+		  if (b.is(op::R) && c_->implication(a, b[0]))
+		    return recurse(formula::R(a, b[1]));
 		  // if b => a, then (a R c) R b = c R b
 		  // if b => a, then (a M c) R b = c R b
 		  // if c => b, then (a R c) R b = (a & c) R b
 		  // if c => b, then (a M c) R b = (a & c) R b
 		  if (a.is(op::R, op::M))
 		    {
-		      if (c_->implication(b, a.nth(0)))
-			return recurse(formula::R(a.nth(1), b));
-		      if (c_->implication(a.nth(1), b))
+		      if (c_->implication(b, a[0]))
+			return recurse(formula::R(a[1], b));
+		      if (c_->implication(a[1], b))
 			{
-			  formula ac = formula::And({a.nth(0), a.nth(1)});
+			  formula ac = formula::And({a[0], a[1]});
 			  return recurse(formula::R(ac, b));
 			}
 		    }
@@ -1716,19 +1716,19 @@ namespace spot
 		    return formula::tt();
 		  // if a => b, then a W (b W c) = b W c
 		  // (Beware: even if a => b we do not have a W (b U c) = b U c)
-		  if (b.is(op::W) && c_->implication(a, b.nth(0)))
+		  if (b.is(op::W) && c_->implication(a, b[0]))
 		    return b;
 		  // if b => a, then a W (b U c) = a W c
 		  // if b => a, then a W (b W c) = a W c
-		  if (b.is(op::U, op::W) && c_->implication(b.nth(0), a))
-		    return recurse(formula::W(a, b.nth(1)));
+		  if (b.is(op::U, op::W) && c_->implication(b[0], a))
+		    return recurse(formula::W(a, b[1]));
 		  // if a => b, then (a U c) W b = c W b
 		  // if a => b, then (a W c) W b = c W b
-		  if (a.is(op::U, op::W) && c_->implication(a.nth(0), b))
-		    return recurse(formula::W(a.nth(1), b));
+		  if (a.is(op::U, op::W) && c_->implication(a[0], b))
+		    return recurse(formula::W(a[1], b));
 		  // if c => b, then (a W c) W b = (a W c) | b
 		  // if c => b, then (a U c) W b = (a U c) | b
-		  if (a.is(op::U, op::W) && c_->implication(a.nth(1), b))
+		  if (a.is(op::U, op::W) && c_->implication(a[1], b))
 		    return recurse(formula::Or({a, b}));
 		  break;
 
@@ -1740,20 +1740,20 @@ namespace spot
 		  if (c_->implication_neg(b, a, true))
 		    return formula::ff();
 		  // if b => a, then a M (b M c) = b M c
-		  if (b.is(op::M) && c_->implication(b.nth(0), a))
+		  if (b.is(op::M) && c_->implication(b[0], a))
 		    return b;
 		  // if a => b, then a M (b M c) = a M c
 		  // if a => b, then a M (b R c) = a M c
-		  if (b.is(op::M, op::R) && c_->implication(a, b.nth(0)))
-		    return recurse(formula::M(a, b.nth(1)));
+		  if (b.is(op::M, op::R) && c_->implication(a, b[0]))
+		    return recurse(formula::M(a, b[1]));
 		  // if b => a, then (a R c) M b = c M b
 		  // if b => a, then (a M c) M b = c M b
-		  if (a.is(op::R, op::M) && c_->implication(b, a.nth(0)))
-		    return recurse(formula::M(a.nth(1), b));
+		  if (a.is(op::R, op::M) && c_->implication(b, a[0]))
+		    return recurse(formula::M(a[1], b));
 		  // if c => b, then (a M c) M b = (a & c) M b
-		  if (a.is(op::M) && c_->implication(a.nth(1), b))
+		  if (a.is(op::M) && c_->implication(a[1], b))
 		    return
-		      recurse(formula::M(formula::And({a.nth(0), a.nth(1)}),
+		      recurse(formula::M(formula::And({a[0], a[1]}),
 					 b));
 		  break;
 
@@ -1792,28 +1792,28 @@ namespace spot
 	      // X(a) M X(b) = X(a M b)
 	      if (a.is(op::X) && b.is(op::X))
 		return recurse(formula::X(formula::binop(o,
-							 a.nth(0), b.nth(0))));
+							 a[0], b[0])));
 
 	      if (bo.is(op::U, op::W))
 		{
 		  // a U Ga = Ga
 		  // a W Ga = Ga
-		  if (b.is(op::G) && a == b.nth(0))
+		  if (b.is(op::G) && a == b[0])
 		    return b;
 		  // a U (b | c | G(a)) = a W (b | c)
 		  // a W (b | c | G(a)) = a W (b | c)
 		  if (b.is(op::Or))
 		    for (int i = 0, s = b.size(); i < s; ++i)
 		      {
-			formula c = b.nth(i);
-			if (c.is(op::G) && c.nth(0) == a)
+			formula c = b[i];
+			if (c.is(op::G) && c[0] == a)
 			  return recurse(formula::W(a, b.all_but(i)));
 		      }
 		  // a U (b & a & c) == (b & c) M a
 		  // a W (b & a & c) == (b & c) R a
 		  if (b.is(op::And))
 		    for (int i = 0, s = b.size(); i < s; ++i)
-		      if (b.nth(i) == a)
+		      if (b[i] == a)
 			return recurse(formula::binop(o == op::U ?
 						      op::M : op::R,
 						      b.all_but(i), a));
@@ -1825,7 +1825,7 @@ namespace spot
 		    {
 		      formula x = formula::X(formula::binop(o == op::U ?
 							    op::M : op::R,
-							    b, a.nth(0)));
+							    b, a[0]));
 		      return recurse(formula::Or({b, x}));
 		    }
 		}
@@ -1833,7 +1833,7 @@ namespace spot
 		{
 		  // a R Fa = Fa
 		  // a M Fa = Fa
-		  if (b.is(op::F) && b.nth(0) == a)
+		  if (b.is(op::F) && b[0] == a)
 		    return b;
 
 		  // a R (b & c & F(a)) = a M (b & c)
@@ -1841,15 +1841,15 @@ namespace spot
 		  if (b.is(op::And))
 		    for (int i = 0, s = b.size(); i < s; ++i)
 		      {
-			formula c = b.nth(i);
-			if (c.is(op::F) && c.nth(0) == a)
+			formula c = b[i];
+			if (c.is(op::F) && c[0] == a)
 			  return recurse(formula::M(a, b.all_but(i)));
 		      }
 		  // a M (b | a | c) == (b | c) U a
 		  // a R (b | a | c) == (b | c) W a
 		  if (b.is(op::Or))
 		    for (int i = 0, s = b.size(); i < s; ++i)
-		      if (b.nth(i) == a)
+		      if (b[i] == a)
 			return recurse(formula::binop(o == op::M ?
 						      op::U : op::W,
 						      b.all_but(i), a));
@@ -1861,7 +1861,7 @@ namespace spot
 		    {
 		      formula x =
 			formula::X(formula::binop(o == op::M ? op::U : op::W,
-						  b, a.nth(0)));
+						  b, a[0]));
 		      return recurse(formula::And({b, x}));
 		    }
 		}
@@ -1885,7 +1885,7 @@ namespace spot
 	      && mo.is(op::Or, op::And))
 	    for (unsigned i = 0; i < mos; ++i)
 	      {
-		formula fi = mo.nth(i);
+		formula fi = mo[i];
 		formula fo = mo.all_but(i);
 		// if fi => fo, then fi | fo = fo
 		// if fo => fi, then fi & fo = fo
@@ -1954,17 +1954,17 @@ namespace spot
 			    // - b | X(b M ...)
 			    if (formula barg = is_bXbRM(res[n]))
 			      {
-				wuset[barg.nth(1)].insert(n);
+				wuset[barg[1]].insert(n);
 				continue;
 			      }
 
 			    if (!res[n].is(op::X))
 			      continue;
 
-			    formula c = res[n].nth(0);
+			    formula c = res[n][0];
 			    auto handle_G = [&xgset](formula c)
 			      {
-				formula a2 = c.nth(0);
+				formula a2 = c[0];
 				if (a2.is(op::And))
 				  for (auto c: a2)
 				    xgset.insert(c);
@@ -2011,9 +2011,9 @@ namespace spot
 				    // a & (Xa W b) = b R a
 				    // a & (Xa U b) = b M a
 				    op t = wu.is(op::U) ? op::M : op::R;
-				    assert(wu.nth(0).is(op::X));
-				    formula a = wu.nth(0).nth(0);
-				    formula b = wu.nth(1);
+				    assert(wu[0].is(op::X));
+				    formula a = wu[0][0];
+				    formula b = wu[1];
 				    res[pos] = formula::binop(t, b, a);
 				  }
 				else
@@ -2109,7 +2109,7 @@ namespace spot
 				if (f.is(op::G))
 				  {
 				    seen_g = true;
-				    eu.push_back(f.nth(0));
+				    eu.push_back(f[0]);
 				  }
 				else
 				  {
@@ -2160,7 +2160,7 @@ namespace spot
 		    for (auto i = s.res_U_or_W->begin();
 			 i != s.res_U_or_W->end(); ++i)
 		      {
-			formula b = i->nth(1);
+			formula b = (*i)[1];
 			auto j = uwmap.find(b);
 			if (j == uwmap.end())
 			  {
@@ -2173,7 +2173,7 @@ namespace spot
 			op o = op::W;
 			if (i->is(op::U) || old.is(op::U))
 			  o = op::U;
-			formula fst_arg = formula::And({old.nth(0), i->nth(0)});
+			formula fst_arg = formula::And({old[0], (*i)[0]});
 			*j->second = formula::binop(o, fst_arg, b);
 			assert(j->second->is(o));
 			*i = nullptr;
@@ -2184,7 +2184,7 @@ namespace spot
 		    for (auto i = s.res_R_or_M->begin();
 			 i != s.res_R_or_M->end(); ++i)
 		      {
-			formula a = i->nth(0);
+			formula a = (*i)[0];
 			auto j = rmmap.find(a);
 			if (j == rmmap.end())
 			  {
@@ -2197,7 +2197,7 @@ namespace spot
 			op o = op::R;
 			if (i->is(op::M) || old.is(op::M))
 			  o = op::M;
-			formula snd_arg = formula::And({old.nth(1), i->nth(1)});
+			formula snd_arg = formula::And({old[1], (*i)[1]});
 			*j->second = formula::binop(o, a, snd_arg);
 			assert(j->second->is(o));
 			*i = nullptr;
@@ -2209,7 +2209,7 @@ namespace spot
 		    for (auto& f: *s.res_F)
 		      {
 			bool superfluous = false;
-			formula c = f.nth(0);
+			formula c = f[0];
 
 			fmap_t::iterator j = uwmap.find(c);
 			if (j != uwmap.end())
@@ -2218,7 +2218,7 @@ namespace spot
 			    formula bo = *j->second;
 			    if (bo.is(op::W))
 			      {
-				*j->second = formula::U(bo.nth(0), bo.nth(1));
+				*j->second = formula::U(bo[0], bo[1]);
 				assert(j->second->is(op::U));
 			      }
 			  }
@@ -2229,7 +2229,7 @@ namespace spot
 			    formula bo = *j->second;
 			    if (bo.is(op::R))
 			      {
-				*j->second = formula::M(bo.nth(0), bo.nth(1));
+				*j->second = formula::M(bo[0], bo[1]);
 				assert(j->second->is(op::M));
 			      }
 			  }
@@ -2303,7 +2303,7 @@ namespace spot
 			      //               = 0      otherwise
 			      if (f.min() > 1 || f.max() < 1)
 				return formula::ff();
-			      ares.push_back(f.nth(0));
+			      ares.push_back(f[0]);
 			      f = nullptr;
 			      break;
 			    case op::Fusion:
@@ -2325,7 +2325,7 @@ namespace spot
 				unsigned rs = f.size();
 				for (unsigned j = 0; j < rs; ++j)
 				  {
-				    formula jf = f.nth(j);
+				    formula jf = f[j];
 				    if (!jf.accepts_eword())
 				      {
 					ri = jf;
@@ -2380,7 +2380,7 @@ namespace spot
 			  continue;
 			if (!i.is(op::Concat, op::Fusion))
 			  continue;
-			formula h = i.nth(0);
+			formula h = i[0];
 			if (!h.is_boolean())
 			  continue;
 			if (i.is(op::Concat))
@@ -2423,7 +2423,7 @@ namespace spot
 			if (!i.is(op::Concat, op::Fusion))
 			  continue;
 			unsigned s = i.size() - 1;
-			formula t = i.nth(s);
+			formula t = i[s];
 			if (!t.is_boolean())
 			  continue;
 			if (i.is(op::Concat))
@@ -2498,18 +2498,18 @@ namespace spot
 			    // - b & X(b U ...)
 			    if (formula barg = is_bXbWU(res[n]))
 			      {
-				rmset[barg.nth(1)].insert(n);
+				rmset[barg[1]].insert(n);
 				continue;
 			      }
 
 			    if (!res[n].is(op::X))
 			      continue;
 
-			    formula c = res[n].nth(0);
+			    formula c = res[n][0];
 
 			    auto handle_F = [&xfset](formula c)
 			      {
-				formula a2 = c.nth(0);
+				formula a2 = c[0];
 				if (a2.is(op::Or))
 				  for (auto c: a2)
 				    xfset.insert(c);
@@ -2562,9 +2562,9 @@ namespace spot
 				    // a | (Xa R b) = b W a
 				    // a | (Xa M b) = b U a
 				    op t = rm.is(op::M) ? op::U : op::W;
-				    assert(rm.nth(0).is(op::X));
-				    formula a = rm.nth(0).nth(0);
-				    formula b = rm.nth(1);
+				    assert(rm[0].is(op::X));
+				    formula a = rm[0][0];
+				    formula b = rm[1];
 				    res[pos] = formula::binop(t, b, a);
 				  }
 				else
@@ -2699,7 +2699,7 @@ namespace spot
 			      if (f.is(op::F))
 				{
 				  seen_f = true;
-				  f = f.nth(0);
+				  f = f[0];
 				}
 			    if (seen_f)
 			      {
@@ -2745,7 +2745,7 @@ namespace spot
 		    for (auto i = s.res_U_or_W->begin();
 			 i != s.res_U_or_W->end(); ++i)
 		      {
-			formula a = i->nth(0);
+			formula a = (*i)[0];
 			auto j = uwmap.find(a);
 			if (j == uwmap.end())
 			  {
@@ -2758,7 +2758,7 @@ namespace spot
 			op o = op::U;
 			if (i->is(op::W) || old.is(op::W))
 			  o = op::W;
-			formula snd_arg = formula::Or({old.nth(1), i->nth(1)});
+			formula snd_arg = formula::Or({old[1], (*i)[1]});
 			*j->second = formula::binop(o, a, snd_arg);
 			assert(j->second->is(o));
 			*i = nullptr;
@@ -2769,7 +2769,7 @@ namespace spot
 		    for (auto i = s.res_R_or_M->begin();
 			 i != s.res_R_or_M->end(); ++i)
 		      {
-			formula b = i->nth(1);
+			formula b = (*i)[1];
 			auto j = rmmap.find(b);
 			if (j == rmmap.end())
 			  {
@@ -2782,7 +2782,7 @@ namespace spot
 			op o = op::M;
 			if (i->is(op::R) || old.is(op::R))
 			  o = op::R;
-			formula fst_arg = formula::Or({old.nth(0), i->nth(0)});
+			formula fst_arg = formula::Or({old[0], (*i)[0]});
 			*j->second = formula::binop(o, fst_arg, b);
 			assert(j->second->is(o));
 			*i = nullptr;
@@ -2794,7 +2794,7 @@ namespace spot
 		    for (auto& f: *s.res_G)
 		      {
 			bool superfluous = false;
-			formula c = f.nth(0);
+			formula c = f[0];
 
 			fmap_t::iterator j = uwmap.find(c);
 			if (j != uwmap.end())
@@ -2803,7 +2803,7 @@ namespace spot
 			    formula bo = *j->second;
 			    if (bo.is(op::U))
 			      {
-				*j->second = formula::W(bo.nth(0), bo.nth(1));
+				*j->second = formula::W(bo[0], bo[1]);
 				assert(j->second->is(op::W));
 			      }
 			  }
@@ -2814,7 +2814,7 @@ namespace spot
 			    formula bo = *j->second;
 			    if (bo.is(op::M))
 			      {
-				*j->second = formula::R(bo.nth(0), bo.nth(1));
+				*j->second = formula::R(bo[0], bo[1]);
 				assert(j->second->is(op::R));
 			      }
 			  }
@@ -2922,7 +2922,7 @@ namespace spot
 			  continue;
 			if (!i.is(op::Concat, op::Fusion))
 			  continue;
-			formula h = i.nth(0);
+			formula h = i[0];
 			if (!h.is_boolean())
 			  continue;
 			if (i.is(op::Concat))
@@ -3052,45 +3052,45 @@ namespace spot
 	switch (f.kind())
 	  {
 	  case op::X:
-	    if (g.is_eventual() && syntactic_implication(f.nth(0), g))
+	    if (g.is_eventual() && syntactic_implication(f[0], g))
 	      return true;
-	    if (g.is(op::X) && syntactic_implication(f.nth(0), g.nth(0)))
+	    if (g.is(op::X) && syntactic_implication(f[0], g[0]))
 	      return true;
 	    break;
 
 	  case op::F:
-	    if (g.is_eventual() && syntactic_implication(f.nth(0), g))
+	    if (g.is_eventual() && syntactic_implication(f[0], g))
 	      return true;
 	    break;
 
 	  case op::G:
-	    if (g.is(op::U, op::R) && syntactic_implication(f.nth(0), g.nth(1)))
+	    if (g.is(op::U, op::R) && syntactic_implication(f[0], g[1]))
 	      return true;
-	    if (g.is(op::W) && (syntactic_implication(f.nth(0), g.nth(0))
-				|| syntactic_implication(f.nth(0), g.nth(1))))
+	    if (g.is(op::W) && (syntactic_implication(f[0], g[0])
+				|| syntactic_implication(f[0], g[1])))
 	      return true;
-	    if (g.is(op::M) && (syntactic_implication(f.nth(0), g.nth(0))
-				&& syntactic_implication(f.nth(0), g.nth(1))))
+	    if (g.is(op::M) && (syntactic_implication(f[0], g[0])
+				&& syntactic_implication(f[0], g[1])))
 	      return true;
 	    // First column.
-	    if (syntactic_implication(f.nth(0), g))
+	    if (syntactic_implication(f[0], g))
 	      return true;
 	    break;
 
 	  case op::U:
 	    {
-	      formula f1 = f.nth(0);
-	      formula f2 = f.nth(1);
+	      formula f1 = f[0];
+	      formula f2 = f[1];
 	      if (g.is(op::U, op::W)
-		  && syntactic_implication(f1, g.nth(0))
-		  && syntactic_implication(f2, g.nth(1)))
+		  && syntactic_implication(f1, g[0])
+		  && syntactic_implication(f2, g[1]))
 		return true;
 	      if (g.is(op::M, op::R)
-		  && syntactic_implication(f1, g.nth(1))
-		  && syntactic_implication(f2, g.nth(0))
-		  && syntactic_implication(f2, g.nth(1)))
+		  && syntactic_implication(f1, g[1])
+		  && syntactic_implication(f2, g[0])
+		  && syntactic_implication(f2, g[1]))
 		return true;
-	      if (g.is(op::F) && syntactic_implication(f2, g.nth(0)))
+	      if (g.is(op::F) && syntactic_implication(f2, g[0]))
 		return true;
 	      // First column.
 	      if (syntactic_implication(f1, g) && syntactic_implication(f2, g))
@@ -3099,20 +3099,20 @@ namespace spot
 	    }
 	  case op::W:
 	    {
-	      formula f1 = f.nth(0);
-	      formula f2 = f.nth(1);
-	      if (g.is(op::U) && (syntactic_implication(f1, g.nth(1))
-				  && syntactic_implication(f2, g.nth(1))))
+	      formula f1 = f[0];
+	      formula f2 = f[1];
+	      if (g.is(op::U) && (syntactic_implication(f1, g[1])
+				  && syntactic_implication(f2, g[1])))
 		return true;
-	      if (g.is(op::W) && (syntactic_implication(f1, g.nth(0))
-				  && syntactic_implication(f2, g.nth(1))))
+	      if (g.is(op::W) && (syntactic_implication(f1, g[0])
+				  && syntactic_implication(f2, g[1])))
 		return true;
-	      if (g.is(op::R) && (syntactic_implication(f1, g.nth(1))
-				  && syntactic_implication(f2, g.nth(0))
-				  && syntactic_implication(f2, g.nth(1))))
+	      if (g.is(op::R) && (syntactic_implication(f1, g[1])
+				  && syntactic_implication(f2, g[0])
+				  && syntactic_implication(f2, g[1])))
 		return true;
-	      if (g.is(op::F) && (syntactic_implication(f1, g.nth(0))
-				  && syntactic_implication(f2, g.nth(0))))
+	      if (g.is(op::F) && (syntactic_implication(f1, g[0])
+				  && syntactic_implication(f2, g[0])))
 		return true;
 	      // First column.
 	      if (syntactic_implication(f1, g) && syntactic_implication(f2, g))
@@ -3121,18 +3121,18 @@ namespace spot
 	    }
 	  case op::R:
 	    {
-	      formula f1 = f.nth(0);
-	      formula f2 = f.nth(1);
-	      if (g.is(op::W) && (syntactic_implication(f1, g.nth(1))
-				  && syntactic_implication(f2, g.nth(0))))
+	      formula f1 = f[0];
+	      formula f2 = f[1];
+	      if (g.is(op::W) && (syntactic_implication(f1, g[1])
+				  && syntactic_implication(f2, g[0])))
 		return true;
-	      if (g.is(op::R) && (syntactic_implication(f1, g.nth(0))
-				  && syntactic_implication(f2, g.nth(1))))
+	      if (g.is(op::R) && (syntactic_implication(f1, g[0])
+				  && syntactic_implication(f2, g[1])))
 		return true;
-	      if (g.is(op::M) && (syntactic_implication(f2, g.nth(0))
-				  && syntactic_implication(f2, g.nth(1))))
+	      if (g.is(op::M) && (syntactic_implication(f2, g[0])
+				  && syntactic_implication(f2, g[1])))
 		return true;
-	      if (g.is(op::F) && syntactic_implication(f2, g.nth(0)))
+	      if (g.is(op::F) && syntactic_implication(f2, g[0]))
 		return true;
 	      // First column.
 	      if (syntactic_implication(f2, g))
@@ -3141,18 +3141,18 @@ namespace spot
 	    }
 	  case op::M:
 	    {
-	      formula f1 = f.nth(0);
-	      formula f2 = f.nth(1);
-	      if (g.is(op::U, op::W) && (syntactic_implication(f1, g.nth(1))
+	      formula f1 = f[0];
+	      formula f2 = f[1];
+	      if (g.is(op::U, op::W) && (syntactic_implication(f1, g[1])
 					 && syntactic_implication(f2,
-								  g.nth(0))))
+								  g[0])))
 		return true;
-	      if (g.is(op::R, op::M) && (syntactic_implication(f1, g.nth(0))
+	      if (g.is(op::R, op::M) && (syntactic_implication(f1, g[0])
 					 && syntactic_implication(f2,
-								  g.nth(1))))
+								  g[1])))
 		return true;
-	      if (g.is(op::F) && (syntactic_implication(f1, g.nth(0))
-				  || syntactic_implication(f2, g.nth(0))))
+	      if (g.is(op::F) && (syntactic_implication(f1, g[0])
+				  || syntactic_implication(f2, g[0])))
 		return true;
 	      // First column.
 	      if (syntactic_implication(f2, g))
@@ -3173,7 +3173,7 @@ namespace spot
 	      bool b = true;
 	      unsigned fs = f.size();
 	      for (; i < fs; ++i)
-		if (!syntactic_implication(f.nth(i), g))
+		if (!syntactic_implication(f[i], g))
 		  {
 		    b = false;
 		    break;
@@ -3195,7 +3195,7 @@ namespace spot
 		  return true;
 	      unsigned fs = f.size();
 	      for (; i < fs; ++i)
-		if (syntactic_implication(f.nth(i), g))
+		if (syntactic_implication(f[i], g))
 		  return true;
 	      break;
 	    }
@@ -3208,26 +3208,26 @@ namespace spot
 	switch (g.kind())
 	  {
 	  case op::F:
-	    if (syntactic_implication(f, g.nth(0)))
+	    if (syntactic_implication(f, g[0]))
 	      return true;
 	    break;
 
 	  case op::G:
 	  case op::X:
-	    if (f.is_universal() && syntactic_implication(f, g.nth(0)))
+	    if (f.is_universal() && syntactic_implication(f, g[0]))
 	      return true;
 	    break;
 
 	  case op::U:
 	  case op::W:
-	    if (syntactic_implication(f, g.nth(1)))
+	    if (syntactic_implication(f, g[1]))
 	      return true;
 	    break;
 
 	  case op::M:
 	  case op::R:
-	    if (syntactic_implication(f, g.nth(0))
-		&& syntactic_implication(f, g.nth(1)))
+	    if (syntactic_implication(f, g[0])
+		&& syntactic_implication(f, g[1]))
 	      return true;
 	    break;
 
@@ -3245,7 +3245,7 @@ namespace spot
 	      bool b = true;
 	      unsigned gs = g.size();
 	      for (; i < gs; ++i)
-		if (!syntactic_implication(f, g.nth(i)))
+		if (!syntactic_implication(f, g[i]))
 		  {
 		    b = false;
 		    break;
@@ -3268,7 +3268,7 @@ namespace spot
 		  return true;
 	      unsigned gs = g.size();
 	      for (; i < gs; ++i)
-		if (syntactic_implication(f, g.nth(i)))
+		if (syntactic_implication(f, g[i]))
 		  return true;
 	      break;
 	    }

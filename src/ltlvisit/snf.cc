@@ -56,9 +56,9 @@ namespace spot
 	      break;
 	    case op::Star:
 	      if (!bounded)
-		out = visit(f.nth(0)); // Strip the star.
+		out = visit(f[0]); // Strip the star.
 	      else
-		out = formula::Star(visit(f.nth(0)),
+		out = formula::Star(visit(f[0]),
 				    std::max(unsigned(f.min()), 1U), f.max());
 	      break;
 	    case op::Concat:
@@ -91,7 +91,7 @@ namespace spot
 		std::vector<formula> v;
 		v.reserve(s);
 		for (unsigned pos = 0; pos < s; ++pos)
-		  v.emplace_back(visit(f.nth(pos)));
+		  v.emplace_back(visit(f[pos]));
 		out = formula::OrRat(v);
 		break;
 	      }

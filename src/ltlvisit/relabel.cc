@@ -280,24 +280,24 @@ namespace spot
 		visit(b);
 	    }
 	  for (; i < sz; ++i)
-	    visit(f.nth(i));
+	    visit(f[i]);
 	  if (sz > 1 && f.is_boolean())
 	    {
 	      // For Boolean nodes, connect all children in a
 	      // loop.  This way the node can only be a cut-point
 	      // if it separates all children from the reset of
 	      // the graph (not only one).
-	      formula pred = f.nth(0);
+	      formula pred = f[0];
 	      for (i = 1; i < sz; ++i)
 		{
-		  formula next = f.nth(i);
+		  formula next = f[i];
 		  // Note that we only add an edge in one
 		  // direction, because we are building a cycle
 		  // between all children anyway.
 		  g[pred].push_back(next);
 		  pred = next;
 		}
-	      g[pred].push_back(f.nth(0));
+	      g[pred].push_back(f[0]);
 	    }
 	  s.pop();
 	}
@@ -446,7 +446,7 @@ namespace spot
 	      res.reserve(sz);
 	    }
 	  for (; i < sz; ++i)
-	    res.push_back(visit(f.nth(i)));
+	    res.push_back(visit(f[i]));
 	  return formula::multop(f.kind(), res);
 	}
       };

@@ -64,7 +64,7 @@ namespace spot
 	      unsigned mos = f.size();
 	      for (unsigned i = 0; i < mos; ++i)
 		{
-		  ltl::formula c = f.nth(i);
+		  ltl::formula c = f[i];
 		  if (c.is_boolean())
 		    res.push_back(c);
 		  else if (oblig_ && c.is_syntactic_obligation())
@@ -91,7 +91,7 @@ namespace spot
 		    {
 		      // res || susp -> (res && G![susp]) || G[susp])
 		      auto r = ltl::formula::multop(op, res);
-		      auto gn = ltl::formula::G(ltl::formula::Not(g.nth(0)));
+		      auto gn = ltl::formula::G(ltl::formula::Not(g[0]));
 		      return ltl::formula::Or({ltl::formula::And({r, gn}), g});
 		    }
 		}

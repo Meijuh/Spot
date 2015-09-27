@@ -101,13 +101,13 @@ namespace spot
       case op::AP:
 	return bdd_ithvar(d->register_proposition(f, owner));
       case op::Not:
-	return bdd_not(recurse(f.nth(0)));
+	return bdd_not(recurse(f[0]));
       case op::Xor:
-	return bdd_apply(recurse(f.nth(0)), recurse(f.nth(1)), bddop_xor);
+	return bdd_apply(recurse(f[0]), recurse(f[1]), bddop_xor);
       case op::Implies:
-	return bdd_apply(recurse(f.nth(0)), recurse(f.nth(1)), bddop_imp);
+	return bdd_apply(recurse(f[0]), recurse(f[1]), bddop_imp);
       case op::Equiv:
-	return bdd_apply(recurse(f.nth(0)), recurse(f.nth(1)), bddop_biimp);
+	return bdd_apply(recurse(f[0]), recurse(f[1]), bddop_biimp);
       case op::And:
       case op::Or:
 	{
@@ -120,7 +120,7 @@ namespace spot
 	    }
 	  unsigned s = f.size();
 	  for (unsigned n = 0; n < s; ++n)
-	    res = bdd_apply(res, recurse(f.nth(n)), op);
+	    res = bdd_apply(res, recurse(f[n]), op);
 	  return res;
 	}
       }

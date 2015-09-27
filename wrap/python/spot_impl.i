@@ -310,7 +310,7 @@ namespace std {
   int __cmp__(spot::ltl::formula b) { return self->id() - b.id(); }
   size_t __hash__() { return self->id(); }
   unsigned __len__() { return self->size(); }
-  formula __getitem__(unsigned pos) { return self->nth(pos); }
+  formula __getitem__(unsigned pos) { return (*self)[pos]; }
 
   std::string __repr__() { return spot::ltl::str_psl(*self); }
   std::string _repr_latex_()

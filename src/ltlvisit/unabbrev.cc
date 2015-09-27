@@ -119,7 +119,7 @@ namespace spot
 	    //  F f = true U f
 	    if (!re_f_)
 	      break;
-	    out = formula::U(formula::tt(), out.nth(0));
+	    out = formula::U(formula::tt(), out[0]);
 	    break;
 	  case op::G:
 	    //  G f = false R f
@@ -130,16 +130,16 @@ namespace spot
 	      break;
 	    if (!re_r_)
 	      {
-		out = formula::R(formula::ff(), out.nth(0));
+		out = formula::R(formula::ff(), out[0]);
 		break;
 	      }
 	    if (!re_w_)
 	      {
-		out = formula::W(out.nth(0), formula::ff());
+		out = formula::W(out[0], formula::ff());
 		break;
 	      }
 	    {
-	      auto nc = formula::Not(out.nth(0));
+	      auto nc = formula::Not(out[0]);
 	      if (!re_f_)
 		{
 		  out = formula::Not(formula::F(nc));
@@ -154,8 +154,8 @@ namespace spot
 	    if (!re_xor_)
 	      break;
 	    {
-	      auto f1 = out.nth(0);
-	      auto f2 = out.nth(1);
+	      auto f1 = out[0];
+	      auto f2 = out[1];
 	      if (!re_e_)
 		{
 		  out = formula::Not(formula::Equiv(f1, f2));
@@ -172,15 +172,15 @@ namespace spot
 	    // f1 => f2  ==  !f1 | f2
 	    if (!re_i_)
 	      break;
-	    out = formula::Or({formula::Not(out.nth(0)), out.nth(1)});
+	    out = formula::Or({formula::Not(out[0]), out[1]});
 	    break;
 	  case op::Equiv:
 	    // f1 <=> f2  ==  (f1 & f2) | (!f1 & !f2)
 	    if (!re_e_)
 	      break;
 	    {
-	      auto f1 = out.nth(0);
-	      auto f2 = out.nth(1);
+	      auto f1 = out[0];
+	      auto f2 = out[1];
 	      auto nf1 = formula::Not(f1);
 	      auto nf2 = formula::Not(f2);
 	      auto term1 = formula::And({f1, f2});
@@ -196,8 +196,8 @@ namespace spot
 	    if (!re_r_)
 	      break;
 	    {
-	      auto f1 = out.nth(0);
-	      auto f2 = out.nth(1);
+	      auto f1 = out[0];
+	      auto f2 = out[1];
 	      auto f12 = formula::And({f1, f2});
 	      if (!re_w_)
 		{
@@ -218,8 +218,8 @@ namespace spot
 	    if (!re_w_)
 	      break;
 	    {
-	      auto f1 = out.nth(0);
-	      auto f2 = out.nth(1);
+	      auto f1 = out[0];
+	      auto f2 = out[1];
 	      if (!re_r_)
 		{
 		  out = formula::R(f2, formula::Or({f2, f1}));
@@ -236,8 +236,8 @@ namespace spot
 	    if (!re_m_)
 	      break;
 	    {
-	      auto f2 = out.nth(1);
-	      out = formula::U(f2, formula::And({f2, out.nth(0)}));
+	      auto f2 = out[1];
+	      out = formula::U(f2, formula::And({f2, out[0]}));
 	      break;
 	    }
 	}

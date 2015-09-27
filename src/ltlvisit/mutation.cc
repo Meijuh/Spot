@@ -86,7 +86,7 @@ namespace spot
 	    case op::G:
 	      if ((opts_ & Mut_Remove_Ops)
 		  && mutation_counter_-- == 0)
-		return f.nth(0);
+		return f[0];
 	      // fall through
 	    case op::Closure:
 	    case op::NegClosure:
@@ -118,7 +118,7 @@ namespace spot
 		      {
 			vec v1;
 			vec v2;
-			v1.push_back(f.nth(0));
+			v1.push_back(f[0]);
 			bool reverse = false;
 			int i = 1;
 			while (i < mos)
@@ -130,10 +130,10 @@ namespace spot
 				reverse = true;
 				break;
 			      }
-			    v1.push_back(f.nth(i++));
+			    v1.push_back(f[i++]);
 			  }
 			for (; i < mos; ++i)
-			  v2.push_back(f.nth(i));
+			  v2.push_back(f[i]);
 			formula first = AndNLM_(v1);
 			formula second = AndNLM_(v2);
 			formula ost = formula::one_star();
@@ -164,8 +164,8 @@ namespace spot
 	    case op::EConcatMarked:
 	    case op::UConcat:
 	      {
-		formula first = f.nth(0);
-		formula second = f.nth(1);
+		formula first = f[0];
+		formula second = f[1];
 		op o = f.kind();
 		bool left_is_sere = o == op::EConcat
 		  || o == op::EConcatMarked
@@ -242,7 +242,7 @@ namespace spot
 	    case op::Star:
 	    case op::FStar:
 	      {
-		formula c = f.nth(0);
+		formula c = f[0];
 		op o = f.kind();
 		if (opts_ & Mut_Remove_Ops && mutation_counter_-- == 0)
 		  return c;

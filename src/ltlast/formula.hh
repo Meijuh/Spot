@@ -1076,12 +1076,12 @@ namespace spot
       {
 	return ptr_->end();
       }
-#endif
 
-      formula nth(unsigned i) const
+      formula operator[](unsigned i) const
       {
 	return formula(ptr_->nth(i)->clone());
       }
+#endif
 
       static formula ff()
       {
@@ -1206,7 +1206,7 @@ namespace spot
 	  case op::Closure:
 	  case op::NegClosure:
 	  case op::NegClosureMarked:
-	    return unop(o, trans(nth(0)));
+	    return unop(o, trans((*this)[0]));
 	  case op::Xor:
 	  case op::Implies:
 	  case op::Equiv:
@@ -1218,8 +1218,8 @@ namespace spot
 	  case op::EConcatMarked:
 	  case op::UConcat:
 	    {
-	      formula tmp = trans(nth(0));
-	      return binop(o, tmp, trans(nth(1)));
+	      formula tmp = trans((*this)[0]);
+	      return binop(o, tmp, trans((*this)[1]));
 	    }
 	  case op::Or:
 	  case op::OrRat:
@@ -1237,7 +1237,7 @@ namespace spot
 	    }
 	  case op::Star:
 	  case op::FStar:
-	    return bunop(o, trans(nth(0)), min(), max());
+	    return bunop(o, trans((*this)[0]), min(), max());
 	  }
 	SPOT_UNREACHABLE();
       }

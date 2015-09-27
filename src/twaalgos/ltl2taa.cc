@@ -86,7 +86,7 @@ namespace spot
 	    }
 	  case op::X:
 	    {
-	      ltl2taa_visitor v = recurse(f.nth(0));
+	      ltl2taa_visitor v = recurse(f[0]);
 	      std::vector<formula> dst;
 	      std::vector<formula> a;
 	      if (v.succ_.empty()) // Handle X(0)
@@ -104,7 +104,7 @@ namespace spot
 	  case op::Not:
 	    {
 	      negated_ = true;
-	      ltl2taa_visitor v = recurse(f.nth(0));
+	      ltl2taa_visitor v = recurse(f[0]);
 	      // Done in recurse
 	      succ_ = v.succ_;
 	      return;
@@ -143,8 +143,8 @@ namespace spot
       void
       visit_binop(formula f)
       {
-	ltl2taa_visitor v1 = recurse(f.nth(0));
-	ltl2taa_visitor v2 = recurse(f.nth(1));
+	ltl2taa_visitor v1 = recurse(f[0]);
+	ltl2taa_visitor v2 = recurse(f[1]);
 
 	std::vector<succ_state>::iterator i1;
 	std::vector<succ_state>::iterator i2;
@@ -159,7 +159,7 @@ namespace spot
 	  // fall thru
 	case op::W:
 	  if (refined_)
-	    contained = lcc_->contained(f.nth(0), f.nth(1));
+	    contained = lcc_->contained(f[0], f[1]);
 	  for (i1 = v1.succ_.begin(); i1 != v1.succ_.end(); ++i1)
 	    {
 	      // Refined rule
@@ -169,11 +169,11 @@ namespace spot
 
 	      i1->Q.push_back(init_); // Add the initial state
 	      if (strong)
-		i1->acc.push_back(f.nth(1));
+		i1->acc.push_back(f[1]);
 	      t = res_->create_transition(init_, i1->Q);
 	      res_->add_condition(t, i1->condition);
 	      if (strong)
-		res_->add_acceptance_condition(t, f.nth(1));
+		res_->add_acceptance_condition(t, f[1]);
 	      else
 		for (unsigned i = 0; i < i1->acc.size(); ++i)
 		  res_->add_acceptance_condition(t, i1->acc[i]);
@@ -190,7 +190,7 @@ namespace spot
 	  strong = true;
 	case op::R: // Weak Release
 	  if (refined_)
-	    contained = lcc_->contained(f.nth(0), f.nth(1));
+	    contained = lcc_->contained(f[0], f[1]);
 
 	  for (i2 = v2.succ_.begin(); i2 != v2.succ_.end(); ++i2)
 	    {
@@ -222,8 +222,8 @@ namespace spot
 
 	      if (strong)
 		{
-		  i2->acc.push_back(f.nth(0));
-		  res_->add_acceptance_condition(t, f.nth(0));
+		  i2->acc.push_back(f[0]);
+		  res_->add_acceptance_condition(t, f[0]);
 		}
 	      else if (refined_)
 		for (unsigned i = 0; i < i2->acc.size(); ++i)
@@ -244,7 +244,7 @@ namespace spot
 	std::vector<ltl2taa_visitor> vs;
 	for (unsigned n = 0, s = f.size(); n < s; ++n)
 	{
-	  vs.push_back(recurse(f.nth(n)));
+	  vs.push_back(recurse(f[n]));
 	  if (vs[n].succ_.empty()) // Handle 0
 	    ok = false;
 	}
