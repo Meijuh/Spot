@@ -81,7 +81,7 @@ namespace spot
 	  else if (sub.is(op::W))
 	    {
 	      // f W 0 = Gf
-	      if (sub.nth(1).is(op::False))
+	      if (sub.nth(1).is_false())
 		implied_subformulae(sub.nth(0), rec, true);
 	    }
 	  else
@@ -90,7 +90,7 @@ namespace spot
 		// in 'f R g' and 'f M g' always evaluate 'g'.
 		formula b = sub;
 		sub = b.nth(1);
-		if (b.nth(0) == formula::ff())
+		if (b.nth(0).is_false())
 		  {
 		    assert(b.is(op::R)); // because 0 M g = 0
 		    // 0 R f = Gf
@@ -1248,7 +1248,7 @@ namespace spot
 		  else
 		    {
 		      formula dest2 = formula::unop(o, dest);
-		      if (dest2 == formula::ff())
+		      if (dest2.is_false())
 			continue;
 		      res |=
 			label & bdd_ithvar(dict_.register_next_variable(dest2));
@@ -1290,7 +1290,7 @@ namespace spot
 		  if (!dest.accepts_eword())
 		    {
 		      formula dest2 = formula::unop(o, dest);
-		      if (dest2 == formula::ff())
+		      if (dest2.is_false())
 			continue;
 		      res |= label
 			& bdd_ithvar(dict_.register_next_variable(dest2));
@@ -1333,7 +1333,7 @@ namespace spot
 	      // r(f1 W f2) = r(f2) + r(f1)           if recurring
 	      //
 	      // also f1 W 0 = G(f1), so we can enable recurring on f1
-	      bdd f1 = recurse(node.nth(0), node.nth(1) == formula::ff());
+	      bdd f1 = recurse(node.nth(0), node.nth(1).is_false());
 	      bdd f2 = recurse(node.nth(1));
 	      if (!recurring_)
 		f1 &= bdd_ithvar(dict_.register_next_variable(node));
@@ -1346,7 +1346,7 @@ namespace spot
 	      // r(f2) is in factor, so we can propagate the recurring_ flag.
 	      // if f1=false, we can also turn it on (0 R f = Gf).
 	      bdd res = recurse(node.nth(1),
-				recurring_ || node.nth(0) == formula::ff());
+				recurring_ || node.nth(0).is_false());
 	      // r(f1 R f2) = r(f2)(r(f1) + X(f1 R f2))  if not recurring
 	      // r(f1 R f2) = r(f2)                      if recurring
 	      if (recurring_ && !dict_.unambiguous)
@@ -2080,7 +2080,7 @@ namespace spot
 		  {
 		    dest = simplifier->simplify(dest);
 		    // Ignore the arc if the destination reduces to false.
-		    if (dest == formula::ff())
+		    if (dest.is_false())
 		      continue;
 		  }
 
@@ -2131,11 +2131,11 @@ namespace spot
 	//     f ----> 1
 	//
 	// because there is no point in looping on f if we can go to 1.
-	if (dests.front().dest == formula::tt())
+	if (dests.front().dest.is_true())
 	  {
 	    dest_map::iterator i = dests.begin();
 	    bdd c = bddfalse;
-	    while (i != dests.end() && i->dest == formula::tt())
+	    while (i != dests.end() && i->dest.is_true())
 	      c |= i++->cond;
 	    for (; i != dests.end(); ++i)
 	      i->cond -= c;
@@ -2158,9 +2158,7 @@ namespace spot
 		  // When translating LTL for an event-based logic
 		  // with unobservable events, the 1 state should
 		  // accept all events, even unobservable events.
-		  if (unobs
-		      && t.dest == formula::tt()
-		      && now == formula::tt())
+		  if (unobs && t.dest.is_true() && now.is_true())
 		    t.cond = all_events;
 
 		  // Will this be a new state?
