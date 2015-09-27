@@ -138,7 +138,7 @@ namespace spot
     void
     fnode::destroy_aux() const
     {
-      if (SPOT_UNLIKELY(is(op::AP)))
+      if (SPOT_UNLIKELY(is(op::ap)))
 	{
 	  auto i = m.ap2name.find(id());
 	  auto n = m.name2ap.erase(i->second);
@@ -165,10 +165,10 @@ namespace spot
 	case op::x:				\
 	  return #x;				\
 	  break
-	  C(False);
-	  C(True);
-	  C(EmptyWord);
-	  C(AP);
+	  C(ff);
+	  C(tt);
+	  C(eword);
+	  C(ap);
 	  C(Not);
 	  C(X);
 	  C(F);
@@ -618,7 +618,7 @@ namespace spot
       //   - 0[*min..max] = 0 if min > 0
       //   - b[:*0..max] = 1
       //   - b[:*min..max] = 0 if min > 0
-      if (child->is_false()
+      if (child->is_ff()
 	  || (o == op::FStar && child->is_boolean()))
 	{
 	  if (min == 0)
@@ -709,7 +709,7 @@ namespace spot
 
 	    // F(0) = G(0) = 0
 	    // F(1) = G(1) = 1
-	    if (f->is_false() || f->is_true())
+	    if (f->is_ff() || f->is_tt())
 	      return f;
 
 	    assert(!f->is_eword());
@@ -719,10 +719,10 @@ namespace spot
 	case op::Not:
 	  {
 	    // !1 = 0
-	    if (f->is_true())
+	    if (f->is_tt())
 	      return ff();
 	    // !0 = 1
-	    if (f->is_false())
+	    if (f->is_ff())
 	      return tt();
 	    // ![*0] = 1[+]
 	    if (f->is_eword())
@@ -754,7 +754,7 @@ namespace spot
 	  }
 	case op::X:
 	  // X(1) = 1,  X(0) = 0
-	  if (f->is_true() || f->is_false())
+	  if (f->is_tt() || f->is_ff())
 	    return f;
 	  assert(!f->is_eword());
 	  break;
@@ -771,10 +771,10 @@ namespace spot
 	case op::NegClosure:
 	case op::NegClosureMarked:
 	  // {1} = 0
-	  if (f->is_true())
+	  if (f->is_tt())
 	    return ff();
 	  // {0} = 1,  {[*0]} = 1
-	  if (f->is_false() || f->is_eword())
+	  if (f->is_ff() || f->is_eword())
 	    return tt();
 	  // {b} = !b
 	  if (f->is_boolean())
@@ -806,9 +806,9 @@ namespace spot
 	  }
 	  //   - (1 ^ Exp) = !Exp
 	  //   - (0 ^ Exp) = Exp
-	  if (first->is_true())
+	  if (first->is_tt())
 	    return unop(op::Not, second);
-	  if (first->is_false())
+	  if (first->is_ff())
 	    return second;
 	  if (first == second)
 	    {
@@ -830,9 +830,9 @@ namespace spot
 	  //   - (0 <=> Exp) = !Exp
 	  //   - (1 <=> Exp) = Exp
 	  //   - (Exp <=> Exp) = 1
-	  if (first->is_false())
+	  if (first->is_ff())
 	    return unop(op::Not, second);
-	  if (first->is_true())
+	  if (first->is_tt())
 	    return second;
 	  if (first == second)
 	    {
@@ -850,19 +850,19 @@ namespace spot
 	  //   - (Exp => 1) = 1
 	  //   - (Exp => 0) = !Exp
 	  //   - (Exp => Exp) = 1
-	  if (first->is_true())
+	  if (first->is_tt())
 	    return second;
-	  if (first->is_false())
+	  if (first->is_ff())
 	    {
 	      second->destroy();
 	      return tt();
 	    }
-	  if (second->is_true())
+	  if (second->is_tt())
 	    {
 	      first->destroy();
 	      return second;
 	    }
-	  if (second->is_false())
+	  if (second->is_ff())
 	    return unop(op::Not, first);
 	  if (first == second)
 	    {
@@ -876,9 +876,9 @@ namespace spot
 	  //   - (Exp U 0) = 0
 	  //   - (0 U Exp) = Exp
 	  //   - (Exp U Exp) = Exp
-	  if (second->is_true()
-	      || second->is_false()
-	      || first->is_false()
+	  if (second->is_tt()
+	      || second->is_ff()
+	      || first->is_ff()
 	      || first == second)
 	    {
 	      first->destroy();
@@ -890,14 +890,14 @@ namespace spot
 	  //   - (0 W Exp) = Exp
 	  //   - (1 W Exp) = 1
 	  //   - (Exp W Exp) = Exp
-	  if (second->is_true()
-	      || first->is_false()
+	  if (second->is_tt()
+	      || first->is_ff()
 	      || first == second)
 	    {
 	      first->destroy();
 	      return second;
 	    }
-	  if (first->is_true())
+	  if (first->is_tt())
 	    {
 	      second->destroy();
 	      return first;
@@ -908,9 +908,9 @@ namespace spot
 	  //   - (Exp R 0) = 0
 	  //   - (1 R Exp) = Exp
 	  //   - (Exp R Exp) = Exp
-	  if (second->is_true()
-	      || second->is_false()
-	      || first->is_true()
+	  if (second->is_tt()
+	      || second->is_ff()
+	      || first->is_tt()
 	      || first == second)
 	    {
 	      first->destroy();
@@ -922,14 +922,14 @@ namespace spot
 	  //   - (1 M Exp) = Exp
 	  //   - (0 M Exp) = 0
 	  //   - (Exp M Exp) = Exp
-	  if (second->is_false()
-	      || first->is_true()
+	  if (second->is_ff()
+	      || first->is_tt()
 	      || first == second)
 	    {
 	      first->destroy();
 	      return second;
 	    }
-	  if (first->is_false())
+	  if (first->is_ff())
 	    {
 	      second->destroy();
 	      return first;
@@ -942,15 +942,15 @@ namespace spot
 	  //   - [*0] <>-> Exp = 0
 	  //   - Exp <>-> 0 = 0
 	  //   - boolExp <>-> Exp = boolExp & Exp
-	  if (first->is_true())
+	  if (first->is_tt())
 	    return second;
-	  if (first->is_false()
+	  if (first->is_ff()
 	      || first->is_eword())
 	    {
 	      second->destroy();
 	      return ff();
 	    }
-	  if (second->is_false())
+	  if (second->is_ff())
 	    {
 	      first->destroy();
 	      return second;
@@ -964,15 +964,15 @@ namespace spot
 	  //   - [*0] []-> Exp = 1
 	  //   - Exp []-> 1 = 1
 	  //   - boolExp []-> Exp = !boolExp | Exp
-	  if (first->is_true())
+	  if (first->is_tt())
 	    return second;
-	  if (first->is_false()
+	  if (first->is_ff()
 	      || first->is_eword())
 	    {
 	      second->destroy();
 	      return tt();
 	    }
-	  if (second->is_true())
+	  if (second->is_tt())
 	    {
 	      first->destroy();
 	      return second;
@@ -1000,13 +1000,13 @@ namespace spot
       m.ap2name.emplace(next_id_, name);
       // next_id_ is incremented by setup_props(), called by the
       // constructor of fnode
-      return ires.first->second = new fnode(op::AP, {});
+      return ires.first->second = new fnode(op::ap, {});
     }
 
     const std::string&
     fnode::ap_name() const
     {
-      if (op_ != op::AP)
+      if (op_ != op::ap)
 	throw std::runtime_error("ap_name() called on non-AP formula");
       auto i = m.ap2name.find(id());
       assert(i != m.ap2name.end());
@@ -1014,9 +1014,9 @@ namespace spot
     }
 
     size_t fnode::next_id_ = 0U;
-    const fnode* fnode::ff_ = new fnode(op::False, {});
-    const fnode* fnode::tt_ = new fnode(op::True, {});
-    const fnode* fnode::ew_ = new fnode(op::EmptyWord, {});
+    const fnode* fnode::ff_ = new fnode(op::ff, {});
+    const fnode* fnode::tt_ = new fnode(op::tt, {});
+    const fnode* fnode::ew_ = new fnode(op::eword, {});
     const fnode* fnode::one_star_ = nullptr; // Only built when necessary.
 
     void fnode::setup_props(op o)
@@ -1032,8 +1032,8 @@ namespace spot
 
       switch (op_)
 	{
-	case op::False:
-	case op::True:
+	case op::ff:
+	case op::tt:
 	  is_.boolean = true;
 	  is_.sugar_free_boolean = true;
 	  is_.in_nenoform = true;
@@ -1055,7 +1055,7 @@ namespace spot
 	  is_.lbt_atomic_props = true;
 	  is_.spin_atomic_props = true;
 	  break;
-	case op::EmptyWord:
+	case op::eword:
 	  is_.boolean = false;
 	  is_.sugar_free_boolean = false;
 	  is_.in_nenoform = true;
@@ -1077,7 +1077,7 @@ namespace spot
 	  is_.lbt_atomic_props = true;
 	  is_.spin_atomic_props = true;
 	  break;
-	case op::AP:
+	case op::ap:
 	  is_.boolean = true;
 	  is_.sugar_free_boolean = true;
 	  is_.in_nenoform = true;
@@ -1119,7 +1119,7 @@ namespace spot
 	  is_.not_marked = true;
 	  is_.eventual = children[0]->is_universal();
 	  is_.universal = children[0]->is_eventual();
-	  is_.in_nenoform = (children[0]->is(op::AP));
+	  is_.in_nenoform = (children[0]->is(op::ap));
 	  is_.sere_formula = is_.boolean;
 
 	  is_.syntactic_safety = children[0]->is_syntactic_guarantee();
@@ -1336,7 +1336,7 @@ namespace spot
 	  is_.not_marked = true;
 	  // f U g is universal if g is eventual, or if f == 1.
 	  is_.eventual = children[1]->is_eventual();
-	  is_.eventual |= children[0]->is_true();
+	  is_.eventual |= children[0]->is_tt();
 	  is_.boolean = false;
 	  is_.sere_formula = false;
 	  is_.finite = false;
@@ -1357,7 +1357,7 @@ namespace spot
 	  props = children[0]->props & children[1]->props;
 	  is_.not_marked = true;
 	  // f W g is universal if f and g are, or if g == 0.
-	  is_.universal |= children[1]->is_false();
+	  is_.universal |= children[1]->is_ff();
 	  is_.boolean = false;
 	  is_.sere_formula = false;
 	  is_.finite = false;
@@ -1380,7 +1380,7 @@ namespace spot
 	  is_.not_marked = true;
 	  // g R f is universal if f is universal, or if g == 0.
 	  is_.universal = children[1]->is_universal();
-	  is_.universal |= children[0]->is_false();
+	  is_.universal |= children[0]->is_ff();
 	  is_.boolean = false;
 	  is_.sere_formula = false;
 	  is_.finite = false;
@@ -1402,7 +1402,7 @@ namespace spot
 	  props = children[0]->props & children[1]->props;
 	  is_.not_marked = true;
 	  // g M f is eventual if both g and f are eventual, or if f == 1.
-	  is_.eventual |= children[1]->is_true();
+	  is_.eventual |= children[1]->is_tt();
 	  is_.boolean = false;
 	  is_.sere_formula = false;
 	  is_.finite = false;
@@ -1585,7 +1585,7 @@ namespace spot
 	  if (m != unbounded())
 	    os << +m;
 	}
-      if (op_ == op::AP)
+      if (op_ == op::ap)
 	os << " \"" << ap_name() << '"';
       if (auto s = size())
 	{

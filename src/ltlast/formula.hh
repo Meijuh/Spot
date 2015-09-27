@@ -41,10 +41,10 @@ namespace spot
   {
     enum class op: uint8_t
     {
-      False,
-	True,
-	EmptyWord,
-	AP,
+      ff,
+	tt,
+	eword,
+	ap,
       // unary operators
 	Not,
 	X,
@@ -210,9 +210,9 @@ namespace spot
 	return ff_;
       }
 
-      bool is_false() const
+      bool is_ff() const
       {
-	return op_ == op::False;
+	return op_ == op::ff;
       }
 
       static const fnode* tt()
@@ -220,9 +220,9 @@ namespace spot
 	return tt_;
       }
 
-      bool is_true() const
+      bool is_tt() const
       {
-	return op_ == op::True;
+	return op_ == op::tt;
       }
 
       static const fnode* eword()
@@ -232,12 +232,12 @@ namespace spot
 
       bool is_eword() const
       {
-	return op_ == op::EmptyWord;
+	return op_ == op::eword;
       }
 
       bool is_constant() const
       {
-	return op_ == op::False || op_ == op::True || op_ == op::EmptyWord;
+	return op_ == op::ff || op_ == op::tt || op_ == op::eword;
       }
 
       bool is_Kleene_star() const
@@ -579,7 +579,7 @@ namespace spot
 		  {
 		    if (f->is(op::Not))
 		      f = f->nth(0);
-		    if (f->is(op::AP))
+		    if (f->is(op::ap))
 		      return f;
 		    return nullptr;
 		  };
@@ -1088,9 +1088,9 @@ namespace spot
 	return formula(fnode::ff());
       }
 
-      bool is_false() const
+      bool is_ff() const
       {
-	return ptr_->is_false();
+	return ptr_->is_ff();
       }
 
       static formula tt()
@@ -1098,9 +1098,9 @@ namespace spot
 	return formula(fnode::tt());
       }
 
-      bool is_true() const
+      bool is_tt() const
       {
-	return ptr_->is_true();
+	return ptr_->is_tt();
       }
 
       static formula eword()
@@ -1130,7 +1130,7 @@ namespace spot
 
       bool is_literal()
       {
-	return (is(op::AP) ||
+	return (is(op::ap) ||
 		// If f is in nenoform, Not can only occur in front of
 		// an atomic proposition.  So this way we do not have
 		// to check the type of the child.
@@ -1194,10 +1194,10 @@ namespace spot
       {
 	switch (op o = kind())
 	  {
-	  case op::False:
-	  case op::True:
-	  case op::EmptyWord:
-	  case op::AP:
+	  case op::ff:
+	  case op::tt:
+	  case op::eword:
+	  case op::ap:
 	    return *this;
 	  case op::Not:
 	  case op::X:

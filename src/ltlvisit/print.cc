@@ -423,16 +423,16 @@ namespace spot
 	  op o = f.kind();
 	  switch (o)
 	    {
-	    case op::False:
+	    case op::ff:
 	      emit(KFalse);
 	      break;
-	    case op::True:
+	    case op::tt:
 	      emit(KTrue);
 	      break;
-	    case op::EmptyWord:
+	    case op::eword:
 	      emit(KEmptyWord);
 	      break;
-	    case op::AP:
+	    case op::ap:
 	      {
 		const std::string& str = f.ap_name();
 		if (!is_bare_word(str.c_str()))
@@ -483,7 +483,7 @@ namespace spot
 	    case op::Not:
 	      {
 		formula c = f[0];
-		if (c.is(op::AP))
+		if (c.is(op::ap))
 		  {
 		    // If we negate a single letter in UTF-8, use a
 		    // combining overline.
@@ -585,7 +585,7 @@ namespace spot
 		formula right = f[1];
 		unsigned last = left.size() - 1;
 		bool onelast = false;
-		if (left.is(op::Concat) && left[last].is_true())
+		if (left.is(op::Concat) && left[last].is_tt())
 		  {
 		    visit(left.all_but(last));
 		    onelast = true;
@@ -609,7 +609,7 @@ namespace spot
 		  }
 		else if (o == op::EConcat)
 		  {
-		    if (f[1].is(op::True))
+		    if (f[1].is_tt())
 		      {
 			os_ << '!';
 			// No recursion on right.
@@ -743,7 +743,7 @@ namespace spot
 		unsigned default_max = formula::unbounded();
 
 		// Abbreviate "1[*]" as "[*]".
-		if (!c.is(op::True) || o != op::Star)
+		if (!c.is_tt() || o != op::Star)
 		  {
 		    if (o == op::Star)
 		      {
@@ -1042,13 +1042,13 @@ namespace spot
 	  op o = f.kind();
 	  switch (o)
 	    {
-	    case op::False:
+	    case op::ff:
 	      os_ << 'f';
 	      break;
-	    case op::True:
+	    case op::tt:
 	      os_ << 't';
 	      break;
-	    case op::AP:
+	    case op::ap:
 	      {
 		const std::string& str = f.ap_name();
 		if (!is_pnum(str.c_str()))
@@ -1100,7 +1100,7 @@ namespace spot
 		os_ << "& ";
 	      first_ = true;
 	      break;
-	    case op::EmptyWord:
+	    case op::eword:
 	    case op::Closure:
 	    case op::NegClosure:
 	    case op::NegClosureMarked:

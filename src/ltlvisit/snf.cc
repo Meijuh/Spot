@@ -51,7 +51,7 @@ namespace spot
 	  formula out;
 	  switch (f.kind())
 	    {
-	    case op::EmptyWord:
+	    case op::eword:
 	      out = formula::ff();
 	      break;
 	    case op::Star:
@@ -95,9 +95,9 @@ namespace spot
 		out = formula::OrRat(v);
 		break;
 	      }
-	    case op::False:
-	    case op::True:
-	    case op::AP:
+	    case op::ff:
+	    case op::tt:
+	    case op::ap:
 	    case op::Not:
 	    case op::X:
 	    case op::F:

@@ -100,13 +100,13 @@ namespace spot
 
 	switch (f.kind())
 	  {
-	  case op::True:
+	  case op::tt:
 	    result = bddtrue;
 	    break;
-	  case op::False:
+	  case op::ff:
 	    result = bddfalse;
 	    break;
-	  case op::AP:
+	  case op::ap:
 	    result = bdd_ithvar(dict->register_proposition(f, this));
 	    break;
 	  case op::Not:
@@ -385,15 +385,15 @@ namespace spot
 
 	    switch (op o = f.kind())
 	      {
-	      case op::False:
-	      case op::True:
+	      case op::ff:
+	      case op::tt:
 		// Negation of constants is taken care of in the
 		// constructor of unop::Not, so these cases should be
 		// caught by nenoform_recursively().
 		assert(!negated);
 		result = f;
 		break;
-	      case op::AP:
+	      case op::ap:
 		result = negated ? formula::Not(f) : f;
 		break;
 	      case op::X:
@@ -526,7 +526,7 @@ namespace spot
 					  rec(f1, false), rec(f2, negated));
 		  break;
 		}
-	      case op::EmptyWord:
+	      case op::eword:
 	      case op::Not:
 		SPOT_UNREACHABLE();
 	      }
@@ -849,10 +849,10 @@ namespace spot
 
 	  switch (op o = f.kind())
 	    {
-	      case op::False:
-	      case op::True:
-	      case op::EmptyWord:
-	      case op::AP:
+	      case op::ff:
+	      case op::tt:
+	      case op::eword:
+	      case op::ap:
 	      case op::Not:
 	      case op::FStar:
 		return f;
@@ -1772,16 +1772,16 @@ namespace spot
 	  trace << "bo: trying basic reductions" << std::endl;
 	  // Rewrite U,R,W,M as F or G when possible.
 	  // true U b == F(b)
-	  if (bo.is(op::U) && a.is(op::True))
+	  if (bo.is(op::U) && a.is_tt())
 	    return recurse(formula::F(b));
 	  // false R b == G(b)
-	  if (bo.is(op::R) && a.is(op::False))
+	  if (bo.is(op::R) && a.is_ff())
 	    return recurse(formula::G(b));
 	  // a W false == G(a)
-	  if (bo.is(op::W) && b.is(op::False))
+	  if (bo.is(op::W) && b.is_ff())
 	    return recurse(formula::G(a));
 	  // a M true == F(a)
-	  if (bo.is(op::M) && b.is(op::True))
+	  if (bo.is(op::M) && b.is_tt())
 	    return recurse(formula::F(a));
 
 	  if (bo.is(op::W, op::M) || bo.is(op::U, op::R))
@@ -3292,9 +3292,9 @@ namespace spot
 
       if (f == g)
 	return true;
-      if (g.is(op::True) || f.is(op::False))
+      if (g.is_tt() || f.is_ff())
 	return true;
-      if (g.is(op::False) || f.is(op::True))
+      if (g.is_ff() || f.is_tt())
 	return false;
 
       // Often we compare a literal (an atomic_prop or its negation)

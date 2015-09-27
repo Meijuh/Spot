@@ -67,11 +67,11 @@ namespace spot
 
 	  switch (f.kind())
 	    {
-	    case op::False:
-	    case op::True:
-	    case op::EmptyWord:
+	    case op::ff:
+	    case op::tt:
+	    case op::eword:
 	      return f;
-	    case op::AP:
+	    case op::ap:
 	      if (opts_ & Mut_Ap2Const)
 		{
 		  if (mutation_counter_-- == 0)

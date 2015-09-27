@@ -411,9 +411,9 @@ namespace spot
 
   int acc_cond::is_rabin() const
   {
-    if (code_.is_false())
+    if (code_.is_ff())
       return num_ == 0 ? 0 : -1;
-    if ((num_ & 1) || code_.is_true())
+    if ((num_ & 1) || code_.is_tt())
       return -1;
 
     if (is_rs(code_, acc_op::Or, acc_op::And, all_sets()))
@@ -424,9 +424,9 @@ namespace spot
 
   int acc_cond::is_streett() const
   {
-    if (code_.is_true())
+    if (code_.is_tt())
       return num_ == 0 ? 0 : -1;
-    if ((num_ & 1) || code_.is_false())
+    if ((num_ & 1) || code_.is_ff())
       return -1;
 
     if (is_rs(code_, acc_op::And, acc_op::Or, all_sets()))
@@ -444,7 +444,7 @@ namespace spot
 	pairs.resize(num_);
 	return true;
       }
-    if (code_.is_true()
+    if (code_.is_tt()
 	|| code_.back().op != acc_op::Or)
       return false;
 
@@ -670,7 +670,7 @@ namespace spot
     if (sets == 0)
       {
 	max = true;
-	odd = is_true();
+	odd = is_tt();
 	return true;
       }
     acc_cond::mark_t u_inf;
@@ -1107,7 +1107,7 @@ namespace spot
 
   acc_cond::acc_code acc_cond::acc_code::complement() const
   {
-    if (is_true())
+    if (is_tt())
       return acc_cond::acc_code::f();
     return complement_rec(&back());
   }
@@ -1169,7 +1169,7 @@ namespace spot
   acc_cond::acc_code
   acc_cond::acc_code::strip(acc_cond::mark_t rem, bool missing) const
   {
-    if (is_true() || is_false())
+    if (is_tt() || is_ff())
       return *this;
     return strip_rec(&back(), rem, missing);
   }
@@ -1177,7 +1177,7 @@ namespace spot
   acc_cond::mark_t
   acc_cond::acc_code::used_sets() const
   {
-    if (is_true() || is_false())
+    if (is_tt() || is_ff())
       return 0U;
     acc_cond::mark_t used_in_cond = 0U;
     auto pos = &back();
@@ -1205,7 +1205,7 @@ namespace spot
   std::pair<acc_cond::mark_t, acc_cond::mark_t>
   acc_cond::acc_code::used_inf_fin_sets() const
   {
-    if (is_true() || is_false())
+    if (is_tt() || is_ff())
       return {0U, 0U};
 
     acc_cond::mark_t used_fin = 0U;

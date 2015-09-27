@@ -121,7 +121,7 @@ namespace spot
 	formula
 	visit(formula f)
 	{
-	  if (f.is(op::AP))
+	  if (f.is(op::ap))
 	    return rename(f);
 	  else
 	    return f.map([this](formula f)
@@ -420,7 +420,7 @@ namespace spot
 	formula
 	visit(formula f)
 	{
-	  if (f.is(op::AP) || (c.find(f) != c.end()))
+	  if (f.is(op::ap) || (c.find(f) != c.end()))
 	    return rename(f);
 
 	  unsigned sz = f.size();

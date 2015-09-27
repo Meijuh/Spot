@@ -26,12 +26,12 @@ set -e
 
 # ----
 run 0 ../ltl2text '□◯a' >out
-echo 'G(@5 #0 [X(@4 #0 [AP(@3 #0 "a")])])' > exp
+echo 'G(@5 #0 [X(@4 #0 [ap(@3 #0 "a")])])' > exp
 cmp out exp
 
 # ----
 run 0 ../ltl2text '□◯"αβγ"' >out
-echo 'G(@5 #0 [X(@4 #0 [AP(@3 #0 "αβγ")])])' > exp
+echo 'G(@5 #0 [X(@4 #0 [ap(@3 #0 "αβγ")])])' > exp
 cmp out exp
 
 

@@ -60,9 +60,9 @@ namespace spot
 	    return src;
 
 	  op o = f.kind();
-	  std::string str = (o == op::AP) ? f.ap_name() : f.kindstr();
+	  std::string str = (o == op::ap) ? f.ap_name() : f.kindstr();
 
-	  if (o == op::AP || f.is_constant())
+	  if (o == op::ap || f.is_constant())
 	    *sinks_ << "    " << src << " [label=\""
 		    << str << "\", shape=box];\n";
 	  else
@@ -71,10 +71,10 @@ namespace spot
 	  int childnum = 0;
 	  switch (o)
 	    {
-	    case op::False:
-	    case op::True:
-	    case op::EmptyWord:
-	    case op::AP:
+	    case op::ff:
+	    case op::tt:
+	    case op::eword:
+	    case op::ap:
 	    case op::Not:
 	    case op::X:
 	    case op::F:

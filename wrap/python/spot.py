@@ -124,7 +124,7 @@ def _formula_traverse(self, func):
 
 def _formula_map(self, func):
     k = self.kind()
-    if k in (FalseVal, TrueVal, EmptyWord, AP):
+    if k in (ff, tt, eword, ap):
         return self;
     if k in (Not, X, F, G, Closure, NegClosure, NegClosureMarked):
         return formula.unop(k, func(self[0]))

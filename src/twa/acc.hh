@@ -395,14 +395,14 @@ namespace spot
 	return !(*this == other);
       }
 
-      bool is_true() const
+      bool is_tt() const
       {
 	unsigned s = size();
 	return s == 0
 	  || ((*this)[s - 1].op == acc_op::Inf && (*this)[s - 2].mark == 0U);
       }
 
-      bool is_false() const
+      bool is_ff() const
       {
 	unsigned s = size();
 	return s > 1
@@ -561,12 +561,12 @@ namespace spot
 
       void append_and(acc_code&& r)
       {
-	if (is_true() || r.is_false())
+	if (is_tt() || r.is_ff())
 	  {
 	    *this = std::move(r);
 	    return;
 	  }
-	if (is_false() || r.is_true())
+	if (is_ff() || r.is_tt())
 	  return;
 	unsigned s = size() - 1;
 	unsigned rs = r.size() - 1;
@@ -652,12 +652,12 @@ namespace spot
 
       void append_and(const acc_code& r)
       {
-	if (is_true() || r.is_false())
+	if (is_tt() || r.is_ff())
 	  {
 	    *this = r;
 	    return;
 	  }
-	if (is_false() || r.is_true())
+	if (is_ff() || r.is_tt())
 	  return;
 	unsigned s = size() - 1;
 	unsigned rs = r.size() - 1;
@@ -742,9 +742,9 @@ namespace spot
 
       void append_or(acc_code&& r)
       {
-	if (is_true() || r.is_false())
+	if (is_tt() || r.is_ff())
 	  return;
-	if (is_false() || r.is_true())
+	if (is_ff() || r.is_tt())
 	  {
 	    *this = std::move(r);
 	    return;
@@ -894,14 +894,14 @@ namespace spot
       return uses_fin_acceptance_;
     }
 
-    bool is_true() const
+    bool is_tt() const
     {
-      return code_.is_true();
+      return code_.is_tt();
     }
 
-    bool is_false() const
+    bool is_ff() const
     {
-      return code_.is_false();
+      return code_.is_ff();
     }
 
     bool is_buchi() const

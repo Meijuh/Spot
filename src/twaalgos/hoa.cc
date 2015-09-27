@@ -299,7 +299,7 @@ namespace spot
     acc_cond::acc_code acc_c = aut->acc().get_acceptance();
     if (aut->acc().is_generalized_buchi())
       {
-	if (aut->acc().is_true())
+	if (aut->acc().is_tt())
 	  os << "acc-name: all";
 	else if (aut->acc().is_buchi())
 	  os << "acc-name: Buchi";
@@ -309,7 +309,7 @@ namespace spot
       }
     else if (aut->acc().is_generalized_co_buchi())
       {
-	if (aut->acc().is_false())
+	if (aut->acc().is_ff())
 	  os << "acc-name: none";
 	else if (aut->acc().is_co_buchi())
 	  os << "acc-name: co-Buchi";

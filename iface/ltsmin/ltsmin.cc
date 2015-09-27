@@ -647,12 +647,12 @@ namespace spot
 	// appropriately.  ALIVE_PROP is the bdd that should be ANDed
 	// to all transitions leaving a live state, while DEAD_PROP should
 	// be ANDed to all transitions leaving a dead state.
-	if (dead.is_false())
+	if (dead.is_ff())
 	  {
 	    alive_prop = bddtrue;
 	    dead_prop = bddfalse;
 	  }
-	else if (dead.is_true())
+	else if (dead.is_tt())
 	  {
 	    alive_prop = bddtrue;
 	    dead_prop = bddtrue;

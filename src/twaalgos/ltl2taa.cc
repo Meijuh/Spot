@@ -60,9 +60,9 @@ namespace spot
 	init_ = f;
 	switch (f.kind())
 	  {
-	  case op::False:
+	  case op::ff:
 	    return;
-	  case op::True:
+	  case op::tt:
 	    {
 	      std::vector<formula> empty;
 	      res_->create_transition(init_, empty);
@@ -70,9 +70,9 @@ namespace spot
 	      succ_.push_back(ss);
 	      return;
 	    }
-	  case op::EmptyWord:
+	  case op::eword:
 	    SPOT_UNIMPLEMENTED();
-	  case op::AP:
+	  case op::ap:
 	    {
 	      if (negated_)
 		f = formula::Not(f);

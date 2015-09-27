@@ -47,7 +47,7 @@ namespace spot
 	s = new atomic_prop_set;
       f.traverse([&](const formula& f)
 		 {
-		   if (f.is(op::AP))
+		   if (f.is(op::ap))
 		     s->insert(f);
 		   return false;
 		 });

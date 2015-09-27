@@ -72,11 +72,11 @@ namespace spot
       };
     switch (f.kind())
       {
-      case op::False:
+      case op::ff:
 	return bddfalse;
-      case op::True:
+      case op::tt:
 	return bddtrue;
-      case op::EmptyWord:
+      case op::eword:
       case op::Star:
       case op::FStar:
       case op::F:
@@ -98,7 +98,7 @@ namespace spot
       case op::OrRat:
       case op::AndRat:
 	SPOT_UNIMPLEMENTED();
-      case op::AP:
+      case op::ap:
 	return bdd_ithvar(d->register_proposition(f, owner));
       case op::Not:
 	return bdd_not(recurse(f[0]));

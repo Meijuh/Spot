@@ -37,10 +37,10 @@ namespace spot
       ltl::formula res;
       switch (f.kind())
 	{
-	case op::False:
-	case op::True:
-	case op::EmptyWord:
-	case op::AP:
+	case op::ff:
+	case op::tt:
+	case op::eword:
+	case op::ap:
 	case op::Not:
 	case op::X:
 	case op::F:
@@ -103,10 +103,10 @@ namespace spot
       ltl::formula res;
       switch (f.kind())
 	{
-	case op::False:
-	case op::True:
-	case op::EmptyWord:
-	case op::AP:
+	case op::ff:
+	case op::tt:
+	case op::eword:
+	case op::ap:
 	case op::Not:
 	case op::X:
 	case op::F:

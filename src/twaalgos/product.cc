@@ -81,7 +81,7 @@ namespace spot
 	};
 
       res->set_init_state(new_state(left_state, right_state));
-      if (right_acc.is_false())
+      if (right_acc.is_ff())
 	// Do not bother doing any work if the resulting acceptance is
 	// false.
 	return res;

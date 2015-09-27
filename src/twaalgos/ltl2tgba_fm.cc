@@ -81,7 +81,7 @@ namespace spot
 	  else if (sub.is(op::W))
 	    {
 	      // f W 0 = Gf
-	      if (sub[1].is_false())
+	      if (sub[1].is_ff())
 		implied_subformulae(sub[0], rec, true);
 	    }
 	  else
@@ -90,7 +90,7 @@ namespace spot
 		// in 'f R g' and 'f M g' always evaluate 'g'.
 		formula b = sub;
 		sub = b[1];
-		if (b[0].is_false())
+		if (b[0].is_ff())
 		  {
 		    assert(b.is(op::R)); // because 0 M g = 0
 		    // 0 R f = Gf
@@ -539,7 +539,7 @@ namespace spot
 
       bdd now_to_concat()
       {
-	if (to_concat_ && !to_concat_.is(op::EmptyWord))
+	if (to_concat_ && !to_concat_.is(op::eword))
 	  return recurse(to_concat_);
 	return bddfalse;
       }
@@ -557,14 +557,14 @@ namespace spot
 	    bdd label = bdd_exist(cube, dict_.next_set);
 	    bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
 	    formula dest = dict_.conj_bdd_to_sere(dest_bdd);
-	    if (dest.is(op::EmptyWord))
+	    if (dest.is(op::eword))
 	      {
 		out |= label & next_to_concat();
 	      }
 	    else
 	      {
 		formula dest2 = formula::Concat({dest, to_concat_});
-		if (!dest2.is(op::False))
+		if (!dest2.is_ff())
 		  out |=
 		    label & bdd_ithvar(dict_.register_next_variable(dest2));
 	      }
@@ -576,13 +576,13 @@ namespace spot
       {
 	switch (op o = f.kind())
 	  {
-	  case op::False:
+	  case op::ff:
 	    return bddfalse;
-	  case op::True:
+	  case op::tt:
 	    return next_to_concat();
-	  case op::EmptyWord:
+	  case op::eword:
 	    return now_to_concat();
-	  case op::AP:
+	  case op::ap:
 	    return (bdd_ithvar(dict_.register_proposition(f))
 		    & next_to_concat());
 	  case op::F:
@@ -661,7 +661,7 @@ namespace spot
 			  bdd label = bdd_exist(cube, dict_.next_set);
 			  bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
 			  formula dest = dict_.conj_bdd_to_sere(dest_bdd);
-			  if (dest.is(op::EmptyWord))
+			  if (dest.is(op::eword))
 			    {
 			      res |= label &
 				bdd_ithvar(dict_.register_next_variable(f));
@@ -669,7 +669,7 @@ namespace spot
 			  else
 			    {
 			      formula dest2 = formula::Concat({dest, f});
-			      if (!dest2.is(op::False))
+			      if (!dest2.is_ff())
 				res |= label & bdd_ithvar
 				  (dict_.register_next_variable(dest2));
 			    }
@@ -711,10 +711,10 @@ namespace spot
 
 		      // If the destination is not 0 or [*0], it means it
 		      // can have successors.  Fusion the tail.
-		      if (!dest.is(op::False, op::EmptyWord))
+		      if (!dest.is(op::ff, op::eword))
 			{
 			  formula dest2 = formula::Fusion({dest, f});
-			  if (!dest2.is(op::False))
+			  if (!dest2.is_ff())
 			    res |= label &
 			      bdd_ithvar(dict_.register_next_variable(dest2));
 			}
@@ -858,12 +858,12 @@ namespace spot
 		  // If the destination is not 0 or [*0], it means it
 		  // can have successors.  Fusion the tail and append
 		  // anything to concatenate.
-		  if (!dest.is(op::False, op::EmptyWord))
+		  if (!dest.is(op::ff, op::eword))
 		    {
 		      formula dest2 = formula::Fusion({dest, tail});
 		      if (to_concat_)
 			dest2 = formula::Concat({dest2, to_concat_});
-		      if (!dest2.is(op::False))
+		      if (!dest2.is_ff())
 			res |= label
 			  & bdd_ithvar(dict_.register_next_variable(dest2));
 		    }
@@ -1117,13 +1117,13 @@ namespace spot
       {
 	switch (op o = node.kind())
 	  {
-	  case op::False:
+	  case op::ff:
 	    return bddfalse;
-	  case op::True:
+	  case op::tt:
 	    return bddtrue;
-	  case op::EmptyWord:
+	  case op::eword:
 	    SPOT_UNIMPLEMENTED();
-	  case op::AP:
+	  case op::ap:
 	    return bdd_ithvar(dict_.register_proposition(node));
 	  case op::F:
 	    {
@@ -1248,7 +1248,7 @@ namespace spot
 		  else
 		    {
 		      formula dest2 = formula::unop(o, dest);
-		      if (dest2.is_false())
+		      if (dest2.is_ff())
 			continue;
 		      res |=
 			label & bdd_ithvar(dict_.register_next_variable(dest2));
@@ -1290,7 +1290,7 @@ namespace spot
 		  if (!dest.accepts_eword())
 		    {
 		      formula dest2 = formula::unop(o, dest);
-		      if (dest2.is_false())
+		      if (dest2.is_ff())
 			continue;
 		      res |= label
 			& bdd_ithvar(dict_.register_next_variable(dest2));
@@ -1333,7 +1333,7 @@ namespace spot
 	      // r(f1 W f2) = r(f2) + r(f1)           if recurring
 	      //
 	      // also f1 W 0 = G(f1), so we can enable recurring on f1
-	      bdd f1 = recurse(node[0], node[1].is_false());
+	      bdd f1 = recurse(node[0], node[1].is_ff());
 	      bdd f2 = recurse(node[1]);
 	      if (!recurring_)
 		f1 &= bdd_ithvar(dict_.register_next_variable(node));
@@ -1346,7 +1346,7 @@ namespace spot
 	      // r(f2) is in factor, so we can propagate the recurring_ flag.
 	      // if f1=false, we can also turn it on (0 R f = Gf).
 	      bdd res = recurse(node[1],
-				recurring_ || node[0].is_false());
+				recurring_ || node[0].is_ff());
 	      // r(f1 R f2) = r(f2)(r(f1) + X(f1 R f2))  if not recurring
 	      // r(f1 R f2) = r(f2)                      if recurring
 	      if (recurring_ && !dict_.unambiguous)
@@ -1419,7 +1419,7 @@ namespace spot
 
 		      formula dest2 = formula::binop(o, dest, node[1]);
 		      bool unamb = dict_.unambiguous;
-		      if (!dest2.is(op::False))
+		      if (!dest2.is_ff())
 			{
 			  // If the rhs is Boolean, the
 			  // unambiguous code will produce a more
@@ -1456,14 +1456,14 @@ namespace spot
 		      bdd dest_bdd = bdd_existcomp(cube, dict_.next_set);
 		      formula dest = dict_.conj_bdd_to_sere(dest_bdd);
 
-		      if (dest.is(op::EmptyWord))
+		      if (dest.is(op::eword))
 			{
 			  res |= label & f2;
 			}
 		      else
 			{
 			  formula dest2 = formula::binop(o, dest, node[1]);
-			  if (!dest2.is(op::False))
+			  if (!dest2.is_ff())
 			    res |= label &
 			      bdd_ithvar(dict_.register_next_variable(dest2));
 			  if (dest.accepts_eword())
@@ -2080,7 +2080,7 @@ namespace spot
 		  {
 		    dest = simplifier->simplify(dest);
 		    // Ignore the arc if the destination reduces to false.
-		    if (dest.is_false())
+		    if (dest.is_ff())
 		      continue;
 		  }
 
@@ -2131,11 +2131,11 @@ namespace spot
 	//     f ----> 1
 	//
 	// because there is no point in looping on f if we can go to 1.
-	if (dests.front().dest.is_true())
+	if (dests.front().dest.is_tt())
 	  {
 	    dest_map::iterator i = dests.begin();
 	    bdd c = bddfalse;
-	    while (i != dests.end() && i->dest.is_true())
+	    while (i != dests.end() && i->dest.is_tt())
 	      c |= i++->cond;
 	    for (; i != dests.end(); ++i)
 	      i->cond -= c;
@@ -2158,7 +2158,7 @@ namespace spot
 		  // When translating LTL for an event-based logic
 		  // with unobservable events, the 1 state should
 		  // accept all events, even unobservable events.
-		  if (unobs && t.dest.is_true() && now.is_true())
+		  if (unobs && t.dest.is_tt() && now.is_tt())
 		    t.cond = all_events;
 
 		  // Will this be a new state?

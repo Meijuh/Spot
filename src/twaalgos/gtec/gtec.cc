@@ -133,7 +133,7 @@ namespace spot
   {
     {
       auto acc = ecs_->aut->acc();
-      if (acc.get_acceptance().is_false())
+      if (acc.get_acceptance().is_ff())
 	return nullptr;
       if (acc.uses_fin_acceptance())
 	throw std::runtime_error
@@ -395,7 +395,7 @@ namespace spot
   {
     {
       auto acc = ecs_->aut->acc();
-      if (acc.get_acceptance().is_false())
+      if (acc.get_acceptance().is_ff())
 	return nullptr;
       if (acc.uses_fin_acceptance())
 	throw std::runtime_error

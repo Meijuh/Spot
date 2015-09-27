@@ -311,7 +311,7 @@ namespace spot
 
       auto code = aut->get_acceptance();
 
-      if (code.is_true())
+      if (code.is_tt())
 	return nullptr;
 
       acc_cond::mark_t inf_pairs = 0U;
@@ -586,7 +586,7 @@ namespace spot
 	  auto c = acc.inf(m);
 	  for (unsigned i = 0; i < sz; ++i)
 	    {
-	      if (!code[i].is_true())
+	      if (!code[i].is_tt())
 		continue;
 	      add[i] = m;
 	      code[i].append_and(c);
