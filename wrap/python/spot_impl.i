@@ -295,10 +295,22 @@ namespace std {
 
 #undef ltl
 
+%exception spot::ltl::formula::__getitem__ {
+  try {
+    $action
+  }
+  catch (const std::runtime_error& e)
+  {
+    SWIG_exception(SWIG_IndexError, e.what());
+  }
+}
+
 %extend spot::ltl::formula {
   // __cmp__ is for Python 2.0
   int __cmp__(spot::ltl::formula b) { return self->id() - b.id(); }
   size_t __hash__() { return self->id(); }
+  unsigned __len__() { return self->size(); }
+  formula __getitem__(unsigned pos) { return self->nth(pos); }
 
   std::string __repr__() { return spot::ltl::str_psl(*self); }
   std::string _repr_latex_()

@@ -200,7 +200,6 @@ namespace spot
 
       const fnode* nth(unsigned i) const
       {
-	assert(i < size());
 	if (i >= size())
 	  throw std::runtime_error("access to non-existing child");
 	return children[i];
