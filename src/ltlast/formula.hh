@@ -684,27 +684,43 @@ namespace spot
 
       bool operator<(const formula& other) const noexcept
       {
+	if (SPOT_UNLIKELY(!other.ptr_))
+	  return false;
+	if (SPOT_UNLIKELY(!ptr_))
+	  return true;
 	return id() < other.id();
       }
 
       bool operator<=(const formula& other) const noexcept
       {
+	if (SPOT_UNLIKELY(!other.ptr_))
+	  return !ptr_;
+	if (SPOT_UNLIKELY(!ptr_))
+	  return true;
 	return id() <= other.id();
       }
 
       bool operator>(const formula& other) const noexcept
       {
+	if (SPOT_UNLIKELY(!ptr_))
+	  return false;
+	if (SPOT_UNLIKELY(!other.ptr_))
+	  return true;
 	return id() > other.id();
       }
 
       bool operator>=(const formula& other) const noexcept
       {
+	if (SPOT_UNLIKELY(!ptr_))
+	  return !!other.ptr_;
+	if (SPOT_UNLIKELY(!other.ptr_))
+	  return true;
 	return id() >= other.id();
       }
 
       bool operator==(const formula& other) const noexcept
       {
-	return id() == other.id();
+	return other.ptr_ == ptr_;
       }
 
       bool operator==(std::nullptr_t) const noexcept
@@ -714,10 +730,15 @@ namespace spot
 
       bool operator!=(const formula& other) const noexcept
       {
-	return id() != other.id();
+	return other.ptr_ != ptr_;
       }
 
       bool operator!=(std::nullptr_t) const noexcept
+      {
+	return ptr_ != nullptr;
+      }
+
+      operator bool() const
       {
 	return ptr_ != nullptr;
       }
@@ -928,11 +949,6 @@ namespace spot
       static formula sugar_goto(const formula& b, uint8_t min, uint8_t max);
 
       static formula sugar_equal(const formula& b, uint8_t min, uint8_t max);
-
-      operator bool() const
-      {
-	return ptr_ != nullptr;
-      }
 
 #ifndef SWIG
       const fnode* to_node_()
