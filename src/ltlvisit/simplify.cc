@@ -1659,9 +1659,12 @@ namespace spot
 		  // if a => c, then a U (b R (c W d)) = (b R (c W d))
 		  // if a => c, then a U (b M (c U d)) = (b M (c U d))
 		  // if a => c, then a U (b M (c W d)) = (b M (c W d))
-		  if (b.is(op::R, op::M) && b.nth(1).is(op::U, op::W)
-		      && c_->implication(a, b.nth(1).nth(0)))
-		    return b;
+		  if (b.is(op::R, op::M))
+		    {
+		      auto c1 = b.nth(1);
+		      if (c1.is(op::U, op::W) && c_->implication(a, c1.nth(0)))
+			return b;
+		    }
 		  // if a => b, then (a U c) U b = c U b
 		  // if a => b, then (a W c) U b = c U b
 		  if (a.is(op::U, op::W) && c_->implication(a.nth(0), b))
