@@ -974,6 +974,7 @@ namespace spot
 	return ptr_->is(o);
       }
 
+#ifndef SWIG
       bool is(op o1, op o2) const
       {
 	return ptr_->is(o1, o2);
@@ -983,6 +984,7 @@ namespace spot
       {
 	return ptr_->is(l);
       }
+#endif
 
       formula get_child_of(op o) const
       {
@@ -992,6 +994,7 @@ namespace spot
 	return formula(f);
       }
 
+#ifndef SWIG
       formula get_child_of(std::initializer_list<op> l) const
       {
 	auto f = ptr_->get_child_of(l);
@@ -999,6 +1002,7 @@ namespace spot
 	  f->clone();
 	return formula(f);
       }
+#endif
 
       uint8_t min() const
       {
@@ -1020,6 +1024,7 @@ namespace spot
 	return ptr_->id();
       }
 
+#ifndef SWIG
       class SPOT_API formula_child_iterator final
       {
 	const fnode*const* ptr_;
@@ -1072,6 +1077,7 @@ namespace spot
       {
 	return ptr_->end();
       }
+#endif
 
       formula nth(unsigned i) const
       {
