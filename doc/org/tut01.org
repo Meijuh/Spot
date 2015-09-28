@@ -15,14 +15,16 @@ using different options such as (=--spin=, =--lbt=, =--latex=, etc.).
 Full parentheses can also be requested using =-p=.
 
 #+BEGIN_SRC sh :results verbatim :exports both
-ltlfilt -f '[]<>p0 || <>[]p1' --latex
+ltlfilt -f '[]<>p0 || <>[]p1'
 formula='& & G p0 p1 p2'
+ltlfilt --lbt-input -f "$formula" --latex
 ltlfilt --lbt-input -f "$formula" --lbt
 ltlfilt --lbt-input -f "$formula" --spin -p
 #+END_SRC
 
 #+RESULTS:
-: \G \F p_{0} \lor \F \G p_{1}
+: GFp0 | FGp1
+: p_{1} \land p_{2} \land \G p_{0}
 : & & p1 p2 G p0
 : (p1) && (p2) && ([](p0))
 
@@ -37,15 +39,16 @@ Here are the same operation in Python
 
 #+BEGIN_SRC python :results output :exports both
 import spot
-f = spot.formula('[]<>p0 || <>[]p1')
-print(f.to_str('latex'))
+print(spot.formula('[]<>p0 || <>[]p1'))
 f = spot.formula('& & G p0 p1 p2')
+print(f.to_str('latex'))
 print(f.to_str('lbt'))
 print(f.to_str('spin', parenth=True))
 #+END_SRC
 
 #+RESULTS:
-: \G \F p_{0} \lor \F \G p_{1}
+: GFp0 | FGp1
+: p_{1} \land p_{2} \land \G p_{0}
 : & & p1 p2 G p0
 : (p1) && (p2) && ([](p0))
 
@@ -71,8 +74,9 @@ exceptions.
 
   int main()
   {
-    print_latex_psl(std::cout, spot::parse_formula("[]<>p0 || <>[]p1")) << '\n';
+    std::cout << spot::parse_formula("[]<>p0 || <>[]p1") << '\n';
     spot::formula f = spot::parse_formula("& & G p0 p1 p2");
+    print_latex_psl(std::cout, f) << '\n';
     print_lbt_ltl(std::cout, f) << '\n';
     print_spin_ltl(std::cout, f, true) << '\n';
     return 0;
@@ -80,16 +84,18 @@ exceptions.
 #+END_SRC
 
 #+RESULTS:
-: \G \F p_{0} \lor \F \G p_{1}
+: GFp0 | FGp1
+: p_{1} \land p_{2} \land \G p_{0}
 : & & p1 p2 G p0
 : (p1) && (p2) && ([](p0))
 
-Notice that the different output routines specify in their name the
-syntax the output, and the type of formula they can output.  Here we
-are only using LTL formulas for demonstration, so those three
-functions are OK with that.
+Notice that, except for the =<<= operator, the different output
+routines specify in their name the syntax the output, and the type of
+formula they can output.  Here we are only using LTL formulas for
+demonstration, so those three functions are OK with that.   The
+routine used by =<<= is =print_psl()=.
 
-We do not recommend using this =parse_formula()= interface because of
+We do not recommend using the =parse_formula()= interface because of
 the potential formulas (like =f= or =t=) that have different meanings
 in the two parsers that are tried.
 
@@ -99,7 +105,7 @@ parser.  Additionally, this give you control over how to print errors.
 
 ** Calling the infix parser explicitly
 
-Here is how to call the infix parser explicitly,:
+Here is how to call the infix parser explicitly:
 
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <string>
@@ -114,13 +120,13 @@ Here is how to call the infix parser explicitly,:
     spot::formula f = spot::parse_infix_psl(input, pel);
     if (spot::format_parse_errors(std::cerr, input, pel))
       return 1;
-    print_latex_psl(std::cout, f) << '\n';
+    std::cout << f << '\n';
     return 0;
   }
 #+END_SRC
 
 #+RESULTS:
-: \G \F p_{0} \lor \F \G p_{1}
+: GFp0 | FGp1
 
 So =parse_infix_psl()= processes =input=, and stores any diagnostic in
 =pel=, which is a list of pairs associating each error to a location.
@@ -159,8 +165,7 @@ with the "fixed" formula if you wish.  Here is an example:
     (void) spot::format_parse_errors(std::cout, input, pel);
     if (f == nullptr)
       return 1;
-    std::cout << "Parsed formula: ";
-    print_psl(std::cout, f) << '\n';
+    std::cout << "Parsed formula: " << f << '\n';
     return 0;
   }
 #+END_SRC
@@ -198,6 +203,7 @@ of =parse_infix_psl()=.
     spot::formula f = spot::parse_prefix_ltl(input, pel);
     if (spot::format_parse_errors(std::cerr, input, pel))
       return 1;
+    print_latex_psl(std::cout, f) << '\n';
     print_lbt_ltl(std::cout, f) << '\n';
     print_spin_ltl(std::cout, f, true) << '\n';
     return 0;
@@ -205,6 +211,7 @@ of =parse_infix_psl()=.
 #+END_SRC
 
 #+RESULTS:
+: p_{1} \land p_{2} \land \G p_{0}
 : & & p1 p2 G p0
 : (p1) && (p2) && ([](p0))
 

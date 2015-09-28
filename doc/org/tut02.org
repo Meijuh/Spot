@@ -95,8 +95,7 @@ destructor.
     f = spot::relabel(f, spot::Pnn, &m);
     for (auto& i: m)
       {
-        std::cout << "#define ";
-        print_psl(std::cout, i.first) << " (";
+        std::cout << "#define " << i.first << " (";
         print_spin_ltl(std::cout, i.second, true) << ")\n";
       }
     print_spin_ltl(std::cout, f, true) << '\n';

@@ -164,19 +164,19 @@ namespace spot
       return c;
     }
 
-    uint8_t min() const
+    unsigned min() const
     {
       assert(op_ == op::FStar || op_ == op::Star);
       return min_;
     }
 
-    uint8_t max() const
+    unsigned max() const
     {
       assert(op_ == op::FStar || op_ == op::Star);
       return max_;
     }
 
-    uint8_t size() const
+    unsigned size() const
     {
       return size_;
     }
@@ -1001,17 +1001,17 @@ namespace spot
     }
 #endif
 
-    uint8_t min() const
+    unsigned min() const
     {
       return ptr_->min();
     }
 
-    uint8_t max() const
+    unsigned max() const
     {
       return ptr_->max();
     }
 
-    uint8_t size() const
+    unsigned size() const
     {
       return ptr_->size();
     }
@@ -1258,6 +1258,9 @@ namespace spot
   /// List the properties of formula \a f.
   SPOT_API
   std::list<std::string> list_formula_props(const formula& f);
+
+  SPOT_API
+  std::ostream& operator<<(std::ostream& os, const formula& f);
 }
 
 #ifndef SWIG

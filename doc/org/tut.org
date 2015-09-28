@@ -18,6 +18,10 @@ three interfaces supported by Spot: shell commands, Python, or C++.
 - [[file:tut10.org][Translating an LTL formula into a never claim]]
 - [[file:tut20.org][Converting a never claim into HOA]]
 
+* Examples in Python and C++
+
+- [[file:tut03.org][Constructing and transforming formulas]]
+
 * Examples in C++ only
 
 The following examples are too low-level to be implemented in shell or

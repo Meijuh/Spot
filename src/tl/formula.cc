@@ -27,6 +27,7 @@
 #include <cstring>
 #include <algorithm>
 #include "misc/bareword.hh"
+#include "print.hh"
 
 #ifndef HAVE_STRVERSCMP
 // If the libc does not have this, a version is compiled in lib/.
@@ -1742,5 +1743,10 @@ namespace spot
 #undef proprint
 
     return out;
+  }
+
+  std::ostream& operator<<(std::ostream& os, const formula& f)
+  {
+    return print_psl(os, f);
   }
 }
