@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cycles.hh"
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 #include "isweakscc.hh"
 
 namespace spot

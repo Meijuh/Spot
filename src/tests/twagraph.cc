@@ -21,7 +21,7 @@
 #include <iostream>
 #include "twa/twagraph.hh"
 #include "twaalgos/dot.hh"
-#include "ltlenv/defaultenv.hh"
+#include "tl/defaultenv.hh"
 
 void f1()
 {

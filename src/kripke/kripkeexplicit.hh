@@ -21,7 +21,7 @@
 
 #include <iosfwd>
 #include "kripke.hh"
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 #include "kripkeprint.hh"
 
 namespace spot

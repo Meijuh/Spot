@@ -33,8 +33,8 @@
 #include "common_conv.hh"
 
 #include <sstream>
-#include "ltlvisit/randomltl.hh"
-#include "ltlvisit/simplify.hh"
+#include "tl/randomltl.hh"
+#include "tl/simplify.hh"
 #include "misc/random.hh"
 #include "misc/optionmap.hh"
 

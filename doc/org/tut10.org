@@ -130,7 +130,7 @@ never claim is done via the =print_never_claim= function.
   #include <string>
   #include <iostream>
   #include "ltlparse/public.hh"
-  #include "ltlvisit/print.hh"
+  #include "tl/print.hh"
   #include "twaalgos/translate.hh"
   #include "twaalgos/neverclaim.hh"
 

@@ -20,7 +20,7 @@
 #pragma once
 
 #include "common_sys.hh"
-#include "ltlvisit/simplify.hh"
+#include "tl/simplify.hh"
 
 #define OPT_R 'r'
 

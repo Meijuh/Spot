@@ -67,7 +67,7 @@ exceptions.
 #+BEGIN_SRC C++ :results verbatim :exports both
   #include <iostream>
   #include "ltlparse/public.hh"
-  #include "ltlvisit/print.hh"
+  #include "tl/print.hh"
 
   int main()
   {
@@ -105,7 +105,7 @@ Here is how to call the infix parser explicitly,:
   #include <string>
   #include <iostream>
   #include "ltlparse/public.hh"
-  #include "ltlvisit/print.hh"
+  #include "tl/print.hh"
 
   int main()
   {
@@ -147,7 +147,7 @@ with the "fixed" formula if you wish.  Here is an example:
   #include <string>
   #include <iostream>
   #include "ltlparse/public.hh"
-  #include "ltlvisit/print.hh"
+  #include "tl/print.hh"
 
   int main()
   {
@@ -189,7 +189,7 @@ of =parse_infix_psl()=.
   #include <string>
   #include <iostream>
   #include "ltlparse/public.hh"
-  #include "ltlvisit/print.hh"
+  #include "tl/print.hh"
 
   int main()
   {
@@ -231,7 +231,7 @@ For instance, let's see what happens if a PSL formulas is passed to
   #include <string>
   #include <iostream>
   #include "ltlparse/public.hh"
-  #include "ltlvisit/print.hh"
+  #include "tl/print.hh"
 
   int main()
   {
@@ -261,7 +261,7 @@ The first is to simply diagnose non-LTL formulas.
   #include <string>
   #include <iostream>
   #include "ltlparse/public.hh"
-  #include "ltlvisit/print.hh"
+  #include "tl/print.hh"
 
   int main()
   {
@@ -290,8 +290,8 @@ prepared to reject the formula any way.  In our example, we are lucky
   #include <string>
   #include <iostream>
   #include "ltlparse/public.hh"
-  #include "ltlvisit/print.hh"
-  #include "ltlvisit/simplify.hh"
+  #include "tl/print.hh"
+  #include "tl/simplify.hh"
 
   int main()
   {

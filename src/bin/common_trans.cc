@@ -28,7 +28,7 @@
 
 #include "error.h"
 
-#include "ltlvisit/print.hh"
+#include "tl/print.hh"
 #include "common_conv.hh"
 
 // A set of tools for which we know the correct output

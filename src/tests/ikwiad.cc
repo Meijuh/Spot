@@ -26,9 +26,9 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
-#include "ltlvisit/print.hh"
-#include "ltlvisit/apcollect.hh"
-#include "ltlast/formula.hh"
+#include "tl/print.hh"
+#include "tl/apcollect.hh"
+#include "tl/formula.hh"
 #include "ltlparse/public.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/ltl2taa.hh"

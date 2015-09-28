@@ -81,8 +81,8 @@ destructor.
   #include <string>
   #include <iostream>
   #include "ltlparse/public.hh"
-  #include "ltlvisit/print.hh"
-  #include "ltlvisit/relabel.hh"
+  #include "tl/print.hh"
+  #include "tl/relabel.hh"
 
   int main()
   {

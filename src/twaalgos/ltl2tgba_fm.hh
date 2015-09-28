@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 #include "twa/twagraph.hh"
-#include "ltlvisit/apcollect.hh"
-#include "ltlvisit/simplify.hh"
+#include "tl/apcollect.hh"
+#include "tl/simplify.hh"
 
 namespace spot
 {

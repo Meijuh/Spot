@@ -27,10 +27,10 @@
 #include <cstdlib>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlvisit/unabbrev.hh"
-#include "ltlvisit/nenoform.hh"
-#include "ltlvisit/simplify.hh"
-#include "ltlvisit/print.hh"
+#include "tl/unabbrev.hh"
+#include "tl/nenoform.hh"
+#include "tl/simplify.hh"
+#include "tl/print.hh"
 
 void
 syntax(char* prog)

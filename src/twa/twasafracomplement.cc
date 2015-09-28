@@ -30,7 +30,7 @@
 #include "twa/bdddict.hh"
 #include "twa/twa.hh"
 #include "misc/hashfunc.hh"
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 #include "twaalgos/dot.hh"
 #include "twa/twasafracomplement.hh"
 #include "twaalgos/degen.hh"

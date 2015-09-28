@@ -20,7 +20,7 @@
 #pragma once
 
 #include "twa/twagraph.hh"
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 
 namespace spot
 {

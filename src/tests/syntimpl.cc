@@ -24,9 +24,9 @@
 #include <cassert>
 #include <cstdlib>
 #include "ltlparse/public.hh"
-#include "ltlvisit/print.hh"
-#include "ltlvisit/simplify.hh"
-#include "ltlvisit/nenoform.hh"
+#include "tl/print.hh"
+#include "tl/simplify.hh"
+#include "tl/nenoform.hh"
 
 void
 syntax(char* prog)

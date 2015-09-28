@@ -25,7 +25,7 @@
 #include "twa/twa.hh"
 #include "stats.hh"
 #include "reachiter.hh"
-#include "ltlvisit/print.hh"
+#include "tl/print.hh"
 #include "twaalgos/isdet.hh"
 #include "twaalgos/sccinfo.hh"
 

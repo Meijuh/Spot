@@ -24,7 +24,7 @@
 #include <cassert>
 #include <ostream>
 #include "bddprint.hh"
-#include "ltlvisit/print.hh"
+#include "tl/print.hh"
 #include "formula2bdd.hh"
 #include "misc/minato.hh"
 

@@ -25,8 +25,7 @@
 #include "twaalgos/stutter.hh"
 #include "twaalgos/dupexp.hh"
 #include "twaalgos/stats.hh"
-#include "ltlvisit/apcollect.hh"
-#include "ltlvisit/length.hh"
+#include "tl/apcollect.hh"
 #include "misc/timer.hh"
 #include <argp.h>
 

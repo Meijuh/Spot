@@ -23,11 +23,11 @@
 #include "misc/hash.hh"
 #include "misc/bddlt.hh"
 #include "misc/minato.hh"
-#include "ltlvisit/nenoform.hh"
-#include "ltlvisit/print.hh"
-#include "ltlvisit/apcollect.hh"
-#include "ltlvisit/mark.hh"
-#include "ltlvisit/print.hh"
+#include "tl/nenoform.hh"
+#include "tl/print.hh"
+#include "tl/apcollect.hh"
+#include "tl/mark.hh"
+#include "tl/print.hh"
 #include <cassert>
 #include <memory>
 #include <utility>

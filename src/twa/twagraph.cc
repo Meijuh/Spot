@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "twagraph.hh"
-#include "ltlvisit/print.hh"
+#include "tl/print.hh"
 
 namespace spot
 {

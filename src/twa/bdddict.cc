@@ -23,9 +23,9 @@
 #include <ostream>
 #include <sstream>
 #include <cassert>
-#include <ltlvisit/print.hh>
-#include <ltlast/formula.hh>
-#include <ltlenv/defaultenv.hh>
+#include "tl/print.hh"
+#include "tl/formula.hh"
+#include "tl/defaultenv.hh"
 #include "priv/bddalloc.hh"
 #include "bdddict.hh"
 

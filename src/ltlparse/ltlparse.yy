@@ -35,8 +35,8 @@
 #include <string>
 #include <sstream>
 #include "public.hh"
-#include "ltlast/formula.hh"
-#include "ltlvisit/print.hh"
+#include "tl/formula.hh"
+#include "tl/print.hh"
 
   struct minmax_t { unsigned min, max; };
 }

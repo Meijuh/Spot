@@ -26,7 +26,7 @@
 #include "twa/bddprint.hh"
 #include "twa/twagraph.hh"
 #include "reachiter.hh"
-#include "ltlvisit/print.hh"
+#include "tl/print.hh"
 #include "twa/formula2bdd.hh"
 
 namespace spot

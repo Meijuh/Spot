@@ -32,7 +32,7 @@
 #include "misc/bddlt.hh"
 #include "misc/minato.hh"
 #include "twa/formula2bdd.hh"
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 
 namespace spot
 {

@@ -86,8 +86,8 @@
 #include <string>
 #include <cstdlib>
 #include <cstring>
-#include "ltlast/formula.hh"
-#include "ltlvisit/relabel.hh"
+#include "tl/formula.hh"
+#include "tl/relabel.hh"
 
 using namespace spot;
 using namespace spot::ltl;

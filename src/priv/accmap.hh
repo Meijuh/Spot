@@ -21,7 +21,7 @@
 
 #include <bddx.h>
 #include "misc/hash.hh"
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 #include "twa/twagraph.hh"
 
 namespace spot

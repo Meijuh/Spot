@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <vector>
-#include "ltlenv/defaultenv.hh"
+#include "tl/defaultenv.hh"
 #include <iostream>
 
 namespace spot

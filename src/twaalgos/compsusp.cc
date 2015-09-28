@@ -25,10 +25,10 @@
 #include "minimize.hh"
 #include "simulation.hh"
 #include "safety.hh"
-#include "ltlvisit/print.hh"
+#include "tl/print.hh"
 #include <queue>
 #include <sstream>
-#include "ltlenv/environment.hh"
+#include "tl/environment.hh"
 
 namespace spot
 {

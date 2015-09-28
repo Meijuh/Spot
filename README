@@ -140,10 +140,8 @@ src/              Sources for libspot.
    graph/         Graph representations.
    kripke/        Kripke Structure interface.
    kripkeparse/   Parser for explicit Kripke.
-   ltlast/        LTL abstract syntax tree (including nodes for ELTL).
-   ltlenv/        LTL environments.
+   tl/            Temporal Logic formulas and algorithms.
    ltlparse/      Parser for LTL formulae.
-   ltlvisit/      Visitors of LTL formulae.
    misc/          Miscellaneous support files.
    parseaut/      Parser for automata in multiple formats.
    priv/          Private algorithms, used internally but not exported.

@@ -20,7 +20,7 @@
 #include <iostream>
 #include <cassert>
 #include "misc/hash.hh"
-#include "ltlenv/defaultenv.hh"
+#include "tl/defaultenv.hh"
 #include "twaalgos/dot.hh"
 #include "twa/taatgba.hh"
 

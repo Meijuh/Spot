@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include "ltlvisit/apcollect.hh"
-#include "ltlenv/defaultenv.hh"
+#include "tl/apcollect.hh"
+#include "tl/defaultenv.hh"
 #include "twa/bdddict.hh"
 #include "twa/acc.hh"
 

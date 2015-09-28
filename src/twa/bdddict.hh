@@ -29,7 +29,7 @@
 #include <bddx.h>
 #include <vector>
 #include <memory>
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 
 namespace spot
 {

@@ -33,8 +33,8 @@
 #include "common_aoutput.hh"
 #include "common_post.hh"
 
-#include "ltlast/formula.hh"
-#include "ltlvisit/print.hh"
+#include "tl/formula.hh"
+#include "tl/print.hh"
 #include "twaalgos/translate.hh"
 #include "misc/optionmap.hh"
 #include "misc/timer.hh"

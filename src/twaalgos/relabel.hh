@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "ltlvisit/relabel.hh"
+#include "tl/relabel.hh"
 #include "twa/twagraph.hh"
 
 namespace spot

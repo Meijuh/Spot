@@ -41,6 +41,11 @@ New in spot 1.99.3a (not yet released)
       more friendly, and several algorithms that spanned a few pages
       have been reduced to a few lines.
 
+  * The source directories ltlast/, ltlenv/, and ltlvisit/, have been
+    merged into a single tl/ directory (for temporal logic).  This is
+    motivated by the fact that these formulas are not restricted to
+    LTL, and by the fact that we no longuer use the "visitor" pattern.
+
 New in spot 1.99.3 (2015-08-26)
 
   * The CGI script for LTL translation offers a HOA download link

@@ -21,7 +21,7 @@
 #include "common_output.hh"
 #include <iostream>
 #include <sstream>
-#include "ltlvisit/print.hh"
+#include "tl/print.hh"
 #include "misc/formater.hh"
 #include "misc/escape.hh"
 #include "common_cout.hh"

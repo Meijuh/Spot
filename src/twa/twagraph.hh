@@ -25,7 +25,7 @@
 #include "twa/bdddict.hh"
 #include "twa/twa.hh"
 #include "twaalgos/dupexp.hh"
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 #include <sstream>
 
 namespace spot

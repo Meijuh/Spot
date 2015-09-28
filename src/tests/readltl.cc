@@ -25,7 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlvisit/dot.hh"
+#include "tl/dot.hh"
 
 void
 syntax(char* prog)

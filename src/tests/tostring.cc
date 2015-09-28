@@ -24,7 +24,7 @@
 #include <cassert>
 #include <cstdlib>
 #include "ltlparse/public.hh"
-#include "ltlvisit/print.hh"
+#include "tl/print.hh"
 
 void
 syntax(char *prog)

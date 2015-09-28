@@ -20,7 +20,7 @@
 #pragma once
 
 #include "kripke/kripke.hh"
-#include "ltlvisit/apcollect.hh"
+#include "tl/apcollect.hh"
 
 namespace spot
 {

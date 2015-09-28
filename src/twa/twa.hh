@@ -33,7 +33,7 @@
 #include <vector>
 #include "misc/casts.hh"
 #include "misc/hash.hh"
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 
 namespace spot
 {

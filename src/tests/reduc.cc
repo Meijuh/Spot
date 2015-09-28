@@ -27,9 +27,9 @@
 #include <string>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlvisit/print.hh"
-#include "ltlvisit/simplify.hh"
-#include "ltlvisit/length.hh"
+#include "tl/print.hh"
+#include "tl/simplify.hh"
+#include "tl/length.hh"
 
 void
 syntax(char* prog)

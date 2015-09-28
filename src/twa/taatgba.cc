@@ -22,7 +22,7 @@
 #include <iterator>
 #include <iostream>
 #include "twa/formula2bdd.hh"
-#include "ltlvisit/print.hh"
+#include "tl/print.hh"
 #include "taatgba.hh"
 
 namespace spot

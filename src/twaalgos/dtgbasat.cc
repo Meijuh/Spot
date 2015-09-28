@@ -27,7 +27,7 @@
 #include "sccinfo.hh"
 #include "twa/bddprint.hh"
 #include "stats.hh"
-#include "ltlenv/defaultenv.hh"
+#include "tl/defaultenv.hh"
 #include "misc/satsolver.hh"
 #include "misc/timer.hh"
 #include "isweakscc.hh"

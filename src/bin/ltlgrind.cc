@@ -27,7 +27,7 @@
 #include "common_output.hh"
 #include "common_conv.hh"
 
-#include "ltlvisit/mutation.hh"
+#include "tl/mutation.hh"
 
 enum {
   OPT_AP2CONST = 1,

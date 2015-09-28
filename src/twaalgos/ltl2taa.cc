@@ -19,9 +19,9 @@
 
 #include <utility>
 #include <algorithm>
-#include "ltlvisit/unabbrev.hh"
-#include "ltlvisit/nenoform.hh"
-#include "ltlvisit/contain.hh"
+#include "tl/unabbrev.hh"
+#include "tl/nenoform.hh"
+#include "tl/contain.hh"
 #include "ltl2taa.hh"
 
 namespace spot

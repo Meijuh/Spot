@@ -25,25 +25,22 @@ AUTOMAKE_OPTIONS = subdir-objects
 # List directories in the order they must be built.  Keep tests at the
 # end, after building '.' (since the current directory contains
 # libspot.la needed by the tests)
-SUBDIRS = misc priv ltlenv ltlast ltlvisit ltlparse graph twa		\
-          twaalgos ta taalgos kripke kripkeparse parseaut . bin tests	\
-          sanity
+SUBDIRS = misc priv tl ltlparse graph twa twaalgos ta taalgos kripke	\
+          kripkeparse parseaut . bin tests sanity
 
 lib_LTLIBRARIES = libspot.la
 libspot_la_SOURCES =
 libspot_la_LDFLAGS = $(BUDDY_LDFLAGS) -no-undefined
 libspot_la_LIBADD =  \
-  parseaut/libparseaut.la \
   kripke/libkripke.la \
   kripkeparse/libkripkeparse.la \
-  ltlast/libltlast.la \
-  ltlenv/libltlenv.la \
   ltlparse/libltlparse.la \
-  ltlvisit/libltlvisit.la \
   misc/libmisc.la \
+  parseaut/libparseaut.la \
   priv/libpriv.la \
   taalgos/libtaalgos.la \
   ta/libta.la \
+  tl/libtl.la \
   twaalgos/libtwaalgos.la \
   twa/libtwa.la \
   ../lib/libgnu.la

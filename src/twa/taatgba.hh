@@ -24,7 +24,7 @@
 #include <vector>
 #include <string>
 #include "misc/hash.hh"
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 #include "bdddict.hh"
 #include "twa.hh"
 

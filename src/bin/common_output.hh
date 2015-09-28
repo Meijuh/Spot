@@ -24,7 +24,7 @@
 #include <argp.h>
 #include <map>
 #include <memory>
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 #include "twaalgos/stats.hh"
 #include "common_output.hh"
 #include "common_file.hh"

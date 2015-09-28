@@ -200,28 +200,26 @@ AC_CONFIG_FILES([
   lib/Makefile
   src/bin/Makefile
   src/bin/man/Makefile
-  src/kripke/Makefile
   src/graph/Makefile
-  src/parseaut/Makefile
-  src/ltlast/Makefile
-  src/ltlenv/Makefile
-  src/ltlparse/Makefile
+  src/kripke/Makefile
   src/kripkeparse/Makefile
-  src/ltlvisit/Makefile
+  src/ltlparse/Makefile
   src/Makefile
   src/misc/Makefile
+  src/parseaut/Makefile
   src/priv/Makefile
   src/sanity/Makefile
-  src/twaalgos/gtec/Makefile
-  src/twaalgos/Makefile
-  src/twa/Makefile
   src/taalgos/Makefile
   src/ta/Makefile
   src/tests/defs
   src/tests/Makefile
+  src/tl/Makefile
+  src/twaalgos/gtec/Makefile
+  src/twaalgos/Makefile
+  src/twa/Makefile
   wrap/Makefile
-  wrap/python/Makefile
   wrap/python/ajax/Makefile
+  wrap/python/Makefile
   wrap/python/tests/Makefile
   tools/x-to-1
 ])

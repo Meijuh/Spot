@@ -22,7 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "ltlparse/public.hh"
-#include "ltlvisit/length.hh"
+#include "tl/length.hh"
 
 void
 syntax(char *prog)

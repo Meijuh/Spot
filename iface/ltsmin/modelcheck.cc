@@ -19,7 +19,7 @@
 
 #include "ltsmin.hh"
 #include "twaalgos/dot.hh"
-#include "ltlenv/defaultenv.hh"
+#include "tl/defaultenv.hh"
 #include "ltlparse/public.hh"
 #include "twaalgos/translate.hh"
 #include "twaalgos/emptiness.hh"

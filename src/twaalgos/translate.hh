@@ -20,7 +20,7 @@
 #pragma once
 
 #include "postproc.hh"
-#include "ltlvisit/simplify.hh"
+#include "tl/simplify.hh"
 
 namespace spot
 {

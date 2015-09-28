@@ -23,7 +23,7 @@
 #include <list>
 #include "twa/twa.hh"
 #include <set>
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 #include <cassert>
 #include "misc/bddlt.hh"
 #include "taexplicit.hh"

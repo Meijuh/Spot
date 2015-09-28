@@ -33,8 +33,8 @@
 #include "common_post.hh"
 
 #include "ltlparse/public.hh"
-#include "ltlvisit/print.hh"
-#include "ltlvisit/simplify.hh"
+#include "tl/print.hh"
+#include "tl/simplify.hh"
 #include "twaalgos/dot.hh"
 #include "twaalgos/ltl2tgba_fm.hh"
 #include "twaalgos/translate.hh"

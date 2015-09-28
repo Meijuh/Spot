@@ -35,7 +35,7 @@
 #include "common_post.hh"
 #include "common_trans.hh"
 
-#include "ltlvisit/relabel.hh"
+#include "tl/relabel.hh"
 #include "misc/bareword.hh"
 #include "misc/timer.hh"
 #include "twaalgos/lbtt.hh"

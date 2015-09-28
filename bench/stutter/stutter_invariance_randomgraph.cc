@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "misc/timer.hh"
-#include "ltlvisit/apcollect.hh"
+#include "tl/apcollect.hh"
 #include "twaalgos/dtgbacomp.hh"
 #include "twaalgos/randomgraph.hh"
 #include "twaalgos/dot.hh"

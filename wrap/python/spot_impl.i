@@ -80,25 +80,25 @@
 #include "misc/optionmap.hh"
 #include "misc/random.hh"
 
-#include "ltlast/formula.hh"
+#include "tl/formula.hh"
 
-#include "ltlenv/environment.hh"
-#include "ltlenv/defaultenv.hh"
+#include "tl/environment.hh"
+#include "tl/defaultenv.hh"
 
 #include "ltlparse/public.hh"
 
 #include "twa/bdddict.hh"
 
-#include "ltlvisit/apcollect.hh"
-#include "ltlvisit/dot.hh"
-#include "ltlvisit/nenoform.hh"
-#include "ltlvisit/print.hh"
-#include "ltlvisit/simplify.hh"
-#include "ltlvisit/unabbrev.hh"
-#include "ltlvisit/randomltl.hh"
-#include "ltlvisit/length.hh"
-#include "ltlvisit/remove_x.hh"
-#include "ltlvisit/relabel.hh"
+#include "tl/apcollect.hh"
+#include "tl/dot.hh"
+#include "tl/nenoform.hh"
+#include "tl/print.hh"
+#include "tl/simplify.hh"
+#include "tl/unabbrev.hh"
+#include "tl/randomltl.hh"
+#include "tl/length.hh"
+#include "tl/remove_x.hh"
+#include "tl/relabel.hh"
 
 #include "twa/bddprint.hh"
 #include "twa/fwd.hh"
@@ -211,7 +211,7 @@ using namespace spot;
 
 %implicitconv std::vector<spot::ltl::formula>;
 
-%include "ltlast/formula.hh"
+%include "tl/formula.hh"
 
 namespace std {
   %template(liststr) list<std::string>;
@@ -220,8 +220,8 @@ namespace std {
   %template(relabeling_map) map<spot::ltl::formula, spot::ltl::formula>;
 }
 
-%include "ltlenv/environment.hh"
-%include "ltlenv/defaultenv.hh"
+%include "tl/environment.hh"
+%include "tl/defaultenv.hh"
 
 %include "ltlparse/public.hh"
 
@@ -235,16 +235,16 @@ namespace std {
 %include "twa/acc.hh"
 %include "twa/twa.hh"
 
-%include "ltlvisit/apcollect.hh"
-%include "ltlvisit/dot.hh"
-%include "ltlvisit/nenoform.hh"
-%include "ltlvisit/print.hh"
-%include "ltlvisit/simplify.hh"
-%include "ltlvisit/unabbrev.hh"
-%include "ltlvisit/randomltl.hh"
-%include "ltlvisit/length.hh"
-%include "ltlvisit/remove_x.hh"
-%include "ltlvisit/relabel.hh"
+%include "tl/apcollect.hh"
+%include "tl/dot.hh"
+%include "tl/nenoform.hh"
+%include "tl/print.hh"
+%include "tl/simplify.hh"
+%include "tl/unabbrev.hh"
+%include "tl/randomltl.hh"
+%include "tl/length.hh"
+%include "tl/remove_x.hh"
+%include "tl/relabel.hh"
 
 // Help SWIG with namespace lookups.
 #define ltl spot::ltl

@@ -21,7 +21,7 @@
 
 #include "kripke/kripkeexplicit.hh"
 #include "misc/location.hh"
-#include "ltlenv/defaultenv.hh"
+#include "tl/defaultenv.hh"
 #include <string>
 #include <list>
 #include <utility>
